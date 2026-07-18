@@ -1,0 +1,422 @@
+{
+  "track": "INTEG",
+  "title": "System Integration Track - Manufacturing↔ERP Integration",
+  "description": "Lane 21: Closes integration gaps between manufacturing and ERP subsystems identified by 20-agent integration scrutiny (2026-04-13)",
+  "source": "20-agent integration scrutiny: 82 dispatchers, 4,296 actions, 1,559 engines analyzed",
+  "created_at": "2026-04-13",
+  "updated_at": "2026-04-13",
+  "total_milestones": 7,
+  "total_units": 30,
+  "total_sessions": "22-25 (adjusted from 16 per R7 scrutiny)",
+  "progress": {
+    "milestones_complete": 4,
+    "units_complete": 16
+  },
+  "milestones": [
+    {
+      "id": "INTEG-MS0",
+      "title": "EventBus ERP Event Categories",
+      "priority": "P0-CRITICAL",
+      "status": "complete",
+      "completed_at": "2026-04-13",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-INTEG01",
+          "title": "Add Invoice Events",
+          "description": "invoice.created, invoice.sent, invoice.paid, invoice.overdue, invoice.voided"
+        },
+        {
+          "id": "U-INTEG02",
+          "title": "Add GL Events",
+          "description": "gl.posted, gl.period_closed, gl.reconciled, gl.adjustment"
+        },
+        {
+          "id": "U-INTEG03",
+          "title": "Add Accounting Events",
+          "description": "accounting.revenue_recognized, accounting.cost_accrued, accounting.margin_calculated"
+        },
+        {
+          "id": "U-INTEG04",
+          "title": "Add Shipping Events",
+          "description": "shipping.dispatched, shipping.in_transit, shipping.delivered, shipping.returned"
+        }
+      ],
+      "exit_gate": "All 4 event categories in EventBus | Type-safe event payloads | Tests for each event type",
+      "forge_triple": {
+        "hook": "eventbus-erp-coverage",
+        "action": "prism_infra:eventbus_health",
+        "skill": "/eventbus-audit"
+      }
+    },
+    {
+      "id": "INTEG-MS1",
+      "title": "Manufacturing→ERP Auto-Trigger Chain",
+      "priority": "P0-CRITICAL",
+      "status": "complete",
+      "completed_at": "2026-04-13",
+      "dependencies": ["INTEG-MS0"],
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-INTEG05",
+          "title": "Job→Invoice Hook",
+          "description": "HookExecutor phase 'post-job-complete' emits invoice.created via InvoicingEngine"
+        },
+        {
+          "id": "U-INTEG06",
+          "title": "Quality→Ship Hook",
+          "description": "quality.gate.passed + shipping_authorized → shipping.dispatched"
+        },
+        {
+          "id": "U-INTEG07",
+          "title": "Ship→GL Hook",
+          "description": "shipping.delivered → gl.revenue_recognized (configurable recognition rules)"
+        },
+        {
+          "id": "U-INTEG08",
+          "title": "Cost Rollup Hook",
+          "description": "job.completed → actual cost aggregation → margin calculation → gl.cost_accrued"
+        },
+        {
+          "id": "U-INTEG09",
+          "title": "Reactive Chain Wiring",
+          "description": "Register 4 new EventBus reactive chains for the above flows"
+        }
+      ],
+      "exit_gate": "job.completed → invoice.created in <5s | All 4 chains testable | Manual override available",
+      "forge_triple": {
+        "hook": "erp-chain-completeness",
+        "action": "prism_business:erp_chain_status",
+        "skill": "/erp-flow"
+      }
+    },
+    {
+      "id": "INTEG-MS2",
+      "title": "PersistenceBridge WAL (Crash-Safe Queue)",
+      "priority": "P1-HIGH",
+      "dependencies": [],
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-INTEG10",
+          "title": "WAL File Format",
+          "description": "Append-only log with sequence numbers, operation type, payload hash"
+        },
+        {
+          "id": "U-INTEG11",
+          "title": "Write Protocol",
+          "description": "WAL append → PostgreSQL write → WAL checkpoint → acknowledge"
+        },
+        {
+          "id": "U-INTEG12",
+          "title": "Recovery Protocol",
+          "description": "On startup, replay uncommitted WAL entries, dedupe by sequence"
+        },
+        {
+          "id": "U-INTEG13",
+          "title": "WAL Compaction",
+          "description": "Background compaction of checkpointed entries, configurable retention"
+        }
+      ],
+      "exit_gate": "Zero data loss on simulated crash | Recovery time <10s for 1000 entries | WAL overhead <5%",
+      "forge_triple": {
+        "hook": "persistence-wal-guard",
+        "action": "prism_infra:wal_health",
+        "skill": "/wal-audit"
+      }
+    },
+    {
+      "id": "INTEG-MS3",
+      "title": "CycleTime→Scheduling Auto-Bridge",
+      "priority": "P1-HIGH",
+      "status": "complete",
+      "completed_at": "2026-04-14",
+      "dependencies": [],
+      "sessions": 1,
+      "units": [
+        {
+          "id": "U-INTEG14",
+          "title": "CycleTime Event Emission",
+          "description": "CycleTimeEstimator emits estimate.calculated with job_id, machine_id, duration"
+        },
+        {
+          "id": "U-INTEG15",
+          "title": "Capacity Consumer Hook",
+          "description": "CapacityPlanningEngine subscribes to estimate.calculated, updates load forecast"
+        },
+        {
+          "id": "U-INTEG16",
+          "title": "Scheduling Consumer Hook",
+          "description": "SchedulingEngine subscribes to capacity.updated, re-optimizes queue"
+        },
+        {
+          "id": "U-INTEG17",
+          "title": "Feedback Loop",
+          "description": "actual.duration (from job.completed) → CycleTimeEstimator calibration factor"
+        }
+      ],
+      "exit_gate": "New quote → auto capacity update in <2s | Scheduling reflects estimates | Calibration improves ±10%/month",
+      "forge_triple": {
+        "hook": "cycle-scheduling-bridge",
+        "action": "prism_scheduling:capacity_sync",
+        "skill": "/capacity-health"
+      }
+    },
+    {
+      "id": "INTEG-MS4",
+      "title": "Chatter→Registry Dynamics Wiring",
+      "priority": "P2-MEDIUM",
+      "status": "complete",
+      "completed_at": "2026-04-14",
+      "dependencies": [],
+      "sessions": 1,
+      "units": [
+        {
+          "id": "U-INTEG18",
+          "title": "FRF Data Schema",
+          "description": "Add frf_data field to MachineRegistry entries (frequency, compliance, damping)"
+        },
+        {
+          "id": "U-INTEG19",
+          "title": "Registry Lookup",
+          "description": "ChatterStabilityLobeEngine queries MachineRegistry.getFRF(machine_id) at init"
+        },
+        {
+          "id": "U-INTEG20",
+          "title": "Fallback Defaults",
+          "description": "If no FRF data, use conservative defaults by machine class (VMC, lathe, 5-axis)"
+        }
+      ],
+      "exit_gate": "ChatterStabilityLobe uses registry FRF for JM Die machines | Fallback for unknown machines",
+      "forge_triple": {
+        "hook": "chatter-registry-wiring",
+        "action": "prism_calc:chatter_dynamics_source",
+        "skill": "/chatter-audit"
+      }
+    },
+    {
+      "id": "INTEG-MS5",
+      "title": "Frontend Dispatcher Coverage",
+      "priority": "P2-MEDIUM",
+      "dependencies": ["FMERGE-MS1"],
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-INTEG21",
+          "title": "Dispatcher UI Audit",
+          "description": "Catalog all 82 dispatchers, map to existing pages, identify gaps"
+        },
+        {
+          "id": "U-INTEG22",
+          "title": "Priority Triage",
+          "description": "Rank orphaned dispatchers by user value (autonomous, memory, tenant = high)"
+        },
+        {
+          "id": "U-INTEG23",
+          "title": "Autonomous Task Dashboard",
+          "description": "UI for prism_autonomous: task list, status, start/stop/retry"
+        },
+        {
+          "id": "U-INTEG24",
+          "title": "Memory Graph Visualizer",
+          "description": "UI for prism_memory: knowledge graph explorer, search, relationships"
+        },
+        {
+          "id": "U-INTEG25",
+          "title": "Multi-Tenant Admin",
+          "description": "UI for prism_tenant: tenant CRUD, user assignment, usage metrics"
+        },
+        {
+          "id": "U-INTEG26",
+          "title": "Remaining Pages",
+          "description": "NL Hook Editor, Predictive Failure Dashboard, Scientific Math Visualizer"
+        }
+      ],
+      "exit_gate": "≤10 dispatchers without UI | High-value dispatchers covered | Route health check passes",
+      "forge_triple": {
+        "hook": "dispatcher-ui-coverage",
+        "action": "prism_dev:dispatcher_ui_audit",
+        "skill": "/ui-coverage"
+      }
+    },
+    {
+      "id": "INTEG-MS6",
+      "title": "Offline/Optimistic Frontend Updates",
+      "priority": "P2-MEDIUM",
+      "dependencies": [],
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-INTEG27",
+          "title": "Offline Queue",
+          "description": "IndexedDB-backed queue for mutations during offline, FIFO replay on reconnect"
+        },
+        {
+          "id": "U-INTEG28",
+          "title": "Optimistic Updates",
+          "description": "UI updates immediately on user action, reverts on server rejection"
+        },
+        {
+          "id": "U-INTEG29",
+          "title": "Conflict Resolution",
+          "description": "Last-write-wins with user notification for conflicts, manual merge option"
+        },
+        {
+          "id": "U-INTEG30",
+          "title": "Sync Status Indicator",
+          "description": "Persistent UI indicator showing online/offline/syncing/conflict states"
+        }
+      ],
+      "exit_gate": "5-minute offline session syncs cleanly | Optimistic updates feel instant | Conflicts surfaced to user",
+      "forge_triple": {
+        "hook": "offline-sync-guard",
+        "action": "prism_dev:offline_health",
+        "skill": "/offline-audit"
+      }
+    }
+  ],
+  "dependency_dag": "INTEG-MS0 → INTEG-MS1\nINTEG-MS2 (independent)\nINTEG-MS3 (independent)\nINTEG-MS4 (independent)\nFMERGE-MS1 → INTEG-MS5\nINTEG-MS6 (independent)",
+  "parallelization_note": "INTEG-MS2, MS3, MS4, MS6 can all start immediately. INTEG-MS0→MS1 is critical path for ERP integration. INTEG-MS5 waits for FMERGE-MS1.",
+  "optimized_sessions": "16 sessions → 6 sessions with 4 agents (2.7x speedup)",
+  "scrutiny_round_7": {
+    "date": "2026-04-13",
+    "method": "10-agent convergence pass (MS-specific + cross-cutting audits)",
+    "agents": [
+      "INTEG-MS0 EventBus Events",
+      "INTEG-MS1 Auto-Trigger Chain",
+      "INTEG-MS2 WAL Audit",
+      "INTEG-MS3 CycleTime→Scheduling",
+      "INTEG-MS4 Chatter→Registry",
+      "INTEG-MS5 Dispatcher UI Coverage",
+      "INTEG-MS6 Offline/Optimistic",
+      "Session Estimate Reality Check",
+      "Engine/Route Collision Check",
+      "Cross-Track Dependency Audit"
+    ],
+    "session_estimate_adjustment": {
+      "original_total": 16,
+      "adjusted_total": "22-25",
+      "by_milestone": {
+        "INTEG-MS0": {"original": 2, "adjusted": 1, "reason": "EventBus already mature, just type additions"},
+        "INTEG-MS1": {"original": 3, "adjusted": 4, "reason": "Cross-system chain wiring (job→invoice→ship→GL) is tricky"},
+        "INTEG-MS2": {"original": 2, "adjusted": "5-6", "reason": "SEVERELY UNDERESTIMATED: WAL is database-level infrastructure (file format, write protocol, recovery, compaction)"},
+        "INTEG-MS3": {"original": 2, "adjusted": 2, "reason": "Accurate — event wiring between existing engines"},
+        "INTEG-MS4": {"original": 2, "adjusted": 1, "reason": "Simple schema + lookup, ChatterStabilityLobeEngine ready"},
+        "INTEG-MS5": {"original": 3, "adjusted": "5-6", "reason": "33 orphan dispatchers confirmed; 3 complex new pages required"},
+        "INTEG-MS6": {"original": 2, "adjusted": 4, "reason": "U-INTEG27 ALREADY COMPLETE but offline-first sync is significant"}
+      }
+    },
+    "scope_changes": {
+      "U-INTEG27_already_complete": {
+        "finding": "OfflineQueueManager.ts (250 LOC) + IndexedDB integration already exist",
+        "action": "INTEG-MS6 reduced from 4 to 3 units",
+        "adjusted_sessions": "2 → 1.5-2 sessions"
+      }
+    },
+    "blockers_found": {
+      "FMERGE-MS1_blocks_MS5": {
+        "issue": "FMERGE-MS1 at 0% progress blocks INTEG-MS5 (Frontend Dispatcher Coverage)",
+        "severity": "CRITICAL",
+        "action": "INTEG-MS5 cannot start until FMERGE-MS1 completes"
+      },
+      "WAL_engine_collision": {
+        "issue": "MemoryGraphEngine.ts already has internal WAL implementation",
+        "severity": "MEDIUM",
+        "recommendation": "Extract WAL into shared utility OR reuse MemoryGraphEngine pattern, do NOT create parallel WALEngine"
+      }
+    },
+    "dispatcher_ui_coverage_audit": {
+      "total_dispatchers": 83,
+      "dispatchers_with_routes": 47,
+      "orphan_dispatchers": 33,
+      "confirmed_high_value_orphans": [
+        {"name": "prism_autonomous", "actions": 8, "tier": "HIGH"},
+        {"name": "prism_memory", "actions": 9, "tier": "HIGH"},
+        {"name": "prism_adaptive_control", "actions": 12, "tier": "HIGH"},
+        {"name": "prism_pfp", "actions": 6, "tier": "HIGH"},
+        {"name": "prism_tenant", "actions": 15, "tier": "MEDIUM", "note": "1/15 actions routed"},
+        {"name": "prism_nl_hook", "actions": 8, "tier": "MEDIUM"},
+        {"name": "prism_scientific_math", "actions": 5, "tier": "MEDIUM"},
+        {"name": "prism_atcs", "actions": 12, "tier": "LOW"}
+      ],
+      "pages_required": ["Autonomous Task Dashboard", "Memory Graph Visualizer", "Multi-Tenant Admin", "NL Hook Editor", "Predictive Failure Dashboard", "Scientific Math Visualizer"]
+    },
+    "chatter_registry_gap_confirmed": {
+      "current_state": "ChatterStabilityLobeEngine uses manual input only, falls back to hardcoded 0.03 damping",
+      "missing": ["FRF schema in MachineRegistry", "MachineRegistry.getFRF() method", "JM Die machine dynamics data (21 machines have ZERO)"],
+      "class_differentiated_damping_needed": {"VMC": "0.02-0.03", "lathe": "0.03-0.05", "5-axis/HMC": "0.025-0.04"}
+    },
+    "engine_reuse_recommendations": [
+      {"existing": "GeneralLedgerEngine.ts", "covers": "GL journal entries, trial balance, financial statements"},
+      {"existing": "InvoicingEngine.ts", "covers": "Invoice creation, payments, aging reports"},
+      {"existing": "WebhookEngine.ts", "covers": "Event delivery with retry logic"},
+      {"existing": "EventBus.ts", "covers": "Pub/sub event system with reactive chains"},
+      {"existing": "MemoryGraphEngine.ts", "covers": "WAL implementation pattern — REUSE for persistence"}
+    ],
+    "schema_update_recommendations": [
+      "Add new INTEG actions to integrationActionSchemas.ts",
+      "Add new INTEG actions to businessActionSchemas.ts",
+      "Add hook phase 'post-job-complete' to LifecycleHooks.ts"
+    ]
+  },
+  "scrutiny_round_8": {
+    "date": "2026-04-13",
+    "method": "10-agent deep dive: schema compatibility, engine readiness, implementation patterns",
+    "agents": [
+      "INTEG-MS0 EventBus Schema Audit",
+      "INTEG-MS1 InvoicingEngine Audit",
+      "INTEG-MS2 WAL Pattern Analysis",
+      "INTEG-MS3 Capacity Engine Audit",
+      "INTEG-MS4 MachineRegistry Schema",
+      "INTEG-MS5 Route Generator Analysis",
+      "INTEG-MS6 Offline Infrastructure",
+      "INTEG Exit Gate Measurability",
+      "INTEG Forge Triple Validation",
+      "INTEG Performance Impact"
+    ],
+    "implementation_readiness": {
+      "INTEG-MS0": {"score": "9/10", "finding": "EventBus event types are free-form strings, adding ERP events ~1-2 hours"},
+      "INTEG-MS1": {"score": "HIGH", "finding": "All ERP engines exist (Invoicing, GL, JobLifecycle), just needs EventBus wiring ~200 LOC"},
+      "INTEG-MS2": {"score": "8/10", "finding": "MemoryGraphEngine has complete WAL with seq/type/timestamp, extract to shared utility"},
+      "INTEG-MS3": {"score": "6/10", "finding": "Engines exist but pull-based, need event emission + subscriber patterns, recommends 7 units not 4"},
+      "INTEG-MS4": {"score": "8/10", "finding": "No Zod validation blocking, FRF types exist, easy to add optional frf_data field"},
+      "INTEG-MS5": {"score": "HIGH", "finding": "44 orphan dispatchers (not 33), batch-generate routes recommended, ~4,260 LOC total"},
+      "INTEG-MS6": {"score": "40%", "finding": "OfflineQueueManager + IndexedDB + useNetworkStatus exist, scope reduced"}
+    },
+    "wal_reuse_details": {
+      "source": "MemoryGraphEngine.ts lines 464-538",
+      "components": ["WAL append/flush/replay", "atomicWrite utility", "checkpoint save/load"],
+      "recommended_extraction": "Create src/utils/WALManager.ts (~100 LOC)"
+    },
+    "erp_chain_details": {
+      "existing_engines": ["InvoicingEngine.create()", "GeneralLedgerEngine.postEntry()", "JobLifecycleEngine.updateStatus()"],
+      "existing_chains": "5 reactive chains in reactiveChainBootstrap.ts",
+      "gap": "Engines do sync cascade, need EventBus emissions",
+      "effort": "~200 lines new code"
+    },
+    "route_generation": {
+      "orphan_dispatchers": 44,
+      "avg_route_loc": 60,
+      "total_estimated_loc": 4260,
+      "recommendation": "Create route generator script (~150 LOC), batch-generate all"
+    },
+    "performance_assessment": {
+      "risk": "LOW",
+      "5s_sla_assessment": "Generous - expected 100-500ms for job→invoice chain",
+      "handler_timeout": "5s default",
+      "chain_depth_limit": 5,
+      "recommendation": "Use DurableJobQueueEngine.enqueue() for async invoice creation"
+    },
+    "exit_gate_gaps": {
+      "MS2": "No crash simulation harness exists",
+      "MS3": "'Scheduling reflects estimates' needs threshold (±15%?)",
+      "MS6": "'Feel instant' needs metric (<100ms UI response)"
+    },
+    "forge_triple_validation": {
+      "conflicts": "NONE",
+      "all_dispatchers_exist": true,
+      "blockers": ["MS2 needs WAL extraction", "MS5 blocked by FMERGE-MS1"]
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "id": "TK-MS8",
+  "title": "Tribal Knowledge Reinforcement + Proactive Intelligence",
+  "track": "TK",
+  "status": "complete",
+  "started_at": "2026-04-14",
+  "completed_at": "2026-04-14T19:32:00Z",
+  "total_units": 3,
+  "completed_units": 3,
+  "description": "Enhance tribal knowledge with reinforcement learning from outcomes, confidence calibration based on usage, and proactive suggestion capabilities for AI reasoning. Prepares foundation for AI-INTEG-MS4 (Proactive Learning Integration).",
+  "units": [
+    {
+      "id": "TK-MS8-U35",
+      "title": "Outcome Tracking & Reinforcement Learning",
+      "status": "complete",
+      "completed_at": "2026-04-14T19:30:00Z",
+      "tests": 11,
+      "description": "Track which tips lead to successful vs failed outcomes. Implement feedback loop to adjust tip relevance and surface successful tips more often.",
+      "key_methods": [
+        "trackTipOutcome(tip_id, outcome, context, session_id): void",
+        "getTipReinforcement(tip_id): ReinforcementSummary | null",
+        "getReinforcedTips(context, limit): ReinforcedTip[]",
+        "buildReinforcementSummaries(): ReinforcementSummary[]"
+      ]
+    },
+    {
+      "id": "TK-MS8-U36",
+      "title": "Confidence Calibration Engine",
+      "status": "complete",
+      "completed_at": "2026-04-14T19:31:00Z",
+      "tests": 8,
+      "description": "Dynamically adjust tip confidence based on usage outcomes. Tips that consistently work get boosted; tips that fail get deweighted.",
+      "key_methods": [
+        "calibrateTipConfidence(tip_id): number",
+        "calibrateAllTips(): CalibrationEntry[]",
+        "getFlaggedTips(threshold): CalibrationEntry[]"
+      ]
+    },
+    {
+      "id": "TK-MS8-U37",
+      "title": "Proactive Tribal Suggestions",
+      "status": "complete",
+      "completed_at": "2026-04-14T19:32:00Z",
+      "tests": 15,
+      "description": "Generate proactive tribal suggestions before user asks, based on detected context patterns. Integrate with ProactiveIntelligenceEngine.",
+      "key_methods": [
+        "generateProactiveSuggestions(context, options): ProactiveTribalSuggestion[]",
+        "getProactiveSuggestionsForPUOA(material, operation, machine): ProactiveTribalSuggestion[]",
+        "clearSuggestionCooldowns(): void"
+      ]
+    }
+  ],
+  "exit_gate": {
+    "outcome_tracking": true,
+    "confidence_calibration": true,
+    "proactive_suggestions": true,
+    "total_tests": 34
+  },
+  "prepares_for": ["AI-INTEG-MS4"],
+  "summary": {
+    "engines_enhanced": ["TribalKnowledgeEngine"],
+    "new_types": [
+      "TipOutcome",
+      "OutcomeContext",
+      "OutcomeRecord",
+      "ReinforcementSummary",
+      "CalibrationEntry",
+      "ProactiveTribalSuggestion"
+    ],
+    "ai_integration": "Full reinforcement learning loop for tribal knowledge with Bayesian confidence calibration and proactive suggestion generation for PUOA integration"
+  }
+}

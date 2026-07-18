@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `digest-all` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/digest-all.md` |
+| Source | `C:/Users/wompu/.claude/commands/digest-all.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 ---
 effort: low
@@ -44,7 +45,7 @@ Load the entire PRISM file system map in ~1500 tokens. Use this at session start
 
 ## Steps
 
-1. Read `H:/prism/mcp-server/data/docs/MASTER_INDEX_COMPACT.md` — full system in ~735 tokens (shortcod
+1. Read `H:/prism/mcp-server/data/docs/MASTER_INDEX_COMPACT.md` — full system in ~735 tokens (shortc
 
 <!-- AUTO-END -->
 

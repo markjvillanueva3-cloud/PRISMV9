@@ -1301,7 +1301,24 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Stop watcher; existing transcripts retained"
+          "rollback": "Stop watcher; existing transcripts retained",
+          "status": "completed",
+          "ship_record": {
+            "shipped_at": "2026-05-17T20:17:38.574Z",
+            "shipped_by": "claude-c0f06dee-charlie",
+            "commit": "2e63304de3",
+            "deliverables_on_disk": [
+              "scripts/voice-capture-watcher.mjs",
+              "scripts/install-whisper-local.ps1",
+              "mcp-server/src/__tests__/VoiceCapture.test.ts"
+            ],
+            "per_file_scrutiny": "2-arm split (Arm A PASS / Arm B FAIL 2 P1: yamlScalar U+2028 frontmatter-forgery + .tools/ not git-ignored) adjudicated per strict-consensus -> both fixed (escape separators + .gitignore entry) NOT deferred -> re-dispatched 2-arm: both PASS (Arm B reconstructed the exploit live + verified via git check-ignore). 22/22 vitest, tsc clean.",
+            "spec_deviations": [
+              "test file VoiceCapture.test.ts matches the spec deliverable name exactly (spec said VoiceCapture.test.ts) — no deviation.",
+              "F1 is a SCRIPT unit (watcher daemon) — no engine, no dispatcher surface. The comprehensive-build dispatcher-wiring rule is N/A; the test invokes the watcher exported core (processAudioFile) directly. Phase-1 watcher-only per the spec; Telegram bot deferred to a separate Phase-2 unit as the spec directs."
+            ],
+            "notes": "Two-phase: pure processAudioFile core (validate -> transcribe via injected-transcriber DI / default whisper.cpp subprocess -> atomic .md write) + side-effecting watchCaptureDir (fs.watch + debounce). Hardening: lstat symlink reject, dotfile skip, oversize skip, fail-loud empty transcription (no empty .md), marker neutralization + U+2028/2029/0085 escaping (frontmatter-forgery guard), content-addressed collision-safe md names, spawnSync args-array (no shell injection). install-whisper-local.ps1 resolves the binary via the GitHub releases API (no hard-coded version), idempotent, -DryRun/-Uninstall/-Force. P2 follow-ups: transcribeWithWhisper (the real default transcriber) has no direct test (injected in all tests); no download integrity check in the installer."
+          }
         },
         {
           "id": "F2",

@@ -473,3 +473,43 @@ describe("OkumaParametricProgramEngine — dispatcher wiring (MS0-U3)", () => {
     expect(ast2.autoCalcs.length).toBeGreaterThan(10);
   });
 });
+
+describe("OkumaParametricProgramEngine — convertToHardcode IF/GOTO conditions (U-OKUMA-EVAL-COND-HARDEN)", () => {
+  it("evaluates a valid numeric IF condition: true skips the intervening line, false falls through", async () => {
+    const { okumaParametricProgramEngine } = await import("../engines/OkumaParametricProgramEngine.js");
+    const taken = okumaParametricProgramEngine.convertToHardcode(
+      ["V1 = 5", "IF [V1 GT 0] GOTO N100", "G0 X9.", "N100 G0 X1.", "M30"].join("\n"));
+    expect(taken.gcode).toContain("X1.");
+    expect(taken.gcode).not.toContain("X9."); // V1>0 true -> GOTO skips "G0 X9."
+    const fell = okumaParametricProgramEngine.convertToHardcode(
+      ["V1 = 0", "IF [V1 GT 0] GOTO N100", "G0 X9.", "N100 G0 X1.", "M30"].join("\n"));
+    expect(fell.gcode).toContain("X9."); // V1>0 false -> falls through, line emitted
+    expect(fell.gcode).toContain("X1.");
+  });
+
+  it("a bare expression condition is truthy iff non-zero (preserves Boolean(value) semantics)", async () => {
+    const { okumaParametricProgramEngine } = await import("../engines/OkumaParametricProgramEngine.js");
+    const nonzero = okumaParametricProgramEngine.convertToHardcode(
+      ["V1 = 3", "IF [V1] GOTO N100", "G0 X9.", "N100 G0 X1.", "M30"].join("\n"));
+    expect(nonzero.gcode).not.toContain("X9."); // 3 -> truthy -> branch taken
+    const zero = okumaParametricProgramEngine.convertToHardcode(
+      ["V1 = 0", "IF [V1] GOTO N100", "G0 X9.", "N100 G0 X1.", "M30"].join("\n"));
+    expect(zero.gcode).toContain("X9."); // 0 -> falsy -> falls through
+  });
+
+  it("SECURITY: a malicious IF condition cannot execute injected JS (was raw eval)", async () => {
+    // REGRESSION ORACLE: pre-fix, evalCondition ran the raw JS eval built-in on untrusted
+    // condition text, so an assignment embedded in a condition WOULD execute. This asserts
+    // the injected sentinel is NEVER set (fails on the pre-fix code, where it would be 7).
+    const { okumaParametricProgramEngine } = await import("../engines/OkumaParametricProgramEngine.js");
+    const g = globalThis as Record<string, unknown>;
+    delete g.__OKUMA_INJ__;
+    const evil = ["V1 = 5",
+      "IF [(globalThis.__OKUMA_INJ__ = 7) GT 0] GOTO N100",
+      "G0 X9.", "N100 G0 X1.", "M30"].join("\n");
+    const out = okumaParametricProgramEngine.convertToHardcode(evil);
+    expect(g.__OKUMA_INJ__).toBeUndefined(); // pre-fix: 7 (raw eval ran the embedded assignment)
+    expect(out.gcode).toContain("X9.");       // non-numeric condition -> false -> falls through
+    delete g.__OKUMA_INJ__;
+  });
+});

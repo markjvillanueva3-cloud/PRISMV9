@@ -215,7 +215,14 @@ export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOu
       const K = matMul(matMul(PPred, Ht), Sinv);
 
       x = matAdd(xPred, matMul(K, innov), n, 1);
-      const I_KH = mat(Array(n * n).fill(0).map((_, i) => (Math.floor(i / n) === i % n ? 1 : 0) - K.flat[Math.floor(i / n) * m] * H.flat[(i % n)]), n, n);
+      // Full K*H product (n x m times m x n -> n x n). The previous inline built (I - KH)
+      // from only the k=0 term K[row][0]*H[0][col] -- exact for a single sensor (m=1) but
+      // silently dropping sensors 2..m in multi-sensor fusion, corrupting the covariance P
+      // (the state update above already used the full matMul(K, innov) and was unaffected).
+      // Row 21 of the verified SFC fix-plan; zero output change for every live m=1 consumer
+      // (AdaptiveControlEngine). Verified: SFC-ROWS-VERIFY-BATCH2-2026-07-01.md.
+      const KH = matMul(K, H);
+      const I_KH = mat(Array(n * n).fill(0).map((_, i) => (Math.floor(i / n) === i % n ? 1 : 0) - KH.flat[i]), n, n);
       // Simplified: P = (I - KH) P_pred
       P = mat(new Array(n * n).fill(0), n, n);
       /** For.

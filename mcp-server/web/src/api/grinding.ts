@@ -1,4 +1,5 @@
 import type { GrindingParams, GrindingResult, WheelSelectParams, WheelSelectResult, DressingParams, DressingResult } from "../types/grinding";
+import { getAuthHeaders } from './authToken';
 
 const BASE_URL = "/api/v1/grinding";
 const TIMEOUT_MS = 15_000;
@@ -9,7 +10,7 @@ async function post<T>(endpoint: string, body: unknown): Promise<T> {
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify(body),
       signal: controller.signal,
     });

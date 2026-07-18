@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `dedup` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/dedup.md` |
+| Source | `C:/Users/wompu/.claude/commands/dedup.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-**MANDATORY** before creating ANY new asset in PRISM. Checks for existing similar engines, hooks, skills, actions, formulas, and algorithms.
+
+# /dedup — Duplication Guard Check
 
 <!-- AUTO-END -->
 

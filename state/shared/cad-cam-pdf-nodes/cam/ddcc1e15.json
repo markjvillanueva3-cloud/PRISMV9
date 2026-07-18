@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.1.0",
+  "sha8": "ddcc1e15",
+  "title": "2.1-Tool report subScript call",
+  "source": "resources",
+  "relPath": "OPEN MIND/hyperMILL/33.0/addins project/hmAutoColor/doc/documents/2.1-Tool report subScript call.pdf",
+  "domain": "cam",
+  "software": "hypermill",
+  "top": "OPEN MIND",
+  "pageCount": 14,
+  "textChars": 2560,
+  "text": "1\nSub script call on tool report\nWhen generating the tool report, there may be a need to add some additional information that was not\nforeseen in the template.\nIn this case, we can create a supplementary script and call this script when generating the report.\n\n-- 1 of 14 --\n\n2\nPath definitions\n• The Addins path in the settings we will call in this document <ADDINS>\n• The Automation Center path in the settings we will call in this document <AUTOMATION>\n\n-- 2 of 14 --\n\n3\nNew script\n• Create a new script and insert all needed functions\n\n-- 3 of 14 --\n\n4\nThe script will be called two times by the tool report\no For each Job list\no End of process\n\n-- 4 of 14 --\n\n5\nFor each Job List\nThe Subscript Master of your customized script will be called for each Job List.\n\n-- 5 of 14 --\n\n6\nEnd of Process\nThe Subscript Finish of your customized script will be called at the end of the Process.\n\n-- 6 of 14 --\n\n7\nTesting script\nAs an example, a script was created that contains a Master subscript and a Finish subscript\n\n-- 7 of 14 --\n\n8\nRuntime script\nThe customized script must be a Runtime script, otherwise it will fail.\n• Create a Runtime script\n\n-- 8 of 14 --\n\n9\nTool report app\nAfter creating the Runtime script, an XML and hms file will be created in your app folder\n<AUTOMATION>\\Apps\nLet’s copy these files and past these files on:\n<AUTOMATION>\\REPORTS\\toolReports\\apps\nMaybe the folder apps do not exist in your computer.\nIf this is your case, just create a new folder named as apps.\n\n-- 9 of 14 --\n\n10\nCopy folder\nCopy the folder Testing_script (RUNTIME)\nWe can find this folder on:\nC:\\Users\\Public\\Documents\\OPENMIND\\USERS\\<CURRENT_USER>\\AutomationCenter\\<VARIANTS>\nPast folder\nPast the folder Testing_script (RUNTIME) on:\n• <AUTOMATION>\\REPORTS\\toolReports\\report_templates\\OM_REPORT_CUSTOM\\\n\n-- 10 of 14 --\n\n11\nCustomer Script activation\n• Open the file (ToolReport_OM_REPORT_CUSTOM.xlsx)\nThis file can be found on:\n<AUTOMATION>\\REPORTS\\toolReports\\report_templates\\<REPORT_NAME>\n• Go to Optimizing TAB and Activate the Customer Script (0=Deactivate / 1=Activate)\n\n-- 11 of 14 --\n\n12\n• Type the name of the script to be called\n\n-- 12 of 14 --\n\n13\nDelete Roaming\nBefore executing the tool Report configuration, it is recommended to delete the Roaming folder\n• Open the file explorer and type %appdata%\n• Go to Roaming\\OPEN MIND\\AutomationCenter\\<VERSION>\n• Delete everything inside this folder (process_apps, process_report_template and\nprocess_scripts)\n\n-- 13 of 14 --\n\n14\nFinal step\n• Start the report configuration and run the report\n\n-- 14 of 14 --\n\n",
+  "sizeBytes": 990123,
+  "extractedAt": "2026-06-24T01:01:06.982Z"
+}

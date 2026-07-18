@@ -149,14 +149,14 @@ function buildMessageActionWorkspace(input: {
       label: actionLabel,
       title: `${actionLabel} workspace`,
       detail:
-        'Stage the reply inside PRISM so the message stays attached to the customer, order, or job while mailbox delivery routes converge on the backend.',
+        'Stage the reply inside Kienzle so the message stays attached to the customer, order, or job while mailbox delivery routes converge on the backend.',
       draftLabel: `${actionLabel} draft`,
       defaultDraft: [
         `Re: ${selectedThread.subject}`,
         '',
         ...commonDraftLines,
         '',
-        `PRISM staged this reply from ${launcherSourceLabel || 'Messages'} so the same thread can continue into jobs or release work without retyping context.`,
+        `Kienzle staged this reply from ${launcherSourceLabel || 'Messages'} so the same thread can continue into jobs or release work without retyping context.`,
       ].join('\n'),
       guidance: [
         'Keep the launcher and upstream origin attached to this thread.',
@@ -264,14 +264,14 @@ function buildMessageActionWorkspace(input: {
     label: actionLabel,
     title: `${actionLabel} workspace`,
     detail:
-      'Stage the local PRISM response here so the thread stays attached to the same job, order, or release packet while backend message actions continue converging.',
+      'Stage the local Kienzle response here so the thread stays attached to the same job, order, or release packet while backend message actions continue converging.',
     draftLabel: `${actionLabel} note`,
     defaultDraft: [
       `${actionLabel}: ${selectedThread.subject}`,
       '',
       ...commonDraftLines,
       '',
-      'PRISM staged this action locally. Keep the same linked record and downstream follow-up when you continue the thread.',
+      'Kienzle staged this action locally. Keep the same linked record and downstream follow-up when you continue the thread.',
     ].join('\n'),
     guidance: [
       'Keep the thread and linked record connected while this action stays staged.',

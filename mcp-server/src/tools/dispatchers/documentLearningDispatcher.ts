@@ -304,6 +304,38 @@ const ACTION_HANDLERS: Record<string, (p: Record<string, any>) => Promise<any>> 
   doc_delete: handleDocDelete,
 };
 
+/**
+ * Programmatic entry point for in-process callers (e.g. AutomatedResourceHarvestingPipeline)
+ * to invoke a document-learning action without routing through the MCP server.tool() path.
+ * Reuses the same ACTION_HANDLERS as the registered dispatcher (single source of truth) and
+ * applies the same param-normalization + per-action Zod validation the MCP path applies, so
+ * both entry points enforce identical contracts. Fail-loud: throws on unknown action or
+ * invalid params (the caller wraps in try/catch).
+ */
+export async function callDocumentAction(
+  action: string,
+  rawParams: Record<string, any> = {},
+): Promise<any> {
+  const handler = ACTION_HANDLERS[action];
+  if (!handler) {
+    throw new Error(
+      `[documentLearningDispatcher] Unknown action "${action}" -- valid: ${Object.keys(ACTION_HANDLERS).join(", ")}`,
+    );
+  }
+  const params: Record<string, any> = { ...rawParams };
+  try {
+    const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+    Object.assign(params, normalizeParams(rawParams));
+  } catch { /* normalizer not available */ }
+  const validation = validateActionParams(action, params, ACTION_DOCUMENT_LEARNING_SCHEMAS);
+  if (!validation.valid) {
+    throw new Error(
+      `[documentLearningDispatcher] Invalid params for ${action}: ${JSON.stringify(validation.errors)}`,
+    );
+  }
+  return handler(params);
+}
+
 // ---------------------------------------------------------------------------
 // REGISTRATION
 // ---------------------------------------------------------------------------

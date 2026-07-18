@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS21",
+  "version": "1.0.0",
+  "title": "PPG-MS21 — Test Coverage Backfill + Mutation Testing",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 10,
+  "completed_units": 0,
+  "description": "Closes the test-coverage exposure surfaced by R09 scrutiny (score 38). Backfills tests for MS2/MS3/MS4/MS7/MS8/MS10 (currently 0 declared tests across 35 units). Adds Stryker mutation testing for physics constants. Establishes flake quarantine + fixture management + perf-regression separation.",
+  "rationale": "Closes the test-coverage exposure surfaced by R09 scrutiny (score 38). Backfills tests for MS2/MS3/MS4/MS7/MS8/MS10 (currently 0 declared tests across 35 units). Adds Stryker mutation testing for physics constants. Establishes flake quarantine + fixture management + perf-regression separation.",
+  "phase": "P1",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM128",
+      "title": "MS2 PRISM Path tests (5 tests, 3 spanning materials)",
+      "scope": "Engagement-clamped output, chip-thinning, dispatcher round-trip, NaN/empty edges, D2/Al/Inconel coverage.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/PRISMPath.coverage.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM129",
+      "title": "MS3 WEDM 5-dialect tests (10 tests)",
+      "scope": "Each of 5 dialects: skim schedule, taper, recast, wire-break, corner overcut.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/WEDMDialectCoverage.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM130",
+      "title": "MS4 fleet master-post tests (12 tests, all 7 master posts)",
+      "scope": "Round-trip emit + sidecar verify per master post + Roku-Roku alias + Multus multi-channel.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/FleetMasterPosts.coverage.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM131",
+      "title": "MS7 mill print tests (8 tests on 5 reference prints)",
+      "scope": "≥80% feature recognition, BlueprintVisionOCR + FeatureToStrategy + GenPlan integration.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/MillPrintCoverage.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM132",
+      "title": "MS8 omega tier tests (6 tests, all 4 tiers + transitions)",
+      "scope": "Every tier × every safety hook + promotion + demotion + bypass attempts.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/OmegaTierCoverage.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM133",
+      "title": "MS10 PDF extraction tests (5 tests)",
+      "scope": "Each of 4 PP PDFs: net-tip count, dedup, vendor classification, citation linkage.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/PDFExtractionCoverage.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM134",
+      "title": "Stryker mutation testing on physics constants (≥75% mutation score)",
+      "scope": "Mutate kc1.1/Taylor C/n/JC params; assert ≥75% mutation kill rate. Add stryker.config.json.",
+      "files_to_modify": [
+        "stryker.config.json",
+        ".github/workflows/mutation.yml"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM135",
+      "title": "Property-based tests via fast-check (sidecar schema, taper math, NaN guards)",
+      "scope": "fast-check arbitraries for MS0/MS3/MS14; generate millions of edge cases.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/PropertyBased.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM136",
+      "title": "Flake quarantine + hermetic fakes (MTConnect/FOCAS/OPC-UA/Fusion/Vericut)",
+      "scope": "MTConnectMockServer, FOCASStubAdapter, FusionAddInFake, VericutFake. Tag @flake-allowed for license/network suites.",
+      "files_to_modify": [
+        "src/__tests__/fakes/"
+      ],
+      "tests_to_add": []
+    },
+    {
+      "id": "U-PPGM137",
+      "title": "Fixture management + perf-regression separation",
+      "scope": "Git LFS for 200MB+ test data; make fixtures target; tag tests @unit/@integration/@e2e/@perf; CI shard per tag.",
+      "files_to_modify": [
+        ".gitattributes",
+        "Makefile",
+        ".github/workflows/ci.yml"
+      ],
+      "tests_to_add": []
+    }
+  ],
+  "completion_criteria": [
+    "Zero PPG-MS units with empty tests_to_add (was 74/122)",
+    "Stryker mutation score ≥75% on physics constants",
+    "Property-based tests cover sidecar schema + taper + NaN guards",
+    "Flake-prone tests quarantined; hermetic fakes available for license-bound integrations",
+    "CI shards run unit:integration:e2e:perf in parallel; <10min PR feedback"
+  ],
+  "depends_on": [
+    "PPG-MS18"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Test corpus — keep as-is (test infrastructure)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

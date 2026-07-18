@@ -346,6 +346,31 @@ describe("MillingKnowledgeOrchestratorEngine", () => {
         smallResult.cost_analysis.estimated_tool_cost_usd
       );
     });
+
+    // ENGINE-AUDIT 2026-06-19 (slot:bravo): tool cost was a hardcoded 15 base; now an optional
+    // real base_tool_cost_usd overrides it (the output stays the self-labeled estimated_tool_cost_usd).
+    it("uses a supplied real base_tool_cost_usd instead of the hardcoded 15 default", async () => {
+      const base: MillingOrchestratorContext = {
+        material: "4140 Steel", material_iso: "P", feature_type: "roughing",
+        dimensions: { depth_mm: 10 },
+      };
+      const def = await millingKnowledgeOrchestratorEngine.orchestrate(base);
+      const real = await millingKnowledgeOrchestratorEngine.orchestrate({ ...base, base_tool_cost_usd: 60 });
+      // 60 vs default 15 (4x base) -> the supplied cost must drive a higher tool-cost figure.
+      expect(real.cost_analysis.estimated_tool_cost_usd).toBeGreaterThan(
+        def.cost_analysis.estimated_tool_cost_usd
+      );
+    });
+
+    it("treats base_tool_cost_usd <= 0 as absent (falls back to the default)", async () => {
+      const base: MillingOrchestratorContext = {
+        material: "4140 Steel", material_iso: "P", feature_type: "roughing",
+        dimensions: { depth_mm: 10 },
+      };
+      const def = await millingKnowledgeOrchestratorEngine.orchestrate(base);
+      const zero = await millingKnowledgeOrchestratorEngine.orchestrate({ ...base, base_tool_cost_usd: 0 });
+      expect(zero.cost_analysis.estimated_tool_cost_usd).toBeCloseTo(def.cost_analysis.estimated_tool_cost_usd, 4);
+    });
   });
 
   // ============================================================================

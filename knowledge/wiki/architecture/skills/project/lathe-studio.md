@@ -30,7 +30,7 @@ related:
 ## Description (first paragraph)
 
 
-# /lathe-studio — Lathe Programming Studio Pipeline
+# Lathe Studio — Open Web Interface for Lathe Programming
 
 <!-- AUTO-END -->
 

@@ -51,7 +51,7 @@ function sessionTouchedASkill(input) {
   } catch { /* ignore */ }
   // 2) git status scan (covers edits this hook can't see in the transcript)
   try {
-    const st = execFileSync("git", ["-C", REPO_ROOT, "status", "--porcelain"], { encoding: "utf8", timeout: 4000 });
+    const st = execFileSync("git", ["-C", REPO_ROOT, "status", "--porcelain"], { windowsHide: true, encoding: "utf8", timeout: 4000 });
     for (const line of st.split(/\r?\n/)) {
       const p = line.slice(3).trim();
       if (p && SKILL_PATH_RE.test("/" + p)) return true;
@@ -72,7 +72,7 @@ function main() {
   try {
     // --project-only keeps this fast (the chat is most likely to have edited a project skill);
     // a full --all sweep is what /skill-lint and the U-SKU04 weekly cadence do.
-    const out = execFileSync(process.execPath, [SCRIPT, "--project-only", "--json", "--no-write", "--quiet"], { encoding: "utf8", timeout: 9000 });
+    const out = execFileSync(process.execPath, [SCRIPT, "--project-only", "--json", "--no-write", "--quiet"], { windowsHide: true, encoding: "utf8", timeout: 9000 });
     summary = JSON.parse(out);
   } catch (e) {
     // linter crashed / timed out — say so, but don't block

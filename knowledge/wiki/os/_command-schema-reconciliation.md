@@ -108,9 +108,9 @@ stay as live-runtime state files (per U-CK05 fleet-impact concern).
 
 ## See also
 
-- [[command-schema]] — U-CK06 canonical schema (narrative form)
+- [[_command-schema]] — U-CK06 canonical schema (narrative form)
 - [[knowledge-vault-schema]] — U-VAULT01 5-namespace doctrine
-- [[wiki-os-schema]] — wiki/os/ entity schema
+- [[_schema]] — wiki/os/ entity schema
 - `.claude/schemas/command-frontmatter.schema.json` — machine schema
 - `.claude/hooks/skill-auto-trigger.mjs` — autosuggest consumer
 - `.claude/hooks/wiki-precheck-inject.mjs` — wiki-pairing consumer

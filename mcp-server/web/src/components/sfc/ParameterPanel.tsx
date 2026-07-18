@@ -9,6 +9,9 @@ export interface SfcParams {
   width: number;
   tool_material: string;
   coolant: string;
+  /** Tool coating -- options limited to the keys ProductEngine.sfcCalculate recognizes so each
+   *  drives a real derate. Empty / absent = uncoated (engine neutral 1.0). */
+  coating?: string;
 }
 
 interface Props {
@@ -21,6 +24,17 @@ interface Props {
 
 const TOOL_MATERIALS = ["Carbide", "HSS", "Ceramic", "CBN", "PCD"];
 const COOLANTS = ["flood", "mist", "mql", "dry", "air_blast"];
+// Coating options whose keys ProductEngine.sfcCalculate's normalizeCoatingKey recognizes -- each
+// drives a real (material-specific) cutting-speed + tool-life derate. Empty = uncoated / catalog
+// default (engine treats it as a neutral 1.0 no-op). Kept in sync with normalizeCoatingKey.
+const COATINGS: { value: string; label: string }[] = [
+  { value: "", label: "Uncoated / default" },
+  { value: "TiAlN", label: "TiAlN" },
+  { value: "AlTiN", label: "AlTiN" },
+  { value: "AlCrN", label: "AlCrN" },
+  { value: "DLC", label: "DLC" },
+  { value: "diamond", label: "Diamond / PCD" },
+];
 
 const PRESETS: Record<string, Partial<SfcParams>> = {
   Conservative: { depth: 0.5, width: 2 },
@@ -45,7 +59,7 @@ export default function ParameterPanel({
   const set = useCallback(
     (field: keyof SfcParams, value: string) => {
       const num = parseFloat(value);
-      if (field === "tool_material" || field === "coolant") {
+      if (field === "tool_material" || field === "coolant" || field === "coating") {
         onChange({ ...params, [field]: value });
       } else if (!isNaN(num)) {
         const mmVal = imperial ? inToMm(num) : num;
@@ -179,6 +193,12 @@ export default function ParameterPanel({
             value: c,
             label: c.replace(/_/g, " ").toUpperCase(),
           }))}
+        />
+        <Select
+          label="Coating"
+          value={params.coating ?? ""}
+          onChange={(e) => set("coating", e.target.value)}
+          options={COATINGS}
         />
       </div>
     </Card>

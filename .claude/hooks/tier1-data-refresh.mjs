@@ -42,7 +42,7 @@ async function isStale(filePath, maxAgeMs) {
 function runGenerator(scriptName) {
   return new Promise((resolve) => {
     const scriptPath = path.join(SCRIPTS, scriptName);
-    const child = spawn("node", [scriptPath], {
+    const child = spawn(process.execPath, [scriptPath], {
       cwd: ROOT,
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,

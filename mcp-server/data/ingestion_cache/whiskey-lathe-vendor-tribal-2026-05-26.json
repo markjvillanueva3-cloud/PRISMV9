@@ -1,0 +1,184 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-26T16:15:00Z",
+  "source": "whiskey vendor research pass 2026-05-26",
+  "domain": "lathe",
+  "cross_domain": ["milling"],
+  "method": "WebSearch + WebFetch of each vendor's public-internet resources; no PDFs downloaded inline (binary fetch is operator/wget follow-up).",
+  "confidence": 0.55,
+  "needs_curation": true,
+  "iso_material_groups": {
+    "P": "Steel (low-alloy + alloy)",
+    "M": "Stainless steel (>=10.5% Cr; Ni / Mo alloying)",
+    "K": "Cast iron (Fe-C-Si, 1.8-4% C)",
+    "N": "Non-ferrous (aluminum, brass, copper)",
+    "S": "Superalloys / heat-resistant (Inconel, Ti-6Al-4V, jet-engine alloys)",
+    "H": "Hardened steel (>45 HRC, case-hardened)"
+  },
+  "iso_insert_geometry": {
+    "C": { "shape": "rhombic 80 deg", "use": "general roughing + facing; strong corner", "common_codes": ["CNMG", "CCMT", "CNMA"] },
+    "W": { "shape": "trigon 80 deg",   "use": "6 cutting edges (3/side, double-sided); economical medium machining", "common_codes": ["WNMG", "WNMA", "WCMT"] },
+    "D": { "shape": "rhombic 55 deg",  "use": "profiling + finishing; access to contours", "common_codes": ["DNMG", "DCMT"] },
+    "S": { "shape": "square 90 deg",   "use": "max DOC roughing; strongest corner",       "common_codes": ["SNMG", "SCMT"] },
+    "T": { "shape": "triangle 60 deg", "use": "general turning",                          "common_codes": ["TNMG", "TPMR", "TCMT"] },
+    "V": { "shape": "rhombic 35 deg",  "use": "deep profiling; very sharp leading edge",  "common_codes": ["VBMT", "VNMG"] },
+    "R": { "shape": "round",            "use": "shoulder/profile finishing; max edge",     "common_codes": ["RCMX", "RCMT"] }
+  },
+  "vendors": {
+    "sandvik_coromant": {
+      "name": "Sandvik Coromant",
+      "site": "https://www.sandvik.coromant.com",
+      "tool_systems_lathe": ["CoroTurn 107", "CoroTurn Prime", "CoroTurn TR", "CoroTurn 300", "CoroBore 111"],
+      "steel_top_grades": ["GC4425", "GC4415", "GC4405"],
+      "resources": {
+        "grade_selection_overview": "https://www.sandvik.coromant.com/en-us/tools/inserts-grades/insert-grade-information/turning-inserts-grades",
+        "how_to_choose_insert": "https://www.sandvik.coromant.com/en-us/knowledge/general-turning/how-to-choose-correct-turning-insert",
+        "steel_grades": "https://www.sandvik.coromant.com/en-us/tools/inserts-grades/insert-grade-information/turning-inserts-grades/turning-inserts-grades-steel",
+        "stainless_grades": "https://www.sandvik.coromant.com/en-us/tools/inserts-grades/insert-grade-information/turning-inserts-grades/turning-inserts-grades-stainless-steel",
+        "cast_iron_grades": "https://www.sandvik.coromant.com/en-us/tools/inserts-grades/insert-grade-information/turning-inserts-grades/turning-inserts-grades-cast-iron",
+        "hardened_steel_grades": "https://www.sandvik.coromant.com/en-us/tools/inserts-grades/insert-grade-information/turning-inserts-grades/turning-inserts-grades-hardened-steel",
+        "downloads_handbook": "https://www.sandvik.coromant.com/en-us/downloads"
+      },
+      "key_features": [
+        "CoroTurn 107: external + internal turning for small + slender components",
+        "CoroTurn Prime: external + internal all-directional turning",
+        "CoroTurn TR: external profiling with iLock locking",
+        "CoroTurn 300: over + under coolant + iLock chip control",
+        "Metal Cutting Training Handbook (PDF) at downloads page — three volumes: Turning Tools, Rotating Tools, Solid Round Tools"
+      ]
+    },
+    "iscar": {
+      "name": "Iscar",
+      "site": "https://www.iscar.com",
+      "tool_systems_lathe": ["ISO-Turning"],
+      "chipformer_codes": ["-CERMET", "-F3S", "-F3P", "-GN", "-NR", "-PP", "-VL", "-M3", "-M3M"],
+      "resources": {
+        "grade_chart_pdf": "https://www.iscar.com/ecat/iscar_grade_chart.pdf",
+        "interactive_grades_table": "https://www.iscar.com/ecatalog/gradesTable/gradesTable.html",
+        "grades_guide": "https://www.iscar.com/eCatalog/GradesGuide.aspx",
+        "iso_turning_inserts_catalog": "https://www.iscar.com/eCatalog/Products.aspx?mapp=IS&app=282",
+        "wnmg_pp_family_page": "https://www.iscar.com/eCatalog/Family.aspx?fnum=493&mapp=IS&app=282",
+        "turning_threading_tools_pdf": "https://pdf.directindustry.com/pdf/iscar-tools/turning-threading-tools/5692-642531.html"
+      },
+      "key_features": [
+        "Chipformer suffix maps to application: -GN general, -NR heavy-roughing, -PP ductile, -F3P/F3S finishing, -VL high-temp + stainless valves",
+        "ECO inserts (3/8\" IC) cover ~75% of turning apps with higher feed durability than standard same-size",
+        "Grade chart is the ONE-PAGER for cross-vendor application matching"
+      ]
+    },
+    "widia": {
+      "name": "Widia (a Kennametal brand)",
+      "site": "https://www.widia.com",
+      "tool_systems_lathe": ["Victory ISO Inserts"],
+      "insert_shape_styles": ["R", "S", "T", "V", "W", "C", "D", "L"],
+      "resources": {
+        "conversion_guide": "https://www.widia.com/us/en/resources/conversion-guide.html",
+        "victory_inserts": "https://www.widia.com/tr/en/products/turning/od-and-id-turning/high-performance-inserts/widia-victory-carbide-inserts.html",
+        "carbide_inserts_catalog": "https://www.widia.com/us/en/products/p.spu.2028555.html",
+        "third_party_grade_chart_pdf": "https://tysontool.com/turnCat-InsertInformation.pdf"
+      },
+      "key_features": [
+        "Widaselect coated grade — multi-layer TiN-TiCN-Al2O3-ZrCN via 800C MTCVD",
+        "K/N-group uncoated carbide — balance hardness + wear + edge stability + toughness for cast iron + non-ferrous",
+        "M/S grade — TiN PVD over unalloyed substrate for high-temp + stainless + Ti alloys at low-moderate speeds",
+        "Conversion-guide tool maps competitor grades to Widia equivalents — useful for shop floor swap when stock runs out"
+      ]
+    },
+    "ingersoll": {
+      "name": "Ingersoll Cutting Tools",
+      "site": "https://www.ingersoll-imc.com",
+      "tool_systems_lathe": ["TAEGUline turning"],
+      "carbide_grades": ["CT3000", "TT5100", "TT7005", "TT7015", "TT7100", "TT7310", "TT8115", "TT8125", "TT8135", "TT9215", "TT9225", "TT9235"],
+      "cbn_grades": ["TB610", "TB670", "TB730"],
+      "cermet_grades": ["PV3010", "CT3000"],
+      "resources": {
+        "catalogs_landing": "https://www.ingersoll-imc.com/catalogs",
+        "turning_catalog_pdf": "https://cuttingtoolschicago.com/wp-content/catalogs/ingersoll/Turning/turning%20catalog/CAT-011_Technical.pdf",
+        "grade_chart_pdf": "https://www.suncoasttools.com/PDFFILES/Ingersoll/IngersollGradeChart.pdf",
+        "insert_master_pdf": "https://ssl.ingersoll-imc.com/resources/pdf/insert_master/MAN-009-1_Insert_Master.pdf",
+        "super_catalog_turning_pdf": "https://pdf.directindustry.com/pdf/ingersoll-cutting-tools/super-catalog-turning-products/17869-106745.html"
+      },
+      "key_features": [
+        "8 PVD-coated grades (TiN/TiCN/TiAlN) + 6 CVD-coated grades — multi-layer for full ISO-P/M/K/N/S/H coverage",
+        "CT3000 cermet — P10/P20, M10/M20, K10/K20 — best surface finish on steel + stainless + cast iron",
+        "TB610 CBN — continuous/light-interrupted turning of hard steel + alloy steel + tool steel + case-hardened",
+        "TB670 CBN — high impact resistance for severe interrupted turning of chilled cast iron + hardened steel",
+        "TB730 CBN — gray + nodular cast iron + carbide rolls (high hardness + high fracture toughness)"
+      ]
+    },
+    "dapra": {
+      "name": "Dapra Corporation",
+      "site": "https://www.dapra.com",
+      "tool_systems_lathe": ["Indexable inserts (primarily milling-focused; some turning + profiling)"],
+      "resources": {
+        "literature_downloads": "https://www.dapra.com/resources/literature",
+        "tool_reference": "https://www.dapra.com/resources/tool-reference",
+        "insert_grade_selection": "https://www.dapra.com/high-feed/insert-grade-selection",
+        "product_catalog_pdf": "https://durrie.com/wp-content/uploads/2023/02/Dapra-Product-Catalog.pdf",
+        "toroid_pdf": "https://www.dapra.com/customer/downloads/cutting-tools/Dapra-Toroid.pdf",
+        "blackhawk_turning_inserts": "https://www.bhid.com/brands/dapra-corp/catalog/products/indexable-cutting-tools/indexable-inserts/turning-and-profiling-inserts/turning-inserts"
+      },
+      "key_features": [
+        "Dapra is primarily an indexable-milling vendor — turning + profiling is a smaller line",
+        "ISO material-group filter on insert selection — pick group, see only suitable inserts",
+        "Starting speed + feed charts per insert per material group + DOC recommendations",
+        "Aerospace + automotive + mold + die + firearms focus"
+      ],
+      "caveat": "MaxiMet appears to not be a Dapra product — operator may want to confirm the name. The Toroid PDF is Dapra's high-feed milling system; for turning, the BHID distributor page is the most direct."
+    },
+    "pts_tools": {
+      "name": "PTSolutions (PTS Tools)",
+      "site": "https://www.pts-tools.com",
+      "tool_systems_lathe": ["distributor — multi-vendor turning inserts + holders"],
+      "resources": {
+        "main_site": "https://www.pts-tools.com/"
+      },
+      "key_features": [
+        "PTS is a distributor, not a manufacturer — cross-references major brands (Sandvik, Kennametal, Widia, etc.)",
+        "Public-site product detail is gated behind login; the on-site catalog UI is dynamic + not crawled by the public WebSearch",
+        "For PRISM lathe wizard wiring: treat PTS as a logistics/availability layer (do we have this insert in stock?), NOT a primary technical source"
+      ],
+      "caveat": "Operator may want a contracted product feed (CSV / API) from PTS rather than scraping the public site."
+    }
+  },
+  "wizard_wiring_hints": [
+    {
+      "consumer": "LatheAITrainingEngine",
+      "hint": "validation phase — when a JM-Die .MIN program names an insert (e.g. CNMG-432), reverse-lookup the vendor grade chart for the substrate's recommended Vc + DOC range; flag if the program's actual parameters lie outside the recommended range as ValidationIssue.physics_basis=\"<vendor>/<grade-chart-url>\""
+    },
+    {
+      "consumer": "LatheCAMIntelligenceEngine",
+      "hint": "tool selection phase — given material (ISO-P/M/K/N/S/H) + operation (od_rough / od_finish / face / groove / thread), rank candidate inserts by (geometry x grade x vendor availability); Sandvik CoroTurn 107/Prime/TR/300 + Iscar -GN/-PP + Ingersoll TT-series are the 3 default vendor families"
+    },
+    {
+      "consumer": "ShopFloorQuoteEngine (or quote pipeline)",
+      "hint": "cost phase — Sandvik typically 1.4-1.6x Iscar list; Iscar typically 1.1-1.3x Korean (Korloy/TaeguTec); pick the lowest-cost vendor whose grade chart covers the material + cutting condition (so quote tool cost <= alternative)"
+    },
+    {
+      "consumer": "/system-viz lathe roost",
+      "hint": "render each vendor as a child node under the lathe domain roost; each node carries the resource URLs; clicking opens the vendor's grade-chart page in browser"
+    }
+  ],
+  "follow_up_units": [
+    {
+      "id": "U-LATHE-VENDOR-PDF-DOWNLOAD",
+      "scope": "operator/wget — download the 14 named PDFs from this manifest into resources/MANUFACTURER_CATALOGS/uploaded/. PRISM has no automated PDF binary fetch (WebFetch is HTML-only); this is operator work.",
+      "priority": "P1"
+    },
+    {
+      "id": "U-LATHE-VENDOR-GRADE-CHART-PARSE",
+      "scope": "extend pdf-parse-extract.mjs to ingest each downloaded vendor grade chart + emit per-grade tribal records (grade x ISO-group x Vc range x DOC range)",
+      "priority": "P1"
+    },
+    {
+      "id": "U-LATHE-WIZARD-VENDOR-LOOKUP",
+      "scope": "wire vendor-tribal JSON into LatheCAMIntelligenceEngine.selectInsert — current heuristic uses material-group only; with vendor data we add grade-x-condition match",
+      "priority": "P0"
+    },
+    {
+      "id": "U-LATHE-VENDOR-GRAPH-NODE",
+      "scope": "/system-viz ghost.lathe_vendors roost — surface 6 vendor nodes under the lathe domain with click-through URLs",
+      "priority": "P2"
+    }
+  ]
+}

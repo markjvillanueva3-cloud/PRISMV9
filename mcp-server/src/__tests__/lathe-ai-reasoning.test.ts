@@ -14,15 +14,24 @@ import {
 import { threadTurningEngine, G76_DIALECTS, getG76Dialect, generateG76Code } from "../engines/ThreadTurningEngine.js";
 
 describe("LatheAIReasoningEngine — G76 Threading Dialects", () => {
-  it("includes all 7 G76 dialects", () => {
-    expect(G76_DIALECTS.length).toBe(7);
+  // Source-of-truth: ThreadTurningEngine cites the Fanuc 0i/30i, Okuma OSP-P200/P300L,
+  // Mitsubishi M70V, Siemens 840D and Mazak Mazatrol M-Plus manuals (5-dialect design,
+  // authored ENGINE-WIRE-MS0/U-WIRE04 2026-04-27; behaviorally locked by the 14/14
+  // LatheAIReasoningEngine.test.ts companion 2026-05-16). Haas/Doosan/Hwacheon are
+  // Fanuc-G76 compatible and fold into fanuc_double by design.
+  // DEFERRED GAP (whiskey/echo -- see reference_lathe_g76_dialect_fossil_2026_06_21):
+  //   native LinuxCNC + Mach3 G76 dialects (single-block R-degression / H spring-pass)
+  //   are NOT yet modeled; an unmodeled controller falls back to fanuc_double. Adding
+  //   them is a real .cps-grounded post-processor build + threading-G-code safety review,
+  //   NOT a unilateral india edit. (This block was the U-TEST-FOSSIL orphan that asserted
+  //   a speculative 7-dialect design with non-canonical Mazak/Okuma/Haas codes.)
+  it("defines the 5 cited controller G76 dialects", () => {
+    expect(G76_DIALECTS.length).toBe(5);
     const dialects = G76_DIALECTS.map(d => d.dialect);
     expect(dialects).toContain("fanuc_double");
-    expect(dialects).toContain("fanuc_single");
-    expect(dialects).toContain("haas");
-    expect(dialects).toContain("linuxcnc");
-    expect(dialects).toContain("mach3");
     expect(dialects).toContain("okuma");
+    expect(dialects).toContain("mitsubishi");
+    expect(dialects).toContain("siemens");
     expect(dialects).toContain("mazak");
   });
 
@@ -32,10 +41,9 @@ describe("LatheAIReasoningEngine — G76 Threading Dialects", () => {
     expect(dialect?.dialect).toBe("fanuc_double");
   });
 
-  it("getG76Dialect returns correct dialect for Haas", () => {
+  it("getG76Dialect folds a Haas controller into fanuc_double (Haas is Fanuc-G76 compatible)", () => {
     const dialect = getG76Dialect("Haas ST-20");
-    expect(dialect).toBeDefined();
-    expect(dialect?.dialect).toBe("haas");
+    expect(dialect?.dialect).toBe("fanuc_double");
   });
 
   it("getG76Dialect returns correct dialect for Okuma", () => {
@@ -50,13 +58,18 @@ describe("LatheAIReasoningEngine — G76 Threading Dialects", () => {
     expect(dialect?.dialect).toBe("mazak");
   });
 
-  it("getG76Dialect returns correct dialect for LinuxCNC", () => {
-    const dialect = getG76Dialect("PathPilot");
-    expect(dialect).toBeDefined();
-    expect(dialect?.dialect).toBe("linuxcnc");
+  it("getG76Dialect maps a Siemens controller to the siemens CYCLE99 dialect", () => {
+    const dialect = getG76Dialect("Sinumerik 840D");
+    expect(dialect?.dialect).toBe("siemens");
   });
 
-  it("generateG76Code produces valid Fanuc double-line format", () => {
+  it("getG76Dialect returns no match for an unmodeled controller so callers default to fanuc_double", () => {
+    // PathPilot (LinuxCNC) + Mach3 are the deferred gap above -- no dialect matches today.
+    const matched = getG76Dialect("PathPilot");
+    expect(matched ? matched.dialect : "no-match").toBe("no-match");
+  });
+
+  it("generateG76Code emits a labeled two-line Fanuc G76 cycle (P/Q/R header + X/Z/P/Q/F move)", () => {
     const code = generateG76Code("fanuc_double", {
       end_x_mm: 48,
       end_z_mm: -30,
@@ -66,25 +79,30 @@ describe("LatheAIReasoningEngine — G76 Threading Dialects", () => {
       spring_passes: 2,
       infeed_angle: 29,
     });
-    expect(code).toContain("G76 P");
-    expect(code).toContain("F1.5");
-    expect(code.split("\n").length).toBe(2);
+    expect(code).toContain("( G76 TWO-LINE )");
+    const cycle = code.split("\n").filter(l => l.startsWith("G76"));
+    expect(cycle.length).toBe(2); // two-line Fanuc cycle (header + move)
+    expect(cycle[0]).toContain("G76 P"); // P{repeat}{chamfer}{angle} Q R header
+    expect(cycle[1]).toContain("G76 X48.000 Z-30.000");
+    expect(cycle[1]).toContain("P974"); // thread depth in microns
+    expect(cycle[1]).toContain("Q200"); // first-cut depth in microns
+    expect(cycle[1]).toContain("F1.5000"); // pitch as lead
   });
 
-  it("generateG76Code produces valid Haas format", () => {
-    const code = generateG76Code("haas", {
+  it("generateG76Code folds Haas into the Fanuc two-line cycle (Haas is Fanuc-G76 compatible)", () => {
+    // getG76Dialect("Haas") -> fanuc_double, so a Haas program renders the two-line shape.
+    const code = generateG76Code(getG76Dialect("Haas ST-20")!.dialect, {
       end_x_mm: 48,
       end_z_mm: -30,
       thread_depth_mm: 0.974,
       first_cut_mm: 0.2,
       pitch_mm: 1.5,
     });
-    expect(code).toContain("G76 D");
-    expect(code).toContain("K0.974");
-    expect(code).toContain("F1.5");
+    expect(code).toContain("( G76 TWO-LINE )");
+    expect(code).toContain("G76 X48.000 Z-30.000 P974 Q200 F1.5000");
   });
 
-  it("generateG76Code produces valid Okuma G71 format", () => {
+  it("generateG76Code emits an Okuma single-line G76 with micron depth and infeed angle", () => {
     const code = generateG76Code("okuma", {
       end_x_mm: 48,
       end_z_mm: -30,
@@ -92,13 +110,11 @@ describe("LatheAIReasoningEngine — G76 Threading Dialects", () => {
       first_cut_mm: 0.2,
       pitch_mm: 1.5,
     });
-    expect(code).toContain("G71");
-    expect(code).toContain("M23"); // Chamfering ON
-    expect(code).toContain("M26"); // Z-axis lead
-    expect(code).toContain("M32"); // Straight infeed
+    expect(code).toContain("( G76 OKUMA SINGLE-LINE )");
+    expect(code).toContain("G76 X48.000 Z-30.000 I0 K974 D200 F1.5000 A60");
   });
 
-  it("generateG76Code produces valid Mazak Three-Digit format", () => {
+  it("generateG76Code renders Mazak EIA mode as the Fanuc two-line shape", () => {
     const code = generateG76Code("mazak", {
       end_x_mm: 48,
       end_z_mm: -30,
@@ -106,23 +122,25 @@ describe("LatheAIReasoningEngine — G76 Threading Dialects", () => {
       first_cut_mm: 0.2,
       pitch_mm: 1.5,
     });
-    expect(code).toContain("G324");
-    expect(code).toContain("G424");
-    expect(code).toContain("G420");
+    const cycle = code.split("\n").filter(l => l.startsWith("G76"));
+    expect(cycle.length).toBe(2);
+    expect(cycle[1]).toContain("G76 X48.000 Z-30.000 P974 Q200 F1.5000");
   });
 
-  it("generateG76Code produces valid LinuxCNC format with R=2", () => {
-    const code = generateG76Code("linuxcnc", {
+  it("generateG76Code wraps Siemens threading in a CYCLE99 call, not a raw G76", () => {
+    const code = generateG76Code("siemens", {
       end_x_mm: 48,
       end_z_mm: -30,
       thread_depth_mm: 0.974,
       first_cut_mm: 0.2,
       pitch_mm: 1.5,
-      spring_passes: 3,
     });
-    expect(code).toContain("G76");
-    expect(code).toContain("R2"); // Constant area regression
-    expect(code).toContain("H3"); // Spring passes
+    // Exact CYCLE99 positional contract: (SPL,FPL,DM1,DM2,APP,ROP,TDEP,FAL,IANG,NSP,NRC,NID,PIT,VARI,NUMTH,SDAC,MID,GAMW)
+    // -- pins pitch (PIT) in its 13th slot = 1.5000, not a free-floating substring.
+    expect(code).toContain(
+      "CYCLE99(0, 0, 48.000, -30.000, 0, 0.020, 0.974, 0.020, 60, 0, 1, 0, 1.5000, 1, 1, 0, 0, 0)",
+    );
+    expect(code).not.toContain("G76 X"); // Siemens has no raw G76 move
   });
 });
 
@@ -165,7 +183,7 @@ describe("LatheAIReasoningEngine — Threading Dialect Selection", () => {
     expect(result.dialect_confidence).toBeGreaterThan(0.9);
   });
 
-  it("selects correct dialect for Haas controller", () => {
+  it("selects fanuc_double for a Haas controller (Haas is Fanuc-G76 compatible)", () => {
     const result = latheAIReasoningEngine.selectG76Dialect({
       controller: "Haas ST-25",
       thread_pitch_mm: 2.0,
@@ -173,7 +191,7 @@ describe("LatheAIReasoningEngine — Threading Dialect Selection", () => {
       thread_length_mm: 20,
       material_iso: "M",
     });
-    expect(result.recommended_dialect).toBe("haas");
+    expect(result.recommended_dialect).toBe("fanuc_double");
   });
 
   it("recommends modified flank infeed for coarse pitch", () => {

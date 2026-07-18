@@ -1,0 +1,58 @@
+# HANDOFF — claude-bca3789f — slot lima — html-rtk-obsidian
+
+## RESUME
+
+HTML+RTK upgrades are COMPLETE. NEXT: the obsidian-wiki + context-management
+enhancements half of the work order ("utilizing obsidian, ollama and
+system-viz"). **Do it in the slot-lima worktree `H:/prism-slot-lima` (branch
+`slot/lima`)** — the shared `H:/prism` main tree caused a cross-chat commit
+misattribution this session (a `git add` window was swept into a peer's
+`git commit`). The slot worktree has a separate index — immune to that.
+First step: `EnterWorktree` or `cd H:/prism-slot-lima`, then pick ONE bounded
+enhancement, dedup-check via `duplicationGuardEngine.mustCheckBeforeCreating()`,
+build with per-file 2-reviewer scrutiny, commit in the slot worktree.
+
+## STATE — what shipped this session
+
+- **Iter1 RTK adopt** — COMMITTED `60dbc72116 [MAIN] [RTK-ADOPT]/U-RTK-RATELIMIT`.
+  Adopted slot kilo's stranded rtk-prefix-reminder rate-limiter + cat/ls→Read/Glob
+  redirect + bash-bundle swap + 15-case test. 2-reviewer PASS/PASS.
+- **Iter2 HTML adopt** — code-complete, 2-reviewer scrutiny PASS/PASS, both test
+  suites green (html-companion-guard 24/24, md-to-html 19/19). The 6 deliverable
+  files were SWEPT into peer commit `f5403a8274` (banner
+  `[KNOWLEDGE-ENRICH-MS0]/U-KE01`) instead of getting their own
+  `[HTML-ADOPT]/U-HTML-COMPANION-SRCHASH` commit. Work is correct on disk+git;
+  only the banner is wrong. NOT rewritten (downstream-visible). Recorded:
+  memory `reference_iter2_html_adopt_misattribution_2026_05_18`.
+- **Iter3 HTML-PRIMARY follow-ups** — all 4 targets verified ALREADY FIXED at
+  HEAD (process.kill(pid,0) win32 OpenProcess comment present; invokedDirectly
+  case-folds on win32; spec_html_render has trailing-path.sep escape guard;
+  sourceLink escapes once per slot — no double-escape). No-op. The handoff task
+  list predated kilo's HTML-PRIMARY-MS0 fixes (R8/R10 — handoffs are hypotheses).
+- **Iter4 RTK hook-coverage** — analyzed `rtk-prefix-reminder.mjs`: sound. Only
+  gap is first-token-only detection misses verbose commands after `&&` in a
+  chain — conservative-by-design (mid-chain detection would be noisy). No fix
+  warranted.
+
+## CONTEXT TO PRESERVE
+
+- Git environment was hostile this session: shared-index lock contention, a
+  wedged peer `git commit` (PID 64848, slot juliett CAMX-MS0.3/U-CAMX11) held
+  `.git/index.lock` 3+ min — killed (atomic-rename = no corruption; peer
+  re-commits, files intact); MSYS bash `fork()` failures under host memory
+  pressure (Win32 error 299); a wedged `git-fsmonitor--daemon`. Mitigations
+  that worked: `git -c core.fsmonitor=false`, PowerShell native git, the
+  slot worktree (separate index).
+- For ALL future commits this slot: use the slot-lima worktree, not the main
+  tree. That eliminates both the contention and the misattribution class.
+- The misattribution recovery doctrine (do NOT rewrite shared history; record
+  the override) is in `reference_cross_chat_commit_misattribution_2026_05_18`
+  and the new peer wiki at commit `359245c7a0`.
+
+## DEFERRED
+
+- `U-HTML-GUARD-ROOTDOC` — re-add root-doc (CLAUDE.md/MEMORY.md) targeting to
+  `isCompanionTarget` WITH regenerated non-drifted CLAUDE.html/MEMORY.html +
+  a root-doc `checkTwin` integration test, all in one commit. The 4
+  "root doc → false" tests in html-companion-guard.test.mjs are the regression
+  oracle gating that deferral.

@@ -602,13 +602,36 @@ describe("HookExecutor (Phase Chain System)", () => {
   });
 
   describe("getStats", () => {
-    it("returns executor statistics", () => {
+    it("returns executor statistics", async () => {
+      // Self-contained oracle (R9): register + execute so getStats reflects real,
+      // non-zero state independent of test ordering, then assert concrete values
+      // (not just key presence — a getStats returning all-zeros must fail).
+      hookExecutor.register({
+        id: "TEST-STATS-001",
+        name: "Stats Test",
+        description: "stats oracle hook",
+        phase: "on-audit",
+        category: "observability",
+        mode: "logging",
+        priority: "normal",
+        enabled: true,
+        handler: () => hookSuccess(
+          { id: "TEST-STATS-001", name: "Stats Test", phase: "on-audit" as const, category: "observability" as const, mode: "logging" as const },
+          "ok"
+        ),
+      });
+      await hookExecutor.execute("on-audit", { operation: "stats_probe" });
       const stats = hookExecutor.getStats();
       expect(stats).toHaveProperty("totalHooks");
       expect(stats).toHaveProperty("enabledHooks");
       expect(stats).toHaveProperty("byCategory");
       expect(stats).toHaveProperty("byPhase");
       expect(stats).toHaveProperty("totalExecutions");
+      expect(stats.totalExecutions).toBeGreaterThanOrEqual(1);
+      expect(stats.byCategory.observability).toBeGreaterThanOrEqual(1);
+      expect(stats.byPhase["on-audit"]).toBeGreaterThanOrEqual(1);
+      expect(stats.enabledHooks).toBeLessThanOrEqual(stats.totalHooks);
+      hookExecutor.unregister("TEST-STATS-001");
     });
   });
 });

@@ -1,0 +1,345 @@
+{
+  "_meta": {
+    "track": "LATHE-PRO",
+    "title": "Lathe Programming Intelligence — Complete Zero-Experience Pipeline",
+    "version": "3.0.0",
+    "created": "2026-04-05",
+    "previous_versions": [
+      "1.0.0 (37.4/100)",
+      "2.0.0 (71.8/100)"
+    ],
+    "target_score": 82,
+    "total_milestones": 17,
+    "total_units": 142,
+    "estimated_sessions": 48,
+    "scrutiny_rounds": 3,
+    "engines_to_wire": 35,
+    "engines_to_create": 26,
+    "description": "v3.0: Fixes 4 agents below 60 from v2 scrutiny. Splits Swiss (MS6->MS6a+MS6b, 16u), Threading (MS4->MS4a+MS4b, 16u), expands CAD/CAM (MS-1, 12u) and Workholding (MS3, 14u). Full RGS quality fields on all 142 units."
+  },
+  "milestones": [
+    {
+      "id": "LATHE-PRO-MS-1",
+      "title": "Input Pipeline — Photo/CAD to Structured Features",
+      "phase": "A",
+      "units": 12,
+      "sessions": 4,
+      "depends_on": [],
+      "status": "complete",
+      "completion_evidence": {
+        "verified_at": "2026-05-05",
+        "verified_by": "claude-5ceef0e6",
+        "engines_on_disk": [
+          "TurningPrintIntakeEngine",
+          "MaterialCalloutParserEngine",
+          "ToleranceExtractionEngine",
+          "TurningCADImportEngine",
+          "StockSelectionEngine",
+          "AmbiguityResolutionEngine",
+          "TurningRevProfileEngine",
+          "TurningFeatureTaxonomyEngine",
+          "FitNotationParserEngine",
+          "ISO2768ApplicatorEngine"
+        ],
+        "dispatcher_actions": [
+          "turning_blueprint_intake",
+          "turning_parse_material",
+          "turning_parse_tolerance",
+          "turning_cad_import",
+          "turning_stock_select",
+          "turning_resolve_ambiguity",
+          "turning_rev_profile",
+          "turning_feature_taxonomy",
+          "turning_parse_fit",
+          "turning_apply_iso2768"
+        ],
+        "test_files": [
+          "lathe-input-pipeline.test.ts",
+          "lathe-pro-ms1-session2.test.ts",
+          "lathe-pro-ms1-session3.test.ts",
+          "lathe-pro-ms1-intake.test.ts"
+        ],
+        "test_count": 166,
+        "unit_LPI07_floor": 25,
+        "notes": "All 12 MS-1 units fully built and wired; built incidentally during LATHE-MASTER+LATHE-PROD-READY tracks per ownership rule. Bookkeeping was never updated after build. 166 tests >> U-LPI07 25+ floor."
+      }
+    },
+    {
+      "id": "LATHE-PRO-MS-2",
+      "title": "Zero-Experience UI & Guided Workflow",
+      "phase": "A",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS-1"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS0",
+      "title": "Enhanced Orchestrator (35 Stages + 5 Safety)",
+      "phase": "B",
+      "units": 14,
+      "sessions": 5,
+      "depends_on": [
+        "LATHE-PRO-MS-1"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS1",
+      "title": "Insert Wear Intelligence & Life Prediction",
+      "phase": "C",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS0"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS2",
+      "title": "Offset + Thermal + GD&T Compensation",
+      "phase": "C",
+      "units": 10,
+      "sessions": 4,
+      "depends_on": [
+        "LATHE-PRO-MS1"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS3",
+      "title": "Sequence + Multi-Op + Workholding (Expanded)",
+      "phase": "C",
+      "units": 14,
+      "sessions": 5,
+      "depends_on": [
+        "LATHE-PRO-MS0"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS4a",
+      "title": "Threading Deep Intelligence",
+      "phase": "D",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS0"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS4b",
+      "title": "Grooving & Parting Deep Intelligence",
+      "phase": "D",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS0"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS5",
+      "title": "Hard Turning, Finishing & Grinding Replacement",
+      "phase": "D",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS0",
+        "LATHE-PRO-MS4a"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS6a",
+      "title": "Swiss/Mill-Turn Multi-Channel G-Code Emission",
+      "phase": "D",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS0"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS6b",
+      "title": "Swiss Production Intelligence & Bar Management",
+      "phase": "D",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS6a"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS7",
+      "title": "Chip Control & Coolant Strategy",
+      "phase": "D",
+      "units": 6,
+      "sessions": 2,
+      "depends_on": [
+        "LATHE-PRO-MS0"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS8",
+      "title": "GD&T, Inspection & Metrology Intelligence",
+      "phase": "E",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS2"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS9",
+      "title": "Quality Compliance (AS9100/ISO 13485/FDA)",
+      "phase": "E",
+      "units": 6,
+      "sessions": 2,
+      "depends_on": [
+        "LATHE-PRO-MS8"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS10",
+      "title": "Cost Optimization & Batch Economics",
+      "phase": "F",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS0",
+        "LATHE-PRO-MS1"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS11",
+      "title": "Shop Floor Integration & Deployment",
+      "phase": "F",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS10"
+      ],
+      "status": "not_started"
+    },
+    {
+      "id": "LATHE-PRO-MS12",
+      "title": "Simulation, Verification & Visualization",
+      "phase": "G",
+      "units": 8,
+      "sessions": 3,
+      "depends_on": [
+        "LATHE-PRO-MS-2",
+        "LATHE-PRO-MS0"
+      ],
+      "status": "not_started"
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "lathe-pro-ms-1-gate",
+    "mcp_action": "prism_lathe-pro:lathe_pro_ms_1_run",
+    "skill_command": "/lathe-pro-ms-1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "lathe-pro-ms-1-gate"
+    ],
+    "new_actions": [
+      "lathe_pro_ms_1_run"
+    ],
+    "new_skills": [
+      "/lathe-pro-ms-1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Deliver LATHE-PRO-MS-1 per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-LPPR01",
+      "title": "LATHE-PRO-MS-1 — Coordinator",
+      "description": "Master coordinator envelope for LATHE-PRO-MS-1. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

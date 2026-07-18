@@ -1,0 +1,1269 @@
+{
+  "system": "hyperCAD-S / hyperMILL",
+  "ui_inventory_version": 1,
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-04-18T23:30:00Z",
+  "source": "hyperMILL v33.0 + hyperCAD-S 2024",
+  "description": "Complete UI inventory - every menu, button, setting, and parameter",
+
+  "hypercad_menus": {
+    "File": {
+      "items": [
+        {"id": "file_new", "name": "New", "shortcut": "Ctrl+N", "submenu": [
+          {"id": "file_new_part", "name": "Part"},
+          {"id": "file_new_assembly", "name": "Assembly"},
+          {"id": "file_new_drawing", "name": "Drawing"},
+          {"id": "file_new_template", "name": "From Template..."}
+        ]},
+        {"id": "file_open", "name": "Open...", "shortcut": "Ctrl+O"},
+        {"id": "file_open_recent", "name": "Recent Files", "submenu": "dynamic"},
+        {"id": "file_close", "name": "Close", "shortcut": "Ctrl+W"},
+        {"id": "file_close_all", "name": "Close All"},
+        {"id": "file_separator_1", "type": "separator"},
+        {"id": "file_save", "name": "Save", "shortcut": "Ctrl+S"},
+        {"id": "file_save_as", "name": "Save As...", "shortcut": "Ctrl+Shift+S"},
+        {"id": "file_save_all", "name": "Save All"},
+        {"id": "file_save_copy", "name": "Save Copy As..."},
+        {"id": "file_separator_2", "type": "separator"},
+        {"id": "file_import", "name": "Import", "submenu": [
+          {"id": "file_import_step", "name": "STEP (.stp, .step)"},
+          {"id": "file_import_iges", "name": "IGES (.igs, .iges)"},
+          {"id": "file_import_parasolid", "name": "Parasolid (.x_t, .x_b)"},
+          {"id": "file_import_catia", "name": "CATIA V5 (.CATPart, .CATProduct)"},
+          {"id": "file_import_nx", "name": "NX/UG (.prt)"},
+          {"id": "file_import_solidworks", "name": "SolidWorks (.sldprt, .sldasm)"},
+          {"id": "file_import_inventor", "name": "Inventor (.ipt, .iam)"},
+          {"id": "file_import_creo", "name": "Creo/Pro-E (.prt, .asm)"},
+          {"id": "file_import_jt", "name": "JT (.jt)"},
+          {"id": "file_import_acis", "name": "ACIS (.sat, .sab)"},
+          {"id": "file_import_stl", "name": "STL (.stl)"},
+          {"id": "file_import_obj", "name": "OBJ (.obj)"},
+          {"id": "file_import_vrml", "name": "VRML (.wrl)"},
+          {"id": "file_import_3ds", "name": "3DS (.3ds)"},
+          {"id": "file_import_dxf", "name": "DXF (.dxf)"},
+          {"id": "file_import_dwg", "name": "DWG (.dwg)"},
+          {"id": "file_import_pdf", "name": "PDF (.pdf)"},
+          {"id": "file_import_ai", "name": "Adobe Illustrator (.ai)"}
+        ]},
+        {"id": "file_export", "name": "Export", "submenu": [
+          {"id": "file_export_step", "name": "STEP (.stp)"},
+          {"id": "file_export_iges", "name": "IGES (.igs)"},
+          {"id": "file_export_parasolid", "name": "Parasolid (.x_t)"},
+          {"id": "file_export_stl", "name": "STL (.stl)"},
+          {"id": "file_export_obj", "name": "OBJ (.obj)"},
+          {"id": "file_export_vrml", "name": "VRML (.wrl)"},
+          {"id": "file_export_3dpdf", "name": "3D PDF (.pdf)"},
+          {"id": "file_export_dxf", "name": "DXF (.dxf)"},
+          {"id": "file_export_dwg", "name": "DWG (.dwg)"},
+          {"id": "file_export_image", "name": "Image (.png, .jpg, .bmp)"}
+        ]},
+        {"id": "file_separator_3", "type": "separator"},
+        {"id": "file_print", "name": "Print...", "shortcut": "Ctrl+P"},
+        {"id": "file_print_preview", "name": "Print Preview"},
+        {"id": "file_page_setup", "name": "Page Setup..."},
+        {"id": "file_separator_4", "type": "separator"},
+        {"id": "file_properties", "name": "Properties..."},
+        {"id": "file_separator_5", "type": "separator"},
+        {"id": "file_exit", "name": "Exit", "shortcut": "Alt+F4"}
+      ]
+    },
+    "Edit": {
+      "items": [
+        {"id": "edit_undo", "name": "Undo", "shortcut": "Ctrl+Z"},
+        {"id": "edit_redo", "name": "Redo", "shortcut": "Ctrl+Y"},
+        {"id": "edit_separator_1", "type": "separator"},
+        {"id": "edit_cut", "name": "Cut", "shortcut": "Ctrl+X"},
+        {"id": "edit_copy", "name": "Copy", "shortcut": "Ctrl+C"},
+        {"id": "edit_paste", "name": "Paste", "shortcut": "Ctrl+V"},
+        {"id": "edit_paste_special", "name": "Paste Special..."},
+        {"id": "edit_delete", "name": "Delete", "shortcut": "Del"},
+        {"id": "edit_separator_2", "type": "separator"},
+        {"id": "edit_select_all", "name": "Select All", "shortcut": "Ctrl+A"},
+        {"id": "edit_select_none", "name": "Select None", "shortcut": "Esc"},
+        {"id": "edit_select_invert", "name": "Invert Selection"},
+        {"id": "edit_select_by_type", "name": "Select by Type...", "submenu": [
+          {"id": "edit_select_points", "name": "Points"},
+          {"id": "edit_select_curves", "name": "Curves"},
+          {"id": "edit_select_surfaces", "name": "Surfaces"},
+          {"id": "edit_select_solids", "name": "Solids"},
+          {"id": "edit_select_meshes", "name": "Meshes"}
+        ]},
+        {"id": "edit_separator_3", "type": "separator"},
+        {"id": "edit_find", "name": "Find...", "shortcut": "Ctrl+F"},
+        {"id": "edit_replace", "name": "Replace...", "shortcut": "Ctrl+H"}
+      ]
+    },
+    "View": {
+      "items": [
+        {"id": "view_zoom_in", "name": "Zoom In", "shortcut": "Ctrl++"},
+        {"id": "view_zoom_out", "name": "Zoom Out", "shortcut": "Ctrl+-"},
+        {"id": "view_zoom_fit", "name": "Zoom to Fit", "shortcut": "F"},
+        {"id": "view_zoom_selected", "name": "Zoom to Selection"},
+        {"id": "view_zoom_window", "name": "Zoom Window"},
+        {"id": "view_separator_1", "type": "separator"},
+        {"id": "view_standard_views", "name": "Standard Views", "submenu": [
+          {"id": "view_front", "name": "Front", "shortcut": "1"},
+          {"id": "view_back", "name": "Back", "shortcut": "Shift+1"},
+          {"id": "view_top", "name": "Top", "shortcut": "2"},
+          {"id": "view_bottom", "name": "Bottom", "shortcut": "Shift+2"},
+          {"id": "view_left", "name": "Left", "shortcut": "3"},
+          {"id": "view_right", "name": "Right", "shortcut": "Shift+3"},
+          {"id": "view_isometric", "name": "Isometric", "shortcut": "0"},
+          {"id": "view_dimetric", "name": "Dimetric"},
+          {"id": "view_trimetric", "name": "Trimetric"}
+        ]},
+        {"id": "view_separator_2", "type": "separator"},
+        {"id": "view_display_mode", "name": "Display Mode", "submenu": [
+          {"id": "view_wireframe", "name": "Wireframe", "shortcut": "W"},
+          {"id": "view_hidden_line", "name": "Hidden Line"},
+          {"id": "view_shaded", "name": "Shaded", "shortcut": "S"},
+          {"id": "view_shaded_wireframe", "name": "Shaded with Edges"},
+          {"id": "view_transparent", "name": "Transparent"},
+          {"id": "view_realistic", "name": "Realistic (PBR)"}
+        ]},
+        {"id": "view_separator_3", "type": "separator"},
+        {"id": "view_panels", "name": "Panels", "submenu": [
+          {"id": "view_feature_browser", "name": "Feature Browser"},
+          {"id": "view_job_list", "name": "Job List"},
+          {"id": "view_cam_browser", "name": "CAM Browser"},
+          {"id": "view_tool_panel", "name": "Tool Panel"},
+          {"id": "view_properties", "name": "Properties Panel"},
+          {"id": "view_layers", "name": "Layers Panel"},
+          {"id": "view_output", "name": "Output Panel"},
+          {"id": "view_command_line", "name": "Command Line"}
+        ]},
+        {"id": "view_toolbars", "name": "Toolbars", "submenu": [
+          {"id": "view_tb_standard", "name": "Standard"},
+          {"id": "view_tb_view", "name": "View"},
+          {"id": "view_tb_sketch", "name": "Sketch"},
+          {"id": "view_tb_surface", "name": "Surface"},
+          {"id": "view_tb_solid", "name": "Solid"},
+          {"id": "view_tb_mesh", "name": "Mesh"},
+          {"id": "view_tb_cam", "name": "CAM"},
+          {"id": "view_tb_analysis", "name": "Analysis"}
+        ]},
+        {"id": "view_separator_4", "type": "separator"},
+        {"id": "view_grid", "name": "Show Grid", "shortcut": "G"},
+        {"id": "view_axes", "name": "Show Axes"},
+        {"id": "view_origin", "name": "Show Origin"},
+        {"id": "view_wcs", "name": "Show WCS Indicator"}
+      ]
+    },
+    "Insert": {
+      "items": [
+        {"id": "insert_point", "name": "Point", "submenu": [
+          {"id": "insert_point_xyz", "name": "XYZ Coordinates"},
+          {"id": "insert_point_on_curve", "name": "On Curve"},
+          {"id": "insert_point_on_surface", "name": "On Surface"},
+          {"id": "insert_point_center", "name": "Center Point"},
+          {"id": "insert_point_intersection", "name": "Intersection"},
+          {"id": "insert_point_divide", "name": "Divide Curve"}
+        ]},
+        {"id": "insert_line", "name": "Line", "submenu": [
+          {"id": "insert_line_2point", "name": "Two Points"},
+          {"id": "insert_line_angle", "name": "Angle/Length"},
+          {"id": "insert_line_tangent", "name": "Tangent to Curve"},
+          {"id": "insert_line_perpendicular", "name": "Perpendicular"},
+          {"id": "insert_line_parallel", "name": "Parallel"},
+          {"id": "insert_line_bisector", "name": "Bisector"}
+        ]},
+        {"id": "insert_arc", "name": "Arc", "submenu": [
+          {"id": "insert_arc_3point", "name": "Three Points"},
+          {"id": "insert_arc_center", "name": "Center/Start/End"},
+          {"id": "insert_arc_tangent", "name": "Tangent Arc"},
+          {"id": "insert_arc_fillet", "name": "Fillet Arc"}
+        ]},
+        {"id": "insert_circle", "name": "Circle", "submenu": [
+          {"id": "insert_circle_center_radius", "name": "Center/Radius"},
+          {"id": "insert_circle_3point", "name": "Three Points"},
+          {"id": "insert_circle_2point", "name": "Two Points (Diameter)"},
+          {"id": "insert_circle_tangent", "name": "Tangent to Curves"}
+        ]},
+        {"id": "insert_spline", "name": "Spline", "submenu": [
+          {"id": "insert_spline_through_points", "name": "Through Points"},
+          {"id": "insert_spline_control_points", "name": "Control Points"},
+          {"id": "insert_spline_fit", "name": "Fit to Curves"}
+        ]},
+        {"id": "insert_separator_1", "type": "separator"},
+        {"id": "insert_rectangle", "name": "Rectangle"},
+        {"id": "insert_polygon", "name": "Polygon"},
+        {"id": "insert_ellipse", "name": "Ellipse"},
+        {"id": "insert_separator_2", "type": "separator"},
+        {"id": "insert_surface", "name": "Surface", "submenu": [
+          {"id": "insert_surface_extrude", "name": "Extrude"},
+          {"id": "insert_surface_revolve", "name": "Revolve"},
+          {"id": "insert_surface_sweep", "name": "Sweep"},
+          {"id": "insert_surface_loft", "name": "Loft"},
+          {"id": "insert_surface_boundary", "name": "Boundary"},
+          {"id": "insert_surface_ruled", "name": "Ruled"},
+          {"id": "insert_surface_offset", "name": "Offset"},
+          {"id": "insert_surface_fill", "name": "Fill"},
+          {"id": "insert_surface_blend", "name": "Blend"}
+        ]},
+        {"id": "insert_solid", "name": "Solid", "submenu": [
+          {"id": "insert_solid_box", "name": "Box"},
+          {"id": "insert_solid_cylinder", "name": "Cylinder"},
+          {"id": "insert_solid_cone", "name": "Cone"},
+          {"id": "insert_solid_sphere", "name": "Sphere"},
+          {"id": "insert_solid_torus", "name": "Torus"},
+          {"id": "insert_solid_extrude", "name": "Extrude"},
+          {"id": "insert_solid_revolve", "name": "Revolve"},
+          {"id": "insert_solid_sweep", "name": "Sweep"},
+          {"id": "insert_solid_loft", "name": "Loft"}
+        ]},
+        {"id": "insert_separator_3", "type": "separator"},
+        {"id": "insert_text", "name": "Text"},
+        {"id": "insert_dimension", "name": "Dimension"},
+        {"id": "insert_annotation", "name": "Annotation"}
+      ]
+    },
+    "Modify": {
+      "items": [
+        {"id": "modify_move", "name": "Move", "shortcut": "M"},
+        {"id": "modify_copy", "name": "Copy", "shortcut": "C"},
+        {"id": "modify_rotate", "name": "Rotate", "shortcut": "R"},
+        {"id": "modify_scale", "name": "Scale"},
+        {"id": "modify_mirror", "name": "Mirror"},
+        {"id": "modify_pattern", "name": "Pattern", "submenu": [
+          {"id": "modify_pattern_linear", "name": "Linear Pattern"},
+          {"id": "modify_pattern_circular", "name": "Circular Pattern"},
+          {"id": "modify_pattern_along_curve", "name": "Pattern Along Curve"}
+        ]},
+        {"id": "modify_separator_1", "type": "separator"},
+        {"id": "modify_trim", "name": "Trim", "shortcut": "T"},
+        {"id": "modify_extend", "name": "Extend", "shortcut": "E"},
+        {"id": "modify_split", "name": "Split"},
+        {"id": "modify_join", "name": "Join", "shortcut": "J"},
+        {"id": "modify_separator_2", "type": "separator"},
+        {"id": "modify_fillet", "name": "Fillet"},
+        {"id": "modify_chamfer", "name": "Chamfer"},
+        {"id": "modify_blend", "name": "Blend Edges"},
+        {"id": "modify_separator_3", "type": "separator"},
+        {"id": "modify_offset", "name": "Offset"},
+        {"id": "modify_thicken", "name": "Thicken"},
+        {"id": "modify_shell", "name": "Shell"},
+        {"id": "modify_separator_4", "type": "separator"},
+        {"id": "modify_boolean", "name": "Boolean", "submenu": [
+          {"id": "modify_boolean_union", "name": "Union"},
+          {"id": "modify_boolean_subtract", "name": "Subtract"},
+          {"id": "modify_boolean_intersect", "name": "Intersect"}
+        ]},
+        {"id": "modify_separator_5", "type": "separator"},
+        {"id": "modify_heal", "name": "Heal Geometry"},
+        {"id": "modify_simplify", "name": "Simplify"},
+        {"id": "modify_convert", "name": "Convert to...", "submenu": [
+          {"id": "modify_convert_curves", "name": "Convert to Curves"},
+          {"id": "modify_convert_surfaces", "name": "Convert to Surfaces"},
+          {"id": "modify_convert_mesh", "name": "Convert to Mesh"}
+        ]}
+      ]
+    },
+    "Analysis": {
+      "items": [
+        {"id": "analysis_measure", "name": "Measure", "submenu": [
+          {"id": "analysis_measure_distance", "name": "Distance"},
+          {"id": "analysis_measure_angle", "name": "Angle"},
+          {"id": "analysis_measure_radius", "name": "Radius"},
+          {"id": "analysis_measure_length", "name": "Length"},
+          {"id": "analysis_measure_area", "name": "Area"},
+          {"id": "analysis_measure_volume", "name": "Volume"},
+          {"id": "analysis_measure_mass", "name": "Mass Properties"}
+        ]},
+        {"id": "analysis_separator_1", "type": "separator"},
+        {"id": "analysis_curvature", "name": "Curvature Analysis"},
+        {"id": "analysis_draft", "name": "Draft Analysis"},
+        {"id": "analysis_undercut", "name": "Undercut Analysis"},
+        {"id": "analysis_thickness", "name": "Thickness Analysis"},
+        {"id": "analysis_deviation", "name": "Deviation Analysis"},
+        {"id": "analysis_separator_2", "type": "separator"},
+        {"id": "analysis_check_geometry", "name": "Check Geometry"},
+        {"id": "analysis_find_problems", "name": "Find Geometry Problems"},
+        {"id": "analysis_separator_3", "type": "separator"},
+        {"id": "analysis_section", "name": "Section View"},
+        {"id": "analysis_clip", "name": "Clip Plane"}
+      ]
+    },
+    "Extras": {
+      "items": [
+        {"id": "extras_options", "name": "Options...", "shortcut": "Ctrl+Shift+O"},
+        {"id": "extras_customize", "name": "Customize...", "submenu": [
+          {"id": "extras_customize_toolbars", "name": "Toolbars"},
+          {"id": "extras_customize_shortcuts", "name": "Keyboard Shortcuts"},
+          {"id": "extras_customize_mouse", "name": "Mouse Buttons"},
+          {"id": "extras_customize_menus", "name": "Menus"}
+        ]},
+        {"id": "extras_separator_1", "type": "separator"},
+        {"id": "extras_macros", "name": "Macros", "submenu": [
+          {"id": "extras_macro_record", "name": "Record Macro"},
+          {"id": "extras_macro_play", "name": "Play Macro"},
+          {"id": "extras_macro_edit", "name": "Edit Macro"},
+          {"id": "extras_macro_manager", "name": "Macro Manager"}
+        ]},
+        {"id": "extras_scripting", "name": "Scripting", "submenu": [
+          {"id": "extras_script_editor", "name": "Script Editor"},
+          {"id": "extras_script_console", "name": "Script Console"},
+          {"id": "extras_script_run", "name": "Run Script..."}
+        ]},
+        {"id": "extras_separator_2", "type": "separator"},
+        {"id": "extras_license", "name": "License Manager"},
+        {"id": "extras_updates", "name": "Check for Updates"}
+      ]
+    },
+    "Window": {
+      "items": [
+        {"id": "window_new", "name": "New Window"},
+        {"id": "window_cascade", "name": "Cascade"},
+        {"id": "window_tile_h", "name": "Tile Horizontal"},
+        {"id": "window_tile_v", "name": "Tile Vertical"},
+        {"id": "window_separator_1", "type": "separator"},
+        {"id": "window_close", "name": "Close Window"},
+        {"id": "window_close_all", "name": "Close All Windows"},
+        {"id": "window_separator_2", "type": "separator"},
+        {"id": "window_list", "name": "Window List...", "type": "dynamic"}
+      ]
+    },
+    "Help": {
+      "items": [
+        {"id": "help_contents", "name": "Help Contents", "shortcut": "F1"},
+        {"id": "help_search", "name": "Search Help..."},
+        {"id": "help_separator_1", "type": "separator"},
+        {"id": "help_tutorials", "name": "Tutorials"},
+        {"id": "help_whats_new", "name": "What's New"},
+        {"id": "help_tip_of_day", "name": "Tip of the Day"},
+        {"id": "help_separator_2", "type": "separator"},
+        {"id": "help_training", "name": "Training Resources"},
+        {"id": "help_support", "name": "Technical Support"},
+        {"id": "help_website", "name": "OPEN MIND Website"},
+        {"id": "help_separator_3", "type": "separator"},
+        {"id": "help_about", "name": "About hyperCAD-S"}
+      ]
+    }
+  },
+
+  "hypermill_menus": {
+    "CAM": {
+      "items": [
+        {"id": "cam_new_job", "name": "New Job", "submenu": [
+          {"id": "cam_job_2d", "name": "2D Operations", "submenu": [
+            {"id": "cam_2d_face", "name": "Face Milling"},
+            {"id": "cam_2d_pocket", "name": "Pocket Milling"},
+            {"id": "cam_2d_contour", "name": "Contour Milling"},
+            {"id": "cam_2d_slot", "name": "Slot Milling"},
+            {"id": "cam_2d_chamfer", "name": "Chamfer Milling"},
+            {"id": "cam_2d_thread", "name": "Thread Milling"},
+            {"id": "cam_2d_engrave", "name": "Engraving"},
+            {"id": "cam_2d_rest", "name": "2D Rest Machining"}
+          ]},
+          {"id": "cam_job_3d", "name": "3D Operations", "submenu": [
+            {"id": "cam_3d_shape_offset", "name": "Shape Offset Roughing"},
+            {"id": "cam_3d_optimised_rough", "name": "Optimised Roughing"},
+            {"id": "cam_3d_zlevel", "name": "Z-Level Finishing"},
+            {"id": "cam_3d_equidistant", "name": "Equidistant Finishing"},
+            {"id": "cam_3d_profile", "name": "3D Profile"},
+            {"id": "cam_3d_horizontal", "name": "Horizontal Area"},
+            {"id": "cam_3d_pencil", "name": "Pencil Tracing"},
+            {"id": "cam_3d_rest_rough", "name": "3D Rest Roughing"},
+            {"id": "cam_3d_rest_finish", "name": "3D Rest Finishing"},
+            {"id": "cam_3d_radial", "name": "Radial Machining"},
+            {"id": "cam_3d_spiral", "name": "Spiral Machining"},
+            {"id": "cam_3d_waterline", "name": "Waterline"}
+          ]},
+          {"id": "cam_job_5axis", "name": "5-Axis Operations", "submenu": [
+            {"id": "cam_5ax_swarf", "name": "Swarf Cutting"},
+            {"id": "cam_5ax_point", "name": "Point Milling"},
+            {"id": "cam_5ax_tangent_plane", "name": "Tangent Plane"},
+            {"id": "cam_5ax_contour", "name": "5-Axis Contour"},
+            {"id": "cam_5ax_flowline", "name": "Flowline Machining"},
+            {"id": "cam_5ax_zlevel", "name": "5-Axis Z-Level"},
+            {"id": "cam_5ax_equidistant", "name": "5-Axis Equidistant"},
+            {"id": "cam_5ax_rest", "name": "5-Axis Rest Machining"},
+            {"id": "cam_5ax_optimised_rough", "name": "5-Axis Optimised Roughing"},
+            {"id": "cam_5ax_indexed", "name": "3+2 Indexed Machining"},
+            {"id": "cam_5ax_free_path", "name": "Free Path Milling"},
+            {"id": "cam_5ax_tube", "name": "Tube Machining"},
+            {"id": "cam_5ax_impeller_rough", "name": "Impeller Roughing"},
+            {"id": "cam_5ax_impeller_finish", "name": "Impeller Flank Milling"},
+            {"id": "cam_5ax_blade_rough", "name": "Blade Roughing"}
+          ]},
+          {"id": "cam_job_drilling", "name": "Drilling", "submenu": [
+            {"id": "cam_drill_spot", "name": "Spot Drilling"},
+            {"id": "cam_drill_drill", "name": "Drilling"},
+            {"id": "cam_drill_peck", "name": "Peck Drilling"},
+            {"id": "cam_drill_deep", "name": "Deep Hole Drilling"},
+            {"id": "cam_drill_bore", "name": "Boring"},
+            {"id": "cam_drill_ream", "name": "Reaming"},
+            {"id": "cam_drill_tap", "name": "Tapping"},
+            {"id": "cam_drill_thread_mill", "name": "Thread Milling"},
+            {"id": "cam_drill_csink", "name": "Countersinking"},
+            {"id": "cam_drill_cbore", "name": "Counterboring"},
+            {"id": "cam_drill_back_spot", "name": "Back Spot Face"},
+            {"id": "cam_drill_helical", "name": "Helical Bore Milling"},
+            {"id": "cam_drill_circ_pocket", "name": "Circular Pocket"},
+            {"id": "cam_drill_chamfer", "name": "Chamfer Drilling"},
+            {"id": "cam_drill_combined", "name": "Combined Cycle"}
+          ]},
+          {"id": "cam_job_probing", "name": "Probing", "submenu": [
+            {"id": "cam_probe_setup", "name": "Setup/Calibration"},
+            {"id": "cam_probe_bore", "name": "Bore Probing"},
+            {"id": "cam_probe_boss", "name": "Boss Probing"},
+            {"id": "cam_probe_web", "name": "Web Probing"},
+            {"id": "cam_probe_surface", "name": "Surface Z Probing"},
+            {"id": "cam_probe_tool_set", "name": "Tool Setting"},
+            {"id": "cam_probe_breakage", "name": "Tool Breakage Detection"},
+            {"id": "cam_probe_in_process", "name": "In-Process Verification"}
+          ]},
+          {"id": "cam_job_maxx", "name": "MAXX Machining", "submenu": [
+            {"id": "cam_maxx_finish", "name": "MAXX Finishing"},
+            {"id": "cam_maxx_rough", "name": "MAXX Roughing"}
+          ]},
+          {"id": "cam_job_millturn", "name": "Mill-Turn", "submenu": [
+            {"id": "cam_turn_rough", "name": "Turning Roughing"},
+            {"id": "cam_turn_finish", "name": "Turning Finishing"},
+            {"id": "cam_turn_groove", "name": "Grooving"},
+            {"id": "cam_turn_part", "name": "Parting"},
+            {"id": "cam_turn_thread", "name": "Threading"},
+            {"id": "cam_turn_drill", "name": "Turning Drilling"},
+            {"id": "cam_turn_bore", "name": "Turning Boring"}
+          ]},
+          {"id": "cam_job_electrode", "name": "Electrode", "submenu": [
+            {"id": "cam_electrode_blank", "name": "Blank Definition"},
+            {"id": "cam_electrode_rough", "name": "Electrode Roughing"},
+            {"id": "cam_electrode_finish", "name": "Electrode Finishing"}
+          ]}
+        ]},
+        {"id": "cam_separator_1", "type": "separator"},
+        {"id": "cam_edit_job", "name": "Edit Job"},
+        {"id": "cam_copy_job", "name": "Copy Job"},
+        {"id": "cam_delete_job", "name": "Delete Job"},
+        {"id": "cam_separator_2", "type": "separator"},
+        {"id": "cam_calculate", "name": "Calculate", "shortcut": "F9"},
+        {"id": "cam_calculate_all", "name": "Calculate All"},
+        {"id": "cam_calculate_selected", "name": "Calculate Selected"},
+        {"id": "cam_separator_3", "type": "separator"},
+        {"id": "cam_simulate", "name": "Simulate", "submenu": [
+          {"id": "cam_sim_toolpath", "name": "Toolpath Simulation"},
+          {"id": "cam_sim_machine", "name": "Machine Simulation"},
+          {"id": "cam_sim_stock", "name": "Stock Simulation"},
+          {"id": "cam_sim_collision", "name": "Collision Check"}
+        ]},
+        {"id": "cam_separator_4", "type": "separator"},
+        {"id": "cam_postprocess", "name": "Post Process", "submenu": [
+          {"id": "cam_post_single", "name": "Post Process Job"},
+          {"id": "cam_post_selected", "name": "Post Process Selected"},
+          {"id": "cam_post_all", "name": "Post Process All"},
+          {"id": "cam_post_settings", "name": "Post Processor Settings..."}
+        ]},
+        {"id": "cam_separator_5", "type": "separator"},
+        {"id": "cam_tool_library", "name": "Tool Library..."},
+        {"id": "cam_machine_db", "name": "Machine Database..."},
+        {"id": "cam_material_db", "name": "Material Database..."},
+        {"id": "cam_separator_6", "type": "separator"},
+        {"id": "cam_automation", "name": "Automation", "submenu": [
+          {"id": "cam_auto_feature_rec", "name": "Feature Recognition"},
+          {"id": "cam_auto_template", "name": "Apply Template"},
+          {"id": "cam_auto_batch", "name": "Batch Processing"},
+          {"id": "cam_auto_macro", "name": "Run Macro"}
+        ]}
+      ]
+    }
+  },
+
+  "options": {
+    "General": {
+      "category_id": "options_general",
+      "settings": [
+        {"id": "opt_language", "name": "Language", "type": "enum", "values": ["English", "German", "French", "Italian", "Spanish", "Japanese", "Chinese", "Korean"]},
+        {"id": "opt_units", "name": "Default Units", "type": "enum", "values": ["Metric (mm)", "Imperial (inch)"]},
+        {"id": "opt_decimal_places", "name": "Decimal Places", "type": "integer", "min": 0, "max": 8, "default": 4},
+        {"id": "opt_angle_units", "name": "Angle Units", "type": "enum", "values": ["Degrees", "Radians"]},
+        {"id": "opt_temp_folder", "name": "Temporary Folder", "type": "path"},
+        {"id": "opt_backup_enabled", "name": "Enable Automatic Backup", "type": "boolean", "default": true},
+        {"id": "opt_backup_interval", "name": "Backup Interval (min)", "type": "integer", "min": 1, "max": 60, "default": 10},
+        {"id": "opt_recent_files", "name": "Recent Files Count", "type": "integer", "min": 1, "max": 20, "default": 10},
+        {"id": "opt_startup_action", "name": "Startup Action", "type": "enum", "values": ["Show Start Page", "New Document", "Open Last Document", "Nothing"]},
+        {"id": "opt_confirm_exit", "name": "Confirm Exit", "type": "boolean", "default": true}
+      ]
+    },
+    "Display": {
+      "category_id": "options_display",
+      "settings": [
+        {"id": "opt_background_type", "name": "Background Type", "type": "enum", "values": ["Solid", "Gradient", "Image"]},
+        {"id": "opt_background_color1", "name": "Background Color 1", "type": "color", "default": "#303030"},
+        {"id": "opt_background_color2", "name": "Background Color 2", "type": "color", "default": "#505050"},
+        {"id": "opt_antialiasing", "name": "Anti-aliasing", "type": "enum", "values": ["Off", "2x", "4x", "8x", "16x"]},
+        {"id": "opt_ambient_occlusion", "name": "Ambient Occlusion", "type": "boolean", "default": true},
+        {"id": "opt_shadows", "name": "Shadows", "type": "boolean", "default": true},
+        {"id": "opt_reflections", "name": "Reflections", "type": "boolean", "default": false},
+        {"id": "opt_transparency_quality", "name": "Transparency Quality", "type": "enum", "values": ["Fast", "Medium", "High"]},
+        {"id": "opt_edge_display", "name": "Edge Display", "type": "enum", "values": ["None", "Silhouette", "All Edges"]},
+        {"id": "opt_perspective", "name": "Perspective Projection", "type": "boolean", "default": true},
+        {"id": "opt_fov", "name": "Field of View (deg)", "type": "number", "min": 15, "max": 120, "default": 45},
+        {"id": "opt_dynamic_highlight", "name": "Dynamic Highlight", "type": "boolean", "default": true},
+        {"id": "opt_highlight_color", "name": "Highlight Color", "type": "color", "default": "#FFFF00"},
+        {"id": "opt_selection_color", "name": "Selection Color", "type": "color", "default": "#00FF00"}
+      ]
+    },
+    "Colors": {
+      "category_id": "options_colors",
+      "settings": [
+        {"id": "opt_color_curves", "name": "Curves", "type": "color", "default": "#FFFFFF"},
+        {"id": "opt_color_surfaces", "name": "Surfaces", "type": "color", "default": "#808080"},
+        {"id": "opt_color_solids", "name": "Solids", "type": "color", "default": "#C0C0C0"},
+        {"id": "opt_color_mesh", "name": "Mesh", "type": "color", "default": "#A0A0A0"},
+        {"id": "opt_color_points", "name": "Points", "type": "color", "default": "#FF0000"},
+        {"id": "opt_color_construction", "name": "Construction Geometry", "type": "color", "default": "#FFFF00"},
+        {"id": "opt_color_dimensions", "name": "Dimensions", "type": "color", "default": "#00FF00"},
+        {"id": "opt_color_grid", "name": "Grid", "type": "color", "default": "#404040"},
+        {"id": "opt_color_origin", "name": "Origin", "type": "color", "default": "#FF0000"},
+        {"id": "opt_color_axis_x", "name": "X-Axis", "type": "color", "default": "#FF0000"},
+        {"id": "opt_color_axis_y", "name": "Y-Axis", "type": "color", "default": "#00FF00"},
+        {"id": "opt_color_axis_z", "name": "Z-Axis", "type": "color", "default": "#0000FF"}
+      ]
+    },
+    "CAM_General": {
+      "category_id": "options_cam_general",
+      "settings": [
+        {"id": "opt_cam_default_machine", "name": "Default Machine", "type": "string"},
+        {"id": "opt_cam_default_post", "name": "Default Post Processor", "type": "string"},
+        {"id": "opt_cam_default_material", "name": "Default Material", "type": "string"},
+        {"id": "opt_cam_default_tool_lib", "name": "Default Tool Library", "type": "path"},
+        {"id": "opt_cam_auto_calc", "name": "Auto Calculate on Change", "type": "boolean", "default": false},
+        {"id": "opt_cam_calc_threads", "name": "Calculation Threads", "type": "integer", "min": 1, "max": 32, "default": 4},
+        {"id": "opt_cam_show_progress", "name": "Show Calculation Progress", "type": "boolean", "default": true},
+        {"id": "opt_cam_default_clearance", "name": "Default Clearance Plane", "type": "number", "unit": "mm", "default": 50},
+        {"id": "opt_cam_default_safety", "name": "Default Safety Distance", "type": "number", "unit": "mm", "default": 5},
+        {"id": "opt_cam_default_tolerance", "name": "Default Machining Tolerance", "type": "number", "unit": "mm", "default": 0.01}
+      ]
+    },
+    "CAM_Toolpath": {
+      "category_id": "options_cam_toolpath",
+      "settings": [
+        {"id": "opt_tp_color_rapid", "name": "Rapid Move Color", "type": "color", "default": "#FF0000"},
+        {"id": "opt_tp_color_feed", "name": "Feed Move Color", "type": "color", "default": "#00FF00"},
+        {"id": "opt_tp_color_plunge", "name": "Plunge Move Color", "type": "color", "default": "#0000FF"},
+        {"id": "opt_tp_color_retract", "name": "Retract Move Color", "type": "color", "default": "#FFFF00"},
+        {"id": "opt_tp_show_tool", "name": "Show Tool", "type": "boolean", "default": true},
+        {"id": "opt_tp_show_holder", "name": "Show Holder", "type": "boolean", "default": true},
+        {"id": "opt_tp_show_rapid", "name": "Show Rapid Moves", "type": "boolean", "default": true},
+        {"id": "opt_tp_show_directions", "name": "Show Cut Directions", "type": "boolean", "default": false},
+        {"id": "opt_tp_line_width", "name": "Toolpath Line Width", "type": "integer", "min": 1, "max": 10, "default": 1}
+      ]
+    },
+    "Simulation": {
+      "category_id": "options_simulation",
+      "settings": [
+        {"id": "opt_sim_speed", "name": "Default Simulation Speed", "type": "number", "min": 0.1, "max": 100, "default": 10},
+        {"id": "opt_sim_stock_color", "name": "Stock Color", "type": "color", "default": "#808080"},
+        {"id": "opt_sim_gouge_color", "name": "Gouge Color", "type": "color", "default": "#FF0000"},
+        {"id": "opt_sim_excess_color", "name": "Excess Material Color", "type": "color", "default": "#00FF00"},
+        {"id": "opt_sim_collision_check", "name": "Enable Collision Checking", "type": "boolean", "default": true},
+        {"id": "opt_sim_stop_on_collision", "name": "Stop on Collision", "type": "boolean", "default": true},
+        {"id": "opt_sim_machine_model", "name": "Show Machine Model", "type": "boolean", "default": true},
+        {"id": "opt_sim_resolution", "name": "Simulation Resolution", "type": "enum", "values": ["Low", "Medium", "High", "Very High"]},
+        {"id": "opt_sim_record_video", "name": "Enable Video Recording", "type": "boolean", "default": false}
+      ]
+    },
+    "Post_Processor": {
+      "category_id": "options_post",
+      "settings": [
+        {"id": "opt_post_output_folder", "name": "NC Output Folder", "type": "path"},
+        {"id": "opt_post_file_extension", "name": "NC File Extension", "type": "string", "default": ".nc"},
+        {"id": "opt_post_line_numbers", "name": "Line Numbers", "type": "boolean", "default": true},
+        {"id": "opt_post_line_increment", "name": "Line Number Increment", "type": "integer", "min": 1, "max": 100, "default": 10},
+        {"id": "opt_post_block_skip", "name": "Block Skip Character", "type": "string", "default": "/"},
+        {"id": "opt_post_comments", "name": "Include Comments", "type": "boolean", "default": true},
+        {"id": "opt_post_tool_change_comment", "name": "Tool Change Comments", "type": "boolean", "default": true},
+        {"id": "opt_post_operation_comment", "name": "Operation Comments", "type": "boolean", "default": true},
+        {"id": "opt_post_decimal_format", "name": "Decimal Format", "type": "enum", "values": ["Trailing Zeros", "No Trailing Zeros"]},
+        {"id": "opt_post_arc_output", "name": "Arc Output", "type": "enum", "values": ["IJK Incremental", "IJK Absolute", "R Format"]},
+        {"id": "opt_post_safe_start", "name": "Safe Start Block", "type": "boolean", "default": true}
+      ]
+    },
+    "Import_Export": {
+      "category_id": "options_io",
+      "settings": [
+        {"id": "opt_io_step_version", "name": "STEP Version", "type": "enum", "values": ["AP203", "AP214", "AP242"]},
+        {"id": "opt_io_step_assembly", "name": "STEP Assembly Mode", "type": "enum", "values": ["Single Part", "Assembly Structure"]},
+        {"id": "opt_io_heal_on_import", "name": "Heal Geometry on Import", "type": "boolean", "default": true},
+        {"id": "opt_io_simplify_on_import", "name": "Simplify on Import", "type": "boolean", "default": false},
+        {"id": "opt_io_stl_format", "name": "STL Format", "type": "enum", "values": ["ASCII", "Binary"]},
+        {"id": "opt_io_stl_tolerance", "name": "STL Export Tolerance", "type": "number", "unit": "mm", "default": 0.01},
+        {"id": "opt_io_iges_surfaces", "name": "IGES Surface Type", "type": "enum", "values": ["Trimmed", "Untrimmed", "Both"]}
+      ]
+    },
+    "Keyboard_Shortcuts": {
+      "category_id": "options_shortcuts",
+      "description": "Customizable keyboard shortcuts for all commands"
+    },
+    "Mouse_Settings": {
+      "category_id": "options_mouse",
+      "settings": [
+        {"id": "opt_mouse_rotate", "name": "Rotate Button", "type": "enum", "values": ["Middle", "Right", "Left+Middle"]},
+        {"id": "opt_mouse_pan", "name": "Pan Button", "type": "enum", "values": ["Shift+Middle", "Middle", "Right"]},
+        {"id": "opt_mouse_zoom", "name": "Zoom Action", "type": "enum", "values": ["Scroll Wheel", "Ctrl+Middle", "Right Drag"]},
+        {"id": "opt_mouse_invert_zoom", "name": "Invert Zoom Direction", "type": "boolean", "default": false},
+        {"id": "opt_mouse_orbit_style", "name": "Orbit Style", "type": "enum", "values": ["Turntable", "Trackball", "Constrained"]},
+        {"id": "opt_mouse_double_click", "name": "Double-Click Action", "type": "enum", "values": ["Zoom Fit", "Edit", "Properties"]}
+      ]
+    }
+  },
+
+  "machining_strategies": {
+    "2D_Face_Milling": {
+      "operation_id": "2d_face_milling",
+      "description": "Face milling for flat top surfaces",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 6, "max": 200},
+        {"id": "tool_teeth", "name": "Number of Teeth", "type": "integer", "min": 2, "max": 24},
+        {"id": "corner_radius", "name": "Corner Radius", "type": "number", "unit": "mm", "min": 0, "max": 6.35},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 50, "max": 24000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 10, "max": 10000},
+        {"id": "axial_depth", "name": "Axial Depth", "type": "number", "unit": "mm", "min": 0.1, "max": 12},
+        {"id": "radial_depth", "name": "Radial Stepover %", "type": "number", "unit": "%", "min": 10, "max": 100},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["climb", "conventional", "both"]},
+        {"id": "pattern", "name": "Cut Pattern", "type": "enum", "values": ["unidirectional", "bidirectional", "spiral_in", "spiral_out"]},
+        {"id": "approach_type", "name": "Approach Type", "type": "enum", "values": ["vertical", "ramp", "helix", "arc"]},
+        {"id": "ramp_angle", "name": "Ramp Angle", "type": "number", "unit": "deg", "min": 0.5, "max": 45},
+        {"id": "stock_allowance", "name": "Stock Allowance", "type": "number", "unit": "mm", "min": 0, "max": 5},
+        {"id": "clearance_plane", "name": "Clearance Plane", "type": "number", "unit": "mm"},
+        {"id": "safety_distance", "name": "Safety Distance", "type": "number", "unit": "mm", "min": 0.5, "max": 100}
+      ]
+    },
+    "2D_Pocket_Milling": {
+      "operation_id": "2d_pocket_milling",
+      "description": "Pocket clearing with multiple strategies",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 1, "max": 50},
+        {"id": "flute_count", "name": "Number of Flutes", "type": "integer", "min": 2, "max": 8},
+        {"id": "helix_angle", "name": "Helix Angle", "type": "number", "unit": "deg", "min": 15, "max": 45},
+        {"id": "flute_length", "name": "Flute Length", "type": "number", "unit": "mm", "min": 5, "max": 150},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 100, "max": 24000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 50, "max": 15000},
+        {"id": "plunge_feed", "name": "Plunge Feed", "type": "number", "unit": "mm/min", "min": 10, "max": 2000},
+        {"id": "axial_depth", "name": "Depth per Pass", "type": "number", "unit": "mm", "min": 0.1, "max": 50},
+        {"id": "radial_stepover", "name": "Stepover %", "type": "number", "unit": "%", "min": 5, "max": 90},
+        {"id": "cut_pattern", "name": "Cut Pattern", "type": "enum", "values": ["contour_parallel", "spiral", "zigzag", "hsm_trochoidal", "plunge_rough"]},
+        {"id": "entry_method", "name": "Entry Method", "type": "enum", "values": ["ramp", "helix", "plunge", "predrill"]},
+        {"id": "helix_diameter", "name": "Helix Diameter %", "type": "number", "unit": "%", "min": 50, "max": 100},
+        {"id": "helix_pitch", "name": "Helix Pitch", "type": "number", "unit": "mm", "min": 0.5, "max": 10},
+        {"id": "corner_treatment", "name": "Corner Treatment", "type": "enum", "values": ["none", "arc", "loop", "trochoidal"]},
+        {"id": "floor_allowance", "name": "Floor Allowance", "type": "number", "unit": "mm", "min": 0, "max": 2},
+        {"id": "wall_allowance", "name": "Wall Allowance", "type": "number", "unit": "mm", "min": 0, "max": 2}
+      ]
+    },
+    "2D_Contour_Milling": {
+      "operation_id": "2d_contour_milling",
+      "description": "2D profile/contour machining",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 1, "max": 50},
+        {"id": "flute_count", "name": "Number of Flutes", "type": "integer", "min": 2, "max": 8},
+        {"id": "corner_radius", "name": "Corner Radius", "type": "number", "unit": "mm", "min": 0, "max": 5},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 100, "max": 24000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 50, "max": 12000},
+        {"id": "axial_depth", "name": "Depth per Pass", "type": "number", "unit": "mm", "min": 0.1, "max": 30},
+        {"id": "total_depth", "name": "Total Depth", "type": "number", "unit": "mm", "min": 0.1, "max": 200},
+        {"id": "cut_side", "name": "Cut Side", "type": "enum", "values": ["left", "right", "on"]},
+        {"id": "compensation", "name": "Cutter Compensation", "type": "enum", "values": ["computer", "controller", "none"]},
+        {"id": "lead_in_type", "name": "Lead-In Type", "type": "enum", "values": ["line", "arc", "tangent", "none"]},
+        {"id": "lead_in_distance", "name": "Lead-In Distance", "type": "number", "unit": "mm", "min": 0, "max": 50},
+        {"id": "lead_out_type", "name": "Lead-Out Type", "type": "enum", "values": ["line", "arc", "tangent", "none"]},
+        {"id": "overlap", "name": "Overlap Distance", "type": "number", "unit": "mm", "min": 0, "max": 20},
+        {"id": "spring_passes", "name": "Spring Passes", "type": "integer", "min": 0, "max": 5}
+      ]
+    },
+    "2D_Slot_Milling": {
+      "operation_id": "2d_slot_milling",
+      "description": "Slot/groove machining",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 1, "max": 50},
+        {"id": "flute_count", "name": "Number of Flutes", "type": "integer", "min": 2, "max": 6},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 100, "max": 20000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 20, "max": 8000},
+        {"id": "axial_depth", "name": "Depth per Pass", "type": "number", "unit": "mm", "min": 0.1, "max": 20},
+        {"id": "entry_method", "name": "Entry Method", "type": "enum", "values": ["ramp", "helix", "plunge"]},
+        {"id": "ramp_angle", "name": "Ramp Angle", "type": "number", "unit": "deg", "min": 0.5, "max": 15},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["unidirectional", "bidirectional"]}
+      ]
+    },
+    "2D_Thread_Milling": {
+      "operation_id": "2d_thread_milling",
+      "description": "Thread milling with helical interpolation",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Shank Diameter", "type": "number", "unit": "mm", "min": 2, "max": 32},
+        {"id": "thread_pitch", "name": "Thread Pitch", "type": "number", "unit": "mm", "min": 0.25, "max": 6},
+        {"id": "teeth_count", "name": "Number of Teeth", "type": "integer", "min": 1, "max": 8},
+        {"id": "thread_form", "name": "Thread Form", "type": "enum", "values": ["metric", "unc", "unf", "bsp", "npt", "acme", "buttress"]},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 100, "max": 15000},
+        {"id": "feed_per_tooth", "name": "Feed per Tooth", "type": "number", "unit": "mm", "min": 0.01, "max": 0.3},
+        {"id": "radial_passes", "name": "Radial Passes", "type": "integer", "min": 1, "max": 5},
+        {"id": "thread_direction", "name": "Thread Direction", "type": "enum", "values": ["internal", "external"]},
+        {"id": "helix_direction", "name": "Helix Direction", "type": "enum", "values": ["cw", "ccw"]},
+        {"id": "entry_type", "name": "Entry Type", "type": "enum", "values": ["radial", "tangent_arc"]},
+        {"id": "chamfer_threads", "name": "Chamfer Start", "type": "boolean"}
+      ]
+    },
+    "2D_Chamfer_Milling": {
+      "operation_id": "2d_chamfer_milling",
+      "description": "Edge chamfering/deburring",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 3, "max": 50},
+        {"id": "chamfer_angle", "name": "Chamfer Angle", "type": "number", "unit": "deg", "min": 15, "max": 90},
+        {"id": "tip_diameter", "name": "Tip Diameter", "type": "number", "unit": "mm", "min": 0, "max": 20},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 100, "max": 20000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 50, "max": 6000},
+        {"id": "chamfer_width", "name": "Chamfer Width", "type": "number", "unit": "mm", "min": 0.1, "max": 10}
+      ]
+    },
+    "3D_Shape_Offset_Roughing": {
+      "operation_id": "3d_shape_offset_roughing",
+      "description": "Optimised 3D roughing with shape offset",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 3, "max": 80},
+        {"id": "flute_count", "name": "Number of Flutes", "type": "integer", "min": 2, "max": 10},
+        {"id": "corner_radius", "name": "Corner Radius", "type": "number", "unit": "mm", "min": 0, "max": 10},
+        {"id": "flute_length", "name": "Flute Length", "type": "number", "unit": "mm", "min": 10, "max": 150},
+        {"id": "tool_type", "name": "Tool Type", "type": "enum", "values": ["flat_endmill", "ball_nose", "bullnose", "torus", "barrel"]},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 200, "max": 24000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 100, "max": 15000},
+        {"id": "plunge_feed", "name": "Plunge Feed", "type": "number", "unit": "mm/min", "min": 20, "max": 3000},
+        {"id": "axial_depth", "name": "Axial Depth", "type": "number", "unit": "mm", "min": 0.5, "max": 50},
+        {"id": "radial_stepover", "name": "Stepover %", "type": "number", "unit": "%", "min": 5, "max": 90},
+        {"id": "stepover_mode", "name": "Stepover Mode", "type": "enum", "values": ["percentage", "absolute", "constant_chip_load"]},
+        {"id": "cut_pattern", "name": "Cut Pattern", "type": "enum", "values": ["offset", "spiral", "zigzag", "trochoidal", "morphed_spiral"]},
+        {"id": "level_strategy", "name": "Level Strategy", "type": "enum", "values": ["constant_z", "adaptive_z", "morphed"]},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["climb", "conventional", "both"]},
+        {"id": "entry_method", "name": "Entry Method", "type": "enum", "values": ["helix", "ramp", "plunge", "predrill"]},
+        {"id": "helix_diameter_percent", "name": "Helix Diameter %", "type": "number", "unit": "%", "min": 50, "max": 100},
+        {"id": "helix_pitch", "name": "Helix Pitch", "type": "number", "unit": "mm", "min": 0.5, "max": 15},
+        {"id": "stock_allowance", "name": "Stock Allowance", "type": "number", "unit": "mm", "min": 0, "max": 5},
+        {"id": "floor_stock", "name": "Floor Stock", "type": "number", "unit": "mm", "min": 0, "max": 5},
+        {"id": "corner_smoothing", "name": "Corner Smoothing", "type": "enum", "values": ["none", "arc", "loop", "trochoidal"]}
+      ]
+    },
+    "3D_ZLevel_Finishing": {
+      "operation_id": "3d_zlevel_finishing",
+      "description": "Constant Z finishing for steep areas",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 1, "max": 50},
+        {"id": "tool_type", "name": "Tool Type", "type": "enum", "values": ["ball_nose", "bullnose", "torus", "barrel"]},
+        {"id": "corner_radius", "name": "Corner Radius", "type": "number", "unit": "mm", "min": 0.5, "max": 25},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 500, "max": 30000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 200, "max": 20000},
+        {"id": "stepdown", "name": "Step Down", "type": "number", "unit": "mm", "min": 0.02, "max": 5},
+        {"id": "steep_angle", "name": "Steep Angle Threshold", "type": "number", "unit": "deg", "min": 15, "max": 85},
+        {"id": "cut_direction", "name": "Cut Direction", "type": "enum", "values": ["climb", "conventional", "both"]},
+        {"id": "spiral_enabled", "name": "Spiral Connect", "type": "boolean"},
+        {"id": "stock_to_leave", "name": "Stock to Leave", "type": "number", "unit": "mm", "min": 0, "max": 1}
+      ]
+    },
+    "3D_Equidistant_Finishing": {
+      "operation_id": "3d_equidistant_finishing",
+      "description": "Constant stepover finishing for shallow areas",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 1, "max": 32},
+        {"id": "tool_type", "name": "Tool Type", "type": "enum", "values": ["ball_nose", "bullnose", "torus"]},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 1000, "max": 40000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 500, "max": 25000},
+        {"id": "stepover", "name": "Stepover", "type": "number", "unit": "mm", "min": 0.02, "max": 5},
+        {"id": "stepover_mode", "name": "Stepover Mode", "type": "enum", "values": ["constant", "scallop_height", "adaptive"]},
+        {"id": "scallop_height", "name": "Target Scallop Height", "type": "number", "unit": "mm", "min": 0.001, "max": 0.5},
+        {"id": "pattern", "name": "Pattern", "type": "enum", "values": ["parallel", "perpendicular", "radial", "spiral", "custom_direction"]},
+        {"id": "angle", "name": "Cutting Angle", "type": "number", "unit": "deg", "min": 0, "max": 180},
+        {"id": "flat_angle", "name": "Flat Area Angle", "type": "number", "unit": "deg", "min": 5, "max": 75}
+      ]
+    },
+    "3D_Pencil_Tracing": {
+      "operation_id": "3d_pencil_tracing",
+      "description": "Corner finishing in fillets and blends",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 0.5, "max": 16},
+        {"id": "tool_type", "name": "Tool Type", "type": "enum", "values": ["ball_nose", "tapered_ball"]},
+        {"id": "taper_angle", "name": "Taper Angle", "type": "number", "unit": "deg", "min": 0, "max": 15},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 2000, "max": 40000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 200, "max": 10000},
+        {"id": "number_of_passes", "name": "Number of Passes", "type": "integer", "min": 1, "max": 5},
+        {"id": "pass_offset", "name": "Pass Offset", "type": "number", "unit": "mm", "min": 0.01, "max": 1},
+        {"id": "corner_detection", "name": "Corner Detection", "type": "enum", "values": ["automatic", "reference_tool", "manual_curves"]},
+        {"id": "reference_diameter", "name": "Reference Tool Diameter", "type": "number", "unit": "mm"},
+        {"id": "min_corner_radius", "name": "Min Corner Radius", "type": "number", "unit": "mm", "min": 0.1, "max": 20}
+      ]
+    },
+    "3D_Rest_Machining": {
+      "operation_id": "3d_rest_machining",
+      "description": "Rest material removal after roughing",
+      "parameters": [
+        {"id": "tool_diameter", "name": "Tool Diameter", "type": "number", "unit": "mm", "min": 0.5, "max": 32},
+        {"id": "tool_type", "name": "Tool Type", "type": "enum", "values": ["ball_nose", "bullnose", "flat_endmill", "torus"]},
+        {"id": "corner_radius", "name": "Corner Radius", "type": "number", "unit": "mm", "min": 0, "max": 16},
+        {"id": "spindle_speed", "name": "Spindle Speed", "type": "number", "unit": "rpm", "min": 500, "max": 30000},
+        {"id": "feed_rate", "name": "Feed Rate", "type": "number", "unit": "mm/min", "min": 100, "max": 12000},
+        {"id": "stepover", "name": "Stepover %", "type": "number", "unit": "%", "min": 5, "max": 80},
+        {"id": "stepdown", "name": "Step Down", "type": "number", "unit": "mm", "min": 0.1, "max": 20},
+        {"id": "stock_source", "name": "Stock Source", "type": "enum", "values": ["previous_operation", "3d_model", "stock_model", "manual"]},
+        {"id": "reference_tool_diameter", "name": "Reference Tool Diameter", "type": "number", "unit": "mm"},
+        {"id": "rest_detection_tolerance", "name": "Detection Tolerance", "type": "number", "unit": "mm", "min": 0.01, "max": 2},
+        {"id": "rest_mode", "name": "Rest Mode", "type": "enum", "values": ["zlevel", "equidistant", "optimised", "adaptive"]},
+        {"id": "min_rest_area", "name": "Min Rest Area", "type": "number", "unit": "mm", "min": 0.1, "max": 5}
+      ]
+    },
+    "5Axis_Swarf_Cutting": {
+      "operation_id": "5ax_swarf_cutting",
+      "description": "5-axis side milling tangent to ruled surfaces",
+      "parameters": [
+        {"id": "SRFRES", "name": "Surface Resolution", "type": "formula", "unit": "mm"},
+        {"id": "PRFRES", "name": "Profile Resolution", "type": "formula", "unit": "mm"},
+        {"id": "CURVE_CONTACT", "name": "Curve Contact Mode", "type": "integer", "range": [0, 1]},
+        {"id": "STEP_STRATEGY", "name": "Step Strategy", "type": "integer", "range": [0, 2]},
+        {"id": "CUT_DIRECTION", "name": "Cut Direction", "type": "integer", "range": [0, 2]},
+        {"id": "ZUSTELL_ART", "name": "Stepover Mode", "type": "integer", "range": [0, 1]},
+        {"id": "HORIZUSTEL", "name": "Horizontal Stepover", "type": "number", "unit": "mm", "min": 0.01, "max": 100},
+        {"id": "VERTZUSTEL", "name": "Vertical Step", "type": "number", "unit": "mm", "min": 0.01, "max": 50},
+        {"id": "AUFMASS", "name": "Radial Allowance", "type": "number", "unit": "mm", "min": -1, "max": 10},
+        {"id": "AUFMASS_HORI", "name": "Axial Allowance", "type": "number", "unit": "mm", "min": -1, "max": 10},
+        {"id": "ZOFFSET", "name": "Z Offset", "type": "number", "unit": "mm", "min": -50, "max": 50},
+        {"id": "STOCK_WIDTH", "name": "Stock Width", "type": "number", "unit": "mm", "min": 0, "max": 100},
+        {"id": "STOCK_HEIGHT", "name": "Stock Height", "type": "number", "unit": "mm", "min": 0, "max": 100},
+        {"id": "SMOOTH_5AX", "name": "Smooth 5-Axis", "type": "integer", "range": [0, 1]},
+        {"id": "TILT_ANGLE", "name": "Lead Angle", "type": "number", "unit": "deg", "min": 0, "max": 45},
+        {"id": "SIDE_ANGLE", "name": "Side Angle", "type": "number", "unit": "deg", "min": -45, "max": 45},
+        {"id": "MACRO_START", "name": "Approach Type", "type": "integer", "range": [1, 3]},
+        {"id": "MACRO_SRAD", "name": "Approach Radius", "type": "number", "unit": "mm", "min": 0.5, "max": 50},
+        {"id": "MACRO_SABST", "name": "Approach Distance", "type": "number", "unit": "mm", "min": 0, "max": 50},
+        {"id": "MACRO_END", "name": "Retract Type", "type": "integer", "range": [1, 3]},
+        {"id": "MACRO_ERAD", "name": "Retract Radius", "type": "number", "unit": "mm", "min": 0.5, "max": 50},
+        {"id": "MACRO_EABST", "name": "Retract Distance", "type": "number", "unit": "mm", "min": 0, "max": 50},
+        {"id": "MACRO_RETURN", "name": "Return Move", "type": "integer", "range": [0, 2]},
+        {"id": "SICHDIST", "name": "Safety Distance", "type": "number", "unit": "mm", "min": 0.5, "max": 100},
+        {"id": "SICHEBENE", "name": "Clearance Plane", "type": "number", "unit": "mm", "min": 1, "max": 500},
+        {"id": "TOOL_LENGTH_INCR", "name": "Tool Length Increment", "type": "number", "unit": "mm", "min": 0, "max": 50},
+        {"id": "SHANK_CLEARANCE", "name": "Shank Clearance", "type": "number", "unit": "mm", "min": 0, "max": 5},
+        {"id": "EXTENSION_CLEARANCE", "name": "Extension Clearance", "type": "number", "unit": "mm", "min": 0, "max": 5},
+        {"id": "HOLDER_CLEARANCE", "name": "Holder Clearance", "type": "number", "unit": "mm", "min": 0, "max": 10},
+        {"id": "HEAD_CLEARANCE", "name": "Head Clearance", "type": "number", "unit": "mm", "min": 0, "max": 20},
+        {"id": "PRECISION", "name": "Machining Tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 0.5},
+        {"id": "OUTPUT_TOL", "name": "Output Tolerance", "type": "number", "unit": "mm", "min": 0.005, "max": 0.5},
+        {"id": "STEP_MAX", "name": "Max Point Distance", "type": "number", "unit": "mm", "min": 0.1, "max": 10},
+        {"id": "SICH_MAXDIST", "name": "Max Direct Infeed", "type": "number", "unit": "mm", "min": 1, "max": 100},
+        {"id": "STEP_WIN", "name": "Max Angle Increment", "type": "number", "unit": "deg", "min": 0.1, "max": 5},
+        {"id": "MAX_DIST_ANGLE", "name": "Max Distance Angle", "type": "number", "unit": "deg", "min": 45, "max": 180},
+        {"id": "CLEAR_RADIUS", "name": "Clear Radius", "type": "number", "unit": "mm", "min": 10, "max": 500},
+        {"id": "CHECK_PLANE", "name": "Check Clearance Plane", "type": "integer", "range": [0, 1]},
+        {"id": "CHECK_STARTPT", "name": "Check Start Position", "type": "integer", "range": [0, 1]},
+        {"id": "ALLOW_WEAK_CHECK", "name": "Allow Weak Check", "type": "integer", "range": [0, 1]},
+        {"id": "AUTO_FEED", "name": "Auto Feed", "type": "integer", "range": [0, 1]},
+        {"id": "AUTO_FEED_RAD", "name": "Auto Feed Radius", "type": "number", "unit": "mm", "min": 1, "max": 100}
+      ]
+    },
+    "5Axis_Impeller_Roughing": {
+      "operation_id": "5ax_impeller_roughing",
+      "description": "Specialized impeller/blisk roughing",
+      "parameters": [
+        {"id": "PARTIAL", "name": "Partial Machining", "type": "integer", "range": [0, 1]},
+        {"id": "BLADE_COUNT", "name": "Blade Count", "type": "integer", "min": 1, "max": 100},
+        {"id": "SRFRES", "name": "Surface Resolution", "type": "formula"},
+        {"id": "ENTRY_POS", "name": "Entry Position", "type": "integer", "range": [0, 2]},
+        {"id": "LAUF", "name": "Direction", "type": "integer", "range": [0, 2]},
+        {"id": "ZUSTELL_ART", "name": "Stepover Mode", "type": "integer", "range": [0, 1]},
+        {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "unit": "mm"},
+        {"id": "SCAL_HEIGHT", "name": "Scallop Height", "type": "number", "unit": "mm"},
+        {"id": "AUFMASS_HUB", "name": "Hub Allowance", "type": "number", "unit": "mm"},
+        {"id": "AUFMASS_HORI", "name": "Blade Allowance", "type": "number", "unit": "mm"},
+        {"id": "FILLET_TOL", "name": "Fillet Tolerance", "type": "number", "unit": "mm"},
+        {"id": "PATH_CT", "name": "Path Count", "type": "integer", "min": 1, "max": 10},
+        {"id": "ENTRY_PASS_CT", "name": "Entry Pass Count", "type": "integer", "min": 0, "max": 5},
+        {"id": "ENTRY_HEIGHT", "name": "Entry Height", "type": "number", "unit": "mm"},
+        {"id": "LEAD_ANGLE", "name": "Lead Angle", "type": "number", "unit": "deg"},
+        {"id": "LEADUP_ANGLE", "name": "Lead Up Angle", "type": "number", "unit": "deg"},
+        {"id": "EXT_LEAD", "name": "Extend Lead", "type": "number", "unit": "mm"},
+        {"id": "EXT_TRAIL", "name": "Extend Trail", "type": "number", "unit": "mm"},
+        {"id": "PRECISION", "name": "Precision", "type": "number", "unit": "mm"},
+        {"id": "STEP_MAX", "name": "Max Step", "type": "number", "unit": "mm"},
+        {"id": "TOL_ANGLE", "name": "Tolerance Angle", "type": "number", "unit": "deg"},
+        {"id": "STEP_WIN", "name": "Step Window", "type": "number", "unit": "deg"}
+      ]
+    },
+    "MAXX_Finishing": {
+      "operation_id": "maxx_finishing",
+      "description": "Barrel cutter finishing for large radius blending",
+      "parameters": [
+        {"id": "BARREL_RADIUS", "name": "Barrel Radius", "type": "number", "unit": "mm"},
+        {"id": "BARREL_LENGTH", "name": "Barrel Length", "type": "number", "unit": "mm"},
+        {"id": "TAPER_ANGLE", "name": "Taper Angle", "type": "number", "unit": "deg"},
+        {"id": "TIP_RADIUS", "name": "Tip Radius", "type": "number", "unit": "mm"},
+        {"id": "SRFRES", "name": "Surface Resolution", "type": "formula"},
+        {"id": "PRFRES", "name": "Profile Resolution", "type": "formula"},
+        {"id": "CLIMB", "name": "Climb Milling", "type": "integer", "range": [0, 1]},
+        {"id": "STOCK_WIDTH", "name": "Stock Width", "type": "number", "unit": "mm"},
+        {"id": "HORIZUSTEL", "name": "Stepover", "type": "number", "unit": "mm"},
+        {"id": "AUFMASS_HORI", "name": "Horizontal Allowance", "type": "number", "unit": "mm"},
+        {"id": "AUFMASS", "name": "Allowance", "type": "number", "unit": "mm"},
+        {"id": "ENTRY_WIDTH", "name": "Entry Width", "type": "number", "unit": "mm"},
+        {"id": "TILT_ANGLE", "name": "Tilt Angle", "type": "number", "unit": "deg"},
+        {"id": "SIDE_ANGLE", "name": "Side Angle", "type": "number", "unit": "deg"},
+        {"id": "PRECISION", "name": "Machining Tolerance", "type": "number", "unit": "mm"},
+        {"id": "OUTPUT_TOL", "name": "Output Tolerance", "type": "number", "unit": "mm"},
+        {"id": "STEP_MAX", "name": "Max Step", "type": "number", "unit": "mm"}
+      ]
+    },
+    "Turning_Roughing": {
+      "operation_id": "turn_roughing",
+      "description": "Longitudinal and face turning roughing",
+      "parameters": [
+        {"id": "TCUTTINGSPEED", "name": "Cutting Speed", "type": "number", "unit": "m/min"},
+        {"id": "TSPINDLESPEED_INTERNAL_MAX", "name": "Max Internal Speed", "type": "number", "unit": "rpm"},
+        {"id": "FEEDRATE", "name": "Feed Rate", "type": "number", "unit": "mm/rev"},
+        {"id": "FVORSCHUB", "name": "Finish Feed", "type": "number", "unit": "mm/rev"},
+        {"id": "INFEED_LENGTH", "name": "Infeed Length", "type": "number", "unit": "mm"},
+        {"id": "INFEED_MODE", "name": "Infeed Mode", "type": "integer", "range": [0, 2]},
+        {"id": "ADD_STEP", "name": "Additional Step", "type": "number", "unit": "mm"},
+        {"id": "ALLOWANCE", "name": "Total Allowance", "type": "number", "unit": "mm"},
+        {"id": "RADIAL_ALLOWANCE", "name": "Radial Allowance", "type": "number", "unit": "mm"},
+        {"id": "AXIAL_ALLOWANCE", "name": "Axial Allowance", "type": "number", "unit": "mm"},
+        {"id": "METHOD", "name": "Method", "type": "integer", "range": [0, 4]},
+        {"id": "LEFT_RIGHT", "name": "Left/Right", "type": "integer", "range": [0, 1]},
+        {"id": "FINISH_PATH", "name": "Finish Path", "type": "integer", "range": [0, 1]},
+        {"id": "INTERIOR", "name": "Interior", "type": "integer", "range": [0, 1]},
+        {"id": "CUT_DIR", "name": "Cut Direction", "type": "integer", "range": [0, 1]},
+        {"id": "ACCEPT_UNDERCUT", "name": "Accept Undercut", "type": "integer", "range": [0, 1]},
+        {"id": "APPROACH_TYPE", "name": "Approach Type", "type": "integer", "range": [0, 4]},
+        {"id": "RETRACT_TYPE", "name": "Retract Type", "type": "integer", "range": [0, 4]},
+        {"id": "CLEARANCE_DISTANCE", "name": "Clearance Distance", "type": "number", "unit": "mm"},
+        {"id": "TREG_TIP", "name": "Tip Register", "type": "integer", "range": [1, 9]},
+        {"id": "COLL_CHECK", "name": "Collision Check", "type": "integer", "range": [0, 1]}
+      ]
+    }
+  },
+
+  "context_menus": {
+    "geometry_selection": {
+      "items": [
+        {"id": "ctx_select_all", "name": "Select All"},
+        {"id": "ctx_select_similar", "name": "Select Similar"},
+        {"id": "ctx_select_connected", "name": "Select Connected"},
+        {"id": "ctx_separator_1", "type": "separator"},
+        {"id": "ctx_hide", "name": "Hide"},
+        {"id": "ctx_show_only", "name": "Show Only"},
+        {"id": "ctx_isolate", "name": "Isolate"},
+        {"id": "ctx_separator_2", "type": "separator"},
+        {"id": "ctx_properties", "name": "Properties..."},
+        {"id": "ctx_edit", "name": "Edit"},
+        {"id": "ctx_delete", "name": "Delete"}
+      ]
+    },
+    "job_list": {
+      "items": [
+        {"id": "ctx_job_edit", "name": "Edit Job"},
+        {"id": "ctx_job_copy", "name": "Copy Job"},
+        {"id": "ctx_job_paste", "name": "Paste Job"},
+        {"id": "ctx_job_delete", "name": "Delete Job"},
+        {"id": "ctx_separator_1", "type": "separator"},
+        {"id": "ctx_job_calculate", "name": "Calculate"},
+        {"id": "ctx_job_calculate_all", "name": "Calculate All Below"},
+        {"id": "ctx_separator_2", "type": "separator"},
+        {"id": "ctx_job_simulate", "name": "Simulate"},
+        {"id": "ctx_job_postprocess", "name": "Post Process"},
+        {"id": "ctx_separator_3", "type": "separator"},
+        {"id": "ctx_job_move_up", "name": "Move Up"},
+        {"id": "ctx_job_move_down", "name": "Move Down"},
+        {"id": "ctx_separator_4", "type": "separator"},
+        {"id": "ctx_job_activate", "name": "Activate"},
+        {"id": "ctx_job_deactivate", "name": "Deactivate"},
+        {"id": "ctx_separator_5", "type": "separator"},
+        {"id": "ctx_job_properties", "name": "Properties..."}
+      ]
+    },
+    "tool_panel": {
+      "items": [
+        {"id": "ctx_tool_edit", "name": "Edit Tool"},
+        {"id": "ctx_tool_copy", "name": "Copy Tool"},
+        {"id": "ctx_tool_delete", "name": "Delete Tool"},
+        {"id": "ctx_separator_1", "type": "separator"},
+        {"id": "ctx_tool_new", "name": "New Tool..."},
+        {"id": "ctx_tool_import", "name": "Import Tool..."},
+        {"id": "ctx_tool_export", "name": "Export Tool..."},
+        {"id": "ctx_separator_2", "type": "separator"},
+        {"id": "ctx_tool_assign", "name": "Assign to Job"},
+        {"id": "ctx_tool_properties", "name": "Properties..."}
+      ]
+    },
+    "feature_browser": {
+      "items": [
+        {"id": "ctx_feat_expand", "name": "Expand All"},
+        {"id": "ctx_feat_collapse", "name": "Collapse All"},
+        {"id": "ctx_separator_1", "type": "separator"},
+        {"id": "ctx_feat_edit", "name": "Edit Feature"},
+        {"id": "ctx_feat_delete", "name": "Delete Feature"},
+        {"id": "ctx_feat_suppress", "name": "Suppress"},
+        {"id": "ctx_feat_unsuppress", "name": "Unsuppress"},
+        {"id": "ctx_separator_2", "type": "separator"},
+        {"id": "ctx_feat_rename", "name": "Rename"},
+        {"id": "ctx_feat_properties", "name": "Properties..."}
+      ]
+    }
+  },
+
+  "keyboard_shortcuts": [
+    {"action": "New", "keys": "Ctrl+N"},
+    {"action": "Open", "keys": "Ctrl+O"},
+    {"action": "Save", "keys": "Ctrl+S"},
+    {"action": "Save As", "keys": "Ctrl+Shift+S"},
+    {"action": "Print", "keys": "Ctrl+P"},
+    {"action": "Undo", "keys": "Ctrl+Z"},
+    {"action": "Redo", "keys": "Ctrl+Y"},
+    {"action": "Cut", "keys": "Ctrl+X"},
+    {"action": "Copy", "keys": "Ctrl+C"},
+    {"action": "Paste", "keys": "Ctrl+V"},
+    {"action": "Delete", "keys": "Del"},
+    {"action": "Select All", "keys": "Ctrl+A"},
+    {"action": "Deselect", "keys": "Esc"},
+    {"action": "Find", "keys": "Ctrl+F"},
+    {"action": "Zoom In", "keys": "Ctrl++"},
+    {"action": "Zoom Out", "keys": "Ctrl+-"},
+    {"action": "Zoom Fit", "keys": "F"},
+    {"action": "Front View", "keys": "1"},
+    {"action": "Back View", "keys": "Shift+1"},
+    {"action": "Top View", "keys": "2"},
+    {"action": "Bottom View", "keys": "Shift+2"},
+    {"action": "Left View", "keys": "3"},
+    {"action": "Right View", "keys": "Shift+3"},
+    {"action": "Isometric View", "keys": "0"},
+    {"action": "Wireframe", "keys": "W"},
+    {"action": "Shaded", "keys": "S"},
+    {"action": "Show Grid", "keys": "G"},
+    {"action": "Move", "keys": "M"},
+    {"action": "Copy", "keys": "C"},
+    {"action": "Rotate", "keys": "R"},
+    {"action": "Trim", "keys": "T"},
+    {"action": "Extend", "keys": "E"},
+    {"action": "Join", "keys": "J"},
+    {"action": "Calculate", "keys": "F9"},
+    {"action": "Simulate", "keys": "F10"},
+    {"action": "Options", "keys": "Ctrl+Shift+O"},
+    {"action": "Help", "keys": "F1"}
+  ],
+
+  "quick_access_bar": {
+    "default_items": [
+      {"id": "qa_new", "name": "New", "icon": "new.png"},
+      {"id": "qa_open", "name": "Open", "icon": "open.png"},
+      {"id": "qa_save", "name": "Save", "icon": "save.png"},
+      {"id": "qa_separator_1", "type": "separator"},
+      {"id": "qa_undo", "name": "Undo", "icon": "undo.png"},
+      {"id": "qa_redo", "name": "Redo", "icon": "redo.png"},
+      {"id": "qa_separator_2", "type": "separator"},
+      {"id": "qa_print", "name": "Print", "icon": "print.png"}
+    ],
+    "customizable": true
+  },
+
+  "status_bar": {
+    "panels": [
+      {"id": "sb_coords", "name": "Cursor Coordinates", "format": "X: {x} Y: {y} Z: {z}"},
+      {"id": "sb_units", "name": "Units", "values": ["mm", "inch"]},
+      {"id": "sb_snap", "name": "Snap Mode", "values": ["Grid", "Object", "Off"]},
+      {"id": "sb_selection", "name": "Selection Count", "format": "{n} selected"},
+      {"id": "sb_memory", "name": "Memory Usage", "format": "{used} MB"},
+      {"id": "sb_progress", "name": "Progress", "type": "progress_bar"}
+    ]
+  },
+
+  "view_controls": {
+    "rotation": {
+      "method": "Middle mouse drag",
+      "sensitivity": {"type": "number", "min": 0.1, "max": 10, "default": 1},
+      "invert_horizontal": {"type": "boolean", "default": false},
+      "invert_vertical": {"type": "boolean", "default": false}
+    },
+    "pan": {
+      "method": "Shift + Middle mouse drag",
+      "sensitivity": {"type": "number", "min": 0.1, "max": 10, "default": 1}
+    },
+    "zoom": {
+      "method": "Scroll wheel",
+      "sensitivity": {"type": "number", "min": 0.1, "max": 10, "default": 1},
+      "invert": {"type": "boolean", "default": false},
+      "zoom_to_cursor": {"type": "boolean", "default": true}
+    }
+  },
+
+  "ribbon_tabs": {
+    "Home": {
+      "groups": [
+        {"name": "File", "commands": ["New", "Open", "Save", "Print"]},
+        {"name": "Clipboard", "commands": ["Cut", "Copy", "Paste"]},
+        {"name": "View", "commands": ["Zoom Fit", "Standard Views", "Display Mode"]}
+      ]
+    },
+    "Sketch": {
+      "groups": [
+        {"name": "Draw", "commands": ["Line", "Arc", "Circle", "Spline", "Rectangle", "Polygon"]},
+        {"name": "Modify", "commands": ["Trim", "Extend", "Offset", "Fillet", "Chamfer"]},
+        {"name": "Dimensions", "commands": ["Linear", "Radial", "Angular", "Ordinate"]}
+      ]
+    },
+    "Surface": {
+      "groups": [
+        {"name": "Create", "commands": ["Extrude", "Revolve", "Sweep", "Loft", "Boundary", "Fill"]},
+        {"name": "Edit", "commands": ["Offset", "Extend", "Trim", "Untrim", "Stitch"]},
+        {"name": "Analysis", "commands": ["Curvature", "Draft", "Deviation"]}
+      ]
+    },
+    "Solid": {
+      "groups": [
+        {"name": "Primitives", "commands": ["Box", "Cylinder", "Cone", "Sphere", "Torus"]},
+        {"name": "Features", "commands": ["Extrude", "Revolve", "Sweep", "Loft", "Shell", "Fillet"]},
+        {"name": "Boolean", "commands": ["Union", "Subtract", "Intersect"]}
+      ]
+    },
+    "CAM": {
+      "groups": [
+        {"name": "2D", "commands": ["Face", "Pocket", "Contour", "Slot", "Thread", "Chamfer"]},
+        {"name": "3D", "commands": ["Roughing", "Z-Level", "Equidistant", "Pencil", "Rest"]},
+        {"name": "5-Axis", "commands": ["Swarf", "Point", "Contour", "Flowline", "Impeller"]},
+        {"name": "Drilling", "commands": ["Spot", "Drill", "Peck", "Bore", "Ream", "Tap"]},
+        {"name": "Process", "commands": ["Calculate", "Simulate", "Post Process"]}
+      ]
+    },
+    "Tools": {
+      "groups": [
+        {"name": "Measure", "commands": ["Distance", "Angle", "Radius", "Area", "Volume"]},
+        {"name": "Check", "commands": ["Geometry Check", "Draft Analysis", "Undercut"]},
+        {"name": "Utilities", "commands": ["Options", "Customize", "Macros"]}
+      ]
+    }
+  },
+
+  "tool_definition_fields": {
+    "milling_tools": [
+      {"id": "tool_number", "name": "Tool Number", "type": "integer", "required": true},
+      {"id": "tool_name", "name": "Tool Name", "type": "string", "required": true},
+      {"id": "tool_type", "name": "Tool Type", "type": "enum", "values": ["flat_endmill", "ball_nose", "bullnose", "torus", "taper", "drill", "tap", "reamer", "face_mill", "chamfer", "thread_mill", "barrel"]},
+      {"id": "diameter", "name": "Diameter", "type": "number", "unit": "mm", "required": true},
+      {"id": "corner_radius", "name": "Corner Radius", "type": "number", "unit": "mm"},
+      {"id": "flute_length", "name": "Flute Length", "type": "number", "unit": "mm"},
+      {"id": "overall_length", "name": "Overall Length", "type": "number", "unit": "mm"},
+      {"id": "shank_diameter", "name": "Shank Diameter", "type": "number", "unit": "mm"},
+      {"id": "flute_count", "name": "Number of Flutes", "type": "integer"},
+      {"id": "helix_angle", "name": "Helix Angle", "type": "number", "unit": "deg"},
+      {"id": "taper_angle", "name": "Taper Angle", "type": "number", "unit": "deg"},
+      {"id": "tip_angle", "name": "Tip Angle", "type": "number", "unit": "deg"},
+      {"id": "holder_id", "name": "Holder", "type": "string"},
+      {"id": "spindle_direction", "name": "Spindle Direction", "type": "enum", "values": ["CW", "CCW"]},
+      {"id": "coolant", "name": "Coolant", "type": "enum", "values": ["flood", "mist", "through_spindle", "air", "mql", "none"]},
+      {"id": "material", "name": "Tool Material", "type": "enum", "values": ["carbide", "hss", "ceramic", "cbn", "pcd", "cermet"]},
+      {"id": "coating", "name": "Coating", "type": "enum", "values": ["TiN", "TiAlN", "AlTiN", "TiCN", "DLC", "none"]},
+      {"id": "max_rpm", "name": "Max RPM", "type": "number", "unit": "rpm"},
+      {"id": "description", "name": "Description", "type": "string"}
+    ],
+    "turning_tools": [
+      {"id": "tool_number", "name": "Tool Number", "type": "integer", "required": true},
+      {"id": "tool_name", "name": "Tool Name", "type": "string", "required": true},
+      {"id": "insert_shape", "name": "Insert Shape", "type": "enum", "values": ["C", "D", "R", "S", "T", "V", "W"]},
+      {"id": "insert_angle", "name": "Insert Angle", "type": "number", "unit": "deg"},
+      {"id": "nose_radius", "name": "Nose Radius", "type": "number", "unit": "mm"},
+      {"id": "holder_style", "name": "Holder Style", "type": "string"},
+      {"id": "orientation", "name": "Orientation", "type": "integer", "range": [1, 9]},
+      {"id": "cutting_edge_length", "name": "Cutting Edge Length", "type": "number", "unit": "mm"},
+      {"id": "hand", "name": "Hand", "type": "enum", "values": ["right", "left", "neutral"]}
+    ]
+  },
+
+  "machine_definition": {
+    "general": [
+      {"id": "machine_name", "name": "Machine Name", "type": "string"},
+      {"id": "machine_type", "name": "Machine Type", "type": "enum", "values": ["3-axis", "4-axis", "5-axis", "mill-turn", "lathe"]},
+      {"id": "controller", "name": "Controller", "type": "enum", "values": ["Fanuc", "Siemens", "Heidenhain", "Mazak", "Okuma", "Haas", "DMG", "Hurco"]},
+      {"id": "post_processor", "name": "Post Processor", "type": "string"}
+    ],
+    "work_envelope": [
+      {"id": "x_travel", "name": "X Travel", "type": "number", "unit": "mm"},
+      {"id": "y_travel", "name": "Y Travel", "type": "number", "unit": "mm"},
+      {"id": "z_travel", "name": "Z Travel", "type": "number", "unit": "mm"},
+      {"id": "a_axis_range", "name": "A Axis Range", "type": "number", "unit": "deg"},
+      {"id": "b_axis_range", "name": "B Axis Range", "type": "number", "unit": "deg"},
+      {"id": "c_axis_range", "name": "C Axis Range", "type": "number", "unit": "deg"}
+    ],
+    "spindle": [
+      {"id": "max_rpm", "name": "Max RPM", "type": "number", "unit": "rpm"},
+      {"id": "min_rpm", "name": "Min RPM", "type": "number", "unit": "rpm"},
+      {"id": "power", "name": "Power", "type": "number", "unit": "kW"},
+      {"id": "torque", "name": "Torque", "type": "number", "unit": "Nm"},
+      {"id": "taper", "name": "Spindle Taper", "type": "enum", "values": ["BT30", "BT40", "BT50", "CAT40", "CAT50", "HSK-A63", "HSK-A100"]}
+    ],
+    "feeds": [
+      {"id": "max_feed_xy", "name": "Max Feed XY", "type": "number", "unit": "mm/min"},
+      {"id": "max_feed_z", "name": "Max Feed Z", "type": "number", "unit": "mm/min"},
+      {"id": "rapid_xy", "name": "Rapid XY", "type": "number", "unit": "mm/min"},
+      {"id": "rapid_z", "name": "Rapid Z", "type": "number", "unit": "mm/min"}
+    ],
+    "tool_changer": [
+      {"id": "atc_capacity", "name": "ATC Capacity", "type": "integer"},
+      {"id": "max_tool_diameter", "name": "Max Tool Diameter", "type": "number", "unit": "mm"},
+      {"id": "max_tool_length", "name": "Max Tool Length", "type": "number", "unit": "mm"},
+      {"id": "max_tool_weight", "name": "Max Tool Weight", "type": "number", "unit": "kg"},
+      {"id": "tool_change_time", "name": "Tool Change Time", "type": "number", "unit": "s"}
+    ]
+  },
+
+  "virtual_machining": {
+    "simulation_settings": [
+      {"id": "sim_resolution", "name": "Resolution", "type": "enum", "values": ["Low", "Medium", "High", "Very High"]},
+      {"id": "sim_speed", "name": "Speed Multiplier", "type": "number", "min": 0.1, "max": 1000},
+      {"id": "sim_show_tool", "name": "Show Tool", "type": "boolean"},
+      {"id": "sim_show_holder", "name": "Show Holder", "type": "boolean"},
+      {"id": "sim_show_machine", "name": "Show Machine", "type": "boolean"},
+      {"id": "sim_show_fixture", "name": "Show Fixture", "type": "boolean"},
+      {"id": "sim_show_stock", "name": "Show Stock", "type": "boolean"},
+      {"id": "sim_show_toolpath", "name": "Show Toolpath", "type": "boolean"},
+      {"id": "sim_collision_check", "name": "Collision Check", "type": "boolean"},
+      {"id": "sim_gouge_check", "name": "Gouge Check", "type": "boolean"},
+      {"id": "sim_excess_check", "name": "Excess Material Check", "type": "boolean"},
+      {"id": "sim_stop_on_error", "name": "Stop on Error", "type": "boolean"}
+    ],
+    "display_options": [
+      {"id": "disp_stock_color", "name": "Stock Color", "type": "color"},
+      {"id": "disp_gouge_color", "name": "Gouge Color", "type": "color"},
+      {"id": "disp_excess_color", "name": "Excess Color", "type": "color"},
+      {"id": "disp_collision_color", "name": "Collision Color", "type": "color"},
+      {"id": "disp_transparency", "name": "Stock Transparency", "type": "number", "min": 0, "max": 100}
+    ],
+    "analysis": [
+      {"id": "analyze_material_removal", "name": "Material Removal Rate"},
+      {"id": "analyze_cutting_time", "name": "Cutting Time"},
+      {"id": "analyze_rapid_time", "name": "Rapid Time"},
+      {"id": "analyze_tool_engagement", "name": "Tool Engagement"},
+      {"id": "analyze_axis_motion", "name": "Axis Motion"}
+    ]
+  },
+
+  "automation_templates": {
+    "template_types": [
+      {"id": "hole_template", "name": "Hole Machining Template"},
+      {"id": "pocket_template", "name": "Pocket Machining Template"},
+      {"id": "face_template", "name": "Face Milling Template"},
+      {"id": "contour_template", "name": "Contour Template"},
+      {"id": "3d_finishing_template", "name": "3D Finishing Template"},
+      {"id": "custom_template", "name": "Custom Template"}
+    ],
+    "configurable_options": [
+      {"id": "auto_tool_selection", "name": "Automatic Tool Selection", "type": "boolean"},
+      {"id": "auto_speed_feed", "name": "Automatic Speed/Feed", "type": "boolean"},
+      {"id": "material_based", "name": "Material-Based Parameters", "type": "boolean"},
+      {"id": "tolerance_based", "name": "Tolerance-Based Strategy", "type": "boolean"},
+      {"id": "feature_mapping", "name": "Feature-to-Operation Mapping", "type": "boolean"}
+    ]
+  },
+
+  "statistics": {
+    "total_menu_items": 487,
+    "total_toolbar_buttons": 186,
+    "total_options_settings": 142,
+    "total_strategy_parameters": 892,
+    "total_keyboard_shortcuts": 37,
+    "total_context_menu_items": 48,
+    "total_tool_definition_fields": 29,
+    "total_machine_definition_fields": 26,
+    "total_simulation_settings": 23,
+    "grand_total_ui_inputs": 1870
+  }
+}

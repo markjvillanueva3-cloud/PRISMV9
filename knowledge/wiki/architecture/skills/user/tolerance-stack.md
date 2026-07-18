@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `tolerance-stack` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/tolerance-stack.md` |
+| Source | `C:/Users/wompu/.claude/commands/tolerance-stack.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Analyze tolerance accumulation in assemblies and features.
+
+# /tolerance-stack — Tolerance Stack-Up Analysis
 
 <!-- AUTO-END -->
 

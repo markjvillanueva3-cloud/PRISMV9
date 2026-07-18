@@ -1,0 +1,197 @@
+{
+  "id": "CAMX-MS12",
+  "version": "7.0.0",
+  "title": "Feature-to-Strategy Intelligence Engine",
+  "brief": "Exhaustive rule base for {feature×material×machine×tool×tolerance×batch}→optimal strategy. ML ranking, stochastic comparison, Cpk prediction, robust optimization.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Strategy Intelligence",
+      "units": [
+        {
+          "id": "U01",
+          "title": "FeatureStrategyKnowledgeBaseEngine",
+          "description": "203 rules covering {10 features × 6 ISO × 3 axes × 3 operations} + special conditions. Dispatcher wired (5 actions). Build passes.",
+          "exit_conditions": [
+            "200+ rules",
+            "All feature types covered",
+            "Build passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-03-22T23:25:00Z",
+          "engine": "E1112",
+          "actions": [
+            "strategy_kb_query",
+            "strategy_kb_best",
+            "strategy_kb_add",
+            "strategy_kb_stats",
+            "strategy_kb_list"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "StrategyBenchmarkEngine",
+          "description": "Predicted cycle time, tool life, Ra, Cpk, cost per strategy. Kienzle + Taylor + MC 500 trials.",
+          "exit_conditions": [
+            "Benchmarks computed",
+            "MC-backed predictions",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1096"
+        },
+        {
+          "id": "U03",
+          "title": "StrategyComparisonEngine",
+          "description": "Side-by-side comparison with radar chart data.",
+          "exit_conditions": [
+            "Comparison engine works",
+            "Radar chart data",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1099"
+        },
+        {
+          "id": "U04",
+          "title": "MachineLearningStrategyRankerEngine",
+          "description": "Bayesian updating from actual results. Fleet learning.",
+          "exit_conditions": [
+            "ML ranker works",
+            "Bayesian updating",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1107"
+        },
+        {
+          "id": "U05",
+          "title": "ContextualStrategyOverrideEngine",
+          "description": "Edge cases: thin walls, deep bores, fragile materials, prototypes.",
+          "exit_conditions": [
+            "Override rules active",
+            "Edge cases handled",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1111"
+        },
+        {
+          "id": "U06",
+          "title": "StrategySequencingEngine",
+          "description": "Multi-operation strategy sequences. TGAR→AMEF→HRAF→PTDC.",
+          "exit_conditions": [
+            "Sequences generated",
+            "Stock state evolution",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1097"
+        },
+        {
+          "id": "U07",
+          "title": "FixtureAwareStrategyEngine",
+          "description": "Adjust strategy for vise/vacuum/pallet workholding.",
+          "exit_conditions": [
+            "Fixture-aware selection",
+            "Force limits respected",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1101"
+        },
+        {
+          "id": "U08",
+          "title": "BatchSizeStrategyEngine",
+          "description": "Optimize differently for prototype (1-5) vs production (100+) vs long run (1000+).",
+          "exit_conditions": [
+            "Batch-aware optimization",
+            "Cost vs safety tradeoff",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1100"
+        },
+        {
+          "id": "U09",
+          "title": "Dispatcher wiring",
+          "description": "19+ actions wired across camDispatcher for MS12 engines.",
+          "exit_conditions": [
+            "8 actions wired",
+            "Build passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z"
+        },
+        {
+          "id": "U10",
+          "title": "Tests",
+          "description": "102 tests covering U02-U08 + 56 tests for U11/U12/U13 = 158 tests.",
+          "exit_conditions": [
+            "50+ tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:45:00Z"
+        },
+        {
+          "id": "U11",
+          "title": "Stochastic strategy comparison",
+          "description": "1000-trial MC per candidate. P(meets_tolerance), P(tool_survives), VaR_95, risk-adjusted rank.",
+          "exit_conditions": [
+            "1000-trial MC per strategy",
+            "Probabilistic selection",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:45:00Z",
+          "engine": "StrategyStochasticRiskEngine",
+          "shortcode": "E1201",
+          "renamed_from": "StochasticStrategyComparisonEngine",
+          "actions": ["strategy_stochastic_compare", "strategy_stochastic_rank"]
+        },
+        {
+          "id": "U12",
+          "title": "Cpk prediction gate",
+          "description": "Cpk = min((USL-μ)/3σ, (μ-LSL)/3σ). Reject if Cpk < 1.33. Prefer Cpk > 2.0.",
+          "exit_conditions": [
+            "Cpk gate active",
+            "Reject below 1.33",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:45:00Z",
+          "engine": "CpkPredictionGateEngine",
+          "shortcode": "E1203",
+          "actions": ["strategy_cpk_gate", "strategy_cpk_filter"]
+        },
+        {
+          "id": "U13",
+          "title": "Robust optimization under uncertainty",
+          "description": "Min-max Wald selection: argmax_s min_u U(s,u) under bounded uncertainty set (material ±15%, tool dia ±2%).",
+          "exit_conditions": [
+            "Robust optimization works",
+            "Worst-case optimized",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16T22:45:00Z",
+          "engine": "StrategyWorstCaseSelectorEngine",
+          "shortcode": "E1202",
+          "renamed_from": "RobustStrategyOptimizationEngine",
+          "actions": ["strategy_robust_optimize", "strategy_robust_worst_case"]
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-16T22:45:00Z"
+}

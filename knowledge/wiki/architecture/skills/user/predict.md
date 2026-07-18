@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `predict` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/predict.md` |
+| Source | `C:/Users/wompu/.claude/commands/predict.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Predict — Machine-Learned Manufacturing Prediction
+
+Get a prediction that uses everything PRISM has learned about YOUR specific machine. Unlike generic physics formulas, this accounts for machine bias, thermal growth, coolant age, tool wear state, and environmental factors — all learned from your historical measurements.
+
+**Value**: After calibration, predictions are typically 2-5x more ac
 
 <!-- AUTO-END -->
 

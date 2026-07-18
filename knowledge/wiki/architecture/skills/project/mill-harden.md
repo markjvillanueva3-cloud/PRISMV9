@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /mill-harden — Mill AI Hardening
+Harden PRISM AI for specific mill machines:
+- Machine-specific parameter limits
+- Kinematics model calibration
+- Controller dialect adaptation
+- Safety envelope definition
 
 <!-- AUTO-END -->
 

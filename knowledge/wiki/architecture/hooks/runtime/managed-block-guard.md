@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-managed-block-guard.mjs — Phase 0.15 Managed Block GuardPreToolEdit hook that blocks hand-edits to AUTO-REFRESHED sections.These sections are automatically maintained by doc-sync.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

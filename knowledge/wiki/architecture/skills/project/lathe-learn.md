@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /lathe-learn — Lathe Knowledge Extraction
+Continuous learning from lathe programs and outcomes:
+- Extract patterns from successful programs
+- Learn from shop floor feedback
+- Build tribal knowledge base
+- Improve neural models
 
 <!-- AUTO-END -->
 

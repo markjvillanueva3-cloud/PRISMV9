@@ -159,13 +159,25 @@ describe("LoRADriftCoordinatorEngine — config validation", () => {
 
   it("rejects coordinatedThreshold below 2 (single-pipeline alerts already exist)", () => {
     const engine = createLoRADriftCoordinator(() => new Date(T0));
-    expect(() => engine.setConfig({ coordinatedThreshold: 1 })).toThrow(/coordinatedThreshold must be ≥ 2/);
-    expect(() => engine.setConfig({ coordinatedThreshold: 0 })).toThrow(/coordinatedThreshold must be ≥ 2/);
+    expect(() => engine.setConfig({ coordinatedThreshold: 1 })).toThrow(/coordinatedThreshold must be >= 2/);
+    expect(() => engine.setConfig({ coordinatedThreshold: 0 })).toThrow(/coordinatedThreshold must be >= 2/);
   });
 
   it("rejects a negative driftDeltaFloor", () => {
     const engine = createLoRADriftCoordinator(() => new Date(T0));
     expect(() => engine.setConfig({ driftDeltaFloor: -0.01 })).toThrow(/driftDeltaFloor must be/);
+  });
+
+  it("does NOT partially apply a rejected patch (validate-before-assign)", () => {
+    const engine = createLoRADriftCoordinator(() => new Date(T0));
+    const before = engine.getConfig();
+    // A patch with one invalid field must leave the ENTIRE config untouched -- the old
+    // mutate-then-validate left coordinatedThreshold=0 in place after the throw, which then
+    // made shouldTriggerMasterRetrain() fire on every single-pipeline drift.
+    expect(() => engine.setConfig({ coordinatedThreshold: 0, driftDeltaFloor: 0.25 })).toThrow();
+    const after = engine.getConfig();
+    expect(after.coordinatedThreshold).toBe(before.coordinatedThreshold);
+    expect(after.driftDeltaFloor).toBe(before.driftDeltaFloor); // the valid sibling field is NOT applied either
   });
 
   it("accepts a valid patch and returns the merged config", () => {

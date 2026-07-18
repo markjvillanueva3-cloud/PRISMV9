@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /capacity-plan — Shop Capacity Planning
+Analyze and optimize shop floor capacity and scheduling.
 
 <!-- AUTO-END -->
 

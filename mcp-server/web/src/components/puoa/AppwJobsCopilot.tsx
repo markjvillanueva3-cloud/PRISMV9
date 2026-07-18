@@ -84,7 +84,7 @@ function buildSummary(props: AppwJobsCopilotProps) {
   if (props.upstreamSourceLabel) posture.push(`upstream ${props.upstreamSourceLabel}`);
   if (props.upstreamRecordLabel) posture.push(`record ${props.upstreamRecordLabel}`);
 
-  return `PRISM AI is reasoning over live dispatch order, traveler progress, machine queue posture, hot-job escalation, shortages, approvals, and workflow continuity for the Jobs desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live dispatch order, traveler progress, machine queue posture, hot-job escalation, shortages, approvals, and workflow continuity for the Jobs desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwJobsCopilotProps): WorkspaceCopilotSuggestion[] {

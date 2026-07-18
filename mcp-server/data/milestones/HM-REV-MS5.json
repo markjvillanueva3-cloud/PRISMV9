@@ -1,0 +1,295 @@
+{
+  "id": "HM-REV-MS5",
+  "version": "8.3.0",
+  "title": "Probing + Surface Integrity + Safety Gate",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Wire PRISM's 6 probe engines and 3 surface integrity engines to hyperMILL workflows. Add surface integrity hard gate (white layer blocking) so that operations on hardened steel or nickel alloys that exceed thermal thresholds are blocked before toolpath generation. Addresses Agent 14 finding (surface integrity not gated) and the gap where probing engines exist but are not connected to hyperMILL.",
+  "dependencies": [
+    "HM-REV-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "ProbingEngine (setup, bore, boss, web, surface, tool set, tool break — 6 probe types)",
+      "SurfaceIntegrityEngine (residual stress, white layer, microstructure)",
+      "SurfaceFinishPredictorEngine (Ra/Rz prediction from cutting params)",
+      "ResidualStressEngine (tensile/compressive stress prediction)"
+    ],
+    "registries": [
+      "MaterialRegistry (thermal properties for white layer threshold)"
+    ],
+    "services": [],
+    "physics": [
+      "constants.ts (white layer temperature thresholds: steel > 700C, Inconel > 800C)",
+      "ThermalWearCouplingEngine (temperature prediction at cutting zone)"
+    ],
+    "reference": [
+      "Agent 14 report (aerospace domain — NADCAP=52, surface integrity not gated)",
+      "Agent 6 report (20 hooks designed — 10 blocking including surface integrity)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-white-layer-block — DECLARED+BUILT here (HARD BLOCK on thermal threshold exceedance)",
+    "action": "cam:hypermill_probe_setup — DECLARED+BUILT here",
+    "skill": "/hypermill-probe-setup — DECLARED here, BUILT in HM-REV-MS12 (Skills Phase 2)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read probing engines + surface integrity engines)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker (thermal thresholds from constants.ts)"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS5-S1",
+      "title": "Probing Engine Wiring to hyperMILL Workflows",
+      "smart_config": {
+        "role": "Metrology Engineer + Probing Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "ProbingEngine (6 probe types)",
+        "HyperMillCycleCatalogEngine.ts (probing cycles exist in catalog)",
+        "MachineRegistry (probe-capable machines)"
+      ],
+      "intent": "Connect PRISM's 6 probe engines to hyperMILL's probing cycle catalog so that probe routines are physics-validated (approach speed, trigger force, measurement uncertainty) and generate hyperMILL-compatible probing cycles.",
+      "skills": [
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR27",
+          "title": "Wire 6 probe engines to hyperMILL probing cycle catalog",
+          "description": "Connect PRISM's probe engines (setup probe, bore probe, boss probe, web probe, surface probe, tool set/break) to hyperMILL's probing cycles. Create HyperMillProbingBridge that translates PRISM probe routines to hyperMILL cycle parameters. Include approach speed validation, measurement uncertainty estimation (from MetrologyUncertaintyEngine), and G-code output compatible with Renishaw/Blum/Heidenhain probe systems.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillProbingBridge.ts connects 6 probe types to hyperMILL cycles",
+            "Approach speed validated against probe manufacturer specs",
+            "Measurement uncertainty estimated per probe type",
+            "G-code output compatible with 3 major probe systems (Renishaw, Blum, Heidenhain)",
+            "cam:hypermill_probe_setup action registered",
+            "4 unit tests: bore probe, surface probe, tool break, uncertainty estimate"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillProbingBridge.ts",
+              "src/schemas/hypermillProbingSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillProbingBridge.ts src/schemas/hypermillProbingSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR28",
+          "title": "Wire probing to WCS verification + datum transfer workflow",
+          "description": "Create probe-to-WCS verification workflow: after probing, compare measured datum to nominal, flag if deviation exceeds tolerance. Wire to hyperMILL's coordinate system management so that G54-G59 offsets can be automatically updated from probe results. This closes the loop between probing and machining.",
+          "depends_on": [
+            "U-HMR27"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "WCS verification compares measured vs nominal datum",
+            "Deviation flagged if > part tolerance",
+            "G54-G59 offset update logic implemented",
+            "A machinist would trust the datum verification workflow",
+            "3 unit tests: nominal match, deviation flag, offset update"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/HyperMillProbingBridge.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillProbingBridge.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 6 probe types wired to hyperMILL | ✓ 3 probe system compatibility | ✓ WCS verification workflow | ✓ cam:hypermill_probe_setup active | ✓ tsc 0 errors | ✓ 7+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "cam:hypermill_probe_setup",
+          "cam:hypermill_probe_wcs_verify"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS10",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS5-S2",
+      "title": "Surface Integrity Wiring + White Layer Hard Gate",
+      "smart_config": {
+        "role": "Surface Integrity Engineer + Safety Gate Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "SurfaceIntegrityEngine",
+        "SurfaceFinishPredictorEngine",
+        "ResidualStressEngine",
+        "ThermalWearCouplingEngine",
+        "constants.ts (thermal thresholds)"
+      ],
+      "intent": "Wire surface integrity prediction to hyperMILL operations and build the white layer hard gate. Any operation on hardened steel (>45 HRC) or nickel alloys that would exceed the white layer temperature threshold is blocked. This is a safety-critical gate — white layer causes subsurface microcracks that lead to part failure in service.",
+      "skills": [
+        "/forge-wiring",
+        "/forge-safety",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR29",
+          "title": "Wire SurfaceIntegrity + SurfaceFinish + ResidualStress to hyperMILL operations",
+          "description": "Connect 3 surface integrity engines to hyperMILL finishing operations: SurfaceIntegrityEngine predicts subsurface condition, SurfaceFinishPredictorEngine computes Ra/Rz from cutting params, ResidualStressEngine estimates tensile/compressive stress. Create cam:hypermill_surface_integrity_check action that runs all 3 predictions for a given hyperMILL finishing operation.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "cam:hypermill_surface_integrity_check action registered",
+            "Returns Ra/Rz prediction, residual stress state, subsurface condition",
+            "Predictions use cutting params from hyperMILL cycle defaults",
+            "3 unit tests: steel finishing, hardened steel, nickel alloy"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermillSurfaceIntegritySchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermillSurfaceIntegritySchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR30",
+          "title": "Build hypermill-white-layer-block HARD GATE + thermal threshold enforcement",
+          "description": "Build hypermill-white-layer-block hook as a HARD BLOCK gate. Uses ThermalWearCouplingEngine to predict cutting zone temperature. If predicted temperature exceeds white layer threshold (steel > 700C, Inconel > 800C from constants.ts), the operation is BLOCKED with explanation: predicted temperature, threshold, and recommended parameter adjustments to stay below threshold. This is fail-close: if temperature cannot be predicted (insufficient data), the gate WARNS but does not block.",
+          "depends_on": [
+            "U-HMR29"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "hypermill-white-layer-block hook registered as HARD BLOCK",
+            "Temperature prediction uses ThermalWearCouplingEngine (not approximation)",
+            "Thresholds from constants.ts (steel > 700C, Inconel > 800C)",
+            "Block message includes predicted temp, threshold, and parameter adjustment recommendations",
+            "Fail-close: insufficient data → WARN (not block)",
+            "A machinist would trust this gate for aerospace/medical finishing",
+            "4 unit tests: safe operation passes, unsafe blocked, Inconel threshold, insufficient data warns"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/hooks/registry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "gate doesn't block when it should"
+            ],
+            "rollback_procedure": "git checkout -- src/hooks/registry.ts"
+          }
+        },
+        {
+          "id": "U-HMR31",
+          "title": "Wire surface integrity results to quality report output",
+          "description": "Connect surface integrity prediction results (Ra/Rz, residual stress, white layer status) to the quality report output chain. After hyperMILL operation completes, surface integrity data is automatically included in the operation report. This data feeds into MS10's quality chain and setup sheet generation.",
+          "depends_on": [
+            "U-HMR29",
+            "U-HMR30"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Surface integrity data included in operation report",
+            "Report shows Ra/Rz predicted vs required, stress state, white layer status",
+            "Data structure compatible with MS10 quality chain input",
+            "3 unit tests verify report generation with surface integrity data"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- affected files"
+          }
+        }
+      ],
+      "exit_gate": "✓ 3 surface integrity engines wired | ✓ White layer HARD BLOCK gate active | ✓ Thermal thresholds from constants.ts | ✓ Quality report includes surface data | ✓ tsc 0 errors | ✓ 10+ tests pass | omega_floor >= 0.90 | SVI delta: +3%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-white-layer-block"
+        ],
+        "new_actions": [
+          "cam:hypermill_surface_integrity_check"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS10",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

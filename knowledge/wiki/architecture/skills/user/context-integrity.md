@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `context-integrity` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/context-integrity.md` |
+| Source | `C:/Users/wompu/.claude/commands/context-integrity.md` |
 | Model | default |
 | Tags | _(none)_ |
 

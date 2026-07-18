@@ -1965,7 +1965,14 @@ export class LatheAIUltraEngine {
         );
 
       case "lathe_ultra_llm_query":
-        return this.processLLMQuery(params as LLMQueryContext);
+        return this.processLLMQuery({
+          query: params.query as string,
+          controller: params.controller as LatheControllerModel,
+          programmingMode: params.programmingMode as ProgrammingMode,
+          partContext: params.partContext as PartContext | undefined,
+          operationContext: params.operationContext as OperationContext | undefined,
+          historyContext: params.historyContext as string[] | undefined,
+        });
 
       case "lathe_ultra_get_post":
         return this.getPostProcessorProfile(params.controller as LatheControllerModel);

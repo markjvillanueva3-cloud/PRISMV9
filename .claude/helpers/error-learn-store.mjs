@@ -12,6 +12,7 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { writeAtomicSync } from "./atomic-write.mjs";
 
 const LEDGER_REL = "mcp-server/data/state/ERROR_LEARN_LEDGER.jsonl";
 const MAX_ENTRIES = 500;
@@ -111,7 +112,7 @@ function pruneIfNeeded(p) {
     const lines = data.split("\n").filter((l) => l.trim().length > 0);
     if (lines.length <= MAX_ENTRIES) return;
     const trimmed = lines.slice(lines.length - MAX_ENTRIES);
-    fs.writeFileSync(p, trimmed.join("\n") + "\n");
+    writeAtomicSync(p, trimmed.join("\n") + "\n", { fsync: false });
   } catch {
     // Best-effort
   }
@@ -217,11 +218,11 @@ export function clearLedger(predicate) {
   const p = ledgerPath();
   if (!fs.existsSync(p)) return 0;
   if (!predicate) {
-    fs.writeFileSync(p, "");
+    writeAtomicSync(p, "", { fsync: false });
     return 0;
   }
   const all = readAll();
   const kept = all.filter((e) => !predicate(e));
-  fs.writeFileSync(p, kept.map((e) => JSON.stringify(e)).join("\n") + (kept.length ? "\n" : ""));
+  writeAtomicSync(p, kept.map((e) => JSON.stringify(e)).join("\n") + (kept.length ? "\n" : ""), { fsync: false });
   return all.length - kept.length;
 }

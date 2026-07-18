@@ -153,7 +153,7 @@ export class CrossProcessMediationAnalyzerEngine {
   static decompose(input: MediationInput): MediationResult {
     const parsed = MediationInputSchema.parse(input);
     const events = parsed.events as Event[];
-    const dag = parsed.dag as CausalDAG;
+    const dag = parsed.dag as unknown as CausalDAG;
     const { treatment, mediator, outcome, x_treat, x_ref } = parsed;
     const warnings: string[] = [];
 
@@ -229,7 +229,7 @@ export class CrossProcessMediationAnalyzerEngine {
    */
   static rankMediators(input: Omit<MediationInput, "mediator" | "x_treat" | "x_ref">): Array<{ mediator: PrismVar; strength: number; valid: boolean }> {
     const events = input.events as Event[];
-    const dag = input.dag as CausalDAG;
+    const dag = input.dag as unknown as CausalDAG;
     const ranked: Array<{ mediator: PrismVar; strength: number; valid: boolean }> = [];
     for (const m of PRISM_VARS) {
       if (m === input.treatment || m === input.outcome) continue;

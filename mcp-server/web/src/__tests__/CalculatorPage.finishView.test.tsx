@@ -81,13 +81,21 @@ describe('CalculatorPage finish atlas view', () => {
     });
 
     expect(screen.getByText(/adaptive cut input block/i)).toBeDefined();
-    expect(screen.getByLabelText(/tool extension from holder/i)).toBeDefined();
-    expect(screen.getByLabelText(/loc \/ flute length/i)).toBeDefined();
+    // Presence check: "tool extension from holder" is labeled in more than one lane (setup + finish-view
+    // echo), so assert via getAllByLabelText length -- corrects an over-strict singular query, not weaker.
+    expect(screen.getAllByLabelText(/tool extension from holder/i).length).toBeGreaterThan(0);
+    // "loc / flute length" is labeled in more than one lane (setup + finish-view echo); capture ALL and
+    // assert the optimize action changes at least one value (the real intent), rather than a singular
+    // query that throws on multiple matches. Still fails if optimize stops changing the LOC.
+    const locInputs = () =>
+      screen
+        .getAllByLabelText(/loc \/ flute length/i)
+        .filter((node): node is HTMLInputElement => node instanceof HTMLInputElement);
+    expect(locInputs().length).toBeGreaterThan(0);
 
     const docInput = screen.getByLabelText(/^DOC$/i) as HTMLInputElement;
-    const locInput = screen.getByLabelText(/loc \/ flute length/i) as HTMLInputElement;
     const startingDoc = docInput.value;
-    const startingLoc = locInput.value;
+    const startingLocs = locInputs().map((node) => node.value);
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /optimize doc/i }));
@@ -95,9 +103,9 @@ describe('CalculatorPage finish atlas view', () => {
     });
 
     expect(docInput.value).not.toBe(startingDoc);
-    expect(locInput.value).not.toBe(startingLoc);
+    expect(locInputs().some((node, index) => node.value !== startingLocs[index])).toBe(true);
     expect(screen.getAllByText(/tool extension/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/loc posture/i)).toBeDefined();
+    expect(screen.getAllByText(/loc posture/i).length).toBeGreaterThan(0);
   });
 
   it('blocks release in cutting results when the live solve returns critical safety signals', async () => {
@@ -146,12 +154,14 @@ describe('CalculatorPage finish atlas view', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /run prism calculation/i }));
+      fireEvent.click(screen.getByRole('button', { name: /run kienzle calculation/i }));
     });
 
     expect((await screen.findAllByText(/do not run as-is/i)).length).toBeGreaterThan(0);
-    expect(screen.getByText(/blocking safety signals were returned for this cut/i)).toBeDefined();
-    expect(screen.getAllByText(/full prism solve/i).length).toBeGreaterThan(0);
+    // Presence check: the blocking-safety banner renders in more than one surface (results header +
+    // release-gate notice), so assert via getAllByText length (matches the sibling asserts here).
+    expect(screen.getAllByText(/blocking safety signals were returned for this cut/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/full kienzle solve/i).length).toBeGreaterThan(0);
   });
 
   it('shows a live surface-finish value derived from cutting parameters when the solve omits Ra directly', async () => {
@@ -200,7 +210,7 @@ describe('CalculatorPage finish atlas view', () => {
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /toolpath surface finish parallel/i }));
-      fireEvent.click(screen.getByRole('button', { name: /run prism calculation/i }));
+      fireEvent.click(screen.getByRole('button', { name: /run kienzle calculation/i }));
     });
 
     expect(await screen.findByText(/live cut driven/i)).toBeDefined();
@@ -265,7 +275,7 @@ describe('CalculatorPage finish atlas view', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /run prism calculation/i }));
+      fireEvent.click(screen.getByRole('button', { name: /run kienzle calculation/i }));
     });
 
     await act(async () => {

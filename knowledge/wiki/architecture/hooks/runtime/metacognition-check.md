@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-metacognition-check.mjs — Phase 0.13 Metacognition Budget CheckPreToolUse hook that tracks metacognition budget consumption.Prevents infinite reflection loops by limiting cycles.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

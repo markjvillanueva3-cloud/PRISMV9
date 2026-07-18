@@ -1,0 +1,21 @@
+---
+name: reference_sierra_obsidian_bridge_stringcap_2026_05_31
+description: "system-viz-obsidian-bridge-v2 was SILENTLY DEAD (node.knowledge 8 days stale) — the 573MB graph read AND the augmentation write both exceeded V8's ~512MB string cap. Fixed both (streaming read + streaming write); end-to-end run still gated by host memory pressure."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:47.198Z
+aliases: reference_sierra_obsidian_bridge_stringcap_2026_05_31
+---
+
+
+**Bug-finding (slot:sierra, 2026-05-31, commits c1ba2688a3 + b462fd6709).** The work order was "use workflow to determine how to maximize /system-viz usability + features with the obsidian brain/app." A 5-agent workflow assessment (`sysviz-obsidian-maximize`) ranked 10 opportunities; topPick was "compact the 280MB obsidian-augmentation.json write." Verifying + building it surfaced the REAL root cause.
+
+**ROOT CAUSE — `scripts/system-viz-obsidian-bridge-v2.mjs` was silently dead.** Two V8 `RangeError: Invalid string length` (~512MB max-string-length) blockers, both from the graph growing:
+1. **The READ (line 264, the actual first failure):** `JSON.parse(await readFile(GRAPH_PATH, "utf8"))` — `system-graph.json` is now **573MB**; reading it as ONE utf8 string exceeds the cap → the bridge died BEFORE any write. **This is why `obsidian-augmentation.json` (the node→wiki/memory knowledge augmentation merged into every node) was 8 days stale (2026-05-23).** Fix: `readGraphStreaming(GRAPH_PATH)` (the OOM-safe Buffer parser merge-augmentations already uses on the same graph). `[[reference_u_regen_viz_merge_faillod_2026_05_17]]` class.
+2. **The WRITE (line ~355):** `writeFile(OUT_PATH, JSON.stringify(out, null, 2))` — the augmentation pretty-printed ~294MB; compact `JSON.stringify(out)` ALSO throws once the `augmentations` map outgrows the cap. Fix: new `writeAugmentationStreaming()` — serializes small meta inline + streams the big `augmentations` object in ~16MB chunks, never building the full string. Byte-identical to `JSON.stringify(out)`. Also `isMain`-guarded `main()` so the module is import-safe for tests.
+
+**Verification:** 5 node:tests (round-trip byte-identical + multi-flush + empty + escaped-keys + dual source-guard read & write); `node --check` clean. The 294MB stale file was confirmed INTACT (stringify throws before writeFile, so no data loss).
+
+**HONEST SCOPE (R12):** both string-cap CODE blockers are fixed + test-verified. BUT the end-to-end bridge run is **OS-killed (silent, no log) under host 96%-commit memory pressure** — the bridge holds the parsed 573MB graph + wiki/memory indexes + the augmentation object, the SAME memory wall that kills the full `regen-viz` (dies at vault-graph). So node.knowledge MATERIALIZES (bridge succeeds) only when memory clears — scheduled regen / low fleet load. The code is correct; the runtime is gated by host memory (golf's fleet-memory domain), not by a code bug. Follow-up to lower the bridge's peak memory (nodes-only read?) is a separate M-effort unit.
+
+**WORKFLOW OPPORTUNITY BACKLOG (the next sierra×obsidian iterations — full output in the run transcript / handoff):** #2 move v2 bridge off the `--full` gate so node.knowledge stays fresh (needs the memory fix above first); #6 **deep-link the 3D viewer node side-panel → Obsidian notes** (graph=space, obsidian=detail — the headline user-facing feature; `_server.cjs` stop-stripping the note path + `viz3d.html` click handler → `obsidian://` deep-link; needs fresh node.knowledge); #7 rewrite the stale `/system-viz` skill doc (documents 404 endpoints/shortcuts; S/High); #3 fix `generate-galaxy-features.mjs` double-comma array hole (undefined galaxy node); #4 emit RESOLVED `[[wikilink]]` edges (not just broken); #5 `generate-brain-content-features.mjs` (galaxy brains + memories as content nodes); #9 curated per-roost Obsidian Canvas slices; #8 archive dead v1 bridge. REFUTED (don't build): semantic-embedding node-match (research, embeddings already exist for /wiki-query), node→memory pointers (already built, 9,569), full-graph→Canvas dump (firehose), bridge-knowledge-mapping correction (cross-lane india). Reinforces [[reference_sierra_system_viz_brain_assessment_2026_05_29]].

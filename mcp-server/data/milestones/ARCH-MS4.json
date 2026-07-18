@@ -1,0 +1,287 @@
+{
+  "id": "ARCH-MS4",
+  "title": "Structural Hierarchy — Enforcement + Regression Prevention",
+  "track": "ARCH",
+  "status": "not_started",
+  "description": "Create ALL enforcement hooks and automation that prevent regression. This is the SOLE milestone that builds hooks — MS0/MS1/MS2/MS3 only DECLARE intents, MS4 implements them. After ARCH-MS0 through MS3 fix existing violations, this milestone ensures new code can't reintroduce them. Includes: engine-contract-enforcer hook, shadow-data-detector hook, dispatcher-purity-checker hook, direct-io-blocker hook, arch-regression-guard meta-hook, and an /arch-health dashboard skill.",
+  "dependencies": [
+    "ARCH-MS1",
+    "ARCH-MS2",
+    "ARCH-MS3"
+  ],
+  "knowledge_sources": {
+    "hooks": [
+      "src/hooks/ (existing hook patterns)",
+      "HookRegistry (162+ hooks)"
+    ],
+    "engines": [
+      "BaseEngine.ts (from ARCH-MS0)",
+      "IEngine.ts (from ARCH-MS0)",
+      "Service interfaces (from ARCH-MS0)"
+    ],
+    "from_MS0": [
+      "IEngine interface contract — enforce in new engines",
+      "Service layer interfaces — enforce usage over direct registry imports"
+    ],
+    "from_MS1": [
+      "Shadow data patterns eliminated — prevent reintroduction",
+      "Physics constants centralized — prevent inline values"
+    ],
+    "from_MS2": [
+      "Dispatcher purity rules — prevent registry imports in dispatchers",
+      "I/O classification (state/ARCH-IO-CLASSIFICATION.md) — exempt list for direct-io-blocker"
+    ],
+    "from_MS3": [
+      "BaseEngine adoption in 20 engines — enforce for new engines",
+      "Type consolidation — enforce shared types"
+    ],
+    "reference": [
+      "engines/CLAUDE.md (rules to enforce)",
+      "CLAUDE.md (hook patterns)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "arch-regression-guard — meta-hook that validates all 4 architectural hooks are registered and active",
+    "action": "prism_system:arch_regression_report — full hierarchy compliance report with metrics",
+    "skill": "/arch-guard — enable/disable/status of all architectural enforcement hooks"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "ARCH-MS4-S1",
+      "title": "Build ALL Enforcement Hooks + Dashboard (SOLE hook builder)",
+      "smart_config": {
+        "role": "DevOps Architect + Hook Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "src/hooks/ patterns (read 2-3 existing hooks for structure)",
+        "HookRegistry",
+        "All ARCH-MS0 through MS3 rules",
+        "state/ARCH-IO-CLASSIFICATION.md (exempt engines list from MS2)",
+        "/hook-browse output"
+      ],
+      "intent": "No one can accidentally reintroduce shadow databases, inline physics, direct I/O in engines, or registry imports in dispatchers. The architecture enforces itself. Running /arch-health shows a clean compliance dashboard.",
+      "skills": [
+        "/forge-hooks",
+        "/forge-triple",
+        "/prism-review",
+        "/test",
+        "/hook-browse",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)",
+        "ESLint MCP (mcp__eslint__lint-files)"
+      ],
+      "units": [
+        {
+          "id": "U-ENFO01",
+          "title": "Create engine-contract-enforcer hook",
+          "description": "PreToolUse hook that checks new/modified engine files for: (1) class extends BaseEngine or implements IEngine, (2) has execute() method, (3) has validate() method. Warns on violation, blocks after grace period (configurable via ARCH_GRACE_DATE env var or config). Grace period: existing 1,287 engines that don't adopt BaseEngine are exempt until date X. Only NEW engine files (created after the hook's install date) are blocked. Register in HookRegistry with test fixtures.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Hook registered in HookRegistry",
+            "Fires on NEW engine file creation/modification",
+            "Correctly identifies non-compliant new engines",
+            "Does NOT fire on existing engines (grace period verified with date check)",
+            "3+ test cases: compliant new engine (pass), non-compliant new engine (block), existing engine (exempt)",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/hooks/engine-contract-enforcer.ts",
+              "src/__tests__/hooks/engine-contract-enforcer.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "Hook blocks edits to existing engines",
+              "tsc errors > 0",
+              "false positives on 2+ test fixtures"
+            ],
+            "rollback_procedure": "git checkout -- src/hooks/engine-contract-enforcer.ts"
+          }
+        },
+        {
+          "id": "U-ENFO02",
+          "title": "Create shadow-data-detector + dispatcher-purity-checker + direct-io-blocker hooks",
+          "description": "Three hooks: (1) shadow-data-detector: warns if engine defines >5 hardcoded records matching material/machine/tool data patterns (array of objects with properties like 'machinability', 'vc', 'fz', 'rpm', 'travel'). (2) dispatcher-purity-checker: warns if dispatcher file imports from registries/ path or has >20 LOC of non-routing code (heuristic: function definitions inside dispatcher). (3) direct-io-blocker: warns if non-exempt engine uses readFileSync/readFile — reads exempt list from state/ARCH-IO-CLASSIFICATION.md Category D list. All register in HookRegistry with 2+ test fixtures each.",
+          "depends_on": [
+            "U-ENFO01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "3 hooks registered in HookRegistry",
+            "Each hook has 2+ test fixtures (violation + clean file)",
+            "shadow-data-detector catches inline MATERIAL_DATA pattern",
+            "dispatcher-purity-checker catches registry import in dispatcher",
+            "direct-io-blocker catches readFileSync but exempts Category D engines",
+            "Zero false positives when run against 5 compliant files",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/hooks/shadow-data-detector.ts",
+              "src/hooks/dispatcher-purity-checker.ts",
+              "src/hooks/direct-io-blocker.ts",
+              "src/__tests__/hooks/shadow-data-detector.test.ts",
+              "src/__tests__/hooks/dispatcher-purity-checker.test.ts",
+              "src/__tests__/hooks/direct-io-blocker.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "False positives on >1 compliant file",
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/hooks/shadow-data-detector.ts src/hooks/dispatcher-purity-checker.ts src/hooks/direct-io-blocker.ts"
+          }
+        },
+        {
+          "id": "U-ENFO03",
+          "title": "Create /arch-health dashboard + prism_system:architecture_health action + arch-regression-guard meta-hook",
+          "description": "1) ArchitectureHealthEngine: scans codebase and reports: BaseEngine adoption (X/1307), Service layer coverage (X engines using services vs direct registry), Shadow data violations (X engines with inline tables), Dispatcher purity (X/79 clean), Direct I/O violations (X non-exempt engines with raw fs). 2) Wire as prism_system:architecture_health dispatcher action. 3) Create /arch-health skill that calls the action. 4) Create arch-regression-guard meta-hook that validates all 4 hooks from U-ENFO01/02 are registered and active — fires on session start.",
+          "depends_on": [
+            "U-ENFO02"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "/arch-health produces accurate report (cross-check 3 metrics against grep)",
+            "Action callable via MCP (test with prism_system:architecture_health)",
+            "arch-regression-guard confirms all 4 hooks are registered",
+            "Numbers match grep-verified counts (within 5% for dynamic counts)",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/ArchitectureHealthEngine.ts",
+              "skills/arch-health.md",
+              "src/hooks/arch-regression-guard.ts"
+            ],
+            "files_modified": [
+              "dispatcher that hosts prism_system actions"
+            ],
+            "abort_criteria": [
+              "Metrics differ from grep by >10%",
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git stash"
+          }
+        }
+      ],
+      "exit_gate": "✓ 4 enforcement hooks active + 1 meta-hook | ✓ /arch-health produces accurate metrics (grep-verified) | ✓ MCP action wired and callable | ✓ All hooks registered in HookRegistry | ✓ Zero false positives across all test fixtures | ✓ arch-regression-guard validates hook presence | ✓ tsc 0 errors | ✓ All tests pass | ✓ BASELINE_INVENTORY.json updated with new hook/engine/skill counts | omega_floor >= 0.95 | SVI delta: +5%",
+      "feature_cascade": {
+        "new_hooks": [
+          "engine-contract-enforcer",
+          "shadow-data-detector",
+          "dispatcher-purity-checker",
+          "direct-io-blocker",
+          "arch-regression-guard"
+        ],
+        "new_actions": [
+          "prism_system:architecture_health",
+          "prism_system:arch_regression_report"
+        ],
+        "new_skills": [
+          "/arch-health",
+          "/arch-guard"
+        ],
+        "available_to": [
+          "All future development sessions — these hooks are permanent enforcement"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 3,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "arch-ms4-gate"
+    ],
+    "new_actions": [
+      "arch_ms4_run"
+    ],
+    "new_skills": [
+      "/arch-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Create ALL enforcement hooks and automation that prevent regression. This is the SOLE milestone that builds hooks — MS0/MS1/MS2/MS3 only DECLARE intents, MS4 implements them. After ARCH-MS0 through MS3 fix existing violations, this milestone ensures new code can't reintroduce them. Includes: engine-contract-enforcer hook, shadow-data-detector hook, dispatcher-purity-checker hook, direct-io-blocker hook, arch-regression-guard meta-hook, and an /arch-health dashboard skill.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-ARCH01",
+      "title": "ARCH-MS4 — Coordinator",
+      "description": "Master coordinator envelope for ARCH-MS4. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

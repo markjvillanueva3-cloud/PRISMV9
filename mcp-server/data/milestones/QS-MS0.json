@@ -1,0 +1,59 @@
+{
+  "id": "QS-MS0",
+  "version": "6.3.0",
+  "title": "Canonical Physics Constants Module",
+  "track": "QS",
+  "created_at": "2026-03-15T17:00:00Z",
+  "status": "complete",
+  "total_units": 3,
+  "completed_units": 3,
+  "description": "Single source of truth for all Kienzle/Taylor/material/thermal constants. Creates src/physics/constants.ts with canonical data and functions used by all pipeline engines, eliminating physics fragmentation across 8+ engines with divergent constant values.",
+  "dependencies": [],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Canonical Physics Constants",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Create src/physics/constants.ts with canonical data",
+          "description": "Create src/physics/constants.ts containing CANONICAL_KIENZLE (6 ISO groups P/M/K/N/S/H with validated kc1_1/mc from Sandvik/Kennametal datasheets), CANONICAL_TAYLOR (C/n per ISO group), CANONICAL_MATERIAL_DB (13+ materials with all physics props: kc1_1, mc, C, n, k_thermal, sigma_y, density, hardness_HB, vc_base_rough, vc_base_finish), CANONICAL_TOOL_MODULUS (E modulus by tool material: carbide=600GPa, HSS=210GPa, ceramic=380GPa, CBN=680GPa, PCD=850GPa).",
+          "acceptance": [
+            "CANONICAL_KIENZLE has 6 ISO groups with validated kc1_1 and mc values",
+            "CANONICAL_TAYLOR has C and n per ISO group",
+            "CANONICAL_MATERIAL_DB has 13+ materials with all physics properties",
+            "CANONICAL_TOOL_MODULUS has 5 tool materials with correct E modulus values",
+            "All types are properly exported with TypeScript interfaces"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U02",
+          "title": "Add canonical physics functions",
+          "description": "Add canonical function implementations: kienzleForce(kc1_1, mc, ap, fz) for cutting force, taylorLife(C, n, Vc) implementing T=(C/Vc)^(1/n), toolDeflection(F, L, d, E?) implementing delta=F*L^3/(3*E*I), and boxMullerRNG(seed?) returning a seeded PRNG for reproducible Monte Carlo simulations.",
+          "acceptance": [
+            "kienzleForce computes Fc = kc1_1 * ap * fz^(1-mc) correctly",
+            "taylorLife computes T = (C/Vc)^(1/n) correctly",
+            "toolDeflection computes delta = F*L^3/(3*E*I) with cylindrical moment of inertia",
+            "boxMullerRNG produces reproducible normal-distributed values from a seed",
+            "All functions are exported and documented with JSDoc"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U03",
+          "title": "Tests validating dimensional consistency",
+          "description": "Write 15+ tests validating dimensional consistency of all canonical constants and functions. Verify Kienzle force units (N), Taylor life units (min), deflection units (mm), material property ranges, and cross-consistency between related constants.",
+          "acceptance": [
+            "15+ tests pass",
+            "Dimensional consistency verified for all functions (force in N, life in min, deflection in mm)",
+            "Material property ranges validated against known physical bounds",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-03-15T18:00:00Z"
+}

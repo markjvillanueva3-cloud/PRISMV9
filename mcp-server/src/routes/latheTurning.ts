@@ -14,6 +14,7 @@ import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import type { CallToolFn } from "./index.js";
 import { log } from "../utils/Logger.js";
+import { normalizeLatheInput } from "../engines/PipelineHarnessAdaptersEngine.js";
 
 // ── In-memory job store (single-server; swap for Redis in production) ──────
 
@@ -389,8 +390,15 @@ async function runPipelineAsync(
     // intermediate stages to give the user visual feedback.
     const stagePromise = simulateStageProgress(job);
 
-    // Run the actual pipeline
-    const result = await callTool("prism_turning_program", "turning_print_to_program", input);
+    // Normalize the wizard form payload into a full TurningInput. The web wizard posts a
+    // flat, INCH-unit shape ({material, diameter_in, length_in, ...}); without normalizing,
+    // the engine reads the canonical mm/material-object keys it expects (bar_stock_od_mm,
+    // part_length_mm, material.material_name), finds them undefined, and SILENTLY uses
+    // 31.75mm/50mm/1018-steel defaults -- dropping the user's part size + material (the exact
+    // "variable inputs" the operator asked about). normalizeLatheInput maps the UI keys
+    // (inch->mm x25.4, material passthrough) and leaves canonical/CAD-extracted bodies intact.
+    const normalized = normalizeLatheInput(input);
+    const result = await callTool("prism_turning_program", "turning_print_to_program", normalized);
 
     // Store result but keep status as "running" until simulation finishes
     job.result = result;

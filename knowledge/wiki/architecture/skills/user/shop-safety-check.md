@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `shop-safety-check` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/shop-safety-check.md` |
+| Source | `C:/Users/wompu/.claude/commands/shop-safety-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

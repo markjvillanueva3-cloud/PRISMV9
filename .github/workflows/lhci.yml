@@ -1,0 +1,67 @@
+# U-INSTALL-LHCI + U-F6-LIGHTHOUSE-CI-GATE — Lighthouse CI on every PR
+# Spec: state/shared/specs/FRONTEND-PLAN-EXTENSION-2026-05-25.md §9.3 + table
+#       line 432-443. "HIGHEST single ROI" in the entire frontend spec.
+#
+# Companion file: web/.lighthouserc.cjs (assertions + URLs + budgets).
+# Slot: quebec /goal-loop iter6-extended (2026-05-26).
+#
+# What this does:
+#   1. On every PR + push to main that touches web/, install web/ deps
+#   2. Build web/ via `npm run build`
+#   3. Run @lhci/cli autorun (boots a preview server, hits the 5 routes
+#      named in lighthouserc, asserts the budgets)
+#   4. Upload the report to temporary-public-storage (the URL is printed
+#      to the job log; operator clicks through for the full waterfall)
+#
+# Operator activation:
+#   - Default-on once this file lands (no secrets required for temporary-
+#     public-storage upload target).
+#   - To swap to a private LHCI server: set LHCI_SERVER_BASE_URL secret +
+#     LHCI_SERVER_TOKEN secret in repo settings, then edit lighthouserc.cjs
+#     upload.target to "lhci".
+
+name: Lighthouse CI
+
+on:
+  pull_request:
+    paths:
+      - "web/**"
+      - ".github/workflows/lhci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/lhci.yml"
+
+jobs:
+  lhci:
+    name: Lighthouse CI gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web/ deps
+        working-directory: web
+        run: npm ci
+
+      - name: Build web/
+        working-directory: web
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        working-directory: web
+        run: npx --no-install lhci autorun
+        env:
+          # When LHCI_GITHUB_APP_TOKEN is set, the run posts a status check
+          # back to the PR with the per-budget pass/fail summary. Generate
+          # via https://github.com/apps/lighthouse-ci.
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

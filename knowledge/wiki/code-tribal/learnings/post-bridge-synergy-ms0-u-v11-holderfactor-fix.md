@@ -1,0 +1,28 @@
+# POST-BRIDGE-SYNERGY-MS0/U-V11-HOLDERFACTOR-FIX — [MAIN] [BOOTSTRAP-SLOT-ENFORCE] [POST-BRIDGE-SYNERGY-MS0]/U-V11-HOLDERFACTOR-FIX (slot:echo /loop iter22 /yolo): close v11 line-70 silent runtime error visible in JM DIE/HURCO CNC PROGRAMS/v11 test.hnc as '(PRISM: Calculation error holderFactor is not defined - using Fusion defaults)'. ROOT CAUSE: calculateOptimizedSpeed() in JM DIE/PRISM MODIFIED POST PROCESSORS/HURCO_VM30i_PRISM_v11.cps line 12513 references holderFactor but the v10→v11 TIR refactor renamed the local var to tirFactor at line 12453; the returned factors object literal was never updated. ReferenceError silently swallowed by Fusion's warning() wrapper. Mainline mcp-server/data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps already correct at line 12474 — bug was a JM Die hot-fix drift never backported. FIX: line 12513 holder: holderFactor → holder: tirFactor + inline provenance comment. VERIFICATION: existing mcp-server/src/__tests__/cps-scope-linter.test.ts (U-SH01, acorn-AST zero-false-positive) run against fixed JM Die copy returns 20/20 PASS. JM DIE/ is .gitignore'd (customer data) so fix is in-place; this commit ships the close-out spec + HTML companion documenting the diagnosis + verification. NEXT ITER QUEUED: U-V11-AUTO-POCKET-FROM-LIBRARY (unit 2 of 135 in envelope) — read UserTool.magazine_position to eliminate v10/v11 tool-pocket tedium. Also surfaced 2 follow-up units for the envelope: U-V11-CPS-DRIFT-MONITOR (cron the linter against all customer-deployed CPS) + U-V11-MAINLINE-DEPLOY-PIPELINE (auto-sync mainline CPS to customer dirs to prevent silent hot-fix drift).
+
+**Commit:** `066163ce1166` · **By:** markjvillanueva3-cloud · **At:** 2026-05-26T22:18:00-05:00
+**Tags:** post-bridge-synergy-ms0, u-v11-holderfactor-fix, auto-distilled
+
+## Subject
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [POST-BRIDGE-SYNERGY-MS0]/U-V11-HOLDERFACTOR-FIX (slot:echo /loop iter22 /yolo): close v11 line-70 silent runtime error visible in JM DIE/HURCO CNC PROGRAMS/v11 test.hnc as '(PRISM: Calculation error holderFactor is not defined - using Fusion defaults)'. ROOT CAUSE: calculateOptimizedSpeed() in JM DIE/PRISM MODIFIED POST PROCESSORS/HURCO_VM30i_PRISM_v11.cps line 12513 references holderFactor but the v10→v11 TIR refactor renamed the local var to tirFactor at line 12453; the returned factors object literal was never updated. ReferenceError silently swallowed by Fusion's warning() wrapper. Mainline mcp-server/data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps already correct at line 12474 — bug was a JM Die hot-fix drift never backported. FIX: line 12513 holder: holderFactor → holder: tirFactor + inline provenance comment. VERIFICATION: existing mcp-server/src/__tests__/cps-scope-linter.test.ts (U-SH01, acorn-AST zero-false-positive) run against fixed JM Die copy returns 20/20 PASS. JM DIE/ is .gitignore'd (customer data) so fix is in-place; this commit ships the close-out spec + HTML companion documenting the diagnosis + verification. NEXT ITER QUEUED: U-V11-AUTO-POCKET-FROM-LIBRARY (unit 2 of 135 in envelope) — read UserTool.magazine_position to eliminate v10/v11 tool-pocket tedium. Also surfaced 2 follow-up units for the envelope: U-V11-CPS-DRIFT-MONITOR (cron the linter against all customer-deployed CPS) + U-V11-MAINLINE-DEPLOY-PIPELINE (auto-sync mainline CPS to customer dirs to prevent silent hot-fix drift).
+
+## Body
+```
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [POST-BRIDGE-SYNERGY-MS0]/U-V11-HOLDERFACTOR-FIX (slot:echo /loop iter22 /yolo): close v11 line-70 silent runtime error visible in JM DIE/HURCO CNC PROGRAMS/v11 test.hnc as '(PRISM: Calculation error holderFactor is not defined - using Fusion defaults)'. ROOT CAUSE: calculateOptimizedSpeed() in JM DIE/PRISM MODIFIED POST PROCESSORS/HURCO_VM30i_PRISM_v11.cps line 12513 references holderFactor but the v10→v11 TIR refactor renamed the local var to tirFactor at line 12453; the returned factors object literal was never updated. ReferenceError silently swallowed by Fusion's warning() wrapper. Mainline mcp-server/data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps already correct at line 12474 — bug was a JM Die hot-fix drift never backported. FIX: line 12513 holder: holderFactor → holder: tirFactor + inline provenance comment. VERIFICATION: existing mcp-server/src/__tests__/cps-scope-linter.test.ts (U-SH01, acorn-AST zero-false-positive) run against fixed JM Die copy returns 20/20 PASS. JM DIE/ is .gitignore'd (customer data) so fix is in-place; this commit ships the close-out spec + HTML companion documenting the diagnosis + verification. NEXT ITER QUEUED: U-V11-AUTO-POCKET-FROM-LIBRARY (unit 2 of 135 in envelope) — read UserTool.magazine_position to eliminate v10/v11 tool-pocket tedium. Also surfaced 2 follow-up units for the envelope: U-V11-CPS-DRIFT-MONITOR (cron the linter against all customer-deployed CPS) + U-V11-MAINLINE-DEPLOY-PIPELINE (auto-sync mainline CPS to customer dirs to prevent silent hot-fix drift).
+```
+
+## Files touched (3)
+- ...U-V11-HOLDERFACTOR-FIX-CLOSEOUT-2026-05-26.html | 130 +++++++++++++++++++++
+- .../U-V11-HOLDERFACTOR-FIX-CLOSEOUT-2026-05-26.md  |  47 ++++++++
+- 2 files changed, 177 insertions(+)
+
+
+## Verification
+**Scrutiny ledger**: arms A✗ B✗ C✗ for session 
+
+## Cross-references
+- Full commit: `git -C H:/prism show 066163ce1166`
+- Milestone envelope: `mcp-server/data/milestones/POST-BRIDGE-SYNERGY-MS0.json`
+
+---
+_Auto-distilled by `scripts/distill-session-learnings.mjs` per [[feedback_auto_close_out]] / SYSTEM-VIZ-BRAIN-MS0/U-P1-POST-SHIP-DISTILL._

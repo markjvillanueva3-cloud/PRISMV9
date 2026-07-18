@@ -1,0 +1,473 @@
+{
+  "source": {
+    "channel": "Art of the Part",
+    "videos": [
+      {
+        "id": "NFKIIQZx0jE",
+        "title": "First Operation Walk-Thru on a CNC Machine (DMG MORI DMU-50)",
+        "duration": "18:27",
+        "url": "https://www.youtube.com/watch?v=NFKIIQZx0jE",
+        "operation": "first_operation"
+      },
+      {
+        "id": "-qCUU36j0H8",
+        "title": "Second Operation Walk-Thru on a CNC Machine (DMG MORI DMU-50)",
+        "duration": "15:02",
+        "url": "https://www.youtube.com/watch?v=-qCUU36j0H8",
+        "operation": "second_operation"
+      }
+    ],
+    "extracted": "2026-03-27",
+    "context": "Educational walkthrough for students showing complete two-operation machining workflow on a 5-axis CNC machine"
+  },
+  "machine": {
+    "manufacturer": "DMG MORI",
+    "model": "DMU 50",
+    "type": "5-axis milling center",
+    "controller": {
+      "brand": "Siemens",
+      "model": "840D",
+      "conversational_software": "ShopMill",
+      "capabilities": [
+        "Conversational programming (ShopMill)",
+        "G-code execution",
+        "Subprogram calls",
+        "Built-in simulation/verification",
+        "Probing cycles (Renishaw integration)",
+        "Automatic tool change (M6)",
+        "Work offset management (G54-G59, G510)"
+      ]
+    },
+    "features": {
+      "tool_changer": "automatic (ATC)",
+      "probing": "Renishaw ruby-tip touch probe",
+      "coolant": "flood coolant with manual on/off override",
+      "door": "interlocked safety door (must be locked to cycle start)",
+      "feed_override": {
+        "rapid_pot": "Controls G00 rapid traverse feed rate, 0-100%",
+        "linear_pot": "Controls G01 linear feed rate, 0-100%",
+        "note": "Two separate potentiometers for independent rapid and linear feed control"
+      },
+      "safety": {
+        "e_stop": true,
+        "cycle_stop": true,
+        "door_interlock": true,
+        "warning_indicators": "Orange warning when feed override is at 0%, green when feed is active"
+      }
+    }
+  },
+  "part": {
+    "part_number": "98432",
+    "related_parts": ["98431", "98433"],
+    "description": "Student training component kit - three parts for measurement, quality control, CAD/CAM, and machining exercises",
+    "material": "Aluminum (implied from tooling and cutting behavior)",
+    "raw_stock": {
+      "shape": "rectangular bar/block, saw-cut",
+      "x_dimension_approx": "3.75 inches",
+      "y_dimension_approx": "3.0 inches",
+      "saw_cut_variation": "up to 0.060 to 0.125 inch variation in cut length",
+      "note": "Stock cut on regular saw, not precision cut - variation is why probing is used"
+    },
+    "finished_dimensions": {
+      "height_z": "0.725 inches nominal",
+      "x_dimension": "3.5 inches nominal",
+      "y_dimension": "approximately 3.0 inches"
+    },
+    "tolerances": {
+      "general": "+/- 0.003 inches (plus or minus three thousandths)",
+      "measurement_approach": "Caliper and height gauge verification"
+    },
+    "features": [
+      "Rectangular profile (external contour)",
+      "Chamfered edges",
+      "Engraved part number",
+      "Engraved part name",
+      "IIT logo (engraved on back, programmed in Mastercam as subprogram)",
+      "Two drilled holes"
+    ]
+  },
+  "first_operation": {
+    "description": "Machine the back/bottom face and external contour from raw stock",
+    "program_structure": {
+      "software": "Siemens ShopMill conversational programming",
+      "cam_software": "Mastercam (for IIT logo subprogram only)",
+      "program_blocks": [
+        "first_stop_machine_block_0",
+        "first_stop_machine_block_1",
+        "first_stop_machine_block_2 (98432 backside)",
+        "first_stop_machine_block_3"
+      ],
+      "subprogram": "98420 (IIT logo, programmed in Mastercam, called as sub)"
+    },
+    "work_offset_setup": {
+      "work_offset": "G510",
+      "probing_method": "Block center probe cycle",
+      "probing_steps": [
+        "Renishaw ruby-tip probe touches points in X and Y",
+        "Establishes center point of raw stock material",
+        "Measures edge for Z0 establishment",
+        "Rectangular measurement for exact center of material"
+      ],
+      "probing_rationale": "Raw stock from saw has variation (0.060-0.125 inch), so probing finds true center each time - operator does not need to precisely position stock, just center it by eye in vise"
+    },
+    "workholding": {
+      "type": "Machine vise",
+      "method": "Part clamped on vise teeth (no parallels for first operation)",
+      "torque_wrench": {
+        "setting": "75 newton-meters",
+        "method": "Torque wrench clicks when correct clamping force is reached"
+      },
+      "notes": [
+        "No dead blow hammer needed for first op (would damage teeth)",
+        "Part centered by eye in vise - probe finds exact center",
+        "One hand holding camera, normally would use two hands to position and clamp"
+      ]
+    },
+    "machining_sequence": [
+      {
+        "step": 1,
+        "operation": "Probing / WCS Setup",
+        "tool": "Renishaw ruby-tip touch probe",
+        "details": "Block center cycle to find X/Y center, edge measurement for Z0, writes to G510 work offset",
+        "notes": "Run probe at 100% rapid for accuracy"
+      },
+      {
+        "step": 2,
+        "operation": "Face Mill",
+        "tool": "3-inch face mill",
+        "type": "finish",
+        "details": "Face mill with X and Y extents defined, machine to Z depth",
+        "notes": "Turn coolant off initially to verify Z0 contact, then turn coolant on"
+      },
+      {
+        "step": 3,
+        "operation": "Rectangular Spigot - Roughing",
+        "tool": "5/8-inch end mill",
+        "type": "rough",
+        "details": "Contour around rectangular profile - roughing pass, two Z-level passes",
+        "notes": "Check gap between tool tip and vise top with a scale/ruler before allowing full contour pass"
+      },
+      {
+        "step": 4,
+        "operation": "Rectangular Spigot - Finishing",
+        "tool": "5/8-inch end mill (same tool)",
+        "type": "finish",
+        "details": "Finishing contour pass using same geometry as roughing",
+        "notes": "Do not change feed override during finishing pass to avoid inconsistent surface finish"
+      },
+      {
+        "step": 5,
+        "operation": "Chamfer",
+        "tool": "Chamfer tool",
+        "details": "Chamfer edges using same geometry as rectangular spigot"
+      },
+      {
+        "step": 6,
+        "operation": "Engrave Part Number",
+        "tool": "Engraving tool",
+        "details": "Engrave part number '98432'"
+      },
+      {
+        "step": 7,
+        "operation": "Engrave Part Name",
+        "tool": "Engraving tool (same)",
+        "details": "Engrave name of the part"
+      },
+      {
+        "step": 8,
+        "operation": "IIT Logo Engraving",
+        "tool": "Engraving tool",
+        "details": "Calls subprogram 98420 (Mastercam-generated G-code for complex logo toolpath)",
+        "notes": "Logo too complex for hand-written G-code or conversational programming"
+      }
+    ],
+    "estimated_cycle_time": "5 minutes 30 seconds",
+    "simulation": "Always simulate program in ShopMill before running on machine"
+  },
+  "second_operation": {
+    "description": "Flip part over to machine the top face, pockets, holes, and final features",
+    "work_offset_setup": {
+      "work_offset": "G543",
+      "method": "Work stop (fixed reference) - no need to re-probe each part",
+      "adjustment_technique": {
+        "measurement": "Use height gauge on surface plate to verify Z dimension",
+        "nominal": "0.725 inches",
+        "first_part_measured": "0.725 on one side, 0.726 on other side",
+        "tolerance_check": "Within +/- 0.003 tolerance but want to be more accurate",
+        "offset_correction": "Subtract 0.0005 inches (half a tenth) from Z offset for next part",
+        "note": "Split the difference: measured 0.0005-0.001 over nominal, took off half a tenth"
+      }
+    },
+    "part_orientation": {
+      "flip_method": "Flip part over (top-to-bottom) keeping lettering/numbering oriented correctly",
+      "correct_flip": "Flip like a page (about the long axis)",
+      "incorrect_flip": "Do NOT flip end-over-end (about the short axis)",
+      "registration": "Part pushed against work stop for consistent positioning"
+    },
+    "workholding": {
+      "type": "Machine vise with parallels and work stop",
+      "parallels": "Used for second operation (part sits on parallels for Z reference)",
+      "work_stop": "Fixed reference so XYZ zeros don't need re-establishing each part",
+      "torque_wrench": {
+        "setting": "75 newton-meters"
+      },
+      "seating_technique": {
+        "tool": "Dead blow hammer",
+        "pattern": "Alternating corners like changing a tire lug pattern",
+        "sequence": "Corner 1, Corner 2 (opposite), Corner 3, Corner 4, then center (5th)",
+        "purpose": "Seat part firmly on parallels - parallels should not be loose after seating"
+      },
+      "notes": [
+        "Parallels must be checked - if loose after clamping, need dead blow hammer",
+        "Always check parallels didn't move after first operation (during unload)"
+      ]
+    },
+    "machining_sequence": [
+      {
+        "step": 1,
+        "operation": "Face Mill (top face)",
+        "tool": "Face mill",
+        "details": "Face the top surface to establish Z datum for second operation features",
+        "notes": "Turn off coolant to verify Z0 contact, ease in with feed override"
+      },
+      {
+        "step": 2,
+        "operation": "Contour / Profile",
+        "tool": "End mill",
+        "details": "External profile contour machining",
+        "notes": "Check gap between tool and vise with scale before full pass"
+      },
+      {
+        "step": 3,
+        "operation": "Drilling",
+        "tool": "Modified drill point",
+        "details": "Drill two hole locations",
+        "notes": "Modified drill point used to combine drilling with chamfer/deburring to avoid a third operation"
+      }
+    ],
+    "deburring_strategy": {
+      "problem": "Second operation left burrs at two hole locations",
+      "solution": "Modified drill point to deburr during drilling - avoids third operation setup",
+      "verification": "Feel by hand for high points, re-run drill if burr remains"
+    },
+    "post_machining_inspection": {
+      "tools": ["Digital caliper", "Height gauge", "Surface plate"],
+      "measurements": [
+        {
+          "dimension": "Overall width (X)",
+          "nominal": "3.500 inches",
+          "measured": "3.5005 inches (half a tenth over)",
+          "status": "Within +/- 0.003 tolerance"
+        },
+        {
+          "dimension": "Overall depth (Y)",
+          "nominal": "approximately 3.000 inches",
+          "measured": "3.001 inches (one thousandth over)",
+          "status": "Within tolerance"
+        },
+        {
+          "dimension": "Height (Z)",
+          "nominal": "0.725 inches",
+          "measured_side_1": "0.7255 inches",
+          "measured_side_2": "0.726 inches",
+          "status": "Within +/- 0.003 tolerance, adjusted offset for next part"
+        }
+      ]
+    }
+  },
+  "operator_procedures": {
+    "program_verification": {
+      "steps": [
+        "Load program in ShopMill program manager",
+        "Review all conversational program commands",
+        "Verify correct machine block for correct part number",
+        "Run 3D simulation to visually verify toolpaths match blueprint",
+        "Compare simulation to physical blueprint",
+        "Select 'Execute' to load program to machine control"
+      ]
+    },
+    "first_run_safety_protocol": {
+      "steps": [
+        "Start with both rapid and linear feed override pots turned all the way down (0%)",
+        "Hit cycle start - machine will prompt for feed",
+        "Turn up rapid ONLY to allow tool change to cycle",
+        "Turn rapid back down after tool change completes",
+        "Turn up rapid slowly to allow approach to workpiece",
+        "When program switches from G00 (rapid) to G01 (linear), switch from rapid pot to linear pot",
+        "Ease linear feed in slowly to see first contact with workpiece",
+        "Turn off coolant during initial approach to visually verify Z0 contact",
+        "After confirming good Z0 contact, turn coolant on",
+        "Cycle stop (interrupt) program after first pass to physically check tool-to-vise clearance with a scale/ruler",
+        "If gap exists between tool tip and vise top, safe to continue",
+        "Resume with cycle start after verification"
+      ],
+      "safety_rules": [
+        "ALWAYS keep a hand near E-stop or Cycle Stop button",
+        "ALWAYS wear safety glasses when opening door",
+        "Do NOT increase feed override during a finishing pass (causes inconsistent surface finish)",
+        "Verify tool won't cut into vise jaws before allowing full contour pass",
+        "Use distance-to-go display on controller to monitor remaining travel"
+      ]
+    },
+    "production_run_procedure": {
+      "after_first_part_verified": [
+        "Run at 100% rapid and 100% linear feed",
+        "Still monitor machine during operation",
+        "Measure each part after completion",
+        "Adjust work offset as needed based on measurements",
+        "Track dimensions trending toward tolerance limits"
+      ],
+      "part_handling": [
+        "Use 3D-printed part holders to prevent scratching between stacked parts",
+        "Blow off coolant and chips with air gun before removing part",
+        "Check parallels haven't moved when removing part from vise"
+      ]
+    },
+    "work_offset_adjustment_technique": {
+      "trigger": "Part measured over or under nominal dimension",
+      "method": "Subtract (or add) measured deviation from Z value in work offset table",
+      "example": {
+        "measured": "0.726 inches (0.001 over nominal 0.725)",
+        "adjustment": "Subtracted 0.0005 (half a tenth) from G543 Z offset",
+        "rationale": "Split the difference since both sides measured slightly different"
+      },
+      "navigation": "Offsets page > find work offset (e.g., G543) > Z value > type minus amount > enter"
+    }
+  },
+  "controller_interface_knowledge": {
+    "siemens_840d_specifics": {
+      "shopmill_workflow": [
+        "Program Manager > select program > review blocks",
+        "Each program block shows conversational icons (roughing, finishing, etc.)",
+        "Simulation available directly in ShopMill",
+        "Execute button loads program to machine",
+        "M6 tool change runs in background during ShopMill execution"
+      ],
+      "feed_override_behavior": {
+        "rapid_pot_controls": "G00 rapid traverse moves",
+        "linear_pot_controls": "G01 linear interpolation moves",
+        "warning_system": "Orange indicator when override at 0% and machine needs feed to proceed, green when active",
+        "important_note": "When program transitions from G00 to G01, must switch which pot you're using - rapid pot won't move G01 commands and vice versa"
+      },
+      "program_interrupt_resume": {
+        "cycle_stop": "Interrupts program without canceling - can resume with cycle start",
+        "use_case": "Stop mid-program to open door and physically check clearances",
+        "door_interlock": "Door can be unlocked when program is interrupted/stopped"
+      },
+      "simulation_override_note": "100% program override in simulation can actually slow down with dense code (too many lines to process)"
+    }
+  },
+  "tools_used": {
+    "probing": {
+      "type": "Renishaw ruby-tip touch probe",
+      "purpose": "Work offset establishment - find center of stock and Z0"
+    },
+    "face_mill": {
+      "diameter": "3 inches",
+      "purpose": "Face milling top surface of stock"
+    },
+    "end_mill": {
+      "diameter": "5/8 inch (0.625 inches)",
+      "purpose": "Roughing and finishing rectangular contour/spigot",
+      "note": "Same tool used for both roughing and finishing passes"
+    },
+    "chamfer_tool": {
+      "purpose": "Break edges on rectangular profile"
+    },
+    "engraving_tool": {
+      "purpose": "Engrave part number, part name, and IIT logo"
+    },
+    "drill": {
+      "type": "Modified drill point",
+      "purpose": "Drill two holes and deburr in one operation"
+    }
+  },
+  "key_manufacturing_insights": [
+    {
+      "topic": "Probing eliminates manual touch-off for varying stock",
+      "detail": "When raw stock is saw-cut with variation up to 1/8 inch, using a probe cycle to find the true center eliminates the need for precision stock or manual indication. The operator just eyeball-centers the stock in the vise."
+    },
+    {
+      "topic": "Work stop for second operation repeatability",
+      "detail": "A fixed work stop eliminates the need to re-probe or re-establish work offsets for each part in second operation. Part just pushes against the stop for consistent registration."
+    },
+    {
+      "topic": "Dead blow hammer seating pattern",
+      "detail": "Use alternating-corner pattern (like lug nuts on a tire) when seating part on parallels: corners 1-2-3-4 then center. This ensures even seating and tight parallels."
+    },
+    {
+      "topic": "Feed override safety technique",
+      "detail": "Always start first run with both pots at zero. Turn up only the pot needed for current G-code mode (rapid for G00, linear for G01). This gives full operator control over approach speed."
+    },
+    {
+      "topic": "Tool-to-vise clearance check with scale",
+      "detail": "Before allowing a full contour pass, interrupt the program and slide a steel scale between the tool tip and vise top. Any visible gap confirms safe clearance. This is the most practical way to verify the tool won't crash into the vise."
+    },
+    {
+      "topic": "Coolant off for Z0 verification",
+      "detail": "Turn off coolant during first approach so you can see and hear the tool make contact with the workpiece. This confirms Z0 is correct before committing to the cut."
+    },
+    {
+      "topic": "Surface finish consistency",
+      "detail": "Never change feed override during a finishing pass. Changing the feed mid-pass will create visible surface finish variation from one side of the part to the other."
+    },
+    {
+      "topic": "Work offset creep correction",
+      "detail": "After measuring first part, adjust work offset by splitting the difference of the oversize amount. Example: part measures 0.001 over on one side, 0.0005 over on other - subtract 0.0005 from Z offset for next part."
+    },
+    {
+      "topic": "Subprogram for complex geometry",
+      "detail": "Complex toolpaths like logos are better programmed in CAM software (Mastercam) and called as subprograms from the main ShopMill conversational program. Don't try to hand-code complex contours."
+    },
+    {
+      "topic": "Modified drill point for deburring",
+      "detail": "A modified drill point can both drill and deburr holes in one operation, eliminating the need for a separate third setup operation. Verify by feel with finger across hole."
+    },
+    {
+      "topic": "Part flip orientation matters",
+      "detail": "When flipping part for second operation, maintain consistent orientation relative to engraving/features. Flip about the correct axis to ensure features align with program expectations."
+    },
+    {
+      "topic": "Simulation before execution",
+      "detail": "Always run the ShopMill 3D simulation and compare to the physical blueprint before executing a program. The simulation gives a visual sanity check even though you can't pull dimensions from it."
+    },
+    {
+      "topic": "Torque wrench for consistent clamping",
+      "detail": "Using a torque wrench set to 75 newton-meters ensures consistent clamping force across all parts in a production run. The click indicates proper force is reached - do not over-tighten."
+    },
+    {
+      "topic": "Distance-to-go monitoring",
+      "detail": "The controller's distance-to-go display shows remaining travel in the current block. Use this to anticipate when the tool will reach the workpiece and when to switch between rapid and linear feed control."
+    }
+  ],
+  "g_code_references": {
+    "G00": "Rapid traverse (non-cutting move, controlled by rapid pot)",
+    "G01": "Linear interpolation (cutting move, controlled by linear pot)",
+    "G510": "Work offset (first operation, used for probing cycle target)",
+    "G543": "Work offset (second operation)",
+    "M6": "Automatic tool change command"
+  },
+  "prism_integration_notes": {
+    "relevant_engines": [
+      "PrintToProgramPipelineEngine - this video demonstrates the exact workflow this engine automates",
+      "PostProcessorPipelineEngine - Siemens 840D + ShopMill is a target dialect",
+      "SpeedFeedOrchestratorEngine - feeds and speeds would be calculated here",
+      "ToolSelectionEngine - tool selection rationale (3in face mill, 5/8 end mill, chamfer, engrave)",
+      "ShopToolLibraryEngine - tool magazine configuration for DMU-50"
+    ],
+    "relevant_registries": [
+      "MachineRegistry - DMG MORI DMU 50 with Siemens 840D controller",
+      "ToolRegistry - 3in face mill, 5/8in end mill, chamfer tool, engraving tool, Renishaw probe",
+      "ToolpathStrategyRegistry - rectangular spigot, face mill, contour, chamfer, engraving strategies"
+    ],
+    "workholding_knowledge": {
+      "first_op": "Vise teeth (direct clamping, no parallels), probe for WCS",
+      "second_op": "Vise with parallels + work stop, dead blow hammer seating"
+    },
+    "safety_for_hooks": {
+      "machineLimitGuard": "Tool clearance from vise must be verified",
+      "materialSanity": "Aluminum cutting parameters implied",
+      "crossFieldPhysics": "Z-depth must not exceed vise jaw height"
+    }
+  }
+}

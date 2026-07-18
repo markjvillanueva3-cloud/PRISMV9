@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-postgen-validator-skip-guard.mjs================================Blocks a generated post-processor from being registered if any validatorwas disabled or skipped during validation. This ensures only fully-validatedposts enter the knowledge graph.Trigger: PreToolUse on camDispatcher lathe_postgen_register action@module hooks/postgen-validator-skip-guard@version 1.0.0@milestone LATHE-MASTER U-LTH24
+_(no header docblock — read source for behavior)_
 
 ## Events
 

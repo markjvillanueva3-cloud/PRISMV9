@@ -1,0 +1,94 @@
+$A.MIN%
+m1
+nbar
+clear
+def work
+ps lc,[-400,0],[400,19]
+end
+draw
+/call obar
+m1
+
+nat01   (rgh od&face .032r)
+g0 x20 z20
+t010101
+g50 s1200
+g96 s750 m3
+g0 x1.1 z.000 m8
+g1 x-.04 f.005
+g0 x1.02 z.03 
+g85 nturn d.07 u.0 w.0 f.007
+nturn g81 
+g0 x1.004 z .01
+g1 z.0 f.005
+g1 z-2.725
+g80
+g0 x20 z20 
+m1
+nat03   (spot drill .240)
+g0 x20 z20
+t030303
+g97 s600 m3
+g0 x0 z.05 m8
+g1 z-.09 f.003
+g0 z.05
+g0 x20 z20
+m1
+
+nat06   (drill 1/4)
+g0 x20 z20
+t060606
+g97 s750 m3
+g0 x0 z.05 m8
+g74 x0 z-2.300 d.3 l.3 f.0025
+g0 z.1
+g0 x20 z20 
+m1
+
+nat07   (drill .480 )
+g0 x20 z20
+t070707
+g96 s600 m3
+g0 x0 z.05 m8
+g1 z-1.00 f.0025
+g0 z.05
+g0 x20 z20 
+m1
+   
+nat07   (E M .420 )
+g0 x20 z20
+t070707
+g96 s300 m3
+g0 x0 z.05 m8
+g1 z-1.00 f.0025
+g0 z.05
+g0 x20 z20 
+m1   
+nat08   (bor )
+g0 x20 z20
+t080808
+g96 s300 m3
+g0 x.480 z.02
+g85 nr001 d.01 u0 w0 f.0015
+nr001 g81
+g0 x.496 z.01
+g1 z0 f.003
+g1 z-1.00
+g0 x.490
+g0 z.05
+g80
+g0 x20 z20
+m1
+
+nat11   (cutoff)
+g0 x20 z20
+t111111
+g96 s700 m3
+g0 x1.1 z2.725 m8
+g1 x-.04 f.001 
+g0 x.95
+g0 x20 z20 m9
+m5
+/goto nbar
+m2
+%

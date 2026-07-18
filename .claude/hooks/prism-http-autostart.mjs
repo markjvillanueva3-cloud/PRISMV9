@@ -25,7 +25,7 @@ const PID_FILE = 'H:/prism/.claude/cache/prism-http.pid';
 
 function isServerRunning() {
   try {
-    const result = execSync(`curl -s --max-time 2 ${HEALTH_URL}`, {
+    const result = execSync(`curl -s --max-time 2 ${HEALTH_URL}`, { windowsHide: true,
       encoding: 'utf-8',
       timeout: 3000
     });
@@ -40,7 +40,7 @@ function startServer() {
   try {
     // Start in detached mode so it survives this process
     const child = spawn('bash', [STARTUP_SCRIPT], {
-      detached: true,
+      detached: true, windowsHide: true,
       stdio: 'ignore',
       cwd: 'H:/prism/mcp-server',
       env: {

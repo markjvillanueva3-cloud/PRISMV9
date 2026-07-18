@@ -190,7 +190,7 @@ export function KnowledgeIngestionPage() {
       <WorkspaceHero
         eyebrow="Knowledge Pipeline"
         title="Ingest Knowledge"
-        description="Paste a CNC tip, drop a video, upload a document, or paste a URL. PRISM auto-tags, deduplicates, and stores it in the knowledge graph."
+        description="Paste a CNC tip, drop a video, upload a document, or paste a URL. Kienzle auto-tags, deduplicates, and stores it in the knowledge graph."
         metrics={
           <>
             <SummaryTile label="Items Ingested" value={String(totalIngested)} hint="this session" accent="from-emerald-400/22 via-emerald-300/10 to-transparent" />

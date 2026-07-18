@@ -1,0 +1,389 @@
+{
+  "schemaVersion": "1.0.0",
+  "extractedAt": "2026-04-15",
+  "sourceArchive": "H:/PRISM/JM DIE/",
+  "totalProgramsAnalyzed": 10266,
+
+  "controller_dialects": [
+    {
+      "controller": "Fanuc 0i/21i",
+      "machine": "CNC Lathe (Okuma LB-series, generic lathes)",
+      "fileExtensions": [".MIN", ".min"],
+      "programFormat": "$FILENAME.MIN%",
+      "gcode_patterns": {
+        "programStart": ["$FILENAME.MIN%", "M1"],
+        "programEnd": ["M2", "%"],
+        "toolFormat": "T######",
+        "toolCall": "NAT## (tool comment)",
+        "spindleControl": ["G50 S#### (max RPM limit)", "G96 S### M3 (CSS)", "G97 S### M3 (direct RPM)"],
+        "coordinateSystem": "Machine coords X/Z",
+        "safeRetract": "G0 X20 Z20",
+        "cannedCycles": ["G74 (peck drilling)", "G76 (thread chamfer/relief)", "G85 (roughing cycle)", "G87 (finishing cycle)"],
+        "subprogramCalls": ["CALL OBAR", "/CALL OBAR", "GOTO NBAR"]
+      }
+    },
+    {
+      "controller": "Okuma OSP-P300/P500",
+      "machine": "CNC Okuma Multus B250IIW (Multi-axis mill-turn)",
+      "fileExtensions": [".min"],
+      "programFormat": "NSTRT or NSTRTG140",
+      "gcode_patterns": {
+        "programStart": ["G140", "CLEAR", "DRAW", "G90", "G180", "M960", "G126"],
+        "programEnd": ["M02", "M109"],
+        "toolFormat": "TD=######",
+        "toolCall": "TD=050050 M323",
+        "spindleControl": ["G50 S#### (CSS limit)", "G96 S### M3 M42 (CSS + gear)", "G97 S### M3 M42 (RPM + gear)"],
+        "coordinateSystem": "G15 H01 (work offset selection)",
+        "workOffsets": "G15 H## (Okuma work offset)",
+        "subspindleOps": {
+          "interlockRelease": ["M247 (SUB CHUCK INTERLOCK RELEASE ON)", "M185 (MAIN CHUCK INTERLOCK RELEASE ON)"],
+          "chuckControl": ["M248 (CLAMP SUB CHUCK)", "M249 (UNCLAMP SUB CHUCK)", "M83 (CLAMP MAIN CHUCK)", "M84 (UNCLAMP MAIN CHUCK)"],
+          "syncRotation": ["M151 (SYNCHRONIZED ROTATION ON)", "M150 (SYNCHRONIZED ROTATION OFF)"],
+          "chipBlowout": "M51 (CLEAN OUT CHIPS)",
+          "interlockOff": ["M184 (MAIN CHUCK INTERLOCK RELEASE OFF)", "M246 (SUB CHUCK INTERLOCK RELEASE OFF)"]
+        },
+        "partCounterPattern": ["V1=25.0 (part count)", "V2=[V2+1]", "IF [V2 GE V1] N0118", "GOTO NSTRT"],
+        "cannedCycles": ["G181 (drilling)", "G140/G141 (spindle select)"],
+        "planeSelect": ["G18 (ZX plane)", "G17 (XY plane for milling)"]
+      }
+    },
+    {
+      "controller": "Haas NGC",
+      "machine": "CNC Mill Haas",
+      "fileExtensions": [".NC", ".nc"],
+      "programFormat": "%\\nO##### (program name)",
+      "gcode_patterns": {
+        "programStart": ["%", "O##### (part name)", "(DATE=DD-MM-YY - ##-##-## TIME=HH:MM - ##:##)"],
+        "safetyLine": "G0 G17 G40 G49 G80 G90",
+        "unitsLine": "G20 (inch) or G21 (mm)",
+        "programEnd": ["M30", "%"],
+        "toolChange": ["T# M06", "T# M6"],
+        "toolLengthComp": "G43 H# Z#.##",
+        "spindleStart": "S#### M03",
+        "coolant": ["M8 (coolant on)", "M9 (coolant off)", "M07 (mist coolant)"],
+        "coordinateSystem": ["G54", "G55", "G56", "G57", "G58", "G59", "G154 P## (extended offsets)"],
+        "safeRetract": ["G91 G28 Z0.", "G28 Y0.", "G53 G0 Z0."],
+        "cannedCycles": {
+          "spotDrill": "G98 G81 Z#.## R#.# F#.#",
+          "peckDrill": "G99 G83 Z#.## R#.# Q#.## F#.#",
+          "chipBreak": "G98 G73 Z#.## R#.# Q#.## K#.## F#.#",
+          "tap": "G99 G84 Z#.## R#.# F##.#",
+          "bore": "G98 G85 Z#.## R#.# F#.#"
+        },
+        "cutterComp": ["G41 (left)", "G42 (right)", "G40 (cancel)"],
+        "cornerRounding": "G187 P3",
+        "arcInterpolation": ["G2 (CW)", "G3 (CCW)"],
+        "macroVariables": "#1=#/# (macro variable assignment)"
+      }
+    },
+    {
+      "controller": "Roku-Roku (Fanuc-based)",
+      "machine": "Roku-Roku High-Speed Mill",
+      "fileExtensions": [".NC"],
+      "programFormat": "%\\nO#### (part name)",
+      "gcode_patterns": {
+        "programStart": ["%", "O#### (###-#####-##)", "(PROGRAM   - ###.NC)", "(DATE      - MMM-DD-YYYY)", "(TIME      - ##:## PM)"],
+        "safetyLine": "G00 G17 G20 G40 G49 G80 G90",
+        "toolChange": "T# M06 (tool description)",
+        "highSpeedMode": ["G05 P10000 (high-speed mode enable)", "M162 (high-precision mode)"],
+        "coordinateSystem": "G54",
+        "safeRetract": "G91 G28 Z0.",
+        "feedRate": "G94 (feed per minute)",
+        "spindleSpeed": "S4500 (high RPM for HSM)",
+        "coolant": "M07 (mist coolant for HSM)"
+      }
+    },
+    {
+      "controller": "Mitsubishi Wire EDM",
+      "machine": "Wire EDM",
+      "fileExtensions": [".NC"],
+      "programFormat": "%\\nL###",
+      "gcode_patterns": {
+        "programStart": ["%", "L### (program ID)", "(DATE)"],
+        "programEnd": ["M02", "%"],
+        "offsetVariables": ["H175 = 0.0000 (master offset)", "H1 =.#### + H175 (pass offset)", "H2 =.#### + H175"],
+        "machineControl": ["M91 (Adaptive Control Off)", "M90 (Adaptive Control On)"],
+        "wireControl": ["M20 (Thread Wire)", "M21 (Cut Wire)", "M82 (Wire On)", "M85 (Power Off)", "M83 (Wire Off)"],
+        "fluidControl": ["M78 M78 (Fill Tank)", "M80 (Water On)", "M81 (Fluid Off)", "M58 (Drain Tank)"],
+        "powerControl": ["M84 (Power On)", "M85 (Power Off)"],
+        "cutConditions": "E#### H# F.## (PASS=#)",
+        "glueStop": "M01 (Glue Stop)",
+        "dwell": "G4 X#. (Dwell seconds)",
+        "cutterComp": ["G42 (right comp)", "G41 (left comp)", "G40 (cancel comp)"],
+        "arcInterpolation": ["G2 I# J# (CW arc)", "G3 I# J# (CCW arc)"],
+        "coordinateSystem": "G92 X0.0 Y0.0 (set origin)"
+      }
+    }
+  ],
+
+  "safe_blocks": {
+    "fanuc_lathe": {
+      "start": ["$FILENAME.MIN%", "M1", "G0 X20 Z20"],
+      "toolStart": ["NAT## (tool desc)", "T######", "G0 X20 Z20", "G50 S####", "G97 S### M3"],
+      "toolEnd": ["G0 X20 Z20", "M1"],
+      "programEnd": ["M5", "M2", "%"]
+    },
+    "okuma_multitask": {
+      "start": ["NSTRT", "G140", "(MACHINE INFO)", "CLEAR", "DRAW", "G90", "G180", "M960", "G126"],
+      "operationStart": ["G15 H01", "G20 HP=#", "G136", "G95 G18", "G50 S####", "TD=###### M323"],
+      "operationEnd": ["M174", "G20 HP=#", "G136", "M1"],
+      "programEnd": ["M02", "M109"]
+    },
+    "haas_mill": {
+      "start": ["%", "O##### (part name)", "G20", "G0 G17 G40 G49 G80 G90"],
+      "toolStart": ["T# M06", "G0 G90 G54 X#.### Y#.### S#### M03", "G43 H# Z#.#"],
+      "toolEnd": ["G80", "M5", "G91 G28 Z0.", "M01"],
+      "programEnd": ["G91 G28 Z0.", "G28 Y0.", "M30", "%"]
+    },
+    "wire_edm": {
+      "start": ["%", "L###", "(DATE)", "H175 = 0.0000", "H1 =.#### + H175"],
+      "passStart": ["M78 M78 (Fill Tank)", "M80 (Water On)", "M82 (Wire On)", "M84 (Power On)", "E#### H# F.## (PASS=#)"],
+      "passEnd": ["G40 X#.### Y#.###"],
+      "programEnd": ["M85 M83 M81 (Power/Wire/Fluid - Off)", "M21 (Cut Wire)", "M58 (Drain Tank)", "M02", "%"]
+    }
+  },
+
+  "canned_cycles": {
+    "drilling": {
+      "spotDrill": "G98 G81 Z#.## R#.# F#.# (spot drill)",
+      "peckDrill": "G99 G83 Z#.## R#.# Q#.## F#.# (peck drill)",
+      "chipBreakDrill": "G98 G73 Z#.## R#.# Q#.## K#.## F#.# (chip break)",
+      "latheDrill": "G74 X0 Z#.## D#.## L#.## F.### (lathe peck drill)"
+    },
+    "tapping": {
+      "rigidTap": "G99 G84 Z#.## R#.# F##.# (rigid tap)"
+    },
+    "boring": {
+      "fineBore": "G98 G85 Z#.## R#.# F#.# (fine bore)"
+    },
+    "turning": {
+      "roughCycle": "G85 N### D#.## U#.## W#.## F#.### (rough turning cycle)",
+      "finishCycle": "G87 N### (finish turning - follows rough path)",
+      "grooveCycle": "G82 (grooving cycle reference)",
+      "threadRelief": "G76 X#.### L#.### (thread chamfer/relief)"
+    }
+  },
+
+  "custom_mcodes": {
+    "okuma_multus": {
+      "chuckControl": {
+        "M83": "CLAMP MAIN CHUCK",
+        "M84": "UNCLAMP MAIN CHUCK",
+        "M248": "CLAMP SUB CHUCK",
+        "M249": "UNCLAMP SUB CHUCK"
+      },
+      "interlockControl": {
+        "M185": "MAIN CHUCK INTERLOCK RELEASE ON",
+        "M184": "MAIN CHUCK INTERLOCK RELEASE OFF",
+        "M247": "SUB CHUCK INTERLOCK RELEASE ON",
+        "M246": "SUB CHUCK INTERLOCK RELEASE OFF"
+      },
+      "spindleSync": {
+        "M151": "SYNCHRONIZED ROTATION ON",
+        "M150": "SYNCHRONIZED ROTATION OFF"
+      },
+      "auxiliary": {
+        "M51": "CLEAN OUT CHIPS",
+        "M960": "MACHINE INITIALIZATION",
+        "M323": "TOOL DATA CALL",
+        "M175": "OPERATION START",
+        "M174": "OPERATION END",
+        "M101": "MAIN SPINDLE ENABLE",
+        "M105": "MAIN SPINDLE ENABLE (alt)",
+        "M109": "SUB SPINDLE DISABLE",
+        "M110": "SUB SPINDLE ENABLE",
+        "M42": "GEAR SELECT"
+      },
+      "barfeeder": {
+        "M288": "BAR FEEDER READY",
+        "M289": "BAR FEEDER FEED"
+      }
+    },
+    "haas_mill": {
+      "M06": "TOOL CHANGE",
+      "M01": "OPTIONAL STOP",
+      "M07": "MIST COOLANT ON",
+      "M08": "FLOOD COOLANT ON",
+      "M09": "COOLANT OFF",
+      "M162": "HIGH PRECISION MODE",
+      "G187_P3": "CORNER ROUNDING MODE"
+    },
+    "wire_edm": {
+      "wireControl": {
+        "M20": "THREAD WIRE",
+        "M21": "CUT WIRE",
+        "M82": "WIRE ON",
+        "M83": "WIRE OFF"
+      },
+      "fluidControl": {
+        "M78": "FILL TANK (use M78 M78)",
+        "M80": "WATER ON",
+        "M81": "FLUID OFF",
+        "M58": "DRAIN TANK"
+      },
+      "powerControl": {
+        "M84": "POWER ON",
+        "M85": "POWER OFF"
+      },
+      "adaptiveControl": {
+        "M90": "ADAPTIVE CONTROL ON",
+        "M91": "ADAPTIVE CONTROL OFF"
+      }
+    }
+  },
+
+  "work_offset_patterns": {
+    "fanuc_standard": ["G54", "G55", "G56", "G57", "G58", "G59"],
+    "haas_extended": "G154 P## (P1-P99 extended offsets)",
+    "okuma_osp": "G15 H## (H01-H99 work coordinate selection)",
+    "fanuc_modal": "G54-G59 modal active until changed"
+  },
+
+  "tribal_patterns": {
+    "lathe_safeMoves": {
+      "pattern": "G0 X20 Z20",
+      "description": "Standard safe position for lathe - far from work/spindle",
+      "usage": "Between tool changes and at program start/end"
+    },
+    "cssWithLimit": {
+      "pattern": "G50 S#### followed by G96 S### M3",
+      "description": "Constant surface speed with maximum RPM limit",
+      "usage": "Prevents spindle overspeed on small diameters"
+    },
+    "roughFinishPair": {
+      "pattern": "G85 N### D#.## U#.## W#.## F#.### then G87 N###",
+      "description": "Fanuc roughing cycle followed by finishing cycle using same profile",
+      "usage": "Efficient rough-finish turning using stored profile"
+    },
+    "subspindleHandoff": {
+      "pattern": "M247, M185, M249, G4 F1., M151, M51, M289, G4 F3., M50, M288, G0 W#., G1 W#., M248, M84, G1 W#., M83",
+      "description": "Complete sub-spindle grab-pull sequence for part transfer",
+      "usage": "Multi-operation parts with bar pull or part handoff"
+    },
+    "partCounterLoop": {
+      "pattern": "V1=##.0 (at start), V2=[V2+1] (after part), IF [V2 GE V1] N####, GOTO NSTRT",
+      "description": "Okuma part counter with automatic looping",
+      "usage": "Production runs with automatic cycle count"
+    },
+    "haasToolSequence": {
+      "pattern": "T# M06, G0 G90 G54 X# Y# S#### M03, G43 H# Z#.#, M8, (machining), G80, M5, G91 G28 Z0. M9, M01",
+      "description": "Standard Haas tool block sequence",
+      "usage": "Every tool operation follows this pattern"
+    },
+    "wireEdmMultiPass": {
+      "pattern": "E1221 H1 F.12 (PASS=1), E1222 H2 F.24 (PASS=2), E1223 H3 F.21 (PASS=3), E1224 H4 F.2 (PASS=4)",
+      "description": "Multi-pass wire EDM with decreasing offsets",
+      "usage": "Standard 4-pass skim cut sequence for precision"
+    },
+    "highSpeedMilling": {
+      "pattern": "G05 P10000, M162",
+      "description": "High-speed machining mode activation",
+      "usage": "Roku-Roku and similar HSM machines"
+    },
+    "cornerRounding": {
+      "pattern": "G187 P3",
+      "description": "Haas corner rounding/accuracy mode",
+      "usage": "Smooth toolpath motion for better surface finish"
+    },
+    "incrementalRetract": {
+      "pattern": "G91 G28 Z0.",
+      "description": "Incremental home Z then reset to absolute",
+      "usage": "Safe Z retract before tool change"
+    }
+  },
+
+  "feedRateConventions": {
+    "lathe": {
+      "roughTurning": "F0.007-F0.015 (IPR)",
+      "finishTurning": "F0.003-F0.006 (IPR)",
+      "drilling": "F0.001-F0.003 (IPR)",
+      "grooving": "F0.001-F0.002 (IPR)",
+      "parting": "F0.001-F0.003 (IPR)"
+    },
+    "mill": {
+      "roughMilling": "F20-F50 (IPM)",
+      "finishMilling": "F10-F25 (IPM)",
+      "plunge": "F50-F100 (IPM)",
+      "drilling": "F1.3-F3.5 (IPM per drill size)"
+    },
+    "wireEdm": {
+      "roughCut": "F.12-.16",
+      "skim1": "F.20-.24",
+      "skim2": "F.21-.26",
+      "skim3": "F.20-.30"
+    }
+  },
+
+  "spindleSpeedConventions": {
+    "lathe": {
+      "cssRoughing": "S150-S250 (SFM)",
+      "cssFinishing": "S300-S650 (SFM)",
+      "directRPM": "S300-S1500 (drilling/tapping)",
+      "maxRPM": "G50 S600-S3500"
+    },
+    "mill": {
+      "spotDrill": "S1000",
+      "twist_drill": "S500-S1200",
+      "endMill": "S3600-S7500",
+      "highSpeedMilling": "S27500-S30000"
+    }
+  },
+
+  "machineInventory": {
+    "CNC_LATHE": {
+      "controllers": ["Fanuc 0i/21i"],
+      "workOffsets": "Machine coords",
+      "toolFormat": "T######",
+      "programCount": "8000+"
+    },
+    "CNC_MILL_HAAS": {
+      "controllers": ["Haas NGC"],
+      "workOffsets": ["G54-G59", "G154 P1-P99"],
+      "toolFormat": "T# M06",
+      "programCount": "500+"
+    },
+    "CNC_OKUMA_MULTUS": {
+      "controllers": ["Okuma OSP-P300/P500"],
+      "workOffsets": "G15 H##",
+      "toolFormat": "TD=######",
+      "programCount": "50+"
+    },
+    "ROKU_ROKU": {
+      "controllers": ["Fanuc-based HSM"],
+      "workOffsets": "G54",
+      "toolFormat": "T# M06",
+      "programCount": "100+"
+    },
+    "WIRE_EDM": {
+      "controllers": ["Mitsubishi"],
+      "workOffsets": "G92",
+      "programCount": "300+"
+    }
+  },
+
+  "postProcessorRecommendations": {
+    "fanucLathe": {
+      "safeStart": "$[PROGRAM_NAME].MIN%\nM1\n",
+      "toolCall": "NAT[TN]\t\t([TOOL_DESC])\nT[TN][TN][TN][TN][TN][TN]\nG0 X20 Z20\nG50 S[MAX_RPM]\nG97 S[RPM] M3\n",
+      "safeEnd": "G0 X20 Z20\nM1\n",
+      "programEnd": "M5\nM2\n%"
+    },
+    "haasMill": {
+      "safeStart": "%\nO[PROGRAM_NUM] ([PROGRAM_NAME])\nG20\nG0 G17 G40 G49 G80 G90\n",
+      "toolCall": "T[TN] M06\nG0 G90 G54 X[X] Y[Y] S[RPM] M03\nG43 H[TN] Z[Z]\nM8\n",
+      "safeEnd": "G80\nM5\nG91 G28 Z0. M9\nM01\n",
+      "programEnd": "G91 G28 Z0.\nG28 Y0.\nM30\n%"
+    },
+    "okumaMultus": {
+      "safeStart": "NSTRT\nG140\n(MACHINE INFO)\nCLEAR\nDRAW\nG90\nG180\nM960\nG126\n",
+      "operationStart": "G15 H01\nG20 HP=[HP]\nG136\nG95 G18\nG50 S[MAX_RPM]\nTD=[TOOL_ID] M323\n",
+      "safeEnd": "M174\nG20 HP=[HP]\nG136\nM1\n",
+      "programEnd": "M02"
+    },
+    "wireEdm": {
+      "safeStart": "%\nL[PROGRAM_ID]\n([DATE])\n\nH175 = 0.0000\n\n",
+      "passStart": "M78 M78 (Fill Tank)\nM80 (Water On)\nM82 (Wire On)\nM84 (Power On)\nE[PASS_CODE] H[PASS_NUM] F[FEED] (PASS=[PASS_NUM])\n",
+      "programEnd": "M85 M83 M81 (Power/Wire/Fluid - Off)\nM21 (Cut Wire)\nM58 (Drain Tank)\nM02\n%"
+    }
+  }
+}

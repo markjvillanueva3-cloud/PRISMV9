@@ -1,0 +1,715 @@
+{
+  "id": "WEDM-MS1",
+  "title": "Wire EDM Studio — Full Capability Enhancement (Taper/UV, Surface Integrity, Quality, Adaptive Control)",
+  "track": "WEDM",
+  "status": "complete",
+  "complexity": "XL",
+  "total_units": 24,
+  "completed_units": 24,
+  "sessions": "8",
+  "dependencies": ["WEDM-MS0"],
+  "created_at": "2026-03-31T23:30:00.000Z",
+  "brief": "Exposes all 45 remaining backend Wire EDM capabilities through the wizard UI. Covers: 4-axis UV taper visualization, wire management (threading/break recovery/slug handling), full surface integrity suite (recast mapping, HAZ, microcracks, fatigue prediction), industry spec compliance (AMS 2628, ASTM F136 / ISO 13485 / ISO 5832-3), quality gates with Predicted Pp (Process Performance), adaptive process control, Monte Carlo uncertainty, technology table mapping, distortion compensation, setup documentation with diagrams, and Bayesian learning from job history.",
+  "gap_audit": {
+    "total_gaps": 45,
+    "critical": 8,
+    "high": 20,
+    "medium": 17,
+    "source_engines": [
+      "EDMWireSlugCornerTaperEngine (6 gaps: auto-threading, variable taper, wire guide tracking, slug methods, tab sequence, break recovery)",
+      "EDMMonitorSurfaceIntegrityEngine (10 gaps: gap voltage, abnormal discharge, adaptive control, thermal drift, recast mapping, HAZ, microcracks, residual stress, fatigue, spec compliance)",
+      "EDMCuttingParamFlushEngine (6 gaps: capacitance circuits, nozzle optimization, debris modeling, tech tables, wire break distribution, dielectric conditioning)",
+      "EDMQualityOrchestratorEngine (8 gaps: quality gates, dimensional verification, profile error analysis, job history, Bayesian learning, drift detection, similar job recommender, FAI reports)",
+      "EDMCostDocumentationEngine (6 gaps: time breakdown, setup sheet detail, consumables lifecycle, post-process catalog, safety notes)",
+      "EDMMultiPassStrategyEngine (4 gaps: distortion compensation, stress relief, remounting, adaptive pass recommendation)",
+      "StochasticEDMEngine (5 gaps: Monte Carlo propagation, distribution fitting, confidence intervals, short-circuit probability)"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "EDMWireSlugCornerTaperEngine (1540 LOC) — taper UV solving, slug mgmt, wire threading, break recovery, corner compensation",
+      "EDMMonitorSurfaceIntegrityEngine (1050 LOC) — gap voltage monitoring, abnormal discharge, adaptive control, recast/HAZ/fatigue",
+      "EDMCuttingParamFlushEngine (1540 LOC) — capacitance circuits, nozzle optimization, debris evacuation, tech table mapping",
+      "EDMQualityOrchestratorEngine (1675 LOC) — 20-stage pipeline, quality gates, Predicted Pp, FAI, Bayesian learning",
+      "EDMCostDocumentationEngine (1299 LOC) — detailed setup sheets, consumables, safety notes, post-process catalog",
+      "EDMMultiPassStrategyEngine (800 LOC) — distortion compensation, stress relief, remounting strategies",
+      "StochasticEDMEngine (500+ LOC) — Monte Carlo uncertainty, distribution fitting, confidence intervals"
+    ],
+    "formulas": [
+      "Taper UV: U = tan(α) × H/2, accuracy: ε = (wire_dia/2) × sin(α) × H / guide_distance (sin(α) term required — at α=0, ε=0)",
+      "Wire lag: δ = F × L² / (8T), over-travel: OT = δ × sin(θ/2) / sin(θ)",
+      "Rajurkar (1993) Wire EDM cutting speed: v_cut [mm/min] = (K × I_peak × t_on) / (h × D_wire)",
+      "Carslaw-Jaeger recast: d_recast [μm] = 2 × √(α [mm²/s] × t_on [s]) × 1e6. CANONICAL MODEL — use this, not DiBitonto.",
+      "Skim pass attenuation: d_n = d_0 × k^N where k is material-dependent (steel 0.7, Ti/WC 0.80, Al 0.65). CANONICAL value in constants.ts.",
+      "HAZ = material_multiplier × recast (steel 3×, Ti 2×, Al 8×, Ni-alloy 4×) — NOT fixed 3×",
+      "Fatigue reduction (normalized): min(70%, (d_rc/d_ref)×w_d + (σ_r/σ_ref)×w_σ) where d_ref=10μm, σ_ref=400MPa",
+      "Puertas & Luis surface roughness model — Constants C_ra, α, β are material-dependent: H13 α≈0.417 β≈0.210 (Puertas & Luis 2003)",
+      "Wire break: P(break) = 1 - exp(-λ × H × DC / FF) — Weibull hazard model",
+      "Stokes drag: v_settle = (ρ_p - ρ_f) × d² × g / (18μ) — debris evacuation",
+      "Monte Carlo: 1000 samples, Box-Muller normal, exponential energy, Weibull life"
+    ],
+    "standards": [
+      "AMS 2628 — Aerospace Wire EDM surface integrity requirements. AMS 2628A per-material limits: tool steel max 8-12 um, titanium alloys max 5-8 um (1.27 um = 50 uin per S3.2.3), nickel superalloys max 8-12 um, stainless steel max 10-15 um. Zero recast = ideal target, NOT the spec limit.",
+      "ASTM F136 — Titanium alloy implant material requirements (chemical etching for recast removal)",
+      "ISO 13485 — Quality management for medical devices (traceability requirements)",
+      "NADCAP AC7117/9 — Wire EDM process accreditation (aerospace)",
+      "AS9102 — First Article Inspection reporting format",
+      "PPAP — Production Part Approval Process (automotive)"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "wedm-full-capability-gate — blocks release if any CRITICAL capability (taper, recast, fatigue, spec compliance) returns unvalidated results",
+    "mcp_action": "prism_edm:wedm_advanced_analysis — runs full surface integrity + quality + uncertainty analysis on a WEDM job",
+    "skill": "/wire-edm-analyze — deep analysis mode for Wire EDM jobs (surface integrity, compliance, uncertainty)"
+  },
+  "data_architecture": {
+    "persistence_strategy": {
+      "job_records": "Server-side persistent store (MemoryGraph → database migration path). NOT in-memory.",
+      "bayesian_priors": "Server-side, versioned (schema v1). Stratified by material_group × machine_class.",
+      "fai_reports": "Server-side archival with document_id + retention per AS9100 (10 years) / FDA (2+ years).",
+      "quality_events": "Append-only audit trail. Hash-chained for tamper evidence.",
+      "session_data": "Client-side sessionStorage → IndexedDB fallback. TTL: 24 hours.",
+      "g_code_programs": "Server-side version-controlled with program_revision field."
+    },
+    "schema_versioning": "All persisted records carry schemaVersion: 1. Migration path defined before v2.",
+    "retention_policy": "Aerospace: 10 years per AS9100 Rev D Clause 7.5.3.2. Medical: part life or 2 years per 21 CFR 820.180. Default: 5 years.",
+    "query_indexes": {
+      "job_history": "Composite index on (material_group, wire_type, thickness_mm) for similar-job search",
+      "drift_detection": "Time-series index on (machine_id, metric_name, timestamp) for I-MR charts",
+      "bayesian_lookup": "Key-value on (material_group, machine_class) for prior retrieval"
+    }
+  },
+  "sessions": [
+    {
+      "id": "WEDM-1-S1",
+      "title": "Taper/UV 4-Axis Visualization + Variable Taper Editor",
+      "units": ["U-WEDM22", "U-WEDM23", "U-WEDM24"],
+      "smart_config": {
+        "role": "2D Graphics Engineer + Wire EDM Taper Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMWireSlugCornerTaperEngine.ts — TaperSolution, UV offset, variable taper",
+        "H:/prism/web/src/components/wedm-studio/ProfileCanvas.tsx — existing 2D canvas",
+        "H:/prism/web/src/utils/wedmGeometry.ts — existing geometry utilities"
+      ],
+      "engine_prerequisites": ["Fix Fanuc B-code taper (not G51 U/V)", "Fix duplicate % delimiter", "Add G02/G03 arc output for curved features", "Add H/2 guide-span to taper UV offset calculation", "Add G40 cutter comp cancel to preamble safety line", "Add M57/M58 dielectric on/off for Fanuc"],
+      "intent": "Machinist sees top-guide and bottom-guide wire paths for taper cuts. Can set per-segment taper angles. Accuracy prediction overlay shows expected taper error per feature. UV axis limits validated against selected machine.",
+      "skills": ["/forge-engines", "/scrutinize", "/physics-verify"],
+      "work": {
+        "U-WEDM22": {
+          "title": "Dual wire path rendering in ProfileCanvas (top guide XY + bottom guide UV)",
+          "description": "Pre-requisite: StepOptimize sub-component extraction must be complete from WEDM-MS0. All MS1 units modify sub-components, not the parent StepOptimize.tsx directly. Extend ProfileCanvas to render two wire paths when taper angle > 0: top guide path (XY plane) and bottom guide path (UV offset plane). Color differentiation (blue=top, orange=bottom). Path connection lines showing wire angle between guides. Land/taper transition point markers. Zoom to show wire angle detail at corners.",
+          "depends_on": ["U-WEDM15"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/ProfileCanvas.tsx", "H:/prism/web/src/utils/wedmGeometry.ts"],
+          "abort_criteria": [
+            "Top and bottom paths overlap when taper > 0 (not offset)",
+            "Connection lines show wrong angle",
+            "Land/taper transitions not visible"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/ProfileCanvas.tsx web/src/utils/wedmGeometry.ts",
+          "exit_gate": "Dual paths render for taper angles 0.1° to 30°. Connection lines show correct wire angle. Transition points marked. Visual matches backend UV calculation.",
+          "four_loop": "BUILD → SCRUTINIZE (physics-verify) → GAP FILL (angle edge cases) → TIE UP (legend labels)"
+        },
+        "U-WEDM23": {
+          "title": "Variable taper per-segment editor + UV limit validation",
+          "description": "Per-segment taper angle editor in StepToolpath: each contour segment can have independent taper angle. UV axis limit checker: validates max taper against machine's UV travel (from machine registry). Warning when taper exceeds machine capability. Taper accuracy prediction overlay: shows expected ε per feature (from wedm_solve_taper backend). Max achievable angle display.",
+          "depends_on": ["U-WEDM22"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepToolpath.tsx"],
+          "abort_criteria": [
+            "Per-segment taper not independently settable",
+            "UV limit check doesn't use selected machine's actual travel",
+            "Accuracy prediction not shown per-feature"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepToolpath.tsx",
+          "exit_gate": "Variable taper editable per segment. UV limits validated against machine. Accuracy prediction shows μm error per feature. Max angle displayed.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert) → GAP FILL (machine-specific limits) → TIE UP (tooltips)"
+        },
+        "U-WEDM24": {
+          "title": "Wire guide tracking + auto-threading assessment UI",
+          "description": "Wire guide status panel in StepWcs: upper/lower guide type (diamond/sapphire/carbide), hours since replacement, remaining life %. Auto-threading assessment: evaluates start hole diameter, dielectric level, wire tip condition — go/no-go per hole. Threading method recommendation (auto/mechanical/manual) with reasoning. Impact on corner accuracy when guide wear > threshold.",
+          "depends_on": ["U-WEDM22"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepWcs.tsx"],
+          "abort_criteria": [
+            "Guide wear not linked to corner accuracy warning",
+            "Auto-threading assessment doesn't check hole diameter",
+            "Threading recommendation ignores wire tip condition"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepWcs.tsx",
+          "exit_gate": "Guide status displayed with replacement timeline. Auto-threading assessed per hole. Corner accuracy warning when guide worn. Threading method recommended.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert) → GAP FILL (all guide types) → TIE UP (edge: new guides)"
+        }
+      },
+      "exit_gate": "Taper visualization complete with dual paths. Variable taper editable. UV limits validated. Guide tracking live. Auto-threading assessed. tsc passes. omega_floor >= 0.85. SVI delta: +2%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-1-S2",
+      "title": "Wire Management — Slug Handling, Break Recovery, Consumption Tracking",
+      "units": ["U-WEDM25", "U-WEDM26", "U-WEDM27"],
+      "smart_config": {
+        "role": "Frontend Engineer + Wire EDM Process Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMWireSlugCornerTaperEngine.ts — slug management, break recovery, wire consumption",
+        "H:/prism/mcp-server/src/engines/EDMCuttingParamFlushEngine.ts — wire break prediction distribution"
+      ],
+      "intent": "Machinist configures slug handling per feature, sees wire break risk distribution, has break recovery plan ready, and tracks wire consumption per-feature and per-pass.",
+      "skills": ["/forge-engines", "/scrutinize"],
+      "work": {
+        "U-WEDM25": {
+          "title": "Slug management UI — 5 methods with weight calc and recommendation",
+          "description": "Slug management panel in StepToolpath: per-feature slug holding method selector (free_drop, controlled_drop, glue_tab, magnet, vacuum). Slug weight calculator (area × thickness × material density). Recommendation engine: small slugs → free drop, medium → magnet, large → glue tab. Critical surface avoidance for tab placement. Slug ejection verification checklist.",
+          "depends_on": ["U-WEDM15"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepToolpath.tsx"],
+          "abort_criteria": [
+            "Slug weight calculation wrong (doesn't use material density)",
+            "Recommendation ignores slug size thresholds",
+            "Can't set different methods per feature"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepToolpath.tsx",
+          "exit_gate": "All 5 slug methods selectable per feature. Weight calculated. Recommendation engine suggests method. Tab placement avoids critical surfaces.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert) → GAP FILL (all materials) → TIE UP (units)"
+        },
+        "U-WEDM26": {
+          "title": "Wire break recovery plan + probability distribution display",
+          "description": "Wire break panel in StepOptimize: per-feature break probability (Weibull hazard model visualization — not just green/yellow/red but actual P(break) % with confidence interval). Break recovery plan display: retract distance, overlap distance, re-thread method, resume offset. Estimated downtime per break event. Total expected breaks per job (λ × total_cutting_length). Recovery sequence visualization on canvas. Wire resonance frequency check: f_n = (n/2L) × sqrt(T/(rho*A)). Flag when pulse repetition frequency falls within +/-10% of any of first 3 natural frequencies. Display 'Resonance risk' warning with recommendation to adjust wire tension or feed rate.",
+          "depends_on": ["U-WEDM15"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepOptimize.tsx"],
+          "abort_criteria": [
+            "Break probability shown as single number without distribution",
+            "Recovery plan missing retract/overlap distances",
+            "Expected total breaks not calculated"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepOptimize.tsx",
+          "exit_gate": "Weibull P(break) shown per feature with p5/p95. Recovery plan detailed. Expected breaks per job calculated. Recovery sequence shown on canvas.",
+          "four_loop": "BUILD → SCRUTINIZE (physics-verify + wire-edm-expert) → GAP FILL (high-risk materials) → TIE UP (confidence labels)"
+        },
+        "U-WEDM27": {
+          "title": "Wire consumption tracking — per-feature, per-pass, total + tab waste",
+          "description": "Wire consumption panel in StepOptimize: per-feature wire length (contour perimeter × passes). Per-pass consumption rate (m/min × estimated time). Tab cut wire waste. Total wire consumption (meters + kg). Spool count estimate (standard 8kg spool). Cost by wire type (brass ~$4/kg, coated ~$8/kg, moly ~$25/kg). Wire consumption chart (stacked bar: rough + skim passes + tabs). Wire prices sourced from registry lookup when available, with manual override. Distinguish wire subtypes: brass, zinc-diffusion-coated, gamma-coated, moly, tungsten — each with separate $/kg.",
+          "depends_on": ["U-WEDM26"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepOptimize.tsx"],
+          "abort_criteria": [
+            "Consumption doesn't account for tab cuts",
+            "Spool count wrong (wrong spool weight)",
+            "Cost doesn't vary by wire type"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepOptimize.tsx",
+          "exit_gate": "Per-feature + per-pass + total wire consumption shown. Spool count accurate. Cost by wire type. Stacked bar chart renders.",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL (all wire types) → TIE UP (formatting)"
+        }
+      },
+      "exit_gate": "Slug management complete with 5 methods. Wire break distribution visible. Recovery plan detailed. Wire consumption tracked with cost. tsc passes. omega_floor >= 0.85. SVI delta: +2%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-1-S3",
+      "title": "Surface Integrity Suite — Recast, HAZ, Microcracks, Fatigue, Residual Stress",
+      "units": ["U-WEDM28", "U-WEDM29", "U-WEDM30"],
+      "smart_config": {
+        "role": "Frontend Engineer + Materials Science Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMMonitorSurfaceIntegrityEngine.ts — full surface integrity suite",
+        "H:/prism/mcp-server/src/engines/StochasticEDMEngine.ts — Monte Carlo uncertainty"
+      ],
+      "intent": "Machinist sees complete surface integrity prediction: recast layer depth map per feature, HAZ depth, microcrack risk, residual stress, fatigue life reduction. All with confidence intervals from Monte Carlo. Critical for aerospace/medical compliance.",
+      "skills": ["/forge-engines", "/scrutinize", "/physics-verify"],
+      "work": {
+        "U-WEDM28": {
+          "title": "Recast layer mapping + HAZ depth visualization per feature",
+          "description": "Surface integrity panel in StepOptimize (expanded): per-feature recast layer depth (μm) with per-pass attenuation curve (0.7^N). Recast depth map on canvas (color gradient: green <5μm, yellow 5-15μm, red >15μm). HAZ depth per feature (3× recast empirical + Carslaw-Jaeger thermal). HAZ overlay on canvas. Material thermal diffusivity sourced from registry. Confidence intervals from Monte Carlo (p5/p50/p95). Recast heatmap uses viridis colorblind-safe palette with contour lines and numeric μm annotations — NOT red/yellow/green only. Off-screen data table with per-feature recast values as screen reader alternative. Surface integrity results shown in plain language first: 'Recast layer: 8μm (GOOD for tool steel, within AMS 2628 limit of 12μm)'. Technical details (Carslaw-Jaeger thermal model, confidence intervals) behind 'Show physics detail' toggle. WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM15"],
+          "files_created": ["H:/prism/web/src/__tests__/SurfaceIntegrityPanel.test.tsx"],
+          "files_modified": [
+            "H:/prism/web/src/components/wedm-studio/optimize/SurfaceIntegrityPanel.tsx",
+            "H:/prism/web/src/components/wedm-studio/ProfileCanvas.tsx"
+          ],
+          "abort_criteria": [
+            "Recast depth doesn't decrease per skim pass",
+            "HAZ depth not linked to material thermal properties",
+            "No confidence intervals shown",
+            "Canvas heatmap not visible"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/SurfaceIntegrityPanel.tsx web/src/components/wedm-studio/ProfileCanvas.tsx",
+          "exit_gate": "Recast layer mapped per feature with attenuation curve. HAZ overlay on canvas. p5/p50/p95 confidence bands shown. Material-specific thermal properties used.",
+          "four_loop": "BUILD → SCRUTINIZE (physics-verify) → GAP FILL (all ISO material groups) → TIE UP (legend/units)"
+        },
+        "U-WEDM29": {
+          "title": "Microcrack risk + residual stress + fatigue life prediction",
+          "description": "Extended surface integrity panel: microcrack risk rating per feature (based on carbon content, residual stress, thermal cycling severity). Residual stress prediction (tensile 200-800 MPa, material-dependent). Fatigue life reduction factor: min(70%, d_rc×1.2 + σ_r×0.02). Visual: fatigue life bar chart showing baseline vs post-EDM per feature. Flag fatigue-critical surfaces (aerospace safety-critical parts). Stress relief recommendation when residual stress exceeds threshold. Fatigue life shown as: 'Fatigue strength reduced by ~25% from EDM. Consider shot peening for safety-critical parts.' Technical bar chart behind 'Show detail' toggle. WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM28"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/optimize/SurfaceIntegrityPanel.tsx"],
+          "abort_criteria": [
+            "Fatigue reduction not calculated from recast + stress formula",
+            "Microcrack risk ignores carbon content",
+            "No stress relief recommendation when threshold exceeded",
+            "Fatigue-critical flag not shown for aerospace materials"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/SurfaceIntegrityPanel.tsx",
+          "exit_gate": "Microcrack risk rated per feature. Residual stress predicted. Fatigue life reduction shown as bar chart. Fatigue-critical surfaces flagged. Stress relief recommended when needed.",
+          "four_loop": "BUILD → SCRUTINIZE (physics-verify + materials-expert) → GAP FILL (edge: low-carbon vs high-carbon) → TIE UP (severity colors)"
+        },
+        "U-WEDM30": {
+          "title": "Monte Carlo uncertainty propagation for all surface integrity predictions",
+          "description": "Integrate StochasticEDMEngine results into surface integrity displays. All predictions show p5/p50/p95 confidence bands instead of single-point estimates. Distribution type labels (normal for MRR, lognormal for recast, Weibull for life). Uncertainty source breakdown: which input parameters contribute most to output variability. Interactive: slider to adjust confidence level (80%/90%/95%/99%). WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM29"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/optimize/SurfaceIntegrityPanel.tsx"],
+          "abort_criteria": [
+            "Confidence intervals not visible on any prediction",
+            "Distribution type not labeled",
+            "Uncertainty source breakdown missing"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/SurfaceIntegrityPanel.tsx",
+          "exit_gate": "All surface integrity predictions show confidence bands. Distribution types labeled. Uncertainty breakdown shown. Confidence level adjustable.",
+          "four_loop": "BUILD → SCRUTINIZE (physics-verify) → GAP FILL (extreme parameters) → TIE UP (tooltip explanations)"
+        }
+      },
+      "exit_gate": "Full surface integrity suite live: recast map, HAZ, microcracks, residual stress, fatigue, all with Monte Carlo uncertainty. tsc passes. omega_floor >= 0.85. SVI delta: +3%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-1-S4",
+      "title": "Spec Compliance + Quality Gates + FAI Reports",
+      "units": ["U-WEDM31", "U-WEDM32", "U-WEDM33"],
+      "dependencies_note": "CRITICAL: This session depends on U-WEDM29 (MS1-S3 surface integrity output), NOT just U-WEDM15. Cannot run in parallel with MS1-S3.",
+      "smart_config": {
+        "role": "Frontend Engineer + Quality Systems Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMQualityOrchestratorEngine.ts — quality gates, Predicted Pp, FAI, spec compliance",
+        "H:/prism/mcp-server/src/engines/EDMMonitorSurfaceIntegrityEngine.ts — spec checking"
+      ],
+      "intent": "Machinist selects industry spec (AMS 2628 / ASTM F136 / ISO 13485 / ISO 5832-3 / OEM). System validates all parameters against spec requirements. Quality gates with Predicted Pp (Process Performance). FAI report generation (AS9102, PPAP). NOTE: Depends on U-WEDM29 (MS1-S3 surface integrity output) for recast/HAZ/fatigue data — not just U-WEDM15.",
+      "skills": ["/forge-engines", "/scrutinize", "/quality-check"],
+      "work": {
+        "U-WEDM31": {
+          "title": "Industry spec compliance checker (AMS 2628, ASTM F136 / ISO 13485 / ISO 5832-3, OEM)",
+          "description": "Spec compliance panel in StepOptimize: spec selector (AMS 2628 aerospace, ASTM F136 / ISO 13485 / ISO 5832-3 medical, OEM automotive, custom). Per-feature compliance check: recast layer vs max allowed, HAZ vs max, surface finish vs spec, dimensional tolerance vs spec. Pass/fail per feature with specific failure reason. Non-compliant features highlighted on canvas (red outline). Recommended corrective actions (more skim passes, lower energy, stress relief). AMS 2628A per-material limits: tool steel max 8-12 um, titanium alloys max 5-8 um (1.27 um = 50 uin per S3.2.3), nickel superalloys max 8-12 um, stainless steel max 10-15 um. Zero recast = ideal target, NOT the spec limit. Spec compliance shown as plain pass/fail per feature: '✓ Feature 1: Recast 6μm ≤ 12μm limit — PASS'. Non-compliant features show specific fix: 'Add 2 more skim passes to reduce recast from 15μm to target 8μm.' WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM29"],
+          "files_created": ["H:/prism/web/src/__tests__/SpecCompliancePanel.test.tsx"],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/optimize/SpecCompliancePanel.tsx"],
+          "abort_criteria": [
+            "AMS 2628 recast limit not enforced",
+            "Non-compliant features not highlighted",
+            "No corrective action recommendations"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/SpecCompliancePanel.tsx",
+          "exit_gate": "Spec compliance checked per feature. Pass/fail shown. Non-compliant highlighted on canvas. Corrective actions recommended. AMS 2628 + ASTM F136 / ISO 13485 / ISO 5832-3 limits correct.",
+          "four_loop": "BUILD → SCRUTINIZE (quality-expert) → GAP FILL (all spec types) → TIE UP (spec version numbers)"
+        },
+        "U-WEDM32": {
+          "title": "Quality gates with Predicted Pp (Process Performance) + dimensional verification planner",
+          "description": "Quality gate panel in StepProgram (before download): per-feature Predicted Pp (Process Performance) estimate (from multi-pass tolerance analysis). Gate criteria: Predicted Pp >= 1.33 (capable), >= 1.67 (excellent). Gate status: green/yellow/red. Dimensional verification plan: which features to measure, with what instrument (CMM touch, scanning, optical), at which z-heights. Probe point count per feature. Gate must pass before G-code download enabled. Label as 'Predicted Pp' NOT 'Cpk' — Cpk requires >=25 measured subgroups per AIAG SPC Manual. Predicted Pp is from physics model variance. Add disclaimer: 'Based on predicted variation model, not measured SPC data.' Add job_intent field: 'rough_blank' | 'finished_part' | 'electrode'. Quality gate (Predicted Pp) applies only to 'finished_part'. Rough blanks and electrodes bypass quality gate but generate disclosure note. Quality gate override requires: (1) typed reason code (engineering deviation / risk acceptance / customer waiver), (2) approver name + badge number, (3) timestamp, (4) reference number. Override recorded in job audit trail. Setup sheet stamped 'QUALITY GATE OVERRIDE — [reason] — [approver] — [timestamp]'. Required per AS9100 Rev D Clause 8.7. Quality gate override form is fully keyboard-accessible with labeled inputs. Gate fail status uses aria-live='assertive'. Override confirmation dialog traps focus.",
+          "depends_on": ["U-WEDM31"],
+          "files_created": ["H:/prism/web/src/__tests__/QualityGatePanel.test.tsx"],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepProgram.tsx"],
+          "abort_criteria": [
+            "Predicted Pp not calculated from tolerance + expected variation",
+            "Quality gate doesn't block download when Predicted Pp < 1.33",
+            "Verification plan missing probe type selection",
+            "Gate override accepted without reason string or approver identity"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepProgram.tsx",
+          "exit_gate": "Predicted Pp shown per feature. Quality gate blocks download when non-compliant. Verification plan with probe types and z-heights generated.",
+          "four_loop": "BUILD → SCRUTINIZE (quality-expert) → GAP FILL (edge: single-pass jobs) → TIE UP (gate override with reason)"
+        },
+        "U-WEDM33": {
+          "title": "FAI report generation (AS9102, PPAP, general)",
+          "description": "FAI report panel in StepProgram: format selector (AS9102 aerospace, PPAP automotive, general). Auto-populated from wizard data: part number, material, dimensions, tolerances, inspection results (predicted). Balloon numbering matching inspection plan. Export as PDF (jsPDF). Includes: Form 1 (part accountability), Form 2 (product accountability), Form 3 (characteristic accountability) for AS9102. Add material_cert object to job record schema. Add program_revision and program_change_log fields. Add session_log for audit trail (every gate decision, override, spec selection timestamped with operator ID). FAI reports carry document_id (UUID), issue_date, revision_stamp, and retention_period field. Server-side archival via wedm_record_job action. CoC (Certificate of Conformance) template generation alongside FAI.",
+          "depends_on": ["U-WEDM32"],
+          "files_created": ["H:/prism/web/src/__tests__/FAIReportGenerator.test.tsx"],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepProgram.tsx"],
+          "abort_criteria": [
+            "AS9102 Form 1/2/3 structure not followed",
+            "Balloon numbers don't match inspection plan",
+            "PDF export missing required fields"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepProgram.tsx",
+          "exit_gate": "AS9102 + PPAP + general FAI reports generate correctly. Auto-populated from wizard. PDF downloadable. Balloon numbers match.",
+          "four_loop": "BUILD → SCRUTINIZE (quality-expert) → GAP FILL (all 3 formats) → TIE UP (PDF formatting)"
+        }
+      },
+      "exit_gate": "Spec compliance live for AMS 2628 + ASTM F136 / ISO 13485 / ISO 5832-3. Quality gates with Predicted Pp. FAI reports (AS9102, PPAP). tsc passes. omega_floor >= 0.85. SVI delta: +3%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-1-S5",
+      "title": "Adaptive Process Control + Gap Monitoring + Thermal Drift",
+      "units": ["U-WEDM34", "U-WEDM35", "U-WEDM36"],
+      "smart_config": {
+        "role": "Frontend Engineer + EDM Process Control Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMMonitorSurfaceIntegrityEngine.ts — gap voltage, abnormal discharge, adaptive control, thermal drift"
+      ],
+      "intent": "Wizard generates programs with embedded adaptive control parameters. Gap voltage monitoring targets included in setup. Thermal drift compensation calculated for machine/environment. Abnormal discharge detection thresholds set.",
+      "skills": ["/forge-engines", "/scrutinize", "/physics-verify"],
+      "work": {
+        "U-WEDM34": {
+          "title": "Gap voltage monitoring targets + abnormal discharge thresholds",
+          "description": "Process monitoring panel in StepOptimize: target gap voltage distribution (normal 70%, open 20%, short 10%). Per-pass voltage targets. Abnormal discharge detection thresholds: arcing %, secondary discharge %, wire erosion pattern flags. Visual: discharge distribution pie chart per pass. Warning when predicted short-circuit % exceeds safe threshold. These values embedded in setup sheet for operator reference. Gap voltage monitoring shown as: 'Process stability: GOOD (72% normal discharges)'. Technical discharge distribution behind toggle. WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM15"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/optimize/ProcessControlPanel.tsx"],
+          "abort_criteria": [
+            "Gap voltage targets not per-pass",
+            "Abnormal discharge types not differentiated",
+            "Values not included in setup sheet output"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/ProcessControlPanel.tsx",
+          "exit_gate": "Gap voltage targets shown per pass. Abnormal discharge thresholds set. Distribution chart renders. Values appear in setup sheet.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert) → GAP FILL (all pass types) → TIE UP (chart labels)"
+        },
+        "U-WEDM35": {
+          "title": "Adaptive control PID parameters + auto-adjustment recommendations",
+          "description": "Adaptive control panel in StepOptimize: per-parameter PID adjustment recommendations (energy ±%, t_off ±%, wire tension ±%, wire speed ±%). Based on predicted process state (gap condition, material variability). Visual: parameter sensitivity chart showing which inputs most affect output quality. 'Enable adaptive control' toggle that embeds M-codes for controllers that support it (Sodick K-SMC, Makino HyperCut). Estimated quality improvement from adaptive vs static. WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM34"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/optimize/ProcessControlPanel.tsx"],
+          "abort_criteria": [
+            "PID adjustments not linked to process state",
+            "Sensitivity chart doesn't update with parameter changes",
+            "Adaptive M-codes not controller-specific"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/ProcessControlPanel.tsx",
+          "exit_gate": "PID recommendations shown per parameter. Sensitivity chart renders. Adaptive toggle embeds correct controller M-codes. Quality improvement estimated.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert + physics) → GAP FILL (all 6 controllers) → TIE UP (tooltips)"
+        },
+        "U-WEDM36": {
+          "title": "Thermal drift compensation + dielectric conditioning monitor",
+          "description": "Environment panel in StepReview (or StepOptimize): ambient temperature input, dielectric temperature input. Thermal drift calculation (12 μm/m/°C for steel casting machines). Total drift for machine span. Compensation value (μm) added to program offsets. Dielectric conditioning panel: target conductivity (μS/cm), temperature range, filter life remaining, resin life remaining. Alert when fluid out of spec. These values embedded in setup sheet. WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM34"],
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/web/src/components/wedm-studio/optimize/ProcessControlPanel.tsx",
+            "H:/prism/web/src/components/wedm-studio/StepReview.tsx"
+          ],
+          "abort_criteria": [
+            "Thermal drift not calculated from actual machine span",
+            "Dielectric conductivity target not material-dependent",
+            "Compensation not applied to program offsets"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/ProcessControlPanel.tsx web/src/components/wedm-studio/StepReview.tsx",
+          "exit_gate": "Thermal drift calculated and compensation applied. Dielectric conditioning monitored. Values in setup sheet. Alerts for out-of-spec fluid.",
+          "four_loop": "BUILD → SCRUTINIZE (physics-verify) → GAP FILL (temperature extremes) → TIE UP (units)"
+        }
+      },
+      "exit_gate": "Process control suite complete: gap monitoring, adaptive PID, thermal compensation, dielectric conditioning. All in setup sheet. tsc passes. omega_floor >= 0.85. SVI delta: +2%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-1-S6",
+      "title": "Technology Tables + Distortion Compensation + Capacitance Circuits",
+      "units": ["U-WEDM37", "U-WEDM38", "U-WEDM39"],
+      "smart_config": {
+        "role": "Frontend Engineer + Wire EDM Parameter Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMCuttingParamFlushEngine.ts — technology tables, capacitance circuits, nozzle optimization",
+        "H:/prism/mcp-server/src/engines/EDMMultiPassStrategyEngine.ts — distortion compensation, stress relief, remounting"
+      ],
+      "intent": "PRISM parameters auto-mapped to machine-native technology tables. Distortion compensation planned for precision work. Capacitance circuit optimization for ultra-fine finishes.",
+      "skills": ["/forge-engines", "/scrutinize"],
+      "work": {
+        "U-WEDM37": {
+          "title": "Technology table mapping visualization (PRISM → machine-native codes)",
+          "description": "Tech table panel in StepProgram: per-pass parameter card showing PRISM values → machine-native codes side by side. Fanuc: E-pack numbers (E01-E99). Sodick: condition codes (C001-C999). Makino: E-pack + HyperCut mode. Mitsubishi: V-codes. AgieCharmilles: ISPG modes. Visual: side-by-side comparison table. Highlight when PRISM params don't map to available machine codes. Manual override for tech table selection. Fanuc WEDM-specific: MCF condition file numbers (E01-E99) not raw pulse parameters. M50/M51 wire start/cut, M57/M58 dielectric on/off. B-code for taper (not G01 U/V). Distinguish Fanuc WEDM (310iW/300iW) from Fanuc milling syntax. Tech table mapping shows: 'Your machine (Sodick AQ750L) uses condition code C015 for these settings.' Side-by-side comparison only in 'Advanced' mode. Sodick condition code parser must validate input has digits (reject empty C-codes). AgieCharmilles must emit actual ISPG condition numbers or TECH blocks — comments-only insufficient. Accutex dialect must be fully implemented with C-code tables and proprietary M-functions.",
+          "depends_on": ["U-WEDM15"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepProgram.tsx"],
+          "abort_criteria": [
+            "Tech table codes not controller-specific",
+            "No warning when params don't map to machine codes",
+            "Manual override not available"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepProgram.tsx",
+          "exit_gate": "Tech table mapping shown for all 6 controllers. PRISM→native comparison visible. Unmapped params warned. Manual override works.",
+          "four_loop": "BUILD → SCRUTINIZE (gcode-expert) → GAP FILL (all 6 dialects) → TIE UP (code formatting)"
+        },
+        "U-WEDM38": {
+          "title": "Distortion compensation planning — stress relief, remounting, adaptive passes",
+          "description": "Distortion panel in StepOptimize: distortion risk assessment (based on material, thickness, geometry complexity). Stress relief recommendation: temperature, time, staging within multi-pass sequence. Remounting strategy: whether to unclamp/re-datum between rough and finish (adds 30-60 min). Rough-to-finish wait time recommendation. Adaptive pass flag: signals when live parameter adjustment recommended. Visual: distortion risk heatmap on canvas (high-stress areas highlighted). WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM15"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/optimize/AdvancedPanel.tsx"],
+          "abort_criteria": [
+            "Distortion risk not linked to material + geometry",
+            "Stress relief temperature wrong for material",
+            "Remounting time not included in cycle estimate"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/AdvancedPanel.tsx",
+          "exit_gate": "Distortion risk assessed. Stress relief planned with temp/time. Remounting decision documented. Adaptive flag shown. Risk heatmap on canvas.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert + physics) → GAP FILL (hardened steels) → TIE UP (cycle time impact)"
+        },
+        "U-WEDM39": {
+          "title": "Capacitance circuit optimization + nozzle position + debris modeling",
+          "description": "Advanced flushing panel in StepOptimize: capacitance circuit tuning for Ra < 0.4 μm (RC values, discharge energy micro-adjustment). Nozzle position optimizer: upper/lower nozzle distance + angle, collision avoidance check. Debris evacuation model: particle size, settling velocity (Stokes), minimum flush velocity to suspend. Flushing adequacy indicator (green when flush velocity > settling velocity). Nozzle position diagram in setup sheet. WCAG: All new panels use aria-live='polite' for async results. All color indicators have icon + text secondary encoding. All interactive elements meet 44×44px touch targets.",
+          "depends_on": ["U-WEDM38"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/optimize/AdvancedPanel.tsx"],
+          "abort_criteria": [
+            "Capacitance circuit only available for rough cuts (should be finish only)",
+            "Nozzle collision check missing",
+            "Debris model ignores material density"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/optimize/AdvancedPanel.tsx",
+          "exit_gate": "Capacitance circuit tuned for super-finish. Nozzle position optimized with collision check. Debris model shows flush adequacy. Nozzle diagram in setup sheet.",
+          "four_loop": "BUILD → SCRUTINIZE (physics-verify) → GAP FILL (thin parts < 5mm) → TIE UP (diagram clarity)"
+        }
+      },
+      "exit_gate": "Tech table mapping for all controllers. Distortion compensation planned. Capacitance circuits for super-finish. Nozzle optimization with debris model. tsc passes. omega_floor >= 0.85. SVI delta: +2%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-1-S7",
+      "title": "Enhanced Documentation — Setup Sheets, Safety, Consumables, Post-Process",
+      "units": ["U-WEDM40", "U-WEDM41", "U-WEDM42"],
+      "smart_config": {
+        "role": "Frontend Engineer + Manufacturing Documentation Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMCostDocumentationEngine.ts — full documentation suite"
+      ],
+      "intent": "Shop floor receives comprehensive setup documentation: illustrated setup sheets, safety notes per material/wire, consumables lifecycle, post-process operation catalog with costs.",
+      "skills": ["/forge-engines", "/scrutinize"],
+      "work": {
+        "U-WEDM40": {
+          "title": "Comprehensive setup sheet — workholding, flushing diagram, threading sequence, machine-specific",
+          "description": "Enhanced setup sheet in StepProgram: workholding instructions with fixture notes. Flushing nozzle position diagram (schematic showing upper/lower nozzle placement). Wire threading sequence (step-by-step: load spool → feed through upper guide → thread through start hole → capture at lower guide → tension). Machine-specific setup notes per controller (e.g., Sodick: servo tuning required, Makino: anti-electrolysis check). Dielectric fluid requirements (brand, type, conductivity range). Multi-page PDF with sections: Overview, Setup, Parameters, Quality, Safety. Material certification linkage: heat_number, cert_number, cert_date, cert_document_ref. Required for aerospace (AS9100 Rev D Clause 8.4.3) and medical (ISO 13485 Clause 7.4.3). Surface in FAI Form 1 (Part Accountability).",
+          "depends_on": ["U-WEDM15"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepProgram.tsx"],
+          "abort_criteria": [
+            "Flushing diagram not generated",
+            "Threading sequence missing steps",
+            "Machine-specific notes generic (not per controller)"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepProgram.tsx",
+          "exit_gate": "Multi-page setup sheet PDF with all sections. Flushing diagram included. Threading sequence step-by-step. Machine-specific notes per controller.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert) → GAP FILL (all 6 controllers) → TIE UP (PDF formatting)"
+        },
+        "U-WEDM41": {
+          "title": "Safety notes + consumables lifecycle + detailed time breakdown",
+          "description": "Safety panel in StepProgram: material-specific hazards (BeCu fume warnings, Ti fire risk, graphite dust). Wire-specific hazards (moly wire handling, coated wire VOCs). Dielectric hazards (electrical, chemical). Deburring/handling warnings for sharp EDM-cut edges. Consumables panel: filter replacement interval, resin life, fluid change schedule, wire guide replacement timeline. Time breakdown: setup hrs, cutting hrs, tab cutting hrs, threading hrs, idle hrs with per-phase cost allocation. Time breakdown includes inspection time estimate for FAI parts. Power consumption estimate (kW × hours × $/kWh) as line item.",
+          "depends_on": ["U-WEDM40"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepProgram.tsx"],
+          "abort_criteria": [
+            "Safety notes don't vary by material",
+            "Consumables lifecycle not time-based",
+            "Time breakdown doesn't match cost total"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepProgram.tsx",
+          "exit_gate": "Safety notes material/wire/dielectric-specific. Consumables lifecycle tracked. Time breakdown matches cost. All in setup sheet PDF.",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL (hazardous materials) → TIE UP (warning formatting)"
+        },
+        "U-WEDM42": {
+          "title": "Post-process operations catalog + secondary ops cost integration",
+          "description": "Post-process panel in StepProgram: catalog of 11 secondary operations (acid etch, stress relief, shot peening, inspection, coating, heat treat, passivation, deburring, cleaning, plating, anodizing). Per-operation: applicability (based on material + spec), estimated cost, estimated time, vendor recommendations. Checkbox to include/exclude each operation. Total post-process cost aggregated into job total. Setup sheet includes post-process checklist. Post-process costs from vendor rate database when available. Each operation shows calculation methodology link.",
+          "depends_on": ["U-WEDM41"],
+          "files_created": [],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepProgram.tsx"],
+          "abort_criteria": [
+            "Post-process ops not material-dependent",
+            "Cost not aggregated into total",
+            "Checklist missing from setup sheet"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepProgram.tsx",
+          "exit_gate": "11 post-process operations selectable. Material-dependent applicability. Cost aggregated. Checklist in setup sheet PDF.",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL (all materials × all ops) → TIE UP (cost formatting)"
+        }
+      },
+      "exit_gate": "Complete documentation suite: setup sheet with diagrams, safety notes, consumables, time breakdown, post-process catalog. tsc passes. omega_floor >= 0.85. SVI delta: +2%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-1-S8",
+      "title": "Bayesian Learning + Job History + Similar Job Recommender + Build Verification",
+      "units": ["U-WEDM43", "U-WEDM44", "U-WEDM45"],
+      "smart_config": {
+        "role": "Frontend Engineer + ML/Data Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMQualityOrchestratorEngine.ts — job history, Bayesian learning, drift detection, similar job recommender"
+      ],
+      "intent": "System learns from production feedback. Past jobs inform future parameter selection. Drift detection flags when model accuracy degrades. Full build verification.",
+      "skills": ["/forge-engines", "/scrutinize", "/test", "/verify-loop"],
+      "work": {
+        "U-WEDM43": {
+          "title": "Job history tracking + Bayesian parameter learning",
+          "description": "Job history panel (new section in wizard, accessible from step 1): past jobs list with material, thickness, wire type, cycle time, actual Ra, actual cost. Bayesian parameter priors: model updates parameter estimates based on actual vs predicted. Visual: predicted vs actual scatter plot for Ra, cycle time, cost. Learning feedback: when actual data entered, model confidence narrows. Prediction accuracy trend line over time. Job history MUST persist to durable storage (MemoryGraph or database), NOT in-memory array. Wire wedm_record_job action to persistent store. Add schema version field (v1) to every persisted record. Add outlier rejection: new observations >3sigma from prior mean quarantined for review before updating Bayesian priors. Initialize priors with samples=10 (not 1) for stability. Job history panel includes 'Clone Job' button: copies all wizard state from a past job into a new session with only the DXF file slot empty. One-click variant creation for repeat/similar jobs.",
+          "depends_on": ["U-WEDM15"],
+          "files_created": ["H:/prism/mcp-server/src/__tests__/wedm-bayesian-learning.test.ts"],
+          "files_modified": [
+            "H:/prism/web/src/pages/WireEdmStudioPage.tsx",
+            "H:/prism/web/src/components/wedm-studio/StepImport.tsx"
+          ],
+          "abort_criteria": [
+            "Job history not persisted across sessions",
+            "Bayesian update doesn't narrow confidence",
+            "Predicted vs actual chart not interactive"
+          ],
+          "rollback": "git checkout -- web/src/pages/WireEdmStudioPage.tsx web/src/components/wedm-studio/StepImport.tsx",
+          "exit_gate": "Job history persisted. Bayesian learning narrows predictions with feedback. Scatter plot shows predicted vs actual. Trend line visible.",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL (cold start: no history) → TIE UP (data persistence)"
+        },
+        "U-WEDM44": {
+          "title": "Similar job recommender + metric drift detection",
+          "description": "Similar jobs panel in StepReview: when material + thickness + feature type entered, search history for similar past jobs. Show: recommended parameters from best past job, actual outcomes. Metric drift detection: monitor time_ratio, ra_ratio, cost_ratio across jobs. Use +/-3sigma Shewhart control limits (NOT +/-2sigma). Implement I-MR (Individuals/Moving Range) chart per AIAG SPC Manual. sigma estimated from mR-bar/1.128. Add Western Electric Rule 1 (point beyond +/-3sigma) and Rule 5 (6 consecutive trending). Alert threshold based on statistical control limits, not fixed 5% band. Recommendation to recalibrate model when drift detected. Similar job recommender auto-populates wizard (one-click 'Apply these settings') — not just recommendation display. Control chart has screen reader description via aria-label. Data points accessible via keyboard navigation.",
+          "depends_on": ["U-WEDM43"],
+          "files_created": ["H:/prism/web/src/__tests__/DriftDetectionChart.test.tsx"],
+          "files_modified": ["H:/prism/web/src/components/wedm-studio/StepReview.tsx"],
+          "abort_criteria": [
+            "Similar job search returns irrelevant matches",
+            "Drift detection doesn't use control chart limits",
+            "No recalibration recommendation"
+          ],
+          "rollback": "git checkout -- web/src/components/wedm-studio/StepReview.tsx",
+          "exit_gate": "Similar jobs recommended with outcomes. Drift detection active with control chart. Recalibration alerted when needed.",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL (few jobs: cold start handling) → TIE UP (chart styling)"
+        },
+        "U-WEDM45": {
+          "title": "Full build verification + integration test across WEDM-MS0 + WEDM-MS1",
+          "description": "Run npx tsc --noEmit on both web and mcp-server. Full wizard flow with ALL new panels: upload DXF → review (with similar jobs) → WCS (with guide tracking) → toolpath (with taper + slugs) → optimize (with surface integrity + compliance + process control + distortion) → program (with tech tables + quality gates + FAI + setup sheet + safety + post-process). Verify Quick Generate still works. Verify responsive layout. Run all tests. Create forge triple: (1) wedm-full-capability-gate hook — Zod schema check on outputs (must include confidence_interval, no TODO strings, recast_um finite positive), (2) prism_edm:wedm_advanced_analysis action — accepts job_session_id (not FormData), (3) /wire-edm-analyze skill file. Generate IQ/OQ/PQ summary: IQ = deployment configuration record. OQ = all session exit gates compiled as acceptance criteria with pass/fail results. PQ = first 5 production jobs' predicted-vs-actual comparison. Requirements Traceability Matrix (RTM): unit requirements → exit gates → test results. Record retention policy header on all generated documents. Wire WorkspaceErrorBoundary telemetry to TelemetryEngine for error tracking. Add canvas FPS monitoring (warn when <30fps). Add Quick Generate per-step latency logging. Add bundle size check: no lazy chunk exceeds 600KB.",
+          "depends_on": ["U-WEDM44"],
+          "files_created": [
+            {
+              "path": "H:/prism/web/e2e/wire-edm-full-capability.spec.ts",
+              "note": "Playwright E2E: full MS0+MS1 wizard with surface integrity, spec compliance, quality gate, FAI report download."
+            }
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "tsc --noEmit has >0 errors",
+            "Any new panel fails to render",
+            "Quick Generate broken by new features",
+            "Setup sheet PDF missing any new section"
+          ],
+          "rollback": "N/A — read-only verification",
+          "exit_gate": "tsc: 0 errors both projects. Full wizard with all 45 capabilities works. Quick Generate completes. Setup sheet has all sections. No regressions. axe-core accessibility audit passes with 0 critical violations across all MS1 panels.",
+          "four_loop": "BUILD (fix issues) → SCRUTINIZE (/prism-review full) → GAP FILL (regression check) → TIE UP (clean status)"
+        }
+      },
+      "exit_gate": "All 45 backend capabilities exposed in wizard. Job history + learning + drift detection live. Full build clean. omega_floor >= 0.90. SVI delta: +5% total from WEDM-MS1.",
+      "compact_checkpoint": true
+    }
+  ],
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-full-capability-gate → blocks release if CRITICAL capability (taper, recast, fatigue, spec compliance) returns unvalidated results",
+      "wedm-spec-compliance-hook → warns when EDM parameters violate selected industry spec"
+    ],
+    "inherited_enforcement": [
+      "All hooks from WEDM-MS0 carry forward",
+      "constants-checker (blocks inline physics values)",
+      "physics-verify (reviews surface integrity formulas)",
+      "stub-detector (blocks placeholder returns)"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_advanced_analysis → full surface integrity + quality + uncertainty analysis",
+      "prism_edm:wedm_spec_check → validate against AMS 2628 / ASTM F136 / ISO 13485 / ISO 5832-3 / OEM specs",
+      "prism_edm:wedm_job_learn → record actual outcomes and update Bayesian priors"
+    ],
+    "new_skills": [
+      "/wire-edm-analyze → deep analysis mode (surface integrity, compliance, uncertainty)",
+      "/wire-edm-fai → generate First Article Inspection report (AS9102, PPAP)"
+    ],
+    "available_to": [
+      "APP-MS0 (Product & UI Overhaul)",
+      "PROD-GATE-MS0 (Production Gate)",
+      "BENCH-MS0 (Benchmark Suite — can use WEDM predictions for validation)"
+    ],
+    "dispatcher_routing_map": {
+      "comment": "18 WEDM pipeline actions missing from WEDM-MS0, now routed for WEDM-MS1",
+      "/api/v1/edm/calculate-passes": "edmDispatcher → wedm_calculate_passes → EDMDrawingInterpretationEngine",
+      "/api/v1/edm/check-conductivity": "edmDispatcher → wedm_check_conductivity → EDMFeasibilityEngine",
+      "/api/v1/edm/estimate-time": "edmDispatcher → wedm_estimate_time → EDMFeasibilityEngine",
+      "/api/v1/edm/assess-material": "edmDispatcher → wedm_assess_material → EDMMaterialMachineWireEngine",
+      "/api/v1/edm/select-machine": "edmDispatcher → wedm_select_machine → EDMMaterialMachineWireEngine",
+      "/api/v1/edm/select-wire": "edmDispatcher → wedm_select_wire → EDMMaterialMachineWireEngine",
+      "/api/v1/edm/plan-setup": "edmDispatcher → wedm_plan_setup → EDMStartHoleSetupEngine",
+      "/api/v1/edm/plan-passes": "edmDispatcher → wedm_plan_passes → EDMMultiPassStrategyEngine",
+      "/api/v1/edm/plan-wire-management": "edmDispatcher → wedm_plan_wire_management → EDMWireSlugCornerTaperEngine",
+      "/api/v1/edm/monitor-process": "edmDispatcher → wedm_monitor_process → EDMMonitorSurfaceIntegrityEngine",
+      "/api/v1/edm/assess-surface-integrity": "edmDispatcher → wedm_assess_surface_integrity → EDMMonitorSurfaceIntegrityEngine",
+      "/api/v1/edm/check-spec": "edmDispatcher → wedm_check_spec → EDMMonitorSurfaceIntegrityEngine",
+      "/api/v1/edm/plan-post-process": "edmDispatcher → wedm_plan_post_process → EDMPostProcessGCodeEngine",
+      "/api/v1/edm/verify-quality": "edmDispatcher → wedm_verify_quality → EDMQualityOrchestratorEngine",
+      "/api/v1/edm/full-documentation": "edmDispatcher → wedm_full_documentation → EDMCostDocumentationEngine",
+      "/api/v1/edm/run-pipeline": "edmDispatcher → wedm_run_pipeline → EDMQualityOrchestratorEngine",
+      "/api/v1/edm/record-job": "edmDispatcher → wedm_record_job → EDMQualityOrchestratorEngine",
+      "/api/v1/edm/get-recommendation": "edmDispatcher → wedm_get_recommendation → EDMQualityOrchestratorEngine"
+    },
+    "missing_formulas_added": [
+      "Dwell time recovery: t = k × δ / v_recovery (EDMWireSlugCornerTaperEngine line 15)",
+      "Slug weight: W = A × t × ρ (EDMWireSlugCornerTaperEngine line 18)",
+      "Discharge energy: E = V × I × t_on (EDMCuttingParamFlushEngine, fundamental)",
+      "Residual stress range: tensile 200–800 MPa thermal contraction model (EDMMonitorSurfaceIntegrityEngine)",
+      "Thermal drift rate: 12 µm/m/°C for steel casting machines (EDMMonitorSurfaceIntegrityEngine)",
+      "Short-circuit probability: P_sc from debris concentration model (StochasticEDMEngine)"
+    ],
+    "industry_spec_requirements": {
+      "AMS_2628_material_class_limits": {
+        "tool_steel": "max recast 8-12 µm, min 2 skim passes, stress relief 200°C/4hr",
+        "stainless": "max recast 10-15 µm, min 2 skim passes, stress relief 175°C/2hr",
+        "titanium": "max recast 5-8 µm, min 3 skim passes, stress relief 200°C/2hr vacuum",
+        "inconel": "max recast 8-12 µm, min 3 skim passes, stress relief 600°C/4hr",
+        "aluminum": "max recast 15-20 µm, min 1 skim pass",
+        "note": "SEM metallographic cross-section REQUIRED for first article on all materials"
+      },
+      "ASTM_F86_medical": {
+        "electropolishing": "REQUIRED for implant surfaces — must remove 100% of recast layer",
+        "passivation": "ASTM A967 citric acid passivation after EDM + electropolish",
+        "biocompatibility_note": "Roadmap addresses surface prep; biocompatibility testing (ISO 10993) is outside EDM scope but noted as required downstream",
+        "surface_finish": "Ra ≤ 0.2 µm for implant surfaces (stricter than aerospace)"
+      }
+    },
+    "ux_restructuring_note": "CRITICAL: StepOptimize will have 13+ panels after WEDM-MS1. MUST implement tabbed sub-sections within StepOptimize: Tab 1=Process (multi-pass, flushing, adaptive), Tab 2=Surface (recast, HAZ, fatigue, compliance), Tab 3=Logistics (wire consumption, break recovery, distortion). Similarly StepProgram: Tab 1=G-Code, Tab 2=Quality, Tab 3=Documentation. Add layer toggle sidebar to ProfileCanvas.",
+    "canvas_prerequisites": {
+      "layer_toggle_system": "MUST add before WEDM-MS1 S1 starts: modularize draw() into layer renderers, add visibility toggle sidebar, per-step default visibility, sessionStorage persistence",
+      "feature_id_tracking": "Contour segments must carry featureId for compliance overlay coloring — add feature_id field to ProfileContour type during WEDM-MS0 U-WEDM05 (ProfileCanvas creation)",
+      "svg_overlay": "Spatial heatmaps (distortion) need SVG overlay layer, not Canvas 2D — use React Portal + single SVG root, CSS transforms for pan/zoom sync",
+      "implementation_plan": "Canvas refactoring is done during WEDM-MS0 Session 7 (U-WEDM19 Polish). ProfileCanvas is built modular from the start in U-WEDM05 with layer renderer architecture. WEDM-MS1 S1 adds taper layers to the existing modular canvas. If U-WEDM05 ships without layer architecture, add a U-WEDM-PRE0 remediation unit before WEDM-MS1 S1.",
+      "layer_inventory": "20 overlay types total: (1) geometry contours, (2) feature colors, (3) toolpath arrows, (4) approach/departure, (5) WCS crosshair, (6) start holes, (7) tab markers, (8) onion-skin multi-pass, (9) top guide XY path, (10) bottom guide UV path, (11) wire angle connectors, (12) recast heatmap, (13) HAZ overlay, (14) distortion risk heatmap (SVG), (15) compliance red outlines, (16) fatigue-critical flags, (17) microcrack indicators, (18) wire break risk markers, (19) nozzle position diagram, (20) slug weight annotations. Default visibility: per-step preset (Step 4: geometry+toolpath+taper, Step 5: recast+HAZ+compliance, Step 6: toolpath only)."
+    },
+    "dependency_fix_note": "All WEDM-MS1 units depend on U-WEDM15 from WEDM-MS0. This is correct because U-WEDM15 integrates steps 5-6 into the wizard page. WEDM-MS1 units modify those step components. However, units that modify App.tsx or routing (none in MS1) should depend on U-WEDM18 instead.",
+    "known_backend_limitations": {
+      "wire_consumption_model": "EDMCostDocumentationEngine calculates wire from speed×time, not contour_length×passes. During WEDM-MS1 U-WEDM27 implementation, the backend engine's estimateWireCost() must be patched to accept contour_length_mm and pass_count as inputs. Tab waste (30-50% extra) and wire break loss (5-15%) must also be added. This is a backend engine fix, not just a UI task.",
+      "threading_events": "Threading events default to 1 with flat 3min per event. Must auto-calculate from start_hole_count + Weibull break prediction (λ from EDMCuttingParamFlushEngine). Threading time should vary by method: auto=2min, mechanical=5min, manual=8min. Machine-specific threading times from MachineRegistry.",
+      "machine_rate": "Machine hourly rate is manual input. Should integrate MachineRegistry lookup by selected machine model. Rate should vary by machine capability tier (2-axis vs 4-axis) and shop utilization."
+    }
+  }
+}

@@ -23,6 +23,7 @@
  *          CrossTerminalCoordinationEngine
  */
 import { z } from "zod";
+import * as fs from "fs";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 
@@ -39,6 +40,10 @@ const ACTIONS = [
   "drawing_summary",
   "office_process",
   "office_search",
+  // U-XRAY-DOCUMENT-EXTRACT-CONTRACT -- normalize an office/document extraction -> versioned DocumentExtractionContract
+  "document_extract_contract",
+  // U-XRAY-DOCUMENT-EXTRACT-ROUTER -- route a validated contract -> the document-knowledge consumers
+  "document_extract_route",
   "log_harvest",
   "log_alarms",
   "coordinate_register",
@@ -154,20 +159,20 @@ Params vary by action — pass relevant fields in the params object.`,
             if (!imagePath) {
               return { error: "path is required for ocr_process" };
             }
-            const options: any = {};
-            if (params.text || params.simulatedText) {
-              options.simulatedText = params.text || params.simulatedText;
-            }
-            if (params.dpi || params.simulatedDpi) {
-              options.simulatedDpi = params.dpi || params.simulatedDpi;
-            }
-            result = engine.processImage(imagePath, options);
+            // processImage(imagePath, simulatedText, simulatedConfidence) is POSITIONAL.
+            // dpi is image-registration metadata (read by the low-DPI quality gate), so
+            // register it first rather than passing it to processImage.
+            const ocrDpi = params.dpi || params.simulatedDpi;
+            if (ocrDpi) engine.registerImage(imagePath, { dpi: Number(ocrDpi) });
+            const simulatedText = params.text || params.simulatedText || "";
+            const simulatedConfidence = params.confidence ?? params.simulatedConfidence ?? 0.85;
+            result = engine.processImage(imagePath, simulatedText, Number(simulatedConfidence));
             break;
           }
 
           case "ocr_stats": {
             const engine = await getEngine("ocr");
-            result = engine.getStatistics();
+            result = engine.getQueueStats();
             break;
           }
 
@@ -178,12 +183,44 @@ Params vary by action — pass relevant fields in the params object.`,
             if (!filePath) {
               return { error: "path is required for drawing_extract" };
             }
+            // extractDrawing(path, { entities, dimensions, annotations, layers }) -- match the
+            // engine's simulatedData keys (the prior simulated* keys were silently dropped).
             const options: any = {};
-            if (params.dimensions) {
-              options.simulatedDimensions = params.dimensions;
+            if (params.dimensions) options.dimensions = params.dimensions;
+            if (params.entities) options.entities = params.entities;
+            if (params.layers) options.layers = params.layers;
+            if (params.annotations) options.annotations = params.annotations;
+            // title-block fields feed partInfo extraction, which scans annotations.
+            const tb = params.titleBlock || params.title_block;
+            if (tb && typeof tb === "object") {
+              options.annotations = [
+                ...(options.annotations || []),
+                ...Object.entries(tb).map(([k, v]) => `${k}: ${v}`),
+              ];
             }
-            if (params.titleBlock || params.title_block) {
-              options.simulatedTitleBlock = params.titleBlock || params.title_block;
+            // U-XRAY-DRAWING-EXTRACT-REAL-DXF: when no explicit dims/entities are supplied,
+            // feed the engine the real DXF text so it parses for real (engine stays I/O-free;
+            // the dispatcher is the I/O layer). Caller-supplied `content` wins; otherwise read
+            // the .dxf at `filePath`. Read failures are logged + skipped (engine returns the
+            // prior empty-success result -- back-compat for missing-file / simulated callers).
+            if (!options.entities && !options.dimensions) {
+              if (typeof params.content === "string") {
+                options.content = params.content;
+              } else if (String(filePath).toLowerCase().endsWith(".dxf")) {
+                try {
+                  // Size-cap an untrusted uploaded file before reading it whole into memory
+                  // (DoS guard -- the DXF group cap bounds tokenization, not the initial read).
+                  const MAX_DXF_BYTES = 64 * 1024 * 1024;
+                  const sz = fs.statSync(filePath).size;
+                  if (sz > MAX_DXF_BYTES) {
+                    log.warn(`[drawing_extract] skipping ${filePath}: ${sz} bytes exceeds ${MAX_DXF_BYTES}-byte cap`);
+                  } else {
+                    options.content = fs.readFileSync(filePath, "utf-8");
+                  }
+                } catch (e) {
+                  log.warn(`[drawing_extract] could not read ${filePath}: ${e instanceof Error ? e.message : String(e)}`);
+                }
+              }
             }
             result = engine.extractDrawing(filePath, options);
             break;
@@ -195,9 +232,9 @@ Params vary by action — pass relevant fields in the params object.`,
             if (!filePath) {
               return { error: "path is required for drawing_summary" };
             }
-            result = engine.getSummary(filePath);
+            result = engine.getResult(filePath);
             if (!result) {
-              return { error: "Drawing not found — extract it first" };
+              return { error: "Drawing not found -- extract it first" };
             }
             break;
           }
@@ -209,14 +246,17 @@ Params vary by action — pass relevant fields in the params object.`,
             if (!filePath) {
               return { error: "path is required for office_process" };
             }
-            const options: any = {};
-            if (params.text || params.simulatedText) {
-              options.simulatedText = params.text || params.simulatedText;
-            }
-            if (params.tables || params.simulatedTables) {
-              options.simulatedTables = params.tables || params.simulatedTables;
-            }
-            result = engine.processDocument(filePath, options);
+            // extractDocument(path, { sections, tables, metadata }) -- the engine derives text from
+            // section content, so wrap a raw text param as a paragraph section (prior simulatedText/
+            // simulatedTables keys were silently dropped AND processDocument never existed).
+            const officeOpts: any = {};
+            const sections: any[] = [];
+            const officeText = params.text || params.simulatedText;
+            if (officeText) sections.push({ type: "paragraph", content: String(officeText) });
+            if (Array.isArray(params.sections)) sections.push(...params.sections);
+            if (sections.length) officeOpts.sections = sections;
+            if (params.tables || params.simulatedTables) officeOpts.tables = params.tables || params.simulatedTables;
+            result = engine.extractDocument(filePath, officeOpts);
             break;
           }
 
@@ -224,13 +264,83 @@ Params vary by action — pass relevant fields in the params object.`,
             const engine = await getEngine("office");
             const keyword = params.keyword || params.query;
             const partNumber = params.partNumber || params.part_number;
+            // findByPartNumber / searchByKeyword return ExtractionResult[]; wrap in an object with a
+            // stable count so slimResponse (which strips empty arrays) never erases a 0-match result.
+            let matches: any[];
             if (partNumber) {
-              result = engine.searchByPartNumber(partNumber);
+              matches = engine.findByPartNumber(partNumber);
             } else if (keyword) {
-              result = engine.searchByKeyword(keyword);
+              matches = engine.searchByKeyword(keyword);
             } else {
               return { error: "keyword or partNumber is required for office_search" };
             }
+            result = { count: matches.length, matches };
+            break;
+          }
+
+          case "document_extract_contract": {
+            // U-XRAY-DOCUMENT-EXTRACT-CONTRACT -- normalize an office/document extraction into the
+            // versioned DocumentExtractionContract the document-feature consumers bind to (sibling of
+            // blueprint_extract_contract). Pure + in-process: the caller obtains the extraction via
+            // office_process first, then calls this to get the stable contract. No producer run, no I/O.
+            const ex = params.extraction ?? params.extractedData ?? params.result ?? params.office ?? params.ocr ?? params.ingestion;
+            if (ex == null || typeof ex !== "object") {
+              return { error: "document_extract_contract requires extraction (an OfficeDocumentPipelineEngine ExtractionResult, an ImageOCRPipelineEngine OCRResult, or a documentLearning IngestionResult -- or its extractedData/items)" };
+            }
+            const mod = await import("../../schemas/DocumentExtractionContract.js");
+            const opts: any = {};
+            if (typeof params.confirmFloor === "number") opts.confirmFloor = params.confirmFloor;
+            if (typeof params.entryConfidence === "number") opts.entryConfidence = params.entryConfidence;
+            if (typeof params.source === "string") opts.source = params.source;
+            if (typeof params.docType === "string") opts.docType = params.docType;
+            // producer selects the normalizer: "ocr" (ImageOCRPipelineEngine), "doclearn"
+            // (documentLearning IngestionResult), vs "office" (default).
+            const producer = params.producer === "ocr" || params.ocr != null ? "ocr"
+              : params.producer === "doclearn" || params.ingestion != null ? "doclearn"
+              : "office";
+            const contract = producer === "ocr" ? mod.normalizeOcrExtractToContract(ex, opts)
+              : producer === "doclearn" ? mod.normalizeDocLearningToContract(ex, opts)
+              : mod.normalizeOfficeExtractToContract(ex, opts);
+            const validation = mod.validateDocumentExtractionContract(contract);
+            result = { contract, producer, valid: validation.ok, errors: validation.errors ?? [] };
+            break;
+          }
+
+          case "document_extract_route": {
+            // U-XRAY-DOCUMENT-EXTRACT-ROUTER -- given a VALIDATED DocumentExtractionContract (chain
+            // document_extract_contract -> this), return the fan-out plan: which document-knowledge
+            // consumers (tool-crib lookup / speeds-feeds / tribal capture) the entries can drive, with
+            // per-consumer payloads + the tribal confirm-gate. Pure + in-process.
+            const docContract = params.contract;
+            if (docContract == null || typeof docContract !== "object") {
+              return { error: "document_extract_route requires contract (a DocumentExtractionContract; obtain it via document_extract_contract first)" };
+            }
+            const mod = await import("../../schemas/DocumentExtractionContract.js");
+            const validation = mod.validateDocumentExtractionContract(docContract);
+            if (!validation.ok) {
+              return { error: `document_extract_route: invalid contract -- ${(validation.errors ?? []).join("; ")}` };
+            }
+            const routerMod = await import("../../engines/blueprint-vision/documentExtractionRouter.js");
+            const rOpts = params.includeIneligible === false ? { includeIneligible: false } : {};
+            const plan = routerMod.routeDocumentToConsumers(validation.data!, rOpts);
+            // CLOSE-THE-LOOPS-MS0: emit at the impure dispatcher boundary so routeDocumentToConsumers stays pure.
+            try {
+              const { emitPipelineOutcome } = await import("../../engines/pipelineOutcomeEmit.js");
+              emitPipelineOutcome({
+                domain: "doc_read",
+                engineName: "documentExtractionRouter",
+                outcomeEventId: "document_routed",
+                inline: { doc_type: plan.doc_type, consumer_count: plan.routes.length },
+                adapted: {
+                  n_eligible: plan.summary.n_eligible,
+                  n_ready: plan.summary.n_ready,
+                  n_blocked: plan.summary.n_blocked_on_confirm,
+                },
+                reward: { objective: "other", raw_value: plan.summary.n_ready, sign_convention: "maximize" },
+                metadata: { contract_version: plan.contract_version },
+              });
+            } catch { /* emit is advisory -- never block the route result */ }
+            result = { plan };
             break;
           }
 
@@ -241,28 +351,31 @@ Params vary by action — pass relevant fields in the params object.`,
             if (!filePath) {
               return { error: "path is required for log_harvest" };
             }
-            const options: any = {};
-            if (params.machineId || params.machine_id) {
-              options.machineId = params.machineId || params.machine_id;
-            }
-            if (params.machineType || params.machine_type) {
-              options.machineType = params.machineType || params.machine_type;
-            }
-            if (params.lines || params.simulatedLines) {
-              options.simulatedLines = params.lines || params.simulatedLines;
-            }
-            result = engine.harvestLog(filePath, options);
+            // harvestFile(path, content: string) -- enrich the pure harvest result with the
+            // caller-supplied machine context the engine itself does not track.
+            const machineId = params.machineId || params.machine_id;
+            const machineType = params.machineType || params.machine_type;
+            const rawLines = params.content ?? params.lines ?? params.simulatedLines;
+            const content = Array.isArray(rawLines) ? rawLines.join("\n") : (rawLines ?? "");
+            const harvest = engine.harvestFile(filePath, content);
+            result = {
+              ...harvest,
+              ...(machineId ? { machineId } : {}),
+              ...(machineType ? { machineType } : {}),
+            };
             break;
           }
 
           case "log_alarms": {
             const engine = await getEngine("log");
             const severity = params.severity;
-            if (severity) {
-              result = engine.getAlarmsBySeverity(severity);
-            } else {
-              result = engine.getAllAlarms();
-            }
+            const all = engine.getAllAlarms();
+            // The harvester records alarm CODES with no severity classification, so a severity filter
+            // cannot be honored from the data model -- return all + flag it honestly (R12), never fabricate.
+            result = severity
+              ? { ...all, severityFilter: severity, severityFilterApplied: false,
+                  note: "alarm severity is not classified by the harvester; returning all alarms" }
+              : all;
             break;
           }
 

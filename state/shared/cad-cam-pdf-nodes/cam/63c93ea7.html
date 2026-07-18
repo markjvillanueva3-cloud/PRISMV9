@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Tool_Manager_GSG</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Tool_Manager_GSG</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/tutorialx8-tool-manager/Tool_Manager_GSG.pdf</code></dd>
+<dt>Pages</dt><dd>66</dd>
+<dt>Text chars</dt><dd>56786</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Tool Manager Getting
+Started Guide
+September 2014
+
+-- 1 of 66 --
+
+Mastercam® X8 Tool Manager GSG
+Date: September 2014
+Copyright © 2014 CNC Software, Inc.— All rights reserved.
+Software: Mastercam X8
+TERMS OF USE 	Use of this document is subject to the Mastercam End User License Agreement. A
+copy of the Mastercam End User License Agreement is included with the
+Mastercam product package of which this document is part. The Mastercam End
+User License Agreement can also be found at:
+http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+Be sure you
+have the latest
+information!
+Information might have been changed or added since this document was
+published. The latest version of this document is installed with Mastercam or can
+be obtained from your local Reseller. A ReadMe file (ReadMe.pdf)—installed
+with each release—includes the latest information about Mastercam features and
+enhancements.
+
+-- 2 of 66 --
+
+iii
+Contents
+Introduction....................................................................................................... 1
+ Tutorial Goals................................................................................................. 1
+1. Mastercam’s Tool Manager.................................................. 3
+ Lesson Goals ................................................................................................. 3
+ Exercise 1: Tool Manager Overview...................................................... 4
+ Exercise 2: Stand-Alone vs. Classic Tool Managers.............................. 6
+ Exercise 3: Reasons to Use the Stand-Alone Tool Manager................ 10
+ Exercise 4: Recommended Workflow ................................................. 11
+2. Customizing the Tool Manager Workspace ....................... 13
+ Lesson Goals ............................................................................................... 13
+ Exercise 1: Docking, Hiding, Repositioning, Tool Manager Panes....... 13
+ Exercise 2: Using the Functions on the View Ribbon Bar.................... 16
+ Exercise 3: Displaying, Sorting, and Customizing Document Datagrids
+........................................................................................................... 17
+3. Working with Tool Library Files (.TOOLDB) ....................... 23
+ Lesson Goals ............................................................................................... 23
+ Exercise 1: Creating Tool Libraries ...................................................... 23
+ Exercise 2: Opening and Editing a Tool Library.................................... 25
+ Exercise 3: Searching for a Library Component................................... 27
+4. Working with Components in a Tool Library ...................... 31
+ Lesson Goals ............................................................................................... 31
+ Exercise 1: Creating New Tools and Holders ...................................... 31
+ Exercise 2: Editing Existing Tools........................................................ 36
+ Exercise 3: Creating and Editing Assemblies ...................................... 38
+
+-- 3 of 66 --
+
+iv MASTERCAM X8
+ Exercise 4: Adding or Editing Materials and Cut Parameters .............. 43
+ Exercise 5: Accessing Cut Parameters from Mastercam .................... 46
+ Exercise 6: Copying Components Between Tool Libraries................... 49
+5. Using Tools and Holders, in Toolpaths ............................... 51
+ Lesson Goal ................................................................................................. 51
+ Exercise 1: Creating New Tools and Holders for a Dynamic Mill Contour
+Toolpath .............................................................................................. 51
+ Exercise 2: Editing Tools and Holders for a Pocket Toolpath ............... 56
+Conclusion......................................................................................................... 58
+ Mastercam Resources ............................................................................... 58
+ Mastercam Documentation....................................................................... 59
+
+-- 4 of 66 --
+
+Introduction
+Welcome to Mastercam’s
+Tool Manager Getting Started Guide. This guide provides
+information about Mastercam’s new stand-alone Tool Manager. Some of the informa-
+tion is in a step-by-step format, and some of the information is paragraph format.
+Both formats walk you through how and when to use the new Tool Manager.
+Tutorial Goals
+ 	Become familiar with Mastercam’s stand-alone Tool Manager
+ 	Learn how to customize the Tool Manager workspace
+ 	Work with tool libraries (.TOOLDB) and their components
+ 	Create and edit tools and holders in Mastercam’s classic Tool Manager
+IMPORTANT: Screen colors in the tutorial pictures were modified to
+enhance image quality; they may not match your Mastercam settings or
+the tutorial results. These color differences do not affect the lesson or
+the exercise results.
+General Tutorial Requirements
+All Mastercam tutorials have the following general requirements:
+ 	You must be comfortable using the Windows® operating system.
+ 	Each lesson in the tutorial builds on the mastery of preceding lesson’s skills.
+We recommend that you complete them in order.
+ 	Additional files may accompany a tutorial. Unless the tutorial provides specific
+instructions on where to place these files, store them in a folder that can be
+accessed from the Mastercam workstation, either with the tutorial or in any
+location that you prefer.
+ 	You will need an internet connection to view videos that are referenced in the
+tutorials. All videos can be found on our YouTube channel:
+www.youtube.com/user/MastercamTechDocs.
+
+-- 5 of 66 --
+
+2 MASTERCAM X8/ Introduction
+TOOL MANAGER GETTING STARTED GUIDE
+
+-- 6 of 66 --
+
+LESSON 1
+1Mastercam’s Tool Manager
+In this lesson, you learn about the new stand-alone Tool Manager interface, how it
+compares to the classic Mill/Router and Lathe Tool Managers in Mastercam, and the
+recommended general workflow.
+Lesson Goals
+ 	Become familiar with the stand-alone Tool Manager
+ 	Learn how the stand-alone Tool Manager differs from Mastercam’s Classic
+Mill and Lathe Tool Managers
+ 	Understand when and why to use it
+
+-- 7 of 66 --
+
+4 MASTERCAM X8/ Mastercam’s Tool Manager
+TOOL MANAGER GETTING STARTED GUIDE
+Exercise 1: Tool Manager Overview
+Mastercam&#39;s Tool Manager provides an efficient and comprehensive way to manage
+tools and tool holding components, and to create tool assemblies to use in
+Mastercam. Besides the tooling component support, Tool Manager also integrates
+work material and cut parameter data so that you can accommodate a manufacturer&#39;s
+cutting recommendations. You can also create your own cut parameter data and store
+it in the database.
+Launch the stand-alone Tool Manager separately from Mastercam by choosing Tool
+Manager from your Start menu&#39;s Mastercam folder. Certain Tool Manager functions
+are integrated into the Mastercam interface and are launched from within Mastercam
+when you create new tools. While you are in Tool Manager, your data is automatically
+saved as you work, avoiding possible work loss and eliminating the need for manual
+backups.
+Tool Manager&#39;s new database format (TOOLDB) is faster and more reliable than the
+older database formats. Its non-proprietary format is easily accessed by third party
+contributors, such as tooling manufacturers, who want to keep you up to date with the
+most recent tooling and tooling components. Although you can only open the
+TOOLDB database format in Tool Manager, in Mastercam, you can still open both the
+TOOLDB and TOOLS-x database formats. However, the Save As function only saves the
+database out in the TOOLDB format.
+
+-- 8 of 66 --
+
+TOOL MANAGER OVERVIEW 5
+TOOL MANAGER GETTING STARTED GUIDE
+Tool Manager Interface
+This section contains brief descriptions of the stand-alone Tool Manager interface.
+These interface objects are covered in detail in the step-by-step procedure lessons of
+this Getting Started Guide.
+1. 	Ribbon Bars - Ribbon bars function somewhat like dialog boxes but look similar to
+toolbars. You cannot undock or dock a ribbon bar, nor are they customizable.
+2. 	Database Explorer - Use the Tool Manager Database Explorer to access content in
+tool database files (TOOLDB). Right-click an item to expand or collapse it. To work
+with items in the database tree view (i.e., Cutting Tools, Tool Assemblies, Holders,
+Materials, and Cut Parameters), double-click the item.
+3. 	Assembly Tree - Use the Assembly Tree to open, create, and edit assemblies in the
+open TOOLDB database. Tool Assemblies may contain one tool and one or more
+holder components. Use the Assembly Tree to navigate the individual assembly
+items. If you select (double-click) Tool Assemblies in the Database Explorer or
+choose the Assembly button in the Home ribbon bar, the Assembly Tree appears
+below the Database Explorer and the Assemblies document appears in the docu-
+ments area.
+
+-- 9 of 66 --
+
+6 MASTERCAM X8/ Mastercam’s Tool Manager
+TOOL MANAGER GETTING STARTED GUIDE
+4. 	Document Datagrids - Tool Manager uses &quot;documents&quot; to organize data such as
+tools, holders, and assemblies. The main workspace uses a tab-style interface to
+present these documents.
+5. 	Graphics Window - The graphics window is part of a document, and displays what
+you have selected in the document datagrid. For example, if you are working in
+the Assembly document, the graphics window displays the assembly you have
+selected in the datagrid.
+6. 	Properties Grid - Tool Manager Properties Grid displays properties for cutting
+tools, assemblies, holders, extensions, materials, and cutting parameters. The
+properties displayed in the Properties Grid depend on which document type you
+have open and which item you have selected in the document.
+Exercise 2: Stand-Alone vs. Classic Tool Managers
+Although this document focuses on the new stand-alone Tool Manager, Mastercam
+offers more than one Tool Manager to create, edit, and manage your tools, tooling
+components, and tool libraries. Each Tool Manager is accessed with different work-
+flows and circumstances.
+
+-- 10 of 66 --
+
+STAND-ALONE VS. CLASSIC TOOL MANAGERS 7
+TOOL MANAGER GETTING STARTED GUIDE
+Stand-alone Tool Manager
+To work in the stand-alone Tool Manager, select the Windows Start menu, and
+choose Mastercam, Tool Manager. Once you access the stand-alone Tool Manager,
+click the Help button for more details. You do not have to have Mastercam open to
+access and use the stand-alone Tool Manager.
+
+-- 11 of 66 --
+
+8 MASTERCAM X8/ Mastercam’s Tool Manager
+TOOL MANAGER GETTING STARTED GUIDE
+Classic Mill/Router Tool Manager
+The classic Mill/Router Tool Manager allows you to view and manage tool libraries, the
+tools in your part file, and tool definitions. Use it to:
+ 	View tools stored in a tool library, machine group, or both.
+ 	Create new tools and store them in a tool library or machine group.
+ 	Copy tools to/from a library to a machine group, or between different libraries
+or machine groups.
+Many functions of the classic Mill/Router Tool Manager interface use the integrated
+stand-alone Tool Manager functions such as the editing and creating wizards for tools
+and holders. Access the classic Tool Manager by selecting Tool Manager from the Mill
+or Router Toolpath menu. (This option is not available in Design.)
+
+-- 12 of 66 --
+
+STAND-ALONE VS. CLASSIC TOOL MANAGERS 9
+TOOL MANAGER GETTING STARTED GUIDE
+Classic Lathe Tool Manager
+The Classic Lathe Tool Manager has the same features as the Classic Mill/Router Tool
+Manager.
+NOTE: To access the Classic Lathe Tool Manager, you must have a
+Lathe machine definition loaded and have the insertion arrow in that
+machine group.
+Access the Lathe Tool Manager by right-clicking in the Toolpath parameters tab
+(Lathe) or selecting Lathe Tool Manager from the Toolpaths menu. (This option is not
+available in Design.)
+
+-- 13 of 66 --
+
+10 MASTERCAM X8/ Mastercam’s Tool Manager
+TOOL MANAGER GETTING STARTED GUIDE
+Exercise 3: Reasons to Use the Stand-Alone Tool Manager
+There are many reasons to use the stand-alone Tool Manager instead of the classic
+Tool Manager. Here are some of the main reasons:
+ 	Work in Tool Manager without Mastercam open - Although you need to have
+Mastercam installed to run the stand-alone Tool Manager, you do not have to
+have Mastercam open. You don’t even need to have a SIM plugged in. When
+you create, edit, and organize your tool libraries without running Mastercam,
+you increase your computer’s performance while reserving that licensed
+Mastercam seat for someone else.
+ 	Search for library components using new Search window - Mastercam’s
+stand-alone Tool Manager offers a new Search window that shows you results
+that match your search criteria. You can save searches for future use as
+“Favorites,” and you can view recent searches. See Searching for a Library
+Component (page 27) for details.
+ 	Copy tool library components between libraries - You can have multiple
+instances of the stand-alone Tool Manager open. To copy tools, holders, and
+assemblies from one TOOLDB to another, open the different tool libraries in
+separate instances of Tool Manager and drag and drop the tooling
+component from one Tool Manager to the other. See Copying Components
+Between Tool Libraries (page 49) for details.
+ 	Create and edit assemblies - Mastercam’s stand-alone Tool Manager
+provides several ways to create and edit tooling assemblies. You can drag and
+drop assembly components into the Assembly Tree, you can work directly in
+the Tool Manager’s graphics window to edit assemblies, and you can change
+the parameters for an assembly or for each of the assembly components in
+the Properties Grid. See Exercises 4, 5, and 6 under Working with
+Components in a Tool Library (page 31) for details.
+ 	Customizable workspace - The workspace of the stand-alone Tool Manager
+allows you to undock the major interface objects. This is useful if you work
+with multiple monitors. It is also useful if you just want to reposition or hide
+the interface windows to suit your preferences. See Customizing the Tool
+Manager Workspace (page 13) for details.
+ 	Create and edit materials and cut parameters - Tool Manager allows you to
+create and edit materials and cut parameters. These settings are stored in the
+tool library and are easily accessed through Mastercam when you create or
+edit a tool with the Tool Wizard.
+
+-- 14 of 66 --
+
+RECOMMENDED WORKFLOW 11
+TOOL MANAGER GETTING STARTED GUIDE
+ 	Multi-Editing - The stand-alone Tool Manager allows you to select multiple
+document items, such as multiple tools, and edit the properties for all
+selected items with the Properties Grid.
+Exercise 4: Recommended Workflow
+The stand-alone Tool Manager is designed to create tool libraries (TOOLDB) that can
+be specific to a job and/or machine. These tool libraries can be used as part of a job
+“kit” that reside on one machine, or travel with the part.
+The recommended workflow is to set up your tool libraries using the stand-alone Tool
+Manager, and then use those libraries in Mastercam to apply to specific jobs, parts,
+and machines.
+
+-- 15 of 66 --
+
+12 MASTERCAM X8/ Mastercam’s Tool Manager
+TOOL MANAGER GETTING STARTED GUIDE
+
+-- 16 of 66 --
+
+LESSON 2
+2Customizing the Tool Manager
+Workspace
+In this lesson, you learn how to customize, save, and reset your workspace.
+Lesson Goals
+ 	Undock, move, and hide Tool Manager panes
+ 	Use the window functions in the ribbon bar to customize your workspace
+ 	Move, display, sort, and view document datagrids and the graphics window
+Exercise 1: Docking, Hiding, Repositioning, Tool Manager Panes
+Panes in Tool Manager, such as the Database Explorer, Assembly Tree, and Properties
+Grid, can all be undocked, repositioned, re-docked, and hidden. For this exercise, you
+will use the Properties Grid for a tool as an example of how to perform these tasks.
+
+-- 17 of 66 --
+
+14 MASTERCAM X8/ Customizing the Tool Manager Workspace
+TOOL MANAGER GETTING STARTED GUIDE
+1 	Open Tool Manager from your
+Mastercam folder in the Windows’
+Start menu.
+IMPORTANT: After installing Mastercam, you must open Mastercam
+before opening the stand-alone Tool Manager for the first time. Opening
+Mastercam builds Tool Manager support files. After opening Mastercam,
+you can close it and successfully open the stand-alone Tool Manager.
+You don’t have to have Mastercam running to use the stand-alone Tool
+Manager. If you are working from a new Mastercam install and try to
+open the stand-alone Tool Manager without at least opening and closing
+Mastercam, you will receive an error message prompting you to open
+Mastercam.
+2 	Click the Open button and navigate
+to the install location of this guide.
+
+-- 18 of 66 --
+
+DOCKING, HIDING, REPOSITIONING, TOOL MANAGER PANES 15
+TOOL MANAGER GETTING STARTED GUIDE
+3 	Select the gsg_Tool_Manager.tooldb and click Open to load the database.
+4 	Double-click Cutting Tools in the
+Database Explorer to open the
+Tools document, and choose any
+tool to populate the Properties grid.
+5 	Click the Properties grid title bar,
+and drag and drop it to a position
+outside of the Tool Manager.
+TIPS:
+ If you use multiple monitors, you
+can dock the panes on another
+monitor, providing more work-
+space in Tool Manager.
+ You can also use the Float func-
+tion in the Options drop-down
+list.
+ The Dock as Document option is
+unavailable when working in the
+Properties grid.
+6 	To re-dock the Properties Grid to
+the default position in Tool
+Manager, click the drop-down
+Options button and choose Dock.
+
+-- 19 of 66 --
+
+16 MASTERCAM X8/ Customizing the Tool Manager Workspace
+TOOL MANAGER GETTING STARTED GUIDE
+7 	To hide the Properties Grid in Tool
+Manager, click the drop-down
+Options button and choose Auto
+Hide.
+NOTE: When you hide a pane, Tool
+Manager docks it as a tab. Click the
+tab to open the Properties grid, and
+then click the drop-down Options
+button and choose Dock to re-dock it
+to its default state.
+8 	After closing the Properties Grid, or any other Tool Manager pane, re-open it
+by clicking its button in the Show section of the View ribbon bar.
+Exercise 2: Using the Functions on the View Ribbon Bar
+In this exercise, you learn to use the functions in the View ribbon bar.
+1 	If you closed Tool Manager, open it and load the gsg_Tool_Manager.tooldb
+database.
+2 	Click the View tab to access the View ribbon bar.
+TIP: Hover your mouse over any of the buttons to view tooltips.
+
+-- 20 of 66 --
+
+DISPLAYING, SORTING, AND CUSTOMIZING DOCUMENT DATAGRIDS 17
+TOOL MANAGER GETTING STARTED GUIDE
+3 	Use the Window buttons to change the arrangement of your workspace.
+4 	Use the Show buttons to display the different Tool Manager panes and grids.
+5 	Use the 3D View buttons to fit and change the view of the tool, holder, or
+assembly in the graphics window.
+NOTE: The 3D View options are only available when you have a tool,
+holder, or assembly document open.
+Exercise 3: Displaying, Sorting, and Customizing Document
+Datagrids
+In this exercise, you learn to display, sort, and customize documents. You will also
+learn how to split (tile) documents, which includes customizing the graphics window’s
+display.
+
+-- 21 of 66 --
+
+18 MASTERCAM X8/ Customizing the Tool Manager Workspace
+TOOL MANAGER GETTING STARTED GUIDE
+Customizing the Document Display
+1 	You should still have the Tools document open. If not, double-click Cutting
+Tools in the Database Explorer to open the Tools document, and choose any
+tool to populate the Properties grid.
+2 	Open the other document types (Assemblies, Holders, Materials, and Cut
+Parameters) using the same double-clicking action.
+3 	To sort a document by columns, click a column heading to sort the data by
+either ascending or descending order. Click the heading again to reverse the
+order. Click a third time in the same column header to restore the original sort
+order. This example shows sorting by tool number. However, you can sort by
+any column such as Name, Diameter, Cutting Depth, etc.
+4 	To customize the documents and graphics window layout, use the buttons in
+the splitter control located in the display separator between the datagrid and
+graphics window.
+
+-- 22 of 66 --
+
+DISPLAYING, SORTING, AND CUSTOMIZING DOCUMENT DATAGRIDS 19
+TOOL MANAGER GETTING STARTED GUIDE
+NOTES:
+ 	Moves the document and graphics window above or below each
+other.
+ 	Splits the document and graphics window vertically (side-by-side).
+ 	Splits the document and graphics window horizontally (over/under).
+ 	Removes the splitter and maximizes the view that is displayed on
+the top or left side (depending on the orientation of the split).
+ 	The double lines in the splitter control indicate
+that you can reposition the splitter by dragging it with your
+mouse.
+Grouping Document Data
+1 	To view a datagrid by column groups, drag and drop the column header into
+the area just below the document tabs (as shown below).
+TIP: Use the plus and minus symbols to expand and collapse grouped
+results.
+2 	Click the button with the column name to toggle between ascending and
+descending the sort order. Clicking the button a third time removes sorting
+
+-- 23 of 66 --
+
+20 MASTERCAM X8/ Customizing the Tool Manager Workspace
+TOOL MANAGER GETTING STARTED GUIDE
+and restores the list to its default database order.
+3 	To ungroup your datagrid results, drag and drop the button with the column
+name back into the datagrid&#39;s column heading area.
+Splitting (Tiling) Documents
+Use the View tiling options (as shown below) to split the document workspace to view
+Documents concurrently.
+
+-- 24 of 66 --
+
+DISPLAYING, SORTING, AND CUSTOMIZING DOCUMENT DATAGRIDS 21
+TOOL MANAGER GETTING STARTED GUIDE
+1 	To tile documents horizontally, open the documents and click the Tile
+Horizontal button in the ribbon bar.
+
+-- 25 of 66 --
+
+22 MASTERCAM X8/ Customizing the Tool Manager Workspace
+TOOL MANAGER GETTING STARTED GUIDE
+2 	To tile documents vertically, open the documents and click the Tile Vertical
+button in the ribbon bar.
+NOTES:
+ To save your customized workspace, click the Save Workspace button
+in the View ribbon bar.
+ You can have multiple saved workspaces. To load a workspace, click
+the Load Workspace button, also in the View ribbon bar.
+ Use the Reset Workspace button to set your Tool Manager
+interface back to its default layout.
+3 	Reset your workspace back to its default layout and close Tool Manager.
+
+-- 26 of 66 --
+
+LESSON 3
+3Working with Tool Library Files
+(.TOOLDB)
+In this lesson, you learn how to work with tool libraries.
+Lesson Goals
+ 	Switch to metric database output
+ 	Create and edit tool libraries
+ 	Use the stand-alone Tool Manager&#39;s Search feature
+Exercise 1: Creating Tool Libraries
+In this exercise, you learn to create tool libraries by either copying an existing library or
+creating a TOOLDB from scratch. Because you create metric tools and holders later in
+this guide, you set the default units to metric in this exercise.
+NOTES:
+ The default unit setting is read from Mastercam’s System Configuration.
+For more information see the Start/Exit property page (System
+Configuration) help topic in Mastercam.
+ Tool Manager remains in the metric state until you manually change it
+back to inch, even if you use multiple sessions of Tool Manager or turn
+off your computer.
+ All library (database) components are created with metric values as long
+as the default unit value is set to metric. For example, all new tools and
+holders created in the stand-alone Tool Manager or from within
+Mastercam, are created using metric values until this option is changed
+back to inch units.
+ You can have both inch and metric tooling components in the
+same library (.TOOLDB file).
+
+-- 27 of 66 --
+
+24 MASTERCAM X8/ Working with Tool Library Files (.TOOLDB)
+TOOL MANAGER GETTING STARTED GUIDE
+Creating a Tool Library from an Existing Library
+1 	Open the gsg_Tool_Manager.tooldb.
+2 	After the tool library loads, click the
+File tab (backstage view) and choose
+Options.
+TIP: The Tool Manager default unit measurements are based on your
+Mastercam configuration. If you have Mastercam already set to metric
+for the unit defaults, you can skip to step 6 of this procedure.
+3 	In the Application Options dialog
+box, choose the General page.
+4 	If it’s not already selected, click the
+Metric option under Units.
+5 	Click OK.
+
+-- 28 of 66 --
+
+OPENING AND EDITING A TOOL LIBRARY 25
+TOOL MANAGER GETTING STARTED GUIDE
+6 	In the File tab, choose Save As.
+7 	Save the TOOLDB as
+gsg_Tool_Manager_Tut.tooldb.
+NOTE: You save the library with a
+different file name so that you don’t
+overwrite the file provided with this
+guide.
+Creating a New Tool Library from Scratch
+1 	In the File tab (backstage view), click
+New, and then click the Tool
+Database button.
+This opens a second instance of Tool
+Manager.
+2 	In the Save As dialog box, enter a
+new file name of your choice and
+click Save.
+NOTE: You can create and add
+library components to the new data-
+base as detailed in Working with
+Components in a Tool Library (page
+31). As you work in Tool Manager,
+your changes are automatically
+saved to the database.
+3 	Close both sessions of Tool Manager, choosing to save any changes if
+prompted.
+Exercise 2: Opening and Editing a Tool Library
+In this exercise, you open an existing library in Tool Manager and edit one or more of
+its components.
+1 	Open Tool Manager from your Windows’ Start menu.
+
+-- 29 of 66 --
+
+26 MASTERCAM X8/ Working with Tool Library Files (.TOOLDB)
+TOOL MANAGER GETTING STARTED GUIDE
+2 	Click Open and navigate to the
+gsg_Tool_Manager_Tut.tooldb
+you created in the previous exercise.
+IMPORTANT: Do not open the gsg_Tool_Manager.tooldb installed
+with this guide. We recommend that you leave that file unchanged in
+case you need to start over.
+3 	Open each of the document types
+by double-clicking its library
+component in the Database
+Explorer.
+TIP: As with any document type, you can close the Start page by
+clicking the X in its tab. Closing the Start page is optional.
+4 	Review the buttons in the New Component, New Milling, and New Hole
+Making In-Ribbon Gallery sections. Hover your mouse over each icon to view
+a pop-up tooltip.
+Below the following graphic are brief descriptions of each ribbon bar item.
+Detailed procedures are covered in the Working with Components in a Tool
+Library (page 31).
+ 	Holder - Puts focus on the Holders document, and opens the Holder
+Wizard where you can create a new holder and add it to the library
+database.
+ 	Assembly - Puts focus on the Assemblies document, and opens the
+Assembly Tree where you can create a new assembly.
+
+-- 30 of 66 --
+
+SEARCHING FOR A LIBRARY COMPONENT 27
+TOOL MANAGER GETTING STARTED GUIDE
+ 	Material - Puts focus on the Materials document, adds a blank row, and
+allows you to create a new material by defining its properties in the
+Properties Grid.
+ 	Cut Parameter - Puts focus on the Cut Parameters document, adds a
+blank row, and allows you to create a new cut parameter by defining its
+properties in the Properties Grid.
+ 	New Milling - Puts focus on the Tools document and opens the Tool
+Wizard where you can create a new milling tool.
+ 	New Hole Making - Puts focus on the Tools document and opens the
+Tool Wizard where you can create a new drilling tool.
+TIP: Single-click an item in a document to edit its parameters in the
+Properties Grid. Alternatively, double-click any tool or holder to open the
+Tool Wizard or Holder Wizard where you can edit parameters. You can
+also edit assemblies in the Assembly Tree. Edits you make in the
+Assembly Tree update the parameters in the Properties Grid.
+Exercise 3: Searching for a Library Component
+In this exercise, you search for a tool library component using the Search window.
+1 	In the Home ribbon bar, click the
+Search button. This opens the
+Search window.
+NOTE: If you do not already have a database (TOOLDB) open, this
+button takes you to an Open dialog box, where you can navigate to and
+open a database. If you cancel the Open dialog box, the Search window
+still opens, and you can access a database from the Open button.
+2 	Select the Tools button in the
+Search window ribbon bar. You can
+select any button in the ribbon bar
+to search for a particular type of
+database item, but for this exercise
+you search for tools.
+
+-- 31 of 66 --
+
+28 MASTERCAM X8/ Working with Tool Library Files (.TOOLDB)
+TOOL MANAGER GETTING STARTED GUIDE
+3 	Select items from the Search Item and Condition drop-down lists, and enter
+appropriate search criteria in the Value field to further narrow (filter) your
+search. For this procedure, enter values as shown below.
+NOTES:
+ As soon as you choose a Search Item, a new row in the datagrid
+appears, allowing you to search by more than one Search Item.
+ To remove a line of search criteria, select it and press the [Delete] key
+on your keyboard.
+ To execute the search, click the search item button in the
+Search window toolbar. Alternatively, you can press [Ctrl] +
+[Enter] on your keyboard.
+4 	When you finish entering search
+criteria, click the Search button in
+the ribbon bar to display your search
+results. Your search results should
+be similar to those shown below.
+
+-- 32 of 66 --
+
+SEARCHING FOR A LIBRARY COMPONENT 29
+TOOL MANAGER GETTING STARTED GUIDE
+These results are automatically added to your Recent Search list, accessed by
+clicking the Recent button in the ribbon bar.
+NOTE: If you do not enter any search criteria before executing a search,
+the search results display all items matching the type of search you are
+conducting. For example, searching for tools without entering search
+criteria results in a list of all tools in the current database.
+5 	Save the search as a favorite for future reference as follows:
+a 	Click the Favorite button in the
+toolbar.
+b Enter FlutesMetricDiameter for
+the name of the search, and click
+Add.
+c 	The name of the saved Favorite is
+listed in the Favorites folder,
+where you can double-click it to
+recall those specific search
+results.
+
+-- 33 of 66 --
+
+30 MASTERCAM X8/ Working with Tool Library Files (.TOOLDB)
+TOOL MANAGER GETTING STARTED GUIDE
+6 	To add an item to a database already open in Tool Manager, drag the item
+from your Search Window and drop it into Tool Manager&#39;s Database Explorer.
+The item is added to the appropriate document. For example, if you drag and
+drop a tool into the Database Explorer, Tool Manager will always add it to the
+Tools document, even if you try to drop it into the Assemblies document.
+TIP: Use the Default Searches folder in the Search Window to open
+common database searches installed with Mastercam. Double-click a
+search to open it.
+7 	Click the X in the Search window upper right corner to close the window.
+
+-- 34 of 66 --
+
+LESSON 4
+4Working with Components in a Tool
+Library
+In this lesson, you learn how to create and edit tool library components.
+Lesson Goals
+ 	Create and edit tools, holders, and assemblies
+ 	Use the graphics window display to edit assemblies
+ 	Add and edit materials and cut parameters
+Exercise 1: Creating New Tools and Holders
+For this exercise, you create a bull-nosed end mill, but the procedure is similar for any
+milling or drilling tool type. For a different tool type, select it from the New Milling or
+New Hole Making In-Ribbon Gallery buttons. To expand the display of all tool type
+choices, use the controls shown below.
+Creating New Tools
+1 	If necessary, click the Open button
+and open the
+gsg_Tool_Manager_Tut.tooldb
+file.
+2 	Click the Bull-Nosed tool type in the
+New Milling ribbon bar. This opens
+the Tool Wizard.
+
+-- 35 of 66 --
+
+32 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+3 	In the Tool Wizard Define Tool Geometry page, change the following
+parameters:
+ 	Enter 85 in the Overall length field.
+ 	Enter 30 in the Cutting length field.
+4 	Make sure your parameters in the Define Tool Geometry page match those
+shown in the graphic below. Note that the image updates as you make
+changes.
+TIP: Click the Show More Options
+bar to see more editable parame-
+ters.
+5 	Click Next to work in the Finalize Properties page.
+6 	In the Finalize Properties page, make the following changes:
+ 	Enter 1 in the Tool number field.
+ 	Enter 21 in the Length offset field and 41 in the Diameter offset field.
+
+-- 36 of 66 --
+
+CREATING NEW TOOLS AND HOLDERS 33
+TOOL MANAGER GETTING STARTED GUIDE
+7 	Click the Coolant button. At this point, do not make any changes, just know
+that these options are available.
+8 	Click Cancel to return to the Tool Wizard.
+9 	Make sure your edits in the Finalize Properties page match those shown in the
+graphic below.
+NOTE: The Speeds and Feeds
+Calculator is unavailable in the
+stand-alone Tool Manager, only
+when accessed through Mastercam.
+These calculations require an active
+machine group with a workpiece
+material defined.
+10 	Click Finish to save your changes. This adds the new tool to the open library
+(database), and closes the Tool Wizard.
+
+-- 37 of 66 --
+
+34 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+Creating New Holders
+For this exercise, you create a new tool holder.
+1 	Click the Holder button in the New
+Component section of the Home
+ribbon bar. This opens the Holder
+Wizard.
+2 	In the Holder Wizard Define Holder Geometry page, change the following
+parameters:
+ 	For the Upper, Type drop-down field, select CAT.
+ 	For the Upper, Size field, enter 30 and press Enter. This displays and
+highlights the holder that matches your entered parameters.
+3 	Make sure your parameters in the Define Holder Geometry page match those
+shown in the graphic below.
+
+-- 38 of 66 --
+
+CREATING NEW TOOLS AND HOLDERS 35
+TOOL MANAGER GETTING STARTED GUIDE
+NOTE: If you need to add and define a new segment, click the Add
+Segment button and define the segment parameters in the database
+grid. If you add a segment and then decide that you do not need it, click
+the leftmost cell for that row and press the [Delete] key.
+4 	Click Next to work in the Finalize Properties page.
+5 	In the Finalize Properties page, enter GSG Main Holder in the Description
+field and click the Thru coolant checkbox to set the coolant option to flow
+through the holder.
+6 	Make sure your edits in the Finalize Properties page match those shown in the
+graphic below.
+7 	Click Finish to save your changes. This adds the new holder to the open
+library (database), and closes the Holder Wizard.
+
+-- 39 of 66 --
+
+36 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+Exercise 2: Editing Existing Tools
+In this exercise, you edit a tool by accessing the Tool Wizard through the stand-alone
+Tool Manager. Editing a holder is similar so it is not covered. The only difference is,
+when you are editing holders, you work in the Holder Wizard as described in the
+previous exercise.
+NOTE: In addition to editing tools and holders through wizards, you
+can select the component in the document, and edit its properties in the
+Properties Grid.
+1 	Open the Tools document and double-click tool number 463 (3. FLAT
+ENDMILL). This opens the tool in the Tool Wizard.
+2 	In the Tool Wizard Define Tool Geometry page, change the following
+parameters:
+ 	Enter 5 in the Cutting diameter field.
+ 	Enter 50 in the Overall length field.
+ 	Enter 25 in the Cutting length field.
+ 	Enter 30 in the Shoulder length field.
+
+-- 40 of 66 --
+
+EDITING EXISTING TOOLS 37
+TOOL MANAGER GETTING STARTED GUIDE
+NOTE: If you see a message in the graphics display similar to the one
+shown below, ignore it for this exercise. As you complete entering the
+values, the error messages are replaced with the tool graphic because
+you have resolved all geometric property conflicts.
+3 	Make sure your parameters in the Define Tool Geometry page match those
+shown in the following graphic.
+4 	Click Next to work in the Finalize Properties page.
+
+-- 41 of 66 --
+
+38 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+5 	In the Finalize Properties page, make the following changes:
+ 	Enter 2 in the Tool number field.
+ 	Enter 22 in the Length offset field and 42 in the Diameter offset field.
+ 	Enter FLAT ENDMILL - GSG in the Name field.
+6 	Make sure your edits in the Finalize Properties page match those shown in the
+following graphic.
+7 	Click Finish to save your changes. This adds the edited tool to the open
+library (database), and closes the Tool Wizard.
+Exercise 3: Creating and Editing Assemblies
+In this exercise, you create a new assembly and edit it by removing and adding
+assembly components.
+Creating Assemblies
+Create assemblies using a drag and drop method, as described in the following proce-
+dure. Although here you only add one holder to the assembly, you can add multiple
+holders as segments of a single holder using the same drag and drop method.
+1 	Click the Assembly button in the
+New Component section of the
+Home ribbon bar. This puts focus on
+the Assembly Tree and opens the
+Assemblies document.
+2 	Drag and drop a CAT-40 (name C4E4-1000) holder from the Holders
+document into the assembly.
+
+-- 42 of 66 --
+
+CREATING AND EDITING ASSEMBLIES 39
+TOOL MANAGER GETTING STARTED GUIDE
+3 	Drag and drop tool number 448 (23. CBORE) from the Tools document into
+the assembly.
+NOTE: View a graphical representation of your assembly in the
+graphics window by clicking the top line of the assembly.
+
+-- 43 of 66 --
+
+40 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+Deleting and Adding Assembly Components
+Replace an assembly component by deleting it and adding a different component. The
+following process shows how to change a tool in an assembly. This same process
+applies to any component type in assemblies.
+To change the tool in the assembly:
+1 	Click the 23. CBORE tool in the assembly and press the [Delete] key.
+2 	Drag and drop the 12.6 CBORE tool (tool number 396) from the Tools
+document onto the holder in the Assembly Tree.
+Delete that tool from the assembly and add the 23.CBORE tool (tool number 448)
+back into the assembly.
+NOTE: As you add and remove assembly components, notice that the
+name of the assembly changes.
+
+-- 44 of 66 --
+
+CREATING AND EDITING ASSEMBLIES 41
+TOOL MANAGER GETTING STARTED GUIDE
+Editing Assemblies in the Properties Grid
+Edit general assembly properties or assembly components by editing the properties in
+the Properties Grid. Follow these steps to edit the 23. CBORE C4E4-1000 assembly you
+created in the previous exercise.
+1 	Click the 23. CBORE tool in the
+assembly.
+2 	In the Properties Grid, make the
+following changes:
+ 	Enter New Assembly Tool in the
+Description field.
+ 	In the Manufacturer Name field,
+choose Mastercam Imported
+Data from the drop-down list.
+ 	Select the Variable Pitch
+checkbox.
+ 	In the Crib Location field, enter
+E-2044.
+3 	Make sure your changes match the
+graphic shown.
+NOTES:
+ Use ellipses buttons for the Edit
+Geometry and Coolant fields to
+access the Tool Wizard and
+Coolant dialog box to edit those
+properties.
+ Use editable fields to change properties and parameters for the
+item you have selected.
+Make changes to holders and assemblies in the Assembly Tree by editing properties in
+the Properties Grid. Changes are automatically saved to the database as you work.
+
+-- 45 of 66 --
+
+42 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+For detailed information on using the Assembly Tree and the Properties Grid, click the
+Help button in Tool Manager.
+Editing Assemblies in the Graphics Window
+Besides editing assemblies by changing settings in the Properties Grid, you can reposi-
+tion the assembly (or its extensions) along the center line of the tool in the graphics
+window.
+1 	In the Assembly document datagrid, select the assembly you worked on in the
+previous procedure (23. CBORE C4E4-1000).
+2 	In the graphics window, place your cursor over the holder, hold down the
+[Ctrl] key, and click the holder. The assembly is highlighted and a dynamic
+ruler displays.
+NOTES:
+ The ruler always displays absolute dimensions, which means that the tool
+projection value is always measured from the tool tip to the face of the
+holder.
+ When you hover over the holder, press the [Ctrl] key to have the
+cursor indicate this mode. If the cursor does not change, you may
+need to click the holder to put focus in the graphics window.
+3 	Once the ruler displays, move your mouse back and forth along the center
+line of the tool to change the length that the tool extends from the holder.
+You will see the dynamic ruler floating, and the tool projection value in the
+text box changes with your mouse movement.
+
+-- 46 of 66 --
+
+ADDING OR EDITING MATERIALS AND CUT PARAMETERS 43
+TOOL MANAGER GETTING STARTED GUIDE
+4 	Click anywhere off the tool or holder in the graphics window to set the
+projection distance of the tool.
+TIPS:
+ When you change the Tool Projection value in the graphics window,
+notice that the Tool Projection field in the Properties Grid updates. You
+can also use the Tool Projection field in the Properties Grid to change
+those values.
+ When the dynamic ruler is active, change the ruler increments by
+zooming in or out with your mouse wheel. This is helpful if you want
+to be more or less precise in your Tool Projection value. The number
+of graduations are appropriate to the selected units specified in the
+Options dialog box.
+ With the ruler active, click and drag it to snap your Tool Projec-
+tion value to the ruler&#39;s incremental distance lines.
+Exercise 4: Adding or Editing Materials and Cut Parameters
+Adding or Editing Materials
+Workpiece materials are part of Mastercam Tool Manager&#39;s TOOLDB database files.
+They display in the Materials document in Tool Manager. Although you can edit some
+of the materials&#39; properties in the Properties Grid, the Materials document is primarily
+used for reference information when working with cut parameters.
+NOTE: Since it isn&#39;t possible for a tool manufacturer to test every
+possible material for every tool, the workpiece materials specified in a
+tool library may not match the actual material for a given job. Use the
+ISO group property to find a suitable cut parameter setting as a starting
+point.
+1 	If necessary, open the Tool Manager from the Start menu and load the
+TOOLDB you have been working with.
+
+-- 47 of 66 --
+
+44 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+2 	Click the Material button. This
+opens the Materials document, and
+adds a new row to the datagrid.
+3 	Select the first row in the Materials document and set the material parameters
+in the Properties Grid as described below:
+ 	In the Name field, enter
+Aluminum.
+ 	In the Hardness field, enter 60.
+ 	In the Hardness Units drop-
+down, choose Rockwell B
+Hardness.
+ 	In the ISO Group Value drop-
+down, choose N-Aluminum,
+Copper, and Non-Metallic.
+4 	To edit the materials properties for that same material, change the following
+values in the Properties Grid as described below:
+ 	In the Name field, enter
+Aluminum - 6061.
+ 	In the Hardness field, enter 95.
+ 	In the Hardness Units drop-
+down, choose Brinell Hardness
+Scale.
+NOTE: Remember that as you work in Tool Manager, including the Prop-
+erties Grid, your changes are automatically saved to the database.
+
+-- 48 of 66 --
+
+ADDING OR EDITING MATERIALS AND CUT PARAMETERS 45
+TOOL MANAGER GETTING STARTED GUIDE
+Adding or Editing Cut Parameters
+Cut parameters are part of Mastercam Tool Manager&#39;s TOOLDB database files. They
+display in the Cut Parameters document in Tool Manager, where you can edit them as
+needed. These parameters are primarily used in Mastercam when you import cutting
+speed and feed per tooth data into an operation.
+1 	Click the Cut Parameter button.
+This opens the Cut Parameters
+document, and adds a new row to
+the datagrid.
+2 	Select the first row in the Cut Parameters document and set the material
+parameters in the Properties Grid as described below:
+ 	In the Material field, select
+Aluminum - 6061.
+ 	Make sure the Metric checkbox
+is checked.
+ 	In the Name field, enter
+Shouldering Aluminum with
+16mm Endmill.
+ 	In the Operation Type field,
+select Shouldering.
+ 	In the Axial Depth of Cut field,
+enter 10.
+ 	In the Feed Per Tooth field,
+enter 0.075.
+ 	In the Radial Depth of Cut field,
+enter 8.
+ 	In the Surface Speed field, enter
+90.
+ 	In the Maximum Diameter field,
+enter 18.
+ 	In the Minimum Diameter field,
+enter 16.
+Make sure your values match those
+shown in the graphic.
+
+-- 49 of 66 --
+
+46 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+NOTES:
+ Some of the fields, such as Hardness, are automatically populated
+and non-editable because that information comes from the Material
+you choose.
+ If you are creating a new database or if the desired workpiece material
+does not exist, you need to create the material before creating the cut
+parameters.
+ Although you do not edit these values again for this guide, you
+can edit the cut parameters in the Properties Grid as you did for
+the materials in the Adding or Editing Materials section.
+3 	Leave the stand-alone Tool Manager open.
+Exercise 5: Accessing Cut Parameters from Mastercam
+In this exercise, you apply the cut parameters you created to a Mastercam toolpath to
+update the surface speed and feed per tooth values.
+1 	Start Mastercam.
+2 	Open the part file Dynamic_Mill_Rest.mcx-8, provided with this guide.
+3 	Choose File, Save As, and save the part under a different file name. This
+protects the original part file from being overwritten.
+
+-- 50 of 66 --
+
+ACCESSING CUT PARAMETERS FROM MASTERCAM 47
+TOOL MANAGER GETTING STARTED GUIDE
+4 	Click the Parameters icon for the second operation in the Toolpaths
+Manager.
+5 	In the Tool page, right-click and choose Search for cut parameters.
+This opens the Search window.
+6 	Click the File tab in the Search window and open the
+gsg_Tool_Manager_Tut.tooldb containing the cut parameters you created.
+
+-- 51 of 66 --
+
+48 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+7 	Make sure the search criteria is set as shown below, and click the Search
+button.
+Your search results will display the cut parameters you created in the previous
+exercise.
+8 	Select the resulting cut parameters and click the Accept button.
+This closes the Search window, and populates the Tool page feed per tooth
+(FPT) and cutting speed (CS) values with the parameter values you accepted.
+9 	Click OK in the operations dialog, save the part file, and close Mastercam.
+
+-- 52 of 66 --
+
+COPYING COMPONENTS BETWEEN TOOL LIBRARIES 49
+TOOL MANAGER GETTING STARTED GUIDE
+Exercise 6: Copying Components Between Tool Libraries
+Use drag and drop to copy items from one database to another. To do this, you must
+have two or more sessions of Tool Manager open concurrently.
+1 	Start another session of Tool Manager through the Windows’ Start menu.
+NOTE: You should still have the gsg_Tool_Manager_Tut.tooldb open in
+the current session of Tool Manager.
+2 	Click the Open button and navigate to this guide’s install location.
+3 	Select the gsg_Tool_Manager.tooldb and click Open to load the database.
+4 	Position the two sessions of Tool Manager side-by-side or one partly covering
+the other, resizing the windows as necessary.
+5 	Open the Tools document in each Tool Manager window.
+6 	In the gsg_Tool_Manager_Tut.tooldb session of Tool Manager, select tool
+number 1 (12 Bull-Nosed Endmill).
+7 	Drag and drop the 12 Bull-Nosed Endmill onto Cutting Tools in the
+gsg_Tool_Manager.tooldb session of Tool Manager. Because the copied
+tool has the same tool number as an existing tool, it is renumbered to the
+next available number. You need to locate it in the
+gsg_Tool_Manager.tooldb, and change its tool number.
+
+-- 53 of 66 --
+
+50 MASTERCAM X8/ Working with Components in a Tool Library
+TOOL MANAGER GETTING STARTED GUIDE
+NOTES:You can copy database items under the following drag and drop
+conditions:
+ From one database Assemblies, Holders, Tools, Materials, or Cut
+Parameters document to another database&#39;s document of the same
+type.
+ From any Assemblies, Holders, or Tools document in one data-
+base to the Assembly Tree of another to build or copy new
+assemblies.
+8 	Close both sessions of the stand-alone Tool Manager.
+
+-- 54 of 66 --
+
+LESSON 5
+5Using Tools and Holders, in Toolpaths
+In this lesson, you learn to work in Mastercam’s classic Mill Tool Manager using the
+stand-alone Tool Manager’s integrated functions.
+Lesson Goal
+ 	Create and edit tools and holders using classic Tool Manager
+Exercise 1: Creating New Tools and Holders for a Dynamic Mill
+Contour Toolpath
+In this exercise, you create a new tool and holder from within Mastercam. These
+tooling components are applied to a dynamic mill toolpath on the part supplied with
+this guide.
+Creating a New Tool
+1 	Start Mastercam.
+2 	Open the part file Dynamic_Mill_Rest.mcx-8, provided with this guide.
+
+-- 55 of 66 --
+
+52 MASTERCAM X8/ Using Tools and Holders, in Toolpaths
+TOOL MANAGER GETTING STARTED GUIDE
+3 	Choose File, Save As, and save the part under a different file name. This
+protects the original part file from being overwritten.
+4 	Click the Parameters icon for the first operation in the Toolpaths Manager.
+5 	In the Tool page of the Dynamic Mill dialog box, right-click in the tool list and
+choose Create new tool. This opens the Tool Wizard.
+6 	In the Select Tool Type page, select End Mill, and click Next.
+7 	In the Define Tool Geometry page set the following tool parameters:
+ 	Enter 18 in the Cutting diameter field.
+ 	Enter 90 in the Overall length field.
+ 	Enter 60 in the Cutting length field.
+ 	Make sure the Shoulder length field has a value of 60.
+ 	Make sure the Shank diameter field has a value of 18.
+8 	Make sure your parameters in the Define Tool Geometry page match those
+shown in the following graphic.
+
+-- 56 of 66 --
+
+CREATING NEW TOOLS AND HOLDERS FOR A DYNAMIC MILL CONTOUR TOOLPATH 53
+TOOL MANAGER GETTING STARTED GUIDE
+9 	Click Next to work in the Finalize Properties page.
+10 	In the Finalize Properties page, make the following changes:
+ 	Enter 18 Flat Endmill - GSG in the Name field.
+ 	Enter New Tool for GSG in the Description field.
+11 	Make sure your parameters in the Finalize Properties page match those
+shown in the graphic below.
+12 	Click Finish to save your changes. This adds the new tool to the part, closes
+the Tool Wizard, and returns you to the Tool page.
+
+-- 57 of 66 --
+
+54 MASTERCAM X8/ Using Tools and Holders, in Toolpaths
+TOOL MANAGER GETTING STARTED GUIDE
+13 	In the Holder page of the Dynamic
+Mill dialog box, choose the Open
+library button, navigate to your
+gsg_Tool_Manager_Tut.tooldb,
+and open that library.
+NOTE: Text in the window indicates
+the current library.
+14 	Choose the New holder button. This
+opens the Holder Wizard.
+15 	In the Define Holder Geometry page set the following tool parameters:
+ 	Choose CAT from the Upper connection Type drop-down field.
+ 	Enter 30 in the Upper connection Size field.
+ 	Enter 18 in the Lower connection Size field.
+16 	Make sure your parameters in the Define Holder Geometry page match those
+shown in the graphic below.
+17 	Click Next to work in the Finalize Properties page.
+18 	In the Finalize Properties page, make the following changes:
+ 	Enter New Holder for GSG in the Description field.
+ 	Check the Thru coolant checkbox to set the coolant to flow through the
+holder.
+19 	Make sure your parameters in the Finalize Properties page match those
+shown in the following graphic.
+
+-- 58 of 66 --
+
+CREATING NEW TOOLS AND HOLDERS FOR A DYNAMIC MILL CONTOUR TOOLPATH 55
+TOOL MANAGER GETTING STARTED GUIDE
+20 	Click Finish to save your changes. This adds the new holder to the part, closes
+the Holder Wizard, and returns you to the Holder page.
+NOTE: You can see the new holder is added to the list, but not yet saved
+to the library. This is indicated with a message in the window and an
+asterisk next to the new holder name.
+
+-- 59 of 66 --
+
+56 MASTERCAM X8/ Using Tools and Holders, in Toolpaths
+TOOL MANAGER GETTING STARTED GUIDE
+21 	Click the Save library button to
+open a dialog box where you can
+navigate to the .TOOLDB and save
+the new holder to your library.
+22 	Click OK in the Dynamic Mill dialog box. This marks the toolpath dirty.
+23 	Click the Regenerate all selected
+operations button to update the
+toolpath.
+Exercise 2: Editing Tools and Holders for a Pocket Toolpath
+In this exercise, you edit a tool and holder.
+1 	Click the Parameters icon for the second operation in the Toolpaths
+Manager, and go to the Tool page.
+2 	Right-click tool #476 and choose Edit tool. This opens the Tool Wizard.
+
+-- 60 of 66 --
+
+EDITING TOOLS AND HOLDERS FOR A POCKET TOOLPATH 57
+TOOL MANAGER GETTING STARTED GUIDE
+3 	In the Define Tool Geometry page, change the Shank diameter to 22.
+4 	Click Finish to save your changes. This closes the Tool Wizard, and returns
+you to the Tool page.
+5 	Click OK in the Pocket dialog box, and regenerate the operation.
+6 	Click the Parameters icon for the first operation in the Toolpaths Manager.
+7 	Go to the Holder page, right-click the CAT 30 - ID 0 holder and choose Edit
+Holder. This opens the Holder Wizard. Your list may not look exactly like the
+graphic shown.
+
+-- 61 of 66 --
+
+58 MASTERCAM X8/ Using Tools and Holders, in Toolpaths
+TOOL MANAGER GETTING STARTED GUIDE
+8 	In the Define Holder Geometry page, click Next to leave settings as is.
+9 	In the Finalize Properties page, change the Name to CAT 30 - ID 0 - GSG.
+10 	Click Finish to save your changes. This adds the edited holder to the part,
+closes the Holder Wizard, and returns you to the Holder page.
+11 	Save your changes to the library as described in the previous exercise.
+12 	Click OK in the Dynamic Mill dialog box.
+13 	Save the part file.
+Conclusion
+Congratulations! You have completed the
+Tool Manager Getting Started Guide tuto-
+rial. Now that you have mastered the skills in this tutorial, explore Mastercam’s other
+features and functions.
+You may be interested in other tutorials that we offer. The Mastercam tutorial series is
+in continual development, and we will add modules as we complete them. For infor-
+mation and availability, please visit our website.
+Mastercam Resources
+Enhance your Mastercam experience by using the following resources:
+	
+Mastercam Help—Also, most dialog boxes and ribbon bars feature a Help
+button that opens Mastercam Help directly to related information.
+	
+Mastercam Reseller—Your local Mastercam Reseller can help with most
+questions about Mastercam.
+	
+Technical Support—CNC Software’s Technical Support department (860-875-
+5006 or support@mastercam.com) is open Monday through Friday from 8:00
+a.m. to 5:30 p.m. USA Eastern Standard Time.
+	
+Mastercam University—CNC Software sponsors Mastercam University, an
+affordable online learning platform that gives you 24/7 access to Mastercam
+training materials. Take advantage of more than 180 videos to master your
+skills at your own pace and help prepare yourself for Mastercam Certification.
+For more information on Mastercam University, please contact your
+Authorized Mastercam Reseller, visit www.mastercamu.com, or email
+training@mastercam.com.
+
+-- 62 of 66 --
+
+MASTERCAM DOCUMENTATION 59
+TOOL MANAGER GETTING STARTED GUIDE
+	
+Online communities— You can find a wealth of information, including many
+videos, at www.mastercam.com.
+For tech tips and the latest Mastercam news, you can join us on Facebook
+(www.facebook.com/mastercam), follow us on Twitter (www.twitter.com/
+mastercam), and subscribe to our blog,
+Mastercam Xtras (http://
+blog.mastercam.com). Visit our YouTube channel to see Mastercam in action
+(www.youtube.com/user/MastercamCadCam)!
+Registered users can search for information or ask questions on the
+Mastercam Web forum, forum.mastercam.com, or use the knowledge base at
+kb.mastercam.com. To register, select Help, Link on Mastercam.com from
+the Mastercam menu and follow the instructions.
+Mastercam Documentation
+Mastercam installs the following documents in the \Documentation folder of your
+Mastercam installation:
+	
+What’s New in Mastercam X8
+	
+Mastercam X8 Installation Guide
+	
+Mastercam X8 Administrator Guide
+
+-- 63 of 66 --
+
+60 MASTERCAM X8/ Using Tools and Holders, in Toolpaths
+TOOL MANAGER GETTING STARTED GUIDE
+	
+Mastercam X8 Transition Guide
+	
+Mastercam X8 Quick Reference Card
+	
+Mastercam X8 Post Debugger User’s Guide
+	
+Mastercam X8 ReadMe
+Contact Us
+For questions about this or other Mastercam documentation, contact the Technical
+Documentation department by email at techdocs@mastercam.com.
+
+-- 64 of 66 --
+
+
+
+-- 65 of 66 --
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+Attention! Updates may be available.
+Go to Mastercam.com/Support for the latest downloads.
+
+-- 66 of 66 --
+
+</pre>
+</body></html>

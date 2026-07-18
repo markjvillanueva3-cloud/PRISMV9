@@ -1,0 +1,3186 @@
+{
+  "CAMX-V17-P11::U-CAMX14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CAMX-V17-P11::U-CAMX15": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CAMX-V17-P12::U-CAMX01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CAMX-V17-P12::U-CAMX02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CAMX-V17-P12::U-CAMX03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Adds web UI page or visualization to frontend-prism-web. Backed by prism_cam / prism_calc dispatcher actions exposed over HTTP. Consumers: operator dashboards, shop-floor browsers, Cowork-mode connectors.",
+    "csDepth": [
+      "UI calls must paginate or stream; a CAMX-V17 endpoint can return >1MB of strategy-compare JSON, render incrementally.",
+      "API surface should reuse existing dispatchers, NOT add a new HTTP route per page (avoid surface duplication)."
+    ]
+  },
+  "CAMX-V17-P12::U-CAMX04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CAMX-V17-P12::U-CAMX05": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md"
+    ],
+    "addSeWiki": [
+      "recall-injection-flow",
+      "doc-reflection-rule",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Updates CODE_SYSTEM_INDEX / master-index / reference_system_capabilities so the master-index search-first injector returns fresh top-K hits on every UserPromptSubmit + every subagent spawn (subagent-per-task-presearch).",
+    "csDepth": [
+      "Index regeneration must be idempotent + atomic; system-graph.json has 3 independent writers and last-writer-wins (documented regression class).",
+      "Index reads happen on every prompt; lookup cost must stay O(log n) (BM25-lite over pre-indexed tokens), NOT O(n) full-file scan."
+    ]
+  },
+  "CAMX-V17-P12::U-CAMX06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_ai.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Wires a reasoning or inference engine (DecisionTree, InferenceChain, XAI, Fuzzy, Convex, Prediction) into prism_ai or prism_cam so PipelineDecisionOrchestrator can call it. Consumers: cam_strategy_recommend, cam_strategy_optimal_select, and KnowledgeInjectionPipeline outcome feedback.",
+    "csDepth": [
+      "Inference call is on the hot path for every CAM strategy pickup; cap per-call latency (<200ms) with a fail-soft fallback so a wedged model server cannot stall the pipeline.",
+      "XAI output must be tagged with provenance metadata (engine, confidence, explanation) so outcome-feedback can attribute correctness."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX05": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Generic engine-wire: adds an engine reference to PipelineDecisionOrchestrator and exposes it via the appropriate prism_* dispatcher action. Consumers depend on the engine surface (see related-subsystems).",
+    "csDepth": [
+      "Wire-only changes must include both the dispatcher z.enum entry AND the action handler; a missing handler 9/9-passes hermetic tests but 100%-fails production (R8/R12).",
+      "Engine must also be added to BUILD_STATE.WIRED via build-state-snapshot, or auditors continue reporting it as orphan."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/extracts/freecad-complete-inventory.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Loads manufacturer (Sandvik, Guhring, Iscar, Kennametal) cutting-data tables into UltimateSpeedFeedEngine so prism_calc:speed_feed and prism_cam strategy advisors return manufacturer-validated values instead of Kienzle-only defaults.",
+    "csDepth": [
+      "Manufacturer tables are sparse: lookup keys (material x tool-diameter x DOC) miss often; need 2D bilinear interpolation with fail-soft fallback to Kienzle.",
+      "Cross-vendor unit conventions differ (mm/min vs ipm, m/min vs SFM); a single normalization pass at load time avoids per-call conversion cost."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_ai.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Wires a reasoning or inference engine (DecisionTree, InferenceChain, XAI, Fuzzy, Convex, Prediction) into prism_ai or prism_cam so PipelineDecisionOrchestrator can call it. Consumers: cam_strategy_recommend, cam_strategy_optimal_select, and KnowledgeInjectionPipeline outcome feedback.",
+    "csDepth": [
+      "Inference call is on the hot path for every CAM strategy pickup; cap per-call latency (<200ms) with a fail-soft fallback so a wedged model server cannot stall the pipeline.",
+      "XAI output must be tagged with provenance metadata (engine, confidence, explanation) so outcome-feedback can attribute correctness."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_ai.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Wires a reasoning or inference engine (DecisionTree, InferenceChain, XAI, Fuzzy, Convex, Prediction) into prism_ai or prism_cam so PipelineDecisionOrchestrator can call it. Consumers: cam_strategy_recommend, cam_strategy_optimal_select, and KnowledgeInjectionPipeline outcome feedback.",
+    "csDepth": [
+      "Inference call is on the hot path for every CAM strategy pickup; cap per-call latency (<200ms) with a fail-soft fallback so a wedged model server cannot stall the pipeline.",
+      "XAI output must be tagged with provenance metadata (engine, confidence, explanation) so outcome-feedback can attribute correctness."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX13": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_ai.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Wires a reasoning or inference engine (DecisionTree, InferenceChain, XAI, Fuzzy, Convex, Prediction) into prism_ai or prism_cam so PipelineDecisionOrchestrator can call it. Consumers: cam_strategy_recommend, cam_strategy_optimal_select, and KnowledgeInjectionPipeline outcome feedback.",
+    "csDepth": [
+      "Inference call is on the hot path for every CAM strategy pickup; cap per-call latency (<200ms) with a fail-soft fallback so a wedged model server cannot stall the pipeline.",
+      "XAI output must be tagged with provenance metadata (engine, confidence, explanation) so outcome-feedback can attribute correctness."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Generic engine-wire: adds an engine reference to PipelineDecisionOrchestrator and exposes it via the appropriate prism_* dispatcher action. Consumers depend on the engine surface (see related-subsystems).",
+    "csDepth": [
+      "Wire-only changes must include both the dispatcher z.enum entry AND the action handler; a missing handler 9/9-passes hermetic tests but 100%-fails production (R8/R12).",
+      "Engine must also be added to BUILD_STATE.WIRED via build-state-snapshot, or auditors continue reporting it as orphan."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX15": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_safety.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "safety-tier-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Wires a safety, prediction, or collision engine into the SAFETY_VALIDATE stage of DOMAIN-PIPELINE-MS0 so prism_cam:cam_safety_validate and prism_safety see the new check before OPERATOR_GATE. Every cam_* pipeline path gains an additional veto edge; the SAFETY_VALIDATE block plus unconditional OPERATOR_GATE invariant must hold.",
+    "csDepth": [
+      "Safety vetoes must be monotone (a new check cannot REMOVE an existing block); verify via veto-bundle composition test.",
+      "O(features x checks) per pipeline run; budget the new check against the existing per-stage SLO."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX16": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_safety.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "safety-tier-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Wires a safety, prediction, or collision engine into the SAFETY_VALIDATE stage of DOMAIN-PIPELINE-MS0 so prism_cam:cam_safety_validate and prism_safety see the new check before OPERATOR_GATE. Every cam_* pipeline path gains an additional veto edge; the SAFETY_VALIDATE block plus unconditional OPERATOR_GATE invariant must hold.",
+    "csDepth": [
+      "Safety vetoes must be monotone (a new check cannot REMOVE an existing block); verify via veto-bundle composition test.",
+      "O(features x checks) per pipeline run; budget the new check against the existing per-stage SLO."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX17": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_ai.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Wires a reasoning or inference engine (DecisionTree, InferenceChain, XAI, Fuzzy, Convex, Prediction) into prism_ai or prism_cam so PipelineDecisionOrchestrator can call it. Consumers: cam_strategy_recommend, cam_strategy_optimal_select, and KnowledgeInjectionPipeline outcome feedback.",
+    "csDepth": [
+      "Inference call is on the hot path for every CAM strategy pickup; cap per-call latency (<200ms) with a fail-soft fallback so a wedged model server cannot stall the pipeline.",
+      "XAI output must be tagged with provenance metadata (engine, confidence, explanation) so outcome-feedback can attribute correctness."
+    ]
+  },
+  "CAMX-V17-P1::U-CAMX18": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_ai.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Wires a reasoning or inference engine (DecisionTree, InferenceChain, XAI, Fuzzy, Convex, Prediction) into prism_ai or prism_cam so PipelineDecisionOrchestrator can call it. Consumers: cam_strategy_recommend, cam_strategy_optimal_select, and KnowledgeInjectionPipeline outcome feedback.",
+    "csDepth": [
+      "Inference call is on the hot path for every CAM strategy pickup; cap per-call latency (<200ms) with a fail-soft fallback so a wedged model server cannot stall the pipeline.",
+      "XAI output must be tagged with provenance metadata (engine, confidence, explanation) so outcome-feedback can attribute correctness."
+    ]
+  },
+  "CAMX-V17-P2::U-CAMX01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_business.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Wires ROI, OEE, CapacityPlanning, ToolROI, or MachineSelection engines into the pipeline so cam_strategy and prism_business endpoints can compare alternatives by dollars-per-part, machine-time, and capacity utilization (not only physics-optimal).",
+    "csDepth": [
+      "ROI requires an actuals feedback loop; close it via prism_business outcome_record so the model learns from observed cycle-times.",
+      "Optimal selection is a constrained MILP under capacity constraints; for small fleets (<20 machines) a greedy heuristic suffices, full MILP is O(n!) over machine-routing."
+    ]
+  },
+  "CAMX-V17-P2::U-CAMX02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_business.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Wires ROI, OEE, CapacityPlanning, ToolROI, or MachineSelection engines into the pipeline so cam_strategy and prism_business endpoints can compare alternatives by dollars-per-part, machine-time, and capacity utilization (not only physics-optimal).",
+    "csDepth": [
+      "ROI requires an actuals feedback loop; close it via prism_business outcome_record so the model learns from observed cycle-times.",
+      "Optimal selection is a constrained MILP under capacity constraints; for small fleets (<20 machines) a greedy heuristic suffices, full MILP is O(n!) over machine-routing."
+    ]
+  },
+  "CAMX-V17-P2::U-CAMX03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_business.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Wires ROI, OEE, CapacityPlanning, ToolROI, or MachineSelection engines into the pipeline so cam_strategy and prism_business endpoints can compare alternatives by dollars-per-part, machine-time, and capacity utilization (not only physics-optimal).",
+    "csDepth": [
+      "ROI requires an actuals feedback loop; close it via prism_business outcome_record so the model learns from observed cycle-times.",
+      "Optimal selection is a constrained MILP under capacity constraints; for small fleets (<20 machines) a greedy heuristic suffices, full MILP is O(n!) over machine-routing."
+    ]
+  },
+  "CAMX-V17-P2::U-CAMX04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/print-to-program.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "atomic-write-idempotency-patterns"
+    ],
+    "systemImpact": "Wires stock-state mutation (StockModel, VoxelStock, CumulativeStockChain, SecondaryOps, StockAllowance) into prism_cam toolpath/feature stages. Consumers: cam_toolpath_generate, cam_feature_recognize; downstream collision_check and simulation rely on the live IPW.",
+    "csDepth": [
+      "Voxel mutations must be sequenced; race between two pipeline iterations yields inconsistent IPW. Use per-job lock.",
+      "Stock model is O(voxel-count); large parts (>10M voxel) need streaming or octree representation, not a naive dense array."
+    ]
+  },
+  "CAMX-V17-P2::U-CAMX05": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/print-to-program.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "atomic-write-idempotency-patterns"
+    ],
+    "systemImpact": "Wires stock-state mutation (StockModel, VoxelStock, CumulativeStockChain, SecondaryOps, StockAllowance) into prism_cam toolpath/feature stages. Consumers: cam_toolpath_generate, cam_feature_recognize; downstream collision_check and simulation rely on the live IPW.",
+    "csDepth": [
+      "Voxel mutations must be sequenced; race between two pipeline iterations yields inconsistent IPW. Use per-job lock.",
+      "Stock model is O(voxel-count); large parts (>10M voxel) need streaming or octree representation, not a naive dense array."
+    ]
+  },
+  "CAMX-V17-P3::U-CAMX01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CAMX-V17-P3::U-CAMX02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/print-to-program.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Speed/feed pipeline change: variation quantification OR full Kienzle path with manufacturer cross-check. Consumers: prism_calc:speed_feed, prism_calc:sfc_*, and every cam_strategy call that invokes UltimateSpeedFeedEngine.",
+    "csDepth": [
+      "Kienzle parameters MUST import from physics/constants.ts; inline values are a hard-block (R5 doctrine).",
+      "Variation quantification needs at least 30 samples for a stable 95% CI; fewer samples should report insufficient-data, not a confident interval."
+    ]
+  },
+  "CAMX-V17-P3::U-CAMX03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CAMX-V17-P3::U-CAMX04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CAMX-V17-P3::U-CAMX05": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CAMX-V17-P3::U-CAMX06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CAMX-V17-P3::U-CAMX11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_safety.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "safety-tier-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Wires a safety, prediction, or collision engine into the SAFETY_VALIDATE stage of DOMAIN-PIPELINE-MS0 so prism_cam:cam_safety_validate and prism_safety see the new check before OPERATOR_GATE. Every cam_* pipeline path gains an additional veto edge; the SAFETY_VALIDATE block plus unconditional OPERATOR_GATE invariant must hold.",
+    "csDepth": [
+      "Safety vetoes must be monotone (a new check cannot REMOVE an existing block); verify via veto-bundle composition test.",
+      "O(features x checks) per pipeline run; budget the new check against the existing per-stage SLO."
+    ]
+  },
+  "CAMX-V17-P3::U-CAMX12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CAMX-V17-P4::U-CAMX01": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P4::U-CAMX02": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P4::U-CAMX03": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P4::U-CAMX04": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P4::U-CAMX05": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P5::U01": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P5::U02": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P5::U03": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P5::U04": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P5::U05": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P6::U01": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P6::U02": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P6::U03": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P6::U04": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P6::U05": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P7::U01": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P7::U02": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P7::U03": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P7::U04": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P7::U05": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P8::U-CAMX01": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P8::U-CAMX02": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P8::U-CAMX03": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P8::U-CAMX04": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P8::U-CAMX05": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P9::U01": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P9::U02": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P9::U03": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P9::U04": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CAMX-V17-P9::U05": {
+    "addArchWiki": [],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Placeholder rollup pointing at CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md detail breakdowns. Treat as documentation pointer or close-out candidate; no executable consumers.",
+    "csDepth": [
+      "Roll-up rows without real unit IDs accumulate envelope drift; MILESTONE_PROGRESS.md will count them as pending indefinitely until close-out reconciles."
+    ]
+  },
+  "CC-EXT-MS0::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md"
+    ],
+    "addSeWiki": [
+      "doc-reflection-rule",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Documentation / spec / setup-sheet / catalog work. Consumers: master-index search-first injector, doc-reflection-rule Stop check, wiki frontmatter validator.",
+    "csDepth": [
+      "Doc-reflection rule requires ALL FOUR surfaces updated in the same session (CLAUDE.md + MEMORY.md + wiki + Obsidian); silent drift is the regression class.",
+      "Wiki entries must carry frontmatter id / category / last_updated; missing fields fail the validator and the entry is skipped on next index rebuild."
+    ]
+  },
+  "CC-EXT-MS0::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CC-EXT-MS0::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CC-EXT-MS1::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CC-EXT-MS1::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CC-EXT-MS1::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CC-EXT-MS2::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CC-EXT-MS2::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CC-EXT-MS2::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CC-EXT-MS3::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CC-EXT-MS6::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CCM-MS0::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS0::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS0::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS0::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS0::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS0::P0-U11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS0::P0-U12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS0::P0-U13": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS0::P0-U14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS0::P0-U15": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CCM-MS0::P0-U16": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CCM-MS10::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS10::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS10::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Subagent / parallel-agent work (reviewer, hunter, wirer, generator, dispatcher, regression, doc-generator). Spawned by Agent tool, receives per-task master-index + tribal pre-search context bundle. Consumers: scrutiny gate, /forge-* skills, /prism-review.",
+    "csDepth": [
+      "Agents in parallel: dispatch in ONE tool block (single message, parallel calls) per CLAUDE.md doctrine; sequential dispatch wastes a round-trip per agent.",
+      "Subagent context bundle is bounded; large prompts get truncated, so pre-search must rank tightly (top-K, default K=5)."
+    ]
+  },
+  "CCM-MS10::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md"
+    ],
+    "addSeWiki": [
+      "doc-reflection-rule",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Documentation / spec / setup-sheet / catalog work. Consumers: master-index search-first injector, doc-reflection-rule Stop check, wiki frontmatter validator.",
+    "csDepth": [
+      "Doc-reflection rule requires ALL FOUR surfaces updated in the same session (CLAUDE.md + MEMORY.md + wiki + Obsidian); silent drift is the regression class.",
+      "Wiki entries must carry frontmatter id / category / last_updated; missing fields fail the validator and the entry is skipped on next index rebuild."
+    ]
+  },
+  "CCM-MS10::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CCM-MS11::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md"
+    ],
+    "addSeWiki": [
+      "doc-reflection-rule",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Documentation / spec / setup-sheet / catalog work. Consumers: master-index search-first injector, doc-reflection-rule Stop check, wiki frontmatter validator.",
+    "csDepth": [
+      "Doc-reflection rule requires ALL FOUR surfaces updated in the same session (CLAUDE.md + MEMORY.md + wiki + Obsidian); silent drift is the regression class.",
+      "Wiki entries must carry frontmatter id / category / last_updated; missing fields fail the validator and the entry is skipped on next index rebuild."
+    ]
+  },
+  "CCM-MS11::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+    ],
+    "addSeWiki": [
+      "token-budget-management",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Performance / monitoring / dedup work: cache hit rate, cascade failure detector, Monte Carlo convergence, silentCatch fire rate, dedup false-positive tracker, hook latency budget, token cost variance.",
+    "csDepth": [
+      "Monte Carlo convergence: stop when CI95 width / mean < epsilon; running to a fixed trial count wastes ~30% of trials at the tail.",
+      "Dedup uses bloom filter with FP rate ~1%; tracking actual FPs lets you tune the bloom size based on observed false-positive density."
+    ]
+  },
+  "CCM-MS11::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md"
+    ],
+    "addSeWiki": [
+      "cron-and-scheduled-task-discipline",
+      "fleet-coordination-discipline"
+    ],
+    "systemImpact": "Scheduled-task / cron addition. Reuses the FLEET-REAPER scheduled-task pattern (S4U or SYSTEM principal; +N-second phase offset to avoid pileup with Cleanup Orchestrator / Memory Pressure Relief / Reaper).",
+    "csDepth": [
+      "Scheduled-task registration is operator-gated (elevated PowerShell once); script MUST be idempotent so re-runs just refresh the timestamp.",
+      "Concurrent runs of the same task can corrupt sidecar state; use a PID lockfile (pattern already in fleet-reaper-sweep.mjs)."
+    ]
+  },
+  "CCM-MS11::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/session-continuity-stack.md",
+      "knowledge/wiki/architecture/obsidian-memory-feed-hook.md",
+      "knowledge/wiki/architecture/master-index-surface.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "handoff-discipline",
+      "token-budget-management"
+    ],
+    "systemImpact": "Memory / session continuity / context-budget / stale-memory work. Consumers: MEMORY.md auto-prune, context-budget skill, session-start-auto-resume, per-agent handoff write/read, terminal-pin slot binding.",
+    "csDepth": [
+      "MEMORY.md hard ceiling = 24576 bytes (truncation); a watchdog must run with scheduled cadence; one-shot compress is insufficient.",
+      "Stale-memory detection needs both age AND access-frequency signals; pruning by age alone evicts hot entries."
+    ]
+  },
+  "CCM-MS11::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS12::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/fleet-reaper.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "fleet-coordination-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Team / swarm / multi-user / cross-platform work. Consumers: prism_orchestrate dispatcher (swarm_execute, swarm_consensus), Stop hook chain, AGENT_CHAT.jsonl bus, per-slot claim system.",
+    "csDepth": [
+      "Team result aggregation must merge with Jaccard dedup on findings (per review-rubric.json); naive list-concat double-counts the same finding from N reviewers.",
+      "Multi-user isolation requires per-tenant state namespacing; cross-tenant pattern sharing is OK only at the 0.5x external-weight level (Shared Learning Bus)."
+    ]
+  },
+  "CCM-MS12::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CCM-MS12::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS12::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CCM-MS12::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/fleet-reaper.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "fleet-coordination-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Team / swarm / multi-user / cross-platform work. Consumers: prism_orchestrate dispatcher (swarm_execute, swarm_consensus), Stop hook chain, AGENT_CHAT.jsonl bus, per-slot claim system.",
+    "csDepth": [
+      "Team result aggregation must merge with Jaccard dedup on findings (per review-rubric.json); naive list-concat double-counts the same finding from N reviewers.",
+      "Multi-user isolation requires per-tenant state namespacing; cross-tenant pattern sharing is OK only at the 0.5x external-weight level (Shared Learning Bus)."
+    ]
+  },
+  "CCM-MS14::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+    ],
+    "addSeWiki": [
+      "token-budget-management",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Performance / monitoring / dedup work: cache hit rate, cascade failure detector, Monte Carlo convergence, silentCatch fire rate, dedup false-positive tracker, hook latency budget, token cost variance.",
+    "csDepth": [
+      "Monte Carlo convergence: stop when CI95 width / mean < epsilon; running to a fixed trial count wastes ~30% of trials at the tail.",
+      "Dedup uses bloom filter with FP rate ~1%; tracking actual FPs lets you tune the bloom size based on observed false-positive density."
+    ]
+  },
+  "CCM-MS14::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+    ],
+    "addSeWiki": [
+      "token-budget-management",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Performance / monitoring / dedup work: cache hit rate, cascade failure detector, Monte Carlo convergence, silentCatch fire rate, dedup false-positive tracker, hook latency budget, token cost variance.",
+    "csDepth": [
+      "Monte Carlo convergence: stop when CI95 width / mean < epsilon; running to a fixed trial count wastes ~30% of trials at the tail.",
+      "Dedup uses bloom filter with FP rate ~1%; tracking actual FPs lets you tune the bloom size based on observed false-positive density."
+    ]
+  },
+  "CCM-MS14::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+    ],
+    "addSeWiki": [
+      "token-budget-management",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Performance / monitoring / dedup work: cache hit rate, cascade failure detector, Monte Carlo convergence, silentCatch fire rate, dedup false-positive tracker, hook latency budget, token cost variance.",
+    "csDepth": [
+      "Monte Carlo convergence: stop when CI95 width / mean < epsilon; running to a fixed trial count wastes ~30% of trials at the tail.",
+      "Dedup uses bloom filter with FP rate ~1%; tracking actual FPs lets you tune the bloom size based on observed false-positive density."
+    ]
+  },
+  "CCM-MS14::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+    ],
+    "addSeWiki": [
+      "token-budget-management",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Performance / monitoring / dedup work: cache hit rate, cascade failure detector, Monte Carlo convergence, silentCatch fire rate, dedup false-positive tracker, hook latency budget, token cost variance.",
+    "csDepth": [
+      "Monte Carlo convergence: stop when CI95 width / mean < epsilon; running to a fixed trial count wastes ~30% of trials at the tail.",
+      "Dedup uses bloom filter with FP rate ~1%; tracking actual FPs lets you tune the bloom size based on observed false-positive density."
+    ]
+  },
+  "CCM-MS14::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+    ],
+    "addSeWiki": [
+      "token-budget-management",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Performance / monitoring / dedup work: cache hit rate, cascade failure detector, Monte Carlo convergence, silentCatch fire rate, dedup false-positive tracker, hook latency budget, token cost variance.",
+    "csDepth": [
+      "Monte Carlo convergence: stop when CI95 width / mean < epsilon; running to a fixed trial count wastes ~30% of trials at the tail.",
+      "Dedup uses bloom filter with FP rate ~1%; tracking actual FPs lets you tune the bloom size based on observed false-positive density."
+    ]
+  },
+  "CCM-MS14::P0-U11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS14::P0-U12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Subagent / parallel-agent work (reviewer, hunter, wirer, generator, dispatcher, regression, doc-generator). Spawned by Agent tool, receives per-task master-index + tribal pre-search context bundle. Consumers: scrutiny gate, /forge-* skills, /prism-review.",
+    "csDepth": [
+      "Agents in parallel: dispatch in ONE tool block (single message, parallel calls) per CLAUDE.md doctrine; sequential dispatch wastes a round-trip per agent.",
+      "Subagent context bundle is bounded; large prompts get truncated, so pre-search must rank tightly (top-K, default K=5)."
+    ]
+  },
+  "CCM-MS14::P0-U13": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CCM-MS14::P0-U14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Adds web UI page or visualization to frontend-prism-web. Backed by prism_cam / prism_calc dispatcher actions exposed over HTTP. Consumers: operator dashboards, shop-floor browsers, Cowork-mode connectors.",
+    "csDepth": [
+      "UI calls must paginate or stream; a CAMX-V17 endpoint can return >1MB of strategy-compare JSON, render incrementally.",
+      "API surface should reuse existing dispatchers, NOT add a new HTTP route per page (avoid surface duplication)."
+    ]
+  },
+  "CCM-MS15::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md"
+    ],
+    "addSeWiki": [
+      "atomic-write-idempotency-patterns",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Self-healing / safety-limits / atomic-write / rollback work. Consumers: pipeline rollback engine, atomic-write helper (used by 7 ledger writers), fleet-task-health watchdog, integration tests.",
+    "csDepth": [
+      "Atomic write = tmpfile + fsync + rename; must guard against the per-PID temp-file collision pattern (Recent regressions roadmap-index writer consolidate).",
+      "Rollback must be replay-safe; a rollback that runs twice should produce the same state as one run (idempotent)."
+    ]
+  },
+  "CCM-MS15::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS15::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS15::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md"
+    ],
+    "addSeWiki": [
+      "atomic-write-idempotency-patterns",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Self-healing / safety-limits / atomic-write / rollback work. Consumers: pipeline rollback engine, atomic-write helper (used by 7 ledger writers), fleet-task-health watchdog, integration tests.",
+    "csDepth": [
+      "Atomic write = tmpfile + fsync + rename; must guard against the per-PID temp-file collision pattern (Recent regressions roadmap-index writer consolidate).",
+      "Rollback must be replay-safe; a rollback that runs twice should produce the same state as one run (idempotent)."
+    ]
+  },
+  "CCM-MS15::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md"
+    ],
+    "addSeWiki": [
+      "atomic-write-idempotency-patterns",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Self-healing / safety-limits / atomic-write / rollback work. Consumers: pipeline rollback engine, atomic-write helper (used by 7 ledger writers), fleet-task-health watchdog, integration tests.",
+    "csDepth": [
+      "Atomic write = tmpfile + fsync + rename; must guard against the per-PID temp-file collision pattern (Recent regressions roadmap-index writer consolidate).",
+      "Rollback must be replay-safe; a rollback that runs twice should produce the same state as one run (idempotent)."
+    ]
+  },
+  "CCM-MS15::P0-U11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+    ],
+    "addSeWiki": [
+      "token-budget-management",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Performance / monitoring / dedup work: cache hit rate, cascade failure detector, Monte Carlo convergence, silentCatch fire rate, dedup false-positive tracker, hook latency budget, token cost variance.",
+    "csDepth": [
+      "Monte Carlo convergence: stop when CI95 width / mean < epsilon; running to a fixed trial count wastes ~30% of trials at the tail.",
+      "Dedup uses bloom filter with FP rate ~1%; tracking actual FPs lets you tune the bloom size based on observed false-positive density."
+    ]
+  },
+  "CCM-MS15::P0-U12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS1::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS1::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS1::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS1::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS1::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CCM-MS2::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CCM-MS2::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Subagent / parallel-agent work (reviewer, hunter, wirer, generator, dispatcher, regression, doc-generator). Spawned by Agent tool, receives per-task master-index + tribal pre-search context bundle. Consumers: scrutiny gate, /forge-* skills, /prism-review.",
+    "csDepth": [
+      "Agents in parallel: dispatch in ONE tool block (single message, parallel calls) per CLAUDE.md doctrine; sequential dispatch wastes a round-trip per agent.",
+      "Subagent context bundle is bounded; large prompts get truncated, so pre-search must rank tightly (top-K, default K=5)."
+    ]
+  },
+  "CCM-MS2::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Subagent / parallel-agent work (reviewer, hunter, wirer, generator, dispatcher, regression, doc-generator). Spawned by Agent tool, receives per-task master-index + tribal pre-search context bundle. Consumers: scrutiny gate, /forge-* skills, /prism-review.",
+    "csDepth": [
+      "Agents in parallel: dispatch in ONE tool block (single message, parallel calls) per CLAUDE.md doctrine; sequential dispatch wastes a round-trip per agent.",
+      "Subagent context bundle is bounded; large prompts get truncated, so pre-search must rank tightly (top-K, default K=5)."
+    ]
+  },
+  "CCM-MS2::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS2::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Subagent / parallel-agent work (reviewer, hunter, wirer, generator, dispatcher, regression, doc-generator). Spawned by Agent tool, receives per-task master-index + tribal pre-search context bundle. Consumers: scrutiny gate, /forge-* skills, /prism-review.",
+    "csDepth": [
+      "Agents in parallel: dispatch in ONE tool block (single message, parallel calls) per CLAUDE.md doctrine; sequential dispatch wastes a round-trip per agent.",
+      "Subagent context bundle is bounded; large prompts get truncated, so pre-search must rank tightly (top-K, default K=5)."
+    ]
+  },
+  "CCM-MS2::P0-U11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Subagent / parallel-agent work (reviewer, hunter, wirer, generator, dispatcher, regression, doc-generator). Spawned by Agent tool, receives per-task master-index + tribal pre-search context bundle. Consumers: scrutiny gate, /forge-* skills, /prism-review.",
+    "csDepth": [
+      "Agents in parallel: dispatch in ONE tool block (single message, parallel calls) per CLAUDE.md doctrine; sequential dispatch wastes a round-trip per agent.",
+      "Subagent context bundle is bounded; large prompts get truncated, so pre-search must rank tightly (top-K, default K=5)."
+    ]
+  },
+  "CCM-MS2::P0-U12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS3::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS3::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS3::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS3::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS3::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS4::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CCM-MS4::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CCM-MS4::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CCM-MS4::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS4::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/master-index-surface.md"
+    ],
+    "addSeWiki": [
+      "schema-read-discipline",
+      "wiki-frontmatter-validation"
+    ],
+    "systemImpact": "Skill frontmatter / rules / argument-hint addition. Validated by .claude/schemas/command-frontmatter.schema.json (33/167 valid baseline per U-CK06). Consumers: skill-auto-trigger, autocomplete UI, /pipeline meta-command.",
+    "csDepth": [
+      "Frontmatter schema must be strict-JSON-Schema compatible; Claude-CLI autocomplete parser rejects YAML extensions, keep to scalars + arrays.",
+      "argument-hint without an actual validator just decorates the prompt; pair with a hook that enforces if the operator cares."
+    ]
+  },
+  "CCM-MS5::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS5::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS5::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS5::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CCM-MS5::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CCM-MS5::P0-U11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CCM-MS5::P0-U12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS5::P0-U13": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS5::P0-U14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CCM-MS6::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Subagent / parallel-agent work (reviewer, hunter, wirer, generator, dispatcher, regression, doc-generator). Spawned by Agent tool, receives per-task master-index + tribal pre-search context bundle. Consumers: scrutiny gate, /forge-* skills, /prism-review.",
+    "csDepth": [
+      "Agents in parallel: dispatch in ONE tool block (single message, parallel calls) per CLAUDE.md doctrine; sequential dispatch wastes a round-trip per agent.",
+      "Subagent context bundle is bounded; large prompts get truncated, so pre-search must rank tightly (top-K, default K=5)."
+    ]
+  },
+  "CCM-MS6::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS6::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS7::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/session-continuity-stack.md",
+      "knowledge/wiki/architecture/obsidian-memory-feed-hook.md",
+      "knowledge/wiki/architecture/master-index-surface.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "handoff-discipline",
+      "token-budget-management"
+    ],
+    "systemImpact": "Memory / session continuity / context-budget / stale-memory work. Consumers: MEMORY.md auto-prune, context-budget skill, session-start-auto-resume, per-agent handoff write/read, terminal-pin slot binding.",
+    "csDepth": [
+      "MEMORY.md hard ceiling = 24576 bytes (truncation); a watchdog must run with scheduled cadence; one-shot compress is insufficient.",
+      "Stale-memory detection needs both age AND access-frequency signals; pruning by age alone evicts hot entries."
+    ]
+  },
+  "CCM-MS7::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/session-continuity-stack.md",
+      "knowledge/wiki/architecture/obsidian-memory-feed-hook.md",
+      "knowledge/wiki/architecture/master-index-surface.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "handoff-discipline",
+      "token-budget-management"
+    ],
+    "systemImpact": "Memory / session continuity / context-budget / stale-memory work. Consumers: MEMORY.md auto-prune, context-budget skill, session-start-auto-resume, per-agent handoff write/read, terminal-pin slot binding.",
+    "csDepth": [
+      "MEMORY.md hard ceiling = 24576 bytes (truncation); a watchdog must run with scheduled cadence; one-shot compress is insufficient.",
+      "Stale-memory detection needs both age AND access-frequency signals; pruning by age alone evicts hot entries."
+    ]
+  },
+  "CCM-MS7::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CCM-MS7::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/session-continuity-stack.md",
+      "knowledge/wiki/architecture/obsidian-memory-feed-hook.md",
+      "knowledge/wiki/architecture/master-index-surface.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "handoff-discipline",
+      "token-budget-management"
+    ],
+    "systemImpact": "Memory / session continuity / context-budget / stale-memory work. Consumers: MEMORY.md auto-prune, context-budget skill, session-start-auto-resume, per-agent handoff write/read, terminal-pin slot binding.",
+    "csDepth": [
+      "MEMORY.md hard ceiling = 24576 bytes (truncation); a watchdog must run with scheduled cadence; one-shot compress is insufficient.",
+      "Stale-memory detection needs both age AND access-frequency signals; pruning by age alone evicts hot entries."
+    ]
+  },
+  "CCM-MS7::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/session-continuity-stack.md",
+      "knowledge/wiki/architecture/obsidian-memory-feed-hook.md",
+      "knowledge/wiki/architecture/master-index-surface.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "handoff-discipline",
+      "token-budget-management"
+    ],
+    "systemImpact": "Memory / session continuity / context-budget / stale-memory work. Consumers: MEMORY.md auto-prune, context-budget skill, session-start-auto-resume, per-agent handoff write/read, terminal-pin slot binding.",
+    "csDepth": [
+      "MEMORY.md hard ceiling = 24576 bytes (truncation); a watchdog must run with scheduled cadence; one-shot compress is insufficient.",
+      "Stale-memory detection needs both age AND access-frequency signals; pruning by age alone evicts hot entries."
+    ]
+  },
+  "CCM-MS8::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS8::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS8::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CCM-MS9::P0-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/fleet-reaper.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "fleet-coordination-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Team / swarm / multi-user / cross-platform work. Consumers: prism_orchestrate dispatcher (swarm_execute, swarm_consensus), Stop hook chain, AGENT_CHAT.jsonl bus, per-slot claim system.",
+    "csDepth": [
+      "Team result aggregation must merge with Jaccard dedup on findings (per review-rubric.json); naive list-concat double-counts the same finding from N reviewers.",
+      "Multi-user isolation requires per-tenant state namespacing; cross-tenant pattern sharing is OK only at the 0.5x external-weight level (Shared Learning Bus)."
+    ]
+  },
+  "CCM-MS9::P0-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/subagent-per-task-presearch.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/fleet-reaper.md"
+    ],
+    "addSeWiki": [
+      "subagent-orchestration-discipline",
+      "fleet-coordination-discipline",
+      "parallel-tool-call-discipline"
+    ],
+    "systemImpact": "Team / swarm / multi-user / cross-platform work. Consumers: prism_orchestrate dispatcher (swarm_execute, swarm_consensus), Stop hook chain, AGENT_CHAT.jsonl bus, per-slot claim system.",
+    "csDepth": [
+      "Team result aggregation must merge with Jaccard dedup on findings (per review-rubric.json); naive list-concat double-counts the same finding from N reviewers.",
+      "Multi-user isolation requires per-tenant state namespacing; cross-tenant pattern sharing is OK only at the 0.5x external-weight level (Shared Learning Bus)."
+    ]
+  },
+  "CCM-MS9::P0-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CCM-MS9::P0-U09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Adds web UI page or visualization to frontend-prism-web. Backed by prism_cam / prism_calc dispatcher actions exposed over HTTP. Consumers: operator dashboards, shop-floor browsers, Cowork-mode connectors.",
+    "csDepth": [
+      "UI calls must paginate or stream; a CAMX-V17 endpoint can return >1MB of strategy-compare JSON, render incrementally.",
+      "API surface should reuse existing dispatchers, NOT add a new HTTP route per page (avoid surface duplication)."
+    ]
+  },
+  "CCM-MS9::P0-U10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CCM-MS9::P0-U11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+    ],
+    "addSeWiki": [
+      "token-budget-management",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Performance / monitoring / dedup work: cache hit rate, cascade failure detector, Monte Carlo convergence, silentCatch fire rate, dedup false-positive tracker, hook latency budget, token cost variance.",
+    "csDepth": [
+      "Monte Carlo convergence: stop when CI95 width / mean < epsilon; running to a fixed trial count wastes ~30% of trials at the tail.",
+      "Dedup uses bloom filter with FP rate ~1%; tracking actual FPs lets you tune the bloom size based on observed false-positive density."
+    ]
+  },
+  "CCM-MS9::P0-U12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CK-MS10::CK-MS10/U01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CK-MS10::CK-MS10/U02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CK-MS10::CK-MS10/U03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CK-MS10::CK-MS10/U04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Generic engine-wire: adds an engine reference to PipelineDecisionOrchestrator and exposes it via the appropriate prism_* dispatcher action. Consumers depend on the engine surface (see related-subsystems).",
+    "csDepth": [
+      "Wire-only changes must include both the dispatcher z.enum entry AND the action handler; a missing handler 9/9-passes hermetic tests but 100%-fails production (R8/R12).",
+      "Engine must also be added to BUILD_STATE.WIRED via build-state-snapshot, or auditors continue reporting it as orphan."
+    ]
+  },
+  "CK-MS11::CK-MS11/U01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CK-MS11::CK-MS11/U02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CK-MS11::CK-MS11/U03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CK-MS11::CK-MS11/U04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Generic engine-wire: adds an engine reference to PipelineDecisionOrchestrator and exposes it via the appropriate prism_* dispatcher action. Consumers depend on the engine surface (see related-subsystems).",
+    "csDepth": [
+      "Wire-only changes must include both the dispatcher z.enum entry AND the action handler; a missing handler 9/9-passes hermetic tests but 100%-fails production (R8/R12).",
+      "Engine must also be added to BUILD_STATE.WIRED via build-state-snapshot, or auditors continue reporting it as orphan."
+    ]
+  },
+  "CK-MS12::CK-MS12/U01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "CK-MS12::CK-MS12/U03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CK-MS12::CK-MS12/U04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "CK-MS13::CK-MS13/U01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CK-MS13::CK-MS13/U02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md"
+    ],
+    "addSeWiki": [
+      "doc-reflection-rule",
+      "claude-md-as-pointer-index"
+    ],
+    "systemImpact": "Documentation / spec / setup-sheet / catalog work. Consumers: master-index search-first injector, doc-reflection-rule Stop check, wiki frontmatter validator.",
+    "csDepth": [
+      "Doc-reflection rule requires ALL FOUR surfaces updated in the same session (CLAUDE.md + MEMORY.md + wiki + Obsidian); silent drift is the regression class.",
+      "Wiki entries must carry frontmatter id / category / last_updated; missing fields fail the validator and the entry is skipped on next index rebuild."
+    ]
+  },
+  "CK-MS13::CK-MS13/U03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "engine-creation-discipline",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "Generic engineering work; see related-subsystems for the consumer surface. Default routing assumes a dispatcher action + master-index entry + knowledge-injection ledger.",
+    "csDepth": [
+      "Verify the natural consumer dispatcher BEFORE shipping; orphan engines that never reach a dispatcher are the dominant defect class (875 unwired engines per latest audit).",
+      "Add a real-data E2E test that exercises the full path from MCP client to engine return; hermetic fakes hide the dispatcher z.enum gap."
+    ]
+  },
+  "CK-MS9::CK-MS9/U01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CK-MS9::CK-MS9/U02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Generic engine-wire: adds an engine reference to PipelineDecisionOrchestrator and exposes it via the appropriate prism_* dispatcher action. Consumers depend on the engine surface (see related-subsystems).",
+    "csDepth": [
+      "Wire-only changes must include both the dispatcher z.enum entry AND the action handler; a missing handler 9/9-passes hermetic tests but 100%-fails production (R8/R12).",
+      "Engine must also be added to BUILD_STATE.WIRED via build-state-snapshot, or auditors continue reporting it as orphan."
+    ]
+  },
+  "CK-MS9::CK-MS9/U03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/extracts/freecad-complete-inventory.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Loads manufacturer (Sandvik, Guhring, Iscar, Kennametal) cutting-data tables into UltimateSpeedFeedEngine so prism_calc:speed_feed and prism_cam strategy advisors return manufacturer-validated values instead of Kienzle-only defaults.",
+    "csDepth": [
+      "Manufacturer tables are sparse: lookup keys (material x tool-diameter x DOC) miss often; need 2D bilinear interpolation with fail-soft fallback to Kienzle.",
+      "Cross-vendor unit conventions differ (mm/min vs ipm, m/min vs SFM); a single normalization pass at load time avoids per-call conversion cost."
+    ]
+  },
+  "CK-MS9::CK-MS9/U04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Generic engine-wire: adds an engine reference to PipelineDecisionOrchestrator and exposes it via the appropriate prism_* dispatcher action. Consumers depend on the engine surface (see related-subsystems).",
+    "csDepth": [
+      "Wire-only changes must include both the dispatcher z.enum entry AND the action handler; a missing handler 9/9-passes hermetic tests but 100%-fails production (R8/R12).",
+      "Engine must also be added to BUILD_STATE.WIRED via build-state-snapshot, or auditors continue reporting it as orphan."
+    ]
+  },
+  "CLEANUP-MS0::U-CLEANUP-A1": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/close-out-audit.md"
+    ],
+    "addSeWiki": [
+      "fleet-coordination-discipline",
+      "cron-and-scheduled-task-discipline",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "CLEANUP-MS0 / fleet-hygiene work: golf slot allowlist, NATO sequence extension, peer-audit, orphan inventory. Consumers: golf hygiene chat, golf-slot-write-allowlist PreToolUse hook, /peer-audit skill, scheduled task PRISM Cleanup Orchestrator.",
+    "csDepth": [
+      "Golf-slot write allowlist must be enforced BEFORE Edit/Write hits disk; PreToolUse T0 is the only safe checkpoint.",
+      "Orphan inventory must run with bounded recursion (depth <= 2); naive walks blow out on the 372k-node system-viz graph."
+    ]
+  },
+  "CLEANUP-MS0::U-CLEANUP-A5": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "CLEANUP-MS0::U-CLEANUP-B7": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CLEANUP-MS0::U-CLEANUP-D2": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CLEANUP-MS0::U-CLEANUP-E1": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md"
+    ],
+    "addSeWiki": [
+      "cron-and-scheduled-task-discipline",
+      "fleet-coordination-discipline"
+    ],
+    "systemImpact": "Scheduled-task / cron addition. Reuses the FLEET-REAPER scheduled-task pattern (S4U or SYSTEM principal; +N-second phase offset to avoid pileup with Cleanup Orchestrator / Memory Pressure Relief / Reaper).",
+    "csDepth": [
+      "Scheduled-task registration is operator-gated (elevated PowerShell once); script MUST be idempotent so re-runs just refresh the timestamp.",
+      "Concurrent runs of the same task can corrupt sidecar state; use a PID lockfile (pattern already in fleet-reaper-sweep.mjs)."
+    ]
+  },
+  "CLEANUP-MS0::U-CLEANUP-F1": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "CLEANUP-MS0::U-CLEANUP-G9": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "CLI-MS0::P1-U06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "mcp-tool-design",
+      "dispatcher-action-design"
+    ],
+    "systemImpact": "New PRISM CLI subcommand. Backed by an existing prism_* dispatcher action (calc / tool / playbook). Consumers: operators on shop floor, scripts, CI.",
+    "csDepth": [
+      "CLI surface should be a thin wrapper over a dispatcher action; duplicating logic in CLI breaks the single-source rule.",
+      "Output formatting must default human-readable but support --json for piping (matches RTK convention)."
+    ]
+  },
+  "CLI-MS0::P1-U07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-injection.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/tribal-by-domain-inject.md"
+    ],
+    "addSeWiki": [
+      "memory-curation-discipline",
+      "schema-read-discipline"
+    ],
+    "systemImpact": "Knowledge plumbing: schema mapping, KB update, extracted-knowledge validation, conversational output. Consumers: KnowledgeInjectionPipelineEngine (PRISM OS + Obsidian + AI registry) and prism_ai:ai_knowledge_query.",
+    "csDepth": [
+      "Knowledge tips must dedupe across 5 namespaces (memory/wiki/commands/handoffs/specs); duplicate stems cause feedback double-counting.",
+      "Schema mapping is N x M (raw extraction x canonical schema); use prefix-trie or learned classifier when N > 1000."
+    ]
+  },
+  "CLI-MS0::P1-U08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "schema-read-discipline",
+      "mcp-tool-design"
+    ],
+    "systemImpact": "Sweep / verify dispatcher z.enum coverage so every CAMX or kernel engine has an action entry + handler + Zod input schema. Consumers: every MCP client (Claude, Codex, agents) and the auto-router that classifies prompts to dispatcher actions.",
+    "csDepth": [
+      "MockMCPServer in unit tests bypasses the SDK z.enum gate; a production-shape integration test is the only safe regression oracle (U-DISPATCHER MS1 lesson).",
+      "Action enum growth is unbounded; consider category-bucketing or sub-dispatchers when one dispatcher exceeds ~200 actions."
+    ]
+  },
+  "COMMAND-KERNEL-MS0::U-CK03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": [
+      "test-design-real-values",
+      "regression-prevention-doctrine",
+      "per-file-scrutiny-gate"
+    ],
+    "systemImpact": "Adds or migrates tests (vitest, golden-snapshot, integration). Consumers: stop_on_failing_tests Stop hook, per-file scrutiny gate (Reviewer A/B/C), and 3-of-3 Stop gate that blocks session-end without a passing scrutiny ledger.",
+    "csDepth": [
+      "Real-value assertions only; toBeDefined() stubs are hook-rejected (R9 doctrine).",
+      "Snapshot tests must hash deterministic content; non-deterministic fields (timestamps, PIDs) must be redacted in the serializer or snapshots will churn."
+    ]
+  },
+  "COMMAND-KERNEL-MS0::U-CK09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/fleet-task-health-ms0.md"
+    ],
+    "addSeWiki": [
+      "atomic-write-idempotency-patterns",
+      "regression-prevention-doctrine"
+    ],
+    "systemImpact": "Self-healing / safety-limits / atomic-write / rollback work. Consumers: pipeline rollback engine, atomic-write helper (used by 7 ledger writers), fleet-task-health watchdog, integration tests.",
+    "csDepth": [
+      "Atomic write = tmpfile + fsync + rename; must guard against the per-PID temp-file collision pattern (Recent regressions roadmap-index writer consolidate).",
+      "Rollback must be replay-safe; a rollback that runs twice should produce the same state as one run (idempotent)."
+    ]
+  },
+  "COMMAND-KERNEL-MS0::U-CK11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hook-synergy-ms0.md",
+      "knowledge/wiki/architecture/bug-findings-wiki-gate.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": [
+      "hook-authoring-discipline",
+      "bash-vs-powershell-on-windows"
+    ],
+    "systemImpact": "Hook addition or migration. Hooks live in .claude/hooks/*.mjs and wire via settings.json. Key chains: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, SubagentStart, Stop, PreCompact. Consumers: every chat session.",
+    "csDepth": [
+      "Hook latency budget: total UserPromptSubmit chain must stay <2s p99 (hook-profile telemetry); a slow new hook pushes every prompt over budget.",
+      "Hooks must be fail-soft (R12); an uncaught throw can break SessionStart fleet-wide. Wrap external calls in try/catch and emit advisory on failure."
+    ]
+  },
+  "COMMAND-KERNEL-MS0::U-CK14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/print-to-program.md",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-prism_cam.md",
+      "knowledge/wiki/architecture/dispatcher-prism_calc.md"
+    ],
+    "addSeWiki": [
+      "physics-constants-discipline",
+      "engine-creation-discipline"
+    ],
+    "systemImpact": "Physical-process implementation (turning, milling, 5-axis, grinding, laser, WEDM, probing, NLP, nesting, DXF). Backs a specific stage of DOMAIN-PIPELINE-MS0 for the matching domain slot (alpha=mill, bravo=lathe, charlie=wire-EDM, delta=cad, echo=cam).",
+    "csDepth": [
+      "G-code generation must be deterministic given the same (geometry, params, controller) tuple; non-determinism breaks regression tests and operator trust.",
+      "Toolpath geometry libraries are O(N^2) for naive segment-segment collision; use BVH / KD-tree for large workpieces (>10k segments)."
+    ]
+  },
+  "COMMAND-KERNEL-MS0::U-CK15": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "COMMAND-KERNEL-MS0::U-CK22": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/knowledge-injection.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "recall-injection-flow"
+    ],
+    "systemImpact": "New slash command (skill) entry under .claude/commands/*.md. Auto-fires via skill-auto-trigger.mjs UserPromptSubmit hook when keywords match. Consumers: every chat slot, the auto-trigger ledger, and the master-index search-first discipline.",
+    "csDepth": [
+      "Skill must declare keyword triggers in frontmatter; otherwise skill-auto-trigger never surfaces it (silent dead-skill).",
+      "Skill body should remain <=200 lines; past that, recall-injection-flow truncates and the operator sees a partial command."
+    ]
+  },
+  "COMMAND-KERNEL-MS0::U-CK23": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "handoff-discipline",
+      "commit-message-conventions"
+    ],
+    "systemImpact": "COMMAND-KERNEL / psk / pipeline-meta work. Consumers: /checkin /handoff /precompact /startup /pick lifecycle commands, psk syscall router, pipeline_integrations frontmatter executor.",
+    "csDepth": [
+      "Psk syscall surface should be idempotent; a /checkin called twice with the same slot ID is a no-op, not a re-claim.",
+      "Pipeline meta-command needs explicit state machine (list -> dry-run -> execute -> resume) with serialized state so a resume after compact works deterministically."
+    ]
+  },
+  "COMMAND-KERNEL-MS0::U-CK25": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+      "knowledge/wiki/architecture/dispatcher-prism_session.md",
+      "knowledge/wiki/architecture/dispatcher-prism_dev.md"
+    ],
+    "addSeWiki": [
+      "dispatcher-action-design",
+      "handoff-discipline",
+      "commit-message-conventions"
+    ],
+    "systemImpact": "COMMAND-KERNEL / psk / pipeline-meta work. Consumers: /checkin /handoff /precompact /startup /pick lifecycle commands, psk syscall router, pipeline_integrations frontmatter executor.",
+    "csDepth": [
+      "Psk syscall surface should be idempotent; a /checkin called twice with the same slot ID is a no-op, not a re-claim.",
+      "Pipeline meta-command needs explicit state machine (list -> dry-run -> execute -> resume) with serialized state so a resume after compact works deterministically."
+    ]
+  }
+}

@@ -218,7 +218,7 @@ function SidebarPanel({
 }: {
   activeTab?: "controller" | "templates";
 }) {
-  const { activeController, setActiveController, setEditorContent } =
+  const { activeController, setActiveController, editorContent, setEditorContent } =
     usePpgContext();
 
   return (
@@ -294,7 +294,9 @@ function RightPanel({ showDiff }: { showDiff: boolean }) {
     (rec: { type: string; code?: string; description: string }) => {
       if (rec.type === "gcode_fix" && rec.code) {
         // Prepend the fix to the G-code
-        setEditorContent((prev: string) => rec.code + "\n" + prev);
+        // setEditorContent is a plain (v: string) => void setter (not React's
+        // updater-fn form), so concat against the current context value.
+        setEditorContent(rec.code + "\n" + (editorContent ?? ""));
       }
     },
     [setEditorContent]

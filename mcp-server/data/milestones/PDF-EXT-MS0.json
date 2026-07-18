@@ -1,0 +1,120 @@
+{
+  "id": "PDF-EXT-MS0",
+  "version": "1.0.0",
+  "title": "Machining Source Pipeline",
+  "track": "PDF-EXT",
+  "created_at": "2026-04-12T22:00:00Z",
+  "status": "complete",
+  "total_units": 5,
+  "completed_units": 5,
+  "description": "PDF extraction pipeline for machining knowledge sources. Extracts procedures, tips, and cutting data from hyperMILL manuals, InventorCAM training courses, and manufacturer catalogs. Wires extracted knowledge to tribal knowledge system and knowledge graph.",
+  "dependencies": [],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "PDF Discovery & Extraction Scripts",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "PDF Discovery Pipeline",
+          "description": "Run PDF discovery on Resources folder to catalog available PDFs by category (hypermill_doc, training, reference, manufacturer_catalog).",
+          "acceptance": [
+            "997+ PDFs discovered and classified",
+            "Categories: hypermill_doc, training, reference, manufacturer_catalog",
+            "Discovery results saved to extraction state"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-12T22:30:00Z",
+          "artifacts": [
+            "scripts/run-pdf-discovery.ts"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Batch PDF Extraction Script",
+          "description": "Create batch extraction script with cutting param patterns (speed, feed, depth) and procedure extraction.",
+          "acceptance": [
+            "scripts/batch-pdf-extract.ts created",
+            "Extracts cutting_params with context",
+            "Extracts procedures with numbered steps",
+            "Counts keywords (feed, speed, cutting, etc.)",
+            "Saves to data/extracted-knowledge/"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-12T22:35:00Z",
+          "artifacts": [
+            "scripts/batch-pdf-extract.ts",
+            "data/extracted-knowledge/extraction-batch-1776033915923.json"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Training Procedure Extractor",
+          "description": "Specialized extractor for CAM training PDFs focusing on procedural workflows, setup steps, and tips.",
+          "acceptance": [
+            "scripts/extract-training-procedures.ts created",
+            "Extracts numbered step procedures",
+            "Extracts tips/warnings/notes",
+            "Identifies CAM system (hypermill, inventorcam, solidcam, etc.)",
+            "Extracts chapter titles for structure"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-12T22:55:00Z",
+          "artifacts": [
+            "scripts/extract-training-procedures.ts",
+            "data/extracted-knowledge/training/training-extraction-1776034550428.json"
+          ],
+          "metrics": {
+            "pdfs_processed": 5,
+            "procedures_extracted": 280,
+            "tips_extracted": 68
+          }
+        },
+        {
+          "id": "P0-U04",
+          "title": "Catalog Extraction Script",
+          "description": "Manufacturer catalog extractor for cutting data tables (Sandvik, Korloy, etc.).",
+          "acceptance": [
+            "scripts/extract-cutting-catalogs.ts created",
+            "Identifies manufacturer from filename/content",
+            "Identifies operation type (turning, milling, drilling)",
+            "Attempts structured cutting data extraction"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-12T22:48:00Z",
+          "artifacts": [
+            "scripts/extract-cutting-catalogs.ts"
+          ],
+          "notes": "Visual PDF tables don't extract well to text. Focus shifted to procedural knowledge which extracts cleanly."
+        },
+        {
+          "id": "P0-U05",
+          "title": "Extraction Wiring Engine",
+          "description": "Engine to wire extracted knowledge to PRISM systems (tribal knowledge, knowledge graph, search).",
+          "acceptance": [
+            "src/engines/ExtractedKnowledgeWiringEngine.ts created",
+            "Converts extraction batches to KnowledgeAtoms",
+            "Wires to tribal knowledge via tribal_capture",
+            "Wires to knowledge graph via kg_populate",
+            "3 new dispatcher actions: extracted_wire_all, extracted_search, extracted_stats"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-12T22:58:00Z",
+          "artifacts": [
+            "src/engines/ExtractedKnowledgeWiringEngine.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-04-12T23:00:00Z",
+  "summary": {
+    "pdfs_processed": 25,
+    "procedures_extracted": 280,
+    "tips_extracted": 68,
+    "tribal_knowledge_added": 8,
+    "knowledge_graph_nodes": 67,
+    "knowledge_graph_edges": 246,
+    "new_mcp_actions": 3
+  }
+}

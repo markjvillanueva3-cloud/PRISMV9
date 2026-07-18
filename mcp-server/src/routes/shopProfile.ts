@@ -14,6 +14,7 @@
  */
 
 import { Router } from "express";
+import { verifyToken, requireRole } from "../middleware/auth.js";
 import {
   ShopConfigurationEngine,
   shopConfigurationEngine,
@@ -69,7 +70,16 @@ loadPersistedProfile();
 export function createShopProfileRouter(): Router {
   const router = Router();
 
-  // GET /profile — active shop profile
+  // SECURITY (U-ERP-SHOPCONFIG-AUTH): gate the entire shop-config surface.
+  // This router mounts under the global optionalToken (index.ts) which never
+  // rejects anon, so before this line every route (incl. the rate card in
+  // GET /profile + /preferences and the persisted config mutations) was
+  // anonymously reachable. Any authed employee may READ shop config; the write
+  // mutations below carry an additional requireRole("admin","lead"). Mirrors
+  // the proven hotel-portal.ts gate.
+  router.use(verifyToken);
+
+  // GET /profile - active shop profile
   router.get("/profile", (_req, res) => {
     const profile = shopConfigurationEngine.getActiveProfile();
     res.json({ ok: true, profile });
@@ -99,8 +109,8 @@ export function createShopProfileRouter(): Router {
     res.json({ ok: true, summary });
   });
 
-  // PUT /profile — update shop profile
-  router.put("/profile", (req, res) => {
+  // PUT /profile - update shop profile (rate card + config: admin/lead only)
+  router.put("/profile", requireRole("admin", "lead"), (req, res) => {
     try {
       const updates = req.body ?? {};
       const updated = shopConfigurationEngine.updateProfile(ACTIVE_PROFILE_ID, updates);
@@ -118,8 +128,8 @@ export function createShopProfileRouter(): Router {
     res.json({ ok: true, machines });
   });
 
-  // POST /machines — add a machine
-  router.post("/machines", (req, res) => {
+  // POST /machines - add a machine (fleet config: admin/lead only)
+  router.post("/machines", requireRole("admin", "lead"), (req, res) => {
     try {
       const machine = req.body as ShopMachine;
       if (!machine.id || !machine.name) {
@@ -135,8 +145,8 @@ export function createShopProfileRouter(): Router {
     }
   });
 
-  // PUT /machines/:id — update a machine
-  router.put("/machines/:id", (req, res) => {
+  // PUT /machines/:id - update a machine (fleet config: admin/lead only)
+  router.put("/machines/:id", requireRole("admin", "lead"), (req, res) => {
     try {
       const updated = shopConfigurationEngine.updateMachine(ACTIVE_PROFILE_ID, req.params.id, req.body);
       persistProfile();
@@ -147,8 +157,8 @@ export function createShopProfileRouter(): Router {
     }
   });
 
-  // DELETE /machines/:id — remove a machine
-  router.delete("/machines/:id", (req, res) => {
+  // DELETE /machines/:id - remove a machine (fleet config: admin/lead only)
+  router.delete("/machines/:id", requireRole("admin", "lead"), (req, res) => {
     try {
       const machines = shopConfigurationEngine.removeMachine(ACTIVE_PROFILE_ID, req.params.id);
       persistProfile();
@@ -170,8 +180,8 @@ export function createShopProfileRouter(): Router {
     res.json({ ok: true, machineId: machine.id, magazine: machine.magazine ?? [] });
   });
 
-  // PUT /magazine/:machineId — update turret magazine
-  router.put("/magazine/:machineId", (req, res) => {
+  // PUT /magazine/:machineId - update turret magazine (fleet config: admin/lead only)
+  router.put("/magazine/:machineId", requireRole("admin", "lead"), (req, res) => {
     try {
       const updated = shopConfigurationEngine.updateMachine(ACTIVE_PROFILE_ID, req.params.machineId, {
         magazine: req.body.magazine,

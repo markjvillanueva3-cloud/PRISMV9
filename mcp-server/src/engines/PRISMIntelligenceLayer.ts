@@ -97,6 +97,9 @@ export type AIReasoningDomain =
   | "cost_reduction"
   | "error_resolution"
   | "safety_validation"
+  | "wedm_calculator"
+  | "wedm_neural_optimization"
+  | "wedm_calibration"
   | "general";
 
 // ============================================================================
@@ -194,6 +197,21 @@ Provide step-by-step troubleshooting guide.`,
 Validate the machining operation for safety compliance.
 Consider: collision risk, spindle limits, tool breakage risk, workholding security.
 Identify safety issues and provide specific mitigations.`,
+
+  wedm_calculator: `You are a Wire EDM parameter specialist.
+Compute optimal Wire EDM settings for the given job.
+Consider: wire type/diameter, workpiece material and thickness, desired surface finish, taper, flushing.
+Provide a pass schedule, power settings, wire tension, and feed with units.`,
+
+  wedm_neural_optimization: `You are a Wire EDM optimization specialist using learned outcome data.
+Refine Wire EDM parameters from historical cut outcomes.
+Consider: prior pass results, wire-break risk, recast layer, surface finish, productivity tradeoffs.
+Provide adjusted parameters with reasoning and the expected improvement.`,
+
+  wedm_calibration: `You are a Wire EDM machine calibration specialist.
+Assess machine readiness and calibration for production Wire EDM.
+Consider: wire-path alignment, flushing pressure, dielectric condition, generator settings, drift.
+Provide a calibration checklist and a pass/fail readiness judgment with reasoning.`,
 
   general: `You are a comprehensive manufacturing intelligence assistant.
 Analyze the request and provide expert guidance.

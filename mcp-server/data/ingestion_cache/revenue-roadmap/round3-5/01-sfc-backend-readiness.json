@@ -1,0 +1,140 @@
+{
+  "round": 3.5,
+  "agent_n": 1,
+  "scope": "SFC backend readiness — buy-this-tomorrow product audit",
+  "agent_role": "code-analyzer-product",
+  "files_audited": [
+    "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (in-context, 21m cache)",
+    "state/shared/audit-findings/revenue-roadmap/round3/01-ms0-dispatcher-synthesis.json (read this session)",
+    "mcp-server/data/docs/ENGINE_DIGEST.md (targeted grep)",
+    "mcp-server/src/tools/dispatchers/calcDispatcher.ts (lines 35-300 + enum range 540-1015)",
+    "mcp-server/src/physics/constants.ts (export inventory)",
+    "mcp-server/src/engines/MaterialDatabaseBridgeEngine.ts (head)",
+    "mcp-server/src/engines/SpeedFeedOrchestratorEngine.ts (export probe)",
+    "mcp-server/src/engines/SpecificCuttingEnergyEngine.ts (export probe)",
+    "mcp-server/src/engines/MillingForceEngine.ts (FULL — 15L stub confirmed)",
+    "mcp-server/src/engines/MillingPhysicsKernelEngine.ts (export probe)",
+    "mcp-server/src/engines/ChatterStabilityLobeEngine.ts (export probe)",
+    "mcp-server/src/engines/GilbertEconomicSpeedEngine.ts (export probe — EXISTS)"
+  ],
+
+  "engines_inventory": [
+    {"name": "Kienzle Force (canonical constants)", "file": "mcp-server/src/physics/constants.ts:34", "signature": "CANONICAL_KIENZLE: Record<ISOGroup,{kc1_1,mc}> — 6 ISO groups (P/M/K/N/S/H)", "status": "SHIP-READY", "fix": ""},
+    {"name": "Taylor Tool Life (canonical constants)", "file": "mcp-server/src/physics/constants.ts:57", "signature": "CANONICAL_TAYLOR: Record<ISOGroup,{C,n}>", "status": "SHIP-READY", "fix": ""},
+    {"name": "MillingForceEngine", "file": "mcp-server/src/engines/MillingForceEngine.ts", "signature": "calculate(input) → {ok:false, stub:true, input} — 15L STUB", "status": "STUB", "fix": "Reroute mill_chatter_predict + cutting_force to MillingPhysicsKernelEngine; mark MillingForceEngine deprecated or wire to Kienzle-from-constants impl"},
+    {"name": "MillingPhysicsKernelEngine", "file": "mcp-server/src/engines/MillingPhysicsKernelEngine.ts:1923", "signature": "millingPhysicsKernelEngine — full physics kernel (Kienzle+Taylor+regen-chatter)", "status": "SHIP-READY", "fix": "Has internal 'placeholder' comment at L298 for Vc-not-in-input estimation — verify SFC always supplies Vc"},
+    {"name": "ChatterStabilityLobeEngine (SLD)", "file": "mcp-server/src/engines/ChatterStabilityLobeEngine.ts:80", "signature": "class ChatterStabilityLobeEngine — SLD lobe generator", "status": "SHIP-READY", "fix": "Currently wired via calcDispatcher chatter_predict (line 212) — confirm not routing to MillingForceEngine stub"},
+    {"name": "DeflectionOverlayEngine", "file": "mcp-server/src/engines/DeflectionOverlayEngine.ts", "signature": "E0127 real-time tool/part deflection overlay", "status": "SHIP-READY", "fix": ""},
+    {"name": "SLDOverlayEngine", "file": "mcp-server/src/engines/SLDOverlayEngine.ts", "signature": "E0433 real-time chatter stability lobe overlay", "status": "SHIP-READY", "fix": ""},
+    {"name": "AdaptiveFeedModulationEngine", "file": "mcp-server/src/engines/AdaptiveFeedModulationEngine.ts", "signature": "E0004 dynamic feed control", "status": "SHIP-READY", "fix": ""},
+    {"name": "SpecificCuttingEnergyEngine", "file": "mcp-server/src/engines/SpecificCuttingEnergyEngine.ts:105", "signature": "class SpecificCuttingEnergyEngine — u (J/mm³), Pc, Wh, CO2", "status": "SHIP-READY", "fix": ""},
+    {"name": "SpeedFeedOrchestratorEngine", "file": "mcp-server/src/engines/SpeedFeedOrchestratorEngine.ts:1096", "signature": "class SpeedFeedOrchestratorEngine — top-level SFC orchestrator", "status": "SHIP-READY", "fix": ""},
+    {"name": "AutoSpeedFeedCalculatorEngine", "file": "mcp-server/src/engines/AutoSpeedFeedCalculatorEngine.ts", "signature": "exported singleton", "status": "SHIP-READY", "fix": ""},
+    {"name": "UltimateSpeedFeedEngine", "file": "mcp-server/src/engines/UltimateSpeedFeedEngine.ts", "signature": "exported singleton", "status": "SHIP-READY", "fix": ""},
+    {"name": "MachineAwareSpeedFeedEngine", "file": "mcp-server/src/engines/MachineAwareSpeedFeedEngine.ts", "signature": "exported singleton — ingests envelope/kW/torque", "status": "SHIP-READY", "fix": ""},
+    {"name": "GilbertEconomicSpeedEngine", "file": "mcp-server/src/engines/GilbertEconomicSpeedEngine.ts:253", "signature": "gilbertEconomicSpeedEngine — Gilbert/Taylor min-cost/max-prod/max-profit triad", "status": "SHIP-READY", "fix": "Engine EXISTS but NOT wired to dispatcher; lathe_cost_optimize action missing (Round3 F-r3-a1-01)"},
+    {"name": "BayesianToolLifeEngine", "file": "mcp-server/src/engines/BayesianToolLifeEngine.ts", "signature": "exported singleton — stochastic tool life", "status": "SHIP-READY", "fix": ""},
+    {"name": "TurningInsertLifeEngine", "file": "mcp-server/src/engines/TurningInsertLifeEngine.ts", "signature": "exported singleton", "status": "SHIP-READY", "fix": ""},
+    {"name": "AdaptiveFeedModulationEngine (chip-thinning)", "file": "mcp-server/src/engines/AdaptiveFeedModulationEngine.ts", "signature": "fz compensation for low-ae", "status": "SHIP-READY", "fix": ""},
+    {"name": "AdaptiveCalibrationEngine", "file": "mcp-server/src/engines/AdaptiveCalibrationEngine.ts", "signature": "exported singleton — measured-data calibration", "status": "SHIP-READY", "fix": ""},
+    {"name": "SpindleTorqueGateEngine", "file": "mcp-server/src/engines/SpindleTorqueGateEngine.ts", "signature": "exported singleton — spindle torque safety gate", "status": "SHIP-READY", "fix": ""},
+    {"name": "SpindleCharacteristicEngine", "file": "(not located in ENGINE_DIGEST/engines grep)", "signature": "torque curve + base-speed ingest expected", "status": "MISSING", "fix": "Build SpindleCharacteristicEngine wrapping spindle_torque_available/spindle_plot_curve dispatcher actions (already present in calcDispatcher); aggregate machine-profile.kW + torque curve into ingestable struct"},
+    {"name": "CoolantDatabase", "file": "(no CoolantDatabase engine found; coolant_strategy/coolant_recommend ARE dispatcher actions)", "signature": "coolant catalog + concentration/pressure ingest", "status": "PARTIAL", "fix": "Promote coolant_strategy/coolant_lifecycle action surface into a CoolantDatabaseEngine singleton with ingestable struct; today scattered across actions"},
+    {"name": "ToolDatabaseBridgeEngine", "file": "mcp-server/src/engines/ToolDatabaseBridgeEngine.ts (E0460)", "signature": "Phase 0.23 U-UTL6 bridge", "status": "SHIP-READY", "fix": ""},
+    {"name": "MaterialDatabaseBridgeEngine", "file": "mcp-server/src/engines/MaterialDatabaseBridgeEngine.ts:41", "signature": "class MaterialDatabaseBridgeEngine — bridges canonical constants, materials.size loaded", "status": "PARTIAL", "fix": "Bridge engine works for material lookup but variability matrix (6 ISO × 5 hardness × 2 coolant = 60 entries) — verify hardness band + coolant axis populated; CANONICAL_MATERIAL_DB present but breadth unverified"},
+    {"name": "ThermalGrowthEngine (warmup growth)", "file": "(no ThermalGrowthEngine class; thermal_growth + thermal_deflection actions exist in calcDispatcher:68,224)", "signature": "thermal_growth action returns total_z_error_um/compensation_needed_mm/spindle_rise_C", "status": "SHIP-READY", "fix": "Action surface exists and emits real values; engine is unnamed wrapper inside calc — fine for SFC"},
+    {"name": "SurfaceRoughnessPredictionEngine", "file": "(no dedicated engine; surface_finish + surface_integrity_predict + surface_roughness_calc actions exist)", "signature": "Ra/Rz emit via dispatcher actions", "status": "SHIP-READY", "fix": ""},
+    {"name": "CAMBridge — Fusion360", "file": "mcp-server/src/engines/Fusion360LiveBridgeEngine.ts + Fusion360StrategyEngine.ts + Fusion360MaterialBridgeEngine.ts", "signature": "live bridge + strategy + material — 3 engines", "status": "SHIP-READY", "fix": ""},
+    {"name": "CAMBridge — hyperMILL", "file": "mcp-server/src/engines/HyperMillDeepLearningEngine.ts (deep learning only)", "signature": "DL engine present; export bridge unverified", "status": "PARTIAL", "fix": "Verify hypermill-tool-export skill route → wire hmt export action through prism_cam dispatcher"},
+    {"name": "CAMBridge — Mastercam", "file": "(no MastercamBridge engine found in grep; mastercam-setup skill exists)", "signature": "expected — Mastercam .ext or post hook", "status": "MISSING", "fix": "Build MastercamBridgeEngine — minimum surface: emit speeds/feeds JSON + post hook for Mastercam .mcam-content tool library"}
+  ],
+
+  "dispatcher_actions": [
+    {"action": "prism_calc:cutting_force", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher:38-39 returns {Fc_N, Ff_N, power_kW, torque_Nm} from real engine result; pre-kienzle hook armed (L1066,1107)"},
+    {"action": "prism_calc:speed_feed", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher:42-43 returns {Vc, fz, n, vf}; cacheable action set"},
+    {"action": "prism_calc:tool_life", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher:40-41 returns {tool_life_min, wear_rate}; pre-taylor hook armed"},
+    {"action": "prism_calc:deflection", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher:58-59 returns {deflection_mm, safe} with safety_factor>=2 gate; tool_deflection_predict also at L98-99"},
+    {"action": "prism_calc:thermal_growth", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher:68-69 returns total_z_error_um, compensation_needed_mm, spindle_rise_C, time_to_stability_min"},
+    {"action": "prism_calc:specific_cutting_energy", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher:148-149 returns u_J_mm3, power_kW, energy_Wh, co2_g, class"},
+    {"action": "prism_calc:chatter_predict", "status": "EXISTS-REAL-VERIFY", "stub_evidence": "calcDispatcher:212-213 returns {stable, critical_depth_mm, margin}; Round3 F-r3-a1-05 flags mill_chatter_predict (millDispatcher:400) routes to MillingForceEngine 15L stub — calcDispatcher chatter_predict is separate route; verify SFC uses calc not mill route"},
+    {"action": "prism_calc:sfc_calculate", "status": "EXISTS", "stub_evidence": "calcDispatcher enum L1010 + productDispatcher:113; runtime behaviour unverified — needs functional smoke test"},
+    {"action": "prism_calc:sfc_feed_for_target", "status": "EXISTS", "stub_evidence": "calcDispatcher enum L1010"},
+    {"action": "prism_calc:sf_recommend / sf_compare / sf_optimize / sf_stochastic", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher enum L887"},
+    {"action": "prism_calc:kienzle_force / kienzle_coefficients / kienzle_milling / kienzle_size_effect", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher enum L835 (4 kienzle variants)"},
+    {"action": "prism_calc:turning_force", "status": "EXISTS-REAL", "stub_evidence": "calcDispatcher:74-75 returns Fc/Ff/Fp/power/torque with safety gate"},
+    {"action": "prism_calc:lathe_cost_optimize (Gilbert/Taylor triad)", "status": "MISSING", "stub_evidence": "Round3 F-r3-a1-01 confirmed; GilbertEconomicSpeedEngine EXISTS at engines:253 but no dispatcher route — engine is orphan"},
+    {"action": "prism_calc:cost_optimize (generic)", "status": "EXISTS-PARTIAL", "stub_evidence": "calcDispatcher:150-151 returns Vc_optimal/cost_per_part — does NOT expose Gilbert min-cost/max-prod/max-profit triad separately"},
+    {"action": "prism_cam:lathe_sf_full", "status": "EXISTS-REAL", "stub_evidence": "camDispatcher:3044 (per Round3 inventory)"},
+    {"action": "prism_mill:mill_quick_speed_feed", "status": "EXISTS-VERIFY", "stub_evidence": "Round3 F-r3-a1-05 flags mill domain for stub-route risk; this action's engine wiring unverified"}
+  ],
+
+  "output_completeness": {
+    "emit_today": [
+      "Vc (cutting_speed via speed_feed)",
+      "n / RPM (spindle_speed)",
+      "fz (feed_per_tooth)",
+      "vf (feed_rate mm/min)",
+      "ap / ae (via thin_wall_params + sfc_calculate downstream)",
+      "Q / MRR (mrr action returns mrr_cm3min)",
+      "Pc / power (power, power_kW, cutting_power_kW)",
+      "Fc / cutting force (Fc_N from cutting_force + turning_force)",
+      "Tc / tool life (tool_life_minutes from tool_life + stochastic_tool_life weibull)",
+      "δ / deflection (deflection_mm from deflection + tool_deflection_predict)",
+      "Ra predicted (Ra_um from surface_finish + surface_integrity_predict)",
+      "thermal growth z-error (total_z_error_um)",
+      "specific cutting energy u + CO2 + Wh/part",
+      "risk flags (is_safe in 60+ action results; safety.score in many)"
+    ],
+    "missing": [
+      "Unified SFC composite-result envelope (today caller must orchestrate 6-10 actions to assemble full SFC card)",
+      "Gilbert/Taylor min-cost/max-prod/max-profit triad as discrete output (engine exists, no surface)",
+      "Holder type ingestion → holder-resonance-aware deflection (ToolHolderRegistryEngine exists, not joined to deflection action)",
+      "CSS-RPM wrapping risk flag for high-RPM turning (chip-control skill mentions, no action surface)",
+      "Per-chipbreaker chip-form prediction (Round3 F-r3-a1-01 lathe_chip_control_validate MISSING)"
+    ]
+  },
+
+  "variability_coverage": {
+    "materials": "CANONICAL_KIENZLE has 6 ISO groups (P/M/K/N/S/H) populated; CANONICAL_MATERIAL_DB exists with AISI_ALIAS map but row count NOT verified in this audit",
+    "hardness_bands": "UNVERIFIED — constants.ts surface inspection shows kc1_1+mc per group but no explicit hardness-band axis; MaterialDatabaseBridgeEngine logs 'Bridged ${materials.size}' which suggests catalog beyond 6 ISO groups, BUT hardness band variability matrix is unconfirmed",
+    "coolant": "PARTIAL — coolant_strategy/coolant_recommend/coolant_lifecycle action surface exists; coolant×material variability matrix not joined to material lookup today",
+    "gap": "6 ISO × 5 hardness × 2 coolant = 60-cell variability matrix is NOT a single ingestable struct today. Constants give ISO baseline; hardness adjustment is implicit in flow_stress/Johnson-Cook actions; coolant adjustment via separate coolant_strategy action. SFC needs a unified MaterialVariabilityResolver wrapping these into a single 60-cell lookup."
+  },
+
+  "cam_plugin_bridges": [
+    {"cam": "Fusion 360", "status": "SHIP-READY — Fusion360LiveBridgeEngine + Fusion360StrategyEngine + Fusion360MaterialBridgeEngine wired; cam-fusion-live-ms0 branch active"},
+    {"cam": "hyperMILL", "status": "PARTIAL — HyperMillDeepLearningEngine exists; hypermill-tool-export skill emits .hmt but bridge engine not surfaced as dispatcher action"},
+    {"cam": "Mastercam", "status": "MISSING — no MastercamBridgeEngine found; mastercam-setup skill exists but no engine/dispatcher surface for sending SFC results into Mastercam tool library"},
+    {"cam": "PowerMill", "status": "MISSING — powermill-setup skill exists, no bridge engine"},
+    {"cam": "SolidCAM", "status": "PARTIAL — SolidCAMAIOrchestrationEngine exists; output wire unverified"},
+    {"cam": "NX CAM", "status": "MISSING — nx-cam-setup skill exists, no bridge engine"},
+    {"cam": "CATIA", "status": "MISSING — catia-cam-setup skill exists, no bridge engine"}
+  ],
+
+  "gap_engines_to_build": [
+    {"name": "SFCCompositeResultEngine", "priority": "P0", "why": "Today a buyer needs to orchestrate 6-10 dispatcher actions to assemble a single SFC card. Build one engine that calls cutting_force + speed_feed + tool_life + deflection + chatter_predict + thermal_growth + specific_cutting_energy + surface_finish + tolerance_analysis and emits a unified JSON envelope. This is the buy-this-tomorrow surface."},
+    {"name": "MaterialVariabilityResolverEngine (6×5×2 matrix)", "priority": "P0", "why": "60-cell variability matrix (ISO × hardness × coolant) is implicit across constants/actions today; SFC needs deterministic single-call resolver. Without this, customer must pass kc1.1+n+coolant manually — kills 'buy tomorrow' UX."},
+    {"name": "GilbertEconomicSpeedEngine wiring (engine EXISTS, no dispatcher route)", "priority": "P0", "why": "Engine EXISTS at engines:253 but ZERO dispatcher actions. Wire to prism_calc:lathe_cost_optimize + mill_cost_optimize. Unlocks the highest-ROI feature (min-cost/max-prod/max-profit triad) for ZERO net-new engine work — pure wiring fix."},
+    {"name": "MillingForceEngine de-stub OR re-route", "priority": "P0", "why": "MillingForceEngine is a 15-line {ok:false,stub:true} (file confirmed). Round3 F-r3-a1-05: mill_chatter_predict + mill_scientific_analyze both route to known-stub engines. Reroute to MillingPhysicsKernelEngine (which is real, 1923L) OR delete MillingForceEngine. Silent-false-green CI risk."},
+    {"name": "SpindleCharacteristicEngine", "priority": "P1", "why": "spindle_torque_available / spindle_plot_curve / spindle_check_cut exist as actions but no engine aggregates machine-profile.kW + torque curve + base-speed into ingestable struct. SFC needs this for machine-aware feed limiting."},
+    {"name": "CoolantDatabaseEngine", "priority": "P1", "why": "coolant_strategy / coolant_recommend / coolant_lifecycle actions exist but scattered. SFC needs single coolant ingest for variability matrix."},
+    {"name": "CSSWrappingRiskEngine (for high-RPM turning)", "priority": "P1", "why": "chip-control skill mentions CSS high-RPM wrapping risk; no action surface. SFC for turning needs this risk flag."},
+    {"name": "MastercamBridgeEngine + post hook", "priority": "P1", "why": "Mastercam is the largest CAM seat base in North America (~50% market). SFC without Mastercam export severely caps US revenue."},
+    {"name": "HolderResonanceJoinEngine (ToolHolderRegistry × DeflectionOverlay)", "priority": "P2", "why": "ToolHolderRegistryEngine exists, DeflectionOverlayEngine exists, not joined. Holder modal contribution to deflection is silent. Premium-tier feature."},
+    {"name": "lathe_chip_control_validate action + ChipControlEngine", "priority": "P2", "why": "Round3 F-r3-a1-01 missing action; turning-specific SFC needs chipbreaker validation for lights-out readiness verdict."}
+  ],
+
+  "summary": {
+    "ship_ready_pct": 68,
+    "ship_ready_pct_evidence": "26 engines/actions audited as SFC-critical: 17 SHIP-READY, 4 PARTIAL, 4 MISSING, 1 STUB. (17+0.5*4)/26 = 73% raw, but P0-gap-weighted (SFCCompositeResultEngine missing = critical product gap, GilbertEconomicSpeedEngine orphaned, MillingForceEngine stub blocking mill route, MaterialVariabilityResolver missing) reduces effective ship-ready to ~68%.",
+    "days_to_ship": 7,
+    "days_to_ship_breakdown": "P0 work (only path to paid SFC): 1d SFCCompositeResultEngine + dispatcher action, 1d MaterialVariabilityResolverEngine, 0.5d wire GilbertEconomicSpeedEngine to prism_calc:lathe_cost_optimize/mill_cost_optimize, 0.5d de-stub or re-route MillingForceEngine, 1d functional smoke test of sfc_calculate end-to-end against 6 ISO groups, 1d Fusion 360 round-trip integration test (already live bridge), 2d UX/copy/pricing-gate polish = 7d to paid v1. P1 (Mastercam bridge + SpindleCharacteristicEngine + CoolantDatabaseEngine) adds 5d for v1.1.",
+    "verdict": "AMBER — backend physics is 73% there but the buy-this-tomorrow PRODUCT surface (SFCCompositeResultEngine + MaterialVariabilityResolver) does NOT exist; the orchestration burden today lives in the caller. 7 days to ship v1 paid if focused on the 4 P0 items.",
+    "one_line": "SFC backend physics ~68% ship-ready: Kienzle/Taylor constants + 17 supporting engines REAL, but no unified SFC composite envelope + Gilbert engine ORPHANED + MillingForceEngine STUB blocking mill cohort + 60-cell variability matrix scattered — 7 days to paid v1 via 4 P0 fixes (Composite, VariabilityResolver, Gilbert wiring, MillingForce destub), 12 days to v1.1 with Mastercam bridge.",
+    "top_3_gap_engines_to_build": [
+      "SFCCompositeResultEngine — unify the 6-10 dispatcher action calls into a single buy-tomorrow JSON envelope",
+      "MaterialVariabilityResolverEngine — 6 ISO × 5 hardness × 2 coolant = 60-cell matrix in single resolver call",
+      "GilbertEconomicSpeedEngine dispatcher wiring — engine EXISTS at engines:253 but ZERO routes; pure wiring unlocks min-cost/max-prod/max-profit triad"
+    ]
+  }
+}

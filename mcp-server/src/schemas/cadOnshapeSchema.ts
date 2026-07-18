@@ -325,7 +325,7 @@ export const OnshapeWebhookPayloadSchema = z.object({
   userId: z.string(),
   timestamp: z.string().datetime(),
   webhookId: z.string(),
-  data: z.record(z.unknown()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
 });
 export type OnshapeWebhookPayload = z.infer<typeof OnshapeWebhookPayloadSchema>;
 
@@ -372,7 +372,7 @@ export type OnshapeResponse = z.infer<typeof OnshapeResponseSchema>;
 
 export const OnshapeCallLogEntrySchema = z.object({
   command: z.enum(ONSHAPE_COMMANDS),
-  args: z.record(z.unknown()),
+  args: z.record(z.string(), z.unknown()),
   ok: z.boolean(),
   error: z.string().optional(),
   statusCode: z.number().optional(),

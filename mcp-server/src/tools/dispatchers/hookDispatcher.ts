@@ -298,7 +298,7 @@ export function registerHookDispatcher(server: any): void {
               });
               return ok({ written: true, path, ok: validation.ok, summary: validation.summary });
             }
-            const validation = hookDAGValidatorEngine.validate({ manifest, manifestPath, events: eventsArg });
+            const validation = hookDAGValidatorEngine.validateManifest({ manifest, manifestPath, events: eventsArg });
             // slimResponse strips empty arrays, which collapses schema-guaranteed fields
             // (cycles:[], conflicts:[], available:[]) — bypass it so callers always get the
             // documented shape regardless of whether the validation found anything.

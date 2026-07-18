@@ -1,8 +1,13 @@
 ---
 description: Unified master search across system-viz graph + Obsidian vault + capability index + BUILD_STATE. Use INSTEAD OF Grep/Glob/Agent for "where is X" / "what handles Y" / "is Z built/wired/utilized" questions.
 allowed-tools: mcp__prism_safe__prism_session, Bash, Read
+composes_with:
+  - "/system-viz"
+consumes:
+  - "prism_calc:cutting_force"
+  - "prism_session:master_index_node_status"
+  - "prism_session:master_index_query"
 ---
-
 # /master-index — One Search Replaces N
 
 Unified ranked search across the **PRISM brain** in a single call. Fuses:

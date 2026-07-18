@@ -1,0 +1,1951 @@
+NOTE: Diff was truncated at 80000 bytes (full size 100021). If completeness cannot be assessed from the partial view, return VERDICT: FAIL with BLOCKER: diff-truncated.
+
+You are reviewer C of three independent Claude PRISM agents — an ANALYST-weighted third pass for the PRISM manufacturing-intelligence platform. Reviewers A and B cover holistic acceptance + test/wiring/scope axes; your job is what THEY are likely to under-emphasize. Do not assume they caught everything.
+Target: commit HEAD.
+
+Weight your attention toward analyst axes — hidden anti-patterns, silent regression risk, and integration breakage. FAIL on any violation you find:
+  1. Silent breakage — type drift across module boundaries, peer engines whose contract this diff secretly invalidates, swallowed errors that bury real failures
+  2. Hidden anti-patterns — sync fs in async paths that should yield, race conditions across concurrent chats, fields that look load-bearing but are dead code, dual-source constants that will drift
+  3. Error budget completeness — are ALL error variants reachable? Are ALL fs.write paths defended against EACCES / ENOENT / EEXIST without burying the failure? Does graceful-degrade log enough to debug post-incident?
+  4. Integration coupling — engines wired to EVERY dispatcher that would naturally consume them; type-level coupling between sibling engines surfaces compile-time errors on rename (not silent runtime degradation)
+  5. Security at I/O boundaries — every interpolated string sanitized for the medium it lands in (filenames, comment bodies, shell args, SQL, etc); path-traversal guards re-checked after construction (defense in depth)
+  6. Regression risk for downstream pipelines — does this diff change a type that downstream engines depend on without updating them? Does it change the shape of a dispatcher result without updating slimResponse exclusions?
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit eb0a8ca609b8464c32a2acb24285d275a4b2e2c4
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Wed May 13 21:39:24 2026 -0500
+
+    [MAIN] [AI-MAX-MS0]/U-AIMAX10: wire 46 AI capability/resource/training actions
+    
+    Wires 5 previously-thin AI engines into the prism_ai dispatcher with full
+    Zod schemas + snake/camel remap + 108-test suite.
+    
+    Engines wired:
+      - AICapabilityMaximizerEngine   → 9 ai_capability_* actions
+      - AIResourceLearningEngine      → 14 ai_resource_* actions (was 1)
+      - MasterAITrainingLedgerEngine  → 8 ai_training_master_* (was unwired)
+      - LatheAITrainingEngine         → 7 ai_training_lathe_* (was 1)
+      - TrainingLedgerEngine          → 8 ai_training_ledger_* (was unwired)
+    
+    Files:
+      NEW  mcp-server/src/schemas/aiCapabilityActionSchemas.ts  (574 LOC)
+           46 schemas + 9 exported enum tuples. z.number().finite() on
+           training-metric numerics to reject NaN/Infinity poisoning.
+      MOD  mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts (+341)
+           ALL_AI_ACTIONS spread-merges legacy + new tuple; ALL_AI_SCHEMAS
+           likewise; type AIAction = AIReasoningAction | AICapabilityAction.
+           46 new switch cases with lazy imports. Snake→camel remap for
+           MasterAITrainingLedger ingest/query/replay/stability/compare.
+           Legacy ai_material_lookup + ai_lathe_train preserved.
+      NEW  mcp-server/src/__tests__/aiReasoningDispatcher.uaimax10.test.ts
+           108 tests covering schema integrity, engine-direct sanity,
+           round-trip via MockMCPServer, schema-validation edges, coverage
+           exhaustiveness, and legacy anti-regression. All green.
+    
+    Per-file 2-agent scrutiny ran on both schema + dispatcher: PASS/PASS.
+    P2 findings closed before commit (extracted tuples, .finite(), enum on
+    list_runs.status).
+    
+    Closes AI-MAX-MS0/U-AIMAX10. Depends on U-AIMAX03 + U-AIMAX06 (both
+    complete). Unblocks U-AIMAX11 (skills) + U-AIMAX12 (protective hook).
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+diff --git a/mcp-server/src/__tests__/aiReasoningDispatcher.uaimax10.test.ts b/mcp-server/src/__tests__/aiReasoningDispatcher.uaimax10.test.ts
+new file mode 100644
+index 000000000..33d7176eb
+--- /dev/null
++++ b/mcp-server/src/__tests__/aiReasoningDispatcher.uaimax10.test.ts
+@@ -0,0 +1,1301 @@
++/**
++ * aiReasoningDispatcher — U-AIMAX10 round-trip suite
++ * ====================================================
++ *
++ * AI-MAX-MS0 / U-AIMAX10 — wires 46 new actions onto the prism_ai dispatcher,
++ * covering 5 AI engines: capability, resource learning, master training ledger,
++ * lathe AI training, and the generic training ledger.
++ *
++ * Real-behavior strategy:
++ *   - Engine-direct assertions check concrete return-shape fields (e.g.
++ *     LearningStats.total_patterns is a number, TrainingStats.best_practices is
++ *     an array) — never just `typeof === "object"`.
++ *   - Round-trip via the MCP `tool()` handler validates each of the 46 actions
++ *     ends-to-end through z.enum() + Zod validation + lazy import + engine call.
++ *   - Snake_case → camelCase remap correctness for MasterAITrainingLedger
++ *     ingest + query verified by reading back via replay()/listRuns().
++ *   - Schema validation tests exercise missing-required + bad-enum + adversarial
++ *     paths; NaN poisoning on training metrics is rejected (closes the
++ *     P2-2 finding from the per-file schema review).
++ *
++ * @milestone AI-MAX-MS0
++ * @unit U-AIMAX10
++ */
++
++import { describe, it, expect, beforeEach } from "vitest";
++import { registerAIReasoningDispatcher } from "../tools/dispatchers/aiReasoningDispatcher.js";
++import { aiCapabilityMaximizerEngine } from "../engines/AICapabilityMaximizerEngine.js";
++import { aiResourceLearningEngine } from "../engines/AIResourceLearningEngine.js";
++import { masterAITrainingLedgerEngine } from "../engines/MasterAITrainingLedgerEngine.js";
++import { latheAITrainingEngine } from "../engines/LatheAITrainingEngine.js";
++import { trainingLedgerEngine } from "../engines/TrainingLedgerEngine.js";
++import {
++  AI_CAPABILITY_ACTIONS,
++  ACTION_AI_CAPABILITY_SCHEMAS,
++  PIPELINE_TYPES,
++  RESOURCE_PATTERN_TYPES,
++  CAPABILITY_STRATEGY_AREAS,
++  HYPERMILL_TEMPLATE_TASKS,
++  CODE_QUALITY_LANGUAGES,
++  CODE_QUALITY_CONTEXTS,
++  RESOURCE_SPEED_FEED_OPERATIONS,
++  RUN_STATUSES,
++  DEPLOYMENT_STATUSES,
++} from "../schemas/aiCapabilityActionSchemas.js";
++
++// ─────────────────────────────────────────────────────────────────────────────
++// Mock MCP server (mirrors the harness used by the other uwireNN suites)
++// ─────────────────────────────────────────────────────────────────────────────
++
++interface CapturedTool {
++  name: string;
++  description: string;
++  schema: unknown;
++  handler: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
++}
++
++class MockMCPServer {
++  tools: CapturedTool[] = [];
++  tool(name: string, description: string, schema: unknown, handler: CapturedTool["handler"]) {
++    this.tools.push({ name, description, schema, handler });
++  }
++}
++
++interface CallResult {
++  ok: boolean;
++  data: Record<string, unknown>;
++  raw: Record<string, unknown>;
++}
++
++async function call(
++  server: MockMCPServer,
++  action: string,
++  params: Record<string, unknown> = {},
++): Promise<CallResult> {
++  const tool = server.tools[0];
++  if (!tool) throw new Error("MCP tool not registered");
++  const raw = (await tool.handler({ action, params })) as {
++    content: { type: string; text: string }[];
++  };
++  const text = raw.content[0]!.text;
++  const parsed = JSON.parse(text) as Record<string, unknown>;
++  const ok = parsed.success !== false;
++  const data = (parsed.data ?? parsed) as Record<string, unknown>;
++  return { ok, data, raw: parsed };
++}
++
++let server: MockMCPServer;
++
++beforeEach(() => {
++  server = new MockMCPServer();
++  registerAIReasoningDispatcher(
++    server as unknown as { tool: (...args: unknown[]) => void },
++  );
++});
++
++// ─────────────────────────────────────────────────────────────────────────────
++// 1. Schema integrity — action ↔ schema parity
++// ─────────────────────────────────────────────────────────────────────────────
++
++describe("U-AIMAX10 schema integrity", () => {
++  it("AI_CAPABILITY_ACTIONS has exactly 46 entries (9+14+8+7+8)", () => {
++    expect(AI_CAPABILITY_ACTIONS.length).toBe(46);
++  });
++
++  it("AI_CAPABILITY_ACTIONS entries are unique", () => {
++    const set = new Set(AI_CAPABILITY_ACTIONS);
++    expect(set.size).toBe(AI_CAPABILITY_ACTIONS.length);
++  });
++
++  it("ACTION_AI_CAPABILITY_SCHEMAS has exactly 46 keys matching AI_CAPABILITY_ACTIONS", () => {
++    const schemaKeys = Object.keys(ACTION_AI_CAPABILITY_SCHEMAS).sort();
++    const actionList = [...AI_CAPABILITY_ACTIONS].sort();
++    expect(schemaKeys).toEqual(actionList);
++  });
++
++  it("every AI_CAPABILITY_ACTIONS entry is snake_case", () => {
++    for (const a of AI_CAPABILITY_ACTIONS) {
++      expect(a).toMatch(/^[a-z][a-z0-9_]*$/);
++      expect(a).not.toMatch(/[A-Z]/);
++    }
++  });
++
++  it("PIPELINE_TYPES enumerates exactly the 8 expected pipelines", () => {
++    expect([...PIPELINE_TYPES].sort()).toEqual(
++      ["5axis", "grinding", "laser", "milling", "millturn", "sinker-edm", "waterjet", "wedm"],
++    );
++  });
++
++  it("RESOURCE_PATTERN_TYPES matches the engine ResourcePattern.type union", () => {
++    expect([...RESOURCE_PATTERN_TYPES].sort()).toEqual(
++      ["cam_automation", "code_quality", "gcode_pattern", "material_param", "python_api"],
++    );
++  });
++
++  it("CAPABILITY_STRATEGY_AREAS lists the 4 enhancement areas", () => {
++    expect([...CAPABILITY_STRATEGY_AREAS].sort()).toEqual(
++      ["code_generation", "context_retention", "knowledge_synthesis", "reasoning_depth"],
++    );
++  });
++
++  it("HYPERMILL_TEMPLATE_TASKS lists exactly 4 macro template kinds", () => {
++    expect(HYPERMILL_TEMPLATE_TASKS.length).toBe(4);
++    expect([...HYPERMILL_TEMPLATE_TASKS].sort()).toEqual(
++      ["electrode_create", "feature_edit", "joblist_iterate", "workplane_transform"],
++    );
++  });
++
++  it("CODE_QUALITY_LANGUAGES has typescript and python", () => {
++    expect([...CODE_QUALITY_LANGUAGES].sort()).toEqual(["python", "typescript"]);
++  });
++
++  it("CODE_QUALITY_CONTEXTS lists 4 write contexts", () => {
++    expect([...CODE_QUALITY_CONTEXTS].sort()).toEqual(
++      ["cam_script", "dispatcher", "engine", "test"],
++    );
++  });
++
++  it("RESOURCE_SPEED_FEED_OPERATIONS has roughing and finishing", () => {
++    expect([...RESOURCE_SPEED_FEED_OPERATIONS].sort()).toEqual(["finishing", "roughing"]);
++  });
++
++  it("RUN_STATUSES includes open + 3 terminal states", () => {
++    expect([...RUN_STATUSES].sort()).toEqual(
++      ["aborted", "completed", "failed_validation", "open"],
++    );
++  });
++
++  it("DEPLOYMENT_STATUSES has pending/deployed/rolled-back", () => {
++    expect([...DEPLOYMENT_STATUSES].sort()).toEqual(["deployed", "pending", "rolled-back"]);
++  });
++});
++
++// ─────────────────────────────────────────────────────────────────────────────
++// 2. Engine-direct sanity — assert concrete return shapes
++// ─────────────────────────────────────────────────────────────────────────────
++
++describe("AICapabilityMaximizerEngine — direct calls", () => {
++  it("computeMetrics returns finite positive capability_score AND 4 domain_scores", () => {
++    const m = aiCapabilityMaximizerEngine.computeMetrics();
++    expect(Number.isFinite(m.capability_score)).toBe(true);
++    expect(m.capability_score).toBeGreaterThan(0);
++    // capability_score = log10(K+1)*conf*log10(B+1)*(1-err) — engine math may exceed 1; just bound below
++    expect(Number.isFinite(m.domain_scores.code_generation)).toBe(true);
++    expect(Number.isFinite(m.domain_scores.knowledge_synthesis)).toBe(true);
++    expect(Number.isFinite(m.domain_scores.reasoning_depth)).toBe(true);
++    expect(Number.isFinite(m.domain_scores.context_retention)).toBe(true);
++  });
++
++  it("getReasoningPatterns returns ≥3 patterns each carrying id/name/steps[]", () => {
++    const patterns = aiCapabilityMaximizerEngine.getReasoningPatterns();
++    expect(patterns.length).toBeGreaterThanOrEqual(3);
++    for (const p of patterns) {
++      expect(typeof p.id).toBe("string");
++      expect(p.id.length).toBeGreaterThan(0);
++      expect(typeof p.name).toBe("string");
++      expect(p.name.length).toBeGreaterThan(0);
++      expect(Array.isArray(p.steps)).toBe(true);
++      expect(p.steps.length).toBeGreaterThan(0);
++      expect(typeof p.confidence_multiplier).toBe("number");
++    }
++  });
++
++  it("getReasoningPattern returns the requested pattern by id", () => {
++    const list = aiCapabilityMaximizerEngine.getReasoningPatterns();
++    const first = list[0]!;
++    const fetched = aiCapabilityMaximizerEngine.getReasoningPattern(first.id);
++    expect(fetched?.id).toBe(first.id);
++    expect(fetched?.name).toBe(first.name);
++  });
++
++  it("getReasoningPattern returns undefined for unknown id", () => {
++    const fetched = aiCapabilityMaximizerEngine.getReasoningPattern("does-not-exist-xyz");
++    expect(fetched).toBe(undefined);
++  });
++
++  it("applyReasoningPattern returns enhanced_recommendation containing problem text + reasoning_steps", () => {
++    const list = aiCapabilityMaximizerEngine.getReasoningPatterns();
++    const out = aiCapabilityMaximizerEngine.applyReasoningPattern(list[0]!.id, {
++      problem: "Optimize feed for D2 thin wall",
++      context: { material: "D2" },
++    });
++    expect(typeof out.enhanced_recommendation).toBe("string");
++    expect(out.enhanced_recommendation).toContain("Optimize feed for D2 thin wall");
++    expect(Array.isArray(out.reasoning_steps)).toBe(true);
++    expect(out.reasoning_steps.length).toBeGreaterThan(0);
++    expect(out.confidence_boost).toBeGreaterThanOrEqual(0);
++    expect(Array.isArray(out.validation_notes)).toBe(true);
++  });
++
++  it("applyReasoningPattern on unknown pattern returns 'Pattern not found' note + confidence_boost=0", () => {
++    const out = aiCapabilityMaximizerEngine.applyReasoningPattern("nope-xyz", {
++      problem: "x",
++      context: {},
++    });
++    expect(out.enhanced_recommendation).toBe("x");
++    expect(out.validation_notes).toContain("Pattern not found");
++    expect(out.confidence_boost).toBe(0);
++  });
++
++  it("generateCapabilityReport emits report text containing 'CAPABILITY'", () => {
++    const txt = aiCapabilityMaximizerEngine.generateCapabilityReport();
++    expect(typeof txt).toBe("string");
++    expect(txt).toMatch(/CAPABILITY/i);
++    expect(txt.length).toBeGreaterThan(100);
++  });
++
++  it("getEnhancementStrategy returns expected strategy keys for code_generation", () => {
++    const s = aiCapabilityMaximizerEngine.getEnhancementStrategy("code_generation");
++    expect(Array.isArray((s as { current_capabilities: unknown }).current_capabilities)).toBe(true);
++    expect(Array.isArray((s as { enhancement_targets: unknown }).enhancement_targets)).toBe(true);
++  });
++
++  it("getKnowledgeSources returns ≥1 entry with source/coverage_percentage", () => {
++    const sources = aiCapabilityMaximizerEngine.getKnowledgeSources();
++    expect(Array.isArray(sources)).toBe(true);
++    expect(sources.length).toBeGreaterThanOrEqual(1);
++    for (const src of sources) {
++      expect(typeof src.source).toBe("string");
++      expect(typeof src.coverage_percentage).toBe("number");
++    }
++  });
++});
++
++describe("AIResourceLearningEngine — direct calls", () => {
++  it("getEDMElectrodeDefaults exposes positive geometry.blockHeight + technology blocks", () => {
++    const d = aiResourceLearningEngine.getEDMElectrodeDefaults();
++    expect(typeof d.geometry.blockHeight).toBe("number");
++    expect(d.geometry.blockHeight).toBeGreaterThan(0);
++    expect(typeof d.technology.roughnessRoughing).toBe("number");
++    expect(d.edm.VDISurfaceTolerance).toBeGreaterThan(0);
++  });
++
++  it("getAllOkumaPatterns returns ≥1 pattern with non-empty cycle and syntax", () => {
++    const arr = aiResourceLearningEngine.getAllOkumaPatterns();
++    expect(arr.length).toBeGreaterThanOrEqual(1);
++    expect(typeof arr[0]!.cycle).toBe("string");
++    expect(arr[0]!.cycle.length).toBeGreaterThan(0);
++    expect(typeof arr[0]!.syntax).toBe("string");
++  });
++
++  it("getHyperMillAPIPatterns(undefined) returns ≥1 PythonAPIPattern with module/function", () => {
++    const arr = aiResourceLearningEngine.getHyperMillAPIPatterns();
++    expect(arr.length).toBeGreaterThanOrEqual(1);
++    expect(typeof arr[0]!.module).toBe("string");
++    expect(typeof arr[0]!.function).toBe("string");
++  });
++
++  it("generateHyperMillTemplate produces a string that mentions the task keyword", () => {
++    const template = aiResourceLearningEngine.generateHyperMillTemplate("electrode_create");
++    expect(typeof template).toBe("string");
++    expect(template.length).toBeGreaterThan(50);
++    expect(template.toLowerCase()).toContain("electrode");
++  });
++
++  it("getCodeQualityRecommendations(typescript,engine) returns 4 keyed string arrays", () => {
++    const recs = aiResourceLearningEngine.getCodeQualityRecommendations("typescript", "engine");
++    expect(Array.isArray(recs.structure)).toBe(true);
++    expect(Array.isArray(recs.mandatory)).toBe(true);
++    expect(Array.isArray(recs.anti_patterns)).toBe(true);
++    expect(Array.isArray(recs.examples)).toBe(true);
++    expect(recs.structure.length).toBeGreaterThan(0);
++    expect(recs.mandatory.length).toBeGreaterThan(0);
++  });
++
++  it("getTrainingContext output mentions 'AI RESOURCE LEARNING CONTEXT' + 'EDM Electrode Defaults'", () => {
++    const ctx = aiResourceLearningEngine.getTrainingContext();
++    expect(ctx).toContain("AI RESOURCE LEARNING CONTEXT");
++    expect(ctx).toContain("EDM Electrode Defaults");
++    expect(ctx.length).toBeGreaterThan(200);
++  });
++
++  it("getKnowledgeCoverage returns numeric percentages for all 4 sub-domains", () => {
++    const cov = aiResourceLearningEngine.getKnowledgeCoverage();
++    expect(typeof cov.gcodeComplete).toBe("number");
++    expect(typeof cov.pythonApiComplete).toBe("number");
++    expect(typeof cov.materialComplete).toBe("number");
++    expect(typeof cov.overallCoverage).toBe("number");
++    expect(cov.materialComplete).toBeGreaterThan(0);
++    expect(cov.materialComplete).toBeLessThanOrEqual(100);
++    expect(cov.overallCoverage).toBeGreaterThan(0);
++  });
++
++  it("getAITrainingData returns 4 typed arrays (gcode/python/material/codeQuality)", () => {
++    const td = aiResourceLearningEngine.getAITrainingData();
++    expect(Array.isArray(td.gcodePatterns)).toBe(true);
++    expect(Array.isArray(td.pythonPatterns)).toBe(true);
++    expect(Array.isArray(td.materialRules)).toBe(true);
++    expect(Array.isArray(td.codeQuality)).toBe(true);
++    expect(td.gcodePatterns.length).toBeGreaterThanOrEqual(1);
++    expect(td.pythonPatterns.length).toBeGreaterThanOrEqual(1);
++  });
++});
++
++describe("MasterAITrainingLedgerEngine — direct calls", () => {
++  beforeEach(() => masterAITrainingLedgerEngine.reset());
++
++  it("totalRuns starts at 0 after reset", () => {
++    expect(masterAITrainingLedgerEngine.totalRuns()).toBe(0);
++  });
++
++  it("supportedPipelines returns the 8 pipelines + each appears in PIPELINE_TYPES", () => {
++    const list = masterAITrainingLedgerEngine.supportedPipelines();
++    expect(list.length).toBe(8);
++    for (const p of list) {
++      expect((PIPELINE_TYPES as readonly string[]).includes(p)).toBe(true);
++    }
++  });
++
++  it("ingest stores an entry and replay returns it with schemaVersion stamped", () => {
++    masterAITrainingLedgerEngine.ingest({
++      runId: "run-1",
++      pipelineType: "wedm",
++      datasetFingerprint: "fp-1",
++      version: "v1",
++      trainingMetrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.92 },
++      deploymentStatus: "pending",
++      sloTargets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      createdAt: new Date().toISOString(),
++    });
++    expect(masterAITrainingLedgerEngine.totalRuns()).toBe(1);
++    const replayed = masterAITrainingLedgerEngine.replay("run-1");
++    expect(replayed!.runId).toBe("run-1");
++    expect(replayed!.pipelineType).toBe("wedm");
++    expect(replayed!.schemaVersion).toBeGreaterThan(0);
++    expect(replayed!.trainingMetrics.evalScore).toBeCloseTo(0.92, 3);
++  });
++
++  it("query filters by pipelineType, returning only matching entries", () => {
++    masterAITrainingLedgerEngine.ingest({
++      runId: "run-mill",
++      pipelineType: "milling",
++      datasetFingerprint: "fp-m",
++      version: "v1",
++      trainingMetrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.9 },
++      deploymentStatus: "deployed",
++      sloTargets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      createdAt: new Date().toISOString(),
++    });
++    masterAITrainingLedgerEngine.ingest({
++      runId: "run-wedm",
++      pipelineType: "wedm",
++      datasetFingerprint: "fp-w",
++      version: "v1",
++      trainingMetrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.9 },
++      deploymentStatus: "deployed",
++      sloTargets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      createdAt: new Date().toISOString(),
++    });
++    const milling = masterAITrainingLedgerEngine.query({ pipelineType: "milling" });
++    expect(milling.length).toBe(1);
++    expect(milling[0]!.runId).toBe("run-mill");
++  });
++
++  it("replay returns null for unknown runId", () => {
++    expect(masterAITrainingLedgerEngine.replay("nope")).toBeNull();
++  });
++
++  it("sloStatus reports per-pipeline pass/fail counts based on minEvalScore", () => {
++    masterAITrainingLedgerEngine.ingest({
++      runId: "pass-1",
++      pipelineType: "wedm",
++      datasetFingerprint: "fp",
++      version: "v1",
++      trainingMetrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.9 },
++      deploymentStatus: "deployed",
++      sloTargets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      createdAt: new Date().toISOString(),
++    });
++    masterAITrainingLedgerEngine.ingest({
++      runId: "fail-1",
++      pipelineType: "wedm",
++      datasetFingerprint: "fp",
++      version: "v1",
++      trainingMetrics: { loss: 0.5, accuracy: 0.7, mae: 0.2, evalScore: 0.6 },
++      deploymentStatus: "deployed",
++      sloTargets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      createdAt: new Date().toISOString(),
++    });
++    const slo = masterAITrainingLedgerEngine.sloStatus();
++    const wedm = slo.find((s) => s.pipelineType === "wedm");
++    expect(wedm?.pipelineType).toBe("wedm");
++    expect((wedm!.passing as number) + (wedm!.failing as number)).toBe(2);
++  });
++});
++
++describe("LatheAITrainingEngine — direct calls", () => {
++  it("parseProgram extracts filename and total_lines>5 for a real program", () => {
++    const r = latheAITrainingEngine.parseProgram(
++      "(SIMPLE)\nO0001\nG21 G40 G80\nT0101\nG97 S1500 M03\nG0 X10 Z0\nM30\n",
++      "/tmp/test.MIN",
++    );
++    expect(r.filename).toBe("test.MIN");
++    expect(r.filepath).toBe("/tmp/test.MIN");
++    expect(r.total_lines).toBeGreaterThan(5);
++    expect(Array.isArray(r.operation_sequence)).toBe(true);
++  });
++
++  it("getTrainingStats returns TrainingStats with numeric programs_parsed and patterns_learned", () => {
++    const s = latheAITrainingEngine.getTrainingStats();
++    expect(typeof s.programs_parsed).toBe("number");
++    expect(typeof s.programs_analyzed).toBe("number");
++    expect(typeof s.patterns_learned).toBe("number");
++    expect(typeof s.avg_program_score).toBe("number");
++    expect(Array.isArray(s.best_practices)).toBe(true);
++    expect(s.common_issues instanceof Map).toBe(true);
++  });
++
++  it("getLearnedPatterns returns an array (possibly empty before training)", () => {
++    const p = latheAITrainingEngine.getLearnedPatterns();
++    expect(Array.isArray(p)).toBe(true);
++  });
++
++  it("trainFromPrograms returns TrainingStats summary with programs_parsed≥batch size", () => {
++    const out = latheAITrainingEngine.trainFromPrograms([
++      { content: "O0001\nT0101\nG0 X0 Z0\nM30\n", filepath: "/tmp/a.MIN" },
++      { content: "O0002\nT0202\nG97 S1500\nG0 X10 Z0\nG1 Z-5 F0.1\nM30\n", filepath: "/tmp/b.MIN" },
++    ]);
++    expect(typeof out.programs_parsed).toBe("number");
++    expect(out.programs_parsed).toBeGreaterThanOrEqual(2);
++  });
++
++  it("analyzeProgram returns issues + numeric score for a tiny program", () => {
++    const parsed = latheAITrainingEngine.parseProgram(
++      "O0001\nT0101\nG0 X0 Z0\nM30\n",
++      "/tmp/x.MIN",
++    );
++    const analysis = latheAITrainingEngine.analyzeProgram(parsed);
++    expect(typeof analysis.score).toBe("number");
++    expect(analysis.score).toBeGreaterThanOrEqual(0);
++    expect(Array.isArray(analysis.issues)).toBe(true);
++  });
++});
++
++describe("TrainingLedgerEngine — direct calls", () => {
++  beforeEach(() => trainingLedgerEngine.clearAll());
++
++  it("openRun returns record with status='open' carrying the supplied experiment_id", () => {
++    const r = trainingLedgerEngine.openRun({
++      experiment_id: "test-exp",
++      attempt: 1,
++      start_ts: 1234567890,
++      base_weight_sha256: "a".repeat(64),
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 42,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tiktoken/cl100k-base",
++      trainer_commit_sha: "abc1234",
++      author: "test",
++    });
++    expect(r.experiment_id).toBe("test-exp");
++    expect(r.attempt).toBe(1);
++    expect(r.status).toBe("open");
++    expect(r.start_ts).toBe(1234567890);
++    expect(typeof r.run_id).toBe("string");
++    expect(r.run_id.length).toBeGreaterThan(0);
++    expect(r.fingerprint.aug_seed).toBe(42);
++  });
++
++  it("closeRun transitions status='open' → 'completed' and stores elapsed_ms", () => {
++    const start = trainingLedgerEngine.openRun({
++      experiment_id: "exp-close",
++      attempt: 1,
++      start_ts: 1000,
++      base_weight_sha256: "a".repeat(64),
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 1,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tv",
++      trainer_commit_sha: "abc1234",
++      author: "t",
++    });
++    expect(start.status).toBe("open");
++    const closed = trainingLedgerEngine.closeRun({
++      run_id: start.run_id,
++      end_ts: 5000,
++      status: "completed",
++      final_weight_sha256: "d".repeat(64),
++      eval_metrics_sha256: "e".repeat(64),
++      elapsed_ms: 4000,
++      wall_clock_ms: 4000,
++    });
++    expect(closed.status).toBe("completed");
++    expect(closed.end_ts).toBe(5000);
++    expect(closed.outcome?.elapsed_ms).toBe(4000);
++  });
++
++  it("getRun returns null for unknown id", () => {
++    expect(trainingLedgerEngine.getRun("does-not-exist")).toBeNull();
++  });
++
++  it("listRuns filter by experiment_id returns matching subset", () => {
++    trainingLedgerEngine.openRun({
++      experiment_id: "expA",
++      attempt: 1,
++      start_ts: 1,
++      base_weight_sha256: "a".repeat(64),
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 1,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tv",
++      trainer_commit_sha: "abc1234",
++      author: "t",
++    });
++    trainingLedgerEngine.openRun({
++      experiment_id: "expB",
++      attempt: 1,
++      start_ts: 1,
++      base_weight_sha256: "a".repeat(64),
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 1,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tv",
++      trainer_commit_sha: "abc1234",
++      author: "t",
++    });
++    const onlyA = trainingLedgerEngine.listRuns({ experiment_id: "expA" });
++    expect(onlyA.length).toBe(1);
++    expect(onlyA[0]!.experiment_id).toBe("expA");
++  });
++
++  it("toSnapshot + clearAll + loadSnapshot restores the exact set of runs", () => {
++    trainingLedgerEngine.openRun({
++      experiment_id: "snap-test",
++      attempt: 1,
++      start_ts: 2000,
++      base_weight_sha256: "a".repeat(64),
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 7,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tv",
++      trainer_commit_sha: "abc1234",
++      author: "t",
++    });
++    expect(trainingLedgerEngine.listRuns().length).toBe(1);
++    const snap = trainingLedgerEngine.toSnapshot();
++    trainingLedgerEngine.clearAll();
++    expect(trainingLedgerEngine.listRuns().length).toBe(0);
++    trainingLedgerEngine.loadSnapshot(snap);
++    expect(trainingLedgerEngine.listRuns().length).toBe(1);
++    expect(trainingLedgerEngine.listRuns()[0]!.experiment_id).toBe("snap-test");
++  });
++});
++
++// ─────────────────────────────────────────────────────────────────────────────
++// 3. Round-trip wire tests — every action callable through MCP handler
++// ─────────────────────────────────────────────────────────────────────────────
++
++describe("U-AIMAX10 round-trip — Capability actions", () => {
++  it("ai_capability_compute_metrics returns a finite positive capability_score", async () => {
++    const r = await call(server, "ai_capability_compute_metrics");
++    expect(r.ok).toBe(true);
++    const score = r.data.capability_score as number;
++    expect(Number.isFinite(score)).toBe(true);
++    expect(score).toBeGreaterThan(0);
++  });
++
++  it("ai_capability_get_metrics returns the same capability_score as engine.getMetrics", async () => {
++    const r = await call(server, "ai_capability_get_metrics");
++    expect(r.ok).toBe(true);
++    const engineMetrics = aiCapabilityMaximizerEngine.getMetrics();
++    expect(r.data.capability_score).toBeCloseTo(engineMetrics.capability_score, 6);
++  });
++
++  it("ai_capability_enhancement_recommendations returns an array (may be empty after high baseline)", async () => {
++    const r = await call(server, "ai_capability_enhancement_recommendations");
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect(Array.isArray(arr)).toBe(true);
++  });
++
++  it("ai_capability_reasoning_patterns returns ≥3 patterns with id/name/steps", async () => {
++    const r = await call(server, "ai_capability_reasoning_patterns");
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect((arr as unknown[]).length).toBeGreaterThanOrEqual(3);
++    const first = (arr as Record<string, unknown>[])[0]!;
++    expect(typeof first.id).toBe("string");
++    expect(typeof first.name).toBe("string");
++    expect(Array.isArray(first.steps)).toBe(true);
++  });
++
++  it("ai_capability_reasoning_pattern_get fetches the engine's first pattern by id", async () => {
++    const list = aiCapabilityMaximizerEngine.getReasoningPatterns();
++    const r = await call(server, "ai_capability_reasoning_pattern_get", { id: list[0]!.id });
++    expect(r.ok).toBe(true);
++    expect(r.data.id).toBe(list[0]!.id);
++    expect(r.data.name).toBe(list[0]!.name);
++  });
++
++  it("ai_capability_reasoning_pattern_get rejects empty id (schema validation)", async () => {
++    const r = await call(server, "ai_capability_reasoning_pattern_get", { id: "" });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_capability_knowledge_sources returns entries with source/coverage_percentage", async () => {
++    const r = await call(server, "ai_capability_knowledge_sources");
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect((arr as unknown[]).length).toBeGreaterThanOrEqual(1);
++    const first = (arr as Record<string, unknown>[])[0]!;
++    expect(typeof first.source).toBe("string");
++    expect(typeof first.coverage_percentage).toBe("number");
++  });
++
++  it("ai_capability_enhancement_strategy returns current_capabilities[] for each valid area", async () => {
++    for (const area of CAPABILITY_STRATEGY_AREAS) {
++      const r = await call(server, "ai_capability_enhancement_strategy", { area });
++      expect(r.ok).toBe(true);
++      expect(Array.isArray(r.data.current_capabilities)).toBe(true);
++      expect(Array.isArray(r.data.enhancement_targets)).toBe(true);
++    }
++  });
++
++  it("ai_capability_enhancement_strategy rejects bad area (schema validation)", async () => {
++    const r = await call(server, "ai_capability_enhancement_strategy", { area: "telepathy" });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_capability_apply_reasoning_pattern routes problem text through enhanced_recommendation", async () => {
++    const list = aiCapabilityMaximizerEngine.getReasoningPatterns();
++    const r = await call(server, "ai_capability_apply_reasoning_pattern", {
++      pattern_id: list[0]!.id,
++      input: { problem: "speed feed for D2", context: { material: "D2" } },
++    });
++    expect(r.ok).toBe(true);
++    expect(r.data.enhanced_recommendation as string).toContain("speed feed for D2");
++    expect(Array.isArray(r.data.reasoning_steps)).toBe(true);
++  });
++
++  it("ai_capability_apply_reasoning_pattern rejects missing input.problem", async () => {
++    const r = await call(server, "ai_capability_apply_reasoning_pattern", {
++      pattern_id: "x",
++      input: { context: {} },
++    });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_capability_report emits report containing 'CAPABILITY'", async () => {
++    const r = await call(server, "ai_capability_report");
++    expect(r.ok).toBe(true);
++    const text =
++      typeof r.data === "string"
++        ? r.data
++        : ((r.data.value as string | undefined) ?? (r.raw.data as string | undefined) ?? "");
++    expect(text.length).toBeGreaterThan(50);
++    expect(text).toMatch(/CAPABILITY/i);
++  });
++});
++
++describe("U-AIMAX10 round-trip — Resource actions", () => {
++  it("ai_resource_code_quality returns structure+mandatory+anti_patterns string arrays for ts engine", async () => {
++    const r = await call(server, "ai_resource_code_quality", {
++      language: "typescript",
++      context: "engine",
++    });
++    expect(r.ok).toBe(true);
++    const d = r.data as { structure: unknown[]; mandatory: unknown[]; anti_patterns: unknown[]; examples: unknown[] };
++    expect(Array.isArray(d.structure)).toBe(true);
++    expect(Array.isArray(d.mandatory)).toBe(true);
++    expect(Array.isArray(d.anti_patterns)).toBe(true);
++    expect(d.structure.length).toBeGreaterThan(0);
++    expect(d.mandatory.length).toBeGreaterThan(0);
++  });
++
++  it("ai_resource_code_quality rejects bad language (schema validation)", async () => {
++    const r = await call(server, "ai_resource_code_quality", {
++      language: "rust",
++      context: "engine",
++    });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_resource_material_parameters routes through engine for AISI 4140", async () => {
++    const r = await call(server, "ai_resource_material_parameters", { material: "AISI 4140" });
++    expect(r.ok).toBe(true);
++  });
++
++  it("ai_resource_hypermill_patterns returns ≥1 pattern with module/function strings", async () => {
++    const r = await call(server, "ai_resource_hypermill_patterns");
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect((arr as unknown[]).length).toBeGreaterThanOrEqual(1);
++    const first = (arr as Record<string, unknown>[])[0]!;
++    expect(typeof first.module).toBe("string");
++    expect(typeof first.function).toBe("string");
++  });
++
++  it("ai_resource_okuma_pattern rejects missing cycle", async () => {
++    const r = await call(server, "ai_resource_okuma_pattern", {});
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_resource_okuma_pattern accepts cycle=G132", async () => {
++    const r = await call(server, "ai_resource_okuma_pattern", { cycle: "G132" });
++    expect(r.ok).toBe(true);
++  });
++
++  it("ai_resource_okuma_all returns ≥1 pattern with cycle/syntax/description", async () => {
++    const r = await call(server, "ai_resource_okuma_all");
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect((arr as unknown[]).length).toBeGreaterThanOrEqual(1);
++    const first = (arr as Record<string, unknown>[])[0]!;
++    expect(typeof first.cycle).toBe("string");
++    expect(typeof first.syntax).toBe("string");
++  });
++
++  it("ai_resource_edm_defaults returns geometry.blockHeight as a positive number", async () => {
++    const r = await call(server, "ai_resource_edm_defaults");
++    expect(r.ok).toBe(true);
++    const geom = (r.data as { geometry: { blockHeight: number } }).geometry;
++    expect(typeof geom.blockHeight).toBe("number");
++    expect(geom.blockHeight).toBeGreaterThan(0);
++  });
++
++  it("ai_resource_patterns_by_type accepts each of the 5 valid pattern types", async () => {
++    for (const type of RESOURCE_PATTERN_TYPES) {
++      const r = await call(server, "ai_resource_patterns_by_type", { type });
++      expect(r.ok).toBe(true);
++    }
++  });
++
++  it("ai_resource_patterns_by_type rejects unknown type (schema validation)", async () => {
++    const r = await call(server, "ai_resource_patterns_by_type", { type: "junk" });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_resource_stats round-trips (engine may legitimately return null)", async () => {
++    const r = await call(server, "ai_resource_stats");
++    expect(r.ok).toBe(true);
++  });
++
++  it("ai_resource_training_context returns text containing the banner", async () => {
++    const r = await call(server, "ai_resource_training_context");
++    expect(r.ok).toBe(true);
++    const txt =
++      typeof r.data === "string"
++        ? r.data
++        : ((r.data.value as string | undefined) ?? "");
++    expect(txt).toContain("AI RESOURCE LEARNING CONTEXT");
++  });
++
++  it("ai_resource_extract_gcode requires program_content (schema validation)", async () => {
++    const bad = await call(server, "ai_resource_extract_gcode", {});
++    expect(bad.ok).toBe(false);
++  });
++
++  it("ai_resource_extract_gcode accepts a small G-code blob", async () => {
++    const good = await call(server, "ai_resource_extract_gcode", {
++      program_content: "G0 X10 Y10\nG1 X20 F100\n",
++    });
++    expect(good.ok).toBe(true);
++  });
++
++  it("ai_resource_speed_feed accepts both roughing and finishing for AISI 4140", async () => {
++    for (const operation of RESOURCE_SPEED_FEED_OPERATIONS) {
++      const r = await call(server, "ai_resource_speed_feed", { material: "AISI 4140", operation });
++      expect(r.ok).toBe(true);
++    }
++  });
++
++  it("ai_resource_generate_hypermill_template emits ≥50-char text for every macro task", async () => {
++    for (const task of HYPERMILL_TEMPLATE_TASKS) {
++      const r = await call(server, "ai_resource_generate_hypermill_template", { task });
++      expect(r.ok).toBe(true);
++      const txt =
++        typeof r.data === "string"
++          ? r.data
++          : ((r.data.value as string | undefined) ?? "");
++      expect(txt.length).toBeGreaterThan(50);
++    }
++  });
++
++  it("ai_resource_training_data returns 4 arrays (gcode/python/material/codeQuality)", async () => {
++    const r = await call(server, "ai_resource_training_data");
++    expect(r.ok).toBe(true);
++    const td = r.data as {
++      gcodePatterns: unknown[];
++      pythonPatterns: unknown[];
++      materialRules: unknown[];
++      codeQuality: unknown[];
++    };
++    expect(Array.isArray(td.gcodePatterns)).toBe(true);
++    expect(Array.isArray(td.pythonPatterns)).toBe(true);
++    expect(Array.isArray(td.materialRules)).toBe(true);
++    expect(Array.isArray(td.codeQuality)).toBe(true);
++    expect(td.gcodePatterns.length).toBeGreaterThanOrEqual(1);
++  });
++
++  it("ai_resource_knowledge_coverage returns finite percentages for all 4 sub-domains", async () => {
++    const r = await call(server, "ai_resource_knowledge_coverage");
++    expect(r.ok).toBe(true);
++    const cov = r.data as { gcodeComplete: number; pythonApiComplete: number; materialComplete: number; overallCoverage: number };
++    expect(Number.isFinite(cov.gcodeComplete)).toBe(true);
++    expect(Number.isFinite(cov.pythonApiComplete)).toBe(true);
++    expect(Number.isFinite(cov.materialComplete)).toBe(true);
++    expect(Number.isFinite(cov.overallCoverage)).toBe(true);
++    expect(cov.overallCoverage).toBeGreaterThan(0);
++  });
++});
++
++describe("U-AIMAX10 round-trip — Master training ledger actions", () => {
++  beforeEach(() => masterAITrainingLedgerEngine.reset());
++
++  it("ai_training_master_total_runs starts at 0", async () => {
++    const r = await call(server, "ai_training_master_total_runs");
++    expect(r.ok).toBe(true);
++    const n = typeof r.data === "number" ? r.data : (r.data.value as number);
++    expect(n).toBe(0);
++  });
++
++  it("ai_training_master_supported_pipelines returns 8 named pipelines incl. milling+wedm", async () => {
++    const r = await call(server, "ai_training_master_supported_pipelines");
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect((arr as unknown[]).length).toBe(8);
++    expect((arr as string[])).toContain("milling");
++    expect((arr as string[])).toContain("wedm");
++  });
++
++  it("ai_training_master_ingest remaps snake→camel and engine receives camelCase fields", async () => {
++    const r = await call(server, "ai_training_master_ingest", {
++      run_id: "rt-run-1",
++      pipeline_type: "wedm",
++      dataset_fingerprint: "fp-rt",
++      version: "v1",
++      training_metrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.91 },
++      deployment_status: "pending",
++      slo_targets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      created_at: new Date().toISOString(),
++    });
++    expect(r.ok).toBe(true);
++    expect(masterAITrainingLedgerEngine.totalRuns()).toBe(1);
++    const replayed = masterAITrainingLedgerEngine.replay("rt-run-1");
++    expect(replayed!.pipelineType).toBe("wedm");
++    expect(replayed!.datasetFingerprint).toBe("fp-rt");
++    expect(replayed!.trainingMetrics.evalScore).toBeCloseTo(0.91, 3);
++    expect(replayed!.sloTargets.minEvalScore).toBeCloseTo(0.85, 3);
++  });
++
++  it("ai_training_master_ingest rejects unknown pipeline_type", async () => {
++    const r = await call(server, "ai_training_master_ingest", {
++      run_id: "bad",
++      pipeline_type: "additive",
++      dataset_fingerprint: "fp",
++      version: "v1",
++      training_metrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.9 },
++      deployment_status: "pending",
++      slo_targets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      created_at: new Date().toISOString(),
++    });
++    expect(r.ok).toBe(false);
++    expect(masterAITrainingLedgerEngine.totalRuns()).toBe(0);
++  });
++
++  it("ai_training_master_ingest rejects NaN in training_metrics (closes schema-review P2-2)", async () => {
++    const r = await call(server, "ai_training_master_ingest", {
++      run_id: "nan",
++      pipeline_type: "wedm",
++      dataset_fingerprint: "fp",
++      version: "v1",
++      training_metrics: { loss: Number.NaN, accuracy: 0.9, mae: 0.05, evalScore: 0.9 },
++      deployment_status: "pending",
++      slo_targets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      created_at: new Date().toISOString(),
++    });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_training_master_query with pipeline_type=milling returns only milling runs", async () => {
++    await call(server, "ai_training_master_ingest", {
++      run_id: "q1",
++      pipeline_type: "milling",
++      dataset_fingerprint: "fp",
++      version: "v1",
++      training_metrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.9 },
++      deployment_status: "deployed",
++      slo_targets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      created_at: new Date().toISOString(),
++    });
++    await call(server, "ai_training_master_ingest", {
++      run_id: "q2",
++      pipeline_type: "wedm",
++      dataset_fingerprint: "fp",
++      version: "v1",
++      training_metrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.9 },
++      deployment_status: "deployed",
++      slo_targets: { minEvalScore: 0.85, maxLoss: 0.2 },
++      created_at: new Date().toISOString(),
++    });
++    const r = await call(server, "ai_training_master_query", { pipeline_type: "milling" });
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect((arr as unknown[]).length).toBe(1);
++    expect((arr as { runId: string }[])[0]!.runId).toBe("q1");
++  });
++
++  it("ai_training_master_replay returns null-shape for unknown run_id (no leaked LedgerEntry)", async () => {
++    const r = await call(server, "ai_training_master_replay", { run_id: "ghost" });
++    expect(r.ok).toBe(true);
++    const d = r.data as Record<string, unknown> | null | undefined;
++    expect(d === null || d === undefined || d.runId === undefined).toBe(true);
++  });
++
++  it("ai_training_master_pipeline_stability rejects missing pipeline_type, accepts valid one", async () => {
++    const bad = await call(server, "ai_training_master_pipeline_stability", {});
++    expect(bad.ok).toBe(false);
++    const good = await call(server, "ai_training_master_pipeline_stability", {
++      pipeline_type: "milling",
++    });
++    expect(good.ok).toBe(true);
++    expect((good.data as { pipelineType: string }).pipelineType).toBe("milling");
++  });
++
++  it("ai_training_master_compare returns object with pipelineA + pipelineB echoed back", async () => {
++    const r = await call(server, "ai_training_master_compare", {
++      pipeline_a: "milling",
++      pipeline_b: "wedm",
++    });
++    expect(r.ok).toBe(true);
++    const d = r.data as { pipelineA: string; pipelineB: string; moreStable?: string };
++    expect(d.pipelineA).toBe("milling");
++    expect(d.pipelineB).toBe("wedm");
++  });
++
++  it("ai_training_master_slo_status returns an array (empty when ledger is empty)", async () => {
++    const r = await call(server, "ai_training_master_slo_status");
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect(Array.isArray(arr)).toBe(true);
++  });
++});
++
++describe("U-AIMAX10 round-trip — Lathe training actions", () => {
++  it("ai_training_lathe_parse extracts filename + total_lines for a real program", async () => {
++    const r = await call(server, "ai_training_lathe_parse", {
++      content: "O0001\nT0101\nG97 S1500\nG0 X10 Z0\nM30\n",
++      filepath: "/tmp/u.MIN",
++    });
++    expect(r.ok).toBe(true);
++    expect(r.data.filename).toBe("u.MIN");
++    expect((r.data.total_lines as number)).toBeGreaterThan(0);
++  });
++
++  it("ai_training_lathe_parse rejects empty content (schema validation)", async () => {
++    const r = await call(server, "ai_training_lathe_parse", { content: "", filepath: "x.MIN" });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_training_lathe_analyze returns score + issues[] for a tiny program", async () => {
++    const parsed = latheAITrainingEngine.parseProgram(
++      "O0001\nT0101\nM30\n",
++      "/tmp/a.MIN",
++    );
++    const r = await call(server, "ai_training_lathe_analyze", {
++      program: parsed as unknown as Record<string, unknown>,
++    });
++    expect(r.ok).toBe(true);
++    expect(typeof r.data.score).toBe("number");
++    expect(Array.isArray(r.data.issues)).toBe(true);
++  });
++
++  it("ai_training_lathe_extract_params accepts a parsed tool_block when one exists", async () => {
++    const parsed = latheAITrainingEngine.parseProgram(
++      "O0001\nT0101\nG97 S1500\nG0 X10 Z0\nG1 Z-5 F0.1\nM30\n",
++      "/tmp/b.MIN",
++    );
++    const block = parsed.tool_blocks[0];
++    if (!block) return;
++    const r = await call(server, "ai_training_lathe_extract_params", {
++      block: block as unknown as Record<string, unknown>,
++    });
++    expect(r.ok).toBe(true);
++  });
++
++  it("ai_training_lathe_rewrite returns a non-empty rewritten program string", async () => {
++    const parsed = latheAITrainingEngine.parseProgram(
++      "O0001\nT0101\nG0 X10 Z0\nM30\n",
++      "/tmp/c.MIN",
++    );
++    const analysis = latheAITrainingEngine.analyzeProgram(parsed);
++    const r = await call(server, "ai_training_lathe_rewrite", {
++      analysis: analysis as unknown as Record<string, unknown>,
++    });
++    expect(r.ok).toBe(true);
++    const txt =
++      typeof r.data === "string"
++        ? r.data
++        : ((r.data.value as string | undefined) ?? "");
++    expect(txt.length).toBeGreaterThan(0);
++  });
++
++  it("ai_training_lathe_train returns programs_parsed≥batch size", async () => {
++    const r = await call(server, "ai_training_lathe_train", {
++      programs: [
++        { content: "O0001\nT0101\nM30\n", filepath: "/tmp/t1.MIN" },
++        { content: "O0002\nT0202\nG0 X10\nM30\n", filepath: "/tmp/t2.MIN" },
++      ],
++    });
++    expect(r.ok).toBe(true);
++    expect((r.data.programs_parsed as number)).toBeGreaterThanOrEqual(2);
++  });
++
++  it("ai_training_lathe_train rejects empty batch (schema validation)", async () => {
++    const r = await call(server, "ai_training_lathe_train", { programs: [] });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_training_lathe_stats returns TrainingStats shape", async () => {
++    const r = await call(server, "ai_training_lathe_stats");
++    expect(r.ok).toBe(true);
++    expect(typeof r.data.programs_parsed).toBe("number");
++    expect(typeof r.data.patterns_learned).toBe("number");
++    expect(Array.isArray(r.data.best_practices)).toBe(true);
++  });
++
++  it("ai_training_lathe_patterns returns an array (possibly empty)", async () => {
++    const r = await call(server, "ai_training_lathe_patterns");
++    expect(r.ok).toBe(true);
++    const arr = Array.isArray(r.data) ? r.data : (r.data.items as unknown[]);
++    expect(Array.isArray(arr)).toBe(true);
++  });
++});
++
++describe("U-AIMAX10 round-trip — Generic training ledger actions", () => {
++  beforeEach(() => trainingLedgerEngine.clearAll());
++
++  it("ai_training_ledger_open_run + close_run lifecycle reflects state in engine", async () => {
++    const opened = await call(server, "ai_training_ledger_open_run", {
++      experiment_id: "wire-exp",
++      attempt: 1,
++      start_ts: 1000,
++      base_weight_sha256: "a".repeat(64),
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 5,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tv-1",
++      trainer_commit_sha: "abc1234",
++      author: "u-aimax10",
++    });
++    expect(opened.ok).toBe(true);
++    const runId = opened.data.run_id as string;
++    expect(typeof runId).toBe("string");
++    expect(runId.length).toBeGreaterThan(0);
++    expect(opened.data.status).toBe("open");
++
++    const closed = await call(server, "ai_training_ledger_close_run", {
++      run_id: runId,
++      end_ts: 5000,
++      status: "completed",
++      final_weight_sha256: "d".repeat(64),
++      eval_metrics_sha256: "e".repeat(64),
++      elapsed_ms: 4000,
++      wall_clock_ms: 4000,
++    });
++    expect(closed.ok).toBe(true);
++    expect(closed.data.status).toBe("completed");
++    expect((closed.data.end_ts as number)).toBe(5000);
++
++    const direct = trainingLedgerEngine.getRun(runId);
++    expect(direct!.status).toBe("completed");
++  });
++
++  it("ai_training_ledger_open_run rejects empty base_weight_sha256 (schema validation)", async () => {
++    const r = await call(server, "ai_training_ledger_open_run", {
++      experiment_id: "x",
++      attempt: 1,
++      start_ts: 1,
++      base_weight_sha256: "",
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 1,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tv",
++      trainer_commit_sha: "abc1234",
++      author: "t",
++    });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_training_ledger_close_run rejects invalid status (not in RUN_STATUSES)", async () => {
++    const r = await call(server, "ai_training_ledger_close_run", {
++      run_id: "x",
++      end_ts: 5,
++      status: "frozen",
++      elapsed_ms: 1,
++      wall_clock_ms: 1,
++    });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_training_ledger_get_run returns null-shape for unknown id (no leaked record)", async () => {
++    const r = await call(server, "ai_training_ledger_get_run", { run_id: "missing" });
++    expect(r.ok).toBe(true);
++    const d = r.data as Record<string, unknown> | null | undefined;
++    expect(d === null || d === undefined || d.run_id === undefined).toBe(true);
++  });
++
++  it("ai_training_ledger_list_runs filters by status enum", async () => {
++    await call(server, "ai_training_ledger_open_run", {
++      experiment_id: "list-test",
++      attempt: 1,
++      start_ts: 1,
++      base_weight_sha256: "a".repeat(64),
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 1,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tv",
++      trainer_commit_sha: "abc1234",
++      author: "t",
++    });
++    const open = await call(server, "ai_training_ledger_list_runs", { status: "open" });
++    expect(open.ok).toBe(true);
++    const arr = Array.isArray(open.data) ? open.data : (open.data.items as unknown[]);
++    expect((arr as unknown[]).length).toBe(1);
++    expect((arr as { status: string }[])[0]!.status).toBe("open");
++  });
++
++  it("ai_training_ledger_list_runs rejects unknown status literal", async () => {
++    const r = await call(server, "ai_training_ledger_list_runs", { status: "nope" });
++    expect(r.ok).toBe(false);
++  });
++
++  it("ai_training_ledger_drift_report rejects missing experiment_id, succeeds with one", async () => {
++    const bad = await call(server, "ai_training_ledger_drift_report", {});
++    expect(bad.ok).toBe(false);
++    const good = await call(server, "ai_training_ledger_drift_report", {
++      experiment_id: "drift-exp",
++    });
++    expect(good.ok).toBe(true);
++  });
++
++  it("ai_training_ledger_snapshot+load_snapshot persists open-run state through MCP roundtrip", async () => {
++    await call(server, "ai_training_ledger_open_run", {
++      experiment_id: "snap-rt",
++      attempt: 1,
++      start_ts: 1,
++      base_weight_sha256: "a".repeat(64),
++      manifest_sha256: "b".repeat(64),
++      aug_seed: 1,
++      hyperparams_sha256: "c".repeat(64),
++      tokenizer_version: "tv",
++      trainer_commit_sha: "abc1234",
++      author: "t",
++    });
++    const snapped = await call(server, "ai_training_ledger_snapshot");
++    expect(snapped.ok).toBe(true);
++    trainingLedgerEngine.clearAll();
++    expect(trainingLedgerEngine.listRuns().length).toBe(0);
++    const loaded = await call(server, "ai_training_ledger_load_snapshot", {
++      snapshot: snapped.data as unknown as Record<string, unknown>,
++    });
++    expect(loaded.ok).toBe(true);
++    const after = trainingLedgerEngine.listRuns();
++    expect(after.length).toBe(1);
++    expect(after[0]!.experiment_id).toBe("snap-rt");
++  });
++
++  it("ai_training_ledger_stats returns numeric total_runs + experiments + by_status", async () => {
++    const r = await call(server, "ai_training_ledger_stats");
++    expect(r.ok).toBe(true);
++    const s = r.data as { total_runs: number; experiments: number; by_status: Record<string, number> };
++    expect(typeof s.total_runs).toBe("number");
++    expect(typeof s.experiments).toBe("number");
++    expect(typeof s.by_status).toBe("object");
++  });
++});
++
++// ─────────────────────────────────────────────────────────────────────────────
++// 4. Coverage edges — every action callable, no "Unknown action" anywhere
++// ─────────────────────────────────────────────────────────────────────────────
++
++describe("U-AIMAX10 coverage edges", () => {
++  it("none of the 46 AI_CAPABILITY_ACTIONS produces 'Unknown action' (every case wired)", async () => {
++    const list = aiCapabilityMaximizerEngine.getReasoningPatterns();
++    const minViable: Record<string, Record<string, unknown>> = {
++      ai_capability_reasoning_pattern_get: { id: list[0]!.id },
++      ai_capability_enhancement_strategy: { area: "code_generation" },
++      ai_capability_apply_reasoning_pattern: {
++        pattern_id: list[0]!.id,
++        input: { problem: "x", context: {} },
++      },
++      ai_resource_code_quality: { language: "typescript", context: "engine" },
++      ai_resource_material_parameters: { material: "AISI 4140" },
++      ai_resource_okuma_pattern: { cycle: "G132" },
++      ai_resource_patterns_by_type: { type: "gcode_pattern" },
++      ai_resource_extract_gcode: { program_content: "G0 X0" },
++      ai_resource_speed_feed: { material: "AISI 4140", operation: "roughing" },
++      ai_resource_generate_hypermill_template: { task: "electrode_create" },
++      ai_training_master_ingest: {
++        run_id: "smoke",
++        pipeline_type: "wedm",
++        dataset_fingerprint: "fp",
++        version: "v1",
++        training_metrics: { loss: 0.1, accuracy: 0.9, mae: 0.05, evalScore: 0.9 },
++        deployment_status: "pending",
++        slo_targets: { minEvalScore: 0.85, maxLoss: 0.2 },
++        created_at: new Date().toISOString(),
++      },
++      ai_training_master_replay: { run_id: "smoke" },
++      ai_training_master_pipeline_stability: { pipeline_type: "milling" },
++      ai_training_master_compare: { pipeline_a: "milling", pipeline_b: "wedm" },
++      ai_training_lathe_parse: { content: "M30\n", filepath: "x.MIN" },
++      ai_training_lathe_extract_params: { block: {} },
++      ai_training_lathe_analyze: { program: { tool_blocks: [], filename: "x", filepath: "x" } },
++      ai_training_lathe_rewrite: { analysis: { program: { tool_blocks: [] }, issues: [] } },
++      ai_training_lathe_train: { programs: [{ content: "M30\n", filepath: "x.MIN" }] },
++      ai_training_ledger_open_run: {
++        experiment_id: "smoke",
++        attempt: 1,
++        start_ts: 1,
++        base_weight_sha256: "a".repeat(64),
++        manifest_sha256: "b".repeat(64),
++        aug_seed: 1,
++        hyperparams_sha256: "c".repeat(64),
++        tokenizer_version: "tv",
++        trainer_commit_sha: "abc1234",
++        author: "t",
++      },
++      ai_training_ledger_close_run: {
++        run_id: "any",
++        end_ts: 1,
++        status: "completed",
++        elapsed_ms: 1,
++        wall_clock_ms: 1,
++      },
++      ai_training_ledger_get_run: { run_id: "any" },
++      ai_training_ledger_drift_report: { experiment_id: "exp" },
++      ai_training_ledger_load_snapshot: { snapshot: { runs: [], schemaVersion: 1 } },
++    };
++
++    masterAITrainingLedgerEngine.reset();
++    trainingLedgerEngine.clearAll();
++
++    for (const action of AI_CAPABILITY_ACTIONS) {
++      const params = minViable[action] ?? {};
++      const r = await call(server, action, params);
++      const errMsg = (r.raw.error as string | undefined) ?? "";
++      expect(errMsg.toLowerCase()).not.toContain("unknown action");
++    }
++  });
++
++  it("the dispatcher rejects truly unknown actions", async () => {
++    const r = await call(server, "ai_capability_obviously_fake", {});
++    expect(r.ok).toBe(false);
++    const errMsg = (r.raw.error as string | undefined) ?? "";
++    expect(errMsg.length).toBeGreaterThan(0);
++  });
++
++  it("legacy ai_material_lookup still works (anti-regression)", async () => {
++    const r = await call(server, "ai_material_lookup", { material: "AISI 4140" });
++    expect(r.ok).toBe(true);
++  });
++
++  it("legacy ai_lathe_train still works (anti-regression) and returns programs_parsed≥1", async () => {
++    const r = await call(server, "ai_lathe_train", {
++      programs: [{ content: "M30\n", filepath: "x.MIN" }],
++    });
++    expect(r.ok).toBe(true);
++    expect((r.data.programs_parsed as number)).toBeGreaterThanOrEqual(1);
++  });
++});
+diff --git a/mcp-server/src/schemas/aiCapabilityActionSchemas.ts b/mcp-server/src/schemas/aiCapabilityActionSchemas.ts
+new file mode 100644
+index 000000000..0b5e2867e
+--- /dev/null
++++ b/mcp-server/src/schemas/aiCapabilityActionSchemas.ts
+@@ -0,0 +1,574 @@
++/**
++ * AI Capability / Resource / Training Action Schemas — prism_ai dispatcher
++ * =========================================================================
++ * Zod schemas for U-AIMAX10 (AI-MAX-MS0). Wires 5 AI engines that previously
++ * had only partial dispatcher coverage:
++ *
++ *   - AICapabilityMaximizerEngine   → 9 actions (ai_capability_*)
++ *   - AIResourceLearningEngine      → 14 actions (ai_resource_*)
++ *   - MasterAITrainingLedgerEngine  → 8 actions (ai_training_master_*)
++ *   - LatheAITrainingEngine         → 7 actions (ai_training_lathe_*)
++ *   - TrainingLedgerEngine          → 8 actions (ai_training_ledger_*)
++ *
++ * 46 total. The two pre-existing actions (ai_material_lookup, ai_lathe_train)
++ * remain in aiReasoningActionSchemas.ts as legacy aliases — this file does
++ * NOT redefine them.
++ *
++ * @module schemas/aiCapabilityActionSchemas
++ * @milestone AI-MAX-MS0/U-AIMAX10
++ */
++
++import { z } from "zod";
++
++// ───────────────────────────────────────────────────────────────────────────
++// Type unions mirrored from the engine source — keep in sync if engines change.
++// ───────────────────────────────────────────────────────────────────────────
++
++/** Pipeline types accepted by MasterAITrainingLedgerEngine — must match PipelineType. */
++export const PIPELINE_TYPES = [
++  "milling",
++  "5axis",
++  "millturn",
++  "wedm",
++  "sinker-edm",
++  "laser",
++  "waterjet",
++  "grinding",
++] as const;
++
++/** Resource pattern types from AIResourceLearningEngine. */
++export const RESOURCE_PATTERN_TYPES = [
++  "gcode_pattern",
++  "python_api",
++  "cam_automation",
++  "material_param",
++  "code_quality",
++] as const;
++
++/** Capability enhancement strategy areas from AICapabilityMaximizerEngine. */
++export const CAPABILITY_STRATEGY_AREAS = [
++  "code_generation",
++  "knowledge_synthesis",
++  "reasoning_depth",
++  "context_retention",
++] as const;
++
++/** hyperMILL template tasks from AIResourceLearningEngine.generateHyperMillTemplate. */
++export const HYPERMILL_TEMPLATE_TASKS = [
++  "electrode_create",
++  "joblist_iterate",
++  "feature_edit",
++  "workplane_transform",
++] as const;
++
++/** Code-quality recommendation language scope. */
++export const CODE_QUALITY_LANGUAGES = ["typescript", "python"] as const;
++
++/** Code-quality recommendation context. */
++export const CODE_QUALITY_CONTEXTS = ["engine", "dispatcher", "cam_script", "test"] as const;
++
++/** Operation phases accepted by AIResourceLearningEngine.getRecommendedSpeedFeed. */
++export const RESOURCE_SPEED_FEED_OPERATIONS = ["roughing", "finishing"] as const;
++
++/** Terminal + open RunStatus literals from TrainingLedgerEngine. */
++export const RUN_STATUSES = ["open", "completed", "aborted", "failed_validation"] as const;
++
++/** Deployment status literals from MasterAITrainingLedgerEngine. */
++export const DEPLOYMENT_STATUSES = ["pending", "deployed", "rolled-back"] as const;
++
++/** Lathe training program record passed to trainFromPrograms. */
++const lathe_program_record = z
++  .object({
++    content: z.string().min(1).describe("Raw program text"),
++    filepath: z.string().min(1).describe("Source filepath for traceability"),
++  })
++  .passthrough();
++
++// ───────────────────────────────────────────────────────────────────────────
++// Capability — AICapabilityMaximizerEngine
++// ───────────────────────────────────────────────────────────────────────────
++
++/** Force a recompute of capability metrics (does not return cached state). */
++const ai_capability_compute_metrics = z.object({}).passthrough();
++
++/** Return last-computed capability metrics (computes lazily on first call). */
++const ai_capability_get_metrics = z.object({}).passthrough();
++
++/** Surface the prioritized list of capability-enhancement recommendations. */
++const ai_capability_enhancement_recommendations = z.object({}).passthrough();
++
++/** Enumerate all reasoning patterns registered with the maximizer. */
++const ai_capability_reasoning_patterns = z.object({}).passthrough();
++
++/** Fetch a single reasoning pattern by its registered id. */
++const ai_capability_reasoning_pattern_get = z
++  .object({
++    id: z.string().min(1).describe("Reasoning-pattern id (e.g. 'first-principles')"),
++  })
++  .passthrough();
++
++/** Snapshot every registered knowledge source and its coverage. */
++const ai_capability_knowledge_sources = z.object({}).passthrough();
++
++/** Return the enhancement-strategy payload for one capability area. */
++const ai_capability_enhancement_strategy = z
++  .object({
++    area: z
++      .enum(CAPABILITY_STRATEGY_AREAS)
++      .describe("Capability area whose strategy to surface"),
++  })
++  .passthrough();
++
++/** Apply a named reasoning pattern to a user-supplied problem statement.
++ * The engine signature requires `input.problem` (problem statement) and
++ * `input.context` (free-form context bag) — both mandatory. */
++const ai_capability_apply_reasoning_pattern = z
++  .object({
++    pattern_id: z.string().min(1).describe("Reasoning-pattern id to apply"),
++    input: z
++      .object({
++        problem: z.string().min(1).describe("Problem statement the pattern enhances"),
++        context: z
++          .record(z.string(), z.unknown())
++          .describe("Free-form context object — engine reads keys it understands"),
++      })
++      .passthrough()
++      .describe("Pattern input payload"),
++  })
++  .passthrough();
++
++/** Render a human-readable capability report (markdown). */
++const ai_capability_report = z.object({}).passthrough();
++
++// ───────────────────────────────────────────────────────────────────────────
++// Resource — AIResourceLearningEngine
++// ───────────────────────────────────────────────────────────────────────────
++
++/** Code-quality recommendations for a given language + write-context. */
++const ai_resource_code_quality = z
++  .object({
++    language: z
++      .enum(CODE_QUALITY_LANGUAGES)
++      .describe("Target language for the recommendations"),
++    context: z
++      .enum(CODE_QUALITY_CONTEXTS)
++      .describe("Surrounding context (engine, dispatcher, cam_script, test)"),
++  })
++  .passthrough();
++
++/** Material cutting parameters (Kc, fz, vc) looked up from the learned corpus. */
++const ai_resource_material_parameters = z
++  .object({
++    material: z.string().min(1).describe("Material designation (e.g. AISI 4140, 6061-T6)"),
++  })
++  .passthrough();
++
++/** hyperMILL Python-API patterns; optional module filter. */
++const ai_resource_hypermill_patterns = z
++  .object({
++    module: z.string().min(1).optional().describe("Optional module filter (e.g. 'cam.cutter')"),
++  })
++  .passthrough();
++
++/** Okuma G-code pattern for a single canned-cycle keyword. */
++const ai_resource_okuma_pattern = z
++  .object({
++    cycle: z.string().min(1).describe("Cycle keyword (e.g. 'CALL OO74', 'G132')"),
++  })
++  .passthrough();
++
++/** Dump every Okuma G-code pattern indexed by the engine. */
++const ai_resource_okuma_all = z.object({}).passthrough();
++
++/** EDM electrode defaults (gap, overcut, current schedules). */
++const ai_resource_edm_defaults = z.object({}).passthrough();
++
++/** All learned ResourcePattern records filtered by pattern type. */
++const ai_resource_patterns_by_type = z
++  .object({
++    type: z.enum(RESOURCE_PATTERN_TYPES).describe("Resource pattern type"),
++  })
++  .passthrough();
++
++/** Aggregate learning statistics (pattern counts, file coverage). */
++const ai_resource_stats = z.object({}).passthrough();
++
++/** Compiled training-context bundle for downstream prompt-build steps. */
++const ai_resource_training_context = z.object({}).passthrough();
++
++/** Extract G-code patterns from a raw program string (does not persist). */
++const ai_resource_extract_gcode = z
++  .object({
++    program_content: z.string().min(1).describe("Raw G-code text to scan"),
++  })
++  .passthrough();
++
++/** Recommended speed/feed for a material + operation pair (roughing|finishing). */
++const ai_resource_speed_feed = z
++  .object({
++    material: z.string().min(1).describe("Workpiece material"),
++    operation: z
++      .enum(RESOURCE_SPEED_FEED_OPERATIONS)
++      .describe("Operation phase the recommendation is for"),
++  })
++  .passthrough();
++
++/** Generate a hyperMILL macro template for one of the supported task types. */
++const ai_resource_generate_hypermill_template = z
++  .object({
++    task: z
++      .enum(HYPERMILL_TEMPLATE_TASKS)
++      .describe("Template kind (electrode_create | joblist_iterate | feature_edit | workplane_transform)"),
++  })
++  .passthrough();
++
++/** Bundled AI training data — patterns + materials + APIs for prompt context. */
++const ai_resource_training_data = z.object({}).passthrough();
++
++/** Knowledge-coverage summary across pattern types + sources. */
++const ai_resource_knowledge_coverage = z.object({}).passthrough();
++
++// ───────────────────────────────────────────────────────────────────────────
++// Training (Master Ledger) — MasterAITrainingLedgerEngine
++// ───────────────────────────────────────────────────────────────────────────
++
++/** Training-run SLO targets — passed inside ingest entries. */
++const slo_targets_schema = z
++  .object({
++    minEvalScore: z.number().finite().describe("Minimum acceptable eval score"),
++    maxLoss: z.number().finite().describe("Maximum acceptable training loss"),
++  })
++  .passthrough();
++
++/** Training metrics block stored on each ledger entry. */
++const training_metrics_schema = z
++  .object({
++    loss: z.number().finite().describe("Training loss"),
++    accuracy: z.number().finite().describe("Validation accuracy"),
++    mae: z.number().finite().describe("Mean absolute error"),
++    evalScore: z.number().finite().describe("Composite eval score"),
++  })
++  .passthrough();
++
++/** Optional actual-vs-predicted drift telemetry. */
++const actual_vs_predicted_schema = z
++  .object({
++    predictedDrift: z.number().finite().describe("Predicted drift score"),
++    observedDrift: z.number().finite().describe("Observed drift score"),
++    absoluteDelta: z.number().finite().describe("|observed - predicted|"),
++  })
++  .passthrough();
++
++/** Ingest a new training-run entry (schemaVersion auto-assigned by engine).
++ * Wire-level fields are snake_case; dispatcher remaps them onto the LedgerEntry
++ * camelCase contract before calling the engine. */
++const ai_training_master_ingest = z
++  .object({
++    run_id: z.string().min(1).describe("Unique run id"),
++    pipeline_type: z.enum(PIPELINE_TYPES).describe("Pipeline type the run targets"),
++    dataset_fingerprint: z.string().min(1).describe("Stable dataset hash"),
++    version: z.string().min(1).describe("Pipeline version label"),
++    training_metrics: training_metrics_schema.describe("Final training metrics (camelCase keys)"),
++    deployment_status: z
++      .enum(DEPLOYMENT_STATUSES)
++      .describe("Deployment state at ingest"),
++    slo_targets: slo_targets_schema.describe("SLO thresholds (camelCase keys)"),
++    actual_vs_predicted: actual_vs_predicted_schema
++      .optional()
++      .describe("Optional drift telemetry (camelCase keys)"),
++    created_at: z.string().min(1).describe("ISO timestamp"),
++    promoted_at: z.string().min(1).optional().describe("ISO timestamp when promoted"),
++    notes: z.string().optional().describe("Free-form notes"),
++  })
++  .passthrough();
++
++/** Replay one ledger entry by its run id (null when missing). */
++const ai_training_master_replay = z
++  .object({
++    run_id: z.string().min(1).describe("Run id to replay"),
++  })
++  .passthrough();
++
++/** Filtered ledger query — all filters optional, ANDed together.
++ * snake_case at the wire; dispatcher remaps to the LedgerQuery contract. */
++const ai_training_master_query = z
++  .object({
++    pipeline_type: z.enum(PIPELINE_TYPES).optional().describe("Filter: pipeline type"),
++    deployment_status: z
++      .enum(DEPLOYMENT_STATUSES)
++      .optional()
++      .describe("Filter: deployment status"),
++    created_after: z.string().min(1).optional().describe("ISO timestamp lower bound"),
++    created_before: z.string().min(1).optional().describe("ISO timestamp upper bound"),
++    min_eval_score: z.number().optional().describe("Inclusive minimum eval score"),
++  })
++  .passthrough();
++
++/** List the pipeline types the ledger natively supports. */
++const ai_training_master_supported_pipelines = z.object({}).passthrough();
++
++/** Stability statistics (mean / std / CoV) for one pipeline type. */
++const ai_training_master_pipeline_stability = z
++  .object({
++    pipeline_type: z.enum(PIPELINE_TYPES).describe("Pipeline type to summarize"),
++  })
++  .passthrough();
++
++/** Head-to-head stability comparison between two pipeline types. */
++const ai_training_master_compare = z
++  .object({
++    pipeline_a: z.enum(PIPELINE_TYPES).describe("First pipeline type"),
++    pipeline_b: z.enum(PIPELINE_TYPES).describe("Second pipeline type"),
++  })
++  .passthrough();
++
++/** SLO pass/fail breakdown across every ledger entry. */
++const ai_training_master_slo_status = z.object({}).passthrough();
++
++/** Total run count tracked by the ledger. */
++const ai_training_master_total_runs = z.object({}).passthrough();
++
++// ───────────────────────────────────────────────────────────────────────────
++// Training (Lathe) — LatheAITrainingEngine
++// ───────────────────────────────────────────────────────────────────────────
++
++/** Parse a single lathe program into ParsedProgram (does not mutate state). */
++const ai_training_lathe_parse = z
++  .object({
++    content: z.string().min(1).describe("Raw program text"),
++    filepath: z.string().min(1).describe("Source filepath for traceability"),
++  })
++  .passthrough();
++
++/** Extract parameter block from a ParsedToolBlock object (passthrough). */
++const ai_training_lathe_extract_params = z
++  .object({
++    block: z.record(z.string(), z.unknown()).describe("ParsedToolBlock object"),
++  })
++  .passthrough();
++
++/** Run end-to-end ProgramAnalysis over a ParsedProgram object. */
++const ai_training_lathe_analyze = z
++  .object({
++    program: z.record(z.string(), z.unknown()).describe("ParsedProgram object"),
++  })
++  .passthrough();
++
++/** Rewrite a program from an analysis result (returns improved program text). */
++const ai_training_lathe_rewrite = z
++  .object({
++    analysis: z.record(z.string(), z.unknown()).describe("ProgramAnalysis object"),
++  })
++  .passthrough();
++
++/** Train from a batch of programs (mutates engine learned-pattern store). */
++const ai_training_lathe_train = z
++  .object({
++    programs: z
++      .array(lathe_program_record)
++      .min(1)
++      .describe("Programs to train from"),
++  })
++  .passthrough();
++
++/** Current training statistics (programs seen, patterns learned). */
++const ai_training_lathe_stats = z.object({}).passthrough();
++
++/** Snapshot of every learned pattern stored on the engine. */
++const ai_training_lathe_patterns = z.object({}).passthrough();
++
++// ───────────────────────────────────────────────────────────────────────────
++// Training (Generic Ledger) — TrainingLedgerEngine
++// ───────────────────────────────────────────────────────────────────────────
++
++/** Open a training run — stores fingerprint, returns the new TrainingRunRecord. */
++const ai_training_ledger_open_run = z
++  .object({
++    experiment_id: z.string().min(1).describe("Human experiment label"),
++    attempt: z.number().int().min(1).describe("1-based retry counter"),
++    start_ts: z.number().describe("Epoch ms when training began"),
++    base_weight_sha256: z.string().min(1).describe("Pre-training checkpoint hash"),
++    manifest_sha256: z.string().min(1).describe("Dataset manifest hash"),
++    aug_seed: z.number().int().describe("Augmentation PRNG seed"),
++    hyperparams_sha256: z.string().min(1).describe("Hyperparameter config hash"),
++    tokenizer_version: z.string().min(1).describe("Tokenizer identifier"),
++    trainer_commit_sha: z.string().min(1).describe("Trainer code git SHA"),
++    author: z.string().min(1).describe("Author identifier"),
++    notes: z.string().optional().describe("Free-form notes"),
++  })
++  .passthrough();
++
++/** Close an open training run — terminal states only. */
++const ai_training_ledger_close_run = z
++  .object({
++    run_id: z.string().min(1).describe("Run id returned by open_run"),
++    end_ts: z.number().describe("Epoch ms when training ended"),
++    status: z
++      .enum(["completed", "aborted", "failed_validation"])
++      .describe("Terminal status"),
++    final_weight_sha256: z.string().min(1).optional().describe("Post-training checkpoint hash"),
++    eval_metrics_sha256: z.string().min(1).optional().describe("Eval-result hash"),
++    elapsed_ms: z.number().min(0).describe("Active training duration in ms"),
++    wall_clock_ms: z.number().min(0).describe("Wall-clock duration in ms"),
++    reason: z.string().optional().describe("Required for aborted / failed_validation"),
++  })
++  .passthrough();
++
++/** Lookup a TrainingRunRecord by id (returns null when missing). */
++const ai_training_ledger_get_run = z
++  .object({
++    run_id: z.string().min(1).describe("Run id"),
++  })
++  .passthrough();
++
++/** List training runs with optional experiment / status filtering. */
++const ai_training_ledger_list_runs = z
++  .object({
++    experiment_id: z.string().min(1).optional().describe("Optional experiment filter"),
++    status: z.enum(RUN_STATUSES).optional().describe("Optional status filter (RunStatus literal)"),
++    limit: z.number().int().positive().optional().describe("Limit results"),
++  })
++  .passthrough();
++
++/** Drift report comparing fingerprint stability across runs of one experiment. */
++const ai_training_ledger_drift_report = z
++  .object({
++    experiment_id: z.string().min(1).describe("Experiment id to analyze"),
++  })
++  .passthrough();
++
++/** Serialize the entire ledger to a JSON-safe snapshot. */
++const ai_training_ledger_snapshot = z.object({}).passthrough();
++
++/** Replace the ledger from a previously-emitted snapshot (mutating). */
++const ai_training_ledger_load_snapshot = z
++  .object({
++    snapshot: z.record(z.string(), z.unknown()).describe("Snapshot object from a prior toSnapshot()"),
++  })
++  .passthrough();
++
++/** Lightweight summary stats — total runs, by-status counts. */
++const ai_training_ledger_stats = z.object({}).passthrough();
++
++// ───────────────────────────────────────────────────────────────────────────
++// Public exports
++// ───────────────────────────────────────────────────────────────────────────
++
++/**
++ * Action-name tuple for AI capability/resource/training engines.
++ * Mirrors the keys of `ACTION_AI_CAPABILITY_SCHEMAS` — both must stay in sync.
++ */
++export const AI_CAPABILITY_ACTIONS = [
++  // Capability (9)
++  "ai_capability_compute_metrics",
++  "ai_capability_get_metrics",
++  "ai_capability_enhancement_recommendations",
++  "ai_capability_reasoning_patterns",
++  "ai_capability_reasoning_pattern_get",
++  "ai_capability_knowledge_sources",
++  "ai_capability_enhancement_strategy",
++  "ai_capability_apply_reasoning_pattern",
++  "ai_capability_report",
++
++  // Resource (14)
++  "ai_resource_code_quality",
++  "ai_resource_material_parameters",
++  "ai_resource_hypermill_patterns",
++  "ai_resource_okuma_pattern",
++  "ai_resource_okuma_all",
++  "ai_resource_edm_defaults",
++  "ai_resource_patterns_by_type",
++  "ai_resource_stats",
++  "ai_resource_training_context",
++  "ai_resource_extract_gcode",
++  "ai_resource_speed_feed",
++  "ai_resource_generate_hypermill_template",
++  "ai_resource_training_data",
++  "ai_resource_knowledge_coverage",
++
++  // Training — Master ledger (8)
++  "ai_training_master_ingest",
++  "ai_training_master_replay",
++  "ai_training_master_query",
++  "ai_training_master_supported_pipelines",
++  "ai_training_master_pipeline_stability",
++  "ai_training_master_compare",
++  "ai_training_master_slo_status",
++  "ai_training_master_total_runs",
++
++  // Training — Lathe (7)
++  "ai_training_lathe_parse",
++  "ai_training_lathe_extract_params",
++  "ai_training_lathe_analyze",
++  "ai_training_lathe_rewrite",
++  "ai_training_lathe_train",
++  "ai_training_lathe_stats",
++  "ai_training_lathe_patterns",
++
++  // Training — Generic ledger (8)
++  "ai_training_ledger_open_run",
++  "ai_training_ledger_close_run",
++  "ai_training_ledger_get_run",
++  "ai_training_ledger_list_runs",
++  "ai_training_ledger_drift_report",
++  "ai_training_ledger_snapshot",
++  "ai_training_ledger_load_snapshot",
++  "ai_training_ledger_stats",
++] as const;
++
++/** Discriminated-union type for all U-AIMAX10 dispatcher actions. */
++export type AICapabilityAction = (typeof AI_CAPABILITY_ACTIONS)[number];
++
++/** Lookup table from action name → Zod schema. Order must match `AI_CAPABILITY_ACTIONS`. */
++export const ACTION_AI_CAPABILITY_SCHEMAS: Record<AICapabilityAction, z.ZodTypeAny> = {
++  ai_capability_compute_metrics,
++  ai_capability_get_metrics,
++  ai_capability_enhancement_recommendations,
++  ai_capability_reasoning_patterns,
++  ai_capability_reasoning_pattern_get,
++  ai_capability_knowledge_sources,
++  ai_capability_enhancement_strategy,
++  ai_capability_apply_reasoning_pattern,
++  ai_capability_report,
++
++  ai_resource_code_quality,
++  ai_resource_material_parameters,
++  ai_resource_hypermill_patterns,
++  ai_resource_okuma_pattern,
++  ai_resource_okuma_all,
++  ai_resource_edm_defaults,
++  ai_resource_patterns_by_type,
++  ai_resource_stats,
++  ai_resource_training_context,
++  ai_resource_extract_gcode,
++  ai_resource_speed_feed,
++  ai_resource_generate_hypermill_template,
++  ai_resource_training_data,
++  ai_resource_knowledge_coverage,
++
++  ai_training_master_ingest,
++  ai_training_master_replay,
++  ai_training_master_query,
++  ai_training_master_supported_pipelines,
++  ai_training_master_pipeline_stability,
++  ai_training_master_compare,
++  ai_training_master_slo_status,
++  ai_training_master_total_runs,
++
++  ai_training_lathe_parse,
++  ai_training_lathe_extract_params,
++  ai_training_lathe_analyze,
++  ai_training_lathe_rewrite,
++  ai_training_lathe_train,
++  ai_training_lathe_stats,
++  ai_training_lathe_patterns,
++
++  ai_training_ledger_open_run,
++  ai_training_ledger_close_run,
++  ai_training_ledger_get_run,
++  ai_training_ledger_list_runs,
++  ai_training_ledger_drift_report,
++  ai_training_ledger_snapshot,
++  ai_training_ledger_load_snapshot,
++  ai_training_ledger_stats,
++};
+diff --git a/mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts b/mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts
+index a590d6822..6eafb9e56 100644
+--- a/mcp-server/src/tools/dispatchers/aiReasoningDisp
+
+... [truncated at 80000 bytes — full diff is 100021 bytes]
+--- END DIFF ---

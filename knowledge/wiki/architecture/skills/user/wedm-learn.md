@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-learn` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-learn.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Extract and integrate WEDM knowledge from various sources:
-- PDF manuals and technical papers
-- Video tutorials and training
-- Operator notes and tribal knowledge
-- Machine documentation
+
+# /wedm-learn — Wire EDM Knowledge Extraction
 
 <!-- AUTO-END -->
 

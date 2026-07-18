@@ -44,4 +44,5 @@ export const useSpeedFeedResolveMachine = () => useApiCall(speedFeedApi.resolveM
 export const useSpeedFeedResolveTool = () => useApiCall(speedFeedApi.resolveTool);
 export const useSpeedFeedResolveMaterial = () => useApiCall(speedFeedApi.resolveMaterial);
 export const useSpeedFeedCompare = () => useApiCall(speedFeedApi.compare);
+export const useSpeedFeedTriCompare = () => useApiCall(speedFeedApi.triCompare);
 export const useSpeedFeedOptimize = () => useApiCall(speedFeedApi.optimize);

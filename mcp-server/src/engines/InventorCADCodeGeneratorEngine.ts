@@ -135,8 +135,44 @@ type InventorOpKind = (typeof INVENTOR_SUPPORTED_OPS) extends Set<infer T>
 
 // ── Capability Matrix ─────────────────────────────────────────────────────────
 
-const INVENTOR_CAPABILITIES: CADCapabilityMatrix = {
-  supportedOps: INVENTOR_SUPPORTED_OPS as unknown as Set<string>,
+/**
+ * Inventor advertises a vendor-divergent capability vocabulary that the canonical
+ * {@link CADCapabilityMatrix} does not yet name -- a per-script op budget
+ * (`maxOpsPerScript`) plus boolean flags for parametric/direct/assembly/sheet-
+ * metal/surface/mesh modeling and batch execution. We type the literal against
+ * this precise local shape so field typos stay compile-checked, then surface it
+ * as CADCapabilityMatrix at the generator boundary (the `capabilities` override
+ * below). This local interface deliberately does NOT extend CADCapabilityMatrix:
+ * doing so would demand Inventor's canonical fields (nativeLengthUnit /
+ * nativeAngleUnit / requiresSubprocess / typicalLatencyMs), whose correct values
+ * are CAD-galaxy (delta) domain knowledge -- reconciling this vocabulary into the
+ * canonical matrix is a cross-generator interface migration owned by delta,
+ * tracked separately (see the `supportedOps` note).
+ */
+interface InventorCapabilityMatrix {
+  supportedOps: CADCapabilityMatrix["supportedOps"];
+  maxOpsPerScript: number;
+  supportsParameters: boolean;
+  supportsUndo: boolean;
+  supportsBatchExecution: boolean;
+  parametricModeling: boolean;
+  directModeling: boolean;
+  assemblyModeling: boolean;
+  sheetMetal: boolean;
+  surfaceModeling: boolean;
+  meshModeling: boolean;
+}
+
+const INVENTOR_CAPABILITIES: InventorCapabilityMatrix = {
+  // Inventor advertises a SUPERSET of the canonical CADOperationKind union: it
+  // adds vendor-native ops (sheet_metal_*, work_*, feature_coil/emboss/decal/
+  // split/move_face, pattern_rectangular/sketch, assembly_ground/joint,
+  // mirror_body, surface_stitch) the canonical interface cannot yet name. Cast
+  // to the field's declared element type -- a CADOperation.kind can only ever be
+  // a canonical kind, so the extra members are inert for buildScript's op check.
+  // First-classing these vendor ops into CAD_OPERATION_KINDS is a cross-generator
+  // interface migration owned by the CAD galaxy (delta), tracked separately.
+  supportedOps: INVENTOR_SUPPORTED_OPS as unknown as CADCapabilityMatrix["supportedOps"],
   maxOpsPerScript: 500,
   supportsParameters: true,
   supportsUndo: true,
@@ -160,7 +196,11 @@ export interface InventorCADContext {
 
 export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<InventorCADContext> {
   readonly cadSystem: CADSystemId = "inventor";
-  readonly capabilities = INVENTOR_CAPABILITIES;
+  // Vendor-divergent matrix surfaced through the canonical contract -- see the
+  // InventorCapabilityMatrix note above. The cast is the single boundary where
+  // Inventor's superset vocabulary meets CADCapabilityMatrix; the runtime object
+  // is unchanged (the Inventor capability tests read its vendor fields directly).
+  readonly capabilities = INVENTOR_CAPABILITIES as unknown as CADCapabilityMatrix;
 
   private sketchCounter = 0;
   private featureCounter = 0;
@@ -523,24 +563,10 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
     }
   }
 
-  // ── Helper: require argument ────────────────────────────────────────────────
-
-  private requireArg<T>(
-    op: CADOperation,
-    key: string,
-    expectedType: "number" | "string" | "boolean" | "object"
-  ): T {
-    const val = op.args[key];
-    if (val === undefined || val === null) {
-      throw new Error(`op '${op.kind}' missing required arg '${key}'`);
-    }
-    if (typeof val !== expectedType && expectedType !== "object") {
-      throw new Error(
-        `op '${op.kind}' arg '${key}' expected ${expectedType}, got ${typeof val}`
-      );
-    }
-    return val as T;
-  }
+  // requireArg() is inherited from UnifiedCADCodeGeneratorBase (protected, typed
+  // CADBuildError, Array.isArray-aware via the "array" kind) -- the prior private
+  // override here was a redundant re-impl whose "object" kind + private visibility
+  // were incompatible with the base signature (TS2416). Removed; use the base.
 
   private optionalArg<T>(
     op: CADOperation,
@@ -646,7 +672,7 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
   }
 
   private emitSketchSpline(op: CADOperation, em: CADEmitter): void {
-    const points = this.requireArg<number[]>(op, "points", "object");
+    const points = this.requireArg<number[]>(op, "points", "array");
 
     if (points.length < 4 || points.length % 2 !== 0) {
       throw new Error("sketch_spline requires at least 2 points (4 coordinates)");
@@ -727,7 +753,7 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
     const mirrorLine = op.args["mirror_line"] as
       | { x1: number; y1: number; x2: number; y2: number }
       | undefined;
-    const pairs = (op.args["entity_pairs"] as Array<[number, number]>) || [];
+    const pairs = (op.args["entity_pairs"] as unknown as Array<[number, number]>) || [];
     const x1 = mirrorLine?.x1 ?? 0;
     const y1 = mirrorLine?.y1 ?? 0;
     const x2 = mirrorLine?.x2 ?? 100;
@@ -2069,15 +2095,14 @@ export class InventorCADCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<
     // For now, return mock result indicating script was generated
     return {
       ok: true,
-      cadSystem: this.cadSystem,
-      executionTimeMs: 0,
-      scriptPath,
+      durationMs: 0,
+      outputFiles: [scriptPath],
       metrics: {
+        // metrics is geometry-only (ICADCodeGenerator geometry metrics).
         operationCount: script.lineage.length,
-        warningCount: script.warnings.length,
-        parameterCount: script.parameters.size,
       },
-      warnings: script.warnings.map((w) => w.message),
+      // Build warnings (non-fatal) fold into the debug log -- CADExecutionResult has no warnings[].
+      log: script.warnings.length ? script.warnings.map((w) => w.message).join("\n") : undefined,
     };
   }
 }

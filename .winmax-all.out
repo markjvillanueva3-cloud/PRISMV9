@@ -1,0 +1,54 @@
+[RTK:PASSTHROUGH] vitest parser: All parsing tiers failed
+TAP version 13
+# Subtest: classifyStatus: clean vs each failure pattern (real WinMax status lines)
+ok 1 - classifyStatus: clean vs each failure pattern (real WinMax status lines)
+  ---
+  duration_ms: 5.071
+  ...
+# Subtest: classifyStatus adversarial: null/number/garbage never throw
+ok 2 - classifyStatus adversarial: null/number/garbage never throw
+  ---
+  duration_ms: 2.3496
+  ...
+# Subtest: SOFTKEY_IDS: F1..F8 map to 301..308 (matches the live driver ids)
+ok 3 - SOFTKEY_IDS: F1..F8 map to 301..308 (matches the live driver ids)
+  ---
+  duration_ms: 0.1578
+  ...
+# Subtest: runStep softkey: actuates via sendkeys {Fn} (PROVEN mechanism, NOT UIA invoke); unknown key fails loud
+ok 4 - runStep softkey: actuates via sendkeys {Fn} (PROVEN mechanism, NOT UIA invoke); unknown key fails loud
+  ---
+  duration_ms: 0.9391
+  ...
+# Subtest: runStep set-value + sendkeys pass through to the driver with the right args
+ok 5 - runStep set-value + sendkeys pass through to the driver with the right args
+  ---
+  duration_ms: 0.2544
+  ...
+# Subtest: runStep assert-status: clean passes, error fails (the autonomous PASS/FAIL gate)
+ok 6 - runStep assert-status: clean passes, error fails (the autonomous PASS/FAIL gate)
+  ---
+  duration_ms: 0.3402
+  ...
+# Subtest: runMacro: runs steps in order and ABORTS on first failure (no blind continue)
+ok 7 - runMacro: runs steps in order and ABORTS on first failure (no blind continue)
+  ---
+  duration_ms: 0.2427
+  ...
+TAP version 13
+# Subtest: runMacro: all-clean macro succeeds end to end
+ok 8 - runMacro: all-clean macro succeeds end to end
+  ---
+  duration_ms: 6.4199
+  ...
+# Subtest: ensureUp: throws LOUD when WinMax is not reachable (never silently proceeds)
+ok 9 - ensureUp: throws LOUD when WinMax is not reachable (never silently proceeds)
+  ---
+  duration_ms: 0.7821
+  ...
+# Subtest: readStatus: joins UIA matches and classifies (no vision needed)
+ok 10 - readStatus: joins UIA matches and classifies (no vision needed)
+# Subtest: ncToDatablocks: parses th
+
+[RTK:PASSTHROUGH] Output truncated (44142 chars → 2000 chars)
+[full output: ~/AppData\Local\rtk\tee\1780360073_vitest_run.log]

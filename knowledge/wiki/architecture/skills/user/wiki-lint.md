@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wiki-lint` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-lint.md` |
+| Source | `C:/Users/wompu/.claude/commands/wiki-lint.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Periodic wiki health check via `WikiLintEngine.lint()`. Detects regressions before they compound.
+
+# /wiki-lint
 
 <!-- AUTO-END -->
 

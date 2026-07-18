@@ -143,6 +143,21 @@ export interface HurcoPostConfig {
    * dialed prove-out wants caution, not the L1..L5 aggressiveness scale).
    */
   prove_out?: HurcoProveOutConfig;
+  /**
+   * Emit the structured setup sheet (machine + tools + operations) alongside
+   * the G-code (U-PPGH04). Defaults to true. Set false when a downstream
+   * caller is building its own sheet from the raw operations array.
+   */
+  emit_setup_sheet?: boolean;
+  /**
+   * Machine-side cutting-force ceiling (Newtons) for the Kienzle-bounded
+   * feed reducer (U-PPGH04). When the predicted Fc for an op exceeds this
+   * value the engine reduces feed until Fc ≤ limit + 5% tolerance and
+   * surfaces a `feed_optimizations[]` entry with reason "Kienzle Fc=<N>N
+   * exceeded <max>N". Independent of `optimize_feeds` (which gates the
+   * AutoSpeedFeed pipeline). Disabled when `optimize_feeds: false`.
+   */
+  max_cutting_force_N?: number;
 }
 
 /**
@@ -168,13 +183,102 @@ export interface HurcoProveOutConfig {
   add_optional_stops?: boolean;
 }
 
+/**
+ * Structured tool descriptor (U-PPGH04). Takes precedence over the flat
+ * `tool_description` + `tool_diameter_mm` + `tool_flutes` fields on
+ * `MillOperation`. Carries downstream metadata (coating, stickout) that
+ * the setup-sheet emission needs.
+ */
+export interface MillTool {
+  number: number;
+  diameter_mm: number;
+  flutes: number;
+  description?: string;
+  coating?: string;
+  /** Free tool length below the holder collet face. Drives the stickout
+   *  deflection check in performPhysicsChecks — fails when stickout/D > 4. */
+  stickout_mm?: number;
+}
+
+/**
+ * Structured material descriptor with optional Kienzle override (U-PPGH04).
+ * Operator-supplied kc1_1/mc REPLACE the canonical values from
+ * `CANONICAL_KIENZLE[iso_group]` for the duration of one generateProgram call.
+ * Out-of-range overrides THROW per R12 fail-loud — silently accepting a 4×
+ * canonical kc1_1 would let a programmer push unsafe force into a real spindle.
+ */
+export interface MillMaterial {
+  iso_group?: ISOGroup;
+  name?: string;
+  /** Override canonical kc1_1 (units N/mm²). Safe range 200..6000. */
+  kc1_1?: number;
+  /** Override canonical mc (Kienzle exponent). Safe range 0.10..0.45. */
+  mc?: number;
+}
+
+/** PostMove is the simplified path token consumed by postSingle(). */
+export interface PostMove {
+  x: number;
+  y: number;
+  z: number;
+  type: "rapid" | "linear" | "arc_cw" | "arc_ccw";
+  r?: number;
+  i?: number;
+  j?: number;
+}
+
+/**
+ * Drilling canned cycle for Hurco WinMax ISNC mode (Fanuc-family G-codes).
+ * When an op carries one, the post emits a modal canned cycle instead of the
+ * long-hand G0/G1 move list. Hurco WinMax in ISNC mode accepts the universal
+ * Fanuc/ISO canned-cycle codes (G81/G82/G83/G73/G84/G85) natively -- identical
+ * dialect to HaasNGC (mirrored per POST-PROCESSOR/U-PP-HURCO-CYCLE, echo slot).
+ *
+ * Geometry (depth_mm / retract_mm / peck_mm) is in mm like the rest of the
+ * engine; coordinates[] supplies the hole XY positions.
+ *
+ * ADDITIVE: an op without `cycle` emits byte-identical output to before.
+ */
+export interface HurcoDrillCycle {
+  /** drill->G81 * dwell/spot->G82 * peck->G83 (full retract) * chip_break->G73 (high-speed peck)
+   *  * tap->G84 (rigid, Hurco WinMax ISNC is always rigid-tap mode, NO M29) * bore->G85
+   *  * fine_bore->G76 (orient+shift) * bore_stop->G86 (spindle stop at bottom, rapid out)
+   *  * back_bore->G87 * bore_manual->G88 (manual feed-out+dwell) * bore_dwell->G89.
+   *  For `tap` the caller MUST set feed_mm_min = pitch x rpm (this engine emits it verbatim).
+   *  For `fine_bore`/`back_bore` the caller MUST supply a positive `shift_mm` (Q word).
+   *  For `bore_manual`/`back_bore`/`bore_dwell` the caller MUST supply a positive `dwell_s` (P word). */
+  type: "drill" | "dwell" | "peck" | "chip_break" | "tap" | "bore"
+      | "fine_bore" | "bore_stop" | "back_bore" | "bore_manual" | "bore_dwell";
+  /** Final hole depth -- absolute Z in mm (negative below the part top). */
+  depth_mm: number;
+  /** R-plane clearance above the part top, mm (positive). */
+  retract_mm: number;
+  /** Q peck increment (mm) -- REQUIRED for peck/chip_break; absent/<=0 downgrades to G81 + warns.
+   *  Also used as the orient-shift distance (mm) for fine_bore and back_bore -- absent/<=0
+   *  downgrades those to G85 simple bore + warns. */
+  peck_mm?: number;
+  /** Bore orient / fine-bore spindle shift distance (mm) -- alias for peck_mm on fine_bore/back_bore.
+   *  If both are supplied, shift_mm takes precedence over peck_mm for these cycle types. */
+  shift_mm?: number;
+  /** P dwell at hole bottom, in SECONDS -- REQUIRED for dwell; absent/<=0 downgrades to G81 + warns.
+   *  Also REQUIRED for bore_manual, back_bore, bore_dwell; absent/<=0 downgrades to G85 + warns. */
+  dwell_s?: number;
+  /** G98 retract-to-initial-plane | G99 retract-to-R-plane (default, faster between close holes). */
+  retract_mode?: "initial" | "rplane";
+}
+
 export interface MillOperation {
   operation_type: "face" | "pocket" | "contour" | "drill" | "tap" | "bore" | "slot" | "3d_surface" | "adaptive";
   tool_number: number;
   tool_diameter_mm: number;
   tool_flutes: number;
   tool_description?: string;
+  /** Structured tool (U-PPGH04). When supplied, `tool.description` takes
+   *  precedence over the flat `tool_description` for the M06 comment. */
+  tool?: MillTool;
   material_iso: ISOGroup;
+  /** Structured material with optional Kienzle override (U-PPGH04). */
+  material?: MillMaterial;
   spindle_rpm: number;
   feed_mm_min: number;
   axial_depth_mm: number;
@@ -182,6 +286,123 @@ export interface MillOperation {
   coolant?: "flood" | "mist" | "tsc" | "off";
   coordinates: Array<{ x: number; y: number; z: number; type: "rapid" | "linear" | "arc_cw" | "arc_ccw" }>;
   arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+  /** Optional drilling canned cycle (POST-PROCESSOR/U-PP-HURCO-CYCLE). Present ->
+   *  emit a modal Fanuc-family canned cycle from coordinates[] hole XYs. Absent ->
+   *  byte-identical long-hand move list (additive -- no change to existing programs). */
+  cycle?: HurcoDrillCycle;
+  /**
+   * Optional Renishaw Inspection Plus probe cycle (opt-in, additive).
+   * Emitted ONLY when this field is present; absent -> byte-identical output.
+   *
+   * Verified macro set (Renishaw Inspection Plus + Hurco WinMax, 2026-06-29):
+   *   G65 P9810  -- protected positioning move / single-surface measure
+   *   G65 P9811  -- single-surface measure (one axis: X, Y, or Z)
+   *   G65 P9814  -- bore/boss diameter measurement
+   *   G65 P9815  -- circular bore/boss centre find
+   *   G65 P9801  -- calibrate probe length
+   *   G65 P9802  -- calibrate stylus X/Y in a bore
+   *   G65 P9832  -- probe ON
+   *   G65 P9833  -- probe OFF
+   *
+   * SAFETY: emit ONLY the P-numbers above. Never invent P-numbers.
+   * A program-level warning comment is appended once when any probe cycle is used.
+   */
+  probe?: {
+    /** Cycle type mapping to verified Renishaw P-numbers. */
+    type:
+      | "single_surface"    // G65 P9811 -- single-surface measure (one axis)
+      | "bore"              // G65 P9814 -- bore/boss diameter
+      | "boss"              // G65 P9814 -- boss diameter (same macro as bore)
+      | "circular_centre"   // G65 P9815 -- circular bore/boss centre find
+      | "cal_length"        // G65 P9801 -- calibrate probe length (no P9810 wrap)
+      | "cal_stylus";       // G65 P9802 -- calibrate stylus X/Y in a bore (no P9810 wrap)
+    /** Measurement axis for single_surface: "X", "Y", or "Z". Required for single_surface. */
+    axis?: "X" | "Y" | "Z";
+    /** Bore/boss diameter in mm (required for bore/boss cycles). */
+    dia_mm?: number;
+    /** Centre-find X nominal position mm (required for circular_centre). */
+    x_mm?: number;
+    /** Centre-find Y nominal position mm (required for circular_centre). */
+    y_mm?: number;
+    /** Centre-find I half-width in X mm (required for circular_centre). */
+    i_mm?: number;
+    /** Centre-find J half-width in Y mm (required for circular_centre). */
+    j_mm?: number;
+    /** Z approach depth mm (used in P9810 protected positioning, and P9801/P9811 Z). */
+    z_mm?: number;
+    /** Probe feed rate mm/min for P9810 approach move. */
+    feed_mm_min?: number;
+    /** WCS number (W word) for bore/boss result storage. */
+    wcs?: number;
+    /** Tool number (T word) for P9811 single-surface and P9801 cal_length. */
+    tool_number?: number;
+    /** S word for circular_centre (number of stylus touches). */
+    s?: number;
+  };
+}
+
+/** Setup sheet emitted alongside the G-code (U-PPGH04). */
+export interface SetupSheet {
+  machine: string;
+  controller: string;
+  units: "metric" | "inch";
+  tools: Array<{
+    number: number;
+    diameter_mm: number;
+    flutes?: number;
+    description?: string;
+    coating?: string;
+    stickout_mm?: number;
+  }>;
+  operations: Array<{
+    sequence: number;
+    type: string;
+    tool_number: number;
+    spindle_rpm: number;
+    feed_mm_min: number;
+  }>;
+}
+
+/**
+ * HURCO-VM30I-FULL-PSN-MS0 (echo iter7 2026-05-24) — PSN enrichment payload.
+ * Populated only by `generateProgramWithFullPSN()`; the legacy
+ * `generateProgram()` leaves it undefined (byte-identical default path).
+ * Each sub-field is independent + best-effort: a single PSN-substrate failure
+ * never blocks the rest of the enrichment (fail-soft, advisory-only).
+ */
+export interface HurcoPSNEnrichment {
+  /** Runtime prediction via GCodeRuntimePredictorEngine (kinematic-aware). */
+  runtime_estimate?: {
+    total_minutes: number;
+    machine_id: string;
+    confidence: number;
+    error?: string;
+  };
+  /** Bidirectional optimizer recommendations (cycle / wear / surface / cost / safety). */
+  optimizer_recommendations?: {
+    count: number;
+    top_3: Array<{ category: string; description: string; estimated_savings_pct?: number }>;
+    error?: string;
+  };
+  /** Cost report (per-part labor + machine + tooling + material + overhead). */
+  cost_report?: {
+    total_cost_usd: number;
+    cycle_min: number;
+    most_expensive_line_item: string;
+    error?: string;
+  };
+  /** PRISM AI feature recommendations relevant to the part + material. */
+  ai_feature_recommendations?: {
+    count: number;
+    top_5: Array<{ feature: string; reason: string; priority?: string }>;
+    error?: string;
+  };
+  /** ISO timestamp of enrichment pass. */
+  enriched_at: string;
+  /** True iff every requested PSN call returned a populated field. */
+  full_psn_engaged: boolean;
+  /** Per-substrate error log for operator-visibility. */
+  substrate_errors: string[];
 }
 
 export interface HurcoPostOutput {
@@ -199,6 +420,12 @@ export interface HurcoPostOutput {
     limit?: number;
   }>;
   tribal_tips_applied: string[];
+  /**
+   * PSN-substrate enrichment (HURCO-VM30I-FULL-PSN-MS0). Populated ONLY by
+   * `generateProgramWithFullPSN()`. Legacy `generateProgram()` leaves it
+   * undefined so existing callers + 14 test files stay byte-identical.
+   */
+  psn_enrichment?: HurcoPSNEnrichment;
   /**
    * Per-block S/F annotations (MS0/U-PPGM13, schema 1.1.0).
    *
@@ -238,6 +465,9 @@ export interface HurcoPostOutput {
   advanced_features_applied?: string[];
   optimized_gcode?: string[] | null;
   advanced_summary?: HurcoAdvancedSummary | null;
+  /** Structured setup sheet (U-PPGH04). Undefined when caller passed
+   *  `emit_setup_sheet: false`. */
+  setup_sheet?: SetupSheet;
 }
 
 /**
@@ -252,6 +482,9 @@ export interface HurcoFeedOptimization {
   multiplier: number;
   original_feed_mm_min: number;
   optimized_feed_mm_min: number;
+  /** Optional reason string for non-level optimizations (e.g. Kienzle
+   *  Fc-bounded reductions). Empty for aggressiveness/prove-out entries. */
+  reason?: string;
 }
 
 export interface HurcoAdvancedSummary {
@@ -548,8 +781,20 @@ export class HurcoV11MillMasterPostEngine {
     work_offset: 54,
     units: "metric",
     safe_z_mm: 50,
-    tool_change_position: { x: 0, y: 0, z: 100 }
+    tool_change_position: { x: 0, y: 0, z: 100 },
+    emit_setup_sheet: true
   };
+
+  /** Stickout/diameter ratio above which the stickout deflection check fails. */
+  private static readonly STICKOUT_RATIO_LIMIT = 4;
+  /** Target Taylor tool life (minutes). Below this the check fails. */
+  private static readonly TAYLOR_TARGET_LIFE_MIN = 10;
+  /** Safe range for operator-supplied kc1_1 (N/mm²). U-PPGH04 fail-loud. */
+  private static readonly KC1_1_MIN = 200;
+  private static readonly KC1_1_MAX = 6000;
+  /** Safe range for operator-supplied mc (Kienzle exponent). */
+  private static readonly MC_MIN = 0.10;
+  private static readonly MC_MAX = 0.45;
 
   /**
    * Generate complete Hurco G-code program
@@ -594,17 +839,82 @@ export class HurcoV11MillMasterPostEngine {
     gcode.push(...safeStart);
     tribalTipsApplied.push("JM Die standard safe start applied");
 
-    // UltiMotion is a Hurco WinMax CONTROL-PANEL parameter — there is no
-    // inline G-code for it. The previous emission of `G187 P3` was wrong
-    // (G187 is Haas dialect; V11 would parse-error on it). Now we emit a
-    // comment annotation only, matching the AdvancedPostProcessorEngine
-    // hurco-controller dialect row (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
-    // The operator must verify UltiMotion + Smoothing Tolerance in the
-    // WinMax UI before run-up.
+    // UltiMotion (G05.3) emission is per-tool-change inside generateToolChange().
+    // Ground truth: Fusion .cps "HURCO_VM30i_PRISM_Enhanced_v8.9.153.cps" emits
+    // G05.3 P<n> immediately after T<n> M06; verified against 4 real JM Die-posted
+    // programs in H:/prism/JM DIE/HURCO CNC PROGRAMS/. P35 for ADAPTIVE roughing,
+    // P10 for FINISH/CONTOUR/DRILL/FACE/CHAMFER. The earlier engine claim that
+    // "Hurco V11 has no inline UltiMotion G-code" was misinformation — corrected
+    // 2026-05-22 by operator + corroborated by .cps source line 3022.
     if (cfg.use_ultimotion) {
-      gcode.push("(HURCO V11 UltiMotion: enable in WinMax UI - Settings → Performance → UltiMotion ON, Smoothing Tolerance ~0.005mm for finish)");
-      tribalTipsApplied.push("UltiMotion intent recorded as comment annotation (Hurco V11 has no inline UltiMotion G-code)");
+      // One-time operator annotation (U-PPGW-Hurco-Tribal-Fix): the inline G05.3 Pnn
+      // smoothing emitted per tool-change is only the request; UltiMotion itself is a
+      // WinMax control-panel setting with no inline G-code. Emit ONE comment so the
+      // operator verifies the panel before run-up. The "G187-is-Haas / parse-error"
+      // warning lives in the tribal-tip DATABASE (out.tribal_tips_applied), NEVER the NC:
+      // no emitted gcode line may contain G187, which a real WinMax V11 parser rejects
+      // (see HurcoV11MillMasterPostEngine.HurcoTribalFix regression guard).
+      gcode.push(
+        "(ULTIMOTION: G05.3 Pnn smoothing emitted inline per tool; to activate, verify the WinMax UI -- Settings > Performance > UltiMotion ON, Smoothing Tolerance ~0.005mm finish.)",
+      );
+      tribalTipsApplied.push(
+        "UltiMotion comment annotation emitted (G05.3 P<n> inline per tool-change; activate via the WinMax UltiMotion control-panel setting)",
+      );
     }
+
+    // Modal coolant state machine (U-PPGH01-MODAL).
+    // Tracks the currently-active coolant channel so codes are emitted only
+    // on transitions, not re-emitted on every op.  Kept local (not a class
+    // field) so generateProgram() is re-entrant -- multiple concurrent calls
+    // never share state.
+    //
+    // Verified M-codes (ONLY these four may be used per WinMax ISNC docs):
+    //   M08 = flood ON   M07 = mist ON   M88 = TSC ON   M09 = ALL coolant OFF
+    // M89 is UNVERIFIED -- never emit it.
+    type CoolantChannel = "none" | "flood" | "mist" | "tsc";
+    let currentCoolant: CoolantChannel = "none";
+
+    // Resolve the op-level coolant request: op.coolant wins over cfg.coolant_mode;
+    // absent/unknown values fall to "none" with a warning (mirrors non-finite guard).
+    const resolveOpCoolant = (op: MillOperation): CoolantChannel => {
+      const raw = op.coolant ?? cfg.coolant_mode;
+      if (raw === "flood" || raw === "mist" || raw === "tsc") return raw;
+      if (raw === "off" || raw === undefined || raw === null) return "none";
+      // Unknown value: treat as off, warn -- same guard style as non-finite RPM above.
+      warnings.push(
+        `Op has unrecognised coolant value "${raw}" -- treated as off; ` +
+        `only flood/mist/tsc/off are valid.`,
+      );
+      return "none";
+    };
+
+    // Emit the lines required to transition from currentCoolant to target.
+    // Returns the updated channel value; caller must write it back to currentCoolant.
+    // Rule: any channel->different-channel transition emits M09 FIRST (safe universal
+    // idiom), then the new ON code.  same-channel -> no emit.  any->none -> M09 only.
+    const emitCoolantTransition = (
+      target: CoolantChannel,
+      out: string[],
+    ): CoolantChannel => {
+      if (target === currentCoolant) return currentCoolant; // no change, no emit
+
+      // Turn off the current channel first whenever something is currently on.
+      if (currentCoolant !== "none") {
+        out.push("M09 (COOLANT OFF)");
+      }
+
+      // Engage the new channel (or stay off).
+      if (target === "flood") {
+        out.push("M08 (FLOOD COOLANT)");
+      } else if (target === "mist") {
+        out.push("M07 (MIST COOLANT)");
+      } else if (target === "tsc") {
+        out.push("M88 (THROUGH-SPINDLE COOLANT)");
+      }
+      // target === "none": M09 already emitted above; nothing more to do.
+
+      return target;
+    };
 
     // Process each operation
     let estimatedTime = 0;
@@ -657,6 +967,46 @@ export class HurcoV11MillMasterPostEngine {
         });
       }
 
+      // U-PPGH04 Kienzle-bounded feed reducer. After aggressiveness/prove-out
+      // multipliers are applied, recompute Fc against the operator-supplied
+      // max_cutting_force_N and step feed down (in 5% increments) until the
+      // predicted force is at or below the limit + 5% tolerance. Skips when
+      // optimize_feeds is explicitly false (operator wants the literal feed).
+      if (
+        cfg.max_cutting_force_N !== undefined &&
+        cfg.max_cutting_force_N > 0 &&
+        cfg.optimize_feeds !== false
+      ) {
+        const { kc1_1: kc, mc: mcv } = this.resolveKienzle(effectiveOp);
+        const computeFc = (feed: number): number => {
+          const fzCurr = feed / (effectiveOp.spindle_rpm * effectiveOp.tool_flutes);
+          return kc * effectiveOp.axial_depth_mm * Math.pow(fzCurr, 1 - mcv);
+        };
+        const originalFeed = effectiveOp.feed_mm_min;
+        let workingFeed = originalFeed;
+        let FcCurr = computeFc(workingFeed);
+        const maxF = cfg.max_cutting_force_N;
+        if (FcCurr > maxF) {
+          // Step feed down 5% at a time; cap iterations to prevent runaway.
+          let guard = 0;
+          while (computeFc(workingFeed) > maxF * 1.05 && guard < 200 && workingFeed > 1) {
+            workingFeed = Math.max(1, Math.round(workingFeed * 0.95));
+            guard += 1;
+          }
+          const optimizedFeed = Math.max(1, workingFeed);
+          effectiveOp = { ...effectiveOp, feed_mm_min: optimizedFeed };
+          feedOptimizations.push({
+            block_id: blockId,
+            level: 0,
+            label: "KIENZLE-BOUND",
+            multiplier: optimizedFeed / Math.max(originalFeed, 1),
+            original_feed_mm_min: originalFeed,
+            optimized_feed_mm_min: optimizedFeed,
+            reason: `Kienzle Fc=${FcCurr.toFixed(0)}N exceeded ${maxF}N — reduced feed to ${optimizedFeed} mm/min`,
+          });
+        }
+      }
+
       gcode.push("");
       gcode.push(`(OPERATION ${i + 1}: ${op.operation_type.toUpperCase()})`);
 
@@ -665,25 +1015,44 @@ export class HurcoV11MillMasterPostEngine {
       physicsChecks.push(...checks);
       const failedChecks = checks.filter(c => !c.passed);
       if (failedChecks.length > 0) {
-        warnings.push(...failedChecks.map(c => `Line ${c.line}: ${c.check}`));
+        // Warning format: "Op <n> line <N>: <check>" — operator needs to know
+        // WHICH operation failed (not just the G-code line) so they can scroll
+        // straight to the offending op in the program tree.
+        warnings.push(
+          ...failedChecks.map(c => `Op ${i + 1} line ${c.line}: ${c.check}`),
+        );
       }
 
-      // Tool change
+      // Tool change -- coolant must be off before M06 on a real machine.
+      // If coolant is currently on, emit M09 BEFORE the tool-change sequence
+      // and reset the modal state.  The next op's coolant block will re-assert.
+      if (currentCoolant !== "none") {
+        gcode.push("M09 (COOLANT OFF FOR TOOL CHANGE)");
+        currentCoolant = "none";
+      }
       const toolChange = this.generateToolChange(effectiveOp, cfg);
       gcode.push(...toolChange);
 
-      // Spindle start — labelled block carries the op's S/F for the sidecar
+      // Spindle start -- labelled block carries the op's S/F for the sidecar
       // gate to cross-check (U-PPGM13). block_id "N{100 + i*10}" gives stable
       // O(1) lookup keys: N100, N110, N120, ...
-      const spindleStart = this.generateSpindleStart(effectiveOp, cfg, blockId);
+      const spindleStart = this.generateSpindleStart(effectiveOp, cfg, blockId, warnings);
       gcode.push(...spindleStart);
+
+      // Modal coolant transition (U-PPGH01-MODAL): emit only when the requested
+      // channel differs from the current modal state.  M09 is emitted first on
+      // any channel switch; see emitCoolantTransition() above.
+      const requestedCoolant = resolveOpCoolant(effectiveOp);
+      currentCoolant = emitCoolantTransition(requestedCoolant, gcode);
 
       // Apply tribal knowledge
       const tips = this.applyTribalKnowledge(effectiveOp);
       tribalTipsApplied.push(...tips.applied);
 
-      // Generate toolpath
-      const toolpath = this.generateToolpath(effectiveOp, cfg);
+      // Generate toolpath (probe cycles are emitted inside generateToolpath
+      // when op.probe is present; the one-time operator warning comment is
+      // injected into gcode[] once per program, not per op).
+      const toolpath = this.generateToolpath(effectiveOp, cfg, warnings, gcode);
       gcode.push(...toolpath);
 
       // Build per-block annotation: physics_basis="kienzle" because the
@@ -727,11 +1096,50 @@ export class HurcoV11MillMasterPostEngine {
     gcode.push("");
     gcode.push("(END OF PROGRAM)");
     gcode.push("M05 (SPINDLE STOP)");
-    gcode.push("M09 (COOLANT OFF)");
+    // Conditional M09 -- emit only when coolant is still on (idempotent: avoids
+    // a duplicate M09 if the last op already turned coolant off via a transition).
+    // currentCoolant reflects the true modal state after the last op.
+    if (currentCoolant !== "none") {
+      gcode.push("M09 (COOLANT OFF)");
+    }
     gcode.push("G91 G28 Z0 (Z HOME)");
     gcode.push("G28 X0 Y0 (XY HOME)");
     gcode.push("M30 (PROGRAM END)");
     gcode.push("%");
+
+    // Setup sheet (U-PPGH04). Tools deduped + sorted ascending by tool number.
+    // Operations preserve input sequence with 1-based numbering for the
+    // operator's traveler. Uses structured tool when present, falls back to
+    // flat fields. Skipped when emit_setup_sheet: false.
+    let setupSheet: SetupSheet | undefined;
+    if (cfg.emit_setup_sheet !== false) {
+      const seenTools = new Map<number, SetupSheet["tools"][number]>();
+      for (const op of operations) {
+        if (seenTools.has(op.tool_number)) continue;
+        const t = op.tool;
+        seenTools.set(op.tool_number, {
+          number: op.tool_number,
+          diameter_mm: t?.diameter_mm ?? op.tool_diameter_mm,
+          flutes: t?.flutes ?? op.tool_flutes,
+          description: t?.description ?? op.tool_description,
+          coating: t?.coating,
+          stickout_mm: t?.stickout_mm,
+        });
+      }
+      setupSheet = {
+        machine: "Hurco VMX24",
+        controller: "WinMax V11",
+        units: cfg.units ?? "metric",
+        tools: Array.from(seenTools.values()).sort((a, b) => a.number - b.number),
+        operations: operations.map((op, idx) => ({
+          sequence: idx + 1,
+          type: op.operation_type,
+          tool_number: op.tool_number,
+          spindle_rpm: op.spindle_rpm,
+          feed_mm_min: op.feed_mm_min,
+        })),
+      };
+    }
 
     return {
       gcode,
@@ -745,8 +1153,66 @@ export class HurcoV11MillMasterPostEngine {
       feed_optimizations: feedOptimizations,
       prove_out_mode: proveOutEntry !== null,
       physics_checks: physicsChecks,
-      tribal_tips_applied: tribalTipsApplied
+      tribal_tips_applied: tribalTipsApplied,
+      setup_sheet: setupSheet,
     };
+  }
+
+  /**
+   * Simplified single-operation API (U-PPGH04).
+   *
+   * Wraps a single PostMove[] toolpath + structured tool + material into a
+   * complete program. Intended for callers that have already done their own
+   * CAM segmentation and just want PRISM to format/validate one operation
+   * worth of moves into Hurco V11 G-code. Internally constructs a single
+   * MillOperation and delegates to generateProgram.
+   */
+  postSingle(input: {
+    toolpath: PostMove[];
+    material: MillMaterial;
+    tool: MillTool;
+    operation: MillOperation["operation_type"];
+    spindle_rpm: number;
+    feed_mm_min: number;
+    axial_depth_mm: number;
+    radial_depth_mm?: number;
+    coolant?: MillOperation["coolant"];
+    aggressiveness?: number;
+    program_number?: number;
+  }): HurcoPostOutput {
+    const coords = input.toolpath.map(m => ({
+      x: m.x,
+      y: m.y,
+      z: m.z,
+      type: m.type,
+    }));
+    const arcData = input.toolpath.map(m => ({
+      i: m.i,
+      j: m.j,
+      r: m.r,
+    }));
+    const isoGroup: ISOGroup = (input.material.iso_group ?? "P") as ISOGroup;
+    const op: MillOperation = {
+      operation_type: input.operation,
+      tool_number: input.tool.number,
+      tool_diameter_mm: input.tool.diameter_mm,
+      tool_flutes: input.tool.flutes,
+      tool_description: input.tool.description,
+      tool: input.tool,
+      material_iso: isoGroup,
+      material: { ...input.material, iso_group: isoGroup },
+      spindle_rpm: input.spindle_rpm,
+      feed_mm_min: input.feed_mm_min,
+      axial_depth_mm: input.axial_depth_mm,
+      radial_depth_mm: input.radial_depth_mm,
+      coolant: input.coolant,
+      coordinates: coords,
+      arc_data: arcData,
+    };
+    return this.generateProgram([op], {
+      program_number: input.program_number,
+      aggressiveness: input.aggressiveness,
+    });
   }
 
   /**
@@ -762,10 +1228,40 @@ export class HurcoV11MillMasterPostEngine {
       lines.push("G20 (INCH)");
     }
 
-    lines.push("G90 G17 G40 G49 G80 (ABSOLUTE, XY PLANE, CANCEL COMP, CANCEL CANNED)");
-    lines.push(`G${cfg.work_offset} (WORK OFFSET)`);
+    // G94 establishes feed-per-minute as the baseline feed mode at program top.
+    // WinMax ISNC power-on default IS G94, but emitting it explicitly removes the
+    // "first feed move before any feed-mode" ambiguity (post-nc-dialect-lint
+    // feed-no-feedmode warn) and is correct if a prior program left G95/G93 modal.
+    // (Tapping ops may switch to G95 feed-per-rev and restore G94 afterward.)
+    lines.push("G90 G17 G40 G49 G80 G94 (ABSOLUTE, XY PLANE, CANCEL COMP, CANCEL CANNED, FEED/MIN)");
+    // Work offset emission — Fanuc/Hurco convention:
+    //   work_offset 54-59 → direct G54..G59 (basic WCS 1-6)
+    //   any other value   → G54.1 P<n> extended WCS (Hurco V11 supports
+    //     G54.1 P1..P300 per WinMax docs; we don't enforce upper bound here
+    //     because the WinMax UI rejects out-of-range P# at load time)
+    const wo = cfg.work_offset!;
+    if (wo >= 54 && wo <= 59) {
+      lines.push(`G${wo} (WORK OFFSET)`);
+    } else {
+      lines.push(`G54.1 P${wo} (WORK OFFSET)`);
+    }
 
     return lines;
+  }
+
+  /**
+   * Classify smoothing P-value for G05.3 by operation type.
+   * Mirrors Fusion .cps PRISM Enhanced v8.9.153 logic (lines 3008-3022):
+   *   adaptive/rough strategies → P35 ADAPTIVE ROUGH (speed over finish)
+   *   everything else           → P10 FINISH (quality over speed)
+   * Ground-truth corpus: 4 JM Die programs in JM DIE/HURCO CNC PROGRAMS/.
+   */
+  private classifySmoothing(operationType: string): { p: number; label: string } {
+    const t = operationType.toLowerCase();
+    if (t.includes("adaptive") || t.includes("rough")) {
+      return { p: 35, label: "ADAPTIVE ROUGH" };
+    }
+    return { p: 10, label: "FINISH" };
   }
 
   /**
@@ -776,7 +1272,22 @@ export class HurcoV11MillMasterPostEngine {
     const tcp = cfg.tool_change_position!;
 
     lines.push(`G91 G28 Z0 (Z RETRACT)`);
-    lines.push(`T${op.tool_number} M06 (${op.tool_description || `TOOL ${op.tool_number}`})`);
+    // Structured tool.description shadows the flat tool_description per U-PPGH04
+    // (the structured field is downstream of CAM-side parsing and carries the
+    // authoritative name; the flat field is a legacy shortcut). Falls back to
+    // the flat field, then to a generic "TOOL <n>" placeholder.
+    const toolDesc = op.tool?.description ?? op.tool_description ?? `TOOL ${op.tool_number}`;
+    lines.push(`T${op.tool_number} M06 (${toolDesc})`);
+
+    // G05.3 UltiMotion smoothing — emit immediately after M06, before G43,
+    // matching the Fusion .cps emission order (verified against real JM Die
+    // posted programs). When use_ultimotion is disabled the block is omitted
+    // entirely so the engine output can be diffed against a non-smoothed reference.
+    if (cfg.use_ultimotion) {
+      const sm = this.classifySmoothing(op.operation_type);
+      lines.push(`G05.3 P${sm.p} (T${op.tool_number} ${sm.label} SMOOTHING)`);
+    }
+
     lines.push(`G43 H${op.tool_number} (TOOL LENGTH COMP)`);
 
     return lines;
@@ -785,17 +1296,38 @@ export class HurcoV11MillMasterPostEngine {
   /**
    * Generate spindle start with appropriate dwell
    */
-  private generateSpindleStart(op: MillOperation, cfg: HurcoPostConfig, blockId?: string): string[] {
+  private generateSpindleStart(op: MillOperation, cfg: HurcoPostConfig, blockId: string | undefined, warnings: string[]): string[] {
     const lines: string[] = [];
 
-    // U-PPGM13: emit a labelled block carrying both S and F so the
-    // sidecar gate (verifyBlockAnnotations) can cross-check both. The
-    // label MUST match the corresponding entry in block_annotations[].
-    // F is technically a feed word; setting it here is modal — first
-    // motion command after this block uses the established feed.
-    const label = blockId ? `${blockId} ` : "";
+    // Spindle-on block: `N<id> S<rpm> M03 F<feed>` with explanatory comment.
+    // The Nxxx block-label + S + F MUST be co-located on this ONE line: the
+    // U-PPGM13 physics-sidecar gate (cps/verifyBlockAnnotations.ts) parses
+    // block_id from the inline `^N\d+` label and reads S/F from that SAME line
+    // to cross-check against block_annotations[].emitted (S_rpm/F_mmpm). An
+    // earlier note here claimed the gate resolves block_id "from metadata, not
+    // an inline N-number" and dropped the N-prefix (2026-05-22) -- that was
+    // FALSE (the gate parser has always read the inline label, verifyBlockAnnotations.ts:117)
+    // and silently broke the gate for 13 tests. Restored 2026-06-29 (R7: the
+    // safety-purposed gate decision wins over the cosmetic N-drop). N-numbers are
+    // inert sequence labels every WinMax control accepts; F on the spindle block
+    // is a valid modal feed pre-set. S/F here are the EFFECTIVE (post-multiplier)
+    // values -- `op` is the effectiveOp -- so they equal block_annotations[].emitted.
+    // U-PP-NONFINITE-EMIT-SWEEP: a non-finite spindle_rpm/feed would emit a literal
+    // `SInfinity`/`SNaN`/`FNaN` the WinMax control rejects -- emit a flagged 0 sentinel + warn
+    // (a finite op is byte-unchanged save the additive N/F words).
+    const rpmFinite = typeof op.spindle_rpm === "number" && Number.isFinite(op.spindle_rpm);
+    if (!rpmFinite) {
+      warnings.push(`Op spindle-start has non-finite spindle_rpm=${op.spindle_rpm} -- emitted a flagged 0 token to avoid a literal SInfinity/SNaN the WinMax control rejects; fix before running.`);
+    }
+    const feedFinite = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min);
+    if (!feedFinite) {
+      warnings.push(`Op spindle-start has non-finite feed_mm_min=${op.feed_mm_min} -- emitted a flagged F0 token (the WinMax control rejects FNaN/FInfinity); fix before running.`);
+    }
+    const rpmWord = rpmFinite ? `${op.spindle_rpm}` : "0";
+    const feedWord = feedFinite ? `${op.feed_mm_min}` : "0";
+    const nPrefix = blockId ? `${blockId} ` : "";
     lines.push(
-      `${label}S${op.spindle_rpm} M03 F${op.feed_mm_min} (SPINDLE CW ${op.spindle_rpm} RPM, FEED ${op.feed_mm_min})`,
+      `${nPrefix}S${rpmWord} M03 F${feedWord} (SPINDLE CW ${rpmWord} RPM${rpmFinite ? "" : " - NON-FINITE INPUT, REVIEW"})`,
     );
 
     // Apply tribal knowledge: dwell for heavy cuts
@@ -803,39 +1335,410 @@ export class HurcoV11MillMasterPostEngine {
       lines.push("G04 P1.0 (DWELL FOR SPINDLE RAMP - HEAVY CUT)");
     }
 
-    // Coolant
-    // PPG-HARDEN/U-PPGH01: TSC (through-spindle coolant) was previously
-    // accepted by the type-level enum but silently dropped in emit. JM Die's
-    // VMX24 is documented as not supporting TSC (see tribal tip categorized
-    // "coolant"), but Hurco V11 controllers across the wider VMX/VM line
-    // accept M88 — and a programmer who explicitly requests TSC needs the
-    // M88 emitted so the operator can see and reject it at machine setup.
-    // Silently dropping the request was the worst of all worlds.
-    const coolant = op.coolant || cfg.coolant_mode;
-    if (coolant === "flood") {
-      lines.push("M08 (FLOOD COOLANT)");
-    } else if (coolant === "mist") {
-      lines.push("M07 (MIST COOLANT)");
-    } else if (coolant === "tsc") {
-      lines.push("M88 (THROUGH-SPINDLE COOLANT)");
-    }
+    // Coolant emission is managed by the modal state machine in generateProgram()
+    // (U-PPGH01-MODAL). This method no longer emits M07/M08/M88 directly so
+    // the caller can decide whether a channel transition (M09 first) is required.
+    // The original TSC/M88 comment still applies; codes are unchanged -- only their
+    // emission point moved up one level into generateProgram's per-op loop.
 
     return lines;
   }
 
+  /** Canned-cycle type -> Hurco WinMax ISNC G-code.
+   *  Hurco WinMax in ISNC mode is Fanuc-family -- G81/G82/G83/G73/G84/G85 are universal ISO codes.
+   *  The five boring extensions (G76/G86/G87/G88/G89) are also standard ISNC meanings.
+   *  Source: original six mirrored from HaasNGCMillMasterPostEngine.CYCLE_GCODE;
+   *  G76/G86/G87/G88/G89 verified vs Hurco WinMax Mill NC documentation (support.hurco.com
+   *  WinMax Mill NC Canned Cycles + G Code Table) 2026-06-29.
+   *
+   *  DIALECT NOTE: G86/G87/G88 are ISNC-only meanings. In Hurco BNC dialect these codes are
+   *  REASSIGNED (BNC G88 = RIGID TAPPING -- a crash if emitted in BNC mode). This engine emits
+   *  ISNC; if a BNC mode is ever added these must be gated. Verified vs Hurco WinMax Mill NC
+   *  docs 2026-06-29. */
+  private static readonly CYCLE_GCODE: Record<HurcoDrillCycle["type"], string> = {
+    // Original six (Fanuc-family universal)
+    drill: "G81", dwell: "G82", peck: "G83", chip_break: "G73", tap: "G84", bore: "G85",
+    // Five boring extensions -- ISNC-only meanings (see DIALECT NOTE above)
+    fine_bore:   "G76",  // Bore Orient: orient spindle + shift off wall before retract
+    bore_stop:   "G86",  // Bore Rapid Out: spindle stops at bottom, retracts at rapid feed
+    back_bore:   "G87",  // Back Boring
+    bore_manual: "G88",  // Boring with manual feed-out + dwell
+    bore_dwell:  "G89",  // Bore + bottom dwell (distinct from dwell-less G85)
+  };
+
   /**
-   * Generate toolpath coordinates
+   * Emit a modal drilling canned cycle from op.cycle + the coordinates[] hole XYs.
+   * Format mirrors HaasNGCMillMasterPostEngine.emitCannedCycle -- same Fanuc-family
+   * dialect (Hurco WinMax ISNC mode accepts G81/G83/G84/G85 natively):
+   *   {G98|G99} G8x Z{depth} R{retract} [Q{peck}] [P{dwell}] F{feed}   <- first hole (bare, no XY)
+   *   X.. Y..                                                            <- each subsequent hole
+   *   G80                                                                <- cancel
+   *
+   * Geometry uses .toFixed(3) (mm, same as the rest of the Hurco emitter).
+   * Fail-loud (R12): 0 holes -> warn + skip; non-finite depth/retract -> warn + fall back to
+   * the long-hand move list; peck/dwell cycle missing its Q/P -> warn + downgrade to G81.
    */
-  private generateToolpath(op: MillOperation, cfg: HurcoPostConfig): string[] {
+  private emitCannedCycle(
+    op: MillOperation,
+    lines: string[],
+    feedTok: string,
+    warn: (m: string) => void,
+  ): void {
+    const cyc = op.cycle!;
+    const holes = op.coordinates.filter(
+      (c) => Number.isFinite(c.x) && Number.isFinite(c.y),
+    );
+    if (holes.length === 0) {
+      warn(`canned cycle (${cyc.type}) has no valid hole XY positions -- emitted nothing`);
+      return;
+    }
+    if (!Number.isFinite(cyc.depth_mm) || !Number.isFinite(cyc.retract_mm)) {
+      warn(`canned cycle (${cyc.type}) has non-finite depth_mm/retract_mm -- fell back to the long-hand move list`);
+      // emit the long-hand coordinate loop as a fail-safe (R12)
+      for (const coord of op.coordinates) {
+        if (!Number.isFinite(coord.x) || !Number.isFinite(coord.y)) continue;
+        switch (coord.type) {
+          case "rapid":
+            lines.push(`G00 X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)} Z${coord.z.toFixed(3)}`);
+            break;
+          case "linear":
+            lines.push(`G01 X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)} Z${coord.z.toFixed(3)} F${feedTok}`);
+            break;
+          default:
+            lines.push(`G01 X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)} Z${coord.z.toFixed(3)} F${feedTok}`);
+        }
+      }
+      return;
+    }
+
+    // Geometry sanity (R12 advisory -- still emit, flag): depth (negative below part top)
+    // must sit BELOW the R-plane (retract, positive above it).
+    if (cyc.depth_mm >= cyc.retract_mm) {
+      warn(`canned cycle depth_mm (${cyc.depth_mm}) is not below retract_mm (${cyc.retract_mm}) -- inverted/no-cut geometry, verify Z/R signs`);
+    }
+    if (cyc.retract_mm <= 0) {
+      warn(`canned cycle retract_mm (${cyc.retract_mm}) is not a positive R-plane -- verify clearance`);
+    }
+
+    // Resolve effective cycle type, downgrading when a required parameter is absent (R12).
+    // Boring cycles that need a spindle-orient shift (Q word): fine_bore, back_bore.
+    // Boring cycles that need a bottom dwell   (P word): bore_manual, back_bore, bore_dwell.
+    // bore_stop (G86) requires neither -- spindle simply stops at depth, retracts at rapid.
+    let type: HurcoDrillCycle["type"] = cyc.type;
+    const hasPeck = Number.isFinite(cyc.peck_mm) && (cyc.peck_mm as number) > 0;
+    const hasDwell = Number.isFinite(cyc.dwell_s) && (cyc.dwell_s as number) > 0;
+    // shift_mm takes precedence over peck_mm for orient-shift cycles (fine_bore / back_bore).
+    const hasShift = (Number.isFinite(cyc.shift_mm) && (cyc.shift_mm as number) > 0)
+                  || hasPeck;
+    const shiftVal  = (Number.isFinite(cyc.shift_mm) && (cyc.shift_mm as number) > 0)
+                  ? (cyc.shift_mm as number)
+                  : (cyc.peck_mm as number);
+
+    if ((type === "peck" || type === "chip_break") && !hasPeck) {
+      warn(`${type} cycle needs a positive peck_mm (Q) -- downgraded to G81 simple drill`);
+      type = "drill";
+    } else if (type === "dwell" && !hasDwell) {
+      warn(`dwell cycle needs a positive dwell_s (P) -- downgraded to G81 simple drill`);
+      type = "drill";
+    } else if ((type === "fine_bore" || type === "back_bore") && !hasShift) {
+      // fine_bore / back_bore require a positive Q (orient-shift). Without it the spindle
+      // crashes the boring bar wall. Downgrade to G85 (simple bore-feed-out) not G81 -- these
+      // are boring operations, not drilling.
+      warn(`${type} cycle needs a positive shift_mm or peck_mm (Q orient-shift) -- downgraded to G85 simple bore`);
+      type = "bore";
+    } else if ((type === "bore_manual" || type === "bore_dwell") && !hasDwell) {
+      // bore_manual (G88) and bore_dwell (G89) require a positive P dwell word.
+      warn(`${type} cycle needs a positive dwell_s (P) -- downgraded to G85 simple bore`);
+      type = "bore";
+    } else if (type === "back_bore" && !hasDwell) {
+      // back_bore (G87) also requires P in addition to Q -- check separately so the Q check
+      // above already handled the no-shift case; here type is still "back_bore".
+      warn(`back_bore cycle needs a positive dwell_s (P) -- downgraded to G85 simple bore`);
+      type = "bore";
+    }
+    let g = HurcoV11MillMasterPostEngine.CYCLE_GCODE[type];
+    if (!g) { warn(`unknown cycle type '${cyc.type}' -- using G81 simple drill`); g = "G81"; }
+
+    // G99 (retract to R-plane) is the default -- faster between closely spaced holes.
+    // G98 (retract to initial plane) only when caller needs to clear obstacles between holes.
+    const retractG = cyc.retract_mode === "initial" ? "G98" : "G99";
+
+    // First hole: BARE cycle line -- NO XY. The per-op approach (generateSpindleStart +
+    // the safe-Z rapid at the top of generateToolpath) already positioned the tool at the
+    // first hole's XY before entering the canned cycle. Omitting XY on the cycle line is the
+    // correct Fanuc/Hurco ISNC idiom (mirrors Haas golden `G99 G83 Z.. R.. Q.. F..`).
+    //
+    // Word order per Hurco WinMax ISNC docs: Z R [Q] [P] F
+    //   G76: Z R Q(shift) [P(dwell)] F
+    //   G86: Z R F          (no Q, no P -- spindle-stop-at-depth, rapid out)
+    //   G87: Z R Q(shift) [P(dwell)] F
+    //   G88: Z R P(dwell) F (no Q)
+    //   G89: Z R P(dwell) F (no Q)
+    let first = `${retractG} ${g} Z${cyc.depth_mm.toFixed(3)} R${cyc.retract_mm.toFixed(3)}`;
+    if (type === "peck" || type === "chip_break") {
+      first += ` Q${(cyc.peck_mm as number).toFixed(3)}`;
+    }
+    if (type === "fine_bore") {
+      // G76: Q = orient-shift distance (mm), P = optional bottom dwell
+      first += ` Q${shiftVal.toFixed(3)}`;
+      if (hasDwell) first += ` P${(cyc.dwell_s as number).toFixed(2)}`;
+    }
+    // G86 (bore_stop): no Q, no P -- word order complete after R
+    if (type === "back_bore") {
+      // G87: Q = orient-shift distance, P = optional dwell
+      first += ` Q${shiftVal.toFixed(3)}`;
+      if (hasDwell) first += ` P${(cyc.dwell_s as number).toFixed(2)}`;
+    }
+    if (type === "bore_manual" || type === "bore_dwell") {
+      // G88/G89: P = bottom dwell; no Q
+      first += ` P${(cyc.dwell_s as number).toFixed(2)}`;
+    }
+    if (type === "dwell") {
+      first += ` P${(cyc.dwell_s as number).toFixed(2)}`;
+    }
+    first += ` F${feedTok}`;
+    lines.push(first);
+
+    // Subsequent holes: modal X Y -- the active cycle repeats the drill at each point.
+    for (let i = 1; i < holes.length; i++) {
+      lines.push(`X${holes[i].x.toFixed(3)} Y${holes[i].y.toFixed(3)}`);
+    }
+
+    lines.push("G80");
+  }
+
+  /**
+   * Emit a Renishaw Inspection Plus probe cycle (opt-in, additive).
+   *
+   * Verified macro set only -- NEVER invent P-numbers:
+   *   G65 P9832               -- probe ON
+   *   G65 P9810 Z<z> F<feed>  -- protected positioning approach (omitted for cal types)
+   *   G65 P9811 <axis><val>   -- single-surface measure
+   *   G65 P9814 D<dia> [W<n>] -- bore/boss diameter
+   *   G65 P9815 X<x> Y<y> I<i> J<j> [S<n>] -- circular centre find
+   *   G65 P9801 Z<z> [T<tool>]-- calibrate probe length
+   *   G65 P9802 D<dia> Z<z>   -- calibrate stylus X/Y
+   *   G65 P9833               -- probe OFF
+   *
+   * Non-finite param -> warn + skip that cycle (never emit garbage macro).
+   * Missing required param -> warn + skip.
+   *
+   * Idiom mirrors emitCannedCycle: same warn-and-downgrade pattern, same
+   * non-finite guards, same R12 fail-loud discipline.
+   *
+   * Source: Renishaw Inspection Plus Macro Reference (OMM/OP/OMP) + Hurco
+   * WinMax G65 macro call documentation, 2026-06-29.
+   */
+  private emitProbeCycle(
+    op: MillOperation,
+    lines: string[],
+    warn: (m: string) => void,
+  ): void {
+    const p = op.probe!;
+
+    // Helper: check finite + defined
+    const fin = (v: number | undefined): v is number =>
+      typeof v === "number" && Number.isFinite(v);
+
+    // ── cal_length (P9801) -- no P9810 approach wrap ────────────────────
+    if (p.type === "cal_length") {
+      if (!fin(p.z_mm)) {
+        warn(`probe cal_length missing/non-finite z_mm -- skipped`);
+        return;
+      }
+      lines.push(`G65 P9832 (PROBE ON)`);
+      let line = `G65 P9801 Z${p.z_mm!.toFixed(3)}`;
+      if (fin(p.tool_number)) line += ` T${Math.round(p.tool_number!)}`;
+      line += ` (CAL PROBE LENGTH)`;
+      lines.push(line);
+      lines.push(`G65 P9833 (PROBE OFF)`);
+      return;
+    }
+
+    // ── cal_stylus (P9802) -- no P9810 approach wrap ────────────────────
+    if (p.type === "cal_stylus") {
+      if (!fin(p.dia_mm) || !fin(p.z_mm)) {
+        warn(`probe cal_stylus missing/non-finite dia_mm or z_mm -- skipped`);
+        return;
+      }
+      lines.push(`G65 P9832 (PROBE ON)`);
+      lines.push(
+        `G65 P9802 D${p.dia_mm!.toFixed(3)} Z${p.z_mm!.toFixed(3)} (CAL STYLUS XY)`,
+      );
+      lines.push(`G65 P9833 (PROBE OFF)`);
+      return;
+    }
+
+    // ── All remaining types use P9810 protected approach ─────────────────
+    // P9810 requires Z approach + feed. Non-finite -> warn + skip whole cycle.
+    if (!fin(p.z_mm)) {
+      warn(`probe ${p.type} missing/non-finite z_mm (required for P9810 approach) -- skipped`);
+      return;
+    }
+    const feedPart = fin(p.feed_mm_min)
+      ? ` F${p.feed_mm_min!.toFixed(3)}`
+      : "";
+
+    lines.push(`G65 P9832 (PROBE ON)`);
+    lines.push(
+      `G65 P9810 Z${p.z_mm!.toFixed(3)}${feedPart} (PROTECTED POSITION)`,
+    );
+
+    // ── single_surface (P9811) ───────────────────────────────────────────
+    if (p.type === "single_surface") {
+      const axis = p.axis;
+      if (axis !== "X" && axis !== "Y" && axis !== "Z") {
+        warn(`probe single_surface requires axis "X", "Y", or "Z" -- skipped measure`);
+        lines.push(`G65 P9833 (PROBE OFF)`);
+        return;
+      }
+      // The axis value is the nominal surface position on that axis.
+      // Use z_mm for Z, or require x_mm/y_mm for X/Y.
+      let axisVal: number | undefined;
+      if (axis === "Z") {
+        axisVal = p.z_mm;
+      } else if (axis === "X") {
+        axisVal = p.x_mm;
+      } else {
+        axisVal = p.y_mm;
+      }
+      if (!fin(axisVal)) {
+        warn(
+          `probe single_surface axis ${axis} requires ${axis === "Z" ? "z_mm" : axis === "X" ? "x_mm" : "y_mm"} -- skipped measure`,
+        );
+        lines.push(`G65 P9833 (PROBE OFF)`);
+        return;
+      }
+      let line = `G65 P9811 ${axis}${(axisVal as number).toFixed(3)}`;
+      if (fin(p.tool_number)) line += ` T${Math.round(p.tool_number!)}`;
+      line += ` (SINGLE SURFACE MEASURE ${axis})`;
+      lines.push(line);
+      lines.push(`G65 P9833 (PROBE OFF)`);
+      return;
+    }
+
+    // ── bore / boss (P9814) ──────────────────────────────────────────────
+    if (p.type === "bore" || p.type === "boss") {
+      if (!fin(p.dia_mm)) {
+        warn(`probe ${p.type} missing/non-finite dia_mm -- skipped`);
+        lines.push(`G65 P9833 (PROBE OFF)`);
+        return;
+      }
+      let line = `G65 P9814 D${p.dia_mm!.toFixed(3)}`;
+      if (fin(p.wcs)) line += ` W${Math.round(p.wcs!)}`;
+      line += ` (${p.type.toUpperCase()} DIAMETER)`;
+      lines.push(line);
+      lines.push(`G65 P9833 (PROBE OFF)`);
+      return;
+    }
+
+    // ── circular_centre (P9815) ──────────────────────────────────────────
+    if (p.type === "circular_centre") {
+      if (!fin(p.x_mm) || !fin(p.y_mm) || !fin(p.i_mm) || !fin(p.j_mm)) {
+        warn(
+          `probe circular_centre requires x_mm, y_mm, i_mm, j_mm -- skipped`,
+        );
+        lines.push(`G65 P9833 (PROBE OFF)`);
+        return;
+      }
+      let line =
+        `G65 P9815` +
+        ` X${p.x_mm!.toFixed(3)}` +
+        ` Y${p.y_mm!.toFixed(3)}` +
+        ` I${p.i_mm!.toFixed(3)}` +
+        ` J${p.j_mm!.toFixed(3)}`;
+      if (fin(p.s)) line += ` S${Math.round(p.s!)}`;
+      line += ` (CIRCULAR CENTRE FIND)`;
+      lines.push(line);
+      lines.push(`G65 P9833 (PROBE OFF)`);
+      return;
+    }
+
+    // Unknown type -- warn and close probe
+    warn(`probe unknown type "${(p as { type: string }).type}" -- skipped; only verified P-numbers emitted`);
+    lines.push(`G65 P9833 (PROBE OFF)`);
+  }
+
+  /**
+   * Generate toolpath coordinates.
+   *
+   * @param programGcode - The program-level gcode array, used to inject the
+   *   one-time probe operator warning comment exactly once per program.
+   *   Passed by reference so the check against an already-emitted sentinel
+   *   is O(1) (the sentinel string is unique and short).
+   */
+  private generateToolpath(
+    op: MillOperation,
+    cfg: HurcoPostConfig,
+    warnings: string[],
+    programGcode: string[],
+  ): string[] {
     const lines: string[] = [];
 
     // Rapid to safe Z
     lines.push(`G00 Z${cfg.safe_z_mm} (RAPID TO SAFE Z)`);
 
+    // U-PP-NONFINITE-EMIT-SWEEP: a non-finite feed_mm_min would emit a literal
+    // `FNaN`/`FInfinity` the WinMax control rejects. Format it once + flag it loudly.
+    const feedFinite = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min);
+    if (!feedFinite) {
+      warnings.push(`Op feed_mm_min=${op.feed_mm_min} is non-finite -- emitted a flagged F token for operator review (never FNaN/FInfinity).`);
+    }
+    const feedTok = feedFinite ? `${op.feed_mm_min}` : "0 (NON-FINITE FEED - REVIEW)";
+
+    // ── Probe cycle (opt-in, additive) ───────────────────────────────────
+    // Emitted ONLY when op.probe is present. An op carries EITHER a drill
+    // canned cycle (op.cycle) OR a probe cycle (op.probe), never both;
+    // probe takes priority when both are set (programming error -- warn).
+    // The one-time operator WARNING comment is injected into programGcode[]
+    // once per program via a sentinel search, not a closure-captured flag,
+    // so re-entrant calls to generateProgram() can't cross-contaminate.
+    if (op.probe) {
+      if (op.cycle) {
+        warnings.push(
+          `Op carries both op.cycle and op.probe -- probe cycle takes priority; op.cycle is ignored for this op`,
+        );
+      }
+      // ONE-TIME operator safety warning injected at the program level.
+      // Sentinel: the unique substring "(PROBING: requires" is present only
+      // from this block, so indexOf is a safe once-only guard.
+      const PROBE_WARNING =
+        `(PROBING: requires the Renishaw 9800-series macros installed on this WinMax control ` +
+        `[v9 vs v10 differ] + a calibrated probe; G65 P98xx errors 'macro invalid' if absent)`;
+      if (!programGcode.some((l) => l.startsWith("(PROBING: requires"))) {
+        programGcode.push(PROBE_WARNING);
+      }
+      const probeWarn = (m: string) => warnings.push(`Op probe cycle: ${m}`);
+      this.emitProbeCycle(op, lines, probeWarn);
+      lines.push(`G00 Z${cfg.safe_z_mm} (RETRACT)`);
+      return lines;
+    }
+
+    // Toolpath: a drilling/bore op may carry a canned cycle (G81/G83/G84...) -- emit the
+    // modal cycle from coordinates[] hole XYs. Otherwise (the default) emit the literal
+    // G00/G01/G02/G03 move list (byte-identical to the pre-cycle behavior for all ops
+    // that do not set op.cycle -- fully ADDITIVE, no regression risk).
+    const opWarn = (m: string) => warnings.push(`Op canned cycle: ${m}`);
+    if (op.cycle && (op.operation_type === "drill" || op.operation_type === "bore")) {
+      this.emitCannedCycle(op, lines, feedTok, opWarn);
+      lines.push(`G00 Z${cfg.safe_z_mm} (RETRACT)`);
+      return lines;
+    }
+
     // Generate coordinate moves
     for (let i = 0; i < op.coordinates.length; i++) {
       const coord = op.coordinates[i];
       const arcData = op.arc_data?.[i];
+
+      // U-PP-NONFINITE-EMIT-SWEEP: a non-finite X/Y (or a present-but-non-finite Z)
+      // would emit a literal `XNaN`/`ZInfinity` the WinMax control rejects -- skip the
+      // move + warn, never leak the token (sibling of RokuRoku/HaasNGC/OkumaOSP/B250).
+      if (!Number.isFinite(coord.x) || !Number.isFinite(coord.y) ||
+          (coord.z !== undefined && !Number.isFinite(coord.z))) {
+        warnings.push(`Move ${i + 1} (${coord.type}) has non-finite XYZ (${coord.x},${coord.y},${coord.z}) -- skipped to avoid a literal XNaN/YNaN/ZNaN the WinMax control rejects; fix the upstream toolpath.`);
+        lines.push(`(ERROR: MOVE ${i + 1} NON-FINITE COORD SKIPPED - REVIEW TOOLPATH)`);
+        continue;
+      }
 
       let line = "";
 
@@ -848,27 +1751,33 @@ export class HurcoV11MillMasterPostEngine {
         case "linear":
           line = `G01 X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)}`;
           if (coord.z !== undefined) line += ` Z${coord.z.toFixed(3)}`;
-          line += ` F${op.feed_mm_min}`;
+          line += ` F${feedTok}`;
           break;
 
         case "arc_cw":
           line = `G02 X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)}`;
+          // A non-finite arc R/I/J is the same XNaN class -- omit it + warn rather than
+          // emit `RInfinity`/`INaN` (a finite arc stays byte-unchanged).
           if (arcData?.r) {
-            line += ` R${arcData.r.toFixed(3)}`;
+            if (Number.isFinite(arcData.r)) line += ` R${arcData.r.toFixed(3)}`;
+            else warnings.push(`Arc move ${i + 1} has non-finite R (${arcData.r}) -- omitted to avoid a literal RNaN; review the arc geometry.`);
           } else if (arcData?.i !== undefined && arcData?.j !== undefined) {
-            line += ` I${arcData.i.toFixed(3)} J${arcData.j.toFixed(3)}`;
+            if (Number.isFinite(arcData.i) && Number.isFinite(arcData.j)) line += ` I${arcData.i.toFixed(3)} J${arcData.j.toFixed(3)}`;
+            else warnings.push(`Arc move ${i + 1} has non-finite I/J (${arcData.i},${arcData.j}) -- omitted to avoid a literal INaN/JNaN; review the arc geometry.`);
           }
-          line += ` F${op.feed_mm_min}`;
+          line += ` F${feedTok}`;
           break;
 
         case "arc_ccw":
           line = `G03 X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)}`;
           if (arcData?.r) {
-            line += ` R${arcData.r.toFixed(3)}`;
+            if (Number.isFinite(arcData.r)) line += ` R${arcData.r.toFixed(3)}`;
+            else warnings.push(`Arc move ${i + 1} has non-finite R (${arcData.r}) -- omitted to avoid a literal RNaN; review the arc geometry.`);
           } else if (arcData?.i !== undefined && arcData?.j !== undefined) {
-            line += ` I${arcData.i.toFixed(3)} J${arcData.j.toFixed(3)}`;
+            if (Number.isFinite(arcData.i) && Number.isFinite(arcData.j)) line += ` I${arcData.i.toFixed(3)} J${arcData.j.toFixed(3)}`;
+            else warnings.push(`Arc move ${i + 1} has non-finite I/J (${arcData.i},${arcData.j}) -- omitted to avoid a literal INaN/JNaN; review the arc geometry.`);
           }
-          line += ` F${op.feed_mm_min}`;
+          line += ` F${feedTok}`;
           break;
       }
 
@@ -882,12 +1791,56 @@ export class HurcoV11MillMasterPostEngine {
   }
 
   /**
-   * Perform physics checks on operation
+   * Resolve effective Kienzle constants (canonical + optional override).
+   * U-PPGH04 fail-loud: out-of-range overrides THROW. A 4× canonical kc1_1
+   * silently accepted would let a programmer push unsafe force into the
+   * spindle; we refuse the program emission rather than warn-and-continue.
+   */
+  private resolveKienzle(op: MillOperation): { kc1_1: number; mc: number } {
+    const canonical = CANONICAL_KIENZLE[op.material_iso];
+    const m = op.material;
+    if (!m) return { kc1_1: canonical.kc1_1, mc: canonical.mc };
+
+    // ISO mismatch between flat material_iso and structured material.iso_group
+    // is a programmer error — refuse to silently average them. R12 fail-loud.
+    if (m.iso_group !== undefined && m.iso_group !== op.material_iso) {
+      throw new Error(
+        `Hurco V11: material.iso_group="${m.iso_group}" does not match op.material_iso="${op.material_iso}"`,
+      );
+    }
+
+    let kc1_1 = canonical.kc1_1;
+    let mc = canonical.mc;
+
+    if (m.kc1_1 !== undefined) {
+      if (m.kc1_1 < HurcoV11MillMasterPostEngine.KC1_1_MIN || m.kc1_1 > HurcoV11MillMasterPostEngine.KC1_1_MAX) {
+        throw new Error(
+          `Hurco V11: kc1_1 override ${m.kc1_1} out of safe range [${HurcoV11MillMasterPostEngine.KC1_1_MIN}, ${HurcoV11MillMasterPostEngine.KC1_1_MAX}] N/mm²`,
+        );
+      }
+      kc1_1 = m.kc1_1;
+    }
+    if (m.mc !== undefined) {
+      if (m.mc < HurcoV11MillMasterPostEngine.MC_MIN || m.mc > HurcoV11MillMasterPostEngine.MC_MAX) {
+        throw new Error(
+          `Hurco V11: mc override ${m.mc} out of safe range [${HurcoV11MillMasterPostEngine.MC_MIN}, ${HurcoV11MillMasterPostEngine.MC_MAX}]`,
+        );
+      }
+      mc = m.mc;
+    }
+    return { kc1_1, mc };
+  }
+
+  /**
+   * Perform physics checks on operation. Five base checks always; stickout
+   * deflection added when `op.tool.stickout_mm` is provided.
+   *
+   * Base checks: Vc, fz, Fc (Kienzle), Spindle RPM, Taylor tool life.
    */
   private performPhysicsChecks(op: MillOperation, startLine: number): HurcoPostOutput["physics_checks"] {
     const checks: HurcoPostOutput["physics_checks"] = [];
 
-    // Cutting speed check
+    // [1] Cutting speed (Vc) — π·D·n/1000
     const Vc = (Math.PI * op.tool_diameter_mm * op.spindle_rpm) / 1000;
     const maxVc = this.getMaxCuttingSpeed(op.material_iso);
     checks.push({
@@ -895,10 +1848,10 @@ export class HurcoV11MillMasterPostEngine {
       check: `Cutting speed ${Vc.toFixed(0)} m/min vs max ${maxVc} m/min for ISO ${op.material_iso}`,
       passed: Vc <= maxVc * 1.2,
       value: Vc,
-      limit: maxVc
+      limit: maxVc,
     });
 
-    // Chip load check
+    // [2] Chip load (fz) — F / (n × Z)
     const fz = op.feed_mm_min / (op.spindle_rpm * op.tool_flutes);
     const minFz = 0.02;
     const maxFz = op.material_iso === "N" ? 0.25 : 0.15;
@@ -907,31 +1860,63 @@ export class HurcoV11MillMasterPostEngine {
       check: `Chip load ${fz.toFixed(3)} mm/tooth (range ${minFz}-${maxFz})`,
       passed: fz >= minFz && fz <= maxFz,
       value: fz,
-      limit: maxFz
+      limit: maxFz,
     });
 
-    // Depth of cut check (Kienzle force consideration)
-    // Fc = kc1_1 * ap * fz^(1 - mc) — Sandvik Coromant General Turning (2024), ISO 3685
-    const kienzle = CANONICAL_KIENZLE[op.material_iso];
-    const Fc = kienzle.kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - kienzle.mc);
-    const maxForce = 2000; // N, rough limit for VMX24
+    // [3] Cutting force (Kienzle): Fc = kc1_1 · ap · fz^(1-mc)
+    // Sandvik Coromant General Turning Handbook (2024), ISO 3685.
+    // Effective constants (canonical or override) surfaced in the check
+    // string so downstream verifiers can audit which values drove the gate.
+    const { kc1_1, mc } = this.resolveKienzle(op);
+    const Fc = kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - mc);
+    const maxForce = 2000; // N, conservative VMX24 spindle limit
     checks.push({
       line: startLine,
-      check: `Cutting force ${Fc.toFixed(0)} N vs machine limit ${maxForce} N`,
+      check: `Cutting force ${Fc.toFixed(0)} N vs machine limit ${maxForce} N (kc1_1=${kc1_1}, mc=${mc})`,
       passed: Fc <= maxForce,
       value: Fc,
-      limit: maxForce
+      limit: maxForce,
     });
 
-    // Spindle speed check
-    const maxRpm = 10000; // VMX24 spindle max
+    // [4] Spindle speed — VMX24 max 10000 RPM
+    const maxRpm = 10000;
     checks.push({
       line: startLine,
       check: `Spindle ${op.spindle_rpm} RPM vs max ${maxRpm} RPM`,
       passed: op.spindle_rpm <= maxRpm,
       value: op.spindle_rpm,
-      limit: maxRpm
+      limit: maxRpm,
     });
+
+    // [5] Taylor tool life: T = (C/Vc)^(1/n)
+    // F.W. Taylor (1907) — life vs cutting speed power law.
+    const taylor = CANONICAL_TAYLOR[op.material_iso];
+    const T = Math.pow(taylor.C / Math.max(Vc, 1e-6), 1 / taylor.n);
+    const targetLife = HurcoV11MillMasterPostEngine.TAYLOR_TARGET_LIFE_MIN;
+    checks.push({
+      line: startLine,
+      check: `Taylor tool life ${T.toFixed(1)} min vs target ${targetLife} min (C=${taylor.C}, n=${taylor.n})`,
+      passed: T >= targetLife,
+      value: T,
+      limit: targetLife,
+    });
+
+    // [6] (Conditional) Stickout deflection — included only when the
+    // structured tool carries an explicit stickout_mm. Ratio = L/D; fails
+    // when > 4× (industry convention from Sandvik & Iscar handbooks for
+    // unsupported boring/milling tools without a stub mod).
+    if (op.tool?.stickout_mm !== undefined && op.tool.stickout_mm > 0) {
+      const D = op.tool.diameter_mm > 0 ? op.tool.diameter_mm : op.tool_diameter_mm;
+      const ratio = op.tool.stickout_mm / D;
+      const limit = HurcoV11MillMasterPostEngine.STICKOUT_RATIO_LIMIT;
+      checks.push({
+        line: startLine,
+        check: `Tool stickout ratio ${ratio.toFixed(1)} (L/D) vs limit ${limit}× — deflection sensitivity gate`,
+        passed: ratio <= limit,
+        value: ratio,
+        limit,
+      });
+    }
 
     return checks;
   }
@@ -1003,14 +1988,22 @@ export class HurcoV11MillMasterPostEngine {
       machine: "Hurco VMX24",
       controller: "WinMax V11",
       tribal_tips: HURCO_V11_TRIBAL_KNOWLEDGE.length,
-      physics_checks: 4,
+      // 5 base checks: Vc, fz, Fc (Kienzle), Spindle RPM, Taylor tool life.
+      // Stickout deflection is conditional (tool.stickout_mm) so not counted.
+      physics_checks: 5,
       features: [
-        "UltiMotion high-speed mode",
+        "UltiMotion G05.3 smoothing (P35 adaptive / P10 finish)",
         "G65 conversational macros",
         "Kienzle force validation",
         "Taylor tool life integration",
         "JM Die tribal knowledge",
-        "Renishaw probe support"
+        "Renishaw probe support",
+        "Aggressiveness levels 1-5 (sync feed multiplier)",
+        "Prove-out mode (feed reduction + optional stops)",
+        "Material constant overrides with safe-range guard",
+        "Kienzle-bounded feed reducer (max_cutting_force_N)",
+        "Structured setup sheet emission",
+        "Tool stickout deflection check (L/D ≤ 4)"
       ]
     };
   }
@@ -1261,6 +2254,200 @@ export class HurcoV11MillMasterPostEngine {
       },
     };
   }
+
+  /**
+   * Generate a Hurco V11 program AND enrich it with the full PSN substrate.
+   *
+   * HURCO-VM30I-FULL-PSN-MS0 (echo iter7 2026-05-24) — closes the
+   * "are we using everything PRISM gives us" gap surfaced 2026-05-24.
+   * Composes 4 engines built this session (GCodeRuntimePredictor +
+   * GCodeBidirectionalOptimizer + CostEfficiencyBridge + PRISM AI feature
+   * recommender) on top of the canonical `generateProgram()` output. Each
+   * substrate call is best-effort + fail-soft: any single failure logs to
+   * `substrate_errors` but never blocks the rest of the enrichment.
+   *
+   * Backwards-compatible: callers using `generateProgram()` are unaffected.
+   * This is the entry point the JM-Die roundtrip harness will call.
+   *
+   * @param operations  Mill operations (same shape as generateProgram).
+   * @param config      Hurco post config (same shape as generateProgram).
+   * @param partContext Optional part-level context that informs the PSN
+   *                    enrichment (material, machine, part description,
+   *                    shop rates). Sensible defaults if omitted.
+   */
+  async generateProgramWithFullPSN(
+    operations: MillOperation[],
+    config?: Partial<HurcoPostConfig>,
+    partContext?: {
+      program_id?: string;
+      part_description?: string;
+      material?: { name: string; iso_group: ISOGroup; price_per_kg_usd?: number; density_g_cm3?: number };
+      machine_id?: string;
+      shop_rates?: { labor_per_hr_usd: number; machine_per_hr_usd: number; overhead_pct: number };
+    },
+  ): Promise<HurcoPostOutput> {
+    // Step 1 — base emit (byte-identical to legacy path).
+    const base = this.generateProgram(operations, config);
+
+    const substrate_errors: string[] = [];
+    const enrichment: HurcoPSNEnrichment = {
+      enriched_at: new Date().toISOString(),
+      full_psn_engaged: true,
+      substrate_errors,
+    };
+
+    const machineId = partContext?.machine_id ?? "hurco_vmx24";
+
+    // Convert MillOperation[] → ParsedBlock[] for the runtime predictor +
+    // bidirectional optimizer (both consume ParsedBlock[] uniformly).
+    // Mapping is intentionally minimal: one G1 block per cutting coordinate +
+    // a G0 rapid block per operation header. Lossy on macro/probe ops but
+    // covers the bulk of cycle time (which is what the runtime predictor
+    // bills against). Returns [] when operations are empty.
+    const blocks = operationsToParsedBlocks(operations);
+
+    // Step 2 — runtime prediction (kinematic-aware, machine-library lookup).
+    // RuntimePrediction exposes .machine (MachineKinematics) + .total_min;
+    // confidence isn't a top-level field — derived locally from coverage.
+    try {
+      const { gcodeRuntimePredictorEngine } = await import("./GCodeRuntimePredictorEngine.js");
+      const rt = gcodeRuntimePredictorEngine.predictForMachine(blocks, machineId);
+      const coverage = blocks.length > 0
+        ? Math.min(1, rt.blocks?.length ? rt.blocks.length / blocks.length : 1)
+        : 0;
+      enrichment.runtime_estimate = {
+        total_minutes: rt.total_min,
+        machine_id: rt.machine.machine_id,
+        confidence: coverage,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`runtime_estimate: ${msg}`);
+      enrichment.runtime_estimate = { total_minutes: 0, machine_id: machineId, confidence: 0, error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 3 — bidirectional optimizer recommendations.
+    try {
+      const [{ gcodeBidirectionalOptimizerEngine }, { MACHINE_LIBRARY }] = await Promise.all([
+        import("./GCodeBidirectionalOptimizerEngine.js"),
+        import("./GCodeRuntimePredictorEngine.js"),
+      ]);
+      const machine = MACHINE_LIBRARY[machineId];
+      if (!machine) throw new Error(`Unknown machine_id '${machineId}' for optimizer`);
+      const opt = gcodeBidirectionalOptimizerEngine.optimize({ blocks, machine });
+      const recs = Array.isArray(opt?.recommendations) ? opt.recommendations : [];
+      enrichment.optimizer_recommendations = {
+        count: recs.length,
+        top_3: recs.slice(0, 3).map((r: { category?: string; description?: string; estimated_savings_sec?: number }) => ({
+          category: r.category ?? "uncategorized",
+          description: r.description ?? "",
+          estimated_savings_pct: typeof r.estimated_savings_sec === "number"
+            ? Math.round((r.estimated_savings_sec / Math.max(1, base.estimated_cycle_min * 60)) * 1000) / 10
+            : undefined,
+        })),
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`optimizer_recommendations: ${msg}`);
+      enrichment.optimizer_recommendations = { count: 0, top_3: [], error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 4 — cost estimate. CostEfficiencyBridgeEngine.build() expects a
+    // richer BridgeInputs (blocks + opFeatures + tool pricing). We compute a
+    // first-order estimate here from V11's existing cycle time + default
+    // shop rates so the enrichment is always populated; deep cost routing
+    // through CostEfficiencyBridge stays available as a future composition
+    // path (HURCO-VM30I-FULL-PSN-MS1).
+    try {
+      const rates = partContext?.shop_rates ?? {
+        labor_per_hr_usd: 65,
+        machine_per_hr_usd: 95,
+        overhead_pct: 0.15,
+      };
+      const cycle_min = enrichment.runtime_estimate?.total_minutes ?? base.estimated_cycle_min;
+      const cycle_hr = cycle_min / 60;
+      const labor_cost = rates.labor_per_hr_usd * cycle_hr;
+      const machine_cost = rates.machine_per_hr_usd * cycle_hr;
+      const subtotal = labor_cost + machine_cost;
+      const overhead = subtotal * rates.overhead_pct;
+      const total = subtotal + overhead;
+      const most_expensive = machine_cost >= labor_cost ? "machine_time" : "labor";
+      enrichment.cost_report = {
+        total_cost_usd: Math.round(total * 100) / 100,
+        cycle_min,
+        most_expensive_line_item: most_expensive,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`cost_report: ${msg}`);
+      enrichment.cost_report = { total_cost_usd: 0, cycle_min: base.estimated_cycle_min, most_expensive_line_item: "unknown", error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 5 — PRISM AI feature recommendations.
+    try {
+      const { prismSelfAwarenessEngine } = await import("./PRISMSelfAwarenessEngine.js");
+      const query = partContext?.part_description
+        ?? `Hurco V11 mill program for ${partContext?.material?.name ?? "aluminum_6061"} on ${machineId}`;
+      const recs = prismSelfAwarenessEngine.recommendAIFeatures(query);
+      const arr = Array.isArray(recs) ? recs : [];
+      enrichment.ai_feature_recommendations = {
+        count: arr.length,
+        top_5: arr.slice(0, 5).map((r: { feature?: string; reason?: string; priority?: string }) => ({
+          feature: r.feature ?? "unknown",
+          reason: r.reason ?? "",
+          priority: r.priority,
+        })),
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`ai_feature_recommendations: ${msg}`);
+      enrichment.ai_feature_recommendations = { count: 0, top_5: [], error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    return { ...base, psn_enrichment: enrichment };
+  }
+}
+
+// Local helper — minimal MillOperation[] → ParsedBlock[] mapper for the
+// PSN-enrichment runtime + optimizer calls. Emits one G0 rapid block per
+// op header followed by one block per cutting coordinate (G1/G2/G3).
+// Returns [] when operations is empty. Defensive against missing fields.
+function operationsToParsedBlocks(
+  operations: MillOperation[],
+): Array<{ motion: "G0" | "G1" | "G2" | "G3"; x?: number; y?: number; z?: number; f?: number; s?: number; t?: number }> {
+  const out: Array<{ motion: "G0" | "G1" | "G2" | "G3"; x?: number; y?: number; z?: number; f?: number; s?: number; t?: number }> = [];
+  for (const op of operations) {
+    if (!op?.coordinates?.length) continue;
+    const f = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min) ? op.feed_mm_min : undefined;
+    const s = typeof op.spindle_rpm === "number" && Number.isFinite(op.spindle_rpm) ? op.spindle_rpm : undefined;
+    const t = typeof op.tool_number === "number" && Number.isFinite(op.tool_number) ? op.tool_number : undefined;
+    // Op header rapid
+    const first = op.coordinates[0];
+    out.push({
+      motion: "G0",
+      x: typeof first?.x === "number" && Number.isFinite(first.x) ? first.x : undefined,
+      y: typeof first?.y === "number" && Number.isFinite(first.y) ? first.y : undefined,
+      z: typeof first?.z === "number" && Number.isFinite(first.z) ? first.z : undefined,
+      t,
+    });
+    for (const c of op.coordinates) {
+      if (!c) continue;
+      const motion: "G1" | "G2" | "G3" = c.type === "arc_cw" ? "G2" : c.type === "arc_ccw" ? "G3" : "G1";
+      out.push({
+        motion,
+        x: typeof c.x === "number" && Number.isFinite(c.x) ? c.x : undefined,
+        y: typeof c.y === "number" && Number.isFinite(c.y) ? c.y : undefined,
+        z: typeof c.z === "number" && Number.isFinite(c.z) ? c.z : undefined,
+        f,
+        s,
+      });
+    }
+  }
+  return out;
 }
 
 // ============================================================================

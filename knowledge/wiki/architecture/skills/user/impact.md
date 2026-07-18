@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `impact` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/impact.md` |
+| Source | `C:/Users/wompu/.claude/commands/impact.md` |
 | Model | default |
 | Tags | _(none)_ |
 

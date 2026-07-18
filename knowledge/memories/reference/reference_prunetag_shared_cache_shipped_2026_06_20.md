@@ -1,0 +1,25 @@
+---
+name: reference_prunetag_shared_cache_shipped_2026_06_20
+description: "SHIPPED d3e0b7ebaf [TOKEN-SAVINGS]/U-PRUNE-TAG-SHARED-CACHE (slot:alpha): pruneTag(cache,hookTag,now,ttl) added to injection-dedup.mjs + ALL 12 shared-sidecar evictors migrated off tag-agnostic pruneExpired (a short-TTL injector was evicting live longer-TTL siblings -> dedup miss). KEY LESSON: my prior R8 grepped only .claude/hooks and found 10 direct callers but MISSED the 2 scripts/lib WRAPPERS (dedupedContext, dedupeOrMarker) that also prune the same sidecar + back ~14 more hooks; scrutiny arms A+C caught the incomplete migration -> closed before commit. Also: the core lib injection-dedup.mjs was UNTRACKED on cad-fusion-live-ms0 while 10+ tracked hooks imported it (latent orphan dep); the commit tracks it."
+type: reference
+slot: alpha
+galaxy: token-optimization
+source: prism-memory
+synced: 2026-06-27T20:30:47.124Z
+aliases: reference_prunetag_shared_cache_shipped_2026_06_20
+---
+
+
+**SHIPPED 2026-06-20 (slot:alpha) -- `d3e0b7ebaf` `[MAIN-FORCE] [TOKEN-SAVINGS]/U-PRUNE-TAG-SHARED-CACHE`.** 15 files, 393+/22-. Closes the prune-TTL asymmetry scoped in [[reference_audit_viz_dedup_and_prune_ttl_asymmetry_2026_06_20]].
+
+**What:** New pure `pruneTag(cache, hookTag, now, ttlMs)` in `scripts/lib/injection-dedup.mjs` prunes ONLY the caller's tag bucket (foreign tags preserved via shallow `{...cache}`, never mutated; empty bucket -> tag removed; null cache -> {}; falsy tag -> input ref unchanged). `pruneExpired` kept exported (back-compat + a WARNING docstring pointing shared-cache callers to pruneTag). The shared `state/shared/dashboards/injection-dedup-cache.json` is read+pruned+written-back by **12 evictors** each with its OWN TTL (5min..24h); the old tag-agnostic `pruneExpired(cache,now,ttl)` dropped EVERY tag older than the CALLER's ttl, so a 5min hook evicted a still-live 24h/30min sibling on write-back -> that sibling re-emitted its full block next prompt = a dedup MISS = wasted tokens. Self-healing, never corruption/safety.
+
+**The 12 evictors migrated:** 10 hooks (`audit-viz-first`, `galaxy-claudemd`[30min], `psn-leg-state`[uses `dnow`], `psn-prompt-checklist`[24h], `slot-domain-awareness`, `slot-soul`, `pre-{bash,read,grep,write}-graph-inject`[24h]) + **2 wrapper libs** (`injection-dedup-emit.dedupedContext` -> ~9 domain-injector hooks; `injection-dedup-fs.dedupeOrMarker` -> ~5 awareness/intent hooks). Also added injectable `opts.now` to `dedupedContext` (backward-compatible; defaults to Date.now()) so the wrapper's TTL behavior is deterministically testable.
+
+**Proof:** 35/35 across 4 lib/wrapper test files -- `injection-dedup-prune.test.mjs` (12, incl the cross-hook contrast: pruneExpired WOULD evict the 24h sibling, pruneTag does not) + new `injection-dedup-wrapper-crosstag.test.mjs` (4 deterministic cross-tag regression locks) + existing emit(7)/fs(12). grep proof: ZERO shared-sidecar `pruneExpired` callers remain (the 3 remaining are LOCAL `function pruneExpired(cache)` in bash-result-cache/json-read-summarizer/state-write-watch = private per-hook caches, different signature/sidecar -> correctly out of scope). 3-of-3 scrutiny PASS (reviewer A + reviewer B + code-analyzer C); arms B and C each EMPIRICALLY proved the regression tests fail-on-revert (R9 load-bearing).
+
+**LESSON 1 (R8 scope completeness -- the catch):** when auditing "all writers of a shared resource", grep the **wrapper/library layer** (`scripts/lib`), not just the direct-caller layer (`.claude/hooks`). My prior-session R8 grepped only `.claude/hooks/*.mjs pruneExpired` and confidently scoped "6 evictors" (later "10"), but TWO library wrappers (`dedupedContext`, `dedupeOrMarker`) prune the SAME shared sidecar and back ~14 MORE hooks -- invisible to a hooks-dir grep. Per-file scrutiny arms A+C both FAILED the first pass on this incomplete migration; I closed it (2 wrapper files fix ~14 hooks -- higher leverage than the 10 inline sites) before commit. A shared-resource migration is only "whole" (R13/R15/R16) when every layer that touches the resource is covered. Sibling: [[feedback_audit_consumers_when_moving_logic_into_engine]].
+
+**LESSON 2 (untracked orphan dependency):** `scripts/lib/injection-dedup.mjs` -- the core lib that 10+ tracked, already-committed hooks `import` -- was itself UNTRACKED (`??`) on `cad-fusion-live-ms0`. A branch can carry committed consumers that import an untracked file (broken on fresh checkout). The commit tracks it (`create mode 100644`), making the branch self-consistent. Check `git status` of a touched lib before assuming "it's a diff" -- it may be a never-committed dependency.
+
+**OPEN (separate FIXES-rung unit, NOT this commit):** `psn-prompt-checklist-inject.test.mjs` has **4 PRE-EXISTING `shouldInject` failures** (FIRES-on-prompt / minLen / boundary) -- proven pre-existing (the file's entire working-tree delta was the 2-line pruneTag swap, which never touches `shouldInject`). Queue as the next FIXES item. Sibling lib: [[reference_injection_dedup_fs_2026_06_11]] · [[reference_slotbundle_dedup_2026_06_09]].

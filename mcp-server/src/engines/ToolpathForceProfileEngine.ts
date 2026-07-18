@@ -132,7 +132,7 @@ class ToolpathForceProfileEngine {
     const peakLocations = this.identifyPeaks(segmentForces, reasoning);
 
     // Generate feedrate modulation recommendations
-    const modulations = this.generateModulations(segmentForces, peakLocations, reasoning);
+    const modulations = this.generateModulations(segmentForces, peakLocations, reasoning, input.segments);
 
     // Calculate statistics
     const statistics = this.calculateStatistics(segmentForces, input.segments);
@@ -281,9 +281,13 @@ class ToolpathForceProfileEngine {
   private generateModulations(
     forces: SegmentForce[],
     peaks: PeakForceLocation[],
-    reasoning: string[]
+    reasoning: string[],
+    segments: ToolpathSegment[]
   ): FeedrateModulation[] {
     const modulations: FeedrateModulation[] = [];
+    // Real per-segment programmed feedrate keyed by segment id (ENGINE-AUDIT 2026-06-19, slot:bravo:
+    // replaces a hardcoded `originalFeedrate = 1000` placeholder that fabricated every recommendation).
+    const feedrateBySegment = new Map(segments.map((s) => [s.id, s.feedrate_mm_min]));
 
     // Target: maintain constant force by adjusting feedrate
     const targetForce = forces.reduce((sum, f) => sum + f.force_resultant_n, 0) / forces.length;
@@ -302,8 +306,9 @@ class ToolpathForceProfileEngine {
       const clampedFactor = Math.max(0.5, Math.min(1.0, modulationFactor));
 
       if (clampedFactor < 0.95) {
-        // Get original feedrate from segment (we'd need to look this up)
-        const originalFeedrate = 1000; // placeholder
+        // Real programmed feedrate for this segment (was a hardcoded 1000 placeholder).
+        const originalFeedrate = feedrateBySegment.get(force.segment_id);
+        if (originalFeedrate === undefined) continue; // no baseline -> cannot recommend (fail-safe, never fabricate)
         const recommendedFeedrate = originalFeedrate * clampedFactor;
 
         modulations.push({

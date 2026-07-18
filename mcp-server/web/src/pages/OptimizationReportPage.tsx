@@ -334,7 +334,7 @@ export function OptimizationReportPage() {
       <WorkspaceHero
         eyebrow="Post Processor"
         title="Optimization Report"
-        description="Upload your G-code program. PRISM runs its 38-stage physics pipeline and shows you exactly what it improved — per-tool, per-block, with forces, cycle time, and setup sheet."
+        description="Upload your G-code program. Kienzle runs its 38-stage physics pipeline and shows you exactly what it improved — per-tool, per-block, with forces, cycle time, and setup sheet."
         metrics={
           <>
             <SummaryTile label="Pipeline" value="38" hint="Physics stages" />

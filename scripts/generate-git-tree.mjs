@@ -36,6 +36,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -195,7 +196,7 @@ try {
   const PREF_PRIORITY = { eng: 9, disp: 9, reg: 7, schema: 6, alg: 6, script: 5, core: 5, frontend: 4, fe: 4, skill: 3, formula: 3, ai: 3, test: 2, wiki: 1, mem: 1, memory_feedback: 1, memory_uncategorized: 1 };
   const slugMap = new Map();   // slug → { id, prio }
   if (fs.existsSync(GRAPH)) {
-    const G = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+    const G = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8")));
     for (const n of G.nodes) {
       const dot = (n.id || "").indexOf(".");
       if (dot < 0) continue;

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `ship-confirm` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/ship-confirm.md` |
+| Source | `C:/Users/wompu/.claude/commands/ship-confirm.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Confirm shipments and generate shipping documentation.
+
+# /ship-confirm — Shipment Confirmation and Documentation
 
 <!-- AUTO-END -->
 

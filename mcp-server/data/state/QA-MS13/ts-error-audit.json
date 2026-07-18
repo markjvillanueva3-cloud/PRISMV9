@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS13-P0-U00",
+  "title": "TypeScript Error Audit",
+  "audited_at": "2026-04-13T21:20:00Z",
+  "auditor": "claude-opus-4.5",
+  "scope": "All TypeScript type errors in mcp-server",
+  "summary": {
+    "claimed_errors": 28,
+    "actual_errors": 238,
+    "discrepancy_factor": 8.5,
+    "discrepancy_note": "Baseline claim of 28 errors is severely outdated"
+  },
+  "errors_by_category": {
+    "TS2300_duplicate_identifier": {
+      "count": 26,
+      "severity": "low",
+      "description": "Duplicate type identifiers in barrel export (src/engines/index.ts)",
+      "root_cause": "Multiple engines export same type names (ToolGeometry, ISOGroup, etc.)",
+      "fix_approach": "Use 'export type { X as EngineSpecificX }' aliasing or consolidate types"
+    },
+    "TS2559_interface_mismatch": {
+      "count": 42,
+      "severity": "medium",
+      "description": "Algorithm input types don't extend AlgorithmInput properly",
+      "root_cause": "AlgorithmInput base interface changed but 28 algorithms not updated",
+      "fix_approach": "Batch update algorithm input interfaces to extend AlgorithmInput correctly"
+    },
+    "TS2739_missing_properties": {
+      "count": 44,
+      "severity": "medium",
+      "description": "ValidationResult missing 'errors' and 'warnings' properties",
+      "root_cause": "ValidationResult interface expanded but algorithm validate() methods not updated",
+      "fix_approach": "Add missing properties to return objects in all validate() implementations"
+    },
+    "TS2322_type_assignment": {
+      "count": 52,
+      "severity": "high",
+      "description": "Type mismatches in assignments",
+      "breakdown": {
+        "algorithm_category_mismatch": 28,
+        "other_type_mismatches": 24
+      },
+      "root_cause": "Algorithm category union type too narrow; other misc mismatches",
+      "fix_approach": "Expand category union type; fix individual type mismatches"
+    },
+    "TS2339_property_does_not_exist": {
+      "count": 24,
+      "severity": "high",
+      "description": "Property access on types that don't have the property",
+      "affected_files": [
+        "AlgorithmEngine.ts (3): safety_class not in AlgorithmMeta",
+        "KnowledgeIngestionOrchestratorEngine.ts (7): formulasFound, materialsFound, etc.",
+        "cycleSchedulingBridge.ts (4): getSlots not in SchedulingEngine",
+        "Other engines (10)"
+      ],
+      "fix_approach": "Add missing properties to interfaces or fix property access"
+    },
+    "TS2345_argument_type_mismatch": {
+      "count": 17,
+      "severity": "medium",
+      "description": "Function argument type doesn't match parameter type",
+      "affected_files": [
+        "CadPartLibraryEngine.ts (7): NonSharedBuffer vs string",
+        "HyperMillResourceIndexEngine.ts (2): NonSharedBuffer vs string",
+        "WedmProgramIndexEngine.ts (3): NonSharedBuffer vs string",
+        "Other (5)"
+      ],
+      "fix_approach": "Add .toString() calls or type assertions for buffer handling"
+    },
+    "other_errors": {
+      "count": 33,
+      "severity": "low",
+      "breakdown": {
+        "TS2353_extra_properties": 6,
+        "TS7006_implicit_any": 5,
+        "TS2683_this_any": 5,
+        "TS2554_argument_count": 5,
+        "TS2551_property_typo": 4,
+        "TS2654_unimplemented": 3,
+        "TS2351_new_expression": 2,
+        "TS2459_no_call_signature": 1,
+        "TS2367_comparison": 1,
+        "TS2344_constraint": 1
+      }
+    }
+  },
+  "errors_by_file": {
+    "top_10_files": [
+      {
+        "file": "src/engines/index.ts",
+        "count": 26,
+        "category": "duplicate_identifier"
+      },
+      {
+        "file": "src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+        "count": 16,
+        "category": "property_access"
+      },
+      {
+        "file": "src/engines/cycleSchedulingBridge.ts",
+        "count": 11,
+        "category": "mixed"
+      },
+      {
+        "file": "src/engines/CadPartLibraryEngine.ts",
+        "count": 9,
+        "category": "buffer_vs_string"
+      },
+      {
+        "file": "src/engines/WedmProgramIndexEngine.ts",
+        "count": 7,
+        "category": "buffer_vs_string"
+      },
+      {
+        "file": "src/tools/dispatchers/hookDispatcher.ts",
+        "count": 6,
+        "category": "type_mismatch"
+      },
+      {
+        "file": "src/engines/PrintToProgramPipelineEngine.ts",
+        "count": 6,
+        "category": "type_mismatch"
+      },
+      {
+        "file": "src/tools/dispatchers/orchestrationDispatcher.ts",
+        "count": 4,
+        "category": "type_mismatch"
+      },
+      {
+        "file": "src/engines/AlgorithmEngine.ts",
+        "count": 4,
+        "category": "property_access"
+      },
+      {
+        "file": "28 algorithm files",
+        "count": 84,
+        "category": "interface_mismatch",
+        "note": "3 errors each"
+      }
+    ],
+    "algorithm_files_affected": 28
+  },
+  "fix_plan": {
+    "priority_1_blocking": {
+      "description": "Errors that may block functionality at runtime",
+      "total": 48,
+      "tasks": [
+        {
+          "task": "Fix property access errors in KnowledgeIngestionOrchestratorEngine.ts",
+          "errors": 16,
+          "effort": "2h",
+          "approach": "Verify interface definitions or add optional chaining"
+        },
+        {
+          "task": "Fix cycleSchedulingBridge.ts method calls",
+          "errors": 11,
+          "effort": "1h",
+          "approach": "Verify SchedulingEngine methods exist"
+        },
+        {
+          "task": "Fix AlgorithmEngine.ts safety_class access",
+          "errors": 4,
+          "effort": "30m",
+          "approach": "Add safety_class to AlgorithmMeta interface"
+        },
+        {
+          "task": "Fix buffer vs string issues in CAD/program engines",
+          "errors": 17,
+          "effort": "1h",
+          "approach": "Add .toString() for buffer-to-string conversions"
+        }
+      ]
+    },
+    "priority_2_systematic": {
+      "description": "Batch-fixable interface alignment issues",
+      "total": 114,
+      "tasks": [
+        {
+          "task": "Expand AlgorithmInput base interface",
+          "errors": 42,
+          "effort": "30m",
+          "approach": "Make AlgorithmInput properties optional or add common properties"
+        },
+        {
+          "task": "Update ValidationResult return objects",
+          "errors": 44,
+          "effort": "1h",
+          "approach": "Add errors: [] and warnings: [] to all validate() returns"
+        },
+        {
+          "task": "Expand algorithm category union type",
+          "errors": 28,
+          "effort": "15m",
+          "approach": "Add 'force', 'signal', 'planning', 'optimization', 'tool_life' to category union"
+        }
+      ]
+    },
+    "priority_3_cosmetic": {
+      "description": "Style/strictness issues that don't affect runtime",
+      "total": 76,
+      "tasks": [
+        {
+          "task": "Resolve barrel export duplicates in engines/index.ts",
+          "errors": 26,
+          "effort": "2h",
+          "approach": "Alias conflicting exports or consolidate shared types"
+        },
+        {
+          "task": "Fix implicit any issues",
+          "errors": 10,
+          "effort": "30m",
+          "approach": "Add explicit types"
+        },
+        {
+          "task": "Fix dispatcher type mismatches",
+          "errors": 10,
+          "effort": "1h",
+          "approach": "Align dispatcher return types with schemas"
+        },
+        {
+          "task": "Other minor fixes",
+          "errors": 30,
+          "effort": "2h",
+          "approach": "Individual fixes per error"
+        }
+      ]
+    }
+  },
+  "estimated_total_fix_time": "12-15 hours",
+  "recommended_approach": "Fix priority_2 first (systematic batch fixes), then priority_1, then priority_3",
+  "findings": {
+    "critical": [
+      "238 errors is 8.5x higher than claimed 28 - baseline is stale",
+      "28 algorithm files have identical 3-error pattern - single interface fix covers 84 errors",
+      "KnowledgeIngestionOrchestratorEngine has 16 errors - likely partially implemented"
+    ],
+    "observations": [
+      "Most errors are interface alignment issues, not logic bugs",
+      "Buffer vs string issues suggest recent API changes in file parsing",
+      "Barrel export duplicates are annoying but don't affect runtime"
+    ]
+  },
+  "verification_status": {
+    "error_count_verified": true,
+    "categorization_complete": true,
+    "fix_plan_produced": true,
+    "unit_complete": true
+  }
+}

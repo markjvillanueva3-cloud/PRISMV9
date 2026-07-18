@@ -28,7 +28,7 @@ related:
 | Course ID | `course-5-turning-operations` |
 | Source | `mcp-server/src/data/academy/course-5-turning-operations.ts` |
 | Level | Intermediate |
-| Modules (declared / counted) | 10 / 11 |
+| Modules (declared / counted) | 10 / 12 |
 | Lessons (counted) | ? |
 | Est. hours | 8 |
 

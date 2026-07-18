@@ -1,0 +1,36 @@
+{
+  "unit": "U-WEDM-FINETUNE-RUN",
+  "status": "COMPLETE — adapter trained + validated",
+  "trained_at": "2026-05-31",
+  "slot": "mike",
+  "galaxy": "wedm",
+  "base_model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "method": "QLoRA (nf4 4-bit) + LoRA",
+  "lora": { "r": 16, "alpha": 32, "dropout": 0.05, "target_modules": ["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj"] },
+  "trainable_params": 40370176,
+  "total_params": 7655986688,
+  "trainable_pct": 0.5273,
+  "dataset": { "path": "wedm_knowledge_train.jsonl", "pairs": 139, "kind": "WEDM knowledge corpus (tribal + tech-tables + wire-spec)" },
+  "schedule": { "epochs": 3, "batch_size": 2, "grad_accum": 4, "steps": 51, "lr": 2e-4, "warmup_ratio": 0.03 },
+  "loss_curve": [3.0732, 2.4137, 1.8257, 1.7618, 1.4776],
+  "train_loss": 2.1014,
+  "train_runtime_s": 182.59,
+  "samples_per_s": 2.284,
+  "adapter": { "file": "models/wedm-lora/adapter_model.safetensors", "size_mb": 154.1, "lora_tensors": 392, "validated": true },
+  "environment": {
+    "gpu": "RTX 4080 SUPER 16GB",
+    "python": "3.12.13 (uv venv at H:/.venv-wedm-lora)",
+    "torch": "2.5.1+cu121",
+    "transformers": "4.46.3",
+    "numpy": "1.26.4",
+    "note": "numpy<2 + transformers<5 are LOAD-BEARING pins (torch 2.5.1 segfaults on numpy 2.x C-ABI)"
+  },
+  "blockers_cleared": [
+    "no python<3.14 -> uv installed py3.12 on H:",
+    "GPU held by Ollama (qwen2.5-coder:7b 10GB) not NIM -> Free-Gpu kills ollama+NIM",
+    "0xC0000005 import segfault -> numpy<2 pin",
+    "DataCollator labels ValueError -> let collator build labels"
+  ],
+  "next": "optional: merge adapter for deployment / generation eval vs base / wire into WEDM AGI inference path",
+  "reproduce": "pwsh -File scripts/wedm-finetune-pipeline.ps1 -Stage all   (install+train; model cached on H:)"
+}

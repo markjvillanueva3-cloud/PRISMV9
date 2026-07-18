@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cpk-calc — Process Capability Calculation
+Calculate Cp, Cpk, Pp, Ppk with variability-aware confidence intervals.
 
 <!-- AUTO-END -->
 

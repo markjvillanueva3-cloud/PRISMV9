@@ -29,7 +29,12 @@ related:
 
 ## Description (first paragraph)
 
-Extract and learn from machining/manufacturing videos using deep AI. Converts video content into tribal knowledge, procedures, and best practices.
+
+# Video Learn — Video Tutorial to PRISM Components Pipeline
+
+You are running a specialized pipeline that processes video tutorials (YouTube URLs or local video files) through AI-powered extraction, and forges new PRISM components (engines, algorithms, hooks, schemas, scripts, skills, tribal tips, formulas) to improve the app's capabilities.
+
+This command chains video processing, AI-powered k
 
 <!-- AUTO-END -->
 

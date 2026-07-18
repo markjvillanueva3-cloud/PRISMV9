@@ -1,0 +1,525 @@
+{
+  "id": "INGEST-ROADMAP",
+  "title": "JM Die Shop Data Ingestion & My Shop Population",
+  "version": "1.0.0",
+  "created_at": "2026-04-10",
+  "track": "INGEST",
+  "description": "Build the complete data ingestion pipeline to populate PRISM's My Shop app with real JM Die data: employees, prints, POs, invoices, RFQs, tooling, tool holders, vendors, brands, materials, and distribution network. Leverages existing engines (DocumentInboxEngine, EmployeeEngine, PurchaseOrderEngine, FileStorageEngine, ShopConfigurationEngine) and fills gaps (VendorEngine, ToolHolderCatalogEngine, FolderScannerEngine, DistributionNetworkEngine).",
+
+  "scrutiny_log": {
+    "reviewed": "2026-04-10",
+    "findings": { "critical": 3, "major": 5, "minor": 4 },
+    "fixes_applied": ["C1-holder_search dedup", "C2-ShopProfilePage creation added", "C3-vendor_scorecard exists noted", "M1-rollback blocks added", "M2-SMART CONFIG added", "M4-dispatcher target corrected", "M5-materials milestone added", "m1-description fixed", "m3-ProgramIngestionEngine clarified"]
+  },
+
+  "seed_domain_status": {
+    "programs":          "in_progress — 10,216 files on H: drive, BoxProgramCensusEngine exists",
+    "employee_database": "planned — EmployeeEngine exists, no JM Die data loaded",
+    "machines":          "seeded — 21 machines in ShopConfigurationEngine defaults",
+    "controllers":       "seeded — JM_DIE_CONTROLLER_MAP has 15 machine-controller pairs",
+    "tool_holders":      "planned — no ToolHolderCatalogEngine, no data",
+    "tooling":           "planned — ShopToolLibraryEngine exists, no JM Die inventory",
+    "materials":         "planned — MaterialRegistry exists, need JM Die stock list",
+    "prints":            "planned — BlueprintVisionOCREngine exists, no indexed prints"
+  },
+
+  "existing_infrastructure": {
+    "engines": [
+      "DocumentInboxEngine (8 actions — ingest, batch, classify, match, search)",
+      "BlueprintVisionOCREngine (Claude Vision blueprint OCR)",
+      "BlueprintToQuoteBridgeEngine (print → quote pipeline)",
+      "FileStorageEngine (7 actions — upload, versioning, SHA-256 dedup, attachments)",
+      "EmployeeEngine (create, skills, certifications, labor rates, department summary)",
+      "PurchaseOrderEngine (PO lifecycle, 3-way match, AP aging, receive hooks)",
+      "QuoteEstimatorEngine + 8 specialty quote engines",
+      "ManufacturerCatalogIndexEngine (brand/manufacturer indexing)",
+      "ShopToolLibraryEngine (tool crib inventory & checkout)",
+      "BoxProgramCensusEngine (recursive folder scan)",
+      "CadFileIndexEngine (CAD file indexing)",
+      "ERPIntegrationEngine + MultiERPConnectorEngine",
+      "PartsLibraryEngine (parts catalog with revisions & attachments)",
+      "ShopConfigurationEngine (rates, machines, company profile, source roots, seed domains)"
+    ],
+    "web_pages": [
+      "ShopProfilePage, DocumentInboxPage, EmployeeDirectoryPage, EmployeeProfilePage",
+      "PurchaseOrdersPage, InvoicesPage, RFQInboxPage, PartsLibraryPage",
+      "InventoryPage, VendorScorecardPage, PurchasingPage, QuoteBuilderPage"
+    ],
+    "api_routes": [
+      "shopProfile.ts (8 endpoints), inbox routes (8 endpoints), erp.ts (200+ endpoints)",
+      "parts.ts (6 endpoints), upload.ts, quote.ts, quotes.ts"
+    ]
+  },
+
+  "milestones": [
+    {
+      "id": "INGEST-MS0",
+      "title": "Foundation: Folder Scanner & Ingestion Pipeline",
+      "phase": 1,
+      "sessions": 2,
+      "status": "complete",
+      "smart_config": { "role": "Infrastructure Engineer + Data Pipeline Specialist", "model": "opus", "effort": "MAX", "context_budget": "40%" },
+      "description": "Build the FolderScannerEngine that watches JM Die source_roots and feeds documents into DocumentInboxEngine. Create the ingestion orchestrator that routes files by type to the right engine. Create ShopProfilePage as the My Shop hub.",
+      "protocol": "4-LOOP per unit: BUILD -> SCRUTINIZE -> GAP FILL -> TIE UP",
+      "units": [
+        {
+          "id": "U-ING01",
+          "title": "FolderScannerEngine — recursive directory scanner with change detection",
+          "description": "Engine that scans ShopSourceRoots paths, detects new/changed files via mtime + SHA-256 hash comparison, and queues them for ingestion. Stores scan state in data/state/folder-scan-state.json. Supports file type classification (.MIN, .mcx-8, .pdf, .xlsx, .step, .dxf, .ipt, .sldprt). Does NOT use fs.watch (unreliable on network drives) — uses polling with configurable interval.",
+          "depends_on": [],
+          "exit_criteria": [
+            "Scanner finds all 10,216+ programs in JM Die/Programs",
+            "Change detection identifies new files without rescanning unchanged ones",
+            "File type classification is correct for all known extensions",
+            "Scan state persists across restarts"
+          ],
+          "files_created": ["src/engines/FolderScannerEngine.ts", "src/__tests__/FolderScannerEngine.test.ts"],
+          "files_modified": []
+        },
+        {
+          "id": "U-ING02",
+          "title": "IngestionOrchestratorEngine — route files to domain-specific engines",
+          "description": "Orchestrator that takes FolderScanner output and routes each file to the right processor: PDFs → DocumentInboxEngine, .MIN → BoxProgramCensusEngine (existing program parser), .mcx-8 → CadFileIndexEngine, .xlsx/.csv → SpreadsheetIngestionEngine, images → BlueprintVisionOCREngine. Tracks ingestion status per file. Supports batch mode and resume-after-failure.",
+          "depends_on": ["U-ING01"],
+          "exit_criteria": [
+            "Routes PDFs to DocumentInboxEngine with correct classification",
+            "Routes .MIN files to program parser",
+            "Routes CAD files to CadFileIndexEngine",
+            "Tracks per-file ingestion status (pending/processing/complete/failed)",
+            "Resume capability after interruption"
+          ],
+          "files_created": ["src/engines/IngestionOrchestratorEngine.ts", "src/__tests__/IngestionOrchestratorEngine.test.ts"],
+          "files_modified": ["src/tools/dispatchers/dataDispatcher.ts"]
+        },
+        {
+          "id": "U-ING03A",
+          "title": "Create ShopProfilePage — prerequisite for all My Shop wiring",
+          "description": "ShopProfilePage.tsx does not exist yet. Create it as the central 'My Shop' hub page showing company profile, machine list, rates, and seed domain status cards. Route at /shop. This page is modified by 5+ downstream units so it must exist first.",
+          "depends_on": ["U-ING01"],
+          "exit_criteria": [
+            "ShopProfilePage.tsx renders at /shop route",
+            "Shows company name, machine count, rates summary",
+            "Shows seed_domain status cards from ShopConfigurationEngine",
+            "Links to EmployeeDirectoryPage, PurchaseOrdersPage, etc."
+          ],
+          "files_created": ["web/src/pages/ShopProfilePage.tsx"],
+          "files_modified": ["web/src/App.tsx"],
+          "smart_config": { "model": "sonnet", "effort": "HIGH", "context_budget": "30%" },
+          "rollback": {
+            "abort_criteria": ["Page doesn't render", "Route breaks other pages", "Build fails"],
+            "procedure": "git checkout web/src/pages/ShopProfilePage.tsx web/src/App.tsx"
+          }
+        },
+        {
+          "id": "U-ING03",
+          "title": "Wire to MCP + dispatcher + /ingest skill",
+          "description": "Add ingest actions to dataDispatcher (scan_folder, ingest_batch, ingest_status, ingest_resume). Create /ingest skill for CLI access. Add protective hook that validates source_roots paths exist before scanning.",
+          "depends_on": ["U-ING02"],
+          "exit_criteria": [
+            "prism_data:scan_folder action works via MCP",
+            "prism_data:ingest_batch processes a batch of files",
+            "/ingest skill triggers scan + ingestion",
+            "Hook validates paths before scan"
+          ],
+          "files_created": [".claude/commands/ingest.md"],
+          "files_modified": ["src/tools/dispatchers/dataDispatcher.ts", "src/schemas/dataActionSchemas.ts"]
+        }
+      ],
+      "forge_triple": {
+        "hook": "ingest-source-root-guard — validates source_roots exist before scan",
+        "action": "prism_data:scan_folder, prism_data:ingest_batch, prism_data:ingest_status",
+        "skill": "/ingest — scan and ingest shop data from source roots"
+      }
+    },
+
+    {
+      "id": "INGEST-MS1",
+      "title": "Employee Data Ingestion",
+      "phase": 2,
+      "sessions": 2,
+      "status": "complete",
+      "depends_on": ["INGEST-MS0"],
+      "description": "Build the pipeline to ingest employee data from spreadsheets, PDFs, or manual entry into EmployeeEngine. Populate JM Die's employee roster with roles, certifications, machine authorizations, and labor rates.",
+      "units": [
+        {
+          "id": "U-EMP01",
+          "title": "SpreadsheetIngestionEngine — parse .xlsx/.csv employee data",
+          "description": "Engine that reads employee spreadsheets (common HR export formats) and maps columns to EmployeeEngine fields: name, role, department, hire_date, hourly_rate, skills, certifications, machine_authorizations. Supports column auto-detection via header matching. Handles common formats: QuickBooks employee export, ADP export, generic CSV.",
+          "depends_on": ["U-ING02"],
+          "exit_criteria": [
+            "Parses a sample JM Die employee spreadsheet",
+            "Auto-detects common column headers (Name, Role, Hire Date, Rate, etc.)",
+            "Maps to EmployeeEngine.create() input format",
+            "Handles missing/optional fields gracefully"
+          ],
+          "files_created": ["src/engines/SpreadsheetIngestionEngine.ts", "src/__tests__/SpreadsheetIngestionEngine.test.ts"],
+          "files_modified": []
+        },
+        {
+          "id": "U-EMP02",
+          "title": "Employee bulk import route + My Shop integration",
+          "description": "Add /api/v1/erp/employee-import endpoint that accepts spreadsheet upload and uses SpreadsheetIngestionEngine to create employees in bulk. Update ShopProfilePage to show employee count and link to EmployeeDirectoryPage. Update seed_domains status to 'seeded' when employees are loaded.",
+          "depends_on": ["U-EMP01"],
+          "exit_criteria": [
+            "POST /api/v1/erp/employee-import accepts .xlsx and creates employees",
+            "ShopProfilePage shows employee count",
+            "seed_domains.employee_database status updates to 'seeded'",
+            "Duplicate detection by name+hire_date prevents re-import"
+          ],
+          "files_created": [],
+          "files_modified": ["src/routes/erp.ts", "web/src/pages/ShopProfilePage.tsx"]
+        }
+      ],
+      "forge_triple": {
+        "hook": "employee-import-dedup — prevents duplicate employee creation on re-import",
+        "action": "prism_data:employee_import — bulk employee import from spreadsheet",
+        "skill": "/employee-import — import employee roster from spreadsheet"
+      }
+    },
+
+    {
+      "id": "INGEST-MS2",
+      "title": "Vendor & Distribution Network",
+      "phase": 2,
+      "sessions": 2,
+      "status": "complete",
+      "depends_on": ["INGEST-MS0"],
+      "description": "Build VendorEngine for supplier master data and DistributionNetworkEngine to track where JM Die buys products. Populate from PO history, manual entry, and document ingestion.",
+      "units": [
+        {
+          "id": "U-VND01",
+          "title": "VendorEngine — supplier master data with scorecards",
+          "description": "Engine for vendor/supplier management: create, update, search, score. Fields: name, contact, terms (net30/net45/cod), categories (tooling/material/consumables/services), certifications, preferred_status, spend_ytd, on_time_pct, quality_pct, price_competitiveness. Links to PurchaseOrderEngine supplier_id. Methods: vendor_create, vendor_update, vendor_search, vendor_scorecard, vendor_spend_analysis, vendor_list_by_category.",
+          "depends_on": [],
+          "exit_criteria": [
+            "CRUD operations work for vendor master data",
+            "Scorecard calculates from PO history (on-time, quality, price)",
+            "Search by name, category, certification",
+            "Spend analysis by vendor over date range"
+          ],
+          "files_created": ["src/engines/VendorEngine.ts", "src/__tests__/VendorEngine.test.ts"],
+          "files_modified": []
+        },
+        {
+          "id": "U-VND02",
+          "title": "DistributionNetworkEngine — where we buy what from whom",
+          "description": "Engine tracking JM Die's supply chain: which vendors supply which product categories, brand preferences per category, pricing tiers, lead times. Maps product types to preferred vendors (e.g., 'carbide inserts' → 'MSC Industrial' / 'Kennametal direct'). Includes brand affinity tracking (which brands JM Die uses most). Methods: network_map, add_vendor_product, brand_preferences, supply_chain_risk, reorder_recommend.",
+          "depends_on": ["U-VND01"],
+          "exit_criteria": [
+            "Maps product categories to vendor list with rankings",
+            "Brand preference tracking shows most-used brands per category",
+            "Supply chain risk flags single-source dependencies",
+            "Reorder recommendation includes preferred vendor + pricing"
+          ],
+          "files_created": ["src/engines/DistributionNetworkEngine.ts", "src/__tests__/DistributionNetworkEngine.test.ts"],
+          "files_modified": []
+        },
+        {
+          "id": "U-VND03",
+          "title": "Wire vendors to MCP + dispatcher + My Shop UI",
+          "description": "Add vendor actions to businessDispatcher. Create VendorManagementPage for web UI. Update ShopProfilePage with vendor count and top suppliers widget. Add /vendor skill.",
+          "depends_on": ["U-VND02"],
+          "exit_criteria": [
+            "prism_business:vendor_create/search/scorecard actions work via MCP",
+            "VendorManagementPage shows vendor list with scorecards",
+            "ShopProfilePage shows vendor count + top suppliers",
+            "/vendor skill provides CLI access"
+          ],
+          "files_created": ["web/src/pages/VendorManagementPage.tsx", ".claude/commands/vendor.md"],
+          "files_modified": ["src/tools/dispatchers/businessDispatcher.ts", "src/schemas/businessActionSchemas.ts", "web/src/pages/ShopProfilePage.tsx"]
+        }
+      ],
+      "forge_triple": {
+        "hook": "vendor-spend-alert — flags when vendor spend exceeds threshold or single-source risk",
+        "action": "prism_business:vendor_create(NEW)/vendor_search(NEW)/vendor_scorecard(EXISTS)/vendor_list(EXISTS)/network_map(NEW)/brand_preferences(NEW)",
+        "skill": "/vendor — manage vendors, view scorecards, map supply chain"
+      }
+    },
+
+    {
+      "id": "INGEST-MS3",
+      "title": "Print & Drawing Library",
+      "phase": 3,
+      "sessions": 2,
+      "status": "complete",
+      "depends_on": ["INGEST-MS0"],
+      "description": "Build the print/drawing ingestion pipeline. Scan JM Die prints folder, OCR title blocks with BlueprintVisionOCREngine, index by part number/customer/revision, and link to programs and parts in PartsLibraryEngine.",
+      "units": [
+        {
+          "id": "U-PRT01",
+          "title": "PrintLibraryEngine — indexed drawing catalog with OCR extraction",
+          "description": "Engine that manages engineering prints/drawings. Ingests PDFs and images from prints_root, runs BlueprintVisionOCREngine to extract title block (part number, revision, material, customer, date, tolerances). Indexes by part_number + revision for fast lookup. Links to PartsLibraryEngine parts. Methods: print_ingest, print_search, print_get, print_link_part, print_list_revisions, print_by_customer.",
+          "depends_on": ["U-ING02"],
+          "exit_criteria": [
+            "Ingests PDF print and extracts title block via OCR",
+            "Indexes by part number + revision + customer",
+            "Links prints to PartsLibraryEngine parts",
+            "Search by part number, customer, material, date range",
+            "Handles multi-page drawings (assembly + detail sheets)"
+          ],
+          "files_created": ["src/engines/PrintLibraryEngine.ts", "src/__tests__/PrintLibraryEngine.test.ts"],
+          "files_modified": []
+        },
+        {
+          "id": "U-PRT02",
+          "title": "Print library dispatcher wiring + web UI + /prints skill",
+          "description": "Wire PrintLibraryEngine into documentDispatcher with actions: print_ingest, print_search, print_get, print_link_part. Create PrintLibraryPage showing indexed prints with search, filter by customer, preview. Update ShopProfilePage with print count. Update seed_domains.prints status.",
+          "depends_on": ["U-PRT01"],
+          "exit_criteria": [
+            "prism_doc:print_ingest/search/get/link_part actions work via MCP",
+            "PrintLibraryPage shows prints with search and preview",
+            "ShopProfilePage shows print count",
+            "seed_domains.prints updates to 'seeded' after bulk import"
+          ],
+          "files_created": ["web/src/pages/PrintLibraryPage.tsx", ".claude/commands/prints.md"],
+          "files_modified": ["src/tools/dispatchers/documentDispatcher.ts", "src/schemas/docActionSchemas.ts", "web/src/pages/ShopProfilePage.tsx"]
+        }
+      ],
+      "forge_triple": {
+        "hook": "print-revision-guard — warns when ingesting a print with existing newer revision",
+        "action": "prism_doc:print_ingest/search/get/link_part",
+        "skill": "/prints — search, view, and manage engineering prints"
+      }
+    },
+
+    {
+      "id": "INGEST-MS4",
+      "title": "Tool Holders & Tooling Inventory",
+      "phase": 3,
+      "sessions": 2,
+      "status": "complete",
+      "depends_on": ["INGEST-MS0"],
+      "description": "Build ToolHolderCatalogEngine for holder inventory (collets, chucks, boring bar holders, etc.) and enrich ShopToolLibraryEngine with JM Die's actual tooling inventory. Track brands, suppliers, and holder-to-machine compatibility.",
+      "units": [
+        {
+          "id": "U-THL01",
+          "title": "ToolHolderCatalogEngine — holder inventory with machine compatibility",
+          "description": "Engine for tool holder management. Fields: id, type (collet_chuck/hydraulic/shrink_fit/boring_bar_holder/end_mill_holder/ER_collet/shell_mill_arbor), brand, model, taper (BT40/CAT40/HSK-A63/MT3/MT4), bore_diameter_mm, gauge_length_mm, max_rpm, runout_um, machine_ids (compatible machines), quantity_on_hand, location. Methods: holder_create, holder_search, holder_get, holder_by_machine, holder_by_taper, holder_inventory_summary, holder_reorder_check. Includes common holder brands: Techniks, Lyndex-Nikken, Parlec, Big Daishowa, Rego-Fix, Maritool.",
+          "depends_on": [],
+          "exit_criteria": [
+            "CRUD for tool holders with all required fields",
+            "Search by taper, machine compatibility, type",
+            "Inventory tracking with reorder alerts",
+            "Brand tracking for preferred suppliers",
+            "Machine compatibility matrix (which holders fit which machines)"
+          ],
+          "files_created": ["src/engines/ToolHolderCatalogEngine.ts", "src/__tests__/ToolHolderCatalogEngine.test.ts"],
+          "files_modified": []
+        },
+        {
+          "id": "U-THL02",
+          "title": "Tooling inventory enrichment + My Shop wiring",
+          "description": "Enrich ShopToolLibraryEngine with JM Die's actual cutting tool inventory from spreadsheet or manual entry. Wire ToolHolderCatalogEngine into MCP dispatcher. Create ToolingInventoryPage showing holders + cutting tools with brand breakdown. Update ShopProfilePage with tooling counts. Update seed_domains for tool_holders and tooling.",
+          "depends_on": ["U-THL01"],
+          "exit_criteria": [
+            "prism_data:holder_create/search/inventory_summary actions work via MCP",
+            "ToolingInventoryPage shows both holders and cutting tools",
+            "Brand breakdown chart shows which brands JM Die uses most",
+            "ShopProfilePage shows tooling counts",
+            "seed_domains.tool_holders and seed_domains.tooling update to 'seeded'"
+          ],
+          "files_created": ["web/src/pages/ToolingInventoryPage.tsx", ".claude/commands/tooling.md"],
+          "files_modified": ["src/tools/dispatchers/dataDispatcher.ts", "src/schemas/dataActionSchemas.ts", "web/src/pages/ShopProfilePage.tsx"]
+        }
+      ],
+      "forge_triple": {
+        "hook": "holder-machine-compat-guard — warns when assigning holder incompatible with machine taper",
+        "action": "prism_data:holder_create(NEW)/holder_search(EXISTS-extend)/holder_by_machine(NEW)/holder_inventory_summary(NEW)",
+        "skill": "/tooling — manage tool holders and cutting tool inventory"
+      }
+    },
+
+    {
+      "id": "INGEST-MS4B",
+      "title": "Material Stock & Inventory Ingestion",
+      "phase": 3,
+      "sessions": 1,
+      "status": "complete",
+      "depends_on": ["INGEST-MS0"],
+      "smart_config": { "role": "Materials Engineer + Data Specialist", "model": "sonnet", "effort": "HIGH", "context_budget": "25%" },
+      "protocol": "4-LOOP per unit: BUILD -> SCRUTINIZE -> GAP FILL -> TIE UP",
+      "description": "Populate MaterialRegistry with JM Die's actual material stock: tool steels (M2, D2, S7, A2, H13), carbides (tungsten, cobalt), graphite for EDM electrodes. Track stock levels, bar sizes, and preferred suppliers per material. Leverage existing MaterialRegistry + SpreadsheetIngestionEngine.",
+      "units": [
+        {
+          "id": "U-MAT01",
+          "title": "Material stock import + seed_domains update",
+          "description": "Build import pipeline for JM Die's material inventory. Use SpreadsheetIngestionEngine (from INGEST-MS1) to parse material stock spreadsheets. Map to MaterialRegistry entries with ISO group codes (H for hardened steels, P for tool steels). Track: material_spec, bar_size_mm, quantity_on_hand, location, supplier, unit_cost. Update seed_domains.materials to 'seeded'. Wire to prism_data:material_stock_import action.",
+          "depends_on": ["U-ING02"],
+          "exit_criteria": [
+            "Imports JM Die material list with ISO group codes",
+            "Stock levels tracked per material + bar size",
+            "Supplier linked per material",
+            "seed_domains.materials updates to 'seeded'",
+            "prism_data:material_stock_import action works via MCP"
+          ],
+          "files_created": ["src/__tests__/material-stock-import.test.ts"],
+          "files_modified": ["src/engines/SpreadsheetIngestionEngine.ts", "src/tools/dispatchers/dataDispatcher.ts"],
+          "rollback": {
+            "abort_criteria": ["MaterialRegistry corrupted", "Import creates duplicates", "Build fails"],
+            "procedure": "git checkout src/engines/SpreadsheetIngestionEngine.ts src/tools/dispatchers/dataDispatcher.ts"
+          }
+        }
+      ],
+      "forge_triple": {
+        "hook": "material-stock-low-alert — warns when material stock below reorder point",
+        "action": "prism_data:material_stock_import(NEW)/material_stock_levels(NEW)",
+        "skill": "/material-stock — view and manage material inventory"
+      }
+    },
+
+    {
+      "id": "INGEST-MS5",
+      "title": "PO / Invoice / RFQ Document Processing",
+      "phase": 4,
+      "sessions": 2,
+      "status": "complete",
+      "depends_on": ["INGEST-MS0", "INGEST-MS2"],
+      "description": "Build the document processing pipeline that extracts structured data from PO, invoice, and RFQ documents (PDFs, scanned images) and populates PurchaseOrderEngine, VendorEngine, and quote pipeline automatically.",
+      "units": [
+        {
+          "id": "U-BIZ01",
+          "title": "BusinessDocumentExtractorEngine — OCR + extraction for POs, invoices, RFQs",
+          "description": "Engine that uses Claude Vision to extract structured data from business documents. PO extraction: vendor, PO number, line items (part, qty, unit price), ship-to, terms, date. Invoice extraction: invoice number, vendor, amount, due date, line items, tax. RFQ extraction: customer, part numbers, quantities, material spec, delivery date, tolerances. Routes extracted data to appropriate engine (PO → PurchaseOrderEngine, Invoice → InvoicingEngine, RFQ → QuoteEstimatorEngine). Links to DocumentInboxEngine for classification.",
+          "depends_on": ["U-ING02", "U-VND01"],
+          "exit_criteria": [
+            "Extracts PO fields from a scanned PO PDF with >90% accuracy",
+            "Extracts invoice fields from invoice PDF",
+            "Extracts RFQ requirements from customer RFQ",
+            "Auto-creates PO/invoice/quote records from extracted data",
+            "Links to vendor records via fuzzy name matching"
+          ],
+          "files_created": ["src/engines/BusinessDocumentExtractorEngine.ts", "src/__tests__/BusinessDocumentExtractorEngine.test.ts"],
+          "files_modified": []
+        },
+        {
+          "id": "U-BIZ02",
+          "title": "Auto-populate pipeline + approval workflow integration",
+          "description": "Wire BusinessDocumentExtractorEngine into DocumentInboxEngine classification pipeline. When inbox receives a PO/invoice/RFQ PDF, auto-extract and create draft records pending approval. Add approval step before committing extracted data. Update InvoicesPage and PurchaseOrdersPage to show 'pending review' items from auto-extraction. Create /process-docs skill.",
+          "depends_on": ["U-BIZ01"],
+          "exit_criteria": [
+            "Document inbox auto-classifies and extracts PO/invoice/RFQ documents",
+            "Extracted records appear as 'pending review' in respective pages",
+            "Approval workflow confirms or corrects extracted data before commit",
+            "Learning: corrections improve future extraction accuracy",
+            "/process-docs skill triggers batch document processing"
+          ],
+          "files_created": [".claude/commands/process-docs.md"],
+          "files_modified": ["src/engines/DocumentInboxEngine.ts", "web/src/pages/PurchaseOrdersPage.tsx", "web/src/pages/InvoicesPage.tsx"]
+        }
+      ],
+      "forge_triple": {
+        "hook": "biz-doc-extract-confidence — blocks auto-commit when extraction confidence < 80%",
+        "action": "prism_data:extract_po, prism_data:extract_invoice, prism_data:extract_rfq",
+        "skill": "/process-docs — batch extract and process business documents"
+      }
+    },
+
+    {
+      "id": "INGEST-MS6",
+      "title": "My Shop Dashboard — Unified Data Hub",
+      "phase": 5,
+      "sessions": 2,
+      "status": "complete",
+      "depends_on": ["INGEST-MS1", "INGEST-MS2", "INGEST-MS3", "INGEST-MS4", "INGEST-MS5"],
+      "description": "Enhance ShopProfilePage into a comprehensive 'My Shop' dashboard showing all ingested data: machines, employees, tooling, vendors, prints, programs, and distribution network. Add data completeness scoring and guided setup wizard.",
+      "units": [
+        {
+          "id": "U-SHOP01",
+          "title": "ShopDataCompletenessEngine — score how populated the shop profile is",
+          "description": "Engine that calculates a data completeness score for each seed_domain: programs (% scanned), employees (count vs expected), machines (specs completeness), controllers (post processors assigned), tool_holders (inventory loaded), tooling (tool crib populated), materials (stock list loaded), prints (prints indexed). Overall completeness percentage. Identifies gaps and recommends next ingestion action. Methods: completeness_score, domain_gaps, next_action_recommend.",
+          "depends_on": [],
+          "exit_criteria": [
+            "Calculates per-domain completeness percentage",
+            "Overall score reflects actual data population",
+            "Gap analysis identifies what's missing per domain",
+            "Recommends specific next action to improve completeness",
+            "Score updates as data is ingested"
+          ],
+          "files_created": ["src/engines/ShopDataCompletenessEngine.ts", "src/__tests__/ShopDataCompletenessEngine.test.ts"],
+          "files_modified": []
+        },
+        {
+          "id": "U-SHOP02",
+          "title": "My Shop dashboard UI overhaul",
+          "description": "Redesign ShopProfilePage as comprehensive My Shop hub: completeness score ring chart at top, domain cards (Machines, Employees, Tooling, Vendors, Prints, Programs) showing count + status + 'Add Data' action button, recent ingestion activity feed, brand breakdown pie chart, vendor network visualization. Add guided setup wizard that walks through each domain. Mobile-responsive layout.",
+          "depends_on": ["U-SHOP01"],
+          "exit_criteria": [
+            "Completeness score displays prominently with per-domain breakdown",
+            "Each domain card shows live count + link to detail page",
+            "Add Data buttons route to appropriate import flow",
+            "Guided wizard walks new users through each domain",
+            "Brand/vendor visualizations render correctly"
+          ],
+          "files_created": [],
+          "files_modified": ["web/src/pages/ShopProfilePage.tsx"]
+        },
+        {
+          "id": "U-SHOP03",
+          "title": "My Shop MCP integration + /my-shop skill",
+          "description": "Add shop completeness and summary actions to MCP dispatcher. Create /my-shop skill that shows shop data summary, completeness score, and recommended actions. Wire all seed_domain status updates to fire when data is ingested.",
+          "depends_on": ["U-SHOP02"],
+          "exit_criteria": [
+            "prism_data:shop_completeness returns full domain breakdown",
+            "prism_data:shop_summary returns machine/employee/vendor/tooling counts",
+            "/my-shop skill shows formatted shop summary in CLI",
+            "seed_domain statuses auto-update when data flows in"
+          ],
+          "files_created": [".claude/commands/my-shop.md"],
+          "files_modified": ["src/tools/dispatchers/dataDispatcher.ts", "src/schemas/dataActionSchemas.ts"]
+        }
+      ],
+      "forge_triple": {
+        "hook": "shop-completeness-onboard — nudges user to fill gaps when completeness < 50%",
+        "action": "prism_data:shop_completeness, prism_data:shop_summary",
+        "skill": "/my-shop — view shop data completeness and manage shop profile"
+      }
+    }
+  ],
+
+  "summary": {
+    "total_milestones": 7,
+    "total_units": 18,
+    "estimated_sessions": 13,
+    "new_engines": [
+      "FolderScannerEngine",
+      "IngestionOrchestratorEngine",
+      "SpreadsheetIngestionEngine",
+      "VendorEngine",
+      "DistributionNetworkEngine",
+      "PrintLibraryEngine",
+      "ToolHolderCatalogEngine",
+      "BusinessDocumentExtractorEngine",
+      "ShopDataCompletenessEngine"
+    ],
+    "new_web_pages": [
+      "VendorManagementPage",
+      "PrintLibraryPage",
+      "ToolingInventoryPage"
+    ],
+    "new_skills": [
+      "/ingest",
+      "/employee-import",
+      "/vendor",
+      "/prints",
+      "/tooling",
+      "/process-docs",
+      "/my-shop"
+    ],
+    "execution_order": [
+      "INGEST-MS0 (Foundation — scanner + orchestrator + ShopProfilePage)",
+      "INGEST-MS1 + INGEST-MS2 + INGEST-MS3 + INGEST-MS4 + INGEST-MS4B (parallel — 5 data domains)",
+      "INGEST-MS5 (business doc processing — needs MS0 + MS2)",
+      "INGEST-MS6 (My Shop dashboard — needs all above)"
+    ],
+    "dependency_graph": {
+      "INGEST-MS0": [],
+      "INGEST-MS1": ["INGEST-MS0"],
+      "INGEST-MS2": ["INGEST-MS0"],
+      "INGEST-MS3": ["INGEST-MS0"],
+      "INGEST-MS4": ["INGEST-MS0"],
+      "INGEST-MS4B": ["INGEST-MS0"],
+      "INGEST-MS5": ["INGEST-MS0", "INGEST-MS2"],
+      "INGEST-MS6": ["INGEST-MS1", "INGEST-MS2", "INGEST-MS3", "INGEST-MS4", "INGEST-MS4B", "INGEST-MS5"]
+    }
+  }
+}

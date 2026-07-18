@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

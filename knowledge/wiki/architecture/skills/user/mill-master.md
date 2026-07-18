@@ -23,14 +23,14 @@ related:
 |-------|-------|
 | Name | `mill-master` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-master.md` |
+| Source | `C:/Users/wompu/.claude/commands/mill-master.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Single MCP entry point for all mill operations. Routes through
-`prism_mill` dispatcher, which calls `MillMasterOrchestratorFacadeEngine.orchestrate()`.
+
+# Mill Master — Unified Mill Operations
 
 <!-- AUTO-END -->
 

@@ -136,8 +136,8 @@ const DOMAIN_ROUTES: Array<{
   {
     keywords: ["milestone", "roadmap", "plan", "rgs", "track"],
     dir: "data/milestones/",
-    purpose: "111 milestone envelope JSON files",
-    dsl: "M001-M110",
+    purpose: "per-milestone envelope JSON files (live count: roadmap-index.json -- never hardcode)",
+    dsl: "",
     key_files: ["roadmap-index.json"],
     related: ["data/docs/roadmap/", "data/claims/"],
     weight: 0.8,

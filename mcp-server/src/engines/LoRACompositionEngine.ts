@@ -164,6 +164,7 @@ class LoRACompositionEngine {
       machine: input.context.machine,
       operation: input.context.operation,
       top_k: input.max_experts,
+      temperature: this.config.attention_temperature,
     });
 
     if (this.config.enforce_orthogonality) {

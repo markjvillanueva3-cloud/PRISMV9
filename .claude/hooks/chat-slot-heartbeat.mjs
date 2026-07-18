@@ -81,7 +81,7 @@ function resolveChatId(rawStdin) {
   // Fallback — let the canonical resolver try PID pins / env / transcript.
   if (existsSync(STABLE_ID_HELPER)) {
     try {
-      const r = spawnSync(process.execPath, [STABLE_ID_HELPER], {
+      const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true,
         input: rawStdin || "",
         encoding: "utf-8",
         timeout: 2000,

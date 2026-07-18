@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "H:/prism/state/shared/system-viz/architecture-graph.json",
+  "graphGeneratedAt": "2026-06-26T19:31:43.982Z",
+  "totals": {
+    "domains": 2,
+    "unwiredEngines": 6,
+    "needInference": 0
+  },
+  "note": "Domain-granularity leverage queue from architecture-graph L5 eng.<domain> nodes (OOM-safe). Per-engine ranking needs the 548MB merged graph. leverageScore is graph-computed (unlocks.leverageScore) or derived (unwired×dispatchersGain×downstreamHops).",
+  "queue": [
+    {
+      "domain": "MiscDomains",
+      "id": "eng.miscdomains",
+      "unwired": 5,
+      "coverage_pct": 100,
+      "leverageScore": 5,
+      "downstreamHops": 2,
+      "dispatchersGain": 1,
+      "suggestedDispatchers": [
+        "disp.aidispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Other",
+      "id": "eng.other",
+      "unwired": 1,
+      "coverage_pct": 100,
+      "leverageScore": 3,
+      "downstreamHops": 2,
+      "dispatchersGain": 3,
+      "suggestedDispatchers": [
+        "disp.algorithmdispatcher",
+        "disp.intelligencedispatcher",
+        "disp.contextdispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+---
+name: reference_whiskey_slot_stale_build_red_cross_tree_2026_05_31
+description: "WHISKEY SELF-MERGE RUNBOOK — slot/whiskey's build:fast RED = its own un-merged galaxy work (NOT golf's job, NOT a missing engine). Whiskey self-merges UP per the each-slot-merges-own-galaxy doctrine. Includes true divergence numbers + clobber-safe steps."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:47.263Z
+aliases: reference_whiskey_slot_stale_build_red_cross_tree_2026_05_31
+---
+
+
+# Whiskey self-merge runbook — slot/whiskey build:fast RED is OWN un-merged galaxy work (2026-05-31)
+
+**DOCTRINE (operator 2026-05-30, re-affirmed 2026-05-31):** *"each chat galaxy no longer needs golf, you're all responsible for your own galaxies."* Golf is NOT the integrator. **Whiskey self-merges its own galaxy UP into MAIN** per [[feedback_each_slot_merges_own_galaxy]]. (Earlier framing in this memory + the galaxy MEMORY.md + chat-bus that said "golf-led resync" was SUPERSEDED.)
+
+**The build:fast RED is NOT a missing-engine gap and NOT golf's job — it is whiskey's own un-integrated work.** R8 verified: `LatheLiveToolingPlannerEngine.ts` (+ `IdeaBlock{Dedup,Rag}` → `ideaBlockSchema.js`) exist upstream; absent in-slot only because the slot lags LOCAL main. **DO NOT rebuild them in-slot (duplicate, R8/dedup).** The slot's own build:fast staying RED is EXPECTED (it lacks upstream engines); the real gate is the MERGED-MAIN build; in-slot validation = `vitest`-per-file.
+
+**TRUE divergence (re-measured 2026-05-31, the "1658 behind" was a stale-LOCAL-ref artifact):**
+- slot/whiskey vs **ORIGIN** cad-fusion-live-ms0: **636 ahead / 1 behind** (nearly current with the pushed baseline).
+- LOCAL cad-fusion-live-ms0 vs origin: **2118 ahead / 1 behind** (this PC holds many slots' un-pushed self-merges: hotel `61b14bdd99`, algo-synergy, zulu, sierra…).
+- slot/whiskey vs **LOCAL** cad-fusion-live-ms0: **219 ahead / 1658 behind** — the "1658 behind" is local-main's un-pushed fleet work, NOT true staleness.
+- **36 whiskey-owned commits not on origin MAIN**; net change vs merge-base = **759 A / 8 M / 1 D** (overwhelmingly additive → clobber-safe-friendly). 50 commits in the ahead-set touch dispatchers but MOST are other slots' [MAIN] commits; whiskey's own dispatcher-touching commits = LATHE-WIRE-MS0 (chuck-jaw/eccentric/alarm wires), LATHE-LORA-MS0 (U-LLR-* on prism_turning), LATHE-DB-WIRE-MS0 (okuma_osp + 4 dormant DBs).
+
+**SELF-MERGE STEPS (clobber-safe, per [[feedback_each_slot_merges_own_galaxy]] — execute with FRESH headroom, NOT a YELLOW budget; the canonical memory's R6 warning is load-bearing):**
+1. `git fetch` first (local cad-fusion-live-ms0 is 2118 ahead of origin — confirm which baseline you're integrating to; the active fleet branch is LOCAL cad-fusion-live-ms0 where hotel landed).
+2. List whiskey-owned additive commits NOT on the target: `git log --oneline cad-fusion-live-ms0..slot/whiskey | grep "\[whiskey\]"`.
+3. Confirm engine/data/test additions are clean (`git diff --name-status` → pure `A`); identify the dispatcher-wiring deltas separately.
+4. **PINNED-BASE** (clobber-safety lesson #1): `$base=$(git rev-parse cad-fusion-live-ms0)` ONCE; **cherry-pick** the additive whiskey commits onto MAIN in `H:/prism` (NEVER `git merge slot→MAIN`); verify `git diff --name-status $base <new>` is pure `A`.
+5. Wire whiskey's new lathe actions into MAIN's canonical `turningDispatcher.ts`/`latheDispatcher.ts` (ACTIONS enum + lazy-import case + switch case) at stable anchors; build + `vitest` + **tsc** in MAIN (tsc catches type bugs vitest/esbuild strip).
+6. Tooling under fork-storm: native `C:\Program Files\Git\cmd\git.exe` via PowerShell (bash git `xmalloc`-fails at ~162 procs); `command git` not rtk on long pipes.
+7. "Done" = round-trip E2E through the MERGED-MAIN dispatcher + 0 wiring-audit orphans for the named actions. Engine-on-disk ≠ done ([[feedback_dispatcher_path_green_not_engine_green]]).
+
+**CLASSIFIED COMMIT INVENTORY (2026-05-31 — ready to land in a settled window):**
+- **New LoRA engines (clean additive cherry-pick, zero conflict — land FIRST):** `147e22cc2c` ExperienceLedger · `65b89e693e` KnowledgeExtractor · `9d7e02b4c3` SemanticContext · `3a9af41a78` Fusion (+canonical Kienzle/Taylor anchor) · `324c5f013c` meta-gate · plus the `5a25e98018`/`b2c59432dc` P2 scrutiny fixups.
+- **Dispatcher wiring (CONFLICT-PRONE — do NOT cherry-pick; hand-re-wire the actions into MAIN's evolved `turningDispatcher.ts`/`prism_safety` at stable anchors per hotel lesson #6):** `7da5c97a44` alarm · `03beb58790` eccentric · `4f8302de22` chuck-jaw+is_safe-fix · `438b97ba43` LoRA uncertainty (dual prism_turning+prism_safety) · `ab1617f193` LoRA select · `30f1c0c856` LoRA ensemble · `4969985d8b` 4 dormant DBs · `1450bbb49b` okuma_osp.
+- **✅ Shared-file MODIFY — LANDED 2026-05-31 on cad-fusion-live-ms0 (VERIFIED COMPLETE):** `8ea404aebc` constants.ts AISI override. The fix (aisiKey param + corrected lookup + `buildMaterialPhysics(raw, undefined, key)` activation line + the test) is committed + verified on MAIN: activation line present, corrected lookup present, old broken `[partial.name]` lookup GONE (0), test 11/11 PASS against MAIN data, tree clean. **CAVEAT — mis-attributed via shared-index sweep:** my `cherry-pick -n` staged it in H:/prism's index, my `git commit` never formed (not in reflog), and a peer's concurrent `git commit -a` (golf `e5cca342a3` "MCP-CONCURRENCY") SWEPT my staged changes into THEIR commit. Functionally correct, but landed under golf's SHA, not a clean whiskey commit. Fleet-wide physics bug (every material defaulting to per-ISO kc) is FIXED.
+  > **LESSON (load-bearing): NEVER `cherry-pick -n` / stage in the shared `H:/prism` index — a peer's `git commit -a`/`add -A` sweeps your staged work into their commit (mis-attribution + loss of control; your own commit races/fails).** This is exactly why hotel used an ISOLATED worktree. The remaining 13 dispatcher commits MUST be integrated in a separate `git worktree` (src-only checkout + node_modules junction), built+committed THERE, then landed onto the live tip — never staged in H:/prism's shared index.
+- **Doc-only (slot-local, optional for MAIN):** the LATHE-GALAXY-DOC / *-CLOSEOUT / U-MATRIX / U-DOC-REFLECT commits.
+
+**EXECUTION GATE (REVISED after 2026-05-31 retry — exact constraints):**
+- **Do NOT gate on range-op responsiveness** — `git log/rev-list cad-fusion-live-ms0..slot/whiskey` HANGS (consistent with the repo's documented corrupt loose objects, e.g. `e36809bb`, breaking full-history traversal). cherry-pick/`show`/`rev-parse` (single-object ops) work fine — use those; never a range walk.
+- **THE gate is tip-stability:** `cad-fusion-live-ms0` tip stable across two `rev-parse` reads ~60s apart (peers not actively landing). 2026-05-31 it moved every few min (`5cb68aaa`→`a66fdb4e`→`1e12cd6a`) — a hot multi-writer + fork-storm window → DEFERRED (twice).
+- **Every substantive commit touches a SHARED file** (verified `git show --name-status`): all 13 wire commits touch `dispatchers/` (disp=1-2), AISI touches `physics/constants.ts`. **NO conflict-free cherry-pick exists** → hand-integration required.
+- **Integration must happen in a SEPARATE materialized worktree, NOT H:/prism** — the `main-tree-write-block` hook forbids the Edit tool on `H:/prism` for a slot chat. Per hotel lesson #5: `git worktree add` off the live tip → `git checkout HEAD -- mcp-server/src` (src-only, the 38K-file `knowledge/wiki` makes a full checkout time out) + `node_modules` JUNCTION → cherry-pick engine FILES + hand-wire dispatcher actions there → tsc+vitest → land via `cherry-pick -n` onto the LIVE tip (NOT commit-tree on a moving base). native `C:\Program Files\Git\cmd\git.exe` via PowerShell only.
+- **UNBLOCK = a QUIET host** (no fork-storm, tip stable). The worktree-checkout is itself fork-storm-fragile (hotel's exited -1 mid-run, needed retries) — attempting the materialize+integrate under an active storm risks a half-done state, so wait for quiet.
+- **2026-05-31 isolated-worktree ATTEMPT (2nd retry, 7 peers online):** `git worktree add --no-checkout --detach H:/prism-wsm <tip>` + `checkout HEAD -- mcp-server/src` SUCCEEDED (3724 engines). BUT the partial checkout left the index full / worktree subset → all non-src files showed as staged `D` → cherry-pick refused ("local changes would be overwritten"). FIX = `sparse-checkout init --cone` + `set mcp-server/src` BEFORE checkout (or instead of `checkout -- path`). HOWEVER under the active fork-storm + repo corruption, `sparse-checkout set`, `cherry-pick`, AND `worktree remove` ALL HUNG (never returned). **Confirmed: every non-trivial git op on the shared repo hangs in this window — the dispatcher self-merge is environment-blocked, not approach-wrong.** CLEANUP DEBT: an isolated worktree `H:/prism-wsm` is left on disk (harmless — isolated, no shared-tree impact); remove it in a quiet window via `git -C H:/prism worktree remove --force H:/prism-wsm` (+ `worktree prune`). NEXT-TIME: use `worktree add` WITH `--no-checkout` then `sparse-checkout init --cone; sparse-checkout set mcp-server/src` (NOT `checkout -- path`), and only attempt when the host is quiet.
+
+Sibling diagnostic doctrine: [[feedback_stale_slot_build_break_escalate_resync]] (don't rebuild — it's un-merged divergence). Canonical mechanism: [[feedback_each_slot_merges_own_galaxy]]. Hotel precedent: commit `61b14bdd99`.

@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-cross-terminal-conflict.mjs — Phase 1 Tier 5D
-PreTool hook that detects concurrent edits from multiple terminals.
-Uses lock files and process heartbeats to prevent lost work.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

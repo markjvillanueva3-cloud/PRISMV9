@@ -1,0 +1,398 @@
+{
+  "id": "CALC-HARDEN-MS0",
+  "version": "1.0.0",
+  "title": "Safety-Critical Formula Fixes — Taylor, Units, Chatter, Singularity",
+  "brief": "Fix all 38 CRITICAL findings from 20-agent scrutiny. Tier 0: Taylor exponent bug (3 engines), unit errors 60x/1000x (3 engines), Ti kc1_1=1400→2800, chatter double directional factor + phase swap + 1000x unit error + ae/ap confusion. Tier 1: singularity inversion (3 engines), RTCP pivot composition (2 engines), J-C temperature K/C (2 engines), SurfaceFinish nose radius, ChipThickness discontinuity, Bootstrap Cpk, HSS deflection E.",
+  "track": "CALC-HARDEN",
+  "track_name": "Calculation Engine Accuracy Hardening",
+  "created_at": "2026-04-03T01:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "status": "complete",
+  "total_units": 18,
+  "completed_units": 18,
+  "estimated_sessions": 6,
+  "dependencies": [],
+  "knowledge_sources": {
+    "engines": [
+      "MonteCarloEngine.ts (287: Taylor exponent)",
+      "AdaptiveCalibrationEngine.ts (532,618: Taylor prediction closure)",
+      "CryogenicCuttingEngine.ts (496: Taylor exponent)",
+      "CuttingForceEngine.ts (157: MRR /60 error)",
+      "SpecificCuttingEnergyEngine.ts (151: power *1000, 176: ae vs D)",
+      "UltimateSpeedFeedEngine.ts (512: Ti kc1_1=1400)",
+      "ChatterStabilityLobeEngine.ts (69: KC11, 75: double Ks, 141: atan2)",
+      "RegenerativeChatterPredictor.ts (110: m→mm 1000x)",
+      "MachineVibrationEngine.ts (155: ae vs ap)",
+      "MultiAxisPrintToProgramEngine.ts (228: singularity inverted)",
+      "FiveAxisPostEngine.ts (160: singularity inverted)",
+      "MultiAxisKinematicEngine.ts (665,742: RTCP pivot decomp)",
+      "RTCP_CompensationEngine.ts (137: cosC in Z)",
+      "JohnsonCookEngine.ts (135: temp unit K)",
+      "AdvancedCuttingPhysicsEngine.ts (28: temp unit C)",
+      "SurfaceFinishPredictorEngine.ts (127: nose radius vs D/2)",
+      "SurfaceIntegrityEngine.ts (110: Rz=5*Ra vs 4*Ra)",
+      "AdvancedChipThicknessEngine.ts (136: discontinuity at ae/D=0.5)",
+      "StatisticalProcessMonitoringEngine.ts (348: Cpk=mu/3sigma)",
+      "SpeedFeedOrchestratorEngine.ts (2265: E_carbide hardcoded, ignores tool material)",
+      "GradientOptimizationEngine.ts (328: Hessian diagonal 2h)"
+    ],
+    "constants": "src/physics/constants.ts — taylorLife(), CANONICAL_KIENZLE, CANONICAL_TOOL_MODULUS",
+    "reference": "20-agent scrutiny report (2026-04-03), Altintas 'Manufacturing Automation' 2nd ed."
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Tier 0 — Taylor Exponent + Unit Errors (IMMEDIATE)",
+      "session": "CALC-HARDEN-0a",
+      "smart_config": "ROLE=Manufacturing Physicist + Numerical Methods | OPUS | MAXIMUM",
+      "intent": "Every Taylor tool life prediction and power/MRR calculation produces correct results. No more orders-of-magnitude errors.",
+      "units": [
+        {
+          "id": "U-CH01",
+          "title": "Fix Taylor exponent in MonteCarloEngine, AdaptiveCalibrationEngine, CryogenicCuttingEngine",
+          "description": "Replace C/Math.pow(Vc,1/n) with Math.pow(C/Vc,1/n) in 3 engines (5 locations). Verify against canonical taylorLife() in constants.ts. Run existing tests to confirm no regression.",
+          "knowledge_sources": [
+            "src/physics/constants.ts:258 taylorLife()",
+            "MonteCarloEngine:287",
+            "AdaptiveCalibrationEngine:532,618",
+            "CryogenicCuttingEngine:496"
+          ],
+          "exit_conditions": [
+            "All 5 Taylor predictions match taylorLife()",
+            "Existing tool life tests pass",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH02",
+          "title": "Fix unit errors: CuttingForceEngine MRR /60, SpecificCuttingEnergy power *1000 + ae vs D",
+          "description": "CuttingForceEngine:157 remove spurious /60 from MRR. SpecificCuttingEnergyEngine:151 remove *1000 from power calc. SpecificCuttingEnergyEngine:176 change ae to tool diameter D for RPM calc.",
+          "knowledge_sources": [
+            "CuttingForceEngine.ts:157",
+            "SpecificCuttingEnergyEngine.ts:151,176"
+          ],
+          "exit_conditions": [
+            "MRR matches ap*f*Vc for turning",
+            "Power matches Fc*Vc/60 in watts",
+            "RPM uses tool diameter not ae",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH03",
+          "title": "Fix Ti kc1_1=1400→2800 in UltimateSpeedFeedEngine + KienzleForceModel h_avg 2x error",
+          "description": "UltimateSpeedFeedEngine:512 change titanium kc1_1 from 1400 to 2800 and mc from 0.22 to 0.28. KienzleForceModelEngine:500 fix milling h_avg formula for full slotting (ae/D→2*ae/(pi*D) or use Martellotti).",
+          "knowledge_sources": [
+            "constants.ts CANONICAL_KIENZLE S group",
+            "KienzleForceModelEngine:500",
+            "Altintas 2012 eq 2.32"
+          ],
+          "exit_conditions": [
+            "Ti force within 5% of canonical",
+            "h_avg correct at ae=D (full slot)",
+            "Speed-feed gauntlet passes",
+            "Build PASS"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Tier 0 — Chatter/Stability Formula Cascade",
+      "session": "CALC-HARDEN-0b",
+      "smart_config": "ROLE=Vibration Physicist + Controls Engineer | OPUS | MAXIMUM",
+      "intent": "Stability lobe diagrams produce correct critical depths, lobes at correct RPMs, and use the right DOC dimension. No more false chatter alarms or missed instability.",
+      "units": [
+        {
+          "id": "U-CH04",
+          "title": "Fix ChatterSLD: remove Ks*0.5 (double directional), fix atan2 phase, import canonical KC11",
+          "description": "Line 75: remove the *0.5 from Ks (alpha_xx already handles immersion). Line 141: fix atan2(imG,reG)→atan2(reG,imG) per Altintas. Line 69: import CANONICAL_KIENZLE from constants.ts instead of hardcoded inflated values.",
+          "knowledge_sources": [
+            "Altintas 2012 Ch.3 eq 3.24-3.27",
+            "constants.ts CANONICAL_KIENZLE",
+            "ChatterStabilityLobeEngine.ts:69,75,141"
+          ],
+          "exit_conditions": [
+            "a_lim matches Altintas analytical for SDOF test case",
+            "Lobe RPMs match known solutions",
+            "KC11 values from constants.ts",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH05",
+          "title": "Fix RegenerativeChatter 1000x unit error + MachineVibration ae→ap",
+          "description": "RegenerativeChatterPredictor:110 add *1000 for m→mm conversion. MachineVibrationEngine:155 change stabilityRatio=ae/blim to ap/blim.",
+          "knowledge_sources": [
+            "RegenerativeChatterPredictor.ts:105-110",
+            "MachineVibrationEngine.ts:155"
+          ],
+          "exit_conditions": [
+            "bLimPeak in mm (not m)",
+            "stabilityRatio uses axial DOC",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH06",
+          "title": "Write chatter physics regression tests with known analytical solutions",
+          "description": "Add tests for: SDOF a_lim at lobe peak vs analytical, lobe RPM positions for 3-flute at fn=1000Hz, multi-mode FRF with 2 modes. Pin against Altintas Table 3.1.",
+          "knowledge_sources": [
+            "Altintas 2012 Table 3.1",
+            "ChatterStabilityLobeEngine tests"
+          ],
+          "exit_conditions": [
+            "5+ regression tests with analytical reference values",
+            "All pass",
+            "Build PASS"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Tier 0+1 — Multi-Axis Singularity + RTCP + J-C Temperature",
+      "session": "CALC-HARDEN-1a",
+      "smart_config": "ROLE=5-Axis Kinematics + Controls Engineer | OPUS | MAXIMUM",
+      "intent": "5-axis singularity warnings fire at the correct angle (A≈0 not A≈90). RTCP pivot uses composed rotation matrix. Johnson-Cook uses consistent temperature units across all engines.",
+      "units": [
+        {
+          "id": "U-CH07",
+          "title": "Invert singularity detection in MultiAxisPrintToProgram, FiveAxisPost, MultiAxisKinematic",
+          "description": "Change thresholds to flag A near 0 (gimbal lock) instead of A near 90 (workspace boundary). MultiAxisPrintToProgram:228 swap high/medium/low thresholds. FiveAxisPostEngine:160 change abs(a-90)→abs(a) check. MultiAxisKinematicEngine:579 fix singularityProximity.",
+          "knowledge_sources": [
+            "She & Hung 2008",
+            "Altintas 2012 5-axis kinematics",
+            "MultiAxisPrintToProgramEngine:228",
+            "FiveAxisPostEngine:160"
+          ],
+          "exit_conditions": [
+            "Singularity warning at A<5 deg (high), A<15 (med)",
+            "No warning at A=90",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH08",
+          "title": "Fix RTCP pivot compensation: composed rotation matrix instead of per-axis decomposition",
+          "description": "MultiAxisKinematicEngine:665,742 replace per-axis cos(pRad)/cos(sRad) with full R(primary,secondary)*pivot_vector. RTCP_CompensationEngine:137 remove cosC from Z-compensation for head_table BC config.",
+          "knowledge_sources": [
+            "Fan et al 2014 RTCP",
+            "ISO 10791-6",
+            "MultiAxisKinematicEngine.ts",
+            "RTCP_CompensationEngine.ts"
+          ],
+          "exit_conditions": [
+            "Round-trip FK/IK produces identity",
+            "Z-comp independent of C for BC head_table",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH09",
+          "title": "Standardize J-C temperature to Kelvin across JohnsonCookEngine + AdvancedCuttingPhysics",
+          "description": "JohnsonCookEngine:135 add @param JSDoc documenting Kelvin. AdvancedCuttingPhysicsEngine:28 convert JohnsonCookMaterial interface Tm/Tr from C to K (add 273.15 at input boundary). Add conversion guard.",
+          "knowledge_sources": [
+            "JohnsonCookEngine.ts:44,135",
+            "AdvancedCuttingPhysicsEngine.ts:28,187"
+          ],
+          "exit_conditions": [
+            "Both engines produce identical flow stress for same inputs",
+            "T_star in [0,1] for valid temperatures",
+            "Build PASS"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Tier 1 — Surface Finish, Chip Thickness, SPC, Deflection Fixes",
+      "session": "CALC-HARDEN-1b",
+      "smart_config": "ROLE=Manufacturing Engineer + Statistician | OPUS | HIGH",
+      "intent": "Surface finish predictions use correct nose radius. Chip thinning has no discontinuities. SPC bootstrap Cpk is mathematically valid. HSS tool deflection uses correct E modulus.",
+      "units": [
+        {
+          "id": "U-CH10",
+          "title": "Fix SurfaceFinishPredictor nose radius + SurfaceIntegrity Rz/Ra ratio",
+          "description": "SurfaceFinishPredictorEngine:278 use corner_radius_mm (not D/2) for non-ball tools. SurfaceIntegrityEngine:110 change Rz=Ra*5 to Rz=Ra*4 (canonical kinematic ratio). Fix missing π in stiffness proxy (line 183).",
+          "knowledge_sources": [
+            "Brammertz 1961",
+            "ISO 4287",
+            "SurfaceFinishPredictorEngine.ts:127,183,278",
+            "SurfaceIntegrityEngine.ts:110"
+          ],
+          "exit_conditions": [
+            "Ra uses corner_radius for flat endmills",
+            "Rz/Ra=4 for ideal profiles",
+            "I=π*d^4/64 (not d^4/64)",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH11",
+          "title": "Fix AdvancedChipThickness discontinuity + EngagementAdaptiveFeed sin(θ/2)",
+          "description": "AdvancedChipThicknessEngine:136 remove hard cutoff at ae/D=0.5 — let 1/sqrt(ae/D) apply smoothly up to ae/D=1.0 where it naturally equals 1.0. EngagementAdaptiveFeedEngine:182,421 replace sin(θ/2) with Martellotti (1-cos(θ))/θ. Fix 'exact' model at line 443.",
+          "knowledge_sources": [
+            "Martellotti 1941",
+            "Sandvik chip thinning guide",
+            "ChipThinningCompensation.ts (correct reference)"
+          ],
+          "exit_conditions": [
+            "No discontinuity at ae/D=0.5",
+            "sin(θ/2) replaced with Martellotti",
+            "'exact' model matches Martellotti",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH12",
+          "title": "Fix Bootstrap Cpk + SpeedFeedOrchestrator HSS deflection + Hessian diagonal",
+          "description": "StatisticalProcessMonitoringEngine:348 add USL/LSL to BootstrapCIInput, compute real Cpk. SpeedFeedOrchestratorEngine:2265 import CANONICAL_TOOL_MODULUS and use resolved tool material (not always carbide). GradientOptimizationEngine:328 special-case i===j for standard 3-point stencil.",
+          "knowledge_sources": [
+            "ISO 22514-2",
+            "constants.ts CANONICAL_TOOL_MODULUS",
+            "Nocedal & Wright Ch.8"
+          ],
+          "exit_conditions": [
+            "Bootstrap Cpk uses spec limits",
+            "HSS deflection uses E=210GPa",
+            "Hessian diagonal uses h not 2h",
+            "Build PASS"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Canonical Constants Migration — Force/Chatter/Deflection Engines",
+      "session": "CALC-HARDEN-2a",
+      "smart_config": "ROLE=TypeScript Architect + Manufacturing Physicist | OPUS | HIGH",
+      "intent": "All force, chatter, and deflection engines import kc1_1/mc from constants.ts. No more inline material databases in these critical engines.",
+      "units": [
+        {
+          "id": "U-CH13",
+          "title": "Migrate force engines to canonical imports (CuttingForce, KienzleForce, UltimateSpeedFeed, SpeedFeedOrchestrator)",
+          "description": "Replace inline KIENZLE/MATERIAL_DB tables with imports from CANONICAL_KIENZLE and CANONICAL_MATERIAL_DB. Keep per-alloy overrides in KienzleForceModel as documented extensions of canonical group values. Add fallback chain: per-alloy → ISO group → canonical default.",
+          "knowledge_sources": [
+            "constants.ts CANONICAL_KIENZLE",
+            "Each engine's inline table"
+          ],
+          "exit_conditions": [
+            "0 inline kc1_1/mc in 4 engines",
+            "Import from constants.ts",
+            "All force tests pass",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH14",
+          "title": "Migrate chatter/vibration engines to canonical imports (ChatterSLD, StochasticChatter, MachineVibration, ConstraintSatisfaction)",
+          "description": "Replace inline KC11/material tables with CANONICAL_KIENZLE imports. Replace inline E_MOD with CANONICAL_TOOL_MODULUS import.",
+          "knowledge_sources": [
+            "constants.ts",
+            "ChatterStabilityLobeEngine:69",
+            "StochasticChatterEngine:112",
+            "MachineVibrationEngine:85"
+          ],
+          "exit_conditions": [
+            "0 inline kc1_1 in 4 engines",
+            "0 inline E_MOD",
+            "Chatter tests pass",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH15",
+          "title": "Migrate thermal/surface/chip/drilling engines to canonical imports (8+ engines)",
+          "description": "CuttingTemperatureEngine: import thermal conductivity from CANONICAL_MATERIAL_DB. SurfaceFinishPredictor/SurfaceIntegrity/StochasticSurfaceFinish: import from constants.ts predictedRa(). ChipLoadEngine/EngagementAdaptiveFeed: import CANONICAL_KIENZLE. DrillBreakthrough/TappingTorque: import CANONICAL_KIENZLE.",
+          "knowledge_sources": [
+            "constants.ts all canonical exports",
+            "Each engine's inline table"
+          ],
+          "exit_conditions": [
+            "0 inline kc1_1 in 8+ engines",
+            "Thermal conductivity from canonical",
+            "All domain tests pass",
+            "Build PASS"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "Enforcement Hook + Regression Prevention + Final Validation",
+      "session": "CALC-HARDEN-2b",
+      "smart_config": "ROLE=DevOps + Quality Engineer | OPUS | HIGH",
+      "intent": "No new engine can ever introduce inline physics constants again. A 20-agent re-scrutiny confirms zero CRITICAL findings remaining.",
+      "units": [
+        {
+          "id": "U-CH16",
+          "title": "Create canonical-constants-enforcer hook blocking inline kc1_1/mc/Taylor values",
+          "description": "PreToolUse hook that greps new engine code for patterns like 'kc1_1:', 'kc11:', 'mc:', 'taylor_C' without an import from constants.ts. Mode: warn (not block) for existing files, block for new files.",
+          "knowledge_sources": [
+            "src/hooks/",
+            "Existing hook patterns"
+          ],
+          "exit_conditions": [
+            "Hook fires on test inline constant",
+            "Hook passes for canonical import",
+            "Registered in hook system"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH17",
+          "title": "Create cross-engine physics invariant test suite (30+ tests)",
+          "description": "Test that Force→Power chain is consistent: Fc from KienzleForce × Vc / 60000 = Power from CuttingPowerBudget. Test Taylor life across all engines that compute it. Test Rz/Ra=4 across surface engines. Test singularity warnings at A=0. Test RTCP round-trip.",
+          "knowledge_sources": [
+            "20-agent scrutiny findings",
+            "Cross-domain invariant checks"
+          ],
+          "exit_conditions": [
+            "30+ invariant tests",
+            "All pass",
+            "Covers force→power, Taylor, Rz/Ra, singularity, RTCP"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U-CH18",
+          "title": "Re-run 20-agent scrutiny — confirm 0 CRITICAL, ≤10 HIGH remaining",
+          "description": "Launch the same 20-agent scrutiny pass used to discover the original 250 findings. Verify all 38 CRITICALs resolved. Verify HIGH count dropped from 74 to ≤10. Document any remaining as accepted technical debt with justification.",
+          "knowledge_sources": [
+            "Original 20-agent scrutiny prompts",
+            "This session's findings"
+          ],
+          "exit_conditions": [
+            "0 CRITICAL findings",
+            "≤10 HIGH findings",
+            "All documented",
+            "Scrutiny report saved"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": "canonical-constants-enforcer — blocks new inline kc1_1/mc/Taylor in engine files",
+    "action": "calc:physics_accuracy_audit — runs cross-engine invariant checks on demand",
+    "skill": "/physics-verify — 20-agent physics scrutiny pass"
+  },
+  "completed_at": "2026-04-03"
+}

@@ -289,7 +289,10 @@ export class PrismOAuthServer {
   private secretKey: Uint8Array;
   private authCodes: Map<string, StoredAuthCode> = new Map();
   private refreshTokens: Map<string, StoredRefreshToken> = new Map();
-  private revokedAccessTokens: Set<string> = new Set();
+  // tokenId (sha256 prefix) -> revokedAt (ms). A Map (was a Set) so cleanup can
+  // evict by AGE: an entry is safe to drop only once its token is provably
+  // expired, never by raw insertion order (which could re-honor a live token).
+  private revokedAccessTokens: Map<string, number> = new Map();
 
   // User store: sub → AuthUser (in-memory; production: DB)
   private users: Map<string, AuthUser & { passwordHash?: string }> = new Map();
@@ -617,9 +620,10 @@ export class PrismOAuthServer {
       return true;
     }
 
-    // Assume it's an access token — add hash to revocation set
+    // Assume it's an access token -- add hash to revocation set, stamped with
+    // the revocation time so cleanup() can age it out safely.
     const tokenId = createHash("sha256").update(token).digest("hex").slice(0, 16);
-    this.revokedAccessTokens.add(tokenId);
+    this.revokedAccessTokens.set(tokenId, Date.now());
     return true;
   }
 
@@ -740,12 +744,34 @@ export class PrismOAuthServer {
       }
     }
 
-    // Cap revocation set size — evict oldest entries, keep most recent 5000
+    // Age out revocation entries whose underlying token is already EXPIRED, so
+    // a revoked-then-evicted token can never be re-honored: an access token
+    // lives at most accessTokenExpiry seconds, and revokedAt is always >= the
+    // token's issuedAt, so once (now - revokedAt) exceeds that lifetime the
+    // token is rejected by its own `exp` claim and the revocation entry is
+    // redundant. A 60s buffer covers clock skew. PRISM_MCP_REVOCATION_TTL_MS
+    // overrides the computed TTL (must stay >= the real token lifetime to keep
+    // the re-honor-safety guarantee).
+    const revocationTtlMs = (() => {
+      const override = parseInt(process.env.PRISM_MCP_REVOCATION_TTL_MS || "", 10);
+      if (Number.isFinite(override) && override > 0) return override;
+      return getAuthConfig().accessTokenExpiry * 1000 + 60_000;
+    })();
+    for (const [tokenId, revokedAt] of this.revokedAccessTokens) {
+      if (now - revokedAt > revocationTtlMs) {
+        this.revokedAccessTokens.delete(tokenId);
+      }
+    }
+
+    // Backstop only: if the map is still pathologically large (heavy revocation
+    // churn within a single token lifetime), evict the OLDEST entries by
+    // insertion order. This can in theory re-honor a still-live revoked token,
+    // so it fires only far above the expected steady-state size -- the age
+    // sweep above is the primary, re-honor-safe path.
     if (this.revokedAccessTokens.size > 10_000) {
-      const entries = Array.from(this.revokedAccessTokens);
-      const toRemove = entries.slice(0, entries.length - 5_000);
-      for (const token of toRemove) {
-        this.revokedAccessTokens.delete(token);
+      const ids = Array.from(this.revokedAccessTokens.keys());
+      for (const id of ids.slice(0, ids.length - 5_000)) {
+        this.revokedAccessTokens.delete(id);
       }
     }
 

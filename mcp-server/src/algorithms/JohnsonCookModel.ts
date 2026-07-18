@@ -376,7 +376,7 @@ class JohnsonCookModelImpl implements Algorithm<JohnsonCookInput, JohnsonCookOut
         "Rate term can become negative at ε̇ < ε̇₀ (clamped to 1)",
         "Near-melting (T* > 0.9): may need modified parameters",
         "Shock loading (ε̇ > 10^6): thermal effects may lag",
-        "Strain localization (adiabatic shear bands) not modeled",
+        "Strain localization (adiabatic shear bands) not modeled HERE -- it IS modeled by AdvancedCuttingPhysicsEngine.rechtShearInstability (Recht 1964 catastrophic thermoplastic shear: instability parameter chi, critical speed, segmentation spacing+frequency). Do NOT re-build a serrated-chip predictor -- that duplicate-build trap is exactly what misspecced UNIT-0005 as 'build' when the capability already exists (wired prism_cam:sci_recht_shear; UNIT-0005 is wire-only).",
       ],
       valid_ranges: VALID_RANGES,
       applicable_materials: [], // All materials with J-C parameters

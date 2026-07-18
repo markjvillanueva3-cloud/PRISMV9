@@ -192,6 +192,26 @@ const FEATURE_PROFILES: Record<FeatureType, FeatureProfile> = {
     baseComplexity: 5,
     baseRisk: { volume: 0.10, bbox: 0.05, featureCount: 0.20, topology: 0.30 },
   },
+  thread_internal: {
+    family: "rotational",
+    baseComplexity: 5,
+    baseRisk: { volume: 0.10, bbox: 0.05, featureCount: 0.20, topology: 0.30 },
+  },
+  pocket_complex: {
+    family: "prismatic",
+    baseComplexity: 4,
+    baseRisk: { volume: 0.20, bbox: 0.15, featureCount: 0.20, topology: 0.25 },
+  },
+  slot_dovetail: {
+    family: "prismatic",
+    baseComplexity: 4,
+    baseRisk: { volume: 0.15, bbox: 0.10, featureCount: 0.15, topology: 0.25 },
+  },
+  slot_t_shaped: {
+    family: "prismatic",
+    baseComplexity: 4,
+    baseRisk: { volume: 0.15, bbox: 0.10, featureCount: 0.15, topology: 0.25 },
+  },
   contour_2d: {
     family: "freeform",
     baseComplexity: 5,

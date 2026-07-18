@@ -1,0 +1,22 @@
+---
+session: Claude-ca9b9050-43d7-4390-93f4-e31f19be4b82
+topic: cad-fusion-live-ms0
+written_at: 2026-06-25T12:23:54.729Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: ca9b9050-43d7-4390-93f4-e31f19be4b82
+status: active
+---
+
+# HANDOFF: Claude-ca9b9050-43d7-4390-93f4-e31f19be4b82
+Updated: 2026-06-25T12:23:54.729Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: ca9b9050-43d7-4390-93f4-e31f19be4b82
+
+## STATE
+Self-compact requested (token-zone YELLOW 0.71, clean checkpoint between verticals -- map+OSHA-floor committed, Vertical 1 fully enumerated). Slot hotel.
+
+## RESUME
+Continue the ERP FE<->backend wiring directive (operator: back-end fully wired to front-end). Map committed at d01b16ae37 (state/shared/specs/ERP-FE-ROUTE-WIRING-AUDIT.json): 73 dead client calls, 13 clusters. Operator chose: wire ALL Tier-1 clusters one vertical at a time (route+envelope-unwrap+shape-adapt+tests+per-file-scrutiny+3-of-3+commit each); defer Tier-2 (Notify/Kanban/A3/E2/QBO -- no backing action). START Vertical 1 = PM/Maintenance + Assets (16 dead client fns, 3 pages: PreventiveMaintenancePage/EquipmentAssetPage/MaintenanceWorkOrderPage; ALL have backing dispatcher actions pm_schedule_create/pm_work_order_list/asset_register etc = R8 pure route-wiring like Gaps#2-6). Dead paths incl: pm-schedules, pm-schedule-create/list, pm-work-order-generate/list/assign, pm-complete, pm-overdue-alerts, pm-generate-work-order, equipment-assets, asset-register/list/transfer/due-calibrations, maintenance-work-orders(hyphen path used by PreventiveMaintenancePage), maintenance-work-orders/complete. PATTERN per route: rfqRoute(action) for prism_business {type,text} envelope-unwrap + adaptX shape mapper + verifyToken. Pages read via recoveryUtils arrayFromPayload(['alerts','schedules','work_orders'...]). Re-run auditor (node mcp-server/scripts/audit-erp-fe-route-wiring.mjs) after each cluster to confirm dead count drops. Stage via : '[MAIN-FORCE]...' bypass + git diff --cached --name-only. Commit [MAIN-FORCE] [HOTEL]/U-HOTEL-WIRE-<cluster> on cad-fusion-live-ms0.
+
+## CONTEXT
+

@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `forge-engines` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-engines.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-engines.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Engines — Engine Discovery + Creation Autopilot
+
+You are running a specialized autopilot pipeline focused on discovering missing or weak engines in the PRISM system, designing new engines following AtomicValue/DSL patterns, implementing them, wiring them to dispatchers, and registering them in the matrix.
+
+## Args: $ARGUMENTS
+- Empty: full discovery — analyze the system, find engine
 
 <!-- AUTO-END -->
 

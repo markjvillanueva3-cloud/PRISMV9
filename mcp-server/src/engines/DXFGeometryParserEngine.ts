@@ -533,19 +533,41 @@ function ellipseToArcs(
 // DXF GROUP CODE PARSER
 // ============================================================================
 
-function parseDXFGroups(content: string): Array<[number, string]> {
+/**
+ * Tokenize DXF content into (code, value) pairs.
+ *
+ * Critical: DXF strictly alternates (code-line, value-line). Blank lines
+ * are NEVER separators — they are valid empty values for text-type codes.
+ * AutoCAD's $DIMPOST / $DIMAPOST / etc. are text variables (code 1) whose
+ * empty values render as a blank value-line. Pre-2026-05-22 the parser
+ * `.filter()`-ed blanks before pairing, which shifted parity downstream
+ * and silently dropped ~9% of pairs (AF102-05.dxf measured). The
+ * intermediate "skip blanks in-place" fix had the SAME bug — both treated
+ * blank lines as data-less, but a blank at a value-line position IS data.
+ *
+ * Correct behavior: walk the stream strictly 2-lines-at-a-time, never
+ * skip blanks, treat a blank value-line as the empty string, only drop a
+ * pair when the code-line isn't a valid integer (handles trailing
+ * incomplete data without parity shift).
+ *
+ * Bug history: [[reference_wedm_phase_a1_parser_blank_line_bug_2026_05_22]].
+ * Empty-text-value finding: this commit (iter 33).
+ */
+export function parseDXFGroups(content: string): Array<[number, string]> {
   const lines = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
-  const nonBlank = lines.filter((l) => l.trim() !== "");
   const groups: Array<[number, string]> = [];
-  for (let i = 0; i + 1 < nonBlank.length; i += 2) {
+  // Strict 2-line stride — DO NOT skip blanks. A blank value-line is a
+  // valid empty string value for text-typed group codes (1, 3, etc.).
+  for (let i = 0; i + 1 < lines.length; i += 2) {
+    const codeStr = lines[i].trim();
+    const value = lines[i + 1].trim();
+    if (codeStr === "") continue; // a stray blank at code position: skip, but do NOT consume a value
+    const code = parseInt(codeStr, 10);
+    if (isNaN(code)) continue; // non-numeric code-line: drop the pair (but parity is preserved by strict +=2)
     if (groups.length >= MAX_DXF_GROUPS) {
       throw new Error(`DXF entity limit exceeded: file contains more than ${MAX_DXF_GROUPS} group code pairs`);
     }
-    const code = parseInt(nonBlank[i].trim(), 10);
-    const value = nonBlank[i + 1].trim();
-    if (!isNaN(code)) {
-      groups.push([code, value]);
-    }
+    groups.push([code, value]);
   }
   return groups;
 }
@@ -833,6 +855,7 @@ export class DXFGeometryParserEngine {
       case "ARC": return this.parseArc(groups, startIdx);
       case "CIRCLE": return this.parseCircle(groups, startIdx);
       case "LWPOLYLINE": return this.parseLWPolyline(groups, startIdx);
+      case "POLYLINE": return this.parsePolyline(groups, startIdx);
       case "ELLIPSE": return this.parseEllipse(groups, startIdx);
       case "SPLINE": return this.parseSpline(groups, startIdx);
       default: {
@@ -908,6 +931,98 @@ export class DXFGeometryParserEngine {
       }],
       nextIdx,
     };
+  }
+
+  /**
+   * Parse legacy POLYLINE entity (AcDb2dPolyline / AcDb3dPolyline) which consists of:
+   *   - one POLYLINE header (may carry group 70 closed-bit)
+   *   - 1..N VERTEX subrecords (each with 10=x, 20=y, optional 42=bulge)
+   *   - one SEQEND terminator
+   *
+   * Differs from LWPOLYLINE which packs everything in ONE entity block. The legacy
+   * format is what AutoCAD R12/R13 + modern shop-CAM exports still emit for many
+   * dies and fixtures (e.g. JM Die's AF102-05.dxf hit this path with 0 contours
+   * extracted in v3 of the parser — fixed in iter 32 / U-PARSER-POLYLINE).
+   *
+   * Reference: AutoCAD DXF Reference §POLYLINE.
+   */
+  private parsePolyline(groups: Array<[number, string]>, startIdx: number): { segments: GeometrySegment[]; nextIdx: number } {
+    // 1. Read POLYLINE header props (groups before the first (0, "VERTEX"))
+    const { props: headerProps, nextIdx: afterHeader } = collectEntityProps(groups, startIdx);
+    const closedBit = parseInt(headerProps[70] ?? "0", 10);
+    const closed = (closedBit & 1) === 1;
+    const is3D = (closedBit & 8) === 8 || (closedBit & 16) === 16;
+
+    // 2. Walk VERTEX subrecords until SEQEND (or unrelated entity / end-of-groups).
+    //    Bound the loop at MAX_DXF_GROUPS as a DoS guard mirroring the parent walker.
+    const xs: number[] = [];
+    const ys: number[] = [];
+    const bulges: number[] = [];
+    let i = afterHeader;
+    let iters = 0;
+    while (i < groups.length && iters < MAX_DXF_GROUPS) {
+      iters++;
+      const [code, value] = groups[i];
+      if (code !== 0) {
+        // Should not happen at the entity-boundary cursor; defensive advance.
+        i++;
+        continue;
+      }
+      if (value === "VERTEX") {
+        i++;
+        const { props: vp, nextIdx: afterVertex } = collectEntityProps(groups, i);
+        const x = parseFloat(vp[10] ?? "NaN");
+        const y = parseFloat(vp[20] ?? "NaN");
+        const bulge = parseFloat(vp[42] ?? "0");
+        if (Number.isFinite(x) && Number.isFinite(y)) {
+          xs.push(x);
+          ys.push(y);
+          bulges.push(Number.isFinite(bulge) ? bulge : 0);
+        }
+        i = afterVertex;
+        continue;
+      }
+      if (value === "SEQEND") {
+        // Consume SEQEND's own props (they're metadata, no geometry) and return.
+        i++;
+        const { nextIdx: afterSeqEnd } = collectEntityProps(groups, i);
+        return {
+          segments: this.polylineVerticesToSegments(xs, ys, bulges, closed, is3D),
+          nextIdx: afterSeqEnd,
+        };
+      }
+      // Some other entity follows without a SEQEND (malformed). Bail without
+      // consuming it so the parent entity loop can handle it.
+      break;
+    }
+
+    // No SEQEND found or 0 vertices — emit whatever we have, don't crash.
+    return {
+      segments: this.polylineVerticesToSegments(xs, ys, bulges, closed, is3D),
+      nextIdx: i,
+    };
+  }
+
+  /** Convert collected POLYLINE vertices + bulges into GeometrySegment[]. */
+  private polylineVerticesToSegments(xs: number[], ys: number[], bulges: number[], closed: boolean, is3D: boolean): GeometrySegment[] {
+    if (xs.length < 2) return [];
+    // 3D polylines: project onto XY (drop Z). Surface this in a warning later — for now
+    // most shop DXFs that use legacy POLYLINE are 2D anyway.
+    void is3D;
+    const segments: GeometrySegment[] = [];
+    const segCount = closed ? xs.length : xs.length - 1;
+    for (let i = 0; i < segCount; i++) {
+      const p0: Point2D = { x: xs[i], y: ys[i] };
+      const next = (i + 1) % xs.length;
+      const p1: Point2D = { x: xs[next], y: ys[next] };
+      if (dist(p0, p1) < MIN_SEGMENT_LENGTH_MM) continue;
+      if (Math.abs(bulges[i]) > 1e-10) {
+        segments.push(bulgeToArc(p0, p1, bulges[i]));
+      } else {
+        segments.push({ type: "line", start: p0, end: p1 });
+      }
+    }
+    return segments;
   }
 
   private parseLWPolyline(groups: Array<[number, string]>, startIdx: number): { segments: GeometrySegment[]; nextIdx: number } {

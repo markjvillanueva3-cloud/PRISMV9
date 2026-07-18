@@ -169,6 +169,29 @@ M99`;
     expect(inch.program.header.units).toBe("inch");
   });
 
+  // --- REGRESSION (U-MINPARSE-UNITS-CYCLE-FIX, 2026-06-22, slot:alpha) --------
+  // G70/G71/G72 are Okuma LAP turning CYCLES, not units. The parser used to map
+  // G70->inch / G71->mm (obsolete pre-G20/G21 Fanuc convention), so a roughing cycle
+  // silently flipped header.units to "mm" for an inch program -> a 25.4x scale hazard.
+  // VALIDATED on the live JM corpus: ~1500 MIN files had 0x G20/G21 and 72x G71, every
+  // G71 a roughing cycle. These oracles FAIL on the pre-fix code and PASS after.
+  it("parse: a G71 roughing cycle does NOT set units — stays 'unknown' with no G20/G21 (was 'mm')", () => {
+    const rough = "O5\nT0101\nG96 S800 M3\nG71 X3.01 Z-.74 B60 D.003 U.001 H.070 F1. J16 M33 M73\nM30";
+    const r = parser.parse({ source_path: "fx", text: rough });
+    expect(r.program.header.units).toBe("unknown"); // pre-fix: "mm" (corrupted by the G71 cycle)
+    // …and G71 is still correctly classified as a canned cycle (the cannedForOp scan, not units)
+    const op = r.program.operations.find((o) => o.tool_id === "T0101");
+    expect(op!.canned_cycles).toContain("G71");
+  });
+
+  it("parse: a G70 finishing cycle does NOT set units — stays 'unknown' with no G20/G21 (was 'inch')", () => {
+    const finish = "O7\nT0202\nG70 P100 Q200\nM30";
+    const r = parser.parse({ source_path: "fx", text: finish });
+    expect(r.program.header.units).toBe("unknown"); // pre-fix: "inch" (the G70 side of the same bug)
+    const op = r.program.operations.find((o) => o.tool_id === "T0202");
+    expect(op!.canned_cycles).toContain("G70");
+  });
+
   // --- feed mode -------------------------------------------------------
   it("parse: G94/G95 toggles feed_mode per op", () => {
     const src = `T0101

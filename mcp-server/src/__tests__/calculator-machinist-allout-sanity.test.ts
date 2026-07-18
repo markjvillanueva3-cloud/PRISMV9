@@ -158,7 +158,15 @@ describe("calculator machinist all-out sanity", () => {
     });
     expect(seenTypes).toEqual(new Set(["VMC", "HMC", "5axis", "lathe", "mill_turn", "swiss"]));
     expect(validatedContexts).toBe(relevantProfiles.length * PRIORITY_MACHINING_MATERIALS.length);
-    expect(unclampedAluminumVsSteel).toBeGreaterThan(500);
+    // Coverage thresholds: an "unclamped" comparison needs BOTH materials below the machine RPM ceiling.
+    // Aluminum 6061's correct roughing Vc (~628 m/min) needs ~10-20k RPM at these tool diameters, so it is
+    // RPM-clamped on ~93% of the 1905-profile corpus -- only ~140 profiles leave aluminum unclamped
+    // (verified 2026-06-25 via a triage of the live compute loop). That is correct physics, a side-effect of
+    // the material-aware Vc fix (U-OSC9-SPEEDFEED-MATERIAL-AWARE), NOT a regression: the per-profile
+    // aluminum>=steel ordering assert above still runs + passes on every unclamped case. The prior >500 bar
+    // was calibrated to old (slower, rarely-clamped) aluminum speeds. Steel & tool_steel rarely clamp (~1717
+    // covered), so their bar is unchanged. See task #15 / reference_oscar_task15_alu_clamp_coverage_2026_06_25.
+    expect(unclampedAluminumVsSteel).toBeGreaterThan(100);
     expect(unclampedSteelVsToolSteel).toBeGreaterThan(500);
   }, 120000);
 

@@ -47,6 +47,18 @@ export interface ControllerProfile {
   cycleDefinitions: CycleDefinition[];
   mCodeMappings: MCodeMapping[];
   gCodeDialect: GCodeDialect;
+  /** Optional per-mode behavior differences (e.g. Hurco BNC vs ISNC). Keyed by mode name. */
+  modeSpecificBehavior?: Record<
+    string,
+    {
+      description?: string;
+      zValues?: string;
+      tappingCycle?: string;
+      backBoring?: string;
+      peckTapping?: string;
+      advantages?: string[];
+    }
+  >;
 }
 
 export interface ControllerFeatures {
@@ -123,6 +135,108 @@ export interface GCodeDialect {
   rigidTapCode?: string;
   smoothingCode?: string;
   highAccuracyCode?: string;
+  threadingCycle?: string;
+  threadMilling?: string; // thread-milling cycle (distinct from single-point threadingCycle)
+  toolLengthCompTCPC?: string; // G234 Tool Center Point Control (5-axis TCP comp, distinct from G43 toolLengthComp)
+  nanoSmoothingCode?: string; // G05.1 Q3 nano-smoothing (distinct from smoothingCode AI-contour Q1)
+  toolLengthCompFixed?: string; // G43 with fixed system-variable register (distinct from standard toolLengthComp)
+  toolLengthCompNegative?: string; // G44 negative-direction tool-length comp (distinct from G43 toolLengthComp)
+  workOffsetG55?: string; // G55 work offset (distinct from G54 workOffsetBase)
+  workOffsetG56?: string; // G56 work offset
+  workOffsetG57?: string; // G57 work offset
+  workOffsetG58?: string; // G58 work offset
+  workOffsetG59?: string; // G59 work offset
+  tiltedWorkplaneCode?: string; // G68.2 / CYCLE800 tilted working plane (5-axis)
+  cancelTiltedWorkplane?: string; // G69 cancel tilted working plane
+  geometryCompOn?: string; // G61.1 exact-stop / geometry compensation enable
+  // Extended dialect codes (work offsets, planes, C-axis, polar, smoothing, lathe
+  // threading, coolant, units, rotation, scaling, etc.) -- all optional G/M-code
+  // strings actually emitted by one or more controller profiles' gCodeDialect literals.
+  additionalWorkOffsets?: string;
+  autoBuffering?: string;
+  cancelCannedCycle?: string;
+  confirmTiltedWorkplane?: string;
+  constantSurfaceSpeed?: string;
+  customSmoothing?: string;
+  cutterComp3D?: string;
+  cutterCompLookAhead?: string;
+  cuttingMode?: string;
+  cycleRetractInitial?: string;
+  cycleRetractRPlane?: string;
+  disableCAxisMain?: string;
+  disableCAxisSub?: string;
+  dynamicWorkOffsetCancel?: string;
+  dynamicWorkOffsetEnable?: string;
+  enableCAxisMain?: string;
+  enableCAxisSub?: string;
+  exactStop?: string;
+  exactStopMode?: string;
+  extendedWorkOffsets?: string;
+  feedPerMin?: string;
+  feedPerMinute?: string;
+  feedPerRev?: string;
+  finishSmoothing?: string;
+  homePosition?: string;
+  inchMode?: string;
+  inverseTime?: string;
+  localCoordinateSystem?: string;
+  lockBAxis?: string;
+  machineCoordinates?: string;
+  machineCoordsys?: string;
+  macroCall?: string;
+  mainSpindleCCW?: string;
+  mainSpindleCW?: string;
+  mainSpindleStop?: string;
+  maxRpmClamp?: string;
+  mediumSmoothing?: string;
+  metricMode?: string;
+  multiPassThreadIntegrex?: string;
+  multiPassThreadLathe?: string;
+  optionalStop?: string;
+  planeXY?: string;
+  planeYZ?: string;
+  planeZX?: string;
+  polarInterpolationOff?: string;
+  polarInterpolationOn?: string;
+  polarOff?: string;
+  polarOn?: string;
+  polarSubSpindle?: string;
+  programStop?: string;
+  returnToInitialLevel?: string;
+  returnToRLevel?: string;
+  rotation?: string;
+  rotationCancel?: string;
+  rotationEuler?: string;
+  roughingSmoothing?: string;
+  rpmMode?: string;
+  scaling?: string;
+  scalingOff?: string;
+  scalingOn?: string;
+  secondHomePosition?: string;
+  secondaryCoolantOn?: string;
+  simpleThreadIntegrex?: string;
+  simpleThreadLathe?: string;
+  skipCycle?: string;
+  skipFunction?: string;
+  spindleOrient?: string;
+  spindleSyncOff?: string;
+  spindleSyncOn?: string;
+  ssvOff?: string;
+  ssvOn?: string;
+  tcpMode?: string;
+  tcpMode5axis?: string;
+  throughSpindleCoolantOff?: string;
+  throughSpindleCoolantOn?: string;
+  ultimotionOff?: string;
+  ultimotionOn?: string;
+  unitsInch?: string;
+  unitsMM?: string;
+  unlockBAxis?: string;
+  workOffsetExtended?: string;
+  workpieceErrorComp?: string;
+  xyPlane?: string;
+  xzPlane?: string;
+  yzPlane?: string;
 }
 
 // Controller Knowledge Database

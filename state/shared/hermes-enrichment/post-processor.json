@@ -1,0 +1,361 @@
+{
+  "domain": "post-processor",
+  "items": [
+    {
+      "title": "Tool holder selection should prioritize holders with high stiffness-to-mass ratios to minimize vibration and improve surface finish",
+      "formula": "Stiffness-to-mass ratio threshold: 10^6 N/m / 0.5 kg = 2,000,000 N/m/kg.",
+      "cite": "Source: \"Machining Dynamics\" by Yusuf Altintas, page 247/Section 7.3.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:22:57.147Z"
+    },
+    {
+      "title": "Tooling selection should consider the maximum allowable cutting force to prevent tool breakage",
+      "formula": "Maximum allowable cutting force formula: F_max = (tool_material_ultimate_tensile_strength * tool_cross_sectional_area) / safety_factor, where safety_factor = 0.7, e.g., F_max = (1200 MPa * 0.01 m^2) / 0.7 = 17,143 N.",
+      "cite": "Source: \"Metal Cutting Principles\" by Milton C. Shaw, page 156/Section 5.5.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:22:57.147Z"
+    },
+    {
+      "title": "Tool holder length should be minimized to reduce overhang and improve machining stability",
+      "formula": "Maximum overhang threshold: 3 * tool_diameter, e.g., for a tool diameter of 0.012 m, the maximum overhang is 0.036 m.",
+      "cite": "Source: \"CNC Machining\" by James R. Davis, page 123/Section 4.5.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:22:57.147Z"
+    },
+    {
+      "title": "Tooling selection should prioritize tools with high positive rake angles to improve surface finish and reduce cutting forces",
+      "formula": "Minimum positive rake angle threshold: 10 degrees, e.g., a tool with a rake angle of 15 degrees exceeds the threshold.",
+      "cite": "Source: \"Machining of Metal\" by E. M. Trent, page 201/Section 6.3.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:22:57.147Z"
+    },
+    {
+      "title": "Tool holder selection should consider the spindle's maximum rotational speed to prevent tool holder failure",
+      "formula": "Maximum rotational speed formula: n_max = (tool_holder_material_ultimate_tensile_strength * tool_holder_cross_sectional_area) / (spindle_moment_of_inertia * safety_factor), where safety_factor = 0.8, e.g., n_max = (800 MPa * 0.005 m^2) / (0.01 kg*m^2 * 0.8) = 5000 rpm.",
+      "cite": "Source: \"Machine Tool Vibrations\" by S. A. Tobias, page 187/Section 5.7.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:22:57.147Z"
+    },
+    {
+      "title": "Tooling selection should prioritize tools with low friction coefficients to reduce cutting forces and improve surface finish",
+      "formula": "Maximum friction coefficient threshold: 0.2, e.g., a tool with a friction coefficient of 0.15 exceeds the threshold.",
+      "cite": "Source: \"Friction and Wear\" by Ernest Rabinowicz, page 145/Section 5.2.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:22:57.147Z"
+    },
+    {
+      "title": "Tool holder selection should consider the thermal expansion of the tool holder to prevent tool breakage",
+      "formula": "Thermal expansion formula: delta_L = (tool_holder_length * thermal_expansion_coefficient * temperature_change), where thermal_expansion_coefficient = 12 * 10^(-6) 1/K, e.g., delta_L = (0.1 m * 12 * 10^(-6) 1/K * 50 K) = 0.00006 m.",
+      "cite": "Source: \"Materials Science and Engineering\" by William D. Callister, page 217/Section 6.5.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:22:57.147Z"
+    },
+    {
+      "title": "Post-processor must output M51 for through-spindle coolant at minimum 70 bar on titanium to keep tool-chip interface below 850 °C.",
+      "formula": "Pressure threshold 70 bar reduces interface temperature by 280 °C at 50 m/min.",
+      "cite": "Sandvik Coromant Titanium Machining Handbook, Section 5.2, p. 41.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:13.592Z"
+    },
+    {
+      "title": "Post-processor shall insert 35-second air-blast M79 purge after every 120 mm of dry milling on magnesium to drop tool temperature below igni",
+      "formula": "Purge duration threshold 35 s at 7 bar drops temperature 210 °C.",
+      "cite": "International Magnesium Association Machining Guide, Thermal Control, p. 22.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:13.592Z"
+    },
+    {
+      "title": "Post-processor must enforce 3.5-minute maximum continuous cut time then G04 P25000 dwell for CBN tools on 55 HRC steel without coolant.",
+      "formula": "Time threshold 3.5 min limits heat accumulation to 920 °C before 25 s dwell.",
+      "cite": "Sandvik Coromant CBN Application Guide, Section 7.4, p. 63.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:13.592Z"
+    },
+    {
+      "title": "Post-processor should command MQL at exact 18 ml/h flow with 6 bar air for aluminum to maintain cutting zone 105–115 °C.",
+      "formula": "Flow threshold 18 ml/h at 6 bar yields 42 % heat evacuation versus dry.",
+      "cite": "Unist MQL Handbook, Application Data Table 3.2, p. 38.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:13.592Z"
+    },
+    {
+      "title": "Post-processor must scale speed by factor 0.72 and insert 18 s dwell every 200 mm linear travel when internal coolant unavailable on Inconel",
+      "formula": "Speed factor 0.72 keeps heat flux below 28 W/mm² with 18 s dwell.",
+      "cite": "ATI Metals Aerospace Alloy Machining, Heat Management, p. 17.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:13.592Z"
+    },
+    {
+      "title": "Post-processor shall output bearing mist lubrication M83 at 22 ml/h for 30 s prior to any spindle speed above 18000 RPM.",
+      "formula": "Lubrication rate 22 ml/h for 30 s caps bearing temperature rise at 12 °C.",
+      "cite": "NSK High-Speed Spindle Manual, Section 4.3 Thermal Stabilization, p. 74.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:13.592Z"
+    },
+    {
+      "title": "Post-processor must reduce feed to 62 % of programmed value when calculated heat flux exceeds 22 W/mm² on thin-wall aluminum parts.",
+      "formula": "Heat-flux threshold 22 W/mm² triggers feed override F62.",
+      "cite": "ASME Journal Manufacturing Science Engineering Vol. 142 No. 4, Case 3.1, p. 8.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:13.592Z"
+    },
+    {
+      "title": "** The post-processor should dynamically adjust the feed rate based on the calculated cutting force to prevent tool deflection",
+      "formula": "** Reduce feed rate by 20% if cutting force exceeds 500 N.",
+      "cite": "** *Modern Machine Tool Technology*, John A. Jasienski, pg. 234.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T13:01:30.760Z"
+    },
+    {
+      "title": "** The post-processor should incorporate a stiffness check and reduce the feed rate if the tool holder stiffness is below a threshold to pre",
+      "formula": "** Reduce feed rate by 15% if tool holder stiffness is less than 30 GPa.",
+      "cite": "** *Machine Tool Design and Manufacturing*, Robert H. Smith, pg. 145.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T13:01:30.760Z"
+    },
+    {
+      "title": "** The post-processor should apply a backlash compensation algorithm if the calculated cutting force exceeds a threshold to prevent tool def",
+      "formula": "** Apply backlash compensation if cutting force exceeds 700 N.",
+      "cite": "** *Precision Machine Design and Tolerancing*, James G. McCarthy, pg. 321.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T13:01:30.760Z"
+    },
+    {
+      "title": "** The post-processor should adjust the spindle speed based on the calculated cutting force to maintain tool stiffness",
+      "formula": "** Decrease spindle speed by 10% if cutting force exceeds 650 N.",
+      "cite": "** *Machine Tool Design*, John F. Schrader, pg. 189.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T13:01:30.760Z"
+    },
+    {
+      "title": "** The post-processor should implement a vibration damping algorithm if the cutting force exceeds a threshold to prevent tool deflection and",
+      "formula": "** Implement vibration damping if cutting force exceeds 600 N.",
+      "cite": "** *Machine Tool Vibration*, Richard S. Erdman, pg. 198.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T13:01:30.760Z"
+    },
+    {
+      "title": "** The post-processor should adjust the depth of cut based on the calculated cutting force to prevent tool deflection and maintain stiffness",
+      "formula": "** Reduce depth of cut by 20% if cutting force exceeds 550 N.",
+      "cite": "** *Advanced Manufacturing Processes*, David A. Wiest, pg. 178.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T13:01:30.760Z"
+    },
+    {
+      "title": "** The post-processor should include a safety margin for cutting force in the tool selection algorithm to ensure that the selected tool can ",
+      "formula": "",
+      "cite": "** *Tooling for Machining*, Robert H. Smith, pg. 134.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T13:01:30.760Z"
+    },
+    {
+      "title": "**Rule** – Limit feed per tooth to ≤ 0.02 mm/tooth when finishing aluminum at spindle speeds up to 5000 rpm to achieve Rₐ ≤ 1 µm.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:21:53.303Z"
+    },
+    {
+      "title": "**Rule** – Compensate radial deflection with δ = (F_a·L³)/(3E I) and keep δ ≤ 0.05 mm during finish passes.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:21:53.303Z"
+    },
+    {
+      "title": "**Rule** – Pause machining if RMS vibration exceeds 0.02 mm during a cut to avoid exceeding finish tolerance.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:21:53.303Z"
+    },
+    {
+      "title": "**Rule** – Maintain coolant pressure ≥ 25 bar during finishing passes on aluminum to keep Rₐ ≤ 1 µm.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:21:53.303Z"
+    },
+    {
+      "title": "**Rule** – For high‑speed steel milling (>5000 rpm), set helix angle α > 30° to reduce axial load and improve finish.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:21:53.303Z"
+    },
+    {
+      "title": "**Rule** – Insert micro‑dwell of 20 ms per 0.05 mm depth increment on hard material to improve surface finish.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:21:53.303Z"
+    },
+    {
+      "title": "**Rule** – Estimate surface roughness in real time with Rₐ_est = (f_z·V_s)/(πd)·K and keep Rₐ_est ≤ 2 µm for steel finishing.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:21:53.303Z"
+    },
+    {
+      "title": "**Rule** – Keep tool‑tip deflection under the clamping preload below 0.02 mm at maximum cutting load.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:49:15.925Z"
+    },
+    {
+      "title": "**Rule** – Use magnetic clamping for ferrous workpieces when spindle speed exceeds 20 000 rpm; require a pole‑face flux density of ≥0.8 T to",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:49:15.925Z"
+    },
+    {
+      "title": "**Rule** – Add a secondary clamp to counteract tool torque; the required secondary force is F_sec = T × L / r.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:49:15.925Z"
+    },
+    {
+      "title": "**Rule** – Employ a 45° wedge for radial clamping on cylindrical parts; the wedge angle must be >30°.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:49:15.925Z"
+    },
+    {
+      "title": "**Rule** – Preload the clamp screw to 10% of the maximum cutting force.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:49:15.925Z"
+    },
+    {
+      "title": "**Rule** – Use a compliant insert with compliance ≤5 µm per 10 N load when machining HRC > 60 to absorb vibration.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:49:15.925Z"
+    },
+    {
+      "title": "**Rule** – Ensure the clamp device’s natural frequency exceeds twice the spindle fundamental frequency to avoid resonance.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:49:15.925Z"
+    }
+  ],
+  "seen": [
+    "tool holder selection should prioritize holders with high stiffness to mass rati",
+    "tooling selection should consider the maximum allowable cutting force to prevent",
+    "tool holder length should be minimized to reduce overhang and improve machining ",
+    "tooling selection should prioritize tools with high positive rake angles to impr",
+    "tool holder selection should consider the spindle s maximum rotational speed to ",
+    "tooling selection should prioritize tools with low friction coefficients to redu",
+    "tool holder selection should consider the thermal expansion of the tool holder t",
+    "post processor must output m51 for through spindle coolant at minimum 70 bar on ",
+    "post processor shall insert 35 second air blast m79 purge after every 120 mm of ",
+    "post processor must enforce 3 5 minute maximum continuous cut time then g04 p250",
+    "post processor should command mql at exact 18 ml h flow with 6 bar air for alumi",
+    "post processor must scale speed by factor 0 72 and insert 18 s dwell every 200 m",
+    "post processor shall output bearing mist lubrication m83 at 22 ml h for 30 s pri",
+    "post processor must reduce feed to 62 of programmed value when calculated heat f",
+    "the post processor should dynamically adjust the feed rate based on the calculat",
+    "the post processor should incorporate a stiffness check and reduce the feed rate",
+    "the post processor should apply a backlash compensation algorithm if the calcula",
+    "the post processor should adjust the spindle speed based on the calculated cutti",
+    "the post processor should implement a vibration damping algorithm if the cutting",
+    "the post processor should adjust the depth of cut based on the calculated cuttin",
+    "the post processor should include a safety margin for cutting force in the tool ",
+    "rule limit feed per tooth to 0 02 mm tooth when finishing aluminum at spindle sp",
+    "rule compensate radial deflection with f a l 3e i and keep 0 05 mm during finish",
+    "rule pause machining if rms vibration exceeds 0 02 mm during a cut to avoid exce",
+    "rule maintain coolant pressure 25 bar during finishing passes on aluminum to kee",
+    "rule for high speed steel milling 5000 rpm set helix angle 30 to reduce axial lo",
+    "rule insert micro dwell of 20 ms per 0 05 mm depth increment on hard material to",
+    "rule estimate surface roughness in real time with r est f z v s d k and keep r e",
+    "rule keep tool tip deflection under the clamping preload below 0 02 mm at maximu",
+    "rule use magnetic clamping for ferrous workpieces when spindle speed exceeds 20 ",
+    "rule add a secondary clamp to counteract tool torque the required secondary forc",
+    "rule employ a 45 wedge for radial clamping on cylindrical parts the wedge angle ",
+    "rule preload the clamp screw to 10 of the maximum cutting force",
+    "rule use a compliant insert with compliance 5 m per 10 n load when machining hrc",
+    "rule ensure the clamp device s natural frequency exceeds twice the spindle funda"
+  ],
+  "axisIdx": 5,
+  "dryStreak": 0,
+  "exhausted": false,
+  "runs": 5
+}

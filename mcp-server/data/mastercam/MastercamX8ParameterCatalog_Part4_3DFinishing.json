@@ -1,0 +1,349 @@
+{
+  "continuation": "MastercamX8ParameterCatalog.json",
+  "part": 4,
+  "description": "3D Finishing Toolpaths: Parallel, Pencil, Scallop, Contour/Waterline, Shallow, Horizontal, Steep, Blend",
+  "category": "3D_FINISHING_TOOLPATHS",
+  "toolpaths": [
+    {
+      "id": "MCX8-3DFN-001",
+      "name": "Parallel Finish",
+      "internalCode": "TP_3D_FN_PARALLEL",
+      "description": "Linear parallel finishing passes for 3D surfaces",
+      "pages": {
+        "toolpathType": {
+          "paramCount": 20,
+          "parameters": [
+            {"id": "MCX8-3DFN-001-001", "name": "stepover", "type": "numeric", "unit": "mm", "min": 0.01, "max": 100, "default": 0.5, "description": "Radial stepover between passes"},
+            {"id": "MCX8-3DFN-001-002", "name": "stepover_pct", "type": "numeric", "unit": "%", "min": 1, "max": 50, "default": 8, "description": "Stepover as % of tool diameter"},
+            {"id": "MCX8-3DFN-001-003", "name": "cut_angle", "type": "numeric", "unit": "deg", "min": 0, "max": 360, "default": 45, "description": "Cutting angle relative to X-axis"},
+            {"id": "MCX8-3DFN-001-004", "name": "cut_direction", "type": "enum", "values": ["climb", "conventional", "zigzag", "one_way"], "default": "zigzag", "description": "Cutting direction"},
+            {"id": "MCX8-3DFN-001-005", "name": "tolerance", "type": "numeric", "unit": "mm", "min": 0.001, "max": 0.5, "default": 0.01, "description": "Surface tolerance"},
+            {"id": "MCX8-3DFN-001-006", "name": "scallop_height", "type": "numeric", "unit": "mm", "min": 0.001, "max": 0.5, "default": 0.01, "description": "Target scallop height"},
+            {"id": "MCX8-3DFN-001-007", "name": "steep_angle_limit", "type": "numeric", "unit": "deg", "min": 30, "max": 90, "default": 75, "description": "Max angle for parallel finishing"},
+            {"id": "MCX8-3DFN-001-008", "name": "shallow_angle_limit", "type": "numeric", "unit": "deg", "min": 0, "max": 45, "default": 15, "description": "Min angle for parallel finishing"},
+            {"id": "MCX8-3DFN-001-009", "name": "extend_distance", "type": "numeric", "unit": "mm", "min": 0, "max": 50, "default": 2, "description": "Extend passes beyond boundary"},
+            {"id": "MCX8-3DFN-001-010", "name": "boundary_type", "type": "enum", "values": ["silhouette", "selected", "contain", "stock"], "default": "silhouette", "description": "Boundary definition"},
+            {"id": "MCX8-3DFN-001-011", "name": "boundary_offset", "type": "numeric", "unit": "mm", "default": 0, "description": "Boundary offset"},
+            {"id": "MCX8-3DFN-001-012", "name": "stock_to_leave", "type": "numeric", "unit": "mm", "min": -1, "max": 10, "default": 0, "description": "Stock allowance"},
+            {"id": "MCX8-3DFN-001-013", "name": "multi_angle", "type": "boolean", "default": false, "description": "Enable multi-angle passes"},
+            {"id": "MCX8-3DFN-001-014", "name": "second_cut_angle", "type": "numeric", "unit": "deg", "default": 135, "description": "Second cutting angle"},
+            {"id": "MCX8-3DFN-001-015", "name": "cross_hatch", "type": "boolean", "default": false, "description": "Enable cross-hatch pattern"},
+            {"id": "MCX8-3DFN-001-016", "name": "optimize_passes", "type": "boolean", "default": true, "description": "Optimize pass ordering"},
+            {"id": "MCX8-3DFN-001-017", "name": "back_feedrate", "type": "numeric", "unit": "mm/min", "default": 2500, "description": "Non-cutting feed"},
+            {"id": "MCX8-3DFN-001-018", "name": "min_pass_length", "type": "numeric", "unit": "mm", "default": 1, "description": "Minimum pass length"},
+            {"id": "MCX8-3DFN-001-019", "name": "gouge_check", "type": "boolean", "default": true, "description": "Enable gouge checking"},
+            {"id": "MCX8-3DFN-001-020", "name": "collision_check", "type": "boolean", "default": true, "description": "Enable collision checking"}
+          ]
+        },
+        "cutParameters": {
+          "paramCount": 14,
+          "parameters": [
+            {"id": "MCX8-3DFN-001-021", "name": "compensation_type", "type": "enum", "values": ["computer", "wear", "off"], "default": "computer", "description": "Compensation mode"},
+            {"id": "MCX8-3DFN-001-022", "name": "tip_compensation", "type": "boolean", "default": true, "description": "Tip compensation for ballnose"},
+            {"id": "MCX8-3DFN-001-023", "name": "lead_in_type", "type": "enum", "values": ["arc", "line", "tangent", "perpendicular"], "default": "arc", "description": "Lead-in type"},
+            {"id": "MCX8-3DFN-001-024", "name": "lead_in_radius", "type": "numeric", "unit": "mm", "default": 3, "description": "Lead-in radius"},
+            {"id": "MCX8-3DFN-001-025", "name": "lead_in_sweep", "type": "numeric", "unit": "deg", "default": 90, "description": "Lead-in sweep angle"},
+            {"id": "MCX8-3DFN-001-026", "name": "lead_out_type", "type": "enum", "values": ["arc", "line", "tangent", "perpendicular"], "default": "arc", "description": "Lead-out type"},
+            {"id": "MCX8-3DFN-001-027", "name": "lead_out_radius", "type": "numeric", "unit": "mm", "default": 3, "description": "Lead-out radius"},
+            {"id": "MCX8-3DFN-001-028", "name": "lead_out_sweep", "type": "numeric", "unit": "deg", "default": 90, "description": "Lead-out sweep angle"},
+            {"id": "MCX8-3DFN-001-029", "name": "overlap_distance", "type": "numeric", "unit": "mm", "default": 0.2, "description": "Pass overlap"},
+            {"id": "MCX8-3DFN-001-030", "name": "spring_passes", "type": "integer", "min": 0, "max": 5, "default": 0, "description": "Spring passes"},
+            {"id": "MCX8-3DFN-001-031", "name": "corner_slowdown", "type": "boolean", "default": false, "description": "Slow at direction changes"},
+            {"id": "MCX8-3DFN-001-032", "name": "corner_feed_pct", "type": "numeric", "unit": "%", "default": 80, "description": "Corner feed percentage"},
+            {"id": "MCX8-3DFN-001-033", "name": "use_surface_speed", "type": "boolean", "default": false, "description": "Maintain surface speed (CSS)"},
+            {"id": "MCX8-3DFN-001-034", "name": "surface_speed", "type": "numeric", "unit": "m/min", "default": 150, "description": "Target surface speed"}
+          ]
+        },
+        "linkingParameters": {
+          "paramCount": 12,
+          "parameters": [
+            {"id": "MCX8-3DFN-001-035", "name": "clearance_height", "type": "numeric", "unit": "mm", "default": 50, "description": "Clearance plane"},
+            {"id": "MCX8-3DFN-001-036", "name": "retract_height", "type": "numeric", "unit": "mm", "default": 3, "description": "Retract height"},
+            {"id": "MCX8-3DFN-001-037", "name": "feed_height", "type": "numeric", "unit": "mm", "default": 1, "description": "Feed height"},
+            {"id": "MCX8-3DFN-001-038", "name": "top_of_stock", "type": "numeric", "unit": "mm", "default": 0, "description": "Top of stock"},
+            {"id": "MCX8-3DFN-001-039", "name": "depth", "type": "numeric", "unit": "mm", "default": 50, "description": "Machining depth"},
+            {"id": "MCX8-3DFN-001-040", "name": "retract_method", "type": "enum", "values": ["clearance", "retract", "along_surface"], "default": "retract", "description": "Retract method"},
+            {"id": "MCX8-3DFN-001-041", "name": "link_type", "type": "enum", "values": ["direct", "along_surface", "retract"], "default": "along_surface", "description": "Linking type"},
+            {"id": "MCX8-3DFN-001-042", "name": "surface_clearance", "type": "numeric", "unit": "mm", "default": 1, "description": "Surface clearance for links"},
+            {"id": "MCX8-3DFN-001-043", "name": "plunge_rate", "type": "numeric", "unit": "mm/min", "default": 300, "description": "Plunge rate"},
+            {"id": "MCX8-3DFN-001-044", "name": "retract_rate", "type": "numeric", "unit": "mm/min", "default": 5000, "description": "Retract rate"},
+            {"id": "MCX8-3DFN-001-045", "name": "rapid_retract", "type": "boolean", "default": true, "description": "Rapid retracts"},
+            {"id": "MCX8-3DFN-001-046", "name": "optimize_linking", "type": "boolean", "default": true, "description": "Optimize links"}
+          ]
+        },
+        "arcFilterParameters": {
+          "paramCount": 6,
+          "parameters": [
+            {"id": "MCX8-3DFN-001-047", "name": "filter_enabled", "type": "boolean", "default": true, "description": "Enable filtering"},
+            {"id": "MCX8-3DFN-001-048", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.005, "description": "Filter tolerance"},
+            {"id": "MCX8-3DFN-001-049", "name": "arc_fitting", "type": "boolean", "default": true, "description": "Fit arcs"},
+            {"id": "MCX8-3DFN-001-050", "name": "min_arc_radius", "type": "numeric", "unit": "mm", "default": 0.25, "description": "Min arc radius"},
+            {"id": "MCX8-3DFN-001-051", "name": "max_arc_radius", "type": "numeric", "unit": "mm", "default": 5000, "description": "Max arc radius"},
+            {"id": "MCX8-3DFN-001-052", "name": "output_3d_arcs", "type": "boolean", "default": true, "description": "Output 3D arcs"}
+          ]
+        },
+        "coolant": {
+          "paramCount": 4,
+          "parameters": [
+            {"id": "MCX8-3DFN-001-053", "name": "coolant_enabled", "type": "boolean", "default": true, "description": "Enable coolant"},
+            {"id": "MCX8-3DFN-001-054", "name": "coolant_type", "type": "enum", "values": ["flood", "mist", "through_tool", "air_blast", "off"], "default": "mist", "description": "Coolant type"},
+            {"id": "MCX8-3DFN-001-055", "name": "coolant_code", "type": "integer", "default": 8, "description": "Coolant M-code"},
+            {"id": "MCX8-3DFN-001-056", "name": "coolant_off_code", "type": "integer", "default": 9, "description": "Coolant off M-code"}
+          ]
+        }
+      },
+      "totalParams": 56
+    },
+    {
+      "id": "MCX8-3DFN-002",
+      "name": "Pencil Finish",
+      "internalCode": "TP_3D_FN_PENCIL",
+      "description": "Corner and fillet finishing that traces internal corners",
+      "pages": {
+        "toolpathType": {
+          "paramCount": 16,
+          "parameters": [
+            {"id": "MCX8-3DFN-002-001", "name": "corner_detection", "type": "enum", "values": ["automatic", "manual", "fillet_radius"], "default": "automatic", "description": "Corner detection method"},
+            {"id": "MCX8-3DFN-002-002", "name": "max_corner_radius", "type": "numeric", "unit": "mm", "default": 10, "description": "Max corner radius to trace"},
+            {"id": "MCX8-3DFN-002-003", "name": "min_corner_radius", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Min corner radius to trace"},
+            {"id": "MCX8-3DFN-002-004", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.01, "description": "Surface tolerance"},
+            {"id": "MCX8-3DFN-002-005", "name": "stepover", "type": "numeric", "unit": "mm", "default": 0.3, "description": "Stepover for multiple passes"},
+            {"id": "MCX8-3DFN-002-006", "name": "passes", "type": "integer", "min": 1, "max": 10, "default": 1, "description": "Number of passes"},
+            {"id": "MCX8-3DFN-002-007", "name": "pass_offset", "type": "numeric", "unit": "mm", "default": 0.2, "description": "Offset between passes"},
+            {"id": "MCX8-3DFN-002-008", "name": "stock_to_leave", "type": "numeric", "unit": "mm", "default": 0, "description": "Stock allowance"},
+            {"id": "MCX8-3DFN-002-009", "name": "cut_direction", "type": "enum", "values": ["climb", "conventional", "bidirectional"], "default": "bidirectional", "description": "Cutting direction"},
+            {"id": "MCX8-3DFN-002-010", "name": "corner_angle_threshold", "type": "numeric", "unit": "deg", "default": 120, "description": "Max angle to consider as corner"},
+            {"id": "MCX8-3DFN-002-011", "name": "boundary_type", "type": "enum", "values": ["silhouette", "selected", "contain"], "default": "silhouette", "description": "Boundary type"},
+            {"id": "MCX8-3DFN-002-012", "name": "boundary_offset", "type": "numeric", "unit": "mm", "default": 0, "description": "Boundary offset"},
+            {"id": "MCX8-3DFN-002-013", "name": "optimize_order", "type": "boolean", "default": true, "description": "Optimize corner order"},
+            {"id": "MCX8-3DFN-002-014", "name": "back_feedrate", "type": "numeric", "unit": "mm/min", "default": 2500, "description": "Non-cutting feed"},
+            {"id": "MCX8-3DFN-002-015", "name": "gouge_check", "type": "boolean", "default": true, "description": "Enable gouge check"},
+            {"id": "MCX8-3DFN-002-016", "name": "collision_check", "type": "boolean", "default": true, "description": "Enable collision check"}
+          ]
+        },
+        "cutParameters": {
+          "paramCount": 10,
+          "parameters": [
+            {"id": "MCX8-3DFN-002-017", "name": "compensation_type", "type": "enum", "values": ["computer", "wear", "off"], "default": "computer", "description": "Compensation"},
+            {"id": "MCX8-3DFN-002-018", "name": "tip_compensation", "type": "boolean", "default": true, "description": "Tip compensation"},
+            {"id": "MCX8-3DFN-002-019", "name": "lead_in_type", "type": "enum", "values": ["arc", "tangent", "perpendicular"], "default": "arc", "description": "Lead-in type"},
+            {"id": "MCX8-3DFN-002-020", "name": "lead_in_radius", "type": "numeric", "unit": "mm", "default": 2, "description": "Lead-in radius"},
+            {"id": "MCX8-3DFN-002-021", "name": "lead_out_type", "type": "enum", "values": ["arc", "tangent", "perpendicular"], "default": "arc", "description": "Lead-out type"},
+            {"id": "MCX8-3DFN-002-022", "name": "lead_out_radius", "type": "numeric", "unit": "mm", "default": 2, "description": "Lead-out radius"},
+            {"id": "MCX8-3DFN-002-023", "name": "overlap_distance", "type": "numeric", "unit": "mm", "default": 0.2, "description": "Overlap"},
+            {"id": "MCX8-3DFN-002-024", "name": "spring_passes", "type": "integer", "default": 0, "description": "Spring passes"},
+            {"id": "MCX8-3DFN-002-025", "name": "corner_slowdown", "type": "boolean", "default": false, "description": "Corner slowdown"},
+            {"id": "MCX8-3DFN-002-026", "name": "corner_feed_pct", "type": "numeric", "unit": "%", "default": 85, "description": "Corner feed %"}
+          ]
+        },
+        "linkingParameters": {
+          "paramCount": 10,
+          "parameters": [
+            {"id": "MCX8-3DFN-002-027", "name": "clearance_height", "type": "numeric", "unit": "mm", "default": 50, "description": "Clearance plane"},
+            {"id": "MCX8-3DFN-002-028", "name": "retract_height", "type": "numeric", "unit": "mm", "default": 3, "description": "Retract height"},
+            {"id": "MCX8-3DFN-002-029", "name": "feed_height", "type": "numeric", "unit": "mm", "default": 1, "description": "Feed height"},
+            {"id": "MCX8-3DFN-002-030", "name": "retract_method", "type": "enum", "values": ["clearance", "retract", "along_surface"], "default": "along_surface", "description": "Retract method"},
+            {"id": "MCX8-3DFN-002-031", "name": "link_type", "type": "enum", "values": ["direct", "along_surface", "retract"], "default": "along_surface", "description": "Linking type"},
+            {"id": "MCX8-3DFN-002-032", "name": "surface_clearance", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Surface clearance"},
+            {"id": "MCX8-3DFN-002-033", "name": "plunge_rate", "type": "numeric", "unit": "mm/min", "default": 250, "description": "Plunge rate"},
+            {"id": "MCX8-3DFN-002-034", "name": "retract_rate", "type": "numeric", "unit": "mm/min", "default": 5000, "description": "Retract rate"},
+            {"id": "MCX8-3DFN-002-035", "name": "rapid_retract", "type": "boolean", "default": true, "description": "Rapid retracts"},
+            {"id": "MCX8-3DFN-002-036", "name": "optimize_linking", "type": "boolean", "default": true, "description": "Optimize links"}
+          ]
+        },
+        "arcFilterParameters": {
+          "paramCount": 5,
+          "parameters": [
+            {"id": "MCX8-3DFN-002-037", "name": "filter_enabled", "type": "boolean", "default": true, "description": "Enable filtering"},
+            {"id": "MCX8-3DFN-002-038", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.005, "description": "Filter tolerance"},
+            {"id": "MCX8-3DFN-002-039", "name": "arc_fitting", "type": "boolean", "default": true, "description": "Fit arcs"},
+            {"id": "MCX8-3DFN-002-040", "name": "min_arc_radius", "type": "numeric", "unit": "mm", "default": 0.2, "description": "Min arc radius"},
+            {"id": "MCX8-3DFN-002-041", "name": "output_3d_arcs", "type": "boolean", "default": true, "description": "Output 3D arcs"}
+          ]
+        },
+        "coolant": {
+          "paramCount": 3,
+          "parameters": [
+            {"id": "MCX8-3DFN-002-042", "name": "coolant_enabled", "type": "boolean", "default": true, "description": "Enable coolant"},
+            {"id": "MCX8-3DFN-002-043", "name": "coolant_type", "type": "enum", "values": ["flood", "mist", "through_tool", "off"], "default": "mist", "description": "Coolant type"},
+            {"id": "MCX8-3DFN-002-044", "name": "coolant_code", "type": "integer", "default": 8, "description": "Coolant M-code"}
+          ]
+        }
+      },
+      "totalParams": 44
+    },
+    {
+      "id": "MCX8-3DFN-003",
+      "name": "Scallop Finish",
+      "internalCode": "TP_3D_FN_SCALLOP",
+      "description": "Constant scallop height finishing that adapts stepover to surface curvature",
+      "pages": {
+        "toolpathType": {
+          "paramCount": 18,
+          "parameters": [
+            {"id": "MCX8-3DFN-003-001", "name": "scallop_height", "type": "numeric", "unit": "mm", "min": 0.001, "max": 0.5, "default": 0.01, "description": "Target scallop height"},
+            {"id": "MCX8-3DFN-003-002", "name": "min_stepover", "type": "numeric", "unit": "mm", "default": 0.1, "description": "Minimum stepover"},
+            {"id": "MCX8-3DFN-003-003", "name": "max_stepover", "type": "numeric", "unit": "mm", "default": 5, "description": "Maximum stepover"},
+            {"id": "MCX8-3DFN-003-004", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.01, "description": "Surface tolerance"},
+            {"id": "MCX8-3DFN-003-005", "name": "cut_direction", "type": "enum", "values": ["climb", "conventional", "bidirectional"], "default": "bidirectional", "description": "Cutting direction"},
+            {"id": "MCX8-3DFN-003-006", "name": "stepover_mode", "type": "enum", "values": ["constant_scallop", "adaptive", "curvature_driven"], "default": "constant_scallop", "description": "Stepover calculation mode"},
+            {"id": "MCX8-3DFN-003-007", "name": "start_from", "type": "enum", "values": ["center", "boundary", "auto"], "default": "boundary", "description": "Starting location"},
+            {"id": "MCX8-3DFN-003-008", "name": "spiral_direction", "type": "enum", "values": ["inward", "outward", "auto"], "default": "inward", "description": "Spiral direction"},
+            {"id": "MCX8-3DFN-003-009", "name": "stock_to_leave", "type": "numeric", "unit": "mm", "default": 0, "description": "Stock allowance"},
+            {"id": "MCX8-3DFN-003-010", "name": "boundary_type", "type": "enum", "values": ["silhouette", "selected", "contain"], "default": "silhouette", "description": "Boundary type"},
+            {"id": "MCX8-3DFN-003-011", "name": "boundary_offset", "type": "numeric", "unit": "mm", "default": 0, "description": "Boundary offset"},
+            {"id": "MCX8-3DFN-003-012", "name": "extend_distance", "type": "numeric", "unit": "mm", "default": 1, "description": "Extend beyond boundary"},
+            {"id": "MCX8-3DFN-003-013", "name": "optimize_passes", "type": "boolean", "default": true, "description": "Optimize pass order"},
+            {"id": "MCX8-3DFN-003-014", "name": "back_feedrate", "type": "numeric", "unit": "mm/min", "default": 2500, "description": "Non-cutting feed"},
+            {"id": "MCX8-3DFN-003-015", "name": "min_pass_length", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Min pass length"},
+            {"id": "MCX8-3DFN-003-016", "name": "gouge_check", "type": "boolean", "default": true, "description": "Enable gouge check"},
+            {"id": "MCX8-3DFN-003-017", "name": "collision_check", "type": "boolean", "default": true, "description": "Enable collision check"},
+            {"id": "MCX8-3DFN-003-018", "name": "smooth_passes", "type": "boolean", "default": true, "description": "Smooth pass transitions"}
+          ]
+        },
+        "cutParameters": {
+          "paramCount": 12,
+          "parameters": [
+            {"id": "MCX8-3DFN-003-019", "name": "compensation_type", "type": "enum", "values": ["computer", "wear", "off"], "default": "computer", "description": "Compensation"},
+            {"id": "MCX8-3DFN-003-020", "name": "tip_compensation", "type": "boolean", "default": true, "description": "Tip compensation"},
+            {"id": "MCX8-3DFN-003-021", "name": "lead_in_type", "type": "enum", "values": ["arc", "tangent", "perpendicular"], "default": "arc", "description": "Lead-in type"},
+            {"id": "MCX8-3DFN-003-022", "name": "lead_in_radius", "type": "numeric", "unit": "mm", "default": 3, "description": "Lead-in radius"},
+            {"id": "MCX8-3DFN-003-023", "name": "lead_out_type", "type": "enum", "values": ["arc", "tangent", "perpendicular"], "default": "arc", "description": "Lead-out type"},
+            {"id": "MCX8-3DFN-003-024", "name": "lead_out_radius", "type": "numeric", "unit": "mm", "default": 3, "description": "Lead-out radius"},
+            {"id": "MCX8-3DFN-003-025", "name": "overlap_distance", "type": "numeric", "unit": "mm", "default": 0.2, "description": "Overlap"},
+            {"id": "MCX8-3DFN-003-026", "name": "spring_passes", "type": "integer", "default": 0, "description": "Spring passes"},
+            {"id": "MCX8-3DFN-003-027", "name": "corner_slowdown", "type": "boolean", "default": false, "description": "Corner slowdown"},
+            {"id": "MCX8-3DFN-003-028", "name": "corner_feed_pct", "type": "numeric", "unit": "%", "default": 85, "description": "Corner feed %"},
+            {"id": "MCX8-3DFN-003-029", "name": "use_surface_speed", "type": "boolean", "default": false, "description": "CSS mode"},
+            {"id": "MCX8-3DFN-003-030", "name": "surface_speed", "type": "numeric", "unit": "m/min", "default": 150, "description": "Surface speed"}
+          ]
+        },
+        "linkingParameters": {
+          "paramCount": 10,
+          "parameters": [
+            {"id": "MCX8-3DFN-003-031", "name": "clearance_height", "type": "numeric", "unit": "mm", "default": 50, "description": "Clearance plane"},
+            {"id": "MCX8-3DFN-003-032", "name": "retract_height", "type": "numeric", "unit": "mm", "default": 3, "description": "Retract height"},
+            {"id": "MCX8-3DFN-003-033", "name": "feed_height", "type": "numeric", "unit": "mm", "default": 1, "description": "Feed height"},
+            {"id": "MCX8-3DFN-003-034", "name": "retract_method", "type": "enum", "values": ["clearance", "retract", "along_surface"], "default": "along_surface", "description": "Retract method"},
+            {"id": "MCX8-3DFN-003-035", "name": "link_type", "type": "enum", "values": ["direct", "along_surface", "retract"], "default": "along_surface", "description": "Linking type"},
+            {"id": "MCX8-3DFN-003-036", "name": "surface_clearance", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Surface clearance"},
+            {"id": "MCX8-3DFN-003-037", "name": "plunge_rate", "type": "numeric", "unit": "mm/min", "default": 250, "description": "Plunge rate"},
+            {"id": "MCX8-3DFN-003-038", "name": "retract_rate", "type": "numeric", "unit": "mm/min", "default": 5000, "description": "Retract rate"},
+            {"id": "MCX8-3DFN-003-039", "name": "rapid_retract", "type": "boolean", "default": true, "description": "Rapid retracts"},
+            {"id": "MCX8-3DFN-003-040", "name": "optimize_linking", "type": "boolean", "default": true, "description": "Optimize links"}
+          ]
+        },
+        "arcFilterParameters": {
+          "paramCount": 5,
+          "parameters": [
+            {"id": "MCX8-3DFN-003-041", "name": "filter_enabled", "type": "boolean", "default": true, "description": "Enable filtering"},
+            {"id": "MCX8-3DFN-003-042", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.005, "description": "Filter tolerance"},
+            {"id": "MCX8-3DFN-003-043", "name": "arc_fitting", "type": "boolean", "default": true, "description": "Fit arcs"},
+            {"id": "MCX8-3DFN-003-044", "name": "min_arc_radius", "type": "numeric", "unit": "mm", "default": 0.2, "description": "Min arc radius"},
+            {"id": "MCX8-3DFN-003-045", "name": "output_3d_arcs", "type": "boolean", "default": true, "description": "Output 3D arcs"}
+          ]
+        },
+        "coolant": {
+          "paramCount": 3,
+          "parameters": [
+            {"id": "MCX8-3DFN-003-046", "name": "coolant_enabled", "type": "boolean", "default": true, "description": "Enable coolant"},
+            {"id": "MCX8-3DFN-003-047", "name": "coolant_type", "type": "enum", "values": ["flood", "mist", "through_tool", "off"], "default": "mist", "description": "Coolant type"},
+            {"id": "MCX8-3DFN-003-048", "name": "coolant_code", "type": "integer", "default": 8, "description": "Coolant M-code"}
+          ]
+        }
+      },
+      "totalParams": 48
+    },
+    {
+      "id": "MCX8-3DFN-004",
+      "name": "Contour / Waterline Finish",
+      "internalCode": "TP_3D_FN_CONTOUR",
+      "description": "Z-level contour finishing for steep surfaces (waterline)",
+      "pages": {
+        "toolpathType": {
+          "paramCount": 20,
+          "parameters": [
+            {"id": "MCX8-3DFN-004-001", "name": "stepdown", "type": "numeric", "unit": "mm", "min": 0.01, "max": 50, "default": 0.3, "description": "Z-level stepdown"},
+            {"id": "MCX8-3DFN-004-002", "name": "stepdown_mode", "type": "enum", "values": ["constant", "scallop_based", "adaptive"], "default": "scallop_based", "description": "Stepdown calculation"},
+            {"id": "MCX8-3DFN-004-003", "name": "scallop_height", "type": "numeric", "unit": "mm", "default": 0.01, "description": "Target scallop height"},
+            {"id": "MCX8-3DFN-004-004", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.01, "description": "Surface tolerance"},
+            {"id": "MCX8-3DFN-004-005", "name": "cut_direction", "type": "enum", "values": ["climb", "conventional", "bidirectional"], "default": "climb", "description": "Cutting direction"},
+            {"id": "MCX8-3DFN-004-006", "name": "contour_direction", "type": "enum", "values": ["cw", "ccw", "auto"], "default": "auto", "description": "Contour direction"},
+            {"id": "MCX8-3DFN-004-007", "name": "steep_angle_min", "type": "numeric", "unit": "deg", "default": 30, "description": "Min steep angle"},
+            {"id": "MCX8-3DFN-004-008", "name": "steep_angle_max", "type": "numeric", "unit": "deg", "default": 90, "description": "Max steep angle"},
+            {"id": "MCX8-3DFN-004-009", "name": "stock_to_leave", "type": "numeric", "unit": "mm", "default": 0, "description": "Stock allowance"},
+            {"id": "MCX8-3DFN-004-010", "name": "boundary_type", "type": "enum", "values": ["silhouette", "selected", "contain"], "default": "silhouette", "description": "Boundary type"},
+            {"id": "MCX8-3DFN-004-011", "name": "boundary_offset", "type": "numeric", "unit": "mm", "default": 0, "description": "Boundary offset"},
+            {"id": "MCX8-3DFN-004-012", "name": "extend_contours", "type": "boolean", "default": true, "description": "Extend open contours"},
+            {"id": "MCX8-3DFN-004-013", "name": "extend_distance", "type": "numeric", "unit": "mm", "default": 1, "description": "Extension distance"},
+            {"id": "MCX8-3DFN-004-014", "name": "merge_distance", "type": "numeric", "unit": "mm", "default": 0.5, "description": "Merge adjacent contours"},
+            {"id": "MCX8-3DFN-004-015", "name": "smooth_z_steps", "type": "boolean", "default": false, "description": "Smooth Z transitions"},
+            {"id": "MCX8-3DFN-004-016", "name": "optimize_order", "type": "boolean", "default": true, "description": "Optimize contour order"},
+            {"id": "MCX8-3DFN-004-017", "name": "min_contour_length", "type": "numeric", "unit": "mm", "default": 1, "description": "Min contour length"},
+            {"id": "MCX8-3DFN-004-018", "name": "back_feedrate", "type": "numeric", "unit": "mm/min", "default": 2500, "description": "Non-cutting feed"},
+            {"id": "MCX8-3DFN-004-019", "name": "gouge_check", "type": "boolean", "default": true, "description": "Enable gouge check"},
+            {"id": "MCX8-3DFN-004-020", "name": "collision_check", "type": "boolean", "default": true, "description": "Enable collision check"}
+          ]
+        },
+        "cutParameters": {
+          "paramCount": 12,
+          "parameters": [
+            {"id": "MCX8-3DFN-004-021", "name": "compensation_type", "type": "enum", "values": ["computer", "wear", "off"], "default": "computer", "description": "Compensation"},
+            {"id": "MCX8-3DFN-004-022", "name": "tip_compensation", "type": "boolean", "default": true, "description": "Tip compensation"},
+            {"id": "MCX8-3DFN-004-023", "name": "lead_in_type", "type": "enum", "values": ["arc", "line", "tangent"], "default": "arc", "description": "Lead-in type"},
+            {"id": "MCX8-3DFN-004-024", "name": "lead_in_radius", "type": "numeric", "unit": "mm", "default": 3, "description": "Lead-in radius"},
+            {"id": "MCX8-3DFN-004-025", "name": "lead_in_sweep", "type": "numeric", "unit": "deg", "default": 90, "description": "Lead-in sweep"},
+            {"id": "MCX8-3DFN-004-026", "name": "lead_out_type", "type": "enum", "values": ["arc", "line", "tangent"], "default": "arc", "description": "Lead-out type"},
+            {"id": "MCX8-3DFN-004-027", "name": "lead_out_radius", "type": "numeric", "unit": "mm", "default": 3, "description": "Lead-out radius"},
+            {"id": "MCX8-3DFN-004-028", "name": "lead_out_sweep", "type": "numeric", "unit": "deg", "default": 90, "description": "Lead-out sweep"},
+            {"id": "MCX8-3DFN-004-029", "name": "overlap_distance", "type": "numeric", "unit": "mm", "default": 0.3, "description": "Overlap"},
+            {"id": "MCX8-3DFN-004-030", "name": "spring_passes", "type": "integer", "default": 0, "description": "Spring passes"},
+            {"id": "MCX8-3DFN-004-031", "name": "corner_slowdown", "type": "boolean", "default": true, "description": "Corner slowdown"},
+            {"id": "MCX8-3DFN-004-032", "name": "corner_feed_pct", "type": "numeric", "unit": "%", "default": 75, "description": "Corner feed %"}
+          ]
+        },
+        "linkingParameters": {
+          "paramCount": 12,
+          "parameters": [
+            {"id": "MCX8-3DFN-004-033", "name": "clearance_height", "type": "numeric", "unit": "mm", "default": 50, "description": "Clearance plane"},
+            {"id": "MCX8-3DFN-004-034", "name": "retract_height", "type": "numeric", "unit": "mm", "default": 3, "description": "Retract height"},
+            {"id": "MCX8-3DFN-004-035", "name": "feed_height", "type": "numeric", "unit": "mm", "default": 1, "description": "Feed height"},
+            {"id": "MCX8-3DFN-004-036", "name": "top_of_stock", "type": "numeric", "unit": "mm", "default": 0, "description": "Top of stock"},
+            {"id": "MCX8-3DFN-004-037", "name": "depth", "type": "numeric", "unit": "mm", "default": 50, "description": "Machining depth"},
+            {"id": "MCX8-3DFN-004-038", "name": "retract_method", "type": "enum", "values": ["clearance", "retract", "along_surface"], "default": "retract", "description": "Retract method"},
+            {"id": "MCX8-3DFN-004-039", "name": "link_type", "type": "enum", "values": ["direct", "along_surface", "retract"], "default": "direct", "description": "Linking type"},
+            {"id": "MCX8-3DFN-004-040", "name": "z_step_linking", "type": "enum", "values": ["spiral", "step", "retract"], "default": "spiral", "description": "Z-step linking"},
+            {"id": "MCX8-3DFN-004-041", "name": "plunge_rate", "type": "numeric", "unit": "mm/min", "default": 250, "description": "Plunge rate"},
+            {"id": "MCX8-3DFN-004-042", "name": "retract_rate", "type": "numeric", "unit": "mm/min", "default": 5000, "description": "Retract rate"},
+            {"id": "MCX8-3DFN-004-043", "name": "rapid_retract", "type": "boolean", "default": true, "description": "Rapid retracts"},
+            {"id": "MCX8-3DFN-004-044", "name": "optimize_linking", "type": "boolean", "default": true, "description": "Optimize links"}
+          ]
+        },
+        "arcFilterParameters": {
+          "paramCount": 5,
+          "parameters": [
+            {"id": "MCX8-3DFN-004-045", "name": "filter_enabled", "type": "boolean", "default": true, "description": "Enable filtering"},
+            {"id": "MCX8-3DFN-004-046", "name": "tolerance", "type": "numeric", "unit": "mm", "default": 0.005, "description": "Filter tolerance"},
+            {"id": "MCX8-3DFN-004-047", "name": "arc_fitting", "type": "boolean", "default": true, "description": "Fit arcs"},
+            {"id": "MCX8-3DFN-004-048", "name": "min_arc_radius", "type": "numeric", "unit": "mm", "default": 0.25, "description": "Min arc radius"},
+            {"id": "MCX8-3DFN-004-049", "name": "output_3d_arcs", "type": "boolean", "default": false, "description": "Output 3D arcs"}
+          ]
+        },
+        "coolant": {
+          "paramCount": 3,
+          "parameters": [
+            {"id": "MCX8-3DFN-004-050", "name": "coolant_enabled", "type": "boolean", "default": true, "description": "Enable coolant"},
+            {"id": "MCX8-3DFN-004-051", "name": "coolant_type", "type": "enum", "values": ["flood", "mist", "through_tool", "off"], "default": "mist", "description": "Coolant type"},
+            {"id": "MCX8-3DFN-004-052", "name": "coolant_code", "type": "integer", "default": 8, "description": "Coolant M-code"}
+          ]
+        }
+      },
+      "totalParams": 52
+    }
+  ],
+  "summary": {
+    "part4_toolpaths": 4,
+    "part4_params": 200,
+    "toolpaths_covered": ["Parallel Finish", "Pencil Finish", "Scallop Finish", "Contour/Waterline Finish"]
+  }
+}

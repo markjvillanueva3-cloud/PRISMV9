@@ -1,0 +1,12 @@
+# HANDOFF: claude-12862d27
+Updated: 2026-05-05T18:33:18.805Z
+Family: Claude | Machine: MARKV | Session: claude-12862d27
+
+## STATE
+Six neural-loop units shipped this post-compact cycle: aad78282b (RUNLOG), 46b7e18d0 (DRIFT-DETECTOR), 4d8587cd1 (PERF-SNAPSHOT), 21cfdcd9d (DRIFT-CRON-WIRE), 924eebc30 (DRIFT-ALERT-LOG); 6th unit (DRIFT-DASHBOARD-SECTION) edited+tested but uncommitted.
+
+## RESUME
+Continue INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DASHBOARD-SECTION in H:/prism-iooms0 (work/intel-ollama-obsidian-ms0). Renderer + tests are DONE and committed-ready: ConsensusDashboardRendererEngine.ts now exports DriftAlertPayload + renderDriftAlerts(payload, limit) + showDriftAlerts/driftAlertLimit/driftAlerts opts, render() appends section after run-log, and ConsensusDashboardRendererEngine.test.ts has 7 new cases (32/32 pass). consensus-dashboard.mjs CLI ALSO has --with-alerts/--alerts-limit/--alert-log flags wired and alertLogEngine loaded. Just NEED TO: (1) verify CLI smoke (the smoke run got blocked by precompact hook — re-run: tsx scripts/consensus-dashboard.mjs --perf-state PATH --alert-log PATH --with-alerts 5 --no-trend --no-probes), (2) git -C H:/prism-iooms0 add the 3 files (ConsensusDashboardRendererEngine.ts, ConsensusDashboardRendererEngine.test.ts, consensus-dashboard.mjs), and (3) commit as [INTEL-OLLAMA-OBSIDIAN-MS0]/U-CONSENSUS-DRIFT-DASHBOARD-SECTION. After commit, this session shipped 6 units total post-compact (DASHBOARD-RUNLOG, DRIFT-DETECTOR, PERF-SNAPSHOT, DRIFT-CRON-WIRE, DRIFT-ALERT-LOG, DRIFT-DASHBOARD-SECTION). Then continue neural-roadmap with next unit — natural choice: U-CONSENSUS-VENDOR-RECOMMENDATION-CACHE (memoize MultiModelConsensus recommendVendors() decisions for observability) or U-CONSENSUS-DRIFT-AUTO-PROBE (when drift fires, auto-trigger dashboard.suggestProbes for the regressed vendor).
+
+## CONTEXT
+LANE: H:/prism-iooms0 worktree, branch work/intel-ollama-obsidian-ms0. NEVER use H:/prism (cam-exhaust-ms0). Always 'git -C H:/prism-iooms0' for git ops. PEER ALERT: peer chats use 'git add .' — verify staged files before commit. Engine surface: 12 engines (added drift-detector, perf-snapshot, drift-alert-log this session), 14 dispatcher actions on prism_intelligence, 2 CLIs (consensus-dashboard.mjs, consensus-credit-cron.mjs). Cumulative test count: 264 consensus-pipeline tests (all green except 1 pre-existing forceLive timeout).

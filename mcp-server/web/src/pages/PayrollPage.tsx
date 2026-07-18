@@ -272,7 +272,7 @@ export function PayrollPage() {
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Run controls</div>
               <div className="mt-2 text-sm leading-6 text-slate-300">
-                Keep the payroll window tight, then let PRISM create or reuse the pay period and process the company-wide register in one supported pass.
+                Keep the payroll window tight, then let Kienzle create or reuse the pay period and process the company-wide register in one supported pass.
               </div>
             </div>
             {routedEmployeeId ? (

@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Schema for comprehensive agent capability definitions",
+  "created": "2026-01-28",
+  "purpose": "Each agent must have 20+ real, validated capabilities that integrate with PRISM skills, hooks, and other agents",
+  
+  "capability_schema": {
+    "id": "CAP-AGENT-XXX",
+    "name": "Human readable capability name",
+    "description": "Detailed description of what this capability does (min 50 chars)",
+    "category": "VALIDATION|EXTRACTION|CALCULATION|ANALYSIS|GENERATION|INTEGRATION|LOOKUP|OPTIMIZATION",
+    "inputs": {
+      "required": ["list of required input types"],
+      "optional": ["list of optional input types"]
+    },
+    "outputs": {
+      "primary": "Main output type",
+      "secondary": ["Additional outputs"]
+    },
+    "skills_used": ["prism-skill-1", "prism-skill-2"],
+    "hooks_triggered": ["HOOK-XXX-YYY"],
+    "synergizes_with": ["agent_name_1", "agent_name_2"],
+    "validation_rules": ["Rule 1", "Rule 2"],
+    "example_invocation": "How to use this capability",
+    "success_criteria": "How to know it worked correctly"
+  },
+
+  "agent_schema": {
+    "agent_id": "AGT-XXX",
+    "name": "agent_name",
+    "tier": "OPUS|SONNET|HAIKU",
+    "role": "Primary role description",
+    "domain_expertise": ["domain1", "domain2"],
+    "capabilities": ["CAP-AGENT-001", "CAP-AGENT-002"],
+    "minimum_capabilities": 20,
+    "system_prompt_version": "1.0",
+    "skills_mastered": ["skill1", "skill2"],
+    "hooks_subscribed": ["hook1", "hook2"],
+    "can_delegate_to": ["other_agent_1"],
+    "receives_from": ["other_agent_2"],
+    "quality_gates": ["gate1", "gate2"],
+    "performance_metrics": {
+      "accuracy_target": 0.95,
+      "latency_target_ms": 5000,
+      "cost_budget_per_call": 0.10
+    }
+  },
+
+  "capability_categories": {
+    "VALIDATION": "Checking data quality, format, ranges, completeness",
+    "EXTRACTION": "Pulling data from sources, parsing, transforming",
+    "CALCULATION": "Mathematical computations, physics models, formulas",
+    "ANALYSIS": "Pattern recognition, trend analysis, insights",
+    "GENERATION": "Creating new data, documentation, code",
+    "INTEGRATION": "Connecting systems, coordinating agents, orchestration",
+    "LOOKUP": "Fast retrieval, database queries, search",
+    "OPTIMIZATION": "Improving performance, reducing cost, maximizing quality"
+  },
+
+  "validation_levels": {
+    "L1_SYNTAX": "Structure and type checking",
+    "L2_SEMANTICS": "Value meaning and consistency",
+    "L3_COMPLETENESS": "All required data present, no placeholders",
+    "L4_CROSS_REFERENCE": "Links to other data valid",
+    "L5_DOMAIN": "Expert-level manufacturing validation"
+  }
+}

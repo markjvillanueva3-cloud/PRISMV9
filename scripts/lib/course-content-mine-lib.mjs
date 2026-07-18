@@ -24,7 +24,7 @@
 // fetch. Ollama call conventions mirror scripts/seed-ghost-llm-classify.mjs.
 
 export const OLLAMA_URL          = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
-export const DEFAULT_MINE_MODEL  = process.env.PRISM_MINE_MODEL || "qwen2.5-coder:7b";
+export const DEFAULT_MINE_MODEL  = process.env.PRISM_MINE_MODEL || "qwen2.5-coder:32b";
 export const MIN_DESCRIPTOR_LEN  = 120;   // blurbs shorter than this carry no technique signal
 export const MAX_DESCRIPTOR_LEN  = 1200;  // cap a single blurb (defends against an oversize/adversarial entry)
 export const MAX_CORPUS_CHARS    = 9000;  // bounded prompt corpus per course (qwen ctx budget)

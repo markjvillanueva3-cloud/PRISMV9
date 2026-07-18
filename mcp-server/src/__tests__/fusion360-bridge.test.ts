@@ -1012,3 +1012,72 @@ describe("Fusion360LiveBridgeEngine", () => {
     });
   });
 });
+
+// importStep (U-DELTA-FUSION-STEP-IMPORT-KERNELBBOX, slot:delta 2026-06-29)
+// importStep forwards to POST /import so the existing /geometry returns Fusion's KERNEL bbox of a real
+// imported CAD part (the authoritative envelope, units resolved natively -- resolves the ~9.5% of corpus
+// STEP parts whose point-cloud bbox is degenerate). These tests pin the request contract (path + optional
+// format) + the honest assembly edge (bodies_imported:0) against a local mock server (no live Fusion; the
+// live /import add-in route loads only after an operator add-in reload).
+describe("Fusion360LiveBridgeEngine.importStep", () => {
+  let importServer: Server;
+  let lastImportBody: Record<string, unknown> = {};
+
+  function startImportServer(resp: Record<string, unknown>): Promise<number> {
+    return new Promise((resolve) => {
+      importServer = createServer((req: IncomingMessage, res: ServerResponse) => {
+        let body = "";
+        req.on("data", (c: Buffer) => { body += c.toString(); });
+        req.on("end", () => {
+          const path = (req.url ?? "/").split("?")[0];
+          if (path === "/import" && req.method === "POST") {
+            lastImportBody = body ? (JSON.parse(body) as Record<string, unknown>) : {};
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(resp));
+          } else {
+            res.writeHead(404);
+            res.end(JSON.stringify({ error: `unknown ${path}` }));
+          }
+        });
+      });
+      importServer.listen(0, "127.0.0.1", () => {
+        const addr = importServer.address();
+        if (addr && typeof addr !== "string") resolve(addr.port);
+      });
+    });
+  }
+  afterEach(() => new Promise<void>((r) => (importServer ? importServer.close(() => r()) : r())));
+
+  const okResp = { success: true, format: "step", path: "x", bodies_imported: 1, body_count: 1 };
+
+  it("POSTs exactly {path} to /import and returns the add-in result (bodies_imported)", async () => {
+    const port = await startImportServer(okResp);
+    const engine = new Fusion360LiveBridgeEngine(`http://127.0.0.1:${port}`);
+    const r = await engine.importStep({ path: "H:/PRISM/JM DIE/casing.step" });
+    expect(r.success).toBe(true);
+    expect((r as Record<string, unknown>).bodies_imported).toBe(1);
+    expect(lastImportBody).toEqual({ path: "H:/PRISM/JM DIE/casing.step" });
+  });
+
+  it("passes an explicit format override through to the add-in", async () => {
+    const port = await startImportServer(okResp);
+    const engine = new Fusion360LiveBridgeEngine(`http://127.0.0.1:${port}`);
+    await engine.importStep({ path: "/parts/p.iges", format: "iges" });
+    expect(lastImportBody).toEqual({ path: "/parts/p.iges", format: "iges" });
+  });
+
+  it("omits format when not given so the add-in infers it from the extension", async () => {
+    const port = await startImportServer(okResp);
+    const engine = new Fusion360LiveBridgeEngine(`http://127.0.0.1:${port}`);
+    await engine.importStep({ path: "/parts/p.stp" });
+    expect("format" in lastImportBody).toBe(false);
+  });
+
+  it("surfaces bodies_imported:0 for an assembly import (occurrences, not root bodies) WITHOUT failing (R12)", async () => {
+    const port = await startImportServer({ success: true, format: "step", path: "x", bodies_imported: 0, body_count: 0 });
+    const engine = new Fusion360LiveBridgeEngine(`http://127.0.0.1:${port}`);
+    const r = await engine.importStep({ path: "/parts/assembly.step" });
+    expect(r.success).toBe(true);
+    expect((r as Record<string, unknown>).bodies_imported).toBe(0);
+  });
+});

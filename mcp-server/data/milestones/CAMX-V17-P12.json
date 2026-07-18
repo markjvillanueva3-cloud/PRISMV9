@@ -1,0 +1,240 @@
+{
+  "id": "CAMX-V17-P12",
+  "version": "8.0.0",
+  "title": "Final Wiring Sweep + Web UI + Slash Commands + Documentation",
+  "brief": "Verify ALL engines wired. Create slash commands. Web UI integration. Update all documentation.",
+  "created_at": "2026-03-23T11:07:22Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v17-final",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Final Integration",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Dispatcher wiring sweep — ALL 76+ CAMX engines verified in z.enum",
+          "description": "Dispatcher wiring sweep — ALL 76+ CAMX engines verified in z.enum — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Dispatcher wiring sweep — ALL 76+ CAMX engines verified in z.enum complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Slash commands: /cam-strategy-select, /cam-cost-compare, /cam-machine-select, /cam-export-tools",
+          "description": "Slash commands: /cam-strategy-select, /cam-cost-compare, /cam-machine-select, /cam-export-tools — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "smart_config": "SONNET/HIGH",
+          "exit_conditions": [
+            "Slash commands: /cam-strategy-select, /cam-cost-compare, /cam-machine-select, /cam-export-tools complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Web UI: CamStrategyPage + MillTurnPage + cost comparison visualization",
+          "description": "Web UI: CamStrategyPage + MillTurnPage + cost comparison visualization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "smart_config": "SONNET/HIGH",
+          "exit_conditions": [
+            "Web UI: CamStrategyPage + MillTurnPage + cost comparison visualization complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "MCP prompts + completions for CAM operations",
+          "description": "MCP prompts + completions for CAM operations — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "smart_config": "SONNET/MED",
+          "exit_conditions": [
+            "MCP prompts + completions for CAM operations complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "Update CODE_SYSTEM_INDEX + MASTER_INDEX + reference_system_capabilities.md",
+          "description": "Update CODE_SYSTEM_INDEX + MASTER_INDEX + reference_system_capabilities.md — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "smart_config": "SONNET/MED",
+          "exit_conditions": [
+            "Update CODE_SYSTEM_INDEX + MASTER_INDEX + reference_system_capabilities.md complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "FINAL test run: target 95%+ pass rate across ALL 10,000+ checks",
+          "description": "Run complete test suite. The 4 real-world validation test files are MANDATORY gates — they test the full pipeline against real manufacturing data and must all pass before release.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "FINAL test run: target 95%+ pass rate across ALL 10,000+ checks complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "validation_gates": [
+            {
+              "test_file": "src/__tests__/blueprint-ocr-real-data.test.ts",
+              "tests": 14,
+              "validates": "OCR accuracy against Haas workbook drawings (O00020 mill, O00075 lathe)",
+              "phase_origin": "CAMX-V17-P0A U01"
+            },
+            {
+              "test_file": "src/__tests__/print-to-geometry-real-data.test.ts",
+              "tests": 13,
+              "validates": "CadQuery generation from OCR-extracted dimensions, volume/feature correctness",
+              "phase_origin": "CAMX-V17-P0A U02"
+            },
+            {
+              "test_file": "src/__tests__/step-import-real-data.test.ts",
+              "tests": 24,
+              "validates": "STEP import of 69 real parts (BOX BATCH 1 + molds + Google Drive), memory safety",
+              "phase_origin": "CAMX-V17-P0A U03"
+            },
+            {
+              "test_file": "src/__tests__/cam-pipeline-real-parts.test.ts",
+              "tests": 15,
+              "validates": "Full CAM pipeline (features→S/F→G-code) for 6 materials, cross-material physics, setup sheets",
+              "phase_origin": "CAMX-V17-P0A U04-U06"
+            }
+          ],
+          "status": "not_started",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-v17-p12-gate",
+    "mcp_action": "prism_camx-v17:camx_v17_p12_run",
+    "skill_command": "/camx-v17-p12",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-v17-p12-gate"
+    ],
+    "new_actions": [
+      "camx_v17_p12_run"
+    ],
+    "new_skills": [
+      "/camx-v17-p12"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Verify ALL engines wired. Create slash commands. Web UI integration. Update all documentation.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

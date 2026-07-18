@@ -21,7 +21,15 @@ related:
 
 ## Description (from file header)
 
-WEDM GNN Hooks — MS-P5-GNN / U-P5-GNN-02Single hook so far:  wedm-gnn-rebuild-stale — post-tool warning that fires when the trained  WEDM_GNN_WEIGHTS.json is older than `staleAgeDays` (default 7) AND the  total job count in WEDM_JOB_HISTORY.json has grown by ≥ `minNewJobs`  (default 50) since the last training run. The warning carries a  /wedm-reason action hint (built later in U-P5-GNN-05) so the agent can  trigger a re-train.Implementation delegates entirely to `wedmGraphAttentionEngin
+WEDM GNN Hooks — MS-P5-GNN / U-P5-GNN-02
+Single hook so far:
+  wedm-gnn-rebuild-stale — post-tool warning that fires when the trained
+  WEDM_GNN_WEIGHTS.json is older than `staleAgeDays` (default 7) AND the
+  total job count in WEDM_JOB_HISTORY.json has grown by ≥ `minNewJobs`
+  (default 50) since the last training run. The warning carries a
+  /wedm-reason action hint (built later in U-P5-GNN-05) so the agent can
+  trigger a re-train.
+Implementation delegates entirely to `wedmGraphAttentionEngin
 
 ## Events
 

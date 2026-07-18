@@ -1,0 +1,409 @@
+{
+  "id": "HM-KC-MS4",
+  "version": "8.3.0",
+  "title": "CAM Advanced Parameter Catalog — 5-Axis, Turning, Mill-Turn ~1,500 Schemas",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Generate parameter schemas for advanced CAM cycle parameters: 5-axis cycles (25+ types including swarf, blade, impeller, tube, dental, cavity — ~475 params with tool axis control, collision avoidance, blade/impeller geometry, surface quality fields), turning cycles (18+ types — ~342 params with insert geometry, CSS mode, grooving, threading), and probing/grinding/misc cycles (~180 params). These are the most physics-intensive parameters, with direct coupling to SLD, deflection, and thermal models.",
+  "dependencies": [
+    "HM-KC-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillMultiAxisEngine",
+      "HyperMillCycleCatalogEngine",
+      "ChatterStabilityLobeEngine",
+      "ToolDeflectionEngine",
+      "ThermalWearCouplingEngine",
+      "SurfaceFinishPredictorEngine"
+    ],
+    "registries": [
+      "ToolpathStrategyRegistry",
+      "ToolRegistry",
+      "MaterialRegistry",
+      "MachineRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json (CAM-Advanced domain subset)",
+      "data/hypermill/Metric.cfg (5-axis and turning cycle defaults)",
+      "hypermill-cam-tips-ext.ts (5-axis tips: hm-118 to hm-160)",
+      "hyperMILL training manuals (5-axis blade, impeller, turning, mill-turn sections)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "fiveAxisTiltLimitValidator — BUILT — blocks tilt angle exceeding machine limits",
+    "action": "generate_cam_advanced_catalog — BUILT — generates advanced CAM artifacts from schemas",
+    "skill": "/hypermill-cam-advanced-params — BUILT — 5-axis/turning parameter reference with physics"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS4-S1",
+      "title": "5-Axis Cycle Parameter Schemas (~475 params)",
+      "smart_config": {
+        "role": "5axis-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "25+ 5-axis cycle types with tool axis control parameters",
+        "Blade machining: hub_surface, shroud_surface, blade_count, splitter_flag, channel_type",
+        "Impeller machining: roughing, semi-finish, finish, hub, shroud, splitter blade",
+        "Collision avoidance: auto_tilt, tilt_limit_min/max, collision_distance",
+        "Surface quality: scallop_height, cusp_height, point_distribution, UV_direction"
+      ],
+      "intent": "Generate complete schemas for all 5-axis cycle parameters including tool axis control (tilt/lead/lag/lean angles), collision avoidance (auto_tilt, tilt limits), blade/impeller geometry (hub, shroud, blade count, channel type), and surface quality (scallop, cusp, point distribution). Hooks for tilt angle limits, collision distance, and singularity avoidance.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC23",
+          "title": "5-Axis Tool Axis + Collision Avoidance Schemas — ~250 parameters",
+          "description": "Generate schemas for 5-axis tool axis control (tilt_angle, lead_angle, lag_angle, lean_angle, tilt_direction — per cycle type × 25 types = 125 params) and collision avoidance (auto_tilt, tilt_limit_min, tilt_limit_max, collision_distance, retraction_angle — per cycle type × 25 = 125 params). Tilt limit blocking hook validates against machine kinematic limits from MachineRegistry. Singularity avoidance hook warns near rotary axis gimbal lock.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Tool axis schemas: >= 120 parameters across 25+ cycle types",
+            "Collision avoidance schemas: >= 120 parameters across 25+ cycle types",
+            "Tilt limit hook validates against MachineRegistry kinematic limits",
+            "Singularity avoidance hook warns when rotary axis approaches gimbal lock zone",
+            "Unit tests for tilt angle range validation on 3 machine types (5-axis, 3+2, mill-turn)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/fiveAxisToolAxisSchemas.ts",
+              "src/schemas/hypermill/cam/fiveAxisCollisionSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/fiveAxisToolAxisSchemas.ts src/schemas/hypermill/cam/fiveAxisCollisionSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC24",
+          "title": "5-Axis Blade/Impeller + Surface Quality Schemas — ~225 parameters",
+          "description": "Generate schemas for blade/impeller geometry parameters (hub_surface, shroud_surface, blade_count, splitter_flag, channel_type open/closed, roughing_allowance, hub_offset, shroud_offset — across blade×5, impeller×10 cycle variants = 125 params) and surface quality parameters (scallop_height, cusp_height, point_distribution, UV_direction — across all 25 types = 100 params). Blade geometry validation hook ensures hub/shroud surface references are valid. Scallop height prediction integrated with ball/barrel cutter formulas.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Blade/impeller schemas: >= 120 parameters with channel type validation",
+            "Surface quality schemas: >= 95 parameters with scallop prediction",
+            "Blade geometry hook validates hub/shroud surface pair consistency",
+            "Open vs closed channel classification hook for impeller strategy selection",
+            "Unit tests for impeller roughing parameters and blade finish scallop height"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/fiveAxisBladeSchemas.ts",
+              "src/schemas/hypermill/cam/fiveAxisSurfaceQualitySchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/fiveAxisBladeSchemas.ts src/schemas/hypermill/cam/fiveAxisSurfaceQualitySchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 460 5-axis params | ✓ tilt limit + singularity + blade geometry hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "fiveAxisTiltLimitValidator",
+          "singularityAvoidanceHook",
+          "bladeGeometryValidator"
+        ],
+        "new_actions": [
+          "generate_5axis_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS5",
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS4-S2",
+      "title": "Turning + Mill-Turn Cycle Parameter Schemas (~342 params)",
+      "smart_config": {
+        "role": "turning-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "18+ turning cycle types: OD rough/finish, ID rough/finish, face, groove×6, thread, parting, boring, recessing",
+        "Insert geometry parameters: nose_radius, approach_angle, lead_angle, insert_type, chipbreaker",
+        "CSS mode: G96/G97, S_max_clamp, surface_speed",
+        "Threading: pitch, starts, infeed_method, pass_count, spring_passes"
+      ],
+      "intent": "Generate schemas for all turning and mill-turn cycle parameters. Insert geometry (nose radius, approach angle, chipbreaker), CSS mode (G96/G97 selection, S_max clamp), grooving (width, peck depth, dwell, slope), threading (pitch, starts, infeed method, spring passes). Hooks for CSS max RPM clamp, tool nose radius compensation, and threading feed synchronization.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC25",
+          "title": "Turning Cycle Schemas — 18 types, ~342 parameters",
+          "description": "Generate schemas for all turning cycle parameters: insert geometry (nose_radius, approach_angle, lead_angle, insert_type, chipbreaker — 90 params across 18 types), CSS mode (G96/G97, S_max_clamp, surface_speed — 54 params), grooving (groove_width, peck_depth, dwell, slope_angle, overlap — 90 params across 6 groove types), threading (pitch, starts, infeed_method compound/flank/modified, pass_count, spring_passes, lead_in_threads — 108 params). CSS max RPM clamp hook prevents spindle overspeed. Threading feed sync hook validates F = pitch × N.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Insert geometry schemas: >= 85 parameters across 18 cycle types",
+            "CSS mode schemas: >= 50 parameters with G96/G97 selection logic",
+            "Grooving schemas: >= 85 parameters across 6 groove types",
+            "Threading schemas: >= 100 parameters with infeed method validation",
+            "CSS max RPM hook blocks when surface speed × max diameter exceeds spindle max",
+            "Unit tests for G96 clamp calculation and threading feed sync"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/turningSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/turningSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC26",
+          "title": "Probing + Grinding + Misc Cycle Schemas — ~180 parameters",
+          "description": "Generate schemas for probing cycles (setup, bore, boss, web, surface, tool set, tool break — 8 types with approach speed, trigger force, measurement tolerance, retract distance), grinding cycles (surface, cylindrical, centerless, creep feed — 5 types with wheel speed, depth of dress, spark-out passes, burn risk params), and miscellaneous cycles (transformation, linking defaults, coolant system). Probe approach speed hook and grinding burn risk hook.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Probing schemas: >= 64 parameters across 8 probe cycle types",
+            "Grinding schemas: >= 60 parameters across 5 grinding types with burn risk",
+            "Misc schemas: >= 40 parameters for transformation, linking, coolant",
+            "Probe approach speed hook limits approach feed near surface",
+            "Grinding burn risk hook integrates with thermal model threshold"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/probingSchemas.ts",
+              "src/schemas/hypermill/cam/grindingSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/probingSchemas.ts src/schemas/hypermill/cam/grindingSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 500 turning/probing/grinding params | ✓ CSS clamp + threading sync + probe + burn risk hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "cssMaxRPMClampHook",
+          "threadingFeedSyncHook",
+          "probeApproachSpeedHook",
+          "grindingBurnRiskHook"
+        ],
+        "new_actions": [
+          "generate_turning_schemas",
+          "generate_probing_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS5",
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS4-S3",
+      "title": "CAM Advanced Artifact Batch Generation — ~1,500 skills + scripts + hooks",
+      "smart_config": {
+        "role": "artifact-generator",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "All 5-axis + turning + probing + grinding schemas from S1-S2",
+        "Physics engine mappings for each parameter domain",
+        "Existing skill/hook patterns from CAM core generation"
+      ],
+      "intent": "Batch-generate all CAM advanced artifacts from the ~1,500 parameter schemas. Each parameter gets a skill template with physics-backed recommendation, AC Python setter script, and hook validation rule where applicable. Register all hooks in HookExecutor.",
+      "skills": [
+        "/forge-skills",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC27",
+          "title": "CAM Advanced Artifact Batch Generation — ~1,500 artifacts per type",
+          "description": "Artifact generation engine for the entire CAM advanced domain. Reads all ~1,500 parameter schemas (5-axis + turning + probing + grinding) and auto-generates skill templates, AC Python setter scripts, and hook validation rules. Physics mappings: 5-axis params → ChatterStabilityLobeEngine + ToolDeflectionEngine, turning params → SpeedFeedOrchestratorEngine (G96 resolver), probing params → MetrologyUncertaintyEngine, grinding params → ThermalWearCouplingEngine.",
+          "depends_on": [
+            "U-HKC23",
+            "U-HKC24",
+            "U-HKC25",
+            "U-HKC26"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Skill templates generated for all ~1,500 CAM advanced parameters",
+            "AC Python setter scripts generated for all ~1,500 parameters",
+            ">= 15 safety hooks registered for CAM advanced (tilt limit, singularity, CSS clamp, threading, probe, burn risk, blade geometry, scallop, channel type)",
+            "tsc --noEmit passes with 0 errors"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillCAMAdvancedArtifactGeneratorEngine.ts"
+            ],
+            "files_modified": [
+              "src/hooks/hookRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "generated artifacts < 1200"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillCAMAdvancedArtifactGeneratorEngine.ts src/hooks/hookRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ ~1,500 skills + scripts | ✓ >= 15 hooks registered | ✓ physics mappings complete | ✓ tsc clean | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "fiveAxisTiltLimitValidator"
+        ],
+        "new_actions": [
+          "generate_cam_advanced_catalog"
+        ],
+        "new_skills": [
+          "/hypermill-cam-advanced-params"
+        ],
+        "available_to": [
+          "HM-KC-MS8",
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms4-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms4_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Generate parameter schemas for advanced CAM cycle parameters: 5-axis cycles (25+ types including swarf, blade, impeller, tube, dental, cavity — ~475 params with tool axis control, collision avoidance, blade/impeller geometry, surface quality fields), turning cycles (18+ types — ~342 params with insert geometry, CSS mode, grooving, threading), and probing/grinding/misc cycles (~180 params). These are the most physics-intensive parameters, with direct coupling to SLD, deflection, and thermal models.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS4 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS4. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="65a4295ecebbc6d252b790b29832e6f0594dd63da0451317de2a462466180240">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACServer Bridge Audit 2026-05-20</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>ACServer Bridge Audit 2026-05-20</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/ACSERVER-BRIDGE-AUDIT-2026-05-20.md</div>
+<div class="meta">Generated 2026-05-20T04:14:48.497Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">OPEN MIND ACServer Bridge Audit — 2026-05-20</li><li class="prism-toc-l2">Headline verdict — the bridge is ~40-50% built</li><li class="prism-toc-l2">What the architecture is supposed to be (from the existing TS code&#39;s docstrings)</li><li class="prism-toc-l2">What&#39;s NEEDED to ship a working setup-first bridge (Route A)</li><li class="prism-toc-l3">Track 1: PRISM-side TS work (smaller — ~600-1000 LOC)</li><li class="prism-toc-l3">Track 2: Host-side Python work (smaller, separate repo — ~150 LOC)</li><li class="prism-toc-l3">Track 3: Operator gates</li><li class="prism-toc-l2">What this means for the original CAD audit conclusion</li><li class="prism-toc-l2">Estimated work to make Route A the default</li><li class="prism-toc-l2">Verification commands (PowerShell-safe)</li><li class="prism-toc-l1">Confirm the TS-side scaffolding exists</li><li class="prism-toc-l1">Confirm the named &quot;live bridge&quot; engines DON&#39;T exist</li><li class="prism-toc-l1">both should print: false</li><li class="prism-toc-l1">Confirm the script-generator engines DO exist</li><li class="prism-toc-l1">both should print: true</li><li class="prism-toc-l2">Honest caveats</li><li class="prism-toc-l2">See also</li></ul></nav><h1 class="prism-h1">OPEN MIND ACServer Bridge Audit — 2026-05-20</h1>
+<blockquote class="prism-quote">Slot=echo, claude-3db3fb3d. Followup to <code class="prism-inline-code">CAD-PIPELINE-AUDIT-2026-05-20.md</code></blockquote>
+<blockquote class="prism-quote">after operator pushback: &quot;for drawing machine parts in the setup assembly,</blockquote>
+<blockquote class="prism-quote">isn&#39;t hyperCAD-S the right tool — and don&#39;t we already have the bridge?&quot;</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote">This audit reads every existing HyperMillAC<em> / HyperCADS</em> engine on disk and</blockquote>
+<blockquote class="prism-quote">reports which are working, scaffold, mock, or absent. Verdict drives whether</blockquote>
+<blockquote class="prism-quote">Route A (hyperCAD-S setup-first) can be made the V2 spec&#39;s default path.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote">Advisory. Read-only audit; no engine modifications.</blockquote>
+<h2 class="prism-h2">Headline verdict — the bridge is ~40-50% built</h2>
+<table class="prism-md-table"><thead><tr><th>Layer</th><th>What it does</th><th>Status</th><th>Verifier</th></tr></thead><tbody><tr><td>TS script generator</td><td>Produces AC Python script strings (import/heal/analyze)</td><td><strong>REAL</strong> — 475 LOC in HyperCADSAutomationEngine</td><td>Read mcp-server/src/engines/HyperCADSAutomationEngine.ts:329-466</td></tr>
+<tr><td>TS bridge composer</td><td>Chains validate→import→heal scripts</td><td><strong>REAL</strong> — PrintToHyperCADSBridge.ts</td><td>Read mcp-server/src/engines/PrintToHyperCADSBridge.ts:1-80</td></tr>
+<tr><td>TS macro emitter</td><td>Plans + renders HyperCAD-S macro scaffold (dotted-uppercase)</td><td><strong>REAL but dry-run only</strong> — operator pastes into HyperCAD-S Macro Editor manually</td><td>Read mcp-server/src/engines/HyperCADCADExecutionBridge.ts:1-80 (explicit: &quot;No live MCP-style remote endpoint exists for HyperCAD-S&quot;)</td></tr>
+<tr><td>TS TCP probe</td><td>Verifies AC host:port reachable (default 127.0.0.1:18365)</td><td><strong>REAL</strong> — does TCP connect+disconnect, no AC handshake</td><td>Read mcp-server/src/engines/HyperMillACConnectionManager.ts:133-153</td></tr>
+<tr><td>TS Python spawner</td><td><code class="prism-inline-code">python -c &lt;script&gt;</code> with PRISM_AC_HOST/PORT env, timeout, captured stdout/stderr</td><td><strong>REAL</strong></td><td>Read mcp-server/src/engines/HyperMillACScriptExecutor.ts:75-130</td></tr>
+<tr><td>TS server config</td><td>Port (18365), bind (127.0.0.1), CORS, routes, validation</td><td><strong>CONFIG ONLY — no HTTP server impl</strong></td><td>Read mcp-server/src/engines/HyperMillACServerConfig.ts:1-215 (215 lines = 100% types + constants + validators, zero runtime)</td></tr>
+<tr><td>Test fixtures</td><td>Deterministic mock responses for CI</td><td><strong>MOCK</strong> by design, explicit</td><td>Read mcp-server/src/engines/HyperCADSMockLayer.ts:1-50 (explicit: &quot;set HYPERMILL_MOCK=false for production&quot;)</td></tr>
+<tr><td><strong>AC companion HTTP server</strong></td><td>The actual HTTP server that ACServerConfig configures</td><td><strong>MISSING</strong> — file referenced as <code class="prism-inline-code">HyperMillACBridge*.ts</code> (E1144) does not exist</td><td><code class="prism-inline-code">Glob H:/prism/mcp-server/src/engines/HyperMillACBridge*.ts</code> → 0 hits</td></tr>
+<tr><td><strong>HyperMillAutomationBridge</strong></td><td>Referenced by HyperMillACConnectionManager docs as the consumer</td><td><strong>MISSING</strong></td><td><code class="prism-inline-code">Glob H:/prism/mcp-server/src/engines/HyperMillAutomationBridge*.ts</code> → 0 hits</td></tr>
+<tr><td><strong>prism_ac Python module</strong></td><td>Host-side Python module the ACScriptExecutor invokes via <code class="prism-inline-code">import prism_ac</code></td><td><strong>NOT IN THIS REPO</strong> — must be installed on the hyperMILL host machine</td><td>Read mcp-server/src/engines/HyperMillACScriptExecutor.ts:83-89 (env passes PRISM_AC_HOST/PORT — assumes a Python lib that reads them)</td></tr>
+<tr><td>Real AC session handshake</td><td>Open authenticated session beyond TCP probe</td><td><strong>MISSING</strong> — script comment: &quot;Full AC session handshake is the responsibility of the script executor&quot; but the executor doesn&#39;t do it either</td><td>Read mcp-server/src/engines/HyperMillACConnectionManager.ts:7-11</td></tr></tbody></table>
+<h2 class="prism-h2">What the architecture is supposed to be (from the existing TS code&#39;s docstrings)</h2>
+<pre class="prism-codeblock"><code>PRISM (TS, this repo)
+  ↓ HyperCADSAutomationEngine.generateImportScript() returns Python string
+  ↓ HyperMillACScriptExecutor.execute(pythonString)
+  ↓ spawns: python -c &lt;pythonString&gt;  (with PRISM_AC_HOST/PORT env)
+  ↓
+Python subprocess (host machine)
+  ↓ import hm           — OPEN MIND hyperCAD-S/hyperMILL automation library (bundled with the app)
+  ↓ import prism_ac     — PRISM&#39;s Python module — DOES NOT EXIST IN THIS REPO
+  ↓ talks over local TCP to AC
+  ↓
+hyperMILL Automation Center (running on the host)
+  ↓ drives hyperCAD-S / hyperMILL</code></pre>
+<p><strong>The TS layer is roughly complete. The Python layer + the AC companion HTTP server are the missing halves.</strong></p>
+<h2 class="prism-h2">What&#39;s NEEDED to ship a working setup-first bridge (Route A)</h2>
+<h3 class="prism-h3">Track 1: PRISM-side TS work (smaller — ~600-1000 LOC)</h3>
+<ol class="prism-md-list"><li><strong><code class="prism-inline-code">HyperMillACBridgeEngine.ts</code></strong> (referenced as E1144 by the config, does not exist) — actual HTTP server implementing <code class="prism-inline-code">/status</code> <code class="prism-inline-code">/execute</code> <code class="prism-inline-code">/job-status</code> <code class="prism-inline-code">/extract</code> <code class="prism-inline-code">/optimize</code> routes per <code class="prism-inline-code">HyperMillACServerConfig</code>. Loopback-only, CORS-restricted to hyperCAD-S panel origins. ~300 LOC.</li><li><strong><code class="prism-inline-code">HyperMillAutomationBridge.ts</code></strong> (referenced, does not exist) — the orchestrator that composes ConnectionManager + ScriptExecutor + AutomationEngine into a single async <code class="prism-inline-code">drive()</code> API. ~200 LOC.</li><li><strong>Real AC session handshake</strong> in <code class="prism-inline-code">HyperMillACConnectionManager</code> — not just TCP probe; actually open an AC session, store the session token, propagate to script env. ~50 LOC patch.</li><li><strong>Round-trip E2E test</strong> that exercises the full path in mock mode plus a SKIPPED integration test scaffolded to run when <code class="prism-inline-code">PRISM_HYPERMILL_LIVE=1</code> is set. ~150 LOC.</li><li><strong><code class="prism-inline-code">prism_cam:hypermill_drive</code> dispatcher action</strong> wiring the AutomationBridge into the dispatcher with Zod schema + action enum + lazy import. ~50 LOC across 3 files.</li></ol>
+<h3 class="prism-h3">Track 2: Host-side Python work (smaller, separate repo — ~150 LOC)</h3>
+<ol class="prism-md-list"><li><strong><code class="prism-inline-code">prism_ac</code> Python module</strong> — installed on each hyperMILL host. Imports the OPEN MIND <code class="prism-inline-code">hm</code> library, reads <code class="prism-inline-code">PRISM_AC_HOST</code>/<code class="prism-inline-code">PORT</code> env, exposes the operations the TS side expects (<code class="prism-inline-code">open_project</code>, <code class="prism-inline-code">export_step</code>, <code class="prism-inline-code">import_step</code>, <code class="prism-inline-code">heal_geometry</code>, <code class="prism-inline-code">analyze</code>, <code class="prism-inline-code">generate_cam</code>, <code class="prism-inline-code">simulate</code>, <code class="prism-inline-code">post_process</code>). Returns structured JSON to stdout.</li><li><strong>Installer / version-pin script</strong> that the operator runs once per hyperMILL workstation to drop <code class="prism-inline-code">prism_ac</code> into the right Python path.</li></ol>
+<h3 class="prism-h3">Track 3: Operator gates</h3>
+<ol class="prism-md-list"><li><strong>License check on first connect</strong> — confirm the host has a hyperMILL license active before any operation runs.</li><li><strong>AC version compatibility matrix</strong> — <code class="prism-inline-code">prism_ac</code> vs hyperMILL version (the existing engines reference v33.0; need to formalize a compat matrix).</li></ol>
+<h2 class="prism-h2">What this means for the original CAD audit conclusion</h2>
+<p>The CAD-PIPELINE-AUDIT&#39;s F1 (Fusion 360 wins) was correct <strong>given today&#39;s state</strong>: Fusion 360&#39;s <code class="prism-inline-code">:18360</code> live bridge is the only working socket-style PRISM↔CAD live bridge. HyperCAD-S has script-generator + dry-run macro emitter but NO live remote endpoint.</p>
+<p>If Track 1 + Track 2 above ship, the comparison flips for the setup-first workflow:</p>
+<ul class="prism-md-list"><li>Fusion 360 lives on <code class="prism-inline-code">:18360</code> with the Autodesk MCP connector</li><li>hyperCAD-S would live on <code class="prism-inline-code">:18365</code> (ACServer) with PRISM-owned plumbing</li><li>For machining-first work where target CAM is hyperMILL, hyperCAD-S becomes the right default because the assembly IS the setup (no STEP round-trip, no GD&amp;T propagation gap)</li></ul>
+<h2 class="prism-h2">Estimated work to make Route A the default</h2>
+<ul class="prism-md-list"><li>Track 1 (TS): one focused session, ~600-1000 LOC across 5 new/modified files with per-file scrutiny gates per CLAUDE.md</li><li>Track 2 (Python): separate small repo, ~150 LOC, one session</li><li>Track 3 (operator gates): can ride along with Track 1</li></ul>
+<p><strong>Total to flip Route A from &quot;dry-run only&quot; to &quot;production setup-first&quot;: ~2 sessions of focused work + one host-side Python install per workstation.</strong></p>
+<h2 class="prism-h2">Verification commands (PowerShell-safe)</h2>
+<pre class="prism-codeblock" data-lang="powershell"><code># Confirm the TS-side scaffolding exists
+node H:/prism/scripts/cad-pipeline-coverage-scorer.mjs --json | jq &#39;.matrix.hypermill.CAM_TRANSFER&#39;
+
+# Confirm the named &quot;live bridge&quot; engines DON&#39;T exist
+node -e &quot;console.log(require(&#39;fs&#39;).existsSync(&#39;H:/prism/mcp-server/src/engines/HyperMillACBridgeEngine.ts&#39;))&quot;
+node -e &quot;console.log(require(&#39;fs&#39;).existsSync(&#39;H:/prism/mcp-server/src/engines/HyperMillAutomationBridge.ts&#39;))&quot;
+# both should print: false
+
+# Confirm the script-generator engines DO exist
+node -e &quot;console.log(require(&#39;fs&#39;).existsSync(&#39;H:/prism/mcp-server/src/engines/HyperCADSAutomationEngine.ts&#39;))&quot;
+node -e &quot;console.log(require(&#39;fs&#39;).existsSync(&#39;H:/prism/mcp-server/src/engines/PrintToHyperCADSBridge.ts&#39;))&quot;
+# both should print: true</code></pre>
+<h2 class="prism-h2">Honest caveats</h2>
+<ul class="prism-md-list"><li>I read 7 of the ~10 ACServer/HyperCAD-S engines in detail. Three I read header-only or relied on file size (StandardToolDBEngine, CodeGeneratorEngine, StockModelEngine, FunctionIndexEngine). The &quot;MISSING&quot; verdicts are solid (Glob confirms no file); the &quot;REAL&quot; verdicts on the read-in-detail engines are solid; verdicts on the header-only engines should be re-verified before committing to a build plan.</li><li>The <code class="prism-inline-code">prism_ac</code> Python module&#39;s &quot;missing&quot; status is an inference from the TS code referencing <code class="prism-inline-code">import prism_ac</code> in spawned subprocess scripts. It MAY exist in a sibling repo I haven&#39;t looked at; if it does, the gap is smaller. The operator should confirm before sizing Track 2.</li><li>ACServer config defaults to port 18365 (loopback). The CAD-PIPELINE-AUDIT memo <code class="prism-inline-code">reference_cad_software_pipeline_recommendation</code> lists Fusion 360&#39;s live bridge on <code class="prism-inline-code">:18360</code> — these are different ports, no conflict.</li></ul>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/CAD-PIPELINE-AUDIT-2026-05-20.md</code> — the parent audit (Fusion 360 vs others)</li><li><code class="prism-inline-code">state/shared/specs/PRINT-TO-INSPECTION-PIPELINE-V2.md</code> — pipeline spec (about to be amended with Route A)</li><li><code class="prism-inline-code">mcp-server/src/engines/HyperMillACConnectionManager.ts</code> — the TCP probe layer</li><li><code class="prism-inline-code">mcp-server/src/engines/HyperMillACScriptExecutor.ts</code> — the Python subprocess layer</li><li><code class="prism-inline-code">mcp-server/src/engines/HyperMillACServerConfig.ts</code> — the (config-only) HTTP server spec</li><li><code class="prism-inline-code">mcp-server/src/engines/HyperCADSAutomationEngine.ts</code> — the AC Python script generator</li><li><code class="prism-inline-code">mcp-server/src/engines/HyperCADCADExecutionBridge.ts</code> — the operator-paste-in macro emitter</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

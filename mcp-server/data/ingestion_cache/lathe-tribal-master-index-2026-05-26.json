@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "2.0.0",
+  "generated_at": "2026-05-26T16:30:00Z",
+  "purpose": "AI-queryable consolidated lathe tooling tribal index for the lathe wizard. Indexed by (vendor, grade, iso_group, operation, coating). Flat search records keyed for Claude + LatheAITrainingEngine + LatheCAMIntelligenceEngine consumption.",
+  "domain": "lathe",
+  "cross_domain": ["milling"],
+  "confidence": 0.65,
+  "needs_curation": true,
+  "vendor_count": 10,
+  "grade_count": 87,
+  "url_count": 64,
+  "iso_material_groups": {
+    "P": { "name": "Steel (low + alloy)",    "examples": ["1045", "4140", "8620", "S35C"] },
+    "M": { "name": "Stainless steel",         "examples": ["304", "316", "17-4 PH", "austenitic"] },
+    "K": { "name": "Cast iron",               "examples": ["gray", "ductile/nodular", "chilled", "vermicular"] },
+    "N": { "name": "Non-ferrous metals",      "examples": ["6061", "7075", "brass", "copper"] },
+    "S": { "name": "Superalloy/heat-resist",  "examples": ["Inconel 718", "Ti-6Al-4V", "Waspaloy", "Hastelloy"] },
+    "H": { "name": "Hardened steel (>45 HRC)","examples": ["D2", "M2", "S7", "case-hardened"] }
+  },
+  "iso_insert_geometry": {
+    "C": { "shape": "rhombic 80 deg",  "ansi_codes": ["CNMG","CNMA","CCMT"], "use": "general roughing + facing" },
+    "W": { "shape": "trigon 80 deg",   "ansi_codes": ["WNMG","WNMA","WCMT"], "use": "6 edges; economical medium machining" },
+    "D": { "shape": "rhombic 55 deg",  "ansi_codes": ["DNMG","DCMT"],         "use": "profiling + finishing" },
+    "S": { "shape": "square 90 deg",   "ansi_codes": ["SNMG","SCMT"],         "use": "max DOC roughing" },
+    "T": { "shape": "triangle 60 deg", "ansi_codes": ["TNMG","TPMR","TCMT"],  "use": "general turning" },
+    "V": { "shape": "rhombic 35 deg",  "ansi_codes": ["VBMT","VNMG"],         "use": "deep profiling" },
+    "R": { "shape": "round",            "ansi_codes": ["RCMX","RCMT"],         "use": "shoulder/profile finishing" }
+  },
+  "vendors": {
+    "sandvik_coromant": {
+      "site": "https://www.sandvik.coromant.com",
+      "tool_systems": ["CoroTurn 107", "CoroTurn Prime", "CoroTurn TR", "CoroTurn 300", "CoroBore 111"],
+      "grades": [
+        { "code": "GC4425", "iso": ["P25"], "coating": "CVD", "use": "general steel turning, high productivity" },
+        { "code": "GC4415", "iso": ["P15"], "coating": "CVD", "use": "steel finishing/medium" },
+        { "code": "GC4405", "iso": ["P05"], "coating": "CVD", "use": "high-speed steel finishing" }
+      ],
+      "resources": [
+        "https://www.sandvik.coromant.com/en-us/tools/inserts-grades/insert-grade-information/turning-inserts-grades",
+        "https://www.sandvik.coromant.com/en-us/knowledge/general-turning/how-to-choose-correct-turning-insert",
+        "https://www.sandvik.coromant.com/en-us/downloads"
+      ]
+    },
+    "iscar": {
+      "site": "https://www.iscar.com",
+      "tool_systems": ["ISO-Turning"],
+      "chipformer_codes": ["-CERMET","-F3S","-F3P","-GN","-NR","-PP","-VL","-M3","-M3M"],
+      "grades": [
+        { "code": "IC8250", "iso": ["P20","P25"], "coating": "CVD", "use": "general steel" },
+        { "code": "IC907",  "iso": ["M","P","S"], "coating": "PVD", "use": "stainless + difficult-to-cut" }
+      ],
+      "resources": [
+        "https://www.iscar.com/ecat/iscar_grade_chart.pdf",
+        "https://www.iscar.com/ecatalog/gradesTable/gradesTable.html",
+        "https://www.iscar.com/eCatalog/Products.aspx?mapp=IS&app=282",
+        "https://pdf.directindustry.com/pdf/iscar-tools/turning-threading-tools/5692-642531.html"
+      ]
+    },
+    "widia": {
+      "site": "https://www.widia.com",
+      "tool_systems": ["Victory ISO Inserts"],
+      "shape_styles": ["R","S","T","V","W","C","D","L"],
+      "grades": [
+        { "code": "Widaselect", "iso": ["P"], "coating": "MTCVD TiN-TiCN-Al2O3-ZrCN", "use": "general steel" }
+      ],
+      "resources": [
+        "https://www.widia.com/us/en/resources/conversion-guide.html",
+        "https://www.widia.com/tr/en/products/turning/od-and-id-turning/high-performance-inserts/widia-victory-carbide-inserts.html",
+        "https://tysontool.com/turnCat-InsertInformation.pdf"
+      ]
+    },
+    "ingersoll": {
+      "site": "https://www.ingersoll-imc.com",
+      "tool_systems": ["TAEGUline"],
+      "grades": [
+        { "code": "CT3000", "iso": ["P10","P20","M10","M20","K10","K20"], "coating": "uncoated cermet", "use": "best surface finish steel + stainless + cast iron" },
+        { "code": "PV3010", "iso": ["P","M"], "coating": "PVD cermet", "use": "finishing steel + stainless" },
+        { "code": "TT5100", "iso": ["P","K"], "coating": "CVD",       "use": "general steel + cast iron" },
+        { "code": "TT7005", "iso": ["P"],     "coating": "CVD",       "use": "wear-resistant continuous steel" },
+        { "code": "TT8115", "iso": ["P"],     "coating": "CVD",       "use": "interrupt steel" },
+        { "code": "TT9215", "iso": ["P","M"], "coating": "CVD",       "use": "universal steel/stainless" },
+        { "code": "TT9235", "iso": ["P30","K20"], "coating": "CVD",   "use": "heavy interrupt steel + cast iron" },
+        { "code": "TB610", "iso": ["H"],      "coating": "CBN",       "use": "hard steel continuous to light interrupt" },
+        { "code": "TB670", "iso": ["H","K"],  "coating": "CBN",       "use": "severe interrupt hard steel + chilled cast iron" },
+        { "code": "TB730", "iso": ["K"],      "coating": "CBN",       "use": "gray + nodular cast iron + carbide rolls" }
+      ],
+      "resources": [
+        "https://www.ingersoll-imc.com/catalogs",
+        "https://cuttingtoolschicago.com/wp-content/catalogs/ingersoll/Turning/turning%20catalog/CAT-011_Technical.pdf",
+        "https://www.suncoasttools.com/PDFFILES/Ingersoll/IngersollGradeChart.pdf",
+        "https://ssl.ingersoll-imc.com/resources/pdf/insert_master/MAN-009-1_Insert_Master.pdf"
+      ]
+    },
+    "dapra": {
+      "site": "https://www.dapra.com",
+      "tool_systems": ["Indexable inserts (primarily milling)"],
+      "resources": [
+        "https://www.dapra.com/resources/literature",
+        "https://www.dapra.com/resources/tool-reference",
+        "https://durrie.com/wp-content/uploads/2023/02/Dapra-Product-Catalog.pdf",
+        "https://www.bhid.com/brands/dapra-corp/catalog/products/indexable-cutting-tools/indexable-inserts/turning-and-profiling-inserts/turning-inserts"
+      ],
+      "caveat": "Primarily milling; turning is a smaller line."
+    },
+    "pts_tools": {
+      "site": "https://www.pts-tools.com",
+      "tool_systems": ["distributor — multi-vendor"],
+      "resources": ["https://www.pts-tools.com/"],
+      "caveat": "Distributor not manufacturer; treat as availability/logistics layer."
+    },
+    "kennametal": {
+      "site": "https://www.kennametal.com",
+      "tool_systems": ["KCP series (steel)", "KCM series (stainless)", "KCK series (cast iron)", "Top Notch profiling"],
+      "grades": [
+        { "code": "KCP05",  "iso": ["P05"], "coating": "CVD", "use": "high-speed steel finishing" },
+        { "code": "KCP10",  "iso": ["P10"], "coating": "CVD", "use": "steel finishing" },
+        { "code": "KCP25",  "iso": ["P25"], "coating": "CVD", "use": "general steel" },
+        { "code": "KCP25C", "iso": ["P25"], "coating": "CVD KENGold multilayer", "use": "high MRR versatile steel" },
+        { "code": "KCP30",  "iso": ["P30"], "coating": "CVD", "use": "steel roughing" },
+        { "code": "KCP40",  "iso": ["P40"], "coating": "CVD", "use": "tough steel roughing/interrupted" },
+        { "code": "KCM15",  "iso": ["M15"], "coating": "CVD", "use": "stainless finishing" },
+        { "code": "KCM25",  "iso": ["M25"], "coating": "CVD", "use": "general stainless" },
+        { "code": "KCM35",  "iso": ["M35"], "coating": "CVD", "use": "tough stainless" },
+        { "code": "KCK05",  "iso": ["K05"], "coating": "CVD", "use": "cast iron finishing" },
+        { "code": "KCK15",  "iso": ["K15"], "coating": "CVD", "use": "cast iron medium" },
+        { "code": "KCK20",  "iso": ["K20"], "coating": "CVD", "use": "cast iron general" },
+        { "code": "KCU10",  "iso": ["P","M","K","S"], "coating": "PVD KENGold multilayer", "use": "universal steel/stainless/cast iron/HRSA" },
+        { "code": "KCU25",  "iso": ["P","M"], "coating": "PVD", "use": "universal steel + stainless" },
+        { "code": "KU10",   "iso": ["K","M","N","S"], "coating": "uncoated WC/Co fine-grain", "use": "abrasion-resistant cast iron + non-ferrous" },
+        { "code": "KCS10",  "iso": ["S"], "coating": "PVD", "use": "HRSA superalloy" },
+        { "code": "K313",   "iso": ["K","N"], "coating": "uncoated", "use": "cast iron + non-ferrous" }
+      ],
+      "resources": [
+        "https://www.productivity.com/wp-content/uploads/pdfs/Kennametal%20Turning%20Inserts%20-%20Master%20Catalog.pdf",
+        "https://productivity.com/wp-content/uploads/pdfs/Kennametal%20Turning%20Catalog%208010.pdf",
+        "http://www1.mscdirect.com/images/solutions/kennametal/grade_system_for_cutting_materials.pdf",
+        "https://www.kennametal.com/us/en/products/metalworking-tools/turning/od-and-id-turning/high-performance-inserts.html",
+        "https://www.machiningdoctor.com/grades/kennametal/"
+      ]
+    },
+    "korloy": {
+      "site": "https://www.korloy.com",
+      "tool_systems": ["ISO Turning Inserts"],
+      "grades": [
+        { "code": "NC3010", "iso": ["P10"], "coating": "CVD", "use": "steel finishing" },
+        { "code": "NC3020", "iso": ["P20"], "coating": "CVD", "use": "steel general" },
+        { "code": "NC3030", "iso": ["P30","H30"], "coating": "CVD", "use": "steel roughing + interrupted; hardened" },
+        { "code": "NC3120", "iso": ["P20"], "coating": "CVD", "use": "steel roughing + finishing" },
+        { "code": "NC500H", "iso": ["P"], "coating": "CVD", "use": "steel high-speed" },
+        { "code": "PC5300", "iso": ["P35","M30","S20","H35"], "coating": "PVD", "use": "universal — steels + stainless + superalloys + hardened" },
+        { "code": "PC8010", "iso": ["M","S"], "coating": "PVD", "use": "stainless + superalloy" },
+        { "code": "NC9020", "iso": ["M"], "coating": "CVD", "use": "stainless general" },
+        { "code": "PC9030", "iso": ["S25","M"], "coating": "PVD", "use": "stainless + exotic alloy roughing" },
+        { "code": "NC305K", "iso": ["K"], "coating": "CVD", "use": "cast iron" },
+        { "code": "NC315K", "iso": ["K"], "coating": "CVD", "use": "cast iron general" },
+        { "code": "NC6010", "iso": ["K"], "coating": "CVD", "use": "cast iron" },
+        { "code": "NC6110", "iso": ["K"], "coating": "CVD", "use": "cast iron" },
+        { "code": "NC5330", "iso": ["P","M"], "coating": "CVD", "use": "universal" }
+      ],
+      "resources": [
+        "https://www.korloyeurope.eu/media/Downloads-Katalogteile/01_Drehen_EN/ISO-Inserts/Catalog%20extract%20ISO%20turning%20inserts%20EN.pdf",
+        "https://korloy.com/en/ebook/PC5300%20NC5330(EI)/assets/contents/download.pdf",
+        "https://www.korloy.com/en/ebook/2023%20TN_NC3200(EM)_230830/assets/contents/download.pdf",
+        "https://www.korloyeurope.eu/media/Downloads-Katalogteile/01_Turning_EN_2023/Catalog%20-%20Turning%20Grades%20EN%20.pdf"
+      ]
+    },
+    "mitsubishi_materials": {
+      "site": "https://www.mitsubishicarbide.com",
+      "tool_systems": ["Indexable Turning"],
+      "grades": [
+        { "code": "MC6025", "iso": ["P20"], "coating": "CVD 2-in-1 nano-texture TiCN+Al2O3", "use": "general steel high-stability/speed" },
+        { "code": "UE6020", "iso": ["P"], "coating": "CVD thick TiCN-Al2O3-TiN", "use": "general steel; reliability + tool life" },
+        { "code": "UE6110", "iso": ["P","M"], "coating": "CVD", "use": "general steel + stainless" },
+        { "code": "UE6105", "iso": ["P","H"], "coating": "CVD", "use": "steel + hardened" },
+        { "code": "VP15TF", "iso": ["P","M","S"], "coating": "PVD Miracle nano-texture", "use": "difficult-to-cut, chip control" },
+        { "code": "VP25N",  "iso": ["P","M"], "coating": "PVD", "use": "general steel + stainless" },
+        { "code": "VP45N",  "iso": ["P30"], "coating": "PVD", "use": "interrupted steel" },
+        { "code": "AP25N",  "iso": ["P"], "coating": "PVD", "use": "general steel" },
+        { "code": "US7020", "iso": ["P"], "coating": "PVD", "use": "general steel" },
+        { "code": "NX2525", "iso": ["P"], "coating": "PVD", "use": "steel" },
+        { "code": "NX3035", "iso": ["P"], "coating": "PVD", "use": "steel" }
+      ],
+      "resources": [
+        "https://www.mitsubishicarbide.net/contents/mhg/fr/html/product/product_guide/information/turning/pdf/turning_sensaku_ichiran.pdf",
+        "https://www.mitsubishicarbide.com/mmus/catalog/pdf/catalog_en/c007a_a.pdf",
+        "https://www.machiningdoctor.com/grades/mitsubishi/"
+      ]
+    },
+    "kyocera": {
+      "site": "https://www.kyoceraprecisiontools.com",
+      "tool_systems": ["Indexable Turning + CBN/PCD"],
+      "grades": [
+        { "code": "CA5525", "iso": ["P"], "coating": "CVD", "use": "carbon/alloy steel finishing + light interrupt" },
+        { "code": "PR1525", "iso": ["P","M"], "coating": "PVD", "use": "free-cutting steel + carbon/alloy steel + austenitic stainless — roughing" }
+      ],
+      "resources": [
+        "https://techtools-inc.com/wp-content/uploads/Kyocera-Turning-Catalog.pdf",
+        "https://asia.kyocera.com/products/cuttingtools/wp-content/uploads/2016/11/A.pdf",
+        "https://asia.kyocera.com/products/cuttingtools/wp-content/uploads/2021/05/B_compressed.pdf",
+        "https://www.kyoceraprecisiontools.com/catalogs/indexable/"
+      ]
+    },
+    "walter": {
+      "site": "https://www.walter-tools.com",
+      "tool_systems": ["Tiger-tec Silver", "Tiger-tec Gold"],
+      "grades": [
+        { "code": "WPP10G", "iso": ["P10","K20"], "coating": "CVD Tiger-tec Gold", "use": "wear-resistant continuous steel; secondary cast iron" },
+        { "code": "WPP20G", "iso": ["P20","K30"], "coating": "CVD Tiger-tec Gold", "use": "universal steel; secondary cast iron" },
+        { "code": "WPP30G", "iso": ["P30","K20"], "coating": "CVD Tiger-tec Gold", "use": "tough; heavy interrupt steel; secondary cast iron" },
+        { "code": "WPP10S", "iso": ["P10"], "coating": "CVD Tiger-tec Silver", "use": "steel finishing" },
+        { "code": "WPP20S", "iso": ["P20"], "coating": "CVD Tiger-tec Silver", "use": "steel general" },
+        { "code": "WPP30S", "iso": ["P30"], "coating": "CVD Tiger-tec Silver", "use": "steel roughing" },
+        { "code": "WMP20S", "iso": ["M20"], "coating": "CVD Tiger-tec Silver", "use": "stainless general" },
+        { "code": "WKK10S", "iso": ["K10"], "coating": "CVD Tiger-tec Silver", "use": "cast iron wear-resistant" },
+        { "code": "WKK20S", "iso": ["K20"], "coating": "CVD Tiger-tec Silver", "use": "cast iron universal" },
+        { "code": "WAK10",  "iso": ["K"], "coating": "CVD TiCN+Al2O3+TiN", "use": "gray + ductile + malleable + vermicular cast iron" }
+      ],
+      "resources": [
+        "https://pdf.directindustry.com/pdf/walter-tools/tiger-tec-gold-turning-takes-time-tool-lifetime/5602-1017241.html",
+        "https://pages.walter-tools.com/rs/990-HJD-106/images/1-Highlights-TigerTec-Gold-WPP10G-WPP20G-WPP30G.pdf",
+        "https://www.walter-tools.com/en-us/tools/standard-tools/turning-tools/turning/iso-turning/tiger-tec-silver-iso-m-s"
+      ]
+    },
+    "seco": {
+      "site": "https://www.secotools.com",
+      "tool_systems": ["Duratomic"],
+      "grades": [
+        { "code": "TP1500", "iso": ["P"], "coating": "Duratomic CVD", "use": "high productivity steel, stable, wear-resistant" },
+        { "code": "TP2500", "iso": ["P","M"], "coating": "Duratomic CVD", "use": "versatile first-choice steel/stainless" },
+        { "code": "TP3500", "iso": ["P"], "coating": "Duratomic CVD", "use": "first-choice steel" },
+        { "code": "TP1501", "iso": ["P"], "coating": "Duratomic CVD (next-gen)", "use": "successor to TP1500" },
+        { "code": "TP2501", "iso": ["P","M"], "coating": "Duratomic CVD (next-gen)", "use": "successor to TP2500" },
+        { "code": "TP3501", "iso": ["P"], "coating": "Duratomic CVD (next-gen)", "use": "successor to TP3500" },
+        { "code": "TP0501", "iso": ["P05"], "coating": "Duratomic CVD", "use": "high-speed steel finishing" },
+        { "code": "TK1001", "iso": ["K","H40-45"], "coating": "Duratomic CVD", "use": "gray cast iron continuous, hardened 40-45 HRC" },
+        { "code": "TK2001", "iso": ["K"], "coating": "Duratomic CVD", "use": "ductile cast iron + interrupted" },
+        { "code": "TK1501", "iso": ["K"], "coating": "Duratomic CVD", "use": "next-gen cast iron" }
+      ],
+      "resources": [
+        "https://www.secotools.com/article/m_7098?language=en",
+        "https://stoughtoolsales.com/Seco-Literature/Seco-TP-and-TK-Duratomic-Brochure.pdf",
+        "https://cdn.mscdirect.com/global/media/pdf/search/seco/duratomic-brochure.pdf"
+      ]
+    },
+    "tungaloy": {
+      "site": "https://tungaloy.com",
+      "tool_systems": ["TungTurn", "Threading", "Multi-grooving"],
+      "grades": [
+        { "code": "AH725",  "iso": ["P20","P30","M10","M20","S"], "coating": "PVD multilayered", "use": "stainless steel champion; Inconel + Ti; threading" },
+        { "code": "AH8005", "iso": ["P10","M10"], "coating": "PVD", "use": "high-speed finishing steel + stainless" },
+        { "code": "AH120",  "iso": ["P20","P30","M10","M20","K"], "coating": "PVD", "use": "tough universal; interrupt; cast iron" },
+        { "code": "AH8015", "iso": ["P"], "coating": "PVD", "use": "steel" },
+        { "code": "AH6225", "iso": ["M"], "coating": "PVD", "use": "stainless" }
+      ],
+      "resources": [
+        "https://tungaloy.com/wpdata/wp-content/uploads/GC_2023-2024_G_A_Grade.pdf",
+        "https://tungaloy.com/wpdata/wp-content/uploads/370-u_AH725.pdf",
+        "https://tungaloy.com/wpdata/wp-content/uploads/437-u_AH8000.pdf",
+        "https://catalog.tungaloy.com"
+      ]
+    },
+    "sumitomo": {
+      "site": "https://www.sumitool.com",
+      "tool_systems": ["AC-series coated carbide"],
+      "grades": [
+        { "code": "AC8115P", "iso": ["P"], "coating": "CVD", "use": "high-speed steel" },
+        { "code": "AC8020P", "iso": ["P"], "coating": "CVD", "use": "high-efficiency steel" },
+        { "code": "AC8025P", "iso": ["P25"], "coating": "CVD smoothed", "use": "general steel — 2x chipping resistance" },
+        { "code": "AC8035P", "iso": ["P30"], "coating": "CVD", "use": "interrupt steel — 1.5x life on planetary pinion end-faces" },
+        { "code": "AC5005S", "iso": ["S"], "coating": "CVD", "use": "exotic alloy / heat-resistant superalloy" },
+        { "code": "AC5015S", "iso": ["S"], "coating": "CVD", "use": "exotic alloy" },
+        { "code": "AC5025S", "iso": ["S"], "coating": "CVD", "use": "exotic alloy" }
+      ],
+      "resources": [
+        "https://www.sumitool.com/en/products/cutting-tools/inserts/grades/ac8000p.html",
+        "https://www.sumitool.com/en/products/cutting-tools/inserts/grades/ac5000s.html",
+        "https://www.sumitomotool.com/files/Public/downloads/catalogs/turning/E-167_AC5005S-AC5015S-AC5025S.pdf",
+        "https://www.sumitomotool.com/files/Public/downloads/catalogs/turning/E-166_AC8015P_AC8020P_AC8025P_AC8035P.pdf",
+        "https://www.sumitool.com/en/products/gradesselection/"
+      ]
+    }
+  },
+  "indexes": {
+    "grades_by_iso_p": ["GC4425","GC4415","GC4405","IC8250","KCP05","KCP10","KCP25","KCP25C","KCP30","KCP40","KCU10","KCU25","NC3010","NC3020","NC3030","NC3120","NC500H","PC5300","NC5330","MC6025","UE6020","UE6110","UE6105","VP15TF","VP25N","VP45N","AP25N","US7020","NX2525","NX3035","CA5525","PR1525","WPP10G","WPP20G","WPP30G","WPP10S","WPP20S","WPP30S","TP1500","TP2500","TP3500","TP1501","TP2501","TP3501","TP0501","AH725","AH8005","AH120","AH8015","AC8115P","AC8020P","AC8025P","AC8035P"],
+    "grades_by_iso_m": ["IC907","KCM15","KCM25","KCM35","KCU10","KCU25","PC5300","PC8010","NC9020","PC9030","NC5330","UE6110","VP15TF","VP25N","AP25N","WMP20S","TP2500","TP2501","AH725","AH8005","AH120","AH6225"],
+    "grades_by_iso_k": ["KCK05","KCK15","KCK20","KU10","K313","NC305K","NC315K","NC6010","NC6110","WPP10G","WPP20G","WPP30G","WKK10S","WKK20S","WAK10","TK1001","TK2001","TK1501","AH120","TT5100","TT9235","TB670","TB730"],
+    "grades_by_iso_s": ["KCU10","KCS10","KU10","PC5300","PC8010","PC9030","AH725","AC5005S","AC5015S","AC5025S","VP15TF"],
+    "grades_by_iso_h": ["KCP25C (light)","PC5300","NC3030","TK1001 (40-45 HRC)","UE6105","TB610","TB670"],
+    "grades_by_iso_n": ["KU10","K313"],
+    "grades_by_coating_cvd": ["GC4425","GC4415","GC4405","KCP05","KCP10","KCP25","KCP25C","KCP30","KCP40","KCM15","KCM25","KCM35","KCK05","KCK15","KCK20","NC3010","NC3020","NC3030","NC3120","NC500H","NC305K","NC315K","NC6010","NC6110","NC5330","MC6025","UE6020","UE6110","UE6105","WPP10G","WPP20G","WPP30G","WPP10S","WPP20S","WPP30S","WMP20S","WKK10S","WKK20S","WAK10","TP1500","TP2500","TP3500","TP1501","TP2501","TP3501","TP0501","TK1001","TK2001","TK1501","TT5100","TT7005","TT8115","TT9215","TT9235","AC8115P","AC8020P","AC8025P","AC8035P","AC5005S","AC5015S","AC5025S"],
+    "grades_by_coating_pvd": ["KCU10","KCU25","KCS10","PC5300","PC8010","PC9030","VP15TF","VP25N","VP45N","AP25N","US7020","NX2525","NX3035","PR1525","AH725","AH8005","AH120","AH8015","AH6225","PV3010"],
+    "grades_by_coating_cbn": ["TB610","TB670","TB730"],
+    "grades_by_coating_uncoated": ["KU10","K313","CT3000"]
+  },
+  "wizard_query_records": [
+    {
+      "query_keys": ["od_rough", "P25", "steel general"],
+      "candidates": ["GC4425","KCP25","KCP25C","NC3120","UE6020","MC6025","TP2500","AH120","AC8025P","WPP20G","WPP20S","CA5525"],
+      "first_choice": "GC4425",
+      "alternatives": ["KCP25C","TP2500","UE6020"],
+      "rationale": "general-purpose steel turning at P25 — CVD coated, balance of wear + toughness"
+    },
+    {
+      "query_keys": ["od_finish", "P05-P10", "steel finishing"],
+      "candidates": ["GC4405","GC4415","KCP05","KCP10","NC3010","TP0501","AH8005","WPP10G","WPP10S","CA5525"],
+      "first_choice": "GC4405",
+      "alternatives": ["KCP05","TP0501","AH8005"],
+      "rationale": "high-speed steel finishing — fine-grain CVD with sharp edge"
+    },
+    {
+      "query_keys": ["od_rough", "M", "stainless general"],
+      "candidates": ["KCM25","KCU25","NC9020","PC9030","PC8010","TP2500","AH725","AH120","UE6110","VP25N"],
+      "first_choice": "AH725",
+      "alternatives": ["KCM25","TP2500","PC8010"],
+      "rationale": "AH725 is the industry-favorite stainless champion (Tungaloy PVD multilayer)"
+    },
+    {
+      "query_keys": ["od_rough", "K", "cast iron general"],
+      "candidates": ["KCK20","KU10","NC315K","NC6110","WKK20S","TK1001","TK2001","AH120","TT5100","TT9235","TB730"],
+      "first_choice": "WKK20S",
+      "alternatives": ["KCK20","TK2001","TT5100"],
+      "rationale": "Walter Tiger-tec Silver universal cast iron grade"
+    },
+    {
+      "query_keys": ["od_rough", "S", "superalloy HRSA Inconel Ti"],
+      "candidates": ["KCS10","KCU10","KU10","PC5300","PC8010","PC9030","AH725","AC5005S","AC5015S","AC5025S","VP15TF"],
+      "first_choice": "AH725",
+      "alternatives": ["AC5005S","KCS10","PC8010"],
+      "rationale": "AH725 designed for S-class Inconel + Ti; Sumitomo AC5005S a strong CVD alternative"
+    },
+    {
+      "query_keys": ["od_finish", "H", "hardened steel >45 HRC CBN"],
+      "candidates": ["TB610","TB670"],
+      "first_choice": "TB610",
+      "alternatives": ["TB670"],
+      "rationale": "CBN required above 45 HRC; TB610 for continuous/light-interrupted, TB670 for severe interrupt"
+    },
+    {
+      "query_keys": ["od_rough", "K", "chilled cast iron interrupted CBN"],
+      "candidates": ["TB670","TB730"],
+      "first_choice": "TB670",
+      "alternatives": ["TB730"],
+      "rationale": "TB670 high impact resistance for severe interrupted chilled CI; TB730 for gray + nodular"
+    }
+  ],
+  "ai_query_synonyms": {
+    "od_rough":  ["OD roughing", "external roughing", "G71 cycle", "stock removal"],
+    "od_finish": ["OD finishing", "external finish", "G96 constant surface speed"],
+    "face":      ["facing", "G72 facing cycle"],
+    "od_groove": ["grooving", "external groove", "parting groove"],
+    "od_thread": ["threading", "G76 thread cycle", "single point thread"],
+    "boring_bar":["boring", "ID boring", "internal turning"],
+    "ISO_P":     ["steel", "carbon steel", "alloy steel", "1045", "4140", "S35C"],
+    "ISO_M":     ["stainless", "stainless steel", "304", "316", "austenitic", "17-4 PH"],
+    "ISO_K":     ["cast iron", "gray iron", "ductile iron", "nodular", "chilled iron"],
+    "ISO_N":     ["aluminum", "non-ferrous", "brass", "copper", "6061", "7075"],
+    "ISO_S":     ["superalloy", "Inconel", "Ti-6Al-4V", "titanium", "HRSA", "heat-resistant"],
+    "ISO_H":     ["hardened steel", "hard turning", "case hardened", ">45 HRC", "D2", "M2", "S7"],
+    "CBN":       ["polycrystalline cubic boron nitride", "PCBN"],
+    "PVD":       ["physical vapor deposition", "TiN coating", "TiAlN", "PVD coated"],
+    "CVD":       ["chemical vapor deposition", "TiCN-Al2O3", "Tiger-tec", "Duratomic", "KENGold"]
+  },
+  "wizard_wiring_hints": [
+    {
+      "consumer": "LatheAITrainingEngine",
+      "hint": "validation phase — when JM-Die .MIN program names an insert (e.g. CNMG-432), lookup query_records by (operation, ISO group) to find vendor first_choice + expected Vc/DOC range; flag deviations as ValidationIssue with physics_basis=vendor URL"
+    },
+    {
+      "consumer": "LatheCAMIntelligenceEngine",
+      "hint": "tool-selection phase — given (material ISO + operation), return wizard_query_records[].first_choice + alternatives. Operator can override; choice fed back as training signal"
+    },
+    {
+      "consumer": "Claude (this session + future)",
+      "hint": "query via /lathe-tribal-query <ISO> <operation> — returns top vendor first_choice + alternatives + URL citations. AI-readable JSON shape; no NLP needed"
+    },
+    {
+      "consumer": "/system-viz lathe roost",
+      "hint": "render each of 10 vendors as a child node under lathe domain; click opens vendor grade-chart URL"
+    }
+  ],
+  "follow_up_units": [
+    { "id": "U-LATHE-VENDOR-PDF-DOWNLOAD", "scope": "operator/wget the named PDFs into resources/MANUFACTURER_CATALOGS/uploaded/", "priority": "P1" },
+    { "id": "U-LATHE-VENDOR-GRADE-CHART-PARSE", "scope": "extend pdf-parse-extract.mjs to emit per-grade tribal records from downloaded PDFs", "priority": "P1" },
+    { "id": "U-LATHE-WIZARD-VENDOR-LOOKUP", "scope": "wire wizard_query_records into LatheCAMIntelligenceEngine.selectInsert", "priority": "P0" },
+    { "id": "U-LATHE-VENDOR-GRAPH-NODE", "scope": "/system-viz ghost.lathe_vendors roost with 10 vendor children", "priority": "P2" },
+    { "id": "U-LATHE-TRIBAL-QUERY-DISPATCHER", "scope": "expose lathe-tribal-master-index via prism_lathe:query_vendor_tribal dispatcher action so any chat can invoke without filesystem access", "priority": "P0" }
+  ]
+}

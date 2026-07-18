@@ -203,7 +203,17 @@ async function main() {
       process.stdout.write(JSON.stringify({ continue: true }));
       return;
     }
-    const summary = `[watchdog] previous tool: ${prev.tool} ran ${prev.durationMs ?? "?"}ms${failed ? " (FAILED)" : ""}${slow ? " (SLOW > " + SLOW_MS + "ms)" : ""}`;
+    // 2026-05-26 (U-A13-WATCHDOG-QUANTIZE, slot:alpha): bucket durationMs to the
+    // nearest 10s so identical-bucket lines dedup at the prompt-injection layer
+    // (A13 in DORMANT-FEATURES-ENUMERATION). Pre-fix every fire had a unique
+    // millisecond value -> dedup never matched -> 17 distinct entries observed.
+    const dur = Number.isFinite(prev.durationMs) ? prev.durationMs : null;
+    const durLabel = dur === null
+      ? "?"
+      : dur >= 100000
+      ? "100+s"
+      : `${Math.floor(dur / 10000) * 10}-${Math.floor(dur / 10000) * 10 + 10}s`;
+    const summary = `[watchdog] previous tool: ${prev.tool} ran ${durLabel}${failed ? " (FAILED)" : ""}${slow ? " (SLOW > " + SLOW_MS + "ms)" : ""}`;
     process.stdout.write(JSON.stringify({
       continue: true,
       hookSpecificOutput: { additionalContext: summary },

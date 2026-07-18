@@ -7,7 +7,7 @@
   "created_by": "claude-opus-4.7",
   "track": "BACKEND-DEVTOOLS",
   "roadmap_priority": 0,
-  "status": "not_started",
+  "status": "in_progress",
   "total_units": 29,
   "total_sessions": "8-10",
   "pipeline": "/forge6 (brainstorm) -> /rgs6 generate (this emit)",
@@ -508,7 +508,17 @@
               "validation": "all returned counts trace back to a state file's parsed value",
               "notes": "rgs5: tool=build-state-snapshot.mjs + PRISM-INVENTORY-LATEST.md | input=live state files | output=psk manifest + psk position JSON | reject_if=any count is read from a hardcoded number in command prose | gain=every command stops baking counts that rot in 48h"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T23:02:21.092Z",
+          "shipped_by": "claude-23651823",
+          "shipped_slot": "bravo",
+          "shipped_evidence": {
+            "commit_grep": "COMMAND-KERNEL-MS0]/U-CK02",
+            "smoke_tests": "27/27 PASS via .cache/temp/psk-ck02-smoke.mjs (node:test, vitest blocked by pre-existing harness vite-transform bug)",
+            "anti_regression": "14/14 PASS via .cache/temp/psk-u-ck01-anti-regress.mjs",
+            "peer_review": "PASS×2 (code-analyzer + reviewer agents, 0 P0/P1)"
+          }
         },
         {
           "id": "U-CK03",
@@ -590,7 +600,12 @@
               "validation": "diff between helper invocation and psk syscall invocation shows only path-prefix wrapping",
               "notes": "rgs5: tool=.claude/kernel/psk.mjs | input=per-agent-handoff.mjs + chat-slots.mjs + pick-unit.mjs | output=psk handoff|checkin|pick | reject_if=any syscall reimplements helper logic instead of delegating | gain=one entry point; lifecycle commands shrink to thin clients"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T23:47:37.427Z",
+          "ship_record": {
+            "commit": "see git log --grep U-CK03"
+          }
         },
         {
           "id": "U-CK04",
@@ -696,7 +711,9 @@
               "validation": "os/syscalls.md regenerates byte-identically when psk's syscall table is unchanged",
               "notes": "rgs5: tool=psk.mjs | input=psk syscall table | output=knowledge/wiki/os/syscalls.md + sub-namespaces | reject_if=os/syscalls.md is hand-written | gain=schema-data round-trip with the kernel"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-17T09:24:20.251Z"
         },
         {
           "id": "U-CK05",
@@ -762,7 +779,15 @@
               "validation": "header present + deterministic output (running twice produces byte-identical files)",
               "notes": "rgs5: tool=mirror-gen.mjs | input=os/ entities | output=regenerated JSON mirrors | reject_if=a mirror is hand-editable without a regen path | gain=no more 3-partial-registries drift; one source of truth"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-18T00:06:59.090Z",
+          "ship_record": {
+            "commit": "904de5196b",
+            "slot": "hotel",
+            "chat_id": "claude-93351de7",
+            "notes": "Catalog mirrors under state/shared/os-mirrors/ (R7+R8 pivot from envelope-named live-state targets). 29/29 tests, 2-reviewer per-file gate PASS, 6 P1 fixes applied."
+          }
         },
         {
           "id": "U-CK06",
@@ -833,7 +858,9 @@
               "validation": "schema diff vs U-SKU06 shows additions only; reconciliation doc names every U-VAULT04 field with a mapping",
               "notes": "rgs5: tool=U-SKU06 + U-VAULT04 | input=skill registry schema + cross-trigger registry | output=os/_command-schema.md | reject_if=creates a parallel registry instead of reconciling to one | gain=the migration (P1) + composition (P2) both key off this one schema"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-17T09:44:56.752Z"
         }
       ]
     },
@@ -930,7 +957,9 @@
               "validation": "diff vs U-WIKI-RENAME-PROPAGATE shows reuse, not reimplementation",
               "notes": "rgs5: tool=command-migrate.mjs | input=U-WIKI-RENAME-PROPAGATE primitives + command corpus | output=command-migrate.mjs (dry-run + apply modes) | reject_if=reimplements batch-rewrite instead of extending the donor engine | gain=a reusable command-corpus codemod for every future bulk command change"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-17T20:54:53.000Z"
         },
         {
           "id": "U-CK08",
@@ -1008,13 +1037,24 @@
               "validation": "U-SKU03 linter sweep on migrated corpus returns zero hardcoded-count/path findings",
               "notes": "rgs5: tool=command-migrate.mjs + ACP-MS0 gap map | input=command categories (13 per ACP-MS0) | output=migrated commands + os/commands/ entities | reject_if=re-inventories commands ACP-MS0 already catalogued | gain=every command becomes a live vault entity the kernel resolves"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-18T00:29:02.865Z"
         },
         {
           "id": "U-CK09",
           "id_aliases": [
             "U-CK-P1-03"
           ],
+          "status": "complete",
+          "commits": [
+            "017fb8dfc7",
+            "eb2697ac01",
+            "fbf6509209"
+          ],
+          "completed_at": "2026-05-22",
+          "completed_by": "slot:mike (close-out drift reconcile)",
+          "completion_note": "Shipped 2026-05-19 by slot alpha across 3 git commits; envelope status field was never flipped (silent close-out drift). Deliverables verified present: 4 lifecycle commands thinned to psk clients (.claude/commands/startup.md 57L, checkin.md 75L, pick-unit.md 53L, precompact.md 68L, each with a manual fallback line); /handoff (user-global 235L) + /boot (user-global 41L) documented as DOCUMENT-AS-EXISTING in state/shared/U-CK09-lifecycle-decisions.md (project-local copies omitted by the skill-loader shadow rule). git-proven.",
           "title": "Hand-tune the lifecycle commands (startup/checkin/pick-unit/precompact) to thin psk clients — SKIPS /pick-task (handled by U-CK10) and creates /handoff + /boot if absent",
           "phase": "P1",
           "sequence": 2,
@@ -1179,7 +1219,9 @@
               "validation": "/pick-task invocation produces /pick-unit behavior with banner",
               "notes": "rgs5: tool=Edit | input=pick-task.md + alias banner template | output=/pick-task alias | reject_if=two contradictory roadmap systems still live | gain=one picker contract, surfaced by /pick-dev"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-17T09:38:08.944Z"
         },
         {
           "id": "U-CK11",
@@ -1334,7 +1376,9 @@
               "validation": "decision documented; registry validates",
               "notes": "rgs5: tool=ACP-MS0A envelope | input=automation-chain JSON schema | output=os/pipelines/ registry | reject_if=rebuilds a parallel schema when ACP-MS0A's exists | gain=the composition contract is shared with ACP, not forked"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-17T21:30:00.000Z"
         },
         {
           "id": "U-CK13",
@@ -1401,7 +1445,9 @@
               "validation": "executor refuses to execute (only dry-runs) until --force-execute flag is supplied; rollback chain test passes",
               "notes": "rgs5: tool=superpowers:test-driven-development | input=ACP-MS0A schema + stage-graph semantics | output=.claude/kernel/pipeline-exec.mjs + test | reject_if=executor auto-executes before telemetry exists to prove chains | gain=every composite command (P3) runs on this one runtime"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-17T21:48:00.000Z"
         },
         {
           "id": "U-CK14",
@@ -1469,7 +1515,25 @@
               "validation": "round-trip test green",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=skills with the dormant field | output=live pipeline membership | reject_if=the field stays declarative metadata nothing reads | gain=composition becomes a formal contract, not prose"
             }
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-20T06:35:00.000Z",
+          "owner": "claude-056b67b6 slot mike",
+          "ship_record": {
+            "shipped_at": "2026-05-20T06:35:00.000Z",
+            "scope": "close-out: deliverables shipped pre-session; this is the envelope status-flip + verification commit",
+            "artifacts": [
+              ".claude/kernel/pipeline-exec.mjs — discoverPipelineIntegrations() at lines 309-396; --show-integrations CLI flag; plan.integrationMembers annotation at line 454-455 (executor consumes dormant pipeline_integrations: frontmatter and surfaces members on every plan output, both dry-run and force-execute)",
+              "mcp-server/src/__tests__/pipeline-integrations.test.ts — 19 vitest cases (round-trip oracle + comment-tail stripping + slug fallback + exclusion rules + determinism + fail-soft on malformed + real-data E2E against live .claude/commands/ corpus)"
+            ],
+            "exit_conditions_met": [
+              "dormant pipeline_integrations: field is consumed by the executor (discoverPipelineIntegrations walks .claude/commands/*.md, extracts pipeline_integrations: frontmatter, returns members per pipeline slug)",
+              "every skill declaring it becomes a live pipeline member (CLI --show-integrations + plan.integrationMembers annotation; live corpus E2E verifies ≥1 member found)",
+              "round-trip test passes (19/19 vitest cases PASS in single run: `npx vitest run src/__tests__/pipeline-integrations.test.ts`)"
+            ],
+            "verification": "ran `npx vitest run src/__tests__/pipeline-integrations.test.ts` from H:/prism/mcp-server → PASS (19) FAIL (0); slot mike, chat claude-056b67b6, on cad-fusion-live-ms0 main tree",
+            "closeout_note": "discovered during high-ROI synergy pickup (priority-queue surfaced as pending though both deliverables already on disk + functional). Silent close-out debt class per feedback_auto_close_out — verified shipped artifacts against exit conditions + ran the test; envelope flip is the actual remaining work."
+          }
         },
         {
           "id": "U-CK15",
@@ -1540,7 +1604,9 @@
               "validation": "spot-check 10 random commands — each composition field traces to a real reference",
               "notes": "rgs5: tool=command-migrate.mjs | input=migrated commands + executor registry | output=populated composition frontmatter | reject_if=composition fields are guessed rather than inferred from real consume/produce | gain=psk tools + the Obsidian graph become the command dependency oracle"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-19T14:48:42.794Z"
         },
         {
           "id": "U-CK16",
@@ -1606,7 +1672,9 @@
               "validation": "diff vs current hook shows additive changes; no rebuild",
               "notes": "rgs5: tool=skill-auto-trigger.mjs | input=_skill-triggers.jsonl + pipeline registry | output=pipeline-aware trigger hook | reject_if=rebuilds the trigger hook instead of extending the shipped one | gain=pipelines get surfaced at the right lifecycle moment"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-18T23:11:30.818Z"
         }
       ]
     },
@@ -1700,7 +1768,17 @@
               "validation": "dry-run prints a plan that names each composed lifecycle command",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=lifecycle commands per U-CK09 | output=.claude/commands/session-cycle.md + os/pipelines/ entry | reject_if=reimplements lifecycle logic instead of composing the commands | gain=the whole session lifecycle becomes one resumable pipeline"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:25:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/session-cycle.md",
+              ".claude/commands/session-cycle.md"
+            ]
+          }
         },
         {
           "id": "U-CK18",
@@ -1789,7 +1867,17 @@
               "validation": "diff vs pick-unit research-pack prose shows /research now subsumes it",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=U-ALL actions + research-pack commands | output=.claude/commands/research.md | reject_if=rebuilds research engines instead of orchestrating U-ALL | gain=the research pack stops being frozen prose duplicated across pickers"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:00:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/research.md",
+              ".claude/commands/research.md"
+            ]
+          }
         },
         {
           "id": "U-CK19",
@@ -1867,7 +1955,17 @@
               "validation": "/scrutiny-gate dry-run prints stages: per-file -> 3-of-3 -> record -> gate Stop",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=scrutiny-3way + verification hooks | output=.claude/commands/scrutiny-gate.md | reject_if=reimplements scrutiny logic | gain=the scrutiny doctrine becomes a one-command gate"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:32:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/scrutiny-gate.md",
+              ".claude/commands/scrutiny-gate.md"
+            ]
+          }
         },
         {
           "id": "U-CK20",
@@ -1942,7 +2040,17 @@
               "validation": "diff shows zero new extraction logic",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=/pdf-learn + /video-learn + dedup + tribal + wiki + memory | output=.claude/commands/learn-pipeline.md | reject_if=rebuilds extraction engines | gain=knowledge ingestion is one command, end to end"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:40:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/learn-pipeline.md",
+              ".claude/commands/learn-pipeline.md"
+            ]
+          }
         },
         {
           "id": "U-CK21",
@@ -2010,7 +2118,17 @@
               "validation": "diff shows zero wiring logic reimplementation",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=orphan-inventory + dedup + wire + test + close | output=.claude/commands/wire-pipeline.md | reject_if=reimplements wiring logic | gain=unwired engines get a one-command rescue path"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:38:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/wire-pipeline.md",
+              ".claude/commands/wire-pipeline.md"
+            ]
+          }
         },
         {
           "id": "U-CK22",
@@ -2078,7 +2196,17 @@
               "validation": "diff shows zero forensic engine rebuild",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=forensic-classify + suggest + apply + test + trace | output=.claude/commands/diagnose-fix.md | reject_if=rebuilds forensic engines | gain=failure -> fix becomes one command"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:40:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/diagnose-fix.md",
+              ".claude/commands/diagnose-fix.md"
+            ]
+          }
         },
         {
           "id": "U-CK23",
@@ -2149,7 +2277,17 @@
               "validation": "diff shows zero program-generation reimplementation",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=gen + optimize + validate + ship | output=.claude/commands/program-perfect.md | reject_if=reimplements program generation | gain=program quality loop is one command"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:40:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/program-perfect.md",
+              ".claude/commands/program-perfect.md"
+            ]
+          }
         },
         {
           "id": "U-CK24",
@@ -2218,7 +2356,17 @@
               "validation": "diff shows zero forge logic reimplementation; references only /forge-triple (not the forward-looking decomposed forms)",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=/forge-triple + /scrutiny-gate | output=.claude/commands/forge-supervised.md | reject_if=reimplements forge logic OR references nonexistent /forge-engines/skills/hooks | gain=supervised forge-triple in one command"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:35:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/forge-supervised.md",
+              ".claude/commands/forge-supervised.md"
+            ]
+          }
         },
         {
           "id": "U-CK25",
@@ -2279,7 +2427,17 @@
               "validation": "all 4 subcommands work; resume restores a crashed pipeline to last completed stage",
               "notes": "rgs5: tool=pipeline-exec.mjs | input=pipeline registry | output=.claude/commands/pipeline.md | reject_if=no resume path for crashed pipelines | gain=the executor gets a user face; all pipelines discoverable"
             }
-          ]
+          ],
+          "status": "complete",
+          "shipped_at": "2026-05-17T22:05:00Z",
+          "shipped_by": "claude-2d30710b (slot hotel)",
+          "ship_record": {
+            "commit": "pending",
+            "artifacts": [
+              "knowledge/wiki/os/pipelines/pipeline.md",
+              ".claude/commands/pipeline.md"
+            ]
+          }
         }
       ]
     },
@@ -2379,7 +2537,9 @@
               "validation": "every psk syscall invocation produces a structured JSONL event",
               "notes": "rgs5: tool=pipeline-telemetry.mjs | input=command-invocation events | output=populated pipeline-telemetry.jsonl + invocation_count_30d | reject_if=telemetry is unstructured debug logging | gain=the system finally knows which commands are actually used"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-18T01:28:34.646Z"
         },
         {
           "id": "U-CK27",
@@ -2449,7 +2609,9 @@
               "validation": "thresholds change vs default when telemetry signal is present",
               "notes": "rgs5: tool=adaptive-thresholds.mjs | input=pipeline-telemetry.jsonl | output=live adaptive-thresholds re-tune | reject_if=telemetry still accumulates with no consumer | gain=the pipeline gets more accurate every milestone, automatically"
             }
-          ]
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-18T23:17:19.744Z"
         },
         {
           "id": "U-CK28",
@@ -2538,7 +2700,30 @@
               "validation": "auto-classify round-trip test green",
               "notes": "rgs5: tool=SkillTierRegistryEngine | input=U-SKU04/U-SKU05 grades + invocation telemetry | output=auto-written skill tiers | reject_if=tier classification stays read-only/advisory | gain=the command surface self-tiers from real usage"
             }
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-20T07:35:00.000Z",
+          "owner": "claude-056b67b6 slot mike",
+          "ship_record": {
+            "shipped_at": "2026-05-20T07:35:00.000Z",
+            "scope": "SkillTierRegistryEngine extended from read-only classify to persist-tier-back + snapshot/restore + usage-driven reclassification. classifyAllAndPersist writes assigned tier back to each SkillRecord.explicitTier (overwriteExplicit knob); when useInvocationCount=true, skills are ranked by invocationCount desc (top-N -> essential, next-M -> intermediate, rest -> advanced). Pre-classify snapshot captured in result for rollback per exit condition.",
+            "artifacts": [
+              { "path": "mcp-server/src/engines/SkillTierRegistryEngine.ts", "type": "code", "lines_changed": "+150", "summary": "RegistrySnapshot + ClassifyAndPersistOptions + ClassifyAndPersistResult exported types; snapshot() returns deep-copied caller-owned JSON-serializable state; restore() replaces registry contents (throws on malformed); classifyAllAndPersist() mutates explicitTier and captures pre-classify snapshot; classifyByUsage() sorts by invocationCount desc with command-name tie-break and promotes top-N -> essential / next-M -> intermediate; clampTopN + cloneRecord helpers" },
+              { "path": "mcp-server/src/__tests__/SkillTierRegistryEngine-u-ck28.test.ts", "type": "test", "lines_changed": "+new", "summary": "16 vitest cases across 3 describe blocks: snapshot/restore (deep copy + reversibility + malformed-throw), classifyAllAndPersist (writes tier back + overwriteExplicit=false preserves + snapshot capture + rollback round-trip + idempotency), usage-driven (promotes highest-invoked + outranks keyword + zero/absent invocationCount -> advanced + clampTopN negative-fallback + ties broken by command name + persist still writes explicitTier)" }
+            ],
+            "exit_conditions_met": [
+              "command-invocation telemetry drives auto skill-tier reclassification — classifyByUsage ranks by invocationCount desc; top-N -> essential / next-M -> intermediate / rest -> advanced",
+              "SkillTierRegistryEngine.classify_all writes tiers back (not read-only) — classifyAllAndPersist mutates each SkillRecord.explicitTier; overwriteExplicit=false preserves pre-existing tags",
+              "progressive disclosure reflects real usage — useInvocationCount=true path skips keyword classification; SkillRecord.invocationCount field surfaced; tie-break by command name asc for determinism",
+              "registry snapshot captured pre-classify for rollback — classifyAllAndPersist always returns RegistrySnapshot in result; in-memory caller-owned deep-copy variant of the envelope's file-on-disk plan (equivalent rollback capability via restore(snap) round-trip — verified by test); the on-disk snapshot path skill-tier-snapshot-pre-U-CK28.json was descoped as redundant (the caller can serialize the returned object trivially)"
+            ],
+            "verification": "vitest 16/16 PASS — snapshot+restore reversibility round-trip green; classifyAllAndPersist idempotency green; usage-ranking outranks keyword-based classification green; clampTopN guards negative + non-finite via fallback",
+            "scope_deviations": [
+              "envelope deliverable 'mcp-server/data/state/skill-tier-snapshot-pre-U-CK28.json' DESCOPED — snapshot is returned in-memory via ClassifyAndPersistResult.snapshot (caller-owned, JSON-serializable). Rollback capability preserved end-to-end via restore(snap).",
+              "envelope deliverable 'mcp-server/src/__tests__/skill-tier-auto-classify.test.ts' RENAMED to 'SkillTierRegistryEngine-u-ck28.test.ts' (engine-paired naming convention)"
+            ],
+            "closeout_note": "U-CK28 closes the read-only-classify -> auto-persist loop the rgs rationale identified. snapshot/restore pattern mirrors U-CK29's session-journal rollback discipline; both use caller-owned JSON-serializable structures rather than disk files."
+          }
         },
         {
           "id": "U-CK29",
@@ -2612,7 +2797,25 @@
               "validation": "psk recommend retrieves a fresh analogy after a new outcome is journaled",
               "notes": "rgs5: tool=psk.mjs + U-VAULT02 | input=session outcomes | output=os/sessions/ journals + learning psk recommend | reject_if=psk recommend is static and ignores prior outcomes | gain=the lifecycle learns which commands + pipelines actually work"
             }
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-20T07:30:00.000Z",
+          "owner": "claude-056b67b6 slot mike",
+          "ship_record": {
+            "shipped_at": "2026-05-20T07:30:00.000Z",
+            "scope": "session outcomes tee from syscall_record to knowledge/wiki/os/sessions/<sid>.jsonl when event === 'outcome'; syscall_recommend mines journals + scores by keyword overlap + recency tie-break, replacing the U-CK15+ placeholder.",
+            "artifacts": [
+              { "path": ".claude/kernel/psk.mjs", "type": "code", "lines_changed": "+135", "summary": "OS_SESSIONS_DIR resolver + SESSION_ID_RE whitelist + scoreAnalogyEntry; syscall_record tees on event=outcome with non-fatal journal-failure handling; syscall_recommend reads all journals, tail-reads files >1MB, returns top-K analogies sorted by score then recency" },
+              { "path": ".claude/kernel/psk-u-ck29.test.mjs", "type": "test", "lines_changed": "+233", "summary": "12 node:test cases — journal tee, no-tee on non-outcome, no-sid path, dir-traversal sid reject, multi-entry append, query match + scoring, no-query recency, k-clamp, empty dir, malformed JSONL skip, e2e record→recommend, multi-session retrieval" }
+            ],
+            "exit_conditions_met": [
+              "session outcomes route to memory + os/sessions/ journal — verified by tests 1+5+11 (tee fires on event=outcome, appends multiple entries, end-to-end)",
+              "psk recommend retrieves analogies from promoted memory — verified by tests 6+11+12 (keyword scoring, e2e, cross-session retrieval)",
+              "the cross-session learning loop is closed — recommend reads from journals written by record in the SAME or PRIOR sessions; tests 11+12 prove the loop"
+            ],
+            "verification": "node --test .claude/kernel/psk-u-ck29.test.mjs → 12/12 PASS; node --test .claude/kernel/psk.test.mjs → 11/11 PASS (no regression); hermetic via PRISM_OS_SESSIONS_DIR + PRISM_TELEMETRY_PATH tmpdir overrides; ran from H:/prism main tree, slot mike, chat claude-056b67b6, branch cad-fusion-live-ms0",
+            "closeout_note": "Discovered during high-ROI synergy pickup after U-CK14 close-out. Bug found mid-build (R12): test withEnv helper had a try/finally race where the finally restored env BEFORE async fn awaits resolved, so post-first-await env reads saw the restored default. Fixed by making withEnv async + `try { return await fn(); }`. Caught test pollution from the failed run (claude-cccc3333.jsonl + claude-hhhh8888.jsonl in live dir) and removed before commit. R12 honesty: recommend retrieval is keyword-overlap, not embedding similarity — U-CK15+ feedback loop can swap a richer scorer behind the existing interface without changing the contract."
+          }
         }
       ]
     }
@@ -2675,5 +2878,6 @@
     ],
     "class": "skill + script + helper + registry"
   },
-  "updated_at": "2026-05-14T18:08:57.566Z"
+  "updated_at": "2026-05-19T14:48:42.794Z",
+  "in_progress_since": "2026-05-17T23:47:37.426Z"
 }

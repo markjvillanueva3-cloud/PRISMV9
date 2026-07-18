@@ -844,6 +844,242 @@ export class CADOperationTaxonomyEngine {
 
     return { valid: errors.length === 0, errors, warnings };
   }
+
+  /**
+   * Generate a CadQuery Python starter snippet for a taxonomy operation.
+   *
+   * Accepts either a bare operation id string, or an object with one of:
+   *   { action, id, operation_id } -- as forwarded by cadDispatcher
+   *   "cad_taxonomy_generate" action uses params.action ?? params
+   *
+   * The returned snippet is a real, importable CadQuery expression
+   * parameterised from the operation's ParameterSpec inputs. It will
+   * throw if the operation id cannot be resolved.
+   *
+   * @param operationOrAction - Operation id string OR action/params object
+   * @returns Python CadQuery starter code string
+   */
+  generateCadQueryCode(
+    operationOrAction: string | { action?: string; id?: string; operation_id?: string }
+  ): string {
+    // Resolve the operation id from whatever shape the dispatcher passes
+    let opId: string;
+    if (typeof operationOrAction === "string") {
+      opId = operationOrAction;
+    } else {
+      opId = operationOrAction.id ?? operationOrAction.operation_id ?? operationOrAction.action ?? "";
+    }
+    opId = opId.trim();
+
+    const op = this.operations.get(opId);
+    if (!op) {
+      const available = Array.from(this.operations.keys()).join(", ");
+      throw new Error(
+        `generateCadQueryCode: unknown operation "${opId}". Available: ${available}`
+      );
+    }
+
+    return CADOperationTaxonomyEngine._buildCadQuerySnippet(op);
+  }
+
+  /**
+   * Build a CadQuery Python snippet from an OperationDefinition.
+   * Maps the operation id + category + inputs to a runnable workplane expression.
+   */
+  private static _buildCadQuerySnippet(op: OperationDefinition): string {
+    const params = CADOperationTaxonomyEngine._defaultParams(op);
+    const lines: string[] = [
+      "import cadquery as cq",
+      "",
+      `# CadQuery starter for operation: ${op.id} (${op.name})`,
+      `# Category: ${op.category}  Complexity: ${op.complexity}`,
+      `# ${op.description}`,
+      "",
+    ];
+
+    switch (op.id) {
+      case "extrude":
+        lines.push(
+          `width = ${params["width"] ?? 10}`,
+          `height = ${params["height"] ?? 10}`,
+          `distance = ${params["distance"] ?? 5}`,
+          `result = cq.Workplane("XY").rect(width, height).extrude(distance)`,
+        );
+        break;
+
+      case "revolve":
+        lines.push(
+          `radius = ${params["radius"] ?? 10}`,
+          `angle_deg = ${params["angle"] ?? 360}`,
+          `result = (`,
+          `    cq.Workplane("XZ")`,
+          `    .move(radius, 0)`,
+          `    .lineTo(radius, ${params["height"] ?? 10})`,
+          `    .lineTo(0, ${params["height"] ?? 10})`,
+          `    .close()`,
+          `    .revolve(angle_deg)`,
+          `)`,
+        );
+        break;
+
+      case "loft":
+        lines.push(
+          `r1 = ${params["radius1"] ?? 10}`,
+          `r2 = ${params["radius2"] ?? 5}`,
+          `h  = ${params["height"] ?? 20}`,
+          `result = (`,
+          `    cq.Workplane("XY")`,
+          `    .circle(r1)`,
+          `    .workplane(offset=h)`,
+          `    .circle(r2)`,
+          `    .loft()`,
+          `)`,
+        );
+        break;
+
+      case "sweep":
+        lines.push(
+          `radius = ${params["radius"] ?? 5}`,
+          `path_len = ${params["path_length"] ?? 30}`,
+          `path = cq.Workplane("XZ").lineTo(path_len, 0)`,
+          `result = (`,
+          `    cq.Workplane("XY")`,
+          `    .circle(radius)`,
+          `    .sweep(path)`,
+          `)`,
+        );
+        break;
+
+      case "fillet":
+        lines.push(
+          `radius = ${params["radius"] ?? 2}`,
+          `# Assumes 'base_solid' is an existing CadQuery solid`,
+          `result = base_solid.edges("|Z").fillet(radius)`,
+        );
+        break;
+
+      case "chamfer":
+        lines.push(
+          `distance = ${params["distance"] ?? 1}`,
+          `# Assumes 'base_solid' is an existing CadQuery solid`,
+          `result = base_solid.edges("|Z").chamfer(distance)`,
+        );
+        break;
+
+      case "shell":
+        lines.push(
+          `thickness = ${params["thickness"] ?? 2}`,
+          `# Assumes 'base_solid' is an existing CadQuery solid`,
+          `result = base_solid.shell(thickness)`,
+        );
+        break;
+
+      case "hole":
+        lines.push(
+          `diameter = ${params["diameter"] ?? 5}`,
+          `depth    = ${params["depth"] ?? 10}`,
+          `x_pos    = ${params["x"] ?? 0}`,
+          `y_pos    = ${params["y"] ?? 0}`,
+          `result = (`,
+          `    cq.Workplane("XY")`,
+          `    .pushPoints([(x_pos, y_pos)])`,
+          `    .hole(diameter, depth)`,
+          `)`,
+        );
+        break;
+
+      case "pattern_linear":
+        lines.push(
+          `count_x = ${params["count_x"] ?? 3}`,
+          `spacing = ${params["spacing"] ?? 10}`,
+          `# Assumes 'base_solid' is an existing CadQuery solid`,
+          `result = (`,
+          `    base_solid`,
+          `    .rarray(spacing, spacing, count_x, 1)`,
+          `    .hole(${params["diameter"] ?? 3})`,
+          `)`,
+        );
+        break;
+
+      case "pattern_circular":
+        lines.push(
+          `count  = ${params["count"] ?? 6}`,
+          `radius = ${params["radius"] ?? 15}`,
+          `# Assumes 'base_solid' is an existing CadQuery solid`,
+          `result = (`,
+          `    base_solid`,
+          `    .polarArray(radius, 0, 360, count)`,
+          `    .hole(${params["diameter"] ?? 3})`,
+          `)`,
+        );
+        break;
+
+      case "mirror":
+        lines.push(
+          `# Assumes 'base_solid' is an existing CadQuery solid`,
+          `result = base_solid.mirror("XZ")`,
+        );
+        break;
+
+      case "ruled_surface":
+        lines.push(
+          `# Ruled surface between two edge sets -- adjust selectors to your geometry`,
+          `e1 = base_solid.edges(">Y")`,
+          `e2 = base_solid.edges("<Y")`,
+          `result = cq.Shell.makeRuledSurface(e1.vals()[0], e2.vals()[0])`,
+        );
+        break;
+
+      case "blend_surface":
+      case "boundary_surface":
+        lines.push(
+          `# Boundary/blend surface -- requires edge references from adjacent faces`,
+          `# Adjust face selectors to match your geometry`,
+          `f1 = base_solid.faces(">Z")`,
+          `f2 = base_solid.faces(">X")`,
+          `result = cq.Workplane("XY").add(f1).add(f2).shell(-${params["thickness"] ?? 1})`,
+        );
+        break;
+
+      case "variable_fillet":
+        lines.push(
+          `# Variable fillet -- requires OCC-level access; example uses uniform as fallback`,
+          `r_start = ${params["radius_start"] ?? 1}`,
+          `r_end   = ${params["radius_end"] ?? 4}`,
+          `# Approximation: apply mean radius uniformly`,
+          `r_mean = (r_start + r_end) / 2`,
+          `result = base_solid.edges("|Z").fillet(r_mean)`,
+          `# For true variable fillet use cadquery.selectors or BRepFilletAPI_MakeFillet`,
+        );
+        break;
+
+      default:
+        // Generic fallback: emit a box + comment for any unmapped operation
+        lines.push(
+          `# Generic placeholder for operation: ${op.id}`,
+          `# Replace with the appropriate CadQuery calls for your geometry`,
+          `result = cq.Workplane("XY").box(10, 10, 10)`,
+          `# Inputs expected by this operation:`,
+        );
+        for (const inp of op.inputs) {
+          lines.push(`#   ${inp.name} (${inp.type}${inp.required ? ", required" : ""}): ${inp.description}`);
+        }
+    }
+
+    lines.push("", "show_object(result)");
+    return lines.join("\n");
+  }
+
+  /** Extract default parameter values from an OperationDefinition's ParameterSpec list. */
+  private static _defaultParams(op: OperationDefinition): Record<string, number | boolean | string> {
+    const out: Record<string, number | boolean | string> = {};
+    for (const spec of op.inputs) {
+      if (spec.default !== undefined) {
+        out[spec.name] = spec.default;
+      }
+    }
+    return out;
+  }
 }
 
 // ============================================================================

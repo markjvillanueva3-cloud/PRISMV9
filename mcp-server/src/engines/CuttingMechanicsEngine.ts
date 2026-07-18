@@ -164,7 +164,10 @@ class CuttingMechanicsEngineImpl {
     const phi = Math.PI / 4 - (beta - alpha) / 2;
     const phi_ls = Math.PI / 4 - beta + alpha;
 
-    const r_c = Math.cos(phi - alpha) / Math.cos(alpha);
+    // Chip-thickness (cutting) ratio r = t_uncut/t_chip = sin(phi)/cos(phi-alpha)
+    // (Groover FMM Eq. 21.9 / Kalpakjian). From shear-plane geometry
+    // t_uncut = l_s*sin(phi), t_chip = l_s*cos(phi-alpha); r<1 => chip thicker than uncut.
+    const r_c = Math.sin(phi) / Math.cos(phi - alpha);
     const h_c = h / r_c;
     const A_s = (b * h) / Math.sin(phi);
     const F_s = tau_s * A_s;

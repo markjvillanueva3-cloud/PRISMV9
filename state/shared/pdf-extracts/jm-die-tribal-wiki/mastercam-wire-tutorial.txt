@@ -1,0 +1,939 @@
+MASTERCAM WIRE
+      TUTORIAL
+
+           June 2018
+                     MASTERCAM WIRE TUTORIAL
+
+June 2018
+© 2018 CNC Software, Inc. ­ All rights reserved.
+Software: Mastercam 2019
+
+                                            Terms of Use
+
+Use of this document is subject to the Mastercam End User License Agreement. The Mastercam End User License
+Agreement can be found at:
+http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+
+                         Be sure you have the latest information!
+
+Information might have changed or been added since this document was published. The latest version of the doc-
+ument is installed with Mastercam or can be obtained from your local Reseller. A ReadMe file (ReadMe.PDF) ­
+installed with each release ­ includes the latest information about Mastercam features and enhancements.
+
+                                                                                                    ii
+                            TABLE OF CONTENTS
+
+Introduction                                               5
+
+General Tutorial Requirements                              5
+
+Single Contour Toolpaths                                   7
+
+Exercise 1: Getting Started with Toolpath Creation         7
+
+Exercise 2: Setting Up Single Contour Stock                9
+
+Exercise 3: Selecting Single Contour Geometry              11
+
+Exercise 4: Entering Wirepath Parameters                   12
+
+Exercise 5: Backplotting the Single Contour Toolpath       14
+
+Exercise 6: Changing Toolpath Parameters                   15
+
+Exercise 7: Backplotting the Updated Toolpath              18
+
+Exercise 8: Posting the Toolpath                           19
+
+Multiple Contour Wirepaths                                 23
+
+Exercise 1: Preparing the Multiple Contour Part            23
+
+Exercise 2: Selecting Multiple Contour Geometry            24
+
+Exercise 3: Entering Multiple Contour Toolpath Parameters  26
+
+Exercise 4: Adjusting the Chains                           28
+
+Exercise 5: Verifying the Toolpath                         30
+
+No Core Toolpaths                                          33
+
+Exercise 1: Preparing the No Core Part                     33
+
+Exercise 2: Setting Up No Core Stock                       35
+
+Exercise 3: Selecting No Core Geometry                     36
+
+Exercise 4: Entering No Core Toolpath Parameters           37
+
+Exercise 5: Backplotting the No Core Toolpath              38
+
+4-axis Toolpaths                                           41
+
+Exercise 1: Importing the 4-axis Machine                   41
+
+Exercise 2: Preparing the 4-axis Part                      41
+
+Exercise 3: Setting Up 4-axis Stock                        43
+
+Exercise 4: Selecting 4-axis Geometry                      44
+
+Exercise 5: Entering 4-axis Toolpath Parameters            45
+
+                                                 iii
+Exercise 6: Backplotting the 4-axis Toolpath      47
+
+Conclusion                                        49
+
+Mastercam Resources                               49
+
+Contact Us                                        49
+
+                                              iv
+                                                                                                                                                      Mastercam Wire Tutorial--Introduction
+
+                               INTRODUCTION
+
+Mastercam Wire delivers comprehensive wire EDM software with powerful toolpaths and techniques. This tutorial
+provides an introduction to Mastercam Wire workflow and best practices.
+
+Goals
+
+     l Practice creating and selecting part geometry for your toolpaths.
+     l Enter appropriate toolpath parameters for different toolpath types.
+     l Make changes to your toolpath and update the tool motion.
+     l Verify your toolpath motion using several different tools.
+
+      WARNING: Screen colors in the tutorial pictures were modified to enhance image quality; they may not
+      match your Mastercam settings or the tutorial results. These color differences do not affect the lesson or
+      your results.
+
+Estimated time to complete this tutorial: 2.5 hours
+General Tutorial Requirements
+
+All Mastercam 2019 tutorials have the following general requirements:
+     l You must be comfortable using the Windows® operating system.
+     l The tutorials cannot be used with Mastercam Demo/Home Learning Edition. The Demo/HLE file format
+         (emcam) is different from Mastercam (mcam), and basic Mastercam functions, such as file conversions and post-
+         ing, are unavailable.
+     l Each lesson in the tutorial builds on the mastery of the preceding lesson's skills. We recommend that you com-
+         plete them in order.
+     l Additional files may accompany a tutorial. Unless the tutorial provides specific instructions on where to place
+         these files, store them in a folder that can be access from the Mastercam 2019 workstation, either with the
+         tutorial or in any location that you prefer.
+     l You will need an internet connection to view videos that are referenced in the tutorials. All videos can be
+         found on our YouTube channel:
+         www.youtube.com/user/MastercamTechDocs
+     l All Mastercam tutorials require you to configure Mastercam to work in a default Metric or Inch configuration.
+         The tutorial provides instructions for loading the appropriate configuration file.
+
+                                                                                                    5
+6
+                                                 CHAPTER 1
+
+                    SINGLE CONTOUR TOOLPATHS
+
+A wire contour toolpath is best used with parts that have the same shape at the top and bottom. This lesson focuses
+on the basic workflow used to create a wire contour toolpath.
+
+Goals
+
+     l Open a part file and assigning a machine definition.
+     l Create a contour toolpath with a single contour.
+     l Backplot to check the toolpath.
+     l Post the toolpath.
+
+Exercise 1: Getting Started with Toolpath Creation
+
+In this exercise, you open a part and select a machine definition that simulates a wire EDM machine.
+    1. Start Mastercam using your preferred method:
+            a. Double-click Mastercam's desktop icon.
+
+                 OR
+            b. Launch Mastercam from the Windows Start menu.
+    2. Select the default metric configuration file:
+            a. Click the File tab.
+            b. Choose Configuration from Mastercam's Backstage View to open the System Configuration dialog
+
+                 box.
+
+            c. Choose ...\mcamxm.config <Metric> from the Current drop-down list.
+
+            d. Click OK.
+
+                                                                                                    7
+Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+       3. Choose File, Open and select the part file, single_contour.mcam provided with the tutorial.
+            The gear shape is the single contour for this toolpath. Mastercam Wire also needs a thread point for the
+            toolpath, which is the point where the machine threads the wire, often a pre-drilled hole in the material. By
+            creating a thread point in Mastercam and selecting it as part of the toolpath, it becomes associative, which
+            means the toolpath updates if the point moves.
+
+       4. On the Wireframe tab, choose Point Position.
+       5. In the Point Position function panel, choose Thread Point.
+
+            The thread point symbol may be hard to see depending on your background color. Before you begin to
+            identify the thread point, zoom into the area if you need to see it more clearly.
+
+       6. Drag and drop the graphics window prompt and press [Spacebar] to access FastPoint mode and type in the
+            point coordinates.
+
+            Because the prompt window hides anything under it, you may not want to move it over information displayed
+            in Toolpaths Manager, or any used sidebar areas.
+       7. Type X-40, Y0.2, Z0 and press [Enter]. A point with the thread symbol displays to the left of the part.
+       8. Click OK in the Point Position function panel to complete the function.
+            You now have the geometry you need for a basic contour toolpath.
+
+                                                                                                         8
+                                                                                                                                Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+    9. On the Machine tab, choose Wire, Default to select the default wire machine definition.
+         The machine definition is a model of your machine tool's capabilities and features. It provides a template
+         for setting up machining jobs.
+         Choosing the machine definition adds a machine group and a toolpath group to the Toolpaths Manager.
+         Toolpaths you create are placed at the red arrow in this list.
+
+  10. Choose File, Save As and save the part under a different file name. This protects the original tutorial file
+         from being overwritten.
+
+Exercise 2: Setting Up Single Contour Stock
+
+Defining a stock model helps you visualize your toolpaths more realistically. You can see your stock boundaries with
+the part geometry when you backplot or verify toolpath operations.
+
+    1. In the Toolpaths Manager, expand Properties under Machine Group, and click Stock setup.
+
+    2. Enter the following values to set the stock boundaries:
+              l Enter Y75, X75, and Z10 for the stock dimensions.
+              l Enter a Z value of 10 for the stock origin.
+
+                                                                                                    9
+Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+       3. Select Display and Fit screen to show the stock boundaries and include the boundaries when you use the Fit
+            to Screen function.
+
+       4. Click OK to complete the stock setup.
+       5. Right-click in the graphics window and choose Isometric (WCS) to get a clearer view of the stock boundaries.
+
+                                                                                                        10
+                                                                                                                                Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+Exercise 3: Selecting Single Contour Geometry
+
+Selecting geometry for toolpaths in Mastercam Wire is called chaining. Chaining is the process of selecting and link-
+ing pieces of geometry to form the foundation of a toolpath, surface, or solid. When you chain geometry, you select
+one or more sets of curves (lines, arcs, and splines) that have adjoining endpoints. You can also chain points, which is
+important for setting thread and cut positions in your toolpath.
+In Mastercam Wire, you can chain either wireframe or solid geometry for your toolpaths. This example involves
+chaining wireframe geometry.
+
+    1. On the Wirepaths tab, choose Contour.
+
+    2. To associate the point with the toolpath, select the thread point you created as the first chain.
+         Note: When the stock size is close to the part size, the thread point is often outside the stock.
+
+    3. Select the gear shape as the second chain. Click on the area closest to the thread point. The green arrow
+         showing chain direction should go in a counterclockwise direction.
+
+    4. Click Options on the Chaining dialog box to access additional chaining parameters.
+
+                                                                                                   11
+Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+       5. Select Break closest entity to thread point.
+
+            This option breaks the entity closest to the thread point into two pieces so you begin the toolpath with a per-
+            pendicular move. This creates the shortest motion possible between the thread point and the chained geo-
+            metry.
+       6. Click OK on the Chaining Options dialog box.
+       7. Click OK on the Chaining dialog box to continue to set the wirepath parameters in the Wirepath - Contour
+            dialog box.
+
+  Exercise 4: Entering Wirepath Parameters
+
+   The next step is to set the values for each aspect of the toolpath. The Wirepath - Contour dialog box includes the
+   options you need to program your part.
+
+                                                                                                        12
+                                                                                                                           Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+1. Choose Wire/Power from the Tree View pane on the left side of the dialog box.
+
+     A power library contains wire EDM machine-specific settings for the material you are cutting.
+    A power library can contain up to 24 passes. A pass is a single path made by the wire around a contour. Each
+     pass includes unique power settings needed to cut a certain material type on a certain wire EDM machine. For
+     example, Pass 1 in the library may correspond to a rough cut, Pass 2 a tab cut, and Passes 3 - 5 finish cuts (also
+    known as skim cuts).
+2. Enter 0.2 for Wire Diameter.
+
+     This toolpath will only have one pass, so you do not need to make other changes.
+3. Choose Compensation from the Tree View pane.
+4. Set Compensation Type to Computer.
+
+     This option computes the compensated wirepath and does not output control codes for compensation. This
+     allows you to see a more accurate representation of the toolpath motion.
+5. Choose Taper from the Tree View pane.
+     This page sets various toolpath heights, including the UV and XY heights that indicate the top and bottom of
+     the stock.
+
+                                                                                              13
+Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+       6. Set the Rapid height, UV trim plane, and UV height to 15.0. The rapid height is the Z height of the upper
+            wire guide for rapid moves. The UV trim plane sets the position of the upper wire guide.
+
+       7. Click OK to complete the toolpath.
+       8. Click OK to close the Chain Manager.
+
+            The Chain Manager displays for access to the change at point or sorting options. These options are discussed
+            in Lesson 2.
+            The following picture shows the completed toolpath.
+
+       9. Choose File, Save from the menu to save your progress.
+
+  Exercise 5: Backplotting the Single Contour Toolpath
+
+   Mastercam's Classic Backplot shows the path the wire takes to cut your part. This display lets you spot errors in the
+   program before you machine the part.
+
+       1. Click Backplot selected operations at the top of the Toolpaths Manager.
+
+                                                                                                        14
+                                                                                                                                Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+    2. Click Display tool and Display holder on the Backplot dialog box to show the wire and guides during back-
+         plot.
+
+    3. Click Play on the Backplot VCR bar above the graphics window to run the backplot.
+         The wire moves around the part for a single rough pass.
+
+    4. Click OK on the Backplot dialog box to exit the function.
+
+Exercise 6: Changing Toolpath Parameters
+
+Although the simple contour toolpath you just created will machine the part, additional options in Mastercam Wire
+can make your machining more effective. Change parameters and update the operation to include these new set-
+tings.
+
+                                                                                                   15
+Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+       1. Click the Parameters icon in the Toolpaths Manager for the Wire Contour operation.
+
+       2. Choose Wire/Power from the Tree View pane.
+       3. For Pass 1, enter 0.035 for the Wire Overburn.
+       4. Click the up arrow next to Pass 1 to enter values for Pass 2.
+
+       5. Enter the following values for Passes 2, 3, and 4:
+                 l Pass 2: Set Wire Diameter to 0.2 and Wire Overburn to 0.02
+                 l Pass 3: Set Wire Diameter to 0.2 and Wire Overburn to 0.01
+                 l Pass 4: Set Wire Diameter to 0.2 and Wire Overburn to 0
+
+            Note: As the passes get closer to the final part shape, the wire cuts less material and the overburn
+            decreases.
+       6. Choose Cut Parameters from the Tree View pane.
+       7. Set the following parameters on this page (see following graphic of new Cut Parameters values):
+
+                 l Enter 3 for Additional skim cuts (before tab). These additional passes create a better finish on the
+                     part.
+
+                 l Select Tab and enter 1.0 for the Tab Width. Creating a tab on the part keeps it attached to the stock.
+                 l Set Cutting method to Reverse. Instead of cutting in one direction and re-threading the wire, this
+
+                     option makes the wire go in the opposite direction at the end of each pass.
+
+                                                                                                        16
+                                                                                                                             Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+      Note: Notice the change in the cut list. The toolpath motion now includes four passes around the chain and a
+      short move to cut the tab.
+
+ 8. Choose Stops from the Tree View pane.
+      Because you added a tab cut with a stop on the Cut Parameters page by selecting the Tab option and setting
+      the Tab Width, some of the options on the Stops page are already selected.
+
+ 9. Select As glue stop for the output stop code.
+      A glue stop is an optional stop (using an M01 code) that pauses the machine before the tab cut, and allows
+      the operator to secure the part to prevent dropout after the tab cut.
+
+10. Choose Leads from the Tree View pane.
+
+                                                                                                17
+Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+      11. Select Line and arc for the lead in and Arc and line for the lead out.
+
+            Starting and ending the toolpath with arc motion reduces the possibility of leaving a burr on the part.
+      12. Enter 0.125 for the Arc radius and 60 for the Arc sweep on the entry and exit moves.
+      13. Select Maximum lead out and set the distance to 0.3.
+
+            This option shortens the lead out move, instead of forcing the wire to travel from the end of the contour to
+            the cut point.
+      14. Click OK to complete the parameter changes.
+      15. Click Regenerate all selected operations in the Toolpaths Manager to update the contour toolpath with
+            your changes.
+
+      16. Choose File, Save to save your part.
+
+  Exercise 7: Backplotting the Updated Toolpath
+
+   Use Backplot to verify the changes you made to the contour toolpath.
+
+                                                                                                        18
+                                                                                                                                Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+    1. Click Backplot selected operations.
+    2. Click Play to run the backplot.
+
+         The wire moves to the end of the contour, leaves a tab, travels back and forth around the part during the
+         skim cuts, then cuts the tab.
+
+    3. Click OK to complete the backplot.
+
+Exercise 8: Posting the Toolpath
+
+Post processing, or posting, refers to the process by which the toolpaths in your Mastercam part files are con-
+verted to a format that can be understood by your machine tool's control (for example, G-codes). A special program
+called a post processor, or post, reads your Mastercam file and writes the appropriate NC code. Generally, every
+machine tool or control will require its own post processor, customized to produce code formatted to meet its exact
+requirements.
+
+    1. Click Post selected operations at the top of the Toolpaths Manager.
+
+                                                                                                   19
+Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+       2. Set the post processing parameters as shown. These settings will ask if you want to save the NC file and will dis-
+            play the resulting file in your default text editor.
+
+       3. Click OK.
+       4. Select a location for the NC file and click Save.
+
+                                                                                                        20
+                                                                                                                                Mastercam Wire Tutorial--1: Single Contour Toolpaths
+
+    5. Mastercam Code Expert opens in Editor mode and displays the posted NC code. Scroll through the code and
+         see if it meets your expectations.
+
+    6. Edit the file and save if necessary.
+    7. Close the Code Expert window.
+Congratulations on completing your first Wire toolpath! The next lesson involves multiple contours.
+
+                                                                                                   21
+22
+                                                 CHAPTER 2
+
+                  MULTIPLE CONTOUR WIREPATHS
+
+In addition to single contour wirepaths, Mastercam Wire allows you to cut multiple contours from a single piece of
+stock in a single operation. You can select the parts as a group and then sort the chains to generate the toolpath
+motion you want.
+
+Goals
+
+     l Select multiple contours.
+     l Create multiple tabs and stops.
+     l Use verification to check the toolpath.
+
+Exercise 1: Preparing the Multiple Contour Part
+
+    1. Choose File, Open and select the part file, multiple_contours.mcam provided with the tutorial.
+         This part includes three contours, three thread points, and four mounting holes. The default Wire machine
+         definition is already selected.
+
+    2. In the Toolpaths Manager, expand Properties under Machine Group and click Stock setup.
+    3. Enter the following values to set the stock boundaries and display them in the graphics window:
+
+              l Click Select corners and select opposite corners of the rectangle surrounding the contours.
+              l Enter 10 for the Z stock dimension.
+              l Change the Stock Origin Z coordinate to 10.
+
+                                                                                                   23
+Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+                 l Select Display and Fit screen to show the stock boundaries and include the boundaries when you use
+                     the Fit to Screen function.
+
+       4. Click OK to complete the stock setup. If necessary, right-click in the graphics window and select Isometric
+            (WCS).
+
+       5. Choose File, Save As and save the part under a different file name. This protects the original tutorial file
+            from being overwritten.
+
+  Exercise 2: Selecting Multiple Contour Geometry
+
+   Instead of chaining each contour, you can quickly select multiple parts using window chaining.
+       1. On the Wirepaths contextual tab, choose Contour.
+       2. Right-click in the graphics window and choose Top (WCS) to view the part from above.
+
+                                                                                                        24
+                                             Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+3. Click Window on the Chaining dialog box.
+
+4. Click at the first point and then drag to the second point shown in the following picture and click again to draw
+     the window around the parts.
+
+5. Click the thread point on the left part as the approximate start point.
+
+                                                                                              25
+Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+       6. Click Options on the Chaining dialog box to access additional chaining parameters.
+
+       7. Ensure that Break closest entity to thread point is selected.
+
+       8. Click OK on the Chaining dialog box to continue to the toolpath parameters.
+
+  Exercise 3: Entering Multiple Contour Toolpath Parameters
+
+   The parameters for this toolpath are similar to the ones you entered in Lesson 1.
+       1. Select Cut Parameters in the Tree View pane.
+       2. Set the following parameters on this page:
+                 l Select Tab and enter 2.0 for Tab Width. Creating a tab on the part keeps it from dropping out of the
+                     stock.
+                 l Select Make tab cutoff move with skim cut to make the toolpath motion more efficient.
+
+                                                                                                        26
+                                                                                                                       Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+          l Select Skim cuts after tab to add a finish pass after cutting the tab.
+          l Set the cutting method to Reverse.
+
+             The toolpath motion now involves two cuts for each chain, with the rough cut including the stop and the
+             tab cut.
+
+3. Choose Compensation from the Tree View pane.
+4. Select Computer for the Compensation type, and set the Compensation direction to Left.
+5. Choose Stops from the Tree View pane.
+6. Select For each tab to add a stop code before the tab cut on each chain and As glue stop to add them as
+
+     optional stops.
+7. Choose Leads from the Tree View pane.
+8. Set the following parameters on this page:
+
+          l Select Line and arc for the lead in and Arc and line for the lead out.
+          l Enter 0.5 for the Arc radius and 90 for the Arc sweep on the entry and exit moves.
+
+                                                                                              27
+Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+                 l Enter 0.02 for the Overlap.
+                     This option eliminates potential burrs by overlapping the start and end of the contour by the entered
+                     amount.
+
+       9. Choose Taper from the Tree View pane and set the Rapid height, UV trim plane, and UV height to 20.0.
+      10. Click OK to finish entering the parameters. The Chain Manager opens.
+
+  Exercise 4: Adjusting the Chains
+
+   Because you selected the contours with window chaining, the chain order may not be what you would prefer for the
+   toolpath. The Chain Manager displays after you enter the toolpath parameters so you can adjust the chains and get
+   the toolpath motion you want.
+
+                                                                                                        28
+                                                                                                                       Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+1. Click each Chain Point and Chain in the Chain Manager to see how Mastercam chained the contours by
+     default.
+
+2. Right-click in the Chain Manager and choose Sort options. The Sorting dialog box displays.
+
+                                                                                              29
+Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+       3. Select the Y+ X- option in the third row.
+
+            The red point indicates the start point and the arrow shows the sorting direction.
+       4. Click OK to close the Sorting dialog box.
+       5. Click through the points and chains again to see the new chaining order from right to left.
+       6. Click OK to close the Chain Manager and the toolpath displays on the three contours.
+
+       7. Save your part file.
+
+  Exercise 5: Verifying the Toolpath
+
+   Verification is different from backplot because it simulates material removal in addition to tool motion. The veri-
+   fication displays in a separate window called Mastercam Simulator.
+
+                                                                                                        30
+                                                                                                                       Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+1. Click Verify selected operations at the top of the Toolpaths Manager.
+     The stock, wire, and guides display in the Mastercam Simulator window.
+
+2. Right-click in the Simulator window and choose Isometric, then Fit to get a better view of the toolpath and
+     wire.
+
+3. Click Play at the bottom of the Simulator window to move through the verification.
+
+4. After the verification is complete, right-click and choose Zoom Window. Draw a window around the center
+     part to look at the results more closely.
+
+5. Click Remove Chips on the Verify tab and then click on the middle part to see the slug drop out of the stock.
+
+                                                                                              31
+Mastercam Wire Tutorial--2: Multiple Contour Wirepaths
+
+            You can click on the other slugs as well to see the final tool motion results.
+
+       6. Close the Simulator window to return to Mastercam.
+   Now that you have worked with single contours and multiple contours, the next lesson focuses on No Core
+   toolpaths.
+
+                                                                                                        32
+                                                 CHAPTER 3
+
+                          NO CORE TOOLPATHS
+
+No Core toolpaths in Mastercam Wire remove all material within a boundary without producing slivers or slugs. The
+wirepath typically starts at a pre-drilled hole in the material, and zigzags or spirals outward until all material within
+the chained geometry is removed.
+
+Goals
+
+     l Use AutoCursor to select points.
+     l Create rough and finish passes.
+     l Use backplot to check the toolpath results.
+
+Exercise 1: Preparing the No Core Part
+
+    1. Choose File, Open and select the part file, no_core.mcam, provided with the tutorial.
+         This part is a solid model with a hole in the center. The No Core toolpath will machine the four additional slots.
+         The default wire machine definition is already selected, but you need to define a thread point for each slot.
+
+    2. Press [Alt+S] to turn off shading, and view the wireframe geometry.
+    3. Right-click in the graphics window, and choose Top (WCS) to rotate the view.
+    4. On the Wireframe tab, choose Point Position.
+    5. In the Point Position function panel, choose Thread Point.
+
+                                                                                                   33
+Mastercam Wire Tutorial--3: No Core Toolpaths
+
+       6. Move your cursor to the end of a slot and notice the cursor change to indicate that you are selecting the cen-
+            ter of an arc.
+
+            Note: This is Mastercam's AutoCursor, which detects and snaps to points as you move the cursor over geo-
+            metry. AutoCursor activates whenever Mastercam prompts you to select a position on the screen.
+
+                                                                                                        34
+                                                                                                                                          Mastercam Wire Tutorial--3: No Core Toolpaths
+
+    7. Select the four points shown in the following picture as thread points.
+
+         Note: Placing the points close together reduces travel time between the slots.
+    8. Click OK in the Point Position function panel to complete the function.
+    9. Choose File, Save As and save the part under a different file name.
+
+Exercise 2: Setting Up No Core Stock
+
+Mastercam Wire can model stock based on many different shapes, including solid models, castings, and cylinders.
+    1. In the Toolpaths Manager, expand Properties under Machine Group and click Stock setup.
+    2. Set the Shape to Cylindrical, and set the Axis to Z.
+
+                                                                                                   35
+Mastercam Wire Tutorial--3: No Core Toolpaths
+
+       3. Enter 30 for the cylinder height and 40 for the diameter.
+
+       4. Click OK to complete the stock setup.
+
+  Exercise 3: Selecting No Core Geometry
+
+   All chains (except thread points) must be a closed shape for No Core toolpaths.
+
+                                                                                                        36
+                                                                                                                                          Mastercam Wire Tutorial--3: No Core Toolpaths
+
+    1. On the Wirepaths tab, choose No Core.
+    2. Select each thread point and its corresponding slot. Select the chain for each slot close to its thread point.
+
+         Notes:
+              l If you were actually machining the part, each thread point would be the center of a pre-drilled hole for
+                 the wire.
+              l In the Chaining Options dialog box, make sure that Break closest entity to thread point is
+                 unchecked.
+
+    3. Click OK on the Chaining dialog box to complete chaining.
+
+Exercise 4: Entering No Core Toolpath Parameters
+
+No Core toolpaths can include a rough pass and finish passes. The rough pass typically removes almost all of the
+material. The finish passes smooth out rough edges and can also take off additional material.
+
+    1. Select No Core in the Tree View pane.
+    2. Set the Rapid height, UV trim plane, and UV height to 40.0.
+    3. Select Rough in the Tree View pane.
+
+         Mastercam No Core wirepath offers six cutting methods for cleaning out the material. The best practice is to
+         select a cutting method that follows the shape of your part. For this part, the default Parallel Spiral option
+         works well.
+    4. Select Finish in the Tree View pane.
+    5. Select Enable Finish to activate the default finish pass parameters.
+    6. Set the Compensation type to computer for the finish pass.
+
+                                                                                                   37
+Mastercam Wire Tutorial--3: No Core Toolpaths
+
+       7. Select Start pass at closest entity.
+
+            When checked, the finish pass begins starting with the closest endpoint of the closest entity at the end of the
+            roughing wirepath. When cleared, the finish pass begins with the first entity in the chain as it was originally
+            selected.
+            This option makes your toolpath motion more efficient
+       8. Click OK to generate the toolpath.
+
+       9. Save your part file.
+
+  Exercise 5: Backplotting the No Core Toolpath
+
+   Backplot includes several tools for showing your wire motion.
+
+                                                                                                        38
+                                                                                                                                          Mastercam Wire Tutorial--3: No Core Toolpaths
+
+    1. Click Backplot selected operations at the top of the Toolpaths Manager.
+    2. Select Quick verify from the Backplot dialog box.
+
+         This option displays a shaded path the width of the wire as the backplot progresses and gives you a quick way
+         to check if all the material is removed from the slots.
+    3. Click Play to run the backplot. The wire cuts each slot from the inside out. The shaded area under the tool
+         motion confirms that all the slots are machined completely.
+
+    4. Click OK to exit backplot.
+The last lesson in this tutorial focuses on 4-axis toolpaths, which work well for parts with different contours in the top
+and bottom planes.
+
+                                                                                                   39
+40
+                                                 CHAPTER 4
+
+                            4-AXIS TOOLPATHS
+
+Use 4-axis toolpaths for parts that require the wire to be in a non-vertical orientation. These parts typically have dif-
+ferent geometry in the XY and UV planes, or the same geometry in a different orientation, such as the gear used in
+this lesson.
+
+Goals
+
+     l Select a different machine definition.
+     l Learn about synchronization methods.
+     l Use TECH libraries.
+
+Exercise 1: Importing the 4-axis Machine
+
+Before creating the 4-axis toolpath, you must import the 4-axis machine included with this tutorial.
+    1. Open the 4-axis Machine folder included with this tutorial.
+    2. Copy the following files:
+              l GENERIC MAKINO 4X WIRE (TECH).MCAM-CONTROL
+              l GENERIC MAKINO 4X WIRE MM (TECH).MCAM-WMD
+
+    3. To the following folder:
+              l C:\Users\Public\Public Documents\shared Mcam2019\CNC_MACHINES
+
+    4. Copy the following Post file:
+              l Generic Makino 4X Wire (TECH).pst
+
+    5. To the following folder:
+              l C:\Users\Public\Public Documents\shared Mcam2019\wire\Posts
+
+The imported machine is now ready to be used for toolpath creation.
+
+Exercise 2: Preparing the 4-axis Part
+
+    1. Choose File, Open and select the part file, 4_axis.mcam, provided with the tutorial. If the part is not
+         shaded, press [Alt +S] to turn on shading.
+
+                                                                                                   41
+Mastercam Wire Tutorial--4: 4-axis Toolpaths
+
+            This part is a solid model with the thread point and chaining start points already defined.
+
+       2. On the Machine tab, choose Wire, Manage List to select a wire machine definition.
+            This option lets you select a different machine definition than the default Wire machine.
+
+       3. Select GENERIC MAKINO 4X WIRE MM (Tech).MCAM-WMD from the machine definition list, and click Add.
+
+            This Makino machine uses a .TECH library for the wire power settings, which you will work with in Exercise 4.
+       4. Click OK to close the dialog box.
+
+                                                                                                        42
+                                                                   Mastercam Wire Tutorial--4: 4-axis Toolpaths
+
+5. Choose Wire and select the machine you just added to the list.
+
+         The Makino machine definition is added to the Toolpaths Manager.
+    6. Choose File, Save As and save the part under a different file name.
+
+Exercise 3: Setting Up 4-axis Stock
+
+Similar to Lesson 3, a simple cylinder is the best stock model for this part.
+    1. In the Toolpaths Manager, expand the Properties under the Makino Machine Group and click Stock setup.
+    2. Enter the following values in the dialog box:
+              l Set the Shape to Cylindrical, and set the Axis to Z.
+              l Enter 40 for the cylinder height and 70 for the diameter.
+              l Select Display and Fit screen to show the stock boundaries.
+
+43
+Mastercam Wire Tutorial--4: 4-axis Toolpaths
+
+       3. Click OK to complete the stock setup.
+
+Exercise 4: Selecting 4-axis Geometry
+
+For a 4-axis toolpath, you chain geometry in two planes: the XY plane (lower contour), and UV plane (upper contour).
+Mastercam Wire uses synchronization to determine the wire motion between the two chains. The sync mode is typ-
+ically determined by the part geometry, but Mastercam Wire offers several options:
+
+l By entity: Matches the endpoint of             l By branch: Matches the contours by
+   each entity. Requires both chains to             branch points. Requires 3D geometry
+   have the same number of entities.                connecting the upper and lower con-
+                                                    tours.
+l By point: Matches previously created
+   point entities on each chain.                 l Manual: Matches the chains of user-
+                                                    defined areas.
+l By node: Matches two or more para-
+   metric splines by their node points.          l Manual/density: Matches the chains
+   Requires each spline to have the same            and assigns a density for each chain. If
+   number of node points.                           an area has small radii, use a higher
+                                                    density for a better finish.
+
+Note: A branch point is a position where the endpoints of three or more entities meet and where the chain dir-
+ection can change.
+
+    1. In the Wirepaths tab, choose 4 Axis.
+    2. Press [Alt+S] to turn off shading and make it easier to chain the part.
+    3. Select the thread point to the left of the part as the first toolpath chain.
+
+                                                 44
+                                                                                                                                              Mastercam Wire Tutorial--4: 4-axis Toolpaths
+
+    4. Select the lower purple contour to the right of the green point. The chain start arrow should be at the point.
+         This is the XY plane for the toolpath.
+
+         Note: Press [F1] and draw a zoom window to focus on a certain area of the part.
+    5. Chain the upper contour starting at the green point. Both chains must go in the same direction and should be
+
+         clockwise around the part.
+         Note: Click Reverse on the Chaining dialog box to switch the chain direction.
+    6. Click Options on the Chaining dialog box to access the synchronization methods.
+    7. Select by Entity from the Sync mode drop-down list.
+
+         This sync mode works for this part because the top and bottom contours have the same number of entities.
+    8. Click OK to close the Chaining Options dialog box.
+    9. Click OK again to close the Chaining dialog box and to open the Wirepath - 4 Axis dialog box.
+
+Exercise 5: Entering 4-axis Toolpath Parameters
+
+The machine definition you selected is connected to a .TECH library that contains all the power information for the
+wire passes, including register settings, offsets, and feeds. These settings are designed for this wire machine and
+control.
+
+    1. Choose Wire/Power from the Tree View pane.
+    2. Click the Tech button to change the power settings for this toolpath.
+
+                                                                                                   45
+Mastercam Wire Tutorial--4: 4-axis Toolpaths
+
+            The Technology Database dialog box displays.
+       3. Select Rough & 2 skim(s) from the Sequence drop-down list at the bottom of the dialog box. This matches
+
+            the number of passes you will program for this part.
+
+       4. Click OK to return to the toolpath parameters.
+       5. Choose Cut Parameters from the Tree View pane.
+       6. In the Tabs section, select Equal to make the UV and XY tabs the same size and enter 1.5 for the XY Tab
+
+            Width.
+
+       7. Choose Compensation from the Tree View pane.
+       8. Set the Compensation type to Computer and set the Compensation direction to Left.
+       9. Choose Stops from the Tree View pane.
+      10. Select For each tab to add a stop code before the first tab cut on each chain and As glue stop to add them
+
+            as optional stops.
+      11. Choose Leads from the Tree View pane.
+      12. Select Line and arc for the lead in and Arc and line for the lead out.
+      13. Click OK to generate the toolpath.
+
+                                                                                                        46
+                                                              Mastercam Wire Tutorial--4: 4-axis Toolpaths
+
+14. Press [Alt+S] to view the shaded part with the toolpath.
+
+  15. Save your part file.
+
+Exercise 6: Backplotting the 4-axis Toolpath
+
+Besides the backplot tools you've already used, you can backplot your tool motion in the same Mastercam Simulator
+window as verification.
+
+    1. Click Verify selected operations at the top of the Toolpaths Manager.
+    2. On the Home tab, check Workpiece to shade the solid.
+    3. Click Backplot to change to Backplot mode in Mastercam Simulator.
+
+         The stock no longer displays in the window and the Backplot tab displays at the top of the screen.
+
+                                                                                                   47
+Mastercam Wire Tutorial--4: 4-axis Toolpaths
+
+       4. Click the Backplot tab and select Enable Vectors to view the 4-axis wire positions as it moves around the
+            part.
+
+       5. Click Play at the bottom of the Simulator window to run the backplot. The wire moves around the part three
+            times for the one rough and two skim passes.
+
+       6. Click the Home tab, and select Workpiece to see the final part shape so you can compare it to the tool
+            motion. The Workpiece checkbox toggles to view the part in different shades of translucency.
+
+       7. Close the Simulator window to return to Mastercam.
+       8. Save your part.
+
+                                                                                                        48
+                                                                                                                                                        Mastercam Wire Tutorial--Conclusion
+
+                                CONCLUSION
+
+Congratulations! You have completed the Mastercam Wire Tutorial! Now that you have mastered the skills in this
+tutorial, explore Mastercam's other features and functions.
+You may be interested in other tutorials that we offer. Mastercam tutorials are being constantly developed, and we
+will add more as we complete them. Visit our website, or select Help, Tutorials from the File tab.
+
+Mastercam Resources
+
+Enhance your Mastercam experience by using the following resources:
+     l Mastercam Documentation--Mastercam installs a number of helpful documents for your version of software
+         in the Documentation folder of your Mastercam 2019 installation.
+     l Mastercam Help--Access Mastercam Help by selecting Help, Contents from Mastercam's File tab or by press-
+         ing [Alt+H] on your keyboard.
+     l Mastercam Reseller--Your local Mastercam Reseller can help with most questions about Mastercam.
+     l Technical Support--Our Technical Support department (+1 860-875-5006 or support@mastercam.com) is
+         open Monday through Friday from 8:00 a.m. to 5:30 p.m. USA Eastern Standard Time.
+     l Mastercam Tutorials--We offer a series of tutorials to help registered users become familiar with basic
+         Mastercam features and functions. Visit our website, or select Help, Tutorials from Mastercam's File tab to
+         see the latest publications.
+     l Mastercam University--Mastercam University, an affordable online learning platform, gives you 24/7 access to
+         Mastercam training materials. Take advantage of more than 180 videos to master skills at your own pace and
+         help prepare for Mastercam Certification. For more information on Mastercam University, please contact
+         your Authorized Mastercam Reseller, visit www.mastercamu.com, or email training@mastercam.com.
+     l Online Communities--You can find a wealth of information at www.mastercam.com. For tech tips and the
+         latest Mastercam news, follow us on Facebook (www.facebook.com/mastercam), Twitter
+         (www.twitter.com/mastercam), or Google+ (plus.google.com/+mastercam). Visit our YouTube channel to see
+         Mastercam in action (www.youtube.com/user/MastercamCadCam)! Registered users can search for inform-
+         ation or ask questions on the Mastercam Web forum, forum.mastercam.com, or use the knowledgebase at
+         kb.mastercam.com.
+
+Contact Us
+
+For questions about this or other Mastercam documentation, contact the Technical Documentation department by
+email at techdocs@mastercam.com.
+
+                                                                                                   49
+  ATTENTION! UPDATES MAY BE AVAILABLE.
+PLEASE REFER TO MASTERCAM.COM/SUPPORT
+
+           FOR THE LATEST DOWNLOADS.
+

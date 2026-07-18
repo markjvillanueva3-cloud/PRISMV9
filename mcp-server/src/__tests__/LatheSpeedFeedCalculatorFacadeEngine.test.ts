@@ -191,6 +191,29 @@ describe("LatheSpeedFeedCalculatorFacadeEngine", () => {
       );
     });
 
+    it("preserves sub-minute tool life instead of rounding to 0 (Taylor regression)", () => {
+      // Regression guard for the lathe-wizard combinatorial-sweep finding (2026-07-02):
+      // high-Vc stainless finishing yields a real sub-minute Taylor life (~0.46 min for
+      // 304 @ Vc≈234 m/min). A plain Math.round() collapsed it to 0 min — a physically
+      // impossible "instant tool failure" output. The fix keeps 3 significant figures
+      // below 1 minute (life>=1 ? round : toPrecision(3)).
+      const result = LatheSpeedFeedCalculatorFacadeEngine.calculate(
+        buildInput({
+          material: "304",
+          operation: { type: "finishing", coolant: "high_pressure" },
+          strategy: "aggressive",
+          tool: { type: "turning_insert", nose_radius_mm: 0.4 },
+        })
+      );
+
+      expect(result.success).toBe(true);
+      // A genuine sub-minute value — proves the >0 assertion is load-bearing, not a
+      // large-life vacuous pass.
+      expect(result.predicted_tool_life_min!).toBeLessThan(1);
+      // Never collapsed to exactly 0 (the pre-fix Math.round failure mode).
+      expect(result.predicted_tool_life_min).toBeGreaterThan(0);
+    });
+
     it("calculates cutting force using Kienzle model", () => {
       const result = LatheSpeedFeedCalculatorFacadeEngine.calculate(buildInput());
 

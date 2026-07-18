@@ -65,6 +65,7 @@ export const EMPLOYEE_BOOTSTRAPS: Record<string, EmployeeShellBootstrap> = {
     subtitle: 'Touch-first floor view with only the work, checks, and learning a cell-side operator needs.',
     homeModules: [
       { id: 'my-jobs', title: 'My active jobs', detail: 'Current routed work with traveler posture and due-date focus.', to: '/jobs?focusId=JOB-4821&focusType=job', countLabel: '2 active' },
+      { id: 'phone-portal', title: 'Phone portal', detail: 'Scan in, run the task clock, message the floor, and check job priority from a phone.', to: '/phone-portal', countLabel: 'Live' },
       { id: 'shop-clock', title: 'Shop clock', detail: 'Scan, check in, and move between timed tasks quickly on a phone.', to: '/shop-clock?scan=PRISMJOB|job=JOB-4821', countLabel: 'Ready now' },
       { id: 'capture', title: 'Capture ops', detail: 'Camera, QR, setup photos, and troubleshooting evidence from the floor.', to: '/capture', countLabel: 'Camera ready' },
       { id: 'messages', title: 'Messages', detail: 'Email-linked handoffs, supervisor notes, and quality follow-up routed into one inbox.', to: '/messages', countLabel: '2 unread' },
@@ -76,6 +77,7 @@ export const EMPLOYEE_BOOTSTRAPS: Record<string, EmployeeShellBootstrap> = {
         label: 'Today',
         items: [
           { id: 'today-jobs', label: 'Jobs', to: '/jobs?focusId=JOB-4821&focusType=job', description: 'Dispatch view filtered to the job that needs action.', countLabel: '2 at risk' },
+          { id: 'today-phone-portal', label: 'Phone Portal', to: '/phone-portal', description: 'Task scan-in/out, floor messaging, hot-job priority, and quick calcs -- phone-first.', countLabel: 'Live' },
           { id: 'today-clock', label: 'Shop Clock', to: '/shop-clock?scan=PRISMJOB|job=JOB-4821', description: 'QR-driven clock, department check-in, and task switching.', countLabel: 'Touch ready' },
         ],
       },

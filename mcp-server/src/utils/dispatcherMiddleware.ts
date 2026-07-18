@@ -67,6 +67,44 @@ export interface ValidationResult {
   errors?: z.ZodError["issues"];
   /** Error message string (compat) */
   errorMessage?: string;
+  /**
+   * True when NO schema was registered for the action, so params passed through
+   * UNVALIDATED. Previously this case was indistinguishable from a real validation
+   * pass (both returned `valid:true`), hiding the gap where unvalidated input
+   * (incl. safety-relevant calc/cam params) reaches engines. Callers that want to
+   * fail-closed on un-schema'd safety-critical actions can branch on this flag.
+   * Additive + optional -- existing callers reading valid/success/data are unaffected.
+   */
+  schemaMissing?: boolean;
+}
+
+// Runtime schema-coverage observability (non-blocking). The no-schema pass-through
+// was silent; these counters make it MEASURABLE without log-spam or behavior change.
+const _schemaMissActions = new Set<string>();
+const _schemaCoverage = { validated: 0, passthrough: 0 };
+
+/**
+ * Runtime schema-coverage signal: validated vs unvalidated-passthrough call counts
+ * plus the distinct actions that hit the no-schema path. Lets the fleet SEE the
+ * silent-validation gap (DISPATCHER-CAPABILITY-ASSESSMENT-2026-06-22 P1) at runtime.
+ */
+export function getSchemaCoverageStats(): {
+  validated: number;
+  passthrough: number;
+  missingActions: string[];
+} {
+  return {
+    validated: _schemaCoverage.validated,
+    passthrough: _schemaCoverage.passthrough,
+    missingActions: [..._schemaMissActions].sort(),
+  };
+}
+
+/** Test/diagnostic reset of the schema-coverage counters. */
+export function resetSchemaCoverageStats(): void {
+  _schemaMissActions.clear();
+  _schemaCoverage.validated = 0;
+  _schemaCoverage.passthrough = 0;
 }
 
 /**
@@ -80,11 +118,23 @@ export function validateActionParams(
 ): ValidationResult {
   const schema = schemas[action];
   if (!schema) {
-    // No schema = pass through (valid)
-    return { valid: true, success: true, data: params };
+    // No schema registered -> pass through, but FLAG it (fail-loud observability,
+    // NON-blocking). We do NOT throw: ~40% of actions have no schema yet and
+    // throwing would mass-break them. Instead we surface the gap so it is
+    // measurable (getSchemaCoverageStats) instead of silent.
+    _schemaCoverage.passthrough++;
+    if (!_schemaMissActions.has(action)) {
+      _schemaMissActions.add(action);
+      if (process.env.PRISM_DISPATCHER_SCHEMA_WARN === "1") {
+        // Once-per-action (deduped) -- never per-call log spam.
+        console.warn(`[dispatcher-schema] action "${action}" has no schema -- params passed UNVALIDATED`);
+      }
+    }
+    return { valid: true, success: true, data: params, schemaMissing: true };
   }
   const result = schema.safeParse(params);
   if (result.success) {
+    _schemaCoverage.validated++;
     return { valid: true, success: true, data: result.data };
   }
   const errorMessage = result.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ");

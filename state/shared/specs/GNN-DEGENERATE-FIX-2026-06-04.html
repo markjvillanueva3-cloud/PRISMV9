@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="6c6d221111b5565039d6866005e8bc5bbba31230412f332bc4e1fcb70981eab1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GNN Degenerate-Collapse Fix — code-verified design (2026-06-04, slot:india)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>GNN Degenerate-Collapse Fix — code-verified design (2026-06-04, slot:india)</h1>
+<div class="meta">rendered from state/shared/specs/GNN-DEGENERATE-FIX-2026-06-04.md</div>
+<div class="meta">Generated 2026-06-04T17:50:29.149Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">GNN Degenerate-Collapse Fix — code-verified design (2026-06-04, slot:india)</h1>
+<blockquote class="prism-quote">Produced by the <code class="prism-inline-code">gnn-degenerate-fix-design</code> Workflow (7 agents / 1.25M tokens, 3 map readers + 3-lens design panel + synthesis), every claim code-verified. F0 (ZULU): clears the NN/GNN deploy gate that gates the &quot;proven-by-training&quot; half of 8 galaxies. PSN leg #10 DEGENERATE owner=india.</blockquote>
+<h2 class="prism-h2">ROOT CAUSE — a four-defect chain, NONE numeric (Glorot init correct, BCE+sigmoid grad checked)</h2>
+<ol class="prism-md-list"><li><strong>Feature starvation at targets.</strong> <code class="prism-inline-code">scripts/lib/graph-node-embedding-bridge.mjs</code> JOINS nodes to a PRE-EXISTING wiki tribal-embed vector by lowercased basename (candidateBasenames/basenameIndex ~L263-333). Ghosts have no wiki page → only <strong>63 of 636</strong> ghost.unwired-engine nodes get a 768-d vector; 573 fall to zero/identical. <code class="prism-inline-code">node-embeddings-768d.jsonl</code> = 3789 recs but only 63 <code class="prism-inline-code">ghost</code>-prefixed (wiki 1402, eng 1120, vault 799).</li><li><strong>Edgeless inference.</strong> <code class="prism-inline-code">scripts/seed-ghost-gnn-classify.mjs buildGhostSubgraph</code> returns <code class="prism-inline-code">edges:[]</code> (~L195) → GraphSAGE MEAN aggregator agg=0 → the GNN degenerates to <code class="prism-inline-code">W*features</code> (a 2-layer MLP). 573 targets on identical zero-features → every target→reference cosine near-identical. <strong>⇒ ANY message-passing aggregator (H2GCN/GPR-GNN/JK) is a structural NO-OP here — do NOT spend F0 budget on heterophily convolutions; that misdiagnoses the bug (2/3 lenses + synthesis independently rejected it).</strong></li><li><strong>No base-rate normalization.</strong> <code class="prism-inline-code">voteDispatcher</code> (~L236) accumulates <code class="prism-inline-code">w = score*confidence</code> per dispatcher with NO division by reference-class frequency. Uniform cosines → winner = largest reference bucket = <strong>prism_turning</strong> (60/125 high-conf refs) → voteShare identical → confidence pinned ~0.4 → distinctConfidences=1, distinctPredictions=1 → <strong>AUROC 0.5 by Mann-Whitney tie</strong>; macroF1 = F1(turning)/|classes| = 0.667/5 = 0.1333 (matches NN-EVAL.json exactly).</li><li><strong>Dead stratified-negative wiring.</strong> <code class="prism-inline-code">scripts/lib/graphsage-trainer.mjs</code> <code class="prism-inline-code">train()</code> (~L502) unconditionally calls uniform <code class="prism-inline-code">sampleNegativeEdges</code> and IGNORES <code class="prism-inline-code">opt.nodeType</code>/<code class="prism-inline-code">opt.negPHard</code> that the pipeline spreads in (train-pipeline ~L681-684). <code class="prism-inline-code">sampleStratifiedNegativeEdges</code> is exported+tested but never called by <code class="prism-inline-code">train()</code> → every &quot;stratified&quot; retrain trains on easy uniform cross-type negatives → never learns same-dispatcher separation → deployed checkpoint anti-homophilous (link-pred AUROC 0.096; 768-d candidate 0.388, both &lt;0.5).</li></ol>
+<ul class="prism-md-list"><li>Compounding: <code class="prism-inline-code">nn-graph-eval.mjs buildHoldout</code> (~L327) uses a FLAT seededShuffle → holdout inherits the turning skew, prism_calc gets 0 holdout → caps macroF1 even if the vote were fixed.</li></ul>
+<h2 class="prism-h2">CURRENT (NN-EVAL.json 2026-06-03): holdoutN 62, AUROC 0.5, macroF1 0.133, Brier 0.26, acc 0.5, isDegenerate=true constant-vote dominantShare 1.0.</h2>
+<h2 class="prism-h2">PLAN — CPU-only, no torch. Producer-first (R13).</h2>
+<h3 class="prism-h3">PHASE 1 — collapse-breakers (NO retrain, deterministic, unit-testable, ZERO data dependency) — GUARANTEED to flip isDegenerate→false + move AUROC off 0.5</h3>
+<ul class="prism-md-list"><li><strong>1a vote base-rate normalize</strong> <code class="prism-inline-code">seed-ghost-gnn-classify.mjs voteDispatcher</code>: divide each class weight by its reference frequency with Laplace smoothing (<code class="prism-inline-code">w/= refCount[c]+alpha</code>) + min per-class support floor + margin-based confidence (not one constant). Test: uniform-embedding over turning-heavy pool must NOT return constant turning.</li><li><strong>1b per-class stratified holdout</strong> <code class="prism-inline-code">nn-graph-eval.mjs buildHoldout</code>: per-class round-robin split (every class with ≥2 pool members → ≥1 holdout + ≥1 ref); cap refs-per-class ~2× median; exclude &lt;2-sample classes from the macroF1 denominator. Keep seed 1337.</li><li><strong>1c grow/tier pool</strong> <code class="prism-inline-code">nn-graph-eval.mjs</code>: refMinConf 0.8→~0.65 behind <code class="prism-inline-code">PRISM_NNG_REF_MIN_CONF</code>; tier (hand-verified &gt; 0.8-kw &gt; 0.65-kw) + record tier in NN-EVAL.json (R12: below 0.8 = noisier keyword labels, metric is partly internal-consistency). Re-run runAssessment for the first honest multi-class number.</li><li>Expected: isDegenerate=false, distinctPredictions/Confidences&gt;1, <strong>AUROC ~0.55-0.68, macroF1 ~0.30-0.45</strong> (capped by the dead embedding). High-confidence, TODAY, no retrain.</li></ul>
+<h3 class="prism-h3">PHASE 2 — signal-repair (needs producers fixed BEFORE retrain) — next session</h3>
+<ul class="prism-md-list"><li><strong>2a embedding ghost-coverage</strong> <code class="prism-inline-code">graph-node-embedding-bridge.mjs</code>: Path-3 fallback — when a ghost has no basename hit, embed <code class="prism-inline-code">label + proposed_wiring + engine-source docblock/exports</code> via the SAME nomic-embed-text:latest call, quantizeInt8; <strong>FAIL-SOFT if Ollama down (never write zero vectors that masquerade as real)</strong>. Coverage 63→~600/636. CPU (~600 short embeds).</li><li><strong>2b dead-wiring fix</strong> <code class="prism-inline-code">graphsage-trainer.mjs</code> L502: branch — if <code class="prism-inline-code">opt.nodeType</code> non-empty Map, call <code class="prism-inline-code">sampleStratifiedNegativeEdges(...,{nodeType, typeMarginal: positiveTypeMarginal(edges,nodeType), pHard: opt.negPHard??0.7})</code>; else uniform fall-through BYTE-IDENTICAL (preserve mulberry32 draw order). +unit test.</li><li><strong>2c retrain + better head</strong> train-pipeline on COARSE prism_<em> labels (NOT fine disp.</em>); in <code class="prism-inline-code">graphsage-model.mjs</code> drop FINAL-layer L2-norm + replace cosine link head with learned diagonal-bilinear <code class="prism-inline-code">sigmoid(Σ m_i·z_u[i]·z_v[i]+b)</code> (the cheap, targeted heterophily lever — NOT H2GCN); RE-PIN numerical-gradient check on headM/headB; restore bceLoss clamp on the now-unnormalized path; re-fit isotonic calibrator; promote IFF gate clears.</li><li><strong>2d (conditional)</strong> direct raw-768-d k-NN head (<code class="prism-inline-code">PRISM_NNG_DIRECT_EMBED</code>) — skip the edgeless-SAGE transform if 2c stays weak.</li></ul>
+<h2 class="prism-h2">HONEST GATE VERDICT (R12)</h2>
+<ul class="prism-md-list"><li>Constant-vote degeneracy (the F0 blocker) is <strong>CPU-clearable NOW</strong> (Phase 1). AUROC≥0.78 is reachable-but-not-guaranteed on CPU; <strong>macroF1≥0.55 is the binding constraint and is REFERENCE-POOL-GATED</strong> (operator/data dependency — needs hand-verified multi-class non-turning labels; the dormant <code class="prism-inline-code">reference-pool-seed-2026-05-23.json</code> was built for exactly this). After these fixes the blocker correctly moves from &quot;degenerate/broken&quot; → &quot;model+label quality&quot;, which is the right place for it to live. GPU is NOT the bottleneck.</li></ul>
+<p>Files: seed-ghost-gnn-classify.mjs · nn-graph-eval.mjs · graph-node-embedding-bridge.mjs · graphsage-trainer.mjs · graphsage-model.mjs · graphsage-train-pipeline.mjs · nn-graph-retrain-lifecycle.mjs · NN-EVAL.json · node-embeddings-768d.jsonl</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">EMPIRICAL FINDINGS (slot:india, live runs 2026-06-04) — corrects the workflow&#39;s Phase-1 optimism</h2>
+<ol class="prism-md-list"><li><strong>1a alone does NOT clear the degeneracy.</strong> Ran <code class="prism-inline-code">nn-graph-eval --no-write</code> with base-rate normalization applied: still <code class="prism-inline-code">isDegenerate:true constant-vote</code>, but the constant class SHIFTED prism_turning→<strong>prism_calc</strong> (conf 0.4→0.4667), AUROC n/a, macroF1 0.133→0, accuracy 0.5→0. The workflow synthesis claimed &quot;Phase 1 reliably kills the constant-vote collapse&quot; — <strong>empirically false.</strong></li><li><strong>The binding root is uniform embeddings, not the vote prior.</strong> The DEPLOYED checkpoint is <strong>8-d</strong> (not 768-d), so the eval never touches <code class="prism-inline-code">node-embeddings-768d.jsonl</code>. Under <strong>edgeless inference</strong> (<code class="prism-inline-code">buildGhostSubgraph edges:[]</code>) every ghost&#39;s 8-d structural projection collapses to near-identical → every target→reference cosine is uniform → the SAME ranked vote for every target → constant. Base-rate normalization only changes WHICH class the uniform vote lands on; it cannot make per-target votes DIFFER.</li><li><strong>Coverage verified:</strong> <code class="prism-inline-code">node-embeddings-768d.jsonl</code> = 3790 recs, only <strong>64 ghost-prefixed</strong> (all nonzero), dims <code class="prism-inline-code">[0,768]</code> (some empty). 572/636 ghosts have no usable embedding. Matches the bridge basename-join gap.</li></ol>
+<h2 class="prism-h2">REVISED LOAD-BEARING FIX (supersedes &quot;Phase 1 alone&quot;)</h2>
+<p>1a (base-rate normalization) is a <strong>necessary foundation, NOT sufficient</strong> — it&#39;s committed + rollback-safe (<code class="prism-inline-code">PRISM_NNG_BASE_RATE_DISABLE=1</code>) so once embeddings differ, the class prior can&#39;t re-monopolize. The degeneracy is ONLY cleared by giving each ghost a DISTINCT feature vector:</p>
+<ul class="prism-md-list"><li><strong>2a (load-bearing): regenerate ghost-covered 768-d embeddings</strong> — <code class="prism-inline-code">graph-node-embedding-bridge.mjs</code> Path-3 fallback: embed <code class="prism-inline-code">label + proposed_wiring + engine source docblock/exports</code> via nomic-embed-text (Ollama, present), fail-soft. Coverage 64→~600/636.</li><li><strong>2d (load-bearing): direct-embed k-NN inference</strong> — <code class="prism-inline-code">PRISM_NNG_DIRECT_EMBED</code> path in seed-ghost-gnn-classify: vote raw-768-d cosine over the now-covered embeddings, BYPASSING the broken 8-d edgeless-SAGE entirely. This is the cleanest degeneracy-break (distinct per-ghost vectors → distinct votes) and needs NO retrain.</li><li>2b/2c (stratified-negative wiring + bilinear-head retrain) lift the trained-model path afterward; gate-clear (macroF1≥0.55) remains reference-pool-gated.</li></ul>
+<p>NEXT SESSION START HERE: 2a regen → 2d direct-embed → re-eval (expect isDegenerate→false, distinctPredictions&gt;1, real AUROC).</p>
+<h2 class="prism-h2">KEY FINDING (2026-06-04): the full-coverage embedder is DORMANT, never run</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">scripts/build-node-embeddings.mjs</code> (NN-GRAPH-MS0/U-NNG-NODE-EMBED-INGEST) live-embeds EVERY graph node via nomic /api/embeddings -&gt; <code class="prism-inline-code">state/shared/system-viz/_node-embeddings.jsonl</code>. <code class="prism-inline-code">nodeEmbedText(node)=[kind,label,info].join(&quot; | &quot;)</code> -&gt; DISTINCT text per ghost. But the output file does NOT exist -&gt; it was built and NEVER RUN (dormant). This is why ghost coverage is 64/636 (only the wiki-join bridge ran).</li><li>SIMPLER 2a: add <code class="prism-inline-code">--ghosts-only</code> (embed just the ~636 ghost.unwired-engine + reference nodes, NOT all 372k) + RUN it (~minutes) -&gt; ghost-covered 768-d embeddings. Then 2d direct-embed k-NN consumes them (raw cosine, base-rate-normalized via the now-committed 1a, bypassing the 8-d edgeless-SAGE). NO bridge rewrite, NO 372k full run, NO retrain. This is the load-bearing degeneracy-break.</li><li>build-node-embeddings reuse: nodeEmbedText/quantize/nodeContentHash are exported; reuse them.</li></ul>
+<h2 class="prism-h2">COUPLING/STALENESS CAVEAT (2026-06-04) — READ BEFORE 2a</h2>
+<ul class="prism-md-list"><li>The eval (<code class="prism-inline-code">nn-graph-eval.mjs</code>) reads <strong><code class="prism-inline-code">system-graph.json</code></strong> (645M, TODAY). <code class="prism-inline-code">build-node-embeddings.mjs</code> reads <strong><code class="prism-inline-code">system-graph-normalized.json</code></strong> (248M, <strong>May 15 — 3 weeks STALE</strong>). Running the builder as-is embeds a STALE ghost set that will not key-match the eval ghosts.</li><li>2a MUST embed ghosts from the CURRENT <code class="prism-inline-code">system-graph.json</code>. Options: (a) add <code class="prism-inline-code">--graph &lt;path&gt;</code> to build-node-embeddings + point at system-graph.json; OR (b) regenerate <code class="prism-inline-code">system-graph-normalized.json</code> first (regen-graph-normalized.mjs — sierra lane, coordinate). Verify ghost id/label keys match between the embeddings file and the eval ghosts before trusting any AUROC.</li><li>2d direct-embed must dequantize int8 (<code class="prism-inline-code">unit ~= q <em> s</code>, cosine ~= dot(q_t,q_r)</em>s_t*s_r) consistently; ranking only needs per-ref <code class="prism-inline-code">s_r</code> since <code class="prism-inline-code">s_t</code> is constant per target.</li></ul>
+<h2 class="prism-h2">RESULT (2026-06-04) — DEGENERACY BROKEN ✓ (direct-embed 2a+2d shipped)</h2>
+<ul class="prism-md-list"><li><strong>2a DONE:</strong> <code class="prism-inline-code">build-node-embeddings.mjs --graph &lt;current&gt; --ghosts-only --out ghost-node-embeddings.jsonl</code> (added flags + reused the DORMANT builder) embedded <strong>636/636 ghosts</strong> via nomic in ~20-28s on the Blackwell (concurrency 8). LEAK-FREE: <code class="prism-inline-code">ghostEmbedText()</code> strips the <code class="prism-inline-code">info</code> clause that embeds <code class="prism-inline-code">proposed_wiring</code> verbatim (the eval TRUTH) — R12 catch: the first run scored a FAKE AUROC 0.9833 because the answer was in the input.</li><li><strong>2d DONE:</strong> <code class="prism-inline-code">PRISM_NNG_DIRECT_EMBED=1</code> path in seed-ghost-gnn-classify votes raw 768-d nomic cosine k-NN (dequantized q*s, base-rate-normalized via 1a), BYPASSING the 8-d edgeless-SAGE. Threaded through nn-graph-eval (assessHoldout/runAssessment skip the checkpoint requirement in direct mode).</li><li><strong>HONEST eval (leak-free, 62 holdout):</strong> AUROC <strong>0.848 PASS</strong> (≥0.78), macro-F1 0.326 FAIL, Brier 0.154 FAIL, accuracy 0.532, <strong>isDegenerate FALSE</strong> (constant-vote GONE; distinct predictions). Matches the workflow prediction.</li><li><strong>PSN leg #10 moves DEGENERATE → below-gate (honest).</strong> AUROC clears; macro-F1/Brier remain the documented class-imbalance + name-only-features DATA dependency (the residual is reference-pool growth + richer ghost text = engine source docblocks, not the degeneracy). The blocker correctly relocated from &quot;broken/degenerate&quot; → &quot;model+label quality.&quot;</li><li><strong>NOTE:</strong> AUROC 0.848 measures embedding↔keyword-tier agreement (the ghost TRUTH is itself the keyword rule, both name-derived) — an internal-consistency metric, not verified-wiring ground truth (R12). Still real: the GNN tier now adds genuine ranking signal over constant-vote.</li><li>140 tests pass (62 seed-ghost +20 build-node-embeddings +58 nn-graph-eval), incl leak-strip + direct-embed distinct-prediction + dequant tests.</li></ul>
+<h2 class="prism-h2">RESULT-ITER2 (2026-06-04, /loop) — SOURCE-ENRICHED FEATURES + calibration negative-result</h2>
+<p>Picked up the documented residual (&quot;richer ghost text = engine source docblocks&quot;) to lift macro-F1 toward 0.55. Deterministic holdout (seed 1337, same 62 ghosts) so all deltas are real signal, not resampling noise.</p>
+<ul class="prism-md-list"><li><strong>U-GNN-SOURCE-ENRICH (build-node-embeddings.mjs):</strong> <code class="prism-inline-code">ghostEmbedText(node, sourceSignal)</code> now appends a leak-free <code class="prism-inline-code">engineSourceSignal()</code> — file docblock + class name(s) + PUBLIC method names — resolved per ghost from its own <code class="prism-inline-code">mcp-server/src/engines/**/<em>.ts</code> (635/636 resolved, 0 basename collisions). Leak hardening (reviewer P1-2): strips BOTH <code class="prism-inline-code">proposed wiring:</code> phrasing AND any literal <code class="prism-inline-code">prism_</em></code> dispatcher token (a docblock that names its dispatcher would restate the truth label); drops private/protected members (P1-1). Resume-hash now keys off the ACTUAL embed text (<code class="prism-inline-code">hashFor</code>), not name-only <code class="prism-inline-code">nodeContentHash</code> — else a richer-text re-run is wrongly skipped. Knob <code class="prism-inline-code">PRISM_NNG_GHOST_SOURCE=0</code> reverts to name-only.</li><li><strong>Metric movement (name-only → source-enriched, leak-hardened):</strong></li></ul>
+<table class="prism-md-table"><thead><tr><th>metric</th><th>name-only</th><th>source-enriched</th><th>gate</th></tr></thead><tbody><tr><td>accuracy</td><td>0.532</td><td><strong>0.726</strong> (+0.194)</td><td>—</td></tr>
+<tr><td>macro-F1</td><td>0.326</td><td><strong>0.452</strong> (+0.126)</td><td>≥0.55 (closer; the bottleneck)</td></tr>
+<tr><td>AUROC</td><td>0.848 PASS</td><td>0.737 FAIL</td><td>≥0.78</td></tr>
+<tr><td>Brier</td><td>0.154</td><td>0.199</td><td>≤0.15</td></tr></tbody></table>
+<ul class="prism-md-list"><li><strong>HONEST FINDING (R12):</strong> richer features make the ARGMAX much more accurate (acc +0.19, macro-F1 +0.13 — the hardest/furthest gate) but the uncalibrated, cap-0.8 top-1 voteShare confidence stops ranking correctness → the GNN makes CONFIDENT MISTAKES → AUROC/Brier regress (AUROC falls below its gate). This RE-DEFINES the deploy blocker: it is now <strong>uncertainty/confidence calibration + a larger holdout</strong>, NOT features. Tier remains research-only/dormant (no gate fully passes before or after; no production impact).</li><li><strong>U-GNN-CALIBRATE-NEG (seed-ghost-gnn-classify.mjs, default OFF):</strong> built isotonic confidence calibration (<code class="prism-inline-code">fitIsotonic</code>/<code class="prism-inline-code">applyIsotonic</code>/<code class="prism-inline-code">fitDirectConfidenceCalibrator</code>) by leave-one-out on the reference pool, applied to reported confidence only (argmax provably untouched — tested). <strong>It REGRESSED the live holdout</strong> (AUROC 0.788→0.755, Brier 0.183→0.206 on the pre-P1 embeddings). Root cause is structural: LOO drops 1 reference while the eval holdout drops ~62 at once → the LOO reference pool is DENSER → LOO votes are systematically easier than holdout votes → calibrator transfers as OVER-confidence; isotonic flats also add score ties that depress AUROC. Shipped behind <code class="prism-inline-code">PRISM_NNG_DIRECT_CALIBRATE=1</code> (default OFF) as tested, fail-soft infrastructure. A correct fix needs a held-out calibration split (or k-at-a-time LOO matching the holdout size), or an abstention head.</li><li><strong>NEXT (gate-clear path, re-prioritized):</strong> (1) confidence calibration done RIGHT (held-out split or temperature scaling that preserves AUROC) — the now-dominant blocker; (2) class-balanced + larger reference pool (holdout is ~45% prism_turning) to push macro-F1 0.452→0.55 and stabilize AUROC on more samples; (3) abstention (decline low-margin confident-mistake cases) to recover AUROC/Brier. 101 seed+build tests + 58 eval tests green (incl leak-strip, prism_*-strip, private-drop, argmax-invariance, isotonic PAV, mixed-pool calibration).</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

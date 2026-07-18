@@ -402,11 +402,18 @@ describe("MultiAxisPrintToProgramEngine — U-ARCH3 material resolution", () => 
 // ============================================================================
 
 describe("CANONICAL_MATERIAL_DB — integrity checks", () => {
-  it("has 15 material entries", () => {
+  it("has 20 material entries", () => {
     // 13 base + C11000 ETP Copper + C26000 Cartridge Brass (added 2026-05-17,
     // TSC-FIX/U-TSC-WIRE-EDM-COPPER — replaced a ~3x Al6061 thermal proxy for
-    // copper/brass WEDM workpieces with real ASM/Touloukian values).
-    expect(Object.keys(CANONICAL_MATERIAL_DB).length).toBe(15);
+    // copper/brass WEDM workpieces with real ASM/Touloukian values)
+    // + ductile_iron (added 2026-06-22, SFC-CONVERGENCE/U-SFC-DUCTILE-IRON-KC — nodular iron
+    // kc1_1 1300 vs the gray-iron K-group 1100; fixes a ~18% force under-prediction)
+    // + 17-4PH (added 2026-07-03, U-LW-17-4PH-MATERIAL — precipitation-hardening stainless
+    // AISI 630, kc1_1 2200; the Lathe Wizard returned success:false for it before).
+    // + 4340 / Waspaloy / Ti-5553 (added 2026-07-04, U-LW-MAT-RESOLUTION-FIX — mainstream
+    // Ni-Cr-Mo alloy steel (AISI kc1_1 2000) + two ISO-S superalloy/near-beta-Ti grades that
+    // the combinatorial-validation slices proved were unresolvable; GG25 aliased onto gray_iron).
+    expect(Object.keys(CANONICAL_MATERIAL_DB).length).toBe(20);
   });
 
   it("all ISO groups are represented", () => {

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `ai-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/ai-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/ai-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Generate 3–5 candidate solutions for a manufacturing parameter-optimization problem, score them by expected value (throughput, cost, tool life, Ra), and return the tribal- and physics-validated winner. Grounded in HypothesisRanker + ToT + TribalKnowledgeTraining.
+
+# /ai-optimize — Multi-Hypothesis Optimization with EV Ranking
 
 <!-- AUTO-END -->
 

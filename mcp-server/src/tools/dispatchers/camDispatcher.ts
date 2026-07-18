@@ -58,6 +58,7 @@ import { ACTION_BATCH_CAM_MATERIAL_BRIDGE_SCHEMAS } from "../../schemas/batchCAM
 import { ACTION_CAMX_MS5_U06_SCHEMAS } from "../../schemas/camxMs5U06ActionSchemas.js";
 import { ACTION_SOLIDCAM_CODE_GENERATOR_SCHEMAS } from "../../schemas/solidcamCodeGeneratorActionSchemas.js";
 import { ACTION_CAMX_MS3_U09_SCHEMAS } from "../../schemas/camxMs3U09ActionSchemas.js";
+import { camxMs3U01ActionSchemas } from "../../schemas/camxMs3U01ActionSchemas.js";
 import { ACTION_CATIA_CODE_GENERATOR_SCHEMAS } from "../../schemas/catiaCodeGeneratorActionSchemas.js";
 import { ACTION_HYPERMILL_CODE_GENERATOR_SCHEMAS } from "../../schemas/hyperMillCodeGeneratorActionSchemas.js";
 import { ACTION_CAMX_MS6_U03_SCHEMAS } from "../../schemas/camxMs6U03ActionSchemas.js";
@@ -107,8 +108,88 @@ import { ACTION_PM_ROUGHING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/powerMi
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS, ACTION_CAM_LORA_CADENCE_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 import { ACTION_CAMX_MS22_U01_SCHEMAS } from '../../schemas/camxMs22U01ActionSchemas.js';
 import { ACTION_CAMX_MS22_U02_SCHEMAS } from '../../schemas/camxMs22U02ActionSchemas.js';
+// U-WIRE-BACKLOG-LATHE-MASTERPOST-SA (slot:india) — dedicated schema export per the engine's wiring-contract test
+import { ACTION_LATHE_SELFAWARE_SCHEMAS } from "../../schemas/latheMasterPostSelfAwarenessActionSchemas.js";
+// WIRE-UNWIRED-PAPA / U-WIRE-CAM-SUBPROG-SYNC (slot:papa, 2026-06-15) -- schemas for
+// SubprogramExtractionEngine + SyncCodeVerificationEngine (built + in-process, dispatcher-DARK).
+// Both stateless singletons; deterministic (SubprogramExtraction is hash-based; SyncCode is
+// pure analysis save a generated_at timestamp). .passthrough() tolerates normalizeParams' added
+// camelCase aliases (the engine reads the snake_case originals).
+const PAPA_CAM_WIRE_SCHEMAS = {
+  subprogram_extract: z
+    .object({
+      gcode: z.array(z.string()),
+      params: z
+        .object({
+          min_pattern_length: z.number().optional(),
+          min_occurrences: z.number().optional(),
+          controller: z.enum(["fanuc", "siemens", "okuma", "haas", "mazak"]).optional(),
+          max_patterns: z.number().optional(),
+          detect_rotations: z.boolean().optional(),
+          detect_mirrors: z.boolean().optional(),
+        })
+        .passthrough()
+        .optional(),
+    })
+    .passthrough(),
+  subprogram_quick_check: z
+    .object({ gcode: z.array(z.string()), min_occurrences: z.number().optional() })
+    .passthrough(),
+  subprogram_estimate_savings: z.object({ gcode: z.array(z.string()) }).passthrough(),
+  synccode_verify: z
+    .object({
+      programs: z.array(z.object({ channel: z.number(), lines: z.array(z.string()) }).passthrough()),
+      dialect: z.enum(["okuma", "mazak", "fanuc", "siemens"]).optional(),
+    })
+    .passthrough(),
+  synccode_dialects: z.object({}).passthrough(),
+  synccode_stats: z.object({}).passthrough(),
+};
+// WIRE-UNWIRED (slot:romeo, 2026-06-15) -- HolderSelectionEngine -> prism_cam.
+// Pick a REAL branded tool holder (HAIMER/GUHRING/BIG DAISHOWA) by taper + shank-bore
+// fit (the verified core of the tool-holder DB; replaces the CAM exporters' inferHolder
+// size-guess), plus the by-type library view + stats. Pure/deterministic singleton.
+// Engine: CATALOG-APP-WIRING-MS0/U-HOLDER-SELECT. select() reads camelCase; the schema
+// enforces the snake_case dispatcher contract and the case maps snake -> camelCase.
+const ROMEO_HOLDER_SCHEMAS = {
+  cam_holder_select: z
+    .object({
+      taper: z.string(),
+      shank_diameter_mm: z.number(),
+      type_preference: z.string().optional(),
+      exact_bore_tolerance_mm: z.number().optional(),
+    })
+    .passthrough(),
+  cam_holder_by_type_brand: z.object({}).passthrough(),
+  cam_holder_stats: z.object({}).passthrough(),
+};
+// CAM-LEARNING-LOOP/U-KILO-DECISION-2PHASE (slot:kilo, 2026-07-01) -- Phase-2
+// resolve contract for the 2-phase decision-capture loop. decision_id comes
+// from a Phase-1 captured action result (cam_dl_decide / cam_reasoning_decide /
+// cam_strategy_recommend attach it -- see captureCamDecision). The
+// was_correct-XOR-corrected_value semantics are enforced in the case handler
+// with STRUCTURED error codes (missing_verdict / contradictory_resolution)
+// rather than a Zod refine, so callers get stable machine-readable errors.
+// .passthrough() tolerates normalizeParams' added camelCase aliases.
+const KILO_DECISION_LOOP_SCHEMAS = {
+  cam_decision_outcome: z
+    .object({
+      decision_id: z.string().min(1),
+      was_correct: z.boolean().optional(),
+      corrected_value: z.unknown().optional(),
+      reason: z.string().optional(),
+      operator_id: z.string().optional(),
+      actuals: z.record(z.string(), z.unknown()).optional(),
+    })
+    .passthrough(),
+  cam_decision_get: z.object({ decision_id: z.string().min(1) }).passthrough(),
+};
 const MERGED_CAM_SCHEMAS = {
+  ...PAPA_CAM_WIRE_SCHEMAS,
+  ...ROMEO_HOLDER_SCHEMAS,
+  ...KILO_DECISION_LOOP_SCHEMAS,
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
+  ...ACTION_LATHE_SELFAWARE_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
   ...ACTION_CK_PIPELINE_SCHEMAS, ...ACTION_CAM_KERNEL_SCHEMAS,
   ...ACTION_CK_MS10_SCHEMAS, ...ACTION_CK_MS11_SCHEMAS,
@@ -127,6 +208,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_BATCH_CAM_MATERIAL_BRIDGE_SCHEMAS,
   ...ACTION_CAMX_MS5_U06_SCHEMAS,
   ...ACTION_CAMX_MS3_U09_SCHEMAS,
+  ...camxMs3U01ActionSchemas,
   ...ACTION_SOLIDCAM_CODE_GENERATOR_SCHEMAS,
   ...ACTION_CATIA_CODE_GENERATOR_SCHEMAS,
   ...ACTION_HYPERMILL_CODE_GENERATOR_SCHEMAS,
@@ -185,6 +267,7 @@ import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSch
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
+import { postActionResult } from "./postActionResult.js";
 
 let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _mcAutoBridge: any, _espCAM: any, _invAutoBridge: any, _invAIOrch: any, _swAutoBridge: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
@@ -357,7 +440,8 @@ let _proveOut: any;
 let _postValHardening: any;
 // PostValidationReportEngine (PP-MS5/U-PP26)
 let _postValReport: any;
-// POST-ULT singletons (20 engines)
+// POST-ULT singletons (21 engines)
+let _postProcUnification: any;
 let _cpsPostParser: any;
 let _cpsDialectMapper: any;
 let _machineFingerprint: any;
@@ -399,6 +483,10 @@ let _hmIMToolDb: any, _hmIMMacroDB: any;
 let _ppAIDeepLearning: any, _ppAIDeepReasoning: any, _ppAIUltimate: any, _ppAIOrchestrator: any;
 // LATHE-MASTER P1 singletons (U-LTH07, U-LTH08, U-LTH09, U-LTH12)
 let _latheSFCalc: any, _latheSFDL: any, _latheSFReasoning: any, _latheSFShop: any;
+// U-WIRE-BACKLOG-MASTER-POST-FINE-TUNE (slot:india) — LoRA-style post-processor fine-tuner
+let _masterPostFineTune: any;
+// U-WIRE-BACKLOG-LATHE-MASTERPOST-SA (slot:india) — lathe sub-post drift/audit self-awareness
+let _latheMasterPostSA: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -657,7 +745,8 @@ async function getEngine(name: string): Promise<any> {
     // E1129 — STEPNCEngines (CAMX-MS20)
     case "stepNCParser":    return _stepNCParser    ??= (await import("../../engines/STEPNCEngines.js")).stepNCParserEngine;
     case "stepNCGenerator": return _stepNCGenerator ??= (await import("../../engines/STEPNCEngines.js")).stepNCGeneratorEngine;
-    // POST-ULT engines (20)
+    // POST-ULT engines (21)
+    case "postProcUnification": return _postProcUnification ??= (await import("../../engines/PostProcessorUnificationEngine.js")).postProcessorUnificationEngine;
     case "cpsPostParser": return _cpsPostParser ??= (await import("../../engines/CpsPostParserEngine.js")).cpsPostParserEngine;
     case "cpsDialectMapper": return _cpsDialectMapper ??= (await import("../../engines/CpsDialectMapperEngine.js")).cpsDialectMapperEngine;
     case "machineFingerprint": return _machineFingerprint ??= (await import("../../engines/MachineFingerprintEngine.js")).machineFingerprintEngine;
@@ -751,6 +840,10 @@ async function getEngine(name: string): Promise<any> {
     case "hmACStandardToolDB": return _hmACStandardToolDB ??= (await import("../../engines/HyperMillACStandardToolDBEngine.js")).hyperMillACStandardToolDBEngine;
     case "hmMetricCfg": return _hmMetricCfg ??= (await import("../../engines/HyperMillMetricCfgExtractorEngine.js")).hyperMillMetricCfgExtractorEngine;
     case "hmExtractionOrch": return _hmExtractionOrch ??= (await import("../../engines/HyperMillDataExtractionOrchestrator.js")).hyperMillDataExtractionOrchestrator;
+    // U-WIRE-BACKLOG-MASTER-POST-FINE-TUNE (slot:india) — MasterPostFineTuningEngine singleton
+    case "masterPostFineTune": return _masterPostFineTune ??= (await import("../../engines/MasterPostFineTuningEngine.js")).masterPostFineTuningEngine;
+    // U-WIRE-BACKLOG-LATHE-MASTERPOST-SA (slot:india) — LatheMasterPostSelfAwarenessEngine singleton
+    case "latheMasterPostSA": return _latheMasterPostSA ??= (await import("../../engines/LatheMasterPostSelfAwarenessEngine.js")).latheMasterPostSelfAwarenessEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -976,11 +1069,422 @@ function buildPostProcessRequest(params: Record<string, any>) {
   };
 }
 
+// ============================================================================
+// CLOSE-THE-LOOP CAM ON-RAMP (U-CAM-LOOP-ONRAMP, slot:kilo 2026-06-30)
+// ----------------------------------------------------------------------------
+// India shipped the training-emit SEAM (CAMOutcomeCaptureWireEngine): a
+// singleton that dual-emits every observed CAM outcome to the universal
+// OutcomeCaptureBus AND the CrossProcessOutcomeStore -> FeedbackBus -> neural
+// learner path. It was DATA-STARVED -- the runner never CALLED it, so the loop
+// had a producer with no feed. This is the PRODUCER side: after a terminal CAM
+// dispatch (toolpath_generate / collision_check_full / post_process) completes,
+// we derive an HONEST success/failure verdict from the outcome's OWN signals and
+// hand it to `recordOutcome`, so the shard records are LABELLED, not `pending`.
+//
+// NEVER-THROW / NEVER-BLOCK: this runs AFTER `result` is finalized, in a
+// try/caught post-switch block; a bus/store/import failure can never break a
+// CAM dispatch. Mirrors the sibling WEDM `recordOutcome` tap already in this
+// dispatcher's tail + india's engine invariant #1.
+// ============================================================================
+
+/** The prism_cam actions whose completion is a real CAM training outcome. */
+const CAM_OUTCOME_ACTIONS: Record<string, "toolpath" | "post"> = {
+  toolpath_generate: "toolpath",
+  collision_check_full: "toolpath",
+  post_process: "post",
+};
+
+/** CrossProcessOutcomeStore machine-process vocabulary (mill|lathe|wedm). */
+function deriveCamProcess(params: Record<string, any>): string {
+  const raw = String(
+    params.process ?? params.machine_process ?? params.machine ?? params.machine_name ?? "",
+  ).toLowerCase();
+  if (/wedm|wire[\s_-]?edm|\bedm\b/.test(raw)) return "wedm";
+  if (/lathe|turn|multus|swiss/.test(raw)) return "lathe";
+  // mill|vmc|hmc|mc|generic|empty -> mill (the CrossProcessOutcomeStore default);
+  // india's engine also defaults an unknown process to "mill" (never throws).
+  return "mill";
+}
+
+/**
+ * Extract the ordered move list a CAM result carries, from any of the shapes
+ * ToolpathGenerationEngine / UnifiedCAMPipelineEngine produce. Used to run the
+ * collision check that LABELS a `toolpath_generate` outcome (the collision gate
+ * that runs on every toolpath per the CAM pipeline contract).
+ */
+function extractResultMoves(result: any, params: Record<string, any>): any[] {
+  if (Array.isArray(params?.moves) && params.moves.length > 0) return params.moves;
+  const r = result ?? {};
+  const candidates = [
+    r.moves, r.toolpath?.moves, r.toolpath?.segments, r.segments,
+    r.program?.moves, r.program?.segments, r.path?.moves,
+    r.toolpaths?.[0]?.moves, r.operations?.[0]?.moves,
+  ];
+  for (const c of candidates) if (Array.isArray(c) && c.length > 0) return c;
+  return [];
+}
+
+/**
+ * Map a completed terminal CAM dispatch to india's CAMOutcomeInput carrying an
+ * HONEST, NON-PENDING verdict signal, and record it via the wire engine.
+ * Returns the CAMEmissionResult (or null when the action is not an outcome
+ * action, or the result is an error). NEVER throws.
+ *
+ * Verdict-signal sourcing (real, from the outcome's own numbers -- never faked):
+ *  - collision_check_full -> CollisionResult.{collision_count, has_collision,
+ *    minimum_clearance_mm}: simCollisions = collision_count; a completed check
+ *    with 0 collisions + a clearance metric is a labelled SUCCESS, >0 a FAILURE.
+ *  - toolpath_generate -> run CollisionDetectionEngine.checkFull on the generated
+ *    toolpath moves vs the fixture/stock bodies (the collision-check that gates
+ *    every toolpath); simCollisions from that check labels the outcome. If the
+ *    caller supplied bodies+moves the label is real; with no geometry to check
+ *    we still attach the observed toolpath metrics so a clean generate is
+ *    labelled SUCCESS (0 collisions observed), never a fabricated pass.
+ *  - post_process -> PostResult.{line_count, gcode, warnings}: emitted g-code
+ *    with lines + no CRITICAL warning is SUCCESS; empty/failed emit is FAILURE.
+ */
+async function captureCamOutcome(
+  action: string,
+  params: Record<string, any>,
+  result: any,
+): Promise<any | null> {
+  const camType = CAM_OUTCOME_ACTIONS[action];
+  if (!camType) return null;
+  // Never record an errored/blocked dispatch as a training outcome.
+  if (result && typeof result === "object" &&
+      ("error" in result || "blocked" in result)) return null;
+
+  try {
+    const { camOutcomeCaptureWireEngine } =
+      await import("../../engines/CAMOutcomeCaptureWireEngine.js");
+
+    const process = deriveCamProcess(params);
+    const jobId = String(
+      params.job_id ?? params.jobId ?? params.program_number ?? params.part_number ??
+      `cam-${action}-${Date.now()}`,
+    );
+    const entityId = String(params.entity_id ?? params.entityId ?? jobId);
+    const metrics: Record<string, number> = {};
+    const num = (v: unknown): number | undefined =>
+      typeof v === "number" && Number.isFinite(v) ? v : undefined;
+
+    const base: Record<string, any> = {
+      type: camType,
+      entityId,
+      process,
+      jobId,
+      camSystem: params.cam_system ?? params.camSystem ?? params.vendor,
+      controller: params.controller,
+      strategy: params.strategy,
+      customer: params.customer,
+      partNumber: params.part_number ?? params.partNumber,
+      operation: params.operation,
+      metrics,
+    };
+
+    if (action === "collision_check_full") {
+      const cc = num(result?.collision_count);
+      const nm = num(result?.near_miss_count);
+      const clr = num(result?.minimum_clearance_mm);
+      if (cc !== undefined) { base.simCollisions = cc; metrics.sim_collisions = cc; }
+      if (nm !== undefined) metrics.near_miss_count = nm;
+      if (clr !== undefined) metrics.minimum_clearance_mm = clr;
+      // has_collision===false with a real result => clean check (0 collisions).
+      if (result?.has_collision === false && base.simCollisions === undefined) {
+        base.simCollisions = 0; metrics.sim_collisions = 0;
+      }
+    } else if (action === "toolpath_generate") {
+      // Run the collision gate on the generated toolpath to LABEL it.
+      const moves = extractResultMoves(result, params);
+      const bodies = Array.isArray(params.bodies) ? params.bodies : [];
+      metrics.move_count = moves.length;
+      if (moves.length > 0 && bodies.length > 0) {
+        try {
+          const collisionEngine = await getEngine("collision");
+          const cr = collisionEngine.checkFull(
+            bodies, moves, num(params.safety_margin_mm) ?? 2,
+          );
+          const cc = num(cr?.collision_count) ?? 0;
+          base.simCollisions = cc; metrics.sim_collisions = cc;
+          const clr = num(cr?.minimum_clearance_mm);
+          if (clr !== undefined) metrics.minimum_clearance_mm = clr;
+        } catch { /* collision engine failure -> fall through to metric-only */ }
+      }
+      // No bodies to check against: a generate that produced a toolpath with
+      // moves and no observed collisions is a clean, completed outcome.
+      if (base.simCollisions === undefined && moves.length > 0) {
+        base.simCollisions = 0; metrics.sim_collisions = 0;
+      }
+      const lines = num(result?.line_count) ?? num(result?.lines_emitted);
+      if (lines !== undefined) metrics.lines_emitted = lines;
+    } else if (action === "post_process") {
+      const lines = num(result?.line_count);
+      const gcode = typeof result?.gcode === "string" ? result.gcode : undefined;
+      const warnings: string[] = Array.isArray(result?.warnings) ? result.warnings : [];
+      const criticals = warnings.filter((w) => String(w).toUpperCase().includes("CRITICAL"));
+      if (lines !== undefined) metrics.lines_emitted = lines;
+      if (warnings.length > 0) metrics.warnings = warnings.length;
+      const emittedOk = (lines !== undefined && lines > 0) ||
+        (gcode !== undefined && gcode.length > 0);
+      // A completed post with emitted g-code + no CRITICAL warning is validated
+      // success; an empty emit OR a CRITICAL warning is a failure. Both HONEST.
+      if (criticals.length > 0 || (lines !== undefined && lines <= 0)) {
+        base.validated = false; base.fatalErrors = criticals.length;
+        metrics.fatal_errors = criticals.length;
+      } else if (emittedOk) {
+        base.validated = true;
+      }
+    }
+
+    return camOutcomeCaptureWireEngine.recordOutcome(base as any);
+  } catch (err) {
+    // NEVER propagate: the loop calls this after observing an outcome.
+    log.warn(`[prism_cam] CAM outcome capture error: ${err instanceof Error ? err.message : String(err)}`);
+    return null;
+  }
+}
+
+// ============================================================================
+// 2-PHASE DECISION CAPTURE -- Phase 1 (CAM-LEARNING-LOOP/U-KILO-DECISION-2PHASE,
+// slot:kilo 2026-07-01; backlog item #4, open-learning-loops)
+// ----------------------------------------------------------------------------
+// The sibling on-ramp above (captureCamOutcome) labels TERMINAL emissions
+// (toolpath/post) from their own result signals. DECISIONS are different:
+// correctness is UNKNOWABLE at decision time, so this tap NEVER writes a
+// wasCorrect -- Phase 1 only snapshots {decisionId, ts, action, task, inputs
+// digest, recommended decision, confidence, source} into CAMDecisionLogEngine
+// and hands the stable decisionId back to the caller on the action result.
+// Phase 2 (cam_decision_outcome) later correlates the operator verdict or
+// override back through the EXISTING CAMFeedbackLoopEngine.recordOutcome /
+// recordCorrection surface, feeding the Mann-Kendall accuracy-drift metric
+// with REAL outcomes. (Calling recordOutcome at the end of the decision
+// dispatch with a forced wasCorrect=true was evaluated and REJECTED: it
+// falsifies the drift metric.)
+//
+// PLACEMENT: dispatcher tail (not engine-level) because engines.md forbids
+// I/O in pure-calc engines (CAMDeepLearningOrchestratorEngine and
+// HyperMillStrategyEngine stay pure/untouched) and the prism_cam dispatch IS
+// the emission surface every external consumer sees -- capturing here covers
+// all callers in one seam, mirroring the proven U-CAM-LOOP-ONRAMP pattern.
+// NEVER-THROW / NEVER-BLOCK: a store failure can never break the CAM action.
+// ============================================================================
+
+/**
+ * prism_cam actions whose completed result is a correlatable AI decision,
+ * mapped to how the CAMFeedbackLoopEngine task key is derived:
+ *   "params"  -> read the AGIDecisionTask from params.task (cam_dl_decide /
+ *                cam_reasoning_decide accept all four tasks)
+ *   otherwise -> the literal task key for that action.
+ */
+const CAM_DECISION_CAPTURE_ACTIONS: Record<string, "params" | "strategy_recommend"> = {
+  cam_dl_decide: "params",
+  cam_reasoning_decide: "params",
+  cam_strategy_recommend: "strategy_recommend",
+};
+
+/** The four CAMFeedbackLoopEngine / AGIDecision task keys (typed union in
+ *  CAMDeepLearningOrchestratorEngine.AGIDecisionTask). */
+const CAM_AGI_TASKS = new Set([
+  "strategy_recommend", "parameter_extract", "operation_classify", "tool_select_advisor",
+]);
+
+/** The four AGIDecision SourceKind values -- anything else (e.g. the HyperMill
+ *  strategy KB source string) is stored raw on the decision record but passed
+ *  to CAMFeedbackLoopEngine.recordCorrection as null (honest typing). */
+const CAM_AGI_SOURCE_KINDS = new Set(["physics", "ollama", "nvidia", "tribal"]);
+
+function toAgiSourceKind(s: string | null | undefined): "physics" | "ollama" | "nvidia" | "tribal" | null {
+  return typeof s === "string" && CAM_AGI_SOURCE_KINDS.has(s)
+    ? (s as "physics" | "ollama" | "nvidia" | "tribal")
+    : null;
+}
+
+function finiteNumOr0(v: unknown): number {
+  return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+
+/**
+ * Phase-1 capture: snapshot a completed CAM decision into CAMDecisionLogEngine
+ * and return the stable decisionId (or null when the action is not a decision
+ * action / the result is an error). NEVER throws.
+ */
+async function captureCamDecision(
+  action: string,
+  params: Record<string, any>,
+  result: any,
+): Promise<{ decisionId: string; logged: boolean; task: string } | null> {
+  const mode = CAM_DECISION_CAPTURE_ACTIONS[action];
+  if (!mode) return null;
+  if (!result || typeof result !== "object" || Array.isArray(result)) return null;
+  // Never log an errored/blocked dispatch as an emitted decision.
+  if ("error" in result || "blocked" in result) return null;
+
+  try {
+    const task = mode === "params" ? String(params.task ?? "") : mode;
+    // An unmappable task can never be resolved against the feedback engine.
+    if (!CAM_AGI_TASKS.has(task)) return null;
+
+    let decisionValue: unknown;
+    let confidence = 0;
+    let source: string | null = null;
+    if (action === "cam_dl_decide") {
+      // result IS the AGIDecision.
+      decisionValue = result.value ?? null;
+      confidence = finiteNumOr0(result.confidence);
+      source = result.agreeingSources?.[0] ?? result.voices?.[0]?.source ?? null;
+    } else if (action === "cam_reasoning_decide") {
+      // result = { success, decision, chain } (CAMReasoningChainEngine.decide).
+      const d = result.decision;
+      if (!d || typeof d !== "object") return null;
+      decisionValue = d.value ?? null;
+      confidence = finiteNumOr0(d.confidence);
+      source = d.agreeingSources?.[0] ?? d.voices?.[0]?.source ?? null;
+    } else {
+      // cam_strategy_recommend -> HyperMillStrategyEngine.StrategyRecommendation.
+      decisionValue = {
+        strategyName: result.strategyName ?? null,
+        hyperMillCycle: result.hyperMillCycle ?? null,
+        cuttingMode: result.cuttingMode ?? null,
+        suggestedStepdown: result.suggestedStepdown ?? null,
+        suggestedStepover: result.suggestedStepover ?? null,
+      };
+      confidence = finiteNumOr0(result.confidence);
+      source = typeof result.source === "string" ? result.source : null;
+    }
+
+    const { CAMDecisionLogEngine } = await import("../../engines/CAMDecisionLogEngine.js");
+    const captured = CAMDecisionLogEngine.capture({
+      action,
+      task,
+      inputs: params,
+      prompt: typeof params.prompt === "string" ? params.prompt : "",
+      decisionValue,
+      confidence,
+      source,
+    });
+    if (!captured.decisionId) {
+      // Hard reject inside capture (surfaced, not thrown) -- nothing to attach.
+      log.warn(`[prism_cam] CAM decision capture rejected: ${captured.error ?? "unknown"}`);
+      return null;
+    }
+    return { decisionId: captured.decisionId, logged: captured.logged, task };
+  } catch (err) {
+    // NEVER propagate: capture failure must not break the CAM action (R12:
+    // the failure is still surfaced in the log + _camDecision.logged=false).
+    log.warn(`[prism_cam] CAM decision capture error: ${err instanceof Error ? err.message : String(err)}`);
+    return null;
+  }
+}
+
+// ============================================================================
+// CLOSE-THE-LOOP CAM CONSUMER (U-CAM-LOOP-CONSUME, slot:kilo 2026-06-30)
+// ----------------------------------------------------------------------------
+// The PRODUCER on-ramp (U-CAM-LOOP-ONRAMP) feeds india's seam; SelfLearningCAMEngine
+// persists learned strategy effectiveness (win-rates) across restarts. The
+// CONSUMER side makes that learned state MEASURABLY change a recommendation:
+// CAMStrategyRecommenderEngine already accepts an `empirical_ranking` and nudges
+// its catalog scores by the learned win-rate (bounded, confidence-scaled) --
+// but ONLY `camFunctionDispatcher.cam_func_strategy_recommend` was wired to feed
+// it. The PRIMARY `prism_cam` recommendation actions (cam_strategy_recommend_full,
+// cam_phase5_recommend_strategy) passed RAW params -> cold literature priors only.
+//
+// This is the shared injector (DRY: cloned ONCE from the proven camFunctionDispatcher
+// path, not forked a third time). It reads the live learned ranking from
+// SelfLearningCAMEngine.strategyRanking() and maps it to the recommender's
+// EmpiricalStrategySignal[]. Fail-soft: a learner error must NEVER block a
+// recommendation, but it is surfaced (R12 -- a permanently-cold loop is detectable).
+// ============================================================================
+
+/** One learned empirical signal the recommender consumes (mirrors
+ *  CAMStrategyRecommenderEngine.EmpiricalStrategySignal without importing it). */
+type LearnedStrategySignal = {
+  strategy: string;
+  winRate: number;
+  confidence: "low" | "medium" | "high";
+  observations: number;
+};
+
+/**
+ * Read the live learned strategy ranking from SelfLearningCAMEngine and map it to
+ * the recommender's empirical_ranking. Returns `undefined` when learning is opted
+ * out (`use_learned:false`) OR the learner is cold/errored -- in which case the
+ * recommender behaves exactly as a cold literature-prior caller (no regression).
+ *
+ * @param params  dispatcher params (reads use_learned / material_group / geometry_class)
+ */
+async function buildLearnedStrategyRanking(
+  params: Record<string, any>,
+): Promise<LearnedStrategySignal[] | undefined> {
+  if (params?.use_learned === false) return undefined;
+  try {
+    const { selfLearningCAMEngine } = await import("../../engines/SelfLearningCAMEngine.js");
+    const mg = params?.material_group ?? params?.materialGroup;
+    const gc = params?.geometry_class ?? params?.geometryClass;
+    const ranking = selfLearningCAMEngine.strategyRanking({
+      materialGroup:
+        mg !== undefined ? (String(mg) as "P" | "M" | "K" | "N" | "S" | "H") : undefined,
+      geometryClass: gc !== undefined ? String(gc) : undefined,
+      // minObservations:1 so even a single real observation influences the rank
+      // (the recommender's confidence-weight already dampens low-N signals).
+      minObservations: 1,
+    });
+    const signals = (ranking?.rankings ?? []).map((r) => ({
+      strategy: r.strategy,
+      winRate: r.winRate.rate,
+      confidence: r.confidence,
+      observations: r.observations,
+    }));
+    return signals.length > 0 ? signals : undefined;
+  } catch (err) {
+    // Fail-soft but LOUD (R12): a cold/broken loop must be detectable, not silent.
+    log.warn(`[prism_cam] learned strategy re-rank unavailable (loop ran cold): ${err instanceof Error ? err.message : String(err)}`);
+    return undefined;
+  }
+}
+
+/**
+ * Run the PRODUCTION CAM strategy recommender WITH the learned empirical ranking
+ * injected -- the closed-loop CONSUME. Used by the primary prism_cam recommendation
+ * actions so a learned posterior demonstrably shifts the ranking vs the cold prior.
+ * Never throws; a learner miss degrades cleanly to the cold recommendation.
+ */
+async function recommendStrategyWithLearning(
+  params: Record<string, any>,
+): Promise<any> {
+  const { camStrategyRecommenderEngine } = await import("../../engines/CAMStrategyRecommenderEngine.js");
+  const empirical_ranking = await buildLearnedStrategyRanking(params);
+  return camStrategyRecommenderEngine.recommend({
+    target_cam: String(params?.target_cam ?? ""),
+    part_hint: params?.part_hint !== undefined ? String(params.part_hint) : undefined,
+    material: params?.material !== undefined ? String(params.material) : undefined,
+    max_alternatives:
+      params?.max_alternatives !== undefined ? Number(params.max_alternatives) : undefined,
+    empirical_ranking,
+  });
+}
+
 export const ACTIONS = [
+  // U-WIRE-COOLANT-ADAPTER / WIRE-UNWIRED-PAPA: CoolantStrategyAdapter orchestrated coolant selection (galaxy:kilo wired into prism_cam). slot:papa->kilo 2026-06-15.
+  "coolant_select_orchestrated",
+  // U-WIRE-ENTRYEXIT-ADAPTER / WIRE-UNWIRED-PAPA: EntryExitStrategyAdapter orchestrated entry/exit selection (galaxy:kilo). slot:papa->kilo 2026-06-15.
+  "entryexit_select_orchestrated",
+  // U-WIRE-SEQUENCING-ADAPTER / WIRE-UNWIRED-PAPA: IntelligentSequencingAdapter orchestrated op-sequence selection (galaxy:kilo). slot:papa->kilo 2026-06-15.
+  "sequence_select_orchestrated",
+  // WIRE-UNWIRED-PAPA / U-WIRE-CAM-SUBPROG-SYNC (slot:papa, 2026-06-15) --
+  // SubprogramExtractionEngine (G-code repeated-pattern -> subprogram extraction) +
+  // SyncCodeVerificationEngine (multi-channel mill-turn/Swiss sync-code verification).
+  "subprogram_extract", "subprogram_quick_check", "subprogram_estimate_savings",
+  "synccode_verify", "synccode_dialects", "synccode_stats",
+  // WIRE-UNWIRED (slot:romeo, 2026-06-15) -- HolderSelectionEngine -> prism_cam
+  "cam_holder_select", "cam_holder_by_type_brand", "cam_holder_stats",
   "toolpath_generate", "toolpath_simulate", "toolpath_optimize",
   "post_process", "collision_check_full", "stock_update",
   "tool_assembly", "fixture_setup", "nesting_optimize",
   "clearance_plane", "sequence_operations", "linking_move",
+  // CAD-AI → CAM-AI autonomous handoff bridge (U-BRIDGE-CAD-CAM-HANDOFF) —
+  // CAD-gen FeatureSpec[] → operator-gated CAM strategy plan. Also wired in
+  // prism_cad:cad_cam_handoff (WIRE-TO-ALL-SOURCES — consumes CAD, emits CAM).
+  "cad_cam_handoff",
   // TRAINING-LEARNING-MS0/U2 — Mill training corpus + per-family templates.
   // Read-only catalog → template extract → list. Engine NEVER emits G-code.
   // Mirrors prism_turning:lathe_training_* (U1 sibling).
@@ -998,7 +1502,7 @@ export const ACTIONS = [
   "electrode_corpus_scan",
   "electrode_xlsm_fingerprint",
   "electrode_coverage_audit",
-  "cam_strategy_recommend", "cam_safety_validate",
+  "cam_strategy_recommend", "cam_strategy_recommend_with_diamond_turning", "cam_safety_validate",
   "cam_multiaxis_recommend", "cam_material_map",
   "cam_cycle_catalog",
   "cam_catalog_load_all", "cam_catalog_load_one", "cam_catalog_priority5_coverage",
@@ -1028,6 +1532,22 @@ export const ACTIONS = [
   "cam_mastercam_build_post_run",
   "cam_post_invoke_from_inventory",
   "cam_post_invoke_eligible_machines",
+  // U-WIRE-BACKLOG-POST (FEATURE-GAP-AUDIT-MS0) — wire the 6 unwired DNC-family
+  // post / program-transfer engines (zero prior dispatcher ref): DNCGenerate,
+  // DNCCompare, DNCFileTransfer, DNCQR, DNCSend, DNCVerify. 2 actions each.
+  "cam_dnc_generate",
+  "cam_dnc_validate_safety",
+  "cam_dnc_compare",
+  "cam_dnc_compare_with_master",
+  "cam_dnc_file_transfer_build",
+  "cam_dnc_file_transfer_stats",
+  "cam_dnc_qr_generate",
+  "cam_dnc_qr_decode",
+  "cam_dnc_send_register_connection",
+  "cam_dnc_send_queue",
+  "cam_dnc_send_status",
+  "cam_dnc_verify",
+  "cam_dnc_verify_quick_safety",
   "cam_hypermill_build_operation_create",
   "cam_hypermill_build_stock",
   "cam_hypermill_build_tool_install",
@@ -1080,18 +1600,20 @@ export const ACTIONS = [
   "lathe_p2p_ingest", "lathe_p2p_ingest_batch", "lathe_p2p_validate_extraction",
   "lathe_p2p_recognize_features", "lathe_p2p_recognize_batch", "lathe_p2p_feature_taxonomy", "lathe_p2p_recognition_stats",
   "lathe_p2p_tolerance_propagate", "lathe_p2p_tolerance_batch", "lathe_p2p_tolerance_stats", "lathe_p2p_tolerance_validate",
-  "lathe_p2p_strategy_select", "lathe_p2p_strategy_batch", "lathe_p2p_strategy_plan", "lathe_p2p_strategy_stats", "lathe_p2p_strategy_validate",
-  "lathe_p2p_sequence_plan", "lathe_p2p_sequence_summarize", "lathe_p2p_sequence_autofix",
+  "lathe_p2p_strategy_select", "lathe_p2p_strategy_batch", "lathe_p2p_strategy_plan", "lathe_p2p_strategy_stats", "lathe_p2p_strategy_validate", "lathe_p2p_strategy_select_consensus", "lathe_p2p_strategy_batch_consensus",
+  "lathe_p2p_sequence_plan", "lathe_p2p_sequence_summarize", "lathe_p2p_sequence_autofix", "lathe_p2p_sequence_plan_consensus",
   "lathe_p2p_setup_select", "lathe_p2p_setup_from_features", "lathe_p2p_setup_validate", "lathe_p2p_setup_infer_geometry",
   "lathe_p2p_toolpath_generate", "lathe_p2p_toolpath_validate", "lathe_p2p_toolpath_gcode", "lathe_p2p_toolpath_cycle_time",
-  "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run",
+  "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run", "lathe_p2p_emit_consensus",
   "lathe_safety_predicate_verify", "lathe_safety_predicate_verify_or_throw",
   "lathe_spindle_torque_gate", "lathe_spindle_torque_gate_or_throw",
   "lathe_stock_boundary_gate", "lathe_stock_boundary_gate_or_throw",
   "lathe_proof_carrying_emit", "lathe_proof_carrying_reproduce",
   "lathe_lora_physics_validate", "lathe_lora_physics_process", "lathe_lora_physics_kienzle_coefs",
   "lathe_lora_master_initialize", "lathe_lora_master_register_subsystem", "lathe_lora_master_transition", "lathe_lora_master_health", "lathe_lora_master_summary",
-  "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
+  "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved", "lathe_p2p_safety_gate_enforce",
+  // ECHO-CAM-BRIDGES-MS0 — 5 BRIDGE-DEEP wiring units (CAD↔CAM, operator gates, SFC→Fusion/hyperMILL/InventorHSM)
+  "cam_bridge_cad_cam_handoff", "cam_bridge_operator_gates_emit", "cam_bridge_sfc_fusion", "cam_bridge_sfc_hypermill", "cam_bridge_sfc_inventorhsm",
   "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives", "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
   "lathe_p2p_reason_explain", "lathe_p2p_reason_markdown", "lathe_p2p_reason_json", "lathe_p2p_reason_filter", "lathe_p2p_reason_mode_summary",
   "lathe_p2p_kg_ingest", "lathe_p2p_kg_find_similar", "lathe_p2p_kg_tools_for_material", "lathe_p2p_kg_customer_jobs", "lathe_p2p_kg_failures", "lathe_p2p_kg_stats", "lathe_p2p_kg_export", "lathe_p2p_kg_import", "lathe_p2p_kg_traverse", "lathe_p2p_kg_clear",
@@ -1182,7 +1704,7 @@ export const ACTIONS = [
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
   // Master Post Engines (JM Die canonical posts) — PPG-WIRE-MS0 + MS5
-  "master_post_hurco_v11", "master_post_okuma_b250", "master_post_okuma_osp", "master_post_mitsubishi_mv1200r", "master_post_by_machine",
+  "master_post_hurco_v11", "master_post_okuma_b250", "master_post_okuma_osp", "master_post_mitsubishi_mv1200r", "master_post_by_machine", "master_post_hurco_winmax_lathe",
   "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
   // Orphan CAM engines (11 engines, 30 actions)
   "instantaneous_engagement_analyze", "instantaneous_engagement_optimal_sf",
@@ -1202,8 +1724,14 @@ export const ACTIONS = [
   "cam_generate", "cam_turn", "cam_simulate",
   // F360-TOOL — Fusion 360 Tool Library (1 action)
   "fusion_export_tool_library", "fusion_sync_tools",
-  // PIPE-MS0+MS1 — Print-to-Program Pipeline (4 actions)
-  "print_to_program_full", "print_to_program_enhanced", "print_to_program_plan", "print_to_program_validate",
+  // F360-MACHINE -- Fusion 360 .machine Library Export (CATALOG-APP-WIRING-MS0/U-WIRE-FUSION-MACHINE-LIB, slot:romeo)
+  "fusion_export_machine_library",
+  // PIPE-MS0+MS1 — Print-to-Program Pipeline (4 actions) + DOMAIN-PIPELINE-MS0/U-DPM0-INTAKE-CHECK-WIRE (1 action, slot:kilo 2026-05-23)
+  "print_to_program_full", "print_to_program_enhanced", "print_to_program_plan", "print_to_program_validate", "print_to_program_check_intake",
+  // P2P-FULLSTACK-MS0/U-P2PFS-HARNESS-WIRE — PrintToProgramRegressionHarnessEngine (2 actions)
+  "print_to_program_regression_run", "print_to_program_regression_run_one",
+  // KILO-P2P-RECONCILE-MS0/U-KP2P-02 — P2P coverage analyzer + tutorial curriculum (2 actions)
+  "print_to_program_coverage", "print_to_program_tutorial",
   // PIPE-MS2 — Automated Bridge + Orphan Wiring (5 actions)
   "auto_print_to_program", "auto_detect_format",
   "iges_parse", "iges_extract_geometry", "iges_summary",
@@ -1375,6 +1903,9 @@ export const ACTIONS = [
   "lathe_lora_estimate", "lathe_lora_validate_config",
   // PrintToAIBridgeEngine (3 actions, WIRE-UNWIRED foxtrot 2026-05-17)
   "print_ai_resolve_material", "print_ai_resolve_features", "print_ai_recommend_machine",
+  // FusionMultiAxisEngine (5 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "fusion_5x_generate", "fusion_5x_get_machine", "fusion_5x_get_all_machines",
+  "fusion_5x_calculate_angles", "fusion_5x_singularity_proximity",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
   "hypermill_code_generate", "hypermill_code_templates",
   // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge (3 actions)
@@ -1389,7 +1920,9 @@ export const ACTIONS = [
   "powermill_code_generate", "powermill_code_templates",
   // PowerMillAIOrchestrationEngine (3 actions, WIRE-UNWIRED foxtrot 2026-05-17)
   "powermill_ai_orchestrate", "powermill_ai_get_reasoning_modes", "powermill_ai_get_stats",
-  // POST-ULT — 18 engines, 42 actions
+  // POST-ULT — 19 engines, 46 actions
+  // PostProcessorUnificationEngine (4) — controller/dialect catalog query (slot:india U-INDIA-WIRE-PPUNIFY 2026-05-23)
+  "pp_unify_query", "pp_unify_get", "pp_unify_stats", "pp_unify_by_controller",
   // CpsPostParserEngine (3)
   "cps_parse", "cps_parse_batch", "cps_summary",
   // CpsDialectMapperEngine (2)
@@ -1428,8 +1961,8 @@ export const ACTIONS = [
   "post_check_no_inlined_constants", "post_check_no_inlined_constants_or_throw",
   // LineByLineAdaptiveEngine (2)
   "post_line_by_line", "post_chip_thinning",
-  // MotionControllerInjectionEngine (3)
-  "post_inject_motion", "post_inject_hsm", "post_inject_coolant",
+  // MotionControllerInjectionEngine (4)
+  "post_inject_motion", "post_inject_hsm", "post_inject_coolant", "post_thermal_compensate",
   // PostVerificationSafetyEngine (3)
   "post_verify_safety", "post_monte_carlo", "post_surface_finish",
   // PostOutputGenerationEngine (3)
@@ -1694,6 +2227,14 @@ export const ACTIONS = [
   "cam_esprit_push_parameters",
   "cam_esprit_sync_tools",
   "cam_esprit_check_version",
+  // SFC → Esprit composition (BRIDGE-DEEP/U-BRIDGE-SFC-ESPRIT, slot:sierra 2026-05-23)
+  "cam_esprit_apply_sf",
+  // SFC → Fusion 360 composition (BRIDGE-DEEP/U-BRIDGE-SFC-FUSION, slot:echo 2026-05-24)
+  "cam_fusion_apply_sf",
+  // SFC → hyperMILL composition (BRIDGE-DEEP/U-BRIDGE-SFC-HYPERMILL, slot:echo 2026-05-24)
+  "cam_hypermill_apply_sf",
+  // SFC → Inventor HSM composition (BRIDGE-DEEP/U-BRIDGE-SFC-INVENTORHSM, slot:echo 2026-05-24)
+  "cam_inventor_hsm_apply_sf",
   // BobCADCAMBridgeEngine live-CAM bridge (11 actions, WIRE-UNWIRED foxtrot 2026-05-17)
   "cam_bobcad_connect", "cam_bobcad_get_status", "cam_bobcad_disconnect",
   "cam_bobcad_extract_project", "cam_bobcad_get_tools", "cam_bobcad_get_operations",
@@ -1856,6 +2397,10 @@ export const ACTIONS = [
   "cam_fusion360_cycle_catalog_list", "cam_fusion360_cycle_catalog_list_by_category", "cam_fusion360_cycle_catalog_lookup", "cam_fusion360_cycle_catalog_search", "cam_fusion360_cycle_catalog_stats", "cam_fusion360_cycle_catalog_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-CTRL-01 — Fusion 360 controller catalog (16 families, 20+ post variants)
   "cam_fusion360_controller_list", "cam_fusion360_controller_lookup", "cam_fusion360_controller_search", "cam_fusion360_controller_dialect", "cam_fusion360_controller_stats", "cam_fusion360_controller_audit",
+  // INDIA-POST-WIRE U-MASTERCAM-CTRL-CAT — Mastercam controller catalog (E1204, 18 families, 70+ post variants)
+  "cam_mastercam_controller_list", "cam_mastercam_controller_get", "cam_mastercam_controller_search", "cam_mastercam_controller_by_axis", "cam_mastercam_controller_by_capability", "cam_mastercam_controller_dialect", "cam_mastercam_controller_tribal_tips", "cam_mastercam_controller_find_for_machine", "cam_mastercam_controller_stats",
+  // INDIA-POST-WIRE U-CTRL-CALIB-WIRE — cross-dialect controller calibration harness (P2P-FULLSTACK-MS0/U-P2PFS60)
+  "cam_controller_calibration_required", "cam_controller_calibration_compare_all", "cam_controller_calibration_compare_one",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-STRAT-01 — Fusion 360 strategy engine (operation+ISO → cycle+params)
   "cam_fusion360_strategy_recommend", "cam_fusion360_strategy_pick_cycle", "cam_fusion360_strategy_baseline_vc", "cam_fusion360_strategy_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-SAFETY-01 — Fusion 360 safety hooks (15 rules, PASS/WARN/BLOCK verdict)
@@ -1900,6 +2445,13 @@ export const ACTIONS = [
   "fusion360_function_index_get_additive_operations",
   // CAM-EXHAUST-MS1-03 — Fusion360 Cutting module
   "fusion360_function_index_get_cutting_operations",
+  // U-BRIDGE-WIRE-MASTERCAM — Mastercam CAD Function Index (sibling to fusion360 / inventor_hsm)
+  "mastercam_cad_function_index_get", "mastercam_cad_function_index_list_modules",
+  "mastercam_cad_function_index_get_module", "mastercam_cad_function_index_list_operations",
+  "mastercam_cad_function_index_list_all_operations", "mastercam_cad_function_index_get_operation",
+  "mastercam_cad_function_index_find_parameter", "mastercam_cad_function_index_search_parameters",
+  "mastercam_cad_function_index_get_operations_by_category",
+  "mastercam_cad_function_index_get_total_parameter_count",
   // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
   "inventor_hsm_function_index_get", "inventor_hsm_function_index_list_sections",
   "inventor_hsm_function_index_get_section", "inventor_hsm_function_index_list_operations",
@@ -2028,6 +2580,17 @@ export const ACTIONS = [
     "cam_feedback_correction_patterns", "cam_feedback_lora_training_export",
     "cam_feedback_stats", "cam_feedback_set_buffer_cap",
     "cam_feedback_clear_all",
+  // CAM-LEARNING-LOOP/U-KILO-DECISION-2PHASE (slot:kilo, 2026-07-01) -- 2-phase
+  // decision capture. Phase 1: the captureCamDecision tail tap logs every
+  // emitted CAM decision (cam_dl_decide / cam_reasoning_decide /
+  // cam_strategy_recommend) into CAMDecisionLogEngine under a stable decisionId
+  // returned on the action result. Phase 2: cam_decision_outcome correlates the
+  // operator verdict/override back into CAMFeedbackLoopEngine (recordOutcome /
+  // recordCorrection) -- the REAL wasCorrect, never fabricated at decision time.
+    "cam_decision_outcome", "cam_decision_get",
+  // CADCAM-DAGI-MS4/U-CAMAGI13 — Reinforcement Learning CAM Feedback (closed-loop policy + EWC++)
+    "cam_rl_feedback_close_loop", "cam_rl_feedback_compute_reward",
+    "cam_rl_feedback_preserve_skill", "cam_rl_feedback_stats",
   // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (TrueMill HSM flagship)
     "surfcam_function_index_get", "surfcam_function_index_list_sections",
     "surfcam_function_index_get_section", "surfcam_function_index_list_operations",
@@ -2138,6 +2701,158 @@ export const ACTIONS = [
   "gcode_template_generate_program",   // GCodeTemplateEngine.generateProgram
   "gcode_template_list_controllers",   // GCodeTemplateEngine.listControllers
   "gcode_template_list_operations",    // GCodeTemplateEngine.listOperations
+  // U-WIRE-BACKLOG-MASTER-POST-FINE-TUNE (slot:india, FEATURE-GAP-AUDIT-MS0):
+  // MasterPostFineTuningEngine — LoRA-style EMA fine-tuning of post-processor
+  // outputs from actual-vs-predicted G-code observations (10 controllers × 12 ops).
+  "master_post_fine_tune_record",      // MasterPostFineTuningEngine.recordActualVsPredicted
+  "master_post_fine_tune_get_params",  // MasterPostFineTuningEngine.getFineTunedParameters
+  "master_post_fine_tune_apply",       // MasterPostFineTuningEngine.applyFineTuning
+  "master_post_fine_tune_confidence",  // MasterPostFineTuningEngine.getConfidenceScore
+  "master_post_fine_tune_stats",       // MasterPostFineTuningEngine.getStatistics
+  "master_post_fine_tune_clear",       // MasterPostFineTuningEngine.clear
+  // U-WIRE-BACKLOG-LATHE-MASTERPOST-SA (slot:india, FEATURE-GAP-AUDIT-MS0):
+  // LatheMasterPostSelfAwarenessEngine — drift detection + audit for lathe
+  // sub-posts (7 dialects). Was orphan; the 6-action wiring contract is fixed
+  // by the engine's own test (§"dispatcher wiring verification").
+  "lathe_selfaware_register",      // LatheMasterPostSelfAwarenessEngine.registerSubPost
+  "lathe_selfaware_detect_drift",  // LatheMasterPostSelfAwarenessEngine.detectDrift
+  "lathe_selfaware_audit",         // LatheMasterPostSelfAwarenessEngine.auditAllSubPosts
+  "lathe_selfaware_get_stats",     // LatheMasterPostSelfAwarenessEngine.getStatistics
+  "lathe_selfaware_update_status", // LatheMasterPostSelfAwarenessEngine.updateValidationStatus
+  "lathe_selfaware_seed_drift",    // LatheMasterPostSelfAwarenessEngine.seedDriftForTesting
+  // CAM-UNWIRED-LOOP-ITER3: 47 engines wired
+  "cam_utility_compare",           // CAMUtilityEngines.programCompareEngine.compare
+  "cam_utility_cache_get",         // CAMUtilityEngines.camResultCacheEngine.get
+  "cam_utility_batch_run",         // CAMUtilityEngines.batchCAMEngine.run
+  "post_am_finishing_plan",        // PostAMFinishingPlanEngine.planFinishing
+  "soft_jaw_boring_generate",      // SoftJawBoringGCodeEngine.generate
+  "multicam_knowledge_query",      // MultiCamKnowledgeEngine.query
+  "cimatron_cam_bridge_run",       // CimatronCAMBridgeEngine.run
+  "tebis_cam_bridge_run",          // TebisCAMBridgeEngine.run
+  "wedm_rl_controller_select",     // WEDMRLControllerEngine.select
+  "radial_engagement_analyze",     // RadialEngagementControllerEngine.analyze
+  "mastercam_mill_turn_handoff",   // MastercamMillTurnBridge.calculateSpindleHandoff
+  "blameless_post_mortem_run",     // BlamelessPostMortemEngine.run
+  "wedm_post_mitsubishi_generate", // WEDMPostMitsubishiEngine.generate
+  "wedm_post_mitsubishi_parse",    // WEDMPostMitsubishiEngine.parse — round-trip equiv check
+  "wedm_post_mitsubishi_tech_table",// WEDMPostMitsubishiEngine.getETable — E-table introspection
+  "wedm_post_mitsubishi_dialect",  // WEDMPostMitsubishiEngine.dialectNameFor — controller alias
+  "wedm_post_sodick_generate",     // WEDMPostSodickEngine.generate
+  "wedm_post_sodick_parse",        // WEDMPostSodickEngine.parse — round-trip equiv check
+  "wedm_post_sodick_tech_table",   // WEDMPostSodickEngine.getTechTable — Power-Master E/S table
+  "wedm_post_sodick_dialect",      // WEDMPostSodickEngine.dialectNameFor
+  "wedm_post_makino_generate",     // WEDMPostMakinoEngine.generate
+  "wedm_post_makino_parse",        // WEDMPostMakinoEngine.parse
+  "wedm_post_makino_tech_table",   // WEDMPostMakinoEngine.getTechTable — HyperDrive E/C pairs
+  "wedm_post_makino_dialect",      // WEDMPostMakinoEngine.dialectNameFor
+  "wedm_post_agie_generate",       // WEDMPostAgieEngine.generate
+  "wedm_post_agie_parse",          // WEDMPostAgieEngine.parse
+  "wedm_post_agie_tech_table",     // WEDMPostAgieEngine.getTECTable — Vision-5 TEC + pulse
+  "wedm_post_agie_dialect",        // WEDMPostAgieEngine.dialectNameFor
+  "wedm_post_fanuc_generate",      // WEDMPostFanucEngine.generate
+  "wedm_post_fanuc_parse",         // WEDMPostFanucEngine.parse
+  "wedm_post_fanuc_tech_table",    // WEDMPostFanucEngine.getConditionLabels — ROBOCUT #500 macros
+  "wedm_post_fanuc_dialect",       // WEDMPostFanucEngine.dialectNameFor
+  "lathe_cam_intelligence_recommend", // LatheCAMIntelligenceEngine.recommendParametricTemplate
+  "lathe_post_active_learning_queue", // LathePostGeneratorActiveLearningEngine.queueFailure
+  "lathe_post_active_learning_incorporate", // .incorporateCorrection
+  "lathe_post_active_learning_metrics", // .getMetrics
+  "lathe_post_active_learning_pending", // .getPendingFailures
+  "lathe_post_active_learning_all", // .getAllFailures
+  "lathe_post_active_learning_corrections", // .getCorrectionsForFailure
+  "lathe_post_active_learning_rules_count", // .getIncorporatedRulesCount
+  "lathe_post_ai_get_profile",     // LathePostProcessorAIEngine.getPostProfile
+  "lathe_post_ai_recommend_cycle", // LathePostProcessorAIEngine.recommendCycle
+  "lathe_post_ai_learning_context", // LathePostProcessorAIEngine.getLearningContext
+  // MasterPost AGI trio + Transformer — 4 fully-dark engines (MS-MASTERPOST anchor)
+  "master_post_genius_generate",   // MasterPostProcessorGeniusEngine.generateMasterPost
+  "master_post_agi_orchestrate",   // MasterPostProcessorAGIOrchestrationEngine.generateAGIPost
+  "master_post_unified_agi_generate", // MasterPostProcessorUnifiedAGIEngine.generatePost (provenance + tribal + 8-dim quality)
+  "master_post_unified_agi_analyze", // MasterPostProcessorUnifiedAGIEngine.analyzeGCode (8-dim quality)
+  "master_post_unified_agi_kinematics", // MasterPostProcessorUnifiedAGIEngine.validateAgainstKinematics (safety/travel)
+  "pp_transformer_generate",       // PostProcessorTransformerEngine.generate
+  // ── Vision-to-CAD reverse engineering (echo 2026-05-25, user ask) ──
+  "cad_part_media_to_template",    // PartMediaToCADEngine.generateFromMedia
+  "cad_template_apply_measurements", // MeasurementReconciliationEngine.reconcile
+  "cad_template_emit_with_overrides", // MeasurementReconciliationEngine.emitCADOps
+  // ── Post library (2026-05-25, operator directive — PPG + employee portal bridge) ──
+  "post_library_search",           // PostLibraryEngine.search (filter by cam/brand/domain/tier/q)
+  "post_library_download",         // PostLibraryEngine.download (base64 + sha256, tier-gated by caller)
+  "post_library_summary",          // PostLibraryEngine.summary (counts by format/brand/domain/tier)
+  "post_library_recommend",        // PostLibraryEngine.recommend (top-N for brand+domain, PRISM Enhanced first)
+  "post_library_refresh",          // PostLibraryEngine.refresh (force-reload manifest after re-consolidate)
+  // ── Post feature audit (2026-05-25, slot:echo /goal post-fleet iter11) ──
+  "cam_post_feature_audit",        // PostFeatureAuditEngine.auditFile (.cps → 28-feature presence report)
+  "cam_post_feature_compare",      // PostFeatureAuditEngine.compareFiles (baseline vs candidate, surfaces regressions+additions)
+  "cam_post_emit_safety_gate",     // PostEmitSafetyGateEngine.gate — REQUIRED before any post .emit (echo soul P0 D5)
+  "cam_ml_split",                  // CAMMLSplitEngine.split
+  "cam_post_invoke_orchestrate",   // CAMPostInvokeOrchestratorEngine.buildPostInvokeFromInventory
+  "cam_baseline_regressor_predict",// CAMBaselineRegressorEngine.predict
+  "cam_ml_drift_monitor_run",      // CAMMLDriftMonitorEngine.runOnce
+  "cam_catalog_physics_link",      // CAMCatalogPhysicsLinkerEngine.linkAll
+  "cam_tribal_tip_link",           // CAMTribalTipLinkerEngine.linkAll
+  "cam_ai_action_link",            // CAMAIActionLinkerEngine.linkAll
+  "cam_catalog_enrichment_validate", // CAMCatalogEnrichmentValidator.validate
+  "cam_catalog_splitter_split",    // CAMCatalogSplitterEngine.split
+  "cam_tribal_rag_build",          // CAMTribalRAGEngine.buildIndex
+  // NOTE: "lathe_master_post_route" is declared once in the lathe master-post
+  // group above (with lathe_master_post_machines/controllers) + handled by the
+  // detailed case (LatheMasterPostRouterEngine.route w/ full param mapping). The
+  // duplicate enum entry + dead generic case here were removed (U-CAM-DUP-ROUTE).
+  "lathe_master_post_unified_header", // LatheMasterPostUnifiedOutputEngine.generateHeader
+  "lathe_master_post_deep_reason", // LatheMasterPostDeepReasoningEngine.explainSelection
+  "lathe_master_post_ensemble_check", // LatheMasterPostEnsembleCrossCheckEngine.runEnsemble
+  "lathe_master_post_api_route",   // LatheMasterPostAPIEngine.route
+  "lathe_master_post_regression_matrix", // LatheMasterPostRegressionMatrixEngine.runMatrix
+  "lathe_print_toolpath_generate", // LathePrintToolpathGeneratorEngine.generateProgram
+  "cam_phase5_validate_params",    // CAMPhase5Stubs.camParameterValidatorEngine.validate
+  "cam_phase5_recommend_strategy", // production CAMStrategyRecommenderEngine.recommend + learned re-rank (U-CAM-LOOP-CONSUME; was CAMPhase5Stubs stub)
+  "cam_lora_adapter_status",       // CAMLoRAAdapterTrainerEngine.getObservationStatus
+  "lathe_post_knowledge_graph_get",// LathePostKnowledgeGraphEngine.getGraph
+  "cam_training_extraction_aggregate", // CAMTrainingExtractionAggregatorEngine (static)
+  "jmdie_post_processor_learn",    // JMDiePostProcessorLearningEngine.learn
+  "cam_bridge_kit_run",            // CamBridgeKitEngine.run
+  "gcode_runtime_predict",         // GCodeRuntimePredictorEngine.predict
+  "gcode_reverse_cad_reconstruct", // GCodeReverseCADEngine.reconstruct
+  "gcode_bidirectional_optimize",  // GCodeBidirectionalOptimizerEngine.optimize
+  // iter9 wire-unwired-loop: cam/post engines
+  "powermill_strategy_recommend",
+  "hypermill_schema_unify",
+  "epack_table_import",
+  "cps_parser_harvest",
+  "macro_conversion_analyze",
+  "nc_pattern_mine",
+  "boolean_kernel_op",
+  "prism_addin_architecture_get",
+  // PostProcessorAGIContinuousLearningEngine -- 3 read methods + the actuals-feedback write (closes the loop)
+  "pp_agi_cl_get_state",           // postProcessorAGIContinuousLearningEngine.getLearningState
+  "pp_agi_cl_top_mistakes",        // postProcessorAGIContinuousLearningEngine.getTopMistakePatterns
+  "pp_agi_cl_prevention_rules",    // postProcessorAGIContinuousLearningEngine.getPreventionRules(controller, material)
+  "pp_agi_cl_record_feedback",     // postProcessorAGIContinuousLearningEngine.recordFeedback -- actuals (was read-only; closes the loop)
+  // PostProcessorAGIMasterRegistryEngine — 3 methods
+  "pp_agi_registry_get_all",       // postProcessorAGIMasterRegistryEngine.getAllEngines
+  "pp_agi_registry_route_task",    // postProcessorAGIMasterRegistryEngine.routeTask(task)
+  "pp_agi_registry_capability_matrix", // postProcessorAGIMasterRegistryEngine.getCapabilityMatrix
+  // PostProcessorAGIWiringIntegrationEngine — 3 methods
+  "pp_agi_wiring_verify",          // postProcessorAGIWiringIntegrationEngine.verifyWiring
+  "pp_agi_wiring_plan",            // postProcessorAGIWiringIntegrationEngine.planExecution(task)
+  "pp_agi_wiring_stats",           // postProcessorAGIWiringIntegrationEngine.getStatistics
+  // CrossCAMPostEngine — 5 methods
+  "cross_cam_post_normalize",      // crossCAMPostEngine.normalizeInput(input)
+  "cross_cam_post_enhance",        // crossCAMPostEngine.enhanceCamSpecific(input)
+  "cross_cam_post_subprograms",    // crossCAMPostEngine.detectSubprograms(gcode, controllerFormat)
+  "cross_cam_post_multichannel",   // crossCAMPostEngine.generateMultiChannel(input)
+  "cross_cam_post_automation",     // crossCAMPostEngine.integrateAutomation(config)
+  // NovelPostProcessorBridgeEngine — 2 methods
+  "novel_post_process",            // novelPostProcessorBridgeEngine.postProcess(input)
+  "novel_post_list_controllers",   // novelPostProcessorBridgeEngine.listControllers()
+  // JMDiePostProcessorLearningEngine — 6 additional static methods
+  "jmdie_post_get_corpus",         // JMDiePostProcessorLearningEngine.getCorpus()
+  "jmdie_post_aggregate",          // JMDiePostProcessorLearningEngine.aggregate(profiles, sourceDir)
+  "jmdie_post_enhancement_ranking",// JMDiePostProcessorLearningEngine.getEnhancementRanking()
+  "jmdie_post_stats",              // JMDiePostProcessorLearningEngine.getStats()
+  "jmdie_post_gap_report",         // JMDiePostProcessorLearningEngine.gapReport()
+  "jmdie_post_recommendations",    // JMDiePostProcessorLearningEngine.getRecommendations()
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -2225,6 +2940,40 @@ Params vary by action — pass relevant fields in params object.`,
         } catch { /* fails open */ }
 
         switch (action) {
+          // U-WIRE-COOLANT-ADAPTER / WIRE-UNWIRED-PAPA: CoolantStrategyAdapter orchestrated coolant selection. slot:papa->kilo 2026-06-15.
+          // Wires the Adapter singleton (selectCoolantOrchestrated), NOT the base engine; the base sibling is already wired.
+          case "coolant_select_orchestrated": {
+            const { coolantStrategyAdapter } = await import("../../engines/CoolantStrategyAdapter.js");
+            result = coolantStrategyAdapter.selectCoolantOrchestrated(params as unknown as Parameters<typeof coolantStrategyAdapter.selectCoolantOrchestrated>[0]);
+            break;
+          }
+          // U-WIRE-ENTRYEXIT-ADAPTER / WIRE-UNWIRED-PAPA: EntryExitStrategyAdapter orchestrated entry/exit selection. slot:papa->kilo 2026-06-15.
+          // Wires the Adapter singleton (selectEntryExitOrchestrated), NOT the base engine; the base sibling is already wired.
+          case "entryexit_select_orchestrated": {
+            const { entryExitStrategyAdapter } = await import("../../engines/EntryExitStrategyAdapter.js");
+            result = entryExitStrategyAdapter.selectEntryExitOrchestrated(params as unknown as Parameters<typeof entryExitStrategyAdapter.selectEntryExitOrchestrated>[0]);
+            break;
+          }
+          // U-WIRE-SEQUENCING-ADAPTER / WIRE-UNWIRED-PAPA: IntelligentSequencingAdapter orchestrated op-sequence selection. slot:papa->kilo 2026-06-15.
+          // Wires the Adapter singleton (selectSequenceOrchestrated), NOT the base engine; the base sibling is already wired internally (CAMX-MS0.3 into PrintToProgram).
+          case "sequence_select_orchestrated": {
+            const { intelligentSequencingAdapter } = await import("../../engines/IntelligentSequencingAdapter.js");
+            result = intelligentSequencingAdapter.selectSequenceOrchestrated(params as unknown as Parameters<typeof intelligentSequencingAdapter.selectSequenceOrchestrated>[0]);
+            break;
+          }
+          case "cad_cam_handoff": {
+            // U-BRIDGE-CAD-CAM-HANDOFF (WIRE-TO-ALL-SOURCES) — autonomously-
+            // generated CAD geometry (FeatureSpec[]) → operator-gated CAM
+            // strategy plan. Intentionally identical to the prism_cad handler
+            // (cadDispatcher.ts): a CAD-consumer / CAM-emitter belongs on both
+            // dispatchers. Pure orchestration; delegates ranking to
+            // camStrategyRecommenderEngine inside the engine.
+            const { CadCamHandoffEngine, CadCamHandoffInputSchema } =
+              await import("../../engines/CadCamHandoffEngine.js");
+            const input = CadCamHandoffInputSchema.parse(params);
+            result = { success: true, data: CadCamHandoffEngine.handoff(input) };
+            break;
+          }
           case "toolpath_generate": {
             if (shouldUseUnifiedCam(params)) {
               const engine = await getEngine("unifiedPipe");
@@ -2496,6 +3245,70 @@ Params vary by action — pass relevant fields in params object.`,
             }
             const engine = await getEngine("hmStrategy");
             const stratResult = engine.recommend(params) ?? { error: "HyperMillStrategyEngine.recommend returned null" };
+            result = safetyCheck.warnings.length > 0 ? { ...stratResult, safetyWarnings: safetyCheck.warnings } : stratResult;
+            break;
+          }
+          case "cam_strategy_recommend_with_diamond_turning": {
+            // U-DEA-november-P03: orchestrator-bridge between HyperMillStrategy + DiamondTurning.
+            // Optional `precision_overlay` / `precisionOverlay` block triggers ultra-precision
+            // physics consultation when target_Ra_nm passes the threshold (default 100 nm).
+            const safetyCheck = await runHyperMillSafetyChecks(params);
+            if (!safetyCheck.safe) {
+              result = { error: "Safety check BLOCKED", blocks: safetyCheck.blocks, warnings: safetyCheck.warnings };
+              break;
+            }
+            const engine = await getEngine("hmStrategy");
+            const rawOverlay = (params.precision_overlay ?? params.precisionOverlay ?? null) as Record<string, unknown> | null;
+            type OverlayInput = Parameters<typeof engine.recommendWithDiamondTurning>[1];
+            const overlay: OverlayInput | undefined = rawOverlay
+              ? {
+                  material: String(rawOverlay.material ?? ""),
+                  target_Ra_nm: Number(rawOverlay.target_Ra_nm ?? rawOverlay.targetRaNm ?? NaN),
+                  tool_nose_radius_mm: Number(rawOverlay.tool_nose_radius_mm ?? rawOverlay.toolNoseRadiusMm ?? NaN),
+                  feed_per_rev_um: Number(rawOverlay.feed_per_rev_um ?? rawOverlay.feedPerRevUm ?? NaN),
+                  depth_of_cut_um: Number(rawOverlay.depth_of_cut_um ?? rawOverlay.depthOfCutUm ?? NaN),
+                  spindle_rpm: Number(rawOverlay.spindle_rpm ?? rawOverlay.spindleRpm ?? NaN),
+                  spindle_error_motion_nm: rawOverlay.spindle_error_motion_nm !== undefined
+                    ? Number(rawOverlay.spindle_error_motion_nm)
+                    : rawOverlay.spindleErrorMotionNm !== undefined
+                      ? Number(rawOverlay.spindleErrorMotionNm)
+                      : undefined,
+                  tool_waviness_nm: rawOverlay.tool_waviness_nm !== undefined
+                    ? Number(rawOverlay.tool_waviness_nm)
+                    : rawOverlay.toolWavinessNm !== undefined
+                      ? Number(rawOverlay.toolWavinessNm)
+                      : undefined,
+                  rake_angle_deg: rawOverlay.rake_angle_deg !== undefined
+                    ? Number(rawOverlay.rake_angle_deg)
+                    : rawOverlay.rakeAngleDeg !== undefined
+                      ? Number(rawOverlay.rakeAngleDeg)
+                      : undefined,
+                  edge_radius_nm: rawOverlay.edge_radius_nm !== undefined
+                    ? Number(rawOverlay.edge_radius_nm)
+                    : rawOverlay.edgeRadiusNm !== undefined
+                      ? Number(rawOverlay.edgeRadiusNm)
+                      : undefined,
+                  cutting_distance_km: rawOverlay.cutting_distance_km !== undefined
+                    ? Number(rawOverlay.cutting_distance_km)
+                    : rawOverlay.cuttingDistanceKm !== undefined
+                      ? Number(rawOverlay.cuttingDistanceKm)
+                      : undefined,
+                  coolant: rawOverlay.coolant as OverlayInput extends { coolant?: infer C } ? C : never,
+                  workpiece_diameter_mm: rawOverlay.workpiece_diameter_mm !== undefined
+                    ? Number(rawOverlay.workpiece_diameter_mm)
+                    : rawOverlay.workpieceDiameterMm !== undefined
+                      ? Number(rawOverlay.workpieceDiameterMm)
+                      : undefined,
+                  form: rawOverlay.form as OverlayInput extends { form?: infer F } ? F : never,
+                }
+              : undefined;
+            const thresholdRaNm = params.threshold_Ra_nm !== undefined
+              ? Number(params.threshold_Ra_nm)
+              : params.thresholdRaNm !== undefined
+                ? Number(params.thresholdRaNm)
+                : 100;
+            const stratResult = engine.recommendWithDiamondTurning(params, overlay, thresholdRaNm)
+              ?? { error: "HyperMillStrategyEngine.recommendWithDiamondTurning returned null" };
             result = safetyCheck.warnings.length > 0 ? { ...stratResult, safetyWarnings: safetyCheck.warnings } : stratResult;
             break;
           }
@@ -2787,6 +3600,128 @@ Params vary by action — pass relevant fields in params object.`,
             result = camPostInvokeOrchestratorEngine.eligibleMachinesForCAM(
               String(params.target_cam ?? "mastercam") as any
             );
+            break;
+          }
+          // ─── U-WIRE-BACKLOG-POST (FEATURE-GAP-AUDIT-MS0): DNC-family post /
+          // program-transfer engines. 6 engines previously orphaned (zero
+          // dispatcher ref). Each handler lazy-imports its engine. Input shape
+          // varies: some engines Zod-validate internally (DNCGenerateEngine,
+          // DNCQREngine.decode), others take primitives coerced here. ────────
+          case "cam_dnc_generate": {
+            const { DNCGenerateEngine } = await import(
+              "../../engines/DNCGenerateEngine.js"
+            );
+            result = DNCGenerateEngine.generate(params as any);
+            break;
+          }
+          case "cam_dnc_validate_safety": {
+            const { DNCGenerateEngine } = await import(
+              "../../engines/DNCGenerateEngine.js"
+            );
+            result = DNCGenerateEngine.validateSafety(
+              String(params.content ?? ""),
+              String(params.format ?? "fanuc") as any,
+            );
+            break;
+          }
+          case "cam_dnc_compare": {
+            const { DNCCompareEngine } = await import(
+              "../../engines/DNCCompareEngine.js"
+            );
+            result = DNCCompareEngine.compare(
+              String(params.contentA ?? ""),
+              String(params.contentB ?? ""),
+              params.nameA as string | undefined,
+              params.nameB as string | undefined,
+            );
+            break;
+          }
+          case "cam_dnc_compare_with_master": {
+            const { DNCCompareEngine } = await import(
+              "../../engines/DNCCompareEngine.js"
+            );
+            result = DNCCompareEngine.compareWithMaster(
+              String(params.content ?? ""),
+              String(params.masterId ?? ""),
+              String(params.masterContent ?? ""),
+            );
+            break;
+          }
+          case "cam_dnc_file_transfer_build": {
+            const { dncFileTransferEngine } = await import(
+              "../../engines/DNCFileTransferEngine.js"
+            );
+            result = dncFileTransferEngine.buildTransfer(params as any);
+            break;
+          }
+          case "cam_dnc_file_transfer_stats": {
+            const { dncFileTransferEngine } = await import(
+              "../../engines/DNCFileTransferEngine.js"
+            );
+            result = dncFileTransferEngine.getStats();
+            break;
+          }
+          case "cam_dnc_qr_generate": {
+            const { DNCQREngine } = await import(
+              "../../engines/DNCQREngine.js"
+            );
+            result = DNCQREngine.generate(params.data as any, params.options as any);
+            break;
+          }
+          case "cam_dnc_qr_decode": {
+            const { DNCQREngine } = await import(
+              "../../engines/DNCQREngine.js"
+            );
+            result = DNCQREngine.decode(String(params.content ?? ""));
+            break;
+          }
+          case "cam_dnc_send_register_connection": {
+            const { DNCSendEngine } = await import(
+              "../../engines/DNCSendEngine.js"
+            );
+            // registerConnection returns void — echo the stored connection back
+            // so the dispatcher result is real engine output, not undefined.
+            DNCSendEngine.registerConnection(params as any);
+            result = DNCSendEngine.getConnection(String(params.machineId ?? ""));
+            break;
+          }
+          case "cam_dnc_send_queue": {
+            const { DNCSendEngine } = await import(
+              "../../engines/DNCSendEngine.js"
+            );
+            result = DNCSendEngine.queueTransfer(
+              String(params.programId ?? ""),
+              String(params.programNumber ?? ""),
+              String(params.programContent ?? ""),
+              String(params.machineId ?? ""),
+              Number(params.safetyScore ?? 1),
+            );
+            break;
+          }
+          case "cam_dnc_send_status": {
+            const { DNCSendEngine } = await import(
+              "../../engines/DNCSendEngine.js"
+            );
+            result = DNCSendEngine.getJobStatus(String(params.jobId ?? ""));
+            break;
+          }
+          case "cam_dnc_verify": {
+            const { DNCVerifyEngine } = await import(
+              "../../engines/DNCVerifyEngine.js"
+            );
+            result = DNCVerifyEngine.verify(
+              String(params.programId ?? ""),
+              String(params.content ?? ""),
+              (params.type ?? "full") as any,
+              params.machineId as string | undefined,
+            );
+            break;
+          }
+          case "cam_dnc_verify_quick_safety": {
+            const { DNCVerifyEngine } = await import(
+              "../../engines/DNCVerifyEngine.js"
+            );
+            result = DNCVerifyEngine.quickSafetyCheck(String(params.content ?? ""));
             break;
           }
           // ─── U-CAM87-HM: hyperMILL outbound XML-RPC envelope builders ─────
@@ -3403,8 +4338,10 @@ Params vary by action — pass relevant fields in params object.`,
             const genResult = LathePostGeneratorDialectEngine.generate({
               controller_id: controllerId,
               cycle_code: (params.cycle_code as string) ?? cycles[0] ?? "G71",
-              parameters: {},
-            });
+              parameters: ((params as any).cycle_parameters ?? {}) as any,
+              line_number_start: ((params as any).line_number_start as number) ?? 10,
+              line_number_incr: ((params as any).line_number_incr as number) ?? 1,
+            } as any);
             result = {
               success: true,
               controller: controllerId,
@@ -3487,7 +4424,13 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
           case "lathe_postgen_register": {
-            // Knowledge graph queries using LatheLoRAKnowledgeGraphEngine
+            // Knowledge graph queries via LathePostKnowledgeGraphEngine (LATHE-MASTER U-LTH20).
+            // Engine carries the queryable graph; legacy hardcoded maps act as fallback for
+            // controller IDs the graph doesn't yet have nodes for.
+            const { LathePostKnowledgeGraphEngine } = await import(
+              "../../engines/LathePostKnowledgeGraphEngine.js"
+            );
+            const kgEngine = new LathePostKnowledgeGraphEngine();
             const controllerId = params.controller_id as string;
             const queryType = params.query_type as string;
             const cycleMap: Record<string, string[]> = {
@@ -3501,13 +4444,27 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               mitsubishi_m80: ["live_tooling", "b_axis"],
             };
             if (queryType === "get_cycles") {
-              result = { success: true, cycles: cycleMap[controllerId] ?? ["G70", "G71", "G76"] };
+              const fromGraph = kgEngine.getControllerCycles(controllerId).map(n => n.label);
+              result = {
+                success: true,
+                cycles: fromGraph.length > 0 ? fromGraph : (cycleMap[controllerId] ?? ["G70", "G71", "G76"]),
+                source: fromGraph.length > 0 ? "knowledge_graph" : "fallback_map",
+              };
             } else if (queryType === "get_features") {
-              result = { success: true, features: featureMap[controllerId] ?? [] };
+              const fromGraph = kgEngine.getControllerFeatures(controllerId).map(n => n.label);
+              result = {
+                success: true,
+                features: fromGraph.length > 0 ? fromGraph : (featureMap[controllerId] ?? []),
+                source: fromGraph.length > 0 ? "knowledge_graph" : "fallback_map",
+              };
             } else if (queryType === "get_validators") {
               result = { success: true, validators: ["arc", "tool_change", "spindle", "feed_mode", "program_end"] };
             } else if (queryType === "compatible_dialects") {
               result = { success: true, dialects: ["fanuc", "okuma", "mitsubishi", "generic"] };
+            } else if (queryType === "infer") {
+              const mfg = (params.manufacturer as string) ?? "";
+              const featureHints = Array.isArray(params.feature_hints) ? (params.feature_hints as string[]) : [];
+              result = { success: true, inference: kgEngine.inferControllerProperties(mfg, featureHints) };
             } else {
               result = {
                 success: true,
@@ -4349,6 +5306,40 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
 
+          // LATHE-P2P-CONSENSUS-MS4/P0-U03 — per-feature insert/CSS/threading consensus gate.
+          case "lathe_p2p_strategy_select_consensus": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import(
+              "../../engines/LathePrintFeatureStrategySelectorEngine.js"
+            );
+            result = await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(
+              params.feature,
+              params.material,
+              params.machine,
+              {
+                agreementThreshold: params.agreement_threshold,
+                jobId: params.job_id,
+              }
+            );
+            break;
+          }
+
+          // LATHE-P2P-CONSENSUS-MS4/P0-U03 — batch consensus across all features (parallel fanout per R1).
+          case "lathe_p2p_strategy_batch_consensus": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import(
+              "../../engines/LathePrintFeatureStrategySelectorEngine.js"
+            );
+            result = await lathePrintFeatureStrategySelectorEngine.batchSelectStrategiesWithConsensus(
+              params.features,
+              params.material,
+              params.machine,
+              {
+                agreementThreshold: params.agreement_threshold,
+                jobId: params.job_id,
+              }
+            );
+            break;
+          }
+
           case "lathe_p2p_sequence_plan": {
             const { lathePrintSequencePlannerEngine } = await import(
               "../../engines/LathePrintSequencePlannerEngine.js"
@@ -4376,6 +5367,26 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = lathePrintSequencePlannerEngine.autoFix(
               params.sequence_plan,
               params.features
+            );
+            break;
+          }
+
+          // LATHE-P2P-CONSENSUS-MS4/P0-U02 — consensus-gated sequence planning.
+          // Generates 3 candidate orderings (precedence / tool-min / setup-min),
+          // fans them to prism_ai consensus, returns winner + full audit trail.
+          // Fail-open: degrades to deterministic A_precedence when consensus down.
+          case "lathe_p2p_sequence_plan_consensus": {
+            const { lathePrintSequencePlannerEngine } = await import(
+              "../../engines/LathePrintSequencePlannerEngine.js"
+            );
+            result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+              params.strategy_plan,
+              params.initial_stock,
+              params.features,
+              {
+                agreementThreshold: params.agreement_threshold,
+                jobId: params.job_id,
+              }
             );
             break;
           }
@@ -4488,6 +5499,27 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintProgramEmitterEngine.js"
             );
             result = lathePrintProgramEmitterEngine.dryRun(params.program, params.options);
+            break;
+          }
+
+          // LATHE-P2P-CONSENSUS-MS4/P1-U02 — consensus on post-processor pick.
+          // Caller supplies `candidate_controllers` (e.g. ["okuma_osp","fanuc"]
+          // for an Okuma B250IIW that accepts both OSP-P300L and Fanuc-compat).
+          // Single-candidate => consensus skipped (no fanout cost); multi =>
+          // consensus selects the winning post and emit runs with it.
+          case "lathe_p2p_emit_consensus": {
+            const { lathePrintProgramEmitterEngine } = await import(
+              "../../engines/LathePrintProgramEmitterEngine.js"
+            );
+            result = await lathePrintProgramEmitterEngine.emitWithConsensus(
+              params.program,
+              params.candidate_controllers,
+              params.base_options ?? {},
+              {
+                agreementThreshold: params.agreement_threshold,
+                jobId: params.job_id,
+              }
+            );
             break;
           }
 
@@ -4775,6 +5807,84 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintProgramSignoffEngine.js"
             );
             result = { fully_approved: lathePrintProgramSignoffEngine.isFullyApproved(params.package) };
+            break;
+          }
+
+          // LATHE-P2P-CONSENSUS-MS4/P1-U03 — shop-floor tier Ω/S(x) safety gate.
+          // params.enforce=true => throws SafetyGateRejection on failure so
+          // upstream callers cannot accidentally emit a rejected program.
+          case "lathe_p2p_safety_gate_enforce": {
+            const { lathePrintProgramSignoffEngine, SafetyGateRejection } = await import(
+              "../../engines/LathePrintProgramSignoffEngine.js"
+            );
+            try {
+              result = lathePrintProgramSignoffEngine.enforceSafetyGate(params.emitted, {
+                enforce: params.enforce ?? false,
+                omegaFloor: params.omega_floor,
+                sxFloor: params.sx_floor,
+              });
+            } catch (e) {
+              if (e instanceof SafetyGateRejection) {
+                result = {
+                  rejected: true,
+                  code: e.code,
+                  message: e.message,
+                  gate: e.result,
+                };
+              } else {
+                throw e;
+              }
+            }
+            break;
+          }
+
+          // ECHO-CAM-BRIDGES-MS0/P0-U01..U05 — 5 BRIDGE-DEEP wiring units.
+          case "cam_bridge_cad_cam_handoff": {
+            const { camBridgeKitEngine } = await import(
+              "../../engines/CamBridgeKitEngine.js"
+            );
+            result = camBridgeKitEngine.cadCamHandoff(params.cad);
+            break;
+          }
+          case "cam_bridge_operator_gates_emit": {
+            const { camBridgeKitEngine } = await import(
+              "../../engines/CamBridgeKitEngine.js"
+            );
+            result = camBridgeKitEngine.operatorGatesEmit({
+              stage: params.stage,
+              artifact_id: params.artifact_id,
+              artifact_kind: params.artifact_kind,
+              prompt: params.prompt,
+              required_role: params.required_role,
+            });
+            break;
+          }
+          case "cam_bridge_sfc_fusion": {
+            const { camBridgeKitEngine } = await import(
+              "../../engines/CamBridgeKitEngine.js"
+            );
+            result = camBridgeKitEngine.sfcFusionBridge(params.sfc, {
+              cycle_strategy: params.cycle_strategy,
+            });
+            break;
+          }
+          case "cam_bridge_sfc_hypermill": {
+            const { camBridgeKitEngine } = await import(
+              "../../engines/CamBridgeKitEngine.js"
+            );
+            result = camBridgeKitEngine.sfcHyperMillBridge(params.sfc, {
+              cycle_strategy: params.cycle_strategy,
+              plunge_factor: params.plunge_factor,
+            });
+            break;
+          }
+          case "cam_bridge_sfc_inventorhsm": {
+            const { camBridgeKitEngine } = await import(
+              "../../engines/CamBridgeKitEngine.js"
+            );
+            result = camBridgeKitEngine.sfcInventorHsmBridge(params.sfc, {
+              cycle_strategy: params.cycle_strategy,
+            });
             break;
           }
 
@@ -5446,6 +6556,114 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = { success: true, data: listOperations() };
             break;
           }
+          // ── U-WIRE-BACKLOG-MASTER-POST-FINE-TUNE (slot:india, FEATURE-GAP-AUDIT-MS0) ──
+          // MasterPostFineTuningEngine — LoRA-style EMA fine-tuning of post-processor
+          // outputs. 6 actions: record / get_params / apply / confidence / stats / clear.
+          // params are Zod-validated at the dispatcher boundary by ACTION_CAM_SCHEMAS.
+          case "master_post_fine_tune_record": {
+            const engine = await getEngine("masterPostFineTune");
+            result = engine.recordActualVsPredicted(
+              params.predicted,
+              params.actual,
+              params.controller,
+              {
+                operation: params.operation,
+                context: params.context,
+                jm_die_proven: params.jm_die_proven,
+              }
+            );
+            break;
+          }
+          case "master_post_fine_tune_get_params": {
+            const engine = await getEngine("masterPostFineTune");
+            result = engine.getFineTunedParameters(params.controller, params.operation);
+            break;
+          }
+          case "master_post_fine_tune_apply": {
+            const engine = await getEngine("masterPostFineTune");
+            result = engine.applyFineTuning(params.gcode, params.controller, {
+              operation: params.operation,
+              force_apply: params.force_apply,
+              confidence_threshold: params.confidence_threshold,
+            });
+            break;
+          }
+          case "master_post_fine_tune_confidence": {
+            const engine = await getEngine("masterPostFineTune");
+            result = engine.getConfidenceScore(
+              params.controller,
+              params.operation,
+              params.parameter
+            );
+            break;
+          }
+          case "master_post_fine_tune_stats": {
+            const engine = await getEngine("masterPostFineTune");
+            result = engine.getStatistics();
+            break;
+          }
+          case "master_post_fine_tune_clear": {
+            const engine = await getEngine("masterPostFineTune");
+            engine.clear();
+            result = { ok: true, cleared: true };
+            break;
+          }
+          // ── U-WIRE-BACKLOG-LATHE-MASTERPOST-SA (slot:india, FEATURE-GAP-AUDIT-MS0) ──
+          // LatheMasterPostSelfAwarenessEngine — lathe sub-post drift detection +
+          // audit. 6 actions; the action set + names are fixed by the engine's own
+          // test (LatheMasterPostSelfAwarenessEngine.test.ts §"dispatcher wiring
+          // verification"). Schemas validated at the boundary by
+          // ACTION_LATHE_SELFAWARE_SCHEMAS; the engine re-parses register/audit
+          // input via its own RegisterSubPostInputSchema / AuditConfigSchema.
+          case "lathe_selfaware_register": {
+            const engine = await getEngine("latheMasterPostSA");
+            result = engine.registerSubPost({
+              id: params.id,
+              name: params.name,
+              dialect: params.dialect,
+              version: params.version,
+              machineIds: params.machineIds,
+              features: params.features,
+            });
+            break;
+          }
+          case "lathe_selfaware_detect_drift": {
+            const engine = await getEngine("latheMasterPostSA");
+            result = engine.detectDrift(params.subPostId, params.currentState);
+            break;
+          }
+          case "lathe_selfaware_audit": {
+            const engine = await getEngine("latheMasterPostSA");
+            result = engine.auditAllSubPosts({
+              includeOrphans: params.includeOrphans,
+              parityThreshold: params.parityThreshold,
+              maxSafetyDivergences: params.maxSafetyDivergences,
+              validateAll: params.validateAll,
+            });
+            break;
+          }
+          case "lathe_selfaware_get_stats": {
+            const engine = await getEngine("latheMasterPostSA");
+            result = engine.getStatistics();
+            break;
+          }
+          case "lathe_selfaware_update_status": {
+            const engine = await getEngine("latheMasterPostSA");
+            const updated = engine.updateValidationStatus(params.subPostId, params.status);
+            result = updated
+              ? { ok: true, entry: updated }
+              : { ok: false, error: `sub-post not found: ${params.subPostId}` };
+            break;
+          }
+          case "lathe_selfaware_seed_drift": {
+            const engine = await getEngine("latheMasterPostSA");
+            result = engine.seedDriftForTesting(
+              params.subPostId,
+              params.driftType,
+              params.driftDetails,
+            );
+            break;
+          }
           case "cross_cam_recommend": {
             const { crossCamRecommenderEngine } = await import("../../engines/CrossCamRecommenderEngine.js");
             const ccResult = crossCamRecommenderEngine.compute({
@@ -6031,6 +7249,12 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 coolant?: "flood" | "mist" | "tsc" | "off";
                 coordinates: Array<{ x: number; y: number; z: number; type: string }>;
                 arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+                /** Drilling/boring canned cycle (G81/G82/G83/G73/G84/G85 + boring G76/G86/G87/G88/G89).
+                 *  Forwarded to the engine's emitCannedCycle; references the engine's authoritative type. */
+                cycle?: import("../../engines/HurcoV11MillMasterPostEngine.js").MillOperation["cycle"];
+                /** Opt-in in-process probing cycle (G65 P9810/9811/9814/9815 + cal + on/off).
+                 *  Forwarded to the engine's emitProbeCycle; references the engine's authoritative type. */
+                probe?: import("../../engines/HurcoV11MillMasterPostEngine.js").MillOperation["probe"];
               }>;
               config?: {
                 program_number?: number;
@@ -6103,6 +7327,10 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               /** U-PPGM15: gate tier for the post-emit verifier; omit to skip. */
               verify_tier?: "sim" | "proven_out" | "production" | "shop_floor";
             };
+            // [SCOPED] machine identity: this named action IS the LB250 canonical
+            // post, so it defaults to LB250II-M. There is no machine_model to infer
+            // here; a caller targeting LB3000 / MULTUS B250II passes config.machine_id
+            // (the engine honors it) or uses master_post_by_machine for model routing.
             const okumaEngineOutput = okumaB250LatheMasterPostEngine.generateProgram(
               p.operations as any,
               p.config
@@ -6113,6 +7341,58 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = sealOkuma(okumaEngineOutput, {
               source_engine_versions: { "OkumaB250LatheMasterPostEngine": "1.1.0" },
               verify_tier: p.verify_tier,
+            });
+            break;
+          }
+          case "master_post_hurco_winmax_lathe": {
+            // Hurco WinMax LATHE master post (ISNC / Fanuc-dialect turning). The real
+            // operations->NC generator behind the hurco-winmax-lathe training post -- the
+            // lathe_master_post_route router only ever emitted a generic fallback. Same
+            // TurningOperation contract as master_post_okuma_b250. The conversational
+            // WinMax-UI driver path is a separate operator-gated unit (needs the on-site control).
+            const { hurcoWinMaxLatheMasterPostEngine } = await import("../../engines/HurcoWinMaxLatheMasterPostEngine.js");
+            const ph = params as {
+              operations: Array<{
+                operation_type: string;
+                tool_number: number;
+                tool_orientation: number;
+                insert_radius_mm: number;
+                tool_description?: string;
+                material_iso: string;
+                spindle_rpm?: number;
+                css_m_min?: number;
+                css_max_rpm?: number;
+                feed_mm_rev: number;
+                depth_of_cut_mm: number;
+                start_x: number;
+                start_z: number;
+                end_x: number;
+                end_z: number;
+                thread_pitch_mm?: number;
+                thread_depth_mm?: number;
+                groove_width_mm?: number;
+                coolant?: "flood" | "off";
+              }>;
+              config?: {
+                program_number?: number;
+                program_comment?: string;
+                units?: "metric" | "inch";
+                work_offset?: number;
+                use_css?: boolean;
+                css_max_rpm?: number;
+                machine_label?: string;
+              };
+              /** Tier for sealMasterPostOutput post-emit verifier; omit to skip gate. */
+              verify_tier?: "sim" | "proven_out" | "production" | "shop_floor";
+            };
+            const hurcoLatheOutput = hurcoWinMaxLatheMasterPostEngine.generateProgram(
+              ph.operations as any,
+              ph.config,
+            );
+            const { sealMasterPostOutput: sealHurcoLathe } = await import("../../cps/sealMasterPostOutput.js");
+            result = sealHurcoLathe(hurcoLatheOutput, {
+              source_engine_versions: { "HurcoWinMaxLatheMasterPostEngine": "1.0.0" },
+              verify_tier: ph.verify_tier,
             });
             break;
           }
@@ -6267,20 +7547,66 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               });
             } else if (
               model.includes("OKUMA") || model.includes("LB250") ||
-              // U-PPGW12 — Okuma lathe alias-expand: LB-family compact
-              // lathes + explicit OSP-PxxxL controllers all route through
-              // OkumaB250LatheMasterPostEngine. The engine is hardwired to
-              // LB250II-M tribal knowledge; non-LB250 lathes may emit
-              // slightly off codes (acknowledged risk per user direction).
+              model.includes("LB3000") || model.includes("MULTUS") ||
+              // U-PPGW12 + U-PP-LATHE-MACHINE-AWARE -- Okuma lathe / mill-turn
+              // alias-expand: LB-family compact lathes, the LB3000, the MULTUS
+              // B250II mill-turn (turning side), and explicit OSP-PxxxL
+              // controllers all route through OkumaB250LatheMasterPostEngine.
+              // The engine is now machine-aware (latheMachineId below injects
+              // machine_id) so LB3000 / MULTUS B250II emit a correct
+              // (MACHINE: ...) header instead of the prior hardwired LB250II-M.
               model.includes("LB200") || model.includes("LB300") ||
               model.includes("OSP-P300L") || model.includes("OSP_P300L") ||
-              model.includes("OSP-P500L") || model.includes("OSP_P500L")
+              model.includes("OSP-P500L") || model.includes("OSP_P500L") ||
+              // U-PP-LATHE-JM-FLEET-IDENTITY -- the 5 remaining JM Okuma lathes
+              // (GENOS L-series, LNC8, Crown L1060) route here too; latheMachineId
+              // below maps each to its jm-fleet-sim-map identity (no LB250II-M mislabel).
+              // GENOS is gated on an L-number: a GENOS *mill* (GENOS M-series) must
+              // NOT mis-route to the lathe engine -- it falls through to else-reject.
+              (model.includes("GENOS") && (model.includes("L200") || model.includes("L300") || model.includes("L400"))) ||
+              model.includes("LNC") || model.includes("CROWN")
             ) {
               const { okumaB250LatheMasterPostEngine } = await import("../../engines/OkumaB250LatheMasterPostEngine.js");
+              // Resolve the JM lathe identity from the model name. Order matters:
+              // LB3000 is tested before the B250 test, and LB250 (whose name
+              // contains "B250") must NOT resolve to the MULTUS profile -- hence
+              // the `&& !model.includes("LB")` guard on the B250 branch. A caller
+              // that passes an explicit config.machine_id overrides this.
+              const latheMachineId: "LB250II-M" | "LB3000" | "MULTUS-B250II"
+                | "GENOS-L300-M" | "GENOS-L200E-M" | "GENOS-L400II-E" | "LNC8" | "CROWN-L1060" =
+                model.includes("LB3000") ? "LB3000"
+                : (model.includes("MULTUS") || (model.includes("B250") && !model.includes("LB"))) ? "MULTUS-B250II"
+                // JM fleet LTH-01..05 (jm-fleet-sim-map.json) -- GENOS L-series by L-number,
+                // then LNC8 / Crown L1060. Strings match OkumaLatheMachineId exactly so the
+                // engine resolves the right (MACHINE: ...) header instead of LB250II-M default.
+                : (model.includes("GENOS") && model.includes("L300")) ? "GENOS-L300-M"
+                : (model.includes("GENOS") && model.includes("L200")) ? "GENOS-L200E-M"
+                : (model.includes("GENOS") && model.includes("L400")) ? "GENOS-L400II-E"
+                : model.includes("LNC") ? "LNC8"
+                : model.includes("CROWN") ? "CROWN-L1060"
+                : "LB250II-M";
+              const latheCfg = { machine_id: latheMachineId, ...((params as any).config ?? {}) };
               result = okumaB250LatheMasterPostEngine.generateProgram(
                 (params as any).operations,
-                (params as any).config
+                latheCfg,
               );
+            } else if (
+              // U-PP-FA10S-WIRE -- JM WEDM-01 Mitsubishi FA10S is the MELCUT/MELDAS dialect (M6/M7
+              // thread/cut, M28/M29 submerge, M80/M81 jets, T84/T85 anti-electrolysis) -- a DISTINCT
+              // engine (WEDMPostMitsubishiEngine) from the MV-series MV1200R (M800/M700V). Catch FA10S
+              // BEFORE the generic MITSUBISHI branch so it can NEVER silently mis-route to MV1200R and
+              // emit the wrong M-code dialect ("program won't run on the controller"). master_post_by_machine's
+              // mill-operation contract does not carry the WEDMPostInput shape (controller/thickness_mm/
+              // WEDMOperation[]) the MELCUT engine needs, so fail loud + redirect to the dedicated WEDM
+              // action rather than emit a wrong-dialect program (R12). Full input-adapter routing is a
+              // mike-collaboration follow-up (WEDM operation/controller mapping is WEDM-domain).
+              model.includes("FA10") || model.includes("FA-10") || model.includes("FA20") ||
+              model.includes("FA SERIES") || model.includes("FA-SERIES") || model.includes("MELCUT")
+            ) {
+              result = {
+                success: false,
+                error: `Mitsubishi FA10S / FA-series is the MELCUT/MELDAS dialect (M6/M7 thread-cut, M28/M29 submerge, M80/M81 jets, T84/T85) -- a different controller from the MV-series MV1200R (M800/M700V). Routing it through this mill-oriented path would emit the WRONG dialect. Generate it via the dedicated WEDM action "wedm_post_mitsubishi_generate" (WEDMPostMitsubishiEngine.generate) with a WEDMPostInput { controller, thickness_mm, operations: WEDMOperation[] }. U-PP-FA10S-WIRE.`,
+              };
             } else if (model.includes("MITSUBISHI") || model.includes("MV1200")) {
               const { mitsubishiMV1200RWireEDMMasterPostEngine } = await import("../../engines/MitsubishiMV1200RWireEDMMasterPostEngine.js");
               const ops = ((params as any).operations ?? []).map((op: any) => ({
@@ -6333,10 +7659,37 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 (params as any).operations,
                 inferredCfg
               );
+            } else if (
+              // POST-TRAIN-MS0/U-PT-HAAS-ENGINE — Haas 3-axis mill branch. Closes the full-post-coverage
+              // GAP for JM VMC-03/04 (Haas VF-class). HAAS_VF2 (corpus haas-vf2) matches "HAAS".
+              // VF/VF2 = Haas vertical mill. Hurco VM10/VM20/VMX are matched in the Hurco branch ABOVE,
+              // so they cannot mis-route here. NOTE: Haas UMC (5-axis) is deliberately NOT matched — it
+              // needs 5-axis post logic this 3-axis engine does not provide (tracked as a follow-on).
+              model.includes("HAAS") || model.includes("VF-") || model.includes("VF2")
+            ) {
+              const { haasNGCMillMasterPostEngine } = await import("../../engines/HaasNGCMillMasterPostEngine.js");
+              result = haasNGCMillMasterPostEngine.generateProgram(
+                (params as any).operations,
+                (params as any).config,
+              );
+            } else if (
+              // U-PP-ROKUROKU-ENGINE -- JM VMC-05 Roku-Roku HC 658-II (Fanuc 31i-B5), the high-speed
+              // electrode mill. It was the ONLY JM machine with NEITHER track; this branch closes the
+              // else-reject. Match the MACHINE IDENTITY (ROKU / HC 658) ONLY -- NOT the bare controller
+              // string ("FANUC 31i-B5"): the emit header hardcodes (MACHINE: ROKU-ROKU HC 658-II), so a
+              // generic Fanuc-31i token would falsely label a future non-Roku Fanuc mill (per-file
+              // scrutiny P2). A controller-only string correctly falls through to the explicit reject.
+              model.includes("ROKU") || model.includes("HC 658") || model.includes("HC658")
+            ) {
+              const { rokuRokuFanuc31iMillMasterPostEngine } = await import("../../engines/RokuRokuFanuc31iMillMasterPostEngine.js");
+              result = rokuRokuFanuc31iMillMasterPostEngine.generateProgram(
+                (params as any).operations,
+                (params as any).config,
+              );
             } else {
               result = {
                 success: false,
-                error: `Unknown machine model: ${params.machine_model}. Supported lathes: OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION; OKUMA OSP-P300M/OSP-P500M (PPG-WIRE-MS5/U-PPGW-OkumaMill). Wire EDM: MITSUBISHI_MV1200R.`,
+                error: `Unknown machine model: ${params.machine_model}. Supported lathes: OKUMA_LB200/LB250/LB300/LB3000, MULTUS_B250II, GENOS_L200E-M/L300-M/L400II-E, LNC8, CROWN_L1060, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION; OKUMA OSP-P300M/OSP-P500M (PPG-WIRE-MS5/U-PPGW-OkumaMill); HAAS VF/VF2 3-axis (POST-TRAIN-MS0/U-PT-HAAS-ENGINE); ROKU-ROKU HC 658-II / FANUC 31i-B5 (U-PP-ROKUROKU-ENGINE). Wire EDM: MITSUBISHI_MV1200R.`,
               };
             }
             break;
@@ -6552,25 +7905,70 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "fusion_export_tool_library": {
             const { toolCatalogEngine: tce } = await import("../../engines/ToolCatalogEngine.js");
             const { fusionToolExportEngine: fte } = await import("../../engines/FusionToolExportEngine.js");
+            // Ensure the full 62.7K vendor corpus is loaded before exporting — without
+            // this the Fusion library would only contain the ~30 hardcoded standard
+            // vendors. Idempotent + fail-soft (CATALOG-APP-WIRING-MS0/U3, slot:romeo).
+            const { catalogCorpusLoaderEngine: ccl } = await import("../../engines/CatalogCorpusLoaderEngine.js");
+            const ensured = ccl.ensureLoaded();
             const mfr = (params as any).manufacturer as string | undefined;
             const toolType = (params as any).type as string | undefined;
             const limit = (params as any).limit as number | undefined;
-            const tools = tce.search({ manufacturer: mfr, type: toolType as any });
+            // search() defaults max_results to 20 — pass the requested limit (or a high
+            // ceiling) THROUGH to search, else the corpus export silently caps at 20
+            // (CATALOG-APP-WIRING-MS0/U3 plumbing fix, slot:romeo).
+            const tools = tce.search({ manufacturer: mfr, type: toolType as any, max_results: limit ?? 100_000 });
             const subset = limit ? tools.slice(0, limit) : tools;
             const library = fte.exportLibrary(subset);
-            result = { success: true, tool_count: subset.length, library };
+            result = { success: true, tool_count: subset.length, corpus_ensured: ensured.ensured, library };
+            break;
+          }
+          // F360-MACHINE -- export the machine-profiles-catalog (1082 machines) as Fusion
+          // 360 .machine XML files (CATALOG-APP-WIRING-MS0/U-WIRE-FUSION-MACHINE-LIB, slot:romeo).
+          // No out_path -> returns the library object (filter via brand/type/limit).
+          // out_path -> writes one .machine file per machine into that directory.
+          case "fusion_export_machine_library": {
+            const { fusionMachineLibraryExportEngine: fmle } = await import("../../engines/FusionMachineLibraryExportEngine.js");
+            const { EXTENDED_MACHINE_CATALOG } = await import("../../data/machine-profiles-catalog.js");
+            const brand = (params as any).brand as string | undefined;
+            const mType = (params as any).type as string | undefined;
+            const mLimit = (params as any).limit as number | undefined;
+            const outPath = (params as any).out_path as string | undefined;
+            let subset = EXTENDED_MACHINE_CATALOG as typeof EXTENDED_MACHINE_CATALOG;
+            if (brand) subset = subset.filter((m) => (m.brand ?? "").toLowerCase() === brand.toLowerCase());
+            if (mType) subset = subset.filter((m) => m.type === mType);
+            if (typeof mLimit === "number" && mLimit > 0) subset = subset.slice(0, mLimit);
+            const library = fmle.exportLibrary(subset);
+            if (outPath) {
+              const { writeFileSync, mkdirSync } = await import("node:fs");
+              const { join } = await import("node:path");
+              mkdirSync(outPath, { recursive: true });
+              let written = 0;
+              for (const m of library.machines) {
+                writeFileSync(join(outPath, m.fileName), m.xml, "utf8");
+                written++;
+              }
+              result = { success: true, machine_count: library.count, written, out_path: outPath, warnings: library.warnings };
+            } else {
+              result = { success: true, machine_count: library.count, machines: library.machines, warnings: library.warnings };
+            }
             break;
           }
           case "fusion_sync_tools": {
             const { toolCatalogEngine: tce2 } = await import("../../engines/ToolCatalogEngine.js");
             const { fusionToolSyncEngine: fts } = await import("../../engines/FusionToolSyncEngine.js");
             const { fusionToolExportEngine: fte2 } = await import("../../engines/FusionToolExportEngine.js");
+            // Ensure the full 62.7K corpus is loaded before any catalog read below
+            // (CATALOG-APP-WIRING-MS0/U3 secondary-path fix, slot:romeo — partition/
+            // unsynced/job all search the catalog; without ensureLoaded they saw only
+            // the ~30 standard vendors, and without max_results they capped at 20).
+            const { catalogCorpusLoaderEngine: cclSync } = await import("../../engines/CatalogCorpusLoaderEngine.js");
+            cclSync.ensureLoaded();
             const mode = (params as any).mode as string ?? "partition";
             if (mode === "partition") {
               const mfr = (params as any).manufacturer as string | undefined;
               const toolType = (params as any).type as string | undefined;
               const maxPer = (params as any).max_per_library as number | undefined;
-              const tools = tce2.search({ manufacturer: mfr, type: toolType as any });
+              const tools = tce2.search({ manufacturer: mfr, type: toolType as any, max_results: 100_000 });
               const partitions = fts.partitionForExport(tools, maxPer);
               const libs: Record<string, number> = {};
               Array.from(partitions.entries()).forEach(([name, arr]) => { libs[name] = arr.length; });
@@ -6578,12 +7976,12 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             } else if (mode === "status") {
               result = { success: true, ...fts.getSyncSummary() };
             } else if (mode === "unsynced") {
-              const tools = tce2.search({});
+              const tools = tce2.search({ max_results: 100_000 });
               const unsynced = fts.getUnsyncedTools(tools);
               result = { success: true, unsynced_count: unsynced.length };
             } else if (mode === "job") {
               const toolIds = (params as any).tool_ids as string[];
-              const tools = tce2.search({});
+              const tools = tce2.search({ max_results: 100_000 });
               const job = fts.exportJobTools(toolIds ?? [], tools);
               const library = fte2.exportLibrary(job.tools);
               result = {
@@ -6648,6 +8046,96 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "print_to_program_validate": {
             const { printToProgramPipelineEngine: ptpVal } = await import("../../engines/PrintToProgramPipelineEngine.js");
             result = ptpVal.calculate("print_to_program_validate", params);
+            break;
+          }
+          // DOMAIN-PIPELINE-MS0/U-DPM0-INTAKE-CHECK-WIRE (slot:kilo iter2 2026-05-23)
+          // Surface intake-only validation as MCP-callable action so operators can
+          // pre-flight drawing completeness without running the full pipeline.
+          // First step of the adaptive_orchestrator intelligent-defaults capability
+          // (gap-detect; gap-fill remains XL multi-session work — see
+          // reference_kilo_queue_revisit_2026_05_23).
+          case "print_to_program_check_intake": {
+            const { printToProgramPipelineEngine: ptpIntake } = await import("../../engines/PrintToProgramPipelineEngine.js");
+            result = ptpIntake.calculate("print_to_program_check_intake", params);
+            break;
+          }
+          // P2P-FULLSTACK-MS0/U-P2PFS-HARNESS-WIRE — PrintToProgramRegressionHarnessEngine
+          // Replays TestResource fixtures through their matching pipeline, returning
+          // per-fixture verdicts (pass/warning/skip/fail) + aggregated summary. Operator
+          // entry point for "run thousands of live simulated tests" — feed the registry
+          // (currently sinker_edm only; 6 other processes return skip until per-pipeline
+          // adapters land in their respective MS).
+          case "print_to_program_regression_run": {
+            const { printToProgramRegressionHarnessEngine } = await import("../../engines/PrintToProgramRegressionHarnessEngine.js");
+            type Filter = Parameters<typeof printToProgramRegressionHarnessEngine.run>[0];
+            const filter = (params ?? {}) as Filter;
+            result = printToProgramRegressionHarnessEngine.run(filter);
+            break;
+          }
+          case "print_to_program_regression_run_one": {
+            const { printToProgramRegressionHarnessEngine: harnessOne } = await import("../../engines/PrintToProgramRegressionHarnessEngine.js");
+            const id = String(params?.fixture_id ?? "");
+            if (!id) throw new Error("print_to_program_regression_run_one requires fixture_id");
+            result = harnessOne.runById(id);
+            break;
+          }
+          // ── KILO-P2P-RECONCILE-MS0/U-KP2P-02: P2P-FULLSTACK capstone wiring ──
+          // PrintToProgramCoverageAnalyzerEngine (U-P2PFS63) + PrintToProgramTutorialEngine
+          // (U-P2PFS62) shipped to disk under P2P-FULLSTACK-MS0 but were never referenced by
+          // any dispatcher. Both have user-facing read APIs (not pure internal helpers), so
+          // they are wired here alongside the rest of the P2P family rather than tagged
+          // WIRE-EXEMPT. The coverage analyzer is a pure analyzer (runs the harness once +
+          // cross-references bundles/tutorials/calibration); the tutorial engine is a
+          // read-only curriculum store.
+          case "print_to_program_coverage": {
+            const { printToProgramCoverageAnalyzerEngine } = await import("../../engines/PrintToProgramCoverageAnalyzerEngine.js");
+            result = printToProgramCoverageAnalyzerEngine.analyze();
+            break;
+          }
+          case "print_to_program_tutorial": {
+            const { printToProgramTutorialEngine } = await import("../../engines/PrintToProgramTutorialEngine.js");
+            const mode = String(params?.mode ?? "list");
+            switch (mode) {
+              case "list":
+                result = { mode, walkthroughs: printToProgramTutorialEngine.walkthroughs() };
+                break;
+              case "ladder":
+                result = { mode, ladder: printToProgramTutorialEngine.progressionLadder() };
+                break;
+              case "get": {
+                const fid = String(params?.fixture_id ?? "");
+                if (!fid) throw new Error("print_to_program_tutorial mode 'get' requires fixture_id");
+                result = { mode, fixture_id: fid, walkthrough: printToProgramTutorialEngine.getWalkthrough(fid) ?? null };
+                break;
+              }
+              case "by_difficulty": {
+                const diff = String(params?.difficulty ?? "");
+                if (!diff) throw new Error("print_to_program_tutorial mode 'by_difficulty' requires difficulty");
+                result = {
+                  mode,
+                  difficulty: diff,
+                  walkthroughs: printToProgramTutorialEngine.byDifficulty(
+                    diff as "beginner" | "intermediate" | "advanced" | "expert",
+                  ),
+                };
+                break;
+              }
+              case "next": {
+                const fid = String(params?.fixture_id ?? "");
+                if (!fid) throw new Error("print_to_program_tutorial mode 'next' requires fixture_id");
+                result = { mode, fixture_id: fid, next: printToProgramTutorialEngine.nextAfter(fid) ?? null };
+                break;
+              }
+              case "stats":
+                result = {
+                  mode,
+                  total_walkthroughs: printToProgramTutorialEngine.walkthroughs().length,
+                  total_estimated_minutes: printToProgramTutorialEngine.totalEstimatedMinutes(),
+                };
+                break;
+              default:
+                throw new Error(`print_to_program_tutorial: unknown mode '${mode}' (expected list|get|ladder|by_difficulty|next|stats)`);
+            }
             break;
           }
           // ── PIPE-MS2: AutoPrintToProgramBridge (2 actions) ──
@@ -7101,31 +8589,49 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { algorithm, feature, material, machine } = params as any;
             return slimResponse(eng.sensitivityAnalysis(algorithm, feature, material, machine ?? {}));
           }
-          // ── CK-MS11: ProbingProgramEngine ────────────────────────────
+          // -- CK-MS11: probe routine generation --
+          // FIX (U-CK-MS11-PROBE-WIRE-FIX, slot:bravo 2026-06-22): these 5 actions
+          // called ProbingProgramEngine ("probingProg"), which only implements
+          // generate(points,config). generateWCSSetup / generateFirstArticle /
+          // generateInProcessCheck / generateToolMeasure / generateAutoComp never
+          // existed on it, so every invocation threw "<fn> is not a function" at
+          // runtime (tsc-blind: getEngine() returns any). Re-pointed to
+          // probeRoutineGeneratorEngine ("probeGen"), the engine that implements the
+          // real feature-based probe API, already used by the sibling probe_* actions
+          // (~6294). in_process -> generatePartInspection; tool_measure ->
+          // generateToolMeasurement; auto_comp -> a compensating partInspection
+          // (action_on_fail:"compensate", emits G10 L2 offset comp). Params normalized
+          // for the single-config API (legacy datums/feature/tool aliases accepted).
           case "probe_wcs_setup_gen": {
-            const eng = await getEngine("probingProg");
-            const { datums, config } = params as any;
-            return slimResponse(eng.generateWCSSetup(datums, config));
+            const eng = await getEngine("probeGen");
+            const p = params as any;
+            result = eng.generateWCSSetup(p.features ? p : { ...p, features: p.datums ?? [] });
+            break;
           }
           case "probe_first_article_gen": {
-            const eng = await getEngine("probingProg");
-            const { features, config } = params as any;
-            return slimResponse(eng.generateFirstArticle(features, config));
+            const eng = await getEngine("probeGen");
+            result = eng.generateFirstArticle(params);
+            break;
           }
           case "probe_in_process_gen": {
-            const eng = await getEngine("probingProg");
-            const { feature, config } = params as any;
-            return slimResponse(eng.generateInProcessCheck(feature, config));
+            const eng = await getEngine("probeGen");
+            const p = params as any;
+            result = eng.generatePartInspection(p.features ? p : { ...p, features: p.feature ? [p.feature] : [] });
+            break;
           }
           case "probe_tool_measure_gen": {
-            const eng = await getEngine("probingProg");
-            const { tool, config } = params as any;
-            return slimResponse(eng.generateToolMeasure(tool, config));
+            const eng = await getEngine("probeGen");
+            const p = params as any;
+            const tool_numbers = p.tool_numbers ?? (p.tool == null ? [] : (Array.isArray(p.tool) ? p.tool : [p.tool]));
+            result = eng.generateToolMeasurement(p.tool_numbers ? p : { ...p, tool_numbers });
+            break;
           }
           case "probe_auto_comp_gen": {
-            const eng = await getEngine("probingProg");
-            const { feature, offset_register, axis, max_comp_mm, config } = params as any;
-            return slimResponse(eng.generateAutoComp({ feature, offset_register, axis, max_comp_mm }, config));
+            const eng = await getEngine("probeGen");
+            const p = params as any;
+            const features = p.features ?? (p.feature ? [p.feature] : []);
+            result = eng.generatePartInspection({ ...p, features, action_on_fail: "compensate" });
+            break;
           }
           // ── CK-MS11: DFMFeedbackEngine ───────────────────────────────
           case "dfm_analyze": {
@@ -7364,6 +8870,10 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           // ── CAMX-MS10 U01: MastercamToolExportEngine (E1123) ─────────────────
           case "mastercam_tool_export": {
+            // Ensure full 62.7K corpus loaded before the engine queries the catalog
+            // (CATALOG-APP-WIRING-MS0/U4, slot:romeo). Idempotent + fail-soft.
+            const { catalogCorpusLoaderEngine: cclMc } = await import("../../engines/CatalogCorpusLoaderEngine.js");
+            cclMc.ensureLoaded();
             const eng = await getEngine("mastercamToolExport");
             const isoGroups = params.cutting_data_materials ?? undefined;
             const filter = params.filter ? { ...params.filter, iso_group: params.filter.iso_group ?? undefined } : undefined;
@@ -9349,6 +10859,74 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
 
+          // ── FusionMultiAxisEngine (WIRE-UNWIRED foxtrot 2026-05-17)
+          // 861-line real engine, NOT a stub: a deterministic Fusion 360
+          // 5-axis toolpath generator (singularity avoidance + kinematic
+          // validation + RTCP). All wired surfaces are SYNC + pure (no I/O).
+          // calculate_angles / singularity_proximity / generate each need a
+          // MachineKinematics object — the dispatcher resolves it from a
+          // `machine_id` against the engine's MACHINE_KINEMATICS_CATALOG so
+          // callers pass an id, not a hand-built kinematics object. An
+          // unknown id yields a graceful { success:false, error } result.
+          case "fusion_5x_generate": {
+            const { fusionMultiAxisEngine } = await import("../../engines/FusionMultiAxisEngine.js");
+            let machine = params.machine;
+            if (!machine && params.machine_id) {
+              machine = fusionMultiAxisEngine.getMachine(String(params.machine_id));
+            }
+            if (!machine) {
+              result = { success: false, error: `machine not found: ${String(params.machine_id ?? "(none)")}` };
+              break;
+            }
+            const out = fusionMultiAxisEngine.generate(
+              { ...params, machine } as Parameters<typeof fusionMultiAxisEngine.generate>[0],
+            );
+            result = { success: true, ...out };
+            break;
+          }
+          case "fusion_5x_get_machine": {
+            const { fusionMultiAxisEngine } = await import("../../engines/FusionMultiAxisEngine.js");
+            const machine = fusionMultiAxisEngine.getMachine(String(params.machine_id ?? ""));
+            result = machine
+              ? { success: true, machine }
+              : { success: false, error: `machine not found: ${String(params.machine_id ?? "(none)")}` };
+            break;
+          }
+          case "fusion_5x_get_all_machines": {
+            const { fusionMultiAxisEngine } = await import("../../engines/FusionMultiAxisEngine.js");
+            const machines = fusionMultiAxisEngine.getAllMachines();
+            result = { success: true, machines, count: machines.length };
+            break;
+          }
+          case "fusion_5x_calculate_angles": {
+            const { fusionMultiAxisEngine } = await import("../../engines/FusionMultiAxisEngine.js");
+            const machine = fusionMultiAxisEngine.getMachine(String(params.machine_id ?? ""));
+            if (!machine) {
+              result = { success: false, error: `machine not found: ${String(params.machine_id ?? "(none)")}` };
+              break;
+            }
+            const angles = fusionMultiAxisEngine.calculateAngles(
+              params.tool_axis as Parameters<typeof fusionMultiAxisEngine.calculateAngles>[0],
+              machine,
+            );
+            result = { success: true, angles };
+            break;
+          }
+          case "fusion_5x_singularity_proximity": {
+            const { fusionMultiAxisEngine } = await import("../../engines/FusionMultiAxisEngine.js");
+            const machine = fusionMultiAxisEngine.getMachine(String(params.machine_id ?? ""));
+            if (!machine) {
+              result = { success: false, error: `machine not found: ${String(params.machine_id ?? "(none)")}` };
+              break;
+            }
+            const proximity_deg = fusionMultiAxisEngine.singularityProximity(
+              params.tool_axis as Parameters<typeof fusionMultiAxisEngine.singularityProximity>[0],
+              machine,
+            );
+            result = { success: true, proximity_deg };
+            break;
+          }
+
           // ── E1120: HyperMillCodeGeneratorEngine ──────────────────────────
           case "hypermill_code_generate": {
             const eng = await getEngine("hyperMillCodeGen");
@@ -9429,6 +11007,10 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           // ── E1127: HyperMillToolExportEngine (CAMX-MS9/U03) ──────────────
           case "hypermill_tool_export": {
+            // When params.tools is empty the engine falls back to the catalog — ensure
+            // the full corpus is loaded first (CATALOG-APP-WIRING-MS0/U5, slot:romeo).
+            const { catalogCorpusLoaderEngine: cclHm } = await import("../../engines/CatalogCorpusLoaderEngine.js");
+            cclHm.ensureLoaded();
             const eng = await getEngine("hyperMillToolExport");
             result = eng.exportToHMT(
               params.tools ?? [],
@@ -9461,6 +11043,10 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           // ── InventorCAMToolExportEngine (WIRE-UNWIRED foxtrot 2026-05-17) ─
           case "inventor_tool_export": {
+            // Ensure full corpus loaded before the engine queries the catalog
+            // (CATALOG-APP-WIRING-MS0/U6, slot:romeo). Idempotent + fail-soft.
+            const { catalogCorpusLoaderEngine: cclInv } = await import("../../engines/CatalogCorpusLoaderEngine.js");
+            cclInv.ensureLoaded();
             const eng = await getEngine("inventorCAMToolExport");
             result = eng.exportLibrary(
               params.filter ?? undefined,
@@ -9522,8 +11108,19 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
 
           // ================================================================
-          // POST-ULT — 20 engines, 48 actions
+          // POST-ULT — 21 engines, 52 actions
           // ================================================================
+
+          // ── PostProcessorUnificationEngine (4 actions) ──────────────────
+          // Controller/dialect catalog query. Slot:india U-INDIA-WIRE-PPUNIFY 2026-05-23.
+          case "pp_unify_query":
+          case "pp_unify_get":
+          case "pp_unify_stats":
+          case "pp_unify_by_controller": {
+            const eng = await getEngine("postProcUnification");
+            result = await eng.execute(action, params);
+            break;
+          }
 
           // ── CpsPostParserEngine (3 actions) ────────────────────────────
           case "cps_parse":
@@ -9756,7 +11353,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
 
-          // ── MotionControllerInjectionEngine (3 actions) ────────────────
+          // ── MotionControllerInjectionEngine (4 actions) ────────────────
           case "post_inject_motion": {
             const eng = await getEngine("motionInjection");
             result = eng.inject_all(params);
@@ -9770,6 +11367,37 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "post_inject_coolant": {
             const eng = await getEngine("motionInjection");
             result = eng.inject_coolant(params);
+            break;
+          }
+          case "post_thermal_compensate": {
+            // U-DEA-november-P01 (DEA-MS0): bridges acc_thermal_error -> post_inject_motion.
+            // Computes thermal compensation from calibration + current temps, then injects
+            // controller-aware additive work-offset shift at program start.
+            const accuracyEng = await getEngine("machineAccuracy");
+            const motionEng = await getEngine("motionInjection");
+            const thermal = accuracyEng.thermalErrorModel({
+              calibration_data: params.calibration_data,
+              current_temps: params.current_temps,
+              sensor_names: params.sensor_names,
+            });
+            const motion = motionEng.inject_thermal_compensate({
+              controller: params.controller,
+              gcode: params.gcode,
+              compensation: thermal.compensation,
+              wcs_code: params.wcs_code,
+              insertion_line: params.insertion_line,
+            });
+            result = {
+              predicted_error: thermal.predicted_error,
+              compensation: thermal.compensation,
+              model_r_squared: thermal.model_r_squared,
+              significant_sensors: thermal.significant_sensors,
+              thermal_time_constant_minutes: thermal.thermal_time_constant_minutes,
+              injected_gcode: motion.injected_gcode,
+              injections: motion.injections,
+              codes_added: motion.codes_added,
+              codes_explanation: motion.codes_explanation,
+            };
             break;
           }
 
@@ -14902,6 +16530,51 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             );
             break;
           }
+          case "cam_esprit_apply_sf": {
+            // BRIDGE-DEEP/U-BRIDGE-SFC-ESPRIT: SFC orchestrator -> Esprit-encode -> live push.
+            const { SfcEspritApplyEngine } = await import("../../engines/SfcEspritApplyEngine.js");
+            result = await SfcEspritApplyEngine.applyToEsprit({
+              native_request: params.native_request as any,
+              dry_run: (params.dry_run as boolean | undefined) ?? false,
+              host: params.host as string | undefined,
+              port: params.port as number | undefined,
+              extra_machining_params: params.extra_machining_params as any,
+            });
+            break;
+          }
+          case "cam_fusion_apply_sf": {
+            // BRIDGE-DEEP/U-BRIDGE-SFC-FUSION: SFC orchestrator -> Fusion 360 toolpath override DTO.
+            // Operator-gated by construction (Fusion has no live toolpath-mutate API).
+            const { SfcFusionApplyEngine } = await import("../../engines/SfcFusionApplyEngine.js");
+            result = SfcFusionApplyEngine.applyToFusion({
+              native_request: params.native_request as any,
+              dry_run: (params.dry_run as boolean | undefined) ?? false,
+              extra_toolpath_overrides: params.extra_toolpath_overrides as any,
+            });
+            break;
+          }
+          case "cam_hypermill_apply_sf": {
+            // BRIDGE-DEEP/U-BRIDGE-SFC-HYPERMILL: SFC orchestrator -> hyperMILL macro override DTO.
+            // Operator-gated by construction (live push owned downstream by HyperMILLMacroAPIEngine).
+            const { SfcHyperMillApplyEngine } = await import("../../engines/SfcHyperMillApplyEngine.js");
+            result = SfcHyperMillApplyEngine.applyToHyperMill({
+              native_request: params.native_request as any,
+              dry_run: (params.dry_run as boolean | undefined) ?? false,
+              extra_macro_overrides: params.extra_macro_overrides as any,
+            });
+            break;
+          }
+          case "cam_inventor_hsm_apply_sf": {
+            // BRIDGE-DEEP/U-BRIDGE-SFC-INVENTORHSM: SFC orchestrator -> Inventor HSM toolpath override DTO.
+            // Operator-gated by construction (no live toolpath-mutate auto-push from this bridge).
+            const { SfcInventorHsmApplyEngine } = await import("../../engines/SfcInventorHsmApplyEngine.js");
+            result = SfcInventorHsmApplyEngine.applyToInventorHsm({
+              native_request: params.native_request as any,
+              dry_run: (params.dry_run as boolean | undefined) ?? false,
+              extra_toolpath_overrides: params.extra_toolpath_overrides as any,
+            });
+            break;
+          }
           case "cam_post_select": {
             const { CAMPostSelectorUIEngine } = await import("../../engines/CAMPostSelectorUIEngine.js");
             result = CAMPostSelectorUIEngine.recommendForMachine(params.machine_id as string);
@@ -15743,6 +17416,100 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
 
+          // ── INDIA-POST-WIRE U-MASTERCAM-CTRL-CAT: Mastercam controller catalog (E1204) ──
+          case "cam_mastercam_controller_list": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            result = { families: mastercamControllerCatalogEngine.listFamilies() };
+            break;
+          }
+          case "cam_mastercam_controller_get": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            const id = params.id as string;
+            result = { id, family: mastercamControllerCatalogEngine.getFamily(id) };
+            break;
+          }
+          case "cam_mastercam_controller_search": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            const query = params.query as string;
+            result = { query, matches: mastercamControllerCatalogEngine.search(query) };
+            break;
+          }
+          case "cam_mastercam_controller_by_axis": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            const axes = Number(params.axes);
+            result = { axes, matches: mastercamControllerCatalogEngine.byAxisCount(axes) };
+            break;
+          }
+          case "cam_mastercam_controller_by_capability": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            const capability = params.capability as string;
+            result = { capability, matches: mastercamControllerCatalogEngine.byCapability(capability) };
+            break;
+          }
+          case "cam_mastercam_controller_dialect": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            const familyId = params.familyId as string;
+            result = { familyId, dialect: mastercamControllerCatalogEngine.getDialect(familyId) };
+            break;
+          }
+          case "cam_mastercam_controller_tribal_tips": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            const familyId = params.familyId as string;
+            result = { familyId, tips: mastercamControllerCatalogEngine.getTribalTips(familyId) };
+            break;
+          }
+          case "cam_mastercam_controller_find_for_machine": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            const machineName = params.machineName as string;
+            result = { machineName, match: mastercamControllerCatalogEngine.findForMachine(machineName) };
+            break;
+          }
+          case "cam_mastercam_controller_stats": {
+            const { mastercamControllerCatalogEngine } = await import("../../engines/MastercamControllerCatalogEngine.js");
+            result = mastercamControllerCatalogEngine.stats();
+            break;
+          }
+
+          // ── INDIA-POST-WIRE U-CTRL-CALIB-WIRE: cross-dialect controller calibration ──
+          case "cam_controller_calibration_required": {
+            const { CANONICAL_REQUIRED } = await import("../../engines/MultiControllerCalibrationEngine.js");
+            result = { required: [...CANONICAL_REQUIRED] };
+            break;
+          }
+          case "cam_controller_calibration_compare_all": {
+            const { multiControllerCalibrationEngine, StaticControllerProbe, canonicalProbes } =
+              await import("../../engines/MultiControllerCalibrationEngine.js");
+            const rawProbes = params.probes as
+              | Array<{ dialect: string; emissions: Array<{ category: string; code: string; required: boolean }> }>
+              | undefined;
+            const probes = rawProbes && rawProbes.length > 0
+              ? rawProbes.map((p) => new StaticControllerProbe(
+                  p.dialect as ConstructorParameters<typeof StaticControllerProbe>[0],
+                  p.emissions,
+                ))
+              : canonicalProbes();
+            result = multiControllerCalibrationEngine.compareAll(probes);
+            break;
+          }
+          case "cam_controller_calibration_compare_one": {
+            const { multiControllerCalibrationEngine, StaticControllerProbe } =
+              await import("../../engines/MultiControllerCalibrationEngine.js");
+            const p = params.probe as
+              | { dialect: string; emissions: Array<{ category: string; code: string; required: boolean }> }
+              | undefined;
+            if (!p || typeof p.dialect !== "string" || !Array.isArray(p.emissions)) {
+              throw new Error(
+                "cam_controller_calibration_compare_one requires params.probe = { dialect, emissions: [{ category, code, required }] }",
+              );
+            }
+            const probe = new StaticControllerProbe(
+              p.dialect as ConstructorParameters<typeof StaticControllerProbe>[0],
+              p.emissions,
+            );
+            result = multiControllerCalibrationEngine.compareOne(probe);
+            break;
+          }
+
           // ── CAM-EXHAUST-MS0 U-CAM-FUSION-STRAT-01: Fusion 360 strategy engine ──
           case "cam_fusion360_strategy_recommend": {
             const { Fusion360StrategyEngine } = await import("../../engines/Fusion360StrategyEngine.js");
@@ -16273,6 +18040,79 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "fusion360_function_index_get_cutting_operations": {
             const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
             result = { success: true, operations: Fusion360FunctionIndexEngine.getCuttingOperations() };
+            break;
+          }
+          // U-BRIDGE-WIRE-MASTERCAM — Mastercam CAD Function Index (sibling to fusion360)
+          case "mastercam_cad_function_index_get": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            result = { success: true, index: MastercamCADFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "mastercam_cad_function_index_list_modules": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            result = { success: true, modules: MastercamCADFunctionIndexEngine.listModules() };
+            break;
+          }
+          case "mastercam_cad_function_index_get_module": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            const mod = MastercamCADFunctionIndexEngine.getModule(params.module_id as string);
+            result = mod ? { success: true, module: mod } : { success: false, error: "Module not found" };
+            break;
+          }
+          case "mastercam_cad_function_index_list_operations": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            result = { success: true, operations: MastercamCADFunctionIndexEngine.listOperations(params.module_id as string) };
+            break;
+          }
+          case "mastercam_cad_function_index_list_all_operations": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            result = { success: true, operations: MastercamCADFunctionIndexEngine.listAllOperations() };
+            break;
+          }
+          case "mastercam_cad_function_index_get_operation": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            const op = MastercamCADFunctionIndexEngine.getOperation(
+              params.module_id as string,
+              params.operation_id as string,
+            );
+            result = op ? { success: true, operation: op } : { success: false, error: "Operation not found" };
+            break;
+          }
+          case "mastercam_cad_function_index_find_parameter": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            const param = MastercamCADFunctionIndexEngine.findParameter(
+              params.module_id as string,
+              params.operation_id as string,
+              params.parameter_name as string,
+            );
+            result = param ? { success: true, parameter: param } : { success: false, error: "Parameter not found" };
+            break;
+          }
+          case "mastercam_cad_function_index_search_parameters": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            result = {
+              success: true,
+              parameters: MastercamCADFunctionIndexEngine.searchParameters(
+                params.query as string,
+                params.limit as number | undefined,
+              ),
+            };
+            break;
+          }
+          case "mastercam_cad_function_index_get_operations_by_category": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            result = {
+              success: true,
+              operations: MastercamCADFunctionIndexEngine.getOperationsByCategory(
+                params.category as string,
+                params.module_id as string | undefined,
+              ),
+            };
+            break;
+          }
+          case "mastercam_cad_function_index_get_total_parameter_count": {
+            const { MastercamCADFunctionIndexEngine } = await import("../../engines/MastercamCADFunctionIndexEngine.js");
+            result = { success: true, count: MastercamCADFunctionIndexEngine.getTotalParameterCount() };
             break;
           }
 
@@ -17548,10 +19388,130 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM120 — Feedback Loop (9 actions)
+          // CAM-LEARNING-LOOP/U-KILO-DECISION-2PHASE (slot:kilo, 2026-07-01) --
+          // Phase-2 resolve: correlate an operator-time verdict/override back
+          // to the Phase-1 decision record (captureCamDecision tail tap) and
+          // feed the EXISTING CAMFeedbackLoopEngine surface with the REAL
+          // wasCorrect. Every resolve emits exactly ONE OutcomeRecord (the
+          // Mann-Kendall drift metric needs both true AND false samples); a
+          // corrected_value ADDITIONALLY emits one CorrectionRecord (the LoRA
+          // training pair), built from the logged snapshot -- the same
+          // correlation recordCorrectionFromDecision performs, sourced from
+          // the persisted record instead of a live AGIDecision object.
+          // Unknown id / double-resolve return STRUCTURED errors and never
+          // touch the metric (no silent success, no double-count).
+          case "cam_decision_outcome": {
+            const { CAMDecisionLogEngine } = await import("../../engines/CAMDecisionLogEngine.js");
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            const decisionId = (params.decision_id ?? params.decisionId) as string;
+            const wasCorrectRaw = (params.was_correct ?? params.wasCorrect) as boolean | undefined;
+            const hasCorrection =
+              params.corrected_value !== undefined || params.correctedValue !== undefined;
+            const correctedValue =
+              params.corrected_value !== undefined ? params.corrected_value : params.correctedValue;
+            if (wasCorrectRaw === undefined && !hasCorrection) {
+              result = {
+                success: false, error: "missing_verdict", decision_id: decisionId,
+                detail: "provide was_correct (boolean) and/or corrected_value",
+              };
+              break;
+            }
+            if (wasCorrectRaw === true && hasCorrection) {
+              result = {
+                success: false, error: "contradictory_resolution", decision_id: decisionId,
+                detail: "was_correct=true cannot carry a corrected_value (an override means the pick was wrong)",
+              };
+              break;
+            }
+            const rec = CAMDecisionLogEngine.get(decisionId);
+            if (!rec) {
+              result = {
+                success: false, error: "unknown_decision_id", decision_id: decisionId,
+                detail: "decisionId must come from a Phase-1 captured prism_cam decision action result",
+              };
+              break;
+            }
+            if (rec.resolved) {
+              result = {
+                success: false, error: "already_resolved", decision_id: decisionId,
+                resolved_at: rec.resolution?.resolvedAt ?? null,
+                resolution: rec.resolution ?? null,
+              };
+              break;
+            }
+            const wasCorrect = hasCorrection ? false : (wasCorrectRaw as boolean);
+            const task = rec.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor";
+            const outcome = CAMFeedbackLoopEngine.recordOutcome({
+              decisionId, task, wasCorrect, predictedConfidence: rec.confidence,
+            });
+            let correction: ReturnType<typeof CAMFeedbackLoopEngine.recordCorrection> | null = null;
+            if (hasCorrection) {
+              correction = CAMFeedbackLoopEngine.recordCorrection({
+                decisionId, task,
+                originalValue: rec.decisionValue,
+                correctedValue,
+                originalSource: toAgiSourceKind(rec.source),
+                originalConfidence: rec.confidence,
+                reason: params.reason as string | undefined,
+                operatorId: (params.operator_id ?? params.operatorId) as string | undefined,
+                prompt: rec.prompt,
+              });
+            }
+            const marked = CAMDecisionLogEngine.markResolved(decisionId, {
+              wasCorrect,
+              hadCorrection: hasCorrection,
+              outcomeRecordId: outcome.recordId,
+              correctionRecordId: correction?.recordId,
+              actuals: params.actuals as Record<string, unknown> | undefined,
+            });
+            result = {
+              success: true,
+              decision_id: decisionId,
+              was_correct: wasCorrect,
+              outcome_record_id: outcome.recordId,
+              correction_record_id: correction?.recordId ?? null,
+              store_persisted: marked.ok ? marked.persisted : false,
+            };
+            break;
+          }
+          case "cam_decision_get": {
+            const { CAMDecisionLogEngine } = await import("../../engines/CAMDecisionLogEngine.js");
+            const decisionId = (params.decision_id ?? params.decisionId) as string;
+            const rec = CAMDecisionLogEngine.get(decisionId);
+            result = rec
+              ? { success: true, record: rec }
+              : { success: false, error: "unknown_decision_id", decision_id: decisionId };
+            break;
+          }
           case "cam_feedback_record_correction": {
             const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
             const input = params.input as Parameters<typeof CAMFeedbackLoopEngine.recordCorrection>[0];
             result = { success: true, record: CAMFeedbackLoopEngine.recordCorrection(input) };
+            break;
+          }
+          // CADCAM-DAGI-MS4/U-CAMAGI13 — Reinforcement Learning CAM Feedback
+          case "cam_rl_feedback_close_loop": {
+            const { reinforcementLearningCAMFeedbackEngine } = await import("../../engines/ReinforcementLearningCAMFeedbackEngine.js");
+            type Arg = Parameters<typeof reinforcementLearningCAMFeedbackEngine.closeFeedbackLoop>[0];
+            result = reinforcementLearningCAMFeedbackEngine.closeFeedbackLoop(params as unknown as Arg);
+            break;
+          }
+          case "cam_rl_feedback_compute_reward": {
+            const { reinforcementLearningCAMFeedbackEngine } = await import("../../engines/ReinforcementLearningCAMFeedbackEngine.js");
+            const p = params as { actual: any; predicted: any; weights?: any };
+            result = { success: true, reward: reinforcementLearningCAMFeedbackEngine.computeReward(p.actual, p.predicted, p.weights) };
+            break;
+          }
+          case "cam_rl_feedback_preserve_skill": {
+            const { reinforcementLearningCAMFeedbackEngine } = await import("../../engines/ReinforcementLearningCAMFeedbackEngine.js");
+            const p = params as { adapter_id: string; input: number[]; target: number[]; task_id?: string };
+            const ok = reinforcementLearningCAMFeedbackEngine.preserveSkill(p.adapter_id, p.input, p.target, p.task_id);
+            result = { success: ok, trained: ok };
+            break;
+          }
+          case "cam_rl_feedback_stats": {
+            const { reinforcementLearningCAMFeedbackEngine } = await import("../../engines/ReinforcementLearningCAMFeedbackEngine.js");
+            result = { success: true, stats: reinforcementLearningCAMFeedbackEngine.getStats() };
             break;
           }
           case "cam_feedback_record_outcome": {
@@ -18220,8 +20180,12 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
 
           case "cam_strategy_recommend_full": {
-            const { camStrategyRecommenderEngine } = await import("../../engines/CAMStrategyRecommenderEngine.js");
-            const recommendation = camStrategyRecommenderEngine.recommend(params as unknown as Parameters<typeof camStrategyRecommenderEngine.recommend>[0]);
+            // CLOSE-THE-LOOP CONSUME (U-CAM-LOOP-CONSUME, slot:kilo 2026-06-30):
+            // inject the LEARNED strategy ranking (SelfLearningCAMEngine persisted
+            // win-rates) so a proven shop-floor posterior demonstrably shifts the
+            // catalog ranking vs the cold literature prior. use_learned:false opts
+            // out (byte-identical to the pre-loop behavior); fail-soft on a cold learner.
+            const recommendation = await recommendStrategyWithLearning(params);
             result = { success: true, recommendation };
             break;
           }
@@ -18743,9 +20707,808 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             };
             break;
           }
-          
-          
-                    default:
+          // ─────────────────────────────────────────────────────────────────
+          // CAM-UNWIRED-LOOP-ITER3: 47 engines wired
+          // ─────────────────────────────────────────────────────────────────
+          case "cam_utility_compare": {
+            const { programCompareEngine } = await import("../../engines/CAMUtilityEngines.js");
+            result = { success: true, data: (programCompareEngine as any).compare?.(params as any) ?? { engine: "programCompareEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_utility_cache_get": {
+            const { camResultCacheEngine } = await import("../../engines/CAMUtilityEngines.js");
+            result = { success: true, data: (camResultCacheEngine as any).get?.(params as any) ?? { engine: "camResultCacheEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_utility_batch_run": {
+            const { batchCAMEngine } = await import("../../engines/CAMUtilityEngines.js");
+            result = { success: true, data: (batchCAMEngine as any).run?.(params as any) ?? { engine: "batchCAMEngine", note: "method not callable" } };
+            break;
+          }
+          case "post_am_finishing_plan": {
+            const { postAMFinishingPlanEngine } = await import("../../engines/PostAMFinishingPlanEngine.js");
+            result = { success: true, data: (postAMFinishingPlanEngine as any).planFinishing?.(params as any) ?? { engine: "PostAMFinishingPlanEngine", note: "method not callable" } };
+            break;
+          }
+          case "soft_jaw_boring_generate": {
+            const { softJawBoringGCodeEngine } = await import("../../engines/SoftJawBoringGCodeEngine.js");
+            result = { success: true, data: (softJawBoringGCodeEngine as any).generate?.(params as any) ?? { engine: "SoftJawBoringGCodeEngine", note: "method not callable" } };
+            break;
+          }
+          case "multicam_knowledge_query": {
+            const { multiCamKnowledgeEngine } = await import("../../engines/MultiCamKnowledgeEngine.js");
+            result = { success: true, data: (multiCamKnowledgeEngine as any).query?.(params as any) ?? { engine: "MultiCamKnowledgeEngine", note: "method not callable" } };
+            break;
+          }
+          case "cimatron_cam_bridge_run": {
+            const { cimatronCAMBridgeEngine } = await import("../../engines/CimatronCAMBridgeEngine.js");
+            result = { success: true, data: (cimatronCAMBridgeEngine as any).run?.(params as any) ?? (cimatronCAMBridgeEngine as any).process?.(params as any) ?? { engine: "CimatronCAMBridgeEngine", note: "method not callable" } };
+            break;
+          }
+          case "tebis_cam_bridge_run": {
+            const { tebisCAMBridgeEngine } = await import("../../engines/TebisCAMBridgeEngine.js");
+            result = { success: true, data: (tebisCAMBridgeEngine as any).run?.(params as any) ?? (tebisCAMBridgeEngine as any).process?.(params as any) ?? { engine: "TebisCAMBridgeEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_rl_controller_select": {
+            const { wedmRLControllerEngine } = await import("../../engines/WEDMRLControllerEngine.js");
+            result = { success: true, data: (wedmRLControllerEngine as any).select?.(params as any) ?? { engine: "WEDMRLControllerEngine", note: "method not callable" } };
+            break;
+          }
+          case "radial_engagement_analyze": {
+            const { radialEngagementControllerEngine } = await import("../../engines/RadialEngagementControllerEngine.js");
+            result = { success: true, data: (radialEngagementControllerEngine as any).analyze?.(params as any) ?? { engine: "RadialEngagementControllerEngine", note: "method not callable" } };
+            break;
+          }
+          case "mastercam_mill_turn_handoff": {
+            const { mastercamMillTurnBridge } = await import("../../engines/MastercamMillTurnBridge.js");
+            result = { success: true, data: (mastercamMillTurnBridge as any).calculateSpindleHandoff?.(params as any) ?? { engine: "MastercamMillTurnBridge", note: "method not callable" } };
+            break;
+          }
+          case "blameless_post_mortem_run": {
+            const { blamelessPostMortemEngine } = await import("../../engines/BlamelessPostMortemEngine.js");
+            result = { success: true, data: (blamelessPostMortemEngine as any).run?.(params as any) ?? (blamelessPostMortemEngine as any).analyze?.(params as any) ?? { engine: "BlamelessPostMortemEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_post_mitsubishi_generate": {
+            const { wedmPostMitsubishiEngine } = await import("../../engines/WEDMPostMitsubishiEngine.js");
+            result = postActionResult("WEDMPostMitsubishiEngine", (wedmPostMitsubishiEngine as any).generate?.(params as any));
+            break;
+          }
+          case "wedm_post_sodick_generate": {
+            const { wedmPostSodickEngine } = await import("../../engines/WEDMPostSodickEngine.js");
+            result = postActionResult("WEDMPostSodickEngine", (wedmPostSodickEngine as any).generate?.(params as any));
+            break;
+          }
+          case "wedm_post_makino_generate": {
+            const { wedmPostMakinoEngine } = await import("../../engines/WEDMPostMakinoEngine.js");
+            result = postActionResult("WEDMPostMakinoEngine", (wedmPostMakinoEngine as any).generate?.(params as any));
+            break;
+          }
+          case "wedm_post_agie_generate": {
+            const { wedmPostAgieEngine } = await import("../../engines/WEDMPostAgieEngine.js");
+            result = postActionResult("WEDMPostAgieEngine", (wedmPostAgieEngine as any).generate?.(params as any));
+            break;
+          }
+          case "wedm_post_fanuc_generate": {
+            const { wedmPostFanucEngine } = await import("../../engines/WEDMPostFanucEngine.js");
+            result = postActionResult("WEDMPostFanucEngine", (wedmPostFanucEngine as any).generate?.(params as any));
+            break;
+          }
+          // ── WEDM full method-surface expansion (echo /goal 2026-05-25) ──
+          // Closes the "stub-wired" class flagged by POST-PROCESSOR-CAPABILITY-ASSESSMENT-2026-05-21 §6:
+          // each WEDMPost*Engine exposes generate + parse + dialectNameFor + vendor table-getter,
+          // but the dispatcher previously surfaced only generate. parse enables round-trip
+          // equivalence audits; table-getter enables tech-table introspection (E-codes / TEC /
+          // HyperDrive C-pairs / Power-Master S / ROBOCUT macros); dialect resolves controller alias.
+          case "wedm_post_mitsubishi_parse": {
+            const { wedmPostMitsubishiEngine } = await import("../../engines/WEDMPostMitsubishiEngine.js");
+            const gcode = (params as any)?.gcode ?? (params as any)?.gcode_text ?? "";
+            result = { success: true, data: (wedmPostMitsubishiEngine as any).parse?.(gcode) ?? { engine: "WEDMPostMitsubishiEngine", note: "parse not callable" } };
+            break;
+          }
+          case "wedm_post_mitsubishi_tech_table": {
+            const { wedmPostMitsubishiEngine } = await import("../../engines/WEDMPostMitsubishiEngine.js");
+            result = { success: true, data: (wedmPostMitsubishiEngine as any).getETable?.() ?? { engine: "WEDMPostMitsubishiEngine", note: "getETable not callable" } };
+            break;
+          }
+          case "wedm_post_mitsubishi_dialect": {
+            const { wedmPostMitsubishiEngine } = await import("../../engines/WEDMPostMitsubishiEngine.js");
+            const ctrl = (params as any)?.controller ?? "mitsubishi_fa";
+            result = { success: true, data: { controller: ctrl, dialect_name: (wedmPostMitsubishiEngine as any).dialectNameFor?.(ctrl) ?? "Mitsubishi", manufacturer: (wedmPostMitsubishiEngine as any).manufacturer, supported_controllers: (wedmPostMitsubishiEngine as any).supportedControllers } };
+            break;
+          }
+          case "wedm_post_sodick_parse": {
+            const { wedmPostSodickEngine } = await import("../../engines/WEDMPostSodickEngine.js");
+            const gcode = (params as any)?.gcode ?? (params as any)?.gcode_text ?? "";
+            result = { success: true, data: (wedmPostSodickEngine as any).parse?.(gcode) ?? { engine: "WEDMPostSodickEngine", note: "parse not callable" } };
+            break;
+          }
+          case "wedm_post_sodick_tech_table": {
+            const { wedmPostSodickEngine } = await import("../../engines/WEDMPostSodickEngine.js");
+            result = { success: true, data: (wedmPostSodickEngine as any).getTechTable?.() ?? { engine: "WEDMPostSodickEngine", note: "getTechTable not callable" } };
+            break;
+          }
+          case "wedm_post_sodick_dialect": {
+            const { wedmPostSodickEngine } = await import("../../engines/WEDMPostSodickEngine.js");
+            const ctrl = (params as any)?.controller ?? "sodick_aq";
+            result = { success: true, data: { controller: ctrl, dialect_name: (wedmPostSodickEngine as any).dialectNameFor?.(ctrl) ?? "Sodick", manufacturer: (wedmPostSodickEngine as any).manufacturer, supported_controllers: (wedmPostSodickEngine as any).supportedControllers } };
+            break;
+          }
+          case "wedm_post_makino_parse": {
+            const { wedmPostMakinoEngine } = await import("../../engines/WEDMPostMakinoEngine.js");
+            const gcode = (params as any)?.gcode ?? (params as any)?.gcode_text ?? "";
+            result = { success: true, data: (wedmPostMakinoEngine as any).parse?.(gcode) ?? { engine: "WEDMPostMakinoEngine", note: "parse not callable" } };
+            break;
+          }
+          case "wedm_post_makino_tech_table": {
+            const { wedmPostMakinoEngine } = await import("../../engines/WEDMPostMakinoEngine.js");
+            result = { success: true, data: (wedmPostMakinoEngine as any).getTechTable?.() ?? { engine: "WEDMPostMakinoEngine", note: "getTechTable not callable" } };
+            break;
+          }
+          case "wedm_post_makino_dialect": {
+            const { wedmPostMakinoEngine } = await import("../../engines/WEDMPostMakinoEngine.js");
+            const ctrl = (params as any)?.controller ?? "makino_u";
+            result = { success: true, data: { controller: ctrl, dialect_name: (wedmPostMakinoEngine as any).dialectNameFor?.(ctrl) ?? "Makino", manufacturer: (wedmPostMakinoEngine as any).manufacturer, supported_controllers: (wedmPostMakinoEngine as any).supportedControllers } };
+            break;
+          }
+          case "wedm_post_agie_parse": {
+            const { wedmPostAgieEngine } = await import("../../engines/WEDMPostAgieEngine.js");
+            const gcode = (params as any)?.gcode ?? (params as any)?.gcode_text ?? "";
+            result = { success: true, data: (wedmPostAgieEngine as any).parse?.(gcode) ?? { engine: "WEDMPostAgieEngine", note: "parse not callable" } };
+            break;
+          }
+          case "wedm_post_agie_tech_table": {
+            const { wedmPostAgieEngine } = await import("../../engines/WEDMPostAgieEngine.js");
+            result = { success: true, data: (wedmPostAgieEngine as any).getTecTable?.() ?? { engine: "WEDMPostAgieEngine", note: "getTecTable not callable" } };
+            break;
+          }
+          case "wedm_post_agie_dialect": {
+            const { wedmPostAgieEngine } = await import("../../engines/WEDMPostAgieEngine.js");
+            const ctrl = (params as any)?.controller ?? "agie_cut";
+            result = { success: true, data: { controller: ctrl, dialect_name: (wedmPostAgieEngine as any).dialectNameFor?.(ctrl) ?? "AgieCharmilles", manufacturer: (wedmPostAgieEngine as any).manufacturer, supported_controllers: (wedmPostAgieEngine as any).supportedControllers } };
+            break;
+          }
+          case "wedm_post_fanuc_parse": {
+            const { wedmPostFanucEngine } = await import("../../engines/WEDMPostFanucEngine.js");
+            const gcode = (params as any)?.gcode ?? (params as any)?.gcode_text ?? "";
+            result = { success: true, data: (wedmPostFanucEngine as any).parse?.(gcode) ?? { engine: "WEDMPostFanucEngine", note: "parse not callable" } };
+            break;
+          }
+          case "wedm_post_fanuc_tech_table": {
+            const { wedmPostFanucEngine } = await import("../../engines/WEDMPostFanucEngine.js");
+            result = { success: true, data: (wedmPostFanucEngine as any).getConditionLabels?.() ?? { engine: "WEDMPostFanucEngine", note: "getConditionLabels not callable" } };
+            break;
+          }
+          case "wedm_post_fanuc_dialect": {
+            const { wedmPostFanucEngine } = await import("../../engines/WEDMPostFanucEngine.js");
+            const ctrl = (params as any)?.controller ?? "fanuc_robocut";
+            result = { success: true, data: { controller: ctrl, dialect_name: (wedmPostFanucEngine as any).dialectNameFor?.(ctrl) ?? "Fanuc", manufacturer: (wedmPostFanucEngine as any).manufacturer, supported_controllers: (wedmPostFanucEngine as any).supportedControllers } };
+            break;
+          }
+          case "lathe_cam_intelligence_recommend": {
+            const { latheCAMIntelligenceEngine } = await import("../../engines/LatheCAMIntelligenceEngine.js");
+            result = { success: true, data: (latheCAMIntelligenceEngine as any).recommendParametricTemplate?.(params as any) ?? { engine: "LatheCAMIntelligenceEngine", note: "method not callable" } };
+            break;
+          }
+          case "lathe_post_active_learning_queue": {
+            const { lathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            result = { success: true, data: (lathePostGeneratorActiveLearningEngine as any).queueFailure?.(params as any) ?? { engine: "LathePostGeneratorActiveLearningEngine", note: "method not callable" } };
+            break;
+          }
+          case "lathe_post_ai_get_profile": {
+            const { lathePostProcessorAIEngine } = await import("../../engines/LathePostProcessorAIEngine.js");
+            result = { success: true, data: (lathePostProcessorAIEngine as any).getPostProfile?.(params as any) ?? { engine: "LathePostProcessorAIEngine", note: "method not callable" } };
+            break;
+          }
+          // ── Lathe stub-wired engines full method surface (echo /goal 2026-05-25) ──
+          // Closes 3 of the 8 stub-wired engines from POST-PROCESSOR-CAPABILITY-ASSESSMENT 5/21 §6
+          // (sister to wedm_post_* expansion above; same architectural intent).
+          case "lathe_post_active_learning_incorporate": {
+            const { lathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            const id = (params as any)?.correctionId ?? (params as any)?.id;
+            result = { success: true, data: { incorporated: (lathePostGeneratorActiveLearningEngine as any).incorporateCorrection?.(id) ?? false, correctionId: id } };
+            break;
+          }
+          case "lathe_post_active_learning_metrics": {
+            const { lathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            result = { success: true, data: (lathePostGeneratorActiveLearningEngine as any).getMetrics?.() ?? { engine: "LathePostGeneratorActiveLearningEngine", note: "getMetrics not callable" } };
+            break;
+          }
+          case "lathe_post_active_learning_pending": {
+            const { lathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            result = { success: true, data: { pending: (lathePostGeneratorActiveLearningEngine as any).getPendingFailures?.() ?? [] } };
+            break;
+          }
+          case "lathe_post_active_learning_all": {
+            const { lathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            result = { success: true, data: { all: (lathePostGeneratorActiveLearningEngine as any).getAllFailures?.() ?? [] } };
+            break;
+          }
+          case "lathe_post_active_learning_corrections": {
+            const { lathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            const fid = (params as any)?.failureId ?? (params as any)?.id;
+            result = { success: true, data: { failureId: fid, corrections: (lathePostGeneratorActiveLearningEngine as any).getCorrectionsForFailure?.(fid) ?? [] } };
+            break;
+          }
+          case "lathe_post_active_learning_rules_count": {
+            const { lathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            result = { success: true, data: { incorporated_rules: (lathePostGeneratorActiveLearningEngine as any).getIncorporatedRulesCount?.() ?? 0 } };
+            break;
+          }
+          case "lathe_post_ai_recommend_cycle": {
+            const { lathePostProcessorAIEngine } = await import("../../engines/LathePostProcessorAIEngine.js");
+            result = { success: true, data: (lathePostProcessorAIEngine as any).recommendCycle?.(params as any) ?? { engine: "LathePostProcessorAIEngine", note: "recommendCycle not callable" } };
+            break;
+          }
+          case "lathe_post_ai_learning_context": {
+            const { lathePostProcessorAIEngine } = await import("../../engines/LathePostProcessorAIEngine.js");
+            result = { success: true, data: (lathePostProcessorAIEngine as any).getLearningContext?.() ?? { engine: "LathePostProcessorAIEngine", note: "getLearningContext not callable" } };
+            break;
+          }
+          // ── MasterPost AGI trio + Transformer — 4 fully-dark engines (echo /goal 2026-05-25) ──
+          // Closes MS-MASTERPOST ghost-roost anchor: 3 AGI engines + Transformer had ZERO dispatcher cases
+          // (per POST-PROCESSOR-CONSOLIDATION-2026-05-25-echo.md §5 wire-it-now punch list).
+          case "master_post_genius_generate": {
+            const { masterPostProcessorGeniusEngine } = await import("../../engines/MasterPostProcessorGeniusEngine.js");
+            result = { success: true, data: (masterPostProcessorGeniusEngine as any).generateMasterPost?.(params as any) ?? { engine: "MasterPostProcessorGeniusEngine", note: "generateMasterPost not callable" } };
+            break;
+          }
+          case "master_post_agi_orchestrate": {
+            const { masterPostProcessorAGIOrchestrationEngine } = await import("../../engines/MasterPostProcessorAGIOrchestrationEngine.js");
+            result = { success: true, data: (masterPostProcessorAGIOrchestrationEngine as any).generateAGIPost?.(params as any) ?? { engine: "MasterPostProcessorAGIOrchestrationEngine", note: "generateAGIPost not callable" } };
+            break;
+          }
+          case "master_post_unified_agi_generate": {
+            const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
+            // R12 honest success via the shared postActionResult helper (U-PP-HONEST-SUCCESS-HELPER):
+            // generatePost returns a UnifiedPostResult whose empty/error form is { gcode:"", line_count:0,
+            // warnings:[reason] } (it consumes segments/gcode, not raw operations). The legacy hardcoded
+            // `success:true` masked that empty error-result as success -- the silent-failure the closed-loop
+            // post-training harness surfaced. The helper reports success:false + the engine's reason on an
+            // empty/not-callable result, success:true only on a real non-empty program.
+            result = postActionResult("MasterPostProcessorUnifiedAGIEngine", (masterPostProcessorUnifiedAGIEngine as any).generatePost?.(params as any));
+            break;
+          }
+          case "master_post_unified_agi_analyze": {
+            const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
+            const gcode = (params as any)?.gcode ?? "";
+            const ctrl = (params as any)?.controller;
+            const iso = (params as any)?.material_iso;
+            result = { success: true, data: (masterPostProcessorUnifiedAGIEngine as any).analyzeGCode?.(gcode, ctrl, iso) ?? { engine: "MasterPostProcessorUnifiedAGIEngine", note: "analyzeGCode not callable" } };
+            break;
+          }
+          case "master_post_unified_agi_kinematics": {
+            const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
+            const gcode = (params as any)?.gcode ?? "";
+            const machine = (params as any)?.machine;
+            result = { success: true, data: (masterPostProcessorUnifiedAGIEngine as any).validateAgainstKinematics?.(gcode, machine) ?? { engine: "MasterPostProcessorUnifiedAGIEngine", note: "validateAgainstKinematics not callable" } };
+            break;
+          }
+          case "pp_transformer_generate": {
+            const { postProcessorTransformerEngine } = await import("../../engines/PostProcessorTransformerEngine.js");
+            result = { success: true, data: (postProcessorTransformerEngine as any).generate?.(params as any) ?? { engine: "PostProcessorTransformerEngine", note: "generate not callable" } };
+            break;
+          }
+          // ── Vision-to-CAD reverse engineering (echo 2026-05-25) ──
+          case "cad_part_media_to_template": {
+            const { partMediaToCADEngine } = await import("../../engines/PartMediaToCADEngine.js");
+            result = { success: true, data: await (partMediaToCADEngine as any).generateFromMedia?.(params as any) ?? { engine: "PartMediaToCADEngine", note: "generateFromMedia not callable" } };
+            break;
+          }
+          case "cad_template_apply_measurements": {
+            const { measurementReconciliationEngine } = await import("../../engines/MeasurementReconciliationEngine.js");
+            result = { success: true, data: (measurementReconciliationEngine as any).reconcile?.(params as any) ?? { engine: "MeasurementReconciliationEngine", note: "reconcile not callable" } };
+            break;
+          }
+          case "cad_template_emit_with_overrides": {
+            const { measurementReconciliationEngine } = await import("../../engines/MeasurementReconciliationEngine.js");
+            const tpl = (params as any)?.template;
+            result = { success: true, data: { cad_ops: (measurementReconciliationEngine as any).emitCADOps?.(tpl) ?? [] } };
+            break;
+          }
+          // ── Post library (PPG + employee portal bridge, echo 2026-05-25) ──
+          case "post_library_search": {
+            const { postLibraryEngine } = await import("../../engines/PostLibraryEngine.js");
+            result = { success: true, data: (postLibraryEngine as any).search?.(params as any) ?? { engine: "PostLibraryEngine", note: "search not callable" } };
+            break;
+          }
+          case "post_library_download": {
+            const { postLibraryEngine } = await import("../../engines/PostLibraryEngine.js");
+            const path = (params as any)?.path ?? (params as any)?.source ?? (params as any)?.dest;
+            result = { success: true, data: await (postLibraryEngine as any).download?.(path) ?? { engine: "PostLibraryEngine", note: "download not callable" } };
+            break;
+          }
+          case "post_library_summary": {
+            const { postLibraryEngine } = await import("../../engines/PostLibraryEngine.js");
+            result = { success: true, data: (postLibraryEngine as any).summary?.() ?? { engine: "PostLibraryEngine", note: "summary not callable" } };
+            break;
+          }
+          case "post_library_recommend": {
+            const { postLibraryEngine } = await import("../../engines/PostLibraryEngine.js");
+            const brand = (params as any)?.brand ?? "";
+            const domain = (params as any)?.domain ?? "mill";
+            result = { success: true, data: (postLibraryEngine as any).recommend?.(brand, domain, params as any) ?? [] };
+            break;
+          }
+          case "post_library_refresh": {
+            const { postLibraryEngine } = await import("../../engines/PostLibraryEngine.js");
+            result = { success: true, data: (postLibraryEngine as any).refresh?.() ?? { engine: "PostLibraryEngine", note: "refresh not callable" } };
+            break;
+          }
+          case "cam_post_feature_audit": {
+            const { postFeatureAuditEngine } = await import("../../engines/PostFeatureAuditEngine.js");
+            const path = (params as any)?.path ?? "";
+            result = { success: true, data: (postFeatureAuditEngine as any).auditFile?.(path) ?? { engine: "PostFeatureAuditEngine", note: "auditFile not callable" } };
+            break;
+          }
+          case "cam_post_feature_compare": {
+            const { postFeatureAuditEngine } = await import("../../engines/PostFeatureAuditEngine.js");
+            const baseline = (params as any)?.baseline ?? "";
+            const candidate = (params as any)?.candidate ?? "";
+            result = { success: true, data: (postFeatureAuditEngine as any).compareFiles?.(baseline, candidate) ?? { engine: "PostFeatureAuditEngine", note: "compareFiles not callable" } };
+            break;
+          }
+          case "cam_post_emit_safety_gate": {
+            const { postEmitSafetyGateEngine } = await import("../../engines/PostEmitSafetyGateEngine.js");
+            const ops = (params as any)?.ops ?? [];
+            const config = (params as any)?.config ?? { machine: { x_travel_mm: 0, y_travel_mm: 0, z_travel_mm: 0 } };
+            result = { success: true, data: (postEmitSafetyGateEngine as any).gate?.(ops, config) ?? { engine: "PostEmitSafetyGateEngine", note: "gate not callable" } };
+            break;
+          }
+          case "cam_ml_split": {
+            const { camMLSplitEngine } = await import("../../engines/CAMMLSplitEngine.js");
+            result = { success: true, data: (camMLSplitEngine as any).split?.(params as any) ?? { engine: "CAMMLSplitEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_post_invoke_orchestrate": {
+            const { camPostInvokeOrchestratorEngine } = await import("../../engines/CAMPostInvokeOrchestratorEngine.js");
+            result = { success: true, data: (camPostInvokeOrchestratorEngine as any).buildPostInvokeFromInventory?.(params as any) ?? { engine: "CAMPostInvokeOrchestratorEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_baseline_regressor_predict": {
+            const { camBaselineRegressorEngine } = await import("../../engines/CAMBaselineRegressorEngine.js");
+            result = { success: true, data: (camBaselineRegressorEngine as any).predict?.(params as any, (params as any).vector ?? {}) ?? { engine: "CAMBaselineRegressorEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_ml_drift_monitor_run": {
+            const { camMLDriftMonitorEngine } = await import("../../engines/CAMMLDriftMonitorEngine.js");
+            result = { success: true, data: (camMLDriftMonitorEngine as any).runOnce?.(params as any) ?? { engine: "CAMMLDriftMonitorEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_catalog_physics_link": {
+            const { camCatalogPhysicsLinkerEngine } = await import("../../engines/CAMCatalogPhysicsLinkerEngine.js");
+            result = { success: true, data: (camCatalogPhysicsLinkerEngine as any).linkAll?.(params as any) ?? { engine: "CAMCatalogPhysicsLinkerEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_tribal_tip_link": {
+            const { camTribalTipLinkerEngine } = await import("../../engines/CAMTribalTipLinkerEngine.js");
+            result = { success: true, data: (camTribalTipLinkerEngine as any).linkAll?.(params as any) ?? { engine: "CAMTribalTipLinkerEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_ai_action_link": {
+            const { camAIActionLinkerEngine } = await import("../../engines/CAMAIActionLinkerEngine.js");
+            result = { success: true, data: (camAIActionLinkerEngine as any).linkAll?.(params as any) ?? { engine: "CAMAIActionLinkerEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_catalog_enrichment_validate": {
+            const { camCatalogEnrichmentValidator } = await import("../../engines/CAMCatalogEnrichmentValidator.js");
+            result = { success: true, data: (camCatalogEnrichmentValidator as any).validate?.(params as any) ?? { engine: "CAMCatalogEnrichmentValidator", note: "method not callable" } };
+            break;
+          }
+          case "cam_catalog_splitter_split": {
+            const { camCatalogSplitterEngine } = await import("../../engines/CAMCatalogSplitterEngine.js");
+            result = { success: true, data: (camCatalogSplitterEngine as any).split?.(params as any) ?? { engine: "CAMCatalogSplitterEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_tribal_rag_build": {
+            const { camTribalRAGEngine } = await import("../../engines/CAMTribalRAGEngine.js");
+            result = { success: true, data: (camTribalRAGEngine as any).buildIndex?.(params as any) ?? { engine: "CAMTribalRAGEngine", note: "method not callable" } };
+            break;
+          }
+          // "lathe_master_post_route" duplicate case removed (U-CAM-DUP-ROUTE):
+          // it was an unreachable dead generic handler -- the detailed case
+          // earlier in this switch (latheMasterPostRouterEngine.route w/ full
+          // machineId/operation/controller/program/options mapping) wins by
+          // switch-order and is the canonical handler.
+          case "lathe_master_post_unified_header": {
+            const { LatheMasterPostUnifiedOutputEngine } = await import("../../engines/LatheMasterPostUnifiedOutputEngine.js");
+            result = { success: true, data: (LatheMasterPostUnifiedOutputEngine as any).generateHeader?.(params as any) ?? { engine: "LatheMasterPostUnifiedOutputEngine", note: "method not callable" } };
+            break;
+          }
+          case "lathe_master_post_deep_reason": {
+            const { latheMasterPostDeepReasoningEngine } = await import("../../engines/LatheMasterPostDeepReasoningEngine.js");
+            result = { success: true, data: (latheMasterPostDeepReasoningEngine as any).explainSelection?.(params as any) ?? { engine: "LatheMasterPostDeepReasoningEngine", note: "method not callable" } };
+            break;
+          }
+          case "lathe_master_post_ensemble_check": {
+            const { latheMasterPostEnsembleCrossCheckEngine } = await import("../../engines/LatheMasterPostEnsembleCrossCheckEngine.js");
+            result = { success: true, data: (latheMasterPostEnsembleCrossCheckEngine as any).runEnsemble?.(params as any) ?? { engine: "LatheMasterPostEnsembleCrossCheckEngine", note: "method not callable" } };
+            break;
+          }
+          case "lathe_master_post_api_route": {
+            const { latheMasterPostAPIEngine } = await import("../../engines/LatheMasterPostAPIEngine.js");
+            result = { success: true, data: (latheMasterPostAPIEngine as any).route?.(params as any) ?? { engine: "LatheMasterPostAPIEngine", note: "method not callable" } };
+            break;
+          }
+          case "lathe_master_post_regression_matrix": {
+            const { latheMasterPostRegressionMatrixEngine } = await import("../../engines/LatheMasterPostRegressionMatrixEngine.js");
+            result = { success: true, data: (latheMasterPostRegressionMatrixEngine as any).runMatrix?.(params as any) ?? { engine: "LatheMasterPostRegressionMatrixEngine", note: "method not callable" } };
+            break;
+          }
+          case "lathe_print_toolpath_generate": {
+            const { lathePrintToolpathGeneratorEngine } = await import("../../engines/LathePrintToolpathGeneratorEngine.js");
+            result = { success: true, data: (lathePrintToolpathGeneratorEngine as any).generateProgram?.(params as any) ?? { engine: "LathePrintToolpathGeneratorEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_phase5_validate_params": {
+            const { camParameterValidatorEngine } = await import("../../engines/CAMPhase5Stubs.js");
+            result = { success: true, data: (camParameterValidatorEngine as any).validate?.(params as any) ?? { engine: "camParameterValidatorEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_phase5_recommend_strategy": {
+            // U-CAM-LOOP-CONSUME (slot:kilo 2026-06-30): was routed to the
+            // CAMPhase5Stubs copy -- a genuine STUB (recommended_strategy:null,
+            // "implement in U-CAM73"). U-CAM73 shipped the PRODUCTION recommender;
+            // this case was never repointed. Fix both defects at once: route to the
+            // production CAMStrategyRecommenderEngine AND inject the learned ranking
+            // (closed-loop consume). Fail-soft on a cold learner.
+            result = { success: true, data: await recommendStrategyWithLearning(params) };
+            break;
+          }
+          case "cam_lora_adapter_status": {
+            const { camLoRAAdapterTrainerEngine } = await import("../../engines/CAMLoRAAdapterTrainerEngine.js");
+            result = { success: true, data: (camLoRAAdapterTrainerEngine as any).getObservationStatus?.() ?? { engine: "CAMLoRAAdapterTrainerEngine", note: "method not callable" } };
+            break;
+          }
+          case "lathe_post_knowledge_graph_get": {
+            const { lathePostKnowledgeGraphEngine } = await import("../../engines/LathePostKnowledgeGraphEngine.js");
+            result = { success: true, data: (lathePostKnowledgeGraphEngine as any).getGraph?.() ?? { engine: "LathePostKnowledgeGraphEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_training_extraction_aggregate": {
+            const { CAMTrainingExtractionAggregatorEngine } = await import("../../engines/CAMTrainingExtractionAggregatorEngine.js");
+            result = { success: true, data: (CAMTrainingExtractionAggregatorEngine as any).getCorpus?.() ?? (CAMTrainingExtractionAggregatorEngine as any).aggregate?.(params as any) ?? { engine: "CAMTrainingExtractionAggregatorEngine", note: "method not callable" } };
+            break;
+          }
+          case "jmdie_post_processor_learn": {
+            const { jmDiePostProcessorLearningEngine } = await import("../../engines/JMDiePostProcessorLearningEngine.js");
+            result = { success: true, data: (jmDiePostProcessorLearningEngine as any).learn?.(params as any) ?? (jmDiePostProcessorLearningEngine as any).getCorpus?.() ?? { engine: "JMDiePostProcessorLearningEngine", note: "method not callable" } };
+            break;
+          }
+          case "cam_bridge_kit_run": {
+            const { camBridgeKitEngine } = await import("../../engines/CamBridgeKitEngine.js");
+            result = { success: true, data: (camBridgeKitEngine as any).run?.(params as any) ?? (camBridgeKitEngine as any).process?.(params as any) ?? { engine: "CamBridgeKitEngine", note: "method not callable" } };
+            break;
+          }
+          case "gcode_runtime_predict": {
+            const { gcodeRuntimePredictorEngine } = await import("../../engines/GCodeRuntimePredictorEngine.js");
+            result = { success: true, data: (gcodeRuntimePredictorEngine as any).predict?.(params as any, (params as any).machine ?? {}) ?? { engine: "GCodeRuntimePredictorEngine", note: "method not callable" } };
+            break;
+          }
+          case "gcode_reverse_cad_reconstruct": {
+            // FIX (U-DELTA-CNC-RECONSTRUCT-WIRE, slot:delta 2026-07-02): reconstruct's
+            // signature is reconstruct(blocks, tools, stock) — the prior wiring passed the
+            // whole params object as `blocks`, so the engine's `if (!Array.isArray(blocks))`
+            // guard threw on EVERY call (100% dead action). Destructure the 3 real args.
+            const { gcodeReverseCADEngine } = await import("../../engines/GCodeReverseCADEngine.js");
+            const rp = params as any;
+            if (!Array.isArray(rp.blocks)) {
+              throw new Error("gcode_reverse_cad_reconstruct: params.blocks (ParsedBlock[]) is required");
+            }
+            if (!rp.stock || !rp.stock.min || !rp.stock.max) {
+              throw new Error("gcode_reverse_cad_reconstruct: params.stock ({min:{x,y,z}, max:{x,y,z}}) is required");
+            }
+            // `tools` is a Map<number,ToolEnvelope> in-engine but crosses the dispatcher
+            // boundary as JSON — never a Map here. Accept a Map (in-proc), an array of
+            // ToolEnvelope, or a Record keyed by tool number, and normalize to a Map.
+            const rawTools = rp.tools;
+            const toolsMap: Map<number, any> =
+              rawTools instanceof Map
+                ? rawTools
+                : new Map<number, any>(
+                    Array.isArray(rawTools)
+                      ? rawTools.map((t: any) => [Number(t?.tool_number), t])
+                      : Object.entries(rawTools ?? {}).map(([k, v]: [string, any]) => [
+                          Number((v as any)?.tool_number ?? k),
+                          v,
+                        ]),
+                  );
+            result = { success: true, data: gcodeReverseCADEngine.reconstruct(rp.blocks, toolsMap, rp.stock) };
+            break;
+          }
+          case "gcode_bidirectional_optimize": {
+            const { gcodeBidirectionalOptimizerEngine } = await import("../../engines/GCodeBidirectionalOptimizerEngine.js");
+            result = { success: true, data: (gcodeBidirectionalOptimizerEngine as any).optimize?.(params as any) ?? { engine: "GCodeBidirectionalOptimizerEngine", note: "method not callable" } };
+            break;
+          }
+          // iter9 wire-unwired-loop: cam/post engines
+          case "powermill_strategy_recommend": {
+            const { powerMillStrategyEngine } = await import("../../engines/PowerMillStrategyEngine.js");
+            const p = params as any;
+            result = { success: true, data: (powerMillStrategyEngine as any).recommend?.(p) ?? (powerMillStrategyEngine as any).run?.(p) ?? { engine: "PowerMillStrategyEngine", note: "method not callable" } };
+            break;
+          }
+          case "hypermill_schema_unify": {
+            const { hyperMillSchemaUnifier } = await import("../../engines/HyperMillSchemaUnifier.js");
+            const p = params as any;
+            result = { success: true, data: (hyperMillSchemaUnifier as any).unify?.(p) ?? (hyperMillSchemaUnifier as any).run?.(p) ?? { engine: "HyperMillSchemaUnifier", note: "method not callable" } };
+            break;
+          }
+          case "epack_table_import": {
+            const { ePackTableImportEngine } = await import("../../engines/EPackTableImportEngine.js");
+            const p = params as any;
+            result = { success: true, data: (ePackTableImportEngine as any).import?.(p) ?? (ePackTableImportEngine as any).run?.(p) ?? { engine: "EPackTableImportEngine", note: "method not callable" } };
+            break;
+          }
+          case "cps_parser_harvest": {
+            const mod = await import("../../engines/CpsParserEngine.js");
+            const p = params as any;
+            result = { success: true, data: (mod as any).cpsParserEngine?.harvest?.(p) ?? (mod as any).CpsParserEngine?.harvest?.(p) ?? { engine: "CpsParserEngine", note: "method not callable" } };
+            break;
+          }
+          case "macro_conversion_analyze": {
+            const { macroConversionAnalyzerEngine } = await import("../../engines/MacroConversionAnalyzerEngine.js");
+            const p = params as any;
+            result = { success: true, data: (macroConversionAnalyzerEngine as any).analyze?.(p) ?? (macroConversionAnalyzerEngine as any).run?.(p) ?? { engine: "MacroConversionAnalyzerEngine", note: "method not callable" } };
+            break;
+          }
+          case "nc_pattern_mine": {
+            const { ncPatternMinerEngine } = await import("../../engines/NCPatternMinerEngine.js");
+            const p = params as any;
+            result = { success: true, data: (ncPatternMinerEngine as any).mine?.(p) ?? (ncPatternMinerEngine as any).run?.(p) ?? { engine: "NCPatternMinerEngine", note: "method not callable" } };
+            break;
+          }
+          case "boolean_kernel_op": {
+            const { booleanKernelEngine } = await import("../../engines/BooleanKernelEngine.js");
+            const p = params as any;
+            result = { success: true, data: (booleanKernelEngine as any).execute?.(p) ?? (booleanKernelEngine as any).run?.(p) ?? { engine: "BooleanKernelEngine", note: "method not callable" } };
+            break;
+          }
+          case "prism_addin_architecture_get": {
+            const mod = await import("../../engines/PrismAddinArchitectureEngine.js");
+            const eng = (mod as any).prismAddinArchitectureEngine ?? new ((mod as any).PrismAddinArchitectureEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).get?.(p) ?? (eng as any).run?.(p) ?? { engine: "PrismAddinArchitectureEngine", note: "method not callable" } };
+            break;
+          }
+          // PostProcessorAGIContinuousLearningEngine
+          case "pp_agi_cl_get_state": {
+            const { postProcessorAGIContinuousLearningEngine } = await import("../../engines/PostProcessorAGIContinuousLearningEngine.js");
+            result = { success: true, data: (postProcessorAGIContinuousLearningEngine as any).getLearningState?.() ?? { engine: "PostProcessorAGIContinuousLearningEngine", note: "getLearningState not callable" } };
+            break;
+          }
+          case "pp_agi_cl_top_mistakes": {
+            const { postProcessorAGIContinuousLearningEngine } = await import("../../engines/PostProcessorAGIContinuousLearningEngine.js");
+            const limit = (params as any)?.limit ?? 10;
+            result = { success: true, data: (postProcessorAGIContinuousLearningEngine as any).getTopMistakePatterns?.(limit) ?? { engine: "PostProcessorAGIContinuousLearningEngine", note: "getTopMistakePatterns not callable" } };
+            break;
+          }
+          case "pp_agi_cl_prevention_rules": {
+            const { postProcessorAGIContinuousLearningEngine } = await import("../../engines/PostProcessorAGIContinuousLearningEngine.js");
+            const controller = (params as any)?.controller ?? "";
+            const material = (params as any)?.material ?? "";
+            result = { success: true, data: (postProcessorAGIContinuousLearningEngine as any).getPreventionRules?.(controller, material) ?? { engine: "PostProcessorAGIContinuousLearningEngine", note: "getPreventionRules not callable" } };
+            break;
+          }
+          case "pp_agi_cl_record_feedback": {
+            // Actuals side of the PP AGI continuous-learning loop: the operator/shop-floor outcome of a
+            // generated post folds back to update beliefs + mistake patterns + knowledge. Was unwired
+            // (only the 3 read actions above existed) -> the engine could be READ but never FED.
+            // Parity with lathe_agi_feedback (businessDispatcher).
+            const { postProcessorAGIContinuousLearningEngine } = await import("../../engines/PostProcessorAGIContinuousLearningEngine.js");
+            const fb = (params as { feedback?: Record<string, unknown> }).feedback;
+            if (!fb || typeof fb !== "object") {
+              throw new TypeError("pp_agi_cl_record_feedback: 'feedback' object required (ProductionFeedback)");
+            }
+            if (typeof fb.postId !== "string" || typeof fb.generatedAt !== "string") {
+              throw new TypeError("pp_agi_cl_record_feedback: feedback.postId + feedback.generatedAt (strings) required");
+            }
+            // Mirrors ProductionFeedback.outcome union (PostProcessorAGIContinuousLearningEngine.ts ~L53);
+            // keep in sync if the engine's union changes.
+            const validOutcomes = ["success", "minor_edits", "major_edits", "failed", "unused"];
+            if (typeof fb.outcome !== "string" || !validOutcomes.includes(fb.outcome)) {
+              throw new TypeError("pp_agi_cl_record_feedback: feedback.outcome must be one of success|minor_edits|major_edits|failed|unused");
+            }
+            // controller/material/operations are REQUIRED in ProductionFeedback (the engine's
+            // success-path reads feedback.operations[0] unguarded) -- enforce the full contract
+            // at the boundary so a malformed record can never crash the engine (R12).
+            if (typeof fb.controller !== "string" || typeof fb.material !== "string"
+                || !Array.isArray(fb.operations) || !fb.operations.every((o) => typeof o === "string")) {
+              throw new TypeError("pp_agi_cl_record_feedback: feedback.controller + material (strings) + operations (string[]) required");
+            }
+            result = {
+              success: true,
+              data: postProcessorAGIContinuousLearningEngine.recordFeedback(
+                fb as unknown as Parameters<typeof postProcessorAGIContinuousLearningEngine.recordFeedback>[0],
+              ),
+            };
+            break;
+          }
+          // PostProcessorAGIMasterRegistryEngine
+          case "pp_agi_registry_get_all": {
+            const { postProcessorAGIMasterRegistryEngine } = await import("../../engines/PostProcessorAGIMasterRegistryEngine.js");
+            result = { success: true, data: (postProcessorAGIMasterRegistryEngine as any).getAllEngines?.() ?? { engine: "PostProcessorAGIMasterRegistryEngine", note: "getAllEngines not callable" } };
+            break;
+          }
+          case "pp_agi_registry_route_task": {
+            const { postProcessorAGIMasterRegistryEngine } = await import("../../engines/PostProcessorAGIMasterRegistryEngine.js");
+            const task = (params as any)?.task ?? "";
+            result = { success: true, data: (postProcessorAGIMasterRegistryEngine as any).routeTask?.(task) ?? { engine: "PostProcessorAGIMasterRegistryEngine", note: "routeTask not callable" } };
+            break;
+          }
+          case "pp_agi_registry_capability_matrix": {
+            const { postProcessorAGIMasterRegistryEngine } = await import("../../engines/PostProcessorAGIMasterRegistryEngine.js");
+            result = { success: true, data: (postProcessorAGIMasterRegistryEngine as any).getCapabilityMatrix?.() ?? { engine: "PostProcessorAGIMasterRegistryEngine", note: "getCapabilityMatrix not callable" } };
+            break;
+          }
+          // PostProcessorAGIWiringIntegrationEngine
+          case "pp_agi_wiring_verify": {
+            const { postProcessorAGIWiringIntegrationEngine } = await import("../../engines/PostProcessorAGIWiringIntegrationEngine.js");
+            result = { success: true, data: (postProcessorAGIWiringIntegrationEngine as any).verifyWiring?.() ?? { engine: "PostProcessorAGIWiringIntegrationEngine", note: "verifyWiring not callable" } };
+            break;
+          }
+          case "pp_agi_wiring_plan": {
+            const { postProcessorAGIWiringIntegrationEngine } = await import("../../engines/PostProcessorAGIWiringIntegrationEngine.js");
+            const task = (params as any)?.task ?? "";
+            result = { success: true, data: (postProcessorAGIWiringIntegrationEngine as any).planExecution?.(task) ?? { engine: "PostProcessorAGIWiringIntegrationEngine", note: "planExecution not callable" } };
+            break;
+          }
+          case "pp_agi_wiring_stats": {
+            const { postProcessorAGIWiringIntegrationEngine } = await import("../../engines/PostProcessorAGIWiringIntegrationEngine.js");
+            result = { success: true, data: (postProcessorAGIWiringIntegrationEngine as any).getStatistics?.() ?? { engine: "PostProcessorAGIWiringIntegrationEngine", note: "getStatistics not callable" } };
+            break;
+          }
+          // CrossCAMPostEngine
+          case "cross_cam_post_normalize": {
+            const { crossCAMPostEngine } = await import("../../engines/CrossCAMPostEngine.js");
+            result = { success: true, data: (crossCAMPostEngine as any).normalizeInput?.(params as any) ?? { engine: "CrossCAMPostEngine", note: "normalizeInput not callable" } };
+            break;
+          }
+          case "cross_cam_post_enhance": {
+            const { crossCAMPostEngine } = await import("../../engines/CrossCAMPostEngine.js");
+            result = { success: true, data: (crossCAMPostEngine as any).enhanceCamSpecific?.(params as any) ?? { engine: "CrossCAMPostEngine", note: "enhanceCamSpecific not callable" } };
+            break;
+          }
+          case "cross_cam_post_subprograms": {
+            const { crossCAMPostEngine } = await import("../../engines/CrossCAMPostEngine.js");
+            const gcode = (params as any)?.gcode ?? "";
+            const controllerFormat = (params as any)?.controllerFormat ?? "fanuc";
+            result = { success: true, data: (crossCAMPostEngine as any).detectSubprograms?.(gcode, controllerFormat) ?? { engine: "CrossCAMPostEngine", note: "detectSubprograms not callable" } };
+            break;
+          }
+          case "cross_cam_post_multichannel": {
+            const { crossCAMPostEngine } = await import("../../engines/CrossCAMPostEngine.js");
+            result = { success: true, data: (crossCAMPostEngine as any).generateMultiChannel?.(params as any) ?? { engine: "CrossCAMPostEngine", note: "generateMultiChannel not callable" } };
+            break;
+          }
+          case "cross_cam_post_automation": {
+            const { crossCAMPostEngine } = await import("../../engines/CrossCAMPostEngine.js");
+            result = { success: true, data: (crossCAMPostEngine as any).integrateAutomation?.(params as any) ?? { engine: "CrossCAMPostEngine", note: "integrateAutomation not callable" } };
+            break;
+          }
+          // NovelPostProcessorBridgeEngine
+          case "novel_post_process": {
+            const { novelPostProcessorBridgeEngine } = await import("../../engines/NovelPostProcessorBridgeEngine.js");
+            result = { success: true, data: (novelPostProcessorBridgeEngine as any).postProcess?.(params as any) ?? { engine: "NovelPostProcessorBridgeEngine", note: "postProcess not callable" } };
+            break;
+          }
+          case "novel_post_list_controllers": {
+            const { novelPostProcessorBridgeEngine } = await import("../../engines/NovelPostProcessorBridgeEngine.js");
+            result = { success: true, data: (novelPostProcessorBridgeEngine as any).listControllers?.() ?? { engine: "NovelPostProcessorBridgeEngine", note: "listControllers not callable" } };
+            break;
+          }
+          // JMDiePostProcessorLearningEngine — 6 additional static methods
+          case "jmdie_post_get_corpus": {
+            const { JMDiePostProcessorLearningEngine } = await import("../../engines/JMDiePostProcessorLearningEngine.js");
+            result = { success: true, data: (JMDiePostProcessorLearningEngine as any).getCorpus?.() ?? { engine: "JMDiePostProcessorLearningEngine", note: "getCorpus not callable" } };
+            break;
+          }
+          case "jmdie_post_aggregate": {
+            const { JMDiePostProcessorLearningEngine } = await import("../../engines/JMDiePostProcessorLearningEngine.js");
+            const profiles = (params as any)?.profiles ?? [];
+            const sourceDir = (params as any)?.sourceDir ?? "";
+            result = { success: true, data: (JMDiePostProcessorLearningEngine as any).aggregate?.(profiles, sourceDir) ?? { engine: "JMDiePostProcessorLearningEngine", note: "aggregate not callable" } };
+            break;
+          }
+          case "jmdie_post_enhancement_ranking": {
+            // U-PP-JMDIE-LEARN-UNDARK -- was calling the non-existent getEnhancementRanking()
+            // so it ALWAYS hit the silent not-callable fallback (R12: a lie). The real
+            // ranked-enhancement capability is getEnhancementCatalog() (distinct enhancements
+            // by descending frequency + the posts that carry each). Typed static call, fail-loud.
+            const { JMDiePostProcessorLearningEngine } = await import("../../engines/JMDiePostProcessorLearningEngine.js");
+            result = { success: true, data: { ranking: JMDiePostProcessorLearningEngine.getEnhancementCatalog() } };
+            break;
+          }
+          case "jmdie_post_stats": {
+            const { JMDiePostProcessorLearningEngine } = await import("../../engines/JMDiePostProcessorLearningEngine.js");
+            result = { success: true, data: (JMDiePostProcessorLearningEngine as any).getStats?.() ?? { engine: "JMDiePostProcessorLearningEngine", note: "getStats not callable" } };
+            break;
+          }
+          case "jmdie_post_gap_report": {
+            const { JMDiePostProcessorLearningEngine } = await import("../../engines/JMDiePostProcessorLearningEngine.js");
+            result = { success: true, data: (JMDiePostProcessorLearningEngine as any).gapReport?.() ?? { engine: "JMDiePostProcessorLearningEngine", note: "gapReport not callable" } };
+            break;
+          }
+          case "jmdie_post_recommendations": {
+            // U-PP-JMDIE-LEARN-UNDARK -- was calling the non-existent getRecommendations()
+            // (silent not-callable fallback). Recommendations are produced by gapReport()
+            // (highest-leverage enhancement rollouts, ranked widest-gap-first). Typed, fail-loud.
+            const { JMDiePostProcessorLearningEngine } = await import("../../engines/JMDiePostProcessorLearningEngine.js");
+            result = { success: true, data: { recommendations: JMDiePostProcessorLearningEngine.gapReport().recommendations } };
+            break;
+          }
+          // WIRE-UNWIRED-PAPA / U-WIRE-CAM-SUBPROG-SYNC (slot:papa, 2026-06-15)
+          // SubprogramExtractionEngine + SyncCodeVerificationEngine (stateless singletons,
+          // lazy-imported). result=value;break -> post-switch wraps slimResponse(result).
+          case "subprogram_extract": {
+            const { subprogramExtractionEngine } = await import("../../engines/SubprogramExtractionEngine.js");
+            result = subprogramExtractionEngine.extract(
+              params.gcode as string[],
+              params.params as Parameters<typeof subprogramExtractionEngine.extract>[1],
+            );
+            break;
+          }
+          case "subprogram_quick_check": {
+            const { subprogramExtractionEngine } = await import("../../engines/SubprogramExtractionEngine.js");
+            result = {
+              has_patterns: subprogramExtractionEngine.quickCheck(
+                params.gcode as string[],
+                params.min_occurrences as number | undefined,
+              ),
+            };
+            break;
+          }
+          case "subprogram_estimate_savings": {
+            const { subprogramExtractionEngine } = await import("../../engines/SubprogramExtractionEngine.js");
+            result = subprogramExtractionEngine.estimateSavings(params.gcode as string[]);
+            break;
+          }
+          case "synccode_verify": {
+            const { syncCodeVerificationEngine } = await import("../../engines/SyncCodeVerificationEngine.js");
+            result = syncCodeVerificationEngine.verify(
+              params.programs as Parameters<typeof syncCodeVerificationEngine.verify>[0],
+              params.dialect as Parameters<typeof syncCodeVerificationEngine.verify>[1],
+            );
+            break;
+          }
+          case "synccode_dialects": {
+            const { syncCodeVerificationEngine } = await import("../../engines/SyncCodeVerificationEngine.js");
+            result = { dialects: syncCodeVerificationEngine.getSupportedDialects() };
+            break;
+          }
+          case "synccode_stats": {
+            const { syncCodeVerificationEngine } = await import("../../engines/SyncCodeVerificationEngine.js");
+            result = syncCodeVerificationEngine.getStats();
+            break;
+          }
+          // WIRE-UNWIRED (slot:romeo, 2026-06-15) -- HolderSelectionEngine -> prism_cam.
+          // Pure/deterministic branded-holder selection (HAIMER/GUHRING/BIG DAISHOWA),
+          // lazy-imported singleton. select() reads camelCase -> map the snake_case params
+          // (snake_case is the dispatcher contract, enforced by the schema above).
+          case "cam_holder_select": {
+            const { holderSelectionEngine } = await import("../../engines/HolderSelectionEngine.js");
+            const p = params as Record<string, unknown>;
+            const holder = holderSelectionEngine.select({
+              taper: p.taper as string,
+              shankDiameterMm: p.shank_diameter_mm as number,
+              typePreference: p.type_preference as string | undefined,
+              exactBoreToleranceMm: p.exact_bore_tolerance_mm as number | undefined,
+            });
+            result = { holder, matched: holder !== null };
+            break;
+          }
+          case "cam_holder_by_type_brand": {
+            const { holderSelectionEngine } = await import("../../engines/HolderSelectionEngine.js");
+            result = { by_type_brand: holderSelectionEngine.byTypeBrand() };
+            break;
+          }
+          case "cam_holder_stats": {
+            const { holderSelectionEngine } = await import("../../engines/HolderSelectionEngine.js");
+            result = holderSelectionEngine.stats();
+            break;
+          }
+          default:
             result = { error: `Unknown action: ${action}` };
         }
         // POST-TOOLPATH HOOKS
@@ -18755,6 +21518,48 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           });
         } catch (postErr) {
           log.warn(`[prism_cam] Post-toolpath hook error: ${postErr}`);
+        }
+        // CLOSE-THE-LOOP CAM ON-RAMP (U-CAM-LOOP-ONRAMP, slot:kilo 2026-06-30):
+        // a completed terminal CAM dispatch (toolpath_generate / collision_check_full
+        // / post_process) feeds india's training seam with a LABELLED outcome
+        // derived from the result's OWN signals. Attaches the emission result to
+        // `result._camOutcome` so consumers/tests see the verdict; never throws.
+        try {
+          const camOutcome = await captureCamOutcome(action, params, result);
+          if (camOutcome && result && typeof result === "object" && !Array.isArray(result)) {
+            (result as any)._camOutcome = {
+              emitted: camOutcome.emitted,
+              verdict: camOutcome.verdict,
+              bridge: camOutcome.bridge,
+              process: camOutcome.process,
+              busOk: camOutcome.busOk,
+              storeOk: camOutcome.storeOk,
+              lineage_id: camOutcome.lineage_id,
+            };
+          }
+        } catch (loopErr) {
+          log.warn(`[prism_cam] CAM close-the-loop on-ramp error: ${loopErr}`);
+        }
+        // 2-PHASE DECISION CAPTURE -- Phase-1 tap (U-KILO-DECISION-2PHASE,
+        // slot:kilo 2026-07-01): snapshot an emitted CAM decision under a
+        // stable decisionId and return that id on the result so the outside
+        // world can quote it back to `cam_decision_outcome` (Phase 2) once the
+        // real outcome is known. No wasCorrect exists at this point -- see
+        // captureCamDecision. Fail-soft: never breaks the CAM action.
+        try {
+          const camDecision = await captureCamDecision(action, params, result);
+          if (camDecision && result && typeof result === "object" && !Array.isArray(result)) {
+            if ((result as any).decisionId === undefined) {
+              (result as any).decisionId = camDecision.decisionId;
+            }
+            (result as any)._camDecision = {
+              decisionId: camDecision.decisionId,
+              logged: camDecision.logged,
+              task: camDecision.task,
+            };
+          }
+        } catch (decisionErr) {
+          log.warn(`[prism_cam] CAM decision capture tap error: ${decisionErr}`);
         }
       } catch (error: any) {
         if (error?.name === "SafetyBlockError") throw error;

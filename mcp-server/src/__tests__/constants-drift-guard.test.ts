@@ -11,17 +11,22 @@
 import { describe, it, expect } from "vitest";
 import * as fs from "fs";
 import * as path from "path";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 const ENGINES_DIR = path.resolve(__dirname, "../engines");
 const CONSTANTS_FILE = path.resolve(__dirname, "../physics/constants.ts");
 
-// Canonical values from physics/constants.ts
-const CANONICAL_KIENZLE: Record<string, { kc1_1: number; mc: number }> = {
+// Independent GOLDEN REFERENCE of the canonical Kienzle values (Sandvik Coromant; constants.ts:40-46).
+// Deliberately a SEPARATE hardcoded copy so this guard fails if anyone edits constants.ts and drifts a
+// value -- assert(import === golden). Do NOT derive it from the CANONICAL_KIENZLE import (that would be
+// a tautology). CORRECTED 2026-07-01 (U-OSC-SFC-CANONICAL-KC-INTEGRITY): this reference had itself
+// drifted (N.mc 0.23 vs canonical 0.22; S.mc 0.25 vs 0.27), so the guard silently blessed wrong values.
+const CANONICAL_KIENZLE_REFERENCE: Record<string, { kc1_1: number; mc: number }> = {
   P: { kc1_1: 1800, mc: 0.25 },
   M: { kc1_1: 2100, mc: 0.25 },
   K: { kc1_1: 1100, mc: 0.28 },
-  N: { kc1_1: 700, mc: 0.23 },
-  S: { kc1_1: 2800, mc: 0.25 },
+  N: { kc1_1: 700, mc: 0.22 },
+  S: { kc1_1: 2800, mc: 0.27 },
   H: { kc1_1: 3200, mc: 0.30 },
 };
 
@@ -30,11 +35,30 @@ describe("Constants Drift Guard", () => {
     expect(fs.existsSync(CONSTANTS_FILE)).toBe(true);
   });
 
-  it("canonical constants contain all 6 ISO groups", () => {
-    const content = fs.readFileSync(CONSTANTS_FILE, "utf-8");
-    for (const group of Object.keys(CANONICAL_KIENZLE)) {
-      expect(content).toContain(`kc1_1`);
+  it("CANONICAL_KIENZLE matches the golden reference for all 6 ISO groups (real value drift guard)", () => {
+    // Deep value equality, NOT a substring check: a silent kc1_1/mc mutation in constants.ts MUST fail
+    // here. (The prior test only asserted content.toContain("kc1_1"), which passes even if every value
+    // drifts -- the R9 gap this fixes.)
+    for (const [iso, ref] of Object.entries(CANONICAL_KIENZLE_REFERENCE)) {
+      expect(CANONICAL_KIENZLE[iso as keyof typeof CANONICAL_KIENZLE]).toEqual(ref);
     }
+    // exactly the 6 ISO groups -- no group added/removed without updating the golden reference
+    expect(Object.keys(CANONICAL_KIENZLE).sort()).toEqual(Object.keys(CANONICAL_KIENZLE_REFERENCE).sort());
+  });
+
+  it("the value drift guard has teeth (meta-test: a mutated canonical is rejected)", () => {
+    // Proves the equality assertion above would actually fail on drift (R9 -- a guard that cannot
+    // fail is not a guard). Mutate a copy and confirm the per-ISO check throws for that group.
+    const mutated: Record<string, { kc1_1: number; mc: number }> = {
+      ...CANONICAL_KIENZLE, S: { kc1_1: 9999, mc: 0.27 },
+    };
+    const check = () => {
+      for (const [iso, ref] of Object.entries(CANONICAL_KIENZLE_REFERENCE)) {
+        const a = mutated[iso]!;
+        if (a.kc1_1 !== ref.kc1_1 || a.mc !== ref.mc) throw new Error(`drift at ${iso}`);
+      }
+    };
+    expect(check).toThrow(/drift at S/);
   });
 
   it("no engine file defines a new KIENZLE_TABLE without referencing canonical source", () => {

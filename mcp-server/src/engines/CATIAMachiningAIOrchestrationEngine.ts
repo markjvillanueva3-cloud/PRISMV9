@@ -220,18 +220,32 @@ export class CATIAMachiningAIOrchestrationEngine {
       const isoGroup = request.material_iso || "P";
 
       try {
-        const strategyResult = catiaStrategyEngine.selectStrategy({
-          feature_type: request.feature_type,
-          material_iso: isoGroup,
-          machine_type: request.machine_type || "3axis",
-          operation: request.operation || "roughing"
-        });
+        // Map request fields to the typed arguments expected by recommend()
+        const machineTypeRaw = request.machine_type || "3axis";
+        const catiaMachineType: import("./CATIAStrategyEngine.js").CATIAMachine["type"] =
+          machineTypeRaw === "3axis" ? "3axis_vertical" :
+          machineTypeRaw === "4axis" ? "4axis" :
+          machineTypeRaw === "5axis" ? "5axis" :
+          machineTypeRaw === "mill_turn" ? "mill_turn" :
+          machineTypeRaw === "lathe" ? "lathe" :
+          "3axis_vertical";
+
+        const recommendations = catiaStrategyEngine.recommend(
+          { type: request.feature_type as import("./CATIAStrategyEngine.js").CATIAFeature["type"] },
+          { iso_group: isoGroup as import("./CATIAStrategyEngine.js").CATIAMaterial["iso_group"] },
+          { type: catiaMachineType },
+          { diameter_mm: 12, flute_count: 4, type: "endmill" },
+          "balanced"
+        );
+
+        const top = recommendations[0];
+        if (!top) throw new Error("No strategy recommendations returned");
 
         strategy = {
-          name: strategyResult.name,
-          catia_operation: strategyResult.operation_name,
-          parameters: strategyResult.parameters,
-          rationale: strategyResult.rationale
+          name: top.strategy.name,
+          catia_operation: top.strategy.v5_action ?? top.strategy.display_name,
+          parameters: { ae_pct: top.strategy.ae_pct, ap_factor: top.strategy.ap_factor } as Record<string, number | string | boolean>,
+          rationale: top.reasoning
         };
         enginesInvoked.push("CATIAStrategyEngine");
       } catch {

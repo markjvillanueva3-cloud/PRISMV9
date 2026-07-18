@@ -10,8 +10,10 @@
  *   - Dispatch (coordination stats)
  */
 
+import { getStoredAuthToken } from "./authToken";
+
 // ============================================================================
-// TYPES — Ledger
+// TYPES -- Ledger
 // ============================================================================
 
 export interface ReasoningTraceEntry {
@@ -144,13 +146,13 @@ export function setAuthToken(token: string | null): void {
   currentAuthToken = token;
 }
 
-/** Resolve token: explicit set takes precedence, else localStorage. */
+/** Resolve token: explicit set takes precedence, else canonical stored token. */
 function resolveAuthToken(): string | null {
   if (currentAuthToken) return currentAuthToken;
-  if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
-    return window.localStorage.getItem("prism_auth_token");
-  }
-  return null;
+  // getStoredAuthToken() reconciles the canonical 'prism-auth-token' (hyphen)
+  // key AuthContext writes AND JSON-unwraps the {token} session object -- a bare
+  // localStorage.getItem('prism_auth_token') missed both and 401'd (dead panel).
+  return getStoredAuthToken();
 }
 
 function buildHeaders(): Record<string, string> {

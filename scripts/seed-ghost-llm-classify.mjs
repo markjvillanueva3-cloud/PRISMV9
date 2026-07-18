@@ -5,7 +5,7 @@
  * Final-tier dispatcher inference for UNKNOWN ghost.unwired-engine nodes that
  * survived both keyword + sibling-prefix inference. Reads each engine file's
  * top-N-lines header (imports + class signature + JSDoc), batches them into
- * Ollama qwen2.5-coder:7b prompts (10 engines per call), parses the model's
+ * Ollama qwen2.5-coder:32b prompts (10 engines per call), parses the model's
  * dispatcher choice + confidence, and updates the graph.
  *
  * Cold-start mitigation: warms the model on first call (slow ~5s); subsequent
@@ -24,13 +24,15 @@
  *   node scripts/seed-ghost-llm-classify.mjs --dry-run
  *   node scripts/seed-ghost-llm-classify.mjs --apply
  *   node scripts/seed-ghost-llm-classify.mjs --apply --batch-size 5
- *   node scripts/seed-ghost-llm-classify.mjs --apply --model qwen2.5-coder:14b
+ *   node scripts/seed-ghost-llm-classify.mjs --apply --model qwen2.5-coder:32b
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { gnnClassifyUnknowns } from "./seed-ghost-gnn-classify.mjs";
+import { readGraphStreaming, writeGraphStreamingAtomic } from "./lib/graph-io.mjs";
+import { mcpToolToDispNodeId } from "./lib/viz-dispatcher-node-id.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -38,7 +40,7 @@ const GRAPH_PATH = path.join(ROOT, "state", "shared", "system-viz", "system-grap
 const ENGINES_DIR = path.join(ROOT, "mcp-server", "src", "engines");
 
 export const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
-export const DEFAULT_MODEL = "qwen2.5-coder:7b";
+export const DEFAULT_MODEL = "qwen2.5-coder:32b";
 export const DEFAULT_BATCH_SIZE = 10;
 export const DEFAULT_HEADER_LINES = 30;
 export const LLM_CONFIDENCE = 0.55;
@@ -171,7 +173,7 @@ export function parseBatchResponse(raw, engines) {
 
 /** Read UNKNOWN ghost names from the graph. */
 export function loadUnknownGhosts(graphPath) {
-  const g = JSON.parse(fs.readFileSync(graphPath, "utf8"));
+  const g = readGraphStreaming(graphPath); // streaming read — see scripts/lib/graph-io.mjs
   return (g.nodes || [])
     .filter((n) => n?.kind === "ghost.unwired-engine" && n.proposed_wiring === "UNKNOWN")
     .map((n) => ({
@@ -213,7 +215,12 @@ export function classificationToGraphUpdate(node, c, fallbackModel) {
   node.info = `Unwired engine — proposed wiring: ${c.dispatcher} (confidence ${conf.toFixed(2)}, reason: ${reason})`;
   return {
     from: node.id,
-    to: `dispatcher.${c.dispatcher}`,
+    // U-VIZ-G4-DEAD-EDGE (2026-05-30 sierra): resolve the MCP tool name to its
+    // canonical file-derived disp.* node id. The old `dispatcher.${c.dispatcher}`
+    // target never existed in the merged graph (~2.9K dead edges traced here +
+    // generate-pdf-course-bridge). Same fix shipped to seed-ghost-from-unwired
+    // in U-VIZ-G4-SEEDER-FIX; this is the LLM/GNN-tier sibling.
+    to: mcpToolToDispNodeId(c.dispatcher),
     type: "ghost-wire",
     relation: "proposed-wire",
     status: "proposed",
@@ -324,7 +331,7 @@ export async function main() {
     (gnnClassifications.length > 0 ? ` (+ ${gnnClassifications.length} via GNN tier-5)` : ""));
 
   // Merge into graph
-  const g = JSON.parse(fs.readFileSync(GRAPH_PATH, "utf8"));
+  const g = readGraphStreaming(GRAPH_PATH); // streaming read — see scripts/lib/graph-io.mjs
   const nameToNode = new Map();
   for (const n of g.nodes) {
     if (n?.kind === "ghost.unwired-engine") nameToNode.set(n.label, n);
@@ -347,7 +354,7 @@ export async function main() {
   }
 
   console.log(`Writing graph (nodes updated=${nodesUpdated}, edges added=${edgesAdded})...`);
-  atomicWrite(GRAPH_PATH, JSON.stringify(g, null, 2));
+  writeGraphStreamingAtomic(GRAPH_PATH, g);  // cap-safe: raw JSON.stringify on the >512MiB graph throws Invalid-string-length (U-VIZ-WRITER-CAPSAFE 2026-06-23)
   console.log(`DONE — graph nodes=${g.nodes.length} edges=${g.edges.length}`);
 }
 

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "Define per-metric tolerance bands for the Omega=1.0 mandate. Resolves V3 risk-hunter finding: continuous metrics cannot literally equal 1.0; without this file, testers will round (silent lies) or block forever.",
+  "interpretation": "Omega=1.0 means: ALL discrete pass/fail gates GREEN AND ALL continuous metrics WITHIN published tolerance band below.",
+  "discreteGates": [
+    "schemaVersion present on every state JSON",
+    "physics constants imported from src/physics/constants.ts (NOT inlined)",
+    "dispatcher action wired (lazy-import + Zod schema + action enum + dispatcher_map_compact entry)",
+    "test count >= 5 (1 happy + 3 failure modes + 2 adversarial inputs per always-build directive)",
+    "no stub/TODO/FIXME/empty-catch in changed lines",
+    "Cpk >= 1.33 on >=30 first-article parts spanning P/M/K/N/S/H ISO groups",
+    "Vericut backplot collision count = 0",
+    "G-code linter pass (zero warnings on shop_floor tier)",
+    "consensus 3-of-4 with provenance ledger entry",
+    "no peer-claimed file edited (chat-bus respect)"
+  ],
+  "continuousMetrics": {
+    "MAPE_quote": { "target": 0.08, "max": 0.15, "n_min": 40, "stat": "mean absolute percentage error vs historical quotes; held-out from training" },
+    "MAPE_cycle_time": { "target": 0.10, "max": 0.20, "n_min": 50, "stat": "MAPE on rolling holdout, paired t-test p<0.05" },
+    "MAE_lora_improvement": { "target": 0.15, "min": 0.10, "n_min": 50, "stat": "mean absolute error reduction on customer-disjoint, time-ordered holdout" },
+    "Sx_safety_score_shop_floor": { "target": 0.98, "min": 0.95, "stat": "S(x) at shop_floor tier (five-sigma); see omega-thresholds.json" },
+    "Sx_safety_score_production": { "target": 0.95, "min": 0.90, "stat": "S(x) at production tier (four-sigma)" },
+    "consensus_accuracy": { "target": 0.90, "min": 0.80, "n_min": 200, "stat": "exact-match-rate vs deterministic oracle (compiler/test-runner/physics-validator)" },
+    "OEE": { "target": 0.85, "min": 0.70, "stat": "live machine OEE per Grafana dashboard MS16" },
+    "first_article_Cpk": { "target": 1.67, "min": 1.33, "n_min": 30, "stat": "Cpk on critical dims, stratified by ISO group" },
+    "deflection_cumulative_ratio": { "target": 0.3, "max": 0.5, "stat": "G_cumulative_tol gate: sum_deflection / part_tol" },
+    "kinematic_dexterity_J": { "target": 0.10, "min": 0.05, "stat": "G_kinematic gate: |det(J*J^T)|^0.5; <0.05 = singularity" },
+    "min_per_dim_omega": { "target": 0.70, "min": 0.50, "stat": "G_min_dim gate; geometric mean masking forbidden" },
+    "thermal_cycle_friction_SF": { "target": 1.8, "min": 1.5, "stat": "G_thermal_cycle gate: workholding SF at T_max with mu(T)=mu0*(1-0.003*dT)" }
+  },
+  "passRule": "Omega=1.0 IFF (every discrete gate GREEN) AND (every continuous metric meets target OR within [min, max] tolerance band) AND (n_min satisfied where specified)",
+  "blockRule": "if any continuous metric exceeds max OR falls below min OR n_min unmet -> HARD BLOCK with named violation; emit ledger entry to SAFETY_GATE_LEDGER.jsonl with {ts, metric, observed, threshold, tier, sessionId}",
+  "tolerance_bands_source": "Cpk from AS9100 / Six Sigma standard; MAPE bands from manufacturing-AI literature (Tooluxe, MachiningCloud); S(x) tiers from PRISM tiered-omega doctrine in state/shared/omega-thresholds.json; kinematic dexterity from Yoshikawa 1985.",
+  "v3_1_resolves": "Pass-3 risk-hunter finding 4/5: 'Omega=1.0 undefined for continuous metrics; testers will round or block forever.' This file defines the semantics."
+}

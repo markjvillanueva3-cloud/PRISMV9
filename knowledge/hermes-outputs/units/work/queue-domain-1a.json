@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "1.0.0",
+  "domainGroup": "1a",
+  "units": [
+    {
+      "id": "0002",
+      "file": "UNIT-0002-DOMAIN1-PHYSICS-MATERIAL-SCIENCE-OVERVIEW.md",
+      "title": "Physics & Material Science Overview and Unit Breakdown",
+      "priority": "P2",
+      "roiScore": 6,
+      "verdict": "knowledge-only",
+      "existingAssets": [
+        "knowledge/hermes-outputs/units/UNIT-0003..0008 (6 Domain-1 sub-unit files, ls-verified)",
+        "knowledge/hermes-outputs/MASTER-UNIT-PLAN.md",
+        "mcp-server/src/physics/constants.ts:40",
+        "mcp-server/src/physics/constants.ts:63",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:599",
+        "mcp-server/src/tools/dispatchers/safetyDispatcher.ts:117"
+      ],
+      "gaps": [
+        "No per-sub-unit dispatcher/formula mapping artifact (UNIT-0006..0008 unmapped)",
+        "No written JM Die validation strategy; sub-unit criteria reference dynamometer/chip-metrology data that does not exist in repo",
+        "Spec says 8-12 atomic units; 6 exist (amend or add 2)"
+      ],
+      "nextAction": "Write the wiring-map + honest validation-strategy docs (re-base criteria on proven-S/F mining, calibration-persist actuals, vendor tri-compare); update MASTER-UNIT-PLAN cross-refs; build nothing."
+    },
+    {
+      "id": "0003",
+      "file": "UNIT-0003-DOMAIN1-MATERIAL-BEHAVIOR.md",
+      "title": "Material Behavior Modeling (Core Physics)",
+      "priority": "P1",
+      "roiScore": 7,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/engines/JohnsonCookEngine.ts:138-170",
+        "mcp-server/src/engines/JohnsonCookEngine.ts:47-122",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:1956-1983",
+        "mcp-server/src/engines/JohnsonCookConstitutiveEngine.ts:1-8",
+        "mcp-server/src/engines/UltimateSpeedFeedEngine.ts:534",
+        "mcp-server/src/engines/UltimateSpeedFeedEngine.ts:2999-3002",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:210-211",
+        "mcp-server/src/physics/constants.ts:40",
+        "mcp-server/src/physics/constants.ts:63"
+      ],
+      "gaps": [
+        "Dynamic strain aging unmodeled anywhere (grep 'strain aging' = 0 matches; deconflict with UNIT-0007)",
+        "U-JC-CONSTANT-RECONCILE open: two JC engines with divergent constants; 60-alloy JC table inlined in engine body, not src/data/",
+        "No JC params for ISO K/H groups",
+        "Measured-force <5% validation infeasible: no dynamometer dataset in repo; must re-base with uncertainty",
+        "No material_behavior_* action namespace (naming-only; jc_*/flow_stress cover function)"
+      ],
+      "nextAction": "Do NOT build MaterialBehaviorEngine (duplicate). Close U-JC-CONSTANT-RECONCILE (one canonical source per alloy, table to src/data/, physics-reviewer sign-off), add DSA term (coordinate with UNIT-0007) + K/H JC entries, re-base validation on JC-vs-Kienzle invariants + vendor tri-compare with uncertainty bands."
+    },
+    {
+      "id": "0004",
+      "file": "UNIT-0004-DOMAIN1-TOOL-WEAR-MECHANISMS.md",
+      "title": "Tool Wear Mechanisms and Prediction",
+      "priority": "P2",
+      "roiScore": 4,
+      "verdict": "already-covered",
+      "existingAssets": [
+        "mcp-server/src/engines/AdvancedWearPhysicsEngine.ts:1-14",
+        "mcp-server/src/engines/AdvancedWearPhysicsEngine.ts:25-29",
+        "mcp-server/src/engines/ArchardAdhesiveWearEngine.ts (body PARTIAL-UNVERIFIED)",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:220-221",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:8701",
+        "mcp-server/src/tools/dispatchers/safetyDispatcher.ts:117",
+        "mcp-server/src/tools/dispatchers/safetyDispatcher.ts:172",
+        "mcp-server/src/engines/UltimateSpeedFeedEngine.ts:1347",
+        "mcp-server/src/engines/UltimateSpeedFeedEngine.ts:2786",
+        "mcp-server/src/physics/constants.ts:63"
+      ],
+      "gaps": [
+        "BUE chemistry model missing (BUE is empirical speed-threshold grading only)",
+        "No historical JM Die tool-life dataset found; <10% error criterion unvalidatable today (calibration-persist loop accrues data)",
+        "Takeyama-Murata combined-mechanism dispatcher exposure unconfirmed (PARTIAL-UNVERIFIED wiring)"
+      ],
+      "nextAction": "Reconcile unit as covered by the existing 9+ wear engines (a new ToolWearEngine would trip the duplication hard-block). Optional [SCOPED] residue: verify/wire Takeyama-Murata calc action, small BUE-chemistry affinity adjunct (physics-reviewer), validation loop on calibration-persist actuals with uncertainty."
+    },
+    {
+      "id": "0005",
+      "file": "UNIT-0005-DOMAIN1-STRAIN-RATE-SERRATED-CHIP.md",
+      "title": "Strain Rate Effects and Serrated Chip Formation",
+      "priority": "P1",
+      "roiScore": 6,
+      "verdict": "wire-only",
+      "existingAssets": [
+        "mcp-server/src/engines/AdvancedCuttingPhysicsEngine.ts:354-419",
+        "mcp-server/src/tools/dispatchers/camDispatcher.ts:7074",
+        "mcp-server/src/__tests__/exhaustive-science-batch3.test.ts:129-146",
+        "mcp-server/src/algorithms/ChipTypePredictionModel.ts:63-100",
+        "mcp-server/src/engines/JohnsonCookEngine.ts:152-154",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:108-109",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:9283"
+      ],
+      "gaps": [
+        "Mechanistic predictor wired to prism_cam (sci_recht_shear), not prism_calc:strain_rate_* as specced",
+        "Serrated outputs carry no uncertainty (empirical delta_s=1% feed at :380, empirical spacing at :414-416)",
+        "<8% chip-morphology validation infeasible: no chip photo/measurement dataset in repo",
+        "JohnsonCookModel.ts:379 'shear bands not modeled' note lacks cross-ref to Recht engine (duplicate-build trap)"
+      ],
+      "nextAction": "Wire a prism_calc action to the existing rechtShearInstability (lazy import, dispatcher round-trip test, physics-reviewer confirms zero formula change), add uncertainty annotations to the two empirical terms, cross-ref JohnsonCookModel.ts note, re-base validation on classifier-vs-Recht segmented-onset consistency for ISO S / >350HB."
+    }
+  ]
+}

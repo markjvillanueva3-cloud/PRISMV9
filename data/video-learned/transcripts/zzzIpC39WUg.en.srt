@@ -1,0 +1,2965 @@
+1
+00:00:00,079 --> 00:00:02,869
+
+hello and welcome to this ha step of the
+
+2
+00:00:02,869 --> 00:00:02,879
+hello and welcome to this ha step of the
+ 
+
+3
+00:00:02,879 --> 00:00:05,300
+hello and welcome to this ha step of the
+day in today's video we're gonna talk
+
+4
+00:00:05,300 --> 00:00:05,310
+day in today's video we're gonna talk
+ 
+
+5
+00:00:05,310 --> 00:00:08,480
+day in today's video we're gonna talk
+all about speeds and feeds will show you
+
+6
+00:00:08,480 --> 00:00:08,490
+all about speeds and feeds will show you
+ 
+
+7
+00:00:08,490 --> 00:00:11,209
+all about speeds and feeds will show you
+the path that we take to reach starting
+
+8
+00:00:11,209 --> 00:00:11,219
+the path that we take to reach starting
+ 
+
+9
+00:00:11,219 --> 00:00:13,339
+the path that we take to reach starting
+speed and feed values that we can trust
+
+10
+00:00:13,339 --> 00:00:13,349
+speed and feed values that we can trust
+ 
+
+11
+00:00:13,349 --> 00:00:15,470
+speed and feed values that we can trust
+that will work with any tool and
+
+12
+00:00:15,470 --> 00:00:15,480
+that will work with any tool and
+ 
+
+13
+00:00:15,480 --> 00:00:17,840
+that will work with any tool and
+material combination will be using
+
+14
+00:00:17,840 --> 00:00:17,850
+material combination will be using
+ 
+
+15
+00:00:17,850 --> 00:00:19,939
+material combination will be using
+inches in this video but we've made an
+
+16
+00:00:19,939 --> 00:00:19,949
+inches in this video but we've made an
+ 
+
+17
+00:00:19,949 --> 00:00:22,340
+inches in this video but we've made an
+entire other video for those of you that
+
+18
+00:00:22,340 --> 00:00:22,350
+entire other video for those of you that
+ 
+
+19
+00:00:22,350 --> 00:00:24,529
+entire other video for those of you that
+are using the metric system a few key
+
+20
+00:00:24,529 --> 00:00:24,539
+are using the metric system a few key
+ 
+
+21
+00:00:24,539 --> 00:00:27,529
+are using the metric system a few key
+concepts a formula and we'll reach the
+
+22
+00:00:27,529 --> 00:00:27,539
+concepts a formula and we'll reach the
+ 
+
+23
+00:00:27,539 --> 00:00:30,349
+concepts a formula and we'll reach the
+RPM that our program needs another quick
+
+24
+00:00:30,349 --> 00:00:30,359
+RPM that our program needs another quick
+ 
+
+25
+00:00:30,359 --> 00:00:32,870
+RPM that our program needs another quick
+calculation and we'll establish our feed
+
+26
+00:00:32,870 --> 00:00:32,880
+calculation and we'll establish our feed
+ 
+
+27
+00:00:32,880 --> 00:00:34,340
+calculation and we'll establish our feed
+rate and have you home in time for
+
+28
+00:00:34,340 --> 00:00:34,350
+rate and have you home in time for
+ 
+
+29
+00:00:34,350 --> 00:00:36,530
+rate and have you home in time for
+supper as we jump into one of the
+
+30
+00:00:36,530 --> 00:00:36,540
+supper as we jump into one of the
+ 
+
+31
+00:00:36,540 --> 00:00:38,810
+supper as we jump into one of the
+coolest concepts in CNC programming
+
+32
+00:00:38,810 --> 00:00:38,820
+coolest concepts in CNC programming
+ 
+
+33
+00:00:38,820 --> 00:00:41,600
+coolest concepts in CNC programming
+speeds and feeds I've got a question for
+
+34
+00:00:41,600 --> 00:00:41,610
+speeds and feeds I've got a question for
+ 
+
+35
+00:00:41,610 --> 00:00:44,869
+speeds and feeds I've got a question for
+you are you ready if our tractor is
+
+36
+00:00:44,869 --> 00:00:44,879
+you are you ready if our tractor is
+ 
+
+37
+00:00:44,879 --> 00:00:47,630
+you are you ready if our tractor is
+moving along at an amazing 1 mile per
+
+38
+00:00:47,630 --> 00:00:47,640
+moving along at an amazing 1 mile per
+ 
+
+39
+00:00:47,640 --> 00:00:48,170
+moving along at an amazing 1 mile per
+hour
+
+40
+00:00:48,170 --> 00:00:48,180
+hour
+ 
+
+41
+00:00:48,180 --> 00:00:51,439
+hour
+that's 88 feet per minute which tire is
+
+42
+00:00:51,439 --> 00:00:51,449
+that's 88 feet per minute which tire is
+ 
+
+43
+00:00:51,449 --> 00:00:54,529
+that's 88 feet per minute which tire is
+moving faster our small front tire for
+
+44
+00:00:54,529 --> 00:00:54,539
+moving faster our small front tire for
+ 
+
+45
+00:00:54,539 --> 00:00:59,540
+moving faster our small front tire for
+our larger rear tire everything for me
+
+46
+00:00:59,540 --> 00:00:59,550
+our larger rear tire everything for me
+ 
+
+47
+00:00:59,550 --> 00:01:03,130
+our larger rear tire everything for me
+begins with my setup so check this out
+
+48
+00:01:03,130 --> 00:01:03,140
+begins with my setup so check this out
+ 
+
+49
+00:01:03,140 --> 00:01:06,070
+begins with my setup so check this out
+tightening up those tools by hand
+
+50
+00:01:06,070 --> 00:01:06,080
+tightening up those tools by hand
+ 
+
+51
+00:01:06,080 --> 00:01:09,260
+tightening up those tools by hand
+[Music]
+
+52
+00:01:09,260 --> 00:01:09,270
+[Music]
+ 
+
+53
+00:01:09,270 --> 00:01:14,219
+[Music]
+that's it pencils down answers I know
+
+54
+00:01:14,219 --> 00:01:14,229
+that's it pencils down answers I know
+ 
+
+55
+00:01:14,229 --> 00:01:17,309
+that's it pencils down answers I know
+it's kind of a trick question it depends
+
+56
+00:01:17,309 --> 00:01:17,319
+it's kind of a trick question it depends
+ 
+
+57
+00:01:17,319 --> 00:01:21,059
+it's kind of a trick question it depends
+on what I mean by faster if what I am
+
+58
+00:01:21,059 --> 00:01:21,069
+on what I mean by faster if what I am
+ 
+
+59
+00:01:21,069 --> 00:01:24,179
+on what I mean by faster if what I am
+asking is how fast the tires are moving
+
+60
+00:01:24,179 --> 00:01:24,189
+asking is how fast the tires are moving
+ 
+
+61
+00:01:24,189 --> 00:01:27,209
+asking is how fast the tires are moving
+across the surface of the ground where
+
+62
+00:01:27,209 --> 00:01:27,219
+across the surface of the ground where
+ 
+
+63
+00:01:27,219 --> 00:01:28,980
+across the surface of the ground where
+the rubber meets the road then both
+
+64
+00:01:28,980 --> 00:01:28,990
+the rubber meets the road then both
+ 
+
+65
+00:01:28,990 --> 00:01:31,410
+the rubber meets the road then both
+tires are traveling at the exact same
+
+66
+00:01:31,410 --> 00:01:31,420
+tires are traveling at the exact same
+ 
+
+67
+00:01:31,420 --> 00:01:35,030
+tires are traveling at the exact same
+speed 88 surface feet per minute
+
+68
+00:01:35,030 --> 00:01:35,040
+speed 88 surface feet per minute
+ 
+
+69
+00:01:35,040 --> 00:01:38,230
+speed 88 surface feet per minute
+see both tires travel the same distance
+
+70
+00:01:38,230 --> 00:01:38,240
+see both tires travel the same distance
+ 
+
+71
+00:01:38,240 --> 00:01:41,660
+see both tires travel the same distance
+where it matters along the tyres edge
+
+72
+00:01:41,660 --> 00:01:41,670
+where it matters along the tyres edge
+ 
+
+73
+00:01:41,670 --> 00:01:44,360
+where it matters along the tyres edge
+now if we're talking about revolutions
+
+74
+00:01:44,360 --> 00:01:44,370
+now if we're talking about revolutions
+ 
+
+75
+00:01:44,370 --> 00:01:47,540
+now if we're talking about revolutions
+per minute rpm then that's a different
+
+76
+00:01:47,540 --> 00:01:47,550
+per minute rpm then that's a different
+ 
+
+77
+00:01:47,550 --> 00:01:48,470
+per minute rpm then that's a different
+story
+
+78
+00:01:48,470 --> 00:01:48,480
+story
+ 
+
+79
+00:01:48,480 --> 00:01:50,960
+story
+while both tires cover the same amount
+
+80
+00:01:50,960 --> 00:01:50,970
+while both tires cover the same amount
+ 
+
+81
+00:01:50,970 --> 00:01:53,720
+while both tires cover the same amount
+of ground the smaller tire had to make
+
+82
+00:01:53,720 --> 00:01:53,730
+of ground the smaller tire had to make
+ 
+
+83
+00:01:53,730 --> 00:01:56,270
+of ground the smaller tire had to make
+more revolutions per minute to get there
+
+84
+00:01:56,270 --> 00:01:56,280
+more revolutions per minute to get there
+ 
+
+85
+00:01:56,280 --> 00:01:59,270
+more revolutions per minute to get there
+if we want to calculate how much ground
+
+86
+00:01:59,270 --> 00:01:59,280
+if we want to calculate how much ground
+ 
+
+87
+00:01:59,280 --> 00:02:01,210
+if we want to calculate how much ground
+a tire will cover with each revolution
+
+88
+00:02:01,210 --> 00:02:01,220
+a tire will cover with each revolution
+ 
+
+89
+00:02:01,220 --> 00:02:03,410
+a tire will cover with each revolution
+then we'll need to come up with some
+
+90
+00:02:03,410 --> 00:02:03,420
+then we'll need to come up with some
+ 
+
+91
+00:02:03,420 --> 00:02:06,230
+then we'll need to come up with some
+kind of ratio between a tires diameter
+
+92
+00:02:06,230 --> 00:02:06,240
+kind of ratio between a tires diameter
+ 
+
+93
+00:02:06,240 --> 00:02:08,930
+kind of ratio between a tires diameter
+and its circumference well it turns out
+
+94
+00:02:08,930 --> 00:02:08,940
+and its circumference well it turns out
+ 
+
+95
+00:02:08,940 --> 00:02:11,120
+and its circumference well it turns out
+someone has already figured this out for
+
+96
+00:02:11,120 --> 00:02:11,130
+someone has already figured this out for
+ 
+
+97
+00:02:11,130 --> 00:02:13,520
+someone has already figured this out for
+us and they've even given this ratio a
+
+98
+00:02:13,520 --> 00:02:13,530
+us and they've even given this ratio a
+ 
+
+99
+00:02:13,530 --> 00:02:17,990
+us and they've even given this ratio a
+name pi the ratio between a circles
+
+100
+00:02:17,990 --> 00:02:18,000
+name pi the ratio between a circles
+ 
+
+101
+00:02:18,000 --> 00:02:21,080
+name pi the ratio between a circles
+diameter and its circumference is pi so
+
+102
+00:02:21,080 --> 00:02:21,090
+diameter and its circumference is pi so
+ 
+
+103
+00:02:21,090 --> 00:02:24,680
+diameter and its circumference is pi so
+no matter what diameter our tire is the
+
+104
+00:02:24,680 --> 00:02:24,690
+no matter what diameter our tire is the
+ 
+
+105
+00:02:24,690 --> 00:02:26,450
+no matter what diameter our tire is the
+distance around the outside of that tire
+
+106
+00:02:26,450 --> 00:02:26,460
+distance around the outside of that tire
+ 
+
+107
+00:02:26,460 --> 00:02:28,070
+distance around the outside of that tire
+where the rubber meets the road is
+
+108
+00:02:28,070 --> 00:02:28,080
+where the rubber meets the road is
+ 
+
+109
+00:02:28,080 --> 00:02:32,600
+where the rubber meets the road is
+always 3.14 times greater this tire has
+
+110
+00:02:32,600 --> 00:02:32,610
+always 3.14 times greater this tire has
+ 
+
+111
+00:02:32,610 --> 00:02:36,410
+always 3.14 times greater this tire has
+a diameter of 3.8 two inches three point
+
+112
+00:02:36,410 --> 00:02:36,420
+a diameter of 3.8 two inches three point
+ 
+
+113
+00:02:36,420 --> 00:02:40,640
+a diameter of 3.8 two inches three point
+eight two times pi is 12 now this tire
+
+114
+00:02:40,640 --> 00:02:40,650
+eight two times pi is 12 now this tire
+ 
+
+115
+00:02:40,650 --> 00:02:45,470
+eight two times pi is 12 now this tire
+come on this tire has a diameter of 40
+
+116
+00:02:45,470 --> 00:02:45,480
+come on this tire has a diameter of 40
+ 
+
+117
+00:02:45,480 --> 00:02:49,010
+come on this tire has a diameter of 40
+inches 40 times pi about 126 inch
+
+118
+00:02:49,010 --> 00:02:49,020
+inches 40 times pi about 126 inch
+ 
+
+119
+00:02:49,020 --> 00:02:51,050
+inches 40 times pi about 126 inch
+circumference okay that's great get out
+
+120
+00:02:51,050 --> 00:02:51,060
+circumference okay that's great get out
+ 
+
+121
+00:02:51,060 --> 00:02:55,010
+circumference okay that's great get out
+of it if we were to run our tires too
+
+122
+00:02:55,010 --> 00:02:55,020
+of it if we were to run our tires too
+ 
+
+123
+00:02:55,020 --> 00:02:57,020
+of it if we were to run our tires too
+fast too many surface feet per minute
+
+124
+00:02:57,020 --> 00:02:57,030
+fast too many surface feet per minute
+ 
+
+125
+00:02:57,030 --> 00:03:00,979
+fast too many surface feet per minute
+they would overheat blister and fail our
+
+126
+00:03:00,979 --> 00:03:00,989
+they would overheat blister and fail our
+ 
+
+127
+00:03:00,989 --> 00:03:03,290
+they would overheat blister and fail our
+end Mills work in the same way there's a
+
+128
+00:03:03,290 --> 00:03:03,300
+end Mills work in the same way there's a
+ 
+
+129
+00:03:03,300 --> 00:03:05,540
+end Mills work in the same way there's a
+limit a maximum cutting speed that a
+
+130
+00:03:05,540 --> 00:03:05,550
+limit a maximum cutting speed that a
+ 
+
+131
+00:03:05,550 --> 00:03:07,790
+limit a maximum cutting speed that a
+specific tool can go on a specific
+
+132
+00:03:07,790 --> 00:03:07,800
+specific tool can go on a specific
+ 
+
+133
+00:03:07,800 --> 00:03:10,610
+specific tool can go on a specific
+material any faster and it begins to
+
+134
+00:03:10,610 --> 00:03:10,620
+material any faster and it begins to
+ 
+
+135
+00:03:10,620 --> 00:03:14,930
+material any faster and it begins to
+overheat quickly wears out in machinist
+
+136
+00:03:14,930 --> 00:03:14,940
+overheat quickly wears out in machinist
+ 
+
+137
+00:03:14,940 --> 00:03:18,080
+overheat quickly wears out in machinist
+talk if we're talking about speeds like
+
+138
+00:03:18,080 --> 00:03:18,090
+talk if we're talking about speeds like
+ 
+
+139
+00:03:18,090 --> 00:03:20,330
+talk if we're talking about speeds like
+speeds and feeds we can be talking about
+
+140
+00:03:20,330 --> 00:03:20,340
+speeds and feeds we can be talking about
+ 
+
+141
+00:03:20,340 --> 00:03:22,220
+speeds and feeds we can be talking about
+one of two different things
+
+142
+00:03:22,220 --> 00:03:22,230
+one of two different things
+ 
+
+143
+00:03:22,230 --> 00:03:24,740
+one of two different things
+we're either talking about cutting speed
+
+144
+00:03:24,740 --> 00:03:24,750
+we're either talking about cutting speed
+ 
+
+145
+00:03:24,750 --> 00:03:28,630
+we're either talking about cutting speed
+or spindle speed our cutting speed our
+
+146
+00:03:28,630 --> 00:03:28,640
+or spindle speed our cutting speed our
+ 
+
+147
+00:03:28,640 --> 00:03:32,660
+or spindle speed our cutting speed our
+VC our surface footage per minute is the
+
+148
+00:03:32,660 --> 00:03:32,670
+VC our surface footage per minute is the
+ 
+
+149
+00:03:32,670 --> 00:03:35,120
+VC our surface footage per minute is the
+speed our tool is turning at where the
+
+150
+00:03:35,120 --> 00:03:35,130
+speed our tool is turning at where the
+ 
+
+151
+00:03:35,130 --> 00:03:36,860
+speed our tool is turning at where the
+rubber meets the road where it where the
+
+152
+00:03:36,860 --> 00:03:36,870
+rubber meets the road where it where the
+ 
+
+153
+00:03:36,870 --> 00:03:39,860
+rubber meets the road where it where the
+tool meets the part and our spindle
+
+154
+00:03:39,860 --> 00:03:39,870
+tool meets the part and our spindle
+ 
+
+155
+00:03:39,870 --> 00:03:42,590
+tool meets the part and our spindle
+speed is simply our revolutions per
+
+156
+00:03:42,590 --> 00:03:42,600
+speed is simply our revolutions per
+ 
+
+157
+00:03:42,600 --> 00:03:46,400
+speed is simply our revolutions per
+minute our rpm now we get our cutting
+
+158
+00:03:46,400 --> 00:03:46,410
+minute our rpm now we get our cutting
+ 
+
+159
+00:03:46,410 --> 00:03:48,350
+minute our rpm now we get our cutting
+speed SFM
+
+160
+00:03:48,350 --> 00:03:48,360
+speed SFM
+ 
+
+161
+00:03:48,360 --> 00:03:51,590
+speed SFM
+right from our catalogs but the control
+
+162
+00:03:51,590 --> 00:03:51,600
+right from our catalogs but the control
+ 
+
+163
+00:03:51,600 --> 00:03:55,070
+right from our catalogs but the control
+the Hosmer Sheen needs to know the RPM
+
+164
+00:03:55,070 --> 00:03:55,080
+the Hosmer Sheen needs to know the RPM
+ 
+
+165
+00:03:55,080 --> 00:03:57,680
+the Hosmer Sheen needs to know the RPM
+value our spindle speed that's our s
+
+166
+00:03:57,680 --> 00:03:57,690
+value our spindle speed that's our s
+ 
+
+167
+00:03:57,690 --> 00:04:01,460
+value our spindle speed that's our s
+code to get from here to here we're
+
+168
+00:04:01,460 --> 00:04:01,470
+code to get from here to here we're
+ 
+
+169
+00:04:01,470 --> 00:04:03,620
+code to get from here to here we're
+going to use a formula and that formula
+
+170
+00:04:03,620 --> 00:04:03,630
+going to use a formula and that formula
+ 
+
+171
+00:04:03,630 --> 00:04:06,320
+going to use a formula and that formula
+is gonna make use of pi and our tools
+
+172
+00:04:06,320 --> 00:04:06,330
+is gonna make use of pi and our tools
+ 
+
+173
+00:04:06,330 --> 00:04:10,400
+is gonna make use of pi and our tools
+diameter to convert our sfm what that we
+
+174
+00:04:10,400 --> 00:04:10,410
+diameter to convert our sfm what that we
+ 
+
+175
+00:04:10,410 --> 00:04:12,980
+diameter to convert our sfm what that we
+got from our catalog into a spindle
+
+176
+00:04:12,980 --> 00:04:12,990
+got from our catalog into a spindle
+ 
+
+177
+00:04:12,990 --> 00:04:15,860
+got from our catalog into a spindle
+speed and RPM value now once we've got
+
+178
+00:04:15,860 --> 00:04:15,870
+speed and RPM value now once we've got
+ 
+
+179
+00:04:15,870 --> 00:04:19,250
+speed and RPM value now once we've got
+that rpm value we can calculate our feed
+
+180
+00:04:19,250 --> 00:04:19,260
+that rpm value we can calculate our feed
+ 
+
+181
+00:04:19,260 --> 00:04:23,510
+that rpm value we can calculate our feed
+rates speeds and feeds here is our
+
+182
+00:04:23,510 --> 00:04:23,520
+rates speeds and feeds here is our
+ 
+
+183
+00:04:23,520 --> 00:04:27,050
+rates speeds and feeds here is our
+formula to calculate our rpm now I'm
+
+184
+00:04:27,050 --> 00:04:27,060
+formula to calculate our rpm now I'm
+ 
+
+185
+00:04:27,060 --> 00:04:29,090
+formula to calculate our rpm now I'm
+gonna start using some some symbols some
+
+186
+00:04:29,090 --> 00:04:29,100
+gonna start using some some symbols some
+ 
+
+187
+00:04:29,100 --> 00:04:31,580
+gonna start using some some symbols some
+notation because those are the symbols
+
+188
+00:04:31,580 --> 00:04:31,590
+notation because those are the symbols
+ 
+
+189
+00:04:31,590 --> 00:04:33,590
+notation because those are the symbols
+being used by all of the tool suppliers
+
+190
+00:04:33,590 --> 00:04:33,600
+being used by all of the tool suppliers
+ 
+
+191
+00:04:33,600 --> 00:04:36,190
+being used by all of the tool suppliers
+now and you'll need to recognize them
+
+192
+00:04:36,190 --> 00:04:36,200
+now and you'll need to recognize them
+ 
+
+193
+00:04:36,200 --> 00:04:41,900
+now and you'll need to recognize them
+rpm equals cutting speed times 12 all
+
+194
+00:04:41,900 --> 00:04:41,910
+rpm equals cutting speed times 12 all
+ 
+
+195
+00:04:41,910 --> 00:04:47,900
+rpm equals cutting speed times 12 all
+divided by our diameter times pi 10 is
+
+196
+00:04:47,900 --> 00:04:47,910
+divided by our diameter times pi 10 is
+ 
+
+197
+00:04:47,910 --> 00:04:51,950
+divided by our diameter times pi 10 is
+our rpm our spindle speed the S code in
+
+198
+00:04:51,950 --> 00:04:51,960
+our rpm our spindle speed the S code in
+ 
+
+199
+00:04:51,960 --> 00:04:53,630
+our rpm our spindle speed the S code in
+our programs this is what we're trying
+
+200
+00:04:53,630 --> 00:04:53,640
+our programs this is what we're trying
+ 
+
+201
+00:04:53,640 --> 00:04:57,890
+our programs this is what we're trying
+to solve for VC is our cutting speed
+
+202
+00:04:57,890 --> 00:04:57,900
+to solve for VC is our cutting speed
+ 
+
+203
+00:04:57,900 --> 00:05:02,719
+to solve for VC is our cutting speed
+that is our surface feet per minute D
+
+204
+00:05:02,719 --> 00:05:02,729
+that is our surface feet per minute D
+ 
+
+205
+00:05:02,729 --> 00:05:06,830
+that is our surface feet per minute D
+also sometimes listed as d1 or DC is our
+
+206
+00:05:06,830 --> 00:05:06,840
+also sometimes listed as d1 or DC is our
+ 
+
+207
+00:05:06,840 --> 00:05:09,800
+also sometimes listed as d1 or DC is our
+tool diameter this is the long version
+
+208
+00:05:09,800 --> 00:05:09,810
+tool diameter this is the long version
+ 
+
+209
+00:05:09,810 --> 00:05:12,920
+tool diameter this is the long version
+of the formula the 12 in this formula is
+
+210
+00:05:12,920 --> 00:05:12,930
+of the formula the 12 in this formula is
+ 
+
+211
+00:05:12,930 --> 00:05:15,020
+of the formula the 12 in this formula is
+there to convert feet to inches there
+
+212
+00:05:15,020 --> 00:05:15,030
+there to convert feet to inches there
+ 
+
+213
+00:05:15,030 --> 00:05:18,140
+there to convert feet to inches there
+are 12 inches per foot we already know
+
+214
+00:05:18,140 --> 00:05:18,150
+are 12 inches per foot we already know
+ 
+
+215
+00:05:18,150 --> 00:05:21,170
+are 12 inches per foot we already know
+what PI is now we're going to simplify
+
+216
+00:05:21,170 --> 00:05:21,180
+what PI is now we're going to simplify
+ 
+
+217
+00:05:21,180 --> 00:05:24,950
+what PI is now we're going to simplify
+this formula by dividing 12 by PI
+
+218
+00:05:24,950 --> 00:05:24,960
+this formula by dividing 12 by PI
+ 
+
+219
+00:05:24,960 --> 00:05:29,090
+this formula by dividing 12 by PI
+that gives us 3.8 to this new simple
+
+220
+00:05:29,090 --> 00:05:29,100
+that gives us 3.8 to this new simple
+ 
+
+221
+00:05:29,100 --> 00:05:30,620
+that gives us 3.8 to this new simple
+formula is the one that we're going to
+
+222
+00:05:30,620 --> 00:05:30,630
+formula is the one that we're going to
+ 
+
+223
+00:05:30,630 --> 00:05:34,550
+formula is the one that we're going to
+use today before we open up our catalog
+
+224
+00:05:34,550 --> 00:05:34,560
+use today before we open up our catalog
+ 
+
+225
+00:05:34,560 --> 00:05:37,219
+use today before we open up our catalog
+and get our cutting speed before the
+
+226
+00:05:37,219 --> 00:05:37,229
+and get our cutting speed before the
+ 
+
+227
+00:05:37,229 --> 00:05:39,890
+and get our cutting speed before the
+tractor even leaves the barn we need to
+
+228
+00:05:39,890 --> 00:05:39,900
+tractor even leaves the barn we need to
+ 
+
+229
+00:05:39,900 --> 00:05:42,290
+tractor even leaves the barn we need to
+know exactly what cutting tool we're
+
+230
+00:05:42,290 --> 00:05:42,300
+know exactly what cutting tool we're
+ 
+
+231
+00:05:42,300 --> 00:05:44,480
+know exactly what cutting tool we're
+gonna use and we need to know exactly
+
+232
+00:05:44,480 --> 00:05:44,490
+gonna use and we need to know exactly
+ 
+
+233
+00:05:44,490 --> 00:05:46,820
+gonna use and we need to know exactly
+what material we are going to be cutting
+
+234
+00:05:46,820 --> 00:05:46,830
+what material we are going to be cutting
+ 
+
+235
+00:05:46,830 --> 00:05:49,850
+what material we are going to be cutting
+now in the good old days all we really
+
+236
+00:05:49,850 --> 00:05:49,860
+now in the good old days all we really
+ 
+
+237
+00:05:49,860 --> 00:05:52,310
+now in the good old days all we really
+needed to know was whether our mo was
+
+238
+00:05:52,310 --> 00:05:52,320
+needed to know was whether our mo was
+ 
+
+239
+00:05:52,320 --> 00:05:56,120
+needed to know was whether our mo was
+high speed steel carbide P CD or CBN
+
+240
+00:05:56,120 --> 00:05:56,130
+high speed steel carbide P CD or CBN
+ 
+
+241
+00:05:56,130 --> 00:05:58,250
+high speed steel carbide P CD or CBN
+those days are gone
+
+242
+00:05:58,250 --> 00:05:58,260
+those days are gone
+ 
+
+243
+00:05:58,260 --> 00:06:01,130
+those days are gone
+today's tools have coatings on them that
+
+244
+00:06:01,130 --> 00:06:01,140
+today's tools have coatings on them that
+ 
+
+245
+00:06:01,140 --> 00:06:02,390
+today's tools have coatings on them that
+might
+
+246
+00:06:02,390 --> 00:06:02,400
+might
+ 
+
+247
+00:06:02,400 --> 00:06:04,790
+might
+they're allowable cutting speeds so we
+
+248
+00:06:04,790 --> 00:06:04,800
+they're allowable cutting speeds so we
+ 
+
+249
+00:06:04,800 --> 00:06:07,340
+they're allowable cutting speeds so we
+really need to know what tool we are
+
+250
+00:06:07,340 --> 00:06:07,350
+really need to know what tool we are
+ 
+
+251
+00:06:07,350 --> 00:06:09,710
+really need to know what tool we are
+working with otherwise we'll have to use
+
+252
+00:06:09,710 --> 00:06:09,720
+working with otherwise we'll have to use
+ 
+
+253
+00:06:09,720 --> 00:06:12,050
+working with otherwise we'll have to use
+really generic values which are pretty
+
+254
+00:06:12,050 --> 00:06:12,060
+really generic values which are pretty
+ 
+
+255
+00:06:12,060 --> 00:06:15,040
+really generic values which are pretty
+wimpy with our exact tool number in hand
+
+256
+00:06:15,040 --> 00:06:15,050
+wimpy with our exact tool number in hand
+ 
+
+257
+00:06:15,050 --> 00:06:18,470
+wimpy with our exact tool number in hand
+we can go to our our tool catalog we can
+
+258
+00:06:18,470 --> 00:06:18,480
+we can go to our our tool catalog we can
+ 
+
+259
+00:06:18,480 --> 00:06:20,630
+we can go to our our tool catalog we can
+download the manual for any tool
+
+260
+00:06:20,630 --> 00:06:20,640
+download the manual for any tool
+ 
+
+261
+00:06:20,640 --> 00:06:23,750
+download the manual for any tool
+manufacturer in PDF form once that
+
+262
+00:06:23,750 --> 00:06:23,760
+manufacturer in PDF form once that
+ 
+
+263
+00:06:23,760 --> 00:06:26,390
+manufacturer in PDF form once that
+catalog is opened up we're gonna search
+
+264
+00:06:26,390 --> 00:06:26,400
+catalog is opened up we're gonna search
+ 
+
+265
+00:06:26,400 --> 00:06:29,540
+catalog is opened up we're gonna search
+for the material group section that's
+
+266
+00:06:29,540 --> 00:06:29,550
+for the material group section that's
+ 
+
+267
+00:06:29,550 --> 00:06:31,220
+for the material group section that's
+going to tell us what material group our
+
+268
+00:06:31,220 --> 00:06:31,230
+going to tell us what material group our
+ 
+
+269
+00:06:31,230 --> 00:06:35,060
+going to tell us what material group our
+exact material falls into our materials
+
+270
+00:06:35,060 --> 00:06:35,070
+exact material falls into our materials
+ 
+
+271
+00:06:35,070 --> 00:06:36,320
+exact material falls into our materials
+are color coded
+
+272
+00:06:36,320 --> 00:06:36,330
+are color coded
+ 
+
+273
+00:06:36,330 --> 00:06:39,950
+are color coded
+P is for Steel's Emma's for stainless
+
+274
+00:06:39,950 --> 00:06:39,960
+P is for Steel's Emma's for stainless
+ 
+
+275
+00:06:39,960 --> 00:06:45,230
+P is for Steel's Emma's for stainless
+steels k is for cast irons and is for
+
+276
+00:06:45,230 --> 00:06:45,240
+steels k is for cast irons and is for
+ 
+
+277
+00:06:45,240 --> 00:06:47,630
+steels k is for cast irons and is for
+non-ferrous metals without iron in them
+
+278
+00:06:47,630 --> 00:06:47,640
+non-ferrous metals without iron in them
+ 
+
+279
+00:06:47,640 --> 00:06:50,900
+non-ferrous metals without iron in them
+like aluminum or magnesium S is for our
+
+280
+00:06:50,900 --> 00:06:50,910
+like aluminum or magnesium S is for our
+ 
+
+281
+00:06:50,910 --> 00:06:53,750
+like aluminum or magnesium S is for our
+super alloys materials like titanium and
+
+282
+00:06:53,750 --> 00:06:53,760
+super alloys materials like titanium and
+ 
+
+283
+00:06:53,760 --> 00:06:56,780
+super alloys materials like titanium and
+H is for hard cast irons or hardened
+
+284
+00:06:56,780 --> 00:06:56,790
+H is for hard cast irons or hardened
+ 
+
+285
+00:06:56,790 --> 00:07:01,580
+H is for hard cast irons or hardened
+steels I am working with a 4140 steel at
+
+286
+00:07:01,580 --> 00:07:01,590
+steels I am working with a 4140 steel at
+ 
+
+287
+00:07:01,590 --> 00:07:03,050
+steels I am working with a 4140 steel at
+least that's what we call it here in the
+
+288
+00:07:03,050 --> 00:07:03,060
+least that's what we call it here in the
+ 
+
+289
+00:07:03,060 --> 00:07:05,390
+least that's what we call it here in the
+United States if you're in Europe and
+
+290
+00:07:05,390 --> 00:07:05,400
+United States if you're in Europe and
+ 
+
+291
+00:07:05,400 --> 00:07:07,910
+United States if you're in Europe and
+you're using en names and numbers this
+
+292
+00:07:07,910 --> 00:07:07,920
+you're using en names and numbers this
+ 
+
+293
+00:07:07,920 --> 00:07:11,960
+you're using en names and numbers this
+might be called 42 CR mo 4 if you're in
+
+294
+00:07:11,960 --> 00:07:11,970
+might be called 42 CR mo 4 if you're in
+ 
+
+295
+00:07:11,970 --> 00:07:13,700
+might be called 42 CR mo 4 if you're in
+Japan you'll call it something different
+
+296
+00:07:13,700 --> 00:07:13,710
+Japan you'll call it something different
+ 
+
+297
+00:07:13,710 --> 00:07:16,070
+Japan you'll call it something different
+but no matter where you are in the world
+
+298
+00:07:16,070 --> 00:07:16,080
+but no matter where you are in the world
+ 
+
+299
+00:07:16,080 --> 00:07:19,100
+but no matter where you are in the world
+this material is gonna find itself in
+
+300
+00:07:19,100 --> 00:07:19,110
+this material is gonna find itself in
+ 
+
+301
+00:07:19,110 --> 00:07:23,120
+this material is gonna find itself in
+the P I so material class now the number
+
+302
+00:07:23,120 --> 00:07:23,130
+the P I so material class now the number
+ 
+
+303
+00:07:23,130 --> 00:07:25,480
+the P I so material class now the number
+that follows our color coded iso letter
+
+304
+00:07:25,480 --> 00:07:25,490
+that follows our color coded iso letter
+ 
+
+305
+00:07:25,490 --> 00:07:29,180
+that follows our color coded iso letter
+changes between manufacturers so be
+
+306
+00:07:29,180 --> 00:07:29,190
+changes between manufacturers so be
+ 
+
+307
+00:07:29,190 --> 00:07:32,060
+changes between manufacturers so be
+careful here kena mental calls this
+
+308
+00:07:32,060 --> 00:07:32,070
+careful here kena mental calls this
+ 
+
+309
+00:07:32,070 --> 00:07:36,020
+careful here kena mental calls this
+material a P for Niagara and C Co may
+
+310
+00:07:36,020 --> 00:07:36,030
+material a P for Niagara and C Co may
+ 
+
+311
+00:07:36,030 --> 00:07:39,200
+material a P for Niagara and C Co may
+call it a p5 Sandvik classifies it as a
+
+312
+00:07:39,200 --> 00:07:39,210
+call it a p5 Sandvik classifies it as a
+ 
+
+313
+00:07:39,210 --> 00:07:43,880
+call it a p5 Sandvik classifies it as a
+P 2.1 while iskar and wid iya might call
+
+314
+00:07:43,880 --> 00:07:43,890
+P 2.1 while iskar and wid iya might call
+ 
+
+315
+00:07:43,890 --> 00:07:48,020
+P 2.1 while iskar and wid iya might call
+it a p6 or a p7 same material different
+
+316
+00:07:48,020 --> 00:07:48,030
+it a p6 or a p7 same material different
+ 
+
+317
+00:07:48,030 --> 00:07:50,780
+it a p6 or a p7 same material different
+tool vendor now it's important that we
+
+318
+00:07:50,780 --> 00:07:50,790
+tool vendor now it's important that we
+ 
+
+319
+00:07:50,790 --> 00:07:52,730
+tool vendor now it's important that we
+get this right if you don't choose the
+
+320
+00:07:52,730 --> 00:07:52,740
+get this right if you don't choose the
+ 
+
+321
+00:07:52,740 --> 00:07:55,190
+get this right if you don't choose the
+right material group you are gonna burn
+
+322
+00:07:55,190 --> 00:07:55,200
+right material group you are gonna burn
+ 
+
+323
+00:07:55,200 --> 00:07:58,160
+right material group you are gonna burn
+up your tools titanium has a different
+
+324
+00:07:58,160 --> 00:07:58,170
+up your tools titanium has a different
+ 
+
+325
+00:07:58,170 --> 00:08:01,520
+up your tools titanium has a different
+machine ability than mild steel if you
+
+326
+00:08:01,520 --> 00:08:01,530
+machine ability than mild steel if you
+ 
+
+327
+00:08:01,530 --> 00:08:03,530
+machine ability than mild steel if you
+try running a drill or an end mill in
+
+328
+00:08:03,530 --> 00:08:03,540
+try running a drill or an end mill in
+ 
+
+329
+00:08:03,540 --> 00:08:06,560
+try running a drill or an end mill in
+titanium at cutting speeds meant for
+
+330
+00:08:06,560 --> 00:08:06,570
+titanium at cutting speeds meant for
+ 
+
+331
+00:08:06,570 --> 00:08:08,990
+titanium at cutting speeds meant for
+mild steel you are gonna melt that tool
+
+332
+00:08:08,990 --> 00:08:09,000
+mild steel you are gonna melt that tool
+ 
+
+333
+00:08:09,000 --> 00:08:12,710
+mild steel you are gonna melt that tool
+it will overheat and fail so if you
+
+334
+00:08:12,710 --> 00:08:12,720
+it will overheat and fail so if you
+ 
+
+335
+00:08:12,720 --> 00:08:14,990
+it will overheat and fail so if you
+can't find what material group your
+
+336
+00:08:14,990 --> 00:08:15,000
+can't find what material group your
+ 
+
+337
+00:08:15,000 --> 00:08:15,800
+can't find what material group your
+stock
+
+338
+00:08:15,800 --> 00:08:15,810
+stock
+ 
+
+339
+00:08:15,810 --> 00:08:17,540
+stock
+should be in then give your tooling
+
+340
+00:08:17,540 --> 00:08:17,550
+should be in then give your tooling
+ 
+
+341
+00:08:17,550 --> 00:08:20,090
+should be in then give your tooling
+representative a call they would love to
+
+342
+00:08:20,090 --> 00:08:20,100
+representative a call they would love to
+ 
+
+343
+00:08:20,100 --> 00:08:21,290
+representative a call they would love to
+hear from you
+
+344
+00:08:21,290 --> 00:08:21,300
+hear from you
+ 
+
+345
+00:08:21,300 --> 00:08:23,600
+hear from you
+how many tooling reps out there would
+
+346
+00:08:23,600 --> 00:08:23,610
+how many tooling reps out there would
+ 
+
+347
+00:08:23,610 --> 00:08:25,280
+how many tooling reps out there would
+love to hear from one of our viewers and
+
+348
+00:08:25,280 --> 00:08:25,290
+love to hear from one of our viewers and
+ 
+
+349
+00:08:25,290 --> 00:08:28,879
+love to hear from one of our viewers and
+talk tools yeah that's what I thought
+
+350
+00:08:28,879 --> 00:08:28,889
+talk tools yeah that's what I thought
+ 
+
+351
+00:08:28,889 --> 00:08:31,220
+talk tools yeah that's what I thought
+from the section of the manual for our
+
+352
+00:08:31,220 --> 00:08:31,230
+from the section of the manual for our
+ 
+
+353
+00:08:31,230 --> 00:08:33,860
+from the section of the manual for our
+tool under the rope for our material
+
+354
+00:08:33,860 --> 00:08:33,870
+tool under the rope for our material
+ 
+
+355
+00:08:33,870 --> 00:08:36,380
+tool under the rope for our material
+type we're gonna find our cutting speed
+
+356
+00:08:36,380 --> 00:08:36,390
+type we're gonna find our cutting speed
+ 
+
+357
+00:08:36,390 --> 00:08:37,279
+type we're gonna find our cutting speed
+v-c
+
+358
+00:08:37,279 --> 00:08:37,289
+v-c
+ 
+
+359
+00:08:37,289 --> 00:08:40,820
+v-c
+our sfm now if your manual gives you a
+
+360
+00:08:40,820 --> 00:08:40,830
+our sfm now if your manual gives you a
+ 
+
+361
+00:08:40,830 --> 00:08:43,850
+our sfm now if your manual gives you a
+range like two to three hundred then
+
+362
+00:08:43,850 --> 00:08:43,860
+range like two to three hundred then
+ 
+
+363
+00:08:43,860 --> 00:08:47,060
+range like two to three hundred then
+base your choice on your tool length and
+
+364
+00:08:47,060 --> 00:08:47,070
+base your choice on your tool length and
+ 
+
+365
+00:08:47,070 --> 00:08:49,640
+base your choice on your tool length and
+your setup the more rigid the setup the
+
+366
+00:08:49,640 --> 00:08:49,650
+your setup the more rigid the setup the
+ 
+
+367
+00:08:49,650 --> 00:08:53,060
+your setup the more rigid the setup the
+faster we can go but remember that tools
+
+368
+00:08:53,060 --> 00:08:53,070
+faster we can go but remember that tools
+ 
+
+369
+00:08:53,070 --> 00:08:55,250
+faster we can go but remember that tools
+tend to live longer they have a longer
+
+370
+00:08:55,250 --> 00:08:55,260
+tend to live longer they have a longer
+ 
+
+371
+00:08:55,260 --> 00:08:58,930
+tend to live longer they have a longer
+tool life when cutting speeds are slower
+
+372
+00:08:58,930 --> 00:08:58,940
+tool life when cutting speeds are slower
+ 
+
+373
+00:08:58,940 --> 00:09:02,060
+tool life when cutting speeds are slower
+for my tool and material our cutting
+
+374
+00:09:02,060 --> 00:09:02,070
+for my tool and material our cutting
+ 
+
+375
+00:09:02,070 --> 00:09:06,560
+for my tool and material our cutting
+speed is 300 sfm and I'm using a
+
+376
+00:09:06,560 --> 00:09:06,570
+speed is 300 sfm and I'm using a
+ 
+
+377
+00:09:06,570 --> 00:09:08,840
+speed is 300 sfm and I'm using a
+three-quarter inch diameter tool so
+
+378
+00:09:08,840 --> 00:09:08,850
+three-quarter inch diameter tool so
+ 
+
+379
+00:09:08,850 --> 00:09:13,430
+three-quarter inch diameter tool so
+we'll use 0.75 in our formula we'll do
+
+380
+00:09:13,430 --> 00:09:13,440
+we'll use 0.75 in our formula we'll do
+ 
+
+381
+00:09:13,440 --> 00:09:16,610
+we'll use 0.75 in our formula we'll do
+the math and come out with an RPM value
+
+382
+00:09:16,610 --> 00:09:16,620
+the math and come out with an RPM value
+ 
+
+383
+00:09:16,620 --> 00:09:23,480
+the math and come out with an RPM value
+of 1528 that's an S code of s1 five to
+
+384
+00:09:23,480 --> 00:09:23,490
+of 1528 that's an S code of s1 five to
+ 
+
+385
+00:09:23,490 --> 00:09:26,210
+of 1528 that's an S code of s1 five to
+eight we now have a cutting speed an RPM
+
+386
+00:09:26,210 --> 00:09:26,220
+eight we now have a cutting speed an RPM
+ 
+
+387
+00:09:26,220 --> 00:09:31,150
+eight we now have a cutting speed an RPM
+value that we can use without our tool
+
+388
+00:09:31,150 --> 00:09:31,160
+
+ 
+
+389
+00:09:31,160 --> 00:09:35,810
+
+exactly we now know how fast to spin our
+
+390
+00:09:35,810 --> 00:09:35,820
+exactly we now know how fast to spin our
+ 
+
+391
+00:09:35,820 --> 00:09:39,860
+exactly we now know how fast to spin our
+tool our speed the control now needs our
+
+392
+00:09:39,860 --> 00:09:39,870
+tool our speed the control now needs our
+ 
+
+393
+00:09:39,870 --> 00:09:43,520
+tool our speed the control now needs our
+table feed our f-code a feed rate the
+
+394
+00:09:43,520 --> 00:09:43,530
+table feed our f-code a feed rate the
+ 
+
+395
+00:09:43,530 --> 00:09:45,440
+table feed our f-code a feed rate the
+feed rate is how far the tool will
+
+396
+00:09:45,440 --> 00:09:45,450
+feed rate is how far the tool will
+ 
+
+397
+00:09:45,450 --> 00:09:47,960
+feed rate is how far the tool will
+travel in one minute along the tools
+
+398
+00:09:47,960 --> 00:09:47,970
+travel in one minute along the tools
+ 
+
+399
+00:09:47,970 --> 00:09:51,050
+travel in one minute along the tools
+centerline that inch per minute feed
+
+400
+00:09:51,050 --> 00:09:51,060
+centerline that inch per minute feed
+ 
+
+401
+00:09:51,060 --> 00:09:53,510
+centerline that inch per minute feed
+rate is how far the tool will travel
+
+402
+00:09:53,510 --> 00:09:53,520
+rate is how far the tool will travel
+ 
+
+403
+00:09:53,520 --> 00:09:57,050
+rate is how far the tool will travel
+along the machines axes here is our feed
+
+404
+00:09:57,050 --> 00:09:57,060
+along the machines axes here is our feed
+ 
+
+405
+00:09:57,060 --> 00:10:00,199
+along the machines axes here is our feed
+rate formula for n mils we've got our
+
+406
+00:10:00,199 --> 00:10:00,209
+rate formula for n mils we've got our
+ 
+
+407
+00:10:00,209 --> 00:10:04,510
+rate formula for n mils we've got our
+table feed equals our feed per tooth
+
+408
+00:10:04,510 --> 00:10:04,520
+table feed equals our feed per tooth
+ 
+
+409
+00:10:04,520 --> 00:10:09,160
+table feed equals our feed per tooth
+times the number of teeth times our RPM
+
+410
+00:10:09,160 --> 00:10:09,170
+times the number of teeth times our RPM
+ 
+
+411
+00:10:09,170 --> 00:10:13,640
+times the number of teeth times our RPM
+so what's a tooth this is a tooth it's
+
+412
+00:10:13,640 --> 00:10:13,650
+so what's a tooth this is a tooth it's
+ 
+
+413
+00:10:13,650 --> 00:10:15,079
+so what's a tooth this is a tooth it's
+it's just a cutting edge along the
+
+414
+00:10:15,079 --> 00:10:15,089
+it's just a cutting edge along the
+ 
+
+415
+00:10:15,089 --> 00:10:17,269
+it's just a cutting edge along the
+outside of a tool an insert is also a
+
+416
+00:10:17,269 --> 00:10:17,279
+outside of a tool an insert is also a
+ 
+
+417
+00:10:17,279 --> 00:10:20,480
+outside of a tool an insert is also a
+tooth it's for most tools the number of
+
+418
+00:10:20,480 --> 00:10:20,490
+tooth it's for most tools the number of
+ 
+
+419
+00:10:20,490 --> 00:10:22,490
+tooth it's for most tools the number of
+teeth matches the number of flutes this
+
+420
+00:10:22,490 --> 00:10:22,500
+teeth matches the number of flutes this
+ 
+
+421
+00:10:22,500 --> 00:10:25,340
+teeth matches the number of flutes this
+tool has three flutes three teeth this
+
+422
+00:10:25,340 --> 00:10:25,350
+tool has three flutes three teeth this
+ 
+
+423
+00:10:25,350 --> 00:10:28,010
+tool has three flutes three teeth this
+tools got six teeth and this one's got
+
+424
+00:10:28,010 --> 00:10:28,020
+tools got six teeth and this one's got
+ 
+
+425
+00:10:28,020 --> 00:10:30,350
+tools got six teeth and this one's got
+four
+
+426
+00:10:30,350 --> 00:10:30,360
+
+ 
+
+427
+00:10:30,360 --> 00:10:33,780
+
+we want our tool to take a very specific
+
+428
+00:10:33,780 --> 00:10:33,790
+we want our tool to take a very specific
+ 
+
+429
+00:10:33,790 --> 00:10:37,710
+we want our tool to take a very specific
+size bite with each tooth this is our
+
+430
+00:10:37,710 --> 00:10:37,720
+size bite with each tooth this is our
+ 
+
+431
+00:10:37,720 --> 00:10:40,639
+size bite with each tooth this is our
+feed per tooth in inches
+
+432
+00:10:40,639 --> 00:10:40,649
+feed per tooth in inches
+ 
+
+433
+00:10:40,649 --> 00:10:43,559
+feed per tooth in inches
+just like our cutting speed the book or
+
+434
+00:10:43,559 --> 00:10:43,569
+just like our cutting speed the book or
+ 
+
+435
+00:10:43,569 --> 00:10:46,019
+just like our cutting speed the book or
+PDF will give us that feed per tooth
+
+436
+00:10:46,019 --> 00:10:46,029
+PDF will give us that feed per tooth
+ 
+
+437
+00:10:46,029 --> 00:10:50,220
+PDF will give us that feed per tooth
+value the catalog says that from my tool
+
+438
+00:10:50,220 --> 00:10:50,230
+value the catalog says that from my tool
+ 
+
+439
+00:10:50,230 --> 00:10:53,400
+value the catalog says that from my tool
+material and type of tool path three
+
+440
+00:10:53,400 --> 00:10:53,410
+material and type of tool path three
+ 
+
+441
+00:10:53,410 --> 00:10:55,199
+material and type of tool path three
+thousandths of an inch per tooth is a
+
+442
+00:10:55,199 --> 00:10:55,209
+thousandths of an inch per tooth is a
+ 
+
+443
+00:10:55,209 --> 00:10:59,460
+thousandths of an inch per tooth is a
+good starting range point zero zero
+
+444
+00:10:59,460 --> 00:10:59,470
+good starting range point zero zero
+ 
+
+445
+00:10:59,470 --> 00:11:03,780
+good starting range point zero zero
+three our feed per tooth times for our
+
+446
+00:11:03,780 --> 00:11:03,790
+three our feed per tooth times for our
+ 
+
+447
+00:11:03,790 --> 00:11:07,919
+three our feed per tooth times for our
+number of teeth times one thousand five
+
+448
+00:11:07,919 --> 00:11:07,929
+number of teeth times one thousand five
+ 
+
+449
+00:11:07,929 --> 00:11:11,189
+number of teeth times one thousand five
+hundred and twenty eight our RPM will
+
+450
+00:11:11,189 --> 00:11:11,199
+hundred and twenty eight our RPM will
+ 
+
+451
+00:11:11,199 --> 00:11:14,100
+hundred and twenty eight our RPM will
+give us our inch per minute feed rate F
+
+452
+00:11:14,100 --> 00:11:14,110
+give us our inch per minute feed rate F
+ 
+
+453
+00:11:14,110 --> 00:11:17,460
+give us our inch per minute feed rate F
+eighteen point three three six some
+
+454
+00:11:17,460 --> 00:11:17,470
+eighteen point three three six some
+ 
+
+455
+00:11:17,470 --> 00:11:19,559
+eighteen point three three six some
+manuals will just give out a single feed
+
+456
+00:11:19,559 --> 00:11:19,569
+manuals will just give out a single feed
+ 
+
+457
+00:11:19,569 --> 00:11:22,139
+manuals will just give out a single feed
+rate for all cutting conditions but most
+
+458
+00:11:22,139 --> 00:11:22,149
+rate for all cutting conditions but most
+ 
+
+459
+00:11:22,149 --> 00:11:24,900
+rate for all cutting conditions but most
+will give us at least two possibilities
+
+460
+00:11:24,900 --> 00:11:24,910
+will give us at least two possibilities
+ 
+
+461
+00:11:24,910 --> 00:11:27,059
+will give us at least two possibilities
+one for slotting and one for side
+
+462
+00:11:27,059 --> 00:11:27,069
+one for slotting and one for side
+ 
+
+463
+00:11:27,069 --> 00:11:30,509
+one for slotting and one for side
+milling our AE is our width of cut
+
+464
+00:11:30,509 --> 00:11:30,519
+milling our AE is our width of cut
+ 
+
+465
+00:11:30,519 --> 00:11:32,069
+milling our AE is our width of cut
+that's our step over
+
+466
+00:11:32,069 --> 00:11:32,079
+that's our step over
+ 
+
+467
+00:11:32,079 --> 00:11:35,309
+that's our step over
+that's our radial depth of cut and our
+
+468
+00:11:35,309 --> 00:11:35,319
+that's our radial depth of cut and our
+ 
+
+469
+00:11:35,319 --> 00:11:39,119
+that's our radial depth of cut and our
+AP is our axial depth of cut how deep
+
+470
+00:11:39,119 --> 00:11:39,129
+AP is our axial depth of cut how deep
+ 
+
+471
+00:11:39,129 --> 00:11:41,730
+AP is our axial depth of cut how deep
+the tool is moving in the z-axis most
+
+472
+00:11:41,730 --> 00:11:41,740
+the tool is moving in the z-axis most
+ 
+
+473
+00:11:41,740 --> 00:11:44,280
+the tool is moving in the z-axis most
+times if your slotting your bite is
+
+474
+00:11:44,280 --> 00:11:44,290
+times if your slotting your bite is
+ 
+
+475
+00:11:44,290 --> 00:11:47,009
+times if your slotting your bite is
+going to be about 25 percent less than
+
+476
+00:11:47,009 --> 00:11:47,019
+going to be about 25 percent less than
+ 
+
+477
+00:11:47,019 --> 00:11:49,980
+going to be about 25 percent less than
+if you're just side milling with the
+
+478
+00:11:49,980 --> 00:11:49,990
+if you're just side milling with the
+ 
+
+479
+00:11:49,990 --> 00:11:52,619
+if you're just side milling with the
+popularity of optimized tool paths like
+
+480
+00:11:52,619 --> 00:11:52,629
+popularity of optimized tool paths like
+ 
+
+481
+00:11:52,629 --> 00:11:55,769
+popularity of optimized tool paths like
+dynamic adaptive volume mill type high
+
+482
+00:11:55,769 --> 00:11:55,779
+dynamic adaptive volume mill type high
+ 
+
+483
+00:11:55,779 --> 00:11:57,900
+dynamic adaptive volume mill type high
+speed machining tool pass the tool
+
+484
+00:11:57,900 --> 00:11:57,910
+speed machining tool pass the tool
+ 
+
+485
+00:11:57,910 --> 00:11:59,850
+speed machining tool pass the tool
+manufacturers are getting more and more
+
+486
+00:11:59,850 --> 00:11:59,860
+manufacturers are getting more and more
+ 
+
+487
+00:11:59,860 --> 00:12:02,600
+manufacturers are getting more and more
+specific with their speed and feed
+
+488
+00:12:02,600 --> 00:12:02,610
+specific with their speed and feed
+ 
+
+489
+00:12:02,610 --> 00:12:04,710
+specific with their speed and feed
+recommendations so you'll often see
+
+490
+00:12:04,710 --> 00:12:04,720
+recommendations so you'll often see
+ 
+
+491
+00:12:04,720 --> 00:12:06,960
+recommendations so you'll often see
+charts like the one we'll show you here
+
+492
+00:12:06,960 --> 00:12:06,970
+charts like the one we'll show you here
+ 
+
+493
+00:12:06,970 --> 00:12:08,850
+charts like the one we'll show you here
+listing all kinds of different tool
+
+494
+00:12:08,850 --> 00:12:08,860
+listing all kinds of different tool
+ 
+
+495
+00:12:08,860 --> 00:12:11,160
+listing all kinds of different tool
+paths you'll choose one and then match
+
+496
+00:12:11,160 --> 00:12:11,170
+paths you'll choose one and then match
+ 
+
+497
+00:12:11,170 --> 00:12:13,079
+paths you'll choose one and then match
+your speed and feed to the path that
+
+498
+00:12:13,079 --> 00:12:13,089
+your speed and feed to the path that
+ 
+
+499
+00:12:13,089 --> 00:12:15,119
+your speed and feed to the path that
+you're using now if you are dealing with
+
+500
+00:12:15,119 --> 00:12:15,129
+you're using now if you are dealing with
+ 
+
+501
+00:12:15,129 --> 00:12:20,160
+you're using now if you are dealing with
+drills and not end mills our feed rate
+
+502
+00:12:20,160 --> 00:12:20,170
+drills and not end mills our feed rate
+ 
+
+503
+00:12:20,170 --> 00:12:22,079
+drills and not end mills our feed rate
+might be listed in our catalogues as a
+
+504
+00:12:22,079 --> 00:12:22,089
+might be listed in our catalogues as a
+ 
+
+505
+00:12:22,089 --> 00:12:25,919
+might be listed in our catalogues as a
+feed per revolution and not a feed per
+
+506
+00:12:25,919 --> 00:12:25,929
+feed per revolution and not a feed per
+ 
+
+507
+00:12:25,929 --> 00:12:28,980
+feed per revolution and not a feed per
+tooth we just multiply the inch per
+
+508
+00:12:28,980 --> 00:12:28,990
+tooth we just multiply the inch per
+ 
+
+509
+00:12:28,990 --> 00:12:32,850
+tooth we just multiply the inch per
+revolution chip load from the book times
+
+510
+00:12:32,850 --> 00:12:32,860
+revolution chip load from the book times
+ 
+
+511
+00:12:32,860 --> 00:12:36,780
+revolution chip load from the book times
+our RPM to get our feed rate in inches
+
+512
+00:12:36,780 --> 00:12:36,790
+our RPM to get our feed rate in inches
+ 
+
+513
+00:12:36,790 --> 00:12:39,239
+our RPM to get our feed rate in inches
+per minute now watch out for and know
+
+514
+00:12:39,239 --> 00:12:39,249
+per minute now watch out for and know
+ 
+
+515
+00:12:39,249 --> 00:12:41,699
+per minute now watch out for and know
+the difference between inches per tooth
+
+516
+00:12:41,699 --> 00:12:41,709
+the difference between inches per tooth
+ 
+
+517
+00:12:41,709 --> 00:12:42,210
+the difference between inches per tooth
+F
+
+518
+00:12:42,210 --> 00:12:42,220
+F
+ 
+
+519
+00:12:42,220 --> 00:12:44,250
+F
+z which we typically use for milling
+
+520
+00:12:44,250 --> 00:12:44,260
+z which we typically use for milling
+ 
+
+521
+00:12:44,260 --> 00:12:46,980
+z which we typically use for milling
+tools and interest per revolution f n
+
+522
+00:12:46,980 --> 00:12:46,990
+tools and interest per revolution f n
+ 
+
+523
+00:12:46,990 --> 00:12:50,460
+tools and interest per revolution f n
+which we often use for drills here is a
+
+524
+00:12:50,460 --> 00:12:50,470
+which we often use for drills here is a
+ 
+
+525
+00:12:50,470 --> 00:12:52,350
+which we often use for drills here is a
+completed legend and the formulas we
+
+526
+00:12:52,350 --> 00:12:52,360
+completed legend and the formulas we
+ 
+
+527
+00:12:52,360 --> 00:12:54,690
+completed legend and the formulas we
+typically use for calculating our speeds
+
+528
+00:12:54,690 --> 00:12:54,700
+typically use for calculating our speeds
+ 
+
+529
+00:12:54,700 --> 00:12:57,630
+typically use for calculating our speeds
+and feeds we've got our cutting speed
+
+530
+00:12:57,630 --> 00:12:57,640
+and feeds we've got our cutting speed
+ 
+
+531
+00:12:57,640 --> 00:13:00,780
+and feeds we've got our cutting speed
+formulas spindle speeds we've got our
+
+532
+00:13:00,780 --> 00:13:00,790
+formulas spindle speeds we've got our
+ 
+
+533
+00:13:00,790 --> 00:13:03,210
+formulas spindle speeds we've got our
+feed rate formulas for both n mills and
+
+534
+00:13:03,210 --> 00:13:03,220
+feed rate formulas for both n mills and
+ 
+
+535
+00:13:03,220 --> 00:13:06,000
+feed rate formulas for both n mills and
+drills and we've got all of the
+
+536
+00:13:06,000 --> 00:13:06,010
+drills and we've got all of the
+ 
+
+537
+00:13:06,010 --> 00:13:08,520
+drills and we've got all of the
+notations all the symbols that you're
+
+538
+00:13:08,520 --> 00:13:08,530
+notations all the symbols that you're
+ 
+
+539
+00:13:08,530 --> 00:13:10,410
+notations all the symbols that you're
+gonna see over and over again in your
+
+540
+00:13:10,410 --> 00:13:10,420
+gonna see over and over again in your
+ 
+
+541
+00:13:10,420 --> 00:13:14,400
+gonna see over and over again in your
+tool catalogs with all of that said
+
+542
+00:13:14,400 --> 00:13:14,410
+tool catalogs with all of that said
+ 
+
+543
+00:13:14,410 --> 00:13:17,340
+tool catalogs with all of that said
+there's a big shift happening with
+
+544
+00:13:17,340 --> 00:13:17,350
+there's a big shift happening with
+ 
+
+545
+00:13:17,350 --> 00:13:20,130
+there's a big shift happening with
+tooling catalogs in general a lot of
+
+546
+00:13:20,130 --> 00:13:20,140
+tooling catalogs in general a lot of
+ 
+
+547
+00:13:20,140 --> 00:13:22,650
+tooling catalogs in general a lot of
+these tooling catalogs are just giving
+
+548
+00:13:22,650 --> 00:13:22,660
+these tooling catalogs are just giving
+ 
+
+549
+00:13:22,660 --> 00:13:26,250
+these tooling catalogs are just giving
+us our feed rate and RPM values no
+
+550
+00:13:26,250 --> 00:13:26,260
+us our feed rate and RPM values no
+ 
+
+551
+00:13:26,260 --> 00:13:29,130
+us our feed rate and RPM values no
+formulas needed you may open up your
+
+552
+00:13:29,130 --> 00:13:29,140
+formulas needed you may open up your
+ 
+
+553
+00:13:29,140 --> 00:13:30,510
+formulas needed you may open up your
+manual and finally you don't have to do
+
+554
+00:13:30,510 --> 00:13:30,520
+manual and finally you don't have to do
+ 
+
+555
+00:13:30,520 --> 00:13:36,240
+manual and finally you don't have to do
+any math at all in the past we used to
+
+556
+00:13:36,240 --> 00:13:36,250
+any math at all in the past we used to
+ 
+
+557
+00:13:36,250 --> 00:13:38,550
+any math at all in the past we used to
+have to rely on slide rules to calculate
+
+558
+00:13:38,550 --> 00:13:38,560
+have to rely on slide rules to calculate
+ 
+
+559
+00:13:38,560 --> 00:13:40,050
+have to rely on slide rules to calculate
+our RPM and feed rate
+
+560
+00:13:40,050 --> 00:13:40,060
+our RPM and feed rate
+ 
+
+561
+00:13:40,060 --> 00:13:41,910
+our RPM and feed rate
+I still like these I think they're great
+
+562
+00:13:41,910 --> 00:13:41,920
+I still like these I think they're great
+ 
+
+563
+00:13:41,920 --> 00:13:44,940
+I still like these I think they're great
+but today we're more likely to use an
+
+564
+00:13:44,940 --> 00:13:44,950
+but today we're more likely to use an
+ 
+
+565
+00:13:44,950 --> 00:13:48,930
+but today we're more likely to use an
+app on our phone or a piece of software
+
+566
+00:13:48,930 --> 00:13:48,940
+app on our phone or a piece of software
+ 
+
+567
+00:13:48,940 --> 00:13:51,870
+app on our phone or a piece of software
+on our computer or the speeds and feeds
+
+568
+00:13:51,870 --> 00:13:51,880
+on our computer or the speeds and feeds
+ 
+
+569
+00:13:51,880 --> 00:13:54,780
+on our computer or the speeds and feeds
+calculator right on the haas control on
+
+570
+00:13:54,780 --> 00:13:54,790
+calculator right on the haas control on
+ 
+
+571
+00:13:54,790 --> 00:13:57,840
+calculator right on the haas control on
+machines with next-gen controls you can
+
+572
+00:13:57,840 --> 00:13:57,850
+machines with next-gen controls you can
+ 
+
+573
+00:13:57,850 --> 00:13:59,400
+machines with next-gen controls you can
+reach the million calculator by pressing
+
+574
+00:13:59,400 --> 00:13:59,410
+reach the million calculator by pressing
+ 
+
+575
+00:13:59,410 --> 00:14:01,950
+reach the million calculator by pressing
+current commands and navigating to the
+
+576
+00:14:01,950 --> 00:14:01,960
+current commands and navigating to the
+ 
+
+577
+00:14:01,960 --> 00:14:04,020
+current commands and navigating to the
+milling tab we've made some videos that
+
+578
+00:14:04,020 --> 00:14:04,030
+milling tab we've made some videos that
+ 
+
+579
+00:14:04,030 --> 00:14:07,020
+milling tab we've made some videos that
+help you calculate those those tapping
+
+580
+00:14:07,020 --> 00:14:07,030
+help you calculate those those tapping
+ 
+
+581
+00:14:07,030 --> 00:14:09,750
+help you calculate those those tapping
+feed rates will link to those in the
+
+582
+00:14:09,750 --> 00:14:09,760
+feed rates will link to those in the
+ 
+
+583
+00:14:09,760 --> 00:14:12,870
+feed rates will link to those in the
+description well that's it let's go home
+
+584
+00:14:12,870 --> 00:14:12,880
+description well that's it let's go home
+ 
+
+585
+00:14:12,880 --> 00:14:14,760
+description well that's it let's go home
+you can call your tooling rep in the
+
+586
+00:14:14,760 --> 00:14:14,770
+you can call your tooling rep in the
+ 
+
+587
+00:14:14,770 --> 00:14:16,680
+you can call your tooling rep in the
+morning well thanks for letting us be a
+
+588
+00:14:16,680 --> 00:14:16,690
+morning well thanks for letting us be a
+ 
+
+589
+00:14:16,690 --> 00:14:18,750
+morning well thanks for letting us be a
+part of your success and for watching
+
+590
+00:14:18,750 --> 00:14:18,760
+part of your success and for watching
+ 
+
+591
+00:14:18,760 --> 00:14:20,830
+part of your success and for watching
+this hosta Pat the day
+
+592
+00:14:20,830 --> 00:14:20,840
+this hosta Pat the day
+ 
+
+593
+00:14:20,840 --> 00:14:27,739
+this hosta Pat the day
+[Music]
+

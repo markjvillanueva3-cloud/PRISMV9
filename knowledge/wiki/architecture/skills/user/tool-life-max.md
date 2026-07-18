@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `tool-life-max` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/tool-life-max.md` |
+| Source | `C:/Users/wompu/.claude/commands/tool-life-max.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Tool Life Max — Squeeze Every Dollar from Every Cutter
+
+Most shops replace tools too early (wasting money) or too late (scrapping parts). This command calculates the TRUE economic tool life for every tool in your job, optimizes replacement schedules, and identifies regrind opportunities — turning tooling from your biggest consumable cost into a managed asset.
+
+**Value**: Average shop spend
 
 <!-- AUTO-END -->
 

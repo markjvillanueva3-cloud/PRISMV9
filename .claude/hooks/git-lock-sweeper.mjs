@@ -41,7 +41,19 @@ const PRETOOL_TOP_LOCK_MIN_AGE_MS = 30 * 1000;
 // U-C2 retry-with-backoff for NTFS handle races
 const UNLINK_RETRY_DELAYS_MS = [50, 100, 200];
 
-const TOP_LOCKS = [".git/index.lock", ".git/HEAD.lock", ".git/config.lock", ".git/shallow.lock"];
+const TOP_LOCKS = [
+  ".git/index.lock",
+  ".git/HEAD.lock",
+  ".git/config.lock",
+  ".git/shallow.lock",
+  // 2026-05-18 (bravo) — crashed fetch/gc leaves this lock at
+  // .git/objects/info/commit-graphs/commit-graph-chain.lock and it persists
+  // until manual rm, blocking every subsequent `git fetch` commit-graph update
+  // with `fatal: Unable to create '…/commit-graph-chain.lock': File exists`.
+  // Same lifetime semantics as index.lock (held only during atomic write), so
+  // the same 5-min / 30s age thresholds are correct.
+  ".git/objects/info/commit-graphs/commit-graph-chain.lock",
+];
 
 function sleep(ms) {
   // Synchronous-friendly sleep via Atomics; avoids async re-entrancy here.
@@ -153,14 +165,23 @@ async function main() {
   removed.push(...sweepRefHeadsLocks());
 
   if (removed.length > 0) {
-    const ctx = `git-lock-sweeper${useTightAge ? " (PreToolUse:30s)" : ""}: cleared ${removed.length} stale lock(s) — ${removed.map((p) => p.replace(REPO + "/", "")).join(", ")}`;
-    process.stdout.write(JSON.stringify({
-      continue: true,
-      hookSpecificOutput: {
-        hookEventName: useTightAge ? "PreToolUse" : "Stop",
-        additionalContext: ctx,
-      },
-    }));
+    // 2026-05-26 (U-C4-GIT-LOCK-SWEEPER-NOISE-SUPPRESS, slot:alpha): the "cleared N
+    // stale lock(s)" message is maintenance telemetry — operators don't act on it,
+    // it just leaks into prompt context (C4 in DORMANT-FEATURES-ENUMERATION-2026-05-26).
+    // The ACTION (lock removal) is the durable record; the prompt note is redundant.
+    // Default silent; opt in via PRISM_GIT_LOCK_SWEEPER_VERBOSE=1.
+    if (process.env.PRISM_GIT_LOCK_SWEEPER_VERBOSE === "1") {
+      const ctx = `git-lock-sweeper${useTightAge ? " (PreToolUse:30s)" : ""}: cleared ${removed.length} stale lock(s) — ${removed.map((p) => p.replace(REPO + "/", "")).join(", ")}`;
+      process.stdout.write(JSON.stringify({
+        continue: true,
+        hookSpecificOutput: {
+          hookEventName: useTightAge ? "PreToolUse" : "Stop",
+          additionalContext: ctx,
+        },
+      }));
+    } else {
+      process.stdout.write(JSON.stringify({ continue: true }));
+    }
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));
   }

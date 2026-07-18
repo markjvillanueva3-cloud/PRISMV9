@@ -1,0 +1,161 @@
+{
+  "id": "EIGC-MS8",
+  "version": "1.0.0",
+  "title": "Provenance and Confidence Contracts + Physics Fusion Integration",
+  "brief": "Define minimum provenance fields (source basis, assumptions, completeness, confidence, degraded reason) for high-value outputs. Integrate Physics Fusion confidence scores and convergence statuses into the provenance framework. Define confidence downgrade rules for partial/bridge/uncalibrated results.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Provenance + Confidence",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define provenance fields for speed/feed, post, print-to-program, ERP outputs",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Define provenance fields for speed/feed, post, print-to-program, ERP outputs — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Integrate Physics Fusion confidence scores into provenance framework",
+          "effort": 50,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Integrate Physics Fusion confidence scores into provenance framework — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Define confidence downgrade rules for partial/bridge/uncalibrated",
+          "effort": 40,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Define confidence downgrade rules for partial/bridge/uncalibrated — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "EIGC-MS7"
+  ],
+  "exit_conditions": [
+    "High-value outputs explain what they know, what they inferred, and how trustworthy the result is"
+  ],
+  "notes": "Gap fix: Physics Fusion integration added during scrutiny — FUSION-1/2/3 produce confidence scores that must flow into provenance",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "eigc-ms8-gate",
+    "mcp_action": "prism_eigc:eigc_ms8_run",
+    "skill_command": "/eigc-ms8",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "eigc-ms8-gate"
+    ],
+    "new_actions": [
+      "eigc_ms8_run"
+    ],
+    "new_skills": [
+      "/eigc-ms8"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Define minimum provenance fields (source basis, assumptions, completeness, confidence, degraded reason) for high-value outputs. Integrate Physics Fusion confidence scores and convergence statuses into the provenance framework. Define confidence downgrade rules for partial/bridge/uncalibrated results.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

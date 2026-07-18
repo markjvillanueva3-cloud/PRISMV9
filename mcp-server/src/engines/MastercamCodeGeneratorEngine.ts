@@ -36,8 +36,10 @@ import { log } from "../utils/Logger.js";
 // ── Mastercam-specific types ─────────────────────────────────────────────────
 
 export interface MastercamGenerationContext {
-  projectName: string;
-  units: "mm" | "in";
+  // Optional so the engine conforms to ICADCodeGenerator's ctx?: Record<string, unknown>
+  // (contravariant param); every use site already defaults via `ctx?.x ?? <default>`.
+  projectName?: string;
+  units?: "mm" | "in";
   machineGroup?: string;
   postProcessor?: string;
   outputDir?: string;
@@ -163,6 +165,12 @@ export class MastercamCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<Ma
   readonly capabilities: CADCapabilityMatrix = {
     cadSystem: "mastercam",
     supportedOps: new Set(MASTERCAM_SUPPORTED_OPS),
+    // emit code converts all coords to mm (UNIT_FACTOR = in?25.4:1.0, "Conversion factor to mm");
+    // angles emitted in degrees (.StartAngleDegrees/.EndAngleDegrees). NET-Hook C# → subprocess.
+    nativeLengthUnit: "mm",
+    nativeAngleUnit: "deg",
+    requiresSubprocess: true,
+    typicalLatencyMs: 800,
     version: "2024",
     notes: "NET-Hook C# targeting Mastercam 2024+ API",
     maxComplexity: 5000,
@@ -498,7 +506,7 @@ export class MastercamCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<Ma
   }
 
   private emitSketchSpline(op: CADOperation, emitter: CADEmitter): void {
-    const points = op.args.points as number[][] ?? [[0, 0, 0], [10, 5, 0], [20, 0, 0]];
+    const points = (op.args.points as unknown as number[][]) ?? [[0, 0, 0], [10, 5, 0], [20, 0, 0]];
 
     const varName = `spline_${this.entityCounter++}`;
     emitter.line(`// Spline through ${points.length} points`);

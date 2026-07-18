@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `hook-enable` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-enable.md` |
+| Source | `C:/Users/wompu/.claude/commands/hook-enable.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Re-enable hooks that were disabled via HOOK_FEATURE_FLAGS.json.
+
+# /hook-enable — Phase 0.16 Re-enable Disabled Hooks
 
 <!-- AUTO-END -->
 

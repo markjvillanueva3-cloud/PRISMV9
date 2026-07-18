@@ -37,8 +37,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { loadGnnCheckpoint, classifyUnknownGhosts, isValidDispatcher } from "../seed-ghost-gnn-classify.mjs";
+import { loadGnnCheckpoint, classifyUnknownGhosts, isValidDispatcher, GNN_DEFAULTS } from "../seed-ghost-gnn-classify.mjs";
 import { mulberry32 } from "./graph-random-walk.mjs";
+import { readGraphStreaming } from "./graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..", "..");
@@ -204,6 +205,235 @@ export function gradeMetrics(metrics, gates = GATE_THRESHOLDS) {
   };
 }
 
+/** Operating thresholds for the selective-deploy sweep (deploy confidence gates). */
+export const SELECTIVE_THRESHOLDS = Object.freeze([0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8]);
+
+/**
+ * Selective-prediction risk-coverage curve. The GNN tier-5 is an ABSTAINING
+ * tier: in production it emits a classification only when its confidence is at
+ * or above the deploy gate, and DEFERS the rest to the LLM tier. So the deploy-
+ * relevant quality is the EMITTED set's risk at each operating threshold τ, not
+ * the full-holdout risk that also scores predictions the tier would never emit.
+ *
+ * WHY this is the correct scoring (not goalpost-moving): charging an abstaining
+ * classifier for the abstention band it never emits understates a sound tier.
+ * The textbook treatment for a classifier WITH a reject option is risk@coverage
+ * (El-Yaniv & Wiener 2010). The full-holdout `grade` is ALWAYS retained beside
+ * this — selective deployment is reported WITH its coverage, never instead of
+ * the global number, so a reader sees exactly what fraction the tier deploys on.
+ *
+ * For each τ in `thresholds`, over the holdout samples with confidence >= τ:
+ * coverage (emitted/total), Brier, macro-F1, accuracy, classes emitted — all via
+ * the harness's OWN computeBrier / computeMacroF1 (one metric source, so the
+ * selective numbers are directly comparable to the full-holdout grade).
+ *
+ * `samples` = [{ predicted, truth, confidence, correct }] (the assessHoldout shape).
+ * Returns rows in ascending-τ order (descending coverage); empty when no samples.
+ */
+/** Score the EMITTED set at a single operating threshold τ (confidence >= τ).
+ *  `n` is the full-holdout size (the coverage denominator). Returns null when the
+ *  tier emits nothing at τ. Reuses the harness's own computeBrier / computeMacroF1. */
+function selectiveRow(all, tau, n, gates) {
+  const kept = all.filter((s) => s.confidence >= tau);
+  if (kept.length === 0) return null;
+  const probs = kept.map((s) => s.confidence);
+  const labels = kept.map((s) => (s.correct ? 1 : 0));
+  const predicted = kept.map((s) => s.predicted);
+  const truth = kept.map((s) => s.truth);
+  const brier = computeBrier(probs, labels);
+  const macroF1 = computeMacroF1(predicted, truth).macroF1;
+  const accuracy = labels.reduce((a, b) => a + b, 0) / kept.length;
+  return {
+    tau: round4(tau),
+    coverage: round4(kept.length / n),
+    emitted: kept.length,
+    brier: round4(brier),
+    macroF1: round4(macroF1),
+    accuracy: round4(accuracy),
+    classesEmitted: new Set(predicted).size,
+    brierClears: Number.isFinite(brier) && brier <= gates.brier,
+    macroF1Clears: Number.isFinite(macroF1) && macroF1 >= gates.macroF1,
+  };
+}
+
+export function riskCoverageCurve(samples, gates = GATE_THRESHOLDS, thresholds = SELECTIVE_THRESHOLDS) {
+  const all = Array.isArray(samples) ? samples.filter((s) => s && Number.isFinite(s.confidence)) : [];
+  const n = all.length;
+  if (n === 0) return [];
+  const th = Array.isArray(thresholds) && thresholds.length ? thresholds : SELECTIVE_THRESHOLDS;
+  return th.map((tau) => selectiveRow(all, tau, n, gates)).filter(Boolean);
+}
+
+/**
+ * The deploy operating point for the abstaining tier, anchored on the PRODUCTION
+ * confidence gate (the τ tier-5 actually deploys at — `GNN_DEFAULTS.minConf`, 0.7;
+ * NOT the most-favorable coverage point). `found` is whether the EMITTED set at
+ * the production gate clears both Brier and macro-F1. We deliberately do NOT pick
+ * the lowest-τ / max-coverage clearing point as the deploy verdict — production
+ * runs at a fixed gate, and picking the most-favorable τ on a small holdout would
+ * exploit sampling noise (the macro-F1 curve is non-monotone). The max-coverage
+ * clearing point is still surfaced (`maxCoveragePoint`) as the "if the gate were
+ * lowered" tradeoff, and `robustAboveGate` reports whether EVERY τ at/above the
+ * production gate clears (a stable operating regime, not a lone spike).
+ *
+ * AUROC is NOT thresholded here — it stays the GLOBAL ranking metric (it certifies
+ * the confidence ordering that makes the abstention valid).
+ *
+ * opts: { productionMinConf = GNN_DEFAULTS.minConf, thresholds = SELECTIVE_THRESHOLDS }.
+ */
+export function selectiveDeployPoint(samples, gates = GATE_THRESHOLDS, opts = {}) {
+  const all = Array.isArray(samples) ? samples.filter((s) => s && Number.isFinite(s.confidence)) : [];
+  const n = all.length;
+  const productionMinConf = Number.isFinite(opts.productionMinConf)
+    ? opts.productionMinConf
+    : GNN_DEFAULTS.minConf;
+  const thresholds = Array.isArray(opts.thresholds) && opts.thresholds.length ? opts.thresholds : SELECTIVE_THRESHOLDS;
+  if (n === 0) {
+    return { found: false, productionMinConf: round4(productionMinConf), productionPoint: null, maxCoveragePoint: null, robustAboveGate: false, totalClasses: 0 };
+  }
+  // Distinct TRUTH classes across the full holdout — the denominator for "the
+  // emitted set spans K of M dispatcher classes" (a macro-F1 of 1.0 over a
+  // concentrated 2-of-6 emitted set must not read as "perfect across all classes").
+  const totalClasses = new Set(all.map((s) => s.truth)).size;
+  const curve = riskCoverageCurve(samples, gates, thresholds);
+  // Production deploy point: the emitted set at the REAL production gate.
+  const productionPoint = selectiveRow(all, productionMinConf, n, gates);
+  const found = !!(productionPoint && productionPoint.brierClears && productionPoint.macroF1Clears);
+  // Max-coverage clearing point (supplementary "if the gate were lowered" tradeoff).
+  const maxCoveragePoint = curve.find((r) => r.brierClears && r.macroF1Clears) || null;
+  // Robust = clears at the production gate AND at every grid threshold above it
+  // (a stable regime, not a lone noise spike at one τ).
+  const aboveGate = curve.filter((r) => r.tau >= round4(productionMinConf));
+  const robustAboveGate = found && aboveGate.length > 0 && aboveGate.every((r) => r.brierClears && r.macroF1Clears);
+  return { found, productionMinConf: round4(productionMinConf), productionPoint, maxCoveragePoint, robustAboveGate, totalClasses };
+}
+
+/**
+ * Grade the tier as an abstaining (selective) deployer AT ITS PRODUCTION GATE.
+ * The global AUROC must clear its gate (it certifies the confidence order the
+ * abstention relies on), AND the emitted set at the production confidence gate
+ * must clear Brier + macro-F1. This NEVER replaces the full-holdout `gradeMetrics`
+ * — it is an ADDITIONAL deploy-relevant verdict that reports its coverage. The
+ * verdict is anchored on the production gate, not the most-favorable τ.
+ */
+export function gradeSelectiveDeploy(metrics, deployPoint, gates = GATE_THRESHOLDS) {
+  const m = metrics || {};
+  const dp = deployPoint || { found: false };
+  const op = dp.productionPoint || null;
+  const aurocPass = Number.isFinite(m.auroc) && m.auroc >= gates.auroc;
+  const failures = [];
+  if (!aurocPass) failures.push(`AUROC ${Number.isFinite(m.auroc) ? m.auroc.toFixed(4) : "n/a"} < ${gates.auroc} (global ranking)`);
+  if (!dp.found) {
+    failures.push(op
+      ? `at the production gate τ=${dp.productionMinConf} the emitted set fails: ${[op.brierClears ? null : `Brier ${op.brier} > ${gates.brier}`, op.macroF1Clears ? null : `macro-F1 ${op.macroF1} < ${gates.macroF1}`].filter(Boolean).join(", ")}`
+      : `the tier emits nothing at the production gate τ=${dp.productionMinConf}`);
+  }
+  const pass = aurocPass && dp.found;
+  const totalClasses = Number.isFinite(dp.totalClasses) ? dp.totalClasses : null;
+  const classesEmitted = op && Number.isFinite(op.classesEmitted) ? op.classesEmitted : null;
+  // Concentrated = the emitted set spans fewer classes than the full holdout, so
+  // its macro-F1 is averaged over only a SUBSET of dispatcher classes (the high-
+  // confidence band tends to be the easy cluster) — surfaced so a 1.0 is not read
+  // as "perfect across all dispatchers".
+  const concentrated = classesEmitted !== null && totalClasses !== null && classesEmitted < totalClasses;
+  return {
+    pass,
+    verdict: pass ? "deploy-ready-selective" : "no-deployable-operating-point",
+    failures,
+    productionGate: dp.productionMinConf,
+    operatingPoint: op
+      ? { tau: op.tau, coverage: op.coverage, emitted: op.emitted, brier: op.brier, macroF1: op.macroF1, accuracy: op.accuracy, classesEmitted, totalClasses }
+      : null,
+    maxCoveragePoint: dp.maxCoveragePoint
+      ? { tau: dp.maxCoveragePoint.tau, coverage: dp.maxCoveragePoint.coverage, brier: dp.maxCoveragePoint.brier, macroF1: dp.maxCoveragePoint.macroF1 }
+      : null,
+    robustAboveGate: dp.robustAboveGate === true,
+    concentrated,
+    globalAuroc: round4(m.auroc),
+    note: `Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate.${concentrated ? ` NOTE: the emitted set spans only ${classesEmitted} of ${totalClasses} dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes.` : ""} Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered.`,
+  };
+}
+
+/**
+ * Detect a DEGENERATE classifier — one whose holdout output carries no ranking
+ * signal, so the AUROC it yields is an artifact (~0.5 by tie-breaking), NOT a
+ * near-miss. This is the honesty guard that stops a collapsed model from
+ * reading as "almost passing": a constant-confidence vote and a real 0.77 both
+ * score below 0.78, but only one is worth tuning.
+ *
+ * Two collapse modes:
+ *   - constant-confidence: every target gets the SAME confidence → zero ranking
+ *     signal → AUROC is uninformative. This is the AUROC-INVALIDATING signature
+ *     (`isDegenerate` keys off it).
+ *   - single-class: every target gets the SAME predicted dispatcher → the vote
+ *     has collapsed to the reference-pool class prior. On its own (with varying
+ *     confidence) it still ranks, so it is reported but does NOT set
+ *     `isDegenerate`.
+ *
+ * Needs >= 2 holdout samples to mean anything (one sample is trivially
+ * "constant"); below that it reports `insufficient-holdout`, never degenerate.
+ *
+ * BOUNDARY (necessary, not sufficient): this catches EXACT confidence-collapse
+ * (one distinct value at round4 precision). It does NOT catch NEAR-collapse — a
+ * model emitting e.g. {0.40, 0.40, 0.40, 0.4001} has 2 distinct confidences, is
+ * NOT flagged, yet its AUROC is still near-meaningless (0 or 1 on the lone odd
+ * sample). So `isDegenerate:false` means "not a CONSTANT-vote artifact", NOT
+ * "the AUROC is trustworthy". The numeric deploy gate (gradeMetrics) still
+ * fails these on the real metric; this flag only rescues the one deceptive case
+ * where a fully-collapsed model reads as a ~0.5 near-miss.
+ *
+ * Pure + exported for reference tests.
+ *
+ * @param {number[]} scores    per-target confidence (the AUROC ranking signal)
+ * @param {string[]} predicted per-target predicted dispatcher
+ * @returns {{isDegenerate:boolean, mode:string, distinctConfidences:number,
+ *   distinctPredictions:number, dominantClass:(string|null),
+ *   dominantShare:(number|null), detail:string}}
+ */
+export function detectDegeneracy(scores, predicted) {
+  const s = Array.isArray(scores) ? scores.filter((x) => Number.isFinite(x)) : [];
+  const p = Array.isArray(predicted) ? predicted : [];
+  const base = {
+    isDegenerate: false, mode: "none",
+    distinctConfidences: 0, distinctPredictions: 0,
+    dominantClass: null, dominantShare: null, detail: "",
+  };
+  if (s.length < 2) {
+    return { ...base, mode: "insufficient-holdout", distinctConfidences: s.length,
+      detail: "fewer than 2 finite-confidence targets — degeneracy not assessable" };
+  }
+  // Distinct confidences at the harness reporting precision (round4). A model
+  // that emits ONE confidence for every input is not ranking anything.
+  const distinctConfidences = new Set(s.map((x) => round4(x))).size;
+  // Distinct predicted classes + the dominant-class share.
+  const counts = new Map();
+  for (const cls of p) counts.set(cls, (counts.get(cls) || 0) + 1);
+  let dominantClass = null, dominantCount = 0;
+  for (const [cls, c] of counts) if (c > dominantCount) { dominantCount = c; dominantClass = cls; }
+  const distinctPredictions = counts.size;
+  const dominantShare = p.length > 0 ? round4(dominantCount / p.length) : null;
+
+  const constantConfidence = distinctConfidences <= 1;
+  const singleClass = distinctPredictions <= 1;
+  const isDegenerate = constantConfidence; // only the confidence collapse voids AUROC
+  let mode = "none";
+  if (constantConfidence && singleClass) mode = "constant-vote";   // full collapse to class prior
+  else if (constantConfidence) mode = "constant-confidence";
+  else if (singleClass) mode = "single-class";
+
+  let detail;
+  if (constantConfidence) {
+    detail = `every target scored at one confidence (${round4(s[0])})`
+      + (singleClass ? ` and all predicted \`${dominantClass}\`` : "")
+      + " — AUROC carries no ranking signal (artifact of the tie, not a near-miss)";
+  } else if (singleClass) {
+    detail = `all predictions = \`${dominantClass}\` but confidence varies — collapsed to the reference-pool class prior`;
+  } else {
+    detail = "discriminating (varied confidence + classes)";
+  }
+  return { isDegenerate, mode, distinctConfidences, distinctPredictions, dominantClass, dominantShare, detail };
+}
+
 /** Fisher-Yates shuffle of a copy of `arr`, deterministic for a fixed seed. */
 function seededShuffle(arr, seed) {
   const out = arr.slice();
@@ -241,10 +471,46 @@ export function buildHoldout(graph, opts = {}) {
     pool.push(n);
   }
 
-  const cap = Math.floor(pool.length / 2); // keep at least half as references
-  const k = Math.min(requested, cap);
-  const holdout = k > 0 ? seededShuffle(pool, seed).slice(0, k) : [];
-  return { holdout, poolSize: pool.length, requested };
+  // Flat split (legacy): a uniform seeded shuffle inherits the pool's class skew
+  // (~45% prism_turning), so a minority class like prism_calc can get ZERO holdout
+  // samples. macroF1 averages per-class F1 over union(predicted,truth), so a class
+  // with no truth sample that is ever predicted scores F1=0 and DRAGS the average —
+  // artificially capping macroF1 (the binding deploy gate). Kept for A/B via
+  // opts.stratify === false / --flat-holdout.
+  if (opts.stratify === false) {
+    const cap = Math.floor(pool.length / 2); // keep at least half as references
+    const k = Math.min(requested, cap);
+    const holdout = k > 0 ? seededShuffle(pool, seed).slice(0, k) : [];
+    return { holdout, poolSize: pool.length, requested, stratified: false };
+  }
+
+  // Stratified split (default): hold out ~half of EACH class (seeded) so every class
+  // with >=2 pool members is represented in the holdout truth AND retains >=1
+  // reference. A 1-sample class stays a reference only (cannot both hold out and
+  // leave a reference). This makes macroF1 a fair per-class average; class skew in
+  // the REMAINING references is already handled by the shipped base-rate
+  // normalization in voteDispatcher. (spec GNN-DEGENERATE-FIX 1b)
+  const byClass = new Map();
+  for (const n of pool) {
+    const c = n.proposed_wiring;
+    if (!byClass.has(c)) byClass.set(c, []);
+    byClass.get(c).push(n);
+  }
+  const holdout = [];
+  let heldClasses = 0;
+  let singletonClasses = 0;
+  for (const c of [...byClass.keys()].sort()) { // sorted class order → reproducible
+    const members = seededShuffle(byClass.get(c), seed);
+    if (members.length < 2) { singletonClasses++; continue; } // reference-only
+    const hk = Math.floor(members.length / 2); // 1..len-1 → always leaves >=1 reference
+    for (let i = 0; i < hk; i++) holdout.push(members[i]);
+    heldClasses++;
+  }
+  // Respect the requested cap deterministically (rarely binds — holdout ~ pool/2).
+  const finalHoldout = (requested > 0 && holdout.length > requested)
+    ? seededShuffle(holdout, seed).slice(0, requested)
+    : holdout;
+  return { holdout: finalHoldout, poolSize: pool.length, requested, stratified: true, heldClasses, singletonClasses };
 }
 
 /**
@@ -255,7 +521,14 @@ export function buildHoldout(graph, opts = {}) {
  * deliver; hiding that would inflate the score.
  */
 export function assessHoldout(graph, predictor, opts = {}) {
-  const { holdout, poolSize } = buildHoldout(graph, opts);
+  // CONTROLLED-EXPERIMENT SEAM (U-GNN-CODEBASE-WIRED-CONTROLLED, 2026-06-18): the holdout
+  // (which TEST items to score) is drawn from `opts.holdoutGraph` when given, while the
+  // classification still runs against `graph` (the possibly-augmented reference pool). This
+  // decouples the test set from the reference pool so a fixed baseline holdout can be scored
+  // against an ENLARGED reference set -- isolating "do extra references help the SAME
+  // predictions?" from the confound where a larger labeled pool also enlarges the holdout.
+  // Default (no holdoutGraph): holdout is drawn from `graph` -- byte-identical legacy behavior.
+  const { holdout, poolSize, stratified, heldClasses } = buildHoldout(opts.holdoutGraph || graph, opts);
   if (holdout.length === 0) {
     return { n: 0, skipped: true, poolSize,
       reason: poolSize < 2 ? "insufficient-reference-pool" : "empty-holdout",
@@ -268,6 +541,11 @@ export function assessHoldout(graph, predictor, opts = {}) {
     targetNames,
     minConf: 0, // the assessment wants every prediction, not the deployment gate
     refMinConf: Number.isFinite(opts.refMinConf) ? opts.refMinConf : HARNESS_DEFAULTS.refMinConf,
+    // GNN-F0/2d: direct-embed votes raw nomic cosine (no model). Forwarded from runAssessment.
+    directEmbed: opts.directEmbed === true,
+    directEmbedPath: opts.directEmbedPath,
+    // OPT-IN coverage lever (U-GNN-SEP-VOTE-WEIGHT): per-class vote re-weights; absent = unchanged.
+    separabilityWeights: opts.separabilityWeights,
   });
   if (res.skipped) {
     return { n: 0, skipped: true, reason: `classifier-skipped: ${res.reason}`,
@@ -301,12 +579,24 @@ export function assessHoldout(graph, predictor, opts = {}) {
     brier: round4(computeBrier(scores, labels)),
     accuracy: round4(accuracy),
   };
+  // Validity guard: is this AUROC a real signal or a tie-break artifact of a
+  // collapsed classifier? Computed from the prediction confidences + classes
+  // the model actually produced (not the gate numbers) — see detectDegeneracy.
+  const degeneracy = detectDegeneracy(scores, predicted);
+  // Selective-prediction view: score tier-5 as the abstaining tier it is (emit
+  // above τ, defer the rest to the LLM tier). Reuses the same metric functions.
+  const selCurve = riskCoverageCurve(samples, GATE_THRESHOLDS);
+  const selDeploy = selectiveDeployPoint(samples, GATE_THRESHOLDS);
   return {
     n: holdout.length,
     skipped: false,
     metrics,
+    degeneracy,
+    stratified,
+    heldClasses,
     buckets: bucketize(scores, labels, opts.buckets),
     perClass: f1.perClass,
+    selective: { curve: selCurve, deployPoint: selDeploy },
     samples,
   };
 }
@@ -320,18 +610,43 @@ export function assessHoldout(graph, predictor, opts = {}) {
 export function runAssessment(opts = {}) {
   let graph = opts.graph;
   if (!graph) {
+    // U-NN-PREDICTOR-EMBED-WIRE follow-up (2026-05-24, slot papa): the live
+    // system-viz graph crossed V8's ~512MB max-string-length. Use the streaming
+    // reader for any graph >256MB. Preserve the test seam (readFileImpl) so
+    // unit tests that inject smaller graphs still take the legacy path.
+    const graphPath = opts.graphPath || GRAPH_PATH;
     try {
-      graph = JSON.parse((opts.readFileImpl || fs.readFileSync)(opts.graphPath || GRAPH_PATH, "utf8"));
+      if (!opts.readFileImpl) {
+        let st = null;
+        try { st = fs.statSync(graphPath); } catch { /* fall through to text */ }
+        if (st && Number.isFinite(st.size) && st.size > 256 * 1024 * 1024) {
+          graph = readGraphStreaming(graphPath);
+        }
+      }
+      if (!graph) {
+        graph = JSON.parse((opts.readFileImpl || fs.readFileSync)(graphPath, "utf8"));
+      }
     } catch (err) {
-      return { deferred: true, reason: `graph-load-failed: ${err && err.message ? err.message : err}` };
+      if (err && err.code === "ERR_STRING_TOO_LONG") {
+        try { graph = readGraphStreaming(graphPath); }
+        catch (sErr) {
+          return { deferred: true, reason: `graph-load-failed: ${sErr && sErr.message ? sErr.message : sErr}` };
+        }
+      } else {
+        return { deferred: true, reason: `graph-load-failed: ${err && err.message ? err.message : err}` };
+      }
     }
   }
+  // GNN-F0/2d: direct-embed mode votes raw nomic cosine over precomputed ghost
+  // vectors — no trained checkpoint/model is consulted, so it must not defer on a
+  // missing checkpoint. The embeddings file IS the classifier.
+  const directEmbed = opts.directEmbed === true || process.env.PRISM_NNG_DIRECT_EMBED === "1";
   let predictor = opts.predictor;
   // An injected predictor (test path) counts as a present model — a real
   // checkpoint is only consulted when no predictor was supplied.
-  let checkpointPresent = !!predictor;
-  let checkpointMeta = null;
-  if (!predictor) {
+  let checkpointPresent = !!predictor || directEmbed;
+  let checkpointMeta = directEmbed ? { embeddingMode: "direct", note: "raw-768d-nomic cosine, no trained model" } : null;
+  if (!predictor && !directEmbed) {
     const ckptPath = opts.checkpoint || path.join(OUT_DIR, "graphsage-checkpoint.json");
     const loaded = loadGnnCheckpoint(ckptPath, { readFileImpl: opts.readFileImpl });
     if (!loaded.ok) {
@@ -347,20 +662,37 @@ export function runAssessment(opts = {}) {
       checkpointMeta = ckpt && ckpt.metadata ? ckpt.metadata : null;
     } catch { /* metadata is optional context, not load-bearing */ }
   }
-  const scored = assessHoldout(graph, predictor, opts);
+  const scored = assessHoldout(graph, predictor, { ...opts, directEmbed });
   if (scored.skipped) {
     return { deferred: true, reason: scored.reason, checkpointPresent,
       poolSize: scored.poolSize, checkpointMeta };
   }
   const grade = gradeMetrics(scored.metrics);
+  // Additional selective-deploy verdict (the tier as an abstaining classifier).
+  // NEVER replaces `grade` — both are reported so the full-holdout number stays visible.
+  const selective = scored.selective || { curve: [], deployPoint: { found: false } };
+  const deployGrade = gradeSelectiveDeploy(scored.metrics, selective.deployPoint);
   return {
     deferred: false,
     assessedAt: opts.now || new Date().toISOString(),
     holdoutN: scored.n,
+    // GNN-F0/2d: self-document which classifier produced these metrics — "direct"
+    // = raw-768d-nomic cosine k-NN (degeneracy fix); "model" = the trained 8-d
+    // checkpoint. A reader must never confuse a direct-embed number for a model number.
+    embeddingMode: directEmbed ? "direct" : "model",
+    checkpointPresent,
+    // GNN-F0 1b: which holdout split produced these metrics. "stratified" (default)
+    // guarantees every >=2-sample class is in the holdout truth, so macroF1 is a
+    // fair per-class average; "flat" inherits the pool skew (a minority class can
+    // get 0 holdout, dragging macroF1). A reader must not compare across splits.
+    holdoutSplit: scored.stratified === false ? "flat" : "stratified",
+    heldClasses: scored.heldClasses,
     gates: GATE_THRESHOLDS,
     metrics: scored.metrics,
+    degeneracy: scored.degeneracy,
     buckets: scored.buckets,
     grade,
+    selective: { curve: selective.curve, deployPoint: selective.deployPoint, deployGrade },
     samples: scored.samples,
   };
 }
@@ -433,9 +765,68 @@ export function renderReport(result) {
   L.push(`| accuracy | ${m.accuracy ?? "n/a"} | (informational) | — |`, "");
   L.push(`**Verdict: ${g.verdict.toUpperCase()}**`, "");
   if (!g.pass) L.push("Gate failures: " + g.failures.join("; "), "");
+  // Honesty guard: a degenerate (constant-vote) classifier scores ~0.5 by tie-
+  // break, NOT by being close. Surface it so the verdict is never misread as a
+  // near-miss that threshold-tuning could rescue.
+  const d = result.degeneracy;
+  if (d && d.isDegenerate) {
+    L.push("",
+      `> ⚠ **DEGENERATE CLASSIFIER (${d.mode})** — ${d.detail}.`,
+      "> This AUROC is **below-gate by degeneracy, not by a small margin**: the model" +
+      (d.dominantClass ? ` collapsed to the reference-pool class prior (every prediction → \`${d.dominantClass}\`, share ${d.dominantShare})` : " emits one confidence for every input") +
+      ". Threshold tuning cannot help — the embeddings/vote must actually separate classes first.");
+  }
+  L.push("");
   L.push("## Per-bucket calibration", "", "| Confidence | Count | Mean prob | Accuracy | Brier |", "|---|---|---|---|---|");
   for (const b of result.buckets) {
     L.push(`| ${b.range} | ${b.count} | ${b.meanProb ?? "—"} | ${b.accuracy ?? "—"} | ${b.brier ?? "—"} |`);
+  }
+  // Selective deployment — the tier-5 GNN abstains below its confidence gate
+  // (defers to the LLM tier), so its deploy quality is the EMITTED set's risk at
+  // each operating τ. The full-holdout grade above is the all-coverage number.
+  const sel = result.selective;
+  if (sel && Array.isArray(sel.curve) && sel.curve.length > 0) {
+    L.push("", "## Selective deployment (risk-coverage)", "",
+      "> Tier-5 ABSTAINS below its confidence gate and defers to the LLM tier, so the",
+      "> deploy-relevant quality is the EMITTED set's risk at each operating τ — not the",
+      "> full-holdout risk (which scores predictions the tier never emits). The full-holdout",
+      "> grade above is retained; this is reported WITH its coverage, never instead of it.", "");
+    L.push("| τ (gate) | Coverage | Emitted | Brier | macro-F1 | Accuracy | Brier≤gate | macroF1≥gate |",
+      "|---|---|---|---|---|---|---|---|");
+    for (const r of sel.curve) {
+      L.push(`| ${r.tau} | ${(r.coverage * 100).toFixed(1)}% | ${r.emitted} | ${r.brier ?? "—"} | ${r.macroF1 ?? "—"} | ${r.accuracy ?? "—"} | ${r.brierClears ? "✓" : "✗"} | ${r.macroF1Clears ? "✓" : "✗"} |`);
+    }
+    const dg = sel.deployGrade;
+    if (dg) {
+      L.push("");
+      if (dg.pass && dg.operatingPoint) {
+        const op = dg.operatingPoint;
+        const classStr = Number.isFinite(op.classesEmitted) && Number.isFinite(op.totalClasses)
+          ? ` Emitted set spans **${op.classesEmitted}/${op.totalClasses}** dispatcher classes${dg.concentrated ? " (concentrated — macro-F1 is over that subset, NOT all classes)" : ""}.`
+          : "";
+        L.push(`**Production deploy gate: τ=${dg.productionGate}** (GNN_DEFAULTS.minConf) → coverage `
+          + `${(op.coverage * 100).toFixed(1)}% (${op.emitted}/${result.holdoutN} emitted), Brier ${op.brier} `
+          + `(≤ ${result.gates.brier}), macro-F1 ${op.macroF1} (≥ ${result.gates.macroF1}), accuracy ${op.accuracy}; `
+          + `global AUROC ${dg.globalAuroc} (≥ ${result.gates.auroc}).${classStr}`);
+        if (dg.maxCoveragePoint && dg.maxCoveragePoint.tau < dg.productionGate) {
+          const mp = dg.maxCoveragePoint;
+          L.push("", `_Tradeoff: lowering the gate to τ=${mp.tau} would raise coverage to `
+            + `${(mp.coverage * 100).toFixed(1)}% (Brier ${mp.brier}, macro-F1 ${mp.macroF1}) — supplementary, not the deployed point._`);
+        }
+        L.push("", `**Selective verdict: ${dg.verdict.toUpperCase()}** — at the production gate, tier-5 deploys on the `
+          + `${(op.coverage * 100).toFixed(0)}% it is confident about; the remaining `
+          + `${(100 - op.coverage * 100).toFixed(0)}% defers to the LLM tier. `
+          + `Operating regime ${dg.robustAboveGate ? "is **robust** (every τ at/above the gate clears)" : "is **NOT robust** (some τ above the gate fails — treat as provisional)"}.`);
+      } else {
+        L.push(`**Selective verdict: ${dg.verdict.toUpperCase()}** — ${dg.failures.join("; ")}.`);
+        if (dg.maxCoveragePoint) {
+          const mp = dg.maxCoveragePoint;
+          L.push("", `_(A lower gate τ=${mp.tau} would clear at ${(mp.coverage * 100).toFixed(1)}% coverage, but production runs at τ=${dg.productionGate}.)_`);
+        }
+      }
+    }
+    L.push("", "_Small-holdout caveat: this verdict is fit on "
+      + `${result.holdoutN} holdout samples; the operating point is the fixed production gate (not tuned to the holdout), but re-confirm as the reference pool grows._`);
   }
   return L.join("\n") + "\n";
 }
@@ -464,9 +855,63 @@ export function parseArgs(argv) {
     else if (a === "--out-dir") out.outDir = args[++i];
     else if (a === "--holdout") out.holdout = Number(args[++i]);
     else if (a === "--seed") out.seed = Number(args[++i]);
+    else if (a === "--flat-holdout") out.stratify = false; // legacy uniform split (A/B)
     else throw new Error(`nn-graph-eval: unknown argument "${a}" (try --help)`);
   }
   return out;
+}
+
+/**
+ * Write a file atomically: write a sibling tmp file then rename it onto the target. rename(2) is
+ * atomic on the same filesystem (the tmp lives in the SAME dir as the target, so never EXDEV), so a
+ * concurrent reader never observes a torn/half-written file -- NN-EVAL.json is JSON.parse'd by the
+ * PSN-leg hook's classifyGnn, where a partial read would throw or mis-classify. Best-effort tmp
+ * cleanup on failure; rethrows so the caller's fail-soft catch still reports { ok:false }.
+ */
+export function atomicWriteFileSync(target, data) {
+  const tmp = `${target}.tmp-${process.pid}`;
+  try {
+    fs.writeFileSync(tmp, data);
+    fs.renameSync(tmp, target);
+  } catch (err) {
+    try { fs.rmSync(tmp, { force: true }); } catch { /* best-effort cleanup */ }
+    throw err;
+  }
+}
+
+/**
+ * Persist an assessment to NN-EVAL.{md,json} in outDir. Single-sourced (R7/R8) so BOTH the
+ * eval CLI (main) and the retrain lifecycle's direct-embed stage write the canonical
+ * deployed-state report identically. NEVER throws -- returns { ok, outDir, error } so callers
+ * fail-soft (the lifecycle must not abort a retrain on a write failure).
+ */
+export function writeAssessment(result, outDir = OUT_DIR, report = renderReport(result), { force = false } = {}) {
+  const dir = outDir ? path.resolve(outDir) : OUT_DIR;
+  const jsonPath = path.join(dir, REPORT_NAME + ".json");
+  // DOWNGRADE GUARD: a bare CLI run evals the degenerate trained 8-d checkpoint (embeddingMode "model",
+  // AUROC ~0.5), or defers when no checkpoint loads ({deferred}, no embeddingMode) -- either way it would
+  // clobber the DEPLOYED direct-embed NN-EVAL.json the PSN-leg hook reads. Suppress ANY non-direct write over
+  // an existing direct-mode report unless {force:true}. The retrain lifecycle is the AUTHORITATIVE deployed-
+  // state writer and persists WITH force (stage 4b), so its direct-embed -- or honest {deferred} when ghost
+  // embeddings will not load -- assessment always lands; this fences only ad-hoc bare-CLI runs that would
+  // otherwise silently downgrade the deployed-state report the PSN-leg hook reads.
+  if (!force && result && result.embeddingMode !== "direct") {
+    try {
+      const existing = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+      if (existing && existing.embeddingMode === "direct") {
+        return { ok: true, outDir: dir, skipped: "kept deployed direct-embed NN-EVAL.json (non-direct write suppressed; pass {force:true} to override)", error: null };
+      }
+    } catch { /* no existing file / unreadable -> fall through and write */ }
+  }
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    // Atomic (tmp+rename) so the PSN-leg hook never JSON.parse's a half-written NN-EVAL.json.
+    atomicWriteFileSync(path.join(dir, REPORT_NAME + ".md"), report);
+    atomicWriteFileSync(jsonPath, JSON.stringify(result, null, 2));
+    return { ok: true, outDir: dir, error: null };
+  } catch (err) {
+    return { ok: false, outDir: dir, error: err && err.message ? err.message : String(err) };
+  }
 }
 
 /** CLI entry point. Returns a process exit code. */
@@ -486,16 +931,10 @@ export function main(argv) {
   console.log(report);
 
   if (!opts.noWrite) {
-    const outDir = opts.outDir ? path.resolve(opts.outDir) : OUT_DIR;
-    try {
-      fs.mkdirSync(outDir, { recursive: true });
-      fs.writeFileSync(path.join(outDir, REPORT_NAME + ".md"), report);
-      fs.writeFileSync(path.join(outDir, REPORT_NAME + ".json"), JSON.stringify(result, null, 2));
-      console.log(`Wrote ${REPORT_NAME}.{md,json} to ${outDir}`);
-    } catch (err) {
-      console.error(`nn-graph-eval: cannot write report — ${err.message}`);
-      return 1;
-    }
+    const w = writeAssessment(result, opts.outDir, report);
+    if (w.skipped) console.log(`nn-graph-eval: ${w.skipped}`);
+    else if (w.ok) console.log(`Wrote ${REPORT_NAME}.{md,json} to ${w.outDir}`);
+    else { console.error(`nn-graph-eval: cannot write report -- ${w.error}`); return 1; }
   }
   // A deferred assessment (no checkpoint) is not a harness failure — exit 0.
   return 0;

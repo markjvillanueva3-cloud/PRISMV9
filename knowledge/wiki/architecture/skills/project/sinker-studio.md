@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /sinker-studio — Sinker EDM Studio Pipeline
+Full-featured Sinker EDM programming environment:
+- Electrode design and selection
+- Burn strategy optimization
+- Orbit/rotation patterns
+- Adaptive flushing control
 
 <!-- AUTO-END -->
 

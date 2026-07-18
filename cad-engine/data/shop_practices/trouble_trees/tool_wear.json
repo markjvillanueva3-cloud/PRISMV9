@@ -1,0 +1,99 @@
+{
+  "tree_id": "TT-TOOLWEAR",
+  "title": "Excessive Tool Wear Troubleshooting",
+  "symptom": "Tools wearing out faster than expected, frequent tool changes, poor tool life",
+  "root": {
+    "node_id": "TT-TOOLWEAR-ROOT",
+    "node_type": "symptom",
+    "text": "Excessive or premature tool wear",
+    "confidence": 1.0,
+    "children": [
+      {
+        "node_id": "TT-TOOLWEAR-C1",
+        "node_type": "cause",
+        "text": "Cutting speed too high for material/tool combination",
+        "confidence": 0.85,
+        "children": [
+          {
+            "node_id": "TT-TOOLWEAR-D1",
+            "node_type": "diagnostic",
+            "text": "Is the wear pattern primarily on the flank face? Flank wear indicates speed-related wear",
+            "confidence": 0.85,
+            "children": [
+              {"node_id": "TT-TOOLWEAR-S1", "node_type": "solution", "text": "Reduce cutting speed (SFM) by 10-15% and re-evaluate tool life", "confidence": 0.9, "children": [], "metadata": {}},
+              {"node_id": "TT-TOOLWEAR-S2", "node_type": "solution", "text": "Switch to more wear-resistant coating (TiAlN, AlCrN, or AlTiN)", "confidence": 0.8, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-TOOLWEAR-C2",
+        "node_type": "cause",
+        "text": "Wrong tool grade for workpiece material",
+        "confidence": 0.8,
+        "children": [
+          {
+            "node_id": "TT-TOOLWEAR-D2",
+            "node_type": "diagnostic",
+            "text": "Check crater wear (rake face) — indicates chemical interaction between tool and workpiece",
+            "confidence": 0.8,
+            "children": [
+              {"node_id": "TT-TOOLWEAR-S3", "node_type": "solution", "text": "Select grade with Al2O3 barrier coating for crater wear resistance", "confidence": 0.85, "children": [], "metadata": {}},
+              {"node_id": "TT-TOOLWEAR-S4", "node_type": "solution", "text": "Consult tool manufacturer grade selection chart for the specific workpiece material", "confidence": 0.9, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-TOOLWEAR-C3",
+        "node_type": "cause",
+        "text": "Inadequate coolant delivery",
+        "confidence": 0.7,
+        "children": [
+          {
+            "node_id": "TT-TOOLWEAR-D3",
+            "node_type": "diagnostic",
+            "text": "Is coolant reaching the cutting zone? Check for dry spots at tool-workpiece interface",
+            "confidence": 0.7,
+            "children": [
+              {"node_id": "TT-TOOLWEAR-S5", "node_type": "solution", "text": "Redirect coolant nozzle to aim directly at cutting zone", "confidence": 0.8, "children": [], "metadata": {}},
+              {"node_id": "TT-TOOLWEAR-S6", "node_type": "solution", "text": "Switch to through-spindle coolant (TSC) for better delivery", "confidence": 0.85, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-TOOLWEAR-C4",
+        "node_type": "cause",
+        "text": "Built-up edge (BUE) formation",
+        "confidence": 0.65,
+        "children": [
+          {
+            "node_id": "TT-TOOLWEAR-D4",
+            "node_type": "diagnostic",
+            "text": "Is material welding to the cutting edge? Common in aluminum, stainless, and low-carbon steel",
+            "confidence": 0.65,
+            "children": [
+              {"node_id": "TT-TOOLWEAR-S7", "node_type": "solution", "text": "Increase cutting speed to raise temperature above BUE formation range", "confidence": 0.8, "children": [], "metadata": {}},
+              {"node_id": "TT-TOOLWEAR-S8", "node_type": "solution", "text": "Use polished flute or TiB2-coated tools to reduce adhesion", "confidence": 0.75, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      }
+    ],
+    "metadata": {}
+  },
+  "material_context": ["steel", "stainless_steel", "titanium", "cast_iron"],
+  "machine_context": ["3-axis_vertical", "5-axis", "lathe"],
+  "source_practice_ids": ["SP-0019"],
+  "created_at": "2026-03-01T22:00:00Z",
+  "tags": ["tool_wear", "flank", "crater", "BUE", "coating"]
+}

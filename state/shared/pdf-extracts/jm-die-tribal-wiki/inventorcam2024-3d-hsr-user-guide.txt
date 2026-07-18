@@ -1,0 +1,2196 @@
+User Guide | InventorCAM 2024
+
+HSR Machining
+
+                               iMachining 2D
+                               iMachining 3D
+                               2.5D Milling
+                               Indexial Multi-Sided
+                               HSS Machining
+                               3D High Speed Milling
+                               Simultaneous 5-Axis
+                               Turning
+                               Advanced Mill-Turn
+                               Swiss-Type
+                               Solid Probe
+InventorCAM 2024
+    HSR Module
+    User Guide
+
+                 ©1995-2024 SolidCAM
+                   All Rights Reserved.
+iv
+                                                                                                                                         Contents
+
+Contents
+
+1. Introduction and Basic Concepts
+     1.1 Start HSR Operation................................................................................................3
+     1.2 HSR Operation Overview.......................................................................................4
+     1.3 Parameters and Values..............................................................................................5
+
+2. Technology
+     2.1 Contour Roughing....................................................................................................8
+     2.2 Hatch Roughing........................................................................................................9
+     2.3 Hybrid Rib Roughing...............................................................................................9
+     2.4 Rest Roughing............................................................................................................ 10
+
+3. Geometry
+     3.1 Geometry Definition................................................................................................ 12
+             3.1.1 CoordSys........................................................................................................... 12
+             3.1.2 Target geometry............................................................................................... 12
+             3.1.3 Facet tolerance................................................................................................. 13
+             3.1.4 Micro Milling.................................................................................................... 13
+             3.1.5 Apply fillets....................................................................................................... 13
+             3.1.6 Fillet Surfaces dialog box............................................................................... 14
+
+4. Tool
+     4.1 Calculate Minimum Tool Length............................................................................ 18
+     4.2 Holder Clearance....................................................................................................... 18
+     4.3 Tool Selection............................................................................................................ 19
+     4.4 Spin & Feed Rate Definition................................................................................... 19
+
+5. Boundaries
+     5.1 Introduction............................................................................................................... 22
+             5.1.1 Constraint boundaries..................................................................................... 22
+     5.2 Boundary Definition................................................................................................. 23
+             5.2.1 Boundary type.................................................................................................. 23
+             5.2.2 Boundary name................................................................................................ 23
+             5.2.3 Boundary ­ tool relation................................................................................ 23
+     5.3 Automatically Created Boundaries......................................................................... 25
+             5.3.1 Auto-created box of target geometry.......................................................... 25
+             5.3.2 Auto-created box of stock geometry........................................................... 25
+             5.3.3 Auto-created silhouette................................................................................... 26
+             5.3.4 Auto-created outer silhouette........................................................................ 26
+     5.4 2D Manually Created Boundaries........................................................................... 26
+             5.4.1 Boundary box................................................................................................... 26
+             5.4.2 Silhouette boundary........................................................................................ 27
+             5.4.3 User-defined boundary................................................................................... 28
+             5.4.4 Combined boundary....................................................................................... 28
+             5.4.5 Select Faces dialog box................................................................................... 30
+             5.4.6 Select Chain dialog box.................................................................................. 30
+
+                                                                                                                                                   v
+     5.5 3D Manually Created Boundaries........................................................................... 30
+             5.5.1 Selected faces................................................................................................... 31
+             5.5.2 Shallow areas.................................................................................................... 32
+             5.5.3 Theoretical rest areas...................................................................................... 32
+             5.5.4 Tool contact area............................................................................................. 33
+             5.5.5 Rest areas.......................................................................................................... 34
+
+6. Passes
+
+     6.1 Passes Parameters...................................................................................................... 36
+             6.1.1 Wall offset......................................................................................................... 36
+             6.1.2 Floor offset....................................................................................................... 38
+             6.1.3 Tolerance........................................................................................................... 38
+             6.1.4 Step down......................................................................................................... 39
+             6.1.5 Step over.......................................................................................................... 39
+             6.1.6 Offsets.............................................................................................................. 40
+             6.1.7 Detect Flat Areas............................................................................................. 40
+             6.1.8 Limits................................................................................................................. 40
+             6.1.9 Point reduction................................................................................................ 41
+             6.1.10 Refine corners............................................................................................... 41
+             6.1.11 Detect core areas........................................................................................... 41
+             6.1.12 Smoothing...................................................................................................... 41
+             6.1.13 Max Roughing Step down............................................................................ 41
+
+     6.2 Smoothing Parameters............................................................................................. 41
+             6.2.1 Max. radius....................................................................................................... 42
+             6.2.2 Profile tolerance.............................................................................................. 42
+             6.2.3 Offset tolerance.............................................................................................. 42
+
+     6.3 Adaptive Step Down Parameters............................................................................ 43
+     6.4 Edit Passes Parameters............................................................................................. 45
+     6.5 Roughing/Finishing parameters............................................................................. 48
+
+7. Links
+
+     7.1 General Parameters................................................................................................... 53
+     7.2 Ramping parameters................................................................................................. 55
+     7.3 Strategy parameters................................................................................................... 57
+     7.4 Retracts parameters................................................................................................... 59
+     7.5 Leads Parameters...................................................................................................... 60
+
+             7.5.1 Fitting............................................................................................................ 61
+             7.5.2 Trimming...................................................................................................... 62
+             7.5.3 Vertical leads................................................................................................ 62
+             7.5.4 Horizontal leads.......................................................................................... 62
+             7.5.5 Extensions.................................................................................................... 63
+
+8. Motion Control
+
+     8.1 4th Axis....................................................................................................................... 66
+     8.2 Approximation of Arcs........................................................................................... 66
+     8.3 5th Axis....................................................................................................................... 66
+     8.4 Point Interpolation.................................................................................................... 67
+
+vi
+                                                                                                                                         Contents
+9. Miscellaneous Parameters
+
+     9.1 Message....................................................................................................................... 70
+     9.2 Extra Parameters....................................................................................................... 70
+     9.3 Flyout Window.......................................................................................................... 70
+10. Edit Tool Path
+     10.1 Source operation....................................................................................................... 72
+
+             10.1.1 Boundaries................................................................................................... 72
+             10.1.2 Z-levels......................................................................................................... 72
+             10.1.3 Boundaries & Z-levels................................................................................ 72
+     10.2 Tool............................................................................................................................. 73
+     10.3 Boundaries and Z-levels........................................................................................... 73
+             10.3.1 Boundary Type............................................................................................ 73
+             10.3.2 Boundary name........................................................................................... 73
+             10.3.3 Boundary offset........................................................................................... 73
+             10.3.4 Z-levels......................................................................................................... 73
+             10.3.5 Keep tool path outside the Boundary..................................................... 73
+
+Document number: IVCHSRUGENG0024SP1
+                                                                                                                                                 vii
+1 Introduction and
+
+Basic Concepts
+Welcome to HSR Module!
+HSR is a very powerful and market-proven high-speed roughing (HSR) module for molds, tools, dies, and complex 3D
+parts. It offers unique machining and linking strategies for generating high-speed tool paths.
+HSR module smooths the paths of both cutting moves and retracts wherever possible to maintain a continuous
+machine tool motion; an essential requirement for maintaining higher feed rates and eliminating dwelling.
+With HSR module, retracts to high Z-levels are kept to a minimum. Angled where possible, smoothed by arcs, retracts
+do not go any higher than necessary, thus minimizing air cutting and reducing machining time.
+The result of HSR is an efficient, smooth, and gouge-free tool path. This translates to increased surface quality, less
+wear on your cutters, and a longer life for your machine tools.
+With demands for ever-shorter lead and production times, lower costs and improved quality, HSR is a must in today's
+machine shops.
+About this book
+This book is intended for experienced InventorCAM users. If you are not familiar with the software, start with the
+examples in the G etting Started manual and then contact your reseller for information about InventorCAM training
+classes.
+About the Examples
+The CAM-Parts used for this book are attached in a ZIP archive. Extract the content of the Examples archive into
+your hard drive. The Autodesk Inventor files used for the exercise were prepared with Autodesk Inventor 2024.
+Windows 10
+The screenshots in this book were made using InventorCAM 2024 SP1 integrated with Autodesk Inventor 2024 running
+on Windows 10. If you are running on a different version of Windows, you may notice differences in the appearance
+of menus and windows. These differences do not affect the performance of the software.
+The contents of this book and the examples can be downloaded from the InventorCAM website at http://www.
+inventorcam.com.
+
+2
+                                                    1. Introduction
+
+1.1 Start HSR Operation
+
+To add an HSR Operation to the CAM-Part, right-click the Operations header in InventorCAM Manager and choose
+3D HSR command from the Add Milling Operation submenu.
+
+The HM Roughing operation dialog box is displayed.
+
+                                                    3
+1.2 HSR Operation Overview
+
+The definition of ann HSR operation consists of the following stages:
+
+                                                            Strategy choice
+
+                                                         Geometry definition
+
+                                                             Tool definition
+
+                                                         Boundary definition
+
+                                                           Passes definition
+
+                                                             Link definition
+
+                                                     Motion control definition
+
+                                                    Misc. parameters definition
+
+At the first stage, you have to choose one of the available machining strategies. The machining strategy defines the
+technology that will be used for the machining. For more information on the machining strategies, refer to chapter 2.
+At the Geometry definition stage, you have to specify the 3D model geometry that will be machined. For more
+information on the geometry definition, refer to chapter 3.
+The next stage enables you to choose from the T OOLKIT a cutting tool that will be used for the operation. For more
+information on the tool definition, refer to chapter 4.
+The B oundaries definition page enables you to limit the operation machining to the specific model areas. For some
+machining strategies an additional boundary defines the drive curve of the operation tool path. For more information
+on the boundary definition, refer to chapter 5.
+In the P asses definition, InventorCAM enables you to specify the technological parameters used for the tool passes
+calculation. For more information on the passes definition, refer to chapter 6.
+The L ink parameters page enables you to define the tool link moves between cutting passes. For more information on
+the link definition, refer to chapter 7.
+The Motion control parameters page enables you to optimize the calculated tool path according to the kinematics and
+special characteristics of your CNC-machine. For more information on these parameters definition, refer to chapter 8.
+The Miscellaneous parameters page enables you to define the non-technological parameters related to the HSR
+operation. For more information on the miscellaneous parameters definition, refer to chapter 9.
+
+4
+                                                                                 1. Introduction
+
+1.3 Parameters and Values
+
+Most of the parameters used in the InventorCAM HSR operation receive default values according to built-in formulas
+that define dependencies between the parameters. When a number of basic parameters such a tool diameter, corner
+radius, offsets, etc., are defined, InventorCAM updates the values of dependent parameters.
+
+For example, the Step down parameter for Contour roughing is defined with the following formula:
+
+         If the tool corner radius is 0 (end mill), the Step down parameter default is set to 1. If a ball-nosed tool is
+         chosen, the Step down value is equal to the tool corner radius value divided by 5; for bull-nosed tools the Step
+         down value is equal to the tool corner radius value divided by 3.
+
+I nventorCAM provides you with a right-click edit box menu for each parameter.
+
+View parameter Info
+
+This command displays the Parameter Info dialog box. This dialog box shows the internal parameter name and the
+related formula (if exists) or a static value.
+
+The U nfold  button displays a brief explanation of the parameter.
+
+The    button displays the flow chart of the parameter value calculating.
+
+Reset
+
+When you manually change a parameter default value, the formula assigned to the parameter is removed.
+The Reset commands enable you to reset parameters to their default formulas and values.
+
+     · This parameter. This option resets the current parameter.
+     · This page. This option resets all the parameters at the current page.
+     · All. This option resets all the parameters of the current HSR operation.
+
+                                                                                                       5
+6
+Technology  2
+The Technology list enables you to choose a rough machining strategy to be applied.
+
+The following strategies are available:
+     · HM Roughing
+     · Contour roughing
+     · Hatch roughing
+     · Hybrid Rib roughing
+     · Rest roughing
+
+H M Roughing
+
+The HM roughing strategy massively reduces rapid moments
+by controlling the tool movement so that it remains on the
+part, following previous cut paths instead of rapid feeding to
+the new position. Additional tool path optimization features
+include the ability to automatically machine flat areas only
+instead of adding extra Z-levels to clean up planar zones. The
+roughing algorithm also permits to the use of a large step
+over (greater than 50%), where an offset algorithm ensures
+total coverage of the machining area by adding smooth
+transition corner pips to clean up any remaining areas.
+The strategy can be easily modified to work in different
+modes: cavity, core and hybrid spiral passes. These modes
+provide different approaches to machine a part.
+
+2.1 Contour Roughing
+
+With the Contour roughing strategy, InventorCAM generates a pocket-style tool path for a set of sections generated
+at the Z-levels defined with the specified S tep down.
+
+8
+                    2. Technology
+
+2.2 Hatch Roughing
+
+With the Hatch roughing strategy, InventorCAM generates linear raster passes for a set of sections generated at the
+Z-levels defined with the specified Step down. Hatch roughing is generally used for older machine tools or softer
+materials because the tool path predominantly consists of straight line sections.
+
+2.3 Hybrid Rib Roughing
+
+The Hybrid Rib roughing is a strategy designed to machine very thin walls. These walls are made of exotic materials
+(titanium, graphite) and therefore a traditional approach to their machining can be difficult and risky. This strategy
+combines a new roughing and finishing tool path, creating a unique tool path that should preserve the highest possible
+rigidity of the part.
+
+                    9
+2.4 R est Roughing
+
+The Rest roughing strategy determines the areas where material remains unmachined after the previous machining
+operations (the "rest" of the material) and generates a tool path for the machining of these areas. The tool path is
+generated in the Contour roughing (see topic 2.1) manner. Rest roughing operation uses a tool of smaller diameter
+than that used in previous roughing operations.
+The following image illustrates the hatch roughing tool path performed with an End mill of Ø20.
+
+After the hatch roughing, a Rest roughing operation is performed with an End mill of Ø10. The tool path is generated
+in the contour roughing manner.
+
+10
+Geometry  3
+The Geometry page enables you to define the 3D model geometry for the HSR operation.
+
+3.1 G eometry Definition
+
+The Target geometry section enables you to specify the appropriate Coordinate System for the operation and to define
+the machining geometry.
+
+3.1.1CoordSys
+
+I nventorCAM enables you to define the Coordinate System for the operation by choosing it from combo-box or by
+selecting it from the graphic screen by clicking the CoordSys button. The C oordSys Manager dialog box is displayed.
+Together with this dialog box, InventorCAM displays the location and axis orientation of all Coordinate Systems
+defined in the CAM-Part.
+To get more information about the Coordinate System, right-click the CoordSys entry in
+CoordSys Manager and choose the Inquire option from the menu.
+The CoordSys Data dialog box is displayed.
+
+                            When the CoordSys is chosen for the operation, the model is
+                            rotated to the appropriate orientation.
+                            The CoordSys selection operation must be the first step in the
+                            geometry definition process.
+
+                        3.1.2Target geometry
+
+                            After the Coordinate System is chosen, define the 3D Model geometry for the InventorCAM
+                            HSR operation.
+                            If you have already defined 3D Model geometries for this CAM-Part, you can select a
+                            geometry from the list.
+                            The Show button displays the chosen 3D model geometry in the Autodesk Inventor window.
+
+                                  enables you to define a new 3D Model geometry for the operation with the 3D Model
+                            Geometry dialog box.
+
+                                   enables you to edit an existing geometry.
+                                   enables you to view the available geometries on the model and choose the relevant one
+                                  from the list.
+For more information on 3D Geometry selection, refer to the InventorCAM Milling Help.
+
+                 When you choose the geometry from the list, the related Coordinate System is chosen automatically.
+
+12
+                                                                                                                                     3. Geometry
+
+3.1.3Facet tolerance
+
+Before the machining, InventorCAM generates a triangular mesh for all the faces of the 3D model geometry used
+for the operation. Facet tolerance is the accuracy to which triangles fit the surfaces. The smaller the value the more
+accurate the triangulation is, but the slower the calculation.
+
+The 3D model geometry will be triangulated and the resulting facets will be saved. The triangulation is performed
+on the 3D model geometry when you use it for the first time in a InventorCAM HSR operation. If you use the 3D
+geometry in another operation, InventorCAM will check the tolerance of the existing geometry. It will not perform
+another triangulation as long as the facets have been created with the same surface tolerance.
+
+3.1.4 M icro Milling
+
+Selecting the Micro Milling check box enables you to tighten the facet tolerance value for machining extremely small
+parts. When you select the Micro Milling check box, the defined Facet tolerance value is automatically changed to half
+of the defined value.
+
+3.1.5Apply fillets
+
+This option automatically adds fillets to the internal model corners. Therefore, the tool does not have to dramatically
+change direction during the machining, preventing damage to itself and to the model surfaces and enabling faster feed
+rates and eventually better surface quality.
+
+When the corner radius is smaller than or equal to the tool      By adding fillets, the corner radius becomes greater than the
+radius, the tool path consists of two lines connected with a     tool radius and the tool path lines are then connected with an
+sharp corner; at this corner point the tool sharply changes its  arc, resulting in a smooth tool movement without sharp changes
+direction.                                                       in direction.
+
+Select the A pply fillets check box to automatically add fillets for the tool path generation.
+
+Click to create a new fillets geometry. The Fillet Surfaces dialog box is displayed.
+The Show button displays the chosen fillet geometry directly on the solid model.
+
+Model without fillets                                            Model with fillets
+                                                                                                                     13
+3.1.6Fillet Surfaces dialog box
+
+The Fillet Surfaces dialog box enables you to generate fillet geometry for the current
+3D Model geometry used for the HSR operation.
+
+B oundary
+
+The Boundary type section enables you to specify the boundary geometry for the
+fillet generation. The fillets will be generated inside the specified 2D boundary.
+
+InventorCAM enables you to choose the 2D boundary type from the list. 2D
+boundaries of the following types are available: Auto-created silhouette, Auto-created
+outer silhouette, User-defined boundary, and Auto-created box of target geometry
+option.
+
+The latter option automatically generates a planar box surrounding the Target
+geometry.
+
+The Boundary name section enables you to choose a 2D boundary geometry from
+the list or define a new one using the New button. The appropriate dialog box will be
+displayed. You can edit an existing geometry with the Edit button.
+
+The Show button displays the Select Chain dialog box, and the chains are displayed
+and highlighted in the graphic window. If needed, you can unselect some of the automatically created chains.
+
+Filleting Tool Data
+
+For the calculation of fillets, InventorCAM uses a virtual tool. The Filleting tool data  Angle
+section enables you to specify the geometry parameters of this tool.
+
+     · Tool diameter. This field enables you to specify the cutting diameter of the
+         virtual tool.
+
+     · Corner radius. This field enables you to specify the corner radius of the
+         virtual tool.
+
+     · Taper (°/side). This field enables you to specify the taper angle of the tool's
+         flank. InventorCAM does not support tool with a back taper, like a Dove tail
+         tool.
+
+     · Cutting length. This field enables you to specify the length of the cutting edge
+         of the tool.
+
+    · Shank diameter. This field enables you to specify the shank diameter.
+
+    · Outside holder length. This field enables you to specify the length of the
+       visible part of the tool, from the tip to the start of the tool holder.
+
+General
+
+    · Tolerance. This parameter defines the tolerance of fillet surfaces triangulation.
+       A lower value will give more accurate results, but will increase the calculation
+       time.
+
+    · Resolution. This is the "granularity" of the calculation. Using a smaller value
+       will give finer detail but will increase the calculation time.
+
+14
+                                                                                                  3. Geometry
+
+· Minimum Z. This option sets the lowest Z-level the tool can reach.
+
+· Number of facets. This is the number of flat faces (triangles) across the
+
+radially curved section of the fillet.                                          Bitangency angle
+
+· Bitangency angle. This is the minimum angle required between the two
+   normals at the contact points between the tool and model faces, in order to
+   decide to generate the fillet.
+
+                                                                                                  15
+16
+Tool  4
+On the Tool page of the InventorCAM HSR operation dialog box, the following tool parameters are displayed:
+
+       · Type
+       · Number
+       · Tool offset
+       · Diameter
+       · Modified offset
+       · Corner radius
+       · Cutting length
+       · Outside holder
+       · Turret
+
+4.1 Calculate Minimum Tool Length
+
+This option enables you to calculate the minimal Outside holder length of the tool to avoid the holder gouging
+with the model. When you select the Calculate minimum tool length check box and click the Save&Calculate icon.
+InventorCAM calculates the recommended value and displays it in the Minimum tool length field.
+
+4.2 H older Clearance
+
+The Holder clearance parameter enables you to define how close the holder can approach the material during the
+machining.
+
+                                                                                                        Holder Clearance
+
+18
+                                                                                                                                             4. Tool
+Force Change Tool
+If two operations use the same tool, and the Force Change Tool checkbox is selected, the additional tool change
+commands are displayed in the generated GCode. When this checkbox is selected, the tool returns to the safety
+position in place of retract position once the machining is completed.
+
+4.3 Tool Selection
+
+The Select button enables you to edit tool parameters or define the tool you want to use for this operation.
+This button displays the TOOLKIT table. You can also add a new tool to be defined for the operation or choose another
+tool from this table.
+
+For more information on the tool definition, refer to the InventorCAM Milling Help.
+
+4.4 Spin & Feed Rate Definition
+
+The Data tab displays the spin and feed parameters that you can edit.
+Feed Rate
+The feed value can be defined in two types of units: F and FZ. F is the default that signifies Units per minute. FZ
+signifies Units per tooth and is calculated according to the following formula:
+
+FZ = F/(Number of Flutes * S)
+
+The F/FZ buttons enable you to check the parameter values.
+     · C utting. This field defines the feed rate of the cutting section of the tool path.
+     · Link down. The feed rate to be set for lead in moves.
+     · L ink up. The feed rate to be set for lead out moves.
+     · R apid. This parameter enables you to define a feed rate for the retract sections of the tool path, where the tool
+         is not contacting with the material.
+
+                                                                                                                                                 19
+Spin
+This field defines the spinning speed of the tool.
+The spin value can be defined in two types of units: S and V.
+S is the default and signifies Revolutions per Minute. V signifies Material cutting speed in Meters/Minute in the Metric
+system or in Feet/Minute in the Inch system.
+It is calculated according to the following formula:
+
+V = (S * PI * Tool Diameter) / 1000
+
+Gears
+If the drive system of your CNC-Machine has two or more gears with different spin limitations, they can be individually
+defined in the VMID's Drive Unit settings. When more than one is defined, you can select your preferred gear for use
+in the operation from the Gear list. By default, the gear is automatically selected according to each of the Spin values.
+Only gears having the current Spin value within their range are shown in the list.
+The first parameter enclosed in parentheses indicates the defined spin range; the second parameter indicates the
+defined power.
+Spin direction
+The Spin direction section enables you to choose between the clockwise (CW) or counterclockwise (CCW) direction.
+Offsets
+The Length offset number parameter defines the number of the Length Offset Register of the current tool in the
+Offset table of the CNC-machine.
+
+20
+Boundaries  5
+5.1 Introduction
+
+I nventorCAM enables you to define constraint boundaries for the InventorCAM HSR operation tool path: drive
+boundaries and constraint boundaries.
+
+5.1.1 Constraint boundaries
+
+A constraint boundary enables you to limit the machining to specific model areas.
+
+Machining always takes place within a boundary or a set of boundaries. The
+boundaries define the limits of the tool tip motion. The area actually machined can
+be extended beyond the boundary by as much as the tool shaft radius.
+In the image above, the tool center is located at the edge of the boundary, therefore
+the tool extends beyond the edge by tool radius. You can use the Offset feature to
+offset the tool inside by a certain distance.
+If there are several boundary contours then the operation will use all of them.
+
+If one boundary is completely inside another, then it will act as an island. The area enclosed by the outer boundary,
+minus the area defined the inner boundary, will be machined.
+
+You can extend this to define more complicated shapes by having islands within islands.
+
+22
+                                                                                             5. Boundaries
+
+5.2 Boundary Definition
+
+The following type of boundaries are available:
+
+5.2.1 Boundary type
+
+Created automatically
+This option enables you to automatically create the boundary using the stock or target models.
+The following types of automatically created boundaries are supported in InventorCAM:
+
+       · Auto-created box of target geometry
+       · Auto-created box of stock geometry
+       · Auto-created silhouette
+       · Auto-created outer silhouette
+
+Created manually
+This option enables you to define the constraint boundary that limits the tool path by creating a 2D area above the
+model in the XY-plane of the current Coordinate system or by an automatically generated 3D curve mapped on the
+surface.
+The following types of 2D boundaries are supported:
+
+       · B oundary box
+       · Silhouette boundary
+       · U ser-defined boundary
+       · C ombined boundary
+
+The following types of 3D boundaries are supported:
+
+       · Selected faces
+       · Shallow areas
+       · T heoretical rest areas
+       · T ool contact areas
+       · Rest areas
+
+5.2.2 Boundary name
+
+This section enables you to define a new boundary geometry or choose an already defined one from the list.
+
+·  displays the appropriate dialog box for the geometry definition.
+
+·  displays the Select Chain dialog box (see topic 5.4.6) enabling you to choose the necessary chains for
+
+   the boundary. The chosen boundaries are displayed and highlighted in the graphic window.
+
+5.2.3 Boundary ­ tool relation
+
+This option controls how the tool is positioned relative to the boundaries. This option is relevant only for 2D
+boundaries.
+
+                                                                                                            23
+Internal                                                                        Boundary
+The tool machines inside the boundary.
+
+                                                                                                                    Tool
+
+External                                                                        Boundary
+The tool machines outside the boundary.
+
+                                                                                                                    Tool
+
+Centered                                                                        Boundary
+The tool center is positioned on the boundary.
+
+                                                                                                                    Tool
+
+Tangent                                                                         Unmachined area
+
+The Internal/External/Centered methods of the boundary definition have
+several limitations. In some cases, the limitation of the tool path by planar
+boundary results in unmachined areas or corners rounding.
+
+The Tangent option enables you to avoid these problems.                         Boundary ­ Tool Relation: Internal
+
+When this option is chosen, InventorCAM generates the tool path                                         Unmachined
+boundaries by projecting the planar working area on the 3D model. The                                       area
+tool path is limited in such a way that the tool is tangent to the model faces
+at the boundary.                                                                Boundary ­ Tool Relation: Centered
+
+This option enables you to machine the exact boundary taking the geometry
+into account.
+
+ The tool is tangent                                                            Tool path rounding
+  to the projection
+of the working area
+onto the model faces
+
+                                                                                Boundary ­ Tool Relation: External
+
+      Boundary ­ Tool Relation: Tangent
+
+24
+                                                                                                                                  5. Boundaries
+Offset value
+This value enables you to specify the offset of the tool center.
+A positive offset value enlarges the boundary; a negative value reduces the boundary to be machined.
+
+                                  +-
+                                           -
+                                            +
+
+5.3 Automatically Created Boundaries
+
+Four types are boundaries are available in this section.
+
+5.3.1 Auto-created box of target geometry
+
+With this option InventorCAM automatically generates a rectangular box surrounding the target model. The tool path
+is limited to the area contained in this box.
+
+                                                                                             Target Model
+
+5.3.2 Auto-created box of stock geometry
+
+With this option InventorCAM automatically generates a rectangular box surrounding the stock model. The tool path
+is limited to the area contained in this box.
+
+                                                                                                                                                      Stock Model
+
+                                                                                                  Target Model
+
+                                                                                                                                                 25
+5.3.3 Auto-created silhouette
+
+With this option, InventorCAM automatically generates a silhouette boundary of the target model. A silhouette
+boundary is a projection of the outer and inner contours of the target model onto the XY-plane.
+
+                                                       Target Model
+
+5.3.4Auto-created outer silhouette
+
+With this option, InventorCAM automatically generates an outer silhouette boundary of the target model. In this case,
+an outer silhouette boundary is a projection of the outer contours only onto the XY-plane.
+
+                                                       Target Model
+
+5.4 2D Manually Created Boundaries
+
+The following boundaries are available for selection:
+
+5.4.1Boundary box
+
+A Boundary Box is a rectangular box surrounding the selected model geometry. InventorCAM enables you to limit the
+machining passes to the area contained in the Boundary box.
+
+26
+                                                                                                                                  5. Boundaries
+
+The Boundary Box dialog box enables you to define a necessary parameters and choose the model elements for the
+bounding box calculation.
+The boundary will be created on
+This option enables you to select the faces for which a bounding box is generated. Click
+the Select button to display the Select Faces dialog box (see topic 5.4.5).
+The Show button displays the already selected faces geometry.
+The table section displays the automatically calculated minimum and maximum
+coordinates, center and length of the bounding box.
+
+                InventorCAM enables you to change the XY-coordinates of the minimum
+                and maximum coordinates of the bounding box.
+
+When the geometry for the bounding box generation is defined, click . The boundary
+chains will be generated and the Select Chain dialog box (see topic 5.4.6) will be displayed.
+
+5.4.2Silhouette boundary
+
+A Silhouette boundary is a projection of the face edges onto the XY-plane. In other
+words, it is the shape that you see when you looking at a set of surfaces down the tool
+axis.
+
+The Silhouette Boundary dialog box enables you to define the parameters and choose the solid model elements for
+the silhouette boundary calculation.
+T he boundary will be created on
+This option enables you to choose a faces geometry to generate a silhouette boundary.
+I nventorCAM enables you either to choose an already existing Faces geometry from the
+list or define a new one with the Select button. The Select Faces dialog box is displayed.
+The Show button displays the selected face geometry.
+
+       · Min. diameter
+
+         This value defines the spanning of the boundary, the distance between two points
+         on either side. Boundaries that have a diameter smaller than this are discarded.
+
+       · Aperture
+
+         This value defines the fuzziness of the Silhouette. Decrease the value to bring it into sharper focus; increase
+         it to close up unwanted gaps between boundaries.
+
+       · Resolution
+
+         This value defines the granularity of the calculation: a small value results in a more detailed boundary, but it
+         is slower to calculate.
+
+                                                                                                                                                 27
+When the geometry for the silhouette boundary generation is defined, click  . The boundary chains will be
+generated and the Select Chain dialog box is displayed.
+
+5.4.3 User-defined boundary
+
+I nventorCAM enables you to define a user-defined boundary based on a Working area geometry (closed loop of
+model edges as well as sketch entities).
+For more information on Working area geometry, refer to the InventorCAM Milling Online Help.
+InventorCAM automatically projects the selected geometry on the XY-plane and defines the 2D boundary.
+The Geometry Edit dialog box enables you to define the geometry.
+
+5.4.4 Combined boundary
+
+This option enables you to define the boundary by performing a number of boolean
+operations between working area geometries and boundaries. Click the New icon.
+The Boolean Operations dialog box is displayed.
+
+Coordinate System
+
+This field enables you to choose the Coordinate System where the source geometries for
+the boolean operation are located. The resulting combined geometry will be created in
+the chosen coordinate system.
+
+Operation type
+
+This field enables you to define the type of the boolean operation. The following boolean
+operations are available:
+
+       · Unite
+
+                                                                                                                                                              Source geometries
+
+         This option enables you to unite selected geometries into a single one. All
+         internal segments are removed; the resulting geometry is outer profile.
+
+                                                                                        Geometry 1                                                                               Geometry 2
+                                                                            Resulting geometry
+
+28
+                                                                                                         5. Boundaries
+
+· M erge                                                                              Source geometries
+
+This option enables you to merge a number of geometries, created by different
+methods, into a single one.
+
+                                                                                                    Geometry 1 Geometry 2
+                                                                                      Resulting geometry
+
+                                                                                                         Geometry 3
+
+· Subtract                                                                            Source geometries
+
+This option enables you to perform subtraction of two geometries. The
+order of the geometry selection is important; the second selected geometry is
+subtracted from the first selected one.
+
+                                                                                                    Geometry 1 Geometry 2
+                                                                                      Resulting geometry
+
+· Intersect                                                                           Source geometries
+
+         This option enables you to perform intersection of two geometries.
+
+The Accept button performs the chosen operation with the geometries chosen in the
+Geometries section.
+
+Geometries                                                                                          Geometry 1  Geometry 2
+                                                                                      Resulting geometry
+The Geometries section displays all the available working area geometries classified
+by the definition method.
+
+This section enables you to choose the appropriate geometries for the boolean
+operation. Select the check box near the geometry name in order to choose it for the
+boolean operation.
+
+When you click button, the resulting geometry is displayed in the list under the Combined 2D header. InventorCAM
+enables you to edit the name of the created geometry. The newly created geometry is automatically chosen for the
+further boolean operation.
+
+                The resulting combined geometry is always a 2D geometry even if one or more of the input geometries
+                is a 3D boundary.
+
+The right-click menu available on the list items enables you to perform the following operations:
+
+     · Accept. This button enables you to perform the chosen boolean operation with the selected geometries.
+
+     · Unselect All. This option unselects all the chosen geometries.
+
+     · Delete. This option enables you to delete combined geometries generated in the current session of the Boolean
+         Geometries dialog box.
+
+                                                                                                                     29
+5.4.5 Select Faces dialog box
+
+This dialog box enables you to select one or several faces of the Autodesk Inventor model. The selected Face tags will
+be displayed in the dialog box.
+
+If you have chosen wrong entities, use the Unselect option to undo your selection. You can also right-click on the
+entity name (the object will be highlighted) and choose the Unselect option from the menu.
+The Reverse/Reverse all option enables you to change the direction of the normal vectors of the selected faces.
+The CAD Selection option enables you to select faces with the Autodesk Inventor tools.
+
+5.4.6 Select Chain dialog box
+
+Depending on the boundary type, InventorCAM generates a number of chains for the selected faces. The Select
+Chain dialog box enables you to select the chains for the boundary.
+
+5.5 3D Manually Created Boundaries
+
+The following boundaries are available:
+
+30
+                                                                                                                                  5. Boundaries
+
+5.5.1 Selected faces
+
+This option enables you to define the boundary by selecting drive and check faces similar to the Working area definition
+for 3D Milling operations.
+
+Under Boundary name, click the Define button to start the boundary definition. The S elected faces dialog box
+enables you to define the drive and check faces.
+Name
+This section enables you to define the boundary name and the tolerance that is used for the boundary creation.
+Drive faces
+This section enables you to define Drive faces ­ the set of faces to be milled. The tool path is generated only for
+machining of these faces. The Define button displays the Select Faces dialog box used for the faces selection. The
+Offset edit box enables you to define the offset for the Drive faces. When the offset is defined, the machining is
+performed at the specified offset from the Drive faces.
+
+                                                                                             Check face
+                                                             Drive face
+                                             Drive faces offset
+
+Check faces
+This section enables you to define Check faces ­ the set of faces to be avoided during the generation of the tool path.
+The Define button displays the Select Faces dialog box used for the faces selection. The Offset edit box enables you
+to define the offset for the Check faces. When the offset is defined, the machining is performed at the specified offset
+from the Check faces.
+
+                                                            Check faces offset
+                                                                  Check face
+
+                                   Drive face
+
+                                                                                                                                                 31
+5.5.2 Shallow areas
+
+With this option, InventorCAM enables you to automatically
+determine shallow areas in the model and define boundaries
+around them.
+
+                The tool has to be chosen for the operation before
+                the shallow areas boundary definition.
+The Select faces dialog box enables you to choose the necessary
+model faces. When the faces are chosen and the dialog box is
+confirmed, the S hallow Areas dialog box is displayed.
+This dialog box enables you to define a number of parameters for
+the shallow areas boundary generation.
+
+5.5.3 Theoretical rest areas
+
+You can create 3D boundaries from rest areas left by an
+imaginary reference tool. This gives good results when used for
+semi-finish and finish machining operations. You can then use
+these boundaries to limit another InventorCAM HSR operation
+performed with a tool of an equal or smaller size.
+The Select faces dialog box enables you to choose the necessary
+model faces. When the faces are chosen and the dialog box is
+confirmed, the T heoretical Rest Areas dialog box is displayed.
+This dialog box enables you to define a number of parameters for
+the theoretical rest material areas generation.
+
+Limits
+
+       · Include Corner Fillets
+
+         In corner area, the angle is degenerate. Use this option to include or exclude all corner areas from the rest area
+         boundaries.
+
+       · Min material depth
+
+         The smallest amount of material to be found in areas included in the rest area boundary prior to rest machining.
+         If the reference tool left parts of the material with less than this amount, those material areas would not be
+         included in the rest area boundaries.
+         The Min material depth should be greater than the cusp height left by the passes of the imaginary reference
+         tool path. If the Min material depth is smaller than the cusp height left by the passes of the imaginary
+         reference tool path the whole area machined by the reference tool will be included in the rest area boundary.
+
+Reference Tool
+This section enables you to specify the tool with which the theoretical rest areas will be calculated. This tool is usually
+larger than the tool that will be used to cut the rest areas. The reference tool is used to represent an imaginary tool
+path, and the rest areas are created assuming that the tool path had been created.
+Define the size of the tool by inserting values into the Tool diameter and Corner radius fields.
+
+32
+                                                                        5. Boundaries
+
+5.5.4 Tool contact area
+
+Tool contact area detection enables you to create 3D boundaries
+around areas where the tool is in contact with the selected surface
+or surfaces.
+
+                Tool contact area boundaries do not work on
+                vertical or near-vertical surfaces. The steepest angle
+                you should use for best results is 80 degrees.
+
+The surface has to be selected as shown below.
+
+If a Tool contact area boundary is created from this selection, there will be offset from the edges where the selected
+surface is adjacent to another surface. The tool can only reach the edges where there are no other surfaces to hinder
+its movement.
+The Select faces dialog box enables you to choose the necessary model faces. When the faces are chosen and the
+dialog box is confirmed, the Tool Contact Areas dialog box is displayed.
+
+This dialog box enables you to define the parameters for the boundary calculation.
+Boundaries
+
+         Overthickness
+
+         This option is available only for Tool contact area boundaries. Overthickness is an extra offset that can be
+         applied to the tool in addition to the set Wall offset when you wish to calculate with a tool slightly larger than
+         the one you intended to use, to create smooth filleted edges.
+
+         Constrain
+
+         This option enables you to limit the tool motion in two ways:
+
+                                                                        33
+     · Center point
+             The point of contact between the tool and the surfaces always lies within
+             the boundary.
+
+     · Contact point
+             The edge of the tool always lies within the boundary.
+
+5.5.5 Rest areas
+
+This option enables you to define rest material left unmachined after any machining
+strategy to create 3D boundaries. You can then use these boundaries to limit the
+operation tool path, made with a tool of an equal or smaller size to these specific
+areas.
+The Select faces dialog box enables you to choose the necessary model faces. When
+the faces are chosen and the dialog box is confirmed, the Rest Areas dialog box is
+displayed.
+This dialog box enables you to define the parameters for the rest areas calculation.
+
+Previous operations
+I nventorCAM enables you to choose any previous HSR operation for the Rest areas calculation.
+Min. material depth
+This value defines the granularity of the calculation. A small value results in a more detailed boundary but it will be
+slower to calculate.
+
+34
+Passes  6
+The Passes page enables you to define the technological parameters needed to generate the tool path for the HSR
+operation.
+
+6.1 Passes Parameters
+
+The Passes tab displays the major parameters that affect the generation of tool path passes.
+
+6.1.1 Wall offset
+
+This option enables you modify the tool diameter. The machining is performed using the  Wall
+
+                                                                                        offset
+
+modified tool.
+
+36
+Positive value                                                                                                                                                                             6. Passes
+
+The tool is moved away from the machining surface by the defined value. The offset is left                                                                                                               Wall
+unmachined on the surfaces. Generally, positive values are used for roughing and semi-finishing                                                                                                          offset
+operations to leave an allowance for further finishing operations.
+
+No offset
+
+The tool with the specified diameter is used for the tool path calculation. The machining is
+performed directly on the model surfaces. Generally, zero offset is used for finishing operations.
+
+Negative value                                                                                                                                                                             ~1.4 mm
+
+The tool is moved deeper into the material penetrating the machining surface by the specified
+value.
+
+                                                                                                                                                                                     1 mm
+
+This option is used in special circumstances, such as producing electrodes with a spark gap. The
+tool will remove material at a level below the designated surface. The calculations are based on
+a modified tool smaller than the one used.
+
+Since the calculations for negative values are based on a modified tool which is smaller than the one
+used, the offset must be equal to or smaller than the corner radius of the tool. Where the offset is
+greater than the corner radius of the tool, surfaces at angles near to 45° are unfavorably affected as the
+corner of the tool impacts on the machined surface, since the offset at the corners is in fact greater than
+the value set (see image). Surfaces that are horizontal or vertical are not affected.
+
+If a negative value (e.g. ­1 mm) is applied to a tool without corner radius, the real offset at the corners
+of the tool will be considerably greater than 1 mm (­1.4 mm appx.). This is obviously incorrect. If you
+want to simulate a negative offset with a slot mill, start by defining a bull-nosed tool with the corner
+radius equal to the negative value of the offset ­ corner radius of 1 mm is used with negative offset of
+­1 mm. If you define an end mill, the offset will be greater than the value set on surfaces nearing 45
+degrees.
+
+                                                                                                                                                                                           37
+    Using a bull-nosed tool with a positive corner radius equal to the desired negative offset, you will
+    achieve better and more accurate results.
+
+6.1.2 Floor offset
+
+This offset is applied to the tool and has the effect of lifting (positive value)
+or dropping (negative value) the tool along the tool axis. As a result, Floor
+offset has its greatest effect on horizontal surfaces and no effect on vertical
+surfaces. By default, this value is equal to that of Wall offset.
+
+The tool path is calculated taking into account the tool plus Wall offset.         Floor
+The resulting tool path is calculated by offsetting along the tool axis by the     offset
+distance equal to the specified Floor offset value.
+
+6.1.3 Tolerance
+
+All machining operations have a tolerance, which is the accuracy of the calculation. The smaller is the value, the more
+accurate is the tool path.
+
+                    Surface
+
+                                                        Cut with high tolerance
+
+                                                        Cut with low tolerance
+
+The tolerance is the maximum amount that the tool can deviate from the surface.
+
+38
+                                                                                                                                        6. Passes
+
+6.1.4 Step down
+
+The Step down parameter defines the spacing of the passes along the tool axis. This parameter is different from
+Adaptive step down, which adjusts the passes to get the best fit to the edges of a surface. The passes are spaced at the
+distance set, regardless of the XY-value of each position (unless the Adaptive step down check box is selected).
+
+                         Step down
+
+Step down type
+
+     · Constant
+             This parameter is the default option that allows constant step down along all model levels.
+
+     · Constant & flats
+             This parameter allows adding extra passes between step downs to machine material left on flats.
+                       This parameter is available only when the technology is selected as HM Roughing.
+
+6.1.5 Step over
+
+Step over is the distance between two adjacent passes.
+The Step over is measured in the XY-plane.
+
+                       This parameter is available only technologies of
+                       Hatch roughing and HM Roughing.
+In HM Roughing technology, the parameter can be defined either by Step over
+value, or In % of tool diameter, while the default value is 65% of the
+tool diameter.
+
+Step over type
+         · Core
+
+             All passes are offsets of the machinable area. All areas are machined from the outside inwards.
+      · Cavity
+
+             All passes are offsets of the machinable area. All areas are machined from the centre outwards.
+
+         · HM spiral
+
+             All passes are offsets of the part area. Core areas are machined from the outside inwards. Cavity areas are
+             machined from the centre outwards.
+
+                       This parameter is available only for the HM Roughing technology.
+
+                                                                                                                                                 39
+6.1.6 Offsets
+
+Each Z-level comprises a "surface profile" and a series of concentric offset profiles. The minimum and maximum
+offset values define the range of the size of spaces between the passes. InventorCAM will choose the largest value
+possible within that range that does not leave unwanted upstands between the passes.
+
+                     Offset
+
+A set of Contour roughing passes, for example, is created from a series of offset profiles. If each profile is offset by
+no more than the tool radius then the whole area will be cleared. In certain cases where the profile is very smooth it
+is possible to offset the profiles by up to the tool diameter and still clear the area.
+Obviously, offsetting by more than the tool diameter will leave many upstands between the passes. Between these
+two extremes, the radius and the diameter, there is an ideal offset where the area will be cleared leaving no upstands.
+InventorCAM uses an advanced algorithm to find this ideal offset.
+The Min. Offset value should be greater than the Offset tolerance parameter and smaller than the tool shaft radius; the
+Max. Offset value is calculated automatically.
+
+                       This parameter is used for Contour roughing and Hatch roughing. The options of Max. and Min.
+                       Offset are available only for Contour and Rest roughing technologies.
+
+6.1.7 Detect Flat Areas
+
+Detect Flat Areas inserts a tool path level on the flat area of the part and then carries the Z level slices at the
+programmed Z step. With this option enabled, each stepdown is adjusted to match the flat areas such that the
+requested axial stock to leave is also the stock left in these areas.
+
+                       This option is available only for Contour roughing, Hatch roughing, and Rest roughing.
+
+6.1.8 Limits
+
+The limits are the highest and lowest Z-positions for the tool ­ the range
+in which it can move. You can set the limits By target or By stock.
+
+     · Z-Top. This parameter defines the upper machining level. The
+         default value is automatically determined at the highest point of
+         the model.
+
+     · Z-Bottom. This parameter enables you to define the lower Z-level
+         of the machining. The default value is automatically set at the
+         lowest point of the model.
+         This limit is used to limit the passes to level ranges or to prevent the tool from falling indefinitely if it moved
+         off the edges of the model surface. When the tool moves off the surface, it continues at the Z-Bottom limit
+         and falls no further.
+
+40
+                                                                                                                                        6. Passes
+
+     · Delta. This parameter allows you to set a value for machining above or below the values specified in Z-Top and
+         Z-Bottom limits.
+
+6.1.9 Point reduction
+
+I nventorCAM enables you to optimize the tool path by reducing the number of points.
+The Fit arcs option enables you to activate the fitting of arcs to the machining passes according to the specified
+Tolerance value.
+The Cut tolerance value is the chordal deviation to be used for point reduction and arc fitting.
+Using the slider, you can adjust the tolerance within the range defined on the 3D HSR page in InventorCAM Settings
+> Defaults > Tolerance.
+
+6.1.10 Refine corners
+
+This option enables you to refine corner positions to provide a smoother tool path.
+                 This option is available for technologies of Contour roughing, Rest roughing and Hatch roughing.
+
+6.1.11 Detect core areas
+
+This option causes the tool to start from the outside of the model rather than take a full width cut in the center of
+the component. If your model includes both core and cavity areas, the system will automatically switch between core
+roughing and cavity roughing within the same tool path.
+When these passes are linked to create a Contour roughing tool path, the areas are machined from the top downwards.
+Obviously, material has to be machined at one level before moving down to the next one.
+
+                 The passes for the Z-Top level machining are not usually included in the operation tool path. Adjust the
+                 Z-Top level by adding the Step down value to the current Z-Top level value when you want to include
+                 the top level passes in the operation tool path.
+                 This option is available only for technologies of Rest and Contour roughing.
+
+6.1.12 Smoothing
+
+Selecting this check box allows you to create fillets in the sharp corners of the outer contour.
+
+6.1.13 Max Roughing Step down
+
+This option is available only for Hybrid Rib roughing technology. This field is always disabled and the value displayed
+in it changes depending on the values set in Step down and Number of levels in the Finishing section on the Roughing\
+Finishing tab.
+
+6.2 Smoothing Parameters
+
+The Smoothing tab enables you to round the tool path corners.
+
+                                                                                                                                                 41
+This option enables the tool to maintain a higher feed rate and reduces wear on the tool. This feature is often used in
+rough machining.
+
+                                                       Tool path without smoothing
+
+               Tool path with smoothing
+
+6.2.1 Max. radius
+
+A curve can be approximated as an arc. The Max. radius parameter defines the maximum arc radius allowed.
+
+6.2.2 Profile tolerance
+
+This value is the maximum distance that the smoothed outer profile will diverge from the actual profile. Set the
+Profile tolerance to a low or zero value to reduce the amount of material missed.This option is not available for the
+technology of HM roughing.
+
+6.2.3 Offset tolerance
+
+This value is the maximum distance that the smoothed profile offset will diverge from the inner (offset) profiles. This
+parameter is identical to the Profile tolerance, except that it refers only to the inner (offset) profiles and not to the
+outer profile. The Offset tolerance is measured between any given smoothed profile (excluding the outermost one)
+and the sharp corner of an imaginary profile drawn without smoothing, but at the same offset as the smoothed one.
+
+Unlike the Profile tolerance parameter, above, changing this value does not mean you miss material.
+
+               Profile                    Smoothed
+               tolerance Original         tool path
+
+                               tool path
+
+    Offset
+    tolerance
+
+42
+                                                                                                                                        6. Passes
+
+6.3 Adaptive Step Down Parameters
+
+In areas where the horizontal distance between the passes is significant, Adaptive step down can be used to insert extra
+passes and reduce the horizontal distance.
+
+In areas where the passes on the topmost edges of a surface would fall too close or too far away from that edge,
+Adaptive step down will add extra passes to compensate. So the Step down value controls the maximum Z-distance
+between the passes for the entire surface, while Adaptive step down adjusts those values for best fitting the surfaces.
+
+                                                                                                                   Adaptive step down
+                                                                                                                   passes
+
+Adaptive step down is not chosen Adaptive step down is chosen
+
+The Adapt Step down by list enables you to select the mode of the adaptive step down:
+
+       · None
+
+ Passes are applied without Adaptive step down, and some material may be left on the top faces.
+
+· Automatically insert extra passes
+
+     A pass is inserted to cut the top face; the next step down will be calculated from this pass.
+
+· Minimum step down
+
+     This parameter specifies the minimum step down value to be used, which means that passes will be no less
+     than this distance from each other.
+
+· Precision
+
+     This parameter controls how accurately the system finds the appropriate height to insert a new slice.
+
+· Profile step-in
+
+This parameter defines the maximal XY-              Large cusp                         Small cusps
+distance between cutting profiles located on
+two successive Z-levels. When InventorCAM                                                                    Inserted
+calculates the cutting profile at a given Z-level,                                                           Z-level
+the distance to the cutting profile on the
+previous Z-level is calculated.
+
+If the calculated value is greater than the Without Profile step-in                    With Profile step-in
+defined Profile step-in, InventorCAM inserts
+
+an additional Z-level and calculates the cutting profile in such way that the distance between cutting profiles
+
+located on two successive Z-levels will be smaller than the specified Profile Step in value.
+
+                                                                                                             43
+    · S callop
+
+    The cusp that remains after the machining can be defined either by combination of the Min. step down and
+    Profile step in parameters or by combination of the Min. step down and Scallop parameters. Therefore, the
+    Profile step in and Scallop parameters are mutually exclusive.
+
+                  Profile step in  Cusp                                        Cusp
+
+Machined surface                   Min. step down
+
+                                                             Machined surface        Scallop
+
+             When the combination of the Scallop and Min. step down parameters is used for the operation definition,
+             I nventorCAM performs the parameters validation according to the criteria below.
+             · The Scallop value must be positive;
+             · The Scallop value must be smaller than that of the Min. step down parameter.
+If the Scallop parameter does not match the validation criteria, the Error Parameters dialog box is displayed during
+the operation calculation. This dialog box specifies the parameters defined incorrectly and prompts you to edit these
+parameters definition.
+
+       · User-defined Cut levels
+
+         The cut levels can be edited manually and inserted in the User-defined cut levels table. Type the Z-levels of
+         your choice into the Z column of the table. The values will be sorted in the decreasing order.
+         Passes are applied without Adaptive step down, and some material may be left on the top faces.
+
+                 This option is available for technologies of Contour and Hatch roughing.
+
+       · Use drive curve
+
+         This option enables you to use a drive curve to determine the heights at which passes are calculated. Click
+
+                and choose any open or closed curve to define the geometry.
+         Using this option maintains consistency while machining a curve, automatically giving a smaller step down in
+         the shallower areas.
+
+                 When you choose the Use drive curve option, the Step down parameter cannot be defined manually.
+
+For HM roughing technology, the Stepdown tab has the following two options available:
+      · Optimize Z level: This option enables you to adjust slightly the Z-distance between passes in order to avoid
+           surfaces which are approximately horizontal. These approximately horizontal surfaces can cause severe
+           fragmentation of the cutting level.
+      · Last levels to even: To avoid a situation when the tool takes a very shallow cut for the last level, you can define
+           a number of last cuts that will be averaged in regards to the step down. This parameter defines for how
+           many last cuts the average value of the step down is calculated.
+
+44
+                                                                       6. Passes
+
+6.4 Edit Passes Parameters
+
+If you start the machining with a formed stock instead of a rectangular or cylindrical block of material, you could
+trim the passes to the formed stock faces to avoid unnecessary air cutting. The tool path trimming is used either when
+you use a casting as stock for the part machining or you use the updated stock resulting from a number of previous
+operations.
+
+For example, suppose you want to machine by Contour roughing the following model:
+
+Using the Contour roughing strategy, you get the following tool path.
+
+Rather than starting from a cylindrical block of material, you start with the casting shown below.
+                                                                                                                                                 45
+The resulting trimmed tool path is shown below.
+
+The Edit Passes page enables you to define the parameters for the trimming of passes.
+Edit using surfaces
+By selecting this check box, you can limit the machining by using the Updated Stock model or by defining an offset
+from the operation geometry.
+
+         Overthickness
+         This parameter defines an extra thickness that can be temporarily applied to the tool and can be set when
+         editing passes. The use of this parameter can help create better trimmed passes. A negative value will cause
+         the system to select only passes that are below the model faces by the specified amount, while a positive value
+         will select all passes that are within the specified distance from the model faces.
+         Axial overthickness
+         This parameter defines the value applied to the cutter and has the effect of lifting (positive thickness) or
+         dropping (negative thickness) the cutter along the tool axis. As a result, axial thickness has its greatest effect
+         on horizontal surfaces and has no effect on vertical surfaces. By default this value is the same as the horizontal
+         thickness.
+         Join gaps of
+         Passes that are in the same line and are separated by a value less than the value specified in this field will be
+         merged to create a single pass.
+         Pass Extension
+         In this field you can define the length of Pass extension. The trimmed passes will be extended in each
+         direction by the value specified in this field. This allows the cutter to move into the cut at Machining Feed rate
+         instead of Rapid feed rate. This option is not available in HM Roughing strategy.
+         Stock definition style
+         This option enables you to specify the method of machining area definition.
+     · When the Target geometry option is chosen, InventorCAM adds the Overthickness value as an offset to the
+         target geometry of current operation. This offset target is used as a stock.
+
+46
+                                                                                                                                        6. Passes
+
+     · When the Auto updated stock/Automatically option is chosen, InventorCAM calculates the updated stock
+         model after all the previous operations. The Overthickness value is added as offset to the stock, which will be
+         used as stock for the current operation.
+
+     · When the Stock by *.FCT file option is chosen, machining is performed in the area defined by an offset
+         from the updated stock, defined in FCT file located in the CAM-Part folder. The offset is defined by the
+         Overthickness parameter.
+
+     · When the Stock by *.STL file option is chosen, machining is performed in the area defined by an offset
+         from the updated stock, defined in STL file located in the CAM-Part folder. The offset is defined by the
+         Overthickness parameter.
+             · Show
+                 This button displays the difference between the updated stock model and the target geometry used in
+                 the operation.
+
+Gouge check while linking
+This option enables you to automatically detect and avoid the possible collisions between the tool and the surfaces of
+a solid model geometry during the tool path linking only.
+Any geometry can be selected for the gouge checking, but this functionality is intended for consideration of your part
+fixtures when the tool is moving from one pass to the next.
+After clicking the Gouge check while linking check box, the geometry can be defined by the following methods:
+3D Model: When Use STL file is disabled (default), the geometry is defined via solid model selection. You can choose
+an available geometry from the drop-down list. The Three points button displays the Browse Geometries dialog box
+that enables you to visualize the geometry during the selection process; the selected geometry is highlighted in the
+Autodesk Inventor Graphics Area. The New button displays the 3D Geometry dialog box that enables you to define
+a new geometry. The Edit button enables you to edit an existing geometry.
+STL: When Use STL file is enabled, the geometry is defined using a STL file that exists on your computer. You can
+choose an available STL file from the drop-down list; files located in the CAM-Part folder will appear in the list. The
+New button displays the Choose STL dialog box that enables you to define a new STL file from any location on your
+computer.
+The Show button displays in the Autodesk Inventor Graphics Area the chosen geometry (either 3D Model or STL)
+for which its surfaces will be protected during the tool path linking only.
+
+Stock definition in Rest roughing
+In the Rest roughing operation, you can control the number of recalculations and thus save time.
+You can choose how the stock for the operation is defined: either by selected operations or automatically.
+
+     · When you choose the Automatically option from the list, the updated stock is obtained after processing all
+         previous operations.
+
+     · When you choose the By selected operations option, you can see all operations preceding the current
+         operation in a fragment of the CAM-tree. Any previous operation, whether calculated or not, can be selected
+         for updated stock definition. Select the operations by clicking the check box near the operation name. You can
+         also select all operations by clicking the check box near the Operations header.
+
+                                                                                                                                                 47
+6.5 Roughing/Finishing parameters
+
+In Hybrid Rib operation, each Z-level is machined with roughing and finishing passes after which machining of a lower
+level is performed.
+
+The Roughing section enables you to control roughing passes and levels performed against a rib.
+
+       · Stepover
+
+         This parameter defines the distance between two parallel tool path passes.
+
+       · Restrict offset
+
+         When the Restrict offset option is selected, you can limit the number of parallel passes by specifying the value
+         in the Number of offsets field.
+
+       · Boundary pass
+
+         When this option is selected, an additional pass is performed around the outside perimeter of the constraint
+         boundary on each roughing level.
+
+       · Offset
+
+         This parameter enables you to define an offset applied to the constraint boundaries from outside.
+The Finishing section enables you to control finishing passes and levels performed against a rib.
+
+       · Number of levels
+
+         This parameter enables you to define the number of finishing levels required between step downs.
+
+       · Number of offsets
+
+         This parameter enables you to define the number of finishing offsets required at each level.
+
+       · Stepover
+
+         This parameter defines the distance between two parallel finishing passes.
+
+       · Order
+
+         This parameter enables you to control the order of linking the finishing passes. The following options are
+         available:
+     · During, upwards: after each roughing level, the finishing levels are machined from lowest to highest
+
+                                         3
+                                           2
+                                             1
+
+                                        3
+                                          2
+                                            1
+
+48
+                                                                                                                                        6. Passes
+     · During, downwards: after each roughing level, the finishing levels are machined from highest to lowest
+
+                                        1
+                                          2
+                                            3
+
+                                        1
+                                          2
+                                            3
+
+     · After, upwards: all roughing levels are machined first, followed by the finishing levels from lowest to highest
+
+                                        6
+                                          5
+                                            4
+
+                                        3
+                                          2
+                                            1
+
+     · After, downwards: all roughing levels are machined first, followed by the finishing levels from highest to
+         lowest.
+
+
+
+                                        1
+                                          2
+                                            3
+
+                                        4
+                                          5
+                                            6
+
+                                                                                                                                                 49
+50
+Links  7
+The Link page enables you to define the way how the generated passes are linked together into a tool path.
+
+In the image, the link movements are in green, the rapid movements are in red and the machining passes are in blue.
+
+Following are the linking parameters that can be defined by the user:
+
+      · General parameters
+      · Ramping parameters
+      · Strategy parameters
+      · Retracts parameters
+      · Leads parameters
+
+52
+                                                                                                                                                                7. Links
+
+Some of the parameters pages can be disabled unless you check the Advanced option in the right upper part of the dialog
+box.
+
+7.1 General Parameters
+
+The General page enables you to set the general parameters of the tool path linking
+
+Climb/Conventional milling
+
+These options enable you to set the tool path direction in
+such a manner that the climb/conventional milling will
+be performed. These options are not available for Hatch
+roughing.
+
+                                                               Climb milling   Conventional milling
+
+Bi-directional                                                 Machining pass                Linking pass
+
+With this option, each pass is machined in the opposite
+direction to the previous pass. A short linking motion (shown
+in green) connects the two ends - this is often called zigzag
+machining.
+
+Both Climb milling and C onventional milling methods are
+used in the bi-directional tool path.
+
+Bi-directional milling
+                                                                                                                                               53
+Minimize reverse linking
+
+This option will reduce the amount of reverse linking on the tool path. It will also ensure that the tool cutting direction is
+maintained when linking passes. If this option is chosen, the linking moves within a Z-level will be adjusted to maintain
+climb or conventional milling. If this option is not chosen, linking moves may conventionally mill even though climb
+milling is maintained for the passes and vice versa.
+
+                This option is only available if the Detect Core areas option of the Contour Roughing strategy is enabled.
+                This option is not available for Hatch roughing.
+
+Minimize full wide cuts
+
+This option will reduce full width cuts wherever possible. This is useful because full width cuts (those which have equal
+width to the tool diameter) are not recommended in most machining situations.
+
+                This option is only available if the Detect Core areas option of the Contour Roughing strategy is enabled.
+                This option is not available for Hatch roughing.
+
+Link by area
+
+The Link by area option enables you to perform all the passes with linking within the same area, so that each area is
+machined completely before moving to the next one. This option forces all passes on one Z-level within a single cavity/
+core to be machined before either moving down to the next Z-level or across to another cavity/core. For Contour
+Roughing, this parameter does not have effect if the passes are not edited, since all the passes on one Z-level within the
+area are machined before moving to the next level/area. This option is not available for Hatch and Rest roughing.
+
+Link by Z-level
+
+The Link by Z-level option enables you to perform all the passes at a specific Z level before moving to the next one. This
+will frequently result in occurrence of air movements between different areas of the same Z-level. By default the option
+is not chosen. It means that the passes are linked in such a manner that each area is machined completely before moving
+to the next one.
+
+Link per cluster
+
+When you link machining passes that are made up of several different clusters of passes, in corners, for example, the Link
+per cluster option allows each corner to be machined before the tool moves to another corner. If you do not select this
+option, the machine may need to make a number of rapid feed rate moves to connect the clusters of passes.
+
+Use dynamic stock
+
+The Use dynamic stock option enables you to use the dynamic stock slices. For all tool path linking operations, the stock
+lying outside the boundary is automatically protected when calculating linking motions. For roughing operations, uncut
+stock within the constraint boundary is also protected. The uncut stock can either be modelled as a static stock resulting
+in faster but less optimal tool path or a dynamic stock, which works slower but produces a better tool path.
+
+A dynamic stock is the updated stock, therefore when avoiding collisions linking is calculated according to the machined
+stock resulting in a more accurate tool path. This option is not available for Hybrid rib roughing and Rest roughing
+technologies.
+
+Min. profile
+
+The diameter of a profile is its "span", which is the largest distance between two points of the profile. Any profile that
+is smaller than this value will not be machined to avoid difficulties in ramping the tool into this space. The default Min.
+profile diameter value is slightly less than that of the flat part of the end mill tool (and zero for ball-nosed tools) For
+example, if the set of surfaces has a hole about the size of the tool you want to use, you will get a column of profiles
+that appear to "fall" through the hole down to the lowest Z level. If you do not want these profiles, you can use the Min.
+profile diameter parameter.
+
+54
+                                                                                                                                                                7. Links
+
+Raster passes
+
+When the technology is selected as Hatch roughing, this section enables you to define the direction for the hatch (raster)
+passes. InventorCAM enables you to choose One way or Bi-directional direction for the raster passes. The Reverse order
+option enables you to reverse the order of the hatch passes machining.
+
+                        Initial order  Reversed order
+
+Profile passes
+
+When the technology is selected as Hatch roughing, this section enables you to define the direction for profile passes.
+I nventorCAM enables you to choose the Climb or Conventional direction of the Profile passes.
+
+Retract
+
+The options of Start from home point and Return to home point enable InventorCAM to start/finish the operation tool
+path in the specified home point. The XYZ boxes defines the location of this point. If the tool path is subsequently split
+using the sister tooling operation, the home point settings are honoured for each piece of tool path.
+
+Clearance level
+
+This field defines the plane where the rapid movements of the operation (between passes) will be performed. The
+Clearance level value can be set according to the Part clearance level or according to the automatically calculated Optimized
+clearance level.
+
+Safety distance
+
+This field defines the distance to the Upper level at which the tool will start moving at the Z feed rate you have entered
+for the tool. Movements from the Clearance level to this height are performed in rapid mode.
+
+Start hint
+
+Enter the XY-coordinates of the starting position of the tool; the tool will move to this position at the beginning of
+the tool path. The default value for the Start hint is the center of your model. On larger models, where there is a great
+distance from the centre of the model and your current work area, you may want to change these values. If there is more
+than one set of passes to be linked, the linking will start with the passes closest to the start hint point.
+
+7.2 Ramping parameters
+
+The Ramping page enables you to control the ramping aspects of the tool path.
+
+                                                                               55
+Ramping is used when the tool moves from one machining level down to the next one; the tool moves downwards into
+the material at an angle.
+Max. ramp angle
+The Ramp angle is calculated automatically and depends on the model geometry and the tool type. The Max. ramp angle
+parameter enables you to limit this angle.
+The dimensions and type of tool you are using and the power of your machine tool will determine an appropriate ramp
+angle. The angle used on a profile will often be shallower than this, as the ramp always steps forward by at least the shaft
+radius of the tool.
+
+                If a profile is very small, then the angle used might have to be larger than you specify. In this case you can
+                avoid the machining of short profiles with the Min. profile diameter parameter located on the General page.
+Ramp height offset
+This parameter defines the height used in the ramping motion to the first upper profile. It ensures that the tool has fully
+slowed down from rapid speeds before touching the material so that it enters the material at a ramping angle.
+InventorCAM enables you to perform the ramp movement either with a profile, or with a helix (spiral).
+Profile ramping
+The tool performs the downward movements to the specific Z-level around the
+contour of the profile.
+         Min. profile diameter to ramp on
+         InventorCAM enables you to avoid ramp movements along small profiles,
+         as a very tight tool motion would counterbalance any advantages gained by
+         ramping for the smoothness of transition; by setting a minimum profile
+         diameter ("span") you will be able to ensure that small profiles will not be
+         ramped down to.
+Helix ramping
+The tool performs the downward movements to the specific Z-level in a corkscrew
+fashion, ensuring a smooth movement. Helix ramping also puts less load on the
+tool than profile ramping.
+         Helix diameter
+         This is the diameter of the ramping helix. In cases where the profile is too
+         small for a helix ramp of this diameter, Profile ramping is used.
+Plunge ramping
+The tool performs the downward movements to the specific Z-level in a vertical movement.
+
+56
+                                                                                                       7. Links
+
+Use Pre drilled holes
+
+This section enables you to define the ramping by approach points in pre-drilled
+holes. The centers of the holes are defined as approach points. Pre-drilled holes
+are used for cutters that cannot plunge straight into material (insert cutters). Each
+level is then linked to the pre-drilled point. The linking will use the specified entry
+points for plunging and will never helix or ramp onto the part. Any passes that
+cannot be reached using the specified entry points will be omitted from the final
+tool path. Pre-drilled holes must be within the boundary and stock and not in air.
+
+                                       No tool path for a specific area is generated, if               Approach
+                                       the approach point is defined outside of the                    points
+                                       area.
+
+To define the approach points, click the Define button. The Ramping Geometry
+Selection dialog box is displayed. This dialog box enables you to define the
+approach points by picking on the solid model.
+
+                       The content of this dialog box is similar to that of the Drill Geometry Selection dialog
+                       box used for drilling geometry definition (for more information, refer to InventorCAM
+                       Milling Help).
+
+Limit depth
+
+This check box controls the maximum depth at which the cutting in the current area will be performed. When
+this check box is selected, the Z-coordinate of the lowest approach point defines the maximum depth at which
+the cutting will be performed; the tool will not descend lower than the Z-level of this point.
+
+                                                                                                  Approach point
+
+                                                                                          Depth limit
+
+7.3 Strategy parameters
+
+The Strategy pages enables you to define the following parameters related to the linking strategy:
+
+      · Stay on surface within
+      · Linking radius
+      · Link clearance
+      · Stay down within
+      · Horizontal link clearance
+
+                                                                                                       57
+Stay on surface within
+The Stay on surface within parameter enables you to control the way how the tool moves from the end point of a pass
+to the start point of the next one. When the distance between these points is greater than the specified parameter value,
+the tool movement is performed at the Clearance plane, using rapid feed.
+When the distance between the points is smaller than the parameter value, the tool moves with cutting feed directly on
+the model face.
+This option enables you to decrease the number of air movements between the passes
+of the tool path.
+
+To control the manner of the link movement between passes when the tool moves on surface, use the Along surface
+option.
+Linking radius
+Using this parameter, InventorCAM enables you to generate S-shaped curves linking the adjacent closed passes of the
+contour machining. The value defines the radius of the link arc.
+If you set the Linking radius to 0 or turn off Smoothing then a simpler, straight-lined route will link each loop.
+
+                                 Linking radius
+
+When the radius is set to zero, straight line link movements are performed.
+In the HM Roughing strategy, the default value of the Linking radius is set as 20% of the defined Step over.
+Link clearance
+With this parameter, InventorCAM enables you to maintain a horizontal clearance from the bounding profile when
+moving horizontally from one location to another. The value defines the minimal distance from the bounding profile.
+Stay down within
+The Stay down within parameter enables you to control the point of choosing between retracting or staying on the
+surface. When the distance between the end point of a pass and the start point of the next one is less than the specified
+parameter value, the cutting tool stays on the surface. If the distance is greater than the specified parameter value, the
+cutting tool retracts to the clearance plane.
+Horizontal link clearance
+When the Detect core areas option is used, the Horizontal link clearance parameter defines the distance outside of the
+material to perform plunging. This option is not available for the technology of Hatch roughing.
+
+58
+                                                                                     7. Links
+
+7.4 Retracts parameters
+
+This page enables you to control retract movements between passes of the tool path.
+
+The Style options enable you to define the way how the retract movements are performed between passes.
+Shortest route
+
+The tool performs a direct movement from one pass to another. InventorCAM
+generates a curved retract movement trajectory. The minimum height of the
+retract movement is controlled by the Clear surface by parameter, and the
+curve's profile is controlled by the Smoothing and Curls parameters.
+This style is chosen by default, as it creates the shortest retract movements.
+However, some machine tools are unable to perform the rapid movement
+effectively along a curved path; in these cases you can choose one of the other
+two retract styles.
+Minimal vertical retract
+
+The tool moves vertically to the minimum Z-level where the safe rapid
+movement can be performed, moves along this plane in a straight line and
+drops down vertically to the start point of the ramp movement to the next
+pass. The minimum height of the retract is controlled by the Clear surface
+by parameter.
+
+Full vertical retract
+
+The tool moves vertically up to the clearance plane, rapidly moves at this level
+in a straight line, and drops down vertically to the start point of the ramp
+movement to the next pass.
+The Clearance parameters apply both to the lead in and the lead out
+components of retract motions.
+Clear surface within
+
+This option affects the tool path when the Shortest route style is chosen. It specifies the distance the tool moves away
+from the surface with the cutting feed rate, before the rapid movement starts.
+The distance is measured from the end of the lead out arc to the point where the tool is guaranteed to be clear of the
+surface.
+Minimum rapid length
+
+This option is used to specify a limit. If the 2D distance between the ends of the lead moves is less than this value, a 3D
+connecting move at lead feed rate is used. Otherwise a retract move is used.
+
+                                                                                                                                                                        59
+Clear surface by
+
+This is the minimum distance by which the tool will be clear of the surface during its rapid linking motion. All points of
+the tool ­ on both the tip and the side have to avoid the surface by this distance.
+
+For Minimal vertical retract motions, the tool lifts up to a height that ensures clearance.
+
+For S hortest route motions, the tool is lifted up above the surface to ensure the           Clear surface by
+clearance, then it performs rapid motion maintaining the Clear surface within
+distance.
+
+        This clearance is applied in addition to any wall offset that you
+        have already specified for the tool. In particular, with a negative
+        wall offset, the clearance is above the reduced surface and not
+        the real surface­ so you should set this value higher to prevent
+        the tool from gouging the surface.
+
+Radius
+
+InventorCAM enables to round sharp corners of the retract motions when the Shortest route option is used by adding a
+vertical curve of a defined radius. This makes the tool movement smoother and enables higher feed rates
+
+                                  Radius
+
+Curls
+
+InventorCAM enables you to add arcs in the end if the lead-out movements and in the beginning of the lead in movements.
+The Curl over radius and Curl down radius define the radius of these arcs.
+
+                         Curl up radius  Rapid movement  Curl down radius
+                  Lead out movement                          Lead in movement
+
+                                                                                  Cutting pass
+
+                The Curls options affect the tool path when the linking style is Shortest route.
+
+7.5 Leads Parameters
+
+The parameters located on this page enable you to control the lead in and lead out motions.
+
+      · Fitting
+      · Trimming
+      · Extensions
+      · Vertical leads
+      · Horizontal leads
+
+60
+                                                                                 7. Links
+
+The Stay on surface within parameter located on the Strategy page enables you to define the maximum
+distance between passes to stay on the surface and when to perform a retract movement. The style of the
+retract movement can be defined on the Retracts page.
+
+7.5.1 Fitting                                                                    Lead in/Lead out arc
+                                                                                              Tool pass
+You define here how the lead in and lead out arcs of the retract movements fit
+to the machining pass.
+Machine the whole pass
+
+With this option the complete pass is machined. The arc can be applied at the
+end of the pass, without trimming of the pass.
+
+The arc can be inserted only if it can be done safely without gouging the part faces. When the arc is conflicting with the
+model geometry, a straight vertical lead in/out movement is performed.
+
+Minimize trimming
+
+This option enables you to perform the arc retract movement with minimal possible trimming of the cutting tool pass.
+The retract pass is as close to the surface as possible, maintaining a minimum distance from the surface to fit the arc of
+the defined radius.
+
+Fully trim pass                                                                  Minimize trimming
+                                                                                 Fully trim pass
+In cases where it is crucial to prevent over-machining, this is a good and
+cautious strategy modification. The pass is trimmed back so the entire arc fits
+into it, but no nearer than a full machine pass link would be.
+
+                                                                                 61
+7.5.2 Trimming
+
+When a lead arc is added to a horizontal machining pass, the length of pass trimmed off will be at most the radius of the
+arc. However, when adding an arc to a steep finishing pass, the length of pass trimmed (trimming distance) will be much
+greater.
+
+                        Trimming
+                        distance
+
+Such trimming of the passes can result in the occurrence of large unmachined areas. To avoid this, InventorCAM enables
+you to limit the trimming distance with the Max. trimming distance parameter. If the trimming distance exceeds this
+value, then no arc is used; the whole pass is machined, and a straight vertical motion is added.
+
+    This option affects the path when the Lead fitting is Minimize trimming or Fully trim pass.
+
+7.5.3 Vertical leads
+
+The Vertical leads parameters enable you to define the radius of the arcs located in a vertical plane used to enter and leave
+the machining pass.
+
+                        Rapid movement
+
+                                                         Lead in radius
+
+    Lead out radius               Cutting pass
+
+7.5.4 Horizontal leads
+
+InventorCAM enables you to perform Horizontal lead in/out movements to provide you with smooth entering/exiting
+from the material.
+
+Using horizontal leads the tool path can be set up so that the tool approaches and leaves machining passes tangentially
+using helical moves. Note that if the requested radius (Lead in or Lead out) is too large, then the horizontal lead is
+omitted, and only vertical leads are used.
+
+Lead in/out radius
+
+These parameters enable you to define the radius of the arcs, located in a
+horizontal plane, used to enter and leave the machining pass.
+
+                                                Lead in
+                                                radius
+
+                                                                                                 Lead out
+                                                                                                 radius
+
+62
+                                                                                                                                                                7. Links
+
+Max. ramp angle
+
+I nventorCAM enables you to perform ramp down movements during the arc lead in. The Max. ramp angle parameter
+enables you to limit the maximum angle (measured from the horizontal plane) for ramping.
+Ramp height offset
+
+The ramp height offset is an extra height used in the ramping motion down from
+a top profile. It ensures that the tool has fully slowed down from rapid speeds before touching the material, and that it
+enters the material smoothly at the ramping angle.
+
+                   Ramp   Ramp height
+                   angle  offset
+
+Lead out angle
+
+I nventorCAM enables you to perform inclined upwards movements         Lead out
+during the arc lead out. The Lead out angle parameter enables you to   angle
+define the angle of inclined lead out movement. The angle is measured
+from horizontal plane.
+
+7.5.5 Extensions
+
+Ramp in extension
+
+The ramp in height offset is an extra height used in the ramping motion down from a top profile. It ensures that the
+tool has fully slowed down from rapid speeds before touching the material so that it enters the material smoothly at the
+ramping angle.
+
+Ramp out extension
+
+The ramp out height offset is an extra height used in the ramping motion. It ensures that the tool speeds up to rapid
+speeds gradually.
+
+                                                                                 63
+64
+8 Motion Control
+Using the parameters of the M otion control page, you can optimize the calculated tool path according to the kinematics
+and special characteristics of your CNC-machine.
+
+The default values of these parameters are defined in the VMID file of your CNC-machine.
+The interface of the Motion control page may vary depending on the parameters of your CNC-machine.
+
+8.1 4th Axis
+
+Selecting the 4th Axis face check box enables you define the Coordinate type and the Plane.
+The option of Coordinate type enables you to determine whether the GCode will consist of split blocks or blocks in
+polar/Cartesian coordinates. When you select the option of Polar, the tool path is calculated in polar coordinates. When
+you select the option of Cartesian, the tool path lines and arcs are calculated in Cartesian coordinates; the CoordSys
+position is zero for linear coordinates. The milling is processed using the rotary axis by translating the linear movements
+into the rotary-linear movements according to the plane.
+The option of Plane, allows you to choose the appropriate plane i.e, XC,YC, or ZC.
+Selecting the 4th Axis indexial angle option allows you to set a rotational angle value to extend the working area of
+machines having a limitation in one of the linear axis in the working plane.
+
+8.2 Approximation of Arcs
+
+This option enables you to control the process of arcs approximation at the operation level.
+The Approximate arcs by lines check box enables you to control the existence of arcs in the GCode output for the
+current operation.
+When this check box is selected, InventorCAM approximates all tool path arcs by lines. The precision of the approximation
+depends on the Max Chord Length and Max Arc Angle parameters defined on the Controller Definition page of
+the VMID file; the resulting GCode does not contain arcs.
+When this check box is not selected, the resulting GCode might contain arcs.
+
+8.3 5th Axis
+
+For a 5-axis machine, the tool axis vector can always be mapped into two different angle pairs. During the tool path
+generation, InventorCAM calculates for each tool axis orientation both of these two angle pairs; only one of the two has
+to be chosen for the GCode generation.
+Some machines can only use one of the angle pairs due to mechanical limitations. In this case the angle pair will then be
+chosen as the First angle pair or Second angle pair.
+
+66
+                         8. Motion Control
+
+8.4 Point Interpolation
+
+The point interpolation provides the ability to create intermediate points by setting a certain maximum angle step distance
+(for 5-axis motions) or by splitting long linear motions (3-axis and 5-axis tool paths) for feed rate moves and rapid rate
+moves.
+
+Interpolation for distance
+
+Using this option, InventorCAM enables you to perform interpolation for the linear tool movements. When this option
+is active, a new interpolated tool position is defined with the specified tolerance value in the Interpolation by tolerance
+parameter field.
+
+Rapid feed rate moves
+
+When this option is activated, all rapid motions (on clearance area and rapid distance) are converted into a feed motion
+with the given value.
+
+                         67
+68
+Miscellaneous  9
+
+Parameters
+This page displays the non-technological parameters related to the HSR operation.
+
+9.1 M essage
+
+This field enables you to type a message that will appear in the generated GCode file.
+
+9.2 E xtra Parameters
+
+This table contains certain parameters only when special operation options have been implemented in the postprocessor
+you are using for this CAM-Part.
+For more information on additional parameters definition, refer to the InventorCAM Machine ID Reference Guide.
+
+9.3 Flyout Window
+
+If you prefer working with a larger window, the Flyout Window option displays the Operation Option window.
+
+70
+Edit Tool Path                             1
+
+                10
+The operation of Edit HSR/HSM Tool Path enables you to easily edit/trim or modify the generated tool path, using
+Boundaries, and Z levels.
+This option is available in the InventorCAM Tree after the HSR/HSM operation is calculated.
+Right click the operation you want to edit and select Edit HSR/HSM Tool Path. This opens the Edit HSR/HSM window.
+Once you click the Save icon in the Operations window, the original operation is supressed in the InventorCAM Manager
+Tree and the edited operation is created below it with the Edit icon on it.
+
+10.1 Source operation
+
+The Source operation page of Edit HSR/HSM operations window displays the name of the operation which is currently
+open for editing.
+The Edit Toolpath Strategy section enables you to define the tool path editing strategy using Boundaries, Z-level, and
+Boundaries & Z-level.
+10.1.1 Boundaries
+When you select the Boundaries option, you can trim a set of finish passes using a 2D or 3D boundary on the Boundaries
+and Z-levels page. The 3D boundaries are theoretical rest areas, rest areas, shallow areas, tool contact areas. Working with
+3D Boundaries function, gives a better result on steep faces.
+
+                The section of Z-levels is unavailable on the Boundaries and Z-levels page when the Boundaries option
+                is chosen on the Source operation page.
+10.1.2 Z-levels
+The z-limits are the highest and lowest positions for the cutter - the range in which it can move during the pass ­ and can
+be altered to modify the passes after they have been created. When you choose this option, the tool path is edited only
+between the sepcified Z-levels values that you set on the Boundaries and Z-levels page.
+                The section of Boundaries is unavailable on the Boundaries and Z-levels page when the Z-levels option is
+                chosen on the Source operation page.
+10.1.3 Boundaries & Z-levels
+When you select this option, the tool path is edited using the chosen boundary and the specified Z-levels.
+
+72
+                                                                                           10. Edit Tool Path
+
+10.2 Tool
+
+The Tool page displays the tool used in the operation. The tool parameters cannot be edited in the Edit HSR/HSM
+Operations window.
+
+On the Data tab, only the options of Link down, Link up and Rapid are available for editing.
+
+10.3 Boundaries and Z-levels
+
+This page enables you to define the boundaries and z-levels to edit the tool path.
+10.3.1 Boundary Type
+
+The Boundary type section enables you to create the boundary automatically or manually.
+10.3.2 Boundary name
+
+The Boundary name section enables you to define a new boundary or choose an existing one.
+10.3.3 Boundary offset
+
+The Boundary offset section enables you to apply an additional positive or negative offset value to the defined boundary.
+10.3.4 Z-levels
+
+The Z-levels section enables you to specify the maximum and minimum z-limits for editing the tool path.
+10.3.5 Keep tool path outside the Boundary
+
+When this check box is selected, everything inside the trimming boundary is trimmed while the tool path is kept outside
+the selected boundaries.
+
+When this check box is not selected, all exterior pass information is removed while the tool path is created only inside
+the selected boundaries.
+
+                                                                                                         73
+                                                                   The Complete CAM Solution, with
+                                                                   Revolutionary iMachining, best support
+                                                                   for Multi-Channel Mill-Turn and Swiss
+                                                                   CNCs, seamlessly Integrated in and
+                                                                   associative to SOLIDWORKS®, Inventor®
+                                                                   and Solid Edge®.
+                                                                   iMachining 2D
+                                                                   iMachining 3D
+                                                                   2.5D Milling
+                                                                   Indexial Multi-Sided
+                                                                   HSS Machining
+                                                                   3D High Speed Milling
+                                                                   Simultaneous 5-Axis
+                                                                   Turning
+                                                                   Advanced Mill-Turn
+                                                                   Swiss-Type
+                                                                   Solid Probe
+
+solidcam.com
+

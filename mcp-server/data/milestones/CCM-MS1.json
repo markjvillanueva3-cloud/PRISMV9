@@ -1,0 +1,894 @@
+{
+  "id": "CCM-MS1",
+  "version": "1.0.0",
+  "title": "Hook Type Modernization",
+  "brief": "Add prompt, agent, and HTTP hook types alongside existing command hooks. Currently all hooks are command (shell script) type. Prompt hooks use lightweight LLM evaluation, agent hooks spawn verification subagents, HTTP hooks POST to endpoints.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "New Hook Types + Migration",
+      "description": "Implement prompt, agent, and HTTP hook types. Migrate top bash checks to prompt hooks. Document hook type selection.",
+      "sessions": "2-3",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Prompt hook — code quality check",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Bash-based code quality checks are brittle and miss semantic issues. LLM prompt hooks can evaluate edit quality holistically — checking naming, patterns, consistency, and intent alignment.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PostToolUse"
+          ],
+          "features": [
+            "llm-code-review",
+            "semantic-quality-check",
+            "pattern-enforcement"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Claude Code supports prompt hook type in settings.json",
+            "CCM-MS0 hook event expansion complete"
+          ],
+          "exit_conditions": [
+            "Prompt hook evaluates Edit/Write tool outputs for quality",
+            "Catches naming violations, anti-patterns, missing JSDoc",
+            "Response includes specific improvement suggestions"
+          ],
+          "rollback": "Remove prompt hook entry from settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define prompt hook schema in settings.json: type='prompt', event='PostToolUse', prompt template with {{tool_output}} placeholder"
+            },
+            {
+              "number": 2,
+              "instruction": "Write prompt template that evaluates: naming conventions, JSDoc presence, error handling, TypeScript strictness"
+            },
+            {
+              "number": 3,
+              "instruction": "Configure filter: only trigger for Edit and Write tool calls on .ts files"
+            },
+            {
+              "number": 4,
+              "instruction": "Set response action: warn (not block) for quality issues"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with sample edits: good code passes, bad code triggers warnings"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/prompts/code-quality-check.md",
+              "type": "config",
+              "description": "Prompt template for LLM-based code quality evaluation on Edit/Write outputs"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Prompt hook — code quality check — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Prompt hook — commit message quality",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Commit messages should follow consistent conventions. LLM evaluation catches vague messages, missing context, and style violations better than regex.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PreToolUse"
+          ],
+          "features": [
+            "commit-message-validation",
+            "style-enforcement",
+            "suggestion-generation"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Prompt hook type working from P0-U01"
+          ],
+          "exit_conditions": [
+            "Bad commit messages blocked with improvement suggestion",
+            "Evaluates: length, specificity, verb tense, scope",
+            "Good messages pass through without delay"
+          ],
+          "rollback": "Remove prompt hook entry from settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define prompt hook for PreToolUse filtering on Bash tool with 'git commit' in command"
+            },
+            {
+              "number": 2,
+              "instruction": "Write prompt template evaluating: imperative mood, <72 char subject, body explains why not what, references issue/milestone"
+            },
+            {
+              "number": 3,
+              "instruction": "Set response action: block with suggested rewrite for failing messages"
+            },
+            {
+              "number": 4,
+              "instruction": "Test with good and bad commit messages"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/prompts/commit-message-quality.md",
+              "type": "config",
+              "description": "Prompt template for LLM-based commit message quality evaluation"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Prompt hook — commit message quality — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Prompt hook — safety gate",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Destructive operations (force-push, delete, reset) need semantic validation beyond pattern matching. LLM can understand context and intent to make better safety decisions.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PreToolUse"
+          ],
+          "features": [
+            "destructive-op-detection",
+            "context-aware-safety",
+            "approval-gate"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Prompt hook type working from P0-U01"
+          ],
+          "exit_conditions": [
+            "Destructive operations require LLM approval",
+            "Context-aware: allows 'rm temp.txt' but blocks 'rm -rf src/'",
+            "Approval/denial includes reasoning"
+          ],
+          "rollback": "Remove prompt hook entry from settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define prompt hook for PreToolUse on Bash tool calls"
+            },
+            {
+              "number": 2,
+              "instruction": "Write prompt template: classify command as safe/caution/dangerous, evaluate blast radius, check for data loss potential"
+            },
+            {
+              "number": 3,
+              "instruction": "Set response action: block for dangerous, warn for caution, pass for safe"
+            },
+            {
+              "number": 4,
+              "instruction": "Include context: current branch, recent changes, working directory"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with spectrum: safe commands, ambiguous commands, clearly dangerous commands"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/prompts/safety-gate.md",
+              "type": "config",
+              "description": "Prompt template for LLM-based destructive operation safety evaluation"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Prompt hook — safety gate — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Agent hook — physics verification",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "Physics engine edits risk introducing formula regressions. An agent hook spawns a verification subagent that cross-checks formulas against known-good references.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read",
+            "Grep",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PostToolUse"
+          ],
+          "features": [
+            "formula-verification",
+            "regression-detection",
+            "physics-cross-check"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Claude Code supports agent hook type",
+            "CCM-MS0 complete"
+          ],
+          "exit_conditions": [
+            "Formula regressions caught on engine file edits",
+            "Agent verifies dimensional consistency, constant values, model names",
+            "Verification runs in <30s"
+          ],
+          "rollback": "Remove agent hook entry from settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define agent hook in settings.json: type='agent', event='PostToolUse', filter on *Engine*.ts files"
+            },
+            {
+              "number": 2,
+              "instruction": "Configure agent: model=haiku, maxTurns=5, tools=[Read,Grep], prompt='Verify physics formulas in edited file'"
+            },
+            {
+              "number": 3,
+              "instruction": "Agent checks: Kienzle kc formula structure, Taylor tool life exponents, dimensional consistency (force=N, speed=m/min)"
+            },
+            {
+              "number": 4,
+              "instruction": "Agent outputs: pass/fail with specific formula locations"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with deliberate formula corruption and verify detection"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/agents/physics-verifier.md",
+              "type": "config",
+              "description": "Agent hook definition for physics formula verification on engine file edits"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Agent hook — physics verification — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Agent hook — test impact analysis",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Running all 17K+ tests after every change is wasteful. An agent hook analyzes which tests are impacted by code changes and suggests targeted test runs.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PostToolUse"
+          ],
+          "features": [
+            "test-impact-analysis",
+            "targeted-testing",
+            "dependency-tracing"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Claude Code supports agent hook type"
+          ],
+          "exit_conditions": [
+            "Targeted test subset identified after code changes",
+            "Agent traces imports to find affected test files",
+            "Suggested test command output with specific files"
+          ],
+          "rollback": "Remove agent hook entry from settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define agent hook: type='agent', event='PostToolUse', filter on Edit/Write of .ts files"
+            },
+            {
+              "number": 2,
+              "instruction": "Configure agent: model=haiku, maxTurns=10, tools=[Read,Grep,Glob]"
+            },
+            {
+              "number": 3,
+              "instruction": "Agent traces: edited file → imports → test files that import edited file"
+            },
+            {
+              "number": 4,
+              "instruction": "Agent outputs: list of affected test files + suggested vitest command"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with edits to engines, dispatchers, and shared utilities"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/agents/test-impact-analyzer.md",
+              "type": "config",
+              "description": "Agent hook definition for test impact analysis on code changes"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Agent hook — test impact analysis — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Agent hook — schema validation",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Dispatcher schemas must match engine signatures. Schema drift causes runtime errors. An agent hook verifies schema-engine alignment after dispatcher edits.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PostToolUse"
+          ],
+          "features": [
+            "schema-engine-alignment",
+            "drift-detection",
+            "signature-verification"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Claude Code supports agent hook type"
+          ],
+          "exit_conditions": [
+            "Schema mismatches caught on dispatcher/schema edits",
+            "Agent verifies z.enum entries match engine exports",
+            "Agent checks action handler signatures match schema fields"
+          ],
+          "rollback": "Remove agent hook entry from settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define agent hook: type='agent', event='PostToolUse', filter on *Dispatcher*.ts and *Schema*.ts files"
+            },
+            {
+              "number": 2,
+              "instruction": "Configure agent: model=haiku, maxTurns=10, tools=[Read,Grep,Glob]"
+            },
+            {
+              "number": 3,
+              "instruction": "Agent checks: z.enum entries exist as exports, handler signatures match schema fields, action names consistent"
+            },
+            {
+              "number": 4,
+              "instruction": "Agent outputs: pass/fail with specific mismatches listed"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with deliberate schema-engine misalignment"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/agents/schema-validator.md",
+              "type": "config",
+              "description": "Agent hook definition for dispatcher schema-engine alignment verification"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Agent hook — schema validation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "HTTP hook — telemetry endpoint",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Session metrics, tool usage patterns, and error rates need real-time visibility. HTTP hook POSTs metrics to a local dashboard endpoint for live monitoring.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PostToolUse",
+            "SessionEnd"
+          ],
+          "features": [
+            "real-time-telemetry",
+            "local-dashboard",
+            "metrics-posting"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Claude Code supports HTTP hook type"
+          ],
+          "exit_conditions": [
+            "Metrics posted to localhost endpoint on every tool call",
+            "Payload includes: tool_name, duration_ms, success, tokens_used",
+            "Dashboard endpoint receives and stores metrics"
+          ],
+          "rollback": "Remove HTTP hook entries from settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define HTTP hook in settings.json: type='http', url='http://localhost:18370/metrics', method='POST'"
+            },
+            {
+              "number": 2,
+              "instruction": "Configure payload template: {tool, duration, success, tokens, timestamp, session_id}"
+            },
+            {
+              "number": 3,
+              "instruction": "Set timeout: 2s, fail-open (don't block on endpoint failure)"
+            },
+            {
+              "number": 4,
+              "instruction": "Create minimal Express endpoint at port 18370 to receive and store metrics"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with tool calls and verify metrics received"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/telemetry-server.ts",
+              "type": "code",
+              "description": "Minimal Express server receiving hook telemetry on port 18370"
+            },
+            {
+              "path": "~/.claude/hooks/http/telemetry-config.json",
+              "type": "config",
+              "description": "HTTP hook configuration for telemetry endpoint"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "HTTP hook — telemetry endpoint — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "HTTP hook — build status webhook",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Build and test results need to notify external systems (dashboards, CI, notification channels). HTTP webhook enables integration without coupling.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PostToolUse"
+          ],
+          "features": [
+            "build-notifications",
+            "webhook-integration",
+            "status-broadcasting"
+          ],
+          "dependencies": [
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "HTTP hook type working from P0-U07"
+          ],
+          "exit_conditions": [
+            "Build events posted to configurable webhook URL",
+            "Payload includes: build_status, test_count, error_count, duration",
+            "Supports multiple webhook endpoints"
+          ],
+          "rollback": "Remove HTTP hook entries from settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define HTTP hook filtering Bash tool calls containing 'npm run build' or 'vitest'"
+            },
+            {
+              "number": 2,
+              "instruction": "Parse build/test output for status, counts, and duration"
+            },
+            {
+              "number": 3,
+              "instruction": "POST to configurable endpoint(s) from ~/.prism/config.json webhooks array"
+            },
+            {
+              "number": 4,
+              "instruction": "Test with build success, build failure, and test runs"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/http/build-webhook-config.json",
+              "type": "config",
+              "description": "HTTP hook configuration for build status webhooks"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "HTTP hook — build status webhook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Migrate top 5 bash checks to prompt hooks",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Several bash hooks perform text analysis that LLMs handle better — semantic intent detection, quality assessment, pattern recognition. Migrating these improves accuracy and maintainability.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PreToolUse",
+            "PostToolUse"
+          ],
+          "features": [
+            "hook-migration",
+            "accuracy-improvement",
+            "maintainability"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Prompt hook type proven working from P0-U01 through P0-U03"
+          ],
+          "exit_conditions": [
+            "5 bash checks migrated to prompt hooks",
+            "Accuracy improved or maintained for each",
+            "Bash fallbacks preserved for offline mode"
+          ],
+          "rollback": "Restore original bash hook entries in settings.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Audit pretooluse-unified.sh and posttooluse-unified.sh for text-analysis checks"
+            },
+            {
+              "number": 2,
+              "instruction": "Identify top 5 candidates: Agent simple-query warn, grep-on-just-read warn, compound command deny, test-file read warn, catalog-file read warn"
+            },
+            {
+              "number": 3,
+              "instruction": "Write prompt templates for each, handling edge cases better than regex"
+            },
+            {
+              "number": 4,
+              "instruction": "Test migrated hooks against historical false positive/negative cases"
+            },
+            {
+              "number": 5,
+              "instruction": "Keep bash versions as fallback, add prompt hooks as primary"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/prompts/agent-query-check.md",
+              "type": "config",
+              "description": "Prompt hook replacing Agent simple-query bash check"
+            },
+            {
+              "path": "~/.claude/hooks/prompts/read-pattern-check.md",
+              "type": "config",
+              "description": "Prompt hook replacing grep-on-just-read and file read warnings"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Migrate top 5 bash checks to prompt hooks — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Hook type selection guide",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 60,
+          "rationale": "With 4 hook types (command, prompt, agent, HTTP) developers need a decision framework to choose the right type for each use case.",
+          "tools": [
+            "Edit",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "documentation",
+            "decision-tree",
+            "best-practices"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U04",
+            "P0-U07",
+            "P0-U09"
+          ],
+          "entry_conditions": [
+            "All 4 hook types implemented and tested"
+          ],
+          "exit_conditions": [
+            "Guide documented in debugging-patterns.md",
+            "Decision tree covers: latency needs, complexity, offline support, cost",
+            "Examples for each hook type included"
+          ],
+          "rollback": "git checkout -- debugging-patterns.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Add Hook Type Selection section to debugging-patterns.md"
+            },
+            {
+              "number": 2,
+              "instruction": "Create decision tree: command (fast, offline, simple), prompt (semantic, quality, intent), agent (multi-step, verification), HTTP (external, async, monitoring)"
+            },
+            {
+              "number": 3,
+              "instruction": "Include latency/cost comparison table"
+            },
+            {
+              "number": 4,
+              "instruction": "Add migration checklist for converting between types"
+            },
+            {
+              "number": 5,
+              "instruction": "Include examples from each implemented hook"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "debugging-patterns.md",
+              "type": "config",
+              "description": "Updated with hook type selection guide, decision tree, and examples"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Hook type selection guide — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms1-gate",
+    "mcp_action": "prism_ccm:ccm_ms1_run",
+    "skill_command": "/ccm-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms1-gate"
+    ],
+    "new_actions": [
+      "ccm_ms1_run"
+    ],
+    "new_skills": [
+      "/ccm-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Add prompt, agent, and HTTP hook types alongside existing command hooks. Currently all hooks are command (shell script) type. Prompt hooks use lightweight LLM evaluation, agent hooks spawn verification subagents, HTTP hooks POST to endpoints.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

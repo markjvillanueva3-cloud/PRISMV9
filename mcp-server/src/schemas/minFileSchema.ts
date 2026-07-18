@@ -84,4 +84,4 @@ export const ParseMINInputSchema = z.object({
   text: z.string(),
   max_lines: z.number().int().positive().max(1_000_000).default(200_000),
 });
-export type ParseMINInput = z.infer<typeof ParseMINInputSchema>;
+export type ParseMINInput = z.input<typeof ParseMINInputSchema>;

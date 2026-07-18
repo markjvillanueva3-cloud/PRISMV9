@@ -102,7 +102,7 @@ function buildSummary(props: AppwDashboardCopilotProps) {
   posture.push(`hot jobs ${formatRefresh(props.hotJobsRefreshedAt)}`);
   posture.push(`telemetry ${formatRefresh(props.telemetryUpdatedAt)}`);
 
-  return `PRISM AI is reasoning over live fleet telemetry, dispatch pressure, tool risk, safety and OEE posture, shop-hot escalation, learning fabric, release readiness, route freshness, and degraded-lane signals for the Manufacturing Dashboard. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live fleet telemetry, dispatch pressure, tool risk, safety and OEE posture, shop-hot escalation, learning fabric, release readiness, route freshness, and degraded-lane signals for the Manufacturing Dashboard. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwDashboardCopilotProps): WorkspaceCopilotSuggestion[] {

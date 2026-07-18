@@ -21,7 +21,14 @@ related:
 
 ## Description (from file header)
 
-WEDM Perception Hooks — WEDM AGI Phase 1 / P1-MS1 (U-P1-04, U-P1-05)Two hooks that wire the WEDM perception stack (MachineState → KalmanFusion→ VirtualMachine) into the PRISM hook bus:  1. wedm_sensor_anomaly (U-P1-04) — post-tool SPC-style anomaly detector.     Consumes the fused channels produced by WEDMKalmanFusionEngine and     applies a Nelson Rule 1 adaptation: warn when |innovation| exceeds     3σ (σ derived from posterior variance + measurement noise), escalate     when it persist
+WEDM Perception Hooks — WEDM AGI Phase 1 / P1-MS1 (U-P1-04, U-P1-05)
+Two hooks that wire the WEDM perception stack (MachineState → KalmanFusion
+→ VirtualMachine) into the PRISM hook bus:
+  1. wedm_sensor_anomaly (U-P1-04) — post-tool SPC-style anomaly detector.
+     Consumes the fused channels produced by WEDMKalmanFusionEngine and
+     applies a Nelson Rule 1 adaptation: warn when |innovation| exceeds
+     3σ (σ derived from posterior variance + measurement noise), escalate
+     when it persist
 
 ## Events
 

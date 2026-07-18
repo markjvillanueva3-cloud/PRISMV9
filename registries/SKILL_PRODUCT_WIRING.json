@@ -1,0 +1,170 @@
+{
+  "version": "16.0.0",
+  "generatedAt": "2026-02-01T03:55:00Z",
+  "description": "Explicit Skill->Product wiring for all 4 PRISM products",
+  
+  "products": {
+    "SPEED_FEED_CALCULATOR": {
+      "description": "Calculate optimal cutting parameters for any material/tool/machine combination",
+      "primarySkills": [
+        "prism-fanuc-programming",
+        "prism-siemens-programming", 
+        "prism-heidenhain-programming",
+        "prism-gcode-reference",
+        "prism-universal-formulas",
+        "prism-material-physics",
+        "prism-material-lookup",
+        "prism-safety-framework"
+      ],
+      "supportSkills": [
+        "prism-manufacturing-tables",
+        "prism-validator",
+        "prism-error-catalog",
+        "prism-reasoning-engine",
+        "prism-code-perfection"
+      ],
+      "requiredEngines": [
+        "ENG-FORCE-KIENZLE",
+        "ENG-FORCE-MERCHANT",
+        "ENG-WEAR-TAYLOR",
+        "ENG-POWER-CUTTING",
+        "ENG-THERM-ANALYTICAL",
+        "ENG-SAFETY-CHECK"
+      ],
+      "requiredDatabases": [
+        "DB-MAT-MASTER",
+        "DB-TOOL-MASTER", 
+        "DB-MACH-MASTER"
+      ],
+      "totalSkills": 13
+    },
+    
+    "POST_PROCESSOR": {
+      "description": "Generate machine-specific G-code from CAM output",
+      "primarySkills": [
+        "prism-fanuc-programming",
+        "prism-siemens-programming",
+        "prism-heidenhain-programming",
+        "prism-mazak-programming",
+        "prism-okuma-programming",
+        "prism-haas-programming",
+        "prism-gcode-reference",
+        "prism-error-catalog"
+      ],
+      "supportSkills": [
+        "prism-validator",
+        "prism-manufacturing-tables",
+        "prism-safety-framework"
+      ],
+      "requiredEngines": [
+        "ENG-POST-GCODE_GEN",
+        "ENG-POST-PROCESSOR",
+        "ENG-CAM-VERIFICATION",
+        "ENG-CAM-COLLISION_CHECK"
+      ],
+      "requiredDatabases": [
+        "DB-CTRL-MASTER",
+        "DB-GCODE-MASTER",
+        "DB-MACH-MASTER",
+        "DB-ALARM-FANUC",
+        "DB-ALARM-SIEMENS",
+        "DB-ALARM-HAAS"
+      ],
+      "totalSkills": 11
+    },
+    
+    "SHOP_MANAGER": {
+      "description": "Quoting, scheduling, inventory, and shop floor management",
+      "primarySkills": [
+        "prism-universal-formulas",
+        "prism-manufacturing-tables",
+        "prism-material-lookup",
+        "prism-process-optimizer"
+      ],
+      "supportSkills": [
+        "prism-reasoning-engine",
+        "prism-validator",
+        "prism-error-catalog",
+        "prism-quality-master",
+        "prism-dev-utilities",
+        "prism-session-master"
+      ],
+      "requiredEngines": [
+        "ENG-BUS-COST_CALC",
+        "ENG-BUS-CYCLE_TIME",
+        "ENG-BUS-SCHEDULE",
+        "ENG-BUS-INVENTORY",
+        "ENG-BUS-QUOTE_ENGINE"
+      ],
+      "requiredDatabases": [
+        "DB-MAT-MASTER",
+        "DB-MACH-MASTER",
+        "DB-TOOL-MASTER",
+        "DB-COST-LABOR",
+        "DB-COST-OVERHEAD"
+      ],
+      "totalSkills": 10
+    },
+    
+    "AUTO_CNC_PROGRAMMER": {
+      "description": "Automated CAM programming with AI-driven toolpath optimization",
+      "primarySkills": [
+        "prism-fanuc-programming",
+        "prism-siemens-programming",
+        "prism-heidenhain-programming",
+        "prism-gcode-reference",
+        "prism-universal-formulas",
+        "prism-material-physics",
+        "prism-algorithm-selector",
+        "prism-ai-ml-master"
+      ],
+      "supportSkills": [
+        "prism-safety-framework",
+        "prism-validator",
+        "prism-error-catalog",
+        "prism-reasoning-engine",
+        "prism-code-perfection",
+        "prism-process-optimizer"
+      ],
+      "requiredEngines": [
+        "ENG-CAM-TOOLPATH_GEN",
+        "ENG-CAM-ADAPTIVE_HSM",
+        "ENG-CAM-COLLISION_CHECK",
+        "ENG-CAM-STOCK_SIM",
+        "ENG-OPT-PSO",
+        "ENG-ML-NEURAL_PREDICTOR"
+      ],
+      "requiredDatabases": [
+        "DB-MAT-MASTER",
+        "DB-TOOL-MASTER",
+        "DB-MACH-MASTER",
+        "DB-CTRL-MASTER",
+        "DB-CAM-STRATEGIES"
+      ],
+      "totalSkills": 14
+    }
+  },
+  
+  "statistics": {
+    "totalProducts": 4,
+    "totalSkillConnections": 48,
+    "avgSkillsPerProduct": 12,
+    "totalEngineConnections": 21,
+    "totalDatabaseConnections": 19
+  },
+  
+  "crossProductSkills": {
+    "description": "Skills used by multiple products",
+    "skills": [
+      {"skill": "prism-fanuc-programming", "products": ["SPEED_FEED_CALCULATOR", "POST_PROCESSOR", "AUTO_CNC_PROGRAMMER"]},
+      {"skill": "prism-siemens-programming", "products": ["SPEED_FEED_CALCULATOR", "POST_PROCESSOR", "AUTO_CNC_PROGRAMMER"]},
+      {"skill": "prism-heidenhain-programming", "products": ["SPEED_FEED_CALCULATOR", "POST_PROCESSOR", "AUTO_CNC_PROGRAMMER"]},
+      {"skill": "prism-gcode-reference", "products": ["SPEED_FEED_CALCULATOR", "POST_PROCESSOR", "AUTO_CNC_PROGRAMMER"]},
+      {"skill": "prism-universal-formulas", "products": ["SPEED_FEED_CALCULATOR", "SHOP_MANAGER", "AUTO_CNC_PROGRAMMER"]},
+      {"skill": "prism-safety-framework", "products": ["SPEED_FEED_CALCULATOR", "POST_PROCESSOR", "AUTO_CNC_PROGRAMMER"]},
+      {"skill": "prism-validator", "products": ["SPEED_FEED_CALCULATOR", "POST_PROCESSOR", "SHOP_MANAGER", "AUTO_CNC_PROGRAMMER"]},
+      {"skill": "prism-error-catalog", "products": ["SPEED_FEED_CALCULATOR", "POST_PROCESSOR", "SHOP_MANAGER", "AUTO_CNC_PROGRAMMER"]},
+      {"skill": "prism-reasoning-engine", "products": ["SPEED_FEED_CALCULATOR", "SHOP_MANAGER", "AUTO_CNC_PROGRAMMER"]}
+    ]
+  }
+}

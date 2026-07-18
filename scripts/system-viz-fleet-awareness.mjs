@@ -60,6 +60,21 @@ export const SLOT_NAMES_FALLBACK = [
   "kilo",
   "lima",
   "mike",
+  // Slots 14-26 added 2026-05-19 (SLOT-RECLAIM 13->26). MUST mirror SLOT_NAMES in
+  // .claude/helpers/chat-slots.mjs (the canonical fleet roster).
+  "november",
+  "oscar",
+  "papa",
+  "quebec",
+  "romeo",
+  "sierra",
+  "tango",
+  "uniform",
+  "victor",
+  "whiskey",
+  "xray",
+  "yankee",
+  "zulu",
 ];
 
 // ─── Pure-core resolver ─────────────────────────────────────────────────────

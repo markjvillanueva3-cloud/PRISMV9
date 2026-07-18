@@ -27,6 +27,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -214,7 +215,10 @@ function main() {
     console.error("graph missing");
     process.exit(2);
   }
-  const G = readJson(GRAPH_PATH);
+  // Streaming reader — graph file may exceed V8's ~512MB max-string-length
+  // ceiling, in which case `JSON.parse(readFileSync(p, "utf8"))` crashes with
+  // ERR_STRING_TOO_LONG. See scripts/lib/graph-io.mjs.
+  const G = readGraphStreaming(GRAPH_PATH);
   const idx = indexGraph(G);
   const generatedAt = new Date().toISOString().split("T")[0];
 

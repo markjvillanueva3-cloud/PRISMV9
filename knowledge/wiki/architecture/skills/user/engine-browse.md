@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `engine-browse` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/engine-browse.md` |
+| Source | `C:/Users/wompu/.claude/commands/engine-browse.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Engine Browse — PRISM Engine Explorer
+
+Search, filter, and explore PRISM's 200+ calculation engines by domain, name, or capability.
+
+## Args: $ARGUMENTS
+- Empty: show engine inventory summary by domain
+- `[search-term]`: search engines by name or keyword (e.g., `force`, `thermal`, `grinding`)
+- `[domain]`: list engines in a domain (cutting, thermal, safety, material, tool, coolant, surf
 
 <!-- AUTO-END -->
 

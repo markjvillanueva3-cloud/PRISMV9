@@ -1,0 +1,529 @@
+{
+  "id": "CADCAM-DEEPAGI-MASTER",
+  "version": "1.0.0",
+  "title": "CAD/CAM Deep AGI System — Full Neural Drawing + Intelligent CAM Orchestration",
+  "brief": "Build near-AGI CAD/CAM system. CAD side: neural drawing synthesis that LEARNS how to draw in any CAD software (FreeCAD/CadQuery/Fusion360/Mastercam/Inventor/hyperMILL/SolidCAM) to produce 100% accurate complex models with tons of features. CAM side: intelligent optimal toolpath selection for any moment, fully optimized CNC programs. Training corpus: 24,545 JM Die programs + 100+ customer databases + 3,700+ tribal tips.",
+  "track": "CAD-CAM-DEEPAGI",
+  "status": "not_started",
+  "priority": "CRITICAL",
+  "omega_target": 1,
+  "created_at": "2026-04-18T20:30:00Z",
+  "created_by": "forge /rgs via Opus 4.7",
+  "authority": "User directive 2026-04-18: full AGI capability for CAD/CAM",
+  "dependencies": [
+    "CAD-CAM-MASTER",
+    "CADCAM-AGI-MS0"
+  ],
+  "total_sub_milestones": 8,
+  "total_units": 96,
+  "total_sessions": 32,
+  "completed_units": 0,
+  "scrutiny_amendments_ref": "CADCAM-DEEPAGI-SCRUTINY-AMENDMENTS.json",
+  "ml_methodology_annex_ref": "CADCAM-DEEPAGI-ML-METHODOLOGY-ANNEX.json",
+  "rgs_stage_10_scores": {
+    "physics_reviewer": 74,
+    "code_analyzer": 82,
+    "safety_physics": 82,
+    "system_architect": 78,
+    "tester": 78,
+    "ml_developer": 58,
+    "average": 75.3,
+    "verdict": "PASS (>= 70)"
+  },
+  "post_amendment_required_before_execution": true,
+  "blocking_amendments": [
+    "A1_cascade_totals",
+    "A5_ml_annex",
+    "A6_safety_hardening_U-DAAE08_U-DAMPP05",
+    "A7_schema_normalization_MS0_MS4"
+  ],
+  "per_unit_amendments": [
+    "A2_physics_provenance",
+    "A3_stability_lobes",
+    "A4_chip_thinning",
+    "A8_burn_in_derisk",
+    "A9_corpus_budget",
+    "A10_duplication_guard"
+  ],
+  "sub_milestones": [
+    {
+      "id": "CADCAM-DAGI-MS0",
+      "title": "CAD Neural Drawing Foundation — Deep Learning CAD Synthesis",
+      "units": 14,
+      "sessions": 5,
+      "priority": "P0",
+      "dependencies": [],
+      "intent": "Build neural network-based CAD generation that synthesizes parametric CAD models from natural language / print descriptions. Core ML pipeline with training on JM Die corpus."
+    },
+    {
+      "id": "CADCAM-DAGI-MS1",
+      "title": "CAD Software Action Learning — Per-Software Drawing Intelligence",
+      "units": 16,
+      "sessions": 5,
+      "priority": "P0",
+      "dependencies": [
+        "CADCAM-DAGI-MS0"
+      ],
+      "intent": "Teach the AGI HOW to draw in each CAD software (CadQuery/FreeCAD/Fusion360/Mastercam/Inventor/hyperMILL/SolidCAM). Action sequence learning — click-by-click reproduction."
+    },
+    {
+      "id": "CADCAM-DAGI-MS2",
+      "title": "Complex Feature Synthesis — Advanced CAD Model Generation",
+      "units": 14,
+      "sessions": 4,
+      "priority": "P0",
+      "dependencies": [
+        "CADCAM-DAGI-MS0",
+        "CADCAM-DAGI-MS1"
+      ],
+      "intent": "Generate highly advanced CAD models with complex features: multi-body assemblies, sweeps, lofts, patterns, configurations, iLogic rules, parametric drivers."
+    },
+    {
+      "id": "CADCAM-DAGI-MS3",
+      "title": "CAD Accuracy Validation — 100% Accurate Guarantee",
+      "units": 10,
+      "sessions": 3,
+      "priority": "P0",
+      "dependencies": [
+        "CADCAM-DAGI-MS2"
+      ],
+      "intent": "Validate every generated CAD model is 100% accurate: dimensional, topological, manufacturability, tolerance stack. Rebuild until perfect."
+    },
+    {
+      "id": "CADCAM-DAGI-MS4",
+      "title": "CAM AGI Orchestrator — Optimal Toolpath For Any Moment",
+      "units": 16,
+      "sessions": 5,
+      "priority": "P0",
+      "dependencies": [
+        "CADCAM-DAGI-MS2"
+      ],
+      "intent": "Intelligent CAM programming that selects optimal toolpath strategy for each feature at each moment. Beats human programmers by synthesizing 18-CAM knowledge + tribal tips + physics."
+    },
+    {
+      "id": "CADCAM-DAGI-MS5",
+      "title": "Adaptive Execution System — LOC-Driven Parameters",
+      "units": 10,
+      "sessions": 3,
+      "priority": "P0",
+      "dependencies": [
+        "CADCAM-DAGI-MS4"
+      ],
+      "intent": "Real-time parameter adjustment as LOC/engagement changes. RPM, feed, stepover auto-adjust on 3D adaptive roughing. Ever-evolving cutting conditions handled."
+    },
+    {
+      "id": "CADCAM-DAGI-MS6",
+      "title": "MasterPostProcessor AGI Enhancement — Cost-Efficient G-Code",
+      "units": 8,
+      "sessions": 3,
+      "priority": "P1",
+      "dependencies": [
+        "CADCAM-DAGI-MS4",
+        "CADCAM-DAGI-MS5"
+      ],
+      "intent": "Enhance existing MasterPostProcessorAGIOrchestrationEngine. Full machine exploitation, controller-specific canned cycles, G-code compression, cycle time optimization."
+    },
+    {
+      "id": "CADCAM-DAGI-MS7",
+      "title": "E2E Pipeline Integration — Print-to-Shipped AGI",
+      "units": 8,
+      "sessions": 4,
+      "priority": "P0",
+      "dependencies": [
+        "CADCAM-DAGI-MS0",
+        "CADCAM-DAGI-MS1",
+        "CADCAM-DAGI-MS2",
+        "CADCAM-DAGI-MS3",
+        "CADCAM-DAGI-MS4",
+        "CADCAM-DAGI-MS5",
+        "CADCAM-DAGI-MS6"
+      ],
+      "intent": "Full integration: print/description → CAD model → CAM program → optimized G-code → JM Die production. Integration testing with 24,545 JM Die programs as regression corpus."
+    }
+  ],
+  "critical_gap_analysis": {
+    "cad_ai_gap": {
+      "current_state": "NO CAD generation AI exists. All existing AI is CAM-side (248 engines) and physics (17 engines).",
+      "missing_engines": [
+        "NeuralCADGenerationEngine",
+        "CADSketchSynthesisEngine",
+        "CADFeatureGenerationEngine",
+        "CADAssemblyGenerationEngine",
+        "CADActionSequenceLearnerEngine",
+        "CADAccuracyValidatorEngine",
+        "CADDrawingReasoningEngine"
+      ],
+      "impact": "Without CAD AI, system cannot generate models — forces human CAD drawing"
+    },
+    "cam_ai_gap": {
+      "current_state": "Strong CAM AI foundation (CAMDeepLearningEngine, 18 CAM systems) but no unified AGI orchestrator for optimal-at-every-moment decisions.",
+      "missing_engines": [
+        "CAMAGIOrchestratorEngine",
+        "OptimalToolpathAtMomentEngine",
+        "LOCDynamicParameterEngine",
+        "StrategyMomentSelectorEngine",
+        "VariabilityAdaptiveOrchestratorEngine"
+      ],
+      "impact": "Without CAM AGI, system uses static strategies — suboptimal"
+    }
+  },
+  "knowledge_source_mapping": {
+    "engines_to_leverage": [
+      "CAMDeepLearningEngine (18 CAM systems consolidation)",
+      "JMDieProgramLearningEngine (36,929 programs)",
+      "HyperMillDeepLearningEngine (hyperMILL expertise)",
+      "FiveAxisDeepLearningEngine (5-axis intelligence)",
+      "MillingReinforcementLearningEngine",
+      "MillingInferenceOrchestratorEngine",
+      "MillingOnlineLearningTrackerEngine",
+      "LatheLoRAContinualLearningEngine (5 LoRA engines)",
+      "LatheTransferLearningEngine",
+      "ApprenticeEngine",
+      "IncrementalLearningEngine",
+      "DiagnosticReasoningEngine, DecisionReasoningEngine",
+      "MultiAssetReasoningEngine",
+      "PRISMCreativeReasoningEngine",
+      "MasterPostProcessorAGIOrchestrationEngine",
+      "UnifiedCAMPipelineEngine",
+      "CAMKernelOrchestratorEngine",
+      "VariabilitySourceTrackerEngine (Phase 0.25)",
+      "AdaptiveParameterSpaceEngine (Phase 0.25)",
+      "AdaptiveFeedOptimizationEngine",
+      "SpeedFeedOrchestratorEngine (2,851 LOC)",
+      "OptimalStrategySelectionEngine",
+      "PPGreedyToolpathOptimizerEngine",
+      "AutoProgramOrchestratorEngine",
+      "PartGeometryPipelineEngine"
+    ],
+    "tribal_knowledge": [
+      "TribalKnowledgeEngine — 3,700+ tips across 18 CAM systems",
+      "MachiningPlaybookEngine — 296 experiential rules",
+      "src/data/*-cam-tips.ts — per-CAM tip files",
+      "controller-knowledge-tips.ts — controller-specific",
+      "BlueprintVisionOCREngine — for reading prints"
+    ],
+    "formulas": [
+      "Kienzle cutting force (Fc = kc1_1 * ap * fz^(1-mc))",
+      "Taylor tool life (T = (C/Vc)^(1/n))",
+      "Deflection (delta = FL^3/3EI)",
+      "Johnson-Cook flow stress",
+      "NURBS curves (de Boor)",
+      "Bezier (de Casteljau)",
+      "Chip thinning factor",
+      "Engagement calculation from toolpath geometry",
+      "ChipThinningCompensationEngine"
+    ],
+    "reference": [
+      "JM Die 24,545 programs (training corpus)",
+      "100+ customer databases",
+      "Sandvik, Kennametal, Machinery's Handbook",
+      "MachineRegistry — 910-machine database",
+      "MaterialRegistry",
+      "ToolCatalogEngine — 95,608 tools",
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md"
+    ],
+    "ml_foundations": [
+      "Neural networks (CNN for feature extraction)",
+      "Transformer architecture for sequence generation",
+      "LoRA continual learning (existing infrastructure)",
+      "Reinforcement learning (MillingReinforcementLearningEngine)",
+      "Transfer learning (LatheTransferLearningEngine)",
+      "Bayesian inference",
+      "Gaussian processes for uncertainty",
+      "Graph neural networks for CAD topology"
+    ]
+  },
+  "software_priority_tiers": {
+    "tier_1_foundation": {
+      "software": [
+        "CadQuery 2.x",
+        "FreeCAD Path"
+      ],
+      "cost": "FREE",
+      "api": "Python native",
+      "rationale": "No licensing friction, full control, open source extensibility",
+      "coverage_target": "70% of JM Die parts (simple-medium complexity)"
+    },
+    "tier_2_accessible": {
+      "software": [
+        "Fusion 360"
+      ],
+      "cost": "$545/yr",
+      "api": "REST + Python",
+      "rationale": "Cloud CAM, accessible API, active ecosystem",
+      "coverage_target": "85% of JM Die parts (adds cloud simulation)"
+    },
+    "tier_3_professional": {
+      "software": [
+        "Mastercam",
+        "hyperMILL",
+        "SolidCAM",
+        "Inventor"
+      ],
+      "cost": "Commercial",
+      "api": ".NET / COM",
+      "rationale": "Advanced 5-axis, industry standard, existing 76 engines",
+      "coverage_target": "100% of JM Die parts including complex 5-axis"
+    },
+    "tier_4_fallback_chain": {
+      "strategy": "Primary: FreeCAD/CadQuery → Fusion → Mastercam/hyperMILL → SolidCAM → Inventor → manual fallback",
+      "hybrid_combinations": [
+        "CadQuery model → Mastercam toolpath (best of both)",
+        "FreeCAD model → hyperMILL 5-axis (free CAD + premium CAM)",
+        "Inventor model → SolidCAM iMachining (parametric + HSM)"
+      ]
+    }
+  },
+  "agi_architecture": {
+    "cognition_layer": {
+      "NeuralCADDrawingEngine": "Transformer-based CAD sequence generation",
+      "CADReasoningEngine": "Chain-of-thought for design decisions",
+      "CAMReasoningEngine": "Strategy selection reasoning (existing CAMDeepLearningEngine)",
+      "CrossDomainSynthesisEngine": "Cross-disciplinary hybrid solutions (existing)"
+    },
+    "perception_layer": {
+      "BlueprintVisionOCREngine": "Read prints → structured data (existing)",
+      "NaturalLanguagePartParserEngine": "Parse user descriptions",
+      "CADFeatureRecognitionEngine": "Extract features from existing CAD (existing)",
+      "STEPFeatureExtractorEngine": "STEP file parsing (existing)"
+    },
+    "action_layer": {
+      "CADSoftwareActionSequencerEngine": "Click-by-click automation per software",
+      "CADParametricDriverEngine": "Parametric model manipulation",
+      "CAMToolpathGeneratorEngine": "Toolpath synthesis",
+      "MasterPostProcessorAGIEngine": "G-code emission (existing)"
+    },
+    "learning_layer": {
+      "ContinualLearningCoordinator": "LoRA-based continual learning (existing)",
+      "JMDieCorpusTrainerEngine": "Learn from 24,545 programs (existing)",
+      "OutcomeFeedbackLoopEngine": "Learn from actual vs predicted",
+      "ExceptionLearningEngine": "Learn from failures (existing)"
+    },
+    "adaptation_layer": {
+      "LOCDynamicParameterEngine": "Realtime LOC → RPM/feed/stepover",
+      "VariabilitySourceTrackerEngine": "Track variability sources (existing)",
+      "AdaptiveParameterSpaceEngine": "Expand parameter envelope (existing)",
+      "RealTimeAdaptiveControllerEngine": "Live adaptation (existing)"
+    }
+  },
+  "success_criteria": {
+    "cad_ai_success": [
+      "Generate 100% accurate CAD models from natural language descriptions",
+      "Reproduce 95%+ of JM Die parts from training corpus",
+      "Create complex multi-body assemblies with parametric drivers",
+      "Pass dimensional/topological/manufacturability validation",
+      "Support all 7 CAD/CAM software tiers"
+    ],
+    "cam_ai_success": [
+      "Optimal toolpath selection beats human programmer by 10%+ cycle time",
+      "Handles adaptive LOC parameter changes automatically",
+      "Passes S(x) safety validation (>= 0.70)",
+      "Generates cost-efficient G-code with full machine exploitation",
+      "Handles 100% of JM Die part complexities"
+    ],
+    "system_success": [
+      "End-to-end pipeline: description → G-code in < 5 minutes for typical parts",
+      "All 96 units complete",
+      "All 8 sub-milestones complete",
+      "32 sessions executed",
+      "Omega = 1.0 maintained throughout",
+      "SVI Psi >= 0.90 at completion",
+      "Build PASS, all tests pass (expected 800+ new tests)"
+    ]
+  },
+  "forge_triple_outputs": {
+    "protective_hooks_new": [
+      "cad-accuracy-gate.mjs — blocks inaccurate CAD models",
+      "cam-optimality-gate.mjs — blocks suboptimal toolpaths",
+      "adaptive-parameter-sanity.mjs — blocks bad LOC adjustments",
+      "neural-cad-validation.mjs — validates neural generations"
+    ],
+    "mcp_actions_new": [
+      "prism_cad:neural_generate",
+      "prism_cad:software_draw",
+      "prism_cad:feature_synthesize",
+      "prism_cad:accuracy_validate",
+      "prism_cam:agi_orchestrate",
+      "prism_cam:optimal_at_moment",
+      "prism_cam:loc_adapt",
+      "prism_cam:e2e_pipeline"
+    ],
+    "skills_new": [
+      "/agi-cad-generate — natural language → CAD model",
+      "/agi-cam-program — CAD model → optimal CAM program",
+      "/agi-e2e — full pipeline",
+      "/cad-from-blueprint — OCR blueprint → CAD",
+      "/cad-from-text — text description → CAD",
+      "/cam-optimize-at-moment — realtime strategy selection"
+    ]
+  },
+  "enforcement_hooks_active": {
+    "pre_level": [
+      "knowledge-consult.mjs — verify tribal knowledge read",
+      "context-retention.mjs — verify CAD/CAM engines reviewed",
+      "duplication-hard-block.mjs — block duplicate engines",
+      "self-awareness-enforce.mjs — require inventory check"
+    ],
+    "post_level": [
+      "stub-detector.mjs — block placeholder returns",
+      "test-legitimacy.mjs — require real tests",
+      "constants-checker.mjs — block inline physics",
+      "physics-agent.mjs — review formula correctness",
+      "wiring-agent.mjs — require MCP wiring"
+    ],
+    "compact_level": [
+      "review-gate.mjs — must pass before compact",
+      "forge-triple-gate.mjs — require hook+action+skill",
+      "session-audit-agent.mjs — review before compact"
+    ],
+    "post_compact": [
+      "feature-cascade.mjs — write SESSION_ARTIFACTS.json"
+    ]
+  },
+  "execution_order": [
+    {
+      "phase": 1,
+      "name": "CAD Neural Foundation",
+      "milestones": [
+        "CADCAM-DAGI-MS0"
+      ],
+      "sessions": 5,
+      "parallel": false,
+      "rationale": "Core ML foundation must be built first"
+    },
+    {
+      "phase": 2,
+      "name": "CAD Drawing + Synthesis",
+      "milestones": [
+        "CADCAM-DAGI-MS1",
+        "CADCAM-DAGI-MS2"
+      ],
+      "sessions": 9,
+      "parallel": true,
+      "rationale": "MS1 teaches software-specific drawing, MS2 synthesizes complex features. Can parallelize after MS0."
+    },
+    {
+      "phase": 3,
+      "name": "CAD Validation + CAM AGI",
+      "milestones": [
+        "CADCAM-DAGI-MS3",
+        "CADCAM-DAGI-MS4"
+      ],
+      "sessions": 8,
+      "parallel": true,
+      "rationale": "MS3 validates CAD, MS4 builds CAM AGI. Both need MS2."
+    },
+    {
+      "phase": 4,
+      "name": "Adaptive + PostProcessor",
+      "milestones": [
+        "CADCAM-DAGI-MS5",
+        "CADCAM-DAGI-MS6"
+      ],
+      "sessions": 6,
+      "parallel": true,
+      "rationale": "Real-time adaptation and G-code generation. Both need MS4."
+    },
+    {
+      "phase": 5,
+      "name": "E2E Integration",
+      "milestones": [
+        "CADCAM-DAGI-MS7"
+      ],
+      "sessions": 4,
+      "parallel": false,
+      "rationale": "Final integration requires all prior milestones."
+    }
+  ],
+  "parent_roadmap": "CAD-CAM-MASTER",
+  "recommended_next": "CADCAM-DAGI-MS0",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-deepagi-master-gate",
+    "mcp_action": "prism_cad-cam-deepagi:cadcam_deepagi_master_run",
+    "skill_command": "/cadcam-deepagi-master",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cadcam-deepagi-master-gate"
+    ],
+    "new_actions": [
+      "cadcam_deepagi_master_run"
+    ],
+    "new_skills": [
+      "/cadcam-deepagi-master"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build near-AGI CAD/CAM system. CAD side: neural drawing synthesis that LEARNS how to draw in any CAD software (FreeCAD/CadQuery/Fusion360/Mastercam/Inventor/hyperMILL/SolidCAM) to produce 100% accurate complex models with tons of features. CAM side: intelligent optimal toolpath selection for any moment, fully optimized CNC programs. Training corpus: 24,545 JM Die programs + 100+ customer databases + 3,700+ tribal tips.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "units": [
+    {
+      "id": "U-CADC01",
+      "title": "CADCAM-DEEPAGI-MASTER — Coordinator",
+      "description": "Master coordinator envelope for CADCAM-DEEPAGI-MASTER. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

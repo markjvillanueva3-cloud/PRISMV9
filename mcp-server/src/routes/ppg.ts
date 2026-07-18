@@ -116,6 +116,18 @@ export function createPpgRouter(callTool: CallToolFn): Router {
     }
   });
 
+  // GET /ppg/history -- post-processor generation history. web/src/api/client.ts ppgHistory() targeted
+  // this path before it existed (a dead wire); prism_product:ppg_history is real. Read-only; mirrors
+  // the /controllers GET (same callTool tool + { ok, data } envelope).
+  router.get("/history", async (_req, res) => {
+    try {
+      const result = await callTool("prism_product", "ppg_history", {});
+      res.json({ ok: true, data: result });
+    } catch (e: any) {
+      res.status(500).json({ ok: false, error: e.message });
+    }
+  });
+
   // ── CPS Library Routes (PP-MS1) ─────────────────────────────────────
 
   // GET /ppg/cps/catalog — List all parsed CPS posts with stats

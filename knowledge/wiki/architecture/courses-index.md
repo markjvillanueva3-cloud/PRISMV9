@@ -25,8 +25,28 @@ related:
 - [[academy-course-0b-hand-tools-hand-tools-measurement]] — Hand Tools & Measurement _(Novice, 10 mod, ~8h)_
 - [[academy-course-0c-blueprint-reading-blueprint-reading-gd-t]] — Blueprint Reading & GD&T _(Novice, 12 mod, ~10h)_
 - [[academy-course-1-manufacturing-fundamentals]] — Manufacturing Fundamentals _(Novice, 12 mod, ~8h)_
+- [[academy-course-13-wire-edm-progressive-wire-edm-entry-master-progressive]] — Wire EDM — Entry → Master (Progressive)
+- [[academy-course-14-15-16-electrode-robot-sinker-electrode-making-robot-arms-jm-context-sink]] — Electrode Making · Robot Arms (JM context) · Sinker EDM
+- [[academy-course-17-tooling-codes-tooling-codes-iso-insert-ansi-body-chip-breaker]] — Tooling Codes — ISO Insert + ANSI Body + Chip-Breaker
+- [[academy-course-18-cad-cam-entry-level-cad-cam-entry-level-training-alarm-troubleshooting-e]] — CAD/CAM Entry-Level Training + Alarm Troubleshooting + Efficiency
+- [[academy-course-19-hypermill-nx-solidcam-entry-x]] — 
 - [[academy-course-2-speed-feed-mastery-speed-feed-mastery]] — Speed & Feed Mastery _(Intermediate, 10 mod, ~6h)_
+- [[academy-course-20-esprit-powermill-inventor-catia-entry-x]] — 
+- [[academy-course-21-business-management-expand-each-feature-to-cover-business-management]] — "expand each feature to cover business management,
+- [[academy-course-22-alarm-troubleshooting-deep-how-to-fix-a-machine-depending-on-alarms-we-h]] — "how to fix a machine depending on alarms (we have a large alarm database)"
+- [[academy-course-23-prism-database-mastery-module]] — Module[] = [
+- [[academy-course-24-accuracy-improvement-how-to-improve-accuracy-maps-the-4-dominant-accurac]] — "how to improve accuracy". Maps the 4 dominant accuracy-loss
+- [[academy-course-25-creo-worknc-gibbscam-edgecam-entry-x]] — 
+- [[academy-course-26-hexagon-trio-camworks-entry-x]] — 
+- [[academy-course-27-final-six-cam-entry-x]] — 
+- [[academy-course-28-function-index-reference-include-every-single-function-and-input-possibl]] — "include every single function and input possible for each cad and cam system,
+- [[academy-course-29-toolpath-reasoning-dual-level-why-strategies-match-geometry]] — Why Strategies Match Geometry _(Why Strategies Match Geometry, 6 mod, ~5h)_
 - [[academy-course-3-gcode-programming-g-code-programming]] — G-Code Programming _(Intermediate, 10 mod, ~8h)_
+- [[academy-course-30-toolpath-catalog-programming-paradigms-account-for-all-possible-tool-pat]] — "account for all possible tool paths and explain them
+- [[academy-course-31-cadcam-operations-atlas-keep-expanding-until-we-have-full-coverage-for]] — "keep expanding until we have full coverage for
+- [[academy-course-32-machining-math-science-deep-dive-all-tooling-utilization-optimal-paramet]] — "all tooling utilization, optimal parameters and
+- [[academy-course-33-material-machining-atlas-how-to-cut-different-materials-all-materials]] — "how to cut different materials (all materials),
+- [[academy-course-34-per-machine-type-operations-expand-all-domains-of-machining-each-machine]] — "expand all domains of machining, each machine type".
 - [[academy-course-4-milling-operations-milling-operations]] — Milling Operations _(Intermediate, 12 mod, ~10h)_
 - [[academy-course-5-turning-operations-turning-operations]] — Turning Operations _(Intermediate, 10 mod, ~8h)_
 - [[academy-course-6-to-12-advanced-advanced-through-master-professional]] — Advanced through Master + Professional

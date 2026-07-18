@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-cleanup` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-cleanup.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-cleanup.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Cleanup — Dead Code & File Detector
+
+You are running a specialized autopilot pipeline that identifies dead code, unused files, orphaned tests, stale state files, and other cleanup candidates across the PRISM project. Designed to run in the **background** — produces a cleanup report with safe deletion candidates.
+
+## Args: $ARGUMENTS
+- Empty: full cleanup scan — all categories
+- `de
 
 <!-- AUTO-END -->
 

@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `full-job` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/full-job.md` |
+| Source | `C:/Users/wompu/.claude/commands/full-job.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Full Job — Complete Manufacturing Job Pipeline
+
+End-to-end manufacturing pipeline: material identification, tool selection, speed/feed optimization, CNC program generation, setup sheet, cost quote, and quality plan. One command from "I have a part" to "here's everything you need to make it."
+
+## Args:
+- Material + operation description (e.g., "7075-T6 pocket 4" deep with Ø1/2 endmill")
+-
 
 <!-- AUTO-END -->
 

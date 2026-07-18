@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "_doc": "Phase dependency DAG derived from PRISM-MASTER-ROADMAP-v1.md. Edges: predecessor -> successor (must be merged before successor can claim). Used by helpers/dependency-graph-checker.mjs.",
+  "edges": [
+    ["S0", "P1.1"], ["S0", "P1.2"], ["S0", "P1.3"],
+    ["S0", "P2.1"], ["S0", "P2.2"],
+    ["S0", "P3.1"], ["P3.1", "P3.2"], ["P3.2", "P3.3"],
+    ["S0", "P4"], ["P3.3", "P4"],
+    ["S0", "P5"],
+    ["S0", "P6"], ["P3.3", "P6"],
+    ["S0", "P7"],
+    ["S0", "P8"], ["P3.3", "P8"],
+    ["S0", "P9"], ["P3.3", "P9"],
+    ["P1.1", "P1.2"],
+    ["P1.1", "P10"], ["P1.2", "P10"], ["P1.3", "P10"],
+    ["P2.1", "P10"], ["P2.2", "P10"],
+    ["P3.3", "P10"], ["P4", "P10"], ["P5", "P10"],
+    ["P6", "P10"], ["P7", "P10"], ["P8", "P10"], ["P9", "P10"]
+  ],
+  "topological_order": [
+    "S0",
+    ["P1.1", "P2.1", "P2.2", "P3.1", "P5", "P7"],
+    ["P1.2", "P1.3", "P3.2"],
+    "P3.3",
+    ["P4", "P6", "P8", "P9"],
+    "P10"
+  ],
+  "max_parallel_after_S0": 6,
+  "max_parallel_after_P3.3": 4,
+  "phase_to_worktree": {
+    "S0": "prism-safety-ms0",
+    "P1.1": "prism-router-ms0",
+    "P1.2": "prism-router-ms0",
+    "P1.3": "prism-router-ms0",
+    "P2.1": "prism-billing-ms0",
+    "P2.2": "prism-billing-ms0",
+    "P3.1": "prism-tenant-ms0",
+    "P3.2": "prism-tenant-ms0",
+    "P3.3": "prism-tenant-ms0",
+    "P4": "prism-payroll-ms0",
+    "P5": "prism-ledger-ms0",
+    "P6": "prism-integration-ms0",
+    "P7": "prism-jmdie-corpus-ms0",
+    "P8": "prism-frontend-ms0",
+    "P9": "prism-supply-ms0",
+    "P10": "per-flagship-worktrees"
+  },
+  "_collision_notes": {
+    "P1.1+P1.2+P1.3": "All three sub-phases share prism-router-ms0 worktree. SEQUENTIAL within worktree (one chat owns all three) OR fork to sibling worktrees if parallelizing.",
+    "P2.1+P2.2": "Same worktree; same rule.",
+    "P3.1+P3.2+P3.3": "Sequential mandatory; same chat or strict handoff.",
+    "P4+P6+P8+P9 after P3.3": "Disjoint worktrees, fully parallelizable. With 6 chats and S0 + P3.3 already merged, you can run P4, P5, P6, P7, P8, P9 simultaneously."
+  }
+}

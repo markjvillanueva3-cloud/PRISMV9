@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { poList, poCreate, poApprove, poReceive, poAPAging, poThreeWayMatch, poSpendByCategory, ApiError } from '../api/client';
+import { unwrapPrism } from '../api/unwrap';
 import { AppwPurchaseOrdersCopilot } from '../components/puoa/AppwPurchaseOrdersCopilot';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { PurchaseOrder, APAging } from '../api/types';
@@ -266,7 +267,7 @@ export function PurchaseOrdersPage() {
     setOrdersIssue(null);
     try {
       const response = await poList(filter !== 'all' ? { status: filter } : undefined);
-      setOrders((response.result as { orders?: PurchaseOrder[] })?.orders ?? []);
+      setOrders((unwrapPrism(response) as { orders?: PurchaseOrder[] })?.orders ?? []);
       setOrdersRefreshedAt(Date.now());
     } catch (issue) {
       const message = issue instanceof ApiError ? issue.message : 'Failed to load POs';
@@ -283,7 +284,7 @@ export function PurchaseOrdersPage() {
     setAgingIssue(null);
     try {
       const response = await poAPAging();
-      setAging(response.result as unknown as APAging);
+      setAging(unwrapPrism(response) as APAging);
       setAgingRefreshedAt(Date.now());
     } catch (issue) {
       const message = issue instanceof ApiError ? issue.message : 'Failed to load AP aging';
@@ -300,9 +301,10 @@ export function PurchaseOrdersPage() {
     setSpendIssue(null);
     try {
       const response = await poSpendByCategory();
+      const payload = unwrapPrism(response);
       setSpendData(
-        (response.result as unknown as { categories?: Array<Record<string, unknown>> })?.categories ??
-          (response.result as unknown as Array<Record<string, unknown>>) ??
+        (payload as { categories?: Array<Record<string, unknown>> })?.categories ??
+          (payload as Array<Record<string, unknown>>) ??
           [],
       );
       setSpendRefreshedAt(Date.now());
@@ -397,7 +399,7 @@ export function PurchaseOrdersPage() {
     setMatchIssue(null);
     try {
       const response = await poThreeWayMatch({ po_id: matchPoId });
-      setMatchResult((response.result as Record<string, unknown>) ?? null);
+      setMatchResult((unwrapPrism(response) as Record<string, unknown>) ?? null);
       setMatchRefreshedAt(Date.now());
     } catch (issue) {
       const message = issue instanceof ApiError ? issue.message : 'Match failed';

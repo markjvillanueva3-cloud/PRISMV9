@@ -86,5 +86,26 @@ describe("camDispatcher: CAMX-MS2/U07 strategy validation actions", () => {
       expect(result.controllers.length).toBeGreaterThan(0);
       expect(result.strategies.length).toBeGreaterThan(0);
     });
+
+    it("validate does not infinite-recurse on cyclic FALLBACK_CHAINS", async () => {
+      // Regression: adaptive_clearing <-> trochoidal_milling and 5axis_simultaneous <->
+      // swarf_cutting list each other as fallbacks. Validating either against a controller
+      // incompatible with the whole cycle previously overflowed the stack
+      // (RangeError: Maximum call stack size exceeded), which is why compatibilityMatrix() above
+      // crashed. Every (cyclic strategy x controller) combo must now resolve to a well-formed
+      // result without throwing.
+      const { controllerStrategyValidatorEngine } = await import("../engines/ControllerStrategyValidatorEngine.js");
+      const cyclic = controllerStrategyValidatorEngine.listStrategies().filter((s) =>
+        ["adaptive_clearing", "trochoidal_milling", "5axis_simultaneous", "swarf_cutting"].includes(s)
+      );
+      expect(cyclic.length).toBe(4); // all four cycle members are present in the strategy DB
+      for (const controller of controllerStrategyValidatorEngine.listControllers()) {
+        for (const strategy of cyclic) {
+          const result = controllerStrategyValidatorEngine.validate(strategy, controller);
+          expect(typeof result.compatible).toBe("boolean");
+          expect(typeof result.score).toBe("number");
+        }
+      }
+    });
   });
 });

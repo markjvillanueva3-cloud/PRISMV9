@@ -1,0 +1,106 @@
+You are reviewer A of three independent Claude PRISM agents — a strict, holistic code reviewer for the PRISM manufacturing-intelligence platform.
+Target: commit HEAD.
+
+Acceptance criteria:
+  1. No stubs, TODOs, or placeholder returns
+  2. Tests use concrete assertions (no toBeDefined()/toBeTruthy() blanket stubs)
+  3. ≥3 failure modes covered for any new engine
+  4. Physics constants imported from src/physics/constants.ts (never inlined)
+  5. New engines wired to every consuming dispatcher
+  6. No floating promises, no any-spread anti-patterns introduced
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit d86d5925a8a3f85434424c9ce8560677a72c5d24
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Wed May 20 20:59:27 2026 -0500
+
+    [MAIN] [SCRUTINY-2OF2]/U-REDUCE-AGENT-REVIEW (slot:juliett): reduce strict 3-of-3 scrutiny to 2-of-2
+    
+    Per user directive 2026-05-20: switch agent review to use 2 agents instead of 3.
+    - scrutiny-ledger.mjs isCleared(): require opusReviewed && claudeReviewed only;
+      arm C (codexReviewed slot) retained for backward compat but no longer required
+    - scrutiny-3way.mjs nextStep output: emit 2-of-2 instructions; arm-C analyst
+      pass demoted to optional advisory
+    - CLAUDE.md doctrine update pending golf-slot drain (CLAUDE.md is golf-edit-only)
+    
+    Legacy 3-of-3 ledger entries still clear (opusReviewed && claudeReviewed are subsets).
+    codexReviewed field preserved on read/write — no schema break.
+
+diff --git a/.claude/helpers/scrutiny-ledger.mjs b/.claude/helpers/scrutiny-ledger.mjs
+index f369255bb7..b17e7665c3 100644
+--- a/.claude/helpers/scrutiny-ledger.mjs
++++ b/.claude/helpers/scrutiny-ledger.mjs
+@@ -358,9 +358,14 @@ export function recordScrutiny(sessionId, marks = {}) {
+ }
+ 
+ /**
+- * Returns true when all three review arms (Codex CLI, 2nd Claude reviewer,
+- * Opus reviewer) have recorded PASS for the session. Self-review is orthogonal
+- * and is NOT required for clearance under the strict 3-of-3 policy.
++ * Returns true when both required review arms (Opus reviewer A holistic + 2nd
++ * Claude reviewer B independent) have recorded PASS for the session. Self-review
++ * is orthogonal and NOT required for clearance under the strict 2-of-2 policy
++ * (reduced from 3-of-3 per user directive 2026-05-20).
++ *
++ * Arm C (codexReviewed slot — analyst pass) is RETAINED as a backward-compat
++ * field but NO LONGER required. Old ledger entries that recorded `codexReviewed`
++ * are unaffected; new entries that omit it still clear.
+  *
+  * Backward compat:
+  *   - a legacy entry that recorded `geminiReviewed: true` (pre-2026-05-12)
+@@ -374,8 +379,8 @@ export function isCleared(sessionId) {
+   if (!entry) return false;
+   // The Claude (arm-B) leg is satisfied by the canonical flag OR any legacy alias.
+   const claudeArmOk = ARM_B_FLAG_ALIASES.some((k) => entry[k] === true);
+-  // Strict 3-of-3 policy
+-  if (entry.codexReviewed === true && claudeArmOk && entry.opusReviewed === true) {
++  // Strict 2-of-2 policy (arm A + arm B). Arm C (codexReviewed) is no longer required.
++  if (entry.opusReviewed === true && claudeArmOk) {
+     return true;
+   }
+   // Legacy fallback: pre-3way entries used selfReviewed && agentReviewed and
+diff --git a/.claude/scripts/scrutiny-3way.mjs b/.claude/scripts/scrutiny-3way.mjs
+index 2114484ca6..d42a6dcc9a 100644
+--- a/.claude/scripts/scrutiny-3way.mjs
++++ b/.claude/scripts/scrutiny-3way.mjs
+@@ -984,22 +984,21 @@ async function main() {
+     // null when PRISM_SCRUTINY_CODEX=off.
+     codexReviewCommand,
+     nextStep:
+-      "Dispatch THREE Claude PRISM agents in this chat, in parallel:\n" +
+-      "  Agent({ subagent_type: 'reviewer',      description: 'Review session diff (3way reviewer A)',                 prompt: <opusReviewerPrompt above> })\n" +
+-      "  Agent({ subagent_type: 'reviewer',      description: 'Review session diff (3way reviewer B — independent)',   prompt: <opusReviewerPromptB above> })\n" +
+-      "  Agent({ subagent_type: 'code-analyzer', description: 'Review session diff (3way reviewer C — analyst)',       prompt: <analystReviewerPrompt above> })\n" +
++      "Dispatch BOTH required Claude PRISM agents in this chat, in parallel (2-of-2 gate per 2026-05-20):\n" +
++      "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (2way reviewer A)',               prompt: <opusReviewerPrompt above> })\n" +
++      "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (2way reviewer B — independent)', prompt: <opusReviewerPromptB above> })\n" +
++      "  (Optional advisory: Agent({ subagent_type: 'code-analyzer', ... prompt: <analystReviewerPrompt> }) — does NOT block the gate.)\n" +
+       (codexReviewCommand
+-        ? "In parallel with those three agents, also run the advisory Codex review arm (Bash):\n" +
++        ? "Also optional — advisory Codex review arm (Bash):\n" +
+           `  ${codexReviewCommand}\n` +
+-          "  Its verdict is advisory — fold it into your summary; it does NOT mark the 3-of-3 ledger.\n"
++          "  Its verdict is advisory — fold it into your summary; it does NOT mark the gate.\n"
+         : "") +
+-      "When they return, record all three verdicts (use 'fail' instead of 'pass' for any FAIL):\n" +
+-      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus    pass --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
+-      `  node .claude/scripts/scrutiny-3way.mjs --mark-claude  pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
+-      `  node .claude/scripts/scrutiny-3way.mjs --mark-analyst pass --session-id ${sessionId} --notes "<reviewer C summary>"\n` +
+-      "  (legacy aliases: --mark-opus-b / --mark-gemini → arm B; --mark-codex → arm C.)\n" +
+-      "The Stop hook releases only once arms A + B + C are all PASS (strict 3-of-3, all Claude).",
+-    consensus: "three Claude arms pending chat dispatch — no auto-recorded arm in the redesigned 3-of-3 (codex retired 2026-05-13)",
++      "When the two required agents return, record both verdicts (use 'fail' instead of 'pass' for any FAIL):\n" +
++      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus   pass --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
++      `  node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
++      "  (legacy aliases: --mark-opus-b / --mark-gemini → arm B. Arm C --mark-analyst is OPTIONAL — only record if you ran the advisory analyst pass.)\n" +
++      "The Stop hook releases once arms A + B are both PASS (strict 2-of-2, both Claude).",
++    consensus: "two Claude arms pending chat dispatch — arm C demoted to advisory 2026-05-20 per user directive",
+   };
+   console.log(JSON.stringify(out, null, 2));
+ }
+
+--- END DIFF ---

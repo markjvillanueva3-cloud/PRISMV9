@@ -1115,7 +1115,7 @@ export function ShopFloorClockPage() {
                   type="text"
                   value={scanInput}
                   onChange={(event) => setScanInput(event.target.value)}
-                  placeholder="Scan PRISM traveler QR or enter JOB-2026-001"
+                  placeholder="Scan Kienzle traveler QR or enter JOB-2026-001"
                 />
               </Field>
 

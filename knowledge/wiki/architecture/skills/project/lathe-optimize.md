@@ -29,8 +29,12 @@ related:
 
 ## Description (first paragraph)
 
-
-# /lathe-optimize — Lathe Program Optimization
+Intelligent optimization for CNC lathe programs:
+- Feed rate optimization based on chip load
+- Toolpath simplification
+- Air cut elimination
+- Cycle time reduction
+- Tool life maximization
 
 <!-- AUTO-END -->
 

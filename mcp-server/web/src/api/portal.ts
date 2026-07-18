@@ -133,9 +133,9 @@ async function requestPortalApi<T>(
 ): Promise<T> {
   const headers = getRequestHeaders();
   if (options.requiresAuthorization && !headers.Authorization) {
-    throw new ApiError(401, 'PRISM rejected this request because the current session is not authorized.', {
+    throw new ApiError(401, 'Kienzle rejected this request because the current session is not authorized.', {
       kind: 'auth',
-      hint: 'Attach a PRISM bearer session before using internal portal operations.',
+      hint: 'Attach a Kienzle bearer session before using internal portal operations.',
     });
   }
 

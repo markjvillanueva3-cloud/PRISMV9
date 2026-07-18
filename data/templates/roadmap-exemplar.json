@@ -1,0 +1,625 @@
+{
+  "id": "HEALTH-CHECK",
+  "version": "1.0.0",
+  "title": "Add Health-Check Endpoint to PRISM MCP Server",
+  "brief": "Add a comprehensive health-check endpoint that reports server status, dispatcher counts, registry health, heap usage, and uptime.",
+  "created_at": "2026-02-24T00:00:00Z",
+  "created_by": "claude-opus-4.6",
+
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Implementation",
+      "description": "Design the health-check response schema, implement the handler, and wire it into the MCP server's request dispatcher.",
+      "sessions": "1-2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "rid": "§HC.P1.01",
+          "title": "Design health-check response schema",
+          "phase": "P1",
+          "sequence": 0,
+          "role": "R1",
+          "role_name": "Architect",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "Schema design requires architectural precision and must anticipate future extension points; warrants opus-level reasoning.",
+          "tools": [
+            { "tool": "prism_sp", "action": "read_file", "params_hint": "path=src/schemas/" },
+            { "tool": "prism_dev", "action": "create_file", "params_hint": "path=src/schemas/healthSchema.ts" },
+            { "tool": "prism_validate", "action": "zod_check", "params_hint": "schema=HealthResponse" }
+          ],
+          "skills": ["schema-design", "zod-patterns"],
+          "scripts": [],
+          "hooks": ["pre-edit-lint"],
+          "features": ["Desktop Commander"],
+          "dependencies": [],
+          "entry_conditions": [
+            "roadmapSchema.ts exists and is valid",
+            "Project builds with zero TypeScript errors"
+          ],
+          "exit_conditions": [
+            "healthSchema.ts exports HealthResponse Zod schema",
+            "Schema includes fields: status, uptime_s, heap_used_mb, heap_total_mb, dispatcher_count, registry_count, version, timestamp",
+            "File compiles with zero errors"
+          ],
+          "rollback": "git checkout -- src/schemas/healthSchema.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing schemas in src/schemas/ to understand naming and structural conventions.",
+              "tool_calls": ["prism_sp read_file path=src/schemas/"],
+              "validation": "At least roadmapSchema.ts is listed and readable.",
+              "notes": "Pay attention to how enums and sub-objects are structured for consistency."
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/schemas/healthSchema.ts defining a Zod object schema HealthResponse with fields: status (enum ok/degraded/down), uptime_s (number), heap_used_mb (number), heap_total_mb (number), dispatcher_count (number), registry_count (number), version (string), timestamp (ISO string).",
+              "tool_calls": ["prism_dev create_file path=src/schemas/healthSchema.ts"],
+              "validation": "File exists and exports HealthResponse Zod schema.",
+              "notes": "Include JSDoc comments on each field matching the project style."
+            },
+            {
+              "number": 3,
+              "instruction": "Run the TypeScript compiler to verify the schema file compiles cleanly.",
+              "tool_calls": ["prism_validate zod_check schema=HealthResponse"],
+              "validation": "tsc --noEmit exits with code 0."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/schemas/healthSchema.ts",
+              "type": "schema",
+              "description": "Zod schema defining the HealthResponse structure for the health-check endpoint.",
+              "line_count_est": 45,
+              "index_entry": "healthSchema.ts — HealthResponse Zod schema"
+            }
+          ],
+          "estimated_tokens": 4000,
+          "estimated_minutes": 10,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U02",
+          "rid": "§HC.P1.02",
+          "title": "Implement health-check handler",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "rationale": "Straightforward handler implementation following established patterns; sonnet is sufficient.",
+          "tools": [
+            { "tool": "prism_dev", "action": "create_file", "params_hint": "path=src/handlers/healthHandler.ts" },
+            { "tool": "prism_sp", "action": "read_file", "params_hint": "path=src/handlers/" },
+            { "tool": "prism_validate", "action": "typecheck", "params_hint": "strict=true" }
+          ],
+          "skills": ["handler-pattern", "node-process-api"],
+          "scripts": [],
+          "hooks": ["pre-edit-lint"],
+          "features": ["Desktop Commander"],
+          "dependencies": ["P1-U01"],
+          "entry_conditions": [
+            "healthSchema.ts exists and exports HealthResponse",
+            "Project compiles cleanly"
+          ],
+          "exit_conditions": [
+            "healthHandler.ts exports a handleHealthCheck function",
+            "Handler collects uptime, heap stats, dispatcher count, and registry count",
+            "Handler returns a HealthResponse-conformant object",
+            "TypeScript compiles with zero errors"
+          ],
+          "rollback": "git checkout -- src/handlers/healthHandler.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing handlers in src/handlers/ to understand the handler signature and patterns used.",
+              "tool_calls": ["prism_sp read_file path=src/handlers/"],
+              "validation": "Handler pattern is understood: (req, ctx) => Promise<Result>."
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/handlers/healthHandler.ts implementing handleHealthCheck that gathers process.uptime(), process.memoryUsage(), dispatcher count from ctx.dispatcher, and registry count from ctx.registry.",
+              "tool_calls": ["prism_dev create_file path=src/handlers/healthHandler.ts"],
+              "validation": "File exists and exports handleHealthCheck function.",
+              "notes": "Use the HealthResponse schema for runtime validation of the returned object."
+            },
+            {
+              "number": 3,
+              "instruction": "Run TypeScript compiler and verify zero errors.",
+              "tool_calls": ["prism_validate typecheck strict=true"],
+              "validation": "tsc --noEmit exits with code 0."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/handlers/healthHandler.ts",
+              "type": "source",
+              "description": "Handler function that collects runtime metrics and returns a validated HealthResponse.",
+              "line_count_est": 55,
+              "index_entry": "healthHandler.ts — handleHealthCheck handler"
+            }
+          ],
+          "estimated_tokens": 5000,
+          "estimated_minutes": 12,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P1-U03",
+          "rid": "§HC.P1.03",
+          "title": "Wire health-check handler to MCP server dispatcher",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 70,
+          "rationale": "Integration wiring follows established dispatcher registration patterns; moderate effort.",
+          "tools": [
+            { "tool": "prism_sp", "action": "read_file", "params_hint": "path=src/server.ts" },
+            { "tool": "prism_dev", "action": "edit_file", "params_hint": "path=src/server.ts" },
+            { "tool": "prism_validate", "action": "typecheck", "params_hint": "strict=true" },
+            { "tool": "prism_omega", "action": "score", "params_hint": "scope=server" }
+          ],
+          "skills": ["dispatcher-registration", "mcp-protocol"],
+          "scripts": [],
+          "hooks": ["pre-edit-lint", "post-edit-test"],
+          "features": ["Desktop Commander"],
+          "dependencies": ["P1-U02"],
+          "entry_conditions": [
+            "healthHandler.ts exports handleHealthCheck",
+            "Server dispatcher accepts handler registration",
+            "Project compiles cleanly"
+          ],
+          "exit_conditions": [
+            "health-check handler is registered in the dispatcher",
+            "Server responds to health/check tool call with a HealthResponse",
+            "TypeScript compiles with zero errors",
+            "Omega score >= 1.0 for server scope"
+          ],
+          "rollback": "git checkout -- src/server.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/server.ts to locate the dispatcher registration section and understand how existing handlers are wired.",
+              "tool_calls": ["prism_sp read_file path=src/server.ts"],
+              "validation": "Dispatcher registration pattern is identified."
+            },
+            {
+              "number": 2,
+              "instruction": "Add import for handleHealthCheck and register it in the dispatcher under the tool name 'health_check'.",
+              "tool_calls": ["prism_dev edit_file path=src/server.ts"],
+              "validation": "Import statement and dispatcher.register('health_check', handleHealthCheck) are present.",
+              "notes": "Follow the same import grouping and registration ordering as existing handlers."
+            },
+            {
+              "number": 3,
+              "instruction": "Run TypeScript compiler and Omega scoring to verify integration quality.",
+              "tool_calls": ["prism_validate typecheck strict=true", "prism_omega score scope=server"],
+              "validation": "tsc exits 0 and Omega score >= 1.0."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/server.ts",
+              "type": "source",
+              "description": "Updated server file with health-check handler registered in the dispatcher.",
+              "line_count_est": 5,
+              "index_entry": "server.ts — health_check dispatcher registration"
+            }
+          ],
+          "estimated_tokens": 3500,
+          "estimated_minutes": 8,
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.70,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": ["Verify health_check tool is listed in dispatcher.listTools()"]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["missing_deps", "sequence_errors", "missing_exit_conditions"]
+    },
+    {
+      "id": "P2",
+      "title": "Testing & Validation",
+      "description": "Write unit tests, integration tests, and documentation for the health-check endpoint to ensure production readiness.",
+      "sessions": "1",
+      "primary_role": "R3",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "rid": "§HC.P2.01",
+          "title": "Unit tests for health-check handler",
+          "phase": "P2",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Tester",
+          "model": "sonnet-4.6",
+          "effort": 75,
+          "rationale": "Unit tests follow established vitest patterns; sonnet handles test generation well at moderate effort.",
+          "tools": [
+            { "tool": "prism_dev", "action": "create_file", "params_hint": "path=src/handlers/__tests__/healthHandler.test.ts" },
+            { "tool": "prism_validate", "action": "run_tests", "params_hint": "filter=healthHandler" }
+          ],
+          "skills": ["vitest-patterns", "mocking-strategies"],
+          "scripts": [],
+          "hooks": ["pre-edit-lint"],
+          "features": ["Desktop Commander"],
+          "dependencies": ["P1-U03"],
+          "entry_conditions": [
+            "healthHandler.ts exists and exports handleHealthCheck",
+            "healthSchema.ts exists and exports HealthResponse",
+            "Handler is wired into the dispatcher"
+          ],
+          "exit_conditions": [
+            "Test file exists with at least 5 test cases",
+            "Tests cover: normal response, schema validation, degraded status, error handling, field types",
+            "All tests pass with vitest"
+          ],
+          "rollback": "git checkout -- src/handlers/__tests__/healthHandler.test.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create src/handlers/__tests__/healthHandler.test.ts with test cases covering: (1) returns valid HealthResponse, (2) status is 'ok' under normal conditions, (3) uptime_s is a positive number, (4) heap fields are realistic, (5) schema validation rejects malformed responses.",
+              "tool_calls": ["prism_dev create_file path=src/handlers/__tests__/healthHandler.test.ts"],
+              "validation": "File exists with 5+ describe/it blocks.",
+              "notes": "Mock ctx.dispatcher and ctx.registry to control counts. Use vi.spyOn for process.uptime and process.memoryUsage."
+            },
+            {
+              "number": 2,
+              "instruction": "Run vitest filtered to the health handler tests and verify all pass.",
+              "tool_calls": ["prism_validate run_tests filter=healthHandler"],
+              "validation": "All tests pass, exit code 0."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/handlers/__tests__/healthHandler.test.ts",
+              "type": "test",
+              "description": "Unit test suite for the health-check handler covering happy path, edge cases, and schema validation.",
+              "line_count_est": 90,
+              "index_entry": "healthHandler.test.ts — health-check unit tests"
+            }
+          ],
+          "estimated_tokens": 6000,
+          "estimated_minutes": 15,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P2-U02",
+          "rid": "§HC.P2.02",
+          "title": "Integration test for health-check endpoint",
+          "phase": "P2",
+          "sequence": 1,
+          "role": "R3",
+          "role_name": "Tester",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "rationale": "Integration tests require spinning up a real server context; slightly higher effort than unit tests.",
+          "tools": [
+            { "tool": "prism_dev", "action": "create_file", "params_hint": "path=src/__tests__/health.integration.test.ts" },
+            { "tool": "prism_validate", "action": "run_tests", "params_hint": "filter=health.integration" },
+            { "tool": "prism_ralph", "action": "grade", "params_hint": "scope=health" }
+          ],
+          "skills": ["integration-testing", "server-lifecycle"],
+          "scripts": [],
+          "hooks": ["pre-edit-lint", "post-edit-test"],
+          "features": ["Desktop Commander"],
+          "dependencies": ["P2-U01"],
+          "entry_conditions": [
+            "Unit tests pass",
+            "Server can start without errors",
+            "Health handler is registered in dispatcher"
+          ],
+          "exit_conditions": [
+            "Integration test starts a real server and calls health_check",
+            "Response matches HealthResponse schema",
+            "Test verifies round-trip latency < 100ms",
+            "All integration tests pass"
+          ],
+          "rollback": "git checkout -- src/__tests__/health.integration.test.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create src/__tests__/health.integration.test.ts that boots a real MCP server instance, sends a health_check tool call via the client SDK, and validates the full response against HealthResponse.",
+              "tool_calls": ["prism_dev create_file path=src/__tests__/health.integration.test.ts"],
+              "validation": "File exists with beforeAll/afterAll server lifecycle management.",
+              "notes": "Use a random port to avoid conflicts. Include a latency assertion to catch performance regressions."
+            },
+            {
+              "number": 2,
+              "instruction": "Run integration tests and verify all pass.",
+              "tool_calls": ["prism_validate run_tests filter=health.integration"],
+              "validation": "All integration tests pass, exit code 0."
+            },
+            {
+              "number": 3,
+              "instruction": "Run Ralph grading on the health module to confirm quality.",
+              "tool_calls": ["prism_ralph grade scope=health"],
+              "validation": "Ralph grade is B or higher."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/__tests__/health.integration.test.ts",
+              "type": "test",
+              "description": "Integration test that boots a real server and validates the health-check round trip.",
+              "line_count_est": 75,
+              "index_entry": "health.integration.test.ts — health-check integration tests"
+            }
+          ],
+          "estimated_tokens": 7000,
+          "estimated_minutes": 18,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        },
+        {
+          "id": "P2-U03",
+          "rid": "§HC.P2.03",
+          "title": "Documentation for health-check endpoint",
+          "phase": "P2",
+          "sequence": 2,
+          "role": "R8",
+          "role_name": "Documenter",
+          "model": "haiku-4.5",
+          "effort": 60,
+          "rationale": "Documentation is straightforward prose generation; haiku is efficient and sufficient.",
+          "tools": [
+            { "tool": "prism_dev", "action": "create_file", "params_hint": "path=docs/tools/health-check.md" },
+            { "tool": "prism_sp", "action": "read_file", "params_hint": "path=docs/tools/" }
+          ],
+          "skills": ["technical-writing", "markdown-formatting"],
+          "scripts": [],
+          "hooks": [],
+          "features": ["Desktop Commander"],
+          "dependencies": ["P2-U01"],
+          "entry_conditions": [
+            "Unit tests pass confirming handler behavior",
+            "healthSchema.ts is finalized",
+            "healthHandler.ts is finalized"
+          ],
+          "exit_conditions": [
+            "docs/tools/health-check.md exists",
+            "Document includes: purpose, request format, response schema, example output, error handling, troubleshooting",
+            "No broken markdown links"
+          ],
+          "rollback": "git checkout -- docs/tools/health-check.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing docs in docs/tools/ to match the project documentation style and structure.",
+              "tool_calls": ["prism_sp read_file path=docs/tools/"],
+              "validation": "Documentation style guide or existing examples are understood."
+            },
+            {
+              "number": 2,
+              "instruction": "Create docs/tools/health-check.md with sections: Overview, Request Format, Response Schema, Example Response, Error Handling, Troubleshooting.",
+              "tool_calls": ["prism_dev create_file path=docs/tools/health-check.md"],
+              "validation": "File exists with all 6 sections populated.",
+              "notes": "Include a JSON code block with a realistic example HealthResponse payload."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "docs/tools/health-check.md",
+              "type": "doc",
+              "description": "User-facing documentation for the health-check tool including schema, examples, and troubleshooting.",
+              "line_count_est": 120,
+              "index_entry": "health-check.md — health-check endpoint documentation"
+            }
+          ],
+          "estimated_tokens": 3000,
+          "estimated_minutes": 8,
+          "index_in_master": true,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.70,
+        "ralph_required": true,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": ["Verify docs/tools/health-check.md renders correctly in GitHub preview"]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": ["missing_tests", "orphaned_deliverables", "underspecified_steps"]
+    }
+  ],
+
+  "total_units": 6,
+  "total_sessions": "2-3",
+  "dependency_graph": "P1-U01 --> P1-U02 --> P1-U03 --> P2-U01 --> P2-U02\n                                                    \\--> P2-U03",
+
+  "role_matrix": [
+    {
+      "code": "R1",
+      "name": "Architect",
+      "model": "opus-4.6",
+      "effort": 90,
+      "description": "Designs schemas, interfaces, and structural decisions. Uses highest reasoning model for correctness."
+    },
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 80,
+      "description": "Writes production source code following established patterns and conventions."
+    },
+    {
+      "code": "R3",
+      "name": "Tester",
+      "model": "sonnet-4.6",
+      "effort": 75,
+      "description": "Writes unit and integration tests ensuring correctness and coverage."
+    },
+    {
+      "code": "R6",
+      "name": "Integrator",
+      "model": "sonnet-4.6",
+      "effort": 70,
+      "description": "Wires components together, registers handlers, and validates end-to-end connectivity."
+    },
+    {
+      "code": "R8",
+      "name": "Documenter",
+      "model": "haiku-4.5",
+      "effort": 60,
+      "description": "Writes user-facing documentation, API references, and troubleshooting guides."
+    }
+  ],
+
+  "tool_map": [
+    {
+      "tool": "prism_sp",
+      "phases": ["P1", "P2"],
+      "purpose": "File reading and codebase exploration across both implementation and documentation phases."
+    },
+    {
+      "tool": "prism_dev",
+      "phases": ["P1", "P2"],
+      "purpose": "File creation and editing for source code, tests, and documentation."
+    },
+    {
+      "tool": "prism_validate",
+      "phases": ["P1", "P2"],
+      "purpose": "TypeScript type-checking, Zod schema validation, and test execution."
+    },
+    {
+      "tool": "prism_omega",
+      "phases": ["P1"],
+      "purpose": "Omega scoring to verify integration quality after wiring the handler."
+    },
+    {
+      "tool": "prism_ralph",
+      "phases": ["P2"],
+      "purpose": "Ralph grading to validate overall module quality after integration testing."
+    }
+  ],
+
+  "deliverables_index": [
+    {
+      "path": "src/schemas/healthSchema.ts",
+      "type": "schema",
+      "description": "Zod schema defining the HealthResponse structure for the health-check endpoint.",
+      "line_count_est": 45,
+      "index_entry": "healthSchema.ts — HealthResponse Zod schema"
+    },
+    {
+      "path": "src/handlers/healthHandler.ts",
+      "type": "source",
+      "description": "Handler function that collects runtime metrics and returns a validated HealthResponse.",
+      "line_count_est": 55,
+      "index_entry": "healthHandler.ts — handleHealthCheck handler"
+    },
+    {
+      "path": "src/server.ts",
+      "type": "source",
+      "description": "Updated server file with health-check handler registered in the dispatcher.",
+      "line_count_est": 5,
+      "index_entry": "server.ts — health_check dispatcher registration"
+    },
+    {
+      "path": "src/handlers/__tests__/healthHandler.test.ts",
+      "type": "test",
+      "description": "Unit test suite for the health-check handler covering happy path, edge cases, and schema validation.",
+      "line_count_est": 90,
+      "index_entry": "healthHandler.test.ts — health-check unit tests"
+    },
+    {
+      "path": "src/__tests__/health.integration.test.ts",
+      "type": "test",
+      "description": "Integration test that boots a real server and validates the health-check round trip.",
+      "line_count_est": 75,
+      "index_entry": "health.integration.test.ts — health-check integration tests"
+    },
+    {
+      "path": "docs/tools/health-check.md",
+      "type": "doc",
+      "description": "User-facing documentation for the health-check tool including schema, examples, and troubleshooting.",
+      "line_count_est": 120,
+      "index_entry": "health-check.md — health-check endpoint documentation"
+    }
+  ],
+
+  "existing_leverage": [
+    {
+      "asset": "roadmapSchema.ts",
+      "type": "schema",
+      "count": 1,
+      "usage": "Reference for Zod schema patterns, naming conventions, and JSDoc style used in healthSchema.ts."
+    },
+    {
+      "asset": "src/handlers/",
+      "type": "source",
+      "count": 1,
+      "usage": "Existing handler pattern used as template for healthHandler.ts function signature and structure."
+    },
+    {
+      "asset": "src/server.ts",
+      "type": "source",
+      "count": 1,
+      "usage": "Dispatcher registration pattern reused for wiring the health-check handler."
+    }
+  ],
+
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools", "missing_deps", "missing_exit_conditions",
+      "missing_rollback", "sequence_errors", "role_mismatch",
+      "effort_mismatch", "missing_indexing", "missing_skills",
+      "orphaned_deliverables", "underspecified_steps", "missing_tests"
+    ],
+    "improvement_threshold": 0.92
+  },
+
+  "scrutiny_log": "data/state/HEALTH-CHECK/scrutiny-log.json",
+  "position_file": "data/state/HEALTH-CHECK/position.json",
+  "state_dir": "data/state/HEALTH-CHECK/"
+}

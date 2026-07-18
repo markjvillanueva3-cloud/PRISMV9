@@ -1,0 +1,182 @@
+[
+  {
+    "id": "ctrl-001",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc AI Contour Control (AICC) activation via G05.1",
+    "content": "Use G05.1 Q1 Rx to activate AI Contour Control on Fanuc 31i-B5 and 0i-MF Plus. The R parameter (R1-R10) balances toolpath speed vs positioning accuracy: R1 prioritizes speed (roughing, ~0.15mm deviation at 10m/min on 90-degree corners), R10 prioritizes accuracy (finishing). Cancel with G05.1 Q0. CRITICAL: Always call G49 (cancel tool length comp) before G05.1 Q1. Machine tool builders may modify the default syntax — verify with your dealer. Older equivalent: G05 P10000 (HPCC mode, now obsolete). G05.1 Q2 activates Smooth Interpolation, which also enables AICC simultaneously.",
+    "applies_to": { "controllers": ["Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-MF Plus", "Fanuc 0i-MF"], "machines": ["VMC", "HMC", "5-axis"] },
+    "tags": ["controller", "fanuc", "hsm", "aicc", "surface-finish", "high-speed-machining"]
+  },
+  {
+    "id": "ctrl-002",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc Nano Smoothing for mold-quality surfaces",
+    "content": "Nano Smoothing generates smooth curves inferred from programmed miniature line segments, outputting position commands in nanometer resolution (10^-9 m). This is the single biggest improvement for surface finish and machine smoothness/speed in mold and die work. Available on 31i-B5/Plus and 0i-MF Plus (with option). Works best with AI Contour Control II, which is designed for successive minute straight lines and NURBS curves. The underlying Nano Interpolation computes servo commands in nanometers and pairs with SERVO HRV Control and SPINDLE HRV Control to form the complete 'NANO CNC System'. Best results when CAM outputs small chord tolerance (0.001-0.005mm) toolpaths.",
+    "applies_to": { "controllers": ["Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-MF Plus"], "machines": ["VMC", "HMC", "5-axis", "mold-machines"] },
+    "tags": ["controller", "fanuc", "nano-smoothing", "surface-finish", "mold-machining", "hsm"]
+  },
+  {
+    "id": "ctrl-003",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc look-ahead buffer sizes by controller model",
+    "content": "Look-ahead buffer size is critical for HSM — more blocks previewed means smoother acceleration/deceleration. Fanuc 0i-MF/0i-MF Plus: up to 40-200 blocks look-ahead (depending on options). Fanuc 31i-B5/Plus: up to 1000 blocks standard, latest firmware supports 10,000+ block look-ahead with AI smoothing. Block processing time: 0i-MF ~8ms per block; 31i-B5 ~0.4ms per block (20x faster). For HSM toolpaths with tiny line segments (common in 3D surfacing), the 31i-B5 is dramatically superior — the 0i-MF may starve at high feedrates with dense code, causing jerky motion and dwell marks.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus"], "machines": ["VMC", "HMC", "5-axis"] },
+    "tags": ["controller", "fanuc", "look-ahead", "hsm", "block-processing", "performance"]
+  },
+  {
+    "id": "ctrl-004",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc 0i-MF vs 31i-B5 key differences",
+    "content": "0i-MF (entry/mid-range): Max 4 simultaneous axes, 8ms block processing, 40-200 block look-ahead, suitable for 3-axis and 3+2 positional 5-axis. 31i-B5 (high-end): Max 5 simultaneous axes, 0.4ms block processing, 1000+ block look-ahead, full simultaneous 5-axis with RTCP/TCP. The 31i-B5 Plus adds enhanced AI contour control, improved Nano Smoothing, and better multi-path control for multi-channel machines. For mold and die work or aerospace 5-axis, the 31i-B5 is strongly recommended. The 0i-MF is adequate for general 3-axis work, drilling, and basic 4-axis operations. Both share the same G-code dialect and Macro B compatibility.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus"], "machines": ["VMC", "HMC", "5-axis"] },
+    "tags": ["controller", "fanuc", "comparison", "selection-guide", "axes"]
+  },
+  {
+    "id": "ctrl-005",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc Macro B variable ranges and persistence",
+    "content": "Fanuc Macro B variable ranges: Local variables #1-#33 (per-call scope, cleared on power-off, used for G65/G66 argument passing). Common variables #100-#199 (global, cleared on power-off — use for temporary cross-macro data). Common variables #500-#999 (global, RETAINED on power-off — use for persistent data like tool counts, calibration offsets, fixture data). System variables #1000+ (read/write machine state). Argument mapping for G65 calls: A=#1, B=#2, C=#3, D=#7, E=#8, F=#9, H=#11, I=#4, J=#5, K=#6, M=#13, Q=#17, R=#18, S=#19, T=#20, U=#21, V=#22, W=#23, X=#24, Y=#25, Z=#26. Note the non-sequential mapping — a common source of bugs.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "macro-b", "programming", "variables"]
+  },
+  {
+    "id": "ctrl-006",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc Macro B call types: G65 vs G66 vs M98",
+    "content": "G65 (simple call): Calls subprogram once per line, passes arguments to local variables, supports nesting up to 4 levels. Use for probing routines, custom cycles, parametric calculations. G66 (modal call): After G66 Pxxxx, the macro is called automatically after every subsequent motion block until G67 cancels. Ideal for repetitive operations like hole patterns with custom logic. M98 (subprogram call): M98 Pxxxx Lnn calls program xxxx, repeats nn times. No argument passing — uses common variables instead. M99 returns to calling program. Key difference: G65/G66 pass arguments and create a local variable scope; M98 does not. For complex parametric programming, always prefer G65.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "macro-b", "programming", "subprograms"]
+  },
+  {
+    "id": "ctrl-007",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc probing with G31 skip signal",
+    "content": "G31 (skip function) moves axes at programmed feedrate until a skip signal (probe contact) is received, then stops motion and records the contact position in system variables #5061-#5068 (machine coordinates at skip). Usage: G31 Z-50. F100 (probe toward Z-50 at 100mm/min). After contact, read #5061 (X), #5062 (Y), #5063 (Z) for the exact trip point. Always use a protected move approach — never rapid (G00) with a probe loaded; use G31 to detect unexpected collisions. Renishaw and Blum probing packages build their cycles on G31. Multi-skip variants: G31.1/G31.2/G31.3 use different skip signal inputs (useful for multi-probe setups). Feed override is typically disabled during G31 for consistent results.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "probing", "G31", "skip-signal", "measurement"]
+  },
+  {
+    "id": "ctrl-008",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc G37 automatic tool length measurement",
+    "content": "G37 performs automatic tool offset measurement. When the probe skip signal is received during a G37 move, the Z position is captured and used to set the specified tool length offset (H register). Syntax: G37 Zxx.xxx Hnn (measure tool, set offset Hnn). The resulting offset equals the distance between the work coordinate zero and the probe contact point. This is typically used with a fixed tool setter (table-mounted or spindle-mounted). Combine with Macro B for automated tool breakage detection: measure tool, compare to expected length stored in #500+, trigger alarm (#3000=101[TOOL BROKEN]) if deviation exceeds threshold. More reliable than G31-based manual measurement for production environments.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus"], "machines": ["VMC", "HMC", "5-axis"] },
+    "tags": ["controller", "fanuc", "probing", "G37", "tool-measurement", "tool-setting"]
+  },
+  {
+    "id": "ctrl-009",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc tool life management and sister tools",
+    "content": "Fanuc tool life management organizes tools into groups (up to 128 groups). When a tool's life expires (by count or time), the control automatically selects the next tool in the group (sister tool). System variable #1002=1 when all tools in a group are expired (triggers alarm). #1003=1 when a sister tool swap occurs. Setup: register tools in groups via parameter settings, assign life values (minutes or piece count). In the program, call the group number instead of a specific tool number — the control selects the active tool. M-codes for tool life are builder-specific (typically M80+). Combine with Macro B: read #1002 after each tool change, if expired call operator notification macro. Essential for lights-out and high-volume production.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "tool-life", "sister-tools", "automation", "lights-out"]
+  },
+  {
+    "id": "ctrl-010",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc work coordinate systems: G54-G59 and G54.1 extended offsets",
+    "content": "Standard work offsets: G54-G59 (6 offsets, always available). Extended offsets: G54.1 P1 through G54.1 P48 (48 additional offsets, optional on some models). Total: up to 54 work coordinate systems. Setting offsets programmatically: G10 L2 P1 X__ Y__ Z__ (set G54, P2=G55...P6=G59). G10 L20 P1 X__ Y__ Z__ (set G54.1 P1 through P48). In G90 mode, G10 replaces values; in G91 mode, G10 adds to existing values. G54.1 is NOT the same as G54 — G54.1 is the header for extended offsets, G54.1 P1 is the first extended offset. Use extended offsets for tombstone fixtures, pallet systems, and multi-part setups. G53 (machine coordinate) overrides all work offsets for that block only — use for safe tool change positions.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "work-offsets", "G54", "G54.1", "fixtures", "coordinates"]
+  },
+  {
+    "id": "ctrl-011",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc G10 programmatic offset setting for automation",
+    "content": "G10 enables setting tool and work offsets from within the NC program — essential for automated probing and fixture setup. Work offsets: G10 L2 P(n) X__ Y__ Z__ (L2=standard offsets, P1=G54 through P6=G59). G10 L20 P(n) X__ Y__ Z__ (L20=extended offsets, P1-P48 for G54.1). Tool offsets: G10 L10 P(n) R__ (L10=tool length geometry), G10 L11 P(n) R__ (L11=tool length wear), G10 L12 P(n) R__ (L12=tool radius geometry), G10 L13 P(n) R__ (L13=tool radius wear). In G90 mode values are absolute (replace); in G91 mode values are incremental (add). Combine with G31 probing: probe a surface, read #5063, then G10 L2 to set the work offset automatically. This is the foundation of automated setup on Fanuc controls.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "G10", "offsets", "automation", "probing"]
+  },
+  {
+    "id": "ctrl-012",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc coolant M-codes including through-spindle",
+    "content": "Standard coolant: M7 (mist coolant on), M8 (flood coolant on), M9 (all coolant off). Combined spindle+coolant: M13 (spindle CW + coolant on), M14 (spindle CCW + coolant on) — saves a line vs separate M3/M8. Through-spindle coolant (TSC): M-codes are builder-specific, commonly M50, M51, or in the M80-M89 range. Always check your machine manual. High-pressure coolant systems may have separate M-codes for pressure selection. Some builders use M-codes in the M600 series for coolant pressure levels. For TSC: ensure spindle is at speed before activating TSC to avoid coolant spray without rotation. When programming TSC with HSM, place the TSC activation M-code before the cutting move, not in the same block as rapid positioning.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "coolant", "through-spindle", "M-codes"]
+  },
+  {
+    "id": "ctrl-013",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc Dual Check Safety (DCS) system",
+    "content": "Fanuc Dual Check Safety (DCS) provides SIL 2 / PLd safety monitoring built into the CNC — no external safety hardware needed. Features: Safe Torque Off (STO) — removes torque from motors without cutting main power, faster restart than E-stop. Safe Limited Speed (SLS) — monitors axis/spindle speed, triggers alarm if exceeded. Safe Speed Monitor (SSM) — confirms safe speed before allowing guard door opening. Safe Position Monitor — monitors axis positions against defined safe zones. Architecture: dual-channel redundant monitoring of I/O signals, servo motors, and spindle motors. Emergency stop is monitored redundantly across both channels. Available on all current Fanuc controllers (0i-MF Plus, 31i-B5 Plus, 0i-TF Plus). Eliminates need for external safety PLCs in many applications, reducing wiring and cost.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF Plus", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "safety", "DCS", "STO", "SLS"]
+  },
+  {
+    "id": "ctrl-014",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc system variables for alarms and program control",
+    "content": "Key Fanuc system variables for macro programming: #3000 = generates a custom alarm and halts program (e.g., #3000=101[TOOL BROKEN] — alarm number 101 with message, up to 26 chars). #3006 = displays message and pauses program (operator acknowledgment required, e.g., #3006=1[CHECK CLAMP]). #5001-#5006 = current end-point position (work coordinates). #5021-#5026 = current machine position. #5041-#5046 = current actual position. #5061-#5068 = skip signal (G31) position. #1000-#1035 = input signal status. #1100-#1115 = output signal status. #2001-#2200 = tool length offset values. #2401-#2600 = cutter radius compensation values. #3001 = millisecond timer. #3002 = hour meter. #4001-#4120 = modal G-code group states (read which G-codes are active).",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "macro-b", "system-variables", "alarms", "programming"]
+  },
+  {
+    "id": "ctrl-015",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc 0i-TF turning-specific canned cycles",
+    "content": "Fanuc 0i-TF/0i-TF Plus turning canned cycles differ significantly from milling G-codes. Stock removal: G71 (longitudinal rough turning — auto-calculates passes from depth-of-cut), G72 (facing rough cycle), G73 (pattern repeating for castings/forgings). Finishing: G70 (finish cycle — follows G71/G72/G73 profile at finish allowance). Threading: G32/G33 (single-pass thread cutting), G76 (multi-pass auto threading cycle — preferred for production), G92 (simple threading cycle). Grooving/Parting: G75 (grooving cycle with peck). Drilling: G74 (face drilling/peck cycle). Key difference from milling: G90 on turning = single-pass turning cycle (NOT absolute mode — G90/G91 absolute/incremental concept uses different codes on lathes). G76 threading: control auto-determines internal vs external by comparing start X to programmed X.",
+    "applies_to": { "controllers": ["Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["lathe", "turning-center", "CNC-lathe"] },
+    "tags": ["controller", "fanuc", "turning", "canned-cycles", "threading", "lathe"]
+  },
+  {
+    "id": "ctrl-016",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc milling-specific canned cycles (0i-MF / 31i-B5)",
+    "content": "Fanuc milling canned cycles (G73-G89 range): G73 (high-speed peck drilling — chip-breaking with partial retract), G74 (LH tapping), G76 (fine boring — orient spindle, shift, retract), G80 (cancel canned cycle), G81 (spot drill/simple drill), G82 (counterbore — dwell at bottom), G83 (deep-hole peck drilling — full retract each peck), G84 (RH tapping), G85 (boring — feed retract), G86 (boring — spindle stop, rapid retract), G87 (back boring), G88 (boring — dwell, manual retract), G89 (boring — dwell, feed retract). All cycles use R-plane (rapid-to point) and Z-depth. G98/G99 control retract level: G98 returns to initial Z level (safe for obstacles), G99 returns to R-plane (faster for repeated holes). Always use G98 when there are clamps or fixtures between holes.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus"], "machines": ["VMC", "HMC", "5-axis"] },
+    "tags": ["controller", "fanuc", "milling", "canned-cycles", "drilling", "tapping", "boring"]
+  },
+  {
+    "id": "ctrl-017",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc M19 spindle orientation and rigid tapping",
+    "content": "M19 commands the spindle to orient to a specific angular position using a position encoder. Required for: tool changes (orient spindle for ATC arm), fine boring cycle G76 (orient before shift-retract), live tooling on lathes. M19 is modal in the same group as M3/M4/M5 — issuing M19 stops the spindle and orients it. Rigid tapping: G84 with M29 (or G84.2/G84.3 on newer controls) synchronizes spindle rotation with Z-axis feed for tap-without-floating-holder. On 0i-MF Plus and 31i-B5: rigid tapping is standard. Parameters control the synchronization gain — poorly tuned rigid tapping causes tap breakage or oversized holes. For deep holes (>2xD), use G84 with peck (G83-style) if supported, or break the cycle into segments.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "spindle-orientation", "M19", "rigid-tapping", "M29"]
+  },
+  {
+    "id": "ctrl-018",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc G08 Advanced Preview Control for high-speed machining",
+    "content": "G08 P1 activates Advanced Preview Control (APC) on Fanuc controls. G08 P0 cancels. APC pre-reads upcoming blocks and optimizes feedrate based on the upcoming geometry, automatically decelerating for corners and accelerating on straights. Difference from AICC (G05.1): G08 is the simpler/older version, G05.1 is the AI-enhanced version with more parameters. On 0i-MF: G08 may be the only HSM option available (AICC is an option). On 31i-B5: both G08 and G05.1 are available, prefer G05.1 Q1 Rx for finer control. G05, G05.1, and G08 all serve similar purposes but evolved across controller generations. Some machine tool builders remap these — always verify. For CAM post-processors: output G05.1 Q1 R5 at program start and G05.1 Q0 at program end for a safe default HSM configuration.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus"], "machines": ["VMC", "HMC", "5-axis"] },
+    "tags": ["controller", "fanuc", "G08", "hsm", "advanced-preview", "high-speed-machining"]
+  },
+  {
+    "id": "ctrl-019",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc turning vs milling controller G-code conflicts",
+    "content": "Several G-codes have DIFFERENT meanings on Fanuc turning (0i-TF) vs milling (0i-MF) controllers — a critical source of programming errors. G73: Milling = high-speed peck drilling; Turning = pattern repeating cycle. G74: Milling = LH tapping; Turning = face peck drilling/grooving. G75: Not standard on milling; Turning = OD/ID grooving cycle. G76: Milling = fine boring; Turning = multi-pass threading cycle. G90: Milling = absolute positioning mode; Turning = single-pass turning cycle (absolute/incremental is handled differently). G92: Milling = work coordinate preset; Turning = threading cycle. G94: Milling = feed per minute mode; Turning = facing cycle. When switching between mill and lathe programming, always verify G-code meaning against the specific control type. Mill-turn machines with both turret and milling spindle use path-specific G-code interpretation.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "lathe", "mill-turn"] },
+    "tags": ["controller", "fanuc", "turning-vs-milling", "G-code-conflicts", "safety", "programming"]
+  },
+  {
+    "id": "ctrl-020",
+    "category": "controller",
+    "subcategory": "fanuc",
+    "title": "Fanuc Macro B tool breakage detection pattern",
+    "content": "Practical Macro B pattern for automated tool breakage detection using G31 probing and system variables. Pattern: (1) After machining, call tool setter with G31 Z-xx F100. (2) Read skip position: #101=#5063 (Z at contact). (3) Compare to expected length stored in non-volatile variable: IF[ABS[#101-#501] GT 0.5] GOTO 900. (4) Normal path: continue program. (5) N900: #3000=101[TOOL 1 BROKEN - REPLACE]. This halts the machine with a clear alarm. Store reference lengths in #500-#999 (persist across power cycles). For multi-tool programs, use #500+tool_number as the storage variable. Add #3001 (millisecond timer) reads before/after probing to log cycle times. This pattern is the foundation of lights-out machining on Fanuc controls and works identically on 0i-MF, 31i-B5, and 0i-TF controllers.",
+    "applies_to": { "controllers": ["Fanuc 0i-MF", "Fanuc 0i-MF Plus", "Fanuc 31i-B5", "Fanuc 31i-B5 Plus", "Fanuc 0i-TF", "Fanuc 0i-TF Plus"], "machines": ["VMC", "HMC", "lathe", "5-axis"] },
+    "tags": ["controller", "fanuc", "macro-b", "tool-breakage", "probing", "lights-out", "automation"]
+  }
+]

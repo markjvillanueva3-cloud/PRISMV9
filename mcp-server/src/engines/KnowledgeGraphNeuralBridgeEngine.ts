@@ -305,7 +305,7 @@ class HNSWIndex {
 
     // Update entry point if needed
     if (this.entryPoint === id) {
-      this.entryPoint = this.nodes.size > 0 ? this.nodes.keys().next().value : null;
+      this.entryPoint = this.nodes.size > 0 ? (this.nodes.keys().next().value ?? null) : null;
       this.maxLevel = 0;
       for (const n of this.nodes.values()) {
         if (n.level > this.maxLevel) {
@@ -468,7 +468,7 @@ class HNSWIndex {
     }
 
     if (!this.entryPoint && this.nodes.size > 0) {
-      this.entryPoint = this.nodes.keys().next().value;
+      this.entryPoint = this.nodes.keys().next().value ?? null;
     }
   }
 }

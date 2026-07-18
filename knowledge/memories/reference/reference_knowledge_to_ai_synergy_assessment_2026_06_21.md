@@ -1,0 +1,27 @@
+---
+name: reference_knowledge_to_ai_synergy_assessment_2026_06_21
+description: "Operator-asked assessment (slot:india 2026-06-21): can memories+wiki+tribal further improve the AI/intelligence systems? ANSWER: yes, but a large baseline is ALREADY BUILT (R12 -- do not re-propose). BASELINE (verified): memories->GNN labels (vault-to-gnn-refpool.mjs), memories(feedback+galaxy-synthesis)->LoRA (vault-to-lora-dataset.mjs), wiki/mem/tribal->octopus (PSN-OCTOPUS-FLEET-SYNERGY), wiki+tribal->prompt injection (tribal-embed-index 33,639 + tribal-rerank PSN leg#5), wiki->GNN node features (build-node-embeddings.mjs:476 label+docblock+sourceSignal + wikiCache reuse w/ wikiSafe leakage guard line 440 + GNN-F0 enrichment + TF-IDF sharp/idf). REMAINING GAPS (prioritized): (1) HIGHEST -- enrich GNN node feature with per-engine TRIBAL tips + dispatcher-ACTION-surface text (currently injection-only / not a node feature); slots into existing embedTextFor enrichment seam; addresses the 1/7-class separability gap (reference_gnn_embed_separability_diagnostic_2026_06_21); measure-before-retrain, multi-seed. (2) feed the 33k tribal corpus + wiki code-tribal/learnings into vault-to-lora-dataset (today: feedback+galaxy-synthesis only) -- cheap code-side, sharded-safe. (3) broaden RAG for router/creative-reasoning -- mostly covered by PSN-OCTOPUS, low priority."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.635Z
+aliases: reference_knowledge_to_ai_synergy_assessment_2026_06_21
+---
+
+
+**CONTEXT:** slot:india 2026-06-21, operator question: "can we utilize memories, wikis and tribal knowledge to improve our intelligence system further?" Ultracode on. (Tried a fan-out Workflow x5; the agent-fanout-gate held at cost=12>=cap regardless of agent count/size, so the judgment was done inline on Opus per the R5 ladder + one targeted code verification of the load-bearing fact.)
+
+**BASELINE -- ALREADY BUILT (verified file:line, do NOT re-propose):**
+- memories -> GNN reference-pool labels: `scripts/vault-to-gnn-refpool.mjs`.
+- memories -> LoRA: `scripts/vault-to-lora-dataset.mjs` -- sources = `knowledge/memories/feedback/*.md` (verified-feedback Alpaca pairs) + galaxy `knowledge/memories/patterns/*_synthesis.md` (U-LORA-GALAXY-SYNTHESIS). NOT tribal, NOT wiki-lessons.
+- memories+wiki+tribal -> octopus consensus: PSN-OCTOPUS-FLEET-SYNERGY-MS0 (5 PSN legs into MultiModelConsensusEngine).
+- wiki+tribal -> prompt-time injection embeddings: `state/shared/tribal-embed-index.json` (~33,639 entries, sharded) consumed by `.claude/scripts/tribal-rerank.mjs` (PSN leg #5, UserPromptSubmit).
+- wiki -> GNN node features (ALREADY, with leakage handling): `scripts/build-node-embeddings.mjs` -- per-node embed text = `[label, info(file docblock), sourceSignal]` (line 476); reuses wiki-entry vectors by name only if `wikiSafe` = wiki cache predates the graph snapshot (line 440 "else the wiki entry may encode post-hoc wiring info -> leakage"); GNN-F0 ghost-enrichment (line 73) + TF-IDF `sharp`/`idf`/`leadK` params in `embedTextFor` (line 278). Bridge: `scripts/lib/graph-node-embedding-bridge.mjs` (gnn-node-embedding-bridge).
+
+**REMAINING GAPS (prioritized ROI x feasibility):**
+1. **[HIGHEST -- leg #10 lever] GNN node-feature enrichment with per-engine TRIBAL tips + dispatcher-ACTION-surface text.** Today's node feature (label + file-docblock + name-matched wiki) still separates only 1/7 dispatcher classes ([[reference_gnn_embed_separability_diagnostic_2026_06_21]]; cheap structural features ruled out in [[reference_gnn_structural_feature_probe_2026_06_21]]). The untapped DENSE per-engine signals: the engine's tribal tips (33k corpus, injection-only) + its dispatcher action-surface (action names/descriptions it backs). Both extend the EXISTING `embedTextFor` enrichment seam (not a new system), leak-stripped the same way `wikiSafe` strips post-hoc wiring. Unit: add tribal+action-surface to embedTextFor (guarded) -> re-embed the 178-ref holdout -> measure classSeparability vs 1/7 baseline BEFORE retrain -> GPU/H2GCN retrain gated AUROC>=0.78/macroF1>=0.55/Brier<=0.15 MULTI-SEED. Effort: moderate code + GPU.
+2. **[CHEAP, high coverage] Feed the 33k tribal corpus + wiki code-tribal/learnings into LoRA.** `vault-to-lora-dataset.mjs` trains only on feedback + galaxy-synthesis. Add a tribal/wiki-lesson lane (advisory-tagged so it never merges with hand-authored verified feedback; sharded-safe read via `scripts/lib/load-tribal-index.mjs` to respect the V8 512MiB cap). Effort: cheap code-side. Quality risk: tribal is advisory not verified -> tag + keep separate set.
+3. **[LIKELY COVERED] Broaden RAG retrieval for aiSystemRouterEngine / PRISMCreativeReasoningEngine** beyond currently-wired slices -- but PSN-OCTOPUS already wired 5 substrate legs into consensus; verify before building, low priority.
+
+**HONESTY (R12):** verified node-feature construction + LoRA sources + existing bridges by targeted read; did NOT exhaustively audit every AI consumer (router/creative-reasoning retrieval surfaces unverified -> gap #3 marked "likely covered, verify first"). The fan-out Workflow was gate-blocked; a deeper multi-agent map would harden gap #3 and surface 2nd-order opportunities.
+
+**SIBLINGS:** [[reference_gnn_embed_separability_diagnostic_2026_06_21]] · [[reference_gnn_structural_feature_probe_2026_06_21]] · [[reference_gnn_refpool_cap20_reverify_2026_06_21]] · [[feedback_multiseed_before_auroc_claim]].

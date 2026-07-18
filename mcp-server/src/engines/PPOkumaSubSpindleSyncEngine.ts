@@ -11,7 +11,17 @@
  *   - Tailstock management
  *   - Main/sub chuck pressure control
  *
- * Okuma OSP-P300L dialect conventions:
+ * ⚠ UNVERIFIED DIALECT (R12, 2026-06-28): the M/G codes below are NOT cited to a real
+ * LU3000/LT program or manual and are NOT confirmed against any machine. They DIVERGE
+ * from the JM fleet's verified Okuma chucker codes (sub/main chuck M248/M249 + M83/M84,
+ * sync M151/M150, interlock M247/M246 + M185/M184 -- see MULTUS_B250_SUBSPINDLE_CODES in
+ * data/marks-multus-patterns.ts, sourced from Mark's running programs). The JM fleet has
+ * NO LU3000 (it is 100% Okuma OSP chuckers: GENOS/LB/Multus/Crown/LNC). Do NOT rely on
+ * this engine's emit for any JM machine without first verifying its codes against that
+ * machine's OWN running program. For the JM Multus B250 chucker transfer, use
+ * OkumaB250LatheMasterPostEngine.generateSubSpindleTransfer (verified).
+ *
+ * Okuma LU3000/LT dialect conventions (UNVERIFIED -- see warning above):
  *   - M170/M171: Sub-spindle forward/reverse (C2)
  *   - M180/M181: Sub-spindle CW/CCW
  *   - G145/G146: Synchronous spindle on/off

@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: load-time bootstrap -- registers reactive chains on the EventBus singleton at import; not a dispatcher action.
 /**
  * reactiveChainBootstrap.ts - Register reactive chains at module load time
  *
@@ -455,7 +456,12 @@ eventBus.registerAction("update_capacity_from_estimate", async (params) => {
 });
 
 // --- Chain 11: capacity_to_scheduling (U-INTEG16) ---
-eventBus.registerAction("reoptimize_schedule", async (params) => {
+// NOTE: action name is "reoptimize_schedule_capacity" (NOT the bare "reoptimize_schedule").
+// cycleSchedulingBridge.ts:316 registers a DIFFERENT "reoptimize_schedule" handler (emits
+// "schedule.updated"); EventBus.registerAction is silent last-writer-wins (EventBus.ts:1230,
+// actionRegistry.set), so a bare shared name made whichever module loaded second clobber the
+// other's handler -> a chain step fired the wrong handler/event. Namespaced to break the collision.
+eventBus.registerAction("reoptimize_schedule_capacity", async (params) => {
   try {
     const { machine_id, utilization_pct } = params;
     
@@ -485,7 +491,7 @@ eventBus.registerAction("reoptimize_schedule", async (params) => {
 
     return { skipped: true, reason: `utilization ${utilization_pct}% within normal range` };
   } catch (err) {
-    log.error(`[Scheduling Chain] reoptimize_schedule failed: ${err}`);
+    log.error(`[Scheduling Chain] reoptimize_schedule_capacity failed: ${err}`);
     return { error: String(err) };
   }
 });
@@ -613,7 +619,7 @@ eventBus.registerReactiveChain({
   trigger_event: EventTypes.CAPACITY_UPDATED,
   trigger_filter: { source: "*" },
   steps: [
-    { action: "reoptimize_schedule", emit_event: EventTypes.SCHEDULE_OPTIMIZED },
+    { action: "reoptimize_schedule_capacity", emit_event: EventTypes.SCHEDULE_OPTIMIZED },
   ],
   enabled: true,
 });

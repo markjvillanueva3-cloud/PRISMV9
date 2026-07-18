@@ -1,0 +1,155 @@
+TAP version 13
+# Subtest: VERB_ROUTES: no fake `prism_intelligence:ollama_*` actions (iter4 R12 fix)
+ok 1 - VERB_ROUTES: no fake `prism_intelligence:ollama_*` actions (iter4 R12 fix)
+  ---
+  duration_ms: 1.0243
+  ...
+# Subtest: VERB_ROUTES: every prism_*:* token references a KNOWN-REAL MCP action
+ok 2 - VERB_ROUTES: every prism_*:* token references a KNOWN-REAL MCP action
+  ---
+  duration_ms: 0.3126
+  ...
+# Subtest: VERB_ROUTES: every verb has at least one route mentioning a real MCP action
+ok 3 - VERB_ROUTES: every verb has at least one route mentioning a real MCP action
+  ---
+  duration_ms: 0.1622
+  ...
+# Subtest: VERB_ROUTES: all 7 iter4 verb keys present
+ok 4 - VERB_ROUTES: all 7 iter4 verb keys present
+  ---
+  duration_ms: 0.1543
+  ...
+# Subtest: VERB_ROUTES: no empty-string or whitespace-only routes
+ok 5 - VERB_ROUTES: no empty-string or whitespace-only routes
+  ---
+  duration_ms: 0.245
+  ...
+# Subtest: VERB_ROUTES: frozen (defensive — can't be mutated by callers)
+ok 6 - VERB_ROUTES: frozen (defensive — can't be mutated by callers)
+  ---
+  duration_ms: 0.0824
+  ...
+# Subtest: matchVerbTrigger: 'summarize this file' → verb-summarize
+ok 7 - matchVerbTrigger: 'summarize this file' → verb-summarize
+  ---
+  duration_ms: 1.3076
+  ...
+# Subtest: matchVerbTrigger: 'explain how this code works' → verb-explain
+ok 8 - matchVerbTrigger: 'explain how this code works' → verb-explain
+  ---
+  duration_ms: 0.3873
+  ...
+# Subtest: matchVerbTrigger: 'walk me through the function' → verb-explain
+ok 9 - matchVerbTrigger: 'walk me through the function' → verb-explain
+  ---
+  duration_ms: 0.0815
+  ...
+# Subtest: matchVerbTrigger: 'classify these items' → verb-classify
+ok 10 - matchVerbTrigger: 'classify these items' → verb-classify
+  ---
+  duration_ms: 0.0837
+  ...
+# Subtest: matchVerbTrigger: 'add a docstring' → verb-docstring
+ok 11 - matchVerbTrigger: 'add a docstring' → verb-docstring
+  ---
+  duration_ms: 0.0796
+  ...
+# Subtest: matchVerbTrigger: 'lint check this' → verb-lint
+ok 12 - matchVerbTrigger: 'lint check this' → verb-lint
+  ---
+  duration_ms: 0.0668
+  ...
+# Subtest: matchVerbTrigger: 'summarize the diff' → verb-diff-summary (NOT verb-summarize)
+ok 13 - matchVerbTrigger: 'summarize the diff' → verb-diff-summary (NOT verb-summarize)
+  ---
+  duration_ms: 0.1107
+  ...
+# Subtest: matchVerbTrigger: 'why is this failing' → verb-error-triage
+ok 14 - matchVerbTrigger: 'why is this failing' → verb-error-triage
+  ---
+  duration_ms: 0.0695
+  ...
+# Subtest: matchVerbTrigger: diff-summary precedes summarize (specific > general)
+ok 15 - matchVerbTrigger: diff-summary precedes summarize (specific > general)
+  ---
+  duration_ms: 0.2215
+  ...
+# Subtest: matchVerbTrigger: empty string returns null
+ok 16 - matchVerbTrigger: empty string returns null
+  ---
+  duration_ms: 0.2644
+  ...
+# Subtest: matchVerbTrigger: null/undefined returns null
+ok 17 - matchVerbTrigger: null/undefined returns null
+  ---
+  duration_ms: 0.1116
+  ...
+# Subtest: matchVerbTrigger: non-string returns null
+ok 18 - matchVerbTrigger: non-string returns null
+  ---
+  duration_ms: 0.0643
+  ...
+# Subtest: matchVerbTrigger: prompt with no offload verbs returns null
+ok 19 - matchVerbTrigger: prompt with no offload verbs returns null
+  ---
+  duration_ms: 0.1202
+  ...
+# Subtest: matchVerbTrigger: prompt with the word 'explain' but no target → no match (no over-fire)
+ok 20 - matchVerbTrigger: prompt with the word 'explain' but no target → no match (no over-fire)
+  ---
+  duration_ms: 0.0719
+  ...
+# Subtest: matchVerbTrigger: very long prompt with no verb match returns null in bounded time
+ok 21 - matchVerbTrigger: very long prompt with no verb match returns null in bounded time
+  ---
+  duration_ms: 0.1301
+  ...
+# Subtest: matchVerbTrigger: prompt with bracket/markup noise still matches
+ok 22 - matchVerbTrigger: prompt with bracket/markup noise still matches
+  ---
+  duration_ms: 0.0468
+  ...
+# Subtest: matchPipelineTrigger: /forge-audit → forge-audit
+ok 23 - matchPipelineTrigger: /forge-audit → forge-audit
+  ---
+  duration_ms: 0.1089
+  ...
+# Subtest: matchPipelineTrigger: /rgs → rgs
+ok 24 - matchPipelineTrigger: /rgs → rgs
+  ---
+  duration_ms: 0.1235
+  ...
+# Subtest: matchPipelineTrigger: bare verb-prompt returns null (verb fallback's job)
+ok 25 - matchPipelineTrigger: bare verb-prompt returns null (verb fallback's job)
+  ---
+  duration_ms: 0.2121
+  ...
+# Subtest: matchPipelineTrigger: null returns null (defensive)
+ok 26 - matchPipelineTrigger: null returns null (defensive)
+  ---
+  duration_ms: 0.0516
+  ...
+# Subtest: precedence: a prompt with BOTH /forge-audit AND 'summarize this file' takes pipeline route
+ok 27 - precedence: a prompt with BOTH /forge-audit AND 'summarize this file' takes pipeline route
+  ---
+  duration_ms: 0.0504
+  ...
+# Subtest: matchVerbTrigger: case-insensitive (Summarize / SUMMARIZE)
+ok 28 - matchVerbTrigger: case-insensitive (Summarize / SUMMARIZE)
+  ---
+  duration_ms: 0.0471
+  ...
+# Subtest: matchVerbTrigger: en-US vs en-GB spellings ('summarise' too)
+ok 29 - matchVerbTrigger: en-US vs en-GB spellings ('summarise' too)
+  ---
+  duration_ms: 0.0405
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 76.6797

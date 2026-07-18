@@ -23,15 +23,14 @@ related:
 |-------|-------|
 | Name | `cad-graph` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-graph.md` |
+| Source | `C:/Users/wompu/.claude/commands/cad-graph.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Build or query a CAD knowledge graph using `CADKnowledgeGraphEngine`
-(CADCAM-DAGI-MS0/U-DAGI02). Nodes are Sketch / Plane / Feature / Body /
-Assembly. Edges are references / modifies / constrains / contains.
+
+# CAD Graph — Topology-aware CAD dependency graph
 
 <!-- AUTO-END -->
 

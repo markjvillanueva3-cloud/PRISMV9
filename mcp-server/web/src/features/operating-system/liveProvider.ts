@@ -1024,11 +1024,11 @@ function buildLiveEmailLoginTagline(employee: Employee, profileId: 'machinist' |
   }
 
   if (profileId === 'inspector') {
-    return `Live employee directory recognized ${fullName}'s quality mailbox. Inspection follow-up can enter PRISM now while mailbox delivery remains staged.`;
+    return `Live employee directory recognized ${fullName}'s quality mailbox. Inspection follow-up can enter Kienzle now while mailbox delivery remains staged.`;
   }
 
   if (profileId === 'planner') {
-    return `Live employee directory recognized ${fullName}'s planning mailbox. Dispatch coordination can enter PRISM now while mailbox delivery still converges.`;
+    return `Live employee directory recognized ${fullName}'s planning mailbox. Dispatch coordination can enter Kienzle now while mailbox delivery still converges.`;
   }
 
   return `Live employee directory recognized ${fullName}'s mailbox. Full inbox identity is available now, while mailbox delivery and thread state still remain staged.`;
@@ -1186,8 +1186,8 @@ function buildLiveCommerceCatalog(fallback: ShellCommerceCatalog, billing: LiveB
   const mappedTierLabel = mappedTier?.label;
   const planLabel = mappedTierLabel ?? billing.plan;
   const detail = mappedTierLabel
-    ? `Live billing status is connected. Backend currently reports ${billing.role} access on the ${mappedTierLabel} billing lane, and the staged catalog keeps the broader PRISM packaging story visible while tier mapping finishes converging.`
-    : `Live billing status is connected for the ${billing.plan} backend plan, while the staged catalog continues carrying the broader PRISM packaging story until tier mapping is fully converged.`;
+    ? `Live billing status is connected. Backend currently reports ${billing.role} access on the ${mappedTierLabel} billing lane, and the staged catalog keeps the broader Kienzle packaging story visible while tier mapping finishes converging.`
+    : `Live billing status is connected for the ${billing.plan} backend plan, while the staged catalog continues carrying the broader Kienzle packaging story until tier mapping is fully converged.`;
 
   return {
     ...fallback,

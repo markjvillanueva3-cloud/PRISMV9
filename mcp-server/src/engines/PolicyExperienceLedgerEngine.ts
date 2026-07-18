@@ -87,6 +87,9 @@ export class PolicyExperienceLedgerEngine {
         scalar_contribution: c.scalar_contribution ?? componentScalar(c),
       })),
       reward_total,
+      // GRPO group-relative advantage (ULTRACODE-SYNERGY-MS0). Only written when
+      // provided — keeps the field optional + pre-GRPO tuples byte-identical.
+      ...(parsed.data.group_advantage !== undefined ? { group_advantage: parsed.data.group_advantage } : {}),
       next_state: parsed.data.next_state,
       terminal: parsed.data.terminal,
       metadata: parsed.data.metadata,

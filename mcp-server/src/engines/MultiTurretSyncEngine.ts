@@ -350,7 +350,7 @@ export class MultiTurretSyncEngine {
           pairId: `PAIR_${pairIndex++}`,
           upperTurretOp: upperOp,
           lowerTurretOp: lowerOp,
-          cutType: 'parallel',
+          cutType: 'staggered',
           startSync: `M${200 + pairIndex}`,
           endSync: `M${210 + pairIndex}`,
           forceBalance_percent: 50, // Different operations, moderate balance

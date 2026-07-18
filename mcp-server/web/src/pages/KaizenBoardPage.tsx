@@ -128,7 +128,11 @@ export function KaizenBoardPage() {
       endDate: s.date,
       scope: s.machine || s.department,
       status: 'complete' as ProjectStatus,
-      savings: s.estimatedSavings ?? 0,
+      // Live-derived projects carry $ savings; the qualitative metric trio
+      // surfaces only when the suggestion was scored with a measurement.
+      metricBefore: '—',
+      metricAfter: '—',
+      metricLabel: `$${(s.estimatedSavings ?? 0).toLocaleString()} saved`,
     }));
 
   // Derive contributors from live data
@@ -142,8 +146,17 @@ export function KaizenBoardPage() {
       map.set(key, c);
     }
     return [...map.entries()]
-      .map(([name, counts]) => ({ name, suggestionsCount: counts.submitted, implementedCount: counts.implemented, department: '' }))
-      .sort((a, b) => b.implementedCount - a.implementedCount || b.suggestionsCount - a.suggestionsCount);
+      .map(([name, counts]) => ({
+        // Synthesize a stable id from name+counts when profile-store data isn't
+        // joined yet; preserves both shape compatibility and downstream React keys.
+        id: `contrib:${name}`,
+        name,
+        department: '',
+        submitted: counts.submitted,
+        implemented: counts.implemented,
+        badges: [] as string[],
+      }))
+      .sort((a, b) => b.implemented - a.implemented || b.submitted - a.submitted);
   })();
 
   // Derived metrics

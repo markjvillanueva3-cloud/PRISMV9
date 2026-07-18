@@ -15,7 +15,58 @@ import {
   buildGhostFromUnwired,
   DISPATCHER_INFERENCE_RULES,
   MIN_CONFIDENCE,
+  MCP_TOOL_TO_DISP_NODE_ID,
+  mcpToolToDispNodeId,
+  finalizeGraphMeta,
 } from "./seed-ghost-from-unwired.mjs";
+
+describe("finalizeGraphMeta (U-VIZ-META-TOTALS-FINALIZE + GENERATEDAT-FINALIZE)", () => {
+  const NOW = "2026-06-23T18:30:00.000Z";
+  test("overwrites stale meta.totals with actual post-merge array lengths + stamps generatedAt", () => {
+    const g = {
+      generatedAt: "2026-06-10T03:20:10.426Z", // stale base-gen
+      meta: { totals: { nodes: 60588, edges: 183237, layers: 11 } }, // stale (pre-merge)
+      nodes: Array.from({ length: 354582 }, (_, i) => ({ id: `n${i}` })),
+      edges: Array.from({ length: 830965 }, () => ({ from: "a", to: "b" })),
+      layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // 11
+    };
+    finalizeGraphMeta(g, { now: NOW });
+    assert.deepEqual(g.meta.totals, { nodes: 354582, edges: 830965, layers: 11 });
+    assert.equal(g.generatedAt, NOW); // refreshed off the stale base-gen date
+  });
+  test("idempotent -- second call yields same totals + timestamp", () => {
+    const g = { generatedAt: "x", meta: { totals: {} }, nodes: [{ id: "a" }, { id: "b" }], edges: [{ from: "a", to: "b" }], layers: [0] };
+    finalizeGraphMeta(g, { now: NOW });
+    const first = { ...g.meta.totals };
+    finalizeGraphMeta(g, { now: NOW });
+    assert.deepEqual(g.meta.totals, first);
+    assert.deepEqual(g.meta.totals, { nodes: 2, edges: 1, layers: 1 });
+    assert.equal(g.generatedAt, NOW);
+  });
+  test("default now is a valid recent ISO timestamp (no injection)", () => {
+    const g = { meta: { totals: {} }, nodes: [], edges: [], layers: [] };
+    finalizeGraphMeta(g);
+    assert.match(g.generatedAt, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d/);
+    assert.ok(!Number.isNaN(Date.parse(g.generatedAt)), "parses as a date");
+  });
+  test("missing arrays -> 0 counts, layers falls back to existing meta.totals.layers", () => {
+    const g = { meta: { totals: { layers: 7 } } }; // no nodes/edges/layers arrays
+    finalizeGraphMeta(g, { now: NOW });
+    assert.deepEqual(g.meta.totals, { nodes: 0, edges: 0, layers: 7 });
+    assert.equal(g.generatedAt, NOW);
+  });
+  test("no meta -> still stamps generatedAt, no throw", () => {
+    const g = { nodes: [{ id: "a" }] };
+    assert.doesNotThrow(() => finalizeGraphMeta(g, { now: NOW }));
+    assert.equal(g.meta, undefined);
+    assert.equal(g.generatedAt, NOW);
+  });
+  test("null / non-object input -> no throw", () => {
+    assert.doesNotThrow(() => finalizeGraphMeta(null));
+    assert.doesNotThrow(() => finalizeGraphMeta(undefined));
+    assert.doesNotThrow(() => finalizeGraphMeta(42));
+  });
+});
 
 describe("splitCamelCase", () => {
   test("simple CamelCase → space-separated", () => {
@@ -169,5 +220,166 @@ describe("buildGhostFromUnwired", () => {
     // Confidence exactly at threshold emits edge
     const sample = buildGhostFromUnwired({ name: "BlueprintIntakeEngine", path: "x", mtime: null, sizeKB: 5 });
     assert.equal(sample.node.confidence >= MIN_CONFIDENCE, sample.edge !== null);
+  });
+});
+
+describe("U-VIZ-G4-SEEDER-FIX — MCP tool name → graph node id (2026-05-20 sierra)", () => {
+  // Live G4 dead-pixel sweep on 2026-05-20 found 569 dead edges in the merged
+  // ~250K-node system-graph.json; ~500 traced to this seeder emitting
+  // `dispatcher.<mcp_tool_name>` edge targets that never existed in-graph
+  // (real ids are `disp.<file-derived>`). These tests pin the fix.
+
+  test("MCP_TOOL_TO_DISP_NODE_ID is frozen + non-empty", () => {
+    assert.ok(Object.keys(MCP_TOOL_TO_DISP_NODE_ID).length >= 16);
+    assert.throws(() => { MCP_TOOL_TO_DISP_NODE_ID.injected = "disp.fake"; });
+  });
+
+  test("every value uses the canonical `disp.` prefix (G1 PREFIX_TO_TYPE SSOT)", () => {
+    for (const [k, v] of Object.entries(MCP_TOOL_TO_DISP_NODE_ID)) {
+      assert.ok(typeof v === "string" && v.length > 0, `${k} → empty/non-string`);
+      assert.ok(v.startsWith("disp."), `${k} → ${v} (must start with 'disp.')`);
+      // Inverse guard — the historical bug prefix must NEVER reappear here.
+      assert.ok(!v.startsWith("dispatcher."), `${k} → ${v} (must NOT use legacy 'dispatcher.' prefix)`);
+    }
+  });
+
+  test("every dispatcher emitted by inference rules has a mapping entry", () => {
+    const ruleTargets = new Set(DISPATCHER_INFERENCE_RULES.map((r) => r.dispatcher));
+    const mapped = new Set(Object.keys(MCP_TOOL_TO_DISP_NODE_ID));
+    const missing = [...ruleTargets].filter((t) => !mapped.has(t));
+    assert.deepEqual(missing, [], `inference rules emit dispatcher names with no graph-id mapping: ${missing.join(", ")}`);
+  });
+
+  test("mcpToolToDispNodeId — happy path (canonical 16 mappings)", () => {
+    assert.equal(mcpToolToDispNodeId("prism_calc"), "disp.calcdispatcher");
+    assert.equal(mcpToolToDispNodeId("prism_safety"), "disp.safetydispatcher");
+    assert.equal(mcpToolToDispNodeId("prism_cam"), "disp.camdispatcher");
+    assert.equal(mcpToolToDispNodeId("prism_ai"), "disp.aireasoningdispatcher");
+    assert.equal(mcpToolToDispNodeId("prism_intelligence"), "disp.intelligencedispatcher");
+    assert.equal(mcpToolToDispNodeId("prism_5axis"), "disp.fiveaxisdispatcher");
+  });
+
+  test("mcpToolToDispNodeId — UNKNOWN inference target → harmless fallback", () => {
+    // UNKNOWN never reaches edge emission anyway (MIN_CONFIDENCE-gated upstream),
+    // but the resolver still must not throw and must not emit the legacy prefix.
+    const r = mcpToolToDispNodeId("UNKNOWN");
+    assert.equal(r, "disp.unknown");
+    assert.ok(!r.startsWith("dispatcher."));
+  });
+
+  test("mcpToolToDispNodeId — unmapped key → `disp.<lowercased>` fallback (better than legacy 'dispatcher.*')", () => {
+    // R12: a future inference rule whose target isn't in the map should
+    // surface as ONE dead pixel on the next G4 sweep, not silently miswire.
+    // The fallback uses the canonical `disp.` prefix so the wrong-pattern bug
+    // (dead-edge target never exists in graph) is bounded to one edge.
+    const r = mcpToolToDispNodeId("prism_brand_new_tool");
+    assert.equal(r, "disp.prism_brand_new_tool");
+    assert.ok(r.startsWith("disp."));
+    assert.ok(!r.startsWith("dispatcher."));
+  });
+
+  test("mcpToolToDispNodeId — empty/non-string → 'disp.unknown' (no throw)", () => {
+    assert.equal(mcpToolToDispNodeId(""), "disp.unknown");
+    assert.equal(mcpToolToDispNodeId(null), "disp.unknown");
+    assert.equal(mcpToolToDispNodeId(undefined), "disp.unknown");
+    assert.equal(mcpToolToDispNodeId(42), "disp.unknown");
+    assert.equal(mcpToolToDispNodeId({}), "disp.unknown");
+  });
+
+  test("mcpToolToDispNodeId — adversarial: NaN, Infinity, prototype-pollution", () => {
+    assert.equal(mcpToolToDispNodeId(NaN), "disp.unknown");
+    assert.equal(mcpToolToDispNodeId(Infinity), "disp.unknown");
+    // Prototype-key lookup must NOT succeed (the map is Object.freeze of a
+    // plain object literal; accessing `__proto__` or `constructor` should miss
+    // and fall through to the fallback, NOT return a Function object).
+    const proto = mcpToolToDispNodeId("__proto__");
+    assert.equal(typeof proto, "string");
+    assert.ok(proto.startsWith("disp."));
+    const ctor = mcpToolToDispNodeId("constructor");
+    assert.equal(typeof ctor, "string");
+    assert.ok(ctor.startsWith("disp."));
+  });
+
+  test("buildGhostFromUnwired — edge.to uses `disp.<file>` not `dispatcher.<mcp_tool>` (THE CORE REGRESSION GUARD)", () => {
+    // The bug: for EVERY high-confidence inference, edge.to was
+    // `dispatcher.<inf.dispatcher>` — a node id that NEVER existed in the
+    // graph. This is the test that pins the fix.
+    const samples = [
+      ["MillForceEngine", "disp.calcdispatcher"],
+      ["CollisionDetectorEngine", "disp.safetydispatcher"],
+      ["GCodeTemplateEngine", "disp.camdispatcher"],
+      ["LatheGroovePostEngine", "disp.turningdispatcher"],
+      ["NeuralPredictorEngine", "disp.aireasoningdispatcher"],
+    ];
+    for (const [engineName, expected] of samples) {
+      const r = buildGhostFromUnwired({ name: engineName, path: "x", mtime: null, sizeKB: 5 });
+      assert.ok(r.edge, `${engineName} should emit an edge`);
+      assert.equal(r.edge.to, expected, `${engineName} → wrong edge.to`);
+      assert.ok(r.edge.to.startsWith("disp."), `${engineName} → edge.to must use canonical 'disp.' prefix`);
+      assert.ok(!r.edge.to.startsWith("dispatcher."), `${engineName} → edge.to must NEVER use legacy 'dispatcher.' prefix`);
+    }
+  });
+
+  test("buildGhostFromUnwired — UNKNOWN inference preserves no-edge behavior (existing contract intact)", () => {
+    const r = buildGhostFromUnwired({ name: "XyzzyFooBar", path: "x", mtime: null, sizeKB: 5 });
+    assert.equal(r.node.proposed_wiring, "UNKNOWN");
+    assert.equal(r.edge, null, "UNKNOWN must NOT emit an edge — preserves MIN_CONFIDENCE gate");
+  });
+
+  test("source guard — legacy `dispatcher.${inf.dispatcher}` literal is GONE from edge construction", () => {
+    // Fail-on-revert oracle. If anyone re-introduces the original buggy
+    // template literal, this test screams.
+    const SRC = fs.readFileSync(
+      path.join(import.meta.dirname, "seed-ghost-from-unwired.mjs"),
+      "utf8",
+    );
+    assert.ok(
+      !SRC.includes("`dispatcher.${inf.dispatcher}`"),
+      "seed-ghost must NEVER emit `dispatcher.<mcp_tool_name>` edge targets — use mcpToolToDispNodeId() instead",
+    );
+    // Positive — the new resolver call must be present at the edge site.
+    assert.ok(
+      SRC.includes("mcpToolToDispNodeId(inf.dispatcher)"),
+      "edge.to must route through mcpToolToDispNodeId() to translate MCP tool name → real graph node id",
+    );
+  });
+});
+
+describe("graph IO -- cap-safe streaming read/write (V8 string-cap regression guard)", () => {
+  // Regression (V8 string-cap): the merged system-graph.json is now >512MiB (862MB+). Even a
+  // COMPACT JSON.stringify(g) -- AND a raw fs.readFileSync(GRAPH_PATH,"utf8")+JSON.parse -- throws
+  // V8's max-string-length cap ("Cannot create a string longer than 0x1fffffe8"). That crashed the
+  // seed-ghost --apply stage out of every regen (the `failed=1` that blocked the success-stamp
+  // fleet-wide; --dry-run passed because it already used readGraphStreaming, --apply used the raw
+  // read). Both the --apply READ and BOTH writes (--apply + --revert) MUST go through the streaming
+  // graph-io (readGraphStreaming / writeGraphStreamingAtomic), matching the sibling post-merge
+  // stages (repair/dedup/reparent). U-VIZ-SEEDGHOST-CAPSAFE (sierra 2026-06-23). Structural guard.
+  const SRC = fs.readFileSync(
+    path.join(import.meta.dirname, "seed-ghost-from-unwired.mjs"),
+    "utf8",
+  );
+  test("never pretty-prints the merged graph (would exceed V8 string cap)", () => {
+    assert.ok(
+      !SRC.includes("JSON.stringify(g, null, 2)"),
+      "seed-ghost must NOT pretty-print the >512MiB merged graph",
+    );
+  });
+  test("never raw-reads or raw-stringifies the merged graph (the V8 string-cap OOM)", () => {
+    assert.ok(
+      !/readFileSync\(GRAPH_PATH, ?"utf8"\)/.test(SRC),
+      "seed-ghost must NOT readFileSync(GRAPH_PATH,'utf8') -- use readGraphStreaming (>512MiB cap)",
+    );
+    assert.ok(
+      !/(?:atomicWrite|writeFileSync)\(GRAPH_PATH, ?JSON\.stringify\(g\)\)/.test(SRC),
+      "seed-ghost must NOT JSON.stringify(g) the graph -- use writeGraphStreamingAtomic (>512MiB cap)",
+    );
+  });
+  test("both graph write sites (--apply + --revert) use the streaming atomic writer", () => {
+    const streamWrites = SRC.match(/writeGraphStreamingAtomic\(GRAPH_PATH, g\)/g) || [];
+    assert.equal(
+      streamWrites.length,
+      2,
+      "expected exactly 2 streaming graph writes (the --apply and --revert paths)",
+    );
   });
 });

@@ -1,0 +1,228 @@
+---
+type: "chat-session"
+source: "claude-code-cli"
+session_id: "7361b856-6b45-487f-9c8e-2ec398bf9ac3"
+title: "Per-file scrutiny review for PRISM unit **HS-15** (tool-watchdog.mjs duration-de"
+date: "2026-05-12"
+first_ts: "2026-05-12T19:31:41.956Z"
+last_ts: "2026-05-12T19:35:54.955Z"
+cwd: "H:\\prism"
+messages: 28
+user_msgs: 11
+assistant_msgs: 17
+raw_file: "H:/.claude/projects/H--prism/7361b856-6b45-487f-9c8e-2ec398bf9ac3/subagents/agent-a7f7902c6eadcc3f9.jsonl"
+tags:
+  - "chat-archive"
+  - "claude-code-cli"
+ingested: "2026-06-25T20:40:15"
+---
+
+# Per-file scrutiny review for PRISM unit **HS-15** (tool-watchdog.mjs duration-de
+
+> **claude-code-cli** | 2026-05-12 | 28 msgs (11 user / 17 assistant) | cwd: H:\prism
+> Raw: `H:/.claude/projects/H--prism/7361b856-6b45-487f-9c8e-2ec398bf9ac3/subagents/agent-a7f7902c6eadcc3f9.jsonl`
+
+## Transcript
+
+### User | 2026-05-12T19:31:41.956Z
+
+Per-file scrutiny review for PRISM unit **HS-15** (tool-watchdog.mjs duration-derivation fix).
+
+**File under review:** `H:\prism\.claude\hooks\tool-watchdog.mjs`
+
+**Unit spec (HS-15):**
+- The hook is wired in `H:/prism/.claude/hooks/bundles/posttool-edit-bundle.mjs:34` and `H:/prism/.claude/hooks/bundles/posttool-bash-read-bundle.mjs:13` (PostToolUse, timeout 1000ms).
+- Before this fix: the hook fired 200 times per session but EVERY recorded entry in `state/shared/.tool-runtimes.jsonl` had `durationMs: null`, because the two existing derivation paths (harness-provided `tool_response.duration_ms` and `payload.started_at`) are not populated by the Claude harness on this fleet. The SLOW-tool detection arm (PRISM_WATCHDOG_SLOW_MS=30s) was therefore dead; only the failure-detection arm (`ok:false`) worked.
+- Fix applied: hook now ALSO needs to fire on PreToolUse (in addition to PostToolUse). On PreToolUse, it stashes `{[tool_use_id]: { tool, ts }}` to a new pending-cache at `H:/prism/.cache/tool-watchdog-pending.json`. On PostToolUse, the new 3rd derivation path reads the pending-cache by `tool_use_id`, computes `durationMs = now - stash.ts`, and deletes the entry. PENDING_MAX (default 50) caps the cache FIFO so denied tool calls (PreToolUse fires, PostToolUse never does) can't leak it.
+
+**Your review responsibilities (read the WHOLE file end-to-end):**
+1. **Correctness of the fix:**
+   - Does the PreToolUse case still emit the nudge for slow/failed previous tool? (must preserve existing HS-12 behavior)
+   - Does the PostToolUse case still record `{t, tool, durationMs, ok}` correctly?
+   - Is the order of operations safe (stash BEFORE the nudge read, so a tool call that's both PreToolUse-fired and the immediate-previous-recorded doesn't see itself)?
+   - Is the pending-cache delete on PostToolUse safe if the same tool_use_id were ever reused?
+2. **Edge cases & failure modes:**
+   - Empty stdin → payload={} → event="" → falls to trailing default-write. ✓?
+   - Missing `to
+... [+2003 chars truncated]
+
+### Assistant | 2026-05-12T19:31:48.961Z
+
+I'll perform a thorough per-file scrutiny review of the HS-15 fix. Let me read the file end-to-end and verify the wiring contract.
+
+### Assistant | 2026-05-12T19:31:49.280Z
+
+[tool_use: Read]
+
+### User | 2026-05-12T19:31:52.322Z
+
+[tool_result] 1	#!/usr/bin/env node
+2	/**
+3	 * tool-watchdog.mjs — HS-12 + HS-15 tool-call runtime monitor.
+4	 *
+5	 * Fires on PostToolUse: appends {t, tool, durationMs, ok} to
+6	 * `state/shared/.tool-runtimes.jsonl`. On the NEXT PreToolUse, if the
+7	 * previous tool took longer than SLOW_MS or exited abnormally, emits a
+8	 * `[watchdog] previous tool: X ran Yms ...` note so the model can adapt
+9	 * (e.g. expe
+... [+6913 chars truncated]
+
+### Assistant | 2026-05-12T19:31:59.724Z
+
+I have the file content from the previous read. Now I'll verify the wiring contract — the critical question for HS-15 is whether the hook is wired for PreToolUse, since without that wiring the entire fix is dead code.
+
+### Assistant | 2026-05-12T19:32:00.405Z
+
+[tool_use: Read]
+
+### User | 2026-05-12T19:32:05.115Z
+
+[tool_result] 1	#!/usr/bin/env node
+2	// posttool-edit-bundle.mjs — single PostToolUse hook (matcher: Edit|Write|MultiEdit).
+3	//
+4	// Replaces 19 individual PostToolUse entries (the Edit|Write|MultiEdit matcher
+5	// group + the lone recall-counter-track Write|Edit|MultiEdit entry) with ONE
+6	// concurrency-bounded invocation. Each sub-hook is still spawned (they're
+7	// standalone scripts that process.exit), b
+... [+5970 chars truncated]
+
+### Assistant | 2026-05-12T19:32:08.438Z
+
+Confirmed — posttool-edit-bundle.mjs invokes tool-watchdog.mjs at line 34 (PostToolUse only). Now I need to check the other PostToolUse bundle and search exhaustively for any PreToolUse wiring.
+
+### Assistant | 2026-05-12T19:32:09.097Z
+
+[tool_use: Read]
+
+### User | 2026-05-12T19:32:19.210Z
+
+[tool_result] 1	#!/usr/bin/env node
+2	// posttool-bash-read-bundle.mjs — single PostToolUse hook (matcher: Bash|Read).
+3	// AUTO-GENERATED by migrate-posttool-group-bundle.mjs. Edit SUB_HOOKS here only if
+4	// you also re-point the corresponding settings.json entries (this bundle runs them;
+5	// their settings.json entries are `exit 0` no-ops). Runs sub-hooks at concurrency
+6	// PRISM_POSTTOOL_BUNDLE_CONCURRENC
+... [+4111 chars truncated]
+
+### Assistant | 2026-05-12T19:32:22.753Z
+
+Both PostToolUse bundles wire tool-watchdog. Now I need to verify the critical wiring question — is the hook actually wired for PreToolUse anywhere? I'll search settings.json files and PreToolUse bundles.
+
+### Assistant | 2026-05-12T19:32:23.444Z
+
+[tool_use: Grep]
+
+### Assistant | 2026-05-12T19:32:24.266Z
+
+[tool_use: Grep]
+
+### Assistant | 2026-05-12T19:32:25.128Z
+
+[tool_use: Glob]
+
+### User | 2026-05-12T19:32:30.410Z
+
+[tool_result] No files found
+
+### User | 2026-05-12T19:32:32.154Z
+
+[tool_result] Found 3 files
+.claude\hooks\tool-watchdog.mjs
+.claude\hooks\bundles\posttool-edit-bundle.mjs
+.claude\hooks\bundles\posttool-bash-read-bundle.mjs
+
+### User | 2026-05-12T19:32:47.751Z
+
+[tool_result] Ripgrep search timed out after 20 seconds. The search may have matched files but did not complete in time. Try searching a more specific path or pattern.
+
+### Assistant | 2026-05-12T19:32:51.384Z
+
+Critical finding confirmed. The grep across H:\prism\.claude shows tool-watchdog is referenced ONLY in:
+1. tool-watchdog.mjs itself
+2. posttool-edit-bundle.mjs (PostToolUse)
+3. posttool-bash-read-bundle.mjs (PostToolUse)
+
+No PreToolUse bundle exists (`pretool-*.mjs` glob returned nothing). I need to check H:\.claude\settings.json directly for any PreToolUse wiring.
+
+### Assistant | 2026-05-12T19:32:52.525Z
+
+[tool_use: Grep]
+
+### Assistant | 2026-05-12T19:32:53.177Z
+
+[tool_use: Grep]
+
+### User | 2026-05-12T19:32:54.732Z
+
+[tool_result] No matches found
+
+### User | 2026-05-12T19:32:55.243Z
+
+[tool_result] No matches found
+
+### Assistant | 2026-05-12T19:33:02.492Z
+
+Definitive: NO PreToolUse wiring anywhere. The hook is exclusively wired in two PostToolUse bundles. Let me also verify there's no SessionStart or other event wiring, and confirm the .cache directory pattern is used elsewhere (sanity check on PENDING_PATH).
+
+### Assistant | 2026-05-12T19:33:03.616Z
+
+[tool_use: Bash]
+
+### Assistant | 2026-05-12T19:33:04.372Z
+
+[tool_use: Bash]
+
+### User | 2026-05-12T19:33:10.810Z
+
+[tool_result] agent-roadmap-units.txt
+ai-coverage.json
+ai-roadmap-audit.json
+find-rules-hook.mjs
+foresight-audit.json
+---
+_audit_check.mjs
+asset-check-http-enabled.flag
+awareness-v2.json
+bash-result-cache.json
+bug-hunt-72bb539a-1cb7-4992-b2d3-4bd67fac4676-vitest.marker
+
+### User | 2026-05-12T19:35:11.074Z
+
+[tool_result] Command running in background with ID: bbbojptmy. Output is being written to: H:\prism\.cache\temp\claude\H--PRISM\cd4db284-ef4a-4621-a719-65c4e875db7d\tasks\bbbojptmy.output
+
+### Assistant | 2026-05-12T19:35:54.955Z
+
+`H:\prism\.cache\` exists (confirms PENDING_PATH location is valid). I have enough to grade definitively. Let me synthesize the review.
+
+I read the file end-to-end before grading. I've confirmed:
+- File `H:\prism\.claude\hooks\tool-watchdog.mjs` (178 lines, code reviewed)
+- Wiring: posttool-edit-bundle.mjs:34 (PostToolUse), posttool-bash-read-bundle.mjs:13 (PostToolUse)
+- No PreToolUse bundle exists in `H:\prism\.claude\hooks\bundles\` (glob `pretool-*.mjs` returns 0)
+- No `tool-watchdog` reference anywhere in `H:\.claude\settings.json` or `H:\prism\.claude\settings.json`
+- `H:\prism\.cache\` directory exists, so PENDING_PATH is valid
+
+---
+
+```
+VERDICT: FAIL
+
+P0 issues:
+  - [WIRING MISSING] The HS-15 fix is dead code as shipped.
+    The PreToolUse branch at tool-watchdog.mjs:133-170 stashes {tool_use_id → {tool, ts}}
+    to .cache/tool-watchdog-pending.json, and the new derivation path #3 at lines 118-126
+    reads that stash to compute durationMs. But tool-watchdog.mjs is wired ONLY in two
+    PostToolUse bundles (posttool-edit-bundle.mjs:34 and posttool-bash-read-bundle.mjs:13).
+    There is NO PreToolUse wiring — no pretool-*-bundle.mjs file exists, and neither
+    H:\.claude\settings.json nor H:\prism\.claude\settings.json contains "tool-watchdog".
+    Net effect: PreToolUse branch (lines 133-170) is never invoked → pending-cache
+    stays empty → on PostToolUse, `pending[toolUseId]` is always undefined →
+    durationMs stays null exactly as before. The bug HS-15 claims to fix is unfixed.
+    Required fix: either (a) add tool-watchdog.mjs to an existing/new PreToolUse
+    bundle, or (b) add a direct PreToolUse hook entry in settings.json. The unit
+    spec explicitly calls this out as "Critical question" — answer is the wiring
+    is missing, and per the spec that makes the fix incomplete.
+
+  - [RACE: nudge-before-stash] tool-watchdog.mjs:138-156 (PreToolUse path)
+    Order of operations is: stash THIS tool's {tool, ts} to pending-cache first
+    (lines 138-143)
+... [+6961 chars truncated]

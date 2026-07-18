@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-learn` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-learn.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

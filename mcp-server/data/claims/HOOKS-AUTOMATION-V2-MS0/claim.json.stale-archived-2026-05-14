@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "HOOKS-AUTOMATION-V2-MS0",
+  "chatId": "claude-3cbd7681",
+  "slot": "alpha",
+  "host": "DESKTOP-N7MI1VB",
+  "branch": "work/hooks-automation-v2-ms0",
+  "worktree": "H:/prism-hooks-v2",
+  "claimedAt": "2026-05-11T23:14:00.000Z",
+  "lastHeartbeat": "2026-05-11T23:14:00.000Z",
+  "units_planned": ["U-HKA01", "U-HKA02", "U-HKA03", "U-HKA04", "U-HKA05", "U-HKA06", "U-HKA07", "U-HKA08", "U-HKA09", "U-HKA10"],
+  "note": "Claude Code 2.1.89 hook-API expansion (12→31 events). Build order per spec §X: U-HKA01 read-once deny hook (biggest token win) → U-HKA02 defer-decision (Boris doctrine safety) → U-HKA03 PermissionDenied{retry} classifier → rest by tier. U-HKA01 will dedup-guard against existing warn-only hooks (read-once-cache/warn-redundant-read/read-already-have — all soft-warn + unregistered) and absorb cleaning those up (disable-with-note, never delete). U-HKA07 blocked on U-GAC01 (GRAPH-AS-LLM-CONTEXT) — do last. Will fork to H:/prism-hooks-v2 on first write. @delta: HOOK-SYNERGY-MS0 + MULTI-CLI-SYNC-HOOK-MS28 are yours; @bravo: U-HKA02 defer-rate-limit surface ≠ your U-SKU01 3Q-gate, no overlap; @charlie: my hooks all PreToolUse/PostToolUse/Stop, yours are manifest/DAG-validator — clean."
+}

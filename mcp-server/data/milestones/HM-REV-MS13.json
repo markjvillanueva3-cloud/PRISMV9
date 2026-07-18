@@ -1,0 +1,299 @@
+{
+  "id": "HM-REV-MS13",
+  "version": "8.3.0",
+  "title": "E2E Integration Testing (5 Representative Parts)",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "End-to-end integration testing with 5 representative manufacturing parts: prismatic bracket (3-axis), 5-axis impeller (blade/hub/shroud), mill-turn shaft (OD/ID/threading), grinding case (surface/cylindrical/creep), wire EDM die (taper/multi-axis/bi-material). Each part exercises the full pipeline from material lookup through PPP-optimized G-code output.",
+  "dependencies": [
+    "HM-REV-MS0",
+    "HM-REV-MS1",
+    "HM-REV-MS2",
+    "HM-REV-MS3",
+    "HM-REV-MS4",
+    "HM-REV-MS5",
+    "HM-REV-MS6",
+    "HM-REV-MS7",
+    "HM-REV-MS8",
+    "HM-REV-MS9",
+    "HM-REV-MS10",
+    "HM-REV-MS11",
+    "HM-REV-MS12"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "All 11 HyperMill engines",
+      "PostProcessorPipelineEngine.ts",
+      "SpeedFeedOrchestratorEngine.ts",
+      "AutoProgramOrchestratorEngine.ts",
+      "PrintToProgramPipelineEngine.ts",
+      "TurningPrintToProgramEngine.ts",
+      "GrindingProgramAssemblerEngine.ts",
+      "EDMProgramAssemblerEngine.ts"
+    ],
+    "registries": [
+      "MaterialRegistry (2,957)",
+      "ToolRegistry (95,608)",
+      "MachineRegistry (910)",
+      "ToolpathStrategyRegistry (762)"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts (all canonical constants)"
+    ],
+    "reference": [
+      "All hypermill data files",
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-e2e-regression — BUILT here U-HMR73",
+    "action": "cam:hypermill_e2e_validate — BUILT here U-HMR73",
+    "skill": "/hypermill-validate-part — BUILT here U-HMR73"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker",
+      "physics-agent"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS13-S1",
+      "title": "E2E Parts 1-3: Prismatic + Impeller + Mill-Turn",
+      "smart_config": {
+        "role": "Senior CNC Programmer + Integration Test Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "PrintToProgramPipelineEngine.ts",
+        "MultiAxisPrintToProgramEngine.ts",
+        "TurningPrintToProgramEngine.ts",
+        "HyperMillMultiAxisEngine.ts"
+      ],
+      "intent": "Three representative parts produce correct G-code through the full hyperMILL-PRISM pipeline. A machinist would load the output and run the first part with confidence.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/physics-verify",
+        "/test",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR69",
+          "title": "E2E Part 1: Prismatic bracket (3-axis)",
+          "description": "Material: 7075-T6. Operations: face mill, pocket, drill holes, tap M8, chamfer edges. Verify: material lookup → tool selection → S/F calc → PPP → G-code with correct Fanuc dialect. All S/F within 5% of handbook values.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Full pipeline produces valid Fanuc G-code",
+            "S/F within 5% of Sandvik 7075 handbook",
+            "Tool selection matches optimal for each operation",
+            "Machinist would run this part on first attempt"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/e2e/hypermill-prismatic.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "pipeline fails at any stage",
+              "S/F > 10% deviation"
+            ],
+            "rollback_procedure": "rm src/__tests__/e2e/hypermill-prismatic.test.ts"
+          }
+        },
+        {
+          "id": "U-HMR70",
+          "title": "E2E Part 2: 5-axis impeller (blade/hub/shroud)",
+          "description": "Material: Inconel 718. Operations: rough impeller channel, semi-finish blade, finish hub, finish shroud, deburr edges. Verify: 5-axis multi-axis engine → strategy selection → SLD-safe RPM → PPP with TRAORI → Siemens 840D G-code.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Siemens 840D output with TRAORI blocks",
+            "SLD avoidance active for Inconel",
+            "Tool cascade D16→D10→D6→D3 correct",
+            "Surface integrity check passes (no white layer)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/e2e/hypermill-impeller.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "TRAORI corruption",
+              "SLD not triggered for Inconel"
+            ],
+            "rollback_procedure": "rm src/__tests__/e2e/hypermill-impeller.test.ts"
+          }
+        },
+        {
+          "id": "U-HMR71",
+          "title": "E2E Part 3: Mill-turn shaft (OD/ID/threading)",
+          "description": "Material: 4140 steel. Operations: face, OD rough, OD finish, bore ID, groove, thread M24×2. Verify: turning pipeline → CSS mode → tool nose comp → G76 threading → Mazak dialect.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Mazak dialect G-code output",
+            "G96 CSS mode with S_max clamp",
+            "G76 threading with correct pitch/passes",
+            "Bar feeder M-codes present if configured"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/e2e/hypermill-millturn.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "threading params incorrect",
+              "CSS mode missing"
+            ],
+            "rollback_procedure": "rm src/__tests__/e2e/hypermill-millturn.test.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 3/3 parts produce valid G-code | ✓ S/F within spec | ✓ Correct dialects | ✓ Machinist acceptance | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": []
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS13-S2",
+      "title": "E2E Parts 4-5: Grinding + Wire EDM + Regression Suite",
+      "smart_config": {
+        "role": "Manufacturing Process Engineer + Test Architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "GrindingProgramAssemblerEngine.ts",
+        "EDMProgramAssemblerEngine.ts",
+        "HyperMillMaterialBridgeEngine.ts"
+      ],
+      "intent": "All 5 E2E parts pass. Regression suite prevents future breakage. hyperMILL-PRISM pipeline is production-validated.",
+      "skills": [
+        "/prism-review",
+        "/physics-verify",
+        "/test",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR72",
+          "title": "E2E Part 4+5: Grinding case + Wire EDM die",
+          "description": "Part 4: D2 steel grinding (surface + cylindrical + creep feed). Part 5: Wire EDM die (SKD11, taper cut, 4-axis, bi-material zone). Verify: grinding wheel selection, dressing cycle, burn risk check. EDM: wire tension, flush pressure, taper UV compensation.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Grinding: wheel selection correct for D2",
+            "Grinding: burn risk check fires for aggressive params",
+            "EDM: taper compensation calculated",
+            "EDM: bi-material zone detection works",
+            "Both produce valid G-code"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/e2e/hypermill-grinding.test.ts",
+              "src/__tests__/e2e/hypermill-wedm.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "grinding burn risk not detected",
+              "EDM taper incorrect"
+            ],
+            "rollback_procedure": "rm src/__tests__/e2e/hypermill-{grinding,wedm}.test.ts"
+          }
+        },
+        {
+          "id": "U-HMR73",
+          "title": "E2E regression suite + validation action + skill",
+          "description": "Build regression test suite that runs all 5 E2E parts as a single test command. Build cam:hypermill_e2e_validate action and /hypermill-validate-part skill. Create golden output snapshots for regression detection.",
+          "depends_on": [
+            "U-HMR72"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "5/5 E2E tests in single regression suite",
+            "cam:hypermill_e2e_validate action registered",
+            "/hypermill-validate-part skill created",
+            "Golden snapshots saved for regression",
+            "Full suite runs in <30 seconds"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/e2e/hypermill-regression.test.ts",
+              ".claude/skills/hypermill-validate-part.md"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "any E2E test fails",
+              "suite > 60 seconds"
+            ],
+            "rollback_procedure": "rm src/__tests__/e2e/hypermill-regression.test.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 5/5 E2E parts pass | ✓ Regression suite green | ✓ Golden snapshots saved | ✓ Action + skill created | ✓ tsc 0 errors | omega_floor >= 0.95 | SVI delta: +8%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-e2e-regression"
+        ],
+        "new_actions": [
+          "cam:hypermill_e2e_validate"
+        ],
+        "new_skills": [
+          "/hypermill-validate-part"
+        ],
+        "available_to": []
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

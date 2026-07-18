@@ -34,10 +34,38 @@ const ACTIONS = [
   "blueprint_compare_revisions", "blueprint_dxf_dimensions",
   "blueprint_extract", "blueprint_inspection_plan", "blueprint_setup_sheet",
   "bias_correct", "cmm_plan", "cpk_predict",
+  "concentration_inequality_analyze",
+  "data_quality_validate",
   "fai_disposition", "fai_evaluate_characteristic", "fai_generate_forms", "fai_run",
   "finish_target_advise",
-  "gauge_rr", "gdt_validate", "measurement_analyze",
+  "gauge_rr", "gdt_validate",
+  "hypermill_fai_bridge_run",
+  "hypermill_spc_bridge_run",
+  "measurement_analyze",
+  "multivariate_spc_analyze",
+  "psn_synergy_inspect",
+  "quality_formulas_calculate",
+  "spc_process_capability_analyze",
   "spc_calculate", "tolerance_stack",
+  // ── Batch-2 UNKNOWN-bucket wiring (iter10) ──
+  "as9100_traceability_create",
+  "capa_workflow_open",
+  "change_point_detection_run",
+  "counterfeit_part_prevention_score",
+  "design_history_file_compile",
+  "ewma_analyze",
+  "gage_rr_msa_calculate",
+  "iso13485_qms_validate",
+  "iso14971_risk_assess",
+  "process_validation_iqoqpq_generate",
+  "roundness_cylindricity_sampling_plan",
+  "western_electric_rules_check",
+  // ── DEA-MS0/U-DEA-november-P05 — SPM→quality bridge (Hotelling T2 + combined-SPC into Cpk/SPC) ──
+  "spm_quality_bridge",
+  // -- DEA-MS0 P05: canonical engine-backed SPM overlay (predictQualityWithStatisticalMonitoring) --
+  "spc_calculate_with_statistical_monitoring",
+  // -- Wasserstein / optimal-transport distribution-drift (measure theory) --
+  "distribution_drift_detect",
 ] as const;
 
 /** Registers quality dispatcher.
@@ -238,6 +266,188 @@ Params vary by action — pass relevant fields in params object.`,
             result = mod.FinishTargetAdvisorEngine.advise(params as FinishInput);
             break;
           }
+          case "psn_synergy_inspect": {
+            // WIRE-UNWIRED/U-WIRE-PSNSynergyInspector — meta-quality across 11 PSN legs.
+            // Pure engine: caller supplies per-leg inventories so server stays I/O-free.
+            const mod = await import("../../engines/PSNSynergyInspectorEngine.js");
+            const inventories = params.inventories ?? [];
+            const opts: { topK?: number; densityFloor?: number } = {};
+            if (typeof params.topK === "number") opts.topK = params.topK;
+            if (typeof params.densityFloor === "number") opts.densityFloor = params.densityFloor;
+            const report = mod.psnSynergyInspectorEngine.inspect(inventories, opts);
+            const summary = mod.psnSynergyInspectorEngine.summarize(report);
+            result = { summary, report };
+            break;
+          }
+          // ── iter8/bulk-sweep: 7 quality engines ──
+          case "quality_formulas_calculate": {
+            const { qualityFormulasEngine } = await import("../../engines/QualityFormulasEngine.js");
+            result = { success: true, data: (qualityFormulasEngine as any).calculate?.(params) ?? (qualityFormulasEngine as any).run?.(params) ?? (qualityFormulasEngine as any).compute?.(params) ?? { engine: "QualityFormulasEngine", note: "method not callable" } };
+            break;
+          }
+          case "spc_process_capability_analyze": {
+            const { spcProcessCapabilityEngine } = await import("../../engines/SPCProcessCapabilityEngine.js");
+            result = { success: true, data: (spcProcessCapabilityEngine as any).analyze?.(params) ?? (spcProcessCapabilityEngine as any).calculate?.(params) ?? (spcProcessCapabilityEngine as any).run?.(params) ?? { engine: "SPCProcessCapabilityEngine", note: "method not callable" } };
+            break;
+          }
+          case "hypermill_fai_bridge_run": {
+            const { hyperMillFAIBridge } = await import("../../engines/HyperMillFAIBridge.js");
+            result = { success: true, data: (hyperMillFAIBridge as any).run?.(params) ?? (hyperMillFAIBridge as any).process?.(params) ?? (hyperMillFAIBridge as any).analyze?.(params) ?? { engine: "HyperMillFAIBridge", note: "method not callable" } };
+            break;
+          }
+          case "hypermill_spc_bridge_run": {
+            const mod = await import("../../engines/HyperMillSPCBridge.js");
+            const eng = (mod as any).hyperMillSPCBridge ?? new ((mod as any).HyperMillSPCBridge)();
+            result = { success: true, data: (eng as any).run?.(params) ?? (eng as any).analyze?.(params) ?? (eng as any).calculate?.(params) ?? { engine: "HyperMillSPCBridge", note: "method not callable" } };
+            break;
+          }
+          case "concentration_inequality_analyze": {
+            const { concentrationInequalityEngine } = await import("../../engines/ConcentrationInequalityEngine.js");
+            result = { success: true, data: (concentrationInequalityEngine as any).analyze?.(params) ?? (concentrationInequalityEngine as any).calculate?.(params) ?? (concentrationInequalityEngine as any).run?.(params) ?? { engine: "ConcentrationInequalityEngine", note: "method not callable" } };
+            break;
+          }
+          case "multivariate_spc_analyze": {
+            const { multivariateSPCEngine } = await import("../../engines/MultivariateSPCEngine.js");
+            result = { success: true, data: (multivariateSPCEngine as any).analyze?.(params) ?? (multivariateSPCEngine as any).calculate?.(params) ?? (multivariateSPCEngine as any).run?.(params) ?? { engine: "MultivariateSPCEngine", note: "method not callable" } };
+            break;
+          }
+          case "data_quality_validate": {
+            const { dataQualityEngine } = await import("../../engines/DataQualityEngine.js");
+            result = { success: true, data: (dataQualityEngine as any).validate?.(params) ?? (dataQualityEngine as any).analyze?.(params) ?? (dataQualityEngine as any).run?.(params) ?? { engine: "DataQualityEngine", note: "method not callable" } };
+            break;
+          }
+          // ── Batch-2 UNKNOWN-bucket wiring (iter10) ──────────────────────────
+          case "western_electric_rules_check": {
+            const mod = await import("../../engines/WesternElectricRulesEngine.js");
+            const eng = (mod as any).westernElectricRulesEngine ?? new ((mod as any).WesternElectricRulesEngine)();
+            result = { success: true, data: (eng as any).check?.(params) ?? (eng as any).analyze?.(params) ?? (eng as any).run?.(params) ?? { engine: "WesternElectricRulesEngine", note: "method not callable" } };
+            break;
+          }
+          case "ewma_analyze": {
+            const mod = await import("../../engines/EWMAEngine.js");
+            const eng = (mod as any).ewmaEngine ?? new ((mod as any).EWMAEngine)();
+            result = { success: true, data: (eng as any).analyze?.(params) ?? (eng as any).calculate?.(params) ?? (eng as any).run?.(params) ?? { engine: "EWMAEngine", note: "method not callable" } };
+            break;
+          }
+          case "change_point_detection_run": {
+            const mod = await import("../../engines/ChangePointDetectionEngine.js");
+            const eng = (mod as any).changePointDetectionEngine ?? new ((mod as any).ChangePointDetectionEngine)();
+            result = { success: true, data: (eng as any).detect?.(params) ?? (eng as any).run?.(params) ?? (eng as any).analyze?.(params) ?? { engine: "ChangePointDetectionEngine", note: "method not callable" } };
+            break;
+          }
+          case "distribution_drift_detect": {
+            // Wasserstein / optimal-transport distribution-drift (measure theory). detectDrift
+            // Zod-validates its own input; disjoint/bounded-support safe where KL breaks.
+            const { wassersteinEngine } = await import("../../engines/WassersteinDriftEngine.js");
+            result = { success: true, data: wassersteinEngine.detectDrift(params as any) };
+            break;
+          }
+          case "roundness_cylindricity_sampling_plan": {
+            const mod = await import("../../engines/RoundnessCylindricitySamplingEngine.js");
+            const eng = (mod as any).roundnessCylindricitySamplingEngine ?? new ((mod as any).RoundnessCylindricitySamplingEngine)();
+            result = { success: true, data: (eng as any).plan?.(params) ?? (eng as any).generate?.(params) ?? (eng as any).run?.(params) ?? { engine: "RoundnessCylindricitySamplingEngine", note: "method not callable" } };
+            break;
+          }
+          case "gage_rr_msa_calculate": {
+            const mod = await import("../../engines/GageRRMSAEngine.js");
+            const eng = (mod as any).gageRRMSAEngine ?? new ((mod as any).GageRRMSAEngine)();
+            result = { success: true, data: (eng as any).calculate?.(params) ?? (eng as any).analyze?.(params) ?? (eng as any).run?.(params) ?? { engine: "GageRRMSAEngine", note: "method not callable" } };
+            break;
+          }
+          case "iso13485_qms_validate": {
+            const mod = await import("../../engines/ISO13485QMSEngine.js");
+            const eng = (mod as any).iso13485QMSEngine ?? new ((mod as any).ISO13485QMSEngine)();
+            result = { success: true, data: (eng as any).validate?.(params) ?? (eng as any).score?.(params) ?? (eng as any).run?.(params) ?? { engine: "ISO13485QMSEngine", note: "method not callable" } };
+            break;
+          }
+          case "design_history_file_compile": {
+            const mod = await import("../../engines/DesignHistoryFileEngine.js");
+            const eng = (mod as any).designHistoryFileEngine ?? new ((mod as any).DesignHistoryFileEngine)();
+            result = { success: true, data: (eng as any).compile?.(params) ?? (eng as any).generate?.(params) ?? (eng as any).run?.(params) ?? { engine: "DesignHistoryFileEngine", note: "method not callable" } };
+            break;
+          }
+          case "process_validation_iqoqpq_generate": {
+            const mod = await import("../../engines/ProcessValidationIQOQPQEngine.js");
+            const eng = (mod as any).processValidationIQOQPQEngine ?? new ((mod as any).ProcessValidationIQOQPQEngine)();
+            result = { success: true, data: (eng as any).generate?.(params) ?? (eng as any).build?.(params) ?? (eng as any).run?.(params) ?? { engine: "ProcessValidationIQOQPQEngine", note: "method not callable" } };
+            break;
+          }
+          case "capa_workflow_open": {
+            const mod = await import("../../engines/CAPAWorkflowEngine.js");
+            const eng = (mod as any).capaWorkflowEngine ?? new ((mod as any).CAPAWorkflowEngine)();
+            result = { success: true, data: (eng as any).open?.(params) ?? (eng as any).create?.(params) ?? (eng as any).run?.(params) ?? { engine: "CAPAWorkflowEngine", note: "method not callable" } };
+            break;
+          }
+          case "iso14971_risk_assess": {
+            const mod = await import("../../engines/ISO14971RiskManagementEngine.js");
+            const eng = (mod as any).iso14971RiskManagementEngine ?? new ((mod as any).ISO14971RiskManagementEngine)();
+            result = { success: true, data: (eng as any).assess?.(params) ?? (eng as any).analyze?.(params) ?? (eng as any).run?.(params) ?? { engine: "ISO14971RiskManagementEngine", note: "method not callable" } };
+            break;
+          }
+          case "counterfeit_part_prevention_score": {
+            const mod = await import("../../engines/CounterfeitPartPreventionEngine.js");
+            const eng = (mod as any).counterfeitPartPreventionEngine ?? new ((mod as any).CounterfeitPartPreventionEngine)();
+            result = { success: true, data: (eng as any).score?.(params) ?? (eng as any).assess?.(params) ?? (eng as any).run?.(params) ?? { engine: "CounterfeitPartPreventionEngine", note: "method not callable" } };
+            break;
+          }
+          case "as9100_traceability_create": {
+            const mod = await import("../../engines/AS9100TraceabilityEngine.js");
+            const eng = (mod as any).as9100TraceabilityEngine ?? new ((mod as any).AS9100TraceabilityEngine)();
+            result = { success: true, data: (eng as any).createRecord?.(params) ?? (eng as any).create?.(params) ?? (eng as any).run?.(params) ?? { engine: "AS9100TraceabilityEngine", note: "method not callable" } };
+            break;
+          }
+          // ── end Batch-2 quality wiring ────────────────────────────────────────
+
+          // ── DEA-MS0/U-DEA-november-P05 — SPM → quality_kpis/spc_calculate bridge ──
+          // Pulls SPM combined-SPC (Hotelling T2 + PCA + univariate) result and
+          // shapes it as { mean, std, n, cp, cpk } for downstream SPC consumers.
+          // Source engine: StatisticalProcessMonitoringEngine (calc dispatcher
+          // spm_combined_spc). Target shape: spc_calculate result + spm fields.
+          case "spm_quality_bridge": {
+            const spmMod = await import("../../engines/StatisticalProcessMonitoringEngine.js");
+            const spmEngine: any = (spmMod as any).statisticalProcessMonitoringEngine
+              ?? (spmMod as any).spmEngine
+              ?? new ((spmMod as any).StatisticalProcessMonitoringEngine)();
+            const combinedSPC = (spmEngine as any).combinedSPCScheme?.(params)
+              ?? (spmEngine as any).combinedSpcScheme?.(params)
+              ?? { note: "combinedSPCScheme method not exported" };
+            const measurements: number[] = params.measurements ?? params.data ?? [];
+            const usl = params.usl ?? params.upper_spec_limit;
+            const lsl = params.lsl ?? params.lower_spec_limit;
+            const n = measurements.length || 1;
+            const mean = measurements.length
+              ? measurements.reduce((a, b) => a + b, 0) / n
+              : 0;
+            const std = n > 1
+              ? Math.sqrt(measurements.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1))
+              : 0;
+            const cp = usl !== undefined && lsl !== undefined && std > 0
+              ? (usl - lsl) / (6 * std)
+              : null;
+            const cpk = cp !== null && std > 0
+              ? Math.min((usl - mean) / (3 * std), (mean - lsl) / (3 * std))
+              : null;
+            result = {
+              success: true,
+              spc: { mean, std_dev: std, n, cp, cpk, usl, lsl, in_control: cpk !== null ? cpk >= 1.33 : null },
+              spm: combinedSPC,
+              bridge: "spm_combined_spc → spc_calculate (DEA-MS0/U-DEA-november-P05)",
+            };
+            break;
+          }
+
+          case "spc_calculate_with_statistical_monitoring": {
+            // Canonical SPM overlay: full quality prediction + validated Hotelling T2 /
+            // combined-SPC / Wald-SPRT overlay (vs the ad-hoc spm_quality_bridge above).
+            const engine = await getEngine("quality");
+            const { spm_overlay, spmOverlay, ...qinput } = params as any;
+            result = await engine.predictQualityWithStatisticalMonitoring(
+              qinput,
+              spm_overlay ?? spmOverlay,
+            );
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }

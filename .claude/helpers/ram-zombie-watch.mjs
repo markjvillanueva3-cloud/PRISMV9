@@ -60,7 +60,7 @@ function countProcess(image) {
     const r = spawnSync(
       "tasklist",
       ["/FI", `IMAGENAME eq ${image}`, "/FO", "CSV", "/NH"],
-      { encoding: "utf8", timeout: TASKLIST_TIMEOUT_MS },
+      { windowsHide: true, encoding: "utf8", timeout: TASKLIST_TIMEOUT_MS },
     );
     if (r.error) {
       logErr(`countProcess(${image}) spawn error: ${r.error.message}`);
@@ -87,7 +87,7 @@ function detectScheduledTasks() {
   // P0 fix: short-circuit when Windows scheduled-task reapers are already armed.
   const detected = [];
   for (const name of SCHEDTASK_NAMES) {
-    const r = spawnSync("schtasks", ["/Query", "/TN", name], { encoding: "utf8", timeout: 4000 });
+    const r = spawnSync("schtasks", ["/Query", "/TN", name], { windowsHide: true, encoding: "utf8", timeout: 4000 });
     if (r.status === 0) detected.push(name);
   }
   return detected;
@@ -176,7 +176,7 @@ function findStaleGitLocks() {
 
 function runReaper(label, scriptPath, args) {
   try {
-    const r = spawnSync(process.execPath, [scriptPath, ...args], {
+    const r = spawnSync(process.execPath, [scriptPath, ...args], { windowsHide: true,
       encoding: "utf8",
       timeout: REAPER_TIMEOUT_MS,
     });

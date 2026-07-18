@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "COST-CASCADE-MS0",
+  "chatId": "claude-eebcfc92",
+  "slot": "delta",
+  "host": "DESKTOP-N7MI1VB",
+  "branch": "work/cost-cascade-ms0",
+  "worktree": "H:/prism-cost-cascade",
+  "claimedAt": "2026-05-11T23:15:00.000Z",
+  "lastHeartbeat": "2026-05-11T23:15:00.000Z",
+  "units_planned": [
+    "U-MULTI-AGENT-COST-TELEMETRY",
+    "U-DISPATCHER-ACTION-TWO-PASS",
+    "U-BUILD-MOA-LAYER2",
+    "U-COST-DASHBOARD",
+    "U-COST-ALARM",
+    "U-CASCADE-CALIBRATE",
+    "U-CASCADE-FALLBACK-CHAIN"
+  ],
+  "units_deferred": {
+    "U-TOKEN-BUDGET-GUARD": "touches .claude/hooks/ + .claude/settings.json — held until the alpha chat finishes its hooks work to avoid lane collision",
+    "U-CASCADE-CALIBRATE": "depends_on K2-CLOUD-MS0::K2-K0 — only runnable once K2 transport is callable"
+  },
+  "note": "Foundation-first: U-MULTI-AGENT-COST-TELEMETRY (no deps, unblocks dashboard+alarm) → two-pass → MoA(dedup-check first) → dashboard → alarm, then K2-gated cascade units as context/deps allow."
+}

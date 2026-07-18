@@ -1,0 +1,224 @@
+{
+  "id": "EMP-MS0",
+  "version": "1.1.0",
+  "title": "Employee / HR / Job Tracking System",
+  "brief": "Full employee time tracking, HR management, multi-job clock-in/out with pause/resume, RBAC with clearance levels, cost analysis, learning academy integration, lean/kaizen/six sigma dashboards. 60-agent scrutinized across 3 rounds (420+ findings). Reopened as the rollout envelope for the first real JM Die employee database and shop-floor system-of-record.",
+  "created_at": "2026-04-01T16:30:00Z",
+  "updated_at": "2026-04-10T21:05:50.0294546-05:00",
+  "created_by": "claude-opus-4.6",
+  "track": "EMP",
+  "track_name": "Employee & HR Operations",
+  "status": "in_progress",
+  "total_units": 28,
+  "total_sessions": "15-20",
+  "plan_file": "H:/prism/plans/erp-employee/employee-hr-job-tracking-v3.md",
+  "notes": "EMP-MS0 remains the baseline architecture and scrutiny envelope, but as of 2026-04-10 it is reopened for the first real company rollout. JM Die is the canonical PRISM development and test shop, so employee/auth/clocking work is not considered finished until the system is seeded with JM Die departments, employees, clearance mappings, machine certifications, and shift rules and those records drive the app-wide system-of-record surfaces.",
+  "canonical_company_profile": {
+    "name": "JM Die",
+    "role": "Primary employee and shop-floor system-of-record seed profile",
+    "company_root": "H:/PRISM/JM DIE/JM DIE COMPANY",
+    "shop_root": "H:/PRISM/JM DIE"
+  },
+  "jm_die_rollout_focus": [
+    "Seed departments, employees, badge/login identity, clearance levels, and supervisor relationships for JM Die.",
+    "Bind machine certifications and role gates to the canonical JM Die machine packages published through MCAT-MS0.",
+    "Route shop-floor clocking, HR, and employee/mobile continuity through the JM Die-backed system of record instead of generic fixture assumptions.",
+    "Treat prior scrutiny as baseline hardening, not as proof that the JM Die company rollout is complete."
+  ],
+  "dependencies": [
+    "MCAT-MS0"
+  ],
+  "phases": [
+    {
+      "id": "EMP-P1",
+      "title": "Security + Backend Wiring",
+      "description": "Fix critical security vulnerabilities (zero auth on ERP routes), add missing dispatcher actions, wire persistence for EmployeeEngine/PayrollEngine, enhance data models with clearance levels and job tracking fields, create DB migrations.",
+      "sessions": "3-4",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "U-SEC1", "title": "Add auth middleware to ALL ERP routes + ownership check + timestamp validation",
+          "phase": "EMP-P1", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 90,
+          "dependencies": [], "steps": [
+            {"number": 1, "instruction": "Import verifyToken and requireRole from middleware/auth.ts into routes/erp.ts"},
+            {"number": 2, "instruction": "Add verifyToken to all 50+ POST/GET routes in erp.ts"},
+            {"number": 3, "instruction": "Add requireRole('hr_manager') to payroll/employee-create/invoice routes"},
+            {"number": 4, "instruction": "Add ownership check: operator can only clock self (unless hr_manager+)"},
+            {"number": 5, "instruction": "Add timestamp validation: reject >5 min from server time"},
+            {"number": 6, "instruction": "Run npx tsc --noEmit and verify 0 errors"}
+          ],
+          "deliverables": [{"path": "src/routes/erp.ts", "type": "source", "description": "Auth-protected ERP routes"}],
+          "exit_conditions": ["All ERP routes require auth token", "shop_floor blocked from payroll/employee-create", "Ownership check on clock-in"]
+        },
+        {
+          "id": "U-SEC2", "title": "Add job_time_pause/resume/employee_update to businessDispatcher + remove .passthrough()",
+          "phase": "EMP-P1", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60,
+          "dependencies": [], "steps": [
+            {"number": 1, "instruction": "Add 'job_time_pause', 'job_time_resume', 'employee_update' to z.enum in businessDispatcher.ts (line ~346)"},
+            {"number": 2, "instruction": "Add case handlers calling timeClockEngine.jobPause() and jobResume()"},
+            {"number": 3, "instruction": "Remove .passthrough() from all action schemas in businessActionSchemas.ts"},
+            {"number": 4, "instruction": "Run npx tsc --noEmit and npx vitest run"}
+          ],
+          "deliverables": [{"path": "src/tools/dispatchers/businessDispatcher.ts", "type": "source", "description": "Extended dispatcher with pause/resume actions"}],
+          "exit_conditions": ["job_time_pause and job_time_resume in z.enum", ".passthrough() removed from schemas"]
+        },
+        {
+          "id": "U-PER1", "title": "Wire EmployeeEngine + PayrollEngine to PersistenceBridge + update ENTITY_CONFIGS",
+          "phase": "EMP-P1", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 90,
+          "dependencies": [], "steps": [
+            {"number": 1, "instruction": "Import persistenceBridge in EmployeeEngine.ts, register 'employees' Map"},
+            {"number": 2, "instruction": "Add persist() calls in create(), update(), addSkill(), addCertification()"},
+            {"number": 3, "instruction": "Import persistenceBridge in PayrollEngine.ts, register 'payroll_periods' and 'pay_stubs'"},
+            {"number": 4, "instruction": "Update BusinessStore.ts ENTITY_CONFIGS.employees: add knownColumns for clearance_level, auth_user_id, overtime_policy + jsonColumns for overtime_policy, shift_differential"},
+            {"number": 5, "instruction": "Update ENTITY_CONFIGS.job_time_entries: add knownColumns + jsonColumns for pause_periods"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/EmployeeEngine.ts", "type": "source", "description": "Persistent employee records"},
+            {"path": "src/engines/PayrollEngine.ts", "type": "source", "description": "Persistent payroll data"},
+            {"path": "src/db/BusinessStore.ts", "type": "source", "description": "Updated entity configs"}
+          ],
+          "exit_conditions": ["Create employee, restart server, employee still exists", "PayrollEngine periods persist"]
+        },
+        {
+          "id": "U-MOD1", "title": "Employee model enhancements + migration 011",
+          "phase": "EMP-P1", "sequence": 4, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60,
+          "dependencies": ["U-PER1"], "steps": [
+            {"number": 1, "instruction": "Add clearance_level, auth_user_id, overtime_policy, shift_differential to Employee interface"},
+            {"number": 2, "instruction": "Update create() to default clearance_level='shop_floor'"},
+            {"number": 3, "instruction": "Create migration 011-employee-enhancements.sql with ALTER TABLE statements + indexes"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/EmployeeEngine.ts", "type": "source", "description": "Enhanced employee model"},
+            {"path": "src/db/migrations/011-employee-enhancements.sql", "type": "data", "description": "Employee schema migration"}
+          ],
+          "exit_conditions": ["Employee interface has clearance_level, auth_user_id, overtime_policy", "Migration applies cleanly"]
+        },
+        {
+          "id": "U-MOD2", "title": "JobTimeEntry model + pause reasons + handoff + migration 012",
+          "phase": "EMP-P1", "sequence": 5, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 90,
+          "dependencies": [], "steps": [
+            {"number": 1, "instruction": "Add process_type, good_parts, scrap_count, scrap_reason, improvement_note, takt_time_sec, quality_project_id to JobTimeEntry"},
+            {"number": 2, "instruction": "Enhance jobPause() to accept reason + reason_category enum"},
+            {"number": 3, "instruction": "Enhance jobStop() to accept good_parts, scrap_count, scrap_reason"},
+            {"number": 4, "instruction": "Add getActiveAndPausedJobs(employeeId) method"},
+            {"number": 5, "instruction": "Add handoff_notes to ShiftEntry, enhance clockOut() and add getShiftHandoff()"},
+            {"number": 6, "instruction": "Create migration 012-job-time-enhancements.sql"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/TimeClockEngine.ts", "type": "source", "description": "Enhanced time tracking model"},
+            {"path": "src/db/migrations/012-job-time-enhancements.sql", "type": "data", "description": "Job time schema migration"}
+          ],
+          "exit_conditions": ["process_type enum works", "Pause with reason_category", "jobStop with scrap tracking", "Handoff notes on clock-out"]
+        },
+        {
+          "id": "U-SAN1", "title": "Input sanitization for user text fields",
+          "phase": "EMP-P1", "sequence": 6, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 30,
+          "dependencies": ["U-MOD2"], "steps": [
+            {"number": 1, "instruction": "Create sanitizeText() helper: strip HTML tags, max 500 chars, reject script/onerror patterns"},
+            {"number": 2, "instruction": "Apply to handoff_notes, scrap_reason, improvement_note, pause reason notes in TimeClockEngine"}
+          ],
+          "deliverables": [{"path": "src/engines/TimeClockEngine.ts", "type": "source", "description": "XSS-safe user input"}],
+          "exit_conditions": ["HTML tags stripped from all user text", "Script injection blocked"]
+        }
+      ],
+      "gate": {"omega_floor": 0.75, "safety_floor": 0.70, "test_required": true, "build_required": true, "anti_regression": true, "checkpoint": true, "learning_save": true},
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["Security: auth middleware on all routes", "Persistence: data survives restart", "XSS: sanitization complete"]
+    },
+    {
+      "id": "EMP-P2",
+      "title": "Auth & RBAC Frontend",
+      "description": "Login page, AuthContext provider, ProtectedRoute wrapper with clearance-based access, sidebar filtering. Touch-friendly for tablets.",
+      "sessions": "2-3",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {"id": "U-AUTH1", "title": "AuthContext.tsx with login/logout, token management, session timeout", "phase": "EMP-P2", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 85, "dependencies": [], "steps": [{"number": 1, "instruction": "Create AuthContext.tsx with state: user, token, employee, clearance_level, isAuthenticated"}, {"number": 2, "instruction": "Implement login(): call AuthEngine.login() then fetch employee by auth_user_id"}, {"number": 3, "instruction": "Add 15-min session timeout for shared tablet security"}, {"number": 4, "instruction": "Display operator name badge on all pages"}], "deliverables": [{"path": "web/src/contexts/AuthContext.tsx", "type": "source", "description": "Auth state management"}], "exit_conditions": ["Login returns token + employee + clearance", "15-min timeout auto-logout"]},
+        {"id": "U-AUTH2", "title": "LoginPage.tsx with barcode scanner input", "phase": "EMP-P2", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": ["U-AUTH1"], "steps": [{"number": 1, "instruction": "Create LoginPage.tsx with 72px input fields"}, {"number": 2, "instruction": "Add hidden autoFocus input for USB barcode scanner keyboard emulation"}, {"number": 3, "instruction": "Role-based redirect: shop_floor -> /shop-floor-clock, hr_manager -> /employees"}], "deliverables": [{"path": "web/src/pages/LoginPage.tsx", "type": "source", "description": "Touch-friendly login page"}], "exit_conditions": ["Login works", "Barcode scanner captured", "Redirect by clearance"]},
+        {"id": "U-AUTH3", "title": "ProtectedRoute.tsx with clearance-based access map", "phase": "EMP-P2", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-AUTH1"], "steps": [{"number": 1, "instruction": "Create ProtectedRoute.tsx wrapping routes with clearance check"}, {"number": 2, "instruction": "Define route access map: shop_floor, lead, hr_manager, admin tiers"}], "deliverables": [{"path": "web/src/components/ProtectedRoute.tsx", "type": "source", "description": "RBAC route protection"}], "exit_conditions": ["shop_floor blocked from /employees, /payroll", "admin sees everything"]},
+        {"id": "U-AUTH4", "title": "Sidebar filtering by clearance in shellCatalog + Layout", "phase": "EMP-P2", "sequence": 4, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 45, "dependencies": ["U-AUTH3"], "steps": [{"number": 1, "instruction": "Add minClearance field to NAV_SECTIONS items in shellCatalog.ts"}, {"number": 2, "instruction": "Filter sidebar in Layout.tsx based on AuthContext.clearance_level"}], "deliverables": [{"path": "web/src/components/shell/shellCatalog.ts", "type": "source", "description": "Clearance-filtered navigation"}], "exit_conditions": ["Employees only see sections matching their clearance"]}
+      ],
+      "gate": {"omega_floor": 0.75, "safety_floor": 0.70, "test_required": true, "build_required": true, "anti_regression": true, "checkpoint": true, "learning_save": true},
+      "scrutiny_checkpoint": false
+    },
+    {
+      "id": "EMP-P3",
+      "title": "Employee Management + Learning Academy",
+      "description": "Enhanced employee directory with edit/clearance/manager override, employee profile page with learning tab, learning academy integration with role-based paths and machine certification gates.",
+      "sessions": "2-3",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {"id": "U-EMP1", "title": "EmployeeDirectoryPage enhancements", "phase": "EMP-P3", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 80, "dependencies": [], "steps": [{"number": 1, "instruction": "Add edit modal with role, dept, rate, clearance_level, OT policy"}, {"number": 2, "instruction": "Add status toggle, cert expiry warnings, manager override for forgotten shifts"}], "deliverables": [{"path": "web/src/pages/EmployeeDirectoryPage.tsx", "type": "source", "description": "Enhanced employee management"}], "exit_conditions": ["Edit modal saves clearance_level", "Manager can close forgotten shifts"]},
+        {"id": "U-EMP2", "title": "EmployeeProfilePage with Learning tab", "phase": "EMP-P3", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 85, "dependencies": ["U-EMP1"], "steps": [{"number": 1, "instruction": "Create EmployeeProfilePage with tabs: Overview, Skills & Certs, Time History, Cost Analysis, Learning"}, {"number": 2, "instruction": "Wire Learning tab to CurriculumEngine + LearningPathEngine"}], "deliverables": [{"path": "web/src/pages/EmployeeProfilePage.tsx", "type": "source", "description": "Employee profile with learning"}], "exit_conditions": ["All 5 tabs render with real data"]},
+        {"id": "U-EMP3", "title": "Learning Academy integration with role-based paths", "phase": "EMP-P3", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 80, "dependencies": ["U-EMP2"], "steps": [{"number": 1, "instruction": "Auto-assign LearningPlan on employee create based on role"}, {"number": 2, "instruction": "Add machine certification gate: block clock-in to machine if required course not completed"}, {"number": 3, "instruction": "Add scrap-to-training trigger: >5% scrap rate recommends remedial lessons"}, {"number": 4, "instruction": "Add 3 API routes: employee-learning-path, employee-learning-complete, employee-certifications"}], "deliverables": [{"path": "src/routes/erp.ts", "type": "source", "description": "Learning API routes"}], "exit_conditions": ["Role-based learning paths auto-assigned", "Machine cert gate blocks unqualified operators"]}
+      ],
+      "gate": {"omega_floor": 0.75, "safety_floor": 0.70, "test_required": true, "build_required": true, "anti_regression": true, "checkpoint": true, "learning_save": true},
+      "scrutiny_checkpoint": false
+    },
+    {
+      "id": "EMP-P4",
+      "title": "Multi-Job Clock & Time Tracking UI",
+      "description": "Core shop floor interface: ShiftClockWidget, ActiveJobsDashboard with multi-job pause/resume, JobSelector with barcode, ShopFloorClockPage composition, API client additions.",
+      "sessions": "3-4",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {"id": "U-CLK1", "title": "ShiftClockWidget", "phase": "EMP-P4", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 80, "dependencies": [], "steps": [{"number": 1, "instruction": "Create ShiftClockWidget.tsx with IN/OUT badge, timer, clock buttons, handoff checklist, fatigue gate"}], "deliverables": [{"path": "web/src/components/jobs/ShiftClockWidget.tsx", "type": "source", "description": "Always-visible shift status"}], "exit_conditions": ["Clock in/out works", "Fatigue gate at 12hrs", "Handoff on clock-out"]},
+        {"id": "U-CLK2", "title": "ActiveJobsDashboard", "phase": "EMP-P4", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 90, "dependencies": [], "steps": [{"number": 1, "instruction": "Create ActiveJobsDashboard.tsx with job cards, play/pause/stop buttons, cost display, undo toast"}, {"number": 2, "instruction": "Wire WebSocket primary + 10s polling fallback"}, {"number": 3, "instruction": "Use color-blind safe palette (blue/yellow/gray) with icons + text labels"}], "deliverables": [{"path": "web/src/components/jobs/ActiveJobsDashboard.tsx", "type": "source", "description": "Multi-job tracking dashboard"}], "exit_conditions": ["Multiple jobs visible", "Pause with reason", "Stop with parts/scrap", "Undo toast"]},
+        {"id": "U-CLK3", "title": "JobSelector", "phase": "EMP-P4", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 70, "dependencies": [], "steps": [{"number": 1, "instruction": "Create JobSelector.tsx with barcode scan input, process type auto-select, machine dropdown"}], "deliverables": [{"path": "web/src/components/jobs/JobSelector.tsx", "type": "source", "description": "Job selection with barcode"}], "exit_conditions": ["Barcode scan captures job ID", "Process type auto-selected from routing"]},
+        {"id": "U-CLK4", "title": "ShopFloorClockPage refactor", "phase": "EMP-P4", "sequence": 4, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 80, "dependencies": ["U-CLK1", "U-CLK2", "U-CLK3"], "steps": [{"number": 1, "instruction": "Refactor ShopFloorClockPage to compose ShiftClockWidget + ActiveJobsDashboard + JobSelector"}, {"number": 2, "instruction": "Wire ALL API calls to real backend (replace fixture data)"}, {"number": 3, "instruction": "Add offline banner when disconnected"}], "deliverables": [{"path": "web/src/pages/ShopFloorClockPage.tsx", "type": "source", "description": "Composed shop floor page"}], "exit_conditions": ["Full clock-in to clock-out flow works end-to-end"]},
+        {"id": "U-CLK5", "title": "API client additions (6 functions)", "phase": "EMP-P4", "sequence": 5, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 45, "dependencies": [], "steps": [{"number": 1, "instruction": "Add jobTimePause, jobTimeResume, getActiveJobs, whoClockedIn, getJobLaborCost, getShiftHandoff to client.ts"}], "deliverables": [{"path": "web/src/api/client.ts", "type": "source", "description": "Extended API client"}], "exit_conditions": ["All 6 functions make correct API calls"]}
+      ],
+      "gate": {"omega_floor": 0.75, "safety_floor": 0.70, "test_required": true, "build_required": true, "anti_regression": true, "checkpoint": true, "learning_save": true},
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["UX: 72px touch targets", "Accessibility: color-blind safe", "Real-time: WebSocket + polling", "Barcode: scanner integration"]
+    },
+    {
+      "id": "EMP-P5",
+      "title": "Cost Analysis & ERP Integration",
+      "description": "Job profitability with setup/production labor split, enhanced timecards with OT and CSV export, department dashboard with live status and downtime Pareto.",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {"id": "U-COST1", "title": "JobProfitabilityPage with scrap-adjusted cost", "phase": "EMP-P5", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 70, "dependencies": [], "steps": [{"number": 1, "instruction": "Enhance JobProfitabilityPage with setup/production labor split and scrap-adjusted denominator"}], "deliverables": [{"path": "web/src/pages/JobProfitabilityPage.tsx", "type": "source", "description": "Accurate job cost analysis"}], "exit_conditions": ["Labor split by process type", "Cost per good part (not total)"]},
+        {"id": "U-COST2", "title": "TimecardPage with OT and CSV export", "phase": "EMP-P5", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 80, "dependencies": [], "steps": [{"number": 1, "instruction": "Enhance TimecardPage with weekly view, OT highlighting, shift differential, approval status, CSV export"}], "deliverables": [{"path": "web/src/pages/TimecardPage.tsx", "type": "source", "description": "Enhanced timecard with export"}], "exit_conditions": ["OT highlighted", "CSV downloads correctly"]},
+        {"id": "U-COST3", "title": "DepartmentDashboardPage", "phase": "EMP-P5", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 80, "dependencies": [], "steps": [{"number": 1, "instruction": "Create DepartmentDashboardPage with live who-clocked-in, utilization, downtime Pareto, foreman controls"}], "deliverables": [{"path": "web/src/pages/DepartmentDashboardPage.tsx", "type": "source", "description": "Department management dashboard"}], "exit_conditions": ["Live clock-in status", "Downtime reasons aggregated"]}
+      ],
+      "gate": {"omega_floor": 0.75, "safety_floor": 0.70, "test_required": true, "build_required": true, "anti_regression": true, "checkpoint": true, "learning_save": true},
+      "scrutiny_checkpoint": false
+    },
+    {
+      "id": "EMP-P6",
+      "title": "Lean / Kaizen / Six Sigma Dashboards",
+      "description": "Seven manufacturing excellence dashboards: OEE, Kaizen Board, SPC Control Charts, Value Stream Map, Kanban Board, 5 Whys Root Cause, A3 Report Generator.",
+      "sessions": "4-5",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {"id": "U-LEAN1", "title": "OEE Dashboard", "phase": "EMP-P6", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 85, "dependencies": [], "steps": [{"number": 1, "instruction": "Create OEEDashboardPage with Availability x Performance x Quality, Six Big Losses, 30-day trend"}], "deliverables": [{"path": "web/src/pages/OEEDashboardPage.tsx", "type": "source", "description": "OEE dashboard"}], "exit_conditions": ["OEE calculated per machine", "Trend chart renders"]},
+        {"id": "U-LEAN2", "title": "Kaizen Board", "phase": "EMP-P6", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": [], "steps": [{"number": 1, "instruction": "Create KaizenBoardPage with improvement_notes inbox, impact scoring, before/after tracker"}], "deliverables": [{"path": "web/src/pages/KaizenBoardPage.tsx", "type": "source", "description": "Continuous improvement board"}], "exit_conditions": ["Suggestions visible", "Impact scoring works"]},
+        {"id": "U-LEAN3", "title": "SPC Dashboard", "phase": "EMP-P6", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 85, "dependencies": [], "steps": [{"number": 1, "instruction": "Create SPCDashboardPage wired to SPCProcessCapabilityEngine with X-bar/R charts, Cpk, Nelson Rules, DMAIC tracker"}], "deliverables": [{"path": "web/src/pages/SPCDashboardPage.tsx", "type": "source", "description": "SPC control charts"}], "exit_conditions": ["Control charts render from scrap data", "Nelson Rules violations highlighted"]},
+        {"id": "U-LEAN4", "title": "Value Stream Map", "phase": "EMP-P6", "sequence": 4, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 80, "dependencies": [], "steps": [{"number": 1, "instruction": "Create ValueStreamPage with process boxes, WIP triangles, lead time calculation, VA ratio, takt overlay"}], "deliverables": [{"path": "web/src/pages/ValueStreamPage.tsx", "type": "source", "description": "Value stream visualization"}], "exit_conditions": ["Process boxes show actual vs estimated", "Lead time calculated"]},
+        {"id": "U-LEAN5", "title": "Kanban Board", "phase": "EMP-P6", "sequence": 5, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 85, "dependencies": [], "steps": [{"number": 1, "instruction": "Create KanbanBoardPage with job queue columns, WIP limits, drag-to-assign, Heijunka view"}], "deliverables": [{"path": "web/src/pages/KanbanBoardPage.tsx", "type": "source", "description": "Kanban job board"}], "exit_conditions": ["Columns render with WIP limits", "Drag-to-assign works"]},
+        {"id": "U-LEAN6", "title": "5 Whys Root Cause Analyzer", "phase": "EMP-P6", "sequence": 6, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": [], "steps": [{"number": 1, "instruction": "Create RootCausePage with auto-trigger on scrap threshold, Fishbone diagram, corrective actions, wire to TroubleshootingEngine"}], "deliverables": [{"path": "web/src/pages/RootCausePage.tsx", "type": "source", "description": "Root cause analysis tool"}], "exit_conditions": ["Fishbone diagram renders", "Corrective actions logged"]},
+        {"id": "U-LEAN7", "title": "A3 Problem Report Generator", "phase": "EMP-P6", "sequence": 7, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 70, "dependencies": ["U-LEAN1", "U-LEAN2", "U-LEAN3"], "steps": [{"number": 1, "instruction": "Create A3ReportPage with Toyota 8-section template, auto-populate from OEE+scrap+Kaizen data, PDF export"}], "deliverables": [{"path": "web/src/pages/A3ReportPage.tsx", "type": "source", "description": "A3 report generator"}], "exit_conditions": ["8-section template renders", "PDF export works"]}
+      ],
+      "gate": {"omega_floor": 0.75, "safety_floor": 0.70, "test_required": true, "build_required": true, "anti_regression": true, "checkpoint": true, "learning_save": true},
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": ["OEE calculation correctness", "Chart rendering with Recharts", "Data aggregation from time tracking"]
+    }
+  ],
+  "exit_conditions": [
+    "All ERP routes authenticated",
+    "Employee data persists across restarts",
+    "Full clock-in to clock-out flow works end-to-end",
+    "RBAC: shop_floor sees only machining pages",
+    "Job profitability shows scrap-adjusted cost",
+    "OEE dashboard calculates A x P x Q",
+    "JM Die employee records, departments, clearance mappings, and machine certifications persist as the canonical system of record",
+    "npx tsc --noEmit clean, all tests pass"
+  ]
+}

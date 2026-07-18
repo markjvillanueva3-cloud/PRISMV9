@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="50a7f7a159a95272b9795920e5797867422e4dc9ece0a8adf5843730e79a7344">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galaxy Obsidian-Brain Audit 2026-05-28</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Galaxy Obsidian-Brain Audit 2026-05-28</h1>
+<div class="meta">rendered from state/shared/specs/GALAXY-OBSIDIAN-BRAIN-AUDIT-2026-05-28.md</div>
+<div class="meta">Generated 2026-05-28T21:12:16.701Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">GALAXY OBSIDIAN-BRAIN AUDIT — 2026-05-28</li><li class="prism-toc-l2">Brain connection model (the truth, verified against the live generator + 34 galaxy MEMORY.md files)</li><li class="prism-toc-l2">Confirmed findings (5/5 passed adversarial verify, 0 refuted)</li><li class="prism-toc-l2">Shipped this session (slot:alpha, the Obsidian-brain owner)</li><li class="prism-toc-l2">Operator decisions (taken)</li><li class="prism-toc-l2">Re-runnable verification channel (forge-audit-v3 META artifact)</li><li class="prism-toc-l1">Generator-level (expect: &gt;=2 / matches / 0)</li><li class="prism-toc-l1">Per-galaxy CONN-1..5 — see state/shared/specs/MASTER-BRAIN-TEMPLATE.md</li><li class="prism-toc-l2">Dynamic-workflow lesson (first PRISM use of the feature)</li><li class="prism-toc-l2">Deferred doc-reflection follow-up (R12 — flagged, NOT silently dropped)</li><li class="prism-toc-l2">Recent regression (CLAUDE.md back-flow)</li></ul></nav><h1 class="prism-h1">GALAXY OBSIDIAN-BRAIN AUDIT — 2026-05-28</h1>
+<blockquote class="prism-quote"><strong>Produced by:</strong> dynamic-workflow <code class="prism-inline-code">wf_ff92b952-169</code> (17 agents, 3.97M tokens, 134 tool-uses, 17 min) — first real test of the Claude Code dynamic-workflows feature in PRISM.</blockquote>
+<blockquote class="prism-quote"><strong>Scope:</strong> does each domain galaxy have a WORKING Obsidian brain bidirectionally connected to the master PRISM brain, and does the galaxy-buildout generator/brief/build-kit mandate it?</blockquote>
+<blockquote class="prism-quote"><strong>Owner:</strong> slot:alpha (Obsidian-brain domain owner, operator-designated this session — [[project-alpha-owns-obsidian-brain]]).</blockquote>
+<blockquote class="prism-quote"><strong>Verdict:</strong> <code class="prism-inline-code">declared-not-working</code> on 2 of 4 connection axes → FIXED at the generator + template level this session.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">Brain connection model (the truth, verified against the live generator + 34 galaxy MEMORY.md files)</h2>
+<table class="prism-md-table"><thead><tr><th>Axis</th><th>Direction</th><th>Before</th><th>After this session</th></tr></thead><tbody><tr><td><strong>PULL</strong></td><td>master → galaxy</td><td>✅ mandated (STEP 5a + FAIL 7)</td><td>✅ unchanged</td></tr>
+<tr><td><strong>PUSH</strong></td><td>galaxy → master (by type)</td><td>✅ mandated (STEP 5b + FAIL 9, via <code class="prism-inline-code">stop-obsidian-memory-feed.mjs</code>)</td><td>✅ + sync-stamp cadence (STEP 5b)</td></tr>
+<tr><td><strong>MASTER-INDEX back-pointer</strong></td><td>master → galaxy (discovery)</td><td>❌ <strong>entirely absent</strong> — master index blind to every galaxy brain</td><td>✅ STEP 5d + FAIL 12 + master MEMORY.md registry</td></tr>
+<tr><td><strong>RECALL round-trip</strong></td><td>proof</td><td>❌ never verified (gate checked presence only)</td><td>✅ FAIL 13 (header + sync-stamp) + CONN-5 advisory</td></tr></tbody></table>
+<p><strong>Key reframe:</strong> knowledge was always <em>reachable</em> (galaxy sentinels keyword-search the flat <code class="prism-inline-code">knowledge/memories/&lt;type&gt;/</code> dirs — no brain severed). The gap was that the master index never learned the per-galaxy brains existed, and recall was never proven. Both closed.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Confirmed findings (5/5 passed adversarial verify, 0 refuted)</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Finding</th><th>Severity</th></tr></thead><tbody><tr><td><strong>A1</strong></td><td>Generator mandated 2 of 4 connection criteria — PULL + PUSH enforced; master-side back-pointer + recall verification missing</td><td>P1 → FIXED</td></tr>
+<tr><td><strong>A2</strong></td><td>master→domain works at TYPE level, never reaches per-galaxy namespaces; <code class="prism-inline-code">migrate-memories-to-galaxies.mjs</code> MISSING (only dry-run classifier shipped)</td><td>P1 → DEFERRED (see D1)</td></tr>
+<tr><td><strong>A4</strong></td><td>Doctrine (DOMAIN-GALAXY + BUILD-KIT) only implies &quot;have a MEMORY.md&quot;, never specifies WORKING + CONNECTED</td><td>P1 → doc-reflection follow-up</td></tr>
+<tr><td><strong>A5</strong></td><td>0/34 galaxy MEMORY.md files carry a <code class="prism-inline-code">## Master-brain link</code> header or <code class="prism-inline-code">Last master-sync</code> stamp — birth-snapshot rot risk</td><td>P1 → template + generator fix</td></tr>
+<tr><td><strong>A6</strong></td><td>Runtime cascade partially live: <code class="prism-inline-code">tribal-by-domain-inject</code> + <code class="prism-inline-code">pre-edit-galaxy-cascade-inject</code> wired, but cascade injects CLAUDE.md head only (not MEMORY.md)</td><td>P2 → noted</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">Shipped this session (slot:alpha, the Obsidian-brain owner)</h2>
+<ol class="prism-md-list"><li><strong><code class="prism-inline-code">state/shared/specs/MASTER-BRAIN-TEMPLATE.md</code></strong> — the canonical alpha-owned working-connected-brain pattern (4 axes + clone-and-tune protocol + CONN-1..5 gate). The deliverable: every other slot clones + fine-tunes this, does not re-derive.</li><li><strong><code class="prism-inline-code">scripts/generate-per-slot-galaxy-buildout-files.mjs</code></strong> — CHANGE 1-5: <code class="prism-inline-code">## Master-brain link</code> header requirement, fixed STEP 5c (galaxy index) + new STEP 5d (master back-pointer), FAIL 12 (back-pointer gate) + FAIL 13 (header/sync-stamp gate), STEP 5b sync-stamp cadence, brain step points at the template. Bumped 11→13 artifacts.</li><li><strong>24 regenerated briefs</strong> — each now mandates the connected brain (6 connection-content matches per brief, verified).</li><li><strong>Alpha&#39;s own galaxy compliant</strong> — <code class="prism-inline-code">engines/token-optimization/MEMORY.md</code> has the <code class="prism-inline-code">## Master-brain link</code> header; master <code class="prism-inline-code">MEMORY.md</code> <code class="prism-inline-code">## Indexed memories</code> has the <code class="prism-inline-code">[galaxy:token-optimization]</code> back-pointer (CONN-4 closed). Owner eats its own dogfood; first compliant exemplar.</li><li><strong>Kernel → alpha</strong> — COMMAND-KERNEL-MS0 (PSK, the brain/OS syscall substrate) assigned to alpha; 28/29 done, only <strong>U-CK11</strong> open (scrutiny pass) → close-out debt. Appended to alpha&#39;s queue (does not preempt current work).</li></ol>
+<h2 class="prism-h2">Operator decisions (taken)</h2>
+<ul class="prism-md-list"><li><strong>D1 — migrator deferred (brief-only now).</strong> <code class="prism-inline-code">classify-memories-by-galaxy.mjs</code> misroutes ~79% to <code class="prism-inline-code">business</code> / 1 to <code class="prism-inline-code">mill</code> (additive-keyword over-match) — the migrator can&#39;t ship correctly until the classifier is fixed. Per-galaxy dirs stay an aspiration; flat-type keyword search is the working path. <strong>Classifier bug logged as a real regression below.</strong></li><li><strong>D2 — generation-time PULL sufficient for launch.</strong> Per-session re-pull is doctrine-mandated (sync-stamp) but not a hard commit gate.</li><li><strong>D3 — keep type-based feed</strong> for launch (cheapest, already wired).</li><li><strong>D4 — regenerate 24 briefs now.</strong> Done.</li></ul>
+<h2 class="prism-h2">Re-runnable verification channel (forge-audit-v3 META artifact)</h2>
+<pre class="prism-codeblock" data-lang="bash"><code># Generator-level (expect: &gt;=2 / matches / 0)
+grep -c &#39;master MEMORY.md\|Master-brain link&#39; scripts/generate-per-slot-galaxy-buildout-files.mjs   # &gt;=2 (was 0)
+grep -cE &#39;FAIL 12|FAIL 13&#39; scripts/generate-per-slot-galaxy-buildout-files.mjs                       # 2
+grep -c &#39;H--PRISM&#39; scripts/generate-per-slot-galaxy-buildout-files.mjs                               # 0 (must stay lowercase)
+# Per-galaxy CONN-1..5 — see state/shared/specs/MASTER-BRAIN-TEMPLATE.md</code></pre>
+<h2 class="prism-h2">Dynamic-workflow lesson (first PRISM use of the feature)</h2>
+<ul class="prism-md-list"><li><strong><code class="prism-inline-code">agentType: &#39;Explore&#39;</code> is incompatible with <code class="prism-inline-code">schema</code>.</strong> Explore is a read-only prose-return agent; the harness withholds the <code class="prism-inline-code">StructuredOutput</code> tool from it, so a schema-constrained call can never complete (v1 run: 12 agents, 0 tokens, 0 tool-uses, clean fast-fail). <strong>Use the default workflow agent for any schema-constrained call.</strong></li><li>Even with the default agent, the 5 <code class="prism-inline-code">parallel()</code> map readers + 1 auditor still failed StructuredOutput (stochastic 2-nudge limit on large prose reads) while identical-setup <code class="prism-inline-code">pipeline()</code> auditors succeeded. <strong>Mitigation:</strong> keep schema-agent prompts tight, append an explicit &quot;You MUST call StructuredOutput before finishing&quot;, and design phases to be resilient to partial map failure (the auditors were self-sufficient — read their own files — so the run produced 5 confirmed findings despite 0 maps).</li></ul>
+<h2 class="prism-h2">Deferred doc-reflection follow-up (R12 — flagged, NOT silently dropped)</h2>
+<ol class="prism-md-list"><li>BUILD-KIT + DOMAIN-GALAXY-DOCTRINE prose additions (the 9 bidirectional-brain sentences from the synthesis) — the template + generator are self-contained, so this is reinforcing not load-bearing.</li><li>CLAUDE.md §OBSIDIAN-BRAIN-OWNERSHIP line (alpha owns brain + template + kernel) + <code class="prism-inline-code">## Recent regressions</code> entry.</li><li><strong>Real regression to fix:</strong> <code class="prism-inline-code">classify-memories-by-galaxy.mjs</code> 79%-to-business misroute (blocks the migrator). Candidate unit <code class="prism-inline-code">U-BRAIN-CLASSIFIER-FIX</code>.</li><li>The 23 non-alpha galaxies adopt the <code class="prism-inline-code">## Master-brain link</code> header on their next galaxy-buildout (clone-and-tune via the regenerated briefs) — not retrofitted en masse here.</li></ol>
+<h2 class="prism-h2">Recent regression (CLAUDE.md back-flow)</h2>
+<ul class="prism-md-list"><li>2026-05-28 | per-galaxy Obsidian brains were <code class="prism-inline-code">declared-not-working</code> — master index blind to every galaxy brain (no back-pointer), recall never verified, 0/34 MEMORY.md had a master-link header | fix: MASTER-BRAIN-TEMPLATE + generator CHANGE 1-5 + alpha exemplar | observed-by: wf_ff92b952-169 (slot:alpha)</li><li>2026-05-28 | <code class="prism-inline-code">classify-memories-by-galaxy.mjs</code> misroutes ~79% of memories to <code class="prism-inline-code">business</code> (additive keyword over-match) — blocks <code class="prism-inline-code">migrate-memories-to-galaxies.mjs</code> | fix: DEFERRED (U-BRAIN-CLASSIFIER-FIX) | observed-by: wf_ff92b952-169</li></ul>
+<p>_Audit by slot:alpha session a198ff5f, 2026-05-28._</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

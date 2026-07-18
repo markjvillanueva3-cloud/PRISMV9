@@ -1,0 +1,868 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-06-03T05:20:56.326Z",
+  "source": "db-coverage-scorecard workflow wkqszfznv (31 agents, 4.46M tok)",
+  "owner": "juliett",
+  "totalDbs": 30,
+  "p0Count": 7,
+  "summary": "Fleet DB coverage is bimodal: a small head of deeply-populated, well-wired physics DBs (MaterialDB 0.82/61-consumers, ToolDB 0.72, coating 13-consumers) versus a long tail of thin-or-dead artifacts averaging ~0.35 coverage, where the worst safety-critical members (ProcessDataDB 0.04, CollisionDB 0.08, SpindleDB 0.18, PrismReferenceDB 0.28, PhysicsMappingDB) carry ZERO real consumers despite claiming 5-9 galaxies each. The single biggest cross-cutting gap is a wiring-and-truth crisis compounded by physics-constant divergence: at least 7 DBs INLINE kc1.1/Taylor values that not only duplicate but actively DISAGREE with canonical mcp-server/src/physics/constants.ts (ProcessDataDB Ti64 1700 vs 2800, GenomeDB 304SS 2200 vs 2100, InferenceDB/PrismReference/KnowledgeDB drifted copies), so safety-relevant force/power/tool-life calcs are being fed silently-wrong numbers, while the JSON 'DBs' themselves are frequently orphaned shadows that no runtime code loads. The fleet-wide fix order is therefore wiring-and-de-inline FIRST (make each DB load-bearing through a real dispatcher + reference constants.ts, eliminating shadow duplicates) before any breadth expansion — populating an unconsumed or constant-divergent DB is dead weight or, worse, a latent crash/mis-cut hazard.",
+  "rankedExpansionOrder": [
+    {
+      "id": "ProcessDataDB",
+      "priority": "P0",
+      "rationale": "4% coverage AND inlines kc1.1 that DIVERGES from canonical constants.ts (Ti64 1700 vs 2800, 304SS 2200 vs 2100) feeding wrong force/power into 6 claimed safety consumers with ZERO real wiring — highest-severity hazard: silently wrong physics, not just missing."
+    },
+    {
+      "id": "MachineDB",
+      "priority": "P1",
+      "rationale": "Highest raw ROI (47 real consumers): FRF/chatter layer is 0% real (all source='estimated'), 325 empty axes, 156 zero envelopes — synthetic compliance feeds every stability-lobe a_lim downstream."
+    },
+    {
+      "id": "PrismReferenceDB",
+      "priority": "P0",
+      "rationale": "0.28 with placeholder copy-paste Johnson-Cook + divergent inlined kc, and ZERO runtime importers across all 9 claimed galaxies — dead 13.9k-record asset; wiring-first emergency before any breadth."
+    },
+    {
+      "id": "FormulaDB",
+      "priority": "P0",
+      "rationale": "0.42 safety-physics DB (Kienzle/Taylor feed force+life) with ZERO provenance on all 499 formulas, empty units (25.4x scale risk), constant duplication, and 8 claimed consumers wired to NONE — claim-lie + safety relevance."
+    },
+    {
+      "id": "CollisionDB",
+      "priority": "P0",
+      "rationale": "8% coverage, crash-CRITICAL domain, 0 real consumers vs 5 claimed galaxies; pure prose/enum catalog with shadow-duplicate margins hardcoded in the engine — thinnest safety DB, wire-and-populate first."
+    },
+    {
+      "id": "PhysicsMappingDB",
+      "priority": "P0",
+      "rationale": "0.45 CAM-to-physics safety router with 0 production importers (1942 'verified' entries consumed by nobody, e2e only string-checks) and fabricated WEDM coverage — dead safety asset, wiring is the emergency."
+    },
+    {
+      "id": "coating-db-audit",
+      "priority": "P1",
+      "rationale": "High ROI (13 consumers): FALSE 5x count (19 actual vs 100 claimed), no wear-kinetics, and sfc_factors are decorative — never reach the live Kienzle/speed-feed core they claim to tune."
+    },
+    {
+      "id": "MaterialDB",
+      "priority": "P1",
+      "rationale": "Largest reach (61 consumers) but already deep + no divergence + no missing consumers: breadth-completion not hazard — close X_SPECIALTY 87% class-default gap and replace class_default thermophysical sources."
+    },
+    {
+      "id": "ToolpathStrategyDB",
+      "priority": "P1",
+      "rationale": "0.32 with parametric data absent on 569/586 strategies and materials=['all'] everywhere; close the lathe wiring gap (108 turning entries consumed by zero turning dispatchers)."
+    },
+    {
+      "id": "GCodeTemplateDB",
+      "priority": "P0",
+      "rationale": "S-class CRITICAL (bad G-code = crash), 0.42 mill-drilling-only with NO lathe/WEDM/5-axis dialect, and 4 of 5 claimed consumer galaxies unwired — safety + claim-lie."
+    },
+    {
+      "id": "ToolDB",
+      "priority": "P1",
+      "rationale": "Largest tool reach (32 consumers), solidly wired but turning inserts MISSING the entire N_NONFERROUS ISO group (no aluminum/brass turning data) + no grinding/WEDM consumables — data-depth only."
+    },
+    {
+      "id": "CoolantDB",
+      "priority": "P1",
+      "rationale": "0.25 dead artifact (no code loads the JSON; constants re-hardcoded in the engine = silent-drift), missing the entire fluid-chemistry + OSHA/NFPA safety layer; resolve source-of-truth then add chemistry."
+    },
+    {
+      "id": "KnowledgeDB",
+      "priority": "P1",
+      "rationale": "0.45 with only 11 alloys and INLINED Kienzle/Merchant constants instead of constants.ts (drift+safety-rail violation); 6 claimed consumers wired to none — de-inline first, then expand materials."
+    },
+    {
+      "id": "ToleranceDB",
+      "priority": "P1",
+      "rationale": "0.40 dimensional-only — the entire GD&T (ASME Y14.5) + ISO 2768 general-tolerance layers are absent, blocking every CAD/quality/CMM consumer; 5 missing galaxies."
+    },
+    {
+      "id": "PostProcessorDB",
+      "priority": "P1",
+      "rationale": "0.28, 7 of 14 declared controller families have ZERO posts and the primary external DB is ABSENT from disk (loader silently no-ops); restore source + populate empty families."
+    },
+    {
+      "id": "WorkholdingDB",
+      "priority": "P1",
+      "rationale": "0.32 safety-critical with all 7 consumers real but NO centrifugal grip-decay F(RPM) data (ISO 16156) — a safety omission for every lathe consumer; also de-inline the friction table + atm-pressure constant."
+    },
+    {
+      "id": "GenomeDB",
+      "priority": "P1",
+      "rationale": "8% (only 8 materials), Johnson-Cook in 2 of 8, and kc1.1 inlined+drifting from canonical (304SS 2200 vs 2100) — fix drift, derive kc from iso_group, backfill JC from cited sources."
+    },
+    {
+      "id": "SpindleDB",
+      "priority": "P0",
+      "rationale": "18% with 0 real importers (engine hardcodes DEFAULT_SPINDLE_SPECS), only 5 generic archetypes vs 21 JM machines, no ISO 281 bearing-life / 230-3 thermal / FRF — safety-relevant, wire-or-delete the orphan first."
+    },
+    {
+      "id": "DecisionTreeDB",
+      "priority": "P1",
+      "rationale": "0.32 orphan — named engine never reads the JSON and inlines diverging copies; collapses full ISO 513 grade ladder to 3 columns. Fix the duplication, then deepen with cited vendor grade tables."
+    },
+    {
+      "id": "AlgorithmDB",
+      "priority": "P1",
+      "rationale": "0.55, stale self-count (51 vs claimed 52), 6+ largest data files uncataloged, and a parallel 173-file TS surface unmerged — high reach (17) but not safety-critical; unify the two registries."
+    },
+    {
+      "id": "ThreadDB",
+      "priority": "P1",
+      "rationale": "0.55 — tolerance classes are TEXT-ONLY (no numeric pitch-dia ranges/GO-NO-GO), UNJ/MJ aerospace controlled-root threads absent; JSON is an orphaned export with zero importers."
+    },
+    {
+      "id": "AlarmDB",
+      "priority": "P1",
+      "rationale": "0.62 with templated generic fix-procedures, ZERO WEDM/EDM controller families, and 6-way DB-copy drift (v3 unified 48% NULL family); wire the 5 doc-only consumer galaxies first."
+    },
+    {
+      "id": "InferenceDB",
+      "priority": "P2",
+      "rationale": "0.15 reasoning-engine that INLINES kc1.1 prose ranges contradicting canonical (feeds the LLM wrong M/N/S numbers) — fix R12 duplication, but low reach + prompt-only so P2."
+    },
+    {
+      "id": "CollisionDB-dup-removed",
+      "priority": "P3",
+      "rationale": "placeholder (deduped above) — not emitted in final consideration."
+    },
+    {
+      "id": "vendor-catalog-db-audit",
+      "priority": "P1",
+      "rationale": "0.42 procurement directory, metadata-only by design; committed store has 0 importers and 5 claimed mill/cam/lathe consumers are PATHS-only — wire-or-demote, then add procurement-master fields."
+    },
+    {
+      "id": "JMDieDocuStrataDB",
+      "priority": "P1",
+      "rationale": "0.55 document-provenance index, solid for classification but stock-material catalog has ZERO material physics; 8 claimed galaxies consume the underlying .index not this product — wire MillProgramCorpusEngine first."
+    },
+    {
+      "id": "CAMSystemDB",
+      "priority": "P2",
+      "rationale": "4% but it is a source-file inventory CATALOG, not a CAM science DB (0 machining params); 0 consumers — low blast radius, repurpose-or-archive rather than expand."
+    },
+    {
+      "id": "ReportTemplateDB",
+      "priority": "P1",
+      "rationale": "0.35 non-physics template taxonomy: JSON read by ZERO code, 4 claimed galaxies route to a generic search that never reads it; missing FAIR/PPAP/control-plan family — wiring + quality-template coverage."
+    },
+    {
+      "id": "SourceCatalogDB",
+      "priority": "P2",
+      "rationale": "0.35 SBOM-grade provenance meta-catalog with 9 of 13 catalogs stubbed and blind to 6+ on-disk engine catalogs; feeds no physics — build a regenerator, low priority."
+    },
+    {
+      "id": "WorkflowDB",
+      "priority": "P1",
+      "rationale": "0.55 intent-routing DB, mill-centric (no lathe/WEDM/closed-loop/quality chains); 3 claimed consumers are false positives (doc-only) — correct the claim, add domain chains."
+    },
+    {
+      "id": "CompoundActionDB",
+      "priority": "P3",
+      "rationale": "Dormant design-sketch (bare TS interfaces, 0 executors, 0 consumers correctly claimed) — implement-or-archive per never-delete; zero ROI until a decision, lowest priority."
+    }
+  ],
+  "audits": [
+    {
+      "id": "MaterialDB",
+      "coverageScore": 0.82,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 61,
+      "missingConsumers": [],
+      "topGaps": [
+        "X_SPECIALTY: only 90/1258 records composition-matched (87% have physics derived from generic class defaults, not the actual specialty alloy — low confidence for the largest non-steel group)",
+        "Thermophysical values flagged 'class_default' (specific_heat_source, T_melt_source) on a large fraction of records — class-average cp/k/T_melt rather than material-specific, degrading Johnson-Cook T_melt and thermal-machining accuracy",
+        "No temperature-dependent property curves: thermal_conductivity(T), specific_heat(T), yield(T) are single scalars — insufficient for accurate cutting-zone thermal/FEM modeling (ASM Vol 1/Vol 16 publish tabulated T-dependence)",
+        "Coolant data is qualitative strings ('flood','cutting_oil') only — no per-coolant chemistry, concentration-by-material, through-tool pressure, MQL/cryogenic media, or coolant-specific Taylor factors as a structured DB",
+        "Composites/polymers thin: CFRP/carbon-fiber (3), PEEK (7), plastics (6) — print-to-program for non-metallic stock under-served vs the 6000+ metal entries",
+        "Single Johnson-Cook fit per material — no strain-rate-regime variants or Johnson-Cook damage params (D1-D5) for chip-segmentation/fracture prediction in S-group/hardened machining"
+      ],
+      "comprehensiveTarget": "100% = every entry carries MATERIAL-SPECIFIC (not class-default) values for the full cutting-physics stack: Kienzle kc1.1/mc (referencing physics/constants.ts CANONICAL_KIENZLE, which it correctly does), Taylor C/n with hardness/DOC/feed exponents, Johnson-Cook A/B/C/m/n + damage D1-D5 (ASM Handbook Vol 16 Machining; Johnson & Cook 1983/85), composition verified vs AISI/UNS/DIN/JIS/EN (already structured), and temperature-dependent k(T), cp(T), E(T), yield(T) curves (ASM Handbook Vol 1; Vol 4). Requires: (a) closing the X_SPECIALTY 87% composition gap, (b) replacing every 'class_default' source with handbook material-specific cp/k/T_melt, (c) a structured CoolantDB (per-coolant chemistry/concentration/pressure/MQL/cryo) cross-referenced by material per ISO 513 + Sandvik/ASM cutting-fluid data, (d) full composite/polymer machining-property coverage (Sheikh-Ahmad, Machining of Composites). Governing standards present in schema: ISO 513 (workpiece groups), ISO 3685 (tool-life→Taylor), AISI/UNS/DIN/JIS designations.",
+      "expansionPlan": "1) Fix X_SPECIALTY composition matching (highest leverage): re-run the existing v10.2 composition-matcher (39 strategies, already 100% on metals) over the 1168 unmatched specialty records using AISI/UNS designations already in the data — lifts 87% low-confidence to subcategory-or-better (cite ASM Vol 1). 2) Replace 'class_default' thermophysical sources for the top ~500 most-consumed materials (1018, 4140, 4340, 304/316 SS, 6061/7075 Al, Ti-6Al-4V, Inconel 718) with material-specific cp/k/T_melt from ASM Handbook Vol 1; flip source flag to 'handbook'. 3) Add temperature-dependent curves k(T)/cp(T) for the same top-500 (ASM Vol 1 tables at 100/300/500/700C); wire into ThermalFieldToolpathEngine + thermalMachining heat-partition. 4) Build a structured CoolantDB (separate table, cross-ref by ISO group + material): per-coolant chemistry/concentration/pressure/MQL/cryo from Sandvik + ASM Vol 16 cutting-fluid data; replace qualitative coolant strings. 5) Add Johnson-Cook damage D1-D5 for S-group + H-group from published Ti/Inconel JC-damage literature. All steps use real cited handbook data — never synthesize values.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "ToolDB",
+      "coverageScore": 0.72,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 32,
+      "missingConsumers": [],
+      "topGaps": [
+        "Turning inserts MISSING N_NONFERROUS ISO group entirely (only P/M/K/S/H present) — no aluminum/brass/copper turning speed-feed data despite N being a primary JM Die material class; milling has it but turning does not",
+        "No grinding/abrasive tooling (no wheels: grit/bond/grade/structure/concentration, no superabrasive CBN/diamond wheel specs) — grinder galaxy exists but ToolDB has zero grinding-wheel entries",
+        "No wire-EDM consumables (wire dia/type/coating/tensile/conductivity) despite wedm being a claimed-adjacent PRISM core domain — tool DB is purely rotating/insert cutting tools",
+        "Tool-life model coefficients absent: per-tool expected_life exists but no Taylor C/n exponents or Archard wear coefficients per substrate-coating-material triple, so life prediction must be re-derived elsewhere rather than catalog-driven",
+        "Thread data thin: THREADING 126 taps but no thread-form geometry table (pitch/major/minor/flank by UN/ISO-metric/NPT/ACME class), no thread-mill pitch coverage matrix",
+        "Holder dynamics incomplete: TOOLHOLDERS carries balance_grade/runout but clamping_force_N and weight_kg are frequently null, and no stiffness/FRF/damping data for chatter (SLD) prediction — couples poorly with stability-lobe physics",
+        "No coolant/MQL pressure-flow curves tied to coolant_through holders (coolant field is a categorical enum only: flood/mist/air/through_tool — no pressure bar / flow L/min / through-tool capability-by-diameter)",
+        "Coating science shallow: coating_hardness_hv/max_temp_c present but no friction_coefficient-by-workpiece, oxidation-onset, or thermal-conductivity per coating for thermal models"
+      ],
+      "comprehensiveTarget": "100% = a fully ISO 13399-compliant cutting-tool data dictionary covering EVERY tool class in the consumer domains: (a) rotating tools — end mills/drills/reamers/taps/thread-mills/face-mills/specialty — each with complete geometry + ISO 13399 item/assembly/adaptive-item items; (b) indexable turning/milling — full insert geometry per ISO 1832 designation across ALL 6 ISO 513 material groups P/M/K/N/S/H (close the turning N gap); (c) grinding/superabrasive wheels per ISO 525 (grit/bond/grade/structure + CBN/diamond concentration); (d) wire-EDM/sinker consumables. Cutting data per ISO 3685 / Sandvik Coromant + Kennametal master catalogs (vc/fz/fn/ap/ae bands per material group AND sub-group e.g. P1-P6/M1-M3/S1-S4). Tool-life via ISO 3685 Taylor C & n per substrate×coating×workpiece, plus Archard/flank-wear VB curves. Holder dynamics per ISO 1940 balance + measured stiffness/FRF for Altintas stability-lobe coupling. Coatings with friction/oxidation/conductivity for thermal (constants referenced from constants.ts, never inlined). Governing refs: ISO 13399, ISO 513, ISO 1832, ISO 3685, ISO 525, ISO 1940; Sandvik Coromant Technical Guide; Kennametal Master Catalog; Machining Data Handbook (Metcut).",
+      "expansionPlan": "Wiring is GENUINELY solid — all 7 claimed galaxies have verified real import paths (no missing consumers), so expansion is data-coverage only, not wiring. Ordered, using REAL cited sources: (1) Close the turning N_NONFERROUS gap — regenerate TURNING_INSERTS cutting_params to add N_NONFERROUS bands from Sandvik Coromant / Kennametal turning catalogs for aluminum/brass (high-vc, high-fn) across existing 1710 inserts; this is a known omission, milling already proves the schema. (2) Add Taylor C/n + flank-wear VB coefficients per substrate×coating×ISO-group from ISO 3685 / Machining Data Handbook (Metcut) so ToolLifePredictionEngine becomes catalog-driven instead of re-deriving — keep coefficients in data files, reference any base constants from physics/constants.ts. (3) Add a grinding-wheel table (ISO 525 grit/bond/grade/structure + CBN/diamond concentration) to feed the grinder galaxy, currently zero-covered. (4) Enrich TOOLHOLDERS with stiffness/FRF/damping + populate the null clamping_force_N/weight_kg to couple with Altintas SLD chatter models (ISO 1940 + measured holder data). (5) Add thread-form geometry table (UN/ISO-metric/NPT/ACME pitch-major-minor by class) behind THREADING. Each step: regenerate the relevant data/tools/*.json, bump CUTTING_TOOLS_INDEX schema_version, re-run registry load + a real-data E2E through SpeedFeedOrchestratorEngine and ToolCostPerPartEngine. NEVER fabricate cutting bands — source every value from the named vendor catalog or standard.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "MachineDB",
+      "coverageScore": 0.55,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 47,
+      "missingConsumers": [
+        "wedm"
+      ],
+      "topGaps": [
+        "FRF / chatter-stability layer is 0% real: getFRF() returns hardcoded class-default modal params all tagged source='estimated' — no tap-test/manufacturer natural_frequency_hz, damping_ratio, stiffness_n_um, or secondary_modes for ANY machine. ChatterStabilityLobeEngine + FRFStabilityLobe.ts consume defaults, so a_lim stability limits are synthetic (safety-relevant: under/over-estimates chatter-free depth-of-cut).",
+        "325/959 machines have empty axes:[] — no per-axis travel/feed/rapid/acceleration/jerk/ballscrew-pitch/encoder-resolution. AxisSpecs interface exists but is unfilled for ~34% of corpus, blocking real kinematic feasibility + cycle-time + RTCP work.",
+        "156/959 machines have zeroed work envelopes (x/y/z_travel:0, spindle_to_table 0) — collision_model field present (914) but envelope geometry that bounds it is missing; ±0.1mm collisionAccuracy claim unbacked for these.",
+        "WEDM machines effectively absent: MASTER_INDEX lists 'edm' as a category but the corpus is mill 813 + turning-heavy; no wire-EDM-specific machine entries (kerf/wire-dia/generator-power/flushing/threading specs). The 'wedm' claimed consumer galaxy has no real machine records to consume.",
+        "Commercial layer empty: price_range and year_introduced = 0 corpus-wide; machine hourly-rate/burden lives in a SEPARATE MachineRateDatabaseEngine, not joined to records — quoting/business read rates via that engine, not from MachineDB itself.",
+        "Alarm + parts-catalog depth (schema claims 500+ alarms/controller, 2000+ parts/machine) is largely unrealized in the sampled records vs the schema target of 2975+ params/machine.",
+        "Spindle thermal-growth curves, spindle power/torque envelopes (only scalar power/torque, not the full speed-vs-power curve), and ATC/tool-change-time-vs-weight tables are scalar-only or absent."
+      ],
+      "comprehensiveTarget": "100% = every machine record fully populates the schema's own 475 fixed params across all 18 categories, with the physics layers REAL not estimated: (a) FRF/dynamics per machine from tap-test or manufacturer modal data (dominant + secondary modes, zeta, modal stiffness/mass, direction X/Y) so ChatterStabilityLobe runs on measured compliance (cf. Altintas 'Manufacturing Automation' SLD theory; ISO 230 family for accuracy/repeatability metrology). (b) Full AxisSpecs per axis (travel, max feed, rapid, accel, jerk, ballscrew/linear-motor, encoder res, backlash) for kinematic + cycle-time fidelity. (c) Real work envelopes + collision geometry at the stated ±0.1mm (ISO 10791 for machining centers, ISO 13041 for turning centers test conditions). (d) Spindle power/torque-vs-speed curves + thermal-growth, not scalars. (e) Per-controller alarm catalogs + parts catalogs at the schema's 500+/2000+ targets. (f) WEDM machine class with EDM-specific params (wire dia, generator power, flushing pressure, AWT, taper range) so the wedm galaxy has real records. (g) Commercial join: year_introduced, price_range, and hourly-rate/burden inlined or first-class-joined for quoting/business. All physics constants referenced from mcp-server/src/physics/constants.ts (no inlined kc/Taylor — MachineDB stores machine geometry/dynamics, not material constants, so it is clean on the inline-constant axis today).",
+      "expansionPlan": "Wiring is already strong (47 real importers: 29 engines incl. SpeedFeedOrchestrator/FeedRateOptimization/ChatterStabilityLobe/ToolpathThermal for speed-feed, ShopConfiguration/ShopFloorLayout/ShopScheduler for shop-floor, QuoteToShipOrchestrator/MachineRateDatabase/CapacityPlanning for quoting+business, PostProcessorPipeline/PostLibraryConfigurator/AutoProgramOrchestrator/HyperMillMillTurnStrategy for cam+post, plus 3 dispatchers: machineSetupDispatcher/intelligenceDispatcher/infraDispatcher). So expansion is DATA-DEPTH not wiring. Ordered, real-data steps: (1) Populate FRF/dynamics layer first (highest safety+consumer leverage — feeds ChatterStabilityLobe + FRFStabilityLobe). Source real modal data: manufacturer FRF/tap-test sheets in H:/PRISM/resources + JM-Die machine docs for the 21 JM machines (ShopConfigurationEngine knows them) as the anchored real subset; tag source honestly (tap_test/manufacturer vs estimated) — do NOT relabel the existing estimated defaults as measured. (2) Backfill the 325 empty axes:[] and 156 zeroed envelopes from the same manufacturer spec PDFs (lima pypdf extractor) — prioritize the JM 21 + top-volume mfrs (Haas 59, Mazak 63, DMG 59, Makino 44). (3) Add a WEDM machine class + records (wire dia/generator/flushing/taper) so the wedm galaxy gains a real path — pull from the wire-EDM domain atlas (mike slot) + JM wire machines. (4) Join commercial fields (year_introduced, price_range, hourly-rate) by linking MachineRateDatabaseEngine into the record schema for quoting/business. (5) Add a data-completeness audit gate (MachineDataAuditEngine already imports the registry — extend it to flag empty-axes / zero-envelope / estimated-FRF and surface % real-vs-default so coverage can't silently regress). Never fabricate modal/axis numbers — extract from cited manufacturer docs or mark estimated.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "AlarmDB",
+      "coverageScore": 0.62,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 11,
+      "missingConsumers": [
+        "mill",
+        "lathe",
+        "wedm",
+        "shop-floor",
+        "compliance-safety"
+      ],
+      "topGaps": [
+        "ZERO WEDM/EDM controller alarms — no Sodick, Agie Charmilles, Fanuc Robocut, Makino EDM, or Mitsubishi wire-EDM families, despite wedm being a claimed consumer galaxy (12 families are all mill/lathe/HMC)",
+        "Fix procedures are templated, not alarm-specific: sampled fixes are generic 'Power cycle / check diagnostic screen / verify G-code compatibility' repeated verbatim across families; 442/10033 quick_fix generic-or-empty; standalone ALARM_FIX_PROCEDURES.json has only 4 fixes",
+        "No controller parameter-number resolution and no PLC ladder-rung / diagnostic-bit cross-reference (e.g. Fanuc DGN, Siemens NCK/PLC alarm-to-ladder mapping) — required for true root-cause on SERVO/SPINDLE/PLC alarms",
+        "No grinder (Studer, Fanuc grind) or Swiss-lathe (Tornos/Citizen/Star) controllers",
+        "DB-copy drift: 6 overlapping master files (v1/v2/v3/ACCURATE/verified/per-family); v3 unified file has 48% (1210/2511) alarms with NULL controller_family",
+        "No per-alarm MTTR, repair-cost, spare-part, or escalation-SLA data linking alarms to remediation economics (CostAlarmEngine/AlarmEscalationEngine exist but DB carries no cost/time fields)"
+      ],
+      "comprehensiveTarget": "100% = every controller family run on JM-Die-class shops AND every PRISM machining domain represented. Mill/lathe/HMC: complete per OEM maintenance/diagnostics manuals (FANUC 0i/16i/30i B-series, Siemens SINUMERIK 840D/828D Diagnostics Guide alarm chapters, Haas 96-xxxx, Mazak MAZATROL MATRIX alarm manual, Okuma OSP-P300/P500, Heidenhain TNC640/iTNC530 NC error messages, Mitsubishi M800/M80, Hurco WinMax, Fagor 8055/8065, DMG MORI, Doosan) — already largely present. MUST ADD: WEDM/EDM controllers (Sodick LN/LP, Agie/GF Charmilles AC/CUT, Fanuc Robocut alpha/C iE, Makino, Mitsubishi wire) per their alarm manuals; grinder (Studer, Fanuc grind) and Swiss (Tornos/Citizen/Star) for completeness. Each alarm record should carry: code, family+exact models, ISO category, severity, root-cause list, controller-specific diagnostic-bit/parameter reference (Fanuc DGN no., Siemens NCK alarm + PLC ladder rung), STEP-WISE alarm-specific (not templated) remediation graded operator/maintenance/engineer, related alarms, MTTR + spare-part + repair-cost, and verified source citation. Governing refs: each OEM Maintenance & Diagnostics Manual; ISO 23218/controller diagnostic conventions; shop-floor escalation per ISO 9001 corrective-action.",
+      "expansionPlan": "Step 1 (wiring-first, highest ROI): close the claimed-consumer wiring gap. mill/lathe/wedm galaxies have NO code import of AlarmRegistry/AlarmDiagnosticsEngine — route each domain's diagnostics through prism via diagnosisDispatcher.alarm_intel_* (47 actions already exist); add a thin galaxy-side import + alarm_intel_by_machine call per machine type. shop-floor + compliance-safety are doc-only (CLAUDE/MEMORY/PATHS) — wire shop-floor live-status to alarm_esc_trigger/active and compliance-safety to alarm severity/category for S(x) gating. Step 2 (coverage P0 within plan): add WEDM/EDM controller alarm families from OEM manuals — Sodick LN/LP, Agie Charmilles AC/CUT, Fanuc Robocut (alpha-/C iE-series), Mitsubishi wire-EDM, Makino — using the existing per-family MASTER schema; cite each from the manufacturer alarm manual (never fabricate codes). Step 3: de-templatize fix_procedures — replace the generic 'power cycle / check diagnostic screen' steps with alarm-specific remediation for at least the CRITICAL/HIGH severity SERVO/SPINDLE/PLC alarms, sourced from OEM diagnostics + CNCCookbook/HelmanCNC/Practical Machinist already in the source list. Step 4: collapse the 6 redundant DB copies to ONE canonical per-family set + a generated unified view; fix the 48% NULL controller_family in the v3 unified file (or deprecate v3). Step 5: enrich schema with diagnostic-bit/parameter cross-refs (Fanuc DGN, Siemens NCK→PLC) and per-alarm MTTR/cost fields to feed CostAlarmEngine/AlarmEscalationEngine. Order is dependency-correct: wiring (proven DB, just unconsumed) before new EDM data before specificity before dedup before schema-enrich.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "FormulaDB",
+      "coverageScore": 0.42,
+      "expansionPriority": "P0",
+      "wiringRealConsumers": 15,
+      "missingConsumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "wedm",
+        "cam",
+        "quality",
+        "academy",
+        "ai-training"
+      ],
+      "topGaps": [
+        "Zero scientific provenance: reference:\"\" is empty on ALL 499 formulas; no references[]/DOI/page/standard field exists. A physics-safety DB must cite ISO 3685 (Taylor tool life), ISO 8688 (tool wear), DIN 6584 (Kienzle), Altintas 'Manufacturing Automation' for SLD/chatter, Johnson-Cook original 1983 paper. Unciteable formulas cannot be audited or trusted in a safety-critical path.",
+        "No material-parameterized coefficient coverage inside the DB: Kienzle kc1.1/mc and Taylor C/n exist only as symbolic equations; the per-ISO-group/per-material coefficient tables live in physics/constants.ts (6 ISO groups only) and inlined DEFAULT_KIENZLE in ManufacturingCalculations.ts. Missing: Johnson-Cook A/B/C/m/n flow-stress constants per material (needed for thermal/chip-formation/FEM formulas the DB lists), Usui friction/wear constants, material-specific Taylor extended (Colding/Woxen) coefficients.",
+        "units:{} empty on ~85% of entries and no dimensional-analysis metadata — a units-first manufacturing platform (25.4x scale-error risk) cannot validate inch-vs-mm or N vs lbf on formulas with no declared units. safety_checks/constraints fields are also empty across the board.",
+        "~135/499 entries are NOVEL/INVENTION/PRISM_META self-referential meta-formulas (e.g. PRISM_META x30) that are not governing-standard science, padding the 499 count; the genuine standard-physics core (STANDARD novelty=279) is the real scientific surface and even that lacks citations.",
+        "Constant DUPLICATION / drift hazard: ManufacturingCalculations.ts inlines kc1_1:1800 + Taylor C:200,n:0.25 (DEFAULT_KIENZLE/DEFAULT_TAYLOR) instead of importing CANONICAL_KIENZLE/CANONICAL_TAYLOR from physics/constants.ts — two sources of the same constant that can diverge; violates the 'physics constants live ONLY in constants.ts' rule.",
+        "Domain-physics gaps vs a comprehensive cutting-science DB: no Oxley predictive machining theory, no Boothroyd shear-plane, no Colding generalized tool-life, no Woxen, limited chatter (only 22 VIBRATION incl SLD b_lim) without process-damping/lobe-overlap closed forms, no full WEDM discharge-energy/crater/recast set despite 'wedm' claimed as consumer."
+      ],
+      "comprehensiveTarget": "100% = a fully-cited, material-parameterized cutting-science DB where every formula carries: (a) governing standard/textbook reference (ISO 3685 Taylor; ISO 8688 wear; DIN 6584 / Kienzle-Victor for specific cutting force; Altintas 'Manufacturing Automation' 2nd ed. for SLD/chatter/structural dynamics; Johnson-Cook 1983 for constitutive flow stress; Shaw 'Metal Cutting Principles'; Boothroyd & Knight; Oxley 'Mechanics of Machining'; Merchant 1945 for shear-angle), (b) declared SI units on every input/output with dimensional-consistency validation, (c) a linked material-coefficient table (kc1.1/mc per ISO P/M/K/N/S/H AND per specific alloy; Taylor C/n per tool-material x material; Johnson-Cook A/B/C/m/n per material; Usui constants), (d) explicit validity range/limitations + safety_checks. The reference DB to match: Sandvik/Kennametal machining-data handbooks + the Machining Data Handbook (Metcut) coefficient tables, with chatter/SLD per Altintas-Budak. Per-domain completeness: turning/milling/drilling force+power+torque, tool-life (Taylor + extended), thermal (Loewen-Shaw, Johnson-Cook flow + Komanduri-Hou heat partition), surface (Ra/Rz/Rt geometric + kinematic), chatter (full SLD + process damping), WEDM (single-discharge energy, crater volume, recast, MRR per Klocke), economics (Gilbert min-cost/max-production). Single source of truth for constants = physics/constants.ts, referenced not copied.",
+      "expansionPlan": "P0 because it is scientifically thin (no provenance, missing material coefficients, units empty) AND safety-relevant (Kienzle/Taylor feed cutting force, power, tool life) AND claims >=8 consumers while delivering real wiring to NONE of them. Ordered, real-data steps: (1) Fix the wiring lie FIRST — grep proved all 8 named galaxies (speed-feed/mill/lathe/wedm/cam/quality/academy/ai-training) have ZERO import of FormulaRegistry/formulaRegistry/FORMULA_REGISTRY; the only real dispatcher consumer is spDispatcher.ts (formulaRegistry.list()). Either correct the claimed-consumer list to the actual infra consumers (Formula*/Knowledge*/PDF*/AI* engines + ManufacturingCalculations provenance lookup), or wire the domain galaxies to query the registry for their domain formulas. Do not leave the claim unverified. (2) Kill constant duplication: replace inlined DEFAULT_KIENZLE{kc1_1:1800}/DEFAULT_TAYLOR{C:200,n:0.25} in ManufacturingCalculations.ts with imports of CANONICAL_KIENZLE/CANONICAL_TAYLOR from physics/constants.ts (single source of truth). (3) Add a references[]/standard field to the JSON schema and backfill the STANDARD-novelty core (279 formulas) with real citations from the constants.ts header (it already cites Klocke, DiBitonto, Sato) + ISO 3685/8688, DIN 6584, Altintas, Johnson-Cook 1983, Merchant 1945 — never fabricate; cite only what is verifiable. (4) Backfill units{} on every input/output and add a dimensional-consistency validator (units-first safety). (5) Add the missing material-coefficient linkage: extend physics/constants.ts ISO-group tables toward per-alloy Kienzle/Taylor + add Johnson-Cook A/B/C/m/n per material from the cited handbook source the thermal/FEM formulas already assume. (6) Fill the domain-physics gaps (Oxley/Boothroyd shear, full SLD + process damping, WEDM discharge set per Klocke). Each step ships with a real-data E2E test through spDispatcher + ManufacturingCalculations (no toBeDefined stubs).",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "AlgorithmDB",
+      "coverageScore": 0.55,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 11,
+      "missingConsumers": [
+        "cam",
+        "cad",
+        "ai-training",
+        "discovery",
+        "academy",
+        "knowledge-conversion"
+      ],
+      "topGaps": [
+        "STALE SELF-COUNT: header asserts 'Complete access to 52 algorithm modules' but only 51 id: entries exist; 6+ of the largest data files (PRISM_ODE_SOLVERS_MIT 240KB, PRISM_MATH_FOUNDATIONS 68KB, PRISM_PHASE7_KNOWLEDGE 108KB, PRISM_RL_ALGORITHMS, PRISM_KDTREE, PRISM_OCTREE) have ZERO registry entries — the registry does not catalog its own backing corpus",
+        "PER-CATEGORY THINNESS: graph=1, search=1, interpolation=1, toolpath=1, control=1 entry each. Missing graph algorithms (A*/D*-Lite for collision-free toolpath routing, max-flow, spectral partitioning beyond the 1 SPECTRAL_GRAPH_CAD file), missing search (IDA*, branch-and-bound for nesting), missing interpolation (Catmull-Rom, monotone cubic, biarc fitting for G-code), missing CAM toolpath families (trochoidal, morphing-spiral, adaptive-clearing parametrics) despite COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js existing on disk",
+        "FRAGMENTATION: a parallel 173-file mcp-server/src/algorithms/ TS surface (BayesianOptimizer, AntColonyTSP, DBSCAN, DecisionTree, Kalman/AdaptiveController models, ChipBreaking/Evacuation models) is NOT unified with this 51-entry registry — two algorithm DBs with no cross-index, no dedup linkage",
+        "NO complexity/numerical-stability metadata per entry beyond a Big-O string: missing convergence guarantees, conditioning bounds, recommended tolerances — critical for the physics/ODE/linalg algorithms that feed safety-relevant manufacturing calc",
+        "ML category (10) lacks modern coverage: no gradient-boosting, no transformer/attention, no Gaussian-process regression entry distinct from KDE/Bayes — thin for an 'ai-training' consumer"
+      ],
+      "comprehensiveTarget": "100% = every .js data file in data/algorithms/ (52) AND every implementation in src/algorithms/ (173) cataloged in ONE unified registry with no off-by-one, each entry carrying: governing reference (already present as source_course — good), complexity_class PLUS numerical-stability/convergence metadata, and a verified consumer list. Domain breadth should mirror a standard CS+manufacturing algorithm canon: CLRS for core graph/search/sort/DP; Press et al. 'Numerical Recipes' + MIT 18.335 for linear algebra/ODE/optimization (Krylov, multigrid, stiff integrators); Piegl & Tiller 'The NURBS Book' for full interpolation family (NURBS/Bezier/biarc/Catmull-Rom/monotone-cubic); Nocedal & Wright for nonlinear optimization; Sutton & Barto for RL; and manufacturing-specific toolpath/nesting/sequencing algorithms (trochoidal, adaptive-clearing, ACO sequencing, bin-packing nesting). Target ~225 unified entries (52 + 173 de-duplicated) with per-category minimums of ~8-12 in graph/search/interpolation/toolpath instead of the current 1.",
+      "expansionPlan": "Ordered, real-data steps: (1) Fix the stale self-count: reconcile header '52' vs 51 entries; add the 6+ uncataloged on-disk files (PRISM_ODE_SOLVERS_MIT.js, PRISM_MATH_FOUNDATIONS.js, PRISM_PHASE7_KNOWLEDGE.js, PRISM_RL_ALGORITHMS.js, PRISM_KDTREE.js, PRISM_OCTREE.js, PRISM_GRAPH_ALGORITHMS.js, PRISM_LOCAL_SEARCH.js) so catalog == corpus. (2) Unify with src/algorithms/ (173 TS files): run DuplicationGuardEngine across both surfaces, merge into one registry with potential_duplicate_of edges; this is the largest real coverage lift and uses already-shipped data. (3) Backfill the thin categories from files that ALREADY exist on disk: graph (PRISM_GRAPH_ALGORITHMS.js, PRISM_SPECTRAL_GRAPH_CAD.js, PRISM_PHASE3_GRAPH_NEURAL.js), search (PRISM_SEARCH_ENHANCED.js full enumeration, PRISM_MEMORY_EFFICIENT_SEARCH.js, PRISM_DS_SEARCH.js), interpolation (PRISM_ADVANCED_INTERPOLATION.js, PRISM_BEZIER_MIT.js, PRISM_NURBS_MIT.js, PRISM_SURFACE_GEOMETRY_MIT.js), toolpath (COMPLETE_TOOLPATH_ALGORITHM_LIBRARY.js, PRISM_GRAPH_TOOLPATH.js). (4) GENUINE wiring fix: the 6 claimed galaxies (cam/cad/ai-training/discovery/academy/knowledge-conversion) have ZERO direct importers in their engines/<galaxy>/ subdirs — they reach algorithms only indirectly via prism_algorithm dispatcher + top-level central engines (AlgorithmEngine, AlgorithmGatewayEngine, MITCourse*, NeuralIntegration, ExtractionIntelligenceRouter). Either (a) add a real galaxy-local consumer import + round-trip test per galaxy, or (b) correct the claimed-consumer list to 'reached-via-dispatcher' and document the indirect path — do NOT claim direct galaxy wiring that does not exist (R12). (5) Add convergence/stability metadata fields to numerical entries citing MIT 18.335 / Numerical Recipes.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "KnowledgeDB",
+      "coverageScore": 0.45,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 5,
+      "missingConsumers": [
+        "academy",
+        "ai-training",
+        "tribal-knowledge",
+        "discovery",
+        "corpus-aggregation",
+        "knowledge-conversion"
+      ],
+      "topGaps": [
+        "Material DB only 11 alloys vs hundreds in ISO 513 P/M/K/N/S/H; missing Inconel 625 and 718, full Ti-6Al-4V, 17-4PH, 4340, 8620, most aluminum tempers, Hastelloy, Waspaloy, magnesium, copper, plastics, composites; Johnson-Cook absent on D2, cast-iron, and all non-ferrous",
+        "Physics formulas and Kc1.1 constants INLINED as JS (Merchant, Kienzle, Lee-Shaffer, power) instead of referencing mcp-server/src/physics/constants.ts canonical kc1.1 P1800 M2100 K1100 N700 S2800 H3200 - duplication, drift, safety-rail violation",
+        "No Taylor tool-life table (Vc times T^n equals C) per material and coating; only scalar tool-temp limits",
+        "No stability-lobe or chatter dataset; no specific cutting stiffness, modal or damping coefficients, machine FRF for the dynamics section",
+        "Coolant section is strategy-only; no per-coolant chemistry, concentration-by-material, pH, biocide, through-tool pressure, or MQL flow",
+        "220_COURSES, UNIVERSITY_ALGORITHMS 206KB, DATA_STRUCTURES, SYSTEMS are generic CS-academic content padding the count, not manufacturing-domain data",
+        "12-file claim vs 10 files in data/knowledge_bases (ALGORITHMS_KB and AI_STRUCTURES only in extracted/); registry header self-contradicts 12 files vs 5 topics"
+      ],
+      "comprehensiveTarget": "Full ISO 513 P/M/K/N/S/H material DB (~150-300 alloys) with density, E, k, yield, UTS, hardness, machinability rating, Kienzle Kc1.1 and mc, complete Johnson-Cook A/B/C/m/n, and Taylor C,n tool-life per material and coating (ASM Handbook Vol.16; Sandvik, Kennametal). ALL physics formulas reference mcp-server/src/physics/constants.ts with zero inlined constants. Stability-lobe dataset (cutting stiffness, modal mass, stiffness, damping per machine class; Altintas Manufacturing Automation ch.4). Coolant chemistry DB (ISO 6743-7). Surface-integrity residual-stress and Ra/Rz models (ISO 4287). Governing refs: ASM Vol.16, Altintas, Boothroyd-Knight, ISO 513, 3685, 8688. Plus REAL wiring of each claimed consumer galaxy via an import path or prism_* dispatcher action, not a metadata-only registry.",
+      "expansionPlan": "1) De-inline constants first (safety, R12): KB physics imports Kc1.1, mc, tool-temp from mcp-server/src/physics/constants.ts; add a lint that fails any KB JS inlining a physics constant. 2) Fix source-drift: single data/knowledge_bases dir (copy the 2 extracted-only files in) and correct the registry header. 3) Expand materials from 11 to full ISO 513 with cited data: Ti-6Al-4V (Lee-Lin JC A=782.7 B=498.4 n=0.28 C=0.028 m=1.0), Inconel 718, 17-4PH, 4340, 8620, 6082 and 7075 tempers, Hastelloy, Waspaloy - each with Kienzle Kc1.1 (Sandvik), machinability (ASM), Taylor C,n (ISO 3685); never fabricate JC coefficients. 4) Add a Taylor tool-life table keyed by material and coating. 5) Wiring: add a prism_dev or prism_knowledge dispatcher action querying KnowledgeBaseRegistry and the KB tables, then wire all 6 galaxies through it (academy, ai-training, knowledge-conversion via KnowledgeQueryEngine; tribal-knowledge, discovery, corpus-aggregation via KnowledgeGraphEngine) with per-galaxy round-trip E2E. 6) Coolant-chemistry and SLD tables (P2). Order 1-2 before 3-4 before 5.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "ThreadDB",
+      "coverageScore": 0.55,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 3,
+      "missingConsumers": [
+        "mill",
+        "lathe",
+        "cam",
+        "cad"
+      ],
+      "topGaps": [
+        "Tolerance classes are TEXT-ONLY: no numeric pitch-diameter tolerance ranges, allowances, or GO/NO-GO gauge min/max per class (2A/2B/3A/3B, 6g/6H) — blocks any inspection/CMM/gauging/quality consumer; per ASME B1.1 Table and ISO 965-1 each designation needs pitch-dia tol + major/minor tol + allowance",
+        "Entire thread families missing (0 entries): Whitworth/BSW/BSF (55deg), UNJ/MJ aerospace threads (controlled 0.150–0.180P root radius — SAFETY-CRITICAL for fatigue-rated fasteners per ASME B1.15/MIL), Buttress (7deg/45deg ANSI B1.9), BSPP/G parallel pipe (ISO 228), UNS special, round/knuckle threads",
+        "No helix/lead angle per thread (needed for single-point threading entry physics and tool-side-clearance) and no ISO 965 length-of-engagement groups (N/S/L) that govern which tolerance class applies",
+        "Pipe threads carry taperPerInch + handTightTurns + effectiveLength but no L1/L2/L3 gauge engagement lengths, no make-up torque, no sealant/dryseal (NPTF) crest-root interference data per ASME B1.20.1/B1.20.3",
+        "No per-class shear/stripping area, no thread-engagement-length-vs-material-strength recommendation table (ThreadCalculationEngine computes stripping at runtime but the DB stores no governing material-paired engagement minimums)"
+      ],
+      "comprehensiveTarget": "100% = every designation in ASME B1.1 (Unified, all UNC/UNF/UNEF/UNS/UN constant-pitch series), ASME B1.5 (ACME) + B1.9 (Buttress), ASME B1.20.1/B1.20.3 (NPT/NPTF L1/L2/L3 gauge data + sealant interference), ISO 261/262 (metric), ISO 965-1/-2/-3 (full numeric tolerance system: pitch-dia + crest tolerances + allowances per class per length-group N/S/L), ISO 2904 (Tr trapezoidal), ISO 228 (G parallel pipe), BS 84 (Whitworth/BSW/BSF), and ASME B1.15/B1.21M (UNJ/MJ aerospace controlled-root-radius). Each entry carries: full geometry (inch+mm) + helix angle + per-class min/max pitch-dia, major-dia, minor-dia, allowance, and matching GO/NO-GO ring/plug gauge dimensions + length-of-engagement group. References: Machinery's Handbook (31st ed.) thread tables; FED-STD-H28; physics constants (tensile/material props) pulled from mcp-server/src/physics/constants.ts NOT inlined.",
+      "expansionPlan": "Wiring first (HONEST: the JSON file itself has ZERO code importers — verified by grep; real consumers are the TS source data threadData*.ts -> ThreadCalculationEngine.ts -> calcDispatcher + threadTools, i.e. 3 real importing modules, all via prism_calc, NONE in the 4 claimed galaxies which reference threads only in PATHS.md/CLAUDE.md docs). Step 1: decide single source of truth — either generate ThreadDB.json FROM the TS data and have the engine load the JSON, or drop the JSON's 'wired-to-galaxies' claim; today the JSON is an orphaned export. Step 2: add a real thread-spec import path into lathe (single-point threading already calls LatheAdvancedOperationsEngine.validateThreadEntry — wire it to ThreadCalculationEngine for pitch/helix), then mill (tapping/thread-mill), cam (thread-mill toolpath), cad (thread feature recognition). Data expansion in dependency order: Step 3 (P0 within plan) add the ISO 965-1 + ASME B1.1 NUMERIC tolerance system — per-class min/max pitch-dia, major/minor, allowance + matching GO/NO-GO gauge dims, sourced from Machinery's Handbook 31st ed. thread tables (cite table page per series; never fabricate). Step 4 add UNJ/MJ aerospace controlled-root-radius threads (ASME B1.15/B1.21M) — safety-critical, must land before any aerospace fastener consumer. Step 5 add Whitworth/BSW/BSF (55deg, BS 84), Buttress (B1.9), BSPP/G (ISO 228), UNS special. Step 6 enrich pipe threads with L1/L2/L3 gauge engagement + NPTF dryseal interference (ASME B1.20.3). Step 7 add helix angle + ISO 965 length-of-engagement N/S/L groups to every entry. Pull all material/tensile constants from physics/constants.ts (engine currently has some inlined integer thread angles at lines 613/628 — refactor to a thread-geometry constants module). Add a real-data E2E test asserting a known gauge dimension (e.g. 1/4-20 UNC-2A pitch-dia GO 0.2164 / NO-GO 0.2127 per H28).",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "WorkflowDB",
+      "coverageScore": 0.55,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 1,
+      "missingConsumers": [
+        "agent-orchestration",
+        "ai-training",
+        "hermes-zulu"
+      ],
+      "topGaps": [
+        "No lathe/turning-specific or wire-EDM-specific chains — all 10 workflows are mill-centric (G50/CSS, threading, EDM discharge intents have no chain)",
+        "No closed-loop/adaptive workflows: in-process SPC feedback, probing/lights-out routine, tool-life/wear regrind cycle, adaptive-parameter correction",
+        "No quality/inspection chains: first-article, CMM/GD&T inspection workflow, Cpk/SPC gate, DFM + tolerance-stack review",
+        "No fixture/workholding-design chain and no multi-setup op-sequencing/process-planning chain (plan_job is single-setup)",
+        "No post-processor / G-code generate+verify+simulate chain (intent 'make me a program' falls through)",
+        "Persona coverage thin: machinist(4)/all(3)/manager(3)/programmer(1) — missing estimator, QC inspector, setup operator, maintenance, buyer/procurement personas",
+        "Secondary-ops intents uncovered: deburr, coolant/chip-control, material substitution, secondary finishing"
+      ],
+      "comprehensiveTarget": "100% = the workflow-chain set spans the full print-to-program shop intent space across all three PRISM domains (mill, lathe, wire-EDM), per the shop-process taxonomy in PRISM-SELF-AWARENESS-DIRECTIVE + JM-die-profile. Concretely ~30-40 chains organized by process lifecycle (per ASME B5.54/quote-to-ship flow): intake/quote, DFM+tolerance review, process planning (multi-setup op-sequencing), workholding/fixture design, toolpath strategy, speed/feed+stability+surface-finish, post-generate+simulate+verify, first-article+CMM/GD&T inspection (per ASME Y14.5), in-process adaptive/SPC closed loop (per ISO 7870 control charts), alarm/troubleshoot, tool-life/regrind, scheduling/utilization, and teach/explain. Each domain (mill/lathe/EDM) gets its physics-correct chain variants. Persona matrix covers estimator/programmer/machinist/QC/setup-operator/manager/maintenance/buyer. WorkflowDB.json should EITHER become a real read-back source-of-truth (engine loads it) OR be explicitly tagged as a generated export so auditors don't mistake it for live data.",
+      "expansionPlan": "Step 1 (WIRING TRUTH — R12, do first): all 3 claimed consumer galaxies are FALSE positives — agent-orchestration/ai-training/hermes-zulu reference WorkflowChainsEngine ONLY in PATHS.md/MEMORY.md docs, with ZERO .ts import paths. The single real consumer is intelligenceDispatcher.ts (lazy import line 58; workflow_match/_get/_list bound line 2286). Either correct the DB_MANIFEST claimed-consumer list to {prism_intelligence-dispatcher} OR wire a genuine import — e.g. hermes-zulu/agent-orchestration calling prism_intelligence:workflow_match to pick a chain before fan-out. Step 2 (clarify artifact role): tag WorkflowDB.json as a generated export (engine inlines WORKFLOWS at line 88; json is never read back) or refactor the engine to load it as source-of-truth — current state risks an auditor trusting stale json. Step 3 (domain expansion, cited): add lathe chains (turn/face/groove/thread/part-off per G50/CSS safety from lathe-galaxy MEMORY.md) + wire-EDM chains (rough/skim/corner/taper per wedm-galaxy 15 discharge gotchas). Step 4: add closed-loop chains — first-article+CMM/GD&T (ASME Y14.5), in-process SPC gate (Cpk per ISO 7870), probing/lights-out routine, post-generate+simulate+verify. Step 5: add process-planning (multi-setup op-sequencing) + fixture/workholding-design chains. Step 6: extend persona matrix (estimator/QC/setup-operator/maintenance/buyer). Use real dispatcher actions from DISPATCHER_DIGEST — never invent action names.",
+      "estEffortUnits": 4
+    },
+    {
+      "id": "DecisionTreeDB",
+      "coverageScore": 0.32,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 1,
+      "missingConsumers": [
+        "ai-training",
+        "discovery",
+        "cam"
+      ],
+      "topGaps": [
+        "Speed ranges are one coarse [min,max] per whole ISO group (e.g. P=[150,350] m/min) — no per-insert-grade, per-coating, per-operation, or per-DOC/diameter refinement that a real selectInsertGrade tree needs; effectively a placeholder envelope.",
+        "insert_grade_matrix collapses full ISO 513 grade space (P01..P50, M01..M40, K01..K40, N/S/H subdivisions) to 3 columns (stable/interrupted/heavy_interrupted) — missing fine grade bands, substrate/binder spec, chipbreaker geometry, edge prep (hone/T-land/chamfer).",
+        "coating_matrix only covers stable/interrupted per group — no PVD-vs-CVD thickness tables, no AlTiN/AlCrN/diamond/DLC distinctions by speed band, no re-coat/wear-mode mapping.",
+        "DATA-CODE DUPLICATION: DecisionTreeEngine.ts (the named source engine) does NOT read this JSON — it hardcodes its own coating/grade/strategy logic inline (lines 189-371) and reads a SEPARATE data/decision-trees/material_selection.json for tree #7 only. The DB and the engine have diverged; the DB is an orphaned export, not the engine's input.",
+        "No feed-rate / IPR / chip-load decision data, no tool-life or Taylor-exponent linkage, no per-material MRR ceilings — the trees can pick a tool/grade but not a feed.",
+        "workholding_rules: 7 geometry archetypes with no clamping-force, jaw-pressure, thin-wall deflection, or fixture-stiffness data — cannot drive a real force-based selectWorkholding tree.",
+        "strategy_mappings/approach_retract omit common feature/op classes (chamfer, bore/back-bore, thread-mill, helical-bore, engrave, deburr, rest-rough, trochoidal-slot parameters, plunge-mill).",
+        "Only 6 ISO groups, no material-specific overrides (e.g. Ti-6Al-4V vs Inconel-718 differ sharply within S; 1018 vs 4340 within P) — selectMaterial granularity is too coarse for safety-relevant superalloy/hardened decisions."
+      ],
+      "comprehensiveTarget": "100% = a per-ISO-513-grade decision corpus: full grade ladder (P01..P50, M01..M40, K01..K40, plus N/S/H sub-bands) each with substrate/binder, coating (PVD/CVD family + thickness), edge prep, chipbreaker, and a speed AND feed envelope that is a function of (operation, DOC, interruption, coolant) — not a single group-wide tuple. Governing references: ISO 513:2012 (carbide grade classification + colour code), ISO 3685 (tool-life testing / Taylor), Sandvik Coromant / Kennametal / Iscar application catalogs for grade→speed→feed→coating tables, and Machinery's Handbook (workholding force, fixture archetypes) + ASME B5 for workholding. Coolant should reference the sibling CoolantDB for chemistry/pressure rather than the coarse thresholds here. Workholding should carry clamping-force formulas (or reference the physics engine) and stiffness classes. Strategy/approach tables should enumerate every CAM feature class the cam galaxy emits. Target entry count is on the order of hundreds of grade/condition rows, not 7 group-level tables.",
+      "expansionPlan": "Order: (1) FIX THE ORPHAN/DUPLICATION FIRST — the named source DecisionTreeEngine.ts inlines its own copies of these matrices and never reads DecisionTreeDB.json; either make the engine load this DB via DatabaseRegistry.getData('DecisionTreeDB') (single source of truth) or formally demote the JSON to a doc and keep material_selection.json as the real input — do not leave two diverging copies (R7 surface-conflicts). (2) WIRE THE CLAIMED CONSUMERS — none of ai-training/discovery/cam has a real .ts import; add at least one genuine query path each (e.g. cam's strategy-selection engine calling registryManager.databases.getData('DecisionTreeDB').strategy_mappings; discovery's coverage/orphan audit indexing it; ai-training feature-extraction reading the grade/coating matrices) and add a round-trip E2E test through prism_data:database_search per consumer, otherwise the manifest 'consumers' field is a stale claim. (3) DEEPEN COVERAGE with REAL cited data — expand insert_grade_matrix to the full ISO 513 grade ladder using Sandvik/Kennametal/Iscar published grade→ISO-group→speed tables; add per-grade speed+feed envelopes (function of operation+DOC) from ISO 3685 / vendor app data; expand coating_matrix to PVD/CVD family+thickness by speed band; add chipbreaker + edge-prep columns. (4) Add clamping-force/stiffness data to workholding_rules (Machinery's Handbook / ASME B5) or reference the physics engine. (5) Enumerate the missing CAM feature/op classes (chamfer, bore, thread-mill, helical-bore, engrave, deburr, rest-rough) in strategy_mappings + approach_retract_patterns to match what the cam galaxy actually emits. Never fabricate grade-speed numbers — source every value from a cited vendor/ISO table.",
+      "estEffortUnits": 5
+    },
+    {
+      "id": "InferenceDB",
+      "coverageScore": 0.15,
+      "expansionPriority": "P2",
+      "wiringRealConsumers": 1,
+      "missingConsumers": [
+        "ai-training",
+        "agent-orchestration"
+      ],
+      "topGaps": [
+        "INLINE CONSTANT DUPLICATION + CONTRADICTION (R12): lines 192-197 hard-code kc1_1 as prose ranges that duplicate AND disagree with canonical CANONICAL_KIENZLE in physics/constants.ts. Engine says P='1400-1800', M='1500-2000', S='2000-3000', H='2500-3500'; canonical exact values are P=1800, M=2100, K=1100, N=700, S=2800, H=3200. Canonical M=2100 and N (canonical 700, prose says '400-800') and S=2800 fall at/outside the prose ranges — the LLM is being fed wrong numbers. Must reference constants.ts, never inline.",
+        "No structured/queryable data at all — domain knowledge is frozen prose inside two prompt string literals; cannot be looked up, versioned, extended, or unit-tested as data. No schemaVersion, no data files, no registry.",
+        "Alarm-code coverage trivial: only 3 controller families (Fanuc/Siemens/Heidenhain) with ~3 codes each. Missing Haas, Okuma, Mazak, Mitsubishi, Fagor, Brother, plus the JM Die VMC fleet controllers. PRISM already has far deeper alarm corpora elsewhere.",
+        "Failure-mode taxonomy is a 9-line list with no governing reference (no ISO 3685 tool-life criteria, no quantitative VB/KT thresholds beyond a single 0.3mm note, no Johnson-Cook / chip-morphology / stability-lobe data).",
+        "Material model is 6 one-line ISO-group blurbs — no per-grade rows, no Taylor C/n, no thermal/mechanical properties (all of which already exist canonically in constants.ts MaterialPhysics and are NOT referenced here)."
+      ],
+      "comprehensiveTarget": "For a reasoning engine that injects manufacturing domain knowledge, 'comprehensive' means: (1) ZERO inlined physics constants — every kc1_1/mc/Taylor C-n/thermal value pulled at runtime from mcp-server/src/physics/constants.ts (CANONICAL_KIENZLE per ISO 513, MaterialPhysics), so the prompt never drifts from canon; (2) controller/alarm knowledge sourced from PRISM's existing controller-dialect + post-processor corpora (Fanuc/Siemens/Heidenhain/Haas/Okuma/Mazak/Mitsubishi/Fagor/Brother), not a hand-typed 3-family list; (3) failure-mode/wear taxonomy grounded in ISO 3685 (tool-life testing) + ISO 8688 (milling) with quantitative VB/KT criteria and stability-lobe / regenerative-chatter references (Altintas, Manufacturing Automation); (4) chain-pattern set documented against a reasoning-orchestration spec rather than a 3-string literal. The 'DB' should be a thin assembler that composes prompts from canonical sources, not a frozen prose duplicate. Governing refs: ISO 513, ISO 3685, ISO 8688; Sandvik Coromant technical guide; Altintas 'Manufacturing Automation'.",
+      "expansionPlan": "Ordered, real-data steps (no fabrication): (1) FIX R12 CONSTANT DUPLICATION FIRST — replace the hard-coded kc1_1 prose ranges in MANUFACTURING_SYSTEM_PROMPT (lines 192-197) with values composed at module-load from CANONICAL_KIENZLE in physics/constants.ts (P=1800/M=2100/K=1100/N=700/S=2800/H=3200, each with its mc), so the prompt cites exact canonical values; add a regression test asserting the rendered prompt contains the canonical numbers and fails if constants.ts changes. (2) Resolve the consumer-galaxy claim honestly: either (a) wire a REAL import path from ai-training (e.g. a self-improvement/diagnosis loop that calls deepDiagnose) and from agent-orchestration (an orchestrator step that calls runInferenceChain), OR (b) correct the metadata to list only prism_ai (aiReasoningDispatcher) as the true consumer. Do not leave the claim asserted while no import exists. (3) Source the alarm-code block from PRISM's existing controller-dialect corpus instead of the 3-family inline list — compose at runtime, covering Haas/Okuma/Mazak + JM Die fleet controllers. (4) Ground the failure-mode list in ISO 3685 / ISO 8688 with quantitative VB/KT thresholds pulled from constants where they exist. (5) Add schemaVersion + a real-data E2E test exercising analyzeAndRecommend and deepDiagnose end-to-end (mocked API) asserting the prompt carries canonical physics, not prose.",
+      "estEffortUnits": 4
+    },
+    {
+      "id": "CompoundActionDB",
+      "coverageScore": 0.1,
+      "expansionPriority": "P3",
+      "wiringRealConsumers": 0,
+      "missingConsumers": [],
+      "topGaps": [
+        "Only 3 compound pipelines specced (full_parameter_set, triple_match, safety_pipeline) — missing the rest of the print-to-program chain: blueprint->feature->toolpath, quote-to-cost rollup, fixture+workholding+collision bundle, lathe/turning compound (CSS/G50/chuck-jaw), wire-EDM compound (4 power params + wire + flush), thread/drill cycle compound, material-substitution+requote, multi-op setup-sheet generation",
+        "Zero executors: all 6 entries are bare TS interfaces — no engine/dispatcher implements full_parameter_set, triple_match, or safety_pipeline. The 'compound action = 1 call vs 5 round-trips' token-saving promise is unrealized",
+        "SafetyPipelineOutput hard-codes only 5 checks (spindle_torque, spindle_power, chip_load, tool_stress, breakage_risk) — missing deflection, chatter/SLD stability, thermal, resonance, holder-collision, fixture-pullout, rapid-overtravel, coolant-failure that a real S(x) gate needs",
+        "No versioning/schema field on any contract; no response_level enum reuse from ResponseLevel.ts (re-declares 'pointer'|'summary'|'full' inline instead of importing the wired ResponseLevel type — convention drift)",
+        "WriteToFileOptions defaults output_dir to a Windows literal 'C:\\PRISM\\state\\reports\\' in a docstring — not the repo-canonical state/reports path; would break cross-host"
+      ],
+      "comprehensiveTarget": "100% = a complete, IMPLEMENTED compound-action registry covering every high-frequency multi-step pipeline in the print-to-program domain (mill/lathe/wire-EDM/quoting), each as a real executor wired onto its natural dispatcher, returning a token-lean verdict with optional write-to-file. Target set should be enumerated from the actual MCP dispatcher action graph (DISPATCHER_DIGEST.md) by clustering co-invoked action sequences — minimally: parameter-set (Kienzle/Taylor/Merchant chain per ISO 3685 / Altintas 'Manufacturing Automation'), safety-pipeline (full S(x) gate per the safetyDispatcher's existing 22 checks, not 5), triple-match, blueprint->feature->toolpath, quote->cost->margin, fixture+collision, and per-domain turning/wire compounds. Each contract must import response_level from the already-wired ResponseLevel.ts (DRY) and carry schemaVersion. Governing references: PRISM CLAUDE.md §ENGINE WIRING + §MCP DISPATCHERS; the compound-action token-economy pattern this file itself describes.",
+      "expansionPlan": "This is a dormant DESIGN SKETCH, not a populated DB, and it claims zero consumer galaxies (correctly — none import it). It is NOT thin-and-safety-critical-with-consumers, so it is P3, not P0. Honest recommendation is implement-or-archive, ordered: (1) Decide fate per CLAUDE.md 'never delete only disable' — if the compound-action token-saving pattern is still wanted, do NOT expand the interface file in isolation. (2) Implement the 3 specced actions as real executors on their natural dispatchers using the ALREADY-EXISTING primitives: full_parameter_set composes calcDispatcher's speed_feed+cutting_force+tool_life (115 hits present) -> wire onto prism_calc; safety_pipeline composes safetyDispatcher's existing spindle/chip/breakage checks (22 hits present) -> expand from 5 to the full real check set -> wire onto prism_safety; triple_match composes material+machine+tool lookups -> wire onto prism_dev/data. (3) Replace inline 'pointer|summary|full' with an import of the wired ResponseLevel type (DRY). (4) Add a round-trip E2E test per action asserting concrete physics outputs (no toBeDefined stubs). (5) Add schemaVersion. (6) If NOT wanted, tag the file with a disable/archive marker citing the unbuilt R3-MS0 migration tasks rather than leaving it as a silent 0-importer orphan. Never fabricate new compound pipelines without first clustering real co-invoked action sequences from DISPATCHER_DIGEST.md.",
+      "estEffortUnits": 4
+    },
+    {
+      "id": "ToolpathStrategyDB",
+      "coverageScore": 0.32,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 9,
+      "missingConsumers": [
+        "lathe"
+      ],
+      "topGaps": [
+        "Parametric data absent on 569/586 strategies (only 17 have a params block, all shallow); no engagement/stepover/stepdown/cusp/lead-tilt-angle envelopes",
+        "materials=['all'] on nearly every entry — no per-material (ISO 513 P/M/K/N/S/H) strategy applicability map",
+        "No physics coupling — zero MRR/cutting-force/Kienzle/Taylor linkage; the single 'Kienzle' mention is a description string only",
+        "Capability fields structurally empty: axes/maxAxis=0, no toleranceClass, no surfaceFinish/Ra, no machine-kinematics or holder-clearance metadata",
+        "No per-strategy standards citation (ISO 3685, Sandvik/Kennametal app class, Machining Data Handbook) — entries are marketing-level descriptions"
+      ],
+      "comprehensiveTarget": "100% = each of the ~586 strategies carries: (1) a parametric envelope per ISO/vendor application data — radial engagement % range, axial DOC range (as xD), max stepover/stepdown, cusp/scallop target, lead/tilt/helix angles, entry method (ramp/helix/plunge) with angle; (2) a per-material applicability matrix keyed to ISO 513 groups (P/M/K/N/S/H) with go/no-go + recommended engagement, NOT ['all']; (3) physics coupling — reference (not inline) to mcp-server/src/physics/constants.ts kc1.1 + Kienzle/Merchant for force, Taylor C/n for tool-life, MRR = ae*ap*vf, chip-thinning factor f(ae/D); (4) capability fields: axisCapability (2D..5D), toleranceClass (IT grade), achievable Ra, machine-kinematics constraint, holder/collision clearance; (5) per-strategy citation to a governing source (ISO 3685 tool-life testing, Sandvik Coromant / Kennametal / Machining Data Handbook 3rd ed., Smith 'CNC Machining Technology', Altintas 'Manufacturing Automation'). Lathe/turning (108 entries) must be a real consumer of the turning galaxy.",
+      "expansionPlan": "1) Close the lathe wiring gap FIRST (verified: turningDispatcher.ts + turningProgramDispatcher.ts have ZERO ToolpathStrategy references, yet TURNING_STRATEGIES + TURNING_EXTENDED export 108 entries). Add a real query path in turningDispatcher (cam_strategy_recommend-equivalent over registry.strategies['turning']) so the claimed lathe consumer becomes real, mirroring how millDispatcher lazy-imports ToolpathStrategyEngine and camDispatcher reads the registry. 2) Extend the ToolpathStrategy interface with typed capability fields: axisCapability, isoMaterialGroups[] (P/M/K/N/S/H), engagementPctRange, docRange, stepoverMax, leadTiltHelixAngles, toleranceClass, achievableRa, entryMethod — replacing the untyped params Record. 3) Backfill the per-material applicability matrix from REAL sources already in-repo: Sandvik/Kennametal application classes, Machining Data Handbook, and JM Die tribal tips — replace ['all'] with ISO-513-keyed go/no-go. 4) Bind physics by REFERENCE to constants.ts (kc1.1 P=1800/M=2100/K=1100/N=700/S=2800/H=3200) + Kienzle/Taylor/MRR per strategy via existing speed-feed engines; never inline. 5) Populate the 569 stub params with engagement/stepdown/stepover/cusp envelopes from vendor application data, citing source per entry. 6) Add an anti-regression test asserting every strategy has isoMaterialGroups != ['all'] and a non-empty parametric envelope, and a turning round-trip E2E through turningDispatcher.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "ToleranceDB",
+      "coverageScore": 0.4,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 4,
+      "missingConsumers": [
+        "quality",
+        "cam",
+        "mill",
+        "lathe",
+        "quoting"
+      ],
+      "topGaps": [
+        "NO GD&T / geometric tolerancing (ASME Y14.5-2018 / ISO 1101): zero data for the 14 geometric characteristics — flatness, straightness, circularity, cylindricity, profile-of-line/surface, perpendicularity, angularity, parallelism, position (true position), concentricity, symmetry, circular/total runout — plus datum reference frames, MMC/LMC/RFS material modifiers, bonus tolerance, and feature-control-frame math. This is the single largest gap for a CAD/quality/CMM consumer.",
+        "NO general/unmachined tolerances: ISO 2768-1/-2 (fine f / medium m / coarse c / very-coarse v linear+angular+geometric general tolerances) and DIN 7168 are absent — required to apply default tolerances to un-toleranced print dimensions, the most common real shop case.",
+        "Size range truncated at 500mm: ISO 286-1 defines bands up to 3150mm (500-630, 630-800, 800-1000, 1000-1250, 1250-1600, 1600-2000, 2000-2500, 2500-3150). The DB stops at the 400-500 band — large dies/fixtures out of range.",
+        "Missing fundamental-deviation positions IN the base DB: js (symmetric), j, cd, ef, fg, v, y, za, zb, zc, and the full A-ZC hole set with the ISO 286-1 Δ (delta) correction factors for holes ≤ IT8 (the DB explicitly defers Δ in a code comment). The extended catalog covers some but the base ToleranceDB.json does not.",
+        "NO ISO 286-2 preferred fit/tolerance-zone tables: the curated 'preferred 40' tolerance classes and the standard preferred clearance/transition/interference fit selection guidance beyond the 15 hand-listed fits.",
+        "NO temperature-correction model: tolerances are defined at 20°C reference; no CTE-based dimensional-shift compensation (critical for precision and large parts measured off-reference-temp).",
+        "NO surface-texture / Ra-Rz tolerancing (ISO 1302 / ASME B46.1) — adjacent tolerance domain expected by quality/CMM consumers.",
+        "NO thread / gauge / press-fit-force tolerances (ISO 965 thread tolerance classes; interference-fit assembly force/stress from Lamé equations) — quoting and assembly consumers get nothing.",
+        "Statistical depth shallow: Cpk/Cp present in the engine but no tolerance-stack Monte-Carlo, no RSS-with-sensitivity (only worst-case + plain RSS), no process-shift (1.5σ) or Cpm/Ppk variants."
+      ],
+      "comprehensiveTarget": "100% = the full dimensional+geometric tolerancing science: (1) Complete ISO 286-1:2010 — all 21 size bands to 3150mm, all 28 fundamental-deviation positions a..zc / A..ZC for BOTH shaft and hole WITH the Δ correction-factor table (ISO 286-1 Table for holes ≤IT8), js/JS symmetric, and the full IT01-IT18 grid; ISO 286-2 preferred-fit tolerance-zone tables. (2) General tolerances: ISO 2768-1/-2 (linear, angular, geometric) all four classes + DIN 7168. (3) Full GD&T per ASME Y14.5-2018 and ISO 1101/5458/2692/14405: all 14 geometric characteristics, datum reference frames + datum-target math, MMC/LMC/RFS modifiers with bonus/datum-shift tolerance, composite + profile feature-control-frame evaluation, and tolerance-zone geometry. (4) Surface texture ISO 1302 / ASME B46.1. (5) Thread tolerance classes ISO 965 / ASME B1. (6) Statistical tolerance analysis: worst-case, RSS, RSS-with-sensitivity, Monte-Carlo, Cp/Cpk/Cpm/Ppk with 1.5σ shift. Governing references: ISO 286-1:2010 & 286-2:2010, ISO 2768-1/-2:1989, ASME Y14.5-2018, ISO 1101:2017, ISO 1302, and the textbook Drake 'Dimensioning and Tolerancing Handbook' (McGraw-Hill). Physics constants (CTE etc. for temp correction) must REFERENCE mcp-server/src/physics/constants.ts, never inline.",
+      "expansionPlan": "Ordered, using only real-cited standard data. STEP 1 (P0 within this plan — close the GD&T void): build a GeometricToleranceDB covering all 14 ASME Y14.5-2018 / ISO 1101 characteristics with datum-reference-frame model + MMC/LMC bonus-tolerance math, since CAD/quality/CMM/blueprint-vision all need feature-control-frame evaluation (note GDTStackupEngine + GDTCalloutParserEngine already exist in blueprint-vision — wire the DB into THEM, do not re-create). STEP 2: add ISO 2768-1/-2 general-tolerance tables (fine/medium/coarse/very-coarse linear+angular+geometric) so un-toleranced print dimensions get defaults — highest real-shop frequency. STEP 3: extend ISO 286 size bands to 3150mm (8 added bands, values straight from ISO 286-1:2010 tables) and fold the existing iso286-extended-catalog.ts 36-position deviation set + Δ correction-factor table INTO ToleranceDB.json so the base DB and extended engine share one source (fixes the inlined-data/duplicate-JSON drift; make the engine readFileSync the JSON or generate JSON from the .ts, single-source). STEP 4: REAL-WIRE the 5 missing galaxies via existing dispatchers — add quality (Cpk/SPC tolerance-band checks via cad_tolerance_*), quoting (tolerance→process-capability→cost via process_capability map), and mill/lathe/cam (achievable-grade-by-process gate using findAchievableGrade, already exported but only consumed by IntelligenceEngine). STEP 5: add ISO 1302 surface-texture + ISO 965 thread tolerance tables. STEP 6: statistical layer — Monte-Carlo + RSS-with-sensitivity + Cpm/Ppk. Each step ships a real-data E2E assertion (e.g. H7/g6 @ 50mm = clearance 0.009-0.050mm; ISO 2768-m linear 30-120mm = ±0.3mm) — no toBeDefined stubs. Verify the readFileSync/single-source fix per R8 before STEP 3 lands.",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "CoolantDB",
+      "coverageScore": 0.25,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 4,
+      "missingConsumers": [
+        "mill",
+        "lathe",
+        "cam",
+        "compliance-safety"
+      ],
+      "topGaps": [
+        "DEAD ARTIFACT: no code reads CoolantDB.json — constants are re-hardcoded in CoolantValidationEngine.ts (duplicate source-of-truth, silent-drift hazard); either wire the engine to load the JSON or delete the JSON and treat the engine as canonical",
+        "No per-coolant fluid chemistry: zero brand/class records (e.g. Blaser Vasco, Hangsterfer's, Master STAGES, Castrol Hysol) with base type, oil%, EP/AW additive package, chlorine/sulfur/phosphorus chemistry, biocide/biostability, foam tendency",
+        "No concentration-by-material/operation table with refractometer Brix→% factor (typ. 1.0–1.5) — validation engine has concentration as an optional input but no recommended-concentration lookup keyed to material+op (the StrategyEngine has a CONCENTRATION table but the DB does not)",
+        "No coolant condition-monitoring envelope: pH (8.8–9.3 healthy band), water hardness limits (ppm CaCO3), conductivity, tramp-oil %, bacteria/fungi CFU thresholds, nitrite/dermatitis limits, dilution-water spec",
+        "No cryogenic media data despite CRYOGENIC/LN2/CO2 being enumerated: no LN2 flow (L/min) or CO2 snow mass-flow, supply pressure, nozzle standoff, embrittlement-temperature notes — enumerated but un-tabled",
+        "Material groups too coarse (6: AL/CI/STEEL/SS/TI/SUPERALLOY) — no Inconel-vs-Waspaloy split, no hardened-steel/HRC band, no Mg fire-hazard flag, no CFRP/plastic, no copper/brass; StrategyEngine carries 13 materials the DB cannot key",
+        "No through-tool/through-spindle pressure→flow curves or nozzle-diameter→velocity relations; only 3 static pressure bands, no chip-evacuation velocity criterion (min ~ tied to L/D but no jet-momentum model)",
+        "No standards anchoring: missing OSHA/ACGIH mist-exposure PEL (5 mg/m3 mineral oil), ISO 6743-7 (MWF classification), NFPA flash-point / fire-point thresholds for straight oils, mist-collector sizing — all safety-critical and absent"
+      ],
+      "comprehensiveTarget": "100% = a two-layer coolant DB. LAYER 1 (delivery hydraulics, ~60% present): flow [L/min/mm] and pressure-by-L/D (have), PLUS jet-momentum / chip-evacuation velocity model, nozzle-diameter→exit-velocity, TSC pressure→flow curves per spindle class. LAYER 2 (fluid science, ~0% present): a per-fluid record set keyed to commercial/class taxonomy per ISO 6743-7 / ISO 12922 (MWF classes: emulsifiable mineral, semi-synthetic, synthetic, neat oil) with base chemistry, oil%, EP/AW additives, biostability, foam, recommended concentration band by material+op (refractometer Brix factor), and a condition-monitoring envelope (pH 8.8–9.3, hardness, conductivity, tramp-oil, CFU, nitrite) per Machinery's Handbook 'Cutting Fluids' + Kalpakjian 'Manufacturing Processes'. Plus cryogenic media table (LN2/CO2 flow, pressure, standoff, embrittlement) per recent cryo-machining literature (Jawahir et al.), and SAFETY anchoring: OSHA/ACGIH mist PEL (5 mg/m3), NFPA flash/fire points, mist-collector CFM sizing. Material axis expanded to ≥13 groups (match StrategyEngine's CoolantMaterial enum). Single source of truth: either the engine loads this JSON, or the JSON is deleted and the engine's internal tables ARE the DB — never both.",
+      "expansionPlan": "Step 1 (decide source-of-truth, R7/R8): CoolantDB.json is loaded by NO code; its tables are duplicated inside CoolantValidationEngine.ts. Pick ONE — either make the engine import the JSON at init (preferred: data-driven) or delete the JSON and let PATHS.md point at the engine. Do this FIRST so all later expansion lands in one place. Step 2 (fluid-chemistry layer): add a per-fluid records table keyed to ISO 6743-7 MWF classes, seeded from REAL public technical data sheets only (Blaser Vasco / Hangsterfer's / Master Fluid Solutions / Castrol Hysol TDS — base type, recommended concentration band, EP chemistry, flash point for straight oils). Never fabricate additive numbers — cite the TDS. Step 3 (concentration + condition-monitoring): import the existing CONCENTRATION table already in CoolantStrategyEngine.ts (line 162) so the two engines stop diverging; add pH/hardness/conductivity/tramp-oil/CFU health bands from Machinery's Handbook 'Cutting Fluids'. Step 4 (cryogenic + safety): populate the already-enumerated CRYOGENIC/LN2/CO2 path with flow/pressure/standoff from cryo-machining literature; add OSHA/ACGIH mist PEL + NFPA flash-point safety fields (compliance-safety galaxy depends on these). Step 5 (galaxy wiring): the REAL gap — mill/lathe/cam call a SEPARATE MillCoolantAdvisorEngine / LatheCoolantAdvisorEngine, not the CoolantDB/ValidationEngine. Route those advisors to read the unified coolant data so the 5 claimed consumers actually share one source. Each step: add a real-data E2E test asserting concrete values, not toBeDefined() stubs.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "WorkholdingDB",
+      "coverageScore": 0.32,
+      "expansionPriority": "P0",
+      "wiringRealConsumers": 7,
+      "missingConsumers": [],
+      "topGaps": [
+        "Friction is a single static scalar per device/surface — no mu_static vs mu_kinetic, no temperature/contact-pressure/clamp-load dependence, no material-pair table (Al vs steel vs Ti workpiece on each jaw type)",
+        "No torque->clamp-force conversion data (T = K*D*F with K-factor by lubrication/thread class for strap/toggle/screw clamps) — the WorkholdingTorqueSpecEngine has no DB-backed K-factor table",
+        "No chuck centrifugal grip-force decay: 3/4-jaw and collet holding force drops with RPM^2 (ISO 16156 dynamic grip-loss); DB has zero RPM-vs-gripforce curves — a safety-critical omission for lathe/turning consumers",
+        "No standards citations in the DB (ISO 16156 power chucks, VDI 3035, DIN 6343 collets, ANSI B5.x) — friction/safety-factor values are unsourced magic numbers",
+        "Physics constant 10.13 N/cm2 atmospheric pressure inlined in DB and absent from canonical mcp-server/src/physics/constants.ts (should reference, not duplicate)",
+        "No jaw/serration geometry (tooth pitch, contact area, soft-jaw deflection), no vacuum seal leak-rate vs area curves, no magnetic flux-vs-airgap/workpiece-thickness derating, no through-coolant or chip-wedge friction effects"
+      ],
+      "comprehensiveTarget": "100% = a physics-complete workholding reference per ISO 16156 (machine-tool chuck safety), VDI 3035, DIN 6343, and Shigley/Machinery's-Handbook clamping mechanics: (1) friction as mu_static AND mu_kinetic by full material-pair matrix x surface x contact-pressure (not 84 scalars but parametric mu(p, T, pair)); (2) torque->clamp K-factor tables by lubrication/thread class for screw/strap/toggle clamps; (3) power-chuck dynamic grip-force decay F(RPM) = F0 - m*r*omega^2 per ISO 16156 with jaw-mass/CG data; (4) collet grip-force vs draw-bar pull per DIN 6343; (5) vacuum holding = (Patm*efficiency*A) with seal leak-rate vs perimeter curves; (6) magnetic flux-derating vs airgap and ferrous-thickness; (7) part-ejection kinetic-energy / guard-rating model; (8) jaw/serration geometry + soft-jaw deflection (beam theory). Every value sourced to a cited standard or test, and all shared physics constants imported from physics/constants.ts, not inlined.",
+      "expansionPlan": "Ordered, real-data steps. (1) DEDUP/REFERENCE FIRST: make WorkholdingEngine.ts read the JSON instead of inlining FRICTION_COEFFICIENTS (line 267); move atmospheric-pressure (10.13 N/cm2 = 101.3 kPa) + any shared physics constants into mcp-server/src/physics/constants.ts and reference them — eliminates the silent doc/code drift that is itself a safety hazard. (2) ADD ISO 16156 centrifugal grip-decay data (highest safety ROI): per 3/4-jaw chuck, add jaw mass, CG radius, and static draw-force so F_grip(RPM) = F_static - n*m*r*(2*pi*RPM/60)^2 can be computed; cite ISO 16156 + chuck-maker (Kitagawa/SMW) catalog grip-vs-speed charts. (3) ADD torque->clamp K-factor table (T=K*D*F) by clamp/thread class + lube state from Machinery's Handbook/Shigley, feeding WorkholdingTorqueSpecEngine. (4) SPLIT friction into mu_static/mu_kinetic and add a material-pair dimension (workpiece-material x jaw-type) using published tribology tables (Bhushan, Rabinowicz) — start with Al/steel/Ti/cast-iron on smooth/serrated/soft jaws. (5) ADD collet (DIN 6343 draw-bar pull vs grip) + vacuum seal leak-rate-vs-perimeter + magnetic airgap/thickness derating curves from vendor data. (6) Stamp every value with a source/standard field; add a real-data E2E asserting calcDispatcher workholding_clamp_force/pullout/liftoff now resolve dynamic grip at RPM. Never fabricate friction or grip numbers — pull from cited standards/vendor charts only.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "SpindleDB",
+      "coverageScore": 0.18,
+      "expansionPriority": "P0",
+      "wiringRealConsumers": 1,
+      "missingConsumers": [
+        "lathe",
+        "speed-feed",
+        "cam"
+      ],
+      "topGaps": [
+        "Only 5 generic spindle archetypes, no per-machine records for the 21 JM Die machines",
+        "No ISO 281 bearing-life data (L10, C, DN limit, preload, lube regime)",
+        "Single lumped thermal tau, no ISO 230-3 thermal-growth coefficients or warm-up curves",
+        "No stability-lobe/FRF/modal data despite catalog of 5 chatter engines",
+        "No ISO 10816/20816 vibration severity bands for checkVibrationLimits",
+        "Single corner-speed breakpoint, no multi-segment torque/power curves or S1/S6 duty",
+        "No HSK/CAT/BT clamp-force or ISO 1940 balance-grade data",
+        "9549 constant inlined in engine and JSON, not from physics/constants.ts"
+      ],
+      "comprehensiveTarget": "A live queried DB covering all 21 JM Die machines with multi-segment torque/power curves and S1/S6 duty, ISO 281 bearing life, ISO 230-3 thermal growth, Altintas stability/FRF data, ISO 10816/20816 vibration bands, ISO 1940 balance grades, and HSK/CAT/BT clamp data, all constants from constants.ts. Refs: ISO 230-3, ISO 281, ISO 10816/20816, ISO 1940-1, Altintas Manufacturing Automation, Tlusty.",
+      "expansionPlan": "Step 1: make the DB real (JSON has 0 importers, engine hardcodes DEFAULT_SPINDLE_SPECS inline at line 310) by refactoring engine to load it, or delete the orphan. Step 2: replace 5 archetypes with the 21-machine JM Die fleet from ShopConfigurationEngine using builder spec sheets. Step 3: add ISO 281 bearing block to feed SpindleBearingLoadEngine. Step 4: add ISO 230-3 thermal-growth coefficients and warm-up curves for SpindleWarmupCycleEngine. Step 5: add FRF and ISO 10816/20816 vibration bands for the 5 cataloged chatter engines. Step 6: reference 9549 from constants.ts across the 8 engine sites. Step 7: wire real .ts importers in lathe/speed-feed/cam galaxies (today only PATHS.md docs reference it). Use only cited data, never fabricate ratings.",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "CollisionDB",
+      "coverageScore": 0.08,
+      "expansionPriority": "P0",
+      "wiringRealConsumers": 0,
+      "missingConsumers": [
+        "cam",
+        "post-processor",
+        "mill",
+        "lathe",
+        "wedm"
+      ],
+      "topGaps": [
+        "No material-pair contact physics: zero restitution coefficients, static/kinetic friction, contact stiffness, or impact-energy thresholds for tool/holder/fixture/stock material combinations (steel/carbide/aluminum/cast-iron).",
+        "No machine kinematic data: missing per-machine axis travel limits, soft-limit/hard-limit tables, work-envelope volumes, spindle-nose-to-table clearances, ATC/turret swing radii, and tailstock/steady-rest exclusion zones — the actual geometry collisions are computed against.",
+        "No holder/gauge-line geometry library: no ISO/CAT/HSK/BT taper envelopes, holder OD/length/clearance-diameter tables, or shrink-fit/collet gauge lines needed for HOLDER_VS_FIXTURE / 5-axis head-clearance checks the enum claims to support.",
+        "Inlined-constant duplication (R12 violation): default_clearance_mm=2.0 and near_miss HIGH/MED/LOW=1.0/3.0/5.0 are hardcoded identically in CollisionEngine.ts and NOT sourced from constants.ts or this DB — the DB is a dead duplicate; canonical safety margins belong in mcp-server/src/physics/constants.ts.",
+        "No domain-specific collision zones: lathe (chuck-jaw/tailstock interference), WEDM (wire-path/upper-lower-head/flush-nozzle), Swiss-type (guide-bushing/back-spindle), and 5-axis (head-vs-stock tilt limits) all have dedicated engines but the DB has no data feeding any of them.",
+        "No dynamic/standards layer: no rapid-vs-feed-dependent safety margins, no per-controller G-code collision rules (G0 retract planes, tool-change clearance heights), no near-miss probability model, and no governing-standard citation (ISO 230, VDI 3441, machine-tool builder envelope specs)."
+      ],
+      "comprehensiveTarget": "A 100% collision database (per Ericson 'Real-Time Collision Detection', ISO 230 machine-tool geometry, and machine-builder envelope specs) would contain: (1) a machine-envelope table per machine in ShopConfigurationEngine's 21-machine fleet — axis travels (X/Y/Z/A/C), soft+hard limits, spindle-nose-to-table, column/gantry exclusion volumes, ATC/turret swing radii; (2) a holder geometry library keyed by ISO/CAT/HSK/BT/collet/shrink-fit with OD, length, clearance-diameter, gauge line, and taper envelope; (3) material-pair contact physics — restitution, static/kinetic friction, contact stiffness, max impact energy before damage — for every tool/holder/fixture/stock material combination; (4) domain collision-zone maps for mill (head/spindle), lathe (chuck-jaw, tailstock, steady-rest, sub-spindle), WEDM (wire path, upper/lower head, flush nozzle, taper-cut envelope), Swiss (guide bushing, back-working), 5-axis (tilt/swivel head-clearance vs stock); (5) speed-dependent dynamic safety-margin curves (rapid vs cutting feed, deceleration distance) with governing constants referenced from constants.ts NOT inlined; (6) per-controller G-code clearance rules (retract planes, tool-change Z, G0 ordering). The current 7-key catalog covers ~8% of this and supplies it as prose/enums, not queryable physics.",
+      "expansionPlan": "P0 because thin (8% coverage) AND safety-CRITICAL AND 5 claimed consumers with ZERO real wiring. Ordered, real-data steps: (1) WIRING FIRST — make it reachable beyond the generic database_search text-grep: add a typed loader (CollisionDataEngine or extend CollisionEngine) that reads data/databases/CollisionDB.json, and have CollisionEngine.ts SOURCE defaultClearance/nearMissThresholds from it instead of inlining at lines 854-862, eliminating the shadow-duplicate; promote the canonical safety margins to mcp-server/src/physics/constants.ts and reference both there. (2) Add machine-envelope table seeded from REAL data already in ShopConfigurationEngine.ts (21 JM Die machines — VMC-01..05, lathes, WEDM) — axis travels + spindle-to-table + turret/ATC swing; cite the machine-builder specs, do not fabricate. (3) Add holder geometry library from the existing tool/holder registries (CAT40/HSK/BT envelopes) consumed by HOLDER_VS_FIXTURE checks. (4) Add domain collision-zone records by extracting the constants already living in LatheCollisionZoneEngine.ts, WEDMWirePathCollisionEngine.ts, SwissTypeCollisionEngine.ts, MillKinematicsCollisionEngine.ts — consolidate their hardcoded zones into the DB so each domain galaxy has a real query path. (5) Add material-pair contact-physics table (restitution/friction) from a cited source (Ericson + materials handbook), referencing constants.ts. (6) Round-trip E2E test: assert each of cam/post-processor/mill/lathe/wedm actually imports/queries the DB (not PATHS.md prose) per the §ENGINE WIRING rule.",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "GCodeTemplateDB",
+      "coverageScore": 0.42,
+      "expansionPriority": "P0",
+      "wiringRealConsumers": 5,
+      "missingConsumers": [
+        "post-processor",
+        "mill",
+        "lathe",
+        "wedm"
+      ],
+      "topGaps": [
+        "NO lathe/turning G-code dialect at all (G50 spindle clamp, G96/G97 CSS constant-surface-speed, G70/G71/G72/G73 turning canned cycles, G76 turning thread cycle) — yet 'lathe' is a claimed consumer galaxy",
+        "NO wire-EDM G-code at all (no wire-on/off, taper G51/G52, AWT auto-wire-threading, flushing, generator power codes) — yet 'wedm' is a claimed consumer galaxy",
+        "NO 5-axis support (G68.2/G43.4 TCPM, RTCP, CYCLE800 swivel, PLANE SPATIAL, tool-tip-management) — blocks Mazak Integrex/Variaxis, Okuma Multus, DMG-Mori which are in the alias lists",
+        "NO high-speed/look-ahead/surface-finish motion (G05.1 AICC, G08 look-ahead, NURBS G06.2, Siemens COMPCAD/SOFT, Heidenhain CYCL DEF 32 TOLERANCE) — mandatory for modern mold/die finishing",
+        "NO probing / in-process inspection cycles (G31 skip, Renishaw/Blum macros, G54.1 extended work offsets, tool-breakage detection) despite a sibling mastercamProbingBridge existing",
+        "Controller breadth = 6 brands but controller-family.ts (the canonical juliett axis) enumerates 16 (adds MITSUBISHI, BROTHER, HURCO, FAGOR, DMG_MORI, DOOSAN, NUM, CENTROID, MACH) — 10 brands with NO template (Brother Speedio high-feed, Hurco WinMax conversational, Fagor, Mitsubishi Meldas all unmodeled)",
+        "Operations = 13 but missing: helical interpolation/ramping, trochoidal/HSM pocketing, slot milling, chamfer/deburr cycles, engraving, back-boring (G87), rigid-tap dwell variants, balanced/dual-turret sync codes, polar/cylindrical interpolation (G12.1/G07.1)",
+        "post_processor_source_catalog lists 12 .js post engines (incl PRISM_POST_PROCESSOR_DATABASE_V2 with '50+ controller configs' + PRISM_GUARANTEED_POST_PROCESSOR '47 controllers') but the template DB only surfaces 6 — the richer 47-50 controller corpus is NOT integrated into the generation path (catalog is descriptive metadata only)"
+      ],
+      "comprehensiveTarget": "100% = a multi-process controller-dialect template corpus governed by ISO 6983-1 (EIA/RS-274-D) plus each OEM programming manual, structured so every claimed consumer galaxy is served end-to-end. Concretely: (1) MILL — full prismatic + 3-to-5-axis: G68.2/G43.4 TCPM + CYCLE800 (Siemens PM) + PLANE/M128 (Heidenhain TNC640 conversational manual) + high-speed look-ahead (Fanuc G05.1 AICC II, Siemens CYCLE832/COMPCAD, Heidenhain CYCL32) + probing (Renishaw Inspection Plus + Blum + G31 skip). (2) LATHE — G96/G97 CSS, G50 clamp, full G70-G76 turning canned-cycle family, G32/G92 threading, sub-spindle sync, live-tooling C/Y-axis, polar G12.1 (Fanuc/Okuma OSP/Mazatrol lathe manuals). (3) WIRE-EDM — wire on/off, G51/G52 taper, AWT, generator/flush codes, 4-axis XY-UV independent (Mitsubishi/Sodick/AgieCharmilles manuals). (4) Controller breadth = ALL 16 families in controller-family.ts (canonical juliett axis), each with verified program structure, comment style, canned-cycle map, comp model. (5) Integrate the existing 47-50-controller corpus from PRISM_POST_PROCESSOR_DATABASE_V2.js / PRISM_GUARANTEED_POST_PROCESSOR.js (already on disk) into the generation path rather than leaving it as descriptive catalog. Reference: ISO 6983-1:2009; Smid 'CNC Programming Handbook' (canned cycles, work offsets); Siemens SINUMERIK 840D sl Programming Manual; Heidenhain TNC640 Conversational/ISO manual; Fanuc 30i/31i Operator's Manual; OEM lathe/EDM manuals per brand.",
+      "expansionPlan": "P0 because the DB is thin (mill-drilling-centric, 0.42 domain coverage) AND safety-critical (S-class CRITICAL — bad G-code = crash) AND has 5 claimed consumer galaxies of which 4 are unwired. Ordered, real-data steps: (1) WIRING TRUTH FIRST — close the 4 missing galaxy consumers OR correct the claim. 'cam' is the only genuinely-wired galaxy (camDispatcher 5 actions, tested; CNCProgramAssemblerEngine + ProductEngine import it). post-processor/mill/lathe/wedm carry ONLY PATHS.md doc refs with zero .ts import. Either route ppDispatcher + mill/lathe/wedm master-post engines through gcode_template_* actions, or down-scope the claim to ['cam'] to stop overstating coverage (R12). (2) LATHE dialect — add G96/G97/G50/G70-76/G92 turning ops sourced from the on-disk Okuma(63)/Fanuc(35) extraction logs + okumaB250LatheMasterPostEngine which already emits real turning G-code; reuse, don't re-derive. (3) WEDM dialect — add wire on/off + G51/G52 taper + AWT from mitsubishiMV1200RWireEDMMasterPostEngine (already shipped, emits real wire-EDM blocks) — bridge it into the template layer. (4) 5-AXIS — add G68.2/G43.4 + CYCLE800 + Heidenhain PLANE, citing Siemens 840D sl + TNC640 manuals, gated by per-controller capability flags. (5) Controller breadth 6->16 — backfill MITSUBISHI/BROTHER/HURCO/FAGOR/DMG_MORI/DOOSAN families using controller-family.ts as the canonical axis + PRISM_POST_PROCESSOR_DATABASE_V2.js's 50+ verified configs already on disk. (6) Integrate the 47-50-controller post corpus into generation, retiring the descriptive-only catalog. (7) Anti-drift: a real-data E2E asserting each new controller x op round-trips to a syntactically-valid block (per CLAUDE.md workflow/routing 'parse rendered output, assert concrete params' rule). NEVER fabricate codes — every block must trace to an OEM manual or an existing shipped master-post engine.",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "ProcessDataDB",
+      "coverageScore": 0.04,
+      "expansionPriority": "P0",
+      "wiringRealConsumers": 0,
+      "missingConsumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "quality",
+        "cam",
+        "wedm"
+      ],
+      "topGaps": [
+        "PHYSICS-CONSTANT DUPLICATION (P0 safety): kc1_1 values inlined here CONFLICT with canonical CANONICAL_KIENZLE in mcp-server/src/physics/constants.ts (DB 304SS=2200 vs canon M=2100; DB Ti64=1700 vs canon S=2800; DB cast iron=1200 vs canon K=1100). DB must REFERENCE constants.ts, not carry divergent copies.",
+        "Johnson-Cook is near-empty: only 2 of 8 materials have A/B/C/n/m (Ti-6Al-4V, Inconel 718). Missing 4140, 304/17-4PH SS, 6061/7075 Al, gray iron; and NO Johnson-Cook DAMAGE (D1-D5) params for any material — required for chip-segmentation, FEM machining sim, residual-stress prediction.",
+        "Only 8 materials total — no tool steels (A2/D2/H13/S7), no copper/brass/bronze, no magnesium, no PH grades beyond 17-4, no Hastelloy/Waspaloy/Rene, no plastics/composites, no nodular/CGI iron, no maraging steel. A comprehensive table needs hundreds (cf. Sandvik CoroGuide / Kennametal Master Catalog material taxonomy).",
+        "Taylor model is the bare 2-constant VT^n=C — missing the EXTENDED Taylor (V·T^n·f^a·d^b·=C) feed/DOC exponents, and no per-tool-coating/per-tool-material variants (uncoated vs TiAlN vs CBN vs ceramic give wildly different C). Single C,n per material is not machine-condition specific.",
+        "Cutting speeds are ONE coarse carbide band per ISO group — no per-operation (turn/mill/drill/ream/thread), no coating-specific, no HSS vs ceramic vs CBN vs PCD speeds, no feed-rate (fz) tables, no DOC recommendations. cutting_speed_ranges_carbide_m_min has zero feed/DOC dimension.",
+        "No thermal data (k, cp, melting point, thermal-softening m beyond JC), no tool-wear models beyond Taylor C/n (no Usui/Takeyama diffusion-wear, no flank/crater split), no specific-cutting-energy vs h curves, no built-up-edge thresholds, no minimum-chip-thickness/size-effect data.",
+        "WEDM is a claimed consumer but the DB has ZERO EDM data — no spark-erosion rates, no wire-tension/flush/dielectric params, no per-material removal-rate or recast-layer data. Mechanical-machining constants are inapplicable to wire-EDM physics.",
+        "Every entry is UNCITED and units are implicit — no source reference (which Sandvik/Kennametal edition, which JC paper), no hardness-condition qualifier on C/n beyond a single hrc scalar, no temperature/strain-rate validity range on the JC params, no uncertainty bounds."
+      ],
+      "comprehensiveTarget": "100% = a materials-keyed process-physics corpus that REFERENCES (not duplicates) mcp-server/src/physics/constants.ts for canonical kc1_1/mc, then layers per-material/per-condition data citing governing sources: (1) Kienzle per DIN 6584 / Sandvik Coromant Technical Guide — kc1_1, mc, plus correction factors (rake, wear, coolant) per material with ISO-group fallback. (2) Extended Taylor V·T^n·f^a·d^b=C per ASME B94 / Machining Data Handbook (Metcut), with per-tool-material (HSS/carbide/coated/ceramic/CBN/PCD) variants. (3) Johnson-Cook plasticity A,B,C,n,m AND damage D1-D5 for the full material taxonomy, each citing the source paper + strain-rate/temperature validity window (e.g. Lesuer for Ti-6Al-4V, Kobayashi for steels). (4) Thermal & tribological: k, cp, density (cross-ref constants.ts), friction/sticking-sliding, Usui/Takeyama wear, size-effect/min-chip-thickness. (5) Per-operation, per-coating cutting-speed + feed + DOC tables (Machining Data Handbook / vendor catalogs). (6) Material taxonomy spanning all 6 ISO groups at vendor breadth (Sandvik CoroGuide / Kennametal Master Catalog ≈ hundreds of grades). (7) Separate EDM process-data table if WEDM stays a consumer, or drop wedm from consumers. Every value carries source citation, units, and validity range.",
+      "expansionPlan": "P0 ordered (safety-first, then breadth, then wiring): (1) RESOLVE CONSTANT DUPLICATION FIRST — remove inlined kc1_1 from kienzle_constants and have the DB reference CANONICAL_KIENZLE in mcp-server/src/physics/constants.ts (store ONLY per-material deltas/correction-factors that genuinely differ, with citation); reconcile the 5 verified divergences (304SS, Ti-6Al-4V, gray iron, 6061/7075) against canonical ISO-group values. (2) WIRE A REAL LOADER — create a single ProcessDataDB read module (e.g. processDataStore.ts) under mcp-server/src that loads + zod-validates the JSON, then import it from speed-feed (Taylor/cutting-speed), quality (surface-integrity/JC), and mill/lathe consumers; add a round-trip E2E test asserting concrete returned values. Until a loader exists the DB is dead data. (3) FILL JOHNSON-COOK — add A/B/C/n/m + D1-D5 damage for the remaining 6 materials from cited literature (Lesuer Ti-6Al-4V already validates 1098/1092/0.014/0.93/1.1; add steels via Johnson-Cook 1983 / Kobayashi, Al via Lesuer/Brar), each with strain-rate/temp validity window. (4) EXTEND TAYLOR — upgrade to extended V·T^n·f^a·d^b with per-tool-material variants from Machining Data Handbook (Metcut). (5) BROADEN MATERIAL TAXONOMY toward Sandvik CoroGuide / Kennametal breadth (tool steels, copper/brass, Mg, more PH/superalloys, CGI). (6) ADD per-operation/per-coating speed+feed+DOC tables. (7) DECIDE WEDM — either add a cited EDM process-data table (removal rate, wire/dielectric/flush, recast) or remove wedm from manifest consumers (don't claim an unbacked consumer). All values cited to a named standard/catalog/paper; never fabricate.",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "GenomeDB",
+      "coverageScore": 0.08,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 3,
+      "missingConsumers": [
+        "ai-training",
+        "discovery"
+      ],
+      "topGaps": [
+        "Only 8 materials, H-group tool steels zero records, missing brass bronze copper magnesium duplex maraging CoCr Hastelloy free-machining steels",
+        "Johnson-Cook in only 2 of 8 records, missing for 4140 304SS 7075 FC250 17-4PH 6061",
+        "kc1.1 inlined and drifts from canonical CANONICAL_KIENZLE (304SS 2200 vs 2100, FC250 1200 vs 1100, 17-4PH 2500 vs 2100)",
+        "No coating-by-material matrix, single-point thermal values, no HSS ceramic CBN PCD data",
+        "Behavioral block is seed not from live outcome backbone, no provenance or uncertainty"
+      ],
+      "comprehensiveTarget": "Full ISO 513 P/M/K/N/S/H taxonomy at depth (200-400 alloys), temperature-dependent curves, Johnson-Cook for all records, kc1.1 referenced from CANONICAL_KIENZLE not inlined, Taylor per coating, provenance and uncertainty. Refs ISO 513, ISO 3685, Johnson-Cook, ASM Handbook, Sandvik.",
+      "expansionPlan": "1 Fix drift: import CANONICAL_KIENZLE, derive kc1.1 from iso_group, generate JSON from engine array. 2 Backfill Johnson-Cook for 6 records (4140 Ozel/Sima, 6061/7075 Lesuer LLNL, 304SS Chandrasekaran, FC250 gray-iron). 3 Expand ISO depth: H-group D2 A2 H13 P20, N-group brass bronze copper, M-group duplex 2205 2507, S-group CoCr Hastelloy from ASM Handbook/Sandvik. 4 Temperature-dependent curves plus provenance. 5 Real-wire ai-training and discovery (PATHS.md doc-only) into GraphSAGE/LoRA features and master-index, or correct the claim.",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "CAMSystemDB",
+      "coverageScore": 0.04,
+      "expansionPriority": "P2",
+      "wiringRealConsumers": 0,
+      "missingConsumers": [
+        "cam",
+        "post-processor"
+      ],
+      "topGaps": [
+        "NOT a science DB — it is a code-inventory catalog (61 source-file records, EXT-NNN ids); carries no CAM machining parameters whatsoever",
+        "No toolpath-strategy parameter tables: missing radial/axial stepover & stepdown ranges per material+tool, scallop/cusp-height targets, trochoidal/adaptive radial engagement %, helical ramp angles per ISO material group",
+        "No engagement/feed-optimization models: missing engagement-angle-to-chip-thinning correction, corner-deceleration/lead-lag feed rules, arc-fit tolerance vs surface-finish, constant-engagement (HSM) entry/exit parameters",
+        "No link/clearance/collision data: missing safe-retract heights, link-move feed classes, holder/shank clearance offsets, gouge/collision check tolerances per axis count",
+        "No strategy-selection matrix: missing feature-type -> toolpath-strategy mapping with material+geometry constraints (only a label list of operation_types and cam_domains exists, no parametric rules)",
+        "No surface-finishing science: missing Ra/Rz targets vs stepover & feed, ball-nose effective-diameter-at-depth, multi-axis lead/tilt angle tables",
+        "PATHS.md pointer is broken (source shown as `undefined`) — even the doc reference cannot resolve a real file path for query"
+      ],
+      "comprehensiveTarget": "A 100% CAM database is a parametric toolpath-science corpus, not a source-file manifest. Governing references: Altintas, Manufacturing Automation (2nd ed., 2012) for mechanistic cutting/engagement and feed-optimization; ISO 16952/STEP-NC (ISO 14649) for operation/feature semantics; Smith & Tlusty for HSM/trochoidal engagement; ASME B94.55M & tool-vendor CAM application guides for strategy selection. It must contain, per (ISO material group P/M/K/N/S/H × tool class × feature type): (1) roughing engagement tables — radial stepover %, axial stepdown, trochoidal/adaptive engagement-angle limits with chip-thinning correction; (2) finishing surface-quality models — scallop/cusp height -> stepover, Ra/Rz vs feed, ball-nose effective-dia-at-DOC, multi-axis lead/tilt; (3) link/clearance model — retract heights, link-move feed classes, holder/shank collision clearances; (4) feed-optimization rules — corner deceleration, lead/lag by engagement, arc-fit/chord tolerance vs finish; (5) strategy-selection matrix mapping feature recognition -> strategy with geometry+material+machine-axis constraints; (6) verification tolerances — gouge/collision/stock-residual thresholds. All physics constants (Kc1.1, Taylor, thermal) referenced from mcp-server/src/physics/constants.ts, never inlined.",
+      "expansionPlan": "see field",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "ReportTemplateDB",
+      "coverageScore": 0.35,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 1,
+      "missingConsumers": [
+        "business",
+        "quality",
+        "quoting",
+        "shop-floor"
+      ],
+      "topGaps": [
+        "No first-article inspection template per AS9102",
+        "No PPAP family control plan PFMEA gage study capability study",
+        "No corrective-action NCR CAPA MRB 8D templates for the quality galaxy",
+        "No certificate of conformance material cert or heat-lot traceability",
+        "inspection plan is shallow with no GDandT schema no measurement results no Cpk no disposition",
+        "cost estimate omits margin scrap yield NRE currency tax and freight",
+        "No traveler router OEE downtime or tool-life wear report",
+        "rendering has no unit policy conditional sections localization or print spec"
+      ],
+      "comprehensiveTarget": "100 percent is a manufacturing report-template taxonomy across recognized standards. Quality and inspection per AIAG PPAP and AS9102C first article: control plan, PFMEA, gage R and R, dimensional results, capability study, certificate of conformance, corrective action, material review board. Production planning: traveler router, op-by-op process plan, setup sheet, tool BOM. Cost and quote: full rollup, quote letter, quote vs actual. Shop floor ops: speed feed card, alarm report, OEE downtime, tool-life wear, maintenance log. Material and traceability: material cert, heat lot, RoHS REACH. Each template carries a full field schema with units format conditional logic and localization slots. Governing refs: AIAG core tools, AS9102C, ISO 9001 2015, ASME Y14.5.",
+      "expansionPlan": "Wiring is the worse problem. VERIFIED: the JSON DB is read by ZERO code modules; its only references are 4 PATHS.md doc-pointers for business quality quoting shop-floor that list the query handle as undefined and route to a generic prism_data database_search or db-toolbelt that does NOT read data databases. The functional substrate ReportRenderer.ts has exactly ONE real consumer: devDispatcher line 10943 renderReport. The businessDispatcher AdvancedReportRendererEngine is a DIFFERENT engine that does not import renderReport, and sessionDispatcher renderReport is SchemaDriftDetectorEngine method; both incidental name collisions. Ordered plan: 1 WIRING FIRST make the 4 claimed galaxies real consumers via dispatcher actions, shop-floor setup_sheet speed_feed_card alarm_report, quality inspection_plan, quoting cost_estimate, business process_plan tool_list, routing safety notes through prism_safety. 2 Make JSON load-bearing have ReportRenderer read ReportTemplateDB.json as its field-spec source instead of hardcoding REPORT_TYPES. 3 COVERAGE in dependency order using cited standards and on-disk exemplars: quality family first, then quote vs actual and full cost rollup for quoting, then traveler and certificate of conformance for shop-floor business. 4 Add Spanish and Polish localization. Never inline physics constants. Each new template ships a renderer fn plus a real-data E2E round-trip test.",
+      "estEffortUnits": 5
+    },
+    {
+      "id": "SourceCatalogDB",
+      "coverageScore": 0.35,
+      "expansionPriority": "P2",
+      "wiringRealConsumers": 1,
+      "missingConsumers": [
+        "discovery",
+        "database-expansion",
+        "ai-training"
+      ],
+      "topGaps": [
+        "9 of 13 catalogs are placeholder stubs (ALGORITHM/INTELLIGENCE/CORE/QUALITY/CAMPAIGN/FEDERATED/DNC/APPRENTICE/WORKHOLDING) with prose entries_note and ZERO concrete entries",
+        "ALGORITHM stub: claims to index Taylor/Kienzle/FEM/optimization sources but lists no entries and no entry_count — safety-relevant algorithm provenance un-enumerated",
+        "DNC catalog marked safety_class CRITICAL yet has zero entries and no entry_count/total_lines",
+        "Index is blind to 6+ engines that carry SOURCE_FILE_CATALOG constants on disk (ERPIntegration, EventBus, JobLearning, KnowledgeGraph, MachineConnectivity, ManufacturingCalculations, Optimization, PhysicsPrediction) — 85 understates true population",
+        "Bare string IDs with no file path, line count, SHA, per-entry safety_class — cannot resolve an entry to a real file or verify it exists",
+        "summary.total_extracted_lines=52799 is a partial sum (9 stubs lack total_lines)",
+        "No SPDX/SBOM/CycloneDX provenance or integrity scheme",
+        "Galaxy PATHS.md refs render path as literal 'undefined' in all 3 claimed consumers"
+      ],
+      "comprehensiveTarget": "100% = a complete, integrity-verifiable source-file provenance index (SBOM-grade). All 13 catalogs fully enumerated with concrete entries AND every engine on disk exporting a SOURCE_FILE_CATALOG constant represented (16+ on disk vs 13 catalogs). Per-entry schema per SPDX 2.3 / CycloneDX: {id, source_file_path, line_count, content_sha256, safety_class, source_engine, extracted_date, exists_on_disk}. Rollups computed not hand-typed and asserted vs a live re-scan. ALGORITHM + DNC (CRITICAL) first. A regenerator script so it is drift-detectable, not a frozen 2026-02-26 snapshot. References: SPDX ISO/IEC 5962:2021, OWASP CycloneDX, PRISM extraction-log.json + cross-session-asset-registry.json as authoritative source set.",
+      "expansionPlan": "Real-data only: 1) Build scripts/build-source-catalog-db.mjs that greps mcp-server/src/engines/*.ts for *_SOURCE_FILE_CATALOG exports and emits each catalog's real entries — fills the 9 stubs + 6 un-indexed engines from ground truth (constants exist on disk; grep confirmed 16+). 2) Prioritize ALGORITHM + DNC (safety-relevant, zero entries) — enumerate from AlgorithmGatewayEngine.ts / DNCTransferEngine.ts. 3) Add per-entry {source_file_path, line_count, content_sha256, exists_on_disk}; recompute entry_count/total_lines as derived sums asserted vs summary. 4) Reconcile against extraction-log.json + cross-session-asset-registry.json. 5) WIRING: make the 3 galaxies real (discovery source-provenance lookup, database-expansion DB roll-up, ai-training corpus enumeration) OR honestly downgrade DB_MANIFEST consumers to ['dataDispatcher:database_search']; fix the 'undefined' path token in all 3 PATHS.md. 6) Bump schema_version + add regen cadence. P2: low-blast-radius metadata/discovery index, feeds no physics/safety calc; the one real consumer (database_search) still works on the 85 present entries.",
+      "estEffortUnits": 3
+    },
+    {
+      "id": "JMDieDocuStrataDB",
+      "coverageScore": 0.55,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 1,
+      "missingConsumers": [
+        "quoting",
+        "post-processor",
+        "business",
+        "blueprint-vision",
+        "ai-training",
+        "cad",
+        "lathe",
+        "wedm"
+      ],
+      "topGaps": [
+        "Stock-material catalog has ZERO material-science fields: no hardness (Brinell/Rockwell), density, machinability rating, Johnson-Cook A/B/C/m/n, Kienzle kc1.1/mc, thermal conductivity, or yield/tensile for any of 60 grade/forms (H13 etc.) — occurrence-counts only",
+        "Tooling catalog (59 vendors / 8,028 lines) carries NO tool geometry/cutting params: no diameter, flute count, helix, coating, grade-to-ISO mapping, recommended SFM/IPT — vendor-purchase tallies only",
+        "38,239 of 111,745 documents (34%) are base-only with unevaluated text-layer/print-score signals (null/false) — a third of corpus un-enriched at v3 depth",
+        "No structured PRINT/blueprint geometric extraction (dimensions, GD&T, tolerances) in DB tables — 7,616 PRINT docs and 76,205 joins referenced by id/path only",
+        "Cost/spend data explicitly flagged UNRELIABLE (raw column-flattened tokens, never summed) — no authoritative QuickBooks-reconciled $ in this store",
+        "files.jsonl customer field frequently equals the filename itself — customer attribution noisy/unnormalized"
+      ],
+      "comprehensiveTarget": "For a document-provenance index this is near-target on classification breadth, but a COMPREHENSIVE manufacturing-intelligence corpus for its claimed galaxies needs: (a) per-grade material physics for the 60 grade/forms from MatWeb/ASM Metals Handbook Vol.16 + canonical mcp-server/src/physics/constants.ts (kc1.1 per ISO group P1800/M2100/K1100/N700/S2800/H3200) REFERENCED not inlined; (b) tooling-catalog enrichment to ISO 13399 tool data joined to vendor lines; (c) structured PRINT extraction (ASME Y14.5 GD&T) for the 7,616 PRINT docs; (d) v3 enrichment across all 111,745 docs; (e) QuickBooks-reconciled authoritative spend per financial-invariant doctrine. Governing refs: ASM Vol.16, ISO 13399, ASME Y14.5, ISO 3685/Taylor — none currently encoded.",
+      "expansionPlan": "Wiring is the dominant gap. VERIFIED: grep of src/ for the jm-die-database PRODUCT dir found only 2 .ts hits — MillProgramCorpusEngine.ts (reads tables/files.jsonl, the ONE real functional consumer) and Form1099NECEngine.ts (comment-only name-mention). The 4 committed catalog JSONs have ZERO code readers. MillProgramCorpusEngine itself is wired to 0 dispatchers (orphan). The 9 claimed galaxies actually consume the UNDERLYING DocuStrata .index sources (documents-classified.jsonl / jm-die-index-v2.json / blueprint-program-join) which have 28 real importers and 11 dispatcher-wired engines (BlueprintProgramJoin x3, ProgramPrintLinkIndex x4, DocustrataCustomerIndex x2) — but those engines live in flat src/engines/, and ZERO galaxy subdirs import the DB product in real code. ORDERED PLAN: (1) Wire MillProgramCorpusEngine to prism_cam + prism_mill (already built, just unwired). (2) Add a thin dataDispatcher/devDispatcher query action serving tables/files.jsonl + documents.jsonl so galaxies query the consolidated PRODUCT, not raw .index paths. (3) Enrich stock-material-catalog.json: join 60 grade/forms to material physics by REFERENCING constants.ts + ASM/MatWeb — never inline. (4) Enrich tooling-catalog to ISO 13399 joined on vendor lines. (5) Complete v3 enrichment on the 38,239 base-only docs. Steps 1-2 are pure wiring (low effort, high ROI); 3-5 are data expansion using cited sources.",
+      "estEffortUnits": 5
+    },
+    {
+      "id": "vendor-catalog-db-audit",
+      "coverageScore": 0.42,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 2,
+      "missingConsumers": [
+        "mill",
+        "cam",
+        "lathe",
+        "wedm",
+        "post-processor"
+      ],
+      "topGaps": [
+        "No quantitative cutting data by design — vc/fz/SFM/chipload tables live ONLY as a 169-row POINTER projection (sfc-makers.jsonl); the actual cutting numbers are in oscar's separate *-speed-feed-data.ts (only 5 of ~80 high-priority makers extracted = ~6% SFC coverage)",
+        "No structured procurement/supplier-master fields a real ERP needs: no lead-time, MOQ, price-break/quantity-discount curves, payment terms, currency, quality/OTD rating, approved-vendor status, or normalized contact records (contacts[] is empty in samples)",
+        "No per-vendor CAPABILITY MATRIX in structured form — process/material/cert capabilities for job-shops are buried in free-text 'notes' and only lifted at import time by VendorCatalogImportEngine, not persisted as queryable columns in this store",
+        "156 of 482 vendors have pricing_access='unknown' and 171 reach='unknown' — large unverified fraction; needsVerification=39 flagged but not resolved",
+        "No tooling SKU/part-number index — store names the maker (e.g. 'Advent Tool') but holds zero of the maker's actual catalog line items, so it cannot answer 'which vendor sells a 1/2in 4FL carbide endmill at what price'",
+        "Coolant/lubricant, abrasive, and additive vendors present as names only (10 coolant-lubricant, 10 additive) with no product-chemistry/grade detail — pure directory entries"
+      ],
+      "comprehensiveTarget": "100% = a true procurement/supplier-master + tooling-catalog DB: (1) every vendor a normalized record with structured contact, lead-time, MOQ, price-break tiers, payment terms, currency, approved-vendor flag, and a quality/OTD score (per APQP/AS9100 supplier-management and ISO 9001:2015 §8.4 control-of-external-providers); (2) a per-vendor structured CAPABILITY MATRIX (process × material × cert × size-envelope) for RFQ matching, sourced from supplier-capability-schema.ts enums, persisted as columns not free-text notes; (3) a SKU-level cutting-tool catalog index per maker (part number, tool class, diameter, flute count, coating/substrate, geometry, list price) so quote/CAM/speed-feed can resolve a real tool — cross-referenced to oscar's SFC cutting data so the directory and the physics are joined; (4) ≥90% of the 80 high-priority SFC makers actually extracted (today ~6%). Governing references: ISO 9001:2015 §8.4, AS9100D supplier control, Machinery's Handbook tooling tables for SKU geometry, and the maker catalogs already on disk (164 PDFs in H:/PRISM/Resources/MANUFACTURER_CATALOGS).",
+      "expansionPlan": "Ordered, using only real on-disk data (no fabrication): (1) WIRING FIRST — the committed vendor-catalog-db/ store has ZERO src importers; code reads upstream state/shared/quoting/ files. Add a thin VendorCatalogDbReader in mcp-server/src that loads tables/vendors.jsonl + catalog-vendors.jsonl + sfc-makers.jsonl, and route it through businessDispatcher (procurement) and a quoting action, making the COMMITTED store the live source (today it's a regenerable mirror only). (2) Resolve the 5 false-claimed consumers — mill/cam/lathe/wedm/post-processor only mention this DB in PATHS.md. Either (a) genuinely wire: have cam/mill/lathe tool-selection query the SKU/maker index for 'which vendor sells this tool', or (b) demote them in the manifest 'consumers' list to honest PATHS-pointer status (R12 — don't claim coverage not wired). (3) DEPTH — promote the free-text job-shop capability 'notes' into persisted structured columns via the existing VendorCatalogImportEngine keyword→enum lift (supplier-capability-schema.ts), so RFQ matching queries columns not regex. (4) Add procurement-master fields (lead-time, MOQ, price-break, terms, OTD score) per ISO 9001 §8.4, seeded from jm-tool-purchases.json real spend history. (5) Close the SFC extraction gap — drive oscar's pipeline from the 80 high-priority sfc-makers.jsonl pointers toward ≥90% extracted (currently 5 .ts files), joining the directory to real cutting physics. Steps 1-2 are the load-bearing honesty/wiring fixes; 3-5 are depth.",
+      "estEffortUnits": 5
+    },
+    {
+      "id": "PrismReferenceDB",
+      "coverageScore": 0.28,
+      "expansionPriority": "P0",
+      "wiringRealConsumers": 1,
+      "missingConsumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "wedm",
+        "cad",
+        "quality",
+        "quoting",
+        "blueprint-vision"
+      ],
+      "topGaps": [
+        "Johnson-Cook flow-stress constants are PLACEHOLDER copies (A:310/B:1000/n:0.65/C:0.07/m:1 repeated identically across distinct materials) — no per-material A/B/C/m/n/Tmelt/strain-rate-ref; unusable for FEM/chip-formation. Need real JC sets (e.g. SIMLab/Johnson-Cook 1983 originals + Ti-6Al-4V Lesuer, Inconel-718 published sets).",
+        "Material thermomechanical block missing for nearly all materials: no Young's modulus, yield, UTS, Poisson, thermal conductivity, thermal-expansion, specific-heat, density, melting point as a coherent per-material record — these are foundational for thermal/deflection/safety-factor physics that physics.json's own formulas demand.",
+        "Kienzle Kc database covers only 22 materials and DUPLICATES constants.ts ISO-group kc1.1 values instead of referencing them (R12). 100% needs full ISO 513 P/M/K/N/S/H sub-grade coverage with per-grade kc1.1 + mc, sourced once from constants.ts.",
+        "Taylor tool-life present only as a few C/n stubs (taylor:{C:200,n:0.2}); no extended Taylor (VBmax, feed/DOC exponents) per tool-material x workpiece pair; no Archard/diffusion wear models.",
+        "No cutting-stability data: zero stability-lobe-diagram / chatter / dynamic-stiffness / modal (FRF) records despite physics.json claiming a tool-deflection engine — Altintas SLD coverage absent.",
+        "Severe intra-category duplication inflates the 13,920 count: ~150 material stores collapse to a handful of distinct datasets; record count is not a coverage measure. Needs dedup-and-canonicalize pass.",
+        "WEDM/EDM scientific depth shallow: EDM_ELECTRODE_MATERIALS/WEDM_MATERIALS are name-lists, not discharge physics (spark-energy, MRR vs pulse-on/off, recast-layer, wire-tension/flush) for a claimed wedm consumer.",
+        "Coolant DB is branded-product/pricing oriented (Blaser etc.) — missing the SCIENTIFIC layer: per-coolant chemistry, concentration-by-material, pH, biocide, cryogenic media, through-tool pressure-vs-MRR curves."
+      ],
+      "comprehensiveTarget": "100% = a CANONICALIZED, de-duplicated reference DB whose scientific cores cite the governing standards/textbooks and REFERENCE (never re-store) src/physics/constants.ts. Concretely: (1) Per-material record keyed by canonical id carrying {ISO-513 group/sub-grade, kc1.1+mc (Kienzle, ref constants.ts), Johnson-Cook A/B/C/m/n + Tmelt + strain-rate-ref (real published sets, not placeholders), Taylor C/n/feed-DOC exponents + VBmax (Taylor 1907 / extended), Young's modulus, yield, UTS, Poisson, density, thermal conductivity/expansion/specific-heat, hardness} — covering the full Machinery's Handbook 31e / ASM Metals Handbook Vol.16 (Machining) material span (~150+ real distinct alloys). (2) Cutting-mechanics layer per Altintas 'Manufacturing Automation' 2e: Merchant shear-angle, Kienzle force, stability-lobe-diagram/FRF, tool-deflection. (3) Tool-wear per ISO 3685 (Taylor + Archard/diffusion). (4) Coolant scientific layer (chemistry/concentration/pH/HPC pressure curves) not just vendor pricing. (5) Every numeric scientific constant either lives in constants.ts or carries a {source, page/standard, tolerance_pct} like the validated data/state/physics-reference-db.json sibling (which DOES this right — that pattern should govern). Zero placeholder/copy-paste values; a validation test (re-derive expected from formula) over the whole DB, mirroring physics-reference-db.test.ts.",
+      "expansionPlan": "WIRING IS THE EMERGENCY (P0), not breadth. Verified: across all 9 claimed consumer galaxies there are ZERO TypeScript runtime importers of mcp-server/data/prism-reference-db/*.json. The only 'wiring' is documentary — wire-db-stores-to-consumers.mjs splices a markdown note block (BEGIN/END) into each galaxy's PATHS.md/TOOLBELT.md saying 'galaxy X consumes PrismReferenceDB'; the galaxies consume a POINTER, not the data. The single real query path is prism_data:cimco_toollib_export → shells to export-tools-to-cimco-tmlib.mjs which reads ONLY tools.json (1 of 17 bundles) for a CIMCO tool-library export (CAM-adjacent). Worse, DatabaseRegistry.ts (the codebase's actual registry reader) loads a DIFFERENT dir (data/databases/DB_MANIFEST.json), not this one. Ordered plan: (1) Build a real ReferenceDBEngine that loads MANIFEST.json + lazy-loads category bundles by store-name (the README's documented access pattern) and register it under prism_data:database_search (the query path the doc-blocks already advertise but which does not load THIS dir). (2) Dedup+canonicalize: collapse the ~150 material stores to distinct datasets; replace inlined physics constants (modulusOfElasticity/specificCuttingForce/friction/KC) with references to src/physics/constants.ts (R12). (3) Wire ONE real consumer per galaxy as proof: speed-feed SFC reads kc1.1/mc + JC from the engine, quality reads alarm/safety codes, blueprint-vision reads OCR preprocessing pipelines — each with a round-trip E2E test (per CLAUDE.md engine-wiring rule). (4) Replace placeholder Johnson-Cook sets with real published constants (cite source per entry) before any FEM consumer trusts them. (5) Adopt the validated data/state/physics-reference-db.json {source,tolerance_pct,expected} discipline + its re-derivation test fleet-wide. Do NOT expand breadth until a real runtime loader + ≥1 verified consumer exists — breadth on an unconsumed DB is dead weight.",
+      "estEffortUnits": 7
+    },
+    {
+      "id": "coating-db-audit",
+      "coverageScore": 0.32,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 13,
+      "missingConsumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "wedm",
+        "cam"
+      ],
+      "topGaps": [
+        "FALSE COUNT: 19 actual entries vs claimed 100/'100+' — the header docstring and DB metadata overstate inventory 5x; the ~81 missing entries are the single biggest gap",
+        "No wear-kinetics / temperature-dependent physics: zero oxidation-onset Arrhenius rates, no crater/flank diffusion-wear coefficients, no spallation/delamination-vs-temperature curves (grep crater|oxidation_rate|arrhenius|diffusion|spallation=0). Entries carry a static max_service_temp scalar, not the kinetic model an SFC tool-life chain needs",
+        "No nanolayer/superlattice structural fields (period_nm, bilayer thickness, modulation) despite HIPIMS-nanostructured + TiAlSiN-nanocomposite entries already present — the property that drives their hardness is undocumented",
+        "Coarse material compatibility: only 6 buckets (P/M/K/N/S/H) rated 1-5; missing ISO subgroup granularity (P10/P20/P30, M10/M20, S-Inconel-vs-Ti split) that production speed/feed selection requires",
+        "Missing common production coatings: TiSiN, AlCrSiN, nc-AlTiN/a-Si3N4 multilayers, TiB2 (Al machining), WC/C low-friction DLC variants, ta-C, ZrCN, oxynitrides, and graded/gradient CVD systems — narrow PVD-nitride-heavy slate",
+        "sfc_factors are not load-bearing: speed_multiplier/tool_life_multiplier are read only by ToolEnrichmentEngine, NOT by any speed-feed/Kienzle core — coating data is decorative in the actual cutting-physics chain",
+        "No coating-substrate pairing rules (HSS vs carbide vs cermet adhesion limits), no re-grind/re-coat eligibility, no recommended-edge-prep, no cost/$ per coating for quote integration"
+      ],
+      "comprehensiveTarget": "100% = ~60-100 production coating systems spanning every commercial class (PVD/CVD/MT-CVD/PACVD/HIPIMS mono-, multi-, nano-layer + diamond/PCD/CBN/DLC family) per the SFC coating taxonomy and ISO 513 / ISO 3685 (tool-life testing) framing. Each entry should carry: (1) the existing mechanical/physical schema PLUS (2) temperature-dependent oxidation/diffusion-wear kinetics (Arrhenius A/Ea or an oxidation-onset + rate curve) so the Taylor/Kienzle tool-life chain can actually adjust for coating, (3) nanostructure fields (superlattice period, bilayer ratio) for HIPIMS/nanocomposite grades, (4) ISO-subgroup compatibility (P10-P40, M10-M30, K10-K30, N, S-Ti/S-Ni split, H) not just 6 coarse buckets, (5) coating-substrate adhesion limits + edge-prep + re-coat eligibility, (6) per-coating cost for quote routing. References: Sandvik/Walter/Kennametal/Seco coating catalogs, OC Oerlikon Balzers Balinit datasheets, ASM Handbook Vol.18 (Friction/Lubrication/Wear), Holmberg & Matthews 'Coatings Tribology', and the ISO 513 insert-coating classification. Crucially, the sfc_factors MUST be wired into the live speed-feed/Kienzle core (currently they are not).",
+      "expansionPlan": "Ordered, real-data-only: (1) FIX THE FALSE COUNT FIRST — correct the header docstring + DB metadata from '100+/100' to the true 19, or expand to match the claim; never ship a 5x inventory overstatement (R12). (2) Expand entries 19->~60 using real published datasheets: add TiSiN, AlCrSiN, nc-AlTiN/Si3N4, TiB2, ZrCN, oxynitride, WC/C-DLC, ta-C, graded CVD — source values strictly from Oerlikon Balzers Balinit + Sandvik/Walter/Kennametal/Seco catalogs (cite per entry in notes/trade_names); do NOT fabricate hardness/temp values. (3) Add kinetic-physics fields to the schema: oxidation onset + Arrhenius rate (or empirical wear curve), crater/flank diffusion coefficient — pull from ASM Handbook Vol.18 + Holmberg/Matthews. (4) Add nanostructure fields (period_nm, bilayer ratio) and backfill the existing HIPIMS/nanocomposite entries. (5) Refine compatibility from 6 coarse buckets to ISO 513 subgroups (split S into Ti/Ni). (6) WIRE FOR REAL: route sfc_factors (speed_multiplier, tool_life_multiplier, thermal_barrier) into the actual speed-feed/Kienzle core so coating choice changes computed feeds/tool-life — today only ToolEnrichmentEngine reads them, and no galaxy dir imports the registry; add a real consumption path + a round-trip E2E test through prism_calc that asserts a coated vs uncoated speed/tool-life delta. Each new entry/field gets a real-value regression test (no toBeDefined stubs).",
+      "estEffortUnits": 5
+    },
+    {
+      "id": "PostProcessorDB",
+      "coverageScore": 0.28,
+      "expansionPriority": "P1",
+      "wiringRealConsumers": 3,
+      "missingConsumers": [
+        "cam",
+        "mill",
+        "lathe",
+        "wedm"
+      ],
+      "topGaps": [
+        "7 of 14 declared ControllerFamily values have ZERO inline posts (fagor, hurco, doosan, brother, makino, dmg_mori, mitsubishi) — enum promises coverage the data lacks",
+        "Primary external DB PRISM_POST_PROCESSOR_DATABASE_V2.js (claimed 50+ controllers) is ABSENT from disk — loader first dbPath silently no-ops, so the 34 count is not reproducible from present sources",
+        "No per-controller canned-cycle parameter semantics: G73/G76/G81-G89 dwell/peck/retract/shift differ across Fanuc/Haas/Siemens/Okuma/Heidenhain — registry stores only program start/end skeletons",
+        "No 5-axis kinematic dialect data: RTCP/TCPC variants (Fanuc G43.4, Siemens TRAORI/CYCLE800, Heidenhain M128/PLANE, Haas G234) absent despite mill_5axis post_type",
+        "No high-speed look-ahead dialect (Fanuc G05.1 Q1, Siemens CYCLE832, Heidenhain CYCLE32, Haas G187) despite high_speed_machining flag",
+        "No probing/tool-measurement macro vocabularies per controller (Renishaw, Blum, OSP touch IGF, Heidenhain TCH PROBE) despite probing + tool_measurement flags",
+        "No EDM/laser/waterjet dialect entries despite wire_edm/sinker_edm/laser/waterjet PostType values — these enum members are dead here (WEDM served by a separate engine)",
+        "No decimal/feed/arc format validation rules tied to a verifiable spec (RS-274D/ISO 6983 / vendor manual citations missing)"
+      ],
+      "comprehensiveTarget": "100% = a per-controller-MODEL dialect corpus (not just family): for ~14 families x real models, a record with (a) full G/M-code lexicon with vendor-manual citation (Fanuc 30i/31i-B, Siemens SINUMERIK 840D sl, Haas NGC, Okuma OSP-P300, Heidenhain TNC640, Mazatrol SmoothAi), (b) canned-cycle parameter maps with per-cycle field semantics, (c) 5-axis kinematic post variants (RTCP/TCPC + plane/tilt cycles), (d) HSM look-ahead codes, (e) probing macro sets, (f) work-offset addressing (G54-G59 / G54.1 P / G500), (g) decimal/leading-zero/EOB format spec, (h) safety_checks tied to RS-274/NGC + ISO 6983 conformance, with EDM/laser/waterjet dialects either populated or formally delegated via WIRE-EXEMPT to WedmPostDialectRouterEngine. Governing refs: ISO 6983-1, RS-274D/NGC, plus each vendor programming manual as per-field source of truth.",
+      "expansionPlan": "1) Restore/regenerate the missing PRISM_POST_PROCESSOR_DATABASE_V2.js (or replace the dead dbPath) so loadFromDatabaseFile yields the claimed 34 — verify entry count at runtime and fail-loud if the source is absent (today it silently no-ops). 2) Populate the 7 empty ControllerFamily inline posts (fagor 8065, hurco WinMax, doosan Fanuc-i, brother Speedio CNC-D00, makino Pro6, dmg_mori CELOS, mitsubishi M800) from each vendor programming manual for program_start/end + decimal/arc format, citing source per field. 3) Add a canned_cycles sub-table per family with G73/G76/G81-G89 parameter semantics (Fanuc vs Siemens CYCLE81-89 vs Heidenhain CYCL DEF vs Okuma) — highest-leverage scientific gap mill/lathe consumers need. 4) Add 5-axis kinematic post variants (RTCP/TCPC) keyed off post_type mill_5axis from vendor 5-axis manuals. 5) Wire mill/lathe/cam to the registry via PostProcessorPipelineEngine as the canonical bridge (they reach posts only indirectly today; have MillTribalInjectorEngine/LatheTribalInjectorEngine query getByController directly), or document the indirection with explicit cross-refs. 6) Formally delegate wire_edm/sinker_edm/laser/waterjet PostTypes to WedmPostDialectRouterEngine via WIRE-EXEMPT pointer so enum members are not dead. Use real vendor-manual data — never fabricate dialect codes.",
+      "estEffortUnits": 6
+    },
+    {
+      "id": "PhysicsMappingDB",
+      "coverageScore": 0.45,
+      "expansionPriority": "P0",
+      "wiringRealConsumers": 0,
+      "missingConsumers": [
+        "speed-feed",
+        "cam",
+        "mill",
+        "lathe",
+        "wedm"
+      ],
+      "topGaps": [
+        "WEDM claimed as consumer but ZERO wire-EDM discharge mappings (spark-gap/flushing/pulse/wire-tension/recast) — registry is milling/turning only, wedm coverage fabricated",
+        "No tool-wear/tool-life routing: Taylor VB-T named but no parameterId routes speed/feed to wear-rate or remaining-life",
+        "No Johnson-Cook flow-stress/thermal-softening — only empirical Kienzle kc1_1; Ti/Inconel high-strain-rate regimes not routable",
+        "Coolant/MQL/cryogenic media unmapped — no routing of coolant pressure/concentration/through-tool to thermal or life constraint",
+        "coveragePercent self-referential (coveredDomains/hardcoded KNOWN_DOMAINS.size=15) — always near-100%, not a trustworthy completeness signal",
+        "Doc drift: header says 4 engines/~1942 but code imports a 5th (NONCAM); 1942 figure unverified-by-doc"
+      ],
+      "comprehensiveTarget": "100% = CAM-param->physics router covering every model for every claimed process: (1) mill/turn Kienzle kc1_1/mc per ISO group [HAVE] (Altintas); (2) full SLD chatter lobes [PARTIAL] (Altintas Ch4); (3) Taylor VC*T^n + VB-criterion tool life per ISO 3685 [MISSING]; (4) Johnson-Cook A/B/C/m/n + cutting-temp [PARTIAL, no JC]; (5) coolant/MQL/cryo chemistry routing [THIN]; (6) WEDM discharge: per-pulse energy E=integral(V*I*dt), MRR vs pulse/peak-current, recast/HAZ, wire-tension/flushing per Ho&Newman [MISSING, needed for wedm]; (7) Ra=f^2/(32*re) [HAVE]. coveragePercent must use an EXTERNAL taxonomy, not self-defined KNOWN_DOMAINS.",
+      "expansionPlan": "WIRING IS THE EMERGENCY. Verified: 0 production importers across mcp-server/src — all 6 importers are the registry itself + 5 hypermill-kc test files; none of speed-feed/cam/mill/lathe/wedm reference the registry or its source engines (per-galaxy grep=0). The e2e test only asserts engineRef STRING equality, never invokes the engine — even tested wiring is a string check. Dead asset: a 1942-entry 'verified' registry consumed by nobody. Ordered: (1) wire physicsMappingRegistry into SpeedFeedOrchestratorEngine/prism_calc so a CAM param resolves to safety-limit+formula at recommendation time — one move gives speed-feed+mill+lathe; (2) wire ChatterStabilityLobeEngine for SLD entries (cam); (3) add prism_calc:physics_mapping_lookup dispatcher action + a real-data E2E that CALLS the engine; (4) ONLY THEN add WEDM discharge mappings (Ho&Newman) to make 'wedm' honest, plus Taylor tool-life routing; (5) fix doc drift (5 engines not 4) + re-derive coveragePercent vs external taxonomy. Do NOT add data before step 1 — more mappings feeding zero consumers is pure debt.",
+      "estEffortUnits": 6
+    }
+  ]
+}

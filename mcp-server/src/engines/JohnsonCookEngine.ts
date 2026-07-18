@@ -110,6 +110,13 @@ const DB: Record<MaterialCategory, Record<string, JCParams>> = {
     "Rene_41":      { A: 950, B: 700, n: 0.58, C: 0.014, m: 1.22, T_melt: 1598 },
     "Udimet_720":   { A: 1000, B: 750, n: 0.56, C: 0.013, m: 1.28, T_melt: 1593 },
     "Haynes_230":   { A: 680, B: 900, n: 0.60, C: 0.016, m: 1.18, T_melt: 1628 },
+    // Inconel 718 -- the most-machined nickel superalloy, previously ABSENT from this
+    // canonical table (only 625/600/Waspaloy/etc. were present) so jc_params("Inconel_718")
+    // returned null. Value consolidated from the (deprecated, test-vetted) JohnsonCookEngine
+    // sibling JohnsonCookConstitutiveEngine.JOHNSON_COOK_PARAMS.Inconel_718, sourced via
+    // MIT 3.22 Mechanical Behavior of Materials (U-EXTRACT-JC-CONSTANTS). Additive: no existing
+    // material's flow stress changes. (U-OSC-JC-INCONEL718-CONSOLIDATE 2026-07-02)
+    "Inconel_718":  { A: 1241, B: 622, n: 0.65, C: 0.0134, m: 1.3, T_melt: 1609 },
   },
   copper: {
     "C10100": { A: 90, B: 292, n: 0.31, C: 0.025, m: 1.09, T_melt: 1356 },

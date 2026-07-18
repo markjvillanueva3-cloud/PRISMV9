@@ -1,0 +1,296 @@
+{
+  "id": "HM-PLG-MS8",
+  "version": "8.3.0",
+  "title": "Plugin Hardening + Licensing",
+  "track": "HM-PLUGIN",
+  "status": "not_started",
+  "description": "Harden the PRISM plugin for production deployment. Implement comprehensive error handling for all HTTP calls, AC API failures, and edge cases. Build offline mode with cached physics data for air-gapped shops. Implement RS256 JWT license verification with machine fingerprint binding. Compile Python to .pyd via Cython for source code protection. Build signed .zip distribution with auto-update checking. Obfuscate HTML/JS panel code.",
+  "dependencies": [
+    "HM-PLG-MS7"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillACAddInGenerator",
+      "LicenseTierGateEngine"
+    ],
+    "registries": [],
+    "services": [
+      "prism-mcp-server",
+      "prism-license-server"
+    ],
+    "physics": [],
+    "reference": [
+      "RS256-JWT-spec",
+      "Cython-compilation-guide",
+      "hypermill-plugin-distribution-guide"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hm-plugin:license-enforcement-gate — BUILT (blocks plugin activation without valid license)",
+    "action": "hypermill_plugin:validate_license — BUILT (RS256 JWT verification with machine fingerprint)",
+    "skill": "/hypermill-plugin-admin — BUILT (plugin administration: license, updates, diagnostics)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-PLG-MS8-S1",
+      "title": "Error Handling + Offline Mode",
+      "smart_config": {
+        "role": "reliability-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HTTP error handling patterns",
+        "Offline caching strategies",
+        "AC API failure modes"
+      ],
+      "intent": "Implement comprehensive error handling for all plugin operations and build offline mode with cached physics data for air-gapped shops.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG31",
+          "title": "Comprehensive Error Handling",
+          "description": "Implement error handling for all failure modes: PRISM server unreachable (show cached data or graceful degradation), AC API failures (catch COM exceptions, retry, user notification), malformed responses (schema validation on all HTTP responses), timeout handling (configurable per-action timeouts), and user-facing error messages (non-technical, actionable). Add error telemetry reporting to PRISM server when online.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Server unreachable shows 'PRISM Offline' badge with last-cached data timestamp",
+            "AC API COM exceptions caught with retry (3x) and user notification on persistent failure",
+            "All HTTP responses validated against expected schema before processing"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/PluginErrorHandlerEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/hypermill/plugin/PluginHTTPClientEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/"
+          }
+        },
+        {
+          "id": "U-PLG32",
+          "title": "Offline Mode + Physics Cache",
+          "description": "Build offline mode for air-gapped shops. Cache last-known-good physics data (material properties, tool catalog subset, machine limits) locally in encrypted SQLite. Offline mode provides: speed/feed recommendations from cached Kienzle parameters, tool search against cached catalog subset (last 500 used tools), quality predictions from cached models. Auto-sync when connection restored. Cache encrypted with AES-256.",
+          "depends_on": [
+            "U-PLG31"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Offline S/F recommendations use cached Kienzle kc1.1 values for all 6 ISO material groups",
+            "Cached tool catalog includes last 500 tools used with full geometry data",
+            "Auto-sync updates cache within 30 seconds of connection restoration"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/OfflineCacheEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/OfflineCacheEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "All error paths handled gracefully + offline mode provides S/F with cached data | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "hypermill_plugin:get_offline_status",
+          "hypermill_plugin:sync_cache"
+        ],
+        "new_skills": [],
+        "available_to": []
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-PLG-MS8-S2",
+      "title": "License Verification + Code Protection",
+      "smart_config": {
+        "role": "security-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "RS256 JWT verification",
+        "Cython .pyd compilation",
+        "Machine fingerprinting",
+        "Code obfuscation"
+      ],
+      "intent": "Implement RS256 JWT license verification with machine fingerprint binding, compile Python to .pyd via Cython, obfuscate HTML/JS, and build the signed distribution package.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG33",
+          "title": "RS256 License Verification + Machine Fingerprint",
+          "description": "Implement RS256 JWT license verification: plugin checks license JWT on startup against embedded public key. JWT claims include: tier (pro/enterprise), expiry, machine_fingerprint (SHA-256 of CPU ID + disk serial + MAC address). License validated locally (no phone-home required after initial activation). Grace period: 14 days after expiry before hard lock. License file stored in AC plugin directory.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "RS256 JWT verification passes with valid license and fails with expired/tampered license",
+            "Machine fingerprint SHA-256 matches current hardware (CPU ID + disk serial + MAC)",
+            "14-day grace period allows operation after expiry with daily warning notification"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/LicenseVerificationEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/LicenseVerificationEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG34",
+          "title": "Cython Compilation + Signed Distribution",
+          "description": "Compile all Python plugin modules to .pyd via Cython (Windows) or .so (Linux) for source code protection. Obfuscate HTML/JS panel code (minify + variable mangling + string encryption). Build signed .zip distribution: manifest.json (version, checksum, signature), compiled .pyd modules, obfuscated panels, embedded public key. Add auto-update checker (compares version against PRISM server, notifies user of available updates).",
+          "depends_on": [
+            "U-PLG33"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "All .py files compiled to .pyd with no readable Python source in distribution",
+            "HTML/JS panels minified and obfuscated with variable mangling applied",
+            "Signed .zip passes integrity verification (SHA-256 checksum + RS256 signature)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/DistributionBuilderEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/DistributionBuilderEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "License blocks unlicensed use + .pyd compiled + signed .zip builds + auto-update works | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "hm-plugin:license-enforcement-gate"
+        ],
+        "new_actions": [
+          "hypermill_plugin:validate_license",
+          "hypermill_plugin:check_updates"
+        ],
+        "new_skills": [
+          "/hypermill-plugin-admin"
+        ],
+        "available_to": []
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms8-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms8_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms8"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Harden the PRISM plugin for production deployment. Implement comprehensive error handling for all HTTP calls, AC API failures, and edge cases. Build offline mode with cached physics data for air-gapped shops. Implement RS256 JWT license verification with machine fingerprint binding. Compile Python to .pyd via Cython for source code protection. Build signed .zip distribution with auto-update checking. Obfuscate HTML/JS panel code.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS8 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS8. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

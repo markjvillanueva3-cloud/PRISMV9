@@ -155,7 +155,13 @@ describe("LathePrintToProgramDLIntelligenceEngine", () => {
       const tp = lathePrintToolpathGeneratorEngine.generateProgram(seq, hugePart, STEEL, {
         max_x_mm: 5, max_z_mm: 5, max_rpm: 5000, max_feed_mm_min: 10000,
       });
-      const emitted = lathePrintProgramEmitterEngine.emit(tp, { controller: "fanuc" });
+      // Bypass EnvelopeBlockError so the DL engine can score the actual program
+      // (LATHE-P2P-CONSENSUS-MS4/P1-U03 audit: emit-time hard-block landed after
+      // this test was authored; opt in here keeps the failure-score check honest).
+      const emitted = lathePrintProgramEmitterEngine.emit(tp, {
+        controller: "fanuc",
+        allow_envelope_override: true,
+      });
 
       const input: DLInput = {
         strategy_plan: strat, sequence_plan: seq, toolpath: tp, emitted,

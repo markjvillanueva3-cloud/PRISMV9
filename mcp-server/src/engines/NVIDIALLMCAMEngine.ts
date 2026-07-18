@@ -9,7 +9,10 @@
  *
  * Detection signal precedence:
  *   1. Explicit endpoint via opts.endpoint
- *   2. NVIDIA_NIM_ENDPOINT or TRITON_HTTP_ENDPOINT env var
+ *   2. NVIDIA_NIM_ENDPOINT, TRITON_HTTP_ENDPOINT, or NIM_URL env var
+ *      (NIM_URL is PRISM's canonical name — shared with local-llm-bridge.mjs
+ *      and the nim-autostart.mjs SessionStart hook; it carries a `/v1` suffix
+ *      which resolveEndpoint() strips since the engine appends its own route)
  *   3. Heuristic probe of the configured default endpoint (HTTP HEAD with
  *      short timeout)
  *
@@ -33,13 +36,13 @@ export type NVIDIACAMTaskKind =
   | "tool_select_advisor";
 
 export interface NVIDIAQueryOptions {
-  /** Override endpoint URL. Default: env NVIDIA_NIM_ENDPOINT or TRITON_HTTP_ENDPOINT or http://127.0.0.1:8000. */
+  /** Override endpoint URL. Default: env NVIDIA_NIM_ENDPOINT, TRITON_HTTP_ENDPOINT, or NIM_URL; else http://127.0.0.1:8000. A trailing `/v1` segment is stripped (the engine appends its own `/v1/...` route). */
   endpoint?: string;
-  /** Override model name. Default: "meta/llama-3.1-8b-instruct". */
+  /** Override model name. Default: "meta/llama-3.2-3b-instruct" (the model NIM serves on the default port-8000 endpoint). */
   model?: string;
   /** Bearer token. Default: env NVIDIA_API_KEY. */
   apiKey?: string;
-  /** Override timeout. Default 12000ms (GPU first-token latency). */
+  /** Override timeout. Default 30000ms (covers a NIM's one-time first-request xgrammar grammar-compile; warm requests are ~1-2s). */
   timeoutMs?: number;
   /** Override temperature. Default 0.0 for deterministic CAM output. */
   temperature?: number;
@@ -110,8 +113,16 @@ export interface NVIDIAHealthResult {
 
 // ── Bounds and constants ────────────────────────────────────────────────────
 const DEFAULT_ENDPOINT = "http://127.0.0.1:8000";
-const DEFAULT_MODEL = "meta/llama-3.1-8b-instruct";
-const DEFAULT_TIMEOUT_MS = 12_000;
+// Matches the model NIM serves on the default port-8000 endpoint: the PRISM
+// NIM compose (H:/Tools/nim/compose/rtx4080.yml) binds llama-3.2-3b there.
+// The 8b is a separate container on a separate port — callers target it by
+// passing opts.model + opts.endpoint explicitly.
+const DEFAULT_MODEL = "meta/llama-3.2-3b-instruct";
+// 30s: a local NIM's FIRST guided-JSON request (response_format: json_object)
+// pays a one-time xgrammar grammar-compile cost that can exceed 12s; warm
+// requests return in ~1-2s. Callers may still override via opts.timeoutMs
+// (clamped to [TIMEOUT_MIN_MS, TIMEOUT_MAX_MS]).
+const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_TEMPERATURE = 0.0;
 const DEFAULT_MAX_TOKENS = 1024;
 const HEALTH_PROBE_TIMEOUT_MS = 1500;
@@ -529,13 +540,29 @@ function clamp(value: number, lo: number, hi: number): number {
 }
 
 function resolveEndpoint(override?: string): string {
-  if (override && override.trim().length > 0) return override.trim();
+  if (override && override.trim().length > 0) return normalizeNimBase(override);
   const env =
     process.env.NVIDIA_NIM_ENDPOINT ||
     process.env.TRITON_HTTP_ENDPOINT ||
+    process.env.NIM_URL ||
     "";
-  if (env.trim().length > 0) return env.trim();
+  if (env.trim().length > 0) return normalizeNimBase(env);
   return DEFAULT_ENDPOINT;
+}
+
+/**
+ * Normalize an endpoint to a bare `scheme://host:port` base. query() and
+ * healthCheck() append their own `/v1/chat/completions` and `/v1/models`
+ * routes, so a trailing `/v1` segment (and any trailing slashes) must be
+ * stripped first. This lets the PRISM-canonical `NIM_URL` — which is
+ * `/v1`-suffixed (see local-llm-bridge.mjs + nim-autostart.mjs) — be consumed
+ * directly without producing a doubled `/v1/v1/...` URL, and likewise
+ * normalizes a `/v1`-suffixed explicit override.
+ */
+function normalizeNimBase(url: string): string {
+  let u = url.trim().replace(/\/+$/, "");
+  if (/\/v1$/i.test(u)) u = u.slice(0, -3).replace(/\/+$/, "");
+  return u;
 }
 
 function mapTransportError(err: unknown): NVIDIAErrorCode {

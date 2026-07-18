@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-05-28",
+  "generated_by": "claude-ac1150e0 (slot:alpha) online-scrape session",
+  "shop": "JM Die Company",
+  "machines": [
+    {
+      "machine_id": "LTH-01", "machine_name": "Okuma GENOS L300-M", "controller": "OSP-P300L-R",
+      "status": "not_downloaded", "tier": 2,
+      "primary_source": "https://www.myokuma.com",
+      "notes": "myOkuma is now THINC App Store post-2023; manuals moved to Okuma Service Portal via distributor (Hartwig/Morris Midwest IL). Phone 1-704-588-7000 (Okuma America). Best path: HELP key on machine + USB stick extract from C:\\OSP\\HELP\\."
+    },
+    {
+      "machine_id": "LTH-02", "machine_name": "Okuma GENOS L200E-M", "controller": "OSP-P200LA-R",
+      "status": "not_downloaded", "tier": 2,
+      "primary_source": "https://www.myokuma.com",
+      "notes": "Same path as LTH-01. P200LA-R is the lathe variant of P-family."
+    },
+    {
+      "machine_id": "LTH-03", "machine_name": "Okuma LNC8", "controller": "OSP-U10L",
+      "status": "not_downloaded", "tier": 2,
+      "primary_source": "https://www.myokuma.com",
+      "fallback": "archive.org / cncmanual.com — OSP-U10L is older, often mirrored publicly",
+      "notes": "Older OSP — may not be on current myOkuma. Try Hartwig service department first."
+    },
+    {
+      "machine_id": "LTH-04", "machine_name": "Okuma Crown L1060", "controller": "OSP-U10L",
+      "status": "not_downloaded", "tier": 2,
+      "primary_source": "https://www.myokuma.com",
+      "fallback": "archive.org / cncmanual.com",
+      "notes": "Same OSP-U10L family as LNC8."
+    },
+    {
+      "machine_id": "LTH-05", "machine_name": "Okuma GENOS L400II-E", "controller": "OSP-P300LA-E",
+      "status": "not_downloaded", "tier": 2,
+      "primary_source": "https://www.myokuma.com",
+      "notes": "Ai-Enhanced variant. Current production — manuals well-supported on the Service Portal."
+    },
+    {
+      "machine_id": "LTH-06", "machine_name": "Okuma LB 3000EX Big Bore", "controller": "OSP-P500",
+      "status": "not_downloaded", "tier": 2,
+      "primary_source": "https://www.myokuma.com",
+      "notes": "P500 is the current top-tier lathe controller; manual set is comprehensive."
+    },
+    {
+      "machine_id": "LTH-07", "machine_name": "Okuma Multus B250II", "controller": "OSP-P300SA",
+      "status": "not_downloaded", "tier": 2, "priority": "HIGH",
+      "primary_source": "https://www.myokuma.com",
+      "notes": "Multi-tasking machine; 4-manual set: Operation, Programming, LAP3 (Lathe Auto Programming), Mill-Turn macros. THIS IS THE ONE THE OPERATOR STARTED WITH — prioritize."
+    },
+    {
+      "machine_id": "VMC-01", "machine_name": "Hurco VM30i", "controller": "WinMAX v10",
+      "status": "html_help_captured", "tier": 1,
+      "primary_source": "https://support.hurco.com/wp-content/uploads/hurco_mill/index.htm",
+      "html_sections": [
+        "Getting Started with WinMax Mill",
+        "Conversational Programming",
+        "NC Programming",
+        "Rotary Programming",
+        "Probing",
+        "Machine Connectivity",
+        "Field Names Glossary"
+      ],
+      "notes": "Hurco WinMax docs are pure HTML help (no PDFs). Public, no login. Browseable at the URL above. For PRISM ingestion: needs HTML-tree mirror (wget -r equivalent) or per-page scraper unit."
+    },
+    {
+      "machine_id": "VMC-02", "machine_name": "Okuma M460V-5AX", "controller": "OSP-P300MA-H",
+      "status": "not_downloaded", "tier": 2,
+      "primary_source": "https://www.myokuma.com",
+      "notes": "5-axis manual + kinematics/RTCP reference essential for this machine."
+    },
+    {
+      "machine_id": "VMC-03", "machine_name": "Haas VF-2", "controller": "PRE-NGC (Classic Haas)",
+      "status": "downloaded_ngc_compatible", "tier": 1,
+      "primary_source": "https://www.haascnc.com/service/search-results.manual.html",
+      "downloaded_files": [
+        "H:/PRISM/JM DIE/CONTROLLERS/HAAS/manuals/haas-mill-ngc-operators-manual-2025.pdf (22.0 MB)",
+        "H:/PRISM/JM DIE/CONTROLLERS/HAAS/manuals/haas-mill-ngc-operators-manual-2024.pdf (21.0 MB)",
+        "H:/PRISM/JM DIE/CONTROLLERS/HAAS/manuals/haas-mill-ngc-operators-manual-2023.pdf (21.0 MB)",
+        "H:/PRISM/JM DIE/CONTROLLERS/HAAS/manuals/haas-mill-interactive-manual-print-2023.pdf (19.4 MB)"
+      ],
+      "notes": "VF-2 is pre-NGC (Classic Haas Control) but G-codes/M-codes/settings are 95% identical. UI is button-driven instead of NGC touchscreen. For UI-specific pre-NGC operator manual, request from local HFO (Haas Factory Outlet). NGC manuals cover the programming reference operator needs."
+    },
+    {
+      "machine_id": "VMC-04", "machine_name": "Haas OM-2 (Office Mill)", "controller": "PRE-NGC (Classic Haas)",
+      "status": "downloaded_ngc_compatible", "tier": 1,
+      "primary_source": "https://www.haascnc.com/service/search-results.manual.html",
+      "downloaded_files": "Same NGC mill manuals as VMC-03 (one set covers both).",
+      "notes": "Office Mill is VF-1 derivative on Classic Haas Control. Same caveats as VF-2."
+    },
+    {
+      "machine_id": "VMC-05", "machine_name": "Roku-Roku HC 658-II", "controller": "Fanuc 31i-B5",
+      "status": "not_downloaded", "tier": 4,
+      "primary_source": "Methods Machine Tools (US distributor) https://www.methodsmachine.com/",
+      "fanuc_manual": "Fanuc Series 30i/31i/32i Operator Manual B-64484EN family — findable on archive.org, cncmanual.com, industryarena.com forums",
+      "notes": "Roku-Roku is gated to dealers. Get HC 658-II spec sheet from Methods. For Fanuc 31i-B5 G/M-code reference, the B-64484EN-1 operator manual is publicly archived; needs operator-driven search (forums require login)."
+    },
+    {
+      "machine_id": "EDM-01", "machine_name": "Mitsubishi EA12S", "controller": "FP80S",
+      "status": "not_downloaded", "tier": 3,
+      "primary_source": "https://www.mcmachinery.com/customer-portal/",
+      "notes": "MC Machinery customer portal — needs login (call your distributor). Public product page URLs change frequently (just tried 2, both 404)."
+    },
+    {
+      "machine_id": "EDM-02", "machine_name": "Mitsubishi EA12D", "controller": "C30EA-2",
+      "status": "not_downloaded", "tier": 3,
+      "primary_source": "https://www.mcmachinery.com/customer-portal/",
+      "notes": "Newer C30 control. Same portal access as EDM-01."
+    },
+    {
+      "machine_id": "WEDM-01", "machine_name": "Mitsubishi FA10S", "controller": "W31MV-2",
+      "status": "not_downloaded", "tier": 3,
+      "primary_source": "https://www.mcmachinery.com/customer-portal/",
+      "notes": "Programming manual is gated. Public spec sheet exists at mcmachinery.com (product pages — just navigate from /products/wire-edm/)."
+    }
+  ],
+  "tier_summary": {
+    "tier_1_public_no_login": ["VMC-01 (Hurco - HTML)", "VMC-03 (Haas - PDF downloaded)", "VMC-04 (Haas - PDF downloaded)"],
+    "tier_2_serial_gated_okuma": ["LTH-01..LTH-07", "VMC-02"],
+    "tier_3_distributor_portal_mitsubishi": ["EDM-01", "EDM-02", "WEDM-01"],
+    "tier_4_dealer_or_archive": ["VMC-05 (Roku-Roku + Fanuc)"]
+  },
+  "downloads_this_session": {
+    "haas_pdfs": 9,
+    "haas_size_bytes": 168000000,
+    "hurco_html_manifest_entries": 7,
+    "okuma_pdfs": 0,
+    "mitsubishi_pdfs": 0,
+    "roku_roku_pdfs": 0,
+    "fanuc_pdfs": 0
+  },
+  "next_steps_operator_required": [
+    "1. CALL Hartwig Inc (IL Okuma distributor) or Morris Midwest — get Okuma Service Portal credentials for JM Die serial numbers. Unlocks 8 of 15 machines.",
+    "2. CALL Okuma America 1-704-588-7000 if distributor stalls — they will email PDFs for verified serials.",
+    "3. CALL MC Machinery Systems — get customer portal account for JM Die. Unlocks 3 EDM machines.",
+    "4. CALL Methods Machine Tools — request Roku-Roku HC 658-II spec sheet + Fanuc 31i-B5 op manual reference.",
+    "5. ON-MACHINE: For each Okuma, plug FAT32 USB stick into OSP, navigate Program -> File Maintenance -> USB, copy C:\\OSP\\HELP\\ or D:\\OSP\\MANUAL\\ to stick. No password needed."
+  ],
+  "next_steps_autonomous": [
+    "1. Mirror Hurco WinMax HTML help recursively (wget -r equivalent) into JM DIE/CONTROLLERS/HURCO/winmax-mill/ + winmax-lathe/ + how-to/.",
+    "2. Run /pdf-learn on H:/PRISM/JM DIE/CONTROLLERS/HAAS/manuals/ — ingest 9 Haas PDFs into PRISM tribal/wiki/components.",
+    "3. Build a HurcoWinMaxHtmlScraperEngine if recursive HTML ingestion is desired (would be a forge unit).",
+    "4. Try archive.org search for 'Fanuc 31i-B5 operator manual B-64484EN' — open access if found."
+  ]
+}

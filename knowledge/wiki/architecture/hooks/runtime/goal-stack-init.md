@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-goal-stack-init.mjs — Phase 0.13 Goal Stack InitializationSessionStart hook that loads and validates the goal stack.Runs after awareness-bootstrap per HOOK_ORDER_REGISTRY.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

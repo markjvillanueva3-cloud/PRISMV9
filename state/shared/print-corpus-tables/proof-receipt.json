@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-21T17:57:06.063Z",
+  "pipeline": "PRINT-OCR-100PCT-MS0",
+  "proofKind": "fixture-end-to-end",
+  "fixtureCount": 5,
+  "writerDir": "H:/prism/state/shared/print-corpus-tables",
+  "report": {
+    "totalRows": 5,
+    "passingRows": 5,
+    "rowsWithGroundTruth": 5,
+    "rowsPendingReview": 0,
+    "rowsFailedExtraction": 0,
+    "overallCoveragePct": 100,
+    "isOneHundredPercent": true,
+    "byCustomer": [
+      {
+        "customer": "ITW",
+        "totalRows": 2,
+        "passingRows": 2
+      },
+      {
+        "customer": "Alcoa",
+        "totalRows": 2,
+        "passingRows": 2
+      },
+      {
+        "customer": "Optimas",
+        "totalRows": 1,
+        "passingRows": 1
+      }
+    ],
+    "rowsRequiringReview": []
+  },
+  "interpretation": "PROVEN: pipeline reaches isOneHundredPercent=true with fixture corpus + operator-confirmed ground truth.",
+  "nextStep": "Scale to full H:/ corpus via scripts/scan-print-corpus.mjs (throughput-bound + operator-review-queue)."
+}

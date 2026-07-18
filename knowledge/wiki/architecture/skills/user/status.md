@@ -23,13 +23,22 @@ related:
 |-------|-------|
 | Name | `status` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/status.md` |
+| Source | `C:/Users/wompu/.claude/commands/status.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Status — Instant System Overview (<30 seconds, <100 tokens output)
+
+You are generating an ultra-compact PRISM system snapshot. Do NOT read any large files (no SYSTEM_INVENTORY.md, no MASTER_INDEX.md). All data comes from filesystem counts and git. Complete fast.
+
+## Args: $ARGUMENTS
+- Empty: full status card
+- `counts`: file counts only
+- `git`: recent commits only
+- `build`: build+tes
 
 <!-- AUTO-END -->
 

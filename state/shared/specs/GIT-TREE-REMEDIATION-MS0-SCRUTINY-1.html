@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="2b78fc0baa534a131842efdb393823f2bda2b538b537abb3fa4b546cb5bc9082">
+<title>GIT-TREE-REMEDIATION-MS0 — Scrutiny Pass 1</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">GIT-TREE-REMEDIATION-MS0 — Scrutiny Pass 1</h1>
+<p class="provenance">Generated 2026-05-12T18:55:25.674Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#git-tree-remediation-ms0-scrutiny-pass-1">GIT-TREE-REMEDIATION-MS0 — Scrutiny Pass 1</a></li>
+<li class="toc-l2"><a href="#a-factual-corrections-the-roadmap-states-these-wrong-fix-before-execution">A. FACTUAL CORRECTIONS (the roadmap states these wrong — fix before execution)</a></li>
+<li class="toc-l2"><a href="#b-consolidated-must-fix-list-prioritized-merges-the-3-agents-top-5s">B. CONSOLIDATED MUST-FIX LIST (prioritized; merges the 3 agents&#39; top-5s)</a></li>
+<li class="toc-l2"><a href="#c-sequencing-revisions-consolidated">C. SEQUENCING REVISIONS (consolidated)</a></li>
+<li class="toc-l2"><a href="#d-the-3-scores-what-they-mean">D. THE 3 SCORES &amp; WHAT THEY MEAN</a></li>
+<li class="toc-l2"><a href="#e-next-action">E. NEXT ACTION</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="git-tree-remediation-ms0-scrutiny-pass-1"><a class="anchor" href="#git-tree-remediation-ms0-scrutiny-pass-1" aria-label="Permalink to GIT-TREE-REMEDIATION-MS0 — Scrutiny Pass 1">#</a>GIT-TREE-REMEDIATION-MS0 — Scrutiny Pass 1</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-05-12 · <strong>Method:</strong> 3 parallel review agents (correctness/feasibility · risk/safety/rollback · completeness/alternatives/doctrine), each with the PRISM SPAWNED-AGENT CONTEXT auto-injected (now incl. the <code>## Doctrine &amp; memory</code> section) + explicit instruction to use CLAUDE.md, the memory vault, the wiki, and <code>system-viz-query</code>. Target: <code>GIT-TREE-REMEDIATION-MS0-ROADMAP-2026-05-12.md</code> @ commit <code>637502940</code>. <strong>Verdict:</strong> the <em>spine</em> is sound (zero-risk hygiene → anti-bifurcation hooks → quiesced rewrite → trunk reconcile → cleanup → doc; tier-floor invariant; <code>--mirror</code> backup as the irreversibility line; warn-first hooks; full failure-mode register). But it has <strong>factual errors about the current repo</strong>, <strong>~14 omissions</strong>, <strong>a non-functional git operation</strong>, <strong>risky push sequencing</strong>, <strong>no enforcement on the commit freeze</strong> (the most likely real-world data-loss event), and <strong>three conflicting unit-numbering schemes</strong>. Scores: <strong>Correctness 74/100 · Safety 58/100 · Completeness 68/100.</strong></p>
+</blockquote>
+<hr>
+<h2 id="a-factual-corrections-the-roadmap-states-these-wrong-fix-before-execution"><a class="anchor" href="#a-factual-corrections-the-roadmap-states-these-wrong-fix-before-execution" aria-label="Permalink to A. FACTUAL CORRECTIONS (the roadmap states these wrong — fix before execution)">#</a>A. FACTUAL CORRECTIONS (the roadmap states these wrong — fix before execution)</h2>
+<ol>
+<li><strong>THREE (four) mutually-unrelated histories, not two.</strong> <code>git merge-base</code> returns nothing for <em>every</em> pair: <code>cad-fusion-live-ms0</code> ⟂ <code>main</code> ⟂ <code>master</code> ⟂ <code>claude/fervent-bohr</code>. Commit counts: <code>cad-f</code> <strong>1216</strong> (roadmap says 1211), <code>main</code> 874, <strong><code>master</code> 1326</strong> (the <em>most</em> commits of any branch — the roadmap treats it as a parenthetical &quot;diff-review&quot;). The reconciliation problem is bigger than stated: <code>master</code> needs its own <code>U-GC-11</code>-grade analysis; the <code>claude/*</code> branches are independent roots (200–1300 unique commits each), not &quot;pre-fork divergence&quot;.</li>
+<li><strong><code>recovery</code> is NOT a remote.</strong> <code>git remote -v</code> → only <code>origin</code>. What exists is a dangling remote-tracking ref <code>refs/remotes/recovery/work/intel-ollama-obsidian-ms0</code> (→ <code>12fe39f23</code>) left over from a removed remote. So <code>U-GC-16</code>&#39;s <code>git push &lt;remote&gt; :&lt;branch&gt;</code> on it would fail — correct cleanup is <code>git update-ref -d refs/remotes/recovery/work/intel-ollama-obsidian-ms0</code> (a P0 housekeeping step).</li>
+<li><strong><code>state/shared/system-viz/system-graph.json</code> is NOT currently tracked</strong> (<code>git ls-files</code> doesn&#39;t list it; <code>git check-ignore</code> exit 1 — not ignored either; it&#39;s regenerated locally). The 118 MB blob lives <strong>only in history</strong> → only <code>U-GC-09</code>&#39;s <code>filter-repo</code> can strip it. <code>U-GC-04</code>&#39;s claim &quot;removes the 118 MB blob from the next tree&quot; is wrong; what <code>git rm --cached</code> actually removes is the <em>tracked</em> <code>*-augmentation.json</code> files + <code>mcp-server/dev/null</code>. <strong>And: several <code>*-augmentation.json</code> are hand-curated overlays</strong> (<code>cam-vendor-catalog-augmentation.json</code>, <code>engine-classification-repair-log.json</code>, <code>action-engine-edges-augmentation.json</code> — all in the live <code>git status -M</code> list) — the blanket <code>*-augmentation.json</code> gitignore pattern would <em>lose curated data on a fresh checkout</em>. U-GC-03/04 need a per-file audit (generated → ignore; curated → keep tracked), not a glob.</li>
+<li><strong>&gt;100 MB blob inventory is incomplete: 7 blobs, not &quot;5 commits all system-graph.json&quot;.</strong> Six <code>system-graph.json</code> versions (incl. a <strong>182.5 MB</strong> one the roadmap never lists), one <strong>134 MB <code>obsidian-augmentation.json</code></strong>, plus <code>models/ggml-large-v3.bin</code> (<strong>3.09 GB</strong>) / <code>models/ggml-base.bin</code> (148 MB) on <code>archive/forge-orphans</code>. The <code>filter-repo --path</code> list happens to cover <code>obsidian-augmentation.json</code>, but the prose will mislead an operator.</li>
+<li><strong><code>git-filter-repo</code> is NOT installed</strong> (<code>which git-filter-repo</code> fails; no python module). <code>U-GC-09</code> step 0 must be &quot;install it (pip / scoop / standalone script)&quot;. F1 only worries about linked worktrees.</li>
+<li><strong><code>git config worktree.baseRef head</code> does NOTHING.</strong> <code>worktree.baseRef</code> is not a git config key — git stores it as inert text and never reads it (verified). It&#39;s a <strong>Claude-Code harness setting</strong> (per the <code>EnterWorktree</code> tool doc: <code>fresh</code>=branch-from-<code>origin/&lt;default&gt;</code>, <code>head</code>=branch-from-current-HEAD). It must be set in <strong><code>H:/.claude/settings.json</code></strong> (the C:→H: mirror source), under the key the harness reads — <em>not</em> <code>.git/config</code>. As written, the bifurcation vector stays open and the unit&#39;s acceptance (&quot;EnterWorktree branches off current HEAD&quot;) fails.</li>
+<li>**<code>.git</code> is ~43 GB and the loose pile is mostly <em>reachable history</em>, not garbage<strong> (<code>prune-packable: 16511</code> of 216 759; <code>garbage: 0</code>). <code>git gc --prune=now</code> shrinks <code>.git</code> by </strong>repack/delta/zlib** of all reachable objects (the JSON blobs compress ~5–10×) and <em>deletes</em> only the unreachable 16 K. The &quot;42 GB → 3–5 GB via pruning&quot; framing mislabels reachable history as &quot;garbage&quot; and the estimate is coincidental (it&#39;ll mostly come from repacking). 56 packs → also call out a one-time <code>git repack -adf</code>.</li>
+<li><strong><code>git push --dry-run … → no GH001</code> is a false-confidence acceptance check</strong> — <code>--dry-run</code> doesn&#39;t transfer objects, so the server never sees the 118 MB blob and never raises GH001 (verified: <code>git push --dry-run origin cad-fusion-live-ms0</code> succeeds <em>right now</em> on the un-fixed repo). Replace with: verify the blob is <em>gone</em> (<code>git rev-list --objects HEAD | git cat-file --batch-check=&#39;%(objecttype) %(objectname) %(objectsize) %(rest)&#39; | awk &#39;$3&gt;104857600&#39;</code> → empty), or an actual <code>git push</code>.</li>
+<li><strong><code>git fsck --full</code> on a 43 GB repo takes minutes-to-tens-of-minutes</strong> — it appears in 3 units&#39; acceptance with no time budget; use <code>--connectivity-only</code> / <code>--no-dangling</code> or budget ≥10 min.</li>
+<li><strong><code>enforce-handoff-topic.mjs</code> excludes <code>main</code>/<code>master</code>/<code>develop</code> from branch-based topic derivation — but NOT <code>cad-fusion-live-ms0</code>.</strong> Today a chat on <code>cad-f</code> gets topic <code>&quot;cad-fusion-live-ms0&quot;</code>; post-rename it&#39;s on <code>main</code> → derivation skips the branch step → handoff filenames change form (the &quot;topicless handoff&quot; failure class CLAUDE.md warns about). Add <code>cad-fusion-live-ms0</code> to that exclusion list <em>now</em> so pre/post-rename behavior matches.</li>
+<li><strong>CI is keyed on <code>main</code>.</strong> <code>.github/workflows/{ci,deploy,auto-index,dockerfile-sync}.yml</code> all have <code>branches: [main]</code> (<code>ci.yml</code> twice). CI has <em>never</em> run against <code>cad-fusion-live-ms0</code> → the live trunk is CI-unverified. This is an <em>argument FOR the rename</em> — and post-rename CI starts firing on the new <code>main</code> (a behavior change to flag, not a surprise). No workflow hardcodes <code>cad-fusion-live-ms0</code> (checked).</li>
+<li><strong><code>work/merge-staging-ms0</code> is internally inconsistent in the roadmap:</strong> <code>U-GC-12</code> says &quot;reset merge-staging to cad-f HEAD&quot; while <code>U-GC-11</code>&#39;s breakdown counts &quot;MERGE-STAGING (12)&quot; as unique work to triage and <code>U-GC-14</code> lists it with 47 dirty lines. You can&#39;t both reset it and preserve its 12 commits. Fix: triage merge-staging&#39;s WIP + 12 commits in <code>U-GC-14</code>/<code>U-GC-17</code> first; for reconciliation use a <em>fresh</em> <code>work/trunk-reconcile-&lt;date&gt;</code> branch, leave <code>merge-staging</code> for triage.</li>
+<li><strong><code>brave-euclid</code> worktree:</strong> its <code>.git</code> file is <code>gitdir: C:/PRISM/.git/worktrees/brave-euclid</code> — points at the <em>wrong drive</em>. Confirm <code>C:/PRISM/</code> doesn&#39;t exist as a separate clone (if it does, it&#39;s a clone that needs the <code>U-GC-10</code> re-sync treatment) before removing the stray dir.</li>
+</ol>
+<hr>
+<h2 id="b-consolidated-must-fix-list-prioritized-merges-the-3-agents-top-5s"><a class="anchor" href="#b-consolidated-must-fix-list-prioritized-merges-the-3-agents-top-5s" aria-label="Permalink to B. CONSOLIDATED MUST-FIX LIST (prioritized; merges the 3 agents&#39; top-5s)">#</a>B. CONSOLIDATED MUST-FIX LIST (prioritized; merges the 3 agents&#39; top-5s)</h2>
+<p><strong>P0-blocking (do these before any execution):</strong></p>
+<ol>
+<li><strong>Renumber the roadmap once, cleanly.</strong> It openly has 3 conflicting schemes (<code>U-GC-00…22</code> in META; <code>U-GC-03/04/04b/05/05cfg/06/06b</code> in phase bodies; the DAG&#39;s own) and says &quot;the DAG is authoritative … wait — keep the canonical numbering.&quot; For an execution artifact that&#39;s a defect. Suggested: P0 = <code>U-GC-01..05</code> (gitignore+untrack curated-audited, branch-cruft+recovery-ref, <code>worktree.baseRef</code> <em>as a harness setting</em>, <code>gc</code>+<code>repack -adf</code>, <code>/sync-rebase --base</code> fix), P1 = <code>U-GC-06..09</code> (canonical-trunk shared module, <code>trunk-guard.mjs</code> SessionStart, <code>worktree-commit-route</code> trunk-check, doc reconcile), P2 = <code>U-GC-10..14</code> (verified backup ×2 off-drive, <strong>freeze-hook</strong>, dirty-worktree sweep [start day 1], filter-repo+<code>--prune-empty=never</code>, force-push-rewritten-refs-only+resync), P3 = <code>U-GC-15..18</code> (<code>main</code>/<code>master</code>/<code>claude*</code> analysis ×3, B-vs-C decision gate, execute reconcile, rename→<code>main</code>+retire-as-tags), P4 = <code>U-GC-19..24</code> (origin-only-branch triage, stale-fork auto-triage script + review + exec, broken-worktree removal, <code>archive/forge-orphans</code> decision), P5 = <code>U-GC-25..27</code> (partial verify after P0+P1, full verify, document+memory).</li>
+<li><strong><code>worktree.baseRef</code>: set it as a HARNESS setting in <code>H:/.claude/settings.json</code>, not <code>git config</code></strong> (correction A.6). The whole point of the unit fails otherwise.</li>
+<li><strong>Add a freeze-enforcement unit (<code>U-GC-FREEZE</code>, executes immediately before the rewrite, removed after the resync verifies).</strong> The roadmap names &quot;commit freeze&quot; as the mitigation for F3/F17 but has <em>no mechanism</em> — 8 autonomous YOLO chats that auto-commit after each unit will land a commit on doomed history during the 30–60 min window → silently <code>reset --hard</code>&#39;d away at force-push time. <strong>The fix:</strong> a temporary <strong>bundle-absorbed PreToolUse hard-block hook</strong> <code>git-maintenance-freeze.mjs</code> (denies all non-operator <code>git (commit|push|merge|rebase|reset|cherry-pick|filter-repo|worktree add)</code> while <code>state/shared/.git-freeze-active</code> exists), wired into <code>bash-bundle.mjs</code> SUB_HOOKS so <code>stop_on_hook_unregistration</code> + <code>settings-json-addonly-guard</code> don&#39;t trip; a Stop-hook clause that skips <code>git-sync-stop</code>&#39;s push while the flag is set; <code>PRISM_DISABLE_GIT_SYNC=1</code> (or the real off-switch — verify one exists) for the window; and a <strong>pre-<code>reset</code> assertion in the force-push unit</strong>: <code>git log origin/&lt;branch&gt;..&lt;branch&gt;</code> must be empty — else cherry-pick those commits onto the rewritten history first, never <code>reset --hard</code> past unmerged local work. Fully reversible (<code>rm</code> the flag + revert the bundle entry) → &quot;never delete only disable&quot; compliant.</li>
+<li><strong>Backup posture: ≥2 independent backups, ≥2 physical volumes, verified, kept until P4+P5 done.</strong> The roadmap&#39;s single <code>git clone --mirror</code> to <code>H:/prism-git-backup-*.git</code> is on the <em>same (per memory, portable) drive</em> as the repo and is deleted on a fixed 30-day clock while P4 deletions &quot;run incrementally over weeks&quot;. Fix: <code>git clone --mirror</code> to a <em>different</em> volume <strong>and</strong> <code>git bundle create … --all</code> off-drive; <code>git -C &lt;backup&gt; fsck --full</code> + <code>rev-parse cad-fusion-live-ms0</code> + size-check <em>each</em>; take them <strong>before</strong> <code>U-GC-05</code>&#39;s <code>gc --prune=now</code> (not at U-GC-09); keep until all of P4+P5 complete and verified. (The <code>leave-a-copy-behind-guard.mjs</code> Stop hook may flag a premature backup deletion — aligns with this.)</li>
+<li><strong><code>filter-repo</code> will prune commits that contained only <code>system-graph.json</code> — possibly including HEAD.</strong> <code>--invert-paths</code> on a path that was a commit&#39;s <em>only</em> change makes that commit empty, and <code>filter-repo</code> prunes empty commits by default; <code>02720fd64</code> (the HEAD-adjacent 118.76 MB <code>system-graph.json</code> commit) is exactly such a commit. Fix: run with <code>--prune-empty=never</code>; acceptance must assert <code>git rev-list --count HEAD</code> before == after (modulo a user-approved, reconciled delta) and the rewritten HEAD commit message matches the expected one.</li>
+<li><strong>Blind <code>--strip-blobs-bigger-than 20M</code> with no inventory review = &quot;delete history without disable&quot;.</strong> Generate <code>git rev-list --all --objects | git cat-file --batch-check=&#39;%(objecttype) %(objectname) %(objectsize) %(rest)&#39; | awk &#39;$1==&quot;blob&quot;&amp;&amp;$3&gt;20000000&#39; | sort -k3 -rn</code> first, review with the user, prefer explicit <code>--path</code> exclusions for the known-bad ones over the blind cutoff.</li>
+<li><strong><code>U-GC-13</code> push sequencing leaves a window with no remote trunk + conflates &quot;GitHub default branch&quot; with <code>git config init.defaultBranch</code>.</strong> Fix order: push <code>main</code> first → set the GitHub default branch (API/UI) and <code>git remote set-head origin main</code> → re-point all 40 worktrees&#39; upstreams + verify → <em>only then</em> retire <code>origin/cad-fusion-live-ms0</code> (and as a <strong>rename-on-remote</strong> <code>origin/archive/cad-fusion-live-ms0-pre-rename-&lt;date&gt;</code>, kept ≥90 days, not a hard <code>push origin :</code>). Drop the redundant raw <code>git symbolic-ref</code> (keep <code>git remote set-head</code>). Note <code>git config init.defaultBranch</code> is repo-local and does NOT change GitHub&#39;s default.</li>
+<li><strong><code>U-GC-10</code> force-push: never <code>--force-with-lease --all</code> from a fresh clone</strong> — the no-ref-arg lease checks against <em>this clone&#39;s</em> remote-tracking refs (= origin at clone-time), so a push another chat lands between clone and force-push is exactly the unprotected window. Push only the rewritten branches explicitly with per-ref leases: <code>git push --force-with-lease=cad-fusion-live-ms0:&lt;old-sha&gt; --force-with-lease=main:&lt;sha&gt; origin cad-fusion-live-ms0 main</code>. Also: handle partial-push (<code>git ls-remote origin</code> must exactly match the mirror&#39;s refs before unfreezing) and stale <code>.git/worktrees/agent-*/index.lock</code> in the per-worktree reset loop (<code>rm -f</code> &gt;1h-old locks; <em>report</em> any worktree it couldn&#39;t reset, never silently skip → that&#39;s how a worktree ends up orphaned on pre-rewrite SHAs that <code>gc --prune</code> then deletes).</li>
+</ol>
+<p><strong>Correctness / completeness must-adds:</strong></p>
+<ol start="9">
+<li><strong>Add &quot;Path C — <code>git merge --allow-unrelated-histories &lt;other-trunk&gt;</code> into cad-f&quot;</strong> (one merge commit, all of the other trunk&#39;s tree appears, conflicts only on path-overlap, the other history preserved as a 2nd parent). <strong>Drop Path A (cherry-pick across unrelated histories — fails for most commits), Path D (<code>replace --graft</code> — rewrites parentage not trees, wrong here), Path E (<code>rebase --onto</code> — 874 sequential conflicts).</strong> Make <code>U-GC-12</code> a <em>decision gate</em> (B-vs-C, fed by the analysis units) + a separate execution unit. <strong>Default to Path B</strong> (declare cad-f canonical) — the fleet has been on cad-f for weeks, <code>main</code> is frozen 5 days, <code>master</code> 7 weeks stale — fall back to Path C only if the analysis surprises. <strong>Retire the old trunks as TAGS (<code>archive/main-final-&lt;date&gt;</code>, <code>archive/master-final-&lt;date&gt;</code>), not branches</strong> — tags don&#39;t show in <code>git branch</code>, don&#39;t get auto-pushed by <code>--all</code>, signal &quot;frozen&quot; unambiguously.</li>
+<li><strong>Add an origin-only-branch unit.</strong> <code>git push --force-with-lease --all</code> only pushes <em>local</em> branches → the ~25 <code>origin/*</code>-only branches (<code>origin/archive-2026-02-01</code>, <code>origin/claude/affectionate-perlman</code>, …) keep their <strong>blob-carrying history on the remote forever</strong> → the clone size doesn&#39;t actually shrink. Enumerate <code>git branch -r</code>, classify each (ancestor-of-trunk? unique? archive?), and delete/rewrite the ones holding the &gt;100 MB blobs.</li>
+<li><strong>Add a stale-fork auto-triage script (<code>scripts/git-stale-fork-triage.mjs</code>)</strong> — for each <code>work/*</code> / <code>claude/*</code> branch emit: <code>merge-base --is-ancestor &lt;trunk&gt;</code> (merged → safe-retire), last-commit (<code>%cr</code>), unique-commit count (<code>rev-list --count &lt;trunk&gt;..&lt;b&gt;</code>), file-overlap (<code>diff --name-only &lt;trunk&gt;...&lt;b&gt; | wc -l</code>), and a heuristic recommendation. The user approves a pre-filled <code>STALE-FORK-TRIAGE.md</code> instead of triaging 24+ branches from blank — that&#39;s what makes P4 actually complete. Split <code>U-GC-17</code> into script / review / exec-merge / exec-archive units.</li>
+<li><strong>Operationalize <code>feedback_never_delete_only_disable</code> across P3/P4.</strong> Every <code>branch -D</code> / <code>git push origin :&lt;x&gt;</code> defaults to <code>git branch -m &lt;x&gt; archive/&lt;x&gt;-&lt;date&gt;; git push origin archive/&lt;x&gt;-&lt;date&gt;</code> (rename, push the renamed ref) — hard-delete only after the (extended) backup window AND explicit user approval. <strong>Never run <code>U-GC-20</code>&#39;s delete-path</strong> (the only copy of a 3.09 GB whisper model + 9 881 orphaned files + 502 unique commits, on a 30-day-backup hope) — if 3.3 GB must be reclaimed: <code>git bundle create forge-orphans-&lt;date&gt;.bundle archive/forge-orphans-2026-05-01</code> off-drive → verify (<code>clone + fsck</code>) → rename-not-delete → document the bundle location in <code>GIT-TOPOLOGY.md</code> <em>permanently</em>. <strong><code>origin/worktree-data-loss-fix</code> must NOT be deleted without review</strong> — a branch literally named &quot;data-loss-fix&quot; may hold the fix for the very class of bug this roadmap risks.</li>
+<li><strong>Hook-collision section.</strong> As written: <code>rm -rf H:/PRISM/.claude/worktrees/brave-euclid</code> is HARD-BLOCKED by <code>asset-deletion-block.mjs</code> (<code>/.claude/</code> + <code>rm -rf</code>) — use <code>mv … brave-euclid.orphan-archive-&lt;date&gt;</code> instead (also matches the never-delete rule). <code>git worktree remove --force</code> of worktrees under <code>.claude/worktrees/</code> (<code>worktree-u-fus-api01/02</code>) may trip the same hook — and per the memory <code>worktree remove --force</code> of a dir with untracked work needs explicit per-worktree user OK. <code>stop_on_uncommitted_critical.mjs</code> will block the <em>operator&#39;s</em> Stop if any worktree has dirty <code>constants.ts</code>/<code>*Safety*</code>/<code>*Force*</code> files during <code>U-GC-14</code> — the sweep must handle that case. The temp freeze hook must be a <em>bundle SUB_HOOK</em>, not a top-level <code>settings.json</code> entry, or removing it post-window trips <code>settings-json-addonly-guard</code>. The 40-worktree <code>reset --hard</code> loop serializes through <code>git-anti-clobber</code>&#39;s locks — run it from one operator session, not parallel.</li>
+<li><strong>Other must-adds:</strong> (a) audit <code>.github/workflows/</code> for branch refs + flag the &quot;CI starts on the renamed trunk&quot; behavior change; (b) consider <strong>git-lfs</strong> as an alternative for <em>non-regenerable</em> large binaries (<code>models/*.bin</code>) — keeps them retrievable vs. nuking; (c) <code>git repack -adf</code> after <code>gc</code> and again after <code>filter-repo</code> (56 packs → 1); (d) backup-verify gate (<code>git -C &lt;backup&gt; fsck --full</code>) <em>before</em> the quiesce window; (e) handle harness <code>EnterWorktree</code>-managed worktrees post-rename (a chat in one must <code>ExitWorktree --keep</code> then re-enter, or re-point upstream); (f) extend <code>U-GC-22</code>&#39;s doc sweep to <code>GSD_QUICK.md</code>, <code>GSD_MICRO.md</code>, <code>DEV_PROTOCOL.md</code>, <code>CLAUDE-CODEX-COORDINATION-DIRECTIVE.md</code>, <code>~/.claude/commands/{checkin,sync,handoff,six-chat-*}.md</code>; (g) enumerate &quot;other clones&quot; (does <code>C:/PRISM/</code> exist? laptops? CI checkout caches?) for the post-force-push re-sync; (h) pick the <em>create</em> path for <code>RESUME_AT_WORK.md</code> (the §8 silent-overwrite history is load-bearing context the topic-naming doctrine leans on) — don&#39;t leave it &quot;operator&#39;s choice&quot;.</li>
+</ol>
+<p><strong>Existing-tooling-leverage (don&#39;t reinvent):</strong></p>
+<ol start="15">
+<li><code>trunk-guard.mjs</code> (new SessionStart hook) and the <code>worktree-commit-route</code> trunk-check should share a <code>.claude/hooks/lib/canonical-trunk.mjs</code> module (one <code>git merge-base --is-ancestor</code> impl + the <code>PRISM_CANONICAL_TRUNK</code> constant), not duplicate the logic. <code>/checkin</code> already does the divergence-from-origin check — <code>trunk-guard</code> <em>extends</em> it with a trunk-ancestry assertion; say so, and have U-GC-08&#39;s doc-reconcile mention <code>/checkin</code>. <code>git-anti-clobber.mjs.disabled</code> exists and is worktree-aware — the roadmap should explain why it&#39;s disabled and whether reviving it is in scope. <code>/sync-rebase</code>&#39;s <code>--base=main</code> is an <em>active footgun today</em> (rebasing a cad-f branch onto unrelated <code>main</code>) → move that one-line fix to <strong>P0</strong>, ahead of the trunk decision.</li>
+</ol>
+<hr>
+<h2 id="c-sequencing-revisions-consolidated"><a class="anchor" href="#c-sequencing-revisions-consolidated" aria-label="Permalink to C. SEQUENCING REVISIONS (consolidated)">#</a>C. SEQUENCING REVISIONS (consolidated)</h2>
+<ol>
+<li><strong>P0 first move: the <code>/sync-rebase --base</code> fix</strong> — one-line doc edit, zero risk, prevents an unrelated-history rebase any chat could trigger right now.</li>
+<li><strong><code>U-GC-14</code> (dirty-worktree sweep) starts day 1</strong>, run its acceptance check continuously, so it&#39;s <em>already green</em> when the quiesce window opens — it&#39;s a fleet-coordination task with latency, not a serial blocker discovered at window-open.</li>
+<li><strong>Move branch-cruft cleanup (<code>worktree-agent-*</code> ×15), the literal-duplicate <code>cost-cascade</code>/<code>graph-context</code> pair, the <code>recovery</code>-ref cleanup, and the <code>gc</code>+<code>repack -adf</code> into P0</strong> (zero-risk, modulo rename-first) — so the P2 <code>filter-repo</code> has the smallest possible ref-set to rewrite.</li>
+<li><strong>Take + verify the ≥2 backups before the quiesce window</strong> — the window then contains only irreversible work (filter-repo + gc-prune + force-push + resync), not the slow <code>--mirror</code> clone.</li>
+<li><strong>Ship <code>trunk-guard.mjs</code> in P1, parameterized</strong> (<code>PRISM_CANONICAL_TRUNK</code> env, default <code>cad-fusion-live-ms0</code>) — its value is highest <em>during</em> the migration churn; flip the default to <code>main</code> at the rename (one-line change in <code>canonical-trunk.mjs</code>). Don&#39;t wait for P4.</li>
+<li><strong>Two-pass verification:</strong> a partial pass after P0+P1 (<code>git fsck</code>, <code>count-objects</code>, hook checks — confirm the 43 GB → ~4 GB win actually landed) <em>before</em> committing to the irreversible P2; the full suite after P5.</li>
+<li><strong>Don&#39;t run a second <code>gc</code></strong> — do all P0 ref-deletions + the dirty-sweep first, then one <code>gc --prune=now</code> + <code>repack -adf</code> pass.</li>
+</ol>
+<hr>
+<h2 id="d-the-3-scores-what-they-mean"><a class="anchor" href="#d-the-3-scores-what-they-mean" aria-label="Permalink to D. THE 3 SCORES &amp; WHAT THEY MEAN">#</a>D. THE 3 SCORES &amp; WHAT THEY MEAN</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Lens</th><th>Score</th><th>One-line</th></tr></thead>
+<tbody>
+<tr><td><strong>Correctness / feasibility</strong></td><td><strong>74/100</strong></td><td>Structural diagnosis fully verified; loses points on one non-functional op (<code>git config worktree.baseRef</code>), incomplete blob inventory, risky <code>U-GC-13</code>/<code>U-GC-10</code> push sequencing, mislabeled <code>gc</code> mechanism, backwards F11 reasoning, <code>filter-repo</code> not installed, 3 conflicting numbering schemes.</td></tr>
+<tr><td><strong>Risk / safety / rollback</strong></td><td><strong>58/100</strong></td><td>Unusually well-structured for git surgery, BUT: no enforcement on the commit freeze (F17 = near-certain data loss), single same-drive 30-day backup (F9/F13/F14), <code>filter-repo</code> empty-commit pruning unguarded (F25), blind 20 MB blob cutoff (F22), <code>U-GC-20</code> delete-path catastrophic, hook-naive (<code>rm -rf .claude/...</code> hard-blocked as written), 40-worktree reset is a manual chore with no &quot;did anyone slip through?&quot; gate.</td></tr>
+<tr><td><strong>Completeness / alternatives / doctrine</strong></td><td><strong>68/100</strong></td><td>Spine good (phase order, tier-floor, dirty-sweep prereq, <code>--mirror</code> insurance, warn-first hooks, decision gates). Missing: CI coupling, <code>master</code>&#39;s 1326 commits under-atomized, origin-only branches not handled (clone size won&#39;t shrink), no auto-triage script, no LFS consideration, no <code>repack -adf</code>, handoff-topic break on rename, harness <code>EnterWorktree</code> post-rename, &quot;other clones&quot;, the <code>merge --allow-unrelated-histories</code> option (best one, absent), the <code>merge-staging</code> internal inconsistency. Most gaps are <em>additive</em>, not structural.</td></tr>
+</tbody>
+</table></div>
+<p><strong>Net read:</strong> the roadmap is a solid v1 — keep its spine, apply the 14 P0-blocking + completeness fixes above to produce v2, and it&#39;s executable. The single biggest gap is <strong>F17 (freeze enforcement)</strong> — without the temp hard-block hook, the quiesce-window plan is a hope, and the force-push will eat someone&#39;s commit. The single biggest correctness fix is <strong><code>worktree.baseRef</code> is a harness setting, not git config</strong>. The single biggest completeness fix is <strong>handle the origin-only branches and <code>master</code> as first-class</strong> (the rewrite as designed leaves the remote bloated and <code>master</code>&#39;s 1326 commits un-analyzed).</p>
+<hr>
+<h2 id="e-next-action"><a class="anchor" href="#e-next-action" aria-label="Permalink to E. NEXT ACTION">#</a>E. NEXT ACTION</h2>
+<p>Either: (a) I produce <strong>v2 of the roadmap</strong> folding all of the above in (renumbered, with the freeze unit, the corrected <code>worktree.baseRef</code> step, Path C, the origin-only-branch + auto-triage-script units, the rename-as-tags mechanism, the hook-collision section) — ~1 pass; or (b) the user picks the trunk (<code>U-GC-00</code>) and the archive decision (<code>U-GC-01</code>/<code>U-GC-20</code>) first, and I produce v2 with those baked in. Recommend (a) then (b).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="GIT-TREE-REMEDIATION-MS0-SCRUTINY-1.md">GIT-TREE-REMEDIATION-MS0-SCRUTINY-1.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

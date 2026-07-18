@@ -1,0 +1,210 @@
+{
+  "id": "CAD-DRAW-MAX-MS0",
+  "title": "CAD-DRAW-MAX — autonomous propose→execute→publish loop on hyperCAD-S (draw any part + reverse engineer)",
+  "track": "CAD-AUTONOMOUS-DRAWING",
+  "status": "complete",
+  "version": "1.0.0",
+  "schemaVersion": 2,
+  "created_at": "2026-05-21",
+  "updated_at": "2026-05-23",
+  "completed_at": "2026-05-23",
+  "priority": "HIGH",
+  "target_omega": 0.95,
+  "description": "Closes the autonomous CAD drawing capability loop on hyperCAD-S (OPEN MIND's CAD system, sibling to hyperMILL): per-op live mutate via Live Drawing Bridge, outcome publishing, regen-test feedback adapter, neural feature/op/arg/tolerance/sequence encoder stack, tutorial-corpus ingester for offline training, orchestrator that ties them all into an end-to-end `cad_draw_any_part` action. Result: PRISM can propose CAD operations, execute them against a real or mocked hyperCAD-S session, observe regen test outcomes, learn from the result. All 10 engines shipped 2026-05-21 (slot:delta) with 61/61 vitest tests passing across the 3 capstone engines (CADDrawAnyPartOrchestrator + CADReverseTemplate + CADReverseCorpusCatalog). Dispatcher wiring complete in cadDispatcher.ts (cad_hypercads_plan_execution, cad_hypercads_outcome_adapter, cad_regen_feedback_publish, cad_draw_any_part, cad_hypercads_tutorial_ingest). Envelope created 2026-05-23 slot:delta as part of silent-close-out-debt detection (no envelope existed despite full ship — invisible to MILESTONE_PROGRESS audit).",
+  "context_doc": "state/shared/specs/HYPERCAD-TEST-PLAYBOOK-2026-05-20.md",
+  "knowledge_sources": [
+    "state/shared/specs/HYPERCAD-TEST-PLAYBOOK-2026-05-20.md",
+    "mcp-server/src/engines/CADDrawAnyPartOrchestratorEngine.ts",
+    "mcp-server/src/engines/HyperCADSLiveBridgeEngine.ts",
+    "mcp-server/src/engines/HyperCADSOutcomePublisherEngine.ts",
+    "mcp-server/src/engines/CADRegenFeedbackAdapterEngine.ts",
+    "mcp-server/src/engines/HyperCADSTutorialCorpusIngesterEngine.ts",
+    "mcp-server/src/tools/dispatchers/cadDispatcher.ts"
+  ],
+  "goals": [
+    "Per-operation live mutate against hyperCAD-S via HyperCADSLiveBridgeEngine (sketch/extrude/revolve/fillet/chamfer/pattern/combine/shell/export/geometry/undo/new_doc)",
+    "Outcome publishing with adapterId cad_hypercads_outcome_adapter so cross-process learning can subscribe",
+    "Regen-test feedback loop coupling op outcome to subsequent op proposals",
+    "Neural encoder stack (CADArgEncoder + CADSequencePool + CADOperationDecoder + CADUnifiedFeatureBridge + CADToleranceSignalEncoder) for learned proposal scoring",
+    "Tutorial corpus ingester to bootstrap training from documentation/example sessions",
+    "End-to-end cad_draw_any_part dispatcher action: propose → execute → publish, gated by regen test pass"
+  ],
+  "total_units": 10,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "P0 — Bridge foundation (live drawing + outcome + regen feedback)",
+      "session": 1,
+      "smart_config": {
+        "role": "R3-CAD Architect",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      },
+      "intent": "Three foundational engines: HyperCADSLiveBridgeEngine (per-op mutate against the OPEN MIND Automation Center), HyperCADSOutcomePublisherEngine (canonical adapter publishing outcome events to feedback bus), CADRegenFeedbackAdapterEngine (couples regen-test pass/fail to subsequent op proposals).",
+      "exit_gate": {
+        "criteria": ["3 engines shipped + wired in cadDispatcher", "Tests for bridge + publisher pass"],
+        "omega_floor": 0.9
+      },
+      "units": ["P0-U01", "P0-U02", "P0-U03"]
+    },
+    {
+      "id": "P1",
+      "title": "P1 — Neural encoder stack + tutorial corpus + capstone orchestrator",
+      "session": 2,
+      "smart_config": {
+        "role": "R3-CAD Architect + R5-Build Doctor",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "70%"
+      },
+      "intent": "Six encoder/decoder engines (CADArgEncoder + CADSequencePool + CADOperationDecoder + CADUnifiedFeatureBridge + CADToleranceSignalEncoder + HyperCADSTutorialCorpusIngester) feeding a single capstone orchestrator (CADDrawAnyPartOrchestratorEngine) that proposes → executes → publishes via the P0 bridge.",
+      "exit_gate": {
+        "criteria": [
+          "All 7 engines shipped + wired",
+          "61/61 vitest tests pass across CADDrawAnyPartOrchestratorEngine + CADReverseTemplateEngine + CADReverseCorpusCatalogEngine",
+          "cad_draw_any_part dispatcher action live"
+        ],
+        "omega_floor": 0.95
+      },
+      "units": ["P1-U04", "P1-U05", "P1-U06", "P1-U07", "P1-U08", "P1-U09", "P1-U10"]
+    }
+  ],
+  "unit_specs": {
+    "P0-U01": {
+      "title": "HyperCADSLiveBridgeEngine — per-op live mutate via HyperCAD-S",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/HyperCADSLiveBridgeEngine.ts"]
+    },
+    "P0-U02": {
+      "title": "HyperCADSOutcomePublisherEngine — adapter publishing outcome events to feedback bus",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/HyperCADSOutcomePublisherEngine.ts"]
+    },
+    "P0-U03": {
+      "title": "CADRegenFeedbackAdapterEngine — regen-test pass/fail coupling to op proposals",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/CADRegenFeedbackAdapterEngine.ts"]
+    },
+    "P1-U04": {
+      "title": "CADArgEncoderEngine — neural encoder for CAD operation arguments",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/CADArgEncoderEngine.ts"]
+    },
+    "P1-U05": {
+      "title": "CADSequencePoolEngine — pooled sequence representation for op sequences",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/CADSequencePoolEngine.ts"]
+    },
+    "P1-U06": {
+      "title": "CADOperationDecoderEngine — decodes neural output to validated CAD operations",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/CADOperationDecoderEngine.ts"]
+    },
+    "P1-U07": {
+      "title": "CADUnifiedFeatureBridgeEngine — feature-recognition bridge between adapters",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/CADUnifiedFeatureBridgeEngine.ts"]
+    },
+    "P1-U08": {
+      "title": "HyperCADSTutorialCorpusIngesterEngine — bootstrap training from tutorial/example sessions",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/HyperCADSTutorialCorpusIngesterEngine.ts"]
+    },
+    "P1-U09": {
+      "title": "CADToleranceSignalEncoderEngine — GD&T-aware tolerance signal for proposal scoring",
+      "status": "shipped",
+      "files": ["mcp-server/src/engines/CADToleranceSignalEncoderEngine.ts"]
+    },
+    "P1-U10": {
+      "title": "CADDrawAnyPartOrchestratorEngine — end-to-end propose→execute→publish loop",
+      "status": "shipped",
+      "files": [
+        "mcp-server/src/engines/CADDrawAnyPartOrchestratorEngine.ts",
+        "mcp-server/src/__tests__/CADDrawAnyPartOrchestratorEngine.test.ts"
+      ]
+    }
+  },
+  "units": {
+    "P0-U01": {
+      "title": "HyperCADSLiveBridgeEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["4bddfe8d3f"],
+      "ship_notes": "Hitchhike commit on GOAL-SYNERGY-LOOP-MS0/U-WIKI-TR... — slot:delta. Per-op live mutate against OPEN MIND Automation Center via prism_ac Python bridge."
+    },
+    "P0-U02": {
+      "title": "HyperCADSOutcomePublisherEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["e0e69444ae"],
+      "ship_notes": "Canonical adapterId cad_hypercads_outcome_adapter; publishes outcome events to feedback bus for cross-process learning subscribers."
+    },
+    "P0-U03": {
+      "title": "CADRegenFeedbackAdapterEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["c56af26323"],
+      "ship_notes": "Couples regen-test pass/fail to subsequent op proposals; dispatcher action cad_regen_feedback_publish."
+    },
+    "P1-U04": {
+      "title": "CADArgEncoderEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["57dd85fcf3"]
+    },
+    "P1-U05": {
+      "title": "CADSequencePoolEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["2be24f0835"]
+    },
+    "P1-U06": {
+      "title": "CADOperationDecoderEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["bc672ebdc0"]
+    },
+    "P1-U07": {
+      "title": "CADUnifiedFeatureBridgeEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["b7a0f041c8"]
+    },
+    "P1-U08": {
+      "title": "HyperCADSTutorialCorpusIngesterEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["4200ac71a5"]
+    },
+    "P1-U09": {
+      "title": "CADToleranceSignalEncoderEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["e2be85e368"]
+    },
+    "P1-U10": {
+      "title": "CADDrawAnyPartOrchestratorEngine",
+      "status": "shipped",
+      "shipped_at": "2026-05-21",
+      "commits": ["2ff7e68eac"],
+      "ship_notes": "Hitchhike commit on WIRE-UNWIRED-MS0/U-WIRE-DIFF-EN... — slot:delta. End-to-end orchestrator: composes Live Bridge + Outcome Publisher + Regen Feedback + neural encoder stack. Dispatcher action cad_draw_any_part."
+    }
+  },
+  "build_order_recommendation": "(already complete) P0-U01 → P0-U02 → P0-U03 (foundation) → P1-U04..U09 (encoder stack) → P1-U10 (orchestrator capstone) → MS1 training-loop validation",
+  "execution_recipe": "(closed out; future work proceeds via CAD-DRAW-MAX-MS1 training-loop validation milestone)",
+  "follow_up_milestones": [
+    {
+      "id": "CAD-DRAW-MAX-MS1",
+      "title": "Training-loop validation: cad_draw_any_part against 50 JM Die blind prints, ≥70% accuracy gate",
+      "status": "proposed",
+      "rationale": "The user goal 'train hypercad to the point where you can draw any part from print or reverse engineer a cad file from scratch' is a measurement gap, not a build gap. MS0 shipped the propose→execute→publish loop; MS1 should pin a 50-print blind set + per-print pass/fail rubric + report ≥70% gate per CAD-COMPLETE-MS0 §PHASE-21 capstone goal. Belongs to a follow-up milestone, not MS0."
+    }
+  ],
+  "notes": [
+    "Envelope created 2026-05-23 slot:delta as silent close-out of milestone-level debt: 10 engines + 3 vitest suites + 5 dispatcher actions live for 2 days with no envelope. Pattern matches FLEET-REAPER-MS3/U-FR-MS3-A close-out earlier this session.",
+    "All 10 unit commits are slot:delta tagged with [CAD-DRAW-MAX-MS0] subject; 2 (P0-U01 + P1-U10) were peer-hitchhike-absorbed (commits 4bddfe8d3f + 2ff7e68eac).",
+    "Verification this session: `npx vitest run CADDrawAnyPartOrchestratorEngine CADReverseTemplateEngine CADReverseCorpusCatalogEngine` → 61/61 PASS.",
+    "Real hyperCAD-S workstation test runbook lives at state/shared/specs/HYPERCAD-TEST-PLAYBOOK-2026-05-20.md."
+  ]
+}

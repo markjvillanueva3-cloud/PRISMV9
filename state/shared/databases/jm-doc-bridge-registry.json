@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "JM-DOC-POPULATION-MS0",
+  "description": "Bridge registry — maps every JM-document ledger (source,bucket) tuple to its seed-bridge status. Consumed by scripts/jm-doc-accountability-gate.mjs (U-JMDOC01). bridge_status: shipped (live seed bridge + tests) | deferred (explicit reason, intentionally not ingested) | pending (planned, not built). seed_method names containing 'link' or 'pointer' mark financial/index-only paths (G5). Keyed 'source/bucket' to match ledger by_source_bucket[].",
+  "ledger_source": "state/shared/databases/jm-document-ledger-summary.json",
+  "cross_cutting": {
+    "customer": {
+      "bridge_status": "shipped",
+      "unit": "U-JM-CUSTOMER-CORPUS-SEED",
+      "seed_method": "CustomerManagementEngine.seedFromJMCorpus",
+      "dispatcher": "businessDispatcher.ts:customer_seed_jm_corpus",
+      "covered": 147791,
+      "note": "470 customers seeded; crm_link side-field on 147,791 docs"
+    },
+    "material": {
+      "bridge_status": "pending",
+      "unit": "U-JMDOC04",
+      "seed_method": "rides on cad bridge (material side-field)",
+      "dispatcher": "prism_cad/prism_calc",
+      "covered": 895,
+      "note": "near-empty (9 distinct materials)"
+    },
+    "machine_class": {
+      "bridge_status": "pending",
+      "unit": "U-JMDOC03",
+      "seed_method": "rides on program/cad bridge (routing_hint side-field)",
+      "dispatcher": "prism_cam",
+      "covered": 147089,
+      "note": "7 classes"
+    }
+  },
+  "tuples": {
+    "jm_die_category/program": {
+      "count": 140215,
+      "disposition": "consumed",
+      "bridge_status": "pending",
+      "unit": "U-JMDOC03",
+      "seed_method": "ProgramLibrarySeedEngine.seedFromJMCorpus",
+      "dispatcher": "prism_cam/prism_post",
+      "owner": "coord:echo+kilo"
+    },
+    "part_library/program": {
+      "count": 25976,
+      "disposition": "consumed",
+      "bridge_status": "pending",
+      "unit": "U-JMDOC03",
+      "seed_method": "ProgramLibrarySeedEngine.seedFromJMCorpus",
+      "dispatcher": "prism_cam/prism_post",
+      "owner": "coord:echo+kilo"
+    },
+    "jm_die_category/cad": {
+      "count": 7285,
+      "disposition": "consumed",
+      "bridge_status": "pending",
+      "unit": "U-JMDOC04",
+      "seed_method": "CadPartLibraryEngine.seedFromJMCorpus",
+      "dispatcher": "prism_cad",
+      "owner": "coord:delta"
+    },
+    "part_library/cad": {
+      "count": 5709,
+      "disposition": "consumed",
+      "bridge_status": "pending",
+      "unit": "U-JMDOC04",
+      "seed_method": "CadPartLibraryEngine.seedFromJMCorpus",
+      "dispatcher": "prism_cad",
+      "owner": "coord:delta"
+    },
+    "jm_die_category/setup": {
+      "count": 16,
+      "disposition": "consumed",
+      "bridge_status": "pending",
+      "unit": "U-JMDOC06",
+      "seed_method": "SetupSheetLibraryEngine.seedFromJMCorpus",
+      "dispatcher": "prism_cam/prism_mill",
+      "owner": "coord:foxtrot"
+    },
+    "docustrata_organized/prints": {
+      "count": 42084,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC07",
+      "seed_method": "DocumentInboxEngine.seedFromJMCorpus",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_corpus",
+      "owner": "hotel"
+    },
+    "docustrata_organized/scans": {
+      "count": 34409,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC07",
+      "seed_method": "DocumentInboxEngine.seedFromJMCorpus",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_corpus",
+      "owner": "hotel"
+    },
+    "docustrata_organized/notes": {
+      "count": 30417,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC07",
+      "seed_method": "DocumentInboxEngine.seedFromJMCorpus",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_corpus",
+      "owner": "hotel"
+    },
+    "docustrata_organized/packing_slips": {
+      "count": 2294,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC07",
+      "seed_method": "DocumentInboxEngine.seedFromJMCorpus",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_corpus",
+      "owner": "hotel"
+    },
+    "docustrata_organized/quotes": {
+      "count": 971,
+      "disposition": "indexed-only",
+      "bridge_status": "deferred",
+      "deferred_reason": "Quoting ingest owned by slot:charlie + chat e75608b8 — JM-DOC links only, must not duplicate charlie's quoting-model path",
+      "seed_method": "DocuStrataMaterialPriorEngine.link (charlie)",
+      "dispatcher": "prism_business/quote",
+      "owner": "charlie"
+    },
+    "docustrata_organized/laser_sheets": {
+      "count": 178,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC07",
+      "seed_method": "DocumentInboxEngine.seedFromJMCorpus",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_corpus",
+      "owner": "hotel"
+    },
+    "docustrata_organized/shipping": {
+      "count": 117,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC07",
+      "seed_method": "DocumentInboxEngine.seedFromJMCorpus",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_corpus",
+      "owner": "hotel"
+    },
+    "docustrata_organized/tax_financial": {
+      "count": 93,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC10",
+      "seed_method": "DocumentInboxEngine.seedFinancialPointers (link-only pointer, NO discrete AR/AP)",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_financial",
+      "owner": "hotel",
+      "financial_guard": true
+    },
+    "docustrata_organized/accounting": {
+      "count": 52,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC10",
+      "seed_method": "DocumentInboxEngine.seedFinancialPointers (link-only pointer, NO discrete AR/AP)",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_financial",
+      "owner": "hotel",
+      "financial_guard": true
+    },
+    "docustrata_organized/imported": {
+      "count": 35,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC07",
+      "seed_method": "DocumentInboxEngine.seedFromJMCorpus",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_corpus",
+      "owner": "hotel"
+    },
+    "docustrata_organized/sales_orders": {
+      "count": 21531,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC10",
+      "seed_method": "DocumentInboxEngine.seedFinancialPointers (link-only pointer, NO discrete AR/AP)",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_financial",
+      "owner": "hotel",
+      "financial_guard": true
+    },
+    "docustrata_organized/closed_orders": {
+      "count": 12763,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC10",
+      "seed_method": "DocumentInboxEngine.seedFinancialPointers (link-only pointer, NO discrete AR/AP)",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_financial",
+      "owner": "hotel",
+      "financial_guard": true
+    },
+    "docustrata_organized/invoices": {
+      "count": 5,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC10",
+      "seed_method": "DocumentInboxEngine.seedFinancialPointers (link-only pointer, NO discrete AR/AP)",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_financial",
+      "owner": "hotel",
+      "financial_guard": true
+    },
+    "jm_die_category/doc": {
+      "count": 24,
+      "disposition": "indexed-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC07",
+      "seed_method": "DocumentInboxEngine.seedFromJMCorpus",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_corpus",
+      "owner": "hotel"
+    },
+    "part_library/scan": {
+      "count": 85009,
+      "disposition": "viewer-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC08",
+      "seed_method": "DocumentInboxEngine.seedViewerArchive",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_viewer",
+      "owner": "hotel",
+      "note": "OCR opt-in, not bulk"
+    },
+    "jm_die_category/scan": {
+      "count": 329,
+      "disposition": "viewer-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC08",
+      "seed_method": "DocumentInboxEngine.seedViewerArchive",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_viewer",
+      "owner": "hotel"
+    },
+    "jm_die_category/print": {
+      "count": 7,
+      "disposition": "viewer-only",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC08",
+      "seed_method": "DocumentInboxEngine.seedViewerArchive",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_viewer",
+      "owner": "hotel"
+    },
+    "docustrata_manifest/doc": {
+      "count": 111658,
+      "disposition": "metadata",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC09",
+      "seed_method": "DocumentInboxEngine.seedManifestPointers",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_manifest",
+      "owner": "hotel (coord:charlie noted in AGENT_CHAT — distinct from his pricing-prior engine)",
+      "note": "111,658 manifest docs; 104,587 seeded as inbox pointers + 7,071 deduped vs organized/viewer (shared dedup). Never re-OCR."
+    },
+    "part_library/other": {
+      "count": 31023,
+      "disposition": "metadata",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC05",
+      "seed_method": "PartsLibraryEngine.seedFromJMCorpus (path-derived customer/part/rev)",
+      "dispatcher": "partsLibraryDispatcher.ts:part_seed_jm_corpus",
+      "owner": "hotel (coord:delta — parts catalog is CAD-shared)",
+      "note": "30,890 structural part.json/REV rows SHIPPED -> 30,890 revision-controlled parts across 468 customers (verify-jm-part-library-seed.ts: structural count reconciles 31023-133=30890, partition holds, idempotent). CORRECTION (R7): ledger said JobTravelerEngine but that is a work-routing engine (wrong); the right home is PartsLibraryEngine (revision-controlled parts catalog w/ customer association). part.json files are GONE from disk (inventory is a 2026-05-27 snapshot, stubs transient) -> derive customer/part/rev from the PATH + inventory customer field, not part.json content. part_number namespaced <CUSTOMER>/<PART>; customer_id=jm:<CUSTOMER>; tags carry the raw customer. 133 non-structural -> unrouted subset (deferred)."
+    },
+    "docustrata_manifest/quote": {
+      "count": 65,
+      "disposition": "metadata",
+      "bridge_status": "deferred",
+      "deferred_reason": "Quoting manifest reference owned by slot:charlie — link only",
+      "seed_method": "DocuStrataMaterialPriorEngine.manifest-link (charlie)",
+      "dispatcher": "prism_business/quote",
+      "owner": "charlie"
+    },
+    "docustrata_manifest/invoice": {
+      "count": 4,
+      "disposition": "metadata",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC10",
+      "seed_method": "DocumentInboxEngine.seedFinancialPointers (link-only pointer, NO discrete AR/AP)",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_financial",
+      "owner": "coord:charlie",
+      "financial_guard": true
+    },
+    "docustrata_manifest/acknowledgment": {
+      "count": 2,
+      "disposition": "metadata",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC10",
+      "seed_method": "DocumentInboxEngine.seedFinancialPointers (link-only pointer, NO discrete AR/AP)",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_financial",
+      "owner": "coord:charlie",
+      "financial_guard": true
+    },
+    "docustrata_manifest/customer_po": {
+      "count": 2,
+      "disposition": "metadata",
+      "bridge_status": "shipped",
+      "unit": "U-JMDOC10",
+      "seed_method": "DocumentInboxEngine.seedFinancialPointers (link-only pointer, NO discrete AR/AP)",
+      "dispatcher": "inboxDispatcher.ts:inbox_seed_jm_financial",
+      "owner": "coord:charlie",
+      "financial_guard": true
+    },
+    "docustrata_manifest/packing_slip": {
+      "count": 1,
+      "disposition": "metadata",
+      "bridge_status": "pending",
+      "unit": "U-JMDOC09",
+      "seed_method": "DocuStrataMaterialPriorEngine.seedManifestPointers (pointer-only)",
+      "dispatcher": "businessDispatcher.ts",
+      "owner": "coord:charlie"
+    }
+  },
+  "unrouted": {
+    "docustrata_organized/unclassified": {
+      "count": 1358,
+      "bridge_status": "deferred",
+      "deferred_reason": "no_route_for(docustrata_organized,unclassified) — unclassified DocuStrata docs; counted, awaiting reclassification"
+    },
+    "jm_die_category/other": {
+      "count": 1354,
+      "bridge_status": "deferred",
+      "deferred_reason": "no_route_for(jm_die_category,other) — misc category-folder files (not program/cad/setup/doc/scan/print); counted"
+    },
+    "part_library/other": {
+      "count": 133,
+      "bridge_status": "deferred",
+      "deferred_reason": "no_route_for(part_library,other) — non-structural part_library/other (not part.json or REV folder); counted (the 30,890 structural rows route to U-JMDOC05)"
+    },
+    "docustrata_manifest/other": {
+      "count": 13,
+      "bridge_status": "deferred",
+      "deferred_reason": "no_route_for(docustrata_manifest,other) — manifest docs with no role bucket; counted"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+---
+name: reference_ollama_stress_frontier_2026_06_25
+description: "Measured 9-model Ollama graded-stress capability frontier (the hardest task each LLM can do before diminishing returns) + the capability-probe false-0 guard fix"
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.682Z
+aliases: reference_ollama_stress_frontier_2026_06_25
+---
+
+
+**U-ALPHA-OLLAMA-STRESS-FRONTIER** (slot:alpha, 2026-06-25). The operator PAUSED all chats + turned on ultracode + said "run the stress-test now anyway" -> ran the full graded stress test on the (finally) idle Blackwell GPU. Closes the operator goal facet "stress test ollama llms to see what the HARDEST task each llm can do before diminishing returns then fix the graphs/protocols." Builds on [[reference_ollama_routing_roster_sync_2026_06_25]] (cheapest-select) + [[reference_ollama_executor_selection_architecture_2026_06_25]] (3-layer selection arch).
+
+**WHAT RAN:** the 6 EXISTING graded batteries (`scripts/lib/stress-battery-{reasoning,longcontext,jsonschema,mfgdomain,instruction,codegen}.mjs` = 36 graded tasks) via `ollama-stress-expanded-run.mjs`, across all 9 installed text models. CRITICAL EXECUTION LESSON: the multi-model harness (`runTierSweep`) HANGS on one model (gpt-oss:20b) + writes ALL-OR-NOTHING at the end, losing everything -> run PER-MODEL (single-model `--models X` invocations, each completes independently); that is also the harness's own documented wedge-safe pattern. timeout-wrap each; 32b/120b need >700s budgets; 120b (65GB) cannot co-load with a resident 32b (54.7GB) so it partially-failed.
+
+**MEASURED CAPABILITY FRONTIER** (artifact `state/shared/ollama-stress-frontier.md`, regen `node scripts/stress-frontier-report.mjs`):
+- **Per-model ceiling (tasks @100% / 36):** qwen3-coder:30b **27** (BEST) > qwen2.5-coder:32b 26 > qwen2.5-coder:14b 25 > qwen2.5-coder:7b 22 > gpt-oss:20b 18 > qwen2.5-coder:1.5b 14 > gpt-oss:120b 7 (weak/partial-load) > deepseek-r1:14b **0** (deepseek-r1:32b load-failed, excluded).
+- **qwen3-coder:30b is the most capable mechanical model AND cheaper than qwen2.5-coder:32b** -> RESOLVES the prior "unverified code-comment claim" (the router's preferred-coder) with DATA. Cited into `ollama-cost-router.mjs` best-tier comment.
+- **The cheap coder ladder dominates mechanical:** qwen2.5-coder:1.5b (1GB!) does ALL 6 codegen tasks + most JSON @100%; 7b 22/36 = the offload sweet spot; 14b adds boolean-judgment/comparative-counting/thread-tpi.
+- **deepseek-r1 reasoners = 0/36 on mechanical exact-match** (they emit `<think>` chains that break exact-match) -> NEVER a mechanical-offload target; reserve for the deep-reasoning/fable lane. Correctly isolated: cost-router `best` tier (the only one holding r1) is reached ONLY by search_synthesis, which picks gpt-oss:120b first.
+- **gpt-oss:120b WEAK for mechanical (7/36)** -> its 65GB is wasted on mechanical; reserve for broad synthesis only.
+- **NONE-local tasks (route to Claude+RAG, no local model >=100%):** `iso-insert-grade`, `tap-drill-size` (pure domain knowledge the models lack -> RAG opportunity, the facts are in PRISM's corpus), `spindle-rpm-formula`, `word-count-echo`. Hard instruction-following (`no-letter-e`, `exactly-three-words`, `single-word-starts-m`) needs the 32b.
+- **Diminishing-returns knee:** for MOST mechanical tasks 7b already saturates @100%; bigger only helps hard constraint-following. So: route mechanical -> cheapest of {1.5b,7b,14b}; reserve 30b/32b for codegen + hard constraints; never reasoners for mechanical; domain-knowledge -> Claude+RAG.
+
+**ROUTING VERDICT = SOUND (R12 honest: a VERIFICATION, not a fix).** The cost-router already (a) has qwen2.5-coder:7b as balanced sweet spot, (b) prefers qwen3-coder:30b over 32b, (c) isolates reasoners from mechanical tiers -- ALL three now empirically confirmed. The "fix the graphs" deliverable = cite the measurements + ship the frontier artifact + the false-0 guard below.
+
+**BONUS BUG FOUND+FIXED (the capability-PROBE, distinct from the stress run):** regenerating the 9-model `ollama-capability-matrix.json` (the routing-consumed matrix from `ollama-capability-probe.mjs`, 8 mechanical tasks) stored **6/9 models at FALSE rate:0** -- the big models (32b/30b/gpt-oss/r1) failed to generate in the probe's single-PROCESS unload-between-models 9-model run (VRAM churn + peer contention), recorded as if "measured incapable". New `excludeNoSignalModels` guard (commit b2d527b126 + P2 81ad651188): a model rate-0 on EVERY measured task is recorded ABSENT (not false-0), distinguishing real-fail (total>0,rate0) from never-ran (total:0); outage clobber-guard kept on the RAW matrix so a total outage is still caught. Clean matrix now carries the 3 positive-signal models (1.5b/7b/14b); ROUTING UNCHANGED (classify->14b extract->1.5b format->7b). 12/12 probe tests, 3-of-3 PASS. **FOLLOW-UP (open):** the capability-probe's single-process 9-model run is unreliable for big models under contention -- adopt the per-model-invocation pattern (the stress runner already does) for a future clean-GPU big-model probe, so the matrix can carry valid big-model rows too.
+
+**Commits (4):** 69b31cbfbf (stress-frontier-report.mjs + frontier artifact + 9-model matrix regen + cost-router citation) · b2d527b126 (excludeNoSignalModels guard + clean matrix) · 81ad651188 (P2 guard-symmetry). All 3-of-3 PASS. **Lesson:** a binary single-difficulty probe can't find a "diminishing-returns frontier" -- you need GRADED batteries (easy/medium/hard) + the hard categories (codegen/reasoning); PRISM already had them, they were just env-blocked until the fleet paused. And a measurement harness that fails-silent-to-"" must never store the "" as a real 0 -- carry only positive-signal measurements.

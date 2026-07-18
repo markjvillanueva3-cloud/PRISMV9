@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "timestamp": "2026-04-19T02:00:00.000Z",
+  "description": "Bundle size baseline for U-LPR-BUNDLE-GATE. Run `npm run bundle:baseline` in web/ to update.",
+  "chunks": {
+    "index": 180,
+    "react-vendor": 45,
+    "radix-vendor": 35,
+    "query-vendor": 25,
+    "calculator-components": 80,
+    "calculator-wedm": 40,
+    "calculator-utils": 20,
+    "calculator-data": 15,
+    "monaco-vendor": 550,
+    "pdf-vendor": 320,
+    "nivo-vendor": 120,
+    "charts-vendor": 85,
+    "motion-vendor": 45,
+    "sfc-components": 30,
+    "viewer-core": 25,
+    "viewer-drei": 90,
+    "viewer-fiber": 55,
+    "viewer-three-core": 180,
+    "viewer-three-foundation": 60,
+    "viewer-three-scene": 80,
+    "viewer-three-renderers": 40,
+    "viewer-three-extras": 35,
+    "learning-core": 20,
+    "academy-data": 15,
+    "api-core": 10
+  },
+  "budgets": {
+    "main": "250KB gzip",
+    "lathe-studio": "40KB gzip initial",
+    "monaco": "600KB gzip (excluded from main gate)",
+    "shared-delta": "5KB max increase per PR"
+  }
+}

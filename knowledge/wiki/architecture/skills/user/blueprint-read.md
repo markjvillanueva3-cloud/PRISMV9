@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `blueprint-read` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/blueprint-read.md` |
+| Source | `C:/Users/wompu/.claude/commands/blueprint-read.md` |
 | Model | default |
 | Tags | _(none)_ |
 

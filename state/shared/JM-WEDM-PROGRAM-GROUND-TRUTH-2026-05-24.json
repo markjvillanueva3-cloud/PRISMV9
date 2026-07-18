@@ -1,0 +1,270 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-25T02:21:38.510Z",
+  "advisoryOnly": true,
+  "must_human_verify": true,
+  "purpose": "Empirical ground-truth from JM Die WEDM Mitsubishi W31MV-2 .NC programs - calibration corpus for the 103 existing WEDM engines (per WEDM_DIGEST)",
+  "domain_handoff_to": "charlie (wire EDM domain per JULIETT-12CHAT)",
+  "target_machine": "WEDM-01 Okuma...Mitsubishi FA10S (controller OSP...W31MV-2) per jm-die-profile.ts",
+  "summary": {
+    "program_count": 3,
+    "total_e_code_invocations": 12,
+    "total_cutting_passes": 9,
+    "total_taper_moves": 61,
+    "programs_with_taper": 1
+  },
+  "programs": [
+    {
+      "source_file": "H:/PRISM/JM DIE/WIRE EDM/ITW SHAKEPROOF 500-30540-24000-04.NC",
+      "program": "ITW SHAKEPROOF 500-30540-24000-04",
+      "original_name": "ITW SHAKEPROOF 500-30540-24000-04.NC",
+      "label": "L001",
+      "date_comment": "03/07/22",
+      "h_registers": {
+        "H175": "0.0000",
+        "H1": ".0085 + H175",
+        "H2": ".0064 + H175",
+        "H3": ".0058 + H175",
+        "H4": ".0053 + H175"
+      },
+      "e_codes": [
+        {
+          "code": "E1221",
+          "h_register": "H1",
+          "feed_in_min": 0.12,
+          "pass_label": "PASS=1"
+        },
+        {
+          "code": "E1222",
+          "h_register": "H2",
+          "feed_in_min": 0.24,
+          "pass_label": "PASS=2"
+        },
+        {
+          "code": "E1223",
+          "h_register": "H3",
+          "feed_in_min": 0.21,
+          "pass_label": "PASS=3"
+        },
+        {
+          "code": "E1224",
+          "h_register": "H4",
+          "feed_in_min": 0.2,
+          "pass_label": "PASS=4"
+        },
+        {
+          "code": "E1221",
+          "h_register": "H1",
+          "feed_in_min": 0.12,
+          "pass_label": "PASS=1"
+        },
+        {
+          "code": "E1222",
+          "h_register": "H2",
+          "feed_in_min": 0.24,
+          "pass_label": "PASS=2"
+        },
+        {
+          "code": "E1223",
+          "h_register": "H3",
+          "feed_in_min": 0.21,
+          "pass_label": "PASS=3"
+        },
+        {
+          "code": "E1224",
+          "h_register": "H4",
+          "feed_in_min": 0.2,
+          "pass_label": "PASS=4"
+        }
+      ],
+      "e_code_count": 8,
+      "pass_count": 4,
+      "distinct_e_codes": [
+        "E1221",
+        "E1222",
+        "E1223",
+        "E1224"
+      ],
+      "wire_edm_mcodes": {
+        "M20_thread_wire": true,
+        "M22_cut_wire": false,
+        "M78_fill_tank": true,
+        "M79_drain_tank": false,
+        "M80_water_on": true,
+        "M81_water_off": true,
+        "M82_wire_on": true,
+        "M83_wire_off": true,
+        "M84_power_on": true,
+        "M85_power_off": true,
+        "M90_adaptive_on": true,
+        "M91_adaptive_off": true
+      },
+      "offset_compensation_used": [
+        "G41_left",
+        "G42_right",
+        "G40_cancel"
+      ],
+      "taper_cutting": {
+        "has_taper_cutting": false,
+        "taper_move_count": 0
+      },
+      "work_zero_sets": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "motion_stats": {
+        "rapid_g0": 0,
+        "linear_g1": 39,
+        "arc_cw_g2": 20,
+        "arc_ccw_g3": 8
+      },
+      "dwells": [
+        {
+          "seconds": 5
+        },
+        {
+          "seconds": 5
+        }
+      ],
+      "raw_byte_count": 3347,
+      "raw_line_count": 144
+    },
+    {
+      "source_file": "H:/PRISM/JM DIE/WIRE EDM/NOZE TEST.NC",
+      "program": "NOZE TEST",
+      "original_name": "NOZE TEST.NC",
+      "label": "L001",
+      "date_comment": "05/24/22",
+      "h_registers": {
+        "H175": "0.0000",
+        "H1": "0. + H175",
+        "H2": "0. + H175",
+        "H3": "0. + H175",
+        "H4": "0. + H175",
+        "H5": "0. + H175"
+      },
+      "e_codes": [
+        {
+          "code": "E2821",
+          "h_register": "H1",
+          "feed_in_min": 0.16,
+          "pass_label": "PASS=1"
+        },
+        {
+          "code": "E2822",
+          "h_register": "H2",
+          "feed_in_min": 0.23,
+          "pass_label": "PASS=2"
+        },
+        {
+          "code": "E2823",
+          "h_register": "H3",
+          "feed_in_min": 0.26,
+          "pass_label": "PASS=3"
+        },
+        {
+          "code": "E2824",
+          "h_register": "H4",
+          "feed_in_min": 0.3,
+          "pass_label": "PASS=4"
+        }
+      ],
+      "e_code_count": 4,
+      "pass_count": 5,
+      "distinct_e_codes": [
+        "E2821",
+        "E2822",
+        "E2823",
+        "E2824"
+      ],
+      "wire_edm_mcodes": {
+        "M20_thread_wire": true,
+        "M22_cut_wire": false,
+        "M78_fill_tank": true,
+        "M79_drain_tank": false,
+        "M80_water_on": true,
+        "M81_water_off": true,
+        "M82_wire_on": true,
+        "M83_wire_off": true,
+        "M84_power_on": true,
+        "M85_power_off": true,
+        "M90_adaptive_on": true,
+        "M91_adaptive_off": true
+      },
+      "offset_compensation_used": [],
+      "taper_cutting": {
+        "has_taper_cutting": true,
+        "taper_move_count": 61
+      },
+      "work_zero_sets": [
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "motion_stats": {
+        "rapid_g0": 0,
+        "linear_g1": 73,
+        "arc_cw_g2": 0,
+        "arc_ccw_g3": 0
+      },
+      "dwells": [
+        {
+          "seconds": 5
+        }
+      ],
+      "raw_byte_count": 3406,
+      "raw_line_count": 115
+    },
+    {
+      "source_file": "H:/PRISM/JM DIE/WIRE EDM/Wire Program - 5 inch square.NC",
+      "program": "Wire Program - 5 inch square",
+      "original_name": "Wire Program - 5 inch square.NC",
+      "label": null,
+      "date_comment": null,
+      "h_registers": {},
+      "e_codes": [],
+      "e_code_count": 0,
+      "pass_count": 0,
+      "distinct_e_codes": [],
+      "wire_edm_mcodes": {
+        "M20_thread_wire": false,
+        "M22_cut_wire": false,
+        "M78_fill_tank": false,
+        "M79_drain_tank": false,
+        "M80_water_on": false,
+        "M81_water_off": false,
+        "M82_wire_on": false,
+        "M83_wire_off": false,
+        "M84_power_on": false,
+        "M85_power_off": false,
+        "M90_adaptive_on": false,
+        "M91_adaptive_off": false
+      },
+      "offset_compensation_used": [],
+      "taper_cutting": {
+        "has_taper_cutting": false,
+        "taper_move_count": 0
+      },
+      "work_zero_sets": [],
+      "motion_stats": {
+        "rapid_g0": 1,
+        "linear_g1": 1,
+        "arc_cw_g2": 0,
+        "arc_ccw_g3": 0
+      },
+      "dwells": [],
+      "raw_byte_count": 136,
+      "raw_line_count": 11
+    }
+  ],
+  "notes": [
+    "Mitsubishi W31MV-2 uses E#### 4-digit codes to select energy parameters from the manufacturer's spark table (NOT free-text). E2821 / E2822 etc are real codes the operator looked up.",
+    "Each cutting pass has its own H-register (H1 for pass 1, H2 for pass 2, ...) — the H-register holds the wire-offset value (compensates for spark gap + wire radius).",
+    "UV coords on G1 lines = 4-axis taper cutting (workpiece bottom XY + wire top UV).",
+    "M-code sequence M78 -> M80 -> M82 -> M84 is the canonical wire-EDM-cut-start envelope (fill tank, water on, wire on, power on).",
+    "Mike provides extraction infra; charlie (WEDM domain) cross-references against the 103 existing WEDM engines and identifies any calibration gaps."
+  ]
+}

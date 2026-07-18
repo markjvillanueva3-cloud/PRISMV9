@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    PrismWinMaxShim — the .NET WCF client that bridges WinMax's net.tcp:4502 IDataService
+    to PRISM's node bridge (scripts/winmax-bridge.mjs). slot:echo, 2026-05-30.
+
+    TARGET = net48 (NOT net8.0). The live DataServicetcp endpoint uses SecurityMode.Message
+    + MessageCredentialType.UserName (custom VendorIdValidator, server cert cer.pfx) per
+    WcfDataService.exe.config. Modern .NET (Core) WCF throws PlatformNotSupportedException for
+    SecurityMode.Message (proven 2026-05-30) — only full .NET Framework WCF supports it. net48
+    builds with the SDK via the reference-assemblies package and runs on the in-box Framework.
+
+    WHY a C# shim at all: WinMax's WcfDataService hosts ONLY net.tcp (a .NET-binary protocol,
+    no HTTP WSDL) so node cannot speak it directly. This shim uses ChannelFactory/ClientBase over
+    NetTcpBinding (contract captured live via dotnet-svcutil -> WinMaxDataService.cs) and exposes
+    a JSON line protocol on stdin/stdout for the node bridge.
+
+    SAFETY: read-only ops are the default. Mutating/motion ops (SetSID/RemoteRapidMove/
+    WirelessJog) are REFUSED unless launched with the allow-motion flag (operator-supervised).
+    The shim never auto-launches WinMax; it only connects to an already-running stack.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>PrismWinMaxShim</AssemblyName>
+    <RootNamespace>PRISM.WinMax.Shim</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Full .NET Framework WCF (System.ServiceModel) supports SecurityMode.Message; resolved from
+         the reference-assemblies package so the .NET SDK can build net48 without a targeting pack. -->
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <!-- System.Text.Json is not in the net48 framework; pull the NuGet build (netstandard2.0). -->
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <!-- WinMaxDataService.cs (the live-captured proxy) + Program.cs glob automatically (SDK-style). -->
+
+</Project>

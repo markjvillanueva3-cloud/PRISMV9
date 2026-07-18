@@ -1,0 +1,96 @@
+{
+  "agent_id": "AGT-HAIKU-003",
+  "name": "formula_lookup",
+  "tier": "HAIKU",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Formula Lookup - Fast Formula and Coefficient Retrieval",
+  
+  "domain_expertise": [
+    "Formula registry queries",
+    "Coefficient lookup",
+    "Formula documentation",
+    "Parameter validation",
+    "Formula selection"
+  ],
+
+  "design_principle": "Speed over complexity - fast, reliable lookups",
+
+  "capabilities": [
+    {
+      "id": "CAP-FLOOK-001",
+      "name": "Formula By ID Lookup",
+      "description": "Retrieves formula by ID (F-XXX-001)",
+      "category": "LOOKUP",
+      "inputs": { "required": ["formula_id"] },
+      "outputs": { "primary": "formula_definition" },
+      "skills_used": ["prism-formula-evolution"],
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-FLOOK-002",
+      "name": "Formula By Purpose Lookup",
+      "description": "Finds formula for specific purpose",
+      "category": "SEARCH",
+      "inputs": { "required": ["purpose"] },
+      "outputs": { "primary": "matching_formulas" },
+      "skills_used": ["prism-formula-evolution"],
+      "latency_target_ms": 100
+    },
+    {
+      "id": "CAP-FLOOK-003",
+      "name": "Coefficient Lookup",
+      "description": "Retrieves coefficient value from database",
+      "category": "LOOKUP",
+      "inputs": { "required": ["coefficient_id"] },
+      "outputs": { "primary": "coefficient_value", "secondary": ["uncertainty", "source"] },
+      "skills_used": ["prism-formula-evolution"],
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-FLOOK-004",
+      "name": "Formula Documentation Lookup",
+      "description": "Retrieves formula documentation and usage",
+      "category": "LOOKUP",
+      "inputs": { "required": ["formula_id"] },
+      "outputs": { "primary": "documentation", "secondary": ["inputs", "outputs", "examples"] },
+      "skills_used": ["prism-formula-evolution"],
+      "latency_target_ms": 50
+    },
+    {
+      "id": "CAP-FLOOK-005",
+      "name": "All Formulas List",
+      "description": "Lists all 22 registered formulas",
+      "category": "LOOKUP",
+      "inputs": { "optional": ["category"] },
+      "outputs": { "primary": "formula_list" },
+      "skills_used": ["prism-formula-evolution"],
+      "latency_target_ms": 50
+    },
+    {
+      "id": "CAP-FLOOK-006",
+      "name": "Formula Parameters Lookup",
+      "description": "Retrieves required parameters for formula",
+      "category": "LOOKUP",
+      "inputs": { "required": ["formula_id"] },
+      "outputs": { "primary": "parameters", "secondary": ["required", "optional", "defaults"] },
+      "skills_used": ["prism-formula-evolution"],
+      "latency_target_ms": 30
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-formula-evolution"
+  ],
+
+  "hooks_subscribed": ["formula:preLookup"],
+
+  "can_delegate_to": [],
+  "receives_from": ["force_calculator", "thermal_calculator", "optimizer", "calibration_engineer"],
+
+  "performance_metrics": {
+    "lookup_accuracy": 1.0,
+    "average_latency_ms": 40,
+    "cache_hit_rate": 0.90
+  }
+}

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `trend` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/trend.md` |
+| Source | `C:/Users/wompu/.claude/commands/trend.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Phase 0.18 skill. Reports the recent trajectory of a recorded metric (SVI Ψ, engine count, tribal-tip count, dispatcher action count, test pass rate, etc.), with current value, linear-regression slope, and an ETA-to-target forecast.
+
+# /trend — Timeline Projection for a Named Metric
 
 <!-- AUTO-END -->
 

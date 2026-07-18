@@ -1,0 +1,436 @@
+{
+  "file_name": ".25 NAT. CUTT-OFF KNIFE",
+  "file_id": "urn:adsk.wipprod:dm.lineage:9vXw3ziBSh-sh3WhSFaqfQ",
+  "project": "JM",
+  "folder": "HAAS AND HURCO(1756908815067)",
+  "extracted_at": "2026-05-29T11:25:29",
+  "design": {
+    "body_count": 1,
+    "occurrence_count": 0,
+    "feature_count": 6,
+    "bodies": [
+      {
+        "name": "Body1",
+        "volume_cm3": 27.058365738521275,
+        "area_cm2": 89.48693539549541,
+        "face_count": 17,
+        "edge_count": 44
+      }
+    ]
+  },
+  "cam": {
+    "has_cam": true,
+    "setup_count": 3,
+    "setups": [
+      {
+        "name": "HURCO OP1",
+        "type": "0",
+        "operations": [
+          {
+            "name": "2D Adaptive1 (2)",
+            "strategy": "adaptive2d",
+            "tool": {
+              "description": "#9 - \u00d83/8\"R0.02\" bullnose (3/8\" 1. LOC, .02 ROC)",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "6",
+              "tool_bodyLength": "1.1in",
+              "tool_fluteLength": "1.in",
+              "tool_cornerRadius": "0.02in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'ADAPTIVE ROUGHING'",
+              "tool_vendor": "'HELICAL SHORT'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "5650",
+              "tool_feedCutting": "200in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 2.5)",
+              "tolerance": "0.004in",
+              "optimalLoad": ".03in"
+            }
+          },
+          {
+            "name": "Drill1",
+            "strategy": "drill",
+            "tool": {
+              "description": "#1 - \u00d81/8\" 90\u00b0 center drill (1/4)",
+              "tool_diameter": "0.125in",
+              "tool_numberOfFlutes": "2",
+              "tool_bodyLength": "0.74in",
+              "tool_fluteLength": "0.5in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "1000",
+              "tool_feedCutting": "40inpm",
+              "tool_feedPlunge": "tool_feedPerRevolution * tool_spindleSpeed",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": ".001in",
+              "tolerance": "Math.min(tool_diameter/100; 0.01mm)"
+            }
+          },
+          {
+            "name": "Drill2",
+            "strategy": "drill",
+            "tool": {
+              "description": "#2 - \u00d829/64\" drill (29/64 (.458 Drill))",
+              "tool_diameter": "0.453125in",
+              "tool_numberOfFlutes": "2",
+              "tool_bodyLength": "3.in",
+              "tool_fluteLength": "2.03in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "2.3in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "337.18900000000002",
+              "tool_feedCutting": "40inpm",
+              "tool_feedPlunge": "2.02313399999999in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "(tool_spindleSpeed > 0) ? tool_feedPlunge / tool_spindleSpeed : 0.0",
+              "tolerance": "Math.min(tool_diameter/100; 0.01mm)"
+            }
+          },
+          {
+            "name": "Face1",
+            "strategy": "face",
+            "tool": {
+              "description": "#21 - \u00d82\"R0.032\" face (2\" 5 Flute Face Mill)",
+              "tool_diameter": "2.in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "2.in",
+              "tool_fluteLength": "0.3in",
+              "tool_cornerRadius": "0.032in",
+              "tool_shaftDiameter": "1.995in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "954.92965855137197",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".006in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": "tool_stepover",
+              "maximumStepdown": "tool_fluteLength * 0.9",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "2D Contour1 (2)",
+            "strategy": "contour2d",
+            "tool": {
+              "description": "#10 - \u00d83/8\" flat (3/8\" 5F)",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "1.in",
+              "tool_fluteLength": "0.937in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "tool_surfaceSpeed/(tool_diameter * Math.PI)",
+              "tool_feedCutting": "40.99999999999999in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "500ft/min",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "tool_fluteLength * 0.75",
+              "maximumStepover": "Math.max((tool_diameter - (2 * tool_cornerRadius)) * 0.95; tool_diameter * 0.20)",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "2D Chamfer1",
+            "strategy": "chamfer2d",
+            "tool": {
+              "description": "#16 - \u00d81/4\" 45\u00b0 chamfer (.375 Chamfer Mill)",
+              "tool_diameter": "0.25in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "0.925in",
+              "tool_fluteLength": "0.25in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "0.375in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10000",
+              "tool_feedCutting": "45.in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "tolerance": "0.0004in"
+            }
+          }
+        ]
+      },
+      {
+        "name": "HURCO OP2",
+        "type": "0",
+        "operations": [
+          {
+            "name": "2D Adaptive1",
+            "strategy": "adaptive2d",
+            "tool": {
+              "description": "#9 - \u00d83/8\"R0.02\" bullnose (3/8\" 1. LOC, .02 ROC)",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "6",
+              "tool_bodyLength": "1.1in",
+              "tool_fluteLength": "1.in",
+              "tool_cornerRadius": "0.02in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'ADAPTIVE ROUGHING'",
+              "tool_vendor": "'HELICAL SHORT'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "5654",
+              "tool_feedCutting": "200in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 2.5)",
+              "tolerance": "0.004in",
+              "optimalLoad": ".03in"
+            }
+          },
+          {
+            "name": "2D Adaptive1 (4)",
+            "strategy": "adaptive2d",
+            "tool": {
+              "description": "#20 - \u00d82\"R0.142\" bullnose (2\" 5F ISCAR HIGH FEED 12 DEGREE)",
+              "tool_diameter": "2.in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "1.97in",
+              "tool_fluteLength": "0.5in",
+              "tool_cornerRadius": "0.142in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'1.2ROC, .03 DOC'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "866.",
+              "tool_feedCutting": "92.99999999999994in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".03in",
+              "tolerance": "0.004in",
+              "optimalLoad": "1.3in"
+            }
+          },
+          {
+            "name": "Face2",
+            "strategy": "face",
+            "tool": {
+              "description": "#21 - \u00d82\"R0.032\" face (2\" 5 Flute Face Mill)",
+              "tool_diameter": "2.in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "2.in",
+              "tool_fluteLength": "0.3in",
+              "tool_cornerRadius": "0.032in",
+              "tool_shaftDiameter": "1.995in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "954.92965855137197",
+              "tool_feedCutting": "28in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": ".75in",
+              "maximumStepdown": "tool_fluteLength * 0.9",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "2D Chamfer1 (2)",
+            "strategy": "chamfer2d",
+            "tool": {
+              "description": "#16 - \u00d81/4\" 45\u00b0 chamfer (.375 Chamfer Mill)",
+              "tool_diameter": "0.25in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "0.925in",
+              "tool_fluteLength": "0.25in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "0.375in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10000",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".0015in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Drill4",
+            "strategy": "drill",
+            "tool": {
+              "description": "#3 - \u00d81/2x0.0769231\" right tap (1/2-13 TAP)",
+              "tool_diameter": "0.5in",
+              "tool_numberOfFlutes": "3",
+              "tool_bodyLength": "2.25in",
+              "tool_fluteLength": "1.in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.281in",
+              "tool_shoulderLength": "1.7in",
+              "tool_productId": "''",
+              "tool_vendor": "'OSG'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "130.",
+              "tool_feedCutting": "40inpm",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "(tool_spindleSpeed > 0) ? tool_feedPlunge / tool_spindleSpeed : 0.0",
+              "tolerance": "Math.min(tool_diameter/100; 0.01mm)"
+            }
+          }
+        ]
+      },
+      {
+        "name": "CARBIDE INSERT ",
+        "type": "0",
+        "operations": [
+          {
+            "name": "2D Adaptive1 (3)",
+            "strategy": "adaptive2d",
+            "tool": {
+              "description": "#9 - \u00d83/8\"R0.02\" bullnose (3/8\" 1. LOC, .02 ROC)",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "6",
+              "tool_bodyLength": "1.1in",
+              "tool_fluteLength": "1.in",
+              "tool_cornerRadius": "0.02in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'ADAPTIVE ROUGHING'",
+              "tool_vendor": "'HELICAL SHORT'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "5654",
+              "tool_feedCutting": "200in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 2.5)",
+              "tolerance": "0.004in",
+              "optimalLoad": ".03in"
+            }
+          },
+          {
+            "name": "2D Contour2",
+            "strategy": "contour2d",
+            "tool": {
+              "description": "#10 - \u00d83/8\" flat (3/8\" 5F)",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "1.in",
+              "tool_fluteLength": "0.937in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "tool_surfaceSpeed/(tool_diameter * Math.PI)",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "500ft/min",
+              "tool_feedPerTooth": ".001in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "tool_fluteLength * 0.75",
+              "maximumStepover": "Math.max((tool_diameter - (2 * tool_cornerRadius)) * 0.95; tool_diameter * 0.20)",
+              "tolerance": ".001in"
+            }
+          },
+          {
+            "name": "2D Chamfer1 (3)",
+            "strategy": "chamfer2d",
+            "tool": {
+              "description": "#16 - \u00d81/4\" 45\u00b0 chamfer (.375 Chamfer Mill)",
+              "tool_diameter": "0.25in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "0.925in",
+              "tool_fluteLength": "0.25in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "0.375in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10000",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".0015in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "2D Chamfer1 (4)",
+            "strategy": "chamfer2d",
+            "tool": {
+              "description": "#16 - \u00d81/4\" 45\u00b0 chamfer (.375 Chamfer Mill)",
+              "tool_diameter": "0.25in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "0.925in",
+              "tool_fluteLength": "0.25in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "0.375in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10000",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".0015in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "tolerance": "0.0004in"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

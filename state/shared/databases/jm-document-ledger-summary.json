@@ -1,0 +1,349 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-02T15:57:11.933Z",
+  "milestone": "JM-DOC-POPULATION-MS0",
+  "routing_table_version": "2026-06-02.spec-v1",
+  "total_inventoried": 554999,
+  "total_accounted": 552141,
+  "total_orphan": 2858,
+  "by_bucket": {
+    "other": 32390,
+    "scan": 85338,
+    "program": 166191,
+    "cad": 12994,
+    "doc": 111682,
+    "setup": 16,
+    "print": 7,
+    "packing_slip": 1,
+    "quote": 65,
+    "acknowledgment": 2,
+    "customer_po": 2,
+    "invoice": 4,
+    "accounting": 52,
+    "closed_orders": 12763,
+    "imported": 35,
+    "invoices": 5,
+    "laser_sheets": 178,
+    "notes": 30417,
+    "packing_slips": 2294,
+    "prints": 42084,
+    "quotes": 971,
+    "sales_orders": 21531,
+    "scans": 34409,
+    "shipping": 117,
+    "tax_financial": 93,
+    "unclassified": 1358
+  },
+  "by_source": {
+    "part_library": 147717,
+    "jm_die_category": 149230,
+    "docustrata_manifest": 111745,
+    "docustrata_organized": 146307
+  },
+  "by_target_feature": {
+    "Jobs / job-structure record (part.json / REV folder)": 30890,
+    "Prints / Document archive (viewer; OCR opt-in)": 85338,
+    "Programs / NC library": 166191,
+    "Parts / items (geometry)": 12994,
+    "Unrouted (no route for source/bucket)": 2858,
+    "Document archive": 24,
+    "Setup sheets": 16,
+    "Prints / drawings (viewer; OCR opt-in)": 7,
+    "Document archive (manifest search pointer)": 111658,
+    "Shipment reference — manifest link": 1,
+    "Quoting (charlie-owned) — manifest link": 65,
+    "Order reference (acknowledgment) — manifest link": 2,
+    "Order reference (NO synthetic order) — manifest link": 2,
+    "AR reference (NO synthetic AR) — manifest link": 4,
+    "Financial document archive (link only, NO discrete ERP records)": 34444,
+    "Document / drawing archive": 109534,
+    "Quoting (charlie-owned) — link only": 971
+  },
+  "by_disposition": {
+    "consumed": 179201,
+    "indexed-only": 144973,
+    "viewer-only": 85345,
+    "metadata": 142622,
+    "unrouted-misc": 2858,
+    "malformed-line": 0
+  },
+  "by_source_bucket": [
+    {
+      "source": "jm_die_category",
+      "bucket": "program",
+      "count": 140215,
+      "disposition": "consumed",
+      "engine": "LatheProgramLibraryEngine / CNCProgramAssemblerEngine + AdvancedPostProcessorEngine"
+    },
+    {
+      "source": "docustrata_manifest",
+      "bucket": "doc",
+      "count": 111658,
+      "disposition": "metadata",
+      "engine": "DocuStrataMaterialPriorEngine manifest-search adapter (read manifest.json + .index/)"
+    },
+    {
+      "source": "part_library",
+      "bucket": "scan",
+      "count": 85009,
+      "disposition": "viewer-only",
+      "engine": "BlueprintOCREngine (opt-in) / DocumentControlEngine archive"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "prints",
+      "count": 42084,
+      "disposition": "indexed-only",
+      "engine": "DrawingTemplateIndexEngine (index) / DocumentControlEngine"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "scans",
+      "count": 34409,
+      "disposition": "indexed-only",
+      "engine": "DocumentInboxEngine -> DocumentControlEngine"
+    },
+    {
+      "source": "part_library",
+      "bucket": "other",
+      "count": 31023,
+      "disposition": "metadata",
+      "engine": "JobTravelerEngine / JobLifecycleEngine"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "notes",
+      "count": 30417,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine"
+    },
+    {
+      "source": "part_library",
+      "bucket": "program",
+      "count": 25976,
+      "disposition": "consumed",
+      "engine": "LatheProgramLibraryEngine / CNCProgramAssemblerEngine / PPAGIProgramLibraryAuditorEngine"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "sales_orders",
+      "count": 21531,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine link-only"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "closed_orders",
+      "count": 12763,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine link-only"
+    },
+    {
+      "source": "jm_die_category",
+      "bucket": "cad",
+      "count": 7285,
+      "disposition": "consumed",
+      "engine": "CadPartLibraryEngine -> CADArchiveJoinAugmenterEngine"
+    },
+    {
+      "source": "part_library",
+      "bucket": "cad",
+      "count": 5709,
+      "disposition": "consumed",
+      "engine": "CadPartLibraryEngine -> ArchiveToPartsCatalogIngesterEngine"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "packing_slips",
+      "count": 2294,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "unclassified",
+      "count": 1358,
+      "disposition": "unrouted-misc",
+      "engine": "none"
+    },
+    {
+      "source": "jm_die_category",
+      "bucket": "other",
+      "count": 1354,
+      "disposition": "unrouted-misc",
+      "engine": "none"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "quotes",
+      "count": 971,
+      "disposition": "indexed-only",
+      "engine": "DocuStrataMaterialPriorEngine (charlie) — reference"
+    },
+    {
+      "source": "jm_die_category",
+      "bucket": "scan",
+      "count": 329,
+      "disposition": "viewer-only",
+      "engine": "BlueprintOCREngine (opt-in) / DocumentControlEngine archive"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "laser_sheets",
+      "count": 178,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "shipping",
+      "count": 117,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "tax_financial",
+      "count": 93,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine link-only"
+    },
+    {
+      "source": "docustrata_manifest",
+      "bucket": "quote",
+      "count": 65,
+      "disposition": "metadata",
+      "engine": "DocuStrataMaterialPriorEngine (charlie) — manifest reference"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "accounting",
+      "count": 52,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine link-only"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "imported",
+      "count": 35,
+      "disposition": "indexed-only",
+      "engine": "DocumentInboxEngine"
+    },
+    {
+      "source": "jm_die_category",
+      "bucket": "doc",
+      "count": 24,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine"
+    },
+    {
+      "source": "jm_die_category",
+      "bucket": "setup",
+      "count": 16,
+      "disposition": "consumed",
+      "engine": "SetupSheetLibraryEngine"
+    },
+    {
+      "source": "docustrata_manifest",
+      "bucket": "other",
+      "count": 13,
+      "disposition": "unrouted-misc",
+      "engine": "none"
+    },
+    {
+      "source": "jm_die_category",
+      "bucket": "print",
+      "count": 7,
+      "disposition": "viewer-only",
+      "engine": "BlueprintOCREngine -> Drawing2DExtractionEngine (opt-in)"
+    },
+    {
+      "source": "docustrata_organized",
+      "bucket": "invoices",
+      "count": 5,
+      "disposition": "indexed-only",
+      "engine": "DocumentControlEngine link-only"
+    },
+    {
+      "source": "docustrata_manifest",
+      "bucket": "invoice",
+      "count": 4,
+      "disposition": "metadata",
+      "engine": "DocuStrataMaterialPriorEngine manifest-search adapter (read manifest.json + .index/)"
+    },
+    {
+      "source": "docustrata_manifest",
+      "bucket": "acknowledgment",
+      "count": 2,
+      "disposition": "metadata",
+      "engine": "DocuStrataMaterialPriorEngine manifest-search adapter (read manifest.json + .index/)"
+    },
+    {
+      "source": "docustrata_manifest",
+      "bucket": "customer_po",
+      "count": 2,
+      "disposition": "metadata",
+      "engine": "DocuStrataMaterialPriorEngine manifest-search adapter (read manifest.json + .index/)"
+    },
+    {
+      "source": "docustrata_manifest",
+      "bucket": "packing_slip",
+      "count": 1,
+      "disposition": "metadata",
+      "engine": "DocuStrataMaterialPriorEngine manifest-search adapter (read manifest.json + .index/)"
+    }
+  ],
+  "docustrata_docs": 111745,
+  "distinct_customers": 474,
+  "distinct_materials": 9,
+  "distinct_machine_classes": 7,
+  "machine_classes_seen": [
+    "lathe",
+    "lathe_okuma",
+    "mill",
+    "mill_hurco",
+    "mill_roku",
+    "mill_turn",
+    "wedm"
+  ],
+  "customer_nonnull_count": 147791,
+  "material_nonnull_count": 895,
+  "machine_class_nonnull_count": 147089,
+  "crm_linked_count": 147791,
+  "crm_unlinked_count": 407208,
+  "financial_guarded_count": 34452,
+  "unrouted_detail": [
+    {
+      "source": "docustrata_organized",
+      "bucket": "unclassified",
+      "count": 1358,
+      "reason": "no_route_for(docustrata_organized,unclassified)"
+    },
+    {
+      "source": "jm_die_category",
+      "bucket": "other",
+      "count": 1354,
+      "reason": "no_route_for(jm_die_category,other)"
+    },
+    {
+      "source": "part_library",
+      "bucket": "other",
+      "count": 133,
+      "reason": "no_route_for(part_library,other)"
+    },
+    {
+      "source": "docustrata_manifest",
+      "bucket": "other",
+      "count": 13,
+      "reason": "no_route_for(docustrata_manifest,other)"
+    }
+  ],
+  "parse_errors": 0,
+  "invariant_ok": true,
+  "invariant_checks": {
+    "disposition_sum_eq_total": true,
+    "tuple_sum_eq_total": true,
+    "accounted_plus_orphan_eq_total": true,
+    "no_consumed_financial": true
+  }
+}

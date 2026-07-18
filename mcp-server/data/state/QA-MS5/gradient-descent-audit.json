@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS5-P0-U02",
+  "title": "Gradient Descent / Parameter Optimization",
+  "audited_at": "2026-04-12T19:55:00.000Z",
+  "auditor": "claude-opus-4.5",
+  "primary_file": "src/engines/GradientOptimizationEngine.ts",
+  "source": "PRISM v8.89 monolith (MIT 6.251J, Stanford AA222)",
+  "gradient_descent_variants": {
+    "vanilla": {
+      "update_rule": "x[i] -= α × g[i]",
+      "line": "122-124",
+      "verified": true
+    },
+    "momentum": {
+      "update_rule": "v[i] = μ×v[i] - α×g[i]; x[i] += v[i]",
+      "lines": "93-96",
+      "default_momentum": 0.9,
+      "verified": true
+    },
+    "nesterov": {
+      "update_rule": "Look-ahead gradient at x + μ×v, then update",
+      "lines": "99-106",
+      "nesterov_lookahead": true,
+      "verified": true
+    },
+    "adam": {
+      "update_rule": "m = β1×m + (1-β1)×g; v = β2×v + (1-β2)×g²; x -= α×m_hat/√(v_hat+ε)",
+      "lines": "109-118",
+      "parameters": {
+        "beta1": 0.9,
+        "beta2": 0.999,
+        "epsilon": 1e-8
+      },
+      "bias_correction": true,
+      "verified": true,
+      "reference": "Kingma & Ba (2015) Adam"
+    }
+  },
+  "learning_rate_verification": {
+    "default_rate": 0.01,
+    "configurable": true,
+    "scheduling": "Fixed (no decay in base implementation)",
+    "adaptive_via_adam": true,
+    "line": 68
+  },
+  "gradient_computation_verification": {
+    "user_provided_fn": true,
+    "numerical_gradient": false,
+    "grad_type": "GradientFn = (x: number[]) => number[]",
+    "verified": true
+  },
+  "convergence_detection": {
+    "criterion": "||∇f(x)|| < tol",
+    "default_tol": 1e-8,
+    "max_iterations": 1000,
+    "line": "86-89",
+    "early_stopping": true,
+    "history_tracked": true
+  },
+  "newton_method": {
+    "file": "src/engines/GradientOptimizationEngine.ts",
+    "method": "newton()",
+    "lines": "133-183",
+    "features": {
+      "hessian_required": true,
+      "newton_step": "Solve H×d = -g",
+      "line_search": {
+        "type": "Backtracking (Armijo)",
+        "c": 0.0001,
+        "rho": 0.5,
+        "lines": "165-175"
+      }
+    },
+    "linear_solver": "_solveLinearSystem (via SVDEngine)",
+    "verified": true
+  },
+  "bfgs_quasi_newton": {
+    "file": "src/engines/GradientOptimizationEngine.ts",
+    "method": "bfgs()",
+    "lines": "188-260",
+    "features": {
+      "inverse_hessian_init": "Identity matrix",
+      "rank_2_update": "BFGS formula with s, y vectors",
+      "secant_condition": "y = g_new - g_old, s = x_new - x_old",
+      "curvature_check": "rho_k > 0",
+      "line_search": "Backtracking Armijo"
+    },
+    "update_formula": "H = (I - ρ×s×y') × H × (I - ρ×y×s') + ρ×s×s'",
+    "verified": true,
+    "reference": "Nocedal & Wright (2006) Numerical Optimization"
+  },
+  "additional_engines": {
+    "ConvexOptimizationEngine": {
+      "file": "src/engines/ConvexOptimizationEngine.ts",
+      "methods": [
+        "projected gradient",
+        "proximal gradient",
+        "ADMM"
+      ],
+      "supports_constraints": true
+    },
+    "BayesianOptimizer": {
+      "file": "src/algorithms/BayesianOptimizer.ts",
+      "type": "Gaussian process surrogate",
+      "acquisition": "Expected improvement"
+    }
+  },
+  "exit_conditions_met": {
+    "learning_rate_verified": true,
+    "gradient_computation_verified": true,
+    "convergence_early_stopping_verified": true
+  },
+  "audit_result": "PASS",
+  "safety_score": 0.95,
+  "notes": [
+    "4 gradient descent variants correctly implemented (vanilla, momentum, Nesterov, Adam)",
+    "Adam parameters match Kingma & Ba (2015) defaults",
+    "Newton's method with backtracking line search verified",
+    "BFGS quasi-Newton with inverse Hessian update verified",
+    "Convergence detection via gradient norm < tolerance"
+  ]
+}

@@ -1,0 +1,389 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-06-25T06:33:53.262Z",
+  "profiles": [
+    {
+      "profile_id": "cam-expert",
+      "name": "CAM Expert",
+      "description": "Specializes in CAM programming, toolpath strategies, and G-code optimization",
+      "family": "claude",
+      "preferred_tier": "sonnet",
+      "capabilities": [
+        {
+          "capability": "toolpath_strategy",
+          "weight": 1
+        },
+        {
+          "capability": "operation_sequencing",
+          "weight": 0.9
+        },
+        {
+          "capability": "code_generation",
+          "weight": 0.8
+        },
+        {
+          "capability": "speed_feed_optimization",
+          "weight": 0.7
+        }
+      ],
+      "domains": [
+        "cam",
+        "gcode",
+        "tooling",
+        "machining"
+      ],
+      "coordination_pattern": "specialist",
+      "tool_access": [
+        "prism_cam",
+        "prism_toolpath",
+        "prism_calc"
+      ],
+      "max_concurrent_tasks": 3,
+      "token_budget_default": 50000,
+      "metadata": {
+        "specialty": "multi-axis"
+      },
+      "created_at": "2026-04-15T02:15:28.590Z",
+      "updated_at": "2026-04-15T02:15:28.590Z",
+      "performance": {
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "avg_completion_time_ms": 0,
+        "avg_confidence": 0,
+        "success_rate": 1,
+        "last_used": null
+      }
+    },
+    {
+      "profile_id": "physics-validator",
+      "name": "Physics Validator",
+      "description": "Validates cutting forces, power requirements, and thermal calculations",
+      "family": "claude",
+      "preferred_tier": "opus",
+      "capabilities": [
+        {
+          "capability": "physics_validation",
+          "weight": 1,
+          "requires_tier": "opus"
+        },
+        {
+          "capability": "safety_checking",
+          "weight": 0.9
+        },
+        {
+          "capability": "deep_reasoning",
+          "weight": 0.8,
+          "requires_tier": "opus"
+        }
+      ],
+      "domains": [
+        "physics",
+        "safety",
+        "materials"
+      ],
+      "coordination_pattern": "validator",
+      "tool_access": [
+        "prism_calc",
+        "prism_safety",
+        "prism_validate"
+      ],
+      "max_concurrent_tasks": 2,
+      "token_budget_default": 100000,
+      "metadata": {
+        "focus": "force_thermal"
+      },
+      "created_at": "2026-04-15T02:15:28.590Z",
+      "updated_at": "2026-04-15T02:15:28.590Z",
+      "performance": {
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "avg_completion_time_ms": 0,
+        "avg_confidence": 0,
+        "success_rate": 1,
+        "last_used": null
+      }
+    },
+    {
+      "profile_id": "tribal-knowledge-specialist",
+      "name": "Tribal Knowledge Specialist",
+      "description": "Extracts, validates, and applies shop floor tribal knowledge",
+      "family": "claude",
+      "preferred_tier": "sonnet",
+      "capabilities": [
+        {
+          "capability": "knowledge_extraction",
+          "weight": 1
+        },
+        {
+          "capability": "pattern_recognition",
+          "weight": 0.9
+        },
+        {
+          "capability": "natural_language",
+          "weight": 0.8
+        }
+      ],
+      "domains": [
+        "tribal",
+        "machining",
+        "quality"
+      ],
+      "coordination_pattern": "collaborative",
+      "tool_access": [
+        "prism_knowledge",
+        "prism_ai",
+        "prism_quality"
+      ],
+      "max_concurrent_tasks": 4,
+      "token_budget_default": 40000,
+      "metadata": {
+        "source": "shop_floor"
+      },
+      "created_at": "2026-04-15T02:15:28.590Z",
+      "updated_at": "2026-04-15T02:15:28.590Z",
+      "performance": {
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "avg_completion_time_ms": 0,
+        "avg_confidence": 0,
+        "success_rate": 1,
+        "last_used": null
+      }
+    },
+    {
+      "profile_id": "tool-selector",
+      "name": "Tool Selection Expert",
+      "description": "Selects optimal cutting tools based on material, operation, and constraints",
+      "family": "claude",
+      "preferred_tier": "sonnet",
+      "capabilities": [
+        {
+          "capability": "tool_selection",
+          "weight": 1
+        },
+        {
+          "capability": "speed_feed_optimization",
+          "weight": 0.9
+        },
+        {
+          "capability": "cost_estimation",
+          "weight": 0.6
+        }
+      ],
+      "domains": [
+        "tooling",
+        "materials",
+        "machining"
+      ],
+      "coordination_pattern": "specialist",
+      "tool_access": [
+        "prism_calc",
+        "prism_knowledge",
+        "prism_data"
+      ],
+      "max_concurrent_tasks": 5,
+      "token_budget_default": 30000,
+      "metadata": {
+        "inventory_aware": true
+      },
+      "created_at": "2026-04-15T02:15:28.590Z",
+      "updated_at": "2026-04-15T02:15:28.590Z",
+      "performance": {
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "avg_completion_time_ms": 0,
+        "avg_confidence": 0,
+        "success_rate": 1,
+        "last_used": null
+      }
+    },
+    {
+      "profile_id": "quote-optimizer",
+      "name": "Quote Optimization Specialist",
+      "description": "Optimizes manufacturing quotes for profitability and competitiveness",
+      "family": "claude",
+      "preferred_tier": "sonnet",
+      "capabilities": [
+        {
+          "capability": "cost_estimation",
+          "weight": 1
+        },
+        {
+          "capability": "feasibility_analysis",
+          "weight": 0.8
+        },
+        {
+          "capability": "deep_reasoning",
+          "weight": 0.7
+        }
+      ],
+      "domains": [
+        "quoting",
+        "business",
+        "scheduling"
+      ],
+      "coordination_pattern": "independent",
+      "tool_access": [
+        "prism_business",
+        "prism_scheduling",
+        "prism_calc"
+      ],
+      "max_concurrent_tasks": 3,
+      "token_budget_default": 40000,
+      "metadata": {
+        "margin_aware": true
+      },
+      "created_at": "2026-04-15T02:15:28.590Z",
+      "updated_at": "2026-04-15T02:15:28.590Z",
+      "performance": {
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "avg_completion_time_ms": 0,
+        "avg_confidence": 0,
+        "success_rate": 1,
+        "last_used": null
+      }
+    },
+    {
+      "profile_id": "error-resolver",
+      "name": "Error Resolution Specialist",
+      "description": "Diagnoses and resolves machining errors, alarms, and quality issues",
+      "family": "claude",
+      "preferred_tier": "sonnet",
+      "capabilities": [
+        {
+          "capability": "error_resolution",
+          "weight": 1
+        },
+        {
+          "capability": "hypothesis_generation",
+          "weight": 0.9
+        },
+        {
+          "capability": "pattern_recognition",
+          "weight": 0.8
+        }
+      ],
+      "domains": [
+        "machining",
+        "quality",
+        "safety"
+      ],
+      "coordination_pattern": "specialist",
+      "tool_access": [
+        "prism_diagnosis",
+        "prism_quality",
+        "prism_knowledge"
+      ],
+      "max_concurrent_tasks": 2,
+      "token_budget_default": 50000,
+      "metadata": {
+        "real_time": true
+      },
+      "created_at": "2026-04-15T02:15:28.590Z",
+      "updated_at": "2026-04-15T02:15:28.590Z",
+      "performance": {
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "avg_completion_time_ms": 0,
+        "avg_confidence": 0,
+        "success_rate": 1,
+        "last_used": null
+      }
+    },
+    {
+      "profile_id": "deep-reasoner",
+      "name": "Deep Reasoning Agent",
+      "description": "Handles complex multi-step reasoning, formula derivation, and synthesis",
+      "family": "claude",
+      "preferred_tier": "opus",
+      "capabilities": [
+        {
+          "capability": "deep_reasoning",
+          "weight": 1,
+          "requires_tier": "opus"
+        },
+        {
+          "capability": "hypothesis_generation",
+          "weight": 0.9,
+          "requires_tier": "opus"
+        },
+        {
+          "capability": "physics_validation",
+          "weight": 0.8,
+          "requires_tier": "opus"
+        },
+        {
+          "capability": "natural_language",
+          "weight": 0.7
+        }
+      ],
+      "domains": [
+        "physics",
+        "general",
+        "machining"
+      ],
+      "coordination_pattern": "supervisory",
+      "tool_access": [
+        "prism_ai",
+        "prism_calc",
+        "prism_knowledge"
+      ],
+      "max_concurrent_tasks": 1,
+      "token_budget_default": 200000,
+      "metadata": {
+        "opus_only": true
+      },
+      "created_at": "2026-04-15T02:15:28.590Z",
+      "updated_at": "2026-04-15T02:15:28.590Z",
+      "performance": {
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "avg_completion_time_ms": 0,
+        "avg_confidence": 0,
+        "success_rate": 1,
+        "last_used": null
+      }
+    },
+    {
+      "profile_id": "quick-responder",
+      "name": "Quick Response Agent",
+      "description": "Fast responses for simple queries, lookups, and status checks",
+      "family": "claude",
+      "preferred_tier": "haiku",
+      "capabilities": [
+        {
+          "capability": "natural_language",
+          "weight": 1
+        },
+        {
+          "capability": "pattern_recognition",
+          "weight": 0.6
+        }
+      ],
+      "domains": [
+        "general"
+      ],
+      "coordination_pattern": "independent",
+      "tool_access": [
+        "prism_data",
+        "prism_knowledge"
+      ],
+      "max_concurrent_tasks": 10,
+      "token_budget_default": 10000,
+      "metadata": {
+        "low_latency": true
+      },
+      "created_at": "2026-04-15T02:15:28.590Z",
+      "updated_at": "2026-04-15T02:15:28.590Z",
+      "performance": {
+        "tasks_completed": 0,
+        "tasks_failed": 0,
+        "avg_completion_time_ms": 0,
+        "avg_confidence": 0,
+        "success_rate": 1,
+        "last_used": null
+      }
+    }
+  ]
+}

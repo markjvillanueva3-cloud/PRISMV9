@@ -1,0 +1,439 @@
+{
+  "generated": "2026-03-28",
+  "version": "1.0.0",
+  "summary": {
+    "total_static_tips": 4129,
+    "static_data_files": 21,
+    "production_paths": {
+      "active_persisted": 1,
+      "active_ephemeral": 2,
+      "broken": 1,
+      "static_only": 22
+    },
+    "consumers": {
+      "wired": 2,
+      "display_only": 2,
+      "unwired_critical": 39,
+      "unwired_high": 48,
+      "unwired_medium": 25
+    },
+    "coverage_by_domain": {
+      "manufacturing_calculation": { "total": 67, "wired": 0, "pct": 0 },
+      "manufacturing_pipelines": { "total": 9, "wired": 0, "pct": 0 },
+      "business_erp": { "total": 20, "wired": 0, "pct": 0 },
+      "safety_alarms": { "total": 14, "wired": 0, "pct": 0 },
+      "post_processing": { "total": 5, "wired": 0, "pct": 0 },
+      "training_learning": { "total": 3, "wired": 1, "pct": 33 },
+      "frontend_pages": { "total": 8, "wired": 0, "pct": 0 },
+      "dispatchers": { "total": 7, "wired": 1, "pct": 14 }
+    }
+  },
+  "production_paths": [
+    {
+      "path_name": "Static CAM Tips (21 files)",
+      "engine": "mcp-server/src/data/*-cam-tips*.ts",
+      "tip_count": 3752,
+      "status": "active-static",
+      "persistence": "typescript_imports",
+      "survives_restart": true,
+      "gap": null
+    },
+    {
+      "path_name": "KNOWLEDGE_BASE (hardcoded)",
+      "engine": "mcp-server/src/engines/TribalKnowledgeEngine.ts",
+      "tip_count": 377,
+      "status": "active-static",
+      "persistence": "source_code",
+      "survives_restart": true,
+      "gap": null
+    },
+    {
+      "path_name": "Operator Capture (tribal_capture)",
+      "engine": "knowledgeDispatcher → TribalKnowledgeEngine.capture()",
+      "tip_count": "unbounded",
+      "status": "active-ephemeral",
+      "persistence": "in_memory_array",
+      "survives_restart": false,
+      "gap": "Captured tips are pushed to this.tips[] only — lost on server restart. No file/DB write."
+    },
+    {
+      "path_name": "Apprentice Capture",
+      "engine": "mcp-server/src/engines/ApprenticeEngine.ts",
+      "tip_count": "unbounded",
+      "status": "active-ephemeral",
+      "persistence": "module_level_array",
+      "survives_restart": false,
+      "gap": "Separate knowledgeBase array, not connected to TribalKnowledgeEngine. Lost on restart."
+    },
+    {
+      "path_name": "VideoLearningEngine",
+      "engine": "mcp-server/src/engines/VideoLearningEngine.ts",
+      "tip_count": "varies",
+      "status": "broken",
+      "persistence": "none",
+      "survives_restart": false,
+      "gap": "Produces VideoKnowledgeItem[] but never calls tribal_capture(). No dispatcher consumer. Dead output."
+    },
+    {
+      "path_name": "DocumentLearningDispatcher",
+      "engine": "mcp-server/src/tools/dispatchers/documentLearningDispatcher.ts",
+      "tip_count": "varies",
+      "status": "active-persisted-silo",
+      "persistence": "json_files_knowledge_store",
+      "survives_restart": true,
+      "gap": "Persists to /knowledge_store/*.json but NOT integrated into TribalKnowledgeEngine. Separate silo."
+    }
+  ],
+  "consumers": [
+    {
+      "name": "SpeedFeedOrchestratorEngine",
+      "file": "src/engines/SpeedFeedOrchestratorEngine.ts",
+      "type": "engine",
+      "domain": "manufacturing_calculation",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "material_handling"],
+      "priority": "critical",
+      "wiring_notes": "Central speed/feed hub (2,851 LOC, 67 integration points). Should call tribal_suggest(material_iso, operation_type) to weight recommendations."
+    },
+    {
+      "name": "PrintToProgramPipelineEngine",
+      "file": "src/engines/PrintToProgramPipelineEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "safety", "surface_finish"],
+      "priority": "critical",
+      "wiring_notes": "Root milling pipeline. Should surface relevant tribal warnings during program generation."
+    },
+    {
+      "name": "TurningPrintToProgramEngine",
+      "file": "src/engines/TurningPrintToProgramEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "safety"],
+      "priority": "critical",
+      "wiring_notes": "Turning pipeline. G96/G97, TNRC context critical for tribal tip application."
+    },
+    {
+      "name": "MultiAxisPrintToProgramEngine",
+      "file": "src/engines/MultiAxisPrintToProgramEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "safety"],
+      "priority": "critical",
+      "wiring_notes": "5-axis pipeline. Complex setup and collision scenarios benefit most from tribal knowledge."
+    },
+    {
+      "name": "MillTurnSwissPipelineEngine",
+      "file": "src/engines/MillTurnSwissPipelineEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup"],
+      "priority": "critical",
+      "wiring_notes": "Mill-turn/swiss multi-channel pipeline."
+    },
+    {
+      "name": "EDMProgramAssemblerEngine",
+      "file": "src/engines/EDMProgramAssemblerEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["setup", "troubleshooting", "material_handling"],
+      "priority": "high",
+      "wiring_notes": "EDM pipeline (6 dialects). Flushing, electrode wear, and wire tension are highly tribal."
+    },
+    {
+      "name": "GrindingProgramAssemblerEngine",
+      "file": "src/engines/GrindingProgramAssemblerEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "setup", "surface_finish", "safety"],
+      "priority": "high",
+      "wiring_notes": "Grinding pipeline (5 types, 6 dialects). Wheel dressing and burn prevention are tribal."
+    },
+    {
+      "name": "LaserProgramAssemblerEngine",
+      "file": "src/engines/LaserProgramAssemblerEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["setup", "material_handling", "safety"],
+      "priority": "high",
+      "wiring_notes": "Laser pipeline (7 dialects). Gas assist and focus height are process-tribal."
+    },
+    {
+      "name": "WaterjetProgramAssemblerEngine",
+      "file": "src/engines/WaterjetProgramAssemblerEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "setup", "material_handling"],
+      "priority": "high",
+      "wiring_notes": "Waterjet pipeline (6 dialects). Garnet flow, taper comp, pierce strategies are tribal."
+    },
+    {
+      "name": "QuoteToShipOrchestratorEngine",
+      "file": "src/engines/QuoteToShipOrchestratorEngine.ts",
+      "type": "pipeline",
+      "domain": "manufacturing_pipelines",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "material_handling", "quality"],
+      "priority": "critical",
+      "wiring_notes": "21-stage business pipeline. Quote accuracy depends on tribal corrections."
+    },
+    {
+      "name": "SmartToolSelectorEngine",
+      "file": "src/engines/SmartToolSelectorEngine.ts",
+      "type": "engine",
+      "domain": "manufacturing_calculation",
+      "status": "unwired",
+      "knowledge_types": ["tooling", "material_handling"],
+      "priority": "critical",
+      "wiring_notes": "Tool selection should bias on proven tribal preferences per material/operation."
+    },
+    {
+      "name": "CuttingForceEngine",
+      "file": "src/engines/CuttingForceEngine.ts",
+      "type": "engine",
+      "domain": "manufacturing_calculation",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "material_handling"],
+      "priority": "critical",
+      "wiring_notes": "Tribal corrections for Kienzle constants (worn tools, real chip thickness vs theory)."
+    },
+    {
+      "name": "ChatterStabilityLobeEngine",
+      "file": "src/engines/ChatterStabilityLobeEngine.ts",
+      "type": "engine",
+      "domain": "manufacturing_calculation",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "troubleshooting"],
+      "priority": "critical",
+      "wiring_notes": "SLD generation. Machine/holder-specific damping tribal knowledge is invaluable."
+    },
+    {
+      "name": "SurfaceFinishPredictorEngine",
+      "file": "src/engines/SurfaceFinishPredictorEngine.ts",
+      "type": "engine",
+      "domain": "manufacturing_calculation",
+      "status": "unwired",
+      "knowledge_types": ["surface_finish", "speeds_feeds", "tooling"],
+      "priority": "critical",
+      "wiring_notes": "Surface finish prediction. Tribal knowledge on material-specific finish behavior."
+    },
+    {
+      "name": "CoolantStrategyEngine",
+      "file": "src/engines/CoolantStrategyEngine.ts",
+      "type": "engine",
+      "domain": "manufacturing_calculation",
+      "status": "unwired",
+      "knowledge_types": ["setup", "material_handling", "safety"],
+      "priority": "high",
+      "wiring_notes": "Coolant selection. MQL vs flood vs dry tribal experience per material."
+    },
+    {
+      "name": "AlarmDiagnosticsEngine",
+      "file": "src/engines/AlarmDiagnosticsEngine.ts",
+      "type": "engine",
+      "domain": "safety_alarms",
+      "status": "unwired",
+      "knowledge_types": ["troubleshooting", "maintenance", "safety"],
+      "priority": "critical",
+      "wiring_notes": "Alarm diagnosis. Proven fixes from tribal knowledge should rank higher."
+    },
+    {
+      "name": "ScrapRootCauseEngine",
+      "file": "src/engines/ScrapRootCauseEngine.ts",
+      "type": "engine",
+      "domain": "safety_alarms",
+      "status": "unwired",
+      "knowledge_types": ["troubleshooting", "quality", "material_handling"],
+      "priority": "critical",
+      "wiring_notes": "Root cause analysis. Past scrap patterns from tribal knowledge guide investigation."
+    },
+    {
+      "name": "PostProcessorPipelineEngine",
+      "file": "src/engines/PostProcessorPipelineEngine.ts",
+      "type": "engine",
+      "domain": "post_processing",
+      "status": "unwired",
+      "knowledge_types": ["setup", "safety"],
+      "priority": "high",
+      "wiring_notes": "38-stage post processor. Controller quirk tips should inject as G-code comments."
+    },
+    {
+      "name": "InstantQuoteEngine",
+      "file": "src/engines/InstantQuoteEngine.ts",
+      "type": "engine",
+      "domain": "business_erp",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "material_handling"],
+      "priority": "critical",
+      "wiring_notes": "Instant quoting. Tribal corrections for cycle time and setup complexity."
+    },
+    {
+      "name": "QuoteRevisionEngine",
+      "file": "src/engines/QuoteRevisionEngine.ts",
+      "type": "engine",
+      "domain": "business_erp",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "material_handling"],
+      "priority": "high",
+      "wiring_notes": "Quote revisions. Past quote misses from tribal knowledge improve accuracy."
+    },
+    {
+      "name": "ProductionPackageEngine",
+      "file": "src/engines/ProductionPackageEngine.ts",
+      "type": "engine",
+      "domain": "manufacturing_pipelines",
+      "status": "display_only",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "safety"],
+      "priority": "high",
+      "wiring_notes": "Currently fetches tribal tips but only pastes as display text. Should influence setup/tooling decisions."
+    },
+    {
+      "name": "MasterPostProcessorEngine",
+      "file": "src/engines/MasterPostProcessorEngine.ts",
+      "type": "engine",
+      "domain": "post_processing",
+      "status": "display_only",
+      "knowledge_types": ["setup"],
+      "priority": "medium",
+      "wiring_notes": "References tribal tips in comments only. Not wired for runtime queries."
+    },
+    {
+      "name": "CourseBuilderEngine",
+      "file": "src/engines/CourseBuilderEngine.ts",
+      "type": "engine",
+      "domain": "training_learning",
+      "status": "wired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "safety", "troubleshooting"],
+      "priority": "n/a",
+      "wiring_notes": "Fully wired. Queries tribalKnowledgeEngine.search() for course content."
+    },
+    {
+      "name": "knowledgeDispatcher",
+      "file": "src/tools/dispatchers/knowledgeDispatcher.ts",
+      "type": "dispatcher",
+      "domain": "training_learning",
+      "status": "wired",
+      "knowledge_types": ["speeds_feeds", "tooling", "setup", "safety", "troubleshooting"],
+      "priority": "n/a",
+      "wiring_notes": "Fully wired. Routes tribal_capture/search/suggest/stats actions."
+    },
+    {
+      "name": "calcDispatcher",
+      "file": "src/tools/dispatchers/calcDispatcher.ts",
+      "type": "dispatcher",
+      "domain": "manufacturing_calculation",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling"],
+      "priority": "critical",
+      "wiring_notes": "Calculation dispatcher. Should enrich speed/feed results with relevant tribal tips."
+    },
+    {
+      "name": "camDispatcher",
+      "file": "src/tools/dispatchers/camDispatcher.ts",
+      "type": "dispatcher",
+      "domain": "manufacturing_calculation",
+      "status": "unwired",
+      "knowledge_types": ["tooling", "setup", "speeds_feeds"],
+      "priority": "critical",
+      "wiring_notes": "CAM dispatcher. Should surface CAM-system-specific tribal tips with toolpath recommendations."
+    },
+    {
+      "name": "diagnosisDispatcher",
+      "file": "src/tools/dispatchers/diagnosisDispatcher.ts",
+      "type": "dispatcher",
+      "domain": "safety_alarms",
+      "status": "unwired",
+      "knowledge_types": ["troubleshooting", "safety", "maintenance"],
+      "priority": "critical",
+      "wiring_notes": "Diagnosis dispatcher. Tribal troubleshooting tips should augment diagnostic results."
+    },
+    {
+      "name": "CalculatorPage",
+      "file": "web/src/pages/CalculatorPage.tsx",
+      "type": "frontend_page",
+      "domain": "frontend_pages",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling"],
+      "priority": "critical",
+      "wiring_notes": "Speed/feed calculator. Should show relevant tribal tips alongside calculation results."
+    },
+    {
+      "name": "ToolpathAdvisorPage",
+      "file": "web/src/pages/ToolpathAdvisorPage.tsx",
+      "type": "frontend_page",
+      "domain": "frontend_pages",
+      "status": "unwired",
+      "knowledge_types": ["tooling", "setup", "speeds_feeds"],
+      "priority": "critical",
+      "wiring_notes": "Toolpath advisor. Tribal tips per CAM system and strategy are directly relevant."
+    },
+    {
+      "name": "AlarmPage",
+      "file": "web/src/pages/AlarmPage.tsx",
+      "type": "frontend_page",
+      "domain": "frontend_pages",
+      "status": "unwired",
+      "knowledge_types": ["troubleshooting", "safety", "maintenance"],
+      "priority": "critical",
+      "wiring_notes": "Alarm diagnostics page. Proven tribal fixes should rank in remediation suggestions."
+    },
+    {
+      "name": "SafetyMonitorPage",
+      "file": "web/src/pages/SafetyMonitorPage.tsx",
+      "type": "frontend_page",
+      "domain": "frontend_pages",
+      "status": "unwired",
+      "knowledge_types": ["safety", "troubleshooting"],
+      "priority": "high",
+      "wiring_notes": "Safety monitoring. Tribal safety warnings per machine/operation."
+    },
+    {
+      "name": "JobPlannerPage",
+      "file": "web/src/pages/JobPlannerPage.tsx",
+      "type": "frontend_page",
+      "domain": "frontend_pages",
+      "status": "unwired",
+      "knowledge_types": ["setup", "tooling", "speeds_feeds"],
+      "priority": "high",
+      "wiring_notes": "Job planning. Tribal tips for setup sequence and tooling selection."
+    },
+    {
+      "name": "SecondaryOpsPage",
+      "file": "web/src/pages/SecondaryOpsPage.tsx",
+      "type": "frontend_page",
+      "domain": "frontend_pages",
+      "status": "unwired",
+      "knowledge_types": ["setup", "quality", "material_handling"],
+      "priority": "high",
+      "wiring_notes": "Secondary operations. Tribal knowledge on heat treat, plating, anodize interactions."
+    },
+    {
+      "name": "WhatIfPage",
+      "file": "web/src/pages/WhatIfPage.tsx",
+      "type": "frontend_page",
+      "domain": "frontend_pages",
+      "status": "unwired",
+      "knowledge_types": ["speeds_feeds", "tooling", "surface_finish"],
+      "priority": "medium",
+      "wiring_notes": "What-if analysis. Tribal experience on parameter trade-offs."
+    },
+    {
+      "name": "StockOptimizerPage",
+      "file": "web/src/pages/StockOptimizerPage.tsx",
+      "type": "frontend_page",
+      "domain": "frontend_pages",
+      "status": "unwired",
+      "knowledge_types": ["material_handling", "setup"],
+      "priority": "medium",
+      "wiring_notes": "Stock selection. Tribal knowledge on material behavior and stock allowances."
+    }
+  ]
+}

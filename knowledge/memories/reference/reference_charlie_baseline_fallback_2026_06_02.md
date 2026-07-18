@@ -1,0 +1,27 @@
+---
+name: reference_charlie_baseline_fallback_2026_06_02
+description: "U-QP-BASELINE-FALLBACK — the quoting closed loop was DEAD (default trained on a poisoned stub → guard exit 2); guard-aware fallback revives it on the real 47,905-record corpus"
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.506Z
+aliases: reference_charlie_baseline_fallback_2026_06_02
+---
+
+
+QUOTING-SYNERGY-MS0/U-QP-BASELINE-FALLBACK (slot:charlie, 2026-06-02, /goal /loop /yolo iter1).
+
+**The dead loop (root cause).** The bare `node scripts/quoting-train-cycle.mjs` invocation defaulted to `state/shared/quoting/baseline-records.json` — a 100-record BOOTSTRAP PLACEHOLDER (machine MODELS like `Okuma_Multus_B250II` seeded as customers, all `actual_revenue_usd`=one stub value). charlie's own poison-guard (U-QP-BASELINE-GUARD, [[reference_charlie_baseline_guard_2026_06_01]]) correctly REFUSED it → the cycle exited 2 and **never trained**, while the real JM-Die corpus `baseline-records-corpus-with-real.json` (47,905 records / 474 customers / 12,047 distinct revenues, already guard-admitted) sat unused right beside it. The production cron (`install-quoting-pipeline-cron.ps1`) compounds this: Stage0 runs the OLD `quoting-baseline-bootstrap.mjs` (the corpus-script header itself says it "produces poisoned records — machine names as customers"); the clean `quoting-baseline-from-corpus.mjs` (iter58) is NOT wired in.
+
+**The fix.** New pure resolver `scripts/lib/quoting-baseline-resolve.mjs` (`resolveTrainableBaseline`): honor the configured baseline FIRST, but if the guard refuses it (or it's missing/unreadable/0-record) AND fallback is enabled, fall back through canonical real corpora (`FALLBACK_CORPORA` = `-corpus-with-real` > `-corpus`; `-with-synth` deliberately excluded — never a synthetic silent rescue), RE-validating each through the SAME guard. Wired into `quoting-train-cycle.mjs`. **Fallback policy honors explicit intent (R7):** bare default → fallback (revives); explicit `--baseline` with no override → STRICT (guard-refuse exits 2, so all 9 pre-existing guard-preflight tests stay green); `--no-fallback`/`--force-degenerate` → strict; `--fallback-corpus <path>` → that path. R12-loud `FALLBACK:` stderr advisory + `baseline_source`/`baseline_fallback` --json provenance (spread into BOTH success AND engine-load-failure JSON so the contract is observable even when the engine can't import).
+
+**Live proof:** bare default now `ok:true, total_predicted=47905, mape_pct=71.1, baseline_fallback.configured_refused=true`. 51 tests (13 resolver + 14 guard-preflight incl. T10-T14 fallback oracles + 24 sibling coverage/ledger). 2× per-file scrutiny PASS each file; both reviewers independently caught the same P1 (`configuredRefused` semantics divergence across return paths) — fixed + pinned. Commit: see git log U-QP-BASELINE-FALLBACK.
+
+**Gotcha #21** (extends the [[reference_charlie_train_data_coverage_2026_06_02]] thread): a poison-guard that REFUSES is only half the job — without a fallback it converts "bad data" into "no training at all". The guard must pair with a guard-aware resolver so the loop degrades to the best REAL data, not to silence.
+
+## Session iters 2-3 (same /goal /loop, 2026-06-02 — commits 9970113b3f, 517c7e8e2e)
+
+**iter2 — U-QP-CRON-REAL-CORPUS** (`9970113b3f`): the nightly cron Stage2 trained on `baseline-records-with-synth.json` (69 synth records — guard-admitted so not dead, but tiny, leaving the real 47,905-rec corpus unused). Repointed to `--baseline <real corpus> --fallback-corpus <synth>`. **Scrutiny P1 caught + fixed:** the cron passes no `--no-write`, so training on 47,905 synthetic-revenue-DOMINANT (MAPE 71%) records made live factor ACTIVATION reachable (CoV gates clamp/sanity, NOT revenue-reality). Added `--no-write` → loop trains+measures+feeds-PSN+drift-alerts but does NOT activate until a real-OUTBOUND-validated corpus exists. **OPERATOR: re-run install-quoting-pipeline-cron.ps1 ELEVATED** to regenerate the live wrapper. Gotcha #22: a poison-guard ADMIT (refuse:false) is not "safe to activate" — synthetic-revenue-dominant data is self-consistency only; never auto-write a quote-affecting factor from it.
+
+**iter3 — U-QP-TRAINING-STATUS-SNAPSHOT** (`517c7e8e2e`): the GOAL-clear front-to-back synergy producer. The loop produced telemetry but NOTHING surfaced latest-cycle status for the app (no frontend quoting page, no api.ts endpoint, no dispatcher consumer; summarizeLedger is CLI-only). Every cycle now emits schema-versioned `state/shared/quoting/latest-training-status.json` (sibling to latest-drift-alert.json) — 16 keys incl baseline_source/baseline_fallback, data_source_coverage, skip_reason, real_distribution_match. Pure `buildTrainingStatusSnapshot` (exported from quoting-train-cycle.mjs). Writes EVEN under --no-write (observability); ATOMIC tmp+rename (polled file). 7 tests + bidirectional REQUIRED_KEYS contract guard.
+
+**NEXT (loop continues, ~iter4+):** (a) BACKEND — wire `prism_quoting:training_status` dispatcher action reading latest-training-status.json (makes it queryable via HTTP bridge); (b) FRONTEND — quoting status component consuming it (no frontend quoting page exists today); (c) raise data-source coverage 40%→ (wire `jm-vendor-cost-index.json` $10M AP cost-basis, `jm-tool-purchases.json`, `docustrata-invoices.curated.json` — all present-unconsumed). Also: rewire cron Stage0 `quoting-baseline-bootstrap.mjs`→`quoting-baseline-from-corpus.mjs` (iter58 clean; the poisoned Stage0 is the upstream root cause).

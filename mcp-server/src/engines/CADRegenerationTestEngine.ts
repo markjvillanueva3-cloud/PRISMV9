@@ -134,7 +134,7 @@ const ThresholdsSchema = z.object({
 const TestConfigSchema = z.object({
   originalPath: z.string().min(1),
   thresholds: ThresholdsSchema.partial().optional(),
-  generateOptions: z.record(z.unknown()).optional(),
+  generateOptions: z.record(z.string(), z.unknown()).optional(),
 });
 
 // ── Default thresholds ───────────────────────────────────────────────────────
@@ -315,7 +315,7 @@ export class CADRegenerationTestEngine {
       const originalGeometry = extractGeometryFromPath(config.originalPath);
 
       // 2. Generate equivalent via NeuralCADGenerationEngine
-      const { neuralCadGenerationEngine } = await import("./NeuralCADGenerationEngine.js");
+      const { neuralCADGenerationEngine: neuralCadGenerationEngine } = await import("./NeuralCADGenerationEngine.js");
 
       // Create a description from the original geometry
       const description = `Generate a ${originalGeometry.features.join(", ")} part with approximate dimensions ${bboxDimension(originalGeometry.boundingBox, "x")}x${bboxDimension(originalGeometry.boundingBox, "y")}x${bboxDimension(originalGeometry.boundingBox, "z")}mm`;
@@ -338,6 +338,8 @@ export class CADRegenerationTestEngine {
       const genResult = await neuralCadGenerationEngine.generate(
         { type: "text", text: description },
         mockBackend as any,
+        undefined,
+        undefined,
         { maxRetries: 1, temperature: 0.3 }
       );
 

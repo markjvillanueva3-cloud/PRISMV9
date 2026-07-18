@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `material-lookup` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/material-lookup.md` |
+| Source | `C:/Users/wompu/.claude/commands/material-lookup.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Material Lookup — PRISM Materials Database Query
+
+You are querying the PRISM materials database. This skill provides instant access to alloy properties, compositions, machinability data, and material comparisons across 300+ alloys and 14 selection-engine candidates.
+
+## Args: $ARGUMENTS
+- `[alloy-name]`: look up a specific alloy (e.g., `4140`, `304`, `Ti-6Al-4V`, `Inconel 718`)
+- `compar
 
 <!-- AUTO-END -->
 

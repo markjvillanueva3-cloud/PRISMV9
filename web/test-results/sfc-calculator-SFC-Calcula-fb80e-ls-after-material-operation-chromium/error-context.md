@@ -1,0 +1,152 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Main navigation" [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: P
+      - generic [ref=e8]: PRISM v9
+    - navigation [ref=e9]:
+      - link "SFC Calculator" [ref=e10] [cursor=pointer]:
+        - /url: /sfc
+        - img [ref=e11]
+        - text: SFC Calculator
+    - generic [ref=e13]: Manufacturing Intelligence
+  - generic [ref=e14]:
+    - banner [ref=e15]:
+      - heading "SFC Calculator" [level=1] [ref=e16]
+    - main [ref=e17]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - heading "Material" [level=3] [ref=e22]
+            - combobox "Search materials" [ref=e24]
+            - generic [ref=e25]:
+              - generic [ref=e26]:
+                - generic [ref=e27]: N — Non-Ferrous
+                - generic [ref=e28]: "Machinability: Easy"
+              - generic [ref=e29]:
+                - generic [ref=e30]:
+                  - text: "Hardness:"
+                  - strong [ref=e31]: 95 HB
+                - generic [ref=e32]:
+                  - text: "UTS:"
+                  - strong [ref=e33]: 310 MPa
+                - generic [ref=e34]:
+                  - text: "Rating:"
+                  - strong [ref=e35]: 90%
+          - generic [ref=e36]:
+            - heading "Operation" [level=3] [ref=e37]
+            - generic [ref=e38]:
+              - button "M Milling 6" [ref=e40]:
+                - generic [ref=e41]: M
+                - text: Milling
+                - generic [ref=e42]: "6"
+                - img [ref=e43]
+              - button "T Turning 4" [ref=e46]:
+                - generic [ref=e47]: T
+                - text: Turning
+                - generic [ref=e48]: "4"
+                - img [ref=e49]
+              - button "D Drilling 3" [ref=e52]:
+                - generic [ref=e53]: D
+                - text: Drilling
+                - generic [ref=e54]: "3"
+                - img [ref=e55]
+              - button "G Grinding 2" [ref=e58]:
+                - generic [ref=e59]: G
+                - text: Grinding
+                - generic [ref=e60]: "2"
+                - img [ref=e61]
+              - button "Th Threading 2" [ref=e64]:
+                - generic [ref=e65]: Th
+                - text: Threading
+                - generic [ref=e66]: "2"
+                - img [ref=e67]
+          - generic [ref=e69]:
+            - heading "Tool" [level=3] [ref=e70]
+            - paragraph [ref=e71]: Select material and operation first
+          - generic [ref=e72]:
+            - heading "Parameters" [level=3] [ref=e73]
+            - paragraph [ref=e74]: Select an operation first
+          - generic [ref=e75]:
+            - heading "Presets" [level=3] [ref=e76]
+            - generic [ref=e77]:
+              - textbox "Preset name..." [ref=e78]
+              - button "Save" [disabled]
+            - paragraph [ref=e79]: Select material & operation to save a preset
+            - paragraph [ref=e80]: No saved presets yet
+          - button "Calculate" [disabled]
+          - paragraph [ref=e81]: Select a material and operation to enable calculation
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - heading "Results" [level=3] [ref=e84]
+            - paragraph [ref=e85]: Configure material, operation, and parameters, then click Calculate
+          - generic [ref=e86]:
+            - heading "Machine" [level=3] [ref=e87]
+            - paragraph [ref=e88]: Run a calculation first to validate machine capabilities
+            - generic [ref=e89]:
+              - button "Haas VF-2 Haas 3-Axis 8,100 RPM" [ref=e90]:
+                - generic [ref=e91]:
+                  - generic [ref=e92]: Haas VF-2
+                  - generic [ref=e93]: Haas
+                - generic [ref=e94]: 3-Axis
+                - generic [ref=e95]: 8,100 RPM
+              - button "Haas VF-4SS Haas 3-Axis 12,000 RPM" [ref=e96]:
+                - generic [ref=e97]:
+                  - generic [ref=e98]: Haas VF-4SS
+                  - generic [ref=e99]: Haas
+                - generic [ref=e100]: 3-Axis
+                - generic [ref=e101]: 12,000 RPM
+              - button "DMG MORI CMX 600 V DMG MORI 3-Axis 12,000 RPM" [ref=e102]:
+                - generic [ref=e103]:
+                  - generic [ref=e104]: DMG MORI CMX 600 V
+                  - generic [ref=e105]: DMG MORI
+                - generic [ref=e106]: 3-Axis
+                - generic [ref=e107]: 12,000 RPM
+              - button "DMG MORI DMU 50 DMG MORI 5-Axis 20,000 RPM" [ref=e108]:
+                - generic [ref=e109]:
+                  - generic [ref=e110]: DMG MORI DMU 50
+                  - generic [ref=e111]: DMG MORI
+                - generic [ref=e112]: 5-Axis
+                - generic [ref=e113]: 20,000 RPM
+              - button "Mazak CV5-500 Mazak 5-Axis 18,000 RPM" [ref=e114]:
+                - generic [ref=e115]:
+                  - generic [ref=e116]: Mazak CV5-500
+                  - generic [ref=e117]: Mazak
+                - generic [ref=e118]: 5-Axis
+                - generic [ref=e119]: 18,000 RPM
+              - button "Okuma MB-56VA Okuma 4-Axis 15,000 RPM" [ref=e120]:
+                - generic [ref=e121]:
+                  - generic [ref=e122]: Okuma MB-56VA
+                  - generic [ref=e123]: Okuma
+                - generic [ref=e124]: 4-Axis
+                - generic [ref=e125]: 15,000 RPM
+              - button "Haas ST-20 Haas 2-Axis 4,000 RPM" [ref=e126]:
+                - generic [ref=e127]:
+                  - generic [ref=e128]: Haas ST-20
+                  - generic [ref=e129]: Haas
+                - generic [ref=e130]: 2-Axis
+                - generic [ref=e131]: 4,000 RPM
+              - button "DMG MORI NLX 2500 DMG MORI 2-Axis 4,000 RPM" [ref=e132]:
+                - generic [ref=e133]:
+                  - generic [ref=e134]: DMG MORI NLX 2500
+                  - generic [ref=e135]: DMG MORI
+                - generic [ref=e136]: 2-Axis
+                - generic [ref=e137]: 4,000 RPM
+              - button "Mazak Integrex i-200 Mazak 5-Axis 12,000 RPM" [ref=e138]:
+                - generic [ref=e139]:
+                  - generic [ref=e140]: Mazak Integrex i-200
+                  - generic [ref=e141]: Mazak
+                - generic [ref=e142]: 5-Axis
+                - generic [ref=e143]: 12,000 RPM
+          - tablist "Result views" [ref=e144]:
+            - tab "Charts" [selected] [ref=e145]
+            - tab "Compare" [ref=e146]
+            - tab "History" [ref=e147]
+          - generic [ref=e148]:
+            - heading "Charts" [level=3] [ref=e149]
+            - paragraph [ref=e150]: Run a calculation to see charts
+```

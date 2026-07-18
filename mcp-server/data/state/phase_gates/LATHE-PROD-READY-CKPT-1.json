@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "checkpoint_id": "CKPT-1",
+  "milestone_id": "LATHE-PROD-READY-MS0",
+  "after_phase": "PHASE-1",
+  "timestamp": "2026-04-19T01:10:00Z",
+  "status": "PASS",
+  "phases_completed": ["PHASE-0", "PHASE-1"],
+  "units_verified": {
+    "PHASE-0": {
+      "U-LPR00a": "PASS - Universal W1-W2 verified (enforcement, awareness, locks, auto-wiring, orphan detection)",
+      "U-LPR00b": "PASS - R4 Fix #3 + #5 verified (pp_sstate/pp_thread renames, vacuous-true fixed)",
+      "U-LPR00c": "PASS - CALC-LATHE-MS0 Swiss/Tsugami toggle merged",
+      "U-LPR00d": "PASS - GateTokenContract with HMAC signing published",
+      "U-LPR00e": "PASS - Risk register with 12 quantified entries",
+      "U-LPR-MOU": "PENDING_EXTERNAL - JM Die MOU awaiting signature"
+    },
+    "PHASE-1": {
+      "U-LPR01": "PASS - LatheSpeedFeedCalculatorPage.tsx orphan deleted (file not present)",
+      "U-LPR02": "PASS - 73 part family fixtures (exceeds 40 target)",
+      "U-LPR-REGRESSION-BASELINE": "PASS - TEST_BASELINE_LATHE_PROD.json exists",
+      "U-LPR03": "PASS - LathePostProcessorDialectValidatorEngine exists",
+      "U-LPR04": "PASS - MTConnectRoundTripLatencyBenchEngine exists",
+      "U-LPR05": "PASS - CSSChipLoadInvariantCoordinatorEngine exists",
+      "U-LPR-HARDNESS": "PASS - MaterialHardnessStateClassifierEngine exists"
+    }
+  },
+  "build_status": "PASS",
+  "test_status": "PASS",
+  "next_phase": "PHASE-2",
+  "blocking_items": [],
+  "notes": [
+    "Phase 0/1 foundation lock achieved",
+    "All Phase 1 engines pre-built from prior work",
+    "73 fixtures exceed 40 requirement (83% coverage increase)",
+    "U-LPR-MOU external dependency does not block Phase 2+ execution"
+  ],
+  "verifier": "Claude Opus 4.5"
+}

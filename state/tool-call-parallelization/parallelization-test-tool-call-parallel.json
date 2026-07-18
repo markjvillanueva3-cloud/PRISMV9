@@ -1,0 +1,189 @@
+{
+  "sessionId": "test-tool-call-parallel",
+  "calls": [
+    {
+      "id": "tc_mojl4keu_7lnv",
+      "tool": "Read",
+      "timestamp": "2026-04-29T04:58:48.534Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_monv91px_059m",
+      "tool": "Read",
+      "timestamp": "2026-05-02T04:53:18.453Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_morcgs2a_tt1o",
+      "tool": "Read",
+      "timestamp": "2026-05-04T15:18:31.186Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mou9tvjp_54uk",
+      "tool": "Read",
+      "timestamp": "2026-05-06T16:28:01.909Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mp2tau5r_cmhy",
+      "tool": "Read",
+      "timestamp": "2026-05-12T15:55:15.375Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mp2u5fm5_ig3v",
+      "tool": "Read",
+      "timestamp": "2026-05-12T16:19:02.861Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mqq0y401_glr2",
+      "tool": "Read",
+      "timestamp": "2026-06-23T02:27:42.913Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mqq10mv9_v4tp",
+      "tool": "Read",
+      "timestamp": "2026-06-23T02:29:40.677Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mqq10mvc_j6vn",
+      "tool": "Read",
+      "timestamp": "2026-06-23T02:29:40.680Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mqq10mvc_mysx",
+      "tool": "Read",
+      "timestamp": "2026-06-23T02:29:40.680Z",
+      "inputs": {
+        "file_path": "/b.ts"
+      },
+      "filesReferenced": [
+        "/b.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    }
+  ],
+  "reports": [
+    {
+      "totalCalls": 10,
+      "parallelCalls": 0,
+      "sequentialCalls": 10,
+      "parallelizationRate": 0,
+      "opportunities": [
+        {
+          "callIds": [
+            "tc_mqq10mv9_v4tp",
+            "tc_mqq10mvc_j6vn",
+            "tc_mqq10mvc_mysx"
+          ],
+          "tool": "Read",
+          "reason": "3 read-only Read calls with no shared dependencies",
+          "wastedRoundTrips": 2,
+          "estimatedTokenWaste": 60,
+          "estimatedTimeSavedMs": 1000
+        }
+      ],
+      "totalWastedRoundTrips": 2,
+      "totalEstimatedTokenWaste": 60,
+      "totalEstimatedTimeSavedMs": 1000,
+      "recommendations": [
+        "Only 0% of calls were parallel. Batch independent operations."
+      ]
+    },
+    {
+      "totalCalls": 10,
+      "parallelCalls": 0,
+      "sequentialCalls": 10,
+      "parallelizationRate": 0,
+      "opportunities": [
+        {
+          "callIds": [
+            "tc_mqq10mv9_v4tp",
+            "tc_mqq10mvc_j6vn",
+            "tc_mqq10mvc_mysx"
+          ],
+          "tool": "Read",
+          "reason": "3 read-only Read calls with no shared dependencies",
+          "wastedRoundTrips": 2,
+          "estimatedTokenWaste": 60,
+          "estimatedTimeSavedMs": 1000
+        }
+      ],
+      "totalWastedRoundTrips": 2,
+      "totalEstimatedTokenWaste": 60,
+      "totalEstimatedTimeSavedMs": 1000,
+      "recommendations": [
+        "Only 0% of calls were parallel. Batch independent operations."
+      ]
+    }
+  ]
+}

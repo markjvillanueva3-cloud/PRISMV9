@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PRISM-COMPREHENSIVE-2026-05-04",
+  "title": "PRISM 7-Layer Multi-Model Integration Roadmap",
+  "generatedAt": "2026-05-04",
+  "generationMethod": "5-voice multi-model synthesis (Claude+Gemini+Ollama, Codex timed out)",
+  "totalEffortDays": 232,
+  "estimatedDurationMonths": 11,
+  "supersedes": [],
+  "linkedDoc": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
+  "criticalPath": ["INFRA-CONSENSUS-WIRE-MS0", "INFRA-NEURAL-LEDGER-MS1", "INFRA-AGI-ROUTER-MS2", "MILL-P2P-CONSENSUS-MS3", "SAFETY-OMEGA-GATE-MS9", "SHIP-RELEASE-MS19"],
+  "milestones": [
+    {"id":"INFRA-CONSENSUS-WIRE-MS0","title":"Wire 4-way consensus into dispatcher decision points","layer":0,"scope_units":5,"effort_days":12,"risk":"med","value":"high","critical_path":true,"blocks":["INFRA-NEURAL-LEDGER-MS1","MILL-P2P-CONSENSUS-MS3"],"blocked_by":[],"acceptance":"prism_ai:consensus_decide returns 3-of-4 vote with provenance for any high-stakes prompt; smoke test passes across Claude+Codex+Gemini+Ollama"},
+    {"id":"INFRA-NEURAL-LEDGER-MS1","title":"Cross-process outcome ledger + neural feedback bus","layer":0,"scope_units":4,"effort_days":10,"risk":"low","value":"high","critical_path":true,"blocks":["INFRA-AGI-ROUTER-MS2","LEARN-XPROC-TRANSFER-MS18"],"blocked_by":["INFRA-CONSENSUS-WIRE-MS0"],"acceptance":"every print-to-program run writes structured outcome event; CrossProcessOutcomeStore replay reproduces last 100 jobs"},
+    {"id":"INFRA-AGI-ROUTER-MS2","title":"Unify MillingAGI/LatheAGI/WEDMAGI behind ProcessIntelligenceRouter","layer":1,"scope_units":5,"effort_days":14,"risk":"med","value":"high","critical_path":true,"blocks":["MILL-P2P-CONSENSUS-MS3","LATHE-P2P-CONSENSUS-MS4","WEDM-P2P-CONSENSUS-MS5"],"blocked_by":["INFRA-NEURAL-LEDGER-MS1"],"acceptance":"single orchestrate(intent) call dispatches to correct domain AGI with consensus gating; 3 domain smoke tests green"},
+    {"id":"ATOM-REGISTRY-AUDIT-MS0a","title":"Atomic registry completeness + schema-version pass","layer":1,"scope_units":4,"effort_days":7,"risk":"low","value":"med","critical_path":false,"blocks":["MILL-P2P-CONSENSUS-MS3","LATHE-P2P-CONSENSUS-MS4"],"blocked_by":[],"acceptance":"all 14 registries pass schemaVersion gate; coverage report shows zero gaps for material/tool/machine/holder cross-refs; new registries created for air-types, turret-types, inserts"},
+    {"id":"MILL-P2P-CONSENSUS-MS3","title":"Mill print-to-program with consensus-gated decisions","layer":2,"scope_units":7,"effort_days":21,"risk":"high","value":"high","critical_path":true,"blocks":["BIZ-QUOTE-FEED-MS12","LEARN-XPROC-TRANSFER-MS18"],"blocked_by":["INFRA-AGI-ROUTER-MS2","ATOM-REGISTRY-AUDIT-MS0a"],"acceptance":"end-to-end mill PDF/STEP -> validated NC for 5 JM Die parts; consensus logged for tool/strategy/feed picks; pipeline-level confidence rollup emitted"},
+    {"id":"LATHE-P2P-CONSENSUS-MS4","title":"Lathe print-to-program with consensus-gated decisions","layer":2,"scope_units":7,"effort_days":21,"risk":"high","value":"high","critical_path":false,"blocks":["BIZ-QUOTE-FEED-MS12","LEARN-XPROC-TRANSFER-MS18"],"blocked_by":["INFRA-AGI-ROUTER-MS2","ATOM-REGISTRY-AUDIT-MS0a"],"acceptance":"5 JM Die turning parts produce validated G-code with consensus on insert/CSS/threading"},
+    {"id":"WEDM-P2P-CONSENSUS-MS5","title":"Wire EDM print-to-program with consensus tier-gating","layer":2,"scope_units":6,"effort_days":18,"risk":"med","value":"high","critical_path":false,"blocks":["BIZ-QUOTE-FEED-MS12"],"blocked_by":["INFRA-AGI-ROUTER-MS2"],"acceptance":"5 WEDM jobs produce 4-axis programs with verified passes/recast/wire-break gates and consensus on parameter set"},
+    {"id":"SINKER-P2P-MS6","title":"Sinker EDM print-to-program with electrode planning","layer":2,"scope_units":5,"effort_days":15,"risk":"med","value":"med","critical_path":false,"blocks":["BIZ-QUOTE-FEED-MS12"],"blocked_by":["INFRA-AGI-ROUTER-MS2"],"acceptance":"sinker job produces electrode set + flush plan + program; consensus on VDI scale and wear comp"},
+    {"id":"LASER-P2P-MS7","title":"Laser cut/mark/weld print-to-program","layer":2,"scope_units":4,"effort_days":12,"risk":"low","value":"med","critical_path":false,"blocks":["BIZ-QUOTE-FEED-MS12"],"blocked_by":["INFRA-AGI-ROUTER-MS2"],"acceptance":"laser cut DXF -> validated program with kerf/HAZ/gas selection consensus"},
+    {"id":"WJET-P2P-MS8","title":"Waterjet print-to-program with taper compensation","layer":2,"scope_units":4,"effort_days":10,"risk":"low","value":"med","critical_path":false,"blocks":["BIZ-QUOTE-FEED-MS12"],"blocked_by":["INFRA-AGI-ROUTER-MS2"],"acceptance":"waterjet job produces toolpath + abrasive plan + taper comp; cost matches quote within 5%"},
+    {"id":"SAFETY-OMEGA-GATE-MS9","title":"Omega + S(x) gates wired into all 6 P2P pipelines","layer":3,"scope_units":4,"effort_days":10,"risk":"med","value":"high","critical_path":true,"blocks":["BIZ-QUOTE-FEED-MS12","SHIP-RELEASE-MS19"],"blocked_by":["MILL-P2P-CONSENSUS-MS3","LATHE-P2P-CONSENSUS-MS4","WEDM-P2P-CONSENSUS-MS5"],"acceptance":"every released program has Omega>=0.95 and S(x)>=0.70 with audit trail; gate blocks 2 known-bad cases; G-code dry-run validation included as third consensus checkpoint"},
+    {"id":"FEEDBACK-CALIB-MS10","title":"Cycle-to-cycle feedback calibration across domains","layer":3,"scope_units":4,"effort_days":11,"risk":"med","value":"high","critical_path":false,"blocks":["LEARN-XPROC-TRANSFER-MS18"],"blocked_by":["INFRA-NEURAL-LEDGER-MS1","SAFETY-OMEGA-GATE-MS9"],"acceptance":"actual vs predicted variance shrinks 30% over 50 jobs; calibration deltas auto-applied"},
+    {"id":"ORCH-MULTIDOMAIN-MS11","title":"Multi-domain job orchestrator (mill+EDM+grind hybrid jobs)","layer":3,"scope_units":5,"effort_days":14,"risk":"high","value":"high","critical_path":false,"blocks":["BIZ-QUOTE-FEED-MS12"],"blocked_by":["MILL-P2P-CONSENSUS-MS3","WEDM-P2P-CONSENSUS-MS5"],"acceptance":"hybrid mill+WEDM job sequenced and validated end-to-end with cross-process handoff and tolerance-stack propagation across stages"},
+    {"id":"BIZ-QUOTE-FEED-MS12","title":"Wire P2P cycle-time/cost into quoting engine","layer":4,"scope_units":4,"effort_days":10,"risk":"low","value":"high","critical_path":false,"blocks":["BIZ-ERP-SYNC-MS14","SHIP-RELEASE-MS19"],"blocked_by":["MILL-P2P-CONSENSUS-MS3","LATHE-P2P-CONSENSUS-MS4","SAFETY-OMEGA-GATE-MS9"],"acceptance":"instant_quote uses live P2P estimates; 10 historical quotes reproduced within 8%"},
+    {"id":"BIZ-SCHED-CAPACITY-MS13","title":"Capacity planning fed by per-machine cycle estimates","layer":4,"scope_units":4,"effort_days":9,"risk":"low","value":"med","critical_path":false,"blocks":["BIZ-ERP-SYNC-MS14"],"blocked_by":["BIZ-QUOTE-FEED-MS12"],"acceptance":"21-machine load chart updates from live job queue; bottleneck detection green on staged scenario"},
+    {"id":"BIZ-ERP-SYNC-MS14","title":"ERP/accounting/HR sync (E2/QB/payroll) end-to-end","layer":4,"scope_units":5,"effort_days":13,"risk":"med","value":"high","critical_path":false,"blocks":["SHIP-RELEASE-MS19"],"blocked_by":["BIZ-QUOTE-FEED-MS12","BIZ-SCHED-CAPACITY-MS13"],"acceptance":"job created in PRISM lands in E2 + QB GL + payroll with three-way match"},
+    {"id":"BIZ-PORTAL-CUSTOMER-MS15","title":"Customer portal + order/quote/quality docs + human-in-the-loop AI review UI","layer":4,"scope_units":4,"effort_days":10,"risk":"low","value":"med","critical_path":false,"blocks":["SHIP-RELEASE-MS19"],"blocked_by":["BIZ-ERP-SYNC-MS14"],"acceptance":"customer can view quote, accept, see order status, download FAI/MTRs via signed token; operator UI surfaces AI consensus output for manual override"},
+    {"id":"OBS-MONITOR-MS16","title":"Grafana/Prometheus dashboards for OEE + AI decisions","layer":4,"scope_units":3,"effort_days":7,"risk":"low","value":"med","critical_path":false,"blocks":["SHIP-RELEASE-MS19"],"blocked_by":["BIZ-ERP-SYNC-MS14"],"acceptance":"live OEE per machine + consensus accuracy + tool-life dashboards in Grafana"},
+    {"id":"COMPLIANCE-AUDIT-MS17","title":"AS9100/ISO13485/ITAR audit trail + retention","layer":4,"scope_units":3,"effort_days":8,"risk":"med","value":"med","critical_path":false,"blocks":["SHIP-RELEASE-MS19"],"blocked_by":["BIZ-ERP-SYNC-MS14"],"acceptance":"AS9100 compliance report passes; ITAR export-control gate blocks one staged restricted part"},
+    {"id":"LEARN-XPROC-TRANSFER-MS18","title":"XPROC transfer learning + LoRA adapters per domain","layer":5,"scope_units":5,"effort_days":14,"risk":"high","value":"high","critical_path":false,"blocks":["SHIP-RELEASE-MS19"],"blocked_by":["FEEDBACK-CALIB-MS10","INFRA-NEURAL-LEDGER-MS1"],"acceptance":"new material in mill auto-bootstraps from lathe data; LoRA adapter improves prediction MAE by 15%"},
+    {"id":"SHIP-RELEASE-MS19","title":"Pilot release: JM Die full quote-to-ship live","layer":6,"scope_units":4,"effort_days":12,"risk":"high","value":"high","critical_path":true,"blocks":[],"blocked_by":["SAFETY-OMEGA-GATE-MS9","BIZ-ERP-SYNC-MS14","BIZ-PORTAL-CUSTOMER-MS15","OBS-MONITOR-MS16","COMPLIANCE-AUDIT-MS17","LEARN-XPROC-TRANSFER-MS18"],"acceptance":"3 JM Die jobs flow quote -> P2P -> ship -> invoice with zero manual reentry; all gates green"}
+  ],
+  "addedDuringSynthesis": {
+    "registries": ["AirTypeRegistry", "TurretTypeRegistry", "InsertRegistry"],
+    "scopeAdditions": {
+      "MILL-P2P-CONSENSUS-MS3": ["pipeline-level confidence rollup"],
+      "LATHE-P2P-CONSENSUS-MS4": ["pipeline-level confidence rollup"],
+      "WEDM-P2P-CONSENSUS-MS5": ["pipeline-level confidence rollup"],
+      "SAFETY-OMEGA-GATE-MS9": ["G-code dry-run validation as third consensus checkpoint"],
+      "BIZ-PORTAL-CUSTOMER-MS15": ["human-in-the-loop AI review UI"],
+      "ORCH-MULTIDOMAIN-MS11": ["tolerance-stack propagation across stages"]
+    },
+    "candidateNewMilestones": [
+      {"id":"OT-IT-SECURITY-MS20","title":"OT/IT cybersecurity for machine network integration","note":"trigger when machines actually go on-network (MTConnect/OPC-UA already in dispatchers)"},
+      {"id":"TOLERANCE-MULTI-STAGE-MS21","title":"Tolerance stack propagation across multi-stage processes","note":"validate mill->grind->inspect chains"}
+    ]
+  },
+  "decisionsNeeded": [
+    "Sequence approval: accept 21-milestone plan or restructure",
+    "First-domain pick: milling (MS3) vs wire EDM (MS5) vs lathe (cheapest existing coverage)",
+    "Add Gemini's commonly-missed items as suffix milestones (MS20, MS21) or fold into existing scope",
+    "Pilot scope: JM Die only or extend to second customer for stress test",
+    "Codex retry at 'low' effort, or skip (5-voice synthesis already strong)"
+  ]
+}

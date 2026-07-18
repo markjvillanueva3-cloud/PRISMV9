@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0.0",
+  "rung": "C-CAD -- real part DRAWING -> vision OCR -> pipeline -> scored vs Rung A empirical cloud",
+  "generated_at": "2026-06-26T08:17:15.913Z",
+  "ground_truth": "Rung A op_parameter_reference (34,993 real JM .MIN programs)",
+  "vision_model": "qwen2.5vl:7b",
+  "prints_attempted": 1,
+  "prints_scored": 0,
+  "prints_paired_to_min": 0,
+  "full_geometry_loop_closed": false,
+  "avg_sfm_in_band_pct": null,
+  "avg_sfm_typical_pct": null,
+  "avg_ipr_in_band_pct": null,
+  "avg_both_in_band_pct": null,
+  "honest_note": "full_geometry_loop_closed is TRUE for the PDF-print subset only (vision-OCR path). STEP B-rep geometry leg (2,307 JM STEP files) still needs the Python cad-engine bridge. Specialty ops (threading/parting/grooving) are excluded from band scoring (specialized feed regimes).",
+  "failures_by_stage": {
+    "ocr-threw": 1
+  },
+  "prints": [
+    {
+      "ts": "2026-06-26T08:12:34.594Z",
+      "rel": "JM DIE/JM DIE COMPANY/2475-037 (EXTRUDE PUNCH) Drawing v3.pdf",
+      "slug": "jm_die_jm_die_company_2475_037_extrude_punch_drawing_v3_pdf",
+      "ok": false,
+      "stage": "ocr-threw",
+      "error": "No vision AI provider available (Ollama vision model down and no Claude backup key) -- BlueprintVisionOCR requires a real provider for blueprint extraction.",
+      "pages": 1
+    }
+  ]
+}

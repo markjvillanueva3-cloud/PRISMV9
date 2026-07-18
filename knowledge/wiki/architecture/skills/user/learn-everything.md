@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `learn-everything` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/learn-everything.md` |
+| Source | `C:/Users/wompu/.claude/commands/learn-everything.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Learn Everything — Exhaustive Knowledge Acquisition Pipeline
+
+Maximize PRISM's knowledge from all available sources: PDFs, videos, web content, controller manuals, tool catalogs, and machine specs. Scans every source type and converts findings into PRISM components.
+
+## Args:
+- Empty: scan all knowledge sources and process unlearned content
+- `pdfs`: focus on PDF library only
+- `videos`
 
 <!-- AUTO-END -->
 

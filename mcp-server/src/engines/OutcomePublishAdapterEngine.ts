@@ -61,6 +61,7 @@ import {
   type OutcomeRecord,
   type RecordEventInput,
 } from "./CrossProcessOutcomeStore.js";
+import { ensureXprocLedgerDurable } from "./XprocOutcomeLedgerDurability.js";
 
 // ============================================================================
 // Schemas — gate every public method at the boundary
@@ -256,6 +257,9 @@ export class OutcomePublishAdapterEngine {
    * @returns `{ok:false, error:"invalid_input", message}` on validation failure
    */
   static publish(input: unknown): PublishResult {
+    // U-XPROC-LEDGER-DURABLE: lazily wire durable persistence on first publish (idempotent,
+    // race-free via the cold-start buffer). Fire-and-forget -- never blocks the sync funnel.
+    void ensureXprocLedgerDurable();
     const parsed = PublishInputSchema.safeParse(input);
     if (!parsed.success) {
       this.totalRejected += 1;
@@ -379,6 +383,9 @@ export class OutcomePublishAdapterEngine {
    * mirrors the underlying ledger's idempotent semantics).
    */
   static updateOutcome(input: unknown): UpdateResult {
+    // U-XPROC-LEDGER-DURABLE: updateOutcome bypasses publish() (calls recordOutcome
+    // directly), so wire durability here too -- pending->terminal must persist.
+    void ensureXprocLedgerDurable();
     const parsed = UpdateOutcomeInputSchema.safeParse(input);
     if (!parsed.success) {
       this.totalRejected += 1;

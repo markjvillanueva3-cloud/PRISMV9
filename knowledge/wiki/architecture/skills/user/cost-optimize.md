@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `cost-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cost-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/cost-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Cost Optimize — Manufacturing Cost Minimization Pipeline
+
+Find the cheapest way to make a part without sacrificing quality. Combines material costing, stock optimization, speed/feed alternatives, tool life economics, secondary operations pricing, and total cost breakdown with price breaks.
+
+## Args:
+- Part description (e.g., "6061-T6 bracket, 6x4x1 inch, 4 pockets, ±0.001 tolerance")
+- `
 
 <!-- AUTO-END -->
 

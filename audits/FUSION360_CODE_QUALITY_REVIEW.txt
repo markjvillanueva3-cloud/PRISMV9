@@ -1,0 +1,202 @@
+# CODE QUALITY ANALYSIS: PRISM FUSION 360 FILES
+
+## SUMMARY
+Files Analyzed: 3 Python files (2,381 total lines)
+- fusion360_api_server.py (1,365 lines)
+- FusionFeedsCalculator.py (698 lines)
+- export_tool_library.py (318 lines)
+
+Overall Quality Score: 6.5/10
+Critical Issues: 8
+High-Severity Issues: 12
+Medium-Severity Issues: 12
+Technical Debt Estimate: 13-19 hours
+
+---
+
+## CRITICAL ISSUES
+
+C1: Division by Zero in Hardness (Line 208)
+- Issue: vc *= math.pow(ref_h.get(iso, 200) / hardness, 0.3)
+- Risk: ZeroDivisionError if hardness=0
+- Severity: CRITICAL
+- Fix: Check if hardness > 0 before division
+
+C2: Float Infinity in RPM Calculation (Line 210)
+- Issue: rpm = min(round((vc * 1000) / (math.pi * d)), max_rpm)
+- Risk: If d=0, produces inf; cascades to NaN in force/power/deflection
+- Severity: CRITICAL
+- Fix: Validate d > 0.001 before calculation
+
+C3: selectedItem.name Without Null Check (Lines 514, 520, 447, 469)
+- Issue: Calling .name on None if dropdown is empty
+- Risk: AttributeError crash on panel open if PRISM offline
+- Severity: CRITICAL
+- Fix: Check if selectedItem is not None before accessing .name
+
+C4: JSON Parsing Without Exception Handler (Line 29)
+- Issue: json.loads() not wrapped in try-except for JSONDecodeError
+- Risk: Crash if PRISM returns invalid JSON (500 error HTML)
+- Severity: CRITICAL
+- Fix: Catch json.JSONDecodeError explicitly
+
+C5: activeDocument Can Be None (Line 604)
+- Issue: No null check before calling .products on doc
+- Risk: AttributeError if Fusion has no open document
+- Severity: CRITICAL
+- Fix: Check if doc is not None before using
+
+C6: Dictionary Access Without .get() (Lines 56, 70, 103)
+- Issue: Code uses r["result"] instead of r.get("result")
+- Risk: KeyError if API response format changes
+- Severity: CRITICAL
+- Fix: Use .get() with fallback defaults
+
+C7: Network Timeout Hidden in Generic Exception (Lines 26-30)
+- Issue: socket.timeout caught by except Exception, no differentiation
+- Risk: Silent fallback without alerting user of slow server
+- Severity: CRITICAL
+- Fix: Catch socket.timeout separately with logging
+
+C8: Moment of Inertia Underflow (Lines 230-232)
+- Issue: I calculation with d=0 produces denormalized floats/NaN
+- Risk: Deflection becomes NaN, UI displays garbage
+- Severity: CRITICAL
+- Fix: Validate d > 0.1 before I calculation
+
+---
+
+## HIGH-SEVERITY ISSUES
+
+H1: prism() Returns None, Callers Don't Validate
+- Risk: If PRISM times out, r=None; calling r["key"] crashes
+- Severity: HIGH
+- Fix: Check if r is None before using
+
+H2: Bare Exception Handlers Hide Errors
+- Risk: Errors silently swallowed without logging
+- Severity: HIGH
+- Fix: Log exceptions by type
+
+H3: Empty Dropdown Cascades to Crash
+- Risk: If dropdown population fails, selectedItem=None crash
+- Severity: HIGH
+- Fix: Force-populate dropdown with defaults
+
+H4: File I/O Permission Errors Not Caught
+- Risk: Silent tool library export failure
+- Severity: HIGH
+- Fix: Validate write permission after makedirs
+
+H5: convert_tool() Exceptions Crash Export
+- Risk: One malformed tool crashes entire export
+- Severity: HIGH
+- Fix: Wrap in try-except, log and skip bad tools
+
+H6: activeProduct Cast Can Return None
+- Risk: Calling methods on None design object
+- Severity: HIGH
+- Fix: Check cast result is not None
+
+H7: Tool Import Doesn't Validate Count
+- Risk: Silent data loss if import fails
+- Severity: HIGH
+- Fix: Log discrepancy between imported vs total
+
+H8: Deflection Not Validated Against Tolerance
+- Risk: Unsafe S/F applied without deflection warning
+- Severity: HIGH
+- Fix: Warn if deflection > 0.005 in
+
+H9: Power Not Capped Against Machine Limit
+- Risk: Over-power operation spindle stall
+- Severity: HIGH
+- Fix: Warn or reduce feed if power exceeds max
+
+H10: Material Not in Fallback Dict
+- Risk: Wrong S/F applied (Silent fallback to Steel 4140)
+- Severity: HIGH
+- Fix: Log when fallback material used
+
+H11: Confidence Score Not Clamped
+- Risk: Invalid color logic if confidence > 1.0
+- Severity: HIGH
+- Fix: Clamp to [0, 1]
+
+H12: NaN/Inf Not Sanitized Before Display
+- Risk: UI displays garbage values
+- Severity: HIGH
+- Fix: Sanitize with math.isfinite() check
+
+---
+
+## MEDIUM-SEVERITY ISSUES
+
+M1: Chip Thinning sqrt() Risk
+- Issue: If ae > d, sqrt of negative is masked with max()
+- Severity: MEDIUM
+- Fix: Validate ae < d before ctf calculation
+
+M2: Hardness Out-of-Range Not Warned
+- Risk: Inaccurate speeds if hardness outside 50-700 range
+- Severity: MEDIUM
+
+M3: Stickout Not Limited
+- Risk: Extreme deflection values confuse user
+- Severity: MEDIUM
+- Fix: Cap at 200 mm
+
+M4: Tool Diameter Edge Cases
+- Risk: 0-diameter tool exported as valid
+- Severity: MEDIUM
+
+M5: Temperature Safety Not Checked
+- Risk: Titanium/Inconel tool breakage at high speeds
+- Severity: MEDIUM
+
+M6: Coating Not in COATINGS Dict
+- Risk: Wrong speed multiplier applied
+- Severity: MEDIUM
+
+M7: JSON Load Corruption Not Logged
+- Risk: User doesn't know why export failed
+- Severity: MEDIUM
+
+M8: Output Directory Permissions Not Validated
+- Risk: Write fails silently
+- Severity: MEDIUM
+
+M9: Tool Import Fallback Not Tested
+- Risk: Fallback success not verified
+- Severity: MEDIUM
+
+M10: Stickout Min Bound Not Enforced
+- Risk: Unrealistic values (< 10 mm)
+- Severity: MEDIUM
+
+M11: Fusion .count Property Assumed Non-Null
+- Risk: AttributeError if property missing
+- Severity: MEDIUM
+
+M12: Tool Library Partition Loses Tools
+- Risk: Exception in convert_tool() skips entire batch
+- Severity: MEDIUM
+
+---
+
+## POSITIVE FINDINGS
+1. Thread-safe CustomEvent dispatch pattern
+2. Graceful PRISM offline fallback
+3. AST-based security filtering for /execute
+4. Tool library partitioning (500-tool limit)
+5. All network calls have timeouts
+
+---
+
+## RECOMMENDATIONS
+Phase 1 (4-6h): Fix C1-C8 (critical validation/exceptions)
+Phase 2 (4-6h): Fix H1-H12 (error handling/logging)
+Phase 3 (3-4h): Fix M1-M12 (bounds checking/warnings)
+Phase 4 (2-3h): Unit/integration tests
+
+Total Effort: 13-19 hours

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "INFRA-CONSENSUS-WIRE-MS0",
+  "chatId": "claude-dccbe876",
+  "slot": "alpha",
+  "host": "MarkV",
+  "branch": "cad-fusion-live-ms0",
+  "worktree": "H:/prism",
+  "claimedAt": "2026-05-12T18:55:00.000Z",
+  "lastHeartbeat": "2026-05-12T18:55:00.000Z",
+  "units_planned": ["P0-U01"],
+  "units_deferred": {
+    "P0-U02": "MultiModelConsensusEngine.vote() orchestration — separate unit, picked up after P0-U01 ships",
+    "P0-U03": "ConsensusCoordinatorEngine retry/escalation — depends on P0-U02",
+    "P0-U04": "Provenance audit log — depends on P0-U02",
+    "P0-U05": "E2E 3-domain test — depends on P0-U03+P0-U04"
+  },
+  "note": "P0-U01 only: add consensus_decide action to prism_ai dispatcher + Zod schema in aiActionSchemas.ts + dispatcher round-trip test. Engine wiring/orchestration is later units. Backend dev tool — surfaces the already-smoke-tested 4-way consensus pattern as a callable MCP action. Files: mcp-server/src/tools/dispatchers/aiDispatcher.ts (add to z.enum + switch case + lazy import), mcp-server/src/schemas/aiActionSchemas.ts (new consensusDecideSchema export), mcp-server/src/__tests__/AIDispatcherConsensusDecide.test.ts (new). NO collision with prior alpha's 4 uncommitted cad/turning files. Ceding hooks domain to separate hooks chat per user direction."
+}

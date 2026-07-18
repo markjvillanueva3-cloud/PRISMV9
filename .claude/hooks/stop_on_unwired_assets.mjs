@@ -40,9 +40,9 @@
  * session on infrastructure failure.
  */
 
-import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = "H:/prism";
 const ENGINES_DIR = "mcp-server/src/engines";
@@ -71,20 +71,8 @@ async function readStdin() {
 }
 
 // ----------------------------------------------------------------
-// Git helpers (shell out sparingly, fail-open)
+// Changed-file discovery (transcript-scoped -- no git shell-out)
 // ----------------------------------------------------------------
-function git(args) {
-  try {
-    return execSync(`git -C ${REPO_ROOT} ${args}`, {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-      timeout: 8000,
-    });
-  } catch {
-    return "";
-  }
-}
-
 function listChangedFiles(hookInput) {
   // Scope: ONLY files THIS chat edited via Write/Edit/MultiEdit tools.
   //
@@ -173,6 +161,43 @@ function isWireExempt(engineFileContent) {
   return /WIRE-EXEMPT:/i.test(engineFileContent);
 }
 
+/**
+ * Decide whether a module is TYPE-ONLY -- it exports ONLY TS types/interfaces
+ * (`export type`, `export interface`, `export type { ... } from`) and therefore erases
+ * to ZERO runtime JavaScript. Such a file (e.g. a conventionally-named `IFooEngine.ts`
+ * re-export) has no runtime to wire OR test, so demanding >=10 `it()` cases for it is a
+ * false-positive. Cloned (clone-don't-fork, R15) from scripts/audit-unwired-engines.mjs's
+ * isTypeOnlyModule -- the SIBLING orphan detector that classifies such files TYPE-ONLY
+ * (U-AUDIT-TYPE-ONLY 2026-06-22). checkEngineWired already escapes them via the
+ * "no singleton export (data module)" path; checkEngineTested needs this parallel escape.
+ * CONSERVATIVE (R12 -- never wrongly demand a test of a real engine): true ONLY when the
+ * comment-stripped source has a POSITIVE type-export AND zero runtime-export signals (any
+ * const/let/var/function/class/default/enum, a value `export {}`/`export *`, or CJS = false).
+ * @param {string} rawSrc full module source
+ * @returns {boolean} true iff the module exports only types (zero runtime JS)
+ */
+export function isTypeOnlyModule(rawSrc) {
+  if (!rawSrc) return false;
+  // Strip block comments (line-start anchored) + whole line/JSDoc-asterisk lines, so a
+  // commented runtime export cannot flip the verdict and a commented type export cannot fake one.
+  const code = rawSrc
+    .replace(/^\s*\/\*[\s\S]*?\*\//gm, "")
+    .split("\n")
+    .filter((line) => {
+      const t = line.trim();
+      return !(t.startsWith("//") || t.startsWith("*"));
+    })
+    .join("\n");
+  const RUNTIME_EXPORT =
+    /\bexport\s+(?:default|const|let|var|async\s+function|function|abstract\s+class|class|enum)\b/;
+  // Value named/star re-export -- `export {` / `export *`. `export type {` / `export type *`
+  // do NOT match (the `type` keyword sits between `export` and the `{`/`*`).
+  const VALUE_REEXPORT = /\bexport\s*\{|\bexport\s+\*/;
+  const CJS_EXPORT = /\bmodule\.exports\b|\bexports\.[A-Za-z_$]/;
+  if (RUNTIME_EXPORT.test(code) || VALUE_REEXPORT.test(code) || CJS_EXPORT.test(code)) return false;
+  return /\bexport\s+(?:type|interface)\b/.test(code);
+}
+
 function checkEngineWired(engineRelPath) {
   // Returns { wired: bool, reason, singleton }
   const full = path.join(REPO_ROOT, engineRelPath);
@@ -244,6 +269,13 @@ function checkEngineTested(engineRelPath) {
     if (isWireExempt(content)) {
       return { tested: true, reason: "WIRE-EXEMPT marker", cases: 0 };
     }
+    // A type-only `*Engine.ts` (e.g. an `IFooEngine.ts` re-export of `export type { ... }`)
+    // erases to zero runtime JS -- there is no runtime to test, so demanding >=10 it() cases
+    // is a false-positive (parallels checkEngineWired's "no singleton -> data module" escape +
+    // the sibling audit's TYPE-ONLY class, U-AUDIT-TYPE-ONLY).
+    if (isTypeOnlyModule(content)) {
+      return { tested: true, reason: "type-only module (exports only TS types; no runtime to test)", cases: 0 };
+    }
   } else {
     // Engine file doesn't exist (deleted/renamed) — skip test check
     return { tested: true, reason: "file missing (stale transcript reference)", cases: 0 };
@@ -282,44 +314,199 @@ function checkEngineTested(engineRelPath) {
   return { tested: true, reason: `${totalCases} cases in ${path.basename(candidates[0])}`, cases: totalCases };
 }
 
-function checkDispatcherActionHandlers(dispatcherRelPath) {
-  // For each action name in the file's ACTIONS enum, ensure a
-  // corresponding handler exists in the file. Supports two patterns:
-  //   1. switch/case: `case "action_name":`
-  //   2. lookup table: `action_name:` as key in ACTION_HANDLERS object
-  const full = path.join(REPO_ROOT, dispatcherRelPath);
-  if (!fs.existsSync(full)) return { missing: [] };
-  const body = fs.readFileSync(full, "utf8");
-
-  // Extract all ACTIONS-style enums (robust to multiple in a file)
-  const enumBlocks = [];
-  const re = /(?:const\s+\w*ACTIONS\w*\s*=\s*\[([\s\S]*?)\]\s*as\s+const)/g;
-  let m;
-  while ((m = re.exec(body)) !== null) enumBlocks.push(m[1]);
-  if (enumBlocks.length === 0) return { missing: [] };
-
-  const actionNames = new Set();
-  for (const block of enumBlocks) {
-    const actionRe = /"([a-z][a-z0-9_]*)"/g;
-    let a;
-    while ((a = actionRe.exec(block)) !== null) actionNames.add(a[1]);
+/**
+ * Pure detector (no disk access -- exported for unit testing).
+ *
+ * Given a dispatcher file's text, returns the list of action names declared in
+ * its `*ACTIONS*` enums that have NO handler. An action is "handled" by ANY of:
+ *
+ *   1. switch/case            -- `case "action_name":`
+ *   2. lookup-table key       -- `action_name: handleFn` / `: async` / `: (`
+ *   3. plain object key       -- `action_name: <value>`
+ *   4. array-membership route -- the action is a member of a `FOO_ACTIONS` array
+ *      that the file uses as a dispatch guard: `FOO_ACTIONS.includes(action)`
+ *      (or the cast form `(FOO_ACTIONS as readonly string[]).includes(action)`).
+ *      This is the DYNAMIC-DISPATCH pattern: the dispatcher forwards the whole
+ *      action string to a sub-engine that owns the per-action switch. The action
+ *      is genuinely routed -- it does NOT fall through to default/Unknown -- so it
+ *      is handled.
+ *   5. equality dispatch      -- `if (action === "action_name")` / `else if` /
+ *      a `action === "action_name" ? ...` ternary. Some dispatchers route via an
+ *      if/else-if equality chain instead of a switch. Strict `===` only (both
+ *      operand orders); `!==`/`!=` negative guards are deliberately NOT matched
+ *      (they do not mean the action is handled).
+ *
+ * Pattern 4 was previously unrecognized, so EVERY `.includes()`-routing
+ * dispatcher produced false positives (e.g. machineLiveDispatcher's 21
+ * dynamically-routed MACHINE_ACTIONS reported as UNHANDLED). This is the third
+ * valid-handler pattern, sibling to the table-driven map detection added earlier
+ * (reference_audit_unwired_engines_table_driven_action_map_detection). It does
+ * NOT soften the gate: a genuine orphan (in the enum, no case / no handler-key /
+ * no `.includes` guard) is still reported. See regression 2026-06-11 +
+ * reference_stop_unwired_assets_false_positive_2026_05_23.
+ */
+/**
+ * Strip JS line + block comments from `src` while PRESERVING string and template
+ * literal CONTENT verbatim -- so a block-comment-open or line-comment-open inside
+ * a string is NEVER mistaken for a real comment (the 2026-07-01
+ * sessionDispatcher.ts:2906 false-positive: a comment-open in a string ran the
+ * strip to the next comment-close and swallowed ~207 real `case "x":` handlers)
+ * AND the `const *_ACTIONS = ["a","b"]` members survive for
+ * downstream parsing. A single char-walk with states normal / string / template /
+ * comment; real comments become a space (embedded newlines preserved so the
+ * line-structure the ACTIONS regexes rely on is intact). Regex literals are NOT
+ * special-cased -- a `/regex/` whose body embeds a bare `/*` is a rare accepted
+ * residual edge (unchanged from the prior single-regex hardening). Pure + exported
+ * for unit tests. Supersedes the 2026-06-19 negative-lookbehind `/*`-strip, which
+ * only patched the glob-in-string sub-case and left the general string case open.
+ */
+export function stripCodeComments(src) {
+  if (typeof src !== "string" || src.length === 0) return "";
+  let out = "";
+  const n = src.length;
+  for (let i = 0; i < n; ) {
+    const c = src[i];
+    const c2 = i + 1 < n ? src[i + 1] : "";
+    // line comment -> drop to end of line (the newline itself is kept)
+    if (c === "/" && c2 === "/") {
+      i += 2;
+      while (i < n && src[i] !== "\n") i++;
+      continue;
+    }
+    // block comment -> blank to the closing */ (embedded newlines preserved)
+    if (c === "/" && c2 === "*") {
+      i += 2;
+      while (i < n && !(src[i] === "*" && src[i + 1] === "/")) {
+        if (src[i] === "\n") out += "\n";
+        i++;
+      }
+      i += 2; // consume the closing */
+      out += " ";
+      continue;
+    }
+    // string literal -> copy verbatim (respect escapes; stop at newline if unterminated)
+    if (c === '"' || c === "'") {
+      out += c;
+      i++;
+      while (i < n) {
+        const s = src[i];
+        if (s === "\\") { out += s + (i + 1 < n ? src[i + 1] : ""); i += 2; continue; }
+        out += s;
+        i++;
+        if (s === c) break;    // closing quote (already emitted)
+        if (s === "\n") break; // unterminated-string safety
+      }
+      continue;
+    }
+    // template literal -> copy verbatim to the closing backtick (treated opaquely)
+    if (c === "`") {
+      out += c;
+      i++;
+      while (i < n) {
+        const s = src[i];
+        if (s === "\\") { out += s + (i + 1 < n ? src[i + 1] : ""); i += 2; continue; }
+        out += s;
+        i++;
+        if (s === "`") break;
+      }
+      continue;
+    }
+    out += c;
+    i++;
   }
-  if (actionNames.size === 0) return { missing: [] };
+  return out;
+}
+
+export function findUnhandledActions(rawBody) {
+  // Strip comments first: a commented-out `.includes(` / `case` / handler-key
+  // must NEVER count as a real handler (a commented dispatch guard must not
+  // clear a genuine orphan). Block comments, then line comments.
+  //
+  // The line-comment strip requires `//` at line-start or after whitespace, so a
+  // URL scheme (`http://`, `mqtt://` -- `//` preceded by `:`) is NOT mistaken
+  // for a comment. Without this guard, a `case` sharing a line with a URL string
+  // could be eaten -> a real handler hidden -> a genuine orphan FALSELY cleared
+  // (the dangerous direction; caught in per-file scrutiny 2026-06-11). The
+  // capture `$1` preserves the leading whitespace/line-start.
+  // Comment strip via the string/template-AWARE mini-tokenizer `stripCodeComments`.
+  // The prior single-regex strip (negative-lookbehind `/*`, 2026-06-19) only patched
+  // the glob-in-string sub-case (`"**/*.MIN"`); a bare `/*` inside ANY other string
+  // literal still opened a phantom block comment that ran to the next `*/` and
+  // SWALLOWED real `case "x":` handlers -> false UNHANDLED -> the Stop gate BLOCKED
+  // any session editing such a dispatcher (live: sessionDispatcher.ts:2906's
+  // "...DESTRUCTIVE .../*..." ate ~207 lifecycle_metrics+ handlers -- [bravo->golf]
+  // chat-bus report, band-aided by commit 65071bff30). The tokenizer preserves
+  // string/template CONTENT (so the *_ACTIONS members survive) and blanks ONLY real
+  // comments, fixing the whole `/*`-in-string class. (2026-07-01 slot:golf.)
+  const body = stripCodeComments(rawBody);
+
+  // Capture each `const NAME_ACTIONS = [ ... ] as const` WITH its NAME.
+  const arrays = []; // { name, members: string[] }
+  const enumRe = /const\s+(\w*ACTIONS\w*)\s*=\s*\[([\s\S]*?)\]\s*as\s+const/g;
+  let m;
+  while ((m = enumRe.exec(body)) !== null) {
+    const arrName = m[1];
+    const members = [];
+    const memberRe = /"([a-z][a-z0-9_]*)"/g;
+    let a;
+    while ((a = memberRe.exec(m[2])) !== null) members.push(a[1]);
+    arrays.push({ name: arrName, members });
+  }
+  if (arrays.length === 0) return [];
+
+  // An array NAME is a "dispatch guard" iff the file calls `NAME.includes(`,
+  // allowing the `(NAME as readonly string[]).includes(` cast form. The members
+  // of a guard array are routed via array-membership dispatch -> handled.
+  const routed = new Set();
+  for (const { name: arrName, members } of arrays) {
+    const guardRe = new RegExp(
+      `\\b${arrName}\\b\\s*(?:as\\s+readonly\\s+string\\[\\]\\s*\\))?\\s*\\.includes\\s*\\(`,
+    );
+    if (guardRe.test(body)) {
+      for (const member of members) routed.add(member);
+    }
+  }
+
+  // Union of all declared action names across every enum.
+  const actionNames = new Set();
+  for (const { members } of arrays) for (const member of members) actionNames.add(member);
+  if (actionNames.size === 0) return [];
 
   const missing = [];
   for (const name of actionNames) {
+    if (routed.has(name)) continue; // Pattern 4: array-membership dispatch
     // Pattern 1: switch/case handler
     const caseRe = new RegExp(`case\\s+["'\`]${name}["'\`]\\s*:`);
-    // Pattern 2: ACTION_HANDLERS lookup table key (e.g., `action_name: handleFunc,`)
-    // Matches: action_name: handleXxx OR action_name: async ... OR action_name: (params) =>
+    // Pattern 2: ACTION_HANDLERS lookup table key (action_name: handleXxx / async / ( )
     const handlerRe = new RegExp(`\\b${name}\\s*:\\s*(handle[A-Z]|async\\s|\\()`);
-    // Pattern 3: Plain object key assignment (e.g., `action_name: handleActionName`)
+    // Pattern 3: plain object key assignment (action_name: <value>)
     const objKeyRe = new RegExp(`["'\`]?${name}["'\`]?\\s*:\\s*["'\`a-zA-Z_]`);
-    if (!caseRe.test(body) && !handlerRe.test(body) && !objKeyRe.test(body)) {
+    // Pattern 5: equality dispatch -- `if (action === "name")` / `else if` / a
+    // `action === "name" ? ...` ternary. Some dispatchers route via an if/else-if
+    // equality chain rather than a switch -- the action IS handled. STRICT `===`
+    // only (both operand orders): a bare `==` substring also lives inside `!==`,
+    // and `!==`/`!=` are NEGATIVE guards that do NOT mean the action is handled --
+    // matching them would FALSELY clear a real orphan (the dangerous direction).
+    // `===` is never a substring of `!==`, so this is safe. (false-positive fixed
+    // 2026-06-19 slot:golf: materialProcessingDispatcher's coating_select* +
+    // intelligenceDispatcher's if/else-if actions read as UNHANDLED while routed.)
+    const eqRe = new RegExp(`===\\s*["'\`]${name}["'\`]|["'\`]${name}["'\`]\\s*===`);
+    if (!caseRe.test(body) && !handlerRe.test(body) && !objKeyRe.test(body) && !eqRe.test(body)) {
       missing.push(name);
     }
   }
-  return { missing };
+  return missing;
+}
+
+function checkDispatcherActionHandlers(dispatcherRelPath) {
+  // For each action name in the file's ACTIONS enum, ensure a handler exists.
+  // Supports switch/case, lookup-table, plain-object-key, AND array-membership
+  // dispatch (FOO_ACTIONS.includes(action) -> forwarded to a sub-engine). Full
+  // contract + rationale in findUnhandledActions().
+  const full = path.join(REPO_ROOT, dispatcherRelPath);
+  if (!fs.existsSync(full)) return { missing: [] };
+  const body = fs.readFileSync(full, "utf8");
+  return { missing: findUnhandledActions(body) };
 }
 
 function checkNewHookRegistered(hookRelPath) {
@@ -455,13 +642,26 @@ async function main() {
   console.log(JSON.stringify({ decision: "block", reason }));
 }
 
-main().catch((e) => {
-  // Fail-open on infrastructure errors — we must never break a
-  // legitimate stop on our own bugs.
-  console.log(
-    JSON.stringify({
-      decision: "approve",
-      reason: `stop_on_unwired_assets error (fail-open): ${e.message}`,
-    }),
-  );
-});
+// Run main() only when invoked directly as the hook (not when imported by a
+// test for the exported `findUnhandledActions`). Fail-safe: if the guard itself
+// errs, default to RUNNING so the gate is never silently disabled.
+function isDirectInvocation() {
+  try {
+    return Boolean(process.argv[1]) && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+  } catch {
+    return true;
+  }
+}
+
+if (isDirectInvocation()) {
+  main().catch((e) => {
+    // Fail-open on infrastructure errors -- we must never break a
+    // legitimate stop on our own bugs.
+    console.log(
+      JSON.stringify({
+        decision: "approve",
+        reason: `stop_on_unwired_assets error (fail-open): ${e.message}`,
+      }),
+    );
+  });
+}

@@ -88,7 +88,7 @@ export function EquipmentAssetPage() {
       description="The equipment asset route has been restored as a live APPW support desk that exposes mounted registry and calibration-due signals while keeping the route honest about its current convergence posture."
       surfaces={['inventoryOperations']}
       metrics={metrics}
-      aiSummary="PRISM AI can rank asset attention, explain calibration exposure, and translate registry posture into maintenance or finance follow-up."
+      aiSummary="Kienzle AI can rank asset attention, explain calibration exposure, and translate registry posture into maintenance or finance follow-up."
       aiContext={aiContext}
       suggestions={[
         {

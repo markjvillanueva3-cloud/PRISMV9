@@ -1,0 +1,183 @@
+{
+  "$schema": "milestone-envelope-v1",
+  "schemaVersion": "1.0.0",
+  "milestone_id": "HERMES-MCP-PLUGIN-INVENTORY-MS0",
+  "title": "MCP servers + Claude Code plugins inventory — 14 high-leverage external integrations PRISM does not yet wire",
+  "status": "not_started",
+  "created_at": "2026-05-24T03:45:00.000Z",
+  "created_by": "claude-ea80ce2f slot bravo",
+  "spec_file": "state/shared/specs/HERMES-MCP-PLUGIN-INVENTORY-RESEARCH-2026-05-24.md",
+  "derived_from": [
+    "mcp-server/data/milestones/HERMES-MEMORY-VAULT-MS0.json (sister memory MS)",
+    "mcp-server/data/milestones/HERMES-CAPABILITY-EXPANSION-MS0.json (sister capability MS)",
+    "user directive 2026-05-24: 'look for other mcp servers and plugins that would improve our systems'"
+  ],
+  "psn_legs_touched": [1, 2, 4, 5, 7, 11],
+  "units": [
+    {
+      "id": "U-HMPI01",
+      "title": "GitHub MCP server — first-class repo introspection beyond gh CLI",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "PRISM uses `gh` CLI today (RTK-wrapped). Anthropic GitHub MCP gives structured (issue, PR, commit, review, search) tools with Zod-typed responses — composable from any dispatcher. Wire as MCP entry in C:/Users/wompu/.claude/settings.json + map to a thin `prism_github` dispatcher action set for in-engine use. R12 fail-soft: gh CLI fallback.",
+      "exit_criteria": "MCP config entry + 6 dispatcher actions + 1 round-trip test + falls-back-to-gh-cli on outage",
+      "estimated_loc": "~150 LOC dispatcher + ~80 LOC tests + config"
+    },
+    {
+      "id": "U-HMPI02",
+      "title": "Postgres MCP server — LLM-direct query over PRISM prod data (jobs/customers/capacity)",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "PRISM has `mcp-server/src/db/` with PostgreSQL schema but no LLM-facing query MCP. Anthropic Postgres MCP exposes (list_tables, describe_table, query) with read-only credentials. Wire with a customer-data-safe role (no PII column access, no writes). Critical for PrismApp customer-bound chats needing live data.",
+      "exit_criteria": "MCP config + RO role + safety allowlist + 3 query tests + audit-log integration",
+      "estimated_loc": "~120 LOC config + ~100 LOC safety + ~80 LOC tests"
+    },
+    {
+      "id": "U-HMPI03",
+      "title": "Sequential Thinking MCP — structured chain-of-thought for plan tracker + debate + self-correct",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Anthropic Sequential Thinking MCP gives explicit `think` / `revise` / `branch` / `summarize` tools. Higher-leverage than free-form CoT for U-HCAP04 (self-correction), U-HCAP06 (plan tracker), U-HCAP12 (council debate). Wire as MCP + integrate into the 3 engines via injected `reasoner` opts.",
+      "exit_criteria": "MCP config + reasoner-port abstraction in 3 engines + 4 integration tests",
+      "estimated_loc": "~80 LOC abstraction + ~150 LOC integration + ~100 LOC tests"
+    },
+    {
+      "id": "U-HMPI04",
+      "title": "Anthropic Memory MCP — comparison baseline vs PSN memory layer (run side-by-side)",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Anthropic's reference Memory MCP is a single-namespace key-value layer. Wire it BESIDE PSN (not as a replacement) so U-HCAP05 eval-harness can benchmark recall@K + cost-per-correct vs PSN's 5-namespace multi-leg memory. Produces hard numbers for the 'PRISM exceeds Hermes memory' claim.",
+      "exit_criteria": "MCP config + benchmark harness slot in U-HCAP05 + 1 weekly comparison report",
+      "estimated_loc": "~120 LOC benchmark harness + config"
+    },
+    {
+      "id": "U-HMPI05",
+      "title": "Stripe MCP — payment/billing layer for PrismApp customer rollout",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "PrismApp will need subscription + per-customer usage billing (paired with U-HCAP03 cost telemetry). Anthropic Stripe MCP exposes (create_customer, list_subscriptions, create_invoice, etc). Wire with TEST-MODE credentials initially; prod gated behind operator approval. Critical path for PrismApp commercial launch.",
+      "exit_criteria": "MCP config + test-mode wiring + 4 round-trip tests + operator-approval gate for prod creds",
+      "estimated_loc": "~150 LOC dispatcher + ~120 LOC tests + config"
+    },
+    {
+      "id": "U-HMPI06",
+      "title": "Slack MCP — bridge PRISM chat-bus to operator's actual Slack workspace",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "PRISM chat-bus today is JSONL on disk. Slack MCP lets the fleet POST alerts/handoffs/critical-block notices to a real Slack channel operators monitor. Pair with chat-bus emit hooks. Channel-allowlist to prevent fleet-noise spam.",
+      "exit_criteria": "MCP config + chat-bus->Slack bridge + per-event allowlist + spam-throttle",
+      "estimated_loc": "~150 LOC bridge + ~80 LOC tests + config"
+    },
+    {
+      "id": "U-HMPI07",
+      "title": "Twilio MCP — shop-floor SMS alerts (machine down, job ready, quality fail)",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Manufacturing shops live on phones, not Slack. Twilio MCP exposes (send_sms, make_call). Wire to U-HCAP08 quote-write + JobLifecycle + QualityGate engines for shop-floor-class alerts. Operator-allowlist of phone numbers per shop. Cost-bounded per-day per-shop.",
+      "exit_criteria": "MCP config + 3 alert hook integrations + per-shop allowlist + daily cost cap",
+      "estimated_loc": "~150 LOC integration + ~100 LOC tests + config"
+    },
+    {
+      "id": "U-HMPI08",
+      "title": "Smithery.ai MCP marketplace — browse/install community MCPs from inside PRISM",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Smithery.ai is the de-facto community MCP registry (2026-04+). Build `prism_mcp_marketplace` dispatcher that searches Smithery, surfaces top-K with description/auth-requirement/license, and gates installation behind operator approval. Symmetric to U-HCAP16 (agentskills.io recipes) but for MCPs.",
+      "exit_criteria": "dispatcher + 4 actions + operator-approval gate + 3 search tests",
+      "estimated_loc": "~200 LOC + ~100 LOC tests"
+    },
+    {
+      "id": "U-HMPI09",
+      "title": "SendGrid MCP — quote-pack + customer-comm auto-send",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Sister to U-HMPI07 (Twilio for SMS). SendGrid MCP for email — wire to U-HCAP08 quote.xlsx output so the QuoteToShip pipeline auto-emails customer-facing PDFs/XLSX. Per-customer allowlist + template-driven.",
+      "exit_criteria": "MCP config + integration with QuoteToShip + per-customer allowlist + 3 send tests",
+      "estimated_loc": "~120 LOC + ~80 LOC tests"
+    },
+    {
+      "id": "U-HMPI10",
+      "title": "Sentry MCP — APM + error tracking beyond local error-pattern-promote",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "PRISM has error-pattern-promote Stop hook but no real APM. Sentry MCP for production PrismApp deployments — captures (exception, breadcrumb, performance). Operator-gated to prevent PII leak; only PrismApp-tier exceptions; never PSN internal traces.",
+      "exit_criteria": "MCP config + PrismApp-tier-only filter + PII scrubber + 4 capture tests",
+      "estimated_loc": "~150 LOC + ~80 LOC tests"
+    },
+    {
+      "id": "U-HMPI11",
+      "title": "Notion MCP — customer-facing doc export from wiki + memory",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Wiki + memory namespace are PRISM-internal. Notion MCP for customer-facing knowledge-base — push curated wiki entries (frontmatter `customer_visible:true`) to a customer's Notion workspace. Operator-curated; per-entry export gate.",
+      "exit_criteria": "MCP config + per-entry export gate + 3 round-trip tests",
+      "estimated_loc": "~150 LOC + ~80 LOC tests"
+    },
+    {
+      "id": "U-HMPI12",
+      "title": "superpowers plugin suite adoption — brainstorming + writing-plans + TDD",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Anthropic superpowers plugin (already installed, see Skill tool list) ships {brainstorming, writing-plans, executing-plans, test-driven-development, code-reviewer, systematic-debugging, requesting-code-review, subagent-driven-development, finishing-a-development-branch, dispatching-parallel-agents}. Audit which overlap with PRISM doctrine vs which are net-additive. Document adoption matrix + flag conflicts with existing PRISM hooks.",
+      "exit_criteria": "adoption matrix doc (10 superpowers × PRISM doctrine) + conflict resolution per skill",
+      "estimated_loc": "~200 lines markdown matrix doc"
+    },
+    {
+      "id": "U-HMPI13",
+      "title": "hookify plugin — interactive hook authoring + lint",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "hookify plugin (already installed) ships {configure, hookify, list, writing-rules, conversation-analyzer}. PRISM has ~500 hooks; hookify's interactive authoring could replace hand-rolled new-hook scaffolds. Audit applicability vs existing /forge-hooks skill; document substitution policy.",
+      "exit_criteria": "adoption decision doc + 1 sample hook authored via hookify + comparison vs /forge-hooks",
+      "estimated_loc": "~150 lines doc + sample hook"
+    },
+    {
+      "id": "U-HMPI14",
+      "title": "Computer Use (Anthropic) — bridge to Excel/CAM/PLC GUIs PRISM can't reach via MCP",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Anthropic Computer Use API (screenshot + click + type) reaches GUIs that have no MCP/CLI. Critical for legacy shop-floor apps (Master Post UI, CIMCO, certain CAM products without API). Wire as fallback path AFTER MCP/CLI/Office.js exhausted. Per-app allowlist + recorded session traces.",
+      "exit_criteria": "Computer-Use wrapper + per-app allowlist + 1 demo session (Master Post automation) + audit-log",
+      "estimated_loc": "~200 LOC wrapper + ~120 LOC tests"
+    }
+  ],
+  "synergy_axes": {
+    "psn_leg_1_obsidian": ["U-HMPI11"],
+    "psn_leg_2_prism_os": ["U-HMPI01", "U-HMPI02", "U-HMPI06", "U-HMPI07", "U-HMPI09", "U-HMPI14"],
+    "psn_leg_4_memory": ["U-HMPI04"],
+    "psn_leg_5_tribal": ["U-HMPI08", "U-HMPI13"],
+    "psn_leg_7_engines": ["U-HMPI05", "U-HMPI10"],
+    "psn_leg_11_prism_ai": ["U-HMPI03", "U-HMPI08", "U-HMPI12", "U-HMPI14"]
+  },
+  "advisory": "All 14 units are MCP/plugin INTEGRATION wires — they bring external code into the PRISM trust boundary. Every unit is operator-reviewable + operator-gated promote. Credentials (Stripe/Twilio/SendGrid/Postgres) staged TEST-MODE first; prod requires explicit operator approval. PII allowlists + cost caps + per-app allowlists baked into every integration. No-public-H: doctrine respected — internal-only deployment.",
+  "mustHumanVerify": true,
+  "notes": "Third sister to HERMES-MEMORY-VAULT-MS0 (11 units, memory) + HERMES-CAPABILITY-EXPANSION-MS0 (16 units, capability). This MS adds SUPPLY-SIDE: which MCP servers + plugins to integrate. Combined 41+1 units close the full Hermes-frontier audit. Built on user directive 2026-05-24: 'look for other mcp servers and plugins that would improve our systems'."
+}

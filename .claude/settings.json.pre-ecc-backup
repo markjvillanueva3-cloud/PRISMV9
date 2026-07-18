@@ -1,0 +1,440 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/file-protect.sh \"$TOOL_INPUT_file_path\" 2>/dev/null",
+            "timeout": 1000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "echo \"$TOOL_INPUT_file_path\" | grep -q '\\.ts$' && echo \"$TOOL_INPUT_file_path\" | grep -q 'mcp-server/src/' && ! echo \"$TOOL_INPUT_file_path\" | grep -q '\\.test\\.' && ! echo \"$TOOL_INPUT_file_path\" | grep -q '\\.spec\\.' && echo '{\"additionalContext\": \"TS QUALITY REMINDER: Ensure no console.log in production code, no \\\"any\\\" types, use import (not require), use execFileNoThrow (not exec) for shell commands, handle async errors.\"}' || true",
+            "timeout": 1000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/review-gate.sh 2>/dev/null",
+            "timeout": 3000,
+            "continueOnError": false
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/bash-intercept.sh \"$TOOL_INPUT_command\" 2>/dev/null",
+            "timeout": 2000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/completion-gate.sh 2>/dev/null || true",
+            "timeout": 8000,
+            "continueOnError": false
+          }
+        ]
+      },
+      {
+        "matcher": "^Task$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/task-context-injector.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^Read$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/read-optimizer.mjs",
+            "timeout": 1000,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^(Glob|Grep)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/search-optimizer.mjs",
+            "timeout": 1000,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^WebFetch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/web-cache.mjs",
+            "timeout": 1000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "fp=\"$TOOL_INPUT_file_path\"; echo \"$fp\" | grep -q 'mcp-server/src/' && rm -f /tmp/prism-build-cache /tmp/prism-test-cache /tmp/prism-tsc-cache 2>/dev/null; echo \"$fp\" | grep -q '\\.test\\.' && rm -f /tmp/prism-test-cache 2>/dev/null; true",
+            "timeout": 1000,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/session-breadcrumb.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/cache-writer.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/review-complete.sh 2>/dev/null || true",
+            "timeout": 2000,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^Read$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/read-tracker.mjs",
+            "timeout": 1000,
+            "async": true,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^(Bash|Read)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/posttooluse-compressor.mjs",
+            "timeout": 1500,
+            "async": true,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/loop-detector.mjs",
+            "timeout": 2000,
+            "async": true,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/agent-coordination.mjs poll --agent Claude --agent-instance \"Claude@${COMPUTERNAME:-$(hostname)}/ppid-$PPID\" --consume",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/auto-route.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/position-sync.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/svi-refresh.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/per-agent-handoff.mjs register --terminal \"${PRISM_TERMINAL:-auto-$(echo $PPID)}\" --agent-family \"${PRISM_AGENT_FAMILY:-Claude}\"",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/agent-coordination-daemon.mjs start",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/agent-coordination.mjs poll --agent Claude --agent-instance \"Claude@${COMPUTERNAME:-$(hostname)}/ppid-$PPID\" --consume",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/sync-memory.mjs",
+            "timeout": 10000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/session-start-compact.mjs",
+            "timeout": 2500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/compact-restore.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/stop-guard.mjs",
+            "timeout": 5000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/session-summary.mjs",
+            "timeout": 5000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/sync-memory.mjs",
+            "timeout": 10000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/per-agent-handoff.mjs stop --terminal \"${PRISM_TERMINAL:-auto-$(echo $PPID)}\" --resume \"$TOOL_INPUT\" --state \"Session stopped\"",
+            "timeout": 5000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/compaction-survival.mjs",
+            "timeout": 5000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/idle-reminder.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/position-sync.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/svi-refresh.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/coordination-sync.mjs",
+            "timeout": 5000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/per-agent-handoff.mjs write --terminal \"${PRISM_TERMINAL:-auto-$(echo $PPID)}\" --resume \"compacting — read per-agent handoff on restore\" --state \"Pre-compact snapshot\"",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/pre-compact.mjs",
+            "timeout": 5000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/error-recovery.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/smart-recovery.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/subagent-context.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/session-end.sh 2>/dev/null || true",
+            "timeout": 5000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/task-gate.sh 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "ConfigChange": [
+      {
+        "matcher": "project_settings",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/config-guard.sh 2>/dev/null || true",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/worktree-track.sh 2>/dev/null || true",
+            "timeout": 2000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /h/prism/.claude/helpers/worktree-cleanup.sh 2>/dev/null || true",
+            "timeout": 2000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/helpers/subagent-results.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node .claude/helpers/statusline.cjs 2>/dev/null || echo \"PRISM\"",
+    "refreshMs": 60000,
+    "enabled": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npx claude-flow:*)",
+      "Bash(npx @claude-flow/cli:*)",
+      "mcp__claude-flow__:*"
+    ],
+    "deny": []
+  }
+}

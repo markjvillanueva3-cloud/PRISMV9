@@ -388,6 +388,8 @@ export function createMenuItem(
     name,
     type: "menu_item",
     region: "menu_bar",
+    visible: true,
+    enabled: true,
     ...options,
   };
 }
@@ -407,6 +409,8 @@ export function createToolbarButton(
     id,
     name,
     type: "toolbar_button",
+    visible: true,
+    enabled: true,
     ...options,
   };
 }
@@ -426,6 +430,8 @@ export function createRibbonButton(
     name,
     type: "ribbon_button",
     ribbon_path: ribbonPath,
+    visible: true,
+    enabled: true,
     ...options,
   };
 }
@@ -434,7 +440,7 @@ export function createRibbonButton(
 export function createSetting(
   id: string,
   name: string,
-  type: "boolean" | "number" | "string" | "enum",
+  type: "boolean" | "number" | "string" | "enum" | "path" | "color" | "font" | "shortcut",
   defaultValue: string | number | boolean,
   options?: {
     description?: string;
@@ -449,6 +455,7 @@ export function createSetting(
     name,
     type,
     default_value: defaultValue,
+    prism_relevant: false,
     ...options,
   };
 }

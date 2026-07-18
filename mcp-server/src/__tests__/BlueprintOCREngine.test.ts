@@ -218,6 +218,34 @@ describe("BlueprintOCREngine — analyzer surface", () => {
   });
 });
 
+describe("BlueprintOCREngine — GD&T FCF validation wired (the dormant fcf_valid/fcf_issues fields)", () => {
+  // extractGDT declared fcf_valid/fcf_issues on ExtractedGDT but never populated them (validateExtractedGdt
+  // was not called). These tests pin the now-live datum-deficiency flagging on this OCR path.
+  it("a datum-less POSITION frame is flagged datum-deficient (fcf_valid:false + a datum issue)", () => {
+    const r = blueprintOCREngine.analyzeBlueprint("POSITION 0.010");
+    const pos = r.gdt_frames.find((g) => g.symbol === "position");
+    expect(pos?.symbol).toBe("position"); // the frame parsed
+    expect(pos?.fcf_valid).toBe(false); // position requires a datum -> structurally invalid
+    expect(pos?.fcf_issues?.some((s) => /datum/i.test(s)) ?? false).toBe(true);
+  });
+
+  it("a FLATNESS (form) frame with no datum is NOT datum-deficient (fcf_valid:true)", () => {
+    const r = blueprintOCREngine.analyzeBlueprint("FLATNESS 0.05");
+    const flat = r.gdt_frames.find((g) => g.symbol === "flatness");
+    expect(flat?.symbol).toBe("flatness");
+    expect(flat?.fcf_valid).toBe(true); // a form tolerance never needs a datum (ASME Y14.5 8.2)
+    expect(flat?.fcf_issues?.some((s) => /datum/i.test(s)) ?? false).toBe(false);
+  });
+
+  it("a POSITION frame WITH datum references is not datum-deficient", () => {
+    const r = blueprintOCREngine.analyzeBlueprint("POSITION 0.010 A B C");
+    const pos = r.gdt_frames.find((g) => g.symbol === "position");
+    expect(pos?.symbol).toBe("position");
+    expect((pos?.datum_references?.length ?? 0) > 0).toBe(true);
+    expect(pos?.fcf_issues?.some((s) => /no.?datum|missing.*datum/i.test(s)) ?? false).toBe(false);
+  });
+});
+
 // ============================================================================
 // PHASE 15 INGEST TESTS — deep-rescan aggregator (U-INGEST-PHASE15)
 // ============================================================================

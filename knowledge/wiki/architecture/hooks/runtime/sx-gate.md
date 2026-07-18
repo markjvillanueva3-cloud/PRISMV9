@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-sx-gate.mjs — Phase 1 Tier 5C Physics HookPreToolWrite hook that HARD BLOCKS any write whensafety score S(x) < 0.70 for the affected file.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

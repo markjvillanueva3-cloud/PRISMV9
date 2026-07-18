@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `post-diff` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/post-diff.md` |
+| Source | `C:/Users/wompu/.claude/commands/post-diff.md` |
 | Model | default |
 | Tags | _(none)_ |
 

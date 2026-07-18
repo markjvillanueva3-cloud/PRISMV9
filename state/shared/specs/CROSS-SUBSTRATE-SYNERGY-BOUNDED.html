@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="cb501f4b7f351a8a32602ed13ba07a917700397ba64901fbd84f6b0dbe8be88c">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CROSS-SUBSTRATE-SYNERGY-BOUNDED — the honest decomposition of an unbounded goal</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CROSS-SUBSTRATE-SYNERGY-BOUNDED — the honest decomposition of an unbounded goal</h1>
+<div class="meta">rendered from state/shared/specs/CROSS-SUBSTRATE-SYNERGY-BOUNDED.md</div>
+<div class="meta">Generated 2026-06-04T03:04:55.238Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">CROSS-SUBSTRATE-SYNERGY-BOUNDED — the honest decomposition of an unbounded goal</h1>
+<blockquote class="prism-quote"><strong>Milestone:</strong> CROSS-SUBSTRATE-SYNERGY-MS0 · <strong>Owner this pass:</strong> slot:sierra (system-viz) · <strong>Date:</strong> 2026-06-03</blockquote>
+<blockquote class="prism-quote"><strong>Origin:</strong> <code class="prism-inline-code">/goal</code> — &quot;leverage the RTX PRO 6000 Blackwell to maximize synergy across /system-viz + Obsidian + Hermes + PRISM-AI; map paths to every node and connect them to all logical combinations… synchronize the entire codebase to the atomic level.&quot;</blockquote>
+<blockquote class="prism-quote"><strong>Method:</strong> <code class="prism-inline-code">brainstorm-path-forward</code> 5-lens + synthesis workflow (run <code class="prism-inline-code">wf_19e6d7e8-77b</code>, 2026-06-03).</blockquote>
+<h2 class="prism-h2">Why this ledger exists (R12 — reject the infinite framing)</h2>
+<p>The literal goal — &quot;all-pairs cross-substrate closure + all 34 galaxies doc-synced to the atomic level&quot; — is <strong>non-terminating and unfalsifiable</strong>:</p>
+<ul class="prism-md-list"><li>Transitive closure over the ~548MB system graph is O(V³); a dense N×N edge set is unreadable, un-versionable, OOMs the fleet, and rots on the next <code class="prism-inline-code">regen-viz</code>.</li><li>The fleet mutates the substrates (memories, wiki, engines, slots) faster than any one session can document them.</li></ul>
+<p>Claiming &quot;done&quot; against that framing would be a lie. So the bounded, falsifiable deliverable is: <strong>a typed, ADD-only cross-substrate edge SPINE + one proven cross-edge type materialized the canonical (single-writer) way, plus this ledger handing the tail to the fleet.</strong></p>
+<h2 class="prism-h2">What SHIPPED this session (verifiable)</h2>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Artifact</th><th>Verify</th></tr></thead><tbody><tr><td><strong>U-XSUB-EDGE-SCHEMA</strong></td><td><code class="prism-inline-code">scripts/lib/cross-substrate-edge-schema.mjs</code> — typed whitelist (<code class="prism-inline-code">documented-by</code>, <code class="prism-inline-code">owned-by-slot</code>, <code class="prism-inline-code">embeds</code>, <code class="prism-inline-code">consensus-of</code>) + <code class="prism-inline-code">{source,confidence,addedBy,addedAt}</code> provenance + ADD-only <code class="prism-inline-code">assertAddOnly()</code> (rejects deletions/untyped).</td><td><code class="prism-inline-code">node --test scripts/lib/cross-substrate-edge-schema.test.mjs</code> → <strong>18/18</strong></td></tr>
+<tr><td><strong>U-XSUB-CLOSURE-AUGMENTATION</strong></td><td><code class="prism-inline-code">scripts/generate-cross-substrate-edges.mjs</code> → <code class="prism-inline-code">state/shared/system-viz/cross-substrate-edges-augmentation.json</code> — <strong>48 <code class="prism-inline-code">owned-by-slot</code> edges</strong> (7 operator-canonical @conf 1.0 + 41 domain-group inference @conf 0.85), every edge schema-validated, both endpoints confirmed-existing (galaxy/domain node <code class="prism-inline-code">eng.<em></code> → slot node <code class="prism-inline-code">ghost.chat_slot.</em></code>).</td><td><code class="prism-inline-code">node scripts/generate-cross-substrate-edges.mjs --dry</code>; batch revalidate → allValid:true, 0 dupes</td></tr>
+<tr><td><strong>U-XSUB-MERGE-WIRE</strong></td><td><code class="prism-inline-code">scripts/merge-augmentations.mjs</code> — added <code class="prism-inline-code">loadOptional(&quot;cross-substrate-edges-augmentation.json&quot;)</code> + an ADD-only, deduped (from\</td><td>to\</td><td>type) splice block mirroring the <code class="prism-inline-code">knowledgeGal</code> block; stamps <code class="prism-inline-code">G.meta.crossSubstrateEdges</code>.</td><td><code class="prism-inline-code">node --check scripts/merge-augmentations.mjs</code> → SYNTAX OK. <strong>Edges fold live on the next <code class="prism-inline-code">regen-viz</code></strong> (NOT executed this session — see deferred).</td></tr>
+<tr><td><strong>U-XSUB-DOCUMENTED-BY</strong> (2026-06-03 follow-on)</td><td>Extended the generator with a 2nd typed edge pass — <code class="prism-inline-code">documented-by</code> (graph-node → wiki/memory note = the system-viz↔Obsidian/Wiki synergy edge). Node-id namespaces CONFIRMED: <code class="prism-inline-code">memory_&lt;kind&gt;.&lt;slug&gt;</code> (memories-atomic fold) + <code class="prism-inline-code">wiki.&lt;section&gt;.&lt;slug&gt;</code> (wiki-entries fold). Two deterministic conventions: <strong>B</strong> galaxy → <code class="prism-inline-code">memory_patterns.&lt;galaxy&gt;_synthesis</code> (1:1, all galaxies), <strong>C</strong> galaxy → resolvable <code class="prism-inline-code">[[backlink]]</code> in its own MEMORY.md. <strong>38 documented-by edges</strong> (38 galaxy-synthesis@1.0 + 0 backlink — backlink wired, yields grow with wiki/memory node coverage). + intent-verifying test (<code class="prism-inline-code">generate-cross-substrate-edges.test.mjs</code>, <strong>6/6</strong>, asserts NO-DANGLING + both conventions + owned-by-slot no-regression). 2-reviewer per-file scrutiny <strong>PASS</strong> (0 P0/P1).</td><td><code class="prism-inline-code">node scripts/generate-cross-substrate-edges.mjs</code> → <code class="prism-inline-code">{owned-by-slot:82, documented-by:38}</code>, 120/120 unique; <code class="prism-inline-code">node --test scripts/generate-cross-substrate-edges.test.mjs</code> → 6/6. Folds on next <code class="prism-inline-code">regen-viz</code>.</td></tr></tbody></table>
+<p><strong>Why <code class="prism-inline-code">owned-by-slot</code> and not the brainstorm&#39;s <code class="prism-inline-code">documented-by</code> (R7 — surface, don&#39;t blend):</strong> both endpoints of <code class="prism-inline-code">owned-by-slot</code> provably exist as graph nodes <em>today</em> (galaxy/domain node + slot node), so every edge is immediately traversable. <code class="prism-inline-code">documented-by</code> needs knowledge-note nodes whose ids are not yet confirmed — deferred below.</p>
+<h2 class="prism-h2">DEFERRED — the tail, with owners</h2>
+<h3 class="prism-h3">Sierra (system-viz) follow-ups</h3>
+<ol class="prism-md-list"><li><strong>Execute <code class="prism-inline-code">regen-viz</code> to fold the 48 edges live.</strong> GATED: <code class="prism-inline-code">merge-augmentations.mjs</code> needs ~24GB heap on the ~548MB graph and can SIGKILL under host memory pressure (see [[reference_u_regen_viz_merge_faillod_2026_05_17]]) — do NOT run with multiple heavy peers online. Command: <code class="prism-inline-code">node scripts/regen-viz.mjs --full</code>. Verify after: <code class="prism-inline-code">G.meta.crossSubstrateEdges.added === 48</code> + edge count strictly increased.</li><li><strong>Register <code class="prism-inline-code">generate-cross-substrate-edges.mjs</code> in <code class="prism-inline-code">regen-viz.mjs FAST[]</code></strong> so the augmentation is re-produced each regen and never goes stale (the registration-gap class, [[reference_sierra_regen_fast_registration_gap_2026_05_29]]).</li><li>~~<strong><code class="prism-inline-code">documented-by</code> edges</strong>~~ — <strong>✅ SHIPPED 2026-06-03 (U-XSUB-DOCUMENTED-BY).</strong> Namespaces confirmed (<code class="prism-inline-code">memory_&lt;kind&gt;.&lt;slug&gt;</code> + <code class="prism-inline-code">wiki.&lt;section&gt;.&lt;slug&gt;</code>, both folded live). 38 edges via galaxy→synthesis-memory (conv B, all galaxies). Convention C (galaxy MEMORY.md <code class="prism-inline-code">[[backlinks]]</code>) is wired but yields 0 against today&#39;s curated 103-wiki+121-memory confirmed-node subset — it compounds (ADD-only) as those augmentations grow their per-note node coverage. <strong>Next documented-by lift:</strong> broaden the confirmed knowledge-note set (e.g. fold more <code class="prism-inline-code">wiki-entries</code>/<code class="prism-inline-code">memories-atomic</code> nodes, or add a <code class="prism-inline-code">obsidian-vault</code> slug index) so convention C resolves; the resolver already handles bare + <code class="prism-inline-code">section/slug</code> backlink forms.</li><li><strong>Galaxy-roost nodes for the 27 meta/infra galaxies</strong> (system-viz, ai-training, academy, discovery, frontend-app, database-expansion, post-processor, speed-feed, quoting, blueprint-vision, fleet-hygiene, wiring, bug-hunting, backend-helper, dormant-data, compliance-safety, shop-floor, knowledge-conversion, corpus-aggregation, mit-curriculum, pdf-corpus(-mill), tribal-knowledge, cad-fusion-live, token-optimization, hermes-zulu, agent-orchestration). These galaxies have no <code class="prism-inline-code">eng.&lt;name&gt;</code> domain-group node, so <code class="prism-inline-code">owned-by-slot</code> was skipped. Emit <code class="prism-inline-code">newNodes</code> galaxy-roosts first, then their <code class="prism-inline-code">owned-by-slot</code> edges.</li><li><strong>U-XSUB-BLACKWELL-OFFLOAD</strong> (token-optimization, parallel-safe). Route the system-viz model calls to local <code class="prism-inline-code">qwen2.5-coder:32b</code> via the <code class="prism-inline-code">home_blackwell</code> profile (already wired in <code class="prism-inline-code">ModelRoutingEngine</code>, commit <code class="prism-inline-code">d673f2866f</code>). Confirmed call sites: <code class="prism-inline-code">scripts/generate-system-viz.mjs</code>, <code class="prism-inline-code">scripts/build-node-embeddings.mjs</code>. Verify safety_critical still routes cloud (per <code class="prism-inline-code">4199918e49</code>) + <code class="prism-inline-code">ollama-offload-stats</code> delta + identical graph hash.</li></ol>
+<h3 class="prism-h3">Fleet hand-off</h3>
+<ol class="prism-md-list"><li><strong><code class="prism-inline-code">embeds</code> edges</strong> (graph node → its embedding/index entry) — <strong>india</strong> (owns AI-training/embeddings) + sierra. 384-d ONNX + HNSW already exist; emit the node↔embedding edge so retrieval is graph-traversable.</li><li><strong><code class="prism-inline-code">consensus-of</code> edges</strong> (decision node → octopus consensus ledger entry) — <strong>bravo</strong> (hermes) + <strong>india</strong>. GATED: the octopus needs ≥2 <em>distinct</em> models to add signal (N identical 32B answers add latency, not signal) — DEFER until a 2nd model is wired.</li><li><strong>Per-galaxy doc-sync</strong> (&quot;all docs/skills/hooks/souls/wikis/memories for all 34 galaxies reflect a finished build&quot;) — decompose to <strong>one <code class="prism-inline-code">/loop</code> unit per slot, one substrate-pair per galaxy</strong>, NOT 34 concurrent (fleet-RAM). Each soul-owning slot runs <code class="prism-inline-code">/galaxy-buildout-&lt;slot&gt;</code> + reflects its own substrate. Ownership table below.</li></ol>
+<h3 class="prism-h3">DEFERRED with reason (do NOT build)</h3>
+<ul class="prism-md-list"><li><strong>GNN-edge consumption as ground truth</strong> — tier-5 NN/GNN is AUROC ~0.5 DEGENERATE (constant-vote collapse, [[nn-graded-schema-read-fix]]). Cross-edges from it would poison ≥3 substrates. Any future GNN-sourced edge MUST carry <code class="prism-inline-code">confidence ≤ 0.3</code> and never feed routing or S(x).</li><li><strong>Dense N×N materialization</strong> — un-versionable, OOMs the fleet, rots on regen. Reachability is a <strong>query-time</strong> operation (BFS today; personalized PageRank via HARVEST <code class="prism-inline-code">agentdb_graph-pathfinder</code> if the operator activates it — see decisions).</li><li><strong>Closure-as-dedup</strong> (&quot;prune redundant edges&quot;) — that is a deletion; <code class="prism-inline-code">stop_on_content_deletion</code> / <code class="prism-inline-code">leave-a-copy-behind-guard</code> correctly block it. Overlays are ADD-only.</li></ul>
+<h2 class="prism-h2">Operator-only decisions (Mark&#39;s call)</h2>
+<ol class="prism-md-list"><li><strong>Activate HARVEST <code class="prism-inline-code">agentdb_graph-pathfinder</code></strong> (claude-flow) for query-time personalized-PageRank cross-substrate path ranking in <code class="prism-inline-code">/connection-finder</code> + <code class="prism-inline-code">/system-viz find</code>? (vs PRISM-native BFS.)</li><li><strong>Blackwell RSS ceiling</strong> — what GB cap before fail-loud for local heavy graph compute on the 96GB card? (<code class="prism-inline-code">fleet-memory-monitor</code> watches RSS; 96GB tempts unbounded.)</li><li><strong>india GNN ref-pool re-eval</strong> — spend a slot on <code class="prism-inline-code">U-NN-REFPOOL-REEVAL</code> now that this spine can produce real cross-edges as training signal (inverts the degenerate dependency)?</li><li><strong>Doc-sync concurrency</strong> — 34 per-galaxy <code class="prism-inline-code">/loop</code> units serialized, or N-at-a-time (fleet-RAM tradeoff)?</li></ol>
+<h2 class="prism-h2">Galaxy → owning-slot ownership map (source: MEMORY.md galaxy index)</h2>
+<p>The generator parses this live from the canonical MEMORY.md galaxy index (<code class="prism-inline-code">[galaxy:X] … (slot:Y</code>). 34 galaxies; 7 currently have a confirmed <code class="prism-inline-code">eng.&lt;name&gt;</code> domain node (<code class="prism-inline-code">owned-by-slot</code> emitted at conf 1.0), the rest need galaxy-roost nodes (deferred #4). Authoritative per-galaxy detail: <code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/MEMORY.md</code> <code class="prism-inline-code">slot:</code> tag + <code class="prism-inline-code">state/shared/system-viz/cross-substrate-edges-augmentation.json</code> <code class="prism-inline-code">stats.skippedDetail</code>.</p>
+<hr class="prism-hr">
+<p>_Compounding map (re-runnable, not one-shot): regenerate the edge artifact with <code class="prism-inline-code">node scripts/generate-cross-substrate-edges.mjs</code>. Schema is the contract for every future cross-substrate edge type._</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

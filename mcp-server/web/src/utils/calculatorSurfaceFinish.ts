@@ -363,8 +363,8 @@ export function getSurfaceFinishPreview(input: SurfaceFinishPreviewInput): Surfa
       : useLiveCutModel
         ? 'Predicted finish is being derived from the live cut state on this page: chip load or feed per rev, solved RPM, cutting speed, radial engagement, and the selected tool geometry are all shaping the displayed Ra.'
       : threadingPath && liveEngineRaUm != null
-        ? 'Threading preview stays on the PRISM thread comparator atlas because the live speed/feed engine still solves these paths through a generic turning contract, which can overstate smooth-surface Ra on thread flanks.'
-      : 'Predicted finish is using the PRISM finish atlas model because no live speed/feed surface-finish solve is available yet.',
+        ? 'Threading preview stays on the Kienzle thread comparator atlas because the live speed/feed engine still solves these paths through a generic turning contract, which can overstate smooth-surface Ra on thread flanks.'
+      : 'Predicted finish is using the Kienzle finish atlas model because no live speed/feed surface-finish solve is available yet.',
     drivers: buildDrivers(input, expectedMinRaUm, expectedMaxRaUm, liveEngineRaUm ?? liveCalculatedRaUm),
   };
 }

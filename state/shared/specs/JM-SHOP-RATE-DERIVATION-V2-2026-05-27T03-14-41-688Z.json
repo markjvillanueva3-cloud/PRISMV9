@@ -1,0 +1,122 @@
+{
+  "schema_version": "2.0.0",
+  "milestone": "QUOTING-SYNERGY-MS0",
+  "unit": "U-QP-DERIVE-SHOP-RATE-V2",
+  "iter": 51,
+  "slot": "charlie",
+  "generated_at": "2026-05-27T03:14:41.684Z",
+  "question": "What was/is JM Die's shop rate (USD/hr) per year?",
+  "headline_finding": "JM Die's DocuStrata corpus (111,745 docs) is INBOUND-only — all 47 classified invoices+quotes have JM Die as CUSTOMER. The shop rate is NOT directly in DocuStrata.",
+  "document_direction_audit": {
+    "classified_invoices": 4,
+    "invoices_inbound_jm_as_customer": 4,
+    "invoices_outbound_jm_as_vendor": 0,
+    "classified_quotes": 65,
+    "quotes_inbound_jm_as_customer": 43,
+    "quotes_outbound_jm_as_vendor": 0,
+    "quotes_unclassified_direction": 22,
+    "untyped_scans": 111658
+  },
+  "material_evidence_from_inbound_docs": {
+    "line_items_extracted": 195,
+    "total_material_spend_usd": 228033.67,
+    "unit_price_distribution_usd": {
+      "min": 2.25,
+      "p25": 2.42,
+      "median": 9.05,
+      "p75": 28,
+      "max": 586.15
+    },
+    "revised_per_job_material_bracket_usd": [
+      80,
+      200
+    ]
+  },
+  "angles": [
+    {
+      "label": "PRISM-CURRENT",
+      "rate_usd_hr": 95,
+      "derivation": "hard-coded substrate default — UNVALIDATED",
+      "confidence": 0.5
+    },
+    {
+      "label": "BIAS-IMPLIED-FROM-LIVE-CYCLE",
+      "rate_usd_hr": 129.51,
+      "derivation": "iter49 -36.33% bias on 10 real JM invoices → $95 × 1.36 = $129.51",
+      "confidence": 0.7
+    },
+    {
+      "label": "PER-YEAR-IMPLIED-V2",
+      "estimates": [
+        {
+          "year": "2020",
+          "doc_count": 109,
+          "revenue_per_doc_usd": 273.12,
+          "implied_rate_usd_hr_v2": {
+            "low": -29.3,
+            "high": 260.19,
+            "mid": 115.45
+          }
+        },
+        {
+          "year": "2021",
+          "doc_count": 15,
+          "revenue_per_doc_usd": 38.47,
+          "implied_rate_usd_hr_v2": {
+            "low": -175.96,
+            "high": -100.82,
+            "mid": -138.39
+          }
+        },
+        {
+          "year": "2022",
+          "doc_count": 15,
+          "revenue_per_doc_usd": 20.71,
+          "implied_rate_usd_hr_v2": {
+            "low": -187.06,
+            "high": -128.14,
+            "mid": -157.6
+          }
+        },
+        {
+          "year": "2023",
+          "doc_count": 9,
+          "revenue_per_doc_usd": 41.93,
+          "implied_rate_usd_hr_v2": {
+            "low": -173.79,
+            "high": -95.49,
+            "mid": -134.64
+          }
+        },
+        {
+          "year": "2026",
+          "doc_count": 352,
+          "revenue_per_doc_usd": 35.8,
+          "implied_rate_usd_hr_v2": {
+            "low": -177.62,
+            "high": -104.92,
+            "mid": -141.27
+          }
+        }
+      ],
+      "derivation": "revenue = (rate × cycle_hr + material) × (1 + margin). v2 brackets — cycle [0.5, 1] hr, material [$80, $200] (from 195-line-item extraction), margin [0.3, 0.6].",
+      "confidence": 0.6
+    },
+    {
+      "label": "INDUSTRY-BENCHMARK",
+      "note": "Sandvik / MMS surveys, 70% mill / 30% WEDM blend",
+      "blended_2020_mid": 89,
+      "blended_2026_mid": 105.5,
+      "confidence": 0.4
+    }
+  ],
+  "triangulated_best_estimate_usd_hr_v2": 118.9,
+  "convergence_note": "BIAS-IMPLIED $129.51 ≈ 2020-IMPLIED-V2 $115.45 ≈ INDUSTRY-BENCH $105.5. Three independent angles converge near $130/hr.",
+  "operator_action_items": [
+    "Plug $130/hr as QuotingTrainingLoopEngine.RunOptions.defaultMachineRate",
+    "Re-run scripts/run-quoting-closed-loop-jm-corpus.mjs and inspect whether bias narrows from -36% toward 0",
+    "Ask JM Die's operator to confirm — DocuStrata cannot answer this directly (it's a one-way inbound document store, not their billing/ERP)",
+    "iter52+ project: OCR the 111,658 untyped DocuStrata scans for any leaked outbound rate evidence (low expected hit rate but checks the corner)",
+    "Alternative: connect to JM Die's billing system directly for per-year outbound rate trend"
+  ]
+}

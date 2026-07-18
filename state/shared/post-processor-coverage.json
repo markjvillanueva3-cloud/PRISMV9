@@ -1,0 +1,2036 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-24T06:55:11.894Z",
+  "generated_by": "scripts/audit-post-processor-coverage.mjs",
+  "canonical_brands": [
+    "Hurco",
+    "Haas",
+    "Mazak",
+    "DMG Mori",
+    "Brother",
+    "Okuma",
+    "Fanuc (generic)",
+    "Siemens (generic)",
+    "Mitsubishi",
+    "Sodick",
+    "Agie",
+    "Makino"
+  ],
+  "canonical_machine_classes": [
+    "mill (3-axis)",
+    "mill (5-axis)",
+    "lathe",
+    "mill-turn",
+    "swiss",
+    "wedm-wire",
+    "wedm-sinker"
+  ],
+  "engines": [
+    {
+      "engine": "AdvancedPostProcessorEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (5-axis)"
+      ]
+    },
+    {
+      "engine": "CAMPostInvokeOrchestratorEngine.ts",
+      "brands": [],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "CAMPostSelectorUIEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "CrossCAMPostEngine.ts",
+      "brands": [
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "mill-turn"
+      ]
+    },
+    {
+      "engine": "FiveAxisPostEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "HurcoV11MillMasterPostEngine.ts",
+      "brands": [
+        "Hurco",
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "HybridPostMergeEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (5-axis)"
+      ]
+    },
+    {
+      "engine": "JMDiePostProcessorLearningEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LatheMasterPostAPIEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "LatheMasterPostDeepReasoningEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "LatheMasterPostEnsembleCrossCheckEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Okuma",
+        "Fanuc (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "mill-turn",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "LatheMasterPostRegressionMatrixEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LatheMasterPostRouterEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "mill-turn",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "LatheMasterPostSelfAwarenessEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LatheMasterPostUnifiedOutputEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostGeneratorActiveLearningEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostGeneratorDialectEngine.ts",
+      "brands": [
+        "Okuma",
+        "Fanuc (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostGeneratorSpecIngestEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "LathePostGeneratorUncertaintyEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostGeneratorValidatorWiringEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostKnowledgeGraphEngine.ts",
+      "brands": [
+        "Haas",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostProcessorAIEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostProcessorDialectValidatorEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostProcessorEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LathePostRegressionTestGeneratorEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "LatheSwissPostGeneratorEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "MasterPostFineTuningEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (5-axis)"
+      ]
+    },
+    {
+      "engine": "MasterPostGeneratorEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe",
+        "mill-turn",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "MasterPostProcessorAGIOrchestrationEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe",
+        "wedm-wire"
+      ]
+    },
+    {
+      "engine": "MasterPostProcessorEngine.ts",
+      "brands": [
+        "Haas",
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "MasterPostProcessorGeniusEngine.ts",
+      "brands": [
+        "Mazak",
+        "DMG Mori",
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe",
+        "wedm-wire"
+      ]
+    },
+    {
+      "engine": "MasterPostProcessorUnifiedAGIEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi",
+        "Agie"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "MitsubishiMV1200RWireEDMMasterPostEngine.ts",
+      "brands": [
+        "Okuma",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "wedm-wire"
+      ]
+    },
+    {
+      "engine": "MultiCAMPostEngine.ts",
+      "brands": [
+        "Okuma",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "mill-turn"
+      ]
+    },
+    {
+      "engine": "NovelPostProcessorBridgeEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "OkumaB250LatheMasterPostEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "OkumaOSPMillMasterPostEngine.ts",
+      "brands": [
+        "Hurco",
+        "Okuma",
+        "Fanuc (generic)"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostLibraryCatalogEngine.ts",
+      "brands": [
+        "Okuma",
+        "Fanuc (generic)"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "PostLibraryConfiguratorEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorAGIContinuousLearningEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorAGIMasterRegistryEngine.ts",
+      "brands": [],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorAGIWiringIntegrationEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorAISelfAwarenessIntegrationEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Okuma",
+        "Fanuc (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorAnalysisEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorAnalyzerEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorAPIEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorAutopilotEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi",
+        "Sodick",
+        "Makino"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorCapabilityMatrixEngine.ts",
+      "brands": [
+        "Okuma",
+        "Fanuc (generic)"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorCognitiveEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorComprehensiveKnowledgeEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Okuma",
+        "Makino"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "wedm-wire"
+      ]
+    },
+    {
+      "engine": "PostProcessorCPSImplementationEngine.ts",
+      "brands": [
+        "Hurco",
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "mill-turn"
+      ]
+    },
+    {
+      "engine": "PostProcessorDeepAIHardeningEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe",
+        "mill-turn"
+      ]
+    },
+    {
+      "engine": "PostProcessorDeepCognitionEngine.ts",
+      "brands": [
+        "Hurco",
+        "Okuma"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorDeepIntelligenceEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi",
+        "Sodick",
+        "Makino"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "PostProcessorDeepLearningEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorDeepReasoningEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorFeedOptimizerEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorGeneratorEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorHyperMillKnowledgeEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorIntelligenceOrchestratorEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorKnowledgeEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (5-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorKnowledgeGraphEngine.ts",
+      "brands": [
+        "Okuma",
+        "Fanuc (generic)"
+      ],
+      "machineClasses": [
+        "mill (5-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorMachineKinematicsEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Okuma",
+        "Makino"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorMasterPostArchitectureEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Okuma",
+        "Mitsubishi",
+        "Makino"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe",
+        "mill-turn",
+        "swiss"
+      ]
+    },
+    {
+      "engine": "PostProcessorMetaLearningEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (5-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorNeuralNetworkEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorPhysicsAwareGeneratorEngine.ts",
+      "brands": [
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)"
+      ],
+      "machineClasses": [
+        "mill (5-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorPipelineEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorProductionPatternEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Okuma",
+        "Fanuc (generic)"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorTelemetryEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PostProcessorTrainerEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorTransformerEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+      "brands": [
+        "Haas",
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe",
+        "wedm-wire"
+      ]
+    },
+    {
+      "engine": "PostProcessorUltimateAIEngine.ts",
+      "brands": [
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorUnificationEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "wedm-wire"
+      ]
+    },
+    {
+      "engine": "PostProcessorUnifiedDeepReasoningEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)"
+      ]
+    },
+    {
+      "engine": "PostProcessorUnifiedPhysicsOrchestrationEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorVerificationEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": []
+    },
+    {
+      "engine": "PostProcessorVideoKnowledgeNeuralEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Mazak",
+        "DMG Mori",
+        "Brother",
+        "Okuma",
+        "Fanuc (generic)",
+        "Siemens (generic)",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "mill (5-axis)",
+        "lathe",
+        "mill-turn"
+      ]
+    },
+    {
+      "engine": "PPEndToEndPostGeneratorEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "mill (5-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PPMachineSpecificPostEngine.ts",
+      "brands": [
+        "Hurco",
+        "Haas",
+        "Okuma",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PPOkumaTurningPostEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    },
+    {
+      "engine": "PPSinkerEDMPostEngine.ts",
+      "brands": [
+        "Okuma",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "wedm-sinker"
+      ]
+    },
+    {
+      "engine": "PPWireEDMPostEngine.ts",
+      "brands": [
+        "Okuma",
+        "Mitsubishi"
+      ],
+      "machineClasses": [
+        "mill (3-axis)",
+        "lathe",
+        "wedm-wire"
+      ]
+    },
+    {
+      "engine": "RLPostProcessorEngine.ts",
+      "brands": [
+        "Okuma"
+      ],
+      "machineClasses": [
+        "lathe"
+      ]
+    }
+  ],
+  "matrix": {
+    "Hurco": {
+      "mill (3-axis)": [
+        "CAMPostSelectorUIEngine.ts",
+        "HurcoV11MillMasterPostEngine.ts",
+        "JMDiePostProcessorLearningEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostProcessorAISelfAwarenessIntegrationEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCognitiveEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorCPSImplementationEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorHyperMillKnowledgeEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorPipelineEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPMachineSpecificPostEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "AdvancedPostProcessorEngine.ts",
+        "HurcoV11MillMasterPostEngine.ts",
+        "MasterPostFineTuningEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorMetaLearningEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "lathe": [
+        "CAMPostSelectorUIEngine.ts",
+        "HurcoV11MillMasterPostEngine.ts",
+        "JMDiePostProcessorLearningEngine.ts",
+        "LathePostProcessorAIEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCPSImplementationEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPMachineSpecificPostEngine.ts"
+      ],
+      "mill-turn": [
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorCPSImplementationEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "wedm-wire": [
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorUnificationEngine.ts"
+      ],
+      "wedm-sinker": []
+    },
+    "Haas": {
+      "mill (3-axis)": [
+        "CAMPostSelectorUIEngine.ts",
+        "JMDiePostProcessorLearningEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "PostProcessorAISelfAwarenessIntegrationEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCognitiveEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorDeepLearningEngine.ts",
+        "PostProcessorDeepReasoningEngine.ts",
+        "PostProcessorHyperMillKnowledgeEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorPipelineEngine.ts",
+        "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+        "PostProcessorUltimateAIEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPMachineSpecificPostEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "AdvancedPostProcessorEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "HybridPostMergeEngine.ts",
+        "MasterPostFineTuningEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorMetaLearningEngine.ts",
+        "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "lathe": [
+        "CAMPostSelectorUIEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "JMDiePostProcessorLearningEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LatheMasterPostSelfAwarenessEngine.ts",
+        "LatheMasterPostUnifiedOutputEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "LathePostProcessorAIEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPMachineSpecificPostEngine.ts"
+      ],
+      "mill-turn": [
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "wedm-wire": [
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+        "PostProcessorUnificationEngine.ts"
+      ],
+      "wedm-sinker": []
+    },
+    "Mazak": {
+      "mill (3-axis)": [
+        "CrossCAMPostEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCognitiveEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorDeepLearningEngine.ts",
+        "PostProcessorDeepReasoningEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorPipelineEngine.ts",
+        "PostProcessorUltimateAIEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "AdvancedPostProcessorEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "HybridPostMergeEngine.ts",
+        "MasterPostFineTuningEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorMetaLearningEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "lathe": [
+        "CrossCAMPostEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LatheMasterPostSelfAwarenessEngine.ts",
+        "LatheMasterPostUnifiedOutputEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostProcessorAIEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorGeniusEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill-turn": [
+        "CrossCAMPostEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "wedm-wire": [
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorGeniusEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorUnificationEngine.ts"
+      ],
+      "wedm-sinker": []
+    },
+    "DMG Mori": {
+      "mill (3-axis)": [
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "lathe": [
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LathePostProcessorAIEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostProcessorGeniusEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill-turn": [
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "wedm-wire": [
+        "MasterPostProcessorGeniusEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts"
+      ],
+      "wedm-sinker": []
+    },
+    "Brother": {
+      "mill (3-axis)": [
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCognitiveEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorPipelineEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "MasterPostFineTuningEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMetaLearningEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "lathe": [
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill-turn": [
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts"
+      ],
+      "wedm-wire": [],
+      "wedm-sinker": []
+    },
+    "Okuma": {
+      "mill (3-axis)": [
+        "CAMPostSelectorUIEngine.ts",
+        "CrossCAMPostEngine.ts",
+        "HurcoV11MillMasterPostEngine.ts",
+        "JMDiePostProcessorLearningEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostDeepReasoningEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "LatheSwissPostGeneratorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "MitsubishiMV1200RWireEDMMasterPostEngine.ts",
+        "MultiCAMPostEngine.ts",
+        "OkumaB250LatheMasterPostEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostLibraryCatalogEngine.ts",
+        "PostProcessorAGIWiringIntegrationEngine.ts",
+        "PostProcessorAISelfAwarenessIntegrationEngine.ts",
+        "PostProcessorAnalyzerEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCapabilityMatrixEngine.ts",
+        "PostProcessorCognitiveEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorCPSImplementationEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorDeepLearningEngine.ts",
+        "PostProcessorDeepReasoningEngine.ts",
+        "PostProcessorFeedOptimizerEngine.ts",
+        "PostProcessorGeneratorEngine.ts",
+        "PostProcessorHyperMillKnowledgeEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorPipelineEngine.ts",
+        "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+        "PostProcessorUltimateAIEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPMachineSpecificPostEngine.ts",
+        "PPSinkerEDMPostEngine.ts",
+        "PPWireEDMPostEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "AdvancedPostProcessorEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "HurcoV11MillMasterPostEngine.ts",
+        "HybridPostMergeEngine.ts",
+        "MasterPostFineTuningEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostLibraryCatalogEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorGeneratorEngine.ts",
+        "PostProcessorKnowledgeEngine.ts",
+        "PostProcessorKnowledgeGraphEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorMetaLearningEngine.ts",
+        "PostProcessorPhysicsAwareGeneratorEngine.ts",
+        "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPEndToEndPostGeneratorEngine.ts"
+      ],
+      "lathe": [
+        "CAMPostSelectorUIEngine.ts",
+        "CrossCAMPostEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "HurcoV11MillMasterPostEngine.ts",
+        "JMDiePostProcessorLearningEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostDeepReasoningEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRegressionMatrixEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LatheMasterPostSelfAwarenessEngine.ts",
+        "LatheMasterPostUnifiedOutputEngine.ts",
+        "LathePostGeneratorActiveLearningEngine.ts",
+        "LathePostGeneratorDialectEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostGeneratorUncertaintyEngine.ts",
+        "LathePostGeneratorValidatorWiringEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "LathePostProcessorAIEngine.ts",
+        "LathePostProcessorDialectValidatorEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "LathePostRegressionTestGeneratorEngine.ts",
+        "LatheSwissPostGeneratorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorEngine.ts",
+        "MasterPostProcessorGeniusEngine.ts",
+        "MitsubishiMV1200RWireEDMMasterPostEngine.ts",
+        "MultiCAMPostEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "OkumaB250LatheMasterPostEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostLibraryCatalogEngine.ts",
+        "PostProcessorAnalyzerEngine.ts",
+        "PostProcessorAPIEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCapabilityMatrixEngine.ts",
+        "PostProcessorCPSImplementationEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorGeneratorEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorTelemetryEngine.ts",
+        "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPEndToEndPostGeneratorEngine.ts",
+        "PPMachineSpecificPostEngine.ts",
+        "PPOkumaTurningPostEngine.ts",
+        "PPSinkerEDMPostEngine.ts",
+        "PPWireEDMPostEngine.ts",
+        "RLPostProcessorEngine.ts"
+      ],
+      "mill-turn": [
+        "CrossCAMPostEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MultiCAMPostEngine.ts",
+        "PostProcessorCPSImplementationEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostDeepReasoningEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LatheSwissPostGeneratorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostLibraryCatalogEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "wedm-wire": [
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorGeniusEngine.ts",
+        "MitsubishiMV1200RWireEDMMasterPostEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorTribalKnowledgeIntegrationEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PPWireEDMPostEngine.ts"
+      ],
+      "wedm-sinker": [
+        "PPSinkerEDMPostEngine.ts"
+      ]
+    },
+    "Fanuc (generic)": {
+      "mill (3-axis)": [
+        "CAMPostSelectorUIEngine.ts",
+        "CrossCAMPostEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostLibraryCatalogEngine.ts",
+        "PostProcessorAISelfAwarenessIntegrationEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCapabilityMatrixEngine.ts",
+        "PostProcessorCognitiveEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorDeepLearningEngine.ts",
+        "PostProcessorDeepReasoningEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorPipelineEngine.ts",
+        "PostProcessorUltimateAIEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "AdvancedPostProcessorEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "HybridPostMergeEngine.ts",
+        "MasterPostFineTuningEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostLibraryCatalogEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorKnowledgeGraphEngine.ts",
+        "PostProcessorMetaLearningEngine.ts",
+        "PostProcessorPhysicsAwareGeneratorEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "lathe": [
+        "CAMPostSelectorUIEngine.ts",
+        "CrossCAMPostEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LatheMasterPostSelfAwarenessEngine.ts",
+        "LatheMasterPostUnifiedOutputEngine.ts",
+        "LathePostGeneratorDialectEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "LathePostProcessorAIEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "OkumaOSPMillMasterPostEngine.ts",
+        "PostLibraryCatalogEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCapabilityMatrixEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill-turn": [
+        "CrossCAMPostEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostLibraryCatalogEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts"
+      ],
+      "wedm-wire": [
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "PostProcessorUnificationEngine.ts"
+      ],
+      "wedm-sinker": []
+    },
+    "Siemens (generic)": {
+      "mill (3-axis)": [
+        "CAMPostSelectorUIEngine.ts",
+        "CrossCAMPostEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "MultiCAMPostEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCognitiveEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorDeepLearningEngine.ts",
+        "PostProcessorDeepReasoningEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorPipelineEngine.ts",
+        "PostProcessorUltimateAIEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "AdvancedPostProcessorEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "HybridPostMergeEngine.ts",
+        "MasterPostFineTuningEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorMetaLearningEngine.ts",
+        "PostProcessorPhysicsAwareGeneratorEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "lathe": [
+        "CAMPostSelectorUIEngine.ts",
+        "CrossCAMPostEngine.ts",
+        "FiveAxisPostEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "LathePostProcessorAIEngine.ts",
+        "LathePostProcessorEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MultiCAMPostEngine.ts",
+        "NovelPostProcessorBridgeEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "mill-turn": [
+        "CrossCAMPostEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "MultiCAMPostEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "MasterPostGeneratorEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts"
+      ],
+      "wedm-wire": [
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "PostProcessorUnificationEngine.ts"
+      ],
+      "wedm-sinker": []
+    },
+    "Mitsubishi": {
+      "mill (3-axis)": [
+        "CAMPostSelectorUIEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MasterPostProcessorUnifiedAGIEngine.ts",
+        "MitsubishiMV1200RWireEDMMasterPostEngine.ts",
+        "PostProcessorAISelfAwarenessIntegrationEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorCognitiveEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorDeepLearningEngine.ts",
+        "PostProcessorDeepReasoningEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorPipelineEngine.ts",
+        "PostProcessorUltimateAIEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPMachineSpecificPostEngine.ts",
+        "PPSinkerEDMPostEngine.ts",
+        "PPWireEDMPostEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "MasterPostFineTuningEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorMetaLearningEngine.ts",
+        "PostProcessorUnifiedDeepReasoningEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "lathe": [
+        "CAMPostSelectorUIEngine.ts",
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LatheMasterPostSelfAwarenessEngine.ts",
+        "LatheMasterPostUnifiedOutputEngine.ts",
+        "LathePostGeneratorDialectEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "LathePostKnowledgeGraphEngine.ts",
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MitsubishiMV1200RWireEDMMasterPostEngine.ts",
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorIntelligenceOrchestratorEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts",
+        "PPMachineSpecificPostEngine.ts",
+        "PPSinkerEDMPostEngine.ts",
+        "PPWireEDMPostEngine.ts"
+      ],
+      "mill-turn": [
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "PostProcessorDeepAIHardeningEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts",
+        "PostProcessorVideoKnowledgeNeuralEngine.ts"
+      ],
+      "swiss": [
+        "LatheMasterPostAPIEngine.ts",
+        "LatheMasterPostEnsembleCrossCheckEngine.ts",
+        "LatheMasterPostRouterEngine.ts",
+        "LathePostGeneratorSpecIngestEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "wedm-wire": [
+        "MasterPostProcessorAGIOrchestrationEngine.ts",
+        "MitsubishiMV1200RWireEDMMasterPostEngine.ts",
+        "PostProcessorUnificationEngine.ts",
+        "PPWireEDMPostEngine.ts"
+      ],
+      "wedm-sinker": [
+        "PPSinkerEDMPostEngine.ts"
+      ]
+    },
+    "Sodick": {
+      "mill (3-axis)": [
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "PostProcessorDeepIntelligenceEngine.ts"
+      ],
+      "lathe": [
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts"
+      ],
+      "mill-turn": [],
+      "swiss": [
+        "PostProcessorDeepIntelligenceEngine.ts"
+      ],
+      "wedm-wire": [],
+      "wedm-sinker": []
+    },
+    "Agie": {
+      "mill (3-axis)": [
+        "MasterPostProcessorUnifiedAGIEngine.ts"
+      ],
+      "mill (5-axis)": [],
+      "lathe": [],
+      "mill-turn": [],
+      "swiss": [],
+      "wedm-wire": [],
+      "wedm-sinker": []
+    },
+    "Makino": {
+      "mill (3-axis)": [
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorComprehensiveKnowledgeEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "mill (5-axis)": [
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "lathe": [
+        "PostProcessorAutopilotEngine.ts",
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMachineKinematicsEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "mill-turn": [
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "swiss": [
+        "PostProcessorDeepIntelligenceEngine.ts",
+        "PostProcessorMasterPostArchitectureEngine.ts"
+      ],
+      "wedm-wire": [
+        "PostProcessorComprehensiveKnowledgeEngine.ts"
+      ],
+      "wedm-sinker": []
+    }
+  },
+  "gaps": [
+    {
+      "brand": "Hurco",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "Haas",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "Mazak",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "DMG Mori",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "Brother",
+      "machineClass": "wedm-wire"
+    },
+    {
+      "brand": "Brother",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "Fanuc (generic)",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "Siemens (generic)",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "Sodick",
+      "machineClass": "mill-turn"
+    },
+    {
+      "brand": "Sodick",
+      "machineClass": "wedm-wire"
+    },
+    {
+      "brand": "Sodick",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "Agie",
+      "machineClass": "mill (5-axis)"
+    },
+    {
+      "brand": "Agie",
+      "machineClass": "lathe"
+    },
+    {
+      "brand": "Agie",
+      "machineClass": "mill-turn"
+    },
+    {
+      "brand": "Agie",
+      "machineClass": "swiss"
+    },
+    {
+      "brand": "Agie",
+      "machineClass": "wedm-wire"
+    },
+    {
+      "brand": "Agie",
+      "machineClass": "wedm-sinker"
+    },
+    {
+      "brand": "Makino",
+      "machineClass": "wedm-sinker"
+    }
+  ],
+  "coverage_pct": 79
+}

@@ -45,6 +45,7 @@ import { PostLibraryUI } from '../components/ppg/PostLibraryUI';
 import type { FingerprintResult } from '../components/ppg/MachinePickerPanel';
 import { PostPreviewComponent } from '../components/ppg/PostPreviewComponent';
 import { MaterialSearchPanel } from '../components/ppg/MaterialSearchPanel';
+import { decorateExport, exportFileSuffix } from './postExportSafety';
 import { ToolConfigCard, type ToolSelection } from '../components/ppg/ToolConfigCard';
 import { HolderSelectorPanel, type HolderSelection } from '../components/ppg/HolderSelectorPanel';
 import { GcodePreviewPanel } from '../components/ppg/GcodePreviewPanel';
@@ -57,6 +58,7 @@ import type { ProgramReleaseCatalog } from '../features/operating-system/contrac
 import { resolveProgramReleaseMachineRouteSeed } from '../utils/programReleaseRouteMachineResolver';
 import { buildProgramReleaseRouteExtras } from '../utils/programReleaseSelectorExtras';
 import { SurfaceCrossLink } from '../components/SurfaceCrossLink';
+import { GatedError } from '../components/entitlement';
 
 type Lane = 'generate' | 'validate' | 'compare' | 'library' | 'machine' | 'programs';
 type PageMode = 'lanes' | 'wizard';
@@ -94,6 +96,14 @@ type GeneratedOutput = {
   optimization_package: string;
   capabilities: string[];
   preview: string;
+  /**
+   * SAFETY: true ONLY when this program came from the 38-stage /ppg/pipeline
+   * (P1 physics + P5 alarm/safety gate). A /ppg/template response or an offline
+   * fallback packet is false -- it never ran the safety gate and must be exported
+   * as PREVIEW-ONLY, never as an "_PRISM_optimized.nc" machine-ready program.
+   * Required (not optional) so every construction site must declare its state.
+   */
+  pipelineValidated: boolean;
 };
 
 type ValidationOutput = {
@@ -436,11 +446,11 @@ const LANE_CONFIG: Record<Lane, { label: string; detail: string }> = {
   },
   programs: {
     label: 'Programs',
-    detail: 'Browse real NC programs from your shop — load and optimize with PRISM physics.',
+    detail: 'Browse real NC programs from your shop — load and optimize with Kienzle physics.',
   },
 };
 
-const DEFAULT_PROGRAM = `( PRISM POST REVIEW )
+const DEFAULT_PROGRAM = `( Kienzle POST REVIEW )
 %
 O1001
 G90 G17 G40 G49 G80
@@ -474,7 +484,7 @@ function uniqueStrings(items: string[]) {
   return Array.from(new Set(items.filter(Boolean)));
 }
 
-// @ts-expect-error unused helper retained for future wiring
+// Retained for future wiring (underscore prefix exempts from no-unused).
 function _stripFileExtension(value: string) {
   return value.replace(/\.[^.]+$/, '');
 }
@@ -1034,6 +1044,8 @@ G00 Z2.
 M09
 M30
 %`,
+    // Offline fallback: the physics + safety pipeline never ran.
+    pipelineValidated: false,
   };
 }
 
@@ -1163,7 +1175,7 @@ export function PostProcessorGeneratorPage() {
       return locationState.unsupportedReason;
     }
     if (workspaceContext?.mode === 'wire_edm' || workspaceContext?.mode === 'edm') {
-      return 'Post processor generation is not yet supported for this routed wire EDM posture. PRISM keeps this surface fail-closed until the canonical EDM post and controller contract is extracted.';
+      return 'Post processor generation is not yet supported for this routed wire EDM posture. Kienzle keeps this surface fail-closed until the canonical EDM post and controller contract is extracted.';
     }
     return '';
   }, [locationState?.unsupportedReason, workspaceContext?.mode]);
@@ -1195,6 +1207,7 @@ export function PostProcessorGeneratorPage() {
   const [loadingCatalog, setLoadingCatalog] = useState(false);
   const [loadingAction, setLoadingAction] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [releaseCatalog, setReleaseCatalog] = useState<ProgramReleaseCatalog | null>(PROGRAM_RELEASE_CATALOG);
   const [fingerprint, setFingerprint] = useState<FingerprintResult | null>(null);
   const [enabledFeatures, setEnabledFeatures] = useState<Set<string>>(new Set());
@@ -1933,6 +1946,7 @@ export function PostProcessorGeneratorPage() {
   async function handleGenerate() {
     setLoadingAction(true);
     setError(null);
+    setGateError(null);
     setLane('generate');
 
     try {
@@ -2001,13 +2015,15 @@ export function PostProcessorGeneratorPage() {
               operation: selectedOperation.label,
               machine_model: machineModel,
               estimated_lines: outputGcode.split('\n').filter(Boolean).length,
-              optimization_package: `PRISM Physics Pipeline (${stageCount} stages)`,
+              optimization_package: `Kienzle Physics Pipeline (${stageCount} stages)`,
               capabilities: [
                 ...selectedCapabilityDetails.map((item) => item.label),
                 ...(hasMaterial ? [`Auto S/F: ${selectedMaterialName}`] : []),
                 ...(stageCount > 0 ? [`${stageCount} physics stages active`] : []),
               ],
               preview: outputGcode,
+              // The real 38-stage pipeline (P1 physics + P5 safety gate) produced this.
+              pipelineValidated: true,
             };
 
             setGenerated(nextGenerated);
@@ -2078,11 +2094,15 @@ export function PostProcessorGeneratorPage() {
           ...selectedCapabilityDetails.map((item) => item.label),
         ]),
         preview: preview || fallback.preview,
+        // /ppg/template is a controller-format template -- it did NOT run the
+        // P5 safety gate, so it is a preview, not a machine-ready program.
+        pipelineValidated: false,
       };
 
       setGenerated(nextGenerated);
       setGcodeInput(nextGenerated.preview);
     } catch (issue) {
+      setGateError(issue);
       if (issue instanceof ApiError) {
         setError(`${issue.message} Falling back to a local post brief.`);
       } else {
@@ -2107,6 +2127,7 @@ export function PostProcessorGeneratorPage() {
   async function handleValidate() {
     setLoadingAction(true);
     setError(null);
+    setGateError(null);
     setLane('validate');
 
     const provisionalChecks = buildReleaseChecks({
@@ -2152,6 +2173,7 @@ export function PostProcessorGeneratorPage() {
         controller: selectedController.label,
       });
     } catch (issue) {
+      setGateError(issue);
       if (issue instanceof ApiError) {
         setError(`${issue.message} Showing a local readiness review instead.`);
       } else {
@@ -2172,6 +2194,7 @@ export function PostProcessorGeneratorPage() {
   async function handleCompare() {
     setLoadingAction(true);
     setError(null);
+    setGateError(null);
     setLane('compare');
 
     try {
@@ -2207,6 +2230,7 @@ export function PostProcessorGeneratorPage() {
           : undefined,
       });
     } catch (issue) {
+      setGateError(issue);
       if (issue instanceof ApiError) {
         setError(`${issue.message} Showing a local controller-delta brief instead.`);
       } else {
@@ -2307,22 +2331,30 @@ export function PostProcessorGeneratorPage() {
   }, [handleFileUpload]);
 
   const handleDownload = useCallback(() => {
-    const output = generated?.preview ?? '';
-    if (!output) return;
+    const rawOutput = generated?.preview ?? '';
+    if (!rawOutput) return;
+    // SAFETY FENCE: only a pipeline-validated program (P5 safety gate ran) earns the
+    // "_PRISM_optimized.nc" name + clean content. Anything else is stamped PREVIEW-ONLY
+    // so a template/fallback packet cannot reach a machine masquerading as validated.
+    const validated = generated?.pipelineValidated === true;
+    const output = decorateExport(rawOutput, validated);
     const baseName = fileName ? fileName.replace(/\.[^.]+$/, '') : 'program';
     const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${baseName}_PRISM_optimized.nc`;
+    a.download = `${baseName}${exportFileSuffix(validated)}`;
     a.click();
     URL.revokeObjectURL(url);
   }, [generated, fileName]);
 
   // PP-MOAT-MS4 U02: Clipboard copy
   const handleCopyToClipboard = useCallback(async () => {
-    const output = generated?.preview ?? '';
-    if (!output) return;
+    const rawOutput = generated?.preview ?? '';
+    if (!rawOutput) return;
+    // Same safety fence as the .nc download: an unvalidated program copied to the
+    // clipboard (and pasted into a controller) carries the PREVIEW-ONLY header.
+    const output = decorateExport(rawOutput, generated?.pipelineValidated === true);
     try {
       await navigator.clipboard.writeText(output);
       setCopySuccess(true);
@@ -2628,7 +2660,7 @@ export function PostProcessorGeneratorPage() {
       {hasUnsupportedRoutedPosture ? (
         <PanelCard
           title="Routed post generation is not active for this machine posture"
-          subtitle="PRISM keeps unsupported routed EDM post flows fail-closed until the canonical controller and post contract exists."
+          subtitle="Kienzle keeps unsupported routed EDM post flows fail-closed until the canonical controller and post contract exists."
         >
           <div className="space-y-4 text-sm text-slate-300">
             <p>{routedUnsupportedReason}</p>
@@ -2640,9 +2672,11 @@ export function PostProcessorGeneratorPage() {
       ) : (
       <>
       {error ? (
-        <div className="rounded-[24px] border border-amber-300/14 bg-amber-300/[0.08] px-5 py-4 text-sm text-amber-100">
-          {error}
-        </div>
+        <GatedError error={gateError} feature='post.generate' fallback={
+          <div className="rounded-[24px] border border-amber-300/14 bg-amber-300/[0.08] px-5 py-4 text-sm text-amber-100">
+            {error}
+          </div>
+        } />
       ) : null}
 
       {/* Mode toggle: Lanes (advanced) vs Wizard (guided) */}
@@ -3032,26 +3066,39 @@ export function PostProcessorGeneratorPage() {
                       </label>
                       <ActionButton
                         onClick={async () => {
+                          // SAFETY FENCE (same as the .nc/clipboard paths): the program text
+                          // (generated.preview) must not leave as a .cps un-stamped when it never
+                          // ran the P5 safety gate. A genuine backend .cps config (res.result) is a
+                          // post-processor definition, not the program, so it is left as-is; only the
+                          // preview-fallback is header-stamped. The filename is marked when unvalidated.
+                          const validated = generated.pipelineValidated === true;
+                          const fencedPreview = decorateExport(generated.preview, validated);
+                          const cpsName = `${generated.post_name}${validated ? '' : '_PREVIEW_unvalidated'}.cps`;
                           try {
                             const res = await ppgDownload({
                               post_name: generated.post_name,
                               controller: generated.controller,
                               preview: generated.preview,
                             });
-                            const blob = new Blob([String((res as unknown as Record<string, unknown>).result ?? generated.preview)], { type: 'text/plain' });
+                            const backendCps = (res as unknown as Record<string, unknown>).result;
+                            const content =
+                              backendCps != null && String(backendCps).length > 0
+                                ? String(backendCps)
+                                : fencedPreview;
+                            const blob = new Blob([content], { type: 'text/plain' });
                             const url = URL.createObjectURL(blob);
                             const a = document.createElement('a');
                             a.href = url;
-                            a.download = `${generated.post_name}.cps`;
+                            a.download = cpsName;
                             a.click();
                             URL.revokeObjectURL(url);
                           } catch {
-                            // Fallback: download preview directly
-                            const blob = new Blob([generated.preview || ''], { type: 'text/plain' });
+                            // Fallback: download the fenced preview directly.
+                            const blob = new Blob([fencedPreview || ''], { type: 'text/plain' });
                             const url = URL.createObjectURL(blob);
                             const a = document.createElement('a');
                             a.href = url;
-                            a.download = `${generated.post_name}.cps`;
+                            a.download = cpsName;
                             a.click();
                             URL.revokeObjectURL(url);
                           }
@@ -3143,7 +3190,7 @@ export function PostProcessorGeneratorPage() {
               </li>
               <li className="flex gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-950/50 text-[10px] font-bold text-cyan-400">4</span>
-                <span><strong className="text-white">Generate</strong> — PRISM runs the 38-stage physics pipeline. You'll see per-block S/F with force, confidence, and finish predictions.</span>
+                <span><strong className="text-white">Generate</strong> — Kienzle runs the 38-stage physics pipeline. You'll see per-block S/F with force, confidence, and finish predictions.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-950/50 text-[10px] font-bold text-cyan-400">5</span>
@@ -3482,7 +3529,7 @@ export function PostProcessorGeneratorPage() {
                   onClick={() => setOutputMode('pipeline_optimized')}
                   className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${outputMode === 'pipeline_optimized' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'text-slate-500 hover:text-slate-300'}`}
                 >
-                  Full PRISM
+                  Full Kienzle
                 </button>
                 <button
                   onClick={() => setOutputMode('self_contained')}
@@ -3547,16 +3594,12 @@ export function PostProcessorGeneratorPage() {
                   <PostPreviewComponent
                     gcode={generated?.preview ?? gcodeInput}
                     controller={selectedController.label}
-                    onDownload={() => {
-                      ppgDownload({
-                        gcode: generated?.preview ?? gcodeInput,
-                        controller: controller,
-                        machine_brand: machineModel.split(' ')[0],
-                        machine_model: machineModel,
-                        program_name: programName,
-                        include_physics_comments: true,
-                      }).catch(() => {});
-                    }}
+                    onCopy={handleCopyToClipboard}
+                    // Route the preview-panel download through the SAME fenced handler
+                    // as the main Download .nc button (the prior fire-and-forget
+                    // ppgDownload discarded its result -> a dead button + an un-fenced
+                    // backend path). handleDownload stamps/renames unvalidated programs.
+                    onDownload={handleDownload}
                   />
                 </div>
               </div>
@@ -3686,7 +3729,11 @@ export function PostProcessorGeneratorPage() {
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <div className="text-lg font-bold text-slate-50">Output Actions</div>
-                      <div className="text-sm text-slate-400">Download optimized program or copy to clipboard</div>
+                      <div className="text-sm text-slate-400">
+                        {generated.pipelineValidated === true
+                          ? 'Download optimized program or copy to clipboard'
+                          : 'Preview packet -- not yet safety-validated (see notice below)'}
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -3726,7 +3773,19 @@ export function PostProcessorGeneratorPage() {
                   </div>
                   {fileName && (
                     <div className="text-xs text-slate-500">
-                      Output: {fileName.replace(/\.[^.]+$/, '')}_PRISM_optimized.nc
+                      Output: {fileName.replace(/\.[^.]+$/, '')}{exportFileSuffix(generated.pipelineValidated === true)}
+                    </div>
+                  )}
+                  {generated.pipelineValidated !== true && (
+                    <div className="mt-3 rounded-xl border border-amber-400/40 bg-amber-400/10 p-3 text-xs text-amber-200">
+                      <div className="font-bold">Preview only -- not machine-ready</div>
+                      <div className="mt-1 text-amber-200/80">
+                        This packet came from a controller template / offline fallback, not the
+                        38-stage physics + safety pipeline (P1 force / P5 alarm gate). The download is
+                        stamped PREVIEW-ONLY and named{' '}
+                        <span className="font-mono">_PREVIEW_unvalidated.nc</span>. Run a full pipeline
+                        pass + prove-out before using it on a machine.
+                      </div>
                     </div>
                   )}
                 </div>
@@ -3742,7 +3801,7 @@ export function PostProcessorGeneratorPage() {
                 <div className="relative z-10">
                   <div className="mb-4">
                     <div className="text-lg font-bold text-slate-50">Physics Summary</div>
-                    <div className="text-sm text-slate-400">Real-time cutting force, power, and tool life from PRISM pipeline</div>
+                    <div className="text-sm text-slate-400">Real-time cutting force, power, and tool life from Kienzle pipeline</div>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     {(() => {
@@ -4062,7 +4121,7 @@ export function PostProcessorGeneratorPage() {
                 onGenerateForMachine={(post) => {
                   // PPG-VAR-MS0 U07: Pre-populate form from library machine profile
                   setController(post.controller);
-                  setMachineModel(post.vendor === 'PRISM' ? post.name.replace('PRISM ', '') : `${post.vendor} ${post.name}`);
+                  setMachineModel(post.vendor === 'Kienzle' ? post.name.replace('Kienzle ', '') : `${post.vendor} ${post.name}`);
                   // Enable recommended features from library entry
                   if ((post as any).machine_profile?.recommended_features) {
                     const recommended: string[] = (post as any).machine_profile.recommended_features;
@@ -4079,7 +4138,7 @@ export function PostProcessorGeneratorPage() {
                     setProgramName(post.source === 'prism_native'
                       ? `PRISM_${post.controller.toUpperCase()}_OPTIMIZED`
                       : `${post.vendor.toUpperCase()}_${post.controller.toUpperCase()}`);
-                    // For PRISM posts, set output mode to pipeline_optimized
+                    // For Kienzle posts, set output mode to pipeline_optimized
                     if (post.source === 'prism_native') {
                       setOutputMode('pipeline_optimized');
                     }
@@ -4123,7 +4182,7 @@ export function PostProcessorGeneratorPage() {
                     <div>
                       <div className="text-lg font-bold text-slate-50">Shop Program Library</div>
                       <div className="text-sm text-slate-400">
-                        {programTotal > 0 ? `${programTotal} programs` : 'Loading...'} — select one to optimize with PRISM physics
+                        {programTotal > 0 ? `${programTotal} programs` : 'Loading...'} — select one to optimize with Kienzle physics
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -4363,7 +4422,7 @@ export function PostProcessorGeneratorPage() {
             subtitle="Carry the same controller packet into release, quoting, capture, and prove-out instead of rebuilding context by hand."
           >
             <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">
-              This desk now acts like a packet spine. Once the controller posture looks good, move the same packet into the rest of PRISM.
+              This desk now acts like a packet spine. Once the controller posture looks good, move the same packet into the rest of Kienzle.
             </div>
             <div className="mt-4 grid gap-3">
               <Link className={ACTION_LINK_CLASS} to={releasePath}>

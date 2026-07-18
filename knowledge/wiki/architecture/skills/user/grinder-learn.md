@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `grinder-learn` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/grinder-learn.md` |
+| Source | `C:/Users/wompu/.claude/commands/grinder-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Extract tribal knowledge and patterns from grinding programs, wheel specifications, and operator experience.
+
+# /grinder-learn — Grinding Knowledge Extraction
 
 <!-- AUTO-END -->
 

@@ -30,6 +30,25 @@ import {
  * ignore it entirely. Never throws.
  */
 export function captureSFC(input: SFCEmissionInput): SFCEmissionResult {
+  // Bulk-sweep guard (ported from slot/oscar). Bulk parameter-space enumerators
+  // (e.g. sfc-fullspace-sweep) call calculate() millions of times; each capture appends
+  // ~11 KB to the global per-domain outcome ledger state/outcomes/speed_feed.jsonl -- a
+  // 19.6M-cell grind once wrote ~215 GB there (redundant: the sweep already streams every
+  // cell to its own per-shard ledger). A bulk caller sets PRISM_SFC_DISABLE_OUTCOME_CAPTURE=1
+  // to skip the global wire. Default OFF -> interactive / shop-floor capture is unchanged.
+  // Grammar matches the sibling PRISM_SFC_FAST_BULK knob ("1" | "true") -- the two are set
+  // together by sweep shells, and a grammar mismatch (fast_bulk honoring "true" while this
+  // guard silently ignored it) would re-open the 215GB ledger class (scrutiny arm-A P2).
+  const disableCapture = process.env.PRISM_SFC_DISABLE_OUTCOME_CAPTURE;
+  if (disableCapture === "1" || disableCapture === "true") {
+    return {
+      ok: false,
+      lineage_id: input.lineageId ?? "",
+      event_id: "",
+      summary: {},
+      warning: "outcome-capture suppressed (PRISM_SFC_DISABLE_OUTCOME_CAPTURE=1; bulk-sweep mode)",
+    };
+  }
   try {
     return sfcOutcomeCaptureWireEngine.recordEmission(input);
   } catch (err) {

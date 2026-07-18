@@ -1,0 +1,592 @@
+{
+  "id": "ULT-MS5",
+  "version": "1.0.0",
+  "title": "Launch, Hardening, and Adoption",
+  "brief": "Turn the connected platform into a production-ready operating system with launch gates, command-center visibility, replay and audit tooling, and rollout materials that drive confident adoption on the shop floor and in management workflows.",
+  "created_at": "2026-03-27T18:50:00Z",
+  "created_by": "codex-rgs-forge-triple",
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Launch Readiness + Command Center",
+      "description": "Build the production command center, launch-readiness scoring, replay tooling, and adoption surfaces needed for a confident rollout.",
+      "sessions": "2-3",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Shop command center + dashboard integration",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 84,
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_session",
+              "action": "state_checkpoint"
+            }
+          ],
+          "entry_conditions": [
+            "Workflow, execution, and sync engines all expose live health and operational signals.",
+            "Dashboard and role-aware shell surfaces are ready for production command-center wiring."
+          ],
+          "exit_conditions": [
+            "A unified command center surfaces launch-critical health, blockers, live shop load, and sync readiness.",
+            "The dashboard consumes the same platform-wide operational narrative.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the command-center layer and fall back to separate operational dashboards if the aggregate view is not ready.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build a shop command-center engine that summarizes live execution, shortages, approvals, sync health, and launch blockers.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_session:state_checkpoint"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Integrate the command-center model into the dashboard so leaders can see one operating picture at sign-in.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "Dashboard KPIs can drill into the same underlying command-center records and queues."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/ShopCommandCenterEngine.ts",
+              "type": "source",
+              "description": "Unified production command-center engine for launch and daily operations.",
+              "line_count_est": 240
+            },
+            {
+              "path": "web/src/pages/DashboardPage.tsx",
+              "type": "source",
+              "description": "Dashboard integration with command-center summaries and drilldowns.",
+              "line_count_est": 140
+            }
+          ],
+          "estimated_minutes": 150,
+          "description": "Shop command center + dashboard integration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Launch readiness + replay engines",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 86,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "coverage"
+            }
+          ],
+          "entry_conditions": [
+            "The unified command-center model exists.",
+            "The business has identified rollout gates, readiness thresholds, and recovery expectations."
+          ],
+          "exit_conditions": [
+            "A launch-readiness engine scores configuration, data health, adoption, and sync safety before production rollout.",
+            "A replay engine can inspect and reconstruct recent live operational events for debugging or training.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable readiness scoring and replay tooling if they produce unreliable gates or burdensome storage costs.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build a launch-readiness engine that scores operational, sync, policy, and adoption preconditions for go-live decisions.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_validate:coverage"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Build a replay engine that can reconstruct recent traveler, labor, workflow, and sync events for debugging and operator coaching.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "Readiness scoring and replay records can explain why the system is or is not ready to launch."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/LaunchReadinessEngine.ts",
+              "type": "source",
+              "description": "Go-live readiness scoring engine across data, sync, workflow, and adoption dimensions.",
+              "line_count_est": 220
+            },
+            {
+              "path": "src/engines/ShopReplayEngine.ts",
+              "type": "source",
+              "description": "Replay and inspection engine for recent operational and sync events.",
+              "line_count_est": 220
+            }
+          ],
+          "estimated_minutes": 145,
+          "description": "Launch readiness + replay engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Shop-floor adoption updates + rollout playbook",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_session",
+              "action": "state_checkpoint"
+            }
+          ],
+          "entry_conditions": [
+            "Launch readiness and replay outputs are available.",
+            "The shop-floor tracker is already structured for a mobile-first execution flow."
+          ],
+          "exit_conditions": [
+            "The shop-floor experience reflects launch-readiness cues, coaching aids, and replay-aware troubleshooting.",
+            "A rollout playbook exists for phased adoption, owner responsibilities, and recovery paths.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the launch cues and revert to the previous tracker UX if adoption changes create confusion.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Update the shop-floor clock page so workers and leads can see launch cues, recovery guidance, and replay-backed troubleshooting context.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_session:state_checkpoint"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Write an operations rollout playbook covering phased launch, ownership, fallback paths, and adoption metrics.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "The playbook maps directly to launch-readiness dimensions and command-center signals."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/ShopFloorClockPage.tsx",
+              "type": "source",
+              "description": "Shop-floor adoption and launch-readiness experience updates.",
+              "line_count_est": 130
+            },
+            {
+              "path": "docs/ops/ultimate-app-rollout.md",
+              "type": "doc",
+              "description": "Production rollout playbook for the ultimate shop operating system.",
+              "line_count_est": 160
+            }
+          ],
+          "estimated_minutes": 130,
+          "description": "Shop-floor adoption updates + rollout playbook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.86,
+        "ralph_required": true,
+        "custom_checks": [
+          "Launch readiness has measurable gates tied to live system signals.",
+          "Replay and dashboard tooling can explain failures and adoption blockers quickly."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Production readiness",
+        "Observability",
+        "Adoption practicality"
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Forge-Triple Launch Controls",
+      "description": "Provide launch command surfaces and hard production gates with release validation coverage.",
+      "sessions": "1",
+      "primary_role": "R7",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Launch gate command + readiness template",
+          "phase": "P2",
+          "sequence": 4,
+          "role": "R7",
+          "role_name": "Prompt Engineer",
+          "model": "opus-4.6",
+          "effort": 82,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "tools": [
+            {
+              "tool": "prism_skill_script",
+              "action": "skill_search"
+            },
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            }
+          ],
+          "entry_conditions": [
+            "The launch-readiness engine and rollout playbook exist.",
+            "Operators need a standard go-live and rollback checklist surface."
+          ],
+          "exit_conditions": [
+            "A launch gate command doc exists for readiness review, go-live, rollback, and recovery checks.",
+            "A forge-triple readiness template exists for future launch and adoption work.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the command and template docs if rollout policy changes before launch.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write a launch gate command doc that covers readiness review, blocker inspection, rollback triggers, and post-launch checks.",
+              "tool_calls": [
+                "prism_skill_script:skill_search",
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Create a readiness template that future release milestones can reuse for launch scoring, replay evidence, and adoption notes.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "The command doc and template use the same readiness dimensions and rollback vocabulary."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/launch-gate.md",
+              "type": "doc",
+              "description": "Slash-command style guide for go-live readiness, rollback, and release inspection.",
+              "line_count_est": 90
+            },
+            {
+              "path": "data/templates/ultimate-app/prism-launch-readiness.md",
+              "type": "doc",
+              "description": "Forge-triple template for launch-readiness, replay, and adoption reviews.",
+              "line_count_est": 80
+            }
+          ],
+          "estimated_minutes": 55,
+          "description": "Launch gate command + readiness template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Production readiness gate + release proof",
+          "phase": "P2",
+          "sequence": 5,
+          "role": "R4",
+          "role_name": "Verifier",
+          "model": "opus-4.6",
+          "effort": 92,
+          "dependencies": [
+            "P2-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_review",
+              "action": "run"
+            }
+          ],
+          "entry_conditions": [
+            "Readiness criteria and command docs are in place.",
+            "The platform is close enough to launch to validate end-to-end release behavior."
+          ],
+          "exit_conditions": [
+            "A production-readiness gate can block release when safety, sync, policy, or adoption thresholds fail.",
+            "A release proof validates the full operational platform before go-live.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable the new release gate if it blocks valid launches for reasons the business cannot yet support.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement a production-readiness gate that checks launch score, sync health, role policy coverage, and workflow stability before release.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Build a release proof that exercises core shop execution, role-aware shell access, workflow coherence, and sync propagation end to end.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_review:run"
+              ],
+              "validation": "The release proof demonstrates that the platform can run the connected shop workflow without major contract drift."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/productionReadinessGate.ts",
+              "type": "source",
+              "description": "Production gate enforcing launch readiness across the connected platform.",
+              "line_count_est": 95
+            },
+            {
+              "path": "src/__tests__/ultimateApp.release.test.ts",
+              "type": "test",
+              "description": "Release proof for the end-to-end ultimate shop operating system.",
+              "line_count_est": 220
+            }
+          ],
+          "estimated_minutes": 110,
+          "description": "Production readiness gate + release proof — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.88,
+        "ralph_required": true,
+        "custom_checks": [
+          "Launch commands map directly to live readiness and rollback signals.",
+          "Release validation proves the integrated shop platform can run safely end to end."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Release safety",
+        "Operational explainability",
+        "Rollout confidence"
+      ]
+    }
+  ],
+  "total_units": 5,
+  "total_sessions": "3-4",
+  "dependency_graph": "ULT-MS2 + ULT-MS4 -> ULT-MS5; P1-U01 -> P1-U02 -> P1-U03 -> P2-U01 -> P2-U02",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 84
+    },
+    {
+      "code": "R4",
+      "name": "Verifier",
+      "model": "opus-4.6",
+      "effort": 92
+    },
+    {
+      "code": "R6",
+      "name": "Integrator",
+      "model": "sonnet-4.6",
+      "effort": 86
+    },
+    {
+      "code": "R7",
+      "name": "Prompt Engineer",
+      "model": "opus-4.6",
+      "effort": 82
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_sp",
+      "phases": [
+        "P1",
+        "P2"
+      ],
+      "purpose": "Build command-center, readiness, rollout docs, and release tests"
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Check readiness scoring and replay coverage"
+    },
+    {
+      "tool": "prism_review",
+      "phases": [
+        "P2"
+      ],
+      "purpose": "Review production gate and release proof quality"
+    },
+    {
+      "tool": "prism_session",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Checkpoint rollout-critical integration points"
+    }
+  ],
+  "existing_leverage": [
+    {
+      "asset": "src/engines/WorkflowCommandCenterEngine.ts",
+      "type": "engine",
+      "usage": "Operational queue aggregation for the launch command center"
+    },
+    {
+      "asset": "src/engines/ShopAnalyticsEngine.ts",
+      "type": "engine",
+      "usage": "Readiness and adoption scoring inputs"
+    },
+    {
+      "asset": "web/src/pages/DashboardPage.tsx",
+      "type": "frontend",
+      "usage": "Leadership landing surface for the unified operating picture"
+    },
+    {
+      "asset": "web/src/pages/ShopFloorClockPage.tsx",
+      "type": "frontend",
+      "usage": "Worker adoption surface and launch coaching lane"
+    }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 6,
+    "convergence_rule": "delta < 2",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 94
+  },
+  "scrutiny_log": "state/ULT-MS5/scrutiny-log.json",
+  "position_file": "state/ULT-MS5/position.json",
+  "state_dir": "state/ULT-MS5",
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms5-gate",
+    "mcp_action": "prism_ult:ult_ms5_run",
+    "skill_command": "/ult-ms5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms5-gate"
+    ],
+    "new_actions": [
+      "ult_ms5_run"
+    ],
+    "new_skills": [
+      "/ult-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Turn the connected platform into a production-ready operating system with launch gates, command-center visibility, replay and audit tooling, and rollout materials that drive confident adoption on the shop floor and in management workflows.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

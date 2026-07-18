@@ -568,6 +568,34 @@ describe("ToolDeflectionModel", () => {
   it("returns metadata", () => {
     expect(td.getMetadata().id).toBe("tool-deflection");
   });
+
+  // Row 16 (U-OSC-SFC-TOOLDEFLECT-MATERIAL-SELECT): the YIELD_STRENGTH table existed but the
+  // consumer hardcoded carbide, so HSS tools were graded against 3000 MPa instead of 2000
+  // (safety_factor overstated 1.5x -> breakage warnings under-fired). tool_material now
+  // selects the strength; the default stays carbide (byte-identical back-compat).
+  it("HSS tool_material lowers max force + safety factor by exactly 2000/3000 vs carbide", () => {
+    const base = { cutting_force: 500, tool_diameter: 12, overhang_length: 50 } as const;
+    const carbide = td.calculate({ ...base, tool_material: "carbide" });
+    const hss = td.calculate({ ...base, tool_material: "hss" });
+    expect(hss.max_force_before_yield / carbide.max_force_before_yield).toBeCloseTo(2000 / 3000, 8);
+    expect(hss.safety_factor / carbide.safety_factor).toBeCloseTo(2000 / 3000, 8);
+    expect(hss.safety_factor).toBeLessThan(carbide.safety_factor); // the under-fired-warning direction
+  });
+
+  it("omitting tool_material is byte-identical to explicit carbide (back-compat)", () => {
+    const base = { cutting_force: 500, tool_diameter: 12, overhang_length: 50 } as const;
+    const implicit = td.calculate(base);
+    const explicit = td.calculate({ ...base, tool_material: "carbide" });
+    expect(implicit.max_force_before_yield).toBe(explicit.max_force_before_yield);
+    expect(implicit.safety_factor).toBe(explicit.safety_factor);
+  });
+
+  it("ceramic (4000 MPa) allows a higher max force than carbide (3000 MPa)", () => {
+    const base = { cutting_force: 500, tool_diameter: 12, overhang_length: 50 } as const;
+    const carbide = td.calculate({ ...base, tool_material: "carbide" });
+    const ceramic = td.calculate({ ...base, tool_material: "ceramic" });
+    expect(ceramic.max_force_before_yield / carbide.max_force_before_yield).toBeCloseTo(4000 / 3000, 8);
+  });
 });
 
 // ── 9. ToolWearPrediction ───────────────────────────────────────────
@@ -678,6 +706,26 @@ describe("UsuiWearModel", () => {
     for (let i = 1; i < out.wear_history.length; i++) {
       expect(out.wear_history[i].vb).toBeGreaterThanOrEqual(out.wear_history[i - 1].vb);
     }
+  });
+
+  // Row 18 (U-OSC-SFC-USUI-VELOCITY-BASIS): absolute-scale dimensional pin. The model
+  // previously fed Vs in mm/min (stray *1000): this exact reference produced
+  // final_vb = 12,079 mm (a 12-METER wear land in 10 min, live-probed) and a first-step
+  // rate of 121 mm/min. On the correct m/min basis: rate0 = 1e-5 * 800 * 150 *
+  // exp(-2000/873.15) = 0.1214 mm/min and VB 0.3 hits at ~2.3 min -- physically sane for
+  // these aggressive conditions. Relative/monotone tests CANNOT catch a 1000x scale error;
+  // this absolute band fails loudly on any basis revert.
+  it("absolute wear scale: first-step rate ~0.121 mm/min and final VB in a physical band", () => {
+    const out = usui.calculate({
+      contact_stress: 800, sliding_velocity: 150,
+      interface_temperature: 600, cutting_time: 10,
+    });
+    expect(out.wear_history[0].wear_rate).toBeGreaterThan(0.115);
+    expect(out.wear_history[0].wear_rate).toBeLessThan(0.128);
+    expect(out.final_vb).toBeGreaterThan(0.5);   // grows past the 0.3 limit with feedback
+    expect(out.final_vb).toBeLessThan(5);        // a 1000x-fast revert lands at ~12,000
+    expect(out.estimated_tool_life).toBeGreaterThan(1.4);
+    expect(out.estimated_tool_life).toBeLessThan(3.5); // VB 0.3 at ~2.3 min
   });
 
   it("coating_factor < 1 reduces wear", () => {

@@ -1,0 +1,70 @@
+{
+  "id": "WEDM-CAL-MS4",
+  "title": "Operator Tools & Production Gate",
+  "track": "WEDM-CAL",
+  "version": "1.0.0",
+  "created": "2026-04-10",
+  "depends_on": ["WEDM-CAL-MS3"],
+  "total_units": 4,
+  "completed_units": 4,
+  "status": "complete",
+  "sessions": "2",
+  "roadmap_path": "milestones/WEDM-CALIBRATE-ROADMAP.md",
+  "units": [
+    {
+      "id": "U-CAL18",
+      "title": "Program Comparison Engine",
+      "status": "completed",
+      "session": 7,
+      "depends_on": ["U-CAL17"],
+      "description": "WEDMProgramComparisonEngine: parses reference NC + generated NC via WireEDMProgramParserEngine, compares 9 WEDM-specific dimensions (dialect, pass count, offset cascade, feed cascade, E-code family, taper, adaptive control, safety block, contour moves), outputs per-parameter deviation report + weighted overall_match + production_ready gate (\u226585% AND no criticals).",
+      "artifacts": [
+        "src/engines/WEDMProgramComparisonEngine.ts",
+        "src/__tests__/WEDMProgramComparisonEngine.test.ts"
+      ],
+      "test_count": 18
+    },
+    {
+      "id": "U-CAL19",
+      "title": "Deviation Dashboard Panel",
+      "status": "completed",
+      "session": 7,
+      "depends_on": ["U-CAL18"],
+      "description": "WireEdmCalibrationPanel.tsx: Calculator-Studio-styled React panel that consumes WEDMComparisonReport and renders hero match gauge, per-parameter deviation bars with severity chips, optional history sparkline, and Calibrate/Re-compare action buttons. Pure presentational \u2014 host page owns state.",
+      "artifacts": [
+        "web/src/components/wedm/WireEdmCalibrationPanel.tsx",
+        "web/src/__tests__/WireEdmCalibrationPanel.test.tsx"
+      ],
+      "test_count": 18
+    },
+    {
+      "id": "U-CAL20",
+      "title": "Tighten Benchmark Tolerances",
+      "status": "completed",
+      "session": 8,
+      "depends_on": ["U-CAL19"],
+      "description": "WEDMBenchmarkToleranceEngine + WEDM_BENCHMARK_TOLERANCES.json config file: single source of truth for all WEDM tolerance bands. v2 tightens area \u00b130%\u2192\u00b120%, kerf \u00b120%\u2192\u00b115%, finish \u00b170%\u2192\u00b130%, D2 speed \u00b170%\u2192\u00b125%, offset cascade \u00b130%\u2192\u00b125%. WEDMCalibrationReportEngine re-wired to consume via roughSpeedBandFor() and getBand() \u2014 no more inline magic numbers.",
+      "artifacts": [
+        "data/reference/WEDM_BENCHMARK_TOLERANCES.json",
+        "src/engines/WEDMBenchmarkToleranceEngine.ts",
+        "src/engines/WEDMCalibrationReportEngine.ts",
+        "src/__tests__/WEDMBenchmarkToleranceEngine.test.ts"
+      ],
+      "test_count": 24
+    },
+    {
+      "id": "U-CAL21",
+      "title": "Final Production Readiness Score",
+      "status": "complete",
+      "session": 8,
+      "depends_on": ["U-CAL20"],
+      "description": "Run full validation suite, generate WEDM_FINAL_READINESS.json with overall score (target: 90+), per-dimension scores, calibration confidence",
+      "completed_at": "2026-04-15T00:15:00Z"
+    }
+  ],
+  "forge_triple": {
+    "hook": "wedm-production-gate",
+    "action": "prism_edm:wedm_production_readiness",
+    "skill": "/wedm-readiness"
+  }
+}

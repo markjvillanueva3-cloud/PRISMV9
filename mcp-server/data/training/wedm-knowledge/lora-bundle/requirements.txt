@@ -1,0 +1,26 @@
+# WEDM LoRA Training Requirements
+# Install with: pip install -r requirements.txt
+
+# Core
+torch>=2.1.0
+transformers>=4.36.0
+datasets>=2.16.0
+accelerate>=0.25.0
+
+# LoRA/PEFT
+peft>=0.7.0
+bitsandbytes>=0.41.0
+trl>=0.7.0
+
+# Unsloth (fast training)
+unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git
+xformers
+
+# Evaluation
+evaluate>=0.4.0
+rouge-score>=0.1.2
+nltk>=3.8.0
+
+# Utilities
+wandb>=0.16.0
+tensorboard>=2.15.0

@@ -1,0 +1,1439 @@
+[
+  {
+    "id": "slot-signature-advisory",
+    "file": ".claude/hooks/slot-signature-advisory.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 2500,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse:Edit|Write|MultiEdit",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 8586,
+    "lines": 207
+  },
+  {
+    "id": "slot-soul-inject",
+    "file": ".claude/hooks/slot-soul-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "HERMES-MS0 / U-HERMES02 — slot-soul-inject UserPromptSubmit hook.",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 4692,
+    "lines": 109
+  },
+  {
+    "id": "slot-worktree-cwd-advisory",
+    "file": ".claude/hooks/slot-worktree-cwd-advisory.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 4000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit hook (fires after slot-bind-enforce).",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 9532,
+    "lines": 258
+  },
+  {
+    "id": "smart-skill-suggest",
+    "file": ".claude/hooks/smart-skill-suggest.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Smart Skill Suggest — UserPromptSubmit Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5324,
+    "lines": 176
+  },
+  {
+    "id": "soul-escalation-gate",
+    "file": ".claude/hooks/soul-escalation-gate.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse hook that consults the current slot's",
+    "descriptionInferred": false,
+    "tier": null,
+    "sizeBytes": 6367,
+    "lines": 167
+  },
+  {
+    "id": "sparc-optin-gate",
+    "file": ".claude/hooks/sparc-optin-gate.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "UserPromptSubmit hook — SPARC opt-in gate.",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 3049,
+    "lines": 96
+  },
+  {
+    "id": "staged-hygiene-check",
+    "file": ".claude/hooks/staged-hygiene-check.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse absorption prevention",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 7470,
+    "lines": 225
+  },
+  {
+    "id": "stale-claim-sweeper",
+    "file": ".claude/hooks/stale-claim-sweeper.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "SessionStart + Stop hook.",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 20330,
+    "lines": 511
+  },
+  {
+    "id": "stale-state-warn",
+    "file": ".claude/hooks/stale-state-warn.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit hook (one-line nudge).",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 3592,
+    "lines": 120
+  },
+  {
+    "id": "state-write-watch",
+    "file": ".claude/hooks/state-write-watch.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse concurrent-write detector for state JSONs",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 5679,
+    "lines": 177
+  },
+  {
+    "id": "stop_close_prism_nodes_v2",
+    "file": ".claude/hooks/stop_close_prism_nodes_v2.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PRISM-STAB-MS0/U-A3 (2026-05-09).",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 6267,
+    "lines": 165
+  },
+  {
+    "id": "stop_close_prism_nodes",
+    "file": ".claude/hooks/stop_close_prism_nodes.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 1000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 1000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 7968,
+    "lines": 235
+  },
+  {
+    "id": "stop_on_awareness_degraded",
+    "file": ".claude/hooks/stop_on_awareness_degraded.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1234,
+    "lines": 41
+  },
+  {
+    "id": "stop_on_broken_imports",
+    "file": ".claude/hooks/stop_on_broken_imports.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Tier 6 Stop Hook (IMPROVED)",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3232,
+    "lines": 110
+  },
+  {
+    "id": "stop_on_build_error",
+    "file": ".claude/hooks/stop_on_build_error.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1387,
+    "lines": 42
+  },
+  {
+    "id": "stop_on_c_drive_write",
+    "file": ".claude/hooks/stop_on_c_drive_write.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 5114,
+    "lines": 138
+  },
+  {
+    "id": "stop_on_circular_deps",
+    "file": ".claude/hooks/stop_on_circular_deps.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1518,
+    "lines": 53
+  },
+  {
+    "id": "stop_on_content_deletion",
+    "file": ".claude/hooks/stop_on_content_deletion.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop Hook: Content Deletion Guard",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4747,
+    "lines": 184
+  },
+  {
+    "id": "stop_on_cutting_calculation_protocol",
+    "file": ".claude/hooks/stop_on_cutting_calculation_protocol.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "stop_on_cutting_calculation_protocol.mjs",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 6879,
+    "lines": 205
+  },
+  {
+    "id": "stop_on_dirty_registry",
+    "file": ".claude/hooks/stop_on_dirty_registry.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1659,
+    "lines": 63
+  },
+  {
+    "id": "stop_on_duplicate_created",
+    "file": ".claude/hooks/stop_on_duplicate_created.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1277,
+    "lines": 39
+  },
+  {
+    "id": "stop_on_extraction_incomplete",
+    "file": ".claude/hooks/stop_on_extraction_incomplete.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1277,
+    "lines": 41
+  },
+  {
+    "id": "stop_on_failing_tests",
+    "file": ".claude/hooks/stop_on_failing_tests.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 10000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Stop Hook (SAFETY-CRITICAL, FAIL-CLOSED)",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 9330,
+    "lines": 242
+  },
+  {
+    "id": "stop_on_formula_uncited",
+    "file": ".claude/hooks/stop_on_formula_uncited.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1386,
+    "lines": 48
+  },
+  {
+    "id": "stop_on_hook_unregistered",
+    "file": ".claude/hooks/stop_on_hook_unregistered.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1556,
+    "lines": 51
+  },
+  {
+    "id": "stop_on_hook_unregistration",
+    "file": ".claude/hooks/stop_on_hook_unregistration.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 7677,
+    "lines": 201
+  },
+  {
+    "id": "stop_on_incomplete_pipeline",
+    "file": ".claude/hooks/stop_on_incomplete_pipeline.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1636,
+    "lines": 57
+  },
+  {
+    "id": "stop_on_missing_tests",
+    "file": ".claude/hooks/stop_on_missing_tests.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1433,
+    "lines": 44
+  },
+  {
+    "id": "stop_on_non_h_roadmap",
+    "file": ".claude/hooks/stop_on_non_h_roadmap.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "DEFERRED IMPLEMENTATION — temporary no-op stub.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 514,
+    "lines": 11
+  },
+  {
+    "id": "stop_on_open_claim",
+    "file": ".claude/hooks/stop_on_open_claim.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5808,
+    "lines": 191
+  },
+  {
+    "id": "stop_on_open_lock",
+    "file": ".claude/hooks/stop_on_open_lock.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1957,
+    "lines": 71
+  },
+  {
+    "id": "stop_on_orphan_children",
+    "file": ".claude/hooks/stop_on_orphan_children.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1470,
+    "lines": 50
+  },
+  {
+    "id": "stop_on_orphan_engine",
+    "file": ".claude/hooks/stop_on_orphan_engine.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1521,
+    "lines": 48
+  },
+  {
+    "id": "stop_on_repeat_error",
+    "file": ".claude/hooks/stop_on_repeat_error.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3111,
+    "lines": 91
+  },
+  {
+    "id": "stop_on_roadmap_drift",
+    "file": ".claude/hooks/stop_on_roadmap_drift.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1671,
+    "lines": 56
+  },
+  {
+    "id": "stop_on_session_mistake_digest",
+    "file": ".claude/hooks/stop_on_session_mistake_digest.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook (non-blocking)",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3897,
+    "lines": 119
+  },
+  {
+    "id": "stop_on_skill_unwired",
+    "file": ".claude/hooks/stop_on_skill_unwired.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1536,
+    "lines": 49
+  },
+  {
+    "id": "stop_on_stale_handoff",
+    "file": ".claude/hooks/stop_on_stale_handoff.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1689,
+    "lines": 61
+  },
+  {
+    "id": "stop_on_svi_regression",
+    "file": ".claude/hooks/stop_on_svi_regression.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1218,
+    "lines": 39
+  },
+  {
+    "id": "stop_on_sx_fail",
+    "file": ".claude/hooks/stop_on_sx_fail.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1286,
+    "lines": 43
+  },
+  {
+    "id": "stop_on_uncommitted_critical",
+    "file": ".claude/hooks/stop_on_uncommitted_critical.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 1784,
+    "lines": 65
+  },
+  {
+    "id": "stop_on_uncommitted_memory",
+    "file": ".claude/hooks/stop_on_uncommitted_memory.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1683,
+    "lines": 55
+  },
+  {
+    "id": "stop_on_undocumented_action",
+    "file": ".claude/hooks/stop_on_undocumented_action.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1342,
+    "lines": 47
+  },
+  {
+    "id": "stop_on_unregistered_asset",
+    "file": ".claude/hooks/stop_on_unregistered_asset.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Tier 6 Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2184,
+    "lines": 73
+  },
+  {
+    "id": "stop_on_unsafe_gcode",
+    "file": ".claude/hooks/stop_on_unsafe_gcode.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Tier 6 Stop Hook (IMPROVED)",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3083,
+    "lines": 87
+  },
+  {
+    "id": "stop_on_unwired_assets",
+    "file": ".claude/hooks/stop_on_unwired_assets.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "stop-regression-bundle"
+      }
+    ],
+    "description": "Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 17746,
+    "lines": 468
+  },
+  {
+    "id": "stop_on_user_correction",
+    "file": ".claude/hooks/stop_on_user_correction.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4198,
+    "lines": 128
+  },
+  {
+    "id": "stop-auto-wire",
+    "file": ".claude/hooks/stop-auto-wire.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 8392,
+    "lines": 278
+  },
+  {
+    "id": "stop-bash-orphan-cleaner",
+    "file": ".claude/hooks/stop-bash-orphan-cleaner.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 7822,
+    "lines": 215
+  },
+  {
+    "id": "stop-bg-runner",
+    "file": ".claude/hooks/stop-bg-runner.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "wrapper that runs a target Stop hook in the background.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4037,
+    "lines": 121
+  },
+  {
+    "id": "stop-bug-finding-wiki-gate",
+    "file": ".claude/hooks/stop-bug-finding-wiki-gate.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 4000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop advisory hook enforcing the",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 14908,
+    "lines": 411
+  },
+  {
+    "id": "stop-cohort-drift-watch",
+    "file": ".claude/hooks/stop-cohort-drift-watch.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stage 5 of the lego-stacking plan.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 6948,
+    "lines": 167
+  },
+  {
+    "id": "stop-compounding-budget",
+    "file": ".claude/hooks/stop-compounding-budget.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "F4 advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4295,
+    "lines": 119
+  },
+  {
+    "id": "stop-consensus-drain",
+    "file": ".claude/hooks/stop-consensus-drain.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook that triggers async consensus queue drain.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2233,
+    "lines": 75
+  },
+  {
+    "id": "stop-cross-slot-skill-suggest",
+    "file": ".claude/hooks/stop-cross-slot-skill-suggest.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "U-HFR02 wire — cross-slot skill propagation Stop driver.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2719,
+    "lines": 71
+  },
+  {
+    "id": "stop-cross-tree-collision-advisory",
+    "file": ".claude/hooks/stop-cross-tree-collision-advisory.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook (T3, non-blocking)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 7569,
+    "lines": 213
+  },
+  {
+    "id": "stop-dashboard-regen",
+    "file": ".claude/hooks/stop-dashboard-regen.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "OBSIDIAN-INTELLIGENCE-MS3 / C2 (U-HTML-DASHBOARD)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3094,
+    "lines": 106
+  },
+  {
+    "id": "stop-defer-queue-drain",
+    "file": ".claude/hooks/stop-defer-queue-drain.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3165,
+    "lines": 88
+  },
+  {
+    "id": "stop-dream-queue-surface",
+    "file": ".claude/hooks/stop-dream-queue-surface.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook that surfaces today's pending",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3826,
+    "lines": 102
+  },
+  {
+    "id": "stop-fleet-soul-graduation",
+    "file": ".claude/hooks/stop-fleet-soul-graduation.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "U-HFR04 wire — fleet-wide soul-rule graduation Stop driver.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2526,
+    "lines": 65
+  },
+  {
+    "id": "stop-force-handoff",
+    "file": ".claude/hooks/stop-force-handoff.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "AUTONOMOUS-FLEET-MS0/U-AF-STOP-FORCE-HANDOFF",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 10132,
+    "lines": 243
+  },
+  {
+    "id": "stop-force-loop-continue",
+    "file": ".claude/hooks/stop-force-loop-continue.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "AUTONOMOUS-FLEET-MS0/U-AF-STOP-FORCE-LOOP-CONTINUE",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 8274,
+    "lines": 202
+  },
+  {
+    "id": "stop-graph-staleness-backstop",
+    "file": ".claude/hooks/stop-graph-staleness-backstop.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook (T3, non-blocking)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 6834,
+    "lines": 178
+  },
+  {
+    "id": "stop-hook-aggregator",
+    "file": ".claude/hooks/stop-hook-aggregator.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook (T3, non-blocking)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4883,
+    "lines": 171
+  },
+  {
+    "id": "stop-index-sync",
+    "file": ".claude/hooks/stop-index-sync.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook for index synchronization",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3475,
+    "lines": 127
+  },
+  {
+    "id": "stop-ledger-prune",
+    "file": ".claude/hooks/stop-ledger-prune.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3080,
+    "lines": 85
+  },
+  {
+    "id": "stop-mark-completed-tasks",
+    "file": ".claude/hooks/stop-mark-completed-tasks.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4191,
+    "lines": 129
+  },
+  {
+    "id": "stop-memory-size-watchdog",
+    "file": ".claude/hooks/stop-memory-size-watchdog.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook (T3, auto-compact + advisory)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 8386,
+    "lines": 200
+  },
+  {
+    "id": "stop-memory-to-wiki-suggest",
+    "file": ".claude/hooks/stop-memory-to-wiki-suggest.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "U-HRP06 — memory→wiki promotion advisory Stop hook.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 7533,
+    "lines": 202
+  },
+  {
+    "id": "stop-obsidian-memory-extract",
+    "file": ".claude/hooks/stop-obsidian-memory-extract.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 8688,
+    "lines": 295
+  },
+  {
+    "id": "stop-obsidian-memory-feed",
+    "file": ".claude/hooks/stop-obsidian-memory-feed.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3975,
+    "lines": 111
+  },
+  {
+    "id": "stop-playbook-corpus-drift-advisory",
+    "file": ".claude/hooks/stop-playbook-corpus-drift-advisory.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PLAYBOOK-CAPABILITY follow-up",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 8120,
+    "lines": 191
+  },
+  {
+    "id": "stop-psn-automate-status",
+    "file": ".claude/hooks/stop-psn-automate-status.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "stop-psn-automate-status.mjs",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3586,
+    "lines": 114
+  },
+  {
+    "id": "stop-psn-autonomy-tick",
+    "file": ".claude/hooks/stop-psn-autonomy-tick.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook (T3 advisory)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 6256,
+    "lines": 173
+  },
+  {
+    "id": "stop-psn-savings-aggregate",
+    "file": ".claude/hooks/stop-psn-savings-aggregate.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3104,
+    "lines": 81
+  },
+  {
+    "id": "stop-rag-index-staleness-check",
+    "file": ".claude/hooks/stop-rag-index-staleness-check.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "U-HFR05 — RAG-index staleness advisory (Stop hook).",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4738,
+    "lines": 129
+  },
+  {
+    "id": "stop-regression-backflow",
+    "file": ".claude/hooks/stop-regression-backflow.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Boris back-flow pattern (U-VAULT03).",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 8185,
+    "lines": 230
+  },
+  {
+    "id": "stop-release-slot",
+    "file": ".claude/hooks/stop-release-slot.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2628,
+    "lines": 79
+  },
+  {
+    "id": "stop-rtk-fraction-recalibrate",
+    "file": ".claude/hooks/stop-rtk-fraction-recalibrate.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop advisory",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 7957,
+    "lines": 202
+  },
+  {
+    "id": "stop-session-spend-summary",
+    "file": ".claude/hooks/stop-session-spend-summary.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook (S4)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4571,
+    "lines": 110
+  }
+]

@@ -29,8 +29,12 @@ related:
 
 ## Description (first paragraph)
 
-
-# /lathe-validate — Lathe Program Validation
+Comprehensive validation for CNC lathe programs:
+- Syntax and semantics checking
+- Machine limit verification
+- Collision detection (turret, tailstock, chuck)
+- Safety score calculation
+- Best practice enforcement
 
 <!-- AUTO-END -->
 

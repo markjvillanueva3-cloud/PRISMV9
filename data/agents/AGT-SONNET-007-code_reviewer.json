@@ -1,0 +1,420 @@
+{
+  "agent_id": "AGT-SONNET-007",
+  "name": "code_reviewer",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "Code Reviewer - Validates Code Quality Against PRISM Standards and 10 Commandments",
+  
+  "domain_expertise": [
+    "JavaScript/TypeScript review",
+    "Python review",
+    "Code pattern analysis",
+    "PRISM coding standards",
+    "10 Commandments compliance",
+    "Error handling patterns",
+    "Performance patterns",
+    "Security review",
+    "Documentation review",
+    "Test coverage review"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-REV-001",
+      "name": "PRISM Standards Review",
+      "description": "Reviews code against PRISM coding standards from prism-code-master",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["language", "strict_mode"]
+      },
+      "outputs": {
+        "primary": "standards_compliance",
+        "secondary": ["violations", "suggestions", "compliance_score"]
+      },
+      "skills_used": ["prism-code-master", "prism-sp-review-quality"],
+      "hooks_triggered": ["CODE-STANDARDS-CHECK"],
+      "synergizes_with": ["coder", "architect"],
+      "standards_checked": [
+        "Naming conventions",
+        "File structure",
+        "Comment requirements",
+        "Module organization",
+        "Export patterns"
+      ],
+      "success_criteria": "Standards compliance ≥ 90%"
+    },
+    {
+      "id": "CAP-REV-002",
+      "name": "10 Commandments Compliance Review",
+      "description": "Reviews code for compliance with PRISM 10 Commandments",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code", "module_context"],
+        "optional": ["commandments_focus"]
+      },
+      "outputs": {
+        "primary": "commandment_compliance",
+        "secondary": ["violations", "compliance_by_commandment"]
+      },
+      "skills_used": ["prism-sp-review-quality", "prism-code-master"],
+      "hooks_triggered": ["COMMANDMENT-CHECK"],
+      "synergizes_with": ["architect", "data_quality_enforcer"],
+      "commandments": {
+        "CMD1": "IF IT EXISTS, USE IT EVERYWHERE - Check for unused databases/engines",
+        "CMD2": "FUSE THE UNFUSABLE - Check for siloed domains",
+        "CMD3": "TRUST BUT VERIFY - Check for validation layers",
+        "CMD4": "LEARN FROM EVERYTHING - Check for ML hooks",
+        "CMD5": "PREDICT WITH UNCERTAINTY - Check for confidence intervals",
+        "CMD6": "EXPLAIN EVERYTHING - Check for XAI patterns",
+        "CMD7": "FAIL GRACEFULLY - Check for error handling/fallbacks",
+        "CMD8": "PROTECT EVERYTHING - Check for validation/sanitization",
+        "CMD9": "PERFORM ALWAYS - Check for performance patterns",
+        "CMD10": "OBSESS OVER USERS - Check for UX patterns"
+      },
+      "success_criteria": "All commandments addressed"
+    },
+    {
+      "id": "CAP-REV-003",
+      "name": "Error Handling Review",
+      "description": "Reviews code for comprehensive error handling (Commandment 7)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["error_handling_rules"]
+      },
+      "outputs": {
+        "primary": "error_handling_score",
+        "secondary": ["uncaught_errors", "missing_fallbacks", "suggestions"]
+      },
+      "skills_used": ["prism-code-master", "prism-error-catalog"],
+      "hooks_triggered": ["ERROR-HANDLING-CHECK"],
+      "synergizes_with": ["coder"],
+      "checks": [
+        "Try-catch blocks present",
+        "Specific error types caught",
+        "Error messages meaningful",
+        "Fallback values provided",
+        "Error logging present",
+        "Recovery strategies defined"
+      ],
+      "success_criteria": "All error paths handled"
+    },
+    {
+      "id": "CAP-REV-004",
+      "name": "Validation Layer Review",
+      "description": "Reviews code for input validation (Commandment 8)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["validation_requirements"]
+      },
+      "outputs": {
+        "primary": "validation_score",
+        "secondary": ["unvalidated_inputs", "missing_sanitization", "suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-code-master"],
+      "hooks_triggered": ["VALIDATION-LAYER-CHECK"],
+      "synergizes_with": ["validator"],
+      "checks": [
+        "Input validation present",
+        "Type checking implemented",
+        "Range checking for numbers",
+        "Sanitization for strings",
+        "Null/undefined handling",
+        "Array bounds checking"
+      ],
+      "success_criteria": "All inputs validated"
+    },
+    {
+      "id": "CAP-REV-005",
+      "name": "Performance Pattern Review",
+      "description": "Reviews code for performance anti-patterns (Commandment 9)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["performance_requirements"]
+      },
+      "outputs": {
+        "primary": "performance_score",
+        "secondary": ["anti_patterns", "optimization_suggestions"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["PERF-PATTERN-CHECK"],
+      "synergizes_with": ["coder"],
+      "anti_patterns": [
+        "Nested loops (O(n²) or worse)",
+        "Synchronous blocking calls",
+        "Repeated calculations",
+        "Memory leaks",
+        "Unnecessary re-renders",
+        "Large object cloning"
+      ],
+      "success_criteria": "No critical anti-patterns"
+    },
+    {
+      "id": "CAP-REV-006",
+      "name": "Database Utilization Review",
+      "description": "Reviews code for proper database usage (Commandment 1)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code", "available_databases"],
+        "optional": ["utilization_requirements"]
+      },
+      "outputs": {
+        "primary": "utilization_score",
+        "secondary": ["unused_databases", "missing_connections", "suggestions"]
+      },
+      "skills_used": ["prism-dev-utilities", "prism-wiring-templates"],
+      "hooks_triggered": ["SYS-CMD1-WIRING", "DB-USAGE-CHECK"],
+      "synergizes_with": ["resource_auditor", "completeness_auditor"],
+      "success_criteria": "All relevant databases used"
+    },
+    {
+      "id": "CAP-REV-007",
+      "name": "Documentation Review",
+      "description": "Reviews code documentation completeness",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["doc_requirements"]
+      },
+      "outputs": {
+        "primary": "documentation_score",
+        "secondary": ["undocumented_items", "incomplete_docs", "suggestions"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-sp-review-quality"],
+      "hooks_triggered": ["DOC-CHECK"],
+      "synergizes_with": ["documentation_writer"],
+      "checks": [
+        "File header comments",
+        "Function/method JSDoc",
+        "Parameter descriptions",
+        "Return type descriptions",
+        "Usage examples",
+        "Inline comments for complex logic"
+      ],
+      "success_criteria": "Documentation coverage ≥ 80%"
+    },
+    {
+      "id": "CAP-REV-008",
+      "name": "Test Coverage Review",
+      "description": "Reviews test coverage and test quality",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code", "tests"],
+        "optional": ["coverage_threshold"]
+      },
+      "outputs": {
+        "primary": "test_coverage_score",
+        "secondary": ["uncovered_code", "weak_tests", "suggestions"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-quality-master"],
+      "hooks_triggered": ["TEST-COVERAGE-CHECK"],
+      "synergizes_with": ["test_orchestrator"],
+      "checks": [
+        "Function coverage",
+        "Branch coverage",
+        "Edge case coverage",
+        "Error path coverage",
+        "Integration coverage"
+      ],
+      "success_criteria": "Coverage ≥ 90%"
+    },
+    {
+      "id": "CAP-REV-009",
+      "name": "Security Review",
+      "description": "Reviews code for security vulnerabilities",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["security_rules"]
+      },
+      "outputs": {
+        "primary": "security_score",
+        "secondary": ["vulnerabilities", "risk_level", "remediation"]
+      },
+      "skills_used": ["prism-code-master", "prism-validator"],
+      "hooks_triggered": ["SECURITY-CHECK"],
+      "synergizes_with": ["architect"],
+      "checks": [
+        "Input sanitization",
+        "SQL injection prevention",
+        "XSS prevention",
+        "Sensitive data handling",
+        "Authentication checks",
+        "Authorization checks"
+      ],
+      "success_criteria": "No critical vulnerabilities"
+    },
+    {
+      "id": "CAP-REV-010",
+      "name": "Placeholder Detection",
+      "description": "Detects TODO, placeholder, and incomplete code (Life-Safety Critical)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["patterns"]
+      },
+      "outputs": {
+        "primary": "placeholder_count",
+        "secondary": ["placeholders_found", "locations", "severity"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["PLACEHOLDER-CHECK"],
+      "synergizes_with": ["placeholder_hunter", "data_quality_enforcer"],
+      "forbidden_patterns": [
+        "TODO", "FIXME", "HACK", "XXX",
+        "placeholder", "temporary", "stub",
+        "return null", "return undefined",
+        "throw new Error('not implemented')"
+      ],
+      "success_criteria": "Zero placeholders in production code"
+    },
+    {
+      "id": "CAP-REV-011",
+      "name": "Dependency Review",
+      "description": "Reviews code dependencies and imports",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["dependency_rules"]
+      },
+      "outputs": {
+        "primary": "dependency_score",
+        "secondary": ["circular_deps", "unused_imports", "suggestions"]
+      },
+      "skills_used": ["prism-code-master", "prism-dev-utilities"],
+      "hooks_triggered": ["DEP-CHECK"],
+      "synergizes_with": ["architect"],
+      "checks": [
+        "No circular dependencies",
+        "All imports used",
+        "No duplicate imports",
+        "Correct import paths",
+        "Version compatibility"
+      ],
+      "success_criteria": "Clean dependencies"
+    },
+    {
+      "id": "CAP-REV-012",
+      "name": "Code Complexity Review",
+      "description": "Reviews code complexity metrics",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["complexity_thresholds"]
+      },
+      "outputs": {
+        "primary": "complexity_score",
+        "secondary": ["high_complexity_functions", "suggestions"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["COMPLEXITY-CHECK"],
+      "synergizes_with": ["coder"],
+      "metrics": [
+        "Cyclomatic complexity",
+        "Function length",
+        "Nesting depth",
+        "Parameter count",
+        "Cognitive complexity"
+      ],
+      "thresholds": {
+        "cyclomatic_complexity": 10,
+        "function_lines": 50,
+        "nesting_depth": 4,
+        "parameter_count": 5
+      },
+      "success_criteria": "Complexity within limits"
+    },
+    {
+      "id": "CAP-REV-013",
+      "name": "Hook Integration Review",
+      "description": "Reviews proper integration with PRISM hook system",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["required_hooks"]
+      },
+      "outputs": {
+        "primary": "hook_integration_score",
+        "secondary": ["missing_hooks", "improper_hooks", "suggestions"]
+      },
+      "skills_used": ["prism-hook-system", "prism-code-master"],
+      "hooks_triggered": ["HOOK-INTEGRATION-CHECK"],
+      "synergizes_with": ["architect"],
+      "success_criteria": "All required hooks integrated"
+    },
+    {
+      "id": "CAP-REV-014",
+      "name": "Code Review Report Generation",
+      "description": "Generates comprehensive code review report",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["review_results"],
+        "optional": ["report_format", "audience"]
+      },
+      "outputs": {
+        "primary": "review_report",
+        "secondary": ["summary", "issues_by_severity", "recommendations"]
+      },
+      "skills_used": ["prism-sp-review-quality", "prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "report_sections": [
+        "Executive Summary",
+        "Standards Compliance",
+        "10 Commandments Check",
+        "Critical Issues",
+        "Recommendations",
+        "Approval Status"
+      ],
+      "success_criteria": "Actionable review report"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-code-master",
+    "prism-sp-review-quality",
+    "prism-validator",
+    "prism-error-catalog",
+    "prism-api-contracts",
+    "prism-tdd-enhanced",
+    "prism-quality-master",
+    "prism-hook-system",
+    "prism-dev-utilities",
+    "prism-wiring-templates"
+  ],
+
+  "hooks_subscribed": [
+    "code:preCommit",
+    "quality:gateCheck",
+    "pr:preReview"
+  ],
+
+  "can_delegate_to": [
+    "placeholder_hunter",
+    "validator"
+  ],
+
+  "receives_from": [
+    "coder",
+    "coordinator_v2",
+    "architect"
+  ],
+
+  "quality_gates": [
+    "Standards compliance ≥ 90%",
+    "Zero critical issues",
+    "All commandments addressed",
+    "Coverage ≥ 90%"
+  ],
+
+  "performance_metrics": {
+    "review_accuracy": 0.95,
+    "false_positive_rate": 0.05,
+    "latency_target_ms": 2000,
+    "lines_per_second": 1000
+  }
+}

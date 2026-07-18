@@ -23,13 +23,22 @@ related:
 |-------|-------|
 | Name | `fusion-generate` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/fusion-generate.md` |
+| Source | `C:/Users/wompu/.claude/commands/fusion-generate.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Fusion Generate — Create Parts in Fusion 360
+
+Generate Fusion 360 Python API scripts from descriptions, or control Fusion 360 directly via the live bridge.
+
+## Args: $ARGUMENTS
+- A description of the part to create (natural language)
+- Optional: `--parametric` (create user parameters for all dimensions)
+- Optional: `--live` (send directly to Fusion 360 via PRISM Bridge add-in)
+- Option
 
 <!-- AUTO-END -->
 

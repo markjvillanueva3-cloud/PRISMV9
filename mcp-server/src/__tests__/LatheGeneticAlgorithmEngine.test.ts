@@ -19,6 +19,7 @@ import {
   type HeuristicSeed,
   type LatheParameterSet,
 } from "../engines/LatheGeneticAlgorithmEngine.js";
+import { CANONICAL_MATERIAL_DB, CANONICAL_KIENZLE } from "../physics/constants.js";
 
 // ============================================================================
 // TEST FIXTURES
@@ -968,8 +969,144 @@ describe("LatheGeneticAlgorithmEngine - Manufacturing Applications", () => {
     const result = latheGeneticAlgorithmEngine.optimizeParameters(input);
 
     expect(result.success).toBe(true);
-    // Parameters should not exceed power limit
-    // (power calculation happens in fitness function)
+    // U-LW-GA-CONSTRAINTS: the max_power constraint is now live, so the recommendation must be
+    // power-feasible (previously this test asserted nothing about power — the constraint was dead).
+    expect(result.predicted_performance).toBeDefined();
+    expect(result.predicted_performance!.power_feasible).toBe(true);
+    expect(result.predicted_performance!.cutting_power_kW).toBeLessThanOrEqual(5 * 1.05);
+  });
+
+  // U-LW-A4 (slot:whiskey, 2026-07-05): the GA must use per-material Kienzle coefficients,
+  // not the generic per-ISO-group values, so force/power/tool-life for a named alloy is correct.
+  describe("U-LW-A4 — per-material Kienzle lookup", () => {
+    it("captures a real difference: AISI 4140 kc1_1 differs from (and exceeds) the P-group generic", () => {
+      const m = CANONICAL_MATERIAL_DB["4140"];
+      expect(m).toBeDefined();
+      expect(m.iso_group).toBe("P");
+      expect(Number.isFinite(m.kc1_1)).toBe(true);
+      expect(m.kc1_1).toBeGreaterThan(0);
+      // The per-material value must NOT equal the P-group generic — else the fix is moot.
+      expect(m.kc1_1).not.toBe(CANONICAL_KIENZLE["P"].kc1_1);
+      // 4140 is a harder alloy: its specific kc1_1 sits above the P-group average.
+      expect(m.kc1_1).toBeGreaterThan(CANONICAL_KIENZLE["P"].kc1_1);
+    });
+
+    const mkInput = (material: string): ManufacturingOptInput => ({
+      material,
+      operation: "roughing",
+      machine: { max_spindle_rpm: 4000, max_power_kw: 15, max_feed_mm_rev: 0.8, max_rapid_mm_min: 30000, turret_stations: 12 },
+      tool: { insert_grade: "GC4325", nose_radius_mm: 0.8, approach_angle_deg: 95, max_depth_mm: 6.0, tool_life_ref_min: 60 },
+      workpiece: { diameter_mm: 60, length_mm: 120, stock_allowance_mm: 4 },
+      objectives: [{ name: "mrr", minimize: false, weight: 1.0, unit: "cm3/min" }],
+      config: { population_size: 40, max_generations: 40, seed: 42 },
+    });
+
+    it("exposes predicted performance computed with the PER-MATERIAL kc1_1 (not the ISO generic)", () => {
+      const material = CANONICAL_MATERIAL_DB["4140"];
+      const r = latheGeneticAlgorithmEngine.optimizeParameters(mkInput("4140"));
+      expect(r.success).toBe(true);
+      const perf = r.predicted_performance;
+      expect(perf).toBeDefined();
+      if (!perf) return;
+      // THE R9 tripwire: the optimizer reports the per-material coefficient, not the ISO-group generic.
+      // Reverting to `CANONICAL_KIENZLE[isoGroup]` makes kc1_1_used === 1800 and fails this.
+      expect(perf.kc1_1_used).toBe(material.kc1_1);
+      expect(perf.kc1_1_used).not.toBe(CANONICAL_KIENZLE["P"].kc1_1);
+      // Predicted metrics are self-consistent with the reported coefficient + recommended params.
+      const p = r.best_parameters as LatheParameterSet;
+      const mc = material.mc ?? CANONICAL_KIENZLE["P"].mc;
+      const expectedFc = perf.kc1_1_used * p.depth_of_cut_mm * Math.pow(p.feed_mm_rev, 1 - mc);
+      expect(perf.cutting_force_N).toBeCloseTo(expectedFc, 3);
+      expect(perf.cutting_power_kW).toBeCloseTo((expectedFc * p.cutting_speed_m_min) / 60000, 6);
+      expect(perf.cutting_force_N).toBeGreaterThan(0);
+      expect(perf.tool_life_min).toBeGreaterThan(0);
+      expect(perf.mrr_cm3_min).toBeGreaterThan(0);
+    });
+
+    it("honors an explicit iso_group override for Kienzle (not just Taylor) — no under-prediction", () => {
+      // Overriding a P-group alloy to H (hardened) must use H's kc1_1 (3200), NOT 4140's
+      // per-material 1950. Regression guard: the always-populated material.kc1_1 must not shadow
+      // an explicit group override (arm B P1). Pre-fix this returned 1950 (39% under-prediction).
+      const rNat = latheGeneticAlgorithmEngine.optimizeParameters(mkInput("4140")).predicted_performance;
+      const rOvr = latheGeneticAlgorithmEngine.optimizeParameters({ ...mkInput("4140"), iso_group: "H" }).predicted_performance;
+      expect(rNat).toBeDefined();
+      expect(rOvr).toBeDefined();
+      if (!rNat || !rOvr) return;
+      expect(rNat.kc1_1_used).toBe(CANONICAL_MATERIAL_DB["4140"].kc1_1); // per-material ~1950 (no override)
+      expect(rOvr.kc1_1_used).toBe(CANONICAL_KIENZLE["H"].kc1_1);        // 3200 — override honored
+      expect(rOvr.kc1_1_used).toBeGreaterThan(rNat.kc1_1_used);
+    });
+
+    it("predicted force reflects the material: 4140 vs 4340 (same ISO group P, different kc1_1) differ", () => {
+      const m1 = CANONICAL_MATERIAL_DB["4140"];
+      const m2 = CANONICAL_MATERIAL_DB["4340"];
+      expect(m1.iso_group).toBe("P");
+      expect(m2.iso_group).toBe("P");
+      expect(m1.kc1_1).not.toBe(m2.kc1_1); // precondition: per-material coefficients differ
+      const a = latheGeneticAlgorithmEngine.optimizeParameters(mkInput("4140")).predicted_performance;
+      const b = latheGeneticAlgorithmEngine.optimizeParameters(mkInput("4340")).predicted_performance;
+      expect(a).toBeDefined();
+      expect(b).toBeDefined();
+      if (!a || !b) return;
+      // Each reports its own material coefficient...
+      expect(a.kc1_1_used).toBe(m1.kc1_1);
+      expect(b.kc1_1_used).toBe(m2.kc1_1);
+      expect(a.kc1_1_used).not.toBe(b.kc1_1_used);
+      // ...so predicted force differs even when the seeded params coincide (force scales with kc1_1).
+      // Under the ISO-generic bug both would report 1800 and equal forces -> this fails.
+      expect(a.cutting_force_N).not.toBe(b.cutting_force_N);
+    });
+  });
+
+  describe("U-LW-GA-CONSTRAINTS — machine constraints bind the recommendation", () => {
+    const mkPowerInput = (maxPowerKw: number): ManufacturingOptInput => ({
+      material: "4140",
+      operation: "roughing",
+      machine: { max_spindle_rpm: 4000, max_power_kw: maxPowerKw, max_feed_mm_rev: 0.8, max_rapid_mm_min: 30000, turret_stations: 12 },
+      tool: { insert_grade: "GC4325", nose_radius_mm: 0.8, approach_angle_deg: 95, max_depth_mm: 6.0, tool_life_ref_min: 60 },
+      workpiece: { diameter_mm: 60, length_mm: 120, stock_allowance_mm: 4 },
+      objectives: [{ name: "mrr", minimize: false, weight: 1.0, unit: "cm3/min" }], // pushes toward the power limit
+      config: { population_size: 60, max_generations: 60, seed: 42 },
+    });
+
+    it("respects max_power: the recommended params are power-feasible (the constraint was DEAD before this unit)", () => {
+      const MAX_POWER = 8;
+      const perf = latheGeneticAlgorithmEngine.optimizeParameters(mkPowerInput(MAX_POWER)).predicted_performance;
+      expect(perf).toBeDefined();
+      if (!perf) return;
+      // Before U-LW-GA-CONSTRAINTS the constraint was built then discarded (never passed to evolve),
+      // so this recommended ~16.5 kW under an 8 kW budget. Now the penalty-augmented fitness drives
+      // the optimizer into the feasible region (small tolerance for the penalty method not landing
+      // exactly on the boundary). This assertion FAILS if the constraint reverts to dead.
+      expect(perf.cutting_power_kW).toBeLessThanOrEqual(MAX_POWER * 1.05);
+      expect(perf.cutting_power_kW).toBeGreaterThan(0);
+      expect(perf.power_feasible).toBe(true);
+      expect(perf.power_warning).toBeUndefined();
+    });
+
+    it("fails LOUD when no power-feasible recommendation exists (impossibly low budget)", () => {
+      // An impossibly low spindle budget (0.001 kW) has no feasible params within the roughing
+      // bounds (min roughing power for 4140 is ~0.1 kW). The optimizer must SURFACE this — not
+      // return an over-power recommendation silently (R12 fail-loud, arm A P1).
+      const perf = latheGeneticAlgorithmEngine.optimizeParameters(mkPowerInput(0.001)).predicted_performance;
+      expect(perf).toBeDefined();
+      if (!perf) return;
+      expect(perf.power_feasible).toBe(false);
+      expect(perf.power_warning).toBeDefined();
+      expect(perf.power_warning).toMatch(/exceeds machine max_power/i);
+      expect(perf.cutting_power_kW).toBeGreaterThan(0.001);
+    });
+
+    it("the power constraint actually binds: a generous budget yields a higher-power optimum", () => {
+      const low = latheGeneticAlgorithmEngine.optimizeParameters(mkPowerInput(8)).predicted_performance;
+      const high = latheGeneticAlgorithmEngine.optimizeParameters(mkPowerInput(50)).predicted_performance;
+      expect(low).toBeDefined();
+      expect(high).toBeDefined();
+      if (!low || !high) return;
+      // With a 50 kW budget the mrr-maximizing optimizer pushes to more power than under 8 kW,
+      // proving the constraint genuinely limited the low-budget recommendation (not a no-op).
+      expect(high.cutting_power_kW).toBeGreaterThan(low.cutting_power_kW);
+    });
   });
 
   it("should optimize tool sequence", () => {

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "clt-3b-content-coverage-audit",
+  "generated_at": "2026-07-02",
+  "campaign": "CLOSED-LOOP-TRAINING (operator /goal: closed-loop training on ALL prints, CAD models and CNC programs on H: for the quoting + business-management portion of the Kienzle app)",
+  "owner_slot": "hotel",
+  "method": "scripts/clt-content-coverage-probe.mjs classified every canon-unique ledger path (full population, no sampling) and existence-checked each against the live filesystem; content stores are juliett's jm-die-database manifest (2026-05-29) + jm-die-index-v2 (2026-05-09) + Docustrata classified indexes (2026-05-08). Live count 317,130 exactly matches the independent walk -- canon intersect cross-validated.",
+  "live_jm_die_tree": {
+    "total_live_files": 317130,
+    "canon_unique_ledger": 464850,
+    "tombstones": 147720,
+    "tombstone_note": "85,009 of the tombstones are print_doc derivatives (170,355 all-time vs 85,346 live) -- consistent with the OCR __pN.pdf page-split hypothesis from the CLT-1 stratified sample",
+    "by_class_live": {
+      "cnc_program": 154366,
+      "print_doc": 85346,
+      "other": 34076,
+      "cad_model": 22781,
+      "cam_project": 20561
+    }
+  },
+  "content_depth_vs_juliett_stores": {
+    "inventory_scanned": { "covered": 317130, "total": 317130, "pct": 100 },
+    "cnc_programs_content_indexed": { "covered": 20081, "total": 154366, "pct": 13.0, "store": "jm-die-index-v2 kind=g_code" },
+    "cam_projects_content_indexed": { "covered": 15544, "total": 20561, "pct": 75.6, "store": "jm-die-index-v2 kind=cam_project" },
+    "cad_models_content_indexed": { "covered": 2304, "total": 22781, "pct": 10.1, "store": "jm-die-index-v2 kind=pure_cad; NOTE ext-level rollup (.ipt 5,821/.dxf 1,447/.dwg 210) suggests some CAD files were classified under cam_project -- kind-level taken as the conservative floor" },
+    "jm_tree_prints_indexed": { "covered": 235, "total": 85346, "pct": 0.3, "store": "jm-die-index-v2 kind=pdf; most print/business-doc CONTENT lives in the separate Docustrata corpus (below)" },
+    "blueprint_program_joins": 76205
+  },
+  "docustrata_corpus_separate_root": {
+    "files_total": 257992,
+    "indexed_documents": 111745,
+    "v3_enriched": 73506,
+    "with_text_layer": 56887,
+    "needing_ocr": 73506,
+    "print_role_v2": 7616,
+    "note": "Docustrata is a SEPARATE root from the JM DIE tree; never re-OCR (operator directive) -- ingestion goes through juliett's pipeline"
+  },
+  "staleness": {
+    "jm_die_index_v2_mtime": "2026-05-09",
+    "jm_die_database_manifest": "2026-05-29",
+    "docustrata_indexes": "2026-05-08",
+    "note": "all content stores are ~8 weeks behind the live tree"
+  },
+  "verdict": "INVENTORY totality is DONE (317,130/317,130 scanned). CONTENT depth is the open remainder: programs 13.0%, CAD 10.1%, CAM 75.6%, JM-tree prints 0.3% indexed. The 'training on ALL prints/CAD/programs' goal needs a content-ingestion campaign through juliett's stores (index refresh + parse/ingest the uncovered classes), NOT more scanning. Queued as follow-on; juliett-lane owns the stores, hotel/charlie consume.",
+  "print_bridge_reconcile_2026_07_02": {
+    "method": "scripts/clt-print-bridge-probe.mjs -- full-population basename+size join of the 85,346 live JM-tree prints vs the Docustrata export manifest (111,745 docs / 104,671 distinct filenames), then a size-only upper bound",
+    "name_join": "structurally VOID -- 0/85,346 matched; JM-tree prints carry human part/die names ('h3300-saturn 1st die.pdf') while Docustrata docs carry scanner-timestamp/upload names ('2026_05_07_12_53_28.pdf'). Proven by sampling both distributions, not assumed.",
+    "hash_fields": "Docustrata manifest records carry NO sha/hash field -- a definitive join requires a content-hash pass (juliett pipeline)",
+    "size_only_upper_bound": { "live_prints": 85346, "with_ledger_size": 85345, "size_candidates": 5948, "possible_overlap_pct_max": 7.0 },
+    "determination": "AT LEAST 79,397 live JM-tree prints (93%) are genuinely absent from Docustrata. The hash-join only needs to disambiguate the 5,948 size-candidates (14x cheaper than blind hashing). NO OCR is queued until juliett's hash pass settles the 5,948 -- never-re-OCR holds."
+  },
+  "follow_on": [
+    "T-CLT-INGEST-PROGRAMS (#112): refresh jm-die-index-v2 + extend g_code parse to the 134,285 unindexed live programs (juliett-lane; chat-bus posted 2026-07-02)",
+    "T-CLT-INGEST-CAD (#113): CAD tokenize/ingest the 20,477 unindexed live CAD models (delta lane owns CAD pipelines; chat-bus posted)",
+    "T-CLT-PRINT-HASH-DISAMBIGUATE: juliett hash pass over the 5,948 size-candidates, then OCR-queue the settled residue (>=79,397 + non-duplicate candidates) through the existing pipeline"
+  ]
+}

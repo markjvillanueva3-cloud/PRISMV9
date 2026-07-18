@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS32",
+  "version": "1.0.0",
+  "title": "PPG-MS32 — FAI / AS9100 ME Workflow + DFM Gate at Print Intake",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "description": "Closes the ME-workflow gap surfaced by R13 scrutiny (score 58). AS9102 Form 1/2/3 auto-author with balloon-from-GDT, fixture authoring engine (soft-jaw + tombstone), DFM gate at MS7 stage 0, GD&T→datum-strategy graph consumed by MS15 WCS chain, traceability fields in setup sheet.",
+  "rationale": "Closes the ME-workflow gap surfaced by R13 scrutiny (score 58). AS9102 Form 1/2/3 auto-author with balloon-from-GDT, fixture authoring engine (soft-jaw + tombstone), DFM gate at MS7 stage 0, GD&T→datum-strategy graph consumed by MS15 WCS chain, traceability fields in setup sheet.",
+  "phase": "P2",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM191",
+      "title": "AS9102 Form 1/2/3 auto-author + balloon-from-GDT",
+      "scope": "From print + emitted program: auto-balloon characteristics; emit Form 1 (header) + Form 2 (product accountability) + Form 3 (characteristic accountability). Measurement plan tied to PPG-MS13/U-PPGM83 probe macros. Already in PPG-MS20/U-PPGM121 — this unit owns the engineering depth.",
+      "files_to_modify": [
+        "src/engines/FAIPackageEngine.ts",
+        "src/engines/BalloonFromGDTEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/AS9102Balloon.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM192",
+      "title": "Fixture authoring engine (soft-jaw + tombstone)",
+      "scope": "Soft-jaw machining program generation + tombstone layout optimizer + vise-stop selection from part geometry. ME hand-edit replaced where geometry is regular.",
+      "files_to_modify": [
+        "src/engines/FixtureAuthoringEngine.ts",
+        "src/engines/SoftJawProgramEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/FixtureAuthoring.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM193",
+      "title": "DFM gate at MS7 stage 0 (before feature-to-strategy commitment)",
+      "scope": "Wire dfm_check + dfm_analyze actions before FeatureToStrategyEngine; fire DFM violations at print intake; ME pushes back at quote time, not after toolpath generation.",
+      "files_to_modify": [
+        "src/engines/MillingPrintToProgramEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/DFMGateAtPrintIntake.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM194",
+      "title": "GD&T → datum-strategy graph (consumed by MS15 WCS chain)",
+      "scope": "Position 0.025 to A-B drives toolpath sequence (datum-feature-first machining), probe routine selection, operation grouping (single-setup for related datums). Inter-machine WCS chain (PPG-MS15/U-PPGM91) consumes this graph.",
+      "files_to_modify": [
+        "src/engines/GDTDatumStrategyEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/GDTDatumStrategy.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM195",
+      "title": "Setup sheet AS9100 traceability fields + e-signature",
+      "scope": "Extend MS13 setup sheet with rev-controlled signoff, tool calibration cert linkage, material heat-lot, operator certification check, electronic signature audit trail. Already partially in PPG-MS20/U-PPGM120 — this unit specifies setup-sheet UI.",
+      "files_to_modify": [
+        "src/engines/SetupSheetPipelineEngine.ts",
+        "web/src/components/ppg/SetupSheetSignoff.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SetupSheetTraceability.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "AS9102 Form 1/2/3 auto-emitted with balloon-from-GDT; ME signoff",
+    "Fixture authoring engine emits soft-jaw program + tombstone layout for ≥5 reference parts",
+    "DFM gate fires at MS7 stage 0; ME can push back at quote time",
+    "GD&T datum-strategy graph drives toolpath sequence + probe selection + operation grouping",
+    "Setup sheet has rev/heat-lot/operator-cert/e-sig fields; AS9100 surveillance dry-run signoff"
+  ],
+  "depends_on": [
+    "PPG-MS7",
+    "PPG-MS13",
+    "PPG-MS15",
+    "PPG-MS20"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "FAI — mount on existing fai_run + fai_disposition + fai_evaluate_characteristic + fai_generate_forms (prism_quality dispatcher, already wired)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

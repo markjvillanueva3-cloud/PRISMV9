@@ -54,6 +54,59 @@ export interface VerificationResult {
   generated_at: string;
 }
 
+// -- Pre-emission schedule verification (U-LPM02) ---------------------------
+// verifySchedule() inspects a multi-channel SCHEDULE (sync points + op
+// dependency graph) BEFORE any G-code is emitted, complementing verify() which
+// inspects already-emitted G-code text.
+
+/** A scheduled operation in a multi-channel program (pre-emission). */
+export interface ScheduleOp {
+  op_id: string;
+  channel_id: number;
+  start_s: number;
+  end_s: number;
+  /** Where the tool/turret ends -- `retracted:false` is a collision risk at a sync. */
+  end_position?: { retracted: boolean };
+  /** op_ids this op must wait for (the dependency edges checked for deadlock). */
+  depends_on?: string[];
+}
+
+/** A multi-channel synchronization point (channels rendezvous after `after_op`). */
+export interface ScheduleSyncPoint {
+  after_op: string;
+  wait_channels: number[];
+  type?: string;
+}
+
+export interface ScheduleInput {
+  sync_points: ScheduleSyncPoint[];
+  ops: ScheduleOp[];
+}
+
+export type ScheduleViolationKind =
+  | "unmatched_pair"
+  | "unknown_channel"
+  | "deadlock_cycle"
+  | "unsafe_position";
+
+export interface ScheduleViolation {
+  kind: ScheduleViolationKind;
+  severity: "critical" | "warning";
+  message: string;
+  after_op?: string;
+  channel?: number;
+}
+
+export interface ScheduleVerificationResult {
+  /** True iff there are zero CRITICAL violations (warnings do not block). */
+  is_safe: boolean;
+  critical_count: number;
+  warning_count: number;
+  violations: ScheduleViolation[];
+  summary: string;
+  generated_at: string;
+}
+
 // ── Dialect patterns ──────────────────────────────────────────────────────
 
 const PATTERNS: Record<
@@ -114,7 +167,7 @@ class SyncCodeVerificationEngineImpl {
         }
 
         const signalMatch = line.match(patterns.signal);
-        if (signalMatch && waitMatch !== null ? false : signalMatch) {
+        if (signalMatch) {
           // Only classify as signal if different pattern matched (for dialects where they differ)
           const isDifferent =
             patterns.wait.source !== patterns.signal.source ||
@@ -311,6 +364,147 @@ class SyncCodeVerificationEngineImpl {
         "missing_pair",
       ],
     };
+  }
+
+  /**
+   * Pre-emission schedule check (U-LPM02). Validates a multi-channel sync
+   * SCHEDULE (sync points + op dependency graph) BEFORE any G-code is emitted,
+   * complementing verify() which inspects already-emitted G-code text.
+   *
+   * Hazard classes:
+   *   - unmatched_pair (critical): a sync point fewer than 2 channels wait at --
+   *     a rendezvous needs >=2 participants to be meaningful.
+   *   - unknown_channel (critical): a sync waits on a channel that has no op.
+   *   - deadlock_cycle (critical): a cycle in the op depends_on graph -- the
+   *     channels would wait on each other forever.
+   *   - unsafe_position (warning): the op a sync fires after ends with its tool
+   *     NOT retracted -- a collision risk, but legitimate for an intentional
+   *     hold (e.g. sub-spindle parked at the grip position), so non-blocking.
+   *
+   * is_safe is true iff there are zero CRITICAL violations.
+   */
+  verifySchedule(input: ScheduleInput): ScheduleVerificationResult {
+    const ops = Array.isArray(input?.ops) ? input.ops : [];
+    const syncPoints = Array.isArray(input?.sync_points) ? input.sync_points : [];
+    const violations: ScheduleViolation[] = [];
+
+    const opById = new Map<string, ScheduleOp>();
+    const knownChannels = new Set<number>();
+    for (const op of ops) {
+      if (op && typeof op.op_id === "string") opById.set(op.op_id, op);
+      if (op && typeof op.channel_id === "number") knownChannels.add(op.channel_id);
+    }
+
+    // 1. Per-sync-point checks.
+    for (const sp of syncPoints) {
+      const waiters = Array.isArray(sp?.wait_channels) ? sp.wait_channels : [];
+      const afterOp = sp?.after_op;
+
+      if (waiters.length < 2) {
+        violations.push({
+          kind: "unmatched_pair",
+          severity: "critical",
+          message: `sync after "${afterOp ?? "?"}" waits on ${waiters.length} channel(s); a rendezvous needs >=2 participants`,
+          after_op: afterOp,
+        });
+      }
+
+      for (const ch of waiters) {
+        if (!knownChannels.has(ch)) {
+          violations.push({
+            kind: "unknown_channel",
+            severity: "critical",
+            message: `sync after "${afterOp ?? "?"}" waits on channel ${ch}, which has no scheduled op`,
+            after_op: afterOp,
+            channel: ch,
+          });
+        }
+      }
+
+      const anchor = afterOp ? opById.get(afterOp) : undefined;
+      if (anchor && anchor.end_position && anchor.end_position.retracted === false) {
+        violations.push({
+          kind: "unsafe_position",
+          severity: "warning",
+          message: `op "${anchor.op_id}" (channel ${anchor.channel_id}) is not retracted at sync "${afterOp}"`,
+          after_op: afterOp,
+          channel: anchor.channel_id,
+        });
+      }
+    }
+
+    // 2. Deadlock detection over the op depends_on graph.
+    const cycle = this.findDependencyCycle(ops);
+    if (cycle.length > 0) {
+      violations.push({
+        kind: "deadlock_cycle",
+        severity: "critical",
+        message: `circular op dependency would deadlock: ${cycle.join(" -> ")}`,
+      });
+    }
+
+    const criticalCount = violations.filter((v) => v.severity === "critical").length;
+    const warningCount = violations.filter((v) => v.severity === "warning").length;
+    const isSafe = criticalCount === 0;
+    const summary = isSafe
+      ? `OK: schedule verified -- ${syncPoints.length} sync point(s), ${ops.length} op(s), ${criticalCount} critical / ${warningCount} warning`
+      : `BLOCK: ${criticalCount} critical violation(s) -- ${violations.filter((v) => v.severity === "critical").map((v) => v.kind).join(", ")}`;
+
+    return {
+      is_safe: isSafe,
+      critical_count: criticalCount,
+      warning_count: warningCount,
+      violations,
+      summary,
+      generated_at: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Returns the op_ids forming the first dependency cycle (empty if acyclic).
+   * DFS with white/grey/black coloring over the `depends_on` edges; a back-edge
+   * to a GREY node is a cycle. Dependencies on unknown op_ids are ignored (not
+   * a cycle). Pure; no I/O.
+   */
+  private findDependencyCycle(ops: ScheduleOp[]): string[] {
+    const deps = new Map<string, string[]>();
+    for (const op of ops) {
+      if (op && typeof op.op_id === "string") {
+        deps.set(op.op_id, Array.isArray(op.depends_on) ? op.depends_on : []);
+      }
+    }
+    const WHITE = 0, GREY = 1, BLACK = 2;
+    const color = new Map<string, number>();
+    for (const id of deps.keys()) color.set(id, WHITE);
+    const stack: string[] = [];
+
+    const dfs = (node: string): string[] => {
+      color.set(node, GREY);
+      stack.push(node);
+      for (const next of deps.get(node) ?? []) {
+        if (!deps.has(next)) continue; // dependency on an unknown op -- not a cycle
+        const c = color.get(next);
+        if (c === GREY) {
+          const idx = stack.indexOf(next);
+          return [...stack.slice(idx), next]; // e.g. ["a","b","a"]
+        }
+        if (c === WHITE) {
+          const found = dfs(next);
+          if (found.length > 0) return found;
+        }
+      }
+      stack.pop();
+      color.set(node, BLACK);
+      return [];
+    };
+
+    for (const id of deps.keys()) {
+      if (color.get(id) === WHITE) {
+        const cyc = dfs(id);
+        if (cyc.length > 0) return cyc;
+      }
+    }
+    return [];
   }
 }
 

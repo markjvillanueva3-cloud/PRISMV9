@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Read these now and apply to every coding action that follows.
+
+# Karpathy Discipline (re-prime)
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0/P4-U02",
+  "entries": {
+    "H:/prism/state/shared/CLAUDE-CODEX-COMMAND-AWARENESS-DIRECTIVE.md": {
+      "hash": "8decbe205f612ce5",
+      "summary": "CRITICAL COMMANDS — MUST AUTO-SUGGEST IMMEDIATELY: These commands MUST be suggested when ANY of their triggers are detected in user input:\nMANDATORY RULES: 1. **PDF/Document Detection**When \"pdf\", \"document\", \"manual\", \"catalog\", or \"paper\" appears → SUGGEST `/pdf-learn`\nCROSS-SESSION COORDINATION: Read `UNIFIED_COMMAND_BROADCAST.json` for current command mappings\nCOMMAND SUGGESTION FORMAT: When suggesting a command, use this format:\nFILES TO READ: Claude sessions: Automatically injected via hooks",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.511Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-COMMAND-BRIDGE.md": {
+      "hash": "7a749ff9356130e2",
+      "summary": "Purpose: This is the canonical shared bridge for Claude and Codex command behavior inside PRISM.\nCoverage: Global markdown command specs: 0Project markdown command specs: 141\nCanonical Sources: Global commands: `C:\\Users\\Mark Villanueva\\.claude\\commands`\nMirroring Rules: Codex can mirror any command indexed as `execution_kind: markdown_macro` by reading the command spec file and following it as instructions.\nKey Shared Commands: `/chat` → `H:\\PRISM\\.claude\\commands\\chat.md`",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.512Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-COORDINATION-DIRECTIVE.md": {
+      "hash": "ff7417d52a84037d",
+      "summary": "Status: Active until the user explicitly replaces this directive.\nPurpose: This is the canonical shared coordination rule for Claude and Codex while they work concurrently in PRISM.\nShared Coordination Surfaces: The canonical shared surfaces are:\nCore Rule: When an agent changes focus in a meaningful way, it should update the shared coordination surfaces.\nPreferred Update Method: For dependency-ordered task assignment, use:",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.513Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-MCP-DIRECTIVE.md": {
+      "hash": "8a7d8f8ab6b3f568",
+      "summary": "Core Rule: Use `prism_dev` and `prism_session` MCP actions instead of ad-hoc shell commands. 79 dispatchers, 3,898+ actions available.\nSession Lifecycle (prism_dev): | Action | When ||--------|------|\nSession State (prism_session — 48 actions): | Action | When |\nQuality & Validation: | Action | When ||--------|------|| `route_health_audit` | Check route/dispatcher wiring |\nOwnership: **Claude**: backend (L0-L4, engines, dispatchers, hooks, persistence, routes)",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.513Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-RGS-SYNC-PROTOCOL.md": {
+      "hash": "4fc280e927e002ad",
+      "summary": "Status: Active until explicitly replaced.\nPurpose: `/rgs-sync` is the canonical shared roadmap-sequencing protocol for both Claude and Codex inside PRISM.\nCanonical Surfaces: Read these together:1. `H:/prism/state/shared/CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md`\nCore Rule: Claude and Codex should treat `/rgs-sync` as a shared protocol, not a Claude-only slash alias.\nHelper: Canonical helper:`node H:\\prism\\.claude\\helpers\\roadmap-sync.mjs`",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.513Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md": {
+      "hash": "bcc0afaf185ba573",
+      "summary": "Status: Active until explicitly replaced.\nPurpose: This directive governs how Claude and Codex execute the PRISM roadmap across multiple terminals with proper coordination, claiming, and context survival.\nCanonical Roadmap Sources: Read these in order of authority:\nMilestone Claiming Protocol: Before starting work on any milestone:\nUnit Execution Protocol: For each unit within a claimed milestone:",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.513Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md": {
+      "hash": "8bbe5c54d6aac009",
+      "summary": "Status: Active until the user explicitly replaces this directive.\nPurpose: This is the canonical shared directive for how Claude and Codex should handle\nCore Rule: Both agents should prefer shared PRISM indexes, digests, and bridge files before broad repo sweeps.\nPreferred Search Order: 1. Read current shared directives and handoff state\nConcurrent Work Rule: Assume Claude and Codex may be building at the same time.",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.513Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-SPAWNED-AGENT-DIRECTIVE.md": {
+      "hash": "a7b3fd845cc1a3ec",
+      "summary": "Status: Active until the user explicitly replaces it.\nPurpose: This is the canonical shared rule for spawned agents in PRISM.\nShared Bundle: The spawned-agent awareness bundle should include:\nShared Helper: The canonical shared helper is:`H:/prism/scripts/agents/emit-spawned-agent-context.mjs`\nRuntime Rule: Claude subagents should receive this bundle automatically through the `SubagentStart` hook.",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.514Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-SVI-DIRECTIVE.md": {
+      "hash": "4c109747f8423f19",
+      "summary": "Status: Active until **Psi (reachability) = 100%** or the user explicitly replaces this directive.\nPurpose: This is the canonical long-term instruction file for both Claude and Codex regarding\nMandatory Reads On Reconnect: Read these in this order:1. `H:/prism/state/shared/CLAUDE-CODEX-SVI-DIRECTIVE.md`\nCore Rule: Treat **SVI** and **Psi** as standing operating metrics, not optional telemetry.\nLive Sources: `H:/prism/state/shared/SVI.json``H:/prism/state/shared/SVI-compact.md`",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.514Z"
+    },
+    "H:/prism/state/shared/CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md": {
+      "hash": "fc8444e53ed37674",
+      "summary": "Status: Active until explicitly replaced.\nPurpose: This directive governs how Claude and Codex agents select and coordinate tasks from the shared task queue.\nTask Queue Files: The canonical task queue surfaces are:1. `H:/prism/mcp-server/data/roadmap-index.json` — Master queue (532 milestones, 3065 units)\nTask Selection Protocol: Always use the task queue helper for dependency-aware selection:\nPriority Order: When multiple tasks are available, prioritize:",
+      "source": "heading",
+      "lastIndexed": "2026-04-28T14:45:00.515Z"
+    }
+  }
+}

@@ -149,7 +149,7 @@ export default function AutonomyPanel() {
         setActionMessage(`Promoted to L${result.data.newLevel}`);
         loadStatus();
       } else {
-        setError(result.ok ? result.data.error : result.error);
+        setError(result.ok ? (result.data.error ?? null) : (result.error ?? null));
       }
     } catch {
       setError("Failed to promote");

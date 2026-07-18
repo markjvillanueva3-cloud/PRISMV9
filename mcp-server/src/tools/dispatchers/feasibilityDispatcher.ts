@@ -280,7 +280,12 @@ Actions: ${ACTIONS.join(", ")}.`,
           // ── MF Spec: Missing actions ──
           case "predictive_failure": {
             const fa = await getEngine("feasAnalysis");
-            result = fa.analyze ? fa.analyze(params) : { error: "analyze not available" };
+            // FeasibilityAnalysisEngine has no analyze() method. The unified entry point
+            // is calculate(input: FeasibilityInput) which routes by input.action discriminator
+            // ("analyzeAccessibility" | "analyzeWorkholding" | "analyzeRigidity").
+            // The auditor found analyze() missing; this guard prevented a runtime crash
+            // but silently returned { error: "analyze not available" } on every call.
+            result = fa.calculate ? fa.calculate(params) : { error: "FeasibilityAnalysisEngine.calculate not available" };
             break;
           }
           case "critical_path": {

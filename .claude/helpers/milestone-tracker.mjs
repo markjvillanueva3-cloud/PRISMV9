@@ -122,7 +122,7 @@ function listSessionCompletions() {
   try {
     const gitLog = execSync(
       'git log --oneline --since="8 hours ago" 2>/dev/null || git log --oneline -20',
-      { cwd: 'H:/prism', encoding: 'utf-8' }
+      { windowsHide: true, cwd: 'H:/prism', encoding: 'utf-8' }
     );
 
     const completionPattern = /([A-Z]+-MS\d+[A-Z]?)|complete|COMPLETE|done|DONE/gi;
@@ -224,7 +224,7 @@ function syncFromGit() {
   try {
     const gitLog = execSync(
       'git log --oneline -100',
-      { cwd: 'H:/prism', encoding: 'utf-8' }
+      { windowsHide: true, cwd: 'H:/prism', encoding: 'utf-8' }
     );
 
     const roadmap = loadRoadmap();

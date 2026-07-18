@@ -1,0 +1,82 @@
+{
+  "id": "CAMK-MS3",
+  "version": "7.0.0",
+  "title": "Advanced Geometry & Multi-Operation Orchestration",
+  "brief": "Handle complex multi-operation programs, rest machining, and advanced geometry patterns. Exhaustive coverage of geometry-related mathematical domains.",
+  "created_at": "2026-03-07T22:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Multi-Operation & Rest Machining",
+      "units": [
+        {
+          "id": "U01",
+          "title": "RestMachiningEngine — IPW-aware re-machining with novel algorithms",
+          "description": "Given IPW (in-process workpiece) from previous operation: identify remaining stock regions, decompose into zones, select appropriate novel algorithm for each zone. Uses Minkowski difference for rest material detection. Handles: corner rest (→ smaller tool + SFCR), floor rest (→ CFSF), wall rest (→ PTDC). Multi-tool rest sequencing via DPLS (dynamic programming). Outputs chained operations.",
+          "exit_conditions": [
+            "Rest material detection",
+            "Zone decomposition of remaining stock",
+            "Algorithm selection per rest zone",
+            "Multi-tool sequencing",
+            "Tests with 3-operation chain"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "OperationSequencerEngine — Optimal operation ordering",
+          "description": "Given multiple operations (rough, semi-finish, finish, deburr): find optimal sequence considering: (1) tool change minimization (TSP on tool positions), (2) thermal relaxation time between roughing and finishing, (3) deflection state (rough first for stock removal → finish with PTDC), (4) surface integrity (RSMP requires specific sequence). Uses graph-based optimization with Bellman-Ford for shortest path. Handles fixtures and datums.",
+          "exit_conditions": [
+            "Operation ordering optimization",
+            "Tool change minimization",
+            "Thermal relaxation scheduling",
+            "Fixture-aware sequencing",
+            "Tests with 5+ operation programs"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "TransitionPathEngine — Optimized linking moves between operations",
+          "description": "Generate optimal retract/approach/linking moves between cut segments and between operations. Algorithms: (1) shortest safe retract (minimum Z clearance), (2) direct linking with collision avoidance (A* on obstacle grid), (3) spiral-in/spiral-out (reduces air time), (4) smooth transitions (G-continuous for surface finish). Integrates with VCER (evacuation retracts) and SFCR (continuous space-filling — minimize retracts).",
+          "exit_conditions": [
+            "4 linking strategies",
+            "Collision-safe paths",
+            "Air time minimization",
+            "Integration with VCER/SFCR",
+            "Time savings measurement"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "AdaptiveRefinementEngine — Error-driven toolpath densification",
+          "description": "After initial novel algorithm computation: refine toolpath where predicted error exceeds tolerance. Uses: (1) curvature-based refinement (insert points where chord error > tol), (2) force-based refinement (PTDC — add points where deflection gradient is steep), (3) thermal refinement (TGAR — densify near thermal zone boundaries), (4) engagement refinement (VCMR — add points where MRR deviates > 10%). Implements adaptive mesh refinement concepts from FEA.",
+          "exit_conditions": [
+            "4 refinement criteria",
+            "Chord error control",
+            "Force gradient refinement",
+            "Thermal boundary refinement",
+            "Convergence test"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "MultiSetupPlannerEngine — Part orientation + fixturing optimization",
+          "description": "For parts requiring multiple setups: determine optimal orientations, fixture faces, datum transfers. Uses: (1) visibility analysis (which surfaces are accessible per orientation), (2) stability analysis (fixture force equilibrium), (3) datum chain analysis (tolerance stack-up across setups via MCTP Monte Carlo), (4) setup count minimization (set cover problem — NP-hard, greedy approximation). Outputs setup sheets with novel algorithm assignments per setup.",
+          "exit_conditions": [
+            "Visibility analysis",
+            "Fixture stability check",
+            "Datum chain tolerance",
+            "Setup minimization",
+            "Novel algorithm per setup"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

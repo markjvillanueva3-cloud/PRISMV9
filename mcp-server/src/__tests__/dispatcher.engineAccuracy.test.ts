@@ -285,3 +285,57 @@ describe("WIRE-UNWIRED-MS0/U-WIRE-ENGACC — error envelope", () => {
     expect(String(data.details ?? "")).toMatch(/metric_name|metricName/i);
   });
 });
+
+// ───────────────────────────────────────────────────────────────────────────
+// U-WIRE-ENGACC-RECORD (slot:india) — the WRITE side. recordOutcome was wired
+// NOWHERE, so the 6 read actions above always saw an empty tracker. This closes
+// the cross-engine meta-learning accuracy loop's feedback arrow.
+// ───────────────────────────────────────────────────────────────────────────
+
+describe("U-WIRE-ENGACC-RECORD — engine_acc_record schema", () => {
+  it("requires engine_id|engineId + metric_name|metricName + finite predicted + finite actual", () => {
+    const S = ACTION_DEV_SCHEMAS["engine_acc_record"];
+    expect(S.safeParse({}).success).toBe(false);
+    expect(S.safeParse({ engine_id: "E", metric_name: "m", predicted: 1, actual: 1 }).success).toBe(true);
+    expect(S.safeParse({ engineId: "E", metricName: "m", predicted: 1, actual: 1 }).success).toBe(true);
+    expect(S.safeParse({ engine_id: "E", predicted: 1, actual: 1 }).success).toBe(false); // no metric
+    expect(S.safeParse({ engine_id: "E", metric_name: "m", actual: 1 }).success).toBe(false); // no predicted
+    expect(S.safeParse({ engine_id: "E", metric_name: "m", predicted: 1 }).success).toBe(false); // no actual
+    expect(S.safeParse({ engine_id: "E", metric_name: "m", predicted: Infinity, actual: 1 }).success).toBe(false);
+    expect(S.safeParse({ engine_id: "E", metric_name: "m", predicted: NaN, actual: 1 }).success).toBe(false);
+  });
+});
+
+describe("U-WIRE-ENGACC-RECORD — prism_dev :: engine_acc_record (closes the loop)", () => {
+  it("CLOSES THE LOOP — recording THROUGH the wire feeds the read actions end-to-end", async () => {
+    // Tracker is empty (beforeEach clear). Record via the WIRE only (not engine-direct).
+    const rec = await invokeHandler(devHandler, "engine_acc_record", {
+      engine_id: "WiredFeedEngine", metric_name: "force_N", predicted: 100, actual: 101,
+    });
+    expect((rec as { recorded?: boolean }).recorded).toBe(true);
+    expect((rec as { outcome?: { engineId?: string } }).outcome?.engineId).toBe("WiredFeedEngine");
+    // A READ action now sees it — the previously-frozen loop is fed via the dispatcher.
+    const read = await invokeHandler(devHandler, "engine_acc_engine", { engine_id: "WiredFeedEngine" });
+    expect((read as { summary?: { totalOutcomes?: number } }).summary?.totalOutcomes).toBe(1);
+    // Engine-direct cross-check.
+    expect(engineAccuracyTrackerEngine.getEngineAccuracy("WiredFeedEngine")?.totalOutcomes).toBe(1);
+  });
+
+  it("accumulates multiple wire-recorded outcomes", async () => {
+    await invokeHandler(devHandler, "engine_acc_record", { engine_id: "AccumEng", metric_name: "m", predicted: 10, actual: 10 });
+    await invokeHandler(devHandler, "engine_acc_record", { engine_id: "AccumEng", metric_name: "m", predicted: 10, actual: 12 });
+    const read = await invokeHandler(devHandler, "engine_acc_engine", { engine_id: "AccumEng" });
+    expect((read as { summary?: { totalOutcomes?: number } }).summary?.totalOutcomes).toBe(2);
+  });
+
+  it("camelCase aliases (engineId/metricName) record identically", async () => {
+    await invokeHandler(devHandler, "engine_acc_record", { engineId: "AliasRec", metricName: "mm", predicted: 5, actual: 5 });
+    expect(engineAccuracyTrackerEngine.getEngineAccuracy("AliasRec")?.totalOutcomes).toBe(1);
+  });
+
+  it("error envelope — missing predicted/actual returns {error}, records nothing", async () => {
+    const r = await invokeHandler(devHandler, "engine_acc_record", { engine_id: "BadRec", metric_name: "m" });
+    expect(typeof (r as { error?: string }).error).toBe("string");
+    expect(engineAccuracyTrackerEngine.getEngineAccuracy("BadRec")).toBe(null); // nothing recorded
+  });
+});

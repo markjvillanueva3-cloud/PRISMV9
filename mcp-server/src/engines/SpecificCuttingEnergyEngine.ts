@@ -148,8 +148,8 @@ export class SpecificCuttingEnergyEngine {
     } else if (Number.isFinite(Fc) && Number.isFinite(Vc) && Number.isFinite(mrrInput) && Fc! > 0 && Vc! > 0 && mrrInput! > 0) {
       // Method 3: From power and MRR
       // P = Fc × Vc / 60000 [kW], u = P / Q [kW / (cm³/min × 1000/60)]
-      const P_W = Fc * Vc / 60;  // W (Fc[N] × Vc[m/min] / 60 = N·m/s = W)
-      const Q_mm3_s = mrrInput * 1000 / 60;  // mm³/s
+      const P_W = Fc! * Vc! / 60;  // W (Fc[N] × Vc[m/min] / 60 = N·m/s = W)
+      const Q_mm3_s = mrrInput! * 1000 / 60;  // mm³/s
       u = Q_mm3_s > 0 ? P_W / Q_mm3_s : 3.0;
       u_source = "power_over_mrr";
     } else {

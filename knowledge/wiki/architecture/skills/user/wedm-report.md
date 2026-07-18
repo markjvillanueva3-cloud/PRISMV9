@@ -23,18 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-report` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-report.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-report.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Generate comprehensive WEDM reports and analytics:
-- Production summaries
-- Efficiency metrics
-- Quality analysis
-- Cost tracking
-- Trend identification
+
+# /wedm-report — Wire EDM Production Reporting
 
 <!-- AUTO-END -->
 

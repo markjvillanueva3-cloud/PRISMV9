@@ -1,0 +1,863 @@
+{
+  "id": "BP-MS0",
+  "version": "1.0.0",
+  "title": "Backend Business Platform — E2/QB/Xometry/Fictiv Feature Parity",
+  "brief": "10 sessions, 28 units, 23 new DB tables. File upload + CAD storage, instant quoting, DFM analysis, QuickBooks connector, approval workflows, job travelers, role-based desks, customer portal, preset libraries. Modeled after E2 Shop System, QuickBooks, Xometry, Fictiv.",
+  "created_at": "2026-04-01T18:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "BP",
+  "track_name": "Business Platform",
+  "status": "not_started",
+  "total_units": 28,
+  "total_sessions": "10",
+  "plan_file": "H:/prism/plans/erp-employee/phase6-business-platform-e2-qb-parity.md",
+  "dependencies": [
+    "EMP-MS0"
+  ],
+  "phases": [
+    {
+      "id": "BP-P1",
+      "title": "Route Contract Stabilization",
+      "description": "Fix 5 PASL route misalignments, add 24+ integration tests.",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "U-ROUTEFIX1",
+          "title": "Fix speed/feed route split-brain + CAM contract mismatch",
+          "phase": "BP-P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Fix speed/feed route split-brain + CAM contract mismatch — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-ROUTEFIX2",
+          "title": "Fix PPG route/action drift + ERP analytics wiring",
+          "phase": "BP-P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Fix PPG route/action drift + ERP analytics wiring — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-ROUTEFIX3",
+          "title": "Context catalog fix + 24 integration tests",
+          "phase": "BP-P1",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-ROUTEFIX1",
+            "U-ROUTEFIX2"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Context catalog fix + 24 integration tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P2",
+      "title": "File Upload + CAD Storage + Parts Library",
+      "description": "FileStorageEngine, PartsLibraryEngine, SHA-256 dedup, revisions.",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "U-BLOB1",
+          "title": "FileStorageEngine with SHA-256 dedup + version tracking",
+          "phase": "BP-P2",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "status": "complete",
+          "completed_at": "2026-05-13T14:50:00Z",
+          "completed_by": "claude-7f79dd78",
+          "ship_notes": "Engine `src/engines/FileStorageEngine.ts` (15094 bytes, pre-existing) implements full deliverable: SHA-256 dedup via hashIndex Map, version tracking via versions Map of FileVersion[], polymorphic entity attachments with 12 entity_type + 10 attachment_type allowlists, soft-delete with hashIndex cleanup, content-addressed disk storage under uploads/<first-2-chars>/, MIME-from-extension detection covering 28 manufacturing-relevant types (.step .iges .stl .dxf .pdf .nc .gcode etc.), 100 MB default size cap (PRISM_MAX_FILE_SIZE knob), base64-string content accepted alongside Buffer. Singleton exported as `fileStorageEngine` and wired via partsRouter (file_upload, file_download, file_get_versions, file_attach, file_get_attachments, file_find_by_hash, file_delete + getFile/listFiles/getStats). 35 vitest cases shipped 2026-05-13 closing the previously-missing test coverage exit condition.",
+          "dependencies": [
+            "U-ROUTEFIX3"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "FileStorageEngine with SHA-256 dedup + version tracking — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-BLOB2",
+          "title": "PartsLibraryEngine with revisions + CAD metadata extraction",
+          "phase": "BP-P2",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [
+            "U-BLOB1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "PartsLibraryEngine with revisions + CAD metadata extraction — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-BLOB3",
+          "title": "File upload API routes + attachment linking",
+          "phase": "BP-P2",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-BLOB2"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "File upload API routes + attachment linking — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P3",
+      "title": "Instant Quote Pipeline",
+      "description": "InstantQuoteEngine (CAD→price), qty breaks, lead times, revisions.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-IQUOTE1",
+          "title": "InstantQuoteEngine: CAD→feature→price pipeline",
+          "phase": "BP-P3",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": [
+            "U-BLOB3"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "InstantQuoteEngine: CAD→feature→price pipeline — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-IQUOTE2",
+          "title": "Quantity breaks + lead time estimation",
+          "phase": "BP-P3",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-IQUOTE1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Quantity breaks + lead time estimation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-IQUOTE3",
+          "title": "Quote revisions + status history tracking",
+          "phase": "BP-P3",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-IQUOTE2"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Quote revisions + status history tracking — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P4",
+      "title": "DFM Analysis + GD&T Backend",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-DFM1",
+          "title": "DFMPipelineEngine with tolerance feasibility + Cpk",
+          "phase": "BP-P4",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": [
+            "U-IQUOTE3"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "DFMPipelineEngine with tolerance feasibility + Cpk — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-DFM2",
+          "title": "Cost impact per DFM issue + GD&T analysis",
+          "phase": "BP-P4",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [
+            "U-DFM1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Cost impact per DFM issue + GD&T analysis — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P5",
+      "title": "QuickBooks Online Connector",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-QBO1",
+          "title": "OAuth 2.0 token management + encrypted storage",
+          "phase": "BP-P5",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "OAuth 2.0 token management + encrypted storage — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-QBO2",
+          "title": "GL mapping + 3-way matching",
+          "phase": "BP-P5",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [
+            "U-QBO1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "GL mapping + 3-way matching — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-QBO3",
+          "title": "Webhook sync + rate-limited queue",
+          "phase": "BP-P5",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-QBO2"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Webhook sync + rate-limited queue — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P6",
+      "title": "Approval Workflows + Audit Trails",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-APPR1",
+          "title": "Generic ApprovalWorkflowEngine",
+          "phase": "BP-P6",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Generic ApprovalWorkflowEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-APPR2",
+          "title": "Record timeline + comments + attachments",
+          "phase": "BP-P6",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-APPR1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Record timeline + comments + attachments — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-APPR3",
+          "title": "Approval decision tracking + escalation rules",
+          "phase": "BP-P6",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-APPR2"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Approval decision tracking + escalation rules — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P7",
+      "title": "Job Traveler + Dual Time Tracking",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-TRAV1",
+          "title": "JobTravelerEngine with routing steps",
+          "phase": "BP-P7",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "JobTravelerEngine with routing steps — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-TRAV2",
+          "title": "MachineDispatchEngine + planning board",
+          "phase": "BP-P7",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [
+            "U-TRAV1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "MachineDispatchEngine + planning board — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-TRAV3",
+          "title": "Dual time tracking (setup + cycle) on routing steps",
+          "phase": "BP-P7",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-TRAV2"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Dual time tracking (setup + cycle) on routing steps — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P8",
+      "title": "Role-Based Desks + Global Search",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-DESK1",
+          "title": "DeskPayloadEngine: role-based dashboard payloads",
+          "phase": "BP-P8",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "DeskPayloadEngine: role-based dashboard payloads — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-DESK2",
+          "title": "GlobalSearchEngine: cross-entity ranked search",
+          "phase": "BP-P8",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [
+            "U-DESK1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "GlobalSearchEngine: cross-entity ranked search — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P9",
+      "title": "Customer Portal + Milestone Tracking",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-PORTAL1",
+          "title": "14-milestone order template + status engine",
+          "phase": "BP-P9",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "14-milestone order template + status engine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-PORTAL2",
+          "title": "Token-based portal: quality docs + messaging",
+          "phase": "BP-P9",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [
+            "U-PORTAL1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Token-based portal: quality docs + messaging — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-PORTAL3",
+          "title": "Portal security: never expose internal cost data",
+          "phase": "BP-P9",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-PORTAL2"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Portal security: never expose internal cost data — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BP-P10",
+      "title": "Preset Libraries + Learning Backend",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-PRESET1",
+          "title": "PresetLibraryEngine: saved machining presets + compare",
+          "phase": "BP-P10",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "PresetLibraryEngine: saved machining presets + compare — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LEARN1",
+          "title": "LearningProgressionEngine: courses + checkpoints",
+          "phase": "BP-P10",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 75,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "LearningProgressionEngine: courses + checkpoints — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "complete",
+          "completed_at": "2026-05-22T19:15:27.181Z",
+          "close_out_note": "LearningProgressionEngine (courses+checkpoints: createCourse, modules, CheckpointType, enroll, checkpoint submit) verified present (19.5K) + wired to operatingSystemDispatcher (9 actions: course_create/get/enroll/progress/search, checkpoint_submit, enrollment_summary, learning_media_add/list). presets-learning-engines.test.ts passes (vitest exit 0). U-LEARN1 files type-clean. NOTE: global tsc has 529 pre-existing peer errors in calc/cam/data/dev/guard/infra/knowledge dispatchers — unrelated to U-LEARN1. Verified+closed slot:lima 2026-05-22 (no rebuild — deliverable pre-existed)."
+        },
+        {
+          "id": "U-LEARN2",
+          "title": "Knowledge facets + media + enrollment tracking",
+          "phase": "BP-P10",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": [
+            "U-LEARN1"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Knowledge facets + media + enrollment tracking — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "bp-ms0-gate",
+    "mcp_action": "prism_bp:bp_ms0_run",
+    "skill_command": "/bp-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "bp-ms0-gate"
+    ],
+    "new_actions": [
+      "bp_ms0_run"
+    ],
+    "new_skills": [
+      "/bp-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "10 sessions, 28 units, 23 new DB tables. File upload + CAD storage, instant quoting, DFM analysis, QuickBooks connector, approval workflows, job travelers, role-based desks, customer portal, preset libraries. Modeled after E2 Shop System, QuickBooks, Xometry, Fictiv.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "completed_units": 2
+}

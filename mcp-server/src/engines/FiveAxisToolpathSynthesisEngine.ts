@@ -1088,7 +1088,7 @@ export class FiveAxisToolpathSynthesisEngine {
       // HSM bonus if high-speed capable (0.05)
       if (strategy.hsm) score += 0.05;
 
-      return { strategy, score };
+      return { strategy, score } as { strategy: FiveAxisStrategyEntry; score: number; why_not?: string };
     });
 
     // Sort by score descending
@@ -1208,7 +1208,7 @@ export class FiveAxisToolpathSynthesisEngine {
         default:
           point = {
             position: { x: t * 100, y: 0, z: 0 },
-            tool_axis: { x: 0, y: 0.5, k: 0.866 },
+            tool_axis: { x: 0, y: 0.5, z: 0.866 },
             feed_mmmin: feed,
             rpm,
             ae_mm,

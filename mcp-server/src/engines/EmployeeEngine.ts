@@ -512,6 +512,25 @@ class EmployeeEngine {
     return this.employees.get(id);
   }
 
+  /**
+   * Resolve the employee linked to an auth user id via the `auth_user_id` field
+   * (U-ERP-IDOR-SELFGATE, 2026-07-02). Returns the FIRST employee whose auth_user_id
+   * matches, or undefined when no link exists. The route-level self-gate uses this to
+   * translate a request's authenticated user id into the caller's own employee_id, so an
+   * IDOR check can compare an EMP-* target against the caller's real employee identity
+   * rather than a mismatched auth id. Undefined (no mapping yet) lets the caller degrade
+   * the check safely -- it must NEVER be read as "not self".
+   * @param authUserId the authenticated user id (req.userId)
+   * @returns the linked Employee, or undefined if none is mapped
+   */
+  findByAuthUserId(authUserId: string): Employee | undefined {
+    if (!authUserId) return undefined;
+    for (const emp of this.employees.values()) {
+      if (emp.auth_user_id != null && emp.auth_user_id === authUserId) return emp;
+    }
+    return undefined;
+  }
+
   /** Update employee fields (partial). */
   update(id: string, updates: Partial<Omit<Employee, "id">>): Employee {
     const emp = this.employees.get(id);

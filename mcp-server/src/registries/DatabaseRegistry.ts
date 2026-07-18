@@ -98,7 +98,25 @@ export class DatabaseRegistry {
           let data: any = null;
           try {
             if (fs.existsSync(filePath)) {
-              data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+              const raw = fs.readFileSync(filePath, "utf-8");
+              if (filePath.toLowerCase().endsWith(".jsonl")) {
+                // JSONL = one JSON object per line; a single JSON.parse chokes on
+                // line 2 (the bug that silently killed jm-vendor-ap-ledger, 20,736
+                // entries). Parse line-by-line; load the good rows, fail loud on the
+                // skip count rather than dropping the whole DB on one bad line.
+                const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0);
+                const parsed: any[] = [];
+                let bad = 0;
+                for (const line of lines) {
+                  try { parsed.push(JSON.parse(line)); } catch { bad++; }
+                }
+                if (bad > 0) {
+                  log.warn(`DatabaseRegistry: ${entry.id}: skipped ${bad}/${lines.length} unparseable JSONL line(s)`);
+                }
+                data = parsed;
+              } else {
+                data = JSON.parse(raw);
+              }
             }
           } catch (err) {
             log.warn(`DatabaseRegistry: Failed to load ${entry.id}: ${err}`);

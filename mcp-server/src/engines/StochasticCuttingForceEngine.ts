@@ -82,6 +82,11 @@ export interface StochasticForceResult {
   mc: { mean: number; std_dev: number; histogram: HistogramBin[] } | null;
   dominant_uncertainty: string;
   material_scatter: { parameter: string; mean: number; cv_pct: number }[];
+  /** True when `material` matched a scatter-DB entry; false when the engine fell
+   *  back to default (AISI 4140) scatter for an unrecognized material. */
+  material_matched: boolean;
+  /** Fail-loud advisories (e.g. unmatched material → default-scatter fallback). */
+  warnings: string[];
 }
 
 // ─── Material Scatter Database ─────────────────────────────────────
@@ -247,12 +252,25 @@ function kienzleForce(
  */
 export class StochasticCuttingForceEngine {
 
-  /** Resolve material scatter from DB, applying overrides. */
-  private resolveScatter(material: string, overrides?: Partial<MaterialScatter>): MaterialScatter {
+  /**
+   * Resolve material scatter from DB, applying overrides.
+   *
+   * Returns `matched:false` when `material` is not in MATERIAL_DB and the engine
+   * falls back to default (AISI 4140) scatter. The caller (`compute`) surfaces the
+   * miss as a warning + reduced confidence per R12 fail-loud — mirrors the
+   * LatheSpeedFeed facade fix; do NOT add a second ad-hoc default here.
+   */
+  private resolveScatter(
+    material: string,
+    overrides?: Partial<MaterialScatter>,
+  ): { scatter: MaterialScatter; matched: boolean } {
     const key = Object.keys(MATERIAL_DB).find(
       k => k.toLowerCase() === material.toLowerCase()
     );
-    const entry = key ? MATERIAL_DB[key] : MATERIAL_DB["AISI 4140"]; // fallback
+    const matched = key !== undefined;
+    // Fallback base = AISI 4140 (mid-range steel scatter) so compute() still yields
+    // a finite distribution — but `matched:false` forces the caller to flag it.
+    const entry = key ? MATERIAL_DB[key] : MATERIAL_DB["AISI 4140"];
 
     const scatter: MaterialScatter = {
       kc1_1_mean: entry.kc1_1.mean,
@@ -268,7 +286,7 @@ export class StochasticCuttingForceEngine {
     if (overrides) {
       Object.assign(scatter, overrides);
     }
-    return scatter;
+    return { scatter, matched };
   }
 
   /** Run Monte Carlo with LHS. Returns force array. */
@@ -513,7 +531,20 @@ export class StochasticCuttingForceEngine {
 
     const width_mm = input.width_mm ?? diam;
     const ae_ratio = Math.min(width_mm / diam, 1.0);
-    const scatter = this.resolveScatter(material, overrides);
+    const { scatter, matched: material_matched } = this.resolveScatter(material, overrides);
+
+    // ── Fail-loud on unmatched material (R12) ──
+    // An unrecognized material silently borrowed AISI 4140 scatter yet still
+    // reported ~0.95 confidence. Surface the miss so downstream safety gates never
+    // trust a fallback distribution as if it were material-specific.
+    const warnings: string[] = [];
+    if (!material_matched) {
+      warnings.push(
+        `Material "${material}" not found in scatter DB ` +
+        `[${Object.keys(MATERIAL_DB).join(", ")}]; using "AISI 4140" scatter as a ` +
+        `conservative fallback — force distribution is indicative only, not material-specific.`
+      );
+    }
 
     // ── Monte Carlo ──
     let mcResult: StochasticForceResult["mc"] = null;
@@ -595,6 +626,8 @@ export class StochasticCuttingForceEngine {
       mc: mcResult,
       dominant_uncertainty: dominant,
       material_scatter: materialScatter,
+      material_matched,
+      warnings,
     };
 
     const formula =
@@ -605,7 +638,10 @@ export class StochasticCuttingForceEngine {
       value: result,
       unit: "N",
       formula,
-      confidence: mcResult ? 0.95 : 0.90, // MC gives higher confidence than FOSM alone
+      // MC gives higher confidence than FOSM alone; an unmatched material (default-scatter
+      // fallback) collapses confidence to 0.5 regardless of method — the scatter is not
+      // material-specific, so the result must not be reported at full confidence (R12).
+      confidence: material_matched ? (mcResult ? 0.95 : 0.90) : 0.5,
     };
   }
 }

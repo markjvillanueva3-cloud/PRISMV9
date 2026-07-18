@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="cb7b04db0981c4bb2f2afa07bf36bc460621a6b0c2c853af995057eebaa67090">
+<title>JULIETT-12CHAT-ALLOCATION-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT-12CHAT-ALLOCATION-MS0</h1>
+<p class="provenance">Generated 2026-05-18T17:34:21.264Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#u-rgs-rule-backend-dev">U-RGS-RULE-BACKEND-DEV</a></li>
+<li class="toc-l2"><a href="#goal">Goal</a></li>
+<li class="toc-l2"><a href="#activate-do-not-build">Activate (do-not-build)</a></li>
+<li class="toc-l2"><a href="#build-net-new">Build (net-new)</a></li>
+<li class="toc-l2"><a href="#files-touched">Files-touched</a></li>
+<li class="toc-l2"><a href="#pre-flight">Pre-flight</a></li>
+<li class="toc-l2"><a href="#test-plan">Test plan</a></li>
+<li class="toc-l2"><a href="#wiring">Wiring</a></li>
+<li class="toc-l2"><a href="#test-shipped-criteria">Test-shipped-criteria</a></li>
+<li class="toc-l2"><a href="#rollback">Rollback</a></li>
+<li class="toc-l2"><a href="#references">References</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">unit_id</th><td>U-RGS-RULE-BACKEND-DEV</td></tr>
+<tr><th scope="row">milestone</th><td>JULIETT-12CHAT-ALLOCATION-MS0</td></tr>
+<tr><th scope="row">owner_slot</th><td>lima</td></tr>
+<tr><th scope="row">wave</th><td>W0</td></tr>
+<tr><th scope="row">cost</th><td>S</td></tr>
+<tr><th scope="row">status</th><td>pending</td></tr>
+<tr><th scope="row">peer_claims_check_at</th><td>2026-05-17T00:00:00Z</td></tr>
+<tr><th scope="row">tool_plan_ref</th><td>pending-rgs-build</td></tr>
+<tr><th scope="row">depends_on</th><td>[]</td></tr>
+<tr><th scope="row">unblocks</th><td>[U-RGS-NEXT-INTEGRATE, all-backend-dev-units-via-RGS]</td></tr>
+<tr><th scope="row">roi_score</th><td>9.0</td></tr>
+<tr><th scope="row">generated_at</th><td>2026-05-17</td></tr>
+<tr><th scope="row">generator_version</th><td>hand-written-v1</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="u-rgs-rule-backend-dev"><a class="anchor" href="#u-rgs-rule-backend-dev" aria-label="Permalink to U-RGS-RULE-BACKEND-DEV">#</a>U-RGS-RULE-BACKEND-DEV</h1>
+<h2 id="goal"><a class="anchor" href="#goal" aria-label="Permalink to Goal">#</a>Goal</h2>
+<p>Add a backend-dev domain rule to <code>scripts/lib/rgs-pipeline-rules.mjs</code> so backend-dev tasks (dispatcher actions / schemas / hooks / lockfile / telemetry / wiring gates / settings.json edits / envelope close-outs / chat-slots / loop-state / handoffs) stop falling to the 0.30-confidence <code>/scrutinize</code> generic fallback. <strong>Acceptance:</strong> <code>node scripts/rgs-tool-planner.mjs --unit &lt;backend-dev-test-id&gt; --force --json</code> returns plan with <code>confidence ≥ 0.75</code> and <code>skill: &quot;/wire-unwired&quot;</code> (or new <code>/backend-dev</code> parent).</p>
+<h2 id="activate-do-not-build"><a class="anchor" href="#activate-do-not-build" aria-label="Permalink to Activate (do-not-build)">#</a>Activate (do-not-build)</h2>
+<ul>
+<li><code>scripts/lib/rgs-pipeline-rules.mjs</code> already has 14 RULES + GENERIC_FALLBACK pattern (lima shipped 5 of those rules in U-DOMAIN-RULES 2026-05-16 commit <code>e11def3f9</code>). Add the new rule following identical structure.</li>
+<li><code>scripts/rgs-tool-planner.mjs</code> already consumes the rule table via <code>matchPipelines()</code> — no consumer change needed.</li>
+<li>U-DOMAIN-RULES polysemy-guard pattern (Wire-EDM exclusion, /lathe guard) is the template for the new rule.</li>
+<li><code>prism_dev:roadmap_tool_plan_build</code> dispatcher action already exists.</li>
+</ul>
+<h2 id="build-net-new"><a class="anchor" href="#build-net-new" aria-label="Permalink to Build (net-new)">#</a>Build (net-new)</h2>
+<p>ONE rule object appended to the RULES array:</p>
+<pre><code class="language-js">{
+  test: (s) =&gt; /\b(dispatcher action|schema|frontmatter|hook|lockfile|telemetry|wiring gate|settings\.json|envelope|claim|broadcast|chat-slots|loop-state|handoff)\b/i.test(s)
+            &amp;&amp; !/\b(mill|lathe|wedm|cam|cad|edm|grind|weld|electrode)\b/i.test(s),
+  skill: &quot;/wire-unwired&quot;,
+  why: &quot;backend devtools — settings/schema/dispatcher/hook/lockfile/telemetry surface&quot;,
+  confidence: 0.75,
+  domain: &quot;backend-dev&quot;,
+},
+</code></pre>
+<h2 id="files-touched"><a class="anchor" href="#files-touched" aria-label="Permalink to Files-touched">#</a>Files-touched</h2>
+<ul>
+<li><code>H:/prism/scripts/lib/rgs-pipeline-rules.mjs</code> (Edit; append rule object before GENERIC_FALLBACK)</li>
+<li><code>H:/prism/scripts/lib/rgs-pipeline-rules.test.mjs</code> (Edit; add 5 test cases — positive matches, negative matches, polysemy guards)</li>
+</ul>
+<h2 id="pre-flight"><a class="anchor" href="#pre-flight" aria-label="Permalink to Pre-flight">#</a>Pre-flight</h2>
+<ol>
+<li><code>node H:/prism/.claude/helpers/slot-task-claim.mjs claim --slot lima --chatId &lt;id&gt; --unitId JULIETT-12CHAT-ALLOCATION-MS0::U-RGS-RULE-BACKEND-DEV</code></li>
+<li><code>Read scripts/lib/rgs-pipeline-rules.mjs</code> (verify 14 rules + GENERIC_FALLBACK still there)</li>
+<li><code>prism_dev:master_index_query { q: &quot;backend-dev rule&quot; }</code> (confirm nothing already-built)</li>
+<li>Chat-bus claim file: <code>prism_context:chat_post { kind:&quot;claim&quot;, path:&quot;H:/prism/scripts/lib/rgs-pipeline-rules.mjs&quot;, ttlMin:30 }</code></li>
+</ol>
+<h2 id="test-plan"><a class="anchor" href="#test-plan" aria-label="Permalink to Test plan">#</a>Test plan</h2>
+<ul>
+<li>Positive: <code>&quot;add new dispatcher action for chat-slots&quot;</code> → matches; <code>&quot;wire settings.json hook for envelope close-out&quot;</code> → matches</li>
+<li>Negative: <code>&quot;add mill dispatcher action&quot;</code> → does NOT match (polysemy guard catches mill)</li>
+<li>Negative: <code>&quot;cam strategy hook for chat-slots&quot;</code> → does NOT match (cam excluded even though chat-slots present)</li>
+<li>Edge: empty string → no match (falls to GENERIC_FALLBACK as before)</li>
+<li>Real-data E2E (per RGS-TOOL-AUTOINVOKE-MS1 lesson): run <code>rgs-tool-planner --unit JULIETT-12CHAT-ALLOCATION-MS0::U-RGS-RULE-BACKEND-DEV --force --json</code> and assert <code>domain === &quot;backend-dev&quot;</code>.</li>
+</ul>
+<h2 id="wiring"><a class="anchor" href="#wiring" aria-label="Permalink to Wiring">#</a>Wiring</h2>
+<p>NONE — rule table is read at planner runtime; no settings.json change. RGS dispatcher actions already exist.</p>
+<h2 id="test-shipped-criteria"><a class="anchor" href="#test-shipped-criteria" aria-label="Permalink to Test-shipped-criteria">#</a>Test-shipped-criteria</h2>
+<ul>
+<li><code>npx vitest run scripts/lib/rgs-pipeline-rules.test.mjs</code> passes (5 new tests added → all green)</li>
+<li><code>node scripts/rgs-tool-planner.mjs --unit &lt;test-id&gt; --force --json | jq &#39;.plan.confidence&#39;</code> ≥ 0.75 for backend-dev units</li>
+<li><code>state/shared/roadmap-tool-plans.json</code> shows ≥1 <code>domain: &quot;backend-dev&quot;</code> entry after fresh run</li>
+</ul>
+<h2 id="rollback"><a class="anchor" href="#rollback" aria-label="Permalink to Rollback">#</a>Rollback</h2>
+<ul>
+<li><code>git revert &lt;sha&gt;</code> removes the rule cleanly (rule is additive, never alters existing 14 rules)</li>
+<li>Knob fallback: rule has no env-knob; rule-level disable requires comment-out + re-commit (acceptable for rule additions per U-DOMAIN-RULES doctrine)</li>
+</ul>
+<h2 id="references"><a class="anchor" href="#references" aria-label="Permalink to References">#</a>References</h2>
+<ul>
+<li>[[reference_u_domain_rules_2026_05_16]] — 5 mill/lathe/wedm/cam/cad rules + structural Wire-EDM exclusion</li>
+<li>[[reference_rgs_tool_autoinvoke_ms1_2026_05_16]] — RGS-TOOL-AUTOINVOKE-MS1 fix wave; real-data E2E test discipline</li>
+<li>Wiki: <code>knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md</code></li>
+<li>V1 allocation §0 W0 row + §4 tool plan</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="U-RGS-RULE-BACKEND-DEV.md">U-RGS-RULE-BACKEND-DEV.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

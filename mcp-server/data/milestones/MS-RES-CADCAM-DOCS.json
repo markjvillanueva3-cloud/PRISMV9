@@ -1,0 +1,244 @@
+{
+  "id": "MS-RES-CADCAM-DOCS",
+  "version": "7.6.0",
+  "title": "MS-RES-CADCAM-DOCS (= RES-MS5/6 + the CHM gap + the generic-CNC gap) — extract the CAD/CAM tutorials feeding §R9 pillars A+B (8 units)",
+  "brief": "Per system: hyperMILL best-documented (780-pg manual + OPEN MIND docs ✅); 21 InventorCAM PDFs ✅; Mastercam basics ✅; Fusion CAD-PDF ✅ but no deep mastery layer. GAPS: Esprit has NO source material on disk (U-RES-DOC-08 acquires it — #6 priority, gates nothing); HSMWorks CHM unprocessed; ~800-pg Planchard SolidWorks book unextracted; the deep Fusion CAD/CAM pass not done; the 3 Basic-Training-Day folders uncurated; the ~25 G-code PDFs + CNC-fundamentals books unextracted. U-RES-DOC-01 (deep Fusion) is GA-critical (gates §R9 U-CAMM-FUS-A/B). All entries EXTEND knowledge/wiki/architecture/_leaf-index.jsonl's per-*FunctionIndexEngine entries — don't fork.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 1,
+  "status": "not_started",
+  "source": "§R10.2",
+  "viz_node_id": "ghost.ms.ms-res-cadcam-docs",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [
+    "MS-CAM-MASTERY"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-RES-CADCAM-DOCS (= RES-MS5/6 + the CHM gap + the generic-CNC gap) — extract the CAD/CAM tutorials feeding §R9 pillars A+B (8 units)",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-RES-DOC-01",
+          "title": "[GA-CRITICAL] Deep Fusion 360 CAD-modeling + CAM-strategy extraction — FUSION CAD.pdf deep-pass + the Fusion CAM training PDFs + the extracted-knowledge/fusion360-cam JSON → per-tool/per-strategy 'how to' entries on the Fusion360CADFunctionIndexEngine/Fusion360FunctionIndexEngine wiki entries. Gates §R9 U-CAMM-FUS-A/B.",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[GA-CRITICAL] Deep Fusion 360 CAD-modeling + CAM-strategy extraction — FUSION CAD.pdf deep-pass + the Fusion CAM training PDFs + the extracted-knowledge/fusion360-cam JSON → per-tool/per-strategy 'how to' entries on the Fusion360CADFunctionIndexEngine/Fusion360FunctionIndexEngine wiki entries. Gates §R9 U-CAMM-FUS-A/B. — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-cadcam-docs.ures-doc-01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-RES-DOC-02",
+          "title": "SolidWorks CAD-modeling extraction — David Planchard 'Engineering Graphics with SOLIDWORKS 2021' (~800 pg) → SolidWorks pillar-A wiki entries",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "SolidWorks CAD-modeling extraction — David Planchard 'Engineering Graphics with SOLIDWORKS 2021' (~800 pg) → SolidWorks pillar-A wiki entries — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-cadcam-docs.ures-doc-02",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-RES-DOC-03",
+          "title": "Mastercam BroCam strategy book (~500 pg) + the lathe-specific tutorials → Mastercam pillar-B wiki entries",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Mastercam BroCam strategy book (~500 pg) + the lathe-specific tutorials → Mastercam pillar-B wiki entries — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-cadcam-docs.ures-doc-03",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-RES-DOC-04",
+          "title": "HSMWorks CHM extraction (HSMWorks.en.chm + HSMWorksParameters.en.chm + post.chm — decompile CHM → HTML → ingest) → a Fusion-HSM CAM-function-index source",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "HSMWorks CHM extraction (HSMWorks.en.chm + HSMWorksParameters.en.chm + post.chm — decompile CHM → HTML → ingest) → a Fusion-HSM CAM-function-index source — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-cadcam-docs.ures-doc-04",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-RES-DOC-05",
+          "title": "Generic CNC fundamentals + ~25 G-code reference PDFs + Haas/Okuma/Mazak/Siemens controller manuals + 2019 MILL INTRO CLASS.pptx → the cadcam-learning-start curriculum + the controller-knowledge layer",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Generic CNC fundamentals + ~25 G-code reference PDFs + Haas/Okuma/Mazak/Siemens controller manuals + 2019 MILL INTRO CLASS.pptx → the cadcam-learning-start curriculum + the controller-knowledge layer — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-cadcam-docs.ures-doc-05",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-RES-DOC-06",
+          "title": "Inventor CAD-side + iLogic (Inventor_iLogic_Beyond_Basics.pdf + the Inventor 2027 SDK docs) → Inventor pillar-A wiki entries",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Inventor CAD-side + iLogic (Inventor_iLogic_Beyond_Basics.pdf + the Inventor 2027 SDK docs) → Inventor pillar-A wiki entries — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-cadcam-docs.ures-doc-06",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-RES-DOC-07",
+          "title": "hyperMILL Basic-Training-Day curriculum (curate the 1-/2-/3- Basic Training Day folders) + hyperMILL_2D_3D.pdf → hyperMILL pillar-A/B wiki entries + the hypermill-* skill family",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "hyperMILL Basic-Training-Day curriculum (curate the 1-/2-/3- Basic Training Day folders) + hyperMILL_2D_3D.pdf → hyperMILL pillar-A/B wiki entries + the hypermill-* skill family — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-cadcam-docs.ures-doc-07",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-RES-DOC-08",
+          "title": "[lowest priority] Esprit tutorial acquisition — Esprit has NO source material on disk; acquire (or flag as unavailable) Esprit's CAD/CAM tutorial PDFs. Gates §R9 U-CAMM-ESP-A/B (which carry a 'requires' precondition until this lands). Esprit is #6 — gates nothing critical.",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[lowest priority] Esprit tutorial acquisition — Esprit has NO source material on disk; acquire (or flag as unavailable) Esprit's CAD/CAM tutorial PDFs. Gates §R9 U-CAMM-ESP-A/B (which carry a 'requires' precondition until this lands). Esprit is #6 — gates nothing critical. — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-cadcam-docs.ures-doc-08",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 8,
+  "completed_units": 0
+}

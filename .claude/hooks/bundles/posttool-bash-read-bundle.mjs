@@ -71,6 +71,16 @@ const SUB_HOOKS = [
   {
     "path": "H:/prism/.claude/hooks/posttool-error-explain.mjs",
     "timeout": 2000
+  },
+  // OLLAMA-USAGE-UP (2026-06-30, slot:charlie): advise routing large gist-only Bash
+  // output (build/test logs, git diff, long grep/find dumps) through the free local
+  // model -- the highest-token surface with zero Ollama routing before this. Suggest-
+  // only + fails open; bumps byHook["ollama-bash-output-advisory"] so the offload
+  // dashboard finally sees the Bash surface. Sibling of posttool-ollama-offload-nudge
+  // (which covers the Read surface only). See knowledge/wiki/architecture/ollama-bash-output-advisory.md
+  {
+    "path": "H:/prism/.claude/hooks/ollama-bash-output-advisory.mjs",
+    "timeout": 2000
   }
 ];
 function getConcurrency() { const r = process.env.PRISM_POSTTOOL_BUNDLE_CONCURRENCY; if (r == null || r === "") return 6; const n = parseInt(r, 10); return (!Number.isFinite(n) || n < 0) ? 6 : n; }

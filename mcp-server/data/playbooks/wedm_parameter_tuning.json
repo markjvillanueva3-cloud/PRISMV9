@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "id": "wedm-parameter-tuning",
+  "name": "WEDM Neural Parameter Optimization",
+  "description": "AI-driven parameter optimization workflow using neural predictions",
+  "version": "1.0.0",
+  "trigger": "/wedm-ai-advisor",
+  "category": "optimization",
+  "steps": [
+    {
+      "id": "step-1",
+      "name": "Analyze Current State",
+      "action": "wedm_analyze_current_state",
+      "description": "Gather current parameters and performance metrics",
+      "inputs": ["program_id", "machine_id", "recent_runs"],
+      "outputs": ["current_parameters", "current_performance", "deviation_from_target"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-2",
+      "name": "Define Optimization Goals",
+      "action": "wedm_define_optimization_goals",
+      "description": "Set target metrics (Ra, MRR, wire consumption, etc.)",
+      "inputs": ["customer_requirements", "material", "tolerance_class"],
+      "outputs": ["optimization_targets", "constraints", "priority_weights"],
+      "timeout_sec": 15
+    },
+    {
+      "id": "step-3",
+      "name": "Generate Parameter Candidates",
+      "action": "wedm_neural_generate_candidates",
+      "description": "Use neural model to suggest parameter combinations",
+      "inputs": ["current_parameters", "optimization_targets", "material"],
+      "outputs": ["candidate_parameters", "predicted_outcomes"],
+      "timeout_sec": 45,
+      "hooks": ["wedm-neural-sanity"]
+    },
+    {
+      "id": "step-4",
+      "name": "Rank Candidates",
+      "action": "wedm_rank_candidates",
+      "description": "Score candidates against goals with uncertainty estimation",
+      "inputs": ["candidate_parameters", "predicted_outcomes", "priority_weights"],
+      "outputs": ["ranked_candidates", "confidence_intervals"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-5",
+      "name": "Validate Safety",
+      "action": "wedm_validate_candidate_safety",
+      "description": "Check top candidates against safety bounds",
+      "inputs": ["ranked_candidates", "machine_limits", "material"],
+      "outputs": ["safe_candidates", "safety_warnings"],
+      "timeout_sec": 30,
+      "hooks": ["wedm-tension-safety", "wedm-taper-limits"]
+    },
+    {
+      "id": "step-6",
+      "name": "Present Recommendations",
+      "action": "wedm_present_recommendations",
+      "description": "Format recommendations for operator review",
+      "inputs": ["safe_candidates", "confidence_intervals", "current_parameters"],
+      "outputs": ["recommendation_report", "suggested_changes"],
+      "timeout_sec": 15
+    },
+    {
+      "id": "step-7",
+      "name": "Apply Selected Parameters",
+      "action": "wedm_apply_parameters",
+      "description": "Apply operator-selected parameter changes",
+      "inputs": ["selected_parameters", "program_id"],
+      "outputs": ["updated_program", "change_record"],
+      "timeout_sec": 30,
+      "userConfirmation": true
+    }
+  ],
+  "onError": {
+    "action": "wedm_revert_to_baseline",
+    "notify": ["operator"]
+  },
+  "metadata": {
+    "author": "PRISM WEDM AGI",
+    "created": "2026-04-15",
+    "relatedSkills": ["/wedm-ai-advisor", "/wire-edm-studio"],
+    "relatedEngines": ["WEDMNeuralMRREngine", "WEDMNeuralRaEngine", "WEDMParameterOptimizer"]
+  }
+}

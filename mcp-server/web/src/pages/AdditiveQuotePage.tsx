@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { additiveCompareTech, additiveListMaterials, additiveQuote, ApiError } from '../api/client';
+import { GatedError } from '../components/entitlement';
 import { ErrorState, LoadingState } from '../components/LoadingState';
 import type { AdditiveMaterial, AdditiveQuoteResult } from '../api/types';
 import {
@@ -37,6 +38,7 @@ export function AdditiveQuotePage() {
   const [compareResult, setCompareResult] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [form, setForm] = useState({
     technology: 'SLS',
     material: 'PA12_Nylon',
@@ -73,6 +75,7 @@ export function AdditiveQuotePage() {
       setResult((response.result as unknown as AdditiveQuoteResult) ?? null);
       setTab('quote');
     } catch (issue) {
+      setGateError(issue);
       setError(issue instanceof ApiError ? issue.message : 'Failed to generate quote');
     } finally {
       setLoading(false);
@@ -90,6 +93,7 @@ export function AdditiveQuotePage() {
         [];
       setMaterials(Array.isArray(next) ? next : []);
     } catch (issue) {
+      setGateError(issue);
       setError(issue instanceof ApiError ? issue.message : 'Failed to load materials');
     } finally {
       setLoading(false);
@@ -107,6 +111,7 @@ export function AdditiveQuotePage() {
       });
       setCompareResult(response.result);
     } catch (issue) {
+      setGateError(issue);
       setError(issue instanceof ApiError ? issue.message : 'Compare failed');
     } finally {
       setLoading(false);
@@ -172,7 +177,7 @@ export function AdditiveQuotePage() {
       </div>
 
       {loading ? <LoadingState label="Refreshing additive quote desk..." /> : null}
-      {error ? <ErrorState message={error} onRetry={tab === 'compare' ? loadComparison : tab === 'materials' ? loadMaterials : handleQuote} /> : null}
+      {error ? <GatedError error={gateError} feature='quoting' fallback={<ErrorState message={error} onRetry={tab === 'compare' ? loadComparison : tab === 'materials' ? loadMaterials : handleQuote} />} /> : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
         <div className="space-y-6">

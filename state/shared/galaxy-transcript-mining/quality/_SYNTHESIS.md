@@ -1,0 +1,125 @@
+# quality galaxy CROSS-SESSION SYNTHESIS (6 of 146 mineable, model gpt-oss:120b, 2026-06-10)
+
+## What this galaxy is building
+- Integrated PRISM quality/metrology platform covering SPC, Cpk, CMM, gauge R&R, FAI, GD&T validation, tolerance‑stack analysis and AS9100/ISO13485 compliance.  
+- End‑to‑end Speed‑Feed Calibration (SFC) suite: `SpeedFeedCalibrationPersistEngine`, `SpeedFeedGpuJudgeEngine`, `ClampingForceEngine`, axis‑liveness probes, tool‑material & coolant Vc modifiers, rigidity factor table.  
+- Payroll liability filing subsystem (`PayrollLiabilityFilingEngine`) fully wired into `prism_business`.  
+- Persistent portal state via SQLite WAL (`CustomerPortalEngine` → `CoordinationStoreEngine`).  
+- Fleet‑wide reaper & hygiene slot (Golf) managing task health, migration‑freeze removal and crash‑critical auto‑re‑enable.  
+- Tribal knowledge index with sharding writer (`writeTribalIndex.mjs`) and sidecar freshness hook.  
+- Quote estimation pipeline with margin‑floor guard (default 20 %), cost‑bridge routing, digital‑twin estimator and outbound promotion gate.  
+- CIMCO integration for CNC report reading, normalisation and closed‑loop validation.  
+- GPU‑accelerated calibration model generation on Blackwell RTX PRO 6000.  
+- Multi‑slot binding enforcement (`slot-bind-enforce.mjs`) and startup slot orchestration (alpha…zulu).  
+
+## Shipped capabilities
+- **PayrollLiabilityFilingEngine**: `compute940`, `generateW2`, `reconcileW2sTo941`, `contractor1099Totals`, `remitLiability` wired. (`e44a3a1592`, `e649790e76`)  
+- **Ollama transcript miner** persisted & bug‑fixed (empty response, noise filter). (`9dfd621910`, `61518eb988`)  
+- **Portal persistence**: 4 in‑memory Maps → SQLite WAL; 92/92 tests green. (`dd57b82b52`, `17f3e0ffec`)  
+- **Allowlist write gating**: manager‑only writes, PII stays 403. (`18f37c812e`, `d8d2824cf2`)  
+- **iOS redesign doctrine** committed. (`c84c48b453`)  
+- **SFC engines** wired; full sweep mode (69 120 cells) with streaming API; ledger generated. (`891c66e728`, `3a1c20fca2`)  
+- **GPU judge hardening**: clamped flag fix, probe prefix‑match, zero‑judge suppression. (`3438987f0e`, `f5d14ddb29`, `951f5ac335`)  
+- **Tool‑material speed factor table** & coolant Vc modifier integrated. (`658c8280fe`, `585584e3ae`)  
+- **ClampingForceEngine** and spindle‑power clamp wiring completed. (`2070c472a4`, `7dc7798033`)  
+- **CIMCO pipeline**: read‑report driver, normaliser, fleet driver with PowerShell reaper‑safe wrapper; 54–63 vitest passes. (`SIM‑4`…`SIM‑7`, `U‑CIMCO‑SIM‑1A`)  
+- **Hookify frontmatter fixer** removed 110 malformed files and dangling hook refs. (`13017de764`)  
+- **Tribal index sharding writer** with orphan‑shard cleanup. (`caf3bcbc30`)  
+- **Docker service health check/stop hooks** and singleton‑service‑guard for reaper tasks. (`fb314a6fd1`, `35e01ca5f3`, `e2081e0780`, `d22681f5d2`)  
+- **ASCII guard** blocks non‑ASCII punctuation in pre‑tool use blocks. (`ascii‑guard.mjs`)  
+- **MCP server heap floor** raised to 24 GB; watchdog RSS threshold set to 18 GB. (`c7361c9f`)  
+- **Fleet reaper tasks** (Node Orphan Cleaner, Zombie Reaper v2, PS Orphan Reaper, etc.) active and passing tests.  
+- **Quote margin‑floor guard** (default 20 %) with UI banner; dispatcher round‑trip validated. (`87d5c4bf9a`, `ec597dbcb3`)  
+- **Cost‑bridge routing & outbound promotion gates** for quoting factors. (`U-QP-COST-BRIDGE-TRUTH`, `U-QP-OUTBOUND-PROMOTE-GATE`)  
+
+## Key decisions + rationale
+- Use `qwen2.5-coder:32b` for grunt tasks; reserve `gpt‑oss:120b` for heavy synthesis & mining. (19dff632)  
+- Persist miner script to avoid regeneration latency. (19dff632)  
+- Adopt WorkspacePrimitives design system; no separate UI kit fork → lower maintenance. (19dff632)  
+- SQLite WAL (“Juliett” pattern) for portal state ⇒ ACID, crash safety. (19dff632)  
+- Manager‑tier writes gated by roles (`lead|supervisor|hr_manager|admin`); PII stays 403 – privacy compliance. (19dff632)  
+- Commit design doctrine before foundation tokens & primitives → UI consistency first. (19dff632)  
+- `/compact` before multi‑file UI rewrite to avoid partial builds and context bloat. (19dff632)  
+- Backend‑first for SFC: fix data‑spine leak, wire orphan engines, then run closed‑loop comparison. (8b4b9149)  
+- Incremental axis‑awareness rollout (tool material → coolant → rigidity → alts‑factor), each gauntlet‑tested. (8b4b9149)  
+- Safety gate: all Vc‑changing edits must pass physics reviewer and S(x)≥0.70 before commit. (8b4b9149)  
+- Do not wire all unwired engines en masse; respect galaxy ownership, intentional orphans. (928a8226)  
+- Systematic debugging: root‑cause first, then pattern analysis before patching. (928a8226)  
+- Limit ultracode fan‑out to ≤3 agents per task → stay within rate limits. (c7361c9f)  
+- Golf slot owns fleet‑reaper & hygiene; moved from alpha for clearer responsibility. (c7361c9f)  
+- Enforce slot binding via `slot-bind-enforce.mjs`; startup slots force correct context. (c7361c9f)  
+- Bounded 3/3 scrutiny gate to avoid fan‑out overload across fleet. (c7361c9f)  
+
+## Standing operator directives
+- `/checkin-hotel` – recover hotel context before any further action.  
+- `/startup-golf` → force Golf slot, bind handoff to `golf-work`, run startup audit.  
+- `/compact` before UI foundation (U1) rebuild.  
+- Use `/checkin-papa` wrapper on all pipelines to enforce slot binding.  
+- Follow roadmap order: design doctrine → SQLite WAL foundation → SFC calibration persistence → quote pipeline guards → CIMCO closed‑loop → tribal index refresh.  
+- Employ Ollama for brainstorming & bulk extraction; use ultracode when high‑quality code generation required.  
+- Keep Golf reaper sweep active on each `/checkin-golf`.  
+- Maintain margin‑floor default 20 % across all quote estimations.  
+- Persist portal state only via SQLite WAL; never write directly to in‑memory Maps.  
+
+## What is still to build (open threads)
+- **U‑HOTEL‑PORTAL‑PERSISTENCE** real build & dispatcher integration. (19dff632)  
+- Implement **FALSE‑WIRE‑REGRESSION‑GUARD** for placeholder actions. (19dff632)  
+- Resolve `marketplace_lead_get` null/param mismatch. (19dff632)  
+- Complete remaining roadmap units: ALLOWLIST‑WRITE‑REVIEW, REALTIME‑VERIFY. (19dff632)  
+- UI/UX foundation (U1) pending `/compact`. (19dff632)  
+- Wire remaining unwired engines per owner; confirm intentional orphans. (928a8226)  
+- Finish **gpt‑oss:120b** pull & ensure routing invariants across all tiers. (928a8226)  
+- Implement inflight‑aware watchdog & semaphore cap for MCP concurrency. (c7361c9f)  
+- Optimize Ollama offload take‑rate toward target 30 % (currently 5–9 %). (c7361c9f)  
+- Register PRISM Brain Refresh scheduled task; clear remaining cron WARNs. (b5de5424)  
+- Build **U‑QP‑BLUEPRINT‑OCR‑BRIDGE‑ADAPTER** for OCR → quote bridge mapping. (928a8226)  
+- Apply remaining fixes from workflow `wd8rguas8` (slash commands, pipelines). (b5de5424)  
+- Run full combinatorial SFC sweep against live G‑Wizard/HSMAdvisor data after vendor catalog OCR extraction. (8b4b9149)  
+- Add tool‑life impact to clearance engine & runout link. (8b4b9149)  
+- Finalize margin‑floor UI banner across all quote views; compliance review. (928a8226)  
+- Resolve crash‑critical task auto‑disable root cause (Windows service). (c7361c9f)  
+
+## How to build it (patterns/sequence)
+- **Pattern: Backend‑first wiring** – fix data leaks → wire orphan engines → run round‑trip tests → merge.  
+- **Pattern: Incremental axis‑awareness** – add one factor (tool material, coolant, rigidity, alts) → gauntlet test → safety gate → commit.  
+- **Pattern: Slot‑binding enforcement** – wrap each pipeline with `/checkin-<slot>`; enforce via `slot-bind-enforce.mjs`.  
+- **Sequence:**  
+  1. Run `/compact` to prune context.  
+  2. Deploy design doctrine commit.  
+  3. Build foundation primitives (tokens, haptics hook).  
+  4. Implement SQLite WAL portal persistence; run full test suite.  
+  5. Wire SFC calibration engines; generate ledger & safety‑gate factor application (`U-QP-CALIBRATION-FRESHNESS-PREFLIGHT`).  
+  6. Deploy quote pipeline guards (margin‑floor, cost‑bridge, outbound promotion).  
+  7. Integrate CIMCO read‑report driver & closed‑loop validation.  
+  8. Refresh tribal index with sharding writer and sidecar freshness hook.  
+  9. Activate Golf slot reaper hygiene; monitor via `fleet-task-health-watch.mjs`.  
+ 10. Iterate: each new engine wrapped by pre‑commit guard (false‑wire, provenance, outbound) and validated with 3/3 scrutiny before merge.  
+- **Pattern: Guarded rollout** – every new feature gated by a dedicated runtime guard; only passes when all gauntlet tests succeed.  
+
+## Tools to use (dispatchers/skills/scripts/hooks/system-viz/AI-systems/qdrant/obsidian/ollama)
+- **Dispatchers:** `prism_business`, `speed_feed_calibration_persist`, `speed_feed_gpu_judge`, `quoteEstimatorEngine`, `digitalTwinEstimator`, `cimco_fleet_drive.mjs`.  
+- **Skills / Scripts:** `scripts/mine-hotel-transcripts.mjs`, `ask-ollama.mjs`, `chat-slots.mjs`, `slot-bind-enforce.mjs`, `ascii-guard.mjs`, `docker-service-health-stop.mjs`, `fleet-reaper-sweep.mjs`, `watch.mjs`.  
+- **Hooks:** `U-MCP-CONCURRENCY-HARDEN`, `U-QP-COST-BRIDGE-TRUTH`, `U-QP-MARGIN-FLOOR-GATE`, `U-QP-CLOSED-LOOP-PROVENANCE-GATE`, `U-QP-OUTBOUND-PROMOTE-GATE`, `U-QP-CALIBRATION-FRESHNESS-PREFLIGHT`.  
+- **System‑viz docs:** `state/shared/SYNERGY-GOAL-STATUS-2026-06-09.md`, `golf-galaxy-completion-plan-2026-06-09.md`.  
+- **AI systems:** Ollama models – `qwen2.5-coder:32b` (grunt), `qwen2.5-coder:1.5b`, `gpt‑oss:20b`, `gpt‑oss:120b` (heavy synthesis); Blackwell RTX PRO 6000 GPU for `SpeedFeedGpuJudgeEngine`.  
+- **Vector store:** Qdrant collections – `prism_engines`, `prism_skills`, `prism_formulas`.  
+- **Knowledge base:** Obsidian vault with markdown docs (`CLAUDE.md`, `MEMORY.md`, `PATHS.md`, `TOOLBELT.md`), tribal index JSONL.  
+- **CI/CD & testing:** Vitest, tsc, Git hooks (`commit‑enforce`, `scrutiny`), ultracode workflow engine, Docker health probes.  
+
+## Recurring findings + bugs
+- **Orphan methods/engines** repeatedly uncovered (PayrollLiabilityFilingEngine, TriComparator, ExhaustiveCombination, many SF engines).  
+- **False‑wire placeholder actions** cause regression guard failures; regex broadened but dedicated guard still needed.  
+- **EPERM leak** in `OutcomeCaptureBusEngine` fixed; similar permission leaks possible elsewhere.  
+- **GPU judge bugs** – clamped flag, probe prefix‑match, zero‑judge suppression required multiple patches.  
+- **`.git/index.lock` contention** during concurrent git ops; resolved with wait‑retry logic.  
+- **Heap OOM** on large JSON/tribal index; mitigated by buffered loader and raising MCP heap floor to 24 GB.  
+- **Rate‑limit throttling** of ultracode fan‑out; enforced ≤3 agents per task.  
+- **Migration‑freeze marker** generated stale stop‑hook warnings; removed.  
+- **ASCII punctuation** leaking into codebase; ascii‑guard added.  
+- **Margin‑floor default mismatch** initially missing in some quote paths; now unified to 20 %.  
+- **Docker daemon down** at startup; health‑check hook restored service.  
+- **Model routing invariant failures** – `gpt‑oss:120b` not selected for “best” tier; router logic corrected.  
+- **Synthetic outcome promotion** allowed placeholder factors into live quotes; provenance gate added.  
+- **Spindle power clamp & tool‑life linkage** initially missing; now wired.  
+- **Watchdog RSS preempt** too low (3 GB) causing restarts; raised to 18 GB.  
+- **Crash‑critical task auto‑disable** recurring on Windows; root cause pending investigation.

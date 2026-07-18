@@ -27,7 +27,7 @@ const MEMORY_CANDIDATES = [
 
 function readGit(args) {
   try {
-    return execFileSync("git", args, {
+    return execFileSync("git", args, { windowsHide: true,
       cwd: ROOTS.prism,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],

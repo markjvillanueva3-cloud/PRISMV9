@@ -54,7 +54,7 @@ describe("LLMEngine", () => {
   });
 
   it("query returns offline response without API key", async () => {
-    const engine = new LLMEngine({ api_key: undefined });
+    const engine = new LLMEngine({ api_key: undefined, prefer: "claude" });
     engine.registerContextProvider(() => [
       { type: "material", title: "Test Material", content: "Info", relevance: 0.9 },
     ]);
@@ -67,7 +67,7 @@ describe("LLMEngine", () => {
   });
 
   it("explainQuote returns structured explanation", async () => {
-    const engine = new LLMEngine({ api_key: undefined });
+    const engine = new LLMEngine({ api_key: undefined, prefer: "claude" });
     const explanation = await engine.explainQuote({
       part_name: "Bracket",
       material: "6061-T6",
@@ -85,7 +85,7 @@ describe("LLMEngine", () => {
   });
 
   it("processAdvice returns structured advice", async () => {
-    const engine = new LLMEngine({ api_key: undefined });
+    const engine = new LLMEngine({ api_key: undefined, prefer: "claude" });
     const advice = await engine.processAdvice({
       operation: "pocket milling",
       material: "6061-T6 Aluminum",

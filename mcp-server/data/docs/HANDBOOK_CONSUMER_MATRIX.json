@@ -1,0 +1,260 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-03-29T19:00:00Z",
+  "description": "Documents every engine, pipeline, hook, and dispatcher that consumes or produces handbook data",
+  "section_types": [
+    "cover_info",
+    "spindle_specs",
+    "axis_kinematics",
+    "controller_features",
+    "alarm_codes",
+    "maintenance_schedule",
+    "parts_book",
+    "programming_tips",
+    "safety_limits",
+    "coolant_specs",
+    "tooling_constraints"
+  ],
+  "consumers": [
+    {
+      "id": "MachineHandbookRegistryEngine",
+      "file": "src/engines/MachineHandbookRegistryEngine.ts",
+      "type": "engine",
+      "role": "registry",
+      "milestone": "HBK-MS0",
+      "sections_consumed": ["all"],
+      "data_flow": "read_write",
+      "fallback": "Empty registry on init failure, logs warning",
+      "description": "Central storage and retrieval for all machine handbook data"
+    },
+    {
+      "id": "HandbookExtractionEngine",
+      "file": "src/engines/HandbookExtractionEngine.ts",
+      "type": "engine",
+      "role": "producer",
+      "milestone": "HBK-MS1",
+      "sections_consumed": ["spindle_specs", "axis_kinematics", "alarm_codes", "safety_limits", "coolant_specs", "tooling_constraints", "controller_features", "programming_tips"],
+      "data_flow": "write",
+      "fallback": "Empty extraction result with confidence=0 on parse failure",
+      "description": "Extracts structured sections from raw handbook text (OCR/PDF/manual)"
+    },
+    {
+      "id": "HandbookAcquisitionPipelineEngine",
+      "file": "src/engines/HandbookAcquisitionPipelineEngine.ts",
+      "type": "engine",
+      "role": "pipeline",
+      "milestone": "HBK-MS2",
+      "sections_consumed": ["all"],
+      "data_flow": "read_write",
+      "fallback": "Validation rollback on schema failure, confidence-aware merge",
+      "description": "Orchestrates intake-extraction-dedup-merge-commit pipeline"
+    },
+    {
+      "id": "AlarmIntelligenceEngine",
+      "file": "src/engines/AlarmIntelligenceEngine.ts",
+      "type": "engine",
+      "role": "intelligence",
+      "milestone": "HBK-MS3",
+      "sections_consumed": ["alarm_codes"],
+      "data_flow": "read",
+      "fallback": "Falls back to AlarmDiagnosticsEngine DB + tribal knowledge when no handbook",
+      "description": "Cross-references handbook alarm codes with controller DB and tribal tips for ranked troubleshooting"
+    },
+    {
+      "id": "MachineCapabilityIntelligenceEngine",
+      "file": "src/engines/MachineCapabilityIntelligenceEngine.ts",
+      "type": "engine",
+      "role": "intelligence",
+      "milestone": "HBK-MS4",
+      "sections_consumed": ["spindle_specs", "axis_kinematics", "coolant_specs", "tooling_constraints"],
+      "data_flow": "read",
+      "fallback": "Hierarchical: handbook > spindle_correction > torque_curve > machine_registry > none",
+      "description": "Unifies spindle torque, axis kinematics, work envelope from handbook + registry with provenance"
+    },
+    {
+      "id": "HandbookMaintenanceIntelligenceEngine",
+      "file": "src/engines/HandbookMaintenanceIntelligenceEngine.ts",
+      "type": "engine",
+      "role": "intelligence",
+      "milestone": "HBK-MS5",
+      "sections_consumed": ["maintenance_schedule", "parts_book"],
+      "data_flow": "read",
+      "fallback": "Returns null/empty with confidence=0 when no handbook sections",
+      "description": "Extracts PM schedules, parts BOM, consumables, annual cost estimates from handbook"
+    },
+    {
+      "id": "ControllerProgrammingIntelligenceEngine",
+      "file": "src/engines/ControllerProgrammingIntelligenceEngine.ts",
+      "type": "engine",
+      "role": "intelligence",
+      "milestone": "HBK-MS6",
+      "sections_consumed": ["controller_features", "programming_tips"],
+      "data_flow": "read",
+      "fallback": "Empty arrays when no controller_features section",
+      "description": "Extracts custom G/M codes, macro variables, option packages, generates PostProcessor enrichment patches"
+    },
+    {
+      "id": "SpeedFeedOrchestratorEngine",
+      "file": "src/engines/SpeedFeedOrchestratorEngine.ts",
+      "type": "engine",
+      "role": "consumer",
+      "milestone": null,
+      "sections_consumed": ["spindle_specs", "axis_kinematics"],
+      "data_flow": "read",
+      "fallback": "Uses factory defaults when machine_id not provided or handbook absent",
+      "description": "Resolves spindle torque limits and axis acceleration from handbook via MachineCapabilityIntelligenceEngine"
+    },
+    {
+      "id": "FeedRateOptimizationEngine",
+      "file": "src/engines/FeedRateOptimizationEngine.ts",
+      "type": "engine",
+      "role": "consumer",
+      "milestone": null,
+      "sections_consumed": ["axis_kinematics"],
+      "data_flow": "read",
+      "fallback": "Accepts explicit parameter overrides; no crash without handbook",
+      "description": "Resolves max_acceleration and rapid_traverse from handbook via MachineCapabilityIntelligenceEngine"
+    },
+    {
+      "id": "ToolpathThermalEngine",
+      "file": "src/engines/ToolpathThermalEngine.ts",
+      "type": "engine",
+      "role": "consumer",
+      "milestone": null,
+      "sections_consumed": ["coolant_specs"],
+      "data_flow": "read",
+      "fallback": "Uses default material thermal properties when machine not found",
+      "description": "Resolves machine thermal compensation parameters from handbook coolant specs"
+    },
+    {
+      "id": "QuoteToShipOrchestratorEngine",
+      "file": "src/engines/QuoteToShipOrchestratorEngine.ts",
+      "type": "engine",
+      "role": "consumer",
+      "milestone": null,
+      "sections_consumed": ["maintenance_schedule", "parts_book"],
+      "data_flow": "read",
+      "fallback": "Cost estimates degrade gracefully without maintenance data",
+      "description": "Includes handbook-sourced maintenance costs in quote-to-ship pipeline via HandbookMaintenanceIntelligenceEngine"
+    },
+    {
+      "id": "machineSetupDispatcher",
+      "file": "src/tools/dispatchers/machineSetupDispatcher.ts",
+      "type": "dispatcher",
+      "role": "router",
+      "milestone": "HBK-MS10",
+      "sections_consumed": ["all"],
+      "data_flow": "read_write",
+      "fallback": "Returns null/empty when handbook not found; validates schemas",
+      "description": "Routes 27+ handbook-related MCP actions to intelligence engines",
+      "actions": [
+        "handbook_lookup", "handbook_ingest", "handbook_coverage", "handbook_compare",
+        "controller_programming_profile", "controller_custom_codes", "controller_macro_variables",
+        "controller_validate_dialect", "controller_enrichment_patch"
+      ]
+    },
+    {
+      "id": "SafetyQualityHooks.machineLimitGuard",
+      "file": "src/hooks/SafetyQualityHooks.ts",
+      "type": "hook",
+      "role": "enforcer",
+      "milestone": "HBK-MS9",
+      "sections_consumed": ["spindle_specs", "axis_kinematics", "safety_limits"],
+      "data_flow": "read",
+      "fallback": "Passes through when no handbook; only blocks when handbook limits explicitly exceeded",
+      "description": "Blocks operations exceeding handbook-documented machine limits (RPM, torque, power, axis travel)"
+    },
+    {
+      "id": "SafetyQualityHooks.alarmSeverityEscalation",
+      "file": "src/hooks/SafetyQualityHooks.ts",
+      "type": "hook",
+      "role": "enforcer",
+      "milestone": "HBK-MS9",
+      "sections_consumed": ["alarm_codes"],
+      "data_flow": "read",
+      "fallback": "Passes through when no handbook alarm data",
+      "description": "Escalates alarm severity using OEM handbook alarm data (emergency/critical blocks, error warns)"
+    },
+    {
+      "id": "ManufacturingHooks.handbookLimitGuard",
+      "file": "src/hooks/ManufacturingHooks.ts",
+      "type": "hook",
+      "role": "enforcer",
+      "milestone": "HBK-MS10",
+      "sections_consumed": ["spindle_specs", "axis_kinematics", "safety_limits"],
+      "data_flow": "read",
+      "fallback": "Passes through when no handbook found for machine",
+      "description": "Validates G-code parameters against handbook-documented limits (blocking/critical)"
+    },
+    {
+      "id": "ManufacturingHooks.handbookFreshnessCheck",
+      "file": "src/hooks/ManufacturingHooks.ts",
+      "type": "hook",
+      "role": "enforcer",
+      "milestone": "HBK-MS10",
+      "sections_consumed": ["cover_info"],
+      "data_flow": "read",
+      "fallback": "No warning when no handbook (handled by coverageGate)",
+      "description": "Warns when handbook data is older than 2 years (warning/normal)"
+    },
+    {
+      "id": "ManufacturingHooks.handbookCoverageGate",
+      "file": "src/hooks/ManufacturingHooks.ts",
+      "type": "hook",
+      "role": "enforcer",
+      "milestone": "HBK-MS10",
+      "sections_consumed": ["all"],
+      "data_flow": "read",
+      "fallback": "Warns (not blocks) when machine has no handbook",
+      "description": "Warns when machine has no handbook or sparse section coverage (warning/normal)"
+    }
+  ],
+  "data_flows": [
+    {
+      "id": "acquisition",
+      "name": "Handbook Acquisition Flow",
+      "path": "Raw Text -> HandbookExtractionEngine -> HandbookAcquisitionPipelineEngine -> MachineHandbookRegistryEngine",
+      "description": "Intake-parse-dedup-merge-commit pipeline for new handbook data"
+    },
+    {
+      "id": "capability",
+      "name": "Capability Resolution Flow",
+      "path": "MachineHandbookRegistryEngine -> MachineCapabilityIntelligenceEngine -> [SpeedFeedOrchestrator, FeedRateOptimization, ToolpathThermal]",
+      "description": "Handbook spindle/axis/coolant data feeds into physics pipeline via capability profiles"
+    },
+    {
+      "id": "alarm",
+      "name": "Alarm Intelligence Flow",
+      "path": "MachineHandbookRegistryEngine -> AlarmIntelligenceEngine -> [machineLimitGuard, alarmSeverityEscalation]",
+      "description": "Handbook alarm codes feed into cross-referenced troubleshooting and safety hooks"
+    },
+    {
+      "id": "maintenance",
+      "name": "Maintenance Costing Flow",
+      "path": "MachineHandbookRegistryEngine -> HandbookMaintenanceIntelligenceEngine -> QuoteToShipOrchestratorEngine",
+      "description": "Handbook PM schedules and parts book feed into job costing and quoting"
+    },
+    {
+      "id": "controller",
+      "name": "Controller Programming Flow",
+      "path": "MachineHandbookRegistryEngine -> ControllerProgrammingIntelligenceEngine -> PostProcessorPipelineEngine",
+      "description": "Handbook controller features generate enrichment patches for machine-specific post-processing"
+    },
+    {
+      "id": "safety",
+      "name": "Safety Enforcement Flow",
+      "path": "MachineHandbookRegistryEngine -> [machineLimitGuard, handbookLimitGuard, handbookFreshnessCheck, handbookCoverageGate]",
+      "description": "Handbook limits enforce safe operation boundaries via blocking and warning hooks"
+    }
+  ],
+  "coverage_metrics": {
+    "total_consumers": 17,
+    "engines": 11,
+    "dispatchers": 1,
+    "hooks": 5,
+    "pipelines_with_handbook_access": 3,
+    "section_types_consumed": 11,
+    "consumers_with_fallback": 17,
+    "consumers_without_fallback": 0
+  }
+}

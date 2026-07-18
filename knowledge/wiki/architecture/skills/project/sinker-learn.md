@@ -29,8 +29,10 @@ related:
 
 ## Description (first paragraph)
 
-
-# /sinker-learn — Sinker EDM Knowledge Extraction
+Learn from sinker EDM operations:
+- Extract successful burn patterns
+- Learn electrode wear curves
+- Capture flushing strategies
 
 <!-- AUTO-END -->
 

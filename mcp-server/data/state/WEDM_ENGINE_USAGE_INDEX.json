@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-15T21:30:00.000Z",
+  "description": "Maps WEDM engines to their consumers (actions, skills, hooks, tests)",
+  "engines": {
+    "WEDMMRREngine": {
+      "actions": ["wedm_predict_mrr", "wedm_optimize_parameters"],
+      "skills": ["/wedm-studio", "/wedm-ai-advisor"],
+      "hooks": ["wedm-neural-sanity"],
+      "tests": ["WEDMMRREngine.test.ts"],
+      "usageCount": 0
+    },
+    "WEDMSurfaceFinishEngine": {
+      "actions": ["wedm_predict_ra", "wedm_estimate_finish"],
+      "skills": ["/wedm-studio", "/wedm-compare"],
+      "hooks": ["wedm-neural-sanity"],
+      "tests": ["WEDMSurfaceFinishEngine.test.ts"],
+      "usageCount": 0
+    },
+    "WEDMPostProcessorEngine": {
+      "actions": ["wedm_generate_gcode", "wedm_post_process"],
+      "skills": ["/wedm-studio", "/wedm-program"],
+      "hooks": ["wedm-gcode-injection", "wedm-ecode-consistency"],
+      "tests": ["WEDMPostProcessorEngine.test.ts"],
+      "usageCount": 0
+    },
+    "WEDMTaperSolverEngine": {
+      "actions": ["wedm_solve_taper", "wedm_calculate_uv"],
+      "skills": ["/wedm-studio"],
+      "hooks": ["wedm-taper-limits"],
+      "tests": ["WEDMTaperSolverEngine.test.ts"],
+      "usageCount": 0
+    },
+    "WEDMCostEstimatorEngine": {
+      "actions": ["wedm_estimate_cost", "wedm_quote"],
+      "skills": ["/wedm-studio", "/quote-to-ship"],
+      "hooks": ["wedm-cost-confidence"],
+      "tests": ["WEDMCostEstimatorEngine.test.ts"],
+      "usageCount": 0
+    }
+  },
+  "totalEngines": 119,
+  "indexedEngines": 5,
+  "lastUpdated": "2026-04-15T21:30:00.000Z"
+}

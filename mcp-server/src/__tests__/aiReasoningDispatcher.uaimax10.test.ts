@@ -98,8 +98,10 @@ beforeEach(() => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("U-AIMAX10 schema integrity", () => {
-  it("AI_CAPABILITY_ACTIONS has exactly 46 entries (9+14+8+7+8)", () => {
-    expect(AI_CAPABILITY_ACTIONS.length).toBe(46);
+  it("AI_CAPABILITY_ACTIONS has exactly 49 entries (9+17+8+7+8)", () => {
+    // +1 (resource group 16->17): ai_domain_corpus_pointers wired 2026-06-24 (papa) --
+    // the per-domain tribal-corpus consumer that closes zulu's all-domain feeder R15 orphan.
+    expect(AI_CAPABILITY_ACTIONS.length).toBe(49);
   });
 
   it("AI_CAPABILITY_ACTIONS entries are unique", () => {
@@ -107,7 +109,7 @@ describe("U-AIMAX10 schema integrity", () => {
     expect(set.size).toBe(AI_CAPABILITY_ACTIONS.length);
   });
 
-  it("ACTION_AI_CAPABILITY_SCHEMAS has exactly 46 keys matching AI_CAPABILITY_ACTIONS", () => {
+  it("ACTION_AI_CAPABILITY_SCHEMAS keys match AI_CAPABILITY_ACTIONS exactly (parity)", () => {
     const schemaKeys = Object.keys(ACTION_AI_CAPABILITY_SCHEMAS).sort();
     const actionList = [...AI_CAPABILITY_ACTIONS].sort();
     expect(schemaKeys).toEqual(actionList);

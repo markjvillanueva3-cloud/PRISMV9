@@ -1,0 +1,243 @@
+{
+  "file_name": "WCC2",
+  "file_id": "urn:adsk.wipprod:dm.lineage:X1JH_AGtTPuJXpSrvvwZmA",
+  "project": "Mark Villanueva",
+  "folder": "QUEUE",
+  "extracted_at": "2026-04-05T13:45:54",
+  "design": {
+    "body_count": 1,
+    "occurrence_count": 0,
+    "feature_count": 2,
+    "bodies": [
+      {
+        "name": "Body1",
+        "volume_cm3": 1.607444599880456,
+        "area_cm2": 13.908203795816068,
+        "face_count": 6,
+        "edge_count": 6
+      }
+    ]
+  },
+  "cam": {
+    "has_cam": true,
+    "setup_count": 1,
+    "setups": [
+      {
+        "name": "Setup1",
+        "type": "1",
+        "operations": [
+          {
+            "name": "Face1",
+            "strategy": "turning_face",
+            "tool": {
+              "description": "#1 - CNMT32.52 CNMT Right Hand",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "((tool_type == 'boring bar') ? 1 : ((tool_type == 'thread mill' || tool_type == 'chamfer mill' || tool_type == 'spot drill' || tool_type == 'center drill' || tool_type == 'drill') ? 2 : ((tool_type == 'counter bore' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'tapered mill' || tool_type == 'radius mill') ? 4 : ((tool_type == 'lollipop mill') ? 5 : ((tool_type == 'reamer' || tool_type == 'face mill') ? 6 : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? 7 : 3))))))",
+              "tool_bodyLength": "((tool_type == 'dovetail mill' || tool_type == 'counter sink') ? (tool_diameter * 2) : ((tool_type == 'chamfer mill' || tool_type == 'lollipop mill' || tool_type == 'slot mill' || tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 3) : ((tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'circle segment barrel') ? (tool_fluteLength * 3) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'boring bar ' || tool_type == 'counter bore' || tool_type == 'circle segment taper' || tool_type == 'circle segment lens') ? (tool_diameter * 4) : ((tool_type == 'face mill') ? (tool_fluteLength * 4) : ((tool_type == 'reamer') ? (tool_diameter * 8) : ((tool_type == 'drill' || tool_type == 'circle segment oval') ? (tool_diameter * 10) : (tool_shoulderLength + tool_diameter * 2))))))))",
+              "tool_fluteLength": "((tool_type == 'slot mill') ? (tool_diameter / 5) : ((tool_type == 'dovetail mill') ? (tool_diameter / 2) : ((tool_type == 'lollipop mill' || tool_type == 'circle segment taper') ? (tool_diameter * 0.9) : ((tool_type == 'circle segment lens' || tool_type == 'circle segment barrel') ? (tool_diameter * 2) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'reamer') ? (tool_diameter * 3) : ((tool_type == 'drill') ? (tool_diameter * 8) : ((tool_type == 'circle segment oval') ? ((tool_profileRadius - tool_lowerRadius) *  Math.sqrt(1 - (( ( tool_profileRadius - tool_diameter / 2 ) / ( tool_profileRadius - tool_lowerRadius) ) ^ 2)) + tool_lowerRadius) : ((tool_type == 'radius mill') ? (tool_diameter + tool_tipLength) : ((tool_type == 'chamfer mill') ? ((tool_diameter - tool_tipDiameter) / (2 * tan(tool_taperAngle)) + tool_diameter) : ((tool_type == 'counter sink') ? ((tool_diameter - tool_tipDiameter) / (2 * tan((tool_tipAngle / 2)))) : ((tool_type == 'face mill') ? (tool_unit == 'inches' ? 0.5in : 12mm) : (tool_diameter * 2))))))))))))",
+              "tool_cornerRadius": "0.03125in",
+              "tool_shaftDiameter": "((tool_type == 'reamer') ? (tool_diameter * 0.9) : ((tool_type == 'counter bore') ? (tool_diameter * 0.8) : ((tool_type == 'counter sink') ? (tool_diameter * 0.6) : ((tool_type == 'dovetail mill' || tool_type == 'lollipop mill' || tool_type == 'circle segment barrel') ? (tool_diameter * 0.5) : ((tool_type == 'slot mill') ? (tool_diameter / 3) : ((tool_type == 'face mill' || tool_type == 'radius mill' || tool_type == 'tapered mill') ? (tool_shoulderDiameter) : ((tool_type == 'probe') ? (4mm) : (tool_diameter))))))))",
+              "tool_shoulderLength": "((tool_type == 'face mill' || tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'lollipop mill' || tool_type == 'counter bore' || tool_type == 'reamer') ? (tool_fluteLength) : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? (tool_diameter) : ((tool_type == 'chamfer mill' || tool_type == 'counter sink') ? (tool_fluteLength * 1.5) : ((tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 2.5) : ((tool_type == 'boring bar') ? (tool_diameter * 3) : ((tool_type == 'ball end mill' || tool_type == 'flat end mill' || tool_type == 'bull nose end mill') ? (tool_diameter * 3.5) : ((tool_type == 'drill') ? (tool_diameter * 9) :((tool_type == 'circle segment barrel') ? 60mm :((tool_type == 'circle segment lens') ? 40mm :((tool_type == 'circle segment oval' || tool_type == 'circle segment taper') ? 30mm : (tool_fluteLength + tool_diameter)))))))))))",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "500rpm",
+              "tool_feedCutting": "40inpm",
+              "tool_surfaceSpeed": "7874.0157480314956in/min",
+              "stepover": "0.04in",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Profile Roughing1",
+            "strategy": "turning_profile_roughing",
+            "tool": {
+              "description": "#1 - CNMT32.52 CNMT Right Hand",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "((tool_type == 'boring bar') ? 1 : ((tool_type == 'thread mill' || tool_type == 'chamfer mill' || tool_type == 'spot drill' || tool_type == 'center drill' || tool_type == 'drill') ? 2 : ((tool_type == 'counter bore' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'tapered mill' || tool_type == 'radius mill') ? 4 : ((tool_type == 'lollipop mill') ? 5 : ((tool_type == 'reamer' || tool_type == 'face mill') ? 6 : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? 7 : 3))))))",
+              "tool_bodyLength": "((tool_type == 'dovetail mill' || tool_type == 'counter sink') ? (tool_diameter * 2) : ((tool_type == 'chamfer mill' || tool_type == 'lollipop mill' || tool_type == 'slot mill' || tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 3) : ((tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'circle segment barrel') ? (tool_fluteLength * 3) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'boring bar ' || tool_type == 'counter bore' || tool_type == 'circle segment taper' || tool_type == 'circle segment lens') ? (tool_diameter * 4) : ((tool_type == 'face mill') ? (tool_fluteLength * 4) : ((tool_type == 'reamer') ? (tool_diameter * 8) : ((tool_type == 'drill' || tool_type == 'circle segment oval') ? (tool_diameter * 10) : (tool_shoulderLength + tool_diameter * 2))))))))",
+              "tool_fluteLength": "((tool_type == 'slot mill') ? (tool_diameter / 5) : ((tool_type == 'dovetail mill') ? (tool_diameter / 2) : ((tool_type == 'lollipop mill' || tool_type == 'circle segment taper') ? (tool_diameter * 0.9) : ((tool_type == 'circle segment lens' || tool_type == 'circle segment barrel') ? (tool_diameter * 2) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'reamer') ? (tool_diameter * 3) : ((tool_type == 'drill') ? (tool_diameter * 8) : ((tool_type == 'circle segment oval') ? ((tool_profileRadius - tool_lowerRadius) *  Math.sqrt(1 - (( ( tool_profileRadius - tool_diameter / 2 ) / ( tool_profileRadius - tool_lowerRadius) ) ^ 2)) + tool_lowerRadius) : ((tool_type == 'radius mill') ? (tool_diameter + tool_tipLength) : ((tool_type == 'chamfer mill') ? ((tool_diameter - tool_tipDiameter) / (2 * tan(tool_taperAngle)) + tool_diameter) : ((tool_type == 'counter sink') ? ((tool_diameter - tool_tipDiameter) / (2 * tan((tool_tipAngle / 2)))) : ((tool_type == 'face mill') ? (tool_unit == 'inches' ? 0.5in : 12mm) : (tool_diameter * 2))))))))))))",
+              "tool_cornerRadius": "0.03125in",
+              "tool_shaftDiameter": "((tool_type == 'reamer') ? (tool_diameter * 0.9) : ((tool_type == 'counter bore') ? (tool_diameter * 0.8) : ((tool_type == 'counter sink') ? (tool_diameter * 0.6) : ((tool_type == 'dovetail mill' || tool_type == 'lollipop mill' || tool_type == 'circle segment barrel') ? (tool_diameter * 0.5) : ((tool_type == 'slot mill') ? (tool_diameter / 3) : ((tool_type == 'face mill' || tool_type == 'radius mill' || tool_type == 'tapered mill') ? (tool_shoulderDiameter) : ((tool_type == 'probe') ? (4mm) : (tool_diameter))))))))",
+              "tool_shoulderLength": "((tool_type == 'face mill' || tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'lollipop mill' || tool_type == 'counter bore' || tool_type == 'reamer') ? (tool_fluteLength) : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? (tool_diameter) : ((tool_type == 'chamfer mill' || tool_type == 'counter sink') ? (tool_fluteLength * 1.5) : ((tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 2.5) : ((tool_type == 'boring bar') ? (tool_diameter * 3) : ((tool_type == 'ball end mill' || tool_type == 'flat end mill' || tool_type == 'bull nose end mill') ? (tool_diameter * 3.5) : ((tool_type == 'drill') ? (tool_diameter * 9) :((tool_type == 'circle segment barrel') ? 60mm :((tool_type == 'circle segment lens') ? 40mm :((tool_type == 'circle segment oval' || tool_type == 'circle segment taper') ? 30mm : (tool_fluteLength + tool_diameter)))))))))))",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "500rpm",
+              "tool_feedCutting": "40inpm",
+              "tool_surfaceSpeed": "7874.0157480314947in/min",
+              "stepover": "Math.max(1.5*tool_cornerRadius; 1.0)",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Face2",
+            "strategy": "turning_face",
+            "tool": {
+              "description": "#2 - CNMT32.52 CNMT Right Hand",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "((tool_type == 'boring bar') ? 1 : ((tool_type == 'thread mill' || tool_type == 'chamfer mill' || tool_type == 'spot drill' || tool_type == 'center drill' || tool_type == 'drill') ? 2 : ((tool_type == 'counter bore' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'tapered mill' || tool_type == 'radius mill') ? 4 : ((tool_type == 'lollipop mill') ? 5 : ((tool_type == 'reamer' || tool_type == 'face mill') ? 6 : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? 7 : 3))))))",
+              "tool_bodyLength": "((tool_type == 'dovetail mill' || tool_type == 'counter sink') ? (tool_diameter * 2) : ((tool_type == 'chamfer mill' || tool_type == 'lollipop mill' || tool_type == 'slot mill' || tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 3) : ((tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'circle segment barrel') ? (tool_fluteLength * 3) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'boring bar ' || tool_type == 'counter bore' || tool_type == 'circle segment taper' || tool_type == 'circle segment lens') ? (tool_diameter * 4) : ((tool_type == 'face mill') ? (tool_fluteLength * 4) : ((tool_type == 'reamer') ? (tool_diameter * 8) : ((tool_type == 'drill' || tool_type == 'circle segment oval') ? (tool_diameter * 10) : (tool_shoulderLength + tool_diameter * 2))))))))",
+              "tool_fluteLength": "((tool_type == 'slot mill') ? (tool_diameter / 5) : ((tool_type == 'dovetail mill') ? (tool_diameter / 2) : ((tool_type == 'lollipop mill' || tool_type == 'circle segment taper') ? (tool_diameter * 0.9) : ((tool_type == 'circle segment lens' || tool_type == 'circle segment barrel') ? (tool_diameter * 2) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'reamer') ? (tool_diameter * 3) : ((tool_type == 'drill') ? (tool_diameter * 8) : ((tool_type == 'circle segment oval') ? ((tool_profileRadius - tool_lowerRadius) *  Math.sqrt(1 - (( ( tool_profileRadius - tool_diameter / 2 ) / ( tool_profileRadius - tool_lowerRadius) ) ^ 2)) + tool_lowerRadius) : ((tool_type == 'radius mill') ? (tool_diameter + tool_tipLength) : ((tool_type == 'chamfer mill') ? ((tool_diameter - tool_tipDiameter) / (2 * tan(tool_taperAngle)) + tool_diameter) : ((tool_type == 'counter sink') ? ((tool_diameter - tool_tipDiameter) / (2 * tan((tool_tipAngle / 2)))) : ((tool_type == 'face mill') ? (tool_unit == 'inches' ? 0.5in : 12mm) : (tool_diameter * 2))))))))))))",
+              "tool_cornerRadius": "0.03125in",
+              "tool_shaftDiameter": "((tool_type == 'reamer') ? (tool_diameter * 0.9) : ((tool_type == 'counter bore') ? (tool_diameter * 0.8) : ((tool_type == 'counter sink') ? (tool_diameter * 0.6) : ((tool_type == 'dovetail mill' || tool_type == 'lollipop mill' || tool_type == 'circle segment barrel') ? (tool_diameter * 0.5) : ((tool_type == 'slot mill') ? (tool_diameter / 3) : ((tool_type == 'face mill' || tool_type == 'radius mill' || tool_type == 'tapered mill') ? (tool_shoulderDiameter) : ((tool_type == 'probe') ? (4mm) : (tool_diameter))))))))",
+              "tool_shoulderLength": "((tool_type == 'face mill' || tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'lollipop mill' || tool_type == 'counter bore' || tool_type == 'reamer') ? (tool_fluteLength) : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? (tool_diameter) : ((tool_type == 'chamfer mill' || tool_type == 'counter sink') ? (tool_fluteLength * 1.5) : ((tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 2.5) : ((tool_type == 'boring bar') ? (tool_diameter * 3) : ((tool_type == 'ball end mill' || tool_type == 'flat end mill' || tool_type == 'bull nose end mill') ? (tool_diameter * 3.5) : ((tool_type == 'drill') ? (tool_diameter * 9) :((tool_type == 'circle segment barrel') ? 60mm :((tool_type == 'circle segment lens') ? 40mm :((tool_type == 'circle segment oval' || tool_type == 'circle segment taper') ? 30mm : (tool_fluteLength + tool_diameter)))))))))))",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "500rpm",
+              "tool_feedCutting": "40inpm",
+              "tool_surfaceSpeed": "7874.0157480314956in/min",
+              "stepover": "0.04in",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Profile Finishing1",
+            "strategy": "turning_profile_finishing",
+            "tool": {
+              "description": "#2 - CNMT32.52 CNMT Right Hand",
+              "tool_diameter": "0.375in",
+              "tool_numberOfFlutes": "((tool_type == 'boring bar') ? 1 : ((tool_type == 'thread mill' || tool_type == 'chamfer mill' || tool_type == 'spot drill' || tool_type == 'center drill' || tool_type == 'drill') ? 2 : ((tool_type == 'counter bore' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'tapered mill' || tool_type == 'radius mill') ? 4 : ((tool_type == 'lollipop mill') ? 5 : ((tool_type == 'reamer' || tool_type == 'face mill') ? 6 : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? 7 : 3))))))",
+              "tool_bodyLength": "((tool_type == 'dovetail mill' || tool_type == 'counter sink') ? (tool_diameter * 2) : ((tool_type == 'chamfer mill' || tool_type == 'lollipop mill' || tool_type == 'slot mill' || tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 3) : ((tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'circle segment barrel') ? (tool_fluteLength * 3) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'boring bar ' || tool_type == 'counter bore' || tool_type == 'circle segment taper' || tool_type == 'circle segment lens') ? (tool_diameter * 4) : ((tool_type == 'face mill') ? (tool_fluteLength * 4) : ((tool_type == 'reamer') ? (tool_diameter * 8) : ((tool_type == 'drill' || tool_type == 'circle segment oval') ? (tool_diameter * 10) : (tool_shoulderLength + tool_diameter * 2))))))))",
+              "tool_fluteLength": "((tool_type == 'slot mill') ? (tool_diameter / 5) : ((tool_type == 'dovetail mill') ? (tool_diameter / 2) : ((tool_type == 'lollipop mill' || tool_type == 'circle segment taper') ? (tool_diameter * 0.9) : ((tool_type == 'circle segment lens' || tool_type == 'circle segment barrel') ? (tool_diameter * 2) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'reamer') ? (tool_diameter * 3) : ((tool_type == 'drill') ? (tool_diameter * 8) : ((tool_type == 'circle segment oval') ? ((tool_profileRadius - tool_lowerRadius) *  Math.sqrt(1 - (( ( tool_profileRadius - tool_diameter / 2 ) / ( tool_profileRadius - tool_lowerRadius) ) ^ 2)) + tool_lowerRadius) : ((tool_type == 'radius mill') ? (tool_diameter + tool_tipLength) : ((tool_type == 'chamfer mill') ? ((tool_diameter - tool_tipDiameter) / (2 * tan(tool_taperAngle)) + tool_diameter) : ((tool_type == 'counter sink') ? ((tool_diameter - tool_tipDiameter) / (2 * tan((tool_tipAngle / 2)))) : ((tool_type == 'face mill') ? (tool_unit == 'inches' ? 0.5in : 12mm) : (tool_diameter * 2))))))))))))",
+              "tool_cornerRadius": "0.03125in",
+              "tool_shaftDiameter": "((tool_type == 'reamer') ? (tool_diameter * 0.9) : ((tool_type == 'counter bore') ? (tool_diameter * 0.8) : ((tool_type == 'counter sink') ? (tool_diameter * 0.6) : ((tool_type == 'dovetail mill' || tool_type == 'lollipop mill' || tool_type == 'circle segment barrel') ? (tool_diameter * 0.5) : ((tool_type == 'slot mill') ? (tool_diameter / 3) : ((tool_type == 'face mill' || tool_type == 'radius mill' || tool_type == 'tapered mill') ? (tool_shoulderDiameter) : ((tool_type == 'probe') ? (4mm) : (tool_diameter))))))))",
+              "tool_shoulderLength": "((tool_type == 'face mill' || tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'lollipop mill' || tool_type == 'counter bore' || tool_type == 'reamer') ? (tool_fluteLength) : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? (tool_diameter) : ((tool_type == 'chamfer mill' || tool_type == 'counter sink') ? (tool_fluteLength * 1.5) : ((tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 2.5) : ((tool_type == 'boring bar') ? (tool_diameter * 3) : ((tool_type == 'ball end mill' || tool_type == 'flat end mill' || tool_type == 'bull nose end mill') ? (tool_diameter * 3.5) : ((tool_type == 'drill') ? (tool_diameter * 9) :((tool_type == 'circle segment barrel') ? 60mm :((tool_type == 'circle segment lens') ? 40mm :((tool_type == 'circle segment oval' || tool_type == 'circle segment taper') ? 30mm : (tool_fluteLength + tool_diameter)))))))))))",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "500rpm",
+              "tool_feedCutting": "40inpm",
+              "tool_surfaceSpeed": "7874.0157480314947in/min",
+              "stepover": "Math.max(1.5*tool_cornerRadius; 1.0)",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Drill1",
+            "strategy": "drill",
+            "tool": {
+              "description": "#4 - \u00d81/2\" 90\u00b0 spot drill (1/4)",
+              "tool_diameter": "0.5in",
+              "tool_numberOfFlutes": "2",
+              "tool_bodyLength": "2.625in",
+              "tool_fluteLength": "0.5in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "0.656in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "1000.",
+              "tool_feedCutting": "40inpm",
+              "tool_feedPlunge": "1.90986in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "(tool_spindleSpeed > 0) ? tool_feedPlunge / tool_spindleSpeed : 0.0",
+              "tolerance": "Math.min(tool_diameter/100; 0.01mm)"
+            }
+          },
+          {
+            "name": "Drill2",
+            "strategy": "drill",
+            "tool": {
+              "description": "#7 - \u00d81/2\" 120\u00b0 drill (1/2 DRILL)",
+              "tool_diameter": "0.5in",
+              "tool_numberOfFlutes": "2",
+              "tool_bodyLength": "4.in",
+              "tool_fluteLength": "1.6875in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "3.25in",
+              "tool_productId": "''",
+              "tool_vendor": "'YG-1'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "tool_surfaceSpeed/(tool_diameter * Math.PI)",
+              "tool_feedCutting": "40inpm",
+              "tool_feedPlunge": "tool_feedPerRevolution * tool_spindleSpeed",
+              "tool_surfaceSpeed": "80ft/min",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": ".006in",
+              "tolerance": "Math.min(tool_diameter/100; 0.01mm)"
+            }
+          },
+          {
+            "name": "Profile Roughing2",
+            "strategy": "turning_profile_roughing",
+            "tool": {
+              "description": "#6 - CDHH?.6? 1/4\" KENNAMETAL BORING BAR",
+              "tool_diameter": "0.095in",
+              "tool_numberOfFlutes": "((tool_type == 'boring bar') ? 1 : ((tool_type == 'thread mill' || tool_type == 'chamfer mill' || tool_type == 'spot drill' || tool_type == 'center drill' || tool_type == 'drill') ? 2 : ((tool_type == 'counter bore' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'tapered mill' || tool_type == 'radius mill') ? 4 : ((tool_type == 'lollipop mill') ? 5 : ((tool_type == 'reamer' || tool_type == 'face mill') ? 6 : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? 7 : 3))))))",
+              "tool_bodyLength": "((tool_type == 'dovetail mill' || tool_type == 'counter sink') ? (tool_diameter * 2) : ((tool_type == 'chamfer mill' || tool_type == 'lollipop mill' || tool_type == 'slot mill' || tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 3) : ((tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'circle segment barrel') ? (tool_fluteLength * 3) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'boring bar ' || tool_type == 'counter bore' || tool_type == 'circle segment taper' || tool_type == 'circle segment lens') ? (tool_diameter * 4) : ((tool_type == 'face mill') ? (tool_fluteLength * 4) : ((tool_type == 'reamer') ? (tool_diameter * 8) : ((tool_type == 'drill' || tool_type == 'circle segment oval') ? (tool_diameter * 10) : (tool_shoulderLength + tool_diameter * 2))))))))",
+              "tool_fluteLength": "((tool_type == 'slot mill') ? (tool_diameter / 5) : ((tool_type == 'dovetail mill') ? (tool_diameter / 2) : ((tool_type == 'lollipop mill' || tool_type == 'circle segment taper') ? (tool_diameter * 0.9) : ((tool_type == 'circle segment lens' || tool_type == 'circle segment barrel') ? (tool_diameter * 2) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'reamer') ? (tool_diameter * 3) : ((tool_type == 'drill') ? (tool_diameter * 8) : ((tool_type == 'circle segment oval') ? ((tool_profileRadius - tool_lowerRadius) *  Math.sqrt(1 - (( ( tool_profileRadius - tool_diameter / 2 ) / ( tool_profileRadius - tool_lowerRadius) ) ^ 2)) + tool_lowerRadius) : ((tool_type == 'radius mill') ? (tool_diameter + tool_tipLength) : ((tool_type == 'chamfer mill') ? ((tool_diameter - tool_tipDiameter) / (2 * tan(tool_taperAngle)) + tool_diameter) : ((tool_type == 'counter sink') ? ((tool_diameter - tool_tipDiameter) / (2 * tan((tool_tipAngle / 2)))) : ((tool_type == 'face mill') ? (tool_unit == 'inches' ? 0.5in : 12mm) : (tool_diameter * 2))))))))))))",
+              "tool_cornerRadius": "0.015in",
+              "tool_shaftDiameter": "((tool_type == 'reamer') ? (tool_diameter * 0.9) : ((tool_type == 'counter bore') ? (tool_diameter * 0.8) : ((tool_type == 'counter sink') ? (tool_diameter * 0.6) : ((tool_type == 'dovetail mill' || tool_type == 'lollipop mill' || tool_type == 'circle segment barrel') ? (tool_diameter * 0.5) : ((tool_type == 'slot mill') ? (tool_diameter / 3) : ((tool_type == 'face mill' || tool_type == 'radius mill' || tool_type == 'tapered mill') ? (tool_shoulderDiameter) : ((tool_type == 'probe') ? (4mm) : (tool_diameter))))))))",
+              "tool_shoulderLength": "((tool_type == 'face mill' || tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'lollipop mill' || tool_type == 'counter bore' || tool_type == 'reamer') ? (tool_fluteLength) : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? (tool_diameter) : ((tool_type == 'chamfer mill' || tool_type == 'counter sink') ? (tool_fluteLength * 1.5) : ((tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 2.5) : ((tool_type == 'boring bar') ? (tool_diameter * 3) : ((tool_type == 'ball end mill' || tool_type == 'flat end mill' || tool_type == 'bull nose end mill') ? (tool_diameter * 3.5) : ((tool_type == 'drill') ? (tool_diameter * 9) :((tool_type == 'circle segment barrel') ? 60mm :((tool_type == 'circle segment lens') ? 40mm :((tool_type == 'circle segment oval' || tool_type == 'circle segment taper') ? 30mm : (tool_fluteLength + tool_diameter)))))))))))",
+              "tool_productId": "''",
+              "tool_vendor": "'KENNAMETAL'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "500rpm",
+              "tool_feedCutting": "40inpm",
+              "tool_surfaceSpeed": "7800.in/min",
+              "stepover": "Math.max(1.5*tool_cornerRadius; 1.0)",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Profile Finishing2",
+            "strategy": "turning_profile_finishing",
+            "tool": {
+              "description": "#6 - CDHH?.6? 1/4\" KENNAMETAL BORING BAR",
+              "tool_diameter": "0.095in",
+              "tool_numberOfFlutes": "((tool_type == 'boring bar') ? 1 : ((tool_type == 'thread mill' || tool_type == 'chamfer mill' || tool_type == 'spot drill' || tool_type == 'center drill' || tool_type == 'drill') ? 2 : ((tool_type == 'counter bore' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'tapered mill' || tool_type == 'radius mill') ? 4 : ((tool_type == 'lollipop mill') ? 5 : ((tool_type == 'reamer' || tool_type == 'face mill') ? 6 : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? 7 : 3))))))",
+              "tool_bodyLength": "((tool_type == 'dovetail mill' || tool_type == 'counter sink') ? (tool_diameter * 2) : ((tool_type == 'chamfer mill' || tool_type == 'lollipop mill' || tool_type == 'slot mill' || tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 3) : ((tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'circle segment barrel') ? (tool_fluteLength * 3) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'boring bar ' || tool_type == 'counter bore' || tool_type == 'circle segment taper' || tool_type == 'circle segment lens') ? (tool_diameter * 4) : ((tool_type == 'face mill') ? (tool_fluteLength * 4) : ((tool_type == 'reamer') ? (tool_diameter * 8) : ((tool_type == 'drill' || tool_type == 'circle segment oval') ? (tool_diameter * 10) : (tool_shoulderLength + tool_diameter * 2))))))))",
+              "tool_fluteLength": "((tool_type == 'slot mill') ? (tool_diameter / 5) : ((tool_type == 'dovetail mill') ? (tool_diameter / 2) : ((tool_type == 'lollipop mill' || tool_type == 'circle segment taper') ? (tool_diameter * 0.9) : ((tool_type == 'circle segment lens' || tool_type == 'circle segment barrel') ? (tool_diameter * 2) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'reamer') ? (tool_diameter * 3) : ((tool_type == 'drill') ? (tool_diameter * 8) : ((tool_type == 'circle segment oval') ? ((tool_profileRadius - tool_lowerRadius) *  Math.sqrt(1 - (( ( tool_profileRadius - tool_diameter / 2 ) / ( tool_profileRadius - tool_lowerRadius) ) ^ 2)) + tool_lowerRadius) : ((tool_type == 'radius mill') ? (tool_diameter + tool_tipLength) : ((tool_type == 'chamfer mill') ? ((tool_diameter - tool_tipDiameter) / (2 * tan(tool_taperAngle)) + tool_diameter) : ((tool_type == 'counter sink') ? ((tool_diameter - tool_tipDiameter) / (2 * tan((tool_tipAngle / 2)))) : ((tool_type == 'face mill') ? (tool_unit == 'inches' ? 0.5in : 12mm) : (tool_diameter * 2))))))))))))",
+              "tool_cornerRadius": "0.015in",
+              "tool_shaftDiameter": "((tool_type == 'reamer') ? (tool_diameter * 0.9) : ((tool_type == 'counter bore') ? (tool_diameter * 0.8) : ((tool_type == 'counter sink') ? (tool_diameter * 0.6) : ((tool_type == 'dovetail mill' || tool_type == 'lollipop mill' || tool_type == 'circle segment barrel') ? (tool_diameter * 0.5) : ((tool_type == 'slot mill') ? (tool_diameter / 3) : ((tool_type == 'face mill' || tool_type == 'radius mill' || tool_type == 'tapered mill') ? (tool_shoulderDiameter) : ((tool_type == 'probe') ? (4mm) : (tool_diameter))))))))",
+              "tool_shoulderLength": "((tool_type == 'face mill' || tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'lollipop mill' || tool_type == 'counter bore' || tool_type == 'reamer') ? (tool_fluteLength) : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? (tool_diameter) : ((tool_type == 'chamfer mill' || tool_type == 'counter sink') ? (tool_fluteLength * 1.5) : ((tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 2.5) : ((tool_type == 'boring bar') ? (tool_diameter * 3) : ((tool_type == 'ball end mill' || tool_type == 'flat end mill' || tool_type == 'bull nose end mill') ? (tool_diameter * 3.5) : ((tool_type == 'drill') ? (tool_diameter * 9) :((tool_type == 'circle segment barrel') ? 60mm :((tool_type == 'circle segment lens') ? 40mm :((tool_type == 'circle segment oval' || tool_type == 'circle segment taper') ? 30mm : (tool_fluteLength + tool_diameter)))))))))))",
+              "tool_productId": "''",
+              "tool_vendor": "'KENNAMETAL'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "500rpm",
+              "tool_feedCutting": "40inpm",
+              "tool_surfaceSpeed": "7800.in/min",
+              "stepover": "Math.max(1.5*tool_cornerRadius; 1.0)",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Part1",
+            "strategy": "turning_part",
+            "tool": {
+              "description": "#11 - turning grooving OD Grooving",
+              "tool_diameter": "10.",
+              "tool_numberOfFlutes": "((tool_type == 'boring bar') ? 1 : ((tool_type == 'thread mill' || tool_type == 'chamfer mill' || tool_type == 'spot drill' || tool_type == 'center drill' || tool_type == 'drill') ? 2 : ((tool_type == 'counter bore' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'tapered mill' || tool_type == 'radius mill') ? 4 : ((tool_type == 'lollipop mill') ? 5 : ((tool_type == 'reamer' || tool_type == 'face mill') ? 6 : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? 7 : 3))))))",
+              "tool_bodyLength": "((tool_type == 'dovetail mill' || tool_type == 'counter sink') ? (tool_diameter * 2) : ((tool_type == 'chamfer mill' || tool_type == 'lollipop mill' || tool_type == 'slot mill' || tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 3) : ((tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'circle segment barrel') ? (tool_fluteLength * 3) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'boring bar ' || tool_type == 'counter bore' || tool_type == 'circle segment taper' || tool_type == 'circle segment lens') ? (tool_diameter * 4) : ((tool_type == 'face mill') ? (tool_fluteLength * 4) : ((tool_type == 'reamer') ? (tool_diameter * 8) : ((tool_type == 'drill' || tool_type == 'circle segment oval') ? (tool_diameter * 10) : (tool_shoulderLength + tool_diameter * 2))))))))",
+              "tool_fluteLength": "((tool_type == 'slot mill') ? (tool_diameter / 5) : ((tool_type == 'dovetail mill') ? (tool_diameter / 2) : ((tool_type == 'lollipop mill' || tool_type == 'circle segment taper') ? (tool_diameter * 0.9) : ((tool_type == 'circle segment lens' || tool_type == 'circle segment barrel') ? (tool_diameter * 2) : ((tool_type == 'ball end mill' || tool_type == 'bull nose end mill' || tool_type == 'flat end mill' || tool_type == 'reamer') ? (tool_diameter * 3) : ((tool_type == 'drill') ? (tool_diameter * 8) : ((tool_type == 'circle segment oval') ? ((tool_profileRadius - tool_lowerRadius) *  Math.sqrt(1 - (( ( tool_profileRadius - tool_diameter / 2 ) / ( tool_profileRadius - tool_lowerRadius) ) ^ 2)) + tool_lowerRadius) : ((tool_type == 'radius mill') ? (tool_diameter + tool_tipLength) : ((tool_type == 'chamfer mill') ? ((tool_diameter - tool_tipDiameter) / (2 * tan(tool_taperAngle)) + tool_diameter) : ((tool_type == 'counter sink') ? ((tool_diameter - tool_tipDiameter) / (2 * tan((tool_tipAngle / 2)))) : ((tool_type == 'face mill') ? (tool_unit == 'inches' ? 0.5in : 12mm) : (tool_diameter * 2))))))))))))",
+              "tool_cornerRadius": "0.0",
+              "tool_shaftDiameter": "((tool_type == 'reamer') ? (tool_diameter * 0.9) : ((tool_type == 'counter bore') ? (tool_diameter * 0.8) : ((tool_type == 'counter sink') ? (tool_diameter * 0.6) : ((tool_type == 'dovetail mill' || tool_type == 'lollipop mill' || tool_type == 'circle segment barrel') ? (tool_diameter * 0.5) : ((tool_type == 'slot mill') ? (tool_diameter / 3) : ((tool_type == 'face mill' || tool_type == 'radius mill' || tool_type == 'tapered mill') ? (tool_shoulderDiameter) : ((tool_type == 'probe') ? (4mm) : (tool_diameter))))))))",
+              "tool_shoulderLength": "((tool_type == 'face mill' || tool_type == 'tapered mill' || tool_type == 'radius mill' || tool_type == 'lollipop mill' || tool_type == 'counter bore' || tool_type == 'reamer') ? (tool_fluteLength) : ((tool_type == 'dovetail mill' || tool_type == 'slot mill') ? (tool_diameter) : ((tool_type == 'chamfer mill' || tool_type == 'counter sink') ? (tool_fluteLength * 1.5) : ((tool_type == 'center drill' || tool_type == 'spot drill') ? (tool_diameter * 2.5) : ((tool_type == 'boring bar') ? (tool_diameter * 3) : ((tool_type == 'ball end mill' || tool_type == 'flat end mill' || tool_type == 'bull nose end mill') ? (tool_diameter * 3.5) : ((tool_type == 'drill') ? (tool_diameter * 9) :((tool_type == 'circle segment barrel') ? 60mm :((tool_type == 'circle segment lens') ? 40mm :((tool_type == 'circle segment oval' || tool_type == 'circle segment taper') ? 30mm : (tool_fluteLength + tool_diameter)))))))))))",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "500rpm",
+              "tool_feedCutting": "40inpm",
+              "tool_surfaceSpeed": "200000.",
+              "tolerance": "0.0004in"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

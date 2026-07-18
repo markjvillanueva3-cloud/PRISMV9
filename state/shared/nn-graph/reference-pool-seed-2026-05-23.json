@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-23T20:30:00Z",
+  "generatedBy": "alpha slot, claude-95e7030e, TOKEN-SAVINGS-PIVOT/U-PSN-NN-SEED (gap-fill 5/5)",
+  "purpose": "Reference-pool seed for NN-GRAPH tier-5 (GraphSAGE wiring-inference). Currently dormant — AUROC 0.096 vs gate 0.78 because reference pool is 0-sized. This file provides 25+ seed examples drawn from the iter9 audit Tier A list (real prism_*:* references where dispatcher exists but action wasn't case-block-extracted — likely Zod-routed or stale doc-comment). Each entry is a labeled (hook → dispatcher → likely-action) triple suitable for tier-5 training.",
+  "expectedConsumers": [
+    "scripts/lib/nn-graph-eval.mjs (NN-GRAPH-MS2 retrain pipeline)",
+    "state/shared/nn-graph/NN-EVAL.json (AUROC/Brier eval gate)"
+  ],
+  "policy": {
+    "advisoryOnly": true,
+    "mustHumanVerify": "Every entry below was extracted by automated audit (iter9 Tier A); operator should grep-verify the action target in the named dispatcher source before promoting to authoritative training data.",
+    "promotionGate": "AUROC >= 0.78 AND macroF1 >= 0.55 AND Brier <= 0.15 on hold-out (NN-GRAPH-MS2 promotion criteria)."
+  },
+  "seedEntries": [
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_ai:optimize", "tier": "A", "dispatcherFile": "aiReasoningDispatcher.ts", "note": "alpha:short-form" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_ai:deep_reason", "tier": "A", "dispatcherFile": "aiReasoningDispatcher.ts", "note": "alpha:short-form" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_ai:creative_explore", "tier": "A", "dispatcherFile": "aiReasoningDispatcher.ts", "note": "alpha:short-form" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_ai:cross_domain_reason", "tier": "A", "dispatcherFile": "aiReasoningDispatcher.ts", "note": "alpha:short-form" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_calc:stability_lobe", "tier": "A", "dispatcherFile": "calcDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_calc:thermal", "tier": "A", "dispatcherFile": "calcDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_calc:deflection", "tier": "A", "dispatcherFile": "calcDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_calc:tool_life", "tier": "A", "dispatcherFile": "calcDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_calc:surface_finish", "tier": "A", "dispatcherFile": "calcDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_knowledge:tribal_search", "tier": "A", "dispatcherFile": "knowledgeDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "ai-reasoning-inject.mjs", "ref": "prism_knowledge:playbook_search", "tier": "A", "dispatcherFile": "knowledgeDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "auto-learn-budget-guard.mjs", "ref": "prism_ai:auto_research_dispatch", "tier": "A", "dispatcherFile": "aiReasoningDispatcher.ts", "note": "alpha:short-form" },
+    { "sourceHook": "blueprint-join-index-stale-check.mjs", "ref": "prism_dev:program_for_print", "tier": "A", "dispatcherFile": "devDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "blueprint-join-index-stale-check.mjs", "ref": "prism_dev:print_for_program", "tier": "A", "dispatcherFile": "devDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "blueprint-join-index-stale-check.mjs", "ref": "prism_cam:cam_program_for_print", "tier": "A", "dispatcherFile": "camDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "chat-cleanup-on-stop.mjs", "ref": "prism_context:claim_file", "tier": "A", "dispatcherFile": "contextDispatcher.ts", "note": "alpha:standard" },
+    { "sourceHook": "cog-bridge-ai-memory-capture.mjs", "ref": "prism_memory:remember", "tier": "A", "dispatcherFile": "memoryDispatcher.ts", "note": "alpha:standard" },
+    { "sourceHook": "memory-mirror-to-vault.mjs", "ref": "prism_memory:remember", "tier": "A", "dispatcherFile": "memoryDispatcher.ts", "note": "alpha:standard" },
+    { "sourceHook": "claudemd-ollama-enforcer.mjs", "ref": "prism_memory:semantic_search", "tier": "A", "dispatcherFile": "memoryDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "cog-bridge-awareness-rebuild.mjs", "ref": "prism_session:self_awareness_build", "tier": "A", "dispatcherFile": "sessionDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "error-block-prewarn.mjs", "ref": "prism_guard:error_ledger_recall_similar", "tier": "A", "dispatcherFile": "guardDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "gsd-section-retrieve.mjs", "ref": "prism_gsd:get", "tier": "A", "dispatcherFile": "gsdDispatcher.ts", "note": "alpha:standard" },
+    { "sourceHook": "iterate-retrieve-suggest.mjs", "ref": "prism_ai:iterate_retrieve", "tier": "A", "dispatcherFile": "aiReasoningDispatcher.ts", "note": "alpha:short-form" },
+    { "sourceHook": "lathe-master-post-quality-gate.mjs", "ref": "prism_cam:lathe_masterpost_route", "tier": "A", "dispatcherFile": "camDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "lathe-master-post-quality-gate.mjs", "ref": "prism_cam:lathe_masterpost_validate", "tier": "A", "dispatcherFile": "camDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "lathe-master-post-quality-gate.mjs", "ref": "prism_cam:lathe_masterpost_ensemble_run", "tier": "A", "dispatcherFile": "camDispatcher.ts", "note": "alpha:Zod-routed-candidate" },
+    { "sourceHook": "wedm-physics-constants-gate.mjs", "ref": "prism_edm:wedm_generate_complete_program", "tier": "A", "dispatcherFile": "edmDispatcher.ts (likely wedmProgramDispatcher.ts)", "note": "alpha:short-form-candidate" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_cad:feature_recognize", "tier": "A", "dispatcherFile": "cadDispatcher.ts", "note": "india:enum-verified:grep-confirmed-in-source (new class: cad)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_cad:geometry_create", "tier": "A", "dispatcherFile": "cadDispatcher.ts", "note": "india:enum-verified:grep-confirmed-in-source (new class: cad)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_cad:mesh_generate", "tier": "A", "dispatcherFile": "cadDispatcher.ts", "note": "india:enum-verified:grep-confirmed-in-source (new class: cad)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_business:estimate_create", "tier": "A", "dispatcherFile": "businessDispatcher.ts", "note": "india:dispatch-verified:in ACTIONS enum :1560 + case :1962 (bare 'estimate' was an engine-loader key only -- scrutiny-caught) (new class: business)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_business:quote_generate", "tier": "A", "dispatcherFile": "businessDispatcher.ts", "note": "india:enum-verified:grep-confirmed-in-source (new class: business)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_intelligence:job_plan", "tier": "A", "dispatcherFile": "intelligenceDispatcher.ts", "note": "india:enum-verified:grep-confirmed-in-source (new class: intelligence)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_intelligence:setup_sheet", "tier": "A", "dispatcherFile": "intelligenceDispatcher.ts", "note": "india:enum-verified:grep-confirmed-in-source (new class: intelligence)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_safety:check_toolpath_collision", "tier": "A", "dispatcherFile": "safetyDispatcher.ts", "note": "india:enum-verified:COLLISION_ACTIONS set (new class: safety)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_safety:validate_rapid_moves", "tier": "A", "dispatcherFile": "safetyDispatcher.ts", "note": "india:enum-verified:COLLISION_ACTIONS set (new class: safety)" },
+    { "sourceHook": "india-refpool-growth-2026-06-25", "ref": "prism_safety:check_fixture_clearance", "tier": "A", "dispatcherFile": "safetyDispatcher.ts", "note": "india:enum-verified:COLLISION_ACTIONS set (new class: safety)" }
+  ],
+  "tierBKnownFakes": [
+    { "ref": "prism_shop_practice:playbook_audit", "sourceHook": "stop-playbook-corpus-drift-advisory.mjs", "reason": "No shopPracticeDispatcher.ts in dispatchers dir. Peer-claimed by claude-047e0a72; fix belongs to that owner." },
+    { "ref": "prism_shop_practice:playbook_validate_corpus", "sourceHook": "stop-playbook-corpus-drift-advisory.mjs", "reason": "Same as above." }
+  ],
+  "trainingNotes": "Tier A entries (real-dispatcher, possibly-routed) are positive seed examples for the GNN's 'this prefix is real, this action probably exists' classifier. Tier B entries are negative examples (definite fakes — operator following the nudge gets unknown-dispatcher errors). Mixed corpus enables binary classification across the wiring-inference cascade."
+}

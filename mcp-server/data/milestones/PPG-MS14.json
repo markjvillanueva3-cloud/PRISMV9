@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS14",
+  "version": "1.0.0",
+  "title": "PPG-MS14 — Pre-Emit Safety Predicate Stack (force / spindle / workholding / thin-wall / chatter HARD BLOCK)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T02:35:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 9,
+  "completed_units": 0,
+  "description": "Wires the complete pre-emit safety predicate stack as a single PostProcessorPipelineEngine stage 3.5 gate. Today these predicates exist as scattered dispatcher actions but no PPG-MS gates emit on them. Tier-aware: HARD BLOCK on shop_floor when any predicate fails; WARN on sim. Provides a single explainable verdict on whether a program is safe to run on a given machine.",
+  "rationale": "Operator wins, shop-management wins, and the omega tier system (PPG-MS8) all assume a coherent safety predicate exists for emit-time decisions. Today the predicates are: machine_force_limit_validate (force vs machine ceiling), spindle_torque_curve (RPM vs torque curve), workholding_verify (clamp force vs cutting force), clamping_force_calc (clamp adequacy), thin_wall_params (deflection prediction), chatter_stability_sld (stable RPM band). They are not assembled into one gate. Without this milestone, PPG-MS9 AGI gates have no predicate-level grounding.",
+  "leverage_existing": [
+    "machine_force_limit_validate + machine_force_limit_quick (calc dispatcher)",
+    "spindle_torque_curve + spindle_torque_check + spindle_power_check + spindle_safe_envelope (calc dispatcher)",
+    "workholding_verify + workholding_verify_all + workholding_min_safety + workholding_clamp_force + workholding_pullout + workholding_liftoff (calc dispatcher)",
+    "clamping_force_calc + clamping_force_quick + clamp_simulate + clamp_validate + clamp_optimize",
+    "thin_wall_params + thin_wall_deflection + thin_wall_strategy + thin_wall_support + thin_wall_frequency",
+    "chatter_stability_sld + chatter_stability_lobes + chatter_check_stability + chatter_detect + chatter_critical_speeds",
+    "OmegaSafetyScoreEngine + omega-thresholds.json (PPG-MS8)",
+    "PostProcessorPipelineEngine — 38-stage pipeline (gate becomes new stage 3.5)",
+    "Lathe predicates: chuck_force + tailstock + steady_rest + part_off_force + lathe_collision_check + lathe_swing_check + lathe_grooving_overhang + lathe_chip_thickness + lathe_boring_reach + lathe_g71_type + lathe_boring_taper_comp + lathe_springback_comp + lathe_chatter_analysis + lathe_drill_thrust + lathe_parting_force + lathe_beam_deflection + lathe_chip_breaking + lathe_peck_schedule (actions dual-wired: camDispatcher.ts (router) AND turningDispatcher.ts (canonical home). MS14 wires through both surfaces; tests assert action availability via either dispatcher)",
+    "WEDM predicates: wedm_safety_gate_evaluate + wedm_unit_tag_evaluate + wedm_head_clearance_evaluate + wedm_flush_adequacy_evaluate + wedm_thermal_release_evaluate + wedm_dialect_verify + wedm_predict_wire_break + wedm_assess_surface_integrity + wedm_check_spec + wedm_thin_wire_derate_summary + wedm_kerf_overcut + wedm_wire_stress_analyze + wedm_wire_tension_optimize + wedm_wire_heating_safe_params (actions dual-wired: camDispatcher.ts (router) AND edmDispatcher.ts (canonical home). MS14 wires through both surfaces; tests assert action availability via either dispatcher)",
+    "BoringBarDeflectionEngine + LatheBeamDeflectionEngine — lathe deflection physics",
+    "LatheChatterAnalysisEngine — lathe-specific chatter (different harmonic profile from mill)"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Hurco V11 emits a roughing program. Per-block forces from PPG-MS1 peak at 2,800 N at the corner; machine force ceiling is 2,500 N. Block-by-block S/F was sized assuming 60% engagement but actual is 78%.",
+    "today_pre_ppg_ms14": "Program emits anyway. Operator runs it. Spindle stalls in the corner. Cutter chips. 45 min lost; one $80 endmill destroyed.",
+    "should_be_post_ppg_ms14": "Pre-emit gate runs all 6 predicates. machine_force_limit_validate fails (2800 > 2500). HARD BLOCK on shop_floor. Wizard shows red banner: 'Force exceeds machine ceiling at block 47 by 12%. Suggested fixes: derate Vc by 15% OR reduce ap from 5 mm to 4.2 mm OR change to a 4-flute insert.' Programmer accepts auto-fix; gate re-runs and passes; emit proceeds.",
+    "gap_now_closed": "Bad emissions are caught before reaching the machine, with a clear remediation suggestion."
+  },
+  "units": [
+    {
+      "id": "U-PPGM85",
+      "title": "PreEmitSafetyPredicateEngine — assemble all 6 predicates as a single gate",
+      "scope": "src/engines/PreEmitSafetyPredicateEngine.ts — runs in PostProcessorPipelineEngine as stage 3.5; takes block-by-block force + spindle load + workholding context + thin-wall geometry; returns {verdict: PASS/WARN/BLOCK, failed_predicates[], suggested_fixes[]}.",
+      "files_to_modify": [
+        "src/engines/PreEmitSafetyPredicateEngine.ts",
+        "src/engines/PostProcessorPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PreEmitSafetyPredicate.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM86",
+      "title": "Tier-aware HARD BLOCK / WARN routing",
+      "scope": "Consume omega-thresholds.json (PPG-MS8); shop_floor → HARD BLOCK on any failure; production → HARD BLOCK on critical only; proven_out → WARN on critical; sim → WARN on all. Logged with provenance.",
+      "files_to_modify": [
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PreEmitSafetyTier.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM87",
+      "title": "Auto-fix suggestion engine",
+      "scope": "src/engines/PreEmitAutoFixSuggesterEngine.ts — for each failed predicate, computes 2-3 concrete remediation suggestions (derate Vc, reduce ap, change insert, RPM hop, add support, swap workholding). Suggestions are ranked by minimal cycle-time impact.",
+      "files_to_modify": [
+        "src/engines/PreEmitAutoFixSuggesterEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PreEmitAutoFixSuggester.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM88",
+      "title": "Wizard pre-emit verdict banner + accept-fix flow",
+      "scope": "web/src/components/ppg/PreEmitVerdictBanner.tsx — red/yellow/green; lists failed predicates with explanations; one-click accept-fix re-runs the gate.",
+      "files_to_modify": [
+        "web/src/components/ppg/PreEmitVerdictBanner.tsx",
+        "web/src/pages/PostProcessorGeneratorPage.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/PreEmitVerdictUI.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM89",
+      "title": "Pre-emit gate regression on 50-program corpus",
+      "scope": "src/__tests__/PreEmitSafety.regression.test.ts — every program in the PPG-MS1 corpus runs through the gate; assert no false BLOCK on known-good programs and no false PASS on injected-fault programs (10 fault scenarios).",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/PreEmitSafety.regression.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM89b",
+      "title": "NaN/Infinity numeric guards + input validation early-reject layer",
+      "scope": "Closes PPG-REAL-MS0/U-PPR04 + U-PPR05. Adds Zod numeric guards on every PostProcessorPipelineEngine boundary; rejects NaN/Infinity/negative-where-disallowed at input; structured error with offending field path. Wires into PreEmitSafetyPredicateEngine as predicate #7.",
+      "files_to_modify": [
+        "src/engines/PreEmitSafetyPredicateEngine.ts",
+        "src/schemas/postPipelineNumericGuards.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PreEmitNumericGuards.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM89c",
+      "title": "Lathe safety predicate band (18 lathe-predicate actions (dual-wired in camDispatcher + turningDispatcher) routed through PreEmitSafetyPredicateEngine)",
+      "scope": "Extend PreEmitSafetyPredicateEngine to load lathe-mode predicate set when domain=lathe: chuck_force (clamp adequacy), tailstock (counter-support), steady_rest (long-overhang), part_off_force (parting tool stress), lathe_collision_check (turret + chuck + tailstock envelope), lathe_swing_check (max OD vs swing), lathe_grooving_overhang, lathe_chip_thickness, lathe_boring_reach, lathe_drill_thrust, lathe_parting_force, lathe_beam_deflection, lathe_chip_breaking, lathe_peck_schedule, lathe_chatter_analysis, lathe_g71_type (G71 vs G72 vs G73 selection sanity), lathe_boring_taper_comp, lathe_springback_comp. Tier-aware HARD BLOCK on shop_floor. Plus G76 single-point threading via lathe_thread_schedule (already in turningDispatcher cam-routed via camDispatcher.ts), bar_feeder via mill_turn_bar_feeder action, live_tool via mill_turn_live_tooling action, sub_spindle via mill_turn_sub_spindle action — extend the lathe band to include the 4 mill-turn actions for bar-fed and sub-spindle synchronized lathe configurations.",
+      "files_to_modify": [
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PreEmitSafetyLathe.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM89d",
+      "title": "WEDM safety predicate band (14 wedm-predicate actions (dual-wired in camDispatcher + edmDispatcher) routed through PreEmitSafetyPredicateEngine)",
+      "scope": "Extend PreEmitSafetyPredicateEngine to load WEDM-mode predicate set when domain=wedm: wedm_safety_gate_evaluate (composite), wedm_unit_tag_evaluate (program units sanity), wedm_head_clearance_evaluate (top-head + bottom-head clearance), wedm_flush_adequacy_evaluate (flush pressure vs material thickness), wedm_thermal_release_evaluate (thermal stress release), wedm_dialect_verify (controller dialect syntax), wedm_predict_wire_break (Weibull breakage prob per pass), wedm_assess_surface_integrity (recast/HAZ/white layer), wedm_thin_wire_derate_summary (sub-0.1mm derate), wedm_kerf_overcut (corner overcut), wedm_wire_stress_analyze (tension safe envelope), wedm_wire_tension_optimize, wedm_wire_heating_safe_params (Joule heating limit), wedm_check_spec (recast ≤ spec). Tier-aware HARD BLOCK on shop_floor. Plus wedm_haz_predict + wedm_haz_stock_allowance + wedm_haz_compare actions for heat-affected-zone allowance gating at emit time (closes S05 HAZ gap — HAZ was leveraged in MS3 only, not gated at emit).",
+      "files_to_modify": [
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PreEmitSafetyWEDM.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM89e",
+      "title": "Domain dispatch within PreEmitSafetyPredicateEngine (mill | lathe | wedm)",
+      "scope": "Replace the mill-only predicate list with a domain-aware dispatch: domain detected from sidecar.machineClass (mill | lathe | wedm | grinder | laser); each domain loads its predicate band; cross-domain (mill-turn, EDM-with-mill-finish) loads union with conflict detection (e.g. lathe_chuck_force vs mill_workholding_verify cannot both apply to same setup). Conflict scenarios to test ≥3: (1) lathe_chuck_force vs mill_workholding_verify on mill-turn setup; (2) wedm_thermal_release_evaluate vs lathe_chip_breaking on EDM-roughed-then-lathe-finished part; (3) mill_collision_check vs lathe_collision_check on Multus B250IIW mill-turn (different envelope volumes). Adversarial: (a) sidecar with empty machineClass → must default to shop_floor band union; (b) sidecar with conflicting domain claims (e.g. mill+wedm in same setup) → must HARD BLOCK with explicit error.",
+      "files_to_modify": [
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PreEmitSafetyDomainDispatch.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "All 6 predicates wired into a single PreEmitSafetyPredicateEngine running as PostProcessorPipelineEngine stage 3.5",
+    "Tier routing honored: shop_floor HARD BLOCK on any critical failure; sim WARN only",
+    "Auto-fix suggester returns ≥2 ranked remediation suggestions for every BLOCK with ≥80% acceptance on operator UX test",
+    "Regression: 0 false BLOCKs on the 50-program known-good corpus; 10/10 injected-fault programs caught",
+    "Wizard verdict banner usable: operator can read + accept fix in <30s (UX test)",
+    "Lathe safety predicate band (18 actions) HARD BLOCKs on shop_floor when any critical predicate fails on Okuma B250 reference corpus",
+    "WEDM safety predicate band (14 actions) HARD BLOCKs on shop_floor when any critical predicate fails on MV1200R reference corpus",
+    "Domain dispatch correctly selects mill / lathe / wedm bands; mill-turn correctly loads union",
+    "Lathe band includes G76 + bar_feeder + live_tool + sub_spindle predicates with reference-corpus regression on Okuma B250 + Multus B250IIW mill-turn",
+    "WEDM band includes wedm_haz_predict + wedm_haz_stock_allowance gating at emit time"
+  ],
+  "depends_on": [
+    "PPG-MS0",
+    "PPG-MS1",
+    "PPG-MS6",
+    "PPG-MS8"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS17",
+    "PPG-MS20",
+    "PPG-MS25",
+    "PPG-MS29",
+    "PPG-MS30",
+    "PPG-MS33",
+    "PPG-MS36"
+  ],
+  "_patches": [
+    "ppg-leverage-16-2026-04-29",
+    "ppg-fixes-round2-2026-04-29",
+    "ppg-round3-novel-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29",
+  "forward_references_2026_04_29": {
+    "note": "These engines are TO-BE-BUILT in this milestone's units; they appear in leverage_existing as forward references (the units in this same milestone create them) — not as historical assets. R4-S02 'broken citation' verdicts are misleading for forward-refs; the milestone IS the build site.",
+    "forward_ref_engines": [
+      "PreEmitSafetyPredicateEngine",
+      "PreEmitAutoFixSuggesterEngine",
+      "LatheBeamDeflectionEngine",
+      "LatheChatterAnalysisEngine"
+    ]
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-26T15:42:08.466Z",
+  "source_courses": [
+    "course-5"
+  ],
+  "priors": [
+    {
+      "id": "course-5-1-prior",
+      "tool_type": "od_rough",
+      "cross_cutting": false,
+      "source": {
+        "course": "course-5",
+        "module": 1,
+        "lesson_title": "OD Roughing"
+      },
+      "inserts": [
+        "CNMG",
+        "WNMG",
+        "SNMG"
+      ],
+      "param_ranges": {
+        "doc_mm": [
+          1,
+          5
+        ],
+        "feed_mm_rev": [
+          0.15,
+          0.35
+        ]
+      },
+      "canned_cycles": [
+        "G71"
+      ],
+      "m_codes": [],
+      "heuristic_rules": [
+        "Rough from the largest diameter in — start at the chuck, work toward the tailstock",
+        "Never rough past a shoulder without retracting — tool will crash into the shoulder",
+        "Leave stock for finishing — 0.2-0.5mm radial, 0.1-0.2mm axial",
+        "Chip control — if chips are long/stringy, increase feed or change chipbreaker geometry"
+      ],
+      "physics_basis": "academy/course-5/mod-1: OD Roughing"
+    },
+    {
+      "id": "course-5-2-prior",
+      "tool_type": "od_finish",
+      "cross_cutting": false,
+      "source": {
+        "course": "course-5",
+        "module": 2,
+        "lesson_title": "OD Finishing"
+      },
+      "inserts": [
+        "RCMT"
+      ],
+      "param_ranges": {
+        "doc_mm": [
+          0.1,
+          0.3
+        ],
+        "feed_mm_rev": [
+          0.05,
+          0.15
+        ],
+        "rpm": [
+          0,
+          3000
+        ]
+      },
+      "canned_cycles": [
+        "G96",
+        "G50"
+      ],
+      "m_codes": [
+        "M03"
+      ],
+      "heuristic_rules": [
+        "Wiper inserts — special flat on nose for 2× better finish at same feed",
+        "Constant surface speed (G96) — maintains Vc as diameter changes",
+        "Use G50 to cap RPM — prevents overspeeding at small diameters",
+        "Spring passes — take the same finish cut twice without advancing. The tool was deflected on the first pass — the second cleans up.",
+        "Fresh cutting edge — use a new insert edge for the finish pass"
+      ],
+      "physics_basis": "academy/course-5/mod-2: OD Finishing"
+    },
+    {
+      "id": "course-5-3-prior",
+      "tool_type": "face",
+      "cross_cutting": false,
+      "source": {
+        "course": "course-5",
+        "module": 3,
+        "lesson_title": "Facing"
+      },
+      "inserts": [],
+      "param_ranges": {},
+      "canned_cycles": [
+        "G96",
+        "G00",
+        "G01"
+      ],
+      "m_codes": [
+        "M03"
+      ],
+      "heuristic_rules": [],
+      "physics_basis": "academy/course-5/mod-3: Facing"
+    },
+    {
+      "id": "course-5-4-prior",
+      "tool_type": "od_groove",
+      "cross_cutting": false,
+      "source": {
+        "course": "course-5",
+        "module": 4,
+        "lesson_title": "Grooving & Parting"
+      },
+      "inserts": [],
+      "param_ranges": {
+        "feed_mm_rev": [
+          0.05,
+          0.15
+        ]
+      },
+      "canned_cycles": [
+        "G01",
+        "G75",
+        "G96",
+        "G50"
+      ],
+      "m_codes": [],
+      "heuristic_rules": [
+        "External groove — O-ring seats, snap ring grooves, shoulders",
+        "Internal groove — bore grooves, seal seats",
+        "Face groove — retaining ring grooves on faces",
+        "Standard grooving insert — 2-6mm width, various depths",
+        "Full-radius groove — for O-ring seats (R specified on print)",
+        "Multi-function — can groove, turn, and face (e.g., CoroCut)",
+        "Plunge groove — straight in (G01 X→depth)",
+        "Step groove — for wide grooves, step-over by insert width minus 0.5mm",
+        "Peck groove (G75) — for deep grooves, peck to prevent chip packing"
+      ],
+      "physics_basis": "academy/course-5/mod-4: Grooving & Parting"
+    },
+    {
+      "id": "course-5-5-prior",
+      "tool_type": "od_thread",
+      "cross_cutting": false,
+      "source": {
+        "course": "course-5",
+        "module": 5,
+        "lesson_title": "Threading (Single-Point)"
+      },
+      "inserts": [],
+      "param_ranges": {},
+      "canned_cycles": [
+        "G76"
+      ],
+      "m_codes": [
+        "M10"
+      ],
+      "heuristic_rules": [
+        "Laydown style — insert lies flat, more rigid",
+        "Top-notch style — insert stands up, better chip flow",
+        "Radial (0°) — straight in. Simple but high forces, poor chip control.",
+        "Flank (29° or 30°) — feeds at the thread angle. Best chip control.",
+        "Modified flank (60°) — alternates sides. Best finish.",
+        "Incremental — alternates left/right each pass. Good for large threads."
+      ],
+      "physics_basis": "academy/course-5/mod-5: Threading (Single-Point)"
+    },
+    {
+      "id": "course-5-6-prior",
+      "tool_type": "boring_bar",
+      "cross_cutting": false,
+      "source": {
+        "course": "course-5",
+        "module": 6,
+        "lesson_title": "Boring"
+      },
+      "inserts": [],
+      "param_ranges": {
+        "doc_mm": [
+          0.1,
+          0.5
+        ],
+        "feed_mm_rev": [
+          0.05,
+          0.15
+        ]
+      },
+      "canned_cycles": [
+        "G00",
+        "G01"
+      ],
+      "m_codes": [],
+      "heuristic_rules": [
+        "Steel bars — standard, economical, L/D ≤ 4",
+        "Carbide bars — stiffer (3× steel), L/D up to 6-7",
+        "Anti-vibration bars (tunable) — internal damper, L/D up to 10+",
+        "Minimum bore diameter — boring bar OD must be < bore diameter (typically bar = 60-70% of bore)",
+        "Deflection — the bar overhangs significantly. Keep L/D as small as possible.",
+        "Chatter — boring bars are less rigid than OD tools. Anti-vibration bars help.",
+        "Chip evacuation — chips must come OUT of the hole. Through-tool coolant helps.",
+        "Visibility — you can't see the cut happening"
+      ],
+      "physics_basis": "academy/course-5/mod-6: Boring"
+    }
+  ],
+  "extractor": "scripts/extract-lathe-academy-priors.mjs",
+  "scanned_files": [
+    "mcp-server/src/data/academy/course-2-speed-feed-mastery.ts",
+    "mcp-server/src/data/academy/course-3-gcode-programming.ts",
+    "mcp-server/src/data/academy/course-5-turning-operations.ts"
+  ],
+  "skipped_courses": [
+    "course-17",
+    "course-22",
+    "course-29",
+    "course-30",
+    "course-31",
+    "course-32",
+    "course-33",
+    "course-34"
+  ]
+}

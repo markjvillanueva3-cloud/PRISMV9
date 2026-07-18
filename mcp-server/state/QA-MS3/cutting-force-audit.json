@@ -1,0 +1,183 @@
+{
+  "unit_id": "P0-U00",
+  "title": "CuttingForceEngine: Kienzle model (kc1_1, mc) validation",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-04-12T16:25:00Z",
+  "status": "PASS",
+  "engine_path": "src/engines/CuttingForceEngine.ts",
+  "formula_verification": {
+    "kienzle_specific_cutting_force": {
+      "formula": "Kc = kc1_1 * h^(-mc)",
+      "implementation_line": 101,
+      "implementation_code": "const Kc = kienzle.kc11 * Math.pow(Math.max(h, 0.01), -kienzle.mc);",
+      "verified": true,
+      "notes": "Math.max(h, 0.01) prevents division by zero for thin chips"
+    },
+    "tangential_force": {
+      "formula": "Fc = Kc * b * h * rake_correction",
+      "expanded": "Fc = kc1_1 * h^(1-mc) * b * rake_correction",
+      "implementation_line": 128,
+      "implementation_code": "Fc = Kc * b * h * rakeCorrection;",
+      "verified": true,
+      "notes": "Correctly expands Kienzle model. Rake correction is industry-standard +1%/deg from reference 6deg"
+    },
+    "chip_thickness": {
+      "formula": "h = f * sin(kr)",
+      "implementation_line": 98,
+      "implementation_code": "const h = f * Math.sin(leadRad);",
+      "verified": true,
+      "notes": "Standard chip thickness for turning operations"
+    },
+    "chip_width": {
+      "formula": "b = ap / sin(kr)",
+      "implementation_line": 110,
+      "implementation_code": "const b = Math.abs(sinKappa) > 1e-6 ? ap / sinKappa : ap * 100;",
+      "verified": true,
+      "notes": "Fallback for near-zero lead angle prevents NaN"
+    }
+  },
+  "constants_validation": {
+    "source_file": "src/physics/constants.ts",
+    "import_verified": true,
+    "import_line": 27,
+    "lookup_function": "getKienzle(material)",
+    "constants_checked": [
+      {
+        "iso_group": "P",
+        "material": "Steel",
+        "kc1_1": 1800,
+        "mc": 0.25,
+        "reference_range": "1500-2500",
+        "reference_source": "Sandvik Coromant General Turning 2024",
+        "within_range": true
+      },
+      {
+        "iso_group": "M",
+        "material": "Stainless",
+        "kc1_1": 2100,
+        "mc": 0.25,
+        "reference_range": "1800-2850",
+        "reference_source": "Sandvik Coromant",
+        "within_range": true
+      },
+      {
+        "iso_group": "K",
+        "material": "Cast Iron",
+        "kc1_1": 1100,
+        "mc": 0.28,
+        "reference_range": "790-1350",
+        "reference_source": "Sandvik Coromant",
+        "within_range": true
+      },
+      {
+        "iso_group": "N",
+        "material": "Aluminum",
+        "kc1_1": 700,
+        "mc": 0.23,
+        "reference_range": "350-900",
+        "reference_source": "Sandvik Coromant",
+        "within_range": true
+      },
+      {
+        "iso_group": "S",
+        "material": "Superalloys (Ti, Ni)",
+        "kc1_1": 2800,
+        "mc": 0.28,
+        "reference_range": "2400-3100",
+        "reference_source": "Sandvik Coromant",
+        "within_range": true
+      },
+      {
+        "iso_group": "H",
+        "material": "Hardened Steel",
+        "kc1_1": 3200,
+        "mc": 0.30,
+        "reference_range": "2800-4000",
+        "reference_source": "Sandvik Coromant",
+        "within_range": true
+      }
+    ],
+    "all_within_reference_range": true
+  },
+  "unit_conversion_verification": {
+    "input_units": {
+      "depth_of_cut_mm": "mm",
+      "feed_mm": "mm/rev",
+      "cutting_speed_mpm": "m/min",
+      "lead_angle_deg": "degrees"
+    },
+    "intermediate_calculations": {
+      "h_chip_thickness": "mm",
+      "b_chip_width": "mm",
+      "Kc_specific_cutting_force": "N/mm2"
+    },
+    "output_units": {
+      "tangential_force": "N",
+      "radial_force": "N",
+      "axial_force": "N",
+      "resultant_force": "N",
+      "specific_cutting_force": "N/mm2",
+      "torque": "N*m",
+      "power": "kW"
+    },
+    "dimensional_consistency": true
+  },
+  "atomic_value_compliance": {
+    "all_outputs_wrapped": true,
+    "outputs_checked": [
+      "tangential_force",
+      "radial_force",
+      "axial_force",
+      "resultant_force",
+      "specific_cutting_force",
+      "torque",
+      "power",
+      "specific_power"
+    ],
+    "uncertainty_provided": true,
+    "source_documented": true
+  },
+  "edge_case_handling": {
+    "thin_chip_guard": {
+      "implemented": true,
+      "line": 101,
+      "code": "Math.max(h, 0.01)",
+      "warning_at_h_less_than": 0.02
+    },
+    "thick_chip_warning": {
+      "implemented": true,
+      "line": 178,
+      "threshold_h_greater_than": 0.5
+    },
+    "high_force_warning": {
+      "implemented": true,
+      "line": 161,
+      "threshold_Fc_greater_than_N": 5000
+    },
+    "high_power_warning": {
+      "implemented": true,
+      "line": 167,
+      "threshold_kW": 10
+    },
+    "zero_lead_angle_guard": {
+      "implemented": true,
+      "line": 110,
+      "code": "Math.abs(sinKappa) > 1e-6"
+    }
+  },
+  "literature_references": [
+    "Kienzle cutting force model (Kienzle & Victor 1957)",
+    "Machinery's Handbook Chapter 28",
+    "Sandvik Coromant Metal Cutting Technology Chapter 5",
+    "Altintas 'Manufacturing Automation' Table 2.1"
+  ],
+  "findings": [],
+  "recommendations": [],
+  "score": {
+    "correctness": 1.0,
+    "completeness": 1.0,
+    "safety": 1.0,
+    "performance": 1.0,
+    "overall": 1.0
+  }
+}

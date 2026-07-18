@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { validateMachines, MACHINES, type MachineEntry, type MachineValidation } from "../../data/machines";
-import { dataApi } from "../../api/data";
+import { dataApi, unwrapSearchRows } from "../../api/data";
+import { orderMachinesByShopUsage, fetchShopProfile, type ShopProfile } from "../../data/shopUsageOrder";
 import { Card, Badge } from "../ui";
 
 interface Props {
@@ -51,6 +52,7 @@ export default function SmartMachineSelector({
 }: Props) {
   const [backendMachines, setBackendMachines] = useState<MachineEntry[]>([]);
   const [backendLoading, setBackendLoading] = useState(false);
+  const [shopProfile, setShopProfile] = useState<ShopProfile | null>(null);
   const fetchedRef = useRef(false);
 
   // Fetch backend machines once on mount
@@ -60,7 +62,7 @@ export default function SmartMachineSelector({
     setBackendLoading(true);
     dataApi.searchMachines({ query: "*", limit: 100 })
       .then((res: unknown) => {
-        const items = ((res as Record<string, unknown>).results ?? (Array.isArray(res) ? res : [])) as Record<string, unknown>[];
+        const items = unwrapSearchRows(res, "machines");
         const mapped = items.map(mapBackendMachine);
         const localIds = new Set(MACHINES.map(m => m.id));
         setBackendMachines(mapped.filter(m => !localIds.has(m.id)));
@@ -69,8 +71,16 @@ export default function SmartMachineSelector({
       .finally(() => setBackendLoading(false));
   }, []);
 
-  // Combine local (9) + backend (888) for validation
-  const allMachines = useMemo(() => [...MACHINES, ...backendMachines], [backendMachines]);
+  // Fetch the JM shop-function profile once (served at /jm-shop-profile.json by the
+  // jm-shop-knowledge-to-vault bridge). Fail-soft: null -> machines keep fixed order.
+  useEffect(() => { fetchShopProfile().then(setShopProfile).catch(() => setShopProfile(null)); }, []);
+
+  // Combine local (9) + backend (888), then ORDER BY REAL SHOP USAGE (lathe/Okuma
+  // dominant) so the operator sees the machines the shop actually runs first.
+  const allMachines = useMemo(
+    () => orderMachinesByShopUsage([...MACHINES, ...backendMachines], shopProfile).map((r) => r.machine),
+    [backendMachines, shopProfile],
+  );
 
   const validations = useMemo(
     () => {

@@ -199,6 +199,70 @@ describe("BladeProfileLibraryEngine", () => {
     });
   });
 
+  describe("NACA 6-series detection + canGenerate (U-BLISK-6SERIES-PARSE)", () => {
+    it("throws a SPECIFIC 6-series error for NACA 65-010 (not the generic 4/5-digit message)", () => {
+      try {
+        eng.getProfile("NACA 65-010");
+        expect.fail("should have thrown");
+      } catch (e) {
+        expect(e).toBeInstanceOf(AirfoilParseError);
+        const msg = (e as Error).message;
+        expect(msg).toContain("6-series");
+        // Must NOT fall through to the generic catch-all message.
+        expect(msg).not.toContain("expected 'NACA <4-or-5-digits>'");
+      }
+    });
+
+    it("throws the 6-series error for 65-012, 65(216)-010, and 64A010", () => {
+      for (const d of ["NACA 65-012", "NACA 65(216)-010", "NACA 64A010"]) {
+        expect(() => eng.getProfile(d), d).toThrow(AirfoilParseError);
+      }
+    });
+
+    it("does NOT misclassify a valid 4-digit NACA 6512 as 6-series", () => {
+      // 6512 = M6 P5 t12, a real catalog entry; the 6-series detector keys on
+      // the dash / 'A' modifier, which a 4-digit designation never carries.
+      const p = eng.getProfile("NACA 6512", 40);
+      expect(p.family).toBe("naca-4");
+      expect(p.thickness).toBeCloseTo(0.12, 9);
+      expect(p.maxCamber).toBeCloseTo(0.06, 9);
+    });
+
+    it("canGenerate returns ok:true for supported 4- and 5-digit profiles", () => {
+      expect(eng.canGenerate("NACA 0012").ok).toBe(true);
+      expect(eng.canGenerate("NACA 2412").ok).toBe(true);
+      expect(eng.canGenerate("NACA 23012").ok).toBe(true);
+    });
+
+    it("canGenerate returns ok:false (no throw) for 6-series with an honest reason", () => {
+      const r = eng.canGenerate("NACA 65-010");
+      expect(r.ok).toBe(false);
+      expect(r.reason).toContain("6-series");
+    });
+
+    it("canGenerate returns ok:false for an unsupported 5-digit mean-line", () => {
+      const r = eng.canGenerate("NACA 44112");
+      expect(r.ok).toBe(false);
+      expect(r.reason).toContain("mean-line");
+    });
+
+    it("canGenerate returns ok:false for malformed designations and never throws", () => {
+      for (const d of ["MILF 2412", "NACA 24", "NACA 0000", ""]) {
+        expect(() => eng.canGenerate(d)).not.toThrow();
+        expect(eng.canGenerate(d).ok).toBe(false);
+      }
+    });
+
+    it("canGenerate(d).ok agrees with getProfile(d) not throwing (round-trip invariant)", () => {
+      for (const d of ["NACA 0010", "NACA 2412", "NACA 23012", "NACA 65-010", "NACA 44112"]) {
+        const can = eng.canGenerate(d).ok;
+        let threw = false;
+        try { eng.getProfile(d, 20); } catch { threw = true; }
+        expect(can, d).toBe(!threw);
+      }
+    });
+  });
+
   describe("cache + contour", () => {
     it("returns the same object reference on repeat calls", () => {
       const a = eng.getProfile("NACA 0012", 40);

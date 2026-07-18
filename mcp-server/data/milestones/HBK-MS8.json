@@ -1,0 +1,46 @@
+{
+  "id": "HBK-MS8",
+  "version": "1.0.0",
+  "title": "Business Pipeline Handbook Integration",
+  "brief": "Wire handbook maintenance and parts intelligence into QuoteToShipOrchestratorEngine and CapacityPlanningEngine. Factor maintenance costs into machine hourly rates, use capability data for intelligent job routing, and include consumable costs in job cost estimation.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T03:44:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Business Integration",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Wire HandbookMaintenanceIntelligenceEngine into machine rate calculations: factor PM labor, consumable costs, and parts replacement into hourly burden rate per machine",
+          "effort": 75,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Wire machine capability data into QuoteToShipOrchestratorEngine job routing: use handbook-sourced work envelope, spindle power, and axis count to match jobs to capable machines",
+          "effort": 80,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build cost comparison tests: verify that handbook-sourced machine rates reflect real maintenance burden within 15% of actual shop costs for sample machines",
+          "effort": 60,
+          "dependencies": ["P0-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS5"],
+  "exit_conditions": [
+    "Machine hourly rates include handbook-sourced maintenance burden for machines with ingested handbooks",
+    "Job routing considers handbook-documented machine capabilities when selecting candidate machines",
+    "Cost comparison tests show handbook-sourced rates are within 15% of actual shop maintenance costs"
+  ]
+}

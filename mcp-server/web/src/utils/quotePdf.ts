@@ -21,7 +21,7 @@ interface QuotePdfOptions {
 export function generateQuotePdf({
   quote,
   breakdown,
-  companyName = "PRISM Manufacturing",
+  companyName = "Kienzle Manufacturing",
   validityDays = 30,
 }: QuotePdfOptions): void {
   const doc = new jsPDF({ unit: "mm", format: "a4" });

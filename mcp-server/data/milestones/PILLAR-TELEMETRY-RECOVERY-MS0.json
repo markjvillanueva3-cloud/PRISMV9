@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PILLAR-TELEMETRY-RECOVERY-MS0",
+  "milestone": "PILLAR-TELEMETRY-RECOVERY-MS0",
+  "title": "Pillar Telemetry Recovery MS0 — fix HookTelemetryEngine persistence + dist wipe detection + auto_wiring_scan __filename clash + operator-restart MCP zombies",
+  "owner": "alpha",
+  "status": "in_progress",
+  "createdAt": "2026-05-15T13:42:18Z",
+  "updatedAt": "2026-05-20T23:05:14Z",
+  "priority": "HIGH",
+  "doctrine": "The 2026-05-02 audit flagged Pillar telemetry as silently rotted — prism_hook:performance returned total:0 because the in-memory HookTelemetryEngine singleton lost every recorded invocation on MCP restart, and the 2026-05-12 git history strip wiped mcp-server/dist/ leaving long-running MCP procs holding stale chunk handles. U-PTR01 fixes persistence; U-PTR04 adds dist-integrity SessionStart detection. U-PTR02 + U-PTR03 remain open: auto_wiring_scan __filename clash with esbuild bundling + operator-restart MCP zombie cleanup. Envelope created post-hoc 2026-05-20 by alpha after audit found 2 ship commits but no formal envelope — sister to SFC-ACCURACY-MS1 close-out pattern (silent close-out debt class).",
+  "source_specs": [
+    "state/shared/handoffs/HANDOFF-claude-23b830c9-alpha-pillar-telemet.md"
+  ],
+  "units": [
+    {
+      "id": "U-PTR01",
+      "owner_slot": "alpha",
+      "wave": "MS0",
+      "cost": "M",
+      "roi_score": 9.0,
+      "status": "shipped",
+      "summary": "Persist HookTelemetryEngine across MCP restarts — atomic .tmp + rename, debounced auto-save (5000ms), auto-load on construct when PRISM_HOOK_TELEMETRY_PATH set.",
+      "shipped_at": "2026-05-15T13:42:18Z",
+      "ship_commit": "afe5da94ee",
+      "ship_notes": "Engine changes in mcp-server/src/engines/HookTelemetryEngine.ts — root cause fix for silently rotted Pillar telemetry that prism_hook:performance had been masking as total:0."
+    },
+    {
+      "id": "U-PTR02",
+      "owner_slot": "alpha",
+      "wave": "MS0",
+      "cost": "S",
+      "roi_score": 8.0,
+      "status": "shipped",
+      "summary": "prism_dev:auto_wiring_scan throws `Identifier '__filename' has already been declared` at runtime — esbuild banner declares `const __filename` while CJS-interop shim for transitive deps auto-emits `var __filename` in the same chunk. Source AutoWiringEngine.ts itself does NOT use __filename.",
+      "shipped_at": "2026-05-20T23:05:14Z",
+      "ship_commit": "07ac7a028c",
+      "ship_notes": "Shipped 2026-05-20 by alpha (claude-dbba2d72). FIX: mcp-server/esbuild.config.mjs banner declarations require/__filename/__dirname changed const→var — `var`+`var` merges to one hoisted binding (legal redeclaration), `const`+`var` threw the SyntaxError at module load. Verification blocker (U-EFF23 CustomerMaterialMapEngine MATERIAL_KEYWORDS missing export) was resolved by a peer before this session — build:fast runs clean. VERIFIED: rebuilt dist/ banner now emits `var __filename`; fresh-node import('./dist/index.js') links with no __filename SyntaxError (RESULT=LINK-OK). The running MCP server still serves the pre-fix bundle until restarted — restart picks up the fix. SEPARATE U-EFF23 casualty found + handled this session: 3 stale .js engine files shadowing their .ts, removed by peer commit c845cb3551; exposed 3 pre-existing QualityScoreEngine test failures — see memory reference_autowiring_stale_js_clash_2026_05_20 (follow-up unit)."
+    },
+    {
+      "id": "U-PTR03",
+      "owner_slot": "alpha",
+      "wave": "MS0",
+      "cost": "S",
+      "roi_score": 7.5,
+      "status": "pending",
+      "summary": "Operator-restart MCP zombies — long-running MCP child processes survive operator restart cycles, holding stale chunk handles and stale telemetry sockets; need PID-tracked SIGTERM sweep before MCP relaunch.",
+      "ship_notes": "Open. Likely sister to FLEET-REAPER-MS3 confirm-after-N-ticks gate — but scoped specifically to MCP child procs (not Claude tree)."
+    },
+    {
+      "id": "U-PTR04",
+      "owner_slot": "alpha",
+      "wave": "MS0",
+      "cost": "S",
+      "roi_score": 8.5,
+      "status": "shipped",
+      "summary": "SessionStart hook to detect dist wipe before MCP calls fail — inspects dist/index.js, dist/chunks/, node_modules/esbuild and emits additionalContext when missing, so chats rebuild before chasing phantom ERR_MODULE_NOT_FOUND symptoms.",
+      "shipped_at": "2026-05-15T14:04:00Z",
+      "ship_commit": "06c251286a",
+      "ship_notes": "Defense-in-depth follow-up to U-PTR01. Closes the 2026-05-15 episode where the 2026-05-12 git history strip wiped mcp-server/dist/ and 8 long-running MCP procs returned ERR_MODULE_NOT_FOUND for several chat rounds before the operator realized to rebuild."
+    }
+  ],
+  "notes": "Envelope created post-hoc 2026-05-20 by alpha after CLOSE-OUT-DEFERRED disk-verify surfaced U-PTR01 + U-PTR04 as shipped without a parent envelope (silent close-out debt class — same pattern resolved on SFC-ACCURACY-MS1). U-PTR02 + U-PTR03 stay pending until the auto_wiring_scan __filename clash and operator-restart MCP zombie sweep are shipped. Sister regression-cluster: the post-strip 2026-05-12 noise rotted Pillar telemetry for several days before U-PTR01 + U-PTR04 landed; CLAUDE.md top current gap 'Pillar telemetry rot' tracks the remaining U-PTR02 + U-PTR03 surface area."
+}

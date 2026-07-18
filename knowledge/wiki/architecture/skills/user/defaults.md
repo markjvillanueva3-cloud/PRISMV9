@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `defaults` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/defaults.md` |
+| Source | `C:/Users/wompu/.claude/commands/defaults.md` |
 | Model | default |
 | Tags | _(none)_ |
 

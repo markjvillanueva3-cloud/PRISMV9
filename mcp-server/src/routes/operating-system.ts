@@ -4,6 +4,7 @@
  * scheduling study, and shop floor check-in UIs.
  */
 import { Router } from "express";
+import { verifyToken } from "../middleware/auth.js";
 import type { CallToolFn } from "./index.js";
 import { ShellBootstrapEngine } from "../engines/ShellBootstrapEngine.js";
 import { JobDeskAggregatorEngine } from "../engines/JobDeskAggregatorEngine.js";
@@ -181,7 +182,16 @@ function buildTrackedJobFromScan(scanInput: unknown): JobTrackingPayload | null 
 export function createOperatingSystemRouter(_callTool: CallToolFn): Router {
   const router = Router();
 
-  // POST /operating-system/shell/bootstrap — Shell navigation + desk counts
+  // SECURITY (U-ERP-SHOPCONFIG-AUTH): gate the entire operating-system shell.
+  // Mounted under the global optionalToken (index.ts) which never rejects anon,
+  // so before this line anon could run GET /search across the employee /
+  // invoice / purchase_order / customer / quality_record indices (cross-entity
+  // PII + financial search) and persist machine-profiles / views / pins /
+  // recents. Every route requires a logged-in user; user-scoped routes are keyed
+  // by the :userId path param, so login (not a role) is the correct gate here.
+  router.use(verifyToken);
+
+  // POST /operating-system/shell/bootstrap - Shell navigation + desk counts
   router.post("/shell/bootstrap", async (req, res) => {
     try {
       const { jobs = [], approvalCount = 0 } = req.body || {};

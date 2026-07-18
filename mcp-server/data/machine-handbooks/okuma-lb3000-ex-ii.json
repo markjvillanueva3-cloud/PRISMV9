@@ -1,0 +1,1004 @@
+{
+  "id": "okuma-lb3000-ex-ii",
+  "machine_id": "okuma-lb3000-ex-ii",
+  "manufacturer": "Okuma",
+  "model": "LB3000 EX II",
+  "version": "1.0.0",
+  "created_at": "2026-03-29T19:00:00Z",
+  "updated_at": "2026-03-29T19:00:00Z",
+
+  "cover_info": {
+    "manufacturer": "Okuma",
+    "model_family": "LB EX II",
+    "models_covered": ["LB3000 EX II", "LB3000 EX II MY"],
+    "manual_part_number": "LE18-220-R2",
+    "revision": "R2",
+    "publication_date": "2023-06",
+    "language": "en",
+    "total_pages": 968,
+    "source": {
+      "handbook_title": "LB3000 EX II Operation & Maintenance Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "spindle_specs": {
+    "max_rpm": 4000,
+    "min_rpm": 35,
+    "power_continuous_kw": 18.5,
+    "power_30min_kw": 22,
+    "power_peak_kw": 26,
+    "torque_max_nm": 530,
+    "torque_continuous_nm": 350,
+    "taper_type": "A2-8",
+    "bearing_type": "High-precision angular contact, oil-air lubrication",
+    "drive_type": "belt",
+    "base_speed_rpm": 800,
+    "drawbar_force_kn": 68,
+    "chuck_size_mm": 254,
+    "bar_capacity_mm": 65,
+    "spindle_bore_mm": 80,
+    "warmup_procedure": "Run M3 S200 for 5 min, S500 for 5 min, S1000 for 5 min, S2000 for 5 min, S3500 for 5 min. Required after >4 hrs idle or cold start.",
+    "gear_ranges": [
+      { "gear": 1, "name": "low", "min_rpm": 35, "max_rpm": 800, "max_torque_nm": 530, "max_power_kw": 22 },
+      { "gear": 2, "name": "high", "min_rpm": 800, "max_rpm": 4000, "max_torque_nm": 120, "max_power_kw": 22 }
+    ],
+    "torque_curve": [
+      { "rpm": 35, "torque_nm": 530, "power_kw": 1.94 },
+      { "rpm": 100, "torque_nm": 530, "power_kw": 5.55 },
+      { "rpm": 200, "torque_nm": 530, "power_kw": 11.10 },
+      { "rpm": 300, "torque_nm": 530, "power_kw": 16.65 },
+      { "rpm": 396, "torque_nm": 530, "power_kw": 22.0 },
+      { "rpm": 500, "torque_nm": 420, "power_kw": 22.0 },
+      { "rpm": 600, "torque_nm": 350, "power_kw": 22.0 },
+      { "rpm": 800, "torque_nm": 263, "power_kw": 22.0 },
+      { "rpm": 1000, "torque_nm": 210, "power_kw": 22.0 },
+      { "rpm": 1500, "torque_nm": 140, "power_kw": 22.0 },
+      { "rpm": 2000, "torque_nm": 120, "power_kw": 22.0 },
+      { "rpm": 2500, "torque_nm": 84, "power_kw": 22.0 },
+      { "rpm": 3000, "torque_nm": 70, "power_kw": 22.0 },
+      { "rpm": 3500, "torque_nm": 60, "power_kw": 22.0 },
+      { "rpm": 4000, "torque_nm": 52.5, "power_kw": 22.0 }
+    ],
+    "source": {
+      "handbook_title": "LB3000 EX II Operation & Maintenance Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "axis_kinematics": {
+    "axes": [
+      {
+        "name": "X",
+        "travel_mm": 260,
+        "rapid_mm_min": 30000,
+        "max_feed_mm_min": 30000,
+        "accel_m_s2": 3.9,
+        "resolution_um": 1,
+        "repeatability_um": 2,
+        "accuracy_um": 5,
+        "ball_screw_pitch_mm": 10,
+        "linear_scale": true
+      },
+      {
+        "name": "Z",
+        "travel_mm": 650,
+        "rapid_mm_min": 30000,
+        "max_feed_mm_min": 30000,
+        "accel_m_s2": 3.9,
+        "resolution_um": 1,
+        "repeatability_um": 2,
+        "accuracy_um": 5,
+        "ball_screw_pitch_mm": 12,
+        "linear_scale": true
+      },
+      {
+        "name": "C",
+        "travel_deg": 360,
+        "resolution_deg": 0.001,
+        "max_speed_rpm": 100,
+        "continuous": true,
+        "optional": true,
+        "notes": "C-axis for milling with live tooling, requires M-spec or MY-spec machine"
+      }
+    ],
+    "simultaneous_axes": 2,
+    "work_envelope_mm": { "x": 260, "z": 650 },
+    "max_turning_diameter_mm": 340,
+    "max_turning_length_mm": 630,
+    "source": {
+      "handbook_title": "LB3000 EX II Operation & Maintenance Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "controller_features": {
+    "controller_manufacturer": "Okuma",
+    "controller_model": "OSP-P300L",
+    "firmware_version": "P300L Ver.3.0",
+    "custom_g_codes": [
+      { "code": "G96", "description": "Constant surface speed (CSS) mode. Controller adjusts RPM based on cutting diameter to maintain constant SFM.", "syntax": "G96 S[sfm]", "example": "G96 S200 M03\nG50 S3500\nG00 X50. Z2.\nG01 Z-30. F0.25" },
+      { "code": "G97", "description": "Constant RPM mode. Spindle runs at fixed RPM regardless of cutting diameter.", "syntax": "G97 S[rpm]", "example": "G97 S1200 M03\nG00 X30. Z2.\nG01 Z-25. F0.15" },
+      { "code": "G50", "description": "Spindle speed clamp for CSS mode. Sets maximum RPM limit to prevent spindle overspeed at small diameters.", "syntax": "G50 S[max_rpm]", "example": "G50 S3500\nG96 S200 M03" },
+      { "code": "G71", "description": "OD/ID rough turning cycle (Type I). Automatic multi-pass roughing parallel to Z-axis with depth of cut and retract.", "syntax": "G71 U[depth] R[retract]\nG71 P[start_n] Q[end_n] U[finish_X] W[finish_Z] F[feed]", "example": "G71 U2.0 R0.5\nG71 P100 Q200 U0.3 W0.1 F0.3\nN100 G00 X20.\nG01 Z0. F0.3\nX40. Z-5.\nZ-30.\nX50.\nN200 Z-60." },
+      { "code": "G72", "description": "Facing rough turning cycle. Multi-pass roughing parallel to X-axis for facing operations.", "syntax": "G72 W[depth] R[retract]\nG72 P[start_n] Q[end_n] U[finish_X] W[finish_Z] F[feed]", "example": "G72 W1.5 R0.5\nG72 P100 Q200 U0.3 W0.1 F0.25" },
+      { "code": "G73", "description": "Pattern repeating (contour) rough turning cycle. Follows a profile shape with incremental infeed — ideal for castings and forgings with near-net shape.", "syntax": "G73 U[relief_X] W[relief_Z] R[num_passes]\nG73 P[start_n] Q[end_n] U[finish_X] W[finish_Z] F[feed]", "example": "G73 U5.0 W3.0 R4\nG73 P100 Q200 U0.3 W0.1 F0.25" },
+      { "code": "G70", "description": "Finish turning cycle. Follows the contour defined in G71/G72/G73 at finish feed and speed for final pass.", "syntax": "G70 P[start_n] Q[end_n]", "example": "G96 S250\nG70 P100 Q200" },
+      { "code": "G74", "description": "Peck drilling cycle on Z-axis. Deep hole drilling with full retract chip evacuation for center drilling and gun drilling.", "syntax": "G74 R[retract]\nG74 Z[depth] Q[peck_um] F[feed]", "example": "G74 R1.0\nG74 Z-50. Q5000 F0.08" },
+      { "code": "G75", "description": "Grooving cycle on X-axis. Plunge grooving with peck and retract for OD, ID, and face grooves.", "syntax": "G75 R[retract]\nG75 X[diameter] Z[width_end] P[peck_um] Q[step_um] F[feed]", "example": "G75 R0.5\nG75 X28. Z-5. P2000 Q3000 F0.06" },
+      { "code": "G76", "description": "Multi-pass threading cycle. Automatic compound threading with configurable infeed angle, spring passes, and thread depth.", "syntax": "G76 P[passes][spring][angle] Q[min_depth_um] R[finish_allow]\nG76 X[minor_dia] Z[length] P[thread_depth_um] Q[first_cut_um] F[pitch]", "example": "G76 P030060 Q100 R0.05\nG76 X23.026 Z-25. P1487 Q500 F2.0" },
+      { "code": "G10 L2", "description": "Work coordinate offset setting from program. Sets WCS values programmatically.", "syntax": "G10 L2 P[wcs] X[val] Z[val]", "example": "G10 L2 P1 X0. Z-150.340" },
+      { "code": "G12.1", "description": "Polar coordinate interpolation mode. Converts XC moves to polar coordinates for face milling patterns on C-axis equipped machines.", "syntax": "G12.1", "example": "G12.1\nG01 X30. C90. F200\nG13.1" },
+      { "code": "G07.1", "description": "Cylindrical interpolation mode. Maps XC plane onto cylinder surface for engraving or milling features on round parts.", "syntax": "G07.1 C[radius]", "example": "G07.1 C25.\nG01 X10. C45. Z-0.2 F100\nG07.1 C0" },
+      { "code": "G28", "description": "Machine zero return. Sends axis to home position via intermediate point for safe tool change clearance.", "syntax": "G28 U0. W0.", "example": "G28 U0. W0.\nT0200" },
+      { "code": "G32", "description": "Single-pass constant-lead threading. Used for non-standard threads, multi-start threads, and thread repair.", "syntax": "G32 X[dia] Z[length] F[pitch]", "example": "G97 S800\nG00 X24. Z5.\nG32 X23.026 Z-25. F2.0\nG00 X30." },
+      { "code": "G92", "description": "Threading cycle (simple). Single-block threading cycle for each pass — gives operator maximum control over thread depth per pass.", "syntax": "G92 X[dia] Z[length] F[pitch]", "example": "G97 S600\nG92 X24.2 Z-25. F2.0\nX23.8\nX23.4\nX23.026" }
+    ],
+    "custom_m_codes": [
+      { "code": "M03", "description": "Spindle forward (CCW when viewed from tailstock). Standard cutting direction for OD turning with standard insert orientation.", "modal": true },
+      { "code": "M04", "description": "Spindle reverse (CW when viewed from tailstock). Used for reverse threading and certain boring operations.", "modal": true },
+      { "code": "M05", "description": "Spindle stop. Decelerates spindle to zero RPM.", "modal": true },
+      { "code": "M08", "description": "Coolant ON (flood). Activates main coolant pump.", "modal": true },
+      { "code": "M09", "description": "Coolant OFF. Stops all coolant flow.", "modal": true },
+      { "code": "M10", "description": "Chuck clamp. Activates hydraulic chuck to grip workpiece. Must confirm with M10 before cycle start.", "modal": false },
+      { "code": "M11", "description": "Chuck unclamp. Releases hydraulic chuck jaws. Interlocked to prevent unclamp during spindle rotation.", "modal": false },
+      { "code": "M23", "description": "Turret index forward. Commands turret to rotate CW to next station.", "modal": false },
+      { "code": "M24", "description": "Turret index reverse. Commands turret to rotate CCW to previous station.", "modal": false },
+      { "code": "M26", "description": "Tailstock advance. Extends tailstock quill to workpiece with preset pressure.", "modal": false },
+      { "code": "M27", "description": "Tailstock retract. Retracts tailstock quill to home position.", "modal": false },
+      { "code": "M29", "description": "Rigid tapping mode. Synchronizes live tool spindle RPM with Z-axis feed for tapping with C-axis.", "modal": false },
+      { "code": "M41", "description": "Low gear select. Manually forces spindle to low gear range (35-800 RPM, max 530 Nm).", "modal": true },
+      { "code": "M42", "description": "High gear select. Manually forces spindle to high gear range (800-4000 RPM, max 120 Nm).", "modal": true },
+      { "code": "M50", "description": "Through-tool coolant ON (live tooling). Activates coolant through the live tool holder.", "modal": true },
+      { "code": "M51", "description": "Through-tool coolant OFF.", "modal": true },
+      { "code": "M68", "description": "Parts catcher advance. Extends pneumatic parts catcher into position.", "modal": false },
+      { "code": "M69", "description": "Parts catcher retract. Retracts parts catcher and deposits part into conveyor.", "modal": false },
+      { "code": "M96", "description": "Work counter increment. Adds 1 to the part count displayed on controller.", "modal": false },
+      { "code": "M99", "description": "Program end and rewind / Subprogram return.", "modal": false },
+      { "code": "M130", "description": "Air blow ON. Activates turret-face air blast for chip clearing during turning.", "modal": true },
+      { "code": "M131", "description": "Air blow OFF.", "modal": true },
+      { "code": "M200", "description": "Bar feeder feed command. Signals bar feeder to push bar stock to spindle stop.", "modal": false },
+      { "code": "M201", "description": "Bar feeder retract command. Retracts bar feeder pusher finger.", "modal": false },
+      { "code": "M330", "description": "Tool breakage detection cycle. Initiates tool probe check for detecting broken or worn tools.", "modal": false }
+    ],
+    "macro_support": {
+      "type": "OSP Custom Macro",
+      "variable_range": "VC1-VC999 (common), VB1-VB100 (boolean), VUSR1-VUSR200 (user persistent)",
+      "max_nesting_depth": 4,
+      "supports_goto": true
+    },
+    "probing_cycles": [
+      { "cycle_code": "G31", "description": "Skip cutting / probe touch signal. Moves axis until probe triggers, stores touched position in system variable.", "parameters": ["X", "Z", "F"] },
+      { "cycle_code": "G36", "description": "Automatic tool setting. Measures tool X and Z offsets using tool setter arm with auto-compensation.", "parameters": ["X", "Z", "F", "T"] },
+      { "cycle_code": "G37", "description": "Tool nose radius measurement. Measures and stores tool nose radius for TNRC (Tool Nose Radius Compensation).", "parameters": ["X", "Z", "F", "T"] }
+    ],
+    "max_program_size_kb": 2048000,
+    "max_tool_offsets": 128,
+    "max_work_offsets": 48,
+    "conversational_mode": true,
+    "high_speed_machining": false,
+    "look_ahead_blocks": 200,
+    "source": {
+      "handbook_title": "OSP-P300L Programming Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "alarm_codes": [
+    {
+      "code": "PS0100",
+      "severity": "error",
+      "category": "program",
+      "description": "Program format error. Illegal character or invalid syntax in NC program block.",
+      "probable_causes": ["Invalid G-code or M-code in program block", "Missing decimal point in coordinate value", "Unsupported address letter in block"],
+      "corrective_actions": ["Check the program line indicated in the alarm detail", "Verify G/M code is valid for OSP-P300L", "Remove illegal characters and re-transfer program"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0101", "PS0110"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0101",
+      "severity": "error",
+      "category": "program",
+      "description": "Address command error. Required address letter missing or duplicated in block.",
+      "probable_causes": ["Missing X/Z coordinate after G01", "Duplicate address in single block", "Feed rate F not specified for cutting move"],
+      "corrective_actions": ["Add missing address value to the block", "Remove duplicate addresses", "Specify F word for G01/G02/G03 moves"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0100"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0110",
+      "severity": "error",
+      "category": "program",
+      "description": "G-code group conflict. Two G-codes from the same modal group in one block.",
+      "probable_causes": ["G96 and G97 in the same block", "G00 and G01 in the same block", "Post processor outputting conflicting modal codes"],
+      "corrective_actions": ["Split conflicting G-codes into separate blocks", "Fix post processor modal group handling", "Check manual for lathe G-code modal group assignments"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0100"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0200",
+      "severity": "error",
+      "category": "program",
+      "description": "Travel limit exceeded in program. Commanded position exceeds soft limit for X or Z axis.",
+      "probable_causes": ["Programmed coordinate beyond X:260mm or Z:650mm travel range", "Work offset + programmed position exceeds limit", "G71/G72 roughing cycle generates path beyond travel"],
+      "corrective_actions": ["Verify programmed coordinates against machine travel limits", "Check and correct work offset values", "Dry-run program with single block to find offending line"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0201", "SV0301"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0201",
+      "severity": "error",
+      "category": "program",
+      "description": "Circular interpolation error. Arc endpoint does not match calculated arc from I/K or R values.",
+      "probable_causes": ["I/K values inconsistent with start and endpoint", "R-value arc geometry impossible", "Post processor CAM output rounding error"],
+      "corrective_actions": ["Recalculate arc center (I/K) or radius (R)", "Increase arc tolerance in CAM post processor", "Split large arcs into smaller segments"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0200"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0300",
+      "severity": "error",
+      "category": "program",
+      "description": "Spindle speed command error. S-value exceeds maximum RPM or G50 clamp not set in G96 mode.",
+      "probable_causes": ["S value exceeds 4000 RPM maximum", "G96 CSS active without G50 clamp — RPM unlimited at small diameters", "Commanded S0 during active cutting"],
+      "corrective_actions": ["Reduce S value to within spindle range (35-4000)", "Always set G50 S[max_rpm] before G96", "Verify S word is present before cutting moves"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["OH0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0521",
+      "severity": "error",
+      "category": "program",
+      "description": "Macro variable out of range. Macro calculation result exceeds variable storage limits.",
+      "probable_causes": ["Division by zero in macro expression", "Calculated value exceeds storage range", "Uninitialized variable used in arithmetic"],
+      "corrective_actions": ["Check macro expression for division by zero", "Add bounds checking in macro program", "Initialize all variables before use"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0100"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PL0001",
+      "severity": "critical",
+      "category": "power",
+      "description": "Main power supply voltage abnormal. Input power voltage outside acceptable range.",
+      "probable_causes": ["Facility power supply voltage sag or spike", "Loose connection on main power input terminal", "Phase loss on 3-phase supply"],
+      "corrective_actions": ["Check incoming power voltage at main disconnect (200-230V 3-phase)", "Inspect and tighten all connections at main breaker", "Contact electrician to verify facility power quality"],
+      "parts_needed": [{ "part_number": "E3632-849-010", "description": "Power supply unit PSU (LB-series)", "quantity": 1 }],
+      "estimated_downtime_min": 120,
+      "requires_service_tech": true,
+      "related_alarms": ["PL0002", "PL0010"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PL0010",
+      "severity": "warning",
+      "category": "power",
+      "description": "Battery voltage low. CNC memory backup battery approaching end of life.",
+      "probable_causes": ["Battery age exceeding 3-year service life", "Frequent power cycling accelerating battery drain"],
+      "corrective_actions": ["Replace CMOS battery within 24 hours of alarm", "Back up all programs and parameters before battery replacement", "Replace battery with machine power ON to preserve memory"],
+      "parts_needed": [{ "part_number": "E3505-827-004", "description": "Lithium backup battery CR2032 holder assembly", "quantity": 1 }],
+      "estimated_downtime_min": 15,
+      "requires_service_tech": false,
+      "related_alarms": ["PL0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "OH0001",
+      "severity": "critical",
+      "category": "overheat",
+      "description": "Spindle motor overheat. Spindle motor winding temperature exceeded thermal limit.",
+      "probable_causes": ["Sustained heavy cutting in low gear exceeding 80% torque", "Spindle cooling unit malfunction or low oil level", "Ambient temperature exceeding 40 deg C", "Large diameter part in CSS mode forcing low RPM / high torque continuously"],
+      "corrective_actions": ["Stop machine and allow spindle to cool for 30 minutes", "Check spindle cooler oil level", "Reduce cutting depth or switch to lighter roughing passes", "Verify spindle cooling fan operation"],
+      "parts_needed": [{ "part_number": "E5404-770-005", "description": "Spindle oil cooler thermostat (LB-series)", "quantity": 1 }],
+      "estimated_downtime_min": 60,
+      "requires_service_tech": false,
+      "related_alarms": ["OH0002", "PS0300"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "OH0002",
+      "severity": "critical",
+      "category": "overheat",
+      "description": "Spindle bearing temperature abnormal. Bearing thermocouple reading exceeded 65 deg C.",
+      "probable_causes": ["Bearing preload change due to thermal growth", "Contaminated or degraded spindle oil", "Bearing damage from crash or workpiece shift in chuck"],
+      "corrective_actions": ["Stop spindle immediately and allow cooldown", "Check spindle oil level and condition", "Run spindle warmup cycle after cooldown", "If alarm recurs, bearing inspection required by Okuma service"],
+      "parts_needed": [{ "part_number": "E4710-810-020", "description": "Main spindle bearing set (LB3000)", "quantity": 1 }],
+      "estimated_downtime_min": 480,
+      "requires_service_tech": true,
+      "related_alarms": ["OH0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV0001",
+      "severity": "critical",
+      "category": "servo",
+      "description": "X-axis servo error excessive. Following error exceeded alarm threshold during motion.",
+      "probable_causes": ["Turret collision with workpiece or chuck", "Ball screw or guideway binding from lack of lubrication", "Servo amplifier fault", "X-axis encoder cable damage"],
+      "corrective_actions": ["Jog X-axis slowly to check for mechanical binding", "Check way lube level and pump operation", "Inspect X-axis ball screw for damage", "Check encoder connections"],
+      "parts_needed": [{ "part_number": "E5409-034-020", "description": "X-axis servo motor encoder (LB-series)", "quantity": 1 }],
+      "estimated_downtime_min": 120,
+      "requires_service_tech": true,
+      "related_alarms": ["SV0003"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV0003",
+      "severity": "critical",
+      "category": "servo",
+      "description": "Z-axis servo error excessive. Following error exceeded alarm threshold.",
+      "probable_causes": ["Tailstock or steady rest interference", "Chip buildup jamming Z-axis way cover", "Ball screw coupling loose or damaged", "Servo motor brake not releasing"],
+      "corrective_actions": ["Check for chip buildup around Z-axis way covers", "Jog Z-axis slowly with low feed override", "Inspect ball screw coupling for looseness", "Verify servo motor brake releases when servo is enabled"],
+      "parts_needed": [{ "part_number": "E5409-034-022", "description": "Z-axis servo motor encoder (LB-series)", "quantity": 1 }],
+      "estimated_downtime_min": 120,
+      "requires_service_tech": true,
+      "related_alarms": ["SV0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV0301",
+      "severity": "error",
+      "category": "servo",
+      "description": "Hardware overtravel X+ axis. Physical limit switch triggered on X positive direction.",
+      "probable_causes": ["Machine not homed", "Program exceeded X positive travel", "Limit switch wiring fault"],
+      "corrective_actions": ["Release overtravel by holding override button and jogging away from limit", "Re-home the machine", "Check that work offsets and program stay within X travel of 260mm"],
+      "parts_needed": [],
+      "estimated_downtime_min": 15,
+      "requires_service_tech": false,
+      "related_alarms": ["SV0302", "PS0200"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "CK0001",
+      "severity": "critical",
+      "category": "chuck",
+      "description": "Chuck pressure low. Hydraulic chuck clamping pressure below safe operating minimum.",
+      "probable_causes": ["Hydraulic unit pressure loss", "Chuck cylinder seal leak", "Hydraulic oil level critically low", "Chuck actuating cylinder worn"],
+      "corrective_actions": ["STOP MACHINE IMMEDIATELY - risk of workpiece ejection", "Check hydraulic oil level in reservoir", "Verify hydraulic pressure on gauge reads 25-40 bar", "Inspect chuck cylinder seals for leaks", "Do NOT run spindle until pressure is restored"],
+      "parts_needed": [{ "part_number": "E4715-330-001", "description": "Chuck hydraulic cylinder seal kit", "quantity": 1 }],
+      "estimated_downtime_min": 120,
+      "requires_service_tech": true,
+      "related_alarms": ["CK0002", "PS0800"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "CK0002",
+      "severity": "error",
+      "category": "chuck",
+      "description": "Chuck not clamped. Chuck open/close sensor indicates jaws are not fully clamped before cycle start.",
+      "probable_causes": ["Chuck not clamped after part load (M10 not executed)", "Workpiece diameter too large for jaw stroke", "Chuck proximity sensor out of adjustment", "Jaw not seated in serrations correctly"],
+      "corrective_actions": ["Execute M10 to clamp chuck", "Verify workpiece diameter is within jaw gripping range", "Adjust chuck proximity sensor gap (0.5-1.0mm)", "Reseat jaws and verify serration engagement"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["CK0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "TS0001",
+      "severity": "error",
+      "category": "tailstock",
+      "description": "Tailstock position error. Tailstock quill did not reach commanded position within timeout.",
+      "probable_causes": ["Chip buildup preventing tailstock quill advance", "Tailstock hydraulic pressure insufficient", "Workpiece center hole missing or misaligned", "Tailstock proximity sensor fault"],
+      "corrective_actions": ["Clean chip buildup from tailstock area", "Verify tailstock hydraulic pressure (20-35 bar)", "Ensure workpiece has proper center drill hole", "Check tailstock quill advance/retract sensors"],
+      "parts_needed": [],
+      "estimated_downtime_min": 15,
+      "requires_service_tech": false,
+      "related_alarms": ["TS0002"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "TS0002",
+      "severity": "warning",
+      "category": "tailstock",
+      "description": "Tailstock not retracted. Tailstock quill not in home position during turret index or tool change.",
+      "probable_causes": ["M27 retract not programmed before turret index", "Tailstock retract sensor misaligned", "Hydraulic pressure low"],
+      "corrective_actions": ["Add M27 before T-code tool change blocks", "Check tailstock home position sensor alignment", "Verify hydraulic pressure"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["TS0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "TU0001",
+      "severity": "error",
+      "category": "turret",
+      "description": "Turret index error. Turret failed to complete rotation to commanded station.",
+      "probable_causes": ["Chip accumulation jamming turret rotation", "Turret coupling worn or damaged", "Turret motor overload", "Tool extending beyond turret clearance envelope"],
+      "corrective_actions": ["Clear chips from turret base and tool stations", "Run turret home cycle from maintenance menu", "Check that no tool protrudes beyond turret clearance radius", "Inspect turret coupling teeth for damage"],
+      "parts_needed": [{ "part_number": "E4720-180-001", "description": "Turret coupling disc", "quantity": 1 }],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": false,
+      "related_alarms": ["TU0002"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "TU0002",
+      "severity": "error",
+      "category": "turret",
+      "description": "Turret clamp error. Turret curvic coupling not fully engaged after index.",
+      "probable_causes": ["Curvic coupling contaminated with chips or coolant", "Clamping hydraulic pressure insufficient", "Turret position sensor misalignment after crash"],
+      "corrective_actions": ["Clean curvic coupling faces with solvent and brush", "Verify turret clamp hydraulic pressure", "Re-home turret and check station alignment", "If persistent, curvic coupling inspection required"],
+      "parts_needed": [],
+      "estimated_downtime_min": 45,
+      "requires_service_tech": false,
+      "related_alarms": ["TU0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "BF0001",
+      "severity": "error",
+      "category": "bar_feeder",
+      "description": "Bar feeder communication error. Bar feeder controller not responding to CNC handshake signals.",
+      "probable_causes": ["Bar feeder power supply off", "Communication cable disconnected or damaged", "Bar feeder controller fault", "Interface relay board failure"],
+      "corrective_actions": ["Verify bar feeder is powered on", "Check communication cable between bar feeder and CNC", "Restart bar feeder controller", "Check interface relay board connections at CNC side"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": false,
+      "related_alarms": ["BF0002", "BF0003"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "BF0002",
+      "severity": "warning",
+      "category": "bar_feeder",
+      "description": "Bar stock end detected. Bar feeder remnant pusher has reached minimum stock length.",
+      "probable_causes": ["Bar stock consumed — normal end of bar", "Bar length measurement sensor misaligned", "Remnant length setting too long"],
+      "corrective_actions": ["Load new bar stock into feeder channel", "Part off remnant and eject", "Adjust remnant detection length if material is being wasted"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["BF0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "BF0003",
+      "severity": "error",
+      "category": "bar_feeder",
+      "description": "Bar feeder push pressure abnormal. Bar stock not reaching spindle collet/chuck stop position.",
+      "probable_causes": ["Bar stock bent or out of round", "Collet/chuck not fully open for bar feed", "Guide channel misaligned to spindle bore", "Hydraulic pusher cylinder low pressure"],
+      "corrective_actions": ["Check bar stock straightness", "Verify M11 chuck open before bar feed command", "Align bar feeder guide channel with spindle bore", "Check bar feeder hydraulic pressure"],
+      "parts_needed": [],
+      "estimated_downtime_min": 20,
+      "requires_service_tech": false,
+      "related_alarms": ["BF0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0600",
+      "severity": "error",
+      "category": "lubrication",
+      "description": "Way lube oil level low. Centralized lubrication reservoir below minimum level.",
+      "probable_causes": ["Normal consumption over time", "Lubrication line leak at way cover or fitting", "Pump failure"],
+      "corrective_actions": ["Refill way lube reservoir with ISO VG68 lubricant", "Inspect all lubrication lines and fittings for leaks", "Verify pump operation by observing oil flow"],
+      "parts_needed": [{ "part_number": "E3625-041-008", "description": "Way lube pump unit (LB-series)", "quantity": 1 }],
+      "estimated_downtime_min": 15,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0601"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0601",
+      "severity": "critical",
+      "category": "lubrication",
+      "description": "Way lube pressure abnormal. Lubrication system cannot build adequate delivery pressure.",
+      "probable_causes": ["Way lube reservoir empty", "Pump motor failure", "Broken lube distribution line", "Clogged lube filter"],
+      "corrective_actions": ["STOP MACHINE IMMEDIATELY - running without lube causes guideway damage", "Check reservoir level first", "Inspect pump motor operation", "Check lube filter and replace if clogged"],
+      "parts_needed": [{ "part_number": "E3625-041-008", "description": "Way lube pump unit (LB-series)", "quantity": 1 }, { "part_number": "E3625-049-003", "description": "Lube filter element (LB-series)", "quantity": 1 }],
+      "estimated_downtime_min": 60,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0600"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0800",
+      "severity": "error",
+      "category": "hydraulic",
+      "description": "Hydraulic pressure low. System hydraulic pressure below minimum for chuck and tailstock operation.",
+      "probable_causes": ["Hydraulic oil level below minimum", "Hydraulic pump degradation", "Chuck or tailstock cylinder seal leak", "Relief valve out of adjustment"],
+      "corrective_actions": ["Check hydraulic oil level and add ISO VG32 hydraulic oil", "Check system pressure on gauge (should be 25-50 bar)", "Inspect for external leaks at chuck and tailstock cylinders", "Listen for pump cavitation"],
+      "parts_needed": [{ "part_number": "E3631-095-005", "description": "Hydraulic pump assembly (LB-series)", "quantity": 1 }],
+      "estimated_downtime_min": 60,
+      "requires_service_tech": true,
+      "related_alarms": ["CK0001", "TS0001"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV0100",
+      "severity": "critical",
+      "category": "servo",
+      "description": "Spindle drive fault. Spindle servo amplifier has detected an internal error.",
+      "probable_causes": ["Spindle motor winding insulation breakdown", "Spindle drive IGBT module failure", "Power supply voltage fluctuation during heavy cut", "Spindle encoder Z-phase signal lost"],
+      "corrective_actions": ["Power cycle machine and check if alarm clears", "Record alarm sub-code from diagnostic screen", "Measure spindle motor insulation resistance (should be >1 MOhm)", "Contact Okuma service with sub-code"],
+      "parts_needed": [{ "part_number": "E3632-490-005", "description": "Spindle drive amplifier unit (LB-series)", "quantity": 1 }],
+      "estimated_downtime_min": 480,
+      "requires_service_tech": true,
+      "related_alarms": ["OH0001", "OH0002"],
+      "source": { "handbook_title": "LB3000 EX II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "maintenance_schedule": [
+    {
+      "task_id": "LB3000-MAINT-001",
+      "task": "Check and refill way lube reservoir",
+      "interval": "daily",
+      "category": "lubrication",
+      "procedure_steps": [
+        "Visually inspect way lube reservoir level through sight glass on right side of machine",
+        "Level should be between LOW and HIGH marks",
+        "If low, add Okuma-approved ISO VG68 way lube oil through filler cap",
+        "Check for oil puddles under machine indicating line leaks"
+      ],
+      "parts_needed": [{ "part_number": "E3625-049-012", "description": "Way lube oil ISO VG68 (20L pail)", "quantity": 1 }],
+      "safety_warnings": ["Use only recommended lubricant grade — wrong viscosity causes premature guideway wear"],
+      "estimated_time_min": 5,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-002",
+      "task": "Check hydraulic oil level and chuck pressure",
+      "interval": "daily",
+      "category": "inspection",
+      "procedure_steps": [
+        "Check hydraulic reservoir sight glass — level between MIN and MAX",
+        "Verify chuck pressure gauge reads 25-40 bar",
+        "Listen for abnormal hydraulic pump noise",
+        "Cycle chuck open/close twice and verify smooth operation"
+      ],
+      "parts_needed": [],
+      "safety_warnings": ["Never operate with chuck pressure below 20 bar — risk of workpiece ejection"],
+      "estimated_time_min": 5,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-003",
+      "task": "Clean chip pan and check chip conveyor",
+      "interval": "daily",
+      "category": "cleaning",
+      "procedure_steps": [
+        "Remove chip tray and empty collected chips into chip bin",
+        "Clear any long stringy chips from around turret and tailstock",
+        "Inspect chip conveyor belt for damage or chip jamming",
+        "Run conveyor forward and reverse briefly to verify operation",
+        "Clean coolant tank strainer basket"
+      ],
+      "parts_needed": [],
+      "safety_warnings": ["Wear cut-resistant gloves when handling metal chips", "Ensure spindle is stopped and chuck is empty before reaching into work area"],
+      "estimated_time_min": 15,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-004",
+      "task": "Run spindle warmup cycle",
+      "interval": "daily",
+      "category": "lubrication",
+      "procedure_steps": [
+        "Before first cut of the day, run warmup program",
+        "S200 for 5 min, S500 for 5 min, S1000 for 5 min, S2000 for 5 min, S3500 for 5 min",
+        "Monitor spindle bearing temperature on diagnostic screen",
+        "Temperature should stabilize within 5 deg C of ambient + 12 deg C"
+      ],
+      "parts_needed": [],
+      "safety_warnings": ["Do not skip warmup — thermal shock causes bearing preload shifts and accuracy loss", "Ensure chuck is empty during warmup"],
+      "estimated_time_min": 25,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-005",
+      "task": "Check coolant concentration and pH",
+      "interval": "weekly",
+      "category": "inspection",
+      "procedure_steps": [
+        "Use refractometer to measure coolant concentration",
+        "Target range: 6-10% depending on material being cut",
+        "Measure pH with test strip or meter — target 8.5-9.5",
+        "If pH below 8.0, tramp oil contamination likely — skim and add fresh concentrate",
+        "Record readings in coolant log"
+      ],
+      "parts_needed": [],
+      "safety_warnings": ["Wear nitrile gloves when handling metalworking fluid"],
+      "estimated_time_min": 10,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-006",
+      "task": "Clean and inspect electrical cabinet air filter",
+      "interval": "weekly",
+      "category": "cleaning",
+      "procedure_steps": [
+        "Open electrical cabinet filter cover on rear of machine",
+        "Remove filter element and blow clean with shop air (from inside out)",
+        "Inspect filter for tears or holes — replace if damaged",
+        "Reinstall filter and verify cabinet fan is running"
+      ],
+      "parts_needed": [{ "part_number": "E3515-093-008", "description": "Cabinet air filter element (LB-series)", "quantity": 1 }],
+      "safety_warnings": ["Do not open cabinet interior panels — high voltage present"],
+      "estimated_time_min": 10,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-007",
+      "task": "Inspect chuck jaw condition and seating",
+      "interval": "weekly",
+      "category": "inspection",
+      "procedure_steps": [
+        "Remove workpiece and inspect soft jaw gripping surfaces for wear grooves",
+        "Check jaw serration engagement — jaws must be fully seated in master jaw slots",
+        "Verify jaw numbering matches master jaw station (1-2-3)",
+        "Torque jaw bolts to 45 Nm if soft jaws have been rebored recently",
+        "Measure jaw runout with dial indicator in chuck — should be < 0.02mm TIR after bore"
+      ],
+      "parts_needed": [],
+      "safety_warnings": ["Ensure spindle is locked and power is at E-stop before jaw removal"],
+      "estimated_time_min": 20,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-008",
+      "task": "Check tailstock alignment",
+      "interval": "monthly",
+      "category": "calibration",
+      "procedure_steps": [
+        "Chuck a test bar (minimum 200mm long, ground OD) in main spindle",
+        "Support with tailstock live center",
+        "Indicate OD at chuck end and tailstock end with dial indicator on turret",
+        "Difference should be < 0.01mm/200mm",
+        "If out of spec, adjust tailstock lateral alignment screws per manual",
+        "Recheck and document values in calibration log"
+      ],
+      "parts_needed": [],
+      "safety_warnings": ["Tailstock adjustment screws are sensitive — turn in 1/8-turn increments only"],
+      "estimated_time_min": 45,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-009",
+      "task": "Turret indexing calibration check",
+      "interval": "monthly",
+      "category": "calibration",
+      "procedure_steps": [
+        "Index turret through all 12 stations using M23",
+        "At each station, verify turret curvic coupling seats fully (clamp confirm on diagnostic screen)",
+        "Time each index — should be within 0.3s of 2.5s specification",
+        "If any station is slow or fails to clamp, clean curvic coupling faces",
+        "Inspect curvic teeth for damage or chip contamination"
+      ],
+      "parts_needed": [],
+      "safety_warnings": ["Keep hands clear of turret during indexing cycle"],
+      "estimated_time_min": 30,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-010",
+      "task": "Replace coolant tank filter and skim tramp oil",
+      "interval": "monthly",
+      "category": "replacement",
+      "procedure_steps": [
+        "Turn off coolant pump",
+        "Skim floating tramp oil from coolant surface with oil skimmer or absorbent pads",
+        "Remove and replace coolant filter cartridge (25-micron)",
+        "Check coolant concentration after filter change",
+        "Restart pump and verify flow"
+      ],
+      "parts_needed": [{ "part_number": "E3625-055-012", "description": "Coolant filter cartridge 25um (LB-series)", "quantity": 1 }],
+      "safety_warnings": ["Wear gloves when handling used coolant filters", "Dispose tramp oil per local environmental regulations"],
+      "estimated_time_min": 25,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-011",
+      "task": "Bar feeder roller and channel inspection",
+      "interval": "monthly",
+      "category": "inspection",
+      "procedure_steps": [
+        "Open bar feeder channel cover",
+        "Inspect polyurethane guide rollers for wear flats or damage",
+        "Check that rollers spin freely on bearings",
+        "Clean channel of chips and bar remnants",
+        "Verify pusher finger is not bent or worn",
+        "Lubricate pusher rod with light machine oil"
+      ],
+      "parts_needed": [{ "part_number": "BF-ROLLER-SET-65", "description": "Bar feeder guide roller set (65mm capacity)", "quantity": 1 }],
+      "safety_warnings": ["Disconnect bar feeder power before working inside channel"],
+      "estimated_time_min": 20,
+      "requires_power_off": true,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-012",
+      "task": "Check X/Z axis backlash compensation",
+      "interval": "quarterly",
+      "category": "calibration",
+      "procedure_steps": [
+        "Mount dial indicator on turret face with probe touching a fixed surface",
+        "Jog each axis in positive direction and zero indicator",
+        "Reverse axis direction and record backlash reading",
+        "Compare to stored compensation value on parameter page",
+        "Adjust compensation if measured backlash deviates by > 2 um",
+        "Record values in machine calibration log"
+      ],
+      "parts_needed": [],
+      "safety_warnings": [],
+      "estimated_time_min": 45,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-013",
+      "task": "Chuck jaw replacement (soft jaws)",
+      "interval": "as_needed",
+      "category": "replacement",
+      "procedure_steps": [
+        "Power off spindle and engage E-stop",
+        "Remove jaw bolts (3x per jaw, typically M8 or M10)",
+        "Remove old soft jaws from master jaw T-slots",
+        "Install new soft jaws — ensure jaw number matches master jaw station",
+        "Torque jaw bolts to 45 Nm in star pattern",
+        "Bore soft jaws to workpiece diameter + 0.05mm allowance",
+        "Verify chuck runout with dial indicator < 0.02mm TIR after bore"
+      ],
+      "parts_needed": [{ "part_number": "SOFT-JAW-10-SET", "description": "Soft jaw blank set (10 inch chuck, 3-jaw)", "quantity": 1 }],
+      "safety_warnings": ["Always verify jaw clamping force with test piece before production", "Do not exceed 4000 RPM with soft jaws — centrifugal force can reduce grip"],
+      "estimated_time_min": 60,
+      "requires_power_off": true,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-014",
+      "task": "Replace hydraulic oil and filter",
+      "interval": "annual",
+      "category": "fluid_change",
+      "procedure_steps": [
+        "Power off machine and depressurize hydraulic system",
+        "Place drain pan under hydraulic tank",
+        "Open drain valve and drain all hydraulic oil",
+        "Remove and replace hydraulic filter element",
+        "Close drain valve and refill with ISO VG32 hydraulic oil to MAX mark",
+        "Power on and cycle hydraulic system to bleed air",
+        "Cycle chuck and tailstock multiple times to circulate fresh oil"
+      ],
+      "parts_needed": [
+        { "part_number": "E3631-095-012", "description": "Hydraulic oil ISO VG32 (20L pail)", "quantity": 2 },
+        { "part_number": "E3631-049-003", "description": "Hydraulic filter element (LB-series)", "quantity": 1 }
+      ],
+      "safety_warnings": ["Depressurize system completely before opening any connections", "Dispose of used oil per local regulations"],
+      "estimated_time_min": 90,
+      "requires_power_off": true,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "LB3000-MAINT-015",
+      "task": "Full machine geometry check",
+      "interval": "annual",
+      "category": "calibration",
+      "procedure_steps": [
+        "Warm up machine for minimum 2 hours before measurement",
+        "Mount test bar in chuck and support with tailstock",
+        "Measure X/Z linear positioning accuracy with laser interferometer per ISO 230-2",
+        "Measure spindle runout at nose and at 200mm extension",
+        "Check tailstock alignment to spindle axis",
+        "Update pitch error compensation table if deviations exceed 3 um/m",
+        "Generate calibration certificate and file in machine records"
+      ],
+      "parts_needed": [],
+      "safety_warnings": ["Laser safety glasses required during measurement"],
+      "estimated_time_min": 360,
+      "requires_power_off": false,
+      "source": { "handbook_title": "LB3000 EX II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "parts_book": [
+    { "oem_part_number": "E4710-810-020", "description": "Main spindle bearing set (front + rear, angular contact)", "category": "bearing", "quantity_per_machine": 1, "replacement_interval_hours": 25000, "critical": true, "lead_time_days": 28, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3632-490-005", "description": "Spindle drive amplifier unit (LB-series)", "category": "electrical", "quantity_per_machine": 1, "critical": true, "lead_time_days": 14, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3632-849-010", "description": "Power supply unit PSU (LB-series)", "category": "electrical", "quantity_per_machine": 1, "critical": true, "lead_time_days": 14, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3505-827-004", "description": "Lithium backup battery CR2032 holder assembly", "category": "electrical", "quantity_per_machine": 1, "replacement_interval_hours": 17520, "critical": false, "lead_time_days": 3, "cross_references": [{ "vendor": "Panasonic", "part_number": "CR2032" }], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E4715-330-001", "description": "Chuck hydraulic cylinder seal kit", "category": "hydraulic", "quantity_per_machine": 1, "replacement_interval_hours": 15000, "critical": true, "lead_time_days": 10, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E4720-180-001", "description": "Turret coupling disc (BMT65 12-station)", "category": "turret", "quantity_per_machine": 1, "replacement_interval_hours": 30000, "critical": true, "lead_time_days": 21, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3625-041-008", "description": "Way lube pump unit (LB-series)", "category": "lubrication", "quantity_per_machine": 1, "critical": true, "lead_time_days": 7, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3625-049-003", "description": "Lube filter element (LB-series)", "category": "filter", "quantity_per_machine": 1, "replacement_interval_hours": 2000, "critical": false, "lead_time_days": 5, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3515-093-008", "description": "Cabinet air filter element (LB-series)", "category": "filter", "quantity_per_machine": 2, "replacement_interval_hours": 500, "critical": false, "lead_time_days": 3, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3625-055-012", "description": "Coolant filter cartridge 25um (LB-series)", "category": "filter", "quantity_per_machine": 1, "replacement_interval_hours": 720, "critical": false, "lead_time_days": 3, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "BF-ROLLER-SET-65", "description": "Bar feeder guide roller set (65mm capacity)", "category": "bar_feeder", "quantity_per_machine": 1, "replacement_interval_hours": 8000, "critical": false, "lead_time_days": 10, "cross_references": [], "source": { "handbook_title": "LB3000 EX II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } }
+  ],
+
+  "programming_tips": [
+    {
+      "topic": "G96 CSS with G50 Speed Clamp — Mandatory for Turning",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "G50 S3500\nG96 S200 M03\nG00 X50. Z2.\nG01 X0. F0.15\n(At X0, RPM would be infinite without G50 clamp)",
+      "description": "G96 Constant Surface Speed adjusts RPM inversely with diameter. Without G50 to set the max RPM limit, the spindle will accelerate uncontrollably as the tool approaches centerline (X0). ALWAYS program G50 before G96. The G50 S-value should be the maximum safe RPM for the workholding setup — typically 3000-3500 RPM for chuck work.",
+      "gotchas": ["Forgetting G50 before G96 is the most common cause of spindle overspeed alarms on lathes", "G50 is modal and persists even after switching to G97 — cancel with G50 S4000 if needed", "G96 calculates RPM from the X-axis diameter value, not actual tool tip position — verify tool offset direction"],
+      "related_alarms": ["PS0300", "OH0001"],
+      "applicable_operations": ["turning", "facing", "boring"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "G76 Threading Cycle — Compound Infeed Depth Calculation",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "G97 S600 M03\nG76 P030060 Q100 R0.05\nG76 X23.026 Z-25. P1487 Q500 F2.0\n(M20x2.0 external thread: minor dia 23.026mm, depth 1.487mm, first cut 0.5mm)",
+      "description": "G76 P word encodes three parameters: passes (03), spring passes (00), and infeed angle (60 degrees). The thread depth P value (in the second G76 line) is in microns — 1487 = 1.487mm depth. First cut depth Q is also in microns. Thread depth = 0.6134 * pitch for 60-degree ISO metric threads. Infeed angle 60 = compound (reduces one-sided cutting force), 0 = radial (used for acme/trapezoidal).",
+      "gotchas": ["P value in second G76 line is MICRONS not millimeters — P1487 = 1.487mm", "First cut Q500 = 0.5mm is typical for M20 — scale Q with thread pitch", "Spring passes (middle digits of first P word) eliminate taper at thread exit", "Always use G97 constant RPM for threading — G96 CSS will cause pitch errors"],
+      "related_alarms": ["PS0100"],
+      "applicable_operations": ["threading"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "G71 Roughing Cycle — OD vs ID Considerations",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "G71 U2.0 R0.5\nG71 P100 Q200 U0.3 W0.1 F0.3\nN100 G00 X20.\nG01 Z0.\nX40. Z-5.\nZ-30.\nX50.\nN200 Z-60.\n(OD roughing: contour goes from small X to large X)",
+      "description": "G71 automatic roughing takes multiple passes along Z parallel to the spindle axis. For OD roughing, the contour profile (N100-N200) must go from small diameter to large diameter. For ID roughing, the contour goes from large diameter to small. U word is the finish allowance on X (diameter), W is finish allowance on Z. The U value in the first G71 line is the depth of cut per pass (radius, not diameter).",
+      "gotchas": ["Depth of cut U in the FIRST G71 line is RADIUS value — U2.0 removes 4mm diameter per pass", "Finish allowance U in the SECOND G71 line is DIAMETER value — U0.3 leaves 0.3mm total on diameter", "For ID roughing, U finish allowance must be negative (U-0.3) to leave material on the bore wall", "G70 finish cycle uses the same N-block range — verify contour is correct for both rough and finish"],
+      "related_alarms": ["PS0200"],
+      "applicable_operations": ["turning", "roughing", "boring"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Bar Feeding Synchronization for Lights-Out Running",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "M05\nM09\nG28 U0. W0.\nM11 (Chuck open)\nM200 (Bar feed push to stop)\nG04 P1000 (1 sec dwell for bar settle)\nM10 (Chuck clamp)\nG04 P500\nM96 (Part count +1)",
+      "description": "For unattended bar feeding, the sequence must be: retract to home, stop spindle, open chuck, signal bar feeder to push, dwell for bar settle, clamp chuck, then resume cutting. The bar must push against a positive stop (either the spindle face or a programmed Z-position with a turret-mounted stop). Always include G04 dwell after bar feed push to allow the bar to settle before clamping.",
+      "gotchas": ["M11 (chuck open) will alarm if spindle is still rotating — always M05 first", "Bar feeder push pressure must match bar stock weight — heavy bars need higher pressure", "Include M200 timeout check in macro — if bar feeder does not confirm push within 10 sec, alarm and stop", "Remnant detection (BF0002) must trigger part-off of last piece and bar eject sequence"],
+      "related_alarms": ["BF0001", "BF0002", "BF0003"],
+      "applicable_operations": ["bar_work", "automation", "lights_out"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Live Tooling with C-Axis Lock",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "M05\nG28 U0. W0.\nT0800 (Live drill in station 8)\nM19 (Spindle orient / C-axis engage)\nG97 S3000 M03 (Live tool spindle ON at 3000 RPM)\nG00 X25. Z5.\nG01 Z-15. F0.1\nG00 Z5.\nM05\nM09",
+      "description": "For cross-drilling and milling with live tooling on the LB3000 EX II MY, the main spindle must be oriented (M19) to engage the C-axis. The live tool spindle is a separate motor (6000 RPM max) in the turret. S-code and M03/M04 commands switch to controlling the live tool spindle when a live tool station is active. Cross-drilling uses X-axis feed, while face milling uses Z-axis feed with C-axis indexing.",
+      "gotchas": ["M19 must be called before engaging live tooling — otherwise the main spindle is still in rotation mode", "S and M03/M04 commands automatically switch to live tool spindle when live station is selected", "Maximum live tool RPM is 6000 — not the main spindle's 4000 RPM", "Coolant through live tool requires M50 (separate from M08 flood coolant)"],
+      "related_alarms": ["TU0001"],
+      "applicable_operations": ["milling", "drilling", "cross_drilling", "live_tooling"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Safe Start Block for Turning Programs",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "G28 U0. W0.\nG50 S3500\nG40 G80 G97 G99\nT0100\nG96 S200 M03\nM08\nG00 X52. Z2.",
+      "description": "Every turning program should start with a safe start block that cancels all active modal states and establishes known conditions. G28 U0. W0. homes both axes via intermediate point. G40 cancels TNRC. G80 cancels any active canned cycle. G97 ensures constant RPM before G96 is engaged. G99 sets feed per revolution mode. This prevents crashes when a program is restarted mid-cycle.",
+      "gotchas": ["G28 U0. W0. uses incremental — machine rapids to current XZ then to home, so there is no collision risk from intermediate move", "G50 must come BEFORE G96 — OSP processes blocks sequentially", "Include G40 to cancel TNRC even if you think it is not active — modal state may persist from previous program", "T0100 selects tool AND applies geometry offset — always call T-word with full 4 digits"],
+      "related_alarms": [],
+      "applicable_operations": ["turning", "setup", "programming"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "G92 vs G76 Threading — When to Use Each",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "(G92 single-block method — operator controls each pass)\nG97 S600\nG92 X24.5 Z-25. F2.0\nX24.0\nX23.6\nX23.2\nX23.026\nX23.026\n(Two spring passes at final depth)\n\n(G76 automatic method — CNC calculates all passes)\nG76 P030060 Q100 R0.05\nG76 X23.026 Z-25. P1487 Q500 F2.0",
+      "description": "G92 is the simple threading cycle where the operator programs each pass depth manually. This gives maximum control and is preferred for: first-article threads, difficult materials, interrupted threads, and non-standard thread forms. G76 is the fully automatic cycle where the CNC calculates infeed per pass based on constant chip area — it is faster for production threading of standard ISO metric or UN threads.",
+      "gotchas": ["G92 does NOT use compound infeed — every pass is radial, resulting in more cutting force", "G76 with 60-degree infeed angle reduces cutting force but leaves a slightly rougher thread root", "Both require G97 — NEVER use G96 for threading", "For multi-start threads, use G32 with specific start positions or G76 with phase shift"],
+      "related_alarms": [],
+      "applicable_operations": ["threading"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Sub-Spindle Part Transfer (Dual-Spindle Models)",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "M05 (Stop main spindle)\nM11 (Open main chuck)\nG00 W2. (Sub-spindle advance to grip)\nM210 (Sub-spindle chuck clamp)\nG04 P500 (Dwell for clamp confirm)\nM10 (Verify main chuck open)\nG00 W-2. (Sub-spindle retract with part)\nM211 (Sub-spindle ON)",
+      "description": "On dual-spindle LB3000 EX II models, parts transfer from main to sub-spindle for back-end operations. The sub-spindle advances along the Z2 axis, grips the part while the main chuck releases, then retracts. Synchronization of spindle speeds (M200/M201 on some models) enables pickup at RPM for short cycle times. The part transfer position must account for part-off tool width and part length.",
+      "gotchas": ["Sub-spindle chuck must be verified clamped (clamp confirm signal) before main chuck opens", "Spindle sync (speed matching) requires both spindles to be the same RPM and direction before transfer", "Part-off tool must cut fully through before transfer — partial cut leaves a pip that jams sub-chuck", "Z-axis position accuracy during transfer directly affects back-end feature runout"],
+      "related_alarms": ["CK0001", "CK0002"],
+      "applicable_operations": ["part_transfer", "dual_spindle", "back_operations"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Tool Nose Radius Compensation (TNRC) Setup",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "G42 G00 X50. Z2. (TNRC right compensation ON)\nG01 Z0. F0.2\nX30. Z-10. (Taper with TNRC)\nZ-40.\nG40 G00 X55. (TNRC cancel — must be on departure move)",
+      "description": "TNRC (G41/G42) compensates for the tool nose radius during contouring. Without TNRC, the tool path follows the theoretical sharp point, leaving material on tapers and radii. G41 = left compensation (tool on left side of workpiece when viewed from tool to part), G42 = right compensation. The tool nose radius and imaginary tip direction (T1-T8) must be set in the offset page.",
+      "gotchas": ["TNRC must be activated on an approach move BEFORE the first cutting move — not on the cutting move itself", "Cancel G40 must be on a departure move AWAY from the part — never cancel during a cutting move", "Imaginary tool tip direction (T-number in offset page) must match actual insert orientation", "TNRC does NOT work correctly inside G71/G72 canned cycles on OSP — it is applied automatically by the cycle"],
+      "related_alarms": ["PS0100"],
+      "applicable_operations": ["turning", "boring", "contouring"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Spindle Load Monitoring for Tool Wear Detection",
+      "controller_dialect": "OSP-P300L",
+      "code_example": "IF [VSPLD GT 90] GOTO 8000\n(Continue cutting...)\nN8000 G00 X100. Z50.\nM01 (Spindle load exceeded 90% — check tool wear)\nGOTO 1",
+      "description": "VSPLD reads the current spindle load as a percentage of rated motor capacity. In turning, spindle load correlates strongly with flank wear — a 15-20% increase over baseline load indicates the insert needs indexing. Program macro checks at the start of each part to detect worn tools before they cause scrap. Sudden load drop to near 0% during cutting indicates tool breakage.",
+      "gotchas": ["Baseline load varies significantly with material, DOC, and feed — calibrate per operation", "In CSS mode (G96), spindle load changes with diameter even at constant chip load", "VSPLD includes acceleration loads during rapid direction changes", "For bar feeding operations, include load check after each bar advance to detect bent bars"],
+      "related_alarms": ["OH0001"],
+      "applicable_operations": ["turning", "boring", "adaptive_feed", "tool_monitoring"],
+      "source": { "handbook_title": "OSP-P300L Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "safety_limits": [
+    { "parameter": "Maximum spindle speed", "max_value": 4000, "unit": "RPM", "consequence_of_violation": "Spindle motor thermal shutdown, potential workpiece ejection from chuck at high RPM", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum spindle speed with soft jaws", "max_value": 3500, "unit": "RPM", "consequence_of_violation": "Centrifugal force reduces jaw grip — workpiece may eject", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum workpiece weight in chuck (no tailstock)", "max_value": 110, "unit": "kg", "consequence_of_violation": "Bearing overload, spindle vibration, chuck bolt fatigue", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum workpiece weight with tailstock support", "max_value": 200, "unit": "kg", "consequence_of_violation": "Tailstock and bed overload, Z-axis servo errors", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Minimum chuck clamping pressure", "min_value": 20, "unit": "bar", "consequence_of_violation": "Insufficient clamping force — risk of workpiece ejection during heavy cuts", "interlock_type": "hardware", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum bar stock diameter", "max_value": 65, "unit": "mm", "consequence_of_violation": "Bar cannot pass through spindle bore, jams in collet or chuck", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum turning diameter", "max_value": 340, "unit": "mm", "consequence_of_violation": "Workpiece contacts way covers or turret at maximum X travel", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum rapid traverse rate", "max_value": 30000, "unit": "mm_min", "consequence_of_violation": "Exceeding rated rapid causes following error alarms", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Minimum air supply pressure", "min_value": 5, "unit": "bar", "consequence_of_violation": "Insufficient air for chuck confirm, air seals, and chip blow-off", "interlock_type": "hardware", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum L/D ratio without tailstock support", "max_value": 4, "unit": "ratio", "consequence_of_violation": "Part deflection causes chatter, taper, and poor surface finish. Use tailstock for L/D > 4.", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Spindle bearing temperature limit", "max_value": 65, "unit": "C", "consequence_of_violation": "Bearing preload loss, reduced accuracy, potential bearing seizure", "interlock_type": "hardware", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Ambient operating temperature maximum", "max_value": 40, "unit": "C", "consequence_of_violation": "Thermal growth exceeds compensation range, accuracy degradation", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "LB3000 EX II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } }
+  ],
+
+  "coolant_specs": {
+    "coolant_types": [
+      { "type": "Water-soluble semi-synthetic", "concentration_pct_min": 5, "concentration_pct_max": 12, "recommended_brand": "Blaser Synergy 735" },
+      { "type": "Neat cutting oil (for threading and bar work)", "viscosity_cst_40c": 15, "recommended_brand": "Castrol Ilocut 154" }
+    ],
+    "tank_capacity_liters": 200,
+    "pump_pressure_bar": 1.2,
+    "flow_rate_lpm": 25,
+    "filtration_um": 25,
+    "through_spindle": false,
+    "through_tool_coolant": true,
+    "through_tool_pressure_bar": 10,
+    "mql_capable": false,
+    "chip_conveyor_type": "Hinge belt",
+    "source": {
+      "handbook_title": "LB3000 EX II Maintenance Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "tooling_constraints": {
+    "turret_type": "BMT65",
+    "turret_stations": 12,
+    "turret_index_time_sec": 2.5,
+    "max_tool_shank_mm": 25,
+    "max_boring_bar_diameter_mm": 50,
+    "live_tooling": true,
+    "live_tool_max_rpm": 6000,
+    "live_tool_power_kw": 5.5,
+    "live_tool_taper": "ER32 collet",
+    "tool_change_time_sec": 2.5,
+    "max_tools_in_turret": 12,
+    "driven_tool_stations": 12,
+    "source": {
+      "handbook_title": "LB3000 EX II Operation Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  }
+}

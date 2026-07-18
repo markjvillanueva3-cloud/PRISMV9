@@ -21,11 +21,7 @@ related:
 
 ## Description (from file header)
 
-pre-delete-guard.mjs — Phase 0.8 Delete Guard Hook
-PreToolUse hook that fires on Bash commands that delete engine files.
-Requires orphan-scan + registry-archive before deletion.
-BLOCKS if dependents still reference the engine.
-@phase Universal 0.8 — Rename/Delete/Impact Protocol
+_(no header docblock — read source for behavior)_
 
 ## Events
 

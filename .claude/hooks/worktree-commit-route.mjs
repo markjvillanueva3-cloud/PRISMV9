@@ -76,6 +76,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { exit } from "node:process";
+import { branchBasename, scopeMatchesBranch, isSlotBranch } from "../../scripts/lib/worktree-route-match.mjs"; // U-WORKTREE-ROUTE-SLOT-FIX
 
 // ── Activation gate (SLOT-WORKTREE-MS0/U-P1-ROUTE-ACTIVATE 2026-05-14
 //                    → U-P3-DEFAULT-ON 2026-05-15) ────────────────────────
@@ -191,7 +192,7 @@ function spawnSyncSafe(args) {
   try {
     const git = findGit();
     if (!git) return null;
-    return spawnSync(git, args, { cwd: process.cwd(), timeout: 2000, encoding: "utf-8" });
+    return spawnSync(git, args, { windowsHide: true, cwd: process.cwd(), timeout: 2000, encoding: "utf-8" });
   } catch {
     return null;
   }
@@ -285,7 +286,7 @@ const gitCandidates = [
 function findGit() {
   for (const g of gitCandidates) {
     try {
-      const p = spawnSync(g, ["--version"], { timeout: 1500, encoding: "utf-8" });
+      const p = spawnSync(g, ["--version"], { windowsHide: true, timeout: 1500, encoding: "utf-8" });
       if (p.status === 0) return g;
     } catch { /* try next */ }
   }
@@ -295,7 +296,7 @@ function findGit() {
 const git = findGit();
 if (!git) exit(0); // no git → can't route, let command through
 
-const wtRes = spawnSync(git, ["worktree", "list", "--porcelain"], {
+const wtRes = spawnSync(git, ["worktree", "list", "--porcelain"], { windowsHide: true,
   cwd: process.cwd(),
   timeout: 2000,
   encoding: "utf-8",
@@ -412,20 +413,22 @@ function normalize(p) {
 const cwdNorm = normalize(process.cwd());
 const currentWt = worktrees.find((w) => cwdNorm === normalize(w.path));
 
+// SLOT-WORKTREE ALLOW (U-WORKTREE-ROUTE-SLOT-FIX 2026-06-12): slot worktrees
+// (branch slot/<name>) are governed by slot-commit-enforce, NOT scope->branch
+// matching -- their branch is named by SLOT (alpha) while commits carry MILESTONE
+// scopes (HIGH-ROI-HUNT) that never match, so the themed-worktree heuristic below
+// would wrongly deny every slot commit (and a malformed peer worktree could
+// wildcard-block them). If the committing tree is a slot worktree, allow.
+const committingWt = currentWt || worktrees.find((w) =>
+  cwdNorm.startsWith(normalize(w.path) + "/") || cwdNorm === normalize(w.path));
+if (committingWt && isSlotBranch(committingWt.branch)) exit(0);
+
 // ── Match scope → worktree ───────────────────────────────────────────
 // Branch basename = last segment of branch ref (work/lathe-master → lathe-master)
-function branchBasename(b) {
-  if (!b) return "";
-  return b.split("/").pop().toLowerCase();
-}
+// branchBasename imported from scripts/lib/worktree-route-match.mjs (U-WORKTREE-ROUTE-SLOT-FIX)
 
-function scopeMatchesBranch(scopeToken, branchHead) {
-  if (!scopeToken || !branchHead) return false;
-  return (
-    branchHead.includes(scopeToken) ||
-    scopeToken.includes(branchHead.split("-")[0]) // main token of branch
-  );
-}
+// scopeMatchesBranch imported from scripts/lib/worktree-route-match.mjs
+// (U-WORKTREE-ROUTE-SLOT-FIX -- fixes the empty-token wildcard bug; see tests)
 
 const matchedWts = worktrees.filter((w) => {
   const head = branchBasename(w.branch);

@@ -519,4 +519,51 @@ describe("LatheSwissPostGeneratorEngine", () => {
       expect(result.metadata.total_lines).toBe(result.gcode.length);
     });
   });
+
+  // ==========================================================================
+  // NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP, schema .finite())
+  // A NaN/Infinity cycle param must never reach emit (would leak XNaN/ZInfinity).
+  // SwissGenerationInputSchema.safeParse(parameters: SwissCycleParametersSchema)
+  // with .finite() rejects both NaN and Infinity -> success:false, no program.
+  // ==========================================================================
+  describe("non-finite emit guard (U-PP-NONFINITE-EMIT-SWEEP, schema .finite())", () => {
+    const gen = (operation: string, parameters: Record<string, unknown>) =>
+      LatheSwissPostGeneratorEngine.generate({
+        machine_type: "citizen_cincom", operation, parameters,
+        include_comments: false, use_line_numbers: false,
+      } as never);
+    const noBadToken = (g: string[]) => {
+      const j = g.join("\n");
+      expect(j).not.toMatch(/[XYZQRFBS](NaN|Infinity)/);
+    };
+
+    it("[regression] a finite cross_drill still generates", () => {
+      const r = gen("cross_drill", { hole_depth: -5, peck_depth: 1, feed_rate: 100 });
+      expect(r.success).toBe(true);
+    });
+
+    it("NaN hole_depth is REJECTED by the schema -- no program, no literal ZNaN", () => {
+      const r = gen("cross_drill", { hole_depth: NaN, peck_depth: 1, feed_rate: 100 });
+      expect(r.success).toBe(false);
+      noBadToken(r.gcode);
+    });
+
+    it("Infinity feed_rate is REJECTED by .finite() -- no literal FInfinity", () => {
+      const r = gen("cross_drill", { hole_depth: -5, peck_depth: 1, feed_rate: Infinity });
+      expect(r.success).toBe(false);
+      noBadToken(r.gcode);
+    });
+
+    it("Infinity bushing_clearance is REJECTED by .finite()", () => {
+      const r = gen("guide_bushing_on", { bushing_clearance: Infinity });
+      expect(r.success).toBe(false);
+      noBadToken(r.gcode);
+    });
+
+    it("NaN b_angle is REJECTED by the schema", () => {
+      const r = gen("b_axis_drill", { b_angle: NaN, hole_depth: -5, feed_rate: 100 });
+      expect(r.success).toBe(false);
+      noBadToken(r.gcode);
+    });
+  });
 });

@@ -1,0 +1,300 @@
+{
+  "id": "INT-MS0",
+  "title": "Integration Sync — Wire 17 ACP+MXU Engines into Full System Surface",
+  "track": "INT",
+  "status": "not_started",
+  "version": "1.0.0",
+  "created": "2026-04-06",
+  "brief": "17 engines built (ACP-MS0→MS7 + MXU-MS0A→MS10) with 57 dispatcher actions and 365 tests. ZERO are wired into hooks, slash commands, CLAUDE.md, ENGINE_DIGEST, skills, or existing automation flows. This milestone wires everything into the full system surface so capabilities auto-fire and are discoverable.",
+  "domain": "infrastructure",
+  "complexity": "L",
+  "estimated_sessions": 6,
+  "estimated_units": 18,
+  "dependencies": [],
+  "engines_involved": [
+    "AutomationChainEngine", "BuildGuardChainEngine", "ChainFailureRecoveryEngine",
+    "ContextChainEngine", "SpeedFeedAutopilotEngine", "PostProcessorAutopilotEngine",
+    "QuoteAutopilotEngine", "UtilizationContractEngine", "CapabilityCensusEngine",
+    "CodingCopilotEngine", "TokenEconomyEngine", "PersistentMemoryEngine",
+    "CapabilityPathEngine", "WorkflowOrchestrationEngine", "ProductPillarEngine",
+    "DiscoverabilityEngine", "CapabilityEffectivenessEngine"
+  ],
+  "knowledge_sources": {
+    "existing_hooks": "H:/prism/.claude/hooks/portable-user-settings.json (400 lines, 39 python hooks)",
+    "existing_skills": "H:/prism/skills-consolidated/ (269 skills, 0 reference new engines)",
+    "claude_md": "H:/prism/CLAUDE.md (project instructions, no mention of 17 new engines)",
+    "engine_digest": "H:/prism/mcp-server/data/docs/ENGINE_DIGEST.md (stale, missing 17 engines)",
+    "dispatcher_digest": "H:/prism/mcp-server/data/docs/DISPATCHER_DIGEST.md (stale, missing 57 actions)",
+    "startup_skill": "H:/prism/skills-consolidated/prism-startup/ (doesn't call census or context chain)",
+    "compact_skill": "H:/prism/skills-consolidated/prism-precompact/ (doesn't call context chain)",
+    "forge_skills": "H:/prism/skills-consolidated/prism-forge-*/ (don't use CodingCopilot dedup check)"
+  },
+  "phases": [
+    {
+      "phase": 1,
+      "title": "Document Sync — Digests, CLAUDE.md, Memory, Position",
+      "sessions": [
+        {
+          "id": "INT-S1",
+          "title": "Document & Index Synchronization",
+          "smart_config": {
+            "role": "System integrator",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "30%"
+          },
+          "knowledge": ["ENGINE_DIGEST.md", "DISPATCHER_DIGEST.md", "CLAUDE.md", "MASTER_INDEX_COMPACT.md", "MEMORY.md", "CURRENT_POSITION.md"],
+          "intent": "Every system document accurately reflects the 17 new engines and 57 new actions. Claude/Codex sessions can discover them via digest lookup.",
+          "units": [
+            {
+              "id": "U-INT01",
+              "title": "Update ENGINE_DIGEST.md with 17 new engine entries",
+              "description": "Add one-line descriptions for all 17 ACP+MXU engines to ENGINE_DIGEST.md in correct alphabetical/domain position",
+              "files_modified": ["data/docs/ENGINE_DIGEST.md"],
+              "exit_criteria": ["17 new entries present", "alphabetical order maintained", "each has file path + 1-line description"]
+            },
+            {
+              "id": "U-INT02",
+              "title": "Update DISPATCHER_DIGEST.md with 57 new actions",
+              "description": "Add all 57 new devDispatcher actions to DISPATCHER_DIGEST.md with action names and brief descriptions",
+              "files_modified": ["data/docs/DISPATCHER_DIGEST.md"],
+              "exit_criteria": ["57 new actions listed under devDispatcher", "action count matches live count"]
+            },
+            {
+              "id": "U-INT03",
+              "title": "Update CLAUDE.md Architecture section",
+              "description": "Add ACP and MXU to the Architecture section. Add automation chains, capability census, product pillars to 'What's Built' section. Update engine/dispatcher/action counts.",
+              "files_modified": ["H:/prism/CLAUDE.md"],
+              "exit_criteria": ["Counts match live system", "ACP track mentioned", "MXU track mentioned", "New engines listed in 'What's Built'"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "title": "Hook Integration — Auto-fire on Events",
+      "sessions": [
+        {
+          "id": "INT-S2",
+          "title": "Wire BuildGuard + Context + TokenEconomy into Hooks",
+          "smart_config": {
+            "role": "Hook engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "40%"
+          },
+          "knowledge": ["portable-user-settings.json", "BuildGuardChainEngine.ts", "ContextChainEngine.ts", "TokenEconomyEngine.ts", "ChainFailureRecoveryEngine.ts"],
+          "intent": "Hooks auto-fire the new engines on every edit, search, and compaction — no manual invocation needed.",
+          "units": [
+            {
+              "id": "U-INT04",
+              "title": "Replace enforce-smart-test-after-edit.py with BuildGuardChainEngine hook",
+              "description": "New PostToolUse hook on Write|Edit that calls BuildGuardChainEngine.trackEdit() and resolveAffectedTests(). Replace the Python script with a Node.js hook that imports the engine directly.",
+              "files_created": ["H:/prism/.claude/hooks/lib/build-guard-hook.mjs"],
+              "files_modified": ["H:/prism/.claude/hooks/portable-user-settings.json"],
+              "exit_criteria": ["Hook fires on Write|Edit", "Suggests affected tests after 3 edits", "Blocks after 12 edits without review"]
+            },
+            {
+              "id": "U-INT05",
+              "title": "Wire ContextChainEngine into PreCompact hook",
+              "description": "PreCompact hook calls ContextChainEngine.planCompaction() to determine what to preserve. Outputs critical facts to HANDOFF.md.",
+              "files_created": ["H:/prism/.claude/hooks/lib/context-chain-hook.mjs"],
+              "files_modified": ["H:/prism/.claude/hooks/portable-user-settings.json"],
+              "exit_criteria": ["PreCompact calls planCompaction()", "Handoff includes critical_facts from context chain", "Pressure level logged"]
+            },
+            {
+              "id": "U-INT06",
+              "title": "Wire TokenEconomyEngine into PostToolUse tracking",
+              "description": "PostToolUse hook records token spending per tool call category. Session summary available via /token-economy.",
+              "files_created": ["H:/prism/.claude/hooks/lib/token-economy-hook.mjs"],
+              "files_modified": ["H:/prism/.claude/hooks/portable-user-settings.json"],
+              "exit_criteria": ["Token spending tracked per tool call", "Waste patterns detected", "Session report available"]
+            }
+          ]
+        },
+        {
+          "id": "INT-S3",
+          "title": "Wire AutomationChain + CodingCopilot into Prompt/Edit Hooks",
+          "smart_config": {
+            "role": "Hook engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "35%"
+          },
+          "knowledge": ["AutomationChainEngine.ts", "CodingCopilotEngine.ts", "ChainFailureRecoveryEngine.ts"],
+          "intent": "Every user prompt is auto-classified into a task class. Every engine edit triggers dedup check. Chain failures get structured recovery.",
+          "units": [
+            {
+              "id": "U-INT07",
+              "title": "Wire AutomationChainEngine into UserPromptSubmit hook",
+              "description": "Classify each prompt into one of 9 task classes. Inject context bundles for the detected class. Log classification for telemetry.",
+              "files_created": ["H:/prism/.claude/hooks/lib/prompt-classifier-hook.mjs"],
+              "files_modified": ["H:/prism/.claude/hooks/portable-user-settings.json"],
+              "exit_criteria": ["Every prompt classified", "Task class logged", "Context bundles suggested in additionalContext"]
+            },
+            {
+              "id": "U-INT08",
+              "title": "Wire CodingCopilotEngine dedup check into PreToolUse Write|Edit for engine files",
+              "description": "Before creating a new engine file, check for duplication against existing engines. Warn if overlap > 60%.",
+              "files_created": ["H:/prism/.claude/hooks/lib/copilot-dedup-hook.mjs"],
+              "files_modified": ["H:/prism/.claude/hooks/portable-user-settings.json"],
+              "exit_criteria": ["New engine file creation triggers dedup check", "Warning shown if overlap > 60%", "Suggestion to extend existing engine"]
+            },
+            {
+              "id": "U-INT09",
+              "title": "Wire ChainFailureRecoveryEngine into PostToolUseFailure hook",
+              "description": "When a tool call fails, classify the failure and compute a recovery plan. Inject retry/skip/abort guidance.",
+              "files_created": ["H:/prism/.claude/hooks/lib/chain-recovery-hook.mjs"],
+              "files_modified": ["H:/prism/.claude/hooks/portable-user-settings.json"],
+              "exit_criteria": ["Tool failures classified", "Recovery plan injected as additionalContext", "Retry count tracked"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "title": "Slash Command Integration — User-Facing Surface",
+      "sessions": [
+        {
+          "id": "INT-S4",
+          "title": "Create New Slash Commands for MXU Engines",
+          "smart_config": {
+            "role": "Skill author",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "35%"
+          },
+          "knowledge": ["skills-consolidated/ SKILL.md format", "DiscoverabilityEngine.ts", "CapabilityCensusEngine.ts", "ProductPillarEngine.ts", "TokenEconomyEngine.ts", "PersistentMemoryEngine.ts", "CapabilityPathEngine.ts"],
+          "intent": "Users can type /discover, /census, /pillar, /token-economy, /learn-path and get rich output from the new engines.",
+          "units": [
+            {
+              "id": "U-INT10",
+              "title": "Create /discover skill",
+              "description": "Skill that calls DiscoverabilityEngine.search() or .whatCanIDo(). Shows capability matches with entry points.",
+              "files_created": ["skills-consolidated/prism-discover/SKILL.md"],
+              "exit_criteria": ["/discover 'speed feed' returns ranked capabilities", "/discover with no args lists domains"]
+            },
+            {
+              "id": "U-INT11",
+              "title": "Create /census skill",
+              "description": "Skill that runs CapabilityCensusEngine.runLiveReport(). Shows utilization %, dark engines, gaps.",
+              "files_created": ["skills-consolidated/prism-census/SKILL.md"],
+              "exit_criteria": ["/census shows utilization report", "Dark engines listed", "Gap recommendations shown"]
+            },
+            {
+              "id": "U-INT12",
+              "title": "Create /pillar skill",
+              "description": "Skill that calls ProductPillarEngine.getSummary(). Shows 8 product pillars with completeness scores.",
+              "files_created": ["skills-consolidated/prism-pillar/SKILL.md"],
+              "exit_criteria": ["/pillar lists 8 pillars with status", "/pillar calculator shows detail", "Feature gates shown"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "title": "Existing Command Updates — Startup, Compact, Forge",
+      "sessions": [
+        {
+          "id": "INT-S5",
+          "title": "Update Startup, Compact, Forge Commands",
+          "smart_config": {
+            "role": "System integrator",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "40%"
+          },
+          "knowledge": ["startup SKILL.md", "precompact SKILL.md", "forge-engines SKILL.md", "forge-triple SKILL.md", "autopilot SKILL.md"],
+          "intent": "Existing commands leverage new engines automatically. Startup shows census. Compact uses context chain. Forge uses copilot.",
+          "units": [
+            {
+              "id": "U-INT13",
+              "title": "Update /startup to show pillar summary + census snapshot",
+              "description": "Add Step 4F to startup that calls ProductPillarEngine.getSummary() and shows pillar readiness. Add utilization % from census.",
+              "files_modified": ["skills-consolidated/prism-startup/SKILL.md"],
+              "exit_criteria": ["Startup shows pillar summary line", "Utilization % shown", "Census engine called"]
+            },
+            {
+              "id": "U-INT14",
+              "title": "Update /precompact to use ContextChainEngine",
+              "description": "Precompact calls ContextChainEngine.planCompaction() and includes critical_facts in handoff output.",
+              "files_modified": ["skills-consolidated/prism-precompact/SKILL.md"],
+              "exit_criteria": ["Context chain called during precompact", "Critical facts preserved in handoff", "Pressure level logged"]
+            },
+            {
+              "id": "U-INT15",
+              "title": "Update /forge-engines to use CodingCopilot dedup + template",
+              "description": "Before creating any engine, forge calls CodingCopilotEngine.checkDuplication() and .generateTemplate(). Shows reuse suggestions.",
+              "files_modified": ["skills-consolidated/prism-forge-engines/SKILL.md"],
+              "exit_criteria": ["Forge shows dedup check before creating", "Template used as scaffold", "Reuse suggestions listed"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "title": "Memory + State Sync",
+      "sessions": [
+        {
+          "id": "INT-S6",
+          "title": "Update Memory, Position, State Files",
+          "smart_config": {
+            "role": "State manager",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "25%"
+          },
+          "knowledge": ["MEMORY.md", "CURRENT_POSITION.md", "AUTOMATION_CENSUS.json", "MASTER_INDEX_COMPACT.md"],
+          "intent": "All state files reflect the completed ACP and MXU tracks. Memory records the architectural decisions. Position updated.",
+          "units": [
+            {
+              "id": "U-INT16",
+              "title": "Update MEMORY.md with ACP+MXU completion",
+              "description": "Add memory entries for: ACP track complete (7 engines, 22 actions), MXU track complete (10 engines, 35 actions), key architectural decisions.",
+              "files_modified": ["C:/Users/Mark Villanueva/.claude/projects/H--prism/memory/MEMORY.md"],
+              "exit_criteria": ["ACP completion recorded", "MXU completion recorded", "Engine counts accurate"]
+            },
+            {
+              "id": "U-INT17",
+              "title": "Update CURRENT_POSITION.md and roadmap-index.json",
+              "description": "Mark ACP-MS0 through MS7 complete. Mark MXU-MS0A through MS10 complete. Update milestone counts.",
+              "files_modified": ["H:/prism/state/CURRENT_POSITION.md", "H:/prism/mcp-server/data/roadmap-index.json"],
+              "exit_criteria": ["ACP milestones marked complete", "MXU milestones marked complete", "Counts match reality"]
+            },
+            {
+              "id": "U-INT18",
+              "title": "Update AUTOMATION_CENSUS.json + MASTER_INDEX_COMPACT.md",
+              "description": "Refresh automation census with all new engines/actions. Update master index with new engine/dispatcher/action counts.",
+              "files_modified": ["H:/prism/mcp-server/data/state/AUTOMATION_CENSUS.json", "H:/prism/mcp-server/data/docs/MASTER_INDEX_COMPACT.md"],
+              "exit_criteria": ["Census gap map fully updated", "Master index counts match live", "No stale data"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "exit_gate": {
+    "criteria": [
+      "All 17 engines referenced in ENGINE_DIGEST.md",
+      "All 57 actions referenced in DISPATCHER_DIGEST.md",
+      "CLAUDE.md updated with ACP+MXU in Architecture section",
+      "6 hooks auto-fire (build-guard, context-chain, token-economy, prompt-classifier, copilot-dedup, chain-recovery)",
+      "3 new slash commands work (/discover, /census, /pillar)",
+      "3 existing commands updated (/startup, /precompact, /forge-engines)",
+      "MEMORY.md reflects ACP+MXU completion",
+      "CURRENT_POSITION.md and roadmap-index.json accurate",
+      "AUTOMATION_CENSUS.json gap map refreshed"
+    ],
+    "omega_floor": 0.85,
+    "svi_delta": "+2%"
+  },
+  "forge_triple": {
+    "hooks": ["build-guard-hook.mjs", "context-chain-hook.mjs", "token-economy-hook.mjs", "prompt-classifier-hook.mjs", "copilot-dedup-hook.mjs", "chain-recovery-hook.mjs"],
+    "actions": ["discover_search", "discover_browse", "capability_census_report", "pillar_summary", "token_economy_report"],
+    "skills": ["/discover", "/census", "/pillar"]
+  }
+}

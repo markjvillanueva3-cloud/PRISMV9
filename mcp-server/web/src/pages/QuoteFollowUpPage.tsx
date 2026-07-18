@@ -154,7 +154,7 @@ function normalizeCommunication(value: Record<string, unknown>, index: number): 
     type: readString(value.type) || 'note',
     subject: readString(value.subject) || 'Communication',
     details: readString(value.details) || readString(value.notes) || '',
-    loggedBy: readString(value.logged_by) || readString(value.sender_name) || 'PRISM',
+    loggedBy: readString(value.logged_by) || readString(value.sender_name) || 'Kienzle',
     followUpDate: readString(value.follow_up_date) || null,
   };
 }
@@ -272,7 +272,7 @@ export function QuoteFollowUpPage() {
 
     try {
       const response = await customerFollowUps();
-      const payload = (response.result ?? response.data ?? []) as unknown;
+      const payload = (response.result ??[]) as unknown;
       const entries =
         (payload as { follow_ups?: Array<Record<string, unknown>> })?.follow_ups ??
         (Array.isArray(payload) ? payload : []);
@@ -301,7 +301,7 @@ export function QuoteFollowUpPage() {
     const [commResult, quoteResult] = await Promise.allSettled([commPromise, quotePromise]);
 
     if (commResult.status === 'fulfilled' && commResult.value) {
-      const payload = (commResult.value.result ?? commResult.value.data ?? []) as unknown;
+      const payload = (commResult.value.result ??[]) as unknown;
       const entries =
         (payload as { communications?: Array<Record<string, unknown>> })?.communications ??
         (Array.isArray(payload) ? payload : []);
@@ -596,7 +596,7 @@ export function QuoteFollowUpPage() {
         quote_id: resolvedQuoteId || undefined,
       });
 
-      const payload = (response.result ?? response.data ?? {}) as Record<string, unknown>;
+      const payload = (response.result ??{}) as Record<string, unknown>;
       setCreatedOpportunity({
         id: readString(payload.id) || 'opportunity-created',
         stage: readString(payload.stage) || opportunityStage,

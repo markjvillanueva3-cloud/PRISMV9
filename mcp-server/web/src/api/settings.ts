@@ -1,3 +1,4 @@
+import { getAuthHeaders } from './authToken';
 const BASE = "/api/v1/settings";
 
 export const settingsApi = {
@@ -6,7 +7,7 @@ export const settingsApi = {
     return r.ok ? (await r.json()).settings : {};
   },
   save: async (settings: Record<string, unknown>) => {
-    const r = await fetch(BASE, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(settings) });
+    const r = await fetch(BASE, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(settings) });
     return r.ok ? (await r.json()).settings : null;
   },
 };

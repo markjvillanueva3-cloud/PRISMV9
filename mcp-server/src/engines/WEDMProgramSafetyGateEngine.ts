@@ -134,6 +134,8 @@ export interface SafetyGateResult {
   s_of_x: number;
   /** @deprecated Use s_of_x instead */
   sx_score: number;
+  /** S(x) threshold the program was evaluated against (mirrors audit.threshold_used). */
+  threshold?: number;
   hard_block: boolean;
   can_emit: boolean;
   components_evaluated: SafetyComponent[];
@@ -373,7 +375,7 @@ export class WEDMProgramSafetyGateEngine {
         const df = input as SafetyGateInput["deflection"];
         return `DEFLECTION: ${df?.max_deflection_um?.toFixed(1) ?? "?"} μm exceeds limit ${df?.limit_um?.toFixed(1) ?? "?"} μm`;
       default:
-        return `${component.toUpperCase()}: check failed`;
+        return `${String(component).toUpperCase()}: check failed`;
     }
   }
 

@@ -1,0 +1,227 @@
+{
+  "id": "PP-MOAT-MS0",
+  "version": "1.0.0",
+  "title": "PP Registry Wiring — Connect 910 Machines, 2,957 Materials, 95K Tools to Pipeline",
+  "track": "PP-MOAT",
+  "created_at": "2026-04-01T17:00:00Z",
+  "description": "Wire MachineRegistry, MaterialRegistry, and ToolRegistry into PostProcessorPipelineEngine._resolveContexts(). Replace hardcoded defaults (max_rpm=12000, 4-flute carbide, regex ISO group) with catalog lookups. Route Stage 1.1 through SpeedFeedOrchestratorEngine instead of direct UltimateSpeedFeedEngine call. Wire user-proven-cutting-data.ts as validation anchor. This is the highest-ROI change: it activates ALL existing physics with REAL data.",
+  "dependencies": [],
+  "knowledge_sources": {
+    "engines": [
+      "PostProcessorPipelineEngine (3,149 lines) — the pipeline being wired",
+      "SpeedFeedOrchestratorEngine (2,851 lines) — 8 resolvers, MC UQ, currently bypassed",
+      "UltimateSpeedFeedEngine (3,005 lines) — current direct call target"
+    ],
+    "registries": [
+      "MachineRegistry (1,426 lines, 910 machines)",
+      "MaterialRegistry (1,662 lines, 2,957 materials)",
+      "ToolRegistry (1,398 lines, 95,608 tools)",
+      "PostProcessorRegistry (634 lines) — already partially wired",
+      "CoolantRegistry (654 lines)",
+      "CoatingRegistry (546 lines)"
+    ],
+    "data": [
+      "user-proven-cutting-data.ts (30,812 lines)",
+      "machine-post-enriched.ts (10,585 lines)",
+      "src/physics/constants.ts (482 lines, CANONICAL_KIENZLE/TAYLOR)"
+    ],
+    "formulas": [
+      "Kienzle kc1.1 (already in constants.ts — must import, not inline)",
+      "Taylor C/n (CANONICAL_TAYLOR in constants.ts)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine (3,700+ tips) — Stage 5.3 currently hardcoded, defer to MS2"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pp-registry-check — blocks PP engine edits that add hardcoded material/machine/tool defaults instead of registry lookups",
+    "mcp_action": "prism_cam post_process_with_catalog — post-process with full catalog resolution",
+    "skill": "/pp-resolve — resolve machine+material+tool from catalogs and show resolved context"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (verify registries read)",
+      "context-retention"
+    ],
+    "post_level": [
+      "stub detector",
+      "constants checker",
+      "wiring agent"
+    ],
+    "compact_level": [
+      "review gate",
+      "forge-triple gate",
+      "session audit"
+    ],
+    "post_compact": [
+      "auto-continuation"
+    ]
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MachineRegistry + MaterialRegistry Wiring",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Wire MachineRegistry into _resolveContexts() — replace hardcoded machine defaults",
+          "status": "complete",
+          "knowledge_sources": [
+            "MachineRegistry.ts",
+            "machine-post-enriched.ts",
+            "PostProcessorPipelineEngine.ts lines 2579-2670"
+          ],
+          "steps": [
+            "Read _resolveContexts() in PostProcessorPipelineEngine.ts (lines 2579-2670) to understand current machine resolution",
+            "Import MachineRegistry (lazy load via _getEngine pattern or direct import)",
+            "In _resolveContexts(), when input.machine is a string (name only), call MachineRegistry.resolve(name) to get full MachineContext",
+            "Map registry fields: max_rpm, max_power_kW, max_torque_Nm, rapid_rate_mm_min, work_volume, axes, controller type, coolant_types, tsc_pressure_bar, tool_changer_time_s",
+            "Remove hardcoded fallbacks: max_rpm=12000, max_power_kW=15, rapid=30000 — replace with registry values or conservative defaults from registry median",
+            "Add resolution_confidence field: 1.0 if registry match found, 0.3 if fallback used",
+            "Add warning to pipeline result if machine not found in registry"
+          ],
+          "exit_conditions": [
+            "npx tsc --noEmit passes with 0 errors",
+            "Existing 117 PP tests still pass",
+            "New test: process({machine: 'Haas VF-2'}) resolves to max_rpm=8100, controller=haas",
+            "New test: process({machine: 'Unknown XYZ'}) falls back gracefully with resolution_confidence=0.3",
+            "A machinist would see correct machine limits in the output analytics"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Wire MaterialRegistry into _resolveContexts() — replace regex ISO group inference",
+          "status": "complete",
+          "knowledge_sources": [
+            "MaterialRegistry.ts",
+            "constants.ts CANONICAL_KIENZLE",
+            "PostProcessorPipelineEngine.ts _inferISOGroup()"
+          ],
+          "steps": [
+            "Read _inferISOGroup() in PostProcessorPipelineEngine.ts to understand current regex-based inference",
+            "Import MaterialRegistry (lazy load)",
+            "In _resolveContexts(), when input.material is a string or has no kc1_1, call MaterialRegistry.resolve(name) to get full MaterialContext",
+            "Map registry fields: iso_group, kc1_1, mc, uts_MPa, hardness_HB, thermal_conductivity, specific_heat, jc_A/B/n/C/m (Johnson-Cook params)",
+            "Keep _inferISOGroup() as FINAL fallback only when registry has no match",
+            "Remove hardcoded material defaults — all physics-critical values come from registry or canonical constants",
+            "Add resolution_confidence: 1.0 for registry match, 0.5 for partial match, 0.2 for regex inference"
+          ],
+          "exit_conditions": [
+            "npx tsc --noEmit passes",
+            "117 PP tests still pass",
+            "New test: process({material: '4140 Steel'}) resolves kc1_1=2000, mc=0.25, iso_group='P'",
+            "New test: process({material: {name: 'Ti-6Al-4V'}}) resolves iso_group='S', gets JC params",
+            "New test: process({material: 'Unobtainium'}) falls back to regex with confidence=0.2"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Wire ToolRegistry into _resolveContexts() — replace 4-flute carbide defaults",
+          "status": "complete",
+          "knowledge_sources": [
+            "ToolRegistry.ts",
+            "ToolGeometryDefaults.ts",
+            "PostProcessorPipelineEngine.ts tool resolution"
+          ],
+          "steps": [
+            "Import ToolRegistry (lazy load)",
+            "In _resolveContexts(), when input.tools[] has only tool_number + diameter, call ToolRegistry.resolve() to get full ToolContext",
+            "Map registry fields: type, diameter_mm, flute_count, flute_length_mm, material (carbide/HSS/ceramic), helix_angle_deg, corner_radius_mm, max_Vc, coating, stiffness, runout_TIR",
+            "Remove hardcoded defaults: type=flat_endmill, flute_count=4, material=carbide",
+            "Fall back to ToolGeometryDefaults.ts when registry has no match (diameter-based inference)",
+            "Add resolution_confidence per tool"
+          ],
+          "exit_conditions": [
+            "npx tsc --noEmit passes",
+            "117 PP tests still pass",
+            "New test: tool lookup by diameter+type returns correct geometry from catalog",
+            "New test: unknown tool falls back to ToolGeometryDefaults with confidence=0.3"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "SpeedFeedOrchestrator + Proven Data Wiring",
+      "units": [
+        {
+          "id": "U04",
+          "title": "Route Stage 1.1 through SpeedFeedOrchestratorEngine instead of direct UltimateSpeedFeedEngine",
+          "status": "complete",
+          "knowledge_sources": [
+            "SpeedFeedOrchestratorEngine.ts (2,851 lines, 8 resolvers)",
+            "UltimateSpeedFeedEngine.ts"
+          ],
+          "steps": [
+            "Read SpeedFeedOrchestratorEngine to understand its 8-resolver chain and Monte Carlo UQ",
+            "Add SFO to _getEngine() lazy loader",
+            "In Stage 1.1 (base_speed_feed), replace direct UltimateSpeedFeedEngine.compute() call with SpeedFeedOrchestratorEngine.process()",
+            "Map SFO output (which includes CI, multiple resolvers, tribal knowledge) to existing stage output format",
+            "SFO internally calls MachineRegistry + MaterialRegistry + ToolRegistry — so U01-U03 wiring feeds through automatically",
+            "Keep UltimateSpeedFeedEngine as fallback if SFO fails",
+            "Propagate SFO confidence intervals through to Stage 4 (stochastic verification)"
+          ],
+          "exit_conditions": [
+            "npx tsc --noEmit passes",
+            "117 PP tests still pass",
+            "New test: Stage 1.1 output includes resolver chain names and confidence intervals",
+            "New test: SFO failure gracefully falls back to UltimateSpeedFeedEngine"
+          ]
+        },
+        {
+          "id": "U05",
+          "title": "Wire user-proven-cutting-data.ts as validation anchor in Stage 1.1",
+          "status": "complete",
+          "knowledge_sources": [
+            "user-proven-cutting-data.ts (30,812 lines)",
+            "SpeedFeedOrchestratorEngine resolvers"
+          ],
+          "steps": [
+            "Read user-proven-cutting-data.ts to understand its structure (material, tool, machine, proven S/F)",
+            "Create a lookup function: given material+tool_type+diameter, find matching proven data entries",
+            "In Stage 1.1, after SFO/USE computes physics-based S/F, compare against proven data",
+            "If proven data exists: use as validation anchor — report delta between physics and proven",
+            "If physics S/F exceeds proven data by >20%: add warning 'physics exceeds shop-proven limits'",
+            "If physics S/F is <60% of proven: add note 'conservative — shop data suggests higher feeds possible'",
+            "Add proven_data_match to analytics report"
+          ],
+          "exit_conditions": [
+            "npx tsc --noEmit passes",
+            "117 PP tests still pass",
+            "New test: known material+tool combo returns proven data comparison",
+            "New test: unknown combo reports 'no proven data available' without error"
+          ]
+        },
+        {
+          "id": "U06",
+          "title": "Wire CoolantRegistry + CoatingRegistry for Kienzle correction factors",
+          "status": "complete",
+          "knowledge_sources": [
+            "CoolantRegistry.ts (654 lines)",
+            "CoatingRegistry.ts (546 lines)",
+            "constants.ts CANONICAL_KIENZLE"
+          ],
+          "steps": [
+            "Import CoolantRegistry and CoatingRegistry (lazy load)",
+            "In Stage 1.1, after base kc1_1 is resolved, apply correction factors:",
+            "  K_coolant: from CoolantRegistry — flood=1.0, MQL=0.95, dry=1.1, cryo=0.9",
+            "  K_coating: from CoatingRegistry — TiAlN=0.85, TiN=0.9, AlCrN=0.82, uncoated=1.0",
+            "  K_gamma: rake angle correction from tool geometry (gamma_ref=6°, K = 1 - 0.01*(gamma - gamma_ref))",
+            "  K_wear: VB correction — K = 1 + 0.5*(VB/VB_max) (from wear tracking state)",
+            "Apply corrected kc = kc1_1 * K_coolant * K_coating * K_gamma * K_wear",
+            "Document correction factors in stage output for auditability"
+          ],
+          "exit_conditions": [
+            "npx tsc --noEmit passes",
+            "117 PP tests still pass",
+            "New test: flood coolant + TiAlN coating gives kc = kc1_1 * 1.0 * 0.85 = 15% reduction",
+            "New test: dry + uncoated gives kc = kc1_1 * 1.1 * 1.0 = 10% increase",
+            "Correction factors appear in analytics report"
+          ]
+        }
+      ]
+    }
+  ],
+  "exit_gate": "All 3 registries wired + SFO routing + proven data + correction factors. Pipeline uses real catalog data instead of hardcoded defaults. 117+ tests pass. /prism-review passed.",
+  "status": "complete"
+}

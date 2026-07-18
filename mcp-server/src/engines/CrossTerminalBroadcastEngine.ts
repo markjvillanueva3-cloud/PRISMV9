@@ -102,9 +102,24 @@ export class CrossTerminalBroadcastEngine extends EventEmitter {
     const thisFile = fileURLToPath(import.meta.url);
     this.baseDir = path.resolve(path.dirname(thisFile), "..", "..");
     this.registryPath = path.join(this.baseDir, "data", "state", "cross-session-asset-registry.json");
-    this.broadcastPath = path.join(this.baseDir, "data", "state", "BROADCAST_CHANNEL.jsonl");
+    // PRISM_BROADCAST_CHANNEL_PATH redirects the channel file (ABSOLUTE path
+    // expected; read ONCE at construction -- in-process tests keep using the
+    // _setBroadcastPath seam, which always wins because it runs post-construct).
+    // Needed because that seam cannot reach a child process -- hook tests
+    // (crossSessionOrchestratorHook.test.ts) spawn the hook and must isolate their
+    // events from the live fleet channel, whose TRIM_LINE_CAP rewrites make size
+    // deltas on the shared file nondeterministic. Env absent/blank -> canonical
+    // path, behavior unchanged. Mirrors PRISM_COORD_SUMMARY_PATH in the facade.
+    const channelOverride = process.env.PRISM_BROADCAST_CHANNEL_PATH?.trim();
+    this.broadcastPath = channelOverride
+      || path.join(this.baseDir, "data", "state", "BROADCAST_CHANNEL.jsonl");
     this.sessionId = process.env.CLAUDE_SESSION_ID || `session-${Date.now()}`;
     log.info("[CrossTerminalBroadcast] Initialized — cross-session synchronization");
+    if (channelOverride) {
+      // Fail-loud breadcrumb: a leftover env in a real MCP-server shell would
+      // silently fork the fleet channel without this line.
+      log.info(`[CrossTerminalBroadcast] Channel redirected via PRISM_BROADCAST_CHANNEL_PATH -> ${this.broadcastPath}`);
+    }
   }
 
   // ============================================================================

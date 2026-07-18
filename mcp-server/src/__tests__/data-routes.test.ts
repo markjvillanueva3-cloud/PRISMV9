@@ -336,4 +336,61 @@ describe("Data routes", () => {
     expect(response.data.result.stabilityOptions.some((item: any) => item.id === "production-stable")).toBe(true);
     expect(calls).toHaveLength(0);
   });
+
+  it("returns the tool-coating select catalog via GET /coating/catalog", async () => {
+    const response = await httpRequest("GET", "/api/v1/data/coating/catalog");
+    expect(response.status).toBe(200);
+    expect(["database", "curated"]).toContain(response.data.result.source);
+    expect(response.data.result.options.length).toBeGreaterThan(0);
+    expect(response.data.result.options.some((o: any) => o.id === "tialn")).toBe(true);
+    expect(typeof response.data.result.recommendedByMaterial).toBe("object");
+    expect(calls).toHaveLength(0);
+  });
+
+  it("returns the indexable-insert select catalog via GET /insert/catalog", async () => {
+    const response = await httpRequest("GET", "/api/v1/data/insert/catalog");
+    expect(response.status).toBe(200);
+    expect(["database", "curated"]).toContain(response.data.result.source);
+    expect(response.data.result.options.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.data.result.manufacturers)).toBe(true);
+    expect(response.data.result.manufacturers.length).toBeGreaterThan(0);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("returns the coolant-method select catalog via GET /coolant/catalog", async () => {
+    const response = await httpRequest("GET", "/api/v1/data/coolant/catalog");
+    expect(response.status).toBe(200);
+    expect(["database", "curated"]).toContain(response.data.result.source);
+    expect(response.data.result.options.some((o: any) => o.id === "flood")).toBe(true);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("returns the coolant-product select catalog via GET /coolant-product/catalog", async () => {
+    const response = await httpRequest("GET", "/api/v1/data/coolant-product/catalog");
+    expect(response.status).toBe(200);
+    expect(["database", "curated"]).toContain(response.data.result.source);
+    expect(response.data.result.options.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.data.result.vendors)).toBe(true);
+    expect(response.data.result.coolingTypes.some((t: string) => t === "flood" || t === "mql")).toBe(true);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("returns the turning-insert select catalog via GET /turning-insert/catalog", async () => {
+    const response = await httpRequest("GET", "/api/v1/data/turning-insert/catalog");
+    expect(response.status).toBe(200);
+    expect(["database", "curated"]).toContain(response.data.result.source);
+    expect(response.data.result.options.some((o: any) => o.id === "cnmg-120408")).toBe(true);
+    expect(Array.isArray(response.data.result.shapes)).toBe(true);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("returns the raw-material stock select catalog via GET /stock/catalog", async () => {
+    const response = await httpRequest("GET", "/api/v1/data/stock/catalog");
+    expect(response.status).toBe(200);
+    expect(["database", "curated"]).toContain(response.data.result.source);
+    expect(response.data.result.options.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.data.result.forms)).toBe(true);
+    expect(Array.isArray(response.data.result.isoGroups)).toBe(true);
+    expect(calls).toHaveLength(0);
+  });
 });

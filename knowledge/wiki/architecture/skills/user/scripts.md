@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `scripts` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/scripts.md` |
+| Source | `C:/Users/wompu/.claude/commands/scripts.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Scripts — PRISM Script Manager
+
+You are managing the Python scripts in the PRISM project. This command discovers, lists, runs, and validates scripts across all subdirectories of `H:/prism/scripts/`. It handles the correct Python path, WMI deadlock fix, and result capture.
+
+## Args: $ARGUMENTS
+- Empty: list all scripts organized by category
+- `[name]`: find and run the named script (parti
 
 <!-- AUTO-END -->
 

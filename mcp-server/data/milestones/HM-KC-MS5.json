@@ -1,0 +1,324 @@
+{
+  "id": "HM-KC-MS5",
+  "version": "8.3.0",
+  "title": "Linking/Approach Parameter Catalog — Per-Cycle Linking Options ~960 Schemas",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Generate parameter schemas for per-cycle linking and approach/retract parameters. Every cycle type has 6-10 linking parameters (lead_in_type arc/line/helix, lead_in_radius, lead_in_angle, lead_out_type, retract_policy, transition_type, stay_down, keepdown, entry_method) that control tool motion between cutting passes. These parameters have major impact on cycle time and tool life. ~960 schemas covering all 120+ cycle types.",
+  "dependencies": [
+    "HM-KC-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillCycleDefaultsEngine",
+      "HyperMillCycleCatalogEngine",
+      "HyperMillStrategyEngine"
+    ],
+    "registries": [
+      "ToolpathStrategyRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json (Linking domain subset)",
+      "data/hypermill/Metric.cfg (linking parameter defaults per controller)",
+      "hyperMILL training manuals (linking, approach/retract sections per cycle category)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "linkingApproachSafetyValidator — BUILT — validates approach speed and retract clearance",
+    "action": "generate_linking_catalog — BUILT — generates linking domain artifacts from schemas",
+    "skill": "/hypermill-linking-params — BUILT — linking parameter reference with cycle time optimization"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS5-S1",
+      "title": "Lead-In/Out + Retract Policy Schemas (~500 params)",
+      "smart_config": {
+        "role": "cam-linking-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Lead-in types: arc, line, helix, tangential, ramp, plunge",
+        "Lead-out types: arc, line, tangential, retract-to-clearance",
+        "Retract policies: to clearance, to retract height, minimal retract, no retract (stay down)",
+        "Per-cycle linking defaults from Metric.cfg"
+      ],
+      "intent": "Generate schemas for lead-in/lead-out parameters and retract policy parameters across all cycle types. Lead-in arc radius validation against tool radius. Helix lead-in angle limits. Retract clearance validation against clearance plane.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC28",
+          "title": "Lead-In/Lead-Out Parameter Schemas — ~320 parameters",
+          "description": "Generate schemas for lead-in parameters (lead_in_type arc/line/helix/tangential/ramp/plunge, lead_in_radius, lead_in_angle, lead_in_length, lead_in_overlap) and lead-out parameters (lead_out_type arc/line/tangential/retract, lead_out_radius, lead_out_angle, lead_out_length) across all ~80 cycle types that support linking. Arc lead-in radius must be >= tool radius. Helix angle must be within ramp angle limits.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Lead-in schemas: >= 200 parameters across 80+ cycle types",
+            "Lead-out schemas: >= 120 parameters across 80+ cycle types",
+            "Arc radius validation hook: lead_in_radius >= tool_radius",
+            "Helix angle hook: validates against ramp angle limits from Metric.cfg",
+            "Unit tests for arc lead-in radius validation and helix angle range"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/linking/leadInOutSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/linking/"
+          }
+        },
+        {
+          "id": "U-HKC29",
+          "title": "Retract Policy + Transition Schemas — ~180 parameters",
+          "description": "Generate schemas for retract policy parameters (retract_type to_clearance/to_retract/minimal/none, retract_height, retract_feed, rapid_retract_flag) and transition parameters (transition_type direct/arc/via_clearance, transition_speed, gap_handling keep_contact/retract/skip) across all cycle types. Stay-down optimization hook identifies unnecessary retracts that waste cycle time.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Retract policy schemas: >= 120 parameters across cycle types",
+            "Transition schemas: >= 60 parameters with gap handling logic",
+            "Stay-down optimization hook flags unnecessary retracts",
+            "Unit tests for retract height vs clearance plane consistency"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/linking/retractSchemas.ts",
+              "src/schemas/hypermill/linking/transitionSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/linking/retractSchemas.ts src/schemas/hypermill/linking/transitionSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 480 lead-in/out + retract schemas | ✓ arc radius + helix angle + stay-down hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "arcLeadInRadiusHook",
+          "helixAngleLimitHook",
+          "stayDownOptimizationHook"
+        ],
+        "new_actions": [
+          "generate_leadin_schemas",
+          "generate_retract_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS5-S2",
+      "title": "Entry/Stay-Down/KeepDown + Linking Artifact Batch Generation (~460 params + artifacts)",
+      "smart_config": {
+        "role": "cam-linking-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Entry method parameters: ramp, helix, plunge, pre-drill",
+        "Stay-down / keepdown strategies per cycle type",
+        "Linking parameter impact on cycle time (30-50% of non-cutting time)"
+      ],
+      "intent": "Generate schemas for entry method, stay-down, and keepdown parameters. Then batch-generate all linking domain artifacts. Entry method validation links to tool capability (e.g., center-cutting required for plunge). Cycle time impact estimation for linking choices.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-skills",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC30",
+          "title": "Entry Method + Stay-Down + KeepDown Schemas — ~460 parameters",
+          "description": "Generate schemas for entry method parameters (entry_method ramp/helix/plunge/pre-drill, ramp_angle, helix_diameter, plunge_feed, pre_drill_depth), stay-down parameters (stay_down_enabled, max_stay_down_distance, gap_threshold, minimum_cut_length), and keepdown parameters (keepdown_mode, keepdown_height, keepdown_clearance) across all cycle types. Entry method hook validates center-cutting capability for plunge entry. Cycle time estimator computes non-cutting time based on linking choices.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Entry method schemas: >= 200 parameters across all cycle types",
+            "Stay-down schemas: >= 160 parameters with gap threshold logic",
+            "KeepDown schemas: >= 100 parameters with height validation",
+            "Entry method hook validates center-cutting for plunge entry via ToolRegistry",
+            "Cycle time impact estimator quantifies linking time reduction from stay-down"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/linking/entryMethodSchemas.ts",
+              "src/schemas/hypermill/linking/stayDownSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/linking/entryMethodSchemas.ts src/schemas/hypermill/linking/stayDownSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC31",
+          "title": "Linking Domain Artifact Batch Generation — ~960 skills + scripts + hooks",
+          "description": "Artifact generation for the entire linking domain. Reads all ~960 parameter schemas and auto-generates skill templates with cycle time optimization guidance, AC Python setter scripts, and hook validation rules. Registers arc radius, helix angle, stay-down, center-cutting, and retract safety hooks.",
+          "depends_on": [
+            "U-HKC28",
+            "U-HKC29",
+            "U-HKC30"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Skill templates generated for all ~960 linking parameters",
+            "AC Python setter scripts generated for all ~960 parameters",
+            ">= 6 safety hooks registered for linking domain",
+            "tsc --noEmit passes with 0 errors on all generated artifacts"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillLinkingArtifactGeneratorEngine.ts"
+            ],
+            "files_modified": [
+              "src/hooks/hookRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillLinkingArtifactGeneratorEngine.ts src/hooks/hookRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 940 total linking schemas | ✓ ~960 skills + scripts | ✓ >= 6 hooks | ✓ cycle time estimator | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "linkingApproachSafetyValidator",
+          "centerCuttingEntryHook"
+        ],
+        "new_actions": [
+          "generate_linking_catalog"
+        ],
+        "new_skills": [
+          "/hypermill-linking-params"
+        ],
+        "available_to": [
+          "HM-KC-MS8",
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 4,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms5-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms5_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Generate parameter schemas for per-cycle linking and approach/retract parameters. Every cycle type has 6-10 linking parameters (lead_in_type arc/line/helix, lead_in_radius, lead_in_angle, lead_out_type, retract_policy, transition_type, stay_down, keepdown, entry_method) that control tool motion between cutting passes. These parameters have major impact on cycle time and tool life. ~960 schemas covering all 120+ cycle types.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS5 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS5. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

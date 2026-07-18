@@ -12,15 +12,25 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as os from "node:os";
+import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { consensusObsidianPersistenceEngine, type ConsensusResultLike } from "../engines/ConsensusObsidianPersistenceEngine.js";
 
-const HOOK_USERPROMPT = "H:/prism-iooms0/.claude/hooks/auto-consensus-userprompt.mjs";
-const HOOK_CRITEDIT = "H:/prism-iooms0/.claude/hooks/auto-consensus-critical-edit.mjs";
-// The copy settings.json actually wires (HARNESS-AUDIT/U-TIER3f added the MAX_QUEUE
-// cap here; the iooms0 copy above predates it). Tests of the cap MUST exercise this one.
-const HOOK_USERPROMPT_MAIN = "H:/prism/.claude/hooks/auto-consensus-userprompt.mjs";
-const MAX_QUEUE = 200; // must match the constant in auto-consensus-userprompt.mjs
+// Resolve hooks from THIS repo's .claude/hooks (repo-root-relative). The test
+// previously hardcoded an absolute H:/prism-iooms0/ worktree path that no longer
+// exists (the INTEL-OLLAMA-OBSIDIAN-MS0 worktree was removed), so every hook spawn
+// hit a missing file -> non-zero exit -> the whole suite red. Deriving from
+// import.meta.url binds the test to the canonical wired hooks regardless of which
+// worktree/checkout it runs in (slot:india, consensus domain).
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const HOOK_DIR = path.join(REPO_ROOT, ".claude", "hooks");
+const HOOK_USERPROMPT = path.join(HOOK_DIR, "auto-consensus-userprompt.mjs");
+const HOOK_CRITEDIT = path.join(HOOK_DIR, "auto-consensus-critical-edit.mjs");
+// Same canonical hook settings.json wires (the stale iooms0 copy is gone). The cap
+// tests pin PRISM_CONSENSUS_QUEUE_MAX so they do NOT depend on the hook's default
+// (HS-08 lowered the default 200 -> 50); the test stays deterministic at MAX_QUEUE.
+const HOOK_USERPROMPT_MAIN = HOOK_USERPROMPT;
+const MAX_QUEUE = 200; // test pins PRISM_CONSENSUS_QUEUE_MAX to this -> cap is deterministic
 const NODE_BIN = process.execPath;
 
 let tmpRoot: string;
@@ -50,6 +60,10 @@ function runHook(hookPath: string, stdinJson: object): { stdout: string; stderr:
       ...process.env,
       PRISM_WIKI_ROOT: tmpRoot,
       PRISM_CONSENSUS_QUEUE: queuePath,
+      PRISM_CONSENSUS_QUEUE_MAX: String(MAX_QUEUE),
+      // The queued-notice is opt-in (U-INJECT-DRIFT-FIX silenced it by default to save
+      // ~331B/prompt; the enqueue still happens). Tests assert the notice text, so opt in.
+      PRISM_AUTO_CONSENSUS_VERBOSE: "1",
     },
     timeout: 5000,
   });
@@ -287,7 +301,7 @@ describe("auto-consensus-userprompt — bounded queue (HARNESS-AUDIT/U-TIER3f)",
     const proc = spawnSync(NODE_BIN, [HOOK_USERPROMPT_MAIN], {
       input: JSON.stringify(stdinJson),
       encoding: "utf-8",
-      env: { ...process.env, PRISM_WIKI_ROOT: tmpRoot, PRISM_CONSENSUS_QUEUE: queuePath },
+      env: { ...process.env, PRISM_WIKI_ROOT: tmpRoot, PRISM_CONSENSUS_QUEUE: queuePath, PRISM_CONSENSUS_QUEUE_MAX: String(MAX_QUEUE), PRISM_AUTO_CONSENSUS_VERBOSE: "1" },
       timeout: 5000,
     });
     let parsed: { hookSpecificOutput?: { additionalContext?: string } } | null = null;
@@ -378,7 +392,7 @@ describe("auto-consensus hooks — failure-mode robustness", () => {
     const proc = spawnSync(NODE_BIN, [HOOK_USERPROMPT], {
       input: "{not json",
       encoding: "utf-8",
-      env: { ...process.env, PRISM_WIKI_ROOT: tmpRoot, PRISM_CONSENSUS_QUEUE: queuePath },
+      env: { ...process.env, PRISM_WIKI_ROOT: tmpRoot, PRISM_CONSENSUS_QUEUE: queuePath, PRISM_CONSENSUS_QUEUE_MAX: String(MAX_QUEUE), PRISM_AUTO_CONSENSUS_VERBOSE: "1" },
       timeout: 5000,
     });
     expect(proc.status).toBe(0);
@@ -397,7 +411,7 @@ describe("auto-consensus hooks — failure-mode robustness", () => {
     const proc = spawnSync(NODE_BIN, [HOOK_USERPROMPT], {
       input: "",
       encoding: "utf-8",
-      env: { ...process.env, PRISM_WIKI_ROOT: tmpRoot, PRISM_CONSENSUS_QUEUE: queuePath },
+      env: { ...process.env, PRISM_WIKI_ROOT: tmpRoot, PRISM_CONSENSUS_QUEUE: queuePath, PRISM_CONSENSUS_QUEUE_MAX: String(MAX_QUEUE), PRISM_AUTO_CONSENSUS_VERBOSE: "1" },
       timeout: 5000,
     });
     expect(proc.status).toBe(0);

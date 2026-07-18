@@ -1,0 +1,80 @@
+{
+  "id": "CAMK-MS2",
+  "version": "7.0.0",
+  "title": "Simulation & Volumetric Verification",
+  "brief": "Integrate novel toolpath algorithms with volumetric simulation, force/temperature prediction along the actual toolpath, and surface finish prediction.",
+  "created_at": "2026-03-07T22:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Physics Simulation Integration",
+      "units": [
+        {
+          "id": "U01",
+          "title": "NovelToolpathSimulator — Force/temp/deflection along path",
+          "description": "Given novel algorithm output + material + tool: compute at each segment point: cutting force Fc (Kienzle), radial force Fr (0.3-0.5×Fc), axial force Fa (0.15-0.25×Fc), torque T = Fc×d/2, spindle power P = Fc×Vc/60000, temperature rise ΔT (Jaeger), tool deflection δ (cantilever), surface roughness Ra (Brammertz). Produces force/temp/deflection profiles. Validates PTDC predictions, TGAR thermal zones, CFSF force constancy.",
+          "exit_conditions": [
+            "6 physics quantities computed per point",
+            "Force profile output",
+            "Temperature profile",
+            "Deflection profile",
+            "Validation against algorithm predictions"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "VoxelStockIntegration — Material removal tracking",
+          "description": "Connect novel algorithm segments to VoxelStockEngine for volumetric material removal simulation. Track: remaining stock volume, engagement angle at each point (actual vs predicted), air cutting detection, residual stock identification. Uses swept volume of cutter along segment path. Outputs: stock-at-each-step for IPW (in-process workpiece) roughing, engagement corrections for VCMR/TGAR.",
+          "exit_conditions": [
+            "Voxel stock removal from novel segments",
+            "Engagement angle computation",
+            "Air cutting detection",
+            "IPW output for subsequent ops"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "CollisionIntegrationEngine — Tool assembly collision with novel paths",
+          "description": "Run full collision detection on novel algorithm output: tool body + holder + spindle vs stock + fixtures + machine structure. Use collision-avoidance-data.json (22,062 tools). For 5-axis: check at each segment with (x,y,z,i,j,k) orientation. Integrates with MACS (swarf cutting — high collision risk), HBCF (barrel cutter — large swept volume), and PTDC (compensated coordinates may approach stock).",
+          "exit_conditions": [
+            "Collision check on novel output",
+            "Tool assembly envelope",
+            "5-axis orientation collision",
+            "Integration with 3 high-risk algorithms",
+            "Clear collision report"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "SurfaceFinishPredictorEngine — Scallop + roughness from novel paths",
+          "description": "Predict final surface finish from novel algorithm output: (1) kinematic roughness Rk = f²/(32×R) for ball endmill, (2) scallop height h = R - sqrt(R² - (ae/2)²), (3) feed mark spacing, (4) vibration contribution from HRAF resonance avoidance, (5) deflection contribution from PTDC compensation. Combines: Rk + Ra_vibration + Ra_deflection. For CFSF: verify constant-force → uniform finish. For AMEF: verify morphed engagement → uniform scallop.",
+          "exit_conditions": [
+            "5 roughness contribution models",
+            "Composite Ra prediction",
+            "Validation against HRAF/CFSF/AMEF claims",
+            "Scallop height map output"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "CycleTimeAccuracyEngine — Precise time from novel G-code",
+          "description": "Compute precise cycle time from generated G-code: (1) rapid traverse time with acceleration/deceleration profiles (trapezoidal velocity), (2) cutting time from actual feed rates (not programmed — includes look-ahead, corner deceleration), (3) tool change time (ATC time per machine profile), (4) dwell time, (5) spindle accel/decel time for RPM changes (HRAF varies RPM). Uses machine-kinematics-catalog.ts for axis max velocities and accelerations. Compare novel vs conventional time.",
+          "exit_conditions": [
+            "Acceleration-aware cycle time",
+            "Corner deceleration model",
+            "RPM change time (HRAF)",
+            "Tool change time",
+            "Novel vs conventional comparison"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

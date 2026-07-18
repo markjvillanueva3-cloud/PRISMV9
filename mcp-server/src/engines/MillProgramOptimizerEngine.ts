@@ -334,9 +334,22 @@ export class MillProgramOptimizerEngine {
     } catch {
       return null;
     }
+    // Read-then-delegate: the file-based and content-based entry points share
+    // ONE parse+optimize+build path so they behave identically (U-PPL-B2).
+    return this.optimizeProgramFromContent(content, filePath);
+  }
+
+  /**
+   * Optimize a single NC program from its raw CONTENT (no file read) -- U-PPL-B2.
+   * Content-based sibling of optimizeProgram(filePath); the latter reads the file
+   * then delegates here. When filePath is omitted the result's original_path is
+   * the literal "<in-memory>" (the in-memory provenance marker).
+   */
+  async optimizeProgramFromContent(content: string, filePath?: string): Promise<ProgramOptimization | null> {
+    const sourcePath = filePath ?? "<in-memory>";
 
     // Parse with learning engine
-    const learning = await this.parseProgramForOptimization(content, filePath);
+    const learning = await this.parseProgramForOptimization(content, sourcePath);
     if (!learning) return null;
 
     const opOptimizations: OperationOptimization[] = [];
@@ -371,7 +384,7 @@ export class MillProgramOptimizerEngine {
     const bestMachine = this.selectBestMachine(learning.material_iso, learning.operations);
 
     return {
-      original_path: filePath,
+      original_path: sourcePath,
       program_number: learning.program_number,
       customer: learning.customer,
       material_iso: learning.material_iso,
@@ -390,9 +403,11 @@ export class MillProgramOptimizerEngine {
    * Parse program using deep learning engine.
    */
   private async parseProgramForOptimization(content: string, filePath: string): Promise<ProgramLearningResult | null> {
-    // Use a fresh instance to avoid cached state issues
+    // Use a fresh instance to avoid cached state issues. Parse the in-hand CONTENT
+    // (U-PPL-B2) -- the prior learnFromProgram(filePath) re-read the file and ignored
+    // `content`, so the content-based entry point (no real file) returned null.
     const engine = new (await import("./MillDeepLearningEngine.js")).MillDeepLearningEngine();
-    return await engine["learnFromProgram"](filePath);
+    return await engine.learnFromContent(content, filePath);
   }
 
   /**

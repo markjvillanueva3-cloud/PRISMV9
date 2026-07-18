@@ -129,7 +129,7 @@ export interface IncrementalLearningDeps {
 }
 
 const DEFAULT_OUTCOMES: OutcomeKind[] = ["good", "adjusted"];
-const DEFAULT_BASE_MODEL = "qwen2.5-coder:7b";
+const DEFAULT_BASE_MODEL = "qwen2.5-coder:32b";
 const DEFAULT_ADAPTER_NAME = "prism-nightly";
 const DEFAULT_MIN_EXAMPLES = 10;
 

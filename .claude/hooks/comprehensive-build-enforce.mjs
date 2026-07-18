@@ -174,9 +174,9 @@ saveRate(rateState);
 // budget. Target: ~280 tokens.
 
 const lines = [];
-lines.push("━".repeat(70));
+lines.push("---"); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was "━".repeat(70) — 67 chars/line typography saved × 3 lines × 53 fires/session ≈ 2.7k tokens.
 lines.push("COMPREHENSIVE-BUILD ENFORCEMENT — injected by UserPromptSubmit hook");
-lines.push("━".repeat(70));
+lines.push("---"); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was "━".repeat(70) — 67 chars/line typography saved × 3 lines × 53 fires/session ≈ 2.7k tokens.
 lines.push("");
 lines.push(
   "The user has repeatedly been shipped partial work. For THIS prompt, " +
@@ -230,6 +230,16 @@ if (buildHit) {
       "enum, and lazy import all match. A test must invoke through the " +
       "dispatcher, not only the engine singleton.",
   );
+  lines.push(
+    "  6. R16 -- NEVER ONE-SHOT; LOOP UNTIL GAPS CLOSED + FIT THE WHOLE. " +
+      "A first pass ALWAYS leaves gaps (edge cases, error paths, conflicts, " +
+      "integration seams) -- surface them EARLY by running gap-closing loops " +
+      "until no logical gap remains, not after they bite downstream. And " +
+      "BEFORE declaring done, ASSESS + COMPARE the new work against ALL " +
+      "existing built systems (master_index_query + duplicationGuard + " +
+      "/impact blast-radius) so it FITS PERFECTLY: no duplicate, no " +
+      "conflict, no orphan. 'Looks done' on pass 1 is not done.",
+  );
   lines.push("");
 }
 
@@ -246,7 +256,7 @@ lines.push(
   "  • Use the duplication guard before creating anything " +
     "(duplicationGuardEngine.checkBeforeCreating).",
 );
-lines.push("━".repeat(70));
+lines.push("---"); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was "━".repeat(70) — 67 chars/line typography saved × 3 lines × 53 fires/session ≈ 2.7k tokens.
 
 const additionalContext = lines.join("\n");
 

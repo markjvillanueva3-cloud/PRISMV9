@@ -1,0 +1,118 @@
+{
+  "id": "PPG-MS34",
+  "version": "1.0.0",
+  "title": "PPG-MS34 — Self-Healing & Continuous-Learning Posts (SHCLP): self-healing manifests + recursive per-shop drift calibration + print-diff incremental update + conversational learning capture + overnight dream-tuning",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "phase": "P2",
+  "priority": "STRATEGIC",
+  "novel_capability_class": "category-defining",
+  "description": "Posts learn after they ship. Each emit carries a self-healing manifest — when MTConnect/OPC-UA observes deviation from prediction, the next emit auto-derates by the measured delta (tier-aware). Recursive drift calibration: each shop converges to its own kc1.1 multiplier without human intervention over N jobs. Print-diff → program-diff: customer revs print A→B; system regenerates ONLY changed ops, byte-locks unchanged. Conversational learning capture: operator says 'this chatters at corners' → wizard captures as tribal tip linked to feature/material/tool. Overnight dream-tuning: Monte Carlo on tomorrow's queue, recommends one tweak per program by morning.",
+  "rationale": "Static posts age and rot. Living posts compound shop value. PRISM has every substrate (drift_canary, BayesianToolLifeEngine, program_diff, blueprint_compare_revisions, tribal_capture, MonteCarloProcessEngine) — this milestone wires them into a continuous learning loop that no CAM vendor has built.",
+  "leverage_existing": [
+    "BayesianToolLifeEngine + Weibull update — recursive parameter drift",
+    "PostDriftCanaryEngine (PPG-MS9) — already wired",
+    "MTConnectAdapterEngine + opcua_* action family (prism_machine_setup) — read deviation, write override",
+    "program_diff + program_compare + program_compare_physics — incremental update substrate",
+    "blueprint_compare_revisions + blueprint_dxf_dimensions — print-diff intake",
+    "TribalEnrichmentCoordinatorEngine (E0468) + tribal_capture + tribal_search — conversational learning persistence",
+    "MonteCarloProcessEngine + monte_carlo_process — overnight simulation",
+    "ProtoMAML adapter (PSAU-PPG-SFC) — few-shot calibration update",
+    "OutcomeCaptureBusEngine + SFCOutcomeCaptureWireEngine — feedback substrate",
+    "FederatedLearningEngine + learn_contribute + learn_aggregate + learn_anonymize — peer-shop intelligence"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die ships a program for 4140 prehardened bracket. Mid-batch, MTConnect spindle load shows 8% above prediction at corners. Same week, customer revs the print: depth 25→27 mm, all other features unchanged.",
+    "today_pre_ppg_ms34": "Operator reports the spindle observation to programmer hand-to-hand; programmer might forget; if remembered, programmer manually edits next program. Print rev forces full regen of all 12 ops; QC must re-FAI everything.",
+    "should_be_post_ppg_ms34": "Self-healing manifest sees the deviation, queues 1.5% feed derate for the next 5 jobs; operator sees an alert + accepts. 14 jobs later, recursive drift converges: this shop's true kc1.1 for 4140 is 1820 (canonical 1800). Constants overlay updated automatically. Print rev: program-diff regenerates ops 3+4 only (depth-affected); ops 1-2 + 5-12 byte-locked; FAI required only on 3+4. Programmer says to wizard 'corners chatter on 4140 with this insert geometry' — captured as tribal tip linked to material+feature+insert; auto-shared with consenting peer shops. Overnight: dream-tuning runs Monte Carlo on tomorrow's queue; in the morning, programmer sees 3 recommended tweaks (one per program) with the projected win.",
+    "gap_now_closed": "Posts get smarter every day. Shops converge to their own ground truth. Knowledge is captured, not lost."
+  },
+  "units": [
+    {
+      "id": "U-PPGM206",
+      "title": "SelfHealingManifestEngine — emit manifest + observe deviation + queue corrective derate",
+      "scope": "src/engines/SelfHealingManifestEngine.ts — every emit carries a manifest (predicted force/RPM/temp envelope + observation hooks + auto-correction policy); MTConnect/OPC-UA stream observation; deviation > σ queues a derate proposal for next emit (operator approval on shop_floor; auto on sim). Variability: ≥3 deviation classes (gradual creep, sudden jump, oscillation). Adversarial: telemetry stream stalls, observed values are NaN.",
+      "files_to_modify": [
+        "src/engines/SelfHealingManifestEngine.ts",
+        "src/engines/PostProcessorPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SelfHealingManifest.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM207",
+      "title": "RecursiveDriftCalibrationEngine — per-shop kc1.1/Taylor convergence",
+      "scope": "src/engines/RecursiveDriftCalibrationEngine.ts — over N jobs, fits per-shop kc1.1/Taylor multipliers via Bayesian update; converges without human; constants overlay per shop in shop_config; canonical constants remain authoritative globally. Variability: ≥3 material classes converge independently. Adversarial: contaminated samples (operator-edited program), single-job extreme outlier — must use robust regression.",
+      "files_to_modify": [
+        "src/engines/RecursiveDriftCalibrationEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/RecursiveDriftCalibration.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM208",
+      "title": "PrintDiffIncrementalUpdateEngine — rev A→B regenerates only affected ops",
+      "scope": "src/engines/PrintDiffIncrementalUpdateEngine.ts — diff print A vs print B via blueprint_compare_revisions; classify changes (dimension, tolerance, material, GDT, feature add/remove); regenerate impacted operations only; byte-lock unchanged ops; emit incremental program with provenance. Variability: ≥3 change classes (dim only, GDT only, feature add). Adversarial: print B has ambiguous geometry, print B is cosmetic-only.",
+      "files_to_modify": [
+        "src/engines/PrintDiffIncrementalUpdateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PrintDiffIncrementalUpdate.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM209",
+      "title": "ConversationalLearningCaptureEngine — operator-narrative → tribal-tip pipeline",
+      "scope": "src/engines/ConversationalLearningCaptureEngine.ts — operator says 'chatters at corners on 4140 with 4-flute end mill'; nlp_cam_parse extracts (feature=corner, material=4140, tool=4-flute end mill, symptom=chatter); tribal_capture persists with author + timestamp; auto-link to similar tips; surface in next emit when context matches. Variability: ≥3 narrative styles (terse, elaborate, jargon-heavy). Adversarial: ambiguous narrative ('it sounded weird'), narrative contradicts existing tribal rule.",
+      "files_to_modify": [
+        "src/engines/ConversationalLearningCaptureEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ConversationalLearningCapture.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM210",
+      "title": "DreamTuningEngine — overnight Monte Carlo on tomorrow's queue",
+      "scope": "src/engines/DreamTuningEngine.ts — runs nightly; for each scheduled job, runs 1000-sample MonteCarloProcess against latest calibration; recommends ≤1 parameter tweak per job (max impact, min risk); presents in morning dashboard with projected $ + cycle-time + risk delta. Variability: ≥3 job types (mill, lathe, WEDM). Adversarial: queue contains NaN parameters, queue is empty, calibration data is fresh (no history) — must skip with explicit reason.",
+      "files_to_modify": [
+        "src/engines/DreamTuningEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/DreamTuning.integration.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Self-healing manifest detects + queues derate within 1 cycle of telemetry deviation; tier-aware approval enforced",
+    "Recursive drift calibration converges per shop within ±5% of measured ground truth on 50-job validation window",
+    "Print-diff incremental update regenerates only impacted ops; byte-locked ops verified identical via SHA",
+    "Conversational learning captures ≥80% of operator narratives on UX test (N≥10 narratives)",
+    "Dream-tuning recommendations accepted ≥40% on 30-day pilot (proxy for relevance)"
+  ],
+  "depends_on": [
+    "PPG-MS1",
+    "PPG-MS9",
+    "PPG-MS11",
+    "PPG-MS13",
+    "PPG-MS18"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "leverage_class": "novel-uses-existing-engines",
+  "schemaVersion": "1.0.0",
+  "created_at": "2026-04-29T04:37:47.554Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "_patches": [
+    "ppg-round3-novel-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29",
+    "ppg-round5-fixes-2026-04-29"
+  ]
+}

@@ -264,6 +264,9 @@ function resolveERPMaterial(raw: string): { prism_key: string; iso_group: string
     if (pattern.test(lower)) {
       try {
         const resolved = resolveMaterial(key);
+        if (resolved === undefined) {
+          return { prism_key: key, iso_group: null };
+        }
         return { prism_key: key, iso_group: resolved.iso_group };
       } catch {
         return { prism_key: key, iso_group: null };

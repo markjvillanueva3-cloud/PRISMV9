@@ -68,7 +68,12 @@ describe("IncrementalLearningEngine", () => {
     expect(r.manifest).not.toBeNull();
     expect(r.manifest?.examples.length).toBe(12);
     expect(r.manifest?.schemaVersion).toBe(1);
-    expect(r.manifest?.baseModel).toBe("qwen2.5-coder:7b");
+    // Family-match the coder base model rather than a hardcoded size tag: the
+    // :3b/:7b/:14b tags were retired 2026-06-04 (Blackwell migration) and the
+    // engine default is now qwen2.5-coder:32b. Asserting the family + a size tag
+    // verifies a valid coder base model flows into the manifest without re-rotting
+    // on the next size migration (this test previously hardcoded the retired :7b).
+    expect(r.manifest?.baseModel).toMatch(/^qwen2\.5-coder:\d+(\.\d+)?b$/);
     expect(r.job?.status).toBe("pending");
     expect(existsSync(r.job?.manifestPath ?? "")).toBe(true);
   });

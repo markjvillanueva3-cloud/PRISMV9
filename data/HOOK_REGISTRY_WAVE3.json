@@ -1,0 +1,1009 @@
+{
+  "version": "3.1.0",
+  "wave": 3,
+  "generatedAt": "2026-01-31T20:57:04.988305",
+  "description": "Architecture v16 hooks for constants, types, validators, wiring, layers",
+  "totalNewHooks": 165,
+  "byDomain": {
+    "CONSTANT": 21,
+    "TYPE": 27,
+    "VALIDATOR": 24,
+    "SAFETY": 17,
+    "WIRING": 16,
+    "LAYER": 44,
+    "BOUNDARY": 12,
+    "ARCHITECTURE": 4
+  },
+  "hooks": [
+    {
+      "id": "HOOK-CONST-PHYSICAL-LOOKUP",
+      "domain": "CONSTANT",
+      "trigger": "constant:physical:lookup",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-CONST-PHYSICAL-VALIDATE",
+      "domain": "CONSTANT",
+      "trigger": "constant:physical:validate",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-CONST-PHYSICAL-LIST",
+      "domain": "CONSTANT",
+      "trigger": "constant:physical:list",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-CONST-MATHEMATICAL-LOOKUP",
+      "domain": "CONSTANT",
+      "trigger": "constant:mathematical:lookup",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-CONST-MATHEMATICAL-VALIDATE",
+      "domain": "CONSTANT",
+      "trigger": "constant:mathematical:validate",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-CONST-MATHEMATICAL-LIST",
+      "domain": "CONSTANT",
+      "trigger": "constant:mathematical:list",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-CONST-UNIT-LOOKUP",
+      "domain": "CONSTANT",
+      "trigger": "constant:unit:lookup",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-CONST-UNIT-VALIDATE",
+      "domain": "CONSTANT",
+      "trigger": "constant:unit:validate",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-CONST-UNIT-LIST",
+      "domain": "CONSTANT",
+      "trigger": "constant:unit:list",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-CONST-ENGINEERING-LOOKUP",
+      "domain": "CONSTANT",
+      "trigger": "constant:engineering:lookup",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-CONST-ENGINEERING-VALIDATE",
+      "domain": "CONSTANT",
+      "trigger": "constant:engineering:validate",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-CONST-ENGINEERING-LIST",
+      "domain": "CONSTANT",
+      "trigger": "constant:engineering:list",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-CONST-MATERIAL-LOOKUP",
+      "domain": "CONSTANT",
+      "trigger": "constant:material:lookup",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-CONST-MATERIAL-VALIDATE",
+      "domain": "CONSTANT",
+      "trigger": "constant:material:validate",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-CONST-MATERIAL-LIST",
+      "domain": "CONSTANT",
+      "trigger": "constant:material:list",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-CONST-PRISM-LOOKUP",
+      "domain": "CONSTANT",
+      "trigger": "constant:prism:lookup",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-CONST-PRISM-VALIDATE",
+      "domain": "CONSTANT",
+      "trigger": "constant:prism:validate",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-CONST-PRISM-LIST",
+      "domain": "CONSTANT",
+      "trigger": "constant:prism:list",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-CONST-MANUFACTURING-LOOKUP",
+      "domain": "CONSTANT",
+      "trigger": "constant:manufacturing:lookup",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-CONST-MANUFACTURING-VALIDATE",
+      "domain": "CONSTANT",
+      "trigger": "constant:manufacturing:validate",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-CONST-MANUFACTURING-LIST",
+      "domain": "CONSTANT",
+      "trigger": "constant:manufacturing:list",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-TYPE-VALUEWITHUNIT-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:ValueWithUnit:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-VALUEWITHUNIT-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:ValueWithUnit:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-VALUEWITHUNIT-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:ValueWithUnit:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-TYPE-MATERIALINPUT-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:MaterialInput:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-MATERIALINPUT-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:MaterialInput:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-MATERIALINPUT-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:MaterialInput:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-TYPE-TOOLINPUT-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:ToolInput:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-TOOLINPUT-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:ToolInput:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-TOOLINPUT-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:ToolInput:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-TYPE-MACHINEINPUT-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:MachineInput:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-MACHINEINPUT-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:MachineInput:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-MACHINEINPUT-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:MachineInput:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-TYPE-CUTTINGPARAMETERS-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:CuttingParameters:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-CUTTINGPARAMETERS-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:CuttingParameters:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-CUTTINGPARAMETERS-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:CuttingParameters:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-TYPE-FORCEOUTPUT-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:ForceOutput:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-FORCEOUTPUT-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:ForceOutput:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-FORCEOUTPUT-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:ForceOutput:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-TYPE-POWEROUTPUT-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:PowerOutput:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-POWEROUTPUT-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:PowerOutput:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-POWEROUTPUT-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:PowerOutput:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-TYPE-TOOLLIFEOUTPUT-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:ToolLifeOutput:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-TOOLLIFEOUTPUT-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:ToolLifeOutput:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-TOOLLIFEOUTPUT-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:ToolLifeOutput:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-TYPE-SURFACEOUTPUT-VALIDATE",
+      "domain": "TYPE",
+      "trigger": "type:SurfaceOutput:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-TYPE-SURFACEOUTPUT-SCHEMA",
+      "domain": "TYPE",
+      "trigger": "type:SurfaceOutput:schema",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-TYPE-SURFACEOUTPUT-COERCE",
+      "domain": "TYPE",
+      "trigger": "type:SurfaceOutput:coerce",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-VAL-PHYSICS-EXECUTE",
+      "domain": "VALIDATOR",
+      "trigger": "validator:physics:execute",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-PHYSICS-CHECK",
+      "domain": "VALIDATOR",
+      "trigger": "validator:physics:check",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-VAL-PHYSICS-FAIL",
+      "domain": "VALIDATOR",
+      "trigger": "validator:physics:fail",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-PHYSICS-PASS",
+      "domain": "VALIDATOR",
+      "trigger": "validator:physics:pass",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-VAL-TOOL-EXECUTE",
+      "domain": "VALIDATOR",
+      "trigger": "validator:tool:execute",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-TOOL-CHECK",
+      "domain": "VALIDATOR",
+      "trigger": "validator:tool:check",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-VAL-TOOL-FAIL",
+      "domain": "VALIDATOR",
+      "trigger": "validator:tool:fail",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-TOOL-PASS",
+      "domain": "VALIDATOR",
+      "trigger": "validator:tool:pass",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-VAL-MACHINE-EXECUTE",
+      "domain": "VALIDATOR",
+      "trigger": "validator:machine:execute",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-MACHINE-CHECK",
+      "domain": "VALIDATOR",
+      "trigger": "validator:machine:check",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-VAL-MACHINE-FAIL",
+      "domain": "VALIDATOR",
+      "trigger": "validator:machine:fail",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-MACHINE-PASS",
+      "domain": "VALIDATOR",
+      "trigger": "validator:machine:pass",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-VAL-PROCESS-EXECUTE",
+      "domain": "VALIDATOR",
+      "trigger": "validator:process:execute",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-PROCESS-CHECK",
+      "domain": "VALIDATOR",
+      "trigger": "validator:process:check",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-VAL-PROCESS-FAIL",
+      "domain": "VALIDATOR",
+      "trigger": "validator:process:fail",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-PROCESS-PASS",
+      "domain": "VALIDATOR",
+      "trigger": "validator:process:pass",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-VAL-PRISM-EXECUTE",
+      "domain": "VALIDATOR",
+      "trigger": "validator:prism:execute",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-PRISM-CHECK",
+      "domain": "VALIDATOR",
+      "trigger": "validator:prism:check",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-VAL-PRISM-FAIL",
+      "domain": "VALIDATOR",
+      "trigger": "validator:prism:fail",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-PRISM-PASS",
+      "domain": "VALIDATOR",
+      "trigger": "validator:prism:pass",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-VAL-BOUNDARY-EXECUTE",
+      "domain": "VALIDATOR",
+      "trigger": "validator:boundary:execute",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-BOUNDARY-CHECK",
+      "domain": "VALIDATOR",
+      "trigger": "validator:boundary:check",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-VAL-BOUNDARY-FAIL",
+      "domain": "VALIDATOR",
+      "trigger": "validator:boundary:fail",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-VAL-BOUNDARY-PASS",
+      "domain": "VALIDATOR",
+      "trigger": "validator:boundary:pass",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-CRIT-SPINDLE_SPEED_MAX",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:spindle_speed_max",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-FEED_RATE_MAX",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:feed_rate_max",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-DEPTH_OF_CUT_MAX",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:depth_of_cut_max",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-FORCE_LIMIT",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:force_limit",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-POWER_LIMIT",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:power_limit",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-TORQUE_LIMIT",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:torque_limit",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-TOOL_DIAMETER",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:tool_diameter",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-TOOL_STRENGTH",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:tool_strength",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-TOOL_DEFLECTION",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:tool_deflection",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-CHIP_LOAD",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:chip_load",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-MACHINE_ENVELOPE",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:machine_envelope",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-MACHINE_POWER",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:machine_power",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-MACHINE_TORQUE",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:machine_torque",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-CLEARANCE",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:clearance",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-AXIS_LIMIT",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:axis_limit",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-SAFETY_THRESHOLD",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:safety_threshold",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-CRIT-ANTI_REGRESSION",
+      "domain": "SAFETY",
+      "trigger": "safety:critical:anti_regression",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-WIRE-D2F-RESOLVE",
+      "domain": "WIRING",
+      "trigger": "wiring:d2f:resolve",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-WIRE-D2F-QUERY",
+      "domain": "WIRING",
+      "trigger": "wiring:d2f:query",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-WIRE-D2F-VALIDATE",
+      "domain": "WIRING",
+      "trigger": "wiring:d2f:validate",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-WIRE-D2F-TRACE",
+      "domain": "WIRING",
+      "trigger": "wiring:d2f:trace",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-WIRE-F2E-RESOLVE",
+      "domain": "WIRING",
+      "trigger": "wiring:f2e:resolve",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-WIRE-F2E-QUERY",
+      "domain": "WIRING",
+      "trigger": "wiring:f2e:query",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-WIRE-F2E-VALIDATE",
+      "domain": "WIRING",
+      "trigger": "wiring:f2e:validate",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-WIRE-F2E-TRACE",
+      "domain": "WIRING",
+      "trigger": "wiring:f2e:trace",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-WIRE-E2S-RESOLVE",
+      "domain": "WIRING",
+      "trigger": "wiring:e2s:resolve",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-WIRE-E2S-QUERY",
+      "domain": "WIRING",
+      "trigger": "wiring:e2s:query",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-WIRE-E2S-VALIDATE",
+      "domain": "WIRING",
+      "trigger": "wiring:e2s:validate",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-WIRE-E2S-TRACE",
+      "domain": "WIRING",
+      "trigger": "wiring:e2s:trace",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-WIRE-S2P-RESOLVE",
+      "domain": "WIRING",
+      "trigger": "wiring:s2p:resolve",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-WIRE-S2P-QUERY",
+      "domain": "WIRING",
+      "trigger": "wiring:s2p:query",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-WIRE-S2P-VALIDATE",
+      "domain": "WIRING",
+      "trigger": "wiring:s2p:validate",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-WIRE-S2P-TRACE",
+      "domain": "WIRING",
+      "trigger": "wiring:s2p:trace",
+      "priority": "LOW"
+    },
+    {
+      "id": "HOOK-LAYER-L_INF-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-INF:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_INF-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-INF:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_10-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-10:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_10-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-10:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_9-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-9:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_9-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-9:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_8-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-8:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_8-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-8:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_7-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-7:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_7-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-7:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_6-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-6:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_6-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-6:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_5-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-5:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_5-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-5:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_4-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-4:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_4-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-4:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_3-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-3:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_3-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-3:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_2-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-2:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_2-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-2:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_1-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L-1:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L_1-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L-1:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L0-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L0:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L0-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L0:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L1-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L1:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L1-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L1:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L2-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L2:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L2-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L2:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L3-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L3:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L3-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L3:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L4-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L4:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L4-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L4:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L5-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L5:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L5-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L5:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L6-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L6:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L6-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L6:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L7-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L7:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L7-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L7:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L8-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L8:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L8-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L8:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L9-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L9:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L9-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L9:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L10-ENTER",
+      "domain": "LAYER",
+      "trigger": "layer:L10:enter",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-LAYER-L10-EXIT",
+      "domain": "LAYER",
+      "trigger": "layer:L10:exit",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-BOUNDARY-DATA_FORMULA-CROSS",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:data_formula:cross",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-BOUNDARY-DATA_FORMULA-VALIDATE",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:data_formula:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-BOUNDARY-FORMULA_ENGINE-CROSS",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:formula_engine:cross",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-BOUNDARY-FORMULA_ENGINE-VALIDATE",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:formula_engine:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-BOUNDARY-ENGINE_SKILL-CROSS",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:engine_skill:cross",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-BOUNDARY-ENGINE_SKILL-VALIDATE",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:engine_skill:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-BOUNDARY-SKILL_PRODUCT-CROSS",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:skill_product:cross",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-BOUNDARY-SKILL_PRODUCT-VALIDATE",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:skill_product:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-BOUNDARY-VALIDATION_ALL-CROSS",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:validation_all:cross",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-BOUNDARY-VALIDATION_ALL-VALIDATE",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:validation_all:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-BOUNDARY-SAFETY_ALL-CROSS",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:safety_all:cross",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-BOUNDARY-SAFETY_ALL-VALIDATE",
+      "domain": "BOUNDARY",
+      "trigger": "boundary:safety_all:validate",
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "HOOK-ARCH-LOAD",
+      "domain": "ARCHITECTURE",
+      "trigger": "architecture:load",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-ARCH-VALIDATE",
+      "domain": "ARCHITECTURE",
+      "trigger": "architecture:validate",
+      "priority": "HIGH"
+    },
+    {
+      "id": "HOOK-ARCH-QUERY",
+      "domain": "ARCHITECTURE",
+      "trigger": "architecture:query",
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "HOOK-ARCH-STATS",
+      "domain": "ARCHITECTURE",
+      "trigger": "architecture:stats",
+      "priority": "LOW"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS5",
+  "version": "1.0.0",
+  "title": "PPG-MS5 — Controller Dialect Coverage (6 families)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T04:37:47.554Z",
+  "total_units": 9,
+  "completed_units": 0,
+  "description": "6 controller families spanning 95% of US production: Fanuc 0i/16i/30i/31i, Hurco WinMax (UltiMotion G05.3 + 10K block lookahead + M140 Z-retract), Okuma OSP-P200/P300 (G131 SuperNURBS + G167 corner smoothing), Mitsubishi M700V/M800, Heidenhain TNC640/iTNC530 (Klartext + TCPM + CYCL DEF), Siemens 840D (CYCLE832 HSM + ShopMill). Each dialect is a thin layer over the master post engines; per-feature toggles (HSM, look-ahead, smoothing) honored. Owns PostDialectRouter creation.",
+  "rationale": "Master posts produce abstract operations; controllers consume dialect-specific G-code. Mixing the two — what the legacy Fusion stack does — is exactly why posts grew to 300k LOC. Separating dialect emit from physics planning lets one master post serve every controller in the family with correct syntax.",
+  "leverage_existing": [
+    "ControllerKnowledgeEngine — controller capability tables (already exists)",
+    "MachineFingerprint + FirmwareFeatures + PostBuildTaxonomy — controller introspection (cam dispatcher)",
+    "Existing dialect translators in cam_translate / gcode_transpile / dialect_translate actions",
+    "PostDialectRouter — already routes between OKUMA/MITSUBISHI; extend to all 6 families"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Same D2 die plate roughing op needs to run on Hurco V11 (WinMax) at JM Die and on a Heidenhain TNC640 at a sister shop.",
+    "today_pre_ppg_ms5": "Two completely separate posts, drift independently. Hurco gets G05.3 smoothing; Heidenhain post forgets Klartext and emits ISO G-code that runs but ignores the controller's smoothing.",
+    "should_be_post_ppg_ms5": "Master post emits abstract op tree; WinMax dialect emits G05.3 P1 + M140 Z-retract; Heidenhain dialect emits CYCL DEF in Klartext + TCPM. Both correct, both maintained from one source.",
+    "gap_now_closed": "Adding new dialects costs one engine, not a forked post."
+  },
+  "units": [
+    {
+      "id": "U-PPGM37",
+      "title": "Fanuc dialect engine (0i/16i/30i/31i)",
+      "scope": "src/engines/FanucDialectEmitterEngine.ts — modal G/M tracking, G54-G59 WCS, Fanuc canned cycles G73/G81/G83/G84/G85, M-code spindle/coolant order discipline"
+    },
+    {
+      "id": "U-PPGM38",
+      "title": "Hurco WinMax dialect (UltiMotion G05.3 + 10K lookahead + M140)",
+      "scope": "src/engines/HurcoWinMaxDialectEmitterEngine.ts — G05.3 P1 smoothing block, M140 Z-retract macro emission, conversational G65 macros"
+    },
+    {
+      "id": "U-PPGM39",
+      "title": "Okuma OSP dialect (G131 SuperNURBS + G167 corner smoothing)",
+      "scope": "src/engines/OkumaOSPDialectEmitterEngine.ts — G131 NURBS surface, G167 corner smoothing, OSP variable namespace, VC variables"
+    },
+    {
+      "id": "U-PPGM40",
+      "title": "Mitsubishi M700V/M800 dialect",
+      "scope": "src/engines/MitsubishiM700M800DialectEmitterEngine.ts — M-code differences, high-speed mode toggles"
+    },
+    {
+      "id": "U-PPGM41",
+      "title": "Heidenhain dialect (TNC640 / iTNC530 — Klartext + TCPM + CYCL DEF)",
+      "scope": "src/engines/HeidenhainDialectEmitterEngine.ts — Klartext syntax, CYCL DEF cycles, TCPM tool-center-point management for 5-axis"
+    },
+    {
+      "id": "U-PPGM42",
+      "title": "Siemens 840D dialect (CYCLE82/CYCLE83/CYCLE832 HSM + ShopMill format)",
+      "scope": "src/engines/Siemens840DDialectEmitterEngine.ts — CYCLE832 HSM mode toggling, R-parameters, ShopMill optional emit"
+    },
+    {
+      "id": "U-PPGM42b",
+      "title": "HSM injection per dialect with material+feature lookup table",
+      "scope": "src/engines/HSMInjectionStrategyEngine.ts — given (controller, material, feature) lookup table emits CYCLE832 (Siemens) / G05.3 P1 (Hurco) / G131+G167 (Okuma) / TCPM (Heidenhain) / High-Speed mode (Fanuc); tier-aware; HSM ON only when controller capability + feature geometry support it.",
+      "files_to_modify": [
+        "src/engines/HSMInjectionStrategyEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/HSMInjectionStrategyEngine.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM42c",
+      "title": "PostDialectRouter creation (BUILD owner)",
+      "scope": "src/engines/PostDialectRouter.ts — central dialect resolver from controller fingerprint. MS4/U-PPGM34 then patches Roku-Roku alias. Layer boundary: MS5 BUILDS, MS4 PATCHES.",
+      "files_to_modify": [
+        "src/engines/PostDialectRouter.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PostDialectRouter.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM42d",
+      "title": "Extended dialect coverage: Mazak SmoothAi + DMG MORI Operate + Brother Speedio + Doosan Puma + rigid tapping cycles",
+      "scope": "src/engines/MazakSmoothAiDialectEmitterEngine.ts + DMGMoriOperateDialectEmitterEngine.ts + BrotherSpeedioDialectEmitterEngine.ts + DoosanPumaDialectEmitterEngine.ts. Adds explicit rigid-tapping cycle support (G84/CYCLE84/CYCL DEF 207) per dialect. Closes PPG-REAL-MS0 orphan units U-PPR16/U-PPR37/U-PPR38.",
+      "files_to_modify": [
+        "src/engines/MazakSmoothAiDialectEmitterEngine.ts",
+        "src/engines/DMGMoriOperateDialectEmitterEngine.ts",
+        "src/engines/BrotherSpeedioDialectEmitterEngine.ts",
+        "src/engines/DoosanPumaDialectEmitterEngine.ts",
+        "src/engines/PostDialectRouter.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ExtendedDialectCoverage.integration.test.ts",
+        "src/__tests__/RigidTappingPerDialect.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Every master post engine routes through a dialect emitter; no hard-coded G-code in master engines",
+    "All 6 dialect emitters pass byte-diff regression vs known-good shop programs (1 reference program per dialect)",
+    "PostDialectRouter selects the right dialect from controller fingerprint with zero false routes on the JM Die fleet",
+    "Per-feature toggle honored: HSM on/off changes G05.3/CYCLE832/G131 emission only, never the planned op"
+  ],
+  "depends_on": [
+    "PPG-MS0",
+    "PPG-MS18"
+  ],
+  "blocks": [
+    "PPG-MS6",
+    "PPG-MS12",
+    "PPG-MS11",
+    "PPG-MS13",
+    "PPG-MS15",
+    "PPG-MS17"
+  ],
+  "layer_boundary_note": "PostDialectRouter is BUILT here (U-PPGM42c) and CONSUMED by MS4. Only one BUILD owner.",
+  "supersedes": [
+    "F360-REV-MS8 (entire stub — PPG-MS5 owns dialect generation for 6 controller families)",
+    "F360-MS2/U-F360-15 (post-processor selection from PRISM CPS metadata — PostDialectRouter scope)",
+    "LATHE-MASTER/U-LTH16 (Post-Processor Skeleton Generator)",
+    "LATHE-MASTER/U-LTH18 (Validator Stack Auto-Wiring)",
+    "LATHE-MASTER/U-LTH23 (Dispatcher Wiring)",
+    "LATHE-MASTER/U-LTH25 + U-LTH26 (Master Post-Processor scope)",
+    "LATHE-MASTER/U-LTH30 (Master post integration)",
+    "LATHE-MASTER/U-LTH132 (Swiss-type lathe dialect — folded into MS5 controller list)"
+  ],
+  "legal_disclaimer": "Controller dialect emitters implement public G-code/M-code conventions per controller vendor manuals. FTO opinion recommended before commercial deployment for HSM mode toggles (CYCLE832, G05.3, G131) which may have active vendor patents.",
+  "_graph_reciprocity_patch": "ppg-fixes-round2-2026-04-29",
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

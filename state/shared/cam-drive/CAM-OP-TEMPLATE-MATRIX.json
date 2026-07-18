@@ -1,0 +1,482 @@
+{
+  "schemaVersion": "1.1.0",
+  "title": "JM Fleet Lathe CAM Operation Template Matrix",
+  "family_count_note": "v1.1 (2026-06-01) expanded 8 -> 15 families per the corpus matrix-expansion blueprint (CAM-CORPUS-PROGRAMMING-NOTES.md sec.5): added profile, face_grooving (split from radial grooving), chamfer, bore_finish, live_tool_milling, peck_drill, tap(stub). Covers the Fusion turning op-type set toward 'a CAM operation for ALL operations in Fusion'.",
+  "owner": "kilo",
+  "date": "2026-05-31",
+  "goal_directive": "plot out best ways to generate a CAM operation for ALL operations in Fusion; templates for every toolpath type with variable params + cutting conditions; JM-fleet-focused; learn from prior programs' inefficiencies and optimize for time+efficiency+safety+accuracy; write against JM-purchased tools.",
+  "grounding": "8 family analyses from workflow worka68bp (REAL observed JM .MIN cutting conditions + inefficiencies) + kilo CAM/lathe domain expertise + JM tool sources. Optimize/template workflow phases hit StructuredOutput flake; synthesized here by the domain owner.",
+
+  "units": "inch",
+  "machine_fleet": "LTH-01..07 Okuma OSP (100% Okuma G-mode lathes at JM Die)",
+  "okuma_mode_legend": {
+    "_dialect_note": "Okuma OSP dialect — INVERTED vs Fanuc. CORRECTED 2026-06-01 from 16,558-program corpus evidence (CAM-CORPUS-PROGRAMMING-NOTES.md). A Fanuc-trained reading (G71=rough/G70=finish/G75=groove/G76=thread) mis-classifies the ENTIRE JM corpus. Fanuc G70/G72-face/G73/G75/G33 are absent (~0 each).",
+    "G94": "feed = in/min — direct feed-per-minute (rare; live-tool C/Y-axis blocks only, ~6-8%, reverts to G95 after)",
+    "G95": "feed = in/REV — feed-per-REVOLUTION. OSP IMPLICIT MODAL DEFAULT (stated in only ~9-10% of files; ~91% omit it and rely on the per-rev default). Misreading as /min is a 12-60x feed error. CONFIRMS U-CAM-FEEDREV-MODE-DEFAULT.",
+    "G96": "constant surface speed (S = SFM, not rpm) — spindle modulates to hold surface speed (~92% of files)",
+    "G97": "direct rpm (S = rpm) — used for on-center drill/bore/thread (~95%)",
+    "G50": "max-rpm cap under G96 — MUST be set whenever G96 active (safety invariant; ~97-98% compliance observed, ~1.9% uncapped = highest-severity gap)",
+    "G85": "LAP ROUGH cycle (D=DOC, U=X-stock, W=Z-stock, F=feed) — the workhorse rougher, ~73% of files",
+    "G87": "LAP FINISH cycle — replays the SAME named G81/G82 shape at finish stock (zero geometry re-code), ~69%",
+    "G81": "longitudinal/turn SHAPE-DEFINITION (profile body) — ~68%",
+    "G82": "face/transverse SHAPE-DEFINITION (face-groove / facing profile) — ~8%",
+    "G80": "LAP END (closes a G81/G82 shape block) — ~73%",
+    "G71": "THREADING cycle (B=angle, D=depth/pass, U=finish-stock, H=height, J=lead/TPI, M33/M73) — ~3%, runs under G97",
+    "G72": "THREADING cycle (transverse/face thread variant) — pairs with G71",
+    "G74": "peck-drill / peck-groove cycle (X0 Z-depth D=peck L=retract F)",
+    "G76": "corner CHAMFER/RADIUS inside a LAP shape (A=angle, L=radius) — NOT threading; ~5-7%",
+    "G41_G42_G40": "tool-nose-radius (TNR) comp on / on / off — finish-pass only, ~21% (so ~79% cut on programmed-point geometry — accuracy opportunity)",
+    "A_angle": "chamfer shorthand (G1 X.. A135/A225) instead of explicit chamfer coords — ~59%",
+    "_G75_correction": "Fanuc G75 grooving is ABSENT in the JM Okuma corpus (~0). Earlier matrix/rules versions WRONGLY assumed 'Okuma G75 auto-depth grooving' — that was Fanuc contamination, corrected here. Real JM grooving = single-plunge (frequently, often poorly) OR G74 peck-groove OR G81/G82 LAP define+replay (face-groove done well via G85/G82+G41 -> G87)."
+  },
+
+  "physics_delegation": {
+    "rule": "NEVER inline Kienzle/Taylor/material/SFM constants. Cutting numbers are COMPUTED at generation time via the physics surfaces below; templates carry only the RULE + the driver inputs. observed_baseline numbers are HISTORICAL DATA records (allowed), NOT constants to reuse as recommendations.",
+    "constants_source": "mcp-server/src/physics/constants.ts (kc1.1: P=1800,M=2100,K=1100,N=700,S=2800,H=3200)",
+    "speed_feed": "prism_calc speed/feed actions + UltimateSpeedFeedEngine (SFC) — input {material ISO group, tool grade, op family, diameter, DOC} → {SFM, feed, rpm} with confidence",
+    "lathe_physics_safety": "whiskey prism_turning (373 actions) + prism_thread (22) — lathe_safety_predicate_evaluate, lathe_partoff_safety_gate, G50/CSS, L/D deflection",
+    "safety_score": "prism_safety:validate_physics — shop_floor gate Omega>=0.95, S(x)>=0.98"
+  },
+
+  "tool_sources": {
+    "primary": "ShopToolLibraryEngine.ts — authoritative JM shop-proven production tools w/ proven cutting params. Loads 7 shop-tools-*.csv (turning/endmill/boring-rough/boring-finish/insert-drills-130/insert-drills-180/twist-drills). NOTE: CSV files NOT YET ON DISK — ingest is a prerequisite for tool-aware generation (build step #7).",
+    "vendor_catalogs": "Tungaloy (2,973 inserts: 2,561 turning + 323 threading + 89 grooving) + Widia (1,122) — ISO-classified insert geometry/grade, used when ShopToolLibrary lacks a match.",
+    "selector": "jmDieSelectorCatalog.ts — JM tool package/holder inventory tied to Fusion 360 exports (the customer-availability binding the operator asked for).",
+    "tool_folders_status": "H:/PRISM/JM DIE/{TOOL HOLDERS,TOOLING,MATERIALS} are EMPTY on disk — physical-inventory ingest pending (charlie/hotel own purchase data).",
+    "observed_tcode_families": "T01/T12=OD rough turn (CNMG-432, .032R), T02=OD finish (.015R), T03/T05=center/spot drill, T06=thread chaser/tool, T07/T08/T09=ID boring bar, T10=face groove finish, T11=parting (1/8 carbide insert, fleet-universal across 16,558 .MIN)"
+  },
+
+  "global_safety_invariants": [
+    "G50 max-rpm cap MUST be emitted whenever G96 is active (no uncapped CSS — small ID would over-speed).",
+    "Boring-bar L/D <= 4 for steel, <= 6 for carbide-shanked — else deflection/chatter; escalate to whiskey lathe_safety_predicate_evaluate.",
+    "Parting/grooving: if groove/cutoff depth > 3x insert width -> MUST peck (Okuma G74 peck-and-shift, or G81/G82 LAP define+replay for profiled/face grooves); no single full-depth plunge. NOT Fanuc G75 (absent in JM Okuma corpus).",
+    "Threading: respect min/max pitch DOC; multi-pass infeed; no full-depth single pass.",
+    "Every generated op runs prism_safety:validate_physics shop_floor gate (Omega>=0.95, S(x)>=0.98) BEFORE Fusion drive / post.",
+    "INCH everywhere (JM imperial); never assume mm; G95 feeds are in/REV not in/min."
+  ],
+
+  "template_field_contract": {
+    "fusion_strategy": "best-known Fusion adsk.cam turning operation type — VERIFY against live add-in /post + CAM-template nav before the generator binds it (fusion_strategy_verified=false until live-checked).",
+    "applies_when": "feature/geometry trigger for this family.",
+    "observed_baseline": "REAL JM cutting conditions from worka68bp analyses — historical record + the thing we optimize AGAINST.",
+    "fixed_params": "Fusion op params that do not vary by part.",
+    "variable_params": "params driven by {material, diameter, tool, finish, depth} — each names its DRIVER + SOURCE.",
+    "cutting_condition_rule": "how SFM/feed/DOC are COMPUTED (physics-delegated) — never inline.",
+    "jm_tool_mapping": "tool class + T-code family + source (ShopToolLibrary/vendor/selector).",
+    "optimizations_over_baseline": "the inefficiencies to beat (from analyses) + the optimal approach.",
+    "safety_gates": "family-specific hard invariants."
+  },
+
+  "families": {
+    "facing": {
+      "fusion_strategy": "face",
+      "fusion_strategy_verified": false,
+      "applies_when": "Stock face cleanup / Z-datum establishment / OD or ID face finishing before/after turning.",
+      "observed_baseline": {
+        "strategy": "Direct linear facing: G0 rapid to start Z, G1 linear feed to center. Most common pattern.",
+        "sfm": "200-250 (G96 CSS) for rough; RPM 600-1000 (G97) when direct",
+        "feed": "0.005-0.010 in/rev (G95) — units ambiguous in some direct G1 blocks",
+        "example": "95778-UPSET-STOP.MIN:9-12 (G0 X1.65 Z-.06 / G1 ...)"
+      },
+      "fixed_params": { "tolerance": "0.001 in", "stepover_dir": "X- toward center", "coolant": "flood", "lead_in": "rapid to clearance then G1" },
+      "variable_params": [
+        { "name": "facing_passes", "driver": "stock_to_remove_on_face", "rule": "single pass if <= max_rough_DOC else N = ceil(stock/DOC); finish pass always separate" },
+        { "name": "doc_per_pass", "driver": "material_ISO + tool", "source": "physics_delegation.speed_feed" },
+        { "name": "sfm / feed", "driver": "material + tool nose radius + finish", "source": "physics_delegation.speed_feed (G96 CSS preferred)" },
+        { "name": "min_diameter_for_css", "driver": "G50 cap", "rule": "below this dia, CSS would exceed G50 -> spindle holds capped rpm" }
+      ],
+      "cutting_condition_rule": "G96 CSS rough+finish; SFM/feed/DOC from prism_calc speed/feed for {ISO group, grade, 'facing', face_dia}. Finish: lighter feed scaled to nose radius for surface finish (accuracy goal).",
+      "jm_tool_mapping": { "tool_class": "OD turning insert (CNMG/DNMG) used face-first", "tcode": "T01 rough (.032R) -> T02 finish (.015R)", "source": "ShopToolLibrary turning.csv | Tungaloy turning" },
+      "optimizations_over_baseline": [
+        "KILL multi-pass air-cutting: baseline does 3-5 G0/Z-offset passes where 1-2 higher-DOC passes hold (DIEBUTTONS.MIN repeats Z-offset contour 3x = redundant rapids). Compute true pass count from stock, not a fixed 3.",
+        "Use G96 CSS not fixed G97 so cutting speed stays constant as tool approaches center (better finish + faster).",
+        "Single rough + single finish split — no redundant intermediate passes."
+      ],
+      "safety_gates": ["G50 cap with G96", "finish DOC >= insert min-chip-load to avoid rubbing"]
+    },
+
+    "OD_roughing": {
+      "fusion_strategy": "turning (profile roughing)",
+      "fusion_strategy_verified": false,
+      "applies_when": "External-diameter stock removal to near-net before finish.",
+      "observed_baseline": {
+        "strategy": "Okuma G85 NTURN / G87 repeat-pass; manual 3-pass G0/G1 setup; G96 S250-550 SFM, G50 cap S600-800; G95 feed 0.005-0.007 in/rev (up to 0.009); DOC 0.031-0.040 in radial; nominal 3 passes (often 2 redundant air-cuts).",
+        "example": "B-17917-A.MIN:10-19, 11-10715-0-A.MIN:8-16, OVAL-FLAT.MIN:10-16"
+      },
+      "fixed_params": { "cycle": "Fusion roughing (auto-generates passes) — replaces manual G85 coding", "stock_to_leave": "0.010-0.015 in radial for finish", "tolerance": "0.005 in rough", "lead": "ramp/plunge per stock" },
+      "variable_params": [
+        { "name": "max_roughing_stepdown (radial DOC)", "driver": "material + tool + machine rigidity", "source": "physics_delegation.speed_feed", "note": "raise toward 0.060-0.100 in where rigidity allows (baseline 0.031-0.040 is conservative)" },
+        { "name": "sfm", "driver": "ISO group + grade", "source": "speed_feed", "note": "modern carbide steel 600-1000+ SFM vs baseline 250 — large headroom" },
+        { "name": "feed_per_rev", "driver": "nose radius + DOC + finish-allowance", "source": "speed_feed (mm/rev native target)" },
+        { "name": "g50_cap_rpm", "driver": "max safe rpm for largest chuck/part", "source": "whiskey lathe surfaces" }
+      ],
+      "cutting_condition_rule": "G96 CSS; let Fusion roughing compute pass count from stock model (NEVER hand-code redundant passes). SFM/feed/DOC from physics; cap rpm via G50.",
+      "jm_tool_mapping": { "tool_class": "CNMG-432 80deg / DNMG 55deg carbide, .032R", "tcode": "T01 / T12", "source": "ShopToolLibrary turning.csv | Tungaloy turning (2,561)" },
+      "optimizations_over_baseline": [
+        "Eliminate redundant air-cutting passes (15-30 s/part): baseline manually codes 3 G1 passes at same Z then calls cycle — only pass 1 cuts, 2-3 cut air. Fusion stock-aware roughing removes this entirely.",
+        "Raise SFM off conservative 250 toward physics envelope for the grade/material (time goal).",
+        "Increase radial DOC where machine rigidity + L/D allow — fewer passes (MRR / efficiency goal)."
+      ],
+      "safety_gates": ["G50 cap mandatory", "torque/power within LTH machine envelope (prism_safety)", "respect max DOC for insert"]
+    },
+
+    "OD_finishing": {
+      "fusion_strategy": "profile (turning finishing)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Final OD pass to tolerance + surface finish after roughing.",
+      "observed_baseline": {
+        "strategy": "Paired rough-then-finish in all examined programs. Finish: G96 (450-650 SFM observed), single profile pass, finish insert .015R.",
+        "feed": "lighter than rough (0.003-0.006 in/rev typical for finish)",
+        "note": "G50 cap 600-800 forces sub-surface cutting on larger diameters"
+      },
+      "fixed_params": { "passes": "single finish pass", "stock_to_leave": "0.0 (final)", "tolerance": "part print (0.0005-0.002 in)", "compensation": "tool-nose-radius comp on" },
+      "variable_params": [
+        { "name": "sfm", "driver": "material + grade", "source": "speed_feed", "note": "headroom to 800-1200 SFM modern carbide steel" },
+        { "name": "finish_feed_per_rev", "driver": "required Ra + nose radius", "rule": "feed scaled so theoretical Ra = f^2/(8*nose_R) meets print finish — ACCURACY goal", "source": "speed_feed + whiskey finish surface" },
+        { "name": "g50_cap", "driver": "part dia + safety", "source": "whiskey" }
+      ],
+      "cutting_condition_rule": "G96 CSS; finish feed derived from surface-finish requirement (Ra = f^2/(8*R)) — accuracy-first; SFM from physics for tool life.",
+      "jm_tool_mapping": { "tool_class": "finish turning insert .015R (sharper, positive rake)", "tcode": "T02", "source": "ShopToolLibrary turning.csv | vendor finish grade" },
+      "optimizations_over_baseline": [
+        "Raise conservative finish SFM (450-650) toward modern-carbide envelope where tool life allows.",
+        "Re-evaluate low G50 cap — only cap for genuine chuck/part-balance limits, not defensive habit (baseline leaves 200-300 rpm margin).",
+        "Feed chosen from finish-requirement physics, not copied 0.006 default."
+      ],
+      "safety_gates": ["G50 cap", "feed not below insert min-chip-load (rubbing -> poor finish + heat)"]
+    },
+
+    "ID_boring": {
+      "fusion_strategy": "bore (turning, inside orientation)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Enlarge/finish a drilled/cored hole to ID tolerance.",
+      "observed_baseline": {
+        "strategy": "Two-op: NAT07 rough/semi-finish bar + NAT08 finish bar. Okuma G97 FIXED rpm 650-780; G1 Z plunge to depth in 1-2 passes.",
+        "sfm_inferred": "50-75 (very conservative for 0.3-0.6 in bore)",
+        "feed": "0.0015-0.0019 in/rev (G95) — conservative"
+      },
+      "fixed_params": { "orientation": "inside/ID", "stock_to_leave_rough": "0.008-0.012 in", "finish_passes": "1", "retract": "along axis, no scrape on exit" },
+      "variable_params": [
+        { "name": "bar_overhang_LD", "driver": "bore_depth / bar_dia", "rule": "L/D <= 4 steel, <= 6 carbide; if exceeded -> derate SFM/feed or escalate whiskey deflection", "source": "whiskey lathe_safety_predicate_evaluate" },
+        { "name": "sfm", "driver": "bore dia + material + bar rigidity", "source": "speed_feed", "note": "headroom to 200+ SFM modern carbide vs baseline 50-75" },
+        { "name": "feed_per_rev", "driver": "nose radius + bar deflection", "source": "speed_feed (derate for long overhang)" },
+        { "name": "use_css", "driver": "bore dia range", "rule": "G96 if dia variation warrants; else G97 — baseline locked G97 unnecessarily" }
+      ],
+      "cutting_condition_rule": "SFM from physics (raise off 50-75 where L/D permits); feed derated by deflection model (whiskey); G96 CSS where bore dia varies, else G97.",
+      "jm_tool_mapping": { "tool_class": "carbide boring bar (3/16-1/2 shank), .015R finish insert; 21 bar types by L/D", "tcode": "T07 rough -> T08 finish", "source": "ShopToolLibrary boring-rough.csv + boring-finish.csv | Tungaloy ID turning" },
+      "optimizations_over_baseline": [
+        "Raise SFM/RPM off 50-75 SFM toward modern carbide 200+ where L/D allows (huge time waste at baseline).",
+        "Feed 0.0015 -> 0.003-0.005 in/rev where deflection model permits.",
+        "Use G96 CSS for adaptive speed instead of hardcoded G97 (baseline locked fixed rpm).",
+        "L/D-aware bar selection from ShopToolLibrary (pick shortest bar that reaches depth)."
+      ],
+      "safety_gates": ["L/D deflection HARD gate (whiskey)", "chip evacuation on deep bore (peck/retract if needed)", "G50 cap if G96"]
+    },
+
+    "drilling_centering": {
+      "fusion_strategy": "drill (hole-making) + center-drill spot",
+      "fusion_strategy_verified": false,
+      "applies_when": "Center/spot then through/blind axial hole on centerline.",
+      "observed_baseline": {
+        "strategy": "Two-op: (1) center drill manual peck via G1 Z-retract, 0.1-0.15 in deep, 600-800 rpm G97, F 0.001-0.002 in/rev; (2) peck drill G74 cycle, F 0.001-0.002, peck D 0.15-0.3 in.",
+        "sfm": "center 40-60; peck 400-800 rpm (inverse to dia)",
+        "note": "0.14 in and 0.375 in drills run near-identical speeds despite 2.7x dia ratio"
+      },
+      "fixed_params": { "spot_first": true, "cycle": "Fusion drilling (maps to Okuma G74 peck on post)", "dwell": "minimal, only if needed", "coolant": "flood/through" },
+      "variable_params": [
+        { "name": "peck_depth", "driver": "drill_dia + depth (L/D) + chip", "rule": "deep-hole peck scaled to dia, not fixed 0.15-0.2", "source": "speed_feed drilling + whiskey" },
+        { "name": "rpm", "driver": "drill_dia + material (SFM->rpm)", "source": "speed_feed", "note": "MUST scale with dia — baseline runs all drills same rpm" },
+        { "name": "feed_per_rev", "driver": "drill dia + material", "source": "speed_feed" },
+        { "name": "spot_depth", "driver": "drill point angle + chamfer need", "rule": "enough to guide + chamfer, not over-deep" }
+      ],
+      "cutting_condition_rule": "rpm = SFM*12/(pi*dia) per-drill (G97 for drilling); feed/rev + peck from physics for {dia, depth, material}; spot depth from point geometry.",
+      "jm_tool_mapping": { "tool_class": "center/spot drill 120-135deg; jobber/insert drill (130 or 180 point)", "tcode": "T03/T05 center -> T06/T08 drill", "source": "ShopToolLibrary twist-drills.csv + insert-drills-130/180.csv" },
+      "optimizations_over_baseline": [
+        "Scale rpm WITH drill dia (baseline runs 0.14 in and 0.375 in at same rpm = 10-25% time waste on big drills).",
+        "Peck depth proportional to dia + chip-breaking need, not fixed 0.15 (baseline 12-15 pecks on deep holes wastes 2-3 s/hole on dwell).",
+        "Insert drills for >0.5 in where ShopToolLibrary has them (faster than jobber)."
+      ],
+      "safety_gates": ["peck mandatory for L/D > ~3 (chip pack)", "through-coolant or peck for deep", "no over-speed on small drills (snap)"]
+    },
+
+    "grooving": {
+      "fusion_strategy": "groove (profile groove) / face-groove",
+      "fusion_strategy_verified": false,
+      "applies_when": "OD/ID/face groove, snap-ring/seal groove, relief.",
+      "observed_baseline": {
+        "strategy": "3 patterns: (1) manual multi-pass G0/G1 (FEED ROLL GROOVE.MIN = 41 manual blocks!); (2) boring-bar groove cycle; (3) face groove. G97 fixed (~S300), SFM ~70 inferred.",
+        "tools": "T09/T10 face groove (.0156R/.0078R), T11 cutoff/parting blade",
+        "note": "classified 'profile' in CAMFeatureExtractor (line 115 /GROOVE/i -> profile)"
+      },
+      "fixed_params": { "cycle": "Fusion groove -> Okuma G74 peck-groove (X.. Z-d D<peck> L<retract> F) for radial grooves, OR G81/G82 LAP define+replay for profiled/face grooves. NOT G75 (Fanuc — ABSENT in JM corpus, dialect correction 2026-06-01). Replaces the 41 hand-coded G0/G1 blocks + single-deep-plunge+G4-dwell habit observed.", "peck": "G74 peck-and-shift depth stepping", "finish_pass": "side+bottom finish if tolerance tight" },
+      "variable_params": [
+        { "name": "peck_step", "driver": "groove_depth vs insert_width (3x rule)", "rule": "if depth > 3x width -> peck-and-shift (G74 peck-groove); step from physics", "source": "whiskey partoff/groove safety" },
+        { "name": "sfm", "driver": "groove dia + material", "source": "speed_feed", "note": "raise off ~70 SFM where rigidity allows" },
+        { "name": "feed_per_rev", "driver": "insert width + material", "source": "speed_feed (grooving feeds are light)" },
+        { "name": "width_passes", "driver": "groove_width / insert_width", "rule": "multi-plunge step-over for wide grooves" }
+      ],
+      "cutting_condition_rule": "G74 peck-and-shift (radial) or G81/G82 LAP (profile/face groove); SFM/feed from physics for grooving op; depth-vs-width 3x peck rule enforced.",
+      "jm_tool_mapping": { "tool_class": "groove/face-groove insert (.0078-.0156R), parting blade", "tcode": "T09/T10 groove, T11 cutoff", "source": "ShopToolLibrary turning.csv (groove) | Tungaloy grooving (89 inserts)" },
+      "optimizations_over_baseline": [
+        "Replace 41 manual G0/G1 blocks (FEED ROLL GROOVE.MIN) + the single-deep-plunge+G4-dwell habit with a G74 peck-and-shift cycle (radial) or G81/G82 LAP (profile/face) — fewer lines, no Z-offset typo propagation. NOT Fanuc G75 (absent in JM Okuma corpus).",
+        "Auto peck-stepping from physics, not hand-coded depths.",
+        "Raise SFM off ~70 where groove dia + rigidity allow.",
+        "Add a side+bottom spring/finish pass on dimensional (snap-ring/seal) grooves — baseline single plunge will not hold size."
+      ],
+      "safety_gates": ["depth>3x width -> peck (HARD)", "no full-depth single plunge", "chip evacuation in deep groove"]
+    },
+
+    "parting_cutoff": {
+      "fusion_strategy": "part (cutoff)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Sever finished part from barstock.",
+      "observed_baseline": {
+        "strategy": "All 6 samples identical: T11 dedicated carbide parting insert (fleet standard across all 16,558 .MIN); G96 S100-250 SFM + G50 cap S600-800; G95 feed 0.0015-0.005 in/rev; actual rpm 150-600 on 0.75-1.5 in OD.",
+        "note": "G96 S250 + redundant G50 S600 = defensive double-limit, 15-25% spindle waste on small OD"
+      },
+      "fixed_params": { "insert": "1/8 in parting blade T11", "approach": "to center (or slightly past for full sever)", "retract": "after sever", "css": "G96 with G50 cap" },
+      "variable_params": [
+        { "name": "feed_per_rev", "driver": "blade width + material + dia", "source": "speed_feed", "note": "lighter near center to avoid burr/grab" },
+        { "name": "peck", "driver": "part dia (deep cutoff)", "rule": "peck for chip evac on large dia; retract reduces re-cut", "source": "whiskey partoff safety" },
+        { "name": "sfm", "driver": "material + dia", "source": "speed_feed", "note": "trim defensive G50 over-cap" },
+        { "name": "css_ramp_at_center", "driver": "approaching dia=0", "rule": "G96 would spike rpm at center -> G50 cap protects; consider feed taper" }
+      ],
+      "cutting_condition_rule": "G96 CSS + mandatory G50 cap; feed from physics, taper near center; peck for deep cutoff.",
+      "jm_tool_mapping": { "tool_class": "carbide parting/cutoff insert (fleet-universal)", "tcode": "T11", "source": "ShopToolLibrary turning.csv | Tungaloy grooving/parting" },
+      "optimizations_over_baseline": [
+        "Trim defensive double-limit (G96 S250 + G50 S600 leaves margin) — set G50 only at true safe-max (15-25% spindle utilization reclaimed on small OD).",
+        "Reduce multi-pass air-cut rapids between passes (30-50% of cutoff cycle is positioning on baseline 0.2 in cutoff).",
+        "Feed taper toward center to control burr (accuracy) without stalling."
+      ],
+      "safety_gates": ["G50 cap MANDATORY (CSS spikes rpm as dia->0)", "peck for deep cutoff (chip)", "support/part-catcher for sever"]
+    },
+
+    "threading": {
+      "fusion_strategy": "thread (turning)",
+      "fusion_strategy_verified": false,
+      "applies_when": "OD/ID single-point thread (UN, metric, NPT).",
+      "observed_baseline": {
+        "strategy": "Okuma G71 rapid stock-removal threading cycle. T06 thread tool always. G97 direct rpm (no G96 observed). FIXED DOC 0.003 in/pass across ALL pitches.",
+        "example": "THREAD 1-32.MIN: G97 S300, G71 X.955 Z-1. D.003 U.001 H.041 F1 J32 M33 M73 (1 in OD, 32 TPI)"
+      },
+      "fixed_params": { "cycle": "Fusion thread (maps to Okuma G71)", "infeed": "multi-pass (G71 auto)", "spring_pass": "1 at full depth", "tool": "60deg thread insert (or pitch-specific)" },
+      "variable_params": [
+        { "name": "thread_doc_per_pass", "driver": "pitch (TPI) + total thread depth", "rule": "ADAPT 0.001-0.010 by pitch (NOT fixed 0.003); decreasing-DOC infeed for constant chip area", "source": "speed_feed thread + whiskey prism_thread" },
+        { "name": "pass_count", "driver": "thread_depth / infeed schedule", "source": "prism_thread (22 actions)" },
+        { "name": "rpm/sfm", "driver": "major dia + material", "rule": "pitch-dependent rpm or G96 CSS (baseline constant 250-300 makes SFM vary 25-123 across diameters)", "source": "speed_feed" },
+        { "name": "thread_spec", "driver": "print callout", "source": "thread tables (UN/metric/NPT) — pitch, depth, major/minor/pitch dia" }
+      ],
+      "cutting_condition_rule": "G71 multi-pass; DOC schedule adapts to pitch (decreasing-DOC for constant chip area); rpm pitch/dia-aware or G96; spec from thread tables.",
+      "jm_tool_mapping": { "tool_class": "60deg single-point thread insert (laydown/topnotch), pitch-matched", "tcode": "T06", "source": "ShopToolLibrary turning.csv (thread) | Tungaloy threading (323 inserts)" },
+      "optimizations_over_baseline": [
+        "Adapt DOC to pitch (baseline fixed 0.003 wastes 30-50% on coarse 4.5 TPI, risks chatter on fine 32 TPI).",
+        "Decreasing-DOC infeed schedule (constant chip area) instead of equal-DOC.",
+        "Pitch/dia-aware rpm or G96 CSS (baseline constant 250-300 -> SFM 25-123 swing).",
+        "CSS ramp-down at thread end (baseline has none)."
+      ],
+      "safety_gates": ["multi-pass infeed (no full-depth single pass)", "thread-relief/runout clearance", "spindle-sync feed lock (threading feed = pitch, not overridable)"]
+    },
+
+    "profile": {
+      "fusion_strategy": "profile (turning, general contour)",
+      "fusion_strategy_verified": false,
+      "applies_when": "General multi-arc/multi-segment OD or ID contour (electrodes, lobed forms, stepped profiles) — the corpus's LARGEST hand-coded class (CSM 6-lobe, OMG punch-holder, profiler NAT09/NAT10, FONTANA B-8740).",
+      "observed_baseline": {
+        "strategy": "Frequently HAND-CODED line-by-line G1/G2/G3 stepover (extremes 1120-2516 lines, ~140-line profilers) OR posted CAM with 14-25 stepped passes and no CSS. Best-practice minority uses G85 N<shape>/G81(G82)/G80 LAP define + G87 finish replay.",
+        "note": "~27% of corpus has NO LAP at all — most of that longhand lives in this family."
+      },
+      "fixed_params": { "cycle": "Fusion profile -> Okuma G85 N<shape> D/U/W/F (LAP rough) over a G81 (longitudinal) or G82 (face) shape-def + G80; G87 N<shape> finish replay (zero geometry re-code). NOT longhand G1/G2/G3.", "stock_to_leave_rough": "0.010-0.015 in radial", "tolerance": "0.005 rough / part-print finish", "compensation": "TNR comp (G41/G42) on the G87 finish over arcs/angles" },
+      "variable_params": [
+        { "name": "max_roughing_stepdown", "driver": "material + tool + L/D rigidity", "source": "physics_delegation.speed_feed" },
+        { "name": "sfm", "driver": "ISO group + grade", "source": "speed_feed", "note": "G96 CSS so surface speed holds across the varying contour diameter" },
+        { "name": "feed_per_rev", "driver": "nose radius + DOC + finish allowance", "source": "speed_feed" },
+        { "name": "g50_cap_rpm", "driver": "smallest contour dia + chuck/part-balance", "source": "whiskey lathe surfaces" }
+      ],
+      "cutting_condition_rule": "G96 CSS over the contour (G50 capped); LAP define+replay computes passes from the shape, never hand-stepped. SFM/feed/DOC physics-delegated per {ISO, grade, profile, local dia}.",
+      "jm_tool_mapping": { "tool_class": "OD/ID profiling insert (CNMG/DNMG/VNMG by access angle)", "tcode": "T01/T12 rough -> T02 finish (OD); T07/T08 (ID)", "source": "ShopToolLibrary turning.csv | Tungaloy turning" },
+      "optimizations_over_baseline": [
+        "Promote hand-coded G1/G2/G3 contours (1120-2516 line extremes) to a G85/G81-G82/G80 LAP define + G87 replay — orders-of-magnitude less code, controller-optimized passes, no typo propagation.",
+        "Force G96 CSS over the contour (posted profilers run fixed G97 -> speed collapses on small-dia segments).",
+        "Single shape-def, replayed at finish via G87 (no doubled geometry / rough-finish drift)."
+      ],
+      "safety_gates": ["G50 cap mandatory under G96", "L/D radial-deflection gate on slender contours (whiskey)", "TNR comp on formed finish for arc/taper accuracy"]
+    },
+
+    "face_grooving": {
+      "fusion_strategy": "face groove (turning, face/transverse)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Face/transverse groove or recess (seal/relief/pocket on the part face) — DISTINCT from radial grooving. JM does this WELL via G82 LAP (ITW 5605, AGRATI A9087329, ATF T2790, EJOT, TCR, CHOCTAW).",
+      "observed_baseline": {
+        "strategy": "G85 N<shape>/G82 (face/transverse shape-def) + G41 rough -> G87 finish replay. A genuine shop strength.",
+        "tools": "T09/T10 face-groove insert (.0156R/.0078R)"
+      },
+      "fixed_params": { "cycle": "Fusion face-groove -> Okuma G82 face shape-def under G85 LAP rough + G87 finish; G74 peck-and-shift on depth where depth>3x width.", "finish_pass": "side+bottom finish on dimensional grooves", "compensation": "G41/G42 TNR comp" },
+      "variable_params": [
+        { "name": "peck_step", "driver": "groove_depth vs insert_width (3x rule)", "rule": "depth > 3x width -> peck-and-shift (G74); step from physics", "source": "whiskey groove safety" },
+        { "name": "sfm", "driver": "face-groove dia + material", "source": "speed_feed", "note": "face-groove dia SWEEPS as the tool moves radially -> G96 over-speeds at small dia, G50 cap mandatory" },
+        { "name": "feed_per_rev", "driver": "insert width + material", "source": "speed_feed (light, in/REV)" }
+      ],
+      "cutting_condition_rule": "G82 LAP define + G87 replay; SFM/feed physics-delegated (grooving op); depth-vs-width 3x peck enforced; G50 cap because face-groove dia sweeps under G96.",
+      "jm_tool_mapping": { "tool_class": "face-grooving insert (.0078-.0156R)", "tcode": "T09/T10", "source": "ShopToolLibrary turning.csv | Tungaloy grooving (89)" },
+      "optimizations_over_baseline": [
+        "Promote this strong G82-LAP idiom as the DEFAULT for face grooves (vs single-plunge); preserve as positive training signal (R11).",
+        "Add side+bottom spring/finish pass on dimensional (seal) grooves.",
+        "G50 cap mandatory under G96 because the face-groove diameter sweeps toward center."
+      ],
+      "safety_gates": ["depth > 3x width -> peck (HARD)", "G50 cap MANDATORY under G96 (sweeping dia)", "no single full-depth face plunge"]
+    },
+
+    "chamfer": {
+      "fusion_strategy": "chamfer (turning)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Edge break / lead-in chamfer / part-face break — appears in ~59% of corpus files as A-angle shorthand or G76 in-shape corner.",
+      "observed_baseline": {
+        "strategy": "G1 X.. A135/A225 angle shorthand, or G76 X.. A<angle> L<radius> corner inside a LAP shape, or G3 corner on the part face at cutoff.",
+        "note": "Okuma G76 here = corner chamfer/radius, NOT threading."
+      },
+      "fixed_params": { "cycle": "Okuma A-angle shorthand (G1 X.. A<deg>) or G76 X.. A<angle> L<radius> in-shape corner — NOT a separate roughing cycle.", "depth": "edge-break size from print (typ .005-.03 x45deg)" },
+      "variable_params": [
+        { "name": "chamfer_size", "driver": "print callout (CxANGLE)", "source": "blueprint PMI" },
+        { "name": "sfm", "driver": "local dia + material", "source": "speed_feed", "note": "rides the finish-pass CSS; G50 capped" },
+        { "name": "feed_per_rev", "driver": "finish Ra + nose radius", "source": "speed_feed" }
+      ],
+      "cutting_condition_rule": "emit as A-angle/G76 corner on the finish pass; SFM/feed inherit the finish CSS (G50 capped); size from print.",
+      "jm_tool_mapping": { "tool_class": "the active OD/ID finish insert (chamfer is a finish-pass move, no dedicated tool)", "tcode": "rides T02 (OD finish) / T08 (ID finish)", "source": "n/a — reuses finish tool" },
+      "optimizations_over_baseline": [
+        "Standardize the A-angle / G76 chamfer idiom as the default lead-in/out + part-face break (matches ~59% shop convention, R11).",
+        "Emit chamfer as part of the finish pass (no extra tool change / air move)."
+      ],
+      "safety_gates": ["G50 cap if the chamfer rides a G96 finish pass", "chamfer direction must not gouge the adjacent face (geometry check)"]
+    },
+
+    "bore_finish": {
+      "fusion_strategy": "bore (turning, single-line finish)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Intentional single clean finish pass to bore size (ARCHER, HPFS bores) — DISTINCT from multi-pass ID_boring LAP; the optimizer must NOT force a LAP where one finish pass is correct.",
+      "observed_baseline": {
+        "strategy": "Single G1 Z plunge to depth at finish stock, sometimes hand-coded; TNR comp often absent.",
+        "feed": "0.0015-0.003 in/rev finish"
+      },
+      "fixed_params": { "passes": "single finish-to-size", "stock_to_leave": "0.0 (final)", "compensation": "TNR comp (G41/G42) MANDATORY on a finish bore", "spring_pass": "optional 1 at size for tight ID tolerance" },
+      "variable_params": [
+        { "name": "bar_overhang_LD", "driver": "bore_depth / bar_dia", "rule": "L/D <= 4 steel / <= 6 carbide; derate or escalate whiskey", "source": "whiskey lathe_safety_predicate_evaluate" },
+        { "name": "finish_feed_per_rev", "driver": "required Ra + nose radius", "rule": "Ra = f^2/(8*nose_R); keep >= insert min chip load", "source": "speed_feed" },
+        { "name": "sfm", "driver": "bore dia + material + bar rigidity", "source": "speed_feed", "note": "G96 CSS preferred where bore dia varies; G50 cap" }
+      ],
+      "cutting_condition_rule": "single finish pass; feed from required Ra (accuracy-first); SFM physics-delegated, derated by bar deflection; G96 where dia varies (G50 capped).",
+      "jm_tool_mapping": { "tool_class": "finish boring bar (.015R, shortest reaching depth)", "tcode": "T08", "source": "ShopToolLibrary boring-finish.csv | Tungaloy ID turning" },
+      "optimizations_over_baseline": [
+        "Do NOT force a multi-pass LAP where a single finish bore to size is correct (avoids needless air passes).",
+        "MANDATORY TNR comp on the finish bore (baseline ~79% omit comp -> ID radius/taper accuracy rides the programmer).",
+        "Optional spring pass for tight ID tolerance."
+      ],
+      "safety_gates": ["L/D deflection HARD gate (whiskey)", "TNR comp mandatory for ID accuracy", "G50 cap if G96", "chip evac on deep blind bore"]
+    },
+
+    "live_tool_milling": {
+      "fusion_strategy": "mill (live tooling on lathe, C/Y-axis)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Driven-tool milling/drilling on a turning center: cross-holes, flats, slots, polar/C-axis features (~7% of corpus: M110/G138 polar, M13 SB=, C-axis arcs).",
+      "observed_baseline": {
+        "strategy": "M110/G138 polar coordinate, M13 SB=<rpm> rotary-tool spindle, FEED MODE SWITCHES G94 (feed/min) for the milling move then reverts to G95 (feed/rev) for turning. G4 dwell on plunge.",
+        "note": "MILLING physics (feed-per-tooth), NOT turning — distinct cutting-condition surface."
+      },
+      "fixed_params": { "spindle": "live-tool spindle M13/M14 SB=<rpm>; main spindle C-axis clamp (M110/M15)", "feed_mode": "G94 (in/min) for the milling move; REVERT to G95 after", "coolant": "flood/through" },
+      "variable_params": [
+        { "name": "rpm", "driver": "cutter dia + material (milling SFM)", "source": "physics_delegation.speed_feed (milling, not turning)" },
+        { "name": "feed_in_per_min", "driver": "feed-per-tooth * teeth * rpm", "rule": "G94 in/min — NOT in/rev (live-tool is the one place G94 is correct)", "source": "speed_feed milling" },
+        { "name": "c_axis_index", "driver": "feature angular positions", "source": "blueprint PMI (bolt-circle / flat positions)" },
+        { "name": "peck", "driver": "cross-hole depth/dia", "rule": "peck deep cross-holes", "source": "speed_feed drilling" }
+      ],
+      "cutting_condition_rule": "MILLING conditions (feed-per-tooth -> G94 in/min) from speed_feed milling surface; revert to G95 after; C-axis clamp during milling; rpm = live-tool spindle SB=.",
+      "jm_tool_mapping": { "tool_class": "driven endmill / spot+drill in live holder (ER collet)", "tcode": "T-station with live-tool holder", "source": "ShopToolLibrary endmill.csv + twist-drills.csv | live holders (jmDieSelectorCatalog)" },
+      "optimizations_over_baseline": [
+        "Assert the G94<->G95 feed-mode switch is explicit + reverted (the one place G94 is correct on a lathe) — units-first.",
+        "Use milling (feed-per-tooth) physics, not turning, for live-tool moves.",
+        "Peck deep cross-holes; C-axis clamp during milling for rigidity."
+      ],
+      "safety_gates": ["feed-mode MUST revert to G95 after the milling move (else next turning feed is 12-60x wrong)", "C-axis clamp engaged before milling load", "live-tool rpm within holder rating"]
+    },
+
+    "peck_drill": {
+      "fusion_strategy": "drill (peck / deep-hole)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Deep axial hole on centerline where depth/dia > ~3-5x or gummy material — DISTINCT from shallow drilling_centering (corpus: only ~23-26% peck; many deep holes single-plunged = breakage risk).",
+      "observed_baseline": {
+        "strategy": "G74 X0 Z-<depth> D<peck> L<retract> F<feed> peck cycle (when used); too often a single G1 Z-d plunge (ITW Z-3.65, ACME Z-6., AEROTECH 2 in).",
+        "feed": "0.001-0.003 in/rev (conservative)"
+      },
+      "fixed_params": { "cycle": "Okuma G74 X0 Z-<depth> D<peck> L<retract> F (peck drill); on G97 direct rpm (axial, no CSS)", "spot_first": true, "coolant": "through-spindle or flood; peck for chip clear" },
+      "variable_params": [
+        { "name": "peck_depth", "driver": "drill_dia + depth (L/D) + chip", "rule": "peck ~ 1-1.5x dia; scale to dia, not a fixed 0.15in", "source": "speed_feed drilling" },
+        { "name": "rpm", "driver": "drill_dia + material (SFM->rpm)", "rule": "rpm = SFM*12/(pi*dia); cap at min(spindle_max, drill_mfr_max)", "source": "speed_feed", "note": "G97 (no CSS on axial)" },
+        { "name": "feed_per_rev", "driver": "drill dia + material", "source": "speed_feed" }
+      ],
+      "cutting_condition_rule": "G74 peck on G97; peck depth proportional to dia + chip-break need; rpm per-dia capped; feed in/REV.",
+      "jm_tool_mapping": { "tool_class": "jobber/insert drill (130/180 point); insert drill >0.5in", "tcode": "T05/T06 drill", "source": "ShopToolLibrary twist-drills.csv + insert-drills-130/180.csv" },
+      "optimizations_over_baseline": [
+        "Auto-insert G74 peck when depth/dia > ~3-5x or gummy material (baseline single-plunges deep holes -> chip-pack/drill snap).",
+        "Peck depth proportional to dia, not a fixed value (fewer pecks on shallow, longer retract on deep/gummy).",
+        "Raise the timid .001-.003 IPR drill feed within rigidity."
+      ],
+      "safety_gates": ["peck MANDATORY for L/D > ~3 (chip pack)", "rpm capped (small drills snap as rpm explodes with 1/dia)", "through-coolant or peck-retract for chip evac"]
+    },
+
+    "tap": {
+      "fusion_strategy": "tap (turning, synchronized)",
+      "fusion_strategy_verified": false,
+      "applies_when": "Tapped hole (rigid/synchronized tapping) on centerline. RARE in corpus (~0; all threading is G71/G72 single-point) — FORWARD-LOOKING STUB, not corpus-driven.",
+      "observed_baseline": {
+        "strategy": "Not represented in the JM .MIN corpus (single-point G71/G72 threading is used instead). Stub for completeness.",
+        "note": "STUB — verify against a real tapped JM program or Okuma rigid-tap docs before binding fusion_strategy."
+      },
+      "fixed_params": { "cycle": "rigid/synchronized tap (feed = pitch, spindle-synced); pilot drill first", "spindle": "synchronized; feed locked to pitch" },
+      "variable_params": [
+        { "name": "pitch", "driver": "thread spec (TPI/metric pitch)", "source": "thread tables" },
+        { "name": "rpm", "driver": "tap dia + material", "source": "speed_feed tapping", "note": "tapping rpm conservative; feed = pitch (not independently set)" },
+        { "name": "depth", "driver": "thread depth from print", "source": "blueprint PMI" }
+      ],
+      "cutting_condition_rule": "synchronized tap: feed = pitch (spindle-locked); rpm physics-delegated (tapping); pilot drill sized from tap-drill chart.",
+      "jm_tool_mapping": { "tool_class": "tap (spiral-point/spiral-flute by hole type) + tap drill", "tcode": "live or axial tap holder", "source": "ShopToolLibrary (tap) — likely a procurement gap; flag charlie/hotel" },
+      "optimizations_over_baseline": [
+        "STUB: no corpus baseline. When a real tapped JM program appears, ground this family against it (currently single-point G71/G72 is the shop norm).",
+        "Synchronized/rigid tap (feed=pitch) is mandatory — no free-running tap on a CNC turning center."
+      ],
+      "safety_gates": ["feed = pitch, spindle-synchronized (never an independent feed)", "correct tap-drill size (undersize = broken tap)", "STUB — verify before live emit"]
+    }
+  },
+
+  "fusion_strategy_map": {
+    "_note": "LOAD-BEARING CORRECTION (FUSION-CAM-AUTHORING-NAVMAP.md sec.3, 2026-06-01): Fusion has ~7 turning strategy strings + one 'drilling' strategy (cycle-differentiated), NOT 15. The 15 families stay valid PRISM template families (distinct cutting-condition rules + JM tool bindings) but the generator must bind a real adsk.cam strategy STRING + a differentiating orientation/mode/cycle param — NOT invent 15 strategies. Each family's descriptive 'fusion_strategy' field is the human label; the real adsk.cam string is here. fusion_strategy_verified stays false until a live /cam/operation/parameters dump (add-in endpoint #3) confirms — that is the flip-to-true mechanism.",
+    "real_strategy_by_family": {
+      "facing":            { "strategy": "turningFace",            "param": null,                      "status": "DOC" },
+      "OD_roughing":       { "strategy": "turningProfileRoughing", "param": "orientation=outside",      "status": "DOC" },
+      "OD_finishing":      { "strategy": "turningProfileFinishing","param": "orientation=outside",      "status": "INFER" },
+      "ID_boring":         { "strategy": "turningProfileRoughing", "param": "orientation=inside",        "status": "INFER (CORRECTED — 'bore' is NOT a separate strategy)" },
+      "drilling_centering":{ "strategy": "drilling",               "param": "cycle=spot",               "status": "INFER" },
+      "grooving":          { "strategy": "turningGroove",          "param": "mode=radial",              "status": "INFER" },
+      "parting_cutoff":    { "strategy": "turningPart",            "param": null,                       "status": "INFER" },
+      "threading":         { "strategy": "turningThread",          "param": null,                       "status": "INFER" },
+      "profile":           { "strategy": "turningProfileFinishing|turningProfileRoughing", "param": "reuses OD rough/finish — not unique", "status": "INFER" },
+      "face_grooving":     { "strategy": "turningGroove",          "param": "mode=face (or turningSingleGroove)", "status": "INFER (Face is a MODE, not a strategy)" },
+      "chamfer":           { "strategy": "(none — geometry inside turningProfileFinishing / lead-chamfer on turningGroove|turningPart)", "param": "profile-feature", "status": "INFER (CORRECTED — no dedicated strategy)" },
+      "bore_finish":       { "strategy": "turningProfileFinishing","param": "orientation=inside",        "status": "INFER (CORRECTED — = OD_finishing inside)" },
+      "live_tool_milling": { "strategy": "(milling set: face|pocket2d|adaptive|contour2d|engrave|drilling)", "param": "C/Y-axis gated", "status": "INFER (CORRECTED — not one op)" },
+      "peck_drill":        { "strategy": "drilling",               "param": "cycle=chip-breaking|deep-drilling", "status": "INFER" },
+      "tap":               { "strategy": "drilling",               "param": "cycle=tapping|right-tapping", "status": "INFER" }
+    },
+    "drilling_cycle_axis": ["spot", "chip-breaking", "deep-drilling", "tapping", "right-tapping", "boring"],
+    "missing_family_to_add": "turningSingleGroove (Single Groove — back-of-part relief / positional grooving; not yet a PRISM family)",
+    "collapse_mappings": ["ID_boring", "chamfer", "bore_finish", "live_tool_milling"],
+    "verify_mechanism": "set fusion_strategy_verified=true per family only after a live add-in dump (endpoint #3 GET /cam/operation/parameters) confirms the .strategy string. The 4 collapse_mappings are strategy+param, not standalone strategies.",
+    "source": "FUSION-CAM-AUTHORING-NAVMAP.md sec.3 (workflow wf_a8a7caa9-f42; Autodesk Product Help MCP partial + Fusion API knowledge; turningFace/turningProfileRoughing/parallel/scallop/swarf are DOC-confirmed)"
+  },
+  "consumer": {
+    "generator": "CAMDriveRecipeEngine turning extension (build step #5) reads this matrix: pick family by feature -> bind JM tool (tool_sources) -> compute cutting conditions (physics_delegation) -> safety gate -> drive Fusion :18365 scratch doc.",
+    "verification_TODO": [
+      "fusion_strategy_verified=false on ALL 15 — validate exact adsk.cam operation-type strings against the live PRISM_Fusion_Drive add-in CAM nav (U-FBN01 /post + a CAM-template list endpoint) before the generator binds them. The 7 new families (profile/face_grooving/chamfer/bore_finish/live_tool_milling/peck_drill/tap) are equally unverified.",
+      "ShopTool CSVs not on disk — ingest before tool-aware generation (#7).",
+      "feed target = in/REV (G95 native) for this CSS shop — see CAM-FIRST-TRAIN-METRICS.md mm/rev finding."
+    ]
+  },
+  "provenance": "worka68bp analyses (real JM .MIN) + kilo domain synthesis, VALIDATED + dialect-CORRECTED 2026-06-01 against the full 16,558-program JM Okuma corpus (workflow wf_d7b59a1b-54f -> CAM-CORPUS-PROGRAMMING-NOTES.md). Corrections applied: Okuma dialect is INVERTED vs Fanuc (G85/G87 LAP rough/finish, G81/G82 shape-defs, G71/G72 threading, G74 peck, G76 in-shape chamfer); the prior 'G75 auto-depth grooving' was Fanuc contamination (G75 absent in corpus) — grooving now maps to G74 peck-and-shift / G81-G82 LAP. Feed-per-rev (G95) is the OSP implicit default (~91% omit it). Memory: reference_cam_learn_loop_gap_fill_2026_05_31 + reference_cam_corpus_programming_notes_2026_06_01. Regimen: CLOSED-LOOP-LATHE-TRAINING-REGIMEN.md (this is build step #4). Matrix-expansion blueprint (8->15 families) in CAM-CORPUS-PROGRAMMING-NOTES.md sec.5; expansion shipped 2026-06-01 (U-CAM-MATRIX-EXPAND-14)."
+}

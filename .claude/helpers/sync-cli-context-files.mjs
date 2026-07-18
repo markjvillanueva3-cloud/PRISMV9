@@ -17,13 +17,14 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname } from "node:path";
 import { homedir } from "node:os";
+import { pathToFileURL } from "node:url";
 
 const HOME = homedir().replace(/\\/g, "/");
 const PROJECT_CLAUDE = "H:/PRISM/CLAUDE.md";
 const GLOBAL_CLAUDE = `${HOME}/.claude/CLAUDE.md`;
 const PROJECT_MEMORY = `${HOME}/.claude/projects/H--PRISM/memory/MEMORY.md`;
 
-const MIRRORS = [
+export const MIRRORS = [
   // CLAUDE.md → CLI-specific filenames (project + global scope)
   { src: PROJECT_CLAUDE, dst: "H:/PRISM/GEMINI.md", target: "Gemini CLI" },
   { src: PROJECT_CLAUDE, dst: "H:/PRISM/AGENTS.md", target: "Codex CLI", codexAddenda: true },
@@ -50,7 +51,7 @@ function buildHeader(src, target) {
 // codex-parity-audit's `codex_agents_uses_unified_directive` requires the
 // CLAUDE-CODEX-MCP-DIRECTIVE.md token in ~/.codex/AGENTS.md, and Codex has no
 // per-prompt hooks so it needs these pointers spelled out in the doctrine file.
-const CODEX_ADDENDA = [
+export const CODEX_ADDENDA = [
   "",
   "---",
   "",
@@ -79,7 +80,7 @@ const CODEX_ADDENDA = [
 ].join("\n");
 
 // Detect prior auto-mirror header so re-syncs don't accumulate stacked headers.
-function stripExistingHeader(content) {
+export function stripExistingHeader(content) {
   if (!content.startsWith("<!-- AUTO-MIRRORED ")) return content;
   // Skip exactly 3 HTML comment lines + 1 blank line + 1 separator line.
   const lines = content.split("\n");
@@ -113,16 +114,24 @@ async function syncOne({ src, dst, target, codexAddenda }) {
   return { ok: true, src, dst, action: "wrote" };
 }
 
-const results = await Promise.all(MIRRORS.map(syncOne));
-
-for (const r of results) {
-  const glyph = !r.ok ? "✗" : r.action === "wrote" ? "✓" : "·";
-  const tag = r.action === "skip-unchanged" ? " (unchanged)" : r.reason ? ` (${r.reason})` : "";
-  console.log(`${glyph} ${r.dst}${tag}`);
+// Exported so the drift detector (P0-U02) can reuse the exact sync logic; guarded
+// below so `import`ing this module (for the detector / tests) does NOT run the sync.
+export async function runSync() {
+  const results = await Promise.all(MIRRORS.map(syncOne));
+  for (const r of results) {
+    const glyph = !r.ok ? "x" : r.action === "wrote" ? "+" : ".";
+    const tag = r.action === "skip-unchanged" ? " (unchanged)" : r.reason ? ` (${r.reason})` : "";
+    console.log(`${glyph} ${r.dst}${tag}`);
+  }
+  const wrote = results.filter((r) => r.action === "wrote").length;
+  const skipped = results.filter((r) => r.action === "skip-unchanged").length;
+  const failed = results.filter((r) => !r.ok).length;
+  console.log(`\n[sync] ${wrote} wrote, ${skipped} skipped, ${failed} failed`);
+  return failed;
 }
-const wrote = results.filter((r) => r.action === "wrote").length;
-const skipped = results.filter((r) => r.action === "skip-unchanged").length;
-const failed = results.filter((r) => !r.ok).length;
-console.log(`\n[sync] ${wrote} wrote · ${skipped} skipped · ${failed} failed`);
 
-if (failed > 0) process.exit(1);
+const __isMain = import.meta.url === pathToFileURL(process.argv[1] || "").href;
+if (__isMain) {
+  const failed = await runSync();
+  if (failed > 0) process.exit(1);
+}

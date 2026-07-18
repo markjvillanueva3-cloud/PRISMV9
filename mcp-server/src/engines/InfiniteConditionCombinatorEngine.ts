@@ -47,6 +47,16 @@ export interface HierarchyLevel {
   aggregatedKnowledge: Map<string, ConditionKnowledge[]>;
 }
 
+function vectorStringFields(vector: ConditionVector): Record<string, string> {
+  return {
+    material: vector.material,
+    geometry: vector.geometry,
+    machine: vector.machine,
+    tool: vector.tool,
+    operation: vector.operation,
+  };
+}
+
 class InfiniteConditionCombinatorEngine {
   private knowledge: Map<string, ConditionKnowledge> = new Map();
   private hierarchyLevels: HierarchyLevel[] = [];
@@ -128,7 +138,7 @@ class InfiniteConditionCombinatorEngine {
    */
   private updateHierarchy(knowledge: ConditionKnowledge): void {
     for (const level of this.hierarchyLevels) {
-      const levelKey = level.dimensions.map(d => (knowledge.vector as Record<string, string>)[d]).join("|");
+      const levelKey = level.dimensions.map(d => vectorStringFields(knowledge.vector)[d]).join("|");
       if (!level.aggregatedKnowledge.has(levelKey)) {
         level.aggregatedKnowledge.set(levelKey, []);
       }
@@ -264,7 +274,7 @@ class InfiniteConditionCombinatorEngine {
 
     for (let i = this.hierarchyLevels.length - 1; i >= 0; i--) {
       const level = this.hierarchyLevels[i];
-      const levelKey = level.dimensions.map(d => (targetVector as Record<string, string>)[d]).join("|");
+      const levelKey = level.dimensions.map(d => vectorStringFields(targetVector)[d]).join("|");
       const knowledgeAtLevel = level.aggregatedKnowledge.get(levelKey);
 
       if (knowledgeAtLevel && knowledgeAtLevel.length > 0) {

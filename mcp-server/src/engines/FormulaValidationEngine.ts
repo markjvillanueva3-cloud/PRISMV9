@@ -396,8 +396,7 @@ export class FormulaValidationEngine {
         kc1_1 as number,
         mc as number,
         ap as number,
-        fz as number,
-        edgePrep as any
+        fz as number
       );
       const error_pct = tp.expected === 0 ? 0 : Math.abs(actual - tp.expected) / tp.expected;
       details.push({
@@ -419,8 +418,7 @@ export class FormulaValidationEngine {
       const actual = taylorLife(
         C as number,
         n as number,
-        Vc as number,
-        coating as string | undefined
+        Vc as number
       );
       const error_pct = tp.expected === 0 ? 0 : Math.abs(actual - tp.expected) / tp.expected;
       details.push({

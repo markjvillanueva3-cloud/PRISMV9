@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-25T21:29:23.850Z",
+  "auditor": "slot:india",
+  "milestone": "PRISM-LAUNCH-READINESS-MS0",
+  "unit": "P0-U06",
+  "batchId": "001",
+  "mode": "full",
+  "omega_floor": 0.98,
+  "pass_rate": 0,
+  "pass_omega": false,
+  "totals": {
+    "evaluated": 200,
+    "pass": 0,
+    "fail": 200,
+    "structuralFail": 0,
+    "runtimeFail": 200
+  },
+  "by_controller": {
+    "fanuc-30i": {
+      "pass": 0,
+      "fail": 40
+    },
+    "okuma-osp-p300": {
+      "pass": 0,
+      "fail": 40
+    },
+    "haas-ngc": {
+      "pass": 0,
+      "fail": 40
+    },
+    "heidenhain-itnc640": {
+      "pass": 0,
+      "fail": 40
+    },
+    "mitsubishi-m800": {
+      "pass": 0,
+      "fail": 40
+    }
+  },
+  "by_operation": {
+    "turning": {
+      "pass": 0,
+      "fail": 41
+    },
+    "milling": {
+      "pass": 0,
+      "fail": 42
+    },
+    "boring": {
+      "pass": 0,
+      "fail": 42
+    },
+    "threading": {
+      "pass": 0,
+      "fail": 45
+    },
+    "drilling": {
+      "pass": 0,
+      "fail": 30
+    }
+  },
+  "by_error_class": {
+    "quality-below-omega-floor": 200
+  },
+  "sample_failures": [
+    {
+      "scenarioId": "PP-S-00001",
+      "controller": "fanuc-30i",
+      "operation": "turning",
+      "cycle": "thread-turn",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<80",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00002",
+      "controller": "fanuc-30i",
+      "operation": "milling",
+      "cycle": "contour",
+      "axis_count": 4,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<70",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 1
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00003",
+      "controller": "fanuc-30i",
+      "operation": "milling",
+      "cycle": "face",
+      "axis_count": 3,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<50",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00004",
+      "controller": "fanuc-30i",
+      "operation": "turning",
+      "cycle": "rough-turn",
+      "axis_count": 3,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<30",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00005",
+      "controller": "fanuc-30i",
+      "operation": "turning",
+      "cycle": "finish-turn",
+      "axis_count": 3,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<30",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00006",
+      "controller": "fanuc-30i",
+      "operation": "boring",
+      "cycle": "bore",
+      "axis_count": 3,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<20",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00007",
+      "controller": "fanuc-30i",
+      "operation": "threading",
+      "cycle": "tap-rigid",
+      "axis_count": 4,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<40",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 1
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00008",
+      "controller": "fanuc-30i",
+      "operation": "milling",
+      "cycle": "pocket",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<100",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00009",
+      "controller": "fanuc-30i",
+      "operation": "boring",
+      "cycle": "bore",
+      "axis_count": 4,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<40",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00010",
+      "controller": "fanuc-30i",
+      "operation": "milling",
+      "cycle": "contour",
+      "axis_count": 4,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:0<98"
+        ],
+        "warnings": [
+          "lines-below-min:0<70",
+          "engine-warn:No segments or G-code provided"
+        ],
+        "result": {
+          "line_count": 0,
+          "quality_score": 0,
+          "profile_id": "fanuc",
+          "enhancements": [],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    }
+  ]
+}

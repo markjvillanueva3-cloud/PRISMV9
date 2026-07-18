@@ -1,0 +1,91 @@
+{
+  "id": "PP-S-00192",
+  "schemaVersion": "2.0.0",
+  "controller": {
+    "id": "mitsubishi-m800",
+    "vendor": "Mitsubishi",
+    "family": "M800",
+    "dialect": "mitsubishi",
+    "market_share": 0.02
+  },
+  "machine": {
+    "name": "Fadal VMC 4525",
+    "make": "Fadal",
+    "model": "VMC 4525",
+    "type": "Mill"
+  },
+  "spindle": {
+    "taper_id": "CAT40",
+    "taper_type": "CAT",
+    "taper_size": 40,
+    "max_rpm": 10000,
+    "min_rpm": 10,
+    "power_hp": 22.5,
+    "drive_type": "belt-or-gear",
+    "hp_class": "medium"
+  },
+  "operation": "threading",
+  "cycle": "tap-rigid",
+  "axis_count": 5,
+  "material": {
+    "id": "K-GG25",
+    "group": "K",
+    "name": "grey cast iron"
+  },
+  "geometry": {
+    "depth_mm": 12.11,
+    "diameter_mm": 14.25,
+    "pitch_mm": 2.26,
+    "rapid_z_mm": 170.6
+  },
+  "optional_features": [
+    "hpc",
+    "bar_feeder",
+    "sub_spindle",
+    "five_axis_tcp"
+  ],
+  "rejected_features": [
+    "ssv",
+    "cas"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 70,
+    "lines_max": 200,
+    "must_contain": [
+      "%",
+      "O",
+      "G90"
+    ],
+    "must_not_contain": [
+      "CYCL DEF",
+      "BEGIN PGM",
+      "G15 H"
+    ]
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "feature_gate_applied": "featureValidForController",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor AND all_features_controller_supported",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold",
+      "feature-not-supported-by-controller"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:18:53.800Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06",
+    "schema": "v2.0.0",
+    "forced_controller": true,
+    "forced_reason": "original_machine_make_Fadal_pool_did_not_yield_mitsubishi_after_3_retries"
+  }
+}

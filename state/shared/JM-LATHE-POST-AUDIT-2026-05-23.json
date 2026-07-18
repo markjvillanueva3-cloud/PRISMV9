@@ -1,0 +1,278 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-24T03:32:50.537Z",
+  "advisoryOnly": true,
+  "must_human_verify": true,
+  "domain_handoff_to": "bravo (lathe-domain owner per JULIETT-12CHAT)",
+  "summary": {
+    "total_lathes": 7,
+    "by_tier": {
+      "plain": 4,
+      "partially_enhanced": 2,
+      "fully_enhanced": 1
+    },
+    "fully_enhanced_count": 1,
+    "upgrade_candidates": 6,
+    "fusion_lathe_tool_lib_gap": true
+  },
+  "machines": [
+    {
+      "machine_id": "LTH-01",
+      "machine_name": "Okuma GENOS L300-M",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P300L-R",
+      "post_processor": "OKUMA_GENOS_L300M_OSP-P300L-R_PRISM.cps",
+      "classification": {
+        "tier": "plain",
+        "present_capabilities": [],
+        "missing_capabilities": [
+          "ai_adaptive_feedrate",
+          "imachining_chip_thinning",
+          "operator_validated_fix",
+          "cycle_optimized"
+        ]
+      }
+    },
+    {
+      "machine_id": "LTH-02",
+      "machine_name": "Okuma GENOS L200E-M",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P200LA-R",
+      "post_processor": "OKUMA_GENOS_L200EM_OSP-P200LA-R_PRISM.cps",
+      "classification": {
+        "tier": "plain",
+        "present_capabilities": [],
+        "missing_capabilities": [
+          "ai_adaptive_feedrate",
+          "imachining_chip_thinning",
+          "operator_validated_fix",
+          "cycle_optimized"
+        ]
+      }
+    },
+    {
+      "machine_id": "LTH-03",
+      "machine_name": "Okuma LNC8",
+      "controller_family": "okuma",
+      "controller_model": "OSP-U10L",
+      "post_processor": "OKUMA_LNC8_PRISM.cps",
+      "classification": {
+        "tier": "plain",
+        "present_capabilities": [],
+        "missing_capabilities": [
+          "ai_adaptive_feedrate",
+          "imachining_chip_thinning",
+          "operator_validated_fix",
+          "cycle_optimized"
+        ]
+      }
+    },
+    {
+      "machine_id": "LTH-04",
+      "machine_name": "Okuma Crown L1060",
+      "controller_family": "okuma",
+      "controller_model": "OSP-U10L",
+      "post_processor": "OKUMA_CROWN_L1060_OSP-U10L_PRISM.cps",
+      "classification": {
+        "tier": "plain",
+        "present_capabilities": [],
+        "missing_capabilities": [
+          "ai_adaptive_feedrate",
+          "imachining_chip_thinning",
+          "operator_validated_fix",
+          "cycle_optimized"
+        ]
+      }
+    },
+    {
+      "machine_id": "LTH-05",
+      "machine_name": "Okuma GENOS L400II-E",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P300LA-E",
+      "post_processor": "OKUMA_GENOS_L400II_P300LA-Ai-Enhanced.cps",
+      "classification": {
+        "tier": "partially_enhanced",
+        "present_capabilities": [
+          "ai_adaptive_feedrate"
+        ],
+        "missing_capabilities": [
+          "imachining_chip_thinning",
+          "operator_validated_fix",
+          "cycle_optimized"
+        ]
+      }
+    },
+    {
+      "machine_id": "LTH-06",
+      "machine_name": "Okuma LB 3000EX Big Bore",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P500",
+      "post_processor": "OKUMA_LATHE_LB3000-Ai-Enhanced.cps",
+      "classification": {
+        "tier": "partially_enhanced",
+        "present_capabilities": [
+          "ai_adaptive_feedrate"
+        ],
+        "missing_capabilities": [
+          "imachining_chip_thinning",
+          "operator_validated_fix",
+          "cycle_optimized"
+        ]
+      }
+    },
+    {
+      "machine_id": "LTH-07",
+      "machine_name": "Okuma Multus B250II",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P300SA",
+      "post_processor": "OKUMA_MULTUS_B250IIW-Ai-Enhanced-Fixed.cps",
+      "classification": {
+        "tier": "fully_enhanced",
+        "present_capabilities": [
+          "ai_adaptive_feedrate",
+          "operator_validated_fix"
+        ],
+        "missing_capabilities": [
+          "imachining_chip_thinning",
+          "cycle_optimized"
+        ]
+      }
+    }
+  ],
+  "upgrade_punch_list": [
+    {
+      "machine_id": "LTH-01",
+      "machine_name": "Okuma GENOS L300-M",
+      "post_processor": "OKUMA_GENOS_L300M_OSP-P300L-R_PRISM.cps",
+      "current_tier": "plain",
+      "missing_capabilities": [
+        "ai_adaptive_feedrate",
+        "imachining_chip_thinning",
+        "operator_validated_fix",
+        "cycle_optimized"
+      ],
+      "suggested_action": "Rebuild LTH-01 post with Ai-Enhanced + iMachining suffix patterns (per LTH-05/06/07 templates)"
+    },
+    {
+      "machine_id": "LTH-02",
+      "machine_name": "Okuma GENOS L200E-M",
+      "post_processor": "OKUMA_GENOS_L200EM_OSP-P200LA-R_PRISM.cps",
+      "current_tier": "plain",
+      "missing_capabilities": [
+        "ai_adaptive_feedrate",
+        "imachining_chip_thinning",
+        "operator_validated_fix",
+        "cycle_optimized"
+      ],
+      "suggested_action": "Rebuild LTH-02 post with Ai-Enhanced + iMachining suffix patterns (per LTH-05/06/07 templates)"
+    },
+    {
+      "machine_id": "LTH-03",
+      "machine_name": "Okuma LNC8",
+      "post_processor": "OKUMA_LNC8_PRISM.cps",
+      "current_tier": "plain",
+      "missing_capabilities": [
+        "ai_adaptive_feedrate",
+        "imachining_chip_thinning",
+        "operator_validated_fix",
+        "cycle_optimized"
+      ],
+      "suggested_action": "Rebuild LTH-03 post with Ai-Enhanced + iMachining suffix patterns (per LTH-05/06/07 templates)"
+    },
+    {
+      "machine_id": "LTH-04",
+      "machine_name": "Okuma Crown L1060",
+      "post_processor": "OKUMA_CROWN_L1060_OSP-U10L_PRISM.cps",
+      "current_tier": "plain",
+      "missing_capabilities": [
+        "ai_adaptive_feedrate",
+        "imachining_chip_thinning",
+        "operator_validated_fix",
+        "cycle_optimized"
+      ],
+      "suggested_action": "Rebuild LTH-04 post with Ai-Enhanced + iMachining suffix patterns (per LTH-05/06/07 templates)"
+    },
+    {
+      "machine_id": "LTH-05",
+      "machine_name": "Okuma GENOS L400II-E",
+      "post_processor": "OKUMA_GENOS_L400II_P300LA-Ai-Enhanced.cps",
+      "current_tier": "partially_enhanced",
+      "missing_capabilities": [
+        "imachining_chip_thinning",
+        "operator_validated_fix",
+        "cycle_optimized"
+      ],
+      "suggested_action": "Add imachining_chip_thinning + operator_validated_fix + cycle_optimized to OKUMA_GENOS_L400II_P300LA-Ai-Enhanced.cps"
+    },
+    {
+      "machine_id": "LTH-06",
+      "machine_name": "Okuma LB 3000EX Big Bore",
+      "post_processor": "OKUMA_LATHE_LB3000-Ai-Enhanced.cps",
+      "current_tier": "partially_enhanced",
+      "missing_capabilities": [
+        "imachining_chip_thinning",
+        "operator_validated_fix",
+        "cycle_optimized"
+      ],
+      "suggested_action": "Add imachining_chip_thinning + operator_validated_fix + cycle_optimized to OKUMA_LATHE_LB3000-Ai-Enhanced.cps"
+    }
+  ],
+  "fusion_tooling_libraries": {
+    "available": true,
+    "libraries": [
+      {
+        "name": "Haas Engraver.hsmlib",
+        "path": "H:\\PRISM\\JM DIE\\JM DIE COMPANY\\My Libraries\\Haas Engraver.hsmlib",
+        "size_kb": 36,
+        "mtime": "2022-09-30T16:37:30.000Z"
+      },
+      {
+        "name": "Haas VF-2 New.hsmlib",
+        "path": "H:\\PRISM\\JM DIE\\JM DIE COMPANY\\My Libraries\\Haas VF-2 New.hsmlib",
+        "size_kb": 465,
+        "mtime": "2022-10-13T17:58:06.000Z"
+      },
+      {
+        "name": "Haas VF-2 Old.hsmlib",
+        "path": "H:\\PRISM\\JM DIE\\JM DIE COMPANY\\My Libraries\\Haas VF-2 Old.hsmlib",
+        "size_kb": 368,
+        "mtime": "2022-10-05T12:27:24.000Z"
+      },
+      {
+        "name": "Haas VF-3.hsmlib",
+        "path": "H:\\PRISM\\JM DIE\\JM DIE COMPANY\\My Libraries\\Haas VF-3.hsmlib",
+        "size_kb": 1374,
+        "mtime": "2022-03-18T16:19:40.000Z"
+      },
+      {
+        "name": "HURCO.hsmlib",
+        "path": "H:\\PRISM\\JM DIE\\JM DIE COMPANY\\My Libraries\\HURCO.hsmlib",
+        "size_kb": 400,
+        "mtime": "2022-10-07T15:19:00.000Z"
+      },
+      {
+        "name": "ROKU-ROKU - COPPER .hsmlib",
+        "path": "H:\\PRISM\\JM DIE\\JM DIE COMPANY\\My Libraries\\ROKU-ROKU - COPPER .hsmlib",
+        "size_kb": 42,
+        "mtime": "2022-10-13T14:17:36.000Z"
+      },
+      {
+        "name": "ROKU-ROKU - GRAPHITE.hsmlib",
+        "path": "H:\\PRISM\\JM DIE\\JM DIE COMPANY\\My Libraries\\ROKU-ROKU - GRAPHITE.hsmlib",
+        "size_kb": 10,
+        "mtime": "2022-10-05T16:10:34.000Z"
+      },
+      {
+        "name": "Tool Holders.hsmlib",
+        "path": "H:\\PRISM\\JM DIE\\JM DIE COMPANY\\My Libraries\\Tool Holders.hsmlib",
+        "size_kb": 35,
+        "mtime": "2022-04-14T12:50:48.000Z"
+      }
+    ]
+  },
+  "notes": [
+    "ENHANCEMENT_MARKERS = ['Ai-Enhanced','iMachining','-Fixed','-Optimized']. 'fully_enhanced' = ≥2 markers; 'partially_enhanced' = 1; 'plain' = 0.",
+    "Tooling-catalog backbone: Fusion 360 .hsmlib files are XML-encoded. A follow-up extraction unit can mine speed/feed parameters from them — pair with material + insert-type metadata for downstream prism_calc consumption.",
+    "Mike provides the punch list; bravo actions the .cps post edits (lathe domain per slot soul)."
+  ]
+}

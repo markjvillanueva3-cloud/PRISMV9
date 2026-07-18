@@ -1,0 +1,836 @@
+{
+ "schemaVersion": "1.0.0",
+ "generatedAt": "2026-05-24T22:43:01.548Z",
+ "generatedBy": "scripts/ingest-monolith-catalog-js.mjs@1.0.0",
+ "advisoryOnly": true,
+ "must_human_verify": true,
+ "purpose": "Per-vendor extraction bootstrapped from R2.3.6 monolith JS catalog (vendor=walter)",
+ "source_catalogs": [
+  {
+   "filename": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+   "path": "H:/prism/extracted/catalogs/PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+   "size_bytes": 74800,
+   "publisher_verified": true,
+   "publisher_evidence": [
+    "R2.3.6 monolith extraction session header in PRISM_MAJOR_MANUFACTURERS_CATALOG.js"
+   ],
+   "extracted_at": "2026-05-24T22:43:01.541Z"
+  }
+ ],
+ "vendor": "walter",
+ "vendor_display_name": "Walter",
+ "summary": {
+  "catalog_count": 1,
+  "total_tools": 24,
+  "total_cutting_data_rows": 0,
+  "total_application_scenarios": 6,
+  "distinct_tool_types": 3,
+  "publisher_confidence": 0.85,
+  "publisher_evidence": [
+   "monolith v8.89.002 (R2.3.6 Catalog/MIT Extraction session)"
+  ],
+  "step_file_coverage": 0,
+  "datasheet_pdf_coverage": 0,
+  "collision_envelope_coverage": 0,
+  "per_iso_group_counts": {
+   "P": 0,
+   "M": 0,
+   "K": 0,
+   "N": 0,
+   "S": 0,
+   "H": 0
+  },
+  "per_operation_counts": {},
+  "unknown_fields_flagged": 0
+ },
+ "raw_tools": [
+  {
+   "vendor": "walter",
+   "catalog_number": "milling.solidCarbide.PROTOSTAR::Protostar",
+   "name": "Protostar",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: milling.solidCarbide.PROTOSTAR"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "MC166",
+   "name": "MC166",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "MC166",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null,
+    "flutes": 4
+   },
+   "cutting_data": [],
+   "application_scenarios": [
+    {
+     "category": "roughing",
+     "description": "Geometry: general",
+     "source": {
+      "type": "vendor_portal",
+      "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+      "confidence": 0.85,
+      "extracted_at": "2026-05-24T22:43:01.548Z"
+     }
+    }
+   ],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Series entry at milling.solidCarbide.PROTOSTAR.series.MC166"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "MC167",
+   "name": "MC167",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "MC167",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null,
+    "flutes": 5
+   },
+   "cutting_data": [],
+   "application_scenarios": [
+    {
+     "category": "roughing",
+     "description": "Geometry: high_performance",
+     "source": {
+      "type": "vendor_portal",
+      "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+      "confidence": 0.85,
+      "extracted_at": "2026-05-24T22:43:01.548Z"
+     }
+    }
+   ],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Series entry at milling.solidCarbide.PROTOSTAR.series.MC167"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "MC162",
+   "name": "MC162",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "MC162",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null,
+    "flutes": 2
+   },
+   "cutting_data": [
+    {
+     "iso_group": "N",
+     "vc_min_m_min": 65,
+     "vc_max_m_min": 2000,
+     "fz_min_mm": 0.0014,
+     "fz_max_mm": 1.2,
+     "ap_min_mm": null,
+     "ap_max_mm": null,
+     "ae_min_mm": null,
+     "ae_max_mm": null,
+     "source": "iso-aggregate(manufacturer-speed-feed)",
+     "matchType": "iso-group-aggregate",
+     "isoSource": "application-scenario",
+     "seriesSampleSize": 82,
+     "confidence": 0.43,
+     "caveat": "typical range for ISO group across known vendor series; NOT grade-specific. Phase B refines."
+    }
+   ],
+   "application_scenarios": [
+    {
+     "category": "roughing",
+     "description": "Geometry: aluminum",
+     "source": {
+      "type": "vendor_portal",
+      "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+      "confidence": 0.85,
+      "extracted_at": "2026-05-24T22:43:01.548Z"
+     }
+    }
+   ],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Series entry at milling.solidCarbide.PROTOSTAR.series.MC162"
+   },
+   "_enrichment": {
+    "unmatched": false,
+    "reason": null
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "MC164",
+   "name": "MC164",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "MC164",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null,
+    "flutes": 4
+   },
+   "cutting_data": [],
+   "application_scenarios": [
+    {
+     "category": "roughing",
+     "description": "Geometry: finishing",
+     "source": {
+      "type": "vendor_portal",
+      "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+      "confidence": 0.85,
+      "extracted_at": "2026-05-24T22:43:01.548Z"
+     }
+    }
+   ],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Series entry at milling.solidCarbide.PROTOSTAR.series.MC164"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "MC168",
+   "name": "MC168",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "MC168",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null,
+    "flutes": 6
+   },
+   "cutting_data": [],
+   "application_scenarios": [
+    {
+     "category": "roughing",
+     "description": "Geometry: high_feed",
+     "source": {
+      "type": "vendor_portal",
+      "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+      "confidence": 0.85,
+      "extracted_at": "2026-05-24T22:43:01.548Z"
+     }
+    }
+   ],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Series entry at milling.solidCarbide.PROTOSTAR.series.MC168"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "MC319",
+   "name": "MC319",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "MC319",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null,
+    "flutes": 4
+   },
+   "cutting_data": [
+    {
+     "iso_group": "H",
+     "vc_min_m_min": 16,
+     "vc_max_m_min": 250,
+     "fz_min_mm": 0.001,
+     "fz_max_mm": 0.2,
+     "ap_min_mm": null,
+     "ap_max_mm": null,
+     "ae_min_mm": null,
+     "ae_max_mm": null,
+     "source": "iso-aggregate(manufacturer-speed-feed)",
+     "matchType": "iso-group-aggregate",
+     "isoSource": "application-scenario",
+     "seriesSampleSize": 31,
+     "confidence": 0.43,
+     "caveat": "typical range for ISO group across known vendor series; NOT grade-specific. Phase B refines."
+    }
+   ],
+   "application_scenarios": [
+    {
+     "category": "roughing",
+     "description": "Geometry: hardened",
+     "source": {
+      "type": "vendor_portal",
+      "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+      "confidence": 0.85,
+      "extracted_at": "2026-05-24T22:43:01.548Z"
+     }
+    }
+   ],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Series entry at milling.solidCarbide.PROTOSTAR.series.MC319"
+   },
+   "_enrichment": {
+    "unmatched": false,
+    "reason": null
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "milling.solidCarbide.PROTO-MAX::Proto-Max",
+   "name": "Proto-Max",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: milling.solidCarbide.PROTO-MAX"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "milling.indexable.XTRA-TEC::Xtra-tec",
+   "name": "Xtra-tec",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: milling.indexable.XTRA-TEC"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "milling.indexable.BLAXX-M3024::BLAXX_M3024",
+   "name": "BLAXX M3024",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: milling.indexable.BLAXX-M3024"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "milling.indexable.TIGER-TEC::Tiger-tec",
+   "name": "Tiger-tec",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: milling.indexable.TIGER-TEC"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "milling.indexable.M4000::M4000_System",
+   "name": "M4000 System",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: milling.indexable.M4000"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "milling.highFeed.XTRA-TEC-XT-HF::Xtra-tec_XT_High_Feed",
+   "name": "Xtra-tec XT High Feed",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: milling.highFeed.XTRA-TEC-XT-HF"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "milling.highFeed.F5041::F5041_High_Feed",
+   "name": "F5041 High Feed",
+   "type": "milling_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: milling.highFeed.F5041"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "turning.generalTurning.TIGER-TEC-GOLD::Tiger-tec_Gold",
+   "name": "Tiger-tec Gold",
+   "type": "turning_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: turning.generalTurning.TIGER-TEC-GOLD"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "turning.generalTurning.TIGER-TEC-SILVER::Tiger-tec_Silver",
+   "name": "Tiger-tec Silver",
+   "type": "turning_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: turning.generalTurning.TIGER-TEC-SILVER"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "turning.boring.CAPTO-BORING::Capto_Boring",
+   "name": "Capto Boring",
+   "type": "turning_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: turning.boring.CAPTO-BORING"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "turning.grooving.CUT-SX::Cut_SX",
+   "name": "Cut SX",
+   "type": "turning_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: turning.grooving.CUT-SX"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "turning.grooving.CUT-GX::Cut_GX",
+   "name": "Cut GX",
+   "type": "turning_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: turning.grooving.CUT-GX"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "turning.threading.VARGUS::Vargus_Threading",
+   "name": "Vargus Threading",
+   "type": "turning_insert",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: turning.threading.VARGUS"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "drilling.solidCarbide.TITEX::Titex",
+   "name": "Titex",
+   "type": "drill",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: drilling.solidCarbide.TITEX"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "drilling.solidCarbide.XTREME-MICRO::Xtreme_Micro",
+   "name": "Xtreme Micro",
+   "type": "drill",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: drilling.solidCarbide.XTREME-MICRO"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "drilling.indexable.XTRA-TEC-DRILL::Xtra-tec_Drill",
+   "name": "Xtra-tec Drill",
+   "type": "drill",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: drilling.indexable.XTRA-TEC-DRILL"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  },
+  {
+   "vendor": "walter",
+   "catalog_number": "drilling.indexable.B3212::B3212_Modular",
+   "name": "B3212 Modular",
+   "type": "drill",
+   "substrate": "carbide",
+   "grade": "unknown",
+   "material_groups": [],
+   "geometry": {
+    "diameter_mm": null,
+    "overall_length_mm": null,
+    "shank_diameter_mm": null
+   },
+   "cutting_data": [],
+   "application_scenarios": [],
+   "source": {
+    "type": "vendor_portal",
+    "catalog": "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    "confidence": 0.85,
+    "extracted_at": "2026-05-24T22:43:01.548Z",
+    "extractor_version": "ingest-monolith-catalog-js@1.0.0",
+    "notes": "Walked vendor block at path: drilling.indexable.B3212"
+   },
+   "_enrichment": {
+    "unmatched": true,
+    "reason": "no-iso-group"
+   }
+  }
+ ],
+ "speed_feed_backbone_by_type": {},
+ "notes": [
+  "R12 advisory — every entry must be human-verified before silent ToolRegistry mutation.",
+  "Cutting data is empty by design; Phase B-1..B-5 (PDF camelot) will populate per-ISO tables.",
+  "Type inference is heuristic (path + name regex); operator should sanity-check at merge time."
+ ],
+ "_enrichedBy": "scripts/enrich-catalog-cutting-data.mjs",
+ "_enrichedAt": "claude-a6304a93/juliett"
+}

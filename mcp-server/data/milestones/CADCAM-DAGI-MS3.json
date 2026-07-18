@@ -1,0 +1,598 @@
+{
+  "id": "CADCAM-DAGI-MS3",
+  "version": "1.0.0",
+  "title": "CAD Accuracy Validation — 100% Accurate Guarantee",
+  "brief": "Validate every generated CAD model is 100% accurate: dimensional, topological, manufacturability, tolerance stack, assembly interference-free. Rebuild-until-perfect loop with multiple validation layers (geometry, physics, manufacturing, DFMA). Hard gate: no CAD artifact escapes to CAM without PASS.",
+  "track": "CAD-CAM-DEEPAGI",
+  "parent": "CADCAM-DEEPAGI-MASTER",
+  "status": "not_started",
+  "priority": "P0",
+  "omega_target": 1,
+  "created_at": "2026-04-18T21:50:00Z",
+  "created_by": "forge /rgs via Opus 4.7",
+  "dependencies": [
+    "CADCAM-DAGI-MS2"
+  ],
+  "total_units": 10,
+  "total_sessions": 3,
+  "completed_units": 0,
+  "session_plan": [
+    {
+      "session": 1,
+      "units": [
+        "U-DACAV01",
+        "U-DACAV02",
+        "U-DACAV03"
+      ],
+      "title": "Geometric & Topological Validation",
+      "smart_config": {
+        "role": "Computational Geometry PhD + CAD QA Lead",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "BRep consistency rules (Euler formula V-E+F=2-2g-b)",
+          "Watertight manifold definition",
+          "OCP/OpenCascade validation APIs",
+          "ISO GPS dimensional standards"
+        ]
+      }
+    },
+    {
+      "session": 2,
+      "units": [
+        "U-DACAV04",
+        "U-DACAV05",
+        "U-DACAV06",
+        "U-DACAV07"
+      ],
+      "title": "Manufacturability, DFMA, Tolerance Stack",
+      "smart_config": {
+        "role": "DFM Expert + GD&T Master + Quality Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "PRISM 1700+ DFMA rules (from existing DFM engines)",
+          "ASME Y14.5 tolerance stack methods",
+          "JM Die material process capability (from quality/parameter-priors.json)"
+        ]
+      }
+    },
+    {
+      "session": 3,
+      "units": [
+        "U-DACAV08",
+        "U-DACAV09",
+        "U-DACAV10"
+      ],
+      "title": "Rebuild Loop, Gate Hook, Dispatcher Wiring",
+      "smart_config": {
+        "role": "Control Theory Specialist + Integration Architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "Feedback control loop theory (rebuild convergence)",
+          "PRISM Stop hook patterns",
+          "Existing CadCamDeepAgiDispatcher (MS0/1/2)"
+        ]
+      }
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "U-DACAV01",
+      "title": "BRepTopologyValidatorEngine — manifold/watertight check",
+      "intent": "Validate every generated solid is a valid watertight 2-manifold BRep. Euler-Poincaré check, face-edge connectivity, orientation consistency, no tiny edges, no non-manifold vertices.",
+      "files_created": [
+        "mcp-server/src/engines/BRepTopologyValidatorEngine.ts",
+        "mcp-server/src/data/brep-validation-rules.json",
+        "mcp-server/src/__tests__/BRepTopologyValidatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Topology walker (face→edge→vertex). Euler formula validator. Manifold edge check (2 faces per edge). Small-edge tolerance scan.",
+        "loop_2_scrutinize": "Computational geometry PhD. Check: edge cases (torus g=1, non-simply connected), tolerance robustness.",
+        "loop_3_gap_fill": "Genus calculation, hole counting.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Detect 100% of injected topology defects in 50-part test corpus.",
+        "abort_criteria": "If miss rate > 1%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 25,
+        "coverage_target": "96%"
+      },
+      "forge_triple": {
+        "hook": "brep-manifold-gate (Stop hook, blocks CAM handoff)",
+        "action": "cad.validate.topology",
+        "skill": "/brep-check"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "BRepTopologyValidatorEngine — manifold/watertight check — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV01"
+    },
+    {
+      "unit_id": "U-DACAV02",
+      "title": "DimensionalValidatorEngine — spec vs actual",
+      "intent": "Compare generated model dimensions against specification (from blueprint or text). Report deviations per feature. Tolerance-aware (within tolerance = PASS, out = FAIL).",
+      "files_created": [
+        "mcp-server/src/engines/DimensionalValidatorEngine.ts",
+        "mcp-server/src/__tests__/DimensionalValidatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Measurement extractor (feature type → relevant dims). Spec parser. Delta calculator. Tolerance zone check.",
+        "loop_2_scrutinize": "Metrology expert. Check: measurement extraction robustness, unit handling, tolerance semantics.",
+        "loop_3_gap_fill": "Basic vs toleranced dims, envelope rule, statistical tolerancing.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "100 parts with deliberate dim errors detected with 99%+ accuracy.",
+        "abort_criteria": "If false-negative rate > 1%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "dimensional-tolerance-gate",
+        "action": "cad.validate.dimensions",
+        "skill": "/dim-check"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "DimensionalValidatorEngine — spec vs actual — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV02"
+    },
+    {
+      "unit_id": "U-DACAV03",
+      "title": "GeometricIntentValidatorEngine — semantic intent preservation",
+      "intent": "Verify generated model preserves geometric intent (parallelism, perpendicularity, coincidence, symmetry). Catch cases where model is dimensionally correct but semantically wrong.",
+      "files_created": [
+        "mcp-server/src/engines/GeometricIntentValidatorEngine.ts",
+        "mcp-server/src/data/intent-relation-catalog.json",
+        "mcp-server/src/__tests__/GeometricIntentValidatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Relation extractor (parallel, perp, tangent, coincident, concentric). Symmetry detector. Reference datum framework.",
+        "loop_2_scrutinize": "GD&T master + geometry expert. Check: near-perpendicularity tolerance, false-positive rate.",
+        "loop_3_gap_fill": "Complex symmetries (rotational, mirror, translational).",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Correctly identify 95%+ of intent relations in 30-part benchmark.",
+        "abort_criteria": "If miss rate > 10%, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "intent-preservation-check",
+        "action": "cad.validate.intent",
+        "skill": "/intent-check"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "GeometricIntentValidatorEngine — semantic intent preservation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV03"
+    },
+    {
+      "unit_id": "U-DACAV04",
+      "title": "ManufacturabilityValidatorEngine — full DFM sweep",
+      "intent": "DFM check: undercuts, unreachable features, thin walls, deep pockets, sharp internal corners, draft angles, min feature size. Feeds JM Die shop capability (tools, max reach, min radius).",
+      "files_created": [
+        "mcp-server/src/engines/ManufacturabilityValidatorEngine.ts",
+        "mcp-server/src/data/jm-die-shop-capability.json",
+        "mcp-server/src/__tests__/ManufacturabilityValidatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Feature-by-feature DFM checker. Tool reach simulator. Wall thickness sampler. Uses PRISM existing DFM engine registry.",
+        "loop_2_scrutinize": "Senior machinist + DFM lead. Check: rules match real JM Die capability, no false blocks on feasible features.",
+        "loop_3_gap_fill": "Custom tooling exceptions (shop can make specials).",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Shop senior machinist agrees with 95%+ of flagged issues on 50-part review.",
+        "abort_criteria": "If false-positive rate > 10%, loosen rules.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 22,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "dfm-gate-before-cam (Stop hook)",
+        "action": "cad.validate.dfm",
+        "skill": "/dfm-validate"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ManufacturabilityValidatorEngine — full DFM sweep — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV04"
+    },
+    {
+      "unit_id": "U-DACAV05",
+      "title": "ToleranceStackValidatorEngine — assembly tolerance analysis",
+      "intent": "Run tolerance stack analysis on assemblies. Worst-case (WC) and RSS methods. Flag stack-ups that violate functional requirements.",
+      "files_created": [
+        "mcp-server/src/engines/ToleranceStackValidatorEngine.ts",
+        "mcp-server/src/__tests__/ToleranceStackValidatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Tolerance extraction from model. Stack path identification. WC/RSS calc.",
+        "loop_2_scrutinize": "Tolerance expert + mechanical designer. Check: stack path correctness, bonus tolerance handling under MMC.",
+        "loop_3_gap_fill": "Monte Carlo tolerance analysis for non-normal distributions.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "15 assembly tolerance stacks computed, all within 0.1% of manual calc.",
+        "abort_criteria": "If calc error > 1%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "tolerance-stack-violation-gate",
+        "action": "cad.validate.toleranceStack",
+        "skill": "/tolerance-stack"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ToleranceStackValidatorEngine — assembly tolerance analysis — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV05"
+    },
+    {
+      "unit_id": "U-DACAV06",
+      "title": "AssemblyInterferenceValidatorEngine — collision checks",
+      "intent": "Assembly interference detection at all configurations. Static and motion-based (for articulated assemblies). Report volume of overlap per pair.",
+      "files_created": [
+        "mcp-server/src/engines/AssemblyInterferenceValidatorEngine.ts",
+        "mcp-server/src/__tests__/AssemblyInterferenceValidatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Pairwise BRep intersection. Motion study sweep.",
+        "loop_2_scrutinize": "Assembly expert. Check: intended contact vs interference distinction.",
+        "loop_3_gap_fill": "Contact set whitelisting, clearance check (not just interference).",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Detect 100% of injected interferences in 30-assembly test corpus.",
+        "abort_criteria": "If miss rate > 1%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "assembly-interference-gate",
+        "action": "cad.validate.interference",
+        "skill": "/interference-check"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AssemblyInterferenceValidatorEngine — collision checks — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV06"
+    },
+    {
+      "unit_id": "U-DACAV07",
+      "title": "MaterialStressQuickCheckEngine — FEA-free feasibility screen",
+      "intent": "Fast first-pass stress screening using closed-form formulas (beam bending, pressure vessel, press fit). Not a full FEA — just flag 'obviously under-designed' features. Full FEA stays in a separate engine.",
+      "files_created": [
+        "mcp-server/src/engines/MaterialStressQuickCheckEngine.ts",
+        "mcp-server/src/data/closed-form-stress-formulas.json",
+        "mcp-server/src/__tests__/MaterialStressQuickCheckEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Feature classifier (beam-like, plate-like, cylindrical). Formula dispatcher. Material property lookup.",
+        "loop_2_scrutinize": "Mechanical engineer + FEA specialist. Check: conservative bounds (false-positive ok, false-negative not).",
+        "loop_3_gap_fill": "Press-fit, thread strip, bolt preload formulas.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Correctly flag 20 under-designed parts in 100-part test, < 5% false alarms.",
+        "abort_criteria": "If miss rate > 10%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "91%"
+      },
+      "forge_triple": {
+        "hook": "stress-screen-gate",
+        "action": "cad.validate.stress",
+        "skill": "/stress-screen"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MaterialStressQuickCheckEngine — FEA-free feasibility screen — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV07"
+    },
+    {
+      "unit_id": "U-DACAV08",
+      "title": "CADRebuildUntilPerfectOrchestratorEngine — closed-loop rebuild",
+      "intent": "Orchestrate rebuild-until-perfect loop. If ANY validation fails, identify root cause, regenerate affected portion, re-validate. Converge or escalate.",
+      "files_created": [
+        "mcp-server/src/engines/CADRebuildUntilPerfectOrchestratorEngine.ts",
+        "mcp-server/src/__tests__/CADRebuildUntilPerfectOrchestratorEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/NeuralCADGenerationEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Validation aggregator. Failure → fix-plan. Rebuild attempts counter (max 10). Escalation to human on non-convergence.",
+        "loop_2_scrutinize": "Control theory specialist. Check: convergence guarantee, oscillation detection, termination proof.",
+        "loop_3_gap_fill": "Partial-rebuild optimization (fix only affected features).",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "100 initially-failing parts → 95%+ converge to PASS within 5 rebuilds.",
+        "abort_criteria": "If convergence rate < 80%, redesign fix-plan logic.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 25,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "rebuild-convergence-monitor",
+        "action": "cad.rebuild",
+        "skill": "/rebuild-perfect"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CADRebuildUntilPerfectOrchestratorEngine — closed-loop rebuild — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV08"
+    },
+    {
+      "unit_id": "U-DACAV09",
+      "title": "CADValidationGateHook — blocks CAM without PASS",
+      "intent": "Stop hook that inspects every CAM handoff. If source CAD model lacks validation PASS, BLOCK. Hard gate, no bypass.",
+      "files_created": [
+        "mcp-server/src/hooks/CADValidationGateHook.ts",
+        "mcp-server/src/__tests__/CADValidationGateHook.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/hooks/registry.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Hook scans CAM dispatcher input. Requires model validation_receipt field. Reject if absent/failed.",
+        "loop_2_scrutinize": "Security reviewer + safety-physics. Check: no bypass path, receipt integrity (HMAC-signed).",
+        "loop_3_gap_fill": "Emergency override with signed approval (human-in-loop).",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "100% of unverified CAM attempts blocked; 0 false blocks on valid handoffs.",
+        "abort_criteria": "If any bypass discovered.",
+        "rollback_procedure": "git revert — but MS3 undeployable without this gate.",
+        "tests_required": 10,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "cad-validation-required-for-cam (Stop hook)",
+        "action": "cad.validate.certify",
+        "skill": "/certify-cad"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CADValidationGateHook — blocks CAM without PASS — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV09"
+    },
+    {
+      "unit_id": "U-DACAV10",
+      "title": "MS3 Dispatcher Wiring + Feature Cascade",
+      "intent": "Wire 9 new engines + gate hook. 10 new actions. 10 skills. Cascade to MS4/MS7.",
+      "files_created": [
+        "mcp-server/src/data/CADCAM_DAGI_MS3_CASCADE.json",
+        "mcp-server/src/__tests__/cadCamDeepAgiDispatcher.ms3.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/cadCamDeepAgiDispatcher.ts",
+        "mcp-server/src/tools/toolIndex.ts",
+        "mcp-server/src/hooks/registry.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Extend dispatcher. Schemas. Skills. Cascade JSON.",
+        "loop_2_scrutinize": "Integration reviewer.",
+        "loop_3_gap_fill": "Missing wiring.",
+        "loop_4_tie_up": "Cascade file complete."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "10 actions callable; validation gate enforced.",
+        "abort_criteria": "If regressions.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 12,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "ms3-dispatcher-integrity",
+        "action": "cad.ms3.status",
+        "skill": "/ms3-status"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MS3 Dispatcher Wiring + Feature Cascade — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DACAV10"
+    }
+  ],
+  "feature_cascade": {
+    "new_hooks": 10,
+    "new_actions": 10,
+    "new_skills": 10,
+    "available_to": [
+      "CADCAM-DAGI-MS4",
+      "CADCAM-DAGI-MS7"
+    ],
+    "gate_hook_critical": "CADValidationGateHook blocks all CAM dispatches without CAD validation receipt"
+  },
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-dagi-ms3-gate",
+    "mcp_action": "prism_cad-cam-deepagi:cadcam_dagi_ms3_run",
+    "skill_command": "/cadcam-dagi-ms3",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Validate every generated CAD model is 100% accurate: dimensional, topological, manufacturability, tolerance stack, assembly interference-free. Rebuild-until-perfect loop with multiple validation layers (geometry, physics, manufacturing, DFMA). Hard gate: no CAD artifact escapes to CAM without PASS.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

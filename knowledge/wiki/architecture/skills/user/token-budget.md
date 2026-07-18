@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `token-budget` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/token-budget.md` |
+| Source | `C:/Users/wompu/.claude/commands/token-budget.md` |
 | Model | default |
 | Tags | _(none)_ |
 

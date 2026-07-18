@@ -31,9 +31,9 @@ const FROZEN_MS = Date.parse(FROZEN_ISO);
 
 // ─── buildPalette ────────────────────────────────────────────────────────────
 describe("buildPalette", () => {
-  it("returns 13 colors for 13 default slots", () => {
+  it("returns one color per default slot (tracks SLOT_NAMES_FALLBACK count)", () => {
     const p = buildPalette();
-    assert.equal(Object.keys(p).length, 13);
+    assert.equal(Object.keys(p).length, SLOT_NAMES_FALLBACK.length);
     for (const name of SLOT_NAMES_FALLBACK) {
       assert.ok(p[name], `missing palette for ${name}`);
     }
@@ -46,10 +46,10 @@ describe("buildPalette", () => {
     }
   });
 
-  it("produces 13 DISTINCT colors (no collisions)", () => {
+  it("produces DISTINCT colors per slot (no collisions)", () => {
     const p = buildPalette();
     const set = new Set(Object.values(p));
-    assert.equal(set.size, 13);
+    assert.equal(set.size, SLOT_NAMES_FALLBACK.length);
   });
 
   it("is deterministic — two calls produce identical output", () => {
@@ -385,12 +385,15 @@ describe("readFileOwnership", () => {
 });
 
 describe("readChatSlots", () => {
-  it("returns {state, slotNames} with 13 slot names from live module", async () => {
+  it("returns {state, slotNames} matching the canonical fleet roster from the live module", async () => {
     const { state, slotNames } = await readChatSlots();
     assert.equal(typeof state, "object");
-    assert.equal(slotNames.length, 13);
+    // Track the canonical roster length (26 after SLOT-RECLAIM 13->26), not a magic
+    // number -- a future expansion only needs SLOT_NAMES_FALLBACK updated, and the
+    // deep-equal drift-catch below enforces fallback==live.
+    assert.equal(slotNames.length, SLOT_NAMES_FALLBACK.length);
     assert.equal(slotNames[0], "alpha");
-    assert.equal(slotNames[12], "mike");
+    assert.equal(slotNames[slotNames.length - 1], SLOT_NAMES_FALLBACK[SLOT_NAMES_FALLBACK.length - 1]);
   });
 
   it("REGRESSION: slotNames from live module MUST deep-equal SLOT_NAMES_FALLBACK (drift catch)", async () => {
@@ -494,9 +497,12 @@ describe("regression guards", () => {
     assert.equal(out.files["x.mjs"], undefined);
   });
 
-  it("REGRESSION: 13 palette entries MUST be distinct (no hue collisions)", () => {
+  it("REGRESSION: every palette entry MUST be distinct (no hue collisions)", () => {
     const p = buildPalette(SLOT_NAMES_FALLBACK);
-    assert.equal(new Set(Object.values(p)).size, 13);
+    // One distinct color per slot -- tracks the canonical roster count (26 after
+    // SLOT-RECLAIM 13->26), not a magic number, so a future expansion stays green
+    // iff hues remain collision-free.
+    assert.equal(new Set(Object.values(p)).size, SLOT_NAMES_FALLBACK.length);
   });
 
   it("REGRESSION: advisory.mustHumanVerify MUST stay true (operator safety)", () => {

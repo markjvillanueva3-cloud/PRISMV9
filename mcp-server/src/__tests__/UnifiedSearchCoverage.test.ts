@@ -185,7 +185,18 @@ describe("MS-DB-1: Universal Asset Search", () => {
     it("should have getFullDriveAwareness() for drive stats", async () => {
       const { prismSelfAwarenessEngine } = await import("../engines/PRISMSelfAwarenessEngine.js");
       expect(typeof prismSelfAwarenessEngine.getFullDriveAwareness).toBe("function");
-    });
+      // Real-output oracle (R9): aggregates manifest capability counts + JM Die
+      // corpus stats. prism.engines > 0 because computeStats() parses the
+      // git-tracked PRISM-INVENTORY-LATEST.md (Engines: <n>); jmDie.customerCount
+      // is best-effort (>= 0 when the JM Die root is absent).
+      const da = await prismSelfAwarenessEngine.getFullDriveAwareness();
+      expect(typeof da.prism.engines).toBe("number");
+      expect(da.prism.engines).toBeGreaterThan(0);
+      expect(typeof da.jmDie.customerCount).toBe("number");
+      expect(da.jmDie.customerCount).toBeGreaterThanOrEqual(0);
+      expect(Array.isArray(da.jmDie.machineTypes)).toBe(true);
+      expect(da.jmDie).toHaveProperty("customersByMachineType");
+    }, 30000);
   });
 
   // ==========================================================================

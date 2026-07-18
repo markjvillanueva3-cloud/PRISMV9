@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `shop-doctor` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/shop-doctor.md` |
+| Source | `C:/Users/wompu/.claude/commands/shop-doctor.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Shop Doctor — Real-Time Manufacturing Problem Solver
+
+When something goes wrong on the shop floor, every minute of diagnosis is a minute of lost production. This command connects symptoms (chatter, bad finish, broken tools, out-of-tolerance parts) to root causes using physics, then prescribes fixes ranked by likelihood and ease of implementation.
+
+**Value**: Average unplanned downtime cost
 
 <!-- AUTO-END -->
 

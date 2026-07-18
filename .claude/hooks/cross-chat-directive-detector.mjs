@@ -108,7 +108,7 @@ function ownSessionId(payload) {
   const explicit = payload?.session_id || payload?.sessionId;
   if (explicit) return `claude-${String(explicit).slice(0, 8)}`;
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], {
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true,
       timeout: STABLE_ID_TIMEOUT_MS,
       encoding: "utf-8",
     });

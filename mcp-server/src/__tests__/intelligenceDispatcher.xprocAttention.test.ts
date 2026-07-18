@@ -14,7 +14,7 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 
 import { registerIntelligenceDispatcher } from "../tools/dispatchers/intelligenceDispatcher.js";
-import { crossProcessNeuralLearningEngine } from "../engines/CrossProcessNeuralLearningEngine.js";
+import { crossProcessNeuralLearningEngine, INPUT_DIM } from "../engines/CrossProcessNeuralLearningEngine.js";
 import { crossProcessAttentionExplainEngine } from "../engines/CrossProcessAttentionExplainEngine.js";
 import type { OutcomeRecord } from "../engines/CrossProcessOutcomeStore.js";
 
@@ -103,7 +103,9 @@ describe("intelligenceDispatcher xproc_attention_* (U-XPROC-NEURAL-T1-04)", () =
     });
     expect(body.success).toBe(true);
     const weights = body.weights as number[];
-    expect(weights.length).toBe(32);
+    // INPUT_DIM (144) — one LIME weight per model input feature; U-NN-FEAT* grew the
+    // input vector 32→144, so assert the exported dim (never re-staleizes, still catches wrong-length).
+    expect(weights.length).toBe(INPUT_DIM);
     const top = body.top as Array<{ index: number; weight: number }>;
     expect(top.length).toBeLessThanOrEqual(8);
     expect(typeof body.baselineProb).toBe("number");
@@ -157,7 +159,7 @@ describe("intelligenceDispatcher xproc_attention_* (U-XPROC-NEURAL-T1-04)", () =
     expect(body.success).toBe(true);
     expect(body.n).toBe(5);
     const mean = body.mean as number[];
-    expect(mean.length).toBe(32);
+    expect(mean.length).toBe(INPUT_DIM); // INPUT_DIM (144) — baseline mean spans the full input feature vector
   });
 
   it("xproc_attention_anomaly returns notReady=true with empty baseline", async () => {

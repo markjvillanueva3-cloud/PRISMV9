@@ -62,10 +62,10 @@ beforeAll(async () => {
 
 beforeEach(() => {
   window.localStorage.clear();
-  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('calculator prism test fallback')));
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('calculator kienzle test fallback')));
 });
 
-describe('CalculatorPage PRISM mode', () => {
+describe('CalculatorPage Kienzle mode', () => {
   it('can auto-apply a crib-first setup and open the shared purchase modal', async () => {
     const services: OperatingSystemServices = {
       ...fixtureOperatingSystemServices,
@@ -77,7 +77,7 @@ describe('CalculatorPage PRISM mode', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /open prism engine/i }));
+      fireEvent.click(screen.getByRole('button', { name: /open kienzle engine/i }));
     });
 
     await screen.findAllByText(/strong live crib coverage/i);
@@ -86,7 +86,7 @@ describe('CalculatorPage PRISM mode', () => {
     expect(setupSourceSelect.value).toBe('recommended');
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /enable prism auto-apply/i }));
+      fireEvent.click(screen.getByRole('button', { name: /enable kienzle auto-apply/i }));
     });
 
     await waitFor(() => {
@@ -94,7 +94,7 @@ describe('CalculatorPage PRISM mode', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getAllByRole('button', { name: /open prism purchase option/i })[0]!);
+      fireEvent.click(screen.getAllByRole('button', { name: /open kienzle purchase option/i })[0]!);
     });
 
     expect(screen.getAllByRole('dialog').length).toBeGreaterThan(0);
@@ -144,7 +144,7 @@ describe('CalculatorPage PRISM mode', () => {
             ),
           );
         }
-        return Promise.reject(new Error('calculator prism test fallback'));
+        return Promise.reject(new Error('calculator kienzle test fallback'));
       }),
     );
 
@@ -153,7 +153,7 @@ describe('CalculatorPage PRISM mode', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /open prism engine/i }));
+      fireEvent.click(screen.getByRole('button', { name: /open kienzle engine/i }));
     });
 
     expect((await screen.findAllByText(/roi engine live/i)).length).toBeGreaterThan(0);

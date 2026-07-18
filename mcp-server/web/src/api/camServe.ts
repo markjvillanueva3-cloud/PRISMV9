@@ -1,3 +1,4 @@
+import { getAuthHeaders } from './authToken';
 /**
  * CAM Model Serving API client (U-CAM123 — AI Health Dashboard).
  *
@@ -17,7 +18,7 @@ async function post<T>(endpoint: string, body: unknown): Promise<T> {
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify(body ?? {}),
       signal: controller.signal,
     });

@@ -1,0 +1,386 @@
+{
+  "id": "HM-KC-MS9",
+  "version": "8.3.0",
+  "title": "Validation + Artifact Testing — Verify All Generated Artifacts",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Verify all artifacts generated across KC-0 through KC-8: ~8,163 parameter schemas validate with Zod, ~8,163 skill templates render correctly, ~8,163 AC Python setter scripts are syntactically valid, ~500 safety hooks fire correctly, and ~8,163 physics mappings produce reasonable recommendations. Includes cross-domain consistency checks, regression testing, and performance benchmarking of the recommendation pipeline.",
+  "dependencies": [
+    "HM-KC-MS0",
+    "HM-KC-MS1",
+    "HM-KC-MS2",
+    "HM-KC-MS3",
+    "HM-KC-MS4",
+    "HM-KC-MS5",
+    "HM-KC-MS6",
+    "HM-KC-MS7",
+    "HM-KC-MS8"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillSchemaUnifierEngine",
+      "all artifact generator engines from KC-1 through KC-8"
+    ],
+    "registries": [
+      "PhysicsMappingRegistry",
+      "FormulaRegistry",
+      "MaterialRegistry",
+      "ToolRegistry",
+      "MachineRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json",
+      "data/hypermill/physics-mappings/COVERAGE_REPORT.json",
+      "All generated schemas, skills, scripts, hooks from KC-1 through KC-7"
+    ]
+  },
+  "forge_triple": {
+    "hook": "artifactIntegrityValidator — BUILT — validates all generated artifacts on build",
+    "action": "validate_hm_kc_artifacts — BUILT — runs full validation suite on all KC artifacts",
+    "skill": "/hypermill-kc-status — BUILT — shows KC track completion status and artifact health"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS9-S1",
+      "title": "Schema + Skill + Script Validation (~24,000 artifacts verified)",
+      "smart_config": {
+        "role": "qa-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "All generated Zod schemas from KC-1 through KC-7",
+        "All generated skill templates",
+        "All generated AC Python setter scripts",
+        "Schema validation patterns from existing test suite"
+      ],
+      "intent": "Validate that all generated artifacts are syntactically correct and internally consistent. Zod schemas must parse without error, skill templates must render with all required sections, and AC Python scripts must pass syntax check. Cross-domain consistency checks verify no parameter name collisions and no orphaned references.",
+      "skills": [
+        "/test",
+        "/forge-tests",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC46",
+          "title": "Schema Validation — ~8,163 Zod schemas verified",
+          "description": "Run Zod schema validation on all ~8,163 generated parameter schemas. Verify each schema: (1) parses without error, (2) has all required fields (name, type, range, default, unit), (3) range min < max where applicable, (4) default value falls within range, (5) enum types have valid option lists. Report any invalid schemas with specific failure reasons.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "All ~8,163 schemas parse without Zod errors",
+            "Zero schemas with range.min > range.max",
+            "Zero schemas with default value outside range",
+            "Zero schemas missing required fields (name, type)",
+            "Validation report generated with per-domain pass/fail counts"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill/kc-schema-validation.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "schema failures > 100"
+            ],
+            "rollback_procedure": "Fix failing schemas in relevant KC-1 through KC-7 domain files"
+          }
+        },
+        {
+          "id": "U-HKC47",
+          "title": "Skill Template + AC Script Validation — ~16,000 artifacts verified",
+          "description": "Validate all generated skill templates (~8,163): (1) markdown renders without errors, (2) physics mapping reference resolves to valid engine, (3) parameter reference matches catalog ID. Validate all generated AC Python scripts (~8,163): (1) Python syntax check passes, (2) SetParameter call uses correct parameter name, (3) value type matches schema type. Report invalid artifacts.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "All skill templates render valid markdown with physics mapping references",
+            "All AC Python scripts pass Python syntax validation (ast.parse)",
+            "Zero orphaned parameter references (every ref resolves to catalog entry)",
+            "Zero type mismatches between script value types and schema types",
+            "Validation report with per-domain pass rates >= 98%"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill/kc-artifact-validation.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "artifact failures > 200"
+            ],
+            "rollback_procedure": "Fix failing artifacts in relevant domain generator engines"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 98% schema pass rate | ✓ >= 98% skill/script pass rate | ✓ zero orphaned refs | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "validate_schemas",
+          "validate_artifacts"
+        ],
+        "new_skills": [],
+        "available_to": []
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS9-S2",
+      "title": "Hook + Physics Mapping Validation (~500 hooks + ~8,163 mappings)",
+      "smart_config": {
+        "role": "qa-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "All registered safety hooks from KC-1 through KC-7",
+        "PhysicsMappingRegistry from KC-8",
+        "Hook execution patterns from HookExecutor"
+      ],
+      "intent": "Validate all safety hooks fire correctly with test inputs. Verify physics mappings produce values within parameter ranges. Run end-to-end recommendation pipeline tests for representative parameter sets across all domains.",
+      "skills": [
+        "/test",
+        "/forge-tests",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC48",
+          "title": "Hook Firing Validation — ~500 hooks verified",
+          "description": "Test all registered safety hooks: (1) BLOCKING hooks correctly reject unsafe values (clearance plane too low, negative allowance, L/D > 10 without peck, collision detected, tilt exceeds machine limit), (2) WARNING hooks correctly flag risky values (tolerance too tight, thermal limit approaching, deflection approaching limit), (3) AUTOFIRE hooks trigger on correct conditions. Each hook gets a pass/fail/skip test with known-good and known-bad inputs.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "All BLOCKING hooks correctly reject known-unsafe test inputs",
+            "All WARNING hooks correctly flag known-risky test inputs",
+            "Zero hooks that silently pass on values that should be blocked",
+            "Hook coverage: >= 95% of registered hooks have at least 1 test case",
+            "Integration test: hook pipeline fires in correct order for a multi-parameter operation"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill/kc-hook-validation.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "blocking hook failures > 5"
+            ],
+            "rollback_procedure": "Fix failing hooks in relevant domain hook files"
+          }
+        },
+        {
+          "id": "U-HKC49",
+          "title": "Physics Mapping E2E Validation — pipeline recommendation tests",
+          "description": "Run end-to-end recommendation pipeline tests: (1) input a material + tool + machine + operation type, (2) look up all relevant parameters from catalog, (3) compute physics-optimal values via PhysicsMappingRegistry, (4) verify outputs are within parameter ranges, (5) verify outputs are physically reasonable (e.g., feed rate for steel endmill should be 0.05-0.15 mm/tooth). Test 10 representative scenarios: pocket in P-steel, 3D finish in S-titanium, drilling in K-cast iron, turning in H-hardened steel, 5-axis impeller in N-aluminum, and 5 more.",
+          "depends_on": [
+            "U-HKC48"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "10 E2E recommendation scenarios all produce physically reasonable values",
+            "All recommended values fall within parameter schema ranges",
+            "Recommendation confidence levels match expected ranges per material difficulty",
+            "Pipeline response time < 500ms per parameter set (performance benchmark)",
+            "Final KC track status report generated with all metrics"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill/kc-e2e-recommendation.test.ts",
+              "data/hypermill/KC_TRACK_STATUS_REPORT.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "E2E test failures > 2"
+            ],
+            "rollback_procedure": "Fix failing mappings in PhysicsMappingRegistry"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 95% hook test pass rate | ✓ 10 E2E scenarios pass | ✓ < 500ms pipeline latency | ✓ KC status report | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "artifactIntegrityValidator"
+        ],
+        "new_actions": [
+          "validate_hm_kc_artifacts"
+        ],
+        "new_skills": [
+          "/hypermill-kc-status"
+        ],
+        "available_to": [
+          "HM-KC-MS10"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS9-S3",
+      "title": "Cross-Domain Consistency + Regression Suite + Performance",
+      "smart_config": {
+        "role": "qa-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "All validation results from S1 + S2",
+        "Cross-domain parameter relationships",
+        "Existing test suite patterns"
+      ],
+      "intent": "Run cross-domain consistency checks (parameter names unique across domains, physics mappings consistent across related parameters, hook priorities correct). Build permanent regression test suite. Performance benchmark the full catalog lookup and recommendation pipeline.",
+      "skills": [
+        "/test",
+        "/forge-tests",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC50",
+          "title": "Cross-Domain Consistency + Regression Suite + Performance Benchmark",
+          "description": "Cross-domain checks: (1) no duplicate parameter IDs across domains, (2) linked parameters (e.g., clearance_plane in fixture domain matches clearance_plane in linking domain) have consistent ranges, (3) physics mappings for the same physical quantity (e.g., spindle_speed) use the same engine across all cycle types. Build regression test suite that can be run on every build. Performance benchmark: measure catalog lookup time, physics computation time, and full recommendation pipeline throughput.",
+          "depends_on": [
+            "U-HKC46",
+            "U-HKC47",
+            "U-HKC48",
+            "U-HKC49"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zero duplicate parameter IDs across all domains",
+            "Linked parameters have consistent ranges (< 5% variance)",
+            "Same-quantity physics mappings use same engine (100% consistency)",
+            "Regression test suite has >= 50 test cases covering all 8 domains",
+            "Catalog lookup: < 10ms per parameter, Recommendation pipeline: < 500ms per operation"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill/kc-regression-suite.test.ts",
+              "data/hypermill/KC_PERFORMANCE_BENCHMARK.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "duplicate IDs found",
+              "regression tests fail"
+            ],
+            "rollback_procedure": "Fix inconsistencies in relevant domain schema and mapping files"
+          }
+        }
+      ],
+      "exit_gate": "✓ zero cross-domain inconsistencies | ✓ >= 50 regression tests | ✓ performance within targets | ✓ KC track COMPLETE | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS10"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms9-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms9_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms9"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Verify all artifacts generated across KC-0 through KC-8: ~8,163 parameter schemas validate with Zod, ~8,163 skill templates render correctly, ~8,163 AC Python setter scripts are syntactically valid, ~500 safety hooks fire correctly, and ~8,163 physics mappings produce reasonable recommendations. Includes cross-domain consistency checks, regression testing, and performance benchmarking of the recommendation pipeline.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS9 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS9. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

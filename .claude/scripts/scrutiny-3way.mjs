@@ -52,6 +52,11 @@
  * Authored: 2026-05-05 (claude-66471c04, CAD-COMPLETE-MS0 wrap-up).
  * Reworked: 2026-05-12 — Gemini→Claude-B swap.
  * Reworked: 2026-05-13 — Codex→Claude-C swap (user directive: "claude prism agents only").
+ * Extended: 2026-05-18 — advisory Codex CLI review arm added (--codex-review
+ *   subcommand + runCodexReview()). NON-GATE: it runs in parallel with the
+ *   three Claude agents, surfaces an independent verdict, and degrades to
+ *   "skipped" on any Codex failure (quota/auth/offline/hang). The strict
+ *   3-of-3 ledger contract is unchanged — Codex never marks the ledger.
  */
 
 import { spawn, execFileSync, execSync } from "node:child_process";
@@ -59,6 +64,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { recordScrutiny, getEntry, parseVerdictLine, isCleared } from "../helpers/scrutiny-ledger.mjs";
+import { slotForGalaxy } from "../../scripts/lib/slot-galaxy-map.mjs";
 
 const STABLE_SESSION_HELPER_TIMEOUT_MS = 2000;
 
@@ -98,6 +104,25 @@ function resolveNpx() {
   }
   return "npx";
 }
+
+/**
+ * Resolve the Codex CLI binary for the advisory review arm. Mirrors
+ * resolveNpx(): $PRISM_CODEX_BIN wins, then a Windows-friendly default (npm
+ * installs `codex` into the Node prefix, H:\Tools\nodejs\, which is not always
+ * on PATH), then bare `codex.cmd` / `codex` on PATH. The arm is advisory — an
+ * unresolvable binary just yields a graceful "skipped", never a blocked gate.
+ */
+function resolveCodex() {
+  if (process.env.PRISM_CODEX_BIN) return process.env.PRISM_CODEX_BIN;
+  if (process.platform === "win32") {
+    const winDefault = "H:\\Tools\\nodejs\\codex.cmd";
+    try {
+      if (fs.existsSync(winDefault)) return winDefault;
+    } catch { /* fall through */ }
+    return "codex.cmd";
+  }
+  return "codex";
+}
 const CODEX_BIN = process.env.CODEX_BIN ?? resolveNpx();
 // Prompt is delivered via stdin, NOT argv. `codex exec` with no positional
 // argument reads from stdin. Keeping args small also avoids the Windows
@@ -124,9 +149,37 @@ const PREFLIGHT_MODE = (process.env.PRISM_SCRUTINY_PREFLIGHT ?? "parallel").toLo
 const PREFLIGHT_ENABLED = PREFLIGHT_MODE !== "0" && PREFLIGHT_MODE !== "off" && PREFLIGHT_MODE !== "false";
 const PREFLIGHT_GATE = PREFLIGHT_MODE === "gate";
 const PREFLIGHT_URL = process.env.PRISM_SCRUTINY_PREFLIGHT_URL ?? "http://127.0.0.1:11434/api/generate";
-const PREFLIGHT_MODEL = process.env.PRISM_SCRUTINY_PREFLIGHT_MODEL ?? "deepseek-r1:14b";
+const PREFLIGHT_MODEL = process.env.PRISM_SCRUTINY_PREFLIGHT_MODEL ?? "qwen2.5-coder:32b";
 const PREFLIGHT_TIMEOUT_MS = Number(process.env.PRISM_SCRUTINY_PREFLIGHT_TIMEOUT_MS) || 90_000; // 90s — deepseek-r1 reasoning takes time
 const PREFLIGHT_MAX_PROMPT_BYTES = 60_000; // tighter than cloud — local context window pressure
+
+// ── Advisory Codex CLI review arm (2026-05-18) ──────────────────────────────
+// `codex review` reviews the working tree directly — no diff is piped to it,
+// so the 80 KB stdin-truncation false-FAIL that retired the 2026-05-13 Codex
+// gate arm cannot recur. This arm is ADVISORY: it never marks the 3-of-3
+// ledger; any Codex failure (quota / auth / offline / hang) yields "skipped".
+// Default ON — PRISM_SCRUTINY_CODEX=off|0|false|no disables it.
+const CODEX_ARM_MODE = String(process.env.PRISM_SCRUTINY_CODEX ?? "on").toLowerCase();
+const CODEX_ARM_ENABLED = !["0", "off", "false", "no"].includes(CODEX_ARM_MODE);
+const CODEX_REVIEW_BIN = resolveCodex();
+const CODEX_REVIEW_TIMEOUT_MS = Number(process.env.PRISM_SCRUTINY_CODEX_TIMEOUT_MS) || 360_000; // 6 min — codex review of a real diff takes minutes; hard-kill backstop
+const CODEX_REVIEW_EFFORT = process.env.PRISM_SCRUTINY_CODEX_EFFORT ?? "medium";
+// Custom review instructions piped to `codex review -` via stdin. Mandates the
+// same VERDICT contract the other arms use so parseVerdictLine() parses it.
+const CODEX_REVIEW_INSTRUCTIONS = [
+  "You are a strict code reviewer for the PRISM manufacturing-intelligence platform.",
+  "Review the uncommitted changes (or the named commit) in this repository against these criteria:",
+  "  1. No stub engines, TODOs, or placeholder returns",
+  "  2. Tests use concrete assertions (no toBeDefined()/toBeTruthy() blanket stubs)",
+  "  3. >=3 failure modes covered for any new engine",
+  "  4. Physics constants imported from src/physics/constants.ts (never inlined)",
+  "  5. New engines wired to every dispatcher that would naturally consume them",
+  "  6. No floating promises, no any-spread anti-patterns, no silent breakage of peer modules",
+  "",
+  "Your response MUST begin with exactly one line: 'VERDICT: PASS' or 'VERDICT: FAIL'.",
+  "Then list specific issues, one per line, each prefixed 'BLOCKER:'. Then <=5 notes lines.",
+  "If unsure between PASS and FAIL, choose FAIL.",
+].join("\n");
 
 const DEFAULT_MAX_DIFF_BYTES = 80_000;     // truncate huge diffs so providers don't OOM
 const MAX_DIFF_BYTES = (() => {
@@ -136,6 +189,11 @@ const MAX_DIFF_BYTES = (() => {
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_MAX_DIFF_BYTES;
 })();
 const MAX_OUTPUT_PEEK = 8_000;     // stored in ledger notes
+
+// Refname allowlist for a review `target` (commit-ish / branch). Shared by
+// captureDiff() and runCodexReview() so the two target consumers cannot drift
+// — a target reaching an argv must satisfy this (no shell metacharacters).
+const VALID_TARGET_RE = /^[A-Za-z0-9._/-]+$/;
 
 // `git diff` timeout. The old value (8 s) was too short on this repo — with
 // 7 000+ uncommitted files in the working tree, `git diff HEAD` routinely
@@ -200,6 +258,7 @@ function parseArgs(argv) {
     notes: "",
     blockers: "",
     status: false,
+    codexReview: false,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -230,6 +289,7 @@ function parseArgs(argv) {
     else if (a === "--blockers") out.blockers = argv[++i] || "";
     else if (a.startsWith("--blockers=")) out.blockers = a.slice("--blockers=".length);
     else if (a === "--status") out.status = true;
+    else if (a === "--codex-review") out.codexReview = true;
   }
   return out;
 }
@@ -246,7 +306,7 @@ function captureDiff(target, maxBytes = MAX_DIFF_BYTES) {
     } else if (target === "HEAD") {
       args = ["show", "HEAD", "--no-color"];
     } else {
-      if (!/^[A-Za-z0-9._/-]+$/.test(target)) {
+      if (!VALID_TARGET_RE.test(target)) {
         return {
           text: `[scrutiny-3way: target "${String(target)}" rejected — must match /^[A-Za-z0-9._\\/-]+$/]`,
           truncated: false,
@@ -482,6 +542,156 @@ async function runOllamaPreflight(prompt, opts = {}) {
   }
 }
 
+/**
+ * Advisory Codex CLI review arm. Spawns `codex exec review` against the
+ * working tree (or a commit) and parses its VERDICT line. ADVISORY ONLY —
+ * like runOllamaPreflight(), it never marks the strict 3-of-3 ledger.
+ *
+ * Failure handling is the whole reason this is advisory: a spawn error,
+ * non-zero exit, empty output, timeout, or any quota/auth/network signature
+ * resolves to verdict:"skipped" — never a "fail" an operator could mistake
+ * for a real code blocker. Codex's CLI quota/offline failures are exactly
+ * why it was retired as a gate arm 2026-05-13; here they degrade silently
+ * and the strict 3-of-3 Claude gate is wholly unaffected.
+ *
+ * Returns the runOllamaPreflight() shape so downstream output is uniform:
+ *   { provider, verdict, blockers, notes, durationMs, skipped, rawOutputPeek? }
+ *
+ * @param {string} target  "" / "diff" → review uncommitted; "HEAD" or a sha →
+ *                          review that commit (mirrors captureDiff semantics).
+ * @param {object} opts     test seam — { enabled, bin, timeoutMs, effort,
+ *                          instructions, spawnImpl }.
+ */
+async function runCodexReview(target, opts = {}) {
+  const start = Date.now();
+  const enabled = opts.enabled ?? CODEX_ARM_ENABLED;
+  const bin = opts.bin ?? CODEX_REVIEW_BIN;
+  const timeoutMs = opts.timeoutMs ?? CODEX_REVIEW_TIMEOUT_MS;
+  const effort = opts.effort ?? CODEX_REVIEW_EFFORT;
+  const instructions = opts.instructions ?? CODEX_REVIEW_INSTRUCTIONS;
+  const spawnImpl = opts.spawnImpl ?? spawn;
+  const skip = (notes) => ({
+    provider: "codex-review",
+    verdict: "skipped",
+    blockers: "",
+    notes,
+    durationMs: Date.now() - start,
+    skipped: true,
+  });
+  if (!enabled) {
+    // Mirror runOllamaPreflight's disabled return exactly (durationMs 0).
+    return {
+      provider: "codex-review",
+      verdict: "skipped",
+      blockers: "",
+      notes: "codex arm disabled (PRISM_SCRUTINY_CODEX=off)",
+      durationMs: 0,
+      skipped: true,
+    };
+  }
+  // Reject an unsafe target before it reaches the codex argv — same refname
+  // allowlist captureDiff() applies to its `git show` argv (shared VALID_TARGET_RE
+  // so the two consumers cannot drift). Load-bearing: the --codex-review
+  // subcommand calls runCodexReview() directly, BEFORE captureDiff()'s own
+  // validation would run, and on Windows the shell:true .cmd path re-tokenizes
+  // argv through cmd.exe where metacharacters would be live.
+  if (target && target !== "diff" && !VALID_TARGET_RE.test(target)) {
+    return skip(`[codex-review: target "${String(target).slice(0, 60)}" rejected — must match ${String(VALID_TARGET_RE)}]`);
+  }
+
+  // `codex review` reads the working tree itself — no piped diff, no 80 KB cap.
+  const scopeArgs = (!target || target === "diff")
+    ? ["--uncommitted"]
+    : ["--commit", target];
+  const args = [
+    "exec", "review",
+    ...scopeArgs,
+    "--skip-git-repo-check",
+    "-c", `model_reasoning_effort="${effort}"`,
+    "-", // read the custom review instructions from stdin
+  ];
+
+  return await new Promise((resolve) => {
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+    const done = (result) => { if (!settled) { settled = true; resolve(result); } };
+
+    let child;
+    try {
+      // Windows .cmd shim needs shell:true (modern Node refuses direct spawn).
+      const useShell = process.platform === "win32" && /\.(cmd|bat)$/i.test(bin);
+      child = spawnImpl(bin, args, {
+        stdio: ["pipe", "pipe", "pipe"],
+        windowsHide: true,
+        shell: useShell,
+      });
+    } catch (err) {
+      done(skip(`[codex-review: spawn failed — ${String(err?.message ?? err).slice(0, 200)}]`));
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      try { child.kill(); } catch { /* already gone */ }
+      done(skip(`[codex-review: timeout after ${timeoutMs}ms — codex review did not finish; advisory arm skipped]`));
+    }, timeoutMs);
+
+    child.stdout?.on("data", (d) => { stdout += d.toString(); });
+    child.stderr?.on("data", (d) => { stderr += d.toString(); });
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      done(skip(`[codex-review: child error — ${String(err?.message ?? err).slice(0, 200)}]`));
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      const text = stdout.trim();
+      // Environmental failure → advisory skip (NOT a "fail" that reads as a
+      // real code blocker). Quota / auth / network are env-broken, not
+      // code-broken. Classified from stderr ONLY — Codex's review *output*
+      // (stdout) may legitimately mention "rate limit" / "429" when reviewing
+      // such code; matching stdout would false-skip a real verdict.
+      if (/exhausted your daily|usage limit reached|rate.?limit(ed)?|too many requests|\b429\b|TerminalQuotaError|not logged in|unauthoriz|invalid (api )?key|ECONNREFUSED|ENOTFOUND|EAI_AGAIN|ETIMEDOUT|EPIPE/i.test(stderr)) {
+        done(skip(`[codex-review: ENV_FAIL — codex quota/auth/network (exit ${code}); advisory arm skipped. stderr: ${stderr.slice(0, 240)}]`));
+        return;
+      }
+      const { verdict: parsed, firstLine } = parseVerdictLine(text);
+      if (!parsed) {
+        // Codex produced no parseable VERDICT line — advisory no-signal, NOT a
+        // block. A real gate arm defaults missing-VERDICT to FAIL; an advisory
+        // arm has nothing to assert, so it abstains via "skipped".
+        done(skip(`[codex-review: no VERDICT line (exit ${code}); advisory no-signal. firstLine="${firstLine.slice(0, 120)}"]`));
+        return;
+      }
+      const blockers = text
+        .split(/\r?\n/)
+        .filter((l) => /^BLOCKER:/i.test(l.trim()))
+        .map((l) => l.trim())
+        .join("\n");
+      done({
+        provider: "codex-review",
+        verdict: parsed,
+        blockers,
+        notes: `[codex-review ${Date.now() - start}ms, exit ${code}]`,
+        durationMs: Date.now() - start,
+        skipped: false,
+        rawOutputPeek: text.slice(0, MAX_OUTPUT_PEEK),
+      });
+    });
+
+    // Prompt via stdin (the `-` arg) — newline-safe and immune to the Windows
+    // 8191-char cmd-line limit when shell:true wraps the .cmd shim. The stdin
+    // 'error' listener swallows the async EPIPE/destroyed-stream error that
+    // fires when a write races a child that already exited (e.g. the timeout
+    // killed it) — without it that error would escalate to an unhandled
+    // exception in the very subprocess that feeds the fleet-wide Stop gate.
+    child.stdin?.on("error", () => { /* destroyed-stream write race — non-fatal */ });
+    try {
+      child.stdin?.write(instructions);
+      child.stdin?.end();
+    } catch { /* some codex builds read prompt from argv — non-fatal */ }
+  });
+}
+
 function buildPromptForCLI(diffInfo, target) {
   const targetLabel = target ? `commit ${target}` : "uncommitted changes";
   const truncationWarning = diffInfo.truncated
@@ -574,6 +784,59 @@ function buildClaudeReviewerPrompt(diffInfo, target, arm = "A") {
   ].join("\n");
 }
 
+// ---- Advisory DOMAIN-EXPERT arm (2026-07-01) -------------------------------
+// Resolve the galaxy(ies) a diff touches from its changed engine paths, so a
+// galaxy-specific diff ALSO gets a domain-soul reviewer for DOMAIN correctness the
+// generic arms (A/B) do not carry. Pure + string-only: emits a prompt + a
+// <slot>-<galaxy> subagent_type; this script NEVER spawns the domain agent (zero
+// runtime surface, so deadlock-impossible) and NEVER marks the ledger (advisory,
+// mirrors the Codex arm). No galaxy resolved => { agent:null } => skipped.
+const ENGINE_PATH_RE = /^[+-]{3}\s+[ab]\/mcp-server\/src\/engines\/([A-Za-z0-9_-]+)\//;
+function galaxiesInDiff(diffText) {
+  const found = [];
+  const seen = new Set();
+  for (const line of String(diffText).split(/\r?\n/)) {
+    const m = ENGINE_PATH_RE.exec(line);
+    if (!m) continue;
+    const galaxy = m[1];
+    const owner = slotForGalaxy(galaxy); // {slot, source} -- source:"map" only for a real owner
+    if (owner.source !== "map" || !owner.slot) continue; // fallback/none => not domain-owned => skip
+    if (seen.has(galaxy)) continue;
+    seen.add(galaxy);
+    found.push({ galaxy, slot: owner.slot });
+  }
+  return found;
+}
+function resolveDomainExpert(diffText) {
+  const hits = galaxiesInDiff(diffText);
+  if (hits.length === 0) return { agent: null, galaxies: [], prompt: null, reason: "no-galaxy-in-diff" };
+  const primary = hits[0]; // first-touched, insertion-stable
+  const agent = `${primary.slot}-${primary.galaxy}`; // e.g. delta-cad, kilo-cam
+  const galaxies = hits.map((h) => h.galaxy);
+  const otherGalaxies = galaxies.slice(1);
+  const prompt = [
+    `You are the ${primary.galaxy} DOMAIN EXPERT reviewing a PRISM diff for DOMAIN CORRECTNESS -- the axis the generic reviewers (A/B) do not carry.`,
+    `You carry the ${primary.slot} slot soul; obey your galaxy's CLAUDE.md/MEMORY.md doctrine and refuse-list.`,
+    otherGalaxies.length
+      ? `This diff also touches: ${otherGalaxies.join(", ")}. Flag any cross-galaxy contract, but focus on ${primary.galaxy}.`
+      : `This diff is scoped to the ${primary.galaxy} galaxy.`,
+    "",
+    "Weight your attention toward DOMAIN axes the generic reviewers under-emphasize:",
+    "  1. Domain correctness -- physics/units/formulas/constants right for THIS galaxy (imported from canonical sources, never inlined)",
+    "  2. Domain-specific safety -- this galaxy's refuse-list + hard rails not softened or bypassed",
+    "  3. Domain conventions -- reads like the surrounding galaxy code; canonical dispatchers/engines used, not reinvented",
+    "  4. Domain evidence -- every existence/behavior claim cited file:line, not asserted bare (R12)",
+    "",
+    "First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'. Then BLOCKER: lines, then notes (<=5 lines).",
+    "This verdict is ADVISORY -- it informs the summary but does NOT mark the gate. If unsure, choose FAIL.",
+    "",
+    "--- DIFF ---",
+    diffText,
+    "--- END DIFF ---",
+  ].join("\n");
+  return { agent, galaxies, prompt, reason: "resolved" };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const projectRoot = (() => {
@@ -593,6 +856,21 @@ async function main() {
     const sid = findStableSessionId(args.sessionId);
     const entry = getEntry(sid);
     console.log(JSON.stringify(entry ? { sessionId: sid, ...entry } : { sessionId: sid, status: "no-entry" }, null, 2));
+    return;
+  }
+
+  // Sub-command: --codex-review — run the advisory Codex CLI review arm and
+  // print its verdict. ADVISORY: does NOT touch the 3-of-3 ledger. The chat
+  // runs this in parallel with dispatching the three Claude reviewer agents.
+  if (args.codexReview) {
+    const r = await runCodexReview(args.target);
+    console.log(JSON.stringify({
+      ok: true,
+      mode: "codex-review-arm",
+      advisory: true,
+      target: args.target || "(uncommitted)",
+      ...r,
+    }, null, 2));
     return;
   }
 
@@ -700,7 +978,7 @@ async function main() {
           durationMs: preflightResult.durationMs,
         },
         nextStep:
-          "Local pre-flight reviewer (deepseek-r1:14b) flagged blockers BEFORE the three Claude arms were dispatched. " +
+          "Local pre-flight reviewer (qwen2.5-coder:32b) flagged blockers BEFORE the three Claude arms were dispatched. " +
           "Review BLOCKER lines, fix, and re-run. To override and force the Claude trio anyway: " +
           "--skip preflight, or PRISM_SCRUTINY_PREFLIGHT=parallel for advisory-only mode.",
         consensus: "preflight-blocked — Claude-reviewer dispatch deferred (token cost saved)",
@@ -720,6 +998,35 @@ async function main() {
   // ledger auto-record happens here; the chat invokes
   // --mark-opus / --mark-claude / --mark-analyst after the Agent tool returns.
   const sessionId = findStableSessionId(args.sessionId);
+
+  // Advisory Codex arm command — the chat runs this in parallel with the three
+  // Claude reviewer agents. null when PRISM_SCRUTINY_CODEX=off.
+  // Defense in depth: only interpolate args.target into the emitted command
+  // string when it satisfies VALID_TARGET_RE. main() already bails via
+  // captureDiff() on a bad target before reaching here, but this guard means
+  // the emitted shell command can never carry an unvalidated target.
+  const codexReviewCommand = (CODEX_ARM_ENABLED && (!args.target || VALID_TARGET_RE.test(args.target)))
+    ? `node .claude/scripts/scrutiny-3way.mjs --codex-review${args.target ? ` --target ${args.target}` : ""} --session-id ${sessionId}`
+    : null;
+
+  // Advisory HERMES-SOUL arm (OCTOPUS-SCRUTINY-SOULS Part B, 2026-06-30): 5 DISTINCT scrutiny souls
+  // (correctness-hawk / security-skeptic / test-integrity / regression-hunter / convention-enforcer)
+  // review the diff IN PARALLEL via the Hermes (NVIDIA) lane -- $0/off-Claude review DIVERSITY the 3
+  // Claude arms might miss. ADVISORY ONLY: never marks the 3-of-3 ledger, never blocks (R7). Default on;
+  // PRISM_SCRUTINY_HERMES_SOULS=off|0|false|no disables. Same target-validation guard as the codex arm.
+  const HERMES_SOULS_ENABLED = !["off", "0", "false", "no"].includes(String(process.env.PRISM_SCRUTINY_HERMES_SOULS ?? "on").toLowerCase());
+  const hermesSoulReviewCommand = (HERMES_SOULS_ENABLED && (!args.target || VALID_TARGET_RE.test(args.target)))
+    ? `node scripts/scrutiny-hermes-souls.mjs --target ${args.target || "HEAD"} --json`
+    : null;
+
+  // Advisory DOMAIN-EXPERT arm (2026-07-01): resolve the galaxy(ies) the diff touches and
+  // -- ONLY when a mapped galaxy resolves -- emit a domain-soul reviewer prompt + the
+  // <slot>-<galaxy> subagent_type. ADVISORY: never marks the ledger; {agent:null} => skipped
+  // (mirrors the Codex arm). Default on; PRISM_SCRUTINY_DOMAIN_EXPERT=off|0|false|no disables.
+  const DOMAIN_EXPERT_ENABLED = !["off", "0", "false", "no"].includes(String(process.env.PRISM_SCRUTINY_DOMAIN_EXPERT ?? "on").toLowerCase());
+  const domainReview = DOMAIN_EXPERT_ENABLED
+    ? resolveDomainExpert(diffInfo.text)
+    : { agent: null, galaxies: [], prompt: null, reason: "disabled" };
 
   const out = {
     ok: true,
@@ -745,18 +1052,46 @@ async function main() {
     opusReviewerPrompt: opusPrompt,        // arm A — holistic acceptance criteria
     opusReviewerPromptB: opusPromptB,      // arm B — independent (test/wiring/constants/scope)
     analystReviewerPrompt: analystPrompt,  // arm C — analyst (silent breakage / regression risk / I/O security)
+    // Advisory Codex CLI arm — run in parallel with the three Claude agents.
+    // Its verdict is signal, NOT a gate: it never marks the 3-of-3 ledger.
+    // null when PRISM_SCRUTINY_CODEX=off.
+    codexReviewCommand,
+    // Advisory Hermes-soul arm: 5 distinct scrutiny souls review the diff $0/off-Claude via the
+    // NVIDIA Hermes lane (review diversity). Signal, NOT a gate. null when PRISM_SCRUTINY_HERMES_SOULS=off.
+    hermesSoulReviewCommand,
+    // Advisory DOMAIN-EXPERT arm (2026-07-01): a galaxy domain-soul reviews the diff for DOMAIN
+    // correctness -- emitted ONLY when the diff touches a mapped galaxy. Signal, NOT a gate: never
+    // marks the ledger. null prompt/agent => skipped (no galaxy resolved or arm disabled).
+    domainReviewerPrompt: domainReview.prompt,
+    domainReviewerAgent: domainReview.agent,
+    domainReviewGalaxies: domainReview.galaxies,
+    domainReviewSkipped: domainReview.agent === null,
     nextStep:
-      "Dispatch THREE Claude PRISM agents in this chat, in parallel:\n" +
-      "  Agent({ subagent_type: 'reviewer',      description: 'Review session diff (3way reviewer A)',                 prompt: <opusReviewerPrompt above> })\n" +
-      "  Agent({ subagent_type: 'reviewer',      description: 'Review session diff (3way reviewer B — independent)',   prompt: <opusReviewerPromptB above> })\n" +
-      "  Agent({ subagent_type: 'code-analyzer', description: 'Review session diff (3way reviewer C — analyst)',       prompt: <analystReviewerPrompt above> })\n" +
-      "When they return, record all three verdicts (use 'fail' instead of 'pass' for any FAIL):\n" +
-      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus    pass --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
-      `  node .claude/scripts/scrutiny-3way.mjs --mark-claude  pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
-      `  node .claude/scripts/scrutiny-3way.mjs --mark-analyst pass --session-id ${sessionId} --notes "<reviewer C summary>"\n` +
-      "  (legacy aliases: --mark-opus-b / --mark-gemini → arm B; --mark-codex → arm C.)\n" +
-      "The Stop hook releases only once arms A + B + C are all PASS (strict 3-of-3, all Claude).",
-    consensus: "three Claude arms pending chat dispatch — no auto-recorded arm in the redesigned 3-of-3 (codex retired 2026-05-13)",
+      "Dispatch BOTH required Claude PRISM agents in this chat, in parallel (2-of-2 gate per 2026-05-20):\n" +
+      "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (2way reviewer A)',               prompt: <opusReviewerPrompt above> })\n" +
+      "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (2way reviewer B — independent)', prompt: <opusReviewerPromptB above> })\n" +
+      "  (Optional advisory: Agent({ subagent_type: 'code-analyzer', ... prompt: <analystReviewerPrompt> }) — does NOT block the gate.)\n" +
+      (codexReviewCommand
+        ? "Also optional — advisory Codex review arm (Bash):\n" +
+          `  ${codexReviewCommand}\n` +
+          "  Its verdict is advisory — fold it into your summary; it does NOT mark the gate.\n"
+        : "") +
+      (hermesSoulReviewCommand
+        ? "Also optional -- advisory Hermes-SOUL arm (Bash, $0/off-Claude, 5 distinct review souls):\n" +
+          `  ${hermesSoulReviewCommand}\n` +
+          "  Returns {grade, results:[{soul,verdict}]}; fold the soul concerns into your summary. Advisory -- does NOT mark the gate.\n"
+        : "") +
+      (domainReview.agent
+        ? "Also optional -- advisory DOMAIN-EXPERT arm (Agent tool), the galaxy domain-soul for domain correctness:\n" +
+          `  Agent({ subagent_type: '${domainReview.agent}', description: 'Domain review (${domainReview.galaxies.join(",")})', prompt: <domainReviewerPrompt above> })\n` +
+          "  Its verdict is advisory -- fold it into your summary; it does NOT mark the gate.\n"
+        : "") +
+      "When the two required agents return, record both verdicts (use 'fail' instead of 'pass' for any FAIL):\n" +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus   pass --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
+      "  (legacy aliases: --mark-opus-b / --mark-gemini → arm B. Arm C --mark-analyst is OPTIONAL — only record if you ran the advisory analyst pass.)\n" +
+      "The Stop hook releases once arms A + B are both PASS (strict 2-of-2, both Claude).",
+    consensus: "two Claude arms pending chat dispatch — arm C demoted to advisory 2026-05-20 per user directive",
   };
   console.log(JSON.stringify(out, null, 2));
 }
@@ -783,6 +1118,9 @@ if (isCliEntry) {
 // + the env-config readback so tests can verify mode parsing.
 export {
   runOllamaPreflight,
+  runCodexReview,
+  CODEX_ARM_MODE,
+  CODEX_ARM_ENABLED,
   PREFLIGHT_MODE,
   PREFLIGHT_ENABLED,
   PREFLIGHT_GATE,

@@ -365,7 +365,7 @@ export class ImpellerCADEngine {
     }, "Hub meridional sketch", idx++));
 
     // Spline through hub profile points
-    const hubSplinePoints = hubProfile.map(p => [p.z, p.r, 0]);
+    const hubSplinePoints: ReadonlyArray<number> = hubProfile.flatMap(p => [p.z, p.r, 0]);
     ops.push(this.makeOp("sketch_spline", {
       points: hubSplinePoints,
       closed: false,
@@ -428,7 +428,7 @@ export class ImpellerCADEngine {
       name: `${spec.id}_shroud_sketch`,
     }, "Shroud meridional sketch", idx++));
 
-    const shroudSplinePoints = shroudProfile.map(p => [p.z, p.r, 0]);
+    const shroudSplinePoints: ReadonlyArray<number> = shroudProfile.flatMap(p => [p.z, p.r, 0]);
     ops.push(this.makeOp("sketch_spline", {
       points: shroudSplinePoints,
       closed: false,
@@ -565,7 +565,7 @@ export class ImpellerCADEngine {
 
     // Create 3D spline for blade curve
     ops.push(this.makeOp("sketch_spline", {
-      points: curvePoints,
+      points: curvePoints.flat() as ReadonlyArray<number>,
       closed: false,
       name: `${name}_curve`,
     }, `Blade curve: ${name}`, idx++));
@@ -611,7 +611,7 @@ export class ImpellerCADEngine {
 
       // Hub curve for splitter
       ops.push(this.makeOp("sketch_spline", {
-        points: shortenedHub.map((p, i) => {
+        points: shortenedHub.flatMap((p, i) => {
           const t = i / (shortenedHub.length - 1);
           const theta = baseAngle + wrapRad * t;
           return [
@@ -619,14 +619,14 @@ export class ImpellerCADEngine {
             round4(p.r * Math.sin(theta)),
             round4(p.z),
           ];
-        }),
+        }) as ReadonlyArray<number>,
         closed: false,
         name: `${splitterId}_hub_curve`,
       }, `Splitter ${s + 1} hub curve`, idx++));
 
       // Shroud curve for splitter
       ops.push(this.makeOp("sketch_spline", {
-        points: shortenedShroud.map((p, i) => {
+        points: shortenedShroud.flatMap((p, i) => {
           const t = i / (shortenedShroud.length - 1);
           const theta = baseAngle + wrapRad * t;
           return [
@@ -634,7 +634,7 @@ export class ImpellerCADEngine {
             round4(p.r * Math.sin(theta)),
             round4(p.z),
           ];
-        }),
+        }) as ReadonlyArray<number>,
         closed: false,
         name: `${splitterId}_shroud_curve`,
       }, `Splitter ${s + 1} shroud curve`, idx++));

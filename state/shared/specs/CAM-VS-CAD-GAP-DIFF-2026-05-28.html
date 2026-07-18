@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="83d7525cbe90b3b5779580f20cc901f120228b5e22b528cf67540fa1eed0430e">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAM-vs-CAD Gap Diff</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CAM-vs-CAD Gap Diff</h1>
+<div class="meta">rendered from state/shared/specs/CAM-VS-CAD-GAP-DIFF-2026-05-28.md</div>
+<div class="meta">Generated 2026-05-28T01:39:45.976Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">CAM-vs-CAD gap diff — what kilo&#39;s CAM assessment missed that delta&#39;s CAD assessment covers</li><li class="prism-toc-l2">1. Delta&#39;s CAD methodology has rigor my CAM assessment lacks</li><li class="prism-toc-l2">2. Concrete gaps the operator should fund as follow-up units</li><li class="prism-toc-l2">3. What&#39;s NOT a gap (delta-correct, I had covered)</li><li class="prism-toc-l2">4. Why delta&#39;s pattern matters for kilo</li><li class="prism-toc-l2">5. Operator triage proposal</li><li class="prism-toc-l2">6. What was fixed THIS session (post-scrutiny)</li><li class="prism-toc-l2">7. Doctrine-compliance check against delta&#39;s pattern</li><li class="prism-toc-l2">See also</li></ul></nav><h1 class="prism-h1">CAM-vs-CAD gap diff — what kilo&#39;s CAM assessment missed that delta&#39;s CAD assessment covers</h1>
+<blockquote class="prism-quote"><strong>Author:</strong> claude-ea0ff1a5 (slot <strong>kilo</strong>, 2026-05-28)</blockquote>
+<blockquote class="prism-quote"><strong>Trigger:</strong> operator follow-up — <em>&quot;pull up delta&#39;s chat to see how it assessed what else we needed to build for cad before testing, I assume we didn&#39;t cover everything for cam.&quot;</em></blockquote>
+<blockquote class="prism-quote"><strong>Method:</strong> read delta&#39;s <code class="prism-inline-code">CAD-PIPELINE-AUDIT-2026-05-20.md</code>, <code class="prism-inline-code">HYPERCAD-TEST-PLAYBOOK-2026-05-20.md</code>, <code class="prism-inline-code">PRINT-TO-CAD-HANDOFF-CONTRACT-2026-05-27.md</code>, <code class="prism-inline-code">cad-pipeline-coverage-LATEST.{md,json}</code>, <code class="prism-inline-code">TOPOLOGY-MATH-CAD-CAM-APPLICABILITY-2026-05-22.md</code> (first 100 LOC). Cross-walked methodology against <code class="prism-inline-code">CAM-SELF-TEACHING-PIPELINE-MS0-ASSESSMENT.md</code>.</blockquote>
+<blockquote class="prism-quote"><strong>Status:</strong> advisory — every gap below is a candidate follow-up unit. Operator triages which land in MS0 vs MS1.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. Delta&#39;s CAD methodology has rigor my CAM assessment lacks</h2>
+<p>Delta built a <strong>re-runnable coverage scorer</strong> (<code class="prism-inline-code">scripts/cad-pipeline-coverage-scorer.mjs</code>) BEFORE making any &quot;X% built&quot; claim. The scorer:</p>
+<ul class="prism-md-list"><li>Scores every (platform × stage) cell with raw + <strong>normalized</strong> score (engine-count cap so high-engine-count platforms don&#39;t over-credit).</li><li>Tracks <strong><code class="prism-inline-code">bridgeKind</code></strong>: <code class="prism-inline-code">socket</code> (independent process) vs <code class="prism-inline-code">in-host</code> (plugin requires app running) vs <code class="prism-inline-code">none</code>.</li><li>Tracks <strong><code class="prism-inline-code">hasPlatformEvidence</code></strong> flag per cell — exposes the tautology where shared-engine credit makes 9/9 coverage trivially true (delta&#39;s F7 — CadQuery&#39;s &quot;9/9 stage coverage&quot; was actually 1/9 platform-specific).</li><li>Emits baseline at <code class="prism-inline-code">state/shared/specs/cad-pipeline-coverage-LATEST.{json,md}</code> for drift detection on 7-day cron.</li><li>Passed peer-reviewer FAIL → patched (normalization + bridge-kind + platform-specific-evidence) → re-published.</li></ul>
+<p><strong>My CAM assessment by contrast:</strong></p>
+<ul class="prism-md-list"><li>Prose &quot;70% already built&quot; claim — <strong>not re-runnable</strong>, not falsifiable, not tracked over time.</li><li>No bridge-kind tracking — I treat HyperMillInHostRunner (in-host) and Fusion360LiveBridge (socket :18360) as equivalent. They are not.</li><li>No platform-specific-evidence flag — I list engines as &quot;composes&quot; without marking which are CAM-specific vs platform-agnostic. F7 tautology applies.</li><li>No peer-reviewer FAIL → patch → re-publish cycle (I ran scrutiny only after the spec was written — the gap diff this doc captures is the result).</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. Concrete gaps the operator should fund as follow-up units</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Gap</th><th>Delta has</th><th>My CAM has</th><th>Follow-up unit</th></tr></thead><tbody><tr><td><strong>G1</strong></td><td>Re-runnable coverage scorer per (CAM × stage)</td><td><code class="prism-inline-code">scripts/cad-pipeline-coverage-scorer.mjs</code> (re-runs ~1 sec; baseline <code class="prism-inline-code">cad-pipeline-coverage-LATEST.{md,json}</code>)</td><td>nothing</td><td><strong><code class="prism-inline-code">U-CAM-COVERAGE-SCORER</code></strong></td></tr>
+<tr><td><strong>G2</strong></td><td>Bridge-kind tracking (socket / in-host / none)</td><td>Per-platform <code class="prism-inline-code">bridgeKind</code> column in coverage doc</td><td>implicit / conflated</td><td><strong><code class="prism-inline-code">U-CAM-BRIDGE-KIND</code></strong></td></tr>
+<tr><td><strong>G3</strong></td><td>Live-drive test playbook (Tier 1 mock → Tier 2 live → Tier 3 MCP → Tier 4 orchestrator)</td><td><code class="prism-inline-code">HYPERCAD-TEST-PLAYBOOK-2026-05-20.md</code> for hyperMILL (3 tiers); plus pre-flight + diagnostics table</td><td>nothing</td><td><strong><code class="prism-inline-code">U-CAM-TEST-PLAYBOOK</code></strong> (one per CAM system: hyperMILL ✓ already partial via HyperMillACBridge, Mastercam, Fusion 360)</td></tr>
+<tr><td><strong>G4</strong></td><td>Independent-process bridge engines for each CAM</td><td><code class="prism-inline-code">HyperMillACBridgeEngine.ts</code> (HTTP server :18365) + <code class="prism-inline-code">prism_ac</code> Python host module + <code class="prism-inline-code">cam_hypermill_drive</code> dispatcher action (op-discriminated open / geometry / operation_tree / export_step / close)</td><td>only hyperMILL — Mastercam X8 has VBScript automation surface NOT yet exposed; Fusion 360 has socket bridge per delta&#39;s audit but my pipeline didn&#39;t verify runtime</td><td><strong><code class="prism-inline-code">U-MASTERCAM-VBSCRIPT-DRIVE</code></strong>, <strong><code class="prism-inline-code">U-FUSION360-LIVE-DRIVE-VERIFY</code></strong></td></tr>
+<tr><td><strong>G5</strong></td><td>CAD ↔ CAM handoff contract</td><td><code class="prism-inline-code">PRINT-TO-CAD-HANDOFF-CONTRACT-2026-05-27.md</code> — JSON location, mandatory fields (kiloDecision.overall, unitDetection, partClassHint, expectedFeatureGraph, criticalTolerancesMustPropagate), post-generation verification gate, operator escape hatch with overrides ledger</td><td>nothing</td><td><strong><code class="prism-inline-code">U-CAD-TO-CAM-HANDOFF-CONTRACT</code></strong></td></tr>
+<tr><td><strong>G6</strong></td><td>GD&amp;T propagation Stage-2 → Stage-3 (side channel)</td><td>called out in delta&#39;s V2 spec amendment (§10 &quot;GD&amp;T propagation gap&quot;)</td><td>my CAM pipeline assumes GD&amp;T is available but does NOT define the input contract or the propagation surface</td><td><strong><code class="prism-inline-code">U-GD-T-PROPAGATION-CAD-TO-CAM</code></strong></td></tr>
+<tr><td><strong>G7</strong></td><td>First-article inspection + in-process probe trigger</td><td><code class="prism-inline-code">FirstArticleInspectionPipelineEngine</code>, <code class="prism-inline-code">CMMPathPlanningEngine</code>, <code class="prism-inline-code">ProbeRoutineGeneratorEngine</code> exist</td><td>my CAM pipeline mentioned probing as a §3 deep-assessment gap (K4) — never named the engines that exist</td><td><strong><code class="prism-inline-code">U-CAM-PROBE-CYCLE-INSERT</code></strong></td></tr>
+<tr><td><strong>G8</strong></td><td>Honest static-vs-runtime gap acknowledgment</td><td>delta F1 (MISC-305) downgraded &quot;Fusion 360 leads&quot; from PASS to OPEN-QUESTION on runtime; F2 stripped unsupported &quot;85%&quot; prose; spec explicitly notes static-scan ≠ integration</td><td>my CAM spec says &quot;70% built&quot; by composition map — I did NOT separately note that file-on-disk presence is not runtime completeness</td><td><strong>(spec amendment)</strong> — append same honest caveat to my spec</td></tr>
+<tr><td><strong>G9</strong></td><td>Topology-math grounding for CAM</td><td><code class="prism-inline-code">TOPOLOGY-MATH-CAD-CAM-APPLICABILITY-2026-05-22.md</code> — Morse-Reeb decomposition for provably-complete toolpath coverage (T2, HIGH gap); medial axis for pocket spines (T3); configuration-space topology for collision avoidance (T4) — all HIGH-value</td><td>nothing — my CAM pipeline didn&#39;t surface topology-math as a primitive layer</td><td><strong><code class="prism-inline-code">U-MORSE-REEB-TOOLPATH</code></strong>, <strong><code class="prism-inline-code">U-MEDIAL-AXIS-POCKET-SPINE</code></strong>, <strong><code class="prism-inline-code">U-CSPACE-COLLISION</code></strong> (per delta&#39;s topology doc §7 unit proposals)</td></tr>
+<tr><td><strong>G10</strong></td><td>Tier&#39;d safety gates HARD BLOCK vs advisory distinction</td><td>delta&#39;s V2 spec amendment (§10) clarifies: envelope mismatch is HARD BLOCK, not advisory</td><td>my Ω1-Ω3 safety items don&#39;t say which tier</td><td><strong>(spec amendment)</strong> — tag each safety item HARD-BLOCK or advisory</td></tr>
+<tr><td><strong>G11</strong></td><td>Multi-detection swap topological correctness</td><td>n/a (delta&#39;s audit isn&#39;t sequence-pair related)</td><td>scrutiny Reviewer A flagged: my engine&#39;s <code class="prism-inline-code">buildOptimizedSequence</code> may produce wrong result with overlapping pairwise swaps</td><td><strong><code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID-HARDENING</code></strong> (multi-detection swap test + topological re-sort)</td></tr>
+<tr><td><strong>G12</strong></td><td>Zod schema validation at dispatcher boundary</td><td>per <code class="prism-inline-code">dispatchers/CLAUDE.md</code> doctrine</td><td>my dispatcher relies on engine&#39;s downstream throws — dispatcher contract incomplete</td><td><strong><code class="prism-inline-code">U-CAM-DISPATCHER-ZOD-SCHEMA</code></strong></td></tr>
+<tr><td><strong>G13</strong></td><td>Shared G-code tokenizer (DRY)</td><td><code class="prism-inline-code">rapidRepositionOptEngine</code> is the canonical wrapper that <code class="prism-inline-code">productDispatcher</code> uses for ppg_air_cut_detect via composition</td><td>my <code class="prism-inline-code">InterruptedCutAvoidanceEngine</code> re-implements the 4-regex G-code tokenizer instead of composing the existing one</td><td><strong><code class="prism-inline-code">U-CAM-GCODE-TOKENIZER-SHARED</code></strong></td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. What&#39;s NOT a gap (delta-correct, I had covered)</h2>
+<ul class="prism-md-list"><li><strong>Operation sequencer family</strong> — both delta and kilo&#39;s pipeline have it (<code class="prism-inline-code">OperationSequencerEngine</code>, <code class="prism-inline-code">CAMOperationSequencePlannerEngine</code>).</li><li><strong>Machine selection</strong> — both <code class="prism-inline-code">CAMMachineSelectionEngine</code> + <code class="prism-inline-code">MachineSelectionEngine</code> are wired in.</li><li><strong>Inspection-stage engine cluster</strong> — exists (delta surfaced as least-differentiated F6; I didn&#39;t enumerate but the engines exist).</li><li><strong>Master post engines</strong> — 4 per-machine endpoints (delta F4) + master-post family (18 files). My echo PP bridge surface acknowledged this.</li><li><strong>Tribal/wiki corpus</strong> — kilo&#39;s 224-toolpath canonical catalog + cross-CAM action templates is the strongest CAM-specific corpus surface; delta has no equivalent CAD corpus of comparable depth.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. Why delta&#39;s pattern matters for kilo</h2>
+<p>Delta surfaced <strong>one architectural truth</strong> that my CAM assessment missed: <strong>a static file scan is not a runtime integration test.</strong> Delta wrote it as F1 (MISC-305 caveat — Fusion 360 socket bridge file exists, runtime unverified). The same caveat applies to my entire CAM pipeline:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">HyperMillACBridgeEngine.ts</code> exists. Has the operator ever opened a real .hmc file via PRISM? The Tier 2 LIVE test in delta&#39;s playbook is the gate. We don&#39;t know if that gate has passed.</li><li><code class="prism-inline-code">Fusion360LiveBridgeEngine</code> exists. <code class="prism-inline-code">:18360</code> listener has not been runtime-verified for this fleet.</li><li><code class="prism-inline-code">PrintToFusion360Bridge</code> exists. MISC-305 flags it as &quot;appears incomplete.&quot;</li><li><strong>All 12 cross-CAM action templates</strong> at <code class="prism-inline-code">state/shared/cad-action-templates/*.actions.json</code> are static atomic-op maps — no live test that the mapped functions actually invoke from PRISM through the CAM software&#39;s automation API.</li></ul>
+<p><strong>Concrete recommendation:</strong> before <em>any</em> &quot;AI training first&quot; run, build <code class="prism-inline-code">U-CAM-COVERAGE-SCORER</code> + <code class="prism-inline-code">U-CAM-TEST-PLAYBOOK</code> so the operator has the same honest runtime view of CAM that delta has of CAD. Otherwise we&#39;ll be training the AI on a substrate we haven&#39;t proved works end-to-end.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">5. Operator triage proposal</h2>
+<p><strong>Highest leverage to add to MS0:</strong></p>
+<ol class="prism-md-list"><li><code class="prism-inline-code">U-CAM-COVERAGE-SCORER</code> — re-runnable, sets the baseline, surfaces F7 tautology.</li><li><code class="prism-inline-code">U-CAM-TEST-PLAYBOOK</code> — per-CAM live-drive playbook (mock → live → MCP → orch tiers).</li><li><code class="prism-inline-code">U-CAD-TO-CAM-HANDOFF-CONTRACT</code> — closes the GD&amp;T propagation hole.</li><li><code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID-HARDENING</code> — Reviewer A&#39;s P1s: JSDoc, Zod schema (covered by G12), pocket_through_breakthrough test (✅ added this session), engagement_drop positive test (✅ added this session), multi-detection swap test, NaN-coord guard (✅ added this session).</li></ol>
+<p><strong>Deferred to MS1 or later:</strong></p>
+<ul class="prism-md-list"><li>G9 topology-math units (huge scope; delta&#39;s topology doc has 18K LOC of analysis — needs its own milestone).</li><li>G11/G12/G13 hardening — wait for first wet-run feedback.</li></ul>
+<p><strong>Operator decides:</strong> which of G1-G13 enter MS0; the rest sit in slot/kilo&#39;s <code class="prism-inline-code">slot-task-queues.json</code> for autonomous-loop pickup.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">6. What was fixed THIS session (post-scrutiny)</h2>
+<p>Per-file 2-reviewer gate ran post-spec (should have run per-file — I missed the per-file timing). Two reviewers returned with mixed verdicts:</p>
+<ul class="prism-md-list"><li><strong>code-analyzer: PASS</strong> (8 P1 findings, no P0).</li><li><strong>independent reviewer: FAIL</strong> (2 P0 claims — both turned out to be misreads on closer inspection — tier-map has no duplicate; DRY violation with AirCut is a refactor opportunity, not a ship-block — but P1-5 (<code class="prism-inline-code">||</code> silent coercion) and the test coverage holes were real).</li></ul>
+<p><strong>Real P1s fixed this session before /handoff:</strong></p>
+<ol class="prism-md-list"><li>✅ Engine: fail-loud on missing/non-string gcode in gcode-mode (R12 compliance) — <code class="prism-inline-code">throw new Error(&quot;gcode must be a string in gcode-mode&quot;)</code>.</li><li>✅ Engine: NaN-coord guard in both G-code pass-1 (zMap build) and pass-2 (detection scan) — pathological <code class="prism-inline-code">X..</code> / <code class="prism-inline-code">X-.</code> tokens are silently skipped rather than poisoning zMap.</li><li>✅ Tests: added <code class="prism-inline-code">F5: pocket_through_breakthrough</code> positive case — kills the previously-dead branch coverage.</li><li>✅ Tests: added <code class="prism-inline-code">G4: positive engagement_drop</code> — G-code mode&#39;s core value now has a fail-on-revert oracle.</li><li>✅ Tests: added <code class="prism-inline-code">G5: malformed-coord NaN guard</code> regression test.</li><li>✅ Tests: added <code class="prism-inline-code">G6: missing gcode fails loud (R12)</code>.</li><li>✅ Engine: JSDoc <code class="prism-inline-code">@param</code>/<code class="prism-inline-code">@returns</code> tags on <code class="prism-inline-code">baselineKienzleForce</code> + <code class="prism-inline-code">baselineTaylorLifeMin</code> (per <code class="prism-inline-code">H:/.claude/rules/engines.md</code>).</li></ol>
+<p><strong>Tests: 25 → 29, all PASS.</strong></p>
+<hr class="prism-hr">
+<h2 class="prism-h2">7. Doctrine-compliance check against delta&#39;s pattern</h2>
+<ul class="prism-md-list"><li>[x] <strong>Re-runnable verification</strong>: my engine has 29 unit tests; my spec has dispatcher round-trip via vitest. Delta has a coverage scorer; I do not (G1 gap).</li><li>[x] <strong>Karpathy R12 (fail-loud)</strong>: NaN-coord guard + missing-gcode throw both added.</li><li>[x] <strong>Karpathy R8 (read-before-write)</strong>: I did read AirCutDetectionEngine before mirroring its pattern, but I did NOT compose its tokenizer — re-implemented (G13 gap).</li><li>[x] <strong>Honest caveats</strong>: this doc IS that honest caveat.</li><li>[x] <strong>Per-file scrutiny gate</strong>: ran post-write (should have been pre-next-file). Process compliance gap for next multi-file build.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/CAM-SELF-TEACHING-PIPELINE-MS0-ASSESSMENT.md</code> — original spec.</li><li><code class="prism-inline-code">state/shared/specs/CAD-PIPELINE-AUDIT-2026-05-20.md</code> — delta&#39;s CAD audit (the methodology reference).</li><li><code class="prism-inline-code">state/shared/specs/HYPERCAD-TEST-PLAYBOOK-2026-05-20.md</code> — delta&#39;s live-drive playbook (template for <code class="prism-inline-code">U-CAM-TEST-PLAYBOOK</code>).</li><li><code class="prism-inline-code">state/shared/specs/PRINT-TO-CAD-HANDOFF-CONTRACT-2026-05-27.md</code> — delta&#39;s handoff contract (template for <code class="prism-inline-code">U-CAD-TO-CAM-HANDOFF-CONTRACT</code>).</li><li><code class="prism-inline-code">state/shared/specs/TOPOLOGY-MATH-CAD-CAM-APPLICABILITY-2026-05-22.md</code> — november&#39;s topology doc; informs G9.</li><li><code class="prism-inline-code">state/shared/specs/cad-pipeline-coverage-LATEST.{json,md}</code> — delta&#39;s coverage baseline (template for <code class="prism-inline-code">cam-pipeline-coverage-LATEST</code>).</li><li><code class="prism-inline-code">mcp-server/src/engines/InterruptedCutAvoidanceEngine.ts</code> — first unit shipped this session (commit <code class="prism-inline-code">4a3c0eb62b</code>).</li><li><code class="prism-inline-code">mcp-server/src/engines/AirCutDetectionEngine.ts</code> — sibling whose tokenizer my engine should compose (G13).</li><li><code class="prism-inline-code">mcp-server/src/engines/HyperMillACBridgeEngine.ts</code> — delta&#39;s live-drive engine that the CAM pipeline composes for hyperMILL.</li></ul>
+<hr class="prism-hr">
+<p><strong>End of gap diff.</strong> The next /loop iteration should pick <code class="prism-inline-code">U-CAM-COVERAGE-SCORER</code> or <code class="prism-inline-code">U-CAM-TEST-PLAYBOOK</code> to close the highest-leverage gap (G1 + G3) before any further CAM-AI training proceeds.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import SfcGateNotice from "../components/sfc/SfcGateNotice";
 import SmartMaterialSelector from "../components/sfc/SmartMaterialSelector";
 import OperationSelector from "../components/sfc/OperationSelector";
 import SmartToolSelector from "../components/sfc/SmartToolSelector";
@@ -14,6 +15,10 @@ import CalculationHistory from "../components/sfc/CalculationHistory";
 import AdvancedCharts from "../components/sfc/AdvancedCharts";
 import { Button } from "../components/ui";
 import { SurfaceCrossLink } from "../components/SurfaceCrossLink";
+import { FeatureGate } from "../components/entitlement";
+import AdvancedSpeedFeedPanel from "../components/sfc/AdvancedSpeedFeedPanel";
+import { buildSfcCalcRequest, applyToolToParams } from "../components/sfc/buildSfcRequest";
+import { buildCalcSnapshot } from "../components/sfc/buildCalcSnapshot";
 import { useSfcCalculate } from "../hooks/useSfc";
 import type { SfcCalculateResult } from "../types/sfc";
 import { generateSfcReport } from "../utils/sfcReport";
@@ -39,7 +44,7 @@ const DEFAULT_PARAMS: SfcParams = {
   coolant: "flood",
 };
 
-type RightTab = "charts" | "compare" | "history";
+type RightTab = "charts" | "compare" | "history" | "advanced";
 
 export default function SfcCalculatorPage() {
   const [material, setMaterial] = useState<MaterialEntry | null>(null);
@@ -47,11 +52,22 @@ export default function SfcCalculatorPage() {
   const [tool, setTool] = useState<CuttingToolEntry | null>(null);
   const [machine, setMachine] = useState<MachineEntry | null>(null);
   const [params, setParams] = useState<SfcParams>(DEFAULT_PARAMS);
+  const [optimizeFor, setOptimizeFor] = useState<"cost" | "balanced" | "productivity">("balanced");
   const [imperial, setImperial] = useState(false);
   const [comparison, setComparison] = useState<CalcSnapshot[]>(loadComparison);
   const [fullHistory, setFullHistory] = useState<CalcSnapshot[]>(loadFullHistory);
   const [rightTab, setRightTab] = useState<RightTab>("charts");
   const calc = useSfcCalculate();
+
+  // SF Studio compact density (2026-05-21, slot:juliett) — opt this dense
+  // calculator route into the −15% page zoom (index.css
+  // body[data-sf-density="compact"]). Set on mount, cleared on unmount so
+  // lighter routes keep the default density. See index.css for the rationale
+  // + the measured +67% above-fold control gain.
+  useEffect(() => {
+    document.body.setAttribute("data-sf-density", "compact");
+    return () => document.body.removeAttribute("data-sf-density");
+  }, []);
 
   const handleOperationChange = useCallback((op: OperationType) => {
     setOperation(op);
@@ -73,12 +89,9 @@ export default function SfcCalculatorPage() {
 
   const handleToolChange = useCallback((t: CuttingToolEntry) => {
     setTool(t);
-    setParams((prev) => ({
-      ...prev,
-      tool_diameter: t.diameter,
-      number_of_teeth: t.fluteCount,
-      tool_material: t.substrate,
-    }));
+    // applyToolToParams copies the tool's coating too (was dropped here -> a coated tool computed as
+    // UNCOATED and the built coating derate only fired on a manual dropdown pick). [[buildSfcRequest]]
+    setParams((prev) => applyToolToParams(prev, t));
   }, []);
 
   const handleSuggestion = useCallback((suggestion: Suggestion) => {
@@ -98,34 +111,19 @@ export default function SfcCalculatorPage() {
 
   const makeSnapshot = useCallback((result: SfcCalculateResult | null): CalcSnapshot | null => {
     if (!result || !material || !operation) return null;
-    return {
-      id: `calc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
-      materialName: material.name,
-      materialId: material.id,
-      materialGroup: material.group,
-      operationLabel: operation.label,
-      operationId: operation.id,
-      toolName: tool?.name,
-      params: { ...params },
-      result,
-      ts: Date.now(),
-    };
-  }, [material, operation, tool, params]);
+    return buildCalcSnapshot(
+      material, operation, tool?.name, params, optimizeFor, result,
+      `calc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, Date.now(),
+    );
+  }, [material, operation, tool, params, optimizeFor]);
 
   const handleCalculate = async () => {
     if (!material || !operation) return;
     try {
-      const result = await calc.execute({
-        material: material.id,
-        operation: operation.id,
-        material_hardness: material.hardness,
-        tool_material: params.tool_material,
-        tool_diameter: params.tool_diameter,
-        number_of_teeth: params.number_of_teeth,
-        depth: params.depth,
-        width: params.width,
-        coolant: params.coolant,
-      });
+      // Includes the selected machine's spindle limits so the engine's rpm/power clamp fires
+      // (the page previously discarded them -> the aluminum-RPM-cap accuracy gap), and the
+      // optimization goal (cost/balanced/productivity) so the engine shifts the operating point. [[buildSfcRequest]]
+      const result = await calc.execute(buildSfcCalcRequest(material, operation, params, machine, optimizeFor, tool));
       if (result) {
         const snap = makeSnapshot(result);
         if (snap) {
@@ -161,6 +159,8 @@ export default function SfcCalculatorPage() {
     if (op) setOperation(op);
     // Restore params
     setParams(entry.params);
+    // Restore the optimization goal (back-compat: snapshots saved before the selector lack it)
+    if (entry.optimizeFor) setOptimizeFor(entry.optimizeFor);
     setTool(null);
   }, []);
 
@@ -200,6 +200,7 @@ export default function SfcCalculatorPage() {
 
   const rightTabs = useMemo<{ id: RightTab; label: string; count?: number }[]>(() => [
     { id: "charts", label: "Charts" },
+    { id: "advanced", label: "9-Axis" },
     { id: "compare", label: "Compare", count: comparison.length },
     { id: "history", label: "History", count: fullHistory.length },
   ], [comparison.length, fullHistory.length]);
@@ -265,6 +266,26 @@ export default function SfcCalculatorPage() {
             imperial={imperial}
             onToggleUnits={() => setImperial((p) => !p)}
           />
+          <div className="space-y-1">
+            <label
+              htmlFor="sfc-optimize-for"
+              className="block text-xs font-medium text-slate-500 dark:text-slate-400"
+            >
+              Optimization goal
+            </label>
+            <select
+              id="sfc-optimize-for"
+              value={optimizeFor}
+              onChange={(e) =>
+                setOptimizeFor(e.target.value as "cost" | "balanced" | "productivity")
+              }
+              className="h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 md:h-9"
+            >
+              <option value="cost">Cost (max tool life)</option>
+              <option value="balanced">Balanced (default)</option>
+              <option value="productivity">Productivity (max MRR)</option>
+            </select>
+          </div>
           <PresetManager
             materialId={material?.id ?? null}
             operationId={operation?.id ?? null}
@@ -273,27 +294,40 @@ export default function SfcCalculatorPage() {
           />
           <Button
             onClick={handleCalculate}
-            disabled={!material || !operation || calc.loading}
+            disabled={!material || !operation || !machine || calc.loading}
             className="w-full"
             size="lg"
           >
             {calc.loading ? "Calculating..." : "Calculate"}
           </Button>
-          {(!material || !operation) && (
+          {/* A machine is REQUIRED, not optional: the backend pre-machine-completeness
+              gate hard-blocks sfc_calculate without spindle.max_rpm + spindle.power
+              (buildSfcCalcRequest omits machine_max_rpm/_kw when machine is null). Gating
+              the button here keeps the page from ever sending a request the gate rejects;
+              the api-layer assertNotBlocked guard is the safety net if one slips through. */}
+          {(!material || !operation || !machine) && (
             <p className="text-center text-xs text-slate-400">
-              Select a material and operation to enable calculation
+              {!material || !operation
+                ? "Select a material, operation, and machine to enable calculation"
+                : "Select a machine: its spindle speed & power are required for safety validation"}
             </p>
           )}
         </div>
 
         {/* Right column — results + tabs */}
         <div className="space-y-4">
-          <ResultsDisplay
-            result={calc.data}
-            loading={calc.loading}
-            error={calc.error}
-            imperial={imperial}
-          />
+          {/* QX-403: a 403 from the speed_feed tier-gate -> the right prompt by
+              backend code (daily-cap upgrade vs admin-revoke), not a raw error. */}
+          {calc.errorStatus === 403 ? (
+            <SfcGateNotice code={calc.errorCode} message={calc.error} />
+          ) : (
+            <ResultsDisplay
+              result={calc.data}
+              loading={calc.loading}
+              error={calc.error}
+              imperial={imperial}
+            />
+          )}
 
           {/* Action buttons */}
           {calc.data && material && operation && (
@@ -356,6 +390,7 @@ export default function SfcCalculatorPage() {
               result={calc.data}
               params={params}
               machine={machine}
+              material={material?.id}
             />
           )}
           {rightTab === "compare" && (
@@ -372,6 +407,18 @@ export default function SfcCalculatorPage() {
               onAddToComparison={handleAddToComparison}
               onClear={handleClearHistory}
             />
+          )}
+          {/* QX2: full 9-axis orchestrator + UQ, gated behind the sfc.nine_axis
+              entitlement (free users see the UpgradePrompt -> conversion). */}
+          {rightTab === "advanced" && (
+            <FeatureGate feature="sfc.nine_axis">
+              <AdvancedSpeedFeedPanel
+                material={material}
+                operation={operation}
+                tool={tool}
+                params={params}
+              />
+            </FeatureGate>
           )}
         </div>
       </div>

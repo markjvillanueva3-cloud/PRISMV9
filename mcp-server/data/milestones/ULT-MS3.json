@@ -1,0 +1,598 @@
+{
+  "id": "ULT-MS3",
+  "version": "1.0.0",
+  "title": "Operational Workflow OS",
+  "brief": "Unify jobs, scheduling, approvals, shortages, comments, attachments, and action queues into one operational workflow system so planners, leads, and managers can run the business from a coherent live command center.",
+  "created_at": "2026-03-27T18:30:00Z",
+  "created_by": "codex-rgs-forge-triple",
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Workflow Coordination Core",
+      "description": "Build shared engines for approvals, comments, shortage triage, and workflow command-center orchestration.",
+      "sessions": "1-2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Approval timeline + comment thread engines",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 86,
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "completeness"
+            }
+          ],
+          "entry_conditions": [
+            "Job, traveler, and employee identities are canonical and live.",
+            "The desired approval, comment, and attachment lifecycle states are documented."
+          ],
+          "exit_conditions": [
+            "Approvals and comments share a single event-aware timeline contract.",
+            "Attachments, @mentions, decisions, and acknowledgements can be tracked against any operational object.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the new workflow engines and revert approval or comment handling to page-local state.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement approval and comment engines that can target jobs, schedule studies, shortages, and shop-floor exceptions.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_validate:completeness"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Normalize attachments, mentions, and audit events into one timeline format for downstream desks and notifications.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "Every workflow record can emit one ordered timeline regardless of source page."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/ApprovalTimelineEngine.ts",
+              "type": "source",
+              "description": "Approval state, reviewer assignment, and audit timeline engine.",
+              "line_count_est": 220
+            },
+            {
+              "path": "src/engines/CommentThreadEngine.ts",
+              "type": "source",
+              "description": "Operational comment threads with mentions, attachments, and event hooks.",
+              "line_count_est": 200
+            }
+          ],
+          "estimated_minutes": 145,
+          "description": "Approval timeline + comment thread engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Workflow command center + shortage resolution engines",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 84,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_bridge",
+              "action": "route_map"
+            }
+          ],
+          "entry_conditions": [
+            "Approval and comment state can be attached to operational records.",
+            "Shortage and exception signals from jobs and scheduling have been inventoried."
+          ],
+          "exit_conditions": [
+            "A command center engine can aggregate approvals, shortages, blockers, and owner queues across domains.",
+            "A shortage engine can track demand, supply promise, escalation owner, and next action.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable the command-center engines and restore separate queue logic in jobs and scheduling surfaces.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build a workflow command center engine that aggregates open work, blockers, approvals, and owner actions across jobs and scheduling.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_bridge:route_map"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Add shortage resolution logic for material, tooling, outside process, and information blockers with status and SLA fields.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "Every blocker can be assigned, escalated, and cleared through one workflow contract."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/WorkflowCommandCenterEngine.ts",
+              "type": "source",
+              "description": "Unified operational queue aggregation and triage engine.",
+              "line_count_est": 260
+            },
+            {
+              "path": "src/engines/ShortageResolutionEngine.ts",
+              "type": "source",
+              "description": "Shortage and blocker management engine with ownership and next actions.",
+              "line_count_est": 220
+            }
+          ],
+          "estimated_minutes": 150,
+          "description": "Workflow command center + shortage resolution engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Workflow routes + jobs and scheduling desk integration",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 82,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_session",
+              "action": "state_checkpoint"
+            }
+          ],
+          "entry_conditions": [
+            "Workflow command-center state is available through backend engines.",
+            "JobsPage and SchedulingPage already expose seeded desks ready for real data wiring."
+          ],
+          "exit_conditions": [
+            "Workflow routes expose command-center, approval, shortage, and comment payloads.",
+            "The jobs and scheduling desks consume the same operational workflow language.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Unwire the command-center routes and return the desks to locally seeded workflow data.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Expose workflow routes for command-center views, shortage updates, approval actions, and comment retrieval.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_session:state_checkpoint"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Refit the jobs and scheduling desks so selected records show command-center actions, comments, approvals, and shortage state from shared contracts.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "Jobs and scheduling can hand records back and forth without losing owner or blocker context."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/routes/workflows.ts",
+              "type": "source",
+              "description": "HTTP route surface for workflow command-center, approvals, shortages, and comments.",
+              "line_count_est": 230
+            },
+            {
+              "path": "web/src/pages/JobsPage.tsx",
+              "type": "source",
+              "description": "Jobs desk integration with approvals, comments, shortages, and action queues.",
+              "line_count_est": 140
+            },
+            {
+              "path": "web/src/pages/SchedulingPage.tsx",
+              "type": "source",
+              "description": "Scheduling desk integration with workflow and blocker state.",
+              "line_count_est": 140
+            }
+          ],
+          "estimated_minutes": 170,
+          "description": "Workflow routes + jobs and scheduling desk integration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.84,
+        "ralph_required": true,
+        "custom_checks": [
+          "Jobs and scheduling share one workflow vocabulary for blockers, owners, comments, and approvals.",
+          "The workflow OS preserves record identity and history across cross-desk handoffs."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Cross-desk coherence",
+        "Ownership clarity",
+        "Workflow auditability"
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Forge-Triple Workflow Surfaces",
+      "description": "Expose the workflow OS through command docs and add transition guardrails with integration coverage.",
+      "sessions": "1",
+      "primary_role": "R7",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Workflow triage command + command-center template",
+          "phase": "P2",
+          "sequence": 4,
+          "role": "R7",
+          "role_name": "Prompt Engineer",
+          "model": "opus-4.6",
+          "effort": 84,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "tools": [
+            {
+              "tool": "prism_skill_script",
+              "action": "skill_search"
+            },
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            }
+          ],
+          "entry_conditions": [
+            "The workflow OS route names and transitions are stable.",
+            "The team needs a repeatable triage surface for planners and leads."
+          ],
+          "exit_conditions": [
+            "A workflow triage command doc exists for approvals, blockers, and ownership queues.",
+            "A forge-triple workflow template exists for future command-center work.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Delete the command and template docs and rely on raw workflow API notes only.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write a workflow triage command doc covering blockers, approvals, reassignments, and resolution paths.",
+              "tool_calls": [
+                "prism_skill_script:skill_search",
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Create a command-center template that future milestones can reuse for queue, approval, and shortage prompts and payloads.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "The command doc and template reference the shared workflow states and owner fields."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/workflow-triage.md",
+              "type": "doc",
+              "description": "Slash-command style guide for operational workflow triage and approvals.",
+              "line_count_est": 95
+            },
+            {
+              "path": "data/templates/ultimate-app/prism-workflow-triage.md",
+              "type": "doc",
+              "description": "Forge-triple template for workflow command-center prompts, queues, and transitions.",
+              "line_count_est": 80
+            }
+          ],
+          "estimated_minutes": 60,
+          "description": "Workflow triage command + command-center template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Workflow transition guard + integration suite",
+          "phase": "P2",
+          "sequence": 5,
+          "role": "R4",
+          "role_name": "Verifier",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": [
+            "P2-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_review",
+              "action": "run"
+            }
+          ],
+          "entry_conditions": [
+            "Workflow command-center and triage docs are defined.",
+            "Transition rules for assignment, approval, and blocker closure are stable."
+          ],
+          "exit_conditions": [
+            "A workflow transition guard blocks invalid moves or owner mismatches.",
+            "Integration coverage proves workflow actions stay coherent across jobs and scheduling desks.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable the new transition guard if it blocks valid operations and revert to the old integration path.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement a workflow transition guard that rejects invalid reassignment, approval, and blocker state changes.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Add an integration suite that proves comments, approvals, shortages, and desk handoffs remain synchronized.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_review:run"
+              ],
+              "validation": "The integration suite proves cross-desk workflow coherence and valid transition enforcement."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/workflowTransitionGuard.ts",
+              "type": "source",
+              "description": "Guardrail for workflow state transitions, reassignment, and approval moves.",
+              "line_count_est": 100
+            },
+            {
+              "path": "src/__tests__/workflowCommandCenter.integration.test.ts",
+              "type": "test",
+              "description": "Integration proof for command-center actions across jobs and scheduling desks.",
+              "line_count_est": 210
+            }
+          ],
+          "estimated_minutes": 100,
+          "description": "Workflow transition guard + integration suite — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.86,
+        "ralph_required": true,
+        "custom_checks": [
+          "Every workflow state transition is documented and guarded.",
+          "Integration coverage proves shared command-center coherence across desks."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Transition correctness",
+        "Cross-surface synchronization",
+        "Operator clarity"
+      ]
+    }
+  ],
+  "total_units": 5,
+  "total_sessions": "2-3",
+  "dependency_graph": "ULT-MS0 + ULT-MS1 + ULT-MS2 -> ULT-MS3; P1-U01 -> P1-U02 -> P1-U03 -> P2-U01 -> P2-U02",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 86
+    },
+    {
+      "code": "R4",
+      "name": "Verifier",
+      "model": "opus-4.6",
+      "effort": 90
+    },
+    {
+      "code": "R6",
+      "name": "Integrator",
+      "model": "sonnet-4.6",
+      "effort": 84
+    },
+    {
+      "code": "R7",
+      "name": "Prompt Engineer",
+      "model": "opus-4.6",
+      "effort": 84
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_sp",
+      "phases": [
+        "P1",
+        "P2"
+      ],
+      "purpose": "Build workflow engines, routes, desk wiring, and tests"
+    },
+    {
+      "tool": "prism_bridge",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Align workflow route and desk integration surfaces"
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Check timeline and workflow contract completeness"
+    },
+    {
+      "tool": "prism_review",
+      "phases": [
+        "P2"
+      ],
+      "purpose": "Review workflow transition safety and integration fidelity"
+    }
+  ],
+  "existing_leverage": [
+    {
+      "asset": "web/src/pages/JobsPage.tsx",
+      "type": "frontend",
+      "usage": "Dispatch desk ready for real workflow state"
+    },
+    {
+      "asset": "web/src/pages/SchedulingPage.tsx",
+      "type": "frontend",
+      "usage": "Scheduling desk ready for integrated blocker and approval flows"
+    },
+    {
+      "asset": "src/engines/EmployeeExperiencePolicyEngine.ts",
+      "type": "engine",
+      "usage": "Role-aware ownership and visibility rules"
+    },
+    {
+      "asset": "src/engines/ShopRealtimeGateway.ts",
+      "type": "engine",
+      "usage": "Live workflow event propagation"
+    }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 6,
+    "convergence_rule": "delta < 2",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 92
+  },
+  "scrutiny_log": "state/ULT-MS3/scrutiny-log.json",
+  "position_file": "state/ULT-MS3/position.json",
+  "state_dir": "state/ULT-MS3",
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms3-gate",
+    "mcp_action": "prism_ult:ult_ms3_run",
+    "skill_command": "/ult-ms3",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms3-gate"
+    ],
+    "new_actions": [
+      "ult_ms3_run"
+    ],
+    "new_skills": [
+      "/ult-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Unify jobs, scheduling, approvals, shortages, comments, attachments, and action queues into one operational workflow system so planners, leads, and managers can run the business from a coherent live command center.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

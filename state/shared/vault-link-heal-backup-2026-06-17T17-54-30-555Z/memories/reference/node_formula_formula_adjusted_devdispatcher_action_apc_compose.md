@@ -1,0 +1,29 @@
+---
+name: node-formula-formula_adjusted_devdispatcher_action_apc_compose
+description: Node-indexed pointer — formula Formula — router · apc_compose → wiki knowledge/wiki/architecture/formulas/formula-adjusted-devdispatcher-action-apc-compose.md
+aliases: [node-formula-formula-adjusted-devdispatcher-action-apc-compose, NODE Formula Formula Adjusted Devdispatcher Action APC Compose, node-formula-formula_adjusted_devdispatcher_action_apc_compose]
+metadata:
+  type: reference
+  node_kind: formula
+  node_id: formula.formula_adjusted_devdispatcher_action_apc_compose
+  wiki_path: knowledge/wiki/architecture/formulas/formula-adjusted-devdispatcher-action-apc-compose.md
+  generated_at: 2026-05-24
+  generator: scripts/lib/emit-node-memory-pointer.mjs
+---
+
+# Node pointer — formula/formula_adjusted_devdispatcher_action_apc_compose
+
+<!-- AUTO-NODE-MEMORY-POINTER-START -->
+
+> Indexed pointer for graph node `formula.formula_adjusted_devdispatcher_action_apc_compose`. The authoritative documentation is in the wiki entry below — this file exists so that semantic memory searches resolve the node directly.
+
+- **Kind:** formula
+- **Wiki:** [[formula_adjusted_devdispatcher_action_apc_compose]] · `knowledge/wiki/architecture/formulas/formula-adjusted-devdispatcher-action-apc-compose.md`
+- **Graph node id:** `formula.formula_adjusted_devdispatcher_action_apc_compose`
+- **Last regenerated:** 2026-05-24
+
+<!-- AUTO-NODE-MEMORY-POINTER-END -->
+
+## Human notes
+
+(Append free-text below — re-emit preserves anything outside the AUTO-NODE-MEMORY-POINTER markers.)

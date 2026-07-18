@@ -115,6 +115,42 @@ describe("JM Die WEDM Program Patterns", () => {
       const result2 = getJMDiePatternForMaterial("D2", 10, false);
       expect(result1.e_code_family).toBe(result2.e_code_family);
     });
+
+    it("should flag calibrated materials (D2) as material_calibrated with no warning", () => {
+      const result = getJMDiePatternForMaterial("D2", 10, false);
+      expect(result.material_calibrated).toBe(true);
+      expect(result.warning).toBeUndefined();
+    });
+
+    it("should FAIL LOUD for uncalibrated compound/exotic materials — not a silent D2 fallback", () => {
+      const result = getJMDiePatternForMaterial("carbide", 10, false);
+      // still returns a usable fallback shape (non-breaking)…
+      expect(result.e_code_family).toBe("E12xx_standard_4pass");
+      // …but explicitly flags it as NOT shop-calibrated + carries a specific warning
+      expect(result.material_calibrated).toBe(false);
+      expect(result.warning).toContain("NO JM Die wire-EDM calibration");
+      expect(result.warning).toContain("carbide");
+    });
+
+    it("should flag every compound/exotic material as uncalibrated (compound-material gap)", () => {
+      for (const m of ["carbide", "inconel", "Ti-6Al-4V", "17-4PH", "CPM-10V", "copper", "brass"]) {
+        expect(getJMDiePatternForMaterial(m, 12, false).material_calibrated).toBe(false);
+      }
+    });
+
+    it("should NOT false-positive exotics that embed a steel code or co-present a calibrated token (exact-token match)", () => {
+      // "A286" (Fe-Ni superalloy) must NOT match calibrated "A2" via substring;
+      // composites containing a calibrated token (A2/316) must still be flagged via the exotic marker.
+      for (const m of ["A286", "A2 / WC bimetal", "316 + WC composite", "WC-Co carbide", "O", "W"]) {
+        expect(getJMDiePatternForMaterial(m, 12, false).material_calibrated).toBe(false);
+      }
+    });
+
+    it("should keep known steels (4140, stainless, A2) calibrated", () => {
+      expect(getJMDiePatternForMaterial("4140", 12, false).material_calibrated).toBe(true);
+      expect(getJMDiePatternForMaterial("stainless", 12, true).material_calibrated).toBe(true);
+      expect(getJMDiePatternForMaterial("A2", 12, false).material_calibrated).toBe(true);
+    });
   });
 
   describe("getJMDieMCodeSequence", () => {

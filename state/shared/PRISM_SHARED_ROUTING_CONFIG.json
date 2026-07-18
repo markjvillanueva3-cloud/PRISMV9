@@ -1,0 +1,100 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-06-13",
+  "hardware_profile": "workstation-max",
+  "model_routing": {
+    "enabled": true,
+    "default_to_local_first": true,
+    "claude_escalation_threshold": 0.65,
+    "local_heavy_model": "gpt-oss:120b",
+    "local_medium_model": "qwen3-coder:30b",
+    "local_light_model": "qwen2.5-coder:1.5b"
+  },
+  "auto_invocation": {
+    "enabled": true,
+    "build_context_classifier": true,
+    "prefer_local_for_builds": true
+  },
+  "token_economy": {
+    "prefer_local_for_most_tasks": true,
+    "claude_only_for": [
+      "architectural",
+      "safety_critical",
+      "novel_reasoning"
+    ],
+    "auto_compress_before_claude": true
+  },
+  "hardware_optimizations": {
+    "vault_cache_size": 800,
+    "max_concurrent_children": 12,
+    "ollama_num_parallel": 8,
+    "ollama_context_length": 131072
+  },
+  "sync": {
+    "last_synced": "2026-06-12T19:55:23.680836",
+    "bidirectional": true,
+    "auto_trigger_events": [
+      "settings_change",
+      "build_start",
+      "prompt_submit"
+    ],
+    "mirroring_system_version": "1.0.0",
+    "systems": [
+      "hermes",
+      "claude_code"
+    ],
+    "last_updated": "2026-06-12T19:58:56.470189"
+  },
+  "claude_code_overrides": {
+    "max_tool_use_concurrency": 24,
+    "max_output_tokens": 120000,
+    "bypass_permissions": true
+  },
+  "hermes_overrides": {
+    "approvals_mode": "off",
+    "max_turns": 200,
+    "delegation_max_children": 12
+  },
+  "auto_invocation_rules": {
+    "engine_creation": [
+      "build-verify",
+      "codebase-memory-tracing",
+      "duplication-guard",
+      "inventory-refresh"
+    ],
+    "refactor": [
+      "codebase-memory-tracing",
+      "adaptive-optimize",
+      "context-budget"
+    ],
+    "performance_optimization": [
+      "adaptive-optimize",
+      "SpeedFeedOrchestratorEngine"
+    ],
+    "architecture_design": [
+      "claude_only"
+    ],
+    "debug": [
+      "codebase-memory-tracing",
+      "error-learner"
+    ],
+    "knowledge_synthesis": [
+      "daily_brief_get",
+      "weekly_synthesis_get"
+    ],
+    "build_verification": [
+      "build-verify",
+      "inventory-refresh"
+    ]
+  },
+  "notes": {
+    "claude_account_switching": "Fully built with MCP actions (prism_auth.*). Pool supports 6 accounts. UI integration in Hermes desktop pending. Auto-rotation on rate limit available."
+  },
+  "build_status": {
+    "claude_account_switching": "frontend_ui_complete",
+    "tabbed_interface": "core_components_complete",
+    "autonomous_loop": "logic_complete",
+    "model_router": "exposed_via_mcp",
+    "mirroring": "functional"
+  }
+}

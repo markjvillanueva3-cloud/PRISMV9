@@ -70,7 +70,7 @@ function resolveChatId(rawStdin) {
   // First try: pipe stdin into stable-session-id.mjs (canonical resolver).
   // It returns "claude-<8hex>" or "unresolved" on stderr+stdout combinations.
   try {
-    const r = spawnSync(process.execPath, [SESSION_ID_HELPER], {
+    const r = spawnSync(process.execPath, [SESSION_ID_HELPER], { windowsHide: true,
       input: rawStdin,
       encoding: "utf8",
       timeout: SESSION_ID_TIMEOUT_MS,
@@ -137,7 +137,7 @@ function maybeRefreshHeartbeat(chatId, minAgeMs) {
     "heartbeat",
     "--chatId",
     chatId,
-  ], {
+  ], { windowsHide: true,
     encoding: "utf8",
     timeout: HEARTBEAT_HELPER_TIMEOUT_MS,
   });

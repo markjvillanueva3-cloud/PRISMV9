@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-CAD-APP external-API bridge -- injected OnshapeTransport (REST client w/ credentials), no singleton; awaits an Onshape session host (delta/CAD), not a standalone prism_* dispatcher action.
 /**
  * OnshapeAPIBridgeEngine — U-CAD-APP-09 (PHASE-48)
  *

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `what-changed` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/what-changed.md` |
+| Source | `C:/Users/wompu/.claude/commands/what-changed.md` |
 | Model | default |
 | Tags | _(none)_ |
 

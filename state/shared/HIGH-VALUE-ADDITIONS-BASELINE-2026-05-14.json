@@ -1,0 +1,292 @@
+{
+  "generatedAt": "2026-05-15T03:14:30.795Z",
+  "hooks": {
+    "sourceHooks": 472,
+    "wiredHooks": 170,
+    "wiredViaSettings": 68,
+    "wiredViaBundle": 102,
+    "orphanHooks": 311,
+    "orphanRatePct": 65.9,
+    "topInterestOrphans": [
+      "agi-safety-envelope-guard",
+      "ai-auto-command-router",
+      "ai-duplication-guard",
+      "appdata-junction-guard",
+      "auto-learn-budget-guard",
+      "bash-orphan-cleaner",
+      "blueprint-accuracy-guard",
+      "cad-accuracy-gate",
+      "cad-token-vocabulary-guard",
+      "chat-bus-inject",
+      "claudemd-ollama-enforcer",
+      "cog-bridge-ai-memory-capture",
+      "cog-bridge-context-auto-compact",
+      "complexity-gate",
+      "context-priority-coordinator",
+      "coordination-update-reminder",
+      "critical-file-guard",
+      "dead-pixel-guard",
+      "discipline-expert-inject",
+      "document-preserve-guard",
+      "embed-vault-on-save",
+      "embedder-inject-qdrant",
+      "embedding-cache-guard",
+      "erp-quote-variance-guard",
+      "error-pattern-memory"
+    ]
+  },
+  "dispatchers": {
+    "totalDispatchers": 96,
+    "totalActions": 9646,
+    "thinDispatchers": [
+      {
+        "name": "cadDrawingKnowledgeDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "documentLearningDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "fluidThermalDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "intakeDispatcher",
+        "cases": 1
+      },
+      {
+        "name": "machiningKnowledgeBaseDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "mechanicalDesignDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "multiAxisProgramDispatcher",
+        "cases": 2
+      },
+      {
+        "name": "safetyDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "secondaryOpsDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "shopPracticeDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "threadDispatcher",
+        "cases": 0
+      },
+      {
+        "name": "threadingPipelineDispatcher",
+        "cases": 0
+      }
+    ],
+    "thinCount": 12,
+    "digestZeroActionList": [
+      "aiReasoningDispatcher",
+      "localDispatcher",
+      "millDispatcher",
+      "mlDispatcher"
+    ],
+    "digestParseBugs": [
+      "aiReasoningDispatcher",
+      "localDispatcher",
+      "millDispatcher",
+      "mlDispatcher"
+    ],
+    "digestParserBroken": true
+  },
+  "engines": {
+    "builtEngines": 2365,
+    "needsWiring": 870,
+    "wireRatePct": 73.1,
+    "topUnwiredDomains": [
+      {
+        "domain": "Other",
+        "count": 145
+      },
+      {
+        "domain": "Lathe",
+        "count": 89
+      },
+      {
+        "domain": "Machine",
+        "count": 17
+      },
+      {
+        "domain": "Multi",
+        "count": 11
+      },
+      {
+        "domain": "Turning",
+        "count": 11
+      },
+      {
+        "domain": "Tool",
+        "count": 10
+      }
+    ]
+  },
+  "scripts": {
+    "totalScripts": 268,
+    "generateCount": 74,
+    "cadencePartnerCount": 10,
+    "regenOnlyCount": 5,
+    "auditCount": 13,
+    "buildCount": 22,
+    "cadenceRatePct": 13.5,
+    "advisory": "74 generate-* vs 10 (regen|update|refresh|rebuild)-* — drift accumulates"
+  },
+  "worktrees": {
+    "total": 48,
+    "keep": 27,
+    "merge": 8,
+    "prune": 0,
+    "investigate": 13,
+    "driftPct": 27.1,
+    "source": "WORKTREE-AUDIT-2026-05-14.json"
+  },
+  "coord": {
+    "activeInstances": 392,
+    "unknownStateCount": 127,
+    "compactingCount": 55,
+    "completedCount": 48,
+    "ghostRatePct": 32.4,
+    "advisory": "392 active instances — coordination board accepts stale entries; ghost detection needed"
+  },
+  "specs": {
+    "specMarkdownCount": 36,
+    "specHtmlCount": 34,
+    "htmlCompanionRatePct": 94.4,
+    "advisory": "OK"
+  },
+  "findings": [
+    {
+      "id": "F2-DISPATCHER-DIGEST-PARSER-BUG",
+      "title": "DISPATCHER_DIGEST regen broken: 4 dispatchers mis-counted",
+      "severity": "P0",
+      "leverage": 600,
+      "verifies_via": "node scripts/high-value-additions-rank.mjs --json | jq .dispatchers",
+      "baseline": {
+        "digestParseBugs": [
+          "aiReasoningDispatcher",
+          "localDispatcher",
+          "millDispatcher",
+          "mlDispatcher"
+        ],
+        "thinDispatchers": [
+          {
+            "name": "cadDrawingKnowledgeDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "documentLearningDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "fluidThermalDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "intakeDispatcher",
+            "cases": 1
+          },
+          {
+            "name": "machiningKnowledgeBaseDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "mechanicalDesignDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "multiAxisProgramDispatcher",
+            "cases": 2
+          },
+          {
+            "name": "safetyDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "secondaryOpsDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "shopPracticeDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "threadDispatcher",
+            "cases": 0
+          },
+          {
+            "name": "threadingPipelineDispatcher",
+            "cases": 0
+          }
+        ]
+      },
+      "action": "Fix DISPATCHER_DIGEST regen parser to recognize spread-array action enums; rebalance camDispatcher (1921 actions)"
+    },
+    {
+      "id": "F3-ORPHAN-INFRA-ENGINES",
+      "title": "870 engines NEEDS_WIRING",
+      "severity": "P0",
+      "leverage": 87,
+      "verifies_via": "node scripts/high-value-additions-rank.mjs --json | jq .engines.needsWiring",
+      "baseline": 870,
+      "action": "Wire HookLatency/Telemetry, TokenEconomy, OllamaEmbedder, WikiIngestRouter, AutoFixPipeline"
+    },
+    {
+      "id": "F4-SCRIPT-CADENCE-GAP",
+      "title": "13.5% generate-* scripts have a regen partner",
+      "severity": "P1",
+      "leverage": 86.5,
+      "verifies_via": "node scripts/high-value-additions-rank.mjs --json | jq .scripts.cadenceRatePct",
+      "baseline": 13.5,
+      "action": "Build cadence-orchestrator.mjs registering every gen with TTL+crontab"
+    },
+    {
+      "id": "F1-HOOK-ORPHANAGE",
+      "title": "369 orphan hooks (78.5%)",
+      "severity": "P0",
+      "leverage": 65.9,
+      "verifies_via": "node scripts/high-value-additions-rank.mjs --json | jq .hooks.orphanRatePct",
+      "baseline": 65.9,
+      "action": "Build hook-orphan-wire-proposer.mjs + ship top-25 wires"
+    },
+    {
+      "id": "F6-COORD-GHOSTS",
+      "title": "392 active instances, 32.4% unknown state",
+      "severity": "P1",
+      "leverage": 32.4,
+      "verifies_via": "node scripts/high-value-additions-rank.mjs --json | jq .coord",
+      "baseline": 32.4,
+      "action": "Add prism_session:fleet_health aggregate action + ghost-claim PreToolUse hook"
+    },
+    {
+      "id": "F5-WORKTREE-DRIFT",
+      "title": "27.1% worktrees INVESTIGATE/PRUNE",
+      "severity": "P1",
+      "leverage": 27.1,
+      "verifies_via": "node scripts/system-viz-query.mjs headline",
+      "baseline": 27.1,
+      "action": "Build worktree-drain orchestrator, wire to /fleet-reaper hourly"
+    },
+    {
+      "id": "F7-HTML-COMPANION-MISSING",
+      "title": "94.4% spec HTML companion rate (Thariq)",
+      "severity": "P2",
+      "leverage": 5.599999999999994,
+      "verifies_via": "node scripts/high-value-additions-rank.mjs --json | jq .specs.htmlCompanionRatePct",
+      "baseline": 94.4,
+      "action": "Build spec-to-html.mjs cron + PostToolUse:Write hook on specs/*.md"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "AGI-MASTER-PARITY-MS30",
+  "version": "1.0.0",
+  "title": "SinkerAGI + LaserAGI + WaterjetAGI masters (parity with Mill/Lathe/WEDM)",
+  "brief": "Mill/Lathe/WEDM have AGI master engines (MillingAGIMasterEngine etc); Sinker/Laser/Waterjet do not. Architect risk #6: domain coverage asymmetry. Cross-process transfer in MS18 is degraded without parity. NOTE: Pass-2 anti-pattern hunter flagged this as 'premature abstraction' - defer until Mill/Lathe/WEDM masters prove pattern in production.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "L2-DOMAIN",
+  "track_name": "Domain Coverage Parity",
+  "status": "deferred-pending-v3-decision",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Build 3 AGI masters (only after Mill/Lathe/WEDM AGI proven)",
+      "sessions": "5",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Validate Mill/Lathe/WEDM AGI masters have shipped customer value",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": ["evidence: >=3 jobs shipped where existing AGI master made the call", "abstraction proven worth replicating", "if not proven: HALT this milestone"],
+          "description": "Anti-pattern hunter (Pass-2) flagged this as resume-driven design. Validate first.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "SinkerAGIMasterEngine using existing 8 sinker engines",
+          "effort": 150,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["engine orchestrates SinkerEDMPrintToProgramEngine + 7 siblings", "matches MillingAGIMasterEngine surface", "tests: 3 sinker jobs route through master with consensus"],
+          "description": "Reuse-first: 8 engines exist (per researcher). Master is thin orchestrator.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "LaserAGIMasterEngine using existing 9 laser engines",
+          "effort": 150,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["engine orchestrates LaserProgramAssemblerEngine + LoRA + 7 siblings", "tests: 3 laser jobs route through master"],
+          "description": "Reuse-first. 9 engines + LoRA stack exist.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "WaterjetAGIMasterEngine using existing 6 waterjet engines",
+          "effort": 120,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["engine orchestrates WaterjetProgramAssemblerEngine + LoRA + 4 siblings", "tests: 3 waterjet jobs route through master"],
+          "description": "Reuse-first. 6 engines + LoRA stack exist.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "three new AGI master engines parallel to existing Mill/Lathe/WEDM masters; closes architect risk #6 (domain coverage asymmetry); enables cross-process transfer in MS18; ONLY proceeds if P0-U01 validates the abstraction is proven.",
+  "risks": [
+    {"id": "R1", "description": "Premature abstraction (Pass-2 finding); mitigation = P0-U01 gate halts if pattern unproven"},
+    {"id": "R2", "description": "JM Die has zero laser/waterjet jobs; mitigation = use synthetic test programs + defer real validation to second tenant"}
+  ],
+  "blocks": ["LEARN-XPROC-TRANSFER-MS18"],
+  "blocked_by": ["SINKER-P2P-MS6", "LASER-P2P-MS7", "WJET-P2P-MS8"]
+}

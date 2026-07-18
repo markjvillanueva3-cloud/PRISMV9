@@ -60,6 +60,13 @@ function mulberry32(seed: number) {
 
 /** Simulated Annealing engine/manager.
  */
+// WIRE-EXEMPT: calculate() uses a hardcoded midpoint-seeking objective (sum of squared
+// deviation from each dimension's bounds-midpoint -- SimulatedAnnealing.ts:93-97), NOT a
+// caller-injected cost. Wiring to prism_algorithm would expose a fixed-objective SA of
+// limited general utility (every call optimizes the same demonstrative function). A general
+// SA needs objective-injection (expression-string via SafeExpressionEvaluator, or a registered
+// cost) -- that is an owner refactor on algorithmDispatcher/AlgorithmGatewayEngine, not a tango
+// wire. Verified-on-disk slot:tango 2026-06-15 (DISCOVERY-EFFICIENCY/U-ALGO-FUZZY-WIRE sweep).
 export class SimulatedAnnealing implements Algorithm<SimulatedAnnealingInput, SimulatedAnnealingOutput> {
 
   /** Validate.

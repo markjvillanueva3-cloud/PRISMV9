@@ -1,56 +1,371 @@
 {
   "schemaVersion": "2.0.0",
-  "lastUpdated": "2026-05-08T16:33:37.130Z",
-  "lastReset": "2026-04-28T00:11:42.432Z",
-  "offloaded": 2,
-  "keptOnClaude": 1,
-  "estimatedTokensSaved": 300,
-  "silentSuggestions": 0,
-  "injectedSuggestions": 0,
-  "byCategory": {
-    "cache-hit": 2
-  },
+  "offloaded": 71,
+  "keptOnClaude": 181,
+  "estimatedTokensSaved": 44184,
+  "silentSuggestions": 1143,
+  "injectedSuggestions": 71,
   "byHook": {
     "ollama-task-offloader": {
+      "fired": 386,
+      "offloaded": 71,
+      "kept": 175,
+      "suggested": 140,
+      "tokensSaved": 44184
+    },
+    "ollama-route-pretooluse": {
+      "fired": 2699,
+      "offloaded": 4,
+      "kept": 2671,
+      "suggested": 24,
+      "tokensSaved": 332500
+    },
+    "ask-hermes": {
+      "fired": 944,
+      "offloaded": 935,
+      "kept": 9,
+      "suggested": 0,
+      "tokensSaved": 1581729,
+      "bySource": {
+        "hermes": 926,
+        "ollama-fallback": 9,
+        "fail": 9
+      },
+      "byMode": {
+        "summarize": 19,
+        "ask": 925
+      },
+      "lastUsed": "2026-06-27T18:37:49.554Z"
+    },
+    "fleet-reaper-coordinator": {
       "fired": 1,
       "offloaded": 0,
-      "kept": 1,
-      "suggested": 0,
+      "kept": 0,
+      "suggested": 1,
       "tokensSaved": 0
     },
-    "ollama-engine-api-extractor": {
-      "fired": 2,
-      "offloaded": 2,
+    "grep-index-first": {
+      "fired": 1834,
+      "suggested": 290,
+      "offloaded": 7
+    },
+    "large-read-digest-advisory": {
+      "fired": 1067,
+      "offloaded": 0,
       "kept": 0,
+      "suggested": 1067,
+      "tokensSaved": 0
+    },
+    "wiki-read-offload-advisory": {
+      "fired": 5,
+      "offloaded": 0,
+      "kept": 0,
+      "suggested": 5,
+      "tokensSaved": 0
+    },
+    "ask-ollama": {
+      "fired": 20,
+      "offloaded": 14,
+      "kept": 6,
       "suggested": 0,
-      "tokensSaved": 300
+      "tokensSaved": 12517
+    },
+    "nav-rerank-advisory": {
+      "fired": 1,
+      "offloaded": 0,
+      "kept": 0,
+      "suggested": 1,
+      "tokensSaved": 0
     }
   },
   "events": [
     {
-      "ts": "2026-05-08T16:24:27.380Z",
+      "ts": "2026-06-26T20:29:58.106Z",
+      "hook": "ollama-task-offloader",
+      "decision": "offload",
+      "category": "summary",
+      "tokensSaved": 581,
+      "modelTier": "strong",
+      "modelReason": "target tier [blackwell:balanced→strong]",
+      "hostClass": "home_blackwell",
+      "autoexecKnob": true
+    },
+    {
+      "ts": "2026-06-26T20:29:58.108Z",
+      "hook": "ollama-task-offloader",
+      "decision": "suggest",
+      "mode": "injected"
+    },
+    {
+      "ts": "2026-06-26T20:29:58.110Z",
+      "hook": "ollama-task-offloader",
+      "decision": "suggest",
+      "category": "summary",
+      "mode": "auto-exec-directive",
+      "askOllamaMode": "summarize"
+    },
+    {
+      "ts": "2026-06-26T20:30:25.051Z",
+      "hook": "ollama-task-offloader",
+      "decision": "offload",
+      "category": "summary",
+      "tokensSaved": 340,
+      "modelTier": "strong",
+      "modelReason": "target tier [blackwell:balanced→strong]",
+      "hostClass": "home_blackwell",
+      "autoexecKnob": true
+    },
+    {
+      "ts": "2026-06-26T20:30:25.052Z",
+      "hook": "ollama-task-offloader",
+      "decision": "suggest",
+      "mode": "injected"
+    },
+    {
+      "ts": "2026-06-26T20:30:25.054Z",
+      "hook": "ollama-task-offloader",
+      "decision": "suggest",
+      "category": "summary",
+      "mode": "auto-exec-directive",
+      "askOllamaMode": "summarize"
+    },
+    {
+      "ts": "2026-06-26T20:30:37.745Z",
       "hook": "ollama-task-offloader",
       "decision": "keep",
-      "category": "complex",
-      "snippet": "add all these to the forge-audit slash command so when I tell the other chat to "
+      "category": "safety_physics",
+      "snippet": "AUTONOMOUS OVERNIGHT BUILD — yolo-mode, slot:whiskey, session 5e7ecda3, Kienzle/"
     },
     {
-      "ts": "2026-05-08T16:33:00.445Z",
-      "hook": "ollama-engine-api-extractor",
-      "decision": "offload",
-      "category": "cache-hit",
-      "tokensSaved": 150,
-      "mode": "cache-hit",
-      "file": "PDFProcessingPipelineEngine.ts"
+      "ts": "2026-06-26T23:59:03.850Z",
+      "hook": "ask-ollama",
+      "decision": "keep",
+      "category": "ask",
+      "mode": "failed"
     },
     {
-      "ts": "2026-05-08T16:33:37.130Z",
-      "hook": "ollama-engine-api-extractor",
+      "ts": "2026-06-27T15:35:33.261Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/goal Continue the delta CAD-completion autonomous overnight loop (slot:delta, /"
+    },
+    {
+      "ts": "2026-06-27T15:36:49.447Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-oscar continue where we left off with Checking ALL Machines in the data"
+    },
+    {
+      "ts": "2026-06-27T15:55:58.426Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "AUTONOMOUS OVERNIGHT BUILD — yolo-mode, slot:whiskey, session 5e7ecda3, Kienzle/"
+    },
+    {
+      "ts": "2026-06-27T16:25:58.105Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "AUTONOMOUS OVERNIGHT BUILD — yolo-mode, slot:whiskey, session 5e7ecda3, Kienzle/"
+    },
+    {
+      "ts": "2026-06-27T16:55:58.721Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "AUTONOMOUS OVERNIGHT BUILD — yolo-mode, slot:whiskey, session 5e7ecda3, Kienzle/"
+    },
+    {
+      "ts": "2026-06-27T17:22:59.596Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-oscar continue where we left off with Checking ALL Machines in the data"
+    },
+    {
+      "ts": "2026-06-27T17:23:43.494Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-alpha read all recent alpha conversations in claude code cli and hermes"
+    },
+    {
+      "ts": "2026-06-27T17:25:58.551Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "AUTONOMOUS OVERNIGHT BUILD — yolo-mode, slot:whiskey, session 5e7ecda3, Kienzle/"
+    },
+    {
+      "ts": "2026-06-27T17:27:24.801Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "/checkin-zulu continue where zulu left off in the hermes session. it was populat"
+    },
+    {
+      "ts": "2026-06-27T17:28:54.426Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-oscar continue where we left off with Checking ALL Machines in the data"
+    },
+    {
+      "ts": "2026-06-27T17:32:40.886Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-alpha read all recent alpha conversations in claude code cli and hermes"
+    },
+    {
+      "ts": "2026-06-27T17:35:16.109Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "/checkin-zulu continue where zulu left off in the hermes session. it was populat"
+    },
+    {
+      "ts": "2026-06-27T17:36:54.422Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "/checkin-whiskey /goal [ /loop [10m] utilize parallel hermes agents using opus 4"
+    },
+    {
+      "ts": "2026-06-27T17:39:35.452Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "/checkin-quebec /goal [ /loop [10m] utilize parallel hermes agents, obsidian vau"
+    },
+    {
+      "ts": "2026-06-27T17:42:41.087Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-delta /goal [ utilize hermes agents/octopus, hermes cli ( we now have a"
+    },
+    {
+      "ts": "2026-06-27T17:43:59.643Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-echo /loop [10m] /goal [ read All echo and post processor related chats"
+    },
+    {
+      "ts": "2026-06-27T17:57:30.312Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "<task-notification>\n<task-id>woy8nvsnd</task-id>\n<tool-use-id>toolu_01GSyqYS9qGW"
+    },
+    {
+      "ts": "2026-06-27T17:57:44.666Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "AUTONOMOUS OVERNIGHT BUILD — yolo-mode, slot:whiskey, session 5e7ecda3, Kienzle/"
+    },
+    {
+      "ts": "2026-06-27T18:25:19.231Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "operator_directive",
+      "snippet": "utilize engineered loops, harnesses and crons that ensure there is no down time."
+    },
+    {
+      "ts": "2026-06-27T18:26:04.345Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "operator_directive",
+      "snippet": "continue. utilize engineered loops, harnesses and crons to work with no down tim"
+    },
+    {
+      "ts": "2026-06-27T18:44:24.901Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "AUTONOMOUS OVERNIGHT BUILD — yolo-mode, slot:whiskey, session 5e7ecda3, Kienzle/"
+    },
+    {
+      "ts": "2026-06-27T19:05:42.916Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-bravo /loop [10m]  /goal [ utilize ultraode, hermes agents, claude.md, "
+    },
+    {
+      "ts": "2026-06-27T19:16:28.182Z",
+      "hook": "ollama-task-offloader",
       "decision": "offload",
-      "category": "cache-hit",
-      "tokensSaved": 150,
-      "mode": "cache-hit",
-      "file": "PDFProcessingPipelineEngine.ts"
+      "category": "summary",
+      "tokensSaved": 3061,
+      "modelTier": "strong",
+      "modelReason": "target tier [blackwell:balanced→strong]",
+      "hostClass": "home_blackwell",
+      "autoexecKnob": true
+    },
+    {
+      "ts": "2026-06-27T19:16:28.184Z",
+      "hook": "ollama-task-offloader",
+      "decision": "suggest",
+      "mode": "injected"
+    },
+    {
+      "ts": "2026-06-27T19:16:28.186Z",
+      "hook": "ollama-task-offloader",
+      "decision": "suggest",
+      "category": "summary",
+      "mode": "auto-exec-directive",
+      "askOllamaMode": "summarize"
+    },
+    {
+      "ts": "2026-06-27T19:17:29.078Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "AUTONOMOUS OVERNIGHT BUILD — yolo-mode, slot:whiskey, session 5e7ecda3, Kienzle/"
+    },
+    {
+      "ts": "2026-06-27T19:21:05.647Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-golf if we need to commit for dormant features to take effect. get the "
+    },
+    {
+      "ts": "2026-06-27T19:26:35.735Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "operator_directive",
+      "snippet": "continue. utilize engineered loops, harnesses and crons to work with no down tim"
+    },
+    {
+      "ts": "2026-06-27T20:02:56.890Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "orchestration",
+      "snippet": "/checkin-charlie /loop [10m]  /goal [ utilize ultraode, hermes agents, claude.md"
+    },
+    {
+      "ts": "2026-06-27T20:11:31.026Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "safety_physics",
+      "snippet": "/checkin-whiskey /goal [ /loop [10m] utilize parallel hermes agents using opus 4"
     }
-  ]
+  ],
+  "lastUpdated": "2026-06-27T20:37:21.589Z",
+  "lastReset": "2026-06-25T02:37:03.676Z",
+  "byCategory": {
+    "documentation": 2,
+    "explanation": 26,
+    "prism_audit": 29,
+    "summary": 14
+  },
+  "executedOffloads": 14,
+  "measuredTokensSaved": 12517
 }

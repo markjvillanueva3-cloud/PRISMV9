@@ -1,0 +1,55 @@
+# HMEMV08-OBSIDIAN-BASES — Wiki doctrine pivoted by `owner_slot` frontmatter field.
+#
+# This is the justified 3rd pivot (the task named "shipped-skills-by-slot (or a
+# 3rd useful pivot you justify)"). "shipped-skills-by-slot" is NOT buildable as
+# a Base: skills live at .claude/commands/*.md, which is OUTSIDE the vault root
+# (knowledge/), so Obsidian cannot index them, and they carry no `slot`
+# frontmatter. `wiki-by-slot` is the operator-useful alternative that uses a
+# confirmed-present, well-distributed field.
+#
+# Vault root = H:/prism/knowledge/. All file.* paths are RELATIVE to that root.
+# Targeted corpus = knowledge/wiki/** -> filter is file.inFolder("wiki").
+#
+# `owner_slot` is a real frontmatter field (verified live 2026-06-10): 179 wiki
+# files tag an owner_slot -- golf (35), delta (11), zebra/lima (10), xray (9),
+# papa (7), and the remaining NATO slots (~6 each). Shows which slot owns which
+# doctrine. The `owner_slot != ""` filter suppresses the empty (un-tagged) group.
+filters:
+  and:
+    - file.inFolder("wiki")
+    - 'file.ext == "md"'
+    - 'owner_slot != ""'
+
+properties:
+  owner_slot:
+    displayName: "Owner Slot"
+  galaxy:
+    displayName: "Galaxy"
+  title:
+    displayName: "Title"
+  status:
+    displayName: "Status"
+  file.name:
+    displayName: "Wiki Entry"
+
+views:
+  - type: table
+    name: "By Owner Slot"
+    groupBy:
+      property: owner_slot
+      direction: ASC
+    order:
+      - file.name
+      - owner_slot
+      - galaxy
+      - title
+      - status
+    summaries:
+      owner_slot: Unique
+
+  - type: list
+    name: "Slot Ownership List"
+    order:
+      - file.name
+      - owner_slot
+      - galaxy

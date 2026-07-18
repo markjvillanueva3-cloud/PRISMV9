@@ -1,0 +1,7570 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-20T01:08:38.878Z",
+  "milestone": "MASTER-AI-SYSTEM-ROADMAP-2026-04-15",
+  "unit": "multi-endpoint-wiring-audit",
+  "totals": {
+    "dispatchers": 91,
+    "engineFiles": 2509,
+    "orphan": 786,
+    "singleWire": 1550,
+    "multiWire": 173,
+    "orphanWithCandidate": 396,
+    "singleWireWithCandidate": 802
+  },
+  "topMultiWired": [
+    {
+      "engine": "PostProcessorPipelineEngine",
+      "wiredTo": [
+        "cam",
+        "multiAxisProgram",
+        "pp",
+        "product",
+        "turning",
+        "turningProgram"
+      ]
+    },
+    {
+      "engine": "KnowledgeGraphEngine",
+      "wiredTo": [
+        "intelligence",
+        "knowledge",
+        "knowledgeExt",
+        "pp"
+      ]
+    },
+    {
+      "engine": "OEECalculatorEngine",
+      "wiredTo": [
+        "automation",
+        "business",
+        "calc",
+        "scheduling"
+      ]
+    },
+    {
+      "engine": "BottleneckIdentificationEngine",
+      "wiredTo": [
+        "automation",
+        "calc",
+        "scheduling"
+      ]
+    },
+    {
+      "engine": "ContextChainEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "dev",
+        "session"
+      ]
+    },
+    {
+      "engine": "LatheLoRACadenceEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "knowledgeExt",
+        "turning"
+      ]
+    },
+    {
+      "engine": "LatheLoRAPipelineEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "knowledgeExt",
+        "turning"
+      ]
+    },
+    {
+      "engine": "MasterPostProcessorEngine",
+      "wiredTo": [
+        "cam",
+        "pp",
+        "product"
+      ]
+    },
+    {
+      "engine": "TribalKnowledgeActivationEngine",
+      "wiredTo": [
+        "knowledge",
+        "pp",
+        "turning"
+      ]
+    },
+    {
+      "engine": "TribalKnowledgeEngine",
+      "wiredTo": [
+        "documentLearning",
+        "knowledge",
+        "shopPractice"
+      ]
+    },
+    {
+      "engine": "AIAutoUtilizationEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "intelligence"
+      ]
+    },
+    {
+      "engine": "AICapabilityMaximizerEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "intelligence"
+      ]
+    },
+    {
+      "engine": "AIDecisionExplanationEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "intelligence"
+      ]
+    },
+    {
+      "engine": "AIExtractionReasonerEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "hook"
+      ]
+    },
+    {
+      "engine": "AIIntelligenceMaximizerEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "intelligence"
+      ]
+    },
+    {
+      "engine": "AIMLFormulasEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "calc"
+      ]
+    },
+    {
+      "engine": "ActiveLearningStrategyEngine",
+      "wiredTo": [
+        "aiReasoning",
+        "intelligence"
+      ]
+    },
+    {
+      "engine": "AdaptiveControlEngine",
+      "wiredTo": [
+        "intelligence",
+        "machineLive"
+      ]
+    },
+    {
+      "engine": "AdaptivePipelineGeneratorEngine",
+      "wiredTo": [
+        "calc",
+        "provenPipeline"
+      ]
+    },
+    {
+      "engine": "AdaptiveRefinementEngine",
+      "wiredTo": [
+        "multiOp",
+        "toolpath"
+      ]
+    },
+    {
+      "engine": "AdvancedCuttingMathEngine",
+      "wiredTo": [
+        "calc",
+        "cam"
+      ]
+    },
+    {
+      "engine": "AdvancedPostProcessorEngine",
+      "wiredTo": [
+        "cam",
+        "product"
+      ]
+    },
+    {
+      "engine": "AgenticLoopEngine",
+      "wiredTo": [
+        "agent",
+        "aiReasoning"
+      ]
+    },
+    {
+      "engine": "AlarmIntelligenceEngine",
+      "wiredTo": [
+        "diagnosis",
+        "machineSetup"
+      ]
+    },
+    {
+      "engine": "AlgorithmGatewayEngine",
+      "wiredTo": [
+        "algorithm",
+        "intelligence"
+      ]
+    }
+  ],
+  "orphanCandidates": [
+    {
+      "engine": "FusionStrategyKnowledgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "fusion",
+            "strategy"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADDrawingNumberNormalizerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad",
+            "drawing"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad",
+            "drawing"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillTribalKnowledgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal",
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ResourceHarvestingIntelligenceEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "resource",
+            "harvesting"
+          ]
+        },
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "intelligence"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "intelligence"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SpeedFeedResourceIntegrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TribalKnowledgeTrainingEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal",
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WireEDMMachineTechDataEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "wire",
+            "edm"
+          ]
+        },
+        {
+          "dispatcher": "data",
+          "overlap": [
+            "data"
+          ]
+        },
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "VideoELearningAIEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning",
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WireEDMResearchAIEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "wire",
+            "edm"
+          ]
+        },
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheMultiOpPlannerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiOp",
+          "overlap": [
+            "multi",
+            "op"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LathePostProcessorDialectValidatorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "pp",
+          "overlap": [
+            "post",
+            "processor"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MitsubishiMV1200RWireEDMMasterPostEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "wire",
+            "edm"
+          ]
+        },
+        {
+          "dispatcher": "pp",
+          "overlap": [
+            "post"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "OkumaB250LatheMasterPostEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "okuma",
+            "lathe"
+          ]
+        },
+        {
+          "dispatcher": "pp",
+          "overlap": [
+            "post"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ProvenSpeedFeedAggregatorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "proven"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SecondaryOpsEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "secondaryOps",
+          "overlap": [
+            "secondary",
+            "ops"
+          ]
+        },
+        {
+          "dispatcher": "cncOps",
+          "overlap": [
+            "ops"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ToolpathStrategyRouterEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath",
+            "strategy"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WireEDMAdvancedNeuralEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "wire",
+            "edm"
+          ]
+        },
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "InventorCAMStrategyEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam",
+            "strategy"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MasterPostProcessorUnifiedAGIEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "pp",
+          "overlap": [
+            "post",
+            "processor"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "OperatingSystemCoordinationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "operatingSystem",
+          "overlap": [
+            "operating",
+            "system"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "OperatingSystemJobPacketEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "operatingSystem",
+          "overlap": [
+            "operating",
+            "system"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PostProcessorUnificationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "pp",
+          "overlap": [
+            "post",
+            "processor"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WireEDMUnifiedScienceEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "wire",
+            "edm"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADAccessControlRBACABACEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "control"
+          ]
+        },
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheKnowledgeHarvesterEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "harvester"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MultiCamKnowledgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADRevisionPromotionWorkflowEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "orchestrate",
+          "overlap": [
+            "workflow"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADTenantNamespaceEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "tenant",
+          "overlap": [
+            "tenant"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CadPartLibraryEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "parts",
+          "overlap": [
+            "part"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HyperMillStrategyKnowledgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "strategy"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheJMDieKnowledgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TurningToolpathWearEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "wear"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "turning"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "turning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WireEDMCAMKnowledgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "wire"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADAssemblyGraphEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADBundleReplayCompareEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADBundleSigningVersioningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADContentAddressableStoreEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADFilesystemReconciliationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADFormatConversionMatrixEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADInstallationProbeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADPreviewThumbnailCacheEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADReplicationDurabilityEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADRevisionDetectorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADSearchUniversalEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADVisualDiffEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FiveAxisCAMIntegrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "5axis",
+          "overlap": [
+            "five"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "five"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FixtureCadIngesterEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HookTelemetryEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "monitoring",
+          "overlap": [
+            "telemetry"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "telemetry",
+          "overlap": [
+            "telemetry"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "JMDieMillProgramHarvestEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "harvest"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "harvest"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAPipelineCoordinatorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "orchestrate",
+          "overlap": [
+            "coordinator"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MITCourseKnowledgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineDataAuditEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "compliance",
+          "overlap": [
+            "audit"
+          ]
+        },
+        {
+          "dispatcher": "data",
+          "overlap": [
+            "data"
+          ]
+        },
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineForceLimitValidationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "force"
+          ]
+        },
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "validate",
+          "overlap": [
+            "validation"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillProgramLearningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MultiPathReasoningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "multiOp",
+          "overlap": [
+            "multi"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "path"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MultiSessionHandoffCoordinatorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "multiOp",
+          "overlap": [
+            "multi"
+          ]
+        },
+        {
+          "dispatcher": "orchestrate",
+          "overlap": [
+            "coordinator"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "OkumaMachineStepIngesterEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "step"
+          ]
+        },
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "okuma"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PartGeometryPipelineEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "geometry"
+          ]
+        },
+        {
+          "dispatcher": "parts",
+          "overlap": [
+            "part"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "UniversalCADIndexEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WEDMKnowledgeDistillationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AdaptiveMachiningIntegrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "machining"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AdaptiveThermalEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "thermal"
+          ]
+        },
+        {
+          "dispatcher": "fluidThermal",
+          "overlap": [
+            "thermal"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CATIAMachiningAIOrchestrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "machining"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ControlPlanGeneratorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "control"
+          ]
+        },
+        {
+          "dispatcher": "generator",
+          "overlap": [
+            "generator"
+          ]
+        },
+        {
+          "dispatcher": "processControl",
+          "overlap": [
+            "control"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FusionMaterialBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "fusion"
+          ]
+        },
+        {
+          "dispatcher": "materialProcessing",
+          "overlap": [
+            "material"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "JMDieProgramInventoryEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "inventory"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheAITrainingEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheAdaptiveMachiningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "machining"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheDeepAIHardeningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRANeuralBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural"
+          ]
+        },
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAProgramMinerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAProgramParserEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAReasoningEvaluatorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAResourceManagerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "resource"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRASafetyEvaluatorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRATrainingMonitorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "monitoring",
+          "overlap": [
+            "monitor"
+          ]
+        },
+        {
+          "dispatcher": "telemetry",
+          "overlap": [
+            "monitor"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LathePartoffSafetyRailEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheProgramOptimizerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheQualityGateEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "quality"
+          ]
+        },
+        {
+          "dispatcher": "quality",
+          "overlap": [
+            "quality"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MastercamAIOrchestrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "mastercam"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MastercamMaterialBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "mastercam"
+          ]
+        },
+        {
+          "dispatcher": "materialProcessing",
+          "overlap": [
+            "material"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillAISelfAwarenessIntegrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MultiAssetReasoningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "multiOp",
+          "overlap": [
+            "multi"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MultiProcessQuoteEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "business",
+          "overlap": [
+            "quote"
+          ]
+        },
+        {
+          "dispatcher": "multiOp",
+          "overlap": [
+            "multi"
+          ]
+        },
+        {
+          "dispatcher": "processControl",
+          "overlap": [
+            "process"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MultiSetupFeasibilityChainEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "feasibility",
+          "overlap": [
+            "feasibility"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "setup"
+          ]
+        },
+        {
+          "dispatcher": "multiOp",
+          "overlap": [
+            "multi"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PhysicsNeuralBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural"
+          ]
+        },
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "vibrationPhysics",
+          "overlap": [
+            "physics"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PrintToAIBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PrintToProgramRegressionHarnessEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "regression"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SafetyVetoSimulationGateEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "simulateTask",
+          "overlap": [
+            "simulation"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SessionStabilityEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "stability"
+          ]
+        },
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SetupSheetPipelineEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "setup"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TestResourceRegistryEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "test"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ThermalNeuralPredictorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural"
+          ]
+        },
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "thermal"
+          ]
+        },
+        {
+          "dispatcher": "fluidThermal",
+          "overlap": [
+            "thermal"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ToolpathForceProfileEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "force"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TurningWearPredictionEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "wear"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "turning"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "turning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WEDMWireThreadingMinEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "wire"
+          ]
+        },
+        {
+          "dispatcher": "thread",
+          "overlap": [
+            "threading"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "threading"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AdaptiveChatterEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "chatter"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AdaptiveFeedModulationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "feed"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AdaptiveWearEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "wear"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "BlueprintToQuoteBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "business",
+          "overlap": [
+            "quote"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CAMExportEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        },
+        {
+          "dispatcher": "export",
+          "overlap": [
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CimatronCAMBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CoolantStrategyEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "strategy"
+          ]
+        },
+        {
+          "dispatcher": "fluidThermal",
+          "overlap": [
+            "coolant"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CreoIntegrationTestSuiteEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "test"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CrossSessionOrchestratorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CuttingFluidLifecycleEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "cutting"
+          ]
+        },
+        {
+          "dispatcher": "fluidThermal",
+          "overlap": [
+            "fluid"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "DataValidationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "data",
+          "overlap": [
+            "data"
+          ]
+        },
+        {
+          "dispatcher": "validate",
+          "overlap": [
+            "validation"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "DesignToFloorPipelineEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "DrawingTemplateIndexEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "drawing"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "drawing"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "DuplicationGuardEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "guard"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "guard"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ERPQualityEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "quality"
+          ]
+        },
+        {
+          "dispatcher": "quality",
+          "overlap": [
+            "quality"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "EmbeddingGuardEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "guard"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "guard"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "EmbeddingPipelineEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "EspritCAMBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FusionMultiAxisEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "fusion"
+          ]
+        },
+        {
+          "dispatcher": "multiOp",
+          "overlap": [
+            "multi"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HookBanditEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HookControllerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HookCoverageMaximizerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HookEfficiencyEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HookEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HookOrchestratorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HookRuleMatcherEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HybridProgramComposerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HyperMillAIOrchestrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HyperMillResourceIndexEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "HyperMillTurningConfigIngesterEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "turning"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "turning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "InventorCAMCodeGeneratorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        },
+        {
+          "dispatcher": "generator",
+          "overlap": [
+            "generator"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "InventorCAMToolExportEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        },
+        {
+          "dispatcher": "export",
+          "overlap": [
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "JMDieProgramAnalyzerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "JmDieMachineConfigEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "JobShopSchedulingEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "scheduling",
+          "overlap": [
+            "scheduling"
+          ]
+        },
+        {
+          "dispatcher": "shopPractice",
+          "overlap": [
+            "shop"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheCuttingChemistryEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "cutting"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAMonitoringEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "monitoring",
+          "overlap": [
+            "monitoring"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRANeuralOrchestratorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAPhysicsEvaluatorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        },
+        {
+          "dispatcher": "vibrationPhysics",
+          "overlap": [
+            "physics"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRATransferStrategyEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "strategy"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRATribalAugmentationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRATribalExtractorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LathePartClassifierEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "parts",
+          "overlap": [
+            "part"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheShopAwareOptimizationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "shopPractice",
+          "overlap": [
+            "shop"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheTribalInjectorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheUnifiedPhysicsOrchestrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        },
+        {
+          "dispatcher": "vibrationPhysics",
+          "overlap": [
+            "physics"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineCapabilityIndexEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineDispatchEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineKinematicStateEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineModelAcquisitionEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineModelDownloaderEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineModelIndexEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineOptionMatrixEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineRateDatabaseEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineToolErrorBudgetEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineTypeClassifierEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ManufacturingReasoningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "reasoning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MastercamMultiAxisEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "mastercam"
+          ]
+        },
+        {
+          "dispatcher": "multiOp",
+          "overlap": [
+            "multi"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MaterialDatabaseBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "materialProcessing",
+          "overlap": [
+            "material"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MaterialHarvesterEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "materialProcessing",
+          "overlap": [
+            "material"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "harvester"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MemorySyncEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "memory"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "memory"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillDeepLearningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillResourceAwarenessEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillStrategyNeuralEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "strategy"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillTribalIntegrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillingOnlineLearningTrackerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillingPrintToProgramEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillingReinforcementLearningEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "OkumaMacroConverterBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "okuma"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PairedPrintProgramBundleEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PhysicsAwareDataAugmentationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "data",
+          "overlap": [
+            "data"
+          ]
+        },
+        {
+          "dispatcher": "vibrationPhysics",
+          "overlap": [
+            "physics"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PhysicsFusionConvergenceEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "fusion"
+          ]
+        },
+        {
+          "dispatcher": "vibrationPhysics",
+          "overlap": [
+            "physics"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PipelineDecisionOrchestratorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PipelineMetricsEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PipelineOptimizationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PlaywrightAutomationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "automation",
+          "overlap": [
+            "automation"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "automation"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PowerMillAIOrchestrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PrintToProgramCoverageAnalyzerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PrintToProgramTutorialEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ProcessVariabilityIntegrationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "processControl",
+          "overlap": [
+            "process"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "QdrantMemoryEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "memory"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "memory"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "QualityManagementEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "quality"
+          ]
+        },
+        {
+          "dispatcher": "quality",
+          "overlap": [
+            "quality"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "RealTimeAdaptiveControllerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "realtime",
+          "overlap": [
+            "real"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ResourceIndexEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SPCProcessCapabilityEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "processControl",
+          "overlap": [
+            "process"
+          ]
+        },
+        {
+          "dispatcher": "quality",
+          "overlap": [
+            "spc"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SafetyExplanationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "safety"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SessionAwarenessLifecycleEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SessionBudgetAdvisorEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SessionHandoffV2Engine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SessionLifecycleEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SessionReplayEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ShopFloorCostEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "business",
+          "overlap": [
+            "cost"
+          ]
+        },
+        {
+          "dispatcher": "shopPractice",
+          "overlap": [
+            "shop"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ShopFloorQuoteEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "business",
+          "overlap": [
+            "quote"
+          ]
+        },
+        {
+          "dispatcher": "shopPractice",
+          "overlap": [
+            "shop"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ShopFloorScheduleEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "scheduling",
+          "overlap": [
+            "schedule"
+          ]
+        },
+        {
+          "dispatcher": "shopPractice",
+          "overlap": [
+            "shop"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SpindleHarmonicsQualityEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "quality"
+          ]
+        },
+        {
+          "dispatcher": "quality",
+          "overlap": [
+            "quality"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SprutCAMBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TebisCAMBridgeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "cam"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ThermalOverlayEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "thermal"
+          ]
+        },
+        {
+          "dispatcher": "fluidThermal",
+          "overlap": [
+            "thermal"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ToolCallPipelineEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ToolpathSegmentOptimizerEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TurningInsertLifeEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "turning"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "turning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TurningOffsetCompensationEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "turning"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "turning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "UncertaintyPropagationPipelineEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "UnifiedProgramParserEngine",
+      "wiredTo": [],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    }
+  ],
+  "singleWireMultiUseCandidates": [
+    {
+      "engine": "CADDrawingKnowledgeEngine",
+      "wiredTo": [
+        "cadDrawingKnowledge"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad",
+            "drawing"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADKnowledgeGraphEngine",
+      "wiredTo": [
+        "cad"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad",
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheSpeedFeedReasoningBridgeEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        },
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PostProcessorTribalKnowledgeIntegrationEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal",
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FiveAxisAIUltraIntelligenceEngine",
+      "wiredTo": [
+        "fiveAxis"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai",
+            "intelligence"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai",
+            "intelligence"
+          ]
+        },
+        {
+          "dispatcher": "5axis",
+          "overlap": [
+            "five"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "five"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheSpeedFeedDeepLearningAdvisorEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        },
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachiningKnowledgeBaseEngine",
+      "wiredTo": [
+        "machiningKnowledgeBase"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "machining",
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TribalKnowledgeAdvisorEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal",
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TribalKnowledgeMaximizerEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "tribal",
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LathePostProcessorAIEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "pp",
+          "overlap": [
+            "post",
+            "processor"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheSpeedFeedShopAwareTuningEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        },
+        {
+          "dispatcher": "shopPractice",
+          "overlap": [
+            "shop"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "EDMToolpathStrategyEngine",
+      "wiredTo": [
+        "edm"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath",
+            "strategy"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ElectrodeAIReasoningEngine",
+      "wiredTo": [
+        "edm"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "ai",
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai",
+            "reasoning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheAIReasoningEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai",
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LathePostProcessorEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "pp",
+          "overlap": [
+            "post",
+            "processor"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheSpeedFeedCalculatorFacadeEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "NovelPostProcessorBridgeEngine",
+      "wiredTo": [
+        "toolpath"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "pp",
+          "overlap": [
+            "post",
+            "processor"
+          ]
+        },
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PPOkumaTurningPostEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "okuma",
+            "turning"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "turning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PPToolpathStrategyEncoderEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath",
+            "strategy"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SpeedFeedAutopilotEngine",
+      "wiredTo": [
+        "dev"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        },
+        {
+          "dispatcher": "autoPilot",
+          "overlap": [
+            "autopilot"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TurningProgramAssemblerEngine",
+      "wiredTo": [
+        "turning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "turning",
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WireEDMDeepNeuralReasoningEngine",
+      "wiredTo": [
+        "edm"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural",
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "reasoning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AutoSpeedFeedCalculatorEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AutoSpeedFeedEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "DXFGeometryParserEngine",
+      "wiredTo": [
+        "edm"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "dxf",
+            "geometry"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "DeepAIIntelligenceEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai",
+            "intelligence"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "EDMWireEngine",
+      "wiredTo": [
+        "calc"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "edm",
+            "wire"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FusionCAMExtractorEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "fusion",
+            "cam"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillingAIUltraIntelligenceEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai",
+            "intelligence"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PPFeedSpeedScalerEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "feed",
+            "speed"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PPSinkerEDMPostEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "sinker",
+            "edm"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PPWireEDMPostEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "edm",
+          "overlap": [
+            "wire",
+            "edm"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ProactiveAIIntelligenceEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai",
+            "intelligence"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SpeedFeedMinerEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "speed",
+            "feed"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AIDeepKnowledgeIntegrationEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FiveAxisCADTemplateEngine",
+      "wiredTo": [
+        "fiveAxis"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "5axis",
+          "overlap": [
+            "five"
+          ]
+        },
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheResourceKnowledgeEngine",
+      "wiredTo": [
+        "turning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AutonomousSessionIntegrationEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "atcs",
+          "overlap": [
+            "autonomous"
+          ]
+        },
+        {
+          "dispatcher": "autonomous",
+          "overlap": [
+            "autonomous"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "BoxKnowledgeIntegrationEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADReasoningChainEngine",
+      "wiredTo": [
+        "cad"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "reasoning"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "reasoning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FiveAxisToolpathSynthesisEngine",
+      "wiredTo": [
+        "fiveAxis"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "5axis",
+          "overlap": [
+            "five"
+          ]
+        },
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "synthesis"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "five"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "KnowledgeGraphNeuralBridgeEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAKnowledgeCuratorEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheLoRAKnowledgeGraphEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillingProductionKnowledgeHarvesterEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "harvester"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "OkumaDialectKnowledgeEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "okuma"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PostProcessorVideoKnowledgeNeuralEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "TurningCADImportEngine",
+      "wiredTo": [
+        "turningProgram"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "turning"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "VideoKnowledgeIntegrationEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WireEDMKnowledgeSynthesisEngine",
+      "wiredTo": [
+        "edm"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "synthesis"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AIResourceLearningEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvester",
+          "overlap": [
+            "resource"
+          ]
+        },
+        {
+          "dispatcher": "resourceHarvesting",
+          "overlap": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADOperationTaxonomyEngine",
+      "wiredTo": [
+        "cad"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cncOps",
+          "overlap": [
+            "operation"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADRegressionReportGeneratorEngine",
+      "wiredTo": [
+        "cadRegression"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "generator",
+          "overlap": [
+            "generator"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADRegressionTestOrchestratorEngine",
+      "wiredTo": [
+        "cadRegression"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "test"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADTestCheckpointEngine",
+      "wiredTo": [
+        "cadRegression"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "dev",
+          "overlap": [
+            "test"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CNCSimulationPipelineEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cncOps",
+          "overlap": [
+            "cnc"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "simulateTask",
+          "overlap": [
+            "simulation"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CadQueryCodeGeneratorEngine",
+      "wiredTo": [
+        "cad"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "generator",
+          "overlap": [
+            "generator"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CamKnowledgePortabilityEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ControllerKnowledgeDBEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ControllerKnowledgeEngine",
+      "wiredTo": [
+        "machineSetup"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CustomerKnowledgeEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FiveAxisDeepLearningEngine",
+      "wiredTo": [
+        "fiveAxis"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "5axis",
+          "overlap": [
+            "five"
+          ]
+        },
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "five"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FiveAxisToolpathIntegrationEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "5axis",
+          "overlap": [
+            "five"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "five"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "FusionSetupDocumentEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "fusion"
+          ]
+        },
+        {
+          "dispatcher": "document",
+          "overlap": [
+            "document"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "document"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "setup"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "GCodeIntelligencePipelineEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "intelligence"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "intelligence"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "InteractiveLearningSessionEngine",
+      "wiredTo": [
+        "knowledge"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "session"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "session"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "JMDieProgramLearningEngine",
+      "wiredTo": [
+        "intelligence"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "KnowledgeCurriculumBridgeEngine",
+      "wiredTo": [
+        "knowledge"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "KnowledgePhysicsValidatorEngine",
+      "wiredTo": [
+        "knowledge"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "vibrationPhysics",
+          "overlap": [
+            "physics"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheKnowledgeGraphEngine",
+      "wiredTo": [
+        "turning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "LatheMachineIntelligenceEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "intelligence"
+          ]
+        },
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "turning",
+          "overlap": [
+            "lathe"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineEnvelopeGuardEngine",
+      "wiredTo": [
+        "calc"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "guard"
+          ]
+        },
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "guard"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MachineLearningStrategyRankerEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "learning"
+          ]
+        },
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MathIntegrationPipelineEngine",
+      "wiredTo": [
+        "calc"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "scientificMath",
+          "overlap": [
+            "math"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillingDeepKnowledgeSynthesisEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MillingKnowledgeOrchestratorEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "MultiaxisToolpathEngine",
+      "wiredTo": [
+        "calc"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "5axis",
+          "overlap": [
+            "multiaxis"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "multiaxis"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "NeuralCADGenerationEngine",
+      "wiredTo": [
+        "cad"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "neural"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "OfficeDocumentPipelineEngine",
+      "wiredTo": [
+        "resourceExtraction"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "document",
+          "overlap": [
+            "document"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "document"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PPKnowledgeIndexEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PRISMNeuralKnowledgeSynthesisEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PipelineConsistencyHookEngine",
+      "wiredTo": [
+        "calc"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "hook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "nlHook",
+          "overlap": [
+            "hook"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PipelineSafetyOrchestratorEngine",
+      "wiredTo": [
+        "calc"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PostProcessorComprehensiveKnowledgeEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PostProcessorHyperMillKnowledgeEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PostProcessorKnowledgeGraphEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledge",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "knowledgeExt",
+          "overlap": [
+            "knowledge"
+          ]
+        },
+        {
+          "dispatcher": "machiningKb",
+          "overlap": [
+            "knowledge"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "PrintToProgramPipelineEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ProgramLabelingPipelineEngine",
+      "wiredTo": [
+        "pp"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "provenPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "threadingPipeline",
+          "overlap": [
+            "pipeline"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ProgramMemoryEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "memory",
+          "overlap": [
+            "memory"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "session",
+          "overlap": [
+            "memory"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "RealTimeMachineIntelligenceEngine",
+      "wiredTo": [
+        "intelligence"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "aiReasoning",
+          "overlap": [
+            "intelligence"
+          ]
+        },
+        {
+          "dispatcher": "machineLive",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "machineSetup",
+          "overlap": [
+            "machine"
+          ]
+        },
+        {
+          "dispatcher": "realtime",
+          "overlap": [
+            "real"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "ThermalFieldToolpathEngine",
+      "wiredTo": [
+        "cpl"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "calc",
+          "overlap": [
+            "thermal"
+          ]
+        },
+        {
+          "dispatcher": "cam",
+          "overlap": [
+            "toolpath"
+          ]
+        },
+        {
+          "dispatcher": "fluidThermal",
+          "overlap": [
+            "thermal"
+          ]
+        },
+        {
+          "dispatcher": "toolpath",
+          "overlap": [
+            "toolpath"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "WEDMProgramSafetyGateEngine",
+      "wiredTo": [
+        "edm"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "guard",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "safety",
+          "overlap": [
+            "safety"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AdaptivePhysicsBridgeEngine",
+      "wiredTo": [
+        "calc"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "vibrationPhysics",
+          "overlap": [
+            "physics"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AdaptiveSystemIntegrationEngine",
+      "wiredTo": [
+        "calc"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "adaptiveControl",
+          "overlap": [
+            "adaptive"
+          ]
+        },
+        {
+          "dispatcher": "integration",
+          "overlap": [
+            "integration"
+          ]
+        },
+        {
+          "dispatcher": "operatingSystem",
+          "overlap": [
+            "system"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AutoPrintToProgramBridgeEngine",
+      "wiredTo": [
+        "cam"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "bridge",
+          "overlap": [
+            "bridge"
+          ]
+        },
+        {
+          "dispatcher": "multiaxisProgram",
+          "overlap": [
+            "program"
+          ]
+        },
+        {
+          "dispatcher": "turningProgram",
+          "overlap": [
+            "program"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "AutonomousAIOrchestrationEngine",
+      "wiredTo": [
+        "aiReasoning"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "atcs",
+          "overlap": [
+            "autonomous"
+          ]
+        },
+        {
+          "dispatcher": "autonomous",
+          "overlap": [
+            "autonomous"
+          ]
+        },
+        {
+          "dispatcher": "intelligence",
+          "overlap": [
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "BlueprintToCADGenerationEngine",
+      "wiredTo": [
+        "cad"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "BusinessDocumentExtractorEngine",
+      "wiredTo": [
+        "data"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "business",
+          "overlap": [
+            "business"
+          ]
+        },
+        {
+          "dispatcher": "document",
+          "overlap": [
+            "document"
+          ]
+        },
+        {
+          "dispatcher": "documentLearning",
+          "overlap": [
+            "document"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADAccuracyValidatorEngine",
+      "wiredTo": [
+        "cad"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadRegression",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "CADArtifactStorageEngine",
+      "wiredTo": [
+        "cadRegression"
+      ],
+      "candidates": [
+        {
+          "dispatcher": "cad",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadAutomation",
+          "overlap": [
+            "cad"
+          ]
+        },
+        {
+          "dispatcher": "cadDrawingKnowledge",
+          "overlap": [
+            "cad"
+          ]
+        }
+      ]
+    }
+  ],
+  "note": "Candidates = dispatchers whose domain keywords share >=1 token with the engine name. Orphan candidates = engines wired to zero dispatchers with at least one plausible target. Single-wire multi-use candidates = engines wired to exactly one dispatcher that plausibly belong in others too. Keyword overlap is necessary but not sufficient — every candidate requires human review before wiring. Intended as a work-queue, not a prescription. Safe to run concurrently with active wiring chats."
+}

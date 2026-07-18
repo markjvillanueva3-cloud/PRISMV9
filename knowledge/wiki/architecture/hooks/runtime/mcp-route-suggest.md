@@ -26,6 +26,7 @@ _(no header docblock — read source for behavior)_
 ## Events
 
 - `PreToolUse`
+- `Stop`
 
 ## Doctrine
 
@@ -41,3 +42,4 @@ _(no header docblock — read source for behavior)_
 - Engine layer: [[layer-l6]]
 - Hook bus settings: `H:/.claude/settings.json`
 - Verify hook refs: `node H:/prism/.claude/helpers/verify-hook-refs.mjs`
+- **Milestone home:** [[token-savings-pivot]] — TOKEN-SAVINGS-PIVOT (2026-05-22, slot:alpha, 15+ iters). This hook is the entry point of the feedback loop: it fires TOKEN-SAVE nudges + writes the telemetry sidecar. Pair with `mcp-route-takeup` for take-rate measurement, `/route-suggest-stats` for ROI reporting.

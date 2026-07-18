@@ -8,13 +8,11 @@ export interface CostEstimateRequest {
   machine_rate_per_hour?: number;
 }
 
-export interface CostBreakdown {
-  material: number;
-  labor: number;
-  tooling: number;
-  overhead: number;
-  machine: number;
-}
+// A dynamic category->$ map. The /cost/estimate route's adaptCostEstimate (routes/cost.ts) emits only the
+// components process_cost actually computes (machine/tooling/setup), NOT a fixed material/labor/overhead set.
+// Kept as a Record so this type can't silently re-diverge from api/cost.ts's CostEstimate (the one the page
+// actually imports). See [[reference_charlie_costpage_shape_2026_06_24]]. No consumer reads a literal key.
+export type CostBreakdown = Record<string, number>;
 
 export interface CostEstimate {
   total_cost: number;

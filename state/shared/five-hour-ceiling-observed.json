@@ -1,0 +1,394 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "five-hour-limit-tracker:429-session-limit-calibration",
+  "computedAt": "2026-06-17T19:16:52.227Z",
+  "sinceDays": 45,
+  "windowMs": 18000000,
+  "transcriptsScanned": 1071,
+  "usageRecords": 531894,
+  "sessionLimitEvents": 2089,
+  "observedCeiling": 71873712,
+  "hardCeilingEstimate": 144961202.46998623,
+  "minObservedCrossing": 12452573.450000763,
+  "p25Crossing": 71873711.82500648,
+  "medianCrossing": 91419807.35000277,
+  "p90Crossing": 144961202.46998623,
+  "maxObservedCrossing": 176103405.5999987,
+  "crossings": 34,
+  "partialCrossings": 0,
+  "usedCoverage": "full",
+  "lowConfidence": false,
+  "caveat": "Low crossings (well below the cluster) likely reflect the SEPARATE weekly/sub limit, not the 5h ceiling; the robust p25 rejects them. The 5h window here is rolling [T-5h,T]; Anthropic's block is fixed-clock, so a crossing slightly over-estimates that block's usage.",
+  "recommend": {
+    "budget": 71873712,
+    "triggerAt": 66123815,
+    "pct": 0.92,
+    "basis": "p25-observed-ceiling",
+    "lowConfidence": false,
+    "min": 12452573.450000763,
+    "p25": 71873711.82500648,
+    "median": 91419807.35000277,
+    "max": 176103405.5999987
+  },
+  "observations": [
+    {
+      "tsMs": 1778723389243,
+      "at": "2026-05-14T01:49:49.243Z",
+      "ceiling": 96750271.94999957,
+      "coverage": "full",
+      "reset": {
+        "raw": "10:20pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "8c4340b8-be53-4b93-9d8f-ace9232d63f6"
+    },
+    {
+      "tsMs": 1778900458799,
+      "at": "2026-05-16T03:00:58.799Z",
+      "ceiling": 41937636.64999902,
+      "coverage": "full",
+      "reset": {
+        "raw": "1:20am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "41db1b82-95ec-4f76-bff8-293146973f7e"
+    },
+    {
+      "tsMs": 1778961463396,
+      "at": "2026-05-16T19:57:43.396Z",
+      "ceiling": 12452573.450000763,
+      "coverage": "full",
+      "reset": null,
+      "sessionId": "6d0595bf-26fa-4329-b16e-462ca941e240"
+    },
+    {
+      "tsMs": 1778996486732,
+      "at": "2026-05-17T05:41:26.732Z",
+      "ceiling": 85717601.10000288,
+      "coverage": "full",
+      "reset": {
+        "raw": "3:50am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "41db1b82-95ec-4f76-bff8-293146973f7e"
+    },
+    {
+      "tsMs": 1779036846847,
+      "at": "2026-05-17T16:54:06.847Z",
+      "ceiling": 26867982.49999988,
+      "coverage": "full",
+      "reset": {
+        "raw": "1:50pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "77971357-5bcb-4ccc-a608-c74803591428"
+    },
+    {
+      "tsMs": 1779063540739,
+      "at": "2026-05-18T00:19:00.739Z",
+      "ceiling": 176103405.5999987,
+      "coverage": "full",
+      "reset": {
+        "raw": "10:10pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "2d30710b-6b5c-4bec-9411-d5fa40ad204c"
+    },
+    {
+      "tsMs": 1779152933226,
+      "at": "2026-05-19T01:08:53.226Z",
+      "ceiling": 117613197.00000024,
+      "coverage": "full",
+      "reset": {
+        "raw": "11:20pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "3c737257-2eff-42f5-a23a-ca1345246313"
+    },
+    {
+      "tsMs": 1779222266971,
+      "at": "2026-05-19T20:24:26.971Z",
+      "ceiling": 107554503.0999949,
+      "coverage": "full",
+      "reset": {
+        "raw": "4:10pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "41794360-3598-427a-a7eb-607c93491879"
+    },
+    {
+      "tsMs": 1779323835344,
+      "at": "2026-05-21T00:37:15.344Z",
+      "ceiling": 92244926.80000496,
+      "coverage": "full",
+      "reset": {
+        "raw": "9:40pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "a264d369-cb27-4fb0-a355-88a1437f9d6d"
+    },
+    {
+      "tsMs": 1779388406245,
+      "at": "2026-05-21T18:33:26.245Z",
+      "ceiling": 100131190.65000153,
+      "coverage": "full",
+      "reset": {
+        "raw": "2:20pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "5f24da39-0fd3-4a0b-a269-48217c52fd53"
+    },
+    {
+      "tsMs": 1779477445625,
+      "at": "2026-05-22T19:17:25.625Z",
+      "ceiling": 91014540.69998789,
+      "coverage": "full",
+      "reset": {
+        "raw": "3:30pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "db0678d4-8e0b-41d6-aa8f-52d3fa8157fe"
+    },
+    {
+      "tsMs": 1779563761637,
+      "at": "2026-05-23T19:16:01.637Z",
+      "ceiling": 70437028.45000267,
+      "coverage": "full",
+      "reset": {
+        "raw": "3:10pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "f81732d5-25f0-4aaa-864f-7520080839d1"
+    },
+    {
+      "tsMs": 1779653082122,
+      "at": "2026-05-24T20:04:42.122Z",
+      "ceiling": 92446163.39999819,
+      "coverage": "full",
+      "reset": null,
+      "sessionId": "9fbbe420-5335-44ea-8eae-7244e85cd53b"
+    },
+    {
+      "tsMs": 1779760336559,
+      "at": "2026-05-26T01:52:16.559Z",
+      "ceiling": 111961312.80001116,
+      "coverage": "full",
+      "reset": null,
+      "sessionId": "227a8626-a47d-4707-95e8-1241dc4b7bda"
+    },
+    {
+      "tsMs": 1779819694640,
+      "at": "2026-05-26T18:21:34.640Z",
+      "ceiling": 151722704.14999294,
+      "coverage": "full",
+      "reset": {
+        "raw": "3:50pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "2ae65067-e11d-4499-80a6-c81da270c373"
+    },
+    {
+      "tsMs": 1779940115394,
+      "at": "2026-05-28T03:48:35.394Z",
+      "ceiling": 114180813.80000687,
+      "coverage": "full",
+      "reset": {
+        "raw": "12:30am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "3b8f8578-1950-4960-a77b-932923283556"
+    },
+    {
+      "tsMs": 1780066369828,
+      "at": "2026-05-29T14:52:49.828Z",
+      "ceiling": 73954431.7999897,
+      "coverage": "full",
+      "reset": {
+        "raw": "12:40pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "e75608b8-bc3f-46c7-914d-bf132701e6f7"
+    },
+    {
+      "tsMs": 1780162870062,
+      "at": "2026-05-30T17:41:10.062Z",
+      "ceiling": 57955334.499996185,
+      "coverage": "full",
+      "reset": {
+        "raw": "2:20pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "e9b75754-b179-40b0-b0fb-7007d65b2056"
+    },
+    {
+      "tsMs": 1780198784032,
+      "at": "2026-05-31T03:39:44.032Z",
+      "ceiling": 73083986.89998817,
+      "coverage": "full",
+      "reset": null,
+      "sessionId": "05ceb444-c381-4be3-a54c-91d4043e4329"
+    },
+    {
+      "tsMs": 1780262844059,
+      "at": "2026-05-31T21:27:24.059Z",
+      "ceiling": 58561693.14998627,
+      "coverage": "full",
+      "reset": {
+        "raw": "4:50pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "5e210e4e-d61d-49d8-b4bb-a7d7bba9c39a"
+    },
+    {
+      "tsMs": 1780334861284,
+      "at": "2026-06-01T17:27:41.284Z",
+      "ceiling": 162719111.85000134,
+      "coverage": "full",
+      "reset": {
+        "raw": "3:30pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "e9b75754-b179-40b0-b0fb-7007d65b2056"
+    },
+    {
+      "tsMs": 1780372428177,
+      "at": "2026-06-02T03:53:48.177Z",
+      "ceiling": 137445244.300004,
+      "coverage": "full",
+      "reset": {
+        "raw": "2:30am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "87d96286-aba0-4263-85de-26771e812c92"
+    },
+    {
+      "tsMs": 1780412471207,
+      "at": "2026-06-02T15:01:11.207Z",
+      "ceiling": 37867393.8499918,
+      "coverage": "full",
+      "reset": {
+        "raw": "12:50pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "5e210e4e-d61d-49d8-b4bb-a7d7bba9c39a"
+    },
+    {
+      "tsMs": 1780520227001,
+      "at": "2026-06-03T20:57:07.001Z",
+      "ceiling": 78854350.44998741,
+      "coverage": "full",
+      "reset": {
+        "raw": "6:10pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "0817756c-0693-4484-b131-7f7a38627b5b"
+    },
+    {
+      "tsMs": 1780587295565,
+      "at": "2026-06-04T15:34:55.565Z",
+      "ceiling": 52768641.549996376,
+      "coverage": "full",
+      "reset": {
+        "raw": "12:30pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "8b785b10-fc31-4613-8c28-594f7533b4f2"
+    },
+    {
+      "tsMs": 1780938293336,
+      "at": "2026-06-08T17:04:53.336Z",
+      "ceiling": 79227279.60002995,
+      "coverage": "full",
+      "reset": {
+        "raw": "1:20pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "d0133a03-9407-4bcc-9878-1b260a7a56cb"
+    },
+    {
+      "tsMs": 1780986990702,
+      "at": "2026-06-09T06:36:30.702Z",
+      "ceiling": 91354109.20000458,
+      "coverage": "full",
+      "reset": {
+        "raw": "1:40am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "928a8226-c5d3-489a-a7f0-3c0167726623"
+    },
+    {
+      "tsMs": 1781015698998,
+      "at": "2026-06-09T14:34:58.998Z",
+      "ceiling": 91485505.50000095,
+      "coverage": "full",
+      "reset": {
+        "raw": "12:40pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "19dff632-e5c0-49cd-ad5a-524091f39df0"
+    },
+    {
+      "tsMs": 1781185884772,
+      "at": "2026-06-11T13:51:24.772Z",
+      "ceiling": 73793749.89997482,
+      "coverage": "full",
+      "reset": {
+        "raw": "11:20am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "d545743f-8fad-47d7-a7de-1716a4be5839"
+    },
+    {
+      "tsMs": 1781417825120,
+      "at": "2026-06-14T06:17:05.120Z",
+      "ceiling": 71470286.80001259,
+      "coverage": "full",
+      "reset": {
+        "raw": "1:40am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "35d1eaf4-6a6d-473d-bc4b-97c2e1c28152"
+    },
+    {
+      "tsMs": 1781492981758,
+      "at": "2026-06-15T03:09:41.758Z",
+      "ceiling": 131984193.60000801,
+      "coverage": "full",
+      "reset": {
+        "raw": "12:20am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "35d1eaf4-6a6d-473d-bc4b-97c2e1c28152"
+    },
+    {
+      "tsMs": 1781551377454,
+      "at": "2026-06-15T19:22:57.454Z",
+      "ceiling": 120564338.99999046,
+      "coverage": "full",
+      "reset": null,
+      "sessionId": "02a2de10-a589-47ba-bf73-ae9c39a0fecb"
+    },
+    {
+      "tsMs": 1781673036853,
+      "at": "2026-06-17T05:10:36.853Z",
+      "ceiling": 114504106.20002556,
+      "coverage": "full",
+      "reset": {
+        "raw": "2:40am",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "3441c192-7f7a-4e0b-8bf4-5b5a9b1eb28e"
+    },
+    {
+      "tsMs": 1781714005348,
+      "at": "2026-06-17T16:33:25.348Z",
+      "ceiling": 148182327.39997864,
+      "coverage": "full",
+      "reset": {
+        "raw": "12:40pm",
+        "tz": "America/Chicago"
+      },
+      "sessionId": "dc3f020e-9a94-4310-adf2-a60d9533cfec"
+    }
+  ]
+}

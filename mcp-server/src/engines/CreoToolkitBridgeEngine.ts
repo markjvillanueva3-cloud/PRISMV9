@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-CAD-APP add-in bridge -- constructor requires an injected CreoTransport (Creo Toolkit/J-Link daemon in prod, stub in tests); no singleton, not lazy-loadable as a prism_* dispatcher action. Driven by the Creo add-in host (delta/CAD), not a standalone capability.
 /**
  * CreoToolkitBridgeEngine — U-CAD-APP-01 (PHASE-48)
  *

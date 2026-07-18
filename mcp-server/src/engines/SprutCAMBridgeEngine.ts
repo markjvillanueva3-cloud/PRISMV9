@@ -1102,11 +1102,8 @@ export class SprutCAMBridgeEngine {
       }
 
       const addedTool: SprutTool = {
-        id: String(res.tool_id ?? ""),
-        number: tool.number,
-        type: tool.type,
-        diameterMm: tool.diameterMm,
         ...tool,
+        id: String(res.tool_id ?? ""),
       };
 
       if (this._activeProject) {

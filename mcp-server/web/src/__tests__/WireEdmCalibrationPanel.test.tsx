@@ -26,11 +26,11 @@ const PERFECT_REPORT: WireEdmCalibrationReport = {
 
 const DRIFTED_REPORT: WireEdmCalibrationReport = {
   reference_filename: 'ITW.NC',
-  generated_filename: 'PRISM.NC',
+  generated_filename: 'Kienzle.NC',
   overall_match: 0.62,
   overall_grade: 'poor',
   production_ready: false,
-  summary: 'ITW.NC vs PRISM.NC: match=62.0% (poor). 1 critical, 2 major, 1 minor, 5 match.',
+  summary: 'ITW.NC vs Kienzle.NC: match=62.0% (poor). 1 critical, 2 major, 1 minor, 5 match.',
   deviations: [
     { parameter: 'dialect', reference: 'mitsubishi', generated: 'mitsubishi', match: 1, severity: 'match' },
     { parameter: 'pass_count', reference: 4, generated: 5, match: 0.6, severity: 'major', deviation_pct: 25 },
@@ -160,7 +160,7 @@ describe('WireEdmCalibrationPanel', () => {
   it('shows reference → generated filename trace', () => {
     render(<WireEdmCalibrationPanel report={DRIFTED_REPORT} />);
     // Both the hero trace and the summary contain the filenames; at least one must render.
-    const matches = screen.getAllByText(/ITW\.NC.*PRISM\.NC/);
+    const matches = screen.getAllByText(/ITW\.NC.*Kienzle\.NC/);
     expect(matches.length).toBeGreaterThan(0);
   });
 

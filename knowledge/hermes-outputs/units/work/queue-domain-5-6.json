@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0.0",
+  "domainGroup": "5-6",
+  "units": [
+    {
+      "id": "0022",
+      "file": "UNIT-0022-DOMAIN5-OPERATOR-DECISION-FATIGUE-AND-BIAS.md",
+      "title": "Operator Decision Fatigue and Bias Modeling",
+      "priority": "P1",
+      "roiScore": 4,
+      "verdict": "build",
+      "existingAssets": [
+        "mcp-server/src/engines/MetaAIOrchestrationEngine.ts:427-445",
+        "mcp-server/src/engines/PostProcessorDeepCognitionEngine.ts:639-642",
+        "mcp-server/src/hooks/SpecialtyCadences.ts:110-146",
+        "mcp-server/src/tools/dispatchers/schedulingDispatcher.ts:97-98",
+        "mcp-server/src/data/academy/course-22-alarm-troubleshooting-deep.ts:442",
+        "mcp-server/src/engines/FailureModeAnticipationEngine.ts:409-423",
+        "mcp-server/src/schemas/fiveAxisActionSchemas.ts:171"
+      ],
+      "gaps": [
+        "No operator decision-fatigue model anywhere in mcp-server/src (all fatigue engines are metal fatigue)",
+        "Existing detectBiases implementations audit AI reasoning, not operator override/edit patterns",
+        "No physics-grounded mitigation engine keyed on operator state (only skill-based autoOperatorSkillMatch)",
+        "No anonymized JM Die operator-log dataset for the mandatory validation criterion (bounded search; PII gate required for acquisition)",
+        "No prism_ai / prism_safety wiring (nothing exists to wire)"
+      ],
+      "nextAction": "Resolve the validation-data blocker first (scope to synthetic+literature validation as [SCOPED], or sequence a PII-gated operator-log ingestion unit); then build one OperatorDecisionFatigueEngine consuming existing scheduling overtime/shift signals, generalize the MetaAIOrchestrationEngine detectBiases pattern to operator actions, add a fatigue-band mitigation table, and wire to prism_ai + prism_safety in the same commit."
+    },
+    {
+      "id": "0023",
+      "file": "UNIT-0023-DOMAIN6-ETHICAL-AI-GOVERNANCE-AND-REGULATORY-IMPACT.md",
+      "title": "Ethical AI Governance and Regulatory Impact Assessment",
+      "priority": "P1",
+      "roiScore": 7,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/engines/NISTAIRMFComplianceEngine.ts:1-120",
+        "mcp-server/src/__tests__/engines/NISTAIRMFComplianceEngine.test.ts:10-270",
+        "mcp-server/src/tools/dispatchers/guardDispatcher.ts:36",
+        "mcp-server/src/tools/dispatchers/guardDispatcher.ts:852-863",
+        "mcp-server/src/tools/dispatchers/complianceDispatcher.ts:33-45",
+        "mcp-server/src/engines/ITARComplianceTaggerEngine.ts:1-70",
+        "mcp-server/src/tools/dispatchers/safetyDispatcher.ts:789",
+        "mcp-server/src/engines/LegalGateEngine.ts:1-80",
+        "mcp-server/src/tools/dispatchers/securityDispatcher.ts:146-150",
+        "mcp-server/src/engines/compliance-safety/MEMORY.md:60"
+      ],
+      "gaps": [
+        "Regulatory CHANGE impact assessment engine does not exist (0 grep matches for RegulatoryImpact / regulatory change in src)",
+        "NISTAIRMFComplianceEngine is only 3/9+ methods dispatcher-wired; threat/mitigation/risk/report surface is dispatcher-dark",
+        "No explicit ethics-principles governance doc (wiki pages claimed but content unverified)",
+        "No validation run tying the governance framework to a current regulation snapshot"
+      ],
+      "nextAction": "Do not build a duplicate EthicalGovernanceEngine; wire the six dispatcher-dark NIST methods as nist_* actions on prism_guard plus read-only report/risk-register on prism_safety (dispatcher round-trip tests per R15), build one focused RegulatoryImpactAssessorEngine that cross-references ITAR tagger classifications + prism_compliance templates + NIST control mappings into an impact set, and validate against the CMMC v2 Final Rule as the reference change event."
+    }
+  ]
+}

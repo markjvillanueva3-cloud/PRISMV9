@@ -1,0 +1,18 @@
+# Session Handoff: session-1777596693295
+Generated: 2026-05-01T00:51:33.579Z
+
+## Position
+unknown
+
+## Last Goal
+please update the scripts in the launch folder for leaving sessions and resuming
+
+## Recent Commits
+```
+0236ca452 [MAIN] PPG-WIRE-MS0/U-PPGW10: Hurco V11 branch in master_post_by_machine auto-router
+8c9489409 [MAIN] backlog-update: Tier A2 reclassified — scout misread frontmatter
+42a85c4dc [MAIN] tier-a4-cleanup: delete .deprecated/ subfolder (10 files, -1,665 lines)
+```
+
+## Resume
+Continue from current position. Check git log and roadmap for next steps.

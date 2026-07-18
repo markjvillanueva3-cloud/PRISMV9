@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /post-register — Register Post-Processor in System
+Register and configure post-processors in PRISM for machine compatibility.
 
 <!-- AUTO-END -->
 

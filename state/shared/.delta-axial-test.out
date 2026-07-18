@@ -1,0 +1,50 @@
+TAP version 13
+# Subtest: exports version
+ok 1 - exports version
+  ---
+  duration_ms: 1.1005
+  ...
+# Subtest: planAxialBore: a plate envelope → a placeable YZ bore at the cross-section centre, through-depth, coaxial expect
+ok 2 - planAxialBore: a plate envelope → a placeable YZ bore at the cross-section centre, through-depth, coaxial expect
+  ---
+  duration_ms: 1.846
+  ...
+# Subtest: planAxialBore: bore radius is CAPPED to fit a thin cross-section (leaves a wall)
+ok 3 - planAxialBore: bore radius is CAPPED to fit a thin cross-section (leaves a wall)
+  ---
+  duration_ms: 1.2098
+  ...
+# Subtest: planAxialBore: caller can override the desired bore radius (still capped by cross-section)
+ok 4 - planAxialBore: caller can override the desired bore radius (still capped by cross-section)
+  ---
+  duration_ms: 0.1833
+  ...
+# Subtest: planAxialBore: no axial length → not placeable, explicit reason (R12)
+ok 5 - planAxialBore: no axial length → not placeable, explicit reason (R12)
+  ---
+  duration_ms: 0.3957
+  ...
+# Subtest: planAxialBore: no cross-section → not placeable, explicit reason (R12)
+ok 6 - planAxialBore: no cross-section → not placeable, explicit reason (R12)
+  ---
+  duration_ms: 0.3101
+  ...
+# Subtest: planAxialBore: a zero/negative desired radius override → not placeable (no degenerate bore)
+ok 7 - planAxialBore: a zero/negative desired radius override → not placeable (no degenerate bore)
+  ---
+  duration_ms: 0.2464
+  ...
+# Subtest: planAxialBore: null / garbage envelope → not placeable, no throw (adversarial)
+ok 8 - planAxialBore: null / garbage envelope → not placeable, no throw (adversarial)
+  ---
+  duration_ms: 0.1418
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4215.8423

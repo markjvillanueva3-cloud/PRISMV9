@@ -181,14 +181,14 @@ describe('ProgramReleasePage', () => {
     expect(screen.getByText('Attached to quote QUOTE-900')).toBeDefined();
   });
 
-  it('switches into the PRISM design mode', async () => {
+  it('switches into the Kienzle design mode', async () => {
     renderPage();
 
     await waitFor(() => {
       expect(screen.getByText('Print to CNC')).toBeDefined();
     }, { timeout: 5000 });
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Design in PRISM' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Design in Kienzle' })[0]);
 
     await waitFor(() => {
       expect(screen.getByDisplayValue('Valve body rev C')).toBeDefined();

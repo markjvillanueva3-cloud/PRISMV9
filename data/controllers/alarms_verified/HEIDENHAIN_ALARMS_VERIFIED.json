@@ -1,0 +1,2397 @@
+{
+  "metadata": {
+    "controller_family": "HEIDENHAIN",
+    "version": "4.0.0-VERIFIED",
+    "created": "2026-01-28T09:04:48.157912",
+    "total_alarms": 159,
+    "status": "VERIFIED_ONLY",
+    "stripped_generic": 679
+  },
+  "alarms": [
+    {
+      "alarm_id": "ALM-HEI-FE0001",
+      "code": "FE0001",
+      "name": "Syntax error",
+      "category": "NC",
+      "severity": "LOW",
+      "description": "NC block syntax error",
+      "causes": [
+        "NC block syntax error"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0002",
+      "code": "FE0002",
+      "name": "Undefined G function",
+      "category": "NC",
+      "severity": "LOW",
+      "description": "Invalid G code",
+      "causes": [
+        "Invalid G code"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0003",
+      "code": "FE0003",
+      "name": "Undefined M function",
+      "category": "NC",
+      "severity": "LOW",
+      "description": "Invalid M code",
+      "causes": [
+        "Invalid M code"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0004",
+      "code": "FE0004",
+      "name": "Tool not defined",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Tool number not in table",
+      "causes": [
+        "Tool number not in table"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0005",
+      "code": "FE0005",
+      "name": "Tool radius 0",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Tool radius is zero",
+      "causes": [
+        "Tool radius is zero"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0006",
+      "code": "FE0006",
+      "name": "Tool length 0",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Tool length is zero",
+      "causes": [
+        "Tool length is zero"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0007",
+      "code": "FE0007",
+      "name": "Coordinate missing",
+      "category": "NC",
+      "severity": "LOW",
+      "description": "Required coordinate missing",
+      "causes": [
+        "Required coordinate missing"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0008",
+      "code": "FE0008",
+      "name": "Feedrate missing",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "No feedrate specified",
+      "causes": [
+        "No feedrate specified"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0009",
+      "code": "FE0009",
+      "name": "Spindle speed missing",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "No spindle speed specified",
+      "causes": [
+        "No spindle speed specified"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0010",
+      "code": "FE0010",
+      "name": "Circle definition error",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Invalid circle parameters",
+      "causes": [
+        "Invalid circle parameters"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0011",
+      "code": "FE0011",
+      "name": "Arc too small",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Arc radius too small",
+      "causes": [
+        "Arc radius too small"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0012",
+      "code": "FE0012",
+      "name": "Radius too large",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Arc radius exceeds limits",
+      "causes": [
+        "Arc radius exceeds limits"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0013",
+      "code": "FE0013",
+      "name": "Contour violation",
+      "category": "NC",
+      "severity": "HIGH",
+      "description": "Cutter comp error",
+      "causes": [
+        "Cutter comp error"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0014",
+      "code": "FE0014",
+      "name": "Contour corner",
+      "category": "NC",
+      "severity": "HIGH",
+      "description": "Corner too sharp",
+      "causes": [
+        "Corner too sharp"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0015",
+      "code": "FE0015",
+      "name": "Program not found",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Called program missing",
+      "causes": [
+        "Called program missing"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0016",
+      "code": "FE0016",
+      "name": "Nesting depth exceeded",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Too many nested calls",
+      "causes": [
+        "Too many nested calls"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0017",
+      "code": "FE0017",
+      "name": "Q parameter error",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Q parameter out of range",
+      "causes": [
+        "Q parameter out of range"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0018",
+      "code": "FE0018",
+      "name": "Calculation error",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Math calculation overflow",
+      "causes": [
+        "Math calculation overflow"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0019",
+      "code": "FE0019",
+      "name": "Label not found",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "LBL not in program",
+      "causes": [
+        "LBL not in program"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-FE0020",
+      "code": "FE0020",
+      "name": "GOTO without LBL",
+      "category": "NC",
+      "severity": "MEDIUM",
+      "description": "Invalid branch target",
+      "causes": [
+        "Invalid branch target"
+      ],
+      "quick_fix": "Check NC program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1000",
+      "code": "AX1000",
+      "name": "X DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "X axis drive error",
+      "causes": [
+        "X axis issue"
+      ],
+      "quick_fix": "Check X axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1001",
+      "code": "AX1001",
+      "name": "X ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "X axis encoder error",
+      "causes": [
+        "X axis issue"
+      ],
+      "quick_fix": "Check X axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1002",
+      "code": "AX1002",
+      "name": "X FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "X axis following error",
+      "causes": [
+        "X axis issue"
+      ],
+      "quick_fix": "Check X axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1003",
+      "code": "AX1003",
+      "name": "X MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "X axis motor overtemp",
+      "causes": [
+        "X axis issue"
+      ],
+      "quick_fix": "Check X axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1004",
+      "code": "AX1004",
+      "name": "X OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "X axis overload",
+      "causes": [
+        "X axis issue"
+      ],
+      "quick_fix": "Check X axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1005",
+      "code": "AX1005",
+      "name": "X POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "X axis position error",
+      "causes": [
+        "X axis issue"
+      ],
+      "quick_fix": "Check X axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1006",
+      "code": "AX1006",
+      "name": "X VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "X axis velocity error",
+      "causes": [
+        "X axis issue"
+      ],
+      "quick_fix": "Check X axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1007",
+      "code": "AX1007",
+      "name": "X COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "X axis communication error",
+      "causes": [
+        "X axis issue"
+      ],
+      "quick_fix": "Check X axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1010",
+      "code": "AX1010",
+      "name": "Y DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "Y axis drive error",
+      "causes": [
+        "Y axis issue"
+      ],
+      "quick_fix": "Check Y axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1011",
+      "code": "AX1011",
+      "name": "Y ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "Y axis encoder error",
+      "causes": [
+        "Y axis issue"
+      ],
+      "quick_fix": "Check Y axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1012",
+      "code": "AX1012",
+      "name": "Y FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Y axis following error",
+      "causes": [
+        "Y axis issue"
+      ],
+      "quick_fix": "Check Y axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1013",
+      "code": "AX1013",
+      "name": "Y MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Y axis motor overtemp",
+      "causes": [
+        "Y axis issue"
+      ],
+      "quick_fix": "Check Y axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1014",
+      "code": "AX1014",
+      "name": "Y OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Y axis overload",
+      "causes": [
+        "Y axis issue"
+      ],
+      "quick_fix": "Check Y axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1015",
+      "code": "AX1015",
+      "name": "Y POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Y axis position error",
+      "causes": [
+        "Y axis issue"
+      ],
+      "quick_fix": "Check Y axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1016",
+      "code": "AX1016",
+      "name": "Y VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Y axis velocity error",
+      "causes": [
+        "Y axis issue"
+      ],
+      "quick_fix": "Check Y axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1017",
+      "code": "AX1017",
+      "name": "Y COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "Y axis communication error",
+      "causes": [
+        "Y axis issue"
+      ],
+      "quick_fix": "Check Y axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1020",
+      "code": "AX1020",
+      "name": "Z DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "Z axis drive error",
+      "causes": [
+        "Z axis issue"
+      ],
+      "quick_fix": "Check Z axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1021",
+      "code": "AX1021",
+      "name": "Z ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "Z axis encoder error",
+      "causes": [
+        "Z axis issue"
+      ],
+      "quick_fix": "Check Z axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1022",
+      "code": "AX1022",
+      "name": "Z FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Z axis following error",
+      "causes": [
+        "Z axis issue"
+      ],
+      "quick_fix": "Check Z axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1023",
+      "code": "AX1023",
+      "name": "Z MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Z axis motor overtemp",
+      "causes": [
+        "Z axis issue"
+      ],
+      "quick_fix": "Check Z axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1024",
+      "code": "AX1024",
+      "name": "Z OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Z axis overload",
+      "causes": [
+        "Z axis issue"
+      ],
+      "quick_fix": "Check Z axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1025",
+      "code": "AX1025",
+      "name": "Z POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Z axis position error",
+      "causes": [
+        "Z axis issue"
+      ],
+      "quick_fix": "Check Z axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1026",
+      "code": "AX1026",
+      "name": "Z VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "Z axis velocity error",
+      "causes": [
+        "Z axis issue"
+      ],
+      "quick_fix": "Check Z axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1027",
+      "code": "AX1027",
+      "name": "Z COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "Z axis communication error",
+      "causes": [
+        "Z axis issue"
+      ],
+      "quick_fix": "Check Z axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1030",
+      "code": "AX1030",
+      "name": "A DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "A axis drive error",
+      "causes": [
+        "A axis issue"
+      ],
+      "quick_fix": "Check A axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1031",
+      "code": "AX1031",
+      "name": "A ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "A axis encoder error",
+      "causes": [
+        "A axis issue"
+      ],
+      "quick_fix": "Check A axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1032",
+      "code": "AX1032",
+      "name": "A FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "A axis following error",
+      "causes": [
+        "A axis issue"
+      ],
+      "quick_fix": "Check A axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1033",
+      "code": "AX1033",
+      "name": "A MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "A axis motor overtemp",
+      "causes": [
+        "A axis issue"
+      ],
+      "quick_fix": "Check A axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1034",
+      "code": "AX1034",
+      "name": "A OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "A axis overload",
+      "causes": [
+        "A axis issue"
+      ],
+      "quick_fix": "Check A axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1035",
+      "code": "AX1035",
+      "name": "A POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "A axis position error",
+      "causes": [
+        "A axis issue"
+      ],
+      "quick_fix": "Check A axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1036",
+      "code": "AX1036",
+      "name": "A VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "A axis velocity error",
+      "causes": [
+        "A axis issue"
+      ],
+      "quick_fix": "Check A axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1037",
+      "code": "AX1037",
+      "name": "A COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "A axis communication error",
+      "causes": [
+        "A axis issue"
+      ],
+      "quick_fix": "Check A axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1040",
+      "code": "AX1040",
+      "name": "B DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "B axis drive error",
+      "causes": [
+        "B axis issue"
+      ],
+      "quick_fix": "Check B axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1041",
+      "code": "AX1041",
+      "name": "B ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "B axis encoder error",
+      "causes": [
+        "B axis issue"
+      ],
+      "quick_fix": "Check B axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1042",
+      "code": "AX1042",
+      "name": "B FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "B axis following error",
+      "causes": [
+        "B axis issue"
+      ],
+      "quick_fix": "Check B axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1043",
+      "code": "AX1043",
+      "name": "B MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "B axis motor overtemp",
+      "causes": [
+        "B axis issue"
+      ],
+      "quick_fix": "Check B axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1044",
+      "code": "AX1044",
+      "name": "B OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "B axis overload",
+      "causes": [
+        "B axis issue"
+      ],
+      "quick_fix": "Check B axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1045",
+      "code": "AX1045",
+      "name": "B POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "B axis position error",
+      "causes": [
+        "B axis issue"
+      ],
+      "quick_fix": "Check B axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1046",
+      "code": "AX1046",
+      "name": "B VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "B axis velocity error",
+      "causes": [
+        "B axis issue"
+      ],
+      "quick_fix": "Check B axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1047",
+      "code": "AX1047",
+      "name": "B COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "B axis communication error",
+      "causes": [
+        "B axis issue"
+      ],
+      "quick_fix": "Check B axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1050",
+      "code": "AX1050",
+      "name": "C DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "C axis drive error",
+      "causes": [
+        "C axis issue"
+      ],
+      "quick_fix": "Check C axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1051",
+      "code": "AX1051",
+      "name": "C ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "C axis encoder error",
+      "causes": [
+        "C axis issue"
+      ],
+      "quick_fix": "Check C axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1052",
+      "code": "AX1052",
+      "name": "C FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "C axis following error",
+      "causes": [
+        "C axis issue"
+      ],
+      "quick_fix": "Check C axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1053",
+      "code": "AX1053",
+      "name": "C MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "C axis motor overtemp",
+      "causes": [
+        "C axis issue"
+      ],
+      "quick_fix": "Check C axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1054",
+      "code": "AX1054",
+      "name": "C OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "C axis overload",
+      "causes": [
+        "C axis issue"
+      ],
+      "quick_fix": "Check C axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1055",
+      "code": "AX1055",
+      "name": "C POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "C axis position error",
+      "causes": [
+        "C axis issue"
+      ],
+      "quick_fix": "Check C axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1056",
+      "code": "AX1056",
+      "name": "C VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "C axis velocity error",
+      "causes": [
+        "C axis issue"
+      ],
+      "quick_fix": "Check C axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1057",
+      "code": "AX1057",
+      "name": "C COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "C axis communication error",
+      "causes": [
+        "C axis issue"
+      ],
+      "quick_fix": "Check C axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1060",
+      "code": "AX1060",
+      "name": "U DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "U axis drive error",
+      "causes": [
+        "U axis issue"
+      ],
+      "quick_fix": "Check U axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1061",
+      "code": "AX1061",
+      "name": "U ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "U axis encoder error",
+      "causes": [
+        "U axis issue"
+      ],
+      "quick_fix": "Check U axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1062",
+      "code": "AX1062",
+      "name": "U FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "U axis following error",
+      "causes": [
+        "U axis issue"
+      ],
+      "quick_fix": "Check U axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1063",
+      "code": "AX1063",
+      "name": "U MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "U axis motor overtemp",
+      "causes": [
+        "U axis issue"
+      ],
+      "quick_fix": "Check U axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1064",
+      "code": "AX1064",
+      "name": "U OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "U axis overload",
+      "causes": [
+        "U axis issue"
+      ],
+      "quick_fix": "Check U axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1065",
+      "code": "AX1065",
+      "name": "U POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "U axis position error",
+      "causes": [
+        "U axis issue"
+      ],
+      "quick_fix": "Check U axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1066",
+      "code": "AX1066",
+      "name": "U VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "U axis velocity error",
+      "causes": [
+        "U axis issue"
+      ],
+      "quick_fix": "Check U axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1067",
+      "code": "AX1067",
+      "name": "U COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "U axis communication error",
+      "causes": [
+        "U axis issue"
+      ],
+      "quick_fix": "Check U axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1070",
+      "code": "AX1070",
+      "name": "V DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "V axis drive error",
+      "causes": [
+        "V axis issue"
+      ],
+      "quick_fix": "Check V axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1071",
+      "code": "AX1071",
+      "name": "V ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "V axis encoder error",
+      "causes": [
+        "V axis issue"
+      ],
+      "quick_fix": "Check V axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1072",
+      "code": "AX1072",
+      "name": "V FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "V axis following error",
+      "causes": [
+        "V axis issue"
+      ],
+      "quick_fix": "Check V axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1073",
+      "code": "AX1073",
+      "name": "V MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "V axis motor overtemp",
+      "causes": [
+        "V axis issue"
+      ],
+      "quick_fix": "Check V axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1074",
+      "code": "AX1074",
+      "name": "V OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "V axis overload",
+      "causes": [
+        "V axis issue"
+      ],
+      "quick_fix": "Check V axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1075",
+      "code": "AX1075",
+      "name": "V POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "V axis position error",
+      "causes": [
+        "V axis issue"
+      ],
+      "quick_fix": "Check V axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1076",
+      "code": "AX1076",
+      "name": "V VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "V axis velocity error",
+      "causes": [
+        "V axis issue"
+      ],
+      "quick_fix": "Check V axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1077",
+      "code": "AX1077",
+      "name": "V COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "V axis communication error",
+      "causes": [
+        "V axis issue"
+      ],
+      "quick_fix": "Check V axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1080",
+      "code": "AX1080",
+      "name": "W DRIVE ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "W axis drive error",
+      "causes": [
+        "W axis issue"
+      ],
+      "quick_fix": "Check W axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1081",
+      "code": "AX1081",
+      "name": "W ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "W axis encoder error",
+      "causes": [
+        "W axis issue"
+      ],
+      "quick_fix": "Check W axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1082",
+      "code": "AX1082",
+      "name": "W FOLLOWING ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "W axis following error",
+      "causes": [
+        "W axis issue"
+      ],
+      "quick_fix": "Check W axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1083",
+      "code": "AX1083",
+      "name": "W MOTOR OVERTEMP",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "W axis motor overtemp",
+      "causes": [
+        "W axis issue"
+      ],
+      "quick_fix": "Check W axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1084",
+      "code": "AX1084",
+      "name": "W OVERLOAD",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "W axis overload",
+      "causes": [
+        "W axis issue"
+      ],
+      "quick_fix": "Check W axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1085",
+      "code": "AX1085",
+      "name": "W POSITION ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "W axis position error",
+      "causes": [
+        "W axis issue"
+      ],
+      "quick_fix": "Check W axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1086",
+      "code": "AX1086",
+      "name": "W VELOCITY ERROR",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "description": "W axis velocity error",
+      "causes": [
+        "W axis issue"
+      ],
+      "quick_fix": "Check W axis",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-AX1087",
+      "code": "AX1087",
+      "name": "W COMMUNICATION ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "description": "W axis communication error",
+      "causes": [
+        "W axis issue"
+      ],
+      "quick_fix": "Check W axis",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2000",
+      "code": "SP2000",
+      "name": "SPINDLE ERROR",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "General spindle error",
+      "causes": [
+        "General spindle error"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2001",
+      "code": "SP2001",
+      "name": "SPINDLE OVERLOAD",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Spindle motor overload",
+      "causes": [
+        "Spindle motor overload"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2002",
+      "code": "SP2002",
+      "name": "SPINDLE OVERSPEED",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Speed limit exceeded",
+      "causes": [
+        "Speed limit exceeded"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2003",
+      "code": "SP2003",
+      "name": "SPINDLE ORIENTATION",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Orientation failed",
+      "causes": [
+        "Orientation failed"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2004",
+      "code": "SP2004",
+      "name": "SPINDLE ENCODER",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Encoder error",
+      "causes": [
+        "Encoder error"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2005",
+      "code": "SP2005",
+      "name": "SPINDLE DRIVE",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Drive fault",
+      "causes": [
+        "Drive fault"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2006",
+      "code": "SP2006",
+      "name": "SPINDLE OVERTEMP",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Motor temp high",
+      "causes": [
+        "Motor temp high"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2007",
+      "code": "SP2007",
+      "name": "SPINDLE POSITION",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Position error",
+      "causes": [
+        "Position error"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2008",
+      "code": "SP2008",
+      "name": "SPINDLE CLAMP",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Tool clamp error",
+      "causes": [
+        "Tool clamp error"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2009",
+      "code": "SP2009",
+      "name": "SPINDLE UNCLAMP",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Tool unclamp error",
+      "causes": [
+        "Tool unclamp error"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2010",
+      "code": "SP2010",
+      "name": "SPINDLE COMM",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Communication error",
+      "causes": [
+        "Communication error"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2011",
+      "code": "SP2011",
+      "name": "SPINDLE GEAR",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Gear change error",
+      "causes": [
+        "Gear change error"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2012",
+      "code": "SP2012",
+      "name": "SPINDLE VIBRATION",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Excessive vibration",
+      "causes": [
+        "Excessive vibration"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SP2013",
+      "code": "SP2013",
+      "name": "SPINDLE BALANCE",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Imbalance detected",
+      "causes": [
+        "Imbalance detected"
+      ],
+      "quick_fix": "Check spindle",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3000",
+      "code": "PLC3000",
+      "name": "PLC ERROR",
+      "category": "PLC",
+      "severity": "CRITICAL",
+      "description": "General PLC error",
+      "causes": [
+        "General PLC error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3001",
+      "code": "PLC3001",
+      "name": "PLC CYCLE TIME",
+      "category": "PLC",
+      "severity": "HIGH",
+      "description": "Cycle time exceeded",
+      "causes": [
+        "Cycle time exceeded"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3002",
+      "code": "PLC3002",
+      "name": "PLC COMMUNICATION",
+      "category": "PLC",
+      "severity": "CRITICAL",
+      "description": "Communication error",
+      "causes": [
+        "Communication error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3003",
+      "code": "PLC3003",
+      "name": "PLC IO ERROR",
+      "category": "PLC",
+      "severity": "HIGH",
+      "description": "IO fault",
+      "causes": [
+        "IO fault"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3004",
+      "code": "PLC3004",
+      "name": "PLC WATCHDOG",
+      "category": "PLC",
+      "severity": "CRITICAL",
+      "description": "Watchdog timeout",
+      "causes": [
+        "Watchdog timeout"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3005",
+      "code": "PLC3005",
+      "name": "PLC MEMORY",
+      "category": "PLC",
+      "severity": "CRITICAL",
+      "description": "Memory error",
+      "causes": [
+        "Memory error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3010",
+      "code": "PLC3010",
+      "name": "EMERGENCY STOP",
+      "category": "PLC",
+      "severity": "CRITICAL",
+      "description": "Estop activated",
+      "causes": [
+        "Estop activated"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3011",
+      "code": "PLC3011",
+      "name": "DOOR OPEN",
+      "category": "PLC",
+      "severity": "CRITICAL",
+      "description": "Safety door open",
+      "causes": [
+        "Safety door open"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3012",
+      "code": "PLC3012",
+      "name": "SAFETY RELAY",
+      "category": "PLC",
+      "severity": "CRITICAL",
+      "description": "Safety relay fault",
+      "causes": [
+        "Safety relay fault"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3013",
+      "code": "PLC3013",
+      "name": "LIGHT CURTAIN",
+      "category": "PLC",
+      "severity": "CRITICAL",
+      "description": "Light curtain fault",
+      "causes": [
+        "Light curtain fault"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3020",
+      "code": "PLC3020",
+      "name": "ATC ERROR",
+      "category": "PLC",
+      "severity": "HIGH",
+      "description": "Tool changer error",
+      "causes": [
+        "Tool changer error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3021",
+      "code": "PLC3021",
+      "name": "ATC TIMEOUT",
+      "category": "PLC",
+      "severity": "HIGH",
+      "description": "Tool change timeout",
+      "causes": [
+        "Tool change timeout"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3022",
+      "code": "PLC3022",
+      "name": "ATC MAGAZINE",
+      "category": "PLC",
+      "severity": "HIGH",
+      "description": "Magazine error",
+      "causes": [
+        "Magazine error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3030",
+      "code": "PLC3030",
+      "name": "LUBE ALARM",
+      "category": "PLC",
+      "severity": "MEDIUM",
+      "description": "Lubrication error",
+      "causes": [
+        "Lubrication error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3031",
+      "code": "PLC3031",
+      "name": "COOLANT ALARM",
+      "category": "PLC",
+      "severity": "MEDIUM",
+      "description": "Coolant error",
+      "causes": [
+        "Coolant error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3032",
+      "code": "PLC3032",
+      "name": "AIR PRESSURE",
+      "category": "PLC",
+      "severity": "HIGH",
+      "description": "Air pressure low",
+      "causes": [
+        "Air pressure low"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3033",
+      "code": "PLC3033",
+      "name": "HYDRAULIC ALARM",
+      "category": "PLC",
+      "severity": "HIGH",
+      "description": "Hydraulic error",
+      "causes": [
+        "Hydraulic error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3040",
+      "code": "PLC3040",
+      "name": "CHIP CONVEYOR",
+      "category": "PLC",
+      "severity": "MEDIUM",
+      "description": "Chip conveyor error",
+      "causes": [
+        "Chip conveyor error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PLC3041",
+      "code": "PLC3041",
+      "name": "CHILLER ALARM",
+      "category": "PLC",
+      "severity": "HIGH",
+      "description": "Chiller error",
+      "causes": [
+        "Chiller error"
+      ],
+      "quick_fix": "Check PLC",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4000",
+      "code": "TL4000",
+      "name": "+X LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "X positive limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4001",
+      "code": "TL4001",
+      "name": "-X LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "X negative limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4002",
+      "code": "TL4002",
+      "name": "+Y LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Y positive limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4003",
+      "code": "TL4003",
+      "name": "-Y LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Y negative limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4004",
+      "code": "TL4004",
+      "name": "+Z LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Z positive limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4005",
+      "code": "TL4005",
+      "name": "-Z LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Z negative limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4006",
+      "code": "TL4006",
+      "name": "+A LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "A positive limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4007",
+      "code": "TL4007",
+      "name": "-A LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "A negative limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4008",
+      "code": "TL4008",
+      "name": "+B LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "B positive limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4009",
+      "code": "TL4009",
+      "name": "-B LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "B negative limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4020",
+      "code": "TL4020",
+      "name": "X SOFT LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "description": "X software limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4021",
+      "code": "TL4021",
+      "name": "Y SOFT LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "description": "Y software limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-TL4022",
+      "code": "TL4022",
+      "name": "Z SOFT LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "description": "Z software limit",
+      "causes": [
+        "Travel limit"
+      ],
+      "quick_fix": "Jog within limits",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5000",
+      "code": "SYS5000",
+      "name": "SYSTEM ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "General system error",
+      "causes": [
+        "General system error"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5001",
+      "code": "SYS5001",
+      "name": "MEMORY ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Memory fault",
+      "causes": [
+        "Memory fault"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5002",
+      "code": "SYS5002",
+      "name": "WATCHDOG",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Watchdog timeout",
+      "causes": [
+        "Watchdog timeout"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5003",
+      "code": "SYS5003",
+      "name": "BATTERY LOW",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "Battery low",
+      "causes": [
+        "Battery low"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5004",
+      "code": "SYS5004",
+      "name": "ENCODER BATTERY",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "Encoder battery low",
+      "causes": [
+        "Encoder battery low"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5005",
+      "code": "SYS5005",
+      "name": "BUS ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Internal bus error",
+      "causes": [
+        "Internal bus error"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5006",
+      "code": "SYS5006",
+      "name": "COMM ERROR",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "Communication fault",
+      "causes": [
+        "Communication fault"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5007",
+      "code": "SYS5007",
+      "name": "DISK ERROR",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "Storage error",
+      "causes": [
+        "Storage error"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5008",
+      "code": "SYS5008",
+      "name": "NETWORK ERROR",
+      "category": "SYSTEM",
+      "severity": "MEDIUM",
+      "description": "Network fault",
+      "causes": [
+        "Network fault"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5009",
+      "code": "SYS5009",
+      "name": "CPU ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "CPU fault",
+      "causes": [
+        "CPU fault"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-SYS5010",
+      "code": "SYS5010",
+      "name": "PARAM ERROR",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "Invalid parameter",
+      "causes": [
+        "Invalid parameter"
+      ],
+      "quick_fix": "Check diagnostics",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7000",
+      "code": "PR7000",
+      "name": "PROBE ERROR",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "Probe system error",
+      "causes": [
+        "Probe system error"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7001",
+      "code": "PR7001",
+      "name": "PROBE NOT FOUND",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "Probe not detected",
+      "causes": [
+        "Probe not detected"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7002",
+      "code": "PR7002",
+      "name": "PROBE SKIP",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "Skip signal error",
+      "causes": [
+        "Skip signal error"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7003",
+      "code": "PR7003",
+      "name": "PROBE COMM",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "Communication error",
+      "causes": [
+        "Communication error"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7004",
+      "code": "PR7004",
+      "name": "PROBE BATTERY",
+      "category": "PROBE",
+      "severity": "MEDIUM",
+      "description": "Probe battery low",
+      "causes": [
+        "Probe battery low"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7005",
+      "code": "PR7005",
+      "name": "PROBE CAL",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "Calibration error",
+      "causes": [
+        "Calibration error"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7006",
+      "code": "PR7006",
+      "name": "PROBE OVERTRAVEL",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "Probe travel exceeded",
+      "causes": [
+        "Probe travel exceeded"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7007",
+      "code": "PR7007",
+      "name": "PROBE NO CONTACT",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "No contact detected",
+      "causes": [
+        "No contact detected"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7008",
+      "code": "PR7008",
+      "name": "PROBE BROKEN",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "Stylus broken",
+      "causes": [
+        "Stylus broken"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-HEI-PR7009",
+      "code": "PR7009",
+      "name": "TOOL SETTER",
+      "category": "PROBE",
+      "severity": "HIGH",
+      "description": "Tool setter error",
+      "causes": [
+        "Tool setter error"
+      ],
+      "quick_fix": "Check probe",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    }
+  ]
+}

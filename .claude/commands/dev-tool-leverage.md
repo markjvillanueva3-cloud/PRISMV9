@@ -1,7 +1,11 @@
 ---
 description: Run the dev-tool leverage aggregator — one command, 4 META audits in a unified ranked dashboard. Surfaces the highest-leverage dev-pipeline gaps (synergy regressions, stale milestones, cold scripts, orphan helpers) with cron-friendly exit codes.
+composes_with:
+  - "/close-out-audit"
+  - "/forge-audit"
+  - "/pick-unit"
+  - "/system-viz"
 ---
-
 # /dev-tool-leverage — META audit aggregator
 
 Orchestrates the four dev-pipeline META tools shipped during DEV-TOOLS-AUDIT-F2+F3+F4 and emits a single ranked dashboard. Use this instead of running the 4 sub-tools by hand.

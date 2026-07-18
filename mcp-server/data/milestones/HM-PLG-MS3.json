@@ -1,0 +1,314 @@
+{
+  "id": "HM-PLG-MS3",
+  "version": "8.3.0",
+  "title": "Quality Gate Panel",
+  "track": "HM-PLUGIN",
+  "status": "not_started",
+  "description": "Build the PRISM Quality Gate panel for hyperMILL. Provides per-operation surface integrity predictions (Ra, residual stress, white layer risk), collision pre-check status (PRISM runs before hyperMILL simulation), setup sheet preview with physics-backed warnings, and FAI (First Article Inspection) plan generation button. Targets aerospace/defense shops where surface integrity is flight-critical.",
+  "dependencies": [
+    "HM-PLG-MS1",
+    "HM-REV-MS5"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "ResidualStressPredictionEngine",
+      "SurfaceIntegrityEngine",
+      "WhiteLayerDetectionEngine",
+      "CollisionPreventionEngine",
+      "SurfaceFinishPredictorEngine",
+      "FAIEngine",
+      "SetupSheetEngine"
+    ],
+    "registries": [
+      "MaterialRegistry",
+      "ToolRegistry",
+      "MachineRegistry"
+    ],
+    "services": [
+      "prism-mcp-server"
+    ],
+    "physics": [
+      "Residual stress Merwin-Johnson model",
+      "White layer formation threshold",
+      "Surface roughness Ra theoretical formula"
+    ],
+    "reference": [
+      "AS9102 FAI standard",
+      "NADCAP surface integrity requirements"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hm-plugin:quality-gate-blocking — BUILT (blocks NC output if white layer risk > threshold)",
+    "action": "hypermill_plugin:get_quality_assessment — BUILT (returns surface integrity + collision status)",
+    "skill": "/hypermill-quality-gate — BUILT (full quality assessment for active operation)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-PLG-MS3-S1",
+      "title": "Surface Integrity + Collision Pre-Check",
+      "smart_config": {
+        "role": "aerospace-quality-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "ResidualStressPredictionEngine",
+        "WhiteLayerDetectionEngine",
+        "CollisionPreventionEngine",
+        "SurfaceFinishPredictorEngine"
+      ],
+      "intent": "Wire surface integrity engines (residual stress, white layer, Ra prediction) and collision prevention to a quality assessment action, then build the HTML/JS panel with traffic-light status indicators.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG10",
+          "title": "Surface Integrity Assessment Action",
+          "description": "Create hypermill_plugin:get_quality_assessment action. Wire ResidualStressPredictionEngine for tensile/compressive stress prediction, WhiteLayerDetectionEngine for thermal damage risk, SurfaceFinishPredictorEngine for Ra/Rz prediction. Returns traffic-light status (green/yellow/red) per metric with explanation text. Red = blocking for aerospace parts.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Residual stress output includes tensile/compressive classification with magnitude in MPa",
+            "White layer risk returns probability 0-1 with blocking threshold at 0.3 for aerospace",
+            "Ra prediction within 15% of theoretical value for known tool nose radius + feed combos"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/QualityGateEngine.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/hypermillPluginDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/QualityGateEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG11",
+          "title": "Collision Pre-Check Integration",
+          "description": "Wire CollisionPreventionEngine to run PRISM's collision check before hyperMILL's built-in simulation. Check tool assembly (holder + tool) against stock model, fixture, and machine envelope. Returns collision zones with XYZ coordinates and severity. Faster than full hyperMILL VIRTUAL Machining simulation for quick pre-screening.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Collision check runs in <2 seconds for typical 3-axis operation",
+            "Returns collision zone coordinates (X, Y, Z) with severity (warning/critical)",
+            "Integrates holder geometry from tool assembly for realistic collision detection"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/QualityGateEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/QualityGateEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Surface integrity + collision actions return valid data for 3 test materials | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "hm-plugin:quality-gate-blocking"
+        ],
+        "new_actions": [
+          "hypermill_plugin:get_quality_assessment",
+          "hypermill_plugin:collision_precheck"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-PLG-MS3-S2",
+      "title": "Quality Panel UI + FAI Generation",
+      "smart_config": {
+        "role": "aerospace-quality-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "FAIEngine (AS9102)",
+        "SetupSheetEngine",
+        "AC HTML panel API"
+      ],
+      "intent": "Build the Quality Gate HTML/JS panel with traffic-light indicators and add FAI plan generation and setup sheet preview capabilities.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG12",
+          "title": "Quality Gate Panel HTML/JS UI",
+          "description": "Build the Quality Gate panel with: traffic-light grid (Ra, residual stress, white layer, collision — each green/yellow/red), expandable detail cards per metric, setup sheet preview with physics-backed warning annotations, and overall quality score as percentage. Panel updates in real-time as user navigates operations in hyperMILL's job list.",
+          "depends_on": [
+            "U-PLG10",
+            "U-PLG11"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Traffic-light grid shows 4 metrics with color-coded status and hover tooltips",
+            "Detail cards expand to show numerical values, thresholds, and recommendations",
+            "Panel auto-refreshes when user selects a different operation in hyperMILL job list"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/panels/quality-gate-panel.html"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/panels/quality-gate-panel.html"
+          }
+        },
+        {
+          "id": "U-PLG13",
+          "title": "FAI Plan Generation + Setup Sheet Preview",
+          "description": "Wire FAIEngine to generate AS9102 First Article Inspection plans from the current job's operations. Wire SetupSheetEngine to produce setup sheet previews with physics-backed annotations (force arrows, deflection zones, critical dimensions). Add 'Generate FAI Plan' and 'Preview Setup Sheet' buttons to the Quality Gate panel.",
+          "depends_on": [
+            "U-PLG12"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "FAI plan generates AS9102-compliant form with balloon numbers mapped to operations",
+            "Setup sheet preview includes tool list, WCS diagram, and physics warning annotations",
+            "Both outputs exportable as PDF from within the panel"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/QualityGateEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/QualityGateEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Quality panel shows traffic lights + FAI generates AS9102 output + setup sheet renders | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "hypermill_plugin:generate_fai_plan",
+          "hypermill_plugin:preview_setup_sheet"
+        ],
+        "new_skills": [
+          "/hypermill-quality-gate"
+        ],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms3-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms3_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the PRISM Quality Gate panel for hyperMILL. Provides per-operation surface integrity predictions (Ra, residual stress, white layer risk), collision pre-check status (PRISM runs before hyperMILL simulation), setup sheet preview with physics-backed warnings, and FAI (First Article Inspection) plan generation button. Targets aerospace/defense shops where surface integrity is flight-critical.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS3 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS3. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

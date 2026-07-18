@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Transition_Guide</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Transition_Guide</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/MASTERCAM/mcamX8/documentation/Transition_Guide.pdf</code></dd>
+<dt>Pages</dt><dd>12</dd>
+<dt>Text chars</dt><dd>9694</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Mastercam X8
+Transition Guide
+June 2014
+
+-- 1 of 12 --
+
+Mastercam® X8 Transition Guide
+Date: June 2014
+Copyright © 2014 CNC Software, Inc.— All rights reserved.
+Software: Mastercam X8
+TERMS OF USE 	Use of this document is subject to the Mastercam End User License Agreement. A
+copy of the Mastercam End User License Agreement is included with the
+Mastercam product package of which this document is part. The Mastercam End
+User License Agreement can also be found at:
+http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+Be sure you
+have the latest
+information!
+Information might have been changed or added since this document was
+published. The latest version of this document is installed with Mastercam or can
+be obtained from your local Reseller. A ReadMe file (ReadMe.pdf)—installed
+with each release—includes the latest information about Mastercam features and
+enhancements.
+
+-- 2 of 12 --
+
+Transition to X8
+This guide is designed to help you update your Mastercam files for use in Mastercam
+X8. A standard installation to the default locations is assumed. If you need assistance
+with a non-standard installation you should contact your local Reseller. Use the infor-
+mation included here to automatically migrate the majority of your files, manually
+copy any files not included automatically, and to get up and running with the latest
+version of Mastercam.
+Before You Begin
+Mastercam X8 includes a powerful, yet straightforward Migration Wizard. The Migra-
+tion Wizard has two options you can choose from: Basic or Advanced. For Basic, that
+requires you to select and set the target directories and the destination location to
+update the majority of your files to the current version. For Advanced, you choose
+what file types and version types to migrate in addition to selecting and setting the
+target directories and destination location. Some of the files migrated by this wizard
+are:
+ 	Part files
+ 	Defaults files
+ 	Operation and Tool libraries
+ 	Control Definitions
+ 	Machine Definitions
+Many factors affect the Migration Wizard’s processing time. The most significant of
+these is the number of part files you have stored in your personal (..\My Mcamx7 and
+
+-- 3 of 12 --
+
+2 MASTERCAM X8/ Transition to X8
+shared (..\Shared Mcamx7) directories. You may choose to relocate your part files to
+shorten the migration process.
+Running the Migration Wizard
+Run the Migration Wizard the first time you launch Mastercam X8 and before you
+begin to make changes to the X8 setup.
+Before running the Migration Wizard, be aware of the following:
+ 	.NC and .NCI files are
+not migrated.
+ 	If files have not changed from the originally distributed versions, then they
+will not be updated to the latest version.
+ 	.MTB and .KMP files are migrated, however, if you wish to import them into
+the latest version of Mastercam, they must be imported through the
+Customize dialog box. Refer to the Help for more information.
+If it encounters any errors, the Migration Wizard halts the process until you take
+appropriate action.
+Launching the Migration Wizard
+1 	Launch Mastercam using your
+preferred method.
+2 	Select File, Migration Wizard.
+The Migration Wizard displays.
+Basic Migration
+By selecting the Basic option, you will automatically update all Mastercam file types
+from the previous version to the current version. To migrate files with the Basic option,
+follow the instructions below:
+
+-- 4 of 12 --
+
+RUNNING THE MIGRATION WIZARD 3
+1 	Select Basic on the Welcome to the Mastercam Migration Wizard page.
+2 	On the File Locations page, do the following:
+a 	Choose the destination folder for the shared mcamx files.
+b Choose the destination folder for the my mcamx files
+c 	Click Next.
+3 	Review your choices on the Completing the Migration Process page.
+4 	Once you are satisfied with your selections, click Finish.
+Advanced Migration
+By selecting the Advanced option, you can pick and choose which file types to update,
+as well as file versions. To update and migrate files with the Advanced option, follow
+the instructions below:
+
+-- 5 of 12 --
+
+4 MASTERCAM X8/ Transition to X8
+1 	Select Advanced on the Welcome to Mastercam Migration Wizard page.
+2 	On the File Locations page, do the following:
+a 	Choose the source folder and destination folder for the shared mcamx
+files.
+b Choose the source folder and destination folder for the my mcamx files.
+You can also include subfolders or use the source folder as the destination
+folder by selecting and deselecting the checkboxes.
+c 	Click Next.
+
+-- 6 of 12 --
+
+HANDLING REMAINING FILES 5
+3 	On the File Types page, select the
+type of files you want to migrate.
+Then, click Next.
+4 	On the Versions page, select the
+Mastercam file versions you want to
+migrate. Then, click Next.
+5 	Review your selections on the Completing the Migration Process page.
+6 	Once you are satisfied with your selections, click Finish.
+IMPORTANT: If you are logged on as an administrator, the Migration
+Wizard processes the nethasp.ini file (..\Program Files\Mcamx8\) at this
+time.
+Handling Remaining Files
+Certain files are not migrated through the wizard and must be manually copied into
+the X8 structure. These include files that are outside of the default installation loca-
+tions as well as the following:
+Machine Simulation Files
+Machine Simulation files are located in your ..\Shared McamX7\MachineSimula-
+tion\Machsim folder. If you have created any custom machines or layouts, you should
+
+-- 7 of 12 --
+
+6 MASTERCAM X8/ Transition to X8
+bring them into X8. Simply copy the contents of the Machsim folder, including all sub-
+folders and files, into your ..\Shared Mcamx8\MachineSimulation\MachSim folder.
+Cimco Machine Files
+Cimco Machine files are located under your ..\Program Files folder. In order to copy
+files into your X8 installation you must be logged in as an administrator. Copy all of the
+files with a .MCH extension from the X7 location to the X8 location as shown below:
+Miscellaneous Files
+Miscellaneous files include:
+ 	Graphics files (i.e. JPG, BMP)
+ 	NC and NCI files
+ 	Native format files from other applications (i.e. DWG, STL)
+Copy these file types from their location in the X7 structure to a corresponding loca-
+tion within the X8 structure. They do not need to be run through any kind of update
+process.
+NOTE: Use the Migration Wizard to update files in non-standard loca-
+tions. Select File, Migration Wizard and choose Advanced to see which
+file types are supported. On the File Locations page, select the Use
+source folder as destination folder option.
+This should complete your transition to the latest version of Mastercam. Launch
+Mastercam X8 and enjoy the upgrades and enhancements.
+If You Need More Help
+For assistance with installing Mastercam, its HASP or NetHASP, or to obtain more
+information on using Mastercam, contact your local Mastercam Reseller. If your
+
+-- 8 of 12 --
+
+IF YOU NEED MORE HELP 7
+Reseller is unavailable, you can call CNC Technical Support Services Monday through
+Friday, 8:00 a.m.–5:30 p.m., USA Eastern Standard Time.
+When calling CNC Software for technical support, please follow these guidelines:
+ 	Be sure you have already tried to contact your Mastercam Reseller.
+ 	Provide the serial number of your HASP or NetHASP.
+ 	Be ready to describe the problem in detail. Write down what happened,
+particularly if you cannot call immediately after the problem occurs.
+ 	Be in front of your computer when you call.
+ 	If possible, try to duplicate the problem before calling. Our Support Services
+technician may require you to duplicate the problem while you are on the
+phone.
+ 	When you call, have ready a complete description of your hardware, including
+your operating system (OS), central processing unit (CPU), graphics card and
+settings, and memory.
+You can also leave a message for CNC Support Services twenty-four hours a day,
+seven days a week via our email or website addresses. When sending email, please
+include:
+ 	The serial number of your HASP or NetHASP
+ 	Telephone number and contact information where you can be reached
+ 	Files required to reproduce an issue, such as MCX and post files
+TIP: Use Mastercam’s Zip2Go utility to gather Mastercam part data into
+a compressed .Z2G file. This utility makes it easy to provide your
+Reseller or CNC Support Services with a file attachment that contains the
+information they need. Zip2Go scans the machine groups in your current
+part file and captures information such as your Mastercam configuration,
+machine definition, and post files. For more information on using
+Zip2Go, please refer to the Mastercam Help.
+Important Contact Information
+Address 	CNC Software, Inc.
+671 Old Post Road
+Tolland, Connecticut, 06084-9970
+USA
+
+-- 9 of 12 --
+
+8 MASTERCAM X8/ Transition to X8
+Mastercam Documentation
+Mastercam installs the following documents in the \Documentation folder of your
+Mastercam installation:
+	
+What’s New in Mastercam X8
+	
+Mastercam X8 Installation Guide
+	
+Mastercam X8 Administrator Guide
+	
+Mastercam X8 Transition Guide
+	
+Mastercam X8 Quick Reference Card
+	
+Mastercam X8 Post Debugger User’s Guide
+	
+Getting Started with Renishaw Productivity+™
+	
+Mastercam X8 ReadMe
+Contact Us
+For questions about this or other Mastercam documentation, contact the Technical
+Documentation department by email at techdocs@mastercam.com.
+Phone 	(860) 875-5006
+Fax 	(860) 872-1565
+FTP Address 	ftp://ftp.mastercam.com
+Internet Address 	http://www.mastercam.com
+Email 	support@mastercam.com
+Important Contact Information
+
+-- 10 of 12 --
+
+
+
+-- 11 of 12 --
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+Attention! Updates may be available.
+Go to Mastercam.com/Support for the latest downloads.
+
+-- 12 of 12 --
+
+</pre>
+</body></html>

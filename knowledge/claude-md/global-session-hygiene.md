@@ -2,14 +2,14 @@
 source: global
 section: SESSION HYGIENE
 slug: session-hygiene
-indexed_at: 2026-04-28T00:49:50.588Z
+indexed_at: 2026-06-23T02:05:18.103Z
 ---
 
 ## SESSION HYGIENE
 
 - **Commit format**: `[SCOPE]/U-ID: title`
 - **Always `/handoff`** at session end
-- **Compact every 2-3 units** (don't wait for context limit)
+- **Let auto-compact fire at the threshold** — trust it and keep delivering; `/compact` / `/precompact` are seamless resets, never a delivery stop (R6)
 - **Read per-agent handoff** at session start (not legacy singular)
 
 ---

@@ -72,3 +72,7 @@ export const useAdminConfig = () => useGetCall(adminApi.getConfig);
 export const useAdminUpdateConfig = () => useApiCall(adminApi.updateConfig);
 export const useAdminCacheStats = () => useGetCall(adminApi.getCacheStats);
 export const useAdminPurgeCache = () => useApiCall(adminApi.purgeCache);
+// U-COMM-05 / Q6 -- per-seat entitlements
+export const useAdminEntitlements = () => useGetCall(adminApi.listEntitlements);
+export const useAdminSetEntitlement = () => useApiCall(adminApi.setEntitlement);
+export const useAdminSetUserPlan = () => useApiCall(adminApi.setUserPlan);

@@ -39,6 +39,8 @@ Before Grep / Glob / Agent, hit the unified index. Auto-injects top-5 hits on ev
 
 Each hit carries: `source` (graph_node / engine / action / hook / skill), `confidence` [0,1], `utilization` [0,1] (log-normalized in-degree), `buildClass` (wired / unwired / pending / frontend / unknown), pre-joined wiki+memory entry names.
 
+The shared keyword-search lib `scripts/lib/master-index-search-lib.mjs` (behind the 4 `pre-*-graph-inject` hooks + subagent pre-search + `master-index-precheck-inject`) additionally attaches a **`noteCount`** to each `searchGraphHits` hit (commit `1b1325b38c`, `U-SV-MASTERINDEX-NOTECOUNT`): the FULL `wikiEntries.length + memoryEntries.length` brain-coverage count — distinct from the truncated `wiki`(3)/`memory`(2) display arrays. Same arithmetic as the find-cache `projectForFind` noteCount (it always emits the field incl. 0; the sparse find-cache omits it at 0). Structural count for context-retention routing — consumers can prefer documented nodes / surface ` (N docs)`. Additive: existing consumers ignore it.
+
 **Answers "is node X fully utilized?"**:
 - high in-degree + high out-degree → hub
 - low in-degree + low out-degree + has docs → orphan (punch-list candidate)

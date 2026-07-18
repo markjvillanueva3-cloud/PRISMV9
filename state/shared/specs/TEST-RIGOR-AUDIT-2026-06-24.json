@@ -1,0 +1,441 @@
+{
+  "totalCandidates": 25,
+  "judged": 25,
+  "results": [
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\src\\__tests__\\cam-dispatcher-schema-collision.test.ts",
+      "sut": "H:/prism/mcp-server/src/schemas/camActionSchemas.ts",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "core logic of ACTION_CAM_SCHEMAS validation",
+          "error handling for invalid inputs"
+        ],
+        "rationale": "The test only checks for schema name collisions and presence of actions, without validating the core logic or error handling."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\src\\__tests__\\SelfLearningCAMEngine.test.ts",
+      "sut": "H:/prism/mcp-server/src/engines/SelfLearningCAMEngine.ts",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "cutToLearn functionality",
+          "digitalTwinSync functionality",
+          "strategyRanking functionality",
+          "anomalyRelearn functionality",
+          "error handling",
+          "edge cases"
+        ],
+        "rationale": "The test only checks for the existence of methods and a basic return value, without verifying actual behavior or handling of errors/edge cases."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\src\\__tests__\\sfc-nine-axis-runout-no-double-count.test.ts",
+      "sut": "H:/prism/mcp-server/src/engines/SpeedFeedNineAxisOrchestratorEngine.ts",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 85,
+        "wouldCatchRegression": true,
+        "verdict": "rigorous",
+        "missingCoverage": [
+          "error-path coverage",
+          "edge-input coverage"
+        ],
+        "rationale": "The test checks the live effect of tool_holder.type on tool_life_min and ensures no double-counting of runout derates, but lacks error-path and edge-input coverage."
+      }
+    },
+    {
+      "ok": false,
+      "file": "H:\\prism\\mcp-server\\src\\__tests__\\wedm\\wedm_state_schemas.test.ts",
+      "error": "sut-not-resolved"
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\CalculatorPage.commerce.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/features/operating-system/OperatingSystemProvider.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "core logic of OperatingSystemProvider",
+          "error-path coverage",
+          "adversarial inputs"
+        ],
+        "rationale": "The test does not verify the core logic of the OperatingSystemProvider or handle error paths and adversarial inputs."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\CalculatorPage.prismMode.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/features/operating-system/OperatingSystemProvider.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 65,
+        "wouldCatchRegression": true,
+        "verdict": "shallow",
+        "missingCoverage": [
+          "error handling for invalid services input",
+          "edge cases for runtime mode determination"
+        ],
+        "rationale": "The test checks real reference values but lacks coverage of error paths and edge inputs."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\CalculatorPage.setupPreview.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/features/operating-system/OperatingSystemProvider.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "core logic of OperatingSystemProvider",
+          "useOperatingSystem hook",
+          "useOperatingSystemRuntimeMode hook"
+        ],
+        "rationale": "The test does not verify the core functionality or failure modes of the SOURCE module."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\calculatorStrategyRegistryBridge.test.ts",
+      "sut": "H:/prism/mcp-server/web/src/data/calculatorWorkspace.ts",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "error handling",
+          "edge cases",
+          "adversarial inputs"
+        ],
+        "rationale": "The test only checks for the presence of specific toolpath labels and paths without verifying their correctness or completeness, and it does not cover error handling or edge cases."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\LatheResultsPage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/LatheResultsPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 10,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "core logic functionality",
+          "error handling",
+          "edge cases"
+        ],
+        "rationale": "The test only checks if the component is exported as a function and has no required props, which are not indicative of the component's core behavior or robustness."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\LatheUploadPage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/LatheUploadPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 10,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "handleUpload functionality",
+          "handleFetchResult functionality",
+          "error handling",
+          "edge cases"
+        ],
+        "rationale": "The test only checks if the component is a function and has no required props, offering no coverage of its core logic or potential failure modes."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\LatheWizardPage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/LatheWizardPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 10,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "handleSubmit functionality",
+          "handleFetchResult functionality",
+          "error handling",
+          "edge cases for inputs"
+        ],
+        "rationale": "The test only checks if the component is a function and has no required props, which are trivial assertions that do not verify the core logic or behavior of LatheWizardPage."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\quote-follow-up-api.test.ts",
+      "sut": "H:/prism/mcp-server/web/src/api/client.ts",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "error handling",
+          "edge cases",
+          "adversarial inputs"
+        ],
+        "rationale": "The test only checks for successful responses and does not cover error paths or edge cases."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\QuoteAnalyticsPage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/QuoteAnalyticsPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "error handling",
+          "edge cases for normalization functions",
+          "adversarial inputs",
+          "loading states"
+        ],
+        "rationale": "The test only checks for presence of elements and does not verify the core logic or handle error paths, edge cases, or adversarial inputs."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\ShopFloorLivePage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/ShopFloorLivePage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 10,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "loading state handling",
+          "error state handling",
+          "snapshot and jobs data rendering",
+          "loadDesk function behavior"
+        ],
+        "rationale": "The test only checks if the component is a function and has no required props, which are trivial assertions that do not verify the core logic or behavior of ShopFloorLivePage."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\ShopFloorTVPage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/ShopFloorTVPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 10,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "error handling",
+          "auto-refresh functionality",
+          "data fetching and state updates",
+          "UI rendering based on state"
+        ],
+        "rationale": "The test only checks if the component is a function and has no required props, which are trivial assertions that do not verify the core logic or behavior of the ShopFloorTVPage."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\SpeedFeedPage-blocked-surfacing.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/SpeedFeedPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 85,
+        "wouldCatchRegression": true,
+        "verdict": "shallow",
+        "missingCoverage": [
+          "error-path coverage (e.g., API errors)",
+          "edge-input coverage (e.g., boundary values for numeric inputs)",
+          "adversarial coverage (e.g., NaN/Infinity/boundary/overflow)"
+        ],
+        "rationale": "The test checks the rendering of a blocked response but lacks comprehensive error handling, edge cases, and adversarial testing."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\VendorScorecardPage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/VendorScorecardPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 30,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "error handling",
+          "loading state",
+          "empty vendor list",
+          "boundary values for scores",
+          "adversarial inputs"
+        ],
+        "rationale": "The test only checks for the presence of elements and does not verify error handling, loading states, or edge cases."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\WireEdmUploadPage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/WireEdmUploadPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 10,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "error handling",
+          "OCR and geometry parsing functionality",
+          "state updates",
+          "user interactions"
+        ],
+        "rationale": "The test only checks if the component is a function and has no required props, which are trivial assertions that do not verify the core logic or behavior of WireEdmUploadPage."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\src\\__tests__\\WireEdmWizardPage.test.tsx",
+      "sut": "H:/prism/mcp-server/web/src/pages/WireEdmWizardPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 10,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "material selection logic",
+          "geometry parsing",
+          "tribal tips loading",
+          "safety envelope status",
+          "autonomy status",
+          "RUL and maintenance status",
+          "code preview generation",
+          "ERP integration",
+          "operator approval process"
+        ],
+        "rationale": "The test only checks if the component is exported as a function and has no required props, which are trivial assertions that do not verify core logic or failure modes."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\tests\\page-sweep\\customerDocument.spec.ts",
+      "sut": "H:/prism/mcp-server/web/src/contexts/AuthContext.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "login functionality",
+          "register functionality",
+          "logout functionality",
+          "session timeout",
+          "token storage and retrieval",
+          "interpretLoginResponse function",
+          "interpretRegisterResult function"
+        ],
+        "rationale": "The test only checks the visibility of UI elements on specific pages without verifying any core logic or error handling in the AuthContext module."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\mcp-server\\web\\tests\\page-sweep\\employeeContinuity.spec.ts",
+      "sut": "H:/prism/mcp-server/web/src/contexts/AuthContext.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "login functionality",
+          "register functionality",
+          "logout functionality",
+          "session timeout",
+          "token storage and retrieval",
+          "interpretLoginResponse function",
+          "interpretRegisterResult function"
+        ],
+        "rationale": "The test only checks the presence of UI elements on specific pages without verifying any core logic or error handling in the AuthContext module."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\web\\src\\__tests__\\CalculatorPage.commerce.test.tsx",
+      "sut": "H:/prism/web/src/features/operating-system/OperatingSystemProvider.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "core logic of OperatingSystemProvider",
+          "error-path coverage",
+          "adversarial inputs"
+        ],
+        "rationale": "The test does not verify the core logic of the OperatingSystemProvider or handle error paths and adversarial inputs."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\web\\src\\__tests__\\CalculatorPage.prismMode.test.tsx",
+      "sut": "H:/prism/web/src/features/operating-system/OperatingSystemProvider.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 65,
+        "wouldCatchRegression": true,
+        "verdict": "shallow",
+        "missingCoverage": [
+          "error handling for invalid services input",
+          "edge cases for runtime mode determination"
+        ],
+        "rationale": "The test checks real reference values but lacks coverage of error paths and edge inputs."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\web\\src\\__tests__\\CalculatorPage.setupPreview.test.tsx",
+      "sut": "H:/prism/web/src/features/operating-system/OperatingSystemProvider.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "core logic of OperatingSystemProvider",
+          "useOperatingSystem hook",
+          "useOperatingSystemRuntimeMode hook"
+        ],
+        "rationale": "The test does not verify the core functionality of the SOURCE module and only checks for presence of elements in a specific page component."
+      }
+    },
+    {
+      "ok": true,
+      "file": "H:\\prism\\web\\src\\__tests__\\QuoteAnalyticsPage.test.tsx",
+      "sut": "H:/prism/web/src/pages/QuoteAnalyticsPage.tsx",
+      "via": "ollama",
+      "verdict": {
+        "rigorScore": 20,
+        "wouldCatchRegression": false,
+        "verdict": "weak",
+        "missingCoverage": [
+          "error handling",
+          "edge cases for normalization functions",
+          "adversarial inputs",
+          "loading states"
+        ],
+        "rationale": "The test only checks for presence of elements and does not verify the core logic or handle error paths, edge cases, or adversarial inputs."
+      }
+    }
+  ]
+}

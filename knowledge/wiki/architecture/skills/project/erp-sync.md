@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /erp-sync — ERP System Synchronization
+Synchronize PRISM data with ERP systems for bidirectional updates.
 
 <!-- AUTO-END -->
 

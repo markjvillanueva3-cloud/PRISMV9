@@ -1,0 +1,298 @@
+Application Tutorial | InventorCAM 2024
+
+Edge Breaking
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+          Contents
+
+Contents
+
+1. Introduction.....................................................................................................................................................1
+2. CAM-Part Definition........................................................................................................................................5
+3. Stock and Target Definition............................................................................................................................11
+4. Edge Breaking 3-Axis Operation...................................................................................................................15
+5. Edge Breaking 5-Axis Operation...................................................................................................................19
+
+                                                                                                                                                                       i
+Introduction  1
+About this course
+The goal of this course is to teach you how to use InventorCAM's Edge Breaking operation to machine a part. This
+tutorial covers the basic concepts of Edge Breaking operation. Once you have developed a good foundation in basic
+skills, you can refer to the online help for information on the less frequently used options.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the InventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task. The theoretical explanations are embedded into these exercises to
+give an overview of the Edge Breaking capabilities.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial.
+This book is made using Autodesk Inventor Professional 2024 and InventorCAM 2024 SP2.
+
+2
+                                                                                                                                                      1. Introduction
+
+Edge Breaking Operation
+After machining a CAM-Part, sometimes you may find a burr in CAM-Parts that have straight edges or non-tangent outer
+surface topologies. It occurs when the tool chips the metal off the edge. It is an undesirable condition as it can ruin the
+functionality of the part or endanger the user because it is razor sharp. Most of the time, it is preferred to remove it.
+InventorCAM's Edge Breaking operation helps create a deburring tool path on the outer edges of a part geometry. The
+position of the tool relative to the edge is always the bi vector between the two surfaces of that edge.
+The operation enables you to create a fully automatic tool path by just selecting the part geometry. Additional features of
+the Edge Breaking operation include Automatic- Feature Detection, Linking, Lead In and Collision avoidance.
+Presently, only Ball mill cutters (Ball Nose Mill, Taper Ball Nose and Lollipop mill) are supported in this operation. It
+requires a good quality geometry input (a mesh) else, the detection feature does not work properly.
+
+                                                                                                                                                                         3
+4
+2 CAM-Part Definition
+The CAM-Part definition process consists of the following stages:
+                                                         CAM-Part creation
+
+                                                     CNC-Machine de nition
+
+                                                 Coordinate System de nition
+
+                                                 Stock and Target de nition
+
+        · CAM-Part creation. At this stage, you have to define the CAM-Part name and location. SolidCAM defines the
+            necessary system files and a folder to allocate the place to store SolidCAM data.
+
+        · CNC-controller definition. It is necessary to choose the CNC-controller. The controller type influences the
+            Coordinate System definition and the Geometry definition.
+
+        · Coordinate System definition. You have to define the Coordinate System, which is the origin for all machining
+            operations of the CAM-Part. You can create multiple CoordSys positions and in each machining step select
+            which CoordSys you want to use for the operation.
+
+        · Stock and Target definition. It is necessary to define a boundary of the stock that is used for the CAM-Part
+            machining. InventorCAM enables you to define the model of the part in its final stage after the machining.
+
+The following exercises describe the full process of the CAM-Part definition. It is recommended to go through the stages
+in order to understand how the CAM-Part features are built. For this purpose, you have to turn off the automatic CAM-
+Part definition.
+1. Click InventorCAM 2024 > CAM Settings. In the left pane, select Default CNC-Controller.
+
+2. Ensure that the Post - Processor files directory is pointing to the folder in which you have extracted the part and
+machine files of this tutorial, or to a folder from which the. VMID files are read.
+3. In the left pane, select CAM-Part.
+
+6
+                                                 2. CAM-Part Definition
+
+4. Ensure that the settings are as shown in the
+image.
+
+5. In the left pane, select Automatic CAM-Part definition.
+6. In the right pane, click the Milling tab.
+7. Ensure that the settings are as shown in the
+image.
+8. Click OK.
+
+9. Browse to open the Autodesk Inventor part EdgeBreaking.ipt.
+10. Click InventorCAM2024 > New > Milling.
+The New Milling Part window displays.
+11. Click to close the window.
+
+                                                                                                                                                                         7
+12. Define the CAM-Part in the Milling Part Data dialog box.
+13. In the CNC-Machine list, click Hermle-C30_iTNC530_5X_TZ.
+14. Click CoordSys button in the Define section the coordinate system for this part.
+15. In the Definition options section, click the Select face option.
+16. In the Place CoordSys origin to list, click Top center of model box.
+17. Select the face marked by the red arrow.
+
+18. The coordinate system is defined. In the Definition options section, select
+the Change to opposite button.
+
+19. Set the direction of axis in you part file are similar to the directions shown
+in this image.
+20. Click
+The CoordSys Data window displays.
+
+8
+                                                                                            2. CAM-Part Definition
+
+21. Ensure that the Levels parameters in your file are similar to that shown in the image.
+
+22. Click
+The defined Coordinate looks like below image.
+
+23. Click to confirm the CoordSys Manager window.
+The CAM part is now defined.
+
+                                                                                            9
+10
+Stock and Target  3
+     Definition
+To define the stock, follow the steps mentioned in this chapter.
+1. Select the Stock button in the Define section.
+2. In the Defined by list, click 3D Model.
+3. Click on the part to select the solid as shown by the red arrow.
+
+4. Click the Show button to see the 3D representation of the selected stock.
+The defined stock should look as shown in the below image.
+
+5. Close the Stock model : stock window.
+6. Set the Facet tolerance value as 0.1.
+7. Click
+8. Select the Target button in the Define section.
+
+12
+                                                                               3. Stock and Target Definition
+
+9. Select the target as shown in the image.
+10. Set the Facet tolerance value as 0.002.
+11. Click
+12. Click to close the Milling Part Data window.
+
+13. Right click Operations > Machine Setup > Add at start of operations tree.
+14. Set the Z value as 128.080.
+15. Click OK in the Machine setup window.
+
+The stock and target are now defined and the Setup is added in the CAM-Tree.
+
+                                                                               13
+14
+4 Edge Breaking 3-Axis
+        Operation
+1. Right click Setup > Add Milling Operation > Edge Breaking.
+2. Click the Geometry page.
+3. Set the parameters as shown in the image.
+
+4. Click the Tool page > Select.
+5. Double click the BALL NOSE MILL tool to add it for the operation.
+6. Click the Topology icon and set the parameters as shown in the image.
+
+7. Right click the tool > Add Holder.
+8. Double click HSK A 63 SRKIN 6x80 to add it.
+
+9. Click  to save the tool for the operation.
+
+10. Click the Levels page.
+
+11. On the Regular tab, ensure all the parameters are as shown in the
+image.
+
+16
+                                                                4. Edge Breaking 3-Axis Operation
+
+12. Click the Tool axis control page.
+13. Set the Output format as 3 Axis.
+14. Click the Tool path parameters page.
+15. Set the parameters as shown in the image.
+
+16. Click the Machine control page.
+17. On the Regular tab, select the option of First angle pair.
+18. In the Machine limits list, select No limits.
+19. Click the Advanced tab.
+20. Set the parameters as shown in the image.
+21. Click
+
+The created tool path must look as displayed in the image.
+
+                                                                17
+22. Run the simulation in SolidVerify mode.
+The simulated part must look as displayed in the image.
+
+18
+ Edge Breaking    5
+5-Axis Operation
+1. Right click Setup > Add Milling Operation > Edge Breaking.
+2. Click the Geometry page.
+3. Set the parameters as shown in the image.
+
+4. Click the Tool page > Select.
+5. Select the same BALL NOSE MILL tool that was used for the previous operation.
+
+6. Click  to save the tool for the operation.
+
+7. Click the Levels page.
+
+8. On the Regular tab, select Automatic from the Type list.
+
+9. Set the Retract distance and Safety distance values as 20 and 10 respectively.
+
+10. Click the Tool path parameters page.
+
+11. Set the parameters as shown in the image.
+
+12. Click the Tool axis control page.
+13. Ensure the values are set as shown in the image.
+
+20
+                                                                5. Edge Breaking 5-Axis Operation
+
+14. Click the Link page.
+15. In the Type list, select Clearance blend spline.
+16. Click the Machine control page.
+17. On the Regular tab, select the option of First angle pair.
+18. In the Machine limits list, select No limits.
+19. Click the Advanced tab.
+20. Set the parameters as shown in the image.
+
+21. Click
+
+The created tool path must look as displayed in the image.
+
+                                                                21
+22. Run the simulation in SolidVerify mode.
+The simulated part must look as displayed in the image.
+
+23. Copy, Paste and then Edit the previously created 5-Axis operation.
+24. Click the Tool path parameters page.
+25. Set the Cut tolerance value as 0.03.
+26. Click the Tool axis control page.
+27. In the Output format list, click 5 Axis.
+28. Click the Machine control page.
+29. On the Regular tab, set the parameters as shown in the image.
+
+30. Save and close the operation.
+31. In the CAM-Tree Manager, double click Settings.
+32. Click the Updated Stock calculation page.
+33. Select the SolidVerify tab.
+34. Set the Max. Interpolation Angle value as 1. This value defines the angular tolerance for the interpolation.
+
+22
+                                                                5. Edge Breaking 5-Axis Operation
+
+35. Select the OK button.
+
+36. Double click the last operation and save and calculate it.
+The created tool path must look as displayed in the image.
+
+37. Run the simulation in SolidVerify mode.
+The simulated part must look as displayed in the image.
+
+                                                                23
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

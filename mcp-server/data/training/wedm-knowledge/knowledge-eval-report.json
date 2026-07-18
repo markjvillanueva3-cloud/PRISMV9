@@ -1,0 +1,257 @@
+{
+  "reasoning_source": "WEDMLoRAReasoningEvaluatorEngine (authoritative)",
+  "caveat": "Axes measure lexical relevance + specificity + rhetoric — a cheap on-topic/concrete SCREEN, NOT a factual-correctness gauge. pass_rate ~= 'on-topic and concrete', not 'correct'.",
+  "splits": {
+    "train": {
+      "n": 139,
+      "mean_knowledge_score": 0.518,
+      "mean_instruction_following": 0.584,
+      "mean_grounding": 0.428,
+      "mean_reasoning": 0.507,
+      "pass_rate": 0.259,
+      "by_kind": {
+        "advisory": {
+          "n": 112,
+          "mean": 0.537
+        },
+        "tech_table": {
+          "n": 3,
+          "mean": 0.509
+        },
+        "tech_pass": {
+          "n": 12,
+          "mean": 0.503
+        },
+        "tech_select": {
+          "n": 5,
+          "mean": 0.234
+        },
+        "tech_mcode": {
+          "n": 2,
+          "mean": 0.319
+        },
+        "wire_spec": {
+          "n": 5,
+          "mean": 0.499
+        }
+      },
+      "by_category": {
+        "controller_dialect": {
+          "n": 7,
+          "mean": 0.539
+        },
+        "machining": {
+          "n": 19,
+          "mean": 0.594
+        },
+        "programming": {
+          "n": 31,
+          "mean": 0.485
+        },
+        "shop_ground_truth": {
+          "n": 10,
+          "mean": 0.625
+        },
+        "maintenance": {
+          "n": 1,
+          "mean": 0.456
+        },
+        "ai_ml": {
+          "n": 9,
+          "mean": 0.472
+        },
+        "cam_canonical": {
+          "n": 4,
+          "mean": 0.664
+        },
+        "safety": {
+          "n": 3,
+          "mean": 0.409
+        },
+        "troubleshooting": {
+          "n": 8,
+          "mean": 0.429
+        },
+        "quality": {
+          "n": 2,
+          "mean": 0.495
+        },
+        "speeds_feeds": {
+          "n": 6,
+          "mean": 0.52
+        },
+        "physics": {
+          "n": 3,
+          "mean": 0.451
+        },
+        "setup": {
+          "n": 9,
+          "mean": 0.481
+        },
+        "cost": {
+          "n": 1,
+          "mean": 0.402
+        },
+        "materials": {
+          "n": 1,
+          "mean": 0.654
+        },
+        "ai_optimization": {
+          "n": 6,
+          "mean": 0.383
+        },
+        "workpiece_machinability": {
+          "n": 4,
+          "mean": 0.655
+        },
+        "operations_diagnostics": {
+          "n": 1,
+          "mean": 0.553
+        },
+        "wedm_tactics": {
+          "n": 2,
+          "mean": 0.605
+        },
+        "tooling": {
+          "n": 7,
+          "mean": 0.492
+        },
+        "process_parameters": {
+          "n": 1,
+          "mean": 0.638
+        },
+        "surface_finish": {
+          "n": 1,
+          "mean": 0.562
+        },
+        "dielectric_chemistry": {
+          "n": 2,
+          "mean": 0.59
+        },
+        "tool_life": {
+          "n": 1,
+          "mean": 0.334
+        }
+      }
+    },
+    "val": {
+      "n": 17,
+      "mean_knowledge_score": 0.536,
+      "mean_instruction_following": 0.587,
+      "mean_grounding": 0.471,
+      "mean_reasoning": 0.524,
+      "pass_rate": 0.294,
+      "by_kind": {
+        "advisory": {
+          "n": 14,
+          "mean": 0.562
+        },
+        "tech_pass": {
+          "n": 1,
+          "mean": 0.497
+        },
+        "tech_select": {
+          "n": 1,
+          "mean": 0.291
+        },
+        "wire_spec": {
+          "n": 1,
+          "mean": 0.459
+        }
+      },
+      "by_category": {
+        "programming": {
+          "n": 4,
+          "mean": 0.513
+        },
+        "materials": {
+          "n": 2,
+          "mean": 0.517
+        },
+        "machining": {
+          "n": 5,
+          "mean": 0.584
+        },
+        "quality": {
+          "n": 1,
+          "mean": 0.481
+        },
+        "speeds_feeds": {
+          "n": 2,
+          "mean": 0.517
+        },
+        "safety": {
+          "n": 1,
+          "mean": 0.51
+        },
+        "shop_ground_truth": {
+          "n": 1,
+          "mean": 0.629
+        },
+        "tooling": {
+          "n": 1,
+          "mean": 0.459
+        }
+      }
+    },
+    "test": {
+      "n": 15,
+      "mean_knowledge_score": 0.546,
+      "mean_instruction_following": 0.652,
+      "mean_grounding": 0.433,
+      "mean_reasoning": 0.504,
+      "pass_rate": 0.333,
+      "by_kind": {
+        "advisory": {
+          "n": 14,
+          "mean": 0.549
+        },
+        "tech_pass": {
+          "n": 1,
+          "mean": 0.497
+        }
+      },
+      "by_category": {
+        "quality": {
+          "n": 1,
+          "mean": 0.374
+        },
+        "shop_ground_truth": {
+          "n": 3,
+          "mean": 0.654
+        },
+        "setup": {
+          "n": 2,
+          "mean": 0.522
+        },
+        "machining": {
+          "n": 2,
+          "mean": 0.629
+        },
+        "wedm_tactics": {
+          "n": 2,
+          "mean": 0.607
+        },
+        "ai_ml": {
+          "n": 1,
+          "mean": 0.459
+        },
+        "ai_optimization": {
+          "n": 1,
+          "mean": 0.396
+        },
+        "programming": {
+          "n": 2,
+          "mean": 0.516
+        },
+        "speeds_feeds": {
+          "n": 1,
+          "mean": 0.448
+        }
+      }
+    }
+  },
+  "generated_for": "wedm-knowledge corpus",
+  "overall_mean_knowledge_score": 0.522,
+  "n_total": 171
+}

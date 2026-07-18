@@ -1,0 +1,314 @@
+{
+  "agent_id": "AGT-SONNET-012",
+  "name": "merger",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Data/Code Merger - Combines and Consolidates with Anti-Regression Protection",
+  
+  "domain_expertise": [
+    "Data merging",
+    "Code consolidation",
+    "Deduplication",
+    "Conflict resolution",
+    "Schema alignment",
+    "Version reconciliation",
+    "Inventory preservation",
+    "Anti-regression merging",
+    "Database consolidation",
+    "File combining"
+  ],
+
+  "critical_rule": "NEVER merge without pre-inventory. ALWAYS compare counts before and after.",
+
+  "capabilities": [
+    {
+      "id": "CAP-MERGE-001",
+      "name": "Pre-Merge Inventory",
+      "description": "Creates complete inventory of all sources BEFORE merging",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["sources"],
+        "optional": ["inventory_depth"]
+      },
+      "outputs": {
+        "primary": "inventory",
+        "secondary": ["source_counts", "unique_items", "duplicates", "total_items"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "PRE-MERGE-INVENTORY"],
+      "synergizes_with": ["regression_detector", "completeness_auditor"],
+      "inventory_includes": [
+        "Record counts per source",
+        "Unique identifiers",
+        "Duplicate detection",
+        "Schema compatibility"
+      ],
+      "success_criteria": "Complete inventory of all sources"
+    },
+    {
+      "id": "CAP-MERGE-002",
+      "name": "Data Merge",
+      "description": "Merges multiple data sources with conflict resolution",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["sources", "merge_strategy"],
+        "optional": ["conflict_resolution", "schema_mapping"]
+      },
+      "outputs": {
+        "primary": "merged_data",
+        "secondary": ["merge_log", "conflicts_resolved", "items_merged"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-validator"],
+      "hooks_triggered": ["DATA-MERGE"],
+      "synergizes_with": ["validator", "data_quality_enforcer"],
+      "merge_strategies": {
+        "union": "All items from all sources",
+        "intersection": "Only items in all sources",
+        "primary_wins": "Primary source takes precedence",
+        "newest_wins": "Most recent version wins",
+        "manual": "Flag conflicts for review"
+      },
+      "success_criteria": "Merged data with no loss"
+    },
+    {
+      "id": "CAP-MERGE-003",
+      "name": "Database Consolidation",
+      "description": "Consolidates multiple databases into unified structure",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["databases", "target_schema"],
+        "optional": ["migration_rules", "preserve_history"]
+      },
+      "outputs": {
+        "primary": "consolidated_database",
+        "secondary": ["consolidation_log", "record_mappings", "integrity_check"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-validator", "prism-material-schema"],
+      "hooks_triggered": ["DB-CONSOLIDATE"],
+      "synergizes_with": ["schema_designer", "completeness_auditor"],
+      "success_criteria": "All records preserved in unified schema"
+    },
+    {
+      "id": "CAP-MERGE-004",
+      "name": "File Combining",
+      "description": "Combines multiple files into one with proper structure",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["files"],
+        "optional": ["combine_order", "separator"]
+      },
+      "outputs": {
+        "primary": "combined_file",
+        "secondary": ["source_sections", "line_counts", "size"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["FILE-COMBINE"],
+      "synergizes_with": ["coder"],
+      "success_criteria": "Combined file preserves all content"
+    },
+    {
+      "id": "CAP-MERGE-005",
+      "name": "Deduplication",
+      "description": "Removes duplicates while preserving unique data",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["data", "key_fields"],
+        "optional": ["duplicate_strategy", "preserve_first"]
+      },
+      "outputs": {
+        "primary": "deduplicated_data",
+        "secondary": ["duplicates_removed", "unique_count", "duplicate_log"]
+      },
+      "skills_used": ["prism-validator", "prism-anti-regression"],
+      "hooks_triggered": ["DEDUP"],
+      "synergizes_with": ["data_quality_enforcer"],
+      "duplicate_handling": {
+        "keep_first": "Keep first occurrence",
+        "keep_last": "Keep last occurrence",
+        "merge_fields": "Merge non-conflicting fields",
+        "flag": "Flag for manual review"
+      },
+      "success_criteria": "No duplicates, no data loss"
+    },
+    {
+      "id": "CAP-MERGE-006",
+      "name": "Conflict Resolution",
+      "description": "Resolves conflicts when merging incompatible data",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["conflicts"],
+        "optional": ["resolution_rules", "human_review"]
+      },
+      "outputs": {
+        "primary": "resolved_conflicts",
+        "secondary": ["resolution_log", "manual_review_needed"]
+      },
+      "skills_used": ["prism-validator", "prism-anti-regression"],
+      "hooks_triggered": ["CONFLICT-RESOLVE"],
+      "synergizes_with": ["validator"],
+      "conflict_types": {
+        "value_conflict": "Different values for same field",
+        "type_conflict": "Different data types",
+        "schema_conflict": "Different structures",
+        "constraint_conflict": "Violates constraints"
+      },
+      "success_criteria": "All conflicts resolved or flagged"
+    },
+    {
+      "id": "CAP-MERGE-007",
+      "name": "Schema Alignment",
+      "description": "Aligns different schemas for merging",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["schemas"],
+        "optional": ["target_schema", "mapping_rules"]
+      },
+      "outputs": {
+        "primary": "aligned_schema",
+        "secondary": ["field_mappings", "transformations_needed"]
+      },
+      "skills_used": ["prism-material-schema", "prism-validator"],
+      "hooks_triggered": ["SCHEMA-ALIGN"],
+      "synergizes_with": ["schema_designer"],
+      "success_criteria": "Schemas compatible for merging"
+    },
+    {
+      "id": "CAP-MERGE-008",
+      "name": "Version Reconciliation",
+      "description": "Reconciles different versions of same data",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["versions"],
+        "optional": ["reconciliation_strategy"]
+      },
+      "outputs": {
+        "primary": "reconciled_data",
+        "secondary": ["version_history", "changes_merged"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "VERSION-RECONCILE"],
+      "synergizes_with": ["regression_detector"],
+      "success_criteria": "Latest data with change history"
+    },
+    {
+      "id": "CAP-MERGE-009",
+      "name": "Skill Consolidation",
+      "description": "Consolidates multiple skills into unified master skill",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["skills_to_consolidate"],
+        "optional": ["consolidation_strategy"]
+      },
+      "outputs": {
+        "primary": "master_skill",
+        "secondary": ["content_preserved", "size_comparison", "feature_matrix"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-all-skills"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "SKILL-CONSOLIDATE"],
+      "synergizes_with": ["regression_detector", "completeness_auditor"],
+      "success_criteria": "All skill content preserved in master"
+    },
+    {
+      "id": "CAP-MERGE-010",
+      "name": "Module Merge",
+      "description": "Merges multiple code modules into unified module",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["modules"],
+        "optional": ["merge_order", "namespace_handling"]
+      },
+      "outputs": {
+        "primary": "merged_module",
+        "secondary": ["merged_exports", "namespace_map", "conflicts"]
+      },
+      "skills_used": ["prism-code-master", "prism-anti-regression"],
+      "hooks_triggered": ["MODULE-MERGE"],
+      "synergizes_with": ["coder", "architect"],
+      "success_criteria": "Unified module with all functionality"
+    },
+    {
+      "id": "CAP-MERGE-011",
+      "name": "Post-Merge Validation",
+      "description": "Validates merge results against pre-merge inventory",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["pre_inventory", "merged_result"],
+        "optional": ["validation_rules"]
+      },
+      "outputs": {
+        "primary": "validation_result",
+        "secondary": ["count_comparison", "items_preserved", "items_lost"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "POST-MERGE-VALIDATE"],
+      "synergizes_with": ["regression_detector", "completeness_auditor"],
+      "validation_checks": [
+        "Total count >= sum of sources",
+        "No unique items lost",
+        "All conflicts resolved",
+        "Schema valid"
+      ],
+      "success_criteria": "No data loss confirmed"
+    },
+    {
+      "id": "CAP-MERGE-012",
+      "name": "Merge Report Generation",
+      "description": "Generates comprehensive merge report",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["merge_session"],
+        "optional": ["report_format"]
+      },
+      "outputs": {
+        "primary": "merge_report",
+        "secondary": ["summary", "detailed_log", "recommendations"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Complete merge documentation"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-anti-regression",
+    "prism-sp-verification",
+    "prism-validator",
+    "prism-material-schema",
+    "prism-code-master",
+    "prism-all-skills",
+    "prism-quality-master",
+    "prism-dev-utilities"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW4-REGRESSION",
+    "db:preUpdate",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "validator",
+    "regression_detector"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "extractor"
+  ],
+
+  "quality_gates": [
+    "Pre-inventory complete",
+    "All conflicts resolved",
+    "Post-validation passed",
+    "No data loss confirmed"
+  ],
+
+  "performance_metrics": {
+    "merge_accuracy": 0.999,
+    "data_preservation": 1.0,
+    "latency_target_ms": 5000,
+    "records_per_minute": 10000
+  }
+}

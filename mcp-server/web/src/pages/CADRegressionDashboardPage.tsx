@@ -17,6 +17,7 @@ import {
   type DashboardCounts,
   type TestStatus,
 } from '../api/cadRegressionDashboard';
+import { GatedError } from '../components/entitlement';
 
 const DEFAULT_WINDOW_MIN = 5;
 const DEFAULT_RECENT_LIMIT = 10;
@@ -111,6 +112,7 @@ export function CADRegressionDashboardPage() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
 
   useEffect(() => {
     let active = true;
@@ -126,6 +128,7 @@ export function CADRegressionDashboardPage() {
       .catch((e: unknown) => {
         if (!active) return;
         setError(e instanceof Error ? e.message : 'Failed to load batch list');
+        setGateError(e);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -150,6 +153,7 @@ export function CADRegressionDashboardPage() {
       .catch((e: unknown) => {
         if (!active) return;
         setError(e instanceof Error ? e.message : 'Failed to load snapshot');
+        setGateError(e);
       })
       .finally(() => {
         if (active) setRefreshing(false);
@@ -219,9 +223,15 @@ export function CADRegressionDashboardPage() {
       </header>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">
-          {error}
-        </div>
+        <GatedError
+          error={gateError}
+          feature='cadcam'
+          fallback={
+            <div className="mb-4 rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">
+              {error}
+            </div>
+          }
+        />
       )}
 
       <section className="mb-5 rounded-xl border border-white/10 bg-[rgba(2,6,23,0.78)] p-4">

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `lathe-agi-explain` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-agi-explain.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-agi-explain.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Produce a full AGI reasoning trace for any P1–P5 decision. Consolidates U-LTH58 (feature bridge), U-LTH60 (knowledge graph), and U-LTH61 (safety containment) into a single explainability surface.
+
+# /lathe-agi-explain
 
 <!-- AUTO-END -->
 

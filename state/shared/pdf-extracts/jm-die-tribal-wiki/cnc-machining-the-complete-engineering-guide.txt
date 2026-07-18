@@ -1,0 +1,1204 @@
+eCTnhNgeECiCcnnTNmgoehCimeaenrcpmienhCaleegoicrntmhigeipinnulnggieid:tnGeegu:ide
+
+Learn all you need to know about CNC machining in 25 minutes or less.
+Whether you're an eperienced design engineer or just getting started with
+CNC, this guideLeisarfonr yaolyulo.u need to okwn about CNC machining in 25 meisnuotresls. Whetheyrou are anexperienced
+
+                                                design engineer or just gettatrtiendg wsith CCN, this guidfeoriysou.
+
+                                                                                                                                                                            1
+Table of contents
+
+Part 1
+
+The basics
+
+                    5. What is CNC machining?
+                             A brief history of CNC machining
+
+                    6. Types of CNC machines
+                             3-ais CNC machines
+                             5-ais CNC machining
+                             Summary
+
+                   12. Benets and limitations of CNC machining
+                             Benets of CNC machining
+                             Limitations of CNC machining
+
+                   14. Applications of CNC machining
+                             CNC machining vs. 3D printing
+                             Scaling up production
+
+Part 2                                                            CNC machining design restrictions
+                                                                  Design rules for CNC machining
+Design for CNC                                                    Designing undercuts
+machining
+
+                                                             19.
+                                                             20.
+                                                             22.
+
+2
+Part 3
+
+Materials for CNC
+machining
+                24. Materials for CNC machining
+
+                   Metals
+
+                   Plastics
+
+                   Surface nishes
+
+Part 4
+
+Cost reduction
+tips
+                30. Tips to keep your CNC project on budget
+
+                   Tip #1: Increase the size of all llets or add
+                   undercuts to sharp edges
+
+                   Tip #2: Minimize the number of machine
+                   orientations
+
+                   Tip #3: Consider the cost of the material
+
+Part 5          35. Step 1:
+                          Export your design to a CNC-compatible CAD
+Start CNC                 le format
+machining
+                36. Step 2:
+                          Prepare a technical drawing
+
+                37. Step 3:
+                          Get an instant quote and start manufacturing
+
+Part 6
+
+Useful resources
+
+                                                             39. Knowledge base
+                                                                       Learn to machine
+                                                                       Other guides
+
+                                                                                                                                                                            3
+Part 1
+
+The basics
+
+What is CNC machining? What are the dierent types of CNC
+machines? How do they work? In this section, we answer all these
+questions and compare CNC machining to other manufacturing
+technologies to help you nd the best solution for your application.
+
+4
+What is CNC machining?
+
+CNC (Computer Numerical Control) machining is a subtractive
+manufacturing technology: parts are created by removing material
+from a solid block (called the blank or the workpiece) using a
+variety of cutting tools.
+
+This is a fundamentally dierent way of man-     Almost every material can be CNC machined.
+ufacturing compared to additive (3D printing)   The most common eamples include metals
+or formative (injection molding) technologies.  (aluminum and steel alloys, brass etc.) and
+The material removal mechanisms have signif-    plastics (ABS, Delrin, Nylon etc.). Foam, com-
+icant implications on the benets, limitations   posites and wood can also be machined.
+and design restrictions of CNC.
+                                                  The basic CNC process can be broken
+  CNC machining is a digital manufacturing      down into 3 steps. The engineer rst designs
+technology: it produces high-accuracy parts     the CAD model of the part. The machinists
+with ecellent physical properties directly      then turn the CAD le into a CNC program
+from a CAD le.                                  (G-code) and set up the machine.
+
+  Due to the high level of automation, CNC        Finally, the CNC system eecutes all ma-
+is price-competitive for both one-o cus-        chining operations with little supervision, re-
+tom parts and medium-volume productions.        moving material and creating the part.
+
+                                                                                                 5
+A brief history of CNC machining
+
+                                                                                                > The earliest machined object ever discovered
+                                                                                                           was a bowl found in Italy and made in 700 B.C.
+                                                                                                           using a lathe.
+                                                                                                > Attempts to automate machining started in
+                                                                                                           the 18th century. These machines were purely
+                                                                                                           mechanical and powered by steam.
+                                                                                                > The rst programmable machine was devel-
+                                                                                                           oped in the late 40s in MIT. It used punched
+                                                                                                           cards to encode each movement.
+                                                                                                > The proliferation of computers in the 50s and
+                                                                                                           60s added the "C" in CNC and radically changed
+                                                                                                           the manufacturing industry.
+                                                                                                > Today, CNC machines are advanced robotic
+                                                                                                           systems with multi-ais and multi-tooling capa-
+                                                                                                           bilities.
+
+Types of CNC machines
+
+In this guide, we will focus on CNC machines that remove material using
+cutting tools. These are the most common and have the widest range of
+applications. Other CNC machines include laser cutters, plasma cutters
+and EDM machines.
+
+6
+3-axis CNC machines
+
+CNC milling and CNC turning machines are eamples of 3-ais CNC sys-
+tems. These "basic" machines allow the movement of the cutting tool in 3
+linear aes relative to the workpiece (left-right, back-forth and up-down).
+
+                                                                CNC milling
+
+                                                                > The workpiece is held stationary directly on the machine bed
+                                                                       or in a vice.
+                                                                > Material is removed from the workpiece using cutting tools
+                                                                       or drills that rotate at high speed.
+                                                                > The tools are attached to a spindle, which can move along 3
+                                                                       linear aes.
+
+3-ais CNC milling machines are very common, as they can be used to
+produce most common geometries. They are relatively easy to program
+and operate, so start-up machining costs are relatively low.
+
+  Tool access can be a design restriction in CNC milling. As there are only
+3 aes to work with, certain areas might be impossible to reach. This isn't
+a big issue if the workpiece needs to be rotated just once, but if multiple
+rotations are needed the labor and machining costs increase fast.
+
+Pros                                  Cons
+
+· Can produce most parts with simple  · Tool access and workholding design restrictions
+      geometries                            apply
+
+· High accuracy and tight tolerances  · Manual repositioning of the workpiece lowers the
+                                            achievable accuracy
+
+                                                                                                                                7
+                                                                CNC turning (lathes)
+
+                                                                > The workpiece is held on the spindle while rotating at high
+                                                                       speed.
+                                                                > A cutting tool or center drill traces the outer or inner perim-
+                                                                       eter of the part, forming the geometry.
+                                                                > The tool does not rotate and moves along polar directions
+                                                                       (radially and lengthwise).
+
+CNC lathes are etensively used, because they can produce parts at a
+much higher rate and at a lower cost per unit than CNC mills. This is espe-
+cially relevant for larger volumes.
+
+  The main design restriction of CNC lathes is that they can only produce
+parts with a cylindrical prole (think screws or washers). To overcome this
+limitation, features of the part are often CNC milled in a separate machin-
+ing step. Alternatively, 5-ais mill-turning CNC centers can be used to
+produce the same geometry in one step.
+
+Pros                                          Cons
+
+· Lowest cost per part compared to all other  · Can only produce parts with rotational symmetry
+      CNC machining operations                      and simple geometries
+
+· Very high production capabilities
+
+8
+5-axis CNC machines
+
+Multi-ais CNC machining centers come in 3 variations: 5-ais indeed
+CNC milling, continuous 5-ais CNC milling and mill-turning centers with
+live tooling.
+
+  These systems are essentially milling machines or lathes enhanced with
+additional degrees of freedom. For eample, 5-ais CNC milling centers
+allow the rotation of the machine bed or the toolhead (or both) in addition
+to the 3 linear aes of movement.
+
+  The advanced capabilities of these machines come at an increased cost.
+They require both specialized machinery and operators with epert knowl-
+edge. For highly comple or topology optimized metal parts, 3D printing is
+usually a more suitable option.
+
+                                                     Continuous 5-axis CNC milling
+
+                                                                > The cutting tool can move along 3 linear and 2 rotation-
+                                                                       al aes relative to the workpiece.
+                                                                > All 5 aes can move at the same during all machining
+                                                                       operations.
+
+Continuous 5-ais CNC milling systems have a similar machine architec-
+ture to indeed 5-ais CNC milling machines.
+
+  But they allow for the movement of all 5 aes at the same time during all
+machining operations. This way, it's possible to produce parts with com-
+ple, `organic' geometries that can't be manufactured at the achieved level
+of accuracy with any other technology.
+
+  These advanced capabilities come at a high cost, of course, as both
+epensive machinery and highly-trained machinists are needed.
+
+Pros                                                 Cons
+
+· Manufactures comple parts at a level of accu-      · Highest cost per part of all CNC machines
+      racy that's impossible with any other process  · Tool access restrictions still apply
+
+· Produces very smooth `organic' surfaces with
+      minimal machining marks
+
+                                                                                                                            9
+                                                     Indexed 5-axis CNC milling
+
+                                                     > During machining, the cutting tool can only move along 3
+                                                     linear aes.
+                                                     > Between operations, the bed and the toolhead can rotate,
+                                                     giving access to the workpiece from a dierent angle.
+
+Indeed 5-ais CNC milling systems are also known as 3+2 CNC milling
+machines, since they are using the 2 additional degrees of freedom only
+between machining operations to rotate the workpiece.
+
+  The key benet of these systems is they eliminate the need to manually
+reposition the workpiece. Meaning parts with more comple geometries
+can be manufactured faster and at higher accuracy than in a 3-ais CNC
+mill. But they lack the true freeform capabilities of continuous 5-ais CNC
+machines.
+
+Pros                                                 Cons
+
+· Eliminates the need for manual repositioning       · Higher cost than 3-ais CNC machining
+· Produces parts with features that don't align      · Can't produce very accurately contoured surfaces
+
+      with one of the main aes at a higher accuracy
+
+                                                     Mill-turning CNC centers
+
+                                                     > The workpiece is attached to a spindle that can either rotate
+                                                     at high speed (like a lathe) or position it at a precise angle (like
+                                                     a 5-ais CNC mill).
+                                                     > Lathe and milling cutting tools are used to remove material
+                                                     from the workpiece, forming the part.
+
+Mill-turning CNC centers are essentially CNC lathe machines equipped
+with CNC milling tools. A variation of the mill-turning centers are swiss-
+style lathes, which have typically higher precision.
+
+  Mill-turning systems take advantage of both the high productivity of
+CNC turning and the geometric eibility of CNC milling. They are ideal
+for manufacturing parts with `loose' rotational symmetry (think camshafts
+and centrifugal impellers) at a much lower cost than other 5-ais CNC
+machining systems.
+
+Pros                                                 Cons
+
+· Lowest cost of all 5-ais CNC machining systems     · Tool access restrictions still apply
+· High production capabilities and design freedom    · Most suitable for parts with a cylindrical outline
+10
+To summarize
+
+> 3-ais CNC milling machines manufacture parts with relatively simple
+geometries with ecellent accuracy and at a low cost.
+> CNC lathes have the lowest cost per unit, but are only suitable for part
+geometries with rotational symmetry.
+> Indeed 5-ais CNC milling machines manufacture parts with features
+that don't align with one of the main aes quickly and with very high accu-
+racy.
+
+> Continuous 5-ais CNC milling machines manufacture parts with highly
+comple, `organic' geometries and smooth contours, but at a high cost.
+> Mill-turning CNC centers combine the benets of CNC turning and
+CNC milling into a single system to manufacture comple parts at a lower
+cost than other 5-ais CNC systems.
+
+Use the table below for a rough estimate of the cost per hour of the dier-
+ent CNC machines. The cost is presented relative to that of a 3-ais CNC
+milling machine, which is typically $75 per hour.
+
+CNC machine type              Machining cost
+
+CNC milling (3-ais)           $75 ( baseline for comparison )
+CNC turning (lathe)           $65 ( - 15% )
+Indeed 5-ais CNC milling      $120 ( + 60% )
+Continuous 5-ais CNC milling  $150 ( + 100% )
+Mill-turning CNC centers      $95 ( + 25% )
+
+                                                                            11
+Benets and limitations
+of CNC machining
+
+Here's a list of the key strengths and limitations of CNC machining. You can
+use it to help you decide whether CNC maching is the right technology for
+your application.
+
+Benets of CNC machining
+
+Small-to-medium production
+
+CNC machining is a very price-competitive option for manufacturing
+small-to-medium volumes (from 10-1000 parts). In fact, when ordering 10
+identical parts, the unit price is cut by about 70% compared to a one-o
+part.
+
+  This is because `economies of scale' start to kick in: the relatively high
+start-up costs of CNC are spread over multiple parts. In contrast, additive
+technologies (3D printing) do not scale as well for higher volumes - the
+unit price is relatively stable.
+
+  Formative technologies (injection molding or investment casting) only
+make economic sense for production volumes in the 1000s as they have
+very high start-up costs.
+
+Excellent material properties
+
+CNC machined parts have ecellent physical properties, identical to the
+bulk material. This makes CNC machining the ideal technology for appli-
+cations where high-performance is essential.
+
+  Additionally, virtually every common material with enough hardness can
+be CNC machined. This gives engineers the eibility to select a material
+with optimal properties for their application.
+
+One-o custom parts and prototypes
+
+In contrast to formative technologies (injection molding), CNC machining
+doesn't need any special tooling. So the on-demand production of cus-
+tom one-o parts and prototypes is economically viable.
+
+  This is especially relevant for one-o custom metal parts and proto-
+types, where CNC is the most cost-competitive solution.
+
+Quick turnaround times
+
+The advances of modern CNC systems, CAM software and digital supply
+chains have greatly accelerated the production times.
+
+  Now CNC machined parts are typically ready for delivery within 5
+days. This is comparable to the turnaround of industrial 3D printing pro-
+cesses, such as SLS.
+12
+Highly accurate parts with tight tolerances
+
+CNC machining can create parts with greater dimensional accuracy than
+most other common manufacturing technologies. During the nal nishing
+machining steps, material can be removed from the workpiece very accu-
+rately, achieving etremely tight tolerances.
+
+  The standard tolerance of any dimension in CNC machining is ± 0.125
+mm. Features with tighter tolerances down to ± 0.050 mm can be manu-
+factured and even tolerances of ± 0.025 mm are feasible. That's about a
+quarter the width of a human hair!
+
+Limitations of CNC machining
+
+Relatively high start-up costs
+
+In CNC machining, start-up costs are mainly connected to process plan-
+ning. This step requires manual input from an epert, so start-up costs are
+usually relatively high when compared to, for eample, 3D printing, where
+process planning is highly automated.
+
+  However, these costs are still much lower than formative manufactur-
+ing processes (injection molding or investment casting), which require the
+preparation of custom tooling.
+
+  It's important to keep in mind that the start-up costs are ed. There's
+an opportunity to signicantly reduce the unit price per part by taking ad-
+vantage of `economies of scale', as we saw above.
+
+Geometric complexity has a high cost
+
+Being a subtractive technology, machining comple geometries comes
+at an increased cost. It's also restricted by the mechanics of the cutting
+process.
+
+  Parts with comple geometries either require the use of a multi-axis
+CNC machining system or manual labor from the machinist (reposition-
+ing, realigning etc.). To help you keep the price of CNC machined parts to
+a minimum, we've compiled a list of design tips.
+
+Tool access and workholding restrictions
+
+Since a part is produced by removing material from a solid block, a cutting
+tool with a suitable geometry has to eist. It should also be able to access
+all necessary surfaces.
+
+  For this reason, parts with internal geometries or very steep undercuts,
+for eample, can't be machined. Holding the workpiece securely in place
+is essential for CNC machining and introduces a certain design limitation.
+Improper workholding or a workpiece with low stiness can lead to vibra-
+tions during machining.
+
+  This results in parts with lower dimensional accuracy. Comple geome-
+tries might require custom jigs or tures.
+
+                                                                                                                                                                           13
+Applications of CNC machining
+
+Here are some eamples of how and why CNC machining is used for a
+range of dierent applications.
+
+                                                                Space
+
+                                                                       CNC machining is one of the very few manufacturing processes that's
+                                                                       suitable for creating parts for space applications. Not only because CNC
+                                                                       parts have ecellent accuracy and material properties, but also because of
+                                                                       the wide range of surface treatments that can be applied to the parts after
+                                                                       machining.
+
+                                                                          For eample, KEPLER used CNC machining and space grade materials
+                                                                       to go from a sketch on a napkin to a satellite in space in 12 months.
+
+                                                                Aerospace
+
+                                                                       Aerospace was one of the rst industries to use CNC machining. This is
+                                                                       because CNC machining can manufacture lightweight parts with ecellent
+                                                                       physical properties and very tight tolerances. CNC machining is used both
+                                                                       for aircraft parts and during the development stages.
+
+                                                                          For eample, Tomas Sinnige is a PhD researcher at the Delft University
+                                                                       of Technology. With his team of researchers, Tomas used CNC machining
+                                                                       to manufacture scaled-down versions of their prototype engine, with the
+                                                                       goal of increasing the eciency of modern propeller engines.
+
+                                                                Automotive
+
+                                                                       CNC machining is most used in the automotive industry when manufac-
+                                                                       turing high-performance custom parts is required.
+
+                                                                          For eample, the Dutch company PAL-V designs Personal Air and Land
+                                                                       Vehicles. These are essentially the world's rst ying cars. During the de-
+                                                                       velopment stages, they chose CNC machining to prototype and manufac-
+                                                                       ture key components.
+
+                                                                Product design and development
+
+                                                                       The ability to quickly manufacture custom metal parts with great dimen-
+                                                                       sional accuracy, makes CNC machining an attractive option for producing
+                                                                       functional prototypes. This is essential during later stages of design and
+                                                                       development.
+
+                                                                          The design team of DAQRI, for instance, used CNC machining to pro-
+                                                                       totype their professional Augmented Reality (AR) hardware. They select-
+                                                                       ed this process as it was the most cost-competitive solution capable of
+                                                                       producing custom metal parts with the required level of detail and at the
+                                                                       small-scale needed for their designs.
+14
+Electrical and electronic
+CNC machining has many applications in the electrical and electronic
+manufacturing industry: from the prototyping of PCBs to the manufactur-
+ing of enclosures.
+
+  TPAC, for eample, used CNC machining to manufacture an enclosure
+for their high-power electronic sensing systems. Heat dissipation and
+electrical insulation were the main design requirements in this case. So,
+CNC machined, anodized aluminum was ideal for their one-o custom
+enclosure.
+Tooling and industrial manufacturing
+A very common industrial application of CNC machining is the fabrication
+of tooling for other processes. For eample, the molds in injection mold-
+ing are commonly CNC machined from aluminum or tool steel. Precious
+Plastic, for instance, developed a system for the developing a world that
+turns waste plastic into iPhone cases! For this purpose, they used a low-
+cost manual injection molder and custom CNC machined molds.
+
+Sports and motorsports equipment
+High-performance sports and motorsports manufacturers always try to
+increase the performance of their products by reducing their weight.
+
+  CAKE is a Swedish company that designed and developed the rst o-
+road electric motorbike. Since it's the rst of its kind, every single compo-
+nent of the motorbike was custom-made with CNC machining to achieve
+the intended level of quality and durability.
+
+                                                                                                   15
+CNC machining vs. 3D printing
+
+Both CNC machining and 3D printing are eceptional tools. However, each
+technology has unique benets, and is more suitable for dierent situa-
+tions. When choosing between CNC machining and 3D printing, there are
+a few simple guidelines you can apply to the decision making process.
+
+  As a general rule of thumb, parts with relatively simple geometries, that
+can be manufactured with limited eort through a subtractive process,
+should generally be CNC machined. Especially when it comes to produc-
+ing metal parts.
+Choosing 3D printing over CNC machining makes sense when you need:
+> A low-cost plastic prototype
+> Parts with very comple geometry
+> A turnaround time of 2-5 days
+> Speciality materials
+
+To summarize:
+CNC offers greater dimensional accuracy and produces parts
+with better mechanical properties than 3D printing. But
+this usually comes at a higher cost for low volumes and
+with more design restrictions.
+Read the full comparison 
+
+16
+Scaling up production
+
+If high volumes are needed (1000s or more) neither CNC machining nor
+3D printing are likely to be suitable options.
+
+  In these cases, forming technologies, such as investment casting or
+injection molding, are more economically viable due to the mechanisms of
+economies of scale. For quick reference, use the table below.
+
+  In this simplication, it's assumed that all technologies are able to pro-
+duce the geometry of the part in question. When this is not the case, 3D
+printing is generally the preferred method of manufacturing.
+
+No. of Parts  Plastic                                                        Metal
+
+1 - 10        3D printing                                                    3D printing (consider CNC machining)
+10 - 100      3D printing and CNC machining                                  CNC machining
+100 - 1000    CNC machining (consider injection                              CNC machining (consider investment
+              molding)                                                       casting)
+1000+         Injection molding                                              Investment or die casting
+
+                                                                                                                   17
+Part 2
+
+Design for CNC machining
+
+In less than 15 minutes, you'll learn all you need to know to
+design parts optimized for CNC machining. Get familiar
+with Design for Machinability (DfM) rules, cost reduction
+tips, material selection guidelines, and surface nishing
+recommendations.
+
+18
+CNC machining design restrictions
+
+The design restrictions in CNC machining are a natural result of the me-
+chanics of the cutting process and in particular:
+
+                                        Tool access
+
+                                            Surfaces that can't be reached by the cutting tool, can't be
+                                            CNC machined. This prohibits the fabrication of parts with
+                                            internal `hidden' geometries, for eample, and puts a limit
+                                            on the maimum depth of an undercut.
+
+                                        Tool geometry
+
+                                            Most CNC machining cutting tools have a cylindrical shape
+                                            with a at or spherical end, restricting the part geometries
+                                            that can be produced.
+
+                                               For instance, the internal vertical corners of a CNC part
+                                            will always have a radius, no matter how small a cutting tool
+                                            is used.
+
+                                        Workholding
+
+                                            The geometry of a part determines the way it will be held
+                                            on the CNC machine and the number of setups required.
+                                             This has an impact on the cost, but also the accuracy of a
+                                            part. For eample, manual repositioning introduces a small,
+                                            but signicant, positional error. This a key benet of 5-ais
+                                            versus 3-ais CNC machining.
+
+                                        Workpiece stiness
+
+                                            Due to the cutting forces and the temperatures developed
+                                            during machining, it's possible for the workpiece to deform
+                                            or vibrate.
+
+                                               This limits, for eample, the minimum wall thickness that
+                                            a CNC machined part can have and the maimum aspect
+                                            ratio of tall features.
+
+                                        Tool stiness
+
+                                            Most CNC machining cutting tools have a cylindrical shape
+                                            with a at or spherical end, restricting the part geometries
+                                            that can be produced.
+
+                                               For instance, the internal vertical corners of a CNC part
+                                            will always have a radius, no matter how small a cutting tool
+                                            is used.
+
+                                                                                                                                                                           19
+Design rules for CNC machining
+
+In the table below, we summarize how these restrictions translate into ac-
+tionable design rules.
+Read the detailed guidelines 
+
+                                                           Tall features
+
+                                                                         Recommended ma. ratio: height / width < 4
+                                                                         Tall features are dicult to machine accurately, as they are prone to vi-
+                                                                         brations. Consider the overall geometry of the part: rotating the part by
+                                                                         90° degrees during machining changes the aspect ratio.
+
+                                                           Cavities and pockets
+
+                                                                         Recommended depth: 4  cavity width
+                                                                         Feasible depth: 10  tool diameter or 25 cm (10'')
+                                                                         Deeper cavities need to be machined with cutting tools with larger diam-
+                                                                         eter aecting the llets of the internal edges.
+
+                                                           Internal edges
+
+                                                                         Recommended: larger than 1/3  cavity depth
+                                                                         For internal vertical edges, the larger the llet the better. Edges on the
+                                                                         oor of a cavity should be either sharp or have a 0.1 mm or 1 mm radius.
+
+                                                           Minimum wall thickness
+
+                                                                         Recommended: 0.8 mm (for metals)
+                                                                         Feasible: 0.5 mm
+                                                                         Recommended: 1.5 mm (for plastics)
+                                                                         Feasible: 1.0 mm
+                                                                         Decreasing the wall thickness reduces the stiness of the workpiece,
+                                                                         increasing vibrations and lowering the achievable tolerances.
+
+                                                                            Plastics are especially prone to warping and thermal softening, so a
+                                                                         larger minimum wall thickness is necessary.
+20
+Holes
+
+Recommended diameter: standard drill bit sizes
+Recommended depth: 4  nominal diameter
+Ma. depth: 10  nominal diameter
+Holes with standard diameter are preferred, as they can be machined
+with a standard drill bit. Blind holes machined with a drill will have a con-
+ical oor. Holes with non-standard diameter will be machined with an
+end mill tool and should be treated as cavities (see previous rule).
+
+  Blind holes machined with an end mill tool will be at.
+
+Threads
+
+Recommended length: 3  nominal diameter
+Recommended size: M6 or larger
+Feasible size: M2
+Choose the largest threads possible, as they are easier to machine.
+Threads longer than 3 times the nominal diameter are unnecessary.
+
+  Always design threads as cosmetic in your CAD package and include a
+technical drawing with your order.
+
+Small features
+
+Recommended: 2.5 mm (0.100'')
+Feasible: 0.100 mm (.010'')
+Cavities and holes down to 2.5 mm (0.1'') can be CNC machined with
+standard cutting tools. Anything below this limit is considered micro-ma-
+chining and must be avoided unless necessary.
+
+Maximum part size
+
+CNC milling: 400 x 250 x 150 mm (typically)
+CNC turning: Ø 500 mm  1000 mm (typically)
+Very large CNC machines can produce parts with dimensions up to 2000
+ 800 x 1000 mm ( 78''  32''  40''). 5-ais CNC machining systems typi-
+cally have a smaller build volume.
+
+Tolerances
+
+Standard: ± 0.125 mm (.005'')
+Feasible: ± 0.025 mm (.001'')
+Tolerances (unilateral, bilateral, interference or geometric) should be de-
+ned on all critical features, but do not over-tolerance.
+
+  If no tolerance is specied in the technical drawing, then the standard
+± 0.125 mm will be held.
+
+                                                                                                  21
+Designing undercuts
+
+Undercuts are features that can't be machined with standard tools, no
+matter how the part is rotated, because the cutting tools can't access all
+the surfaces.
+
+  If square aluminum etrusions were manufactured with CNC machining,
+their grooves would be considered undercuts. Undercuts can be machined
+using special T-shaped, V-shaped or lollipop-shaped cutting tools, if de-
+signed correctly.
+
+  Here are some practical guidelines to help you get started with design-
+ing undercuts.
+Learn more about undercuts 
+
+                                                          Undercut dimensions
+
+                                                                       Recommended width: 3 mm (1/8'') to 40 mm (1 ½'')
+                                                                       Ma. Depth: 2 width
+                                                                       Design undercuts with a width of whole millimeter increments or a stan-
+                                                                       dard inch fraction. For undercuts with non-standard dimensions, a custom
+                                                                       cutting tool must be created.
+
+                                                                          The standard tools have a cutting depth of approimately 2 times their
+                                                                       width. This limits the achievable depth.
+
+                                                          Undercut clearance
+
+                                                                       Recommended min. clearance: 4 depth
+                                                                       For undercuts on internal faces, add enough clearance between the op-
+                                                                       posing walls to ensure tool access.
+
+22
+Part 3
+
+Materials for CNC
+machining
+
+CNC machining can be used with a very wide range of engineering
+metals and plastics.
+
+  In this section, you'll learn more about the key characteristics of the
+most popular materials. We'll also eamine the most common nishes
+that are applied to CNC machined parts.
+
+23                                                                         23
+Materials for CNC machining
+
+Selecting the right material is a crucial step in the design process. The
+optimal material option is highly dependent on your specic use case and
+requirements.
+
+  Since almost every material with sucient hardness can be machined,
+CNC oers a very large range of material options to choose from. For
+engineering applications, metals and plastics are most relevant and will be
+the focus of this section. Surface nishes can also alter the properties of
+CNC machined parts which we'll eamine them below.
+
+  To get started, take a look at this decision tree. It contains high lev-
+el material recommendations that cover the most common design
+requirements.
+
+                                                  Material Property
+
+Tensile strength              Hardness              High volumes                   Chemical             Temperature
+                                                  Easy to machine                resistance             resistance
+
+                  < 90 HRB              > 50 R C       Aluminium             Stainless Steel
+                                                           Brass                       PEEK
+                                                            POM
+                                                                                     Teflon
+
+                  Stainless Steel  Tool Steel
+                     Alloy Steel
+
+                                                                                Lo w          Medium      High
+                                                                             < 250º C         < 400º C  > 500º C
+
+        Lo w       Medium              High                                  Brass     Aluminium        Stainless Steel
+    < 100 MP a    < 500 MP a       > 500 MP a                                 PEEK                          Tool Steel
+                                                                             Teflon                        Alloy Steel
+       PEEK
+      Nylon       Aluminium   Stainless Steel
+                                  Tool Steel
+        PC                       Alloy Steel
+
+24
+Metals
+
+  CNC machining is primarily used with metals and metal alloys. Metal
+can be used for both the manufacturing of custom one-o parts and
+prototypes and for low-to-medium batch production. Aluminum 6061 is by
+far the most used material in CNC machining.
+
+Learn more about the most common CNC metals 
+
+                                Aluminum
+
+                                > Ecellent strength-to-weight ratio
+                                > High thermal and electrical conductivity
+                                > Natural protection against corrosion
+
+                                Stainless steel
+
+                                > High strength and ductility
+                                > Ecellent wear and corrosion resistance
+                                > Can be welded, machined and polished
+
+                                Alloy steel
+
+                                > General use alloys
+                                > Improved hardness, toughness, fatigue and wear resistance over mild steels
+                                > Low chemical resistance
+
+                                Mild steel
+
+                                > General use alloys
+                                > Low-cost
+                                > Good mechanical properties, machinability and weldability
+
+                                Tool steel
+
+                                > High hrdness
+                                > Stiness, brsion nd therml resistnce
+                                > Used for dies, stmps, molds nd other industril tooling
+
+                                Brass
+
+                                > Ecellent machinability
+                                > Frictional characteristics
+                                > Aesthetically pleasing golden appearance
+
+                                                                                                                                                                          25
+Plastics
+
+  Plastics are lightweight materials with a wide range of physical
+properties. They're often used for their chemical resistance and electrical
+insulation properties. Plastics are commonly CNC machined for
+prototyping purposes prior to injection molding.
+Learn more about the most common CNC plastics 
+
+                                ABS
+                                   Common, lightweight thermoplastic materials
+                                   with good mechanical properties and ecellent
+                                   impact strength.
+
+                                Polycarbonate (PC)
+                                   Ecellent impact strength, thermal resistance
+                                   and toughness. Can be colored or transparent.
+                                   Suitable for outdoor applications.
+
+                                Nylon
+                                   General purpose engineering thermoplastic with
+                                   all-around good mechanical properties and e-
+                                   cellent chemical resistance.
+
+                                POM (Delrin)
+                                   Easiest-to-machine engineering thermoplastic
+                                   with high stiness, ecellent frictional charac-
+                                   teristics and good thermal stability.
+
+                                PEEK
+
+                                   High-performance engineering thermoplastic
+                                   used in the most demanding applications.
+26
+Surface nishes
+
+Surface nishes are applied after machining and can change the
+appearance, surface roughness, hardness and chemical resistance of the
+produced parts. Below is a quick summary of the most common nishes
+for CNC.
+
+Find out more about surface nishes 
+
+                                             Powder coating
+
+                                             Powder coating adds a thin layer of strong, wear and corrosion resistant,
+                                             protective polymer paint on the surface of a part. It can be applied to
+                                             parts of any material and is available in many colors.
+
+                                                                       Etra cost: $$  Cons
+
+Pros                                                                                  · Can't be applied to internal surfaces
+· Strong, wear and corrosion coating for functional applications                      · Less dimensional control compared to anodizing
+· Higher impact resistance than anodizing                                             · Not suitable for small components
+· Compatible with all metal materials
+
+                                             As-machined
+
+Pros                                         As-machined parts have the tightest tolerances, as no etra operations are
+                                             performed on them. But marks following the path of the cutting tool are
+· Tightest dimensional tolerances            still visible.
+· No added cost (standard nish)
+                                               The standard surface roughness of as-machined parts is 3.2 m (125 in)
+                                             and can be reduced to down to 0.4 m (16 in) with further operations.
+
+                                             Etra cost: None
+
+                                                                         Cons
+                                                                         · Visible tool marks
+
+                                             Bead blasting
+
+                                             Bead blasting adds a uniform matt or satin surface nish on a machined
+                                             part, removing all tool marks.
+
+                                               Bead blasting is mainly used for aesthetic purposes, as the resulting sur-
+                                             face roughness is not guaranteed. Critical surfaces or features (like holes)
+                                             can be masked to avoid any dimensional change.
+
+                                             Etra cost: $
+
+Pros                                                                                  Cons
+                                                                                      · Visible tool marks
+· Visually pleasing matte or satin nish
+· Low-cost surface nish
+· Available in dierent levels of coarseness
+
+                                                                                                                                        27
+                                            Anodizing (clear or colored)
+
+                                            Anodizing adds a thin, hard, non-conductive ceramic coating on the sur-
+                                            face of aluminum parts, increasing their corrosion and wear resistance.
+
+                                              Critical areas can be masked to retain their tight tolerances. Anodized
+                                            parts can be dyed producing a smooth aesthetically pleasing surface.
+
+                                            Etra cost: $$
+
+Pros                                                                 Cons
+
+· Durable, visually pleasing coating                                 · More brittle than powder coating
+· Can be applied to internal cavities                                · Only compatible with aluminum and titanium
+· Can be colored to any Pantone tone
+
+                                            Hardcoat anodizing
+
+                                            Hardcoat anodizing produces a thicker, high-density ceramic coating that
+                                            provides ecellent corrosion and wear resistance.
+
+                                              Hardcoat anodizing is suitable for functional applications. The typical
+                                            coating thickness is 50 m and, usually, no color is applied. Critical areas
+                                            can be masked to retain their tight tolerances.
+
+                                            Etra cost: $$$
+
+Pros                                                                 Cons
+
+· High wear resistance coating for top-end engineering applications  · More brittle than powder coating
+· Can be applied to internal cavities                                · Only compatible with aluminum and titanium
+· Good dimensional control
+
+                                            Silk screening
+
+                                            Silk screening is an inepensive way to print tet or logos on the surface of
+                                            CNC machined parts for aesthetic purposes.
+
+                                              It can be used in addition to other nishes (for eample, anodizing). The
+                                            print can be applied only to the eternal surfaces of a part.
+
+                                            Etra cost: $
+
+Pros                                                                 Cons
+                                                                     · Can be only applied to eternal at surfaces of a part
+· Low-cost printing of custom tet or logos
+· Available in many colors
+
+28
+Part 4
+
+Cost reduction tips
+
+Learn more about what aects the costs in CNC machining. Use these
+3 actionable design tips to cut the price in half and you keep your
+project on budget.
+
+29                                                                   29
+Tips to keep your CNC project
+on budget
+
+The cost of CNC machined parts depends on the following:
+> Machining time and model complexity: The more comple the geome-
+try of a part is, the longer it takes to machine and the more epensive it will
+be.
+> Start-up costs: These are related to the preparation of a CAD le and the
+process. They are signicant for smaller volumes, but are ed. There is an
+opportunity to reduce the unit price by taking advantage of economies of
+scale.
+> Material cost and nishes: The cost of the bulk material and how easily
+that material can be machined greatly aects the overall cost.
+As a rule of thumb:
+To minimize the cost of CNC machined parts, stick to de-
+signs with simple geometries and standardized features.
+In the net sections, we re-eamine some of the design rules we visited
+previously with cost-reduction in mind. With these 3 design tips, you can
+drastically reduce the cost of your CNC machined parts.
+Learn 11 more tips to further reduce the cost of your CNC parts 
+
+30
+Tip #1: Increase the size of all llets
+or add undercuts to sharp edges
+
+To reduce machining times, add a llet that is as large as
+possible to all internal (and eternal) vertical edges. This way a
+larger tool can be used, removing more material with each cut,
+and a circular toolpath can be followed, cutting each corner at
+a higher speed.
+
+  When a 90° internal edge is needed, reducing the radius will
+not do the job. In these cases, use an undercut instead (see
+above).
+To minimize cost:
+> Add a radius that is slightly larger than 1/3 of the depth of the
+cavity
+> Add a small llet also to eternal edges
+> Use undercuts when a 90° internal corner is required
+> Use the same radius for all edges to save time on tool
+changes
+
+                                                                                                                                                                           31
+Tip #2: Minimize the number of
+machine orientations
+
+The part above requires at least two machine setups in a 3-ais
+CNC mill. After the features on one side are machined, the
+workpiece is rotated manually.
+
+  This requires manual labor increasing costs. Alternatively, a
+multi-ais CNC machines can be used. This also increases the
+machining costs though by about 60% to 100%.
+To minimize cost:
+> Design parts that can be machined in one or two setups in a
+3-ais CNC mill
+> If this is not possible, consider splitting the part into multiple
+geometries that can be machined in one setup and assembled
+later.
+
+32
+Tip #3: Consider the cost of
+the material
+
+Cost  Metals                                                     Cost  Plastics
+
+$     Aluminum 6061                                              $     POM (Delrin)
+$$    Alloy steel 4140                                           $$$   ABS
+$$    Aluminum 7075                                              $$$   Nylon (PA 6)
+$$$   Brass C360                                                 $$$   Polycarbonate (PC)
+$$$$  Stainless steel 304                                        $$$$  PEEK
+
+It's obvious that selecting a material with physical properties
+that surpass the requirements of your application can quickly
+and unnecessarily increase the cost of your CNC machined
+parts.
+
+To minimize cost:
+
+> Select the material with the lowest cost with the properties
+that fulll your design requirements
+
+> Use online instant quoting to get quick feedback on the price
+of each material
+
+      The essential CNC cost reduction checklist
+
+      Get a free PDF checklist to show you how to
+      optimize your design and cut CNC machining
+      costs in half.
+      Download now 
+
+                                                                                           33
+Part 5
+
+Start CNC machining
+
+With your parts designed and optimized for CNC machining, it's time
+to start thinking about manufacturing. In this section, we walk you
+through the 3 simple steps needed to manufacture custom parts with
+CNC machining.
+
+34
+Step 1: Export your design to a
+CNC-compatible CAD le format
+
+The le formats predominantly used in CNC machining are STEP and
+IGES. These formats are open source, standardized and can be used
+across platforms.
+For best results:
+Export your designs directly from your native CAD software
+into the STEP fle ormat.
+On 3D Hubs, you can also upload les and get an instant quote for le
+formats used in your the native CAD software, including SLDPRT, 3DM,
+IPT, SAT and X_T.
+
+                                                                                                                                                                          35
+Step 2: Prepare a technical drawing
+
+A technical drawing isn't always required for machining parts
+with CNC. Yet it's recommended to include one in your order
+as it has information that is not presented in a STEP le.
+A technical drawing is required in the following situations:
+> When your design contain threads
+> When any tolerances are specied
+> When certain surfaces need a dierent nish
+Learn how to correctly prepare a technical drawing for CNC 
+36
+Step 3: Get an instant quote and
+start manufacturing
+
+With 3D Hubs, outsourcing parts for CNC machining is easy, fast and
+highly price-competitive.
+
+  By combining a network of manufacturing services with our smart
+sourcing engine, you can instantly access readily available production
+capacity for the best possible quotes and lead times.
+
+  When you upload your parts to 3D Hubs, our automated Design for
+Machinability analysis will detect any potential design issues before pro-
+duction begins and will give you an instant quote, based on our machine
+learning algorithm.
+
+  This way you can be sure that you always receive the best price in the
+market at the fastest turnaround times for your CNC machining parts!
+
+                                Upload your parts
+                                   Curious about the cost of CNC machining?
+                                   Receive an instant quote for your CNC machined
+                                   parts now.
+                                   Get an instant quote 
+
+                                                                                                                                                                          37
+Part 6
+
+Useful resources
+
+In this guide we discussed everything you need to get started with
+CNC machining. But there's plenty more to learn.
+
+  On the net page, we list the best and most useful resources on
+CNC machining and other digital manufacturing technologies if you
+want to delve deeper.
+
+38
+Knowledge base
+
+There's a lot more to learn about CNC machining in our Knowledge Base
+- a collection of technical articles on all manufacturing technologies, writ-
+ten by manufacturing eperts and curated by 3D Hubs.
+Here's a selection of our most popular articles on CNC machining:
+
+> Reducing the cost of CNC machined parts 
+> 3D Printing vs. CNC machining 
+> 25 CNC machining materials compared 
+> How to design parts for CNC machining 
+
+Learn to machine
+
+Are you looking to get your hands dirty with CNC machining? There are
+several ways you can learn how to operate a CNC mill or CNC lathe.
+
+> Visit your local Fab Lab: Many Fablabs and Makerspaces have CNC
+milling capabilities and they will run courses on how to opperate them.
+Visit the ocial list of Fab Labs to nd one near your area.
+
+> Find resources online: There are a lot of useful resources online to help
+you hone your CNC machining skills. The Titans of CNC Academy and
+NYCCNC are probably 2 of the best sites to get you started.
+
+> Apply for an apprenticeship: Apprenticeships are probably the best
+way to kickstart your career as a CNC machinist. They are oered by
+established machine shops and many universities.
+
+Other guides
+
+Want to learn more about the world of digital manufacturing as a whole?
+There are more technologies to eplore:
+
+                                Injection molding:
+                                The complete engineering guide
+
+                                        After reading this article, you'll know the fundamental
+                                        mechanics of the injection molding process and how
+                                        these relate to its key benets and limitations.
+
+                                What is 3D printing?
+
+                                        Find everything you need to know about 3D printing.
+                                        Whether you are getting started or you're an eperi-
+                                        enced user, you'll nd this guide packed with useful
+                                        tips.
+
+                                                                                                                                                                          39
+

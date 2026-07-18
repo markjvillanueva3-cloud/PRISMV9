@@ -913,7 +913,7 @@ class MillingPhysicsKernelEngine {
     tool_diameter_mm: number;
     tool_overhang_mm: number;
     cutting_force_N: number;
-    force_direction?: "radial" | "tangential" | "axial";
+    force_direction?: "radial" | "axial" | "resultant";
     tool_material?: "carbide" | "hss" | "ceramic" | "cermet" | "cbn" | "pcd";
     holder_diameter_mm?: number;
     holder_length_mm?: number;
@@ -961,7 +961,7 @@ class MillingPhysicsKernelEngine {
     };
     rpm_range?: [number, number];
     rpm_points?: number;
-  }) {
+  }): ReturnType<typeof chatterStabilityLobeEngine.compute> {
     return chatterStabilityLobeEngine.compute(input);
   }
 
@@ -975,25 +975,7 @@ class MillingPhysicsKernelEngine {
    *
    * Includes: Brammertz Ra, scallop height, waviness, algorithm corrections.
    */
-  predictSurfaceFinish(input: {
-    segments: Array<{
-      fz: number;
-      stepover_mm: number;
-      cusp_angle_deg?: number;
-      surface_speed_mpm?: number;
-      inclination_deg?: number;
-    }>;
-    tool: {
-      corner_radius_mm: number;
-      ball_radius_mm?: number;
-      edge_radius_um?: number;
-      flute_count?: number;
-    };
-    algorithm?: string;
-    target_ra_um?: number;
-    material?: string;
-    coolant?: string;
-  }) {
+  predictSurfaceFinish(input: Parameters<typeof surfaceFinishPredictorEngine.predict>[0]): ReturnType<typeof surfaceFinishPredictorEngine.predict> {
     return surfaceFinishPredictorEngine.predict(input);
   }
 
@@ -1081,14 +1063,15 @@ class MillingPhysicsKernelEngine {
    * Stochastic tool wear with Latin Hypercube sampling + Weibull fitting.
    * Delegates to: StochasticToolWearEngine methods.
    */
-  calculateStochasticWear(method: "taylor" | "extendedTaylor" | "usui" | "fosmTaylor",
+  calculateStochasticWear(method: "taylor" | "extendedTaylor" | "usui" | "fosmTaylorLife",
                           input: any) {
     switch (method) {
       case "taylor":         return stochasticToolWearEngine.taylorLife(input.V, input.n, input.C);
       case "extendedTaylor": return stochasticToolWearEngine.extendedTaylorLife(
                                       input.V, input.f, input.d, input.n, input.C, input.a, input.b);
-      case "usui":           return stochasticToolWearEngine.usuiWearRate(input.F_n, input.V, input.T, input.A, input.B);
-      case "fosmTaylor":     return stochasticToolWearEngine.fosmTaylor(input);
+      case "usui":           return stochasticToolWearEngine.usuiWearRate(input.A, input.B, input.F_n, input.V, input.T);
+      case "fosmTaylorLife": return stochasticToolWearEngine.fosmTaylorLife(
+                                      input.V_mean, input.V_cv, input.n_mean, input.n_cv, input.C_mean, input.C_cv);
     }
   }
 
@@ -1141,9 +1124,11 @@ class MillingPhysicsKernelEngine {
   predictChatter(method: "stabilityLobes" | "checkStability" | "detectChatter" | "criticalSpeeds" | "detectSTFT",
                  input: any) {
     switch (method) {
-      case "stabilityLobes":  return chatterPredictionEngine.generateStabilityLobes(input);
-      case "checkStability":  return chatterPredictionEngine.checkStability(input);
-      case "detectChatter":   return chatterPredictionEngine.detectChatter(input);
+      case "stabilityLobes":  return chatterPredictionEngine.generateStabilityLobes(
+                                      input.toolDynamics, input.cuttingParams, input.rpmRange);
+      case "checkStability":  return chatterPredictionEngine.checkStability(
+                                      input.rpm, input.axialDepth, input.lobes);
+      case "detectChatter":   return chatterPredictionEngine.detectChatter(input.signal, input.config);
       case "criticalSpeeds":  return chatterPredictionEngine.criticalSpeeds(input);
       case "detectSTFT":      return chatterPredictionEngine.detectChatterSTFT(input);
     }
@@ -1172,7 +1157,7 @@ class MillingPhysicsKernelEngine {
    * Stochastic chatter with FRF uncertainty — Monte Carlo + FOSM + chance-constrained.
    * Delegates to: StochasticChatterEngine.compute().
    */
-  calculateStochasticChatter(input: Parameters<typeof stochasticChatterEngine.compute>[0]) {
+  calculateStochasticChatter(input: Parameters<typeof stochasticChatterEngine.compute>[0]): ReturnType<typeof stochasticChatterEngine.compute> {
     return stochasticChatterEngine.compute(input);
   }
 
@@ -1224,9 +1209,9 @@ class MillingPhysicsKernelEngine {
     switch (method) {
       case "sdofNatural":  return vibrationAnalysisEngine.sdofNaturalFrequency(input);
       case "sdofFree":     return vibrationAnalysisEngine.sdofFreeResponse(
-                                    input.zeta, input.omega_n, input.x0, input.v0, input.t_span);
+                                    input.system, input.initial, input.t);
       case "sdofForced":   return vibrationAnalysisEngine.sdofForcedResponse(
-                                    input.system, input.F0, input.omega, input.t_span);
+                                    input.system, input.excitation);
       case "frf":          return vibrationAnalysisEngine.generateFRF(
                                     input.system, input.freq_range);
       case "modal":        return vibrationAnalysisEngine.modalAnalysis(input.M, input.K);
@@ -1309,7 +1294,7 @@ class MillingPhysicsKernelEngine {
    * Tool assembly deflection (stacked holder + tool + extension compliance).
    * Delegates to: ToolAssemblyDeflectionEngine.compute().
    */
-  calculateAssemblyDeflection(input: Parameters<typeof toolAssemblyDeflectionEngine.compute>[0]) {
+  calculateAssemblyDeflection(input: Parameters<typeof toolAssemblyDeflectionEngine.compute>[0]): ReturnType<typeof toolAssemblyDeflectionEngine.compute> {
     return toolAssemblyDeflectionEngine.compute(input);
   }
 
@@ -1325,7 +1310,7 @@ class MillingPhysicsKernelEngine {
    * Surface Location Error prediction (regenerative chatter-induced error).
    * Delegates to: SurfaceLocationErrorEngine.
    */
-  predictSurfaceLocationError(method: "predictSLE" | "optimizeRPM" | "combinedFinish", input: any) {
+  predictSurfaceLocationError(method: "predictSLE" | "optimizeRPM" | "combinedFinish", input: any): ReturnType<typeof surfaceLocationErrorEngine.predictSLE> | ReturnType<typeof surfaceLocationErrorEngine.optimizeRPMForSLE> | ReturnType<typeof surfaceLocationErrorEngine.combinedFinishPrediction> | undefined {
     switch (method) {
       case "predictSLE":     return surfaceLocationErrorEngine.predictSLE(input);
       case "optimizeRPM":    return surfaceLocationErrorEngine.optimizeRPMForSLE(input);
@@ -1347,8 +1332,7 @@ class MillingPhysicsKernelEngine {
                           input?: any) {
     switch (method) {
       case "merchant":       return cuttingMechanicsEngine.merchantAnalysis(input);
-      case "millingForces":  return cuttingMechanicsEngine.millingForces(
-                                      input.params, input.f_z_mm, input.a_p_mm, input.a_e_mm, input.D_mm, input.z);
+      case "millingForces":  return cuttingMechanicsEngine.millingForces(input.tool, input.params);
       case "cuttingTemp":    return cuttingMechanicsEngine.cuttingTemperature(input);
       case "craterWear":     return cuttingMechanicsEngine.craterWear(input);
       case "materialData":   return cuttingMechanicsEngine.getMaterialCuttingData(input);
@@ -1378,7 +1362,7 @@ class MillingPhysicsKernelEngine {
    * Extended advanced cutting physics — additional specialized phenomena.
    * Delegates to: AdvancedCuttingPhysicsExtEngine.
    */
-  getAdvancedCuttingPhysicsExt() {
+  getAdvancedCuttingPhysicsExt(): typeof advancedCuttingPhysicsExtEngine {
     return advancedCuttingPhysicsExtEngine;
   }
 
@@ -1489,7 +1473,9 @@ class MillingPhysicsKernelEngine {
       case "step":        return thermalFieldToolpathEngine.stepTimeForward(
                                   input.grid, input.dt_s, input.convection_coef);
       case "coolZones":   return thermalFieldToolpathEngine.findCoolZones(input.grid, input.threshold_C);
-      case "route":       return thermalFieldToolpathEngine.routeToolpath(input);
+      case "route":       return thermalFieldToolpathEngine.routeToolpath(
+                                  input.grid, input.passes, input.threshold_C,
+                                  input.material, input.Q_per_pass, input.pass_time_s, input.cool_step_s);
     }
   }
 
@@ -1497,7 +1483,7 @@ class MillingPhysicsKernelEngine {
    * Thermal compensation model — predict error based on machine state.
    * Delegates to: ThermalCompensationModelEngine.compute().
    */
-  computeThermalCompensation(input: Parameters<typeof thermalCompensationModelEngine.compute>[0]) {
+  computeThermalCompensation(input: Parameters<typeof thermalCompensationModelEngine.compute>[0]): ReturnType<typeof thermalCompensationModelEngine.compute> {
     return thermalCompensationModelEngine.compute(input);
   }
 
@@ -1533,7 +1519,7 @@ class MillingPhysicsKernelEngine {
    * Stochastic surface finish — Monte Carlo Ra with uncertainty propagation.
    * Delegates to: StochasticSurfaceFinishEngine.compute().
    */
-  calculateStochasticSurfaceFinish(input: Parameters<typeof stochasticSurfaceFinishEngine.compute>[0]) {
+  calculateStochasticSurfaceFinish(input: Parameters<typeof stochasticSurfaceFinishEngine.compute>[0]): ReturnType<typeof stochasticSurfaceFinishEngine.compute> {
     return stochasticSurfaceFinishEngine.compute(input);
   }
 
@@ -1541,7 +1527,7 @@ class MillingPhysicsKernelEngine {
    * Surface integrity prediction — AtomicValue wrapped detailed integrity analysis.
    * Delegates to: SurfaceIntegrityPredictorEngine.compute().
    */
-  predictSurfaceIntegrity(input: Parameters<typeof surfaceIntegrityPredictorEngine.compute>[0]) {
+  predictSurfaceIntegrity(input: Parameters<typeof surfaceIntegrityPredictorEngine.compute>[0]): ReturnType<typeof surfaceIntegrityPredictorEngine.compute> {
     return surfaceIntegrityPredictorEngine.compute(input);
   }
 
@@ -1587,7 +1573,7 @@ class MillingPhysicsKernelEngine {
     model: "zerilliArmstrong" | "mechanicalThresholdStress" | "voceHardening" |
            "prestonTonksWallace" | "parisLaw" | "nortonCreep",
     input: any,
-  ) {
+  ): ReturnType<typeof constitutiveModelEngine.zerilliArmstrong> | ReturnType<typeof constitutiveModelEngine.mechanicalThresholdStress> | ReturnType<typeof constitutiveModelEngine.voceHardening> | ReturnType<typeof constitutiveModelEngine.prestonTonksWallace> | ReturnType<typeof constitutiveModelEngine.parisLaw> | ReturnType<typeof constitutiveModelEngine.nortonCreep> | undefined {
     switch (model) {
       case "zerilliArmstrong":         return constitutiveModelEngine.zerilliArmstrong(input);
       case "mechanicalThresholdStress": return constitutiveModelEngine.mechanicalThresholdStress(input);
@@ -1736,7 +1722,7 @@ class MillingPhysicsKernelEngine {
   // =========================================================================
 
   /** Fixture clamping force — required clamp force for cutting force resistance. */
-  calculateFixtureClamping(input: Parameters<typeof fixtureClampingEngine.compute>[0]) {
+  calculateFixtureClamping(input: Parameters<typeof fixtureClampingEngine.compute>[0]): ReturnType<typeof fixtureClampingEngine.compute> {
     return fixtureClampingEngine.compute(input);
   }
 
@@ -1760,16 +1746,16 @@ class MillingPhysicsKernelEngine {
   // =========================================================================
 
   /** Offset surface — compute constant-distance offset surface (toolpath). */
-  getOffsetSurface() { return offsetSurfaceEngine; }
+  getOffsetSurface(): typeof offsetSurfaceEngine { return offsetSurfaceEngine; }
 
   /** Parametric surface — NURBS/Bezier surface evaluation, derivatives. */
-  getParametricSurface() { return parametricSurfaceEngine; }
+  getParametricSurface(): typeof parametricSurfaceEngine { return parametricSurfaceEngine; }
 
   /** Surface reconstruction from point cloud (scan → NURBS fit). */
-  getSurfaceReconstruction() { return surfaceReconstructionEngine; }
+  getSurfaceReconstruction(): typeof surfaceReconstructionEngine { return surfaceReconstructionEngine; }
 
   /** Surface intersection — find curves of intersection between surfaces. */
-  getSurfaceIntersection() { return surfaceIntersectionEngine; }
+  getSurfaceIntersection(): typeof surfaceIntersectionEngine { return surfaceIntersectionEngine; }
 
   // =========================================================================
   // SPINDLE MONITORING ENGINES (5) — final batch

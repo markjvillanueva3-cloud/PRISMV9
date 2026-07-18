@@ -8,6 +8,8 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_KNOWLEDGE_SCHEMAS } from "../../schemas/knowledgeActionSchemas.js";
+import type { MachiningParameters } from "../../engines/TribalPlaybookEnforcementEngine.js";
+import type { TooltipContext } from "../../engines/CAMTribalKnowledgeInjectionEngine.js";
 
 const ACADEMY_ACTIONS = [
   "academy_courses", "academy_course_detail",
@@ -16,6 +18,11 @@ const ACADEMY_ACTIONS = [
   "academy_quiz_result", "academy_dashboard",
   "academy_certification_check", "academy_formula_cards",
   "academy_generate_questions",
+  // TrainingSchedulerEngine (2026-05-24, iter20)
+  "academy_enroll", "academy_get_enrollments",
+  "academy_refresh_status", "academy_recommend_remediation",
+  "academy_schedule_generate", "academy_employee_report",
+  "academy_recommend_next_course",
 ] as const;
 
 const VISUAL_LAB_ACTIONS = [
@@ -52,6 +59,8 @@ const LEARN_ACTIONS = [
   "learn_search_knowledge", "learn_get_stats",
   "learn_video_process", "learn_video_transcript",
   "learn_video_keyframes", "learn_video_knowledge",
+  "learn_video_extract_actions", "learn_video_replay", "learn_video_pipeline_run",
+  "learn_video_gui_script", "learn_video_execution_plan",
   "learn_session_create", "learn_session_submit",
   "learn_session_clarify", "learn_session_summary",
   "learn_url_extract", "learn_url_detect",
@@ -102,11 +111,88 @@ const SKILL_MARKETPLACE_ACTIONS = [
   "skill_marketplace_scan",
 ] as const;
 
+// BRIDGE-WIRING/U-BRIDGE-WIRE-TRIBAL (2026-05-21, slot:foxtrot):
+// Wire 3 unwired Tribal engines — MillTribalIntegration, TribalExplanation, TribalEvolution.
+// Each action exposes the engine's full surface via a `mode` discriminator.
+const TRIBAL_BRIDGE_ACTIONS = [
+  "tribal_mill_integrate",
+  "tribal_explain",
+  "tribal_evolve",
+] as const;
+
+// WIRE-UNWIRED-MS0/U-WIRE-BACKLOG-TRIBAL batch 1 (2026-05-21, slot:foxtrot):
+// Wire 3 more unwired tribal engines — LatheTribalInjector, TribalKnowledgeActivation,
+// TribalKnowledgeAdvisor. Same mode-discriminator pattern as TRIBAL_BRIDGE_ACTIONS.
+const TRIBAL_BACKLOG_ACTIONS_B1 = [
+  "tribal_lathe_inject",
+  "tribal_activate",
+  "tribal_advisor",
+] as const;
+
+// WIRE-UNWIRED-MS0/U-WIRE-BACKLOG-TRIBAL batch 2 (2026-05-21, slot:foxtrot):
+// Wire 3 more unwired tribal engines — CAMTribalKnowledge, MillTribalKnowledge,
+// TribalEnrichmentCoordinator.
+const TRIBAL_BACKLOG_ACTIONS_B2 = [
+  "tribal_cam_lookup",
+  "tribal_mill_query",
+  "tribal_enrich",
+] as const;
+
+// WIRE-UNWIRED-MS0/U-WIRE-BACKLOG-TRIBAL batch 3 (2026-05-21, slot:foxtrot):
+// Wire 3 more unwired tribal engines — TribalPlaybookEnforcement, TribalRAG,
+// WEDMTribalRuntime.
+const TRIBAL_BACKLOG_ACTIONS_B3 = [
+  "tribal_playbook_enforce",
+  "tribal_rag",
+  "tribal_wedm_runtime",
+] as const;
+
+// WIRE-UNWIRED-MS0/U-WIRE-BACKLOG-TRIBAL batch 4 (2026-05-21, slot:foxtrot):
+// Final 3 unwired tribal engines — CAMTribalKnowledgeInjection (static class),
+// PostProcessorTribalKnowledgeIntegration, WEDMTribalTipLearner.
+const TRIBAL_BACKLOG_ACTIONS_B4 = [
+  "tribal_cam_tooltip",
+  "tribal_pp_integrate",
+  "tribal_wedm_learn",
+] as const;
+
+// U-PSN-KNOWLEDGE-DISP-CORPUS (papa /loop iter5, 2026-05-23) — mirror of the
+// BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U6 corpus_* actions from cadDispatcher.
+// Same engine singleton (BlueprintCorpusHarvestEngine), now reachable from
+// prism_knowledge as the natural consumer (knowledge harvest IS knowledge work).
+// Per CLAUDE.md §ENGINE WIRING: "wire to every dispatcher that would naturally
+// consume it." MS1 spec U6 explicitly required this dispatcher.
+const CORPUS_HARVEST_ACTIONS = [
+  "corpus_harvest_mit",
+  "corpus_harvest_vendor",
+  "corpus_harvest_online",
+  "corpus_enumerate",
+  "corpus_verify_fresh",
+  "corpus_build_index",
+] as const;
+
+// FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-TRIBAL (slot:india 2026-06-22): PlaybookRulesEngine
+// (133KB, 500+ domain-tagged machining rules) was the largest single UNWIRED engine -- built
+// but reachable by no dispatcher. prism_knowledge is the natural consumer (playbook rules ARE
+// knowledge). All 7 actions call existing static PlaybookRulesEngine methods read-only.
+const PLAYBOOK_RULES_ACTIONS = [
+  "playbook_rules_query",
+  "playbook_rules_stats",
+  "playbook_rules_coverage",
+  "playbook_rules_search",
+  "playbook_rules_by_category",
+  "playbook_rules_safety",
+  "playbook_rules_get",
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
   // WIRE-UNWIRED-MS0/U-WIRE-JMPA: JMDIEPatternAnalyzer static analysis
   "jmdie_pattern_analyze", "jmdie_pattern_rules", "jmdie_pattern_tips",
+  // FEATURE-GAP-AUDIT-MS0/U-GAP-POST-JMDIE-LEARNING: .cps post-processor corpus learning
+  "jmdie_post_learn", "jmdie_post_corpus", "jmdie_post_query",
+  "jmdie_post_catalog", "jmdie_post_stats", "jmdie_post_gaps", "jmdie_post_reset",
   ...ACADEMY_ACTIONS,
   ...VISUAL_LAB_ACTIONS,
   ...KG_ACTIONS,
@@ -118,6 +204,13 @@ const ACTIONS = [
   ...SHOP_NOTE_ACTIONS,
   ...COG_KNOWLEDGE_ACTIONS,
   ...SKILL_MARKETPLACE_ACTIONS,
+  ...TRIBAL_BRIDGE_ACTIONS,
+  ...TRIBAL_BACKLOG_ACTIONS_B1,
+  ...TRIBAL_BACKLOG_ACTIONS_B2,
+  ...TRIBAL_BACKLOG_ACTIONS_B3,
+  ...TRIBAL_BACKLOG_ACTIONS_B4,
+  ...CORPUS_HARVEST_ACTIONS,
+  ...PLAYBOOK_RULES_ACTIONS,
 ] as const;
 
 let knowledgeEngine: any = null;
@@ -167,6 +260,29 @@ async function getEngine(): Promise<any> {
     }
   }
   return knowledgeEngine;
+}
+
+/**
+ * Resolve the Obsidian vault path when a caller omits `vault_path`. Keeps
+ * ObsidianVaultSyncEngine generic (it never hardcodes a path): explicit arg wins, then
+ * `PRISM_OBSIDIAN_VAULT` env, then the canonical PRISM knowledge vault (cwd-relative, must
+ * contain `.obsidian`), else "" — the unchanged fail-soft default (status → configured:false,
+ * no regression). Fixes obsidian_sync_status reporting configured:false despite the vault
+ * existing at H:/prism/knowledge.
+ */
+async function resolveObsidianVault(explicit?: unknown): Promise<string> {
+  const e = typeof explicit === "string" ? explicit.trim() : "";
+  if (e) return e;
+  if (process.env.PRISM_OBSIDIAN_VAULT) return process.env.PRISM_OBSIDIAN_VAULT;
+  const { access } = await import("node:fs/promises");
+  const { resolve } = await import("node:path");
+  for (const cand of [resolve(process.cwd(), "knowledge"), resolve(process.cwd(), "..", "knowledge")]) {
+    try {
+      await access(resolve(cand, ".obsidian")); // throws if absent
+      return cand;
+    } catch { /* not this candidate — try next */ }
+  }
+  return "";
 }
 
 /** Registers knowledge dispatcher.
@@ -282,6 +398,1111 @@ export function registerKnowledgeDispatcher(server: any): void {
             result = tribalKnowledgeEngine.stats();
             break;
           }
+          // ── BRIDGE-WIRING/U-BRIDGE-WIRE-TRIBAL (2026-05-21): 3 unwired tribal engines ──
+          case "tribal_mill_integrate": {
+            const { millTribalIntegrationEngine } = await import(
+              "../../engines/MillTribalIntegrationEngine.js"
+            );
+            const mode = String(params.mode ?? "integrate");
+            switch (mode) {
+              case "integrate":
+                result = await millTribalIntegrationEngine.integrateWithTraining();
+                break;
+              case "adjust":
+                result = millTribalIntegrationEngine.getAdjustment(
+                  String(params.material_iso ?? "P"),
+                  String(params.operation_type ?? "rough_profile"),
+                  String(params.tool_type ?? "flat_endmill"),
+                  Number(params.tool_diameter_mm ?? 12),
+                );
+                break;
+              case "check_failures":
+                result = {
+                  failures: millTribalIntegrationEngine.checkFailureModes(
+                    String(params.material_iso ?? "P"),
+                    String(params.operation_type ?? "rough_profile"),
+                    Number(params.rpm ?? 2000),
+                    Number(params.feed ?? 15),
+                    Number(params.doc ?? 0.1),
+                  ),
+                };
+                break;
+              case "stats":
+                result = millTribalIntegrationEngine.getStatistics();
+                break;
+              default:
+                throw new Error(
+                  `[tribal_mill_integrate] unknown mode: '${mode}'. ` +
+                    `Expected one of: integrate, adjust, check_failures, stats.`,
+                );
+            }
+            break;
+          }
+          case "tribal_explain": {
+            const { tribalExplanationEngine } = await import(
+              "../../engines/TribalExplanationEngine.js"
+            );
+            const mode = String(params.mode ?? "relevance");
+            const ctx = (params.context ?? {}) as Record<string, unknown>;
+            switch (mode) {
+              case "relevance":
+                if (!params.tip_id || typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_explain] mode 'relevance' requires string tip_id",
+                  );
+                }
+                result = tribalExplanationEngine.explainTipRelevance(
+                  params.tip_id,
+                  ctx as any,
+                );
+                break;
+              case "chain": {
+                const tipIds = Array.isArray(params.tip_ids)
+                  ? (params.tip_ids as unknown[]).filter(
+                      (s): s is string => typeof s === "string",
+                    )
+                  : [];
+                result = tribalExplanationEngine.buildReasoningChain(
+                  ctx as any,
+                  tipIds,
+                );
+                break;
+              }
+              case "predict":
+                result = tribalExplanationEngine.predictUpcomingTips(
+                  ctx as any,
+                  (params.options ?? {}) as any,
+                );
+                break;
+              case "synthesize": {
+                const perspectives = Array.isArray(params.perspectives)
+                  ? (params.perspectives as any[])
+                  : [];
+                result = tribalExplanationEngine.synthesizeAgentPerspectives(
+                  perspectives,
+                );
+                break;
+              }
+              case "synthesize_multi": {
+                const perspectives = Array.isArray(params.perspectives)
+                  ? (params.perspectives as any[])
+                  : [];
+                result = {
+                  syntheses:
+                    tribalExplanationEngine.synthesizeMultipleTips(perspectives),
+                };
+                break;
+              }
+              default:
+                throw new Error(
+                  `[tribal_explain] unknown mode: '${mode}'. ` +
+                    `Expected one of: relevance, chain, predict, synthesize, synthesize_multi.`,
+                );
+            }
+            break;
+          }
+          case "tribal_evolve": {
+            const { tribalEvolutionEngine } = await import(
+              "../../engines/TribalEvolutionEngine.js"
+            );
+            const mode = String(params.mode ?? "history");
+            switch (mode) {
+              case "version_create":
+                if (!params.tip_id || typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'version_create' requires string tip_id",
+                  );
+                }
+                result = tribalEvolutionEngine.createTipVersion(
+                  params.tip_id,
+                  (params.changes ?? {}) as Record<string, unknown>,
+                  (params.options ?? {}) as any,
+                );
+                break;
+              case "history":
+                if (!params.tip_id || typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'history' requires string tip_id",
+                  );
+                }
+                result = { history: tribalEvolutionEngine.getTipHistory(params.tip_id) };
+                break;
+              case "diff":
+                if (
+                  typeof params.from_version !== "string" ||
+                  typeof params.to_version !== "string"
+                ) {
+                  throw new Error(
+                    "[tribal_evolve] mode 'diff' requires string from_version and to_version",
+                  );
+                }
+                result = tribalEvolutionEngine.diffTipVersions(
+                  params.from_version,
+                  params.to_version,
+                );
+                break;
+              case "rollback":
+                if (
+                  typeof params.tip_id !== "string" ||
+                  typeof params.target_version !== "number"
+                ) {
+                  throw new Error(
+                    "[tribal_evolve] mode 'rollback' requires string tip_id + number target_version",
+                  );
+                }
+                tribalEvolutionEngine.rollbackTip(
+                  params.tip_id,
+                  params.target_version,
+                );
+                result = { ok: true, tip_id: params.tip_id };
+                break;
+              case "merge_detect":
+                result = {
+                  candidates: tribalEvolutionEngine.detectMergeCandidates(
+                    (params.options ?? {}) as any,
+                  ),
+                };
+                break;
+              case "merge": {
+                const tipIds = Array.isArray(params.tip_ids)
+                  ? (params.tip_ids as unknown[]).filter(
+                      (s): s is string => typeof s === "string",
+                    )
+                  : [];
+                result = tribalEvolutionEngine.mergeTips(
+                  tipIds,
+                  (params.strategy ?? "union") as any,
+                  (params.weights ?? undefined) as any,
+                );
+                break;
+              }
+              case "patterns":
+                result = {
+                  patterns: tribalEvolutionEngine.detectEmergingPatterns(
+                    (params.options ?? {}) as any,
+                  ),
+                };
+                break;
+              case "candidate":
+                if (!params.pattern || typeof params.pattern !== "object") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'candidate' requires pattern object",
+                  );
+                }
+                result = tribalEvolutionEngine.generateTipCandidate(
+                  params.pattern as any,
+                );
+                break;
+              case "queue_validate":
+                if (!params.candidate || typeof params.candidate !== "object") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'queue_validate' requires candidate object",
+                  );
+                }
+                tribalEvolutionEngine.queueForValidation(params.candidate as any);
+                result = { ok: true };
+                break;
+              case "validation_queue":
+                result = { queue: tribalEvolutionEngine.getValidationQueue() };
+                break;
+              case "lifecycle_get":
+                if (typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'lifecycle_get' requires string tip_id",
+                  );
+                }
+                result = {
+                  state: tribalEvolutionEngine.getTipLifecycleState(params.tip_id),
+                };
+                break;
+              case "lifecycle_set":
+                if (
+                  typeof params.tip_id !== "string" ||
+                  typeof params.state !== "string"
+                ) {
+                  throw new Error(
+                    "[tribal_evolve] mode 'lifecycle_set' requires string tip_id + string state",
+                  );
+                }
+                tribalEvolutionEngine.setTipLifecycleState(
+                  params.tip_id,
+                  params.state as any,
+                );
+                result = { ok: true };
+                break;
+              case "promote":
+                if (typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'promote' requires string tip_id",
+                  );
+                }
+                tribalEvolutionEngine.promoteTip(params.tip_id);
+                result = { ok: true };
+                break;
+              case "deprecate":
+                if (typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'deprecate' requires string tip_id",
+                  );
+                }
+                tribalEvolutionEngine.deprecateTip(
+                  params.tip_id,
+                  String(params.reason ?? "no reason given"),
+                );
+                result = { ok: true };
+                break;
+              case "archive":
+                if (typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'archive' requires string tip_id",
+                  );
+                }
+                tribalEvolutionEngine.archiveTip(params.tip_id);
+                result = { ok: true };
+                break;
+              case "events":
+                if (typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_evolve] mode 'events' requires string tip_id",
+                  );
+                }
+                result = {
+                  events: tribalEvolutionEngine.getLifecycleEvents(params.tip_id),
+                };
+                break;
+              case "active":
+                result = { active: tribalEvolutionEngine.getActiveTips() };
+                break;
+              default:
+                throw new Error(
+                  `[tribal_evolve] unknown mode: '${mode}'. ` +
+                    `Expected one of: version_create, history, diff, rollback, ` +
+                    `merge_detect, merge, patterns, candidate, queue_validate, ` +
+                    `validation_queue, lifecycle_get, lifecycle_set, promote, ` +
+                    `deprecate, archive, events, active.`,
+                );
+            }
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-BACKLOG-TRIBAL batch 1 (2026-05-21) ──
+          // 3 more unwired tribal engines.
+          case "tribal_lathe_inject": {
+            const { latheTribalInjectorEngine } = await import(
+              "../../engines/LatheTribalInjectorEngine.js"
+            );
+            const mode = String(params.mode ?? "inject");
+            switch (mode) {
+              case "inject": {
+                if (typeof params.target !== "string") {
+                  throw new Error(
+                    "[tribal_lathe_inject] mode 'inject' requires string target",
+                  );
+                }
+                const tips = Array.isArray(params.tips) ? (params.tips as any[]) : [];
+                result = latheTribalInjectorEngine.inject(
+                  params.target as any,
+                  tips,
+                  (params.context ?? {}) as any,
+                  (params.options ?? {}) as any,
+                );
+                break;
+              }
+              case "inject_all": {
+                const tips = Array.isArray(params.tips) ? (params.tips as any[]) : [];
+                result = latheTribalInjectorEngine.injectAll(
+                  tips,
+                  (params.context ?? {}) as any,
+                  (params.options ?? {}) as any,
+                );
+                break;
+              }
+              case "audit_log":
+                result = {
+                  audit_log: latheTribalInjectorEngine.getAuditLog(
+                    (params.target ?? undefined) as any,
+                    typeof params.limit === "number" ? params.limit : 100,
+                  ),
+                };
+                break;
+              case "clear_audit":
+                latheTribalInjectorEngine.clearAuditLog();
+                result = { ok: true };
+                break;
+              case "stats":
+                result = latheTribalInjectorEngine.getStats();
+                break;
+              default:
+                throw new Error(
+                  `[tribal_lathe_inject] unknown mode: '${mode}'. ` +
+                    `Expected one of: inject, inject_all, audit_log, clear_audit, stats.`,
+                );
+            }
+            break;
+          }
+          case "tribal_activate": {
+            const { tribalKnowledgeActivationEngine } = await import(
+              "../../engines/TribalKnowledgeActivationEngine.js"
+            );
+            const mode = String(params.mode ?? "by_context");
+            const limit =
+              typeof params.limit === "number" && params.limit > 0
+                ? params.limit
+                : 10;
+            switch (mode) {
+              case "by_context":
+                if (!params.context || typeof params.context !== "object") {
+                  throw new Error(
+                    "[tribal_activate] mode 'by_context' requires context object",
+                  );
+                }
+                result = tribalKnowledgeActivationEngine.activateTipsForContext(
+                  params.context as any,
+                );
+                break;
+              case "by_operation":
+                if (typeof params.operation !== "string") {
+                  throw new Error(
+                    "[tribal_activate] mode 'by_operation' requires string operation",
+                  );
+                }
+                result = {
+                  tips: tribalKnowledgeActivationEngine.getTipsByOperation(
+                    params.operation,
+                    limit,
+                  ),
+                };
+                break;
+              case "by_material":
+                if (typeof params.material !== "string") {
+                  throw new Error(
+                    "[tribal_activate] mode 'by_material' requires string material",
+                  );
+                }
+                result = {
+                  tips: tribalKnowledgeActivationEngine.getTipsByMaterial(
+                    params.material,
+                    limit,
+                  ),
+                };
+                break;
+              case "by_controller":
+                if (typeof params.controller !== "string") {
+                  throw new Error(
+                    "[tribal_activate] mode 'by_controller' requires string controller",
+                  );
+                }
+                result = {
+                  tips: tribalKnowledgeActivationEngine.getTipsByController(
+                    params.controller,
+                    limit,
+                  ),
+                };
+                break;
+              case "by_problem":
+                if (typeof params.problem !== "string") {
+                  throw new Error(
+                    "[tribal_activate] mode 'by_problem' requires string problem",
+                  );
+                }
+                result = {
+                  tips: tribalKnowledgeActivationEngine.getTipsByProblem(
+                    params.problem,
+                    limit,
+                  ),
+                };
+                break;
+              case "for_speedfeed":
+                if (!params.params || typeof params.params !== "object") {
+                  throw new Error(
+                    "[tribal_activate] mode 'for_speedfeed' requires params object",
+                  );
+                }
+                result = tribalKnowledgeActivationEngine.activateForSpeedFeed(
+                  params.params as any,
+                );
+                break;
+              case "for_toolpath":
+                if (!params.params || typeof params.params !== "object") {
+                  throw new Error(
+                    "[tribal_activate] mode 'for_toolpath' requires params object",
+                  );
+                }
+                result = tribalKnowledgeActivationEngine.activateForToolpath(
+                  params.params as any,
+                );
+                break;
+              case "for_controller":
+                if (!params.params || typeof params.params !== "object") {
+                  throw new Error(
+                    "[tribal_activate] mode 'for_controller' requires params object",
+                  );
+                }
+                result = tribalKnowledgeActivationEngine.activateForController(
+                  params.params as any,
+                );
+                break;
+              case "for_troubleshoot":
+                if (!params.params || typeof params.params !== "object") {
+                  throw new Error(
+                    "[tribal_activate] mode 'for_troubleshoot' requires params object",
+                  );
+                }
+                result = tribalKnowledgeActivationEngine.activateForTroubleshooting(
+                  params.params as any,
+                );
+                break;
+              case "integrate_pp":
+                if (!params.params || typeof params.params !== "object") {
+                  throw new Error(
+                    "[tribal_activate] mode 'integrate_pp' requires params object",
+                  );
+                }
+                result = tribalKnowledgeActivationEngine.integrateWithPPDecision(
+                  params.params as any,
+                );
+                break;
+              case "stats":
+                result = tribalKnowledgeActivationEngine.getStats();
+                break;
+              case "awareness":
+                result = tribalKnowledgeActivationEngine.getSelfAwareness();
+                break;
+              default:
+                throw new Error(
+                  `[tribal_activate] unknown mode: '${mode}'. ` +
+                    `Expected one of: by_context, by_operation, by_material, by_controller, by_problem, ` +
+                    `for_speedfeed, for_toolpath, for_controller, for_troubleshoot, integrate_pp, stats, awareness.`,
+                );
+            }
+            break;
+          }
+          case "tribal_advisor": {
+            const { tribalKnowledgeAdvisorEngine } = await import(
+              "../../engines/TribalKnowledgeAdvisorEngine.js"
+            );
+            const mode = String(params.mode ?? "query");
+            const ctx = (params.context ?? {}) as Record<string, unknown>;
+            switch (mode) {
+              case "modifiers":
+                result = tribalKnowledgeAdvisorEngine.getModifiers(ctx as any);
+                break;
+              case "constraints":
+                result = tribalKnowledgeAdvisorEngine.getConstraints(ctx as any);
+                break;
+              case "advisory":
+                result = tribalKnowledgeAdvisorEngine.getAdvisory(ctx as any);
+                break;
+              case "query":
+                result = tribalKnowledgeAdvisorEngine.query(ctx as any);
+                break;
+              default:
+                throw new Error(
+                  `[tribal_advisor] unknown mode: '${mode}'. ` +
+                    `Expected one of: modifiers, constraints, advisory, query.`,
+                );
+            }
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-BACKLOG-TRIBAL batch 2 (2026-05-21) ──
+          case "tribal_cam_lookup": {
+            const { camTribalKnowledgeEngine } = await import(
+              "../../engines/CAMTribalKnowledgeEngine.js"
+            );
+            if (!params.request || typeof params.request !== "object") {
+              throw new Error(
+                "[tribal_cam_lookup] requires a 'request' object with TribalLookupRequest shape",
+              );
+            }
+            result = camTribalKnowledgeEngine.lookup(params.request as any);
+            break;
+          }
+          case "tribal_mill_query": {
+            const { millTribalKnowledgeEngine } = await import(
+              "../../engines/MillTribalKnowledgeEngine.js"
+            );
+            const mode = String(params.mode ?? "query");
+            switch (mode) {
+              case "add":
+                if (!params.tip || typeof params.tip !== "object") {
+                  throw new Error(
+                    "[tribal_mill_query] mode 'add' requires tip object",
+                  );
+                }
+                millTribalKnowledgeEngine.add(params.tip as any);
+                result = { ok: true };
+                break;
+              case "get":
+                if (typeof params.id !== "string") {
+                  throw new Error(
+                    "[tribal_mill_query] mode 'get' requires string id",
+                  );
+                }
+                result = { tip: millTribalKnowledgeEngine.get(params.id) };
+                break;
+              case "query":
+                result = {
+                  tips: millTribalKnowledgeEngine.query(
+                    (params.query ?? {}) as any,
+                  ),
+                };
+                break;
+              case "categories":
+                result = { categories: millTribalKnowledgeEngine.getCategories() };
+                break;
+              case "all_tips":
+                result = { tips: millTribalKnowledgeEngine.getAllTips() };
+                break;
+              case "count_by_category":
+                result = millTribalKnowledgeEngine.countByCategory();
+                break;
+              case "stats":
+                result = millTribalKnowledgeEngine.getStats();
+                break;
+              case "awareness":
+                result = millTribalKnowledgeEngine.getSelfAwareness();
+                break;
+              default:
+                throw new Error(
+                  `[tribal_mill_query] unknown mode: '${mode}'. ` +
+                    `Expected one of: add, get, query, categories, all_tips, count_by_category, stats, awareness.`,
+                );
+            }
+            break;
+          }
+          case "tribal_enrich": {
+            const { tribalEnrichmentCoordinatorEngine } = await import(
+              "../../engines/TribalEnrichmentCoordinatorEngine.js"
+            );
+            const mode = String(params.mode ?? "enrich");
+            switch (mode) {
+              case "enrich":
+                if (!params.input || typeof params.input !== "object") {
+                  throw new Error(
+                    "[tribal_enrich] mode 'enrich' requires input object",
+                  );
+                }
+                result = await tribalEnrichmentCoordinatorEngine.enrich(
+                  params.input as any,
+                );
+                break;
+              case "has_knowledge":
+                if (!params.input || typeof params.input !== "object") {
+                  throw new Error(
+                    "[tribal_enrich] mode 'has_knowledge' requires input object",
+                  );
+                }
+                result = {
+                  has_knowledge: await tribalEnrichmentCoordinatorEngine.hasKnowledge(
+                    params.input as any,
+                  ),
+                };
+                break;
+              case "tribal_only":
+                if (!params.input || typeof params.input !== "object") {
+                  throw new Error(
+                    "[tribal_enrich] mode 'tribal_only' requires input object",
+                  );
+                }
+                result = {
+                  tips: await tribalEnrichmentCoordinatorEngine.getTribalOnly(
+                    params.input as any,
+                  ),
+                };
+                break;
+              case "playbook_only":
+                if (!params.input || typeof params.input !== "object") {
+                  throw new Error(
+                    "[tribal_enrich] mode 'playbook_only' requires input object",
+                  );
+                }
+                result = {
+                  rules: await tribalEnrichmentCoordinatorEngine.getPlaybookOnly(
+                    params.input as any,
+                  ),
+                };
+                break;
+              case "controller_only":
+                if (typeof params.controller !== "string") {
+                  throw new Error(
+                    "[tribal_enrich] mode 'controller_only' requires string controller",
+                  );
+                }
+                result = {
+                  tips: await tribalEnrichmentCoordinatorEngine.getControllerOnly(
+                    params.controller as any,
+                  ),
+                };
+                break;
+              default:
+                throw new Error(
+                  `[tribal_enrich] unknown mode: '${mode}'. ` +
+                    `Expected one of: enrich, has_knowledge, tribal_only, playbook_only, controller_only.`,
+                );
+            }
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-BACKLOG-TRIBAL batch 3 (2026-05-21) ──
+          case "tribal_playbook_enforce": {
+            const { tribalPlaybookEnforcementEngine } = await import(
+              "../../engines/TribalPlaybookEnforcementEngine.js"
+            );
+            const mode = String(params.mode ?? "validate");
+            switch (mode) {
+              case "validate":
+                if (!params.params || typeof params.params !== "object") {
+                  throw new Error(
+                    "[tribal_playbook_enforce] mode 'validate' requires params object",
+                  );
+                }
+                if (!params.context || typeof params.context !== "object") {
+                  throw new Error(
+                    "[tribal_playbook_enforce] mode 'validate' requires context object",
+                  );
+                }
+                result = tribalPlaybookEnforcementEngine.validate(
+                  params.params as any,
+                  params.context as any,
+                );
+                break;
+              case "validate_single":
+                if (!params.context || typeof params.context !== "object") {
+                  throw new Error(
+                    "[tribal_playbook_enforce] mode 'validate_single' requires context object",
+                  );
+                }
+                if (typeof params.parameter !== "string") {
+                  throw new Error(
+                    "[tribal_playbook_enforce] mode 'validate_single' requires string parameter",
+                  );
+                }
+                if (typeof params.value !== "number") {
+                  throw new Error(
+                    "[tribal_playbook_enforce] mode 'validate_single' requires number value",
+                  );
+                }
+                result = tribalPlaybookEnforcementEngine.validateSingleParameter(
+                  params.parameter as unknown as keyof MachiningParameters,
+                  params.value,
+                  params.context as unknown as string,
+                );
+                break;
+              case "recommended_ranges":
+                if (typeof params.material !== "string") {
+                  throw new Error(
+                    "[tribal_playbook_enforce] mode 'recommended_ranges' requires string material",
+                  );
+                }
+                result = {
+                  ranges: tribalPlaybookEnforcementEngine.getRecommendedRanges(
+                    params.material,
+                  ),
+                };
+                break;
+              case "search_guidance":
+                if (typeof params.query !== "string") {
+                  throw new Error(
+                    "[tribal_playbook_enforce] mode 'search_guidance' requires string query",
+                  );
+                }
+                result = {
+                  tips: tribalPlaybookEnforcementEngine.searchGuidance(
+                    params.query,
+                    typeof params.material === "string" ? params.material : undefined,
+                    typeof params.operation === "string"
+                      ? (params.operation as any)
+                      : undefined,
+                  ),
+                };
+                break;
+              case "rules_for_category":
+                if (typeof params.category !== "string") {
+                  throw new Error(
+                    "[tribal_playbook_enforce] mode 'rules_for_category' requires string category",
+                  );
+                }
+                result = {
+                  rules: tribalPlaybookEnforcementEngine.getRulesForCategory(
+                    params.category,
+                    typeof params.operation === "string"
+                      ? (params.operation as any)
+                      : undefined,
+                  ),
+                };
+                break;
+              case "stats":
+                result = tribalPlaybookEnforcementEngine.getStatistics();
+                break;
+              default:
+                throw new Error(
+                  `[tribal_playbook_enforce] unknown mode: '${mode}'. ` +
+                    `Expected one of: validate, validate_single, recommended_ranges, ` +
+                    `search_guidance, rules_for_category, stats.`,
+                );
+            }
+            break;
+          }
+          case "tribal_rag": {
+            const { TribalRAGEngine } = await import("../../engines/TribalRAGEngine.js");
+            const mode = String(params.mode ?? "search");
+            switch (mode) {
+              case "build_index": {
+                const tips = Array.isArray(params.tips) ? (params.tips as any[]) : [];
+                result = TribalRAGEngine.buildIndex(
+                  tips,
+                  typeof params.index_path === "string" ? params.index_path : undefined,
+                );
+                break;
+              }
+              case "load_index":
+                result = {
+                  loaded: TribalRAGEngine.loadIndex(
+                    typeof params.index_path === "string" ? params.index_path : undefined,
+                  ),
+                };
+                break;
+              case "search":
+                if (!params.input || typeof params.input !== "object") {
+                  throw new Error(
+                    "[tribal_rag] mode 'search' requires input object (TribalQueryInput)",
+                  );
+                }
+                result = TribalRAGEngine.search(params.input as any);
+                break;
+              case "index_stats":
+                result = { summary: TribalRAGEngine.getIndexStats() };
+                break;
+              case "awareness":
+                result = TribalRAGEngine.getSelfAwareness();
+                break;
+              default:
+                throw new Error(
+                  `[tribal_rag] unknown mode: '${mode}'. ` +
+                    `Expected one of: build_index, load_index, search, index_stats, awareness.`,
+                );
+            }
+            break;
+          }
+          case "tribal_wedm_runtime": {
+            const { wedmTribalRuntimeEngine } = await import(
+              "../../engines/WEDMTribalRuntimeEngine.js"
+            );
+            const mode = String(params.mode ?? "select");
+            switch (mode) {
+              case "reload":
+                wedmTribalRuntimeEngine.reloadTips();
+                result = { ok: true };
+                break;
+              case "select":
+                if (!params.context || typeof params.context !== "object") {
+                  throw new Error(
+                    "[tribal_wedm_runtime] mode 'select' requires context object",
+                  );
+                }
+                result = wedmTribalRuntimeEngine.select(params.context as any);
+                break;
+              case "get_tip":
+                if (typeof params.id !== "string") {
+                  throw new Error(
+                    "[tribal_wedm_runtime] mode 'get_tip' requires string id",
+                  );
+                }
+                result = { tip: wedmTribalRuntimeEngine.getTipById(params.id) };
+                break;
+              case "list_by_category":
+                if (typeof params.category !== "string") {
+                  throw new Error(
+                    "[tribal_wedm_runtime] mode 'list_by_category' requires string category",
+                  );
+                }
+                result = {
+                  tips: wedmTribalRuntimeEngine.listByCategory(params.category),
+                };
+                break;
+              case "stats":
+                result = wedmTribalRuntimeEngine.getStats();
+                break;
+              case "register_learned":
+                if (!params.tip || typeof params.tip !== "object") {
+                  throw new Error(
+                    "[tribal_wedm_runtime] mode 'register_learned' requires tip object",
+                  );
+                }
+                wedmTribalRuntimeEngine.registerLearnedTip(params.tip as any);
+                result = { ok: true };
+                break;
+              case "learned_count":
+                result = { count: wedmTribalRuntimeEngine.getLearnedTipCount() };
+                break;
+              default:
+                throw new Error(
+                  `[tribal_wedm_runtime] unknown mode: '${mode}'. ` +
+                    `Expected one of: reload, select, get_tip, list_by_category, ` +
+                    `stats, register_learned, learned_count.`,
+                );
+            }
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-BACKLOG-TRIBAL batch 4 (2026-05-21) ──
+          // Final 3 unwired tribal engines (12 of 12 in this milestone).
+          case "tribal_cam_tooltip": {
+            const { CAMTribalKnowledgeInjectionEngine } = await import(
+              "../../engines/CAMTribalKnowledgeInjectionEngine.js"
+            );
+            const mode = String(params.mode ?? "render");
+            switch (mode) {
+              case "supported_targets":
+                result = { targets: CAMTribalKnowledgeInjectionEngine.supportedTargets() };
+                break;
+              case "render":
+                if (!params.context || typeof params.context !== "object") {
+                  throw new Error(
+                    "[tribal_cam_tooltip] mode 'render' requires context object",
+                  );
+                }
+                result = CAMTribalKnowledgeInjectionEngine.renderTooltip(
+                  typeof params.session_id === "string" ? params.session_id : "default",
+                  params.context as unknown as TooltipContext,
+                );
+                break;
+              case "stats":
+                if (typeof params.session_id !== "string") {
+                  throw new Error(
+                    "[tribal_cam_tooltip] mode 'stats' requires string session_id",
+                  );
+                }
+                result = CAMTribalKnowledgeInjectionEngine.getStats(params.session_id);
+                break;
+              case "reset_session":
+                if (typeof params.session_id !== "string") {
+                  throw new Error(
+                    "[tribal_cam_tooltip] mode 'reset_session' requires string session_id",
+                  );
+                }
+                CAMTribalKnowledgeInjectionEngine.resetSession(params.session_id);
+                result = { ok: true };
+                break;
+              case "reset_all":
+                CAMTribalKnowledgeInjectionEngine.resetAll();
+                result = { ok: true };
+                break;
+              default:
+                throw new Error(
+                  `[tribal_cam_tooltip] unknown mode: '${mode}'. ` +
+                    `Expected one of: supported_targets, render, stats, reset_session, reset_all.`,
+                );
+            }
+            break;
+          }
+          case "tribal_pp_integrate": {
+            const { postProcessorTribalKnowledgeIntegrationEngine } = await import(
+              "../../engines/PostProcessorTribalKnowledgeIntegrationEngine.js"
+            );
+            const mode = String(params.mode ?? "for_context");
+            switch (mode) {
+              case "all_tips":
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.getAllTips(),
+                };
+                break;
+              case "get_tip":
+                if (typeof params.id !== "string") {
+                  throw new Error(
+                    "[tribal_pp_integrate] mode 'get_tip' requires string id",
+                  );
+                }
+                result = {
+                  tip: postProcessorTribalKnowledgeIntegrationEngine.getTip(params.id),
+                };
+                break;
+              case "by_priority":
+                if (typeof params.priority !== "string") {
+                  throw new Error(
+                    "[tribal_pp_integrate] mode 'by_priority' requires string priority",
+                  );
+                }
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.getTipsByPriority(
+                    params.priority as any,
+                  ),
+                };
+                break;
+              case "by_category":
+                if (typeof params.category !== "string") {
+                  throw new Error(
+                    "[tribal_pp_integrate] mode 'by_category' requires string category",
+                  );
+                }
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.getTipsByCategory(
+                    params.category,
+                  ),
+                };
+                break;
+              case "for_controller":
+                if (typeof params.controller !== "string") {
+                  throw new Error(
+                    "[tribal_pp_integrate] mode 'for_controller' requires string controller",
+                  );
+                }
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.getTipsForController(
+                    params.controller,
+                  ),
+                };
+                break;
+              case "for_operation":
+                if (typeof params.operation !== "string") {
+                  throw new Error(
+                    "[tribal_pp_integrate] mode 'for_operation' requires string operation",
+                  );
+                }
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.getTipsForOperation(
+                    params.operation,
+                  ),
+                };
+                break;
+              case "for_material":
+                if (typeof params.material !== "string") {
+                  throw new Error(
+                    "[tribal_pp_integrate] mode 'for_material' requires string material",
+                  );
+                }
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.getTipsForMaterial(
+                    params.material,
+                  ),
+                };
+                break;
+              case "for_context":
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.getTipsForContext(
+                    (params.context ?? {}) as any,
+                  ),
+                };
+                break;
+              case "critical_safety":
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.getCriticalSafetyTips(),
+                };
+                break;
+              case "search":
+                if (typeof params.query !== "string") {
+                  throw new Error(
+                    "[tribal_pp_integrate] mode 'search' requires string query",
+                  );
+                }
+                result = {
+                  tips: postProcessorTribalKnowledgeIntegrationEngine.searchTips(
+                    params.query,
+                  ),
+                };
+                break;
+              case "inject_agi":
+                result = postProcessorTribalKnowledgeIntegrationEngine.injectForAGIContext(
+                  (params.context ?? {}) as any,
+                );
+                break;
+              case "totals":
+                result = postProcessorTribalKnowledgeIntegrationEngine.getTotalTips();
+                break;
+              case "category_distribution":
+                result = postProcessorTribalKnowledgeIntegrationEngine.getCategoryDistribution();
+                break;
+              case "external_sources":
+                result = {
+                  sources: postProcessorTribalKnowledgeIntegrationEngine.getExternalSources(),
+                };
+                break;
+              default:
+                throw new Error(
+                  `[tribal_pp_integrate] unknown mode: '${mode}'. ` +
+                    `Expected one of: all_tips, get_tip, by_priority, by_category, ` +
+                    `for_controller, for_operation, for_material, for_context, ` +
+                    `critical_safety, search, inject_agi, totals, ` +
+                    `category_distribution, external_sources.`,
+                );
+            }
+            break;
+          }
+          case "tribal_wedm_learn": {
+            const { wedmTribalTipLearnerEngine } = await import(
+              "../../engines/WEDMTribalTipLearnerEngine.js"
+            );
+            const mode = String(params.mode ?? "process_queue");
+            switch (mode) {
+              case "process_queue": {
+                const maxCandidates =
+                  typeof params.max_candidates === "number"
+                    ? params.max_candidates
+                    : 50;
+                const autoApproveThreshold =
+                  typeof params.auto_approve_threshold === "number"
+                    ? params.auto_approve_threshold
+                    : 0.85;
+                result = await wedmTribalTipLearnerEngine.processQueue(
+                  maxCandidates,
+                  autoApproveThreshold,
+                );
+                break;
+              }
+              case "pending_review":
+                result = {
+                  pending: wedmTribalTipLearnerEngine.getPendingReview(
+                    typeof params.limit === "number" ? params.limit : 50,
+                  ),
+                };
+                break;
+              case "approve":
+                if (typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_wedm_learn] mode 'approve' requires string tip_id",
+                  );
+                }
+                result = {
+                  approved: wedmTribalTipLearnerEngine.approveTip(params.tip_id),
+                };
+                break;
+              case "reject":
+                if (typeof params.tip_id !== "string") {
+                  throw new Error(
+                    "[tribal_wedm_learn] mode 'reject' requires string tip_id",
+                  );
+                }
+                result = {
+                  rejected: wedmTribalTipLearnerEngine.rejectTip(params.tip_id),
+                };
+                break;
+              case "learned":
+                result = {
+                  learned: wedmTribalTipLearnerEngine.getLearnedTips(
+                    typeof params.limit === "number" ? params.limit : 100,
+                  ),
+                };
+                break;
+              case "approved":
+                result = {
+                  approved: wedmTribalTipLearnerEngine.getApprovedTips(
+                    typeof params.limit === "number" ? params.limit : 100,
+                  ),
+                };
+                break;
+              case "stats":
+                result = wedmTribalTipLearnerEngine.getStats();
+                break;
+              case "reset":
+                wedmTribalTipLearnerEngine.reset();
+                result = { ok: true };
+                break;
+              default:
+                throw new Error(
+                  `[tribal_wedm_learn] unknown mode: '${mode}'. ` +
+                    `Expected one of: process_queue, pending_review, approve, reject, ` +
+                    `learned, approved, stats, reset.`,
+                );
+            }
+            break;
+          }
           // ── WIRE-UNWIRED-MS0/U-WIRE-JMPA: JMDIEPatternAnalyzer static analysis ──
           case "jmdie_pattern_analyze": {
             const { JMDIEPatternAnalyzer } = await import("../../engines/JMDIEPatternAnalyzer.js");
@@ -298,11 +1519,132 @@ export function registerKnowledgeDispatcher(server: any): void {
             result = { tips: JMDIEPatternAnalyzer.getTipsForTribalKnowledge() };
             break;
           }
+          // ── FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-TRIBAL (slot:india 2026-06-22) ──
+          // PlaybookRulesEngine (largest single unwired engine, 500+ domain-tagged rules) read-only
+          // surface. All 7 call existing static methods; slimResponse elides empty rules[]/rule:null.
+          case "playbook_rules_query": {
+            const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+            const rules = playbookRulesEngine.getRules({
+              domain: params.domain,
+              severity_min: params.severity_min,
+              categories: params.categories,
+            });
+            result = { count: rules.length, rules };
+            break;
+          }
+          case "playbook_rules_stats": {
+            const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+            result = playbookRulesEngine.getStats();
+            break;
+          }
+          case "playbook_rules_coverage": {
+            const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+            result = { coverage: playbookRulesEngine.getCoverage() };
+            break;
+          }
+          case "playbook_rules_search": {
+            const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+            const rules = playbookRulesEngine.searchRules(params.keyword);
+            result = { count: rules.length, rules };
+            break;
+          }
+          case "playbook_rules_by_category": {
+            const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+            const rules = playbookRulesEngine.getRulesByCategory(params.category);
+            result = { count: rules.length, rules };
+            break;
+          }
+          case "playbook_rules_safety": {
+            const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+            const rules = playbookRulesEngine.getSafetyRules();
+            result = { count: rules.length, rules };
+            break;
+          }
+          case "playbook_rules_get": {
+            const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+            const rule = playbookRulesEngine.getRule(params.id);
+            result = rule ? { rule } : { rule: null, error: `rule not found: ${params.id}` };
+            break;
+          }
+          // ── FEATURE-GAP-AUDIT-MS0/U-GAP-POST-JMDIE-LEARNING: .cps post-processor corpus learning ──
+          case "jmdie_post_learn": {
+            const { JMDiePostProcessorLearningEngine } = await import(
+              "../../engines/JMDiePostProcessorLearningEngine.js"
+            );
+            result = JMDiePostProcessorLearningEngine.learn(
+              typeof params.sourceDir === "string" ? params.sourceDir : undefined,
+            );
+            break;
+          }
+          case "jmdie_post_corpus": {
+            const { JMDiePostProcessorLearningEngine } = await import(
+              "../../engines/JMDiePostProcessorLearningEngine.js"
+            );
+            result = JMDiePostProcessorLearningEngine.getCorpus();
+            break;
+          }
+          case "jmdie_post_query": {
+            const { JMDiePostProcessorLearningEngine } = await import(
+              "../../engines/JMDiePostProcessorLearningEngine.js"
+            );
+            const family = String(params.family ?? "");
+            const queryCorpus = JMDiePostProcessorLearningEngine.getCorpus();
+            result = {
+              family,
+              profiles: JMDiePostProcessorLearningEngine.queryByController(family),
+              // Surface the corpus warning so a caller can distinguish "this
+              // family has zero posts" from "the corpus is unreachable" —
+              // slimResponse() drops an empty profiles array from the envelope.
+              ...(queryCorpus.warning ? { warning: queryCorpus.warning } : {}),
+            };
+            break;
+          }
+          case "jmdie_post_catalog": {
+            const { JMDiePostProcessorLearningEngine } = await import(
+              "../../engines/JMDiePostProcessorLearningEngine.js"
+            );
+            const catalogCorpus = JMDiePostProcessorLearningEngine.getCorpus();
+            result = {
+              catalog: JMDiePostProcessorLearningEngine.getEnhancementCatalog(),
+              ...(catalogCorpus.warning ? { warning: catalogCorpus.warning } : {}),
+            };
+            break;
+          }
+          case "jmdie_post_stats": {
+            const { JMDiePostProcessorLearningEngine } = await import(
+              "../../engines/JMDiePostProcessorLearningEngine.js"
+            );
+            result = JMDiePostProcessorLearningEngine.getStats();
+            break;
+          }
+          case "jmdie_post_gaps": {
+            // INDIA-POST-GAPS (india /loop 2026-05-22) — per-post + corpus-wide
+            // enhancement-gap analysis over the cached `.cps` corpus. Pure read,
+            // no I/O. Surfaces (a) postGaps: family patterns the post lacks,
+            // (b) corpusWideGaps: enhancements with <50% adoption (e.g.
+            // sidecar_json_export 1/12, physics_data_integration 1/12),
+            // (c) prioritized recommendations for high-ROI rollouts.
+            const { JMDiePostProcessorLearningEngine } = await import(
+              "../../engines/JMDiePostProcessorLearningEngine.js"
+            );
+            result = JMDiePostProcessorLearningEngine.gapReport();
+            break;
+          }
+          case "jmdie_post_reset": {
+            const { JMDiePostProcessorLearningEngine } = await import(
+              "../../engines/JMDiePostProcessorLearningEngine.js"
+            );
+            // Clears the process-global corpus cache so a subsequent
+            // jmdie_post_corpus / _query / _stats re-discovers from disk.
+            JMDiePostProcessorLearningEngine.reset();
+            result = { reset: true };
+            break;
+          }
           // ── OBSIDIAN-MS0: Obsidian Vault Sync ──
           case "obsidian_sync_pull": {
             const { obsidianVaultSyncEngine } = await import("../../engines/ObsidianVaultSyncEngine.js");
             result = await obsidianVaultSyncEngine.pull({
-              vault_path: params.vault_path || "",
+              vault_path: await resolveObsidianVault(params.vault_path),
               sync_folder: params.sync_folder,
               incremental: params.incremental ?? true,
               dry_run: params.dry_run ?? false,
@@ -312,7 +1654,7 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "obsidian_sync_push": {
             const { obsidianVaultSyncEngine } = await import("../../engines/ObsidianVaultSyncEngine.js");
             result = await obsidianVaultSyncEngine.push({
-              vault_path: params.vault_path || "",
+              vault_path: await resolveObsidianVault(params.vault_path),
               sync_folder: params.sync_folder ?? "PRISM",
               tip_ids: params.tip_ids,
               incremental: params.incremental ?? true,
@@ -322,13 +1664,13 @@ export function registerKnowledgeDispatcher(server: any): void {
           }
           case "obsidian_sync_status": {
             const { obsidianVaultSyncEngine } = await import("../../engines/ObsidianVaultSyncEngine.js");
-            result = obsidianVaultSyncEngine.status(params.vault_path);
+            result = obsidianVaultSyncEngine.status(await resolveObsidianVault(params.vault_path));
             break;
           }
           case "obsidian_sync_config": {
             const { obsidianVaultSyncEngine } = await import("../../engines/ObsidianVaultSyncEngine.js");
             result = obsidianVaultSyncEngine.configure({
-              vault_path: params.vault_path,
+              vault_path: (await resolveObsidianVault(params.vault_path)) || undefined,
               sync_folder: params.sync_folder,
               enable_bidirectional: params.enable_bidirectional,
               conflict_strategy: params.conflict_strategy,
@@ -415,17 +1757,23 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "obsidian_viz_status": {
             const { wikiRecallCounterEngine } = await import("../../engines/WikiRecallCounterEngine.js");
             const fs = await import("node:fs");
+            // Cap-safe count: the merged graph is ~875MB; a raw JSON.parse(readFileSync(...,"utf8"))
+            // crashes V8's 512MiB string cap BEFORE parsing -- this action silently reported
+            // exists:false ("graph not generated") since the graph crossed 512MiB. countGraphArrayStreaming
+            // counts array elements off-heap (Buffer-incremental) without materializing the object.
+            // [[raw-graph-parse-guard]] / scripts/lib/graph-io.mjs.
+            // @ts-expect-error - scripts/lib .mjs has no .d.ts (outside src include); resolved at runtime, typed any (cf. WeeklySynthesisEngine.ts:66).
+            const { countGraphArrayStreaming } = await import("../../../../scripts/lib/graph-io.mjs");
             const graphPath = "H:/prism/state/shared/system-viz/system-graph.json";
             let graphMeta: { exists: boolean; mtime?: string; nodes?: number; edges?: number; layers?: number } = { exists: false };
             try {
               const stat = fs.statSync(graphPath);
-              const graph = JSON.parse(fs.readFileSync(graphPath, "utf8"));
               graphMeta = {
                 exists: true,
                 mtime: stat.mtime.toISOString(),
-                nodes: graph?.nodes?.length ?? 0,
-                edges: graph?.edges?.length ?? 0,
-                layers: graph?.layers?.length ?? 0,
+                nodes: countGraphArrayStreaming(graphPath, "nodes"),
+                edges: countGraphArrayStreaming(graphPath, "edges"),
+                layers: countGraphArrayStreaming(graphPath, "layers"),
               };
             } catch { /* graph not generated yet */ }
             const recall = wikiRecallCounterEngine.getStateSnapshot();
@@ -559,11 +1907,14 @@ export function registerKnowledgeDispatcher(server: any): void {
                 const mod = course?.modules.find(
                   m => m.id === params.module_id
                 );
-                const questions = mod?.quiz.questions.length
-                  ? mod.quiz.questions
+                // ModuleQuiz = Quiz | InlineQuestion[] -- narrow to Quiz before accessing .questions / .id
+                const modQuiz = mod?.quiz;
+                const narrowedQuiz = modQuiz && !Array.isArray(modQuiz) ? modQuiz : undefined;
+                const questions = narrowedQuiz?.questions?.length
+                  ? narrowedQuiz.questions
                   : assessment.generateSpeedFeedQuestions(2);
                 result = assessment.startSession(
-                  sid, mod?.quiz.id ?? "quiz", questions,
+                  sid, narrowedQuiz?.id ?? "quiz", questions,
                   params.time_limit_minutes
                 );
                 break;
@@ -578,6 +1929,54 @@ export function registerKnowledgeDispatcher(server: any): void {
                 break;
               default:
                 result = { error: `Unknown academy action: ${action}` };
+            }
+            break;
+          }
+          // ── PRISM Academy Scheduler (TrainingSchedulerEngine) ─
+          case "academy_enroll":
+          case "academy_get_enrollments":
+          case "academy_refresh_status":
+          case "academy_recommend_remediation":
+          case "academy_schedule_generate":
+          case "academy_employee_report":
+          case "academy_recommend_next_course": {
+            const { TrainingSchedulerEngine } = await import("../../engines/TrainingSchedulerEngine.js");
+            const scheduler = new TrainingSchedulerEngine();
+            const empId = params.employee_id ?? params.student_id ?? "default";
+            switch (action) {
+              case "academy_enroll":
+                result = scheduler.enrollEmployee({
+                  employeeId: empId,
+                  courseId: params.course_id,
+                  targetCompletionDate: params.target_completion_date,
+                  priority: (params.priority ?? 2) as 1 | 2 | 3,
+                  enrolledBy: params.enrolled_by ?? "self",
+                });
+                break;
+              case "academy_get_enrollments":
+                result = scheduler.getEnrollments(empId);
+                break;
+              case "academy_refresh_status":
+                result = scheduler.refreshEnrollmentStatuses(empId);
+                break;
+              case "academy_recommend_remediation":
+                result = scheduler.recommendRemediation(empId, params.course_id, params.module_id);
+                break;
+              case "academy_schedule_generate":
+                result = scheduler.generateSchedule(
+                  empId,
+                  params.days ?? 7,
+                  params.daily_minutes_budget ?? 60,
+                );
+                break;
+              case "academy_employee_report":
+                result = scheduler.generateReport(empId);
+                break;
+              case "academy_recommend_next_course":
+                result = scheduler.recommendNextCourse(empId);
+                break;
+              default:
+                result = { error: `Unknown scheduler action: ${action}` };
             }
             break;
           }
@@ -801,6 +2200,137 @@ export function registerKnowledgeDispatcher(server: any): void {
               items_count: fullResult.knowledge_items.length,
               duration_seconds: fullResult.duration_seconds,
               api_cost_estimate: fullResult.api_cost_estimate,
+            };
+            break;
+          }
+          // ── U-BRIDGE-WIRE-VIDEO (BACKEND-DEV-LOOP iter15) ─────
+          // Wires 3 previously-unwired Video engines into prism_knowledge
+          // (VideoActionExtractorEngine / VideoReplayOrchestratorEngine /
+          // VideoReplayPipelineEngine — each had 0 dispatcher refs before
+          // 2026-05-18 iter15).
+          case "learn_video_extract_actions": {
+            const { videoActionExtractorEngine } = await import("../../engines/VideoActionExtractorEngine.js");
+            const seq = await videoActionExtractorEngine.processVideoForActions(
+              params.file_path ?? "",
+              {
+                keyframe_interval_s: params.keyframe_interval_s,
+                max_keyframes: params.max_keyframes,
+                target_software: params.target_software,
+                ocr_enabled: params.ocr_enabled,
+                min_confidence: params.min_confidence,
+              },
+            );
+            result = {
+              video_path: seq.video_path,
+              software_detected: seq.software_detected,
+              total_duration_s: seq.total_duration_s,
+              actions: seq.actions,
+              actions_count: seq.actions.length,
+              summary: seq.summary,
+              difficulty_rating: seq.difficulty_rating,
+              operation_types_used: seq.operation_types_used,
+            };
+            break;
+          }
+          case "learn_video_replay": {
+            const { videoReplayOrchestratorEngine } = await import("../../engines/VideoReplayOrchestratorEngine.js");
+            const replay = videoReplayOrchestratorEngine.replayFromVideo(
+              params.file_path ?? "",
+              {
+                mode: params.mode ?? "autonomous",
+                target_software: params.target_software,
+                output_format: params.output_format,
+                max_retries: params.max_retries,
+                tolerance_pct: params.tolerance_pct,
+                parametric: params.parametric,
+              },
+            );
+            result = {
+              success: replay.success,
+              video_path: replay.video_path,
+              mode: replay.mode,
+              actions_extracted: replay.actions_extracted,
+              actions_executed: replay.actions_executed,
+              actions_failed: replay.actions_failed,
+              actions_skipped: replay.actions_skipped,
+              generated_script: replay.generated_script,
+              output_files: replay.output_files,
+              execution_time_ms: replay.execution_time_ms,
+              accuracy_score: replay.accuracy_score,
+              errors: replay.errors,
+              warnings: replay.warnings,
+              summary: replay.summary,
+            };
+            break;
+          }
+          case "learn_video_pipeline_run": {
+            const { videoReplayPipelineEngine } = await import("../../engines/VideoReplayPipelineEngine.js");
+            const piped = await videoReplayPipelineEngine.runFullPipeline(
+              params.file_path ?? "",
+              {
+                output_dir: params.output_dir,
+                output_format: params.output_format,
+                parametric: params.parametric,
+                model: params.model,
+                frame_interval_s: params.frame_interval_s,
+                max_frames: params.max_frames,
+                dry_run: params.dry_run,
+                description_mode: params.description_mode,
+              },
+            );
+            result = piped;
+            break;
+          }
+          // VAR-MS1 Phase 2: PlaywrightAutomationEngine (was 0 dispatcher refs).
+          // Completes the video pipeline: extract_actions -> [gui_script | execution_plan].
+          case "learn_video_gui_script": {
+            const { playwrightAutomationEngine } = await import("../../engines/PlaywrightAutomationEngine.js");
+            const acts = (params.actions ?? []).map((a: any, i: number) => ({
+              step_number: a.step_number ?? i + 1,
+              timestamp_s: a.timestamp_s ?? 0,
+              action_type: a.action_type ?? "unknown",
+              operation: a.operation ?? a.action_type ?? "unknown",
+              parameters: a.parameters ?? {},
+              confidence: a.confidence ?? 0.5,
+              description: a.description ?? "",
+              keyframe_index: a.keyframe_index ?? 0,
+            }));
+            const script = playwrightAutomationEngine.generateGUIScript(
+              acts as any[],
+              params.target_software ?? "generic",
+            );
+            result = {
+              target_software: script.target_software,
+              actions: script.actions,
+              actions_count: script.actions.length,
+              estimated_duration_s: script.estimated_duration_s,
+              requires_login: script.requires_login,
+              warnings: script.warnings,
+            };
+            break;
+          }
+          case "learn_video_execution_plan": {
+            const { playwrightAutomationEngine } = await import("../../engines/PlaywrightAutomationEngine.js");
+            const acts = (params.actions ?? []).map((a: any, i: number) => ({
+              step_number: a.step_number ?? i + 1,
+              timestamp_s: a.timestamp_s ?? 0,
+              action_type: a.action_type ?? "unknown",
+              operation: a.operation ?? a.action_type ?? "unknown",
+              parameters: a.parameters ?? {},
+              confidence: a.confidence ?? 0.5,
+              description: a.description ?? "",
+              keyframe_index: a.keyframe_index ?? 0,
+            }));
+            const plan = playwrightAutomationEngine.planExecution(
+              acts as any[],
+              params.prefer ? { prefer: params.prefer } : undefined,
+            );
+            result = {
+              mode: plan.mode,
+              reason: plan.reason,
+              cadquery_steps: plan.cadquery_steps,
+              playwright_steps: plan.playwright_steps,
+              execution_order: plan.execution_order,
             };
             break;
           }
@@ -1313,6 +2843,103 @@ export function registerKnowledgeDispatcher(server: any): void {
             } catch (e: any) {
               result = { atoms: [], count: 0, engine_error: e?.message ?? "knowledge search failed" };
             }
+            break;
+          }
+          // ─── U-PSN-KNOWLEDGE-DISP-CORPUS (papa /loop iter5, 2026-05-23) ───
+          // BlueprintCorpusHarvestEngine mirror. Same singleton + same I/O
+          // injection pattern as cadDispatcher; MCP path requires precomputed
+          // content (fetcher functions can't cross MCP boundary).
+          case "corpus_harvest_mit": {
+            if (!Array.isArray(params.courseList) || !Array.isArray(params.precomputedContent)) {
+              return dispatcherError(
+                new Error("corpus_harvest_mit requires courseList[] + precomputedContent[] (one per course)"),
+                action, "prism_knowledge",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const courseList = params.courseList as Array<{ courseId: string; title: string; url: string; domain: string; tags?: string[] }>;
+            const content = params.precomputedContent as Array<{ ok: true; content: string } | { ok: false; reason: string }>;
+            const data = await blueprintCorpusHarvestEngine.harvestMIT({
+              courseList: courseList as Parameters<typeof blueprintCorpusHarvestEngine.harvestMIT>[0]["courseList"],
+              ...(typeof params.outputDir === "string" ? { outputDir: params.outputDir } : {}),
+              io: { fetchMIT: async (c) => content[courseList.indexOf(c)] ?? { ok: false, reason: "no_content" } },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "corpus_harvest_vendor": {
+            if (!Array.isArray(params.pdfList) || !Array.isArray(params.precomputedContent)) {
+              return dispatcherError(
+                new Error("corpus_harvest_vendor requires pdfList[] + precomputedContent[]"),
+                action, "prism_knowledge",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const pdfList = params.pdfList as Array<{ filePath: string; vendor: string; domain: string; tags?: string[] }>;
+            const content = params.precomputedContent as Array<{ ok: true; content: string } | { ok: false; reason: string }>;
+            const data = await blueprintCorpusHarvestEngine.harvestVendorPDFs({
+              pdfList: pdfList as Parameters<typeof blueprintCorpusHarvestEngine.harvestVendorPDFs>[0]["pdfList"],
+              ...(typeof params.outputDir === "string" ? { outputDir: params.outputDir } : {}),
+              io: { fetchVendorPDF: async (p) => content[pdfList.indexOf(p)] ?? { ok: false, reason: "no_content" } },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "corpus_harvest_online": {
+            if (!Array.isArray(params.urlList) || !Array.isArray(params.precomputedContent)) {
+              return dispatcherError(
+                new Error("corpus_harvest_online requires urlList[] + precomputedContent[]"),
+                action, "prism_knowledge",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const urlList = params.urlList as Array<{ url: string; domain: string; title: string; tags?: string[] }>;
+            const content = params.precomputedContent as Array<{ ok: true; content: string } | { ok: false; reason: string }>;
+            const data = await blueprintCorpusHarvestEngine.harvestOnline({
+              urlList: urlList as Parameters<typeof blueprintCorpusHarvestEngine.harvestOnline>[0]["urlList"],
+              ...(typeof params.outputDir === "string" ? { outputDir: params.outputDir } : {}),
+              ...(typeof params.maxRetry404 === "number" ? { maxRetry404: params.maxRetry404 } : {}),
+              io: { fetchOnline: async (s) => content[urlList.indexOf(s)] ?? { ok: false, reason: "no_content" } },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "corpus_enumerate": {
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const data = blueprintCorpusHarvestEngine.enumerateCorpus(
+              params as Parameters<typeof blueprintCorpusHarvestEngine.enumerateCorpus>[0],
+            );
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "corpus_verify_fresh": {
+            if (!params.source) {
+              return dispatcherError(
+                new Error("corpus_verify_fresh requires source"),
+                action, "prism_knowledge",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const data = blueprintCorpusHarvestEngine.verifyCorpusFresh(
+              params as Parameters<typeof blueprintCorpusHarvestEngine.verifyCorpusFresh>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "corpus_build_index": {
+            if (!Array.isArray(params.precomputedVectors)) {
+              return dispatcherError(
+                new Error("corpus_build_index requires outputPath + precomputedVectors[] (MCP path — embedder cannot cross MCP boundary)"),
+                action, "prism_knowledge",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const vectors = params.precomputedVectors as Array<{ id: string; vector: number[] }>;
+            const data = await blueprintCorpusHarvestEngine.buildEmbeddingIndex({
+              outputPath: (params.outputPath as string) ?? "",
+              io: { embed: async (_e: string) => ({ ok: true as const, vector: vectors.find(v => v.id === _e)?.vector ?? [] }) },
+            });
+            result = { success: true, data };
             break;
           }
         }

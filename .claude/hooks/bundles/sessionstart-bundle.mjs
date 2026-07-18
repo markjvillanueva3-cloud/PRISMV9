@@ -40,8 +40,6 @@ const SUB_HOOKS = [
   { path: `${HOOK_BASE}/claude-brief-inject.mjs`,         timeout: 5000 },
   { path: `${HOOK_BASE}/build-state-inject.mjs`,          timeout: 8000 },
   { path: `${HOOK_BASE}/gsd-inject.mjs`,                  timeout: 2000 },
-  { path: `${HOOK_BASE}/linear-roadmap-sync.mjs`,         timeout: 5000 },
-  { path: `${HOOK_BASE}/supabase-state-sync.mjs`,         timeout: 5000 },
   { path: `${HOOK_BASE}/tier1-context-pack.mjs`,          timeout: 3000 },
   { path: `${HOOK_BASE}/output-cache-inject.mjs`,         timeout: 2000 },
   { path: `${HOOK_BASE}/cognitive-budget-allocator.mjs`,  timeout: 3000 },

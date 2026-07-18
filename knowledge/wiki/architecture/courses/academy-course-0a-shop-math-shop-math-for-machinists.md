@@ -28,7 +28,7 @@ related:
 | Course ID | `course-0a-shop-math` |
 | Source | `mcp-server/src/data/academy/course-0a-shop-math.ts` |
 | Level | Novice |
-| Modules (declared / counted) | 8 / 9 |
+| Modules (declared / counted) | 8 / 10 |
 | Lessons (counted) | ? |
 | Est. hours | 6 |
 

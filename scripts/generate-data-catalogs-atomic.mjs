@@ -33,6 +33,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -158,7 +159,7 @@ function recordHint(r) {
 function generate() {
   if (!fs.existsSync(GRAPH)) return { error: "graph-missing", stats: {} };
   if (!fs.existsSync(DATA_DIR)) return { error: "data-dir-missing", stats: {} };
-  const graph = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+  const graph = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8")));
   const byId = new Set();
   for (const n of graph.nodes) byId.add(n.id);
   // engine slug -> node id (for imports_data edges)

@@ -23,13 +23,23 @@ related:
 |-------|-------|
 | Name | `autopilot-camk` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/autopilot-camk.md` |
+| Source | `C:/Users/wompu/.claude/commands/autopilot-camk.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Autopilot CAMK+SCI — CAM Kernel & Scientific Validation Pipeline
+
+## Phase 0: Self-Awareness Protocol (MANDATORY — AUTO-INVOKE)
+**See: `_self-awareness-protocol.md` for full details**
+
+Auto-load system awareness before ANY operation:
+```
+1. Read MASTER_INDEX_COMPACT.md + BASELINE_INVENTORY.json (parallel)
+2. PRISMSelfAwarenessEngine.recommendAIFeatures(taskDescription)
+3. DuplicationG
 
 <!-- AUTO-END -->
 

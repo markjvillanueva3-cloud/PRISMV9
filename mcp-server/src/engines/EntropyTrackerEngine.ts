@@ -93,7 +93,7 @@ export interface EntropyReport {
 // ENGINE CLASS
 // ============================================================================
 
-class EntropyTrackerEngine {
+export class EntropyTrackerEngine {
   private history: EntropyMeasurement[] = [];
   private readonly maxHistory = 1000;
   private readonly healthyEntropyFloor = 0.6; // Normalized entropy should stay above this

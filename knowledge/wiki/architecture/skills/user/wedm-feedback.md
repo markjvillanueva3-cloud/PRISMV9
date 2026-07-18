@@ -23,15 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-feedback` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-feedback.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-feedback.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Capture ground-truth (predicted vs actual) from every completed WEDM job.
-The resulting WEDM_JOB_HISTORY records feed the P4 on-device learning
-stack (WEDMLoRAAdapterEngine, WEDMEWCMemoryEngine, WEDMFewShotMaterialEngine).
+
+# /wedm-feedback — Post-job operator feedback
 
 <!-- AUTO-END -->
 

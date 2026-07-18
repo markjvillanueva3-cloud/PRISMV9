@@ -606,3 +606,6 @@ export class IntelligentSequencingEngine {
 }
 
 export const intelligentSequencingEngine = new IntelligentSequencingEngine();
+
+/** Back-compat alias: adapter callers historically imported `SequenceOperation`. */
+export type SequenceOperation = SequenceableOp;

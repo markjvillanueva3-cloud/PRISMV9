@@ -1,0 +1,8 @@
+CORRECTION-LOOP-LIVE DONE :18365 part=plate (plate-LIKE proxy)
+  BEFORE: fail 0% matched [] missing [central_oil_hole, stepped_revolved_axis, cross_drilled_relief_holes, bevel_face_chamfer, working_tip_taper, shoulder_fillet, blade_root_fillet, leading_edge_fillet, trailing_edge_fillet]
+  APPLIED: central_oil_hole✓ · stepped_revolved_axis✗(no live apply-mechanic for op 'add-step' yet) · cross_drilled_relief_holes✗(no live apply-mechanic for op 'radial-hole' yet) · bevel_face_chamfer✗(a chamfer is a small angled PLANAR face the face-geometry probe does not capture — adding one cannot be verified by re-probe, so it is never proposed (would be an unverifiable claim of presence)) · working_tip_taper✗(no live apply-mechanic for op 'taper-tip' yet) · shoulder_fillet✗(no correction rule for 'shoulder_fillet' — unknown functional feature; not guessing a build op) · blade_root_fillet✗(no correction rule for 'blade_root_fillet' — unknown functional feature; not guessing a build op) · leading_edge_fillet✗(no correction rule for 'leading_edge_fillet' — unknown functional feature; not guessing a build op) · trailing_edge_fillet✗(no correction rule for 'trailing_edge_fillet' — unknown functional feature; not guessing a build op)
+  AFTER:  partial 11.1% matched [central_oil_hole] missing [stepped_revolved_axis, cross_drilled_relief_holes, bevel_face_chamfer, working_tip_taper, shoulder_fillet, blade_root_fillet, leading_edge_fillet, trailing_edge_fillet]
+  SCORE Δ: +11.1%  (target: 3/5→4/5 = +20%)
+  TRUSTWORTHY: 11.1% (verifiedCount=1)
+  CLOSE-ENFORCE: reap remaining=1 (active='Untitled')
+  DUAL-TRAINING: appended 9 CAD-gen fix example(s) -> state/shared/cad-fix-training-ledger.jsonl

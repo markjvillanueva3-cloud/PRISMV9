@@ -178,7 +178,7 @@ export interface CoolantValidationResult {
 /**
  * Flow rate requirements by operation [L/min per mm diameter]
  */
-const FLOW_REQUIREMENTS: Record<CoolantOperation, number> = {
+export const FLOW_REQUIREMENTS: Record<CoolantOperation, number> = {
   MILLING_GENERAL: 0.5,
   MILLING_HSM: 0.3,           // Less flow needed, air blast often OK
   DRILLING_SHALLOW: 0.8,
@@ -194,7 +194,7 @@ const FLOW_REQUIREMENTS: Record<CoolantOperation, number> = {
 /**
  * Pressure requirements by L/D ratio for drilling [bar]
  */
-const PRESSURE_BY_LD: Record<string, number> = {
+export const PRESSURE_BY_LD: Record<string, number> = {
   'LD<3': 10,
   'LD3-5': 20,
   'LD5-8': 40,
@@ -206,7 +206,7 @@ const PRESSURE_BY_LD: Record<string, number> = {
 /**
  * Material factor for coolant requirements
  */
-const MATERIAL_FACTORS: Record<string, number> = {
+export const MATERIAL_FACTORS: Record<string, number> = {
   ALUMINUM: 0.7,
   CAST_IRON: 0.6,      // Often machined dry
   STEEL: 1.0,
@@ -218,7 +218,7 @@ const MATERIAL_FACTORS: Record<string, number> = {
 /**
  * MQL oil consumption rates [mL/hr]
  */
-const MQL_CONSUMPTION: Record<CoolantOperation, { min: number; max: number }> = {
+export const MQL_CONSUMPTION: Record<CoolantOperation, { min: number; max: number }> = {
   MILLING_GENERAL: { min: 20, max: 50 },
   MILLING_HSM: { min: 10, max: 30 },
   DRILLING_SHALLOW: { min: 30, max: 80 },
@@ -234,7 +234,7 @@ const MQL_CONSUMPTION: Record<CoolantOperation, { min: number; max: number }> = 
 /**
  * Recommended coolant types by material
  */
-const RECOMMENDED_COOLANT: Record<string, CoolantType> = {
+export const RECOMMENDED_COOLANT: Record<string, CoolantType> = {
   ALUMINUM: 'SEMI_SYNTHETIC',
   CAST_IRON: 'WATER_SOLUBLE',
   STEEL: 'WATER_SOLUBLE',

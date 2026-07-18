@@ -149,10 +149,10 @@ export function ReceivingInspectionPage() {
     <WorkspaceRecoveryScaffold
       eyebrow="Inventory intake"
       title="Receiving Inspection"
-      description="The receiving lane is restored as an APPW intake desk with mounted receipt data, posting actions for receiving and inspection, and PRISM AI to explain urgency and risk."
+      description="The receiving lane is restored as an APPW intake desk with mounted receipt data, posting actions for receiving and inspection, and Kienzle AI to explain urgency and risk."
       surfaces={['inventoryOperations', 'commerce']}
       metrics={metrics}
-      aiSummary="PRISM AI can prioritize which receipts to inspect first, explain intake risk, and translate the receiving queue into immediate floor actions."
+      aiSummary="Kienzle AI can prioritize which receipts to inspect first, explain intake risk, and translate the receiving queue into immediate floor actions."
       aiContext={aiContext}
       suggestions={[
         {

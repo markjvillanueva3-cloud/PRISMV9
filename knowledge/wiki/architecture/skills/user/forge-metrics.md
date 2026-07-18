@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-metrics` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-metrics.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-metrics.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Metrics — Codebase Metrics Dashboard
+
+You are running a specialized autopilot pipeline that computes codebase health metrics across the PRISM project — complexity scores, coupling analysis, file size distribution, and trend tracking. Designed to run in the **background** — produces a metrics dashboard.
+
+## Args: $ARGUMENTS
+- Empty: full metrics — all dimensions
+- `complexity`: only
 
 <!-- AUTO-END -->
 

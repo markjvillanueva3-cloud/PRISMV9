@@ -1,0 +1,53 @@
+---
+name: reference-session-zulu-2026-06-18
+description: Session episodic trace for slot zulu on 2026-06-18 — commits + loop task captured at /compact (compaction→memo emitter, lever #3)
+aliases: reference_session_zulu_2026-06-18
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:47.184Z
+---
+
+
+# Session trace — slot zulu · 2026-06-18
+
+Auto-captured at /compact by precompact-memo-emit.mjs. One file per slot per day;
+each /compact appends a "compact N" section so the day's episodic work accretes
+instead of being shed. Ingested into the Obsidian vault by stop-obsidian-memory-feed.
+
+## compact 1 — 2026-06-18T00:58:46.418Z
+
+branch: `cad-fusion-live-ms0`
+
+- `164d9baf71` [MAIN-FORCE] [ZULU-ACCOUNT-CYCLE]/U-5H-LIMIT-TRACKER-HARDEN (slot:zulu): 3-of-3 arm-C P2s -- 0-events marker-drift warn (R12) + sidecar schemaVersion gate in a…
+- `2ebc822cfc` [MAIN-FORCE] [ZULU-ACCOUNT-CYCLE]/U-5H-LIMIT-TRACKER (slot:zulu): mine 429 session-limit events -> OBSERVED 5h ceiling (replaces guessed 88M) + arm --auto
+- `2a3b2c4cfb` [MAIN-FORCE] [FLEET-DOMAIN-FALLBACK]/U-ANY-DOMAIN-9SLOTS-LIVE (slot:zulu): close dormancy gap -- hook resolves canonical H:/prism so the any-domain notice fire…
+- `cb5b39ac5b` [MAIN-FORCE] [FLEET-DOMAIN-FALLBACK]/U-ANY-DOMAIN-9SLOTS (slot:zulu): sanction 9 slots to work ANY domain when own queue dry + auto-surface fleet-wide
+- `2d9bc02b26` [MAIN-FORCE] [BUILD-DOCTRINE]/U-R16-CLAUDEMD-SIBLING (slot:zulu): add R16 to the project CLAUDE.md too (closes scrutiny arm-B P2 -- C: had it, H:/prism/.claude…
+- `c6695dc6f9` [MAIN-FORCE] [HERMES-CONTROL]/U-BRIDGE-SPEC (slot:zulu): persist control-bridge enumeration (Explore-mapped FastAPI dashboard ~40 routes, headless :9119 launch…
+- `6c65a63330` [MAIN-FORCE] [BUILD-DOCTRINE]/U-R16-LOOP-UNTIL-GAPS (slot:zulu): never one-shot -- loop until gaps closed + fit-the-whole, auto-enforced fleet-wide
+
+## compact 2 — 2026-06-18T13:32:53.998Z
+
+branch: `cad-fusion-live-ms0`
+
+- `f0ef93c490` [MAIN-FORCE] [ZULU-ACCOUNT-CYCLE]/U-FLEET-SURVIVAL-ETA (slot:zulu): surface time-to-limit in the survival cockpit
+- `d6ac46fb66` [MAIN-FORCE] [ZULU-ACCOUNT-CYCLE]/U-FLEET-SURVIVAL (slot:zulu): orchestrator GO/NO-GO -- will the fleet survive the next 5h limit?
+- `4d81edc95a` [MAIN-FORCE] [ZULU-ACCOUNT-CYCLE]/U-ACCT-PREFLIGHT-CLI-TEST (slot:zulu): regression-lock the arm wiring seam (arm B 3-of-3 P2)
+- `70b6e89140` [MAIN-FORCE] [ZULU-ACCOUNT-CYCLE]/U-ACCT-PREFLIGHT-GATE (slot:zulu): read-only GO/NO-GO preflight + RED-gate on arm --auto
+
+## compact 3 — 2026-06-18T18:56:25.220Z
+
+branch: `cad-fusion-live-ms0`
+
+- `8e4983aa14` [MAIN-FORCE] [HERMES-UTIL]/U-LOCAL-MODEL-AUDIT (slot:zulu): live model-utilization audit (ollama 17 models + hermes/grok). VERDICT: routing IS largely optimal …
+- `cf37e27444` [MAIN-FORCE] [HERMES-UTIL]/U-OCT-PROBE-GROK-CLI (slot:zulu): octopus probe banner under-reported Grok -- credited it ONLY on XAI_API_KEY, but MultiModelConsens…
+- `3325b35125` [MAIN-FORCE] [FLEET-COORD]/U-DELEGATION-FOLLOWUP (slot:zulu): route the combined remote-utilization-headline finding to alpha/sierra -- verified the dashboard …
+- `a04efc7695` [MAIN-FORCE] [HERMES-UTIL]/U-OFFLOAD-SOURCE-SPLIT (slot:zulu): make hermes/ollama utilization VISIBLE in the offload dashboard. The per-hook table showed only …
+- `fe1028f72d` [MAIN-FORCE] [HERMES-UTIL]/U-HERMES-MODEL-FALLBACK (slot:zulu): improve hermes offload utilization -- when the proxy serves chat but /v1/models lists nothing (…
+- `a605f26a1c` [MAIN-FORCE] [BACKEND-COMPLETION]/U-SEMANTIC-INDEX-EXEMPT (slot:zulu): resolve the SemanticAssetIndexEngine 'possible-real-gap' via the FULL stack -- obsidian …
+- `947f239ccf` [MAIN-FORCE] [BACKEND-COMPLETION]/U-WIRE-EXEMPT-TAGS (slot:zulu): tag 3 category-unambiguous engines WIRE-EXEMPT -- 2 integration-test harnesses (Creo/Masterca…
+- `39fa4a58f9` [MAIN-FORCE] [BACKEND-COMPLETION]/U-REACTIVE-CHAINS-BOOT (slot:zulu): build the MISSING boot site for the EventBus reactive-chain subsystem. reactiveChainBoots…
+- `f400e0457f` [MAIN-FORCE] [BACKEND-COMPLETION]/U-BACKEND-TRIAGE (slot:zulu): triage the 'complete all backend' /goal -- enumerate (3787 built / 3890 needs-building / 14 'un…
+- `228029dba2` [MAIN-FORCE] [HERMES-ASSESSMENT]/U-SCOTTYBEAM-CURATOR-CORRECTION (slot:zulu): R12 -- CC-skill curator is NOT a gap; skill-utilization-scan + skill-refinement-d…
+- `04664dae1a` [MAIN-FORCE] [HERMES-ASSESSMENT]/U-SCOTTYBEAM-ARTICLE-DELTA (slot:zulu): fold the ScottyBeamIO 'FULL GUIDE' (Jun-16) as the 4th article -- subordinate DELTA to…
+- `b9d4f5604e` [MAIN-FORCE] [ZULU-ACCOUNT-CYCLE]/U-FLEET-SURVIVAL-ADVISORY (slot:zulu): proactive advisory surfaces the survival GO/NO-GO only when actionable (will-block AND…

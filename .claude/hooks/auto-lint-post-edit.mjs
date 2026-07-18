@@ -71,7 +71,7 @@ if (!INLINE) {
 // INLINE mode (opt-in) — bounded synchronous run, emit diagnostics.
 import("node:child_process").then(({ execFileSync }) => {
   try {
-    const result = execFileSync(runCmd, runArgs, {
+    const result = execFileSync(runCmd, runArgs, { windowsHide: true,
       cwd: mcpRoot, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"],
       timeout: 3000, shell: !useDirect,
     });

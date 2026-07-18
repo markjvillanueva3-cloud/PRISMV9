@@ -1,0 +1,32 @@
+{
+  "id": "LATHE-AI",
+  "title": "Lathe AI — Turning Operations, Insert Selection & Okuma Lathe Intelligence",
+  "track": "CAM",
+  "status": "complete",
+  "completed_at": "2026-04-15",
+  "total_units": 1,
+  "completed_units": 1,
+  "units": [
+    {
+      "id": "LATHE-AI-U1",
+      "title": "16 Lathe AI domains with Claude Opus prompts",
+      "status": "complete",
+      "files_modified": ["src/engines/PRISMIntelligenceLayer.ts"],
+      "details": "Added 16 LATHE-AI domains: lathe_roughing (high-DOC turning, negative rake inserts, roughing feed/speed selection), lathe_finishing (light DOC, positive rake, nose radius effect on Ra), lathe_grooving (groove width/depth, chip breaking, groove insert selection), lathe_threading (single-point threading, infeed methods, thread chasing G76/G92/G32), lathe_boring (internal turning, boring bar deflection, L/D ratio limits), lathe_parting (cutoff speed reduction, chip control, deep grooving strategies), lathe_facing (facing from OD to center, CSS G96, face finish optimization), lathe_taper (taper turning with G71/G70/compound slide, angle calculation), lathe_contour (profile turning with G71 stock removal, finishing pass G70), lathe_profiling (complex contour following, cutter compensation G41/G42), lathe_chip_control (chipbreaker selection, programmable chip breaks, coolant direction), lathe_insert_selection (ISO turning insert CNMG/TNMG/DNMG/VNMG grades, grade by material group), lathe_tool_nose_radius (nose radius effect on feed rate, surface finish Ra calculation), lathe_constant_sfm (G96 CSS vs G97 RPM, max RPM clamp, spindle acceleration), lathe_bar_work (bar feeder coordination, stub bar detection, part-off sequencing), lathe_chuck_work (chuck jaw selection, clamping pressure, soft jaw boring)"
+    }
+  ],
+  "exit_gate": {
+    "tests_passing": 28,
+    "new_domains_registered": 16,
+    "domain_prompts_created": 16,
+    "tribal_synthesis_enabled": true,
+    "okuma_programs_leveraged": true
+  },
+  "resources_utilized": {
+    "jm_die_programs": "H:/PRISM/JM DIE/CNC LATHE — 5,297 Okuma .MIN lathe programs (7 Okuma lathes)",
+    "insert_catalogs": ["Sandvik Coromant Turning Guide", "Kennametal Turning Insert Catalog", "Iscar IQ Grooving & Threading", "Mitsubishi Materials Turning Grades"],
+    "controllers": ["Okuma OSP-P300L", "Okuma OSP-P200L", "Okuma OSP-U100L"],
+    "references": ["Machinery's Handbook — turning calculations", "Okuma Programming Manual — G71/G76/G96 cycles"]
+  },
+  "summary": "Complete lathe AI intelligence with 16 domains covering roughing (high-DOC negative rake), finishing (light DOC positive rake, Ra from nose radius), grooving (groove geometry, chipbreaker selection), threading (G76/G92/G32 infeed methods), boring (L/D limits, bar deflection), parting (chip control, speed reduction), facing (CSS G96, center finish), taper turning, contour with G71/G70 cycles, profile with cutter compensation, chip control, ISO insert selection (CNMG/TNMG/DNMG/VNMG), tool nose radius effects, constant surface feet G96, bar work, and chuck work. Deep expertise from 5,297 Okuma .MIN programs in JM DIE archive and turning insert catalogs from Sandvik, Kennametal, Iscar, and Mitsubishi."
+}

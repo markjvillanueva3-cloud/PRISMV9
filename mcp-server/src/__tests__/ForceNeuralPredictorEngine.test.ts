@@ -270,12 +270,55 @@ describe("ForceNeuralPredictorEngine (MILL-AGI P0.3)", () => {
       expect(result.neural_correction).toBeLessThan(2);
     });
 
-    it("worn tool affects prediction", () => {
+    it("with the untrained neural gated off, wear-state does NOT fake-differentiate the force (R12 honest limitation)", () => {
+      // BEFORE the row-1 gate, worn vs fresh differed ONLY because the UNTRAINED (random) neural consumed
+      // the state features -- a fake, non-physical difference (computeKienzleForces ignores wear-state).
+      // With the neural gated, both return the SAME physics-base force. Real wear->force coupling needs a
+      // trained checkpoint or an explicit physics wear term (queued, not faked).
       const fresh = engine.predict(steelInput);
       const worn = engine.predict(wornToolInput);
+      expect(worn.forces.resultant_n).toBe(fresh.forces.resultant_n);
+      expect(fresh.neural_correction).toBe(0);
+      expect(worn.neural_correction).toBe(0);
+    });
+  });
 
-      // Results should differ due to state features
-      expect(fresh.forces.resultant_n).not.toBe(worn.forces.resultant_n);
+  // ============================================================================
+  // UNTRAINED-NEURAL GATE (row 1) + CANONICAL kc (row 12)
+  // ============================================================================
+
+  describe("untrained-neural gate (row 1: no random force corruption)", () => {
+    it("predict() is DETERMINISTIC (untrained neural gated -> zero Math.random in the force)", () => {
+      // Before the gate, the untrained-neural correction randomized the force +/-30% on every call.
+      const a = engine.predict(steelInput);
+      const b = engine.predict(steelInput);
+      const c = engine.predict(steelInput);
+      expect(b.forces.resultant_n).toBe(a.forces.resultant_n);
+      expect(c.forces.resultant_n).toBe(a.forces.resultant_n);
+    });
+
+    it("neural_correction is exactly 0 while untrained; force == the pure Kienzle physics base", () => {
+      const r = engine.predict(steelInput);
+      expect(r.neural_correction).toBe(0);
+      // Fc_corrected = kienzle_base.Fc_n * (1 + 0*0.3) = kienzle_base.Fc_n -> the physics base drives the
+      // resultant. Recompute the XYZ resultant from the ungated base and confirm they match.
+      const base = engine.computeKienzleForces(steelInput);
+      const xyz = engine.decomposeForcesToXYZ(base.Fc_n, base.Ff_n, base.Fp_n, steelInput.tool.helix_angle_deg);
+      expect(r.forces.resultant_n).toBeCloseTo(xyz.resultant_n, 6);
+    });
+
+    it("kienzle base uses canonical M kc1_1=2100 (row 12: was drifted 2200)", () => {
+      const mInput: ForceInputFeatures = {
+        material: { iso_group: "M" },
+        tool: { diameter_mm: 12, flute_count: 4, helix_angle_deg: 35, rake_angle_deg: 8 },
+        conditions: { cutting_speed_mpm: 150, feed_per_tooth_mm: 0.1, axial_depth_mm: 2, radial_depth_mm: 6 },
+      };
+      // canonical M {kc1_1:2100, mc:0.25}: kc=2100*0.1^-0.25=3734, Fc=kc*(0.1*2)=746.9,
+      // avgFc = Fc*(acos(1-2*6/12)/pi) = 746.9*(acos(0)/pi) = 746.9*0.5 = 373.4 N.
+      // (old drifted M {2200,0.28} would give ~419 N -> this bracket EXCLUDES it.)
+      const f = engine.computeKienzleForces(mInput);
+      expect(f.Fc_n).toBeGreaterThan(370);
+      expect(f.Fc_n).toBeLessThan(377);
     });
   });
 

@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS13-P0-U03",
+  "title": "Error Handling Patterns Consistency Review",
+  "audited_at": "2026-04-13T22:15:00Z",
+  "auditor": "claude-opus-4.5",
+  "scope": "Error handling patterns, silent failures, error propagation across engines and dispatchers",
+  "pattern_inventory": {
+    "try_catch_blocks": 1928,
+    "dot_catch_handlers": 41,
+    "throw_statements": 1127,
+    "dispatcher_error_calls": 259,
+    "log_error_calls": 31
+  },
+  "dispatchers_error_handling": {
+    "standard_pattern": "dispatcherError(error, action, dispatcher)",
+    "adoption_count": 259,
+    "adoption_rate_pct": 100,
+    "return_format": {
+      "type": "MCP-compliant error response",
+      "structure": "{ content: [{ type: 'text', text: JSON.stringify(error) }], isError: true }"
+    },
+    "consistency": "EXCELLENT"
+  },
+  "engines_error_handling": {
+    "engines_with_try_catch": 462,
+    "engines_with_throw": 259,
+    "engines_with_log_error": 31,
+    "engines_with_return_error": 99,
+    "total_engine_files": 1560,
+    "try_catch_coverage_pct": 29.6,
+    "patterns_used": [
+      "try/catch with throw",
+      "return { success: false, error: ... }",
+      "log.error + continue",
+      "validation with early return"
+    ],
+    "consistency": "MODERATE - multiple patterns in use"
+  },
+  "silent_failure_analysis": {
+    "empty_catch_count": 16,
+    "silent_catch_locations": [
+      "BatchProcessor.ts:35 - hook execution (intentional fire-and-forget)",
+      "EDMProgramAssemblerEngine.ts:1451,1638,1775 - optional post-processing",
+      "FusionCloudConnectorEngine.ts:84 - API fallback",
+      "GrindingProgramAssemblerEngine.ts:1411 - optional logging",
+      "KnowledgeQueryEngine.ts:349-352 - registry preload (non-blocking)"
+    ],
+    "assessment": "LOW RISK - most are intentional fire-and-forget patterns",
+    "recommendations": [
+      "Add comment explaining why catch is empty",
+      "Consider using void operator: void promise.catch(() => {})"
+    ]
+  },
+  "error_propagation_patterns": {
+    "re_throw_after_catch": 2,
+    "return_error_object": 2,
+    "dispatcher_error_return": 259,
+    "swallowed_errors": 16,
+    "propagation_rate_pct": 93.9,
+    "assessment": "GOOD - most errors propagate to caller"
+  },
+  "inconsistencies_identified": [
+    {
+      "issue": "Multiple error return patterns",
+      "description": "Some engines return { error: ... }, others return { success: false, error: ... }, others throw",
+      "severity": "LOW",
+      "recommendation": "Document expected pattern per engine category"
+    },
+    {
+      "issue": "Low log.error adoption in engines",
+      "description": "Only 31 of 1560 engines use log.error (2%)",
+      "severity": "MEDIUM",
+      "recommendation": "Add log.error calls in catch blocks for observability"
+    },
+    {
+      "issue": "Fire-and-forget without documentation",
+      "description": "16 empty catches lack comments explaining intent",
+      "severity": "LOW",
+      "recommendation": "Add /* intentional: fire-and-forget */ comments"
+    }
+  ],
+  "error_handling_by_category": {
+    "safety_critical": {
+      "pattern": "throw on validation failure, return detailed error",
+      "log_level": "error",
+      "examples": [
+        "SafetyScoreEngine",
+        "ValidationEngine",
+        "KienzleForceModel"
+      ],
+      "compliance": "HIGH"
+    },
+    "calculation": {
+      "pattern": "Return { result, confidence, warnings } with edge case handling",
+      "log_level": "warn for unusual inputs",
+      "examples": [
+        "SpeedFeedOrchestrator",
+        "ThermalEngine"
+      ],
+      "compliance": "GOOD"
+    },
+    "orchestration": {
+      "pattern": "dispatcherError() wrapper, log.warn for non-critical",
+      "log_level": "warn/error based on severity",
+      "examples": [
+        "SwarmExecutor",
+        "AgentExecutor"
+      ],
+      "compliance": "GOOD"
+    },
+    "data_access": {
+      "pattern": "Return null/empty on not found, throw on corruption",
+      "log_level": "info for not found, error for corruption",
+      "examples": [
+        "RegistryManager",
+        "StateManager"
+      ],
+      "compliance": "MODERATE"
+    }
+  },
+  "findings": {
+    "strengths": [
+      "dispatcherError() provides consistent MCP-compliant error format (100% adoption)",
+      "1127 throw statements indicate explicit error signaling",
+      "93.9% error propagation rate - errors reach callers",
+      "Low silent failure count (16 of 1969 catch blocks = 0.8%)"
+    ],
+    "concerns": [
+      "Multiple error return formats in engines (not standardized)",
+      "Low log.error adoption (2%) reduces observability",
+      "Empty catches lack documentation of intent"
+    ],
+    "recommendations": [
+      "Create EngineError base class for consistent engine errors",
+      "Add telemetry for error tracking in production",
+      "Document expected error handling pattern in CLAUDE.md",
+      "Add linting rule to flag undocumented empty catches"
+    ]
+  },
+  "verification_status": {
+    "error_patterns_cataloged": true,
+    "inconsistencies_identified": true,
+    "silent_failures_identified": true,
+    "error_propagation_verified": true,
+    "unit_complete": true
+  }
+}

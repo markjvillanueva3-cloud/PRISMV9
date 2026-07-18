@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-23T18:03:08.332Z",
+  "mode": "direct-embed",
+  "checkpoint": null,
+  "seeds": [
+    1337,
+    7,
+    42,
+    99,
+    2026
+  ],
+  "gates": {
+    "auroc": 0.78,
+    "macroF1": 0.55,
+    "brier": 0.15
+  },
+  "summary": {
+    "auroc": {
+      "n": 5,
+      "mean": 0.8174,
+      "min": 0.7521,
+      "max": 0.847,
+      "range": 0.0949,
+      "stdev": 0.0344
+    },
+    "macroF1": {
+      "n": 5,
+      "mean": 0.3615,
+      "min": 0.2793,
+      "max": 0.4666,
+      "range": 0.1873,
+      "stdev": 0.072
+    },
+    "brier": {
+      "n": 5,
+      "mean": 0.1886,
+      "min": 0.1795,
+      "max": 0.2087,
+      "range": 0.0292,
+      "stdev": 0.011
+    },
+    "holdoutN": {
+      "n": 5,
+      "mean": 84,
+      "min": 84,
+      "max": 84,
+      "range": 0,
+      "stdev": 0
+    }
+  },
+  "passRates": {
+    "n": 5,
+    "fullPass": 0,
+    "fullRate": 0,
+    "selectivePass": 4,
+    "selectiveRate": 0.8
+  },
+  "stability": {
+    "stable": false,
+    "verdict": "unstable",
+    "reason": "selective-gate verdict flips across seeds (4/5 pass)"
+  },
+  "runs": [
+    {
+      "seed": 1337,
+      "deferred": false,
+      "holdoutN": 84,
+      "poolSize": null,
+      "auroc": 0.828,
+      "macroF1": 0.4191,
+      "brier": 0.1814,
+      "accuracy": 0.5833,
+      "gatePass": false,
+      "selectivePass": true,
+      "selectiveVerdict": "deploy-ready-selective"
+    },
+    {
+      "seed": 7,
+      "deferred": false,
+      "holdoutN": 84,
+      "poolSize": null,
+      "auroc": 0.847,
+      "macroF1": 0.4666,
+      "brier": 0.1922,
+      "accuracy": 0.6548,
+      "gatePass": false,
+      "selectivePass": true,
+      "selectiveVerdict": "deploy-ready-selective"
+    },
+    {
+      "seed": 42,
+      "deferred": false,
+      "holdoutN": 84,
+      "poolSize": null,
+      "auroc": 0.7521,
+      "macroF1": 0.3492,
+      "brier": 0.2087,
+      "accuracy": 0.619,
+      "gatePass": false,
+      "selectivePass": false,
+      "selectiveVerdict": "no-deployable-operating-point"
+    },
+    {
+      "seed": 99,
+      "deferred": false,
+      "holdoutN": 84,
+      "poolSize": null,
+      "auroc": 0.8429,
+      "macroF1": 0.2793,
+      "brier": 0.1795,
+      "accuracy": 0.5714,
+      "gatePass": false,
+      "selectivePass": true,
+      "selectiveVerdict": "deploy-ready-selective"
+    },
+    {
+      "seed": 2026,
+      "deferred": false,
+      "holdoutN": 84,
+      "poolSize": null,
+      "auroc": 0.8171,
+      "macroF1": 0.2931,
+      "brier": 0.181,
+      "accuracy": 0.5357,
+      "gatePass": false,
+      "selectivePass": true,
+      "selectiveVerdict": "deploy-ready-selective"
+    }
+  ]
+}

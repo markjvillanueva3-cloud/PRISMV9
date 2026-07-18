@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `sessions` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/sessions.md` |
+| Source | `C:/Users/wompu/.claude/commands/sessions.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Alias for `/who`. Shows all active Claude/Codex sessions and what they're working on.
+
+# /sessions — View Active Sessions (U-COORD07)
 
 <!-- AUTO-END -->
 

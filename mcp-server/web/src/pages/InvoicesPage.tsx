@@ -291,11 +291,14 @@ export function InvoicesPage() {
       <section className="overflow-hidden rounded-[32px] border border-violet-300/12 bg-[linear-gradient(135deg,rgba(8,15,23,0.98)_0%,rgba(5,10,16,0.98)_48%,rgba(31,18,47,0.95)_100%)] p-6 shadow-[0_40px_120px_rgba(0,0,0,0.35)]">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.85fr)]">
           <div className="space-y-5">
-            <span className="inline-flex rounded-full border border-violet-300/16 bg-violet-300/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-violet-100">
+            {/* KIENZLE-MERGE U-KZ-INVOICES: hero brand chrome -> accent token + display
+                font. The violet was a brand surface, not a status indicator; status
+                violet on invoice rows below is preserved. */}
+            <span className="inline-flex rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">
               Commercial finance
             </span>
             <div className="space-y-3">
-              <h1 className="text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">Invoices</h1>
+              <h1 className="text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl [font-family:var(--font-display)]">Invoices</h1>
               <p className="max-w-3xl text-base leading-7 text-slate-300">
                 Create invoices from completed jobs, track cash collection posture, and keep outstanding exposure visible in one cleaner billing desk.
               </p>

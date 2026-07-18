@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-svi-projection.mjs — Phase 0.14 SVI Impact ProjectionPreToolWrite hook that projects SVI impact before file changes.Warns if a change would significantly affect system variability.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

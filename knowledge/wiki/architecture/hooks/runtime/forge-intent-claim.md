@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-forge-intent-claim.mjs — Phase 1 Tier 5D
-PreTool hook that requires ForgeIntentClaim before creating
-new engines, hooks, skills, or scripts.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

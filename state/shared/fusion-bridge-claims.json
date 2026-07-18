@@ -1,0 +1,35 @@
+{
+  "schema": "1.0.0",
+  "updated": "2026-06-01T16:02:43.497Z",
+  "bridges": {
+    "18361": {
+      "owner": "kilo?",
+      "role": "cam",
+      "note": "kilo CAM default — delta will NOT drive this"
+    },
+    "18362": {
+      "owner": "unclaimed",
+      "role": "cad-default",
+      "note": "original shared CAD port — delta uses 18365 instead to stay off kilo's process"
+    },
+    "18365": {
+      "owner": "delta",
+      "role": "cad",
+      "session": "f27ecf49",
+      "claimedAt": "2026-06-01T16:02:43.497Z",
+      "document": "DIE CASE 2.940 X 3.75 .992 ID",
+      "note": "delta exclusive coordination claim; same underlying instance as 61/62 until operator re-separates",
+      "claim": "exclusive-for-loop-verification",
+      "sharedInstanceWith": [
+        "18361",
+        "18362"
+      ]
+    }
+  },
+  "isolationStatus": {
+    "isolated": false,
+    "verifiedAt": "2026-06-01T16:02:43.497Z",
+    "method": "doc-count differential (+2 on all three ports for 1 create on 18365)",
+    "note": "effectively ONE instance on 18361/18362/18365 holding DIE CASE; regressed since 13:23 proven-isolated run; operator relaunch needed for true separation"
+  }
+}

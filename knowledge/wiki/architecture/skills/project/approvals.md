@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /approvals — Approval Workflow Management
+Query and manage approval workflows for PRISM entities (quotes, POs, invoices, payroll, NCRs, jobs, change orders, credit memos).
 
 <!-- AUTO-END -->
 

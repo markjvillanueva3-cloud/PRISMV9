@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: internal ML component composed by LatheSelfAwarenessIntegrationEngine and LatheUnifiedAIOrchestrator (both wired). No direct dispatcher action — exposed through those orchestrators.
 /**
  * LatheTransformerEngine — LATHE-TRANSFORMER-MS0
  * ================================================
@@ -2209,8 +2210,15 @@ export class LatheTransformerEngine {
     for (let i = 0; i < program.length; i++) {
       const line = program[i].toUpperCase().trim();
 
+      // Word-boundary M-code match so "M30" (program end + rewind) never substring-
+      // matches "M3" (spindle CW), and "M13"/"M43" never match M3/M4. Bare
+      // line.includes("M3") false-positived missing_spindle_speed on every properly
+      // M30-terminated program (U-whiskey-M30FalsePositive fix). \bM0*3\b covers M3/M03.
+      const isSpindleCW = /\bM0*3\b/.test(line);   // M3 / M03 spindle start CW
+      const isSpindleCCW = /\bM0*4\b/.test(line);  // M4 / M04 spindle start CCW
+
       // Check for spindle commands
-      if (line.includes("M3") || line.includes("M03") || line.includes("M4") || line.includes("M04")) {
+      if (isSpindleCW || isSpindleCCW) {
         hasSpindleStart = true;
       }
       if (line.includes("M5") || line.includes("M05")) {
@@ -2221,7 +2229,7 @@ export class LatheTransformerEngine {
       }
 
       // Check for missing spindle speed with M3/M4
-      if ((line.includes("M3") || line.includes("M4")) && !line.includes("S")) {
+      if ((isSpindleCW || isSpindleCCW) && !line.includes("S")) {
         errors.push({
           line_number: i + 1,
           line_content: line,
@@ -2338,7 +2346,7 @@ export class LatheTransformerEngine {
         line_number: issue.line_range?.[0] || 0,
         line_content: "",
         error_type: issue.category,
-        severity: issue.severity,
+        severity: (issue.severity === "suggestion" ? "info" : issue.severity) as "critical" | "warning" | "info",
         description: issue.description,
         suggestion: issue.recommendation,
         confidence: 0.7,
@@ -2441,7 +2449,7 @@ export class LatheTransformerEngine {
       importance: number;
       context: string[];
     }>;
-    model_stats: ReturnType<typeof this.getModelStats>;
+    model_stats: ReturnType<LatheTransformerEngine["getModelStats"]>;
   } {
     const inputIds = this.tokenizeProgram(program);
     const encoderOutput = this.encodeSequence(inputIds);

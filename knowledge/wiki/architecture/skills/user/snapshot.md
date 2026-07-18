@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `snapshot` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/snapshot.md` |
+| Source | `C:/Users/wompu/.claude/commands/snapshot.md` |
 | Model | default |
 | Tags | _(none)_ |
 

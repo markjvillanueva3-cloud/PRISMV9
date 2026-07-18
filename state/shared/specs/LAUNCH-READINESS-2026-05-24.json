@@ -1,0 +1,323 @@
+{
+  "schemaVersion": "1.0.0",
+  "auditName": "PRISM-LAUNCH-READINESS",
+  "auditDate": "2026-05-24",
+  "auditor": "claude-333c36e8 (slot:india) /forge-audit-v2 + manual mining",
+  "scope": "Per-domain (mill/lathe/wedm/cam/post-processor) launch-readiness scorecard. Mining 6mo of user-directive provenance (chat-bus, handoffs, commits, envelopes, MISC-INVENTORY, ROADMAP-CONSOLIDATED, Obsidian feedback+decisions). Determining how close PRISM is to revenue per functional surface.",
+  "verificationChannel": {
+    "primary": "node H:/prism/scripts/system-viz-query.mjs headline (engines/wired/dispatchers/tests/drift)",
+    "secondary": "node H:/prism/scripts/build-state-snapshot.mjs (BUILD_STATE.json regen)",
+    "tertiary": "node H:/prism/scripts/system-viz-query.mjs coverage-by-domain (per-domain engine wiring)"
+  },
+  "phase0_preflight": {
+    "session": "claude-333c36e8",
+    "inventoryRegen": "completed (was 7d stale)",
+    "buildState": "fresh (2026-05-24T17:26:57Z)",
+    "graphMtime": "2026-05-17T20:38:23Z (1 wk stale — accepted, regen too expensive this session)",
+    "syssynergyMap": "skipped (large output, deferred to follow-on /loop)"
+  },
+  "corpusInventory": {
+    "engines_total": 3273,
+    "engines_built_wired": 2543,
+    "engines_unwired": 729,
+    "wire_rate_pct": 78,
+    "dispatchers": 97,
+    "actions": 8168,
+    "tests": 3836,
+    "tests_per_engine_ratio": 1.17,
+    "formulas": 499,
+    "wiki_entries": 23981,
+    "wiki_architecture_files": 33667,
+    "wiki_lessons_files": 147,
+    "memories_total": 9635,
+    "specs_total": 301,
+    "handoffs_total": 2419,
+    "agent_chat_lines": 493,
+    "agent_chat_window_days": 3.5,
+    "agent_chat_window_note": "AGENT_CHAT.jsonl rolls fast (3-4 days). 6mo provenance lives in handoffs/commits/memories, not chat-bus.",
+    "milestones_consolidated": 882,
+    "pending_units_consolidated": 2876,
+    "unconsolidated_prose_units": 969,
+    "envelope_drift_cases": 175,
+    "frontends_pending_merge": 2,
+    "worktrees_active": 51,
+    "graph_nodes": 282549,
+    "graph_edges": 981050,
+    "graph_layers": 11,
+    "domains_coverage": {
+      "lathe": 188,
+      "milling_plus_mill": 58,
+      "wire_edm": 20,
+      "hyper": 68,
+      "tool": 57,
+      "post_processor": 56,
+      "fusion": 36,
+      "mastercam": 28,
+      "turning": 25,
+      "cam_total_approx": 320
+    }
+  },
+  "perDomainReadiness": {
+    "lathe": {
+      "engineDepth": 188,
+      "rating": "MATURE",
+      "verificationChannel": "node scripts/system-viz-query.mjs coverage-by-domain | findstr lathe",
+      "shippedRecently": [
+        "JM-DIE-LATHE-UPGRADE-MS0 lathe audit pipeline (24 rules)",
+        "LatheProgramAuditPipelineEngine (31/31 tests)",
+        "LathePostProcessorEngine + dispatcher action"
+      ],
+      "knownGaps": [
+        "Cross-machine envelope mismatch surfaced by audit (96% FAIL on 200-var sample) — V1/V2 upgrader does NOT body-rescale toolpaths per machine envelope",
+        "No body-rescale upgrader (P0 lathe-revenue blocker)",
+        "Master-post lathe validation needs prove-out corpus"
+      ],
+      "revenueDistance": "P0 — 1 milestone (BODY-RESCALE-MS0) blocks lathe-revenue today",
+      "scenarios_needed": 1500,
+      "scenarios_coverage_axes": ["geometry × material × controller × tolerance × machine × feature-mix × dialect (Fanuc/Okuma/Haas/Mazak)"]
+    },
+    "mill": {
+      "engineDepth": 58,
+      "rating": "PARTIAL",
+      "verificationChannel": "node scripts/system-viz-query.mjs coverage-by-domain | findstr mill",
+      "shippedRecently": [
+        "AdaptiveMillingChipLoadMonitorEngine (16/16 tests, real-time chip-load drift)",
+        "MidCutDecisionOrchestrator (AE-based)",
+        "/mill-studio + /mill skills",
+        "Mill domain pipeline (DOMAIN-PIPELINE-MS0)"
+      ],
+      "knownGaps": [
+        "Engine depth 3x below lathe — needs ~120 more engines to reach parity",
+        "5-axis ops sparse (only 12 in 'five' domain)",
+        "Surface finish prediction engines incomplete (13 in 'surface')",
+        "Mastercam post-processor coverage thin (28 engines)",
+        "hyperMILL coverage decent (68 engines) but not battle-tested on JM-Die corpus"
+      ],
+      "revenueDistance": "P1 — 2-3 milestones (MILL-DEPTH-MS0, FIVE-AXIS-MS0, SURFACE-FINISH-MS0) before mill-revenue parity",
+      "scenarios_needed": 2500,
+      "scenarios_coverage_axes": ["geometry × material × controller × tolerance × machine × feature-mix × strategy (rough/finish/HSM/trochoidal) × spindle (3-ax/4-ax/5-ax)"]
+    },
+    "wedm": {
+      "engineDepth": 20,
+      "rating": "EARLY",
+      "verificationChannel": "node scripts/system-viz-query.mjs coverage-by-domain | findstr wire",
+      "shippedRecently": [
+        "/wire-edm-studio + /wedm skills",
+        "WEDM AGI status — SVI Psi 0.875",
+        "62 WEDM engines per WEDM_DIGEST.json (counts disagree with graph coverage — possible classification drift)",
+        "5 controller dialects supported",
+        "MIT 2.830 course extraction"
+      ],
+      "knownGaps": [
+        "Graph reports only 20 'wire' domain engines vs WEDM_DIGEST.json claims 62 — domain-classification drift",
+        "PCD electrode handling sparse",
+        "JM-Die-specific WEDM workflow coverage unmeasured",
+        "Threading/4-axis WEDM ops incomplete"
+      ],
+      "revenueDistance": "P1-P2 — 3-4 milestones (WEDM-DOMAIN-CLASSIFY-FIX, WEDM-PCD-MS0, WEDM-4AX-MS0, WEDM-VALIDATION-CORPUS) before wedm-revenue parity",
+      "scenarios_needed": 1000,
+      "scenarios_coverage_axes": ["geometry × wire-diameter × material × controller × taper × multi-pass × dielectric × thickness"]
+    },
+    "cam": {
+      "engineDepth": "~320 cumulative (hyper 68 + tool 57 + fusion 36 + mastercam 28 + turning 25 + others)",
+      "rating": "STRONG_BUT_FRAGMENTED",
+      "knownGaps": [
+        "Vendor-specific posts (Mastercam/hyperMILL/Fusion/NX/PowerMill) not unified under a single CAM facade",
+        "Post-processor validation thin across all vendors",
+        "Bridge from CAD-feature-recognition to CAM-strategy-select needs deep-integration unit (16 bridges identified in ROADMAP-CONSOLIDATED)"
+      ],
+      "revenueDistance": "P1 — CAM-FACADE-MS0 (unification) + per-vendor validation milestones",
+      "scenarios_needed": 2000
+    },
+    "post_processor": {
+      "engineDepth": 56,
+      "rating": "PARTIAL",
+      "knownGaps": [
+        "Master-post engine exists but cross-controller validation (Fanuc → Okuma → Heidenhain) needs corpus",
+        "Dialect cross-mapping is structural-not-textual (per slot soul §3) — needs explicit map per cycle"
+      ],
+      "revenueDistance": "P0 — POST-PROCESSOR-VALIDATION-CORPUS-MS0 is THE revenue gate for shop-floor G-code emission",
+      "scenarios_needed": 800
+    }
+  },
+  "revenueBlockerRank": [
+    {
+      "rank": 1,
+      "severity": "P0",
+      "blocker": "Frontend merge gap",
+      "evidence": "BUILD_STATE: 2 frontends pending merge (cqask/ui Next.js 13 + mcp-cadquery/frontend Vite/React 19). Without operator-facing UI, no revenue regardless of backend depth.",
+      "verificationChannel": "node scripts/build-state-snapshot.mjs && cat state/shared/BUILD_STATE.md | grep 'Frontend merges'",
+      "fix": "Resolve cqask-orion-cad merge conflict + bind mcp-cadquery-frontend to a domain (suggested: CAD-import → CAM-strategy bridge UI)"
+    },
+    {
+      "rank": 2,
+      "severity": "P0",
+      "blocker": "Lathe body-rescale upgrader",
+      "evidence": "JM-DIE-LATHE-UPGRADE-MS0 audit found 96% FAIL on 200-variant sample — V1/V2 upgrader does NOT body-rescale toolpaths per machine envelope (cross-machine envelope mismatch).",
+      "verificationChannel": "node scripts/audit-jm-die-lathe-corpus.mjs (recent shipment)",
+      "fix": "Build BODY-RESCALE-MS0 — toolpath rescale per machine.envelope before emit"
+    },
+    {
+      "rank": 3,
+      "severity": "P0",
+      "blocker": "Quote-to-ship pipeline wiring (not building)",
+      "evidence": "QUOTING-PIPELINE-MS0 assessed today (slot:charlie) — wire-not-build, 7 bridges reuse 30+ existing engines, 12 units (P0 8 + P1 3 + P2 1). Capability is built but not connected end-to-end.",
+      "verificationChannel": "cat state/shared/specs/spec-quoting-pipeline-ms0-assessment.md",
+      "fix": "Execute the 12 wire-not-build units in QUOTING-PIPELINE-MS0"
+    },
+    {
+      "rank": 4,
+      "severity": "P0",
+      "blocker": "Envelope drift (175 cases)",
+      "evidence": "BUILD_STATE.STALE_MILESTONES: 175 envelopes where claimed status disagrees with derived status. Planning untrustworthy until reconciled.",
+      "verificationChannel": "node scripts/build-state-snapshot.mjs && grep -c envelope_drift state/shared/BUILD_STATE.json",
+      "fix": "/envelope-sync skill across drifted milestones (auto-propose status patches)"
+    },
+    {
+      "rank": 5,
+      "severity": "P0",
+      "blocker": "Post-processor cross-controller validation corpus",
+      "evidence": "Master-post validation thin; dialect cross-mapping (Fanuc→Okuma→Heidenhain) is structural-not-textual but explicit-map coverage incomplete.",
+      "verificationChannel": "ls knowledge/wiki/architecture | grep -i 'master-post\\|post-processor'",
+      "fix": "POST-PROCESSOR-VALIDATION-CORPUS-MS0 (slot:india next /loop) — generate prove-out scenarios across all 5 supported controllers"
+    },
+    {
+      "rank": 6,
+      "severity": "P1",
+      "blocker": "Mill engine depth (3x below lathe)",
+      "evidence": "Lathe 188 engines vs mill 58 — operator-perceived parity is essential for shop-floor adoption.",
+      "verificationChannel": "node scripts/system-viz-query.mjs coverage-by-domain | findstr 'mill\\|lathe'",
+      "fix": "MILL-DEPTH-MS0 (slot:alpha) — target 120 new mill engines across 5-axis, surface-finish, strategy-selection"
+    },
+    {
+      "rank": 7,
+      "severity": "P1",
+      "blocker": "WEDM domain-classification drift",
+      "evidence": "Graph reports 20 'wire' engines vs WEDM_DIGEST.json claims 62 — classification fragmentation hides actual coverage.",
+      "verificationChannel": "node -e \"const w=require('H:/prism/mcp-server/data/docs/WEDM_DIGEST.json');console.log('digest engines:',w.engines||w.engineCount)\" && node scripts/system-viz-query.mjs coverage-by-domain | findstr wire",
+      "fix": "WEDM-DOMAIN-CLASSIFY-FIX (slot:charlie) — graph-domain re-classification pass"
+    },
+    {
+      "rank": 8,
+      "severity": "P1",
+      "blocker": "AI training pipeline incomplete",
+      "evidence": "Corpora exist (JM Die 76K parts, MIT-OCW courses, knowledge monolith) + 7 PRISM-AI engines + GraphSAGE NN MS0/1/2 shipped, but: AUROC 0.096 (gate 0.78), 4/7 PRISM-AI engines lack memo coverage, embeddingSource mismatch (NN-GRAPH dormant).",
+      "verificationChannel": "cat state/shared/nn-graph/NN-EVAL.json && node scripts/prism-ai-memo-coverage.mjs",
+      "fix": "AI-TRAINING-MS0 — full retrain after U-GNN-NODE-EMBED-BRIDGE landed 2026-05-23 + memo coverage backfill for 4 blind-spot engines"
+    },
+    {
+      "rank": 9,
+      "severity": "P1",
+      "blocker": "Tests per engine below 1.5",
+      "evidence": "3836 tests / 3273 engines = 1.17 tests/engine. Industry-defensible is ≥3 for revenue-bearing surfaces.",
+      "verificationChannel": "node scripts/system-viz-query.mjs headline | findstr 'engines\\|tests'",
+      "fix": "TEST-DEPTH-MS0 — focus on revenue-critical engines (lathe-rescale, post-emit, safety) — not blanket coverage"
+    },
+    {
+      "rank": 10,
+      "severity": "P2",
+      "blocker": "Cumulative pending: 2876 units across 882 milestones + 969 unconsolidated prose",
+      "evidence": "ROADMAP-CONSOLIDATED.json (regenerated today). Most are P1/P2, not revenue-blocking, but indicate scope-bloat risk.",
+      "verificationChannel": "node scripts/consolidate-roadmaps.mjs && grep pending_units state/shared/specs/ROADMAP-CONSOLIDATED.json",
+      "fix": "Standing /pick-unit discipline + revenue-blocker priority filter; defer non-revenue P1/P2 to post-launch"
+    }
+  ],
+  "launchRevenueReadinessIndex": {
+    "method": "Weighted score: (per-domain readiness × revenue-blocker absence). Mill/lathe/wedm/cam each rated 0-100, then revenue-blocker P0 count subtracts proportionally.",
+    "perDomain": {
+      "lathe": {
+        "depthScore": 75,
+        "blockerPenalty": -20,
+        "frontendPenalty": -15,
+        "netReadiness": 40,
+        "revenueDistance_weeks": "2-4 (single MS0 + frontend bind)"
+      },
+      "mill": {
+        "depthScore": 45,
+        "blockerPenalty": -10,
+        "frontendPenalty": -15,
+        "netReadiness": 20,
+        "revenueDistance_weeks": "8-12 (depth build + 5-axis + surface-finish)"
+      },
+      "wedm": {
+        "depthScore": 30,
+        "blockerPenalty": -15,
+        "frontendPenalty": -15,
+        "netReadiness": 0,
+        "revenueDistance_weeks": "12-16 (domain-classify-fix + PCD + 4-ax + validation corpus)"
+      },
+      "cam_facade": {
+        "depthScore": 65,
+        "blockerPenalty": -10,
+        "frontendPenalty": -15,
+        "netReadiness": 40,
+        "revenueDistance_weeks": "4-8 (facade unification + per-vendor validation)"
+      },
+      "post_processor": {
+        "depthScore": 55,
+        "blockerPenalty": -25,
+        "frontendPenalty": -15,
+        "netReadiness": 15,
+        "revenueDistance_weeks": "6-10 (validation corpus + cross-controller prove-out)"
+      }
+    },
+    "compositeRevenueReadiness_pct": 23,
+    "compositeRevenueDistance_weeks": "8-12 (lathe-first), 16-24 (full mill+lathe+wedm)",
+    "confidence": "medium — verification channels declared per finding; peer-reviewer auto-spawn deferred to budget; classification drift (WEDM 20 vs 62) reduces confidence on wedm metric"
+  },
+  "deferredToFollowOnLoops": {
+    "scenarioGeneration": {
+      "totalScenarios": 7800,
+      "byDomain": {
+        "lathe": 1500,
+        "mill": 2500,
+        "wedm": 1000,
+        "cam": 2000,
+        "post_processor": 800
+      },
+      "rationale": "Generating thousands of scenarios before knowing the per-domain gap matrix wastes compute. Phase 2 onward, partitioned to domain slots.",
+      "slotPartition": {
+        "alpha": "mill 2500 scenarios + mill AI training",
+        "bravo": "lathe 1500 scenarios + lathe AI training",
+        "charlie": "wedm 1000 scenarios + wedm domain-classify-fix + AI training",
+        "echo": "cam 2000 scenarios across vendor posts",
+        "juliett": "speed-feed cross-cut validation",
+        "india": "post-processor 800 scenarios + master-post cross-controller prove-out"
+      }
+    },
+    "aiTraining": {
+      "scope": "Per-domain models + GraphSAGE retrain (post-U-GNN-NODE-EMBED-BRIDGE) + PRISM-AI memo-coverage backfill (4 blind-spot engines).",
+      "blocker": "P1 — U-NN-TRAINER-EXPORT-RESTORE (graphsage-train-pipeline.mjs imports positiveTypeMarginal/sampleStratifiedNegativeEdges absent from trainer)",
+      "rationale": "Training without the trainer-export fix wastes the retrain pass. Land that first."
+    },
+    "peerReviewerAutoSpawn": {
+      "rationale": "Boris-pattern peer reviewer auto-spawn deferred — would consume ~30k tokens in this session at 54%+ context already. R12 fail-loud: this audit is single-reviewer, ship with that caveat. Next /loop iteration should re-run with peer-reviewer enabled.",
+      "compensation": "All findings declare explicit verification channels per the Boris doctrine. Re-measurement is cheap. The audit deferred the reviewer, not the verifiability."
+    },
+    "compoundingArtifact": {
+      "produced": "scripts/generate-launch-readiness-features.mjs (viz roost generator) + LAUNCH-READINESS-2026-05-24.{json,md,html} themselves are re-runnable measurement",
+      "futureMETA": "scripts/launch-readiness-rerun.mjs (Phase 2 work) — bundles the audit re-run into one command"
+    }
+  },
+  "psnLegHealth": {
+    "obsidianBrain": "HEALTHY — 9635 memories, auto-fed every Stop",
+    "prismOS": "HEALTHY — 97 dispatchers / 8168 actions",
+    "wiki": "HEALTHY — 23981 entries, 4.2% broken links (acceptable)",
+    "memories": "HEALTHY — vault precheck firing per UserPromptSubmit",
+    "tribal": "PARTIAL — 23802/23992 wiki files lack tribal embedding (0.8% coverage)",
+    "systemViz": "HEALTHY — 282K nodes, regen 1d ago (warning: regen FAILED 18h ago at merge augmentations)",
+    "engines": "PARTIAL — 78% wired, 729 unwired",
+    "algorithms": "HEALTHY — 499 formulas",
+    "formulas": "HEALTHY",
+    "nnGnn": "DORMANT — AUROC 0.096 (gate 0.78), embeddingSource mismatch was just fixed 2026-05-23 — retrain pending",
+    "prismAi": "PARTIAL — 4/7 PRISM-AI engines lack memo coverage (42.9%)"
+  },
+  "milestoneEnvelopeProposed": {
+    "id": "PRISM-LAUNCH-READINESS-MS0",
+    "fileRef": "mcp-server/data/roadmaps/PRISM-LAUNCH-READINESS-MS0.json",
+    "totalUnits": 32,
+    "phases": ["P0-revenue-unblock", "P1-domain-depth", "P2-scenario-corpus", "P3-ai-training", "P4-validation-prove-out", "P5-launch-gates"],
+    "weeksEst": 12,
+    "slotPartition_summary": "alpha=mill | bravo=lathe | charlie=wedm | echo=cam | juliett=speed-feed | india=post-proc | golf=integration | romeo=frontend"
+  }
+}

@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `milestone` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/milestone.md` |
+| Source | `C:/Users/wompu/.claude/commands/milestone.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Milestone — Quick Milestone Viewer
+
+You are showing a focused, at-a-glance view of a specific PRISM milestone. This is the fast-path alternative to `/rgs` — no roadmap operations, no claims, just a clear picture of where a milestone stands right now.
+
+## Args: $ARGUMENTS
+- `[milestone-id]`: show a specific milestone (e.g., `milestone SYS-MS6`)
+- `[track]`: show all milestones in a track 
 
 <!-- AUTO-END -->
 

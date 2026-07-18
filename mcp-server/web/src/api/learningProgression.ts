@@ -6,6 +6,7 @@ import type {
   LearningProgressionCourse,
 } from '../types/learning';
 import { fetchJson } from './requestCore';
+import { getAuthHeaders } from './authToken';
 
 const API_BASE = '/api/v1/learning';
 
@@ -43,7 +44,7 @@ async function get<T>(path: string, params: Record<string, unknown> = {}): Promi
 async function post<T>(path: string, body: Record<string, unknown> = {}): Promise<T> {
   const json = await fetchJson<T | { data?: T }>(`${API_BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(body),
     fallbackMessage: 'Learning progression request failed',
   });

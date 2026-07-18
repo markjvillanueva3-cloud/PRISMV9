@@ -72,6 +72,56 @@ export interface LearningReport {
   divergences: Array<{ part_class: PartClass; feature_kind: string; hand_tuned: number; learned: number; delta: number }>;
 }
 
+// ── U-FGE03 persistence overlay types ──────────────────────────────
+
+/**
+ * Durable overlay written by `persistLearned()` and auto-loaded by
+ * `CADClassFeatureLibraryEngine.templateFor()`. The single seam that makes
+ * trained corpus evidence reach the DEFAULT build-sequence path.
+ */
+export interface LearnedPrevalenceOverlay {
+  schemaVersion: string;
+  generated_at: string;
+  /** Provenance — which surface produced the blend. */
+  source: string;
+  /** The `applyLearned()` smoothing_alpha used (null when not supplied). */
+  smoothing_alpha: number | null;
+  /** part_class → feature_kind → blended prevalence, each clamped to [0,1]. */
+  prevalence: Record<string, Record<string, number>>;
+}
+
+/** Injectable options for `persistLearned()` (hermetic-test seams). */
+export interface PersistLearnedOpts {
+  /** Override the canonical `data/state/...` target (tests pass a tmp path). */
+  overlayPath?: string;
+  /** The smoothing_alpha recorded into the overlay for provenance. */
+  smoothing_alpha?: number;
+  /**
+   * Injected fs/promises-shaped impl for hermetic tests. Only the four
+   * methods `persistLearned` calls are required.
+   */
+  fsImpl?: {
+    mkdir(p: string, o: { recursive: boolean }): Promise<unknown>;
+    writeFile(p: string, data: string, enc: string): Promise<void>;
+    rename(a: string, b: string): Promise<void>;
+    unlink(p: string): Promise<void>;
+  };
+}
+
+/** Typed result of `persistLearned()` — never a raw primitive (engine rule). */
+export interface PersistLearnedResult {
+  ok: boolean;
+  path: string;
+  /** Distinct part_classes written. */
+  classes: number;
+  /** Total (class,feature) prevalence values written. */
+  features_written: number;
+  /** Count of NaN/Infinity prevalences skipped (R12 — surfaced, not persisted). */
+  skipped_non_finite: number;
+  /** Present + populated only when `ok === false`. */
+  error?: string;
+}
+
 // ── Tunables ───────────────────────────────────────────────────────
 
 /** Below this many class members, prevalence learning is unreliable — defer to hand tune. */
@@ -223,6 +273,124 @@ export class CADCorpusFeaturePrevalenceLearnerEngine {
         return { ...f, prevalence: Math.max(0, Math.min(1, blended)) };
       }),
     }));
+  }
+
+  /**
+   * U-FGE03 — persist `applyLearned()` output to a durable overlay so the
+   * DEFAULT build-sequence inference path (`CADClassFeatureLibraryEngine
+   * .templateFor` → `buildSequenceFor`) auto-consumes trained corpus
+   * evidence without an explicit opt-in action.
+   *
+   * Closes the exact gap named in `reference_cad_fusion_training_2026_05_18`
+   * (R12): "the geometry report is the real model but is NOT auto-blended
+   * into the live build-sequence templates — `cad_corpus_apply_learned`
+   * does an in-memory blend with no persistence path. Wire-to-inference is
+   * a real follow-up unit." U-FGE01/02 added opt-in surfaces
+   * (`buildSequenceForEvidence`, `use_corpus_evidence` flag); this unit
+   * makes the blend persistent + auto-applied on the default path.
+   *
+   * Atomic by construction: writes `<path>.tmp-<pid>` then renames over the
+   * target (rename is atomic on NTFS + POSIX), so a concurrent fleet reader
+   * never observes a torn JSON. NaN/Infinity prevalences are SKIPPED (never
+   * persisted — a poisoned overlay would silently corrupt every downstream
+   * build sequence; R12 — surface, don't propagate). Out-of-range values are
+   * clamped to [0,1].
+   *
+   * Pure-core friendly: `opts.overlayPath` + `opts.fsImpl` are injectable so
+   * the test suite never touches the real `data/state/` file. When omitted,
+   * the path is resolved CWD-independently from this module's location
+   * (`dist/engines/X.js` → `../..` = `mcp-server/` → `data/state/`), mirroring
+   * the U-FGE01 dispatcher anchor convention exactly.
+   *
+   * @returns typed result — `ok:false` + `error` on any fs failure (NEVER a
+   *          silent catch; the caller surfaces it). Never throws to the
+   *          dispatcher (a persistence I/O failure must not crash an
+   *          otherwise-successful blend), matching U-FGE01's `success=false`
+   *          fail-loud contract.
+   */
+  async persistLearned(
+    blendedTemplates: ReadonlyArray<{ part_class: PartClass; features: FeatureTemplate[] }>,
+    opts: PersistLearnedOpts = {},
+  ): Promise<PersistLearnedResult> {
+    const fs = opts.fsImpl ?? (await import("node:fs/promises"));
+    const pathMod = await import("node:path");
+    const url = await import("node:url");
+
+    let overlayPath = opts.overlayPath;
+    if (!overlayPath) {
+      // KEEP-IN-SYNC with CADClassFeatureLibraryEngine.overlayPathResolved():
+      // the WRITER (here) and the READER (templateFor's loader) MUST resolve
+      // the identical absolute path or the wiring is a silent no-op. Env
+      // override honored FIRST (call-time) so an operator relocating the
+      // overlay can't make writer/reader diverge (per-file scrutiny arm B,
+      // P0-1 latent divergence).
+      const envPath = process.env.PRISM_CAD_PREVALENCE_OVERLAY_PATH;
+      if (envPath && envPath.trim()) {
+        overlayPath = envPath.trim();
+      } else {
+        // dist/engines/CADCorpusFeaturePrevalenceLearnerEngine.js -> ../.. = mcp-server/
+        const engineDir = pathMod.dirname(url.fileURLToPath(import.meta.url));
+        const mcpRoot = pathMod.resolve(engineDir, "..", "..");
+        overlayPath = pathMod.resolve(mcpRoot, "data/state/cad-learned-prevalence-overlay.json");
+      }
+    }
+
+    const prevalence: Record<string, Record<string, number>> = {};
+    let featuresWritten = 0;
+    let skippedNonFinite = 0;
+    for (const t of blendedTemplates) {
+      if (!t || typeof t.part_class !== "string" || !Array.isArray(t.features)) continue;
+      const byKind: Record<string, number> = {};
+      for (const f of t.features) {
+        if (!f || typeof f.kind !== "string") continue;
+        const p = Number(f.prevalence);
+        if (!Number.isFinite(p)) {
+          // R12: a NaN/Infinity prevalence would silently corrupt every
+          // downstream build sequence — skip it loudly via skippedNonFinite,
+          // never persist it.
+          skippedNonFinite++;
+          continue;
+        }
+        byKind[f.kind] = Math.max(0, Math.min(1, p));
+        featuresWritten++;
+      }
+      if (Object.keys(byKind).length > 0) prevalence[t.part_class] = byKind;
+    }
+
+    const overlay: LearnedPrevalenceOverlay = {
+      schemaVersion: "1.0.0",
+      generated_at: new Date().toISOString(),
+      source: "cad_corpus_apply_learned",
+      smoothing_alpha: typeof opts.smoothing_alpha === "number" ? opts.smoothing_alpha : null,
+      prevalence,
+    };
+
+    const tmpPath = `${overlayPath}.tmp-${process.pid}`;
+    try {
+      await fs.mkdir(pathMod.dirname(overlayPath), { recursive: true });
+      await fs.writeFile(tmpPath, JSON.stringify(overlay, null, 2), "utf8");
+      await fs.rename(tmpPath, overlayPath);
+    } catch (e: unknown) {
+      // Best-effort tmp cleanup; ignore a cleanup failure (the real error is
+      // the write/rename one — surface THAT).
+      try { await fs.unlink(tmpPath); } catch { /* tmp may not exist */ }
+      return {
+        ok: false,
+        path: overlayPath,
+        classes: 0,
+        features_written: 0,
+        skipped_non_finite: skippedNonFinite,
+        error: e instanceof Error ? e.message : String(e),
+      };
+    }
+
+    return {
+      ok: true,
+      path: overlayPath,
+      classes: Object.keys(prevalence).length,
+      features_written: featuresWritten,
+      skipped_non_finite: skippedNonFinite,
+    };
   }
 
   // ── Internal helpers ──

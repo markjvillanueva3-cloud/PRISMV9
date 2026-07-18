@@ -6,7 +6,7 @@
  * and G-code dialect markers from real program samples.
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   ProgramLabelingPipelineEngine,
   ProgramLabel,

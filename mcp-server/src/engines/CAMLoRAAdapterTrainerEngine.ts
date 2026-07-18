@@ -54,7 +54,7 @@ import {
   type FeedbackEvent,
   type SubscriptionHandle,
 } from "./FeedbackBusEngine.js";
-import type { OutcomeRecord } from "./CrossProcessOutcomeStore.js";
+import type { OutcomeRecord, OutcomeRequestSummary, OutcomeResponseSummary } from "./CrossProcessOutcomeStore.js";
 
 // ─── Types ──────────────────────────────────────────────────────────
 
@@ -136,9 +136,9 @@ export interface ObservedOutcome {
   /** ISO timestamp from the OutcomeRecord (publisher-set). */
   ts: string;
   /** Free-form request payload; carried opaquely for the trainer. */
-  request_summary: Record<string, unknown>;
+  request_summary: OutcomeRequestSummary;
   /** Free-form response payload; carries actuals when terminal. */
-  response_summary: Record<string, unknown>;
+  response_summary: OutcomeResponseSummary;
 }
 
 export interface ObservationStatus {

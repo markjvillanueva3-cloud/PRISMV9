@@ -26,6 +26,7 @@ _(no header docblock — read source for behavior)_
 ## Events
 
 - `PreToolUse`
+- `PreCompact`
 
 ## Doctrine
 

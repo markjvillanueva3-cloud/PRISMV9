@@ -57,6 +57,18 @@ const PARAM_ALIASES: Record<string, string> = {
   minor_diameter: "minorDiameter",
   threads_per_inch: "threadsPerInch",
   
+  // CAD ids (CAD-COMPLETE-MS0 / U-AI-02 / U-AI-08 / U-AI-10)
+  doc_id: "docId",
+  txn_id: "txnId",
+  trace_id: "traceId",
+  tenant_id: "tenantId",
+  span_id: "spanId",
+  parent_span_id: "parentSpanId",
+  start_time: "startTime",
+  end_time: "endTime",
+  status_message: "statusMessage",
+  max_traces: "maxTraces",
+
   // Process params
   material_type: "materialType",
   work_material: "workMaterial",

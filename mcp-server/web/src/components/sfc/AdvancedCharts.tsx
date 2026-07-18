@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer, BarChart, Bar, Cell,
@@ -7,11 +7,19 @@ import { Card } from "../ui";
 import type { SfcCalculateResult } from "../../types/sfc";
 import type { SfcParams } from "./ParameterPanel";
 import type { MachineEntry } from "../../data/machines";
+import { sfcApi } from "../../api/sfc";
+import {
+  buildToolLifeCurve,
+  type ToolLifeCurveBase,
+  type ToolLifeCurvePoint,
+} from "../../lib/toolLifeCurve";
 
 interface Props {
   result: SfcCalculateResult | null;
   params: SfcParams;
   machine: MachineEntry | null;
+  /** Canonical material id (from the page's material selection) for the tool-life query. */
+  material?: string;
 }
 
 type Tab = "toolLife" | "power" | "surfaceFinish";
@@ -22,33 +30,13 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "surfaceFinish", label: "Surface Finish" },
 ];
 
-/** Taylor tool life constants by material group */
-const TAYLOR: Record<string, { n: number; C: number }> = {
-  P: { n: 0.25, C: 300 },   // Carbon/alloy steel + carbide
-  M: { n: 0.22, C: 200 },   // Stainless steel + carbide
-  K: { n: 0.28, C: 250 },   // Cast iron + carbide
-  N: { n: 0.35, C: 500 },   // Non-ferrous + carbide
-  S: { n: 0.18, C: 120 },   // Superalloys + carbide
-  H: { n: 0.15, C: 100 },   // Hardened steel + CBN
-};
-
-function generateToolLifeData(cuttingSpeed: number, materialGroup: string) {
-  const { n, C } = TAYLOR[materialGroup] ?? TAYLOR.P;
-  const points: { speed: number; life: number }[] = [];
-  if (cuttingSpeed <= 0) return points;
-  const minV = Math.max(20, cuttingSpeed * 0.3);
-  const maxV = cuttingSpeed * 2.5;
-  const step = (maxV - minV) / 40;
-  if (step <= 0) return points;
-  for (let v = minV; v <= maxV; v += step) {
-    if (v <= 0) continue;
-    const life = Math.pow(C / v, 1 / n);
-    if (Number.isFinite(life) && life > 0 && life < 10000) {
-      points.push({ speed: Math.round(v), life: Math.round(life * 10) / 10 });
-    }
-  }
-  return points;
-}
+// NOTE (QX3): the Taylor {n,C} constants + client-side life = (C/V)^(1/n) that used
+// to live here were REMOVED -- inlining physics constants in the UI is a quebec rule
+// violation and risked a curve diverging from the engine. The tool-life curve is now
+// sourced from the canonical backend (sfcApi.toolLife -> prism_calc:tool_life) via
+// buildToolLifeCurve (lib/toolLifeCurve.ts). The UI renders engine output, never
+// recomputes it. The surface-finish chart below uses the geometric Ra = f^2/(32r)
+// relation (a tooling geometry identity, not a material/physics constant).
 
 function generateSurfaceFinishData(currentFeed: number, toolDiameter: number) {
   const points: { feed: number; ra: number }[] = [];
@@ -59,7 +47,7 @@ function generateSurfaceFinishData(currentFeed: number, toolDiameter: number) {
   const step = (maxF - minF) / 40;
   if (step <= 0) return points;
   for (let f = minF; f <= maxF; f += step) {
-    // Theoretical Ra = f^2 / (32 * r) in mm → convert to µm
+    // Theoretical Ra = f^2 / (32 * r) in mm -> convert to um
     const ra = (f * f) / (32 * noseRadius) * 1000;
     if (Number.isFinite(ra)) {
       points.push({ feed: Math.round(f * 1000) / 1000, ra: Math.round(ra * 100) / 100 });
@@ -68,7 +56,7 @@ function generateSurfaceFinishData(currentFeed: number, toolDiameter: number) {
   return points;
 }
 
-export default function AdvancedCharts({ result, params, machine }: Props) {
+export default function AdvancedCharts({ result, params, machine, material }: Props) {
   const [tab, setTab] = useState<Tab>("toolLife");
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -147,8 +135,13 @@ export default function AdvancedCharts({ result, params, machine }: Props) {
       <div ref={chartRef} role="tabpanel" id={`chart-panel-${tab}`}>
         {tab === "toolLife" && (
           <ToolLifeChart
-            cuttingSpeed={result.cutting_speed}
-            materialGroup={typeof result.meta?.material_group === "string" ? result.meta.material_group : "P"}
+            base={{
+              cuttingSpeed: result.cutting_speed,
+              feed: result.feed_per_tooth,
+              depth: params.depth,
+              material,
+              tool_material: params.tool_material,
+            }}
           />
         )}
         {tab === "power" && (
@@ -168,20 +161,69 @@ export default function AdvancedCharts({ result, params, machine }: Props) {
   );
 }
 
-function ToolLifeChart({ cuttingSpeed, materialGroup }: { cuttingSpeed: number; materialGroup: string }) {
-  const data = useMemo(() => generateToolLifeData(cuttingSpeed, materialGroup), [cuttingSpeed, materialGroup]);
-  const currentLife = useMemo(() => {
-    if (cuttingSpeed <= 0) return 0;
-    const { n, C } = TAYLOR[materialGroup] ?? TAYLOR.P;
-    const life = Math.pow(C / cuttingSpeed, 1 / n);
-    return Number.isFinite(life) ? Math.round(life * 10) / 10 : 0;
-  }, [cuttingSpeed, materialGroup]);
+function ToolLifeChart({ base }: { base: ToolLifeCurveBase }) {
+  // Destructure to primitives so the fetch effect's deps are honest + minimal:
+  // `base` is a fresh object literal each render, so depending on it directly would
+  // re-fetch every render. Depending on the primitive fields re-fetches only when an
+  // actual input changes (and keeps exhaustive-deps satisfied without a disable).
+  const { cuttingSpeed, feed, depth, material, tool_material } = base;
+  const [data, setData] = useState<ToolLifeCurvePoint[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    buildToolLifeCurve(
+      { cuttingSpeed, feed, depth, material, tool_material },
+      (req, signal) => sfcApi.toolLife(req, signal).then((w) => w.result),
+      9,
+      controller.signal,
+    )
+      .then((points) => {
+        if (cancelled) return;
+        setData(points);
+        setLoading(false);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "Could not load the tool-life curve");
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+      controller.abort(); // abort the in-flight tool-life batch when inputs change/unmount
+    };
+  }, [cuttingSpeed, feed, depth, material, tool_material]);
+
+  if (loading) {
+    return <p className="py-8 text-center text-xs text-slate-400">Computing tool-life curve...</p>;
+  }
+  if (error) {
+    return (
+      <p role="alert" className="py-8 text-center text-xs text-red-500">
+        {error}
+      </p>
+    );
+  }
+  if (!data || data.length === 0) {
+    return (
+      <p className="py-8 text-center text-xs text-slate-400">
+        No tool-life curve available for these parameters.
+      </p>
+    );
+  }
+
+  const current = data.find((p) => p.speed === Math.round(cuttingSpeed));
 
   return (
     <div>
       <p className="mb-2 text-xs text-slate-500">
-        Taylor Tool Life Curve &mdash; T = (C/V)<sup>1/n</sup> &mdash;
-        Current: <strong>{cuttingSpeed.toFixed(0)} m/min</strong> &rarr; <strong>{currentLife} min</strong>
+        Tool Life vs Cutting Speed (canonical Taylor model) &mdash;
+        Current: <strong>{cuttingSpeed.toFixed(0)} m/min</strong>
+        {current ? <> &rarr; <strong>{current.life} min</strong></> : null}
       </p>
       <ResponsiveContainer width="100%" height={240}>
         <LineChart data={data} margin={{ top: 5, right: 20, bottom: 20, left: 10 }}>
@@ -196,7 +238,7 @@ function ToolLifeChart({ cuttingSpeed, materialGroup }: { cuttingSpeed: number; 
             tick={{ fontSize: 10 }}
           />
           <Tooltip
-            formatter={(val: number | undefined) => [`${val ?? 0} min`, "Tool Life"]}
+            formatter={(val: unknown) => [`${val ?? 0} min`, "Tool Life"]}
             labelFormatter={(label) => `${label} m/min`}
           />
           <Line type="monotone" dataKey="life" stroke="#2563eb" strokeWidth={2} dot={false} />
@@ -248,7 +290,7 @@ function PowerChart({ requiredPower, machinePower }: { requiredPower: number; ma
             label={{ value: "Power (kW)", angle: -90, position: "insideLeft", fontSize: 11 }}
             tick={{ fontSize: 10 }}
           />
-          <Tooltip formatter={(val: number | undefined) => [`${(val ?? 0).toFixed(1)} kW`, "Power"]} />
+          <Tooltip formatter={(val: unknown) => [`${Number(val ?? 0).toFixed(1)} kW`, "Power"]} />
           <Bar dataKey="value" radius={[4, 4, 0, 0]}>
             {data.map((d, i) => (
               <Cell key={i} fill={d.fill} />
@@ -282,11 +324,11 @@ function SurfaceFinishChart({ currentFeed, toolDiameter }: { currentFeed: number
             tick={{ fontSize: 10 }}
           />
           <YAxis
-            label={{ value: "Ra (\u00b5m)", angle: -90, position: "insideLeft", fontSize: 11 }}
+            label={{ value: "Ra (µm)", angle: -90, position: "insideLeft", fontSize: 11 }}
             tick={{ fontSize: 10 }}
           />
           <Tooltip
-            formatter={(val: number | undefined) => [`${val ?? 0} \u00b5m`, "Ra"]}
+            formatter={(val: unknown) => [`${val ?? 0} µm`, "Ra"]}
             labelFormatter={(label) => `${label} mm/tooth`}
           />
           <Line type="monotone" dataKey="ra" stroke="#f59e0b" strokeWidth={2} dot={false} />
@@ -296,12 +338,12 @@ function SurfaceFinishChart({ currentFeed, toolDiameter }: { currentFeed: number
             strokeDasharray="4 4"
             label={{ value: "Current", position: "top", fontSize: 10, fill: "#ef4444" }}
           />
-          {/* Target line at 1.6 µm Ra (common finish target) */}
+          {/* Target line at 1.6 um Ra (common finish target) */}
           <ReferenceLine
             y={1.6}
             stroke="#22c55e"
             strokeDasharray="6 3"
-            label={{ value: "Target 1.6\u00b5m", position: "right", fontSize: 10, fill: "#22c55e" }}
+            label={{ value: "Target 1.6µm", position: "right", fontSize: 10, fill: "#22c55e" }}
           />
         </LineChart>
       </ResponsiveContainer>

@@ -39,7 +39,7 @@ Load these skills before starting:
 
 ## MCP Full Utilization (MANDATORY before any unit work)
 ```
-prism_session:c
+prism_session:
 
 <!-- AUTO-END -->
 

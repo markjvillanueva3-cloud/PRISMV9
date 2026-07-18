@@ -1,0 +1,56 @@
+{
+  "id": "WEDM-CAL-MS3",
+  "title": "End-to-End Pipeline Validation",
+  "track": "WEDM-CAL",
+  "version": "1.0.0",
+  "created": "2026-04-10",
+  "depends_on": ["WEDM-CAL-MS0", "WEDM-CAL-MS1", "WEDM-CAL-MS2"],
+  "total_units": 4,
+  "completed_units": 4,
+  "status": "complete",
+  "sessions": "2",
+  "roadmap_path": "milestones/WEDM-CALIBRATE-ROADMAP.md",
+  "units": [
+    {
+      "id": "U-CAL14",
+      "title": "Pipeline Run — D2 Blanking Die (vs ITW SHAKEPROOF)",
+      "status": "completed",
+      "session": 5,
+      "depends_on": ["U-CAL09", "U-CAL13"],
+      "description": "Programmatic WireEDMContour (hex + bore) run through WEDMPrintToProgramEngine; asserts 4-pass plan, offset band 0.05-0.5mm, feed band 0.5-20 mm/min, setup-sheet part number.",
+      "artifacts": ["src/__tests__/wedm-pipeline-e2e.test.ts"]
+    },
+    {
+      "id": "U-CAL15",
+      "title": "Pipeline Run — Taper Part (vs NOZE TEST)",
+      "status": "completed",
+      "session": 5,
+      "depends_on": ["U-CAL14"],
+      "description": "SS304 rectangle with taper_angle_deg=5 run through pipeline; asserts 5-pass plan, G51 / UV markers present, predicted_ra \u2264 0.8 \u00b5m cascade.",
+      "artifacts": ["src/__tests__/wedm-pipeline-e2e.test.ts"]
+    },
+    {
+      "id": "U-CAL16",
+      "title": "5-Part Pipeline Benchmark",
+      "status": "completed",
+      "session": 6,
+      "depends_on": ["U-CAL15"],
+      "description": "4 materials (D2/SS304/Al/Ti) \u00d7 3 controllers (mitsubishi/fanuc/sodick) = 12 happy-path tests + 1 cross-scenario stability check + 1 safety-gate test (carbide with brass-wire defaults must throw SafetyBlockError).",
+      "artifacts": ["src/__tests__/wedm-pipeline-e2e.test.ts"]
+    },
+    {
+      "id": "U-CAL17",
+      "title": "Pipeline Error Handling",
+      "status": "completed",
+      "session": 6,
+      "depends_on": ["U-CAL16"],
+      "description": "7 failure-mode tests: empty contours, open (non-closed) contour, zero thickness, NaN thickness, negative target_ra, negative wire diameter, no geometry at all.",
+      "artifacts": ["src/__tests__/wedm-pipeline-e2e.test.ts"]
+    }
+  ],
+  "forge_triple": {
+    "hook": "wedm-pipeline-regression",
+    "action": "prism_edm:wedm_pipeline_benchmark",
+    "skill": "/wedm-benchmark"
+  }
+}

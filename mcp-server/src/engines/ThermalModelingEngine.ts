@@ -107,13 +107,27 @@ class ThermalModelingEngineImpl {
     const Fc = specificCuttingForce * t * b;   // N
     const P = Fc * V;                           // W
 
-    const alpha = thermalConductivity / (materialDensity * specificHeat);
-    const Pe = V * t / (2 * alpha);
+    const alpha = thermalConductivity / (materialDensity * specificHeat); // m^2/s
+    const tM = t / 1000; // uncut chip thickness mm -> m (Pe previously used mm: 1000x high)
+    const Pe = (V * tM) / (2 * alpha);
 
-    const u = specificCuttingForce;
-    const L = t;
-    const deltaT = (0.4 * u * V * 1e6)
-      / (materialDensity * specificHeat * Math.sqrt(alpha * L / 1000));
+    // Loewen-Shaw (1954) shear-plane temperature: theta_s = theta_0 + Gamma * u_s/(rho*c).
+    //  - u_s = shear-zone specific energy ~ SHEAR_ENERGY_FRACTION * total specific cutting
+    //    energy (u [N/mm^2 = MPa] = 1e6 J/m^3; shear typically carries ~75% of the total).
+    //  - Gamma = fraction of shear heat convected into the chip; Boothroyd/Weiner form
+    //    beta_work = 1/(1 + 1.328*sqrt(V*t/alpha)), Gamma = 1 - beta_work (fast cuts sweep
+    //    the heat into the chip; V -> 0 sends it all to the work, deltaT -> 0).
+    // Row 15 of the verified SFC fix-plan: the previous expression mixed mm/m/s bases and
+    // returned K*m^-0.5*s^-0.5 -- outputs on the order of 1e7 "C" (nonphysical; steel at
+    // 150 m/min now gives ~335 K rise / ~355 C shear temp, the published Loewen-Shaw band).
+    // The register's own FILED replacement carried a spurious Vc factor (K*m/s) and was
+    // rejected by the live-code physics pass -- adjudicated to this form
+    // (SFC-ROWS-VERIFY-BATCH2-2026-07-01.md).
+    const SHEAR_ENERGY_FRACTION = 0.75; // Boothroyd & Knight: shear ~70-80% of total energy
+    const u_s = specificCuttingForce * 1e6 * SHEAR_ENERGY_FRACTION; // J/m^3
+    const betaWork = 1 / (1 + 1.328 * Math.sqrt(Math.max((V * tM) / alpha, 0)));
+    const gammaChip = 1 - betaWork;
+    const deltaT = (gammaChip * u_s) / (materialDensity * specificHeat);
 
     return {
       shearZoneTemp_C: r2(ambientTemp + deltaT),

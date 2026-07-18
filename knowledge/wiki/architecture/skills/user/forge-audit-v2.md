@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `forge-audit-v2` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-audit-v2.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-audit-v2.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-`/forge-audit-v2` is the audit-specialized sibling of `/forge7`. It applies the Boris Cherny "verification + parallel + composite chain" doctrine specifically to system-wide audit work, plus the Thariq HTML-output pattern, the cyrilXBT recurring-workflow pattern, and the Karpathy anti-drift checkpoint.
+
+# Forge Audit v2 — Boris-discipline edition
 
 <!-- AUTO-END -->
 

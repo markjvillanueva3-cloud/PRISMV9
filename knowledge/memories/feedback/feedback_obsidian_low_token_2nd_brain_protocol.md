@@ -23,7 +23,7 @@ Operating protocol for [[Obsidian]] as PRISM's 2nd brain at low token cost. Synt
 5. **Don't re-inject the same memory twice in a session.** A memory shown once is in conversation context already; re-injection is pure cost.
    *Status: gap — `memory-rag-inject.mjs` does not currently track per-session injected hashes. Future fix: small SQLite/JSON of (sessionId, memoryHash) at hook level.*
 
-6. **Ollama owns ≥70% of vault maintenance.** Summarize, lint, suggest cross-refs, embed — all routed to local qwen2.5-coder:14b / deepseek-r1:14b. Claude owns synthesis, contradiction resolution, schema evolution.
+6. **Ollama owns ≥70% of vault maintenance.** Summarize, lint, suggest cross-refs, embed — all routed to local qwen2.5-coder:32b (heavy) / qwen2.5-coder:1.5b (trivial) / gpt-oss:120b (deep). Claude owns synthesis, contradiction resolution, schema evolution. (The :14b/deepseek-r1:14b tags were retired 2026-06-04 — Blackwell migration.)
    *Status: in place — see Ollama 69.2% offload baseline in [[reference_token_savings_baseline]].*
 
 7. **Index navigation > embedding search at this scale.** ≤1K entries (we have 722) → wiki index.md is faster and cheaper than vector search. Embedding (Qdrant) is supplementary; on-disk mirror is the durability win.

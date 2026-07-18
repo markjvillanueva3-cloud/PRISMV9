@@ -27,9 +27,9 @@ import { readFileSync, existsSync, appendFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
 // ── Config ────────────────────────────────────────────────────────────
-const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
+const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434"; // 127 NOT localhost (Windows IPv6 ::1 unreachable; reference_ollama_localhost_systemic_2026_06_09)
 const TIMEOUT_MS = parseInt(process.env.CLAUDEMD_ENFORCER_TIMEOUT || "2000", 10);
-const MODEL = process.env.CLAUDEMD_ENFORCER_MODEL || "qwen2.5-coder:7b";
+const MODEL = process.env.CLAUDEMD_ENFORCER_MODEL || "qwen2.5-coder:32b";
 const LOG_PATH = "H:/prism/.claude/cache/claudemd-enforcer.jsonl";
 const MAX_OUTPUT_TOKENS = 300; // Keep injection compact
 

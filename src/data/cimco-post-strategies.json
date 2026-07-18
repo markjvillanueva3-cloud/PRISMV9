@@ -1,0 +1,215 @@
+{
+  "_metadata": {
+    "source": "CIMCO Edit 2024 Post Processors",
+    "extracted": "2026-03-25",
+    "location": "C:/Program Files/CIMCO 2024/CIMCOEdit/Posts/Mill/",
+    "files_analyzed": [
+      "Haas.js",
+      "fanuc.js",
+      "Siemens 840D.js"
+    ]
+  },
+  "architecture": {
+    "framework": "JavaScript-based post processor engine",
+    "callback_model": {
+      "onToolChange": "Tool change output (T M6 S F)",
+      "onLinear": "Linear move with movement type (MOVE_RAPID or MOVE_LINEAR)",
+      "onCircular": "Arc move with center, end point, direction, movement type",
+      "onDrillingHeader": "Drill cycle initialization",
+      "onDrillingPoint": "Individual hole position",
+      "onDrillingFooter": "Drill cycle termination",
+      "onCompensation": "Radius compensation state change",
+      "onDwell": "Dwell output (G4)"
+    },
+    "globals": {
+      "tolerance": 0.02,
+      "useRadius": false,
+      "absoluteArcCenter": false,
+      "xyFirstMove": true,
+      "helixLinearization": {
+        "enabled_by_default": false,
+        "tolerance": 0.01,
+        "algorithm": "Subdivide arc sweep into linear segments based on sqrt(radius/tolerance/8)+1 segments"
+      }
+    }
+  },
+  "drilling_cycles": {
+    "haas_fanuc": {
+      "Drilling G81": {
+        "params": [
+          "plungingFeedrate"
+        ],
+        "cycle": true
+      },
+      "Spot Drilling G82": {
+        "params": [
+          "lowerDwell"
+        ],
+        "cycle": true
+      },
+      "Standard Peck Drilling G83": {
+        "params": [
+          "plungingFeedrate",
+          "firstDepth"
+        ],
+        "cycle": true
+      },
+      "Rapid Peck Drilling G73": {
+        "params": [
+          "plungingFeedrate",
+          "firstDepth"
+        ],
+        "cycle": true
+      },
+      "Reaming G89": {
+        "params": [
+          "plungingFeedrate",
+          "lowerDwell"
+        ],
+        "cycle": true
+      },
+      "CW Rigid Tapping G84": {
+        "params": [
+          "lowerDwell",
+          "pitch"
+        ],
+        "cycle": true
+      },
+      "CCW Rigid Tapping G74": {
+        "params": [
+          "lowerDwell",
+          "tappingSpeed"
+        ],
+        "cycle": true
+      },
+      "Export Holes": {
+        "params": [],
+        "cycle": true
+      },
+      "Drilling (Longhand)": {
+        "params": [
+          "plungingFeedrate"
+        ],
+        "cycle": false
+      },
+      "Peck Drilling (Longhand)": {
+        "params": [
+          "plungingFeedrate",
+          "firstDepth",
+          "degressionType",
+          "degression",
+          "minimumDepth"
+        ],
+        "cycle": false
+      }
+    },
+    "siemens_840d": {
+      "Drilling CYCLE81": {
+        "cycle": true
+      },
+      "Spot Drilling CYCLE82": {
+        "params": [
+          "lowerDwell"
+        ],
+        "cycle": true
+      },
+      "Standard Peck Drilling CYCLE83": {
+        "params": [
+          "firstDepth",
+          "degressionType",
+          "degression",
+          "minimumDepth",
+          "firstFeedrateFactor",
+          "upperDwell",
+          "lowerDwell"
+        ],
+        "cycle": true,
+        "note": "Rich parameter set for degressive pecking"
+      },
+      "Rapid Peck Drilling CYCLE83": {
+        "params": [
+          "firstDepth",
+          "degressionType",
+          "degression",
+          "peckingRetract",
+          "minimumDepth",
+          "firstFeedrateFactor",
+          "upperDwell",
+          "lowerDwell"
+        ],
+        "cycle": true
+      },
+      "Reaming CYCLE85": {
+        "params": [
+          "plungingFeedrate",
+          "retractFeedrate",
+          "lowerDwell"
+        ],
+        "cycle": true
+      },
+      "CW Rigid Tapping CYCLE84": {
+        "params": [
+          "firstDepth",
+          "peckingRetract",
+          "lowerDwell",
+          "pitch",
+          "tappingSpeed",
+          "retractSpeed"
+        ],
+        "cycle": true
+      },
+      "CCW Rigid Tapping CYCLE84": {
+        "params": [
+          "firstDepth",
+          "peckingRetract",
+          "lowerDwell",
+          "pitch",
+          "tappingSpeed",
+          "retractSpeed"
+        ],
+        "cycle": true
+      }
+    },
+    "drill_point_algorithm": {
+      "safe_distance_calculation": "If absolute: use value; else: referencePlane + safeDistance",
+      "end_depth_calculation": "If absolute: use value; else: referencePlane + endDepth",
+      "first_hole_sequence": [
+        "Rapid to XY position",
+        "Rapid Z to retract plane",
+        "Output cycle block with G98 (initial height retract)"
+      ],
+      "subsequent_holes": "Output X Y only (cycle is modal)"
+    }
+  },
+  "helix_linearization_algorithm": {
+    "description": "Converts helical (arc+Z) moves to linear segments when axis substitution or helix linearization is active",
+    "segment_count_formula": "m = round(sweep * sqrt(radius / tolerance / 8) + 1)",
+    "per_segment": {
+      "angle": "n * (sweep / m) + startAngle",
+      "x": "cx + radius * cos(angle)",
+      "y": "cy + radius * sin(angle)",
+      "z": "lastZ + deltaZ * n"
+    },
+    "sweep_calculation": "atan2(dot(r2, yVec), dot(r2, r1Vec)) where yVec = perpendicular to r1"
+  },
+  "axis_substitution": {
+    "description": "Wraps Y-axis motion around a cylindrical diameter for rotary axis machining",
+    "angle_formula": "360 * (yPosition / (PI * substitutionDiameter))",
+    "z_offset": "zValue + substitutionDiameter / 2.0",
+    "output": "X, B(angle), Z(offset)"
+  },
+  "compensation_handling": {
+    "function": "getCompensation()",
+    "codes": {
+      "left": "G41",
+      "right": "G42",
+      "off": "G40"
+    },
+    "tracking": "lastCompensation variable tracks state"
+  },
+  "feed_handling": {
+    "rapid": "G0 (no feed output)",
+    "cutting": "G1 F## (modal feed)",
+    "first_move_split": "XY then Z (or Z then XY based on xyFirstMove setting)"
+  }
+}

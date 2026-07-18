@@ -143,16 +143,18 @@ class MachineAwareSpeedFeedEngine {
     const spindle = pkg.spindle;
     const axes = pkg.axes;
 
-    // MachineSpindle exposes rated power/torque directly. Max cutting feed
-    // and base (constant-torque) RPM are not modeled on the canonical
-    // package type, so they use conservative defaults.
+    // MachineSpindle exposes rated power/torque/base_rpm directly; MachineAxes
+    // exposes max cutting feed. Each falls back to a conservative default only
+    // when the source record did not provide the field, so a high-capability
+    // machine (e.g. DMU 50) is no longer clamped to the same generic limits as
+    // a smaller VMC.
     return {
       maxRpm: spindle.max_rpm ?? 10000,
       minRpm: spindle.min_rpm ?? 50,
-      maxFeedRate: 15000,
+      maxFeedRate: axes?.max_cutting_feed_mmmin ?? 15000,
       maxPower: spindle.power ?? 15,
       maxTorque: spindle.torque ?? 100,
-      baseRpm: 1500,
+      baseRpm: spindle.base_rpm ?? 1500,
       rapidRate: axes?.x_rapid ?? 30000,
     };
   }
@@ -184,11 +186,24 @@ class MachineAwareSpeedFeedEngine {
   }
 
   /**
-   * Constrain speed/feed to machine limits
+   * Constrain speed/feed to machine limits.
+   *
+   * @param input       Calculated/requested speed-feed values to clamp.
+   * @param pkg         Machine package with spindle / axes constraints.
+   * @param opts        Optional behavior flags.
+   * @param opts.skipCapture
+   *   When true, suppress the OutcomeCaptureBus emission via captureSFC().
+   *   Use this for operator-explorer dispatcher queries (FEATURE-GAP-AUDIT-MS0
+   *   prism_calc:machine_aware_constrain) so the outcome telemetry channel
+   *   stays scoped to real workflow consumers (SFC outcome-wire middleware,
+   *   proven-param aggregator). Default false (capture preserved) so existing
+   *   SFC middleware integration is unaffected. Added 2026-05-21 per
+   *   U-MACHINE-AWARE-CAPTURE-FLAG follow-up from 2-of-2 scrutiny arm B P1.
    */
   constrain(
     input: SpeedFeedInput,
-    pkg: CanonicalMachinePackage
+    pkg: CanonicalMachinePackage,
+    opts?: { skipCapture?: boolean }
   ): ConstrainedSpeedFeed {
     const constraints = this.extractConstraints(pkg);
     const recommendations: string[] = [];
@@ -340,15 +355,19 @@ class MachineAwareSpeedFeedEngine {
     };
 
     // U-PPG-SFC-01: emit recommendation onto OutcomeCaptureBus.
-    captureSFC({
-      engine: "MachineAwareSpeedFeedEngine",
-      action: "constrain",
-      context: {
-        machine_id: pkg.canonical_id,
-        operation: input.operation,
-      },
-      recommended: result,
-    });
+    // U-MACHINE-AWARE-CAPTURE-FLAG (2026-05-21, slot:juliett): skip when caller
+    // is an operator-explorer dispatcher query (telemetry-pollution guard).
+    if (!opts?.skipCapture) {
+      captureSFC({
+        engine: "MachineAwareSpeedFeedEngine",
+        action: "constrain",
+        context: {
+          machine_id: pkg.canonical_id,
+          operation: input.operation,
+        },
+        recommended: result,
+      });
+    }
 
     return result;
   }
@@ -397,7 +416,9 @@ class MachineAwareSpeedFeedEngine {
 
     for (const hookId of hookIds) {
       try {
-        const hookResult = await hookExecutor.executeById(hookId, hookCtx);
+        const hookDef = hookExecutor.get(hookId);
+        if (!hookDef) continue;
+        const hookResult = await Promise.resolve(hookDef.handler(hookCtx));
         hooksExecuted.push(hookId);
 
         if (hookResult?.blocked) {

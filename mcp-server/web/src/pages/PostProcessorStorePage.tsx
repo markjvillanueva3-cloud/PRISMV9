@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { billingApi } from "../api/billing";
+import { useState, useEffect } from "react";
+import { billingApi, type LicenseSummary } from "../api/billing";
+import { POST_SUBSCRIPTION_USD, ONE_TIME_PRODUCTS, formatPrice } from "../data/pricing";
+import { computePostOwnership, ownsController, type PostOwnership } from "../lib/postOwnership";
+import { bundleSalesMailto, resolvePostPurchase } from "../lib/checkout";
 
 interface Controller {
   name: string;
@@ -45,42 +48,80 @@ const FAMILY_COLORS: Record<string, string> = {
 
 type PurchaseType = "monthly" | "annual" | "permanent";
 
+// Prices sourced from the canonical registry so the displayed price can never
+// drift from what is charged (StripeBillingEngine via data/pricing.ts).
 const PRICE_OPTIONS: { type: PurchaseType; label: string; price: string }[] = [
-  { type: "monthly", label: "Monthly", price: "$9/mo" },
-  { type: "annual", label: "Annual", price: "$79/yr" },
-  { type: "permanent", label: "Permanent", price: "$199" },
+  { type: "monthly", label: "Monthly", price: `${formatPrice(POST_SUBSCRIPTION_USD.monthly)}/mo` },
+  { type: "annual", label: "Annual", price: `${formatPrice(POST_SUBSCRIPTION_USD.annual)}/yr` },
+  { type: "permanent", label: "Permanent", price: formatPrice(ONE_TIME_PRODUCTS.post_perpetual.priceUsd) },
 ];
-
-const isEnterprise = false; // TODO: wire to billing context
+const BUNDLE_5_PRICE = formatPrice(ONE_TIME_PRODUCTS.post_bundle_5.priceUsd);
+const BUNDLE_ALL_PRICE = formatPrice(ONE_TIME_PRODUCTS.post_bundle_all.priceUsd);
 
 export default function PostProcessorStorePage() {
   const [purchasing, setPurchasing] = useState<Record<string, PurchaseType>>({});
   const [loading, setLoading] = useState<string | null>(null);
+  const [plan, setPlan] = useState<string | null>(null);
+  const [statusLoading, setStatusLoading] = useState(true);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
+
+  // Live ownership: enterprise plan or an all-controllers bundle owns everything;
+  // a per-controller post_perpetual license owns its scoped controller.
+  const [ownership, setOwnership] = useState<PostOwnership>({ allOwned: false, owned: new Set() });
+  const isEnterprise = plan === "enterprise";
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const s = await billingApi.getBillingStatus();
+        if (cancelled) return;
+        setPlan(s.plan);
+        // Owned post-processors (perpetual licenses). Best-effort: an anonymous
+        // / not-signed-in user 401s here -> no licenses -> plan-only ownership.
+        let licenses: LicenseSummary[] = [];
+        try {
+          licenses = (await billingApi.getLicenses()).licenses ?? [];
+        } catch {
+          /* not signed in / no licenses -> own nothing beyond the plan */
+        }
+        if (!cancelled) setOwnership(computePostOwnership(licenses, s.plan));
+      } catch (e) {
+        if (!cancelled) setStatusError((e as Error).message || "Could not load your plan.");
+      } finally {
+        if (!cancelled) setStatusLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handlePurchase(controller: Controller) {
     const type = purchasing[controller.id] ?? "monthly";
     setLoading(controller.id);
+    setPurchaseError(null);
     try {
-      const { url } = await billingApi.purchasePost(controller.id, type);
-      window.location.href = url;
-    } catch (err) {
-      console.error("Purchase failed:", err);
+      // Cadence (monthly|annual|permanent) is forwarded to the backend {controller,type};
+      // checkout logic + error mapping live in the tested resolvePostPurchase helper.
+      const outcome = await resolvePostPurchase(controller.id, type);
+      if (outcome.kind === "redirect") window.location.href = outcome.href;
+      else setPurchaseError(outcome.message);
     } finally {
       setLoading(null);
     }
   }
 
-  async function handleBundle(type: "five-pack" | "all-20") {
-    setLoading(type);
-    try {
-      const controllerId = type === "five-pack" ? "bundle-5pack" : "bundle-all20";
-      const { url } = await billingApi.purchasePost(controllerId, "permanent");
-      window.location.href = url;
-    } catch (err) {
-      console.error("Bundle purchase failed:", err);
-    } finally {
-      setLoading(null);
-    }
+  function handleBundle(type: "five-pack" | "all-20") {
+    // Bundles are NOT yet wired to self-serve Stripe -- billingApi.purchasePost
+    // mints only a single post_perpetual ($199), so a self-serve bundle click
+    // would MIS-CHARGE the bundle price ($799 / $2499). Route to sales at the
+    // correct price until backend bundle checkout lands (echo/papa). See
+    // lib/checkout.bundleSalesMailto.
+    setPurchaseError(null);
+    const bundleId = type === "five-pack" ? "post_bundle_5" : "post_bundle_all";
+    window.location.href = bundleSalesMailto(bundleId);
   }
 
   function setType(id: string, type: PurchaseType) {
@@ -100,6 +141,20 @@ export default function PostProcessorStorePage() {
         </p>
       </div>
 
+      {/* Plan load error (non-fatal: purchasing still works) */}
+      {statusError && (
+        <div role="alert" className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+          {statusError} You can still purchase below.
+        </div>
+      )}
+
+      {/* Purchase error */}
+      {purchaseError && (
+        <div role="alert" className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-950/40 dark:text-red-300">
+          {purchaseError}
+        </div>
+      )}
+
       {/* Enterprise banner */}
       {isEnterprise && (
         <div className="flex items-center gap-3 rounded-xl border border-green-300 bg-green-50 px-5 py-4 dark:border-green-700 dark:bg-green-950/40">
@@ -114,7 +169,7 @@ export default function PostProcessorStorePage() {
           </svg>
           <div>
             <p className="font-semibold text-green-800 dark:text-green-300">
-              Enterprise Plan — All 20 Post-Processors Included
+              Enterprise Plan -- All 20 Post-Processors Included
             </p>
             <p className="text-sm text-green-700 dark:text-green-400">
               You have full access to every controller dialect at no additional cost.
@@ -129,16 +184,16 @@ export default function PostProcessorStorePage() {
           <div>
             <p className="font-bold text-slate-800 dark:text-slate-100">5-Pack Bundle</p>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Choose any 5 controllers — best value for small shops.
+              Choose any 5 controllers -- best value for small shops.
             </p>
           </div>
           <button
             type="button"
             onClick={() => handleBundle("five-pack")}
-            disabled={loading === "five-pack" || isEnterprise}
+            disabled={loading === "five-pack" || ownership.allOwned}
             className="ml-4 flex-shrink-0 rounded-lg bg-primary-600 px-4 py-2 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-500 dark:hover:bg-primary-600"
           >
-            {loading === "five-pack" ? "..." : "$799"}
+            {loading === "five-pack" ? "..." : BUNDLE_5_PRICE}
           </button>
         </div>
 
@@ -148,25 +203,32 @@ export default function PostProcessorStorePage() {
               All 20 Controllers
             </p>
             <p className="text-sm text-primary-600 dark:text-primary-400">
-              Full access to every dialect — perfect for large operations.
+              Full access to every dialect -- perfect for large operations.
             </p>
           </div>
           <button
             type="button"
             onClick={() => handleBundle("all-20")}
-            disabled={loading === "all-20" || isEnterprise}
+            disabled={loading === "all-20" || ownership.allOwned}
             className="ml-4 flex-shrink-0 rounded-lg bg-primary-600 px-4 py-2 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-500 dark:hover:bg-primary-600"
           >
-            {loading === "all-20" ? "..." : "$2,499"}
+            {loading === "all-20" ? "..." : BUNDLE_ALL_PRICE}
           </button>
         </div>
       </div>
+
+      <p className="text-xs text-slate-500 dark:text-slate-400">
+        Bundles are purchased through our sales team at the listed price -- clicking opens
+        an email so we can send you a secure checkout link. Single controllers above check
+        out instantly.
+      </p>
 
       {/* Controller grid */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
         {CONTROLLERS.map((ctrl) => {
           const selectedType = purchasing[ctrl.id] ?? "monthly";
           const isLoading = loading === ctrl.id;
+          const owned = ownsController(ownership, ctrl.id);
           const badgeClass =
             FAMILY_COLORS[ctrl.family] ?? "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300";
 
@@ -209,14 +271,16 @@ export default function PostProcessorStorePage() {
               <button
                 type="button"
                 onClick={() => handlePurchase(ctrl)}
-                disabled={isLoading || isEnterprise}
+                disabled={isLoading || owned || statusLoading}
                 className="mt-auto w-full rounded-lg bg-primary-600 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500 dark:hover:bg-primary-600"
               >
-                {isEnterprise
-                  ? "Included"
-                  : isLoading
-                    ? "Redirecting…"
-                    : `Buy ${PRICE_OPTIONS.find((o) => o.type === selectedType)?.price}`}
+                {statusLoading
+                  ? "..."
+                  : owned
+                    ? (isEnterprise ? "Included" : "Owned")
+                    : isLoading
+                      ? "Redirecting..."
+                      : `Buy ${PRICE_OPTIONS.find((o) => o.type === selectedType)?.price}`}
               </button>
             </div>
           );

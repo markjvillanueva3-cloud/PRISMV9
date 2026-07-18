@@ -1,4 +1,6 @@
-export type ExperienceLevel = 'beginner' | 'journeyman' | 'master';
+// 2026-05-27 (slot golf, GOAL-TSC-FIX iter7): + 'expert' for useCalculatorBridge.test.tsx
+// (5 sites pass "expert"). Semantic alias of 'master' — both denote highest tier.
+export type ExperienceLevel = 'beginner' | 'journeyman' | 'master' | 'expert';
 export type MachineMode = 'mill' | 'lathe' | 'edm' | 'wire_edm' | 'laser' | 'waterjet';
 export type CoolantOptionId = 'flood' | 'tsc' | 'through_air' | 'mist' | 'air' | 'dielectric';
 export type MachinePackageSource = 'registry' | 'registry-merged' | 'fallback';
@@ -96,6 +98,14 @@ export interface MachineCatalogItem {
   coolant: string;
   coolantOptionIds: CoolantOptionId[];
   controllerOptions: SelectionOption[];
+  // 2026-05-27 (slot golf, iter8 — re-add after peer revert): resolved single
+  // controller name (sister to controllerOptions[]). Used by CalculatorPage at
+  // L3941/3962 for fast access without iterating the array. Optional —
+  // call sites should default to controllerOptions[0]?.id when absent.
+  controller?: string;
+  // 2026-05-27 iter27: resolved single spindle name (sister to spindleOptions[]).
+  // calculatorToolpathUniverseCoverage L185 reads this to seed the setup preview.
+  spindleLabel?: string;
   spindleOptions: SelectionOption[];
   controllerCapabilityOptions?: MachineControllerCapabilityOption[];
   configurationOptions?: MachineConfigurationOption[];
@@ -135,6 +145,8 @@ export interface ToolCatalogItem {
   id: string;
   mode: MachineMode;
   family: string;
+  // 2026-05-26 (slot golf, tsc-fix): augmentation — some catalog rows ship a distinct `name` separate from `label`.
+  name?: string;
   label: string;
   description: string;
   holder: string;
@@ -166,6 +178,7 @@ export interface ToolCatalogItem {
   toolpathKeywords?: string[];
   toolMaterialClass?: 'carbide' | 'cermet' | 'pcd' | 'ceramic' | 'wire' | 'graphite' | 'electrode' | 'abrasive';
   geometryClass?:
+    | 'endmill'
     | 'face-mill'
     | 'variable-helix-endmill'
     | 'square-endmill'
@@ -250,7 +263,9 @@ export interface ProgrammingToolpathOption {
   id: string;
   label: string;
   path: string;
-  summary: string;
+  // 2026-05-27 iter28: producer at CalculatorPage L13099 builds these from a
+  // selection where some sources lack a summary (e.g. quick-pick links).
+  summary?: string;
   operationId: string;
 }
 
@@ -1925,6 +1940,17 @@ export const TOOL_CATALOG: ToolCatalogItem[] = [
       'pencil',
       'sweep',
       'sweeping',
+      'geodesic',
+      'isocurve',
+      'blend',
+      'morph',
+      'spiral',
+      'waterline',
+      'constant z',
+      'constant-z',
+      'drive curve',
+      'indexed',
+      '3+2',
     ],
     toolMaterialClass: 'carbide',
     geometryClass: 'ball-endmill',
@@ -1984,10 +2010,29 @@ export const TOOL_CATALOG: ToolCatalogItem[] = [
     defaultFlutes: 2,
     operation: 'drilling',
     supportedOperations: ['drilling'],
-    toolpathKeywords: ['drill', 'bolt', 'hole'],
+    toolpathKeywords: ['drill', 'bolt', 'hole', 'ream', 'tap', 'peck'],
     toolMaterialClass: 'carbide',
     geometryClass: 'drill',
     edgePrep: 'sharp',
+  },
+  {
+    id: 'thread-mill',
+    mode: 'mill',
+    family: 'Solid Carbide Thread Mill',
+    label: '0.375 in single-profile thread mill',
+    description: 'Helical thread milling for internal and external threads, plus rigid-tap alternatives.',
+    holder: 'Shrink-fit or ER collet',
+    coating: 'AlTiN',
+    defaultDiameter: 9.525,
+    defaultFlutes: 3,
+    operation: 'threading',
+    supportedOperations: ['threading', 'drilling'],
+    toolpathKeywords: ['thread', 'tap'],
+    toolMaterialClass: 'carbide',
+    bodyType: 'solid',
+    geometryClass: 'threading-insert',
+    edgePrep: 'sharp',
+    helixAngleDeg: 30,
   },
   {
     id: 'turn-rough',
@@ -2472,98 +2517,122 @@ const PRISM_NOVEL_PROGRAMMING_ENVIRONMENTS: ProgrammingEnvironmentOption[] = [
   {
     id: 'prism-mill',
     mode: 'mill',
-    label: 'PRISM Adaptive',
-    vendor: 'PRISM',
+    label: 'Kienzle Adaptive',
+    vendor: 'Kienzle',
     kind: 'cam',
     badge: 'Novel Strategies',
-    summary: 'PRISM-native milling strategies that blend feature intent, recovery planning, and aggressive adaptive motion.',
+    summary: 'Kienzle-native milling strategies that blend feature intent, recovery planning, and aggressive adaptive motion.',
     toolpaths: [
-      { id: 'prism-featureflow-rough', label: 'FeatureFlow Adaptive Roughing', path: 'PRISM > Mill > FeatureFlow Adaptive Roughing', summary: 'Intent-aware adaptive roughing that sequences pockets and walls from feature priority.', operationId: 'roughing' },
-      { id: 'prism-rest-stitch-pocket', label: 'Rest-Stitch Pocketing', path: 'PRISM > Mill > Rest-Stitch Pocketing', summary: 'Pocket strategy that reconnects leftover regions instead of restarting full clearing loops.', operationId: 'pocket_milling' },
-      { id: 'prism-thermalguard-profile', label: 'ThermalGuard Profile', path: 'PRISM > Mill > ThermalGuard Profile', summary: 'Contour strategy that spaces edge engagement to reduce heat drift on thin walls.', operationId: 'shoulder_milling' },
-      { id: 'prism-surfaceweave-finish', label: 'SurfaceWeave Finish', path: 'PRISM > Mill > SurfaceWeave Finish', summary: 'Hybrid finish pass that blends raster, flowline, and rest cleanup into one surface lane.', operationId: 'finishing' },
-      { id: 'prism-probe-recover', label: 'Probe-Guided Recovery', path: 'PRISM > Mill > Probe-Guided Recovery', summary: 'Recovery toolpath that re-enters from measured stock deviation instead of assuming nominal.', operationId: 'finishing' },
-      { id: 'prism-drill-cluster', label: 'Drill Cluster Sequencer', path: 'PRISM > Mill > Drill Cluster Sequencer', summary: 'Groups drilling features by tool, orientation, and retraction stability.', operationId: 'drilling' },
+      { id: 'prism-featureflow-rough', label: 'FeatureFlow Adaptive Roughing', path: 'Kienzle > Mill > FeatureFlow Adaptive Roughing', summary: 'Intent-aware adaptive roughing that sequences pockets and walls from feature priority.', operationId: 'roughing' },
+      { id: 'prism-rest-stitch-pocket', label: 'Rest-Stitch Pocketing', path: 'Kienzle > Mill > Rest-Stitch Pocketing', summary: 'Pocket strategy that reconnects leftover regions instead of restarting full clearing loops.', operationId: 'pocket_milling' },
+      { id: 'prism-thermalguard-profile', label: 'ThermalGuard Profile', path: 'Kienzle > Mill > ThermalGuard Profile', summary: 'Contour strategy that spaces edge engagement to reduce heat drift on thin walls.', operationId: 'shoulder_milling' },
+      { id: 'prism-surfaceweave-finish', label: 'SurfaceWeave Finish', path: 'Kienzle > Mill > SurfaceWeave Finish', summary: 'Hybrid finish pass that blends raster, flowline, and rest cleanup into one surface lane.', operationId: 'finishing' },
+      { id: 'prism-probe-recover', label: 'Probe-Guided Recovery', path: 'Kienzle > Mill > Probe-Guided Recovery', summary: 'Recovery toolpath that re-enters from measured stock deviation instead of assuming nominal.', operationId: 'finishing' },
+      { id: 'prism-drill-cluster', label: 'Drill Cluster Sequencer', path: 'Kienzle > Mill > Drill Cluster Sequencer', summary: 'Groups drilling features by tool, orientation, and retraction stability.', operationId: 'drilling' },
     ],
   },
   {
     id: 'prism-lathe',
     mode: 'lathe',
-    label: 'PRISM Adaptive',
-    vendor: 'PRISM',
+    label: 'Kienzle Adaptive',
+    vendor: 'Kienzle',
     kind: 'cam',
     badge: 'Novel Strategies',
-    summary: 'PRISM-native turning strategies that emphasize synchronization, chip control, and first-pass recovery logic.',
+    summary: 'Kienzle-native turning strategies that emphasize synchronization, chip control, and first-pass recovery logic.',
     toolpaths: [
-      { id: 'prism-syncguard-rough', label: 'SyncGuard Rough Turn', path: 'PRISM > Lathe > SyncGuard Rough Turn', summary: 'Rough turning tuned to keep spindle, turret, and live-tool readiness in sync.', operationId: 'turning_rough' },
-      { id: 'prism-wave-finish', label: 'Wave Finish Turn', path: 'PRISM > Lathe > Wave Finish Turn', summary: 'Finish turning strategy that smooths chip load and blends shoulder transitions.', operationId: 'turning_finish' },
-      { id: 'prism-chipbreak-groove', label: 'Chip-Break Groove', path: 'PRISM > Lathe > Chip-Break Groove', summary: 'Grooving strategy with deliberate interrupt cadence for better chip evacuation.', operationId: 'grooving' },
-      { id: 'prism-thread-recover', label: 'Thread Recovery Pass', path: 'PRISM > Lathe > Thread Recovery', summary: 'Threading routine that preserves pass context after interrupted prove-out or insert wear.', operationId: 'turning_finish' },
-      { id: 'prism-centerline-bore', label: 'Centerline Bore Stabilizer', path: 'PRISM > Lathe > Centerline Bore Stabilizer', summary: 'Boring strategy that eases into ID work to protect slender bars and small diameters.', operationId: 'boring' },
-      { id: 'prism-live-handshake', label: 'Live-Tool Handshake', path: 'PRISM > Lathe > Live-Tool Handshake', summary: 'Mill-turn handoff routine coordinating spindle orientation, live-tool entry, and cut order.', operationId: 'turning_finish' },
+      { id: 'prism-syncguard-rough', label: 'SyncGuard Rough Turn', path: 'Kienzle > Lathe > SyncGuard Rough Turn', summary: 'Rough turning tuned to keep spindle, turret, and live-tool readiness in sync.', operationId: 'turning_rough' },
+      { id: 'prism-wave-finish', label: 'Wave Finish Turn', path: 'Kienzle > Lathe > Wave Finish Turn', summary: 'Finish turning strategy that smooths chip load and blends shoulder transitions.', operationId: 'turning_finish' },
+      { id: 'prism-chipbreak-groove', label: 'Chip-Break Groove', path: 'Kienzle > Lathe > Chip-Break Groove', summary: 'Grooving strategy with deliberate interrupt cadence for better chip evacuation.', operationId: 'grooving' },
+      { id: 'prism-thread-recover', label: 'Thread Recovery Pass', path: 'Kienzle > Lathe > Thread Recovery', summary: 'Threading routine that preserves pass context after interrupted prove-out or insert wear.', operationId: 'turning_finish' },
+      { id: 'prism-centerline-bore', label: 'Centerline Bore Stabilizer', path: 'Kienzle > Lathe > Centerline Bore Stabilizer', summary: 'Boring strategy that eases into ID work to protect slender bars and small diameters.', operationId: 'boring' },
+      { id: 'prism-live-handshake', label: 'Live-Tool Handshake', path: 'Kienzle > Lathe > Live-Tool Handshake', summary: 'Mill-turn handoff routine coordinating spindle orientation, live-tool entry, and cut order.', operationId: 'turning_finish' },
     ],
   },
   {
     id: 'prism-edm',
     mode: 'edm',
-    label: 'PRISM Adaptive',
-    vendor: 'PRISM',
+    label: 'Kienzle Adaptive',
+    vendor: 'Kienzle',
     kind: 'cam',
     badge: 'Novel Strategies',
-    summary: 'PRISM-native EDM strategies focused on wear mapping, flushing intelligence, and cavity rescue flows.',
+    summary: 'Kienzle-native EDM strategies focused on wear mapping, flushing intelligence, and cavity rescue flows.',
     toolpaths: [
-      { id: 'prism-edm-flushrough', label: 'Flush-Aware Rough Burn', path: 'PRISM > EDM > Flush-Aware Rough Burn', summary: 'Rough burn that changes step-down posture around expected debris bottlenecks.', operationId: 'burn_roughing' },
-      { id: 'prism-edm-orbitweave', label: 'OrbitWeave Finish', path: 'PRISM > EDM > OrbitWeave Finish', summary: 'Orbit finishing path that blends wear, finish, and edge fidelity goals.', operationId: 'burn_finishing' },
-      { id: 'prism-edm-wearmap', label: 'Electrode Wear Map', path: 'PRISM > EDM > Electrode Wear Map', summary: 'Adaptive wear-compensation path based on burn stage and electrode condition.', operationId: 'burn_finishing' },
-      { id: 'prism-edm-ribrescue', label: 'Rib Rescue Detail Burn', path: 'PRISM > EDM > Rib Rescue', summary: 'Detail-burn recovery path for narrow ribs and corner cleanup after primary finishing.', operationId: 'burn_finishing' },
+      { id: 'prism-edm-flushrough', label: 'Flush-Aware Rough Burn', path: 'Kienzle > EDM > Flush-Aware Rough Burn', summary: 'Rough burn that changes step-down posture around expected debris bottlenecks.', operationId: 'burn_roughing' },
+      { id: 'prism-edm-orbitweave', label: 'OrbitWeave Finish', path: 'Kienzle > EDM > OrbitWeave Finish', summary: 'Orbit finishing path that blends wear, finish, and edge fidelity goals.', operationId: 'burn_finishing' },
+      { id: 'prism-edm-wearmap', label: 'Electrode Wear Map', path: 'Kienzle > EDM > Electrode Wear Map', summary: 'Adaptive wear-compensation path based on burn stage and electrode condition.', operationId: 'burn_finishing' },
+      { id: 'prism-edm-ribrescue', label: 'Rib Rescue Detail Burn', path: 'Kienzle > EDM > Rib Rescue', summary: 'Detail-burn recovery path for narrow ribs and corner cleanup after primary finishing.', operationId: 'burn_finishing' },
     ],
   },
   {
     id: 'prism-wire',
     mode: 'wire_edm',
-    label: 'PRISM Adaptive',
-    vendor: 'PRISM',
+    label: 'Kienzle Adaptive',
+    vendor: 'Kienzle',
     kind: 'cam',
     badge: 'Novel Strategies',
-    summary: 'PRISM-native wire EDM strategies for slug retention, tapered accuracy, and skim-pass recovery.',
+    summary: 'Kienzle-native wire EDM strategies for slug retention, tapered accuracy, and skim-pass recovery.',
     toolpaths: [
-      { id: 'prism-wire-slugsafe', label: 'SlugSafe Contour', path: 'PRISM > Wire > SlugSafe Contour', summary: 'Profile path that stages tab release around part mass and exit stability.', operationId: 'wire_profile' },
-      { id: 'prism-wire-taperguard', label: 'TaperGuard Profile', path: 'PRISM > Wire > TaperGuard Profile', summary: 'Taper profile path with wall-angle stability prioritized through corners and breakouts.', operationId: 'wire_profile' },
-      { id: 'prism-wire-skimladder', label: 'Adaptive Skim Ladder', path: 'PRISM > Wire > Adaptive Skim Ladder', summary: 'Variable skim schedule that preserves cycle time while holding finish on critical walls.', operationId: 'wire_skims' },
-      { id: 'prism-wire-release', label: 'Release Planner', path: 'PRISM > Wire > Release Planner', summary: 'Cut completion strategy that coordinates slug bridges, stops, and final release order.', operationId: 'wire_profile' },
+      { id: 'prism-wire-slugsafe', label: 'SlugSafe Contour', path: 'Kienzle > Wire > SlugSafe Contour', summary: 'Profile path that stages tab release around part mass and exit stability.', operationId: 'wire_profile' },
+      { id: 'prism-wire-taperguard', label: 'TaperGuard Profile', path: 'Kienzle > Wire > TaperGuard Profile', summary: 'Taper profile path with wall-angle stability prioritized through corners and breakouts.', operationId: 'wire_profile' },
+      { id: 'prism-wire-skimladder', label: 'Adaptive Skim Ladder', path: 'Kienzle > Wire > Adaptive Skim Ladder', summary: 'Variable skim schedule that preserves cycle time while holding finish on critical walls.', operationId: 'wire_skims' },
+      { id: 'prism-wire-release', label: 'Release Planner', path: 'Kienzle > Wire > Release Planner', summary: 'Cut completion strategy that coordinates slug bridges, stops, and final release order.', operationId: 'wire_profile' },
     ],
   },
   {
     id: 'prism-laser',
     mode: 'laser',
-    label: 'PRISM Adaptive',
-    vendor: 'PRISM',
+    label: 'Kienzle Adaptive',
+    vendor: 'Kienzle',
     kind: 'nesting',
     badge: 'Novel Strategies',
-    summary: 'PRISM-native laser strategies for heat management, nesting throughput, and edge-quality balancing.',
+    summary: 'Kienzle-native laser strategies for heat management, nesting throughput, and edge-quality balancing.',
     toolpaths: [
-      { id: 'prism-laser-heatsmart', label: 'Heat-Smart Contour', path: 'PRISM > Laser > Heat-Smart Contour', summary: 'Contour cut that spaces thermal load around thin webs and clustered features.', operationId: 'laser_cut' },
-      { id: 'prism-laser-nestflow', label: 'NestFlow Common-Line', path: 'PRISM > Laser > NestFlow Common-Line', summary: 'Throughput-biased shared-edge cutting for dense production nests.', operationId: 'laser_cut' },
-      { id: 'prism-laser-edgecal', label: 'EdgeCal Finish', path: 'PRISM > Laser > EdgeCal Finish', summary: 'Edge-quality path tuned to slow selectively around visible or sealing surfaces.', operationId: 'laser_edge' },
-      { id: 'prism-laser-tracemark', label: 'Trace Mark', path: 'PRISM > Laser > Trace Mark', summary: 'Low-energy trace and mark pass coordinated with the main cut sequence.', operationId: 'laser_edge' },
+      { id: 'prism-laser-heatsmart', label: 'Heat-Smart Contour', path: 'Kienzle > Laser > Heat-Smart Contour', summary: 'Contour cut that spaces thermal load around thin webs and clustered features.', operationId: 'laser_cut' },
+      { id: 'prism-laser-nestflow', label: 'NestFlow Common-Line', path: 'Kienzle > Laser > NestFlow Common-Line', summary: 'Throughput-biased shared-edge cutting for dense production nests.', operationId: 'laser_cut' },
+      { id: 'prism-laser-edgecal', label: 'EdgeCal Finish', path: 'Kienzle > Laser > EdgeCal Finish', summary: 'Edge-quality path tuned to slow selectively around visible or sealing surfaces.', operationId: 'laser_edge' },
+      { id: 'prism-laser-tracemark', label: 'Trace Mark', path: 'Kienzle > Laser > Trace Mark', summary: 'Low-energy trace and mark pass coordinated with the main cut sequence.', operationId: 'laser_edge' },
     ],
   },
   {
     id: 'prism-waterjet',
     mode: 'waterjet',
-    label: 'PRISM Adaptive',
-    vendor: 'PRISM',
+    label: 'Kienzle Adaptive',
+    vendor: 'Kienzle',
     kind: 'nesting',
     badge: 'Novel Strategies',
-    summary: 'PRISM-native waterjet strategies for pierce protection, taper locking, and remnant-aware sequencing.',
+    summary: 'Kienzle-native waterjet strategies for pierce protection, taper locking, and remnant-aware sequencing.',
     toolpaths: [
-      { id: 'prism-wj-pierceguard', label: 'PierceGuard Contour', path: 'PRISM > Waterjet > PierceGuard Contour', summary: 'Contour cut that stages low-risk pierce entry before committing to the full profile.', operationId: 'abrasive_cut' },
-      { id: 'prism-wj-qualityladder', label: 'Quality Ladder', path: 'PRISM > Waterjet > Quality Ladder', summary: 'Adaptive quality-level changes along the same path for visible and hidden surfaces.', operationId: 'abrasive_cut' },
-      { id: 'prism-wj-taperlock', label: 'Dynamic Taper Lock', path: 'PRISM > Waterjet > Dynamic Taper Lock', summary: 'Taper-control pass that prioritizes straightness around walls, tabs, and corners.', operationId: 'taper_control' },
-      { id: 'prism-wj-remnantsync', label: 'Remnant Sync', path: 'PRISM > Waterjet > Remnant Sync', summary: 'Remnant-aware cut ordering that keeps valuable offcuts stable and reusable.', operationId: 'abrasive_cut' },
+      { id: 'prism-wj-pierceguard', label: 'PierceGuard Contour', path: 'Kienzle > Waterjet > PierceGuard Contour', summary: 'Contour cut that stages low-risk pierce entry before committing to the full profile.', operationId: 'abrasive_cut' },
+      { id: 'prism-wj-qualityladder', label: 'Quality Ladder', path: 'Kienzle > Waterjet > Quality Ladder', summary: 'Adaptive quality-level changes along the same path for visible and hidden surfaces.', operationId: 'abrasive_cut' },
+      { id: 'prism-wj-taperlock', label: 'Dynamic Taper Lock', path: 'Kienzle > Waterjet > Dynamic Taper Lock', summary: 'Taper-control pass that prioritizes straightness around walls, tabs, and corners.', operationId: 'taper_control' },
+      { id: 'prism-wj-remnantsync', label: 'Remnant Sync', path: 'Kienzle > Waterjet > Remnant Sync', summary: 'Remnant-aware cut ordering that keeps valuable offcuts stable and reusable.', operationId: 'abrasive_cut' },
     ],
   },
 ];
+
+// Builds the canonical 12-lane wire-EDM toolpath menu shared across the wire
+// CAM packages (CAMWorks, NX, SolidCAM, SprutCAM, SURFCAM, Tebis, TopSolid).
+// Each vendor renders the same physical cutting lanes under its own menu path,
+// so the labels stay constant while the `path` reflects the real vendor menu.
+function buildWireToolpathMenu(
+  idPrefix: string,
+  menuRoot: string,
+): ProgrammingToolpathOption[] {
+  return [
+    { id: `${idPrefix}-2axis-profile`, label: '2-Axis Profile', path: `${menuRoot} > 2-Axis Profile`, summary: 'Standard XY profile cut with skim-pass follow-up for size and finish.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-4axis-taper`, label: '4-Axis Taper / Ruled Cut', path: `${menuRoot} > 4-Axis Taper / Ruled`, summary: 'Tapered or ruled-wall cutting with independent upper/lower UV contours.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-variable-taper`, label: 'Variable Taper', path: `${menuRoot} > Variable Taper`, summary: 'Changing taper angle along the contour for draft and relief transitions.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-rough`, label: 'Wire Roughing', path: `${menuRoot} > Rough Cut`, summary: 'First separation pass that establishes the slug before finish skims.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-skim`, label: 'Multi-Cut Skim', path: `${menuRoot} > Skim Passes`, summary: 'Scheduled multi-skim finishing for edge quality and dimensional control.', operationId: 'wire_skims' },
+    { id: `${idPrefix}-coreless`, label: 'No-Core / Coreless Cut', path: `${menuRoot} > No-Core`, summary: 'Coreless erosion of the full pocket so no solid slug must be retrieved.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-tab-slug`, label: 'Tabbed Slug Control', path: `${menuRoot} > Tab / Slug`, summary: 'Tab and stop-move management for safe slug retention and release.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-land-relief`, label: 'Land / Relief Cut', path: `${menuRoot} > Land / Relief`, summary: 'Land-and-relief profiling for stamping dies and form punches.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-rotary`, label: 'Rotary Wire', path: `${menuRoot} > Rotary Axis`, summary: 'Rotary-axis wire cutting for shafts, gears, and cylindrical features.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-submerged`, label: 'Submerged Precision Cut', path: `${menuRoot} > Submerged`, summary: 'Submerged dielectric cutting for thermal stability on precision tolerances.', operationId: 'wire_skims' },
+    { id: `${idPrefix}-flush`, label: 'Flushing Optimized Profile', path: `${menuRoot} > Flush Optimized`, summary: 'Profile cut tuned around poor-flushing zones and tall workpieces.', operationId: 'wire_profile' },
+    { id: `${idPrefix}-punch-die`, label: 'Punch / Die Profile', path: `${menuRoot} > Punch / Die`, summary: 'Matched punch-and-die profiling with land, clearance, and start-hole logic.', operationId: 'wire_profile' },
+  ];
+}
 
 export const PROGRAMMING_ENVIRONMENTS: ProgrammingEnvironmentOption[] = [
   {
@@ -2583,6 +2652,11 @@ export const PROGRAMMING_ENVIRONMENTS: ProgrammingEnvironmentOption[] = [
       { id: 'mc-parallel', label: 'Surface Finish Parallel', path: 'Mill Toolpaths > 3D > Surface Finish Parallel', summary: 'Parallel finishing passes for floor or shallow surface refinement.', operationId: 'finishing' },
       { id: 'mc-flowline', label: 'Surface Finish Flowline', path: 'Mill Toolpaths > 3D > Surface Finish Flowline', summary: 'Surface-driven finishing that follows model flow and curvature.', operationId: 'finishing' },
       { id: 'mc-drill', label: 'Drill', path: 'Mill Toolpaths > Drill', summary: 'Holemaking with peck, chip-break, and multi-depth cycle control.', operationId: 'drilling' },
+      { id: 'mc-thread-mill', label: 'Thread Milling', path: 'Mill Toolpaths > 2D > Thread Mill', summary: 'Helical thread milling for internal and external threads with a single tool.', operationId: 'threading' },
+      { id: 'mc-tap', label: 'Tapping', path: 'Mill Toolpaths > Drill > Rigid Tap', summary: 'Rigid tapping canned cycle for threaded holes.', operationId: 'drilling' },
+      { id: 'mc-chamfer', label: 'Chamfer / Deburr', path: 'Mill Toolpaths > 2D > Chamfer', summary: 'Edge-break and deburr pass along contour or hole edges.', operationId: 'engraving' },
+      { id: 'mc-high-feed', label: 'High Feed Milling', path: 'Mill Toolpaths > 3D > High Feed', summary: 'Shallow-DOC high-feed roughing for fast stock removal with light radial load.', operationId: 'roughing' },
+      { id: 'mc-helical-bore', label: 'Helical Bore', path: 'Mill Toolpaths > 2D > Helix Bore', summary: 'Helical interpolation boring to open holes larger than the tool diameter.', operationId: 'pocket_milling' },
     ],
   },
   {
@@ -2621,6 +2695,8 @@ export const PROGRAMMING_ENVIRONMENTS: ProgrammingEnvironmentOption[] = [
       { id: 'f360-scallop', label: 'Scallop', path: 'Manufacture > Milling > 3D > Scallop', summary: 'Constant cusp finishing for blended curvature.', operationId: 'finishing' },
       { id: 'f360-flow', label: 'Flow', path: 'Manufacture > Milling > 3D > Flow', summary: 'Surface-following finish path with cleaner flowline control.', operationId: 'finishing' },
       { id: 'f360-swarf', label: 'Swarf', path: 'Manufacture > Milling > Multi-Axis > Swarf', summary: 'Simultaneous wall cutting on ruled geometry.', operationId: 'finishing' },
+      { id: 'f360-ream', label: 'Reaming', path: 'Manufacture > Milling > Drilling > Ream', summary: 'Reaming cycle for tight-tolerance finished hole diameters.', operationId: 'drilling' },
+      { id: 'f360-geodesic', label: 'Geodesic Finishing', path: 'Manufacture > Milling > 3D > Geodesic', summary: 'Geodesic-distance finishing for even cusp height across complex surfaces.', operationId: 'finishing' },
     ],
   },
   {
@@ -2640,6 +2716,8 @@ export const PROGRAMMING_ENVIRONMENTS: ProgrammingEnvironmentOption[] = [
       { id: 'nx-variable-contour', label: 'Variable Contour', path: 'Operation Navigator > Milling > Multi-Axis > Variable Contour', summary: 'Multi-axis contour path for shaped walls and transitions.', operationId: 'finishing' },
       { id: 'nx-swarf', label: 'Swarf', path: 'Operation Navigator > Milling > Multi-Axis > Swarf', summary: 'Ruled-surface flank cutting in simultaneous 5-axis.', operationId: 'finishing' },
       { id: 'nx-drilling', label: 'Hole Making', path: 'Operation Navigator > Hole Making', summary: 'Feature-based drilling, boring, and cycle selection.', operationId: 'drilling' },
+      { id: 'nx-constant-z', label: 'Constant Z / Waterline', path: 'Operation Navigator > Milling > Finishing > Constant Z', summary: 'Constant-Z waterline finishing on steep walls and bosses.', operationId: 'finishing' },
+      { id: 'nx-drive-curve-5ax', label: 'Drive Curve 5-Axis', path: 'Operation Navigator > Milling > Multi-Axis > Drive Curve', summary: 'Curve-driven simultaneous 5-axis path for blended transitions and edges.', operationId: 'finishing' },
     ],
   },
   {
@@ -2673,6 +2751,8 @@ export const PROGRAMMING_ENVIRONMENTS: ProgrammingEnvironmentOption[] = [
       { id: 'mc-lathe-drill', label: 'Centerline Drill/Bore', path: 'Lathe Toolpaths > Drill/Bore', summary: 'Centerline drilling and boring operations from the turret.', operationId: 'boring' },
       { id: 'mc-lathe-cutoff', label: 'Lathe Cutoff', path: 'Lathe Toolpaths > Cutoff', summary: 'Part-off and separation path planning.', operationId: 'grooving' },
       { id: 'mc-lathe-live', label: 'C/Y Live Tooling', path: 'Mill-Turn Toolpaths > C/Y Milling', summary: 'Driven-tool milling on Y-axis or C-axis-capable lathes.', operationId: 'turning_finish' },
+      { id: 'mc-lathe-live-tap', label: 'Live Tool Tapping', path: 'Mill-Turn Toolpaths > C-Axis > Live Tool Tap', summary: 'Driven-tool rigid tapping on C-axis or cross-drilled features.', operationId: 'turning_finish' },
+      { id: 'mc-lathe-wave-finish', label: 'Wave Finish Turn', path: 'Lathe Toolpaths > Finish > Wave', summary: 'Wave/oscillating finish turning pass for chip control on long contours.', operationId: 'turning_finish' },
     ],
   },
   {
@@ -3373,6 +3453,254 @@ export const PROGRAMMING_ENVIRONMENTS: ProgrammingEnvironmentOption[] = [
       { id: 'wj-pierce', label: 'Pierce Strategy', path: 'Wardjet > Pierce', summary: 'Configurable pierce routines including low-pressure ramp for fragile materials.', operationId: 'abrasive_cut' },
       { id: 'wj-stack', label: 'Stack Cut', path: 'Wardjet > Stack Cut', summary: 'Multi-layer stack cutting for thin sheet materials.', operationId: 'abrasive_cut' },
     ],
+  },
+  {
+    id: 'camworks-mill',
+    mode: 'mill',
+    label: 'CAMWorks',
+    vendor: 'HCL / Geometric',
+    kind: 'cam',
+    badge: 'Feature-Based CAM',
+    summary: 'CAMWorks drives feature-based milling from SOLIDWORKS geometry with the VoluMill knowledge engine.',
+    toolpaths: [
+      { id: 'cw-mill-volumill', label: 'VoluMill Roughing', path: 'Mill > 2.5 Axis > VoluMill', summary: 'Constant-load high-speed roughing with controlled engagement.', operationId: 'roughing' },
+      { id: 'cw-mill-pocket', label: 'Rough Mill Pocket', path: 'Mill > 2.5 Axis > Rough Mill', summary: 'Feature-recognized pocket clearing with rest awareness.', operationId: 'pocket_milling' },
+      { id: 'cw-mill-contour', label: 'Contour Mill', path: 'Mill > 2.5 Axis > Contour Mill', summary: 'Profile and wall finishing with lead and finish control.', operationId: 'shoulder_milling' },
+      { id: 'cw-mill-zlevel', label: 'Z-Level Finishing', path: 'Mill > 3 Axis > Z Level', summary: 'Steep-wall constant-Z finishing for cores and cavities.', operationId: 'finishing' },
+      { id: 'cw-mill-flat', label: 'Flat Area Finishing', path: 'Mill > 3 Axis > Flat Area', summary: 'Floor and flat-surface finishing pass.', operationId: 'finishing' },
+      { id: 'cw-mill-drill', label: 'Hole Drilling', path: 'Mill > Hole Machining > Drill', summary: 'Feature-based drilling, peck, and tap cycle selection.', operationId: 'drilling' },
+      { id: 'cw-mill-spiral-rough', label: 'Spiral Roughing', path: 'Mill > 3 Axis > Spiral Roughing', summary: 'Spiral-engagement roughing that keeps the cutter in continuous motion.', operationId: 'roughing' },
+      { id: 'cw-mill-blend', label: 'Blend Finishing', path: 'Mill > 3 Axis > Blend Finishing', summary: 'Blended finishing across surface boundaries for smooth transitions.', operationId: 'finishing' },
+      { id: 'cw-mill-peck', label: 'Peck Drilling', path: 'Mill > Hole Machining > Peck Drilling', summary: 'Deep-hole peck drilling cycle with chip evacuation retracts.', operationId: 'drilling' },
+    ],
+  },
+  {
+    id: 'sprutcam-mill',
+    mode: 'mill',
+    label: 'SprutCAM X',
+    vendor: 'SprutCAM Tech',
+    kind: 'cam',
+    badge: 'Multi-Axis CAM',
+    summary: 'SprutCAM X spans 2.5D through simultaneous 5-axis and robotic milling from one workflow.',
+    toolpaths: [
+      { id: 'sc-mill-rough', label: 'Roughing Waveform', path: 'Operations > Roughing > Waveform', summary: 'Trochoidal high-efficiency roughing for hard stock.', operationId: 'roughing' },
+      { id: 'sc-mill-plunge', label: 'Plunge Roughing', path: 'Operations > Roughing > Plunge', summary: 'Axial plunge roughing for deep cavities and long-reach stability.', operationId: 'roughing' },
+      { id: 'sc-mill-pocket', label: '2.5D Pocketing', path: 'Operations > 2.5D > Pocketing', summary: 'Prismatic pocket clearing with island and rest control.', operationId: 'pocket_milling' },
+      { id: 'sc-mill-contour', label: '2.5D Contour', path: 'Operations > 2.5D > Contouring', summary: 'Perimeter profiling with finish allowance.', operationId: 'shoulder_milling' },
+      { id: 'sc-mill-waterline', label: 'Waterline Finishing', path: 'Operations > 3D > Waterline', summary: 'Constant-Z steep finishing pass.', operationId: 'finishing' },
+      { id: 'sc-mill-5x-swarf', label: 'Simultaneous 5-Axis Swarf', path: 'Operations > 5-Axis > Swarf', summary: 'Flank cutting of ruled walls in simultaneous 5-axis.', operationId: 'finishing' },
+      { id: 'sc-mill-morph', label: 'Morphed Spiral Finishing', path: 'Operations > 3D > Morphed Spiral', summary: 'Spiral finishing morphed between two boundary curves for even cusp.', operationId: 'finishing' },
+      { id: 'sc-mill-3plus2', label: '3+2 Indexed Finishing', path: 'Operations > 5-Axis > 3+2 Indexed', summary: 'Positional 3+2 indexed finishing for fixed multi-face setups.', operationId: 'finishing' },
+      { id: 'sc-mill-drill', label: 'Drilling', path: 'Operations > Holes > Drilling', summary: 'Drilling and canned-cycle holemaking.', operationId: 'drilling' },
+    ],
+  },
+  {
+    id: 'surfcam-mill',
+    mode: 'mill',
+    label: 'SURFCAM',
+    vendor: 'Hexagon',
+    kind: 'cam',
+    badge: 'Production CAM',
+    summary: 'SURFCAM pairs TrueMill constant-engagement roughing with straightforward 3-to-5-axis finishing.',
+    toolpaths: [
+      { id: 'sf-mill-truemill', label: 'TrueMill Roughing', path: 'Toolpaths > Roughing > TrueMill', summary: 'Constant tool-engagement high-speed roughing.', operationId: 'roughing' },
+      { id: 'sf-mill-pocket', label: 'Pocket', path: 'Toolpaths > 2 Axis > Pocket', summary: 'Standard pocket clearing for prismatic features.', operationId: 'pocket_milling' },
+      { id: 'sf-mill-profile', label: 'Profile', path: 'Toolpaths > 2 Axis > Profile', summary: 'Contour profiling with cutter compensation.', operationId: 'shoulder_milling' },
+      { id: 'sf-mill-parallel', label: 'Parallel Finishing', path: 'Toolpaths > 3 Axis > Parallel', summary: 'Linear surface finishing on shallow surfaces.', operationId: 'finishing' },
+      { id: 'sf-mill-scallop', label: 'Scallop Finishing', path: 'Toolpaths > 3 Axis > Scallop', summary: 'Constant-cusp finishing for blended curvature.', operationId: 'finishing' },
+      { id: 'sf-mill-troch-slot', label: 'Trochoidal Slot', path: 'Toolpaths > 2 Axis > Trochoidal Slot', summary: 'Trochoidal slotting for full-width channels with reduced radial load.', operationId: 'slot_milling' },
+      { id: 'sf-mill-isocurve', label: 'Isocurve Finishing', path: 'Toolpaths > 3 Axis > Isocurve', summary: 'Parametric isocurve finishing that follows surface UV flow.', operationId: 'finishing' },
+      { id: 'sf-mill-pencil', label: 'Pencil Finishing', path: 'Toolpaths > 3 Axis > Pencil', summary: 'Pencil-trace finishing along internal corners and fillets.', operationId: 'finishing' },
+      { id: 'sf-mill-drill', label: 'Drill', path: 'Toolpaths > Holes > Drill', summary: 'Holemaking with peck and chip-break cycles.', operationId: 'drilling' },
+    ],
+  },
+  {
+    id: 'camworks-lathe',
+    mode: 'lathe',
+    label: 'CAMWorks Turn',
+    vendor: 'HCL / Geometric',
+    kind: 'cam',
+    badge: 'Turning CAM',
+    summary: 'CAMWorks turning recognizes OD/ID features from the model and builds the turret process automatically.',
+    toolpaths: [
+      { id: 'cw-lathe-rough', label: 'Turn Rough', path: 'Turn > Roughing', summary: 'OD/ID rough turning with stock recognition.', operationId: 'turning_rough' },
+      { id: 'cw-lathe-finish', label: 'Turn Finish', path: 'Turn > Finishing', summary: 'Finish contouring and spring-pass cleanup.', operationId: 'turning_finish' },
+      { id: 'cw-lathe-groove', label: 'Groove / Cutoff', path: 'Turn > Grooving', summary: 'Grooving, recess, and part-off operations.', operationId: 'grooving' },
+      { id: 'cw-lathe-thread', label: 'Thread', path: 'Turn > Threading', summary: 'Single-point threading with pass control.', operationId: 'turning_finish' },
+      { id: 'cw-lathe-bore', label: 'Centerline Drill / Bore', path: 'Turn > Center Drill', summary: 'Centerline drilling and boring from the turret.', operationId: 'boring' },
+    ],
+  },
+  {
+    id: 'catia-lathe',
+    mode: 'lathe',
+    label: 'CATIA Turning',
+    vendor: 'Dassault Systemes',
+    kind: 'cam',
+    badge: 'Enterprise CAM',
+    summary: 'CATIA Lathe Machining keeps turning programs inside the PLM model for aerospace and automotive parts.',
+    toolpaths: [
+      { id: 'catia-lathe-rough', label: 'Rough Turning', path: 'Lathe Machining > Rough Turning', summary: 'OD/ID roughing with stock and retract control.', operationId: 'turning_rough' },
+      { id: 'catia-lathe-finish', label: 'Finish Turning', path: 'Lathe Machining > Finish Turning', summary: 'Finish contouring for OD/ID geometry.', operationId: 'turning_finish' },
+      { id: 'catia-lathe-groove', label: 'Grooving', path: 'Lathe Machining > Grooving', summary: 'Grooving and recess operations.', operationId: 'grooving' },
+      { id: 'catia-lathe-thread', label: 'Thread Turning', path: 'Lathe Machining > Threading', summary: 'Single-point threading for OD/ID features.', operationId: 'turning_finish' },
+      { id: 'catia-lathe-drill', label: 'Centerline Drilling', path: 'Lathe Machining > Drilling', summary: 'Centerline drilling and boring from the turret.', operationId: 'boring' },
+      { id: 'catia-lathe-rough-bore', label: 'Rough Boring', path: 'Lathe Machining > Rough Boring', summary: 'ID rough boring to open and size cored or drilled bores.', operationId: 'boring' },
+      { id: 'catia-lathe-finish-bore', label: 'Finish Boring', path: 'Lathe Machining > Finish Boring', summary: 'ID finish boring for tight-tolerance bore diameters and surface finish.', operationId: 'boring' },
+    ],
+  },
+  {
+    id: 'bobcad-lathe',
+    mode: 'lathe',
+    label: 'BobCAD-CAM Turn',
+    vendor: 'BobCAD-CAM',
+    kind: 'cam',
+    badge: 'Shop Turning',
+    summary: 'BobCAD-CAM keeps turning approachable for small shops with wizard-driven rough, finish, and thread cycles.',
+    toolpaths: [
+      { id: 'bobcad-lathe-rough', label: 'Rough Turn', path: 'Turning > Rough', summary: 'General OD/ID rough turning.', operationId: 'turning_rough' },
+      { id: 'bobcad-lathe-finish', label: 'Finish Turn', path: 'Turning > Finish', summary: 'Finish contouring with spring passes.', operationId: 'turning_finish' },
+      { id: 'bobcad-lathe-groove', label: 'Groove / Part-Off', path: 'Turning > Groove', summary: 'Grooving and cutoff motion.', operationId: 'grooving' },
+      { id: 'bobcad-lathe-thread', label: 'Thread', path: 'Turning > Thread', summary: 'Threading with insert-aware pass control.', operationId: 'turning_finish' },
+      { id: 'bobcad-lathe-drill', label: 'Centerline Drill', path: 'Turning > Drill', summary: 'Centerline drilling from the turret.', operationId: 'boring' },
+    ],
+  },
+  {
+    id: 'sprutcam-lathe',
+    mode: 'lathe',
+    label: 'SprutCAM X Turn',
+    vendor: 'SprutCAM Tech',
+    kind: 'cam',
+    badge: 'Mill-Turn CAM',
+    summary: 'SprutCAM X turning carries simple OD/ID work through full multi-channel mill-turn programming.',
+    toolpaths: [
+      { id: 'sc-lathe-rough', label: 'Turning Roughing', path: 'Operations > Turning > Roughing', summary: 'OD/ID rough turning with stock control.', operationId: 'turning_rough' },
+      { id: 'sc-lathe-finish', label: 'Turning Finishing', path: 'Operations > Turning > Finishing', summary: 'Finish contouring for turned profiles.', operationId: 'turning_finish' },
+      { id: 'sc-lathe-groove', label: 'Grooving / Cutoff', path: 'Operations > Turning > Grooving', summary: 'Grooving and part-off planning.', operationId: 'grooving' },
+      { id: 'sc-lathe-thread', label: 'Threading', path: 'Operations > Turning > Threading', summary: 'Single-point threading passes.', operationId: 'turning_finish' },
+      { id: 'sc-lathe-live', label: 'Mill-Turn Live Tooling', path: 'Operations > Mill-Turn > Live Tooling', summary: 'Driven-tool milling and drilling from the lathe.', operationId: 'turning_finish' },
+    ],
+  },
+  {
+    id: 'surfcam-lathe',
+    mode: 'lathe',
+    label: 'SURFCAM Turn',
+    vendor: 'Hexagon',
+    kind: 'cam',
+    badge: 'Turning CAM',
+    summary: 'SURFCAM turning keeps the lathe flow compact for production OD/ID and grooving work.',
+    toolpaths: [
+      { id: 'sf-lathe-rough', label: 'Rough Turn', path: 'Turning > Rough', summary: 'Primary rough turning with retract control.', operationId: 'turning_rough' },
+      { id: 'sf-lathe-finish', label: 'Finish Turn', path: 'Turning > Finish', summary: 'Finish contouring for OD/ID geometry.', operationId: 'turning_finish' },
+      { id: 'sf-lathe-groove', label: 'Groove', path: 'Turning > Groove', summary: 'Grooving and cutoff lathe motion.', operationId: 'grooving' },
+      { id: 'sf-lathe-thread', label: 'Thread', path: 'Turning > Thread', summary: 'Threading with infeed and pullout control.', operationId: 'turning_finish' },
+      { id: 'sf-lathe-bore', label: 'Bore', path: 'Turning > Bore', summary: 'Centerline boring from the turret.', operationId: 'boring' },
+    ],
+  },
+  {
+    id: 'tebis-lathe',
+    mode: 'lathe',
+    label: 'Tebis Turn',
+    vendor: 'Tebis',
+    kind: 'cam',
+    badge: 'Mold & Die Turning',
+    summary: 'Tebis turning supports the lathe operations that feed mold, die, and model-making workflows.',
+    toolpaths: [
+      { id: 'tebis-lathe-rough', label: 'Rough Turning', path: 'Turning > Roughing', summary: 'OD/ID roughing with template-driven setups.', operationId: 'turning_rough' },
+      { id: 'tebis-lathe-finish', label: 'Finish Turning', path: 'Turning > Finishing', summary: 'Finish contouring for turned features.', operationId: 'turning_finish' },
+      { id: 'tebis-lathe-groove', label: 'Grooving', path: 'Turning > Grooving', summary: 'Grooving and recess operations.', operationId: 'grooving' },
+      { id: 'tebis-lathe-thread', label: 'Threading', path: 'Turning > Threading', summary: 'Single-point threading passes.', operationId: 'turning_finish' },
+      { id: 'tebis-lathe-drill', label: 'Centerline Drilling', path: 'Turning > Drilling', summary: 'Centerline drilling and boring.', operationId: 'boring' },
+    ],
+  },
+  {
+    id: 'camworks-wire',
+    mode: 'wire_edm',
+    label: 'CAMWorks Wire EDM',
+    vendor: 'HCL / Geometric',
+    kind: 'cam',
+    badge: 'Wire CAM',
+    summary: 'CAMWorks Wire EDM recognizes die and punch features and builds the 2- and 4-axis wire process automatically.',
+    toolpaths: buildWireToolpathMenu('cw-wire', 'Wire EDM'),
+  },
+  {
+    id: 'nx-wire',
+    mode: 'wire_edm',
+    label: 'NX Wire EDM',
+    vendor: 'Siemens',
+    kind: 'cam',
+    badge: 'Enterprise Wire',
+    summary: 'NX Wire EDM handles 2-axis through 4-axis taper wire programming inside large enterprise process plans.',
+    toolpaths: buildWireToolpathMenu('nx-wire', 'Wire EDM'),
+  },
+  {
+    id: 'solidcam-wire',
+    mode: 'wire_edm',
+    label: 'SolidCAM Wire',
+    vendor: 'SolidCAM',
+    kind: 'cam',
+    badge: 'Integrated Wire',
+    summary: 'SolidCAM Wire EDM runs inside SOLIDWORKS / Inventor for 2- and 4-axis profile and taper wire work.',
+    toolpaths: buildWireToolpathMenu('solidcam-wire', 'Wire EDM'),
+  },
+  {
+    id: 'sprutcam-wire',
+    mode: 'wire_edm',
+    label: 'SprutCAM X Wire',
+    vendor: 'SprutCAM Tech',
+    kind: 'cam',
+    badge: 'Multi-Axis Wire',
+    summary: 'SprutCAM X wire covers 2-axis through 4-axis taper plus rotary wire on multi-axis EDM platforms.',
+    toolpaths: buildWireToolpathMenu('sc-wire', 'Wire EDM'),
+  },
+  {
+    id: 'surfcam-wire',
+    mode: 'wire_edm',
+    label: 'SURFCAM Wire',
+    vendor: 'Hexagon',
+    kind: 'cam',
+    badge: 'Wire CAM',
+    summary: 'SURFCAM Wire EDM keeps profile, taper, and skim-pass wire programming production-focused.',
+    toolpaths: buildWireToolpathMenu('sf-wire', 'Wire EDM'),
+  },
+  {
+    id: 'tebis-wire',
+    mode: 'wire_edm',
+    label: 'Tebis Wire EDM',
+    vendor: 'Tebis',
+    kind: 'cam',
+    badge: 'Mold & Die Wire',
+    summary: 'Tebis Wire EDM serves the precise contour, land, and relief wire work used in mold and die making.',
+    toolpaths: buildWireToolpathMenu('tebis-wire', 'Wire EDM'),
+  },
+  {
+    id: 'topsolid-wire',
+    mode: 'wire_edm',
+    label: 'TopSolid Wire',
+    vendor: 'Missler Software',
+    kind: 'cam',
+    badge: 'Integrated Wire',
+    summary: 'TopSolid Wire EDM links the wire process to the assembly model for 2- and 4-axis die and punch work.',
+    toolpaths: buildWireToolpathMenu('topsolid-wire', 'Wire EDM'),
+  },
+  {
+    id: 'bobcad-wire',
+    mode: 'wire_edm',
+    label: 'BobCAD-CAM Wire',
+    vendor: 'BobCAD-CAM',
+    kind: 'cam',
+    badge: 'Shop Wire',
+    summary: 'BobCAD-CAM Wire EDM keeps 2- and 4-axis wire approachable for small shops with wizard-driven setups.',
+    toolpaths: buildWireToolpathMenu('bobcad-wire', 'Wire EDM'),
+  },
+  {
+    id: 'edgecam-wire',
+    mode: 'wire_edm',
+    label: 'Edgecam Wire',
+    vendor: 'Hexagon',
+    kind: 'cam',
+    badge: 'Production Wire',
+    summary: 'Edgecam Wire EDM brings feature-driven 2- and 4-axis taper wire programming to production die work.',
+    toolpaths: buildWireToolpathMenu('edgecam-wire', 'Wire EDM'),
   },
   ...BASIC_TOOLPATH_ENVIRONMENTS,
   ...CONVERSATIONAL_PROGRAMMING_ENVIRONMENTS,

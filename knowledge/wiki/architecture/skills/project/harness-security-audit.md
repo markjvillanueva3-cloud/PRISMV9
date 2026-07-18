@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Wraps `HarnessSecurityAuditEngine` (the `prism_dev:audit_harness_security` action). PRISM-aware AgentShield equivalent: it knows our completeness-gate hooks, MCP server registry, and settings.json structure.
+
+# /harness-security-audit — Claude Code Harness Security Scanner
 
 <!-- AUTO-END -->
 

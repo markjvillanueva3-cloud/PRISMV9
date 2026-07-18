@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `roadmap-quality-check` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/roadmap-quality-check.md` |
+| Source | `C:/Users/wompu/.claude/commands/roadmap-quality-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Run this AFTER every /compact to verify the session produced quality work.
+
+# Roadmap Quality Check — Post-Compact Session Scrutiny
 
 <!-- AUTO-END -->
 

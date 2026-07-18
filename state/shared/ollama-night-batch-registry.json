@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1.0.0",
+  "note": "Off-hours Ollama work lane (U-NIGHT-BATCH + U-NIGHT-EXPAND + U-YT-NIGHT-STAGE, slot:zulu 2026-06-12). Jobs run sequentially IN ARRAY ORDER (short jobs first; the between-jobs window re-check protects the tail) by scripts/ollama-night-batch.mjs, invoked by the 'PRISM Ollama Night Batch' scheduled task (22:23, 7h limit). cmd[0] must be 'node', cmd[1] a relative scripts/ path; no shell metacharacters; jobs must not spawn detached children. NEVER add unattended LIVE-INDEX-MUTATION jobs (tribal clobber 8bf1873577): an 11-agent verification pass (workflow wf_eaeb1510, 2026-06-12) HARD-REJECTED lint-wiki-orphans (live wiki hub overwrite), youtube-free-extract (in-process tribal ingest -- DEFECT FIXED via the staging-only wrapper scripts/youtube-night-extract.mjs, which forces --no-ingest --no-wiki; promotion is ATTENDED via scripts/promote-youtube-staged.mjs), galaxy-synthesis-refresh (uncoordinated shared-sidecar rebuild), hermes-dream-cycle-synth (default cascade; needs per-job env support), batch-ollama-vision-extract (child runner unaudited; xray-owned), vault-to-gnn-refpool --apply (542MB graph mutation + spawnSync child survives timeout kill). Do not re-add the others without fixing the named defect.",
+  "window": { "startHour": 22, "endHour": 6 },
+  "jobs": [
+    {
+      "id": "vault-to-lora-feedback",
+      "cmd": ["node", "scripts/vault-to-lora-dataset.mjs", "--source", "feedback", "--out", "state/shared/lora/vault-feedback-dataset.jsonl"],
+      "timeoutMs": 60000,
+      "enabled": true,
+      "note": "Nightly refresh of the feedback LoRA dataset from the Obsidian vault (LEG-B feed). Atomic tmp+rename, no Ollama, sub-second."
+    },
+    {
+      "id": "vault-to-lora-galaxy",
+      "cmd": ["node", "scripts/vault-to-lora-dataset.mjs", "--source", "galaxy", "--out", "state/shared/lora/vault-galaxy-synthesis-dataset.jsonl"],
+      "timeoutMs": 60000,
+      "enabled": true,
+      "note": "Nightly refresh of the galaxy-synthesis LoRA dataset (LEG-B feed). Atomic, no Ollama."
+    },
+    {
+      "id": "fleet-corpus-inventory",
+      "cmd": ["node", "scripts/build-fleet-training-corpus-inventory.mjs"],
+      "timeoutMs": 60000,
+      "enabled": true,
+      "note": "Rebuild the training-corpus manifest BEFORE the assembler (dependency order R13). Live-verified: restores 9 'present' lora sources after the 2026-06-12 partial-regen drift. Own artifact, atomic, no Ollama."
+    },
+    {
+      "id": "assemble-fleet-lora-corpus",
+      "cmd": ["node", "scripts/assemble-fleet-lora-corpus.mjs", "--out"],
+      "timeoutMs": 120000,
+      "enabled": true,
+      "note": "Union all present lora-training-jsonl sources into fleet-lora-combined.jsonl (the LEG-B gate input; live-verified 1366 rows). PROTECTED by assertNoClobber (>50% shrink/empty REFUSED -- PRISM_LORA_ALLOW_SHRINK=1 to override attended). Keeps the LEG-B 48h freshness ceiling structurally green. Runs AFTER vault-to-lora x2 + fleet-corpus-inventory."
+    },
+    {
+      "id": "auto-research-weekly-digest",
+      "cmd": ["node", "scripts/auto-research-weekly-digest.mjs"],
+      "timeoutMs": 60000,
+      "enabled": true,
+      "note": "Idempotent digest render of pending auto-research proposals (own auto-learning/ dir, byte-identical on same input; exits 0 on empty input -- live-verified). The human-in-loop approve/reject surface for local-LLM research items."
+    },
+    {
+      "id": "distill-tribal-mechanical",
+      "cmd": ["node", "scripts/distill-tribal.mjs", "--no-llm", "--sample=500"],
+      "timeoutMs": 300000,
+      "enabled": true,
+      "note": "Deterministic tribal canonical-cluster distillation (own canonical/ output dir only). --no-llm mandatory: skips the Ollama probe whose hang behavior is unverified; pure CPU."
+    },
+    {
+      "id": "vault-to-gnn-refpool-report",
+      "cmd": ["node", "scripts/vault-to-gnn-refpool.mjs"],
+      "timeoutMs": 900000,
+      "enabled": true,
+      "note": "DRY-RUN ONLY nightly sanity report of vault->GNN ref-pool candidates (feeds the india full-coverage residual decision). NEVER add --apply here: it mutates the 542MB system-graph and its spawnSync re-exec child survives a timeout kill."
+    },
+    {
+      "id": "ollama-capability-probe",
+      "cmd": ["node", "scripts/ollama-capability-probe-permodel.mjs", "--out", "--per-timeout-ms", "300000"],
+      "timeoutMs": 3000000,
+      "enabled": true,
+      "note": "Refresh the (task,model) auto-offload-safety matrix nightly via the PER-MODEL orchestrator (U-ALPHA-OLLAMA-PROBE-PERMODEL 2026-06-25): the single-process 9-model probe (ollama-capability-probe.mjs --out) FALSE-0'd every cold-load big model -- one problematic model (the held-resident 32b's num_ctx thrash / 120b's can't-fit OOM) poisons every model AFTER it in a shared run; proven this session (gpt-oss:20b all-0 in the 9-model run, real 100%/67% rates single-model). Per-model spawnSync isolation (NOT detached -- registry-compliant) fixes it: a bad model fails in its OWN child + is recorded unmeasured/excluded, never zeroing the rest. 300s per child x <=9 = <50min < timeoutMs. excludeNoSignal + all-zero outage clobber-guard still applied to the merged matrix. The roster-coverage-guard job below still reads DEFAULT_MODELS (unchanged) so it is unaffected."
+    },
+    {
+      "id": "ollama-roster-coverage-guard",
+      "cmd": ["node", "scripts/audit-probe-roster-coverage.mjs"],
+      "timeoutMs": 30000,
+      "enabled": true,
+      "note": "Runs RIGHT AFTER ollama-capability-probe regenerates the matrix (R13 dependency order): asserts every INSTALLED routable model (cost-router TIER_PREFERENCES) is in the probe roster (DEFAULT_MODELS) -- catches the 'blind graph' drift where a newly-pulled routable model is never measured (the 3-of-9 blindness fixed in 69bd13c824). Exits 1 + the missing list (logged as a failed job row) on drift; fail-soft SKIP (exit 0) when Ollama is down. Sub-second: one /api/tags read + pure analysis, no Ollama generation, no index mutation (U-ALPHA-OLLAMA-ROSTER-COVERAGE-GUARD)."
+    },
+    {
+      "id": "wiki-contradiction-lint",
+      "cmd": ["node", "scripts/lint-wiki-contradictions.mjs", "--limit", "30"],
+      "timeoutMs": 2700000,
+      "enabled": true,
+      "note": "Ollama NLI pass over top-30 wiki contradiction candidate pairs -> own report artifact (state/shared/wiki-contradictions.json). --limit 30 bounds worst-case wall time; circuit-breaks after 5 consecutive Ollama failures."
+    },
+    {
+      "id": "youtube-night-extract",
+      "cmd": ["node", "scripts/youtube-night-extract.mjs", "--max-queries", "3"],
+      "timeoutMs": 2700000,
+      "enabled": true,
+      "note": "STAGING-ONLY YouTube tribal extraction (yt-dlp subs -> Ollama tips). Wrapper hardcodes --no-ingest --no-wiki so tips land ONLY in state/shared/youtube-extraction/<id>.json -- fixes the wf_eaeb1510 HARD-REJECT defect (in-process tribal ingest). Queue: night-queue.json (8 closed-loop domains, weekly OK-run rotation, failed retries nightly); 3 queries x 13min cap = 39min < 45min job timeout. Promote ATTENDED: node scripts/promote-youtube-staged.mjs [--apply]."
+    },
+    {
+      "id": "hotel-transcript-mine",
+      "cmd": ["node", "scripts/mine-hotel-transcripts.mjs", "--limit", "10", "--since", "2026-05-19"],
+      "timeoutMs": 3600000,
+      "enabled": true,
+      "note": "Hotel/business transcript mining -> own staging dir (state/shared/hotel-transcript-mining/). Skip-if-exists resumable; per-transcript fail-soft."
+    },
+    {
+      "id": "india-transcript-mine",
+      "cmd": ["node", "scripts/mine-india-transcripts.mjs", "--limit", "5", "--no-vault"],
+      "timeoutMs": 3600000,
+      "enabled": true,
+      "note": "India/AI-systems transcript mining -> own staging dir. --no-vault MANDATORY (suppresses the live vault memo write; a lower-coverage unattended run must never overwrite the shared synthesis memory)."
+    },
+    {
+      "id": "brain-night-floor",
+      "cmd": ["node", "scripts/brain-refresh.mjs", "--force", "--with-viz"],
+      "timeoutMs": 5700000,
+      "enabled": true,
+      "note": "Nightly FULL 2nd-brain floor (U-BRAIN-NIGHT-FLOOR): memory BM25 index -> dense embeddings -> AMP2 galaxy synthesis -> wiki->tribal embed -> system-viz regen, via the brain-refresh orchestrator. SAFE because brain-refresh is O_EXCL lock-serialized (20m stale-reclaim; a runner kill self-heals) + Ollama-health-gated (exit 3 deferred = benign) + steps are sequential execFileSync children (no detached). NOTE: this is the COORDINATED home of galaxy-synthesis-refresh -- the standalone job stays HARD-REJECTED (uncoordinated rebuild); inside this lock it is the fixed form. Sum of step budgets 93min < 95min timeout. If a day-chat Stop-hook refresh holds the lock, this run benignly skips (exit 0) and retries tomorrow."
+    },
+    {
+      "id": "galaxy-transcript-mine",
+      "cmd": ["node", "scripts/mine-galaxy-transcripts.mjs", "--next-unpopulated", "--next-count", "2"],
+      "timeoutMs": 7200000,
+      "enabled": true,
+      "note": "Self-rotating: mines the 2 least-populated galaxies nightly. Creation-only vault memo is safe via --next-unpopulated selection + shrink-guard. Longest job, runs LAST so the window re-check can shed it."
+    }
+  ]
+}

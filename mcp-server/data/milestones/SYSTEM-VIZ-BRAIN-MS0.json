@@ -2,7 +2,13 @@
   "id": "SYSTEM-VIZ-BRAIN-MS0",
   "title": "/system-viz as the PRISM OS/Brain — auto-memory + tribal injection + functional control surface + 10-chat coord",
   "track": "devtools",
-  "status": "in_progress",
+  "status": "completed",
+  "closeout": {
+    "completed_at": "2026-05-22T16:10:00.000Z",
+    "completed_by": "claude-b2bcf85e (slot sierra)",
+    "summary": "All 26 units resolved. 22 complete/shipped per slot-echo close-out waves (2026-05-16 / 2026-05-17), each carrying a per-unit evidence block. 3 prior units superseded. U-P5-COORD-SQLITE-LIVE-SWAP superseded this session (R7 — conflicts with PER-SLOT-CLAIM-MS0's JSON+lockfile decision). Milestone flipped in_progress -> completed.",
+    "verification_disclosure": "The 22 prior-wave units were NOT independently re-verified this session — their complete/shipped statuses + evidence blocks are trusted from slot-echo's documented close-out reconciliation. Only U-P5-COORD-SQLITE-LIVE-SWAP was assessed first-hand this session."
+  },
   "created_at": "2026-05-15",
   "owner_intent": "User directive 2026-05-15: 'pivot to system-viz upgrades. /system-viz should be the visual and functional representation of the prism os/brain in obsidian. improve auto generated memories, auto generated scripts and hooks to inject relevant memories and tribal knowledge, usage and updating of prism-awareness, usage of neural network, ai systems, deep learning and deep reasoning systems, rtk, ollama, qdrant, precompact, compact, session handoffs for 10 chats in the checkin system. utilize relevant forge slash command.' + 'make audits utilize /system-viz for more efficient searches'",
   "doctrine_principle": "every audit/regen/discovery script MUST declare its system-viz-query first; Grep/Glob only as fallback when graph confidence < 0.5. Forge-triple bundles auto-enforce this in the generated stub.",
@@ -516,7 +522,8 @@
     "U-P5-COORD-SQLITE-LIVE-SWAP": {
       "phase": "P5-FLEET-COORD",
       "title": "Swap work-claim.mjs from WORK_CLAIMS.json to SQLite (CoordinationStoreEngine H8 is ready, not yet swapped)",
-      "status": "pending"
+      "status": "superseded",
+      "rationale": "SUPERSEDED by PER-SLOT-CLAIM-MS0 (2026-05-16) per R7 conflict-resolution. That newer, shipped milestone established JSON+lockfile-guarded atomic RMW as the coordination-store pattern for harness-context (.claude/) code, documenting in project CLAUDE.md that the H8 SQLite CoordinationStoreEngine 'won't resolve from .claude/helpers/'. work-claim.mjs lives in .claude/hooks/ (same harness-context constraint) and currently functions correctly on the WORK_CLAIMS.json store (consumed by main-tree-write-block.mjs, edit-bundle.mjs, stop_on_open_claim.mjs). A SQLite swap would (a) hit the documented H8-resolution blocker, (b) contradict the newer tested decision, (c) be a high-blast-radius change to the fleet-wide file-claim guard. If ever genuinely wanted it must route through the HOOK-SYNERGY-MS0 U-COORD11 IPC layer — a rewrite of work-claim.mjs, not the 'simple swap' this unit assumed — and should be re-scoped as its own unit. Resolved by claude-b2bcf85e (slot sierra) 2026-05-22, /goal system-viz close-out."
     },
     "U-P5-FLEET-AWARENESS-PANEL": {
       "phase": "P5-FLEET-COORD",

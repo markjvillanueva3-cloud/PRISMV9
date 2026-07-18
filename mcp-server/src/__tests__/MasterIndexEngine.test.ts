@@ -224,20 +224,69 @@ describe("MasterIndexEngine — node-level lookups", () => {
     expect(r.found).toBe(false);
   });
 
-  it("real-node lookup returns found=true with finite degree counts", async () => {
+  it("real-node lookup returns found=true; degrees finite whenever available (full graph OR degree sidecar), OR omitted+flagged on the edgeless sidecar", async () => {
     const seed = await masterIndexEngine.query("dispatcher");
     const seedNode = seed.hits.find((h) => h.source === "graph_node");
     if (!seedNode) return;
     const r = await masterIndexEngine.getNodeStatus(seedNode.id);
     expect(r.found).toBe(true);
     expect(r.id).toBe(seedNode.id);
-    expect(Number.isFinite(r.inDegree as number)).toBe(true);
-    expect(Number.isFinite(r.outDegree as number)).toBe(true);
-    expect((r.inDegree as number) >= 0).toBe(true);
-    expect((r.outDegree as number) >= 0).toBe(true);
-    expect((r.utilization as number) >= 0).toBe(true);
-    expect((r.utilization as number) <= 1).toBe(true);
     expect(r.node?.confidence).toBe(1);
+    if (r.degreeUnavailable) {
+      // Degrades ONLY when served from an edgeless sidecar with NO degree block
+      // (legacy schema 1.0.0). U-SIERRA-MASTERINDEX-DEGREE-SIDECAR: a schema ≥ 1.1.0
+      // sidecar carries per-node degrees, so an over-cap graph takes the else branch
+      // below (degrees restored WITHOUT loading the >512MB graph). Degree/utilization
+      // are OMITTED (never a false 0) + a warning is surfaced — fail-loud, not a bug.
+      expect(typeof r.warning === "string" && r.warning.length > 0).toBe(true);
+      expect(r.inDegree).toBeUndefined();
+      expect(r.outDegree).toBeUndefined();
+      expect(r.utilization).toBeUndefined();
+    } else {
+      // Degrees available — full graph (edges present) OR the degree sidecar path.
+      // Either way: finite, in-range degree + utilization.
+      expect(Number.isFinite(r.inDegree as number)).toBe(true);
+      expect(Number.isFinite(r.outDegree as number)).toBe(true);
+      expect((r.inDegree as number) >= 0).toBe(true);
+      expect((r.outDegree as number) >= 0).toBe(true);
+      expect((r.utilization as number) >= 0).toBe(true);
+      expect((r.utilization as number) <= 1).toBe(true);
+    }
+  });
+
+  it("utilization dashboard is fail-loud (empty + warning) ONLY when served from an edgeless sidecar with no degree block", async () => {
+    masterIndexEngine.clearCache();
+    const dash = await masterIndexEngine.classifyAllNodes();
+    // Degrades ONLY on a degree-less sidecar. U-SIERRA-MASTERINDEX-DEGREE-SIDECAR:
+    // a schema ≥ 1.1.0 sidecar restores degrees, so an over-cap graph classifies
+    // fully. The "no degree block" warning names the actionable fix (regenerate).
+    // When degraded, the dashboard must NOT report a populated-but-false
+    // all-orphans punch-list: zeroed totals + a warning naming the cause (R12).
+    const degraded =
+      dash.warnings.some((w) => /no degree block|edgeless/i.test(w));
+    if (degraded) {
+      expect(dash.totals.nodesScanned).toBe(0);
+      expect(dash.totals.orphans).toBe(0);
+      expect(dash.totals.ghosts).toBe(0);
+      expect(dash.topOrphans.length).toBe(0);
+    } else {
+      // Full graph OR degree-sidecar path: a REAL classification actually ran —
+      // the live graph always has ≥1 classifiable node, so a restored/full path
+      // scans a POSITIVE count (not the tautological ≥0). The named utilization
+      // buckets are a subset of the scanned nodes (each classified node lands in
+      // exactly one bucket), so their sum cannot exceed nodesScanned.
+      expect(dash.totals.nodesScanned > 0).toBe(true);
+      // EXACT partition: every scanned node lands in EXACTLY one of the six
+      // classes (the loop increments nodesScanned and one bucket in lockstep with
+      // no intervening continue), so the six buckets sum to nodesScanned. This
+      // FAILS against the pre-fix `totals[`${cls}s`]` bug, which mis-bucketed
+      // "normal" into a phantom "normals" key → totals.normal stayed 0 → the sum
+      // fell short by the normal count. U-SIERRA-MASTERINDEX-TOTALS-NORMAL-KEY.
+      const allBuckets =
+        dash.totals.hubs + dash.totals.sinks + dash.totals.sources +
+        dash.totals.orphans + dash.totals.ghosts + dash.totals.normal;
+      expect(allBuckets).toBe(dash.totals.nodesScanned);
+    }
   });
 });
 

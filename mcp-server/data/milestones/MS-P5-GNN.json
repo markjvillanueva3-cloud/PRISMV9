@@ -1,0 +1,281 @@
+{
+  "id": "MS-P5-GNN",
+  "title": "WEDM Graph-Neural Reasoning Lattice",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P5",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "Replace pairwise lookup tables with queryable 64-dim embedding over material × machine × wire × thickness × Ra lattice. HNSW O(log n) retrieval.",
+  "total_units": 6,
+  "completed_units": 0,
+  "sessions": 3,
+  "dependencies": [
+    "MS-P4-DL-CORE"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.015,
+  "knowledge_sources": {
+    "engines": [
+      "MaterialRegistry (6372)",
+      "MachineRegistry (910)",
+      "wedm-published-conditions.ts (26)",
+      "WEDM_JOB_HISTORY.json (from P4)"
+    ],
+    "formulas": [
+      "multi-head graph attention h=4",
+      "LayerNorm",
+      "cosine similarity retrieval",
+      "HNSW O(log n)"
+    ],
+    "tribal": [
+      "sublinear solvers (k-hop propagation, in-repo)"
+    ],
+    "reference": [
+      "HNSW paper (Malkov 2018)",
+      "GAT paper (Veličković 2017)"
+    ]
+  },
+  "smart_config": {
+    "role": "AIEngineer+GraphDBSpecialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/forge-engines",
+    "/test",
+    "/wedm-reason",
+    "/scope",
+    "/checkpoint"
+  ],
+  "note": "/graph-neighbor does not exist — use /wedm-reason built in U-P5-GNN-05",
+  "plugins": [
+    "Vitest MCP",
+    "codebase-memory-mcp"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P5-GNN-01",
+      "U-P5-GNN-02"
+    ],
+    "session_2": [
+      "U-P5-GNN-03",
+      "U-P5-GNN-04"
+    ],
+    "session_3": [
+      "U-P5-GNN-05",
+      "U-P5-GNN-06"
+    ],
+    "compact_checkpoints": [
+      "after U-P5-GNN-02",
+      "after U-P5-GNN-04"
+    ]
+  },
+  "units": [
+    {
+      "id": "U-P5-GNN-01",
+      "title": "WEDMLatticeGraphEngine — node set from registries + history",
+      "files_created": [
+        "mcp-server/src/engines/WEDMLatticeGraphEngine.ts",
+        "mcp-server/src/schemas/wedmLatticeGraphSchema.ts",
+        "mcp-server/data/state/WEDM_LATTICE_GRAPH.json"
+      ],
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "< 300 nodes produced",
+        "Zod parse fails",
+        "BASELINE_INVENTORY not bumped"
+      ],
+      "rollback": "git checkout engine + schema && rm -f WEDM_LATTICE_GRAPH.json",
+      "exit_criteria": [
+        "≥ 300 nodes",
+        "Zod parse passes",
+        "adjacency sparsity < 5%",
+        "≥ 10 test cases"
+      ],
+      "description": "WEDMLatticeGraphEngine — node set from registries + history — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P5-GNN-02",
+      "title": "WEDMGraphAttentionEngine — h=4 attention + pre-trained weights",
+      "files_created": [
+        "mcp-server/src/engines/WEDMGraphAttentionEngine.ts",
+        "mcp-server/data/state/WEDM_GNN_WEIGHTS.json"
+      ],
+      "exit_criteria": [
+        "heads divergent (avg cosine < 0.8)",
+        "weights serialise+reload bit-exact",
+        "≥ 10 test cases"
+      ],
+      "description": "WEDMGraphAttentionEngine — h=4 attention + pre-trained weights — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P5-GNN-03",
+      "title": "WEDMNeighborQueryEngine — HNSW index",
+      "files_created": [
+        "mcp-server/src/engines/WEDMNeighborQueryEngine.ts"
+      ],
+      "exit_criteria": [
+        "HNSW query < 5ms p99 on 1000 queries",
+        "exact match on planted synthetic node",
+        "top-k recall ≥ 0.95"
+      ],
+      "description": "WEDMNeighborQueryEngine — HNSW index — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P5-GNN-04",
+      "title": "Hook P4 predictors to consult graph neighbors as prior",
+      "files_modified": [
+        "mcp-server/src/engines/WEDMRaPredictorEngine.ts",
+        "mcp-server/src/engines/WEDMWireBreakPredictorEngine.ts",
+        "mcp-server/src/engines/WEDMRecastDepthPredictorEngine.ts"
+      ],
+      "exit_criteria": [
+        "Ra MAE drops ≥ 8% over P4 alone on held-out JM Die set"
+      ],
+      "exit_conditions": [
+        "Ra MAE drops ≥ 8% over P4 alone on held-out JM Die set",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "description": "Hook P4 predictors to consult graph neighbors as prior — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P5-GNN-05",
+      "title": "WEDMReasoningExplainEngine",
+      "files_created": [
+        "mcp-server/src/engines/WEDMReasoningExplainEngine.ts"
+      ],
+      "exit_criteria": [
+        "every prediction cites a real node",
+        "explanation includes evidence program list"
+      ],
+      "exit_conditions": [
+        "every prediction cites a real node",
+        "explanation includes evidence program list",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "WEDMReasoningExplainEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P5-GNN-06",
+      "title": "14+ tests",
+      "exit_criteria": [
+        "≥ 14 assertions",
+        "0 banned patterns",
+        "coverage ≥ 85% on GNN engines"
+      ],
+      "description": "14+ tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-gnn-rebuild-stale",
+      "description": "warns if weights > 7d and > 50 jobs logged since",
+      "built_in": "U-P5-GNN-02"
+    },
+    "action": {
+      "name": "prism_edm:wedm_graph_query",
+      "built_in": "U-P5-GNN-03"
+    },
+    "skill": {
+      "name": "/wedm-reason",
+      "built_in": "U-P5-GNN-05"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "≥ 300 nodes",
+      "HNSW < 5ms p99",
+      "Ra MAE +8% over P4",
+      "machinist-acceptance",
+      "BASELINE_INVENTORY +5 engines"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+1.5%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-gnn-rebuild-stale"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_graph_query"
+    ],
+    "new_skills": [
+      "/wedm-reason"
+    ],
+    "available_to": [
+      "P6",
+      "P9",
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM Graph-Neural Reasoning Lattice per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

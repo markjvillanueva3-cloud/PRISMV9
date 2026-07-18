@@ -1,0 +1,136 @@
+{
+  "schema_version": "1.0.0",
+  "milestone": "QUOTING-SYNERGY-MS0",
+  "unit": "U-QP-DERIVE-SHOP-RATE",
+  "iter": 50,
+  "slot": "charlie",
+  "generated_at": "2026-05-27T02:36:36.701Z",
+  "question": "What was/is JM Die's shop rate (USD/hr) per year?",
+  "answer_one_line": "Best triangulated estimate 155.67/hr (band ~$105.5-225.45). Plug as QuotingTrainingLoopEngine.RunOptions.defaultMachineRate override.",
+  "angles": [
+    {
+      "label": "PRISM-CURRENT",
+      "rate_usd_hr": 95,
+      "derivation": "hard-coded default in QuotingTrainingLoopEngine.DEFAULT_MACHINE_RATE",
+      "confidence": 0.5
+    },
+    {
+      "label": "BIAS-IMPLIED-FROM-LIVE-CYCLE",
+      "rate_usd_hr": 129.51,
+      "derivation": "iter49 live closed-loop run observed bias=-36.33% (under-quoting). If cycle-time + material assumptions are roughly correct, current_rate × (1 + |bias|/100) = 95 × 1.36 = 129.51",
+      "confidence": 0.7,
+      "cycle_evidence": "state/shared/closeout/QUOTING-CLOSED-LOOP-JM-CORPUS-*.json"
+    },
+    {
+      "label": "PER-YEAR-IMPLIED-FROM-BASELINE",
+      "estimates": [
+        {
+          "year": "2020",
+          "doc_count": 109,
+          "total_revenue_usd": 29770.43,
+          "revenue_per_doc_usd": 273.12,
+          "implied_rate_usd_hr": {
+            "low": 90.7,
+            "high": 360.19,
+            "midpoint": 225.45
+          },
+          "caveat": "adequate sample"
+        },
+        {
+          "year": "2021",
+          "doc_count": 15,
+          "total_revenue_usd": 577.02,
+          "revenue_per_doc_usd": 38.47,
+          "implied_rate_usd_hr": {
+            "low": -55.96,
+            "high": -0.82,
+            "midpoint": -28.39
+          },
+          "caveat": "low-sample (n=15) — wide error bars"
+        },
+        {
+          "year": "2022",
+          "doc_count": 15,
+          "total_revenue_usd": 310.62,
+          "revenue_per_doc_usd": 20.71,
+          "implied_rate_usd_hr": {
+            "low": -67.06,
+            "high": -28.14,
+            "midpoint": -47.6
+          },
+          "caveat": "low-sample (n=15) — wide error bars"
+        },
+        {
+          "year": "2023",
+          "doc_count": 9,
+          "total_revenue_usd": 377.36,
+          "revenue_per_doc_usd": 41.93,
+          "implied_rate_usd_hr": {
+            "low": -53.79,
+            "high": 4.51,
+            "midpoint": -24.64
+          },
+          "caveat": "low-sample (n=9) — wide error bars"
+        },
+        {
+          "year": "2026",
+          "doc_count": 352,
+          "total_revenue_usd": 12602.01,
+          "revenue_per_doc_usd": 35.8,
+          "implied_rate_usd_hr": {
+            "low": -57.62,
+            "high": -4.92,
+            "midpoint": -31.27
+          },
+          "caveat": "adequate sample"
+        }
+      ],
+      "derivation": "revenue = (rate × cycle_hr + material) × (1 + margin). Cycle bracket [0.5, 1] hr; material bracket [$30, $80]; margin bracket [0.3, 0.6]",
+      "confidence": 0.55
+    },
+    {
+      "label": "INDUSTRY-BENCHMARK",
+      "note": "Sandvik / Modern Machine Shop annual U.S. small-shop CNC rate surveys (2020-2026). JM Die runs mill + Wire EDM (Mitsubishi); blend ~70% mill / 30% WEDM for a weighted estimate.",
+      "mill_2020": {
+        "low": 60,
+        "mid": 80,
+        "high": 110
+      },
+      "mill_2026": {
+        "low": 75,
+        "mid": 95,
+        "high": 135
+      },
+      "wedm_2020": {
+        "low": 90,
+        "mid": 110,
+        "high": 145
+      },
+      "wedm_2026": {
+        "low": 105,
+        "mid": 130,
+        "high": 175
+      },
+      "blended_2020_mid": 89,
+      "blended_2026_mid": 105.5,
+      "confidence": 0.4
+    }
+  ],
+  "triangulated_best_estimate_usd_hr": 155.67,
+  "triangulated_band": {
+    "low": 105.5,
+    "high": 225.45
+  },
+  "open_questions": [
+    "PRISM has 111,745 DocuStrata PDFs (manifest.json) — none currently OCR-extracted for line-item invoice/time data. iter51+ could unlock direct rate extraction from billed-hours fields.",
+    "2024 + 2025 are missing from baseline.by_year (sparse data) — sample bias risk; trend may not reflect actual rate evolution.",
+    "Per-year implied rate depends on cycle-time bracket — if JM jobs are SHORTER than 30 min on average (e.g. 15 min), implied rate doubles; this needs operator confirmation.",
+    "Best validation: ASK the JM Die operator directly. The numbers here are baselines to cross-check against the real answer, not a substitute for it."
+  ],
+  "operator_action_items": [
+    "Override default rate: QuotingTrainingLoopEngine.RunOptions.defaultMachineRate = 155.67",
+    "OR set per-machine-class rates: mill_rate ≈ $95-110, wedm_rate ≈ $120-145",
+    "Re-run iter49 corpus driver with override → check if bias narrows from -36% toward 0",
+    "When operator provides real rate, replace this estimate and re-baseline"
+  ]
+}

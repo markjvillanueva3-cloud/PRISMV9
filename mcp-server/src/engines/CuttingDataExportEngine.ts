@@ -76,6 +76,17 @@ const COATING_MULT: Record<string, number> = {
   diamond:  1.50,
 };
 
+/** Case-insensitive view of COATING_MULT (keys lowercased once at module load).
+ *  FIX (U-oscar-CoatingKey): the lookup below lowercases the coating string, but
+ *  COATING_MULT is keyed mixed-case (TiN/TiCN/TiAlN/AlTiN/AlCrN/DLC) — so every
+ *  non-lowercase coating silently missed and collapsed to multiplier 1.00 (a
+ *  TiAlN endmill was cut at the uncoated speed). Deriving a lowercased-key map
+ *  makes the lookup case-insensitive without altering the canonical multipliers
+ *  or breaking the already-lowercase uncoated/diamond keys. */
+const COATING_MULT_LC: Record<string, number> = Object.fromEntries(
+  Object.entries(COATING_MULT).map(([k, v]) => [k.toLowerCase(), v]),
+);
+
 /** Coolant strategy multiplier */
 const COOLANT_MULT: Record<string, number> = {
   dry:      0.90,
@@ -234,9 +245,9 @@ export class CuttingDataExportEngineClass {
     const iso    = material.iso_group;
     const flutes = tool.flutes ?? tool.flute_count ?? 4;
 
-    // ── Coating multiplier ──────────────────────────────────────────────────
+    // ── Coating multiplier (case-insensitive: mixed-case table via lowercased map) ──
     const coatingKey = (tool.coating ?? "uncoated").toLowerCase();
-    const coatMult = COATING_MULT[coatingKey] ?? 1.00;
+    const coatMult = COATING_MULT_LC[coatingKey] ?? 1.00;
 
     // ── Coolant multiplier ──────────────────────────────────────────────────
     const coolantKey = (material.coolant ?? "flood").toLowerCase().replace(/-/g, "_");

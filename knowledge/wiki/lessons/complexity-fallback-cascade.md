@@ -6,6 +6,7 @@ slot: lima
 chat: claude-77971357
 shipped-with: U-COMPLEXITY-FALLBACK
 commit: 3d416cb040
+domain: backend-dev
 ---
 
 # Lesson: design fallback cascades when a single signal is unreliable

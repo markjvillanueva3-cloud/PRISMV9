@@ -1,0 +1,10 @@
+---
+source: project
+section: PSN-OCTOPUS-FLEET-SYNERGY-MS0 — build-once master-brain wiring (slot:bravo, 2026-05-31)
+slug: psn-octopus-fleet-synergy-ms0-build-once-master-brain-wiring
+indexed_at: 2026-06-06T05:19:18.284Z
+---
+
+## PSN-OCTOPUS-FLEET-SYNERGY-MS0 — build-once master-brain wiring (slot:bravo, 2026-05-31)
+
+Lights up Obsidian + the 11-leg PSN + system-viz + the **octopus** (multi-model consensus) loop across **all 34 galaxies** from a small **build-once-fleet-wide** layer, not 34× re-impls. **Keystone:** the octopus had never run for real (consensus ledger was a 522B `stub-not-yet-merged`) — so dependency order is producer-first (de-stub → feed real PSN corpus → wire consumers; R13). **Build-once layer SHIPPED** on `cad-fusion-live-ms0`: `5cb68aaad3` P0-P1 (corpus loader, 5 PSN text legs + real `MultiModelConsensusEngine.ask()`, ledger 522B→9244B) · `d289d53006` P2 (`fetchLiveBrain()`→slot-context, `PRISM_OBSIDIAN_LIVE=1`) · `7fdacfc76b` P3 (34 galaxy `MEMORY.md`→Obsidian mirror, `GALAXY_INDEX_MIRROR_ENABLE`) · `65059681d5` P5 (octopus ledger→WeeklySynthesis, `PRISM_WEEKLY_SYNTHESIS_OCTOPUS=1`) · `94bb94d022` P6 (always-on N/11 leg-coverage dial). **Security (scrutiny-caught):** shared `scripts/lib/redact-secrets.mjs` masks every snippet before any external voice/ledger; private `C:` memory gated behind `PRISM_OCTOPUS_INCLUDE_PRIVATE_MEMORY=1` (default OFF); O_APPEND ledger fix. **6 reusable synergy patterns** (P1 octopus-reads-legs · P2 liveBrain→slotctx · P3 galaxy-MEM→graph · P4 ledger→ghost-roost · P5 outcomes→synthesis · P6 leg-dial; P2/P3/P6 build-once, P1/P4/P5 per-galaxy). **Wave 3 (per-galaxy, remaining):** P1 corpus-tuning (wedm/speed-feed/cam/cad/post-proc) · P4 ledger-roosts (hermes-zulu/fleet-hygiene/database-expansion) · P5 verify-links (lathe/mill/quoting already cloned india's AI). Wiki: [`knowledge/wiki/architecture/psn-octopus-fleet-synergy-ms0.md`]. Memory: [[reference_psn_octopus_fleet_synergy_2026_05_31]]. Specs: `state/shared/specs/PSN-{OBSIDIAN-OCTOPUS-SYNERGY-ASSESSMENT,SYNERGY-FLEET-ROADMAP}-2026-05-31.md`.

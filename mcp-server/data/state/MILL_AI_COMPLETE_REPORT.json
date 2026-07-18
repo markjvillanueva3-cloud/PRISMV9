@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "timestamp": "2026-04-15T03:17:34.986Z",
+  "duration_sec": 2.5,
+  "deep_learning": {
+    "programs_parsed": 27,
+    "proven_programs": 6,
+    "operations_learned": 100,
+    "customers": [
+      "ALL STAR",
+      "FONTANA",
+      "SFS GROUP USA",
+      "TAPTITE",
+      "ITW SHAKEPROOF"
+    ],
+    "materials": [
+      "P",
+      "N"
+    ],
+    "issues_found": 96
+  },
+  "deep_learning_stats": {
+    "programs_parsed": 27,
+    "proven_programs": 6,
+    "operations_learned": 100,
+    "parameter_neurons": 29,
+    "sequence_patterns": 21,
+    "customers_learned": [
+      "ALL STAR",
+      "FONTANA",
+      "SFS GROUP USA",
+      "TAPTITE",
+      "ITW SHAKEPROOF"
+    ],
+    "operation_frequencies": {
+      "face": 2,
+      "spot_drill": 2,
+      "peck_drill": 7,
+      "drill": 5,
+      "tap": 1,
+      "chamfer": 12
+    }
+  },
+  "tribal_integration": {
+    "signals_applied": 15,
+    "heuristics_applied": 5,
+    "failure_modes_learned": 5,
+    "neural_samples_added": 15
+  },
+  "tribal_stats": {
+    "total_tips": 15,
+    "total_heuristics": 5,
+    "total_failure_modes": 5,
+    "applied_signals": 15,
+    "by_material": {
+      "P": 5,
+      "H": 1,
+      "N": 5
+    },
+    "by_operation": {
+      "rough_profile": 3,
+      "face": 1,
+      "rough_pocket": 1,
+      "peck_drill": 1,
+      "spot_drill": 1,
+      "tap": 2,
+      "chamfer": 1,
+      "finish_profile": 2
+    },
+    "critical_warnings": 1
+  },
+  "neural_network": {
+    "layers": 5,
+    "total_neurons": 98,
+    "total_weights": 1864,
+    "training_samples": 15,
+    "trained": true,
+    "avg_confidence": 0.5
+  },
+  "neural_training": {
+    "loss": 0.016578659033464,
+    "epochs": 100
+  },
+  "optimization": {
+    "total_programs": 27,
+    "programs_optimized": 27,
+    "programs_unchanged": 16,
+    "programs_with_issues": 6,
+    "total_time_savings_min": 7824.4,
+    "avg_improvement_pct": 23.41481481481481,
+    "issues_fixed": 106,
+    "issues_remaining": -10,
+    "customers_processed": [
+      "ALL STAR",
+      "FONTANA",
+      "SFS GROUP USA",
+      "TAPTITE",
+      "ITW SHAKEPROOF"
+    ],
+    "materials_processed": [
+      "P",
+      "N"
+    ],
+    "per_customer_stats": {
+      "ALL STAR": {
+        "programs": 2,
+        "time_saved": 0
+      },
+      "FONTANA": {
+        "programs": 14,
+        "time_saved": 3039.3999999999996
+      },
+      "SFS GROUP USA": {
+        "programs": 6,
+        "time_saved": 886.2
+      },
+      "TAPTITE": {
+        "programs": 4,
+        "time_saved": 0
+      },
+      "ITW SHAKEPROOF": {
+        "programs": 1,
+        "time_saved": 3898.8
+      }
+    }
+  },
+  "ai_capabilities": {
+    "prediction_test": {
+      "output": [
+        2834.0215096250618,
+        19.844045464744966,
+        1.2069621539066355
+      ],
+      "confidence": 0.8270454098230353,
+      "explanation": [
+        "Increase RPM from 2000 to 2834 — neural patterns suggest higher speed for P material",
+        "Increase feed from 15.0 to 19.8 IPM — cycle time reduction",
+        "Key factors: material_P (12.8%), doc (12.6%), cutter_comp (12.1%)"
+      ],
+      "feature_importance": {
+        "material_P": 0.1275504667862344,
+        "tool_flat_em": 0.10428548419679375,
+        "op_rough_profile": 0.1048685089469249,
+        "tool_diameter": 0.11817564568315549,
+        "rpm": 0.09786401916600859,
+        "feed": 0.11080299639964052,
+        "doc": 0.1255378201387538,
+        "sfm": 0.10481750718299865,
+        "chip_load": 0.12015551873705585,
+        "z_levels": 0.10200900397004337,
+        "cutter_comp": 0.12084821035545183
+      }
+    },
+    "tribal_adjustment": {
+      "rpm_factor": 1,
+      "feed_factor": 0.308,
+      "doc_factor": 0.21,
+      "warnings": [
+        "D2 air-hardening steel is extremely abrasive. Standard feeds cause rapid edge wear.",
+        "Deeper than 0.5xD causes tool deflection and chatter."
+      ],
+      "tips_applied": [
+        "JM-MILL-001",
+        "JM-MILL-014",
+        "HEUR-001",
+        "HEUR-002",
+        "HEUR-004",
+        "HEUR-005"
+      ]
+    },
+    "anomaly_detection": {
+      "isAnomaly": true,
+      "score": 0.8253404708468329,
+      "reason": "RPM 500 deviates >50% from expected 2863"
+    },
+    "deep_reasoning": {
+      "question": "What is the optimal operation sequence for a steel part with holes and threads?",
+      "evidence": [
+        "Found 21 learned patterns for material P",
+        "15 patterns come from PROVEN programs"
+      ],
+      "logic": [
+        "Standard milling sequence: Face → Rough → Finish → Drill → Tap",
+        "Spot drilling before drilling improves accuracy",
+        "Roughing before finishing ensures consistent stock removal"
+      ],
+      "conclusion": "Based on 2 pieces of evidence and 3 logical principles, apply standard machining best practices",
+      "confidence": 0.7
+    }
+  }
+}

@@ -165,8 +165,6 @@ class WEDMFeedbackIngestionEngine {
             "observation",
             `feedback:${feedbackId}`,
             {
-              predicted: predictedVal,
-              error_pct: predictedVal ? Math.abs((actualVal - predictedVal) / predictedVal) * 100 : undefined,
               confidence: feedback.confidence ?? 0.9,
             }
           );

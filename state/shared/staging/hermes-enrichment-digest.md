@@ -1,0 +1,557 @@
+# Hermes Enrichment -- Specialist Review Digest
+
+> ADVISORY cron-generated knowledge, ALL UNREVIEWED. Verify each item vs its cited source before ANY machine/safety gate fires.
+> Sorted by STRUCTURAL quality (not correctness). Review HIGH first (numeric+cited); LOW (collapsed) carry flags and need the hardest scrutiny.
+> Total 269 tips | 6 domains | quality {"high":146,"mid":106,"low":17}
+
+## cad -- 56 tips (high 21 / mid 31 / low 4)
+
+- **[100] Select hydraulic expansion holders over ER collets when CAD-derived stickout exceeds 4x tool diameter to keep dynamic runout below chatter t**
+  - hermes:enrichment-loop | cite: Sandvik Coromant Rotating Tools Technical Guide D-22, p. 41, Sec. "Tool Holder Rigidity".
+- **[100] Mandate shrink-fit holders for ball-nose tools when CAD corner radius is <=0.5 mm to cap TIR at 0.002 mm**
+  - hermes:enrichment-loop | cite: Kennametal Innovations Catalog 2023, p. 89, Sec. "Precision Holder Selection".
+- **[100] Require G2.5 balanced holders when CAD high-speed strategy specifies spindle speeds above 10000 RPM for tools >100 mm long**
+  - hermes:enrichment-loop | cite: ISO 1940-1:2003, p. 11, Annex B, Table 2.
+- **[100] Switch from BT40 to HSK63 when CAD feature reach exceeds 180 mm to reduce tip deflection by minimum 40 %**
+  - hermes:enrichment-loop | cite: Big Kaiser Spindle Interface Guide 2021, p. 14, Sec. "Taper Comparison Data".
+- **[100] Auto-select through-coolant holders when blind pocket depth from STEP analysis exceeds 3.5 times tool diameter**
+  - hermes:enrichment-loop | cite: Iscar Metalworking Handbook 2020, p. 67, Sec. "Coolant Delivery Guidelines".
+- **[100] Enforce collet engagement length >=18 mm for tools 6-20 mm when CAD axial depth of cut exceeds 2x diameter in roughing**
+  - hermes:enrichment-loop | cite: Rego-Fix ER Technical Manual EM-2022, p. 9, Table 3.1 "Clamping Data".
+- **[100] Limit holder diameter to CAD minimum slot width minus 8 mm to guarantee 4 mm side clearance on both walls during full-depth 3-axis passes**
+  - hermes:enrichment-loop | cite: Machinery's Handbook 31st Ed., p. 1048, Sec. "Milling Cutter and Holder Clearance".
+- **[100] Derate Vc 22 % when CAD rib thickness < 2.5 mm to keep bulk temperature rise under 55 °C and prevent distortion**
+  - hermes:enrichment-loop | cite: ASM Handbook Vol 16 Machining, p. 142, Thermal Distortion in Thin Sections.
+- **[100] Enforce 12 s air-cool dwell between passes when CAD floor thickness < 3 mm to stabilize thermal growth below 0.015 mm**
+  - hermes:enrichment-loop | cite: Machinery's Handbook 31st Ed., p. 1018, Heat and Distortion Control.
+- **[100] Require AlTiN coating when CAD corner radius < 0.8 mm produces calculated interface temperature > 950 °C in hard milling**
+  - hermes:enrichment-loop | cite: Balzers Tool Coating Handbook, Section 4.3 p. 51.
+- **[100] Limit MRR to 28 cm³/min when CAD freeform surface area > 180 cm² in mold steel to cap heat flux at 18 W/mm²**
+  - hermes:enrichment-loop | cite: Seco Tools Die & Mold Machining Guide, p. 39, Thermal Load Section.
+- **[100] Switch to MQL at 35 ml/h when CAD blind cavity volume < 8000 mm³ and L/D > 5 to evaporate heat without liquid pooling**
+  - hermes:enrichment-loop | cite: Kennametal Metal Cutting Technology Guide, p. 73, Minimum Quantity Lubrication.
+- **[100] Apply 0.8 speed factor when CAD engagement angle from STEP analysis exceeds 135° to keep chip-tool interface below 720 °C**
+  - hermes:enrichment-loop | cite: Ingersoll Milling Handbook 2021, p. 92, Heat Generation by Engagement Angle.
+- **[100] ** Increase cutting force by adjusting the clamping pressure of hydraulic expansion holders**
+  - hermes:enrichment-loop | cite: ** *Advanced Manufacturing Processes*, R.S. Khanduja, p. 367.
+- **[100] ** Limit deflection in high-speed machining by selecting holders with a stiffness greater than the calculated cutting force divided by 0.1 m**
+  - hermes:enrichment-loop | cite: ** *Machine Tool Design and Manufacturing*, S. K. Basu, p. 289.
+- **[100] ** Use balanced holders to reduce vibration when spindle speed exceeds 10,000 RPM**
+  - hermes:enrichment-loop | cite: ** *Manufacturing Processes and Machining Technology*, P.K. Jain, p. 403.
+- **[100] ** Ensure collet engagement length for tools over 25 mm is at least 25% of the tool diameter**
+  - hermes:enrichment-loop | cite: ** *Toolholding Technology*, J.R. Schaeffer, p. 198.
+- **[85] Mandate trochoidal roughing when CAD slot aspect ratio exceeds 4:1 to limit radial engagement and tool-tip heat below 650 °C**
+  - hermes:enrichment-loop | cite: Sandvik Coromant Technical Guide C-2920:2022, p. 64, High Efficiency Machining.
+- **[85] ** Reduce cutting force by 15% when using coolant injection through the tool shank**
+  - hermes:enrichment-loop | cite: ** *Cooling in Manufacturing Processes*, H.G. Dornfeld, p. 146.
+- **[85] ** Increase tool stiffness by selecting a holder with an overhang ratio less than or equal to 3:1**
+  - hermes:enrichment-loop | cite: ** *Machine Tool Design and Applications*, D. H. McKeown, p. 245.
+- **[85] ** Limit radial runout to less than 1 µm for high-precision parts requiring tight tolerances**
+  - hermes:enrichment-loop | cite: ** *Precision Machining*, J. M. Stahl, p. 384.
+- **[65] **Rule** – Cumulative deflection in multi‑pass finishing on a 5‑axis machine must be < 0.05 mm; thus holder stiffness ≥ 200 N/mm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For slots with aspect ratio > 10:1, radial offset must be ≥ 0.2 mm to avoid surface waviness.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – To achieve Ra < 0.8 µm on hardened steel with a 10 mm end mill, feed per tooth ≤ 0.02 mm/tooth and spindle speed ≥ 20 000 rpm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For blind pocket depth > 50 mm, tip deflection must be < 0.1 mm; thus holder overhang ratio ≤ 0.25 and tool length 70 mm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Stylus probe speed for surface roughness measurement must be ≤ 0.5 mm/s to avoid dynamic errors.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Maintain radial clearance between part and holder jaws ≥0.05 mm when spindle speed >8000 rpm to suppress chatter.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Provide clamping force F_c ≥ 2 N/mm³·D²·f_z for high‑speed drilling of hardened steel.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Keep holder overhang ratio OR = L_overhang/L_tool below 0.5 to limit tip deflection ≤0.1 mm at 10 k rpm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Set holder clearance ≥0.15 mm to accommodate thermal expansion ΔL = α·L·ΔT for steel fixtures.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Use mounting pads with damping ≥200 Ns/m and a_max ≤ 0.1 g for holders on >10 k rpm machines to keep vibration amplitude <0.05 mm**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Select tapered collets with taper angle ≤0.5° for parts requiring axial clearance <0.01 mm to avoid binding.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Limit tool deflection from thermal expansion to less than 10 µm for a 200 mm tool at ΔT = 30 °C.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Calibrate tool length offset using gauge blocks so that the error is ≤ 2 µm per mm of tool length.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For Ti‑6Al‑4V with a 30 mm end mill, keep spindle speed ≤ 2000 rpm to limit cutting temperature below 350 °C.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For Inconel 718 with a 10 mm end mill, set spindle speed ≤ 1000 rpm to keep feed per tooth ≤ 0.02 mm/tooth (Ra ≤ 0.8 µm).**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For AISI 304 stainless steel with a 12 mm ball end mill, maintain coolant flow ≥ 50 L/h to ensure chip evacuation and prevent BUE**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For AISI 4340 hardened steel with an 8 mm end mill, limit depth of cut to ≤ 0.5 mm per pass so that tool deflection on a 200 mm w**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For Ti‑6Al‑4V with a 25 mm end mill machining a feature whose aspect ratio > 3, set spindle speed ≤ 1500 rpm to avoid vibration f**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For Inconel 718 with a 12 mm end mill, use cutting speed \(V=25\;\text{m/min}\) and feed per tooth \(f=0.015\;\text{mm/tooth}\) t**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For AISI 316 stainless steel with a 15 mm end mill machining thin sections (<5 mm), keep coolant temperature ≤ 20 °C to prevent g**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] Rule: Apply a Weibull shape parameter β = 1.8 for estimating remaining useful life of a 10 mm end mill in hardened steel; trigger tool chang**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] Rule: Limit cumulative tool deflection to ≤ 0.05 mm per 100 cuts for an 8 mm ball‑end mill in Ti‑6Al‑4V; verify via micro‑CT after each batc**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Toolpath spacing must be ≤ 0.5 × minimum feature width to meet Ra tolerance.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Coolant injection through the tool shank reduces cutting force by at least 15 % to maintain surface finish.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Verify XYZ axis calibration by ensuring the root‑sum‑square error is below 5 µm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Keep dynamic spindle speed error below 0.01 % of the commanded value to avoid chatter.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Ensure the angle between machine datum and part datum is less than 0.1° for tight tolerance parts.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Rule: Maintain Cpk ≥ 1.33 for spindle speed variation to ensure consistent tool life across batches.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Rule: Increase coolant flow rate by 10 % when tool life drops below 50 cuts to counteract heat buildup.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Rule: Apply a moving‑average filter (window = 5) on depth‑of‑cut data to detect sudden increases indicating wear.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Rule: Schedule preventive maintenance at the lower bound of a 95 % confidence interval on Weibull tool‑life estimates.**
+  - hermes:enrichment-loop | cite: n/a
+
+<details><summary>(!) 4 LOW-tier -- hardest scrutiny (missing numeric threshold / citation, or vague)</summary>
+
+- [25] **Rule** – Compensate axis backlash by adding an offset equal to half the measured backlash in G‑code. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Select holders whose flexural rigidity satisfies -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Compensate for spindle tilt by adding a radial offset equal to R·tan(θ) to the feed path. -- flags: no-formula, no-number, no-cite
+- [10] Rule: Use a two‑sigma control limit on surface roughness Rz after the first pass to flag out‑of‑spec tools. -- flags: no-formula, no-number, no-cite
+</details>
+
+## cam -- 30 tips (high 22 / mid 8 / low 0)
+
+- **[100] Tool holder selection should prioritize minimal runout to ensure accurate machining**
+  - hermes:enrichment-loop | cite: Source: ISO 1947:2003, Section 4.
+- **[100] Tooling assembly balance is critical for high-speed machining**
+  - hermes:enrichment-loop | cite: Source: ISO 1940-1:2003, Table 2.
+- **[100] Tool holder clamping force should be sufficient to prevent tool pull-out**
+  - hermes:enrichment-loop | cite: Source: HSMAdvisor, Section 3.4.2.
+- **[100] Enforce minimum chip thickness in CAM feeds to guarantee >75% of generated heat leaves with the chip instead of workpiece**
+  - hermes:enrichment-loop | cite: Kennametal Aerospace Machining Handbook, Section 3.2, page 67.
+- **[100] Limit uninterrupted cut length before mandatory air-blast retract to prevent tool core temperature saturation in superalloys**
+  - hermes:enrichment-loop | cite: Modern Machine Shop High-Efficiency Machining Guide, Thermal Strategies, page 28.
+- **[100] Rule: Use a clamping force of at least 10% of the machine's maximum spindle torque to prevent tool pull-out during high-speed machining**
+  - hermes:enrichment-loop | cite: Source: "Machining Handbook" by SME, page 234, section 5.3.
+- **[100] Rule: Use a fixture stiffness of at least 10^6 N/m to minimize workpiece deflection during machining**
+  - hermes:enrichment-loop | cite: Source: "Fixturing and Clamping" by CRC Press, page 123, section 3.4.
+- **[100] Rule: Apply a minimum of 5% of the machine's maximum coolant flow rate to prevent overheating during high-speed machining**
+  - hermes:enrichment-loop | cite: Source: "Coolant Systems" by ASM International, page 210, section 6.1.
+- **[100] Rule: Limit the tool overhang to 4 times the tool diameter to prevent vibration and deflection during machining**
+  - hermes:enrichment-loop | cite: Source: "Tooling and Fixturing" by Industrial Press, page 145, section 4.5.
+- **[100] Rule: Limit the machining time to 80% of the tool's maximum recommended life to prevent tool failure and ensure process reliability**
+  - hermes:enrichment-loop | cite: Source: "Tool Life and Wear" by Taylor & Francis, page 201, section 5.2.
+- **[100] When reversing direction, add half the measured backlash to the commanded position.**
+  - hermes:enrichment-loop | cite: *Miller’s Handbook of Machining*, 11th ed., Chap. 4 “Machine Tool Accuracy”, p. 112.
+- **[85] Tool shank diameter should be at least 1/3 of the tool diameter for stability**
+  - hermes:enrichment-loop | cite: Source: SME Tool and Manufacturing Engineers Handbook, Vol. 2, Page 1345.
+- **[85] Tool length should be minimized to reduce deflection and vibration**
+  - hermes:enrichment-loop | cite: Source: Machining Data Handbook, 3rd Ed., Page 12-15.
+- **[85] Tool holder material should be selected based on the machining application**
+  - hermes:enrichment-loop | cite: Source: ASM Handbook, Vol. 16, Page 836.
+- **[85] Tooling assembly weight should be considered for machine tool payload capacity**
+  - hermes:enrichment-loop | cite: Source: Fanuc Robodrill, Specifications, Page 3.
+- **[85] Deploy trochoidal roughing when axial depth exceeds 2x diameter to limit radial engagement and insert cooling intervals between arcs**
+  - hermes:enrichment-loop | cite: Sandvik Coromant Milling Technical Guide, Section 4.3, page 89.
+- **[85] Insert retract dwells after every third finishing pass on thin walls to dissipate cumulative heat before re-contact**
+  - hermes:enrichment-loop | cite: SME Tool and Manufacturing Engineers Handbook 4th Ed Vol 1, Chapter 15, page 534.
+- **[85] Apply constant engagement angle algorithms to eliminate thermal shock from load spikes at corners and entry moves**
+  - hermes:enrichment-loop | cite: High Speed Machining by Bert P. Erdel, Chapter 6, page 92.
+- **[85] Force climb milling direction exclusively when thermal conductivity is below 25 W/m·K to direct heat into chips not subsurface**
+  - hermes:enrichment-loop | cite: Machinery's Handbook 31st Edition, Machining Section, page 1124.
+- **[85] Program through-tool coolant pressure scaled to flute count to maintain cutting zone below material annealing threshold**
+  - hermes:enrichment-loop | cite: CNC Machining Handbook by James Madison, Section 8.4, page 215.
+- **[85] Rule: Limit the workpiece weight to 80% of the machine's maximum payload capacity to ensure stable machining**
+  - hermes:enrichment-loop | cite: Source: "Machine Tool Design" by Oxford University Press, page 156, section 4.2.
+- **[85] Rule: Use a workpiece surface roughness of at least 1.6 μm to ensure adequate clamping and fixturing during machining**
+  - hermes:enrichment-loop | cite: Source: "Surface Roughness" by Springer, page 78, section 2.3.
+- **[65] **Rule**: For micro‑milling of diameters ≤ 2 mm, set feed per tooth fz ≤ d/100 to preserve surface integrity.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule**: Maintain coolant flow ≥ 10 L min⁻¹ per flute for high‑speed aluminum milling to control temperature and tool life.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule**: When flank wear B₉₀ exceeds 0.3 mm, increase tool diameter by ΔD = 0.2·B₉₀ to maintain surface finish.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule**: If metrology shows a surface error > 0.05 mm, correct tool path by Δx = –error·cosθ to realign the machining plane.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **1. Deflection vs. part tolerance****
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule**: Keep tool tip deflection ≤ 0.05 µm to achieve Ra ≤ 0.2 µm on high‑precision surfaces.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule**: Ensure spindle speed ≤ 0.9 × critical speed to avoid chatter for a given tool length and diameter.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule**: Limit scallop height to ≤ 0.1 µm by controlling stepover and feed.**
+  - hermes:enrichment-loop | cite: n/a
+
+## lathe -- 29 tips (high 21 / mid 8 / low 0)
+
+- **[100] Select carbide-shank boring bars when L/D exceeds 6:1 to limit harmonic vibration amplitude below 0.05 mm in finish passes**
+  - hermes:enrichment-loop | cite: Sandvik Coromant Turning Technical Guide CTG-2022, p. 89, section 4.2 "Boring Bar Rigidity".
+- **[100] Choose 93° lead angle holders over 80° for external turning when 90° shoulder tolerance is tighter than ±0.02 mm to eliminate witness lines**
+  - hermes:enrichment-loop | cite: Kennametal Turning & Grooving Catalog 2021, p. 37, "External Holder Geometry Selection".
+- **[100] Select hydraulic expansion holders when part diameter tolerance is IT6 or better to keep tool runout under 0.003 mm TIR**
+  - hermes:enrichment-loop | cite: Big Kaiser Precision Tooling Handbook, 2020, p. 51, section "Holder Runout vs Tolerance".
+- **[100] Use negative-rake C-type holders with 7° clearance exclusively on Inconel 718 when DOC exceeds 2.5 mm to prevent depth-of-cut notching**
+  - hermes:enrichment-loop | cite: Iscar Metal Cutting Technical Guide 2018, p. 134, "High-Temp Alloy Tool Selection".
+- **[100] Select modular Capto C6 holders over standard square shank when cutting speed > 250 m/min on alloy steel to maintain balance grade G2.5**
+  - hermes:enrichment-loop | cite: Coromant Capto System Guide 2019, p. 28, "High-Speed Holder Interface".
+- **[100] Select through-coolant parting holders with minimum 70 bar capability when feed rate on cutoff exceeds 0.15 mm/rev on stainless to prevent c**
+  - hermes:enrichment-loop | cite: Seco Grooving & Parting Technical Manual 2022, p. 81, "Cutoff Tooling Pressure Thresholds".
+- **[100] Increase feed rate to direct over 70% of generated heat into the removable chip rather than tool or workpiece**
+  - hermes:enrichment-loop | cite: Sandvik Coromant Metal Cutting Technology 3rd Ed, p. 67 Section 4.2.
+- **[100] Program diameter oversize on finish pass to compensate for thermal contraction to cold target dimension**
+  - hermes:enrichment-loop | cite: Machinery's Handbook 31st Ed, p. 1265 "Allowances for Thermal Expansion".
+- **[100] Select CVD inserts having thick Al2O3 outer layer when tool-tip temperature exceeds 850°C in continuous cut**
+  - hermes:enrichment-loop | cite: Kennametal Turning Grade Selection Manual 2020, Section C p. 51.
+- **[100] Deploy SiC-whisker reinforced alumina ceramics for hardened steel turning above 45 HRC to tolerate >1050°C**
+  - hermes:enrichment-loop | cite: Greenleaf Advanced Ceramics Handbook, p. 22 "WG-300 Thermal Limits".
+- **[100] Insert 4-second dwells every 30 mm axial distance in long stainless roughing with sub-20 bar coolant**
+  - hermes:enrichment-loop | cite: Seco Turning Application Guide 2021, p. 61 "Heat Dissipation Tactics".
+- **[100] Mandate flood coolant and cap surface speed on magnesium to keep chip temperature below ignition threshold**
+  - hermes:enrichment-loop | cite: ASM Handbook Vol 16 Machining, p. 685 "Magnesium Safety Practices".
+- **[100] Use a clamping force of at least 10 kN to ensure secure workholding for parts with a diameter greater than 200 mm**
+  - hermes:enrichment-loop | cite: Source: "Machine Tool Design" by J. M. Alexander, page 234.
+- **[100] Select a workholding device with a stiffness of at least 100 N/μm to minimize deflection during machining**
+  - hermes:enrichment-loop | cite: Source: "Precision Engineering" by E. J. Hearn, section 5.3.
+- **[100] Use a chuck with a jaw force of at least 5 kN to ensure secure gripping of parts with a diameter less than 100 mm**
+  - hermes:enrichment-loop | cite: Source: "Lathe Design and Operation" by R. L. Norton, page 156.
+- **[100] Apply a clamping pressure of at least 10 MPa to ensure secure workholding for parts with a surface roughness greater than 10 μm**
+  - hermes:enrichment-loop | cite: Source: "Manufacturing Engineering" by J. A. Schey, section 10.5.
+- **[100] Use a tailstock with a quill diameter of at least 50 mm to ensure stable support for parts with a length greater than 500 mm**
+  - hermes:enrichment-loop | cite: Source: "Machine Tool Design" by J. M. Alexander, page 278.
+- **[100] Apply a clamping sequence of at least 3 steps to ensure even clamping force distribution for parts with a diameter greater than 300 mm**
+  - hermes:enrichment-loop | cite: Source: "Lathe Design and Operation" by R. L. Norton, page 192.
+- **[90] Deploy 35° diamond**
+  - hermes:enrichment-loop | cite: Mitsubishi Materials Turning Tools Catalog MT2021, p. 62, "Insert Angle vs Feature Radius".
+- **[85] Maintain water-soluble coolant at precise 8-10% concentration for peak heat removal capacity**
+  - hermes:enrichment-loop | cite: Blaser Swisslube Coolant Technology Guide, p. 14 "Concentration Effects".
+- **[85] Select a workholding device with a damping ratio of at least 0.5 to minimize vibration during machining**
+  - hermes:enrichment-loop | cite: Source: "Vibration Analysis" by R. D. Blevins, page 210.
+- **[65] **Rule** – Keep chip load per tooth between 0.04–0.08 mm for high‑speed steel finish passes.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Tool deflection must not exceed 0.02 mm for finish passes on 50 mm workpieces.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Use a 10‑point average \(R_z\) measurement; keep it ≤ 1 µm for finish passes on 5 mm diameter parts.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Keep spindle speed at ≤ 80 % of the critical cutting speed to avoid chatter on finish passes.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – For a given nose radius, maintain surface roughness \(R_z\) ≤ \(h^2/(8R)\) to achieve sub‑micron finish.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Maintain coolant pressure ≥ 200 kPa to keep the lubricant film thickness < 50 µm during finish passes.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – RMS acceleration during finish passes must stay below 0.2 g to avoid surface waviness.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **1. Tool‑tip deflection compensation on the focus axis****
+  - hermes:enrichment-loop | cite: n/a
+
+## mill -- 49 tips (high 35 / mid 14 / low 0)
+
+- **[100] Select shrink-fit holders over ER collets for carbide tools under 6 mm to keep runout below one flute's chip load and prevent uneven wear.**
+  - hermes:enrichment-loop | cite: Sandvik Coromant Milling Technical Guide, 2022 ed., p. 68, section 4.2.
+- **[100] Mandate G2.5 balanced holders for all assemblies run above 10,000 RPM to keep centrifugal force under 10 N.**
+  - hermes:enrichment-loop | cite: ISO 1940-1:2003 as cited in Big Kaiser Precision Tooling Catalog, p. 22, section "Balance".
+- **[100] Choose hydraulic chucks when axial pull-out force must exceed 4× cutting torque to eliminate tool slip in roughing.**
+  - hermes:enrichment-loop | cite: Kennametal Tooling Systems Catalog 2021, p. 47, section 3.4 "Clamping Force".
+- **[100] Never use Weldon side-lock holders for carbide shanks because notch stress concentration lowers fracture toughness by 40 %.**
+  - hermes:enrichment-loop | cite: Machinery's Handbook, 31st Ed., p. 1248, "Milling Cutter Arbors and Holders".
+- **[100] Select HSK-A63 over CAT40 when spindle speed and power combination produces >18 kN centrifugal expansion force.**
+  - hermes:enrichment-loop | cite: "CNC Programming Handbook" 3rd Ed., Peter Smid, Industrial Press, p. 521, section 14.7.
+- **[100] Use heavy-metal damped holders when stick-out to diameter ratio exceeds 5.5:1 to shift stability lobes upward.**
+  - hermes:enrichment-loop | cite: Seco Tools High-Performance Milling Guide, 2020, p. 81, "Advanced Toolholding".
+- **[100] Require AT3 or better taper tolerance on holders when feature true-position tolerance is tighter than 0.025 mm to limit Z-axis drift.**
+  - hermes:enrichment-loop | cite: ANSI B5.50-2015 referenced in Haas Technical Manual "Tooling and Workholding", p. 14, section 2.
+- **[100] Use through-spindle coolant when machining aluminum alloys with tools over 12 mm in diameter to reduce thermal expansion**
+  - hermes:enrichment-loop | cite: "Machining Data Handbook" by Metcut Research Associates, page 234.
+- **[100] Monitor spindle temperature and adjust machining parameters when temperature exceeds 50°C**
+  - hermes:enrichment-loop | cite: "CNC Milling Machine Maintenance and Repair" by McGraw-Hill, page 123.
+- **[100] Apply a thermal barrier coating to tools when machining materials with high thermal loads**
+  - hermes:enrichment-loop | cite: "Surface Modification Technologies" by Institute of Materials, page 210.
+- **[100] Monitor tool temperature and adjust machining parameters when temperature exceeds 200°C**
+  - hermes:enrichment-loop | cite: "Tool Wear and Tool Life" by CRC Press, page 278.
+- **[100] Apply Euler-Bernoulli cantilever formula and reduce feedrate when tool deflection exceeds 0.015 mm on finishing passes.**
+  - hermes:enrichment-loop | cite: Altintas, Manufacturing Automation 2nd ed, p. 48 Section 2.4. (e) safety: no
+- **[100] Scale axial depth of cut by inverse cube of L/D ratio when overhang exceeds 4:1 to hold radial deflection under 0.025 mm.**
+  - hermes:enrichment-loop | cite: Boothroyd & Knight, Fundamentals of Machining and Machine Tools 3rd ed, p. 312 Section 9.2. (e) safety: yes
+- **[100] Use Kienzle-Victor specific force model with ks1.1=2150 N/mm² for 4340 steel and limit peak tangential force to 650 N on tools >5× diameter.**
+  - hermes:enrichment-loop | cite: Altintas, Manufacturing Automation 2nd ed, p. 67 Section 3.3. (e) safety: no
+- **[100] Set system stiffness floor at 18 N/µm for titanium milling when feature tolerance is 0.025 mm to cap total deflection at 15% of tolerance.**
+  - hermes:enrichment-loop | cite: Ezugwu & Bonney, Intl Journal Machine Tools & Manufacture Vol 43, p. 839 Section 4. (e) safety: yes
+- **[100] Multiply tangential force by 0.55 radial factor for 30° helix end mills and keep combined load below 0.8× tool bending yield at given sticko**
+  - hermes:enrichment-loop | cite: Sandvik Coromant Milling Application Guide C-2900, 2021, p. 134 Section "Force components". (e) safety: no
+- **[100] Derate chip load 45% when cutter engagement exceeds 60% radial because mean cutting force rises 1.9× and deflection follows proportionally.**
+  - hermes:enrichment-loop | cite: Tlusty, Manufacturing Processes & Equipment, p. 178 Section 6.5. (e) safety: no
+- **[100] Require tool-holder assembly static stiffness >35 N/µm when milling hardened steels above 45 HRC to keep deflection-induced form error below**
+  - hermes:enrichment-loop | cite: Kennametal Milling Technical Manual 2020, p. 56 Section "Deflection & Rigidity". (e) safety: yes
+- **[100] ** Ensure the spindle speed is set such that the cutting velocity does not exceed 200 m/min for aluminum alloys to maintain surface finish q**
+  - hermes:enrichment-loop | cite: ** *Modern Machine Shop*, "Aluminum Machining Tips", page 45.
+- **[100] ** Apply a coolant flow rate of at least 4 L/min per tool to ensure effective heat removal and maintain surface finish quality during machin**
+  - hermes:enrichment-loop | cite: ** *Manufacturing Processes Reference Guide*, by G. E. Dieter, page 312.
+- **[100] ** Use a surface finish measuring instrument with a sampling length of at least 0.8 mm for roughness measurements to ensure accurate results**
+  - hermes:enrichment-loop | cite: ** *Surface Texture and Metrology: Principles and Applications*, by M.J. Davies, page 43.
+- **[100] ** Ensure the spindle dynamic stiffness is at least 50 N/mm to prevent chatter and maintain surface finish quality during high-speed machini**
+  - hermes:enrichment-loop | cite: ** *Machine Tool Design and Manufacturing*, by J. E. Shigley, page 347.
+- **[100] Rule: Apply a radial force compensation factor to the axial depth of cut when machining Inconel to account for its high strength-to-weight r**
+  - hermes:enrichment-loop | cite: Source: "Machining of Inconel alloys" by ASM International, page 123.
+- **[100] Rule: Apply a temperature-dependent material property correction to the cutting force model when machining stainless steel**
+  - hermes:enrichment-loop | cite: Source: "Machining of stainless steels" by CIRP Annals, volume 56, page 105.
+- **[100] Rule: Apply a vibration damping factor to the cutting force model when machining Inconel to account for its high vibration propensity**
+  - hermes:enrichment-loop | cite: Source: "Vibration analysis in machining" by Journal of Sound and Vibration, volume 333, page 2015.
+- **[100] Rule: Apply a material-specific chip formation model to predict chip geometry and reduce clogging when machining stainless steel**
+  - hermes:enrichment-loop | cite: Source: "Chip formation in machining" by CIRP Annals, volume 58, page 115.
+- **[85] Apply a heat shield to the spindle when machining materials with high thermal conductivity, such as copper**
+  - hermes:enrichment-loop | cite: "ASM Handbook, Volume 16: Machining" by ASM International, page 567.
+- **[85] Use a coolant with a high specific heat capacity to absorb heat generated during machining**
+  - hermes:enrichment-loop | cite: "Coolants and Lubricants in Metalworking" by Society of Manufacturing Engineers, page 145.
+- **[85] Use a spindle with a high thermal mass to reduce temperature fluctuations during machining**
+  - hermes:enrichment-loop | cite: "Spindle Design and Construction" by Springer, page 187.
+- **[85] ** Use a surface roughness measuring instrument with a stylus tip radius of no more than 2 µm for high-finish applications**
+  - hermes:enrichment-loop | cite: ** *Surface Texture and Metrology: Principles and Applications*, by M.J. Davies, page 37.
+- **[85] ** Use a tool with a rake angle of -10° for aluminum alloys to achieve optimal surface finish and reduce cutting forces**
+  - hermes:enrichment-loop | cite: ** *Tooling for Machining*, by J. F. Titus, page 145.
+- **[85] ** Maintain a minimum tool overhang of 3 times the tool diameter to ensure stability and surface finish quality**
+  - hermes:enrichment-loop | cite: ** *Handbook of Machining*, by R. Boyer, page 209.
+- **[85] Rule: Use a tool with a negative rake angle when machining titanium to reduce cutting forces and improve tool life**
+  - hermes:enrichment-loop | cite: Source: "Titanium alloys" by Smithells Metals Reference Book, section 15.3.
+- **[85] Rule: Use a high-pressure coolant system when machining hardened steel to improve tool life and reduce thermal damage**
+  - hermes:enrichment-loop | cite: Source: "Machining of hardened steels" by SME, page 210.
+- **[85] Rule: Use a tool with a specialized coating when machining titanium to reduce friction and improve tool life**
+  - hermes:enrichment-loop | cite: Source: "Coatings for titanium machining" by Surface and Coatings Technology, volume 204, page 1515.
+- **[65] **Rule**: Verify vertical axis dynamic stiffness exceeds 200 N/mm at the first resonance frequency (>8 kHz) to suppress chatter during high‑**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule**: Re‑calibrate the X‑axis zero offset with a laser interferometer after each spindle speed change >4 000 rpm to account for encoder **
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule**: Compensate tool deflection on the Z‑axis using δ = (F L³)/(3 E I) with E=200 GPa for steel and I = πd⁴/64.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule**: Set minimum feedrate on the focus axis to 0.05 mm/min when tool engagement <0.2 mm to avoid micro‑vibrations.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] Rule: Limit focus‑axis tool deflection to no more than 0.1 % of the tool length for cutting forces below 500 N.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] Rule: Increase coolant flow to 5 L min⁻¹ per tool when the average spindle torque exceeds 1.2× nominal for more than ten consecutive passes.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] Rule: Predict tool life using Taylor’s equation N = K / fᵖ; for carbide on aluminum use K = 12 000 mm³ min⁻¹ and p = 1.25.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule**: Compensate for tool‑length thermal expansion on the focus axis whenever spindle temperature rises >10 °C.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule**: Apply a fifth‑order polynomial fit for rotary axis error mapping when encoder step size <0.01° to correct non‑linearities.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule**: Correct vertical axis sag due to gravity using ΔZ = (m·g·h)/k where m=tool mass, g=9.81 m/s², h=height above spindle, k=spindle st**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Rule: Maintain radial engagement of at least 20 % of tool diameter when performing high‑speed focus‑axis milling to suppress chatter.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Rule: Use an X‑bar control chart for focus‑axis feed rate with UCL = μ + 3σ and LCL = μ – 3σ; investigate any point that deviates by more th**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Rule: Trigger a tool change when instantaneous spindle torque exceeds 1.15× nominal at the same speed for more than three consecutive cycles**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Rule: Limit focus‑axis acceleration to a_max = V² / (2 × R_min) with a_max ≤ 0.5 m s⁻²; reduce feed if the calculated a exceeds this limit.**
+  - hermes:enrichment-loop | cite: n/a
+
+## post-processor -- 50 tips (high 20 / mid 18 / low 12)
+
+- **[100] Tool holder selection should prioritize holders with high stiffness-to-mass ratios to minimize vibration and improve surface finish**
+  - hermes:enrichment-loop | cite: Source: "Machining Dynamics" by Yusuf Altintas, page 247/Section 7.3.
+- **[100] Post-processor must output M51 for through-spindle coolant at minimum 70 bar on titanium to keep tool-chip interface below 850 °C.**
+  - hermes:enrichment-loop | cite: Sandvik Coromant Titanium Machining Handbook, Section 5.2, p. 41.
+- **[100] Post-processor shall insert 35-second air-blast M79 purge after every 120 mm of dry milling on magnesium to drop tool temperature below igni**
+  - hermes:enrichment-loop | cite: International Magnesium Association Machining Guide, Thermal Control, p. 22.
+- **[100] Post-processor must enforce 3.5-minute maximum continuous cut time then G04 P25000 dwell for CBN tools on 55 HRC steel without coolant.**
+  - hermes:enrichment-loop | cite: Sandvik Coromant CBN Application Guide, Section 7.4, p. 63.
+- **[100] Post-processor must scale speed by factor 0.72 and insert 18 s dwell every 200 mm linear travel when internal coolant unavailable on Inconel**
+  - hermes:enrichment-loop | cite: ATI Metals Aerospace Alloy Machining, Heat Management, p. 17.
+- **[100] Post-processor shall output bearing mist lubrication M83 at 22 ml/h for 30 s prior to any spindle speed above 18000 RPM.**
+  - hermes:enrichment-loop | cite: NSK High-Speed Spindle Manual, Section 4.3 Thermal Stabilization, p. 74.
+- **[100] Post-processor must reduce feed to 62 % of programmed value when calculated heat flux exceeds 22 W/mm² on thin-wall aluminum parts.**
+  - hermes:enrichment-loop | cite: ASME Journal Manufacturing Science Engineering Vol. 142 No. 4, Case 3.1, p. 8.
+- **[100] ** The post-processor should dynamically adjust the feed rate based on the calculated cutting force to prevent tool deflection**
+  - hermes:enrichment-loop | cite: ** *Modern Machine Tool Technology*, John A. Jasienski, pg. 234.
+- **[100] ** The post-processor should incorporate a stiffness check and reduce the feed rate if the tool holder stiffness is below a threshold to pre**
+  - hermes:enrichment-loop | cite: ** *Machine Tool Design and Manufacturing*, Robert H. Smith, pg. 145.
+- **[100] ** The post-processor should apply a backlash compensation algorithm if the calculated cutting force exceeds a threshold to prevent tool def**
+  - hermes:enrichment-loop | cite: ** *Precision Machine Design and Tolerancing*, James G. McCarthy, pg. 321.
+- **[100] ** The post-processor should adjust the spindle speed based on the calculated cutting force to maintain tool stiffness**
+  - hermes:enrichment-loop | cite: ** *Machine Tool Design*, John F. Schrader, pg. 189.
+- **[100] ** The post-processor should implement a vibration damping algorithm if the cutting force exceeds a threshold to prevent tool deflection and**
+  - hermes:enrichment-loop | cite: ** *Machine Tool Vibration*, Richard S. Erdman, pg. 198.
+- **[100] ** The post-processor should adjust the depth of cut based on the calculated cutting force to prevent tool deflection and maintain stiffness**
+  - hermes:enrichment-loop | cite: ** *Advanced Manufacturing Processes*, David A. Wiest, pg. 178.
+- **[85] Tooling selection should consider the maximum allowable cutting force to prevent tool breakage**
+  - hermes:enrichment-loop | cite: Source: "Metal Cutting Principles" by Milton C. Shaw, page 156/Section 5.5.
+- **[85] Tool holder length should be minimized to reduce overhang and improve machining stability**
+  - hermes:enrichment-loop | cite: Source: "CNC Machining" by James R. Davis, page 123/Section 4.5.
+- **[85] Tooling selection should prioritize tools with high positive rake angles to improve surface finish and reduce cutting forces**
+  - hermes:enrichment-loop | cite: Source: "Machining of Metal" by E. M. Trent, page 201/Section 6.3.
+- **[85] Tool holder selection should consider the spindle's maximum rotational speed to prevent tool holder failure**
+  - hermes:enrichment-loop | cite: Source: "Machine Tool Vibrations" by S. A. Tobias, page 187/Section 5.7.
+- **[85] Tooling selection should prioritize tools with low friction coefficients to reduce cutting forces and improve surface finish**
+  - hermes:enrichment-loop | cite: Source: "Friction and Wear" by Ernest Rabinowicz, page 145/Section 5.2.
+- **[85] Post-processor should command MQL at exact 18 ml/h flow with 6 bar air for aluminum to maintain cutting zone 105–115 °C.**
+  - hermes:enrichment-loop | cite: Unist MQL Handbook, Application Data Table 3.2, p. 38.
+- **[70] Tool holder selection should consider the thermal expansion of the tool holder to prevent tool breakage**
+  - hermes:enrichment-loop | cite: Source: "Materials Science and Engineering" by William D. Callister, page 217/Section 6.5.
+- **[65] **Rule** – Limit feed per tooth to ≤ 0.02 mm/tooth when finishing aluminum at spindle speeds up to 5000 rpm to achieve Rₐ ≤ 1 µm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Compensate radial deflection with δ = (F_a·L³)/(3E I) and keep δ ≤ 0.05 mm during finish passes.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Pause machining if RMS vibration exceeds 0.02 mm during a cut to avoid exceeding finish tolerance.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For high‑speed steel milling (>5000 rpm), set helix angle α > 30° to reduce axial load and improve finish.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Insert micro‑dwell of 20 ms per 0.05 mm depth increment on hard material to improve surface finish.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Estimate surface roughness in real time with Rₐ_est = (f_z·V_s)/(πd)·K and keep Rₐ_est ≤ 2 µm for steel finishing.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Keep tool‑tip deflection under the clamping preload below 0.02 mm at maximum cutting load.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Use magnetic clamping for ferrous workpieces when spindle speed exceeds 20 000 rpm; require a pole‑face flux density of ≥0.8 T to**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Use a compliant insert with compliance ≤5 µm per 10 N load when machining HRC > 60 to absorb vibration.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For rotary axes at spindle speeds >8 000 rpm and tool radius >20 mm, cap the feed per revolution to 0.6 mm/rev; otherwise use 1.2**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Compensate rotary‑axis torsional deflection using K_torsion = 1 × 10⁶ N·m/rad; Δθ = (F_axial × L_tool) ÷ K_torsion.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Scale rotary‑axis coolant mist flow with tool radius: Flow_rate = 20 ml/min × (Tool_radius ÷ 30 mm).**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Set rotary‑axis vibration RMS threshold to 0.02 mm at spindle speeds >12 000 rpm for tools >25 mm radius; otherwise 0.05 mm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] ** The post-processor should include a safety margin for cutting force in the tool selection algorithm to ensure that the selected tool can **
+  - hermes:enrichment-loop | cite: ** *Tooling for Machining*, Robert H. Smith, pg. 134.
+- **[50] **Rule** – Maintain coolant pressure ≥ 25 bar during finishing passes on aluminum to keep Rₐ ≤ 1 µm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Employ a 45° wedge for radial clamping on cylindrical parts; the wedge angle must be >30°.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Preload the clamp screw to 10% of the maximum cutting force.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **1. Rotary‑axis zero‑error compensation via tool‑center point offset****
+  - hermes:enrichment-loop | cite: n/a
+
+<details><summary>(!) 12 LOW-tier -- hardest scrutiny (missing numeric threshold / citation, or vague)</summary>
+
+- [25] **Rule** – Insert a synchronization delay when switching the rotary axis from rapid to spindle that equals the change in angular velocity di -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Add a secondary clamp to counteract tool torque; the required secondary force is F_sec = T × L / r. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Ensure the clamp device’s natural frequency exceeds twice the spindle fundamental frequency to avoid resonance. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Limit focus‑axis acceleration to avoid chatter at high spindle speeds. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Compensate tool deflection on focus axis using a dynamic force model. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Scale coolant flow on focus axis depth of cut to maintain temperature control. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Insert synchronization delay when switching focus axis from rapid to spindle motion. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Apply radial offset on focus axis for tool radius and part curvature. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Set rapid retract distance after high‑speed drilling to avoid tool deflection. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Pause focus axis when temperature exceeds threshold to prevent overheating. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – Apply rotary‑axis backlash compensation equal to half the measured encoder backlash times the tool‑radius ratio. -- flags: no-formula, no-number, no-cite
+- [10] **Rule** – After high‑speed drilling, retract the rotary axis by at least twice the tool radius to avoid deflection. -- flags: no-formula, no-number, no-cite
+</details>
+
+## wedm -- 55 tips (high 27 / mid 27 / low 1)
+
+- **[100] The tool holder's clamping system should be designed to minimize vibration and ensure consistent wire tension**
+  - hermes:enrichment-loop | cite: Source: "Wire EDM Handbook" by SME, page 123.
+- **[100] The tooling material should be selected based on its hardness and resistance to wire erosion**
+  - hermes:enrichment-loop | cite: Source: "EDM Fundamentals" by IJMEM, section 4.2.
+- **[100] The wire guide bushing should be designed to minimize wire vibration and ensure accurate cutting**
+  - hermes:enrichment-loop | cite: Source: "Wire EDM Technology" by CIRP, page 210.
+- **[100] The tool holder's weight should be minimized to reduce the load on the machine's Z-axis**
+  - hermes:enrichment-loop | cite: Source: "EDM Machine Design" by JMEM, section 3.1.
+- **[100] The wire tension should be monitored and controlled to ensure consistent cutting performance**
+  - hermes:enrichment-loop | cite: Source: "Wire EDM Handbook" by SME, page 145.
+- **[100] The tooling material's thermal conductivity should be considered to minimize thermal damage**
+  - hermes:enrichment-loop | cite: Source: "EDM Fundamentals" by IJMEM, section 4.5.
+- **[100] The tool holder's design should ensure easy wire threading and minimization of wire breakage**
+  - hermes:enrichment-loop | cite: Source: "Wire EDM Technology" by CIRP, page 230.
+- **[100] Compensate programmed geometry for thermal expansion using material-specific CTE and anticipated 7°C average temperature increase from EDM h**
+  - hermes:enrichment-loop | cite: Guitrau, The EDM Handbook, Hanser Gardner Publications, 1997, p. 112, Section 5.2.
+- **[100] Maintain dielectric fluid at constant 20°C using closed-loop chilling to minimize viscosity variations that alter heat transfer rates in the**
+  - hermes:enrichment-loop | cite: Jameson, Electrical Discharge Machining, Society of Manufacturing Engineers, 2001, p. 78, Section 3.5.
+- **[100] Limit on-time to 1.2 microseconds in finishing to restrict single pulse energy below 0.002J preventing excessive localized heating and micro**
+  - hermes:enrichment-loop | cite: ASM Handbook Volume 16: Machining, ASM International, 1989, p. 433.
+- **[100] Increase wire speed proportionally to discharge current to maintain wire core temperature below 500°C for reliable operation without anneali**
+  - hermes:enrichment-loop | cite: Guitrau, The EDM Handbook, Hanser Gardner Publications, 1997, p. 189, Section 8.4.
+- **[100] Adjust servo feed rate downward by 10% for every 5°C rise in outlet dielectric temperature to match reduced material removal from thermal lo**
+  - hermes:enrichment-loop | cite: Benedict, Nontraditional Manufacturing Processes, Marcel Dekker, 1987, p. 231, Section 6.3.2.
+- **[100] ** The cutting force should be balanced to prevent excessive deflection**
+  - hermes:enrichment-loop | cite: ** *Wire Electrical Discharge Machining: Principles and Applications* by K. L. Lee, page 156.
+- **[100] ** Wire stiffness should be adjusted based on material thickness to reduce deflection**
+  - hermes:enrichment-loop | cite: ** *Principles and Practice of Electrical Discharge Machining* by R.K. Jain, page 189.
+- **[100] ** Increase wire tension to enhance stiffness during deep cuts**
+  - hermes:enrichment-loop | cite: ** *Electrical Discharge Machining: Principles and Applications* by S. M. Shah, page 178.
+- **[100] ** Use lower current settings to minimize deflection in thin materials**
+  - hermes:enrichment-loop | cite: ** *Electrical Discharge Machining: Theory and Practice* by S. K. Jain, page 167.
+- **[100] ** Adjust dielectric flow rate to improve stiffness and reduce deflection**
+  - hermes:enrichment-loop | cite: ** *Electrical Discharge Machining: Fundamentals and Applications* by R. K. Jain, page 201.
+- **[100] ** Implement a pre-tensioning mechanism to enhance wire stability**
+  - hermes:enrichment-loop | cite: ** *Electrical Discharge Machining: Principles, Processes, and Applications* by R. K. Jain, page 215.
+- **[100] ** Monitor wire wear to maintain consistent stiffness and reduce deflection**
+  - hermes:enrichment-loop | cite: ** *Electrical Discharge Machining: Fundamentals and Applications* by R. K. Jain, page 198.
+- **[100] The workpiece should be fixtured to minimize thermal expansion effects on the cutting process**
+  - hermes:enrichment-loop | cite: "Wire EDM: Fundamentals and Applications" by T. Masuzawa, page 123.
+- **[100] The clamping force should be optimized to prevent workpiece movement during cutting**
+  - hermes:enrichment-loop | cite: "Machining of Hard Materials" by V. K. Jain, section 5.3.
+- **[100] The workpiece material's elastic modulus should be considered when designing the fixturing system**
+  - hermes:enrichment-loop | cite: "Materials Science and Engineering: An Introduction" by W. D. Callister, page 135.
+- **[100] The fixturing system should be designed to minimize the effects of wire deflection on the cutting process**
+  - hermes:enrichment-loop | cite: "Wire EDM: Fundamentals and Applications" by T. Masuzawa, page 145.
+- **[100] The fixturing system should be designed to accommodate the workpiece's weight and prevent movement during cutting**
+  - hermes:enrichment-loop | cite: "Design of Machine Elements" by V. L. Masek, page 210.
+- **[85] Insert 5-second inter-pulse dwell every 60 seconds of cutting for thick parts to allow bulk heat dissipation and equalize thermal gradients**
+  - hermes:enrichment-loop | cite: Jameson, Electrical Discharge Machining, Society of Manufacturing Engineers, 2001, p. 215, Chapter 9.
+- **[85] Select capacitance values below 0.1uF during trim cuts to limit stored energy and associated thermal shock to the workpiece surface**
+  - hermes:enrichment-loop | cite: ASM Handbook Volume 16: Machining, ASM International, 1989, p. 427.
+- **[85] The workpiece should be cleaned and dried before fixturing to prevent contamination and ensure accurate cutting**
+  - hermes:enrichment-loop | cite: "Machining of Hard Materials" by V. K. Jain, section 3.2.
+- **[65] Maintain dielectric conductivity ≥ 1.4 mS/cm to achieve Ra < 0.6 µm; Formula: σ ≥ 1.4 mS/cm; Example: σ = 1.6 mS/cm → predicted Ra ≈ 0.55 µm**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] Use wire deflection formula δ = (W·L²)/(8EI) and keep δ ≤ 0.1 µm for critical dimensions; Formula: δ ≤ 0.1 µm; Example: W = 10 N, L = 20 mm,**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] Implement feedback loop adjusting pulse current by –5 % for every +0.1 µm increase in measured Ra to maintain ±0.05 µm tolerance; Formula: Δ**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule:** Apply a 0.08 Nm pre‑load torque on the X‑axis servo to reduce backlash to ≤0.02 mm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule:** Correct wire sag by adding a vertical offset of 0.5 µm for every °C rise in head temperature above 20 °C.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule:** Maintain head clearance within ±0.02 mm using a 1064 nm laser interferometer; a 10 mV signal change corresponds to 0.01 mm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule:** Reduce pulse frequency by 2 % for every +5 cSt increase in dielectric viscosity at 25 °C to keep Ra within spec.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule:** Compensate for steel tool holder thermal expansion on the Y axis by subtracting 0.015 mm per °C rise in head temperature.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule:** Re‑calibrate the coordinate system every 200 passes using a reference block; maintain drift <0.01 mm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – For titanium passes, limit pulse‑on time so energy density per spark stays below 2 J/cm² to keep recast under 10 µm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Flush pressure must be at least 0.05 MPa per mm of cut depth for hardened steel to prevent wire breakage.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Increase wire tension by 10 % when RMS vibration exceeds 0.02 mm to maintain Ra spec on stainless steel.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Use 0.15 mm wire for hardened steel to keep deflection under 0.05 mm over a 30 cm length.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Maintain a rolling average of wire wear depth over the last 50 passes and adjust tension by 0.5 N per µm deviation from target.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Keep wire tension hysteresis below 0.02 N to preserve tool life beyond 2500 passes.**
+  - hermes:enrichment-loop | cite: n/a
+- **[65] **Rule** – Maintain dielectric conductivity gradient Δσ/σ below 0.03 across any 10 mm segment.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Keep pulse‑on to pulse‑off ratio (PON/POT) ≤ 0.2 for Ra < 0.5 µm; Formula: PON/POT ≤ 0.2; Example: PON = 4 µs, POT = 20 µs → 0.20; Source: L**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Keep average workpiece temperature ≤ 80 °C during high‑frequency cuts to prevent micro‑cracking; Formula: T_avg ≤ 80 °C; Example: 500 kHz, 5**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Apply pre‑etch pulses with pulse‑on < 1 µs to reduce Ra by ≥30 % compared to standard pulses; Formula: ΔRa ≤ –0.3·Ra_std; Example: Standard **
+  - hermes:enrichment-loop | cite: n/a
+- **[50] Use laser interferometric surface metrology and trigger parameter adjustment when deviation > 0.2 µm from target; Formula: |Δx| > 0.2 µm → a**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule:** Use a phase‑locked loop to limit pulse timing jitter to <0.5 µs; if jitter exceeds this, increase pulse width by +10 %.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – For Inconel cuts, keep dielectric conductivity between 1.8–3.0 S/m to avoid spark irregularity.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – For titanium, keep pulse frequency ≤150 kHz to limit electrode erosion due to hardness.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – For Inconel, restrict pulse‑on time to ≤0.4 ms at 15 A to keep recast below 12 µm.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Schedule maintenance when the cumulative Weibull failure probability exceeds 30 %.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Keep flush pressure variation within ±5 % of nominal to avoid uneven recast.**
+  - hermes:enrichment-loop | cite: n/a
+- **[50] **Rule** – Reject any recast thickness measurement that exceeds μ + 3σ.**
+  - hermes:enrichment-loop | cite: n/a
+
+<details><summary>(!) 1 LOW-tier -- hardest scrutiny (missing numeric threshold / citation, or vague)</summary>
+
+- [10] **Rule** – Compensate pulse‑on time along the focus axis with a linear taper to counter wire wear. -- flags: no-formula, no-number, no-cite
+</details>
+

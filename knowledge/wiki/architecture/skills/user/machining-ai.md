@@ -23,14 +23,14 @@ related:
 |-------|-------|
 | Name | `machining-ai` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/machining-ai.md` |
+| Source | `C:/Users/wompu/.claude/commands/machining-ai.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Invoke the **MachiningIntelligenceOrchestratorEngine** (MIO-MS0) — the super-orchestrator
-that coordinates all 348 PRISM AI subsystems through a 9-phase pipeline from print to G-code.
+
+# Machining AI — Unified Intelligence Orchestration
 
 <!-- AUTO-END -->
 

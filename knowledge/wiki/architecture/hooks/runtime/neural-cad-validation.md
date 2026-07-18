@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-neural-cad-validation.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI07Monitors NeuralCADGenerationEngine output quality and warns on issues:- Low confidence scores (< 0.6)- Failed validation (syntax errors)- High retry count (3+ attempts)- Missing output code
+_(no header docblock — read source for behavior)_
 
 ## Events
 

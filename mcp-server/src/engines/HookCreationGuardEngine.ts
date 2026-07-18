@@ -266,7 +266,7 @@ export class HookCreationGuardEngine extends BaseEngine {
     ];
   }
 
-  validateInput(input: unknown): string | null {
+  validate(input: unknown): string | null {
     if (input == null || typeof input !== "object") return "expected an input object";
     const o = input as { proposedName?: unknown };
     if (typeof o.proposedName !== "string" || !o.proposedName.trim()) return "proposedName is required and must be a non-empty string";

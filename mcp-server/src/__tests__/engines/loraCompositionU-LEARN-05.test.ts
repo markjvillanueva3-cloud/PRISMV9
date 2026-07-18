@@ -667,9 +667,10 @@ describe("mlDispatcher LoRA actions", () => {
     const { registerMLDispatcher } = await import("../../tools/dispatchers/mlDispatcher.js");
 
     let capturedResult: unknown;
+    let handlerPromise: Promise<unknown> | undefined;
     const mockServer = {
       tool: (_name: string, _desc: string, _schema: unknown, handler: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>) => {
-        handler({
+        handlerPromise = handler({
           action: "lora_register_expert",
           params: {
             experts: [{
@@ -685,7 +686,11 @@ describe("mlDispatcher LoRA actions", () => {
     };
 
     registerMLDispatcher(mockServer);
-    await new Promise(r => setTimeout(r, 50));
+    // Await the actual handler promise rather than racing a fixed 50ms timer: the
+    // handler chains await import(...) lazy-loads, which under full-suite thread-pool
+    // contention can exceed a fixed sleep -> capturedResult stays undefined (a
+    // load-dependent flake, not state pollution; vitest isolate:true rules that out).
+    await handlerPromise;
 
     expect(capturedResult).toBeDefined();
     const text = (capturedResult as { content: Array<{ text: string }> }).content[0].text;
@@ -698,9 +703,10 @@ describe("mlDispatcher LoRA actions", () => {
     const { registerMLDispatcher } = await import("../../tools/dispatchers/mlDispatcher.js");
 
     let capturedResult: unknown;
+    let handlerPromise: Promise<unknown> | undefined;
     const mockServer = {
       tool: (_name: string, _desc: string, _schema: unknown, handler: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>) => {
-        handler({
+        handlerPromise = handler({
           action: "dora_create",
           params: {
             adapter_id: "dora-test",
@@ -712,7 +718,8 @@ describe("mlDispatcher LoRA actions", () => {
     };
 
     registerMLDispatcher(mockServer);
-    await new Promise(r => setTimeout(r, 50));
+    // Await the real handler completion, not a fixed timer (load-independent; see lora_register_expert above).
+    await handlerPromise;
 
     expect(capturedResult).toBeDefined();
     const text = (capturedResult as { content: Array<{ text: string }> }).content[0].text;
@@ -728,9 +735,10 @@ describe("mlDispatcher LoRA actions", () => {
     const { registerMLDispatcher } = await import("../../tools/dispatchers/mlDispatcher.js");
 
     let capturedResult: unknown;
+    let handlerPromise: Promise<unknown> | undefined;
     const mockServer = {
       tool: (_name: string, _desc: string, _schema: unknown, handler: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>) => {
-        handler({
+        handlerPromise = handler({
           action: "olora_check",
           params: { threshold: 0.1 },
         }).then(r => { capturedResult = r; });
@@ -738,7 +746,8 @@ describe("mlDispatcher LoRA actions", () => {
     };
 
     registerMLDispatcher(mockServer);
-    await new Promise(r => setTimeout(r, 50));
+    // Await the real handler completion, not a fixed timer (load-independent; see lora_register_expert above).
+    await handlerPromise;
 
     expect(capturedResult).toBeDefined();
     const text = (capturedResult as { content: Array<{ text: string }> }).content[0].text;

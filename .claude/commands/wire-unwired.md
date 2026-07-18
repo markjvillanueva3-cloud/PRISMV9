@@ -67,8 +67,17 @@ impact:
     - informs: /close-out (whether engine-wiring blockers remain)
   bounded: true
   reversible: true  # the underlying /wiring-batch has --dry-run; this orchestrator preserves that
+composes_with:
+  - "/coverage-by-domain"
+  - "/dispatcher-coverage"
+  - "/forge"
+  - "/forge-audit"
+  - "/forge-wiring"
+  - "/peer-file-isolation"
+  - "/rgs"
+  - "/unwired-review"
+  - "/wiring-batch"
 ---
-
 # /wire-unwired — Umbrella Skill for Wiring Sprints
 
 > **Goal:** today, wiring an unwired engine requires (a) `/dispatcher-coverage` to find the home, (b) `/forge-wiring` to propose the patch, (c) `/wiring-batch` to apply, (d) `/unwired-review` to confirm. Four invocations + manual stitching. This skill is the single entry point: feed it a domain or count, get a fully-applied + verified wiring batch (or a clear blocker explanation).

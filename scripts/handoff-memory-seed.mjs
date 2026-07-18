@@ -8,8 +8,9 @@
 // Sources, in order:
 //   1. mcp-server/data/state/ERROR_LEARN_LEDGER.jsonl — top-3 most-recent
 //      error-class events with non-empty snippets (the "things to avoid" tier)
-//   2. C:/Users/Mark Villanueva/.claude/projects/H--PRISM/memory/reference_post_ship_*.md
-//      most-recent (post-ship-distill output — the "what just shipped" tier)
+//   2. <obsidian-mem-dir>/reference_post_ship_*.md — most-recent (post-ship-
+//      distill output — the "what just shipped" tier). Dir resolved via
+//      resolveObsidianMemDir() (homedir-derived, NOT a hardcoded username).
 //   3. knowledge/wiki/code-tribal/learnings/*.md — most-recent (alt distill output)
 //
 // Idempotent: if a `## MEMORY_SEED` section already exists, replace it.
@@ -21,11 +22,12 @@
 
 import { readFileSync, writeFileSync, existsSync, statSync, readdirSync, mkdirSync } from "node:fs";
 import path from "node:path";
+import { resolveObsidianMemDir } from "./lib/obsidian-mem-dir.mjs";
 
 const PRISM_ROOT = process.env.PRISM_ROOT || "H:/prism";
 const HANDOFFS_DIR = path.join(PRISM_ROOT, "state", "shared", "handoffs");
 const ERROR_LEDGER = path.join(PRISM_ROOT, "mcp-server", "data", "state", "ERROR_LEARN_LEDGER.jsonl");
-const OBSIDIAN_MEM_DIR = process.env.PRISM_OBSIDIAN_MEM_DIR || "C:/Users/Mark Villanueva/.claude/projects/H--PRISM/memory";
+const OBSIDIAN_MEM_DIR = resolveObsidianMemDir();
 const WIKI_LEARN_DIR = path.join(PRISM_ROOT, "knowledge", "wiki", "code-tribal", "learnings");
 const TOP_ERRORS = 3;
 const TOP_RECENT_MEMOS = 2;

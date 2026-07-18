@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS7",
+  "version": "1.0.0",
+  "title": "PPG-MS7 — Print → Program (Mill + Lathe + WEDM): MillingPrintToProgramEngine + LathePrintIngestPipeline + WEDM print-to-program wiring",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 7,
+  "completed_units": 0,
+  "description": "Wires the print-to-program pipelines for all three machining domains: (a) MillingPrintToProgramEngine (2,123 LOC mill engine, deprecates 14-LOC stub); (b) LathePrintIngestPipelineEngine (E0277, lathe domain, currently unwired into wizard); (c) wedm_print_to_program dispatcher action (WEDM domain, leverages WEDMGeometryParseEngine + WEDMFeatureClassifyEngine + WEDMDrawingInterpretEngine). Addresses user reminder: 'we're doing lathe and wire too'.",
+  "rationale": "Pre-precompact audit identified MillingPrintToProgramEngine as the single largest unwired engine in the codebase. A 14-LOC stub (MillPrintToProgramEngine.ts) currently routes mill print→program calls to a no-op, masking the working 2,123-LOC engine. This is the cheapest single improvement available: ~4 units of wiring activates a fully implemented capability.",
+  "leverage_existing": [
+    "MillingPrintToProgramEngine (2,123 LOC, src/engines/) — full pipeline including blueprint OCR + feature recognition + ML strategy selection",
+    "MillPrintToProgramEngine (14 LOC stub, src/engines/) — TO DEPRECATE",
+    "BlueprintVisionOCR + FeatureToStrategyEngine + GenPlanEngine — already wired into MillingPrintToProgramEngine",
+    "camDispatcher.ts — action enum extension target",
+    "LathePrintIngestPipelineEngine (E0277) — lathe print-to-program pipeline (U-LTH33 LATHE-MASTER P4)",
+    "TurningBlueprintIntakeEngine — converts blueprint OCR to TurningFeature[] (lathe sibling of mill blueprint vision)",
+    "TurningParseMaterialEngine + TurningParseToleranceEngine + TurningParseFitEngine — lathe domain parsers",
+    "TurningCadImportEngine + TurningRevProfileEngine + TurningFeatureTaxonomyEngine — lathe geometry pipeline",
+    "TurningStockSelectEngine + TurningResolveAmbiguityEngine + TurningApplyISO2768Engine — lathe ambiguity resolution",
+    "WEDMGeometryParseEngine + WEDMValidateGeometryEngine + WEDMInterpretDrawingEngine + WEDMClassifyFeaturesEngine — WEDM print intake (already wired in EDM dispatcher: wedm_parse_geometry, wedm_interpret_drawing, wedm_classify_features)",
+    "auto_print_to_program + auto_detect_format + iges_parse + iges_extract_geometry — generic print intake (camDispatcher)"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Programmer uploads a Holo-Krome shoulder bolt mill print to the wizard.",
+    "today_pre_ppg_ms7": "Wizard call goes through MillPrintToProgramEngine stub → returns empty operation list → wizard shows 'No operations recognized'. Programmer falls back to manual feature entry.",
+    "should_be_post_ppg_ms7": "Call routes to MillingPrintToProgramEngine → BlueprintVisionOCR extracts dims + tolerances + GD&T → FeatureRecognition produces 8 features → GenPlan emits process plan → toolpath generated → wizard shows ready-to-post operation tree.",
+    "gap_now_closed": "Mill print→program path actually runs end-to-end."
+  },
+  "units": [
+    {
+      "id": "U-PPGM48",
+      "title": "Dispatcher action mill_print_to_program",
+      "scope": "camDispatcher.ts + camActionSchemas.ts (Zod) — route to MillingPrintToProgramEngine; integration test against a 5-feature reference print"
+    },
+    {
+      "id": "U-PPGM49",
+      "title": "Wizard print upload route",
+      "scope": "web/src/api/ppg.ts + PostProcessorGeneratorPage step 0: upload print → call mill_print_to_program → populate operation tree"
+    },
+    {
+      "id": "U-PPGM50",
+      "title": "Deprecate MillPrintToProgramEngine stub",
+      "scope": "Mark stub @deprecated, replace internal callers with MillingPrintToProgramEngine, add removal tracking issue"
+    },
+    {
+      "id": "U-PPGM51",
+      "title": "Round-trip tests on 5 JM Die reference prints",
+      "scope": "src/__tests__/MillingPrintToProgram.integration.test.ts — happy path on 5 prints (D2/M2/A2/H13/carbide); assert ≥80% feature-recognition accuracy"
+    },
+    {
+      "id": "U-PPGM51b",
+      "title": "Lathe print → program dispatcher wiring (E0277 + 14 turning_* actions)",
+      "scope": "Wire LathePrintIngestPipelineEngine (E0277) into wizard step 0 for lathe jobs; route turning_print_to_program + turning_blueprint_intake + turning_parse_material + turning_parse_tolerance + turning_cad_import + turning_stock_select + turning_resolve_ambiguity + turning_rev_profile + turning_feature_taxonomy + turning_parse_fit + turning_apply_iso2768 + turning_process_plan + lathe_ui_submit + lathe_orchestrate (already in turningProgramDispatcher) through wizard. Round-trip test on 5 JM Die lathe reference prints (4140/304SS/A2/D2/carbide).",
+      "files_to_modify": [
+        "web/src/api/ppg.ts",
+        "web/src/pages/PostProcessorGeneratorPage.tsx",
+        "src/engines/LathePrintIngestPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/LathePrintToProgram.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM51c",
+      "title": "WEDM print → program dispatcher wiring (4 wedm_* actions)",
+      "scope": "Wire wedm_parse_geometry + wedm_interpret_drawing + wedm_classify_features + wedm_assess_feasibility into wizard step 0 for WEDM jobs; add wedm_print_to_program top-level action that orchestrates the 4 underlying. Round-trip test on 3 JM Die WEDM reference prints (D2 12mm 4° taper, M2 8mm straight, carbide 6mm with 0.25R corners).",
+      "files_to_modify": [
+        "src/tools/dispatchers/edmDispatcher.ts",
+        "web/src/api/ppg.ts",
+        "web/src/pages/PostProcessorGeneratorPage.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/WEDMPrintToProgram.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM51d",
+      "title": "Domain-router unit at wizard step 0 (auto-detect mill vs lathe vs WEDM)",
+      "scope": "Wizard step 0 detects file format + part geometry → routes to mill_print_to_program | turning_print_to_program | wedm_print_to_program; uses auto_detect_format + iges_parse + step_analyze; falls back to user choice on ambiguous geometry (e.g. mill-turn parts). Ambiguous-geometry test corpus ≥3: (1) Multus B250IIW mill-turn part (rotational + prismatic features); (2) WEDM-roughed-then-mill-finished die plate (mixed EDM + mill features); (3) lathe-with-cross-drilling (turning + secondary mill). Adversarial: (a) STEP file with no rotational symmetry but 90% cylindrical features → must NOT auto-classify as lathe; (b) DXF flat profile → must classify as WEDM not laser without explicit material thickness.",
+      "files_to_modify": [
+        "web/src/pages/PostProcessorGeneratorPage.tsx",
+        "web/src/api/ppg.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/WizardDomainRouter.integration.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "mill_print_to_program dispatcher action callable from MCP and from wizard",
+    "MillPrintToProgramEngine stub marked @deprecated; no callers remain on main",
+    "Round-trip tests pass on 5 reference prints with ≥80% feature recognition",
+    "Wizard print upload populates operation tree without manual entry",
+    "Lathe print upload routes to E0277; populates lathe operation tree on 5 reference prints with ≥80% feature recognition",
+    "WEDM print upload routes through wedm_print_to_program; multi-pass schedule generated automatically on 3 reference prints",
+    "Wizard step 0 auto-detects domain across mill/lathe/WEDM with explicit fallback on ambiguous (mill-turn) parts"
+  ],
+  "depends_on": [
+    "CAD-INFRA-MS0"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS32",
+    "PPG-MS38"
+  ],
+  "_patches": [
+    "ppg-leverage-16-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29",
+  "forward_references_2026_04_29": {
+    "note": "These engines are TO-BE-BUILT in this milestone's units; they appear in leverage_existing as forward references (the units in this same milestone create them) — not as historical assets. R4-S02 'broken citation' verdicts are misleading for forward-refs; the milestone IS the build site.",
+    "forward_ref_engines": [
+      "TurningBlueprintIntakeEngine",
+      "TurningParseMaterialEngine",
+      "TurningParseToleranceEngine",
+      "TurningParseFitEngine",
+      "TurningStockSelectEngine",
+      "TurningResolveAmbiguityEngine",
+      "TurningApplyISO2768Engine",
+      "WEDMGeometryParseEngine",
+      "WEDMValidateGeometryEngine",
+      "WEDMInterpretDrawingEngine",
+      "WEDMClassifyFeaturesEngine",
+      "GenPlanEngine"
+    ]
+  }
+}

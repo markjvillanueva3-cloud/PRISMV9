@@ -11,6 +11,13 @@
  */
 
 import type { QuoteEstimateInput, FeatureSpec, SecondaryOp, NREItem } from "./QuoteEstimatorEngine.js";
+import type { BlueprintAnalysis as OCRBlueprintAnalysis } from "./BlueprintOCREngine.js";
+
+// Re-export QuoteEstimateInput so the blueprint->quote dispatcher call sites can name the
+// quote-input type from the bridge (its natural type surface) -- fixes the TS2694 at
+// shopDispatcher emp_blueprint_to_quote, which imported it from here but it was only an
+// internal `import type`, never re-exported.
+export type { QuoteEstimateInput } from "./QuoteEstimatorEngine.js";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -322,6 +329,67 @@ class BlueprintToQuoteBridgeEngine {
       if (lower.includes(key)) return value;
     }
     return null;
+  }
+
+  /**
+   * Normalize BlueprintOCREngine.analyzeBlueprint() output into this engine's LOCAL
+   * BlueprintAnalysis contract that bridge() consumes. The two `BlueprintAnalysis`
+   * interfaces collide by NAME only: the OCR shape uses `gdt_frames` / `dim.nominal` /
+   * `dim.raw_text` / `gdt.datum_references` / `title.title`, none of which bridge() reads.
+   * Feeding the raw OCR shape straight into bridge() (the prior shopDispatcher +
+   * businessDispatcher bug) silently dropped ALL GD&T -- bridge() reads `analysis.gdt`
+   * while OCR emits `gdt_frames` -- and mis-read dimensions, producing under-spec'd quotes
+   * from real prints with no error. This adapter is the single source of truth for the
+   * OCR->bridge translation.
+   *
+   * `bounding_box` has NO OCR source and is intentionally left undefined (bridge() guards
+   * it). Real stock extents must come through bridge() `overrides.stock_dimensions_mm`,
+   * never inferred from the unordered OCR dimension callouts -- a max-extent guess would
+   * fabricate a wrong stock volume and mis-price material + machining.
+   */
+  fromOCRAnalysis(ocr: OCRBlueprintAnalysis): BlueprintAnalysis {
+    return {
+      dimensions: (ocr.dimensions ?? []).map((d) => ({
+        type: d.type,
+        value: d.nominal,
+        unit: d.unit,
+        // Pass {upper, lower} through unchanged (both are signed offsets from nominal;
+        // bridge reads |upper - lower|, offset-invariant). Drop OCR's tolerance.type.
+        ...(d.tolerance ? { tolerance: { upper: d.tolerance.upper, lower: d.tolerance.lower } } : {}),
+        text: d.raw_text,
+      })),
+      // KEY remap: OCR `gdt_frames` -> bridge `gdt`. Missing this drops all GD&T tolerance.
+      gdt: (ocr.gdt_frames ?? []).map((g) => ({
+        symbol: g.symbol,
+        // Pass tolerance_value through; bridge applies x25.4 itself when inch -- do NOT pre-scale.
+        tolerance_value: g.tolerance_value,
+        datum_refs: g.datum_references,
+        feature_type: g.applied_to,
+      })),
+      title_block: ocr.title_block
+        ? {
+            part_number: ocr.title_block.part_number,
+            // RENAME: OCR `title` -> bridge `part_name` (drives part labeling + a +5 confidence bump).
+            part_name: ocr.title_block.title,
+            revision: ocr.title_block.revision,
+            material: ocr.title_block.material,
+            finish: ocr.title_block.finish,
+            scale: ocr.title_block.scale,
+            drawn_by: ocr.title_block.drawn_by,
+            date: ocr.title_block.date,
+            // bridge decides inch/mm solely from this; "mixed" -> falls through to mm (bridge default).
+            units: ocr.title_block.units,
+            third_angle: ocr.title_block.third_angle,
+          }
+        : undefined,
+      notes: (ocr.notes ?? []).map((n) => ({ category: n.category, text: n.text })),
+      // bounding_box: no OCR source -> omitted (bridge guards `if (analysis.bounding_box)`).
+    };
+  }
+
+  /** OCR-shape entrypoint: normalize OCR analysis, then bridge to a QuoteEstimateInput. */
+  bridgeFromOCR(ocr: OCRBlueprintAnalysis, overrides?: Partial<QuoteEstimateInput>): BridgeResult {
+    return this.bridge(this.fromOCRAnalysis(ocr), overrides);
   }
 
   // ─── Private Helpers ─────────────────────────────────────────

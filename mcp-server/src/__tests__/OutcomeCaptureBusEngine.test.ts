@@ -286,4 +286,140 @@ describe("OutcomeCaptureBusEngine — U-LEARN-01", () => {
     const { events } = bus.query({ domain: "welder", limit: 10 });
     expect(events).toEqual([]);
   });
+
+  // --- atomic append: O_APPEND path + no-orphan invariant ----------------
+  // (regression coverage for the EPERM-leak fix, 2026-06-08 slot:oscar)
+
+  describe("atomicAppend — O_APPEND + no-orphan invariant", () => {
+    function countTmpOrphans(dir: string): number {
+      return fs
+        .readdirSync(dir)
+        .filter((f) => f.startsWith(".") && f.endsWith(".tmp")).length;
+    }
+
+    it("forward invariant: common (<64KB) path creates NO tmp at all", () => {
+      // The original bug: every append did read-whole → write-tmp → rename;
+      // a failed rename orphaned the tmp (~12K accumulated in production).
+      // The fix routes the common path through appendFileSync (no tmp), so
+      // this asserts the NEW design's forward invariant — if someone
+      // reintroduces a tmp on the <64KB path, this fails. (The leak's actual
+      // failure mode — rename-throws-then-orphans — is covered by the
+      // fault-injected fallback test below.)
+      for (let i = 0; i < 50; i++) {
+        const res = bus.record({
+          domain: "mill",
+          kind: "other",
+          source: "system",
+          context: { i },
+          recommended: { sfm: 100 + i },
+        });
+        expect(res.ok).toBe(true);
+      }
+      // Invariant: the common (< 64 KB) path uses appendFileSync — no tmp at all.
+      expect(countTmpOrphans(root)).toBe(0);
+    });
+
+    it("appends without tearing — every line round-trips as valid JSON", () => {
+      const N = 40;
+      for (let i = 0; i < N; i++) {
+        bus.record({
+          domain: "lathe",
+          kind: "other",
+          source: "system",
+          context: { seq: i },
+          recommended: { sfm: i },
+        });
+      }
+      const shard = path.join(root, "lathe.jsonl");
+      const lines = fs
+        .readFileSync(shard, "utf8")
+        .split("\n")
+        .filter((l) => l.trim().length > 0);
+      expect(lines.length).toBe(N);
+      // Every line must parse — no torn/concatenated rows.
+      const seqs = lines.map((l) => (JSON.parse(l) as { context: { seq: number } }).context.seq);
+      expect(seqs).toEqual(Array.from({ length: N }, (_, i) => i));
+    });
+
+    it("is append-only: the existing prefix is byte-identical after a new write", () => {
+      bus.record({ domain: "wedm", kind: "other", source: "system", context: { a: 1 } });
+      const shard = path.join(root, "wedm.jsonl");
+      const afterFirst = fs.readFileSync(shard, "utf8");
+      bus.record({ domain: "wedm", kind: "other", source: "system", context: { a: 2 } });
+      const afterSecond = fs.readFileSync(shard, "utf8");
+      // Prefix must be byte-identical and the file strictly longer — guards
+      // against any write path that corrupts or truncates the existing prefix.
+      // (Append-vs-rewrite mechanism is proven by the no-tearing test above;
+      // this pair guards prefix integrity specifically.)
+      expect(afterSecond.startsWith(afterFirst)).toBe(true);
+      expect(afterSecond.length).toBeGreaterThan(afterFirst.length);
+    });
+
+    it("retry queue stays empty under normal (non-contended) writes", () => {
+      for (let i = 0; i < 20; i++) {
+        bus.record({ domain: "mill", kind: "other", source: "system", context: { i } });
+      }
+      const s = bus.stats();
+      expect(s.retry_queue_size).toBe(0);
+    });
+
+    it("handles a large (but legal) context payload without orphaning", () => {
+      // A big-but-under-64KB context still takes the appendFileSync path.
+      const big = "x".repeat(8 * 1024); // 8 KB string
+      const res = bus.record({
+        domain: "mill",
+        kind: "other",
+        source: "system",
+        context: { blob: big },
+      });
+      expect(res.ok).toBe(true);
+      expect(countTmpOrphans(root)).toBe(0);
+      const { events } = bus.query({ domain: "mill", limit: 1 });
+      expect(events.length).toBe(1);
+    });
+
+    it("fallback (>64KB) path leaves NO orphan tmp when renameSync throws EPERM", () => {
+      // This is the REAL regression guard for the production leak: the only
+      // surviving tmp+rename path is the oversize fallback. Force renameSync
+      // to throw the exact Windows sharing-violation (EPERM) that orphaned
+      // ~12K tmp files, and assert the catch→unlink cleanup holds.
+      const realRename = fs.renameSync;
+      let renameAttempts = 0;
+      (fs as { renameSync: typeof fs.renameSync }).renameSync = ((
+        from: fs.PathLike,
+        to: fs.PathLike,
+      ) => {
+        renameAttempts++;
+        const e = new Error("EPERM: operation not permitted, rename") as Error & {
+          code: string;
+        };
+        e.code = "EPERM";
+        throw e;
+      }) as typeof fs.renameSync;
+
+      try {
+        // Reach the private fallback directly with a >64KB line (record()'s
+        // upstream cap would reject this before atomicAppend, so we invoke
+        // the internal method — the only way to exercise the fallback branch).
+        // 64 KB mirrors the engine's module-private MAX_LINE_BYTES constant.
+        const ENGINE_MAX_LINE_BYTES = 64 * 1024;
+        const oversize = "y".repeat(ENGINE_MAX_LINE_BYTES + 1024) + "\n";
+        const shard = path.join(root, "mill.jsonl");
+        const internal = bus as unknown as {
+          atomicAppend: (fp: string, line: string) => { ok: boolean; warning?: string };
+        };
+        const res = internal.atomicAppend(shard, oversize);
+
+        // Fail-loud: a persistent rename failure must report not-ok.
+        expect(res.ok).toBe(false);
+        // The headline invariant: even though rename threw every attempt,
+        // the fallback's catch→unlink removed its tmp — ZERO orphans.
+        expect(countTmpOrphans(root)).toBe(0);
+        // And it actually retried (EPERM is in the transient set).
+        expect(renameAttempts).toBeGreaterThan(1);
+      } finally {
+        (fs as { renameSync: typeof fs.renameSync }).renameSync = realRename;
+      }
+    });
+  });
 });

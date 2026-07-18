@@ -9,7 +9,67 @@
  *   - All pricing in cents (USD × 100)
  *   - handleWebhookEvent always returns { action, data } — never throws on unknown events
  */
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type { Plan } from "./AuthEngineV7.js";
+
+// ============================================================================
+// Webhook signature verification (U-COMM-02 -- security P0)
+// ============================================================================
+
+/**
+ * Verify a Stripe webhook signature against the raw request body.
+ * Implements Stripe's documented scheme (no SDK dependency):
+ *   - header `Stripe-Signature: t=<ts>,v1=<hex_hmac>[,v1=...]`
+ *   - signed payload = `${t}.${rawBody}`
+ *   - HMAC-SHA256 with the endpoint signing secret (whsec_...)
+ *   - constant-time compare; optional timestamp tolerance (replay window)
+ *
+ * Pure function, exported for tests. Returns false on any malformed input
+ * (fail closed): a missing/garbled signature is never "valid".
+ *
+ * @param rawBody       exact bytes Stripe POSTed (NOT a re-serialized object)
+ * @param sigHeader     value of the Stripe-Signature header
+ * @param secret        STRIPE_WEBHOOK_SECRET
+ * @param toleranceSec  max age of the signed timestamp (0 = skip age check)
+ * @param nowSec        injectable clock for tests (default Date.now()/1000)
+ */
+export function verifyStripeSignature(
+  rawBody: string,
+  sigHeader: string,
+  secret: string,
+  toleranceSec = 300,
+  nowSec?: number,
+): boolean {
+  if (!rawBody || !sigHeader || !secret) return false;
+  // Parse "t=...,v1=...,v1=..."
+  let t: string | null = null;
+  const v1: string[] = [];
+  for (const part of sigHeader.split(",")) {
+    const eq = part.indexOf("=");
+    if (eq < 0) continue;
+    const k = part.slice(0, eq).trim();
+    const v = part.slice(eq + 1).trim();
+    if (k === "t") t = v;
+    else if (k === "v1") v1.push(v);
+  }
+  if (!t || v1.length === 0) return false;
+
+  if (toleranceSec > 0) {
+    const ts = Number(t);
+    if (!Number.isFinite(ts)) return false;
+    const now = nowSec ?? Math.floor(Date.now() / 1000);
+    if (Math.abs(now - ts) > toleranceSec) return false; // replay / stale
+  }
+
+  const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`, "utf8").digest("hex");
+  const expBuf = Buffer.from(expected, "utf8");
+  // Any provided v1 matching (constant-time) is accepted (Stripe rotates secrets).
+  for (const sig of v1) {
+    const sigBuf = Buffer.from(sig, "utf8");
+    if (sigBuf.length === expBuf.length && timingSafeEqual(sigBuf, expBuf)) return true;
+  }
+  return false;
+}
 
 // ============================================================================
 // Types

@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `registry-browse` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/registry-browse.md` |
+| Source | `C:/Users/wompu/.claude/commands/registry-browse.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Registry Browse — PRISM Registry Explorer
+
+You are exploring PRISM's 18 registries. Each registry follows a 4-layer hierarchy (CORE → ENHANCED → USER → LEARNED) with search APIs, TTL caching, and auto-reload. Use this to discover what's registered, check for gaps, or query specific entries.
+
+## Args: $ARGUMENTS
+- Empty: list all 18 registries with entry counts
+- `[registry-name]`: browse
 
 <!-- AUTO-END -->
 

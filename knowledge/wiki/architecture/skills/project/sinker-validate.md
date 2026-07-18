@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /sinker-validate — Sinker EDM Program Validation
+Validate sinker EDM programs:
+- Electrode clearance verification
+- Burn parameter limits
+- Flushing adequacy check
+- Safety score calculation
 
 <!-- AUTO-END -->
 

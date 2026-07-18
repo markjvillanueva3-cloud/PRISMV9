@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `lathe-studio` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-studio.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Launch the PRISM Lathe Studio — a zero-experience web interface where anyone can generate a CNC lathe program from a photo, 3D model, or PDF drawing. No machining knowledge required.
+
+# Lathe Studio — Open Web Interface for Lathe Programming
 
 <!-- AUTO-END -->
 

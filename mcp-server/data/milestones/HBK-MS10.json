@@ -1,0 +1,53 @@
+{
+  "id": "HBK-MS10",
+  "version": "1.0.0",
+  "title": "Skills + Scripts + Hooks",
+  "brief": "Expose handbook intelligence through MCP actions, slash-command skills (/handbook-lookup, /handbook-ingest, /handbook-coverage, /handbook-compare), enforcement hooks (handbookLimitGuard, handbookFreshnessCheck, handbookCoverageGate), and maintenance scripts (coverage audit, freshness check, extraction validation).",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T18:03:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Skills + Hooks + Scripts",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Create handbook dispatcher with MCP actions: handbook_lookup (query by machine + section), handbook_ingest (trigger acquisition pipeline), handbook_coverage (fleet coverage report), handbook_compare (side-by-side machine capability comparison)",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Create slash-command skills: /handbook-lookup, /handbook-ingest, /handbook-coverage, /handbook-compare with proper frontmatter, examples, and output formatting",
+          "effort": 65,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Create enforcement hooks: handbookLimitGuard (block programs exceeding documented limits), handbookFreshnessCheck (warn on stale handbook data), handbookCoverageGate (warn on operations for machines without handbooks)",
+          "effort": 75,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Create maintenance scripts: handbook-coverage-audit.ts (report ingestion status for all 910 machines), handbook-freshness-check.ts (flag stale data), handbook-extraction-validate.ts (validate extraction quality)",
+          "effort": 60,
+          "dependencies": ["P0-U01"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS3", "HBK-MS4", "HBK-MS5", "HBK-MS6"],
+  "exit_conditions": [
+    "All 4 handbook MCP actions registered in dispatcher and callable through MCP protocol",
+    "All 4 slash-command skills functional with correct output formatting",
+    "handbookLimitGuard hook blocks a test program that exceeds documented spindle speed",
+    "Coverage audit script correctly reports ingestion status across the machine fleet"
+  ]
+}

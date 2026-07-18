@@ -1,0 +1,41 @@
+{
+  "dashboard": {
+    "title": "PRISM Manufacturing Intelligence",
+    "uid": "prism-main",
+    "panels": [
+      {
+        "title": "Server Status",
+        "type": "stat",
+        "targets": [{ "expr": "prism_up" }],
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
+      },
+      {
+        "title": "Uptime",
+        "type": "stat",
+        "targets": [{ "expr": "prism_uptime_seconds / 3600" }],
+        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+        "fieldConfig": { "defaults": { "unit": "h" } }
+      },
+      {
+        "title": "Heap Memory",
+        "type": "timeseries",
+        "targets": [{ "expr": "prism_heap_used_bytes / 1048576", "legendFormat": "Heap Used (MB)" }],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 }
+      },
+      {
+        "title": "Registry Entries",
+        "type": "bargauge",
+        "targets": [{ "expr": "prism_registry_entries", "legendFormat": "{{registry}}" }],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 }
+      },
+      {
+        "title": "RSS Memory",
+        "type": "timeseries",
+        "targets": [{ "expr": "prism_rss_bytes / 1048576", "legendFormat": "RSS (MB)" }],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+      }
+    ],
+    "time": { "from": "now-1h", "to": "now" },
+    "refresh": "10s"
+  }
+}

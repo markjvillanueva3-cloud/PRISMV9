@@ -62,7 +62,7 @@ async function downloadFile(url, dest) {
 
 function runCmd(cmd, args, opts = {}) {
   try {
-    return execFileSync(cmd, args, { encoding: "utf8", timeout: 120000, ...opts });
+    return execFileSync(cmd, args, { windowsHide: true, encoding: "utf8", timeout: 120000, ...opts });
   } catch (e) {
     return null;
   }

@@ -1,0 +1,14 @@
+# Catalog Data Rules
+- TypeScript catalogs need typed interfaces
+- Tool catalogs require: diameter_mm, flute_count, material, coating
+- Machine catalogs require: max_rpm, max_feed, axes, controller
+- Materials use ISO group codes (P/M/K/N/S/H)
+- Lazy load catalogs with >1000 entries
+- Never remove existing catalog fields (backward compat)
+- JSON extracted data files (*-extracted.json) are source-of-truth from PDFs
+- TypeScript catalog files (*-catalog.ts) wrap extracted data with types
+- All tool dimensions in metric (mm) — convert imperial at import time
+- Holder catalogs require: taper_type, bore_diameter_mm, gauge_length_mm
+- Machine profiles require: manufacturer, model, work_envelope, spindle specs
+- CAM tips files (*-cam-tips.ts) use the TipEntry interface with unique IDs
+- Enrichment files (*-enriched.ts) extend base catalogs — never modify originals

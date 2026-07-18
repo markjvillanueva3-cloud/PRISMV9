@@ -114,27 +114,42 @@ class FeasibilityOrchestratorEngineImpl {
     try {
       const mod = await import("./SequenceFeasibilityEngine.js");
       seqResult = mod.sequenceFeasibilityEngine.simulateSequence({
-        operations: (job.operations as any[]).map((op: any, idx: number) => ({
-          id: op.id || `op_${idx}`,
-          type: op.type || "pocket",
-          position: op.position || { x: 0, y: 0, z: job.stock.height_mm || 50 },
-          dimensions: {
-            width: op.width_mm || op.diameter_mm || 20,
-            height: op.length_mm || op.diameter_mm || 20,
-            depth: op.depth_mm || 10,
-          },
-          tool: {
-            id: op.tool_id || `T${idx + 1}`,
-            diameter_mm: op.tool_diameter_mm || 10,
-            length_mm: op.tool_length_mm || 50,
-          },
-          forces: op.cutting_force_N ? { cutting_force_N: op.cutting_force_N } : undefined,
-          requires_datum: op.requires_datum,
-          removes_surface: op.removes_surface,
-          creates_surface: op.creates_surface,
-          requires_surface: op.requires_surface,
-          setup_id: op.setup_id,
-        })),
+        operations: (job.operations as any[]).map((op: any, idx: number) => {
+          const opType = String(op.type || "pocket").toLowerCase();
+          // A drilled/bored hole is reached by a drill or boring bar whose effective
+          // in-hole diameter is ~= the tool itself -- the wide tool HOLDER stays above
+          // the part and never plunges into the bore. Only MILLED features (pocket/slot/
+          // mill) plunge a wide holder that can collide with a narrow opening wall, so
+          // only those get the 1.6x default holder. Without this, a deep round hole was
+          // mis-flagged "Holder diameter > pocket opening" and the whole part read
+          // INFEASIBLE (the FEASIBILITY stage stalled the print->ship pipeline).
+          const isRoundPlunge =
+            opType.includes("drill") || opType.includes("bore") ||
+            opType.includes("hole") || opType.includes("tap") || opType.includes("ream");
+          const toolDiameterMm = op.tool_diameter_mm || 10;
+          return {
+            id: op.id || `op_${idx}`,
+            type: op.type || "pocket",
+            position: op.position || { x: 0, y: 0, z: job.stock.height_mm || 50 },
+            dimensions: {
+              width: op.width_mm || op.diameter_mm || 20,
+              height: op.length_mm || op.diameter_mm || 20,
+              depth: op.depth_mm || 10,
+            },
+            tool: {
+              id: op.tool_id || `T${idx + 1}`,
+              diameter_mm: toolDiameterMm,
+              length_mm: op.tool_length_mm || 50,
+              holder_diameter_mm: op.holder_diameter_mm ?? (isRoundPlunge ? toolDiameterMm : undefined),
+            },
+            forces: op.cutting_force_N ? { cutting_force_N: op.cutting_force_N } : undefined,
+            requires_datum: op.requires_datum,
+            removes_surface: op.removes_surface,
+            creates_surface: op.creates_surface,
+            requires_surface: op.requires_surface,
+            setup_id: op.setup_id,
+          };
+        }),
         stock: {
           bounds: {
             min_x: 0, max_x: job.stock.length_mm || 200,

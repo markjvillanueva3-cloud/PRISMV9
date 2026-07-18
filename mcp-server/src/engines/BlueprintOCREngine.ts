@@ -19,6 +19,7 @@
 
 import * as fs from "node:fs";
 import * as readline from "node:readline";
+import { validateExtractedGdt } from "../utils/gdtFcfValidate.js";
 
 // ============================================================================
 // TYPES
@@ -51,6 +52,29 @@ export interface ExtractedDimension {
   };
   fit_class?: string;
   surface_finish_ra?: number;
+  /** Canonical thread spec recovered from a thread callout ("1/4-20 UNC") via normalizeThreadCallout;
+   *  present only when this dimension is a resolved thread (U-XRAY-THREAD-NORMALIZE-TS). */
+  thread?: {
+    system: "unified" | "metric" | "npt" | null;
+    series: string | null;
+    major_dia_in: number | null;
+    tpi: number | null;
+    pitch_mm: number | null;
+    class: string | null;
+    resolved: boolean;
+    assumed: boolean;
+  };
+  /** Canonical chamfer/countersink spec recovered from a chamfer/csk callout (".03 X 45 CHAMFER",
+   *  "82 DEG CSK .375") via normalizeChamferCallout; present only when this dimension resolves to a
+   *  chamfer/csk (U-XRAY-CHAMFER-NORMALIZE-TS). */
+  chamfer?: {
+    type: "chamfer" | "countersink" | null;
+    angle_deg: number | null;
+    diameter_in: number | null;
+    size_in: number | null;
+    resolved: boolean;
+    raw: string | null;
+  };
   location_hint?: string;
   raw_text: string;
   confidence: number;
@@ -66,6 +90,15 @@ export interface ExtractedGDT {
   applied_to?: string;
   raw_text: string;
   confidence: number;
+  /**
+   * ASME Y14.5-2018 FCF syntax validity (informational only -- from FCFSyntaxValidatorEngine
+   * via gdtFcfValidate). true = no syntax errors; false = a standards violation was flagged
+   * (e.g. a position/orientation/runout callout missing its required datum). Never mutates a
+   * cost/process-bearing field. Absent when the symbol could not be recognized.
+   */
+  fcf_valid?: boolean;
+  /** Human-readable FCF syntax issues, e.g. "[error] POSITION_NO_DATUM: ...". Informational. */
+  fcf_issues?: string[];
 }
 
 export interface TitleBlockData {
@@ -368,7 +401,7 @@ function extractGDT(text: string, unit: "mm" | "in" = "mm"): ExtractedGDT[] {
       ? datumStr.trim().split(/[\s,|/\-]+/).filter(d => /^[A-Z]$/.test(d))
       : [];
 
-    frames.push({
+    const frame: ExtractedGDT = {
       id: `GDT-${++id}`,
       symbol,
       tolerance_value: tolValue,
@@ -377,7 +410,18 @@ function extractGDT(text: string, unit: "mm" | "in" = "mm"): ExtractedGDT[] {
       datum_references: datumRefs,
       raw_text: match[0].trim(),
       confidence: datumRefs.length > 0 ? 0.85 : 0.7,
-    });
+    };
+    // Attach INFORMATIONAL ASME Y14.5 FCF syntax validation (datum-deficient frame flag, etc.) -- the
+    // fcf_valid/fcf_issues fields were declared on ExtractedGDT but never populated on this path (a
+    // dormant wire). Mirrors BlueprintVisionOCREngine.convertGDT. Pure, no value mutation; an unknown
+    // symbol leaves the frame un-annotated. The symbol here is already canonical (from GDT_SYMBOL_MAP /
+    // GDT_TEXT_ENTRIES), so no symbol normalization is needed on this regex path.
+    const verdict = validateExtractedGdt(frame);
+    if (verdict) {
+      frame.fcf_valid = verdict.fcf_valid;
+      frame.fcf_issues = verdict.fcf_issues;
+    }
+    frames.push(frame);
   }
 
   return frames;

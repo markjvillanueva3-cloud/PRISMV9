@@ -1,8 +1,11 @@
 ---
 description: Force-claim slot GOLF + run the full /checkin pipeline. GOLF OWNS THE FLEET-REAPER (doctrine moved from alpha 2026-05-16). NATO-phonetic shortcut.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion, Monitor
+composes_with:
+  - "/checkin"
+  - "/checkin-alpha"
+  - "/pick-unit"
 ---
-
 # /checkin-golf — slot-locked /checkin + fleet-reaper owner
 
 Force-takes the **golf** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `golf-work`, **always runs the fleet-reaper** (golf owns it for the 13-chat fleet as of 2026-05-16 — see [[feedback_golf_owns_reaper]]), then runs the standard `/checkin` pipeline.

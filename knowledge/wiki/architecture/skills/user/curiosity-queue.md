@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `curiosity-queue` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/curiosity-queue.md` |
+| Source | `C:/Users/wompu/.claude/commands/curiosity-queue.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Phase 0.18 skill. PRISM's idle moments (between tool calls, after a build, waiting on a long test run) are cheap — but only if the session knows *what* to explore. This skill surfaces the top-ranked exploration candidates: never-accessed registry entries, unregistered files on disk, zero-citation tips, dispatcher actions with zero invocations, orphan routes. The hook layer typically drains the que
+
+# /curiosity-queue — Idle-Time Exploration Backlog
 
 <!-- AUTO-END -->
 

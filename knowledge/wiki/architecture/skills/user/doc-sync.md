@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `doc-sync` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/doc-sync.md` |
+| Source | `C:/Users/wompu/.claude/commands/doc-sync.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Force documentation synchronization across all managed blocks and auto-refreshed sections.
+
+# /doc-sync — Phase 0.15 Documentation Propagation
 
 <!-- AUTO-END -->
 

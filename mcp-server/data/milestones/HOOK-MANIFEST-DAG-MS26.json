@@ -1,0 +1,49 @@
+{
+  "id": "HOOK-MANIFEST-DAG-MS26",
+  "version": "1.0.0",
+  "title": "Central hook precedence/ordering registry + cycle detector",
+  "brief": "PRISM has 424 Claude hooks + 54 source hooks with no central manifest. Architect risk #4: ordering bugs and silent-skip already observed. This MS produces a hook DAG with precedence + cycle detector + deterministic Stop-stack ordering.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "L0-INFRA",
+  "track_name": "Dev Infrastructure / Hook Discipline",
+  "status": "complete",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "shipped": [
+    {"unit": "P0-U01", "commit": "982ba0391", "title": "HookManifestEngine + prism_hook:manifest", "shipped_at": "2026-05-12T15:30:00Z"},
+    {"unit": "P0-U02", "commit": "822d71d6c", "title": "HookDAGValidatorEngine + prism_hook:dag_validate", "shipped_at": "2026-05-12T18:05:00Z"}
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Hook manifest + precedence + cycle detector",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Generate hook manifest by scanning .claude/hooks/ + mcp-server/src/hooks/",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": ["manifest at mcp-server/data/state/HOOK_MANIFEST.json with {hookId, file, event, precedence, blocks[], blocked_by[]}", "all 424+54 hooks enumerated", "schemaVersion enforced"],
+          "description": "Static scan first. Hooks declare precedence via filename prefix (e.g. 01-preflight-, 99-cleanup-) or explicit @precedence: <int> tag in header comment.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "HookDAGValidatorEngine: cycle detection + deterministic order",
+          "effort": 120,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["topological sort produces deterministic Stop-stack order", "0 cycles detected on current 478 hooks", "tests: inject 1 cycle (3-hook chain) -> detector reports it; precedence tie -> alphabetical fallback"],
+          "description": "Standard Tarjan SCC. Output: hook execution order published to HOOK_ORDER.json, consumed by harness at Stop time.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "all 478 hooks registered with precedence; cycle detector finds 0 cycles; deterministic Stop hook execution order published; CI gate blocks merges that introduce cycles or undeclared precedence.",
+  "risks": [
+    {"id": "R1", "description": "Hooks without explicit precedence may produce nondeterministic order between sessions; mitigation = enforce @precedence tag via lint, default 50 if missing"}
+  ],
+  "blocks": ["SAFETY-OMEGA-GATE-MS9"],
+  "blocked_by": []
+}

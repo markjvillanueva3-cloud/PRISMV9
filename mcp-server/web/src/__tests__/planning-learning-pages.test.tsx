@@ -147,7 +147,7 @@ beforeEach(() => {
       documents: [
         {
           id: 'doc-1',
-          file_path: 'C:/PRISM/RESOURCES/Sandvik-Handbook.pdf',
+          file_path: 'C:/Kienzle/RESOURCES/Sandvik-Handbook.pdf',
           title: 'Sandvik Handbook',
           format: 'pdf',
           status: 'complete',
@@ -156,7 +156,7 @@ beforeEach(() => {
         },
         {
           id: 'doc-2',
-          file_path: 'C:/PRISM/RESOURCES/Turning-Guide.pdf',
+          file_path: 'C:/Kienzle/RESOURCES/Turning-Guide.pdf',
           title: 'Turning Guide',
           format: 'pdf',
           status: 'pending',

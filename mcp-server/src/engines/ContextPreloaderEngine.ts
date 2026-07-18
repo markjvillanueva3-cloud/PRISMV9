@@ -10,12 +10,36 @@
  * @version 1.0.0
  */
 
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import { readdirSync, existsSync, readFileSync } from "fs";
 import { join, dirname } from "path";
 import { log } from "../utils/Logger.js";
 
 const MCP_ROOT = join(import.meta.dirname, "../..");
+// Bounded buffer/timeout so a large `git status --porcelain` / `git diff --stat` over a
+// big tree never throws ENOBUFS (execFileSync default is 1MB). 64MB is generous.
+const GIT_MAX_BUFFER = 64 * 1024 * 1024;
+const GIT_TIMEOUT_MS = 15000;
+// execFileSync does NOT resolve a bare "git" via PATH/PATHEXT on Windows (throws ENOENT),
+// so resolve an absolute git binary like the repo's git-log-tail primitive does.
+const GIT_BIN = (() => {
+  if (process.env.PRISM_GIT_BIN && existsSync(process.env.PRISM_GIT_BIN)) return process.env.PRISM_GIT_BIN;
+  const winDefault = "C:/Program Files/Git/mingw64/bin/git.exe";
+  if (existsSync(winDefault)) return winDefault;
+  return "git";
+})();
+
+/**
+ * Run a git subcommand SHELL-FREE: args are passed as an argv array to execFileSync, so
+ * caller-supplied refs (e.g. getDeltaBoot(sinceCommit), reachable via the wired
+ * prism_session:context_delta_boot action) are git arguments, NEVER shell tokens -- closes
+ * the `git diff --stat ${sinceCommit}` command-injection vector. Returns trimmed stdout.
+ */
+function gitText(args: string[]): string {
+  return execFileSync(GIT_BIN, args, {
+    cwd: MCP_ROOT, encoding: "utf-8", timeout: GIT_TIMEOUT_MS, maxBuffer: GIT_MAX_BUFFER,
+  }).trim();
+}
 
 interface PreloadContext {
   /** One-line compact summary (< 100 chars) */
@@ -64,10 +88,10 @@ function countActions(): number {
 
 function gitInfo(): { branch: string; commit: string; dirty: boolean; recentCommits: string[] } {
   try {
-    const branch = execSync("git branch --show-current", { cwd: MCP_ROOT, encoding: "utf-8" }).trim();
-    const commit = execSync("git rev-parse --short HEAD", { cwd: MCP_ROOT, encoding: "utf-8" }).trim();
-    const status = execSync("git status --porcelain", { cwd: MCP_ROOT, encoding: "utf-8" }).trim();
-    const logOutput = execSync("git log --oneline -5", { cwd: MCP_ROOT, encoding: "utf-8" }).trim();
+    const branch = gitText(["branch", "--show-current"]);
+    const commit = gitText(["rev-parse", "--short", "HEAD"]);
+    const status = gitText(["status", "--porcelain"]);
+    const logOutput = gitText(["log", "--oneline", "-5"]);
     return {
       branch,
       commit,
@@ -147,12 +171,10 @@ export class ContextPreloaderEngine {
    */
   getDeltaBoot(sinceCommit: string): { changed: string; boot_string: string } {
     try {
-      const diffStat = execSync(`git diff --stat ${sinceCommit}..HEAD`, {
-        cwd: MCP_ROOT, encoding: "utf-8"
-      }).trim();
-      const logOutput = execSync(`git log --oneline ${sinceCommit}..HEAD`, {
-        cwd: MCP_ROOT, encoding: "utf-8"
-      }).trim();
+      // sinceCommit is a caller-supplied arg (prism_session:context_delta_boot) -- pass it
+      // as an argv element, never interpolated into a shell string (closes the injection).
+      const diffStat = gitText(["diff", "--stat", `${sinceCommit}..HEAD`]);
+      const logOutput = gitText(["log", "--oneline", `${sinceCommit}..HEAD`]);
       const commits = logOutput.split("\n").filter(Boolean);
       const boot = this.getBootBlock();
 

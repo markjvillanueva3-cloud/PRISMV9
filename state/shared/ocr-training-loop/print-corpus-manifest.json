@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_from": "H:\\prism\\mcp-server\\data\\jm-die-database\\tables\\documents.jsonl",
+  "print_score_floor": 5,
+  "total_docs": 111745,
+  "buckets": {
+    "drawing": 7794,
+    "ambiguous": 26973,
+    "excluded": 76978
+  },
+  "drawing_by_role": {
+    "PRINT": 7616,
+    "LASER_SHEET": 178
+  },
+  "ambiguous_by_role": {
+    "SCAN_GENERIC": 20342,
+    "UNKNOWN": 6596,
+    "IMPORTED_BATCH": 35
+  },
+  "excluded_top_reasons": {
+    "business role NOTE": 26401,
+    "business role SALES_ORDER": 21531,
+    "business role CLOSED_ORDER": 12766,
+    "business role SCAN_BUSINESS": 12501,
+    "business role PACKING_SLIP": 2308,
+    "business role QUOTE": 971,
+    "non-pdf mime text/html": 192,
+    "business role SHIPPING": 117,
+    "business role TAX_FINANCIAL": 93,
+    "no drawing signal": 52,
+    "non-pdf mime image/jpeg": 40,
+    "business role INVOICE": 5
+  },
+  "no_path_skipped": 376,
+  "note": "Buckets via SEARCH of juliett's documents.jsonl (no re-OCR). drawing = VLM worklist; ambiguous = scanned/unclassified (lower priority, may hide prints); excluded = business paperwork or no drawing signal. EVERY text-layer doc also needs_ocr (text layers are partial) — no free read-the-text-layer lane."
+}

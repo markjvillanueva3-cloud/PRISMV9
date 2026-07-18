@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `who` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/who.md` |
+| Source | `C:/Users/wompu/.claude/commands/who.md` |
 | Model | default |
 | Tags | _(none)_ |
 

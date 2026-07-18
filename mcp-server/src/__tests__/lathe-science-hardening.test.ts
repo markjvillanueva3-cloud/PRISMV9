@@ -22,9 +22,11 @@ describe("LatheScienceHardeningEngine — turning chatter", () => {
       depth_of_cut_mm: 3,
       spindle_rpm: 3000,
     });
-    expect(result.workpiece_stiffness_N_mm).toBeGreaterThan(0);
-    // Very slender parts have low natural frequency → critical RPM zones may be below practical range
-    expect(result.max_stable_doc_mm).toBeDefined();
+    // k = 3EI/L³, I = π·20⁴/64 = 7853.98 mm⁴ → k ≈ 618.5 N/mm
+    expect(result.workpiece_stiffness_N_mm).toBeCloseTo(618.5, 0);
+    // Altintas–Budak SDOF b_lim = 2·k·ζ·(1+ζ)/Kc = 2·618.5·0.035·1.035/1800 ≈ 0.0249 mm (ζ=0.035, Kc=P 1800)
+    expect(result.max_stable_doc_mm).toBeCloseTo(0.0249, 3);
+    expect(result.stable).toBe(false); // DOC 3 mm ≫ 0.025 mm limit → chatter risk (L/D=10 slender bar)
   });
 
   it("shows higher stability with tailstock support", () => {
@@ -65,9 +67,9 @@ describe("LatheScienceHardeningEngine — turning chatter", () => {
     // Both produce valid results with positive max stable DOC
     expect(steel.max_stable_doc_mm).toBeGreaterThan(0);
     expect(alu.max_stable_doc_mm).toBeGreaterThan(0);
-    // Aluminum Kc=700 vs steel Kc=2000 → kc ratio 2.86×
+    // Aluminum Kc=700 (N) vs steel Kc=1800 (canonical P) → kc ratio 2.57×
     // Aluminum E=69 vs steel E=210 → stiffness ratio 0.33×
-    // Net: alu max_doc = steel_stiffness × 0.33 / (kc × 0.35) → depends on exact ratio
+    // Net: alu max_doc = steel_stiffness × 0.33 / (kc × 0.39) → depends on exact ratio
     expect(alu.workpiece_stiffness_N_mm).toBeLessThan(steel.workpiece_stiffness_N_mm);
   });
 });

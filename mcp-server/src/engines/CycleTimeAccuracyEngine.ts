@@ -135,9 +135,12 @@ class CycleTimeAccuracyEngine {
     const d_accel = 0.5 * accel_mm_s2 * t_accel * t_accel; // distance during accel
 
     if (d_accel * 2 >= distance_mm) {
-      // Segment too short to reach full speed — triangular profile
-      // t = 2 × sqrt(d / a)
-      return 2 * Math.sqrt(distance_mm / 1000 / accel_mm_s2) - (distance_mm / 1000 / v_mm_s);
+      // Segment too short to reach full speed -- triangular profile.
+      // t_tri = 2*sqrt(d/a); penalty = t_tri - constant-speed time (d/v).
+      // U-QP-TIME-BUGS (2026-06-12): removed the erroneous /1000 on BOTH terms --
+      // distance_mm is already mm and accel is mm/s^2, so /1000 underestimated the
+      // accel penalty by ~31x (sqrt(1000)) for every short segment.
+      return 2 * Math.sqrt(distance_mm / accel_mm_s2) - (distance_mm / v_mm_s);
     }
     // Only partial penalty — accel at start + decel at end vs constant speed
     return t_accel - (d_accel / v_mm_s);

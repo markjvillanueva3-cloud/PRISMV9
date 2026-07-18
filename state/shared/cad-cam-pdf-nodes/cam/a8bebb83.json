@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.1.0",
+  "sha8": "a8bebb83",
+  "title": "1.1-Using EXCEL files in PWServer",
+  "source": "resources",
+  "relPath": "HYPERMILL/hyperMILL/31.0/addins project/hmAutoColor/doc/documents/1.1-Using EXCEL files in PWServer.pdf",
+  "domain": "cam",
+  "software": "hypermill",
+  "top": "HYPERMILL",
+  "pageCount": 4,
+  "textChars": 2116,
+  "text": "1\nUsing PW Server with Excel files\nConfiguration file\nBefore start, we have some parameters to be defined.\nThose parameters can be defined in the file “autoProgramConfig.pcf”\nThis config file can be found on C:\\Program Files\\OPEN\nMIND\\hyperMILL\\#version#\\addins\\hmAutoColor\nIn this case the version is 29.0\nWe have 3 parameters to be defined\n*EXCEL_FOLDER=c:/temp/defaultExcel.xlsx\n*DEFAULT_TEMPLATE=c:/temp/HCS_template.hmc\n*DEFAULT_TEMP_START_FILE=c:/temp/start.hmc\nThe EXCEL file, found in the in-server folder will be copied to the name defined in the parameter\n“*EXCEL_FOLDER”.\nIn the file defined in “*DEFAULT_TEMPLATE” will be copied to the file defined in\n“*DEFAULT_TEMP_START_FILE”\nhyperCAD-S will be started with “*DEFAULT_TEMP_START_FILE”\nIn the script the user should read the EXCEL file from “*EXCEL_FOLDER”. It is supposed that a script\nname for the process has been defined in it. It has to be called from the start script\nIn the EXCEL it is supposed to find a model file to be merged in the current model.\nThe file should be saved to a place defined in the EXCEL file.\nThe file must be edited as Admin.\n\n-- 1 of 4 --\n\n2\nI configured my file as you can see in the picture below.\nHCS_template file\nWe can define a hyperCAD-S template to be used in the process.\nIn this template we can define layers, colors and so on.\nThe AC will copy the template to the DEFAULT_START_FILE and starts based on this file\n\n-- 2 of 4 --\n\n3\nTemplate folder\nWe can keep in this folder only the file we defined on DEFAULT_TEMPLATE\nExcel file\nJust as an example, I defined 3 parameters in the Excel file\n• File path → Will defined the location of the 3D model to be merged\n• File → Will defined the 3D model to be merged\n• Script → With define the script that should be started\n\n-- 3 of 4 --\n\n4\nMaster Script to run this kind of application\nI created a simple script to be called when the Excel file exist in the watch folder.\nIn this case, I’m reading the Excel and using the information to Merge the file and call the script.\nThat means, the file and script will be totally flexible based on the Excel file.\n\n-- 4 of 4 --\n\n",
+  "sizeBytes": 354858,
+  "extractedAt": "2026-06-24T01:00:48.597Z"
+}

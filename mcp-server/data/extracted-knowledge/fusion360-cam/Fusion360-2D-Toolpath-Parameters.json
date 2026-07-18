@@ -1,0 +1,900 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAM 2D Toolpath Parameters - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for all Fusion 360 2D milling toolpath operations",
+    "version": "2026.04",
+    "extractedDate": "2026-04-18",
+    "source": "Autodesk Fusion 360 Help Documentation, CAD/CAM Lessons tutorials",
+    "totalParameters": 612,
+    "toolpathCount": 11
+  },
+  "commonTabs": {
+    "description": "Standard tabs shared across most 2D toolpath operations",
+    "tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"]
+  },
+  "toolpaths": {
+    "2D_ADAPTIVE_CLEARING": {
+      "description": "High-efficiency roughing strategy with constant tool engagement and optimal load control",
+      "category": "Roughing",
+      "parameterCount": 68,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select cutting tool from library", "required": true},
+            {"name": "Tool Number", "type": "numeric", "description": "Tool position in magazine", "default": 1, "unit": "count"},
+            {"name": "Length Offset", "type": "numeric", "description": "Tool length compensation number", "default": 1, "unit": "count"},
+            {"name": "Diameter Offset", "type": "numeric", "description": "Tool diameter compensation number", "default": 1, "unit": "count"},
+            {"name": "Coolant", "type": "dropdown", "description": "Coolant delivery method", "options": ["Disabled", "Flood", "Mist", "Through Tool", "Air", "Suction", "Flood and Mist", "Flood and Through Tool"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "description": "Rotational speed of the spindle", "unit": "RPM", "min": 0, "max": 100000},
+            {"name": "Surface Speed", "type": "numeric", "description": "Material speed past cutting edge", "unit": "m/min or SFM"},
+            {"name": "Ramp Spindle Speed", "type": "numeric", "description": "Spindle speed during ramp movements", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Feedrate for regular cutting moves", "unit": "mm/min or IPM"},
+            {"name": "Feed per Tooth", "type": "numeric", "description": "Chip load per tooth", "unit": "mm or inch"},
+            {"name": "Lead-In Feedrate", "type": "numeric", "description": "Feed when entering a cutting move", "unit": "mm/min or IPM"},
+            {"name": "Lead-Out Feedrate", "type": "numeric", "description": "Feed when exiting a cutting move", "unit": "mm/min or IPM"},
+            {"name": "Ramp Feedrate", "type": "numeric", "description": "Feed during helical ramps", "unit": "mm/min or IPM"},
+            {"name": "Plunge Feedrate", "type": "numeric", "description": "Feed when plunging into stock", "unit": "mm/min or IPM"},
+            {"name": "Feed per Revolution", "type": "numeric", "description": "Plunge feedrate per revolution", "unit": "mm/rev"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Machining Boundary", "type": "selection", "description": "Select pocket contour, face, edge or sketch", "required": true},
+            {"name": "Stock Contours", "type": "checkbox", "description": "Consider defined stock or selected boundary", "default": false},
+            {"name": "Rest Machining", "type": "checkbox", "description": "Machine only areas previous tools couldn't reach", "default": false},
+            {"name": "Rest Material Tool Diameter", "type": "numeric", "description": "Diameter of previous tool for rest machining", "unit": "mm"},
+            {"name": "Rest Material Corner Radius", "type": "numeric", "description": "Corner radius of previous tool", "unit": "mm"},
+            {"name": "Tool Orientation", "type": "dropdown", "description": "Set X, Y, Z triad axis orientation", "options": ["Setup WCS", "Model Origin", "Selected Point"], "default": "Setup WCS"},
+            {"name": "Origin", "type": "dropdown", "description": "Locate the triad origin", "options": ["Setup WCS", "Model Origin", "Stock Box Point", "Selected Point"], "default": "Setup WCS"},
+            {"name": "Additional Offset", "type": "numeric", "description": "Extra offset from boundary", "unit": "mm", "default": 0}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown", "description": "Reference for clearance height", "options": ["Retract Height", "Stock Top", "Model Top", "Selection"], "default": "Retract Height"},
+            {"name": "Clearance Height Offset", "type": "numeric", "description": "Offset from clearance reference", "unit": "mm", "default": 10},
+            {"name": "Retract Height From", "type": "dropdown", "description": "Reference for retract height", "options": ["Stock Top", "Model Top", "Selection"], "default": "Stock Top"},
+            {"name": "Retract Height Offset", "type": "numeric", "description": "Offset from retract reference", "unit": "mm", "default": 5},
+            {"name": "Feed Height From", "type": "dropdown", "description": "Reference for feed height", "options": ["Retract Height", "Top Height", "Stock Top", "Model Top"], "default": "Top Height"},
+            {"name": "Feed Height Offset", "type": "numeric", "description": "Offset from feed reference", "unit": "mm", "default": 2},
+            {"name": "Top Height From", "type": "dropdown", "description": "Reference for top of cut", "options": ["Stock Top", "Model Top", "Selection"], "default": "Stock Top"},
+            {"name": "Top Height Offset", "type": "numeric", "description": "Offset from top reference", "unit": "mm", "default": 0},
+            {"name": "Bottom Height From", "type": "dropdown", "description": "Reference for bottom of cut", "options": ["Model Bottom", "Selection", "Stock Bottom"], "default": "Selection"},
+            {"name": "Bottom Height Offset", "type": "numeric", "description": "Offset from bottom reference", "unit": "mm", "default": 0}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "description": "Maximum chord distance when linearizing geometry", "unit": "mm", "default": 0.01, "min": 0.001},
+            {"name": "Optimal Load", "type": "numeric", "description": "Maximum radial engagement as percentage of tool diameter", "unit": "% or mm", "default": 40, "min": 1, "max": 100},
+            {"name": "Use Slot Clearing", "type": "checkbox", "description": "Enable specialized clearing for narrow pockets/grooves", "default": false},
+            {"name": "Slot Clearing Width", "type": "numeric", "description": "Width of groove machined first when slot clearing enabled", "unit": "mm"},
+            {"name": "Both Ways", "type": "checkbox", "description": "Use both climb and conventional milling", "default": false},
+            {"name": "Direction", "type": "dropdown", "description": "Cutting direction", "options": ["Climb", "Conventional"], "default": "Climb"},
+            {"name": "Minimum Cutting Radius", "type": "numeric", "description": "Smallest toolpath radius in corners", "unit": "mm", "default": 0.1},
+            {"name": "Maximum Cutting Radius", "type": "numeric", "description": "Largest allowable cutting radius", "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "description": "Smooth toolpath by fitting arcs and removing points", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "description": "Smoothing filter tolerance", "unit": "mm"},
+            {"name": "Multiple Depths", "type": "checkbox", "description": "Take multiple depth cuts", "default": true},
+            {"name": "Maximum Roughing Stepdown", "type": "numeric", "description": "Maximum stepdown between Z-levels", "unit": "mm", "default": 3},
+            {"name": "Use Even Stepdowns", "type": "checkbox", "description": "Create equal distances between passes", "default": false},
+            {"name": "Order by Depth", "type": "checkbox", "description": "Order cuts by Z level across multiple contours", "default": true},
+            {"name": "Order by Area", "type": "checkbox", "description": "Order cuts by enclosed area", "default": false},
+            {"name": "Stock to Leave", "type": "checkbox", "description": "Enable stock allowance", "default": true},
+            {"name": "Radial Stock to Leave", "type": "numeric", "description": "Material left in radial direction", "unit": "mm", "default": 0.2},
+            {"name": "Axial Stock to Leave", "type": "numeric", "description": "Material left in axial direction", "unit": "mm", "default": 0.1},
+            {"name": "Finishing Passes", "type": "checkbox", "description": "Enable finishing passes", "default": false},
+            {"name": "Number of Finishing Passes", "type": "numeric", "description": "Quantity of finishing passes", "default": 1, "min": 1},
+            {"name": "Finishing Stepover", "type": "numeric", "description": "Distance between finishing passes", "unit": "mm"},
+            {"name": "Flat Area Detection", "type": "checkbox", "description": "Detect and machine flat areas", "default": true}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "description": "Rapid movement output mode", "options": ["Preserve Rapid Movement", "Same as Rapid", "Same as Feed"], "default": "Preserve Rapid Movement"},
+            {"name": "High Feedrate", "type": "numeric", "description": "Feedrate for G1 rapid movements", "unit": "mm/min"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "description": "Use rapid for retract moves", "default": true},
+            {"name": "Safe Distance", "type": "numeric", "description": "Minimum clearance from part surfaces", "unit": "mm", "default": 5},
+            {"name": "Keep Tool Down", "type": "checkbox", "description": "Avoid retracting on short moves", "default": false},
+            {"name": "Maximum Stay-Down Distance", "type": "numeric", "description": "Max distance for stay-down moves", "unit": "mm", "default": 50},
+            {"name": "Lift Height", "type": "numeric", "description": "Lift distance during repositioning", "unit": "mm", "default": 2},
+            {"name": "Ramp Type", "type": "dropdown", "description": "Entry method into material", "options": ["Helix", "Profile", "Plunge", "Predrill"], "default": "Helix"},
+            {"name": "Ramping Angle", "type": "numeric", "description": "Maximum ramping angle of helix", "unit": "degrees", "default": 2, "min": 0.1, "max": 90},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "description": "Maximum stepdown per revolution on ramp", "unit": "mm"},
+            {"name": "Ramp Clearance Height", "type": "numeric", "description": "Height above stock for helix start", "unit": "mm", "default": 1},
+            {"name": "Minimum Ramp Diameter", "type": "numeric", "description": "Minimum diameter of helical ramp", "unit": "mm"},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "description": "Maximum diameter of entry helix", "unit": "mm"},
+            {"name": "Predrill Positions", "type": "selection", "description": "Select predrilled holes for entry", "required": false},
+            {"name": "Entry Positions", "type": "selection", "description": "Select geometry for tool entry", "required": false}
+          ]
+        }
+      }
+    },
+    "2D_CONTOUR": {
+      "description": "Profile milling along edges and contours with optional roughing and finishing passes",
+      "category": "Finishing/Profiling",
+      "parameterCount": 121,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select cutting tool from library", "required": true},
+            {"name": "Tool Number", "type": "numeric", "description": "Tool position in magazine", "default": 1},
+            {"name": "Length Offset", "type": "numeric", "description": "Tool length compensation number", "default": 1},
+            {"name": "Diameter Offset", "type": "numeric", "description": "Tool diameter compensation number", "default": 1},
+            {"name": "Coolant", "type": "dropdown", "description": "Coolant delivery method", "options": ["Disabled", "Flood", "Mist", "Through Tool", "Air", "Suction"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "description": "Rotational speed of spindle", "unit": "RPM"},
+            {"name": "Surface Speed", "type": "numeric", "description": "Cutting speed", "unit": "m/min or SFM"},
+            {"name": "Ramp Spindle Speed", "type": "numeric", "description": "Spindle speed during ramps", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Regular cutting feedrate", "unit": "mm/min or IPM"},
+            {"name": "Feed per Tooth", "type": "numeric", "description": "Feedrate per tooth", "unit": "mm"},
+            {"name": "Lead-In Feedrate", "type": "numeric", "description": "Feed entering cut", "unit": "mm/min"},
+            {"name": "Lead-Out Feedrate", "type": "numeric", "description": "Feed exiting cut", "unit": "mm/min"},
+            {"name": "Ramp Feedrate", "type": "numeric", "description": "Feed during helical ramps", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "description": "Feed plunging into stock", "unit": "mm/min"},
+            {"name": "Feed per Revolution", "type": "numeric", "description": "Plunge feed per revolution", "unit": "mm/rev"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Contour Selection", "type": "selection", "description": "Select faces, edges or sketches for machining boundary", "required": true},
+            {"name": "Tangential Extension Distance", "type": "numeric", "description": "Extend toolpath tangentially at start and end", "unit": "mm", "default": 0},
+            {"name": "Separate Tangential End Extension", "type": "checkbox", "description": "Enable different end extension value", "default": false},
+            {"name": "Tangential End Extension Distance", "type": "numeric", "description": "Distance to extend end position", "unit": "mm"},
+            {"name": "Stock Contours", "type": "checkbox", "description": "Consider stock or selected boundary", "default": false},
+            {"name": "Tab Shape", "type": "dropdown", "description": "Shape of holding tabs", "options": ["Rectangular", "Triangular"], "default": "Rectangular"},
+            {"name": "Tab Width", "type": "numeric", "description": "Width of tabs", "unit": "mm", "default": 5},
+            {"name": "Tab Height", "type": "numeric", "description": "Height of tabs", "unit": "mm", "default": 2},
+            {"name": "Tab Positioning", "type": "dropdown", "description": "Method for tab placement", "options": ["By Distance", "By Count", "At Points"], "default": "By Distance"},
+            {"name": "Tab Distance", "type": "numeric", "description": "Distance between tabs", "unit": "mm", "default": 50},
+            {"name": "Tabs per Contour", "type": "numeric", "description": "Number of tabs distributed evenly", "default": 4},
+            {"name": "Manual Tabs", "type": "selection", "description": "Click to position additional tabs", "required": false},
+            {"name": "Rest Machining", "type": "checkbox", "description": "Machine only rest material from previous operation", "default": false},
+            {"name": "Rest Material Tool Diameter", "type": "numeric", "description": "Diameter of previous tool", "unit": "mm"},
+            {"name": "Rest Material Corner Radius", "type": "numeric", "description": "Corner radius of previous tool", "unit": "mm"},
+            {"name": "Tool Orientation", "type": "dropdown", "description": "Set orientation of tool axis", "options": ["Setup WCS", "Model Origin"], "default": "Setup WCS"},
+            {"name": "Origin", "type": "dropdown", "description": "Locate the triad origin", "default": "Setup WCS"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown", "description": "Reference for clearance height", "options": ["Retract Height", "Stock Top", "Model Top", "Selection"]},
+            {"name": "Clearance Height Offset", "type": "numeric", "description": "Offset from clearance reference", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown", "description": "Reference for retract height", "options": ["Stock Top", "Model Top", "Selection"]},
+            {"name": "Retract Height Offset", "type": "numeric", "description": "Offset from retract reference", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown", "description": "Reference for feed height", "options": ["Retract Height", "Top Height", "Stock Top"]},
+            {"name": "Feed Height Offset", "type": "numeric", "description": "Offset from feed reference", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown", "description": "Reference for top of cut", "options": ["Stock Top", "Model Top", "Selection"]},
+            {"name": "Top Height Offset", "type": "numeric", "description": "Offset from top reference", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown", "description": "Reference for bottom of cut", "options": ["Model Bottom", "Selection", "Stock Bottom"]},
+            {"name": "Bottom Height Offset", "type": "numeric", "description": "Offset from bottom reference", "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "description": "Maximum chord distance", "unit": "mm", "default": 0.01},
+            {"name": "Sideways Compensation", "type": "dropdown", "description": "Tool offset direction", "options": ["Left (Climb)", "Right (Conventional)", "Center"], "default": "Left (Climb)"},
+            {"name": "Compensation Type", "type": "dropdown", "description": "Compensation method", "options": ["In Computer", "In Control", "Wear", "Inverse Wear", "Off"], "default": "In Computer"},
+            {"name": "Compensation Radius Allowance", "type": "numeric", "description": "Range of safe tool diameters", "unit": "mm"},
+            {"name": "Finishing Smoothing Deviation", "type": "numeric", "description": "Maximum smoothing on finishing", "unit": "mm"},
+            {"name": "Multiple Finishing Passes", "type": "checkbox", "description": "Enable multiple finishing passes", "default": false},
+            {"name": "Number of Finishing Passes", "type": "numeric", "description": "Quantity of finishing passes", "default": 1},
+            {"name": "Finishing Stepover", "type": "numeric", "description": "Distance between finishing passes", "unit": "mm"},
+            {"name": "Leads on all Finishing Passes", "type": "checkbox", "description": "Full lead in/out on every pass", "default": false},
+            {"name": "Finish Feedrate", "type": "numeric", "description": "Feedrate for finishing passes", "unit": "mm/min"},
+            {"name": "Repeat Finishing Pass", "type": "checkbox", "description": "Perform final pass twice", "default": false},
+            {"name": "Finishing Overlap", "type": "numeric", "description": "Distance past entry before lead-out", "unit": "mm", "default": 0},
+            {"name": "Lead End Distance", "type": "numeric", "description": "Distance lead-out begins before end", "unit": "mm"},
+            {"name": "Outer Corner Mode", "type": "dropdown", "description": "Machining outer corners", "options": ["Roll Around", "Keep Sharp", "Keep Sharp with Loop"], "default": "Roll Around"},
+            {"name": "Tangential Fragment Extension", "type": "numeric", "description": "Extend calculated toolpath tangentially", "unit": "mm"},
+            {"name": "Preserve Order", "type": "checkbox", "description": "Machine in selection order", "default": false},
+            {"name": "Both Ways", "type": "checkbox", "description": "Use climb and conventional", "default": false},
+            {"name": "Roughing Passes", "type": "checkbox", "description": "Enable roughing passes", "default": false},
+            {"name": "Maximum Roughing Stepover", "type": "numeric", "description": "Max stepover for roughing", "unit": "mm"},
+            {"name": "Number of Roughing Stepovers", "type": "numeric", "description": "Number of roughing steps", "default": 3},
+            {"name": "Roughing Smoothing Deviation", "type": "numeric", "description": "Max smoothing on roughing", "unit": "mm"},
+            {"name": "Multiple Depths", "type": "checkbox", "description": "Take multiple depth cuts", "default": false},
+            {"name": "Maximum Roughing Stepdown", "type": "numeric", "description": "Max stepdown between Z-levels", "unit": "mm"},
+            {"name": "Finishing Stepdowns", "type": "numeric", "description": "Number of finishing stepdowns", "default": 1},
+            {"name": "Finishing Stepdown", "type": "numeric", "description": "Size of each finishing stepdown", "unit": "mm"},
+            {"name": "Wall Taper Angle", "type": "numeric", "description": "Taper angle of walls", "unit": "degrees", "default": 0},
+            {"name": "Finish Only at Final Depth", "type": "checkbox", "description": "Finishing only at final depth", "default": false},
+            {"name": "Rough Final", "type": "checkbox", "description": "Apply finishing stepdown to roughing", "default": false},
+            {"name": "Use Even Stepdowns", "type": "checkbox", "description": "Equal distances between passes", "default": false},
+            {"name": "Order by Depth", "type": "checkbox", "description": "Order cuts by Z level", "default": false},
+            {"name": "Order by Islands", "type": "checkbox", "description": "Order by profile not depth", "default": false},
+            {"name": "Order by Step", "type": "checkbox", "description": "Each step to full depth", "default": false},
+            {"name": "Use Thin Wall", "type": "checkbox", "description": "Machine both sides of thin walls", "default": false},
+            {"name": "Thin Wall Width", "type": "numeric", "description": "Width considered thin", "unit": "mm"},
+            {"name": "Chamfer", "type": "checkbox", "description": "Use for chamfering", "default": false},
+            {"name": "Chamfer Width", "type": "numeric", "description": "Size of chamfer", "unit": "mm"},
+            {"name": "Chamfer Tip Offset", "type": "numeric", "description": "Distance to extend tool tip", "unit": "mm"},
+            {"name": "Stock to Leave", "type": "checkbox", "description": "Enable stock allowance", "default": true},
+            {"name": "Radial Stock to Leave", "type": "numeric", "description": "Wall stock allowance", "unit": "mm", "default": 0},
+            {"name": "Axial Stock to Leave", "type": "numeric", "description": "Floor stock allowance", "unit": "mm", "default": 0},
+            {"name": "Smoothing", "type": "checkbox", "description": "Smooth toolpath with arcs", "default": false},
+            {"name": "Smoothing Tolerance", "type": "numeric", "description": "Smoothing filter tolerance", "unit": "mm"},
+            {"name": "Feed Optimization", "type": "checkbox", "description": "Reduce feed at corners", "default": false},
+            {"name": "Maximum Directional Change", "type": "numeric", "description": "Max angle before feed reduction", "unit": "degrees"},
+            {"name": "Reduced Feed Radius", "type": "numeric", "description": "Min radius before feed reduction", "unit": "mm"},
+            {"name": "Reduced Feed Distance", "type": "numeric", "description": "Distance to reduce feed before corner", "unit": "mm"},
+            {"name": "Reduced Feedrate", "type": "numeric", "description": "Feedrate used at corners", "unit": "mm/min"},
+            {"name": "Only Inner Corners", "type": "checkbox", "description": "Reduce feed only at inner corners", "default": false}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "description": "Rapid output mode", "options": ["Preserve Rapid Movement", "Same as Rapid", "Same as Feed"]},
+            {"name": "High Feedrate", "type": "numeric", "description": "G1 rapid feedrate", "unit": "mm/min"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "description": "Retracts as rapids", "default": true},
+            {"name": "Safe Distance", "type": "numeric", "description": "Min clearance from part", "unit": "mm"},
+            {"name": "Keep Tool Down", "type": "checkbox", "description": "Avoid short retracts", "default": false},
+            {"name": "Maximum Stay-Down Distance", "type": "numeric", "description": "Max stay-down distance", "unit": "mm"},
+            {"name": "Lift Height", "type": "numeric", "description": "Lift during repositioning", "unit": "mm"},
+            {"name": "Lead-In Entry", "type": "checkbox", "description": "Generate lead-in", "default": true},
+            {"name": "Horizontal Lead-In Radius", "type": "numeric", "description": "Radius for horizontal lead-in", "unit": "mm"},
+            {"name": "Lead-In Sweep Angle", "type": "numeric", "description": "Sweep of lead-in arc", "unit": "degrees", "default": 90},
+            {"name": "Linear Lead-In Distance", "type": "numeric", "description": "Linear distance for compensation", "unit": "mm"},
+            {"name": "Perpendicular Lead-In", "type": "checkbox", "description": "Use perpendicular entry", "default": false},
+            {"name": "Vertical Lead-In Radius", "type": "numeric", "description": "Radius of vertical entry arc", "unit": "mm"},
+            {"name": "Lead-Out Exit", "type": "checkbox", "description": "Generate lead-out", "default": true},
+            {"name": "Same as Lead-In", "type": "checkbox", "description": "Lead-out matches lead-in", "default": true},
+            {"name": "Linear Lead-Out Distance", "type": "numeric", "description": "Linear lead-out distance", "unit": "mm"},
+            {"name": "Horizontal Lead-Out Radius", "type": "numeric", "description": "Radius for horizontal lead-out", "unit": "mm"},
+            {"name": "Vertical Lead-Out Radius", "type": "numeric", "description": "Radius of vertical lead-out", "unit": "mm"},
+            {"name": "Lead-Out Sweep Angle", "type": "numeric", "description": "Sweep of lead-out arc", "unit": "degrees"},
+            {"name": "Perpendicular Lead-Out", "type": "checkbox", "description": "Use perpendicular exit", "default": false},
+            {"name": "Ramp", "type": "checkbox", "description": "Enable ramps", "default": false},
+            {"name": "Ramping Angle", "type": "numeric", "description": "Max ramping angle", "unit": "degrees"},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "description": "Max stepdown per ramp revolution", "unit": "mm"},
+            {"name": "Ramp Clearance Height", "type": "numeric", "description": "Height for helix start", "unit": "mm"},
+            {"name": "Predrill Positions", "type": "selection", "description": "Select predrilled holes", "required": false},
+            {"name": "Entry Positions", "type": "selection", "description": "Select entry geometry", "required": false}
+          ]
+        }
+      }
+    },
+    "2D_POCKET": {
+      "description": "Clear material from enclosed pockets with multiple passes and finishing options",
+      "category": "Roughing/Finishing",
+      "parameterCount": 72,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select cutting tool", "required": true},
+            {"name": "Tool Number", "type": "numeric", "description": "Tool magazine position", "default": 1},
+            {"name": "Length Offset", "type": "numeric", "description": "Length compensation number", "default": 1},
+            {"name": "Diameter Offset", "type": "numeric", "description": "Diameter compensation number", "default": 1},
+            {"name": "Coolant", "type": "dropdown", "description": "Coolant method", "options": ["Disabled", "Flood", "Mist", "Through Tool", "Air"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "description": "Spindle RPM", "unit": "RPM"},
+            {"name": "Surface Speed", "type": "numeric", "description": "Cutting speed", "unit": "m/min"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Cutting feedrate", "unit": "mm/min"},
+            {"name": "Feed per Tooth", "type": "numeric", "description": "Chip load per tooth", "unit": "mm"},
+            {"name": "Lead-In Feedrate", "type": "numeric", "description": "Entry feed", "unit": "mm/min"},
+            {"name": "Lead-Out Feedrate", "type": "numeric", "description": "Exit feed", "unit": "mm/min"},
+            {"name": "Ramp Feedrate", "type": "numeric", "description": "Ramp feed", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "description": "Plunge feed", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Pocket Selection", "type": "selection", "description": "Select pocket faces, edges or sketches", "required": true},
+            {"name": "Stock Contours", "type": "checkbox", "description": "Consider stock boundary", "default": false},
+            {"name": "Rest Machining", "type": "checkbox", "description": "Machine rest material only", "default": false},
+            {"name": "Rest Material Tool Diameter", "type": "numeric", "description": "Previous tool diameter", "unit": "mm"},
+            {"name": "Tool Orientation", "type": "dropdown", "description": "Tool axis orientation", "default": "Setup WCS"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown", "description": "Clearance reference"},
+            {"name": "Clearance Height Offset", "type": "numeric", "description": "Clearance offset", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown", "description": "Retract reference"},
+            {"name": "Retract Height Offset", "type": "numeric", "description": "Retract offset", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown", "description": "Feed height reference"},
+            {"name": "Feed Height Offset", "type": "numeric", "description": "Feed offset", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown", "description": "Top of cut reference"},
+            {"name": "Top Height Offset", "type": "numeric", "description": "Top offset", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown", "description": "Bottom of cut reference"},
+            {"name": "Bottom Height Offset", "type": "numeric", "description": "Bottom offset", "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "description": "Linearization tolerance", "unit": "mm", "default": 0.01},
+            {"name": "Direction", "type": "dropdown", "description": "Cutting direction", "options": ["Climb", "Conventional", "Both Ways"], "default": "Climb"},
+            {"name": "Preserve Order", "type": "checkbox", "description": "Machine in selection order", "default": false},
+            {"name": "Both Ways", "type": "checkbox", "description": "Bidirectional cutting", "default": false},
+            {"name": "Maximum Stepover", "type": "numeric", "description": "Max distance between passes", "unit": "mm"},
+            {"name": "Manual Stepover", "type": "checkbox", "description": "Enable manual stepover control", "default": false},
+            {"name": "Stepover Percentage", "type": "numeric", "description": "Stepover as tool diameter percentage", "unit": "%", "default": 40, "max": 90},
+            {"name": "Minimum Cutting Radius", "type": "numeric", "description": "Smallest corner radius", "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "description": "Smooth with arcs", "default": true},
+            {"name": "Smoothing Tolerance", "type": "numeric", "description": "Smoothing tolerance", "unit": "mm"},
+            {"name": "Multiple Depths", "type": "checkbox", "description": "Multiple depth passes", "default": true},
+            {"name": "Maximum Stepdown", "type": "numeric", "description": "Max Z stepdown", "unit": "mm"},
+            {"name": "Use Even Stepdowns", "type": "checkbox", "description": "Equal depth passes", "default": false},
+            {"name": "Order by Depth", "type": "checkbox", "description": "Order by Z level", "default": true},
+            {"name": "Stock to Leave", "type": "checkbox", "description": "Enable stock allowance", "default": true},
+            {"name": "Radial Stock to Leave", "type": "numeric", "description": "Wall allowance", "unit": "mm", "default": 0.2},
+            {"name": "Axial Stock to Leave", "type": "numeric", "description": "Floor allowance", "unit": "mm", "default": 0.1},
+            {"name": "Finishing Passes", "type": "checkbox", "description": "Enable finishing", "default": false},
+            {"name": "Compensation Type", "type": "dropdown", "description": "Compensation method", "options": ["In Computer", "In Control", "Wear"], "default": "In Computer"},
+            {"name": "Sideways Compensation", "type": "dropdown", "description": "Tool offset direction", "options": ["Left", "Right", "Center"]},
+            {"name": "Number of Finishing Passes", "type": "numeric", "description": "Finishing pass count", "default": 1},
+            {"name": "Finishing Stepover", "type": "numeric", "description": "Finishing pass stepover", "unit": "mm"},
+            {"name": "Leads on all Finishing Passes", "type": "checkbox", "description": "Lead in/out on all passes", "default": false},
+            {"name": "Finish Feedrate", "type": "numeric", "description": "Finishing feedrate", "unit": "mm/min"},
+            {"name": "Repeat Finishing Pass", "type": "checkbox", "description": "Repeat final pass", "default": false},
+            {"name": "Finishing Overlap", "type": "numeric", "description": "Overlap past entry point", "unit": "mm"},
+            {"name": "Feed Optimization", "type": "checkbox", "description": "Reduce corner feed", "default": false},
+            {"name": "Reduced Feedrate", "type": "numeric", "description": "Corner feedrate", "unit": "mm/min"}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "description": "Rapid mode"},
+            {"name": "High Feedrate", "type": "numeric", "description": "G1 rapid feedrate", "unit": "mm/min"},
+            {"name": "Safe Distance", "type": "numeric", "description": "Part clearance", "unit": "mm"},
+            {"name": "Keep Tool Down", "type": "checkbox", "description": "Minimize retracts", "default": false},
+            {"name": "Maximum Stay-Down Distance", "type": "numeric", "description": "Stay-down threshold", "unit": "mm"},
+            {"name": "Lift Height", "type": "numeric", "description": "Repositioning lift", "unit": "mm"},
+            {"name": "Ramp Type", "type": "dropdown", "description": "Entry method", "options": ["Helix", "Profile", "Plunge", "Predrill"], "default": "Helix"},
+            {"name": "Ramping Angle", "type": "numeric", "description": "Ramp angle", "unit": "degrees", "default": 2},
+            {"name": "Maximum Ramp Stepdown", "type": "numeric", "description": "Ramp stepdown", "unit": "mm"},
+            {"name": "Ramp Clearance Height", "type": "numeric", "description": "Helix start height", "unit": "mm"},
+            {"name": "Minimum Ramp Diameter", "type": "numeric", "description": "Min helix diameter", "unit": "mm"},
+            {"name": "Helical Ramp Diameter", "type": "numeric", "description": "Max helix diameter", "unit": "mm"},
+            {"name": "Lead-In Entry", "type": "checkbox", "description": "Enable lead-in", "default": true},
+            {"name": "Lead-In Radius", "type": "numeric", "description": "Lead-in arc radius", "unit": "mm"},
+            {"name": "Lead-Out Exit", "type": "checkbox", "description": "Enable lead-out", "default": true},
+            {"name": "Lead-Out Radius", "type": "numeric", "description": "Lead-out arc radius", "unit": "mm"},
+            {"name": "Entry Positions", "type": "selection", "description": "Manual entry points"}
+          ]
+        }
+      }
+    },
+    "FACE": {
+      "description": "Level the top surface of stock material with facing passes",
+      "category": "Facing",
+      "parameterCount": 52,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select facing tool", "required": true},
+            {"name": "Tool Number", "type": "numeric", "description": "Magazine position"},
+            {"name": "Coolant", "type": "dropdown", "description": "Coolant method", "options": ["Disabled", "Flood", "Mist", "Through Tool"], "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "description": "Spindle RPM", "unit": "RPM"},
+            {"name": "Surface Speed", "type": "numeric", "description": "Cutting speed", "unit": "m/min"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Cutting feed", "unit": "mm/min"},
+            {"name": "Feed per Tooth", "type": "numeric", "description": "Chip load", "unit": "mm"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Stock Contours", "type": "checkbox", "description": "Use stock boundary", "default": true},
+            {"name": "Machining Boundary", "type": "selection", "description": "Face boundary selection"},
+            {"name": "Tool Orientation", "type": "dropdown", "description": "Tool axis", "default": "Setup WCS"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown", "description": "Clearance reference"},
+            {"name": "Clearance Height Offset", "type": "numeric", "description": "Clearance offset", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown", "description": "Retract reference"},
+            {"name": "Retract Height Offset", "type": "numeric", "description": "Retract offset", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown", "description": "Feed reference"},
+            {"name": "Feed Height Offset", "type": "numeric", "description": "Feed offset", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown", "description": "Top reference", "default": "Stock Top"},
+            {"name": "Top Height Offset", "type": "numeric", "description": "Top offset", "unit": "mm", "default": 0},
+            {"name": "Bottom Height From", "type": "dropdown", "description": "Bottom reference", "default": "Model Top"},
+            {"name": "Bottom Height Offset", "type": "numeric", "description": "Bottom offset", "unit": "mm", "default": 0}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "description": "Linearization tolerance", "unit": "mm", "default": 0.01},
+            {"name": "Pass Direction", "type": "numeric", "description": "Angle of toolpath", "unit": "degrees", "default": 0},
+            {"name": "Pass Extension", "type": "numeric", "description": "Extend passes at start/end", "unit": "mm", "default": 0},
+            {"name": "Stock Offset", "type": "numeric", "description": "Virtual stock enlargement", "unit": "mm", "default": 0},
+            {"name": "Stepover", "type": "numeric", "description": "Pass width", "unit": "mm"},
+            {"name": "Stepover Percentage", "type": "numeric", "description": "Stepover as tool %", "unit": "%", "default": 70},
+            {"name": "Direction", "type": "dropdown", "description": "Milling direction", "options": ["Climb", "Conventional", "Both Ways"], "default": "Climb"},
+            {"name": "From Other Side", "type": "checkbox", "description": "Change machining start", "default": false},
+            {"name": "Use Chip Thinning", "type": "checkbox", "description": "Add loops at pass start", "default": false},
+            {"name": "Maximum Stepdown", "type": "numeric", "description": "Max Z depth per pass", "unit": "mm"},
+            {"name": "Multiple Depths", "type": "checkbox", "description": "Multiple Z passes", "default": false},
+            {"name": "Both Sides", "type": "checkbox", "description": "Machine from both sides", "default": false},
+            {"name": "Finishing Step", "type": "checkbox", "description": "Add finishing pass", "default": false},
+            {"name": "Finishing Step Feed", "type": "numeric", "description": "Finishing feedrate", "unit": "mm/min"},
+            {"name": "Finishing Step Depth", "type": "numeric", "description": "Finishing depth", "unit": "mm"},
+            {"name": "Stock to Leave", "type": "numeric", "description": "Allowance after machining", "unit": "mm", "default": 0}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "High Feedrate Mode", "type": "dropdown", "description": "Rapid mode"},
+            {"name": "High Feedrate", "type": "numeric", "description": "G1 rapid feed", "unit": "mm/min"},
+            {"name": "Allow Rapid Retract", "type": "checkbox", "description": "Rapid retracts", "default": true},
+            {"name": "Keep Tool Down", "type": "checkbox", "description": "Minimize retracts", "default": false},
+            {"name": "Maximum Stay-Down Distance", "type": "numeric", "description": "Stay-down threshold", "unit": "mm"},
+            {"name": "Extend Before Retract", "type": "checkbox", "description": "Extend to exit stock", "default": false},
+            {"name": "Lead-In Entry", "type": "checkbox", "description": "Enable lead-in", "default": false},
+            {"name": "Vertical Lead-In Radius", "type": "numeric", "description": "Entry arc radius", "unit": "mm"},
+            {"name": "Lead-Out Exit", "type": "checkbox", "description": "Enable lead-out", "default": false},
+            {"name": "Lead-Out Radius", "type": "numeric", "description": "Exit arc radius", "unit": "mm"},
+            {"name": "Same As Lead-In", "type": "checkbox", "description": "Match lead-in", "default": true},
+            {"name": "Transition Type", "type": "dropdown", "description": "Pass connection method", "options": ["Smooth Transition", "Shortest Path", "Straight Line", "No Contact"], "default": "Smooth Transition"}
+          ]
+        }
+      }
+    },
+    "SLOT": {
+      "description": "Machine slots following the centerline with end mill engagement",
+      "category": "Slot Machining",
+      "parameterCount": 48,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select end mill (diameter <= slot width)", "required": true},
+            {"name": "Tool Number", "type": "numeric", "description": "Magazine position"},
+            {"name": "Coolant", "type": "dropdown", "description": "Coolant method", "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "description": "Spindle RPM", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Cutting feed", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "description": "Plunge feed", "unit": "mm/min"},
+            {"name": "Ramp Feedrate", "type": "numeric", "description": "Ramp feed", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Pocket Selection", "type": "selection", "description": "Select slot bottom edges or sketches", "required": true},
+            {"name": "Stock Contours", "type": "checkbox", "description": "Consider stock boundary", "default": false},
+            {"name": "Tool Orientation", "type": "dropdown", "description": "Tool axis", "default": "Setup WCS"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown", "description": "Clearance reference"},
+            {"name": "Clearance Height Offset", "type": "numeric", "description": "Clearance offset", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown", "description": "Retract reference"},
+            {"name": "Retract Height Offset", "type": "numeric", "description": "Retract offset", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown", "description": "Feed reference"},
+            {"name": "Feed Height Offset", "type": "numeric", "description": "Feed offset", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown", "description": "Top reference"},
+            {"name": "Top Height Offset", "type": "numeric", "description": "Top offset", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown", "description": "Bottom reference", "default": "Selection"},
+            {"name": "Bottom Height Offset", "type": "numeric", "description": "Bottom offset", "unit": "mm", "default": 0}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "description": "Linearization tolerance", "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "description": "Cutting direction", "options": ["Climb", "Conventional"], "default": "Climb"},
+            {"name": "Both Ways", "type": "checkbox", "description": "Bidirectional cutting", "default": false},
+            {"name": "Backoff Distance", "type": "numeric", "description": "Safer retract distance", "unit": "mm", "default": 0},
+            {"name": "Stock to Leave", "type": "checkbox", "description": "Enable allowance", "default": false},
+            {"name": "Radial Stock to Leave", "type": "numeric", "description": "Wall allowance", "unit": "mm"},
+            {"name": "Axial Stock to Leave", "type": "numeric", "description": "Floor allowance", "unit": "mm"},
+            {"name": "Multiple Depths", "type": "checkbox", "description": "Multiple Z passes", "default": true},
+            {"name": "Maximum Stepdown", "type": "numeric", "description": "Max Z stepdown", "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "description": "Reduce NC size with arcs", "default": true}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Safe Distance", "type": "numeric", "description": "Part clearance", "unit": "mm"},
+            {"name": "Ramp Type", "type": "dropdown", "description": "Entry method", "options": ["Helix", "Profile", "Plunge"], "default": "Helix"},
+            {"name": "Ramping Angle", "type": "numeric", "description": "Ramp angle", "unit": "degrees"},
+            {"name": "Lead-In Entry", "type": "checkbox", "description": "Enable lead-in", "default": true},
+            {"name": "Lead-Out Exit", "type": "checkbox", "description": "Enable lead-out", "default": true}
+          ]
+        }
+      }
+    },
+    "TRACE": {
+      "description": "Machine along contours with varying Z values, with or without compensation",
+      "category": "Tracing/Engraving",
+      "parameterCount": 42,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select tracing tool", "required": true},
+            {"name": "Coolant", "type": "dropdown", "description": "Coolant method", "default": "Disabled"},
+            {"name": "Spindle Speed", "type": "numeric", "description": "Spindle RPM", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Cutting feed", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "description": "Plunge feed", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Trace Contours", "type": "selection", "description": "Select edges, curves or sketches to trace", "required": true},
+            {"name": "Project to Surface", "type": "checkbox", "description": "Project geometry onto selected faces", "default": false},
+            {"name": "Projection Surface", "type": "selection", "description": "Surface for projection"},
+            {"name": "Tool Orientation", "type": "dropdown", "description": "Tool axis", "default": "Setup WCS"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown", "description": "Clearance reference"},
+            {"name": "Clearance Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown", "description": "Retract reference"},
+            {"name": "Retract Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown", "description": "Feed reference"},
+            {"name": "Feed Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown", "description": "Top reference"},
+            {"name": "Top Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown", "description": "Bottom reference"},
+            {"name": "Bottom Height Offset", "type": "numeric", "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "description": "Linearization tolerance", "unit": "mm"},
+            {"name": "Sideways Compensation", "type": "dropdown", "description": "Tool offset direction", "options": ["Left", "Right", "Center"], "default": "Center"},
+            {"name": "Axial Offset", "type": "numeric", "description": "Offset below surface (negative to cut into material)", "unit": "mm", "default": 0},
+            {"name": "Multiple Depths", "type": "checkbox", "description": "Multiple Z passes", "default": false},
+            {"name": "Maximum Stepdown", "type": "numeric", "description": "Max Z stepdown", "unit": "mm"},
+            {"name": "Stock to Leave", "type": "checkbox", "description": "Enable allowance", "default": false},
+            {"name": "Radial Stock to Leave", "type": "numeric", "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "description": "Smooth toolpath", "default": true}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Safe Distance", "type": "numeric", "unit": "mm"},
+            {"name": "Keep Tool Down", "type": "checkbox", "description": "Allow retraction between letters", "default": true},
+            {"name": "Lead-In Entry", "type": "checkbox", "default": false},
+            {"name": "Lead-Out Exit", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "ENGRAVE": {
+      "description": "Machine along contours with V-shaped chamfered walls for text and logos",
+      "category": "Engraving",
+      "parameterCount": 45,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select V-bit or chamfer mill", "required": true},
+            {"name": "Tool Tip Angle", "type": "numeric", "description": "Included angle of V-bit", "unit": "degrees", "default": 90},
+            {"name": "Coolant", "type": "dropdown", "description": "Coolant method", "default": "Disabled"},
+            {"name": "Spindle Speed", "type": "numeric", "description": "Spindle RPM", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Cutting feed", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "description": "Plunge feed", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Engrave Contours", "type": "selection", "description": "Select text, sketches or curves", "required": true},
+            {"name": "Tool Orientation", "type": "dropdown", "description": "Tool axis", "default": "Setup WCS"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown"},
+            {"name": "Clearance Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown"},
+            {"name": "Retract Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown"},
+            {"name": "Feed Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown"},
+            {"name": "Top Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown"},
+            {"name": "Bottom Height Offset", "type": "numeric", "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "description": "Linearization tolerance", "unit": "mm"},
+            {"name": "Axial Offset", "type": "numeric", "description": "Depth offset (negative cuts into surface)", "unit": "mm", "default": -0.5},
+            {"name": "Sideways Compensation", "type": "dropdown", "options": ["Left", "Right", "Center"], "default": "Center"},
+            {"name": "Stepover", "type": "numeric", "description": "Distance between passes", "unit": "mm"},
+            {"name": "Stepdown", "type": "numeric", "description": "Depth per pass", "unit": "mm"},
+            {"name": "Multiple Depths", "type": "checkbox", "default": false},
+            {"name": "Maximum Stepdown", "type": "numeric", "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "default": true}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Safe Distance", "type": "numeric", "unit": "mm"},
+            {"name": "Keep Tool Down", "type": "checkbox", "description": "Do not retract between characters", "default": false},
+            {"name": "Lead-In Entry", "type": "checkbox", "default": false},
+            {"name": "Lead-Out Exit", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "BORE": {
+      "description": "Helical bore milling for cylindrical pockets and holes larger than tool diameter",
+      "category": "Hole Making",
+      "parameterCount": 38,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select end mill (smaller than hole)", "required": true},
+            {"name": "Coolant", "type": "dropdown", "description": "Coolant method", "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "description": "Spindle RPM", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "description": "Cutting feed", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "description": "Plunge feed", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Selection", "type": "selection", "description": "Select cylindrical faces or circular edges", "required": true},
+            {"name": "Hole Mode", "type": "dropdown", "description": "Select holes or bosses", "options": ["Holes", "Bosses"], "default": "Holes"},
+            {"name": "Diameter Range Minimum", "type": "numeric", "description": "Min hole diameter to select", "unit": "mm"},
+            {"name": "Diameter Range Maximum", "type": "numeric", "description": "Max hole diameter to select", "unit": "mm"},
+            {"name": "Select All with Same Diameter", "type": "checkbox", "description": "Auto-select matching diameters", "default": true}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown"},
+            {"name": "Clearance Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown"},
+            {"name": "Retract Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown"},
+            {"name": "Feed Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown"},
+            {"name": "Top Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown"},
+            {"name": "Bottom Height Offset", "type": "numeric", "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "description": "Cutting direction", "options": ["Climb", "Conventional"], "default": "Climb"},
+            {"name": "Helical", "type": "checkbox", "description": "Use continuous helix", "default": true},
+            {"name": "Pitch", "type": "numeric", "description": "Helix pitch (Z per revolution)", "unit": "mm"},
+            {"name": "Repeat Pass", "type": "checkbox", "description": "Repeat final pass at bottom", "default": false},
+            {"name": "Finishing Passes", "type": "numeric", "description": "Number of spring passes", "default": 0},
+            {"name": "Stock to Leave", "type": "numeric", "description": "Radial allowance", "unit": "mm", "default": 0}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Lead to Center", "type": "checkbox", "description": "Lead to hole center before spiral", "default": true},
+            {"name": "Entry Radius", "type": "numeric", "description": "Radius of entry arc", "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "CIRCULAR": {
+      "description": "Circular interpolation for cylindrical pockets and islands with discrete Z-levels",
+      "category": "Hole Making",
+      "parameterCount": 42,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select end mill", "required": true},
+            {"name": "Coolant", "type": "dropdown", "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Ramp Feedrate", "type": "numeric", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Hole Selection", "type": "selection", "description": "Select cylindrical faces or edges", "required": true},
+            {"name": "Hole Mode", "type": "dropdown", "options": ["Holes", "Bosses"], "default": "Holes"},
+            {"name": "Diameter Range Minimum", "type": "numeric", "unit": "mm"},
+            {"name": "Diameter Range Maximum", "type": "numeric", "unit": "mm"},
+            {"name": "Select All with Same Diameter", "type": "checkbox", "default": true}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown"},
+            {"name": "Clearance Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown"},
+            {"name": "Retract Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown"},
+            {"name": "Feed Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown"},
+            {"name": "Top Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown"},
+            {"name": "Bottom Height Offset", "type": "numeric", "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["Climb", "Conventional"], "default": "Climb"},
+            {"name": "Multiple Depths", "type": "checkbox", "default": true},
+            {"name": "Maximum Stepdown", "type": "numeric", "description": "Depth per Z-level", "unit": "mm"},
+            {"name": "Use Even Stepdowns", "type": "checkbox", "default": false},
+            {"name": "Repeat Pass", "type": "checkbox", "description": "Repeat at bottom", "default": false},
+            {"name": "Finishing Passes", "type": "numeric", "default": 0},
+            {"name": "Finishing Stepover", "type": "numeric", "unit": "mm"},
+            {"name": "Stock to Leave", "type": "numeric", "unit": "mm", "default": 0}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Ramp Type", "type": "dropdown", "options": ["Helix", "Plunge"], "default": "Helix"},
+            {"name": "Ramping Angle", "type": "numeric", "unit": "degrees"},
+            {"name": "Lead-In Entry", "type": "checkbox", "default": true},
+            {"name": "Lead-In Radius", "type": "numeric", "unit": "mm"},
+            {"name": "Lead-Out Exit", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "THREAD": {
+      "description": "Thread milling for internal and external threads",
+      "category": "Threading",
+      "parameterCount": 48,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select thread mill", "required": true},
+            {"name": "Thread Pitch", "type": "numeric", "description": "Thread pitch (distance between threads)", "unit": "mm", "required": true},
+            {"name": "Coolant", "type": "dropdown", "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Thread Selection", "type": "selection", "description": "Select cylindrical faces or thread features", "required": true},
+            {"name": "Thread Type", "type": "dropdown", "description": "Internal or external thread", "options": ["Internal (Right-Hand)", "Internal (Left-Hand)", "External (Right-Hand)", "External (Left-Hand)"], "default": "Internal (Right-Hand)"},
+            {"name": "Thread Hand", "type": "dropdown", "options": ["Right-Hand", "Left-Hand"], "default": "Right-Hand"},
+            {"name": "Diameter Range Minimum", "type": "numeric", "unit": "mm"},
+            {"name": "Diameter Range Maximum", "type": "numeric", "unit": "mm"},
+            {"name": "Select All with Same Diameter", "type": "checkbox", "default": true}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown"},
+            {"name": "Clearance Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown"},
+            {"name": "Retract Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown"},
+            {"name": "Feed Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown"},
+            {"name": "Top Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown"},
+            {"name": "Bottom Height Offset", "type": "numeric", "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Pitch Diameter Offset", "type": "numeric", "description": "Offset from major to minor diameter", "unit": "mm"},
+            {"name": "Direction", "type": "dropdown", "options": ["Climb", "Conventional"], "default": "Climb"},
+            {"name": "Do Multiple Threads", "type": "checkbox", "description": "Create multi-lead threads", "default": false},
+            {"name": "Number of Threads", "type": "numeric", "description": "Number of thread leads", "default": 1},
+            {"name": "Thread Depth", "type": "numeric", "description": "Full thread depth", "unit": "mm"},
+            {"name": "Number of Passes", "type": "numeric", "description": "Passes to full depth", "default": 1},
+            {"name": "Infeed Angle", "type": "numeric", "description": "Angle of infeed per pass", "unit": "degrees", "default": 0},
+            {"name": "Spring Passes", "type": "numeric", "description": "Additional passes at final depth", "default": 0}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Lead-In Angle", "type": "numeric", "description": "Entry arc angle", "unit": "degrees", "default": 90},
+            {"name": "Lead-Out Angle", "type": "numeric", "description": "Exit arc angle", "unit": "degrees", "default": 90},
+            {"name": "Entry Radius", "type": "numeric", "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "2D_CHAMFER": {
+      "description": "Chamfer edges using chamfer mills or V-bits",
+      "category": "Chamfering",
+      "parameterCount": 44,
+      "tabs": {
+        "Tool": {
+          "parameters": [
+            {"name": "Tool", "type": "selection", "description": "Select chamfer mill or V-bit", "required": true},
+            {"name": "Tool Tip Angle", "type": "numeric", "description": "Included angle of chamfer tool", "unit": "degrees"},
+            {"name": "Coolant", "type": "dropdown", "default": "Flood"},
+            {"name": "Spindle Speed", "type": "numeric", "unit": "RPM"},
+            {"name": "Cutting Feedrate", "type": "numeric", "unit": "mm/min"},
+            {"name": "Plunge Feedrate", "type": "numeric", "unit": "mm/min"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Chamfer Edges", "type": "selection", "description": "Select edges to chamfer", "required": true},
+            {"name": "Auto-Detect Chamferable Edges", "type": "checkbox", "description": "Automatically find chamfer edges on full contour", "default": true},
+            {"name": "Tool Orientation", "type": "dropdown", "default": "Setup WCS"}
+          ]
+        },
+        "Heights": {
+          "parameters": [
+            {"name": "Clearance Height From", "type": "dropdown"},
+            {"name": "Clearance Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Retract Height From", "type": "dropdown"},
+            {"name": "Retract Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Feed Height From", "type": "dropdown"},
+            {"name": "Feed Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Top Height From", "type": "dropdown"},
+            {"name": "Top Height Offset", "type": "numeric", "unit": "mm"},
+            {"name": "Bottom Height From", "type": "dropdown"},
+            {"name": "Bottom Height Offset", "type": "numeric", "unit": "mm"}
+          ]
+        },
+        "Passes": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "unit": "mm"},
+            {"name": "Chamfer Width", "type": "numeric", "description": "Width of chamfer (size from side view)", "unit": "mm", "required": true},
+            {"name": "Chamfer Tip Offset", "type": "numeric", "description": "Additional depth for tool tip (prevents tip damage)", "unit": "mm", "default": 0.1},
+            {"name": "Chamfer Clearance", "type": "numeric", "description": "Safe distance from model walls", "unit": "mm", "default": 0.5},
+            {"name": "Direction", "type": "dropdown", "options": ["Climb", "Conventional"], "default": "Climb"},
+            {"name": "Multiple Depths", "type": "checkbox", "default": false},
+            {"name": "Number of Stepdowns", "type": "numeric", "description": "Number of depth passes", "default": 1},
+            {"name": "Maximum Stepdown", "type": "numeric", "unit": "mm"},
+            {"name": "Smoothing", "type": "checkbox", "default": true}
+          ]
+        },
+        "Linking": {
+          "parameters": [
+            {"name": "Safe Distance", "type": "numeric", "unit": "mm"},
+            {"name": "Lead-In Entry", "type": "checkbox", "default": true},
+            {"name": "Lead-In Radius", "type": "numeric", "unit": "mm"},
+            {"name": "Lead-Out Exit", "type": "checkbox", "default": true},
+            {"name": "Lead-Out Radius", "type": "numeric", "unit": "mm"}
+          ]
+        }
+      }
+    }
+  },
+  "parameterSummary": {
+    "totalParameters": 612,
+    "byToolpath": {
+      "2D_ADAPTIVE_CLEARING": 68,
+      "2D_CONTOUR": 121,
+      "2D_POCKET": 72,
+      "FACE": 52,
+      "SLOT": 48,
+      "TRACE": 42,
+      "ENGRAVE": 45,
+      "BORE": 38,
+      "CIRCULAR": 42,
+      "THREAD": 48,
+      "2D_CHAMFER": 44
+    },
+    "byTab": {
+      "Tool": {
+        "description": "Tool selection, speeds, feeds, coolant",
+        "commonParameters": ["Tool", "Coolant", "Spindle Speed", "Surface Speed", "Cutting Feedrate", "Feed per Tooth", "Plunge Feedrate", "Ramp Feedrate", "Lead-In Feedrate", "Lead-Out Feedrate"]
+      },
+      "Geometry": {
+        "description": "Boundary selection, rest machining, tabs, orientation",
+        "commonParameters": ["Machining Boundary", "Stock Contours", "Rest Machining", "Tab Shape", "Tab Width", "Tab Height", "Tool Orientation"]
+      },
+      "Heights": {
+        "description": "Z-level definitions for clearance, retract, feed, top, bottom",
+        "commonParameters": ["Clearance Height From", "Clearance Height Offset", "Retract Height From", "Retract Height Offset", "Feed Height From", "Feed Height Offset", "Top Height From", "Top Height Offset", "Bottom Height From", "Bottom Height Offset"]
+      },
+      "Passes": {
+        "description": "Cutting strategy, stepover, stepdown, finishing, stock allowance",
+        "commonParameters": ["Tolerance", "Direction", "Multiple Depths", "Maximum Stepdown", "Stock to Leave", "Radial Stock to Leave", "Axial Stock to Leave", "Finishing Passes", "Smoothing"]
+      },
+      "Linking": {
+        "description": "Entry/exit moves, leads, ramps, transitions",
+        "commonParameters": ["Safe Distance", "Keep Tool Down", "Ramp Type", "Ramping Angle", "Lead-In Entry", "Lead-Out Exit", "High Feedrate Mode"]
+      }
+    }
+  },
+  "sources": [
+    "https://help.autodesk.com/view/fusion360/ENU/?guid=GUID75B6821B-DE26-4E3B-AF10-4A54131CD9E4",
+    "https://cadcamlessons.com/2d-adaptive-clearing-fusion-360/",
+    "https://cadcamlessons.com/2d-pocket-fusion-360/",
+    "https://cadcamlessons.com/fusion-360-face-milling/",
+    "https://cadcamlessons.com/2d-chamfer-fusion-360/",
+    "https://cadcamlessons.com/linking-fusion-360/",
+    "https://cadcamlessons.com/leads-transitions-fusion-360/",
+    "https://cadcamlessons.com/fusion-360-tabs/",
+    "https://cadcamlessons.com/feed-speed-fusion-360/",
+    "https://help.autodesk.com/cloudhelp/ENU/Fusion-CAM/files/2D-SLOT-STEPS.htm",
+    "https://help.autodesk.com/cloudhelp/ENU/Fusion-CAM/files/2D-THREAD-READ.htm",
+    "https://support.bantamtools.com/hc/en-us/articles/360057624454-Fusion-360-Workflows-Programming-CAM"
+  ]
+}

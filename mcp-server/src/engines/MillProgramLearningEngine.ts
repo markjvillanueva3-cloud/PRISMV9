@@ -221,36 +221,40 @@ export class MillProgramLearningEngine {
   }
 
   generateTribalTipsFromLearning(source: MillSource, limit = 3): number {
-    const tips = [
+    const tips: import("./MillTribalKnowledgeEngine.js").TribalTip[] = [
       {
+        id: "TT-ML-001",
         category: "hsm" as const,
-        material: "graphite",
-        title: "Graphite HSM spindle bias",
-        body: "ROKU-ROKU graphite electrode jobs run 800+ SFM with 0.12mm fz — mist coolant only",
+        rule: "ROKU-ROKU graphite electrode jobs run 800+ SFM with 0.12mm fz -- mist coolant only",
+        rationale: "Graphite HSM spindle bias derived from JM Die Roku-Roku archive",
+        materials: ["graphite"],
         confidence: 0.93,
         source: "jm_die_roku_roku_archive",
       },
       {
+        id: "TT-ML-002",
         category: "hardened_material" as const,
-        material: "tungsten_carbide",
-        title: "Carbide die micro-milling limits",
-        body: "Tungsten carbide max 15 SFM / 0.008mm fz. Exceeding breaks tool within 5 passes.",
+        rule: "Tungsten carbide max 15 SFM / 0.008mm fz. Exceeding breaks tool within 5 passes.",
+        rationale: "Carbide die micro-milling limits derived from JM Die Roku-Roku archive",
+        materials: ["tungsten_carbide"],
         confidence: 0.93,
         source: "jm_die_roku_roku_archive",
       },
       {
+        id: "TT-ML-003",
         category: "chatter" as const,
-        material: "H13",
-        title: "H13 roughing MRR sweet spot",
-        body: "H13 at 130 SFM, fz=0.06, ap=0.9*D gives stable cut on HURCO 40HP spindle",
+        rule: "H13 at 130 SFM, fz=0.06, ap=0.9*D gives stable cut on HURCO 40HP spindle",
+        rationale: "H13 roughing MRR sweet spot derived from JM Die Hurco archive",
+        materials: ["H13"],
         confidence: 0.91,
         source: "jm_die_hurco_archive",
       },
       {
+        id: "TT-ML-004",
         category: "thin_wall" as const,
-        material: "M2",
-        title: "M2 thin-wall feed ramp",
-        body: "Haas M2 thin-wall: drop feed 40% on final pass, use climb-only to prevent deflection",
+        rule: "Haas M2 thin-wall: drop feed 40% on final pass, use climb-only to prevent deflection",
+        rationale: "M2 thin-wall feed ramp derived from JM Die Haas archive",
+        materials: ["M2"],
         confidence: 0.87,
         source: "jm_die_haas_archive",
       },

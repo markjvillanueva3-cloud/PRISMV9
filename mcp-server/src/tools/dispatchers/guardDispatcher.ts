@@ -38,7 +38,7 @@ const ACTIONS = ["decision_log", "failure_library", "error_capture", "pre_write_
   "operator_audit_record", "operator_audit_stats",
   "safety_explain_veto", "safety_explain_gate", "safety_explain_brief", "safety_counterfactual",
   "safety_gate_open", "safety_gate_attach_veto", "safety_gate_attach_sim", "safety_gate_attach_collision",
-  "sem_sim_guard_compute",
+  "sem_sim_guard_compute", "embedding_guard_evaluate",
   "sys_util_audit_all", "sys_util_run_pillar",
   "test_quality_list", "test_quality_classify", "test_quality_audit",
   // INTEL-OLLAMA-OBSIDIAN-MS0/P2-U03: UnifiedErrorLedgerEngine surface
@@ -409,7 +409,7 @@ async function fireHook(hookId: string, data: Record<string, any>): Promise<any>
 export function registerGuardDispatcher(server: any): void {
   server.tool(
     "prism_guard",
-    `Reasoning + Enforcement + AutoHook diagnostics (8 actions). Actions: ${ACTIONS.join(", ")}`,
+    `Reasoning + Enforcement + AutoHook diagnostics (${ACTIONS.length} actions). Actions: ${ACTIONS.join(", ")}`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_guard] ${action}`);
@@ -921,6 +921,36 @@ export function registerGuardDispatcher(server: any): void {
             const { semanticSimilarityGuardEngine } = await import("../../engines/SemanticSimilarityGuardEngine.js");
             const p = params as any;
             return ok({ similarity: semanticSimilarityGuardEngine.computeSimilarity(p.content1, p.content2) });
+          }
+          case "embedding_guard_evaluate": {
+            // XGAL-WIRE: tiered cosine-similarity duplicate guard over real ONNX
+            // embeddings. localEmbeddingEngine satisfies GuardEmbedder structurally
+            // (EmbedResult is {ok,vector,error}), so it injects directly. References
+            // may carry a precomputed vector; otherwise we embed name+description.
+            const { EmbeddingGuardEngine, DEFAULT_EMBEDDING_GUARD_CONFIG } = await import("../../engines/EmbeddingGuardEngine.js");
+            const { localEmbeddingEngine } = await import("../../engines/LocalEmbeddingEngine.js");
+            const p = params as any;
+            const engine = new EmbeddingGuardEngine(localEmbeddingEngine, p.config ?? DEFAULT_EMBEDDING_GUARD_CONFIG);
+            const skipped: string[] = [];
+            for (const ref of (p.references ?? [])) {
+              let vector: number[] | null =
+                Array.isArray(ref.vector) && ref.vector.length > 0 ? ref.vector : null;
+              if (!vector) {
+                // MUST match the candidate-embed format in EmbeddingGuardEngine.evaluate()
+                // (`${name}\n${description}`) or reference + candidate land in different
+                // embedding spaces -> biased cosine. (scrutiny P1, 2026-06-15)
+                const emb = await localEmbeddingEngine.embed(`${ref.name}\n${ref.description}`);
+                if (!emb.ok || emb.vector.length === 0) { skipped.push(ref.id); continue; }
+                vector = emb.vector;
+              }
+              try {
+                engine.addReference({ id: ref.id, name: ref.name, description: ref.description, vector });
+              } catch {
+                skipped.push(ref.id);
+              }
+            }
+            const decision = await engine.evaluate(p.candidate, p.topK ?? 3);
+            return ok({ ...decision, referencesLoaded: engine.referenceCount(), referencesSkipped: skipped });
           }
           case "sys_util_audit_all": {
             const { systemUtilizationAuditEngine } = await import("../../engines/SystemUtilizationAuditEngine.js");

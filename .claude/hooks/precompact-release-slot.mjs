@@ -55,6 +55,18 @@ function readStdinSync() {
 
 function emit(o) { process.stdout.write(JSON.stringify(o)); }
 
+/**
+ * Build the PreCompact verdict for the VERBOSE confirmation path. PreCompact
+ * has NO `hookSpecificOutput` contract (that shape is valid only for
+ * PreToolUse/UserPromptSubmit/PostToolUse/PostToolBatch/Stop), so a note must
+ * ride the top-level `systemMessage` field -- the earlier hookSpecificOutput
+ * shape was rejected by the harness, silently dropping the slot-release
+ * warning. Sibling fix: precompact-memo-emit U-PRECOMPACT-MEMO-CONTRACT. Pure.
+ */
+export function buildVerboseVerdict(note) {
+  return { continue: true, systemMessage: note };
+}
+
 export function stableIdFromSession(sid) {
   if (!sid || typeof sid !== "string") return null;
   const hex = sid.replace(/[^0-9a-f]/gi, "").toLowerCase().slice(0, STABLE_ID_HEX_LEN);
@@ -87,10 +99,7 @@ export function releaseSlot(chatId) {
     const note = result.ok
       ? `🔓 PreCompact slot release${slot ? ` — slot ${slot} freed for fleet` : ""}; terminal-pin will re-claim on SessionStart:compact`
       : `⚠ PreCompact slot release failed (${result.reason}) — slot remains claimed`;
-    emit({
-      continue: true,
-      hookSpecificOutput: { hookEventName: "PreCompact", additionalContext: note },
-    });
+    emit(buildVerboseVerdict(note));
     return;
   }
 

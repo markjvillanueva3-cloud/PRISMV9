@@ -1,0 +1,58 @@
+{
+  "id": "TK-MS5",
+  "title": "Auto-Wiring Enforcement + Index Refresh",
+  "track": "TK",
+  "status": "complete",
+  "completed_at": "2026-04-14",
+  "total_units": 3,
+  "completed_units": 3,
+  "units": [
+    {
+      "id": "TK-MS5-U26",
+      "title": "tribal-consumer-gate.mjs enforcement hook",
+      "status": "complete",
+      "files_created": [
+        ".claude/helpers/tribal-consumer-gate.mjs"
+      ],
+      "files_modified": [
+        ".claude/settings.json"
+      ],
+      "details": "PreToolUse hook checks for tribal posture declaration (consumer|producer|none) in engine files. 30-day soft gate (warning), then hard block after 2026-05-14."
+    },
+    {
+      "id": "TK-MS5-U27",
+      "title": "Index refresh + skill updates",
+      "status": "complete",
+      "files_modified": [
+        "data/MASTER_INDEX.json",
+        "data/docs/DISPATCHER_DIGEST.md",
+        "data/docs/ENGINE_DIGEST.md",
+        "data/roadmap-index.json",
+        ".claude/skills/tribal-knowledge-guide/SKILL.md"
+      ],
+      "details": "Regenerated MASTER_INDEX.json (83 dispatchers, 4478 actions, 1590 engines). Fixed tribal-knowledge-guide skill to use correct action names (tribal_capture, tribal_search, tribal_suggest, tribal_stats, tribal_recategorize). Updated LEARN-MS0 status to partial. Updated knowledgeDispatcher count from 98 to 160."
+    },
+    {
+      "id": "TK-MS5-U28",
+      "title": "Security hardening",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/TribalKnowledgeEngine.ts",
+        "src/schemas/knowledgeActionSchemas.ts"
+      ],
+      "security_fixes": [
+        "Path validation for PRISM_TRIBAL_TIPS_PATH and PRISM_KNOWLEDGE_DIR",
+        "Body/content max length (10,000 chars) in tribal_capture schema",
+        "TOCTOU race elimination: replaced existsSync with try/catch ENOENT",
+        "Replaced writeFileSync with safeWriteSync in notifySVITribalChange",
+        "Filename sanitization regex in loadDocumentLearnedTips"
+      ],
+      "tests": "53 tribal tests passing"
+    }
+  ],
+  "exit_gate": {
+    "enforcement_hook_active": true,
+    "indexes_current": true,
+    "security_findings_open": 0
+  }
+}

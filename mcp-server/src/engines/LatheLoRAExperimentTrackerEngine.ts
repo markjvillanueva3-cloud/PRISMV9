@@ -249,7 +249,7 @@ class LatheLoRAExperimentTrackerEngine {
   getExperiments(filter?: { status?: ExperimentStatus; tag?: string }): Experiment[] {
     let list = Array.from(this.experiments.values());
     if (filter?.status) list = list.filter(e => e.status === filter.status);
-    if (filter?.tag) list = list.filter(e => e.tags.includes(filter.tag));
+    if (filter?.tag) { const tag = filter.tag; list = list.filter(e => e.tags.includes(tag)); }
     return list;
   }
 

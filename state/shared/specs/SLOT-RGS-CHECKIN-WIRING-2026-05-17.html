@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="47485549718b78d689ec565dad7398dc90f7a251432ec27bfe918ab1a164a615">
+<title>SLOT-QUEUE → RGS → /checkin- WIRING (2026-05-17, iter-6)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">SLOT-QUEUE → RGS → /checkin- WIRING (2026-05-17, iter-6)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:21.013Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#slot-queue-rgs-checkin-wiring-2026-05-17-iter-6">SLOT-QUEUE → RGS → /checkin- WIRING (2026-05-17, iter-6)</a></li>
+<li class="toc-l2"><a href="#0-the-wiring-now-live">§0 — The wiring (now live)</a></li>
+<li class="toc-l2"><a href="#1-end-to-end-operator-flow-the-contract">§1 — End-to-end operator flow (the contract)</a></li>
+<li class="toc-l2"><a href="#2-wrapper-inheritance-proof">§2 — Wrapper inheritance proof</a></li>
+<li class="toc-l2"><a href="#3-rgs-per-queue-pipeline-plan-sequenced-from-juliett-rgs-v2-decision">§3 — RGS-per-queue pipeline plan (sequenced, from JULIETT-RGS-V2-DECISION)</a></li>
+<li class="toc-l2"><a href="#4-pre-flight-gate-before-trusting-rgs-plans-in-the-loop">§4 — Pre-flight gate (before trusting RGS plans in the loop)</a></li>
+<li class="toc-l2"><a href="#5-operator-commands-now-live">§5 — Operator commands now live</a></li>
+<li class="toc-l2"><a href="#6-files-changed-this-commit">§6 — Files changed this commit</a></li>
+<li class="toc-l2"><a href="#7-references">§7 — References</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="slot-queue-rgs-checkin-wiring-2026-05-17-iter-6"><a class="anchor" href="#slot-queue-rgs-checkin-wiring-2026-05-17-iter-6" aria-label="Permalink to SLOT-QUEUE → RGS → /checkin- WIRING (2026-05-17, iter-6)">#</a>SLOT-QUEUE → RGS → /checkin-&lt;nato&gt; WIRING (2026-05-17, iter-6)</h1>
+<blockquote>
+<p>User directive: &quot;plan for running each chat queue through rgs and make sure we wire each chat slot road map to the corresponding /checkin-natoname&quot;. SHIPPED this commit — 2 surgical edits to canonical <code>checkin.md</code> Step 12. All 13 <code>/checkin-&lt;nato&gt;</code> wrappers inherit via delegation (no per-wrapper edit; the wrappers explicitly say &quot;pipeline body is canonical in /checkin — do NOT duplicate&quot;).</p>
+</blockquote>
+<hr>
+<h2 id="0-the-wiring-now-live"><a class="anchor" href="#0-the-wiring-now-live" aria-label="Permalink to §0 — The wiring (now live)">#</a>§0 — The wiring (now live)</h2>
+<p><code>checkin.md</code> Step 12 (Autonomous Loop) received 2 edits:</p>
+<p><strong>Edit 1 — Engagement gate.</strong> Added a 3rd auto-engage trigger: bare <code>/checkin-&lt;nato&gt;</code> (empty args) AND <code>slot-queue.mjs --remaining --slot $SLOT &gt; 0</code> → enter the loop, <code>--target</code> = remaining count, the slot&#39;s queue IS its <code>/goal</code>. Empty queue → stops at §Report (unchanged). <code>--no-loop</code> still always wins.</p>
+<p><strong>Edit 2 — Pick source priority.</strong> Step 12 pick now prefers (first non-empty wins):</p>
+<ol>
+<li><code>slot-queue.mjs --pick --slot $SLOT --json</code> (curated head + long_tail; auto-filters shipped/peer-claimed/dep-blocked)</li>
+<li>§6b lane slice (if <code>--roadmap</code>)</li>
+<li><code>/pick-unit --slot $SLOT --chatId</code> fleet-wide fallback (only when curated queue exhausts)</li>
+<li><code>phase2_revenue</code> only after <code>slot-queue.mjs --status</code> shows 0 eligible fleet-wide (SLOT-AUTO-LOOP-MS0 §7)</li>
+</ol>
+<p><strong>Edit 2b — RGS plan fetch (new step 1-RGS).</strong> After pick: <code>prism_dev:roadmap_tool_plan_query { unit_key }</code> → pipeline/skills/tools. Pre-flight caveat baked in: RGS degraded (648/648 empty <code>tools:[]</code>) until F1 + U-RGS-RULE-BACKEND-DEV ship; until the gate clears, build from spec+summary, don&#39;t block (R12: note &quot;RGS plan empty&quot; in tick).</p>
+<hr>
+<h2 id="1-end-to-end-operator-flow-the-contract"><a class="anchor" href="#1-end-to-end-operator-flow-the-contract" aria-label="Permalink to §1 — End-to-end operator flow (the contract)">#</a>§1 — End-to-end operator flow (the contract)</h2>
+<pre><code>operator types:  /checkin-alpha          (bare, no args)
+                       │
+   wrapper:  force-claim alpha slot + bind handoff topic alpha-work
+                       │  (delegates to canonical /checkin — wrapper is thin)
+   /checkin Step 2b:  reap + read loop-state (RESUMING? )
+   /checkin Step 12 Engagement:
+       args empty?  ✓
+       slot-queue.mjs --remaining --slot alpha  → 30  (&gt;0)  ✓
+       → ENGAGE LOOP, target=30, goal=&quot;ship all 30 alpha queue units&quot;
+                       │
+   per-iter:
+     1.  slot-queue.mjs --pick --slot alpha --json   → next eligible unit
+     1a. slot-task-claim.mjs claim  (peer-race guard)
+     1-RGS. prism_dev:roadmap_tool_plan_query        → tool plan (or spec-only if degraded)
+     2.  Karpathy R10 (done/verified/left)
+     3.  build (per-file scrutiny if multi-file)
+     4.  auto-fix 3×
+     5.  commit  [SCOPE]/U-ID  (post-commit hook auto-releases claim)
+     6.  loop-state tick + heartbeat
+     7.  Karpathy R12 (surface uncertainty)
+                       │
+   stop:  slot-queue.mjs --remaining → 0  →  loop-state end --reason done
+          → Step 14 end-of-session (scrutiny → 3-of-3 → close-out → doc-reflect → commit → precompact → /handoff)
+</code></pre>
+<p>Typing <code>/checkin-alpha</code> alone is now sufficient to make alpha autonomously work its 30-unit roadmap to completion. Same for all 13 slots.</p>
+<hr>
+<h2 id="2-wrapper-inheritance-proof"><a class="anchor" href="#2-wrapper-inheritance-proof" aria-label="Permalink to §2 — Wrapper inheritance proof">#</a>§2 — Wrapper inheritance proof</h2>
+<p>The 13 <code>checkin-&lt;nato&gt;.md</code> files are thin: each force-claims its slot then says <em>&quot;execute the FULL /checkin pipeline … The pipeline body is canonical in /checkin — do NOT duplicate it here.&quot;</em> Therefore editing <code>checkin.md</code> Step 12 propagates to ALL 13 wrappers with zero per-wrapper edits. This is the DRY-correct wiring and avoids 13-file peer-contention churn (CLAUDE.md was peer-claimed by 2 chats this session — touching 13 wrappers would have collided).</p>
+<p>Wrappers NOT generated by <code>scripts/generate-per-slot-wrappers.mjs</code> (that only does precompact/handoff/startup × 13). <code>checkin-&lt;nato&gt;.md</code> are hand-maintained but structurally uniform — all delegate to canonical. No regeneration needed.</p>
+<hr>
+<h2 id="3-rgs-per-queue-pipeline-plan-sequenced-from-juliett-rgs-v2-decision"><a class="anchor" href="#3-rgs-per-queue-pipeline-plan-sequenced-from-juliett-rgs-v2-decision" aria-label="Permalink to §3 — RGS-per-queue pipeline plan (sequenced, from JULIETT-RGS-V2-DECISION)">#</a>§3 — RGS-per-queue pipeline plan (sequenced, from JULIETT-RGS-V2-DECISION)</h2>
+<p>Running each queue THROUGH RGS requires the pre-flight gate cleared first (RGS is structurally broken today — R5 finding: 0/104 units have usable plans). Sequenced 5-day plan (operator chose V1-incremental implicitly by asking to wire it):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Day</th><th>Unit</th><th>Effect on the wiring above</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>F1 graph-cap fix (any slot, 15min) + U-RGS-RULE-BACKEND-DEV (lima, 1h)</td><td>step 1-RGS starts returning non-empty <code>tools[]</code> for backend-dev units</td></tr>
+<tr><td>2</td><td>U-UNIT-SPEC-GENERATOR (juliett)</td><td><code>next.spec</code> resolves to real per-unit specs instead of <code>pending-generator</code> (currently only 5/40 hand-written)</td></tr>
+<tr><td>3</td><td>U-RGS-NEXT-INTEGRATE (lima, S9)</td><td>RGS plan gains <code>prerequisites[]</code> + auto-build-on-stale wired into the pick step</td></tr>
+<tr><td>4</td><td>synthesize → U-RGS-V2-REVAMPED spec (juliett)</td><td>adds slot_hint + budget + context_pre_fetch fields</td></tr>
+<tr><td>5</td><td>U-RGS-V2-REVAMPED (lima)</td><td>step 1-RGS returns slot-aware, token-budgeted, context-prefetched plans (~60% token reduction)</td></tr>
+</tbody>
+</table></div>
+<p>Until day-1 ships, the wiring DEGRADES GRACEFULLY: queue pick works (slot-queue.mjs is independent of RGS), RGS plan is empty, chat builds from unit spec + summary. The loop is NOT blocked — this is the R12-compliant fallback baked into Edit 2b.</p>
+<hr>
+<h2 id="4-pre-flight-gate-before-trusting-rgs-plans-in-the-loop"><a class="anchor" href="#4-pre-flight-gate-before-trusting-rgs-plans-in-the-loop" aria-label="Permalink to §4 — Pre-flight gate (before trusting RGS plans in the loop)">#</a>§4 — Pre-flight gate (before trusting RGS plans in the loop)</h2>
+<pre><code class="language-bash"># 1. Fix the silent 200MB cap (F1)
+PRISM_GRAPH_MAX_BYTES=536870912   # or edit master-index-search-lib.mjs:142,306
+
+# 2. Ship lima&#39;s U-RGS-RULE-BACKEND-DEV (spec: state/shared/specs/UNITS/U-RGS-RULE-BACKEND-DEV.md)
+
+# 3. Re-run the planner + verify
+node H:/prism/scripts/rgs-tool-planner.mjs --force
+node -e &quot;const j=require(&#39;H:/prism/state/shared/roadmap-tool-plans.json&#39;);const p=Object.values(j.plans).find(x=&gt;x.tools&amp;&amp;x.tools.length&amp;&amp;x.confidence&gt;=0.75);console.log(p?&#39;GATE PASS&#39;:&#39;GATE FAIL — still empty tools[]&#39;)&quot;
+</code></pre>
+<p>When <code>GATE PASS</code>: the loop&#39;s step 1-RGS plans become load-bearing. Until then: spec-only builds (documented, not silent).</p>
+<hr>
+<h2 id="5-operator-commands-now-live"><a class="anchor" href="#5-operator-commands-now-live" aria-label="Permalink to §5 — Operator commands now live">#</a>§5 — Operator commands now live</h2>
+<pre><code class="language-bash">/checkin-alpha          # bare → auto-loops alpha&#39;s 30-unit queue to completion
+/checkin-bravo          # bare → auto-loops bravo&#39;s 16-unit queue
+/checkin-lima /loop     # explicit keyword also works (unchanged)
+/checkin-mike --no-loop  # off-switch still wins even with non-empty queue
+
+node H:/prism/scripts/slot-queue.mjs --status                 # fleet queue health
+node H:/prism/scripts/slot-queue.mjs --pick --slot alpha       # manual peek
+node H:/prism/scripts/slot-queue.mjs --remaining --slot alpha  # 0 = queue drained
+</code></pre>
+<hr>
+<h2 id="6-files-changed-this-commit"><a class="anchor" href="#6-files-changed-this-commit" aria-label="Permalink to §6 — Files changed this commit">#</a>§6 — Files changed this commit</h2>
+<ul>
+<li><code>.claude/commands/checkin.md</code> — 2 edits (Step 12 Engagement + Pick) → 13 wrappers inherit</li>
+<li><code>state/shared/specs/SLOT-RGS-CHECKIN-WIRING-2026-05-17.md</code> — this spec</li>
+</ul>
+<p>SLOT-AUTO-LOOP-MS0.md §5 (&quot;Wrapper edits NOT shipped&quot;) is now SUPERSEDED by this commit — wiring went into canonical /checkin instead of per-wrapper, which is strictly better (DRY + peer-contention-safe).</p>
+<hr>
+<h2 id="7-references"><a class="anchor" href="#7-references" aria-label="Permalink to §7 — References">#</a>§7 — References</h2>
+<ul>
+<li><code>state/shared/specs/SLOT-AUTO-LOOP-MS0.md</code> (queue + CLI; §5 superseded here)</li>
+<li><code>state/shared/specs/JULIETT-RGS-V2-DECISION-2026-05-17.md</code> (RGS pre-flight + 5-day plan)</li>
+<li><code>state/shared/slot-task-queues.json</code> (104 phase-1 + 395 REVENUE phase-2)</li>
+<li><code>scripts/slot-queue.mjs</code> (--pick/--list/--status/--remaining)</li>
+<li><code>.claude/commands/checkin.md</code> Step 12 (canonical autonomous loop — now slot-queue + RGS wired)</li>
+<li>Memory: [[reference_checkin_autonomous_loop_2026_05_16]] · [[reference_checkin_loop_fullstack_2026_05_16]]</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="SLOT-RGS-CHECKIN-WIRING-2026-05-17.md">SLOT-RGS-CHECKIN-WIRING-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

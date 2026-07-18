@@ -71,6 +71,19 @@ describe("Sinker EDM Print-to-Program E2E (JM Die scenarios)", () => {
     expect(out.program.gcode_text).toMatch(/D2/i);
   });
 
+  it("EA12D (JM EDM-02): machine identity propagates end-to-end through the P2P pipeline", () => {
+    // U-PP-EA-SINKER-ROUTE -- EA12D was previously unexpressable in SinkerP2PInput.machine_model
+    // (fell back to EA12V). It must now reach the post-engine header as EA12D, not the default.
+    const out = sinkerEDMPrintToProgramEngine.run({
+      features: [D2_DIE_CAVITY],
+      workpiece_material: "d2",
+      workpiece_hardness_HRC: 60,
+      machine_model: "EA12D",
+    });
+    expect(out.program.gcode_text).toContain("MITSUBISHI EA12D");
+    expect(out.program.gcode_text).not.toContain("EA12V"); // did not silently fall back to the default
+  });
+
   it("D2 cavity: classifies as sinker_edm (not wire or micro)", () => {
     const out = sinkerEDMPrintToProgramEngine.run({
       features: [D2_DIE_CAVITY],

@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "auditTimestamp": "2026-04-16T23:00:00Z",
+  "auditor": "Claude-auto-1 (CPP-MS1-U-CPP02)",
+  "scope": {
+    "hooks_top_level": 15,
+    "helpers": 96,
+    "hooks_lib": 3,
+    "total_files_scanned": 114,
+    "syntaxCheckMethod": "node --check"
+  },
+  "summary": {
+    "syntaxErrors": 0,
+    "criticalFindings": 2,
+    "majorFindings": 0,
+    "minorFindings": 21,
+    "allCriticalFixed": true,
+    "notes": "All 114 .mjs files pass node --check after U-CPP01 (SAMPLE_RATE fix) and page-sweep deletion."
+  },
+  "criticalFindings": [
+    {
+      "id": "CPP-CRIT-01",
+      "file": ".claude/helpers/compact-counter.mjs",
+      "line": 24,
+      "kind": "ReferenceError",
+      "severity": "CRITICAL",
+      "description": "SAMPLE_RATE used at line 24 but declared nowhere. Hook crashed on every PostToolUse once count crossed a threshold, leaving a zombie process behind.",
+      "status": "FIXED",
+      "fixedIn": "U-CPP01",
+      "fix": "Added `const SAMPLE_RATE = 10;` at top of file matching header comment 'samples every 10th call'.",
+      "validation": "10 fires across threshold boundaries, all exited 0; >100 && %25==0 reminder path confirmed."
+    },
+    {
+      "id": "CPP-CRIT-02",
+      "file": ".claude/helpers/page-sweep.mjs",
+      "line": 14,
+      "kind": "CorruptedFile",
+      "severity": "CRITICAL",
+      "description": "TypeScript declaration binary output pasted mid-function. `node --check` fails. File was untracked in git and unreferenced in settings.json.",
+      "status": "FIXED",
+      "fixedIn": "U-CPP01",
+      "fix": "Deleted the file. Scratch/debug artifact, safe to remove.",
+      "validation": "No references in settings.json; git confirms untracked status pre-delete."
+    }
+  ],
+  "emptyCatchInventory": [
+    {"file": ".claude/hooks/node-process-janitor.mjs", "line": 48, "context": "mkdirSync(STAMP_DIR, {recursive:true})", "disposition": "accepted-idiomatic", "reason": "mkdir recursive-safe; real FS failure handled by outer try"},
+    {"file": ".claude/hooks/node-process-janitor.mjs", "line": 49, "context": "writeFileSync stamp", "disposition": "accepted-idiomatic", "reason": "stamp write best-effort; throttle still works via mtime"},
+    {"file": ".claude/hooks/node-process-janitor.mjs", "line": 53, "context": "readFileSync(0) stdin drain", "disposition": "accepted-idiomatic", "reason": "stdin may not be a pipe; draining is defensive"},
+    {"file": ".claude/hooks/node-process-janitor.mjs", "line": 88, "context": "Stop-Process per-pid (PowerShell)", "disposition": "accepted-idiomatic", "reason": "inner per-pid loop must continue on failure; outer catch at line 90 covers structural failures"},
+    {"file": ".claude/hooks/node-process-janitor.mjs", "line": 90, "context": "outer PS script", "disposition": "accepted-idiomatic", "reason": "best-effort cleanup; process always exits 0"},
+    {"file": ".claude/hooks/node-process-janitor.mjs", "line": 104, "context": "unlink temp PS file", "disposition": "accepted-idiomatic", "reason": "tmpdir cleanup best-effort; OS GC cleans tmp"},
+    {"file": ".claude/hooks/lib/build-guard-hook.mjs", "line": 21, "context": "JSON.parse readFileSync", "disposition": "accepted-idiomatic", "reason": "default tracker={} if file missing"},
+    {"file": ".claude/hooks/lib/agent-spawn-guard-hook.mjs", "line": 18, "context": "JSON.parse readFileSync", "disposition": "accepted-idiomatic", "reason": "default tracker={} if file missing"},
+    {"file": ".claude/hooks/lib/token-economy-hook.mjs", "line": 38, "context": "JSON.parse readFileSync", "disposition": "accepted-idiomatic", "reason": "default state={} if file missing"},
+    {"file": ".claude/helpers/night-mode.mjs", "line": 131, "context": "fs.unlink autopilotFile", "disposition": "accepted-idiomatic", "reason": "unlink best-effort; file may already be absent"},
+    {"file": ".claude/helpers/cross-session-work-aware.mjs", "line": 34, "context": "fs.mkdir recursive", "disposition": "accepted-idiomatic", "reason": "mkdir recursive-safe; directory may pre-exist", "u_cpp03_target": true},
+    {"file": ".claude/helpers/context-aware-inject.mjs", "line": 30, "context": "JSON.parse readFileSync fallback", "disposition": "accepted-idiomatic", "reason": "default to empty state if context file missing"},
+    {"file": ".claude/helpers/knowledge-augmented-reasoning.mjs", "line": 209, "context": "tip filter inner", "disposition": "accepted-idiomatic", "reason": "function returns null fallback on outer failure"},
+    {"file": ".claude/helpers/mcp-posttool-tracker.mjs", "line": 67, "context": "readJSON inner", "disposition": "accepted-idiomatic", "reason": "tracker defaults to empty if file unreadable"},
+    {"file": ".claude/helpers/mcp-posttool-tracker.mjs", "line": 76, "context": "writeFile outer", "disposition": "accepted-idiomatic", "reason": "telemetry best-effort"},
+    {"file": ".claude/helpers/context-economy-v2.mjs", "line": 52, "context": "fs.mkdir CACHE_DIR recursive", "disposition": "accepted-idiomatic", "reason": "mkdir recursive-safe; directory may pre-exist", "u_cpp03_target": true},
+    {"file": ".claude/helpers/regen-digests.mjs", "line": 518, "context": "readdir claudeHooks count", "disposition": "accepted-idiomatic", "reason": "default 0 if dir missing"},
+    {"file": ".claude/helpers/regen-digests.mjs", "line": 522, "context": "readdir claudeSkills count", "disposition": "accepted-idiomatic", "reason": "default 0 if dir missing"},
+    {"file": ".claude/helpers/regen-digests.mjs", "line": 526, "context": "readdir claudeCommands count", "disposition": "accepted-idiomatic", "reason": "default 0 if dir missing"},
+    {"file": ".claude/helpers/node-orphan-cleaner.mjs", "line": 102, "context": "outer throttle+execFile", "disposition": "accepted-idiomatic", "reason": "best-effort cleanup; process always exits"},
+    {"file": ".claude/helpers/node-orphan-cleaner.mjs", "line": 119, "context": "inner per-process", "disposition": "accepted-idiomatic", "reason": "continue on per-pid failure"}
+  ],
+  "unwiredDiscoveries": [
+    {
+      "file": ".claude/helpers/node-orphan-cleaner.mjs",
+      "note": "Pre-existing orphan cleaner with 90s throttle + CPU threshold logic. Not referenced in settings.json. Our new node-process-janitor.mjs (wired) is a simpler age-gated complement. Both can coexist; orphan-cleaner is richer for manual/scheduled invocation.",
+      "recommendation": "Consider wiring as a SessionStart hook if janitor alone proves insufficient under 6-terminal load."
+    }
+  ],
+  "verdict": {
+    "cpp_ms1_u_cpp01": "COMPLETE — 2/2 critical findings fixed",
+    "cpp_ms1_u_cpp02": "COMPLETE — 114 files scanned, 0 syntax errors, 21 catches classified all accepted-idiomatic",
+    "gateToNextUnit": "PASS — proceed to U-CPP03 (document 2 catches in cross-session-work-aware.mjs:34 + context-economy-v2.mjs:52)"
+  }
+}

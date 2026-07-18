@@ -104,6 +104,31 @@ export const MACHINE_SETUP_ACTION_SCHEMAS: ActionSchemaMap = {
     target_roughness_ra: optPosNum,
     ...machineBaseParams,
   }).passthrough(),
+  // Curvature-source wiring: sample analytical surface geometry -> real per-point kappa2 -> optimizer.
+  stepover_optimize_from_surface: z.object({
+    surface: z.object({
+      type: z.enum(["plane", "cylinder", "cone", "sphere", "torus"]).describe("Analytical surface type"),
+      origin: z.object({ x: z.number(), y: z.number(), z: z.number() }).describe("Surface origin point (mm)"),
+      axis: z.object({ x: z.number(), y: z.number(), z: z.number() }).describe("Surface axis/normal vector"),
+      radius_mm: z.number().positive().optional().describe("Primary radius (cylinder/sphere/torus major)"),
+      radius2_mm: z.number().positive().optional().describe("Secondary radius (torus minor / cone base)"),
+      half_angle_deg: z.number().optional().describe("Cone half-angle in degrees"),
+    }).describe("CutterContactEngine SurfaceDefinition to sample curvature from"),
+    cutter: z.object({
+      type: z.enum(["ball", "flat", "bull_nose", "barrel"]).describe("Cutter type"),
+      diameter_mm: z.number().positive().describe("Cutter diameter (mm)"),
+      corner_radius_mm: z.number().positive().optional().describe("Bull-nose corner radius (mm)"),
+      barrel_radius_mm: z.number().positive().optional().describe("Barrel sweeping radius (mm)"),
+    }).describe("Stepover cutter geometry"),
+    target_scallop_mm: z.number().positive().describe("Target scallop (cusp) height in mm"),
+    sample_uv: z.array(z.object({ u: z.number(), v: z.number() })).min(1).describe("(u,v) parameter locations to sample on the surface"),
+    cross_feed_curvature: z.enum(["kappa1", "kappa2"]).optional().describe("Which principal curvature is cross-feed (default kappa2). Note: for a cylinder kappa2=0 (axial) so the default gives a flat stepover -- pass kappa1 for the circumferential curvature"),
+    max_stepover_pct: z.number().positive().optional().describe("Max stepover as percent of cutter diameter"),
+    min_stepover_mm: z.number().positive().optional().describe("Minimum stepover (mm)"),
+    max_force_n: z.number().positive().optional().describe("Max cutting force constraint (N)"),
+    kc_n_per_mm2: z.number().positive().optional().describe("Specific cutting-force coefficient (N/mm^2)"),
+    ap_mm: z.number().positive().optional().describe("Axial depth of cut for force limit (mm)"),
+  }).passthrough(),
   statistical_process_calculate: simpleCalc,
   // Hobby CNC
   hobby_cnc_get: z.object({ machine_id: z.string() }).passthrough(),

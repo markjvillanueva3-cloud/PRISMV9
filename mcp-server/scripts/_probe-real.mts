@@ -1,0 +1,11 @@
+import { createReadStream } from "node:fs";
+import { createInterface } from "node:readline";
+import { resolve } from "node:path";
+import { partsLibraryEngine, isStructuralPartLibraryOther } from "../mcp-server/src/engines/PartsLibraryEngine.js";
+const INV = resolve("state/shared/databases/jm-file-inventory.jsonl");
+const recs:any[]=[];
+await new Promise<void>((res,rej)=>{const rl=createInterface({input:createReadStream(INV,"utf8"),crlfDelay:Infinity});rl.on("line",l=>{const t=l.trim();if(!t)return;let r;try{r=JSON.parse(t)}catch{return}if(r&&isStructuralPartLibraryOther(r))recs.push(r)});rl.on("close",()=>res());rl.on("error",rej)});
+const out = partsLibraryEngine.seedFromJMCorpus(recs);
+console.log("RESULT parts_created="+out.parts_created+" revisions_added="+out.revisions_added);
+console.log("carried-rev(new-part) hits="+((globalThis as any).__carriedHits||0));
+console.log("existing-part-rev hits="+((globalThis as any).__existRevHits||0));

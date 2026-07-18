@@ -168,6 +168,19 @@ const ENTITY_CONFIGS: Record<string, EntityConfig> = {
     hasUpdatedAt: true,
     knownColumns: ["id", "job_id", "employee_id", "employee_name", "operation", "machine_id", "start_time", "end_time", "elapsed_min", "quantity_completed", "scrap_count", "status", "notes", "process_type", "pause_periods", "good_parts", "scrap_reason", "improvement_note", "takt_time_sec", "quality_project_id", "created_at", "updated_at"],
   },
+  timecard_audit: {
+    tableName: "timecard_audit",
+    primaryKey: "id",
+    hasUpdatedAt: false,
+    knownColumns: ["id", "timestamp", "employee_id", "entity_type", "entity_id", "action", "from_status", "to_status", "job_id", "detail", "created_at"],
+  },
+  a3_reports: {
+    tableName: "a3_reports",
+    primaryKey: "id",
+    jsonColumns: ["countermeasures"],
+    hasUpdatedAt: true,
+    knownColumns: ["id", "title", "problem_statement", "background", "current_condition", "target_condition", "root_cause", "countermeasures", "status", "owner_employee_id", "job_id", "created_at", "updated_at"],
+  },
   invoices: {
     tableName: "invoices",
     primaryKey: "id",

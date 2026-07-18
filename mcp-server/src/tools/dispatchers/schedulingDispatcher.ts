@@ -13,19 +13,20 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_SCHEDULING_SCHEMAS } from "../../schemas/schedulingActionSchemas.js";
 
-let _scheduling: any, _bottleneck: any, _oee: any;
+let _scheduling: any, _bottleneck: any, _oee: any, _queueLeadTime: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "scheduling": return _scheduling ??= (await import("../../engines/SchedulingEngine.js")).schedulingEngine;
     case "bottleneck": return _bottleneck ??= (await import("../../engines/BottleneckIdentificationEngine.js")).bottleneckIdentificationEngine;
     case "oee": return _oee ??= (await import("../../engines/OEECalculatorEngine.js")).oeeCalculatorEngine;
+    case "queueLeadTime": return _queueLeadTime ??= (await import("../../engines/QueueingLeadTimeEngine.js")).queueingLeadTimeEngine;
     default: throw new Error(`Unknown scheduling engine: ${name}`);
   }
 }
 
 const ACTIONS = [
   "job_schedule", "machine_assign", "capacity_plan", "priority_queue",
-  "bottleneck_find", "lead_time_estimate", "due_date_track", "resource_balance",
+  "bottleneck_find", "lead_time_estimate", "queue_lead_time", "due_date_track", "resource_balance",
 ] as const;
 
 /** Registers scheduling dispatcher.
@@ -125,6 +126,17 @@ Params vary by action — pass relevant fields in params object.`,
               lead_time_days: Math.round(total_lead_min / 480 * 10) / 10, // 8hr day
               operations_count: operations.length,
             };
+            break;
+          }
+          case "queue_lead_time": {
+            // Invention E7 — honest lead time via Kingman VUT (vs the naive
+            // process×queue_factor of lead_time_estimate). See wiki
+            // [[prism-invention-queueing-leadtime-spec]].
+            const engine = await getEngine("queueLeadTime");
+            result = engine.predict({
+              workstations: params.workstations || [],
+              jobRouting: params.jobRouting || params.job_routing || [],
+            });
             break;
           }
           case "due_date_track": {

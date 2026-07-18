@@ -1,0 +1,126 @@
+# Test cases for CADQUERY_CODEGEN_PROMPT
+# Each test verifies the LLM produces valid CadQuery code from a natural language description.
+
+- vars:
+    input: "Make a box 50mm x 30mm x 10mm with a hole of diameter 8mm through the top"
+  assert:
+    - type: contains
+      value: "import cadquery as cq"
+    - type: contains
+      value: "result"
+    - type: icontains
+      value: "extrude"
+    - type: icontains
+      value: "hole"
+    - type: javascript
+      value: "!output.includes('show_object') && !output.includes('show(') && !output.includes('display(')"
+    - type: not-contains
+      value: "```"
+
+- vars:
+    input: "Create a cylinder with radius 25mm and height 40mm"
+  assert:
+    - type: contains
+      value: "import cadquery as cq"
+    - type: contains
+      value: "result"
+    - type: icontains
+      value: "circle"
+    - type: icontains
+      value: "extrude"
+    - type: not-contains
+      value: "```"
+
+- vars:
+    input: "Spur gear with module 2, 20 teeth, and 10mm face width"
+  assert:
+    - type: contains
+      value: "import cadquery as cq"
+    - type: contains
+      value: "result"
+    - type: icontains
+      value: "cq_gears"
+    - type: icontains
+      value: "SpurGear"
+    - type: javascript
+      value: "output.includes('20') && (output.includes('module') || output.includes('2'))"
+    - type: not-contains
+      value: "```"
+
+- vars:
+    input: "Make a flanged cylinder: base flange 40mm diameter, 5mm thick, then a 20mm diameter cylinder 30mm tall on top, with a 6mm through hole"
+  assert:
+    - type: contains
+      value: "import cadquery as cq"
+    - type: contains
+      value: "result"
+    - type: icontains
+      value: "circle"
+    - type: icontains
+      value: "extrude"
+    - type: icontains
+      value: "hole"
+    - type: javascript
+      value: "!output.includes('show_object')"
+    - type: not-contains
+      value: "```"
+
+- vars:
+    input: "L-bracket: 40x60mm base plate 5mm thick, with a 10mm wide vertical wall 30mm tall rising from the center, all edges filleted at 3mm radius"
+  assert:
+    - type: contains
+      value: "import cadquery as cq"
+    - type: contains
+      value: "result"
+    - type: icontains
+      value: "rect"
+    - type: icontains
+      value: "extrude"
+    - type: icontains
+      value: "fillet"
+    - type: not-contains
+      value: "```"
+
+- vars:
+    input: "Bevel gear with module 3, 25 teeth, cone angle 45 degrees, face width 15mm"
+  assert:
+    - type: contains
+      value: "import cadquery as cq"
+    - type: contains
+      value: "result"
+    - type: icontains
+      value: "cq_gears"
+    - type: icontains
+      value: "BevelGear"
+    - type: not-contains
+      value: "```"
+
+- vars:
+    input: "A simple washer: outer diameter 20mm, inner diameter 10mm, thickness 2mm"
+  assert:
+    - type: contains
+      value: "import cadquery as cq"
+    - type: contains
+      value: "result"
+    - type: icontains
+      value: "circle"
+    - type: javascript
+      value: "output.includes('cut') || output.includes('hole') || (output.includes('circle(10') || output.includes('circle(5'))"
+    - type: not-contains
+      value: "```"
+
+- vars:
+    input: "Rectangular tube: 50mm x 30mm outer, 3mm wall thickness, 100mm long"
+  assert:
+    - type: contains
+      value: "import cadquery as cq"
+    - type: contains
+      value: "result"
+    - type: icontains
+      value: "rect"
+    - type: icontains
+      value: "extrude"
+    - type: javascript
+      value: "output.includes('shell') || output.includes('cut') || output.includes('rect')"
+    - type: not-contains
+      value: "```"

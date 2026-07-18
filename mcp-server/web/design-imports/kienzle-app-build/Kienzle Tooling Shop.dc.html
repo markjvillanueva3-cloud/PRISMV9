@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select { -webkit-appearance: none; appearance: none; font-family: 'Archivo', sans-serif; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">🛒</span>SHOP</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">{{ t.title }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · {{ t.subtitle }}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:0 12px;height:38px;border:1px solid rgba(255,255,255,0.1);border-radius:9px;font-size:12.5px;color:#C7CCD4;">📍
+          <select value="{{ loc }}" onChange="{{ setLoc }}" style="background:transparent;border:none;color:#C7CCD4;font-size:12.5px;padding-right:20px;outline:none;"><option value="il">St. Charles, IL</option><option value="tx">Dallas, TX</option><option value="natl">National only</option></select>
+        </div>
+        <div style="display:inline-flex;background:#16181D;border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,0.07);">
+          <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3"><button onClick="{{ l.on }}" style="{{ l.style }}">{{ l.label }}</button></sc-for>
+        </div>
+      </div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:380px minmax(0,1fr) 372px;min-height:0;">
+
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 18px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">{{ t.roiHeading }}</div>
+        <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
+          <div onClick="{{ it.on }}" style="{{ it.style }}">
+            <div style="display:flex;align-items:flex-start;gap:11px;">
+              <span style="flex:none;width:34px;height:34px;border-radius:9px;background:{{ it.iconBg }};display:flex;align-items:center;justify-content:center;font-size:15px;">{{ it.icon }}</span>
+              <div style="flex:1;min-width:0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;color:{{ it.nameColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ it.name }}</div><div style="font-size:11px;color:#9398A2;line-height:1.35;margin-top:2px;">{{ it.benefit }}</div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;">${{ it.price }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:#36D399;">{{ t.payback }} {{ it.payback }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+
+      <section class="kz-scroll" style="overflow-y:auto;min-width:0;padding:20px 24px 44px;background:radial-gradient(900px 480px at 70% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:13px;"><span style="flex:none;width:44px;height:44px;border-radius:11px;background:rgba(255,90,43,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">{{ d.icon }}</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">{{ d.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;">{{ d.sku }}</div></div></div>
+          <span style="flex:none;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#FF7A4D;">${{ d.price }}</span>
+        </div>
+        <div style="font-size:13px;color:#AEB4BE;line-height:1.5;margin-bottom:16px;max-width:680px;">{{ d.detail }}</div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF5A2B;margin-bottom:10px;">{{ t.roiMath }}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:16px;">
+          <sc-for list="{{ roiCards }}" as="c" hint-placeholder-count="4"><div style="background:#0E0F12;border:1px solid {{ c.border }};border-radius:12px;padding:12px 13px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">{{ c.k }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:17px;color:{{ c.color }};margin-top:4px;">{{ c.v }}</div></div></sc-for>
+        </div>
+
+        <div style="background:linear-gradient(90deg,rgba(54,211,153,0.05),transparent);border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px 16px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">{{ t.beforeAfter }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ d.tieIn }}</span></div>
+          <sc-for list="{{ baRows }}" as="r" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);">
+              <span style="font-size:12px;color:#9398A2;">{{ r.k }}</span>
+              <span style="display:flex;align-items:center;gap:9px;"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6B7280;text-decoration:line-through;">{{ r.before }}</span><span style="color:#FF7A4D;">→</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#36D399;">{{ r.after }}</span></span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(255,90,43,0.06),#0E0F12);border:1px solid rgba(255,90,43,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:9px;">◆ {{ t.kienzleSees }}</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.55;">{{ d.insight }}</div>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;color:#FF5A2B;">{{ t.distributors }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ locLabel }}</span></div>
+        <sc-for list="{{ distributors }}" as="ds" hint-placeholder-count="4">
+          <div style="background:#0E0F12;border:1px solid {{ ds.border }};border-radius:13px;padding:13px 15px;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+              <div style="display:flex;align-items:center;gap:8px;min-width:0;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ ds.name }}</span><span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;color:{{ ds.tagColor }};padding:2px 7px;border:1px solid {{ ds.tagColor }};border-radius:5px;">{{ ds.tag }}</span></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="font-size:11px;color:#9398A2;">{{ t.price }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F3F4F6;">${{ ds.price }}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="font-size:11px;color:#9398A2;">{{ t.stock }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ ds.stockColor }};">{{ ds.stock }}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0 10px;"><span style="font-size:11px;color:#9398A2;">{{ t.lead }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;">{{ ds.lead }}</span></div>
+            <button onClick="{{ ds.buy }}" style="{{ ds.btnStyle }}">{{ ds.btnLabel }}</button>
+          </div>
+        </sc-for>
+        <div style="margin-top:6px;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:11px;color:#9398A2;">{{ t.cart }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;color:#F3F4F6;margin-top:2px;">{{ cartCount }} · ${{ cartTotal }}</div></div>
+          <button style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:9px;padding:10px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">{{ t.checkout }} →</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'en', loc: 'il', sel: 'alcrn', cart: [], scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  T = {
+    title: { en: 'Tooling Shop', es: 'Tienda de Herramientas', pl: 'Sklep Narzędziowy' },
+    subtitle: { en: 'ROI UPGRADES · DISTRIBUTOR ROUTING', es: 'MEJORAS ROI · ENVÍO POR DISTRIBUIDOR', pl: 'ULEPSZENIA ROI · TRASA DYSTRYBUTORA' },
+    roiHeading: { en: 'ROI-RANKED SUGGESTIONS', es: 'SUGERENCIAS POR ROI', pl: 'SUGESTIE WEDŁUG ROI' },
+    payback: { en: 'payback', es: 'retorno', pl: 'zwrot' },
+    roiMath: { en: 'ROI MATH', es: 'CÁLCULO ROI', pl: 'OBLICZENIA ROI' },
+    beforeAfter: { en: 'Before → after', es: 'Antes → después', pl: 'Przed → po' },
+    kienzleSees: { en: 'KIENZLE SEES', es: 'KIENZLE VE', pl: 'KIENZLE WIDZI' },
+    distributors: { en: 'DISTRIBUTORS', es: 'DISTRIBUIDORES', pl: 'DYSTRYBUTORZY' },
+    price: { en: 'Price', es: 'Precio', pl: 'Cena' },
+    stock: { en: 'Stock', es: 'Inventario', pl: 'Zapas' },
+    lead: { en: 'Lead time', es: 'Plazo', pl: 'Czas dostawy' },
+    cart: { en: 'Cart', es: 'Carrito', pl: 'Koszyk' },
+    checkout: { en: 'Checkout', es: 'Pagar', pl: 'Do kasy' },
+    buyLocal: { en: 'Buy · pickup today', es: 'Comprar · recoger hoy', pl: 'Kup · odbiór dziś' },
+    buyShip: { en: 'Buy · ship', es: 'Comprar · envío', pl: 'Kup · wysyłka' },
+    added: { en: '✓ Added', es: '✓ Añadido', pl: '✓ Dodano' },
+    inStock: { en: 'In stock', es: 'Disponible', pl: 'Dostępny' },
+    low: { en: 'Low', es: 'Bajo', pl: 'Niski' },
+    order: { en: 'Order in', es: 'Pedir', pl: 'Zamów' },
+  };
+  ITEMS = [
+    { id: 'alcrn', icon: '◆', price: 74, payback: '3 wk', iconBg: 'rgba(255,90,43,0.14)',
+      name: { en: 'AlCrN-coated end mills', es: 'Fresas con recubrimiento AlCrN', pl: 'Frezy z powłoką AlCrN' },
+      benefit: { en: '+22% surface speed in tool steel', es: '+22% velocidad en acero de herramienta', pl: '+22% prędkości w stali narzędziowej' },
+      detail: { en: 'Upgrade from TiAlN to AlCrN coating on your ½" 4-flute carbide end mills. Runs hotter and harder — the calculator unlocks 22% more surface speed in D2/A2 without losing tool life.', es: 'Pase de TiAlN a recubrimiento AlCrN en sus fresas de carburo de ½" y 4 filos. Soporta más calor — la calculadora habilita 22% más velocidad en D2/A2 sin perder vida útil.', pl: 'Zmiana z TiAlN na powłokę AlCrN na frezach węglikowych ½" 4-ostrzowych. Wytrzymuje wyższą temperaturę — kalkulator odblokowuje 22% większą prędkość w D2/A2 bez utraty trwałości.' },
+      tieIn: 'SFC · surface speed', roi: { partsSaved: '+22% SFM', cycle: '−18%', life: '=', save: '$6.2k/yr' },
+      ba: [['SFM', '200', '244'], ['Cycle/part', '14.2m', '11.6m'], ['Tool life', '110m', '108m']],
+      insight: { en: 'Your SEMBLEX trilobe job runs D2 all day — this coating pays for itself in 3 weeks on that part alone, then banks ~$6.2k/yr across the die work.', es: 'Su trabajo trilóbulo de SEMBLEX usa D2 todo el día — este recubrimiento se paga en 3 semanas solo en esa pieza, luego ahorra ~$6.2k/año en el trabajo de matrices.', pl: 'Wasze zadanie trójlobowe SEMBLEX pracuje na D2 cały dzień — ta powłoka zwraca się w 3 tygodnie na samej tej części, potem oszczędza ~$6,2k/rok.' } },
+    { id: 'haimer', icon: '⊟', price: 1240, payback: '6 wk', iconBg: 'rgba(127,178,255,0.14)',
+      name: { en: 'HAIMER shrink-fit holders (set)', es: 'Portaherramientas HAIMER (juego)', pl: 'Uchwyty skurczowe HAIMER (zestaw)' },
+      benefit: { en: '+35% tool life, 3µm runout', es: '+35% vida útil, 3µm de excentricidad', pl: '+35% trwałości, bicie 3µm' },
+      detail: { en: 'Replace ER collet chucks with HAIMER shrink-fit. Sub-3µm runout cuts vibration, extends edge life 35%, and steadies your finish on long-stickout work.', es: 'Reemplace los portapinzas ER con HAIMER de ajuste por contracción. Excentricidad bajo 3µm reduce vibración, extiende la vida del filo 35%.', pl: 'Zastąp uchwyty tulejkowe ER uchwytami skurczowymi HAIMER. Bicie poniżej 3µm redukuje wibracje, wydłuża trwałość ostrza o 35%.' },
+      tieIn: 'Tool Crib · runout', roi: { partsSaved: '−40% defl', cycle: '−8%', life: '+35%', save: '$9.4k/yr' },
+      ba: [['Runout', '10µm', '3µm'], ['Tool life', '110m', '149m'], ['Deflection', '2.4th', '1.4th']],
+      insight: { en: 'The size wander you fight on deep pockets is runout. Shrink-fit fixes it at the source and the Tool Crib model already shows the deflection drop.', es: 'La variación de tamaño en cavidades profundas es excentricidad. El ajuste por contracción lo corrige en la fuente.', pl: 'Wahanie wymiaru w głębokich kieszeniach to bicie. Uchwyt skurczowy rozwiązuje to u źródła.' } },
+    { id: 'ceramic', icon: '●', price: 165, payback: '2 wk', iconBg: 'rgba(168,85,247,0.14)',
+      name: { en: 'Ceramic inserts for hardened steel', es: 'Insertos cerámicos para acero templado', pl: 'Płytki ceramiczne do stali hartowanej' },
+      benefit: { en: '2.6× surface speed above 55 HRC', es: '2.6× velocidad sobre 55 HRC', pl: '2,6× prędkości powyżej 55 HRC' },
+      detail: { en: 'For your 58-62 HRC D2 work, ceramic/CBN inserts run 2.6× the surface speed of carbide. Dry, high-RPM hard turning — a different class of throughput.', es: 'Para su trabajo D2 de 58-62 HRC, los insertos cerámicos/CBN corren 2.6× la velocidad del carburo. Torneado duro en seco a altas RPM.', pl: 'Do pracy D2 58-62 HRC płytki ceramiczne/CBN pracują 2,6× szybciej niż węglik. Toczenie na sucho przy wysokich obrotach.' },
+      tieIn: 'SFC · materials', roi: { partsSaved: '2.6× Vc', cycle: '−54%', life: '−', save: '$4.1k/yr' },
+      ba: [['SFM', '200', '520'], ['Cycle/part', '14.2m', '6.5m'], ['Cost/insert', '$58', '$165']],
+      insight: { en: 'Only worth it above 55 HRC — which is exactly your hardened die inserts. Below that, stay on coated carbide.', es: 'Solo vale la pena sobre 55 HRC — justo sus insertos de matriz templados. Por debajo, use carburo recubierto.', pl: 'Opłacalne tylko powyżej 55 HRC — dokładnie wasze hartowane wkładki. Poniżej zostań przy węgliku.' } },
+    { id: 'thru', icon: '◉', price: 4200, payback: '14 wk', iconBg: 'rgba(54,211,153,0.14)',
+      name: { en: 'Through-spindle coolant retrofit', es: 'Refrigerante por husillo (retrofit)', pl: 'Chłodziwo przez wrzeciono (modernizacja)' },
+      benefit: { en: '+30% feed on deep holes/pockets', es: '+30% avance en agujeros profundos', pl: '+30% posuwu w głębokich otworach' },
+      detail: { en: '1000 psi through-spindle coolant for the VF-2. Evacuates chips from deep holes and titanium pockets, lifting safe feed 30% and stopping recutting.', es: 'Refrigerante por husillo de 1000 psi para la VF-2. Evacúa virutas de agujeros profundos, eleva el avance seguro 30%.', pl: 'Chłodziwo przez wrzeciono 1000 psi dla VF-2. Usuwa wióry z głębokich otworów, podnosi bezpieczny posuw o 30%.' },
+      tieIn: 'SFC · coolant', roi: { partsSaved: '+30% feed', cycle: '−22%', life: '+15%', save: '$11k/yr' },
+      ba: [['Deep-hole feed', '7ipm', '9.1ipm'], ['Peck cycles', 'many', 'few'], ['Tool life', '95m', '109m']],
+      insight: { en: 'Biggest ticket here, but the Ti and deep-cavity work it unlocks is exactly where you lose the most time today. The calculator already models the feed gain.', es: 'La inversión más grande, pero el trabajo de Ti y cavidades profundas que habilita es donde más tiempo pierde hoy.', pl: 'Największy wydatek, ale praca z Ti i głębokimi wnękami to dokładnie tam, gdzie tracicie najwięcej czasu.' } },
+  ];
+  DIST = {
+    il: [
+      { id: 'd1', name: 'Productivity Inc — Aurora', dist: 18, local: true, stockN: 2, lead: 'Today (pickup)' },
+      { id: 'd2', name: 'MSC Industrial — Elk Grove', dist: 32, local: true, stockN: 1, lead: '1 day' },
+      { id: 'd3', name: 'Lakeshore Carbide', dist: 0, local: false, stockN: 2, lead: '2 days' },
+      { id: 'd4', name: 'MSC Direct (national)', dist: 0, local: false, stockN: 2, lead: '2 days' },
+    ],
+    tx: [
+      { id: 'd1', name: 'Productivity Inc — Dallas', dist: 12, local: true, stockN: 1, lead: 'Today (pickup)' },
+      { id: 'd2', name: 'MSC Industrial — Irving', dist: 20, local: true, stockN: 2, lead: '1 day' },
+      { id: 'd4', name: 'MSC Direct (national)', dist: 0, local: false, stockN: 2, lead: '2 days' },
+    ],
+    natl: [
+      { id: 'd3', name: 'Lakeshore Carbide', dist: 0, local: false, stockN: 2, lead: '2 days' },
+      { id: 'd4', name: 'MSC Direct (national)', dist: 0, local: false, stockN: 2, lead: '2 days' },
+      { id: 'd5', name: 'Travers Tool', dist: 0, local: false, stockN: 1, lead: '3 days' },
+    ],
+  };
+  tr(o) { return o[this.state.lang] || o.en; }
+  renderVals() {
+    const s = this.state;
+    const T = {}; Object.keys(this.T).forEach(k => T[k] = this.tr(this.T[k]));
+    const langs = [['en', 'EN'], ['es', 'ES'], ['pl', 'PL']].map(([id, label]) => ({ label, on: () => this.setState({ lang: id }), style: `border:none;background:${s.lang === id ? '#FF5A2B' : 'transparent'};color:${s.lang === id ? '#0A0B0D' : '#9398A2'};border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'JetBrains Mono',monospace;` }));
+    let sel = this.ITEMS.find(i => i.id === s.sel) || this.ITEMS[0];
+    const items = this.ITEMS.map(it => { const on = it.id === sel.id; return {
+      on: () => this.setState({ sel: it.id }), icon: it.icon, iconBg: it.iconBg, name: this.tr(it.name), benefit: this.tr(it.benefit), price: it.price.toLocaleString(), payback: it.payback,
+      nameColor: on ? '#FF7A4D' : '#F3F4F6',
+      style: `padding:13px 14px;margin-bottom:8px;border-radius:13px;cursor:pointer;background:${on ? 'rgba(255,90,43,0.08)' : '#0C0D11'};border:1px solid ${on ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.07)'};`,
+    }; });
+    const d = { icon: sel.icon, name: this.tr(sel.name), sku: sel.id.toUpperCase() + '-KZ', price: sel.price.toLocaleString(), detail: this.tr(sel.detail), tieIn: sel.tieIn, insight: this.tr(sel.insight) };
+    const roiCards = [
+      { k: 'GAIN', v: sel.roi.partsSaved, color: '#FF7A4D', border: 'rgba(255,90,43,0.25)' },
+      { k: 'CYCLE', v: sel.roi.cycle, color: '#36D399', border: 'rgba(255,255,255,0.08)' },
+      { k: 'TOOL LIFE', v: sel.roi.life, color: '#C7CCD4', border: 'rgba(255,255,255,0.08)' },
+      { k: 'SAVINGS', v: sel.roi.save, color: '#36D399', border: 'rgba(54,211,153,0.25)' },
+    ];
+    const baRows = sel.ba.map(r => ({ k: r[0], before: r[1], after: r[2] }));
+    // distributors with per-item price variance
+    const locName = { il: 'St. Charles, IL · 50mi', tx: 'Dallas, TX · 50mi', natl: 'National carriers' }[s.loc];
+    const stockMap = { 2: [T.inStock, '#36D399'], 1: [T.low, '#F4B740'], 0: [T.order, '#FF7A4D'] };
+    const dlist = this.DIST[s.loc] || this.DIST.natl;
+    const distributors = dlist.map((ds, i) => { const pr = Math.round(sel.price * (ds.local ? 1.04 : 0.96) + i * 3); const [stk, sc] = stockMap[ds.stockN]; const inCart = s.cart.includes(ds.id + sel.id); return {
+      name: ds.name + (ds.local && ds.dist ? ' · ' + ds.dist + 'mi' : ''), tag: ds.local ? 'LOCAL' : 'NATIONAL', tagColor: ds.local ? '#36D399' : '#7FB2FF',
+      border: i === 0 ? 'rgba(54,211,153,0.25)' : 'rgba(255,255,255,0.08)', price: pr.toLocaleString(), stock: stk, stockColor: sc, lead: ds.lead,
+      buy: () => { if (!inCart) this.setState({ cart: [...s.cart, ds.id + sel.id] }); },
+      btnLabel: inCart ? T.added : (ds.local ? T.buyLocal : T.buyShip),
+      btnStyle: `width:100%;border:1px solid ${inCart ? 'rgba(54,211,153,0.4)' : (ds.local ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.14)')};background:${inCart ? 'rgba(54,211,153,0.1)' : (ds.local ? 'rgba(255,90,43,0.12)' : 'transparent')};color:${inCart ? '#36D399' : (ds.local ? '#FF7A4D' : '#C7CCD4')};border-radius:9px;padding:10px;font-family:'Archivo',sans-serif;font-weight:600;font-size:12.5px;cursor:pointer;`,
+    }; });
+    const cartTotal = s.cart.reduce((a, c) => { const it = this.ITEMS.find(x => c.endsWith(x.id)); return a + (it ? it.price : 0); }, 0);
+    return {
+      scale: s.scale, t: T, langs, loc: s.loc, setLoc: (e) => this.setState({ loc: e.target.value }), locLabel: locName,
+      items, d, roiCards, baRows, distributors, cartCount: s.cart.length, cartTotal: cartTotal.toLocaleString(),
+    };
+  }
+}
+</script>
+</body>
+</html>

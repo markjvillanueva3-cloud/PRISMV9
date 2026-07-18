@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS25",
+  "version": "1.0.0",
+  "title": "PPG-MS25 — Machine Fingerprint Enrichment",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "description": "Closes the machine-fingerprint gap surfaced by R02 scrutiny (score 64). Adds MachineFingerprintEngine carrying physical truth (taper, retention, way type, ballscrew lash, structural FRF, thermal coefficient, kinematic class). Sidecar emits fingerprint SHA. Adds envelope soft-limit predicate (MS14 #11). Adds probe vendor adapter (Renishaw/Blum/Heidenhain/Marposs).",
+  "rationale": "Closes the machine-fingerprint gap surfaced by R02 scrutiny (score 64). Adds MachineFingerprintEngine carrying physical truth (taper, retention, way type, ballscrew lash, structural FRF, thermal coefficient, kinematic class). Sidecar emits fingerprint SHA. Adds envelope soft-limit predicate (MS14 #11). Adds probe vendor adapter (Renishaw/Blum/Heidenhain/Marposs).",
+  "phase": "P1",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM155",
+      "title": "MachineFingerprintEngine + per-machine truth catalog",
+      "scope": "src/engines/MachineFingerprintEngine.ts: taper class (BT40/HSK63A/Capto), pull-stud retention force, way type (LM/box), ballscrew lash + wear class, structural FRF (X/Y/Z + spindle nose), thermal coefficient (μm/°C), warmup time, soft-limit envelope, rotary-axis feed-rate ceiling, kinematic topology enum (TT/HH/HT/mill-turn/Swiss). Per-machine in fleet manifest.",
+      "files_to_modify": [
+        "src/engines/MachineFingerprintEngine.ts",
+        "data/machines/fingerprints.json"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MachineFingerprint.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM156",
+      "title": "Sidecar fingerprint_sha + drift canary on fingerprint change",
+      "scope": "machine_fingerprint_sha in sidecar; drift canary (MS9) rejects when fingerprint changes; alerts maintenance if change unexpected.",
+      "files_to_modify": [
+        "src/schemas/postPhysicsSidecarSchema.ts",
+        "src/engines/PostDriftCanaryEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/FingerprintDrift.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM157",
+      "title": "Envelope soft-limit predicate (PreEmit #11)",
+      "scope": "Per-axis travel + rotary singularity check; gates emit on out-of-envelope. Multus sub-spindle handoff (MS15) uses this.",
+      "files_to_modify": [
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/EnvelopePredicate.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM158",
+      "title": "Probe vendor adapter (Renishaw/Blum/Heidenhain/Marposs)",
+      "scope": "src/engines/ProbeVendorAdapterEngine.ts; per-vendor M-codes, strobe sequences, calibration cycles. Generic 'probe emit' (PPG-MS13/U-PPGM83) routes through this.",
+      "files_to_modify": [
+        "src/engines/ProbeVendorAdapterEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ProbeVendorAdapter.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM159",
+      "title": "Per-machine thermal growth model + warmup curve",
+      "scope": "Hurco welded-frame, Okuma cast-iron, Roku-Roku polymer-concrete: distinct thermal coefficients + warmup curves. MS11 closed loop attributes thermal vs material drift correctly.",
+      "files_to_modify": [
+        "src/engines/MachineThermalGrowthEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MachineThermalGrowth.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "MachineFingerprintEngine carries 11 physical-truth fields per machine",
+    "fingerprint_sha in sidecar; drift detection triggers maintenance alert",
+    "Envelope soft-limit predicate blocks out-of-travel emit",
+    "Probe vendor adapter handles ≥4 vendors; integration test on Renishaw OMP60",
+    "Per-machine thermal growth model distinguishes Hurco/Okuma/Roku-Roku"
+  ],
+  "depends_on": [
+    "PPG-MS0",
+    "PPG-MS4",
+    "PPG-MS14"
+  ],
+  "blocks": [
+    "PPG-MS11",
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "Machine Fingerprint — mount on existing MachineFingerprintEngine + machine_fingerprint dispatcher (already wired)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

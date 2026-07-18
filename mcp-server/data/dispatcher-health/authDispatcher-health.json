@@ -1,0 +1,115 @@
+{
+  "dispatcherName": "authDispatcher",
+  "dispatcherFile": "H:\\PRISM\\mcp-server\\src\\tools\\dispatchers\\authDispatcher.ts",
+  "timestamp": "2026-04-19T03:19:03.777Z",
+  "totalActions": 8,
+  "healthyActions": 0,
+  "coverage": {
+    "caseCoverage": 1,
+    "schemaCoverage": 0,
+    "testCoverage": 0.125,
+    "skillCoverage": 0.25,
+    "smokeTestCoverage": 0
+  },
+  "actions": [
+    {
+      "action": "login",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": true,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "register",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": true,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "refresh_token",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": true,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "change_password",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "role_assign",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "permission_check",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "session_manage",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "mfa_setup",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    }
+  ],
+  "gaps": {
+    "missingCases": [],
+    "missingSchemas": [
+      "login",
+      "register",
+      "refresh_token",
+      "change_password",
+      "role_assign",
+      "permission_check",
+      "session_manage",
+      "mfa_setup"
+    ],
+    "missingTests": [
+      "login",
+      "register",
+      "change_password",
+      "role_assign",
+      "permission_check",
+      "session_manage",
+      "mfa_setup"
+    ],
+    "missingSkills": [
+      "refresh_token",
+      "change_password",
+      "role_assign",
+      "permission_check",
+      "session_manage",
+      "mfa_setup"
+    ],
+    "smokeTestFailures": []
+  },
+  "recommendations": [
+    "Add schemas for: login, register, refresh_token, change_password, role_assign (+3 more)",
+    "Test coverage 13% is below 50% threshold"
+  ]
+}

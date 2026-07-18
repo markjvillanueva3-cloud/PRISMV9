@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `extract-dark-content` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/extract-dark-content.md` |
+| Source | `C:/Users/wompu/.claude/commands/extract-dark-content.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Find and extract unprocessed content on H: drive:
-- Programs not in extraction log
-- PDFs not learned
-- Videos not watched
-- Manuals not ingested
+
+# /extract-dark-content — Dark Content Discovery
 
 <!-- AUTO-END -->
 

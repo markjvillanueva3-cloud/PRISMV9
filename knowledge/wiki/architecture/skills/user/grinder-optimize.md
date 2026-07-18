@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `grinder-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/grinder-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/grinder-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Optimize grinding programs for cycle time, wheel life, or surface quality.
+
+# /grinder-optimize — Grinding Program Optimization
 
 <!-- AUTO-END -->
 

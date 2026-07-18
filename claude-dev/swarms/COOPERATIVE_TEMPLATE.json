@@ -1,0 +1,98 @@
+{
+  "template_id": "SWARM-COOPERATIVE-001",
+  "pattern": "COOPERATIVE_LEARNING",
+  "description": "Agents share discoveries and build on each other's work iteratively. Best for exploration, knowledge building, and research tasks.",
+  "version": "1.0.0",
+  "created": "2025-02-04",
+  
+  "when_to_use": [
+    "Research and exploration tasks",
+    "Knowledge base building",
+    "Iterative refinement with shared learning",
+    "Best practices discovery"
+  ],
+  
+  "config": {
+    "min_agents": 2,
+    "max_agents": 6,
+    "timeout_ms": 90000,
+    "max_iterations": 5,
+    "convergence_threshold": 0.85,
+    "sharing_frequency": "after_each_iteration"
+  },
+  
+  "agent_selection": {
+    "strategy": "complementary_skills",
+    "same_tier_preferred": true,
+    "diverse_approaches": true
+  },
+  
+  "input_schema": {
+    "type": "object",
+    "required": ["exploration_goal", "knowledge_seed"],
+    "properties": {
+      "exploration_goal": {"type": "string"},
+      "knowledge_seed": {"type": "object"},
+      "sharing_protocol": {
+        "type": "object",
+        "properties": {
+          "share_findings": {"type": "boolean"},
+          "share_failures": {"type": "boolean"},
+          "share_hypotheses": {"type": "boolean"}
+        }
+      },
+      "convergence_metric": {"type": "string"}
+    }
+  },
+  
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "iterations": {
+        "type": "array",
+        "items": {
+          "iteration": {"type": "number"},
+          "agent_discoveries": {"type": "array"},
+          "shared_knowledge": {"type": "object"},
+          "convergence_score": {"type": "number"}
+        }
+      },
+      "final_knowledge": {
+        "discoveries": {"type": "array"},
+        "best_practices": {"type": "array"},
+        "failed_approaches": {"type": "array"},
+        "open_questions": {"type": "array"}
+      },
+      "convergence_achieved": {"type": "boolean"},
+      "total_iterations": {"type": "number"}
+    }
+  },
+  
+  "mcp_tool": "prism:swarm_execute",
+  "mcp_pattern_param": "collaboration",
+  
+  "example_usage": {
+    "name": "discover_optimal_toolpaths",
+    "input": {
+      "exploration_goal": "Find optimal toolpath strategies for thin-wall machining",
+      "knowledge_seed": {
+        "known_strategies": ["zigzag", "spiral", "trochoidal"],
+        "constraints": ["deflection < 0.05mm", "no chatter"]
+      },
+      "sharing_protocol": {
+        "share_findings": true,
+        "share_failures": true,
+        "share_hypotheses": true
+      },
+      "convergence_metric": "strategy_agreement"
+    }
+  },
+  
+  "hooks_triggered": ["RL-001", "RL-002", "BAYES-002", "LEARNING-SHARE-001"],
+  
+  "performance_notes": {
+    "optimal_agents": "3-4 agents",
+    "early_stopping": "Stop if convergence > 0.85 for 2 consecutive iterations",
+    "knowledge_pruning": "Discard low-confidence discoveries after iteration 3"
+  }
+}

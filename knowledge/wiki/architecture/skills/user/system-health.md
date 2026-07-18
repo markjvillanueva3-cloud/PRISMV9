@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `system-health` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/system-health.md` |
+| Source | `C:/Users/wompu/.claude/commands/system-health.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Get a comprehensive health summary of all PRISM indexes and orphan status.
+
+# /system-health — Comprehensive System Health Check
 
 <!-- AUTO-END -->
 

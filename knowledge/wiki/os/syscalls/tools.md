@@ -68,7 +68,7 @@ the fused catalog.
 ## Related
 
 - [[manifest]] — sister; manifest is counts-only, tools is full catalog
-- [[command-schema]] — the schema downstream skill entries follow
+- [[_command-schema]] — the schema downstream skill entries follow
 - [[pick]] — uses tools' skill list to suggest /forge candidates
 
 ## See also

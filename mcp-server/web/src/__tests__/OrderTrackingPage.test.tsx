@@ -292,7 +292,7 @@ describe('OrderTrackingPage', () => {
     expect(messagesUrl.searchParams.get('focusJobId')).toBeNull();
   });
 
-  it('keeps the PRISM AI copilot built into the order desk and auto-briefs live order context', async () => {
+  it('keeps the Kienzle AI copilot built into the order desk and auto-briefs live order context', async () => {
     mockOrderList.mockResolvedValue({
       result: {
         orders: [
@@ -338,7 +338,7 @@ describe('OrderTrackingPage', () => {
       expect(screen.getByRole('heading', { name: 'Order Tracking' })).toBeDefined();
       expect(screen.getByText('JOB-001')).toBeDefined();
     });
-    await waitFor(() => expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined());
+    await waitFor(() => expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined());
     await waitFor(() => expect(screen.getByText(/Autonomous desk brief on/i)).toBeDefined());
     expect(screen.getByRole('button', { name: /Refresh AI brief/i })).toBeDefined();
     await waitFor(() => expect(screen.getByText(/Review queue bottlenecks before changing the active work order\./i)).toBeDefined());

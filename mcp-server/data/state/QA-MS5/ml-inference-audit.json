@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS5-P0-U04",
+  "title": "Neural Network / ML Inference Engines",
+  "audited_at": "2026-04-12T20:05:00.000Z",
+  "auditor": "claude-opus-4.5",
+  "algorithms_reviewed": [
+    "NeuralInference.ts",
+    "DecisionTreeClassifier.ts",
+    "EnsemblePredictorModel.ts",
+    "RegressionEngine.ts",
+    "ClusteringEngine.ts"
+  ],
+  "neural_inference_audit": {
+    "file": "src/algorithms/NeuralInference.ts",
+    "type": "Feedforward MLP",
+    "reference": "Rumelhart et al. (1986)",
+    "architecture_verification": {
+      "layer_configuration": "Configurable via layer_sizes array",
+      "input_validation": "layer_sizes[0] must match feature count",
+      "weight_count_validation": "Σ(n[i-1] × n[i]) validated",
+      "bias_count_validation": "Σ(n[i]) validated",
+      "lines": "82-106"
+    },
+    "activation_functions": {
+      "relu": {
+        "formula": "max(0, x)",
+        "line": 126,
+        "verified": true
+      },
+      "sigmoid": {
+        "formula": "1/(1+exp(-x))",
+        "line": 127,
+        "clipping": "[-500, 500]",
+        "verified": true
+      },
+      "tanh": {
+        "formula": "Math.tanh(x)",
+        "line": 128,
+        "verified": true
+      },
+      "linear": {
+        "formula": "x",
+        "line": 129,
+        "verified": true
+      }
+    },
+    "forward_pass": {
+      "implementation": "Layer-by-layer matrix multiplication + bias",
+      "lines": "141-168",
+      "weight_indexing": "Correct offset tracking",
+      "verified": true
+    },
+    "input_normalization": {
+      "implemented_in_model": false,
+      "note": "User responsible for normalization before inference",
+      "recommendation": "Document normalization requirements in model metadata"
+    },
+    "output_denormalization": {
+      "implemented_in_model": false,
+      "note": "Raw network output returned"
+    },
+    "confidence_estimation": {
+      "sigmoid_output": "Distance from 0.5 × 2",
+      "multi_class": "Softmax-like max probability",
+      "lines": "171-182"
+    }
+  },
+  "decision_tree_audit": {
+    "file": "src/algorithms/DecisionTreeClassifier.ts",
+    "type": "CART algorithm",
+    "reference": "Breiman et al. (1984)",
+    "split_criteria": {
+      "gini": "Gini impurity",
+      "entropy": "Information gain",
+      "default": "gini",
+      "line": 95
+    },
+    "parameters": {
+      "max_depth": {
+        "default": 10,
+        "configurable": true
+      },
+      "min_samples_split": {
+        "default": 2,
+        "configurable": true
+      }
+    },
+    "outputs": {
+      "predictions": "Class labels",
+      "probabilities": "Class probabilities",
+      "feature_importance": "Split-based importance"
+    }
+  },
+  "ensemble_predictor_audit": {
+    "file": "src/algorithms/EnsemblePredictorModel.ts",
+    "methods": [
+      "bagging",
+      "boosting",
+      "stacking"
+    ],
+    "base_models": "Configurable",
+    "aggregation": "Weighted voting / averaging"
+  },
+  "regression_engine_audit": {
+    "file": "src/algorithms/RegressionEngine.ts",
+    "methods": [
+      "Linear regression (OLS)",
+      "Ridge regression (L2)",
+      "Polynomial regression"
+    ],
+    "coefficient_calculation": "Normal equations or gradient descent"
+  },
+  "weight_loading_verification": {
+    "format": "Flat array (weights concatenated layer-by-layer)",
+    "validation": "Count matches topology",
+    "no_external_file_loading": "Weights passed as input parameter",
+    "verified": true
+  },
+  "manufacturing_applications": {
+    "neural_inference": [
+      "Surface roughness prediction",
+      "Tool wear classification",
+      "Power consumption estimation"
+    ],
+    "decision_tree": [
+      "Defect classification",
+      "Material selection",
+      "Process outcome prediction"
+    ]
+  },
+  "exit_conditions_met": {
+    "architecture_verified": true,
+    "weight_loading_verified": true,
+    "normalization_noted": true
+  },
+  "audit_result": "PASS",
+  "safety_score": 0.92,
+  "notes": [
+    "Neural network forward pass correctly implemented",
+    "4 activation functions supported (ReLU, sigmoid, tanh, linear)",
+    "Weight/bias count validation prevents topology mismatch",
+    "Decision tree implements CART with Gini/entropy",
+    "Input normalization is user responsibility (not in model)"
+  ]
+}

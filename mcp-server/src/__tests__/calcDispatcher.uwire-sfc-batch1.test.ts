@@ -4,9 +4,14 @@
  *
  * ENGINE-WIRE-MS0 / U-WIRE-SFC-BATCH1 — verifies 3 surface-finish-calculator
  * leaf engines reach the dispatcher surface:
- *   - sfcCompareEngine          → sfc_compare
- *   - sfcOptimizeEngine         → sfc_optimize
- *   - gilbertEconomicSpeedEngine → gilbert_economic_speed
+ *   - sfcCompareEngine          → surface_finish_compare
+ *   - sfcOptimizeEngine         → sfc_optimize_run
+ *   - gilbertEconomicSpeedEngine → gilbert_econ_speed_compute
+ *
+ * (U-OSC-SFC-WIRE-RECONCILE 2026-07-03: reconciled from the stale planned names
+ *  sfc_compare / sfc_optimize / gilbert_economic_speed to the SHIPPED action names above;
+ *  and de-stubbed sfc_optimize_run in calcDispatcher.ts — SFCOptimizeEngine.optimize is static,
+ *  so the old instance call returned {note:"method not callable"}.)
  *
  * Coverage:
  *   - 3 happy-path round-trips (one per engine)
@@ -74,7 +79,7 @@ beforeEach(() => {
 
 describe("U-WIRE-SFC-BATCH1 — happy paths", () => {
   it("sfc_compare returns SPC stats for measurements vs spec", async () => {
-    const r = await call(server, "sfc_compare", {
+    const r = await call(server, "surface_finish_compare", {
       measurements: [
         { ra: 0.8, rz: 4.2 },
         { ra: 0.85, rz: 4.5 },
@@ -94,7 +99,7 @@ describe("U-WIRE-SFC-BATCH1 — happy paths", () => {
   });
 
   it("sfc_optimize returns balanced parameters for steel turning", async () => {
-    const r = await call(server, "sfc_optimize", {
+    const r = await call(server, "sfc_optimize_run", {
       targetRa: 1.6,
       toleranceRa: 0.4,
       operation: "turning",
@@ -113,7 +118,7 @@ describe("U-WIRE-SFC-BATCH1 — happy paths", () => {
   });
 
   it("gilbert_economic_speed returns Vc_min_cost and Vc_min_time obeying Gilbert ordering", async () => {
-    const r = await call(server, "gilbert_economic_speed", {
+    const r = await call(server, "gilbert_econ_speed_compute", {
       K_T: 200,
       n: 0.25,
       machining_cost_per_sec_usd: 0.02,
@@ -142,7 +147,7 @@ describe("U-WIRE-SFC-BATCH1 — variability across operations", () => {
     ["milling", "aluminum", 0.8],
     ["grinding", "stainless", 0.4],
   ])("sfc_optimize for %s on %s targeting Ra=%s", async (operation, material, targetRa) => {
-    const r = await call(server, "sfc_optimize", {
+    const r = await call(server, "sfc_optimize_run", {
       operation,
       material,
       targetRa,
@@ -162,7 +167,7 @@ describe("U-WIRE-SFC-BATCH1 — variability across operations", () => {
 
 describe("U-WIRE-SFC-BATCH1 — schema rejections", () => {
   it("sfc_compare rejects empty measurements array", async () => {
-    const r = await call(server, "sfc_compare", {
+    const r = await call(server, "surface_finish_compare", {
       measurements: [],
       specification: { targetRa: 0.8, toleranceRa: 0.2 },
     });
@@ -170,7 +175,7 @@ describe("U-WIRE-SFC-BATCH1 — schema rejections", () => {
   });
 
   it("sfc_optimize rejects targetRa outside [0.025, 50]", async () => {
-    const r = await call(server, "sfc_optimize", {
+    const r = await call(server, "sfc_optimize_run", {
       targetRa: 100,
       toleranceRa: 0.1,
       operation: "turning",
@@ -180,7 +185,7 @@ describe("U-WIRE-SFC-BATCH1 — schema rejections", () => {
   });
 
   it("gilbert_economic_speed rejects missing K_T", async () => {
-    const r = await call(server, "gilbert_economic_speed", {
+    const r = await call(server, "gilbert_econ_speed_compute", {
       n: 0.25,
       machining_cost_per_sec_usd: 0.02,
       tool_change_time_sec: 60,
@@ -194,9 +199,9 @@ describe("U-WIRE-SFC-BATCH1 — schema rejections", () => {
 
 describe("U-WIRE-SFC-BATCH1 — adversarial inputs", () => {
   it("gilbert_economic_speed rejects n at non-physical boundary (n>=1)", async () => {
-    const r = await call(server, "gilbert_economic_speed", {
+    const r = await call(server, "gilbert_econ_speed_compute", {
       K_T: 200,
-      n: 0.7, // outside schema bound (max 0.6)
+      n: 1.0, // n >= 1 is non-physical (Taylor: tool life would RISE with speed); engine requires 0 < n < 1 (GilbertEconomicSpeedEngine.ts:98)
       machining_cost_per_sec_usd: 0.02,
       tool_change_time_sec: 60,
       tool_cost_per_edge_usd: 5,
@@ -205,7 +210,7 @@ describe("U-WIRE-SFC-BATCH1 — adversarial inputs", () => {
   });
 
   it("sfc_compare handles measurements with wide variance without crashing", async () => {
-    const r = await call(server, "sfc_compare", {
+    const r = await call(server, "surface_finish_compare", {
       measurements: [
         { ra: 0.1 }, { ra: 1.0 }, { ra: 5.0 }, { ra: 10.0 }, { ra: 0.5 },
       ],
@@ -223,17 +228,17 @@ describe("U-WIRE-SFC-BATCH1 — adversarial inputs", () => {
 describe("U-WIRE-SFC-BATCH1 — regression guards", () => {
   it("all 3 SFC actions are reachable from the dispatcher", async () => {
     // Call each action with minimum-valid params; we only require ok=true.
-    const compare = await call(server, "sfc_compare", {
+    const compare = await call(server, "surface_finish_compare", {
       measurements: [{ ra: 0.8 }],
       specification: { targetRa: 0.8, toleranceRa: 0.2 },
     });
-    const optimize = await call(server, "sfc_optimize", {
+    const optimize = await call(server, "sfc_optimize_run", {
       targetRa: 1.6,
       toleranceRa: 0.4,
       operation: "turning",
       material: "steel",
     });
-    const gilbert = await call(server, "gilbert_economic_speed", {
+    const gilbert = await call(server, "gilbert_econ_speed_compute", {
       K_T: 200,
       n: 0.25,
       machining_cost_per_sec_usd: 0.02,
@@ -246,7 +251,7 @@ describe("U-WIRE-SFC-BATCH1 — regression guards", () => {
   });
 
   it("revenue-aware Gilbert returns max-profit fields when revenue supplied", async () => {
-    const r = await call(server, "gilbert_economic_speed", {
+    const r = await call(server, "gilbert_econ_speed_compute", {
       K_T: 200,
       n: 0.25,
       machining_cost_per_sec_usd: 0.02,

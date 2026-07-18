@@ -29,9 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Reads `BUILD_STATE.NEEDS_FRONTEND.trees` and produces a
-port-vs-sandbox-vs-deprecate decision per build, plus the
-version-alignment work needed before merge.
+
+# /frontend-merge-plan — Codex frontend merge planner
 
 <!-- AUTO-END -->
 

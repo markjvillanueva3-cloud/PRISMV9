@@ -52,6 +52,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { readGraphStreaming } from "./graph-io.mjs";
 
 export const DEFAULT_MAX_STALENESS_MS = 24 * 60 * 60 * 1000; // 24h
 export const DEFAULT_TRUNCATION_BOOST = 0.5;
@@ -194,11 +195,8 @@ export function selectTopNForRewalk(ranked, n = DEFAULT_TOP_N) {
  */
 export function loadNamespacesFromGraph(graphPath) {
   if (!graphPath || typeof graphPath !== "string") return [];
-  let raw;
-  try { raw = fs.readFileSync(graphPath, "utf8"); }
-  catch { return []; }
   let g;
-  try { g = JSON.parse(raw); }
+  try { g = readGraphStreaming(graphPath); }  // off-heap: JSON.parse(readFileSync utf8) throws at >512MiB (U-VIZ-READER-CAPSAFE 2026-06-10)
   catch { return []; }
   const cov = g?.meta?.fsCoverage;
   if (!cov || typeof cov !== "object") return [];
@@ -243,7 +241,7 @@ function formatMs(ms) {
 }
 
 // CLI: report current ranking to stdout (read-only, never walks)
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}`) {
+if (import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}` || process.argv[1]?.endsWith("namespace-churn-ranker.mjs")) {
   const args = process.argv.slice(2);
   const graphPath = args.find((a) => !a.startsWith("--")) ||
     path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")), "../../state/shared/system-viz/system-graph.json");

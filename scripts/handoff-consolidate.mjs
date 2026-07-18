@@ -304,6 +304,34 @@ function renderConsolidated(slot, entries, generatedAt, elidedCount = 0) {
  * Atomic write. Fail-soft: if the target is peer-locked / unwritable we DO NOT
  * throw and DO NOT clobber — we report ok:false so the caller logs and moves on.
  */
+// HIGHVALUE-DISCOVERY #11b (2026-06-09, slot:alpha): the atomic write below
+// unlinks its tmp on a CAUGHT failure, but a process KILLED between writeFileSync
+// and renameSync (fleet-reaper / OOM under load on a long consolidate run) leaves
+// the tmp behind — the catch never runs. 6 such orphans (0–29KB, 5–19d old) were
+// found 2026-06-09. Sweep any "<slot>.md.tmp-<pid>-<ts>" older than the threshold
+// so they self-clean on the next consolidate. The threshold is far beyond any
+// in-flight write (<1s), so a concurrent peer's live tmp is never touched.
+const STALE_TMP_MS = Number(process.env.PRISM_CONSOLIDATE_STALE_TMP_MS) || 60 * 60 * 1000; // 1h
+export function sweepStaleTmpOrphans(dir, maxAgeMs = STALE_TMP_MS) {
+  let removed = 0;
+  let files;
+  try { files = readdirSync(dir); } catch { return 0; }
+  const now = Date.now();
+  for (const f of files) {
+    if (!/\.md\.tmp-\d+-\d+$/.test(f)) continue; // only our atomic-write temps
+    const p = join(dir, f);
+    try {
+      // Clamp age at 0: statSync().mtimeMs carries sub-ms FRACTION while
+      // Date.now() is integer ms, so a just-written file can read mtimeMs >
+      // now → a raw `now - mtimeMs` goes slightly NEGATIVE and a maxAge=0
+      // sweep would wrongly skip it. A file cannot have negative age; clamp.
+      const ageMs = Math.max(0, now - statSync(p).mtimeMs);
+      if (ageMs >= maxAgeMs) { unlinkSync(p); removed++; }
+    } catch { /* best-effort — a peer may have just renamed it away */ }
+  }
+  return removed;
+}
+
 export function writeConsolidated(slot, entries, opts = {}) {
   // Reviewer-B P1: write OUTSIDE the HANDOFF-* glob namespace so no mtime-sort
   // fallback in per-agent-handoff.mjs can ever select this as a "handoff".
@@ -315,6 +343,7 @@ export function writeConsolidated(slot, entries, opts = {}) {
   let tmp = null;
   try {
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    sweepStaleTmpOrphans(dir); // #11b: self-clean killed-mid-write tmp orphans
     const payload = renderConsolidated(slot, entries, generatedAt, elidedCount);
     tmp = `${file}.tmp-${process.pid}-${Date.now()}`;
     writeFileSync(tmp, payload, "utf-8");
@@ -369,7 +398,7 @@ function main() {
 }
 
 const isMain = (() => {
-  try { return process.argv[1] && import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}`; }
+  try { return process.argv[1] && import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}` || process.argv[1]?.endsWith("handoff-consolidate.mjs"); }
   catch { return false; }
 })();
 if (isMain || (process.argv[1] && process.argv[1].endsWith("handoff-consolidate.mjs"))) main();

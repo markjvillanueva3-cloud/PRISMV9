@@ -1,0 +1,82 @@
+{
+  "id": "SCI-MS1",
+  "version": "7.0.0",
+  "title": "Adaptive Control Engines - Real-Time Parameter Adaptation",
+  "brief": "Connect sensor data to novel algorithms for real-time adaptive machining. KALP/BOPA/WBRL become live adaptive controllers, not offline planners.",
+  "created_at": "2026-03-07T22:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Adaptive Control Loop",
+      "units": [
+        {
+          "id": "U01",
+          "title": "AdaptiveFeedControlEngine - Real-time feed override from sensor fusion",
+          "description": "Closed-loop feed control: sensor_fused_state (force, temperature) -> PID controller -> feed_override_pct (0-150%). Control law: override = Kp*(F_target - F_actual) + Ki*integral + Kd*derivative. Anti-windup for integral term. Rate limiter: max 10%/segment change to prevent jerky motion. Integrates with TGAR (thermal target), CFSF (force target), VCMR (MRR target). Outputs: feed_override per segment, control error history, stability margin.",
+          "exit_conditions": [
+            "PID feed control",
+            "Anti-windup",
+            "Rate limiting",
+            "Integration with 3 novel algorithms",
+            "Stability analysis"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "AdaptiveSpindleControlEngine - RPM adaptation from vibration feedback",
+          "description": "Spindle speed adaptation using vibration sensor data. Implements: (1) stability lobe following - adjust RPM to stay in stable zone as conditions change, (2) HRAF real-time resonance avoidance - shift RPM when harmonic energy exceeds threshold, (3) chatter suppression - spindle speed variation (SSV) with sinusoidal modulation. Uses FFT of vibration signal to detect chatter frequency, then computes optimal RPM from stability lobe diagram. Max RPM change rate: 500 RPM/sec.",
+          "exit_conditions": [
+            "Stability lobe following",
+            "Real-time HRAF adaptation",
+            "SSV (spindle speed variation)",
+            "Chatter frequency detection via FFT",
+            "RPM rate limiting"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "BayesianAdaptiveEngine - Online model calibration from sensor data",
+          "description": "Extends BOPA algorithm to real-time: as new force measurements arrive, update Bayesian posterior of Kienzle kc11 and mc parameters. Uses conjugate Normal-Inverse-Gamma prior. After N observations (configurable, default 20), switch from prior to posterior for all subsequent novel algorithm computations. Handles: material batch variation, tool wear progression (kc11 increases with wear), workpiece hardness variation. Stores calibrated parameters per job for reuse.",
+          "exit_conditions": [
+            "Online Bayesian kc11/mc update",
+            "Conjugate prior math",
+            "Wear-aware parameter tracking",
+            "Per-job parameter storage",
+            "Convergence test"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "ToolLifeAdaptiveEngine - Weibull-updated tool change decisions",
+          "description": "Extends WBRL to real-time: update Weibull shape/scale parameters as tool wear progresses. Uses: (1) maximum likelihood estimation from observed wear rates, (2) hazard rate h(t) = (beta/eta)*(t/eta)^(beta-1), (3) remaining useful life (RUL) prediction with confidence interval, (4) optimal replacement time minimizing total cost (replacement_cost + scrap_risk_cost). Fires tool-change-recommended hook when reliability drops below threshold.",
+          "exit_conditions": [
+            "Online Weibull parameter update",
+            "RUL prediction with CI",
+            "Cost-optimal replacement time",
+            "Tool-change hook",
+            "Integration with WBRL"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "DigitalTwinSyncEngine - Physics model synchronization",
+          "description": "Synchronize all physics models with real-time sensor data. Maintains: (1) thermal state (workpiece temperature field - simplified 1D/2D), (2) tool wear state (VB, crater depth), (3) surface integrity state (residual stress accumulation), (4) stock state (voxel model updated per cut). All novel algorithms query digital twin state instead of initial conditions. Enables: TGAR reads actual thermal field, PTDC reads actual deflection, RSMP reads actual stress state.",
+          "exit_conditions": [
+            "4 synchronized state models",
+            "Novel algorithms query twin state",
+            "State persistence across operations",
+            "State reset on new job",
+            "Validation against sensor data"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

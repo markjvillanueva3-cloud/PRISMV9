@@ -1,0 +1,326 @@
+{
+  "id": "ARCH-MS3",
+  "title": "Structural Hierarchy — Engine Contract Adoption + Type Consolidation",
+  "track": "ARCH",
+  "status": "not_started",
+  "description": "Adopt BaseEngine/IEngine across critical engine categories. Consolidate inline type definitions into shared src/types/ modules. Clean up dead service code. This is the progressive rollout — not all 1,307 engines at once, but the 50 most-used engines adopt the contract, and new engines are enforced by hook.",
+  "dependencies": [
+    "ARCH-MS0",
+    "ARCH-MS1",
+    "QA-MS0",
+    "SYS-MS2"
+  ],
+  "dependency_notes": "QA-MS0 (baseline) must be re-verified after ARCH changes. SYS-MS2 (test harnesses) — tests may need updating after engine rewiring.",
+  "knowledge_sources": {
+    "engines": [
+      "BaseEngine.ts (from ARCH-MS0)",
+      "IEngine.ts (from ARCH-MS0)",
+      "SpeedFeedOrchestratorEngine.ts (largest, 2851 LOC)",
+      "All 9 pipeline engines"
+    ],
+    "types": [
+      "src/types.ts (shared types)",
+      "src/types/ directory (10 domain type files)"
+    ],
+    "services": [
+      "services/dataLoader.ts (dead code to remove)",
+      "services/index.ts (needs full re-export)",
+      "All services from ARCH-MS0"
+    ],
+    "reference": [
+      "engines/CLAUDE.md (mandates BaseEngine)",
+      "QA-MS0 baseline (BASELINE_INVENTORY.json)",
+      "SYS-MS2 test harnesses"
+    ]
+  },
+  "forge_triple": {
+    "hook": "NOTE: engine-contract-enforcer is BUILT in ARCH-MS4. This milestone USES the pattern but does not build the hook.",
+    "action": "NOTE: prism_system:architecture_health is BUILT in ARCH-MS4 U-ENFO03. No new action from this milestone.",
+    "skill": "NOTE: /arch-health is BUILT in ARCH-MS4 U-ENFO03. No new skill from this milestone."
+  },
+  "forge_triple_note": "ARCH-MS3 is a CONSUMER of ARCH-MS0 artifacts, not a PRODUCER of new forge-triple outputs. All enforcement hooks are built in ARCH-MS4.",
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker",
+      "shadow-data-detector (from ARCH-MS1, enforced manually until MS4 builds hook)"
+    ],
+    "compact_level": [
+      "review-gate",
+      "session-audit"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "ARCH-MS3-S1",
+      "title": "Dead Code Cleanup + Type Consolidation",
+      "smart_config": {
+        "role": "Code Hygiene Specialist",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "35%"
+      },
+      "knowledge": [
+        "services/dataLoader.ts",
+        "src/types.ts",
+        "src/types/ directory",
+        "BASELINE_INVENTORY.json (to verify counts after cleanup)"
+      ],
+      "intent": "No dead code in the service layer. Types are shared, not duplicated across engines. The codebase is clean before we start the adoption wave.",
+      "skills": [
+        "/forge-cleanup",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)",
+        "ESLint MCP (mcp__eslint__lint-files)"
+      ],
+      "units": [
+        {
+          "id": "U-CONT01",
+          "title": "Remove dead service code (dataLoader.ts) + clean services/index.ts",
+          "description": "Delete src/services/dataLoader.ts (dead code, superseded by registries). Update services/index.ts to properly export all real services (MaterialService, MachineService, ToolService, PhysicsConstantsService, ConfigService, UserMachineProfileService, TaskClaimService, RoadmapLoader). Verify no imports reference dataLoader anywhere.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "dataLoader.ts deleted",
+            "Zero imports of dataLoader in codebase (grep returns 0)",
+            "services/index.ts exports all active services",
+            "tsc 0 errors",
+            "Tests pass"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/services/index.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0 (something still imports dataLoader)",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/services/"
+          }
+        },
+        {
+          "id": "U-CONT02",
+          "title": "Consolidate inline engine types into src/types/",
+          "description": "Survey the 6 audit-flagged engines (GenerativeProcessEngine, MachineSelectionEngine, MaterialSelectionEngine, AdvancedCalculations, QuoteEngine, FinancialAnalysisEngine) for inline interface/type definitions. Extract shared types into: src/types/manufacturing.ts (ProcessPlan, MaterialCuttingData), src/types/business.ts (PricingPolicy, QuoteConfig), src/types/physics.ts (StabilityConstants, ThermalConstants). Engines import from these modules.",
+          "depends_on": [
+            "U-CONT01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "3+ new type files in src/types/",
+            "6 engines import shared types instead of defining inline",
+            "No duplicate type names across engine files (grep verified)",
+            "tsc 0 errors",
+            "Tests pass"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/types/manufacturing.ts",
+              "src/types/business.ts",
+              "src/types/physics.ts"
+            ],
+            "files_modified": [
+              "6 engine files"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git stash"
+          }
+        }
+      ],
+      "exit_gate": "✓ Dead code removed | ✓ services/index.ts complete | ✓ Types consolidated | ✓ tsc 0 errors | ✓ Tests pass | omega_floor >= 0.90 | SVI delta: +1%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "ARCH-MS3-S2"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "ARCH-MS3-S2",
+      "title": "BaseEngine Adoption — Pipeline + Physics Engines (Top 20)",
+      "smart_config": {
+        "role": "Refactoring Specialist + Engine Architecture + Physics Domain Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "BaseEngine.ts",
+        "IEngine.ts",
+        "All 9 pipeline engines",
+        "SpeedFeedOrchestratorEngine.ts",
+        "KienzleForceModelEngine.ts",
+        "src/physics/constants.ts"
+      ],
+      "intent": "The 20 most critical engines adopt the BaseEngine contract. They get standardized execute(), validate(), and getCapabilities() methods. This proves the pattern works at scale before broader rollout. Physics outputs remain bit-for-bit identical.",
+      "skills": [
+        "/prism-review",
+        "/test",
+        "/forge-engines",
+        "/trace",
+        "/physics-verify",
+        "/scope",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)",
+        "codebase-memory-mcp (trace_call_path)"
+      ],
+      "units": [
+        {
+          "id": "U-CONT03",
+          "title": "Adopt BaseEngine in 9 pipeline engines",
+          "description": "Each pipeline engine (PrintToProgram, Turning, MultiAxis, MillTurn, EDM, Grinding, Laser, Waterjet, QuoteToShip) extends BaseEngine. Existing methods become the body of execute(). validate() wraps existing Zod validation. getCapabilities() returns metadata. All existing exports and method signatures preserved. REGRESSION: Run each pipeline with a reference input before and after, diff outputs.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "9 pipeline engines extend BaseEngine",
+            "All existing tests pass unchanged",
+            "tsc 0 errors",
+            "Pipeline outputs identical pre/post (snapshot diff for each)",
+            "No existing export signatures changed"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "9 pipeline engine files"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "pipeline output changed vs snapshot",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git stash"
+          }
+        },
+        {
+          "id": "U-CONT04",
+          "title": "Adopt BaseEngine in 11 physics/core engines",
+          "description": "Adopt in: SpeedFeedOrchestratorEngine, KienzleForceModelEngine, ChatterStabilityLobeEngine, ThermalWearCouplingEngine, ToolDeflectionEngine, SurfaceFinishPredictorEngine, ToolLifeEngine, CuttingForceEngine, CuttingTemperatureEngine, StabilityLobeEngine, ToolWearProgressionEngine. Same pattern as U-CONT03. CRITICAL: Run /physics-verify after changes. AtomicValue outputs must be bit-for-bit identical. Machinist-grade: a shop-floor operator running these engines gets the same forces, temperatures, and tool life predictions.",
+          "depends_on": [
+            "U-CONT03"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "11 physics engines extend BaseEngine",
+            "All physics tests pass",
+            "tsc 0 errors",
+            "AtomicValue outputs unchanged (snapshot diff)",
+            "/physics-verify passes",
+            "Machinist-grade: force/temp/life values identical for reference inputs"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "11 physics engine files"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "any AtomicValue output differs",
+              "test failures > 0",
+              "/physics-verify fails"
+            ],
+            "rollback_procedure": "git stash"
+          }
+        }
+      ],
+      "exit_gate": "✓ 20 engines on BaseEngine | ✓ All tests pass | ✓ tsc 0 errors | ✓ Zero output regressions (all snapshot diffs clean) | ✓ /physics-verify passes | ✓ Machinist-grade physics outputs verified | ✓ QA-MS0 baseline counts re-verified | omega_floor >= 0.90 | SVI delta: +3%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "ARCH-MS4"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "arch-ms3-gate"
+    ],
+    "new_actions": [
+      "arch_ms3_run"
+    ],
+    "new_skills": [
+      "/arch-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Adopt BaseEngine/IEngine across critical engine categories. Consolidate inline type definitions into shared src/types/ modules. Clean up dead service code. This is the progressive rollout — not all 1,307 engines at once, but the 50 most-used engines adopt the contract, and new engines are enforced by hook.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-ARCH01",
+      "title": "ARCH-MS3 — Coordinator",
+      "description": "Master coordinator envelope for ARCH-MS3. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

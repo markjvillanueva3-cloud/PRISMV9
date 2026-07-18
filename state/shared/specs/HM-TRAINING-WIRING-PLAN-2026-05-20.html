@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="b99e0a0161e57c280112f69f496fc28757be3fca01ed43acf2927243ebd9082e">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HM Training Wiring Plan 2026-05-20</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>HM Training Wiring Plan 2026-05-20</h1>
+<div class="meta">rendered from state/shared/specs/HM-TRAINING-WIRING-PLAN-2026-05-20.md</div>
+<div class="meta">Generated 2026-05-20T16:11:16.439Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">HM Training Wiring Plan — /forge7 /yolo-mode</li><li class="prism-toc-l2">Unit table (build order = leverage order)</li><li class="prism-toc-l2">Build doctrine (per CLAUDE.md / Boris)</li><li class="prism-toc-l2">Unit details</li><li class="prism-toc-l3">U-HMT-HMACOLOR-EXTRACT (#1 — start here)</li><li class="prism-toc-l3">U-HMT-EMBED-INDEX-WIRE (#2 — biggest lever)</li><li class="prism-toc-l3">U-HMT-HYPERCAD-REEXTRACT (#3)</li><li class="prism-toc-l3">U-HMT-V31-EXTRACT (#4)</li><li class="prism-toc-l3">U-HMT-FUSION-CAD-FIX (#5)</li><li class="prism-toc-l3">U-HMT-GRAPHSAGE-SEED-HM (#6)</li><li class="prism-toc-l3">U-HMT-CONSUMER-MEASURE (#7)</li><li class="prism-toc-l2">Schedule</li></ul></nav><h1 class="prism-h1">HM Training Wiring Plan — /forge7 /yolo-mode</h1>
+<blockquote class="prism-quote">Companion to <code class="prism-inline-code">HM-TRAINING-EXHAUSTION-AUDIT-2026-05-20.md</code>. Plan generated via <code class="prism-inline-code">/forge7</code> (Boris loop+agent discipline, verification feedback hard-gated). <code class="prism-inline-code">/yolo-mode</code> = autonomous build, all units claim-and-go.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote">Baseline measurement: <code class="prism-inline-code">scripts/hm-extraction-coverage.mjs --json</code> (the META artifact). Re-run after each unit lands to confirm baseline shift.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote">Status: <strong>PLAN</strong> — units not yet claimed. Wire to milestone envelope <code class="prism-inline-code">CAD-FUSION-LIVE-MS0</code> (existing) on first claim.</blockquote>
+<h2 class="prism-h2">Unit table (build order = leverage order)</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit ID</th><th>Lane</th><th>Effort</th><th>Leverage</th></tr></thead><tbody><tr><td>1</td><td>U-HMT-HMACOLOR-EXTRACT</td><td>Lane A direct-wire</td><td>1 session</td><td><strong>HIGH</strong> — 36 unprocessed PDFs → est 600-1200 new tips (hmAutoColor workflow recipes are dense). Unblocks F3 + headline-gap.</td></tr>
+<tr><td>2</td><td>U-HMT-EMBED-INDEX-WIRE</td><td>Lane A</td><td>1 session</td><td><strong>CRITICAL</strong> — closes F4. Re-embeds existing 3 544 + new tips. Single biggest fleet-wide AI lift; tribal-by-domain-inject becomes HM-aware in every chat.</td></tr>
+<tr><td>3</td><td>U-HMT-HYPERCAD-REEXTRACT</td><td>Lane C forge-queue</td><td>1 session</td><td><strong>HIGH</strong> — closes F1. CAD AI training source. Replace failing extractor on doc-cad-manual-en-us; investigate why 0-tip (encrypted PDF? bad page-stream? extractor regex too narrow?).</td></tr>
+<tr><td>4</td><td>U-HMT-V31-EXTRACT</td><td>Lane A</td><td>1 session</td><td><strong>MEDIUM</strong> — closes F3. v31.0 hyperMILL + hyperCAD-S manuals as <code class="prism-inline-code"><em>-vol31</em></code> suffix. Older idioms still appear in JM-Die templates.</td></tr>
+<tr><td>5</td><td>U-HMT-FUSION-CAD-FIX</td><td>Lane A</td><td>0.5 session</td><td><strong>MEDIUM</strong> — closes part of F2. doc-fusion-cad zero-tip; investigate+fix.</td></tr>
+<tr><td>6</td><td>U-HMT-GRAPHSAGE-SEED-HM</td><td>NN-GRAPH-MS2 follow-up</td><td>1 session</td><td><strong>HIGH</strong> — closes F7. Ghost-seed GraphSAGE with HM tips as reference pool (≥500). Lifts <code class="prism-inline-code">poolSize</code> 0→≥500 + <code class="prism-inline-code">deferred:false</code>.</td></tr>
+<tr><td>7</td><td>U-HMT-CONSUMER-MEASURE</td><td>Verification</td><td>0.5 session</td><td><strong>MEDIUM</strong> — closes F6. Add measurement-verified load count to each of the 8 consumer engines (HyperMillDeepLearningEngine et al.). Stops the &quot;grep-wired&quot; false-confidence pattern.</td></tr></tbody></table>
+<h2 class="prism-h2">Build doctrine (per CLAUDE.md / Boris)</h2>
+<p>Each unit MUST:</p>
+<ol class="prism-md-list"><li><strong>Pre-flight</strong> — <code class="prism-inline-code">duplicationGuardEngine.mustCheckBeforeCreating()</code> THROW-on-dup check</li><li><strong>Verification channel</strong> declared per-finding in unit envelope (yaml: tool/expected_signal/re_run_cost/baseline)</li><li><strong>Per-file scrutiny</strong> (2 parallel reviewers, every file before next)</li><li><strong>3-of-3 Stop gate</strong> at session close</li><li><strong>CLAUDE.md back-flow</strong> — append to <code class="prism-inline-code">## Recent regressions</code> if any rot found mid-build</li><li><strong>Re-run META</strong> — <code class="prism-inline-code">node scripts/hm-extraction-coverage.mjs --json</code> BEFORE + AFTER to prove the dial moved (the hard-gate verification this audit imposes)</li></ol>
+<h2 class="prism-h2">Unit details</h2>
+<h3 class="prism-h3">U-HMT-HMACOLOR-EXTRACT (#1 — start here)</h3>
+<p><strong>Goal:</strong> extract 36 unprocessed hmAutoColor PDFs into <code class="prism-inline-code">cad-engine/knowledge_store/doc-hmautocolor-*.json</code>.</p>
+<p><strong>Method:</strong> reuse the existing <code class="prism-inline-code">cad-engine/extractor</code> pipeline used for the 47 docs already extracted; batch via <code class="prism-inline-code">node cad-engine/extract.mjs --batch --pattern &quot;Resources/OPEN MIND/hyperMILL/<em>/AddIns/hmAutoColor/</em>*/*.pdf&quot;</code>.</p>
+<p><strong>Acceptance:</strong></p>
+<ul class="prism-md-list"><li>36 new <code class="prism-inline-code">doc-hmautocolor-*.json</code> files in knowledge_store</li><li>combined <code class="prism-inline-code">.tips.length</code> ≥ 600</li><li><code class="prism-inline-code">hm-extraction-coverage.mjs --json</code> reports <code class="prism-inline-code">unprocessed_count ≤ 6</code> (allowing for genuinely tip-poor batch-converter readmes)</li></ul>
+<h3 class="prism-h3">U-HMT-EMBED-INDEX-WIRE (#2 — biggest lever)</h3>
+<p><strong>Goal:</strong> embed all HM tips (3 544 baseline + new from #1) into <code class="prism-inline-code">tribal-embed-index.json</code> so vector recall returns them.</p>
+<p><strong>Method:</strong> existing embed pipeline (<code class="prism-inline-code">scripts/embed-wiki-into-tribal-index.mjs</code> already wires the wiki side, per CLAUDE.md <code class="prism-inline-code">reference_tribal_embed_gap_2026_05_18</code>). Add a sister pass <code class="prism-inline-code">scripts/embed-knowledge-store-into-tribal-index.mjs</code> that walks <code class="prism-inline-code">cad-engine/knowledge_store/doc-*.json</code> and emits <code class="prism-inline-code">{text, embedding, source}</code> per tip.</p>
+<p><strong>Acceptance:</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">embed_index_hm_count</code> ≥ 2 500 (allowing for embed failures + dedup)</li><li>spot-check: <code class="prism-inline-code">tribal-by-domain-inject</code> hook surfaces an HM tip when prompted with a hyperMILL-domain query</li></ul>
+<h3 class="prism-h3">U-HMT-HYPERCAD-REEXTRACT (#3)</h3>
+<p><strong>Goal:</strong> investigate why <code class="prism-inline-code">doc-cad-manual-en-us.json</code> is zero-tip + fix.</p>
+<p><strong>Method:</strong> read the PDF directly, try alternate extractor, inspect for encryption / image-only pages / extractor regex mismatch. If genuinely image-heavy, route to OCR via <code class="prism-inline-code">/pdf-learn</code>.</p>
+<p><strong>Acceptance:</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">doc-cad-manual-en-us.json</code> tip count ≥ 200 (parity with hyperMILL CAM Manual&#39;s 488)</li><li><code class="prism-inline-code">baselines_for_audit.F1_hypercad_zero_tip</code> non-zero</li></ul>
+<h3 class="prism-h3">U-HMT-V31-EXTRACT (#4)</h3>
+<p><strong>Goal:</strong> extract v31.0 hyperMILL + hyperCAD-S + AUTOMATION Center manuals as suffix <code class="prism-inline-code"><em>-vol31</em></code>.</p>
+<p><strong>Method:</strong> same extractor, output to <code class="prism-inline-code">doc-*-vol31.json</code>.</p>
+<p><strong>Acceptance:</strong> 3 new files, combined tips ≥ 500.</p>
+<h3 class="prism-h3">U-HMT-FUSION-CAD-FIX (#5)</h3>
+<p><strong>Goal:</strong> investigate + fix <code class="prism-inline-code">doc-fusion-cad.json</code> zero-tip.</p>
+<h3 class="prism-h3">U-HMT-GRAPHSAGE-SEED-HM (#6)</h3>
+<p><strong>Goal:</strong> seed GraphSAGE GNN reference pool from HM tribal corpus.</p>
+<p><strong>Method:</strong> add HM ghost-seed lane to <code class="prism-inline-code">scripts/seed-ghost-from-unwired.mjs</code> (existing seeder, per CLAUDE.md NN-GRAPH-MS2/U1) — emit one <code class="prism-inline-code">ghost.hm-tribal-tip</code> reference node per tip with <code class="prism-inline-code">confidence ≥ 0.80</code>.</p>
+<p><strong>Acceptance:</strong> <code class="prism-inline-code">state/shared/nn-graph/NN-EVAL.json</code> <code class="prism-inline-code">poolSize ≥ 500</code>, lifecycle can train+evaluate (deploy gate still data-side until heterophily addressed per NN-1).</p>
+<h3 class="prism-h3">U-HMT-CONSUMER-MEASURE (#7)</h3>
+<p><strong>Goal:</strong> add real load-count measurement to each consumer engine.</p>
+<p><strong>Method:</strong> each consumer gains a <code class="prism-inline-code">.knowledgeStats(): {tipsLoaded, sourceFiles, lastRefresh}</code> accessor; one round-trip test per consumer in <code class="prism-inline-code">__tests__/</code> that instantiates the engine + asserts <code class="prism-inline-code">tipsLoaded &gt; 0</code>.</p>
+<p><strong>Acceptance:</strong> ≥3 consumers (HyperMillDeepLearningEngine, HyperMillStrategyKnowledgeEngine, MillingAIUnificationEngine) return <code class="prism-inline-code">tipsLoaded &gt; 0</code>.</p>
+<h2 class="prism-h2">Schedule</h2>
+<p><code class="prism-inline-code">/loop 5m /forge-audit-v2 ...</code> (active per operator directive) means the audit re-runs every 5 minutes while these units land. Each unit ship should drop one of the baseline numbers in the META artifact — the audit&#39;s next pass will catch the dial moving and progressively narrow the finding list.</p>
+<p>Long-term cadence (after units land): the standard <code class="prism-inline-code">/forge-audit-v2 /loop 7d</code> re-run resumes.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

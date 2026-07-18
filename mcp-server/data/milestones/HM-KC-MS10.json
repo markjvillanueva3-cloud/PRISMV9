@@ -1,0 +1,388 @@
+{
+  "id": "HM-KC-MS10",
+  "version": "8.3.0",
+  "title": "CAD Learning Pipeline — Part Upload to Feature Extraction to Replication Training",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Build 5 engines that enable part upload, feature extraction, similarity search, sequence replication, and pattern learning. When a machinist uploads a hyperMILL project (.hmc) or STEP file, PRISM extracts the complete feature sequence (operations, tools, parameters), indexes it for similarity search, and can replicate adapted versions for new parts. Over time, the learning engine aggregates patterns across uploaded parts to build shop-specific CAD/CAM knowledge (tool cascades, strategy preferences, sequence patterns). This is the holy grail: upload a part and program a similar one automatically.",
+  "dependencies": [
+    "HM-KC-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "FeatureRecognitionEngine",
+      "HyperMillCodeGeneratorEngine",
+      "HyperMillStrategyEngine",
+      "PrintToGeometryEngine",
+      "PartSimilaritySearchEngine"
+    ],
+    "registries": [
+      "ToolpathStrategyRegistry",
+      "ToolRegistry",
+      "MaterialRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "hyperMILL .hmc project file format (XML-based)",
+      "cad-engine/ (CadQuery/OpenCascade STEP parsing)",
+      "data/hypermill/HyperMillParameterCatalog.json (for parameter extraction from .hmc)",
+      "hypermill-cam-tips-ext.ts (strategy selection guidance)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "featureSequenceIntegrityValidator — BUILT — validates extracted sequences are complete",
+    "action": "upload_part_for_learning — BUILT — accepts .hmc or STEP and runs learning pipeline",
+    "skill": "/hypermill-part-learn — BUILT — upload part, extract features, find similar, replicate"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS10-S1",
+      "title": "HMC Project Parser + STEP Feature Extractor Engines",
+      "smart_config": {
+        "role": "cad-cam-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "hyperMILL .hmc project file XML structure (jobs, operations, tools, stock, WCS)",
+        "STEP file parsing via CadQuery/OpenCascade in cad-engine/",
+        "FeatureRecognitionEngine patterns (holes, pockets, slots, bosses, freeform)",
+        "FeatureSequenceRecord TypeScript interface"
+      ],
+      "intent": "Build HMCProjectParserEngine that reads .hmc XML project files and extracts complete FeatureSequenceRecords (operations, parameters, tools, stock, WCS). Build STEPFeatureExtractorEngine that parses STEP files via CadQuery, runs feature recognition, and infers manufacturing sequences from geometric analysis.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC51",
+          "title": "HMCProjectParserEngine — XML to FeatureSequenceRecord (~600 LOC)",
+          "description": "Engine that reads hyperMILL .hmc project files (XML format), extracts: job list with all operations and their parameters, tool assignments with geometry, stock model definition, WCS/datum frames, operation sequence with dependencies, cycle time from simulation data. Outputs a FeatureSequenceRecord with source='hmc_project'. No USB key needed — .hmc files are readable XML. Handles v31 and v33 format differences.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Parses .hmc XML extracting operations, tools, stock, WCS, and parameters",
+            "Outputs valid FeatureSequenceRecord with all required fields",
+            "Handles v31 and v33 .hmc format variations",
+            "Extracts >= 20 parameter values per operation from the XML",
+            "Unit tests with 2 sample .hmc files (mold cavity and prismatic bracket)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HMCProjectParserEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "fails to parse sample .hmc"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HMCProjectParserEngine.ts"
+          }
+        },
+        {
+          "id": "U-HKC52",
+          "title": "STEPFeatureExtractorEngine — STEP to Inferred FeatureSequenceRecord (~800 LOC)",
+          "description": "Engine that reads STEP files via CadQuery/OpenCascade (leveraging existing cad-engine infrastructure), runs FeatureRecognitionEngine to identify geometric features (holes, pockets, slots, bosses, fillets, chamfers, freeform surfaces), classifies the part (prismatic, cylindrical, complex freeform, thin-wall), and infers a manufacturing sequence using rules (external before internal, large before small, roughing cascade by tool diameter, holes after pockets). Outputs FeatureSequenceRecord with source='step_inferred'.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Reads STEP files and identifies >= 8 feature types (hole, pocket, slot, boss, fillet, chamfer, freeform, thread)",
+            "Classifies parts into >= 4 categories (prismatic, cylindrical, freeform, thin-wall)",
+            "Infers manufacturing sequence following machining rules (external→internal, large→small)",
+            "Outputs valid FeatureSequenceRecord with inferred sequence",
+            "Unit tests with 3 STEP files of increasing complexity"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/STEPFeatureExtractorEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "feature recognition fails on test STEP"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/STEPFeatureExtractorEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ HMCProjectParser extracts complete records from .hmc | ✓ STEPFeatureExtractor identifies features and infers sequences | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "parse_hmc_project",
+          "extract_step_features"
+        ],
+        "new_skills": [],
+        "available_to": []
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS10-S2",
+      "title": "Part Similarity Search + Feature Sequence Replicator Engines",
+      "smart_config": {
+        "role": "cad-cam-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "FeatureSequenceRecord indexing strategies (geometric hash, feature type overlap)",
+        "Similarity metrics: feature overlap × dimension proximity × material match",
+        "Parameter adaptation: scaling dimensions, adjusting S/F for new material/machine",
+        "HyperMillCodeGeneratorEngine for AC script output"
+      ],
+      "intent": "Build PartSimilaritySearchEngine that indexes FeatureSequenceRecords by geometric hash and finds similar parts with adaptation suggestions. Build FeatureSequenceReplicatorEngine that takes a template record + new part description, adapts parameters, and outputs an AC Python script.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC53",
+          "title": "PartSimilaritySearchEngine — Geometric similarity index (~400 LOC)",
+          "description": "Engine that indexes FeatureSequenceRecords by geometric hash (feature type set + dimension quantization + material group), computes similarity metric (feature_type_overlap × dimension_proximity × material_match), and returns top-N similar parts with adaptation suggestions. Similarity threshold configurable. Supports search by part type, material, complexity, and feature pattern.",
+          "depends_on": [
+            "U-HKC51",
+            "U-HKC52"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Indexes FeatureSequenceRecords with O(1) lookup by geometric hash",
+            "Similarity metric produces scores 0-100 with meaningful differentiation",
+            "Returns top-3 matches with per-feature adaptation suggestions",
+            "Search by part_type, material_group, and complexity works correctly",
+            "Unit tests with 5 indexed records showing correct similarity ranking"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/PartSimilaritySearchEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/PartSimilaritySearchEngine.ts"
+          }
+        },
+        {
+          "id": "U-HKC54",
+          "title": "FeatureSequenceReplicatorEngine — Adapt template + generate AC script (~500 LOC)",
+          "description": "Engine that takes a FeatureSequenceRecord (template from similar part) + new part description (material, dimensions, features), adapts the sequence: (1) scales dimensions proportionally, (2) adjusts S/F for new material using SpeedFeedOrchestrator, (3) adds/removes features not in template, (4) adjusts tool cascade for new part size, (5) generates AC Python script via HyperMillCodeGeneratorEngine that builds the part in hyperCAD-S and programs it in hyperMILL. The 'draw and program like that other part' capability.",
+          "depends_on": [
+            "U-HKC53"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Scales dimensions correctly when adapting from template to new part",
+            "Adjusts S/F via SpeedFeedOrchestrator for new material group",
+            "Generates valid AC Python script that creates operations in hyperMILL",
+            "Handles feature additions (new holes) and removals (template features not in new part)",
+            "Unit test: adapt a mold cavity template from H13 to P20 with 10% size increase"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/FeatureSequenceReplicatorEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/FeatureSequenceReplicatorEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ similarity search returns ranked matches | ✓ replicator adapts and generates AC scripts | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "search_similar_parts",
+          "replicate_feature_sequence"
+        ],
+        "new_skills": [],
+        "available_to": []
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS10-S3",
+      "title": "CAD Sequence Learning Engine + Upload Pipeline Integration",
+      "smart_config": {
+        "role": "ml-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "FeatureSequenceRecord aggregation patterns",
+        "Decision tree learning from feature sequences",
+        "HyperMillStrategyEngine integration for recommendations",
+        "Upload workflow: .hmc/.step → parse → index → search → replicate"
+      ],
+      "intent": "Build CADSequenceLearningEngine that aggregates patterns across all uploaded parts, learns decision trees (geometry → recommended sequence), and feeds improved recommendations back to HyperMillStrategyEngine. Wire the complete upload pipeline end-to-end: file input → parser → feature extraction → indexing → similarity search → replication → AC script output.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC55",
+          "title": "CADSequenceLearningEngine + Upload Pipeline E2E (~400 LOC + wiring)",
+          "description": "CADSequenceLearningEngine: (1) aggregates FeatureSequenceRecords across all uploaded parts, (2) extracts patterns (e.g., 'pocket_depth > 3×D always has rest machining'), (3) builds decision trees mapping geometry features → recommended feature sequences, (4) feeds learned patterns into HyperMillStrategyEngine for improved cycle selection. Upload pipeline wiring: connect HMCProjectParser + STEPFeatureExtractor + PartSimilaritySearch + FeatureSequenceReplicator + CADSequenceLearning into a single MCP action that handles the full workflow from file upload to recommendation output.",
+          "depends_on": [
+            "U-HKC51",
+            "U-HKC52",
+            "U-HKC53",
+            "U-HKC54"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Learning engine extracts >= 5 pattern types from aggregated feature sequences",
+            "Decision tree correctly recommends rest machining when pocket_depth > 3×tool_diameter",
+            "Learned patterns feed back to HyperMillStrategyEngine via strategy recommendations",
+            "Upload pipeline E2E: .hmc file → FeatureSequenceRecord → indexed → searchable → replicable",
+            "Upload pipeline E2E: .step file → feature extraction → classification → inferred sequence → indexed",
+            "Integration test: upload 3 parts, search for similar, verify ranked results"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/CADSequenceLearningEngine.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/hypermillDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "E2E pipeline fails"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/CADSequenceLearningEngine.ts src/tools/dispatchers/hypermillDispatcher.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ learning engine extracts patterns | ✓ upload pipeline E2E works for .hmc and .step | ✓ similarity search + replication functional | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "featureSequenceIntegrityValidator"
+        ],
+        "new_actions": [
+          "upload_part_for_learning",
+          "learn_from_sequences"
+        ],
+        "new_skills": [
+          "/hypermill-part-learn"
+        ],
+        "available_to": [
+          "HM-REV-MS9",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5,
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms10-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms10_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms10"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build 5 engines that enable part upload, feature extraction, similarity search, sequence replication, and pattern learning. When a machinist uploads a hyperMILL project (.hmc) or STEP file, PRISM extracts the complete feature sequence (operations, tools, parameters), indexes it for similarity search, and can replicate adapted versions for new parts. Over time, the learning engine aggregates patterns across uploaded parts to build shop-specific CAD/CAM knowledge (tool cascades, strategy preferences, sequence patterns). This is the holy grail: upload a part and program a similar one automatically.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS10 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS10. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

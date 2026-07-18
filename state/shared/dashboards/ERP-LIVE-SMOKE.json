@@ -1,0 +1,526 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-06-28T00:16:45.375Z",
+  "base": "http://127.0.0.1:3100",
+  "routeFile": "H:\\prism\\mcp-server\\src\\routes\\erp.ts",
+  "total": 64,
+  "byStatus": {
+    "EMPTY": 21,
+    "OK": 36,
+    "ERROR": 7
+  },
+  "records": [
+    {
+      "path": "/rfq-list",
+      "probePath": "/rfq-list",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/credit-review-all",
+      "probePath": "/credit-review-all",
+      "requiresRole": true,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/credit-review/:customer_id",
+      "probePath": "/credit-review/CUST-001",
+      "requiresRole": true,
+      "status": "EMPTY",
+      "reason": "HTTP 400 (synthetic param)",
+      "httpStatus": 400
+    },
+    {
+      "path": "/osha-incidents",
+      "probePath": "/osha-incidents",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/osha-300-log",
+      "probePath": "/osha-300-log",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/safety-training",
+      "probePath": "/safety-training",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/ppe-records",
+      "probePath": "/ppe-records",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/who-clocked-in",
+      "probePath": "/who-clocked-in",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/active-jobs/:employeeId",
+      "probePath": "/active-jobs/EMP-001",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/shift-handoff/:employeeId",
+      "probePath": "/shift-handoff/EMP-001",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/employees",
+      "probePath": "/employees",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/employee-machine-authority/:employeeId",
+      "probePath": "/employee-machine-authority/EMP-001",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "404 not-found (synthetic param)",
+      "httpStatus": 404
+    },
+    {
+      "path": "/machine-certified-employees/:machineId",
+      "probePath": "/machine-certified-employees/VMC-01",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/employee-machine-authority-overview",
+      "probePath": "/employee-machine-authority-overview",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/employee-certifications/:employeeId",
+      "probePath": "/employee-certifications/EMP-001",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/kaizen-suggestions",
+      "probePath": "/kaizen-suggestions",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "inner data empty",
+      "httpStatus": 200
+    },
+    {
+      "path": "/value-stream/:jobId",
+      "probePath": "/value-stream/JOB-1001",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "data_available:false (honest empty)",
+      "httpStatus": 200
+    },
+    {
+      "path": "/dispatch-board",
+      "probePath": "/dispatch-board",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/root-cause-list",
+      "probePath": "/root-cause-list",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/a3-report-list",
+      "probePath": "/a3-report-list",
+      "requiresRole": false,
+      "status": "ERROR",
+      "reason": "HTTP 501",
+      "httpStatus": 501
+    },
+    {
+      "path": "/a3-report/:id",
+      "probePath": "/a3-report/1",
+      "requiresRole": false,
+      "status": "ERROR",
+      "reason": "HTTP 501",
+      "httpStatus": 501
+    },
+    {
+      "path": "/revenue-forecast",
+      "probePath": "/revenue-forecast",
+      "requiresRole": true,
+      "status": "ERROR",
+      "reason": "inner error: Unknown business action: revenue_forecast",
+      "httpStatus": 200
+    },
+    {
+      "path": "/cash-flow",
+      "probePath": "/cash-flow",
+      "requiresRole": true,
+      "status": "ERROR",
+      "reason": "HTTP 501",
+      "httpStatus": 501
+    },
+    {
+      "path": "/top-customers",
+      "probePath": "/top-customers",
+      "requiresRole": true,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/operations-kpis",
+      "probePath": "/operations-kpis",
+      "requiresRole": false,
+      "status": "ERROR",
+      "reason": "HTTP 501",
+      "httpStatus": 501
+    },
+    {
+      "path": "/margin-trends",
+      "probePath": "/margin-trends",
+      "requiresRole": true,
+      "status": "ERROR",
+      "reason": "HTTP 501",
+      "httpStatus": 501
+    },
+    {
+      "path": "/flash-report",
+      "probePath": "/flash-report",
+      "requiresRole": true,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/shift-countdown",
+      "probePath": "/shift-countdown",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/oee-six-losses",
+      "probePath": "/oee-six-losses",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/timecard-audit-log",
+      "probePath": "/timecard-audit-log",
+      "requiresRole": true,
+      "status": "ERROR",
+      "reason": "HTTP 501",
+      "httpStatus": 501
+    },
+    {
+      "path": "/job-dashboard",
+      "probePath": "/job-dashboard",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/tool-reorder-alerts",
+      "probePath": "/tool-reorder-alerts",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/po-ap-aging",
+      "probePath": "/po-ap-aging",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/gl-accounts",
+      "probePath": "/gl-accounts",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/capacity-machines",
+      "probePath": "/capacity-machines",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/capacity-summary",
+      "probePath": "/capacity-summary",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/quality-calibration",
+      "probePath": "/quality-calibration",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/quality-ncr-dashboard",
+      "probePath": "/quality-ncr-dashboard",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/quality-kpis",
+      "probePath": "/quality-kpis",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/hr-benefits",
+      "probePath": "/hr-benefits",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/hr-compliance-alerts",
+      "probePath": "/hr-compliance-alerts",
+      "requiresRole": true,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/hr-dashboard",
+      "probePath": "/hr-dashboard",
+      "requiresRole": true,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/customer-pipeline",
+      "probePath": "/customer-pipeline",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/customer-follow-ups",
+      "probePath": "/customer-follow-ups",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/vendor-list",
+      "probePath": "/vendor-list",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/vendor-scorecard/:vendor_id",
+      "probePath": "/vendor-scorecard/SAMPLE",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "HTTP 400 (synthetic param)",
+      "httpStatus": 400
+    },
+    {
+      "path": "/pipeline-forecast",
+      "probePath": "/pipeline-forecast",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/pipeline-stages",
+      "probePath": "/pipeline-stages",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/root-cause-incidents",
+      "probePath": "/root-cause-incidents",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/export-formats",
+      "probePath": "/export-formats",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/export-ar-aging",
+      "probePath": "/export-ar-aging",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/purchasing-summary",
+      "probePath": "/purchasing-summary",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/order-metrics",
+      "probePath": "/order-metrics",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/maintenance/work-orders",
+      "probePath": "/maintenance/work-orders",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/maintenance-work-orders",
+      "probePath": "/maintenance-work-orders",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/pm-schedules",
+      "probePath": "/pm-schedules",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/pm-overdue-alerts",
+      "probePath": "/pm-overdue-alerts",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/equipment-assets",
+      "probePath": "/equipment-assets",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/asset-depreciation/:asset_id",
+      "probePath": "/asset-depreciation/SAMPLE",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "HTTP 400 (synthetic param)",
+      "httpStatus": 400
+    },
+    {
+      "path": "/machine-rate-list",
+      "probePath": "/machine-rate-list",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/reporting-dashboard",
+      "probePath": "/reporting-dashboard",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/workflows/pending",
+      "probePath": "/workflows/pending",
+      "requiresRole": false,
+      "status": "EMPTY",
+      "reason": "empty payload",
+      "httpStatus": 200
+    },
+    {
+      "path": "/workflows/list",
+      "probePath": "/workflows/list",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    },
+    {
+      "path": "/workflows/stats",
+      "probePath": "/workflows/stats",
+      "requiresRole": false,
+      "status": "OK",
+      "reason": "",
+      "httpStatus": 200
+    }
+  ]
+}

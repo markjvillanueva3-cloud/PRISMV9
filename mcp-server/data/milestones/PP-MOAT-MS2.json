@@ -1,0 +1,212 @@
+{
+  "id": "PP-MOAT-MS2",
+  "version": "1.0.0",
+  "title": "PP Learning Loop — RL Formatting, Self-Calibrating Constants, Coupled Thermal-Wear, LCA",
+  "track": "PP-MOAT",
+  "created_at": "2026-04-01T17:00:00Z",
+  "description": "Wire the compound moat engines: RLPostProcessorEngine learns optimal G-code formatting per controller from shop floor feedback. PredictionCalibrationEngine auto-calibrates Kienzle kc1.1 and Taylor C/n from measured results. ThermalWearCouplingEngine replaces simplified inline thermal with coupled RK4 ODE. SustainabilityLCAEngine adds ISO 14040 CO2/energy per program.",
+  "dependencies": [
+    "PP-MOAT-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "RLPostProcessorEngine (243 lines) — Q-learning G-code format optimizer",
+      "PredictionCalibrationEngine — auto-calibrate Kienzle/Taylor from real data",
+      "ThermalWearCouplingEngine — coupled RK4 ODE (Usui wear + thermal)",
+      "SustainabilityLCAEngine — ISO 14040 lifecycle assessment",
+      "SustainabilityEngine (887 lines) — energy/carbon scoring",
+      "GCodeEnergyOptimizerEngine — currently wired but stub-level",
+      "BayesianOptimizationEngine — GP surrogate for S/F optimization"
+    ],
+    "formulas": [
+      "Usui diffusion wear (C1, C2 constants per material pair)",
+      "RK4 integration for coupled thermal-wear ODE system",
+      "ISO 14040/14044 LCA (GWP, AP, EP, ODP, POCP, ADP)",
+      "Gutowski power decomposition (fixed + variable spindle power)",
+      "Bayesian posterior update for kc1.1 and Taylor C/n"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pp-learning-loop-check — blocks PP edits that hardcode values that should come from calibrated constants",
+    "mcp_action": "prism_cam post_process_learn — post-process with learning feedback endpoint",
+    "skill": "/pp-calibrate — show calibrated vs canonical constants for a machine+material pair"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Calibration + Thermal-Wear Coupling",
+      "units": [
+        {
+          "id": "U-PMMO01",
+          "title": "Wire PredictionCalibrationEngine as Stage 0.8 — load calibrated Kienzle/Taylor constants",
+          "status": "complete",
+          "steps": [
+            "Add PredictionCalibrationEngine to _getEngine()",
+            "Add Stage 0.7 (after smart defaults, before physics): load calibrated constants for this machine+material pair",
+            "Create persistent store schema: { machine_id, material_id, calibrated_kc1_1, calibrated_mc, calibrated_taylor_C, calibrated_taylor_n, confidence, sample_count, last_updated }",
+            "In Stage 0.7: query store → if calibration confidence > 0.6, override CANONICAL values in MaterialContext",
+            "Keep CANONICAL as fallback when no calibration exists",
+            "Add calibration_source field to analytics: 'canonical' | 'calibrated (N=47 samples)'"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: calibrated constants override canonical when confidence > 0.6",
+            "New test: no calibration data → graceful fallback to canonical",
+            "Analytics shows calibration source"
+          ],
+          "legacy_id": "U01",
+          "description": "Wire PredictionCalibrationEngine as Stage 0.8 — load calibrated Kienzle/Taylor constants — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-PMMO02",
+          "title": "Wire ThermalWearCouplingEngine — coupled RK4 ODE as Stage 2.7b",
+          "status": "complete",
+          "steps": [
+            "Add ThermalWearCouplingEngine to _getEngine()",
+            "In Phase 2 thermal tracking (Stage 2.7), replace simplified linear model with ThermalWearCouplingEngine.solve()",
+            "Input: initial VB=0, T_room, Vc, fz, ap, ae, material Usui constants",
+            "Output: per-block VB(t), T_tool(t), dimensional_error(t)",
+            "Feed coupled state into wear progression (Stage 2.6) and deflection (Stage 1.5)",
+            "Track cumulative state across tool sections (state persists across tool changes via reset)"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: coupled ODE produces monotonically increasing VB over cutting time",
+            "New test: thermal rise accelerates wear rate (coupling verified)",
+            "New test: dimensional error accumulation tracked in analytics"
+          ],
+          "legacy_id": "U02",
+          "description": "Wire ThermalWearCouplingEngine — coupled RK4 ODE as Stage 2.7b — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "RL Formatting + Sustainability",
+      "units": [
+        {
+          "id": "U-PMMO03",
+          "title": "Wire RLPostProcessorEngine as Stage 6.1c — RL-learned G-code formatting per controller",
+          "status": "complete",
+          "steps": [
+            "Add RLPostProcessorEngine to _getEngine()",
+            "Add Stage 6.1b (between G-code generation 6.1 and controller params 6.4)",
+            "Load Q-table for this controller family from persistent store",
+            "Pass generated G-code through rlPostProcessorEngine.generateCode() with per-move type formatting decisions",
+            "Save updated Q-table after generation (learning happens on feedback, not generation)",
+            "Create feedback API endpoint: POST /api/v1/ppg/feedback — accepts { program_id, cycle_time_actual, errors, surface_quality }",
+            "On feedback: call rlPostProcessorEngine.learn() to update Q-table rewards"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: RL engine produces valid G-code (syntax check passes)",
+            "New test: Q-table persists across pipeline runs",
+            "Feedback endpoint accepts and processes learning data"
+          ],
+          "legacy_id": "U03",
+          "description": "Wire RLPostProcessorEngine as Stage 6.1c — RL-learned G-code formatting per controller — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-PMMO04",
+          "title": "Wire SustainabilityLCAEngine into Stage 5.5b + Analytics — ISO 14040 CO2/energy per program",
+          "status": "complete",
+          "steps": [
+            "Add SustainabilityLCAEngine and SustainabilityEngine to _getEngine()",
+            "Replace Stage 5.5 inline energy heuristic with SustainabilityEngine.compute()",
+            "In Stage 6.5 (analytics report), add LCA section from SustainabilityLCAEngine:",
+            "  co2_kg_per_part, energy_kWh_per_part, coolant_cost_per_part, sustainability_score (0-100)",
+            "  LCA categories: GWP, AP, EP per ISO 14040",
+            "Add sustainability fields to PipelineResult type"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: analytics report includes co2_kg_per_part field",
+            "New test: sustainability_score between 0-100",
+            "New test: different materials/coolants produce different LCA scores"
+          ],
+          "legacy_id": "U04",
+          "description": "Wire SustainabilityLCAEngine into Stage 5.5b + Analytics — ISO 14040 CO2/energy per program — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "exit_gate": "Learning loop wired: calibrated constants (Stage 0.7), coupled thermal-wear (Stage 2), RL formatting (Stage 6.1b), sustainability LCA (Stage 5.5/6.5). Feedback API endpoint active. /prism-review passed.",
+  "status": "complete",
+  "completed_at": "2026-04-05T00:45:00Z",
+  "test_results": "44/44 MS2 tests pass, 303/303 total PP tests pass (0 regressions)",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pp-moat-ms2-gate"
+    ],
+    "new_actions": [
+      "pp_moat_ms2_run"
+    ],
+    "new_skills": [
+      "/pp-moat-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Wire the compound moat engines: RLPostProcessorEngine learns optimal G-code formatting per controller from shop floor feedback. PredictionCalibrationEngine auto-calibrates Kienzle kc1.1 and Taylor C/n from measured results. ThermalWearCouplingEngine replaces simplified inline thermal with coupled RK4 ODE. SustainabilityLCAEngine adds ISO 14040 CO2/energy per program.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

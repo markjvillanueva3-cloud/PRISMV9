@@ -200,7 +200,7 @@ export class ConnectionMaterializerEngine {
             connection: c,
             filePath: join(connectionsDir, pairFilename(c)),
             action: "errored",
-            reason: `mkdir failed: ${err?.message ?? err}`,
+            reason: `mkdir failed: ${err instanceof Error ? err.message : String(err)}`,
           });
         }
         return { apply, generatedAtIso, counters, results };
@@ -242,7 +242,7 @@ export class ConnectionMaterializerEngine {
         }
       } catch (err) {
         counters.errored++;
-        results.push({ connection: c, filePath, action: "errored", reason: String(err?.message ?? err) });
+        results.push({ connection: c, filePath, action: "errored", reason: err instanceof Error ? err.message : String(err) });
       }
     }
 

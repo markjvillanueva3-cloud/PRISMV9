@@ -32,18 +32,23 @@ test("consolidateMilestones — unifies + merges source_roadmaps", () => {
   assert.deepEqual(b.source_roadmaps, ["roadmap-index"]);
 });
 
-test("collectPendingUnits — only un-shipped units", () => {
+test("collectPendingUnits -- un-shipped units, but NOT terminal-resolved (superseded)", () => {
   const pending = collectPendingUnits({
     milestones: {
       A: { id: "A-MS0", units: [
         { id: "U-A1", title: "one", shipped: true },
         { id: "U-A2", title: "two", shipped: false },
         { id: "U-A3", title: "three", shipped: false },
+        { id: "U-A4", title: "superseded", shipped: false, resolved: true },  // excluded: not a build candidate
+        { id: "U-A5", title: "legacy (no resolved field)", shipped: false },  // included: back-compat
       ] },
     },
   });
-  assert.equal(pending.length, 2);
-  assert.ok(pending.every((u) => !["U-A1"].includes(u.unit_id)));
+  const ids = pending.map((u) => u.unit_id);
+  assert.equal(pending.length, 3); // A2, A3, A5
+  assert.ok(!ids.includes("U-A1"), "shipped excluded");
+  assert.ok(!ids.includes("U-A4"), "resolved (superseded) excluded -> never offered as a build candidate");
+  assert.ok(ids.includes("U-A5"), "legacy unit without a resolved field is still included");
   assert.equal(pending[0].milestone, "A-MS0");
   assert.equal(pending[0].consolidated, true);
 });

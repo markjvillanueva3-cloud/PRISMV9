@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>TOOL_Builder_Manual-en</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>TOOL_Builder_Manual-en</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>OKUMA/hyperCAD-S and hyperMILL Online Training/PDF/TOOL Builder/TOOL_Builder_Manual-en.pdf</code></dd>
+<dt>Pages</dt><dd>18</dd>
+<dt>Text chars</dt><dd>16200</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>hyperMILL TOOL Builder
+Software documentation
+
+-- 1 of 18 --
+
+Copyright © 2021 OPEN MIND Technologies
+The content of this documentation and the associated software are the property of OPEN MIND Technologies AG. No reproduction of
+any kind is permitted without the prior consent of OPEN MIND Technologies AG.
+All rights reserved.
+As we constantly develop our products, we reserve the right to make changes without notice.
+This software documentation applies to
+hyperMILL TOOL Builder.
+hyperCAD and
+hyperMILL are registered trademarks of OPEN MIND Technologies AG. Windows and Windows products are registered
+trademarks of Microsoft Corporation. Google Chrome is a Google Inc. product.
+All other brand and product names are registered trademarks of their respective owners.
+OPEN MIND Technologies AG
+Argelsrieder Feld 5
+82234 Wessling
+Germany
+Tel.: (+49-8153) 933-500
+Fax: (+49-8153) 933-501
+E-mail: &lt;sales.europe@openmind-tech.com&gt;
+Web: www.openmind-tech.com
+
+-- 2 of 18 --
+
+Table of Contents
+1. Introduction .................................................................................................................................. 4
+2. Positional orientation ..................................................................................................................... 6
+Holder/extension positional orientation .......................................................................................... 6
+Insert positional orientation ......................................................................................................... 8
+3. Steps for creating ........................................................................................................................ 10
+Turning tool: Creating an insert tool holder ................................................................................... 10
+Turning tool holder assembly .................................................................................................... 14
+Milling tool: Creating a holder / extension .................................................................................... 15
+4. Options ..................................................................................................................................... 18
+Tool holder ............................................................................................................................ 18
+Holder .................................................................................................................................. 18
+Colours ................................................................................................................................ 18
+hyperMILL TOOL Builder
+3
+
+-- 3 of 18 --
+
+1. Introduction
+Many tool suppliers offer 3D models of their tools. You can use the
+hyperMILL TOOL Builder to interactive-
+ly prepare these models so they can be used for calculation, collision checking and simulation.
+3D data import and tool entity creation is handled by running a pre-specified series of steps from a toolbar
+in the
+hyperMILL TOOL Builder. It is also possible to repeat a command from a previous step. Selected
+entities, such as the solids for a holder or axes, for example, are automatically labelled with tags and
+saved to an appropriately named layer.
+A 	Milling tool: 1 	spindle, 2 	lower spindle coupling, upper holder coupling, 3 	lower holder coupling, up-
+per extension coupling, 4 	holder, 5 	extension, 6 	tool.
+B 	Turning tool: 7 	insert tool holder, 8 	insert.
+The following information refers to creating a tool holder 7 	for turning tools and a holder 4 	and an exten-
+sion 5 	for milling tools.
+NOTE
+Tool holders with a rotationally symmetrical support in the spindle are supported. Tool
+holders with a prismatic defined support for a tool turret are not currently supported.
+The following insert shapes are supported in combination with the specified tool holders:
+• Rhombic insert
+• Triangular insert
+• W-shape insert
+• Round insert
+• Rectangular inserts
+hyperMILL TOOL Builder
+4
+
+-- 4 of 18 --
+
+By default, tools are assigned the name of the document with which they were created.
+NOTE
+CAD entities, which are used to define a tool holder, holder or extension, are locked
+against further editing.
+hyperMILL TOOL Builder
+5
+
+-- 5 of 18 --
+
+2. Positional orientation
+When tools are assembled, a positional orientation is required.
+The Z axis lies coaxially to the main flange and points in the direction of the spindle.
+Holder/extension positional orientation
+The alignment around the Z axis will allow non-symmetrical entities, such as drill heads and angle heads,
+to be supported in the future. If a holder (for example, HSK, CAPTO, KM and KM4X) is also used for turn-
+ing on a mill/turn machine, the alignment around the Z axis must be observed. In the case of usual milling
+applications with circumferentially rotated bodies, the alignment around the Z axis is only a visual/aesthetic
+issue.
+BT
+The X axis points towards the centre of one of the two slots 1 	. As the BT is symmetrical, the alignment of
+the X axis can only be distinguished with other attributes (for example, a screw or another non-symmetrical
+entity). Check the alignment of this entity before the 3D data import on the machine tool. The upper cou-
+pling should be defined in the flange depth.
+SK
+The X axis points towards the centre of the flattest slot 2 	– on the same side as the notch 3 	. The upper
+coupling should be defined in the flange depth (3.2 mm above the upper side of the flange).
+CAT
+The X axis points towards the centre of the flattest slot 4 	. The upper coupling should be defined in the
+flange depth (3.2 mm above the upper side of the flange).
+hyperMILL TOOL Builder
+6
+
+-- 6 of 18 --
+
+HSK
+The X axis points towards the centre of the flattest slot 5 	– on the same side as the notch 6 	. The upper
+coupling should be defined on the upper side of the flange.
+CAPTO
+The Y axis points towards the centre of the reference notch 7 	. The upper coupling should be defined on
+the upper side of the flange.
+KM
+The Y axis is aligned through the axis of the holes 8 	and points towards the recess 9 	on the tip (see
+arrow). The upper coupling should be defined on the upper side of the flange.
+hyperMILL TOOL Builder
+7
+
+-- 7 of 18 --
+
+KM4X
+The X axis is aligned through the centre of the two lower slots 10 	and points in the same direction as the
+notch 11 	. The upper coupling should be defined on the upper side of the flange.
+Insert positional orientation
+Insert-specific X orientation of the coordinate system
+Rhombic insert Round insert Rectangular insert
+hyperMILL TOOL Builder
+8
+
+-- 8 of 18 --
+
+Parting insert Threading insert Rectangular insert
+hyperMILL TOOL Builder
+9
+
+-- 9 of 18 --
+
+3. Steps for creating
+Turning tool: Creating an insert tool holder
+Steps to create an insert tool holder
+Overview: open geometry file – define body – define axis – define coupling – define outline profile – define
+insert (optional) – generate STL file – export data.
+Open geometry file
+Icon:
+Open a 3D geometry file in the *.step,*.stp,*.iges or *.hmc format.
+Define body
+Icon:
+Specify the geometry of the insert tool holder.
+Select Entities. The selected geometric entities 1 	are highlighted in colour and the number of entities is
+shown. The data is saved on a designated layer and marked with a tag.
+Define axis
+Icon:
+The geometry of the insert tool holder is recognised automatically based on the coaxial faces of the body
+and the program automatically suggests the axis alignment (machine side/workpiece side). A reference co-
+ordinate system 1 	is created, whose alignment corresponds to the Z axis of the insert tool holder.
+Manually adjust the Direction of the axis if necessary. To do so, select entities or 2 points. The order in
+which the points are selected defines the direction 2 	of the axis. Invert the Direction by double-clicking the
+axis arrow 2 	or use the Invert command.
+The data is saved on a designated layer and marked with a tag.
+hyperMILL TOOL Builder
+10
+
+-- 10 of 18 --
+
+Define coupling
+Icon:
+Specify the coupling area.
+Select a face or a point. The selected entity 1 	is highlighted in colour.
+Specify the X direction of the reference coordinate system. To do so, select 2 points or a single point.
+Click the button to rotate the X axis direction by 45°.
+Use the Invert function to reverse the direction. This can also be adjusted directly for each entity in the
+corresponding row (red, green, blue). Use Save settings to save your changes.
+The data is saved on a designated layer and marked with a tag.
+Define outline profile
+Icon:
+hyperMILL TOOL Builder
+11
+
+-- 11 of 18 --
+
+The program automatically generates an outline profile 1 	based on the defined body geometry and the
+alignment of the X axis in the reference coordinate system.
+The data is saved on a designated layer and marked with a tag.
+Define insert
+Icon:
+Define the geometry of the insert.
+Select the entities. The selected entities 1 	are highlighted in colour.
+NOTE
+It is not absolutely necessary to specify the geometry of the insert in order to define the
+tool holder.
+To define the Mounting position, specify a Face 2 	or an Origin. The selected entities 2 	are highlighted in
+colour.
+Specify the alignment of the insert by defining the X direction of the reference coordinate system 4 	. To do
+so, select either Entities, a Point or 2 points 3 	.
+The data is saved on a designated layer and marked with a tag.
+hyperMILL TOOL Builder
+12
+
+-- 12 of 18 --
+
+Generate STL file
+Icon:
+The program generates an STL file from the defined entities for the insert tool holder. Adjust the colour of
+the generated polyhedron body in the hyperMILL TOOL Builder options dialogue ( Colours → Polyhedron
+body).
+Export data
+Icon:
+Depending on the imported 3D file, Geometry parameters of the insert tool holder may be calculated and
+transferred to the tool definition during data transfer (axis distance, shank distance, rake angle, inclination
+angle, approach angle, mounting direction, spindle orientation).
+hyperMILL TOOL Builder
+13
+
+-- 13 of 18 --
+
+NOTE
+The values for the Rake angle and Inclination angle parameters are calculated exclu-
+sively when defining an insert holder with the
+hyperMILL TOOL Builder software. Man-
+ual definition in the tool database is not possible. The Rake angle and Inclination angle
+parameters are currently not supported for recessing tools, threading tools and parting
+tools.
+Turning tool holder assembly
+Assemble tool holder for turning tool. Switch to Assembly mode. Display the toolbars that
+are preconfigured for this.
+Toolbar
+Assembly the 3D data provided by tool manufacturers to form a tool holder for turning tools. Switch to As-
+sembly mode. Display the toolbars that are preconfigured for this.
+Procedure
+The following five basic steps are required to assemble a tool holder for turning tools.
+When defining a tool holder for turning tools, select the Geometry → 3D file option beforehand in the OPEN
+MIND tool database. In the 3D file row, then select the option.
+1. Select model for base body. The Open command is called automatically for this purpose.
+See Open.
+2. Cancel the Body command. Then show the preconfigured toolbars. To do this, click . The back-
+ground colour of the graphics area changes.
+3. Load parts that are attached to the base body.
+See Merge.
+TIP
+Select the Group entities option of the Merge command. All imported entities are
+combined into a group. This makes it easier to attach a part as a whole to the base
+body. Use Save as default to preset the option.
+4. Attach the parts to the base body. Assemble the various solids and groups using Mating and Move /
+copy.
+See Mating.
+The base body is fixed automatically by loading a first additional part.
+5. If you choose, simplify the tool holder so that it specifies the actually existing tool holder with sufficient
+accuracy.
+See Direct modelling.
+CAUTION
+Collisions may occur if the outer shape of the tool holder model does not match the
+tool holder that is really used.
+6.
+Switch back to the normal mode for defining a tool holder and complete the definition of
+the tool.
+hyperMILL TOOL Builder
+14
+
+-- 14 of 18 --
+
+See Turning tool: Creating an insert tool holder [10].
+Milling tool: Creating a holder / extension
+Steps to create a holder or extension
+Overview: open geometry file – define body – define axis – define coupling – define rotational profile – cre-
+ate rotational shape – generate STL file – export data.
+NOTE
+The following information and graphics relate to creating a holder. All steps, selections
+and options in the dialogues also apply to creating an extension.
+Open geometry file
+Icon:
+Open a 3D geometry file in the *.step,*.stp,*.iges or *.hmc format.
+Define body
+Icon:
+Specify the geometry of the holder.
+Select entities. The selected geometric entities 1 	are highlighted in colour and the number of entities is
+shown. The data is saved on a designated layer and marked with a tag.
+Define axis
+Icon:
+The geometry of the holder is recognised automatically based on the coaxial faces of the body and the
+program suggests an axis alignment 1 	(machine side/workpiece side).
+A reference coordinate system is created, whose Z axis alignment corresponds to the axis of the holder 2 	.
+hyperMILL TOOL Builder
+15
+
+-- 15 of 18 --
+
+Manually adjust the Direction of the axis if necessary. To do so, select entities or 2 points 1 	. The order in
+which the points are selected defines the direction of the axis. Invert the Direction by double-clicking the
+axis arrow 3 	or use the Invert command.
+The data is saved on a designated layer and marked with a tag.
+Define coupling
+Icon:
+Specify the area for the upper 1 	and lower 2 	coupling. Select a Face or a Point.
+The selected entities are highlighted in colour. The selected face must be perpendicular to the Z axis. The
+selected point must be on the holder axis, otherwise it will be projected onto the axis.
+The reference coordinate system 3 	, whose Z axis corresponds to the Z axis of the holder, is shown at the
+gage point for the upper and lower coupling.
+The data is saved on a designated layer and marked with a tag.
+Define rotational profile
+Icon:
+The program creates a rotational profile based on the defined body geometry and the alignment of the ref-
+erence coordinate system axes (Z and X axes). Lines which correspond to the axis are removed automati-
+cally.
+hyperMILL TOOL Builder
+16
+
+-- 16 of 18 --
+
+The rotational profile can be modified if necessary using the Draw commands of the
+hyperMILL TOOL
+Builder.
+For a rotational profile 1 	to be created based on the defined body geometry, the geometry must represent
+a closed solid or a closed face body.
+The data is saved automatically on a designated layer and marked with a TAG.
+Create rotational shape
+Icon:
+The program generates a simplified rotational shape from the defined entities for the holder. It is automati-
+cally saved on a designated layer and marked with a TAG.
+Export data
+Icon:
+Export the generated rotational shape to
+hyperMILL and transfer to the tool definition.
+hyperMILL TOOL Builder
+17
+
+-- 17 of 18 --
+
+4. Options
+Open the hyperMILL TOOL Builder options dialogue to define display and precision options.
+File → Options
+Mesh tolerance: Specify precision for reading in the geometry data in the *.step, *.stp, *.iges or *.hmc for-
+mats.
+Assembly mode: Display toolbars for assembling tool holders for turning tools.
+Tool holder
+Profile tolerance: Specify precision for the outline profile of the insert tool holder.
+Holder
+Profile tolerance: Specify precision for the rotational profile of the holder.
+Colours
+Define the colours for the Axis, Machine / workpiece indicators, Profile, Body mesh, Insert mesh and Rota-
+tional shape. To do so, select the entity in the Value column and click the button to open the colour selec-
+tion dialogue and define the desired colours. This can also be adjusted directly for each entity in the corre-
+sponding row (red, green, blue).
+Display the background of the graphics area in a different colour for the Assembly mode. To do this, select
+the Assembly - bottom colour and Assembly - top colour options.
+Use Save settings to save your changes.
+hyperMILL TOOL Builder
+18
+
+-- 18 of 18 --
+
+</pre>
+</body></html>

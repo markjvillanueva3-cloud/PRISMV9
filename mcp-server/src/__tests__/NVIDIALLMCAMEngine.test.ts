@@ -76,6 +76,7 @@ beforeEach(() => {
   NVIDIALLMCAMEngine.setFetch(fakeFetch());
   delete process.env.NVIDIA_NIM_ENDPOINT;
   delete process.env.TRITON_HTTP_ENDPOINT;
+  delete process.env.NIM_URL;
   delete process.env.NVIDIA_API_KEY;
 });
 
@@ -322,6 +323,60 @@ describe("NVIDIALLMCAMEngine — endpoint + auth resolution", () => {
     expect(invocations[0]?.url).toBe("http://h:8000/v1/chat/completions");
   });
 
+  it("falls back to NIM_URL (PRISM-canonical) when NVIDIA/TRITON vars unset", async () => {
+    process.env.NIM_URL = "http://nim-canonical:8000/v1";
+    await NVIDIALLMCAMEngine.strategyRecommend("p");
+    expect(invocations[0]?.url).toBe(
+      "http://nim-canonical:8000/v1/chat/completions"
+    );
+  });
+
+  it("strips the /v1 suffix from NIM_URL so the route is not doubled", async () => {
+    process.env.NIM_URL = "http://h:8000/v1";
+    await NVIDIALLMCAMEngine.strategyRecommend("p");
+    expect(invocations[0]?.url).toBe("http://h:8000/v1/chat/completions");
+    expect(invocations[0]?.url).not.toContain("/v1/v1");
+  });
+
+  it("accepts a NIM_URL with no /v1 suffix unchanged", async () => {
+    process.env.NIM_URL = "http://h:8000";
+    await NVIDIALLMCAMEngine.strategyRecommend("p");
+    expect(invocations[0]?.url).toBe("http://h:8000/v1/chat/completions");
+  });
+
+  it("strips a /v1 segment carrying a trailing slash (v1 + slash combined)", async () => {
+    process.env.NIM_URL = "http://h:8000/v1/";
+    await NVIDIALLMCAMEngine.strategyRecommend("p");
+    expect(invocations[0]?.url).toBe("http://h:8000/v1/chat/completions");
+    expect(invocations[0]?.url).not.toContain("/v1/v1");
+  });
+
+  it("NVIDIA_NIM_ENDPOINT takes precedence over NIM_URL", async () => {
+    process.env.NVIDIA_NIM_ENDPOINT = "http://nim-primary:9000";
+    process.env.NIM_URL = "http://nim-canonical:8000/v1";
+    await NVIDIALLMCAMEngine.strategyRecommend("p");
+    expect(invocations[0]?.url).toBe(
+      "http://nim-primary:9000/v1/chat/completions"
+    );
+  });
+
+  it("TRITON_HTTP_ENDPOINT takes precedence over NIM_URL", async () => {
+    process.env.TRITON_HTTP_ENDPOINT = "http://triton:8001";
+    process.env.NIM_URL = "http://nim-canonical:8000/v1";
+    await NVIDIALLMCAMEngine.strategyRecommend("p");
+    expect(invocations[0]?.url).toBe("http://triton:8001/v1/chat/completions");
+  });
+
+  it("strips a /v1 suffix from an explicit endpoint override (no doubling)", async () => {
+    await NVIDIALLMCAMEngine.strategyRecommend("p", {
+      endpoint: "http://explicit:8000/v1",
+    });
+    expect(invocations[0]?.url).toBe(
+      "http://explicit:8000/v1/chat/completions"
+    );
+    expect(invocations[0]?.url).not.toContain("/v1/v1");
+  });
+
   it("injects Authorization Bearer header when apiKey provided", async () => {
     await NVIDIALLMCAMEngine.strategyRecommend("p", {
       apiKey: PLACEHOLDER_API_KEY_A,
@@ -374,7 +429,7 @@ describe("NVIDIALLMCAMEngine — option clamping (adversarial)", () => {
     const body = JSON.parse((invocations[0]?.init?.body as string) ?? "{}");
     expect(body.temperature).toBe(0);
     expect(body.max_tokens).toBe(1024);
-    expect(body.model).toBe("meta/llama-3.1-8b-instruct");
+    expect(body.model).toBe("meta/llama-3.2-3b-instruct");
     expect(body.response_format).toEqual({ type: "json_object" });
     expect(body.stream).toBe(false);
   });
@@ -443,6 +498,13 @@ describe("NVIDIALLMCAMEngine — meta methods", () => {
     expect(NVIDIALLMCAMEngine.resolveEndpoint("http://override:1")).toBe(
       "http://override:1"
     );
+  });
+
+  it("resolveEndpoint reads NIM_URL and strips its trailing /v1 segment", () => {
+    delete process.env.NVIDIA_NIM_ENDPOINT;
+    delete process.env.TRITON_HTTP_ENDPOINT;
+    process.env.NIM_URL = "http://nimhost:8000/v1";
+    expect(NVIDIALLMCAMEngine.resolveEndpoint()).toBe("http://nimhost:8000");
   });
 
   it("getSystemPrompt returns task-specific prompt and throws on unknown", () => {

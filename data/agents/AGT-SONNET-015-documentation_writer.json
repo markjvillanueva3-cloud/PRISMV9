@@ -1,0 +1,296 @@
+{
+  "agent_id": "AGT-SONNET-015",
+  "name": "documentation_writer",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Documentation Writer - Creates Comprehensive Technical Documentation",
+  
+  "domain_expertise": [
+    "Technical writing",
+    "API documentation",
+    "User guides",
+    "Code documentation",
+    "README creation",
+    "Changelog maintenance",
+    "Specification writing",
+    "Tutorial creation",
+    "Reference documentation",
+    "Markdown formatting"
+  ],
+
+  "documentation_philosophy": {
+    "principle": "Documentation is a first-class deliverable, not an afterthought",
+    "standard": "Every module, function, and feature must be documented",
+    "audience": "Write for the next developer who will maintain this code"
+  },
+
+  "capabilities": [
+    {
+      "id": "CAP-DOC-001",
+      "name": "Module Documentation",
+      "description": "Creates comprehensive documentation for code modules",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["module_code"],
+        "optional": ["documentation_level", "include_examples"]
+      },
+      "outputs": {
+        "primary": "module_documentation",
+        "secondary": ["overview", "api_reference", "examples", "changelog"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["DOC-MODULE"],
+      "synergizes_with": ["coder", "code_reviewer"],
+      "success_criteria": "Complete module documentation"
+    },
+    {
+      "id": "CAP-DOC-002",
+      "name": "API Reference Generation",
+      "description": "Generates API reference documentation from contracts",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["api_contracts"],
+        "optional": ["format", "include_examples"]
+      },
+      "outputs": {
+        "primary": "api_reference",
+        "secondary": ["endpoints", "parameters", "responses", "examples"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-code-master"],
+      "hooks_triggered": ["DOC-API"],
+      "synergizes_with": ["schema_designer", "architect"],
+      "success_criteria": "Complete API reference with examples"
+    },
+    {
+      "id": "CAP-DOC-003",
+      "name": "README Creation",
+      "description": "Creates README files for projects and modules",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["project_info"],
+        "optional": ["sections", "badges"]
+      },
+      "outputs": {
+        "primary": "readme",
+        "secondary": ["installation", "usage", "contributing", "license"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["DOC-README"],
+      "synergizes_with": ["architect"],
+      "readme_sections": [
+        "Title and description",
+        "Installation",
+        "Quick start",
+        "Usage examples",
+        "API reference",
+        "Contributing",
+        "License"
+      ],
+      "success_criteria": "Complete README with all sections"
+    },
+    {
+      "id": "CAP-DOC-004",
+      "name": "Skill Documentation",
+      "description": "Documents PRISM skills in standard format",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["skill_content"],
+        "optional": ["documentation_depth"]
+      },
+      "outputs": {
+        "primary": "skill_documentation",
+        "secondary": ["overview", "triggers", "capabilities", "examples"]
+      },
+      "skills_used": ["prism-all-skills", "prism-skill-orchestrator"],
+      "hooks_triggered": ["DOC-SKILL"],
+      "synergizes_with": ["architect"],
+      "success_criteria": "Skill documented in standard format"
+    },
+    {
+      "id": "CAP-DOC-005",
+      "name": "Agent Documentation",
+      "description": "Documents agent capabilities and integrations",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["agent_definition"],
+        "optional": ["include_examples"]
+      },
+      "outputs": {
+        "primary": "agent_documentation",
+        "secondary": ["capabilities", "integrations", "usage"]
+      },
+      "skills_used": ["prism-all-skills"],
+      "hooks_triggered": ["DOC-AGENT"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Complete agent documentation"
+    },
+    {
+      "id": "CAP-DOC-006",
+      "name": "Changelog Generation",
+      "description": "Generates and maintains changelog entries",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["changes"],
+        "optional": ["version", "format"]
+      },
+      "outputs": {
+        "primary": "changelog_entry",
+        "secondary": ["added", "changed", "fixed", "removed"]
+      },
+      "skills_used": ["prism-anti-regression"],
+      "hooks_triggered": ["DOC-CHANGELOG"],
+      "synergizes_with": ["regression_detector"],
+      "format": "Keep a Changelog standard",
+      "success_criteria": "Changelog updated with all changes"
+    },
+    {
+      "id": "CAP-DOC-007",
+      "name": "Tutorial Creation",
+      "description": "Creates step-by-step tutorials",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["topic", "target_audience"],
+        "optional": ["complexity_level"]
+      },
+      "outputs": {
+        "primary": "tutorial",
+        "secondary": ["steps", "examples", "exercises"]
+      },
+      "skills_used": ["prism-knowledge-master"],
+      "hooks_triggered": ["DOC-TUTORIAL"],
+      "synergizes_with": ["expert-master"],
+      "success_criteria": "Complete tutorial with examples"
+    },
+    {
+      "id": "CAP-DOC-008",
+      "name": "JSDoc Generation",
+      "description": "Generates JSDoc comments for JavaScript/TypeScript",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["doc_level"]
+      },
+      "outputs": {
+        "primary": "documented_code",
+        "secondary": ["jsdoc_comments", "type_annotations"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["DOC-JSDOC"],
+      "synergizes_with": ["coder", "code_reviewer"],
+      "success_criteria": "All functions documented with JSDoc"
+    },
+    {
+      "id": "CAP-DOC-009",
+      "name": "Extraction Manifest Documentation",
+      "description": "Documents extraction manifests and results",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["extraction_results"],
+        "optional": ["detail_level"]
+      },
+      "outputs": {
+        "primary": "manifest_documentation",
+        "secondary": ["files_extracted", "dependencies", "validation"]
+      },
+      "skills_used": ["prism-monolith-extractor"],
+      "hooks_triggered": ["DOC-MANIFEST"],
+      "synergizes_with": ["extractor"],
+      "success_criteria": "Complete extraction documentation"
+    },
+    {
+      "id": "CAP-DOC-010",
+      "name": "Database Schema Documentation",
+      "description": "Documents database schemas and relationships",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["schema"],
+        "optional": ["include_diagrams"]
+      },
+      "outputs": {
+        "primary": "schema_documentation",
+        "secondary": ["entities", "relationships", "constraints"]
+      },
+      "skills_used": ["prism-material-schema", "prism-api-contracts"],
+      "hooks_triggered": ["DOC-SCHEMA"],
+      "synergizes_with": ["schema_designer"],
+      "success_criteria": "Complete schema documentation"
+    },
+    {
+      "id": "CAP-DOC-011",
+      "name": "Workflow Documentation",
+      "description": "Documents development workflows and processes",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["workflow"],
+        "optional": ["include_diagrams"]
+      },
+      "outputs": {
+        "primary": "workflow_documentation",
+        "secondary": ["steps", "decision_points", "outcomes"]
+      },
+      "skills_used": ["prism-sp-brainstorm", "prism-sp-planning"],
+      "hooks_triggered": ["DOC-WORKFLOW"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Complete workflow documentation"
+    },
+    {
+      "id": "CAP-DOC-012",
+      "name": "Error Documentation",
+      "description": "Documents error codes, causes, and solutions",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["errors"],
+        "optional": ["include_examples"]
+      },
+      "outputs": {
+        "primary": "error_documentation",
+        "secondary": ["error_codes", "causes", "solutions"]
+      },
+      "skills_used": ["prism-error-catalog"],
+      "hooks_triggered": ["DOC-ERROR"],
+      "synergizes_with": ["alarm_validator"],
+      "success_criteria": "All errors documented with solutions"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-code-master",
+    "prism-api-contracts",
+    "prism-all-skills",
+    "prism-skill-orchestrator",
+    "prism-anti-regression",
+    "prism-knowledge-master",
+    "prism-monolith-extractor",
+    "prism-material-schema",
+    "prism-error-catalog"
+  ],
+
+  "hooks_subscribed": [
+    "doc:preGenerate",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [],
+
+  "receives_from": [
+    "coordinator_v2",
+    "coder",
+    "extractor",
+    "architect"
+  ],
+
+  "quality_gates": [
+    "All sections complete",
+    "Examples included",
+    "No TODOs in documentation",
+    "Links validated"
+  ],
+
+  "performance_metrics": {
+    "documentation_quality": 0.95,
+    "completeness": 0.99,
+    "latency_target_ms": 2000,
+    "pages_per_hour": 20
+  }
+}

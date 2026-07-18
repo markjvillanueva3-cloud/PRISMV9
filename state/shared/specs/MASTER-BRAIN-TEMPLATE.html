@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="2e8f07a5aa66c5a4b39d8cee021e795338b06de844cc3f0ba81518d50f64c23d">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master-Brain Template</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Master-Brain Template</h1>
+<div class="meta">rendered from state/shared/specs/MASTER-BRAIN-TEMPLATE.md</div>
+<div class="meta">Generated 2026-05-28T21:02:53.548Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">MASTER-BRAIN-TEMPLATE — the canonical working, connected per-domain Obsidian brain</li><li class="prism-toc-l2">Why this exists</li><li class="prism-toc-l2">The 4 connection axes (a brain is CONNECTED iff all 4 hold)</li><li class="prism-toc-l2">Required galaxy MEMORY.md structure (clone this shape)</li><li class="prism-toc-l1">&lt;Galaxy&gt; Galaxy MEMORY.md — per-domain working brain</li><li class="prism-toc-l2">Master-brain link</li><li class="prism-toc-l2">High-ROI memories          # PULL target — top-10 master hits as [[memory-name]] pointers (≤140 chars/line)</li><li class="prism-toc-l2">Indexed memories — domain pointers   # this galaxy&#39;s own per-file memory index</li><li class="prism-toc-l2">Cross-galaxy bridges       # PSN edges OUT (which galaxies consume/produce; bridge shape)</li><li class="prism-toc-l2">Known failure modes        # domain-specific R12 lessons</li><li class="prism-toc-l2">Clone-and-tune protocol (every non-alpha slot)</li><li class="prism-toc-l2">Connection verification gate (run BEFORE commit — proves CONNECTION, not presence)</li><li class="prism-toc-l1">CONN-1 (UP edge)</li><li class="prism-toc-l1">CONN-2 (freshness)</li><li class="prism-toc-l1">CONN-3 (DOWN/backflow edge)</li><li class="prism-toc-l1">CONN-4 (master-index edge — the half missing today)</li><li class="prism-toc-l1">CONN-5 (recall round-trip — advisory; may be empty until the Stop-hook feed lands this session)</li><li class="prism-toc-l1">prism_memory:semantic_search query=&quot;&lt;galaxy&gt;&quot; topK=10  → assert ≥1 of this session&#39;s &lt;slot&gt; memory IDs in hits</li><li class="prism-toc-l2">Generator wiring (how this template reaches every slot)</li><li class="prism-toc-l2">Cross-refs</li></ul></nav><h1 class="prism-h1">MASTER-BRAIN-TEMPLATE — the canonical working, connected per-domain Obsidian brain</h1>
+<blockquote class="prism-quote"><strong>Owner: slot:alpha</strong> (Obsidian-brain domain owner, operator-designated 2026-05-28 — see [[project-alpha-owns-obsidian-brain]]).</blockquote>
+<blockquote class="prism-quote"><strong>Status: canonical.</strong> This is the single source of truth for what a &quot;working brain connected to the master PRISM brain&quot; means. Every other slot <strong>clones this pattern and fine-tunes for its domain</strong> — it does NOT re-derive brain wiring from scratch.</blockquote>
+<blockquote class="prism-quote"><strong>Worked exemplar:</strong> <code class="prism-inline-code">mcp-server/src/engines/token-optimization/MEMORY.md</code> (alpha&#39;s own galaxy — the first galaxy made compliant).</blockquote>
+<blockquote class="prism-quote"><strong>Audit that produced this:</strong> <code class="prism-inline-code">state/shared/specs/GALAXY-OBSIDIAN-BRAIN-AUDIT-2026-05-28.md</code> (workflow wf_ff92b952-169, 5 confirmed findings).</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">Why this exists</h2>
+<p>24 slots each independently inventing brain-wiring produced inconsistent partial brains — <code class="prism-inline-code">token-optimization</code> populated, <code class="prism-inline-code">mill</code> a stub. The audit verdict was <strong><code class="prism-inline-code">declared-not-working</code></strong> on 2 of 4 connection axes: knowledge is <em>reachable</em> (flat-type keyword search works, no brain is severed), but the <strong>master index is blind to every per-galaxy brain</strong> (no back-pointer) and <strong>recall is never verified</strong>. The fix is one alpha-owned template, fanned out by clone-and-tune.</p>
+<p>A galaxy <code class="prism-inline-code">MEMORY.md</code> is a <strong>BRAIN</strong> only if it both <strong>PULLS FROM</strong> and <strong>PUSHES TO</strong> the master Obsidian vault on a live cadence, <strong>and the master index points back at it.</strong> A static birth-snapshot that the master never references is a <em>disconnected</em> brain, not a brain.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">The 4 connection axes (a brain is CONNECTED iff all 4 hold)</h2>
+<table class="prism-md-table"><thead><tr><th>Axis</th><th>Direction</th><th>Live mechanism</th><th>Cadence</th></tr></thead><tbody><tr><td><strong>PULL</strong></td><td>master → galaxy</td><td><code class="prism-inline-code">prism_memory:semantic_search query=&quot;&lt;domain&gt;&quot; topK=20</code> → reconcile into galaxy <code class="prism-inline-code">## High-ROI memories</code></td><td>every session start (NOT a one-time birth copy)</td></tr>
+<tr><td><strong>PUSH</strong></td><td>galaxy → master</td><td>write <code class="prism-inline-code">&lt;type&gt;_&lt;slot&gt;_&lt;topic&gt;.md</code> into <code class="prism-inline-code">C:/Users/wompu/.claude/projects/H--prism/memory/</code>; <code class="prism-inline-code">stop-obsidian-memory-feed.mjs</code> mirrors C: → <code class="prism-inline-code">H:/prism/knowledge/memories/&lt;type&gt;/</code> at Stop</td><td>every learning</td></tr>
+<tr><td><strong>MASTER-INDEX back-pointer</strong></td><td>master → galaxy (discovery)</td><td>one <code class="prism-inline-code">&lt;=140-char</code> row in master <code class="prism-inline-code">MEMORY.md</code> <code class="prism-inline-code">## Indexed memories</code>: <code class="prism-inline-code">[galaxy:&lt;galaxy&gt;] mcp-server/src/engines/&lt;galaxy&gt;/MEMORY.md — &lt;summary&gt; (slot:&lt;slot&gt;, &lt;date&gt;)</code></td><td>once per galaxy, kept current</td></tr>
+<tr><td><strong>RECALL round-trip</strong></td><td>proof</td><td><code class="prism-inline-code">prism_memory:semantic_search query=&quot;&lt;galaxy&gt;&quot; topK=10</code> returns ≥1 of this slot&#39;s memory IDs</td><td>verified, not assumed</td></tr></tbody></table>
+<blockquote class="prism-quote"><strong>R12 / fail-loud note (2026-05-28):</strong> <code class="prism-inline-code">knowledge/memories/&lt;galaxy&gt;/</code> per-galaxy dirs are <strong>NOT yet materialized</strong>. Memories live in the flat type buckets (<code class="prism-inline-code">feedback/ reference/ project/ …</code>) and are reached by <strong>keyword search</strong> — that IS the working path today. Per-galaxy dirs are gated on the unshipped <code class="prism-inline-code">scripts/migrate-memories-to-galaxies.mjs</code>; the dry-run classifier (<code class="prism-inline-code">classify-memories-by-galaxy.mjs</code>) currently misroutes ~79% to <code class="prism-inline-code">business</code> (additive-keyword over-match), so the migrator is <strong>deferred</strong> until the classifier is fixed. Do NOT assume a <code class="prism-inline-code">knowledge/memories/&lt;galaxy&gt;/</code> dir exists.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">Required galaxy MEMORY.md structure (clone this shape)</h2>
+<p>Every <code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/MEMORY.md</code> MUST open with the <code class="prism-inline-code">## Master-brain link</code> header, then carry the standing sections:</p>
+<pre class="prism-codeblock" data-lang="markdown"><code># &lt;Galaxy&gt; Galaxy MEMORY.md — per-domain working brain
+
+## Master-brain link
+- **UP (pull from master):** `C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md`
+  — recall: `prism_memory:semantic_search query=&quot;&lt;domain&gt; &lt;query&gt;&quot; topK=20`
+- **DOWN (push to master):** write `&lt;type&gt;_&lt;slot&gt;_&lt;topic&gt;.md` →
+  `C:/Users/wompu/.claude/projects/H--prism/memory/` → fed to `knowledge/memories/&lt;type&gt;/` by `stop-obsidian-memory-feed.mjs`
+- **MASTER-INDEX edge:** master `MEMORY.md` carries `[galaxy:&lt;galaxy&gt;] …` back-pointer (verify it exists)
+- **Last master-sync:** YYYY-MM-DD   ← bump on every PULL reconcile; older than the galaxy dir mtime ⇒ re-pull before work
+
+## High-ROI memories          # PULL target — top-10 master hits as [[memory-name]] pointers (≤140 chars/line)
+## Indexed memories — domain pointers   # this galaxy&#39;s own per-file memory index
+## Cross-galaxy bridges       # PSN edges OUT (which galaxies consume/produce; bridge shape)
+## Known failure modes        # domain-specific R12 lessons</code></pre>
+<p>The <code class="prism-inline-code">## Master-brain link</code> header + <code class="prism-inline-code">Last master-sync</code> stamp are what make the brain <strong>connected and non-rotting</strong> — not just present.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Clone-and-tune protocol (every non-alpha slot)</h2>
+<ol class="prism-md-list"><li><strong>Copy</strong> the <code class="prism-inline-code">## Master-brain link</code> header block above into your <code class="prism-inline-code">engines/&lt;galaxy&gt;/MEMORY.md</code>, substituting <code class="prism-inline-code">&lt;galaxy&gt;</code>, <code class="prism-inline-code">&lt;slot&gt;</code>, <code class="prism-inline-code">&lt;domain&gt;</code>.</li><li><strong>PULL once now:</strong> run the recall query for your domain keywords; seed <code class="prism-inline-code">## High-ROI memories</code> with the top-10.</li><li><strong>Register the back-pointer:</strong> append your <code class="prism-inline-code">[galaxy:&lt;galaxy&gt;] …</code> row to the master <code class="prism-inline-code">MEMORY.md</code> <code class="prism-inline-code">## Indexed memories</code> — this is the half that&#39;s been missing; without it the master is blind to your brain.</li><li><strong>Stamp</strong> <code class="prism-inline-code">Last master-sync:</code> to today.</li><li><strong>Fine-tune</strong> <code class="prism-inline-code">## High-ROI memories</code>, <code class="prism-inline-code">## Cross-galaxy bridges</code>, <code class="prism-inline-code">## Known failure modes</code> for YOUR domain — this is the only part that differs per slot. The connection wiring is identical across all slots (that&#39;s the point of the template).</li><li><strong>Verify</strong> with the connection gate below before commit.</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">Connection verification gate (run BEFORE commit — proves CONNECTION, not presence)</h2>
+<pre class="prism-codeblock" data-lang="bash"><code>G=mcp-server/src/engines/&lt;galaxy&gt;; SLOT=&lt;slot&gt;; GAL=&lt;galaxy&gt;
+# CONN-1 (UP edge)
+grep -q &#39;^## Master-brain link&#39; $G/MEMORY.md &amp;&amp; grep -q &#39;H--prism/memory/MEMORY.md&#39; $G/MEMORY.md || echo &#39;FAIL CONN-1: no master-brain-link header / UP edge&#39;
+# CONN-2 (freshness)
+grep -qiE &#39;Last master-sync:&#39; $G/MEMORY.md || echo &#39;FAIL CONN-2: no master-sync stamp (rotting birth-snapshot risk)&#39;
+# CONN-3 (DOWN/backflow edge)
+ls H:/prism/knowledge/memories/*/*_${SLOT}_*.md &gt;/dev/null 2&gt;&amp;1 || echo &#39;FAIL CONN-3: no &lt;slot&gt; learning pushed to master vault&#39;
+# CONN-4 (master-index edge — the half missing today)
+grep -q &quot;galaxy:${GAL}&quot; C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md || echo &#39;FAIL CONN-4: master MEMORY.md has no [galaxy:&lt;galaxy&gt;] back-pointer&#39;
+# CONN-5 (recall round-trip — advisory; may be empty until the Stop-hook feed lands this session)
+# prism_memory:semantic_search query=&quot;&lt;galaxy&gt;&quot; topK=10  → assert ≥1 of this session&#39;s &lt;slot&gt; memory IDs in hits</code></pre>
+<p>CONN-1..4 are hard; CONN-5 is advisory (the async Stop-feed may not have landed in-session — re-run after Stop or defer).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Generator wiring (how this template reaches every slot)</h2>
+<p><code class="prism-inline-code">scripts/generate-per-slot-galaxy-buildout-files.mjs</code> STEP 5 + VERIFICATION GATE point every regenerated brief at THIS template (clone-and-tune), and gate the commit on FAIL 12 (master back-pointer) + FAIL 13 (recall edge). Regenerate after any change here: <code class="prism-inline-code">node scripts/generate-per-slot-galaxy-buildout-files.mjs</code>.</p>
+<h2 class="prism-h2">Cross-refs</h2>
+<ul class="prism-md-list"><li>[[project-alpha-owns-obsidian-brain]] · [[feedback-obsidian-brain]] (PSN leg #1)</li><li><code class="prism-inline-code">state/shared/specs/PER-SLOT-GALAXY-BUILD-KIT.md</code> (master protocol — extended with the bidirectional brain section)</li><li><code class="prism-inline-code">state/shared/specs/DOMAIN-GALAXY-DOCTRINE-2026-05-26.md</code> (PSN leg #1 = working bidirectional brain)</li><li><code class="prism-inline-code">knowledge/wiki/architecture/obsidian-brain-fix-ms0.md</code> (topic-drift orphaning fix)</li><li>COMMAND-KERNEL-MS0 — the PSK syscall layer (<code class="prism-inline-code">.claude/kernel/psk.mjs</code>) the brain/OS composes through; alpha-owned (U-CK11 open).</li></ul>
+<p>_Maintained by slot:alpha. Last revised 2026-05-28 (audit wf_ff92b952-169)._</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

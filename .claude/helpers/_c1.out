@@ -1,0 +1,95 @@
+TAP version 13
+# Subtest: scoreMultiToolPrompt: 'for each engine, run X' → high score
+ok 1 - scoreMultiToolPrompt: 'for each engine, run X' → high score
+  ---
+  duration_ms: 1.9338
+  ...
+# Subtest: scoreMultiToolPrompt: 'ship all remaining unwired engines' → high score
+ok 2 - scoreMultiToolPrompt: 'ship all remaining unwired engines' → high score
+  ---
+  duration_ms: 0.4174
+  ...
+# Subtest: scoreMultiToolPrompt: 'audit the entire codebase' → high score
+ok 3 - scoreMultiToolPrompt: 'audit the entire codebase' → high score
+  ---
+  duration_ms: 0.1129
+  ...
+# Subtest: scoreMultiToolPrompt: 'check each file' → mid score
+ok 4 - scoreMultiToolPrompt: 'check each file' → mid score
+  ---
+  duration_ms: 0.0976
+  ...
+# Subtest: scoreMultiToolPrompt: '50 of files need refactor' → high score (numeric)
+ok 5 - scoreMultiToolPrompt: '50 of files need refactor' → high score (numeric)
+  ---
+  duration_ms: 0.0891
+  ...
+# Subtest: scoreMultiToolPrompt: 'dozens of engines to wire' → high score
+ok 6 - scoreMultiToolPrompt: 'dozens of engines to wire' → high score
+  ---
+  duration_ms: 0.0787
+  ...
+# Subtest: scoreMultiToolPrompt: small task prompt → score 0
+ok 7 - scoreMultiToolPrompt: small task prompt → score 0
+  ---
+  duration_ms: 0.203
+  ...
+# Subtest: scoreMultiToolPrompt: empty / null returns 0
+ok 8 - scoreMultiToolPrompt: empty / null returns 0
+  ---
+  duration_ms: 0.0902
+  ...
+# Subtest: formatPlannerNudge: high-score prompt → nudge emitted
+not ok 9 - formatPlannerNudge: high-score prompt → nudge emitted
+  ---
+  duration_ms: 44.995
+  location: 'H:\\prism\\.claude\\hooks\\__tests__\\userprompt-multi-tool-planner-nudge.test.mjs:42:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(n.includes("Agent dispatch"))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///H:/prism/.claude/hooks/__tests__/userprompt-multi-tool-planner-nudge.test.mjs:45:10)
+    Test.runInAsyncScope (node:async_hooks:211:14)
+    Test.run (node:internal/test_runner/test:934:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:633:18)
+    Test.postRun (node:internal/test_runner/test:1045:19)
+    Test.run (node:internal/test_runner/test:973:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
+  ...
+# Subtest: formatPlannerNudge: small task → null
+ok 10 - formatPlannerNudge: small task → null
+  ---
+  duration_ms: 0.3566
+  ...
+# Subtest: formatPlannerNudge: custom threshold honored
+ok 11 - formatPlannerNudge: custom threshold honored
+  ---
+  duration_ms: 0.1637
+  ...
+# Subtest: formatPlannerNudge: includes kill-switch reference
+ok 12 - formatPlannerNudge: includes kill-switch reference
+  ---
+  duration_ms: 0.0908
+  ...
+# Subtest: formatPlannerNudge: surfaces score in advisory
+ok 13 - formatPlannerNudge: surfaces score in advisory
+  ---
+  duration_ms: 0.1073
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 12
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 140.4765

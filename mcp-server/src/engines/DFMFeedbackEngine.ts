@@ -23,6 +23,27 @@ export interface DFMResult {
   manufacturability: "excellent" | "good" | "marginal" | "difficult";
 }
 
+/** Actionable improvement suggestion derived from a DFMResult. */
+export interface DFMImprovement {
+  priority: "high" | "medium" | "low";
+  category: string;
+  feature_id?: string;
+  action: string;
+  rationale: string;
+}
+
+/** Full manufacturability report combining analysis + improvements. */
+export interface DFMReport {
+  summary: string;
+  score: number;
+  manufacturability: DFMResult["manufacturability"];
+  critical_count: number;
+  warning_count: number;
+  info_count: number;
+  improvements: DFMImprovement[];
+  ready_to_manufacture: boolean;
+}
+
 export class DFMFeedbackEngine {
   analyze(
     features: Array<{
@@ -190,6 +211,66 @@ export class DFMFeedbackEngine {
       issues, score,
       critical_count: crit, warning_count: warn, info_count: info,
       manufacturability: mfg,
+    };
+  }
+
+  /**
+   * Derive prioritised improvement suggestions from a completed DFMResult.
+   * Each issue becomes one DFMImprovement; severity maps to priority
+   * (critical->high, warning->medium, info->low). Result is sorted high first.
+   *
+   * @param analysis - Result from analyze()
+   * @returns Ordered list of improvements (high, medium, low)
+   */
+  suggestImprovements(analysis: DFMResult): DFMImprovement[] {
+    const improvements: DFMImprovement[] = [];
+
+    for (const issue of analysis.issues) {
+      const priority: DFMImprovement["priority"] =
+        issue.severity === "critical" ? "high"
+          : issue.severity === "warning" ? "medium"
+            : "low";
+
+      improvements.push({
+        priority,
+        category: issue.category,
+        feature_id: issue.feature_id,
+        action: issue.recommendation,
+        rationale: issue.message + (issue.physics_basis ? ` (${issue.physics_basis})` : ""),
+      });
+    }
+
+    const ORDER: Record<DFMImprovement["priority"], number> = { high: 0, medium: 1, low: 2 };
+    improvements.sort((a, b) => ORDER[a.priority] - ORDER[b.priority]);
+
+    return improvements;
+  }
+
+  /**
+   * Generate a full manufacturability report combining DFMResult + improvements.
+   * Used by the dispatcher's dfm_report action.
+   *
+   * @param analysis - Result from analyze()
+   * @param improvements - Result from suggestImprovements(); pass [] to omit
+   * @returns DFMReport with human-readable summary, score, counts, improvements
+   */
+  generateReport(analysis: DFMResult, improvements: DFMImprovement[]): DFMReport {
+    const summary =
+      analysis.critical_count > 0
+        ? `${analysis.critical_count} critical issue(s) must be resolved before machining`
+        : analysis.warning_count > 0
+          ? `Design is marginal -- ${analysis.warning_count} warning(s) need attention`
+          : "Design is manufacturable with standard practices";
+
+    return {
+      summary,
+      score: analysis.score,
+      manufacturability: analysis.manufacturability,
+      critical_count: analysis.critical_count,
+      warning_count: analysis.warning_count,
+      info_count: analysis.info_count,
+      improvements,
+      ready_to_manufacture: analysis.critical_count === 0,
     };
   }
 }

@@ -1,0 +1,2015 @@
+{
+  "schemaVersion": 2,
+  "created": "2026-04-17",
+  "updated": "2026-04-19",
+  "track": "WEDM-CONSOLIDATED",
+  "milestone": "MS-P1.5-ONESHOT",
+  "unit": "U-P1.5-OS-03",
+  "description": "Complete Wire EDM capability inventory for AutoPrintToProgramBridgeEngine routing — auto-generated from src/engines/ filesystem scan. Regenerate via scripts/generate-wedm-capability-manifest.mjs.",
+  "generated_by": "scripts/generate-wedm-capability-manifest.mjs",
+  "process_type": "wire_edm",
+  "feature_types": [
+    "closed_profile_cut",
+    "taper_cut",
+    "multi_pass_skim",
+    "start_hole",
+    "wire_profile",
+    "slug_drop",
+    "corner_rounding",
+    "wire_contour",
+    "wire_pocket",
+    "wire_slot",
+    "wire_hole",
+    "wire_taper",
+    "wire_corner",
+    "wire_tab"
+  ],
+  "primary_pipeline": "WireEDMAIPrintToProgramEngine",
+  "entry_points": [
+    "WireEDMAIPrintToProgramEngine",
+    "WEDMPrintToProgramEngine",
+    "WEDMCompleteOrchestrationEngine",
+    "WireEDMAGIOrchestrator",
+    "WireEDMMasterAIEngine"
+  ],
+  "autobridge_route": {
+    "process_match": "wire_edm",
+    "engine": "WireEDMAIPrintToProgramEngine",
+    "method": "generate",
+    "required_inputs": [
+      "material",
+      "thickness_mm",
+      "contours"
+    ],
+    "optional_inputs": [
+      "hardness_hrc",
+      "target_ra_um",
+      "tolerance_mm",
+      "taper_angle_deg",
+      "machine_id",
+      "wire_diameter_mm",
+      "reasoning_mode",
+      "optimization_objective"
+    ],
+    "produces": [
+      "gcode",
+      "passes",
+      "cycle_time",
+      "confidence",
+      "reasoning_chain",
+      "counterfactuals"
+    ]
+  },
+  "total_engines": 137,
+  "category_counts": {
+    "toolpath_strategy": 10,
+    "business": 8,
+    "parameter_calculation": 6,
+    "geometry_import": 3,
+    "specialized": 7,
+    "quality_monitoring": 6,
+    "post_processing": 4,
+    "awareness": 5,
+    "ai_reasoning": 9,
+    "workflow": 7,
+    "autonomy": 6,
+    "analysis": 3,
+    "knowledge_synthesis": 5,
+    "state_management": 4,
+    "orchestration": 6,
+    "machine_learning": 9,
+    "physics": 9,
+    "safety_validation": 9,
+    "diagnostics": 6,
+    "feedback_learning": 6,
+    "caching_optimization": 5,
+    "feature_recognition": 1,
+    "simulation": 3
+  },
+  "engines": {
+    "toolpath_strategy": [
+      {
+        "name": "EDMBiMaterialCompensationEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./EDMBiMaterialCompensationEngine.js"
+      },
+      {
+        "name": "EDMMultiPassStrategyEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./EDMMultiPassStrategyEngine.js"
+      },
+      {
+        "name": "EDMToolpathStrategyEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./EDMToolpathStrategyEngine.js"
+      },
+      {
+        "name": "EDMWireSlugCornerTaperEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./EDMWireSlugCornerTaperEngine.js"
+      },
+      {
+        "name": "WEDMAccessibilityEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./WEDMAccessibilityEngine.js"
+      },
+      {
+        "name": "WEDMSequencingEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./WEDMSequencingEngine.js"
+      },
+      {
+        "name": "WEDMSlugTabRetentionEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./WEDMSlugTabRetentionEngine.js"
+      },
+      {
+        "name": "WEDMStrategyLibraryEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./WEDMStrategyLibraryEngine.js"
+      },
+      {
+        "name": "WEDMTabStrategyEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./WEDMTabStrategyEngine.js"
+      },
+      {
+        "name": "WEDMWirePathCollisionEngine",
+        "category": "toolpath_strategy",
+        "inputs": [
+          "features",
+          "geometry",
+          "constraints"
+        ],
+        "outputs": [
+          "toolpath",
+          "pass_plan",
+          "strategy"
+        ],
+        "module": "./WEDMWirePathCollisionEngine.js"
+      }
+    ],
+    "business": [
+      {
+        "name": "EDMCostDocumentationEngine",
+        "category": "business",
+        "inputs": [
+          "job_spec",
+          "actuals"
+        ],
+        "outputs": [
+          "cost",
+          "invoice",
+          "schedule"
+        ],
+        "module": "./EDMCostDocumentationEngine.js"
+      },
+      {
+        "name": "WEDMCreditCostEngine",
+        "category": "business",
+        "inputs": [
+          "job_spec",
+          "actuals"
+        ],
+        "outputs": [
+          "cost",
+          "invoice",
+          "schedule"
+        ],
+        "module": "./WEDMCreditCostEngine.js"
+      },
+      {
+        "name": "WEDMInvoiceLineEngine",
+        "category": "business",
+        "inputs": [
+          "job_spec",
+          "actuals"
+        ],
+        "outputs": [
+          "cost",
+          "invoice",
+          "schedule"
+        ],
+        "module": "./WEDMInvoiceLineEngine.js"
+      },
+      {
+        "name": "WEDMJobCostEngine",
+        "category": "business",
+        "inputs": [
+          "job_spec",
+          "actuals"
+        ],
+        "outputs": [
+          "cost",
+          "invoice",
+          "schedule"
+        ],
+        "module": "./WEDMJobCostEngine.js"
+      },
+      {
+        "name": "WEDMOverageApprovalEngine",
+        "category": "business",
+        "inputs": [
+          "job_spec",
+          "actuals"
+        ],
+        "outputs": [
+          "cost",
+          "invoice",
+          "schedule"
+        ],
+        "module": "./WEDMOverageApprovalEngine.js"
+      },
+      {
+        "name": "WEDMSchedulingEngine",
+        "category": "business",
+        "inputs": [
+          "job_spec",
+          "actuals"
+        ],
+        "outputs": [
+          "cost",
+          "invoice",
+          "schedule"
+        ],
+        "module": "./WEDMSchedulingEngine.js"
+      },
+      {
+        "name": "WEDMWireBreakRiskCostEngine",
+        "category": "business",
+        "inputs": [
+          "job_spec",
+          "actuals"
+        ],
+        "outputs": [
+          "cost",
+          "invoice",
+          "schedule"
+        ],
+        "module": "./WEDMWireBreakRiskCostEngine.js"
+      },
+      {
+        "name": "WEDMWirePremiumROIEngine",
+        "category": "business",
+        "inputs": [
+          "job_spec",
+          "actuals"
+        ],
+        "outputs": [
+          "cost",
+          "invoice",
+          "schedule"
+        ],
+        "module": "./WEDMWirePremiumROIEngine.js"
+      }
+    ],
+    "parameter_calculation": [
+      {
+        "name": "EDMCuttingParamFlushEngine",
+        "category": "parameter_calculation",
+        "inputs": [
+          "material",
+          "wire",
+          "machine",
+          "thickness"
+        ],
+        "outputs": [
+          "cutting_params",
+          "spark_params"
+        ],
+        "module": "./EDMCuttingParamFlushEngine.js"
+      },
+      {
+        "name": "EDMMaterialMachineWireEngine",
+        "category": "parameter_calculation",
+        "inputs": [
+          "material",
+          "wire",
+          "machine",
+          "thickness"
+        ],
+        "outputs": [
+          "cutting_params",
+          "spark_params"
+        ],
+        "module": "./EDMMaterialMachineWireEngine.js"
+      },
+      {
+        "name": "EDMParameterEngine",
+        "category": "parameter_calculation",
+        "inputs": [
+          "material",
+          "wire",
+          "machine",
+          "thickness"
+        ],
+        "outputs": [
+          "cutting_params",
+          "spark_params"
+        ],
+        "module": "./EDMParameterEngine.js"
+      },
+      {
+        "name": "WEDMAdaptivePassEngine",
+        "category": "parameter_calculation",
+        "inputs": [
+          "material",
+          "wire",
+          "machine",
+          "thickness"
+        ],
+        "outputs": [
+          "cutting_params",
+          "spark_params"
+        ],
+        "module": "./WEDMAdaptivePassEngine.js"
+      },
+      {
+        "name": "WEDMMaterialCharacterizationEngine",
+        "category": "parameter_calculation",
+        "inputs": [
+          "material",
+          "wire",
+          "machine",
+          "thickness"
+        ],
+        "outputs": [
+          "cutting_params",
+          "spark_params"
+        ],
+        "module": "./WEDMMaterialCharacterizationEngine.js"
+      },
+      {
+        "name": "WEDMMaterialSparkDatabaseEngine",
+        "category": "parameter_calculation",
+        "inputs": [
+          "material",
+          "wire",
+          "machine",
+          "thickness"
+        ],
+        "outputs": [
+          "cutting_params",
+          "spark_params"
+        ],
+        "module": "./WEDMMaterialSparkDatabaseEngine.js"
+      }
+    ],
+    "geometry_import": [
+      {
+        "name": "EDMDrawingInterpretationEngine",
+        "category": "geometry_import",
+        "inputs": [
+          "dxf",
+          "dwg",
+          "step",
+          "iges"
+        ],
+        "outputs": [
+          "geometry",
+          "contours",
+          "features"
+        ],
+        "module": "./EDMDrawingInterpretationEngine.js"
+      },
+      {
+        "name": "WEDMDXFClosureValidatorEngine",
+        "category": "geometry_import",
+        "inputs": [
+          "dxf",
+          "dwg",
+          "step",
+          "iges"
+        ],
+        "outputs": [
+          "geometry",
+          "contours",
+          "features"
+        ],
+        "module": "./WEDMDXFClosureValidatorEngine.js"
+      },
+      {
+        "name": "WEDMDwgImportEngine",
+        "category": "geometry_import",
+        "inputs": [
+          "dxf",
+          "dwg",
+          "step",
+          "iges"
+        ],
+        "outputs": [
+          "geometry",
+          "contours",
+          "features"
+        ],
+        "module": "./WEDMDwgImportEngine.js"
+      }
+    ],
+    "specialized": [
+      {
+        "name": "EDMFeasibilityEngine",
+        "category": "specialized",
+        "inputs": [
+          "params"
+        ],
+        "outputs": [
+          "result"
+        ],
+        "module": "./EDMFeasibilityEngine.js"
+      },
+      {
+        "name": "EDMStartHoleSetupEngine",
+        "category": "specialized",
+        "inputs": [
+          "params"
+        ],
+        "outputs": [
+          "result"
+        ],
+        "module": "./EDMStartHoleSetupEngine.js"
+      },
+      {
+        "name": "EDMWireEngine",
+        "category": "specialized",
+        "inputs": [
+          "params"
+        ],
+        "outputs": [
+          "result"
+        ],
+        "module": "./EDMWireEngine.js"
+      },
+      {
+        "name": "WEDMPrintToProgramEngine",
+        "category": "specialized",
+        "inputs": [
+          "params"
+        ],
+        "outputs": [
+          "result"
+        ],
+        "module": "./WEDMPrintToProgramEngine.js"
+      },
+      {
+        "name": "WEDMWireSpoolConsumptionEngine",
+        "category": "specialized",
+        "inputs": [
+          "params"
+        ],
+        "outputs": [
+          "result"
+        ],
+        "module": "./WEDMWireSpoolConsumptionEngine.js"
+      },
+      {
+        "name": "WEDMWireThreadingMinEngine",
+        "category": "specialized",
+        "inputs": [
+          "params"
+        ],
+        "outputs": [
+          "result"
+        ],
+        "module": "./WEDMWireThreadingMinEngine.js"
+      },
+      {
+        "name": "WireEDMAIPrintToProgramEngine",
+        "category": "specialized",
+        "inputs": [
+          "params"
+        ],
+        "outputs": [
+          "result"
+        ],
+        "module": "./WireEDMAIPrintToProgramEngine.js"
+      }
+    ],
+    "quality_monitoring": [
+      {
+        "name": "EDMMonitorSurfaceIntegrityEngine",
+        "category": "quality_monitoring",
+        "inputs": [
+          "program",
+          "measurements"
+        ],
+        "outputs": [
+          "quality_metrics",
+          "surface_prediction"
+        ],
+        "module": "./EDMMonitorSurfaceIntegrityEngine.js"
+      },
+      {
+        "name": "EDMQualityOrchestratorEngine",
+        "category": "quality_monitoring",
+        "inputs": [
+          "program",
+          "measurements"
+        ],
+        "outputs": [
+          "quality_metrics",
+          "surface_prediction"
+        ],
+        "module": "./EDMQualityOrchestratorEngine.js"
+      },
+      {
+        "name": "EDMSurfaceIntegrityEngine",
+        "category": "quality_monitoring",
+        "inputs": [
+          "program",
+          "measurements"
+        ],
+        "outputs": [
+          "quality_metrics",
+          "surface_prediction"
+        ],
+        "module": "./EDMSurfaceIntegrityEngine.js"
+      },
+      {
+        "name": "WEDMCalibrationReportEngine",
+        "category": "quality_monitoring",
+        "inputs": [
+          "program",
+          "measurements"
+        ],
+        "outputs": [
+          "quality_metrics",
+          "surface_prediction"
+        ],
+        "module": "./WEDMCalibrationReportEngine.js"
+      },
+      {
+        "name": "WEDMFeedbackCalibrationEngine",
+        "category": "quality_monitoring",
+        "inputs": [
+          "program",
+          "measurements"
+        ],
+        "outputs": [
+          "quality_metrics",
+          "surface_prediction"
+        ],
+        "module": "./WEDMFeedbackCalibrationEngine.js"
+      },
+      {
+        "name": "WEDMProductionReadinessEngine",
+        "category": "quality_monitoring",
+        "inputs": [
+          "program",
+          "measurements"
+        ],
+        "outputs": [
+          "quality_metrics",
+          "surface_prediction"
+        ],
+        "module": "./WEDMProductionReadinessEngine.js"
+      }
+    ],
+    "post_processing": [
+      {
+        "name": "EDMPostProcessGCodeEngine",
+        "category": "post_processing",
+        "inputs": [
+          "toolpath",
+          "controller_dialect"
+        ],
+        "outputs": [
+          "gcode",
+          "program_text"
+        ],
+        "module": "./EDMPostProcessGCodeEngine.js"
+      },
+      {
+        "name": "EDMProgramAssemblerEngine",
+        "category": "post_processing",
+        "inputs": [
+          "toolpath",
+          "controller_dialect"
+        ],
+        "outputs": [
+          "gcode",
+          "program_text"
+        ],
+        "module": "./EDMProgramAssemblerEngine.js"
+      },
+      {
+        "name": "WEDMPostDialectRouterEngine",
+        "category": "post_processing",
+        "inputs": [
+          "toolpath",
+          "controller_dialect"
+        ],
+        "outputs": [
+          "gcode",
+          "program_text"
+        ],
+        "module": "./WEDMPostDialectRouterEngine.js"
+      },
+      {
+        "name": "WEDMProgramVerificationEngine",
+        "category": "post_processing",
+        "inputs": [
+          "toolpath",
+          "controller_dialect"
+        ],
+        "outputs": [
+          "gcode",
+          "program_text"
+        ],
+        "module": "./WEDMProgramVerificationEngine.js"
+      }
+    ],
+    "awareness": [
+      {
+        "name": "WEDMActiveQueryEngine",
+        "category": "awareness",
+        "inputs": [
+          "query"
+        ],
+        "outputs": [
+          "awareness",
+          "citation_check"
+        ],
+        "module": "./WEDMActiveQueryEngine.js"
+      },
+      {
+        "name": "WEDMAwarenessAdoptionEngine",
+        "category": "awareness",
+        "inputs": [
+          "query"
+        ],
+        "outputs": [
+          "awareness",
+          "citation_check"
+        ],
+        "module": "./WEDMAwarenessAdoptionEngine.js"
+      },
+      {
+        "name": "WEDMCitationCheckEngine",
+        "category": "awareness",
+        "inputs": [
+          "query"
+        ],
+        "outputs": [
+          "awareness",
+          "citation_check"
+        ],
+        "module": "./WEDMCitationCheckEngine.js"
+      },
+      {
+        "name": "WEDMSelfAwarenessEngine",
+        "category": "awareness",
+        "inputs": [
+          "query"
+        ],
+        "outputs": [
+          "awareness",
+          "citation_check"
+        ],
+        "module": "./WEDMSelfAwarenessEngine.js"
+      },
+      {
+        "name": "WireEDMSelfAwarenessIntegrationEngine",
+        "category": "awareness",
+        "inputs": [
+          "query"
+        ],
+        "outputs": [
+          "awareness",
+          "citation_check"
+        ],
+        "module": "./WireEDMSelfAwarenessIntegrationEngine.js"
+      }
+    ],
+    "ai_reasoning": [
+      {
+        "name": "WEDMAnalogicalReasoningEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WEDMAnalogicalReasoningEngine.js"
+      },
+      {
+        "name": "WEDMCalculatorAIEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WEDMCalculatorAIEngine.js"
+      },
+      {
+        "name": "WEDMProcessCausalityEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WEDMProcessCausalityEngine.js"
+      },
+      {
+        "name": "WEDMReasoningBridgeEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WEDMReasoningBridgeEngine.js"
+      },
+      {
+        "name": "WEDMReasoningTraceLedgerEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WEDMReasoningTraceLedgerEngine.js"
+      },
+      {
+        "name": "WireEDMDeepLogicEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WireEDMDeepLogicEngine.js"
+      },
+      {
+        "name": "WireEDMDeepNeuralReasoningEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WireEDMDeepNeuralReasoningEngine.js"
+      },
+      {
+        "name": "WireEDMDeepReasoningEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WireEDMDeepReasoningEngine.js"
+      },
+      {
+        "name": "WireEDMResearchAIEngine",
+        "category": "ai_reasoning",
+        "inputs": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "reasoning",
+          "analogies",
+          "trace"
+        ],
+        "module": "./WireEDMResearchAIEngine.js"
+      }
+    ],
+    "workflow": [
+      {
+        "name": "WEDMArchiveBackfillEngine",
+        "category": "workflow",
+        "inputs": [
+          "job_spec",
+          "template"
+        ],
+        "outputs": [
+          "job_packet",
+          "setup_sheet",
+          "workflow_state"
+        ],
+        "module": "./WEDMArchiveBackfillEngine.js"
+      },
+      {
+        "name": "WEDMJobCreatorEngine",
+        "category": "workflow",
+        "inputs": [
+          "job_spec",
+          "template"
+        ],
+        "outputs": [
+          "job_packet",
+          "setup_sheet",
+          "workflow_state"
+        ],
+        "module": "./WEDMJobCreatorEngine.js"
+      },
+      {
+        "name": "WEDMMultiProfileBatchEngine",
+        "category": "workflow",
+        "inputs": [
+          "job_spec",
+          "template"
+        ],
+        "outputs": [
+          "job_packet",
+          "setup_sheet",
+          "workflow_state"
+        ],
+        "module": "./WEDMMultiProfileBatchEngine.js"
+      },
+      {
+        "name": "WEDMProgressTrackerEngine",
+        "category": "workflow",
+        "inputs": [
+          "job_spec",
+          "template"
+        ],
+        "outputs": [
+          "job_packet",
+          "setup_sheet",
+          "workflow_state"
+        ],
+        "module": "./WEDMProgressTrackerEngine.js"
+      },
+      {
+        "name": "WEDMQuoteBridgeEngine",
+        "category": "workflow",
+        "inputs": [
+          "job_spec",
+          "template"
+        ],
+        "outputs": [
+          "job_packet",
+          "setup_sheet",
+          "workflow_state"
+        ],
+        "module": "./WEDMQuoteBridgeEngine.js"
+      },
+      {
+        "name": "WEDMRecipeAdaptationEngine",
+        "category": "workflow",
+        "inputs": [
+          "job_spec",
+          "template"
+        ],
+        "outputs": [
+          "job_packet",
+          "setup_sheet",
+          "workflow_state"
+        ],
+        "module": "./WEDMRecipeAdaptationEngine.js"
+      },
+      {
+        "name": "WEDMSetupSheetEngine",
+        "category": "workflow",
+        "inputs": [
+          "job_spec",
+          "template"
+        ],
+        "outputs": [
+          "job_packet",
+          "setup_sheet",
+          "workflow_state"
+        ],
+        "module": "./WEDMSetupSheetEngine.js"
+      }
+    ],
+    "autonomy": [
+      {
+        "name": "WEDMAutonomyAuditEngine",
+        "category": "autonomy",
+        "inputs": [
+          "state",
+          "decision"
+        ],
+        "outputs": [
+          "autonomous_action",
+          "gate_decision"
+        ],
+        "module": "./WEDMAutonomyAuditEngine.js"
+      },
+      {
+        "name": "WEDMAutonomyEngine",
+        "category": "autonomy",
+        "inputs": [
+          "state",
+          "decision"
+        ],
+        "outputs": [
+          "autonomous_action",
+          "gate_decision"
+        ],
+        "module": "./WEDMAutonomyEngine.js"
+      },
+      {
+        "name": "WEDMAutonomySubstrateGateEngine",
+        "category": "autonomy",
+        "inputs": [
+          "state",
+          "decision"
+        ],
+        "outputs": [
+          "autonomous_action",
+          "gate_decision"
+        ],
+        "module": "./WEDMAutonomySubstrateGateEngine.js"
+      },
+      {
+        "name": "WEDMHumanHandoffEngine",
+        "category": "autonomy",
+        "inputs": [
+          "state",
+          "decision"
+        ],
+        "outputs": [
+          "autonomous_action",
+          "gate_decision"
+        ],
+        "module": "./WEDMHumanHandoffEngine.js"
+      },
+      {
+        "name": "WEDMRLControllerEngine",
+        "category": "autonomy",
+        "inputs": [
+          "state",
+          "decision"
+        ],
+        "outputs": [
+          "autonomous_action",
+          "gate_decision"
+        ],
+        "module": "./WEDMRLControllerEngine.js"
+      },
+      {
+        "name": "WEDMRewardShapingEngine",
+        "category": "autonomy",
+        "inputs": [
+          "state",
+          "decision"
+        ],
+        "outputs": [
+          "autonomous_action",
+          "gate_decision"
+        ],
+        "module": "./WEDMRewardShapingEngine.js"
+      }
+    ],
+    "analysis": [
+      {
+        "name": "WEDMBatchProgramAnalyzerEngine",
+        "category": "analysis",
+        "inputs": [
+          "programs",
+          "options"
+        ],
+        "outputs": [
+          "analysis",
+          "comparison"
+        ],
+        "module": "./WEDMBatchProgramAnalyzerEngine.js"
+      },
+      {
+        "name": "WEDMProgramComparisonEngine",
+        "category": "analysis",
+        "inputs": [
+          "programs",
+          "options"
+        ],
+        "outputs": [
+          "analysis",
+          "comparison"
+        ],
+        "module": "./WEDMProgramComparisonEngine.js"
+      },
+      {
+        "name": "WEDMTradeoffElicitationEngine",
+        "category": "analysis",
+        "inputs": [
+          "programs",
+          "options"
+        ],
+        "outputs": [
+          "analysis",
+          "comparison"
+        ],
+        "module": "./WEDMTradeoffElicitationEngine.js"
+      }
+    ],
+    "knowledge_synthesis": [
+      {
+        "name": "WEDMBenchmarkToleranceEngine",
+        "category": "knowledge_synthesis",
+        "inputs": [
+          "sources",
+          "query"
+        ],
+        "outputs": [
+          "synthesized_knowledge"
+        ],
+        "module": "./WEDMBenchmarkToleranceEngine.js"
+      },
+      {
+        "name": "WireEDMCAMKnowledgeEngine",
+        "category": "knowledge_synthesis",
+        "inputs": [
+          "sources",
+          "query"
+        ],
+        "outputs": [
+          "synthesized_knowledge"
+        ],
+        "module": "./WireEDMCAMKnowledgeEngine.js"
+      },
+      {
+        "name": "WireEDMKnowledgeSynthesisEngine",
+        "category": "knowledge_synthesis",
+        "inputs": [
+          "sources",
+          "query"
+        ],
+        "outputs": [
+          "synthesized_knowledge"
+        ],
+        "module": "./WireEDMKnowledgeSynthesisEngine.js"
+      },
+      {
+        "name": "WireEDMMachineTechDataEngine",
+        "category": "knowledge_synthesis",
+        "inputs": [
+          "sources",
+          "query"
+        ],
+        "outputs": [
+          "synthesized_knowledge"
+        ],
+        "module": "./WireEDMMachineTechDataEngine.js"
+      },
+      {
+        "name": "WireEDMUnifiedScienceEngine",
+        "category": "knowledge_synthesis",
+        "inputs": [
+          "sources",
+          "query"
+        ],
+        "outputs": [
+          "synthesized_knowledge"
+        ],
+        "module": "./WireEDMUnifiedScienceEngine.js"
+      }
+    ],
+    "state_management": [
+      {
+        "name": "WEDMBlackboardEngine",
+        "category": "state_management",
+        "inputs": [
+          "key",
+          "state_delta"
+        ],
+        "outputs": [
+          "state",
+          "stored_value"
+        ],
+        "module": "./WEDMBlackboardEngine.js"
+      },
+      {
+        "name": "WEDMMachineStateEngine",
+        "category": "state_management",
+        "inputs": [
+          "key",
+          "state_delta"
+        ],
+        "outputs": [
+          "state",
+          "stored_value"
+        ],
+        "module": "./WEDMMachineStateEngine.js"
+      },
+      {
+        "name": "WireEDMProgramParserEngine",
+        "category": "state_management",
+        "inputs": [
+          "key",
+          "state_delta"
+        ],
+        "outputs": [
+          "state",
+          "stored_value"
+        ],
+        "module": "./WireEDMProgramParserEngine.js"
+      },
+      {
+        "name": "WireEDMSettingsEngine",
+        "category": "state_management",
+        "inputs": [
+          "key",
+          "state_delta"
+        ],
+        "outputs": [
+          "state",
+          "stored_value"
+        ],
+        "module": "./WireEDMSettingsEngine.js"
+      }
+    ],
+    "orchestration": [
+      {
+        "name": "WEDMCompleteOrchestrationEngine",
+        "category": "orchestration",
+        "inputs": [
+          "job",
+          "task"
+        ],
+        "outputs": [
+          "orchestrated_result",
+          "plan"
+        ],
+        "module": "./WEDMCompleteOrchestrationEngine.js"
+      },
+      {
+        "name": "WEDMHierarchicalPlannerEngine",
+        "category": "orchestration",
+        "inputs": [
+          "job",
+          "task"
+        ],
+        "outputs": [
+          "orchestrated_result",
+          "plan"
+        ],
+        "module": "./WEDMHierarchicalPlannerEngine.js"
+      },
+      {
+        "name": "WEDMMultiAgentDispatchEngine",
+        "category": "orchestration",
+        "inputs": [
+          "job",
+          "task"
+        ],
+        "outputs": [
+          "orchestrated_result",
+          "plan"
+        ],
+        "module": "./WEDMMultiAgentDispatchEngine.js"
+      },
+      {
+        "name": "WEDMProgramOptimizerEngine",
+        "category": "orchestration",
+        "inputs": [
+          "job",
+          "task"
+        ],
+        "outputs": [
+          "orchestrated_result",
+          "plan"
+        ],
+        "module": "./WEDMProgramOptimizerEngine.js"
+      },
+      {
+        "name": "WireEDMMasterAIEngine",
+        "category": "orchestration",
+        "inputs": [
+          "job",
+          "task"
+        ],
+        "outputs": [
+          "orchestrated_result",
+          "plan"
+        ],
+        "module": "./WireEDMMasterAIEngine.js"
+      },
+      {
+        "name": "WireEDMNeuralOrchestrationEngine",
+        "category": "orchestration",
+        "inputs": [
+          "job",
+          "task"
+        ],
+        "outputs": [
+          "orchestrated_result",
+          "plan"
+        ],
+        "module": "./WireEDMNeuralOrchestrationEngine.js"
+      }
+    ],
+    "machine_learning": [
+      {
+        "name": "WEDMContinuousLearningEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WEDMContinuousLearningEngine.js"
+      },
+      {
+        "name": "WEDMFewShotEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WEDMFewShotEngine.js"
+      },
+      {
+        "name": "WEDMKnowledgeDistillationEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WEDMKnowledgeDistillationEngine.js"
+      },
+      {
+        "name": "WEDMNeuralFormulaFusionEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WEDMNeuralFormulaFusionEngine.js"
+      },
+      {
+        "name": "WEDMNeuralTrainingEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WEDMNeuralTrainingEngine.js"
+      },
+      {
+        "name": "WEDMProgramNeuralAnalysisEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WEDMProgramNeuralAnalysisEngine.js"
+      },
+      {
+        "name": "WEDMPrototypicalNetworkEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WEDMPrototypicalNetworkEngine.js"
+      },
+      {
+        "name": "WireEDMAdvancedNeuralEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WireEDMAdvancedNeuralEngine.js"
+      },
+      {
+        "name": "WireEDMPredictiveIntelligenceEngine",
+        "category": "machine_learning",
+        "inputs": [
+          "training_data",
+          "features"
+        ],
+        "outputs": [
+          "model",
+          "prediction"
+        ],
+        "module": "./WireEDMPredictiveIntelligenceEngine.js"
+      }
+    ],
+    "physics": [
+      {
+        "name": "WEDMCornerPhysicsEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMCornerPhysicsEngine.js"
+      },
+      {
+        "name": "WEDMDielectricCorrectionEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMDielectricCorrectionEngine.js"
+      },
+      {
+        "name": "WEDMDielectricFlushAdjustEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMDielectricFlushAdjustEngine.js"
+      },
+      {
+        "name": "WEDMKerfWidthEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMKerfWidthEngine.js"
+      },
+      {
+        "name": "WEDMStartPointOptimizationEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMStartPointOptimizationEngine.js"
+      },
+      {
+        "name": "WEDMTaperErrorBudgetEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMTaperErrorBudgetEngine.js"
+      },
+      {
+        "name": "WEDMThinWireDerateEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMThinWireDerateEngine.js"
+      },
+      {
+        "name": "WEDMWireDeflectionEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMWireDeflectionEngine.js"
+      },
+      {
+        "name": "WEDMWireHeatingEngine",
+        "category": "physics",
+        "inputs": [
+          "cutting_params",
+          "wire_props",
+          "material"
+        ],
+        "outputs": [
+          "physics_prediction",
+          "compensation"
+        ],
+        "module": "./WEDMWireHeatingEngine.js"
+      }
+    ],
+    "safety_validation": [
+      {
+        "name": "WEDMCurrentDensityGuardEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMCurrentDensityGuardEngine.js"
+      },
+      {
+        "name": "WEDMFailsafeEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMFailsafeEngine.js"
+      },
+      {
+        "name": "WEDMFixtureInterferenceEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMFixtureInterferenceEngine.js"
+      },
+      {
+        "name": "WEDMHeadClearanceEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMHeadClearanceEngine.js"
+      },
+      {
+        "name": "WEDMPowerDensityGuardEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMPowerDensityGuardEngine.js"
+      },
+      {
+        "name": "WEDMPreFlightCheckEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMPreFlightCheckEngine.js"
+      },
+      {
+        "name": "WEDMProgramSafetyGateEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMProgramSafetyGateEngine.js"
+      },
+      {
+        "name": "WEDMPulseLimitEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMPulseLimitEngine.js"
+      },
+      {
+        "name": "WEDMSafetyEnvelopeEngine",
+        "category": "safety_validation",
+        "inputs": [
+          "toolpath",
+          "machine",
+          "fixture"
+        ],
+        "outputs": [
+          "safety_check",
+          "envelope_result"
+        ],
+        "module": "./WEDMSafetyEnvelopeEngine.js"
+      }
+    ],
+    "diagnostics": [
+      {
+        "name": "WEDMDegradationModelEngine",
+        "category": "diagnostics",
+        "inputs": [
+          "symptoms",
+          "metrics"
+        ],
+        "outputs": [
+          "diagnosis",
+          "drift_alert",
+          "rul"
+        ],
+        "module": "./WEDMDegradationModelEngine.js"
+      },
+      {
+        "name": "WEDMDriftDetectionEngine",
+        "category": "diagnostics",
+        "inputs": [
+          "symptoms",
+          "metrics"
+        ],
+        "outputs": [
+          "diagnosis",
+          "drift_alert",
+          "rul"
+        ],
+        "module": "./WEDMDriftDetectionEngine.js"
+      },
+      {
+        "name": "WEDMExceptionHandlerEngine",
+        "category": "diagnostics",
+        "inputs": [
+          "symptoms",
+          "metrics"
+        ],
+        "outputs": [
+          "diagnosis",
+          "drift_alert",
+          "rul"
+        ],
+        "module": "./WEDMExceptionHandlerEngine.js"
+      },
+      {
+        "name": "WEDMFaultDiagnosisEngine",
+        "category": "diagnostics",
+        "inputs": [
+          "symptoms",
+          "metrics"
+        ],
+        "outputs": [
+          "diagnosis",
+          "drift_alert",
+          "rul"
+        ],
+        "module": "./WEDMFaultDiagnosisEngine.js"
+      },
+      {
+        "name": "WEDMMaintenanceSchedulerEngine",
+        "category": "diagnostics",
+        "inputs": [
+          "symptoms",
+          "metrics"
+        ],
+        "outputs": [
+          "diagnosis",
+          "drift_alert",
+          "rul"
+        ],
+        "module": "./WEDMMaintenanceSchedulerEngine.js"
+      },
+      {
+        "name": "WEDMRULEngine",
+        "category": "diagnostics",
+        "inputs": [
+          "symptoms",
+          "metrics"
+        ],
+        "outputs": [
+          "diagnosis",
+          "drift_alert",
+          "rul"
+        ],
+        "module": "./WEDMRULEngine.js"
+      }
+    ],
+    "feedback_learning": [
+      {
+        "name": "WEDMDeviationToTipEngine",
+        "category": "feedback_learning",
+        "inputs": [
+          "operator_feedback",
+          "measurement"
+        ],
+        "outputs": [
+          "learned_rule",
+          "calibration"
+        ],
+        "module": "./WEDMDeviationToTipEngine.js"
+      },
+      {
+        "name": "WEDMFeedbackIngestionEngine",
+        "category": "feedback_learning",
+        "inputs": [
+          "operator_feedback",
+          "measurement"
+        ],
+        "outputs": [
+          "learned_rule",
+          "calibration"
+        ],
+        "module": "./WEDMFeedbackIngestionEngine.js"
+      },
+      {
+        "name": "WEDMJobPatternLearnerEngine",
+        "category": "feedback_learning",
+        "inputs": [
+          "operator_feedback",
+          "measurement"
+        ],
+        "outputs": [
+          "learned_rule",
+          "calibration"
+        ],
+        "module": "./WEDMJobPatternLearnerEngine.js"
+      },
+      {
+        "name": "WEDMLearningLoopEngine",
+        "category": "feedback_learning",
+        "inputs": [
+          "operator_feedback",
+          "measurement"
+        ],
+        "outputs": [
+          "learned_rule",
+          "calibration"
+        ],
+        "module": "./WEDMLearningLoopEngine.js"
+      },
+      {
+        "name": "WEDMTribalRuntimeEngine",
+        "category": "feedback_learning",
+        "inputs": [
+          "operator_feedback",
+          "measurement"
+        ],
+        "outputs": [
+          "learned_rule",
+          "calibration"
+        ],
+        "module": "./WEDMTribalRuntimeEngine.js"
+      },
+      {
+        "name": "WEDMTribalTipLearnerEngine",
+        "category": "feedback_learning",
+        "inputs": [
+          "operator_feedback",
+          "measurement"
+        ],
+        "outputs": [
+          "learned_rule",
+          "calibration"
+        ],
+        "module": "./WEDMTribalTipLearnerEngine.js"
+      }
+    ],
+    "caching_optimization": [
+      {
+        "name": "WEDMKalmanFusionEngine",
+        "category": "caching_optimization",
+        "inputs": [
+          "query",
+          "measurements"
+        ],
+        "outputs": [
+          "cached_result",
+          "pareto_front"
+        ],
+        "module": "./WEDMKalmanFusionEngine.js"
+      },
+      {
+        "name": "WEDMModelUpdateEngine",
+        "category": "caching_optimization",
+        "inputs": [
+          "query",
+          "measurements"
+        ],
+        "outputs": [
+          "cached_result",
+          "pareto_front"
+        ],
+        "module": "./WEDMModelUpdateEngine.js"
+      },
+      {
+        "name": "WEDMParetoCacheEngine",
+        "category": "caching_optimization",
+        "inputs": [
+          "query",
+          "measurements"
+        ],
+        "outputs": [
+          "cached_result",
+          "pareto_front"
+        ],
+        "module": "./WEDMParetoCacheEngine.js"
+      },
+      {
+        "name": "WEDMParetoFrontierSearchEngine",
+        "category": "caching_optimization",
+        "inputs": [
+          "query",
+          "measurements"
+        ],
+        "outputs": [
+          "cached_result",
+          "pareto_front"
+        ],
+        "module": "./WEDMParetoFrontierSearchEngine.js"
+      },
+      {
+        "name": "WireEDMDeepAIHardeningEngine",
+        "category": "caching_optimization",
+        "inputs": [
+          "query",
+          "measurements"
+        ],
+        "outputs": [
+          "cached_result",
+          "pareto_front"
+        ],
+        "module": "./WireEDMDeepAIHardeningEngine.js"
+      }
+    ],
+    "feature_recognition": [
+      {
+        "name": "WEDMPartRecognitionEngine",
+        "category": "feature_recognition",
+        "inputs": [
+          "geometry"
+        ],
+        "outputs": [
+          "features",
+          "feature_types"
+        ],
+        "module": "./WEDMPartRecognitionEngine.js"
+      }
+    ],
+    "simulation": [
+      {
+        "name": "WEDMRolloutSimulatorEngine",
+        "category": "simulation",
+        "inputs": [
+          "program",
+          "scenario"
+        ],
+        "outputs": [
+          "simulation",
+          "outcome"
+        ],
+        "module": "./WEDMRolloutSimulatorEngine.js"
+      },
+      {
+        "name": "WEDMVirtualMachineEngine",
+        "category": "simulation",
+        "inputs": [
+          "program",
+          "scenario"
+        ],
+        "outputs": [
+          "simulation",
+          "outcome"
+        ],
+        "module": "./WEDMVirtualMachineEngine.js"
+      },
+      {
+        "name": "WEDMWhatIfSimulatorEngine",
+        "category": "simulation",
+        "inputs": [
+          "program",
+          "scenario"
+        ],
+        "outputs": [
+          "simulation",
+          "outcome"
+        ],
+        "module": "./WEDMWhatIfSimulatorEngine.js"
+      }
+    ]
+  },
+  "supported_controllers": [
+    "mitsubishi_fa",
+    "mitsubishi_mv",
+    "sodick_aq",
+    "sodick_al",
+    "makino_u",
+    "makino_eu",
+    "agie_cut",
+    "agie_progress",
+    "fanuc_robocut"
+  ],
+  "supported_wire_types": [
+    "brass_0.20",
+    "brass_0.25",
+    "brass_0.30",
+    "coated_0.20",
+    "coated_0.25",
+    "coated_0.30",
+    "molybdenum_0.18",
+    "tungsten_0.10"
+  ],
+  "pipeline_stages": [
+    "geometry_import",
+    "feature_recognition",
+    "parameter_calculation",
+    "toolpath_strategy",
+    "physics",
+    "safety_validation",
+    "post_processing",
+    "quality_monitoring",
+    "autonomy",
+    "documentation"
+  ]
+}

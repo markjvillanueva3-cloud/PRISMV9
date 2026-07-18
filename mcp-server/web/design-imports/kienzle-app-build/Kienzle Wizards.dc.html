@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 9px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 9px; }
+    @keyframes kzpulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1360px;height:852px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:74px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:7px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:16px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;">⌀<span>MAKE</span></button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;">$<span>QUOTE</span></button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;">▤<span>RUN</span></button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;">⌂<span>SHOP</span></button>
+    <div style="flex:1;"></div>
+    <div style="width:40px;height:40px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:68px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:20px;letter-spacing:-0.01em;">{{ wizTitle }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">PRINT → PROGRAM · {{ partLabel }}</div>
+      </div>
+      <div style="display:inline-flex;background:#16181D;border-radius:9px;padding:3px;border:1px solid rgba(255,255,255,0.07);">
+        <button onClick="{{ setMill }}" style="{{ millTabStyle }}">Milling</button>
+        <button onClick="{{ setLathe }}" style="{{ latheTabStyle }}">Lathe</button>
+        <button onClick="{{ setWire }}" style="{{ wireTabStyle }}">Wire EDM</button>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:248px minmax(0,1fr) 340px;min-height:0;">
+
+      <nav class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:22px 18px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:16px;">{{ stepCount }} STEPS · {{ donePct }}% READY</div>
+        <sc-for list="{{ steps }}" as="st" hint-placeholder-count="6">
+          <button onClick="{{ st.on }}" style="{{ st.style }}">
+            <span style="flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:{{ st.numBg }};color:{{ st.numColor }};border:1px solid {{ st.numBorder }};">{{ st.mark }}</span>
+            <span style="flex:1;text-align:left;min-width:0;"><span style="display:block;font-size:13.5px;color:{{ st.titleColor }};font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ st.title }}</span><span style="display:block;font-size:11px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ st.sub }}</span></span>
+          </button>
+        </sc-for>
+      </nav>
+
+      <section class="kz-scroll" style="overflow-y:auto;min-width:0;padding:24px 28px 36px;background:radial-gradient(800px 460px at 80% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;">
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:7px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;color:#FF5A2B;">STEP {{ activeNum }} / {{ stepCount }}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ activeStatusColor }};">{{ activeStatus }}</span>
+        </div>
+        <h2 style="margin:0 0 6px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:28px;letter-spacing:-0.01em;">{{ activeTitle }}</h2>
+        <p style="margin:0 0 22px;font-size:15px;color:#9398A2;line-height:1.5;max-width:640px;">{{ activeDesc }}</p>
+
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-bottom:18px;">
+          <sc-for list="{{ activeFields }}" as="f" hint-placeholder-count="4">
+            <div style="background:#0E0F12;border:1px solid {{ f.border }};border-radius:12px;padding:14px 16px;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:11.5px;color:#9398A2;">{{ f.label }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ f.tagColor }};letter-spacing:0.04em;">{{ f.tag }}</span></div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:20px;color:#F3F4F6;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.value }}</div>
+              <div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.35;">{{ f.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(42,111,219,0.06),#0E0F12);border:1px solid rgba(42,111,219,0.22);border-radius:13px;padding:15px 18px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:14px;">◆</span><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;color:#7FB2FF;">KIENZLE GUIDANCE — {{ galaxyTag }}</div></div>
+          <div style="font-size:13.5px;color:#E6E1DE;line-height:1.5;">{{ activeGuidance }}</div>
+        </div>
+
+        <div style="display:flex;gap:11px;">
+          <button onClick="{{ prevStep }}" style="border:1px solid rgba(255,255,255,0.14);background:transparent;color:#C7CCD4;border-radius:10px;padding:11px 20px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;">← Back</button>
+          <button onClick="{{ nextStep }}" style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:10px;padding:11px 26px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;">{{ nextLabel }} →</button>
+        </div>
+      </section>
+
+      <aside style="border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;min-width:0;background:#0A0B0D;">
+        <div style="flex:none;padding:18px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">Live program</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:{{ readyColor }};">{{ readyTag }}</div></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;margin-top:3px;">{{ programName }}</div>
+        </div>
+        <div class="kz-scroll" style="flex:1;overflow-y:auto;padding:12px 0;background:#0B0C0F;">
+          <sc-for list="{{ program }}" as="g" hint-placeholder-count="18">
+            <div style="display:flex;gap:12px;padding:1.5px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.55;">
+              <span style="flex:none;width:26px;text-align:right;color:#3A3D44;user-select:none;">{{ g.ln }}</span>
+              <span style="color:{{ g.c }};white-space:pre;">{{ g.t }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:none;padding:14px 20px;border-top:1px solid rgba(255,255,255,0.06);background:#0C0D10;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#9398A2;margin-bottom:9px;"><span>Est. cycle</span><span style="font-family:'JetBrains Mono',monospace;color:#F3F4F6;">{{ estCycle }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#9398A2;"><span>Safety gate</span><span style="font-family:'JetBrains Mono',monospace;color:{{ readyColor }};">{{ gateLabel }}</span></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    proc: 'mill', step: 0,
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1360, window.innerHeight / 852) : 0.7,
+  };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1360, window.innerHeight / 852) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  C = { cmt: '#6B7280', head: '#7FB2FF', mot: '#C7CCD4', m: '#FF7A4D', safe: '#F4B740' };
+
+  DATA() {
+    const C = this.C;
+    return {
+      mill: {
+        title: 'Milling Wizard', galaxy: 'FOXTROT', part: 'SEMBLEX cavity plate · D2',
+        program: 'CAVITY_PLATE_OP10.nc',
+        steps: [
+          { title: 'Import print', sub: 'PDF / STEP / drawing', desc: 'Drop the customer print or solid model. Kienzle reads dimensions, GD&T, and features automatically.',
+            fields: [['Source', 'SEMBLEX_cavity_RevC.step', 'STEP', '#7FB2FF', 'AP242 solid + PMI'], ['Features found', '14', 'AUTO', '#36D399', '6 pockets · 4 bores · 2 slots'], ['Stock', '6.0 × 4.0 × 1.25 in', 'D2', '#9398A2', '58 HRC tool steel'], ['Datum', 'A: bottom · B: left edge', 'GD&T', '#9398A2', 'read from PMI']],
+            guidance: 'This plate has a 0.06"-wall thin rib between cavities 3 and 4 — flagged for climb-only finishing to avoid deflection.' },
+          { title: 'Select machine & fixture', sub: 'VMC + workholding', desc: 'Pick the machine and how the part is held. Rigidity feeds straight into the speed/feed solve.',
+            fields: [['Machine', 'Okuma M460V-5AX', 'NATIVE', '#36D399', '15k · 25hp · very rigid'], ['Fixture', 'Kurt DX6 + soft jaws', 'STD', '#9398A2', 'cut soft jaws to profile'], ['Rigidity', '0.98 / 1.00', 'HIGH', '#36D399', 'minimal lobe risk'], ['Setups', '1 of 1', 'OK', '#36D399', 'full access from top']],
+            guidance: 'M460V over the VF-2 here: the 39% rigidity gain lets Kienzle push finish feed +15% on D2 without crossing a chatter lobe.' },
+          { title: 'Choose strategy', sub: '3-axis · adaptive', desc: 'Kienzle proposes a toolpath strategy per feature. Override any of them.',
+            fields: [['Roughing', 'Adaptive (trochoidal)', 'REC', '#36D399', 'low ae, full flute, cool'], ['Finishing', 'Climb contour', 'REC', '#36D399', 'mandatory on thin rib'], ['Floors', 'Raster 45°', 'STD', '#9398A2', '32 µin target'], ['Stepover', '8% · adaptive', 'CALC', '#7FB2FF', 'chip-thinned feed']],
+            guidance: 'Adaptive roughing keeps radial engagement at 8% so the full flute length shares the heat — tool life on D2 jumps ~1.5× vs a conventional pocket.' },
+          { title: 'Tools & speeds', sub: 'from Kienzle solver', desc: 'Speeds and feeds come from the physics engine — not a handbook guess. Each tool is force-checked.',
+            fields: [['Rough EM', '½" 4FL carbide TiAlN', 'T1', '#9398A2', '3104 rpm · 18 ipm'], ['Finish EM', '⅜" 4FL carbide', 'T2', '#9398A2', '3900 rpm · 14 ipm'], ['Bore', '⌀.500 reamer', 'T4', '#9398A2', 'H7 fit'], ['Deflection', '0.6 thou', 'OK', '#36D399', 'within 32 µin band']],
+            guidance: 'Finish pass feed is capped by the 32 µin Ra target, not the machine — that\'s why it\'s defensible to the customer\'s FAI, first try.' },
+          { title: 'Simulate & verify', sub: 'collision + gouge', desc: 'Full material-removal sim with collision and gouge checking before a single chip is cut.',
+            fields: [['Collision', 'CLEAR', 'PASS', '#36D399', 'holder + fixture checked'], ['Gouge', 'NONE', 'PASS', '#36D399', 'thin rib protected'], ['Air time', '11%', 'OK', '#9398A2', 'optimized rapids'], ['Material removal', '4.1 in³', 'CALC', '#7FB2FF', '55% of stock']],
+            guidance: 'Holder clearance over the cavity-3 wall is 0.04" — tight but clear. Kienzle shortened the finish tool stickout to guarantee it.' },
+          { title: 'Post & release', sub: 'OSP-P300 · safety gate', desc: 'Post to the machine\'s native dialect and clear the P5 safety gate to release.',
+            fields: [['Dialect', 'Okuma OSP-P300', 'NATIVE', '#36D399', 'G15 offsets · M02'], ['Safety gate', 'PASSED', 'P5', '#36D399', 'machine-ready'], ['Cycle', '9.8 min/part', 'CALC', '#7FB2FF', '31% under old post'], ['Output', 'CAVITY_PLATE_OP10.nc', 'READY', '#36D399', 'release packet']],
+            guidance: 'Cleared all 38 stages. Released to the Okuma with the setup sheet and tool list bundled — operator scans the QR at the machine.' },
+        ],
+        prog: (n) => {
+          const L = (t, c) => ({ t, c });
+          const base = [L('(CAVITY_PLATE_OP10 / KIENZLE)', C.cmt), L('(MAT: D2 58HRC)', C.cmt), L('G21 G17 G40 G80 G90', C.head)];
+          if (n >= 1) base.push(L('G56 H1 (M460V WORK OFS)', C.head));
+          if (n >= 2) { base.push(L('T1 M06 (1/2 4FL TiALN)', C.m)); base.push(L('M03 S3104', C.m)); }
+          if (n >= 2) base.push(L('G131 (HI-CUT ADAPTIVE)', C.safe));
+          if (n >= 3) { base.push(L('G00 Z2.5 M08', C.m)); base.push(L('G01 Z-0.6 F90.', C.mot)); base.push(L('G41 D1 X0. Y0. F460.', C.mot)); base.push(L('X38.1 Y0.', C.mot)); base.push(L('G03 X38.1 Y0. I-19.05', C.mot)); }
+          if (n >= 4) { base.push(L('G40 X-0.25 Y-0.25', C.mot)); base.push(L('T2 M06 (3/8 FINISH)', C.m)); base.push(L('M03 S3900', C.m)); }
+          if (n >= 5) base.push(L('(SIM: COLLISION CLEAR)', C.safe));
+          if (n >= 5) { base.push(L('G00 Z25.4 M09', C.m)); base.push(L('M05', C.m)); base.push(L('M02', C.m)); }
+          return base;
+        },
+        cycles: ['—', '—', 'est 12.1m', '10.6m', '10.1m', '9.8m'],
+      },
+      lathe: {
+        title: 'Lathe Wizard', galaxy: 'WHISKEY', part: 'SFS shaft pin · 17-4 PH',
+        program: 'SFS_PIN_OP10.min',
+        steps: [
+          { title: 'Import print', sub: 'turned part', desc: 'Kienzle reads diameters, lengths, threads, and tolerances off the print into a turning profile.',
+            fields: [['Source', 'SFS_pin_Rev2.pdf', 'PDF', '#7FB2FF', 'OCR + dim extract'], ['Profile', 'OD turn + face + thread', 'AUTO', '#36D399', '4 diameters'], ['Stock', '⌀1.0 × 4.0 bar', '17-4', '#9398A2', 'H900 · 40 HRC'], ['Thread', '½-20 UNF', 'GD&T', '#9398A2', 'class 3A']],
+            guidance: '17-4 PH at H900 work-hardens fast — Kienzle sets a constant surface speed (G96) so the OD doesn\'t glaze as diameter shrinks.' },
+          { title: 'Select machine & chuck', sub: 'turning center', desc: 'Pick the lathe and chuck. Jaw type and grip length drive the chuck-jaw safety check.',
+            fields: [['Machine', 'Okuma LB3000-MY', 'NATIVE', '#36D399', 'OSP · live tooling'], ['Chuck', '8" 3-jaw · hard jaws', 'STD', '#9398A2', '1.2" grip length'], ['Max RPM', '4000 (G50 cap)', 'SAFE', '#F4B740', 'jaw-rated limit'], ['Tailstock', 'engaged', 'OK', '#36D399', 'L/D 4:1 needs support']],
+            guidance: 'At ⌀1.0" the G96 surface speed would command 5800 rpm near the tip — Kienzle clamps it with G50 S4000 to stay under the chuck\'s rated limit.' },
+          { title: 'Turning strategy', sub: 'rough + finish', desc: 'Roughing stock-removal type, finish allowance, and threading cycle are proposed per feature.',
+            fields: [['Roughing', 'Type-II G71', 'REC', '#36D399', '0.08 DOC · 0.010 stock'], ['Finishing', 'G70 single pass', 'STD', '#9398A2', '16 µin'], ['Threading', 'G76 7-pass', 'CALC', '#7FB2FF', '½-20 · infeed comp'], ['CSS', 'G96 S550 sfm', 'REC', '#36D399', 'constant surface']],
+            guidance: 'G76 multi-pass threading with decreasing infeed keeps cutting force even across all 7 passes — no torn crests on the hardened stainless.' },
+          { title: 'Tools & speeds', sub: 'Kienzle solver', desc: 'TNRC (tool-nose radius comp) applied so the programmed path matches the finished profile exactly.',
+            fields: [['OD rough', 'CNMG 432 · TiAlN', 'T1', '#9398A2', '550 sfm · .012 ipr'], ['OD finish', 'DNMG 431 · .015 nose', 'T2', '#9398A2', 'TNRC G42'], ['Thread', '16ER laydown', 'T3', '#9398A2', 'G76 cycle'], ['Tool life', '175 min', 'OK', '#36D399', 'Taylor-predicted']],
+            guidance: 'TNRC (G42 + tip-direction 3) corrects the nose-radius lag on the taper and chamfer — without it the 0.015" nose leaves the angle 2 thou off.' },
+          { title: 'Simulate & verify', sub: 'chuck + tailstock', desc: 'Turning sim with chuck-jaw collision and tailstock interference checking.',
+            fields: [['Jaw collision', 'CLEAR', 'PASS', '#36D399', 'tool clears jaws +.2"'], ['Tailstock', 'CLEAR', 'PASS', '#36D399', 'no tool crash'], ['Chip control', 'GOOD', 'OK', '#9398A2', 'peck on deep face'], ['Removal', '2.2 in³', 'CALC', '#7FB2FF', 'bar to profile']],
+            guidance: 'Turning force is more predictable than milling once CSS is stable — confidence on this cycle is 94%. Safe to run unattended after first-off.' },
+          { title: 'Post & release', sub: 'OSP-P300L · gate', desc: 'Post to the Okuma lathe dialect and clear the safety gate to release.',
+            fields: [['Dialect', 'Okuma OSP-P300L', 'NATIVE', '#36D399', 'lathe G-code'], ['Safety gate', 'PASSED', 'P5', '#36D399', 'jaw limit honored'], ['Cycle', '3.4 min/part', 'CALC', '#7FB2FF', 'CSS-optimized'], ['Output', 'SFS_PIN_OP10.min', 'READY', '#36D399', 'release packet']],
+            guidance: 'Released with G50 spindle cap baked in — the operator physically cannot over-speed the chuck even by editing offsets.' },
+        ],
+        prog: (n) => {
+          const L = (t, c) => ({ t, c });
+          const base = [L('(SFS_PIN_OP10 / KIENZLE)', C.cmt), L('(MAT: 17-4 PH H900)', C.cmt), L('G21 G18 G40', C.head)];
+          if (n >= 1) base.push(L('G50 S4000 (JAW LIMIT)', C.safe));
+          if (n >= 1) base.push(L('G96 S550 M03 (CSS)', C.m));
+          if (n >= 2) { base.push(L('T0101 (CNMG 432)', C.m)); base.push(L('G00 X1.05 Z0.1 M08', C.m)); }
+          if (n >= 3) { base.push(L('G71 P10 Q20 U.01 W.005', C.mot)); base.push(L('  D80 F.012', C.mot)); base.push(L('N10 G00 X0.50', C.mot)); base.push(L('N20 G01 Z-2.0 F.008', C.mot)); }
+          if (n >= 4) { base.push(L('G42 (TNRC TIP-3)', C.safe)); base.push(L('T0202 G70 P10 Q20', C.m)); }
+          if (n >= 3) base.push(L('G76 X.450 Z-1.0 P.032', C.mot));
+          if (n >= 5) base.push(L('(SIM: JAW CLEAR)', C.safe));
+          if (n >= 5) { base.push(L('G40 G00 X2.0 Z2.0 M09', C.m)); base.push(L('M05', C.m)); base.push(L('M30', C.m)); }
+          return base;
+        },
+        cycles: ['—', '—', 'est 4.6m', '3.9m', '3.6m', '3.4m'],
+      },
+      wire: {
+        title: 'Wire EDM Wizard', galaxy: 'MIKE', part: 'Carbide form punch · C2',
+        program: 'FORM_PUNCH.nc',
+        steps: [
+          { title: 'Import profile', sub: 'DXF / wire path', desc: 'Kienzle imports the 2D profile and identifies the cut, lead-in, and skim-pass requirements.',
+            fields: [['Source', 'form_punch.dxf', 'DXF', '#7FB2FF', 'closed profile'], ['Profile', 'Trilobe form', 'AUTO', '#36D399', '0.001" corner R'], ['Stock', 'C2 carbide · 0.75 thk', 'WEDM', '#9398A2', 'too hard to mill'], ['Tolerance', '±.0001', 'GD&T', '#F4B740', 'jig-ground class']],
+            guidance: 'Carbide can\'t be milled to this form — wire EDM is the only route. The 0.001" inside corner sets the wire diameter at 0.008".' },
+          { title: 'Machine & wire', sub: 'WEDM setup', desc: 'Pick the wire machine, wire type, and flush conditions. These drive the power generator settings.',
+            fields: [['Machine', 'Mitsubishi MV1200', 'NATIVE', '#36D399', 'fine-finish gen'], ['Wire', '0.008" brass', 'STD', '#9398A2', 'fits .001 corner'], ['Flush', 'high-pressure both', 'OK', '#36D399', 'clean carbide debris'], ['Submerged', 'yes', 'STD', '#9398A2', 'thermal stability']],
+            guidance: 'Carbide cuts slow and loves clean flushing — submerged with high-pressure both-side flush prevents the wire breakage carbide is notorious for.' },
+          { title: 'Pass strategy', sub: 'rough + skims', desc: 'Number of skim passes is set by the tolerance and finish. Each pass offset and power is calculated.',
+            fields: [['Rough', '1 pass', 'CALC', '#7FB2FF', 'full power · fast'], ['Skims', '3 passes', 'REC', '#36D399', 'for ±.0001 + finish'], ['Final offset', '0.0003"', 'CALC', '#7FB2FF', 'spark gap comp'], ['Finish', '4 µin', 'OK', '#36D399', 'mirror flank']],
+            guidance: '3 skim passes on carbide: rough leaves 0.002", then 3 decreasing-power skims walk it to size. Fewer passes won\'t hold ±.0001 on the corners.' },
+          { title: 'Power & speed', sub: 'generator settings', desc: 'Discharge energy per pass from the MIKE model — balances speed against wire breakage risk on carbide.',
+            fields: [['Rough power', 'E7 · on-time 16', 'P1', '#9398A2', '2.1 mm²/min'], ['Skim 1-3', 'E3 → E1', 'P2-4', '#9398A2', 'decreasing energy'], ['Cut speed', '0.42 in²/hr', 'CALC', '#7FB2FF', 'carbide is slow'], ['Wire risk', 'LOW', 'OK', '#36D399', 'flush-protected']],
+            guidance: 'Carbide cuts at ~⅓ the rate of steel. Kienzle quotes this at 0.42 in²/hr so the job lands on the schedule honestly — no surprise overrun.' },
+          { title: 'Simulate & verify', sub: 'wire path check', desc: 'Verify lead-in, tab placement, and that the slug is supported until the final skim.',
+            fields: [['Wire path', 'CLEAR', 'PASS', '#36D399', 'no self-intersect'], ['Tab', '0.020" bottom', 'OK', '#9398A2', 'slug held to last'], ['Lead-in', 'flank · hidden', 'OK', '#36D399', 'no witness mark'], ['Taper', 'none', 'STD', '#9398A2', 'straight wall']],
+            guidance: 'Lead-in is placed on a flank that gets consumed by the form — no witness mark on the working face. The slug stays tabbed until skim 3.' },
+          { title: 'Post & release', sub: 'Mitsubishi · gate', desc: 'Post to the Mitsubishi wire dialect with all four passes and clear the safety gate.',
+            fields: [['Dialect', 'Mitsubishi MV', 'NATIVE', '#36D399', 'wire G-code'], ['Safety gate', 'PASSED', 'P5', '#36D399', 'machine-ready'], ['Total time', '1.8 hr', 'CALC', '#7FB2FF', '4 passes'], ['Output', 'FORM_PUNCH.nc', 'READY', '#36D399', 'release packet']],
+            guidance: 'Released with all 4 passes and offsets. The 1.8 hr estimate is what the quote was built on — Kienzle keeps quote and program honest to each other.' },
+        ],
+        prog: (n) => {
+          const L = (t, c) => ({ t, c });
+          const base = [L('(FORM_PUNCH / KIENZLE)', C.cmt), L('(C2 CARBIDE 0.75 THK)', C.cmt), L('G21 G90', C.head)];
+          if (n >= 1) base.push(L('H000=+0.0044 (WIRE R)', C.head));
+          if (n >= 2) base.push(L('(WIRE: 0.008 BRASS SUB)', C.cmt));
+          if (n >= 2) base.push(L('M98 (HI-PRESS FLUSH ON)', C.m));
+          if (n >= 3) { base.push(L('G41 H001 (ROUGH OFS)', C.safe)); base.push(L('G92 X0. Y0.', C.head)); base.push(L('G01 X0.250 Y0.', C.mot)); base.push(L('G03 X0.250 Y0. I-0.125', C.mot)); }
+          if (n >= 4) { base.push(L('(SKIM 1) G41 H002 E03', C.safe)); base.push(L('(SKIM 2) G41 H003 E02', C.safe)); base.push(L('(SKIM 3) G41 H004 E01', C.safe)); }
+          if (n >= 5) base.push(L('(TAB 0.020 BOTTOM)', C.safe));
+          if (n >= 5) { base.push(L('M99 (FLUSH OFF)', C.m)); base.push(L('M02', C.m)); }
+          return base;
+        },
+        cycles: ['—', '—', 'est 2.1hr', '1.9hr', '1.8hr', '1.8hr'],
+      },
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const D = this.DATA()[s.proc];
+    const nSteps = D.steps.length;
+    const active = Math.min(s.step, nSteps - 1);
+    const tab = (on) => `border:none;background:${on ? '#FF5A2B' : 'transparent'};color:${on ? '#0A0B0D' : '#9398A2'};border-radius:7px;padding:6px 16px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;`;
+
+    const steps = D.steps.map((st, i) => {
+      const done = i < active, cur = i === active;
+      return {
+        title: st.title, sub: st.sub, mark: done ? '✓' : (i + 1),
+        on: () => this.setState({ step: i }),
+        style: `width:100%;display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:6px;border-radius:11px;cursor:pointer;text-align:left;background:${cur ? 'linear-gradient(180deg,rgba(255,90,43,0.12),transparent)' : 'transparent'};border:1px solid ${cur ? 'rgba(255,90,43,0.4)' : 'transparent'};`,
+        numBg: done ? 'rgba(54,211,153,0.15)' : (cur ? '#FF5A2B' : '#16181D'),
+        numColor: done ? '#36D399' : (cur ? '#0A0B0D' : '#9398A2'),
+        numBorder: done ? 'rgba(54,211,153,0.4)' : (cur ? '#FF5A2B' : 'rgba(255,255,255,0.1)'),
+        titleColor: cur ? '#F3F4F6' : (done ? '#C7CCD4' : '#9398A2'),
+      };
+    });
+
+    const st = D.steps[active];
+    const fields = st.fields.map(([label, value, tag, tagColor, note]) => ({ label, value, tag, tagColor, note, border: 'rgba(255,255,255,0.08)' }));
+    const program = D.prog(active).map((g, i) => ({ ln: i + 1, t: g.t, c: g.c }));
+    const released = active === nSteps - 1;
+
+    return {
+      scale: s.scale,
+      wizTitle: D.title, partLabel: D.part, galaxyTag: D.galaxy,
+      millTabStyle: tab(s.proc === 'mill'), latheTabStyle: tab(s.proc === 'lathe'), wireTabStyle: tab(s.proc === 'wire'),
+      setMill: () => this.setState({ proc: 'mill', step: 0 }), setLathe: () => this.setState({ proc: 'lathe', step: 0 }), setWire: () => this.setState({ proc: 'wire', step: 0 }),
+      stepCount: nSteps, donePct: Math.round((active / (nSteps - 1)) * 100),
+      steps,
+      activeNum: active + 1, activeTitle: st.title, activeDesc: st.desc, activeGuidance: st.guidance,
+      activeStatus: released ? 'MACHINE-READY' : 'IN PROGRESS', activeStatusColor: released ? '#36D399' : '#F4B740',
+      activeFields: fields,
+      prevStep: () => this.setState({ step: Math.max(0, active - 1) }),
+      nextStep: () => this.setState({ step: Math.min(nSteps - 1, active + 1) }),
+      nextLabel: released ? 'Release' : (active === nSteps - 2 ? 'Post' : 'Next'),
+      program, programName: D.program,
+      readyTag: released ? 'READY' : 'BUILDING', readyColor: released ? '#36D399' : '#F4B740',
+      estCycle: D.cycles[active], gateLabel: released ? 'PASSED' : '— pending',
+    };
+  }
+}
+</script>
+</body>
+</html>

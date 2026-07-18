@@ -230,6 +230,103 @@ export interface InboxStats {
   top_part_numbers: Array<{ part_number: string; count: number }>;
 }
 
+/**
+ * JM-Die corpus archive-seed record — one row of jm-file-inventory.jsonl that the
+ * accountability ledger (U-JMDOC-LEDGER) routed to the indexed-only doc-archive disposition
+ * (U-JMDOC07). Field shape matches the inventory JSONL exactly.
+ */
+export interface JMArchiveSeedRecord {
+  path: string;
+  bucket: string;
+  source: string;
+  customer?: string | null;
+  material?: string | null;
+  machine_class?: string | null;
+}
+
+export interface JMArchiveSeedResult {
+  total_records: number;
+  seeded: number;
+  skipped_existing: number;
+  skipped_out_of_scope: number;
+  skipped_invalid: number;
+  by_type: Record<string, number>;
+  item_ids: string[];
+}
+
+/**
+ * The ONLY (source,bucket) tuples DocumentInboxEngine.seedFromJMCorpus accepts as archive items.
+ * These are the 8 indexed-only NON-FINANCIAL doc-archive tuples from the ledger routing.
+ * Financial buckets (sales_orders, closed_orders, invoices, tax_financial, accounting) are
+ * DELIBERATELY ABSENT — they are link-only (U-JMDOC10) and must never be archived as inbox items
+ * (hotel financial-discipline soul: no silent-financial-clobber). seedFromJMCorpus rejects any
+ * tuple outside this map by construction, so a financial record can never leak into the archive.
+ */
+export const JM_DOC_ARCHIVE_ALLOWLIST: Record<string, DocumentType> = {
+  "docustrata_organized/prints": "blueprint",
+  "docustrata_organized/scans": "unknown",
+  "docustrata_organized/notes": "correspondence",
+  "docustrata_organized/packing_slips": "packing_slip",
+  "docustrata_organized/laser_sheets": "unknown",
+  "docustrata_organized/shipping": "correspondence",
+  "docustrata_organized/imported": "unknown",
+  "jm_die_category/doc": "unknown",
+};
+
+/**
+ * Viewer-only doc-archive tuples (U-JMDOC08): raw part-library scans/prints archived for the
+ * VIEWER, OCR opt-in (NOT bulk-OCR'd at ingest). Distinct from JM_DOC_ARCHIVE_ALLOWLIST (indexed-only):
+ * these carry archive_class="viewer-only" + ocr_status="pending" and a lower 0.3 confidence
+ * (raw scan, type not yet determined). scan -> "unknown" (honest: type unknown until OCR); print -> "blueprint".
+ * Also financial-free by construction (only scan/print part-library + category tuples).
+ */
+export const JM_VIEWER_ARCHIVE_ALLOWLIST: Record<string, DocumentType> = {
+  "part_library/scan": "unknown",
+  "jm_die_category/scan": "unknown",
+  "jm_die_category/print": "blueprint",
+};
+
+/**
+ * DocuStrata manifest doc-pointer tuples (U-JMDOC09): the 111,658 generic manifest documents,
+ * ALREADY indexed in Docustrata/manifest.json. seedManifestPointers archives them as searchable
+ * inbox POINTERS (manifest_ref, ocr_status="indexed-in-manifest") — NEVER re-OCR'd. Deliberately
+ * EXCLUDES the financial manifest tuples (invoice/acknowledgment/customer_po) and quote (charlie-owned):
+ * only the generic `doc` bucket is archived here. Financial discipline + lane discipline by construction.
+ */
+export const JM_MANIFEST_ARCHIVE_ALLOWLIST: Record<string, DocumentType> = {
+  "docustrata_manifest/doc": "unknown",
+};
+
+/**
+ * DocuStrata FINANCIAL document tuples (U-JMDOC10): sales orders, invoices, tax, and accounting
+ * documents — the 34,452 records the ledger routed to the "Financial document archive (link only,
+ * NO discrete ERP records)" disposition. seedFinancialPointers archives them as searchable inbox
+ * POINTERS ONLY (archive_class="financial-link", financial_guard="true", ocr_status="indexed-in-manifest",
+ * confidence 0.4 reflecting the 40-60% OCR confidence of these documents).
+ *
+ * FINANCIAL-DISCIPLINE SOUL (non-negotiable — this is the whole point of link-only): these pointers are
+ * EVIDENCE attached to customers/jobs, NOT discrete AR/AP/GL records. seedFinancialPointers creates ZERO
+ * financial objects — no journal entry, no invoice object, no order object, no posting. The inbox item is
+ * a pointer to the document on disk; the financial_guard flag marks it as such. Gate G5 (no_consumed_financial)
+ * stays green because nothing here consumes a financial record — it only indexes a link.
+ *
+ * The doc-type mapping is intentionally conservative: order documents (sales_orders, closed_orders,
+ * customer_po, acknowledgment) -> "purchase_order"; invoices -> "invoice"; tax/accounting -> "unknown"
+ * (these are not part-orderable documents and carry no purchase/invoice semantics). These 8 financial
+ * tuples are DELIBERATELY ABSENT from JM_DOC_ARCHIVE_ALLOWLIST / JM_VIEWER_ARCHIVE_ALLOWLIST /
+ * JM_MANIFEST_ARCHIVE_ALLOWLIST, so a financial doc can only ever enter via this link-only path.
+ */
+export const JM_FINANCIAL_ARCHIVE_ALLOWLIST: Record<string, DocumentType> = {
+  "docustrata_organized/sales_orders": "purchase_order",
+  "docustrata_organized/closed_orders": "purchase_order",
+  "docustrata_organized/invoices": "invoice",
+  "docustrata_organized/tax_financial": "unknown",
+  "docustrata_organized/accounting": "unknown",
+  "docustrata_manifest/invoice": "invoice",
+  "docustrata_manifest/customer_po": "purchase_order",
+  "docustrata_manifest/acknowledgment": "purchase_order",
+};
+
 // ============================================================================
 // CLASSIFICATION PATTERNS
 // ============================================================================
@@ -1067,6 +1164,170 @@ class DocumentInboxEngine {
         .slice(0, 10),
       top_part_numbers: topParts,
     };
+  }
+
+  // --------------------------------------------------------------------------
+  // SEED — bulk-index pre-classified JM-Die corpus documents (U-JMDOC07)
+  // --------------------------------------------------------------------------
+
+  /**
+   * seedFromJMCorpus — bulk-index pre-classified JM-Die documents into the inbox as ARCHIVED items.
+   *
+   * Consumes jm-file-inventory.jsonl rows the accountability ledger routed to the indexed-only
+   * doc-archive disposition. These documents are ALREADY classified by the DocuStrata corpus pipeline,
+   * so this path bypasses the async Vision/OCR ingest entirely — it creates archive-index entries
+   * (status="archived", confidence 0.5 reflecting moderate corpus OCR confidence) directly.
+   *
+   * SOUL GUARD (financial-discipline): only the 8 non-financial tuples in JM_DOC_ARCHIVE_ALLOWLIST are
+   * accepted. Any record outside that set — INCLUDING every financial bucket (sales_orders, invoices,
+   * tax_financial, accounting, closed_orders) — is counted as skipped_out_of_scope and NEVER ingested.
+   * Financial docs are link-only (U-JMDOC10); they can never leak into the inbox archive here.
+   *
+   * Idempotent: dedup by source_path (the file's canonical identity) against existing items + within the
+   * batch, so re-seeding adds nothing. Fail-soft: non-array input -> all-zero result; invalid rows skipped.
+   */
+  seedFromJMCorpus(records: JMArchiveSeedRecord[]): JMArchiveSeedResult {
+    return this.seedArchiveItems(records, JM_DOC_ARCHIVE_ALLOWLIST, {
+      confidence: 0.5,
+      origin: "jm-docustrata-corpus",
+      batchUnit: "JM-DOC-POPULATION-MS0/U-JMDOC07",
+    });
+  }
+
+  /**
+   * seedViewerArchive — bulk-index raw part-library scans/prints as VIEWER-ONLY archived items (U-JMDOC08).
+   *
+   * Same allowlist-gated, idempotent, fail-soft contract as seedFromJMCorpus, but for the viewer-only
+   * disposition (JM_VIEWER_ARCHIVE_ALLOWLIST): raw scans/prints archived for viewing, OCR opt-in (NOT
+   * bulk-OCR'd). Items carry archive_class="viewer-only" + ocr_status="pending" and a lower 0.3 confidence
+   * (raw scan, type undetermined). Dedup is shared with seedFromJMCorpus (same source_path set across the
+   * whole inbox), so a file can never be double-seeded across the two dispositions.
+   */
+  seedViewerArchive(records: JMArchiveSeedRecord[]): JMArchiveSeedResult {
+    return this.seedArchiveItems(records, JM_VIEWER_ARCHIVE_ALLOWLIST, {
+      confidence: 0.3,
+      origin: "jm-part-library-scans",
+      batchUnit: "JM-DOC-POPULATION-MS0/U-JMDOC08",
+      extraFields: () => ({ archive_class: "viewer-only", ocr_status: "pending" }),
+    });
+  }
+
+  /**
+   * seedManifestPointers — archive DocuStrata manifest documents as searchable inbox POINTERS (U-JMDOC09).
+   *
+   * The 111,658 docustrata_manifest/doc documents are ALREADY indexed in Docustrata/manifest.json. This
+   * creates lightweight inbox pointers (archive_class="manifest-pointer", ocr_status="indexed-in-manifest",
+   * confidence 0.4) — it NEVER re-OCRs or re-indexes them. Distinct from charlie's DocuStrataMaterialPriorEngine
+   * (pricing priors); this is the document-archive concern only. Same allowlist-gated/idempotent/fail-soft
+   * contract + shared dedup-by-path. Financial + quote manifest tuples are excluded by JM_MANIFEST_ARCHIVE_ALLOWLIST.
+   */
+  seedManifestPointers(records: JMArchiveSeedRecord[]): JMArchiveSeedResult {
+    return this.seedArchiveItems(records, JM_MANIFEST_ARCHIVE_ALLOWLIST, {
+      confidence: 0.4,
+      origin: "jm-docustrata-manifest",
+      batchUnit: "JM-DOC-POPULATION-MS0/U-JMDOC09",
+      extraFields: (rec) => ({ archive_class: "manifest-pointer", ocr_status: "indexed-in-manifest", manifest_ref: rec.path }),
+    });
+  }
+
+  /**
+   * seedFinancialPointers — archive DocuStrata FINANCIAL documents as searchable inbox POINTERS (U-JMDOC10).
+   *
+   * The 34,452 financial documents (sales orders, closed orders, invoices, tax, accounting) the ledger
+   * routed to the "Financial document archive (link only, NO discrete ERP records)" disposition. This
+   * creates link-only inbox pointers (archive_class="financial-link", financial_guard="true",
+   * ocr_status="indexed-in-manifest", confidence 0.4 for the 40-60% OCR confidence of these docs).
+   *
+   * FINANCIAL-DISCIPLINE SOUL (non-negotiable): these are POINTERS, NOT financial records. This method
+   * creates ZERO AR/AP/GL objects — no journal entry, no invoice object, no order object, no posting. The
+   * inbox item is evidence linked to a customer/job; the financial_guard flag marks it. Gate G5
+   * (no_consumed_financial) stays green — nothing here consumes a financial record, it only indexes a link.
+   * Same allowlist-gated/idempotent/fail-soft contract + shared dedup-by-path as the other three seeds;
+   * JM_FINANCIAL_ARCHIVE_ALLOWLIST gates ingestion to exactly the 8 financial tuples.
+   */
+  seedFinancialPointers(records: JMArchiveSeedRecord[]): JMArchiveSeedResult {
+    return this.seedArchiveItems(records, JM_FINANCIAL_ARCHIVE_ALLOWLIST, {
+      confidence: 0.4,
+      origin: "jm-docustrata-financial",
+      batchUnit: "JM-DOC-POPULATION-MS0/U-JMDOC10",
+      extraFields: () => ({ archive_class: "financial-link", financial_guard: "true", ocr_status: "indexed-in-manifest" }),
+    });
+  }
+
+  /**
+   * Shared archive-seed core for seedFromJMCorpus (indexed-only), seedViewerArchive (viewer-only),
+   * seedManifestPointers (manifest pointers), and seedFinancialPointers (financial link-only — U-JMDOC10).
+   * Allowlist-gated: only (source,bucket) tuples in `allowlist` are ingested; everything else (including
+   * every financial bucket) is skipped_out_of_scope and NEVER becomes an item. Idempotent (dedup by
+   * source_path across the whole inbox + within batch). Fail-soft (non-array -> zeroes; invalid rows skipped).
+   */
+  private seedArchiveItems(
+    records: JMArchiveSeedRecord[],
+    allowlist: Record<string, DocumentType>,
+    opts: { confidence: number; origin: string; batchUnit: string; extraFields?: (rec: JMArchiveSeedRecord) => Record<string, string> },
+  ): JMArchiveSeedResult {
+    const result: JMArchiveSeedResult = {
+      total_records: 0, seeded: 0, skipped_existing: 0, skipped_out_of_scope: 0,
+      skipped_invalid: 0, by_type: {}, item_ids: [],
+    };
+    if (!Array.isArray(records)) return result;
+    result.total_records = records.length;
+
+    // Dedup set: source_path of every existing item (lower-cased) — shared across both seed dispositions.
+    const seen = new Set<string>();
+    for (const it of this.items.values()) {
+      const sp = it.extracted_data?.custom_fields?.source_path;
+      if (typeof sp === "string" && sp.length > 0) seen.add(sp.toLowerCase());
+    }
+
+    for (const rec of records) {
+      if (!rec || typeof rec !== "object") { result.skipped_invalid++; continue; }
+      const path = typeof rec.path === "string" ? rec.path.trim() : "";
+      const source = typeof rec.source === "string" ? rec.source.trim() : "";
+      const bucket = typeof rec.bucket === "string" ? rec.bucket.trim() : "";
+      if (!path || !source || !bucket) { result.skipped_invalid++; continue; }
+
+      const docType = allowlist[`${source}/${bucket}`];
+      if (!docType) { result.skipped_out_of_scope++; continue; }
+
+      const key = path.toLowerCase();
+      if (seen.has(key)) { result.skipped_existing++; continue; }
+      seen.add(key);
+
+      const base = path.split(/[\\/]/).pop() || path;
+      const customer = typeof rec.customer === "string" && rec.customer.trim().length > 0 ? rec.customer.trim() : undefined;
+      const material = typeof rec.material === "string" && rec.material.trim().length > 0 ? rec.material.trim() : undefined;
+      const tags = Array.from(new Set([bucket, source, ...(customer ? [customer] : [])])).slice(0, 12);
+      const custom_fields: Record<string, string> = {
+        source_path: path, corpus_bucket: bucket, corpus_source: source,
+        ...(opts.extraFields ? opts.extraFields(rec) : {}),
+      };
+      if (typeof rec.machine_class === "string" && rec.machine_class.trim().length > 0) {
+        custom_fields.machine_class = rec.machine_class.trim();
+      }
+
+      const id = `DOC-${String(this.nextId++).padStart(6, "0")}`;
+      const item: InboxItem = {
+        id,
+        original_name: base,
+        document_type: docType,
+        classification_confidence: opts.confidence,
+        status: "archived",
+        part_numbers: [],
+        matched_part_ids: [],
+        extracted_data: { title: base, company_name: customer, material, custom_fields },
+        source: { type: "batch", origin: opts.origin, batch_id: opts.batchUnit },
+        tags,
+        linked_records: [],
+        received_at: new Date().toISOString(),
+        notes: [],
+      };
+      this.items.set(id, item);
+      result.item_ids.push(id);
+      result.seeded++;
+      result.by_type[docType] = (result.by_type[docType] || 0) + 1;
+    }
+    return result;
   }
 }
 

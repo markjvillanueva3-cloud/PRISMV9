@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0.0",
+  "domain": "quoting",
+  "slot": "charlie",
+  "purpose": "Charlie's declared quoting-domain training inputs for india's LoRA/GNN/RAG pipeline. Charlie OWNS the training DATA + emission; india OWNS the model training (operator-canonical slot domains, 2026-05-28). This manifest is the explicit pointer so india's training discovery never misses the quoting corpus.",
+  "generatedBy": "slot:charlie U-QK-AUTO-INVOKE 2026-05-29",
+  "training_inputs": [
+    {
+      "kind": "outcome-pairs",
+      "signal": "predicted_quote_usd vs actual_invoice_usd (quote→actual calibration target)",
+      "path": "state/shared/outcome-bus.jsonl",
+      "filter": "domain=='quoting' || slot=='charlie'",
+      "consumer": "QuotingClosedLoopEngine.runCycle / india GNN tier-5",
+      "note": "live outcome stream; emitted via outcome-bus-auto-tap.mjs (wired)"
+    },
+    {
+      "kind": "baseline-corpus",
+      "signal": "per-(customer,part_id) aggregated revenue + machine_class + material baseline",
+      "path": "state/shared/quoting/baseline-records-corpus-with-synth.json",
+      "builder": "scripts/quoting-baseline-from-corpus.mjs",
+      "note": "iter56 corpus: 47,905 unique (customer,part_id) records across 473 customers"
+    },
+    {
+      "kind": "calibration-factors",
+      "signal": "active multiplicative correction factors (per-customer + global) derived from quote-vs-actual",
+      "path": "state/shared/calibration/quoting-calibration-active.json",
+      "builder": "QuotingCalibrationEngine.deriveWithCoV via quoting_closed_loop_run",
+      "note": "the trained output of the closed loop; the actuator india's drift-canary monitors"
+    },
+    {
+      "kind": "lora-dataset",
+      "signal": "instruction-tuning examples (quote estimation w/ honest cost derivation + margin) in {id,instruction,input,output,metadata} format — mirrors wedm-lora-smoke-out",
+      "path": "mcp-server/data/quoting-lora-smoke-out/quoting_lora_{train,val,test}.jsonl",
+      "builder": "scripts/build-quoting-lora-dataset.mjs (--full for the 47,905-record corpus; smoke=40)",
+      "consumer": "india LoRA adapter training (charlie produces data; india trains)",
+      "note": "each example stamped with revenue_source; synth-labeled examples carry the R12 data-ceiling caveat for weighting"
+    },
+    {
+      "kind": "compiled-knowledge",
+      "signal": "113 curated quoting wiki+tribal+memory entries (RAG corpus for quoting reasoning)",
+      "path": "state/shared/quoting/quoting-knowledge-index.json",
+      "builder": "scripts/compile-quoting-knowledge.mjs",
+      "note": "keyword-indexed; feeds RAG retrieval + the auto-invoke hook"
+    }
+  ],
+  "nn_gnn_bridges": [
+    "QuotingNeuralReasoningBridgeEngine",
+    "QuotingDeepReasoningBridgeEngine"
+  ],
+  "emission_wiring": {
+    "outcome_publish": "aiReasoningDispatcher:xproc_outcome_publish {slot:'charlie',domain:'quoting'}",
+    "feature_emit": "aiReasoningDispatcher:xproc_kg_project_features",
+    "calibration_record": "aiReasoningDispatcher:xproc_calibration_monitor_record",
+    "auto_tap_hook": ".claude/hooks/outcome-bus-auto-tap.mjs (wired in settings.json)"
+  },
+  "data_ceiling_caveat_R12": "DocuStrata is INBOUND-only (incoming customer prints); real outbound revenue (actuals) lives in ERP/accounting. The synth-baseline MAPE (~71% iter58) is the honest ceiling until U-QP-ACCOUNTING-WIRE surfaces real ERP revenue. india should weight this corpus accordingly — it is structurally synth-heavy, not a clean labeled set.",
+  "lane_note": "LoRA adapter training itself is india's responsibility (slot=india: full-system AI training). Charlie's role ends at producing + emitting this corpus. See state/shared/CHAT-SLOT-DOMAINS.md."
+}

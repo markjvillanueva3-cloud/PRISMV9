@@ -1,0 +1,30 @@
+{
+  "id": "PP-REV-MS4",
+  "title": "Prove-Out Workflow + Air-Cut Detection",
+  "track": "PP-REV",
+  "status": "complete",
+  "description": "Build ProveOutPromotionEngine and AirCutDetectionEngine. Wire to dispatcher with feed/RPM restoration, A/B diff, operator sign-off. Add ProveOutWorkflowPage with air-cut visualization. 35 tests.",
+  "dependencies": ["PP-REV-MS3"],
+  "sessions": [
+    {
+      "id": "PP-REV-MS4-S1",
+      "title": "Prove-Out to Production Workflow + Air-Cut Detection",
+      "units": [
+        { "id": "U-REV23", "title": "ProveOutPromotionEngine — heuristic + exact feed/RPM restoration, A/B diff, sign-off", "status": "complete" },
+        { "id": "U-REV24", "title": "AirCutDetectionEngine — raw G-code Z-tracking, 5 detection types, optimized output", "status": "complete" },
+        { "id": "U-REV25", "title": "Wire to dispatcher + routes + barrel export + 35 tests", "status": "complete" }
+      ]
+    },
+    {
+      "id": "PP-REV-MS4-S2",
+      "title": "Web UI — Prove-Out + Air-Cut",
+      "units": [
+        { "id": "U-REV26", "title": "ProveOutWorkflowPage.tsx — 4-step workflow with file upload, stats, sign-off", "status": "complete" },
+        { "id": "U-REV27", "title": "Air-cut visualization — color-coded detections, apply-optimized button", "status": "complete" },
+        { "id": "U-REV28", "title": "Integration: route wiring + nav + API client functions verified", "status": "complete" }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6
+}

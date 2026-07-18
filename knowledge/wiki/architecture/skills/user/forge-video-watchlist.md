@@ -23,13 +23,17 @@ related:
 |-------|-------|
 | Name | `forge-video-watchlist` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-video-watchlist.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-video-watchlist.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Video Watchlist — Machining Video Learning Pipeline
+
+Systematically chip away at the PRISM Video Watchlist by watching, learning, and forging new components from machining videos. Each run processes a batch of videos from the priority queue, extracts knowledge, and pipes it through `/autopilot` + `/forge-triple` to exhaust all mathematical, statistical, and scientific possibilities.
+
 
 <!-- AUTO-END -->
 

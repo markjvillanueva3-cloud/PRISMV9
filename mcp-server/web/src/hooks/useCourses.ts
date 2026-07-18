@@ -2,15 +2,22 @@
  * MS3-U01: Academy Courses Hook
  * Wraps static course data + localStorage progress tracking.
  * Later can swap to API-backed progress without changing component interfaces.
+ *
+ * PRISM-ACADEMY-MOBILE-MS0/U-PAM-AUTH (2026-05-23): accepts an optional
+ * `studentId` so shop tablets shared across workers don't cross-pollute
+ * progress. When `studentId` is null/absent (un-authenticated demo) progress
+ * falls back to the original anon bucket — fully back-compatible.
  */
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   ALL_COURSES, getCourseById, getCourseForLesson,
   arePrerequisitesMet,
   TOTAL_LESSONS,
 } from '../data/academy';
-
-const STORAGE_KEY = 'prism_academy_progress_v2';
+import {
+  academyStorageKey,
+  migrateAnonProgress,
+} from '../lib/academyStorageKey';
 
 export interface LessonProgress {
   lessonId: string;
@@ -66,9 +73,9 @@ function coerceStringArray(value: unknown): string[] {
   return [];
 }
 
-function loadProgress(): AcademyProgress {
+function loadProgress(storageKey: string): AcademyProgress {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey);
     if (!raw) return emptyProgress();
     const stored = JSON.parse(raw) as Partial<StoredProgress>;
     return {
@@ -81,13 +88,13 @@ function loadProgress(): AcademyProgress {
   }
 }
 
-function saveProgress(progress: AcademyProgress) {
+function saveProgress(storageKey: string, progress: AcademyProgress) {
   const stored: StoredProgress = {
     completedLessons: progress.completedLessons,
     completedCourses: Array.from(progress.completedCourses),
     startedCourses: Array.from(progress.startedCourses),
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+  localStorage.setItem(storageKey, JSON.stringify(stored));
 }
 
 function emptyProgress(): AcademyProgress {
@@ -96,11 +103,39 @@ function emptyProgress(): AcademyProgress {
 
 // ─── Main Hook ───────────────────────────────────────────────────────────────
 
-export function useCourses() {
-  const [progress, setProgress] = useState<AcademyProgress>(loadProgress);
+/**
+ * Track Academy progress for a specific student (worker) when a `studentId` is
+ * provided, else fall back to the anonymous shared bucket. The bucket is
+ * recomputed whenever `studentId` changes (login/logout/worker swap on a
+ * shared tablet), and a one-shot anon→worker migration runs the first time
+ * an id is supplied so pre-login lesson work isn't lost.
+ *
+ * Back-compat: callers that don't pass an id get the original behavior — a
+ * single anonymous bucket keyed at `prism_academy_progress_v2`.
+ */
+export function useCourses(studentId: string | null = null) {
+  const storageKey = useMemo(() => academyStorageKey(studentId), [studentId]);
+  // useRef so the one-shot migration fires per *id* (not per render) and is
+  // idempotent — re-renders with the same id must NOT re-attempt migration.
+  const migratedFor = useRef<string | null>(null);
 
-  // Persist on every change
-  useEffect(() => { saveProgress(progress); }, [progress]);
+  const [progress, setProgress] = useState<AcademyProgress>(() => loadProgress(storageKey));
+
+  // Worker swap (login / logout / shared-tablet handoff): run anon→worker
+  // migration FIRST (idempotent per id) then reload progress from the new key
+  // so the first render after the swap reflects migrated data — never the
+  // previous worker's progress.
+  useEffect(() => {
+    if (studentId && migratedFor.current !== studentId) {
+      migrateAnonProgress(studentId);
+      migratedFor.current = studentId;
+    }
+    setProgress(loadProgress(storageKey));
+  }, [studentId, storageKey]);
+
+  // Persist on every change. Note: depends on storageKey so the FIRST render
+  // after a worker swap writes to the NEW key (never the previous worker's).
+  useEffect(() => { saveProgress(storageKey, progress); }, [storageKey, progress]);
 
   /** Mark a lesson complete (auto-completes course if all lessons done) */
   const completeLesson = useCallback((lessonId: string, score?: number) => {
@@ -138,11 +173,11 @@ export function useCourses() {
     });
   }, []);
 
-  /** Reset all progress */
+  /** Reset all progress for the current worker (does NOT touch other workers' buckets). */
   const resetProgress = useCallback(() => {
     setProgress(emptyProgress());
-    localStorage.removeItem(STORAGE_KEY);
-  }, []);
+    localStorage.removeItem(storageKey);
+  }, [storageKey]);
 
   // ─── Derived data ──────────────────────────────────────────────────────────
 

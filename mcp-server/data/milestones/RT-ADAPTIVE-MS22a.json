@@ -1,0 +1,55 @@
+{
+  "id": "RT-ADAPTIVE-MS22a",
+  "version": "1.0.0",
+  "title": "Passive MTConnect/OPC-UA telemetry capture (PRE-SHIP for MS9 training data)",
+  "brief": "Split from MS22 per V3.1 pass-3 finding (risk-hunter 4/5): MS9 safety gate would otherwise be trained on synthetic-only data and miss real chatter/wire-break/thermal-drift events on first real jobs. This MS captures READ-ONLY telemetry (no actuation path exposed) on 1 mill + 1 lathe + 1 WEDM during pilot ramp-up so MS9 trains on real distributions. Active feedback (closed loop) split into MS22b post-pilot.",
+  "created_at": "2026-05-05T13:35:00Z",
+  "created_by": "claude-opus-4-7-v3.1",
+  "track": "L3-RUNTIME",
+  "track_name": "Real-time / Telemetry-only Pre-ship",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Read-only MTConnect/OPC-UA ingest + outcome-ledger labeling",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "MTConnect/OPC-UA streaming subscriber (read-only, no actuation surface)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "streaming subscribers attached to 1 mill + 1 lathe + 1 WEDM",
+            "10 Hz event rate, backpressure-safe (drop oldest if consumer lags >500ms)",
+            "verifiable: tcpdump shows 0 outbound write-back to any machine (read-only proven)",
+            "tests: 3-minute stream produces 1800 events ±5; backpressure scenario drops correctly"
+          ],
+          "description": "Read-only is the safety property — no control surface exposed. Reuses existing MTConnect/OPC-UA dispatchers; adds streaming endpoint + buffer.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Label captured events in outcome ledger with job correlation for MS9/MS18",
+          "effort": 120,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": [
+            "each event tagged with active job_id, operation_id, tool_id from MS3 pipeline state",
+            "labels: nominal | chatter_suspected | overload | tool_break | wire_break | thermal_drift",
+            "tests: 100 staged events round-trip with correct labels; 5 known-bad-but-mislabeled cases trigger BLOCK"
+          ],
+          "description": "Closed-loop label matching to job state. MS18 LoRA training pipeline + MS9 calibration consume these events.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "read-only MTConnect/OPC-UA streams from 3 machines logged with job correlation; 100 staged events round-trip with correct labels; ledger feeds MS9 calibration AND MS18 LoRA training; no write-back path exposed (verified via packet capture); satisfies V3.1 pass-3 mitigation for MS9-trained-on-synthetic risk.",
+  "risks": [
+    {"id": "R1", "description": "JM Die machines may not all support MTConnect; mitigation = 1-machine fallback + synthetic data augmentation flagged as such in ledger"},
+    {"id": "R2", "description": "Operator pushback on telemetry capture (privacy/surveillance concern); mitigation = telemetry is per-machine not per-operator; opt-in per shift; documented in operations runbook"}
+  ],
+  "blocks": ["SAFETY-OMEGA-GATE-MS9"],
+  "blocked_by": ["MILL-P2P-CONSENSUS-MS3"]
+}

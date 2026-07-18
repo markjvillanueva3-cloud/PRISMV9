@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-session-start-compact-p1.mjs — Phase 1 Tier 0
-SessionStart:compact hook that handles context compaction events.
-Preserves critical state through compaction boundaries.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

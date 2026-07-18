@@ -1,0 +1,64 @@
+You are reviewer C of three independent Claude PRISM agents — an ANALYST-weighted third pass for the PRISM manufacturing-intelligence platform. Reviewers A and B cover holistic acceptance + test/wiring/scope axes; your job is what THEY are likely to under-emphasize. Do not assume they caught everything.
+Target: commit HEAD.
+
+Weight your attention toward analyst axes — hidden anti-patterns, silent regression risk, and integration breakage. FAIL on any violation you find:
+  1. Silent breakage — type drift across module boundaries, peer engines whose contract this diff secretly invalidates, swallowed errors that bury real failures
+  2. Hidden anti-patterns — sync fs in async paths that should yield, race conditions across concurrent chats, fields that look load-bearing but are dead code, dual-source constants that will drift
+  3. Error budget completeness — are ALL error variants reachable? Are ALL fs.write paths defended against EACCES / ENOENT / EEXIST without burying the failure? Does graceful-degrade log enough to debug post-incident?
+  4. Integration coupling — engines wired to EVERY dispatcher that would naturally consume them; type-level coupling between sibling engines surfaces compile-time errors on rename (not silent runtime degradation)
+  5. Security at I/O boundaries — every interpolated string sanitized for the medium it lands in (filenames, comment bodies, shell args, SQL, etc); path-traversal guards re-checked after construction (defense in depth)
+  6. Regression risk for downstream pipelines — does this diff change a type that downstream engines depend on without updating them? Does it change the shape of a dispatcher result without updating slimResponse exclusions?
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit 4c1cb177534decd946f8b58f39ec5ed27400c735
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Sat May 16 15:14:23 2026 -0500
+
+    [MAIN] [COORD-MS0]/U-COORD02-HARDEN2: tmp-root boundary check (no prefix-collision)
+    
+    Scrutiny arm C re-review of 362bc300b: `resolvedOverride.startsWith(tmpRoot)`
+    is a string-prefix test, not a directory-containment test. Empirically
+    verified: `path.resolve("/tmp-evil/foo.json").startsWith(path.resolve("/tmp"))`
+    returns true — a sibling directory whose name shares the tmp prefix slips
+    through the supposed test-runtime gate. Fixed via the standard idiom:
+    
+      resolvedOverride === tmpRoot || resolvedOverride.startsWith(tmpRoot + path.sep)
+    
+    `path.resolve` already collapses `..` segments, so traversal attacks like
+    "/tmp/../etc/passwd" land outside tmpRoot and are still rejected — the bug
+    was sibling-prefix only, but it's the exact attack surface the env-gate
+    advertised closing.
+    
+    33/33 vitest still green.
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+diff --git a/mcp-server/src/engines/AtomicClaimBrokerEngine.ts b/mcp-server/src/engines/AtomicClaimBrokerEngine.ts
+index 9f55b24a7..2de1a7dcb 100644
+--- a/mcp-server/src/engines/AtomicClaimBrokerEngine.ts
++++ b/mcp-server/src/engines/AtomicClaimBrokerEngine.ts
+@@ -184,9 +184,17 @@ function resolveClaimsFile(): string {
+   if (!inTestRuntime) {
+     return DEFAULT_CLAIMS_FILE;
+   }
++  // Directory-containment check (NOT a bare string-prefix test) — a sibling
++  // directory whose name shares the tmp prefix (e.g. ".../Temp-evil/foo") must
++  // not slip through. Requires `tmpRoot` itself OR `tmpRoot + path.sep` as a
++  // prefix. `path.resolve` already collapses `..` segments, so traversal
++  // attacks like "/tmp/../etc/passwd" land outside tmpRoot and are rejected.
+   const tmpRoot = path.resolve(os.tmpdir());
+   const resolvedOverride = path.resolve(override);
+-  if (!resolvedOverride.startsWith(tmpRoot)) {
++  const insideTmp =
++    resolvedOverride === tmpRoot ||
++    resolvedOverride.startsWith(tmpRoot + path.sep);
++  if (!insideTmp) {
+     return DEFAULT_CLAIMS_FILE;
+   }
+   return override;
+
+--- END DIFF ---

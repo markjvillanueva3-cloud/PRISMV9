@@ -24,9 +24,51 @@
  *
  * Stdin: PreToolUse Bash event {tool_input:{command}}.
  * Output: {continue:true, hookSpecificOutput?: {additionalContext}}
+ *
+ * ⚠ LOAD-BEARING BEYOND THE ADVISORY (2026-07-02): main() hosts the fleet's
+ * ENOSPC self-heal (lib/emergency-c-temp-sweep.mjs) -- the ONLY in-band
+ * recovery when C: fills and every shell tool call dies fleet-wide. Do NOT
+ * disable/replace this hook without moving that call into bash-bundle.mjs
+ * main() (the proper long-term home). See wiki [[enospc-hook-hosted-self-heal]].
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { tmpdir } from "node:os";
+
+// 2026-05-18 (slot kilo, post-/compact): rate-limit ported from the legacy
+// rtk-auto-suggest.mjs. The original P6-U02 hook nagged on EVERY verbose-
+// command Bash call — at ~140 tokens/advisory across hundreds of calls/session
+// that's worse than the dead `rtk hook claude` noise I just removed. Pure
+// helpers (shouldNagNow / recordNag) exported for tests. PRISM_RTK_REMINDER_OFF=1
+// still bypasses entirely; PRISM_RTK_REMINDER_RATE_MS=N overrides the 120000ms
+// default window (set to 0 to disable rate-limiting for testing).
+const RATE_FILE = join(tmpdir(), "prism-hook-state", "rtk-prefix-reminder.last.json");
+const RATE_WINDOW_MS_DEFAULT = 120_000;
+const RATE_PRUNE_MULT = 10;
+
+export function loadRateState() {
+  try { return JSON.parse(readFileSync(RATE_FILE, "utf8")); } catch { return {}; }
+}
+export function saveRateState(state) {
+  try {
+    const d = dirname(RATE_FILE);
+    if (!existsSync(d)) mkdirSync(d, { recursive: true });
+    writeFileSync(RATE_FILE, JSON.stringify(state));
+  } catch { /* fail-soft: rate-state is best-effort, never block on tmpfs */ }
+}
+export function shouldNagNow(baseCmd, state, now, windowMs) {
+  const last = state[baseCmd] || 0;
+  return (now - last) >= windowMs;
+}
+export function recordNag(baseCmd, state, now, windowMs) {
+  state[baseCmd] = now;
+  const pruneOlderThan = windowMs * RATE_PRUNE_MULT;
+  for (const k of Object.keys(state)) {
+    if (now - state[k] > pruneOlderThan) delete state[k];
+  }
+  return state;
+}
 
 // Commands whose default output is verbose enough that rtk's truncation /
 // summarization wins meaningful tokens. Conservative list — only commands
@@ -78,9 +120,14 @@ export function normalizeCommand(cmd) {
   let work = original;
   if (cmdBypass) work = work.replace(/^command\s+/i, "");
   work = work.replace(/^sudo\s+/i, "");
-  // Strip leading FOO=bar style assignments
+  // Strip leading FOO=bar style assignments. Progress guard: a whitespace-free
+  // assignment ("FOO=bar", "V=1;cmd") never matches the replace regex -- without
+  // the bail-out this loop spins forever and hangs the PreToolUse hook until the
+  // harness timeout kills it (scrutiny P1, U-GOLF-ENOSPC-SELFHEAL 2026-07-02).
   while (/^[A-Za-z_][A-Za-z0-9_]*=/.test(work)) {
-    work = work.replace(/^\S+\s+/, "");
+    const next = work.replace(/^\S+\s+/, "");
+    if (next === work) { work = ""; break; }
+    work = next;
     if (work.length === 0) break;
   }
 
@@ -122,9 +169,29 @@ export function shouldRemind(cmd, env = process.env) {
 
 /**
  * Format the advisory string injected into the hook's additionalContext.
+ *
+ * Tool-selection redirects for `cat` and `ls`: CLAUDE.md "Tool selection" rule
+ * explicitly says prefer the harness Read tool over `cat` and Glob over `ls`.
+ * For these two base commands, surface the harness-native redirect (zero
+ * Bash framing, structured output) instead of suggesting `rtk cat`/`rtk ls`.
+ * Closes the per-file scrutiny Reviewer A P2 from the 2026-05-18 dedup.
  */
 export function buildReminder(baseCmd) {
   const safe = String(baseCmd ?? "command").slice(0, 32);
+  if (safe === "cat") {
+    return [
+      "💡 Tool selection: prefer the Read tool over `cat` — line numbers, range support",
+      "   (offset/limit), no Bash output framing. CLAUDE.md \"Tool selection\" rule.",
+      "   Disable for this session: PRISM_RTK_REMINDER_OFF=1.",
+    ].join("\n");
+  }
+  if (safe === "ls") {
+    return [
+      "💡 Tool selection: prefer the Glob tool over `ls` — sorted by mtime, no terminal",
+      "   formatting parse. CLAUDE.md \"Tool selection\" rule. Use Bash `ls` only for",
+      "   metadata (-la, stat). Disable for this session: PRISM_RTK_REMINDER_OFF=1.",
+    ].join("\n");
+  }
   return [
     `💡 RTK prefix suggested: \`rtk ${safe} ...\``,
     `   60–99% token reduction on verbose output. Skip with \`command ${safe} ...\` to bypass.`,
@@ -154,12 +221,33 @@ function emit(extra) {
 }
 
 async function main() {
+  // FLEET-HYGIENE/U-GOLF-ENOSPC-SELFHEAL (2026-07-02): when C: is full the
+  // harness cannot write its Bash output-capture file and the agent loses ALL
+  // shell access -- but PreToolUse hooks still run. This guarded sweep frees
+  // consumed harness temp outputs so the very Bash call that triggered this
+  // hook can complete. No-op when C: has space (statfs low-water guard) or the
+  // module is absent. Knob: PRISM_EMERGENCY_C_SWEEP_DISABLE=1.
+  try { (await import("./lib/emergency-c-temp-sweep.mjs")).emergencySweep(); } catch { /* fail-soft */ }
   const payload = await readStdin();
   const cmd = payload?.tool_input?.command;
   const decision = shouldRemind(cmd);
   if (!decision.remind) {
     emit(null);
     return;
+  }
+  // Rate-limit: at most one advisory per base command family per window.
+  // Without this, the hook nagged on EVERY verbose-command call (~140 tok/advisory
+  // × hundreds of calls/session). PRISM_RTK_REMINDER_RATE_MS=0 disables rate-limit.
+  const windowMs = Number.parseInt(process.env.PRISM_RTK_REMINDER_RATE_MS ?? "", 10);
+  const effectiveWindow = Number.isFinite(windowMs) && windowMs >= 0 ? windowMs : RATE_WINDOW_MS_DEFAULT;
+  if (effectiveWindow > 0) {
+    const state = loadRateState();
+    const now = Date.now();
+    if (!shouldNagNow(decision.base, state, now, effectiveWindow)) {
+      emit(null);
+      return;
+    }
+    saveRateState(recordNag(decision.base, state, now, effectiveWindow));
   }
   emit(buildReminder(decision.base));
 }

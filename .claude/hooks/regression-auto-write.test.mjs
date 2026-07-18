@@ -14,7 +14,48 @@ import {
   hasShaAlready,
   insertEntry,
   writeWithConcurrencyGuard,
+  capRegressionsSection,
 } from "./regression-auto-write.mjs";
+
+// --- capRegressionsSection (U-ALPHA-CLAUDEMD-SLIM self-trim cap) ---
+const mkRegrDoc = (n) => {
+  const entries = Array.from({ length: n }, (_, i) => {
+    const d = String(28 - (i % 28)).padStart(2, "0"); // newest-first
+    return `- 2026-05-${d} | **entry ${n - i}** | observed-in: sha${i} | verify: git show sha${i}`;
+  });
+  return `# doc\n\n## Recent regressions\n<!-- Append-only -->\n${entries.join("\n")}\n\n## NEXT SECTION\nkeep me\n`;
+};
+
+test("capRegressionsSection: under cap -> no change, no overflow", () => {
+  const doc = mkRegrDoc(10);
+  const r = capRegressionsSection(doc, 25);
+  assert.equal(r.content, doc, "unchanged when under cap");
+  assert.deepEqual(r.overflow, []);
+});
+
+test("capRegressionsSection: over cap -> keeps newest N inline, OLDEST overflow, doctrine preserved", () => {
+  const doc = mkRegrDoc(30);
+  const r = capRegressionsSection(doc, 25);
+  assert.equal(r.overflow.length, 5, "5 oldest overflow");
+  assert.ok(r.overflow.every((l) => /^- 2026-/.test(l)), "overflow are dated lines only");
+  assert.ok(r.overflow[0].includes("entry 5") && r.overflow[4].includes("entry 1"), "overflow = the 5 OLDEST entries");
+  // newest kept inline
+  assert.ok(r.content.includes("entry 30"), "newest kept");
+  assert.ok(!r.content.includes("entry 1 "), "oldest removed from inline");
+  // doctrine + adjacent section untouched
+  assert.ok(r.content.includes("## Recent regressions"), "section header preserved");
+  assert.ok(r.content.includes("<!-- Append-only -->"), "comment preserved");
+  assert.ok(r.content.includes("## NEXT SECTION\nkeep me"), "adjacent section untouched");
+  // exactly 25 dated lines remain inline
+  const inlineDated = (r.content.match(/^- 2026-/gm) || []).length;
+  assert.equal(inlineDated, 25, "exactly cap entries kept inline");
+});
+
+test("capRegressionsSection: no section / bad cap -> safe no-op", () => {
+  assert.deepEqual(capRegressionsSection("no section here", 25).overflow, []);
+  assert.deepEqual(capRegressionsSection(mkRegrDoc(30), 0).overflow, [], "cap<=0 is a no-op");
+  assert.deepEqual(capRegressionsSection(null, 25).overflow, []);
+});
 
 // ─── isRegressionFixSubject ────────────────────────────────────────────────
 

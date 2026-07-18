@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cmm-parse — CMM Report Analysis
+Parse and analyze CMM measurement reports for quality insights.
 
 <!-- AUTO-END -->
 

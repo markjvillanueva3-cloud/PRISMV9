@@ -1,0 +1,205 @@
+{
+  "id": "PP-MOAT-MS4",
+  "version": "1.0.0",
+  "title": "PPG UX — File I/O, Auto-Detect, Diff Viewer, History, Clipboard",
+  "track": "PP-MOAT",
+  "created_at": "2026-04-01T17:00:00Z",
+  "description": "Close the UX gaps in PostProcessorGeneratorPage that prevent production use. Add file upload/download (drag-drop NC files), clipboard copy, machine auto-detection from G-code syntax, before/after diff viewer, and session history exposure. Backend has ppgHistory but UI has no access.",
+  "dependencies": [
+    "PP-MOAT-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "PostProcessorGeneratorPage.tsx (2,112 lines)",
+      "ProductEngine.productPPG() — 10 action handlers",
+      "ControllerDialectEngine — for auto-detect syntax patterns"
+    ],
+    "data": [
+      "client.ts (API functions: ppgGenerate, ppgValidate, ppgCompare, ppgControllers, ppgOperations)",
+      "ppg.ts routes (8 endpoints)"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ppg-ux-quality — warns if PPG page edits remove file I/O or clipboard functionality",
+    "mcp_action": "prism_product ppg_detect_controller — auto-detect controller from G-code",
+    "skill": "/ppg-detect — paste G-code and auto-detect the CNC controller family"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "File I/O + Clipboard",
+      "units": [
+        {
+          "id": "U-PMMO01",
+          "title": "Add file upload (drag-drop) and download to PostProcessorGeneratorPage",
+          "status": "complete",
+          "steps": [
+            "Add file upload input: <input type='file' accept='.nc,.gcode,.ngc,.tap,.mpf,.spf,.h' />",
+            "Add drag-drop zone around the G-code textarea with visual feedback",
+            "On file load: read as text, populate gcodeInput state",
+            "Add download button: generate Blob from output G-code, trigger browser download as .nc file",
+            "File naming: original_filename_PRISM_optimized.nc",
+            "Show file size and line count in UI"
+          ],
+          "exit_conditions": [
+            "Drag-drop an NC file loads it into the editor",
+            "Download button produces a valid .nc file",
+            "File round-trip: upload → optimize → download produces valid G-code"
+          ],
+          "legacy_id": "U01",
+          "description": "Add file upload (drag-drop) and download to PostProcessorGeneratorPage — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-PMMO02",
+          "title": "Add clipboard copy button + machine auto-detect from G-code",
+          "status": "complete",
+          "steps": [
+            "Add copy-to-clipboard button next to output G-code area",
+            "Use navigator.clipboard.writeText() with visual feedback (checkmark animation)",
+            "Add auto-detect controller: parse first 20 lines of G-code for syntax markers:",
+            "  Fanuc: O0001, G90 G21, M98 P, parentheses comments",
+            "  Siemens: ;$PATH=, CYCLE800, DEF INT, semicolon comments",
+            "  Heidenhain: BEGIN PGM, BLK FORM, CYCL DEF, ~ continuation",
+            "  Haas: O00001, G65 P, T M06 no space, percent sign header",
+            "  Mazak: G10 L2, Mazak-specific M codes",
+            "When auto-detected, pre-select the controller dropdown",
+            "Show confidence: 'Detected: Fanuc 31i (high confidence)'"
+          ],
+          "exit_conditions": [
+            "Copy button copies G-code to clipboard",
+            "Fanuc G-code auto-selects Fanuc controller",
+            "Heidenhain G-code auto-selects Heidenhain",
+            "Unknown syntax shows 'Could not auto-detect' without error"
+          ],
+          "legacy_id": "U02",
+          "description": "Add clipboard copy button + machine auto-detect from G-code — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Diff Viewer + History",
+      "units": [
+        {
+          "id": "U-PMMO03",
+          "title": "Add before/after diff viewer for optimization comparison",
+          "status": "complete",
+          "steps": [
+            "Create DiffViewer component: side-by-side view of original vs optimized G-code",
+            "Highlight changed lines (S/F values that differ)",
+            "Show per-line annotations: why the feed changed (chip thinning, corner, wear, etc.)",
+            "Summary stats at top: lines changed, avg feed delta %, cycle time delta",
+            "Toggle between unified diff and side-by-side views"
+          ],
+          "exit_conditions": [
+            "Diff viewer shows changed lines highlighted",
+            "Annotations explain each change",
+            "Summary stats are accurate"
+          ],
+          "legacy_id": "U03",
+          "description": "Add before/after diff viewer for optimization comparison — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-PMMO04",
+          "title": "Expose session history to UI from backend ppgHistory",
+          "status": "complete",
+          "steps": [
+            "Backend: expose GET /api/v1/ppg/history endpoint (ppgHistory already tracked in ProductEngine)",
+            "Frontend: add API function ppgHistory() in client.ts",
+            "UI: add history panel showing last 20 processed programs",
+            "Each entry: timestamp, controller, line count, cycle time delta, status",
+            "Click to reload: re-populates gcodeInput with that program's input",
+            "Add undo: revert to previous version from history"
+          ],
+          "exit_conditions": [
+            "History endpoint returns past programs",
+            "UI shows history list",
+            "Click to reload works",
+            "Undo reverts to previous version"
+          ],
+          "legacy_id": "U04",
+          "description": "Expose session history to UI from backend ppgHistory — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "exit_gate": "File upload/download, clipboard copy, auto-detect, diff viewer, and history all working. PPG page is production-ready for end users. /prism-review passed.",
+  "status": "complete",
+  "completed_at": "2026-04-05T01:05:00Z",
+  "test_results": "Build: 0 TS errors. All 4 PPG UX features implemented with lightsaber LED borders.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pp-moat-ms4-gate"
+    ],
+    "new_actions": [
+      "pp_moat_ms4_run"
+    ],
+    "new_skills": [
+      "/pp-moat-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Close the UX gaps in PostProcessorGeneratorPage that prevent production use. Add file upload/download (drag-drop NC files), clipboard copy, machine auto-detection from G-code syntax, before/after diff viewer, and session history exposure. Backend has ppgHistory but UI has no access.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

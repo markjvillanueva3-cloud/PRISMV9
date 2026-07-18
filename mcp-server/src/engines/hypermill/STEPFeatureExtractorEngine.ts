@@ -100,6 +100,12 @@ const FEATURE_SEQUENCE_PRIORITY: Record<FeatureType, number> = {
   fillet: 72,
   // Thread (after hole)
   thread_external: 80,
+  thread_internal: 82,
+  // Complex pockets (after simple pockets, need more setup)
+  pocket_complex: 27,
+  // Specialty slots (after standard slots)
+  slot_dovetail: 43,
+  slot_t_shaped: 45,
 };
 
 /** Default tool selection by feature type */
@@ -125,6 +131,10 @@ const FEATURE_TOOL_MAP: Record<FeatureType, { type: SequenceTool["type"]; diamFa
   chamfer: { type: "chamfer_mill", diamFactor: 1.5 },
   fillet: { type: "endmill_ball", diamFactor: 1.0 },
   thread_external: { type: "thread_mill", diamFactor: 0.8 },
+  thread_internal: { type: "tap", diamFactor: 1.0 },
+  pocket_complex:  { type: "endmill_ball", diamFactor: 0.4 },
+  slot_dovetail:   { type: "endmill_flat", diamFactor: 0.9 },
+  slot_t_shaped:   { type: "endmill_flat", diamFactor: 0.9 },
 };
 
 /** Map feature type to cycle code */
@@ -150,6 +160,10 @@ const FEATURE_CYCLE_MAP: Record<FeatureType, string> = {
   chamfer: "CONTOUR_2D",
   fillet: "PENCIL_FINISHING",
   thread_external: "THREAD_MILLING",
+  thread_internal: "TAPPING",
+  pocket_complex:  "SURFACE_FINISHING",
+  slot_dovetail:   "SLOT_MILLING",
+  slot_t_shaped:   "SLOT_MILLING",
 };
 
 // ══════════════════════════════════════════════════════════════════════════════

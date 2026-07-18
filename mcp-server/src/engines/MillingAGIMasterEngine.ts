@@ -13,11 +13,31 @@
  * @milestone MILL-MASTER/P1-U03-AGI-BIND
  */
 
+import { randomUUID } from "node:crypto";
 import { log } from "../utils/Logger.js";
 import {
   millTribalKnowledgeEngine,
   type TribalTip,
 } from "./MillTribalKnowledgeEngine.js";
+import {
+  DOMAIN_AGI_CONTRACT_VERSION,
+  DomainAGIIntentSchema,
+  type DomainAGIIntent,
+  type DomainAGIResult,
+  type DecisionKindT,
+} from "../schemas/domainAGIContract.js";
+import type { OutcomeEvent } from "../schemas/outcomeEventSchema.js";
+// P1-U02 (INFRA-AGI-ROUTER-MS2): factored to the shared kit. The kit's
+// ORCHESTRATE_OUTCOME_TOPIC + ORCHESTRATE_STAGE constants are consumed
+// internally by makeOutcomeEvent + publishOutcomeToFeedbackBus — this
+// engine never references them directly. See domainAGIAdapterKit.ts header.
+import {
+  makeDefaultConsensusVote,
+  publishOutcomeToFeedbackBus,
+  makeFailResult,
+  makeOutcomeEvent,
+  rollupJointConfidence,
+} from "./domainAGIAdapterKit.js";
 
 // ============================================================================
 // TYPES
@@ -137,6 +157,128 @@ const defaultTribalConsult: TribalConsultFn = (req) =>
     keyword: intentKeyword(req.intent),
     min_confidence: TRIBAL_MIN_CONFIDENCE,
   });
+
+// ============================================================================
+// DOMAIN AGI CONTRACT — INFRA-AGI-ROUTER-MS2/P0-U02
+// ============================================================================
+//
+// The mill domain's implementation of the unified DomainAGIIntent contract
+// (P0-U01). orchestrate(intent) wraps the existing reason() pipeline so the
+// router (ProcessIntelligenceRouterEngine — U05) dispatches mill/lathe/wedm
+// uniformly. The legacy reason() API is untouched.
+
+/** Decision categories the orchestrator routes through consensus. */
+type ConsensusDecisionKind = Extract<DecisionKindT, "tool" | "strategy" | "feed">;
+
+/**
+ * One consensus question. When `intent.consensusRequired === true` the mill
+ * engine asks the voices to vote over the candidate options it would otherwise
+ * pick unilaterally — the "replace a unilateral decision with a consensus call"
+ * mandate from the P0-U02 spec.
+ */
+export interface MillConsensusQuery {
+  /** Which pick is being decided. */
+  decisionKind: ConsensusDecisionKind;
+  /** Human-readable question handed to the consensus voices. */
+  question: string;
+  /** Candidate options to vote over. options[0] is the engine's unilateral pick. */
+  options: string[];
+}
+
+/** Verdict returned by a consensus call. */
+export interface MillConsensusVerdict {
+  /** The option the voices converged on (SHOULD be one of query.options). */
+  answer: string;
+  /** Consensus confidence in [0,1]. */
+  confidence: number;
+  /** Model voices that produced the winning answer. */
+  voters: string[];
+  /**
+   * REAL pointer/correlation key into consensus-decisions.jsonl, IF the
+   * consensus implementation can produce one. Surfaced as
+   * Decision.consensus_audit_id and OutcomeContext.consensus_audit_id.
+   * The production default seam returns this UNSET — ConsensusAuditLogEngine
+   * .append() returns void and the audit row carries no retrievable id.
+   * Never fabricate a pointer that dereferences to nothing (Karpathy R12);
+   * precise linkage lands when INFRA-CONSENSUS-WIRE-MS0/P0-U04's audit
+   * ledger exposes a queryable key.
+   */
+  auditId?: string;
+}
+
+/**
+ * Uniform Decision.value shape for every orchestrate() decision. ONE shape
+ * whether or not a consensus call ran, so downstream consumers
+ * (ProcessIntelligenceRouterEngine, OutcomeCaptureBus consumers) never have to
+ * branch on the runtime type of `value`.
+ */
+export interface MillDecisionValue {
+  /** Final selected pick — the engine's pick, or the consensus answer if it overrode. */
+  selected: string;
+  /** What the engine picked unilaterally, before any consensus call. */
+  enginePick: string;
+  /** The engine's structured recommendation object (ToolRecommendation, {strategy,params}, {rpm,...}). */
+  detail: unknown;
+  /** true when a consensus vote replaced the engine's unilateral pick. */
+  consensusOverride: boolean;
+}
+
+/** Injectable consensus seam — default wraps MultiModelConsensusEngine.ask(). */
+export type MillConsensusFn = (query: MillConsensusQuery) => Promise<MillConsensusVerdict>;
+
+/** Injectable feedback-bus seam — default publishes to the MS1 FeedbackBusEngine. */
+export type PublishOutcomeFn = (event: OutcomeEvent) => void;
+
+/** Per-call seam overrides for orchestrate(). Both default to production seams. */
+export interface MillOrchestrateOptions {
+  /** Override the consensus seam (tests inject a deterministic fake). */
+  consensusDecide?: MillConsensusFn;
+  /** Override the outcome-event publish seam (tests inject a spy). */
+  publishOutcome?: PublishOutcomeFn;
+}
+
+// ORCHESTRATE_OUTCOME_TOPIC + ORCHESTRATE_STAGE imported from
+// domainAGIAdapterKit (P1-U01) — see import block above.
+
+/**
+ * Coarse material-name → ISO machining group classifier. Name-based triage
+ * ONLY — the canonical material→ISO mapping lives in the material registry
+ * (src/registries/). Unknown names fall back to "N" and orchestrate() surfaces
+ * a warning so the operator verifies (Karpathy R12: an inferred value must
+ * never masquerade as a measured one).
+ */
+function inferISOGroup(material: string): { iso: ISOGroup; certain: boolean } {
+  const m = material.toLowerCase();
+  if (/inconel|hastelloy|titanium|\bti-?6al\b|waspaloy|\brene\b|nimonic|superalloy|monel/.test(m)) return { iso: "S", certain: true };
+  if (/hardened|\bhrc\b|case.?harden/.test(m)) return { iso: "H", certain: true };
+  if (/cast.?iron|gray.?iron|grey.?iron|ductile.?iron/.test(m)) return { iso: "K", certain: true };
+  if (/stainless|austenit|\b303\b|\b304\b|\b316\b|\b17-4\b|\b15-5\b|duplex/.test(m)) return { iso: "M", certain: true };
+  if (/alumin|\b6061\b|\b7075\b|\b2024\b|brass|bronze|copper|magnesium|delrin|acetal|nylon|plastic/.test(m)) return { iso: "N", certain: true };
+  if (/steel|carbon|\b10\d\d\b|\b41\d\d\b|\b43\d\d\b|\b86\d\d\b|\bp20\b|\ba36\b/.test(m)) return { iso: "P", certain: true };
+  return { iso: "N", certain: false };
+}
+
+/**
+ * Default consensus seam — 4-way model vote via MultiModelConsensusEngine.
+ * Lazy-imported (the consensus engine makes real model API calls; engines that
+ * never set consensusRequired must not pay its load cost). Mirrors the
+ * aiReasoningDispatcher `consensus_decide` path. Fails soft: a null consensus
+ * (all voices down) returns the engine's own pick so orchestrate() degrades
+ * gracefully instead of throwing.
+ */
+const millConsensusKitSeam = makeDefaultConsensusVote({
+  engineName: "MillingAGIMasterEngine",
+  callerEngine: "MillingAGIMasterEngine",
+});
+const defaultConsensusDecide: MillConsensusFn = async (query) =>
+  millConsensusKitSeam({
+    question: query.question,
+    options: query.options,
+    decisionKind: query.decisionKind,
+  });
+
+/** Default outcome-event seam — kit's publish helper (single line of indirection). */
+const defaultPublishOutcome: PublishOutcomeFn = publishOutcomeToFeedbackBus;
 
 // ============================================================================
 // ENGINE
@@ -452,6 +594,268 @@ export class MillingAGIMasterEngine {
       ],
     };
   }
+
+  // ==========================================================================
+  // DOMAIN AGI CONTRACT — INFRA-AGI-ROUTER-MS2/P0-U02
+  // ==========================================================================
+
+  /**
+   * Orchestrate a milling job through the unified DomainAGIIntent contract.
+   *
+   * The mill domain's implementation of the contract every domain AGI exposes
+   * (P0-U01). ProcessIntelligenceRouterEngine (U05) dispatches mill/lathe/wedm
+   * intents here without per-domain branching. Pipeline:
+   *   1. Validate the intent; reject non-mill domains (router misroute guard).
+   *   2. Map DomainAGIIntent → legacy MillAGIRequest, run the existing reason().
+   *   3. Lift the tool / strategy / feed picks into typed Decision objects.
+   *   4. When intent.consensusRequired, route each pick through the consensus
+   *      seam — the consensus answer overrides the engine's unilateral pick and
+   *      its consensus_audit_id is surfaced on the Decision.
+   *   5. Emit one `cross_process_decision` outcome event per decision to the
+   *      MS1 FeedbackBusEngine; collect them into result.outcomes.
+   *
+   * The legacy reason() API is left untouched — existing callers (millDispatcher,
+   * MillMasterOrchestratorFacadeEngine) are unaffected.
+   *
+   * @param intent  Unified intent (re-validated against DomainAGIIntentSchema).
+   * @param opts    Optional per-call seam overrides for the consensus call and
+   *                the feedback bus. Production uses the defaults; tests inject
+   *                deterministic fakes so no network/model call happens.
+   * @returns       DomainAGIResult — decisions[], confidence rollup, outcomes[].
+   */
+  async orchestrate(
+    intent: DomainAGIIntent,
+    opts: MillOrchestrateOptions = {},
+  ): Promise<DomainAGIResult> {
+    const consensusDecide = opts.consensusDecide ?? defaultConsensusDecide;
+    const publishOutcome = opts.publishOutcome ?? defaultPublishOutcome;
+    // Shared cross-event group key for every outcome event this run emits.
+    const jobId = `mill-agi-job-${randomUUID()}`;
+
+    // ── 1. Validate the intent ───────────────────────────────────────────────
+    const parsed = DomainAGIIntentSchema.safeParse(intent);
+    if (!parsed.success) {
+      return makeFailResult({
+        code: "INVALID_INTENT",
+        message: `DomainAGIIntent failed validation: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`,
+        stage: "validation",
+      });
+    }
+    const v = parsed.data;
+    if (v.domain !== "mill") {
+      return makeFailResult({
+        code: "WRONG_DOMAIN",
+        message: `MillingAGIMasterEngine.orchestrate handles domain 'mill' only — received '${v.domain}'. Route via ProcessIntelligenceRouterEngine.`,
+        stage: "validation",
+      });
+    }
+
+    const warnings: string[] = [];
+
+    // ── 2. Map DomainAGIIntent → legacy MillAGIRequest, run reason() ──────────
+    const { iso, certain } = inferISOGroup(v.material);
+    if (!certain) {
+      warnings.push(
+        `ISO machining group inferred as '${iso}' from material '${v.material}' (name-based heuristic — verify against the material registry).`,
+      );
+    }
+    const request: MillAGIRequest = {
+      intent: this.intentText(v),
+      iso_group: iso,
+      material: v.material,
+      features: v.features as Record<string, unknown>[],
+      constraints: v.constraints as Record<string, unknown>,
+    };
+
+    let response: MillAGIResponse;
+    try {
+      response = await this.reason(request);
+    } catch (err) {
+      return makeFailResult({
+        code: "REASONING_FAILED",
+        message: `reason() threw during orchestration: ${err instanceof Error ? err.message : String(err)}`,
+        stage: "reasoning",
+      });
+    }
+    warnings.push(...response.warnings);
+
+    // reason() unconditionally populates both, but guard fail-loud rather than
+    // assert — a future refactor that drops one must not produce a silently
+    // empty DomainAGIResult (Karpathy R12).
+    if (!response.tool_recommendation || !response.strategy_recommendation) {
+      return makeFailResult({
+        code: "REASONING_INCOMPLETE",
+        message: "reason() returned no tool/strategy recommendation — cannot build decisions.",
+        stage: "reasoning",
+      });
+    }
+
+    // ── 3. Lift tool / strategy / feed picks ─────────────────────────────────
+    const tool = response.tool_recommendation;
+    const strat = response.strategy_recommendation;
+    const toolPick = `${tool.type} D${tool.diameter_mm}mm ${tool.flutes}FL${tool.coating ? ` ${tool.coating}` : ""}`;
+    const rpm = typeof strat.params.rpm === "number" ? strat.params.rpm : 0;
+    const feedPick = `rpm=${rpm}`;
+
+    interface Pick {
+      kind: ConsensusDecisionKind;
+      enginePick: string;
+      options: string[];
+      value: unknown;
+      rationale: string;
+    }
+    const picks: Pick[] = [
+      {
+        kind: "tool",
+        enginePick: toolPick,
+        options: [toolPick, ...this.toolAlternatives(tool)],
+        value: tool,
+        rationale: tool.reason,
+      },
+      {
+        kind: "strategy",
+        enginePick: strat.strategy,
+        options: this.strategyOptions(strat.strategy),
+        value: { strategy: strat.strategy, params: strat.params },
+        rationale: `Strategy ${strat.strategy} — radial engagement ${strat.params.radial_engagement}`,
+      },
+      {
+        kind: "feed",
+        enginePick: feedPick,
+        options: [feedPick, `rpm=${Math.round(rpm * 0.8)}`, `rpm=${Math.round(rpm * 1.2)}`],
+        value: { rpm, radial_engagement: strat.params.radial_engagement },
+        rationale: `Speed/feed: ${rpm} RPM${strat.params.chip_load_constant ? ", constant chip load" : ""}`,
+      },
+    ];
+
+    // ── 4. Build decisions — consensus-gated when intent.consensusRequired ────
+    const decisions: DomainAGIResult["decisions"] = [];
+    const outcomes: OutcomeEvent[] = [];
+
+    for (const pick of picks) {
+      let confidence = response.confidence;
+      let source = "MillingAGIMasterEngine.reason";
+      let rationale = pick.rationale;
+      let selected = pick.enginePick;
+      let consensusOverride = false;
+      let consensusAuditId: string | undefined;
+      let alternatives: { value: unknown; confidence: number; rejected_reason?: string }[] | undefined;
+
+      if (v.consensusRequired) {
+        try {
+          const verdict = await consensusDecide({
+            decisionKind: pick.kind,
+            question: `For a ${v.action} operation in ${v.material}, which ${pick.kind} pick is optimal? Engine recommends: ${pick.enginePick}.`,
+            options: pick.options,
+          });
+          source = `consensus_decide:${verdict.voters.length > 0 ? verdict.voters.join("+") : "no-voters"}`;
+          confidence = verdict.confidence;
+          // Only surface a consensus_audit_id when the seam provides a REAL one
+          // (the production default leaves it unset — see MillConsensusVerdict).
+          if (verdict.auditId) consensusAuditId = verdict.auditId;
+          alternatives = pick.options
+            .filter((o) => o !== verdict.answer)
+            .map((o) => ({ value: o, confidence: 0, rejected_reason: "not selected by consensus vote" }));
+          if (verdict.answer !== pick.enginePick) {
+            // Consensus replaced the engine's unilateral decision (P0-U02 mandate).
+            consensusOverride = true;
+            selected = verdict.answer;
+            warnings.push(
+              `Consensus overrode the ${pick.kind} pick: engine='${pick.enginePick}' -> consensus='${verdict.answer}'.`,
+            );
+            rationale = `Consensus vote (${source}) selected '${verdict.answer}' over engine pick '${pick.enginePick}'.`;
+          }
+        } catch (err) {
+          warnings.push(
+            `Consensus call failed for the ${pick.kind} pick — fell back to the engine's unilateral pick (${err instanceof Error ? err.message : String(err)}).`,
+          );
+        }
+      }
+
+      // Uniform Decision.value shape — identical whether or not consensus ran,
+      // so consumers never branch on the runtime type of `value`.
+      const value: MillDecisionValue = {
+        selected,
+        enginePick: pick.enginePick,
+        detail: pick.value,
+        consensusOverride,
+      };
+
+      decisions.push({
+        kind: pick.kind,
+        value,
+        confidence,
+        source,
+        rationale,
+        ...(alternatives ? { alternatives } : {}),
+        ...(consensusAuditId ? { consensus_audit_id: consensusAuditId } : {}),
+      });
+
+      // ── 5. Emit outcome event to the MS1 feedback bus ──────────────────────
+      // Per-decision lineage_id (recommendation→outcome pairing key — a future
+      // actual outcome pairs to THIS decision); shared job_id groups the run.
+      const event = makeOutcomeEvent({
+        intent: v,
+        lineageId: `mill-agi-rec-${randomUUID()}`,
+        jobId,
+        engineName: "MillingAGIMasterEngine",
+        domain: "mill",
+        decisionKind: pick.kind,
+        value,
+        confidence,
+        ...(consensusAuditId ? { consensusAuditId } : {}),
+      });
+      outcomes.push(event);
+      try {
+        publishOutcome(event);
+      } catch (err) {
+        warnings.push(
+          `Outcome event for the ${pick.kind} decision could not be published to the feedback bus (${err instanceof Error ? err.message : String(err)}).`,
+        );
+      }
+    }
+
+    // Pipeline-level confidence — joint probability of the serial picks, per
+    // the contract roll-up convention (rollupJointConfidence, kit P1-U01).
+    const confidence = rollupJointConfidence(decisions);
+
+    return {
+      schemaVersion: DOMAIN_AGI_CONTRACT_VERSION,
+      success: true,
+      decisions,
+      confidence,
+      outcomes,
+      warnings,
+    };
+  }
+
+  /** Build a free-text intent string for reason() from a structured intent. */
+  private intentText(intent: DomainAGIIntent): string {
+    const feat =
+      intent.features.length > 0
+        ? ` on ${intent.features.length} feature(s): ${intent.features.map((f) => f.kind).join(", ")}`
+        : "";
+    return `${intent.action} operation in ${intent.material}${feat}`;
+  }
+
+  /** Two plausible alternative tool strings for the consensus vote. */
+  private toolAlternatives(tool: ToolRecommendation): string[] {
+    const altCoating = tool.coating === "AlTiN" ? "TiAlN" : "AlTiN";
+    return [
+      `${tool.type} D${tool.diameter_mm}mm ${tool.flutes}FL ${altCoating}`,
+      `${tool.type} D${Math.max(1, tool.diameter_mm - 2)}mm ${tool.flutes}FL${tool.coating ? ` ${tool.coating}` : ""}`,
+    ];
+  }
+
+  /** Strategy vote options — the picked strategy plus the engine's other known strategy. */
+  private strategyOptions(picked: string): string[] {
+    const known = ["adaptive_clearing", "trochoidal"];
+    const other = known.find((s) => s !== picked) ?? "trochoidal";
+    return [picked, other];
+  }
+
+  // failResult + buildOutcomeEvent removed in P1-U02 — see makeFailResult +
+  // makeOutcomeEvent in domainAGIAdapterKit.ts (P1-U01).
 }
 
 export const millingAGIMasterEngine = new MillingAGIMasterEngine();

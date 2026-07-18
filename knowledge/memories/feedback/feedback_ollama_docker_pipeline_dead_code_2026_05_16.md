@@ -1,22 +1,16 @@
 ---
 name: feedback-ollama-docker-pipeline-dead-code-2026-05-16
 description: "Audit of PRISM's Ollama+Docker pipeline integration. 88% of ollama-* hooks are dead-code-on-disk — shipped but never wired in settings.json. Same 'Named-not-Invoked' regression class as feedback_settings_wiring_drift_2026_05_16. 2 hooks wired this turn (ollama-pipeline-injector + ollama-prewarm-on-pipeline). 13+ remain unwired. Cost-router lib used by 1 of 18 consumers. Offloader telemetry shows zero offloads (all decisions = keep). Docker auto-recovery missing."
-metadata:
-  type: feedback
-  scope: project
-  surface: hooks-and-pipelines
-  audit_date: 2026-05-16
-  audited_by: claude-a61bbf34 (slot echo)
-  related:
-    - feedback_settings_wiring_drift_2026_05_16  (sister regression class)
-    - feedback_checkin_loop_goal_utilization_audit_2026_05_16  (sister Named-not-Invoked audit)
-    - reference_ollama_pipeline_ms0_2026_05_15  (the milestone whose hooks are dead-code)
-    - reference_ollama_cost_routing  (the lib only 1 of 18 consumers uses)
+aliases: feedback_ollama_docker_pipeline_dead_code_2026_05_16
+type: feedback
+source: prism-memory
+synced: 2026-06-27T20:30:46.437Z
 ---
+
 
 # Ollama + Docker pipeline utilization is mostly dead-code-on-disk
 
-Operator directive 2026-05-16: "make sure we're utilizing ollama and docker in pipelines effectively." Audit finding: we're not. 88% of the Ollama hook surface is unwired despite the OLLAMA-PIPELINE-MS0 milestone shipping 4 weeks ago.
+Operator directive 2026-05-16: "make sure we're utilizing ollama and docker in pipelines effectively." Audit finding: we're not. 88% of the Ollama hook surface is unwired despite the [[reference_ollama_pipeline_ms0_2026_05_15|OLLAMA-PIPELINE-MS0]] milestone shipping 4 weeks ago.
 
 ## The damning state of the world (audited 2026-05-16 18:00 UTC)
 
@@ -43,7 +37,7 @@ Operator directive 2026-05-16: "make sure we're utilizing ollama and docker in p
 | ollama-terminal-watcher.mjs | ? | ? | ? (not audited) |
 | ollama-architecture-plan.mjs | ? | ? | 0 — DEAD CODE |
 
-**17 ollama-* hooks exist. Only 4 are wired.** The 2 I just wired this turn (pipeline-injector + prewarm-on-pipeline) were explicitly named in the OLLAMA-PIPELINE-MS0 commit body as already-wired — same regression mechanism as `feedback_settings_wiring_drift_2026_05_16` (multi-chat merges silently revert settings.json wiring).
+**17 ollama-* hooks exist. Only 4 are wired.** The 2 I just wired this turn (pipeline-injector + prewarm-on-pipeline) were explicitly named in the [[reference_ollama_pipeline_ms0_2026_05_15|OLLAMA-PIPELINE-MS0]] commit body as already-wired — same regression mechanism as `feedback_settings_wiring_drift_2026_05_16` (multi-chat merges silently revert settings.json wiring).
 
 ### Cost-router lib coverage
 

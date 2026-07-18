@@ -1,0 +1,67 @@
+{
+  "audit_id": "QA-MS8-P0-U04",
+  "title": "Parameter Normalization Consistency Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T04:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS with NOTE - All 4 manufacturing dispatchers use normalizeParams. calcDispatcher uses Object.assign variant (F44).",
+
+  "normalizer": {
+    "file": "src/utils/paramNormalizer.ts",
+    "function": "normalizeParams(params: Record<string, any>): Record<string, any>",
+    "behavior": "Converts snake_case keys to camelCase equivalents via PARAM_ALIASES map. Does NOT remove originals — adds camelCase alongside.",
+    "reverse": "normalizeParamsSnake() for engines expecting snake_case",
+    "lazy_import": "All dispatchers use lazy `await import()` with try/catch fallback — graceful degradation if normalizer unavailable"
+  },
+
+  "dispatcher_patterns": {
+    "prism_calc": {
+      "pattern": "Object.assign(params, normalizeParams(rawParams))",
+      "note": "Mutates existing params object — differs from standard pattern"
+    },
+    "prism_thread": {
+      "pattern": "params = normalizeParams(rawParams)",
+      "note": "Standard pattern — replaces params reference"
+    },
+    "prism_toolpath": {
+      "pattern": "params = normalizeParams(rawParams)",
+      "note": "Standard pattern"
+    },
+    "prism_manus": {
+      "pattern": "params = normalizeParams(rawParams)",
+      "note": "Standard pattern"
+    }
+  },
+
+  "cross_dispatcher_consistency": {
+    "naming_conventions": "All use snake_case action names (e.g., cutting_force, calculate_tap_drill, strategy_select, create_task)",
+    "unit_handling": "Metric internally, imperial conversion via paramNormalizer where needed",
+    "default_values": "Handled at engine level, not dispatcher level — consistent by design",
+    "error_handling": {
+      "prism_calc": "dispatcherError() utility",
+      "prism_thread": "Manual try/catch with JSON.stringify",
+      "prism_toolpath": "dispatcherError() utility",
+      "prism_manus": "dispatcherError() utility"
+    }
+  },
+
+  "findings": [
+    {
+      "id": "F44",
+      "severity": "LOW",
+      "title": "calcDispatcher uses Object.assign for param normalization instead of standard assignment",
+      "file": "src/tools/dispatchers/calcDispatcher.ts",
+      "line": 295,
+      "issue": "Object.assign(params, normalizeParams(rawParams)) mutates params in-place while other dispatchers use params = normalizeParams(rawParams). Both work correctly but the inconsistency could cause confusion.",
+      "impact": "Functional: none — both approaches produce camelCase params alongside originals. Maintenance: minor confusion risk.",
+      "fix": "Align to standard params = normalizeParams(rawParams) pattern"
+    }
+  ],
+
+  "exit_conditions_met": {
+    "naming_conventions_consistent": true,
+    "unit_handling_consistent": true,
+    "default_value_policies_consistent": true,
+    "normalization_pattern_documented": true
+  }
+}

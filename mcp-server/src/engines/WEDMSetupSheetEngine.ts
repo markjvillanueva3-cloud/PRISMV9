@@ -217,6 +217,31 @@ export function generateSetupSheet(
   const cycleTime = result.cycle_time_breakdown;
   const confidence = result.confidence_score;
 
+  // These subsystem outputs are all optional on WEDMGenerateResult (a true
+  // `success` flag does not narrow them); if any is missing the sheet cannot be
+  // assembled honestly, so fall back to the same empty result the !success path uses.
+  if (!sheet || !passes || !cycleTime || !confidence) {
+    return {
+      success: false,
+      data: emptySetupSheetData(),
+      html: "<p>Incomplete generation result -- setup sheet unavailable.</p>",
+    };
+  }
+
+  // Fields the sheet needs that are NOT on SetupSheet are sourced from their real
+  // location on the result, derived from real component fields, or fall back to the
+  // file's empty-sentinel convention (0/""/false) when the generator does not emit
+  // them -- never fabricated.
+  const controller = result.controller ?? "";
+  const numProfiles = result.profiles_cut ?? 1;
+  const numPasses = result.passes_per_profile ?? passes.length;
+  const programNumber = 0; // O-number is assigned by the operator at the machine, not the generator
+  const submerged = false; // submerged-cut flag is not emitted by the generator; default to spray flushing
+  const partName = sheet.part_name ?? "";
+  const partNumber = sheet.part_number ?? "";
+  const material = sheet.material ?? "";
+  const thicknessMm = sheet.thickness_mm ?? 0;
+
   // ── Build pass table ────────────────────────────────────────────────
   const passTable: PassTableRow[] = passes.map((p: any) => ({
     pass_number: p.pass_number,
@@ -231,30 +256,32 @@ export function generateSetupSheet(
   }));
 
   // ── Cycle time breakdown ────────────────────────────────────────────
-  const cuttingMin = cycleTime.cutting_time_min;
+  // CycleTimeBreakdown emits component times (rough/skim/thread/setup), not a single
+  // cutting_time_min nor a per-pass array. Active cutting time = rough + skim passes.
+  const cuttingMin = cycleTime.rough_cut_min + cycleTime.skim_passes_min;
   const nonCuttingMin = cycleTime.total_time_min - cuttingMin;
-  const perPass = cycleTime.per_pass.map((p: any) => ({
-    pass: p.pass_number,
-    type: p.pass_type,
-    time_min: round2(p.cutting_time_min),
-  }));
+  // Per-pass durations are not emitted (PassDetail carries parameters, not times);
+  // leave empty rather than fabricate per-pass timings.
+  const perPass: Array<{ pass: number; type: string; time_min: number }> = [];
 
   // ── Wire / consumables ──────────────────────────────────────────────
   const wireDia = sheet.wire_diameter_mm;
-  const wireM = result.wire_consumption_m;
+  // wire_consumption_m is not emitted by the generator (it depends on the machine
+  // wire-feed rate, a machine constant absent from the result); 0 = "not computed".
+  const wireM = 0;
   const densityKgM = WIRE_DENSITY_KG_PER_M[wireDia] ?? WIRE_DENSITY_KG_PER_M[0.25]!;
   const wireKg = round2(wireM * densityKgM);
   const spoolPct = round1((wireM / SPOOL_SIZE_M) * 100);
 
   // ── Safety notes + PPE + Tribal Knowledge Tips ──────────────────────
   const safetyNotes = [...PPE_CHECKLIST, ...STANDARD_SAFETY_NOTES];
-  if (sheet.thickness_mm > 100) {
-    safetyNotes.push(`Thick section (${sheet.thickness_mm}mm): verify flush nozzle alignment and increase pressure to ${sheet.flush_pressure_bar} bar`);
+  if (thicknessMm > 100) {
+    safetyNotes.push(`Thick section (${thicknessMm}mm): verify flush nozzle alignment and increase pressure to ${sheet.flush_pressure_bar} bar`);
   }
   if (sheet.flush_pressure_bar >= 8) {
     safetyNotes.push("High flush pressure in use — secure workpiece clamping before starting");
   }
-  if (sheet.material.toLowerCase().includes("carbide")) {
+  if (material.toLowerCase().includes("carbide")) {
     safetyNotes.push("CARBIDE: Use coated wire (zinc or moly) — brass wire may break frequently on carbide");
   }
   if (hardness_hrc >= 62) {
@@ -262,33 +289,33 @@ export function generateSetupSheet(
   }
   // Surface tribal knowledge tips for operator reference
   const hasTaper = result.pass_details?.some?.((p: any) => p.type === "taper") ?? false;
-  const tips = selectTipsForJob(sheet.thickness_mm, sheet.material, hasTaper, sheet.num_passes);
+  const tips = selectTipsForJob(thicknessMm, material, hasTaper, numPasses);
   safetyNotes.push(...tips);
 
   // ── Assemble data ───────────────────────────────────────────────────
   const data: WEDMSetupSheetData = {
     header: {
-      part_name: sheet.part_name,
-      part_number: sheet.part_number,
-      material: sheet.material,
+      part_name: partName,
+      part_number: partNumber,
+      material,
       hardness_hrc,
-      thickness_mm: sheet.thickness_mm,
+      thickness_mm: thicknessMm,
       wire_type: sheet.wire_type,
       wire_diameter_mm: wireDia,
-      controller: sheet.controller,
-      program_number: sheet.program_number,
+      controller,
+      program_number: programNumber,
       date_generated: new Date().toISOString().slice(0, 10),
     },
     machine_setup: {
       flush_pressure_bar: sheet.flush_pressure_bar,
-      submerged: sheet.submerged,
-      num_profiles: sheet.num_profiles,
-      num_passes: sheet.num_passes,
+      submerged,
+      num_profiles: numProfiles,
+      num_passes: numPasses,
       start_hole_diameter_mm: round2(wireDia + 0.5),
       wire_threading: "Automatic (AWT) — verify wire path before starting",
-      tank_level: sheet.submerged
-        ? `Fill to ${round0(sheet.thickness_mm + 25)}mm above table`
-        : "Spray flushing — tank empty",
+      tank_level: submerged
+        ? `Fill to ${round0(thicknessMm + 25)}mm above table`
+        : "Spray flushing - tank empty",
     },
     pass_table: passTable,
     cycle_time: {
@@ -308,7 +335,7 @@ export function generateSetupSheet(
     safety_notes: safetyNotes,
     confidence: {
       overall: confidence.overall,
-      summary: confidence.summary,
+      summary: `Overall ${confidence.overall}% confidence (parameters ${confidence.parameter_confidence}%, material match ${confidence.material_match_confidence}%, geometry ${confidence.geometry_confidence}%).`,
     },
     warnings: result.warnings,
   };

@@ -86,6 +86,7 @@ export interface JobAdvice {
   next_actions: string[];
   queued_for_review?: string;
   tracker_id: string;
+  scenario?: { controller_id: string; machine_id: string; material_id: string };
 }
 
 // ── Engine ─────────────────────────────────────────────────────────────
@@ -161,6 +162,11 @@ export class PPJobScenarioAdvisorEngine {
       next_actions: nextActions,
       queued_for_review: queuedForReview,
       tracker_id: trackerId,
+      scenario: {
+        controller_id: spec.controller_id,
+        machine_id: spec.machine_id,
+        material_id: spec.material_id,
+      },
     };
   }
 

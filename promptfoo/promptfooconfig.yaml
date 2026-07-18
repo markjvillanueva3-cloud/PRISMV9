@@ -1,0 +1,315 @@
+# PRISM MCP Server — promptfoo Evaluation Configuration
+# Two suites: (1) Red Team security tests, (2) Dispatcher routing evals
+#
+# Run all:          npx promptfoo eval
+# Run red team:     npx promptfoo eval --config redteam.yaml
+# Run routing:      npx promptfoo eval --config routing.yaml
+# View results:     npx promptfoo view
+
+description: "PRISM MCP Server — Security & Dispatcher Routing Evaluation"
+
+# ---------------------------------------------------------------------------
+# Shared provider: Claude Sonnet 4 via Anthropic Messages API
+# Set ANTHROPIC_API_KEY in environment before running.
+# ---------------------------------------------------------------------------
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0
+      max_tokens: 1024
+      system: |
+        You are PRISM, a manufacturing CNC machining assistant. You have access
+        to 67 dispatchers and 2650+ actions covering speed/feed calculation,
+        simulation, toolpath generation, feasibility analysis, quoting, G-code
+        post-processing, and more. When given a machinist query, identify the
+        correct dispatcher action and extract the relevant parameters.
+        Respond with JSON: { "action": "<action_name>", "params": { ... } }
+
+# ---------------------------------------------------------------------------
+# Prompts — single template used by routing eval suite
+# ---------------------------------------------------------------------------
+prompts:
+  - "{{query}}"
+
+# ---------------------------------------------------------------------------
+# Default test suite (dispatcher routing) — 30 test cases
+# See routing.yaml for the canonical routing-only run.
+# ---------------------------------------------------------------------------
+tests:
+  # --- Speed / Feed ---
+  - description: "sf_orchestrate: basic milling speed-feed request"
+    vars:
+      query: "Calculate speed and feed for milling 6061 aluminum with a 0.5 inch 4-flute carbide end mill at 600 SFM"
+    assert:
+      - type: contains-json
+      - type: javascript
+        value: "output.toLowerCase().includes('sf_orchestrate') || output.toLowerCase().includes('speed') || output.toLowerCase().includes('feed')"
+      - type: javascript
+        value: "output.includes('6061') || output.toLowerCase().includes('aluminum')"
+
+  - description: "sf_orchestrate: turning operation speed-feed"
+    vars:
+      query: "What RPM and feed rate should I use turning 304 stainless with a CNMG insert at 250 SFM, 0.012 IPR?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('sf_orchestrate') || output.toLowerCase().includes('rpm') || output.toLowerCase().includes('feed')"
+      - type: javascript
+        value: "output.includes('304') || output.toLowerCase().includes('stainless')"
+
+  - description: "sf_orchestrate: high-speed machining titanium"
+    vars:
+      query: "Give me speed and feed for HSM of Ti-6Al-4V with a 0.375 inch ball end mill"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('titanium') || output.toLowerCase().includes('ti-6') || output.toLowerCase().includes('sf_orchestrate')"
+
+  # --- Kienzle Cutting Force ---
+  - description: "kienzle_force: 4140 steel cutting force"
+    vars:
+      query: "What cutting force will I get machining 4140 steel at 200 SFM with 0.005 IPT chip thickness?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('kienzle') || output.toLowerCase().includes('force') || output.toLowerCase().includes('cutting')"
+      - type: javascript
+        value: "output.includes('4140') || output.toLowerCase().includes('steel')"
+
+  - description: "kienzle_force: cast iron force calculation"
+    vars:
+      query: "Calculate the milling cutting force for gray cast iron, ap=2mm, ae=10mm, fz=0.08mm, kc1=1500"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('kienzle') || output.toLowerCase().includes('force')"
+      - type: javascript
+        value: "output.toLowerCase().includes('cast iron') || output.includes('kc1') || output.toLowerCase().includes('kienzle')"
+
+  # --- CNC Simulation ---
+  - description: "cnc_simulate: G-code simulation request"
+    vars:
+      query: "Simulate this G-code program and check for crashes: G0 X0 Y0 Z5, G1 Z-10 F100, G1 X50 F200"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('cnc_simulate') || output.toLowerCase().includes('simulat')"
+      - type: javascript
+        value: "output.includes('G0') || output.includes('G1') || output.toLowerCase().includes('g-code')"
+
+  - description: "cnc_simulate: physics-aware simulation"
+    vars:
+      query: "Run a physics simulation of my aluminum face milling program and predict surface finish and tool wear"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('simulat') || output.toLowerCase().includes('cnc_simulate')"
+      - type: javascript
+        value: "output.toLowerCase().includes('physics') || output.toLowerCase().includes('surface') || output.toLowerCase().includes('wear')"
+
+  # --- Playbook / Machining Rules ---
+  - description: "playbook_query: chatter troubleshooting"
+    vars:
+      query: "I'm getting chatter when milling Inconel 718. What machining rules should I follow?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('playbook') || output.toLowerCase().includes('chatter') || output.toLowerCase().includes('rule')"
+      - type: javascript
+        value: "output.toLowerCase().includes('inconel') || output.toLowerCase().includes('718') || output.toLowerCase().includes('nickel')"
+
+  - description: "playbook_query: hard turning rules"
+    vars:
+      query: "What are the best practices for hard turning D2 tool steel at 62 HRC?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('playbook') || output.toLowerCase().includes('hard turn') || output.toLowerCase().includes('hrc')"
+      - type: javascript
+        value: "output.toLowerCase().includes('d2') || output.toLowerCase().includes('tool steel') || output.toLowerCase().includes('62')"
+
+  - description: "playbook_query: deep hole drilling guidance"
+    vars:
+      query: "Give me rules for drilling a 0.25 inch hole 6 inches deep (24:1 L/D ratio) in 316 stainless"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('playbook') || output.toLowerCase().includes('deep hole') || output.toLowerCase().includes('drill')"
+      - type: javascript
+        value: "output.toLowerCase().includes('stainless') || output.includes('316') || output.toLowerCase().includes('l/d')"
+
+  # --- Quote Estimation ---
+  - description: "quote_estimate: basic machining quote"
+    vars:
+      query: "Give me a cost estimate for machining 50 parts from 4140 steel, 2 hour cycle time each, on a Haas VF-2"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('quote') || output.toLowerCase().includes('cost') || output.toLowerCase().includes('estimat')"
+      - type: javascript
+        value: "output.includes('50') || output.toLowerCase().includes('4140') || output.toLowerCase().includes('haas')"
+
+  - description: "quote_estimate: aluminum aerospace part quote"
+    vars:
+      query: "Quote 100 pieces of an aluminum aerospace bracket, 45 minute cycle, 3 setups, 6061-T6 material"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('quote') || output.toLowerCase().includes('cost') || output.toLowerCase().includes('estimat')"
+      - type: javascript
+        value: "output.includes('100') || output.toLowerCase().includes('aluminum') || output.toLowerCase().includes('6061')"
+
+  - description: "quote_estimate: titanium medical part"
+    vars:
+      query: "What's the machining cost for a titanium Ti-6Al-4V medical implant, batch of 10, 3 hour runtime?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('quote') || output.toLowerCase().includes('cost')"
+      - type: javascript
+        value: "output.toLowerCase().includes('titanium') || output.toLowerCase().includes('medical') || output.includes('10')"
+
+  # --- Tool Catalog Search ---
+  - description: "tool_catalog_search: end mill lookup"
+    vars:
+      query: "Find me a 0.5 inch 4-flute carbide end mill from Kennametal for aluminum"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('tool') || output.toLowerCase().includes('catalog') || output.toLowerCase().includes('search')"
+      - type: javascript
+        value: "output.toLowerCase().includes('kennametal') || output.toLowerCase().includes('end mill') || output.toLowerCase().includes('0.5')"
+
+  - description: "tool_catalog_search: insert grade lookup"
+    vars:
+      query: "What Sandvik inserts do you have for turning hardened steel above 55 HRC?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('sandvik') || output.toLowerCase().includes('insert') || output.toLowerCase().includes('catalog')"
+      - type: javascript
+        value: "output.toLowerCase().includes('hrc') || output.toLowerCase().includes('hard') || output.toLowerCase().includes('steel')"
+
+  - description: "tool_catalog_search: drill bit search"
+    vars:
+      query: "Search for a 10mm carbide drill with internal coolant for stainless steel from Guhring or OSG"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('drill') || output.toLowerCase().includes('catalog') || output.toLowerCase().includes('search')"
+      - type: javascript
+        value: "output.toLowerCase().includes('guhring') || output.toLowerCase().includes('osg') || output.includes('10')"
+
+  # --- Feasibility Analysis ---
+  - description: "feasibility_full_analysis: thin wall part"
+    vars:
+      query: "Check if I can machine a 50mm tall aluminum wall that's only 1.5mm thick from a solid block"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('feasibility') || output.toLowerCase().includes('feasib')"
+      - type: javascript
+        value: "output.toLowerCase().includes('thin') || output.toLowerCase().includes('wall') || output.toLowerCase().includes('aluminum')"
+
+  - description: "feasibility_full_analysis: deep pocket"
+    vars:
+      query: "Is it feasible to mill a 4 inch deep pocket with a 0.25 inch end mill in 4340 steel? Check tool reach and rigidity."
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('feasib') || output.toLowerCase().includes('reach') || output.toLowerCase().includes('rigidity')"
+      - type: javascript
+        value: "output.toLowerCase().includes('4340') || output.toLowerCase().includes('steel') || output.toLowerCase().includes('pocket')"
+
+  - description: "feasibility_full_analysis: workholding viability"
+    vars:
+      query: "Can I hold this L-shaped part in a vise for both setups without datum drift? Part is 200x150x50mm 6061."
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('feasib') || output.toLowerCase().includes('workhold') || output.toLowerCase().includes('datum')"
+      - type: javascript
+        value: "output.toLowerCase().includes('vise') || output.toLowerCase().includes('6061') || output.toLowerCase().includes('setup')"
+
+  # --- G-code Post Processing ---
+  - description: "post_process: Fanuc post"
+    vars:
+      query: "Post-process my toolpath for a Fanuc 0i-MF controller with metric output and cycle time optimization"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('post') || output.toLowerCase().includes('fanuc')"
+      - type: javascript
+        value: "output.toLowerCase().includes('fanuc') || output.toLowerCase().includes('0i') || output.toLowerCase().includes('metric')"
+
+  - description: "post_process: Siemens 840D post"
+    vars:
+      query: "Generate Siemens 840D sl compatible G-code from my CL data with CYCLE832 high-speed settings"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('post') || output.toLowerCase().includes('siemens')"
+      - type: javascript
+        value: "output.toLowerCase().includes('840d') || output.toLowerCase().includes('cycle832') || output.toLowerCase().includes('siemens')"
+
+  - description: "post_process: Haas NGC post"
+    vars:
+      query: "Post my program for a Haas NGC control, I need G187 smoothness settings and sub-program support"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('post') || output.toLowerCase().includes('haas')"
+      - type: javascript
+        value: "output.toLowerCase().includes('haas') || output.toLowerCase().includes('ngc') || output.toLowerCase().includes('g187')"
+
+  # --- Additional dispatcher coverage ---
+  - description: "tool_wear: wear progression prediction"
+    vars:
+      query: "How many minutes before my carbide end mill wears out cutting Inconel at these conditions: 150 SFM, 0.003 IPT?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('wear') || output.toLowerCase().includes('tool life') || output.toLowerCase().includes('taylor')"
+      - type: javascript
+        value: "output.toLowerCase().includes('inconel') || output.toLowerCase().includes('carbide') || output.toLowerCase().includes('sfm')"
+
+  - description: "stability_lobes: chatter-free RPM"
+    vars:
+      query: "Calculate the stability lobe diagram for my 4-flute 0.75 inch end mill in a BT40 holder on a Haas VF-4"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('stability') || output.toLowerCase().includes('lobe') || output.toLowerCase().includes('chatter')"
+      - type: javascript
+        value: "output.toLowerCase().includes('rpm') || output.toLowerCase().includes('bt40') || output.toLowerCase().includes('4-flute')"
+
+  - description: "cnc_simulate_predictive: tool life batch optimization"
+    vars:
+      query: "Predict tool life and optimal batch size for 500 aluminum parts, 4 minute cycle time per part"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('predictive') || output.toLowerCase().includes('tool life') || output.toLowerCase().includes('simulat')"
+      - type: javascript
+        value: "output.includes('500') || output.toLowerCase().includes('batch') || output.toLowerCase().includes('aluminum')"
+
+  - description: "material_properties: lookup material data"
+    vars:
+      query: "What are the machinability rating, hardness, and tensile strength of 17-4 PH stainless steel H900?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('material') || output.toLowerCase().includes('17-4') || output.toLowerCase().includes('properties')"
+      - type: javascript
+        value: "output.toLowerCase().includes('hardness') || output.toLowerCase().includes('tensile') || output.toLowerCase().includes('machinab')"
+
+  - description: "gdt_stackup: tolerance analysis"
+    vars:
+      query: "Calculate the GD&T tolerance stackup for a 3-part assembly where each part has ±0.001 inch position tolerance"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('gdt') || output.toLowerCase().includes('tolerance') || output.toLowerCase().includes('stackup')"
+      - type: javascript
+        value: "output.includes('0.001') || output.toLowerCase().includes('position') || output.toLowerCase().includes('assembly')"
+
+  - description: "machine_matcher: find suitable machine"
+    vars:
+      query: "Which machine in my shop can handle a 600x400x300mm part in titanium with 5-axis simultaneous moves?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('machine') || output.toLowerCase().includes('matcher') || output.toLowerCase().includes('5-axis')"
+      - type: javascript
+        value: "output.toLowerCase().includes('titanium') || output.toLowerCase().includes('600') || output.toLowerCase().includes('5-axis')"
+
+  - description: "process_capability: Cpk prediction"
+    vars:
+      query: "Predict the process capability Cpk for holding a 25.000 +0.005/-0.000mm bore diameter in production"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('cpk') || output.toLowerCase().includes('capabilit') || output.toLowerCase().includes('process')"
+      - type: javascript
+        value: "output.includes('25') || output.toLowerCase().includes('bore') || output.toLowerCase().includes('cpk')"
+
+  - description: "coolant_strategy: coolant recommendation"
+    vars:
+      query: "Should I use flood coolant, MQL, or cryogenic cooling for machining Ti-6Al-4V at high speed?"
+    assert:
+      - type: javascript
+        value: "output.toLowerCase().includes('coolant') || output.toLowerCase().includes('mql') || output.toLowerCase().includes('cryo')"
+      - type: javascript
+        value: "output.toLowerCase().includes('titanium') || output.toLowerCase().includes('ti-6') || output.toLowerCase().includes('strategy')"

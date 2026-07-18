@@ -1,0 +1,680 @@
+{
+  "id": "CAD-TRAINING-EXTRACT-MS0",
+  "version": "1.0.0",
+  "title": "CAD/CAM Training Data Extraction — PDF/Video Knowledge Harvest for Action Learning",
+  "brief": "Extract procedural knowledge, tribal tips, and action sequences from all available CAD/CAM training materials. This milestone MUST complete BEFORE CADCAM-DAGI-MS1 (CAD Software Action Learning) to ensure the AGI has learned HOW to use each software before attempting to draw. Strategic priority: Mastercam first (JM Die primary system), then Inventor (5,082 files), then others.",
+  "track": "CAD-TRAINING",
+  "parent": null,
+  "status": "ready",
+  "priority": "P0",
+  "omega_target": 1,
+  "created_at": "2026-04-19T00:10:00Z",
+  "created_by": "forge /rgs via Opus 4.5",
+  "dependencies": [],
+  "blocks": [
+    "CADCAM-DAGI-MS1"
+  ],
+  "total_units": 12,
+  "total_sessions": 4,
+  "completed_units": 0,
+  "rgs_pipeline_stage": "Stage 5 — ready for execution",
+  "rationale": {
+    "why_before_action_learning": "The AGI cannot learn to draw in software X without first understanding HOW software X works - menus, commands, workflows, keyboard shortcuts, parameter meanings. These PDFs contain that procedural knowledge.",
+    "strategic_order": [
+      "Mastercam FIRST - JM Die has 9,337 Mastercam files, it's their primary CAD/CAM",
+      "Inventor SECOND - 5,082 Inventor files in system, 11+ InventorCAM training PDFs available",
+      "hyperMILL THIRD - Already extracted 434 tips, but consolidate into action sequences",
+      "SolidWorks/Fusion/FreeCAD FOURTH - Lower file counts, but complete coverage required"
+    ],
+    "extraction_method": "/pdf-learn for PDFs, /video-learn for any video tutorials found"
+  },
+  "training_resources_inventory": {
+    "downloaded_pdfs": {
+      "location": "H:/prism/Resources/RESOURCE PDFS/DOWNLOADED_TRAINING/",
+      "files": [
+        {
+          "name": "Mastercam_Basics_Tutorial.pdf",
+          "size_mb": 7.5,
+          "priority": 1
+        },
+        {
+          "name": "Mastercam_Solids_Tutorial.pdf",
+          "size_mb": 5.2,
+          "priority": 1
+        },
+        {
+          "name": "Mastercam_Wire_EDM_Tutorial_2018.pdf",
+          "size_mb": 3.2,
+          "priority": 1
+        },
+        {
+          "name": "Mastercam_Wire_EDM_Tutorial_2017.pdf",
+          "size_mb": 1.9,
+          "priority": 1
+        },
+        {
+          "name": "Mastercam_Basic_2D_Design.pdf",
+          "size_mb": 3.1,
+          "priority": 1
+        },
+        {
+          "name": "Inventor_iLogic_Beyond_Basics.pdf",
+          "size_mb": 2.9,
+          "priority": 2
+        }
+      ]
+    },
+    "existing_pdfs": {
+      "inventor_cam": {
+        "location": "H:/prism/Resources/RESOURCE PDFS/",
+        "count": 11,
+        "files": [
+          "InventorCAM2024_2.5D_Milling_Training_Course.pdf",
+          "InventorCAM2024_3D_HSM_User_Guide.pdf",
+          "InventorCAM2024_3D_HSR_User_Guide.pdf",
+          "InventorCAM2024_5-Axis_Basic_Training_Vol-1.pdf",
+          "InventorCAM2024_5-Axis_Basic_Training_Vol-2.pdf",
+          "InventorCAM2024_5-Axis_Basic_Training_Vol-3.pdf",
+          "InventorCAM2024_Contour_5X_Machining.pdf",
+          "InventorCAM2024_Edge_Breaking.pdf",
+          "InventorCAM2024_Geodesic_Machining.pdf",
+          "InventorCAM2024_HSS_User_Guide.pdf",
+          "InventorCAM2024_Multiaxis_Drilling.pdf"
+        ],
+        "priority": 2
+      },
+      "solidworks": {
+        "location": "H:/prism/Resources/RESOURCE PDFS/",
+        "files": [
+          "David Planchard - Engineering Graphics with SOLIDWORKS 2021-SDC Publications (2021).pdf"
+        ],
+        "priority": 3
+      },
+      "fusion360": {
+        "location": "H:/prism/Resources/RESOURCE PDFS/",
+        "files": [
+          "FUSION CAD.pdf"
+        ],
+        "priority": 3
+      },
+      "hypermill": {
+        "note": "Already extracted - 2,666 pages, 434 tips, 218 procedures",
+        "location": "data/extracted-knowledge/hypermill/",
+        "priority": 4,
+        "action": "Consolidate existing extractions into action sequences"
+      }
+    }
+  },
+  "session_plan": [
+    {
+      "session": 1,
+      "units": [
+        "U-CTE01",
+        "U-CTE02",
+        "U-CTE03"
+      ],
+      "title": "Mastercam Training Extraction (Priority 1 - JM Die Primary)",
+      "estimated_tips": "150+",
+      "smart_config": {
+        "role": "Mastercam Expert + Manufacturing Knowledge Extractor",
+        "model": "opus",
+        "effort": "MAX",
+        "command": "/pdf-learn",
+        "context_budget": 200000
+      }
+    },
+    {
+      "session": 2,
+      "units": [
+        "U-CTE04",
+        "U-CTE05",
+        "U-CTE06"
+      ],
+      "title": "InventorCAM Training Extraction (Priority 2 - 11 Training PDFs)",
+      "estimated_tips": "200+",
+      "smart_config": {
+        "role": "InventorCAM Expert + CAM Workflow Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "command": "/pdf-learn",
+        "context_budget": 200000
+      }
+    },
+    {
+      "session": 3,
+      "units": [
+        "U-CTE07",
+        "U-CTE08",
+        "U-CTE09"
+      ],
+      "title": "SolidWorks + Fusion360 Training Extraction",
+      "estimated_tips": "100+",
+      "smart_config": {
+        "role": "SolidWorks/Fusion360 Expert",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "command": "/pdf-learn",
+        "context_budget": 150000
+      }
+    },
+    {
+      "session": 4,
+      "units": [
+        "U-CTE10",
+        "U-CTE11",
+        "U-CTE12"
+      ],
+      "title": "Knowledge Consolidation + Action Sequence Generation",
+      "smart_config": {
+        "role": "CAD/CAM Knowledge Architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000
+      }
+    }
+  ],
+  "units": [
+    {
+      "id": "U-CTE01",
+      "title": "Extract Mastercam Basics Tutorial",
+      "status": "pending",
+      "session": 1,
+      "entry_conditions": [
+        "Downloaded PDFs exist in DOWNLOADED_TRAINING/"
+      ],
+      "steps": [
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/DOWNLOADED_TRAINING/Mastercam_Basics_Tutorial.pdf"
+        },
+        "Extract: Interface navigation, geometry creation commands, file operations",
+        "Extract: Toolpath types, chaining methods, machine definitions",
+        "Generate: Action sequences for 'Create rectangle', 'Create arc', 'Chain contour'",
+        "Output: tribal tips + procedure steps to TribalKnowledgeEngine"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 30",
+        "action_sequences_generated >= 10",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "deliverables": [
+        "mastercam-basics-tips.json",
+        "mastercam-basics-actions.json"
+      ],
+      "description": "Extract Mastercam Basics Tutorial — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE02",
+      "title": "Extract Mastercam Solids Tutorial",
+      "status": "pending",
+      "session": 1,
+      "steps": [
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/DOWNLOADED_TRAINING/Mastercam_Solids_Tutorial.pdf"
+        },
+        "Extract: Extrude, Revolve, Loft, Sweep, Boolean operations",
+        "Extract: Fillet, Chamfer, Shell, Draft, Pattern commands",
+        "Generate: Action sequences for solid modeling operations",
+        "Output: 3D modeling procedures to TribalKnowledgeEngine"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 25",
+        "action_sequences_generated >= 15",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "deliverables": [
+        "mastercam-solids-tips.json",
+        "mastercam-solids-actions.json"
+      ],
+      "description": "Extract Mastercam Solids Tutorial — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE03",
+      "title": "Extract Mastercam Wire EDM Tutorials",
+      "status": "pending",
+      "session": 1,
+      "steps": [
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/DOWNLOADED_TRAINING/Mastercam_Wire_EDM_Tutorial_2018.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/DOWNLOADED_TRAINING/Mastercam_Wire_EDM_Tutorial_2017.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/DOWNLOADED_TRAINING/Mastercam_Basic_2D_Design.pdf"
+        },
+        "Extract: Wire contour, 4-axis, no-core operations",
+        "Extract: Power libraries, tab creation, taper angles",
+        "Cross-reference: JM Die Mitsubishi MV1200R wire EDM parameters",
+        "Output: Wire EDM procedures to TribalKnowledgeEngine"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 40",
+        "wire_edm_procedures >= 20",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "deliverables": [
+        "mastercam-wire-edm-tips.json",
+        "mastercam-wire-edm-actions.json"
+      ],
+      "note": "CRITICAL for JM Die - they have Mitsubishi wire EDM",
+      "description": "Extract Mastercam Wire EDM Tutorials — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE04",
+      "title": "Extract InventorCAM 2.5D Milling + 3D HSM",
+      "status": "pending",
+      "session": 2,
+      "steps": [
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_2.5D_Milling_Training_Course.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_3D_HSM_User_Guide.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_3D_HSR_User_Guide.pdf"
+        },
+        "Extract: Face, Contour, Pocket, Adaptive, Slot operations",
+        "Extract: High-speed machining strategies, rest machining",
+        "Generate: Action sequences for CAM operation creation"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 50",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "deliverables": [
+        "inventorcam-milling-tips.json"
+      ],
+      "description": "Extract InventorCAM 2.5D Milling + 3D HSM — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE05",
+      "title": "Extract InventorCAM 5-Axis Training (3 Volumes)",
+      "status": "pending",
+      "session": 2,
+      "steps": [
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-1.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-2.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-3.pdf"
+        },
+        "Extract: Swarf, multiaxis contour, flow, port machining",
+        "Extract: Tool axis control, collision avoidance, tilting limits",
+        "Generate: 5-axis operation action sequences"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 60",
+        "five_axis_procedures >= 25",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "deliverables": [
+        "inventorcam-5axis-tips.json"
+      ],
+      "description": "Extract InventorCAM 5-Axis Training (3 Volumes) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE06",
+      "title": "Extract InventorCAM Advanced + iLogic",
+      "status": "pending",
+      "session": 2,
+      "steps": [
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_Contour_5X_Machining.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_Geodesic_Machining.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_Edge_Breaking.pdf"
+        },
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/DOWNLOADED_TRAINING/Inventor_iLogic_Beyond_Basics.pdf"
+        },
+        "Extract: Geodesic patterns, edge breaking, contour 5X",
+        "Extract: iLogic rules, VB.NET automation, parameter control",
+        "Generate: Automation action sequences for Inventor"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 40",
+        "ilogic_patterns >= 15",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "deliverables": [
+        "inventorcam-advanced-tips.json",
+        "inventor-ilogic-patterns.json"
+      ],
+      "description": "Extract InventorCAM Advanced + iLogic — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE07",
+      "title": "Extract SolidWorks Training",
+      "status": "pending",
+      "session": 3,
+      "steps": [
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/David Planchard - Engineering Graphics with SOLIDWORKS 2021-SDC Publications (2021).pdf"
+        },
+        "Extract: Sketch creation, feature modeling, assembly",
+        "Extract: Drawing creation, annotations, GD&T",
+        "Extract: API patterns if covered",
+        "Generate: SolidWorks action sequences"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 50",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "deliverables": [
+        "solidworks-tips.json",
+        "solidworks-actions.json"
+      ],
+      "description": "Extract SolidWorks Training — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE08",
+      "title": "Extract Fusion 360 Training",
+      "status": "pending",
+      "session": 3,
+      "steps": [
+        {
+          "tool": "/pdf-learn",
+          "target": "H:/prism/Resources/RESOURCE PDFS/FUSION CAD.pdf"
+        },
+        "Extract: Sketch, modeling, assembly workflows",
+        "Extract: CAM setup, operations, post-processing",
+        "Generate: Fusion 360 action sequences"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 30",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "deliverables": [
+        "fusion360-tips.json",
+        "fusion360-actions.json"
+      ],
+      "description": "Extract Fusion 360 Training — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE09",
+      "title": "Extract FreeCAD Path Workbench (Online Sources)",
+      "status": "pending",
+      "session": 3,
+      "steps": [
+        "Fetch FreeCAD Path tutorials from online sources",
+        "Extract: Job setup, operation creation, post-processing",
+        "Extract: Tool management, simulation, G-code inspection",
+        "Generate: FreeCAD CAM action sequences"
+      ],
+      "exit_conditions": [
+        "tips_extracted >= 20",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "deliverables": [
+        "freecad-path-tips.json"
+      ],
+      "description": "Extract FreeCAD Path Workbench (Online Sources) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE10",
+      "title": "Consolidate hyperMILL Extractions into Action Sequences",
+      "status": "in_progress",
+      "session": 4,
+      "steps": [
+        "Read existing: data/extracted-knowledge/hypermill/hypermill-tribal-tips-1776036032655.json (434 tips)",
+        "Read existing: data/extracted-knowledge/hypermill/hypermill-deep-extraction-1776035977194.json (218 procedures)",
+        "Transform: Convert procedures into executable action sequences",
+        "Output: hypermill-action-sequences.json"
+      ],
+      "exit_conditions": [
+        "action_sequences >= 100",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "deliverables": [
+        "hypermill-action-sequences.json"
+      ],
+      "description": "Consolidate hyperMILL Extractions into Action Sequences — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "owner_slot": "echo (cam)",
+      "next_action": "Consolidate HyperMillDataExtractionOrchestrator outputs into ActionSequence DSL — multi-pass extraction + validation",
+      "in_progress_at": "2026-05-20T06:10:00Z",
+      "assigned_by": "claude-3db3fb3d /goal complete-all-hypermill-hypercad iter-3"
+    },
+    {
+      "id": "U-CTE11",
+      "title": "Build CAD Action Sequence Index",
+      "status": "pending",
+      "session": 4,
+      "steps": [
+        "Aggregate all action sequences from U-CTE01 through U-CTE10",
+        "Build unified index: CAD_ACTION_SEQUENCE_INDEX.json",
+        "Cross-reference with inventory files (12,020 inputs across 6 CAD systems)",
+        "Map: action → software → command → parameters",
+        "Validate: coverage percentage per software"
+      ],
+      "exit_conditions": [
+        "index_entries >= 500",
+        "coverage >= 80%",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "deliverables": [
+        "CAD_ACTION_SEQUENCE_INDEX.json"
+      ],
+      "description": "Build CAD Action Sequence Index — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CTE12",
+      "title": "Wire Action Sequences to CAD Learning Engines",
+      "status": "pending",
+      "session": 4,
+      "steps": [
+        "Integrate action sequences with CADSoftwareActionEngine (if exists, or create)",
+        "Wire to TribalKnowledgeEngine for tip retrieval",
+        "Update CAD_SOFTWARE_MASTER_INDEX.json with extraction status",
+        "Generate: Extraction completion report",
+        "Verify: All 6 CAD systems have action coverage"
+      ],
+      "exit_conditions": [
+        "all_systems_covered",
+        "engine_wired",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "deliverables": [
+        "extraction-completion-report.json"
+      ],
+      "description": "Wire Action Sequences to CAD Learning Engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "success_criteria": {
+    "tips_extracted_total": ">= 400",
+    "action_sequences_generated": ">= 200",
+    "cad_systems_covered": 6,
+    "coverage_per_system": {
+      "Mastercam": ">= 80%",
+      "Inventor": ">= 80%",
+      "hyperMILL": ">= 90%",
+      "SolidWorks": ">= 70%",
+      "Fusion360": ">= 70%",
+      "FreeCAD": ">= 60%"
+    }
+  },
+  "output_artifacts": [
+    "data/extracted-knowledge/mastercam/mastercam-training-tips.json",
+    "data/extracted-knowledge/inventor/inventor-training-tips.json",
+    "data/extracted-knowledge/solidworks/solidworks-training-tips.json",
+    "data/extracted-knowledge/fusion360/fusion360-training-tips.json",
+    "data/extracted-knowledge/freecad/freecad-training-tips.json",
+    "data/extracted-knowledge/CAD_ACTION_SEQUENCE_INDEX.json"
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cad-training-extract-ms0-gate",
+    "mcp_action": "prism_cad-training:cad_training_extract_ms0_run",
+    "skill_command": "/cad-training-extract-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cad-training-extract-ms0-gate"
+    ],
+    "new_actions": [
+      "cad_training_extract_ms0_run"
+    ],
+    "new_skills": [
+      "/cad-training-extract-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Extract procedural knowledge, tribal tips, and action sequences from all available CAD/CAM training materials. This milestone MUST complete BEFORE CADCAM-DAGI-MS1 (CAD Software Action Learning) to ensure the AGI has learned HOW to use each software before attempting to draw. Strategic priority: Mastercam first (JM Die primary system), then Inventor (5,082 files), then others.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "last_updated": "2026-05-20T06:10:00Z"
+}

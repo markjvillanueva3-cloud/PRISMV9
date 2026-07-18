@@ -27,8 +27,32 @@
  * @version 1.0.0
  */
 
+import { randomUUID } from "node:crypto";
 import { log } from "../utils/Logger.js";
 import { wireEDMUnifiedScienceEngine, type UnifiedScienceAnalysis } from "./WireEDMUnifiedScienceEngine.js";
+import { wedmTier6GeomGateEngine, type Tier6GeomInput, type Tier6GeomResult } from "./WEDMTier6GeomGateEngine.js";
+import {
+  DOMAIN_AGI_CONTRACT_VERSION,
+  DomainAGIIntentSchema,
+  type DomainAGIIntent,
+  type DomainAGIResult,
+  type DecisionKindT,
+  type WedmActionT,
+} from "../schemas/domainAGIContract.js";
+import type { OutcomeEvent } from "../schemas/outcomeEventSchema.js";
+// P1-U04 (INFRA-AGI-ROUTER-MS2): factored to the shared kit. The kit's
+// surface is structurally identical to the prior inline helpers — see
+// domainAGIAdapterKit.ts header for the migration rationale. The
+// ORCHESTRATE_OUTCOME_TOPIC + ORCHESTRATE_STAGE constants are NOT imported
+// here — the kit's makeOutcomeEvent + publishOutcomeToFeedbackBus consume
+// them internally, so this engine never references them directly.
+import {
+  makeDefaultConsensusVote,
+  publishOutcomeToFeedbackBus,
+  makeFailResult,
+  makeOutcomeEvent,
+  rollupJointConfidence,
+} from "./domainAGIAdapterKit.js";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -346,6 +370,171 @@ const CAUSAL_RELATIONSHIPS: CausalInference[] = [
     interventional_effect: -0.40
   }
 ];
+
+// ============================================================================
+// DOMAIN AGI CONTRACT — INFRA-AGI-ROUTER-MS2/P0-U04
+// ============================================================================
+//
+// `orchestrate(intent, opts?)` adapts this engine's existing AGI cluster
+// (`process()` reasoning + `WEDMTier6GeomGateEngine.validate()` Tier-6 safety)
+// to the unified DomainAGIIntent contract the router (U05) dispatches uniformly
+// across mill/lathe/wedm. Mirrors P0-U02 (MillingAGIMasterEngine) + P0-U03
+// (LatheAGIKnowledgeUnificationEngine) by composition: the legacy `process()`
+// surface is untouched, this method is additive.
+//
+// TIE-UP NOTE (P0-U05): the consensus seam + outcome event builder + uniform
+// DecisionValue shape + joint confidence rollup + failResult helper are now
+// triplicated across Mill + Lathe + this engine. U05 is the designated
+// extraction point for a shared `domainAGIAdapterKit` (≈80 lines/engine × 3).
+//
+// ────────────────────────────────────────────────────────────────────────────
+
+/** Decision categories the WEDM domain emits via orchestrate(). */
+export type WedmConsensusDecisionKind = Extract<DecisionKindT, "strategy" | "param" | "safety">;
+
+/**
+ * One consensus question — voices vote over the candidate options the engine
+ * would otherwise pick unilaterally. Issued only when intent.consensusRequired.
+ */
+export interface WedmConsensusQuery {
+  decisionKind: WedmConsensusDecisionKind;
+  question: string;
+  options: string[];
+}
+
+/** Verdict returned by a consensus call. */
+export interface WedmConsensusVerdict {
+  answer: string;
+  confidence: number;
+  voters: string[];
+  /**
+   * REAL pointer into consensus-decisions.jsonl IF the consensus implementation
+   * can produce one. Production default seam returns this UNSET —
+   * `ConsensusAuditLogEngine.append()` returns void and the audit row carries
+   * no retrievable id. Never fabricate a pointer that dereferences to nothing
+   * (Karpathy R12). Mirrors Mill/LatheConsensusVerdict.auditId.
+   */
+  auditId?: string;
+}
+
+/**
+ * Uniform Decision.value shape — ONE shape whether or not consensus ran, so
+ * downstream consumers never branch on the runtime type of `value`.
+ */
+export interface WedmDecisionValue {
+  selected: string;
+  enginePick: string;
+  detail: unknown;
+  consensusOverride: boolean;
+}
+
+/** Injectable consensus seam — default wraps MultiModelConsensusEngine.ask(). */
+export type WedmConsensusFn = (query: WedmConsensusQuery) => Promise<WedmConsensusVerdict>;
+
+/** Injectable feedback-bus seam — default publishes to the MS1 FeedbackBusEngine. */
+export type WedmPublishOutcomeFn = (event: OutcomeEvent) => void;
+
+/** Injectable AGI reasoning seam — default = this engine's own `process()`. */
+export type WedmAGIReasonFn = (request: AGIRequest) => AGIDecision;
+
+/** Injectable Tier-6 safety seam — default = real wedmTier6GeomGateEngine.validate. */
+export type WedmTier6CheckFn = (input: Tier6GeomInput) => Tier6GeomResult;
+
+/** Per-call seam overrides for orchestrate(). All default to production seams. */
+export interface WedmOrchestrateOptions {
+  consensusDecide?: WedmConsensusFn;
+  publishOutcome?: WedmPublishOutcomeFn;
+  agiReason?: WedmAGIReasonFn;
+  tier6Check?: WedmTier6CheckFn;
+}
+
+// ORCHESTRATE_OUTCOME_TOPIC + ORCHESTRATE_STAGE imported from
+// domainAGIAdapterKit (P1-U01). Re-export was considered but rejected — every
+// consumer that needs them imports from the kit directly, so re-exporting
+// from this engine would just create an indirection.
+
+/**
+ * Per-decision confidence for the deterministic strategy pick. The action→
+ * strategy map below is shop-floor-standard WEDM practice — a sound, established
+ * choice — but it is NOT a job-optimized selection. 0.80 reflects "solid
+ * standard strategy" without overclaiming optimization (R12).
+ */
+const WEDM_STRATEGY_HEURISTIC_CONFIDENCE = 0.8;
+
+/**
+ * Deterministic strategy pick by action. Returns shop-floor-standard WEDM
+ * strategies. Citation: Mitsubishi MV1200R §3.2; Sodick VL400Q tech manual;
+ * Ho & Newman CIRP 2003 (WEDM process review).
+ */
+function wedmStrategyPick(action: WedmActionT): { pick: string; alternatives: string[]; rationale: string } {
+  switch (action) {
+    case "rough_cut":
+      return {
+        pick: "single_pass_rough_high_energy",
+        alternatives: ["two_pass_rough_balanced", "low_energy_extended"],
+        rationale: "Single high-energy roughing pass for bulk material removal — fastest cycle time at acceptable Ra.",
+      };
+    case "skim_pass":
+      return {
+        pick: "finish_skim_2pass_offset",
+        alternatives: ["finish_skim_3pass_mirror", "single_skim_economical"],
+        rationale: "Two-pass skim with reducing offset — standard mirror-finish progression.",
+      };
+    case "taper_cut":
+      return {
+        pick: "angled_uv_taper_continuous",
+        alternatives: ["stepped_uv_taper", "rotary_axis_taper"],
+        rationale: "Continuous U-V axis taper interpolation — best for constant-angle profiles.",
+      };
+    case "start_hole":
+      return {
+        pick: "edm_pierce_no_threading",
+        alternatives: ["drilled_start_hole", "ultrasonic_pierce"],
+        rationale: "EDM pierce start — no pre-drill required, lowest stack-up.",
+      };
+    case "no_core_cut":
+      return {
+        pick: "destructive_no_core_removal",
+        alternatives: ["spiral_core_breakup", "tab_retained_core"],
+        rationale: "Destructive cut — no core preservation, fastest pocket clearance.",
+      };
+    case "corner_strategy":
+      return {
+        pick: "feed_dwell_corner_compensation",
+        alternatives: ["constant_feed_corners", "trim_pass_corner_clean"],
+        rationale: "Feed-dwell at corners — counters wire-lag overcut at sharp transitions.",
+      };
+    default: {
+      // Exhaustiveness guard — a new WedmAction added to the contract without
+      // a case here fails the build (R12).
+      const _exhaustive: never = action;
+      throw new Error(`wedmStrategyPick: unhandled WEDM action '${String(_exhaustive)}'`);
+    }
+  }
+}
+
+/**
+ * Default consensus seam — built from the shared adapter kit (P1-U01).
+ * The kit's factory handles the VITEST guard + lazy MultiModelConsensusEngine
+ * import + R12 auditId discipline. Wrapper adapts the kit's `string`
+ * decisionKind to this engine's narrower `WedmConsensusDecisionKind`.
+ */
+const wedmConsensusKitSeam = makeDefaultConsensusVote({
+  engineName: "WireEDMAGIOrchestrator",
+  callerEngine: "WireEDMAGIOrchestrator",
+});
+const defaultConsensusDecide: WedmConsensusFn = async (query) =>
+  wedmConsensusKitSeam({
+    question: query.question,
+    options: query.options,
+    decisionKind: query.decisionKind,
+  });
+
+/** Default outcome-event seam — kit's publish helper (single line of indirection). */
+const defaultPublishOutcome: WedmPublishOutcomeFn = publishOutcomeToFeedbackBus;
+
+/** Default Tier-6 safety seam — the real WEDM Tier-6 geometry gate singleton. */
+const defaultTier6Check: WedmTier6CheckFn = (input) => wedmTier6GeomGateEngine.validate(input);
 
 // ============================================================================
 // ENGINE CLASS
@@ -1000,6 +1189,323 @@ export class WireEDMAGIOrchestrator {
         "feedback_learning",
         "research_knowledge_integration"
       ]
+    };
+  }
+
+  // ==========================================================================
+  // DOMAIN AGI CONTRACT — INFRA-AGI-ROUTER-MS2/P0-U04
+  // ==========================================================================
+
+  /**
+   * Adapt the WEDM AGI cluster to the unified `DomainAGIIntent` contract that
+   * ProcessIntelligenceRouterEngine (U05) dispatches uniformly across
+   * mill/lathe/wedm. Composes the AGI reasoning (`process()`) with the Tier-6
+   * geometry safety gate (`wedmTier6GeomGateEngine.validate()`):
+   *
+   *   1. Validate the intent against the contract schema.
+   *   2. Map intent → AGIRequest (material/thickness/wire-dia from features +
+   *      machine + constraints; warn when defaults kick in).
+   *   3. Reason via the `agiReason` seam → AGIDecision.
+   *   4. Hard-block on Tier-6 verdict 'hard_block' — never propagate a
+   *      geometrically-infeasible recommendation downstream.
+   *   5. Lift strategy/param/safety picks into Decision objects, consensus-
+   *      gating each when intent.consensusRequired === true.
+   *   6. Emit one cross_process_decision outcome event per decision to the MS1
+   *      FeedbackBusEngine; collect into result.outcomes.
+   *
+   * Legacy `process()` surface untouched — existing callers unaffected.
+   */
+  async orchestrate(
+    intent: DomainAGIIntent,
+    opts: WedmOrchestrateOptions = {},
+  ): Promise<DomainAGIResult> {
+    const consensusDecide = opts.consensusDecide ?? defaultConsensusDecide;
+    const publishOutcome = opts.publishOutcome ?? defaultPublishOutcome;
+    const agiReason = opts.agiReason ?? ((req: AGIRequest) => this.process(req));
+    const tier6Check = opts.tier6Check ?? defaultTier6Check;
+    const jobId = `wedm-agi-job-${randomUUID()}`;
+
+    // ── 1. Validate the intent ───────────────────────────────────────────────
+    const parsed = DomainAGIIntentSchema.safeParse(intent);
+    if (!parsed.success) {
+      return makeFailResult({
+        code: "INVALID_INTENT",
+        message: `DomainAGIIntent failed validation: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`,
+        stage: "validation",
+      });
+    }
+    const v = parsed.data;
+    if (v.domain !== "wedm") {
+      return makeFailResult({
+        code: "WRONG_DOMAIN",
+        message: `WireEDMAGIOrchestrator.orchestrate handles domain 'wedm' only — received '${v.domain}'. Route via ProcessIntelligenceRouterEngine.`,
+        stage: "validation",
+      });
+    }
+    const action = v.action as WedmActionT;
+    const warnings: string[] = [];
+
+    // ── 2. Map intent → AGIRequest ──────────────────────────────────────────
+    const firstFeature = v.features[0];
+    const featureDims = firstFeature?.dimensions ?? {};
+    const thicknessFromFeature = typeof featureDims.thickness_mm === "number" ? featureDims.thickness_mm : undefined;
+    const thicknessFromMachine =
+      typeof (v.machine as Record<string, unknown> | undefined)?.stock_thickness_mm === "number"
+        ? ((v.machine as Record<string, unknown>).stock_thickness_mm as number)
+        : undefined;
+    let thickness_mm = thicknessFromFeature ?? thicknessFromMachine;
+    if (thickness_mm === undefined) {
+      thickness_mm = 25;
+      warnings.push(
+        `Thickness not provided in features[0].dimensions.thickness_mm or machine.stock_thickness_mm — defaulted to ${thickness_mm} mm (Mitsubishi baseline). Verify before running.`,
+      );
+    }
+
+    const wireFromFeature = typeof featureDims.wire_diameter_mm === "number" ? featureDims.wire_diameter_mm : undefined;
+    const wireFromMachine =
+      typeof (v.machine as Record<string, unknown> | undefined)?.wire_diameter_mm === "number"
+        ? ((v.machine as Record<string, unknown>).wire_diameter_mm as number)
+        : undefined;
+    let wire_diameter_mm = wireFromFeature ?? wireFromMachine;
+    if (wire_diameter_mm === undefined) {
+      wire_diameter_mm = 0.25;
+      warnings.push(
+        `Wire diameter not provided in features[0].dimensions.wire_diameter_mm or machine.wire_diameter_mm — defaulted to ${wire_diameter_mm} mm (brass standard).`,
+      );
+    }
+
+    const target_ra_um =
+      typeof firstFeature?.surface_finish_ra_um === "number" && firstFeature.surface_finish_ra_um > 0
+        ? firstFeature.surface_finish_ra_um
+        : undefined;
+    const tolUm = typeof firstFeature?.tolerance_um === "number" ? firstFeature.tolerance_um : undefined;
+    const target_accuracy_mm = tolUm !== undefined && tolUm > 0 ? tolUm / 1000 : undefined;
+
+    const agiRequest: AGIRequest = {
+      query: `${action} operation on ${v.material} (${thickness_mm} mm) — recommend WEDM parameters`,
+      context: {
+        material: v.material,
+        thickness_mm,
+        wire_diameter_mm,
+        ...(v.machine?.id ? { machine: v.machine.id } : {}),
+        ...(target_ra_um !== undefined ? { target_ra_um } : {}),
+        ...(target_accuracy_mm !== undefined ? { target_accuracy_mm } : {}),
+      },
+      mode: "full_agi",
+    };
+
+    // ── 3. Reason via the AGI orchestrator ───────────────────────────────────
+    let agiDecision: AGIDecision;
+    try {
+      agiDecision = agiReason(agiRequest);
+    } catch (err) {
+      return makeFailResult({
+        code: "REASONING_FAILED",
+        message: `WireEDMAGIOrchestrator.process threw during orchestration: ${err instanceof Error ? err.message : String(err)}`,
+        stage: "reasoning",
+      });
+    }
+
+    const rec = agiDecision.final_recommendation ?? {};
+    const recParamKeys = Object.keys(rec);
+    if (recParamKeys.length === 0) {
+      return makeFailResult({
+        code: "REASONING_INCOMPLETE",
+        message: "WireEDMAGIOrchestrator.process returned no final_recommendation entries — cannot build parameter decisions.",
+        stage: "reasoning",
+      });
+    }
+
+    // ── 4. Tier-6 geometry-gate the candidate ────────────────────────────────
+    const passthroughCorners = (firstFeature as Record<string, unknown> | undefined)?.corners;
+    const passthroughSlots = (firstFeature as Record<string, unknown> | undefined)?.slots;
+    const passthroughStations = (firstFeature as Record<string, unknown> | undefined)?.stations;
+    const part_width_mm =
+      typeof featureDims.width_mm === "number" ? featureDims.width_mm :
+      typeof featureDims.length_mm === "number" ? featureDims.length_mm : 100;
+    const part_height_mm =
+      typeof featureDims.height_mm === "number" ? featureDims.height_mm :
+      typeof featureDims.width_mm === "number" ? featureDims.width_mm : 100;
+    const tier6Input: Tier6GeomInput = {
+      part_id: firstFeature?.id ?? `${action}-${v.material}`,
+      wire_diameter_mm,
+      thickness_mm,
+      part_width_mm,
+      part_height_mm,
+      material: v.material,
+      ...(Array.isArray(passthroughCorners) ? { corners: passthroughCorners as Tier6GeomInput["corners"] } : {}),
+      ...(Array.isArray(passthroughSlots) ? { slots: passthroughSlots as Tier6GeomInput["slots"] } : {}),
+      ...(Array.isArray(passthroughStations) ? { stations: passthroughStations as Tier6GeomInput["stations"] } : {}),
+    };
+    const tier6 = tier6Check(tier6Input);
+    if (tier6.verdict === "hard_block") {
+      const blockers = [
+        ...tier6.corners.filter((c) => c.severity === "hard_block").map((c) => c.message),
+        ...tier6.slots.filter((s) => s.severity === "hard_block").map((s) => s.message),
+        ...tier6.envelope.filter((e) => e.severity === "hard_block").map((e) => e.message),
+      ].join("; ");
+      return makeFailResult({
+        code: "SAFETY_FLOOR_VIOLATED",
+        message: `WEDM Tier-6 geometry gate hard-blocked: ${blockers || tier6.summary}`,
+        stage: "tier6_geom_gate",
+      });
+    }
+    if (tier6.error_counts.warning > 0) {
+      for (const c of tier6.corners) {
+        if (c.severity === "warning" || c.severity === "error") warnings.push(`Tier-6 ${c.severity}: ${c.message}`);
+      }
+      for (const s of tier6.slots) {
+        if (s.severity === "warning" || s.severity === "error") warnings.push(`Tier-6 ${s.severity}: ${s.message}`);
+      }
+    }
+
+    // ── 5. Lift strategy / param / safety picks ──────────────────────────────
+    const stratSel = wedmStrategyPick(action);
+    const numericRec = recParamKeys
+      .filter((k) => typeof rec[k] === "number")
+      .slice(0, 3)
+      .map((k) => `${k}=${rec[k]}`);
+    const paramPick = numericRec.length > 0 ? numericRec.join(" ") : `params=${recParamKeys.length}-rec`;
+
+    interface Pick {
+      kind: WedmConsensusDecisionKind;
+      enginePick: string;
+      options: string[];
+      detail: unknown;
+      confidence: number;
+      rationale: string;
+    }
+    const picks: Pick[] = [
+      {
+        kind: "strategy",
+        enginePick: stratSel.pick,
+        options: [stratSel.pick, ...stratSel.alternatives],
+        detail: { strategy: stratSel.pick, action, material: v.material },
+        confidence: WEDM_STRATEGY_HEURISTIC_CONFIDENCE,
+        rationale: stratSel.rationale,
+      },
+      {
+        kind: "param",
+        enginePick: paramPick,
+        options: [
+          paramPick,
+          numericRec.length > 0 ? `${numericRec[0]}*0.85` : `${paramPick}-conservative`,
+          numericRec.length > 0 ? `${numericRec[0]}*1.15` : `${paramPick}-aggressive`,
+        ],
+        detail: rec,
+        confidence: agiDecision.confidence,
+        rationale: `AGI reasoning (${agiDecision.mode}) selected ${recParamKeys.length} parameter recommendation(s) for ${action}.`,
+      },
+      {
+        kind: "safety",
+        enginePick: `tier6=${tier6.verdict} S(x)=${tier6.safety_score.toFixed(2)}`,
+        options: [
+          `tier6=${tier6.verdict} S(x)=${tier6.safety_score.toFixed(2)}`,
+          `tier6=pass S(x)=1.00`,
+          `tier6=warning S(x)=${Math.max(0, tier6.safety_score - 0.1).toFixed(2)}`,
+        ],
+        detail: {
+          verdict: tier6.verdict,
+          safety_score: tier6.safety_score,
+          min_achievable_radius_mm: tier6.min_achievable_radius_mm,
+          error_counts: tier6.error_counts,
+          recommendations: tier6.recommendations,
+        },
+        confidence: tier6.safety_score,
+        rationale: `Tier-6 geometry gate: ${tier6.summary}`,
+      },
+    ];
+
+    // ── 6. Build decisions — consensus-gated when intent.consensusRequired ───
+    const decisions: DomainAGIResult["decisions"] = [];
+    const outcomes: OutcomeEvent[] = [];
+
+    for (const pick of picks) {
+      let confidence = pick.confidence;
+      let source = "WireEDMAGIOrchestrator.orchestrate";
+      let rationale = pick.rationale;
+      let selected = pick.enginePick;
+      let consensusOverride = false;
+      let consensusAuditId: string | undefined;
+      let alternatives: { value: unknown; confidence: number; rejected_reason?: string }[] | undefined;
+
+      if (v.consensusRequired) {
+        try {
+          const verdict = await consensusDecide({
+            decisionKind: pick.kind,
+            question: `For a ${action} operation on ${v.material} (${thickness_mm} mm), which ${pick.kind} pick is optimal? Engine recommends: ${pick.enginePick}.`,
+            options: pick.options,
+          });
+          source = `consensus_decide:${verdict.voters.length > 0 ? verdict.voters.join("+") : "no-voters"}`;
+          confidence = verdict.confidence;
+          if (verdict.auditId) consensusAuditId = verdict.auditId;
+          alternatives = pick.options
+            .filter((o) => o !== verdict.answer)
+            .map((o) => ({ value: o, confidence: 0, rejected_reason: "not selected by consensus vote" }));
+          if (verdict.answer !== pick.enginePick) {
+            consensusOverride = true;
+            selected = verdict.answer;
+            warnings.push(
+              `Consensus overrode the ${pick.kind} pick: engine='${pick.enginePick}' -> consensus='${verdict.answer}'.`,
+            );
+            rationale = `Consensus vote (${source}) selected '${verdict.answer}' over engine pick '${pick.enginePick}'.`;
+          }
+        } catch (err) {
+          warnings.push(
+            `Consensus call failed for the ${pick.kind} pick — fell back to the engine's unilateral pick (${err instanceof Error ? err.message : String(err)}).`,
+          );
+        }
+      }
+
+      const value: WedmDecisionValue = {
+        selected,
+        enginePick: pick.enginePick,
+        detail: pick.detail,
+        consensusOverride,
+      };
+
+      decisions.push({
+        kind: pick.kind,
+        value,
+        confidence,
+        source,
+        rationale,
+        ...(alternatives ? { alternatives } : {}),
+        ...(consensusAuditId ? { consensus_audit_id: consensusAuditId } : {}),
+      });
+
+      const event = makeOutcomeEvent({
+        intent: v,
+        lineageId: `wedm-agi-rec-${randomUUID()}`,
+        jobId,
+        engineName: "WireEDMAGIOrchestrator",
+        domain: "wedm",
+        decisionKind: pick.kind,
+        value,
+        confidence,
+        ...(consensusAuditId ? { consensusAuditId } : {}),
+      });
+      outcomes.push(event);
+      try {
+        publishOutcome(event);
+      } catch (err) {
+        warnings.push(
+          `Outcome event for the ${pick.kind} decision could not be published to the feedback bus (${err instanceof Error ? err.message : String(err)}).`,
+        );
+      }
+    }
+
+    // Pipeline-level confidence — joint probability of the serial picks.
+    // rollupJointConfidence (kit, P1-U01) — empty decisions ⇒ 1.0 vacuous.
+    const confidence = rollupJointConfidence(decisions);
+
+    return {
+      schemaVersion: DOMAIN_AGI_CONTRACT_VERSION,
+      success: true,
+      decisions,
+      confidence,
+      outcomes,
+      warnings,
     };
   }
 }

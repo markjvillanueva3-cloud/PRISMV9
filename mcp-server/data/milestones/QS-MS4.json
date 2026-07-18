@@ -1,0 +1,97 @@
+{
+  "id": "QS-MS4",
+  "version": "6.3.0",
+  "title": "Dispatcher Cleanup",
+  "track": "QS",
+  "created_at": "2026-03-15T17:00:00Z",
+  "status": "complete",
+  "total_units": 5,
+  "completed_units": 5,
+  "description": "Infrastructure cleanup of dispatchers: convert calcDispatcher eager imports to lazy, resolve cross-dispatcher action name collisions, add z.enum validation to mechanicalDesign and fluidThermal dispatchers, and add hook integration to cadDispatcher.",
+  "dependencies": [
+    "QS-MS3"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "calcDispatcher optimization",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Convert 62 eager imports to lazy dynamic imports",
+          "description": "Convert 62 eager top-level imports in calcDispatcher to lazy dynamic imports. Clean up ValidatedParams = any → proper union type. Remove 3 leaked non-action strings from ACTIONS array.",
+          "acceptance": [
+            "62 top-level imports converted to lazy dynamic imports",
+            "ValidatedParams type replaced with proper union type",
+            "3 leaked non-action strings removed from ACTIONS array",
+            "All 1043+ cases lazy-load correctly"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U02",
+          "title": "calcDispatcher lazy-load tests",
+          "description": "Add 5+ tests verifying all calcDispatcher cases lazy-load correctly and produce correct results.",
+          "acceptance": [
+            "5+ tests pass",
+            "Lazy loading verified for representative action sample",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Cross-dispatcher collision resolution",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Audit and resolve 31 colliding action names",
+          "description": "Audit 31 colliding action names across dispatchers. Namespace or deduplicate (e.g., calc_energy_analyze vs cam_energy_analyze). Update ToolRouter with disambiguated routes.",
+          "acceptance": [
+            "All 31 colliding action names resolved",
+            "ToolRouter updated with disambiguated routes",
+            "3+ tests verifying correct routing"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "mechanicalDesign + fluidThermal z.enum fix",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Replace z.string() with z.enum(ACTIONS)",
+          "description": "Replace z.string() with z.enum(ACTIONS) in mechanicalDesignDispatcher and fluidThermalDispatcher for compile-time action validation.",
+          "acceptance": [
+            "Both dispatchers use z.enum(ACTIONS) instead of z.string()",
+            "2+ tests verifying compile-time validation",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "cadDispatcher hook integration",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Add pre/post-calculation hooks to cadDispatcher",
+          "description": "Add pre/post-calculation hooks to cadDispatcher matching the pattern used by other dispatchers.",
+          "acceptance": [
+            "Pre/post-calculation hooks added to cadDispatcher",
+            "Hook pattern matches other dispatchers",
+            "2+ tests verifying hook execution"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-03-15T18:00:00Z"
+}

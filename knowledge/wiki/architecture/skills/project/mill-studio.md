@@ -30,7 +30,7 @@ related:
 ## Description (first paragraph)
 
 
-# /mill-studio — Milling Studio Pipeline
+# /mill-studio — Interactive CNC Mill Programming Studio
 
 <!-- AUTO-END -->
 

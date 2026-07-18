@@ -1145,7 +1145,7 @@ export function DashboardPage() {
         <SectionShell
           eyebrow="Adaptive intelligence"
           title="Learning fabric"
-          subtitle="Each shop should get more specialized over time while the broader PRISM network gets smarter from privacy-safe shared outcomes."
+          subtitle="Each shop should get more specialized over time while the broader Kienzle network gets smarter from privacy-safe shared outcomes."
         >
           <SurfaceStatusNotice title="Learning payload status" surfaces={['learning']} className="mb-4" />
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(280px,0.8fr)]">

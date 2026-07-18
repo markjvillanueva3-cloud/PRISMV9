@@ -30,7 +30,7 @@ related:
 ## Description (first paragraph)
 
 
-# /quote — Universal Job Quotation
+# /quote — Manufacturing Quote Generation
 
 <!-- AUTO-END -->
 

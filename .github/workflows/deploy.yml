@@ -1,0 +1,102 @@
+name: Deploy Dashboard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Inject live metrics into dashboard
+        run: |
+          echo "Injecting metrics into docs/index.html..."
+
+          python3 << 'PYEOF'
+          import re, json
+          from datetime import datetime, timezone
+
+          with open('docs/index.html', 'r', encoding='utf-8') as f:
+              html = f.read()
+
+          def load_json(path, fallback):
+              try:
+                  with open(path) as jf:
+                      return json.dumps(json.load(jf))
+              except Exception:
+                  return json.dumps(fallback)
+
+          # Load CURRENT_STATE.json (primary data source)
+          cs = load_json('CURRENT_STATE.json', {})
+
+          # Slim daemon state
+          try:
+              dm_raw = json.load(open('.claude-flow/daemon-state.json'))
+          except Exception:
+              dm_raw = {}
+          dm_slim = json.dumps({
+              'running': dm_raw.get('running', False),
+              'workers': dm_raw.get('workers', {})
+          })
+
+          # Consolidation metrics
+          con = load_json('.claude-flow/metrics/consolidation.json',
+              {'patternsConsolidated': 0, 'memoryCleaned': 0, 'duplicatesRemoved': 0})
+
+          # Roadmap queue snapshot
+          rq = load_json('ROADMAP_QUEUE.json', {
+              'exported_at': None, 'total_milestones': 0,
+              'columns': {'done': [], 'available': [], 'claimed': [], 'blocked': []},
+              'instances': [], 'summary': {'done': 0, 'available': 0, 'claimed': 0, 'blocked': 0}
+          })
+
+          # Replace between sentinel comments (use lambda to avoid backreference issues with \u escapes)
+          def inject(tag, data, target):
+              repl = '/*__' + tag + '__*/ ' + data + ' /*__END_' + tag + '__*/'
+              return re.sub(
+                  r'/\*__' + tag + r'__\*/.*?/\*__END_' + tag + r'__\*/',
+                  lambda m: repl,
+                  target, flags=re.DOTALL)
+
+          html = inject('CURRENT_STATE', cs, html)
+          html = inject('DAEMON', dm_slim, html)
+          html = inject('CONSOLIDATION', con, html)
+          html = inject('ROADMAP_QUEUE', rq, html)
+
+          # Inject build timestamp
+          build_time = json.dumps(datetime.now(timezone.utc).isoformat())
+          html = inject('BUILD_TIME', build_time, html)
+
+          with open('docs/index.html', 'w', encoding='utf-8') as f:
+              f.write(html)
+
+          print('Metrics injected successfully.')
+          PYEOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

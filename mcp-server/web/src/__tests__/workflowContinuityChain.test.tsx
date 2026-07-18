@@ -98,30 +98,43 @@ describe('workflow continuity chain', () => {
       meta: { formula_used: 'customer-list', uncertainty: 0.05 },
     } as any);
 
+    // estimate-flow fix (2026-06-23): /quote/estimate returns the MCP content envelope
+    // { result: { type:"text", text } } wrapping the engine's NESTED QuoteEstimateResult. The page
+    // unwraps + adaptQuoteEstimate maps nested->flat. Mock the real shape (a flat { result } was the
+    // dead-panel/estimate trap) so adapt re-derives unit 8.15 / total 815 / cycle 5.8 / confidence 0.87.
     mockQuoteEstimate.mockResolvedValue({
       result: {
-        material_cost: 120,
-        machining_cost: 380,
-        setup_cost: 95,
-        tooling_cost: 40,
-        overhead: 70,
-        margin: 110,
-        total: 815,
-        unit_price: 8.15,
-        cycle_time_min: 5.8,
-        confidence: 0.87,
-        price_breaks: [
-          { quantity: 25, unit_price: 11.4, savings_pct: 0 },
-          { quantity: 100, unit_price: 8.15, savings_pct: 28.5 },
-        ],
+        type: 'text',
+        text: JSON.stringify({
+          quote_id: 'QE26-WC',
+          quantity: 100,
+          costs: {
+            material: { total: 120 },
+            machining: { total: 380, cycle_time_min: 5.8 },
+            setup: { total: 95 },
+            tooling: { total: 40 },
+            overhead: { total: 70 },
+            total_cost: 705,
+          },
+          pricing: { unit_price: 8.15, total_price: 815, margin_pct: 13.5, below_margin_floor: false, margin_floor_pct: 20 },
+          confidence_score: 87,
+          price_breaks: [
+            { qty: 25, unit_price: 11.4, total: 285, lead_days: 7 },
+            { qty: 100, unit_price: 8.15, total: 815, lead_days: 10 },
+          ],
+        }),
       },
     } as any);
 
+    // /quote/compare-materials returns the same envelope wrapping the engine's bare array.
     mockQuoteCompareMaterials.mockResolvedValue({
-      result: [
-        { material: '6061-T6', unit_price: 8.15, total: 815, cycle_time_min: 5.8, tool_life_factor: 1.1 },
-        { material: '7075-T6', unit_price: 8.75, total: 875, cycle_time_min: 5.4, tool_life_factor: 0.96 },
-      ],
+      result: {
+        type: 'text',
+        text: JSON.stringify([
+          { material: '6061-T6', unit_price: 8.15, total: 815, cycle_time_min: 5.8, tool_life_factor: 1.1 },
+          { material: '7075-T6', unit_price: 8.75, total: 875, cycle_time_min: 5.4, tool_life_factor: 0.96 },
+        ]),
+      },
     } as any);
 
     mockJobDashboard.mockResolvedValue({
@@ -244,10 +257,10 @@ describe('workflow continuity chain', () => {
       expect(screen.getByText(/Customers & CRM opened Quote Builder with context/i)).toBeDefined();
     });
 
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     await waitFor(() => {
-      expect(screen.getAllByText('PRISM shop best price').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Kienzle shop best price').length).toBeGreaterThan(0);
     });
 
     const releaseLink = await screen.findByRole('link', { name: /Open matched Print to CNC packet/i });
@@ -307,7 +320,7 @@ describe('workflow continuity chain', () => {
     await waitFor(() => {
       expect(screen.getByText(/Customers & CRM opened Quote Builder with context/i)).toBeDefined();
     });
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     const releaseLink = await screen.findByRole('link', { name: /Open matched Print to CNC packet/i });
     const releaseHref = releaseLink.getAttribute('href') ?? '';
@@ -358,7 +371,7 @@ describe('workflow continuity chain', () => {
     await waitFor(() => {
       expect(screen.getByText(/Customers & CRM opened Quote Builder with context/i)).toBeDefined();
     });
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     const releaseHref = (await screen.findByRole('link', { name: /Open matched Print to CNC packet/i })).getAttribute('href') ?? '';
     quoteRender.unmount();
@@ -375,14 +388,25 @@ describe('workflow continuity chain', () => {
     const shopFloorRender = renderWorkflowPage(<ShopFloorClockPage />, shopFloorHref || '/shop-clock');
     await waitFor(() => {
       expect(screen.getAllByText('Customers & CRM').length).toBeGreaterThan(0);
-      expect(screen.getByText(/Print to CNC/)).toBeDefined();
+      // "Print to CNC" provenance now appears in BOTH the launcher link AND the AI-reasoning summary
+      // (the estimate renders more context after the estimate-flow fix), so assert presence via
+      // getAllByText rather than getByText (which throws on multiple matches). Same intent: the
+      // launched-from provenance is on the desk.
+      expect(screen.getAllByText(/Print to CNC/).length).toBeGreaterThan(0);
     });
 
     const messagesHref = screen.getByRole('link', { name: /Open Messages follow-up/i }).getAttribute('href') ?? '';
     expect(messagesHref).toContain('/messages?');
     expect(messagesHref).toContain('source=shop-floor-clock');
     expect(messagesHref).toContain('originSource=customers');
-    expect(messagesHref).toContain('focusJobId=');
+    // This is a QUOTE provenance chain (Quote Builder -> release packet -> shop floor -> messages),
+    // so NO job exists yet -- the flow carries focusType=quote + focusQuoteId, NOT focusJobId. The
+    // prior `focusJobId=` assertion was stale: it was never reachable (the test crashed earlier on a
+    // getByText ambiguity), and a job-less quote flow structurally cannot emit focusJobId (workflowRoute
+    // sets focusJobId only `if (focus.jobId)`). Assert the focus provenance the quote flow actually
+    // propagates (estimate-flow fix, 2026-06-23 -- live-probed href: focusType=quote&focusQuoteId=...).
+    expect(messagesHref).toContain('focusType=quote');
+    expect(messagesHref).toContain('focusQuoteId=');
     shopFloorRender.unmount();
 
     renderWorkflowPage(<MessagesPage />, messagesHref || '/messages');
@@ -409,7 +433,7 @@ describe('workflow continuity chain', () => {
     await waitFor(() => {
       expect(screen.getByText(/Customers & CRM opened Quote Builder with context/i)).toBeDefined();
     });
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     const purchasingHref = (await screen.findByRole('link', { name: /Open sourcing posture/i })).getAttribute('href') ?? '';
     expect(purchasingHref).toContain('/purchasing?');
@@ -451,7 +475,7 @@ describe('workflow continuity chain', () => {
     await waitFor(() => {
       expect(screen.getByText(/Customers & CRM opened Quote Builder with context/i)).toBeDefined();
     });
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     const purchasingHref = (await screen.findByRole('link', { name: /Open sourcing posture/i })).getAttribute('href') ?? '';
     expect(purchasingHref).toContain('/purchasing?');
@@ -517,7 +541,7 @@ describe('workflow continuity chain', () => {
     await waitFor(() => {
       expect(screen.getByText(/Customers & CRM opened Quote Builder with context/i)).toBeDefined();
     });
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     const purchasingHref = (await screen.findByRole('link', { name: /Open sourcing posture/i })).getAttribute('href') ?? '';
     expect(purchasingHref).toContain('/purchasing?');
@@ -573,7 +597,7 @@ describe('workflow continuity chain', () => {
     await waitFor(() => {
       expect(screen.getByText(/Customers & CRM opened Quote Builder with context/i)).toBeDefined();
     });
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     const qualityHref = (await screen.findByRole('link', { name: 'Open quality handoff' })).getAttribute('href') ?? '';
     expect(qualityHref).toContain('/quality?');

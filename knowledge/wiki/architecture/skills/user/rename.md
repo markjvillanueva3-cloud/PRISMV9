@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `rename` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/rename.md` |
+| Source | `C:/Users/wompu/.claude/commands/rename.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Safely rename an engine with automatic dependent updates and alias capture.
+
+# /rename — Rename a Chat (slot label + handoff label, together)
 
 <!-- AUTO-END -->
 

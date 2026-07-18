@@ -1,0 +1,23 @@
+{
+  "_capture": "LIVE witness for U-CIMCO-INVOKE-READ -- the single-process invoke-read result this session (slot:echo, 2026-06-09 PM). Run: PrismCimcoUI.exe --op invoke-read --name 'Machine Simulation' --then 'Simulate' --launch --nc 'H:/prism/JM DIE/CNC LATHE/9007405.MIN' --allow-actions --wait 45 --settle 22. Distinct from live-report-structure.json (the earlier TWO-process read). The nodes array below was truncated at ~900 chars in the live console view; the head is recorded verbatim as observed -- this is the R12 witness for found:true + the populated Report container, NOT a re-fabrication.",
+  "ok": true,
+  "op": "invoke-read",
+  "frameRealized": true,
+  "found": true,
+  "invokeState": "open=fired;run=fired",
+  "container": { "name": "Report", "role": "window" },
+  "nodes_head_observed": [
+    { "text": "System", "value": "", "role": "titlebar", "path": "Report" },
+    { "text": "IME", "value": "", "role": "pushbutton", "path": "Report>?" },
+    { "text": "Minimize", "value": "", "role": "pushbutton", "path": "Report>?" },
+    { "text": "Maximize", "value": "", "role": "pushbutton", "path": "Report>?" },
+    { "text": "Context help", "value": "", "role": "pushbutton", "path": "Report>?" },
+    { "text": "Close", "value": "", "role": "pushbutton", "path": "Report>?" },
+    { "text": "Application", "value": "", "role": "titlebar", "path": "Report" },
+    { "text": "Report", "value": "", "role": "r24", "path": "Report" },
+    { "text": "Report Header", "value": "", "role": "r25", "path": "Report>Report" },
+    { "text": "Start Time (Line)", "value": "", "role": "r25", "path": "Report>Report>Report Header" },
+    { "text": "Type", "value": "", "role": "r25", "path": "Report>Report>Report Header" }
+  ],
+  "_note": "nodes_head_observed is the verbatim head of the live nodes[] (console-truncated past 'Type'). Full grid = Report Header (4 columns: Start Time (Line)/Type/Message/Action) + an empty Report Row -> the lathe program 9007405.MIN sim-clean (0 findings) -> normalizer labels report-header-only (AMBIGUOUS, NON-clearing). To re-capture in full, re-run the command above and redirect stdout to a file."
+}

@@ -31,6 +31,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -97,14 +98,11 @@ export interface ModelWeights {
 // KIENZLE COEFFICIENTS
 // ============================================================================
 
-const KIENZLE_COEFFICIENTS: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 },
-  M: { kc1_1: 2200, mc: 0.28 },
-  K: { kc1_1: 1400, mc: 0.22 },
-  N: { kc1_1: 700, mc: 0.20 },
-  S: { kc1_1: 2800, mc: 0.30 },
-  H: { kc1_1: 3200, mc: 0.32 },
-};
+// Sourced from the canonical Sandvik Kienzle table (physics/constants.ts). Was an inline copy whose kc1_1
+// had DRIFTED on M (2200 vs canonical 2100) and K (1400 vs 1100), with no citation and differing from every
+// other engine + constants -- genuine drift, not a sourced alternative. Spread into a Record<string> so the
+// defensive `?? .P` fallback in computeKienzleForces keeps handling an out-of-set iso_group.
+const KIENZLE_COEFFICIENTS: Record<string, { kc1_1: number; mc: number }> = { ...CANONICAL_KIENZLE };
 
 // ============================================================================
 // ENGINE CLASS
@@ -114,6 +112,10 @@ export class ForceNeuralPredictorEngine {
   private weights: ModelWeights;
   private dropoutRate = 0.1;
   private physicsWeight = 0.6;
+  // The network ships with Xavier/Math.random() weights and has NO checkpoint loader, so it is UNTRAINED.
+  // Applying its output would inject random +/-30% noise into a safety-relevant cutting force. Gate the
+  // neural correction OFF until a real trained checkpoint sets this true (predict() returns the physics base).
+  private weightsTrained = false;
 
   constructor() {
     this.weights = this.initializeWeights();
@@ -129,8 +131,9 @@ export class ForceNeuralPredictorEngine {
 
     const kienzleBase = this.computeKienzleForces(input);
 
-    const neuralOutput = this.forwardPass(features, false);
-    const neuralCorrection = neuralOutput[3];
+    // Untrained weights -> do NOT let the (random) neural output corrupt the force: return the physics
+    // base (neuralCorrection = 0). Only a real trained checkpoint (weightsTrained=true) enables the correction.
+    const neuralCorrection = this.weightsTrained ? this.forwardPass(features, false)[3] : 0;
 
     const uncertainty = this.estimateUncertainty(features);
 

@@ -23,16 +23,14 @@ related:
 |-------|-------|
 | Name | `cad-tokenize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-tokenize.md` |
+| Source | `C:/Users/wompu/.claude/commands/cad-tokenize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Tokenize or detokenize CAD programs across 7 supported CAD formats using
-`CADTokenRepresentationEngine` (CADCAM-DAGI-MS0/U-DAGI01). Produces a
-deterministic integer token sequence suitable for transformer models
-(DeepCAD / SkexGen style) or decodes a sequence back to structured ops.
+
+# CAD Tokenize — Neural tokenization for CAD programs
 
 <!-- AUTO-END -->
 

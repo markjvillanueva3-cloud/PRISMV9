@@ -1,3 +1,4 @@
+import { getAuthHeaders } from './authToken';
 import type {
   MachineStatus,
   AdaptiveOverride,
@@ -14,7 +15,7 @@ async function post<T>(endpoint: string, body: unknown): Promise<T> {
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
@@ -25,23 +26,14 @@ async function post<T>(endpoint: string, body: unknown): Promise<T> {
   }
 }
 
-async function get<T>(endpoint: string): Promise<T> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    const res = await fetch(`${BASE_URL}${endpoint}`, { signal: controller.signal });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message ?? res.statusText);
-    return (await res.json()) as T;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
 export const machineLiveApi = {
-  listMachines: () => get<MachineStatus[]>("/list"),
+  // /list and /maintenance are POST on the backend (createMachineLiveRouter -> machine_list / maint_status).
+  // The client previously called them as GET -> 404 (a method mismatch, not a missing route). Reconciled
+  // to POST to match the live backend; both take no body.
+  listMachines: () => post<MachineStatus[]>("/list", {}),
   getStatus: (params: { machine_id: string }) => post<MachineStatus>("/status", params),
   getAdaptiveStatus: (params: { machine_id: string }) => post<AdaptiveOverride[]>("/adaptive", params),
-  getMaintenanceAlerts: () => get<MaintenanceAlert[]>("/maintenance"),
+  getMaintenanceAlerts: () => post<MaintenanceAlert[]>("/maintenance", {}),
   getDigitalTwin: (params: { machine_id: string }) => post<DigitalTwinState>("/twin", params),
   acknowledgeAlert: (params: { alert_id: string }) => post<{ ok: boolean }>("/acknowledge", params),
   connectMachine: (params: { machine_id: string }) => post<{ ok: boolean }>("/connect", params),

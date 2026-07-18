@@ -1,0 +1,75 @@
+TAP version 13
+# Subtest: exports version
+ok 1 - exports version
+  ---
+  duration_ms: 0.9982
+  ...
+# Subtest: geometryToCandidatePrint: real die faces → recognizes central_oil_hole + stepped + taper (3 features)
+ok 2 - geometryToCandidatePrint: real die faces → recognizes central_oil_hole + stepped + taper (3 features)
+  ---
+  duration_ms: 2.0153
+  ...
+# Subtest: END-TO-END: build→diff(3/5)→propose→apply radial→re-probe→verify→re-diff(4/5); radial verified, score rises
+ok 3 - END-TO-END: build→diff(3/5)→propose→apply radial→re-probe→verify→re-diff(4/5); radial verified, score rises
+  ---
+  duration_ms: 3.1589
+  ...
+# Subtest: END-TO-END: dual-training data emitted — print side + cad side + verified flag
+ok 4 - END-TO-END: dual-training data emitted — print side + cad side + verified flag
+  ---
+  duration_ms: 0.6105
+  ...
+# Subtest: apply that THROWS is caught per-correction — loop continues, records reason, reap STILL runs
+ok 5 - apply that THROWS is caught per-correction — loop continues, records reason, reap STILL runs
+  ---
+  duration_ms: 0.6077
+  ...
+# Subtest: apply reports not-ok → recorded verified:false (never assumed applied)
+ok 6 - apply reports not-ok → recorded verified:false (never assumed applied)
+  ---
+  duration_ms: 0.4179
+  ...
+# Subtest: unverifiedGain: apply fails BUT geometry changes anyway (stray body) → gain flagged spurious, trustworthy=before
+ok 7 - unverifiedGain: apply fails BUT geometry changes anyway (stray body) → gain flagged spurious, trustworthy=before
+  ---
+  duration_ms: 0.5545
+  ...
+# Subtest: apply ok=true BUT re-probe shows unchanged geometry → verified:false (the re-probe gate, not the apply self-report)
+ok 8 - apply ok=true BUT re-probe shows unchanged geometry → verified:false (the re-probe gate, not the apply self-report)
+  ---
+  duration_ms: 0.3108
+  ...
+# Subtest: post-apply re-probe FAILS (returns {error}) → honest reason, not 'signature not observed' (R12)
+ok 9 - post-apply re-probe FAILS (returns {error}) → honest reason, not 'signature not observed' (R12)
+  ---
+  duration_ms: 0.7409
+  ...
+# Subtest: a GENUINE verified gain is NOT flagged unverified (the happy path stays trustworthy)
+ok 10 - a GENUINE verified gain is NOT flagged unverified (the happy path stays trustworthy)
+  ---
+  duration_ms: 0.9671
+  ...
+# Subtest: reap ALWAYS runs even when the cycle errors (probeGeometry throws)
+ok 11 - reap ALWAYS runs even when the cycle errors (probeGeometry throws)
+  ---
+  duration_ms: 0.3548
+  ...
+# Subtest: missing required deps → honest error, no throw
+ok 12 - missing required deps → honest error, no throw
+  ---
+  duration_ms: 0.2819
+  ...
+# Subtest: a feature with no live apply-mechanic is recorded with a reason (not silently skipped)
+ok 13 - a feature with no live apply-mechanic is recorded with a reason (not silently skipped)
+  ---
+  duration_ms: 0.2715
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 147.634

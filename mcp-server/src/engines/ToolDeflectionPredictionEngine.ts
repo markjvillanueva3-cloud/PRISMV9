@@ -7,6 +7,8 @@
  * Safety: Critical for precision machining — deflection causes dimensional error
  */
 
+import { CANONICAL_TOOL_MODULUS } from "../physics/constants.js";
+
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type ToolMaterialType =
@@ -63,14 +65,20 @@ export interface ToolDeflectionResult {
 
 // ─── Constants ─────────────────────────────────────────────────────
 
-/** Young's modulus by tool material (GPa) — ASM Handbook */
+/**
+ * Young's modulus by tool material (GPa) -- sourced from the canonical
+ * CANONICAL_TOOL_MODULUS map (constants.ts, stored in MPa; /1000 -> GPa) so a
+ * canonical edit propagates here and no inline value can drift. pcd corrected
+ * 890 -> 800 GPa (row 17): canonical separates PCD (800) from mono-diamond (1050);
+ * lowering E raises predicted deflection (delta = FL^3/3EI) -> MORE conservative.
+ */
 const YOUNGS_MODULUS_GPA: Record<ToolMaterialType, number> = {
-  carbide: 600, // QA-MS3 FIX: canonical CANONICAL_TOOL_MODULUS (was 580)
-  hss: 210,
-  ceramic: 380,
-  cermet: 450,
-  cbn: 680,
-  pcd: 890,
+  carbide: CANONICAL_TOOL_MODULUS.carbide / 1000, // 600
+  hss:     CANONICAL_TOOL_MODULUS.hss / 1000,     // 210
+  ceramic: CANONICAL_TOOL_MODULUS.ceramic / 1000, // 380
+  cermet:  CANONICAL_TOOL_MODULUS.cermet / 1000,  // 450
+  cbn:     CANONICAL_TOOL_MODULUS.cbn / 1000,      // 680
+  pcd:     CANONICAL_TOOL_MODULUS.pcd / 1000,      // 800 (was 890 -- drift fixed)
 };
 
 /** Yield/fracture strength by tool material (MPa) */

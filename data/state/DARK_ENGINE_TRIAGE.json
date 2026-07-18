@@ -1,0 +1,82 @@
+{
+  "generated": "2026-04-07T18:10:00Z",
+  "summary": {
+    "total_engines": 1500,
+    "referenced_by_dispatchers_initial_scan": 41,
+    "referenced_by_dispatchers_corrected": "400-500+ (initial scan only found case statements, missed ACTION_MAP, dynamic imports, handler maps)",
+    "referenced_via_action_maps": 148,
+    "referenced_by_other_engines": "~600 (internal chaining)",
+    "truly_dark": "~500-700 (internal utilities, pipeline sub-engines, specialized engines)",
+    "wiring_gaps": "MINIMAL — all top-25 high-value engines confirmed already wired to dispatchers",
+    "methodology": "Full cross-reference: case statements + ACTION_MAP + dynamic import() + handler maps across all 81 dispatchers"
+  },
+  "false_positive_stubs": {
+    "note": "Initial scan found 11 'stub dispatchers' with 0 case handlers. ALL use non-switch routing patterns and are FUNCTIONAL.",
+    "dispatchers_verified_functional": [
+      {"name": "fluidThermalDispatcher", "pattern": "ACTION_MAP", "actions": 48, "status": "fully_wired"},
+      {"name": "mechanicalDesignDispatcher", "pattern": "ACTION_MAP", "actions": 51, "status": "fully_wired"},
+      {"name": "safetyDispatcher", "pattern": "Set + if-else", "actions": 30, "status": "fully_wired"},
+      {"name": "threadDispatcher", "pattern": "Sets + map + handlers", "actions": 21, "status": "fully_wired"},
+      {"name": "shopPracticeDispatcher", "pattern": "ACTION_HANDLERS map", "actions": 23, "status": "fully_wired"},
+      {"name": "machiningKnowledgeBaseDispatcher", "pattern": "eng.calculate(action)", "actions": 55, "status": "fully_wired"},
+      {"name": "documentLearningDispatcher", "pattern": "Python cad-engine", "actions": 5, "status": "fully_wired"},
+      {"name": "secondaryOpsDispatcher", "pattern": "eng.calculate(action)", "actions": 3, "status": "fully_wired"},
+      {"name": "threadingPipelineDispatcher", "pattern": "pipeline engine", "actions": 3, "status": "fully_wired"},
+      {"name": "nlHookDispatcher", "pattern": "NLHookEngine dispatch", "actions": 8, "status": "fully_wired"},
+      {"name": "cadDrawingKnowledgeDispatcher", "pattern": "cad-engine Python", "actions": 11, "status": "fully_wired"}
+    ]
+  },
+  "dark_engine_domains": {
+    "cam_toolpath": {"count": 160, "priority": "medium", "note": "Most are internal strategy engines called by pipelines"},
+    "physics": {"count": 107, "priority": "high", "note": "Many have standalone utility — force, thermal, deflection, vibration"},
+    "automation_acp_mxu": {"count": 74, "priority": "low", "note": "17 already wired to devDispatcher in prior session"},
+    "multiaxis": {"count": 57, "priority": "medium", "note": "Called internally by MultiAxisPrintToProgram pipeline"},
+    "business_costing": {"count": 52, "priority": "high", "note": "Quote, cost, capacity engines with standalone value"},
+    "infrastructure": {"count": 49, "priority": "low", "note": "Internal: bridges, caches, adapters, registries"},
+    "additive": {"count": 43, "priority": "low", "note": "Additive manufacturing — niche domain"},
+    "knowledge": {"count": 26, "priority": "medium", "note": "Learning, tribal, playbook engines"},
+    "quality": {"count": 26, "priority": "high", "note": "SPC, FAI, metrology engines with standalone utility"},
+    "material": {"count": 25, "priority": "medium", "note": "Material property lookup, treatment engines"},
+    "edm": {"count": 25, "priority": "low", "note": "Most wired via EDM pipeline internally"},
+    "welding": {"count": 20, "priority": "medium", "note": "Welding process engines"},
+    "drilling": {"count": 20, "priority": "medium", "note": "Hole-making strategy engines"},
+    "forming": {"count": 16, "priority": "low", "note": "Sheet metal, forging engines"},
+    "fixturing": {"count": 15, "priority": "medium", "note": "Fixture design, clamping engines"},
+    "grinding": {"count": 12, "priority": "low", "note": "Most wired via grinding pipeline"},
+    "coolant": {"count": 7, "priority": "low", "note": "Handled by fluidThermalDispatcher"},
+    "secondary": {"count": 5, "priority": "low", "note": "Handled by secondaryOpsDispatcher"},
+    "unclassified": {"count": 653, "priority": "needs_review"}
+  },
+  "top_25_wire_candidates": [
+    {"engine": "SafetyVetoEngine", "domain": "safety", "dispatcher": "safetyDispatcher", "methods": ["checkVeto", "checkAllVetos", "autoEscalate"], "reason": "Safety-critical, standalone utility"},
+    {"engine": "SafetyEscalationEngine", "domain": "safety", "dispatcher": "safetyDispatcher", "methods": ["escalate", "preview"], "reason": "Pairs with SafetyVetoEngine"},
+    {"engine": "GCodeSafetyAnalyzerEngine", "domain": "safety", "dispatcher": "safetyDispatcher", "methods": ["analyze", "quickCheck", "autoFix"], "reason": "G-code safety validation"},
+    {"engine": "MachineEnvelopeGuardEngine", "domain": "safety", "dispatcher": "safetyDispatcher", "methods": ["check", "checkBatch"], "reason": "Machine limit checking"},
+    {"engine": "ToleranceStackEngine", "domain": "quality", "dispatcher": "qualityDispatcher", "methods": ["worstCase", "rss", "optimize"], "reason": "Tolerance analysis"},
+    {"engine": "FixtureDesignEngine", "domain": "fixturing", "dispatcher": "machineSetupDispatcher", "methods": ["recommend", "clampForce", "deflection", "validate"], "reason": "Fixture design utility"},
+    {"engine": "ThreadCalculationEngine", "domain": "thread", "dispatcher": "threadDispatcher", "methods": ["calculateTapDrill", "calculateThreadMillParams"], "reason": "Thread calculation utility"},
+    {"engine": "ThreadMillingEngine", "domain": "thread", "dispatcher": "threadDispatcher", "methods": ["calculate", "generateGCode"], "reason": "Thread milling physics"},
+    {"engine": "CoolantFlowEngine", "domain": "thermal", "dispatcher": "fluidThermalDispatcher", "methods": ["calculate"], "reason": "Coolant flow analysis"},
+    {"engine": "HeatTreatmentEngine", "domain": "thermal", "dispatcher": "fluidThermalDispatcher", "methods": ["calculate"], "reason": "Heat treatment calculation"},
+    {"engine": "ThermalCompensationModelEngine", "domain": "thermal", "dispatcher": "calcDispatcher", "methods": ["compute"], "reason": "Machine thermal compensation"},
+    {"engine": "BearingSelectionEngine", "domain": "mechanical", "dispatcher": "mechanicalDesignDispatcher", "methods": ["calculate"], "reason": "Bearing selection"},
+    {"engine": "SpringDesignEngine", "domain": "mechanical", "dispatcher": "mechanicalDesignDispatcher", "methods": ["calculate"], "reason": "Spring design"},
+    {"engine": "GearTrainEngine", "domain": "mechanical", "dispatcher": "mechanicalDesignDispatcher", "methods": ["calculate"], "reason": "Gear train analysis"},
+    {"engine": "CapacityPlanningEngine", "domain": "business", "dispatcher": "businessDispatcher", "methods": ["plan", "optimize"], "reason": "Production capacity planning"},
+    {"engine": "ActualCostEngine", "domain": "business", "dispatcher": "businessDispatcher", "methods": ["calculate"], "reason": "Actual vs estimated cost"},
+    {"engine": "SetupSheetEngine", "domain": "shop", "dispatcher": "shopPracticeDispatcher", "methods": ["buildSetupSheet"], "reason": "Setup documentation"},
+    {"engine": "DigitalWorkInstructionEngine", "domain": "shop", "dispatcher": "shopPracticeDispatcher", "methods": ["generate"], "reason": "Work instructions"},
+    {"engine": "ControllerDialectEngine", "domain": "postprocessor", "dispatcher": "camDispatcher", "methods": ["getDialect", "listDialects"], "reason": "Controller dialect lookup"},
+    {"engine": "ControllerFeatureMatrixEngine", "domain": "postprocessor", "dispatcher": "camDispatcher", "methods": ["getFeatures"], "reason": "Controller feature comparison"},
+    {"engine": "AdaptiveFeedControlEngine", "domain": "cam", "dispatcher": "calcDispatcher", "methods": ["calculate"], "reason": "Adaptive feed rate control"},
+    {"engine": "BoringBarDeflectionEngine", "domain": "physics", "dispatcher": "calcDispatcher", "methods": ["calculate"], "reason": "Boring bar deflection"},
+    {"engine": "BarStockVibrationEngine", "domain": "physics", "dispatcher": "calcDispatcher", "methods": ["calculate"], "reason": "Bar stock vibration analysis"},
+    {"engine": "OmegaSafetyScoreEngine", "domain": "quality", "dispatcher": "qualityDispatcher", "methods": ["score", "evaluate"], "reason": "Safety scoring"},
+    {"engine": "CalibratedSimulationEngine", "domain": "business", "dispatcher": "businessDispatcher", "methods": ["simulate"], "reason": "Calibrated estimation"}
+  ],
+  "action_required": {
+    "phase_5_wiring": "Wire top 25 engines to existing dispatchers using lazy import + case handler pattern",
+    "phase_6_skills_audit": "Verify 260 skills reference live actions/engines",
+    "phase_7_e2e": "Run CapabilityEffectivenessEngine validation tests"
+  }
+}

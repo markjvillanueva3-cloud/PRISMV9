@@ -98,10 +98,10 @@ export function ShopFloorTVPage() {
     <WorkspaceRecoveryScaffold
       eyebrow="Shop-floor broadcast"
       title="Shop Floor TV"
-      description="The floor TV route is restored as an APPW visibility surface with mounted live snapshot data, an auto-refresh board, and PRISM AI to narrate the current floor state."
+      description="The floor TV route is restored as an APPW visibility surface with mounted live snapshot data, an auto-refresh board, and Kienzle AI to narrate the current floor state."
       surfaces={['shopFloor', 'deskCounts']}
       metrics={metrics}
-      aiSummary="PRISM AI can turn the live shop-floor board into a shift summary, highlight bottlenecks, and call out jobs that need intervention."
+      aiSummary="Kienzle AI can turn the live shop-floor board into a shift summary, highlight bottlenecks, and call out jobs that need intervention."
       aiContext={aiContext}
       suggestions={[
         {

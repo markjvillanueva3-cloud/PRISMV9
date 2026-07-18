@@ -26,9 +26,10 @@ import { ACTIONS } from "../../tools/dispatchers/camDispatcher.js";
 // ─── Route helper — mirrors camDispatcher.ts:5422 master_post_by_machine ────
 
 type Routed =
-  | { engine: "okuma"; reason: string }
+  | { engine: "okuma"; reason: string; machineId: "LB250II-M" | "LB3000" | "MULTUS-B250II" | "GENOS-L300-M" | "GENOS-L200E-M" | "GENOS-L400II-E" | "LNC8" | "CROWN-L1060" }
   | { engine: "okuma_osp_mill"; reason: string; ospFamily: "P300" | "P500" }
   | { engine: "mitsubishi"; reason: string }
+  | { engine: "fa10s"; error: string }
   | { engine: "hurco"; reason: string; configOverrides?: Record<string, unknown> }
   | { engine: null; error: string };
 
@@ -54,14 +55,43 @@ function routeByMachine(
     };
   }
 
-  // U-PPGW12 — Okuma lathe family (LB200/LB250/LB300 + OSP-PxxxL controllers)
+  // U-PPGW12 + U-PP-LATHE-MACHINE-AWARE -- Okuma lathe / mill-turn family
+  // (LB200/LB250/LB300/LB3000 + MULTUS B250II + OSP-PxxxL controllers).
   if (
     model.includes("OKUMA") || model.includes("LB250") ||
+    model.includes("LB3000") || model.includes("MULTUS") ||
     model.includes("LB200") || model.includes("LB300") ||
     model.includes("OSP-P300L") || model.includes("OSP_P300L") ||
-    model.includes("OSP-P500L") || model.includes("OSP_P500L")
+    model.includes("OSP-P500L") || model.includes("OSP_P500L") ||
+    // U-PP-LATHE-JM-FLEET-IDENTITY -- GENOS L-series, LNC8, Crown L1060.
+    // GENOS gated on an L-number so a GENOS *mill* (M-series) does NOT mis-route here.
+    (model.includes("GENOS") && (model.includes("L200") || model.includes("L300") || model.includes("L400"))) ||
+    model.includes("LNC") || model.includes("CROWN")
   ) {
-    return { engine: "okuma", reason: "OKUMA/LB-family/OSP-PxxxL substring match" };
+    // Machine-identity resolution (mirrors camDispatcher master_post_by_machine).
+    // LB3000 is checked before B250, and LB250 (which contains "B250") must NOT
+    // resolve to MULTUS -- the `&& !model.includes("LB")` guard. GENOS/LNC/Crown
+    // map to their jm-fleet-sim-map identities (U-PP-LATHE-JM-FLEET-IDENTITY).
+    const machineId: "LB250II-M" | "LB3000" | "MULTUS-B250II" | "GENOS-L300-M" | "GENOS-L200E-M" | "GENOS-L400II-E" | "LNC8" | "CROWN-L1060" =
+      model.includes("LB3000") ? "LB3000"
+      : (model.includes("MULTUS") || (model.includes("B250") && !model.includes("LB"))) ? "MULTUS-B250II"
+      : (model.includes("GENOS") && model.includes("L300")) ? "GENOS-L300-M"
+      : (model.includes("GENOS") && model.includes("L200")) ? "GENOS-L200E-M"
+      : (model.includes("GENOS") && model.includes("L400")) ? "GENOS-L400II-E"
+      : model.includes("LNC") ? "LNC8"
+      : model.includes("CROWN") ? "CROWN-L1060"
+      : "LB250II-M";
+    return { engine: "okuma", reason: "OKUMA/LB-family/OSP-PxxxL substring match", machineId };
+  }
+
+  // U-PP-FA10S-WIRE -- FA10S/FA-series is MELCUT (M6/M7/M28/M80), a DISTINCT engine from the
+  // MV-series MV1200R (M800/M700V). Caught BEFORE the generic MITSUBISHI branch so it can never
+  // mis-route to MV1200R + emit the wrong dialect; fail loud + redirect to wedm_post_mitsubishi_generate.
+  if (
+    model.includes("FA10") || model.includes("FA-10") || model.includes("FA20") ||
+    model.includes("FA SERIES") || model.includes("FA-SERIES") || model.includes("MELCUT")
+  ) {
+    return { engine: "fa10s", error: "FA10S/FA-series MELCUT dialect -- use wedm_post_mitsubishi_generate, not the MV-series path" };
   }
 
   if (model.includes("MITSUBISHI") || model.includes("MV1200")) {
@@ -83,7 +113,7 @@ function routeByMachine(
 
   return {
     engine: null,
-    error: `Unknown machine model: ${machineModel}. Supported lathes: OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION; OKUMA OSP-P300M/OSP-P500M (PPG-WIRE-MS5/U-PPGW-OkumaMill). Wire EDM: MITSUBISHI_MV1200R.`,
+    error: `Unknown machine model: ${machineModel}. Supported lathes: OKUMA_LB200/LB250/LB300, GENOS_L200E-M/L300-M/L400II-E, LNC8, CROWN_L1060, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION; OKUMA OSP-P300M/OSP-P500M (PPG-WIRE-MS5/U-PPGW-OkumaMill). Wire EDM: MITSUBISHI_MV1200R.`,
   };
 }
 
@@ -135,6 +165,92 @@ describe("master_post_by_machine — U-PPGW12 Okuma lathe alias-expand", () => {
   it("case-insensitive: lowercase osp-p300l routes to okuma (toUpperCase normalization)", () => {
     const r = routeByMachine("osp-p300l");
     expect(r.engine).toBe("okuma");
+  });
+});
+
+// ============================================================================
+// U-PP-LATHE-MACHINE-AWARE -- LB3000 / MULTUS B250II identity resolution
+// ============================================================================
+
+describe("master_post_by_machine -- U-PP-LATHE-MACHINE-AWARE identity resolution", () => {
+  it("routes the JM LB3000 to okuma with machineId LB3000", () => {
+    const r = routeByMachine("OKUMA_LATHE_LB3000");
+    expect(r.engine).toBe("okuma");
+    if (r.engine === "okuma") expect(r.machineId).toBe("LB3000");
+  });
+
+  it("routes the JM MULTUS B250II to okuma with machineId MULTUS-B250II", () => {
+    const r = routeByMachine("OKUMA MULTUS B250IIW");
+    expect(r.engine).toBe("okuma");
+    if (r.engine === "okuma") expect(r.machineId).toBe("MULTUS-B250II");
+  });
+
+  it("[regression] LB250 (contains the substring B250) resolves to LB250II-M, NOT MULTUS", () => {
+    const r = routeByMachine("OKUMA LB250II-M");
+    expect(r.engine).toBe("okuma");
+    if (r.engine === "okuma") expect(r.machineId).toBe("LB250II-M");
+  });
+
+  it("a bare OSP-P300L lathe defaults to the LB250II-M identity", () => {
+    const r = routeByMachine("OSP-P300L");
+    expect(r.engine).toBe("okuma");
+    if (r.engine === "okuma") expect(r.machineId).toBe("LB250II-M");
+  });
+});
+
+// ============================================================================
+// U-PP-LATHE-JM-FLEET-IDENTITY -- the 5 GENOS/Crown/LNC JM lathes route AND
+// emit their own (MACHINE: ...) header (were silently mislabeled LB250II-M).
+// ============================================================================
+
+describe("master_post_by_machine -- U-PP-LATHE-JM-FLEET-IDENTITY", () => {
+  // [model string the router receives, resolved machineId, engine's emitted header]
+  const JM_FLEET: Array<[string, "GENOS-L300-M" | "GENOS-L200E-M" | "GENOS-L400II-E" | "LNC8" | "CROWN-L1060", string]> = [
+    ["OKUMA GENOS L300-M",   "GENOS-L300-M",   "(MACHINE: OKUMA GENOS L300-M OSP-P300L-R)"],
+    ["OKUMA GENOS L200E-M",  "GENOS-L200E-M",  "(MACHINE: OKUMA GENOS L200E-M OSP-P200LA-R)"],
+    ["OKUMA GENOS L400II-E", "GENOS-L400II-E", "(MACHINE: OKUMA GENOS L400II-E OSP-P300LA-E)"],
+    ["OKUMA LNC8",           "LNC8",           "(MACHINE: OKUMA LNC8 OSP-U10L)"],
+    ["OKUMA CROWN L1060",    "CROWN-L1060",    "(MACHINE: OKUMA CROWN L1060 OSP-U10L)"],
+  ];
+
+  for (const [model, machineId] of JM_FLEET) {
+    it(`routes ${model} to okuma with machineId ${machineId} (no LB250II-M mislabel)`, () => {
+      const r = routeByMachine(model);
+      expect(r.engine).toBe("okuma");
+      if (r.engine === "okuma") {
+        expect(r.machineId).toBe(machineId);
+        expect(r.machineId).not.toBe("LB250II-M");
+      }
+    });
+  }
+
+  it("round-trip: each router-resolved machineId emits the correct (MACHINE: ...) header via the real engine", async () => {
+    const { okumaB250LatheMasterPostEngine } = await import("../../engines/OkumaB250LatheMasterPostEngine.js");
+    const op = {
+      operation_type: "od_rough" as const, tool_number: 1, tool_orientation: 3,
+      insert_radius_mm: 0.8, material_iso: "P" as const, css_m_min: 200, feed_mm_rev: 0.25,
+      depth_of_cut_mm: 2, start_x: 50, start_z: 0, end_x: 48, end_z: -30, coolant: "flood" as const,
+    };
+    const headerOf = (g: string[]) => g.find((l) => l.startsWith("(MACHINE:"));
+    for (const [model, , expectedHeader] of JM_FLEET) {
+      const routed = routeByMachine(model);
+      expect(routed.engine).toBe("okuma");
+      const id = routed.engine === "okuma" ? routed.machineId : "LB250II-M";
+      const out = okumaB250LatheMasterPostEngine.generateProgram([op], { machine_id: id });
+      expect(headerOf(out.gcode)).toBe(expectedHeader);
+      expect(out.warnings.some((w) => w.includes("Unknown machine_id"))).toBe(false);
+    }
+  });
+
+  it("[regression] a bare GENOS *mill* (M-series, no L-number) does NOT match the new GENOS lathe clause", () => {
+    // GENOS is both a lathe (L-series) and a mill (M-series) family. Without the
+    // L-number gate, a bare model.includes("GENOS") would route a GENOS mill to the
+    // lathe engine; the gate makes it fall through to else-reject. (NOTE: a model
+    // carrying the literal "OKUMA" still matches the pre-existing leading
+    // model.includes("OKUMA") clause -- a separate, pre-existing broad-match, not this
+    // change. This test pins exactly what the GENOS L-number gate adds.)
+    const r = routeByMachine("GENOS M560-V");
+    expect(r.engine).not.toBe("okuma");
   });
 });
 
@@ -356,7 +472,10 @@ describe("master_post_by_machine — unknown machine + schema invariants", () =>
     expect(r.engine).toBeNull();
     if (r.engine === null) {
       expect(r.error).toContain("HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION");
-      expect(r.error).toContain("OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L");
+      expect(r.error).toContain("OKUMA_LB200/LB250/LB300");
+      expect(r.error).toContain("OSP-P300L, OSP-P500L");
+      // U-PP-LATHE-JM-FLEET-IDENTITY: the 5 GENOS/Crown/LNC JM lathes are now advertised.
+      expect(r.error).toContain("GENOS_L200E-M/L300-M/L400II-E, LNC8, CROWN_L1060");
       expect(r.error).toContain("MITSUBISHI_MV1200R");
       // U-PPGW-OkumaMill (PPG-WIRE-MS5): OSP-P*M is now SUPPORTED — the
       // supported-list copy advertises it, the "explicitly NOT supported"
@@ -377,5 +496,30 @@ describe("master_post_by_machine — unknown machine + schema invariants", () =>
 
   it("master_post_by_machine retains its Zod schema entry", () => {
     expect(ACTION_CAM_SCHEMAS).toHaveProperty("master_post_by_machine");
+  });
+});
+
+// ============================================================================
+// U-PP-FA10S-WIRE — FA10S (MELCUT) must NOT mis-route to the MV-series MV1200R
+// ============================================================================
+describe("master_post_by_machine — U-PP-FA10S-WIRE (FA10S MELCUT, not MV-series)", () => {
+  it("routes MITSUBISHI FA10S to the FA10S redirect, NOT the MV1200R engine", () => {
+    const r = routeByMachine("MITSUBISHI FA10S");
+    expect(r.engine).toBe("fa10s"); // caught before the generic MITSUBISHI branch
+    expect(r.engine === "fa10s" && /MELCUT|wedm_post_mitsubishi/i.test(r.error)).toBe(true);
+  });
+
+  it("FA20 and bare MELCUT models also hit the FA10S redirect", () => {
+    expect(routeByMachine("FA20").engine).toBe("fa10s");
+    expect(routeByMachine("MITSUBISHI MELCUT").engine).toBe("fa10s");
+  });
+
+  it("a plain MV1200R model still routes to the MV-series engine (no false FA10S catch)", () => {
+    const r = routeByMachine("MITSUBISHI MV1200R");
+    expect(r.engine).toBe("mitsubishi");
+  });
+
+  it("MV1200 without an FA token does not redirect (regression guard)", () => {
+    expect(routeByMachine("MV1200").engine).toBe("mitsubishi");
   });
 });

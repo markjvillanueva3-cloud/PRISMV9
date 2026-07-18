@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="d8e87f8864b1422de25c3740d5f7adea650ddca5c10251d1ca0ca596679978b8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP-CAPACITY-MS0 — permanent fix for MCP-server drops at 30-chat scale (2026-05-25)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>MCP-CAPACITY-MS0 — permanent fix for MCP-server drops at 30-chat scale (2026-05-25)</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/MCP-CAPACITY-MS0.md</div>
+<div class="meta">Generated 2026-05-25T18:14:12.718Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">MCP-CAPACITY-MS0 — permanent fix for MCP-server drops at 30-chat scale (2026-05-25)</li><li class="prism-toc-l2">§0 — What this spec promises</li><li class="prism-toc-l2">§1 — What&#39;s already been tried (and what&#39;s still broken)</li><li class="prism-toc-l2">§2 — Failure modes at 30-chat scale</li><li class="prism-toc-l2">§3 — Design approach — Single-process MCP, state externalized, with admission control (RECOMMENDED)</li><li class="prism-toc-l3">§3.1 — Foundation (Phase A, 5-6 units)</li><li class="prism-toc-l3">§3.2 — Capacity safeguards (Phase B, 3-4 units)</li><li class="prism-toc-l3">§3.3 — Validation (Phase C, 3 units)</li><li class="prism-toc-l2">§4 — Alternative approaches (rejected with reasoning)</li><li class="prism-toc-l2">§5 — <code class="prism-inline-code">LastTaskResult=2147946720</code> diagnosis (U-FH03 / pre-flight)</li><li class="prism-toc-l2">§6 — Integration with the in-flight SLOT-RECOVERY-MS0 milestone</li><li class="prism-toc-l2">§7 — Knobs (proposed)</li><li class="prism-toc-l2">§8 — Open questions</li><li class="prism-toc-l2">§9 — Unit breakdown (deferred to MS1)</li><li class="prism-toc-l2">§10 — Sign-off</li></ul></nav><h1 class="prism-h1">MCP-CAPACITY-MS0 — permanent fix for MCP-server drops at 30-chat scale (2026-05-25)</h1>
+<blockquote class="prism-quote">User directive (2026-05-25, slot:unbound claude-9e91d800): &quot;plan for the permanent fix for mcp servers always dropping, build for 30 chats at once on it&quot;</blockquote>
+<blockquote class="prism-quote">Scope: <strong>planning + design spec only this milestone.</strong> Implementation is the follow-on MS1 once this spec is signed off. Phase A units below are the minimum-viable foundation; Phase B is the optional rewrite if Phase A alone isn&#39;t enough at 30-chat scale.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">§0 — What this spec promises</h2>
+<p>A permanent fix for the recurring MCP-server drop pathology — <code class="prism-inline-code">mcp__prism<em></code> and <code class="prism-inline-code">mcp__prism_safe__</em></code> calls failing across the fleet — that has resisted three prior partial fixes (U-WATCHDOG-MEM-PROBE 2026-05-23, U-SUPERVISOR-HEAP-BUMP 2026-05-23, MCP-CONNECTIVITY hook 2026-05-24). Target: 30 concurrent chats × ~5 MCP actions per chat per minute, sustained 8+ hours without restart, p95 latency &lt;500ms, zero drops in steady state.</p>
+<p>This is NOT a Phase 1 build; it&#39;s the spec for a follow-on milestone. The slot-recovery + fleet-dashboard milestone (17 units, the in-flight build) is independently shippable without this work.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§1 — What&#39;s already been tried (and what&#39;s still broken)</h2>
+<table class="prism-md-table"><thead><tr><th>Date</th><th>Unit</th><th>Fix</th><th>Status today</th></tr></thead><tbody><tr><td>2026-05-22</td><td>MCP-CONNECTIVITY hook</td><td>UserPromptSubmit <code class="prism-inline-code">:3100</code> probe + LOUD banner on disconnect</td><td>✅ Shipped — surfaces drops but doesn&#39;t prevent them</td></tr>
+<tr><td>2026-05-23</td><td>U-SUPERVISOR-HEAP-BUMP</td><td>Spawn child with <code class="prism-inline-code">NODE_OPTIONS=--max-old-space-size=8192</code></td><td>✅ Shipped — raised OOM ceiling but didn&#39;t eliminate</td></tr>
+<tr><td>2026-05-23</td><td>U-WATCHDOG-MEM-PROBE</td><td>Watchdog preemptive restart on RSS &gt; 3GB</td><td>✅ Shipped — catches OOM before kernel kills, but restart = ~3-5s of dropped requests</td></tr></tbody></table>
+<p><strong>Evidence that drops still happen (today, 2026-05-25):</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">PRISM MCP Server</code> scheduled task: <code class="prism-inline-code">LastTaskResult=2147946720</code> (= <code class="prism-inline-code">0x80070420</code>, non-zero — implies recent unclean exit / restart cycle)</li><li>Operator report (this conversation): MCP drops are persistent enough to be a chronic pain point</li><li>Mitigation only — no underlying capacity model</li></ul>
+<p>The pattern: <strong>each prior fix raises the ceiling slightly; load eventually catches up; new fix needed.</strong> A permanent fix requires capacity modeling, not another point patch.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§2 — Failure modes at 30-chat scale</h2>
+<p>Decoded by reading existing watchdog/connectivity hooks + extrapolating to 30× concurrency:</p>
+<table class="prism-md-table"><thead><tr><th>Failure mode</th><th>Root cause</th><th>Today&#39;s frequency</th><th>At 30 chats</th></tr></thead><tbody><tr><td><strong>OOM heap exhaustion</strong></td><td>Single Node process accumulates state (in-flight dispatcher caches, engine instances, file-watch handles); each new chat adds ~50-100 MB working set</td><td>~Daily at fleet load</td><td>Multiple per hour — exponentially worse</td></tr>
+<tr><td><strong>HTTP connection limit</strong></td><td>Default Node HTTP server <code class="prism-inline-code">maxConnections=Infinity</code> but socket FD exhaustion ~16K on Windows</td><td>Rare</td><td>Approached at 30 chats × 5 actions × keep-alive</td></tr>
+<tr><td><strong>Event-loop starvation</strong></td><td>Sync I/O in dispatchers (a few <code class="prism-inline-code">readFileSync</code> calls in chat-slots/handoff) blocks all clients</td><td>Visible as p95 latency spikes</td><td>Severe — 30 clients waiting on a 200ms sync read = 6s tail</td></tr>
+<tr><td><strong>State-file contention</strong></td><td><code class="prism-inline-code">chat-slots.json</code>, <code class="prism-inline-code">slot-task-queues.json</code>, <code class="prism-inline-code">golf-cron-registry.json</code> all written by lock-file + tmp+rename. Lock acquisition wait scales linearly with concurrency</td><td>Sub-second today</td><td>30× contention = 1-3s waits per write</td></tr>
+<tr><td><strong>Cascading restart storms</strong></td><td>Watchdog restarts MCP under pressure; all 30 chats reconnect simultaneously; new server gets thundering-herd load → OOM again</td><td>Rare</td><td>Almost certain without admission control</td></tr>
+<tr><td><strong>Subprocess fork bombs</strong></td><td>Some dispatcher actions spawn child Node processes (e.g. <code class="prism-inline-code">psk.mjs checkin</code>); 30 chats × parallel actions = unbounded fork tree</td><td>Visible in Task Manager today</td><td>OS-level death spiral</td></tr>
+<tr><td><strong>WAL-checkpoint stall</strong></td><td>Coordination SQLite WAL mode; 30 concurrent writers cause WAL growth + slow checkpoint</td><td>Negligible today</td><td>Significant under load</td></tr>
+<tr><td><strong>No backpressure</strong></td><td>Clients keep sending; server has no admission control; queue grows unbounded → memory ↑ → OOM</td><td>This is the chronic OOM driver</td><td>The structural cause to fix</td></tr></tbody></table>
+<p>The chronic OOM is <strong>not a memory leak</strong> — it&#39;s the absence of admission control. Every fix so far has raised the watermark, not changed the slope.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§3 — Design approach — Single-process MCP, state externalized, with admission control (RECOMMENDED)</h2>
+<p>The simplest permanent fix that meets the 30-chat bar without rearchitecting the harness:</p>
+<h3 class="prism-h3">§3.1 — Foundation (Phase A, 5-6 units)</h3>
+<ol class="prism-md-list"><li><strong>Admission control</strong> — at <code class="prism-inline-code">/POST</code> entry of every MCP action: check in-flight count, queue depth, current RSS. If any limit hit, return <code class="prism-inline-code">503 Service-Bring-Back-Up</code> immediately with <code class="prism-inline-code">Retry-After</code> header. Hooks already have retry logic; this gives them a deterministic signal instead of a hang.</li><li><strong>Per-chat rate limiting</strong> — token bucket per <code class="prism-inline-code">session_id</code> (extracted from request headers). Default: 30 actions / 30s / chat. Configurable per dispatcher action. Prevents one chat&#39;s <code class="prism-inline-code">/loop</code> from starving the others.</li><li><strong>Action latency budget</strong> — every dispatcher action gets a hard <code class="prism-inline-code">setTimeout</code> (default 10s, override per-action). Past budget = 504 + log + circuit-breaker increment. Today actions can hang indefinitely on a stuck file lock.</li><li><strong>State externalization</strong> — move <code class="prism-inline-code">chat-slots.json</code>, <code class="prism-inline-code">slot-task-queues.json</code>, <code class="prism-inline-code">slot-task-claims.json</code> lookups into a single SQLite WAL connection pool (already used for coordination.db per HOOK-SYNERGY-MS0/U-COORD08). Dispatcher actions become pure SQL reads/writes. No in-process JSON parse/stringify on hot paths.</li><li><strong>Async-only enforcement</strong> — banlist <code class="prism-inline-code">readFileSync</code>, <code class="prism-inline-code">writeFileSync</code>, <code class="prism-inline-code">execSync</code> on the dispatcher hot path. Auto-detected by lint rule + CI gate.</li><li><strong>Watchdog hardening</strong> — current watchdog restarts on RSS &gt; 3GB. Add: graceful-shutdown phase that drains in-flight requests for 2s before SIGTERM. Reduces cascade restarts.</li></ol>
+<h3 class="prism-h3">§3.2 — Capacity safeguards (Phase B, 3-4 units)</h3>
+<ol class="prism-md-list"><li><strong>HTTP/2 server with multiplexing</strong> — replace HTTP/1.1 keep-alive (1 stream per TCP connection) with HTTP/2 (multiple streams per connection). Reduces socket usage from 30+ connections to ~5.</li><li><strong>Subprocess pool</strong> — actions that spawn child Node processes (<code class="prism-inline-code">psk.mjs</code>, <code class="prism-inline-code">chat-slots.mjs</code> CLI, etc.) get a bounded worker pool (size N, default 8). Excess work queues. No fork bombs.</li><li><strong>Connection draining on restart</strong> — watchdog signals MCP, MCP stops accepting new requests + serves in-flight, exits clean, watchdog spawns new process, clients reconnect over ~500ms window with retries. Currently restart = abrupt SIGKILL with all-clients-drop.</li><li><strong>Memory profiling guardrail</strong> — periodic v8 heap snapshot capture on RSS &gt; 2GB (warning level, before 3GB restart threshold). Snapshots go to <code class="prism-inline-code">state/shared/dashboards/mcp-heap-snapshots/</code> for post-incident analysis.</li></ol>
+<h3 class="prism-h3">§3.3 — Validation (Phase C, 3 units)</h3>
+<ol class="prism-md-list"><li><strong>Load-test harness</strong> — <code class="prism-inline-code">scripts/mcp-load-test.mjs</code> simulates 30 concurrent chats × N actions/minute over T minutes. Records: p50, p95, p99 latency, drop rate, restart count, peak RSS.</li><li><strong>Per-action telemetry</strong> — every MCP dispatcher action emits to <code class="prism-inline-code">state/shared/dashboards/mcp-action-latency.jsonl</code> (already an allowlisted golf-writable path). 60s aggregation + p95 alert.</li><li><strong>Steady-state SLO</strong> — 30 chats × 5 actions/min × 8h = 72,000 actions. Pass criteria: drop rate &lt; 0.1% (72 actions allowed to drop), p95 &lt; 500ms, restart count ≤ 1 (planned only).</li></ol>
+<p>Total: 12-13 units, estimated 12-16h focused work. Phased so Phase A alone (foundation) ships measurable improvement; Phase B+C optional if Phase A meets the bar.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§4 — Alternative approaches (rejected with reasoning)</h2>
+<table class="prism-md-table"><thead><tr><th>Approach</th><th>Why rejected</th></tr></thead><tbody><tr><td><strong>Multi-process MCP — shard by chat or domain</strong></td><td>Requires routing/proxy layer + cross-shard coordination. 4-6× more code than §3. Phase A&#39;s admission control + state externalization probably gets us to 30 chats without this — keep in reserve as MS1 if we don&#39;t.</td></tr>
+<tr><td><strong>Per-chat embedded MCP</strong></td><td>30 chats × ~500 MB MCP server = 15 GB JUST for MCP. Each chat&#39;s claude.exe is already ~300-600 MB. Total ~30 GB on a 64 GB machine before any agent work. Memory-prohibitive at fleet scale.</td></tr>
+<tr><td><strong>Stateless HTTP dispatchers + Redis</strong></td><td>New external dependency (Redis), new failure mode (Redis goes down → all PRISM dies), new ops burden. Existing SQLite WAL gives us what Redis would without adding a service.</td></tr>
+<tr><td><strong>Bigger box (RAM/cores)</strong></td><td>Linear cost, no structural fix. Drops on memory pressure WILL happen at SOME chat count without admission control. Doesn&#39;t address the root pattern.</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">§5 — <code class="prism-inline-code">LastTaskResult=2147946720</code> diagnosis (U-FH03 / pre-flight)</h2>
+<p>The current MCP server scheduled task shows this non-zero result. Hex: <code class="prism-inline-code">0x80070420</code>. Decoded: <code class="prism-inline-code">ERROR_SERVICE_NOT_ACTIVE</code>. Possible causes:</p>
+<ol class="prism-md-list"><li>Task tried to start service that was already running (race with watchdog)</li><li>Task action exited with code = ERROR_SERVICE_NOT_ACTIVE</li><li>Scheduled task wrapper mis-detected the service state</li></ol>
+<p><strong>First diagnostic action (U-FH03 in SLOT-RECOVERY-MS0 milestone):</strong> dump the scheduled-task XML, identify the wrapper script, run it manually with <code class="prism-inline-code">-Verbose</code>, capture exit code path. May resolve in 30 minutes (config bug) or surface as a deeper symptom of §2 cascade restarts.</p>
+<p>If U-FH03 surfaces a §2 cascade pattern, that VALIDATES the §3 approach. If U-FH03 is a config typo (likely), it&#39;s a 1-line fix.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§6 — Integration with the in-flight SLOT-RECOVERY-MS0 milestone</h2>
+<p>These two milestones interact:</p>
+<table class="prism-md-table"><thead><tr><th>SLOT-RECOVERY produces</th><th>MCP-CAPACITY consumes</th></tr></thead><tbody><tr><td><code class="prism-inline-code">slot-sessions/&lt;nato&gt;.jsonl</code> (per-slot session history)</td><td>Source-of-truth for per-chat rate-limit identity (§3 #2 needs session_id stable across /compact — sidecar gives it)</td></tr>
+<tr><td><code class="prism-inline-code">slot-task-queues.json</code> (v1.1 with <code class="prism-inline-code">dedicated</code>/general_pool)</td><td>Read-heavy MCP path; benefits from state externalization (§3 #4)</td></tr>
+<tr><td><code class="prism-inline-code">ghost.fleet_state</code> viz roost</td><td>Becomes the operator-facing display for per-chat MCP latency + rate-limit consumption</td></tr>
+<tr><td><code class="prism-inline-code">TaskAddEngine</code></td><td>Becomes the test-bench for §3 admission control (a chat /queue-add&#39;ing 1000 tasks in a tight loop should hit rate limit, not OOM)</td></tr></tbody></table>
+<p>Build order recommendation: ship SLOT-RECOVERY-MS0 + FLEET-DASHBOARD-MS0 first (foundation), then MCP-CAPACITY-MS0 Phase A (admission control benefits the fleet immediately), then Phase B if Phase A doesn&#39;t hit the 30-chat bar.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§7 — Knobs (proposed)</h2>
+<table class="prism-md-table"><thead><tr><th>Knob</th><th>Purpose</th><th>Default</th></tr></thead><tbody><tr><td><code class="prism-inline-code">PRISM_MCP_MAX_INFLIGHT</code></td><td>Admission-control ceiling</td><td>60 (30 chats × 2 burst)</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_RATE_LIMIT_PER_CHAT</code></td><td>Token bucket size per session_id</td><td>30/30s</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_ACTION_TIMEOUT_MS</code></td><td>Per-action latency budget</td><td>10000</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_WATCHDOG_RSS_WARN_MB</code></td><td>RSS warning threshold (heap snapshot)</td><td>2048</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_WATCHDOG_RSS_KILL_MB</code></td><td>RSS restart threshold</td><td>3072</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_GRACEFUL_DRAIN_MS</code></td><td>Drain-then-exit window on restart</td><td>2000</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_SUBPROCESS_POOL_SIZE</code></td><td>Bounded worker pool</td><td>8</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_HTTP2_DISABLE</code></td><td>Fallback to HTTP/1.1</td><td>0 (HTTP/2 on by default)</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_LOAD_TEST_DURATION_MIN</code></td><td>Load-test runtime</td><td>60</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_MCP_LOAD_TEST_CHATS</code></td><td>Simulated concurrent chats</td><td>30</td></tr></tbody></table>
+<p>All defaults sized for 30-chat target. Operator can dial up.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§8 — Open questions</h2>
+<ol class="prism-md-list"><li><strong>HTTP/2 vs HTTP/1.1</strong> — Phase B introduces HTTP/2. Some Claude Code MCP clients may not support it cleanly. Need to verify before commit. If HTTP/2 problematic → keep HTTP/1.1 + raise socket limit explicitly.</li><li><strong>SQLite WAL contention at 30 writers</strong> — WAL handles concurrent readers well, but concurrent writers serialize. Need to measure during load test. If serialization is the bottleneck → consider switching to in-memory SQLite + periodic snapshot or back to file-per-slot pattern.</li><li><strong>Should rate limits be per-dispatcher action or per-session_id only?</strong> — A chat doing <code class="prism-inline-code">/system-viz</code> regen (heavy) should weigh more than a chat doing <code class="prism-inline-code">prism_session:slot_session_latest</code> (cheap). Cost-weighted token bucket may be needed.</li><li><strong>Subprocess pool size</strong> — 8 is a guess. Real number is per-action: psk.mjs is expensive (~200ms each); chat-slots.mjs CLI is cheap (~30ms). May need per-action pool.</li><li><strong>MCP server graceful-restart semantics</strong> — Claude Code clients reconnect automatically, but how robustly? Need to verify before relying on graceful-drain.</li></ol>
+<p>These are MS1 implementation decisions, not MS0 spec decisions. Captured here for the implementing chat to remember.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§9 — Unit breakdown (deferred to MS1)</h2>
+<p>Per §3:</p>
+<ul class="prism-md-list"><li>Phase A: 6 units (admission control, rate limit, latency budget, state externalization, async enforcement, watchdog hardening)</li><li>Phase B: 4 units (HTTP/2, subprocess pool, drain restart, heap profile)</li><li>Phase C: 3 units (load test, telemetry, SLO validation)</li></ul>
+<p>Total: 12-13 units. Estimated 12-16h. Single-slot single-chat buildable in 2-3 sessions.</p>
+<p>Detailed unit specs: written at MS1 kickoff (this MS0 spec is the master plan; per-unit specs follow).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§10 — Sign-off</h2>
+<ul class="prism-md-list"><li>[ ] Operator approves §3 approach (single-process + admission control + state externalization)</li><li>[ ] Operator approves §4 rejections (multi-process, embedded, Redis, bigger box)</li><li>[ ] Operator answers §8 open questions (or accepts MS1-implementation deferral)</li><li>[ ] Operator authorizes Phase ordering (recommend: SLOT-RECOVERY/FLEET-DASHBOARD first, then this)</li><li>[ ] MS1 unit-spec drafting begins after sign-off</li></ul>
+<p>— Spec drafted 2026-05-25 by claude-9e91d800 (slot:unbound, machine: DESKTOP-N7MI1VB). Sister spec to SLOT-RECOVERY-MS0; together they form the complete fleet-stability plan from operator directives this session.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

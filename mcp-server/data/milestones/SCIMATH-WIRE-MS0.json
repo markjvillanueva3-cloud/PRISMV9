@@ -1,0 +1,540 @@
+{
+  "id": "SCIMATH-WIRE-MS0",
+  "version": "1.0.0",
+  "title": "SCIMATH Integration Wiring â€” Connect Linear Algebra to 25 Downstream Engines",
+  "brief": "Wire 12 SCIMATH-MS0 engines into ~25 downstream engines across 6 domains that currently roll their own ad-hoc linear algebra. Audit-driven: 10 CRITICAL + 20 HIGH gaps found by 10-agent utilization audit (2026-04-02). Eliminates duplicate code, improves numerical stability, unlocks multivariate analytics.",
+  "track": "SCIMATH",
+  "created_at": "2026-04-02T10:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "status": "complete",
+  "total_units": 24,
+  "completed_units": 24,
+  "dependencies": [
+    "SCIMATH-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "SVDEngine (390 LOC) â€” decompose, pseudoInverse, leastSquares, conditionNumber",
+      "QRDecompositionEngine (420 LOC) â€” decompose, leastSquares, pivotedQR",
+      "CholeskyEngine (300 LOC) â€” factorize, ldlt, solve, sampleMultivariateNormal, isPositiveDefinite",
+      "EigensolverEngine (760 LOC) â€” symmetricQR, lanczos, generalizedEigen, powerIteration",
+      "IterativeSolverEngine (440 LOC) â€” cg, bicgstab, gmres",
+      "MatrixFactorizationEngine (450 LOC) â€” toCSR, csrMatVec, lu, solve, nmf",
+      "SparseMatrixEngine (400 LOC) â€” rcmOrdering, spMM, bandwidth",
+      "MatrixNormEngine (350 LOC) â€” allNorms, conditionNumber, spectralNorm",
+      "TensorAlgebraEngine (500 LOC) â€” invariants, principalStresses, rotateTensor",
+      "SystemIdentificationEngine (380 LOC) â€” rlsBatch, totalLeastSquares, n4sid",
+      "RobustRegressionEngine (450 LOC) â€” ols, ridge, lasso, elasticNet, huber, ransac",
+      "RandomMatrixEngine (280 LOC) â€” detectSignals, marchenkoPastur",
+      "PrincipalComponentEngine (550 LOC) â€” calculate, svdPCA, kernelPCA, incrementalPCA, robustPCA",
+      "FiniteElementEngine (640 LOC) â€” solveBar, solveTruss, solveQuad4, solveThermal, modalAnalysis"
+    ],
+    "downstream_targets": {
+      "quality": [
+        "StatisticalProcessMonitoringEngine",
+        "ProcessFingerprintEngine",
+        "SPCProcessCapabilityEngine",
+        "ProcessCapabilityPredictionEngine"
+      ],
+      "ml_optimization": [
+        "BayesianOptimizationEngine",
+        "ConvexOptimizationEngine",
+        "GradientOptimizationEngine",
+        "AdvancedRegressionEngine",
+        "MonteCarloEngine",
+        "AIMLFormulasEngine"
+      ],
+      "physics_pipeline": [
+        "AdaptiveCalibrationEngine",
+        "SpeedFeedOrchestratorEngine",
+        "KienzleForceModelEngine"
+      ],
+      "chatter_vibration": [
+        "ChatterStabilityLobeEngine",
+        "StochasticChatterEngine",
+        "MachineVibrationEngine"
+      ],
+      "deflection": [
+        "ToolAssemblyDeflectionEngine",
+        "FixtureDynamicsEngine",
+        "BoringBarDeflectionEngine",
+        "PartDeflectionEngine"
+      ],
+      "downstream_math": [
+        "StochasticWrapperEngine",
+        "CMMPathPlanningEngine",
+        "AdaptiveControlEngine",
+        "DifferentialEquationEngine"
+      ]
+    },
+    "formulas": [
+      "F-NUM-001..012 (SCIMATH formulas in FormulaRegistry)",
+      "F-CUT-001 (Kienzle)",
+      "F-WEAR-001 (Taylor)"
+    ],
+    "constants": "EPS_MACHINE, EPS_SVD, EPS_CHOLESKY, EPS_EIGEN, EPS_ITERATIVE, EPS_RANK, CONDITION_WARNING_THRESHOLD from src/physics/constants.ts",
+    "reference": "20-agent utilization audit results (2026-04-02), SCIMATH-MS0 milestone (complete, 355 tests)"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Infrastructure â€” Exports, Schemas, Index",
+      "session": "SCIMATH-WIRE-0a",
+      "smart_config": "ROLE=TypeScript Architect | OPUS | HIGH",
+      "intent": "Make SCIMATH engines discoverable and type-safe for all downstream consumers",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Export 12 SCIMATH engines from index.ts + update ENGINE_DIGEST",
+          "description": "Add re-exports for all 12 SCIMATH engines to src/engines/index.ts. Update ENGINE_DIGEST.md descriptions from [AUTO-ADDED] stubs to real 1-line descriptions. Update MASTER_INDEX_COMPACT.md.",
+          "knowledge_sources": [
+            "src/engines/index.ts",
+            "data/docs/ENGINE_DIGEST.md",
+            "data/docs/MASTER_INDEX_COMPACT.md"
+          ],
+          "exit_conditions": [
+            "All 12 engines importable via index.ts",
+            "ENGINE_DIGEST.md has real descriptions",
+            "MASTER_INDEX_COMPACT.md updated",
+            "Build PASS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U02",
+          "title": "Add 12 Zod schemas for SCIMATH calcDispatcher actions",
+          "description": "Add strict Zod schemas to src/schemas/calcActionSchemas.ts for all 12 SCIMATH actions. Currently these pass through .passthrough() without validation. Define input types (matrix, vector, method, options) per action.",
+          "knowledge_sources": [
+            "src/schemas/calcActionSchemas.ts",
+            "src/tools/dispatchers/calcDispatcher.ts (SCIMATH case handlers)"
+          ],
+          "exit_conditions": [
+            "12 Zod schemas defined",
+            "No .passthrough() fallback for SCIMATH actions",
+            "Schema tests pass",
+            "Build PASS"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Quality & SPC â€” Multivariate Analytics (3 CRITICAL)",
+      "session": "SCIMATH-WIRE-1a",
+      "smart_config": "ROLE=Quality Engineer + Statistician | OPUS | MAXIMUM",
+      "intent": "Shop gets multivariate SPC with real covariance analysis instead of diagonal approximations. Cpk includes measurement uncertainty per ISO 22514-1.",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Wire PCA/SVD â†’ StatisticalProcessMonitoringEngine",
+          "description": "Replace inline _eigenDecomp() with PrincipalComponentEngine.svdPCA() or SVDEngine.decompose(). pcaProcessMonitoring() currently computes Hotelling TÂ² and SPE with ad-hoc eigendecomposition. Switch to SVD for numerical stability in 30+ dimensional measurement spaces. Cache decomposition for repeated queries.",
+          "knowledge_sources": [
+            "StatisticalProcessMonitoringEngine.ts (lines 200-252)",
+            "PrincipalComponentEngine.svdPCA()",
+            "SVDEngine.decompose()"
+          ],
+          "exit_conditions": [
+            "Import SVD/PCA",
+            "Remove inline _eigenDecomp",
+            "Hotelling TÂ² numerically identical",
+            "SPE computed from SVD residuals",
+            "Existing SPC tests pass"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P1-U02",
+          "title": "Wire Cholesky â†’ ProcessFingerprintEngine (full Hotelling TÂ²)",
+          "description": "Replace diagonal covariance approximation (line 462 comment: 'diagonal covariance approximation') with full covariance matrix via CholeskyEngine.factorize() + solve(). Compute true Mahalanobis distance: TÂ² = (x-mu)^T * Sigma^{-1} * (x-mu). Cache Cholesky factor for baseline fingerprints.",
+          "knowledge_sources": [
+            "ProcessFingerprintEngine.ts (lines 462-479)",
+            "CholeskyEngine.factorize()",
+            "CholeskyEngine.solve()"
+          ],
+          "exit_conditions": [
+            "Full covariance Hotelling TÂ²",
+            "Cholesky-backed inversion",
+            "10-50% sensitivity improvement on correlated anomalies",
+            "Tests with known Mahalanobis distances"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P1-U03",
+          "title": "Wire Cholesky â†’ SPCProcessCapabilityEngine (uncertainty propagation)",
+          "description": "Extend compute() to accept expanded measurement uncertainty U and propagate via Cholesky-backed Monte Carlo. Current Cpk confidence intervals ignore measurement uncertainty. ISO 22514-1 compliance requires GUM analysis. Use CholeskyEngine.sampleMultivariateNormal() for correlated uncertainty sources.",
+          "knowledge_sources": [
+            "SPCProcessCapabilityEngine.ts (lines 96-105, 208)",
+            "CholeskyEngine.sampleMultivariateNormal()",
+            "ISO 22514-1"
+          ],
+          "exit_conditions": [
+            "Cpk with measurement uncertainty propagation",
+            "Conservative Cpk_lower for decisions",
+            "Backward compatible (uncertainty=optional)",
+            "Tests with known analytical bounds"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "ML & Optimization â€” Stable Matrix Operations (3 CRITICAL)",
+      "session": "SCIMATH-WIRE-2a",
+      "smart_config": "ROLE=Numerical Methods + ML Engineer | OPUS | MAXIMUM",
+      "intent": "Optimization engines stop crashing on ill-conditioned problems. Bayesian optimization handles noisy sensor data. All regression uses numerically stable SVD/QR backend.",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Wire Cholesky â†’ BayesianOptimizationEngine (GP kernel solve)",
+          "description": "Replace _invertMatrix() (Gauss-Jordan, lines 163-325) with CholeskyEngine.factorize() + solve() for GP kernel matrix. SPD kernels are 2x faster with Cholesky. Add conditionNumber check before inversion (warn at kappa > 1e12).",
+          "knowledge_sources": [
+            "BayesianOptimizationEngine.ts (lines 163-325)",
+            "CholeskyEngine.factorize()",
+            "SVDEngine.conditionNumber()"
+          ],
+          "exit_conditions": [
+            "Cholesky-backed kernel solve",
+            "Remove _invertMatrix()",
+            "Condition number warning",
+            "Existing BO tests pass"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P2-U02",
+          "title": "Wire Cholesky/SVD â†’ ConvexOptimizationEngine (QP Hessian)",
+          "description": "Replace manual Gaussian elimination (lines 385-421) with CholeskyEngine for SPD Hessians, SVD fallback for indefinite. Add condition monitoring to detect ill-conditioned optimization landscapes.",
+          "knowledge_sources": [
+            "ConvexOptimizationEngine.ts (lines 283, 385-421)",
+            "CholeskyEngine.factorize()",
+            "SVDEngine.conditionNumber()"
+          ],
+          "exit_conditions": [
+            "Cholesky for SPD Hessians",
+            "SVD fallback",
+            "Condition diagnostic",
+            "Tests pass"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P2-U03",
+          "title": "Wire SVD â†’ AdvancedRegressionEngine + AIMLFormulasEngine + GradientOpt",
+          "description": "AdvancedRegressionEngine: replace module-level solveLinearSystem() (used by OLS, SVR, kernel ridge, logistic) with SVDEngine.leastSquares(). AIMLFormulasEngine: replace _solveLinearSystem() and power iteration PCA. GradientOptimizationEngine: add condition number check before BFGS Hessian inversion.",
+          "knowledge_sources": [
+            "AdvancedRegressionEngine.ts (line 208)",
+            "AIMLFormulasEngine.ts (line 777)",
+            "GradientOptimizationEngine.ts (lines 404-435)"
+          ],
+          "exit_conditions": [
+            "SVD-backed regression in all 3 engines",
+            "Remove ad-hoc Gaussian elimination",
+            "All regression variant tests pass",
+            "Condition monitoring in gradient optimizer"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Physics Pipeline â€” Core Manufacturing (1 CRITICAL + 2 HIGH)",
+      "session": "SCIMATH-WIRE-3a",
+      "smart_config": "ROLE=Manufacturing Physicist + Controls Engineer | OPUS | MAXIMUM",
+      "intent": "Online tool-life calibration converges properly. Speed-feed UQ catches ill-conditioned covariance. Kienzle coefficients fit from real data instead of hardcoded empirical formulas.",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Wire SystemID.rls â†’ AdaptiveCalibrationEngine (replace hand-rolled Kalman)",
+          "description": "Replace 2x2 hand-coded Kalman filter for Taylor [ln(C), n] with SystemIdentificationEngine.rlsBatch(). Add forgetting factor for tool batch changes. Use TLS for errors-in-variables (both speed and life have noise).",
+          "knowledge_sources": [
+            "AdaptiveCalibrationEngine.ts",
+            "SystemIdentificationEngine.rlsBatch()",
+            "SystemIdentificationEngine.totalLeastSquares()"
+          ],
+          "exit_conditions": [
+            "RLS-backed calibration",
+            "Forgetting factor parameter",
+            "TLS for errors-in-variables",
+            "Online convergence monitoring",
+            "Speed-feed gauntlet still passes"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P3-U02",
+          "title": "Wire SVD conditionNumber â†’ SpeedFeedOrchestratorEngine UQ",
+          "description": "Add SVDEngine.conditionNumber() check on resolver covariance matrices before Monte Carlo sampling. Warn when condition number exceeds threshold (ill-conditioned physics model).",
+          "knowledge_sources": [
+            "SpeedFeedOrchestratorEngine.ts",
+            "SVDEngine.conditionNumber()",
+            "EPS_RANK from constants.ts"
+          ],
+          "exit_conditions": [
+            "Condition check in UQ pipeline",
+            "Warning when kappa > 1e8",
+            "No regression in 401 speed-feed tests"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P3-U03",
+          "title": "Wire RobustRegression â†’ KienzleForceModelEngine (coefficient fitting)",
+          "description": "Add fitCoefficients() using Ridge regression to fit hardness-to-kc1.1 from MaterialRegistry data. Replace hardcoded empirical formulas (e.g., 3.5*HB for steel, R2~0.90) with data-driven fits. Keep hardcoded as fallback.",
+          "knowledge_sources": [
+            "KienzleForceModelEngine.ts",
+            "RobustRegressionEngine.ridge()",
+            "MaterialRegistry"
+          ],
+          "exit_conditions": [
+            "Ridge-backed coefficient fitting",
+            "Cross-validation for lambda",
+            "R2 tracked",
+            "Backward compat (hardcoded fallback)",
+            "Force prediction tests pass"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Chatter & Vibration â€” Multi-Mode Physics (3 HIGH)",
+      "session": "SCIMATH-WIRE-4a",
+      "smart_config": "ROLE=Vibration Physicist + Controls Engineer | OPUS | MAXIMUM",
+      "intent": "Chatter stability lobe diagrams use multi-mode FRF synthesis instead of SDOF approximation. Tap-test data actually updates the model. Stiffness comes from geometry, not defaults.",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "Wire EigensolverEngine â†’ ChatterStabilityLobeEngine (multi-mode SLD)",
+          "description": "Upgrade from single-DOF FRF to multi-mode synthesis. Use EigensolverEngine.generalizedEigen(K, M) to extract tool-workpiece modal basis (2-5 modes), then synthesize oriented FRF as superposition. Currently hardcodes SDOF impedance formula (lines 124-127).",
+          "knowledge_sources": [
+            "ChatterStabilityLobeEngine.ts (lines 71-160)",
+            "EigensolverEngine.generalizedEigen()",
+            "Altintas 'Manufacturing Automation' Ch. 3"
+          ],
+          "exit_conditions": [
+            "Multi-mode FRF synthesis",
+            "Eigenvalue-backed modal extraction",
+            "SLD accuracy improvement",
+            "Tests against known 2-mode analytical solutions"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P4-U02",
+          "title": "Wire SystemID.n4sid â†’ StochasticChatterEngine (Bayesian tap-test)",
+          "description": "Implement stub Bayesian tap-test updating using SystemIdentificationEngine.n4sid() to estimate (fn, zeta) from measured FRF data. Currently accepts tap-test data but never processes it (null everywhere).",
+          "knowledge_sources": [
+            "StochasticChatterEngine.ts (lines 51, 81-84)",
+            "SystemIdentificationEngine.n4sid()"
+          ],
+          "exit_conditions": [
+            "N4SID-backed tap test modal ID",
+            "Bayesian prior update from measured FRF",
+            "Tests with synthetic FRF data"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P4-U03",
+          "title": "Wire FEM.modalAnalysis â†’ MachineVibrationEngine (geometry-based stiffness)",
+          "description": "Replace default 20 N/um stiffness (line 76) with FEM-computed tool-holder stiffness. Use FiniteElementEngine.modalAnalysis() for natural frequency computation from tool geometry (E, rho, A, L). Add directional compliance.",
+          "knowledge_sources": [
+            "MachineVibrationEngine.ts (lines 71-120)",
+            "FiniteElementEngine.modalAnalysis()"
+          ],
+          "exit_conditions": [
+            "FEM-backed stiffness estimation",
+            "Geometry-dependent compliance",
+            "Tests against published tool holder data"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "Deflection & Structural â€” FEM Upgrade Path (3 HIGH)",
+      "session": "SCIMATH-WIRE-5a",
+      "smart_config": "ROLE=Structural Engineer + CNC Tooling Specialist | OPUS | MAXIMUM",
+      "intent": "Complex tool assemblies (HSK tapers, stepped boring bars) get FEM-backed deflection instead of oversimplified cantilever beam. Fixture clamps get contact stress analysis. Resonance cross-check prevents cutting at natural frequency.",
+      "units": [
+        {
+          "id": "P5-U01",
+          "title": "Wire FEM â†’ ToolAssemblyDeflectionEngine (complex taper geometry)",
+          "description": "Add FEM option alongside existing cascaded cantilever for tool assemblies with abrupt diameter changes. Use solveBar() for axial + optional solveQuad4() for radial compliance at taper interfaces. 15-30% accuracy gain for HSK/BT tapers.",
+          "knowledge_sources": [
+            "ToolAssemblyDeflectionEngine.ts",
+            "FiniteElementEngine.solveBar()",
+            "FiniteElementEngine.solveQuad4()"
+          ],
+          "exit_conditions": [
+            "FEM path for assemblies",
+            "Backward compatible beam theory default",
+            "Tests against published deflection data",
+            "FEM path flagged when L/D > 4"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P5-U02",
+          "title": "Wire FEM â†’ FixtureDynamicsEngine (clamp jaw contact stress)",
+          "description": "Use solveQuad4() for clamp jaw contact stress analysis. Current single-beam cantilever misses localized yielding near corners. Add von Mises stress check at contact patches.",
+          "knowledge_sources": [
+            "FixtureDynamicsEngine.ts",
+            "FiniteElementEngine.solveQuad4()"
+          ],
+          "exit_conditions": [
+            "Quad4 plane stress for clamp faces",
+            "Von Mises yield check",
+            "Multi-point contact load distribution",
+            "Tests with known contact solutions"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P5-U03",
+          "title": "Wire FEM modal â†’ deflection engines (resonance cross-check)",
+          "description": "Add FEM natural frequency check to ToolAssemblyDeflectionEngine and BoringBarDeflectionEngine. Flag resonance risk if tool natural frequency is within +/-10% of spindle speed or tooth-passing frequency.",
+          "knowledge_sources": [
+            "ToolAssemblyDeflectionEngine.ts",
+            "BoringBarDeflectionEngine.ts",
+            "FiniteElementEngine.modalAnalysis()"
+          ],
+          "exit_conditions": [
+            "Resonance cross-check in output",
+            "Warning when fn +/-10% matches RPM",
+            "Tests with known resonance cases"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "title": "Downstream Math Cleanup + Monte Carlo + Integration Tests",
+      "session": "SCIMATH-WIRE-6a",
+      "smart_config": "ROLE=Numerical Methods + Test Engineer | OPUS | HIGH",
+      "intent": "All remaining ad-hoc linear algebra is replaced. Comprehensive integration tests verify no regression. MonteCarloEngine samples correlated parameters properly.",
+      "units": [
+        {
+          "id": "P6-U01",
+          "title": "Wire SVD â†’ StochasticWrapperEngine (PCE coefficient fitting)",
+          "description": "Replace _leastSquares() + _solveLinear() with SVDEngine.leastSquares() for Polynomial Chaos Expansion coefficient fitting. Improves numerical stability for high-order PCE.",
+          "knowledge_sources": [
+            "StochasticWrapperEngine.ts (line 1255)",
+            "SVDEngine.leastSquares()"
+          ],
+          "exit_conditions": [
+            "SVD-backed PCE fitting",
+            "Remove ad-hoc Gaussian elimination",
+            "Tests pass"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P6-U02",
+          "title": "Wire Eigensolver â†’ CMMPathPlanningEngine + DifferentialEquationEngine",
+          "description": "CMMPathPlanningEngine: replace _smallestEigenvector3x3() (cubic characteristic polynomial) with EigensolverEngine. DifferentialEquationEngine: replace Gershgorin bounds with proper eigenvalue stability analysis.",
+          "knowledge_sources": [
+            "CMMPathPlanningEngine.ts (line 1106)",
+            "DifferentialEquationEngine.ts",
+            "EigensolverEngine.symmetricQR()"
+          ],
+          "exit_conditions": [
+            "Eigensolver-backed CMM planning",
+            "Proper ODE stability analysis",
+            "Tests pass"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P6-U03",
+          "title": "Wire Cholesky â†’ MonteCarloEngine + SystemID â†’ AdaptiveControlEngine",
+          "description": "MonteCarloEngine: replace scalar Box-Muller with CholeskyEngine.sampleMultivariateNormal(). AdaptiveControlEngine: replace ad-hoc gain computation with SystemIdentificationEngine.rlsBatch().",
+          "knowledge_sources": [
+            "MonteCarloEngine.ts",
+            "AdaptiveControlEngine.ts",
+            "CholeskyEngine.sampleMultivariateNormal()",
+            "SystemIdentificationEngine.rlsBatch()"
+          ],
+          "exit_conditions": [
+            "Correlated parameter sampling",
+            "RLS-backed adaptive control",
+            "Convergence monitoring",
+            "Tests pass"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P6-U04",
+          "title": "Integration test suite â€” 30+ cross-domain SCIMATH consumer tests",
+          "description": "Write comprehensive integration tests verifying all wired engines produce equivalent or better results. Compare old (ad-hoc) vs new (SCIMATH) paths. Performance benchmark: SCIMATH path must be within 2x latency of original.",
+          "knowledge_sources": [
+            "All wired engines from P1-P6",
+            "src/__tests__/LinearAlgebraTestSuite.test.ts (existing cross-engine pattern)"
+          ],
+          "exit_conditions": [
+            "30+ integration tests",
+            "All wired engines tested",
+            "No regression in existing test suites",
+            "Performance: SCIMATH path <= 2x original latency"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": "enforce-scimath-delegation â€” blocks new ad-hoc eigendecomp, matrix-solve, or Gaussian elimination in engines; forces import from SCIMATH engines",
+    "action": "scimath_utilization_audit (calcDispatcher action reporting SCIMATH coverage gaps)",
+    "skill": "/scimath-wire â€” audit and wire SCIMATH engines into downstream consumers"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (verify downstream engine read before editing)",
+      "context-retention (verify SCIMATH API signatures loaded)"
+    ],
+    "post_level": [
+      "stub detector (blocks placeholder returns)",
+      "test quality (blocks || true)",
+      "constants checker (blocks inline EPS)",
+      "wiring agent (verifies import chain)"
+    ],
+    "compact_level": [
+      "review gate",
+      "wiring gate",
+      "forge-triple gate",
+      "session audit agent"
+    ],
+    "post_compact": [
+      "auto-continuation"
+    ]
+  },
+  "safety_gates": [
+    "All wiring must maintain backward compatibility â€” existing callers produce identical or better results",
+    "Condition number checks added wherever matrix inversion is delegated to SCIMATH",
+    "Performance: SCIMATH path within 2x latency of original ad-hoc implementation",
+    "No breaking changes to dispatcher action schemas or MCP tool interfaces",
+    "Speed-feed gauntlet (401 tests) must pass after P3 physics pipeline changes"
+  ],
+  "metrics": {
+    "pre_audit": {
+      "scimath_internal_consumers": 0,
+      "ad_hoc_linear_algebra_sites": 25,
+      "critical_gaps": 10,
+      "high_gaps": 20
+    },
+    "target": {
+      "scimath_internal_consumers": 25,
+      "ad_hoc_linear_algebra_sites": 0,
+      "critical_gaps": 0,
+      "high_gaps": 0
+    }
+  },
+  "completed_at": "2026-04-02"
+}

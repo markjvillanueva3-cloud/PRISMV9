@@ -51,6 +51,14 @@ const PROBE_DIRS = [
   [".claude/hooks", { recursive: false, ext: ".mjs" }],
 ];
 
+// Skip files larger than this when scanning (default 16 MB). The recursive state/shared scan
+// otherwise tries to readFileSync 700MB+ generated dumps (system-graph.json, tribal-embed shards)
+// -> heap OOM (the V8 string-cap THROW is caught, but accumulating hundred-MB strings exhausts the
+// heap, which is NOT catchable). A C: path inside a multi-hundred-MB graph dump is irrelevant to
+// handoff portability anyway; legit handoffs are KB and state JSONs are low-MB. Knob:
+// PRISM_CROSS_PC_VERIFY_MAX_BYTES. (Bug: the CLI full-audit OOM'd on the large repo, 2026-06-14.)
+const MAX_SCAN_BYTES = Number(process.env.PRISM_CROSS_PC_VERIFY_MAX_BYTES) || 16 * 1024 * 1024;
+
 const C_DRIVE_RE = /(?:^|[^A-Za-z0-9])([cC]:[\\/][^"\s]+)/g;
 // Non-global on purpose — used with .test() in classifyPath. The `g` flag is
 // stateful and will return false on alternating calls, producing flaky
@@ -140,6 +148,29 @@ export function aggregateFindings(findings) {
   return out;
 }
 
+/**
+ * Partition candidate files into {scan, skipped} by a size cap, using an INJECTED size function
+ * (so it is testable without touching the filesystem). Files at/under `cap` -> scan; files over
+ * the cap (or whose size can't be determined) -> skipped (recorded, never silently dropped -> R12).
+ * This is the OOM guard: it stops the driver from readFileSync-ing the 700MB+ generated dumps.
+ * PURE (no I/O of its own).
+ * @param {string[]} files
+ * @param {(f:string)=>number} statSizeFn  returns byte size for a file (may throw)
+ * @param {number} [cap]
+ * @returns {{scan:string[], skipped:{file:string,bytes:number|null}[]}}
+ */
+export function partitionBySize(files, statSizeFn, cap = MAX_SCAN_BYTES) {
+  const scan = [];
+  const skipped = [];
+  for (const f of files ?? []) {
+    let bytes = null;
+    try { bytes = statSizeFn(f); } catch { bytes = null; }
+    if (Number.isFinite(bytes) && bytes <= cap) scan.push(f);
+    else skipped.push({ file: typeof f === "string" ? f.replace(/\\/g, "/") : String(f), bytes: Number.isFinite(bytes) ? bytes : null });
+  }
+  return { scan, skipped };
+}
+
 // ── I/O DRIVER ────────────────────────────────────────────────────────
 
 function listFiles(absDir, opts) {
@@ -185,17 +216,17 @@ function scanFile(absPath) {
 }
 
 function scanRepo() {
-  const findings = [];
+  const allFiles = [];
   for (const [rel, opts] of PROBE_DIRS) {
     const abs = join(REPO_ROOT, rel).replace(/\//g, sep);
-    for (const f of listFiles(abs, opts)) {
-      findings.push(...scanFile(f));
-    }
+    allFiles.push(...listFiles(abs, opts));
   }
-  if (existsSync(SETTINGS_PATH)) {
-    findings.push(...scanFile(SETTINGS_PATH));
-  }
-  return findings;
+  if (existsSync(SETTINGS_PATH)) allFiles.push(SETTINGS_PATH);
+  // Size-gate BEFORE reading so the 700MB+ generated dumps never hit readFileSync (heap OOM guard).
+  const { scan, skipped } = partitionBySize(allFiles, (p) => statSync(p).size);
+  const findings = [];
+  for (const f of scan) findings.push(...scanFile(f));
+  return { findings, skipped };
 }
 
 function formatReport(grouped) {
@@ -235,7 +266,7 @@ function main() {
   const wantJson = args.has("--json");
   const noFail = args.has("--no-fail");
 
-  const findings = scanRepo();
+  const { findings, skipped } = scanRepo();
   const grouped = aggregateFindings(findings);
 
   if (wantJson) {
@@ -244,9 +275,21 @@ function main() {
       warning: grouped.warning.length,
       info: grouped.info.length,
       findings: grouped,
+      skipped: { count: skipped.length, capBytes: MAX_SCAN_BYTES, files: skipped.slice(0, 20) },
     }, null, 2) + "\n");
   } else {
-    process.stdout.write(formatReport(grouped) + "\n");
+    let report = formatReport(grouped);
+    if (skipped.length > 0) {
+      const capMb = (MAX_SCAN_BYTES / 1048576).toFixed(0);
+      // R12: "content UNVERIFIED" not "not handoff-relevant" -- we did NOT read these, so we cannot
+      // assert they're clean (a skipped 60MB cache CAN hold a C: path). The operator verifies manually.
+      report += `\n=== SKIPPED ${skipped.length} file(s) > ${capMb} MB (too large to scan; content UNVERIFIED for C: paths -- check manually if portability-critical) ===\n`;
+      for (const s of skipped.slice(0, 10)) {
+        report += `  ${s.file}${s.bytes != null ? ` (${(s.bytes / 1048576).toFixed(1)} MB)` : " (size unknown)"}\n`;
+      }
+      if (skipped.length > 10) report += `  ...and ${skipped.length - 10} more\n`;
+    }
+    process.stdout.write(report + "\n");
   }
 
   if (noFail) process.exit(0);
@@ -254,6 +297,11 @@ function main() {
   process.exit(0);
 }
 
-if (process.argv[1]?.endsWith("cross-pc-handoff-verify.mjs")) {
+// Require a path separator before the basename so a SUPERSTRING filename (e.g. a sibling
+// hook stop-cross-pc-handoff-verify.mjs that IMPORTS this module) does NOT spuriously trigger
+// the full-repo audit. Normalize backslashes for Windows argv. (Bug found 2026-06-14 wiring the
+// Stop-hook consumer: the old bare endsWith ran main() on import -> full recursive scan -> OOM.)
+const __argvMain = (process.argv[1] || "").replace(/\\/g, "/");
+if (__argvMain.endsWith("/cross-pc-handoff-verify.mjs")) {
   main();
 }

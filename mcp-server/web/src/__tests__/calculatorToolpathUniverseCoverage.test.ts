@@ -182,7 +182,7 @@ describe('calculator toolpath universe coverage', () => {
           const setupPreview = buildCalculatorSetupPreview({
             machineMode: programming.mode,
             machine,
-            spindleOption: { label: machine.spindleLabel },
+            spindleOption: { label: machine.spindleLabel ?? machine.spindleOptions[0]?.label ?? 'spindle' },
             holderPackage: holders[0] ?? null,
             tool,
             material,

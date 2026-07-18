@@ -1,0 +1,381 @@
+{
+  "id": "CAMX-MS0.5",
+  "version": "7.0.0",
+  "title": "Pipeline Desiloing — Connect Isolated Engines to Production Pipelines",
+  "brief": "Replace 'self-contained, no imports' architecture in 5/7 pipelines with lazy-load pattern. Replace inline Kienzle/Taylor/MC with real engine calls. Fix collision detection stub.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Desilo All Production Pipelines",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Establish lazy _getEngine() pattern",
+          "description": "Proven by PostProcessorPipelineEngine. Create shared LazyEngineLoader utility for all pipelines. Eliminates circular-dep excuse.",
+          "exit_conditions": [
+            "LazyEngineLoader utility created",
+            "Pattern documented",
+            "Zero circular deps"
+          ],
+          "status": "not_started",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Desilo PrintToProgramPipelineEngine",
+          "description": "Replace inline Kienzle/Taylor/deflection with lazy calls to real engines. Add CrossCamRecommender for strategy.",
+          "exit_conditions": [
+            "P2P imports real engines",
+            "Results match within tolerance",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Desilo PartGeometryPipelineEngine",
+          "description": "Replace _computeSfStrategy() with CrossCamRecommender. Replace inline physics with engine calls.",
+          "exit_conditions": [
+            "PartGeometry uses real engines",
+            "Strategy from CrossCamRecommender",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "Desilo SpeedFeedOrchestratorEngine",
+          "description": "Replace inline 500-trial MC with MonteCarloEngine. Replace inline Weibull with StochasticToolLifeEngine. Wire CrossCamRecommender and MachiningPlaybook (currently doc-only references).",
+          "exit_conditions": [
+            "SFO calls MonteCarloEngine",
+            "SFO calls StochasticToolLifeEngine",
+            "CrossCamRecommender actually imported"
+          ],
+          "status": "not_started",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "Desilo CAMKernelOrchestratorEngine",
+          "description": "Replace selectStrategy() switch with CrossCamRecommender. Replace collision stub (always returns 0) with SweptVolumeCollisionEngine.",
+          "exit_conditions": [
+            "Strategy from CrossCamRecommender",
+            "Real collision detection",
+            "Chatter/deflection checks added"
+          ],
+          "status": "not_started",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "Desilo TurningPrintToProgramEngine",
+          "description": "Replace inline Kienzle turning with TurningForceEngine. Add turning strategy via ToolpathStrategyRegistry (40+ turning strategies).",
+          "exit_conditions": [
+            "TurningForceEngine called",
+            "Turning strategies queried",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "not_started",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Desilo UnifiedCAMPipelineEngine",
+          "description": "Add CrossCamRecommender before AdaptiveToolpathRouter. Add StochasticChatter + StochasticDeflection. Add MachiningPlaybook.",
+          "exit_conditions": [
+            "CrossCamRecommender → Router chain",
+            "Stochastic validation",
+            "Playbook rules active"
+          ],
+          "status": "not_started",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "Desilo DesignToFloorPipelineEngine",
+          "description": "Replace inline monteCarloRisk() with MonteCarloEngine + UncertaintyPropagationPipeline chain.",
+          "exit_conditions": [
+            "Uses shared MonteCarloEngine",
+            "Uncertainty properly chained",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "not_started",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX09",
+          "title": "Shared MC/Weibull infrastructure",
+          "description": "Ensure MonteCarloEngine and StochasticToolLifeEngine are THE single source. No more inline reimplementation.",
+          "exit_conditions": [
+            "Zero inline MC copies remain",
+            "All pipelines use shared engines",
+            "Verified by grep"
+          ],
+          "status": "not_started",
+          "legacy_id": "U09",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX10",
+          "title": "Fix collision detection stub",
+          "description": "Replace CAMKernelOrchestrator stub (always 0 collisions) with SweptVolumeCollisionEngine. Add stock model awareness.",
+          "exit_conditions": [
+            "Real collision detection active",
+            "Stock model tracked",
+            "Collisions detected in test cases"
+          ],
+          "status": "not_started",
+          "legacy_id": "U10",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX11",
+          "title": "Dispatcher integration",
+          "description": "All desiloed pipelines surface enriched results through dispatchers.",
+          "exit_conditions": [
+            "Enriched results in dispatcher responses",
+            "Strategy name + justification",
+            "Confidence intervals"
+          ],
+          "status": "not_started",
+          "legacy_id": "U11",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX12",
+          "title": "Desiloing verification tests",
+          "description": "50+ tests verifying all pipelines call real engines.",
+          "exit_conditions": [
+            "50+ tests pass",
+            "No inline physics in any pipeline",
+            "Results within tolerance of previous"
+          ],
+          "status": "not_started",
+          "legacy_id": "U12",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX13",
+          "title": "Wire fixture/setup engines",
+          "description": "MultiSetupFeasibilityChainEngine, SetupTransitionEngine, SetupSheetEngine, MultiSetupPlannerEngine into P2P.",
+          "exit_conditions": [
+            "Multi-setup auto-detected",
+            "Setup sheet from real engine",
+            "Setup transitions planned"
+          ],
+          "status": "not_started",
+          "legacy_id": "U13",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX14",
+          "title": "Wire DFM/quality engines",
+          "description": "DFMFeedbackEngine in P2P Stage S2 before program gen. QualityPredictionEngine for Cpk output. SPCProcessCapabilityEngine.",
+          "exit_conditions": [
+            "DFM flags before program gen",
+            "Cpk predicted per feature",
+            "SPC capability in output"
+          ],
+          "status": "not_started",
+          "legacy_id": "U14",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX15",
+          "title": "Wire energy engines",
+          "description": "GCodeEnergyOptimizerEngine on P2P output. SpecificCuttingEnergyEngine for energy-per-part estimates.",
+          "exit_conditions": [
+            "Energy-optimized G-code",
+            "Energy/carbon per-part in output",
+            "Sustainability reporting"
+          ],
+          "status": "not_started",
+          "legacy_id": "U15",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX16",
+          "title": "Wire geometry/feature recognition engines",
+          "description": "FeatureRecognitionEngine in P2P Stage S2 for auto-classification. EngagementGeometryEngine for accurate engagement. RestMachiningEngine for auto rest passes.",
+          "exit_conditions": [
+            "Auto feature classification",
+            "Accurate engagement geometry",
+            "Rest passes auto-inserted"
+          ],
+          "status": "not_started",
+          "legacy_id": "U16",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-ms0.5-gate",
+    "mcp_action": "prism_camx:camx_ms0.5_run",
+    "skill_command": "/camx-ms0.5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-ms0.5-gate"
+    ],
+    "new_actions": [
+      "camx_ms0.5_run"
+    ],
+    "new_skills": [
+      "/camx-ms0.5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Replace 'self-contained, no imports' architecture in 5/7 pipelines with lazy-load pattern. Replace inline Kienzle/Taylor/MC with real engine calls. Fix collision detection stub.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

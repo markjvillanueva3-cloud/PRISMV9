@@ -125,9 +125,15 @@ export class NXCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<NXGenerat
   readonly capabilities: CADCapabilityMatrix = {
     cadSystem: "nx",
     supportedOps: new Set(NX_SUPPORTED_OPS),
+    // emit code converts coords to mm (UNIT_FACTOR = in?25.4:1.0; NXOpen.Part.Units.Millimeters);
+    // angles converted deg->rad via math.radians() before NXOpen (host expects rad). Python NXOpen -> subprocess.
+    nativeLengthUnit: "mm",
+    nativeAngleUnit: "rad",
+    requiresSubprocess: true,
+    typicalLatencyMs: 1500,
     supportsParametric: true,
     supportsUndo: true,
-    maxOpsPerScript: 5000,
+    maxComplexity: 5000,
     version: "NX2306",
   };
 

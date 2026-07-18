@@ -1,0 +1,80 @@
+TAP version 13
+# Subtest: isLargeRead: CLAUDE.md → true
+ok 1 - isLargeRead: CLAUDE.md → true
+  ---
+  duration_ms: 2.29
+  ...
+# Subtest: isLargeRead: ENGINE_DIGEST.md → true
+ok 2 - isLargeRead: ENGINE_DIGEST.md → true
+  ---
+  duration_ms: 0.3766
+  ...
+# Subtest: isLargeRead: MEMORY.md → true
+ok 3 - isLargeRead: MEMORY.md → true
+  ---
+  duration_ms: 0.1255
+  ...
+# Subtest: isLargeRead: PRISM-INVENTORY-LATEST.md → true
+ok 4 - isLargeRead: PRISM-INVENTORY-LATEST.md → true
+  ---
+  duration_ms: 0.1056
+  ...
+# Subtest: isLargeRead: wiki/index.md → true
+ok 5 - isLargeRead: wiki/index.md → true
+  ---
+  duration_ms: 0.2651
+  ...
+# Subtest: isLargeRead: small file → false
+ok 6 - isLargeRead: small file → false
+  ---
+  duration_ms: 0.3334
+  ...
+# Subtest: isLargeRead: null → false
+ok 7 - isLargeRead: null → false
+  ---
+  duration_ms: 0.5644
+  ...
+# Subtest: isLargeRead: empty → false
+ok 8 - isLargeRead: empty → false
+  ---
+  duration_ms: 0.145
+  ...
+# Subtest: isLargeRead: non-string → false
+ok 9 - isLargeRead: non-string → false
+  ---
+  duration_ms: 0.3521
+  ...
+# Subtest: formatOffloadNudge: Read of CLAUDE.md emits nudge
+ok 10 - formatOffloadNudge: Read of CLAUDE.md emits nudge
+  ---
+  duration_ms: 0.4951
+  ...
+# Subtest: formatOffloadNudge: Read of small file → null
+ok 11 - formatOffloadNudge: Read of small file → null
+  ---
+  duration_ms: 0.216
+  ...
+# Subtest: formatOffloadNudge: non-Read tool → null
+ok 12 - formatOffloadNudge: non-Read tool → null
+  ---
+  duration_ms: 0.1069
+  ...
+# Subtest: formatOffloadNudge: null filePath → null
+ok 13 - formatOffloadNudge: null filePath → null
+  ---
+  duration_ms: 0.0887
+  ...
+# Subtest: formatOffloadNudge: nudge points at /ollama-bridge skill as fallback
+ok 14 - formatOffloadNudge: nudge points at /ollama-bridge skill as fallback
+  ---
+  duration_ms: 0.1418
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 880.8362

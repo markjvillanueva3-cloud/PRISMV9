@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="e03e9303deb709a9a3fd0b4d4d810adfcf8e6dc5240d14d65703050efb59eb12">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canonical Host Facts + Ollama Routing — DESKTOP-N7MI1VB (2026-06-09, slot:papa)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Canonical Host Facts + Ollama Routing — DESKTOP-N7MI1VB (2026-06-09, slot:papa)</h1>
+<div class="meta">rendered from state/shared/specs/CANONICAL-HOST-FACTS-2026-06-09.md</div>
+<div class="meta">Generated 2026-06-09T20:16:58.818Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">Canonical Host Facts + Ollama Routing — DESKTOP-N7MI1VB (2026-06-09, slot:papa)</h1>
+<blockquote class="prism-quote"><strong>Single source of truth</strong> for this host&#39;s hardware + local-LLM roster. Verified LIVE 2026-06-09 (<code class="prism-inline-code">os.cpus/totalmem/freemem</code>, <code class="prism-inline-code">nvidia-smi</code>, <code class="prism-inline-code">ollama /api/tags</code>). Every doc/skill/CLAUDE.md that cites specs or Ollama models should reference THIS file, not re-state numbers (that is how the drift this campaign targets accumulates). Advisory; re-verify before relying if &gt;14 days old.</blockquote>
+<h2 class="prism-h2">Hardware (verified live)</h2>
+<table class="prism-md-table"><thead><tr><th>Component</th><th>Value</th><th>Notes</th></tr></thead><tbody><tr><td>CPU</td><td><strong>AMD Ryzen 9 9950X3D</strong>, 16-core / <strong>32-thread</strong></td><td>matches <code class="prism-inline-code">feedback_build_for_blackwell_hardware</code></td></tr>
+<tr><td>GPU</td><td><strong>NVIDIA RTX PRO 6000 Blackwell Workstation</strong>, <strong>96 GB VRAM</strong> (97,887 MiB), driver 596.59</td><td>matches the Blackwell feedback; the 96 GB VRAM is the headline capability</td></tr>
+<tr><td>RAM (physical)</td><td><strong>127 GB</strong> (~128 GB installed), 65.7 GB free at probe time</td><td>the feedback&#39;s &quot;136 GB&quot; is ~accurate (minor)</td></tr>
+<tr><td>Commit limit</td><td><strong>227 GB</strong> (physical RAM + pagefile)</td><td><strong>NOT RAM</strong> — this is the metric the memory-pressure gate reports</td></tr>
+<tr><td>OS / host</td><td>Windows 11 (10.0.22631) / DESKTOP-N7MI1VB</td><td>sole active user of H:</td></tr></tbody></table>
+<blockquote class="prism-quote"><strong>R12 CORRECTION (this session):</strong> the <code class="prism-inline-code">U-SIDECAR-FRESHNESS-RAMGATE</code> commit message stated &quot;Host RAM now 227GB (was 136GB)&quot; — that was a <strong>misread of the commit-charge limit (227 GB = RAM+pagefile) as physical RAM</strong>. Physical RAM is <strong>127 GB</strong>, and the <code class="prism-inline-code">feedback_build_for_blackwell_hardware</code> memory (136 GB) is approximately accurate, NOT drifted. The 96.1% pressure was <em>commit-charge</em> pressure (218/227 GB), with 65.7 GB physical RAM still free.</blockquote>
+<blockquote class="prism-quote"><strong>Spec-drift verdict:</strong> the PC specs are <strong>NOT significantly drifted</strong> — <code class="prism-inline-code">feedback_build_for_blackwell_hardware</code> (dated today) already matches GPU + CPU + (approx) RAM. The &quot;update everything on new PC specs&quot; premise is largely already-satisfied; the real drift is in the <strong>Ollama routing doctrine</strong> below.</blockquote>
+<h2 class="prism-h2">Ollama local-LLM roster (10 models, verified live) — how + when to use</h2>
+<p>The 96 GB Blackwell VRAM is the unlock: a <strong>65 GB model (<code class="prism-inline-code">gpt-oss:120b</code>) fits resident</strong>, enabling deep local reasoning that previously had to go to Claude.</p>
+<table class="prism-md-table"><thead><tr><th>Model</th><th>Size</th><th>Use for</th><th>Replaces / note</th></tr></thead><tbody><tr><td><strong>gpt-oss:120b</strong></td><td>65.4 GB</td><td><strong>Deepest local reasoning/synthesis</strong> — galaxy-synthesis, complex multi-step summarization, cross-file distillation where Claude-grade reasoning isn&#39;t strictly required. The Blackwell headline.</td><td>NEW capability; underused</td></tr>
+<tr><td><strong>gpt-oss:20b</strong></td><td>13.8 GB</td><td>Mid-tier reasoning/triage/classify — faster than 120b, general explain</td><td>—</td></tr>
+<tr><td><strong>qwen2.5-coder:32b</strong></td><td>19.9 GB</td><td><strong>Heavy code</strong> explain / review / lint / diff-summary / docstring — the strongest local coder</td><td><strong>REPLACES the doc&#39;d <code class="prism-inline-code">qwen2.5-coder:7b</code> (NOT installed)</strong></td></tr>
+<tr><td><strong>qwen2.5-coder:1.5b</strong></td><td>1.0 GB</td><td>Ultra-fast trivial code tasks (tiny classify, var-rename hints) — near-zero latency</td><td>—</td></tr>
+<tr><td><strong>qwen3-vl:8b-instruct</strong></td><td>6.1 GB</td><td>Vision OCR (instruction-tuned) — blueprint/dimension extraction</td><td>VLM ensemble member</td></tr>
+<tr><td><strong>qwen2.5vl:7b</strong></td><td>6.0 GB</td><td>Vision OCR — blueprint extraction</td><td>VLM ensemble member</td></tr>
+<tr><td><strong>llama3.2-vision:11b</strong></td><td>7.8 GB</td><td>Vision OCR (diverse family for consensus)</td><td>VLM ensemble member</td></tr>
+<tr><td><strong>qwen3-vl:8b</strong></td><td>6.1 GB</td><td>General vision-language</td><td>—</td></tr>
+<tr><td><strong>moondream:1.8b</strong></td><td>1.7 GB</td><td>Fast lightweight vision</td><td>—</td></tr>
+<tr><td><strong>nomic-embed-text:latest</strong></td><td>0.3 GB</td><td><strong>All embeddings</strong> (memory/wiki/tribal sidecars, 768-d)</td><td>canonical embed model</td></tr></tbody></table>
+<p><strong>Multi-VLM ensemble OCR</strong> (xray&#39;s blueprint pipeline): run <code class="prism-inline-code">qwen3-vl:8b-instruct</code> + <code class="prism-inline-code">qwen2.5vl:7b</code> + <code class="prism-inline-code">llama3.2-vision:11b</code> (diverse families) -&gt; &gt;=2-agree = corroborated, 1-of-N = hallucination-candidate. The 96 GB VRAM holds several VLMs resident + concurrent.</p>
+<h2 class="prism-h2">Drift this surfaces (route to lanes — NOT a papa-solo rewrite)</h2>
+<ol class="prism-md-list"><li><strong><code class="prism-inline-code">qwen2.5-coder:7b</code> is the documented offload default fleet-wide</strong> (global CLAUDE.md, <code class="prism-inline-code">/ollama-*</code> skills, <code class="prism-inline-code">OllamaHookBridgeEngine</code>, <code class="prism-inline-code">feedback_ollama_token_routing</code>) <strong>but is NOT installed.</strong> Update the default to <code class="prism-inline-code">qwen2.5-coder:32b</code> (heavy) / <code class="prism-inline-code">1.5b</code> (trivial). -&gt; <strong>alpha (token-economy) + papa (OllamaHookBridgeEngine/hooks)</strong>.</li><li><strong><code class="prism-inline-code">gpt-oss:120b</code> deep-reasoning + the 5-VLM ensemble are under-documented</strong> in routing doctrine. -&gt; alpha + india (AI) + xray (OCR).</li><li>Spec docs: minimal action — point spec-citing docs at THIS file; correct any pre-Blackwell GPU/RAM mentions if found.</li></ol>
+<h2 class="prism-h2">Campaign scope note (honest)</h2>
+<p>The operator directive (update CLAUDE.md/memories/wikis across 34 galaxies + GSD + settings + hooks + ~440 slash commands + pipelines) is a <strong>multi-chat, fleet-wide campaign</strong>, most of it per-galaxy = each owning slot&#39;s lane. It should be orchestrated against THIS canonical facts file, sequenced AFTER the host&#39;s commit-charge pressure is relieved, and NOT bulk-executed in a single context. Papa&#39;s direct lane: the canonical facts (this file), the Ollama-default fix in hooks/<code class="prism-inline-code">OllamaHookBridgeEngine</code>, settings/scripts that cite stale models.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

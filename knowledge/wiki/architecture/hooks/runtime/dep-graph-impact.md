@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-dep-graph-impact.mjs — Phase 1 Tier 5D
-PreTool hook that requires impact review for changes to
-high-fanout files (many dependents).
+_(no header docblock — read source for behavior)_
 
 ## Events
 

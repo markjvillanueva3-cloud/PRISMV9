@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `machine-roi` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/machine-roi.md` |
+| Source | `C:/Users/wompu/.claude/commands/machine-roi.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Machine ROI — Which Machine Should Run Which Jobs for Maximum Profit
+
+Most shops assign jobs to machines based on habit or availability, not profitability. A $500K 5-axis running simple 3-axis work is burning money. A manual mill doing work a VMC could do 10× faster is leaving money on the table. This command matches every job to its most profitable machine.
+
+**Value**: Moving 3 jobs to th
 
 <!-- AUTO-END -->
 

@@ -356,8 +356,9 @@ export class ReasoningChainSharingEngine {
       chains = chains.filter((c) => c.domain === query.domain);
     }
 
-    if (query.min_confidence !== undefined) {
-      chains = chains.filter((c) => c.confidence >= query.min_confidence);
+    const minConfidence = query.min_confidence;
+    if (minConfidence !== undefined) {
+      chains = chains.filter((c) => c.confidence >= minConfidence);
     }
 
     if (query.since) {
@@ -489,7 +490,7 @@ export class ReasoningChainSharingEngine {
 
       // Create tribal tip from chain
       const tipContent = this.formatChainAsTribalTip(chain);
-      const result = await tribalKnowledgeEngine.captureKnowledge({
+      const result = await tribalKnowledgeEngine.capture({
         title: `AI Insight: ${chain.goal.slice(0, 50)}`,
         body: tipContent,
         category: this.domainToCategory(chain.domain),
@@ -498,19 +499,25 @@ export class ReasoningChainSharingEngine {
         confidence: Math.round(chain.aggregated_confidence * 100),
       });
 
+      // capture() returns null when the tip is a duplicate / rejected -- the
+      // chain was not actually converted in that case, so report it honestly.
+      if (!result) {
+        return { chain_id: chainId, extracted: false, reason: "duplicate or rejected tip" };
+      }
+
       chain.converted_to_tribal = true;
-      chain.tribal_tip_id = result.tip.id;
+      chain.tribal_tip_id = result.id;
 
       eventBus.publish("chain_sharing", "tribal_extracted", {
         chain_id: chainId,
-        tip_id: result.tip.id,
+        tip_id: result.id,
         confidence: chain.aggregated_confidence,
       } as Record<string, unknown>);
 
-      log.info(`[ChainSharing] Extracted tribal knowledge from chain ${chainId} -> tip ${result.tip.id}`);
+      log.info(`[ChainSharing] Extracted tribal knowledge from chain ${chainId} -> tip ${result.id}`);
       this.persistChains();
 
-      return { chain_id: chainId, extracted: true, tip_id: result.tip.id };
+      return { chain_id: chainId, extracted: true, tip_id: result.id };
     } catch (error: any) {
       log.error(`[ChainSharing] Tribal extraction failed: ${error.message}`);
       return { chain_id: chainId, extracted: false, reason: error.message };
@@ -651,8 +658,9 @@ export class ReasoningChainSharingEngine {
    * Subscribe to EventBus events.
    */
   private subscribeToEvents(): void {
-    // Listen for chain events from other sources
-    eventBus.subscribe("puoa", "chain_completed", (data: any) => {
+    // Listen for chain events from other sources. eventBus.subscribe is (pattern, handler);
+    // the source+event fold into a dot-namespaced pattern.
+    eventBus.subscribe("puoa.chain_completed", (data: any) => {
       // Auto-register PUOA chains if not already registered
       if (data.chain_id && !this.chains.has(data.chain_id)) {
         log.debug(`[ChainSharing] Received PUOA chain completion: ${data.chain_id}`);

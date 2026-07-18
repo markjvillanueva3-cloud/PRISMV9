@@ -23,15 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-drift` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-drift.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-drift.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Produces a single drift event that rolls up the last N (default 30) WEDM
-job outcomes, computes the worst-metric LoRA correction magnitude, and
-persists the event to WEDM_DRIFT_LOG.
+
+# /wedm-drift — Rolling Confidence & Drift Report
 
 <!-- AUTO-END -->
 

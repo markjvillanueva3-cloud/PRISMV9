@@ -375,7 +375,11 @@ export class ProbeRoutineGeneratorEngine {
     let featureIdx = 0;
     for (const feature of config.features) {
       featureIdx++;
-      const pos = feature.position ?? { x: 0, y: 0, z: 0 };
+      // Per-coordinate coalesce: a partial position (e.g. a 2D {x,y} with no z)
+      // would otherwise slip past a whole-object ?? and crash on pos.z.toFixed().
+      // 0 = the WCS datum, consistent with the original whole-object fallback.
+      const rawPos = (feature.position ?? {}) as { x?: number; y?: number; z?: number };
+      const pos = { x: rawPos.x ?? 0, y: rawPos.y ?? 0, z: rawPos.z ?? 0 };
       lines.push(d.comment(`--- Feature ${featureIdx}: ${feature.type.toUpperCase()} ---`));
 
       let probeLines: string[] = [];
@@ -467,7 +471,11 @@ export class ProbeRoutineGeneratorEngine {
     let featureIdx = 0;
     for (const feature of config.features) {
       featureIdx++;
-      const pos = feature.position ?? { x: 0, y: 0, z: 0 };
+      // Per-coordinate coalesce: a partial position (e.g. a 2D {x,y} with no z)
+      // would otherwise slip past a whole-object ?? and crash on pos.z.toFixed().
+      // 0 = the WCS datum, consistent with the original whole-object fallback.
+      const rawPos = (feature.position ?? {}) as { x?: number; y?: number; z?: number };
+      const pos = { x: rawPos.x ?? 0, y: rawPos.y ?? 0, z: rawPos.z ?? 0 };
       const nom = feature.nominal ?? 0;
       const tolP = feature.tolerance_plus ?? 0.05;
       const tolM = feature.tolerance_minus ?? -0.05;
@@ -626,7 +634,11 @@ export class ProbeRoutineGeneratorEngine {
     let passCount = 0;
     for (let i = 0; i < config.features.length; i++) {
       const feature = config.features[i];
-      const pos = feature.position ?? { x: 0, y: 0, z: 0 };
+      // Per-coordinate coalesce: a partial position (e.g. a 2D {x,y} with no z)
+      // would otherwise slip past a whole-object ?? and crash on pos.z.toFixed().
+      // 0 = the WCS datum, consistent with the original whole-object fallback.
+      const rawPos = (feature.position ?? {}) as { x?: number; y?: number; z?: number };
+      const pos = { x: rawPos.x ?? 0, y: rawPos.y ?? 0, z: rawPos.z ?? 0 };
       const nom = feature.nominal ?? 0;
       const tolP = feature.tolerance_plus ?? 0.025;
       const tolM = feature.tolerance_minus ?? -0.025;

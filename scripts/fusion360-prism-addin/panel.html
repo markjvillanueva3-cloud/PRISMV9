@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRISM CAM Optimizer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; background: #1e1e1e; color: #e0e0e0; font-size: 12px; }
+
+  /* Status bar */
+  .status-bar { display: flex; align-items: center; padding: 6px 10px; background: #252526; border-bottom: 1px solid #333; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.connected { background: #4caf50; box-shadow: 0 0 4px #4caf50; }
+  .status-dot.disconnected { background: #f44336; }
+  .status-text { font-size: 11px; color: #888; flex: 1; }
+
+  /* Panels */
+  .panel { padding: 10px; border-bottom: 1px solid #333; }
+  .panel-title { font-size: 11px; font-weight: 600; color: #569cd6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+  /* Form fields */
+  .field { margin-bottom: 8px; }
+  .field label { display: block; font-size: 11px; color: #888; margin-bottom: 3px; cursor: help; }
+  .field select, .field input { width: 100%; padding: 6px 8px; background: #2d2d2d; border: 1px solid #444; color: #e0e0e0; border-radius: 3px; font-size: 12px; }
+  .field select:focus, .field input:focus { border-color: #569cd6; outline: none; }
+
+  /* Buttons */
+  .btn { width: 100%; padding: 10px; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 6px; }
+  .btn-primary { background: #0e7a0d; color: white; }
+  .btn-primary:hover { background: #0a9a09; }
+  .btn-primary:disabled { background: #444; color: #888; cursor: not-allowed; }
+  .btn-secondary { background: #2d2d2d; color: #569cd6; border: 1px solid #569cd6; }
+  .btn-secondary:hover { background: #333; }
+
+  /* Slider */
+  .slider-container { display: flex; align-items: center; gap: 8px; }
+  .slider-container input[type=range] { flex: 1; accent-color: #569cd6; }
+  .slider-value { min-width: 20px; text-align: center; color: #569cd6; font-weight: 600; }
+
+  /* Results */
+  .result-item { background: #252526; border-radius: 4px; padding: 8px; margin-bottom: 6px; border-left: 3px solid #444; }
+  .result-item.safe { border-left-color: #4caf50; }
+  .result-item.warn { border-left-color: #ff9800; }
+  .result-item.danger { border-left-color: #f44336; }
+  .result-label { font-size: 10px; color: #888; text-transform: uppercase; }
+  .result-value { font-size: 14px; font-weight: 600; color: #e0e0e0; }
+  .result-detail { font-size: 10px; color: #666; margin-top: 2px; }
+
+  /* Physics dashboard */
+  .physics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .physics-item { background: #252526; padding: 6px; border-radius: 3px; text-align: center; }
+  .physics-value { font-size: 16px; font-weight: 700; }
+  .physics-value.green { color: #4caf50; }
+  .physics-value.yellow { color: #ff9800; }
+  .physics-value.red { color: #f44336; }
+  .physics-label { font-size: 9px; color: #888; }
+
+  /* Tooltip */
+  [data-tooltip] { position: relative; }
+  [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute; left: 0; top: 100%; z-index: 100;
+    background: #1a1a2e; color: #e0e0e0; padding: 8px 10px;
+    border-radius: 4px; font-size: 11px; line-height: 1.4;
+    width: 280px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    border: 1px solid #333; white-space: pre-wrap;
+  }
+
+  /* Loading */
+  .loading { text-align: center; padding: 20px; color: #888; }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #333; border-top: 2px solid #569cd6; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Onboarding overlay */
+  .onboarding { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  .onboarding-card { background: #1e1e1e; border: 1px solid #569cd6; border-radius: 8px; padding: 24px; max-width: 340px; text-align: center; }
+  .onboarding h2 { color: #569cd6; margin-bottom: 16px; font-size: 16px; }
+  .onboarding .step { text-align: left; margin: 12px 0; padding: 8px; background: #252526; border-radius: 4px; }
+  .onboarding .step-num { display: inline-block; width: 20px; height: 20px; background: #569cd6; color: white; border-radius: 50%; text-align: center; line-height: 20px; font-size: 11px; margin-right: 8px; }
+  .onboarding .btn { margin-top: 16px; }
+
+  /* Warnings strip */
+  .warning { background: #332b00; border-left: 3px solid #ff9800; padding: 6px 8px; margin: 4px 0; border-radius: 0 3px 3px 0; font-size: 11px; }
+  .tip { background: #001a33; border-left: 3px solid #2196f3; padding: 6px 8px; margin: 4px 0; border-radius: 0 3px 3px 0; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<!-- Onboarding Overlay (first launch) -->
+<div class="onboarding" id="onboarding" style="display:none;">
+  <div class="onboarding-card">
+    <h2>Welcome to PRISM</h2>
+    <p style="color:#888; margin-bottom:12px;">CNC programming made easy with physics.</p>
+    <div class="step"><span class="step-num">1</span> Select your material</div>
+    <div class="step"><span class="step-num">2</span> Click "Optimize All"</div>
+    <div class="step"><span class="step-num">3</span> Review results and generate</div>
+    <p style="color:#666; margin-top:12px; font-size:11px;">PRISM picks tools from 73,827 options, calculates physics-backed speeds/feeds, and optimizes your entire program. Every parameter is editable.</p>
+    <button class="btn btn-primary" onclick="dismissOnboarding()">Got it, let's go!</button>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <div class="status-dot" id="statusDot"></div>
+  <span class="status-text" id="statusText">Checking PRISM server...</span>
+  <span style="font-size:10px; color:#569cd6;">v9</span>
+</div>
+
+<!-- Setup Panel -->
+<div class="panel">
+  <div class="panel-title">Setup</div>
+
+  <div class="field">
+    <label data-tooltip="Type any material name — PRISM searches 6,353 materials with Kienzle forces, Taylor tool life, and thermal limits. Fuzzy search: '4140', '304', '7075', 'inconel', 'delrin', etc.">Material ⓘ</label>
+    <input type="text" id="materialSearch" placeholder="Type material: 4140, 304, 7075, Ti-6Al-4V..." value="" oninput="onMaterialSearch(this.value)" autocomplete="off" list="materialSuggestions">
+    <datalist id="materialSuggestions"></datalist>
+    <div id="materialResolved" style="font-size:10px; color:#4caf50; margin-top:2px; display:none;"></div>
+  </div>
+
+  <div class="field">
+    <label data-tooltip="Type your machine model — PRISM searches 920 machines from 48 manufacturers. Auto-fills RPM, power, torque, rigidity.">Machine ⓘ</label>
+    <input type="text" id="machine" placeholder="Type machine: Haas VF-2, Hurco VM30i, DMU 50..." value="" oninput="onMachineSearch(this.value)" autocomplete="off" list="machineSuggestions">
+    <datalist id="machineSuggestions"></datalist>
+    <div id="machineResolved" style="font-size:10px; color:#4caf50; margin-top:2px; display:none;"></div>
+  </div>
+
+  <div class="field">
+    <label data-tooltip="Type holder brand/model — PRISM has 2,365 holders from 7 brands (Haimer, Rego-Fix, Big Daishowa, Seco, Tungaloy, Guhring, Kennametal). Affects rigidity and runout.">Holder ⓘ</label>
+    <input type="text" id="holder" placeholder="e.g., Haimer shrink fit, Rego-Fix powRgrip, ER32..." value="" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label data-tooltip="1 = maximum tool life (conservative). 10 = maximum MRR (aggressive). 5 = balanced. Adjust based on setup rigidity and part value.">Aggressiveness ⓘ</label>
+    <div class="slider-container">
+      <span style="font-size:10px;">Safe</span>
+      <input type="range" id="aggressiveness" min="1" max="10" value="5" oninput="document.getElementById('aggValue').textContent=this.value">
+      <span style="font-size:10px;">Fast</span>
+      <span class="slider-value" id="aggValue">5</span>
+    </div>
+  </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="panel">
+  <button class="btn btn-primary" id="optimizeBtn" onclick="optimizeAll()" data-tooltip="One click: PRISM selects tools from 73,827 options, calculates physics-backed S/F, sequences with 33 rules, and runs 35-stage post-processor. Everything editable after.">
+    🚀 Optimize All
+  </button>
+  <button class="btn btn-secondary" onclick="generateProgram()" data-tooltip="Generate verified G-code with controller-specific formatting, setup sheet, tool list, physics report, and tribal knowledge tips.">
+    📋 Generate Program
+  </button>
+</div>
+
+<!-- Results Panel (hidden until optimize runs) -->
+<div class="panel" id="resultsPanel" style="display:none;">
+  <div class="panel-title">Results</div>
+  <div id="resultsList"></div>
+</div>
+
+<!-- Physics Dashboard (hidden until optimize runs) -->
+<div class="panel" id="physicsPanel" style="display:none;">
+  <div class="panel-title">Physics Dashboard</div>
+  <div class="physics-grid" id="physicsGrid"></div>
+</div>
+
+<!-- Warnings & Tips (hidden until optimize runs) -->
+<div id="warningsPanel" style="display:none;"></div>
+
+<!-- Loading indicator -->
+<div class="loading" id="loading" style="display:none;">
+  <div class="spinner"></div>
+  <p style="margin-top:8px;">PRISM is optimizing...</p>
+</div>
+
+<script>
+// ── Communication with Python add-in ────────────────────────
+
+function sendToAddin(action, data) {
+  if (window.adsk) {
+    adsk.fusionSendData(action, JSON.stringify(data || {}));
+  }
+}
+
+function receiveFromAddin(action, jsonData) {
+  const data = JSON.parse(jsonData);
+  const handler = messageHandlers[action];
+  if (handler) handler(data);
+}
+
+// Register with Fusion palette
+if (window.adsk) {
+  window.fusionJavaScriptHandler = {
+    handle: function(action, jsonData) {
+      receiveFromAddin(action, jsonData);
+      return '';
+    }
+  };
+}
+
+// ── Message Handlers ────────────────────────────────────────
+
+const messageHandlers = {
+  check_connection_result: (data) => {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (data.connected) {
+      dot.className = 'status-dot connected';
+      text.textContent = 'Connected to PRISM';
+      document.getElementById('optimizeBtn').disabled = false;
+    } else {
+      dot.className = 'status-dot disconnected';
+      text.textContent = 'PRISM server not found';
+      document.getElementById('optimizeBtn').disabled = true;
+    }
+  },
+
+  get_settings_result: (data) => {
+    if (data.default_material) document.getElementById('material').value = data.default_material;
+    if (data.default_machine) document.getElementById('machine').value = data.default_machine;
+    if (data.aggressiveness) {
+      document.getElementById('aggressiveness').value = data.aggressiveness;
+      document.getElementById('aggValue').textContent = data.aggressiveness;
+    }
+    if (!data.onboarding_complete) {
+      document.getElementById('onboarding').style.display = 'flex';
+    }
+  },
+
+  optimize_all_result: (data) => {
+    document.getElementById('loading').style.display = 'none';
+    if (data.error) {
+      alert('PRISM Error: ' + data.error);
+      return;
+    }
+    showResults(data);
+  },
+
+  generate_program_result: (data) => {
+    document.getElementById('loading').style.display = 'none';
+    if (data.gcode) {
+      alert('Program generated! ' + data.gcode.split('\n').length + ' lines.');
+    }
+  },
+
+  error: (data) => {
+    document.getElementById('loading').style.display = 'none';
+    alert('Error: ' + (data.error || 'Unknown error'));
+  },
+};
+
+// ── UI Actions ──────────────────────────────────────────────
+
+function optimizeAll() {
+  document.getElementById('loading').style.display = 'block';
+  sendToAddin('optimize_all', {
+    material: document.getElementById('material').value,
+    machine_name: document.getElementById('machine').value || 'generic',
+    aggressiveness: parseInt(document.getElementById('aggressiveness').value),
+  });
+}
+
+function generateProgram() {
+  document.getElementById('loading').style.display = 'block';
+  sendToAddin('generate_program', {
+    features: lastFeatures || [],
+    material: document.getElementById('material').value,
+    machine_name: document.getElementById('machine').value || 'generic',
+  });
+}
+
+// ── Server-side search for materials, machines, holders ──────────────
+
+let materialSearchTimer = null;
+let machineSearchTimer = null;
+
+function onMaterialSearch(query) {
+  clearTimeout(materialSearchTimer);
+  if (query.length < 2) return;
+  materialSearchTimer = setTimeout(() => {
+    fetch('http://localhost:18361/api/cam', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'prism_data:material_search', params: { query: query, limit: 10 } })
+    })
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById('materialSuggestions');
+      list.innerHTML = '';
+      const results = data.results || data.value?.results || [];
+      results.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.name || m.id || m;
+        list.appendChild(opt);
+      });
+      if (results.length > 0) {
+        const resolved = document.getElementById('materialResolved');
+        const first = results[0];
+        resolved.textContent = (first.name || first.id) + (first.iso_group ? ' (ISO ' + first.iso_group + ')' : '') + (first.hardness_HB ? ', ' + first.hardness_HB + ' HB' : '');
+        resolved.style.display = 'block';
+      }
+    })
+    .catch(() => {});
+    // Also save to add-in settings
+    sendToAddin('save_settings', { default_material: query });
+  }, 300);
+}
+
+function onMachineSearch(query) {
+  clearTimeout(machineSearchTimer);
+  if (query.length < 2) return;
+  machineSearchTimer = setTimeout(() => {
+    fetch('http://localhost:18361/api/cam', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'prism_data:machine_search', params: { query: query, limit: 10 } })
+    })
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById('machineSuggestions');
+      list.innerHTML = '';
+      const results = data.results || data.value?.results || [];
+      results.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = (m.brand || '') + ' ' + (m.model || m.name || m);
+        list.appendChild(opt);
+      });
+      if (results.length > 0) {
+        const resolved = document.getElementById('machineResolved');
+        const first = results[0];
+        const spindle = first.spindle || {};
+        resolved.textContent = (first.brand || '') + ' ' + (first.model || '') + ': ' + (spindle.max_rpm || '?') + ' RPM, ' + Math.round((spindle.power_kw || 0) * 1.341) + ' HP, ' + (spindle.taper || '?');
+        resolved.style.display = 'block';
+      }
+    })
+    .catch(() => {});
+    sendToAddin('save_settings', { default_machine: query });
+  }, 300);
+}
+
+function dismissOnboarding() {
+  document.getElementById('onboarding').style.display = 'none';
+  sendToAddin('save_settings', { onboarding_complete: true });
+}
+
+// ── Results Display ─────────────────────────────────────────
+
+let lastFeatures = [];
+
+function showResults(data) {
+  const resultsPanel = document.getElementById('resultsPanel');
+  const resultsList = document.getElementById('resultsList');
+  const physicsPanel = document.getElementById('physicsPanel');
+  const physicsGrid = document.getElementById('physicsGrid');
+  const warningsPanel = document.getElementById('warningsPanel');
+
+  resultsPanel.style.display = 'block';
+  physicsPanel.style.display = 'block';
+  resultsList.innerHTML = '';
+  physicsGrid.innerHTML = '';
+
+  // Tool recommendation
+  if (data.tool_list && data.tool_list.length > 0) {
+    const tool = data.tool_list[0];
+    resultsList.innerHTML += resultItem('safe', 'Tool',
+      (tool.manufacturer || 'Generic') + ' Ø' + (tool.diameter_mm || '?') + 'mm',
+      'Score: ' + (tool.score || '?') + '/100 — from 73,827 tools');
+  }
+
+  // Cycle time
+  if (data.cycle_time && data.cycle_time.p50_min) {
+    resultsList.innerHTML += resultItem('safe', 'Cycle Time',
+      data.cycle_time.p50_min.toFixed(1) + ' min',
+      'P95: ' + (data.cycle_time.p95_min || '?').toFixed?.(1) + ' min (Monte Carlo)');
+  }
+
+  // Cost
+  if (data.cost_estimate && data.cost_estimate.total_cost_per_part) {
+    resultsList.innerHTML += resultItem('safe', 'Cost/Part',
+      '$' + data.cost_estimate.total_cost_per_part.toFixed(2),
+      'Tool: $' + (data.cost_estimate.tool_cost_per_part || 0).toFixed(2) +
+      ' Machine: $' + (data.cost_estimate.machine_cost_per_part || 0).toFixed(2));
+  }
+
+  // Algorithms used
+  if (data.pipeline_summary && data.pipeline_summary.algorithms_used) {
+    resultsList.innerHTML += resultItem('safe', 'Strategy',
+      data.pipeline_summary.algorithms_used.join(', '),
+      data.pipeline_summary.total_segments + ' toolpath segments');
+  }
+
+  // Physics dashboard
+  const physics = data.physics_report?.per_operation?.[0] || data.physics_report || {};
+  const items = [
+    { label: 'Force', value: (physics.force_N || physics.max_force_N || 0) + 'N', status: (physics.force_N || 0) < 1000 ? 'green' : 'yellow' },
+    { label: 'Power', value: (physics.power_kW || physics.max_power_kW || 0).toFixed?.(1) + 'kW', status: (physics.power_kW || 0) < 10 ? 'green' : 'yellow' },
+    { label: 'Deflection', value: ((physics.deflection_mm || physics.max_deflection_mm || 0) * 1000).toFixed?.(0) + 'μm', status: (physics.deflection_mm || 0) < 0.02 ? 'green' : 'yellow' },
+    { label: 'Cpk', value: (physics.cpk || physics.cpk_estimate || 0).toFixed?.(2), status: (physics.cpk || physics.cpk_estimate || 0) > 1.33 ? 'green' : 'red' },
+  ];
+  items.forEach(item => {
+    physicsGrid.innerHTML += `<div class="physics-item"><div class="physics-value ${item.status}">${item.value}</div><div class="physics-label">${item.label}</div></div>`;
+  });
+
+  // Warnings & Tips
+  warningsPanel.innerHTML = '';
+  warningsPanel.style.display = 'block';
+  if (data.warnings) {
+    data.warnings.slice(0, 5).forEach(w => {
+      warningsPanel.innerHTML += `<div class="warning">⚠️ ${w}</div>`;
+    });
+  }
+  if (data.tribal_tips) {
+    data.tribal_tips.slice(0, 3).forEach(t => {
+      warningsPanel.innerHTML += `<div class="tip">💡 ${t.title || t.body || t}</div>`;
+    });
+  }
+
+  // DFM
+  if (data.dfm && data.dfm.issues && data.dfm.issues.length > 0) {
+    data.dfm.issues.slice(0, 3).forEach(issue => {
+      const cls = issue.severity === 'critical' ? 'warning' : 'tip';
+      warningsPanel.innerHTML += `<div class="${cls}">🔧 DFM: ${issue.message}</div>`;
+    });
+  }
+}
+
+function resultItem(status, label, value, detail) {
+  return `<div class="result-item ${status}"><div class="result-label">${label}</div><div class="result-value">${value}</div><div class="result-detail">${detail}</div></div>`;
+}
+
+// ── Initialization ──────────────────────────────────────────
+
+window.addEventListener('load', () => {
+  sendToAddin('check_connection', {});
+  sendToAddin('get_settings', {});
+});
+</script>
+</body>
+</html>

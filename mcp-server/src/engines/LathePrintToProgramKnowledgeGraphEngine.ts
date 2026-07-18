@@ -43,7 +43,7 @@ export type EdgeType = z.infer<typeof EdgeTypeSchema>;
 export const GraphNodeSchema = z.object({
   id: z.string(),
   type: NodeTypeSchema,
-  properties: z.record(z.union([z.string(), z.number(), z.boolean()])),
+  properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
   created_at: z.string(),
 });
 export type GraphNode = z.infer<typeof GraphNodeSchema>;
@@ -54,7 +54,7 @@ export const GraphEdgeSchema = z.object({
   to_node: z.string(),
   type: EdgeTypeSchema,
   weight: z.number().min(0).max(1).optional(),
-  properties: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
+  properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
   created_at: z.string(),
 });
 export type GraphEdge = z.infer<typeof GraphEdgeSchema>;
@@ -99,7 +99,7 @@ export const QueryResultSchema = z.object({
   matches: z.array(z.object({
     job_id: z.string(),
     similarity: z.number(),
-    properties: z.record(z.union([z.string(), z.number(), z.boolean()])),
+    properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
     reasons: z.array(z.string()),
   })),
   query_took_ms: z.number(),

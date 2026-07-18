@@ -8,6 +8,10 @@
  */
 
 import { z } from "zod";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import * as nodePath from "node:path";
+import { PATHS } from "../../constants.js";
 import { registryManager } from "../../registries/index.js";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
@@ -27,6 +31,8 @@ import { ORANGE_VISE_SPECS, findVise, findVisesByJawWidth, findVisesByOpening, f
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RegistryRecord = Record<string, any>;
 
+const execFileAsync = promisify(execFile);
+
 const DataDispatcherSchema = z.object({
   action: z.enum([
     "material_get", "material_search", "material_compare",
@@ -34,6 +40,12 @@ const DataDispatcherSchema = z.object({
     "tool_get", "tool_search", "tool_recommend", "tool_facets",
     "tool_holder_catalog_search", "tool_holder_registry_query",
     "tool_geometry_select", "tool_coating_select", "tool_assembly_build",
+    // LATHE-PRO-MS11: CNC tool-offset controller↔ERP bidirectional sync + classification
+    "cnc_tool_offset_sync",
+    // MILL-AGI-P0: GNN tool-life prediction from assembly graph + cutting conditions
+    "tool_life_gnn_predict",
+    // DB-COVERAGE-GAPFILL-MS0: validate tool assembly vs JM Die machine (taper/rpm/gauge/coolant/runout)
+    "tool_setup_validate",
     "alarm_decode", "alarm_search", "alarm_fix",
     "formula_get", "formula_calculate",
     "cross_query", "machine_toolholder_match", "alarm_diagnose",
@@ -51,6 +63,8 @@ const DataDispatcherSchema = z.object({
     "catalog_tool_lookup",
     "catalog_holder_lookup", "catalog_holder_recommend",
     "catalog_workholding_lookup", "catalog_workholding_stats",
+    // CIMCO Edit 2026 tool-library export (CIMCO-TOOLDB-FILL-MS0)
+    "cimco_toollib_export",
     "chart_pareto", "chart_waterfall", "chart_control",
     "chart_stability_lobe", "chart_histogram",
     "benchmark_run", "benchmark_report", "benchmark_scorecard",
@@ -124,6 +138,8 @@ const DataDispatcherSchema = z.object({
     "pdf_material_save", "pdf_material_stats",
     "grinding_lora_cadence_config", "grinding_lora_cadence_state", "grinding_lora_cadence_record",
     "grinding_lora_dataset_build", "grinding_lora_dataset_schema",
+    "sinker_lora_cadence_config", "sinker_lora_cadence_state", "sinker_lora_cadence_record",
+    "sinker_lora_dataset_build", "sinker_lora_dataset_schema",
     "grinding_replacement_evaluate", "grinding_replacement_stats",
     // ENGINE-WIRE-MS0/U-WIRE07: 5 material+tool engines
     "material_equivalent_lookup",
@@ -134,6 +150,9 @@ const DataDispatcherSchema = z.object({
     // U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine surfaces (2 actions, mirror of prism_dev)
     "program_print_link_lookup",
     "program_print_link_coverage",
+    "jm_die_doc_lookup",
+    // DB-EXPANSION/DB-GAP-LIST-B2: JMDiePartLibraryEngine (1 action)
+    "jm_die_part_lookup",
     // MS-PRINT-PROGRAM-LOOP/U-PPL-C2: CustomerMaterialMapEngine (2 actions)
     "customer_material_map_build",
     "customer_material_lookup",
@@ -141,6 +160,25 @@ const DataDispatcherSchema = z.object({
     "machine_vocab_normalize",
     "machine_vocab_normalize_record",
     "machine_vocab_catalog",
+    // WIRE-MATERIAL-DIRECT-MS0/U-VICTOR-MATERIAL-DIRECT (slot:victor, 2026-05-26)
+    "material_harvest",
+    "material_hardness_classify",
+    "fusion_material_physics_profile",
+    "quoting_material_get",
+    // WIRING/U-WIRE-CATALOG-REGISTRY-BRIDGE (slot:romeo, 2026-06-03): CatalogRegistryBridgeEngine
+    // — bridge extracted vendor catalogs into Tool/Machine/Material registries (8 tool + 1 machine mappings)
+    "catalog_registry_list",
+    "catalog_registry_mappings",
+    "catalog_registry_enrich",
+    "catalog_registry_enrich_all",
+    // WIRING/U-WIRE-DOCUSTRATA (slot:romeo, 2026-06-10): DocuStrataMaterialPriorEngine
+    // -- per-grade material-cost priors from the JM DocuStrata manifest (typed invoice/quote
+    // line items -> median+p25/p75 unit price + per-job spend bracket). Was UNWIRED.
+    "docustrata_material_summary",
+    "docustrata_material_grades",
+    "docustrata_material_unit_price",
+    "docustrata_material_spend_bracket",
+    "docustrata_material_evidence",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -209,6 +247,23 @@ async function resolveAutoLink(
  * @param server - MCP server instance
   * @returns void
  */
+// ── DocuStrata material-prior manifest resolver (ROMEO WIRING/U-WIRE-DOCUSTRATA, 2026-06-10).
+// DocuStrataMaterialPriorEngine defaults its manifest off process.cwd()/Docustrata/manifest.json;
+// under the MCP server cwd is mcp-server/, so the repo-root manifest (H:/PRISM/Docustrata) is missed.
+// Resolve via the 3-candidate pattern (cwd/.., cwd, H:/PRISM) + existsSync. Cached after first hit;
+// a caller-supplied override (manifestPath/path) bypasses the cache for test injection. ──
+let _docuStrataManifest: string | null = null;
+async function resolveDocuStrataManifest(override?: string): Promise<string> {
+  if (override) return override;
+  if (_docuStrataManifest) return _docuStrataManifest;
+  const { resolve } = await import("node:path");
+  const { existsSync } = await import("node:fs");
+  const rel = "Docustrata/manifest.json";
+  const cands = [resolve(process.cwd(), "..", rel), resolve(process.cwd(), rel), resolve("H:/PRISM", rel)];
+  _docuStrataManifest = cands.find((c) => existsSync(c)) ?? cands[0];
+  return _docuStrataManifest;
+}
+
 export function registerDataDispatcher(server: any): void {
   server.tool(
     "prism_data",
@@ -234,6 +289,13 @@ export function registerDataDispatcher(server: any): void {
           "prism_data"
         );
       }
+      // Consume the VALIDATED + transformed params downstream, not the raw input.
+      // This is what makes the pagination `limit` clamp (and any future schema
+      // coercion) actually take effect on the live dispatch path -- previously
+      // validation.data was computed and discarded. validateActionParams returns
+      // data === params (identity) for schema-less actions, so this is a no-op
+      // for every action that has no transform.
+      if (validation.data) params = validation.data as Record<string, any>;
 
       // A6: Param ID resolution helpers (eliminates 11 duplicated coalescing patterns)
       const matId = (p: any) => p.identifier || p.material_id || p.id || p.name || null;
@@ -248,6 +310,37 @@ export function registerDataDispatcher(server: any): void {
 
       try {
         switch (action) {
+          // === CIMCO Edit 2026 tool-library export (CIMCO-TOOLDB-FILL-MS0) ===
+          // Fills CIMCO Edit's Tool Library DB from PRISM's tool corpus by invoking
+          // the units-first exporter script and returning its manifest.
+          case "cimco_toollib_export": {
+            const scriptPath = nodePath.join(PATHS.SCRIPTS, "export-tools-to-cimco-tmlib.mjs");
+            const argv: string[] = [scriptPath, "--json"];
+            if (params.store) argv.push("--store", String(params.store));
+            if (params.native) argv.push("--native", String(params.native));
+            if (params.units) argv.push("--units", String(params.units));
+            if (params.source) argv.push("--source", String(params.source));
+            if (params.out) argv.push("--out", String(params.out));
+            if (params.dryRun || params.dry_run) argv.push("--dry-run");
+            const { stdout, stderr } = await execFileAsync(process.execPath, argv, {
+              timeout: 180000,
+              maxBuffer: 32 * 1024 * 1024,
+            });
+            let manifest: any;
+            try {
+              manifest = JSON.parse(String(stdout).trim());
+            } catch {
+              return jsonResponse({
+                error: "cimco_toollib_export: export script did not return valid JSON",
+                stderr: String(stderr || "").slice(0, 600),
+                stdout: String(stdout || "").slice(0, 600),
+              });
+            }
+            if (manifest && manifest.ok === false) {
+              return jsonResponse({ error: manifest.error || "cimco export failed", manifest });
+            }
+            return jsonResponse(manifest);
+          }
           // === MATERIAL (3) ===
           case "material_get": {
             const mid = matId(params);
@@ -1331,6 +1424,38 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // ── Catalog → Registry bridge (WIRING/U-WIRE-CATALOG-REGISTRY-BRIDGE, slot:romeo) ──
+          case "catalog_registry_list": {
+            const { catalogRegistryBridgeEngine } = await import("../../engines/CatalogRegistryBridgeEngine.js");
+            result = { catalogs: catalogRegistryBridgeEngine.listMappedCatalogs() };
+            break;
+          }
+          case "catalog_registry_mappings": {
+            const { catalogRegistryBridgeEngine } = await import("../../engines/CatalogRegistryBridgeEngine.js");
+            result = catalogRegistryBridgeEngine.getCatalogMappings();
+            break;
+          }
+          case "catalog_registry_enrich": {
+            const { catalogRegistryBridgeEngine } = await import("../../engines/CatalogRegistryBridgeEngine.js");
+            const catalog = params.catalog as string | undefined;
+            const mapping = catalog ? catalogRegistryBridgeEngine.getMapping(catalog) : undefined;
+            if (!mapping) {
+              // Fail loud (R12): name the unknown catalog + surface the valid set instead of silently no-op'ing.
+              result = {
+                error: `unknown catalog '${catalog ?? "(missing params.catalog)"}'`,
+                available: catalogRegistryBridgeEngine.listMappedCatalogs(),
+              };
+              break;
+            }
+            result = await catalogRegistryBridgeEngine.enrichFromCatalog(mapping);
+            break;
+          }
+          case "catalog_registry_enrich_all": {
+            const { catalogRegistryBridgeEngine } = await import("../../engines/CatalogRegistryBridgeEngine.js");
+            result = await catalogRegistryBridgeEngine.enrichAll();
+            break;
+          }
+
           // ── BOX-MS0: Program Census, Parsing, Database ──────────────────
           case "box_census_scan": {
             const { boxProgramCensusEngine } = await import("../../engines/BoxProgramCensusEngine.js");
@@ -2378,6 +2503,34 @@ export function registerDataDispatcher(server: any): void {
             result = grindingLoRADatasetBuilderEngine.requiredSchema();
             break;
           }
+          case "sinker_lora_cadence_config": {
+            const { sinkerEDMLoRACadenceEngine } = await import("../../engines/SinkerEDMLoRACadenceEngine.js");
+            const p = params as any;
+            if (p && Object.keys(p).length > 0) result = sinkerEDMLoRACadenceEngine.setConfig(p);
+            else result = sinkerEDMLoRACadenceEngine.getConfig();
+            break;
+          }
+          case "sinker_lora_cadence_state": {
+            const { sinkerEDMLoRACadenceEngine } = await import("../../engines/SinkerEDMLoRACadenceEngine.js");
+            result = sinkerEDMLoRACadenceEngine.getState();
+            break;
+          }
+          case "sinker_lora_cadence_record": {
+            const { sinkerEDMLoRACadenceEngine } = await import("../../engines/SinkerEDMLoRACadenceEngine.js");
+            result = { total: sinkerEDMLoRACadenceEngine.recordJobs((params as any).n) };
+            break;
+          }
+          case "sinker_lora_dataset_build": {
+            const { sinkerEDMLoRADatasetBuilderEngine } = await import("../../engines/SinkerEDMLoRADatasetBuilderEngine.js");
+            const p = params as any;
+            result = sinkerEDMLoRADatasetBuilderEngine.buildDataset(p.jobs, p.split);
+            break;
+          }
+          case "sinker_lora_dataset_schema": {
+            const { sinkerEDMLoRADatasetBuilderEngine } = await import("../../engines/SinkerEDMLoRADatasetBuilderEngine.js");
+            result = sinkerEDMLoRADatasetBuilderEngine.requiredSchema();
+            break;
+          }
           case "grinding_replacement_evaluate": {
             const { grindingReplacementEngine } = await import("../../engines/GrindingReplacementEngine.js");
             result = grindingReplacementEngine.evaluate(params as any);
@@ -2402,6 +2555,39 @@ export function registerDataDispatcher(server: any): void {
             result = toolHolderRegistryEngine.query(
               params as unknown as Parameters<typeof toolHolderRegistryEngine.query>[0],
             );
+            break;
+          }
+          // LATHE-PRO-MS11 / DB-COVERAGE-GAPFILL-MS0: bidirectional controller↔ERP tool-offset
+          // sync — diffs controller offset dump vs ERP master, classifies each delta
+          // (noise/wear/geometry/error) + emits accept/reject/reconcile/escalate sync actions.
+          case "cnc_tool_offset_sync": {
+            const { cncToolOffsetPersistenceEngine } = await import("../../engines/CNCToolOffsetPersistenceEngine.js");
+            result = cncToolOffsetPersistenceEngine.sync(
+              params as unknown as Parameters<typeof cncToolOffsetPersistenceEngine.sync>[0],
+            );
+            break;
+          }
+          // MILL-AGI-P0 / DB-COVERAGE-GAPFILL-MS0: GNN tool-life prediction from the assembly
+          // graph (tool→holder→spindle→machine) + cutting conditions — Taylor baseline ×
+          // graph-topology correction (stiffness/runout/wear/coating/coolant) + Weibull CI.
+          case "tool_life_gnn_predict": {
+            const { toolLifeGnnEngine } = await import("../../engines/ToolLifeGnnEngine.js");
+            const p = params as unknown as {
+              graph: Parameters<typeof toolLifeGnnEngine.predict>[0];
+              conditions: Parameters<typeof toolLifeGnnEngine.predict>[1];
+            };
+            result = toolLifeGnnEngine.predict(p.graph, p.conditions);
+            break;
+          }
+          // DB-COVERAGE-GAPFILL-MS0: validate a built tool assembly against a JM Die machine —
+          // taper / RPM / gauge-length / coolant / runout / reach checks → pass + score + issues.
+          case "tool_setup_validate": {
+            const { toolDatabaseDeepLearningEngine } = await import("../../engines/ToolDatabaseDeepLearningEngine.js");
+            const p = params as unknown as {
+              assembly: Parameters<typeof toolDatabaseDeepLearningEngine.validateToolSetup>[0];
+              machine_id: string;
+            };
+            result = toolDatabaseDeepLearningEngine.validateToolSetup(p.assembly, p.machine_id);
             break;
           }
           case "tool_geometry_select": {
@@ -2448,7 +2634,7 @@ export function registerDataDispatcher(server: any): void {
             const { materialInterpolationEngine } = await import("../../engines/MaterialInterpolationEngine.js");
             const p = params as { material_name: string; known_tensile_MPa?: number; known_hardness_HRC?: number; safety_factor?: number; top_n?: number };
             const knownProps = (p.known_tensile_MPa !== undefined || p.known_hardness_HRC !== undefined)
-              ? { tensile_strength_MPa: p.known_tensile_MPa, hardness_HRC: p.known_hardness_HRC }
+              ? { tensile: p.known_tensile_MPa, hardness: p.known_hardness_HRC }
               : undefined;
             result = materialInterpolationEngine.interpolateParams(p.material_name, knownProps, p.safety_factor);
             break;
@@ -2540,6 +2726,67 @@ export function registerDataDispatcher(server: any): void {
               const index = await loadLinkIndex({ inputProgramPaths, joinJsonlPath });
               const report = coverageReport(index, { archiveProgramPaths });
               result = { success: true, data: { report } };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_data");
+            }
+            break;
+          }
+
+          // ── BLACKWELL-DB-GEN-MS0/U-DB-B1: JMDieDocIndexEngine ──
+          // Closes the B1 gap — the consolidated JM Die / DocuStrata document corpus
+          // (jm-die-database/tables/documents.jsonl, 111,745 docs, the JMDieDocuStrataDB
+          // store) had NO runtime consumer. Pure registry-style filter; mirrors the
+          // program_print_link contract above (lazy import, {success,data}, dispatcherError,
+          // FAIL-LOUD on a missing corpus).
+          case "jm_die_doc_lookup": {
+            try {
+              const { loadDocIndex, queryDocs } = await import("../../engines/JMDieDocIndexEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const docsJsonlPath = typeof bp.docs_jsonl_path === "string" ? bp.docs_jsonl_path : undefined;
+              const index = await loadDocIndex({ docsJsonlPath });
+              const q = queryDocs({
+                text: typeof bp.text === "string" ? bp.text : undefined,
+                role: typeof bp.role === "string" ? bp.role : undefined,
+                role_tier: typeof bp.role_tier === "string" ? bp.role_tier : undefined,
+                notebook: typeof bp.notebook === "string" ? bp.notebook : undefined,
+                folder: typeof bp.folder === "string" ? bp.folder : undefined,
+                hasTextLayer: typeof bp.has_text_layer === "boolean" ? bp.has_text_layer : undefined,
+                minPrintScore: typeof bp.min_print_score === "number" ? bp.min_print_score : undefined,
+                dateFrom: typeof bp.date_from === "string" ? bp.date_from : undefined,
+                dateTo: typeof bp.date_to === "string" ? bp.date_to : undefined,
+                limit: typeof bp.limit === "number" ? bp.limit : undefined,
+              }, index);
+              result = { success: true, data: { ...q, corpus_stats: index.stats } };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_data");
+            }
+            break;
+          }
+
+          // ── DB-EXPANSION/DB-GAP-LIST-B2: JMDiePartLibraryEngine ──
+          // Closes the B2 gap — the 30,890 orphaned `part.json` extraction sidecars
+          // (consolidated into state/shared/databases/jm-part-library.jsonl by
+          // scripts/build-jm-part-library.mjs) had NO runtime consumer. Pure registry-style
+          // filter; mirrors the jm_die_doc_lookup contract above (lazy import, {success,data},
+          // dispatcherError, FAIL-LOUD on a missing store).
+          case "jm_die_part_lookup": {
+            try {
+              const { loadPartIndex, queryParts } = await import("../../engines/JMDiePartLibraryEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const storeJsonlPath = typeof bp.store_jsonl_path === "string" ? bp.store_jsonl_path : undefined;
+              const index = await loadPartIndex({ storeJsonlPath });
+              const q = queryParts({
+                partNumber: typeof bp.part_number === "string" ? bp.part_number : undefined,
+                partNumberContains: typeof bp.part_number_contains === "string" ? bp.part_number_contains : undefined,
+                customer: typeof bp.customer === "string" ? bp.customer : undefined,
+                customerContains: typeof bp.customer_contains === "string" ? bp.customer_contains : undefined,
+                matchConfidence: typeof bp.match_confidence === "string" ? bp.match_confidence : undefined,
+                assigned: typeof bp.assigned === "boolean" ? bp.assigned : undefined,
+                hasProgramLink: typeof bp.has_program_link === "boolean" ? bp.has_program_link : undefined,
+                hasCadLink: typeof bp.has_cad_link === "boolean" ? bp.has_cad_link : undefined,
+                limit: typeof bp.limit === "number" ? bp.limit : undefined,
+              }, index);
+              result = { success: true, data: { ...q, store_stats: index.stats } };
             } catch (err) {
               result = dispatcherError(err, action, "prism_data");
             }
@@ -2711,6 +2958,93 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // ─── WIRE-MATERIAL-DIRECT-MS0/U-VICTOR-MATERIAL-DIRECT (2026-05-26) ───
+          // 4 specialized material engines (harvester / hardness / fusion bridge / quoting bridge)
+          // lifted from the fresh unwired audit into the prism_data surface.
+          case "material_harvest": {
+            const { MaterialHarvesterEngine } = await import("../../engines/MaterialHarvesterEngine.js");
+            result = { success: true, data: await MaterialHarvesterEngine.harvest() };
+            break;
+          }
+          case "material_hardness_classify": {
+            const { MaterialHardnessStateClassifierEngine } = await import("../../engines/MaterialHardnessStateClassifierEngine.js");
+            const p = params as any;
+            const hrc = typeof p?.hrc === "number" ? p.hrc : Number(p?.hrc);
+            if (!Number.isFinite(hrc)) {
+              result = { success: false, error: "material_hardness_classify requires numeric `hrc`" };
+            } else {
+              result = { success: true, data: { hrc, band: MaterialHardnessStateClassifierEngine.classifyBand(hrc) } };
+            }
+            break;
+          }
+          case "fusion_material_physics_profile": {
+            const { fusionMaterialPhysicsBridge } = await import("../../engines/FusionMaterialPhysicsBridge.js");
+            const p = params as any;
+            const id = String(p?.fusion_material_id ?? p?.id ?? "");
+            if (!id) {
+              result = { success: false, error: "fusion_material_physics_profile requires `fusion_material_id`" };
+            } else {
+              result = { success: true, data: fusionMaterialPhysicsBridge.getPhysicsProfile(id) };
+            }
+            break;
+          }
+          case "quoting_material_get": {
+            const { QuotingMaterialBridgeEngine } = await import("../../engines/QuotingMaterialBridgeEngine.js");
+            result = { success: true, data: await QuotingMaterialBridgeEngine.getMaterialForQuote(params as any) };
+            break;
+          }
+
+          // ── DocuStrata material-cost priors (read-only per-grade unit-price lookup over
+          // the JM DocuStrata manifest). WIRING/U-WIRE-DOCUSTRATA (slot:romeo, 2026-06-10).
+          // Mirrors the adjacent quoting_material_get pattern; the engine header names
+          // QuotingMaterialBridgeEngine + QuoteEstimatorEngine as its downstream consumers. ──
+          case "docustrata_material_summary": {
+            const { DocuStrataMaterialPriorEngine } = await import("../../engines/DocuStrataMaterialPriorEngine.js");
+            const manifestPath = await resolveDocuStrataManifest((params as any)?.manifestPath ?? (params as any)?.path);
+            result = { success: true, data: await DocuStrataMaterialPriorEngine.getSummary(manifestPath) };
+            break;
+          }
+          case "docustrata_material_grades": {
+            const { DocuStrataMaterialPriorEngine } = await import("../../engines/DocuStrataMaterialPriorEngine.js");
+            const manifestPath = await resolveDocuStrataManifest((params as any)?.manifestPath ?? (params as any)?.path);
+            const grades = await DocuStrataMaterialPriorEngine.listGrades(manifestPath);
+            // explicit `count` survives slimResponse (which strips an empty `grades` array) so a
+            // zero-grade manifest is still an unambiguous result, not an absent field.
+            result = { success: true, count: grades.length, grades };
+            break;
+          }
+          case "docustrata_material_unit_price": {
+            const { DocuStrataMaterialPriorEngine } = await import("../../engines/DocuStrataMaterialPriorEngine.js");
+            const grade = String((params as any)?.grade ?? (params as any)?.materialGrade ?? "");
+            if (!grade) throw new Error("docustrata_material_unit_price: 'grade' is required");
+            const manifestPath = await resolveDocuStrataManifest((params as any)?.manifestPath ?? (params as any)?.path);
+            const up = await DocuStrataMaterialPriorEngine.getUnitPrice(grade, manifestPath);
+            // explicit `found` boolean distinguishes a real miss (insufficient evidence / unknown
+            // grade -> engine null) from a hit; slimResponse strips a null `unit_price_usd`.
+            result = { success: true, grade: grade.toUpperCase(), found: up !== null, unit_price_usd: up ?? undefined };
+            break;
+          }
+          case "docustrata_material_spend_bracket": {
+            const { DocuStrataMaterialPriorEngine } = await import("../../engines/DocuStrataMaterialPriorEngine.js");
+            const grade = String((params as any)?.grade ?? (params as any)?.materialGrade ?? "");
+            if (!grade) throw new Error("docustrata_material_spend_bracket: 'grade' is required");
+            const manifestPath = await resolveDocuStrataManifest((params as any)?.manifestPath ?? (params as any)?.path);
+            const br = await DocuStrataMaterialPriorEngine.getMaterialSpendBracket(grade, manifestPath);
+            result = { success: true, grade: grade.toUpperCase(), found: br !== null, spend_bracket_usd: br ?? undefined };
+            break;
+          }
+          case "docustrata_material_evidence": {
+            const { DocuStrataMaterialPriorEngine } = await import("../../engines/DocuStrataMaterialPriorEngine.js");
+            const grade = String((params as any)?.grade ?? (params as any)?.materialGrade ?? "");
+            if (!grade) throw new Error("docustrata_material_evidence: 'grade' is required");
+            const manifestPath = await resolveDocuStrataManifest((params as any)?.manifestPath ?? (params as any)?.path);
+            const ev = await DocuStrataMaterialPriorEngine.getEvidence(grade, manifestPath);
+            // explicit `count` survives slimResponse (empty `evidence` array stripped) so a
+            // no-evidence grade is an unambiguous count:0, not an absent field.
+            result = { success: true, grade: grade.toUpperCase(), count: ev.length, evidence: ev };
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -2722,5 +3056,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (144 actions)");
+  log.info("[dataDispatcher] Registered prism_data (149 actions)");
 }

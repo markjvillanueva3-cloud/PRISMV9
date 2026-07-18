@@ -23,13 +23,25 @@ related:
 |-------|-------|
 | Name | `yolo-mode` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/yolo-mode.md` |
+| Source | `C:/Users/wompu/.claude/commands/yolo-mode.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# YOLO Mode — Maximum Velocity Development
+
+Move fast, decide autonomously, minimize questions, maximize output, auto-fix issues.
+
+## Args: $ARGUMENTS
+- Empty: activate YOLO mode
+- `off`: deactivate
+- `status`: report state
+
+## Core Rules
+- **Zero questions**: Never ask "Should I proceed?", "Ready?", or variations. Just flow.
+- **Auto-select**: Pick highest priority task without waiti
 
 <!-- AUTO-END -->
 

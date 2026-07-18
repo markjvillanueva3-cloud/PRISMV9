@@ -32,7 +32,7 @@ const LOCK_FILES = [
 
 function git(args, opts = {}) {
   try {
-    return execFileSync("git", args, {
+    return execFileSync("git", args, { windowsHide: true,
       cwd: REPO,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],

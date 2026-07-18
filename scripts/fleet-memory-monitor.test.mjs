@@ -26,11 +26,13 @@ import { join } from "node:path";
 
 import {
   findAnchorAncestor,
+  findPsAncestor,
   attributeProcesses,
   decideLevel,
   pickLargestSlot,
   decideAdvisory,
   readSlotsForAttribution,
+  readPinsForAttribution,
   LEDGER_SCHEMA_VERSION,
   DEFAULT_WARN_PCT,
   DEFAULT_CRIT_PCT,
@@ -301,4 +303,217 @@ test("constants: schema/defaults sane", () => {
   assert.ok(DEFAULT_WARN_PCT > 0 && DEFAULT_WARN_PCT < 100);
   assert.ok(DEFAULT_CRIT_PCT > DEFAULT_WARN_PCT);
   assert.ok(DEFAULT_SUSTAINED_TICKS >= 1);
+});
+
+// ─── findPsAncestor (slotLabel:null deep-fix) ───────────────────────────────
+
+test("findPsAncestor: direct PowerShell parent matches", () => {
+  // claude.exe → powershell.exe (direct parent)
+  const procs = [
+    { pid: 5000, ppid: 0, name: "powershell.exe", rssBytes: 0 },
+    { pid: 6000, ppid: 5000, name: "claude.exe", rssBytes: 0 },
+  ];
+  const idx = new Map(procs.map(p => [p.pid, p]));
+  assert.equal(findPsAncestor(6000, idx), 5000);
+});
+
+test("findPsAncestor: pwsh.exe (PowerShell 7) recognized", () => {
+  const procs = [
+    { pid: 5001, ppid: 0, name: "pwsh.exe", rssBytes: 0 },
+    { pid: 6001, ppid: 5001, name: "claude.exe", rssBytes: 0 },
+  ];
+  const idx = new Map(procs.map(p => [p.pid, p]));
+  assert.equal(findPsAncestor(6001, idx), 5001);
+});
+
+test("findPsAncestor: cmd.exe recognized", () => {
+  const procs = [
+    { pid: 5002, ppid: 0, name: "cmd.exe", rssBytes: 0 },
+    { pid: 6002, ppid: 5002, name: "claude.exe", rssBytes: 0 },
+  ];
+  const idx = new Map(procs.map(p => [p.pid, p]));
+  assert.equal(findPsAncestor(6002, idx), 5002);
+});
+
+test("findPsAncestor: deep ancestry (3 hops to PowerShell)", () => {
+  // claude.exe → node.exe → bash.exe → powershell.exe
+  const procs = [
+    { pid: 5010, ppid: 0, name: "powershell.exe", rssBytes: 0 },
+    { pid: 5011, ppid: 5010, name: "bash.exe", rssBytes: 0 },
+    { pid: 5012, ppid: 5011, name: "node.exe", rssBytes: 0 },
+    { pid: 5013, ppid: 5012, name: "claude.exe", rssBytes: 0 },
+  ];
+  const idx = new Map(procs.map(p => [p.pid, p]));
+  assert.equal(findPsAncestor(5013, idx), 5010);
+});
+
+test("findPsAncestor: no shell ancestor returns null (orphan chain)", () => {
+  const procs = [
+    { pid: 7000, ppid: 0, name: "services.exe", rssBytes: 0 },
+    { pid: 7001, ppid: 7000, name: "claude.exe", rssBytes: 0 },
+  ];
+  const idx = new Map(procs.map(p => [p.pid, p]));
+  assert.equal(findPsAncestor(7001, idx), null);
+});
+
+test("findPsAncestor: cycle detection returns null (defensive)", () => {
+  // A→B→A cycle
+  const procs = [
+    { pid: 8000, ppid: 8001, name: "x", rssBytes: 0 },
+    { pid: 8001, ppid: 8000, name: "x", rssBytes: 0 },
+  ];
+  const idx = new Map(procs.map(p => [p.pid, p]));
+  assert.equal(findPsAncestor(8000, idx), null);
+});
+
+test("findPsAncestor: maxHops boundary respected (deeper than hops returns null)", () => {
+  // chain of 10 non-shells, then PowerShell at the very top
+  const procs = [{ pid: 9000, ppid: 0, name: "powershell.exe", rssBytes: 0 }];
+  for (let i = 1; i <= 10; i++) {
+    procs.push({ pid: 9000 + i, ppid: 9000 + i - 1, name: "n", rssBytes: 0 });
+  }
+  const idx = new Map(procs.map(p => [p.pid, p]));
+  // From pid 9010 the PowerShell ancestor is 10 hops away. maxHops=8 → null.
+  // From pid 9008 it's 8 hops away → null (loop checks BEFORE step). From
+  // pid 9005 it's 5 hops away → 9000.
+  assert.equal(findPsAncestor(9010, idx, 8), null, "10-hop chain past maxHops=8");
+  assert.equal(findPsAncestor(9005, idx, 8), 9000, "5-hop chain inside maxHops=8");
+});
+
+// ─── readPinsForAttribution ─────────────────────────────────────────────────
+
+test("readPinsForAttribution: missing file returns empty Map", () => {
+  const result = readPinsForAttribution({
+    existsSync: () => false,
+    readFileSync: () => { throw new Error("should not be called"); },
+  });
+  assert.ok(result instanceof Map);
+  assert.equal(result.size, 0);
+});
+
+test("readPinsForAttribution: corrupt JSON returns empty Map (fail-soft)", () => {
+  const result = readPinsForAttribution({
+    existsSync: () => true,
+    readFileSync: () => "{not valid json",
+  });
+  assert.ok(result instanceof Map);
+  assert.equal(result.size, 0);
+});
+
+test("readPinsForAttribution: valid pins parsed correctly", () => {
+  const fixture = {
+    schemaVersion: 1,
+    lastUpdated: "2026-05-17T21:30:00.000Z",
+    pins: {
+      "12345": { slot: "golf",  chatId: "claude-deadbeef", writtenAt: "2026-05-17T20:00:00.000Z" },
+      "67890": { slot: "mike",  chatId: "claude-cafebabe", writtenAt: "2026-05-17T20:30:00.000Z" },
+    },
+  };
+  const result = readPinsForAttribution({
+    existsSync: () => true,
+    readFileSync: () => JSON.stringify(fixture),
+  });
+  assert.equal(result.size, 2);
+  assert.equal(result.get("12345"), "golf");
+  assert.equal(result.get("67890"), "mike");
+});
+
+test("readPinsForAttribution: invalid pin entries skipped (slot must be non-empty string)", () => {
+  const fixture = {
+    schemaVersion: 1,
+    pins: {
+      "1111": { slot: "alpha", chatId: "c1", writtenAt: "x" },
+      "2222": { slot: "",      chatId: "c2", writtenAt: "x" },  // empty slot — skip
+      "3333": { slot: 42,      chatId: "c3", writtenAt: "x" },  // non-string slot — skip
+      "4444": null,                                              // null pin — skip
+      "5555": { chatId: "c5", writtenAt: "x" },                  // no slot — skip
+    },
+  };
+  const result = readPinsForAttribution({
+    existsSync: () => true,
+    readFileSync: () => JSON.stringify(fixture),
+  });
+  assert.equal(result.size, 1);
+  assert.equal(result.get("1111"), "alpha");
+});
+
+// ─── attributeProcesses + pins (slotLabel:null deep-fix integration) ────────
+
+test("attributeProcesses: pin resolves slot for claude.exe via PS ancestor", () => {
+  // Production scenario: claude.exe's slot.pid is the dead subshell (not in
+  // procs), so pass-1 fails. The pin keyed on PS PID resolves it.
+  const procs = [
+    { pid: 5000, ppid: 0,    name: "powershell.exe", rssBytes: 100 },
+    { pid: 6000, ppid: 5000, name: "claude.exe",     rssBytes: 1000 },
+    { pid: 7000, ppid: 6000, name: "node.exe",       rssBytes: 200 },
+  ];
+  const slots = { golf: { pid: 99999, chatId: "c-dead" } };  // stale subshell PID
+  const pins = new Map([["5000", "golf"]]);
+  const out = attributeProcesses(procs, slots, pins);
+  const tree = out.perTree["tree-6000"];
+  assert.ok(tree, "tree-6000 exists");
+  assert.equal(tree.slotLabel, "golf", "pin-resolved slot label");
+  assert.equal(tree.rssBytes, 1200, "self + descendant RSS");
+});
+
+test("attributeProcesses: pin missing for PS → slotLabel stays null", () => {
+  const procs = [
+    { pid: 5000, ppid: 0,    name: "powershell.exe", rssBytes: 100 },
+    { pid: 6000, ppid: 5000, name: "claude.exe",     rssBytes: 1000 },
+  ];
+  const out = attributeProcesses(procs, {}, new Map([["9999", "other-slot"]]));
+  assert.equal(out.perTree["tree-6000"].slotLabel, null, "no pin for PS PID 5000");
+});
+
+test("attributeProcesses: pass-1 (slot.pid match) wins over pass-2 (pin)", () => {
+  // When slot.pid HAPPENS to land on a live claude.exe, that's the freshest
+  // signal — pin is a persistent fallback, slot.pid is the just-claimed truth.
+  const procs = [
+    { pid: 5000, ppid: 0,    name: "powershell.exe", rssBytes: 100 },
+    { pid: 6000, ppid: 5000, name: "claude.exe",     rssBytes: 1000 },
+  ];
+  const slots = { freshly_claimed: { pid: 6000, chatId: "c-live" } };
+  const pins = new Map([["5000", "stale_pin_slot"]]);
+  const out = attributeProcesses(procs, slots, pins);
+  assert.equal(out.perTree["tree-6000"].slotLabel, "freshly_claimed",
+    "slot.pid heuristic wins (pass-1 first; pass-2 skip when label already set)");
+});
+
+test("attributeProcesses: empty pins → back-compat with pre-fix behavior", () => {
+  // Default pins=new Map() must produce same perTree shape as the legacy
+  // 2-arg call (which existing tests cover) — regression guard.
+  const procs = [
+    { pid: 5000, ppid: 0,    name: "powershell.exe", rssBytes: 100 },
+    { pid: 6000, ppid: 5000, name: "claude.exe",     rssBytes: 1000 },
+  ];
+  const a = attributeProcesses(procs, {}, new Map());
+  const b = attributeProcesses(procs, {});  // 2-arg legacy form
+  assert.deepEqual(a.perTree, b.perTree, "empty pins == no-pins legacy call");
+  assert.equal(a.perTree["tree-6000"].slotLabel, null,
+    "no pins + no slot match → null label (the pre-fix bug being addressed by pins)");
+});
+
+test("attributeProcesses: pin for orphan claude.exe (no PS ancestor) ignored", () => {
+  // claude.exe whose ancestry doesn't reach a shell — pin lookup fails
+  // gracefully, label stays null. Same as no-pin behavior for this anchor.
+  const procs = [
+    { pid: 4000, ppid: 0,    name: "services.exe", rssBytes: 50 },
+    { pid: 6000, ppid: 4000, name: "claude.exe",   rssBytes: 1000 },
+  ];
+  const pins = new Map([["5000", "golf"]]);  // pin for PS that doesn't exist
+  const out = attributeProcesses(procs, {}, pins);
+  assert.equal(out.perTree["tree-6000"].slotLabel, null);
+});
+
+test("attributeProcesses: multiple claude.exe trees resolved independently via pins", () => {
+  const procs = [
+    { pid: 1000, ppid: 0,    name: "powershell.exe", rssBytes: 50 },
+    { pid: 2000, ppid: 1000, name: "claude.exe",     rssBytes: 500 },
+    { pid: 3000, ppid: 0,    name: "powershell.exe", rssBytes: 50 },
+    { pid: 4000, ppid: 3000, name: "claude.exe",     rssBytes: 800 },
+  ];
+  const pins = new Map([["1000", "alpha"], ["3000", "golf"]]);
+  const out = attributeProcesses(procs, {}, pins);
+  assert.equal(out.perTree["tree-2000"].slotLabel, "alpha");
+  assert.equal(out.perTree["tree-4000"].slotLabel, "golf");
 });

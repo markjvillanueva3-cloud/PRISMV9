@@ -112,8 +112,8 @@ const result = await dispatch("whoami", { sessionId: "claude-41db1b82" });
 
 ## See also
 
-- [[command-schema]] — canonical command frontmatter schema (U-CK06)
-- [[wiki-os-schema]] — wiki/os/ entity frontmatter schema (U-CK04)
+- [[_command-schema]] — canonical command frontmatter schema (U-CK06)
+- [[_schema]] — wiki/os/ entity frontmatter schema (U-CK04)
 - `.claude/kernel/psk.mjs` — kernel source (syscall registration map)
 - `.claude/helpers/stable-session-id.mjs` — primary upstream resolver
 - `.claude/helpers/chat-slots.mjs` — secondary upstream resolver

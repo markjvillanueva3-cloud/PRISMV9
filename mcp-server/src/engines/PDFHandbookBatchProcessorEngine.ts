@@ -203,7 +203,7 @@ export class PDFHandbookBatchProcessorEngine {
     const processingPromises = downloadedSources.map(async (source) => {
       await semaphore.acquire();
       try {
-        progress.currentSource = source.name;
+        progress.currentSource = source.title;
         this.emitProgress({ ...progress });
 
         const sourceResult = await this.processSource(source, opts);
@@ -304,7 +304,7 @@ export class PDFHandbookBatchProcessorEngine {
     const startTime = Date.now();
     const result: SourceProcessingResult = {
       sourceId: source.id,
-      sourceName: source.name,
+      sourceName: source.title,
       category: source.category,
       status: "success",
       tables: [],

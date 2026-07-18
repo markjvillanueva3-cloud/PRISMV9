@@ -221,3 +221,62 @@ describe("CAMFeatureExtractorEngine — batch extraction", () => {
     expect(r.sample_size).toBe(0);
   });
 });
+
+describe("U-CAM-FEED-PER-REV — native feed-per-rev capture (CSS-shop dense target)", () => {
+  function extractProgram(body: string, name = "perrev") {
+    const tmp = path.join(os.tmpdir(), `${name}-${Math.random().toString(36).slice(2)}.min`);
+    fs.writeFileSync(tmp, body);
+    try {
+      return new CAMFeatureExtractorEngine(os.tmpdir()).extractOne(tmp);
+    } finally {
+      fs.unlinkSync(tmp);
+    }
+  }
+
+  it("captures feed-per-rev under G96 CSS where mm/min is necessarily EMPTY (the gap this closes)", () => {
+    // G96 CSS ⇒ rpm unknown ⇒ mm/min cannot be computed; but G95 F-values ARE feed-per-rev.
+    const v = extractProgram("$T.MIN%\nG20 G95\nT010101\nG96 S250 M3\nG0 X1.65 Z.1\nG1 X1.5 Z-1. F.007\nG1 X1.6 F.012\nM2\n");
+    expect(v.parsed_ok).toBe(true);
+    expect(v.estimated_feed_range_mm_min).toEqual([0, 0]); // CSS → mm/min legitimately empty
+    expect(v.estimated_feed_range_per_rev?.[0]).toBeCloseTo(0.007, 5);
+    expect(v.estimated_feed_range_per_rev?.[1]).toBeCloseTo(0.012, 5);
+    expect(v.feed_per_rev_unit).toBe("in/rev"); // G20 declared
+  });
+
+  it("tags in/rev when G20 declared, mm/rev when G21 declared", () => {
+    const inch = extractProgram("$T.MIN%\nG20 G95\nT010101\nG96 S250\nG1 X1. Z-1. F.006\nM2\n");
+    expect(inch.feed_per_rev_unit).toBe("in/rev");
+    expect(inch.estimated_feed_range_per_rev?.[0]).toBeCloseTo(0.006, 5);
+    const metric = extractProgram("$T.MIN%\nG21 G95\nT010101\nG96 S200\nG1 X20 Z-25 F0.15\nM2\n");
+    expect(metric.feed_per_rev_unit).toBe("mm/rev");
+    expect(metric.estimated_feed_range_per_rev?.[0]).toBeCloseTo(0.15, 5);
+  });
+
+  it("tags unit='unknown' + warns when no G20/G21 (does NOT silently assume inch — units-first)", () => {
+    const v = extractProgram("$T.MIN%\nG95\nT010101\nG96 S250\nG1 X1. Z-1. F.006\nM2\n");
+    expect(v.estimated_feed_range_per_rev?.[0]).toBeCloseTo(0.006, 5);
+    expect(v.feed_per_rev_unit).toBe("unknown");
+    expect(v.parse_warnings.some((w) => /unit='unknown'|25\.4x/i.test(w))).toBe(true);
+  });
+
+  it("routes a G94 feed-per-MINUTE value to mm/min (not into the per-rev target)", () => {
+    const v = extractProgram("$T.MIN%\nG20 G94\nT010101\nG97 S1000 M3\nG1 X1 Z-1 F5.0\nM2\n");
+    expect(v.estimated_feed_range_mm_min).toEqual([5, 5]); // G94 → mm/min populated, per-rev stays empty
+  });
+
+  it("feed_per_rev values are plausible in/rev magnitudes (no 25.4x mislabel)", () => {
+    const v = extractProgram("$T.MIN%\nG20 G95\nT010101\nG96 S250\nG1 X1. Z-1. F.007\nM2\n");
+    // in/rev turning feeds are sub-0.1; a 25.4x mix would show ~0.18+. Guard the mislabel class.
+    expect(v.estimated_feed_range_per_rev?.[1]).toBeCloseTo(0.007, 5);
+    expect(v.estimated_feed_range_per_rev?.[1]).toBeLessThan(0.1);
+  });
+
+  it("REAL JM CSS program populates feed-per-rev (closes the n≈6 mm/min coverage gap)", () => {
+    const v = engine.extractOne(REAL_MIN_WITH_CYCLES);
+    expect(v.parsed_ok).toBe(true); // corpus file present (same assumption as the happy-path suite)
+    expect(v.estimated_feed_range_per_rev?.[1] ?? 0).toBeGreaterThan(0);
+    // in/rev sanity: real per-rev feeds incl. coarse thread leads stay well under 20 in/rev;
+    // a catastrophic unit mislabel would be in the hundreds.
+    expect(v.estimated_feed_range_per_rev?.[1] ?? 99).toBeLessThan(20);
+  });
+});

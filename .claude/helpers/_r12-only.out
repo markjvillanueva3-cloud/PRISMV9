@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: VERB_ROUTES: no fake `prism_intelligence:ollama_*` actions (iter4 R12 fix)
+ok 1 - VERB_ROUTES: no fake `prism_intelligence:ollama_*` actions (iter4 R12 fix)
+  ---
+  duration_ms: 2.0267
+  ...
+# Subtest: VERB_ROUTES: every prism_*:* token references a KNOWN-REAL MCP action
+ok 2 - VERB_ROUTES: every prism_*:* token references a KNOWN-REAL MCP action
+  ---
+  duration_ms: 0.3902
+  ...
+# Subtest: VERB_ROUTES: every verb has at least one route mentioning a real MCP action
+ok 3 - VERB_ROUTES: every verb has at least one route mentioning a real MCP action
+  ---
+  duration_ms: 0.2047
+  ...
+# Subtest: VERB_ROUTES: all 7 iter4 verb keys present
+ok 4 - VERB_ROUTES: all 7 iter4 verb keys present
+  ---
+  duration_ms: 0.1642
+  ...
+# Subtest: VERB_ROUTES: no empty-string or whitespace-only routes
+ok 5 - VERB_ROUTES: no empty-string or whitespace-only routes
+  ---
+  duration_ms: 1.2027
+  ...
+# Subtest: VERB_ROUTES: frozen (defensive — can't be mutated by callers)
+ok 6 - VERB_ROUTES: frozen (defensive — can't be mutated by callers)
+  ---
+  duration_ms: 0.1432
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 104.4291

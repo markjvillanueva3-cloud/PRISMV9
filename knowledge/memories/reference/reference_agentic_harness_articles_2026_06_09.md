@@ -1,0 +1,19 @@
+---
+name: reference_agentic_harness_articles_2026_06_09
+description: "Three agentic-architecture articles (operator-supplied 2026-06-09) and their mapping to PRISM's golf/fleet-hygiene layer: (1) Huryn 'Claude Dynamic Workflows' = move orchestration into code (the Workflow/ultracode tool; R5); (2) Akshay/Opik 'Your Agent Harness Should Repair Itself' = self-repair after the trace lands (golf's exact mandate; G10 guard is the first instance); (3) IBuzovskyi 'Hermes 8 Loops' = compounding multi-timescale loops = an OS. Drove the golf-self-repair-harness-assess ultracode Workflow."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.461Z
+aliases: reference_agentic_harness_articles_2026_06_09
+---
+
+
+**2026-06-09 (slot golf).** Operator supplied three X/article links with the directive: "read these articles and use ultracode and ollama for assessment, planning and implementing via loops." X blocks unauthenticated fetch (402); the **fxtwitter embed API** (`https://api.fxtwitter.com/<user>/status/<id>`) returns the tweet text without auth -- use it for any future X read.
+
+**1. Pawel Huryn -- "Claude Dynamic Workflows (not only) for PMs: The Ultimate Guide"** (`x.com/PawelHuryn/status/2064079508689358857`). Thesis: move multi-agent orchestration OUT of the model and INTO code -- "113 agents, 1.95M tokens, 3 prototypes, in 12 minutes. The code that coordinated them spent zero." Deterministic JS handles routing/coordination; agents only reason. → PRISM: this IS the `Workflow` (ultracode) tool's whole premise, and the codification of R5 ("model only for judgment calls; routing/retries/status-codes/deterministic transforms are code's job"). The G10 `selectReenableTargets` pure function (vs a model deciding which task to re-enable) is a concrete in-repo instance.
+
+**2. Akshay Pachaar -- "Your Agent Harness Should Repair Itself"** (Opik) (`x.com/akshay_pachaar/status/2064051835636498924`). Thesis: observability stops at WHAT happened; "the real bottleneck is everything that has to happen AFTER the trace lands on your screen" -- the manual why/how-to-fix. A self-repairing harness automates trace→diagnose→test→repair→verify, not just the alert. Four layers: tracing, Ollie (coding agent), test suites, agent sandbox. → PRISM: **this is golf's exact mandate.** PRISM's fleet-hygiene IS the fleet's self-repair layer. The **G10 auto-re-enable guard** (a disabled crash-critical scheduled task is now AUTO-re-enabled, not just WARNed) is the first real instance. The live gap this lens exposes: many golf watchdogs still only SURFACE a trace and require a human to act (e.g. "PRISM Blueprint OCR Batch=stale" WARNs every Stop but nothing auto-reruns/quarantines it; `docker-service-health-stop` surfaces a downed qdrant/ollama but `--fix` is operator-invoked).
+
+**3. YanXbt / IBuzovskyi -- "8 Loops Inside Hermes Agent (And Why They Compound)"** (`x.com/IBuzovskyi/status/2064377155476193362`). Thesis: a real agent framework runs 8 loops simultaneously at different timescales (ms→weeks); "one loop = a chat wrapper; all 8 = an operating system." Loops compound (each feeds another). → PRISM: the fleet IS this OS -- Fleet Reaper (5-min task), fleet-task-health (Stop-stream), fleet-memory-monitor, /loop iteration cadence, weekly memory synthesis, per-Stop docker/ollama probe, cron watchdogs. Golf owns the hygiene loops. Open question the lens raises: which fleet loops do NOT compound (output dead-ends) and which timescale has no watcher.
+
+**Action:** launched ultracode Workflow `golf-self-repair-harness-assess` (run wf_96da29fa-09d) -- 3 lens agents (one per article, grounded in real golf code at file:line) → 1 synthesis agent → a dependency-ordered golf implementation plan + the #1 implementable unit. Implementing the top unit via the /loop with per-file scrutiny. Relates to [[reference_golf_g10_autoreenable_guard_2026_06_09]] (the seed self-repair instance), [[reference_golf_queue_completion_plan_2026_06_09]].

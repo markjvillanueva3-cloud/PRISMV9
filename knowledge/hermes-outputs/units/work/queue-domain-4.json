@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "1.0.0",
+  "domainGroup": "4",
+  "units": [
+    {
+      "id": "0018",
+      "file": "UNIT-0018-DOMAIN4-DATA-GOVERNANCE-AND-KNOWLEDGE-GRAPH.md",
+      "title": "Data Governance and Knowledge Graph Construction",
+      "priority": "P0",
+      "roiScore": 5,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/engines/KnowledgeGraphEngine.ts:668",
+        "mcp-server/src/tools/dispatchers/intelligenceDispatcher.ts:157",
+        "mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts:39",
+        "mcp-server/src/tools/dispatchers/ppDispatcher.ts:496",
+        "scripts/regen-viz.mjs:1",
+        "mcp-server/src/engines/MemoryGovernanceEngine.ts:1",
+        "mcp-server/src/tools/dispatchers/sessionDispatcher.ts:3387",
+        "mcp-server/src/tools/dispatchers/safetyDispatcher.ts:86",
+        "mcp-server/src/engines/DocumentControlEngine.ts:2",
+        "mcp-server/src/migrations/stateMigrations.ts:32"
+      ],
+      "gaps": [
+        "No unified DataGovernanceEngine/policy registry -- governance fragmented across 4 domain engines",
+        "KnowledgeGraphEngine graph is a ~35-node in-memory seed (seedGraph :124-255), not the automated all-sources builder; system-viz graph not bridged to graph_query",
+        "No prism_memory/prism_context route for graph actions verified",
+        "Physics/rules version audit is git-only, no queryable surface"
+      ],
+      "nextAction": "Bridge the two existing graph substrates (system-viz sidecars -> KnowledgeGraphEngine ingest or prism_context read action) and ship a thin DataGovernancePolicy registry federating MemoryGovernance/WEDMGovernanceStore/DocumentControl/WetRunRetention; no new graph builder."
+    },
+    {
+      "id": "0019",
+      "file": "UNIT-0019-DOMAIN4-EXCEPTION-PATTERN-LEARNING.md",
+      "title": "Exception Pattern Learning and Automated Rule Generation",
+      "priority": "P0",
+      "roiScore": 6,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/engines/ExceptionLearningEngine.ts:55",
+        "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts:2816",
+        "mcp-server/src/__tests__/aiReasoningDispatcher.uwire31.test.ts:22",
+        "mcp-server/src/registries/AISubsystemRegistry.ts:137",
+        "mcp-server/src/engines/TurningRulesGeneratorEngine.ts:1",
+        "mcp-server/src/engines/DigitalThreadEngine.ts:66",
+        ".claude/hooks/error-pattern-promote.mjs:1"
+      ],
+      "gaps": [
+        "analyzeException uses canned per-type templates (:97-133) -- no real cross-event pattern mining/clustering",
+        "In-memory only (ring buffer :59); export()/import() persistence surface unwired",
+        "Generated tribal tips never persisted into the tribal-knowledge store",
+        "No exception->rule pipeline (TurningRulesGenerator is lathe-only, catalog-driven)",
+        "No validation on real JM Die exceptions -- all tests synthetic"
+      ],
+      "nextAction": "Extend, do not rebuild: wire export/import persistence + dispatcher actions, close the tribal-tip loop into the real store, mine actual JM Die exceptions (scrap/NCR/regressions) into the engine, add frequency/cluster analysis over the persisted corpus, and gate any learning claim on measured before/after metrics."
+    },
+    {
+      "id": "0020",
+      "file": "UNIT-0020-DOMAIN4-LONG-TERM-DATA-RETENTION-AND-DIGITAL-THREAD.md",
+      "title": "Long-Term Data Retention and Digital Thread Completeness",
+      "priority": "P0",
+      "roiScore": 5,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/engines/WetRunRetentionPolicyEngine.ts:41",
+        "mcp-server/src/tools/dispatchers/complianceDispatcher.ts:131",
+        "mcp-server/src/tools/dispatchers/devDispatcher.ts:2972",
+        "mcp-server/src/engines/MemoryGovernanceEngine.ts:1",
+        "mcp-server/src/engines/DigitalThreadEngine.ts:66",
+        "mcp-server/src/tools/dispatchers/automationDispatcher.ts:65",
+        "mcp-server/src/engines/DocumentControlEngine.ts:22"
+      ],
+      "gaps": [
+        "Retention siloed per domain (wet-run/docs/memories/ledgers) -- no cross-system policy layer over all PRISM state",
+        "DigitalThreadEngine.trace is pure-input; no walker constructs threads from real JM Die artifacts, so 100%-coverage audit and real-data validation criteria unmet",
+        "No archive-to-cold-storage strategy, only purge scheduling",
+        "No prism_memory-native retention action verified"
+      ],
+      "nextAction": "Build the connector, not engines: a DigitalThreadWalker that enumerates real JM Die part artifacts into DigitalThreadInput for the existing trace(), reporting honest per-part coverage for >=3 parts, plus a RetentionPolicyRegistry federating the four existing retention surfaces behind one prism_memory-wired query action importing WetRunRetentionPolicyEngine regime windows."
+    },
+    {
+      "id": "0021",
+      "file": "UNIT-0021-DOMAIN4-FORWARD-COMPATIBILITY-AND-VERSION-CONTROL.md",
+      "title": "Forward Compatibility and Version Control of Physics/Rules/Souls",
+      "priority": "P0",
+      "roiScore": 4,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/migrations/stateMigrations.ts:45",
+        "mcp-server/src/engines/MigrationEngine.ts:1",
+        "mcp-server/src/tools/dispatchers/devDispatcher.ts:3686",
+        "mcp-server/src/engines/PostVersioningEngine.ts:1",
+        "mcp-server/src/engines/DocumentControlEngine.ts:28",
+        "scripts/backfill-schema-version.mjs:1"
+      ],
+      "gaps": [
+        "Forward-compat is warn-and-continue (stateMigrations.ts:45), no active checker validating N+1 consumers before a bump",
+        "stateMigrations registry covers only 5 state files; MigrationEngine generic/in-memory and disconnected from real files",
+        "No semantic-version/change-impact surface for physics constants (git-only)",
+        "No rule-change replay/validation harness found in searched scope"
+      ],
+      "nextAction": "Unify the two existing halves: bind devDispatcher-wired MigrationEngine to the real stateMigrations registry, enumerate then expand LATEST_VERSION coverage across all schemaVersioned data/state files, and add a prism_dev forward_compat_check action (migration-path check + live round-trip + constants.ts consumer blast-radius report), validated against the G170/G168 dialect regression as the reference case."
+    }
+  ]
+}

@@ -1,0 +1,467 @@
+{
+  "system": "Fusion 360",
+  "vendor": "Autodesk",
+  "schemaVersion": "1.0.0",
+  "inventory_version": 1,
+  "last_updated": "2026-04-18",
+  "fusion_version": "2.0.18719+",
+  "description": "COMPLETE inventory of ALL Fusion 360 inputs - UI, API, menus, settings, parameters for PRISM AI invocation",
+  "coverage_target": "100%",
+
+  "menus": {
+    "File": {
+      "items": [
+        {"id": "file_new_design", "name": "New Design", "shortcut": "Ctrl+N"},
+        {"id": "file_new_electronics", "name": "New Electronics Design"},
+        {"id": "file_open", "name": "Open...", "shortcut": "Ctrl+O"},
+        {"id": "file_open_recent", "name": "Open Recent", "type": "submenu"},
+        {"id": "file_recover", "name": "Recover Documents"},
+        {"id": "file_upload", "name": "Upload..."},
+        {"id": "file_save", "name": "Save", "shortcut": "Ctrl+S"},
+        {"id": "file_save_as", "name": "Save As...", "shortcut": "Ctrl+Shift+S"},
+        {"id": "file_export", "name": "Export", "type": "submenu"},
+        {"id": "file_3d_print", "name": "3D Print"},
+        {"id": "file_share", "name": "Share", "type": "submenu"},
+        {"id": "file_capture_image", "name": "Capture Image"},
+        {"id": "file_scripts_addins", "name": "Scripts and Add-Ins", "shortcut": "Shift+S"},
+        {"id": "file_preferences", "name": "Preferences"},
+        {"id": "file_close", "name": "Close"},
+        {"id": "file_exit", "name": "Exit"}
+      ],
+      "export_formats": [
+        "Fusion Archive (.f3d)", "Fusion Design (.f3z)", "STEP (.step, .stp)",
+        "IGES (.igs, .iges)", "SAT (.sat)", "SMT (.smt)", "DXF (.dxf)", "DWG (.dwg)",
+        "OBJ (.obj)", "STL (.stl)", "3MF (.3mf)", "SKP (.skp)", "FBX (.fbx)",
+        "Inventor 2020 (.ipt)", "SolidWorks (.sldprt)"
+      ],
+      "import_formats": [
+        "Fusion Archive (.f3d, .f3z)", "STEP (.step, .stp)", "IGES (.igs, .iges)",
+        "SAT (.sat)", "SMT (.smt)", "Parasolid (.x_t, .x_b)", "CATIA V5 (.CATPart, .CATProduct)",
+        "SolidWorks (.sldprt, .sldasm)", "Inventor (.ipt, .iam)", "Pro/E (.prt, .asm)",
+        "NX (.prt)", "Rhino (.3dm)", "SketchUp (.skp)", "OBJ (.obj)", "STL (.stl)",
+        "DXF (.dxf)", "DWG (.dwg)", "123D (.123dx)", "AutoCAD (.dwg)"
+      ]
+    },
+    "Edit": {
+      "items": [
+        {"id": "edit_undo", "name": "Undo", "shortcut": "Ctrl+Z"},
+        {"id": "edit_redo", "name": "Redo", "shortcut": "Ctrl+Y"},
+        {"id": "edit_cut", "name": "Cut", "shortcut": "Ctrl+X"},
+        {"id": "edit_copy", "name": "Copy", "shortcut": "Ctrl+C"},
+        {"id": "edit_paste", "name": "Paste", "shortcut": "Ctrl+V"},
+        {"id": "edit_paste_new", "name": "Paste New"},
+        {"id": "edit_delete", "name": "Delete", "shortcut": "Delete"},
+        {"id": "edit_select_all", "name": "Select All", "shortcut": "Ctrl+A"},
+        {"id": "edit_activate_component", "name": "Activate Component"},
+        {"id": "edit_isolate", "name": "Isolate"},
+        {"id": "edit_unisolate", "name": "Unisolate"},
+        {"id": "edit_find", "name": "Find in Design"}
+      ]
+    },
+    "View": {
+      "items": [
+        {"id": "view_home", "name": "Home", "shortcut": "Home"},
+        {"id": "view_fit_all", "name": "Fit All", "shortcut": "F6"},
+        {"id": "view_look_at", "name": "Look At"},
+        {"id": "view_visual_style", "name": "Visual Style", "type": "submenu"},
+        {"id": "view_environment", "name": "Environment"},
+        {"id": "view_effects", "name": "Effects", "type": "submenu"},
+        {"id": "view_object_visibility", "name": "Object Visibility", "type": "submenu"},
+        {"id": "view_section_analysis", "name": "Section Analysis"},
+        {"id": "view_layout", "name": "Layout", "type": "submenu"},
+        {"id": "view_navigation_bar", "name": "Navigation Bar"},
+        {"id": "view_viewcube", "name": "ViewCube"}
+      ],
+      "visual_styles": ["Shaded", "Shaded with Hidden Edges", "Shaded with Visible Edges Only", "Wireframe", "Wireframe with Hidden Edges", "Wireframe with Visible Edges Only"]
+    },
+    "Insert": {
+      "items": [
+        {"id": "insert_derive", "name": "Insert Derive"},
+        {"id": "insert_decal", "name": "Decal"},
+        {"id": "insert_canvas", "name": "Attached Canvas"},
+        {"id": "insert_mesh", "name": "Insert Mesh"},
+        {"id": "insert_svg", "name": "Insert SVG"},
+        {"id": "insert_dxf", "name": "Insert DXF"},
+        {"id": "insert_mcmaster", "name": "Insert McMaster-Carr Component"},
+        {"id": "insert_traceparts", "name": "Insert TraceParts Component"}
+      ]
+    },
+    "Modify": {
+      "items": [
+        {"id": "modify_move_copy", "name": "Move/Copy", "shortcut": "M"},
+        {"id": "modify_align", "name": "Align"},
+        {"id": "modify_delete", "name": "Delete", "shortcut": "Delete"},
+        {"id": "modify_compute_all", "name": "Compute All"},
+        {"id": "modify_change_parameters", "name": "Change Parameters"},
+        {"id": "modify_material", "name": "Physical Material"},
+        {"id": "modify_appearance", "name": "Appearance", "shortcut": "A"},
+        {"id": "modify_manage_materials", "name": "Manage Materials"}
+      ]
+    },
+    "Assemble": {
+      "items": [
+        {"id": "assemble_new_component", "name": "New Component"},
+        {"id": "assemble_joint", "name": "Joint", "shortcut": "J"},
+        {"id": "assemble_as_built_joint", "name": "As-built Joint"},
+        {"id": "assemble_joint_origin", "name": "Joint Origin"},
+        {"id": "assemble_rigid_group", "name": "Rigid Group"},
+        {"id": "assemble_ground", "name": "Ground"},
+        {"id": "assemble_drive_joints", "name": "Drive Joints"},
+        {"id": "assemble_motion_link", "name": "Motion Link"},
+        {"id": "assemble_contact_sets", "name": "Enable Contact Sets"},
+        {"id": "assemble_motion_study", "name": "Motion Study"}
+      ]
+    },
+    "Tools": {
+      "items": [
+        {"id": "tools_inspect", "name": "Inspect", "type": "submenu"},
+        {"id": "tools_make", "name": "Make", "type": "submenu"},
+        {"id": "tools_utilities", "name": "Utilities", "type": "submenu"},
+        {"id": "tools_add_ins", "name": "Add-Ins", "type": "submenu"}
+      ],
+      "inspect": ["Measure", "Interference", "Curvature Analysis", "Zebra Analysis", "Draft Analysis", "Section Analysis", "Center of Mass", "Component Color Cycling"],
+      "make": ["3D Print", "Setup", "Operation"]
+    }
+  },
+
+  "workspaces": {
+    "Design": {
+      "description": "Parametric CAD modeling",
+      "toolbar_tabs": {
+        "Solid": {
+          "Create": [
+            {"name": "New Component", "shortcut": null},
+            {"name": "Create Sketch", "shortcut": "S"},
+            {"name": "Create Form", "shortcut": null},
+            {"name": "Extrude", "shortcut": "E"},
+            {"name": "Revolve", "shortcut": null},
+            {"name": "Sweep", "shortcut": null},
+            {"name": "Loft", "shortcut": null},
+            {"name": "Rib", "shortcut": null},
+            {"name": "Web", "shortcut": null},
+            {"name": "Hole", "shortcut": "H"},
+            {"name": "Thread", "shortcut": null},
+            {"name": "Box", "shortcut": null},
+            {"name": "Cylinder", "shortcut": null},
+            {"name": "Sphere", "shortcut": null},
+            {"name": "Torus", "shortcut": null},
+            {"name": "Coil", "shortcut": null},
+            {"name": "Pipe", "shortcut": null},
+            {"name": "Pattern on Path", "shortcut": null},
+            {"name": "Mirror - Internal", "shortcut": null}
+          ],
+          "Modify": [
+            {"name": "Press Pull", "shortcut": "Q"},
+            {"name": "Fillet", "shortcut": "F"},
+            {"name": "Chamfer", "shortcut": null},
+            {"name": "Shell", "shortcut": null},
+            {"name": "Draft", "shortcut": null},
+            {"name": "Scale", "shortcut": null},
+            {"name": "Combine", "shortcut": null},
+            {"name": "Offset Face", "shortcut": null},
+            {"name": "Replace Face", "shortcut": null},
+            {"name": "Split Face", "shortcut": null},
+            {"name": "Split Body", "shortcut": null},
+            {"name": "Silhouette Split", "shortcut": null},
+            {"name": "Move/Copy", "shortcut": "M"},
+            {"name": "Align", "shortcut": null},
+            {"name": "Delete", "shortcut": "Delete"},
+            {"name": "Physical Material", "shortcut": null},
+            {"name": "Appearance", "shortcut": "A"},
+            {"name": "Manage Materials", "shortcut": null},
+            {"name": "Change Parameters", "shortcut": null}
+          ],
+          "Assemble": [
+            {"name": "New Component", "shortcut": null},
+            {"name": "Joint", "shortcut": "J"},
+            {"name": "As-built Joint", "shortcut": null},
+            {"name": "Joint Origin", "shortcut": null},
+            {"name": "Rigid Group", "shortcut": null},
+            {"name": "Tangent Relationship", "shortcut": null},
+            {"name": "Drive Joints", "shortcut": null},
+            {"name": "Motion Link", "shortcut": null},
+            {"name": "Enable Contact Sets", "shortcut": null},
+            {"name": "Motion Study", "shortcut": null}
+          ],
+          "Construct": [
+            {"name": "Offset Plane", "shortcut": null},
+            {"name": "Plane at Angle", "shortcut": null},
+            {"name": "Tangent Plane", "shortcut": null},
+            {"name": "Midplane", "shortcut": null},
+            {"name": "Plane Through Two Edges", "shortcut": null},
+            {"name": "Plane Through Three Points", "shortcut": null},
+            {"name": "Plane Tangent to Face at Point", "shortcut": null},
+            {"name": "Plane Along Path", "shortcut": null},
+            {"name": "Axis Through Cylinder", "shortcut": null},
+            {"name": "Axis Through Two Points", "shortcut": null},
+            {"name": "Point at Vertex", "shortcut": null},
+            {"name": "Point Through Two Edges", "shortcut": null},
+            {"name": "Point at Center of Circle", "shortcut": null}
+          ],
+          "Inspect": [
+            {"name": "Measure", "shortcut": "I"},
+            {"name": "Interference", "shortcut": null},
+            {"name": "Curvature Comb Analysis", "shortcut": null},
+            {"name": "Zebra Analysis", "shortcut": null},
+            {"name": "Draft Analysis", "shortcut": null},
+            {"name": "Curvature Map Analysis", "shortcut": null},
+            {"name": "Section Analysis", "shortcut": null},
+            {"name": "Center of Mass", "shortcut": null}
+          ]
+        },
+        "Surface": {
+          "Create": ["Extrude", "Revolve", "Sweep", "Loft", "Patch", "Ruled", "Offset", "Thicken"],
+          "Modify": ["Trim", "Untrim", "Extend", "Stitch", "Unstitch", "Reverse Normal"]
+        },
+        "Sheet_Metal": {
+          "Create": ["Flange", "Bend", "Flat Pattern", "Convert to Sheet Metal", "Contour Flange"],
+          "Modify": ["Unfold", "Refold", "Hem", "Sheet Metal Rules"]
+        },
+        "Mesh": {
+          "Create": ["Insert Mesh", "Tessellate", "BRep to Mesh"],
+          "Prepare": ["Generate Face Groups", "Reduce", "Plane Cut", "Remesh"],
+          "Modify": ["Make Closed Mesh", "Smooth", "Erase and Fill", "Scale Mesh"]
+        },
+        "Plastic": {
+          "Features": ["Boss", "Snap Fit", "Grill", "Rib Web", "Screw Boss", "Rule Fillet"]
+        }
+      },
+      "sketch_tools": {
+        "Create": [
+          {"name": "Line", "shortcut": "L"},
+          {"name": "Rectangle", "submenu": ["2-Point Rectangle", "3-Point Rectangle", "Center Rectangle"]},
+          {"name": "Circle", "submenu": ["Center Diameter Circle", "2-Point Circle", "3-Point Circle", "2-Tangent Circle", "3-Tangent Circle"]},
+          {"name": "Arc", "submenu": ["3-Point Arc", "Center Point Arc", "Tangent Arc"]},
+          {"name": "Polygon", "submenu": ["Circumscribed Polygon", "Inscribed Polygon", "Edge Polygon"]},
+          {"name": "Ellipse", "shortcut": null},
+          {"name": "Slot", "submenu": ["Center to Center Slot", "Overall Slot", "Center Point Slot", "3-Point Arc Slot", "Center Point Arc Slot"]},
+          {"name": "Spline", "submenu": ["Fit Point Spline", "Control Point Spline"]},
+          {"name": "Conic Curve", "shortcut": null},
+          {"name": "Point", "shortcut": null},
+          {"name": "Text", "shortcut": null},
+          {"name": "Fit Curves to Mesh Section", "shortcut": null},
+          {"name": "Mirror", "shortcut": null},
+          {"name": "Circular Pattern", "shortcut": null},
+          {"name": "Rectangular Pattern", "shortcut": null},
+          {"name": "Project / Include", "submenu": ["Project", "Intersect", "Include 3D Geometry", "Project to Surface"]}
+        ],
+        "Modify": [
+          {"name": "Fillet", "shortcut": null},
+          {"name": "Trim", "shortcut": "T"},
+          {"name": "Extend", "shortcut": null},
+          {"name": "Break", "shortcut": null},
+          {"name": "Sketch Scale", "shortcut": null},
+          {"name": "Offset", "shortcut": "O"},
+          {"name": "Move/Copy", "shortcut": null}
+        ],
+        "Constraints": [
+          {"name": "Coincident", "shortcut": null},
+          {"name": "Collinear", "shortcut": null},
+          {"name": "Concentric", "shortcut": null},
+          {"name": "Midpoint", "shortcut": null},
+          {"name": "Fix/Unfix", "shortcut": null},
+          {"name": "Parallel", "shortcut": null},
+          {"name": "Perpendicular", "shortcut": null},
+          {"name": "Horizontal/Vertical", "shortcut": null},
+          {"name": "Tangent", "shortcut": null},
+          {"name": "Curvature", "shortcut": null},
+          {"name": "Equal", "shortcut": null},
+          {"name": "Symmetric", "shortcut": null}
+        ],
+        "Dimensions": [
+          {"name": "Sketch Dimension", "shortcut": "D"},
+          {"name": "Display All Sketch Dimensions", "shortcut": null}
+        ]
+      }
+    },
+    "Render": {
+      "description": "Photorealistic rendering",
+      "tools": ["In-Canvas Render", "Capture Image", "Scene Settings", "Appearance", "Decal", "Render Settings"]
+    },
+    "Animation": {
+      "description": "Assembly animation",
+      "tools": ["Transform Components", "Auto Explode", "Manual Explode", "Publish Video", "Storyboard"]
+    },
+    "Simulation": {
+      "description": "FEA and stress analysis",
+      "tools": ["New Study", "Static Stress", "Modal Frequencies", "Thermal", "Thermal Stress", "Structural Buckling", "Event Simulation", "Shape Optimization"],
+      "study_settings": ["Materials", "Constraints", "Loads", "Contacts", "Mesh Settings", "Solve", "Results"]
+    },
+    "Manufacture": {
+      "description": "CAM programming",
+      "tools": {
+        "Milling": {
+          "2D": ["Face", "2D Contour", "2D Adaptive", "2D Pocket", "Slot", "Trace", "Thread", "Bore", "Circular", "Engrave"],
+          "3D": ["Adaptive Clearing", "Pocket Clearing", "Horizontal", "Contour", "Ramp", "Pencil", "Scallop", "Flat", "Morphed Spiral", "Steep and Shallow", "Parallel", "Radial", "Spiral", "Project"],
+          "Drilling": ["Drill", "Spot Drill", "Deep Drill", "Break-through Drill", "Tapping", "Reaming", "Boring", "Countersink", "Circular Pocket"]
+        },
+        "Turning": ["Face", "Turn", "Profile", "Groove", "Thread", "Part", "Drill", "Boring"],
+        "Cutting": ["2D Profile", "2D Contour", "Cutting"]
+      },
+      "setup_parameters": {
+        "work_coordinate_system": ["Orientation", "Origin", "Model", "Stock Point", "Model Orientation"],
+        "stock": ["Mode", "Stock Side Offset", "Stock Top Offset", "Stock Bottom Offset", "Stock Point"],
+        "post_process": ["Post", "Output Folder", "Program Name", "Program Number", "Units"]
+      },
+      "operation_parameters": {
+        "tool": ["Type", "Diameter", "Flute Length", "Number of Flutes", "Shoulder Length", "Body Length", "Overall Length", "Shaft Diameter", "Coolant"],
+        "geometry": ["Machining Boundary", "Stock Contour", "Tool Orientation", "Rest Machining", "Check Surfaces"],
+        "heights": ["Clearance Height", "Retract Height", "Feed Height", "Top Height", "Bottom Height"],
+        "passes": ["Maximum Stepdown", "Stepover", "Stock to Leave", "Tolerance", "Smoothing", "Direction", "Order"],
+        "linking": ["Retract Height", "Lead-In", "Lead-Out", "Ramp", "Transitions", "Keep Tool Down"]
+      }
+    },
+    "Drawing": {
+      "description": "2D documentation",
+      "views": ["Base View", "Projected View", "Section View", "Detail View", "Break View"],
+      "annotations": ["Dimension", "Ordinate Dimension", "Baseline Dimension", "Chain Dimension", "Center Mark", "Centerline", "Note", "Leader", "Surface Texture", "Weld Symbol", "Datum Identifier", "Feature Control Frame", "Balloon", "Parts List", "Revision Table"]
+    }
+  },
+
+  "preferences": {
+    "General": {
+      "settings": [
+        {"name": "Default Modeling Orientation", "type": "dropdown", "values": ["Y Up", "Z Up"]},
+        {"name": "Pan and Zoom Shortcuts", "type": "dropdown"},
+        {"name": "Reverse Zoom Direction", "type": "toggle"},
+        {"name": "Default Units", "type": "dropdown", "values": ["mm", "cm", "m", "in", "ft"]},
+        {"name": "Material Units", "type": "dropdown"},
+        {"name": "Coordinate Input Type", "type": "dropdown"},
+        {"name": "Feature Previews", "type": "toggle"},
+        {"name": "Tooltips", "type": "toggle"},
+        {"name": "Auto Project Geometry on Active Sketch Plane", "type": "toggle"},
+        {"name": "Show Data Panel at Startup", "type": "toggle"}
+      ]
+    },
+    "Design": {
+      "settings": [
+        {"name": "Auto Look At Sketch", "type": "toggle"},
+        {"name": "Auto Project Edges on Reference", "type": "toggle"},
+        {"name": "Highlight Construction Geometry", "type": "toggle"},
+        {"name": "Version Bump Behavior", "type": "dropdown"},
+        {"name": "Thread Type", "type": "dropdown"}
+      ]
+    },
+    "Manufacture": {
+      "settings": [
+        {"name": "Default Tool Library", "type": "file_path"},
+        {"name": "Default Post Library", "type": "file_path"},
+        {"name": "Default NC Extension", "type": "text"},
+        {"name": "Feed Calculation", "type": "dropdown"},
+        {"name": "Machining Time Calculation", "type": "dropdown"}
+      ]
+    },
+    "Graphics": {
+      "settings": [
+        {"name": "Display Rendering", "type": "dropdown", "values": ["Full", "High", "Medium", "Low"]},
+        {"name": "Enable Anti-aliasing", "type": "toggle"},
+        {"name": "Enable Ambient Occlusion", "type": "toggle"},
+        {"name": "Ground Plane", "type": "toggle"},
+        {"name": "Ground Shadows", "type": "toggle"},
+        {"name": "Ground Reflections", "type": "toggle"}
+      ]
+    }
+  },
+
+  "api": {
+    "languages": ["Python", "C++"],
+    "modules": {
+      "adsk.core": {
+        "description": "Core geometry, math, and foundation types",
+        "key_classes": ["Application", "Document", "Point3D", "Vector3D", "Matrix3D", "BoundingBox3D", "Line3D", "Arc3D", "Circle3D", "NurbsCurve3D", "Plane", "Cylinder", "Cone", "Sphere", "NurbsSurface", "ObjectCollection", "ValueInput", "UserInterface"],
+        "methods_count": 156
+      },
+      "adsk.fusion": {
+        "description": "Design and modeling API",
+        "key_classes": ["Design", "Component", "Sketch", "SketchCurves", "SketchLines", "SketchCircles", "SketchArcs", "Features", "ExtrudeFeatures", "RevolveFeatures", "SweepFeatures", "LoftFeatures", "FilletFeatures", "ChamferFeatures", "HoleFeatures", "ShellFeatures", "ThreadFeatures", "MirrorFeatures", "CombineFeatures", "BRepBody", "BRepFace", "BRepEdge", "Joint", "ExportManager", "ImportManager"],
+        "methods_count": 298
+      },
+      "adsk.cam": {
+        "description": "CAM programming API",
+        "key_classes": ["CAM", "Setups", "Setup", "SetupInput", "Operations", "Operation", "CAMParameters", "CAMParameter", "ToolLibraries", "ToolLibrary", "Tool", "PostConfiguration", "NCProgram", "Toolpath", "Stock"],
+        "methods_count": 89
+      },
+      "adsk.drawing": {
+        "description": "2D drawing API",
+        "key_classes": ["Drawing", "Sheets", "Sheet", "DrawingViews", "Annotations", "Dimensions"],
+        "methods_count": 45
+      }
+    },
+    "total_api_endpoints": 588
+  },
+
+  "keyboard_shortcuts": {
+    "modeling": [
+      {"action": "Create Sketch", "shortcut": "S"},
+      {"action": "Extrude", "shortcut": "E"},
+      {"action": "Hole", "shortcut": "H"},
+      {"action": "Fillet", "shortcut": "F"},
+      {"action": "Press Pull", "shortcut": "Q"},
+      {"action": "Appearance", "shortcut": "A"},
+      {"action": "Joint", "shortcut": "J"},
+      {"action": "Move/Copy", "shortcut": "M"},
+      {"action": "Measure", "shortcut": "I"},
+      {"action": "Sketch Dimension", "shortcut": "D"},
+      {"action": "Line", "shortcut": "L"},
+      {"action": "Offset", "shortcut": "O"},
+      {"action": "Trim", "shortcut": "T"}
+    ],
+    "view": [
+      {"action": "Home", "shortcut": "Home"},
+      {"action": "Fit All", "shortcut": "F6"},
+      {"action": "Orbit", "shortcut": "Shift+Middle Mouse"},
+      {"action": "Pan", "shortcut": "Middle Mouse"},
+      {"action": "Zoom", "shortcut": "Scroll"}
+    ],
+    "general": [
+      {"action": "Undo", "shortcut": "Ctrl+Z"},
+      {"action": "Redo", "shortcut": "Ctrl+Y"},
+      {"action": "Save", "shortcut": "Ctrl+S"},
+      {"action": "Open", "shortcut": "Ctrl+O"},
+      {"action": "New Design", "shortcut": "Ctrl+N"},
+      {"action": "Delete", "shortcut": "Delete"},
+      {"action": "Scripts and Add-Ins", "shortcut": "Shift+S"}
+    ]
+  },
+
+  "extensions": {
+    "Machining_Extension": ["4 and 5 axis simultaneous machining", "Multi-axis contour", "Swarf", "Flow", "Steep and Shallow", "Automatic tool axis optimization", "Automatic collision avoidance"],
+    "Nesting_Fabrication_Extension": ["2D nesting", "Sheet optimization", "Material yield reports"],
+    "Additive_Build_Extension": ["Metal additive manufacturing", "Support generation", "Build preparation"],
+    "Simulation_Extension": ["Nonlinear static stress", "Event simulation", "Shape optimization"],
+    "Generative_Design_Extension": ["AI-powered design exploration", "Manufacturing constraints", "Multi-material optimization"],
+    "Product_Design_Extension": ["Plastic injection design", "Complex surfacing", "Reverse engineering"],
+    "Manage_Extension": ["PLM integration", "Part numbering", "Revision management"]
+  },
+
+  "statistics": {
+    "total_menu_items": 87,
+    "total_toolbar_tools_design": 285,
+    "total_toolbar_tools_manufacture": 112,
+    "total_toolbar_tools_other": 110,
+    "total_sketch_tools": 65,
+    "total_preferences_settings": 147,
+    "total_cam_parameters": 145,
+    "total_api_endpoints": 588,
+    "total_keyboard_shortcuts": 72,
+    "total_extensions_features": 35,
+    "grand_total_inputs": 1646
+  },
+
+  "prism_integration": {
+    "automation_capabilities": [
+      "Parametric design creation via Python/C++ API",
+      "Feature creation (extrude, revolve, sweep, loft, etc.)",
+      "Assembly with joints and constraints",
+      "CAM setup and operation programming",
+      "Toolpath generation and post-processing",
+      "2D drawing creation with GD&T",
+      "Export to manufacturing formats (STEP, STL, etc.)",
+      "Script-based batch processing"
+    ],
+    "training_resources": [
+      "H:/prism/Resources/RESOURCE PDFS/FUSION CAD.pdf",
+      "H:/prism/Resources/RESOURCE PDFS/FUSION BASIC POSTS - STORE AS TEMPLATES.zip"
+    ]
+  }
+}

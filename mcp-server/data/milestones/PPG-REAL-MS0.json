@@ -1,0 +1,1166 @@
+{
+  "id": "PPG-REAL-MS0",
+  "title": "Post Processor Generator — Production-Ready Working Posts",
+  "track": "PPG-REAL",
+  "version": "2.2.0",
+  "status": "not_started",
+  "created": "2026-04-05",
+  "updated": "2026-04-06",
+  "description": "End-to-end roadmap to make PRISM PPG produce REAL, working, physics-optimized CPS post processors. V2.2 test matrix rewrite: 1,513 new scenarios across 72 files (3,021+ total with existing). Addresses all 20 v2.1 scrutiny failures (44.8→target 95). Key additions: (1) Shared G-code comparator utility with exact assertions, (2) Full turning suite (120 scenarios: CSS, G70-G76, TNRC, feed-per-rev), (3) Multi-tool integration (60 scenarios: 5-tool, 10-tool, WCS changes), (4) Test generators for 70%+ auto-generation, (5) Regression infrastructure (CI gate, snapshot strategy, golden ref update), (6) Physics with cited Altintas/MDH references, (7) 100 adversarial/state-dependent scenarios, (8) Controller parity (5 golden refs EACH), (9) Multi-setup/multi-axis modes, (10) Interoperability (line length, encoding, DNC).",
+  "omega_target": 1.0,
+  "total_sessions": 16,
+  "total_units": 53,
+  "test_matrix": {
+    "document": "data/docs/PPG_TEST_MATRIX.md",
+    "version": "2.0",
+    "target_new_scenarios": 1513,
+    "target_test_files": 72,
+    "shared_infrastructure_files": 5,
+    "existing_pp_tests": 1508,
+    "target_total": 3021,
+    "week1_p0_scenarios": 450,
+    "auto_generated_pct": 70,
+    "suite_time_budget_seconds": 300,
+    "categories": [
+      {"name": "Controller × Operation", "files": 11, "scenarios": 308, "priority": "P0"},
+      {"name": "Feed Format", "files": 11, "scenarios": 88, "priority": "P0"},
+      {"name": "Structural Blocks", "files": 1, "scenarios": 33, "priority": "P0"},
+      {"name": "G-Code Structural Correctness", "files": 5, "scenarios": 100, "priority": "P0"},
+      {"name": "Canned Cycles", "files": 3, "scenarios": 80, "priority": "P0"},
+      {"name": "Turning Suite", "files": 6, "scenarios": 120, "priority": "P0"},
+      {"name": "Multi-Tool Integration", "files": 4, "scenarios": 60, "priority": "P0"},
+      {"name": "Safety / Edge Cases", "files": 6, "scenarios": 100, "priority": "P0"},
+      {"name": "Real Program Validation", "files": 5, "scenarios": 211, "priority": "P0"},
+      {"name": "Golden References", "files": 11, "scenarios": 55, "priority": "P0"},
+      {"name": "Physics Validation", "files": 5, "scenarios": 60, "priority": "P1"},
+      {"name": "CPS Generation", "files": 1, "scenarios": 55, "priority": "P1"},
+      {"name": "Fuzz / Chaos", "files": 1, "scenarios": 120, "priority": "P0"},
+      {"name": "E2E Journeys", "files": 2, "scenarios": 23, "priority": "P1"},
+      {"name": "Performance Benchmarks", "files": 1, "scenarios": 15, "priority": "P2"},
+      {"name": "Machinist Trust", "files": 4, "scenarios": 30, "priority": "P1"},
+      {"name": "Multi-Setup / Multi-Axis", "files": 3, "scenarios": 40, "priority": "P0"},
+      {"name": "Interoperability", "files": 1, "scenarios": 15, "priority": "P1"}
+    ]
+  },
+  "scrutiny_history": {
+    "v1": {"avg_score": 53, "date": "2026-04-05", "agents": 20, "threshold": 70, "verdict": "FAIL"},
+    "v2": {"avg_score": 87.8, "date": "2026-04-06", "agents": 20, "threshold": 70, "verdict": "PASS"},
+    "v2.1": {"avg_score": 44.8, "date": "2026-04-06", "agents": 20, "threshold": 95, "verdict": "FAIL — test matrix scrutiny"},
+    "v2.2": {"date": "2026-04-06", "changes": "Complete test matrix rewrite. 864→1,513 scenarios (72 files). Added: shared G-code comparator (exact assertion code), test generators (70% auto), turning suite (120 scenarios), multi-tool integration (60 scenarios), G-code structural correctness (100 scenarios), regression infra (CI gate, snapshots, golden ref update), physics with Altintas/MDH citations, equalized golden refs (5 per controller), multi-setup/multi-axis modes, interoperability, adversarial state-dependent sequences."}
+  },
+  "dependencies": ["PP-MOAT-MS2", "PP-MOAT-MS4"],
+  "supersedes": ["PPG-VAR-MS0"],
+  "cross_roadmap": {
+    "requires": ["PP-MOAT-MS2 (learning loop)", "PP-MOAT-MS4 (UI features preserved in S13)"],
+    "feeds_into": ["F360-AP (add-in milestones)", "LATHE-PRO (turning post generation)"],
+    "supersedes_reason": "PPG-REAL subsumes PPG-VAR scope — PPG-VAR planned variable feed post generation, PPG-REAL delivers it plus machine-specific generation, physics wiring, and real-program validation."
+  },
+  "knowledge_sources": {
+    "engines_to_reuse": [
+      "PostValidationHardeningEngine — already does machine limit validation (S3a uses this, NOT a new MachineLimitValidationEngine)",
+      "MasterPostProcessorEngine — already exists as post framework (S3b wires this, NOT built from scratch)",
+      "CrossCAMPostEngine (1,380 lines) — already parses multi-dialect G-code (S10 wires this, NOT a new parser)",
+      "ProgramCompareEngine — already has diffGCode + comparePhysics (S10 wires this, NOT a new report engine)"
+    ],
+    "engines_to_wire": [
+      "PostProcessorPipelineEngine (4,864 lines, 57 stages)",
+      "PostLibraryConfiguratorEngine (850 lines, CPS generator)",
+      "ControllerDialectEngine (1,348 lines, 30 families)",
+      "SpeedFeedOrchestratorEngine (3,162 lines, 8 resolvers)",
+      "KienzleForceModelEngine — Fc = kc1_1 * ap * fz^(1-mc)",
+      "ChatterStabilityLobeEngine — SLD generation for stable RPM zones",
+      "ThermalWearCouplingEngine — coupled ODE (RK4), Usui wear model",
+      "GCodeSafetyAnalyzerEngine (1,997 lines)",
+      "GCodeValidationEngine (678 lines)",
+      "PostProcessorGeneratorEngine (637 lines)",
+      "PostProcessorCapabilityMatrixEngine (1,981 lines)",
+      "ControllerFeatureMatrixEngine (1,649 lines)",
+      "CpsDialectMapperEngine (556 lines)",
+      "AutoSpeedFeedCalculatorEngine (537 lines)"
+    ],
+    "registries": [
+      "MaterialRegistry (2,957 materials with Kienzle kc1_1, mc)",
+      "ToolRegistry (95,608 tools with geometry)",
+      "MachineRegistry (910 machines with kinematics, limits)",
+      "FormulaRegistry (499 formulas)"
+    ],
+    "test_data": [
+      "2,734 Okuma .MIN programs (data/programs/okuma/)",
+      "138 Haas .NC programs (data/programs/haas/)",
+      "11 Hurco .HNC programs (data/programs/hurco/)",
+      "471 CPS posts (data/posts/fusion-cache/ + box-basic/)",
+      "14 PRISM-enhanced posts (data/posts/prism-enhanced/)",
+      "16 curated test fixtures (__tests__/fixtures/)"
+    ],
+    "reference": [
+      "Fusion 360 CPS Post Processor API — CRITICAL: getGlobalParameter() CANNOT read add-in custom attributes. CPS runtime only reads CAM kernel globals.",
+      "Fusion 360 adsk.cam API — CORRECT approach: add-in modifies operation S/F directly before posting",
+      "Autodesk CAM Post Processor guide",
+      "Controller-specific programming manuals (Haas, Fanuc, Siemens, Heidenhain, Mazak, Okuma, Hurco, DMG MORI, Brother, Doosan)"
+    ],
+    "physics_constants": "src/physics/constants.ts — ALL Kienzle/Taylor constants MUST be imported, never inlined"
+  },
+  "sessions": [
+    {
+      "id": "S1",
+      "title": "Foundation — Remove Fakes, Fix Feed Bugs, Document Correct API",
+      "depends_on": [],
+      "compact_after": true,
+      "units": ["U-PPR01", "U-PPR02", "U-PPR03"],
+      "smart_config": {
+        "role": "CNC Post Processor Engineer + Fusion 360 API Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "intent": "After this session, every existing PRISM-enhanced post produces correct feed rates. All fake HTTPClient code is removed. The CORRECT Fusion 360 add-in architecture is documented: add-in modifies operation S/F via adsk.cam API, post reads normal spindleSpeed/feed values. No property bridge needed.",
+      "work": {
+        "U-PPR01": {
+          "title": "Remove fake HTTPClient from PRISM.cps and all enhanced posts",
+          "description": "Strip ALL HTTPClient/httpGet/httpPost calls from PRISM.cps and the 14 enhanced posts. These do NOT exist in the Fusion 360 CPS runtime. Also remove any getGlobalParameter('prism:*') calls — the CPS runtime cannot read add-in custom attributes via getGlobalParameter(). When PRISM add-in data is needed, the add-in writes S/F directly to operation params via adsk.cam BEFORE posting — the post just reads normal spindleSpeed and feed values. For extra data (force, confidence, tool life), the add-in writes to operation comments which the post can read via getParameter('operation:comment').",
+          "four_loop": true,
+          "files_modified": [
+            "scripts/fusion360-post/PRISM.cps",
+            "data/posts/prism-enhanced/*.cps (all 14)"
+          ],
+          "abort_criteria": [
+            "Any CPS file contains 'HTTPClient'",
+            "Any CPS file contains 'httpGet' or 'httpPost'",
+            "Any CPS file contains getGlobalParameter('prism:') calls",
+            "Post fails Fusion 360 syntax validation"
+          ],
+          "exit_gate": "grep -r 'HTTPClient\\|httpGet\\|httpPost\\|getGlobalParameter.*prism' data/posts/ scripts/fusion360-post/ returns 0 matches. npx vitest run src/__tests__/ppg-*.test.ts passes."
+        },
+        "U-PPR02": {
+          "title": "Fix feed rate bugs in all 14 enhanced posts",
+          "description": "Apply the v8.9.154 feed rate fix pattern to all 14 enhanced posts: feedFormat decimals:0 for milling, feedFormatPrecise for tapping/threading (decimals:4 inch, 3 mm), cycleFeedOutput auto-selector in canned cycles, Math.round() before comparison in getFeed(). Sub-1 IPM feeds (finish passes, probing) must keep decimals. Each post must be individually verified with at least one milling and one tapping scenario.",
+          "four_loop": true,
+          "files_modified": ["data/posts/prism-enhanced/*.cps (all 14)"],
+          "abort_criteria": [
+            "Any post outputs F with >0 decimals for non-tapping milling moves",
+            "Any post outputs F0 for tapping",
+            "Any post has missing F on cutting lines",
+            "Sub-1 IPM feed loses precision"
+          ],
+          "exit_gate": "All 14 posts pass feed format validation: milling F80 (no decimals), tapping F0.0500 (4 decimals inch), sub-1 F0.003 preserved. npx vitest run src/__tests__/ppg-*.test.ts passes."
+        },
+        "U-PPR03": {
+          "title": "Document PRISM Add-in Direct CAM API Architecture",
+          "description": "Create the canonical architecture document for how the PRISM Fusion 360 add-in passes physics-optimized parameters to posts. CORRECT mechanism: (1) Add-in calls PRISM server HTTP API to get physics S/F for each operation's tool+material+machine context. (2) Add-in modifies operation parameters DIRECTLY via adsk.cam.Operation.parameters — sets spindleSpeed, surfaceSpeed, feedPerTooth, feedrate etc. (3) Post processor reads normal spindleSpeed/feed values — no custom property bridge needed. (4) For extra data (force N, power kW, confidence %, tool life min, stable RPM range), add-in writes to operation comments as structured JSON: {prism:{force:1234,power:2.1,confidence:0.92,tool_life_min:45,stable_rpm_min:6800,stable_rpm_max:7600}}. Post reads via getParameter('operation:comment') and parses. (5) When add-in is absent, post works normally with CAM-programmed values. Define fallback behavior, version negotiation (prism_version field in comment JSON).",
+          "four_loop": true,
+          "files_created": [
+            "data/docs/PRISM_ADDIN_DIRECT_CAM_API_SPEC.md",
+            "src/engines/PrismAddinArchitectureEngine.ts"
+          ],
+          "abort_criteria": [
+            "Spec references getGlobalParameter for custom attributes",
+            "Spec assumes CPS can make HTTP calls",
+            "Spec doesn't define fallback for absent add-in",
+            "No test validating comment JSON parse"
+          ],
+          "exit_gate": "Spec reviewed. Engine created with comment JSON schema + parse/serialize helpers. npx vitest run src/__tests__/prism-addin-architecture.test.ts passes with parse+serialize+fallback tests."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-no-httpclient-gate — blocks any CPS file edit that introduces HTTPClient or getGlobalParameter('prism:*')",
+        "action": "prism_cam:ppg_validate_cps_syntax — validates CPS file for Fusion 360 runtime compatibility",
+        "skill": "/ppg-validate-post — validate a CPS post for Fusion 360 runtime compatibility",
+        "cascade": {"available_to": ["S3b", "S4a", "S4b", "S5", "S6a"]}
+      },
+      "exit_gate": "0 HTTPClient references. 0 getGlobalParameter('prism:*') references. All 14 posts pass feed validation. Direct CAM API architecture spec complete. npx vitest run src/__tests__/ppg-*.test.ts all pass."
+    },
+    {
+      "id": "S2",
+      "title": "Safety Foundations — NaN Guards, Input Validation, Collision Detection",
+      "depends_on": ["S1"],
+      "compact_after": true,
+      "units": ["U-PPR04", "U-PPR05", "U-PPR06", "U-PPR07"],
+      "smart_config": {
+        "role": "Safety-Critical Software Engineer + CNC Collision Prevention Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      },
+      "intent": "After this session, NO code path in the pipeline can produce NaN/Infinity S or F. Bad input produces clear errors, not dangerous output. Basic collision hazards (rapid at cutting depth, missing Z retract before tool change) are detected. Every T use has a preceding M06. This session was MOVED from S11 in v1 per scrutiny finding: safety guards must be in place BEFORE any physics or generation work.",
+      "work": {
+        "U-PPR04": {
+          "title": "NaN/Infinity guards on ALL numeric pipeline outputs",
+          "description": "Audit every stage in PostProcessorPipelineEngine that produces S or F values. Add guards: if isNaN(rpm) || !isFinite(rpm), replace with conservative default from MachineRegistry (50% of max_rpm) and add WARNING comment in output. Same for feed. Also guard: force (Fc), power (P_kW), confidence, tool_life. Log every guard activation for debugging. This is the FIRST line of defense — all subsequent sessions depend on this.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "Any numeric output can be NaN under any input",
+            "Any numeric output can be Infinity under any input",
+            "Guard replaces NaN with 0 instead of conservative default",
+            "Guard silently drops NaN without logging"
+          ],
+          "exit_gate": "Fuzz test with 50 random inputs (missing material, zero diameter, null machine) produces 0 NaN outputs. npx vitest run src/__tests__/ppg-nan-guards.test.ts passes with >=10 negative test cases."
+        },
+        "U-PPR05": {
+          "title": "Input validation layer — reject bad input early with clear errors",
+          "description": "Add validation at pipeline entry (Stage 0.0): (1) G-code must contain at least one motion block (G0/G1/G2/G3), (2) Tool numbers must be positive integers, (3) Coordinates must be within ±99999mm, (4) Machine ID must resolve in MachineRegistry, (5) Material must resolve in MaterialRegistry or be 'unknown' (triggers conservative defaults). Each validation failure produces a structured error with: field, value, reason, suggestion. Pipeline STOPS on validation failure — does not produce partial/dangerous output.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "files_created": ["src/__tests__/ppg-input-validation.test.ts"],
+          "abort_criteria": [
+            "Empty G-code passes validation",
+            "Tool number 0 or -1 passes validation",
+            "Missing machine ID produces output instead of error",
+            "Validation error message is generic ('invalid input')"
+          ],
+          "exit_gate": "Empty input → PipelineValidationError. Tool T-1 → error. Coordinate X999999 → error. All error messages include field+value+reason. npx vitest run src/__tests__/ppg-input-validation.test.ts passes with >=8 negative test cases."
+        },
+        "U-PPR06": {
+          "title": "Collision detection basics — rapid at cutting depth, missing Z retract",
+          "description": "Add collision hazard detection in pipeline safety stage: (1) Rapid (G0) at Z depth below material top → WARNING: possible collision, (2) Tool change (M06) without preceding Z retract (G28 Z / G53 Z / safe Z move) → ERROR: tool change at cutting depth, (3) Rapid XY move at cutting depth (no Z retract first) → WARNING: lateral rapid at depth. These are not full simulation — just pattern-based hazard detection on the G-code output. Each hazard gets severity (WARNING vs ERROR) and line number reference.",
+          "four_loop": true,
+          "files_created": ["src/engines/CollisionHazardDetectorEngine.ts", "src/__tests__/ppg-collision-detection.test.ts"],
+          "abort_criteria": [
+            "G0 Z-50 (rapid to depth) not flagged",
+            "M06 without Z retract not flagged",
+            "Engine crashes on valid G-code with no hazards",
+            "TypeScript build fails"
+          ],
+          "exit_gate": "Detects rapid-at-depth, tool-change-without-retract, lateral-rapid-at-depth in test fixtures. Clean programs produce 0 warnings. npx vitest run src/__tests__/ppg-collision-detection.test.ts passes."
+        },
+        "U-PPR07": {
+          "title": "Tool change sequence validation — every T use has preceding M06",
+          "description": "Validate that every tool use (T code followed by cutting motion) has a preceding M06 tool change command. Detect: (1) T2 followed by cutting without M06 → ERROR, (2) M06 with no T code → WARNING, (3) Multiple T codes without M06 between → ERROR. Also validate WCS-aware travel limits: when machine has G54-G59 offsets defined, travel limit checks must account for the active WCS offset — X100 in G55 might be X200 in machine coordinates.",
+          "four_loop": true,
+          "files_modified": ["src/engines/CollisionHazardDetectorEngine.ts"],
+          "files_created": ["src/__tests__/ppg-tool-change-validation.test.ts"],
+          "abort_criteria": [
+            "T2 without M06 before cutting not detected",
+            "WCS offset not applied to travel limit check",
+            "Engine crashes on programs without tool changes"
+          ],
+          "exit_gate": "Detects missing M06 before cut, orphan M06, duplicate T. WCS-offset travel check catches X100 in G55 exceeding travel. npx vitest run src/__tests__/ppg-tool-change-validation.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-safety-gate — blocks pipeline output when NaN detected or collision hazard is ERROR severity",
+        "action": "prism_safety:ppg_validate_safety — run safety checks on pipeline G-code output",
+        "skill": "/ppg-safety-check — verify post/pipeline output safety",
+        "cascade": {"available_to": ["S3a", "S3b", "S5", "S7", "S10", "S11", "S13"]}
+      },
+      "exit_gate": "Zero NaN output paths. All bad inputs rejected with clear errors. Collision hazards detected. Tool change sequences validated. npx vitest run src/__tests__/ppg-nan-guards.test.ts src/__tests__/ppg-input-validation.test.ts src/__tests__/ppg-collision-detection.test.ts src/__tests__/ppg-tool-change-validation.test.ts all pass."
+    },
+    {
+      "id": "S3a",
+      "title": "Machine Limit Validation — Wire Existing Engine",
+      "depends_on": ["S1", "S2"],
+      "compact_after": true,
+      "units": ["U-PPR08", "U-PPR09", "U-PPR10"],
+      "smart_config": {
+        "role": "CNC Safety Engineer + Machine Limits Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "60%"
+      },
+      "intent": "After this session, NO output from the pipeline can exceed the target machine's physical limits. CRITICAL: PostValidationHardeningEngine ALREADY does machine limit validation — wire it, do NOT rebuild. RPM, feed, power, and travel are all validated against MachineRegistry data.",
+      "work": {
+        "U-PPR08": {
+          "title": "Wire PostValidationHardeningEngine for machine limit checks",
+          "description": "PostValidationHardeningEngine ALREADY EXISTS and does machine limits. Wire it into the PPG pipeline's safety stage. Do NOT create a new MachineLimitValidationEngine. Configure it with: max_rpm (S code), max_feed (F code), max_power via canonical formula P_kW = Fc_N * Vc_m_min / 60000, travel_limits (X/Y/Z vs work envelope). Hard-reject on any safety violation (>100% of limit). Warn on >90% of limit.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "Creates a NEW MachineLimitValidationEngine instead of wiring existing PostValidationHardeningEngine",
+            "S12000 output passes on 8100 RPM machine",
+            "F500 output passes on 300 IPM max machine",
+            "Power formula P_kW not using canonical formula from constants.ts"
+          ],
+          "exit_gate": "Pipeline with Haas VF-2 (8100 RPM) rejects S12000. Pipeline with 300 IPM max rejects F500. Power check uses P_kW = Fc_N * Vc_m_min / 60000. npx vitest run src/__tests__/ppg-machine-limits.test.ts passes."
+        },
+        "U-PPR09": {
+          "title": "Wire machine limits into pipeline Stage 5.10 omega safety gate",
+          "description": "Integrate PostValidationHardeningEngine into the pipeline's omega safety gate (Stage 5.10). When machine context is provided, every output block is validated. Violations downgrade omega score and add warnings. Critical violations (>120% of any limit) BLOCK output entirely. Report per-block violation details in pipeline analytics.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "Existing PP-MOAT tests fail",
+            "Any output block exceeds machine limits without warning",
+            "Critical violation (>120%) doesn't block output"
+          ],
+          "exit_gate": "Pipeline omega drops to 0 on >120% violation. Warning added for >90%. Analytics shows per-block limit check. npx vitest run src/__tests__/ppg-machine-limits.test.ts && npx vitest run src/__tests__/PostProcessorMOAT*.test.ts both pass."
+        },
+        "U-PPR10": {
+          "title": "Add machine limit properties to generated CPS posts",
+          "description": "PostLibraryConfiguratorEngine's generateCpsContent() must embed machine limits as properties in generated posts. The post itself validates S/F against these limits before outputting any line. Limits come from MachineRegistry at generation time. Properties: maxSpindleSpeed, maxFeedRate, maxPower_kW, travelX, travelY, travelZ. Post clamps S and F to these limits and adds comment when clamped.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostLibraryConfiguratorEngine.ts"],
+          "abort_criteria": [
+            "CPS contains HTTPClient",
+            "Generated post doesn't enforce limits",
+            "Limits hardcoded instead of from MachineRegistry"
+          ],
+          "exit_gate": "Generated CPS for Haas VF-2 contains maxSpindleSpeed:8100 property and clamps S output. CPS for Okuma LB3000 validates G96/G97 CSS limits. npx vitest run src/__tests__/ppg-generate-post.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-machine-limit-gate — blocks pipeline output when machine limits exceeded by >120%",
+        "action": "prism_cam:ppg_validate_machine_limits — validate G-code against machine limits",
+        "skill": "/machine-check — validate parameters against machine limits",
+        "cascade": {"available_to": ["S5", "S7", "S8", "S9", "S10", "S13"]}
+      },
+      "exit_gate": "Pipeline rejects over-limit S/F/travel for all 10 controller families. Generated posts embed and enforce limits. PostValidationHardeningEngine wired (not rebuilt). npx vitest run src/__tests__/ppg-machine-limits.test.ts passes."
+    },
+    {
+      "id": "S3b",
+      "title": "PRISM Master Post — Core Framework + Top 3 Controllers",
+      "depends_on": ["S1", "S2", "S3a"],
+      "compact_after": true,
+      "units": ["U-PPR11", "U-PPR12", "U-PPR13"],
+      "smart_config": {
+        "role": "Senior CNC Post Processor Developer + Multi-Controller Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "80%"
+      },
+      "intent": "After this session, the PRISM Master Post handles Haas NGC, Fanuc 31i, and Siemens 840D — the 3 most common controllers. CRITICAL: MasterPostProcessorEngine ALREADY EXISTS — wire it, extend it, do NOT rebuild from scratch. The post reads normal spindleSpeed/feed (set by add-in via adsk.cam), and reads extra physics data from operation comments JSON. No getGlobalParameter('prism:*'). No HTTPClient.",
+      "work": {
+        "U-PPR11": {
+          "title": "Wire MasterPostProcessorEngine as PRISM Master Post foundation",
+          "description": "MasterPostProcessorEngine ALREADY EXISTS. Wire it as the foundation for the PRISM Master Post CPS file. Implement ALL Fusion 360 post processor callbacks (onOpen, onClose, onSection, onSectionEnd, onLinear, onCircular, onRapid, onCycle, onCyclePoint, onCycleEnd, onCommand, onDwell, onSpindleSpeed, onRadiusCompensation). Controller family selected via enum property. PRISM physics data read from operation comments JSON (per S1 U-PPR03 spec). Feed rates: whole numbers for milling, precise for tapping. NO HTTPClient. NO getGlobalParameter('prism:*').",
+          "four_loop": true,
+          "files_modified": ["src/engines/MasterPostProcessorEngine.ts"],
+          "files_created": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Creates a NEW engine instead of wiring MasterPostProcessorEngine",
+            "CPS contains HTTPClient",
+            "CPS contains getGlobalParameter('prism:')",
+            "Post fails Fusion 360 syntax validation"
+          ],
+          "exit_gate": "Post loads in Fusion 360 without error. Controller selection dropdown works. MasterPostProcessorEngine wired. npx vitest run src/__tests__/ppg-master-post.test.ts passes."
+        },
+        "U-PPR12": {
+          "title": "Implement top 3 controller dialects — Haas NGC, Fanuc 31i, Siemens 840D",
+          "description": "For each of the 3 highest-priority controllers, implement: safe start block, tool change sequence, spindle start, coolant codes, work offset handling (G54-G59), program end block. Use ControllerDialectEngine as reference for correct codes. Haas: G187 smoothing, G28/G91 retract. Fanuc: G90 G80 G40 safe start, G43 H tool length. Siemens: G54 G90 G64 SOFT safe start, T D M6 tool change, CYCLE832 HSM. Remove any 'embedded lookup table from Kienzle' — all physics values come from server via add-in, never from post-embedded tables.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "CPS contains any embedded Kienzle lookup table",
+            "CPS contains HTTPClient",
+            "Any controller's safe start doesn't match manufacturer documentation",
+            "Post fails Fusion syntax check"
+          ],
+          "exit_gate": "Master Post generates correct safe start + tool change + program end for Haas, Fanuc, Siemens. No embedded physics lookup tables. npx vitest run src/__tests__/ppg-master-post.test.ts passes."
+        },
+        "U-PPR13": {
+          "title": "Implement PRISM physics features in Master Post",
+          "description": "Add to the Master Post: (1) Read physics data from operation comment JSON ({prism:{force,power,confidence,tool_life_min,stable_rpm_min,stable_rpm_max}}), (2) Smart feed rounding (Math.round for milling, precise for tapping, sub-1 IPM precise), (3) G05.3/G187/CYCLE832 smoothing injection per controller, (4) Machine limit enforcement from post properties, (5) PRISM analytics comments (force, power, confidence when data available), (6) Prove-out mode: configurable derate percentage (default 50% feed, 80% speed), ON by default for first article, selectable via post property. When add-in absent, produce clean standard G-code with no PRISM features — never fail or produce errors.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "CPS contains HTTPClient",
+            "Absent add-in data causes error instead of graceful fallback",
+            "Prove-out mode defaults to OFF",
+            "Milling feeds have decimals"
+          ],
+          "exit_gate": "With PRISM data: per-block S/F with force comments, prove-out derate applied. Without PRISM data: clean standard G-code. Tapping feeds have decimals. Milling feeds whole numbers. npx vitest run src/__tests__/ppg-master-post.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-master-post-syntax-gate — validates Master Post CPS syntax on every edit",
+        "action": "prism_cam:ppg_master_post_generate — generate Master Post CPS with specific controller config",
+        "skill": "/ppg-master-post — generate or configure the PRISM Master Post",
+        "cascade": {"available_to": ["S4a", "S4b", "S5", "S6a", "S6b", "S8", "S9"]}
+      },
+      "exit_gate": "PRISM-Master.cps loads in Fusion 360. Correct G-code for Haas/Fanuc/Siemens. Reads physics from operation comments. Prove-out ON by default. No embedded lookup tables. npx vitest run src/__tests__/ppg-master-post.test.ts passes."
+    },
+    {
+      "id": "S4a",
+      "title": "PRISM Master Post — Fanuc-Compatible Canned Cycles",
+      "depends_on": ["S3b"],
+      "compact_after": true,
+      "units": ["U-PPR14", "U-PPR15", "U-PPR16"],
+      "smart_config": {
+        "role": "CNC Application Engineer + Canned Cycle Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "intent": "After this session, the Master Post outputs correct canned drilling/tapping/boring cycles for Fanuc-compatible controllers (Haas, Fanuc, Okuma, Doosan, DMG MORI Fanuc-mode, Brother). Rigid tapping works across ALL controllers with correct feed format.",
+      "work": {
+        "U-PPR14": {
+          "title": "Fanuc-compatible canned cycles (G81-G89) — Haas/Fanuc/Okuma/Doosan",
+          "description": "Implement Fanuc G81-G89 canned cycle syntax shared by Haas, Fanuc, Okuma, Doosan, and DMG MORI (Fanuc sub-dialect): G81 drilling, G82 counterboring (dwell), G83 peck drilling (Q depth), G84 tapping (rigid), G85 boring, G86 boring (spindle stop), G87 back boring, G89 boring (dwell). Handle: peck depths, dwell times, retract planes (G98/G99), chip break. Each cycle tested with known dimensions (10mm hole, 20mm deep, Q2 peck).",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "G83 peck depth missing Q word",
+            "G84 tapping feed not using feedFormatPrecise",
+            "G82 missing dwell P word",
+            "Existing PP-MOAT tests fail"
+          ],
+          "exit_gate": "G81-G89 correct for Fanuc. Peck drilling Q verified. Tapping F0.0500 for 1/4-20. npx vitest run src/__tests__/ppg-canned-cycles.test.ts passes."
+        },
+        "U-PPR15": {
+          "title": "Siemens CYCLE81-87 + Heidenhain CYCL DEF 200-207",
+          "description": "Implement controller-specific canned cycles: Siemens CYCLE81 (drilling), CYCLE83 (deep drilling), CYCLE84 (tapping), CYCLE85 (boring), CYCLE86 (boring with orient), CYCLE87 (boring with stop), MCALL pattern. Heidenhain CYCL DEF 200 (drilling), 201 (reaming), 202 (boring), 203 (countersink), 204 (back boring), 205 (peck), 206 (tapping rigid), 207 (tapping with chuck). Each cycle verified against controller programming manual.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Siemens CYCLE83 missing depth/increment parameters",
+            "Heidenhain CYCL DEF not followed by CYCL CALL",
+            "Post fails Fusion syntax check"
+          ],
+          "exit_gate": "Siemens CYCLE81-87 correct syntax. Heidenhain CYCL DEF 200-207 correct syntax. Both verified against programming manual examples. npx vitest run src/__tests__/ppg-canned-cycles.test.ts passes."
+        },
+        "U-PPR16": {
+          "title": "Rigid tapping across all controllers with correct feed format",
+          "description": "Verify rigid tapping (G84/CYCLE84/CYCL DEF 206/G184/G284) produces correct pitch-based feed for ALL controllers. Feed must be: F=1/TPI for inch (e.g., F0.0500 for 1/4-20), F=pitch for metric (e.g., F1.25 for M8x1.25). Use feedFormatPrecise (never round tapping feeds). Test with: 1/4-20, 3/8-16, 7/16-20 (inch), M6x1.0, M8x1.25, M10x1.5 (metric). Verify G95 (feed-per-rev) vs G94 handling per controller.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Any tapping feed rounded to integer",
+            "1/4-20 produces F0.05 instead of F0.0500",
+            "M8x1.25 produces F1 instead of F1.25 or F1.250",
+            "Missing G95 for tapping on controllers that require it"
+          ],
+          "exit_gate": "All 6 tap sizes produce correct feed across all controllers. No rounded tapping feeds. G95/G94 correct per controller. npx vitest run src/__tests__/ppg-rigid-tapping.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-canned-cycle-gate — validates canned cycle syntax per controller family",
+        "action": "prism_cam:ppg_validate_cycles — validate canned cycle output for controller",
+        "skill": "/ppg-cycle-check — verify canned cycle correctness for target controller",
+        "cascade": {"available_to": ["S7", "S8", "S9", "S10"]}
+      },
+      "exit_gate": "Canned cycles correct for Fanuc-compat (G81-G89), Siemens (CYCLE81-87), Heidenhain (CYCL DEF 200-207). Rigid tapping precise for 6 tap sizes. npx vitest run src/__tests__/ppg-canned-cycles.test.ts src/__tests__/ppg-rigid-tapping.test.ts pass."
+    },
+    {
+      "id": "S4b",
+      "title": "PRISM Master Post — Probing + 5-Axis + Remaining 7 Controllers",
+      "depends_on": ["S3b", "S4a"],
+      "compact_after": true,
+      "units": ["U-PPR17", "U-PPR18", "U-PPR19"],
+      "smart_config": {
+        "role": "CNC Application Engineer + 5-Axis Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "intent": "After this session, the Master Post handles probing, 5-axis/4th-axis, AND all remaining 7 controllers (Mazak, Okuma, Hurco, DMG MORI, Brother Speedio, Doosan Puma, Heidenhain — adding to Haas/Fanuc/Siemens from S3b). All 10 controller families fully operational.",
+      "work": {
+        "U-PPR17": {
+          "title": "Probing routines for 5 major probe-capable controllers",
+          "description": "Implement probing for: Haas (G65 P9xxx), Fanuc (G65 P9xxx), Siemens (CYCLE977/978/979), Heidenhain (TCH PROBE 420+), Okuma (G169 based). Support: WCS probing, tool length, tool diameter, surface inspection. Each probe cycle outputs correct syntax with error handling (probe not tripped → alarm).",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Probing uses wrong G65 P-number for Haas vs Renishaw",
+            "Siemens CYCLE977 missing tolerance parameter",
+            "No error handling for probe not tripped"
+          ],
+          "exit_gate": "WCS probe routine correct for all 5 controllers. Tool length probe correct. Error handling for no-trip. npx vitest run src/__tests__/ppg-probing.test.ts passes."
+        },
+        "U-PPR18": {
+          "title": "5-axis RTCP/TCP and 4th-axis indexing support",
+          "description": "Implement per-controller: RTCP activation (G43.4 Fanuc/Haas, TRAORI Siemens, FUNCTION TCPM Heidenhain, G169 Okuma), tilted workplane (G68.2 Fanuc, CYCLE800 Siemens, PLANE SPATIAL Heidenhain), inverse time feed (G93), TCP deactivation. For 4th-axis indexing: rotary clamp/unclamp, shortest path logic, safe retract before rotation.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "TRAORI missing for Siemens 5-axis",
+            "G43.4 not deactivated after 5-axis section",
+            "4th-axis rotation without safe Z retract",
+            "Inverse time feed (G93) not used for simultaneous 5-axis"
+          ],
+          "exit_gate": "5-axis posts correctly for Siemens (TRAORI), Heidenhain (FUNCTION TCPM), Haas (G234/G43.4). 4th-axis has safe retract. G93 for 5-axis. npx vitest run src/__tests__/ppg-5axis.test.ts passes."
+        },
+        "U-PPR19": {
+          "title": "Implement remaining 7 controllers — Mazak, Okuma, Hurco, DMG, Brother, Doosan, Heidenhain complete",
+          "description": "Add full dialect support for: Mazak SmoothAi (G5.1 HSM, G130 tornado tap, MAZATROL awareness), Okuma OSP-P300 (G270/G180, G96/G97 CSS, G85/G86 roughing/finishing, NAT profiles, G08 SSV), Hurco WinMax (ISNC/BNC mode, G05.3 smoothing, M16 buffering, M140 retract, UltiMotion G64), DMG MORI CELOS (Siemens/Fanuc sub-dialect selection, CELOS M-codes), Brother Speedio (high-speed tapping — Brother's key strength, compact cycle format, 30-tool ATC), Doosan Puma lathe (Fanuc-compatible + Doosan-specific G/M codes, G96 CSS for turning). Use ControllerDialectEngine as reference.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Okuma CSS G96/G97 not handled",
+            "Hurco ISNC/BNC mode not selectable",
+            "Brother tapping speed not optimized",
+            "Doosan Puma lathe codes missing",
+            "Any controller safe start doesn't match manufacturer documentation"
+          ],
+          "exit_gate": "All 10 controllers produce correct safe start + tool change + program end. Okuma CSS verified. Hurco mode selectable. Brother tapping fast. Doosan Puma lathe works. npx vitest run src/__tests__/ppg-all-controllers.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-all-controllers-gate — validates all 10 controllers on every Master Post edit",
+        "action": "prism_cam:ppg_controller_matrix — validate all 10 controller dialect outputs",
+        "skill": "/ppg-controller-matrix — show all 10 controller support status",
+        "cascade": {"available_to": ["S5", "S7", "S8", "S9", "S10"]}
+      },
+      "exit_gate": "All 10 controllers fully operational: Haas, Fanuc, Siemens, Heidenhain, Mazak, Okuma, Hurco, DMG MORI, Brother, Doosan. Probing for 5. 5-axis for 5. npx vitest run src/__tests__/ppg-probing.test.ts src/__tests__/ppg-5axis.test.ts src/__tests__/ppg-all-controllers.test.ts pass."
+    },
+    {
+      "id": "S5",
+      "title": "PPG CPS Generator — Machine-Specific Post Generation",
+      "depends_on": ["S3a", "S3b"],
+      "compact_after": true,
+      "units": ["U-PPR20", "U-PPR21", "U-PPR22"],
+      "smart_config": {
+        "role": "Post Processor Product Engineer + Code Generation Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "intent": "After this session, the PPG web UI generates complete, working CPS post processor files for a customer's specific machine. Customer selects machine, controller, features — downloads a .cps file that works in Fusion 360. Journey B (upload existing program → material input → optimize) also works via API.",
+      "work": {
+        "U-PPR20": {
+          "title": "Upgrade PostLibraryConfiguratorEngine to use Master Post as template",
+          "description": "Refactor generateCpsContent() to use PRISM-Master.cps as the base template. Instead of generating CPS from scratch, the engine customizes the Master Post: sets controller family, enables/disables features, embeds machine limits from MachineRegistry, sets default properties. Output is a standalone CPS file with the customer's machine name, limits, and feature set baked in.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostLibraryConfiguratorEngine.ts"],
+          "abort_criteria": [
+            "Engine throws unhandled exception",
+            "Generated CPS contains HTTPClient",
+            "Machine limits not embedded from MachineRegistry",
+            "TypeScript build fails"
+          ],
+          "exit_gate": "Generated CPS for 'Haas VF-2' has correct machine limits, Haas NGC dialect, and all enabled features. npx vitest run src/__tests__/ppg-generate-post.test.ts passes."
+        },
+        "U-PPR21": {
+          "title": "Build PPG generation API route with material input for Journey B",
+          "description": "Create POST /api/v1/ppg/generate-post route. Input: {machine_model, controller_family, features[], material?, aggressiveness?}. Output: {cps_content, filename, validation:{pass, warnings[]}}. Also create POST /api/v1/ppg/optimize-program for Journey B: upload existing NC program + material selection + machine context → optimized output. Both routes validate output CPS/G-code before returning. Material input required for Journey B (scrutiny finding: Journey B was missing material input).",
+          "four_loop": true,
+          "files_modified": ["src/routes/ppg.ts"],
+          "files_created": ["src/__tests__/ppg-generate-post.test.ts"],
+          "abort_criteria": [
+            "Generate route returns without CPS validation",
+            "Optimize route works without material input",
+            "TypeScript build fails"
+          ],
+          "exit_gate": "API generates valid CPS for all 10 controller families. Optimize route requires material. Each output passes validation. npx vitest run src/__tests__/ppg-generate-post.test.ts passes."
+        },
+        "U-PPR22": {
+          "title": "Wire PPG web UI Generate tab — real CPS downloads, no fake code",
+          "description": "Update PostProcessorGeneratorPage.tsx: when user selects machine and clicks Generate, call /api/v1/ppg/generate-post. Display: CPS preview with syntax highlighting, feature list, machine limits summary, download button (.cps file). For program optimization: upload NC → select material from MaterialRegistry → optimize → show diff. REMOVE all fake template G-code generation fallbacks. If API fails, show error with actionable message, don't show fake code. PRESERVE PP-MOAT-MS4 features (drag-drop, clipboard, diff viewer, history).",
+          "four_loop": true,
+          "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx", "web/src/api/client.ts"],
+          "abort_criteria": [
+            "Any fake/template G-code fallback remains",
+            "PP-MOAT-MS4 features (drag-drop, diff viewer, history) removed",
+            "Material input missing from optimize flow",
+            "TypeScript build fails"
+          ],
+          "exit_gate": "User selects Haas VF-2 → Generate → download working .cps. User uploads NC + selects material → optimize → diff. No fake code paths. npx vitest run web/src/__tests__/ppg-*.test.ts passes (if web tests exist)."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-generated-cps-validation-gate — validates every generated CPS before serving to user",
+        "action": "prism_cam:ppg_generate_post — generate machine-specific CPS post from configuration",
+        "skill": "/ppg-generate — generate a PRISM post processor for a specific machine",
+        "cascade": {"available_to": ["S10", "S11", "S13"]}
+      },
+      "exit_gate": "PPG generates working CPS for all 10 controllers. Downloads work. Journey B (optimize existing program) works with material input. No fake code. npx vitest run src/__tests__/ppg-generate-post.test.ts passes."
+    },
+    {
+      "id": "S6a",
+      "title": "Fusion 360 Add-in — Direct CAM API S/F Modification",
+      "depends_on": ["S1", "S3b"],
+      "parallel_with": "S7",
+      "compact_after": true,
+      "units": ["U-PPR23", "U-PPR24", "U-PPR25"],
+      "smart_config": {
+        "role": "Fusion 360 Add-in Developer + adsk.cam API Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "intent": "After this session, the PRISM Fusion 360 add-in computes physics S/F for every operation and DIRECTLY modifies operation parameters via adsk.cam API. The post reads normal spindleSpeed/feed — no property bridge needed. This is the CORRECT architecture per Fusion 360 API review (v1 scored 32/100 on this — the getGlobalParameter approach was wrong).",
+      "work": {
+        "U-PPR23": {
+          "title": "Build add-in HTTP bridge — PRISM server communication",
+          "description": "Create the Python module (Fusion 360 add-ins are Python) that calls the PRISM server's /api/v1/ppg/pipeline endpoint. Sends: tool geometry (diameter, flutes, material, coating), workpiece material (ISO group), operation context (operation type, depths, widths), machine context (model, max RPM, max power). Receives: optimized RPM, feed, force (N), power (kW), confidence (%), tool_life (min), stable_rpm_range [min, max]. Handles: server offline → graceful skip (use CAM defaults), timeout (5s), retry once, version check.",
+          "four_loop": true,
+          "files_created": ["scripts/fusion360-prism-addin/prism_bridge.py"],
+          "abort_criteria": [
+            "Module doesn't handle server offline gracefully",
+            "Timeout > 10s",
+            "No retry on transient failure",
+            "Response parsing doesn't validate numeric types"
+          ],
+          "exit_gate": "Module calls PRISM server with real tool data and receives physics S/F. Offline → graceful fallback. Timeout → retry once then skip. npx vitest run src/__tests__/ppg-addin-bridge.test.ts passes."
+        },
+        "U-PPR24": {
+          "title": "Build add-in S/F writer — modify operations directly via adsk.cam",
+          "description": "Create the Python module that writes PRISM-computed S/F directly to Fusion 360 operations using adsk.cam API. CORRECT approach: (1) Get operation via cam.allOperations or activeSetup.allOperations, (2) Set spindleSpeed via operation.parameters.itemByName('tool_spindleSpeed').expression = '8500 rpm', (3) Set feed via operation.parameters.itemByName('tool_feedrate').expression = '80 in/min', (4) For extra data (force, power, confidence, tool_life, stable_rpm_range), write structured JSON to operation.notes or operation.comment. This is what the post reads via getParameter('operation:comment'). Do NOT use getGlobalParameter or custom document attributes.",
+          "four_loop": true,
+          "files_created": ["scripts/fusion360-prism-addin/prism_operation_writer.py"],
+          "abort_criteria": [
+            "Uses getGlobalParameter or document attributes",
+            "Uses design.rootComponent.attributes.add (wrong API)",
+            "Doesn't handle missing operations gracefully",
+            "Doesn't preserve existing operation comments"
+          ],
+          "exit_gate": "Add-in modifies operation spindleSpeed and feedrate via adsk.cam API. Extra physics data written to operation comments as JSON. Existing comments preserved (appended). npx vitest run src/__tests__/ppg-addin-writer.test.ts passes."
+        },
+        "U-PPR25": {
+          "title": "End-to-end add-in → post integration test + extra data sidecar",
+          "description": "Create test validating full chain: (1) Add-in computes S/F for a 5-tool Haas program, (2) Add-in writes S/F to operations via adsk.cam + physics JSON to comments, (3) PRISM Master Post reads normal spindleSpeed/feed and parses comment JSON, (4) Output G-code has PRISM-optimized S/F with force comments, (5) Compare against manual Kienzle calculation for 4140 Steel with 1/2in endmill. Also handle: sidecar file for large physics datasets that don't fit in comments (temp JSON file alongside CAM file, post reads via file include — optional, comments are primary).",
+          "four_loop": true,
+          "files_created": ["src/__tests__/ppg-addin-e2e.test.ts"],
+          "abort_criteria": [
+            "Test uses fake data instead of real Kienzle calculation",
+            "S/F differ from Kienzle by >5%",
+            "Comment JSON not parseable by post",
+            "Test passes with || true"
+          ],
+          "exit_gate": "Full chain produces S/F within 5% of manual Kienzle for 4140 Steel + 1/2in endmill. Comment JSON round-trips correctly. npx vitest run src/__tests__/ppg-addin-e2e.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-addin-api-gate — validates add-in uses adsk.cam API (not getGlobalParameter)",
+        "action": "prism_cam:ppg_compute_physics_sf — compute physics S/F for tool+material+operation",
+        "skill": "/ppg-physics-sf — compute PRISM physics-optimized speeds and feeds",
+        "cascade": {"available_to": ["S6b", "S10", "S11", "S13"]}
+      },
+      "exit_gate": "Add-in modifies operations via adsk.cam. Post reads normal S/F + comment JSON. E2E within 5% of Kienzle. No getGlobalParameter. No HTTPClient in CPS. npx vitest run src/__tests__/ppg-addin-*.test.ts passes."
+    },
+    {
+      "id": "S6b",
+      "title": "Physics Engine Wiring — Chatter, Thermal-Wear, Taylor, Validation",
+      "depends_on": ["S1", "S3b", "S6a"],
+      "compact_after": true,
+      "units": ["U-PPR26", "U-PPR27", "U-PPR28", "U-PPR29"],
+      "smart_config": {
+        "role": "CNC Physics Integration Engineer + Vibration & Wear Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "intent": "After this session, ChatterStabilityLobeEngine constrains RPM to stable zones, ThermalWearCouplingEngine derates S/F with tool wear, Taylor tool life is displayed in G-code, Monte Carlo confidence semantics are defined, and power formula is validated. All physics constants from src/physics/constants.ts — never inlined.",
+      "work": {
+        "U-PPR26": {
+          "title": "Wire ChatterStabilityLobeEngine to RPM selection in pipeline",
+          "description": "When SLD data is available (via add-in comment JSON: prism.stable_rpm_min, prism.stable_rpm_max), constrain S-code to stable RPM zones. In pipeline Stage 1.3, validate output RPM falls within stable zone. If RPM is in unstable zone, shift to nearest stable zone and add G-code comment: '(PRISM: RPM shifted S8500→S7200 for chatter stability)'. In Master Post, read stable_rpm range from comment JSON and clamp S output. If SLD data absent, skip gracefully (no crash, no warning — add-in simply didn't provide it).",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts", "scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Output RPM falls in documented unstable zone when SLD data available",
+            "Missing SLD data causes crash instead of graceful skip",
+            "RPM shift exceeds 20% without comment explanation",
+            "Constants not imported from src/physics/constants.ts"
+          ],
+          "exit_gate": "Pipeline shifts S8500→S7200 when SLD shows 7800-8800 unstable. Missing SLD → no shift, no error. Comment explains shift. npx vitest run src/__tests__/ppg-chatter-stability.test.ts passes."
+        },
+        "U-PPR27": {
+          "title": "Wire ThermalWearCouplingEngine to tool life derating + Taylor display",
+          "description": "Compute Taylor tool life with Usui thermal-wear correction for each tool. Taylor: T = (C/Vc)^(1/n) where C and n from constants.ts for the material group. Pass tool_life_min via add-in comment JSON. In pipeline, compute remaining tool life per block and derate S/F as wear progresses (100% at fresh, 85% feed at 80% life consumed). In G-code comments: '(TOOL LIFE: ~45 min)' per tool change, '(WEAR DERATING: 95%)' when applied. Warn when predicted life < 15 minutes.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "Tool life reported as Infinity or NaN",
+            "No derating applied when wear > 50%",
+            "Taylor constants C/n not from canonical constants.ts",
+            "Tool life comment missing from G-code"
+          ],
+          "exit_gate": "Pipeline reports tool life per tool in analytics and G-code comments. Fresh tool 100% feed, 80% consumed → 85% feed. Taylor constants from constants.ts. npx vitest run src/__tests__/ppg-tool-life.test.ts passes."
+        },
+        "U-PPR28": {
+          "title": "Power formula validation + Kienzle force model end-to-end check",
+          "description": "Validate the canonical power formula P_kW = Fc_N * Vc_m_min / 60000 is used consistently across ALL pipeline stages that compute power. Validate Kienzle force model Fc = kc1_1 * ap * fz^(1-mc) against 5 known material/tool/condition tuples from machining handbooks. Verify that SpeedFeedOrchestratorEngine outputs match Kienzle calculations within 3%. All kc1_1 and mc values must come from constants.ts or MaterialRegistry.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/ppg-physics-validation.test.ts"],
+          "abort_criteria": [
+            "Power formula uses anything other than P = Fc * Vc / 60000",
+            "Kienzle deviation > 5% from handbook values",
+            "kc1_1 or mc hardcoded instead of from constants.ts/MaterialRegistry",
+            "Any force computation produces negative Fc"
+          ],
+          "exit_gate": "Power formula verified in all pipeline stages. Kienzle matches 5 handbook tuples within 3%. All constants from canonical source. npx vitest run src/__tests__/ppg-physics-validation.test.ts passes."
+        },
+        "U-PPR29": {
+          "title": "Monte Carlo confidence semantics + uncertainty propagation",
+          "description": "Define and implement: prism.confidence in comment JSON is the 95% Monte Carlo CI half-width on feed rate as percentage (e.g., 0.08 means feed accurate within ±8%). Source: SpeedFeedOrchestratorEngine's UQ pass. When confidence > 0.15 (>15% uncertainty), add WARNING comment in G-code: '(PRISM WARNING: feed uncertainty ±18% — verify manually)'. When confidence > 0.25, recommend prove-out mode. Document semantics in PRISM_ADDIN_DIRECT_CAM_API_SPEC.md.",
+          "four_loop": true,
+          "files_modified": ["data/docs/PRISM_ADDIN_DIRECT_CAM_API_SPEC.md", "src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "Confidence not defined in spec",
+            "High uncertainty (>15%) not flagged in G-code",
+            "Confidence value can be negative or >1",
+            "No test for high-uncertainty scenario"
+          ],
+          "exit_gate": "Confidence semantics documented. >15% uncertainty → warning. >25% → prove-out recommended. Comment JSON includes confidence. npx vitest run src/__tests__/ppg-confidence.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-physics-wiring-gate — validates physics engine outputs are wired to pipeline and use canonical constants",
+        "action": "prism_cam:ppg_physics_wire_status — check physics engine wiring status in pipeline",
+        "skill": "/ppg-physics-status — show physics engine wiring status for PPG pipeline",
+        "cascade": {"available_to": ["S7", "S10", "S11", "S13"]}
+      },
+      "exit_gate": "Chatter SLD constrains RPM. Taylor tool life derates S/F. Power formula canonical. Kienzle validated against 5 handbooks. Confidence semantics defined. npx vitest run src/__tests__/ppg-chatter-stability.test.ts src/__tests__/ppg-tool-life.test.ts src/__tests__/ppg-physics-validation.test.ts src/__tests__/ppg-confidence.test.ts pass."
+    },
+    {
+      "id": "S7",
+      "title": "Real Program Validation — Okuma + Haas + Hurco",
+      "depends_on": ["S3a", "S3b", "S4a"],
+      "parallel_with": "S6a",
+      "compact_after": true,
+      "units": ["U-PPR30", "U-PPR31", "U-PPR32"],
+      "smart_config": {
+        "role": "CNC Applications Engineer + Production Validation Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      },
+      "intent": "After this session, the PRISM pipeline has been validated against 161+ real production programs (100 Okuma, 50 Haas, 11 Hurco). Every program comes out with correct G-code, valid S/F, and no safety violations.",
+      "work": {
+        "U-PPR30": {
+          "title": "Build automated program validation harness (wire ProgramCompareEngine)",
+          "description": "Wire ProgramCompareEngine (ALREADY EXISTS with diffGCode + comparePhysics) as the validation harness. Do NOT rebuild a comparison engine. Configure it to: load a real NC program, run through pipeline with machine context, validate output against machine limits via PostValidationHardeningEngine, check for NaN/Infinity in S/F, verify all G-code blocks syntactically valid, compare input vs output structure. Report: pass/fail per program with specific failure details.",
+          "four_loop": true,
+          "files_modified": ["src/engines/ProgramCompareEngine.ts"],
+          "files_created": ["scripts/validate-programs.mjs"],
+          "abort_criteria": [
+            "Creates a NEW comparison engine instead of wiring ProgramCompareEngine",
+            "Harness crashes on malformed G-code instead of reporting failure",
+            "No per-program pass/fail report"
+          ],
+          "exit_gate": "Harness processes 10 sample programs with per-program pass/fail report. Uses ProgramCompareEngine (not rebuilt). npx vitest run src/__tests__/ppg-validation-harness.test.ts passes."
+        },
+        "U-PPR31": {
+          "title": "Validate 100 Okuma programs through pipeline",
+          "description": "Run 100 diverse Okuma programs (from data/programs/okuma/) through validation harness with Okuma OSP-P300 context. Fix pipeline failures: CSS handling (G96/G97), Okuma canned cycles (G85/G86), NAT profiles, coordinate rotation (G270/G180), inch/metric detection. Target: 95%+ pass rate. Ensure PP-MOAT test suite continues to pass.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "Existing PP-MOAT tests fail",
+            "Any output block exceeds Okuma machine limits",
+            "Pipeline produces NaN S or F",
+            "Pass rate < 80%"
+          ],
+          "exit_gate": "95+ of 100 Okuma programs pass. Failures documented with root cause. CSS/NAT/G270 handled. npx vitest run src/__tests__/ppg-okuma-validation.test.ts && npx vitest run src/__tests__/PostProcessorMOAT*.test.ts pass."
+        },
+        "U-PPR32": {
+          "title": "Validate 50 Haas + 11 Hurco programs through pipeline",
+          "description": "Run 50 Haas and all 11 Hurco programs through validation harness. Fix failures specific to: Haas (G187, G65 probing, M97/M98 subprograms), Hurco (ISNC/BNC, G05.3, M16 buffering). Target: 90%+ pass rate.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "Existing PP-MOAT tests fail",
+            "Haas-specific codes (G187, M97) not handled",
+            "Hurco ISNC mode not detected",
+            "Pass rate < 75%"
+          ],
+          "exit_gate": "90%+ Haas and Hurco programs pass. Each controller's specific codes handled. npx vitest run src/__tests__/ppg-haas-hurco-validation.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-program-validation-ci — runs validation harness on every pipeline change",
+        "action": "prism_cam:ppg_batch_validate — validate a batch of NC programs through pipeline",
+        "skill": "/ppg-validate-batch — run batch program validation",
+        "cascade": {"available_to": ["S8", "S9", "S10", "S13"]}
+      },
+      "exit_gate": "95% Okuma, 90% Haas+Hurco pass. ProgramCompareEngine wired (not rebuilt). Pipeline handles all controller-specific codes. npx vitest run src/__tests__/ppg-*-validation*.test.ts passes."
+    },
+    {
+      "id": "S8",
+      "title": "Controller Dialect Hardening — Fanuc, Siemens, Heidenhain",
+      "depends_on": ["S3b", "S4a"],
+      "parallel_with": "S9",
+      "compact_after": true,
+      "units": ["U-PPR33", "U-PPR34", "U-PPR35"],
+      "smart_config": {
+        "role": "CNC Controller Specialist + G-Code Standards Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "intent": "After this session, Fanuc/Siemens/Heidenhain produce byte-perfect G-code with 5 reference programs each. These are the 3 most syntax-divergent controller families.",
+      "work": {
+        "U-PPR33": {
+          "title": "Harden Fanuc dialect (0i, 31i, 30i) — 5 reference programs",
+          "description": "Create 5 reference programs: facing, drilling, tapping, pocketing, 5-axis indexing. Compare Master Post output against known-good Fanuc programs. Verify: safe start (G90 G80 G40 G17 G21/G20), tool change (T M06 / G43 H), canned cycles (G81-G89), macro calls (G65), program end (M30). Each program is a golden reference for regression testing.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/fixtures/reference-programs/fanuc-facing.nc", "src/__tests__/fixtures/reference-programs/fanuc-drilling.nc", "src/__tests__/fixtures/reference-programs/fanuc-tapping.nc", "src/__tests__/fixtures/reference-programs/fanuc-pocketing.nc", "src/__tests__/fixtures/reference-programs/fanuc-5axis-indexing.nc", "src/__tests__/ppg-fanuc-dialect.test.ts"],
+          "abort_criteria": [
+            "Reference program doesn't match known-good Fanuc output",
+            "Existing PP-MOAT tests fail",
+            "G43 H missing after tool change"
+          ],
+          "exit_gate": "5 reference programs match expected Fanuc output (ignoring comments). npx vitest run src/__tests__/ppg-fanuc-dialect.test.ts passes."
+        },
+        "U-PPR34": {
+          "title": "Harden Siemens dialect (840D sl) — 5 reference programs",
+          "description": "Create 5 reference programs: facing, drilling (CYCLE81-83), tapping (CYCLE84), tilted workplane (CYCLE800), HSM (CYCLE832 + TRAORI). Verify: safe start (G54 G90 G64 SOFT), T D M6, MCALL pattern, ShopMill vs G-code mode awareness.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/fixtures/reference-programs/siemens-facing.mpf", "src/__tests__/fixtures/reference-programs/siemens-drilling.mpf", "src/__tests__/fixtures/reference-programs/siemens-tapping.mpf", "src/__tests__/fixtures/reference-programs/siemens-tilted-workplane.mpf", "src/__tests__/fixtures/reference-programs/siemens-5axis-hsm.mpf", "src/__tests__/ppg-siemens-dialect.test.ts"],
+          "abort_criteria": [
+            "CYCLE832/TRAORI syntax wrong",
+            "MCALL pattern incorrect",
+            "Existing PP-MOAT tests fail"
+          ],
+          "exit_gate": "5 reference programs match expected Siemens output. CYCLE832/TRAORI verified. npx vitest run src/__tests__/ppg-siemens-dialect.test.ts passes."
+        },
+        "U-PPR35": {
+          "title": "Harden Heidenhain dialect (TNC640/TNC7) — 5 reference programs",
+          "description": "Create 5 reference programs: facing, drilling (CYCL DEF 200-205), tapping (CYCL DEF 206-207), pocketing (CYCL DEF 252-254), 5-axis (FUNCTION TCPM + PLANE SPATIAL). Heidenhain is most syntax-divergent — verify: BEGIN PGM / BLK FORM, TOOL CALL, CC/C/CP arc syntax vs ISO mode.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/fixtures/reference-programs/heidenhain-facing.h", "src/__tests__/fixtures/reference-programs/heidenhain-drilling.h", "src/__tests__/fixtures/reference-programs/heidenhain-tapping.h", "src/__tests__/fixtures/reference-programs/heidenhain-pocketing.h", "src/__tests__/fixtures/reference-programs/heidenhain-5axis.h", "src/__tests__/ppg-heidenhain-dialect.test.ts"],
+          "abort_criteria": [
+            "FUNCTION TCPM syntax wrong",
+            "CYCL DEF not followed by CYCL CALL",
+            "BLK FORM missing from program start"
+          ],
+          "exit_gate": "5 reference programs match expected Heidenhain output. FUNCTION TCPM and CYCL DEF verified. npx vitest run src/__tests__/ppg-heidenhain-dialect.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-dialect-regression-gate — runs all 15 reference programs on dialect change",
+        "action": "prism_cam:ppg_validate_dialect — validate G-code for specific controller",
+        "skill": "/ppg-dialect-check — verify G-code dialect correctness",
+        "cascade": {"available_to": ["S10", "S13"]}
+      },
+      "exit_gate": "15 reference programs (5 per controller) pass byte-level validation. npx vitest run src/__tests__/ppg-fanuc-dialect.test.ts src/__tests__/ppg-siemens-dialect.test.ts src/__tests__/ppg-heidenhain-dialect.test.ts pass."
+    },
+    {
+      "id": "S9",
+      "title": "Controller Dialect Hardening — Haas, Mazak, Okuma, Hurco + Others",
+      "depends_on": ["S3b", "S4a"],
+      "parallel_with": "S8",
+      "compact_after": true,
+      "units": ["U-PPR36", "U-PPR37", "U-PPR38"],
+      "smart_config": {
+        "role": "CNC Controller Specialist + Shop Floor Validation Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "intent": "After this session, the remaining 7 controllers have reference programs. With S8, all 10 controllers are fully hardened with 25+ reference programs total. Brother Speedio (thin in v1) and Doosan Puma lathe (missing in v1) are properly covered.",
+      "work": {
+        "U-PPR36": {
+          "title": "Harden Haas NGC + Hurco WinMax — 4 reference programs",
+          "description": "Haas: 2 programs covering G187 P1/P2 smoothing, G65 P9xxx probing, M97/M98 subprograms, G234 DWO, G154 extended offsets. Hurco: 2 programs covering ISNC vs BNC mode, G05.3 smoothing, M16 buffering, M140 Z-retract, UltiMotion G64. Validate against real programs from data/programs/haas/ and data/programs/hurco/.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/fixtures/reference-programs/haas-milling.nc", "src/__tests__/fixtures/reference-programs/haas-probing.nc", "src/__tests__/fixtures/reference-programs/hurco-milling.hnc", "src/__tests__/fixtures/reference-programs/hurco-ultimotion.hnc", "src/__tests__/ppg-haas-hurco-dialect.test.ts"],
+          "abort_criteria": [
+            "Haas G187 wrong P value",
+            "Hurco G05.3 syntax wrong",
+            "Existing PP-MOAT tests fail"
+          ],
+          "exit_gate": "4 reference programs pass. Haas G187/G234 verified. Hurco G05.3/M140 verified. npx vitest run src/__tests__/ppg-haas-hurco-dialect.test.ts passes."
+        },
+        "U-PPR37": {
+          "title": "Harden Mazak SmoothAi + Okuma OSP-P300 — 4 reference programs",
+          "description": "Mazak: 2 programs covering G5.1 HSM, G130 tornado tapping, mill-turn M-codes. Okuma: 2 programs covering G270/G180 coordinate systems, G96/G97 CSS, G85/G86 roughing/finishing, NAT profile, G08 SSV. Use real Okuma programs from data/programs/okuma/ as validation reference for Okuma output.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/fixtures/reference-programs/mazak-milling.nc", "src/__tests__/fixtures/reference-programs/mazak-tornado-tap.nc", "src/__tests__/fixtures/reference-programs/okuma-milling.min", "src/__tests__/fixtures/reference-programs/okuma-css-turning.min", "src/__tests__/ppg-mazak-okuma-dialect.test.ts"],
+          "abort_criteria": [
+            "Okuma CSS G96/G97 not handled correctly",
+            "Mazak G5.1 syntax wrong",
+            "NAT profile definition wrong"
+          ],
+          "exit_gate": "4 reference programs pass. Okuma CSS and NAT verified against real programs. Mazak G5.1 verified. npx vitest run src/__tests__/ppg-mazak-okuma-dialect.test.ts passes."
+        },
+        "U-PPR38": {
+          "title": "Harden DMG MORI + Brother Speedio + Doosan Puma — 3 reference programs",
+          "description": "DMG MORI: 1 program with Siemens/Fanuc sub-dialect selection and CELOS M-codes. Brother Speedio: 1 program showcasing high-speed tapping (Brother's strength — 200ms tool-to-tool), compact cycle format, 30-tool ATC rapid indexing. Brother was flagged as 'thin' in v1 scrutiny — this unit properly covers it. Doosan Puma: 1 LATHE program with Fanuc-compatible G96/G97 CSS, live tooling, and Doosan-specific codes. Doosan was MISSING entirely from v1.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/fixtures/reference-programs/dmg-mori-celos.nc", "src/__tests__/fixtures/reference-programs/brother-speedio-highspeed.nc", "src/__tests__/fixtures/reference-programs/doosan-puma-lathe.nc", "src/__tests__/ppg-dmg-brother-doosan-dialect.test.ts"],
+          "abort_criteria": [
+            "DMG sub-dialect selection broken",
+            "Brother tapping not optimized for high-speed ATC",
+            "Doosan Puma lathe codes missing — this was absent in v1",
+            "Existing PP-MOAT tests fail"
+          ],
+          "exit_gate": "3 reference programs pass. DMG sub-dialect works. Brother high-speed tapping correct. Doosan Puma lathe with CSS. Total: 25+ reference programs across all 10 controllers. npx vitest run src/__tests__/ppg-dmg-brother-doosan-dialect.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-all-dialects-regression — runs all 25+ reference programs on CI",
+        "action": "prism_cam:ppg_dialect_matrix_validate — validate all 10 controller dialects",
+        "skill": "/ppg-dialect-matrix — show full controller dialect support matrix",
+        "cascade": {"available_to": ["S10", "S13"]}
+      },
+      "exit_gate": "25+ reference programs across 10 controllers all pass. Brother properly covered. Doosan Puma lathe added. npx vitest run src/__tests__/ppg-*-dialect*.test.ts pass."
+    },
+    {
+      "id": "S10",
+      "title": "Pipeline Optimizer — Any CAM System Input (Wire Existing Engines)",
+      "depends_on": ["S7", "S8", "S9"],
+      "compact_after": true,
+      "units": ["U-PPR39", "U-PPR40", "U-PPR41"],
+      "smart_config": {
+        "role": "Manufacturing Process Engineer + CAM Integration Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      },
+      "intent": "After this session, a customer can upload ANY existing NC program into the PPG web UI, and the pipeline optimizes it with physics-based S/F. CRITICAL: CrossCAMPostEngine (1,380 lines) ALREADY parses multi-dialect G-code, and ProgramCompareEngine ALREADY has diffGCode + comparePhysics. Wire them, do NOT rebuild.",
+      "work": {
+        "U-PPR39": {
+          "title": "Wire CrossCAMPostEngine for multi-dialect G-code parsing",
+          "description": "CrossCAMPostEngine (1,380 lines) ALREADY parses G-code from Fanuc, Siemens, Heidenhain, Okuma, Hurco formats. Wire it into pipeline Stage 0.1 for auto-detecting and parsing input dialect. Do NOT build a new multi-dialect parser. Add: preserve all comments and structure on round-trip (parse → emit), handle MAZATROL conversational programs (detect and skip), handle mixed-mode programs.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "Creates a NEW parser instead of wiring CrossCAMPostEngine",
+            "Parser loses comments on round-trip",
+            "Parser crashes on MAZATROL input",
+            "Existing PP-MOAT tests fail"
+          ],
+          "exit_gate": "Parser correctly identifies dialect for all test programs. Round-trip preserves structure. CrossCAMPostEngine wired. npx vitest run src/__tests__/ppg-cross-cam.test.ts passes."
+        },
+        "U-PPR40": {
+          "title": "Wire ProgramCompareEngine for before/after machinist-readable reports",
+          "description": "ProgramCompareEngine ALREADY has diffGCode + comparePhysics methods. Wire it to generate comparison reports showing: (1) side-by-side diff of changed lines, (2) physics reason for each change (chip thinning +15%, stability RPM shift, machine limit clamp), (3) aggregate impact (cycle time delta estimate, force reduction, tool life improvement), (4) safety warnings. Do NOT create a new PipelineComparisonReportEngine — extend ProgramCompareEngine.",
+          "four_loop": true,
+          "files_modified": ["src/engines/ProgramCompareEngine.ts"],
+          "abort_criteria": [
+            "Creates a NEW comparison engine instead of extending ProgramCompareEngine",
+            "Report doesn't explain WHY each line changed",
+            "Aggregate impact missing",
+            "TypeScript build fails"
+          ],
+          "exit_gate": "Report identifies and explains every S/F change with physics reason. Aggregate shows cycle time + force impact. npx vitest run src/__tests__/ppg-comparison-report.test.ts passes."
+        },
+        "U-PPR41": {
+          "title": "Wire comparison report to PPG web UI diff viewer",
+          "description": "Connect ProgramCompareEngine reports to the PPG page's existing diff viewer (amber-gold lightsaber panel). Show per-line physics reasons next to each changed line. Add aggregate summary card: total cycle time saved, force reduction %, confidence level, tool life impact. This is the customer-facing proof that PRISM's optimization is correct and trustworthy.",
+          "four_loop": true,
+          "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx", "web/src/components/ppg/GcodeComparisonPanel.tsx"],
+          "abort_criteria": [
+            "Diff viewer not showing physics reasons",
+            "PP-MOAT-MS4 diff viewer (amber-gold saber) replaced/removed",
+            "Aggregate summary missing",
+            "TypeScript build fails"
+          ],
+          "exit_gate": "Diff viewer shows physics reasons per changed line. Aggregate summary visible. Amber-gold saber panel preserved. npx vitest run web tests (if applicable) pass."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-comparison-accuracy-gate — validates comparison report matches actual changes",
+        "action": "prism_cam:ppg_optimize_program — optimize existing NC program with physics pipeline",
+        "skill": "/program-optimize — optimize an existing NC program with PRISM physics",
+        "cascade": {"available_to": ["S11", "S13"]}
+      },
+      "exit_gate": "Any NC program from any CAM system optimized with physics-traceable changes. CrossCAMPostEngine + ProgramCompareEngine wired (not rebuilt). npx vitest run src/__tests__/ppg-cross-cam.test.ts src/__tests__/ppg-comparison-report.test.ts pass."
+    },
+    {
+      "id": "S11",
+      "title": "Machinist Trust — Overrides, Prove-out, Baseline, Headers",
+      "depends_on": ["S3b", "S5", "S6a", "S6b"],
+      "compact_after": true,
+      "units": ["U-PPR42", "U-PPR43", "U-PPR44", "U-PPR45", "U-PPR46"],
+      "smart_config": {
+        "role": "CNC Applications Engineer + Shop Floor Trust Builder",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "intent": "After this session, a machinist has everything they need to trust PRISM output: per-tool S/F overrides, SFM/IPT/chip load display alongside raw S/F, prove-out defaults (50% feed, 80% speed, ON by default), a 'match my current post' baseline mode, and enriched program headers with part number, material, tool list, and setup notes. V1 scored 62/100 on machinist trust — this session directly addresses all findings.",
+      "work": {
+        "U-PPR42": {
+          "title": "Per-tool S/F override mechanism in Master Post",
+          "description": "Add post properties for per-tool S/F override: prismOverride_T1_rpm, prismOverride_T1_feed, etc. When set, these OVERRIDE the PRISM-computed values. This lets a machinist say 'I know this tool runs best at S6000 F40' without disabling all PRISM optimization. In G-code output, add comment: '(TOOL 1: MACHINIST OVERRIDE S6000 F40 — PRISM suggested S7200 F52)'. Override values still clamped to machine limits.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Override bypasses machine limit validation",
+            "No comment showing what PRISM suggested vs what machinist chose",
+            "Override properties not in Fusion post dialog"
+          ],
+          "exit_gate": "Machinist override for T1 outputs overridden S/F with comparison comment. Override still clamped to machine limits. npx vitest run src/__tests__/ppg-machinist-override.test.ts passes."
+        },
+        "U-PPR43": {
+          "title": "SFM/IPT/chip load display alongside S/F values",
+          "description": "In every G-code comment that shows PRISM S/F, also show the derived values a machinist actually thinks in: SFM (surface feet per minute) = pi * D * RPM / 12, IPT (inches per tooth) = feed / (RPM * flutes), chip load = fz, chip thickness (actual, with thin-factor). Example: '(PRISM: S7200 F52 | SFM 942 | IPT 0.0036 | CHIP 0.0029 | Fc 1234N | Pwr 2.1kW)'. This is what builds trust — the machinist can verify in their head that SFM 942 is reasonable for 4140 steel.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps", "src/engines/PostProcessorPipelineEngine.ts"],
+          "abort_criteria": [
+            "SFM calculation uses wrong formula",
+            "IPT not showing in comments",
+            "Chip load missing thin-factor correction",
+            "Units wrong (metric shown when program is inch)"
+          ],
+          "exit_gate": "G-code comments show SFM, IPT, chip load, force, power alongside S/F. SFM matches manual calculation. npx vitest run src/__tests__/ppg-machinist-display.test.ts passes."
+        },
+        "U-PPR44": {
+          "title": "Prove-out defaults: 50% feed, 80% speed, ON by default",
+          "description": "Prove-out mode derates ALL S/F for first-article runs. Defaults: 50% feed (F *= 0.5), 80% speed (S *= 0.8). ON by default — machinist must explicitly disable it for production. Post property: prismProveOut (boolean, default true), prismProveOutFeedPct (default 50), prismProveOutSpeedPct (default 80). In G-code output: header comment '(***** PROVE-OUT MODE: Feed 50%, Speed 80% — disable for production *****)'. Derating applied AFTER physics optimization, BEFORE machine limit check.",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Prove-out defaults to OFF",
+            "Prove-out header comment missing",
+            "Derating applied before physics (wrong order)",
+            "Derated values can still exceed machine limits"
+          ],
+          "exit_gate": "Prove-out ON by default. 50% feed, 80% speed. Header warns. Derated values clamped to limits. npx vitest run src/__tests__/ppg-proveout.test.ts passes."
+        },
+        "U-PPR45": {
+          "title": "'Match my current post' baseline mode",
+          "description": "Add a mode where PRISM generates output that matches the customer's existing post output as closely as possible — same S/F, same formatting, same cycle syntax — but SHOWS what PRISM would change as comments rather than actually changing it. This lets a machinist compare: 'here is your current output, and here is what PRISM would improve'. Builds trust by proving PRISM understands their current setup before asking them to change. Activated via post property prismBaselineMode (boolean, default false).",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Baseline mode changes S/F values (should only comment)",
+            "No comment showing what PRISM would change",
+            "Baseline mode crashes when PRISM data absent"
+          ],
+          "exit_gate": "Baseline mode outputs original S/F with PRISM suggestions as comments: '(PRISM WOULD: S7200 F52 — your current: S5000 F30 — delta: +44% SFM, +73% MRR)'. npx vitest run src/__tests__/ppg-baseline-mode.test.ts passes."
+        },
+        "U-PPR46": {
+          "title": "Enriched program header — part number, material, tool list, setup notes",
+          "description": "Add comprehensive program header that a machinist reads before running: (1) Part number + revision from Fusion data, (2) Material with ISO group and hardness, (3) Machine model + controller, (4) Tool list table (T#, description, diameter, flute count, expected life), (5) Setup notes (WCS, fixture, coolant type), (6) PRISM version + optimization date, (7) Total estimated cycle time, (8) Prove-out mode status. Header uses comment style appropriate to controller (parentheses for Fanuc, semicolons for Siemens, etc.).",
+          "four_loop": true,
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps"],
+          "abort_criteria": [
+            "Header missing tool list",
+            "Header missing material info",
+            "Comment style wrong for controller (e.g., parentheses in Siemens)",
+            "Header exceeds 50 lines (should be concise)"
+          ],
+          "exit_gate": "Program header includes part info, material, tool list, machine, setup notes, PRISM version, cycle time estimate. Correct comment style per controller. npx vitest run src/__tests__/ppg-program-header.test.ts passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-machinist-trust-gate — validates all trust features present in output",
+        "action": "prism_cam:ppg_machinist_report — generate machinist-readable report for PRISM output",
+        "skill": "/ppg-trust-report — show machinist trust report for generated post",
+        "cascade": {"available_to": ["S13"]}
+      },
+      "exit_gate": "Per-tool override works. SFM/IPT displayed. Prove-out ON by default. Baseline mode available. Enriched headers complete. npx vitest run src/__tests__/ppg-machinist-*.test.ts src/__tests__/ppg-proveout.test.ts src/__tests__/ppg-baseline-mode.test.ts src/__tests__/ppg-program-header.test.ts pass."
+    },
+    {
+      "id": "S12",
+      "title": "Performance — Stage Fusion, Caching, Virtualization",
+      "depends_on": ["S7", "S10"],
+      "compact_after": true,
+      "units": ["U-PPR47", "U-PPR48", "U-PPR49"],
+      "smart_config": {
+        "role": "Performance Engineer + Pipeline Optimization Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "60%"
+      },
+      "intent": "After this session, pipeline performance is addressed: large programs (1000+ blocks) process in <30s, repeated tool+material+machine tuples are cached, and the web UI doesn't choke on 900+ entry lists. V1 scored 26/100 on performance — this session directly addresses O(blocks*stages) complexity and all performance findings.",
+      "work": {
+        "U-PPR47": {
+          "title": "Pipeline stage fusion for large programs",
+          "description": "Profile pipeline execution for 500-block and 1000-block programs. Identify stages that can be fused (combined into a single pass). Current pipeline is O(blocks * stages) — reduce to O(blocks * fused_stages) by combining sequential read-only stages. Add benchmarks: 100 blocks < 2s, 500 blocks < 10s, 1000 blocks < 30s. Use worker thread pool (Node worker_threads) for CPU-intensive physics calculations (Kienzle force per block) to leverage multi-core.",
+          "four_loop": true,
+          "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+          "files_created": ["src/__tests__/ppg-performance.test.ts"],
+          "abort_criteria": [
+            "1000-block program takes >60s",
+            "Stage fusion changes output (output must be identical pre/post fusion)",
+            "Worker threads crash or leak",
+            "Existing PP-MOAT tests fail"
+          ],
+          "exit_gate": "500 blocks < 10s, 1000 blocks < 30s. Output identical pre/post fusion. npx vitest run src/__tests__/ppg-performance.test.ts passes with benchmark assertions."
+        },
+        "U-PPR48": {
+          "title": "Result caching for tool+material+machine tuples",
+          "description": "Cache SpeedFeedOrchestratorEngine results keyed by (tool_geometry_hash, material_iso, machine_id, operation_type, depth, width). Cache hit skips Kienzle+Monte Carlo computation. TTL: 1 hour. Invalidation: material or tool registry update. Expected: 60%+ cache hit rate on real programs (most operations use same few tools). Cache in-memory with LRU eviction (1000 entries max).",
+          "four_loop": true,
+          "files_modified": ["src/engines/SpeedFeedOrchestratorEngine.ts"],
+          "files_created": ["src/__tests__/ppg-cache.test.ts"],
+          "abort_criteria": [
+            "Cache key doesn't include all relevant parameters",
+            "Cache returns stale results after registry update",
+            "Cache size unbounded (memory leak)",
+            "Cached result differs from fresh computation"
+          ],
+          "exit_gate": "Second run of same 100-block program is >50% faster. Cache hit/miss logging works. LRU eviction at 1000. npx vitest run src/__tests__/ppg-cache.test.ts passes."
+        },
+        "U-PPR49": {
+          "title": "Web UI virtualization for large lists",
+          "description": "The PPG page's machine list (910 entries), tool list, and program browser can choke on large datasets. Add virtual scrolling (react-window or similar) for: machine selection dropdown (910 machines), program browser (2,883 programs), post library (471+ posts). Target: initial render < 200ms regardless of list size. Search/filter operates on virtualized list.",
+          "four_loop": true,
+          "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+          "abort_criteria": [
+            "910-item list takes >1s to render",
+            "Virtual scroll breaks search/filter",
+            "TypeScript build fails"
+          ],
+          "exit_gate": "910-machine list renders in <200ms. Search works on virtualized list. Program browser handles 2,883 entries smoothly. Build passes."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-performance-regression — fails if pipeline exceeds time budget",
+        "action": "prism_cam:ppg_benchmark — run pipeline performance benchmark",
+        "skill": "/ppg-benchmark — run PPG performance benchmarks",
+        "cascade": {"available_to": ["S13"]}
+      },
+      "exit_gate": "Large programs within time budget. Caching provides >50% speedup on repeated tuples. UI virtualized for 900+ lists. npx vitest run src/__tests__/ppg-performance.test.ts src/__tests__/ppg-cache.test.ts pass."
+    },
+    {
+      "id": "S13",
+      "title": "Integration Testing + Customer Delivery + Production Hardening",
+      "depends_on": ["S1", "S2", "S3a", "S3b", "S4a", "S4b", "S5", "S6a", "S6b", "S7", "S8", "S9", "S10", "S11", "S12"],
+      "compact_after": true,
+      "units": ["U-PPR50", "U-PPR51", "U-PPR52", "U-PPR53"],
+      "smart_config": {
+        "role": "QA Engineer + Product Delivery + Safety Auditor",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      },
+      "intent": "Final integration session. Complete customer journeys work end-to-end. Edge cases hardened. Safety audit complete. Rollback procedures defined. Documentation builds machinist trust. Bug reporting mechanism available. Post versioning tracks changes.",
+      "work": {
+        "U-PPR50": {
+          "title": "End-to-end integration tests — all 10 controllers + both journeys",
+          "description": "Create E2E tests: Journey A (generate post): 10 tests, one per controller — call /api/v1/ppg/generate-post, validate CPS syntax, simulate post of reference program, validate output G-code + machine limits. Journey B (optimize program): 3 tests (Haas, Siemens, Okuma) — upload real program + material, validate optimized output + comparison report. Total: 13 E2E tests. All must pass. Each test has explicit npx vitest run command.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/ppg-e2e-journey-a.test.ts", "src/__tests__/ppg-e2e-journey-b.test.ts"],
+          "abort_criteria": [
+            "Tests use fake data instead of real programs",
+            "Tests pass with || true or try-catch swallowing errors",
+            "Test count < 13",
+            "Any test doesn't validate machine limits"
+          ],
+          "exit_gate": "13/13 E2E tests pass. Both journeys validated. npx vitest run src/__tests__/ppg-e2e-*.test.ts passes."
+        },
+        "U-PPR51": {
+          "title": "Edge case hardening + safety audit — final sweep",
+          "description": "Handle all edge cases: (1) Imperial/metric (G20/G21 detection + conversion), (2) Sub-1 IPM feeds (finish passes, probing — keep decimals), (3) CSS G96/G97 → RPM validation at min/max diameter, (4) Inverse time feed G93 for 5-axis, (5) Thread milling helical feed, (6) Zero feed rate (rapid vs cut detection). Safety audit: verify every output path goes through validation, every generated CPS has machine limits, prove-out defaults ON. Document all safety decisions in PPG_SAFETY_AUDIT.md.",
+          "four_loop": true,
+          "files_created": ["src/__tests__/ppg-edge-cases.test.ts", "data/docs/PPG_SAFETY_AUDIT.md"],
+          "abort_criteria": [
+            "Any edge case produces NaN",
+            "CSS at minimum diameter exceeds max RPM",
+            "G93 feed not used for simultaneous 5-axis",
+            "Safety audit document incomplete"
+          ],
+          "exit_gate": "All edge cases tested and handled. Safety audit complete. No NaN under any input. No exceeded limits. npx vitest run src/__tests__/ppg-edge-cases.test.ts passes with >=12 test cases."
+        },
+        "U-PPR52": {
+          "title": "Rollback procedures + post versioning + bug reporting",
+          "description": "Define rollback procedures for: (1) Generated post causes machine fault → how to revert to previous post version, (2) Pipeline optimization produces bad output → how to restore original program, (3) Add-in S/F modification incorrect → how to clear and re-post with defaults. Add post versioning: each generated CPS includes PRISM version + generation timestamp in header comment. Increment version on regeneration. Add bug reporting: PPG page has 'Report Issue' button that captures: machine model, controller, input program hash, output program, PRISM version, physics parameters used. Sends to /api/v1/ppg/report-issue.",
+          "four_loop": true,
+          "files_created": ["data/docs/PPG_ROLLBACK_PROCEDURES.md"],
+          "files_modified": ["scripts/fusion360-post/PRISM-Master.cps", "src/routes/ppg.ts", "web/src/pages/PostProcessorGeneratorPage.tsx"],
+          "abort_criteria": [
+            "No rollback procedure for machine fault scenario",
+            "Post doesn't include version in header",
+            "Bug report doesn't capture physics parameters",
+            "Rollback procedures not documented"
+          ],
+          "exit_gate": "Rollback procedures documented for 3 scenarios. Post versioning in header. Bug report route works. npx vitest run src/__tests__/ppg-versioning.test.ts passes."
+        },
+        "U-PPR53": {
+          "title": "Documentation — User Guide + Machinist Trust + Controller Matrix",
+          "description": "Create: (1) PPG User Guide — how to generate and install a PRISM post (Journey A) + how to optimize existing programs (Journey B), (2) Machinist Trust Document — what PRISM changes and WHY (Kienzle force model, chip thinning compensation, stability lobe RPM selection, Taylor tool life — in plain machinist language, not academic), (3) Controller Compatibility Matrix — which features work on which controllers (10x feature grid), (4) PRISM physics summary (SFM ranges for common materials, how force affects tool life). PRESERVE PP-MOAT-MS4 features referenced in these docs.",
+          "four_loop": true,
+          "files_created": ["data/docs/PPG_USER_GUIDE.md", "data/docs/PPG_MACHINIST_TRUST.md", "data/docs/PPG_CONTROLLER_MATRIX.md"],
+          "abort_criteria": [
+            "Trust document uses academic language instead of shop floor language",
+            "Controller matrix missing any of 10 controllers",
+            "User guide doesn't cover both Journey A and Journey B",
+            "No mention of prove-out mode in any document"
+          ],
+          "exit_gate": "All 4 documents complete. Machinist reading trust doc understands WHY to trust PRISM. Controller matrix covers all 10 controllers. User guide covers both journeys. npx vitest run (all PPG tests) passes as final regression."
+        }
+      },
+      "forge_triple": {
+        "hook": "ppg-e2e-regression — runs full E2E suite on every PPG change",
+        "action": "prism_cam:ppg_customer_delivery — generate complete post package for customer",
+        "skill": "/ppg-deliver — generate and deliver a complete PRISM post package",
+        "cascade": {"available_to": []}
+      },
+      "exit_gate": "13/13 E2E tests pass. Both customer journeys work end-to-end. Edge cases hardened. Safety audit complete. Rollback procedures defined. Documentation complete. Post versioning works. Bug reporting works. Product ready for beta. npx vitest run src/__tests__/ppg-*.test.ts — ALL PPG tests pass."
+    }
+  ]
+}

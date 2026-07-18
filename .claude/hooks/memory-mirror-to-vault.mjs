@@ -178,7 +178,7 @@ const EMBED_TIMEOUT_MS = 8_000;
 const MEMORY_DIR_PATTERN = /[\\/]\.claude[\\/]projects[\\/][^\\/]*[\\/]memory[\\/]/i;
 
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434";
-const OLLAMA_CLASSIFY_MODEL = process.env.OLLAMA_CLASSIFY_MODEL ?? "qwen2.5-coder:7b";
+const OLLAMA_CLASSIFY_MODEL = process.env.OLLAMA_CLASSIFY_MODEL ?? "qwen2.5-coder:32b";
 const OLLAMA_CLASSIFY_TIMEOUT_MS = 3_500;
 const VALID_CATEGORIES = new Set([
   "feedback", "project", "reference", "user",
@@ -254,7 +254,7 @@ async function embedRemote(kind, id, text, metadata) {
 }
 
 async function categorizeViaOllama(content, filename) {
-  // Strip frontmatter + truncate so the prompt stays small (qwen2.5-coder:7b is fast on short inputs).
+  // Strip frontmatter + truncate so the prompt stays small (qwen2.5-coder:32b is fast on short inputs).
   const body = content.replace(/^---\n[\s\S]*?\n---\n/, "").slice(0, 1_500);
   const prompt =
     `Classify this memory note into ONE category. Reply with ONLY the category word, nothing else.\n\n` +

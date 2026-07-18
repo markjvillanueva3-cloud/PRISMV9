@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-hook_stability_check — USSH Phase 0.25=======================================Monitors session stability using Lyapunov analysis.Warns when session is drifting toward failed attractor.Fires: PostToolUse (every 10 tool calls)Theory: Control systems stability via SessionStabilityEngine
+_(no header docblock — read source for behavior)_
 
 ## Events
 

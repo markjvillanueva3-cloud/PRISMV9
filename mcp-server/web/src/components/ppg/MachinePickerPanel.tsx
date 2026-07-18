@@ -177,7 +177,7 @@ export function MachinePickerPanel({
   return (
     <PanelCard
       title="Machine selection"
-      subtitle="Pick your machine — PRISM auto-resolves controller, axis config, and recommended features."
+      subtitle="Pick your machine — Kienzle auto-resolves controller, axis config, and recommended features."
     >
       <div className="grid gap-4 md:grid-cols-3">
         <Field label="Manufacturer">

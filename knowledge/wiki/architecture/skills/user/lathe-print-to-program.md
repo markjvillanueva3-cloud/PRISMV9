@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `lathe-print-to-program` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-print-to-program.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-print-to-program.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Full LATHE-MASTER P4 print-to-program pipeline skill. Transforms blueprints into machine-ready G-code with full traceability (signoff dossier, reasoning trace, knowledge graph).
+
+# /lathe-print-to-program
 
 <!-- AUTO-END -->
 

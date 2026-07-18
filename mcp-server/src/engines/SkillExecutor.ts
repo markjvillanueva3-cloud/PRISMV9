@@ -34,6 +34,7 @@ export interface SkillLoadResult {
   cached: boolean;
   load_time_ms: number;
   error?: string;
+  metadata?: Record<string, unknown>;
 }
 
 /** Skill Recommendation configuration/data structure.

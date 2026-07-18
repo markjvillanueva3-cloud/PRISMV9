@@ -28,7 +28,7 @@ related:
 | Course ID | `course-2-speed-feed-mastery` |
 | Source | `mcp-server/src/data/academy/course-2-speed-feed-mastery.ts` |
 | Level | Intermediate |
-| Modules (declared / counted) | 10 / 11 |
+| Modules (declared / counted) | 10 / 12 |
 | Lessons (counted) | 10 |
 | Est. hours | 6 |
 

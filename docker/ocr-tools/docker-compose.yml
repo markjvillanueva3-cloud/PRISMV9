@@ -1,0 +1,36 @@
+# PRISM OCR Tools — one-shot benchmark container
+# Usage:
+#   cd H:/prism/docker/ocr-tools
+#   docker compose build              # ~10-15 min first build (downloads CUDA + paddle + TF)
+#   docker compose run --rm ocr-tools  # smoke test (5 PDFs)
+#   docker compose run --rm ocr-tools python /app/run-benchmark.py 50  # full benchmark
+#
+# After benchmarking, results land at:
+#   H:/prism/Docustrata/.index/phase13-ocr-tools-benchmark.jsonl
+#   H:/prism/Docustrata/.index/phase13-ocr-tools-summary.md
+
+services:
+  ocr-tools:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: prism-ocr-tools:latest
+    container_name: prism-ocr-tools
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      # PDFs (read-only — never mutate the source corpus)
+      - "H:/PRISM/Docustrata:/work/Docustrata:ro"
+      # Index dir (read-write — JSONL outputs land here)
+      - "H:/prism/Docustrata/.index:/work/index"
+      # MinerU's pre-downloaded HF model cache (already ~2GB on host)
+      - "C:/Users/wompu/.cache/huggingface:/root/.cache/huggingface"
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+      - PYTHONIOENCODING=utf-8
+    # default cmd in Dockerfile is `python /app/run-benchmark.py 5` (smoke test)

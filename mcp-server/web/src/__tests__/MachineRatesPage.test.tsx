@@ -40,7 +40,8 @@ beforeEach(() => {
   mockMachineRateList.mockReset();
 
   mockMachineRateList.mockResolvedValue({
-    result: {
+    ok: true,
+    data: {
       rates: [
         {
           machine_id: 'VF2',
@@ -64,7 +65,8 @@ beforeEach(() => {
     },
   } as any);
   mockMachineRateCompare.mockResolvedValue({
-    result: {
+    ok: true,
+    data: {
       machines: [
         { id: 'VF2', name: 'Haas VF-2', hourly_rate: 85, setup_multiplier: 1.1, annual_cost: 210000 },
         { id: 'UMC750', name: 'Haas UMC-750', hourly_rate: 105, setup_multiplier: 1.22, annual_cost: 260000 },
@@ -74,7 +76,8 @@ beforeEach(() => {
     },
   } as any);
   mockMachineRateEffective.mockResolvedValue({
-    result: {
+    ok: true,
+    data: {
       machine_id: 'VF2',
       oee_level: 'poor',
       effective_rate_hr: 131.75,
@@ -125,8 +128,8 @@ describe('MachineRatesPage', () => {
     const quoteBuilderLink = screen.getByRole('link', { name: /Open Quote Builder/i });
     const printToCncLink = screen.getByRole('link', { name: /Open Print to CNC/i });
 
-    const quoteBuilderUrl = new URL(quoteBuilderLink.getAttribute('href')!, 'https://prism.local');
-    const printToCncUrl = new URL(printToCncLink.getAttribute('href')!, 'https://prism.local');
+    const quoteBuilderUrl = new URL(quoteBuilderLink.getAttribute('href')!, 'https://kienzle.local');
+    const printToCncUrl = new URL(printToCncLink.getAttribute('href')!, 'https://kienzle.local');
 
     expect(quoteBuilderUrl.pathname).toBe('/quote-builder');
     expect(quoteBuilderUrl.searchParams.get('originSource')).toBe('quote-builder');

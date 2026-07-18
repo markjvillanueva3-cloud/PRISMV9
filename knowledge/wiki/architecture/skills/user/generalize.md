@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `generalize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/generalize.md` |
+| Source | `C:/Users/wompu/.claude/commands/generalize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Phase 0.18 skill. PRISM holds thousands of concrete tribal tips, but a tip is only locally useful. This skill walks the abstraction hierarchy to lift a tip up to its governing **rule**, **principle**, or **law** — and, given a query term, returns the most-abstract ancestor that still covers the term. That's how shop-floor wisdom becomes cross-domain leverage.
+
+# /generalize — Tip → Rule → Principle → Law Abstraction
 
 <!-- AUTO-END -->
 

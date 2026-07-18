@@ -53,10 +53,11 @@ describe("calculateEngagementAngle", () => {
       expect(result.arc_of_engagement).toBeCloseTo(180, 0);
     });
 
-    it("half-diameter radial depth (ae = R) gives ~180° engagement", () => {
-      // ae = D/2 = R → cos(half) = 1 - R/R = 0 → half = 90° → arc = 180°
+    it("half-diameter radial depth (ae = R, 50% immersion) gives 90 deg engagement", () => {
+      // ae = D/2 = R -> cos(phi) = 1 - 2ae/D = 0 -> phi = acos(0) = 90 deg (the FULL arc).
+      // Previously asserted 180 deg, which ENCODED the doubling bug -- corrected 2026-06-23.
       const result = calculateEngagementAngle(20, 10, 0.15, true, 200);
-      expect(result.arc_of_engagement).toBeCloseTo(180, 0);
+      expect(result.arc_of_engagement).toBeCloseTo(90, 0);
     });
 
     it("max chip thickness < feed per tooth", () => {
@@ -98,12 +99,12 @@ describe("calculateEngagementAngle", () => {
   });
 
   describe("FORGE-DEBUG regression: avg chip thickness integral formula", () => {
-    it("avg chip = fz × ae / (R × φ) for partial engagement", () => {
-      // D=20, ae=5, fz=0.15, R=10
-      // cos(half) = 1 - 5/10 = 0.5 → half = 60° → φ = 120° = 2.094 rad
-      // h_avg = 0.15 × 5 / (10 × 2.094) = 0.0358
+    it("avg chip = fz * ae / (R * phi) for partial engagement (25% immersion)", () => {
+      // D=20, ae=5, fz=0.15, R=10. cos(phi) = 1 - 2ae/D = 0.5 -> phi = acos(0.5) = 60 deg
+      // = 1.047 rad (the FULL engagement arc; the prior oracle DOUBLED it to 120 -> halved h_avg).
+      // h_avg = 0.15 * 5 / (10 * 1.047) = 0.0716 mm.
       const result = calculateEngagementAngle(20, 5, 0.15, true, 200);
-      const expected = 0.15 * 5 / (10 * (120 * Math.PI / 180));
+      const expected = 0.15 * 5 / (10 * (60 * Math.PI / 180));
       expect(result.average_chip_thickness).toBeCloseTo(expected, 3);
     });
   });
@@ -122,8 +123,9 @@ describe("calculateEngagementAngle", () => {
 
   describe("edge cases", () => {
     it("very light engagement produces thin-chip warning", () => {
-      // ae=0.1 → avg chip ≈ 0.005mm < 0.01 threshold → rubbing warning
-      const result = calculateEngagementAngle(20, 0.1, 0.15, true, 200);
+      // ae=0.05 -> phi ~5.7 deg -> avg chip ~0.0075mm < 0.01 threshold -> rubbing warning.
+      // (ae=0.1 now yields avg ~0.0106 > 0.01 after the avg-chip doubling fix, so use a lighter cut.)
+      const result = calculateEngagementAngle(20, 0.05, 0.15, true, 200);
       expect(result.warnings.length).toBeGreaterThan(0);
     });
 
@@ -134,6 +136,47 @@ describe("calculateEngagementAngle", () => {
       expect(Number.isNaN(result.exit_angle)).toBe(false);
       expect(Number.isNaN(result.max_chip_thickness)).toBe(false);
       expect(Number.isNaN(result.average_chip_thickness)).toBe(false);
+    });
+  });
+
+  // Reference-value lock for the 2026-06-23 engagement-arc doubling fix (physics-reviewer
+  // adjudicated; Altintas "Manufacturing Automation" 2e Sec 2.4 + Eq 2.21). D=12, fz=0.10,
+  // climb. cos(phi) = 1 - 2ae/D -> phi = 60/90/120/180 deg at 25/50/75/100% immersion.
+  // These FAIL LOUDLY if anyone reintroduces a 2*phi factor (arc, entry/exit span, or avg).
+  describe("engagement-arc reference values (R9 anti-doubling lock)", () => {
+    const D = 12, FZ = 0.10;
+    const CASES = [
+      { ae: 3,  imm: 25,  arc: 60,  maxc: 0.0866, avg: 0.0477 },
+      { ae: 6,  imm: 50,  arc: 90,  maxc: 0.1000, avg: 0.0637 },
+      { ae: 9,  imm: 75,  arc: 120, maxc: 0.1000, avg: 0.0716 },
+      { ae: 12, imm: 100, arc: 180, maxc: 0.1000, avg: 0.0637 },
+    ];
+    for (const c of CASES) {
+      it(`${c.imm}% immersion: arc ${c.arc} deg + chip thickness match Altintas`, () => {
+        const r = calculateEngagementAngle(D, c.ae, FZ, true, 150);
+        expect(r.arc_of_engagement, `${c.imm}% arc must be ${c.arc} (not 2x)`).toBeCloseTo(c.arc, 0);
+        expect(r.max_chip_thickness, `${c.imm}% max_chip`).toBeCloseTo(c.maxc, 3);
+        expect(r.average_chip_thickness, `${c.imm}% avg_chip`).toBeCloseTo(c.avg, 3);
+        // the mean uncut chip can never exceed the peak.
+        expect(r.average_chip_thickness).toBeLessThanOrEqual(r.max_chip_thickness);
+      });
+    }
+
+    it("avg chip peaks at 75% immersion; avg(50%) == avg(100%) (band symmetry)", () => {
+      const a50 = calculateEngagementAngle(D, 6, FZ, true, 150).average_chip_thickness;
+      const a75 = calculateEngagementAngle(D, 9, FZ, true, 150).average_chip_thickness;
+      const a100 = calculateEngagementAngle(D, 12, FZ, true, 150).average_chip_thickness;
+      expect(a75).toBeGreaterThan(a50);
+      expect(a75).toBeGreaterThan(a100);
+      expect(a50).toBeCloseTo(a100, 3); // both = 0.2/pi
+    });
+
+    it("climb enters deep (entry > exit); conventional enters at the wall (entry < exit)", () => {
+      const climb = calculateEngagementAngle(D, 6, FZ, true, 150);
+      const conv = calculateEngagementAngle(D, 6, FZ, false, 150);
+      expect(climb.arc_of_engagement).toBeCloseTo(conv.arc_of_engagement, 3);
+      expect(climb.entry_angle).toBeGreaterThan(climb.exit_angle);
+      expect(conv.entry_angle).toBeLessThan(conv.exit_angle);
     });
   });
 });

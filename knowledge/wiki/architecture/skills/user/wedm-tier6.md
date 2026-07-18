@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-tier6` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-tier6.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-tier6.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Runs the Tier 6A validation pipeline against a fixture:
+
+# /wedm-tier6 — Progressive Die Validation
 
 <!-- AUTO-END -->
 

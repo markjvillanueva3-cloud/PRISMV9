@@ -49,6 +49,23 @@ export const SLOT_NAMES_FALLBACK = [
   "kilo",
   "lima",
   "mike",
+  // Slots 14-26 added 2026-05-19 (SLOT-RECLAIM 13->26). This list MUST mirror
+  // SLOT_NAMES in .claude/helpers/chat-slots.mjs (the canonical fleet roster) --
+  // the "drift catch" test in system-viz-slot-ownership.test.mjs deep-equals the
+  // live module's slotNames against this fallback to enforce that.
+  "november",
+  "oscar",
+  "papa",
+  "quebec",
+  "romeo",
+  "sierra",
+  "tango",
+  "uniform",
+  "victor",
+  "whiskey",
+  "xray",
+  "yankee",
+  "zulu",
 ];
 
 export const PALETTE_SAT = 0.7;

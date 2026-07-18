@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `traveler` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/traveler.md` |
+| Source | `C:/Users/wompu/.claude/commands/traveler.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 1,
+  "platform": "solidworks",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "ModelDoc2.InsertSketch2",
+      "args": [
+        "true"
+      ],
+      "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "SketchManager.CreateLine",
+      "args": [
+        "x1,y1,z1",
+        "x2,y2,z2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "SketchManager.CreatePolyLine (sequential)",
+      "args": [
+        "points[]"
+      ],
+      "notes": "Chain CreateLine calls"
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "SketchManager.Create3PointArc",
+      "args": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "SketchManager.CreateArc",
+      "args": [
+        "cx,cy,cz",
+        "sx,sy,sz",
+        "ex,ey,ez"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "SketchManager.CreateCircleByRadius",
+      "args": [
+        "cx",
+        "cy",
+        "cz",
+        "r"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "SketchManager.CreateEllipse",
+      "args": [
+        "cx,cy,cz",
+        "majAx",
+        "minAx"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "SketchManager.CreateSpline",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "SketchManager.CreateCornerRectangle",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "SketchManager.CreateCenterRectangle",
+      "args": [
+        "center",
+        "corner"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "SketchManager.CreatePolygon",
+      "args": [
+        "cx,cy,N,r"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "SketchManager.CreateCenterToCenterSlot",
+      "args": [
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "SketchManager.CreateArcSlot",
+      "args": [
+        "arcCenter",
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "SketchManager.OffsetEntities",
+      "args": [
+        "distance",
+        "reverse"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "SketchManager.TrimSketch",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "SketchManager.CreateFillet",
+      "args": [
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude",
+      "fn": "FeatureManager.FeatureExtrusion3",
+      "args": [
+        "sd",
+        "flip",
+        "dir",
+        "endCond",
+        "endCond2",
+        "d1",
+        "d2",
+        "..."
+      ],
+      "notes": "Many overloads"
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "FeatureManager.FeatureCut3",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.revolve",
+      "fn": "FeatureManager.FeatureRevolve2",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.loft",
+      "fn": "FeatureManager.InsertProtrusionBlend",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.sweep",
+      "fn": "FeatureManager.InsertProtrusionSwept",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.shell",
+      "fn": "FeatureManager.InsertFeatureShell2",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.fillet",
+      "fn": "FeatureManager.FeatureFillet3",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "FeatureManager.InsertFeatureChamfer",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "FeatureManager.InsertFeatureDraft",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.mirror",
+      "fn": "FeatureManager.InsertMirrorFeature2",
+      "args": [
+        "features[]",
+        "plane"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "FeatureManager.FeatureLinearPattern4",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "FeatureManager.FeatureCircularPattern5",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "FeatureManager.HoleWizard2",
+      "args": [
+        "..."
+      ],
+      "notes": "Many params"
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "FeatureManager.HoleWizard2(Tapped)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "FeatureManager.InsertCosmeticThread2",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "FeatureManager.InsertCombineFeature(Add)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "FeatureManager.InsertCombineFeature(Subtract)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "FeatureManager.InsertCombineFeature(Common)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "AssemblyDoc.AddComponent5",
+      "args": [
+        "file",
+        "config",
+        "x",
+        "y",
+        "z"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "AssemblyDoc.AddMate3(Coincident)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "AssemblyDoc.AddMate3(Concentric)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "AssemblyDoc.AddMate3(Distance)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    }
+  ]
+}

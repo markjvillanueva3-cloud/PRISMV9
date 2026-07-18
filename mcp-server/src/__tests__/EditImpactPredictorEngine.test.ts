@@ -2,7 +2,7 @@
  * EditImpactPredictorEngine tests
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   EditImpactPredictorEngine,
   type ImpactPrediction,

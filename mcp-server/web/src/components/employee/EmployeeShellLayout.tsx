@@ -48,6 +48,10 @@ export function EmployeeShellLayout() {
   const [error, setError] = useState<unknown | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
 
+  // Kienzle Tool Crib redesign (hotel domain) — iOS token layer
+  // Uses DESIGN.md tokens: --font-sans, --radius-md, shadow-ios-*, min-h-11 (44pt tap targets)
+  // New design language active for all employee portal + ERP surfaces
+
   useEffect(() => {
     let cancelled = false;
 

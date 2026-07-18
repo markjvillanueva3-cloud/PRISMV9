@@ -11,16 +11,27 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const cache = new Map<string, unknown>();
 
+// ESM-safe module dir. A bare `__dirname` is undefined in ES-module scope, so any raw-ESM
+// runner (e.g. `tsx scripts/*.ts` that transitively imports a catalog) crashed with a
+// ReferenceError before it could even look for the data. Deriving it from import.meta.url works
+// under BOTH raw ESM (tsx: resolves to src/data) AND the esbuild ESM bundle (esbuild.config.mjs
+// sets format:"esm" and preserves import.meta.url natively -> resolves to the chunk dir in dist,
+// identical to the old __dirname; the two-candidate dataDir() loop handles entry-vs-chunk
+// placement). The data-resolution is byte-identical to the prior behavior in every bundled/test
+// context that already worked, and newly correct under raw ESM. (Idiom matches 50+ bundled src/.)
+const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
+
 function dataDir(): string {
-  // dist/index.js → __dirname/data; dist/chunks/*.js → __dirname/../data.
-  for (const c of [join(__dirname, "data"), join(__dirname, "..", "data")]) {
+  // bundle: MODULE_DIR/data (dist/data); chunked bundle: MODULE_DIR/../data.
+  for (const c of [join(MODULE_DIR, "data"), join(MODULE_DIR, "..", "data")]) {
     if (existsSync(c)) return c;
   }
-  return join(__dirname, "data");
+  return join(MODULE_DIR, "data");
 }
 
 /**

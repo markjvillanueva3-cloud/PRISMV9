@@ -28,6 +28,10 @@ export type JMDieCalculatorRouteAuthority = {
   releaseNote: string;
   toolpathNote: string;
   toolpathSupported: boolean;
+  // 2026-05-26 (slot golf, tsc-fix): sister to toolpathSupported — release-side gate.
+  // Optional so existing constructors (which set neither this nor toolpathSupported defaults)
+  // don't break; reads return undefined and are handled defensively at call sites.
+  releaseSupported?: boolean;
 };
 
 function normalize(value: string | null | undefined) {

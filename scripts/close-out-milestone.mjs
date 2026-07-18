@@ -37,6 +37,7 @@ import * as path from "node:path";
 import * as os from "node:os";
 import { fileURLToPath } from "node:url";
 import { spawnSync, execFileSync } from "node:child_process";
+import { atomicWriteJson } from "./lib/atomic-json.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..");
@@ -48,6 +49,14 @@ const BUILD_STATE_SCRIPT = path.join(REPO_ROOT, "scripts", "build-state-snapshot
 // .golf-allowlist-regex.txt never drifts from the canonical registry. Non-fatal —
 // the A5 hook degrades to its inline FALLBACK_ALLOW if this artifact is stale.
 const REGEN_GOLF_PATHS_SCRIPT = path.join(REPO_ROOT, "scripts", "regen-golf-owned-paths.mjs");
+// COMMAND-KERNEL-MS0/U-CK27: tune adaptive thresholds from accumulated
+// pipeline telemetry as the LAST step of close-out. Non-fatal — a missing
+// adaptive-thresholds.mjs or a tuner crash degrades to the existing
+// defaults (the tuner reads telemetry but never blocks the close-out).
+// The script is also a no-op when telemetry has zero matching signals
+// (dormant-by-data is the expected steady state until U-CK28 wires the
+// command-utilization signals back to it).
+const ADAPTIVE_THRESHOLDS_SCRIPT = path.join(REPO_ROOT, ".claude", "scripts", "adaptive-thresholds.mjs");
 const CHAT_BUS_HELPER = path.join(REPO_ROOT, ".claude", "helpers", "agent-coordination.mjs");
 // Require `]` to be IMMEDIATELY followed by `/U-…:` so the `[MAIN] [SCOPE]/U-…:`
 // shape (where `[MAIN]` is a separate audit tag) cleanly picks the SCOPE bracket,
@@ -87,7 +96,7 @@ async function main() {
     milestone: milestoneId,
     envelope: { path: "", before: null, after: null },
     roadmapIndex: { path: ROADMAP_INDEX_PATH, before: null, after: null, changed: false },
-    regen: { milestoneProgress: null, buildState: null, golfOwnedPaths: null },
+    regen: { milestoneProgress: null, buildState: null, golfOwnedPaths: null, adaptiveThresholds: null },
     chatBus: { posted: false, error: null },
     noWrite: !!args.noWrite,
     warnings: [],
@@ -191,12 +200,25 @@ async function main() {
         `regen-golf-owned-paths.mjs exited ${result.regen.golfOwnedPaths.code} (non-fatal; A5 falls back to inline allowlist)`,
       );
     }
+    // COMMAND-KERNEL-MS0/U-CK27 — re-tune adaptive thresholds from
+    // pipeline-telemetry.jsonl. Non-fatal: the tuner is dormant-by-data
+    // until enough matching telemetry accumulates; a missing or crashing
+    // tuner falls back to current adaptive-thresholds.json values, which
+    // themselves fall back to DEFAULTS at consumption time.
+    if (fs.existsSync(ADAPTIVE_THRESHOLDS_SCRIPT)) {
+      result.regen.adaptiveThresholds = spawnNodeScript(ADAPTIVE_THRESHOLDS_SCRIPT);
+      if (result.regen.adaptiveThresholds.code !== 0) {
+        result.warnings.push(
+          `adaptive-thresholds.mjs exited ${result.regen.adaptiveThresholds.code} (non-fatal; thresholds keep prior value)`,
+        );
+      }
+    }
   }
 
   // 5. Chat-bus broadcast.
   if (!args.noWrite && !args.skipChatBus) {
     const summary = renderChatBusSummary(milestoneId, result);
-    const post = spawnSync("node", [CHAT_BUS_HELPER, "post", "--agent", "Claude", summary], {
+    const post = spawnSync(process.execPath, [CHAT_BUS_HELPER, "post", "--agent", "Claude", summary], {
       cwd: REPO_ROOT, encoding: "utf-8",
     });
     result.chatBus.posted = post.status === 0;
@@ -260,11 +282,10 @@ function readJson(p) {
   }
 }
 
-function atomicWriteJson(p, obj) {
-  const tmp = `${p}.tmp-${process.pid}`;
-  fs.writeFileSync(tmp, JSON.stringify(obj, null, 2) + "\n");
-  fs.renameSync(tmp, p);
-}
+// atomicWriteJson is imported from ./lib/atomic-json.mjs (U-ROADMAP-INDEX-
+// WRITER-CONSOLIDATE) and re-exported below for back-compat with importers.
+// The shared helper is byte-identical to the prior local copy (per-PID temp,
+// 2-space JSON, trailing newline) and adds orphan-temp cleanup on failure.
 
 function snapshotEnvelope(env) {
   return {
@@ -290,7 +311,7 @@ function detectMilestoneFromGit() {
 }
 
 function spawnNodeScript(scriptPath) {
-  const r = spawnSync("node", [scriptPath], { cwd: REPO_ROOT, encoding: "utf-8" });
+  const r = spawnSync(process.execPath, [scriptPath], { cwd: REPO_ROOT, encoding: "utf-8" });
   return {
     script: path.basename(scriptPath),
     code: r.status,
@@ -320,6 +341,7 @@ function emitFinal(result) {
   if (result.regen?.milestoneProgress) process.stdout.write(`  MILESTONE_PROGRESS: regen exit=${result.regen.milestoneProgress.code}\n`);
   if (result.regen?.buildState) process.stdout.write(`  BUILD_STATE:        regen exit=${result.regen.buildState.code}\n`);
   if (result.regen?.golfOwnedPaths) process.stdout.write(`  golf-owned-paths:   regen exit=${result.regen.golfOwnedPaths.code}\n`);
+  if (result.regen?.adaptiveThresholds) process.stdout.write(`  adaptive-thresholds: tune exit=${result.regen.adaptiveThresholds.code}\n`);
   process.stdout.write(`  chat-bus:        ${result.chatBus?.posted ? "posted" : (args.skipChatBus ? "skipped" : "not posted")}\n`);
   for (const w of result.warnings || []) process.stdout.write(`  ⚠ ${w}\n`);
   if (result.error) process.stdout.write(`  ✗ ${result.error}\n`);
@@ -432,10 +454,18 @@ function runSelfTest() {
   // 9. FAILURE MODE: envelope without status=completed should be rejected by main() logic.
   //    Replicate the guard inline.
   {
-    const env = { id: "X", status: "in_progress", completed_units: 2, total_units: 3 };
-    const force = false;
-    const rejected = env.status !== "completed" && !force;
-    check("guard rejects non-completed envelope without --force", rejected === true);
+    // Mirror the production guard (line ~118) EXACTLY: it accepts BOTH "completed"
+    // (the envelope word) AND "complete" (the roadmap-index word); anything else is
+    // rejected without --force. The prior inline copy only checked !== "completed",
+    // so it could NOT catch a regression that dropped the "complete" synonym.
+    const guardRejects = (status, force) => {
+      const s = String(status || "").toLowerCase();
+      return s !== "completed" && s !== "complete" && !force;
+    };
+    check("guard rejects in_progress envelope without --force", guardRejects("in_progress", false) === true);
+    check("guard ACCEPTS completed envelope (not rejected)", guardRejects("completed", false) === false);
+    check("guard ACCEPTS complete envelope (index synonym, not rejected)", guardRejects("complete", false) === false);
+    check("guard --force overrides the rejection", guardRejects("in_progress", true) === false);
   }
   // 10. FAILURE MODE: missing envelope should surface as a clear error.
   {

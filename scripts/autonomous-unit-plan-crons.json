@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "crons": [
+    {
+      "name": "PRISM Master Unit Plan - Nightly Full Pass",
+      "schedule": "0 2 * * *",
+      "command": "node scripts/hermes-unit-plan-harness.mjs --cap 10",
+      "description": "Runs a large capped pass of the Master Unit Plan every night at 2 AM",
+      "enabled": true
+    },
+    {
+      "name": "PRISM Master Unit Plan - Continuous Loop",
+      "schedule": "every 30m",
+      "command": "node scripts/autonomous-unit-plan-loop.mjs",
+      "description": "Continuous all-in-one loop (draft then verify) with PRISM rule enforcement. Manual/interactive runner; the two dedicated scheduled tasks cover the autonomous path.",
+      "enabled": true
+    },
+    {
+      "name": "PRISM Unit Plan Verify",
+      "schedule": "every 13m",
+      "command": "node scripts/hermes-unit-plan-verify-harness.mjs --no-llm --cap 30",
+      "description": "Quick-firing verify stage: gates UNREVIEWED drafts for build-readiness, promotes passing ones into build-ready-queue.json. Installer: scripts/install-unit-plan-verify-task.ps1. Fills the drafter-drains-and-idles no-downtime gap.",
+      "enabled": true,
+      "installer": "scripts/install-unit-plan-verify-task.ps1"
+    },
+    {
+      "name": "PRISM Unit Plan Build-Ready Surface",
+      "schedule": "every 15m",
+      "command": "node scripts/hermes-build-ready-loop.mjs",
+      "description": "Consumer stage (completes draft -> verify -> SURFACE): reads build-ready-queue.json read-only, routes each VERIFIED unit to its owner/lead slot, writes hermes-build-ready-next.json pointer + dashboard + throttled chat-bus advisory so specialist slots pick up work. Never builds/commits -- read/route/advertise only. Consumer hook: .claude/hooks/hermes-build-ready-inject.mjs. Installer: scripts/install-hermes-build-ready-loop-task.ps1.",
+      "enabled": true,
+      "installer": "scripts/install-hermes-build-ready-loop-task.ps1"
+    },
+    {
+      "name": "PRISM Unit Plan Requeue Rework",
+      "schedule": "every 19m",
+      "command": "node scripts/hermes-unit-plan-requeue.mjs --apply --cap 2",
+      "description": "Loop-closure stage (draft -> verify -> REQUEUE -> redraft): re-drafts NEEDS-REWORK units the verify stage dropped from build-ready-queue AND the drafter skips (Status=Drafted). Backs up the failing draft, resets Status=Not Started, re-drafts at a higher token budget (PRISM_UNITPLAN_REDRAFT_MAX_TOKENS, default 12000 -- truncation is the usual NEEDS-REWORK cause). Structural (split/replace) verdicts + units past REDRAFT_CAP(2) surface needs-human, never looped. Closes the only remaining no-downtime dead-end. Disable: PRISM_UNITPLAN_REDRAFT_DISABLE=1.",
+      "enabled": true
+    },
+    {
+      "name": "PRISM Efficiency Optimization - Weekly Review",
+      "schedule": "0 3 * * 0",
+      "command": "node scripts/optimize-claude-code-efficiency.mjs --full",
+      "description": "Weekly review and optimization pass on Claude Code CLI efficiency",
+      "enabled": false
+    }
+  ]
+}

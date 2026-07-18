@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-awareness-bootstrap.mjs — Phase 0.13 Awareness BootstrapSessionStart hook that initializes situational awareness context.First hook in the SessionStart chain per HOOK_ORDER_REGISTRY.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

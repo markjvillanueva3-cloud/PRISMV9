@@ -425,4 +425,38 @@ describe("AdvancedPostProcessorEngine — hurco controller dialect", () => {
       expect(r.gcode).toContain("G08 P1");
     });
   });
+
+  // ==========================================================================
+  // NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP) -- a NaN/Infinity probe
+  // nominal must never leak a literal ZNaN/DInfinity the probe macro rejects.
+  // ==========================================================================
+  describe("In-process measurement -- non-finite nominal guard (U-PP-NONFINITE-EMIT-SWEEP)", () => {
+    const measure = (controller: string, nominal: number) =>
+      advancedPostProcessorEngine.enhance({
+        controller, gcode: MIN_GCODE,
+        in_process_measure: {
+          measure_every_n_parts: 5,
+          critical_features: [{ type: "surface", nominal, tolerance_plus: 0.025, tolerance_minus: -0.025, work_offset: "G54" }],
+          auto_compensate: false, alarm_on_out_of_tolerance: true, spc_logging: false,
+        },
+      } as never);
+
+    it("[regression] a finite Fanuc surface measure emits the real G65 P9811 Z block", () => {
+      const r = measure("fanuc", 25.4);
+      expect(r.gcode).toContain("G65 P9811 Z25.400");
+      expect(r.gcode).not.toContain("NON-FINITE");
+    });
+
+    it("NaN nominal emits an ERROR marker -- no literal ZNaN", () => {
+      const r = measure("fanuc", NaN);
+      expect(r.gcode).not.toMatch(/[ZDWQ]NaN/);
+      expect(r.gcode).toContain("NON-FINITE NOMINAL");
+    });
+
+    it("Infinity nominal emits an ERROR marker -- no literal ZInfinity", () => {
+      const r = measure("fanuc", Infinity);
+      expect(r.gcode).not.toMatch(/[ZDWQ]Infinity/);
+      expect(r.gcode).toContain("NON-FINITE NOMINAL");
+    });
+  });
 });

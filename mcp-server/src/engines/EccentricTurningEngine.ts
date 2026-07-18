@@ -142,7 +142,7 @@ function calculateForceVariation(
   // Get material Kienzle coefficients
   const material = Object.values(CANONICAL_MATERIAL_DB).find(
     m => m.name.toLowerCase().includes(workpiece_material.toLowerCase())
-  ) || CANONICAL_MATERIAL_DB.steel_1045;
+  ) || CANONICAL_MATERIAL_DB["1045"]; // fallback: 1045 carbon steel (DB is keyed "1045", NOT "steel_1045" — the old key was dead → TypeError on any off-DB material e.g. graphite)
 
   const kc1_1 = material.kc1_1;
   const mc = material.mc;

@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-doc-freshness-check.mjs — Phase 0.15 Documentation Freshness CheckSessionStart hook that checks if managed documents are staleand warns if doc-sync is needed.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

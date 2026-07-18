@@ -29,8 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-
-# /traveler — Job Traveler & Machine Dispatch
+Manage job travelers (routing steps with dual time tracking), machine dispatch
+queues, and shop floor scanning operations.
 
 <!-- AUTO-END -->
 

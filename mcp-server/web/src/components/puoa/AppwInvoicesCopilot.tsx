@@ -68,7 +68,7 @@ function buildSummary(props: AppwInvoicesCopilotProps) {
   if (props.upstreamSourceLabel) posture.push(`upstream ${props.upstreamSourceLabel}`);
   if (props.workflowReference) posture.push(`record ${props.workflowReference}`);
 
-  return `PRISM AI is reasoning over live invoice exposure, collection pressure, billing readiness, route freshness, degraded-lane signals, and finance continuity for the Invoices desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live invoice exposure, collection pressure, billing readiness, route freshness, degraded-lane signals, and finance continuity for the Invoices desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwInvoicesCopilotProps): WorkspaceCopilotSuggestion[] {

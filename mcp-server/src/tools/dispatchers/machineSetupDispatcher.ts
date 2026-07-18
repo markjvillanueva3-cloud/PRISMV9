@@ -68,14 +68,14 @@ const ACTIONS = [
   "balancing_machine_calculate", "cnc_maintenance_calculate",
   "critical_speed_calculate", "dynamic_balance_calculate",
   "machine_kinematics_calculate", "machine_leveling_calculate",
-  "machine_warmup_calculate", "rtcp_compensation_calculate",
+  "machine_warmup_calculate", "machine_warmup_with_laser_interferometer", "rtcp_compensation_calculate",
   "spindle_load_monitor", "spindle_runout_calculate", "spindle_speed_variation",
   "work_envelope_calculate", "tool_magazine_optimize", "tool_balancing_calculate",
   "fixture_plate_calculate", "magnetic_bearing_calculate",
   "press_fit_calculate", "shrink_fit_calculate",
   "gauging_calculate", "parallelism_calculate", "surface_integrity_assess",
   "thread_gage_calculate", "tolerance_stackup_calculate",
-  "stepover_optimize", "statistical_process_calculate",
+  "stepover_optimize", "stepover_optimize_from_surface", "statistical_process_calculate",
   "hobby_cnc_get", "hobby_cnc_search", "hobby_cnc_controller",
   "hobby_cnc_compatibility", "hobby_cnc_recommend",
   "cobot_assess_safety", "cobot_plan_task", "cobot_select",
@@ -256,6 +256,10 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "stepover_optimize") {
           const eng = await getEngine("stepover");
           result = eng.optimize?.(params) ?? eng.calculate?.(params) ?? { error: "StepoverOptimization method not found" };
+        } else if (action === "stepover_optimize_from_surface") {
+          // CURVATURE-SOURCE WIRING: sample surface geometry -> real per-point kappa2 -> optimizer.
+          const eng = await getEngine("stepover");
+          result = eng.optimizeFromSurface?.(params) ?? { error: "StepoverOptimization.optimizeFromSurface method not found" };
 
         // ── HBK: Machine Handbook Registry + Extraction actions (H1 fix: inside main chain) ──
         } else if (action === "handbook_get") {
@@ -450,6 +454,30 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { controllerProgrammingIntelligenceEngine } = await import("../../engines/ControllerProgrammingIntelligenceEngine.js");
           const { machineHandbookRegistry } = await import("../../engines/MachineHandbookRegistryEngine.js");
           result = controllerProgrammingIntelligenceEngine.getEnrichmentPatch(params.machine_id, machineHandbookRegistry as any);
+
+        // ── U-DEA-november-P04: warmup + laser-interferometer overlay orchestrator ──
+        } else if (action === "machine_warmup_with_laser_interferometer") {
+          const { machineWarmupEngine } = await import("../../engines/MachineWarmupEngine.js");
+          type WarmupOverlayInput = Parameters<typeof machineWarmupEngine.calculateWithLaserInterferometer>[1];
+          const rawOverlay = (params.laser_overlay ?? params.laserOverlay ?? null) as Record<string, unknown> | null;
+          let overlay: WarmupOverlayInput | undefined;
+          if (rawOverlay) {
+            overlay = {
+              wavelength: (rawOverlay.wavelength ?? undefined) as WarmupOverlayInput extends { wavelength?: infer W } ? W : never,
+              comp_table: (rawOverlay.comp_table ?? rawOverlay.compTable ?? undefined) as WarmupOverlayInput extends { comp_table?: infer C } ? C : never,
+              deadpath_length_mm: rawOverlay.deadpath_length_mm !== undefined
+                ? Number(rawOverlay.deadpath_length_mm)
+                : rawOverlay.deadpathLengthMm !== undefined
+                  ? Number(rawOverlay.deadpathLengthMm)
+                  : undefined,
+              target_accuracy_um: rawOverlay.target_accuracy_um !== undefined
+                ? Number(rawOverlay.target_accuracy_um)
+                : rawOverlay.targetAccuracyUm !== undefined
+                  ? Number(rawOverlay.targetAccuracyUm)
+                  : undefined,
+            };
+          }
+          result = machineWarmupEngine.calculateWithLaserInterferometer(params as Parameters<typeof machineWarmupEngine.calculateWithLaserInterferometer>[0], overlay);
 
         } else {
           const engineKey = engineMap[action];

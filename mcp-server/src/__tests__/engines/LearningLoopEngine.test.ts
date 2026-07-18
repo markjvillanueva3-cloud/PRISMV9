@@ -164,6 +164,23 @@ describe("LearningLoopEngine", () => {
       expect(check.confidence).toBe(0);
     });
 
+    it("applies an absolute-overlap floor so short patterns don't fuzzy-match on common words", async () => {
+      // Positive control: a genuine 5-word overlap with "Use 500 SFM for D2"
+      // triggers and surfaces the recorded correction value.
+      const hit = await engine.checkForCorrection("please use 500 SFM for D2 now");
+      expect(hit.triggered).toBe(true);
+      expect(hit.suggestion).toContain("150 SFM");
+      expect(hit.confidence).toBeGreaterThan(0.7);
+
+      // Negative: the 3-word "Feed rate 0.010" pattern shares only "feed" + "rate"
+      // (2 words, ratio 0.67 > 0.6) with this unrelated prose -- below the
+      // absolute-overlap floor of 3, so it must NOT fuzzy-trigger. Regression:
+      // before the floor this returned triggered=true with a spurious suggestion.
+      const miss = await engine.checkForCorrection("the feed rate question here is unrelated");
+      expect(miss.triggered).toBe(false);
+      expect(miss.confidence).toBe(0);
+    });
+
     it("should increment recurrence count when triggered", async () => {
       await engine.checkForCorrection("Use 500 SFM for D2");
       await engine.checkForCorrection("500 SFM for D2 is recommended");

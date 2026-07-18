@@ -1032,9 +1032,9 @@ async function main() {
   _saveRate(_rateState);
 
   const lines = [];
-  lines.push('━'.repeat(70));
+  lines.push('---'); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was '━'.repeat(70) — 67 chars/line saved x 3 lines per fire.
   lines.push('DISCIPLINE EXPERT INJECTION');
-  lines.push('━'.repeat(70));
+  lines.push('---'); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was '━'.repeat(70) — 67 chars/line saved x 3 lines per fire.
   lines.push('');
 
   for (const d of detected) {
@@ -1043,7 +1043,7 @@ async function main() {
   }
 
   lines.push('Apply this expertise throughout the task.');
-  lines.push('━'.repeat(70));
+  lines.push('---'); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was '━'.repeat(70) — 67 chars/line saved x 3 lines per fire.
 
   console.log(JSON.stringify({
     continue: true,

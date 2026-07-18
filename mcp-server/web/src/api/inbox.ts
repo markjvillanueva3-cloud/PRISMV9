@@ -3,6 +3,7 @@
  * Functions for document intake, classification, part matching, and dashboard.
  */
 import { fetchJson } from './requestCore';
+import { getRequestHeaders } from './client';
 
 const BASE = '/api/v1/inbox';
 
@@ -68,6 +69,7 @@ export async function inboxIngest(params: {
 }): Promise<IngestResult> {
   const res = await fetchJson<{ ok: boolean; data: IngestResult }>(`${BASE}/ingest`, {
     method: 'POST',
+    headers: getRequestHeaders(),
     body: JSON.stringify(params),
   });
   return res.data;
@@ -92,19 +94,24 @@ export async function inboxList(params?: {
   const qs = query.toString();
   const res = await fetchJson<{ ok: boolean; data: { items: InboxItem[]; total: number } }>(
     `${BASE}/list${qs ? `?${qs}` : ''}`,
+    { headers: getRequestHeaders() },
   );
   return res.data;
 }
 
 /** Get a single inbox item */
 export async function inboxGet(id: string): Promise<InboxItem> {
-  const res = await fetchJson<{ ok: boolean; data: { item: InboxItem } }>(`${BASE}/${id}`);
+  const res = await fetchJson<{ ok: boolean; data: { item: InboxItem } }>(`${BASE}/${id}`, {
+    headers: getRequestHeaders(),
+  });
   return res.data.item;
 }
 
 /** Get inbox dashboard stats */
 export async function inboxStats(): Promise<InboxStats> {
-  const res = await fetchJson<{ ok: boolean; data: InboxStats }>(`${BASE}/stats`);
+  const res = await fetchJson<{ ok: boolean; data: InboxStats }>(`${BASE}/stats`, {
+    headers: getRequestHeaders(),
+  });
   return res.data;
 }
 
@@ -114,6 +121,7 @@ export async function inboxSearch(query: string, limit?: number): Promise<InboxI
   if (limit) params.set('limit', String(limit));
   const res = await fetchJson<{ ok: boolean; data: { items: InboxItem[] } }>(
     `${BASE}/search?${params}`,
+    { headers: getRequestHeaders() },
   );
   return res.data.items;
 }
@@ -126,7 +134,7 @@ export async function inboxMatchPart(
 ): Promise<{ success: boolean; message: string }> {
   const res = await fetchJson<{ ok: boolean; data: { success: boolean; message: string } }>(
     `${BASE}/${inboxId}/match`,
-    { method: 'POST', body: JSON.stringify({ part_number: partNumber, part_id: partId }) },
+    { method: 'POST', headers: getRequestHeaders(), body: JSON.stringify({ part_number: partNumber, part_id: partId }) },
   );
   return res.data;
 }
@@ -139,7 +147,7 @@ export async function inboxUpdateStatus(
 ): Promise<{ success: boolean; message: string }> {
   const res = await fetchJson<{ ok: boolean; data: { success: boolean; message: string } }>(
     `${BASE}/${id}/status`,
-    { method: 'POST', body: JSON.stringify({ status, note }) },
+    { method: 'POST', headers: getRequestHeaders(), body: JSON.stringify({ status, note }) },
   );
   return res.data;
 }
@@ -151,7 +159,7 @@ export async function inboxBatchIngest(
 ): Promise<{ results: IngestResult[]; summary: { total: number; classified: number; matched: number; errors: number } }> {
   const res = await fetchJson<{ ok: boolean; data: { results: IngestResult[]; summary: { total: number; classified: number; matched: number; errors: number } } }>(
     `${BASE}/batch`,
-    { method: 'POST', body: JSON.stringify({ items, ingested_by: ingestedBy }) },
+    { method: 'POST', headers: getRequestHeaders(), body: JSON.stringify({ items, ingested_by: ingestedBy }) },
   );
   return res.data;
 }

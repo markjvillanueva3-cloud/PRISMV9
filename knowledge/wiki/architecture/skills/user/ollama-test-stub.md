@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-test-stub` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-test-stub.md` |
+| Source | `C:/Users/wompu/.claude/commands/ollama-test-stub.md` |
 | Model | default |
 | Tags | _(none)_ |
 

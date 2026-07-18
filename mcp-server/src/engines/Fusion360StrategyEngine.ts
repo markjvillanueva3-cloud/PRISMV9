@@ -331,7 +331,7 @@ export class Fusion360StrategyEngine {
     }
     // Verify CANONICAL_KIENZLE constants are reachable (engine depends on them
     // implicitly via the same Sandvik baseline that derived VC_FINISH_BASELINE_MMIN).
-    if (typeof CANONICAL_KIENZLE.kc1_1 !== "object" && typeof CANONICAL_KIENZLE !== "object") {
+    if (typeof CANONICAL_KIENZLE["P"].kc1_1 !== "number" || typeof CANONICAL_KIENZLE !== "object") {
       errors.push("CANONICAL_KIENZLE not loaded from src/physics/constants.ts");
     }
     return { ok: errors.length === 0, errors };

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedFrom": [
+    "knowledge/wiki/code-tribal",
+    "knowledge/wiki/lessons"
+  ],
+  "count": 5,
+  "docs": [
+    {
+      "path": "knowledge/wiki/code-tribal/wedm-tactics-multipass-and-recast.md",
+      "title": "Wire-EDM tactics — multi-pass skim scheduling + recast-layer management",
+      "kind": "tactic",
+      "tags": [],
+      "topics": [],
+      "summary": "Why multi-pass — the rough/skim split: A wide, slightly tapered/bowed kerf (wire deflects under discharge + flushing force) · Offset scheduling — the geometry: Rough pass: offset leaves stock (e.g. +0.05-0.10 mm of material on the part side) for the skims to remove. · Skim-pass anti-patterns from the floor: \"More skim passes = always better.\" Past the spec requirement, skim passes are wasted cycle time. A part that needs Ra 1.0 μm doesn't need 6 passes; 3 gets there. Match passes to spec. · Tie-ins: [[wedm-tactics-wire-and-flushing]] — sibling WEDM tactical entry (wire + tension + flushing) · Cross-references: [[wedm-tactics-wire-and-flushing]] — sibling WEDM tactical entry",
+      "confidence": 90
+    },
+    {
+      "path": "knowledge/wiki/code-tribal/wedm-tactics-taper-corner-and-program-structure.md",
+      "title": "WEDM tactics — taper/UV, corner strategy, and FA-10S program structure",
+      "kind": "tactic",
+      "tags": [
+        "wedm",
+        "wire-edm",
+        "taper",
+        "uv",
+        "corner",
+        "mitsubishi-fa",
+        "m-code",
+        "adaptive-control",
+        "slot-mike"
+      ],
+      "topics": [],
+      "summary": "Taper / UV cutting: Set ALL H-registers to ZERO on a taper program. The Mastercam Mitsubishi-FA post handles geometric taper compensation in the UV coordinates themselves; a non-zero wire-offset H double-compensates and produces the wrong taper angle. Ground truth: NOZE TEST.NC (E28xx 5-pass UV stainless) runs H175=0 and H1..H5 = 0.0000. *(wedm-jmd-005, jm-die-004, tech-tables E28XX_TAPER_5PASS offset_mm:0)* · Corner strategy: Wire breaks at sharp inside corners (<R0.5 mm) — the wire bends around the corner while discharge energy concentrates on a smaller area. Mitigations: reduce feed to 60% where corner radius < 2× wire dia, increase OFF time 20–30% in corner segments, step down to 0.20 mm",
+      "confidence": 90
+    },
+    {
+      "path": "knowledge/wiki/code-tribal/wedm-tactics-wire-and-flushing.md",
+      "title": "Wire-EDM tactics — wire selection, tension, and flushing strategy",
+      "kind": "tactic",
+      "tags": [],
+      "topics": [],
+      "summary": "Wire tension: Too low → wire bows under flushing pressure + discharge force → barrel-shaped cut, taper error, poor straightness on tall parts. · Anti-patterns from the floor: \"Plain brass for everything.\" Plain brass is the default, not the universal answer. Tall parts (> 100 mm) + high-speed jobs + auto-threading reliability all favor coated/zinc wire. The wire cost delta is small vs the break-recovery cost. · Tie-ins: [[wedm-tactics-multipass-and-recast]] — sibling WEDM tactical entry (skim passes + recast) · Cross-references: [[wedm-tactics-multipass-and-recast]] — sibling WEDM tactical entry",
+      "confidence": 90
+    },
+    {
+      "path": "knowledge/wiki/lessons/hybrid-post-merge-half-wire-bug-class-2026-05-23.md",
+      "title": "Half-wire bug class — action in z.enum + slimmer but no compute() call site",
+      "kind": "lesson",
+      "tags": [],
+      "topics": [],
+      "summary": "R12 fail-loud relationship: Layer 1 (engine): compute() itself returns a structured object with explicit field names. R12-conformant. · Apply: Before declaring a dispatcher action \"wired\" in an audit: assert (1) action in z.enum, (2) case statement exists in same dispatcher file, (3) case body invokes engine, (4) if slimmer case exists, slimmer fields exist on engine's return shape.",
+      "confidence": 90
+    },
+    {
+      "path": "knowledge/wiki/lessons/wedm-wire-material-and-parameter-research-2026-05-26.md",
+      "title": "WEDM wire-material catalog + cutting-parameter envelope (research extraction 2026-05-26)",
+      "kind": "lesson",
+      "tags": [],
+      "topics": [],
+      "summary": "What's NOT covered yet (gaps for future research): Mitsubishi E-PACK condition database (proprietary, dealer-restricted) · Integration into PRISM: Tribal tips — [[tip-wedm-research-011]] through -016 ship in",
+      "confidence": 90
+    }
+  ]
+}

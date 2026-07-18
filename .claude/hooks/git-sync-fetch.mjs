@@ -32,7 +32,7 @@ const DRY_RUN = process.env.PRISM_GIT_SYNC_DRY_RUN === "1";
 
 function git(args, opts = {}) {
   try {
-    return execFileSync("git", args, {
+    return execFileSync("git", args, { windowsHide: true,
       cwd: REPO,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],

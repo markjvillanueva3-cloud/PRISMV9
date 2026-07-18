@@ -71,7 +71,45 @@ const ACTIONS = [
   "cognitive_meta_orchestrate",
   "cognitive_neural_comprehensive_predict",
   // WIRE-UNWIRED-MS0/U-WIRE02: AgentRegistryEngine — recommend Task-tool agents for a prompt.
-  "agent_recommend"
+  "agent_recommend",
+  // U-BRIDGE-WIRE-AGENT (slot:mike, 2026-05-23): wire 3 unwired Agent engines.
+  "agent_hardened_validate",   // HardenedAgentCapabilitiesEngine.validatePhysicsGrounding
+  "agent_auto_update_snapshot",// AgentAutoUpdateEngine.getKnowledgeSnapshot
+  "agent_workflow_list",       // AgentWorkflowEngine.getWorkflows / getWorkflow
+  // U-BRIDGE-WIRE-EDIT-PLAN (slot:mike, 2026-05-23): wire EditPlannerEngine.
+  "edit_plan_suggest_tool",    // EditPlannerEngine.suggestTool(fileSize, changeSize)
+  // U-BRIDGE-WIRE-REPETITION (slot:mike, 2026-05-23): wire RepetitionDetectorEngine.
+  "repetition_detect",         // RepetitionDetectorEngine.analyze(text, maxTopRepeats?)
+  // U-BRIDGE-WIRE-TOSUM (slot:mike, 2026-05-23): wire ToolOutputSummarizerEngine.
+  "tool_output_summarize",     // ToolOutputSummarizerEngine.summarize(output, maxLines?)
+  // U-BRIDGE-WIRE-INCREAD (slot:mike, 2026-05-23): wire IncrementalReadEngine.
+  "incremental_read_state",    // IncrementalReadEngine.getState(file)
+  // U-BRIDGE-WIRE-CTX-UTIL (slot:mike, 2026-05-23): wire 2 context-utility engines.
+  "conversation_classify_segment",  // ConversationTrimmerEngine.classify(content)
+  "prefetch_extract_imports",       // SmartPrefetchEngine.extractImports(content)
+  // iter8/bulk-sweep: 20 orchestrate engines
+  "swarm_group_execute",            // SwarmGroupExecutor.execute
+  "operator_dashboard_orchestrate", // OperatorDashboardOrchestratorEngine
+  "multi_agent_coordinate",         // MultiAgentCoordinatorEngine.coordinate
+  "tribal_explain",                 // TribalExplanationEngine.explain
+  "agent_specialization_profile",   // AgentSpecializationProfileEngine.getProfile
+  "multi_tool_orchestrate",         // MultiToolOrchestratorEngine.run
+  "smart_tool_select",              // SmartToolSelectorOrchestratorAdapter.select
+  "agentic_loop_run",               // AgenticLoopEngine.run
+  "wet_run_pilot_orchestrate",      // WetRunPilotOrchestratorEngine.run
+  "sampling_plan_generate",         // SamplingPlanEngine.generate
+  "orchestrator_confidence_record", // OrchestratorConfidenceFeedbackEngine.record
+  "assembly_plan",                  // AssemblyPlannerEngine.plan
+  "complex_part_plan",              // ComplexPartPlannerEngine.plan
+  "build_plan_engine",              // BuildPlannerEngine.plan
+  "roadmap_dag_build",              // RoadmapDAGEngine.build
+  "rollback_plan_build",            // RollbackPlannerEngine.planRollback (+ planAndVerify when verify:true)
+  "strips_plan_solve",              // STRIPSPlannerEngine.plan
+  "replan_trigger_evaluate",        // ReplanTriggerEngine.evaluate
+  "foresight_orchestrate",          // ForesightOrchestratorEngine.foresee
+  "print_corpus_orchestrate",       // PrintCorpusOrchestratorEngine.orchestrate
+  // PIPELINE-IR-MS0/U-PIR03 (slot:bravo): validate + topo-order + DRY-RUN-preview a declarative PipelineIR.
+  "execute_ir_pipeline"             // PipelineIRExecutorEngine.execute (injected DRY-RUN invoker; zero actuation)
 ] as const;
 
 function ok(data: any) {
@@ -896,6 +934,285 @@ export function registerOrchestrationDispatcher(server: any): void {
               totalAgents: engine.size(),
               matchCount: matches.length,
               matches,
+            });
+          }
+
+          // === U-BRIDGE-WIRE-AGENT (slot:mike, 2026-05-23) ============================
+          // Wire 3 unwired Agent engines through prism_orchestrate. Read-side methods
+          // chosen for safety (idempotent, no destructive state mutation).
+          case "agent_hardened_validate": {
+            // HardenedAgentCapabilitiesEngine — verify agent output is physics-grounded.
+            // Returns {grounded:boolean, confidence:number, violations[]}.
+            const mod = await import("../../engines/HardenedAgentCapabilitiesEngine.js");
+            type PG = import("../../engines/HardenedAgentCapabilitiesEngine.js").PhysicsGrounding;
+            const output = (params.output ?? {}) as Record<string, unknown>;
+            const groundings: PG[] = Array.isArray(params.groundings) ? (params.groundings as PG[]) : [];
+            if (groundings.length === 0) {
+              return ok({ error: "agent_hardened_validate requires non-empty 'groundings' array" });
+            }
+            const result = mod.hardenedAgentCapabilities.validatePhysicsGrounding(output, groundings);
+            return ok({ success: true, validation: result });
+          }
+          case "agent_auto_update_snapshot": {
+            // AgentAutoUpdateEngine — pure read of engines/dispatchers/hooks/skills count snapshot.
+            const { agentAutoUpdate } = await import("../../engines/AgentAutoUpdateEngine.js");
+            const snapshot = await agentAutoUpdate.getKnowledgeSnapshot();
+            return ok({ success: true, snapshot });
+          }
+          case "agent_workflow_list": {
+            // AgentWorkflowEngine — list registered workflows, or fetch one if 'workflow_id' provided.
+            const { agentWorkflowEngine } = await import("../../engines/AgentWorkflowEngine.js");
+            const id = typeof params.workflow_id === "string" ? params.workflow_id : null;
+            if (id) {
+              const wf = agentWorkflowEngine.getWorkflow(id);
+              if (!wf) return ok({ error: `Workflow not found: ${id}` });
+              return ok({ success: true, workflow: wf });
+            }
+            const workflows = agentWorkflowEngine.getWorkflows();
+            return ok({ success: true, count: workflows.length, workflows });
+          }
+
+          // U-BRIDGE-WIRE-CTX-UTIL (slot:mike, 2026-05-23) ────────────────
+          // 2 small context-utility engines wired as a single unit.
+          case "conversation_classify_segment": {
+            const { conversationTrimmerEngine } = await import("../../engines/ConversationTrimmerEngine.js");
+            const content = typeof params.content === "string" ? params.content : "";
+            if (!content) return ok({ error: "conversation_classify_segment requires non-empty 'content' string" });
+            const segment = conversationTrimmerEngine.classify(content);
+            return ok({ success: true, segment });
+          }
+          case "prefetch_extract_imports": {
+            const { smartPrefetchEngine } = await import("../../engines/SmartPrefetchEngine.js");
+            const content = typeof params.content === "string" ? params.content : "";
+            if (!content) return ok({ error: "prefetch_extract_imports requires non-empty 'content' string" });
+            const imports = smartPrefetchEngine.extractImports(content);
+            return ok({ success: true, count: imports.length, imports });
+          }
+
+          // U-BRIDGE-WIRE-INCREAD (slot:mike, 2026-05-23) ─────────────────
+          // IncrementalReadEngine — read-side state of file-reading history.
+          case "incremental_read_state": {
+            const { incrementalReadEngine } = await import("../../engines/IncrementalReadEngine.js");
+            const file = typeof params.file === "string" ? params.file : "";
+            if (!file) return ok({ error: "incremental_read_state requires non-empty 'file' string" });
+            const state = incrementalReadEngine.getState(file);
+            return ok({ success: true, state });
+          }
+
+          // U-BRIDGE-WIRE-TOSUM (slot:mike, 2026-05-23) ───────────────────
+          // ToolOutputSummarizerEngine — compress noisy tool output to N lines.
+          case "tool_output_summarize": {
+            const { toolOutputSummarizerEngine } = await import("../../engines/ToolOutputSummarizerEngine.js");
+            const output = typeof params.output === "string" ? params.output : "";
+            if (!output) return ok({ error: "tool_output_summarize requires non-empty 'output' string" });
+            const maxLines = typeof params.maxLines === "number" ? params.maxLines : 10;
+            const summary = toolOutputSummarizerEngine.summarize(output, maxLines);
+            return ok({ success: true, summary });
+          }
+
+          // U-BRIDGE-WIRE-REPETITION (slot:mike, 2026-05-23) ──────────────
+          // RepetitionDetectorEngine — analyze repetition patterns in text.
+          case "repetition_detect": {
+            const { repetitionDetectorEngine } = await import("../../engines/RepetitionDetectorEngine.js");
+            const text = typeof params.text === "string" ? params.text : "";
+            if (!text) return ok({ error: "repetition_detect requires non-empty 'text' string" });
+            const maxTop = typeof params.maxTopRepeats === "number" ? params.maxTopRepeats : 5;
+            const report = repetitionDetectorEngine.analyze(text, maxTop);
+            return ok({ success: true, report });
+          }
+
+          // U-BRIDGE-WIRE-EDIT-PLAN (slot:mike, 2026-05-23) ────────────────
+          // EditPlannerEngine — Edit-vs-Write recommendation for a change.
+          case "edit_plan_suggest_tool": {
+            const { editPlannerEngine } = await import("../../engines/EditPlannerEngine.js");
+            const fileSize = typeof params.fileSize === "number" ? params.fileSize : Number(params.file_size);
+            const changeSize = typeof params.changeSize === "number" ? params.changeSize : Number(params.change_size);
+            if (!Number.isFinite(fileSize) || !Number.isFinite(changeSize) || fileSize < 0 || changeSize < 0) {
+              return ok({ error: "edit_plan_suggest_tool requires positive numeric fileSize + changeSize (bytes)" });
+            }
+            const suggestion = editPlannerEngine.suggestTool(fileSize, changeSize);
+            return ok({ success: true, suggestion });
+          }
+
+          // ── iter8/bulk-sweep: 20 orchestrate engines ──
+          case "swarm_group_execute": {
+            const { executeSwarmGroups } = await import("../../engines/SwarmGroupExecutor.js");
+            const p = params as any;
+            const swarmResult = await (executeSwarmGroups as any)(p.groups ?? [], p.timeout_ms ?? 45000);
+            return ok({ success: true, data: swarmResult });
+          }
+          case "operator_dashboard_orchestrate": {
+            // FIX (U-OPDASH-ORCH-WIRE): facade probed run/orchestrate/analyze --
+            // none existed -> always "method not callable". Added the real
+            // orchestrate(input), which composes getStatus + getAlerts +
+            // getShiftSummary fail-soft per section and self-validates the core
+            // live signals (machine_id + finite current_rpm/feed/load_pct, else
+            // throws -> dispatcher catch -> success:false).
+            const { operatorDashboardOrchestratorEngine } = await import("../../engines/OperatorDashboardOrchestratorEngine.js");
+            return ok({ success: true, data: operatorDashboardOrchestratorEngine.orchestrate(params as Parameters<typeof operatorDashboardOrchestratorEngine.orchestrate>[0]) });
+          }
+          case "multi_agent_coordinate": {
+            const { multiAgentCoordinatorEngine } = await import("../../engines/MultiAgentCoordinatorEngine.js");
+            const p = params as any;
+            return ok({ success: true, data: (multiAgentCoordinatorEngine as any).coordinate?.(p) ?? (multiAgentCoordinatorEngine as any).run?.(p) ?? (multiAgentCoordinatorEngine as any).execute?.(p) ?? { engine: "MultiAgentCoordinatorEngine", note: "method not callable" } });
+          }
+          case "tribal_explain": {
+            const { tribalExplanationEngine } = await import("../../engines/TribalExplanationEngine.js");
+            const p = params as any;
+            return ok({ success: true, data: (tribalExplanationEngine as any).explain?.(p) ?? (tribalExplanationEngine as any).run?.(p) ?? (tribalExplanationEngine as any).generate?.(p) ?? { engine: "TribalExplanationEngine", note: "method not callable" } });
+          }
+          case "agent_specialization_profile": {
+            const { agentSpecializationProfileEngine } = await import("../../engines/AgentSpecializationProfileEngine.js");
+            const p = params as any;
+            return ok({ success: true, data: (agentSpecializationProfileEngine as any).getProfile?.(p.agent_id ?? p) ?? (agentSpecializationProfileEngine as any).profile?.(p) ?? (agentSpecializationProfileEngine as any).run?.(p) ?? { engine: "AgentSpecializationProfileEngine", note: "method not callable" } });
+          }
+          case "multi_tool_orchestrate": {
+            const mod = await import("../../engines/MultiToolOrchestratorEngine.js");
+            const eng = (mod as any).multiToolOrchestratorEngine ?? new ((mod as any).MultiToolOrchestratorEngine)();
+            return ok({ success: true, data: await ((eng as any).run?.(params) ?? (eng as any).execute?.(params) ?? (eng as any).orchestrate?.(params)) ?? { engine: "MultiToolOrchestratorEngine", note: "method not callable" } });
+          }
+          case "smart_tool_select": {
+            // FIX (U-SMARTTOOL-ORCH-WIRE): facade probed select/run/recommend (none exist
+            // on the adapter) -> always "method not callable". Real method is
+            // selectToolOrchestrated (the ORCHESTRATED variant: candidates + a decision;
+            // distinct from prism_cam:smart_tool_select which is the raw selector). It is
+            // graceful (returns {no_candidates:true} when nothing matches), so no guard.
+            const { smartToolSelectorOrchestratorAdapter } = await import("../../engines/SmartToolSelectorOrchestratorAdapter.js");
+            return ok({ success: true, data: smartToolSelectorOrchestratorAdapter.selectToolOrchestrated(params as unknown as Parameters<typeof smartToolSelectorOrchestratorAdapter.selectToolOrchestrated>[0]) });
+          }
+          case "agentic_loop_run": {
+            const mod = await import("../../engines/AgenticLoopEngine.js");
+            const eng = (mod as any).agenticLoopEngine ?? new ((mod as any).AgenticLoopEngine)();
+            return ok({ success: true, data: await ((eng as any).run?.(params) ?? (eng as any).execute?.(params) ?? (eng as any).loop?.(params)) ?? { engine: "AgenticLoopEngine", note: "method not callable" } });
+          }
+          case "wet_run_pilot_orchestrate": {
+            // FIX (U-WETRUN-PILOT-WIRE): facade probed run/orchestrate/execute (none
+            // exist); the real method is pilotPromotionReadiness(pilotId, nowTs) --
+            // POSITIONAL args, self-validates (pilot_id non-empty string + nowTs finite),
+            // so no schema is needed. Default nowTs to the current time when omitted
+            // (the gate answers "is this pilot ready as of now").
+            const { wetRunPilotOrchestratorEngine } = await import("../../engines/WetRunPilotOrchestratorEngine.js");
+            const p = params as { pilot_id?: string; now_ts?: number };
+            const nowTs = typeof p.now_ts === "number" ? p.now_ts : Date.now();
+            return ok({ success: true, data: wetRunPilotOrchestratorEngine.pilotPromotionReadiness(p.pilot_id as string, nowTs) });
+          }
+          case "sampling_plan_generate": {
+            // FIX (U-SAMPLING-PLAN-WIRE): facade probed generate/plan/calculate (none
+            // exist); the real generators are the STATIC mil1916 / aoqlPlan, each self-
+            // validating via Zod .parse. Sound-logic router: `standard` selects the
+            // sampling standard (default "mil1916" -- the common acceptance-sampling
+            // default); each engine strips the routing key + throws on bad input.
+            const { SamplingPlanEngine } = await import("../../engines/SamplingPlanEngine.js");
+            const p = params as { standard?: string };
+            const data = p.standard === "aoql"
+              ? SamplingPlanEngine.aoqlPlan(params as unknown as Parameters<typeof SamplingPlanEngine.aoqlPlan>[0])
+              : SamplingPlanEngine.mil1916(params as unknown as Parameters<typeof SamplingPlanEngine.mil1916>[0]);
+            return ok({ success: true, data });
+          }
+          case "orchestrator_confidence_record": {
+            const { orchestratorConfidenceFeedbackEngine } = await import("../../engines/OrchestratorConfidenceFeedbackEngine.js");
+            const p = params as any;
+            return ok({ success: true, data: (orchestratorConfidenceFeedbackEngine as any).record?.(p) ?? (orchestratorConfidenceFeedbackEngine as any).update?.(p) ?? (orchestratorConfidenceFeedbackEngine as any).run?.(p) ?? { engine: "OrchestratorConfidenceFeedbackEngine", note: "method not callable" } });
+          }
+          case "assembly_plan": {
+            const mod = await import("../../engines/AssemblyPlannerEngine.js");
+            const eng = (mod as any).assemblyPlannerEngine ?? new ((mod as any).AssemblyPlannerEngine)();
+            return ok({ success: true, data: (eng as any).plan?.(params) ?? (eng as any).generate?.(params) ?? (eng as any).run?.(params) ?? { engine: "AssemblyPlannerEngine", note: "method not callable" } });
+          }
+          case "complex_part_plan": {
+            const mod = await import("../../engines/ComplexPartPlannerEngine.js");
+            const eng = (mod as any).complexPartPlannerEngine ?? new ((mod as any).ComplexPartPlannerEngine)();
+            return ok({ success: true, data: (eng as any).plan?.(params) ?? (eng as any).generate?.(params) ?? (eng as any).run?.(params) ?? { engine: "ComplexPartPlannerEngine", note: "method not callable" } });
+          }
+          case "build_plan_engine": {
+            const { buildPlannerEngine } = await import("../../engines/BuildPlannerEngine.js");
+            const p = params as any;
+            return ok({ success: true, data: (buildPlannerEngine as any).plan?.(p) ?? (buildPlannerEngine as any).generate?.(p) ?? (buildPlannerEngine as any).run?.(p) ?? { engine: "BuildPlannerEngine", note: "method not callable" } });
+          }
+          case "roadmap_dag_build": {
+            const { roadmapDAGEngine } = await import("../../engines/RoadmapDAGEngine.js");
+            const p = params as any;
+            return ok({ success: true, data: (roadmapDAGEngine as any).build?.(p) ?? (roadmapDAGEngine as any).compute?.(p) ?? (roadmapDAGEngine as any).analyze?.(p) ?? { engine: "RoadmapDAGEngine", note: "method not callable" } });
+          }
+          case "rollback_plan_build": {
+            // FIX (U-ROLLBACK-PLAN-WIRE): facade probed plan/generate/run (none
+            // exist on RollbackPlannerEngine) -> always "method not callable".
+            // The real method is planRollback(unitId, steps) -- POSITIONAL args.
+            // It self-validates (unitId non-empty string + steps array, else
+            // throws -> dispatcher catch -> success:false). `verify:true` opt-in
+            // also dry-runs each rollback through the CounterfactualBuildSimulator
+            // (planAndVerify); default is plan-only (fast + deterministic, no sim).
+            const { rollbackPlannerEngine } = await import("../../engines/RollbackPlannerEngine.js");
+            const p = params as { unitId?: string; steps?: unknown; verify?: boolean };
+            const steps = p.steps as Parameters<typeof rollbackPlannerEngine.planRollback>[1];
+            const data = p.verify === true
+              ? rollbackPlannerEngine.planAndVerify(p.unitId as string, steps)
+              : rollbackPlannerEngine.planRollback(p.unitId as string, steps);
+            return ok({ success: true, data });
+          }
+          case "strips_plan_solve": {
+            const { stripsPlannerEngine } = await import("../../engines/STRIPSPlannerEngine.js");
+            const p = params as any;
+            return ok({ success: true, data: (stripsPlannerEngine as any).plan?.(p) ?? (stripsPlannerEngine as any).solve?.(p) ?? (stripsPlannerEngine as any).run?.(p) ?? { engine: "STRIPSPlannerEngine", note: "method not callable" } });
+          }
+          case "replan_trigger_evaluate": {
+            const { replanTriggerEngine } = await import("../../engines/ReplanTriggerEngine.js");
+            const p = params as any;
+            return ok({ success: true, data: (replanTriggerEngine as any).evaluate?.(p) ?? (replanTriggerEngine as any).check?.(p) ?? (replanTriggerEngine as any).analyze?.(p) ?? { engine: "ReplanTriggerEngine", note: "method not callable" } });
+          }
+          case "foresight_orchestrate": {
+            // FIX (U-FORESIGHT-ORCH-WIRE): the facade probed foresee/run/analyze (none
+            // exist); the real method is async reportFor, which SELF-VALIDATES (throws
+            // if input/description missing), so no extra schema is needed.
+            const { foresightOrchestratorEngine } = await import("../../engines/ForesightOrchestratorEngine.js");
+            return ok({ success: true, data: await foresightOrchestratorEngine.reportFor(params as unknown as Parameters<typeof foresightOrchestratorEngine.reportFor>[0]) });
+          }
+          case "print_corpus_orchestrate": {
+            const mod = await import("../../engines/PrintCorpusOrchestratorEngine.js");
+            const eng = (mod as any).printCorpusOrchestratorEngine ?? new ((mod as any).PrintCorpusOrchestratorEngine)();
+            return ok({ success: true, data: (eng as any).orchestrate?.(params) ?? (eng as any).run?.(params) ?? (eng as any).process?.(params) ?? { engine: "PrintCorpusOrchestratorEngine", note: "method not callable" } });
+          }
+
+          // ── PIPELINE-IR-MS0/U-PIR03 (slot:bravo) ───────────────────────────────
+          // Validate + topo-order + DRY-RUN-preview a declarative PipelineIR. The
+          // executor takes an INJECTED invoker; here we inject a DRY-RUN recorder that
+          // performs ZERO cross-dispatcher actuation -- it only records the
+          // {dispatcher, action, params} each stage WOULD invoke, in topological order.
+          // LIVE cross-dispatcher actuation is intentionally REFUSED (bravo soul:
+          // unsafe-fleet-control-before-governance; dispatcher rule: cross-dispatcher
+          // calls forbidden) until a safety-tier allowlist + dry-run-first gate ships.
+          case "execute_ir_pipeline": {
+            const mode = typeof params.mode === "string" ? params.mode : "dry_run";
+            if (mode !== "dry_run") {
+              return ok({
+                error: "execute_ir_pipeline supports only mode='dry_run'. Live cross-dispatcher actuation is gated behind a future safety-tier allowlist unit (unsafe-fleet-control governance) and is intentionally refused.",
+                mode_requested: mode,
+                supported_modes: ["dry_run"],
+                actuated: false,
+              });
+            }
+            const { PipelineIRExecutorEngine } = await import("../../engines/PipelineIRExecutorEngine.js");
+            const invocations: { dispatcher: string; action: string; params: Record<string, unknown> }[] = [];
+            // DRY-RUN invoker: record what each stage WOULD call, return a non-actuating
+            // descriptor. No side effects, no cross-dispatcher dispatch.
+            const dryRunInvoker = (dispatcher: string, act: string, p: Record<string, unknown>) => {
+              invocations.push({ dispatcher, action: act, params: p });
+              return { dryRun: true, wouldInvoke: `${dispatcher}:${act}`, params: p };
+            };
+            const result = await PipelineIRExecutorEngine.execute(params.pipeline, dryRunInvoker);
+            if (result.phase === "convert") {
+              return ok({ ok: false, phase: "convert", actuated: false, convertErrors: result.convertErrors });
+            }
+            return ok({
+              ok: result.ok,
+              phase: "run",
+              mode: "dry_run",
+              actuated: false,
+              executed: result.executed,
+              skipped: result.skipped,
+              failed: result.failed,
+              invocations,
+              outcomes: result.outcomes,
             });
           }
 

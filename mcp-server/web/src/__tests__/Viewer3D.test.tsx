@@ -75,7 +75,7 @@ vi.mock('../api/viewer', () => ({
   loadViewerSceneCatalog: async () => ({
     source: 'demo',
     scenes: [{ id: 'demo_scene', name: 'Demo Scene', type: 'demo' }],
-    note: 'Live viewer scene routes are not available yet, so PRISM is using the local demo scene as a fallback.',
+    note: 'Live viewer scene routes are not available yet, so Kienzle is using the local demo scene as a fallback.',
   }),
   loadViewerScene: async () => ({
     source: 'demo',

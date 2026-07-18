@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `program-simulate` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/program-simulate.md` |
+| Source | `C:/Users/wompu/.claude/commands/program-simulate.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Simulate NC programs across all machine families:
-- Virtual machining verification
-- Collision detection
-- Cycle time estimation
-- Material removal visualization
+
+# /program-simulate — Universal CNC Program Simulation
 
 <!-- AUTO-END -->
 

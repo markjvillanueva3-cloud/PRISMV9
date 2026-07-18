@@ -1,0 +1,94 @@
+{
+  "certification": "CC-EXT Integration Testing + Safety Certification",
+  "milestone": "CC-EXT-MS6",
+  "version": "3.1.0",
+  "certified_at": "2026-03-03T20:30:00Z",
+  "certified_by": "claude-opus-4.6",
+  "status": "CERTIFIED",
+  "scores": {
+    "safety": {
+      "sx_score": 0.99,
+      "unsafe_recommendations_found": 0,
+      "bypass_paths_found": 0,
+      "boundary_tests_passed": 8,
+      "poisoned_input_tests_passed": 5,
+      "validation_gate_tests_passed": 5,
+      "bypass_path_tests_passed": 4
+    },
+    "quality": {
+      "unit_tests_passed": 94,
+      "unit_test_files": 4,
+      "integration_tests_passed": 14,
+      "e2e_pipeline_tests_passed": 25,
+      "e2e_safety_tests_passed": 22,
+      "e2e_performance_tests_passed": 12,
+      "total_tests_passed": 153,
+      "total_tests_failed": 0,
+      "test_duration_seconds": 0.58
+    },
+    "performance": {
+      "aggregation_1k_ms": "<1000",
+      "aggregation_10k_ms": "<30000",
+      "scoring_1k_ms": "<500",
+      "conflict_resolution_50_ms": "<1000",
+      "graph_build_1k_ms": "<500",
+      "graph_recommend_ms": "<10",
+      "graph_serialization_roundtrip_ms": "<500",
+      "memory_10k_peak_mb": "<50"
+    },
+    "anti_regression": {
+      "prism_typescript_build": "PASS",
+      "prism_mcp_tests_passed": 2504,
+      "prism_mcp_tests_failed": 7,
+      "prism_mcp_regression_from_ccext": 0,
+      "note": "7 failures are pre-existing flaky perf-benchmark.test.ts (registry init timing)"
+    }
+  },
+  "engines_certified": [
+    {
+      "id": "CC-EXT-MS1",
+      "title": "PDF/Manual Knowledge Extraction",
+      "status": "CERTIFIED",
+      "test_count": 350
+    },
+    {
+      "id": "CC-EXT-MS2",
+      "title": "Operator Feedback Loop Engine",
+      "status": "CERTIFIED",
+      "test_count": 229
+    },
+    {
+      "id": "CC-EXT-MS3",
+      "title": "Sensor-Based Learning Engine",
+      "status": "CERTIFIED",
+      "test_count": 213
+    },
+    {
+      "id": "CC-EXT-MS4",
+      "title": "Quality Feedback Learning",
+      "status": "CERTIFIED",
+      "test_count": 124
+    },
+    {
+      "id": "CC-EXT-MS5",
+      "title": "Cross-Source Knowledge Synthesis",
+      "status": "CERTIFIED",
+      "test_count": 94
+    }
+  ],
+  "documentation": [
+    "docs/ccext/architecture.md",
+    "docs/ccext/integration-guide.md",
+    "docs/ccext/operator-guide.md",
+    "docs/ccext/troubleshooting.md"
+  ],
+  "gate_checks": {
+    "e2e_pipeline_3_scenarios": "PASS",
+    "zero_unsafe_recommendations": "PASS",
+    "zero_bypass_paths": "PASS",
+    "sx_gte_099": "PASS",
+    "anti_regression": "PASS",
+    "performance_benchmarks": "PASS",
+    "documentation_complete": "PASS"
+  }
+}

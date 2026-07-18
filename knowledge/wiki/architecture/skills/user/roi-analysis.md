@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `roi-analysis` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/roi-analysis.md` |
+| Source | `C:/Users/wompu/.claude/commands/roi-analysis.md` |
 | Model | default |
 | Tags | _(none)_ |
 

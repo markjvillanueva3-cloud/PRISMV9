@@ -76,7 +76,7 @@ export function ShopFloorLivePage() {
       description="The live floor board is restored as a mounted APPW operator surface so leads can see floor posture again while deeper realtime choreography continues converging behind the shared provider seam."
       surfaces={['shopFloor', 'hotJobs']}
       metrics={metrics}
-      aiSummary="PRISM AI can summarize the live floor board, explain queue pressure, and call out the next safest lead or operator actions."
+      aiSummary="Kienzle AI can summarize the live floor board, explain queue pressure, and call out the next safest lead or operator actions."
       aiContext={aiContext}
       suggestions={[
         {

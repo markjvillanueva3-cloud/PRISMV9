@@ -5,7 +5,7 @@
 // scheduled in the same milestone's restoration commit alongside the rest of the
 // reverted CAD edits.
 /**
- * BlueprintVisionOCREngine — Claude Vision-powered blueprint OCR
+ * BlueprintVisionOCREngine -- vision-LLM-powered blueprint OCR (free Ollama-first)
  *
  * Takes a photo or scan of a manufacturing blueprint and extracts:
  *   - Dimensions with tolerances (linear, diameter, radius, angular, thread)
@@ -16,21 +16,21 @@
  *   - Title block data
  *   - Manufacturing notes
  *
- * Uses Claude Vision API for actual image understanding — NOT regex-based
- * text parsing. For text-based extraction, use BlueprintOCREngine instead.
+ * Uses a vision LLM for actual image understanding (free Ollama-first via
+ * llmEngine.queryVision, Claude vision backup) -- NOT regex-based text parsing.
+ * For text-based extraction, use BlueprintOCREngine instead.
  *
  * Output types are compatible with BlueprintOCREngine's interfaces for
  * seamless integration with downstream pipelines (WEDM, milling, turning).
  *
  * Pipeline:
- *   image (base64/file) → Claude Vision → structured JSON → BlueprintAnalysis
+ *   image (base64/file) → vision LLM (Ollama-first) → structured JSON → BlueprintAnalysis
  *   → WEDMPrintToProgramEngine or other program generators
  *
  * @module engines/BlueprintVisionOCREngine
  */
 
 import { log } from "../utils/Logger.js";
-import Anthropic from "@anthropic-ai/sdk";
 import * as fs from "fs";
 import * as path from "path";
 import type {
@@ -43,6 +43,11 @@ import type {
   GDTSymbol,
   ToleranceType,
 } from "./BlueprintOCREngine.js";
+import { resolveSurfaceFinishRa, mapSurfaceFinishes, selectPartDefaultFinish, type SurfaceFinishCallout } from "../utils/surfaceFinishNormalize.js";
+import { resolveThread } from "../utils/threadCalloutNormalize.js";
+import { resolveChamfer } from "../utils/chamferCalloutNormalize.js";
+import { validateExtractedGdt } from "../utils/gdtFcfValidate.js";
+import { normalizeGdtSymbol } from "../utils/gdtSymbolNormalize.js";
 
 // ============================================================================
 // TYPES
@@ -64,7 +69,7 @@ export interface BlueprintVisionInput {
   blueprint_type?: "wire_edm" | "milling" | "turning" | "general";
   /** Extract geometry contours for direct program generation */
   extract_geometry?: boolean;
-  /** Model override (default: claude-sonnet-4-20250514) */
+  /** Model override (advisory; the llmEngine vision ladder selects the provider) */
   model?: string;
 }
 
@@ -89,6 +94,13 @@ export interface ExtractedProfile {
 export interface BlueprintVisionResult extends BlueprintAnalysis {
   /** Extracted geometry profiles (if extract_geometry=true) */
   profiles: ExtractedProfile[];
+  /** Part-level surface-finish callouts (e.g. "63 RMS all over"); the VLM emits these in
+   * surface_finishes[] -- text callouts are recovered to a canonical Ra (um). Previously dropped. */
+  surface_finishes?: SurfaceFinishCallout[];
+  /** The single unambiguous part-level "all over / unless otherwise noted" finish, if any --
+   * an INFORMATIONAL default (NOT applied to dimensions; carries finish_system/assumed
+   * provenance). null when none or ambiguous (U-XRAY-PART-DEFAULT-FINISH). */
+  part_default_surface_finish?: SurfaceFinishCallout | null;
   /** Overall part bounding box in mm */
   part_bounds_mm?: { width: number; height: number; depth?: number };
   /** Detected part thickness (critical for wire EDM) */
@@ -270,7 +282,8 @@ Return a JSON object with this exact structure:
 Important rules:
 - Extract EVERY dimension visible on the drawing, even if partially obscured
 - Convert all dimensions to the drawing's unit system (mm or inch)
-- For GD&T, identify the geometric characteristic symbol and all datum references
+- GD&T feature control frames read LEFT-TO-RIGHT in this fixed ASME Y14.5 order: [1] the geometric characteristic symbol (set "symbol" to one of the listed names); [2] the tolerance zone -- a LEADING DIAMETER SYMBOL means a cylindrical/diametral zone, then the tolerance value; [3] an OPTIONAL material modifier (circled M = MMC, circled L = LMC, none = RFS); [4] the datum references in order primary|secondary|tertiary as ["A","B","C"] IN THAT ORDER. Copy the whole frame verbatim into raw_text.
+- FORM tolerances (flatness, straightness, circularity, cylindricity) take NO datum -> datum_references = []. LOCATION/ORIENTATION/RUNOUT (position, perpendicularity, parallelism, angularity, concentricity, symmetry, circular_runout, total_runout) REQUIRE at least one datum; if such a symbol appears with no datum, still report it -- do NOT invent a datum.
 - For profiles/geometry, provide approximate coordinates in the drawing's coordinate system
 - thickness_mm is the stock/part thickness (critical for wire EDM)
 - If you can't determine a value, use null — do NOT guess
@@ -306,22 +319,9 @@ const MEDIA_TYPE_MAP: Record<string, MediaType> = {
 // ============================================================================
 
 export class BlueprintVisionOCREngine {
-  private client: Anthropic | null = null;
-  private defaultModel = "claude-sonnet-4-20250514";
-
-  /** Lazy-init Anthropic client */
-  private getClient(): Anthropic {
-    if (!this.client) {
-      const apiKey = process.env.ANTHROPIC_API_KEY;
-      if (!apiKey) {
-        throw new Error(
-          "ANTHROPIC_API_KEY not set. Set the environment variable to use Vision OCR.",
-        );
-      }
-      this.client = new Anthropic({ apiKey });
-    }
-    return this.client;
-  }
+  // Vision provider = the shared FREE Ollama-first llmEngine.queryVision substrate
+  // (FREE-AI-MIGRATION). No Anthropic client / API key is held here anymore -- the
+  // provider ladder (Ollama vision -> Claude vision backup -> offline) lives in LLMEngine.
 
   /** Resolve image source to base64 + media type */
   private resolveImage(source: ImageSource): { data: string; media_type: MediaType } {
@@ -346,58 +346,45 @@ export class BlueprintVisionOCREngine {
     throw new Error("URL image sources require the API to fetch. Use base64 or file instead.");
   }
 
-  /** Call Claude Vision API with retry logic */
+  /**
+   * Run the blueprint image + prompt through the shared FREE Ollama-first
+   * llmEngine.queryVision substrate (FREE-AI-MIGRATION/U-BLUEPRINT-VISION-OCR-LLM-ROUTE).
+   * Was a direct PAID Claude Vision call (new Anthropic().messages.create); now routes
+   * Ollama vision model first (free) -> Claude vision backup (a weak local read, or ollama
+   * down + key set) -> offline. complexity:"high" -- blueprint dimension/GD&T extraction is
+   * high-stakes, so a weak local read escalates to the Claude backup. The llmEngine ladder
+   * owns timeout + retry/cooldown, so the old per-call retry loop is gone.
+   *
+   * R12: a blueprint OCR read needs a REAL vision provider; an "offline" result is a generic
+   * stub, not a real extraction, so we THROW rather than parse an empty response into bogus
+   * dimensions. `_model` is advisory now -- the provider is chosen by the vision ladder.
+   */
   private async callVision(
     imageData: string,
     mediaType: MediaType,
     prompt: string,
-    model?: string,
+    _model?: string,
   ): Promise<{ text: string; tokens_used: number }> {
-    const client = this.getClient();
-    const modelId = model || this.defaultModel;
-    const maxRetries = 2;
-    let lastError: Error | null = null;
-
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        const startMs = Date.now();
-        const response = await client.messages.create({
-          model: modelId,
-          max_tokens: 4096, // Blueprints need more tokens than video frames
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "image",
-                  source: { type: "base64", media_type: mediaType, data: imageData },
-                },
-                { type: "text", text: prompt },
-              ],
-            },
-          ],
-        });
-
-        const elapsed = Date.now() - startMs;
-        const text = response.content[0]?.type === "text" ? response.content[0].text : "";
-        const tokensUsed = (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0);
-
-        log.info(`[BlueprintVisionOCR] API call: ${elapsed}ms, ${tokensUsed} tokens (model: ${modelId})`);
-
-        return { text, tokens_used: tokensUsed };
-      } catch (err: unknown) {
-        lastError = err instanceof Error ? err : new Error(String(err));
-        log.warn(`[BlueprintVisionOCR] API attempt ${attempt + 1} failed: ${lastError.message}`);
-        if (attempt < maxRetries) {
-          await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
-        }
-      }
+    const { llmEngine } = await import("./LLMEngine.js");
+    const startMs = Date.now();
+    const res = await llmEngine.queryVision({
+      prompt,
+      images: [{ data: imageData, media_type: mediaType }],
+      complexity: "high",
+      max_tokens: 4096, // blueprints carry more dimensions than a single CAD frame
+    });
+    if (res.model === "offline") {
+      throw new Error(
+        "No vision AI provider available (Ollama vision model down and no Claude backup key) -- BlueprintVisionOCR requires a real provider for blueprint extraction.",
+      );
     }
-
-    throw lastError || new Error("Vision API call failed after retries");
+    const tokensUsed = res.tokens_used.input + res.tokens_used.output;
+    const elapsed = Date.now() - startMs;
+    log.info(`[BlueprintVisionOCR] vision read via ${res.model}: ${elapsed}ms, ${tokensUsed} tokens`);
+    return { text: res.answer, tokens_used: tokensUsed };
   }
 
-  /** Parse JSON from Claude response, handling markdown fences */
+  /** Parse JSON from the vision LLM response, handling markdown fences */
   private parseJSON<T>(text: string): T {
     let cleaned = text.trim();
     if (cleaned.startsWith("```")) {
@@ -449,6 +436,15 @@ export class BlueprintVisionOCREngine {
     const notes = this.convertNotes(raw.notes || []);
     const profiles = this.convertProfiles(raw.profiles || []);
 
+    // Pre-compute the single unambiguous part-level "all over / unless otherwise noted" finish
+    // as an INFORMATIONAL signal (U-XRAY-PART-DEFAULT-FINISH). It is deliberately NOT applied to
+    // any dimension's surface_finish_ra: that field is cost/process-bearing (feeds quote
+    // multipliers in TolerancePricingImpactEngine + WEDM trim-pass count in WireEDMPunchDieAdapter),
+    // so silently stamping a derived part-default onto it would corrupt downstream numbers with no
+    // provenance. A consumer must opt in with operator-confirm + confidence handling (queued).
+    const surfaceFinishes = mapSurfaceFinishes(raw.surface_finishes);
+    const partDefaultFinish = selectPartDefaultFinish(surfaceFinishes);
+
     // Build summary
     const tightest = dimensions.length > 0
       ? Math.min(...dimensions
@@ -476,6 +472,10 @@ export class BlueprintVisionOCREngine {
         has_gdt: gdt.length > 0,
       },
       profiles,
+      // Part-level surface finishes the VLM returned (recovers text callouts the engine
+      // previously dropped entirely -- U-XRAY-PART-SURFACE-FINISHES).
+      surface_finishes: surfaceFinishes,
+      part_default_surface_finish: partDefaultFinish,
       part_bounds_mm: raw.part_bounds_mm || undefined,
       thickness_mm: raw.thickness_mm ?? undefined,
       tokens_used,
@@ -868,7 +868,13 @@ Only return the JSON, nothing else.`;
         nominal: d.nominal ?? 0,
         unit: d.unit === "in" ? "in" as const : "mm" as const,
         tolerance: tol,
-        surface_finish_ra: d.surface_finish_ra ?? undefined,
+        // Recover a surface-finish callout the VLM emitted as TEXT ("63 RMS", "N6") into
+        // a canonical Ra (um) instead of dropping/leaking it (U-XRAY-SURFACE-FINISH-NORMALIZE).
+        surface_finish_ra: resolveSurfaceFinishRa(d.surface_finish_ra),
+        // Recover a thread callout ("1/4-20 UNC", "M6x1.0") the VLM emitted as TEXT into a canonical
+        // thread spec (major dia / tpi / pitch / class) instead of raw text (U-XRAY-THREAD-NORMALIZE).
+        thread: resolveThread(d.type, d.raw_text),
+        chamfer: resolveChamfer(d.type, d.raw_text),
         location_hint: d.location_hint || undefined,
         raw_text: d.raw_text || String(d.nominal),
         confidence: d.confidence ?? 0.8,
@@ -877,17 +883,34 @@ Only return the JSON, nothing else.`;
   }
 
   private convertGDT(raw: RawGDT[]): ExtractedGDT[] {
-    return raw.map((g, i) => ({
-      id: `GDT-${i + 1}`,
-      symbol: (g.symbol || "position") as GDTSymbol,
-      tolerance_value: g.tolerance_value ?? 0,
-      tolerance_unit: g.tolerance_unit === "in" ? "in" as const : "mm" as const,
-      material_condition: g.material_condition as "MMC" | "LMC" | "RFS" | undefined,
-      datum_references: g.datum_references || [],
-      applied_to: g.applied_to || undefined,
-      raw_text: g.raw_text || "",
-      confidence: g.confidence ?? 0.8,
-    }));
+    return raw.map((g, i) => {
+      const frame: ExtractedGDT = {
+        id: `GDT-${i + 1}`,
+        // Normalize the VLM's symbol (abbreviation / variant spelling / unicode) to the canonical
+        // GDTSymbol so the FCF validator recognizes it and the datum-deficiency flag fires (e.g.
+        // "TP" -> "position"). Raw verbatim symbol is preserved in raw_text. Falls back to the raw
+        // value when unrecognized (then validateExtractedGdt leaves it un-annotated -- never guessed).
+        symbol: (normalizeGdtSymbol(g.symbol) || g.symbol || "position") as GDTSymbol,
+        tolerance_value: g.tolerance_value ?? 0,
+        tolerance_unit: g.tolerance_unit === "in" ? "in" as const : "mm" as const,
+        material_condition: g.material_condition as "MMC" | "LMC" | "RFS" | undefined,
+        datum_references: g.datum_references || [],
+        applied_to: g.applied_to || undefined,
+        // fall back to the verbatim symbol so the original token survives for audit even when the VLM
+        // omitted raw_text (the .symbol field is now the normalized canonical name, not the raw emission).
+        raw_text: g.raw_text || g.symbol || "",
+        confidence: g.confidence ?? 0.8,
+      };
+      // Attach INFORMATIONAL ASME Y14.5 FCF syntax validation (datum-deficient frame flag,
+      // etc.) -- reuses FCFSyntaxValidatorEngine via the gdtFcfValidate adapter. Pure, no GPU,
+      // no value mutation; undefined verdict (unknown symbol) leaves the frame un-annotated.
+      const verdict = validateExtractedGdt(frame);
+      if (verdict) {
+        frame.fcf_valid = verdict.fcf_valid;
+        frame.fcf_issues = verdict.fcf_issues;
+      }
+      return frame;
+    });
   }
 
   private convertTitleBlock(raw: Partial<TitleBlockData>): TitleBlockData {
@@ -933,7 +956,7 @@ Only return the JSON, nothing else.`;
 }
 
 // ============================================================================
-// RAW VISION RESPONSE TYPES (internal — what Claude Vision returns)
+// RAW VISION RESPONSE TYPES (internal -- what the vision LLM returns)
 // ============================================================================
 
 interface RawVisionResponse {
@@ -944,7 +967,9 @@ interface RawVisionResponse {
   profiles?: RawProfile[];
   part_bounds_mm?: { width: number; height: number; depth?: number };
   thickness_mm?: number | null;
-  surface_finishes?: Array<{ ra_um: number; location: string; raw_text: string }>;
+  // Tolerant shape: the VLM often emits partial / text-only entries (raw_text "63 RMS"
+  // with no numeric ra_um); mapSurfaceFinishes takes unknown + recovers them.
+  surface_finishes?: Array<Partial<{ ra_um: number | string; location: string; raw_text: string }>>;
 }
 
 interface RawDimension {

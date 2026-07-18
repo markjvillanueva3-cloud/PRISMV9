@@ -74,7 +74,7 @@ const wedmSensorAnomaly: HookDefinition = {
   description:
     "Nelson-rule SPC anomaly on fused WEDM sensor channels. Warns when |innovation| > 3σ on a single frame; escalates after 3 consecutive frames out-of-bounds.",
   phase: "post-tool",
-  category: "quality",
+  category: "validation",
   mode: "warning",
   priority: "high",
   enabled: true,

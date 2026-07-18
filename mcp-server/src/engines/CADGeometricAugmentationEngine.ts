@@ -251,7 +251,7 @@ class CADGeometricAugmentationEngine {
       elapsed_ms: Date.now() - startTime,
     };
 
-    log("CADGeometricAugmentationEngine", `Batch: ${sources.length} → ${sources.length + allAugmented.length} (${report.multiplier_achieved.toFixed(1)}×)`);
+    log.info(`CADGeometricAugmentationEngine: Batch: ${sources.length} → ${sources.length + allAugmented.length} (${report.multiplier_achieved.toFixed(1)}×)`);
 
     return { augmented: allAugmented, report };
   }

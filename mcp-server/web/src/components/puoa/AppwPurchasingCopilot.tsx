@@ -79,7 +79,7 @@ function buildSummary(props: AppwPurchasingCopilotProps) {
   if (props.upstreamRecordLabel) posture.push(`record ${props.upstreamRecordLabel}`);
   if (props.sourcingReference) posture.push(`reference ${props.sourcingReference}`);
 
-  return `PRISM AI is reasoning over live supplier breadth, best-fit recommendation quality, market summary posture, route freshness, degraded-lane signals, and sourcing continuity for the Purchasing desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live supplier breadth, best-fit recommendation quality, market summary posture, route freshness, degraded-lane signals, and sourcing continuity for the Purchasing desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwPurchasingCopilotProps): WorkspaceCopilotSuggestion[] {

@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS30",
+  "version": "1.0.0",
+  "title": "PPG-MS30 — Operator UX Hardening (WCAG + touch + keyboard)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T04:30:00.000Z",
+  "last_updated": "2026-04-29T04:11:36.557Z",
+  "total_units": 5,
+  "completed_units": 0,
+  "description": "Closes the UX-rigor gap surfaced by R07 scrutiny (score 58). WCAG 2.1 AA compliance with color-blind palette + icon redundancy, ≥44×44 px touch targets for shop tablets, full keyboard navigation, operator-voice copy review, undo/redo + autosave + multi-operator conflict resolution.",
+  "rationale": "Closes the UX-rigor gap surfaced by R07 scrutiny (score 58). WCAG 2.1 AA compliance with color-blind palette + icon redundancy, ≥44×44 px touch targets for shop tablets, full keyboard navigation, operator-voice copy review, undo/redo + autosave + multi-operator conflict resolution.",
+  "phase": "P2",
+  "priority": "HIGH",
+  "units": [
+    {
+      "id": "U-PPGM181",
+      "title": "WCAG 2.1 AA compliance + axe-core CI gate",
+      "scope": "Color-blind palette (4.5:1 contrast + icon redundancy on all verdict banners). axe-core in CI; fail PR on AA violation. Per PPG-MS14 banner + PPG-MS17 ensemble panel + PPG-MS16 dashboard.",
+      "files_to_modify": [
+        ".github/workflows/a11y.yml",
+        "web/src/styles/wcag-palette.css"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/A11y.axe.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM182",
+      "title": "Touch targets ≥44×44 px + shop-tablet validation",
+      "scope": "All interactive elements (pocket grid, toggles, accept-fix buttons) ≥44×44 px CSS. Validated on 3 representative shop tablets (iPad 10\", Surface, Android 10\").",
+      "files_to_modify": [
+        "web/src/styles/touch-targets.css"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/TouchTargets.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM183",
+      "title": "Full keyboard navigation + ARIA labels + focus management",
+      "scope": "Tab order documented; Esc cancels; Enter accepts primary action; ARIA labels on every interactive element. After BLOCK, focus moves to first failed predicate; after auto-fix accept, focus moves to Re-Run.",
+      "files_to_modify": [
+        "web/src/hooks/useKeyboardNav.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/KeyboardNav.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM184",
+      "title": "Operator-voice copy review + every error string rewritten",
+      "scope": "Every error/warning/info message reviewed by operator panel (N≥3). Pattern: location anchor + plain-language cause + button-shaped fix. Lock copy via i18n with English-shop-floor as default.",
+      "files_to_modify": [
+        "web/src/i18n/en-shop-floor.json"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/CopyReview.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM185",
+      "title": "Undo/redo + autosave indicator + multi-operator CRDT/LWW conflict",
+      "scope": "Wizard state has undo/redo stack; autosave indicator visible; multi-operator concurrent edit handled with operator-aware CRDT for magazine layout, LWW for non-conflicting fields. Tab-close confirmation on dirty state.",
+      "files_to_modify": [
+        "web/src/hooks/useUndoRedo.ts",
+        "src/engines/WizardStateConflictEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/WizardStateConflict.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "WCAG 2.1 AA passing on all PPG pages; axe-core CI gate green",
+    "Every interactive element ≥44×44 px on shop-tablet validation",
+    "Full keyboard nav verified; screen reader compatible",
+    "Operator-voice copy reviewed by ≥3 operators; locked in i18n",
+    "Undo/redo + autosave + multi-operator conflict resolution work end-to-end"
+  ],
+  "depends_on": [
+    "PPG-MS6",
+    "PPG-MS13",
+    "PPG-MS14",
+    "PPG-MS17"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "refactor_notes_2026_04_29": {
+    "source": "Leverage agent L08 (orchestrator inventory) — 33 orchestrators exist, 27 uncited in PPG plan",
+    "direction": "UX — keep as-is (frontend milestone)",
+    "target_unit_count_after_refactor": "5-7 thin wiring units (down from current)",
+    "consumers_of_existing_orchestrators": [
+      "E0322 MasterPostProcessorUnifiedAGI (master AGI)",
+      "E0385 PPValidatorAGIWiring (50+ validators)",
+      "E0072 CAMAGIMasterOrchestrator (CAM-domain AGI)",
+      "E0468 TribalEnrichmentCoordinator (3,700+ tips)",
+      "E0366 OrchestratorConfidenceFeedback (confidence aggregation)"
+    ]
+  },
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ]
+}

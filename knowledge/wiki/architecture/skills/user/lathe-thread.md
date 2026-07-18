@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-thread` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-thread.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-thread.md` |
 | Model | default |
 | Tags | _(none)_ |
 

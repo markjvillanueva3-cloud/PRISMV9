@@ -153,6 +153,6 @@ machine-readable source of truth — this document is its narrative form).
 ## See also
 
 - [[knowledge-vault-schema]] — U-VAULT01 (parent vault schema)
-- [[command-schema-reconciliation]] — U-VAULT04 cross-trigger registry reconciliation
-- [[wiki-os-schema]] — wiki/os/ entity schema (this file lives under that namespace)
+- [[_command-schema-reconciliation]] — U-VAULT04 cross-trigger registry reconciliation
+- [[_schema]] — wiki/os/ entity schema (this file lives under that namespace)
 - `.claude/schemas/command-frontmatter.schema.json` — machine source of truth

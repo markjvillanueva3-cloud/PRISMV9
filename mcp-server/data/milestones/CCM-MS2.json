@@ -1,0 +1,1008 @@
+{
+  "id": "CCM-MS2",
+  "version": "1.0.0",
+  "title": "Agent Architecture Expansion",
+  "brief": "Build full agent definition system with model routing, worktree isolation, background execution, and specialization. Currently only 3 project agents. Create user-level agents directory with 8+ specialized agents using all frontmatter fields (model, permissionMode, maxTurns, skills, mcpServers, memory, background, isolation).",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Agent Definitions + Configuration",
+      "description": "Create 8 specialized agent definitions with model routing, worktree isolation, background execution, and skills preloading.",
+      "sessions": "2-3",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Create ~/.claude/agents/ directory with README",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 50,
+          "rationale": "Foundation for all agent definitions. Directory must exist with proper structure and a README explaining the agent system.",
+          "tools": [
+            "Write",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "agent-directory",
+            "agent-readme"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "~/.claude/ directory exists"
+          ],
+          "exit_conditions": [
+            "~/.claude/agents/ directory exists",
+            "README.md explains agent frontmatter fields",
+            "Example agent template included"
+          ],
+          "rollback": "rm -rf ~/.claude/agents/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create ~/.claude/agents/ directory"
+            },
+            {
+              "number": 2,
+              "instruction": "Create README.md with agent frontmatter field documentation"
+            },
+            {
+              "number": 3,
+              "instruction": "Include template showing all available fields: model, permissionMode, maxTurns, skills, mcpServers, memory, background, isolation, allowedTools"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/README.md",
+              "type": "config",
+              "description": "Agent system documentation with frontmatter field reference and template"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Create ~/.claude/agents/ directory with README — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "physics-reviewer agent",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Physics engines contain critical formulas (Kienzle, Taylor, Johnson-Cook). A dedicated Opus reviewer agent with worktree isolation ensures formula integrity without risking main branch.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "physics-review",
+            "formula-verification",
+            "worktree-isolation"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "~/.claude/agents/ directory exists"
+          ],
+          "exit_conditions": [
+            "Agent definition works with /agent physics-reviewer",
+            "Opus model used for deep reasoning",
+            "Worktree isolation prevents accidental main branch edits"
+          ],
+          "rollback": "rm ~/.claude/agents/physics-reviewer.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create physics-reviewer.md with frontmatter: model=opus, isolation=worktree, maxTurns=30, allowedTools=[Read,Grep,Glob,Bash]"
+            },
+            {
+              "number": 2,
+              "instruction": "Write system prompt: verify physics formulas, check dimensional consistency, cross-reference constants.ts"
+            },
+            {
+              "number": 3,
+              "instruction": "Include checklist: Kienzle kc structure, Taylor life exponents, Johnson-Cook parameters, unit conversions"
+            },
+            {
+              "number": 4,
+              "instruction": "Test agent invocation with a sample engine file"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/physics-reviewer.md",
+              "type": "config",
+              "description": "Opus-powered physics formula reviewer with worktree isolation"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "physics-reviewer agent — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "test-runner agent",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "Test execution is I/O-bound and benefits from background execution. Haiku model is sufficient for running tests and parsing results.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "background-testing",
+            "result-parsing",
+            "targeted-runs"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "~/.claude/agents/ directory exists"
+          ],
+          "exit_conditions": [
+            "Agent runs tests in background without blocking main conversation",
+            "Haiku model parses test output efficiently",
+            "Reports failures with file/line context"
+          ],
+          "rollback": "rm ~/.claude/agents/test-runner.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create test-runner.md with frontmatter: model=haiku, background=true, allowedTools=[Bash,Read]"
+            },
+            {
+              "number": 2,
+              "instruction": "Write system prompt: run targeted tests, parse output, report failures concisely"
+            },
+            {
+              "number": 3,
+              "instruction": "Include test discovery logic: find tests for given engine/module"
+            },
+            {
+              "number": 4,
+              "instruction": "Test agent with a specific test file run"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/test-runner.md",
+              "type": "config",
+              "description": "Haiku-powered background test runner agent"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "test-runner agent — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "catalog-enricher agent",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Catalog enrichment (tool specs, machine profiles) is repetitive and well-scoped. Sonnet handles the pattern matching and data extraction efficiently.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [
+            "tool-enrich"
+          ],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "catalog-enrichment",
+            "data-extraction",
+            "mcp-integration"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "~/.claude/agents/ directory exists"
+          ],
+          "exit_conditions": [
+            "Agent enriches catalogs using tool-enrich skill",
+            "Sonnet model for cost-effective data processing",
+            "MCP server connection for PRISM data access"
+          ],
+          "rollback": "rm ~/.claude/agents/catalog-enricher.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create catalog-enricher.md with frontmatter: model=sonnet, skills=[tool-enrich], mcpServers=[prism]"
+            },
+            {
+              "number": 2,
+              "instruction": "Write system prompt: enrich tool/machine/material catalogs with missing dimensions, speeds, specifications"
+            },
+            {
+              "number": 3,
+              "instruction": "Include enrichment workflow: read catalog → identify gaps → research → fill → validate"
+            },
+            {
+              "number": 4,
+              "instruction": "Test agent with a catalog file containing known gaps"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/catalog-enricher.md",
+              "type": "config",
+              "description": "Sonnet-powered catalog enrichment agent with MCP integration"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "catalog-enricher agent — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "code-archaeologist agent",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Deep codebase exploration (tracing dependencies, understanding architecture, finding patterns) needs high turn count and read-only safety. Plan mode prevents accidental edits.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "deep-exploration",
+            "dependency-tracing",
+            "read-only-safety"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "~/.claude/agents/ directory exists"
+          ],
+          "exit_conditions": [
+            "Agent performs deep read-only exploration with 50 turn limit",
+            "Plan permission mode prevents any writes",
+            "Reports findings in structured format"
+          ],
+          "rollback": "rm ~/.claude/agents/code-archaeologist.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create code-archaeologist.md with frontmatter: model=sonnet, permissionMode=plan, maxTurns=50"
+            },
+            {
+              "number": 2,
+              "instruction": "Write system prompt: trace code paths, map dependencies, identify patterns, never modify files"
+            },
+            {
+              "number": 3,
+              "instruction": "Include output format: structured report with file paths, call chains, findings"
+            },
+            {
+              "number": 4,
+              "instruction": "Test agent with architecture exploration task"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/code-archaeologist.md",
+              "type": "config",
+              "description": "Sonnet-powered read-only code exploration agent with plan mode"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "code-archaeologist agent — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "dispatcher-wirer agent",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Wiring engines to dispatchers is a well-defined, repetitive task that follows strict patterns. A dedicated agent with forge-wiring skill handles this efficiently.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [
+            "forge-wiring"
+          ],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "engine-wiring",
+            "dispatcher-integration",
+            "schema-generation"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "~/.claude/agents/ directory exists"
+          ],
+          "exit_conditions": [
+            "Agent wires engines to dispatchers following established patterns",
+            "Sonnet model for pattern-following efficiency",
+            "forge-wiring skill preloaded for wiring conventions"
+          ],
+          "rollback": "rm ~/.claude/agents/dispatcher-wirer.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create dispatcher-wirer.md with frontmatter: model=sonnet, skills=[forge-wiring], allowedTools=[Read,Edit,Write,Grep,Glob,Bash]"
+            },
+            {
+              "number": 2,
+              "instruction": "Write system prompt: wire engines to dispatchers, add z.enum entries, create schema, add handler cases"
+            },
+            {
+              "number": 3,
+              "instruction": "Include wiring checklist: export from index.ts, z.enum entry, schema definition, handler case, test"
+            },
+            {
+              "number": 4,
+              "instruction": "Test agent with an unwired engine"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/dispatcher-wirer.md",
+              "type": "config",
+              "description": "Sonnet-powered dispatcher wiring agent with forge-wiring skill"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "dispatcher-wirer agent — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "doc-generator agent",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "JSDoc generation is repetitive and low-stakes. Haiku in background mode generates docs without blocking higher-priority work.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "jsdoc-generation",
+            "background-execution",
+            "batch-processing"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "~/.claude/agents/ directory exists"
+          ],
+          "exit_conditions": [
+            "Agent generates JSDoc for undocumented functions",
+            "Haiku model for cost efficiency",
+            "Background execution for non-blocking operation"
+          ],
+          "rollback": "rm ~/.claude/agents/doc-generator.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create doc-generator.md with frontmatter: model=haiku, background=true, allowedTools=[Read,Edit,Grep,Glob]"
+            },
+            {
+              "number": 2,
+              "instruction": "Write system prompt: find undocumented exports, generate JSDoc with @param, @returns, @example"
+            },
+            {
+              "number": 3,
+              "instruction": "Include style guide: match existing JSDoc patterns in codebase"
+            },
+            {
+              "number": 4,
+              "instruction": "Test agent with a file containing undocumented exports"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/doc-generator.md",
+              "type": "config",
+              "description": "Haiku-powered background JSDoc generation agent"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "doc-generator agent — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "regression-hunter agent",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Test failure investigation requires deep reasoning — tracing through multiple files, understanding expected vs actual behavior, identifying root causes. Opus excels at this.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "failure-investigation",
+            "root-cause-analysis",
+            "fix-suggestion"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "~/.claude/agents/ directory exists"
+          ],
+          "exit_conditions": [
+            "Agent investigates test failures with deep reasoning",
+            "Opus model for complex multi-file analysis",
+            "40 turn limit for thorough investigation"
+          ],
+          "rollback": "rm ~/.claude/agents/regression-hunter.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create regression-hunter.md with frontmatter: model=opus, maxTurns=40, allowedTools=[Read,Grep,Glob,Bash]"
+            },
+            {
+              "number": 2,
+              "instruction": "Write system prompt: investigate test failures, trace root cause, suggest fix, verify fix doesn't introduce new regressions"
+            },
+            {
+              "number": 3,
+              "instruction": "Include investigation methodology: reproduce → isolate → trace → diagnose → suggest"
+            },
+            {
+              "number": 4,
+              "instruction": "Test agent with a known test failure"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/regression-hunter.md",
+              "type": "config",
+              "description": "Opus-powered test failure investigation agent with 40-turn deep analysis"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "regression-hunter agent — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Agent model routing matrix document",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 60,
+          "rationale": "With 3 model tiers and 8 agents, a decision framework ensures optimal model selection for new agents and task routing.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "model-routing",
+            "decision-framework",
+            "cost-optimization"
+          ],
+          "dependencies": [
+            "P0-U02",
+            "P0-U03",
+            "P0-U04",
+            "P0-U05",
+            "P0-U06",
+            "P0-U07",
+            "P0-U08"
+          ],
+          "entry_conditions": [
+            "All 8 agent definitions created"
+          ],
+          "exit_conditions": [
+            "Decision framework documented with model selection criteria",
+            "Cost/capability tradeoff matrix included",
+            "Task-to-agent routing guide included"
+          ],
+          "rollback": "git checkout -- ~/.claude/agents/ROUTING.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create ROUTING.md in ~/.claude/agents/"
+            },
+            {
+              "number": 2,
+              "instruction": "Document model selection criteria: Opus (complex reasoning, multi-file), Sonnet (pattern-following, moderate complexity), Haiku (simple tasks, high volume)"
+            },
+            {
+              "number": 3,
+              "instruction": "Create task-to-agent routing table"
+            },
+            {
+              "number": 4,
+              "instruction": "Include cost estimates per agent invocation"
+            },
+            {
+              "number": 5,
+              "instruction": "Add guidelines for creating new agents"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/ROUTING.md",
+              "type": "config",
+              "description": "Agent model routing matrix with selection criteria and cost tradeoffs"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Agent model routing matrix document — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Configure worktree-isolated agents",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Worktree isolation prevents agents from modifying the main branch. Critical for physics-reviewer and regression-hunter which may attempt fixes.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "worktree-isolation",
+            "branch-safety",
+            "agent-sandboxing"
+          ],
+          "dependencies": [
+            "P0-U02",
+            "P0-U08"
+          ],
+          "entry_conditions": [
+            "physics-reviewer and regression-hunter agents defined"
+          ],
+          "exit_conditions": [
+            "isolation:worktree works for physics-reviewer",
+            "isolation:worktree works for regression-hunter",
+            "Agents operate in isolated git worktrees"
+          ],
+          "rollback": "git checkout -- ~/.claude/agents/physics-reviewer.md ~/.claude/agents/regression-hunter.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Verify isolation:worktree frontmatter field is set in physics-reviewer.md"
+            },
+            {
+              "number": 2,
+              "instruction": "Verify isolation:worktree frontmatter field is set in regression-hunter.md"
+            },
+            {
+              "number": 3,
+              "instruction": "Test worktree creation on agent invocation"
+            },
+            {
+              "number": 4,
+              "instruction": "Test worktree cleanup on agent completion"
+            },
+            {
+              "number": 5,
+              "instruction": "Verify main branch is unmodified after agent run"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/physics-reviewer.md",
+              "type": "config",
+              "description": "Updated with verified worktree isolation configuration"
+            },
+            {
+              "path": "~/.claude/agents/regression-hunter.md",
+              "type": "config",
+              "description": "Updated with verified worktree isolation configuration"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Configure worktree-isolated agents — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U11",
+          "title": "Configure background agents",
+          "phase": "P0",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Background agents run without blocking the main conversation. Essential for test-runner, catalog-enricher, and doc-generator which are I/O-heavy.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "background-execution",
+            "non-blocking",
+            "parallel-work"
+          ],
+          "dependencies": [
+            "P0-U03",
+            "P0-U04",
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "test-runner, catalog-enricher, and doc-generator agents defined"
+          ],
+          "exit_conditions": [
+            "background:true works for test-runner",
+            "background:true works for catalog-enricher",
+            "background:true works for doc-generator",
+            "Main conversation continues while agents run"
+          ],
+          "rollback": "git checkout -- ~/.claude/agents/test-runner.md ~/.claude/agents/catalog-enricher.md ~/.claude/agents/doc-generator.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Verify background:true frontmatter in test-runner.md, catalog-enricher.md, doc-generator.md"
+            },
+            {
+              "number": 2,
+              "instruction": "Test background execution: invoke agent, verify main conversation continues"
+            },
+            {
+              "number": 3,
+              "instruction": "Test result retrieval after background agent completes"
+            },
+            {
+              "number": 4,
+              "instruction": "Verify token budget is tracked for background agents"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/test-runner.md",
+              "type": "config",
+              "description": "Verified background execution configuration"
+            },
+            {
+              "path": "~/.claude/agents/catalog-enricher.md",
+              "type": "config",
+              "description": "Verified background execution configuration"
+            },
+            {
+              "path": "~/.claude/agents/doc-generator.md",
+              "type": "config",
+              "description": "Verified background execution configuration"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Configure background agents — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U12",
+          "title": "Agent skills preloading",
+          "phase": "P0",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Agents need domain skills preloaded to be effective immediately. The skills frontmatter field ensures agents start with the right context and capabilities.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "skill-preloading",
+            "context-bootstrapping",
+            "agent-specialization"
+          ],
+          "dependencies": [
+            "P0-U04",
+            "P0-U06"
+          ],
+          "entry_conditions": [
+            "catalog-enricher and dispatcher-wirer agents have skills field defined"
+          ],
+          "exit_conditions": [
+            "Agents preload designated skills on startup",
+            "catalog-enricher loads tool-enrich skill",
+            "dispatcher-wirer loads forge-wiring skill",
+            "Skills context available from agent's first turn"
+          ],
+          "rollback": "git checkout -- ~/.claude/agents/catalog-enricher.md ~/.claude/agents/dispatcher-wirer.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Verify skills field in catalog-enricher.md (tool-enrich) and dispatcher-wirer.md (forge-wiring)"
+            },
+            {
+              "number": 2,
+              "instruction": "Test skill preloading: invoke agent, verify skill context present in first response"
+            },
+            {
+              "number": 3,
+              "instruction": "Identify other agents that would benefit from skill preloading"
+            },
+            {
+              "number": 4,
+              "instruction": "Add skills to regression-hunter (if debugging skill exists) and physics-reviewer"
+            },
+            {
+              "number": 5,
+              "instruction": "Verify all skill references resolve to valid skill files"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/agents/catalog-enricher.md",
+              "type": "config",
+              "description": "Verified skill preloading for tool-enrich"
+            },
+            {
+              "path": "~/.claude/agents/dispatcher-wirer.md",
+              "type": "config",
+              "description": "Verified skill preloading for forge-wiring"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Agent skills preloading — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms2-gate",
+    "mcp_action": "prism_ccm:ccm_ms2_run",
+    "skill_command": "/ccm-ms2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms2-gate"
+    ],
+    "new_actions": [
+      "ccm_ms2_run"
+    ],
+    "new_skills": [
+      "/ccm-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build full agent definition system with model routing, worktree isolation, background execution, and specialization. Currently only 3 project agents. Create user-level agents directory with 8+ specialized agents using all frontmatter fields (model, permissionMode, maxTurns, skills, mcpServers, memory, background, isolation).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

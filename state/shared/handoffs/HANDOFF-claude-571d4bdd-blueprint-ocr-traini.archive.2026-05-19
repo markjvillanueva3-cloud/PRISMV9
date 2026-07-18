@@ -1,0 +1,23 @@
+---
+session: claude-571d4bdd
+topic: blueprint-ocr-training-ms2
+slot: mike
+written_at: 2026-05-19T05:09:21.812Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-571d4bdd
+status: active
+---
+
+# HANDOFF: claude-571d4bdd
+Updated: 2026-05-19T05:09:21.812Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-571d4bdd
+
+## STATE
+Shipped U-TDP07 cascade. 96.1% of JM Die corpus is vector-text-bearing (PyMuPDF-truth survey corrected the earlier byte-regex finding by ~50x). Qwen2.5-VL 7B running locally on 4080 (15.4GB VRAM); cold-load 110s, warm inference 15s/page at dpi=72. Heuristic vector classifier covers Ø/DIA/M/HOLE/CHAMFER/FILLET/airfoil-edge patterns; conservative by design. Per-file scrutiny ran on all 4 new files. 6 reviewer agent passes, all P0/P1 closed. VLM_TIMEOUT_MS=240s covers cold-load.
+
+## RESUME
+U-TDP07 shipped (5270c65aea, cascade extractor: PyMuPDF vector + Qwen2.5-VL 7B raster, wired into U-TDP04 benchmark, 46/46 tests, all-PASS scrutiny). NEXT (operator-driven priority): (1) Build a real PDF-pointing GT corpus — U-TDP05/06 GT currently point at STEP / .MIN files, so the live cascade can't grade against a meaningful baseline yet. (2) Run full cascade benchmark walk over JM Die PDF corpus once GT exists — expect cold-load 110s + ~15s/page warm. (3) Consider U-TDP08 — add eDOCr2 (keras-ocr based, 93.75% recall on mech drawings) as Stage 3, OR fine-tune a small head on the 76k JM Die corpus.
+
+## CONTEXT
+

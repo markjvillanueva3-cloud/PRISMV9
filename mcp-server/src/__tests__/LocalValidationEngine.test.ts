@@ -162,7 +162,11 @@ describe("LocalValidationEngine", () => {
       const health = await LocalValidationEngine.healthCheck();
       expect(health.healthy).toBe(true);
       expect(typeof health.ollamaAvailable).toBe("boolean");
-      expect(health.preferredModel).toBe("qwen2.5-coder:7b");
+      // Family-match the coder model (not a hardcoded size tag): :3b/:7b/:14b were
+      // retired 2026-06-04 (Blackwell migration); the preferred model is now
+      // qwen2.5-coder:32b. Matching the family + size tag verifies a valid coder
+      // model without re-rotting on the next size migration (was hardcoded :7b).
+      expect(health.preferredModel).toMatch(/^qwen2\.5-coder:\d+(\.\d+)?b$/);
     });
   });
 

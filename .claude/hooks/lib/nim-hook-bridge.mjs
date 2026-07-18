@@ -24,9 +24,10 @@ const NIM_URL = (process.env.NIM_URL || "http://127.0.0.1:8000/v1").replace(/\/$
 const DEFAULT_MODEL = process.env.NIM_HOOK_MODEL || "meta/llama-3.1-8b-instruct";
 const DEFAULT_TIMEOUT = parseInt(process.env.NIM_TIMEOUT_MS || "8000", 10);
 
-// Per-hook model selection. Codestral is only present on RTX 4080 hosts;
-// queryNim() auto-falls-back to DEFAULT_MODEL on 404 from the larger model
-// so callers never need to know which GPU they're on.
+// Per-hook model selection. Larger models (Codestral 22B, llama-3.1-70b) now
+// fit on the RTX PRO 6000 Blackwell 96GB host; queryNim() auto-falls-back to
+// DEFAULT_MODEL on 404 from the larger model so callers never need to know
+// which GPU they're on.
 const HOOK_MODELS = {
   docstring:   "meta/llama-3.1-8b-instruct",
   classify:    "meta/llama-3.1-8b-instruct",

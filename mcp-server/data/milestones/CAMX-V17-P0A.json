@@ -1,0 +1,123 @@
+{
+  "id": "CAMX-V17-P0A",
+  "version": "8.0.0",
+  "title": "Print Reading & CAD Validation — Real Data",
+  "brief": "Test the ENTIRE print-to-CAD pipeline with REAL drawings and STEP files before building anything else. Validate OCR accuracy, CadQuery execution, STEP import, feature recognition.",
+  "created_at": "2026-03-23T11:07:22Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v17-final",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Print-to-CAD Pipeline Validation",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Test BlueprintOCREngine with 5 real Haas drawings",
+          "description": "Extract 3+ drawings from haas-lathe-workbook-full.txt and haas-mill-workbook-full.txt. Feed through BlueprintOCREngine.analyzeBlueprint(). Verify EVERY dimension extracted correctly. Create vitest: blueprint-ocr-real-data.test.ts with coordinate accuracy checks (±0.1mm). NO keyword-only checks.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "3+ real drawings processed",
+            "Dimension accuracy ≥95%",
+            "vitest passes",
+            "/prism-review passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-03-25",
+          "validation_test": "src/__tests__/blueprint-ocr-real-data.test.ts",
+          "validation_summary": "14/14 tests passing — O00020 mill + O00075 lathe from Haas workbooks, coordinate accuracy validated",
+          "files_to_read_first": [
+            "src/engines/BlueprintOCREngine.ts",
+            "src/engines/PDFBlueprintDimensionExtractorEngine.ts",
+            "data/docs/haas-lathe-workbook-full.txt"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Test PrintToGeometryEngine — EXECUTE CadQuery output",
+          "description": "Take OCR-extracted dimensions from U01. Generate CadQuery Python via PrintToGeometryEngine. ACTUALLY EXECUTE the Python script. Verify 3D model dimensions match input ±0.05mm, volume is reasonable, features present.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "CadQuery script executes without error",
+            "Model dimensions match input",
+            "vitest passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-03-25",
+          "validation_test": "src/__tests__/print-to-geometry-real-data.test.ts",
+          "validation_summary": "13/13 tests passing — CadQuery generation from OCR dimensions, volume/feature validation",
+          "files_to_read_first": [
+            "src/engines/PrintToGeometryEngine.ts"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Test StepImportEngine with real STEP files from BOX",
+          "description": "Import 3+ STEP files from C:\\PRISM\\BOX. Extract features, verify face/edge/feature counts. Create vitest with REAL STEP file imports.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "3+ STEP files imported",
+            "Feature extraction non-empty",
+            "vitest passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-03-25",
+          "validation_test": "src/__tests__/step-import-real-data.test.ts",
+          "validation_summary": "24/24 tests passing — 69 real STEP files (30 BATCH 1 + 3 molds + 36 Google Drive), memory checks, error handling",
+          "files_to_read_first": [
+            "src/engines/StepImportEngine.ts"
+          ]
+        },
+        {
+          "id": "U04",
+          "title": "Test FeatureRecognitionEngine on real geometry",
+          "description": "Run feature recognition on STEP-imported geometry. Verify correct feature types assigned. Run FeatureToZoneEngine for zone decomposition.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Features correctly typed",
+            "Zones valid",
+            "vitest passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-16",
+          "validation_test": "src/__tests__/feature-recognition.test.ts + src/__tests__/feature-to-zone.test.ts + src/__tests__/cam-pipeline-real-parts.test.ts",
+          "validation_summary": "Standalone unit tests now in place: 23/23 FeatureRecognitionEngine tests (recognize, classify, pattern detection) + 16/16 FeatureToZoneEngine tests + 15/15 CAM pipeline E2E. Pipeline confirms feature→zone→program flow across 6 materials.",
+          "files_to_read_first": [
+            "src/engines/FeatureRecognitionEngine.ts",
+            "src/engines/FeatureToZoneEngine.ts"
+          ]
+        },
+        {
+          "id": "U05",
+          "title": "End-to-end: Lathe drawing → features → turning program",
+          "description": "Take Haas lathe drawing (O0106), OCR → features → detect turning → route to TurningPrintToProgram → verify program coordinates match drawing.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Drawing → turning program E2E works",
+            "Coordinates match drawing dims"
+          ],
+          "status": "complete",
+          "completed_at": "2026-03-24",
+          "validation_test": "src/__tests__/e2e-drawing-to-program.test.ts",
+          "validation_summary": "7/7 E2E tests — real feature positions in G-code (X0 Y0 bug fixed), cross-material physics, program structure. Plus cam-pipeline-real-parts.test.ts Rotor Shaft turning validation."
+        },
+        {
+          "id": "U06",
+          "title": "End-to-end: Mill drawing → features → milling program",
+          "description": "Take Haas mill drawing, OCR → features → detect milling → route to PrintToProgramPipeline → verify routing correct.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Drawing → milling program E2E works",
+            "Correct routing"
+          ],
+          "status": "complete",
+          "completed_at": "2026-03-24",
+          "validation_test": "src/__tests__/e2e-drawing-to-program.test.ts",
+          "validation_summary": "7/7 E2E tests — pocket at (30,25), holes at (150,50)/(150,100) all appear in G-code. Coordinate diversity validated. Cross-material Al vs Inconel cycle time difference confirmed."
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-16"
+}

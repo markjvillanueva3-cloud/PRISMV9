@@ -1,0 +1,224 @@
+{
+  "schemaVersion": "1.1.0",
+  "models": [
+    "qwen3-vl:8b-instruct",
+    "qwen2.5vl:7b"
+  ],
+  "n_models": 2,
+  "calibrate": {
+    "count_attempted": 24,
+    "cases": [
+      {
+        "seed": 9000,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 9,
+        "correct": 7
+      },
+      {
+        "seed": 9001,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 10,
+        "correct": 6
+      },
+      {
+        "seed": 9003,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 7
+      },
+      {
+        "seed": 9004,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 5
+      },
+      {
+        "seed": 9005,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 13,
+        "correct": 7
+      },
+      {
+        "seed": 9006,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 7,
+        "correct": 6
+      },
+      {
+        "seed": 9007,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 10,
+        "correct": 6
+      },
+      {
+        "seed": 9008,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 7,
+        "correct": 6
+      },
+      {
+        "seed": 9009,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 7
+      },
+      {
+        "seed": 9010,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 5
+      },
+      {
+        "seed": 9011,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 7,
+        "correct": 6
+      },
+      {
+        "seed": 9012,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 7
+      },
+      {
+        "seed": 9013,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 9,
+        "correct": 7
+      },
+      {
+        "seed": 9014,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 9,
+        "correct": 6
+      },
+      {
+        "seed": 9015,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 10,
+        "correct": 6
+      },
+      {
+        "seed": 9017,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 11,
+        "correct": 6
+      },
+      {
+        "seed": 9018,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 9,
+        "correct": 6
+      },
+      {
+        "seed": 9019,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 6
+      },
+      {
+        "seed": 9020,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 6
+      },
+      {
+        "seed": 9021,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 7
+      },
+      {
+        "seed": 9022,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 7,
+        "correct": 6
+      },
+      {
+        "seed": 9023,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 7
+      }
+    ],
+    "samples": 190,
+    "calibration": {
+      "byF": [
+        {
+          "f": 0.5,
+          "n": 96,
+          "correct": 54,
+          "raw": 0.5625,
+          "isotonic": 0.5625
+        },
+        {
+          "f": 1,
+          "n": 94,
+          "correct": 84,
+          "raw": 0.8936,
+          "isotonic": 0.8936
+        }
+      ],
+      "totalN": 190,
+      "minF": 0.5,
+      "maxF": 1,
+      "calibrated": true,
+      "reliable": true,
+      "minReliableSamples": 50
+    }
+  },
+  "weak_label": {
+    "listed": 7418,
+    "corpus_distinct_prints": 7142,
+    "worklist_duplicate_lines": 276,
+    "corpus_percent_complete": 100,
+    "corpus_processed_total": 7142,
+    "resumed_skipped": 3105,
+    "resumed_cursor_done": 2829,
+    "this_run_scored": 8,
+    "this_run_missing": 0,
+    "this_run_rasterize_or_ensemble_failed": 4305,
+    "this_run_total_labels": 330,
+    "this_run_trainable_labels": 26,
+    "this_run_trainable_yield": 0.0788,
+    "this_run_tier_totals": {
+      "gold": 26,
+      "silver": 0,
+      "bronze": 122,
+      "reject": 0,
+      "uncalibrated": 0,
+      "no_corroboration": 182
+    },
+    "this_run_active_learning_queued": 16,
+    "this_run_pages_skipped_paperwork": 10
+  },
+  "outputs": {
+    "trainset": "H:\\prism\\state\\shared\\ocr-training-loop\\corpus-train\\trainset.jsonl",
+    "active_learning_queue": "H:\\prism\\state\\shared\\ocr-training-loop\\corpus-train\\active-learning-queue.jsonl",
+    "cursor": "H:\\prism\\state\\shared\\ocr-training-loop\\corpus-train\\processed-cursor.jsonl"
+  },
+  "mustHumanVerify": true,
+  "note": "Pseudo-labels are ensemble-distilled. Gold/silver are calibration-tiered (validated on synthetic perfect-GT); operator must confirm the active-learning queue before LoRA fine-tune (india). Resumable: trainset/queue/cursor are append-only; re-run resumes from processed-cursor.jsonl. Multi-page PDFs emit one row PER PAGE (key+page+image). A reaper kill mid-print leaves up to k duplicate rows; xray-trainset-to-lora.mjs dedups them last-wins by key+page."
+}

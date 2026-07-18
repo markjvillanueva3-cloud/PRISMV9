@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Virtual Tool Format Reference</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Virtual Tool Format Reference</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>OPEN MIND/hyperMILL/33.0/AddIns/hmAutoColor/doc/documents/Virtual Tool Format Reference.pdf</code></dd>
+<dt>Pages</dt><dd>21</dd>
+<dt>Text chars</dt><dd>19747</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Virtual Tool Format Reference
+Purpose of this document
+This document describes the XML format to define a virtual tool. It is an internal document
+and therefore it has no guarantees for the content to work rightly in hyperMILL.
+Principle of working with Virtual Tool
+In hyperMILL macro database you can connect a macro job with a real reference tool in
+hyperMILL tool database. There are three modes to use this reference tool:
+• DB Mode -- the reference tool is used in applied job directly
+• DB+Auto Mode (for hole only) – Search filter is derived from the reference tool (type,
+diameter, folder). Length will be calculated based on the hole data automatically
+• DB+Auto+ Mode (for hole only) – Search filter is derived from the reference tool
+(type, folder). Diameter and length will be calculated based on the hole data
+automatically
+All three modes can’t find tool if the reference tool is not existed in the tool database. This
+means that the macro is linked in a certain tool database. It is not possible for one macro
+database to work with multiple tool databases.
+
+-- 1 of 21 --
+
+Virtual tool concept provides an intelligent way to find the right tool in applying time.
+Basically a virtual tool is defined with an ID and a search filter. A macro job can reference a
+virtual tool with this ID (Step1). The macro configurator tries to find a real tool in tool
+database using search filter and saves the searching result in a virtual-real tool mapping
+table (Step2). The tool mapping table is used then in the macro apply function. As a result
+the resulted tool is set in the applied job (Step3).
+How to use Virtual Tool
+Two steps have to done in order to use virtual tool:
+• The virtual tool definition file has its own extension “.vtx”, however the file name has
+to be the same as macro database and the location is also the same.
+• Tool data mode should be set to VT (Virtual Tool) and the Tool no. is the ID of used
+virtual tool.
+Structure of Virtual Tool Definition File (VTX)
+
+-- 2 of 21 --
+
+The UML diagram shows the most of important elements in Virtual Tool Definition File which
+is written in XML format. Following segment shows an overview.
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;Vtdbx Version=&quot;1.0&quot;&gt;
+&lt;Settings&gt;
+&lt;/Settings&gt;
+&lt;VirtualTools&gt;
+&lt;VirtualTool Id = &quot;Drilling&quot; Name = &quot;Drilling tool&quot; Comment = &quot;&quot;&gt;
+&lt;ToolTypes&gt;
+&lt;ToolType Type = &quot;drillTool&quot;/&gt;
+&lt;/ToolTypes&gt;
+&lt;SearchFilters&gt;
+&lt;RuleFilter Condition = &quot;&quot; Value = &quot;MillingTool.Diameter = Connector.Diameter&quot; /&gt;
+&lt;RuleFilter Condition = &quot;&quot; Value = &quot;NCTool.UsableLength &amp;gt; Connector.Length&quot; /&gt;
+&lt;/SearchFilters&gt;
+&lt;/VirtualTool&gt;
+&lt;/VirtualTools&gt;
+&lt;/Vtdbx&gt;
+Special Character in XML:
+Character ‘&gt;’ and ‘&gt;’ are used in XML Tag definition therefore they have to be written in:
+&amp;gt; for character ‘&gt;’ (great than)
+&amp;lt; for character ‘&lt;’ (less than)
+
+-- 3 of 21 --
+
+Spezielle Abfrage Funktionen
+Abfrage ob Variable “leer” ist
+&lt;Action Condition = &quot;JobCfg.Empty[*P1] = 0&quot; Type=&quot;SetJobCfg&quot; Name=&quot;*VERTZUSTEL&quot;
+Value=&quot;[MillingTool.Diameter]&quot; /&gt;
+Abfrage ob die Variable existiert
+&lt;Action Condition = &quot;JobCfg.Exist[*VERTZUSTEL] = 1&quot; Type=&quot;SetJobCfg&quot; Name=&quot;*VERTZUSTEL&quot;
+Value=&quot;[MillingTool.Diameter]&quot; /&gt;
+DecisionTable
+Attribute: Id, Name, Comment
+Parent Element: DecisionTables
+Children Element: Variables, Conditions, Actions, UseCases
+&lt;DecisionTables&gt;
+&lt;DecisionTable Id = &quot;ThreadCoreDia&quot; Name = &quot;Core diameter for tapping&quot;&gt;
+&lt;Variables&gt;
+&lt;Variable Name = &quot;Designation&quot; /&gt;
+&lt;/Variables&gt;
+&lt;Conditions&gt;
+&lt;Condition Expression = &quot;Designation = [C1]&quot; /&gt;
+&lt;/Conditions&gt;
+&lt;Actions&gt;
+&lt;Action Type = &quot;SetUserVariable&quot; Name = &quot;CORE_DIA&quot; Value = &quot;[A1]&quot; /&gt;
+&lt;/Actions&gt;
+&lt;UseCases&gt;
+&lt;UseCase Value = &quot;M4|3.3&quot; /&gt;
+&lt;UseCase Value = &quot;M5|4.2&quot; /&gt;
+&lt;UseCase Value = &quot;M6|5&quot; /&gt;
+&lt;UseCase Value = &quot;M7|6&quot; /&gt;
+&lt;UseCase Value = &quot;M8|6.8&quot; /&gt;
+&lt;UseCase Value = &quot;M10|8.5&quot; /&gt;
+&lt;UseCase Value = &quot;M12|10.2&quot; /&gt;
+&lt;UseCase Value = &quot;M14|12&quot; /&gt;
+&lt;/UseCases&gt;
+&lt;/DecisionTable&gt;
+&lt;/DecisionTables&gt;
+
+-- 4 of 21 --
+
+VirtualTool
+Attribute: Id, Name, Comment
+Parent Element: VirtualTools
+Children Element: SelectPriority, ToolTypes, SearchFilters, PostSearchActions
+ToolType
+Attribute: Id, Name, Comment
+Parent Element: ToolTypes
+Children Element: None
+One virtual tool can have more than one tool type. The supported tool types are:
+&quot;ballMill&quot;
+&quot;endMill&quot;
+&quot;radiusMill&quot;
+&quot;drillTool&quot;
+&quot;lollipop&quot;
+&quot;woodruff&quot;
+&quot;generalBarrelTool&quot;
+&quot;tangentBarrelTool&quot;
+&quot;conicalBarrelTool&quot;
+&quot;lenscutter&quot;
+&quot;chamferedcutter&quot;
+&quot;Tslotcutter&quot;
+&quot;tapTool&quot;
+&quot;boringBar&quot;
+&quot;chamferedProfileCutter&quot;
+&quot;countersink&quot;
+
+-- 5 of 21 --
+
+&quot;threadMill&quot;
+&quot;reamer&quot;
+&quot;insertTtool&quot;
+&quot;axialRecessingTtool&quot;
+&quot;recessingTtool&quot;
+&quot;threadTtool&quot;
+&quot;partingTtool&quot;
+&quot;touchProbe&quot;
+PreSearchAction
+Attribute: None
+Parent Element: VirtualTools
+Children Element: Action
+Diese Funktion wird vor der eigentlichen Werkzeugsuche ausgeführt. Innerhalb dieser
+Funktionen können Variablen definiert oder DecsionsTables aufgerufen werden.
+Für die Definition steht der Befehl &lt;Action&gt; zur Verfügung.
+Action
+Attribute: Condition, Type, Name, Value
+Parent Element: VirtualTools
+Children Element: Action
+Es stehen drei unterschiedliche Action Typen zur Verfügung
+SetUserVariable: Definition einer BenutzerVariablen mit „Name“ und „Value“. Die Benutzervariable
+kann nur innerhalb der Makrozuordnung und Werkzeugsuche verwendet werden. Benutzervariablen
+die vor der Makrozuordnung nicht definiert waren werden wieder gelöscht.
+SetJobCfg: Bei der Übernahme der Arbeitsschritte aus dem Makro können Jobparameter
+überschreiben werden. Definition mit „Name“ und „Value“
+DesicionTable: Aufruf einer Entscheidungstabelle. Name der Tabelle wird in der „Id“ definiert.
+Beispiel
+&lt;PreSearchActions&gt;
+&lt;Action Condition = &quot;&quot; Type=&quot;SetUserVariable&quot; Name=&quot;ToolId&quot; Value=&quot;Zentrierbohrer&quot; /&gt;
+
+-- 6 of 21 --
+
+&lt;Action Condition = &quot;&quot; Type=&quot;DecisionTable&quot; Id = &quot;ToolTypeSelect&quot;
+&lt;/PreSearchActions&gt;
+Action 1: hier wird die UserVariable „ToolId“ auf den Wert „Zentrierbohrer“ gesetzt. Damit
+kann in der DecisionTable „ToolTypeSelect“ der Suchpfad für den benötigten
+Werkzeugordner gesetzt werden.
+Action 2: Aufruf der DecisionTable „ToolTypeSelect“. Innerhalb dieser Tabelle wird der
+Selectionspfad für die Werkzeugsuche an die unterschiedlichen Werkzeugdatenbänke
+angepasst. Der Pfad wird dann als Selectionsfilter verwendet mit dem die Reihenfolge
+definiert werden kann welche Werkzeug verwendet wird in dem Fall das mehrere
+Werkzeuge die Bedingung erfüllen.
+RuleFilter
+Attribute: Condition, Value
+Parent Element: SearchFilters
+Children Element: None
+Rule filter is one of types of search filter. More than one rule filter can be defined for one
+virtual tool, which are combined together with “And” logic. A rule filter can own condition
+which is involved in searching tool only if the condition is true. The following example show
+to find a drilling tool with the defined diameter bases on the current hole diameter:
+Hole Diameter 5 &gt; D &gt;=1 10 &gt; D &gt;=5 20 &gt; D &gt;=10 D &gt;= 20
+Tool Diameter 4 8 15 25
+&lt;SearchFilters&gt;
+&lt;RuleFilter Condition = &quot;Connector.Diameter &amp;gt;= 1 And Connector.Diameter &amp;lt; 5&quot;
+Value = &quot;MillingTool.Diameter = 4&quot; /&gt;
+&lt;RuleFilter Condition = &quot;Connector.Diameter &amp;gt;= 5 And Connector.Diameter &amp;lt; 10&quot;
+Value = &quot;MillingTool.Diameter = 8&quot; /&gt;
+&lt;RuleFilter Condition = &quot;Connector.Diameter &amp;gt;= 10 And Connector.Diameter &amp;lt; 20&quot;
+Value = &quot;MillingTool.Diameter = 15&quot; /&gt;
+&lt;RuleFilter Condition = &quot;Connector.Diameter &amp;gt;= 20&quot;
+Value = &quot;MillingTool.Diameter = 25&quot; /&gt;
+&lt;/SearchFilters&gt;
+TableFilter
+Attribute: Condition, Id
+Parent Element: SearchFilters
+Children Element: Variable
+
+-- 7 of 21 --
+
+&lt;TableFilter Id = &quot;CenteringDiaGrid&quot; &gt;
+&lt;/TableFilter&gt;
+PostSearchActions
+Attribute: None
+Parent Element: VirtualTool
+Children Element: ToolFound, ToolNotFound
+A post search action is the action which is implanted after searching tool. Basically there are
+two kinds of post actions: “ToolFound” where the defined action is fired if a matching tool is
+found and “ToolNotFond” in the other situation.
+PostSearchAction
+Attribute: Condition, Type, Name, Value
+Parent Element: ToolFound or ToolNotFound
+Children Element: None
+There are three action types:
+SetUserVariable: A user variable is set with attribute “Name” and “Value”.
+SetJobCfg: A CFG parameter in job is set with attribute “Name” and “Value”.
+DecisonTable: The action is defined in a decision table.
+If a job Parameter is defined with formula then its formula CFG has to be set to empty. The
+formula CFG is defined with [internal property name]_F. For example, the Nominal diameter
+(CFG: *NOMINAL_DIAMETER) is defined with formula “T:Ndia”, its formula CFG is:
+NominlaDiameter_F:
+&lt;Action Type=&quot;SetJobCfg&quot; Name=&quot;*NOMINAL_DIAMETER&quot; Value=&quot;5&quot; /&gt;
+&lt;Action Type=&quot;SetJobCfg&quot; Name=&quot;NominalDiameter_F&quot; Value=&quot;&quot; /&gt;
+For some reasons a few CFG job parameter is hardcoded therefore the value could not be
+seen in the context menu (see picture under).
+
+-- 8 of 21 --
+
+The way you get this kind of CFG parameter is that you export the job and try to find the CFG
+parameter in the exported file:
+The following example shows the post search actions:
+If tool is found:
+• If the tool is located in folder with name “Thread forming” then user variable
+“TapingMethod” is set to “Forming”.
+• If the tool is located in folder with name “Thread cutting” then user variable
+“TapingMethod” is set to “Cutting”.
+• “Pitch = [Pitch value] should be shown in job comment
+If tool is not found: The user variable “TapingMethod” is set to “Unknown”.
+&lt;PostSearchActions&gt;
+&lt;ToolFound&gt;
+&lt;Action Condition = &quot;NCTool.Folder = Thread forming&quot; Type = &quot;SetUserVariable&quot;
+Name = &quot;TapingMethod&quot; Value = &quot;Forming&quot;/&gt;
+&lt;Action Condition = &quot;NCTool.Folder = Thread cutting&quot; Type = &quot;SetUserVariable&quot;
+Name = &quot;TapingMethod&quot; Value = &quot;Cutting&quot;/&gt;
+&lt;Action Type = &quot;SetJobCfg&quot; Name = &quot;*COMMENT&quot; Value = &quot;Pitch = [MillingTool.Pitch]&quot;/&gt;
+&lt;Action Condition = &quot;&quot; Type = &quot;DecisionTable&quot; Id = &quot;ThreadCoreDiaMat1&quot; &gt;
+&lt;Variable Name = &quot;Designation&quot; Value = &quot;Connector.Designation&quot; /&gt;
+&lt;/Action&gt;
+&lt;/ToolFound&gt;
+&lt;ToolNotFound&gt;
+&lt;Action Type = &quot;SetUserVariable&quot; Name = &quot;TapingMethod&quot; Value = &quot;Unknown&quot;/&gt;
+&lt;/ToolNotFound&gt;
+&lt;/PostSearchActions&gt;
+
+-- 9 of 21 --
+
+SelectPriority
+Attribute: None
+Parent Element: Settings or VirtualTool
+Children Element: SelectStrategy
+Select priority defines the sort priority for the search result if more than one tool meets the
+search filter. Select priority can be defined in Settings for all virtual tools globally. If a virtual
+tool needs its own select priority, it can be defined inside virtual tool locally.
+SelectStrategy
+Attribute: Type, Name, Value
+Parent Element: SelectPriority
+Children Element: None
+Four select strategies are supported now:
+• Min: The minimal value will be selected at the first.
+• Max: The maximal value will be selected at the first.
+• Sequence: The tools are sorted based on the value of the named parameter.
+• Condition: The tools meet the condition are selected at the first.
+If more than one select strategy is defined the next select strategy will be applied if more
+than one tool has the same value after the first select strategy is applied.
+The first example shows a global select priority with two select strategies:
+• The shorted tool length will be selected firstly
+• If more than one tool has the same length the tool with biggest diameter will be
+selected firstly.
+“NCTool.UsableLength|NCTool.ClearanceLength” means the usable length is used and if the
+usable length is zero then the clearance length is used.
+&lt;Vtdbx Version=&quot;1.0&quot;&gt;
+&lt;Settings&gt;
+&lt;SelectPriority&gt;
+&lt;SelectStrategy Type = &quot;Min&quot; Value = &quot;NCTool.UsableLength|NCTool.ClearanceLength&quot;
+/&gt;
+&lt;SelectStrategy Type = &quot;Max&quot; Value = &quot;MillingTool.Diameter&quot; /&gt;
+&lt;/SelectPriority&gt;
+&lt;/Settings&gt;
+&lt;VirtualTools&gt;
+&lt;/VirtualTools&gt;
+&lt;/Vtdbx&gt;
+
+-- 10 of 21 --
+
+The second example shows a local select priority for a drilling tool with two select strategies:
+• The tool will be sorted by tool cutting material VHM, HSS and then
+• The tool with the shortest length will be selected firstly.
+&lt;VirtualTool Id = &quot;Drilling&quot; Name = &quot;Drilling tool&quot; Comment = &quot;&quot;&gt;
+&lt;SelectPriority&gt;
+&lt;SelectStrategy Type = &quot;Sequence&quot; Name = &quot;Tool.CuttingMaterial&quot; Value = &quot;VHM|HSS&quot; /&gt;
+&lt;SelectStrategy Type = &quot;Min&quot; Value = &quot;NCTool.UsableLength|NCTool.ClearanceLength&quot; /&gt;
+&lt;/SelectPriority&gt;
+&lt;ToolTypes&gt;
+&lt;ToolType Type = &quot;drillTool&quot;/&gt;
+&lt;/ToolTypes&gt;
+&lt;SearchFilters&gt;
+&lt;RuleFilter Value = &quot;MillingTool.Diameter = Connector.Diameter&quot; /&gt;
+&lt;RuleFilter Value = &quot;NCTool.UsableLength &amp;gt; Connector.Length&quot; /&gt;
+&lt;/SearchFilters&gt;
+&lt;/VirtualTool&gt;
+Variable used in Virtual Tool Definition
+The variable is divided into two parts “Object” and “Parameter with “.” as major object
+separator and “::” as sub- object separator:
+Object.Parameter or
+Object.SubObject::Parameter
+The supported object types are:
+NCTool, MillingTool, Tool, Head, Holder, Extension
+MacroTool
+Feature
+Connector
+JobCfg
+Joblist
+Macro
+EnvVariable
+
+-- 11 of 21 --
+
+Tool Variable
+The table under lists the most used parameters. The variables for turning tool are also
+supported, but they are not listed in the table.
+NCTool MillingTool Tool Head
+/Holder
+Extenion Cutting-
+Profile
+NCNumber CuttingEdges Type Name Name Type
+ID CuttingLength Name Comment Comment Material
+Name ShaftEnabled(0/1) Comment Folder Cutting-
+Material
+Comment ShaftDiameter CuttingMaterial Purpose
+Folder ShaftChamferLength SpindleDirection
+CompensationLength Diameter Length
+UsableLength TipLength CustomData
+PresetDiameter BreakThroughLength Folder
+ClearanceLength CoreDiameter
+GageLength CoreHeight
+DepotPath TaperAngle
+CustomData CornerRadius
+MaxSpindleSpeed TipDiameter
+Adaptor TipAngle
+DiscHeight
+BarrelHeight
+BarrelRadius
+BarrelTaperAngle
+BaseDiameter
+BaseCornerRadius
+CenterHeight
+LensRadius
+ChamferAngle
+NominalDiameter
+Pitch
+LeadInLength
+LeadInDiameter
+NoTipLength
+BackAngle
+MinDrillDiameter
+MaxDrillDiameter
+ProbeFeedrate
+Some examples for tool variable:
+NCTool.Holder , NCTool.UsableLength, NCTool.ClearanceLength
+MillingTool.Diameter, MillingTool.Pitch
+Tool.Type, Tool.CuttingMaterial
+
+-- 12 of 21 --
+
+MacroTool Variable
+MacroTool presents the in macro job defined tool which can be viewed as a reference tool in
+VT(Virtual Tool) mode. The supported parameters:
+ID
+NCNumber
+Folder
+Comment
+Diameter
+CornerRadius
+TipAngle
+UsableLength
+ClearanceLength
+GageLength
+Length
+ShaftEnabled
+ShaftDiameter
+ShaftChamferLength
+TipLength
+TipDiameter
+TaperAngle
+CuttingLength
+Pitch
+LeadInLength
+LeadInDiameter
+BackAngle
+MinDrillDiameter
+MaxDrillDiameter
+TipType
+BarrelRadius
+BarrelHeight
+BarrelTaperAngle
+
+-- 13 of 21 --
+
+BaseDiameter
+BaseCornerRadius
+CenterHeight
+ChamferAngle
+DiscHeight
+NominalDiameter
+CoreDiameter
+CoreHeight
+LensRadius
+SpindleDirection
+BreakThroughLength
+Feature Variable
+Feature Parameters are defined with main parameter and base object parameters. The
+parameter name combines the main and base object parameters with “::” as separator
+together. For example:
+Main parameter: Hole
+Base object type: Hole with parameter “Front_Thread” (with base type “Thread”)
+Base objecttype: Thread with parameter: “Pitch”
+Feature Variable Name: Feature.Hole::Front_Thread::Pitch
+The main parameters for all feature types:
+Type, Name, Feature_Class
+For example: Feature.FeatClass (FeatureType), Feature.Feature_Class
+General Hole
+Main parameters:
+
+-- 14 of 21 --
+
+Groove_Count, Front_Sink_Count, Back_Sink_Count
+Groove1, Groove2, …, Groove[Groove_Count] (Base type “Groove_Segment”)
+Front_Sink1, Front_Sink2, …, Front_Sink[Front_Sink_Count] (Base type “Sink_Segment”)
+Hole (Base type “Hole_Segment”)
+Back_Sink1, Back_Sink2, …, Back_Sink[Front_Sink_Count]
+Bottom_Type (Through, Flat, Tip, Through_Hidden, Ball)
+Tip_Angle, Bottom_Radius, Bottom_Offset, Bottom_Min_Distance
+Prefer_Machining_Direction (Top_to_Bottom, Bottom_to_Top)
+Example: Feature.Bottom_Type
+Base type “Groove_Segment”
+
+-- 15 of 21 --
+
+Type, Offset, Diameter, Depth,
+Has_Depth_Tolerance(Yes,No),
+Depth_Tolerance(Base type “Dimension_Tolerance”)
+Example: Feature.Groove1::Diameter
+Base type “Sink_Segment”
+
+-- 16 of 21 --
+
+Type(Counterbore, Countersink, Drill, Form, Tapered, Torus, Undercut),
+Edge(Sharp, Chamfer, Fillet), Chamfer (Base type “Chamfer”), Fillet (Base type “Fillet”),
+Has_Spot_Depth(Yes, No), Spot_Depth, Diameter, Angle, Depth,
+Has_Depth_Tolerance(Yes, No), Depth_Tolerance(Base type “Dimension_Tolerance”),
+Tip_Angle, Machining_Property(None, Thread, ISO-Fit), Thread(Base type “Thread”),
+ISO-Fit(Base type “ISO-Fit”), Radius, Top_Diameter, Bottom_Diameter
+Example: Feature.Sink::Diameter, Feature.Sink1::Thread::Diameter
+Base type “Hole_Segment”
+Front_Edge/Back_Edge (Sharp, Chamfer, Fillet),
+Front_Chamfer/Back_Chamfer(Base type “Chamfer”),
+Front_Filliet/Back_Fillet(Base type “Fillet”)
+Front_ Machining_Property/Back_Machining_Property(None, Thread, ISO-Fit)
+Front_Thread/Back_Thread(Base type “Thread”)
+Front_ISO-Fit/Back_ISO-Fit(Base type “ISO-Fit”)
+Has_Top_SpotDepth/Has_Bottom_SpoDepth(Yes, No),
+Top_SpotDepth/Bottom_SpotDepth
+
+-- 17 of 21 --
+
+Example: Feature.Hole::Diameter, Feature.Hole::Front_ISO-Fit::Fit_Length,
+Feature.Hole::Front_Fillet::Radius
+Base type “Chamfer”:
+Depth
+Base type “Fillet”:
+Radius
+Base type “Thread”:
+Designation, Diameter, Length, Pitch
+Base type “ISO-Fit”
+ISO-Fit_Value, Upper, Lower, Fit_Length
+Base type “Dimension_Tolerance”
+Designation, Upper, Lower
+General Pocket
+Main parameters:
+Height, Has_Depth_Tolerance, Depth_Tolerance(Base type “Dimension_Tolerance”)
+Shape (General, Rectangle, Circle, Slot)
+Length, Width, Radius, Slot_Width, Use_Limit_Diameter(Yes, No), Limit_Diameter
+Is_Island(Yes, No), Has_Island(Yes, No), Bottom(Base type “Bottom”),
+
+-- 18 of 21 --
+
+Flank(Base type “Flank”), Use_Plunge_Point(Yes, No)
+Base type “Pocket_Bottom”
+Bottom_Type(Flat, Through), Wall_Corner_Type(Sharp, Fillet, Chamfer),
+Chamfer_Angle, Chamfer_Length, Corner_Radius, Bottom_Offfset
+Base type “Flank”
+Side_Tolerance(Yes, No), Multiple_Tolerances(Yes, No),
+Tolerance(Base type “Dimension_Tolerance),
+Tolerance_Count, Tolerance1, … Tolerance[Tolerance_Count]
+Has_Open_Edges(Yes, No), Use_Min_Radius(Yes, No), Min_Radius
+Connector Variable
+Connector variable returns the parameter value of current active feature connection item.
+Generic Hole
+Connector.Diameter , active hole diameter in feature connector
+
+-- 19 of 21 --
+
+Connector. Length, active hole depth in feature connector,
+Connector.Pitch active thread pitch (only for tapping job)
+Connector.Flip, 1– flip is active otherwise (0) deactive.
+Connector.Offset -
+Job Cfg Variable
+Job Cfg parameter can be used as variable. (‘*’ is allowed only in the first position)
+Example: JobCfg.*Comment -- Job Comment
+Joblist Variable
+Joblist.Machine, selected machine in joblist
+Joblist.Material, selected material in joblist
+Joblist.CheckMacroMachineGroup = 0/1
+Check if the in joblist selected machine belongs to in macro selected machine group. If there
+is no machine group in macro the variable value is set to 1
+Joblist.CheckMacroMaterialGroup = 0/1
+Check if the in joblist selected material belongs to in macro selected material group. If there
+is no material group in macro the variable value is set to 1
+Macro Variable
+Macro.MachineGroup, in macro defined machine group name, variable value is set to
+“UNKNOWN” if no machine group is defined in macro
+Macro.MaterialGroup, in macro defined material group name, variable value is set to
+“UNKNOWN” if no machine group is defined in macro
+Window System Environment Variable
+EnvVariable.[Environment Variable Name], return the value of window system environment
+variable. The value is set to “UNKNOWN” if the variable is not existed.
+
+-- 20 of 21 --
+
+One of useful “build-in” variables:
+EnvVariable.USERNAME – user name
+Debug Information
+Two files in “Global Working Space\tmp” are useful for finding definition errors:
+• virtualToolMap.xml -- the searching result
+• macroConfigrator.log – some logging information for macro configurator, for
+example the tool search condition
+
+-- 21 of 21 --
+
+</pre>
+</body></html>

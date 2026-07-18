@@ -4,6 +4,8 @@
  * Uses auth token from localStorage (set by AuthContext).
  */
 
+import { getStoredAuthToken } from './authToken';
+
 const API_BASE = '/api/v1';
 
 export class ShopApiError extends Error {
@@ -24,7 +26,7 @@ async function request<T>(
   body?: Record<string, unknown>,
 ): Promise<{ result: T; safety?: { score: number; warnings: string[] }; meta?: Record<string, unknown> }> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  const token = localStorage.getItem('prism_token');
+  const token = getStoredAuthToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   const res = await fetch(`${API_BASE}${path}`, {

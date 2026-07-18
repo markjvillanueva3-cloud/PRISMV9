@@ -45,11 +45,16 @@ import { coolantStrategyEngine } from "./CoolantStrategyEngine.js";
 import { entryExitStrategyEngine } from "./EntryExitStrategyEngine.js";
 import { intelligentSequencingEngine } from "./IntelligentSequencingEngine.js";
 import { workholdingVerificationEngine } from "./WorkholdingVerificationEngine.js";
+import { workholdingViabilityEngine } from "./WorkholdingViabilityEngine.js";
+import { crossCamRecommenderEngine } from "./CrossCamRecommenderEngine.js";
+import { WorkCoordinateEngine } from "./WorkCoordinateEngine.js";
 import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
 import { machineEnvelopeGuardEngine } from "./MachineEnvelopeGuardEngine.js";
 import { tribalKnowledgeEngine, type KnowledgeTip } from "./TribalKnowledgeEngine.js";
 import { chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
 import { pipelineOptimizationEngine, type PipelineExecutionOptions, type PipelineMetrics } from "./PipelineOptimizationEngine.js";
+import { probeRoutineGeneratorEngine, type ProbeController, type ProbeFeature } from "./ProbeRoutineGeneratorEngine.js";
+import { setupSheetFromGCodeEngine, type ControllerType as GCodeControllerType, type SetupSheetResult as GCodeSetupSheetResult } from "./SetupSheetFromGCodeEngine.js";
 
 // ============================================================================
 // DIRECT ENGINE HELPERS (ESM-safe, no runtime require fallbacks)
@@ -81,6 +86,22 @@ function getIntelligentSequencingEngine(): any {
 
 function getWorkholdingVerificationEngine(): any {
   return workholdingVerificationEngine;
+}
+
+function getWorkholdingViabilityEngine(): any {
+  return workholdingViabilityEngine;
+}
+
+function getCrossCamRecommenderEngine(): any {
+  return crossCamRecommenderEngine;
+}
+
+// WorkCoordinateEngine is STATEFUL (create() accumulates this.offsets,
+// validate() reads it). Return the CLASS, not a shared singleton, so the
+// pipeline can use a fresh per-call instance — a shared instance would bleed
+// WCS offsets across runs and report false duplicate-offset validation.
+function getWorkCoordinateEngineClass(): any {
+  return WorkCoordinateEngine;
 }
 
 // ============================================================================
@@ -316,6 +337,83 @@ export interface PrintToProgramResult {
   confidence_score: number;
   warnings: PipelineWarning[];
   tribal_tips?: KnowledgeTip[];
+  /**
+   * U-CAMX24 — Reverse-engineered setup sheet from the EMITTED G-code text.
+   * Complementary to {@link PrintToProgramResult.setup_sheet} (operations-derived):
+   * this view is parsed from `program_text` by SetupSheetFromGCodeEngine and gives
+   * the operator a controller-aware Markdown document + tool-list + work-offset list
+   * + reverse-engineered safety notes that reflect what the G-code *actually* does
+   * (not what the planner intended). Present iff canEmitProgram && program_text length > 0.
+   */
+  gcode_setup_sheet?: GCodeSetupSheetResult;
+  /**
+   * U-CAMX09 — Fixture-geometry viability lens, COMPLEMENTARY to the
+   * force-margin `workholding_force` rows in {@link PrintToProgramResult.safety_checks}
+   * (produced by WorkholdingVerificationEngine). R8: not a duplicate — this
+   * adds the geometric grip heuristics the force gate does NOT cover:
+   * sub-100mm² clamp zones, single-clamp rotation risk, all-clamps-same-face
+   * moment resistance, and vacuum sealed-area. Present iff the planner
+   * produced ≥1 operation (so a peak cutting force + workholding config exist).
+   */
+  workholding_viability?: {
+    viable: boolean;
+    grip_margin: number;
+    issues: string[];
+    force_capacity_N: number;
+  };
+  /**
+   * U-CAMX10 — Advisory CAM-system + strategy recommendation. The pipeline
+   * emits its own G-code directly; this is a COMPLEMENTARY routing hint (R8 —
+   * not duplicate toolpath gen): given the part geometry/material/machine,
+   * CrossCamRecommenderEngine ranks which external CAM bridge (Fusion 360 /
+   * hyperMILL / Mastercam / Esprit / …) + toolpath strategy would best machine
+   * it, with a physics-validated confidence + predicted cycle time. Present iff
+   * ≥1 operation was planned (so a representative tool + load exist).
+   */
+  cam_strategy_recommendation?: {
+    recommended_cam: string;
+    recommended_strategy: string;
+    strategy_category: string;
+    confidence: number;
+    predicted_cycle_time_min: number;
+    advantages: string[];
+    warnings: string[];
+  };
+  /**
+   * U-CAMX11 — Smart WCS (work-coordinate-system) plan. The emitted G-code
+   * still uses the conventional G54 (unchanged — strictly additive). This
+   * advisory derives the DATUM-based WCS origin + probe sequence + setup-time
+   * estimate via WorkCoordinateEngine (a FRESH per-call instance — the engine
+   * is stateful) and recommends additional offsets (G55…) when the part needs
+   * >1 setup. Present iff ≥1 operation was planned.
+   */
+  wcs_plan?: {
+    primary_code: string;
+    origin: { x: number; y: number; z: number };
+    datum_count: number;
+    probe_sequence: string[];
+    estimated_setup_time_min: number;
+    additional_wcs: string[];
+    multi_setup: boolean;
+    valid: boolean;
+    notes: string[];
+  };
+  /**
+   * U-CAMX12 -- Smart safe-Z retract plan. The conventional pipeline previously
+   * hardcoded a blind `G0 Z50.` / `G43 ... Z50.` retract for every part. This
+   * derives the retract clearance from the planned workholding (buildWorkholdingConfig):
+   * a vise (jaws below the part-top datum) keeps the conventional 50mm; a
+   * fixture-plate with proud clamps RAISES the retract so a rapid never drives
+   * the tool into the workholding. Strictly additive + monotonic -- retract only
+   * ever RISES above 50, never below. Present iff >=1 operation was planned.
+   */
+  safe_z_plan?: {
+    rapid_plane_mm: number;
+    retract_clearance_mm: number;
+    basis: string;
+    raised_above_default: boolean;
+    notes: string[];
+  };
   // Stage 3.5: Chatter stability pre-check results
   chatter_checks?: Array<{
     op_number: number;
@@ -498,6 +596,59 @@ export class PrintToProgramPipelineEngine {
   }
 
   /**
+   * U-CAMX12 -- Derive a workholding-aware safe-Z retract plan from the planned load.
+   * Returns undefined when no operations were planned (nothing to retract over).
+   *
+   * Retract model: the conventional 50mm safe-Z assumes an open-top part (vise,
+   * jaws below the part-top WCS datum). A fixture-plate stands proud clamps ABOVE
+   * the part top, so a blind 50mm rapid risks driving the tool into the clamp
+   * stack. We raise the retract to clear the typical clamp-stack height for the
+   * archetype plus a rapid-traverse safety margin. Deterministic + monotonic
+   * (never below 50). The R-plane (rapid_plane_mm) is unchanged at 2mm.
+   *
+   * @param input drawing input (material/stock -> workholding archetype)
+   * @param operations planned operations (load -> workholding config)
+   * @returns safe-Z plan, or undefined if no operations
+   */
+  private buildSafeZPlan(
+    input: DrawingInput,
+    operations: PlannedOperation[],
+  ): PrintToProgramResult["safe_z_plan"] {
+    if (operations.length === 0) return undefined;
+    const DEFAULT_RETRACT_MM = 50; // legacy conventional safe-Z (open-top / vise parts)
+    const RAPID_MARGIN_MM = 25; // rapid-traverse headroom above the tallest obstruction
+    const wh = this.buildWorkholdingConfig(input, operations);
+    // Clamp-stack height standing proud of the part-top (WCS Z0) datum, by archetype.
+    // A vise grips the part flanks with jaws BELOW the top face -> 0 proud height.
+    const clampStackMm =
+      wh.type === "fixture_plate"
+        ? (wh.clamping_method === "hydraulic" ? 55 : 45)
+        : 0;
+    const retract = Math.max(DEFAULT_RETRACT_MM, Math.ceil(clampStackMm + RAPID_MARGIN_MM));
+    const raised = retract > DEFAULT_RETRACT_MM;
+    const notes: string[] = [];
+    if (raised) {
+      notes.push(
+        `Retract raised to ${retract}mm: ${wh.type} with ${wh.clamping_method} clamps stands ~${clampStackMm}mm proud of the part-top datum (+${RAPID_MARGIN_MM}mm rapid margin).`,
+      );
+    } else {
+      notes.push(
+        `Conventional ${DEFAULT_RETRACT_MM}mm safe-Z retained: ${wh.type} jaws sit below the part-top datum (no proud obstruction).`,
+      );
+    }
+    const basis = raised
+      ? `${wh.type}/${wh.clamping_method}: clamp-stack ~${clampStackMm}mm proud of part-top + ${RAPID_MARGIN_MM}mm rapid margin`
+      : `${wh.type}: open-top grip below part-top datum; conventional ${DEFAULT_RETRACT_MM}mm safe-Z`;
+    return {
+      rapid_plane_mm: 2,
+      retract_clearance_mm: retract,
+      basis,
+      raised_above_default: raised,
+      notes,
+    };
+  }
+
+  /**
    * Main dispatcher — routes action strings to sub-methods.
    * @param action - One of: print_to_program_full, print_to_program_plan, print_to_program_validate
    * @param params - Drawing input or program for validation
@@ -511,6 +662,27 @@ export class PrintToProgramPipelineEngine {
         return this.runProcessPlan(params as unknown as DrawingInput);
       case "print_to_program_validate":
         return this.validateProgram(params as unknown as { program_text: string; max_spindle_rpm?: number; max_power_kW?: number });
+      case "print_to_program_check_intake": {
+        // Surface intake validation as standalone MCP-callable action.
+        // Maps PrintToProgramResult["intake_validation"] shape to ValidationResult
+        // so operators can fast-check input completeness without running the full pipeline.
+        const intake = this.validateIntake(params as unknown as DrawingInput);
+        const hasBlocker = intake.warnings.some(w => w.severity === "critical");
+        const recs: string[] = [];
+        if (intake.missing_dimensions.length > 0) {
+          recs.push(`Missing dimensions: ${intake.missing_dimensions.join(", ")}`);
+        }
+        if (intake.ambiguous_tolerances.length > 0) {
+          recs.push(`Ambiguous tolerances: ${intake.ambiguous_tolerances.join(", ")}`);
+        }
+        return {
+          success: !hasBlocker && intake.complete,
+          safety_checks: [],
+          safety_pass_rate: hasBlocker ? 0 : 1,
+          warnings: intake.warnings,
+          recommendations: recs,
+        };
+      }
       default:
         throw new Error(`Unknown action: ${action}`);
     }
@@ -1395,9 +1567,239 @@ export class PrintToProgramPipelineEngine {
    * @param input - Drawing input for header info
    * @returns Array of program blocks and full text
    */
+  /**
+   * Map a drawing machine brand to a ProbeRoutineGeneratorEngine controller
+   * dialect. Defaults to "fanuc" (most common macro-B base) when the brand is
+   * absent or unrecognized — exit condition: "Controller-specific probe macros".
+   */
+  private mapBrandToProbeController(brand?: string): ProbeController {
+    const b = (brand || "").toLowerCase();
+    if (b.includes("haas")) return "haas";
+    if (b.includes("siemens") || b.includes("sinumerik")) return "siemens";
+    if (b.includes("heidenhain") || b.includes("tnc")) return "heidenhain";
+    if (b.includes("mazak") || b.includes("mazatrol")) return "mazak";
+    if (b.includes("okuma") || b.includes("osp")) return "okuma";
+    // fanuc / haas-on-fanuc / generic macro-B
+    return "fanuc";
+  }
+
+  /**
+   * U-CAMX24 — Map a drawing machine brand to a SetupSheetFromGCodeEngine
+   * controller dialect. Mirrors {@link mapBrandToProbeController}'s lookup
+   * order so the two reverse-engineered artifacts (probe macros + setup sheet)
+   * speak the same dialect for the same machine. Defaults to "fanuc" — the
+   * dialect that subsumes haas / mazak-fanuc / generic macro-B controllers —
+   * when the brand is absent or unrecognized. Note: SetupSheetFromGCodeEngine
+   * exposes `ControllerType = fanuc|siemens|haas|mazak|okuma|heidenhain|generic`
+   * (a strict subset of ProbeController's options); a Haas brand resolves to
+   * "haas" here even though the probe mapper would also accept "fanuc".
+   */
+  private mapBrandToGCodeController(brand?: string): GCodeControllerType {
+    const b = (brand || "").toLowerCase();
+    if (b.includes("haas")) return "haas";
+    if (b.includes("siemens") || b.includes("sinumerik")) return "siemens";
+    if (b.includes("heidenhain") || b.includes("tnc")) return "heidenhain";
+    if (b.includes("mazak") || b.includes("mazatrol")) return "mazak";
+    if (b.includes("okuma") || b.includes("osp")) return "okuma";
+    // fanuc / generic macro-B fallback (most common; subsumes haas-on-fanuc-base)
+    return "fanuc";
+  }
+
+  /**
+   * U-CAMX08 — Apply IntelligentSequencingEngine to reorder a planned-ops
+   * array. Returns the (possibly reordered) ops + a `reordered` flag that
+   * tells the caller whether to swap in the new order.
+   *
+   * Maps PlannedOperation → SequenceableOp (lossy projection — only the fields
+   * the sequencer actually uses). The engine returns a permutation of the
+   * SequenceableOps by `id`; we re-stitch the original PlannedOperation
+   * instances back in that order so no field is dropped.
+   *
+   * Fail-soft (R12): if the engine throws or returns a non-permutation
+   * (different size, missing id), the original ops are kept verbatim and a
+   * warning is logged but no exception escapes — the pipeline must keep
+   * running with a working (if suboptimal) ordering.
+   */
+  private applyIntelligentSequencing(ops: PlannedOperation[]): {
+    operations: PlannedOperation[];
+    reordered: boolean;
+    metrics: { tool_changes: number; savings_pct: number; quality_score: number; rules_applied: string[]; warnings: string[] };
+  } {
+    const emptyMetrics = {
+      tool_changes: 0, savings_pct: 0, quality_score: 0,
+      rules_applied: [] as string[], warnings: [] as string[],
+    };
+    if (!Array.isArray(ops) || ops.length <= 1) {
+      return { operations: ops, reordered: false, metrics: emptyMetrics };
+    }
+    // Project PlannedOperation → SequenceableOp. The engine only consults a
+    // small subset of fields (type/operation/phase/tool_diameter_mm/tool_id/
+    // position/depth_mm/force_estimate_N/setup_id). Use a stable string id so
+    // the re-stitch step finds each original op by reference.
+    const seqInput = ops.map((op, idx) => ({
+      id: `op-${idx}`,
+      type: op.operation_type,
+      operation: op.operation_type,
+      tool_diameter_mm: op.tool?.diameter_mm,
+      tool_id: op.tool?.tool_number != null ? `T${op.tool.tool_number}` : undefined,
+      position: op.position,
+      depth_mm: op.cutting_params?.depth_of_cut_mm,
+      force_estimate_N: op.physics?.cutting_force_N,
+      estimated_time_s: op.cycle_time_sec,
+    }));
+    let seqResult;
+    try {
+      seqResult = intelligentSequencingEngine.sequence(seqInput);
+    } catch (err) {
+      return {
+        operations: ops, reordered: false,
+        metrics: { ...emptyMetrics, warnings: [`U-CAMX08 sequencing failed: ${(err as Error)?.message || String(err)}`] },
+      };
+    }
+    if (!Array.isArray(seqResult.operations) || seqResult.operations.length !== ops.length) {
+      // Sequencer dropped or added ops — refuse the result (R12: never silently
+      // lose a planned operation, even if the optimized order would be faster).
+      return {
+        operations: ops, reordered: false,
+        metrics: { ...emptyMetrics, warnings: ["U-CAMX08 sequencer returned non-permutation; original order preserved"] },
+      };
+    }
+    // Re-stitch in the sequenced order by id.
+    const byId = new Map<string, PlannedOperation>();
+    for (let i = 0; i < ops.length; i++) byId.set(`op-${i}`, ops[i]);
+    const reordered: PlannedOperation[] = [];
+    // Defend against duplicate-id + dropped-id pathology: the length check
+    // above would pass if the sequencer returned [op-0, op-0, op-2, op-3]
+    // (length 4 with one dup and one missing). Track seen ids and refuse on
+    // any duplicate — preserves the original order. (Reviewer B P1 fix 2026-05-18.)
+    const seenIds = new Set<string>();
+    let duplicateSeen = false;
+    for (const so of seqResult.operations) {
+      if (seenIds.has(so.id)) { duplicateSeen = true; break; }
+      seenIds.add(so.id);
+      const orig = byId.get(so.id);
+      if (orig) reordered.push(orig);
+    }
+    if (duplicateSeen) {
+      return {
+        operations: ops, reordered: false,
+        metrics: { ...emptyMetrics, warnings: ["U-CAMX08 sequencer returned duplicate id; original order preserved"] },
+      };
+    }
+    if (reordered.length !== ops.length) {
+      return {
+        operations: ops, reordered: false,
+        metrics: { ...emptyMetrics, warnings: ["U-CAMX08 sequencer returned unmapped id; original order preserved"] },
+      };
+    }
+    // Re-number op_number to match the new order — downstream code uses it
+    // for "Op N" comments and chatter-check labels.
+    for (let i = 0; i < reordered.length; i++) {
+      reordered[i] = { ...reordered[i], op_number: i + 1 };
+    }
+    // Detect whether anything actually changed (cheap: compare ids in order).
+    let changed = false;
+    for (let i = 0; i < ops.length; i++) {
+      if (ops[i] !== reordered[i]) { changed = true; break; }
+    }
+    return {
+      operations: reordered,
+      reordered: changed,
+      metrics: {
+        tool_changes: seqResult.tool_changes,
+        savings_pct: seqResult.tool_change_savings_pct,
+        quality_score: seqResult.sequence_quality_score,
+        rules_applied: seqResult.rules_applied,
+        warnings: seqResult.warnings,
+      },
+    };
+  }
+
+  /**
+   * U-CAMX07 — Map a free-form drawing material name to the
+   * EntryExitStrategyEngine key. The engine's MATERIAL_ENTRY_DEFAULTS table
+   * is keyed on coarse families (aluminum / brass / mild_steel / alloy_steel /
+   * stainless / titanium / inconel / cast_iron / hardened_steel); ISO P/M/K/N/S/H
+   * groups land on the closest family. Defaults to mild_steel (most-conservative
+   * generic ferrous defaults) when the brand is unknown — never throws.
+   */
+  private mapMaterialToEntryStrategy(materialName?: string, isoGroup?: string): string {
+    const n = (materialName || "").toLowerCase();
+    if (n.includes("alumin") || n.includes("6061") || n.includes("7075")) return "aluminum";
+    if (n.includes("brass") || n.includes("bronze") || n.includes("copper")) return "brass";
+    if (n.includes("titan")) return "titanium";
+    if (n.includes("inconel") || n.includes("hastelloy") || n.includes("waspaloy")) return "inconel";
+    if (n.includes("cast iron") || n.includes("cast-iron") || n.includes("gray iron")) return "cast_iron";
+    if (n.includes("stainless") || n.includes("304") || n.includes("316") || n.includes("17-4")) return "stainless";
+    if (n.includes("hardened") || n.includes("tool steel") || n.includes("d2") || n.includes("a2") || n.includes("h13")) return "hardened_steel";
+    if (n.includes("alloy steel") || n.includes("4140") || n.includes("4340") || n.includes("8620")) return "alloy_steel";
+    if (n.includes("steel") || n.includes("1018") || n.includes("1045") || n.includes("a36")) return "mild_steel";
+    // ISO-group fallback when name is unrecognized.
+    switch ((isoGroup || "").toUpperCase()) {
+      case "N": return "aluminum";     // non-ferrous
+      case "K": return "cast_iron";
+      case "M": return "stainless";
+      case "S": return "inconel";      // superalloys
+      case "H": return "hardened_steel";
+      case "P":
+      default:  return "mild_steel";
+    }
+  }
+
+
+  /**
+   * Map a classified drawing feature type to the closest probe-cycle geometry
+   * understood by ProbeRoutineGeneratorEngine.generatePartInspection().
+   */
+  private mapFeatureToProbeType(t: DrawingFeatureType): ProbeFeature["type"] {
+    switch (t) {
+      case "bore":
+      case "hole_through":
+      case "hole_blind":
+      case "hole_counterbore":
+      case "hole_countersink":
+        return "bore";
+      case "contour_outside":
+      case "step":
+        return "boss";
+      case "contour_inside":
+      case "pocket_open":
+      case "pocket_closed":
+      case "face":
+      case "fillet":
+      case "chamfer":
+        return "surface";
+      case "groove":
+      case "keyway":
+      case "slot":
+        return "groove";
+      default:
+        return "surface";
+    }
+  }
+
+  /**
+   * U-CAMX23 — decide whether a feature needs in-process probing.
+   * Critical iff drawing tolerance < 0.025mm OR surface finish Ra < 0.8µm
+   * (strict `<` per spec: "tolerance < 0.025mm or Ra < 0.8um").
+   */
+  private featureNeedsInProcessProbe(feat: MachinableFeature | undefined): boolean {
+    if (!feat) return false;
+    const tightTol =
+      feat.tolerance_mm !== undefined &&
+      Number.isFinite(feat.tolerance_mm) &&
+      feat.tolerance_mm < 0.025;
+    const fineFinish =
+      feat.surface_finish_Ra_um !== undefined &&
+      Number.isFinite(feat.surface_finish_Ra_um) &&
+      feat.surface_finish_Ra_um < 0.8;
+    return tightTol || fineFinish;
+  }
+
   private generateProgram(
     operations: PlannedOperation[],
     input: DrawingInput,
+    safeZRetractMm = 50, // U-CAMX12: workholding-derived safe-Z retract (defaults to legacy 50)
   ): { blocks: ProgramBlock[]; text: string } {
     const blocks: ProgramBlock[] = [];
     let lineNum = 10;
@@ -1424,7 +1826,102 @@ export class PrintToProgramPipelineEngine {
 
     let currentTool = -1;
 
+    // === U-CAMX23: in-process probing wiring ===
+    // For features whose drawing tolerance < 0.025mm or Ra < 0.8µm, auto-insert
+    // a controller-specific probe-inspection cycle at the semi_finish→finish
+    // transition (after semi-finish completes, before the finish pass starts).
+    const featureById = new Map<string, MachinableFeature>();
+    for (const f of input.features || []) featureById.set(f.id, f);
+    const probeController = this.mapBrandToProbeController(input.machine_brand);
+    const semiFinishDone = new Set<string>();
+    const probeEmitted = new Set<string>();
+    // Every critical feature that *should* receive a probe (EC1). Any id left
+    // here after the loop never hit a semi→finish transition — surface it LOUD
+    // (Karpathy R12) instead of silently dropping the inspection.
+    const criticalNeedingProbe = new Set<string>();
+    for (const f of input.features || []) {
+      if (this.featureNeedsInProcessProbe(f)) criticalNeedingProbe.add(f.id);
+    }
+
     for (const op of operations) {
+      // === U-CAMX23: emit probe at semi→finish transition for critical features ===
+      // Finish side is "finish" (bore/contour/groove) OR "pocket_finish" (pockets);
+      // upgradeOperationsForQuality always splices the literal "semi_finish" ahead
+      // of whichever finish op exists, so the transition is semi_finish→(finish|pocket_finish).
+      const isFinishOp =
+        op.operation_type === "finish" || op.operation_type === "pocket_finish";
+      if (
+        isFinishOp &&
+        semiFinishDone.has(op.feature_id) &&
+        !probeEmitted.has(op.feature_id)
+      ) {
+        const feat = featureById.get(op.feature_id);
+        if (this.featureNeedsInProcessProbe(feat) && feat) {
+          probeEmitted.add(op.feature_id);
+          criticalNeedingProbe.delete(op.feature_id);
+          const pos = feat.position ?? op.position ?? { x: 0, y: 0, z: 0 };
+          const probeType = this.mapFeatureToProbeType(feat.type);
+          // A dimensional tolerance alarm is only physically meaningful where
+          // the probed quantity IS the toleranced dimension — i.e. a diameter
+          // (bore/boss). For a surface/groove the probed value is a coordinate,
+          // not the nominal, so an alarm-on-fail would trip on every part.
+          // There we measure-and-record only (action_on_fail "skip").
+          const tolerable = probeType === "bore" || probeType === "boss";
+          const probeResult = probeRoutineGeneratorEngine.generatePartInspection({
+            controller: probeController,
+            features: [
+              {
+                type: probeType,
+                position: pos,
+                diameter: feat.diameter_mm,
+                depth: feat.depth_mm,
+                nominal: feat.diameter_mm ?? feat.width_mm ?? feat.depth_mm ?? 0,
+                tolerance_plus:
+                  feat.tolerance_mm !== undefined ? Math.abs(feat.tolerance_mm) : 0.025,
+                tolerance_minus:
+                  feat.tolerance_mm !== undefined ? -Math.abs(feat.tolerance_mm) : -0.025,
+              },
+            ],
+            action_on_fail: tolerable ? "alarm" : "skip",
+            spc_output: false,
+          });
+          addLine("");
+          addLine(
+            `(--- U-CAMX23 IN-PROCESS PROBE: Feature ${op.feature_id} (${probeController}) ---)`,
+            `tol=${feat.tolerance_mm ?? "n/a"}mm Ra=${feat.surface_finish_Ra_um ?? "n/a"}µm`,
+          );
+          // Machine-safety preamble: the prior semi-finish op left a CUTTING
+          // tool spinning. generatePartInspection assumes a probe is already
+          // loaded and never stops the spindle, so a probe macro fired here
+          // would drive an endmill into the bore. Stop spindle, kill coolant,
+          // retract Z to machine home, and require the probe-tool load before
+          // the inspection cycle runs.
+          addLine("M05", "Spindle stop before probe");
+          addLine("M09", "Coolant off before probe");
+          addLine("G91 G28 Z0", "Safe Z retract to machine home");
+          addLine("G90", "Restore absolute");
+          addLine(
+            `(*** LOAD TOUCH PROBE NOW — in-process inspection of Feature ${op.feature_id} ***)`,
+            "Operator/probe-tool load gate",
+          );
+          for (const ln of probeResult.gcode.split("\n")) {
+            if (ln.trim().length === 0) { addLine(""); continue; }
+            addLine(ln);
+          }
+          for (const w of probeResult.warnings) {
+            addLine(`(PROBE WARN: ${w})`);
+          }
+          addLine("G91 G28 Z0", "Safe Z retract after probe");
+          addLine("G90", "Restore absolute");
+          addLine("");
+          // Force a full tool-change block on the upcoming finish op so the
+          // cutting tool + length comp + spindle/coolant are cleanly reloaded
+          // after the probe (the probe block left the spindle stopped).
+          currentTool = -1;
+        }
+      }
+      if (op.operation_type === "semi_finish") semiFinishDone.add(op.feature_id);
+
       // === Tool change if needed ===
       if (op.tool.tool_number !== currentTool) {
         // Safe Z before tool change
@@ -1437,7 +1934,7 @@ export class PrintToProgramPipelineEngine {
         addLine("");
         addLine(`(--- OP ${op.op_number}: ${op.operation_type.toUpperCase()} Feature ${op.feature_id} ---)`, "Operation header");
         addLine(`T${op.tool.tool_number} M06`, `Tool change: ${op.tool.tool_type} D${op.tool.diameter_mm}`);
-        addLine(`G43 H${op.tool.tool_number} Z50.`, "Tool length comp + safe Z");
+        addLine(`G43 H${op.tool.tool_number} Z${safeZRetractMm}.`, "Tool length comp + safe Z");
         addLine(`S${op.cutting_params.spindle_rpm} M03`, "Spindle CW");
 
         // Coolant
@@ -1453,7 +1950,26 @@ export class PrintToProgramPipelineEngine {
       }
 
       // === Generate cutting moves ===
-      this.generateCuttingMoves(op, addLine);
+      this.generateCuttingMoves(op, addLine, input.material?.material_name, input.material?.iso_group, safeZRetractMm);
+    }
+
+    // === U-CAMX23: loud gap report (Karpathy R12 — never silently drop a probe) ===
+    // A critical feature with no rough→finish (or pocket_rough→pocket_finish)
+    // op pair never gets a semi_finish pass, so no semi→finish transition ever
+    // occurs and no probe was inserted above. Surface it in the program text
+    // so the operator/setup sheet cannot miss the un-probed critical dimension.
+    if (criticalNeedingProbe.size > 0) {
+      addLine("");
+      addLine("(=== U-CAMX23 PROBE GAP — CRITICAL DIMENSIONS NOT AUTO-PROBED ===)");
+      for (const fid of criticalNeedingProbe) {
+        const gf = featureById.get(fid);
+        const tol = gf?.tolerance_mm ?? "n/a";
+        const ra = gf?.surface_finish_Ra_um ?? "n/a";
+        addLine(
+          `(PROBE GAP: Feature ${fid} tol=${tol}mm Ra=${ra}µm — no semi→finish transition; MANUAL inspection required)`,
+        );
+      }
+      addLine("");
     }
 
     // === Program end ===
@@ -1481,6 +1997,9 @@ export class PrintToProgramPipelineEngine {
   private generateCuttingMoves(
     op: PlannedOperation,
     addLine: (code: string, comment?: string) => void,
+    materialName?: string,
+    isoGroup?: string,
+    safeZRetractMm = 50, // U-CAMX12: workholding-derived safe-Z retract (defaults to legacy 50)
   ): void {
     const { cutting_params: cp, passes, approach } = op;
     const ap = cp.depth_of_cut_mm;
@@ -1534,7 +2053,7 @@ export class PrintToProgramPipelineEngine {
           addLine(`G1 X${faceEndX.toFixed(3)} Y${yStep.toFixed(3)} F${F}`, "Face pass");
           addLine(`G1 X${faceStartX.toFixed(3)} Y${(yStep + ae).toFixed(3)} F${F}`, "Return pass");
         }
-        addLine(`G0 Z50.`, "Retract");
+        addLine(`G0 Z${safeZRetractMm}.`, "Retract");
         break;
       }
 
@@ -1548,20 +2067,76 @@ export class PrintToProgramPipelineEngine {
         const x1 = pos.x + extW;
         const y1 = pos.y + extL;
 
+        // === U-CAMX07: material-aware entry parameters ===
+        // Replace hardcoded helix-diameter-factor (was 0.3 of tool dia, blind to
+        // material) and hardcoded entry-feed factors (was 0.5 helical, 0.3 ramp/
+        // plunge) with EntryExitStrategyEngine-derived values that respect the
+        // material's max helix angle / helix-dia-factor / plunge-allowed flag
+        // (e.g. titanium clamps helix to 1.5° + 0.6× dia; inconel disallows
+        // plunge entirely). Falls back to safe legacy defaults when the engine
+        // can't satisfy the strategy (R12 — never silently override).
+        const entryStrategy = entryExitStrategyEngine.selectEntry({
+          tool_diameter: op.tool.diameter_mm,
+          pocket_depth: passes * ap,
+          material: this.mapMaterialToEntryStrategy(materialName, isoGroup),
+          // Best-effort center_cutting probe — most endmills are non-center-cutting
+          // unless explicitly marked. Pre-drill not known at this scope.
+          center_cutting: false,
+          has_pre_drill: false,
+        });
+        // Material-aware helix entry diameter (in mm) — engine returns
+        // helix_params.diameter_mm. Fallback when the engine can't compute
+        // helix_params (material disallows helical, pocket too tight, etc.):
+        // legacy emitted `I${Dc * 0.3}` where I is the helix *radius*, so the
+        // legacy helix diameter was 0.6×Dc. Use that exact value here so the
+        // emitted radius (helixDiamMm/2 = 0.3×Dc) is byte-identical to legacy.
+        // CRITICAL — Reviewer B P0 fix 2026-05-18: the prior `* 0.3` here was a
+        // silent geometry regression that halved the helix radius (0.15×Dc) the
+        // moment the engine returned null helix_params.
+        const helixDiamMm = entryStrategy.helix_params?.diameter_mm
+          ?? op.tool.diameter_mm * 0.6;
+        // Material-aware entry feed factor (clamped to [0.1, 1.0] to defend
+        // against a future bad return value).
+        const entryFeedFactor = Math.max(
+          0.1,
+          Math.min(1.0, entryStrategy.feed_factor || 0.5),
+        );
+        // Surface engine warnings as G-code comments so the operator/setup
+        // sheet sees them at the actual point of impact (Karpathy R12 — never
+        // silently drop the engine's safety advice).
+        for (const w of entryStrategy.warnings) {
+          addLine(`(U-CAMX07 ENTRY WARN: ${w})`);
+        }
+        // R12 — surface a method-mismatch advisory whenever the planner's
+        // pre-computed `approach` disagrees with the engine's
+        // `recommended_method` (e.g. planner picked "helical" but engine says
+        // "pre_drill" or "interpolated" for inconel/hardened_steel/narrow
+        // pockets). The pipeline keeps the planner's chosen approach (changing
+        // it here would shadow upstream optimization) but the operator must see
+        // the disagreement to verify safety.
+        const plannerMethod = approach === "helical" ? "helix"
+          : approach === "ramp" ? "ramp"
+          : "plunge";
+        if (entryStrategy.recommended_method !== plannerMethod) {
+          addLine(
+            `(U-CAMX07 METHOD MISMATCH: planner=${approach} engine=${entryStrategy.recommended_method} — VERIFY)`,
+          );
+        }
+
         for (let p = 1; p <= passes; p++) {
           const zDepth = -(p * ap);
 
           // Approach
           if (approach === "helical") {
             addLine(`G0 Z2.`, "Above material");
-            addLine(`G2 X${xPos} Y${yPos} Z${zDepth.toFixed(2)} I${(op.tool.diameter_mm * 0.3).toFixed(1)} J0. F${Math.round(F * 0.5)}`,
-              `Helical entry pass ${p}/${passes}`);
+            addLine(`G2 X${xPos} Y${yPos} Z${zDepth.toFixed(2)} I${(helixDiamMm / 2).toFixed(2)} J0. F${Math.round(F * entryFeedFactor)}`,
+              `Helical entry pass ${p}/${passes} (mat-derived dia ${helixDiamMm.toFixed(2)}mm, feed×${entryFeedFactor.toFixed(2)})`);
           } else if (approach === "ramp") {
             addLine(`G0 Z2.`, "Above material");
-            addLine(`G1 X${(x0 + 10).toFixed(3)} Z${zDepth.toFixed(2)} F${Math.round(F * 0.3)}`, `Ramp entry pass ${p}/${passes}`);
+            addLine(`G1 X${(x0 + 10).toFixed(3)} Z${zDepth.toFixed(2)} F${Math.round(F * entryFeedFactor)}`, `Ramp entry pass ${p}/${passes} (feed×${entryFeedFactor.toFixed(2)})`);
           } else {
             addLine(`G0 Z2.`, "Above material");
-            addLine(`G1 Z${zDepth.toFixed(2)} F${Math.round(F * 0.3)}`, `Plunge pass ${p}/${passes}`);
+            addLine(`G1 Z${zDepth.toFixed(2)} F${Math.round(F * entryFeedFactor)}`, `Plunge pass ${p}/${passes} (feed×${entryFeedFactor.toFixed(2)})`);
           }
 
           // Cutting move — rectangular contour around feature extents
@@ -1571,7 +2146,7 @@ export class PrintToProgramPipelineEngine {
           addLine(`G1 Y${y0.toFixed(3)} F${F}`, "Cut -Y");
         }
 
-        addLine(`G0 Z50.`, "Retract to safe Z");
+        addLine(`G0 Z${safeZRetractMm}.`, "Retract to safe Z");
         break;
       }
     }
@@ -1928,6 +2503,26 @@ export class PrintToProgramPipelineEngine {
       cpm.checkpoint('process_plan', 2, operations, Date.now() - t0);
     }
 
+    // === U-CAMX08: intelligent sequencing — reorder ops to minimize tool
+    // changes + respect production rules (datum-first, rigidity-aware, phase
+    // ordering, thin-wall scheduling). Replaces the implicit "operations
+    // appended in feature priority order" with the 33-rule IntelligentSequencing
+    // engine. Strict-additive: when sequencing fails to return a permutation
+    // of the input ops, the original order is preserved (fail-soft per R12).
+    const sequencingResult = this.applyIntelligentSequencing(operations);
+    if (sequencingResult.reordered) {
+      operations = sequencingResult.operations;
+    }
+    // R12 — surface sequencer warnings up to the caller. The helper would
+    // otherwise drop them silently inside its return object, violating
+    // "never silently swallow advisory output". (Reviewer B P1 fix 2026-05-18.)
+    // Note: allWarnings is built later in this function; we capture the
+    // sequencer warnings here in a local and merge them at the warning-
+    // collection seam below.
+    const sequencingWarnings: PipelineWarning[] = sequencingResult.metrics.warnings.map(
+      msg => ({ stage: "intelligent_sequencing", severity: "warning", message: msg }),
+    );
+
     // S3.5: Chatter stability pre-check — reject ap/RPM combos in SLD danger zone
     // Ref: Altintas (2012) Manufacturing Automation, Ch. 4
     const chatterChecks: PrintToProgramResult["chatter_checks"] = [];
@@ -2026,14 +2621,33 @@ export class PrintToProgramPipelineEngine {
       log.debug?.(`Thermal growth check: skipped — ${e?.message}`);
     }
 
+    // U-CAMX12: workholding-aware safe-Z retract, derived ONCE before G-code gen.
+    const safeZPlan = this.buildSafeZPlan(input, operations);
+    const safeZRetractMm = safeZPlan?.retract_clearance_mm ?? 50;
+    const safeZWarnings: PipelineWarning[] = [];
+    if (safeZPlan) {
+      safeZWarnings.push({
+        stage: "safe_z",
+        severity: "info",
+        message: `U-CAMX12 safe-Z: retract ${safeZPlan.retract_clearance_mm}mm, R-plane ${safeZPlan.rapid_plane_mm}mm (${safeZPlan.basis})`,
+      });
+      if (safeZPlan.raised_above_default) {
+        safeZWarnings.push({
+          stage: "safe_z",
+          severity: "warning",
+          message: `U-CAMX12 safe-Z: retract clearance raised above the 50mm default to ${safeZPlan.retract_clearance_mm}mm to clear workholding -- verify the rapid path is obstruction-free`,
+        });
+      }
+    }
+
     // S4: Generate G-code
     t0 = Date.now();
     let programOutput: ReturnType<typeof this.generateProgram>;
     if (resumeFrom > 3) {
       const cp = cpm.resumeFrom(3);
-      programOutput = cp?.data ?? this.generateProgram(operations, input);
+      programOutput = cp?.data ?? this.generateProgram(operations, input, safeZRetractMm);
     } else {
-      programOutput = this.generateProgram(operations, input);
+      programOutput = this.generateProgram(operations, input, safeZRetractMm);
       cpm.checkpoint('generate_program', 3, programOutput, Date.now() - t0);
     }
     let { blocks, text } = programOutput;
@@ -2067,19 +2681,35 @@ export class PrintToProgramPipelineEngine {
           tools: toolDefs,
           annotate: true,
           preserve_rapids: true,
+          // U-CAMX22-FIX-SILENT-SKIP scrutiny P1: now that optimizeSync() runs
+          // the REAL S/F optimization (it was a visible no-op before), the
+          // emitted G-code diverges from the pre-optimization `blocks` that
+          // runSafetyChecks() validates. Pass this machine's RPM/power envelope
+          // so AutoSpeedFeedEngine's own clamps bound the optimized S/F to the
+          // machine limits BEFORE emission — the optimized program is then
+          // provably within the same envelope the safety gate enforces.
+          // maxRPM (rpm) / maxPower (kW) units match machine_max_rpm/_power_kw.
+          machine_max_rpm: maxRPM,
+          machine_power_kw: maxPower,
         };
 
-        // optimize() is async — run synchronously if possible, skip if not
-        const result = asfe.optimize(asfInput);
-        if (result && typeof result.then === "function") {
-          // Cannot await in sync compute — skip async optimization
-          log.debug?.("AutoSpeedFeedEngine: skipping async optimization in sync pipeline");
-        } else if (result?.gcode) {
-          text = result.gcode;
-          log.info?.(`AutoSpeedFeedEngine: optimized ${result.stats?.lines_modified ?? 0} lines`);
+        // U-CAMX22-FIX-SILENT-SKIP (2026-05-18): AutoSpeedFeedEngine now exposes
+        // a synchronous optimizeSync() — its orchestrated engines
+        // (UltimateSpeedFeedEngine, PostProcessorFeedOptimizerEngine) are
+        // statically imported with no async init, so the S/F optimization is
+        // pure synchronous CPU work. This sync pipeline runs the REAL physics
+        // optimization directly. (Previously U-CAMX22-VISIBLE-SKIP surfaced an
+        // auditable skip and emitted base G-code unoptimized — the optimize()
+        // Promise could not be awaited mid-sync-pipeline.) The surrounding
+        // try/catch still falls back to base G-code if optimization throws.
+        const r = asfe.optimizeSync(asfInput) as { gcode?: string; stats?: { lines_modified?: number } };
+        if (r?.gcode) {
+          text = r.gcode;
+          log.info?.(`AutoSpeedFeedEngine: optimized ${r.stats?.lines_modified ?? 0} lines`);
         }
       } catch (e: any) {
-        log.debug?.(`AutoSpeedFeedEngine: fallback to original G-code — ${e?.message}`);
+        // R12: real exception is a warn, not debug — operator should see it.
+        log.warn?.(`AutoSpeedFeedEngine: optimization failed, falling back to base G-code — ${e?.message}`);
       }
     }
 
@@ -2117,6 +2747,334 @@ export class PrintToProgramPipelineEngine {
         // Fall through — no workholding check (current behavior)
       }
     }
+
+    // --- U-CAMX09: WorkholdingViabilityEngine — complementary fixture-geometry
+    // viability lens. DISTINCT from the WorkholdingVerificationEngine force gate
+    // above (R8): that gate answers "is grip force ≥ cutting force × SF?"; this
+    // answers "is the fixture GEOMETRY sound?" — sub-100mm² zones, single-clamp
+    // rotation, all-clamps-same-face moment resistance, vacuum sealed-area. The
+    // two are additive safety lenses, not duplicates.
+    let workholdingViability:
+      | { viable: boolean; grip_margin: number; issues: string[]; force_capacity_N: number }
+      | undefined;
+    const workholdingViabilityWarnings: PipelineWarning[] = [];
+    const wvia = getWorkholdingViabilityEngine();
+    if (wvia && operations.length > 0) {
+      try {
+        const whCfg = this.buildWorkholdingConfig(input, operations);
+        const peakForce = Math.max(
+          1,
+          ...operations.map(op => Math.max(1, op.physics?.cutting_force_N ?? 1)),
+        );
+        const nZones = Math.max(1, whCfg.clamp_points);
+        const stock = input.stock_size || this.estimateStockSize(input.features);
+        // Per-zone contact patch from the two smaller stock dims (a vise/plate
+        // jaw footprint), split conservatively across the clamp points. Floored
+        // at 100mm² so a degenerate stock never fabricates a sub-minimum zone
+        // the engine would (correctly) flag on bogus geometry.
+        const contactFace = Math.max(
+          100,
+          (Math.min(stock.x, stock.y) * Math.min(stock.y, stock.z)) / nZones,
+        );
+        const perZoneForce = Math.max(1, Math.round(whCfg.clamping_force_N / nZones));
+        // Vise → two opposed jaw faces (good moment resistance). Fixture plate →
+        // clamps all bear on the shared base face (the moment-resistance risk
+        // the viability engine exists to surface).
+        const faces = whCfg.type === "vise"
+          ? ["left_jaw", "right_jaw"]
+          : ["base", "base", "base", "base"];
+        const zones = Array.from({ length: nZones }, (_, i) => ({
+          id: `clamp-${i + 1}`,
+          face: faces[i % faces.length],
+          area_mm2: Math.round(contactFace),
+          clamp_force_N: perZoneForce,
+          friction_coeff: whCfg.friction_coefficient,
+        }));
+        const via = wvia.checkViabilityDirect({
+          clamping_zones: zones,
+          cutting_force_N: peakForce,
+          fixture_type: whCfg.type,
+          friction_coeff: whCfg.friction_coefficient,
+        });
+        workholdingViability = {
+          viable: via.viable,
+          grip_margin: via.grip_margin,
+          issues: via.issues,
+          force_capacity_N: via.force_capacity_N,
+        };
+        // R12: a non-viable verdict is CRITICAL (part may shift under cut); the
+        // itemized geometry advisories follow as warnings (distinct purpose —
+        // headline verdict vs per-issue breakdown, intentionally not collapsed).
+        if (!via.viable) {
+          workholdingViabilityWarnings.push({
+            stage: "workholding_viability",
+            severity: "critical",
+            message: `U-CAMX09 workholding NOT viable: capacity ${via.force_capacity_N.toFixed(0)}N, margin ${(via.grip_margin * 100).toFixed(0)}% — ${via.issues[0] || "insufficient grip"}`,
+          });
+        }
+        for (const iss of via.issues) {
+          workholdingViabilityWarnings.push({
+            stage: "workholding_viability",
+            severity: "warning",
+            message: `U-CAMX09 ${iss}`,
+          });
+        }
+      } catch (err) {
+        // R12: a thrown viability check is a visible warn, never a silent swallow.
+        workholdingViabilityWarnings.push({
+          stage: "workholding_viability",
+          severity: "warning",
+          message: `U-CAMX09 workholding viability check failed: ${(err as Error)?.message || String(err)}`,
+        });
+      }
+    }
+
+    // --- U-CAMX10: CrossCamRecommenderEngine — advisory CAM-bridge + strategy
+    // recommendation. COMPLEMENTARY to the pipeline's own G-code (R8 — NOT
+    // duplicate toolpath gen): answers "which external CAM system + toolpath
+    // strategy best fits this part?", a routing hint with physics-validated
+    // confidence. Never gates the program (advisory only).
+    let camStrategyRecommendation:
+      | {
+          recommended_cam: string;
+          recommended_strategy: string;
+          strategy_category: string;
+          confidence: number;
+          predicted_cycle_time_min: number;
+          advantages: string[];
+          warnings: string[];
+        }
+      | undefined;
+    const camStrategyWarnings: PipelineWarning[] = [];
+    const ccr = getCrossCamRecommenderEngine();
+    if (ccr && operations.length > 0) {
+      try {
+        const stock = input.stock_size || this.estimateStockSize(input.features);
+        const pocketCount = input.features.filter(f => /pocket/i.test(f.type)).length;
+        const boreCount = input.features.filter(f => /bore/i.test(f.type)).length;
+        const holeCount = input.features.filter(f => /hole/i.test(f.type)).length;
+        // Arm-B P1 fix: a drilling/boring-dominant part is canned-cycle work
+        // with no external-CAM TOOLPATH-strategy match by definition. The
+        // round-1 geomType ternary emitted "boring"/"drilling" — literals NO
+        // CrossCamRecommenderEngine strategy profile lists in
+        // geometry_strengths — so the engine threw on an empty candidate set
+        // (bestOverall.confidence on undefined). This guard skips the
+        // recommender with a SPECIFIC named reason; the ternary below now
+        // emits only strategy-DB-covered literals, so the throw is
+        // structurally unreachable AND a canned-cycle part no longer gets a
+        // semantically-wrong milling-strategy recommendation. (Reverting just
+        // this guard would not re-throw — bore-only would fall to "contour"
+        // and produce a WRONG-but-valid recommendation; the fail-on-revert
+        // oracle is the wrong-recommendation, not a throw.)
+        const drillBoreDominant = pocketCount === 0 && (boreCount + holeCount) > 0;
+        if (drillBoreDominant) {
+          camStrategyWarnings.push({
+            stage: "cam_strategy",
+            severity: "warning",
+            message:
+              "U-CAMX10 CAM recommendation skipped: drilling/boring-dominant part is canned-cycle work with no external-CAM toolpath-strategy match",
+          });
+        } else {
+          // Pocket/contour-class — every literal below IS present in
+          // CrossCamRecommenderEngine strategy-profile geometry_strengths.
+          const geomType =
+            pocketCount > 1 ? "multi_pocket"
+            : pocketCount === 1 ? "pocket_2d"
+            : "contour";
+        // Representative tool = the largest-diameter planned op (worst-case
+        // load drives the strategy fit).
+        const repOp = operations.reduce(
+          (a, b) => ((b.tool?.diameter_mm ?? 0) > (a.tool?.diameter_mm ?? 0) ? b : a),
+          operations[0],
+        );
+        const iso = (input.material?.iso_group || "P") as "P" | "M" | "K" | "N" | "S" | "H";
+        const ccrInput = {
+          geometry: {
+            type: geomType,
+            dimensions_mm: { length: stock.x, width: stock.y, depth: stock.z },
+            pocket_count: pocketCount || undefined,
+            surface_area_mm2: Math.max(1, stock.x * stock.y),
+          },
+          material: {
+            class: (input.material?.material_name || `iso_${iso}`)
+              .toLowerCase()
+              .replace(/\s+/g, "_"),
+            iso_group: iso,
+            hardness_hrc: input.material?.hardness_hrc,
+          },
+          machine: {
+            spindle_power_kw: input.max_power_kW ?? 15,
+            max_rpm: input.max_spindle_rpm ?? 12000,
+            axis_count: 3 as const,
+          },
+          tool: {
+            diameter_mm: Math.max(1, repOp.tool?.diameter_mm ?? 10),
+            flute_count: Math.max(1, repOp.tool?.flutes ?? 3),
+            material: "carbide" as const,
+            overhang_mm: Math.max(1, (repOp.tool?.diameter_mm ?? 10) * 3),
+          },
+          constraints: { priority: "balanced" as const },
+        };
+        const ccrOut = ccr.compute(ccrInput);
+        const best = ccrOut?.value?.best_overall;
+        if (best) {
+          const conf =
+            typeof ccrOut.confidence === "number" ? ccrOut.confidence : (best.confidence ?? 0);
+          camStrategyRecommendation = {
+            recommended_cam: best.cam_system,
+            recommended_strategy: best.strategy_name,
+            strategy_category: best.strategy_category,
+            confidence: conf,
+            predicted_cycle_time_min: best.predicted_cycle_time_min,
+            advantages: Array.isArray(best.advantages) ? best.advantages : [],
+            warnings: Array.isArray(best.warnings) ? best.warnings : [],
+          };
+          // R12: surface the recommendation + any engine warnings as advisory
+          // rows (never gates the program — a low-confidence pick is still
+          // operator-actionable information, not a silent drop).
+          camStrategyWarnings.push({
+            stage: "cam_strategy",
+            severity: "warning",
+            message: `U-CAMX10 CAM recommendation: ${best.cam_system}/${best.strategy_name} (${best.strategy_category}), confidence ${(conf * 100).toFixed(0)}%, ~${Number(best.predicted_cycle_time_min).toFixed(1)}min`,
+          });
+          for (const w of camStrategyRecommendation.warnings) {
+            camStrategyWarnings.push({
+              stage: "cam_strategy",
+              severity: "warning",
+              message: `U-CAMX10 ${w}`,
+            });
+          }
+        } else {
+          camStrategyWarnings.push({
+            stage: "cam_strategy",
+            severity: "warning",
+            message:
+              "U-CAMX10 CrossCamRecommender returned no best_overall — CAM recommendation unavailable",
+          });
+        }
+        }
+      } catch (err) {
+        // R12: a thrown recommendation is a visible warn, never a silent swallow.
+        camStrategyWarnings.push({
+          stage: "cam_strategy",
+          severity: "warning",
+          message: `U-CAMX10 CAM strategy recommendation failed: ${(err as Error)?.message || String(err)}`,
+        });
+      }
+    }
+
+    // --- U-CAMX11: Smart WCS selection. WorkCoordinateEngine derives the
+    // datum-based WCS origin + probe sequence + setup-time, and recommends
+    // additional offsets (G55…) for multi-setup parts. ADDITIVE — the emitted
+    // G-code still uses G54 (unchanged); this is the operator/setup-sheet
+    // intelligence layer the hardcoded "G54" never provided. Stateful engine →
+    // a FRESH per-call instance (shared singleton would bleed offsets and
+    // report false duplicate-WCS validation).
+    let wcsPlan:
+      | {
+          primary_code: string;
+          origin: { x: number; y: number; z: number };
+          datum_count: number;
+          probe_sequence: string[];
+          estimated_setup_time_min: number;
+          additional_wcs: string[];
+          multi_setup: boolean;
+          valid: boolean;
+          notes: string[];
+        }
+      | undefined;
+    const wcsWarnings: PipelineWarning[] = [];
+    const WceClass = getWorkCoordinateEngineClass();
+    if (WceClass && operations.length > 0) {
+      try {
+        const stock = input.stock_size || this.estimateStockSize(input.features);
+        // Conservative multi-setup signal: a feature whose origin sits clearly
+        // BELOW the top datum plane (z < -1mm) implies a back-side fixturing.
+        // Absent richer face data the pipeline assumes a single top-down setup
+        // (stated honestly — never silently presumes more than the model knows).
+        const backSide = input.features.filter(f => (f.position?.z ?? 0) < -1);
+        const multiSetup = backSide.length > 0;
+        const wce = new WceClass();
+        // Primary setup: top-face-center surface datum + an XY corner origin.
+        const datums = [
+          {
+            id: "DZ",
+            name: "A",
+            type: "surface" as const,
+            position: { x: stock.x / 2, y: stock.y / 2, z: 0 },
+            method: "edge_finder" as const,
+          },
+          {
+            id: "DXY",
+            name: "B",
+            type: "corner" as const,
+            position: { x: 0, y: 0, z: 0 },
+            method: "edge_finder" as const,
+          },
+        ];
+        const setup1 = wce.setupFromDatums("G54", datums);
+        const additional: string[] = [];
+        if (multiSetup) {
+          // Second fixturing references the same XY origin on the flipped face.
+          wce.setupFromDatums("G55", [
+            {
+              id: "DZ2",
+              name: "C",
+              type: "surface" as const,
+              position: { x: stock.x / 2, y: stock.y / 2, z: -stock.z },
+              method: "edge_finder" as const,
+            },
+          ]);
+          additional.push("G55");
+        }
+        const validation = wce.validate();
+        const planNotes = [
+          ...(Array.isArray(setup1.notes) ? setup1.notes : []),
+          ...(Array.isArray(validation?.warnings) ? validation.warnings : []),
+        ];
+        wcsPlan = {
+          primary_code: setup1.wcs.code,
+          origin: setup1.wcs.origin,
+          datum_count: setup1.datum_points.length,
+          probe_sequence: setup1.probe_sequence,
+          estimated_setup_time_min: setup1.estimated_setup_time_min,
+          additional_wcs: additional,
+          multi_setup: multiSetup,
+          valid: validation ? validation.valid : true,
+          notes: planNotes,
+        };
+        // R12: surface the WCS plan + every note/validation issue as advisory
+        // rows (never gates the program — operator/setup-sheet info).
+        wcsWarnings.push({
+          stage: "wcs",
+          severity: "warning",
+          message: `U-CAMX11 WCS plan: ${setup1.wcs.code}${additional.length ? "+" + additional.join("+") : ""} @ origin (${setup1.wcs.origin.x.toFixed(1)},${setup1.wcs.origin.y.toFixed(1)},${setup1.wcs.origin.z.toFixed(1)}), ${setup1.datum_points.length} datums, ~${setup1.estimated_setup_time_min}min setup`,
+        });
+        if (multiSetup) {
+          wcsWarnings.push({
+            stage: "wcs",
+            severity: "warning",
+            message: `U-CAMX11 multi-setup detected (${backSide.length} back-side feature(s)) — second fixturing on G55 recommended; emitted G-code uses G54 only (verify operator setup)`,
+          });
+        }
+        if (validation && !validation.valid) {
+          for (const iss of (Array.isArray(validation.issues) ? validation.issues : [])) {
+            wcsWarnings.push({ stage: "wcs", severity: "warning", message: `U-CAMX11 ${iss}` });
+          }
+        }
+        for (const n of planNotes) {
+          wcsWarnings.push({ stage: "wcs", severity: "warning", message: `U-CAMX11 ${n}` });
+        }
+      } catch (err) {
+        // R12: a thrown WCS plan is a visible warn, never a silent swallow.
+        wcsWarnings.push({
+          stage: "wcs",
+          severity: "warning",
+          message: `U-CAMX11 WCS plan failed: ${(err as Error)?.message || String(err)}`,
+        });
+      }
+    }
+
     const totalCycleTime = operations.reduce((sum, op) => sum + op.cycle_time_sec, 0);
     const setupSheet = this.generateSetupSheet(operations, input, totalCycleTime);
     const confidence = this.calculateConfidence(intake, operations, safetyChecks);
@@ -2125,6 +3083,16 @@ export class PrintToProgramPipelineEngine {
     // Collect all warnings
     const allWarnings = [
       ...intake.warnings,
+      // U-CAMX12 -- surface the smart safe-Z retract plan + raised-clearance caveat (R12).
+      ...safeZWarnings,
+      // U-CAMX08 — surface sequencer warnings (R12 fix per Reviewer B P1).
+      ...sequencingWarnings,
+      // U-CAMX09 — surface fixture-geometry viability findings (R12).
+      ...workholdingViabilityWarnings,
+      // U-CAMX10 — surface advisory CAM-bridge/strategy recommendation (R12).
+      ...camStrategyWarnings,
+      // U-CAMX11 — surface advisory smart-WCS plan findings (R12).
+      ...wcsWarnings,
       ...operations.flatMap(op => op.notes.map(n => ({
         stage: "planning",
         severity: "warning" as const,
@@ -2145,6 +3113,42 @@ export class PrintToProgramPipelineEngine {
     const canEmitProgram = !hasFailedSafetyChecks && operations.length > 0;
     const emittedProgramText = canEmitProgram ? text : "";
     const emittedProgramLineCount = canEmitProgram ? blocks.length : 0;
+
+    // === U-CAMX24: reverse-engineered setup sheet from emitted G-code ===
+    // Run SetupSheetFromGCodeEngine on the actually-emitted program text (NOT
+    // the operations array) so the operator gets a controller-aware Markdown
+    // setup doc + tool list + work-offset list + safety notes reflecting what
+    // the G-code *really* does. Complementary to the operations-derived
+    // `setup_sheet` already on this result — that view is what the planner
+    // intended; this view is what the post-processor + emitter produced.
+    // Skipped (undefined) when no program was emitted (safety-failed plan, or
+    // process-plan-only run); attempted with fail-soft per Karpathy R12.
+    let gcodeSetupSheet: GCodeSetupSheetResult | undefined;
+    if (canEmitProgram && emittedProgramText.length > 0) {
+      try {
+        gcodeSetupSheet = setupSheetFromGCodeEngine.generateSetupSheet(
+          emittedProgramText,
+          {
+            controller: this.mapBrandToGCodeController(input.machine_brand),
+            part_number: input.part_number,
+            operation_name: `${input.part_number || "PART"}-PROGRAM`,
+            machine_name: input.machine_model || input.machine_brand,
+            include_tool_list: true,
+            include_offsets: true,
+            include_safety: true,
+          },
+        );
+      } catch (err) {
+        // Karpathy R12 — never silently drop a derived artifact. Surface the
+        // failure as a pipeline warning so operators see *why* the gcode-derived
+        // view is missing; planner-derived `setup_sheet` is unaffected.
+        allWarnings.push({
+          stage: "gcode_setup_sheet",
+          severity: "warning",
+          message: `U-CAMX24 gcode_setup_sheet skipped: ${(err as Error)?.message || String(err)}`,
+        });
+      }
+    }
 
     // Count tool changes
     const toolChanges = new Set(operations.map(o => o.tool.tool_number)).size;
@@ -2194,6 +3198,11 @@ export class PrintToProgramPipelineEngine {
       safety_checks: safetyChecks,
       safety_pass_rate: Math.round(safetyPassRate * 100) / 100,
       setup_sheet: setupSheet,
+      gcode_setup_sheet: gcodeSetupSheet,
+      workholding_viability: workholdingViability,
+      cam_strategy_recommendation: camStrategyRecommendation,
+      wcs_plan: wcsPlan,
+      safe_z_plan: safeZPlan,
       confidence_score: confidence,
       warnings: allWarnings,
       tribal_tips,
@@ -2439,7 +3448,8 @@ export class PrintToProgramPipelineEngine {
             input: DrawingInput;
             intake: ReturnType<typeof PrintToProgramPipelineEngine.prototype.validateIntake>;
           };
-          const { blocks, text } = this.generateProgram(data.operations, data.input);
+          const resumeSafeZ = this.buildSafeZPlan(data.input, data.operations)?.retract_clearance_mm ?? 50;
+          const { blocks, text } = this.generateProgram(data.operations, data.input, resumeSafeZ);
           return { blocks, text, ...data };
         },
       },

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select { -webkit-appearance: none; appearance: none; font-family: 'Archivo', sans-serif; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌀</span>MAKE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">$</span>QUOTE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▤</span>RUN</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌂</span>SHOP</button>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;">Job Cost &amp; Profitability</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · BUSINESS ERP · {{ periodLabel }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <select value="{{ period }}" onChange="{{ setPeriod }}" style="height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 12px;"><option value="mtd">Month to date</option><option value="qtd">Quarter to date</option><option value="ytd">Year to date</option></select>
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid {{ netBorder }};background:{{ netBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ netColor }};">NET {{ netMargin }}%</div>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:322px minmax(0,1fr) 416px;min-height:0;">
+
+      <!-- ───────── JOB LIST ───────── -->
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 16px 44px;background:#0A0B0D;">
+        <div style="display:flex;gap:6px;margin-bottom:12px;">
+          <sc-for list="{{ statusFilters }}" as="sf" hint-placeholder-count="4"><button onClick="{{ sf.on }}" style="{{ sf.style }}">{{ sf.label }}</button></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 60px 44px;gap:6px;padding:0 10px 7px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;color:#6B7280;"><span>JOB · CUSTOMER</span><span style="text-align:right;">REVENUE</span><span style="text-align:right;">MGN</span></div>
+        <sc-for list="{{ jobRows }}" as="j" hint-placeholder-count="8">
+          <div onClick="{{ j.on }}" style="{{ j.style }}">
+            <div style="min-width:0;"><div style="font-size:12.5px;color:{{ j.nameColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ j.part }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ j.no }} · {{ j.customer }} · {{ j.statusLabel }}</div></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#C7CCD4;text-align:right;">${{ j.revK }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;color:{{ j.mgnColor }};text-align:right;">{{ j.mgn }}</span>
+          </div>
+        </sc-for>
+      </section>
+
+      <!-- ───────── WATERFALL + VARIANCE ───────── -->
+      <section style="overflow:hidden;min-width:0;padding:16px 18px;background:radial-gradient(900px 480px at 75% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:none;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;">{{ selPart }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;">{{ selNo }} · {{ selCustomer }} · {{ selQty }} pcs · {{ selStatus }}</div></div>
+          <div style="display:flex;gap:10px;">
+            <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">QUOTED MARGIN</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#9398A2;">{{ estMarginPct }}%</div></div>
+            <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">ACTUAL MARGIN</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:{{ actMarginColor }};">{{ actMarginPct }}%</div></div>
+          </div>
+        </div>
+
+        <div style="flex:1.2;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:14px 18px;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">Margin waterfall · quote → ship</span><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;">revenue ${{ selRevenue }}</span></div>
+          <div style="flex:1;min-height:0;">
+            <svg viewBox="0 0 740 320" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <sc-for list="{{ wfGrid }}" as="g" hint-placeholder-count="4"><line x1="{{ g.x1 }}" y1="{{ g.y1 }}" x2="{{ g.x2 }}" y2="{{ g.y2 }}" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line><text x="{{ g.tx }}" y="{{ g.ty }}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="#6B7280">{{ g.label }}</text></sc-for>
+              <sc-for list="{{ wfConn }}" as="c" hint-placeholder-count="5"><line x1="{{ c.x1 }}" y1="{{ c.y1 }}" x2="{{ c.x2 }}" y2="{{ c.y2 }}" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="2 2"></line></sc-for>
+              <sc-for list="{{ wfBars }}" as="b" hint-placeholder-count="6">
+                <rect x="{{ b.x }}" y="{{ b.estY }}" width="{{ b.w }}" height="{{ b.estH }}" rx="2" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1" stroke-dasharray="3 2"></rect>
+                <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="2" fill="{{ b.fill }}"></rect>
+                <text x="{{ b.tx }}" y="{{ b.labelY }}" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" font-weight="700" fill="{{ b.valColor }}">{{ b.val }}</text>
+                <text x="{{ b.tx }}" y="308" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#9398A2">{{ b.label }}</text>
+              </sc-for>
+            </svg>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:14px 18px;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">Cost variance · estimated vs actual</span><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:{{ totVarColor }};">{{ totVar }} total</span></div>
+          <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 0.8fr;gap:8px;padding:0 4px 7px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.05em;color:#6B7280;"><span>COST CATEGORY</span><span style="text-align:right;">ESTIMATED</span><span style="text-align:right;">ACTUAL</span><span style="text-align:right;">Δ VARIANCE</span><span style="text-align:right;">%</span></div>
+          <div style="flex:1;overflow-y:auto;" class="kz-scroll">
+            <sc-for list="{{ varRows }}" as="v" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 0.8fr;gap:8px;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0;"><span style="flex:none;width:8px;height:8px;border-radius:2px;background:{{ v.dot }};"></span><span style="font-size:12px;color:#F3F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.cat }}</span></div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#9398A2;text-align:right;">${{ v.est }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#C7CCD4;text-align:right;">${{ v.act }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;color:{{ v.color }};text-align:right;">{{ v.delta }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:{{ v.color }};text-align:right;">{{ v.pct }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── P&L · AR · LEAKS ───────── -->
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 18px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">P&amp;L SNAPSHOT · {{ periodLabel }}</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:14px;">
+          <sc-for list="{{ plRows }}" as="p" hint-placeholder-count="5">
+            <div style="{{ p.style }}">
+              <span style="font-size:{{ p.size }};color:{{ p.labelColor }};">{{ p.label }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:{{ p.size }};font-weight:{{ p.weight }};color:{{ p.valColor }};">{{ p.val }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">A/R AGING</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:14px;">
+          <div style="display:flex;height:14px;border-radius:5px;overflow:hidden;margin-bottom:12px;">
+            <sc-for list="{{ arBars }}" as="a" hint-placeholder-count="4"><div style="height:100%;width:{{ a.pct }};background:{{ a.color }};"></div></sc-for>
+          </div>
+          <sc-for list="{{ arRows }}" as="a" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:9px;height:9px;border-radius:2px;background:{{ a.color }};"></span><span style="font-size:12px;color:#C7CCD4;">{{ a.bucket }}</span></div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ a.valColor }};">${{ a.val }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(255,82,71,0.06),#0E0F12);border:1px solid rgba(255,82,71,0.22);border-radius:14px;padding:14px 16px;margin-bottom:13px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF6B6B;margin-bottom:10px;">⚠ MARGIN LEAKS</div>
+          <sc-for list="{{ leakRows }}" as="l" hint-placeholder-count="3">
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid rgba(255,255,255,0.05);">
+              <div style="flex:1;min-width:0;"><div style="font-size:12px;color:#F3F4F6;line-height:1.3;">{{ l.title }}</div><div style="font-size:10.5px;color:#9398A2;line-height:1.3;margin-top:1px;">{{ l.detail }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#FF6B6B;">{{ l.amt }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#0E0F12;border:1px solid rgba(54,211,153,0.2);border-radius:14px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#36D399;margin-bottom:9px;">◆ KAIZEN ACTION</div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.5;">{{ kaizenNote }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    period: 'mtd', statusFilter: 'all', selJob: 'sig',
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6,
+  };
+  componentDidMount() {
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit();
+    // ── live bind to the shared source of truth (jm-data.js → window.KIENZLE) ──
+    this._trySync = (n) => {
+      try {
+        const K = (typeof window !== 'undefined') && window.KIENZLE;
+        if (K && K.JOBS) {
+          const byNo = {}; K.JOBS.forEach(j => byNo[j.no] = j);
+          this.JOBS = this.JOBS.map(j => { const k = byNo[j.no]; return k ? { ...j, rev: k.rev, est: k.est, act: k.act, status: k.status } : j; });
+          this._synced = true; this.forceUpdate();
+        } else if ((n || 0) < 25) { setTimeout(() => this._trySync((n || 0) + 1), 100); }
+      } catch (e) { /* fall back to local data */ }
+    };
+    this._trySync(0);
+  }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  // est/act cost split: [material, labor, burden, outside]; rev = quoted price × qty rolled to job total
+  JOBS = [
+    { id: 'semblex', no: 'JOB-4471', customer: 'SEMBLEX', part: 'Trilobe forming punch ×500', qty: 500, status: 'shipped', age: 8, rev: 12400, est: [2100, 4800, 2400, 300], act: [2040, 3960, 2300, 280] },
+    { id: 'optimas', no: 'JOB-4468', customer: 'OPTIMAS', part: 'Hex-flange die insert ×50', qty: 50, status: 'invoiced', age: 34, rev: 28500, est: [5200, 9800, 4900, 1200], act: [5180, 10350, 4950, 1180] },
+    { id: 'altracs', no: 'JOB-4475', customer: 'ALTRACS', part: 'Taptite punch ×200', qty: 200, status: 'open', age: 0, rev: 9800, est: [1600, 3900, 1950, 250], act: [1640, 4180, 1980, 250] },
+    { id: 'sfs', no: 'JOB-4462', customer: 'SFS', part: 'Ejector / KO pin ×1200', qty: 1200, status: 'shipped', age: 12, rev: 37200, est: [7400, 12600, 6300, 900], act: [7250, 11800, 6150, 880] },
+    { id: 'sig', no: 'JOB-4459', customer: 'SIG SAUER', part: 'Carbide core cavity ×8', qty: 8, status: 'late', age: 41, rev: 14200, est: [3800, 5200, 2600, 1100], act: [4100, 9800, 3200, 1450] },
+    { id: 'topura', no: 'JOB-4466', customer: 'TOPURA', part: 'Header die cavity ×120', qty: 120, status: 'invoiced', age: 52, rev: 22100, est: [4600, 8200, 4100, 700], act: [4540, 8050, 4000, 690] },
+    { id: 'stalcop', no: 'JOB-4477', customer: 'STALCOP', part: 'Cold-form collar die ×300', qty: 300, status: 'open', age: 0, rev: 16800, est: [3100, 6700, 3350, 500], act: [3180, 7050, 3380, 510] },
+  ];
+  CATS = [{ k: 'Material / stock', dot: '#FF5A2B' }, { k: 'Direct labor', dot: '#2A6FDB' }, { k: 'Machine burden', dot: '#A855F7' }, { k: 'Outside service', dot: '#F4B740' }];
+  OPEX = { mtd: 48200, qtd: 144600, ytd: 578400 };
+
+  cost(arr) { return arr.reduce((a, b) => a + b, 0); }
+  marginPct(j) { return ((j.rev - this.cost(j.act)) / j.rev) * 100; }
+  k(v) { return (v / 1000).toFixed(1) + 'k'; }
+  usd(v) { return Math.round(v).toLocaleString('en-US'); }
+
+  renderVals() {
+    const s = this.state;
+    const mult = s.period === 'qtd' ? 3 : s.period === 'ytd' ? 11 : 1;
+    const filtered = this.JOBS.filter(j => s.statusFilter === 'all' ? true : s.statusFilter === 'open' ? (j.status === 'open' || j.status === 'late') : j.status === s.statusFilter);
+    let sel = this.JOBS.find(j => j.id === s.selJob) || this.JOBS[0];
+
+    const statuses = { shipped: ['Shipped', '#36D399'], invoiced: ['Invoiced', '#7FB2FF'], open: ['In process', '#F4B740'], late: ['LATE', '#FF5247'] };
+    const jobRows = filtered.map(j => { const m = this.marginPct(j), on = j.id === sel.id; return {
+      on: () => this.setState({ selJob: j.id }), no: j.no, customer: j.customer, part: j.part, revK: this.k(j.rev),
+      mgn: m.toFixed(0) + '%', mgnColor: m >= 30 ? '#36D399' : m >= 15 ? '#F4B740' : '#FF5247',
+      statusLabel: statuses[j.status][0],
+      nameColor: on ? '#F3F4F6' : '#C7CCD4',
+      style: `display:grid;grid-template-columns:1fr 60px 44px;gap:6px;align-items:center;padding:9px 10px;margin-bottom:4px;border-radius:9px;cursor:pointer;background:${on ? 'rgba(255,90,43,0.1)' : (j.status === 'late' ? 'rgba(255,82,71,0.05)' : 'transparent')};border:1px solid ${on ? 'rgba(255,90,43,0.4)' : (j.status === 'late' ? 'rgba(255,82,71,0.25)' : 'rgba(255,255,255,0.04)')};`,
+    }; });
+
+    // ── waterfall ──
+    const R = sel.rev, estC = sel.est, actC = sel.act;
+    const top = 28, bot = 280, leftX = 40;
+    const yMax = R * 1.05, yOf = (v) => bot - (v / yMax) * (bot - top);
+    const steps = [{ label: 'Revenue', val: R, type: 'rev' }];
+    let cum = R; const cats = ['Material', 'Labor', 'Burden', 'Outside'];
+    actC.forEach((c, i) => { steps.push({ label: cats[i], val: c, type: 'cost', from: cum, to: cum - c, fill: this.CATS[i].dot, est: estC[i] }); cum -= c; });
+    const actMargin = cum; steps.push({ label: 'Margin', val: actMargin, type: 'margin' });
+    const bw = 78, gap = (740 - leftX - 20 - steps.length * bw) / (steps.length - 1);
+    const wfBars = []; const wfConn = [];
+    steps.forEach((st, i) => {
+      const x = leftX + i * (bw + gap);
+      let y, h, estY, estH, fill, valColor;
+      if (st.type === 'rev') { y = yOf(R); h = bot - y; fill = '#3A3F47'; estY = y; estH = h; valColor = '#F3F4F6'; }
+      else if (st.type === 'margin') { y = yOf(actMargin); h = bot - y; const em = R - this.cost(estC); estY = yOf(em); estH = bot - estY; fill = actMargin >= R * 0.25 ? '#36D399' : actMargin >= R * 0.12 ? '#F4B740' : '#FF5247'; valColor = fill; }
+      else { const hiY = yOf(st.from), loY = yOf(st.to); y = hiY; h = loY - hiY; estH = (st.est / yMax) * (bot - top); estY = loY - estH; fill = st.fill; valColor = '#C7CCD4'; }
+      wfBars.push({ x: x.toFixed(1), y: y.toFixed(1), h: Math.max(2, h).toFixed(1), w: bw, estY: estY.toFixed(1), estH: Math.max(2, estH).toFixed(1), fill, val: (st.type === 'cost' ? '−' : '') + '$' + this.k(st.val), valColor, label: st.label, tx: (x + bw / 2).toFixed(1), labelY: (y - 6).toFixed(1) });
+      if (i < steps.length - 1 && st.type !== 'rev') { /* connector handled below */ }
+    });
+    // connectors between bar tops/bottoms
+    for (let i = 0; i < steps.length - 1; i++) { const x1 = leftX + i * (bw + gap) + bw, x2 = leftX + (i + 1) * (bw + gap); let yy; if (steps[i].type === 'rev') yy = yOf(R); else if (steps[i].type === 'cost') yy = yOf(steps[i].to); else yy = yOf(0); wfConn.push({ x1: x1.toFixed(1), y1: yy.toFixed(1), x2: x2.toFixed(1), y2: yy.toFixed(1) }); }
+    const wfGrid = [0, 0.25, 0.5, 0.75, 1].map(fr => { const v = yMax * fr, y = yOf(v); return { x1: leftX, y1: y.toFixed(1), x2: 720, y2: y.toFixed(1), tx: leftX - 4, ty: (y + 3).toFixed(1), label: '$' + this.k(v) }; });
+
+    // ── variance rows ──
+    const varRows = this.CATS.map((c, i) => { const est = estC[i], act = actC[i], d = act - est, pct = (d / est) * 100; return {
+      cat: c.k, dot: c.dot, est: this.usd(est), act: this.usd(act), delta: (d >= 0 ? '+$' : '−$') + this.usd(Math.abs(d)), pct: (d >= 0 ? '+' : '') + pct.toFixed(0) + '%',
+      color: d > est * 0.05 ? '#FF5247' : d > 0 ? '#F4B740' : '#36D399',
+    }; });
+    const totEst = this.cost(estC), totAct = this.cost(actC), totD = totAct - totEst;
+    const totVar = (totD >= 0 ? '+$' : '−$') + this.usd(Math.abs(totD)); const totVarColor = totD > totEst * 0.05 ? '#FF5247' : totD > 0 ? '#F4B740' : '#36D399';
+
+    const estMarginPct = ((R - totEst) / R * 100).toFixed(0);
+    const actMarginPct = (actMargin / R * 100).toFixed(0);
+    const actMarginColor = actMargin >= R * 0.25 ? '#36D399' : actMargin >= R * 0.12 ? '#F4B740' : '#FF5247';
+
+    // ── P&L (period) ──
+    const shipped = this.JOBS.filter(j => j.status === 'shipped' || j.status === 'invoiced');
+    const revenue = shipped.reduce((a, j) => a + j.rev, 0) * mult;
+    const cogs = shipped.reduce((a, j) => a + this.cost(j.act), 0) * mult;
+    const gross = revenue - cogs, opex = this.OPEX[s.period], net = gross - opex;
+    const plRow = (label, val, opts = {}) => ({ label, val: (val < 0 ? '−$' : '$') + this.usd(Math.abs(val)), size: opts.big ? '14px' : '12.5px', weight: opts.big ? '700' : '500', labelColor: opts.big ? '#F3F4F6' : '#9398A2', valColor: opts.color || '#C7CCD4', style: `display:flex;justify-content:space-between;align-items:center;padding:${opts.big ? '11px' : '7px'} 0;${opts.top ? 'border-top:1px solid rgba(255,255,255,0.1);margin-top:4px;' : 'border-bottom:1px solid rgba(255,255,255,0.05);'}` });
+    const plRows = [
+      plRow('Revenue', revenue), plRow('COGS (actual)', -cogs),
+      plRow('Gross margin', gross, { big: true, top: true, color: '#C7CCD4' }),
+      plRow('Operating expense', -opex),
+      plRow('Net profit', net, { big: true, top: true, color: net >= 0 ? '#36D399' : '#FF5247' }),
+    ];
+    const netMargin = (net / revenue * 100).toFixed(1);
+    const netColor = net >= 0 ? '#36D399' : '#FF5247';
+
+    // ── A/R aging ──
+    const invoiced = this.JOBS.filter(j => j.status === 'invoiced' || j.status === 'shipped');
+    const buckets = [['Current', '#36D399', 0, 30], ['31–60', '#7FB2FF', 31, 60], ['61–90', '#F4B740', 61, 90], ['90+', '#FF5247', 91, 9999]];
+    const arVals = buckets.map(b => invoiced.filter(j => j.age >= b[2] && j.age <= b[3]).reduce((a, j) => a + j.rev, 0));
+    const arTotal = arVals.reduce((a, b) => a + b, 0) || 1;
+    const arBars = buckets.map((b, i) => ({ pct: (arVals[i] / arTotal * 100).toFixed(1) + '%', color: b[1] }));
+    const arRows = buckets.map((b, i) => ({ bucket: b[0] + ' days', color: b[1], val: this.usd(arVals[i]), valColor: i >= 2 && arVals[i] > 0 ? '#FF8A8A' : '#C7CCD4' }));
+
+    // ── leaks ──
+    const leakJobs = this.JOBS.map(j => ({ j, over: this.cost(j.act) - this.cost(j.est) })).filter(x => x.over > 200).sort((a, b) => b.over - a.over).slice(0, 3);
+    const leakRows = leakJobs.map(({ j, over }) => { const labOver = j.act[1] - j.est[1]; return {
+      title: j.customer + ' · ' + j.part.split(' ×')[0], amt: '−$' + this.usd(over),
+      detail: labOver > over * 0.5 ? 'Labor ran ' + ((labOver / j.est[1]) * 100).toFixed(0) + '% over — programmed slow, no force-matched feed.' : 'Material + outside over standard.',
+    }; });
+    const worstLeak = leakJobs[0];
+
+    const kaizenNote = worstLeak
+      ? `${worstLeak.j.customer} ${worstLeak.j.part.split(' ×')[0]} bled $${this.usd(worstLeak.over)} — almost all in labor. Re-run it through the calculator: the Kienzle solve cuts that cycle ~31%, recovering the margin and re-quoting the next lot honestly.`
+      : 'All jobs at or under estimate — the force-matched feeds are holding quoted cycle. Hold the line.';
+
+    const sf = (id, label) => ({ label, on: () => this.setState({ statusFilter: id }), style: `flex:1;border:1px solid ${s.statusFilter === id ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${s.statusFilter === id ? 'rgba(255,90,43,0.12)' : 'transparent'};color:${s.statusFilter === id ? '#FF7A4D' : '#9398A2'};border-radius:8px;padding:7px 0;font-size:11px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` });
+
+    return {
+      scale: s.scale, period: s.period, periodLabel: ({ mtd: 'JUN 2026 · MTD', qtd: 'Q2 2026 · QTD', ytd: 'FY2026 · YTD' }[s.period]) + (this._synced ? ' · ⊹ JM-DATA' : ''),
+      setPeriod: (e) => this.setState({ period: e.target.value }),
+      netMargin, netColor, netBorder: net >= 0 ? 'rgba(54,211,153,0.25)' : 'rgba(255,82,71,0.3)', netBg: net >= 0 ? 'rgba(54,211,153,0.06)' : 'rgba(255,82,71,0.06)',
+      statusFilters: [sf('all', 'All'), sf('open', 'Open'), sf('shipped', 'Shipped'), sf('invoiced', 'Invoiced')],
+      jobRows,
+      selPart: sel.part, selNo: sel.no, selCustomer: sel.customer, selQty: sel.qty, selStatus: statuses[sel.status][0], selRevenue: this.usd(R),
+      estMarginPct, actMarginPct, actMarginColor,
+      wfBars, wfConn, wfGrid,
+      varRows, totVar, totVarColor,
+      plRows, plRows2: null,
+      arBars, arRows, leakRows, kaizenNote,
+    };
+  }
+}
+</script>
+</body>
+</html>

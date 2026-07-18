@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "ts": "2026-06-19T16:09:38.538Z",
+  "host": {
+    "vramGB": 95.6,
+    "ollamaUrl": "http://127.0.0.1:11434"
+  },
+  "config": {
+    "baseline": "qwen3-vl:8b-instruct",
+    "count": 6,
+    "difficulty": "hard",
+    "seedBase": 7000,
+    "warm": true,
+    "maxTimeSec": 600,
+    "marginF1": 0.02,
+    "minWinRate": 0.5,
+    "minCoverage": 0.5
+  },
+  "models": {
+    "runnable": [
+      "qwen3-vl:8b-instruct"
+    ],
+    "skippedNotPulled": [],
+    "excludedThinkingTrap": [
+      "qwen3-vl:32b"
+    ]
+  },
+  "promptsGenerated": 6,
+  "genFailures": [],
+  "warmFailures": [],
+  "caveat": "CAPABILITY measurement on CLEAN SYNTHETIC prints (perfect labels) — isolates model dimension-reading skill, NOT real-scanned-print accuracy. A win here is necessary but not sufficient; confirm on the real corpus before production. Run --difficulty hard for tolerances/GD&T/noise.",
+  "perModel": [
+    {
+      "model": "qwen3-vl:8b-instruct",
+      "f1": 0.9383,
+      "recall": 1,
+      "precision": 0.8837,
+      "maeMm": 0,
+      "p50LatencyMs": 17228.5,
+      "p95LatencyMs": 37632.75,
+      "meanLatencyMs": 22075.3,
+      "coverage": 1,
+      "ocrOk": 6,
+      "count": 6,
+      "ran": true,
+      "paired": "(baseline)",
+      "cases": [
+        {
+          "seed": 7000,
+          "ms": 13873,
+          "recall": 1,
+          "precision": 0.8571,
+          "matched": 6,
+          "n_truth": 6,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7001,
+          "ms": 38350,
+          "recall": 1,
+          "precision": 0.8571,
+          "matched": 6,
+          "n_truth": 6,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7002,
+          "ms": 18102,
+          "recall": 1,
+          "precision": 0.875,
+          "matched": 7,
+          "n_truth": 7,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7003,
+          "ms": 35481,
+          "recall": 1,
+          "precision": 0.875,
+          "matched": 7,
+          "n_truth": 7,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7004,
+          "ms": 16355,
+          "recall": 1,
+          "precision": 0.8571,
+          "matched": 6,
+          "n_truth": 6,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7005,
+          "ms": 10291,
+          "recall": 1,
+          "precision": 1,
+          "matched": 6,
+          "n_truth": 6,
+          "mae_mm": 0,
+          "pn_hit": true
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "action": "stay",
+    "recommendedModel": "qwen3-vl:8b-instruct",
+    "baselineModel": "qwen3-vl:8b-instruct",
+    "baselineF1": 0.9383,
+    "candidateModel": null,
+    "candidateF1": null,
+    "deltaF1": null,
+    "marginF1": 0.02,
+    "beatsMargin": false,
+    "pairedWinRate": null,
+    "minWinRate": 0.5,
+    "latencyWarning": null,
+    "ranked": [
+      {
+        "model": "qwen3-vl:8b-instruct",
+        "f1": 0.9383,
+        "recall": 1,
+        "precision": 0.8837,
+        "maeMm": 0,
+        "p50LatencyMs": 17228.5,
+        "p95LatencyMs": 37632.75,
+        "meanLatencyMs": 22075.3,
+        "coverage": 1,
+        "ocrOk": 6,
+        "count": 6,
+        "ran": true
+      }
+    ],
+    "rationale": "only the baseline ran — no candidate to upgrade to"
+  },
+  "recommendation": {
+    "action": "stay",
+    "recommendedModel": "qwen3-vl:8b-instruct",
+    "currentSelection": "qwen2.5vl:32b",
+    "alreadySelected": false,
+    "recommendedIsThinkingTrap": false,
+    "nextStep": "keep the safe default \"qwen3-vl:8b-instruct\" — no benchmark-backed reason to change",
+    "evidence": {
+      "baselineModel": "qwen3-vl:8b-instruct",
+      "baselineF1": 0.9383,
+      "candidateModel": null,
+      "candidateF1": null,
+      "deltaF1": null,
+      "marginF1": 0.02,
+      "pairedWinRate": null,
+      "latencyWarning": null
+    }
+  }
+}

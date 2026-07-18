@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-04-16T15:05:00.000Z",
+  "source": "WEDM-AGI-P2-MS4/U-P2-14 — JM Die spark-signature derived with curated confidence caps",
+  "description": "Cross-material recipe transfer factors for WEDMRecipeAdaptationEngine. Ratios are derived from the canonical WEDM spark-signature database (Klocke 2013 + DiBitonto 1989) with per-pair confidence caps reflecting JM Die shop experience. Covers the 7 JM Die portfolio materials plus 304SS, Ti-6Al-4V, and Inconel 718.",
+  "mappings": [
+    {
+      "from": "D2",
+      "to": "A2",
+      "ra_ratio": 0.857,
+      "mrr_ratio": 1.021,
+      "wire_wear_ratio": 0.955,
+      "ie_scale": 1.00,
+      "te_scale": 1.00,
+      "confidence": 0.92,
+      "basis": "cold_tool_steel_family — near-identity spark signature; 2-pass skim transfers directly"
+    },
+    {
+      "from": "A2",
+      "to": "D2",
+      "ra_ratio": 1.167,
+      "mrr_ratio": 0.979,
+      "wire_wear_ratio": 1.048,
+      "ie_scale": 1.00,
+      "te_scale": 1.00,
+      "confidence": 0.92,
+      "basis": "cold_tool_steel_family — reverse of D2→A2"
+    },
+    {
+      "from": "D2",
+      "to": "M2",
+      "ra_ratio": 1.143,
+      "mrr_ratio": 0.947,
+      "wire_wear_ratio": 1.045,
+      "ie_scale": 0.875,
+      "te_scale": 1.00,
+      "confidence": 0.88,
+      "basis": "tool_steel_cross_family — drop peak current ~12% for HSS carbide-vanadium grade"
+    },
+    {
+      "from": "M2",
+      "to": "D2",
+      "ra_ratio": 0.875,
+      "mrr_ratio": 1.056,
+      "wire_wear_ratio": 0.957,
+      "ie_scale": 1.143,
+      "te_scale": 1.00,
+      "confidence": 0.88,
+      "basis": "tool_steel_cross_family — raise peak current ~14% coming off HSS"
+    },
+    {
+      "from": "D2",
+      "to": "S7",
+      "ra_ratio": 0.786,
+      "mrr_ratio": 1.053,
+      "wire_wear_ratio": 0.909,
+      "ie_scale": 1.125,
+      "te_scale": 1.40,
+      "confidence": 0.85,
+      "basis": "shock_tool_steel — longer pulse-on (te ×1.4) reduces wire break risk in tough S7"
+    },
+    {
+      "from": "S7",
+      "to": "D2",
+      "ra_ratio": 1.273,
+      "mrr_ratio": 0.950,
+      "wire_wear_ratio": 1.100,
+      "ie_scale": 0.889,
+      "te_scale": 0.714,
+      "confidence": 0.85,
+      "basis": "shock_tool_steel — shorten pulse-on by 30% coming off S7"
+    },
+    {
+      "from": "D2",
+      "to": "H13",
+      "ra_ratio": 0.929,
+      "mrr_ratio": 1.000,
+      "wire_wear_ratio": 0.955,
+      "ie_scale": 1.00,
+      "te_scale": 1.00,
+      "confidence": 0.90,
+      "basis": "hot_vs_cold_tool_steel — nearly identical WEDM response; identity-class transfer"
+    },
+    {
+      "from": "H13",
+      "to": "D2",
+      "ra_ratio": 1.077,
+      "mrr_ratio": 1.000,
+      "wire_wear_ratio": 1.048,
+      "ie_scale": 1.00,
+      "te_scale": 1.00,
+      "confidence": 0.90,
+      "basis": "hot_vs_cold_tool_steel — reverse of D2→H13"
+    },
+    {
+      "from": "A2",
+      "to": "H13",
+      "ra_ratio": 1.083,
+      "mrr_ratio": 0.979,
+      "wire_wear_ratio": 1.000,
+      "ie_scale": 1.00,
+      "te_scale": 1.00,
+      "confidence": 0.88,
+      "basis": "cross_tool_steel — minor Ra bump, wire wear identical"
+    },
+    {
+      "from": "H13",
+      "to": "A2",
+      "ra_ratio": 0.923,
+      "mrr_ratio": 1.021,
+      "wire_wear_ratio": 1.000,
+      "ie_scale": 1.00,
+      "te_scale": 1.00,
+      "confidence": 0.88,
+      "basis": "cross_tool_steel — reverse of A2→H13"
+    },
+    {
+      "from": "M2",
+      "to": "H13",
+      "ra_ratio": 0.813,
+      "mrr_ratio": 1.056,
+      "wire_wear_ratio": 0.913,
+      "ie_scale": 1.143,
+      "te_scale": 1.00,
+      "confidence": 0.85,
+      "basis": "hss_to_hot_work — raise peak current ~14%, Ra improves"
+    },
+    {
+      "from": "H13",
+      "to": "M2",
+      "ra_ratio": 1.231,
+      "mrr_ratio": 0.947,
+      "wire_wear_ratio": 1.095,
+      "ie_scale": 0.875,
+      "te_scale": 1.00,
+      "confidence": 0.85,
+      "basis": "hot_work_to_hss — drop peak current ~12%"
+    },
+    {
+      "from": "D2",
+      "to": "WC",
+      "ra_ratio": 0.786,
+      "mrr_ratio": 0.316,
+      "wire_wear_ratio": 1.636,
+      "ie_scale": 0.500,
+      "te_scale": 0.600,
+      "confidence": 0.70,
+      "basis": "steel_to_carbide — halve peak current, shorten pulse; MRR drops ~3x, wire wear rises 1.6x. Switch to coated wire."
+    },
+    {
+      "from": "WC",
+      "to": "D2",
+      "ra_ratio": 1.273,
+      "mrr_ratio": 3.167,
+      "wire_wear_ratio": 0.611,
+      "ie_scale": 2.000,
+      "te_scale": 1.667,
+      "confidence": 0.70,
+      "basis": "carbide_to_steel — double peak current, lengthen pulse; MRR jumps ~3x"
+    },
+    {
+      "from": "A2",
+      "to": "WC",
+      "ra_ratio": 0.917,
+      "mrr_ratio": 0.309,
+      "wire_wear_ratio": 1.714,
+      "ie_scale": 0.500,
+      "te_scale": 0.600,
+      "confidence": 0.68,
+      "basis": "steel_to_carbide — same as D2→WC with slight Ra retention"
+    },
+    {
+      "from": "WC",
+      "to": "A2",
+      "ra_ratio": 1.091,
+      "mrr_ratio": 3.233,
+      "wire_wear_ratio": 0.583,
+      "ie_scale": 2.000,
+      "te_scale": 1.667,
+      "confidence": 0.68,
+      "basis": "carbide_to_steel — reverse of A2→WC"
+    },
+    {
+      "from": "graphite",
+      "to": "D2",
+      "ra_ratio": 1.556,
+      "mrr_ratio": 0.792,
+      "wire_wear_ratio": 1.833,
+      "ie_scale": 0.800,
+      "te_scale": 1.250,
+      "confidence": 0.75,
+      "basis": "electrode_to_steel — Ra increases ~55%, wire wear rises — only valid for trim fixtures"
+    },
+    {
+      "from": "D2",
+      "to": "graphite",
+      "ra_ratio": 0.643,
+      "mrr_ratio": 1.263,
+      "wire_wear_ratio": 0.545,
+      "ie_scale": 1.250,
+      "te_scale": 0.800,
+      "confidence": 0.75,
+      "basis": "steel_to_electrode — dust hazard; raise peak current for high-MRR electrode work"
+    },
+    {
+      "from": "M2",
+      "to": "S7",
+      "ra_ratio": 0.688,
+      "mrr_ratio": 1.111,
+      "wire_wear_ratio": 0.870,
+      "ie_scale": 1.286,
+      "te_scale": 1.400,
+      "confidence": 0.80,
+      "basis": "hss_to_shock_steel — long pulse-on, higher peak current"
+    },
+    {
+      "from": "S7",
+      "to": "M2",
+      "ra_ratio": 1.455,
+      "mrr_ratio": 0.900,
+      "wire_wear_ratio": 1.150,
+      "ie_scale": 0.778,
+      "te_scale": 0.714,
+      "confidence": 0.80,
+      "basis": "shock_steel_to_hss — shorten pulse-on 30%, drop current 22%"
+    },
+    {
+      "from": "SS_304",
+      "to": "D2",
+      "ra_ratio": 0.933,
+      "mrr_ratio": 1.188,
+      "wire_wear_ratio": 1.000,
+      "ie_scale": 1.143,
+      "te_scale": 1.000,
+      "confidence": 0.82,
+      "basis": "austenitic_to_tool_steel — raise current ~14%, Ra improves slightly"
+    },
+    {
+      "from": "D2",
+      "to": "SS_304",
+      "ra_ratio": 1.071,
+      "mrr_ratio": 0.842,
+      "wire_wear_ratio": 1.000,
+      "ie_scale": 0.875,
+      "te_scale": 1.000,
+      "confidence": 0.82,
+      "basis": "tool_steel_to_austenitic — lower current ~12% for stainless"
+    },
+    {
+      "from": "Ti6Al4V",
+      "to": "Inconel_718",
+      "ra_ratio": 0.895,
+      "mrr_ratio": 1.200,
+      "wire_wear_ratio": 1.077,
+      "ie_scale": 1.000,
+      "te_scale": 1.000,
+      "confidence": 0.80,
+      "basis": "aerospace_tough_pair — nearly identical operating regime; Ra better on Inconel"
+    },
+    {
+      "from": "Inconel_718",
+      "to": "Ti6Al4V",
+      "ra_ratio": 1.118,
+      "mrr_ratio": 0.833,
+      "wire_wear_ratio": 0.929,
+      "ie_scale": 1.000,
+      "te_scale": 1.000,
+      "confidence": 0.80,
+      "basis": "aerospace_tough_pair — reverse of Ti6Al4V→Inconel_718"
+    }
+  ]
+}

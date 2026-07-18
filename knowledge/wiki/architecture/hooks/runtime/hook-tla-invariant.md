@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-hook_tla_invariant — USSH Phase 0.25=====================================Verifies TLA+ style invariants for hook protocol state machine.Ensures safety properties hold: no deadlock, mutual exclusion, liveness.Invariants checked:- TypeInvariant: hookState ∈ {idle, executing, blocked, failed}- Safety: No two sessions hold same lock (mutual exclusion)- Liveness: Eventually returns to idle (no permanent block)Fires: SessionStartTheory: Formal Verification, TLA+ temporal logic@hook SessionSt
+_(no header docblock — read source for behavior)_
 
 ## Events
 

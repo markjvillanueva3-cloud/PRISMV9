@@ -28,7 +28,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: production
+      # U-INFRA-DOCKER-FIX (delta, 2026-05-18): Dockerfile defines stages
+      # `builder` and `runtime` only — never `production`. Was previously
+      # `target: production` which failed with
+      #   "target stage 'production' could not be found"
+      # on every compose-up of prism-server (and every service in its
+      # depends_on chain). Aligned to the real Dockerfile stage name.
+      target: runtime
     container_name: prism-mcp-server
     restart: unless-stopped
     ports:
@@ -106,6 +112,79 @@ services:
     networks:
       - prism-net
 
+  # Redis -- durable cache + BullMQ queue backend + EventBusEngine Redis-Streams
+  # durable bus (RedisStreamSink). The Redis-dependent layer (RedisCacheProvider /
+  # JobQueueEngine / RedisStreamSink) targets 127.0.0.1:6379; this orchestrates it
+  # as a first-class stack service (INFRA-SYNERGY Phase 3). appendonly=yes so the
+  # durable event log + job queue survive restarts.
+  redis:
+    image: redis:7-alpine
+    container_name: prism-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"   # localhost-only; never expose Redis publicly
+    volumes:
+      - ./data/docker-volumes/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - prism-net
+
+  # PRISM Hook Broker daemon (U-DOCKER-HOOK-BROKER-P3, 2026-05-22, slot hotel).
+  # Holds the 78 module-safe `.claude/hooks/*.mjs` warm in memory + serves
+  # them via HTTP. Reads HOOK-BROKER-COMPAT-REPORT.json (produced by
+  # `scripts/classify-hooks-for-broker.mjs`) on startup; routes `POST
+  # /hook/:name` → cached handler.
+  #
+  # Bind-mounts:
+  #   .claude/hooks       — hook source (read-only)
+  #   state/shared        — compat report + atomic-write outputs (read-only)
+  #
+  # The image bakes ONLY the broker entry point + classifier lib; hook
+  # source is bind-mounted so edits land via `POST /reload` without
+  # rebuilding. Production-safe defaults: non-root user, no networking
+  # except localhost, 1 MB body cap, 10s handler timeout (all enforced
+  # in `docker/hook-broker/server.mjs`).
+  prism-hooks:
+    build:
+      context: .
+      dockerfile: docker/hook-broker/Dockerfile
+    container_name: prism-hook-broker
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9876:9876"
+    volumes:
+      - ./.claude/hooks:/repo/.claude/hooks:ro
+      - ./state/shared:/repo/state/shared:ro
+    environment:
+      NODE_ENV: production
+      PRISM_BROKER_PORT: "9876"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9876/healthz | grep -q '\"ready\":true' || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    networks:
+      - prism-net
+
   # Local LLM runtime (Ollama). GPU passthrough opt-in via override file.
   ollama:
     image: ollama/ollama:latest
@@ -117,7 +196,21 @@ services:
       - ./data/docker-volumes/ollama:/root/.ollama
     environment:
       OLLAMA_HOST: "0.0.0.0:11434"
-      OLLAMA_KEEP_ALIVE: "30m"
+      # GPU-OFFLOAD-MAXIMIZE-MS0/U2 (2026-05-22, slot:sierra; retuned 2026-06-04
+      # BLACKWELL-GPU-SWAP slot:golf) — perf knobs for the 96GB RTX PRO 6000
+      # Blackwell Workstation Edition (massive VRAM headroom; was 16GB RTX 4080
+      # SUPER). NOTE: native ollama (PRISM Ollama Serve task, v0.30.3) is the
+      # ACTIVE runtime on DESKTOP-N7MI1VB; this containerized service is the
+      # portable/CI fallback (Docker Desktop is normally down here). KEEP_ALIVE=-1
+      # pins models warm forever. With 96GB, KV_CACHE_TYPE=f16 (full precision —
+      # no q8_0 VRAM compromise needed), NUM_PARALLEL=4 serves the 26-slot fleet,
+      # MAX_LOADED_MODELS=6 keeps the 7b workhorse + 32b heavy + embed co-resident.
+      OLLAMA_KEEP_ALIVE: "-1"
+      OLLAMA_FLASH_ATTENTION: "1"
+      OLLAMA_KV_CACHE_TYPE: "f16"
+      OLLAMA_NUM_PARALLEL: "4"
+      OLLAMA_MAX_LOADED_MODELS: "6"
+      OLLAMA_CONTEXT_LENGTH: "16384"
     healthcheck:
       test: ["CMD-SHELL", "ollama --version || exit 1"]
       interval: 15s
@@ -132,7 +225,7 @@ services:
     container_name: prism-grafana
     restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "3601:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=prism-admin
       - GF_USERS_ALLOW_SIGN_UP=false

@@ -1,0 +1,799 @@
+{
+ "LATHE-MASTER::U-LTH106": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/lathe/lathepredictivetwinorchestratorengine.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-adaptivecontrol.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": ["token-budget-management", "fail-loud-r12-patterns", "engine-creation-discipline"],
+  "systemImpact": "Time-budget-gated orchestrator for the lathe digital-twin loop; called by prism_turning lathe_predictive_twin actions and consumed by lathe_adaptive_control runtime. Wraps cognitive-budget-allocate plus Bayesian uncertainty propagation so per-prediction wall-clock stays under 60s; exceeding budget fails loud rather than emitting stale predictions.",
+  "csDepth": [
+   "O(n) where n=prediction-horizon ticks; 60s wall-clock cap enforced via AbortController-style deadline gate.",
+   "Edge case: budget exhaustion mid-prediction must emit partial-result-with-honest-incompleteness, not silently fall back to a cached value (R12 fail-loud).",
+   "Race: concurrent twin updates need a per-engine mutex; otherwise EKF state corrupts under interleaved writes."
+  ]
+ },
+ "LATHE-MASTER::U-LTH107": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/lathe/lathetwinvalidationreportengine.md",
+   "knowledge/wiki/architecture/dispatcher-validate.md",
+   "knowledge/wiki/architecture/actions/validation/anti-regression.md"
+  ],
+  "addSeWiki": ["per-file-scrutiny-gate", "test-design-real-values", "fail-loud-r12-patterns"],
+  "systemImpact": "MAPE-gated validation report engine for the lathe digital twin; gates promotion through 15/20/25% MAPE bands tied to MS-CI completeness gates. Consumed by lathe_validate dispatcher actions and the per-file-scrutiny Stop hook chain so a regressing twin cannot ship.",
+  "csDepth": [
+   "MAPE = mean(|actual-pred|/|actual|); guard divisor==0 edge case; use SMAPE fallback when actual is near zero.",
+   "Three thresholds compose as a hard ladder: tier promotion requires all three windows pass independently (no averaging; softening the gate violates R12).",
+   "Test-design: assertions must check real reference values, not toBeDefined() stubs (hook rejects placeholders)."
+  ]
+ },
+ "LATHE-MASTER::U-LTH109": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md",
+   "knowledge/wiki/architecture/system-viz.md",
+   "knowledge/wiki/architecture/agent-status-overlay.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule", "html-companion-discipline"],
+  "systemImpact": "React page (web/src/pages/LathePreplay.tsx) visualizing lathe twin preplay via /system-viz live bridge. Hosted under frontend-prism-web; consumes streamed events from LathePredictiveTwinOrchestratorEngine via WS bridge.",
+  "csDepth": [
+   "Frontend bridge needs reconnection backoff (exponential, capped); naive auto-reconnect storms the WS endpoint on backend restart.",
+   "Render path: O(n) per twin-state delta; large preplay traces must virtualize the list/canvas.",
+   "WAI-ARIA labels required per html-companion-discipline so screen readers narrate live updates."
+  ]
+ },
+ "LATHE-MASTER::U-LTH11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md",
+   "knowledge/wiki/architecture/frontends/frontend_dir/frontend-prism-web-components-calculator.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule", "html-companion-discipline"],
+  "systemImpact": "React calculator panel (web/src/components/Calculator/*) for lathe speed/feed/MRR plus AI program review; backend via prism_calc dispatcher actions (rpm, feedrate, mrr, surface_speed). Sister calculator pattern to WEDM calculator solver chain.",
+  "csDepth": [
+   "State must be Zustand-store-backed for IndexedDB persistence across page refreshes.",
+   "AI review path (CalculatorBackendAiReview) should route prism_ai cheap models first via two_pass cascade, not directly to Opus.",
+   "Number inputs need unit-conversion guard (imperial vs metric); mis-units in speed/feed are a load-bearing safety issue."
+  ]
+ },
+ "LATHE-MASTER::U-LTH110": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/skills/project/forge-triple.md",
+   "knowledge/wiki/architecture/skills/user/forge-triple.md",
+   "knowledge/wiki/architecture/engines/lathe/lathepredictivetwinorchestratorengine.md"
+  ],
+  "addSeWiki": ["subagent-orchestration-discipline", "engine-creation-discipline", "per-file-scrutiny-gate"],
+  "systemImpact": "/forge-triple invocation pairing LathePredictiveTwinOrchestratorEngine with companion skill plus hook; goes through duplicationGuardEngine.mustCheckBeforeCreating() and emits engine + dispatcher action + test triad atomically.",
+  "csDepth": [
+   "duplicationGuardEngine THROWS on name collision; pre-flight check is non-bypassable.",
+   "Triple must wire to ALL applicable dispatchers (prism_turning AND prism_adaptive_control here), not a single host.",
+   "Per-file scrutiny gate fires after each of the 3 files; compound errors caught before next file."
+  ]
+ },
+ "LATHE-MASTER::U-LTH112": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-calc.md", "knowledge/wiki/architecture/actions/feasibility/sampling-cam-strategy.md"],
+  "addSeWiki": ["engine-creation-discipline", "schema-read-discipline"],
+  "systemImpact": "Thompson-sampling agent-budget allocator; consumed by lathe_orchestrate to pick among sampling strategies (cam/feasibility/post/print). Bridges prism_calc sampling actions with the LathePredictiveTwin agent loop.",
+  "csDepth": [
+   "Thompson sampling = Beta(alpha,beta) posterior per arm; O(arms) memory + 1 RNG draw per pick; sufficient-statistic update O(1).",
+   "Cold-start: prior must be set deliberately (Jeffreys Beta(0.5,0.5) vs uniform Beta(1,1)); wrong prior dominates first ~10 trials.",
+   "Reward must be in [0,1]; unbounded reward corrupts posterior unless rescaled."
+  ]
+ },
+ "LATHE-MASTER::U-LTH113": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-ml.md", "knowledge/wiki/architecture/dispatcher-intelligence.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "Provenance times confidence weighted consensus over multiple lathe-agent verdicts; depends on the prism_ml provenance trio (create/validate/get) and assist-confidence from prism_intelligence. JM-die provenance-guard feeds the weighting.",
+  "csDepth": [
+   "Weighted-vote: confidence in [0,1], provenance trust in [0,1]; final score = sum(w_i*s_i)/sum(w_i) with tie-break via lexicographic provenance rank.",
+   "Edge case: all-low-confidence collapse; return abstain, never a 50/50 coin-flip (R12 fail-loud).",
+   "JSONL ledger of each consensus call enables post-hoc audit + replay."
+  ]
+ },
+ "LATHE-MASTER::U-LTH115": {
+  "addArchWiki": ["knowledge/wiki/architecture/combos/combo-claude.md", "knowledge/wiki/architecture/claude-md-collapse-tool.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "fleet-coordination-discipline"],
+  "systemImpact": "Wires claude-flow + queen-coordinator subagent orchestration into the lathe pipeline; coexists with 26-slot NATO fleet model and per-slot RGS allocator.",
+  "csDepth": [
+   "Subagent fan-out: parallel tool-call discipline applies; N independent Agent() calls in one tool block.",
+   "Coordination conflict with existing slot-task-claim store needs explicit precedence (slot lock > flow lock)."
+  ]
+ },
+ "LATHE-MASTER::U-LTH117": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-calc.md", "knowledge/wiki/architecture/engines/lathe/lathetribologywearmodelengine.md"],
+  "addSeWiki": ["physics-constants-discipline", "engine-creation-discipline"],
+  "systemImpact": "Malkin grinding-tribology wear decomposition for lathe inserts; feeds prism_calc helix-angle force decomposition and time-series wear forecasting. Consumed by tool-life and adaptive-feed loops.",
+  "csDepth": [
+   "Wear-rate model: dW/dt = f(F_c, v, mu, T); coefficients MUST import from physics/constants.ts, never inlined.",
+   "Decomposition assumes orthogonal cutting frame; oblique correction via helix angle is a separate transform."
+  ]
+ },
+ "LATHE-MASTER::U-LTH118": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-adaptivecontrol.md", "knowledge/wiki/architecture/actions/adaptivecontrol/tool-life-weibull.md", "knowledge/wiki/architecture/actions/adaptivecontrol/tool-life-predict.md"],
+  "addSeWiki": ["physics-constants-discipline", "safety-tier-discipline"],
+  "systemImpact": "Basquin fatigue gate combining tool + spindle + chuck-jaw cumulative damage; gates the adaptive-feed loop via prism_adaptive_control tool_life_weibull/predict and feeds prism_safety check_spindle_torque.",
+  "csDepth": [
+   "Basquin: N*sigma^b = C; coefficients (b, C) MUST come from physics/constants.ts.",
+   "Miner cumulative damage sum(n_i/N_i) >= 1 trips the gate; near-1 must emit warn-tier, not silent-pass.",
+   "Three independent fatigue clocks (tool, spindle, jaw); joint failure probability is not the product of independent probs if loads are correlated."
+  ]
+ },
+ "LATHE-MASTER::U-LTH119": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/calc/thin-floor-min-thickness.md", "knowledge/wiki/architecture/dispatcher-calc.md"],
+  "addSeWiki": ["physics-constants-discipline", "safety-tier-discipline"],
+  "systemImpact": "Thin-wall linear-elastic fracture-mechanics gate; consumes prism_calc thin-floor-analyze and informs lathe operation-sequence planning so a thin-wall feature is not roughed past its critical crack-arrest thickness.",
+  "csDepth": [
+   "LEFM K_I = Y*sigma*sqrt(pi*a); a is half-crack length; Y is geometry factor.",
+   "Critical thickness scales nonlinearly with feed/depth; a 2x feed step can cross the K_IC threshold; gate must run per-operation, not per-job."
+  ]
+ },
+ "LATHE-MASTER::U-LTH12": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/jmdie/jm-die-shop-profile.md"],
+  "addSeWiki": ["memory-curation-discipline", "schema-read-discipline"],
+  "systemImpact": "Shop-aware tuning overlay personalizing lathe defaults from JM-Die shop_config + scheduling tables (CPM/Johnsons/single-machine). Read via prism_business shop_config_get and stamped onto every prism_turning quote.",
+  "csDepth": [
+   "Shop-config schema is the SSOT; never duplicate machine specs in code.",
+   "Tuning overrides must be additive (never replace defaults silently); audit log every override application."
+  ]
+ },
+ "LATHE-MASTER::U-LTH13": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-calc.md", "knowledge/wiki/architecture/dispatcher-turning.md", "knowledge/wiki/architecture/monolith-modules/complete-extraction/prism-phase1-manufacturing.md"],
+  "addSeWiki": ["regression-prevention-doctrine", "test-design-real-values", "physics-constants-discipline"],
+  "systemImpact": "Speed/feed calculator regression suite for the lathe; locks ultimate-speed and Kienzle-derived feeds against monolith Phase 1 reference values. Test suite for prism_calc/prism_turning speed-feed actions.",
+  "csDepth": [
+   "Reference values must come from physics/constants.ts and authoritative sources (Sandvik/Kennametal); placeholder asserts rejected by hooks.",
+   "Fail-on-revert oracle: any change reducing surface_speed for a sealed (material, tool) pair must be flagged as a regression."
+  ]
+ },
+ "LATHE-MASTER::U-LTH14": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/dispatcher-calc.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "physics-constants-discipline"],
+  "systemImpact": "/forge-triple for the speed/feed calculator backend; ships the prism_calc speed_feed engine + skill + integration test against monolith Phase 1 reference values.",
+  "csDepth": ["Triple covers backend engine only; frontend panel ships under U-LTH11."]
+ },
+ "LATHE-MASTER::U-LTH15": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/registries/registry-controller.md"],
+  "addSeWiki": ["schema-read-discipline", "dispatcher-action-design"],
+  "systemImpact": "Ingests CPS controller-spec files into a normalized internal model consumed by prism_ai controller_compare/debug/macro/select/translate. Feeds Master Post downstream.",
+  "csDepth": [
+   "CPS parser must round-trip; re-emit byte-equal for any well-formed input; lossy round-trip is silent-corruption (R12).",
+   "Dialect detection: heuristic on G/M-code shape + reserved words; ties go to explicit user pin."
+  ]
+ },
+ "LATHE-MASTER::U-LTH16": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-cam.md", "knowledge/wiki/architecture/actions/calc/sampling-post-processor.md"],
+  "addSeWiki": ["engine-creation-discipline", "dispatcher-action-design"],
+  "systemImpact": "Post-processor skeleton generator; emits a working CAM post template from a controller-spec ingest (U-LTH15) + sampling strategy. Wired through prism_cam post_* actions.",
+  "csDepth": [
+   "Template generation must be deterministic; same input ==> byte-equal output (regression-test gate).",
+   "Output is partial by design (operator fills in shop-specific dialect tweaks); clearly mark TODO sections, never emit silent placeholders."
+  ]
+ },
+ "LATHE-MASTER::U-LTH17": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/actions/aireasoning/transfer-bridge-register.md"],
+  "addSeWiki": ["engine-creation-discipline", "memory-curation-discipline"],
+  "systemImpact": "Transfer-learning across controller dialects (Fanuc to Mitsubishi etc.); registers analogies via prism_ai transfer_bridge_register and validates via xproc_transfer_check.",
+  "csDepth": [
+   "Source-target dialect pair has a similarity metric; analogies under threshold must NOT be auto-applied.",
+   "Bayesian update on observed transfer outcomes; prior must be Beta(1,1) on first deployment, never optimistic."
+  ]
+ },
+ "LATHE-MASTER::U-LTH18": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-dev.md", "knowledge/wiki/architecture/hooks/runtime/anti-pattern-detector.md"],
+  "addSeWiki": ["hook-authoring-discipline", "regression-prevention-doctrine"],
+  "systemImpact": "Auto-wiring validator stack for generated posts; runs in post-generation pipeline and the auto-wire Stop hook chain. Surfaces zero-dispatcher orphans before commit.",
+  "csDepth": [
+   "Validator must run in O(generated-files) not O(repo); per-file scrutiny gate already covers per-file checks.",
+   "Idempotency: re-running on a clean post yields zero new warnings; new findings imply genuine drift."
+  ]
+ },
+ "LATHE-MASTER::U-LTH19": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/validation/anti-regression.md", "knowledge/wiki/architecture/hooks/runtime/anti-pattern-detector.md"],
+  "addSeWiki": ["test-design-real-values", "regression-prevention-doctrine"],
+  "systemImpact": "Regression-test auto-generator for generated posts; emits real-reference test cases via prism_validate anti_regression and the auto-test hook chain.",
+  "csDepth": [
+   "Generated tests must assert against KNOWN reference values; toBeDefined() stubs are hook-rejected.",
+   "Generator is itself testable; golden output snapshot lockfile."
+  ]
+ },
+ "LATHE-MASTER::U-LTH20": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-knowledge.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md"],
+  "addSeWiki": ["memory-curation-discipline", "recall-injection-flow"],
+  "systemImpact": "Knowledge-graph integration layer for the post-processor generator pipeline; pulls from prism_knowledge kg_query + prism_ai ai_knowledge_query to bind material/machine/tool nodes into post-emit context.",
+  "csDepth": [
+   "KG queries are read-heavy; cache aggressively per (material, machine, tool) tuple.",
+   "Recall injection must respect token budget; top-K with score gating."
+  ]
+ },
+ "LATHE-MASTER::U-LTH21": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/aireasoning/ai-lathe-active-learn-select.md", "knowledge/wiki/architecture/actions/aireasoning/learning-rank.md"],
+  "addSeWiki": ["engine-creation-discipline", "memory-curation-discipline"],
+  "systemImpact": "Active-learning feedback loop for lathe predictions; routes through prism_ai ai_lathe_active_learn_select + learning_rank, with outcomes feeding the meta-learning record loop.",
+  "csDepth": [
+   "Active-learning sample selection: expected-info-gain criterion; needs an honest uncertainty model upstream.",
+   "Outcome ledger must be append-only JSONL (no overwrites); replay reconstructs the policy state."
+  ]
+ },
+ "LATHE-MASTER::U-LTH22": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-calc.md", "knowledge/wiki/architecture/actions/calc/metrology-expanded-uncertainty.md"],
+  "addSeWiki": ["physics-constants-discipline", "fail-loud-r12-patterns"],
+  "systemImpact": "Uncertainty quantification over generated post outputs; uses prism_calc metrology-expanded-uncertainty + Bayesian uncertainty propagation. Composes with the v10.9 production quality check.",
+  "csDepth": [
+   "Expanded uncertainty U = k*u_c with k=2 (95% coverage); never silently switch coverage factor.",
+   "Correlated input uncertainties need the full covariance matrix, not just diag."
+  ]
+ },
+ "LATHE-MASTER::U-LTH23": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-generator.md", "knowledge/wiki/architecture/actions/generator/generate.md"],
+  "addSeWiki": ["dispatcher-action-design", "mcp-tool-design"],
+  "systemImpact": "Dispatcher wiring for the post-processor generator: prism_generator actions (generate, generate_batch, get_template, list_domains, stats, validate). Frontline for /forge-triple consumers.",
+  "csDepth": [
+   "Action enum must be sealed (z.enum); silent acceptance of an unknown action is the MockMCPServer trap U-DISPATCHER hit.",
+   "Each action ships an integration test that drives it through the real dispatcher boundary (not a hermetic mock)."
+  ]
+ },
+ "LATHE-MASTER::U-LTH24": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/dispatcher-cam.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "dispatcher-action-design"],
+  "systemImpact": "/forge-triple for the full post-processor generator; bundles engine + skill + hook + the prism_cam post action wiring.",
+  "csDepth": ["Triple must wire to both prism_cam AND prism_generator; sister-dispatcher rule."]
+ },
+ "LATHE-MASTER::U-LTH25": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathemasterpostrouterengine.md", "knowledge/wiki/architecture/dispatcher-cam.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "test-design-real-values"],
+  "systemImpact": "LatheMasterPostRouterEngine: a LatheMasterPost-family engine; consumed by the prism_cam master_post + prism_turning lathe_orchestrate pipelines. Companion test exercises real CPS round-trip values, not placeholder mocks.",
+  "csDepth": [
+   "Engine must surface a typed API contract (TypeScript) at the dispatcher boundary; silent shape drift is the load-bearing R12 risk.",
+   "Test ships with reference G-code values from JM-Die programs, not stubbed strings."
+  ]
+ },
+ "LATHE-MASTER::U-LTH26": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathemasterpostunifiedoutputengine.md", "knowledge/wiki/architecture/dispatcher-cam.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "test-design-real-values"],
+  "systemImpact": "LatheMasterPostUnifiedOutputEngine: a LatheMasterPost-family engine producing the unified output across dialects; consumed by prism_cam master_post.",
+  "csDepth": ["Deterministic emit required for the regression-test gate.", "Reference G-code from JM-Die programs, not stubs."]
+ },
+ "LATHE-MASTER::U-LTH27": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathemasterpostselfawarenessengine.md", "knowledge/wiki/architecture/dispatcher-cam.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "test-design-real-values"],
+  "systemImpact": "LatheMasterPostSelfAwarenessEngine: introspects the master-post family's capability matrix; consumed by /system-viz and the auto-wire validator.",
+  "csDepth": ["Self-awareness output schema is contract-locked; consumers depend on stable shape."]
+ },
+ "LATHE-MASTER::U-LTH28": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathemasterpostdeepreasoningengine.md", "knowledge/wiki/architecture/dispatcher-cam.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "test-design-real-values"],
+  "systemImpact": "LatheMasterPostDeepReasoningEngine: chain-of-thought reasoning over master-post emit decisions; explains why a particular macro shape was selected.",
+  "csDepth": ["Reasoning trace must be persisted as JSONL for audit; user-facing explanation is a summary, full trace is for forensics."]
+ },
+ "LATHE-MASTER::U-LTH29": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathemasterpostensemblecrosscheckengine.md", "knowledge/wiki/architecture/dispatcher-cam.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "test-design-real-values"],
+  "systemImpact": "LatheMasterPostEnsembleCrossCheckEngine: cross-checks emit across multiple master-post strategies; surfaces disagreement for operator review.",
+  "csDepth": ["Cross-check disagreement is signal; high-disagreement runs must be operator-gated, not silently averaged (R7)."]
+ },
+ "LATHE-MASTER::U-LTH30": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathemasterpostapiengine.md", "knowledge/wiki/architecture/dispatcher-cam.md"],
+  "addSeWiki": ["dispatcher-action-design", "mcp-tool-design"],
+  "systemImpact": "LatheMasterPostAPIEngine + dispatcher wiring; exposes the master-post family as prism_cam actions. Composes with catalog and learn dispatchers for KG-backed lookup.",
+  "csDepth": ["Dispatcher action must be enum-sealed; a missing-from-enum action 9/9-passes a MockMCPServer test yet 100% fails production (U-DISPATCHER lesson)."]
+ },
+ "LATHE-MASTER::U-LTH31": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-cam.md", "knowledge/wiki/architecture/engines/cam/cncprogramassemblerengine.md"],
+  "addSeWiki": ["test-design-real-values", "regression-prevention-doctrine"],
+  "systemImpact": "Master post regression-test matrix; locks ppg/master-post/camDispatcher.master-post outputs against real reference G-code. The fail-on-revert oracle for the master-post family.",
+  "csDepth": [
+   "Test matrix grows multiplicatively; use parameterized cases (vitest/each) to keep maintenance linear.",
+   "Reference G-code from JM-Die programs (not synthetic); placeholder asserts rejected."
+  ]
+ },
+ "LATHE-MASTER::U-LTH32": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/cam/okumab250lathemasterpostengine.md", "knowledge/wiki/architecture/skills/project/forge-triple.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "dispatcher-action-design"],
+  "systemImpact": "/forge-triple invocation for the OkumaB250LatheMasterPostEngine; pairs the engine, the lathe-master skill, and the sidecar-integration test.",
+  "csDepth": ["OkumaB250 is the canonical first-class lathe controller; triple must wire prism_cam master_post AND prism_turning okuma_* actions."]
+ },
+ "LATHE-MASTER::U-LTH33": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-cad.md", "knowledge/wiki/architecture/actions/cad/blueprint-coverage-audit.md"],
+  "addSeWiki": ["engine-creation-discipline", "schema-read-discipline"],
+  "systemImpact": "Blueprint ingest + Vision-OCR pipeline; feeds prism_cad blueprint_* actions and downstream prism_turning lathe_print_to_program.",
+  "csDepth": [
+   "OCR has structured failure modes (low contrast, rotated text, tolerance bands); emit confidence, never fabricate.",
+   "Coverage audit ensures every dimensional field a downstream consumer needs is either extracted OR explicitly flagged unknown (R12)."
+  ]
+ },
+ "LATHE-MASTER::U-LTH34": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-turning.md", "knowledge/wiki/architecture/actions/turningprogram/turning-feature-taxonomy.md"],
+  "addSeWiki": ["engine-creation-discipline", "schema-read-discipline"],
+  "systemImpact": "Turning feature recognition: OD/ID/face/groove/thread/profile classification from CAD geometry; consumed by prism_turning lathe_print_to_program and the lathe-studio feature picker.",
+  "csDepth": [
+   "Feature classifier is on the geometry rev-profile; needs robust axis detection (PCA / inertia tensor) before feature taxonomy.",
+   "Ambiguous regions must return multi-label with explicit scores, not a single guess."
+  ]
+ },
+ "LATHE-MASTER::U-LTH35": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-cad.md", "knowledge/wiki/architecture/actions/cad/cad-tolerance-stackup.md"],
+  "addSeWiki": ["physics-constants-discipline", "fail-loud-r12-patterns"],
+  "systemImpact": "GD&T tolerance propagation across the lathe operation sequence; consumes prism_cad cad_tolerance_apply + cad_tolerance_stackup.",
+  "csDepth": [
+   "Stackup arithmetic is statistical (RSS) or worst-case (algebraic); must be a deliberate choice per feature, not an undeclared default.",
+   "ISO 286 fit class parser must validate against the canonical table; freeform tolerance text => fail loud."
+  ]
+ },
+ "LATHE-MASTER::U-LTH36": {
+  "addArchWiki": ["knowledge/wiki/architecture/milestones/milestone-ghost-ms-camx-ms12.md", "knowledge/wiki/architecture/dispatcher-cam.md"],
+  "addSeWiki": ["engine-creation-discipline", "dispatcher-action-design"],
+  "systemImpact": "Feature-to-strategy mapping for lathe; receives handoff from CAMX-MS12 strategy taxonomy and produces lathe-specific operation strategies. Sister to mill/wedm feature-to-strategy mappings.",
+  "csDepth": ["Strategy enum must be sealed and shared with the master post; drift produces silent post-emit failures."]
+ },
+ "LATHE-MASTER::U-LTH37": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-multiop.md", "knowledge/wiki/architecture/actions/multiop/operation-sequence.md"],
+  "addSeWiki": ["engine-creation-discipline", "physics-constants-discipline"],
+  "systemImpact": "Multi-op sequence planning for lathe; uses prism_multi_op operation_sequence + multi_setup_plan. Composes with workholding (U-LTH38) for setup-transition cost.",
+  "csDepth": [
+   "Sequence optimization is NP-hard in general; approximation via dependency DAG + critical-path scheduling; document the approximation.",
+   "Tool-change cost is a per-edge weight; underestimating it produces sequences that thrash the turret."
+  ]
+ },
+ "LATHE-MASTER::U-LTH38": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-calc.md", "knowledge/wiki/architecture/actions/calc/workholding-clamp-force.md", "knowledge/wiki/architecture/actions/calc/feasibility-workholding.md"],
+  "addSeWiki": ["physics-constants-discipline", "safety-tier-discipline"],
+  "systemImpact": "Workholding + setup selection for lathe; reads prism_calc workholding_* and feasibility_workholding to score chuck/collet/steady-rest options against required clamp force and rigidity.",
+  "csDepth": [
+   "Clamp force calc requires real friction coeff mu from physics/constants.ts; mu=0.1 is a common silent-default that under-estimates jaw force.",
+   "Feasibility-workholding emits a hard veto if grip < required; never soften the veto threshold."
+  ]
+ },
+ "LATHE-MASTER::U-LTH39": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-toolpath.md", "knowledge/wiki/architecture/actions/algorithm/toolpath-adaptive.md"],
+  "addSeWiki": ["engine-creation-discipline", "physics-constants-discipline"],
+  "systemImpact": "Toolpath generation + CAM integration for lathe; pipes prism_toolpath toolpath_adaptive / toolpath_rest results into prism_cam production_toolpath_generate.",
+  "csDepth": [
+   "Adaptive toolpaths need a stable corner-feed model; discontinuities at sharp turns are a load-bearing chatter trigger.",
+   "Integration must round-trip: CAM to toolpath to CAM with no material loss."
+  ]
+ },
+ "LATHE-MASTER::U-LTH40": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/cam/okumab250lathemasterpostengine.md", "knowledge/wiki/architecture/dispatcher-cam.md"],
+  "addSeWiki": ["engine-creation-discipline", "physics-constants-discipline"],
+  "systemImpact": "Program emission via the OkumaB250 Master Post; terminal stage of the lathe print-to-program pipeline. Consumes toolpath result + machine profile + dialect.",
+  "csDepth": [
+   "Emission must be deterministic; same input ==> byte-equal output (regression-test gate).",
+   "Macro variable substitution is dialect-specific; Okuma OSP macros (VC100 etc.) are NOT Fanuc #100; keep separate symbol tables."
+  ]
+ },
+ "LATHE-MASTER::U-LTH41": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-turning.md", "knowledge/wiki/architecture/actions/turning/lathe-p2p-signoff-generate.md"],
+  "addSeWiki": ["wiki-frontmatter-validation", "per-file-scrutiny-gate"],
+  "systemImpact": "Program validation + signoff dossier; runs prism_turning lathe_p2p_signoff_generate + lathe_validate after master-post emit. Dossier is the operator-approval gate before machine run.",
+  "csDepth": [
+   "Signoff JSON shape is contract-locked; schema-version bumps require explicit migration.",
+   "Validation must include the Karpathy 12 safety predicates (collision, torque, force, workholding, fatigue, fracture, residual-stress, dimensional-stability, thermal, dialect-verify, head-clearance, slug-drop)."
+  ]
+ },
+ "LATHE-MASTER::U-LTH42": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/actions/aireasoning/ai-wedm-advanced-neural.md"],
+  "addSeWiki": ["engine-creation-discipline", "memory-curation-discipline"],
+  "systemImpact": "Print-to-program deep-learning intelligence; bridges prism_ai ai_wedm_advanced_neural / ai_milling_agi family into the lathe print-to-program flow.",
+  "csDepth": ["Cross-domain transfer (WEDM, mill to lathe) needs explicit similarity gate; naively reusing a WEDM model on lathe data is a silent corruption."]
+ },
+ "LATHE-MASTER::U-LTH43": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/actions/aireasoning/ai-wedm-cam-knowledge.md"],
+  "addSeWiki": ["engine-creation-discipline", "recall-injection-flow"],
+  "systemImpact": "Print-to-program reasoning layer; chains prism_ai capability/reasoning-pattern actions to assemble multi-hop print to operations explanation.",
+  "csDepth": ["Multi-step reasoning chains must surface their intermediate facts (xai/lime); black-box reasoning blocks operator approval."]
+ },
+ "LATHE-MASTER::U-LTH44": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-knowledge.md", "knowledge/wiki/architecture/actions/aireasoning/ai-wedm-print-to-program.md"],
+  "addSeWiki": ["memory-curation-discipline", "recall-injection-flow"],
+  "systemImpact": "KG integration for print-to-program; binds the print-to-program inference to KG nodes (material, feature, tool, machine) via prism_knowledge kg_query + kg_recommend.",
+  "csDepth": ["KG read-amplification; cache hot tuples; on a cache miss, fail loud if KG is down (do not silently fall back to a degraded recommender)."]
+ },
+ "LATHE-MASTER::U-LTH45": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-multiaxisprogram.md", "knowledge/wiki/architecture/actions/multiaxisprogram/multiaxis-print-to-program.md", "knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md"],
+  "addSeWiki": ["dispatcher-action-design", "doc-reflection-rule"],
+  "systemImpact": "Print-to-program dispatcher wiring + web UI; exposes prism_multiaxis_program multiaxis_print_to_program + multiaxis_process_plan and the React print-to-program page.",
+  "csDepth": ["Dispatcher enum sealed; UI must surface dispatcher error envelope (success/error discriminated) explicitly."]
+ },
+ "LATHE-MASTER::U-LTH46": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-turning.md", "knowledge/wiki/architecture/actions/turning/lathe-p2p-emit-validate.md"],
+  "addSeWiki": ["regression-prevention-doctrine", "test-design-real-values"],
+  "systemImpact": "End-to-end regression suite for print-to-program; the full pipeline (CAD intake to features to tolerance to strategy to toolpath to emit) gated against JM-Die reference parts.",
+  "csDepth": ["E2E test runs the actual dispatcher boundary (not a hermetic mock); the U-INTEG-FIX-P0 lesson."]
+ },
+ "LATHE-MASTER::U-LTH47": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/dispatcher-multiaxisprogram.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "dispatcher-action-design"],
+  "systemImpact": "/forge-triple for the print-to-program pipeline; ships engine + skill + hook + dispatcher action triad in one commit.",
+  "csDepth": ["Triple commit format respected: [SCOPE]/U-ID prefix enables /pick-unit subtraction."]
+ },
+ "LATHE-MASTER::U-LTH48": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheautoquotefromprintengine.md", "knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "LatheAutoQuoteFromPrintEngine: auto-quotes from a blueprint extraction; lathe-specific overlay on prism_business actions. Companion ledger is append-only JSONL for audit/replay.",
+  "csDepth": ["Quote invariants (e.g. total cost = sum of subcosts) must be assert-checked.", "Ledger writes atomic; corruption-on-crash is load-bearing R12 risk."]
+ },
+ "LATHE-MASTER::U-LTH49": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheactualcostreconciliationengine.md", "knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "LatheActualCostReconciliationEngine: reconciles quoted vs actual cost; lathe-specific overlay on prism_business actuals.",
+  "csDepth": ["Variance computation must surface signed deltas; absolute-value loses direction info.", "JSONL ledger append-only for audit/replay."]
+ },
+ "LATHE-MASTER::U-LTH50": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathejobschedulingengine.md", "knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "LatheJobSchedulingEngine: job scheduling across the lathe fleet; consumes prism_business scheduling actions and capacity-plan tables.",
+  "csDepth": ["Single-machine and job-shop scheduling have different complexity classes; document which heuristic is in play.", "Schedule mutations atomic; partial writes corrupt downstream cycle-time estimates."]
+ },
+ "LATHE-MASTER::U-LTH51": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathecustomerorderlifecycleengine.md", "knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "LatheCustomerOrderLifecycleEngine: order lifecycle state machine (quote->WO->release->machine->QC->ship->invoice); lathe-specific overlay on prism_business order_*.",
+  "csDepth": ["State machine transitions must be one-way except via explicit operator override.", "Each transition emits a ledger entry; replay reconstructs order history."]
+ },
+ "LATHE-MASTER::U-LTH52": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathepurchaseorderautomationengine.md", "knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "LathePurchaseOrderAutomationEngine: PO automation for tooling/material; lathe-specific overlay on prism_business po_*.",
+  "csDepth": ["Three-way match (PO/receipt/invoice) is the canonical invariant; assert-checked.", "Approval workflow gates dollar thresholds; operator override is audited."]
+ },
+ "LATHE-MASTER::U-LTH53": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheinventoryintelligenceengine.md", "knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "LatheInventoryIntelligenceEngine: inventory levels + reorder forecasting; lathe-specific overlay on prism_business inventory + EOQ.",
+  "csDepth": ["EOQ assumes constant demand; real lathe consumption is bursty; use safety-stock + dynamic reorder point.", "JSONL movement ledger enables variance analysis."]
+ },
+ "LATHE-MASTER::U-LTH54": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathejobprofitabilityanalyticsengine.md", "knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "LatheJobProfitabilityAnalyticsEngine: job-level margin analytics; reads actual-cost ledger and emits per-job P&L plus portfolio rollup.",
+  "csDepth": ["Allocate indirect cost via a deliberate driver (machine-hours, material$, head-count); document choice.", "Negative margins must be surfaced loudly (R12), not hidden in aggregate."]
+ },
+ "LATHE-MASTER::U-LTH56": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-integration.md"],
+  "addSeWiki": ["dispatcher-action-design", "mcp-tool-design"],
+  "systemImpact": "Dispatcher wiring for the lathe ERP layer; binds catalog + learn dispatcher actions for inventory/PO/order flows.",
+  "csDepth": ["Action-enum gate prevents silent dispatcher drift (U-DISPATCHER lesson)."]
+ },
+ "LATHE-MASTER::U-LTH57": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/dispatcher-business.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "dispatcher-action-design"],
+  "systemImpact": "/forge-triple for the lathe ERP cluster; ships engines + skills + hooks + dispatcher actions for the U-LTH48..U-LTH54 family.",
+  "csDepth": ["Subagent fan-out across 7+ engines; parallel tool-call discipline; per-file scrutiny across the batch."]
+ },
+ "LATHE-MASTER::U-LTH58": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheagifeaturebridgeengine.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "safety-tier-discipline"],
+  "systemImpact": "LatheAGIFeatureBridgeEngine: bridges lathe features into AGI substrate; lathe-specific layer feeding prism_ai. Subject to the AGI containment gate.",
+  "csDepth": ["AGI substrate engines MUST honor containment limits (agi_containment_evaluate); bypass = R12 violation.", "Self-modification proposals route through the operator-approval gate, not silent commit."]
+ },
+ "LATHE-MASTER::U-LTH59": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheagicontinuouslearningengine.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "safety-tier-discipline"],
+  "systemImpact": "LatheAGIContinuousLearningEngine: continuous on-shop learning loop; lathe-specific AGI substrate layer.",
+  "csDepth": ["Continuous learning needs explicit catastrophic-forgetting guard (EWC / replay).", "Containment gate runs every learning step."]
+ },
+ "LATHE-MASTER::U-LTH60": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheagiknowledgeunificationengine.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "safety-tier-discipline"],
+  "systemImpact": "LatheAGIKnowledgeUnificationEngine: unifies tribal + extracted knowledge into a single substrate the lathe AGI can query.",
+  "csDepth": ["Knowledge dedup needed across (tribal, course, monolith, JM-Die) sources.", "Unified output is content-addressed so consumers can pin a version."]
+ },
+ "LATHE-MASTER::U-LTH61": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheagisafetycontainmentengine.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "safety-tier-discipline"],
+  "systemImpact": "LatheAGISafetyContainmentEngine: containment + integration export gates; the central safety chokepoint for the lathe AGI substrate.",
+  "csDepth": ["Containment gate MUST run before any external integration (ERP export, machine-live send, etc.).", "Tier-promotion is one-way; downgrade requires operator sign-off."]
+ },
+ "LATHE-MASTER::U-LTH62": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/dispatcher-guard.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "safety-tier-discipline"],
+  "systemImpact": "/forge-triple for the AGI substrate cluster (U-LTH58..U-LTH61); each triple includes a containment-gate test.",
+  "csDepth": ["Containment-gate test must drive prism_guard agi_containment_evaluate; mock containment is not real containment."]
+ },
+ "LATHE-MASTER::U-LTH64": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheformalproofengine.md", "knowledge/wiki/architecture/dispatcher-calc.md"],
+  "addSeWiki": ["fail-loud-r12-patterns", "test-design-real-values"],
+  "systemImpact": "LatheFormalProofEngine: checks 7 lathe-program properties (collision-free, torque-bounded, thermal-safe, geometry-valid, dimension-stable, sequence-correct, dialect-conform). Composes with prism_calc empirical/thermal properties databases.",
+  "csDepth": [
+   "Each of 7 properties is independently verifiable; a single false in any => reject. NO averaging (Karpathy R7).",
+   "Proof obligations need a sealed property-set spec; drift means a PASSING program may fail an unstated invariant."
+  ]
+ },
+ "LATHE-MASTER::U-LTH67": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheproofcacheengine.md", "knowledge/wiki/architecture/actions/cam/cam-cache-clear.md"],
+  "addSeWiki": ["atomic-write-idempotency-patterns", "jsonl-ledger-conventions"],
+  "systemImpact": "Proof-cache memoization for the LatheFormalProofEngine; reduces re-verification cost when only non-proof-relevant fields change. Cache invalidation tied to property-set version + input-fingerprint.",
+  "csDepth": [
+   "Cache index = sha256(canonical(input) + propertySetVersion); collisions on a collision-aware hash are practically zero but assert-check anyway.",
+   "TTL not enough; invalidate on proof-engine code rev as well (else stale PASS survives a bug-fix)."
+  ]
+ },
+ "LATHE-MASTER::U-LTH68": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/tests/fo/formal-verification-engine.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "test-design-real-values"],
+  "systemImpact": "/forge-triple for the formal verification cluster (U-LTH63..U-LTH67); each triple includes a property-suite regression test.",
+  "csDepth": ["Property regression tests are mutation-tested; a flipped invariant must fail at least one test (else the test is vacuous)."]
+ },
+ "LATHE-MASTER::U-LTH69": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheloradatasetbuilderengine.md", "knowledge/wiki/architecture/dispatcher-business.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["engine-creation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "LatheLoRADatasetBuilderEngine: builds curated LoRA training datasets from JM-Die archive; lathe-specific overlay on prism_business archive + extract.",
+  "csDepth": ["Dataset splits must be customer-disjoint to avoid leakage; sister to NN-GRAPH-MS0 eval split discipline.", "JSONL build manifest enables exact reproduction."]
+ },
+ "LATHE-MASTER::U-LTH70": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/aireasoning/ai-training-lathe-train.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md"],
+  "addSeWiki": ["engine-creation-discipline", "fail-loud-r12-patterns"],
+  "systemImpact": "scripts/train-lathe-lora.py: QLoRA 4-bit NF4 trainer (r=16, alpha=32) for the lathe domain model; outputs to the LoRA registry consumed by prism_ai lathe_lora actions.",
+  "csDepth": [
+   "NF4 quantization is lossy; fidelity vs base must be measured (perplexity gate), not assumed.",
+   "r=16/alpha=32 is a budget choice; ablate before locking; bigger r is not always better."
+  ]
+ },
+ "LATHE-MASTER::U-LTH71": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/latheloraevalharnessengine.md"],
+  "addSeWiki": ["test-design-real-values", "regression-prevention-doctrine"],
+  "systemImpact": "LoRA evaluation harness; gates LoRA promotion via accuracy/AUROC/calibration thresholds. Sister to the NN-GRAPH-MS0 eval harness.",
+  "csDepth": ["Eval splits MUST be customer-disjoint (JM-die multi-customer corpus); leakage inflates metrics + masks deploy failure."]
+ },
+ "LATHE-MASTER::U-LTH72": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-aireasoning.md"],
+  "addSeWiki": ["engine-creation-discipline", "fail-loud-r12-patterns"],
+  "systemImpact": "scripts/merge-and-quant-lathe-lora.py: merges LoRA into the base + quantizes to GGUF Q5_K_M for the Ollama runtime path.",
+  "csDepth": ["Quantization loss is not linear; Q5_K_M is the sweet spot for size/fidelity, but should be measured per-model not assumed."]
+ },
+ "LATHE-MASTER::U-LTH73": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/actions/knowledge/jmdie-pattern-analyze.md"],
+  "addSeWiki": ["engine-creation-discipline", "memory-curation-discipline"],
+  "systemImpact": "lathe-jmdie.Modelfile + LatheLocalPolicyEngine; pairs the JM-die-tuned LoRA with a local-policy guard that enforces shop-specific safety/preference rules.",
+  "csDepth": ["Local-policy engine is fail-loud; any rule that cannot be evaluated blocks emission rather than silent-pass."]
+ },
+ "LATHE-MASTER::U-LTH74": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/lathe/lathelorapipelineengine.md"],
+  "addSeWiki": ["per-file-scrutiny-gate", "subagent-orchestration-discipline"],
+  "systemImpact": "End-to-end LoRA pipeline: dataset-build to train to merge to quant to eval to register. Per-file scrutiny gate runs at each stage; failure freezes the pipeline.",
+  "csDepth": ["Long pipeline; checkpoint after each stage so a failed quant does not force re-training."]
+ },
+ "LATHE-MASTER::U-LTH75": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/orchestration/cognitive-learning-incremental-list-jobs.md", "knowledge/wiki/architecture/actions/atcs/checkpoint.md"],
+  "addSeWiki": ["cron-and-scheduled-task-discipline", "memory-curation-discipline"],
+  "systemImpact": "Incremental retrain cadence: monthly schedule + event-driven triggers (drift detection, corpus expansion >= N units). Reuses the fleet-reaper scheduled-task pattern.",
+  "csDepth": ["Cadence must not fire while a prior pipeline is in-flight (PID lockfile pattern).", "Event-trigger threshold (N units) should be calibrated empirically; too low ==> training thrash."]
+ },
+ "LATHE-MASTER::U-LTH76": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/dispatcher-local.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "engine-creation-discipline"],
+  "systemImpact": "/forge-triple for the lathe local-LLM cluster; ships paired triples for dataset/train/quant/eval/policy.",
+  "csDepth": ["Triple commit format consistent: enables /pick-unit subtraction."]
+ },
+ "LATHE-MASTER::U-LTH77": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/calc/kienzlebayesianengine.md", "knowledge/wiki/architecture/dispatcher-calc.md"],
+  "addSeWiki": ["physics-constants-discipline", "engine-creation-discipline"],
+  "systemImpact": "Extends KienzleBayesianEngine with the Normal-Inverse-Gamma conjugate prior; produces joint posterior over (mu, sigma^2) for cutting-force coefficients. Consumed by prism_calc cutting_force + prism_safety force-budget gates.",
+  "csDepth": [
+   "NIG conjugacy: posterior parameters update in closed form (mu_n, lambda_n, alpha_n, beta_n); O(1) per observation, no MCMC.",
+   "Prior elicitation matters; mu_0 from physics/constants.ts, lambda_0 small (weak prior); beta_0 wrong dominates the first ~20 observations."
+  ]
+ },
+ "LATHE-MASTER::U-LTH78": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-adaptivecontrol.md", "knowledge/wiki/architecture/actions/adaptivecontrol/tool-life-weibull.md"],
+  "addSeWiki": ["physics-constants-discipline", "engine-creation-discipline"],
+  "systemImpact": "Joint (C, n) Taylor posterior for tool-life prediction; bivariate posterior consumed by prism_adaptive_control tool_life_predict + tool_life_weibull.",
+  "csDepth": [
+   "Joint posterior requires careful prior on the correlation; independent priors on C and n produce miscalibrated joint coverage.",
+   "Log-Taylor (lnT = lnC - n*lnv) linearizes; fit in log-space; back-transform carefully (Jensen inequality bias)."
+  ]
+ },
+ "LATHE-MASTER::U-LTH79": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/calc/hierarchicalbayesiancuttingforceengine.md", "knowledge/wiki/architecture/dispatcher-calc.md"],
+  "addSeWiki": ["physics-constants-discipline", "memory-curation-discipline"],
+  "systemImpact": "Hierarchical Bayesian model with partial pooling over (material, tool, machine) cells; pools strength across sparse-data cells and falls back to fixed effect when N=0.",
+  "csDepth": [
+   "Partial pooling shrinks per-cell estimates toward the population mean; shrinkage strength controlled by between-cell sigma.",
+   "Sparse-cell cold-start: posterior ~= prior + tiny update; explicit fallback path documented."
+  ]
+ },
+ "LATHE-MASTER::U-LTH80": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/aireasoning/xproc-causal-export-graph.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md"],
+  "addSeWiki": ["engine-creation-discipline", "physics-constants-discipline"],
+  "systemImpact": "PC algorithm causal discovery over lathe process data; produces a DAG consumed by prism_ai xproc_causal_* actions.",
+  "csDepth": [
+   "PC algorithm: O(N^q) where q = max-conditioning-set size; cap q explicitly to avoid combinatorial blow-up.",
+   "Conditional-independence tests have multiple-comparison hazard; Bonferroni or BH correction on the test alpha."
+  ]
+ },
+ "LATHE-MASTER::U-LTH81": {
+  "addArchWiki": ["knowledge/wiki/architecture/monolith-modules/complete-extraction/prism-true-ai-system.md", "knowledge/wiki/architecture/dispatcher-guard.md"],
+  "addSeWiki": ["engine-creation-discipline", "safety-tier-discipline"],
+  "systemImpact": "do-operator implementation via back-door adjustment; produces interventional distributions consumed by the operator-approval gate (prism_guard operator_audit_*).",
+  "csDepth": [
+   "Back-door identification requires the causal DAG (U-LTH80 output); selection-of-adjustment-set is NP-hard in general; closed-form for limited families.",
+   "do-distribution is not the conditional distribution; confusing them silently breaks counterfactual reasoning."
+  ]
+ },
+ "LATHE-MASTER::U-LTH82": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/cam/cpkpredictiongateengine.md", "knowledge/wiki/architecture/dispatcher-guard.md"],
+  "addSeWiki": ["fail-loud-r12-patterns", "physics-constants-discipline"],
+  "systemImpact": "gateBayesian() addition to E1203 CpkPredictionGateEngine; uses posterior Cpk distribution (vs point estimate) and gates on Pr(Cpk >= threshold) >= confidence.",
+  "csDepth": ["Posterior Cpk computed from posterior on (mu, sigma^2); requires the NIG posterior (see U-LTH77).", "Pr(Cpk >= 1.33) >= 0.95 is a probabilistic gate; NEVER soften (R12)."]
+ },
+ "LATHE-MASTER::U-LTH83": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/dispatcher-guard.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "safety-tier-discipline"],
+  "systemImpact": "/forge-triple for the Bayesian posterior-gate cluster; pairs engines + skill + hook + dispatcher action.",
+  "csDepth": ["Gate hook must be in MINIMAL_ALLOWLIST so PRISM_HOOK_PROFILE cannot disable it (per scrutinize-before-stop pattern)."]
+ },
+ "LATHE-MASTER::U-LTH88": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-dev.md", "knowledge/wiki/architecture/actions/atcs/stub-scan.md"],
+  "addSeWiki": ["token-budget-management", "hook-authoring-discipline"],
+  "systemImpact": "Registry hit-counts + under-utilization alerts; piggybacks on the prism_dev engine-util-audit + skill-utilization telemetry. Emits alerts on cold registries.",
+  "csDepth": [
+   "Hit-count ledger is append-only (JSONL); aggregation is O(n) per query; sample if n explodes.",
+   "Under-utilization threshold must adapt to fleet size; a small fleet has naturally low per-engine usage."
+  ]
+ },
+ "LATHE-MASTER::U-LTH89": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/hooks/runtime/anti-pattern-detector.md"],
+  "addSeWiki": ["hook-authoring-discipline", "wiki-automation-discipline"],
+  "systemImpact": "6 cross-asset wiring hooks; bridge dedupe + cross-engine + cross-process AI orchestration. Wired into the Stop hook chain.",
+  "csDepth": [
+   "Cross-asset hooks fire on multi-file diffs; must complete in <5s or the Stop chain blocks the chat.",
+   "Idempotent; multiple hooks touching the same asset must converge on the same final state."
+  ]
+ },
+ "LATHE-MASTER::U-LTH90": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-compliance.md", "knowledge/wiki/architecture/dispatcher-knowledge.md"],
+  "addSeWiki": ["memory-curation-discipline", "jsonl-ledger-conventions"],
+  "systemImpact": "Retention + query actions on the lathe digital-twin + AGI substrate state; binds prism_compliance document_retention + prism_ai ai_knowledge_query.",
+  "csDepth": ["Retention is policy-driven (years); TTL must be enforced server-side, not client-trusted.", "Query API supports paginated + content-hash addressing for tamper detection."]
+ },
+ "LATHE-MASTER::U-LTH91": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "memory-curation-discipline"],
+  "systemImpact": "/forge-triple for the asset-utilization cluster (U-LTH88..U-LTH90).",
+  "csDepth": ["Triple includes the registry hit-count engine, the cross-asset wiring hook bundle, and the retention/query API."]
+ },
+ "LATHE-MASTER::U-LTH92": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/pp/pp-reg-tiers.md", "knowledge/wiki/architecture/dispatcher-guard.md"],
+  "addSeWiki": ["safety-tier-discipline", "fail-loud-r12-patterns"],
+  "systemImpact": "Corrigibility gate engine: T0 (advisory) to T3 (hard block) tiering on lathe-agent self-modification attempts. Consumed by prism_guard + prism_pp pp_reg_tiers.",
+  "csDepth": [
+   "Tier promotion must be one-way (downgrades require operator sign-off); silent demotion is the load-bearing R12 risk.",
+   "Tier classification must surface its reasoning (R12 fail-loud) so operator can audit."
+  ]
+ },
+ "LATHE-MASTER::U-LTH93": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/adaptivecontrol/calibration-drift.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md"],
+  "addSeWiki": ["safety-tier-discipline", "hook-authoring-discipline"],
+  "systemImpact": "Goal-stability invariant: hashes the agent objective and refuses to step if hash drifts. Mirrors prism_ai lora-drift-active + permission-check.",
+  "csDepth": ["Objective hash = sha256(canonical(objective JSON)); must be canonical (sorted keys, normalized whitespace).", "Drift trigger is silent-compromise; must be loud (R12)."]
+ },
+ "LATHE-MASTER::U-LTH94": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/cadautomation/cad-artifact-write.md", "knowledge/wiki/architecture/dispatcher-cadautomation.md"],
+  "addSeWiki": ["wiki-automation-discipline", "atomic-write-idempotency-patterns"],
+  "systemImpact": "Self-modification approval engine; produces a signed artifact (operator-approval-gated) before lathe-agent code modifications take effect. Composes with the AGI containment gate.",
+  "csDepth": ["Signing material lives in an external holder, never in repo or .env-committed files; rotation handled out-of-band.", "Artifact replay must be deterministic; non-determinism is silent corruption."]
+ },
+ "LATHE-MASTER::U-LTH96": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/guard/agi-containment-evaluate.md", "knowledge/wiki/architecture/skills/project/forge-triple.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "safety-tier-discipline"],
+  "systemImpact": "/forge-triple for the AGI-containment cluster (U-LTH92..U-LTH95). Each engine ships with an agi-containment integration test driving the real prism_guard surface.",
+  "csDepth": ["Containment tests must include adversarial inputs (jailbreak attempts); passing only the happy path is vacuous."]
+ },
+ "LATHE-MASTER::U-LTH98": {
+  "addArchWiki": ["knowledge/wiki/architecture/engines/bridge/mtconnectadapterengine.md", "knowledge/wiki/architecture/dispatcher-machinelive.md"],
+  "addSeWiki": ["engine-creation-discipline", "schema-read-discipline"],
+  "systemImpact": "MTConnectAdapterEngine extensions for lathe-specific events (chip-conveyor, bar-feeder, sub-spindle sync). Consumed by prism_machine_live actions.",
+  "csDepth": ["MTConnect XML schema versioning matters; adapter must dispatch on version, never assume the latest.", "Unknown event types must be surfaced (R12), not silently dropped."]
+ },
+ "LATHE-MASTER::U-LTH99": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-aireasoning.md", "knowledge/wiki/architecture/actions/aireasoning/xproc-episodic-store.md"],
+  "addSeWiki": ["jsonl-ledger-conventions", "atomic-write-idempotency-patterns"],
+  "systemImpact": "LiveTelemetryIngestEngine: Kafka-less file-backed ring buffer for lathe telemetry; backpressure-safe. Feeds prism_ai xproc_episodic_store + xproc_replay_add.",
+  "csDepth": [
+   "Ring buffer = bounded queue with wrap-around; drop policy must be explicit (head/tail/random) and audited.",
+   "File-backed atomic writes via rename pattern; fsync after each batch to survive crash.",
+   "Producer-consumer lock-free via two atomic indices (head/tail); single-producer single-consumer is simplest; multi-producer needs CAS."
+  ]
+ },
+ "LATHE-MASTER::U-LTH122": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "per-file-scrutiny-gate"],
+  "systemImpact": "/forge-triple invocation for the LATHE science-gates cluster (fatigue, fracture, residual-stress, dimensional-stability); ships paired triples for each gate engine with the per-file 2-reviewer gate.",
+  "csDepth": ["Each gate engine ships with its own integration test that exercises the gate in a real prism_safety pipeline (not a mock)."]
+ },
+ "LATHE-MASTER::U-LTH123": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/aireasoning/xproc-qlearn-update.md", "knowledge/wiki/architecture/actions/aireasoning/xproc-qlearn-argmax.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md"],
+  "addSeWiki": ["engine-creation-discipline", "physics-constants-discipline"],
+  "systemImpact": "Lagrangian-argmax optimal-control formulation for lathe operation planning; wires prism_ai xproc_qlearn argmax with the Lagrangian cost expansion. Twin-side simulator must match LathePredictiveTwinOrchestrator state shape.",
+  "csDepth": ["Argmax over a continuous action space requires either discretization (grid penalty) or KKT-style projection.", "Lagrangian-multiplier update is gradient ascent on the dual; divergence guard required (e.g. trust-region cap)."]
+ },
+ "LATHE-MASTER::U-LTH125": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/cam/cam-feedback-accuracy-drift.md", "knowledge/wiki/architecture/dispatcher-aireasoning.md"],
+  "addSeWiki": ["engine-creation-discipline", "test-design-real-values"],
+  "systemImpact": "Platt-scaling calibrated ensemble over LATHE-LORA / Opus / DeepLearning / rule-based predictors; consumed by lathe_lora workflow and the cam-feedback drift detector.",
+  "csDepth": [
+   "Platt sigmoid: P(y=1|f) = 1/(1+exp(A*f+B)); fit A,B by MLE on a held-out calibration set; never reuse training data.",
+   "Ensemble disagreement (variance across predictors) is a valuable uncertainty signal; surface separately from the calibrated mean."
+  ]
+ },
+ "LATHE-MASTER::U-LTH127": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/dispatcher-scientificmath.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "engine-creation-discipline"],
+  "systemImpact": "/forge-triple for the optimal-control cluster; pairs LatheOptimalControl + LatheCalibratedEnsemble + LatheRegretMinimization with companion skills and a prism_scientific_math optimal-control action.",
+  "csDepth": ["Triple must ship the dispatcher entry for prism_scientific_math optimal_control alongside the engine."]
+ },
+ "LATHE-MASTER::U-LTH128": {
+  "addArchWiki": ["knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md", "knowledge/wiki/architecture/skills/user/lathe-studio.md", "knowledge/wiki/architecture/domain-lathe.md"],
+  "addSeWiki": ["doc-reflection-rule", "html-companion-discipline"],
+  "systemImpact": "LatheStudio page + Context + per-step folder mirroring the WEDM-Studio pattern. New capability layer; consumed by /lathe-studio skill and prism_turning lathe_orchestrate pipeline.",
+  "csDepth": ["Studio Context must be IndexedDB-persisted (Zustand store) so /compact survival is automatic.", "Per-step folder convention enables lazy-loading + code-splitting; page bundle stays small."]
+ },
+ "LATHE-MASTER::U-LTH129": {
+  "addArchWiki": ["knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md", "knowledge/wiki/architecture/dispatcher-knowledge.md"],
+  "addSeWiki": ["doc-reflection-rule", "memory-curation-discipline"],
+  "systemImpact": "Populates the previously-empty LatheInputWizard.tsx and deep-links existing wedm/milling pages into the LatheStudio shell. Routes through prism_knowledge kg_populate + ai_milling_synthesize.",
+  "csDepth": ["Deep-link routing requires stable URL contracts.", "KG populate is idempotent on the same input; write indices must dedupe."]
+ },
+ "LATHE-MASTER::U-LTH130": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/dev/coder-mode-current.md", "knowledge/wiki/architecture/actions/dev/coder-mode-set.md"],
+  "addSeWiki": ["regression-prevention-doctrine", "fail-loud-r12-patterns"],
+  "systemImpact": "validateModeStateCompatibility() guards coder/dsl mode switches; called via prism_dev coder_mode_set and exposed in the gt-regression-gate Stop hook chain.",
+  "csDepth": ["Mode transitions form a small FSM; illegal transitions must throw (R12).", "State carried across the transition needs explicit schema versioning."]
+ },
+ "LATHE-MASTER::U-LTH131": {
+  "addArchWiki": ["knowledge/wiki/architecture/dispatcher-data.md", "knowledge/wiki/architecture/registries/registry-machine.md"],
+  "addSeWiki": ["schema-read-discipline", "memory-curation-discipline"],
+  "systemImpact": "useMachineRegistryDefaults(mode) React hook + backend defaults engine; eliminates hard-coded machine IDs by reading prism_data machine_get/search keyed on coder-mode + shop-config.",
+  "csDepth": ["Hard-coded IDs are silent breakage waiting to happen (R12); the hook must throw if registry returns null.", "Mode-conditional defaults are cacheable but must invalidate on shop-config mutation."]
+ },
+ "LATHE-MASTER::U-LTH132": {
+  "addArchWiki": ["knowledge/wiki/architecture/actions/turning/mill-turn-swiss.md", "knowledge/wiki/architecture/dispatcher-turning.md", "knowledge/wiki/architecture/actions/cam/cps-map-dialect.md"],
+  "addSeWiki": ["dispatcher-action-design"],
+  "systemImpact": "Swiss dialect dropdown (standard / citizen-cincom / tsugami-swiss); drives prism_turning mill_turn_swiss + prism_cam cps_map_dialect post selection. Persists with the lathe-studio job context.",
+  "csDepth": ["Dialect is an enum at the dispatcher boundary; mis-mapping a UI label to backend dialect string is a silent corruption.", "Default selection should be derived from the resolved machine (machineRegistry), not hard-coded."]
+ },
+ "LATHE-MASTER::U-LTH133": {
+  "addArchWiki": ["knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md", "knowledge/wiki/architecture/dispatcher-cad.md", "knowledge/wiki/architecture/dispatcher-cam.md"],
+  "addSeWiki": ["dispatcher-action-design", "mcp-tool-design"],
+  "systemImpact": "Wires 5 orphan API hooks (cadGeometry, holePattern, multiOp, toolpath, feasibility) into the React lathe pages; each consumes a prism_* dispatcher.",
+  "csDepth": ["Each hook MUST handle the dispatcher error envelope explicitly (success/error discriminated union).", "Network-cancel via AbortController prevents stacked stale responses."]
+ },
+ "LATHE-MASTER::U-LTH134": {
+  "addArchWiki": ["knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md", "knowledge/wiki/architecture/actions/infra/persistence-health.md"],
+  "addSeWiki": ["schema-read-discipline", "atomic-write-idempotency-patterns"],
+  "systemImpact": "latheJobSessionStore: Zustand store + IndexedDB persistence for lathe job state; survives page reload and /compact-equivalent UI flushes. Telemetered via prism_infra persistence_health.",
+  "csDepth": [
+   "IndexedDB writes are async; needs explicit flush before navigation/unload to avoid losing the last edit.",
+   "Schema versioning: bumping store shape requires a migration function; missing migration silently drops fields.",
+   "Multi-tab concurrency: BroadcastChannel sync prevents two tabs writing conflicting states."
+  ]
+ },
+ "LATHE-MASTER::U-LTH135": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "doc-reflection-rule"],
+  "systemImpact": "/forge-triple for frontend send-to handoffs (between lathe and adjacent studios) + default nav exposure. Includes a hook that asserts the studio is wired into the top-level nav config.",
+  "csDepth": ["Nav exposure assertion is a test, not a runtime check; false negatives if test data drifts from real nav file."]
+ },
+ "LATHE-MASTER::U-LTH116": {
+  "addArchWiki": ["knowledge/wiki/architecture/skills/project/forge-triple.md", "knowledge/wiki/architecture/checkin-loop-fullstack.md"],
+  "addSeWiki": ["subagent-orchestration-discipline", "engine-creation-discipline"],
+  "systemImpact": "/forge-triple invocation for multi-agent substrate; ships an engine + skill + hook for the consensus + budget-allocator units.",
+  "csDepth": ["Multi-agent triple touches prism_orchestrate + prism_intelligence; both dispatcher wirings must land in the same commit.", "Wire-exempt comment required if a wrapper singleton owns the actual dispatcher binding."]
+ },
+ "LATHE-PRO-v3::U-LPPR01": {
+  "addArchWiki": ["knowledge/wiki/architecture/milestones/milestone-ghost-ms-lathe-pro-v3.md", "knowledge/wiki/architecture/dispatcher-turning.md"],
+  "addSeWiki": ["claude-md-as-pointer-index", "handoff-discipline"],
+  "systemImpact": "LATHE-PRO-MS-1 coordinator; aggregates v3 lathe-pro track child units.",
+  "csDepth": ["Coordinator node; status from union of child units."]
+ },
+ "LATHE-PROD-READY-MS0::U-LPR07": {
+  "addArchWiki": ["knowledge/wiki/architecture/frontends/frontend_app/frontend-prism-web.md", "knowledge/wiki/architecture/actions/aireasoning/xproc-episodic-store.md"],
+  "addSeWiki": ["schema-read-discipline", "atomic-write-idempotency-patterns"],
+  "systemImpact": "U-LPR07: Zustand + shallow store foundation (UNIFIED_STORE flag, SLI capture, auto-rollback) for the lathe production-ready frontend stack. Persists session state via prism_ai xproc_episodic_store and CAD feature-store.",
+  "csDepth": [
+   "UNIFIED_STORE flag = canary; auto-rollback triggers on SLI breach (latency or error-rate threshold).",
+   "Zustand shallow selector avoids O(N) re-renders when only one field changes.",
+   "Atomic write through IndexedDB transaction; partial write on crash must NOT corrupt the store."
+  ]
+ }
+}

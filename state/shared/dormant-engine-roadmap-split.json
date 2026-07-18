@@ -1,0 +1,2958 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-22T22:17:24.527Z",
+  "milestone": "DEA-MS0",
+  "owner": "november",
+  "source": {
+    "audit": "UNWIRED-ENGINE-AUDIT-2026-05-07.json",
+    "typeA_unwired": 616
+  },
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "summary": {
+    "totalUnits": 118,
+    "typeA_wire_units": 26,
+    "typeB_precision_units": 6,
+    "trilobe_units": 1
+  },
+  "slotRollup": {
+    "alpha": {
+      "domain": "mill / 5-axis",
+      "units": 5,
+      "engines": 25
+    },
+    "bravo": {
+      "domain": "lathe / turning",
+      "units": 6,
+      "engines": 29
+    },
+    "charlie": {
+      "domain": "wire-EDM / electrode",
+      "units": 5,
+      "engines": 25
+    },
+    "delta": {
+      "domain": "CAD / geometry",
+      "units": 5,
+      "engines": 25
+    },
+    "echo": {
+      "domain": "CAM / strategy",
+      "units": 5,
+      "engines": 25
+    },
+    "foxtrot": {
+      "domain": "machining know-how / tribal",
+      "units": 5,
+      "engines": 25
+    },
+    "hotel": {
+      "domain": "ERP / business",
+      "units": 5,
+      "engines": 25
+    },
+    "india": {
+      "domain": "post-processor / quality",
+      "units": 5,
+      "engines": 25
+    },
+    "juliett": {
+      "domain": "speed-feed / physics",
+      "units": 5,
+      "engines": 25
+    },
+    "kilo": {
+      "domain": "print-to-program",
+      "units": 4,
+      "engines": 24
+    },
+    "lima": {
+      "domain": "PRISM-academy / AI",
+      "units": 4,
+      "engines": 24
+    },
+    "mike": {
+      "domain": "misc / orchestration",
+      "units": 5,
+      "engines": 25
+    },
+    "november": {
+      "domain": "precision / dev-infra",
+      "units": 11,
+      "engines": 48
+    },
+    "oscar": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "papa": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "quebec": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "romeo": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "sierra": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "tango": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "uniform": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "victor": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "whiskey": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "xray": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "yankee": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    },
+    "zulu": {
+      "domain": "general / overflow",
+      "units": 4,
+      "engines": 24
+    }
+  },
+  "units": [
+    {
+      "id": "U-DEA-alpha-01",
+      "slot": "alpha",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "AssetRecommendationEngine",
+        "BusinessSyncEngine",
+        "CoatingSelectionAdapter",
+        "CPMPERTEngine",
+        "DistributionNetworkEngine",
+        "FiveAxisAIUltraIntelligenceEngine"
+      ],
+      "dispatchers": {
+        "AssetRecommendationEngine": "UNKNOWN",
+        "BusinessSyncEngine": "UNKNOWN",
+        "CoatingSelectionAdapter": "prism_material_processing",
+        "CPMPERTEngine": "UNKNOWN",
+        "DistributionNetworkEngine": "UNKNOWN",
+        "FiveAxisAIUltraIntelligenceEngine": "prism_5axis"
+      },
+      "domain": "mill / 5-axis",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-alpha-02",
+      "slot": "alpha",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "FiveAxisDecisionEngine",
+        "FiveAxisDeepLearningEngine",
+        "FlyingShearEngine",
+        "Fusion5AxisEngine",
+        "InProcessStockModelEngine",
+        "MachineModelDownloaderEngine"
+      ],
+      "dispatchers": {
+        "FiveAxisDecisionEngine": "prism_5axis",
+        "FiveAxisDeepLearningEngine": "prism_5axis",
+        "FlyingShearEngine": "UNKNOWN",
+        "Fusion5AxisEngine": "prism_5axis",
+        "InProcessStockModelEngine": "UNKNOWN",
+        "MachineModelDownloaderEngine": "UNKNOWN"
+      },
+      "domain": "mill / 5-axis",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-alpha-03",
+      "slot": "alpha",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ModelAttributionEngine",
+        "OperatorDashboardOrchestratorEngine",
+        "OutcomeTrackingEngine",
+        "ProcessRobustnessEngine",
+        "RoundnessCylindricitySamplingEngine",
+        "SO3KinematicsEncoderEngine"
+      ],
+      "dispatchers": {
+        "ModelAttributionEngine": "UNKNOWN",
+        "OperatorDashboardOrchestratorEngine": "prism_orchestrate",
+        "OutcomeTrackingEngine": "UNKNOWN",
+        "ProcessRobustnessEngine": "UNKNOWN",
+        "RoundnessCylindricitySamplingEngine": "UNKNOWN",
+        "SO3KinematicsEncoderEngine": "prism_5axis"
+      },
+      "domain": "mill / 5-axis",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-alpha-04",
+      "slot": "alpha",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SpreadsheetIngestionEngine",
+        "ToolOutputSummarizerEngine",
+        "TribalKnowledgeOutcomeBridgeEngine",
+        "WEDMPostSodickEngine",
+        "WEDMSlugTabRetentionEngine",
+        "WesternElectricRulesEngine"
+      ],
+      "dispatchers": {
+        "SpreadsheetIngestionEngine": "prism_forming",
+        "ToolOutputSummarizerEngine": "UNKNOWN",
+        "TribalKnowledgeOutcomeBridgeEngine": "prism_ai",
+        "WEDMPostSodickEngine": "prism_cam",
+        "WEDMSlugTabRetentionEngine": "prism_edm",
+        "WesternElectricRulesEngine": "UNKNOWN"
+      },
+      "domain": "mill / 5-axis",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-alpha-05",
+      "slot": "alpha",
+      "type": "wire",
+      "title": "Wire 1 engine → prism_edm",
+      "engines": [
+        "WireEDMMachineTechDataEngine"
+      ],
+      "dispatchers": {
+        "WireEDMMachineTechDataEngine": "prism_edm"
+      },
+      "domain": "mill / 5-axis",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-bravo-01",
+      "slot": "bravo",
+      "type": "wire",
+      "title": "Wire 6 engines (mixed dispatchers — see per-engine target)",
+      "engines": [
+        "FusionMaterialPhysicsBridge",
+        "LatheAdvancedOperationsEngine",
+        "LatheAIFeatureRegistration",
+        "LatheAIUltraEngine",
+        "LatheDeepAIHardeningEngine",
+        "LatheDeepLearningEngine"
+      ],
+      "dispatchers": {
+        "FusionMaterialPhysicsBridge": "prism_data",
+        "LatheAdvancedOperationsEngine": "prism_turning",
+        "LatheAIFeatureRegistration": "prism_turning",
+        "LatheAIUltraEngine": "prism_turning",
+        "LatheDeepAIHardeningEngine": "prism_turning",
+        "LatheDeepLearningEngine": "prism_turning"
+      },
+      "domain": "lathe / turning",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-bravo-02",
+      "slot": "bravo",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_turning",
+      "engines": [
+        "LatheDeepLearningIntelligenceEngine",
+        "LatheFullArchiveTrainingEngine",
+        "LatheIntelligenceEngine",
+        "LatheLoRADatasetValidatorEngine",
+        "LatheLoRAExampleGeneratorEngine",
+        "LatheLoRAInferenceGatewayEngine"
+      ],
+      "dispatchers": {
+        "LatheDeepLearningIntelligenceEngine": "prism_turning",
+        "LatheFullArchiveTrainingEngine": "prism_turning",
+        "LatheIntelligenceEngine": "prism_turning",
+        "LatheLoRADatasetValidatorEngine": "prism_turning",
+        "LatheLoRAExampleGeneratorEngine": "prism_turning",
+        "LatheLoRAInferenceGatewayEngine": "prism_turning"
+      },
+      "domain": "lathe / turning",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-bravo-03",
+      "slot": "bravo",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_turning",
+      "engines": [
+        "LatheLoRAKnowledgeCuratorEngine",
+        "LatheLoRAMergeStrategyEngine",
+        "LatheLoRAModelOptimizerEngine",
+        "LatheLoRANeuralBridgeEngine",
+        "LatheLoRANeuralOrchestratorEngine",
+        "LatheLoRAOllamaDeployerEngine"
+      ],
+      "dispatchers": {
+        "LatheLoRAKnowledgeCuratorEngine": "prism_turning",
+        "LatheLoRAMergeStrategyEngine": "prism_turning",
+        "LatheLoRAModelOptimizerEngine": "prism_turning",
+        "LatheLoRANeuralBridgeEngine": "prism_turning",
+        "LatheLoRANeuralOrchestratorEngine": "prism_turning",
+        "LatheLoRAOllamaDeployerEngine": "prism_turning"
+      },
+      "domain": "lathe / turning",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-bravo-04",
+      "slot": "bravo",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_turning",
+      "engines": [
+        "LatheLoRAPhysicsAugmentedInferenceEngine",
+        "LatheLoRAPhysicsEvaluatorEngine",
+        "LatheLoRAPipelineCoordinatorEngine",
+        "LatheLoRAProgramMinerEngine",
+        "LatheLoRAProgramParserEngine",
+        "LatheLoRAQuantizationOptimizerEngine"
+      ],
+      "dispatchers": {
+        "LatheLoRAPhysicsAugmentedInferenceEngine": "prism_turning",
+        "LatheLoRAPhysicsEvaluatorEngine": "prism_turning",
+        "LatheLoRAPipelineCoordinatorEngine": "prism_turning",
+        "LatheLoRAProgramMinerEngine": "prism_turning",
+        "LatheLoRAProgramParserEngine": "prism_turning",
+        "LatheLoRAQuantizationOptimizerEngine": "prism_turning"
+      },
+      "domain": "lathe / turning",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-bravo-05",
+      "slot": "bravo",
+      "type": "wire",
+      "title": "Wire 1 engine → prism_turning",
+      "engines": [
+        "LatheLoRAReasoningChainInferenceEngine"
+      ],
+      "dispatchers": {
+        "LatheLoRAReasoningChainInferenceEngine": "prism_turning"
+      },
+      "domain": "lathe / turning",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-charlie-01",
+      "slot": "charlie",
+      "type": "wire",
+      "title": "Wire 6 engines (mixed dispatchers — see per-engine target)",
+      "engines": [
+        "AdvancedMillingStrategiesEngine",
+        "LaserLoRADatasetBuilderEngine",
+        "LathePrintSetupSelectionEngine",
+        "LatheUnifiedAIEngine",
+        "OneClickWEDMGeneratorEngine",
+        "SinkerEDMLoRACadenceEngine"
+      ],
+      "dispatchers": {
+        "AdvancedMillingStrategiesEngine": "prism_edm",
+        "LaserLoRADatasetBuilderEngine": "prism_edm",
+        "LathePrintSetupSelectionEngine": "prism_turning",
+        "LatheUnifiedAIEngine": "prism_turning",
+        "OneClickWEDMGeneratorEngine": "prism_edm",
+        "SinkerEDMLoRACadenceEngine": "prism_edm"
+      },
+      "domain": "wire-EDM / electrode",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-charlie-02",
+      "slot": "charlie",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_edm",
+      "engines": [
+        "SinkerEDMLoRADatasetBuilderEngine",
+        "WaterjetLoRADatasetBuilderEngine",
+        "WEDMBatchProgramAnalyzerEngine",
+        "WEDMDwgImportEngine",
+        "WEDMFewShotEngine",
+        "WEDMHierarchicalPlannerEngine"
+      ],
+      "dispatchers": {
+        "SinkerEDMLoRADatasetBuilderEngine": "prism_edm",
+        "WaterjetLoRADatasetBuilderEngine": "prism_edm",
+        "WEDMBatchProgramAnalyzerEngine": "prism_edm",
+        "WEDMDwgImportEngine": "prism_edm",
+        "WEDMFewShotEngine": "prism_edm",
+        "WEDMHierarchicalPlannerEngine": "prism_edm"
+      },
+      "domain": "wire-EDM / electrode",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-charlie-03",
+      "slot": "charlie",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_edm",
+      "engines": [
+        "WEDMHumanHandoffEngine",
+        "WEDMJobPatternLearnerEngine",
+        "WEDMKnowledgeDistillationEngine",
+        "WEDMLearningLoopEngine",
+        "WEDMLoRACadenceEngine",
+        "WEDMLoRADatasetBuilderEngine"
+      ],
+      "dispatchers": {
+        "WEDMHumanHandoffEngine": "prism_edm",
+        "WEDMJobPatternLearnerEngine": "prism_edm",
+        "WEDMKnowledgeDistillationEngine": "prism_edm",
+        "WEDMLearningLoopEngine": "prism_edm",
+        "WEDMLoRACadenceEngine": "prism_edm",
+        "WEDMLoRADatasetBuilderEngine": "prism_edm"
+      },
+      "domain": "wire-EDM / electrode",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-charlie-04",
+      "slot": "charlie",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_edm",
+      "engines": [
+        "WEDMMaintenanceSchedulerEngine",
+        "WEDMMaterialCharacterizationEngine",
+        "WEDMMaterialSparkDatabaseEngine",
+        "WEDMModelUpdateEngine",
+        "WEDMMultiProfileBatchEngine",
+        "WEDMNeuralTrainingEngine"
+      ],
+      "dispatchers": {
+        "WEDMMaintenanceSchedulerEngine": "prism_edm",
+        "WEDMMaterialCharacterizationEngine": "prism_edm",
+        "WEDMMaterialSparkDatabaseEngine": "prism_edm",
+        "WEDMModelUpdateEngine": "prism_edm",
+        "WEDMMultiProfileBatchEngine": "prism_edm",
+        "WEDMNeuralTrainingEngine": "prism_edm"
+      },
+      "domain": "wire-EDM / electrode",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-charlie-05",
+      "slot": "charlie",
+      "type": "wire",
+      "title": "Wire 1 engine → prism_edm",
+      "engines": [
+        "WEDMParetoCacheEngine"
+      ],
+      "dispatchers": {
+        "WEDMParetoCacheEngine": "prism_edm"
+      },
+      "domain": "wire-EDM / electrode",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-delta-01",
+      "slot": "delta",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_cad",
+      "engines": [
+        "AutoCADAddinPluginEngine",
+        "AutoCADDotNetBridgeEngine",
+        "cadLiveDispatch",
+        "CADScreenshotCapturer",
+        "CADToSTEPPipelineEngine",
+        "CascadeFallbackChainEngine"
+      ],
+      "dispatchers": {
+        "AutoCADAddinPluginEngine": "prism_cad",
+        "AutoCADDotNetBridgeEngine": "prism_cad",
+        "cadLiveDispatch": "prism_cad",
+        "CADScreenshotCapturer": "prism_cad",
+        "CADToSTEPPipelineEngine": "prism_cad",
+        "CascadeFallbackChainEngine": "prism_cad"
+      },
+      "domain": "CAD / geometry",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-delta-02",
+      "slot": "delta",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_cad",
+      "engines": [
+        "EngineDigestEngine",
+        "FiveAxisCADTemplateEngine",
+        "FreeCADAutomationBridge",
+        "Fusion360CADFunctionIndexEngine",
+        "Fusion360CADGeneratorAdapter",
+        "HyperCADCADFunctionIndexEngine"
+      ],
+      "dispatchers": {
+        "EngineDigestEngine": "prism_cad",
+        "FiveAxisCADTemplateEngine": "prism_cad",
+        "FreeCADAutomationBridge": "prism_cad",
+        "Fusion360CADFunctionIndexEngine": "prism_cad",
+        "Fusion360CADGeneratorAdapter": "prism_cad",
+        "HyperCADCADFunctionIndexEngine": "prism_cad"
+      },
+      "domain": "CAD / geometry",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-delta-03",
+      "slot": "delta",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "InventorCADFunctionIndexEngine",
+        "MachineOptionContractEngine",
+        "MultiObjectiveParetoEngine",
+        "NXOpenSketchEntityEngine",
+        "PackingSlipEngine",
+        "PerAppInCADInferenceAdapter"
+      ],
+      "dispatchers": {
+        "InventorCADFunctionIndexEngine": "prism_cad",
+        "MachineOptionContractEngine": "UNKNOWN",
+        "MultiObjectiveParetoEngine": "UNKNOWN",
+        "NXOpenSketchEntityEngine": "prism_cad",
+        "PackingSlipEngine": "UNKNOWN",
+        "PerAppInCADInferenceAdapter": "prism_cad"
+      },
+      "domain": "CAD / geometry",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-delta-04",
+      "slot": "delta",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ProcessValidationIQOQPQEngine",
+        "RunoutEffectEngine",
+        "StandardDimensionLookupEngine",
+        "ToolRedirectEngine",
+        "TwoPassCascadeEngine",
+        "UnifiedCADCodeGeneratorBase"
+      ],
+      "dispatchers": {
+        "ProcessValidationIQOQPQEngine": "UNKNOWN",
+        "RunoutEffectEngine": "UNKNOWN",
+        "StandardDimensionLookupEngine": "UNKNOWN",
+        "ToolRedirectEngine": "UNKNOWN",
+        "TwoPassCascadeEngine": "prism_cad",
+        "UnifiedCADCodeGeneratorBase": "prism_cad"
+      },
+      "domain": "CAD / geometry",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-delta-05",
+      "slot": "delta",
+      "type": "triage+wire",
+      "title": "Triage + wire 1 engine (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "WetRunChangeFreezeEngine"
+      ],
+      "dispatchers": {
+        "WetRunChangeFreezeEngine": "UNKNOWN"
+      },
+      "domain": "CAD / geometry",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-echo-01",
+      "slot": "echo",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_cam",
+      "engines": [
+        "BlamelessPostMortemEngine",
+        "CAMAIActionLinkerEngine",
+        "CAMBaselineRegressorEngine",
+        "CAMCatalogEnrichmentValidator",
+        "CAMCatalogPhysicsLinkerEngine",
+        "CAMCatalogSplitterEngine"
+      ],
+      "dispatchers": {
+        "BlamelessPostMortemEngine": "prism_cam",
+        "CAMAIActionLinkerEngine": "prism_cam",
+        "CAMBaselineRegressorEngine": "prism_cam",
+        "CAMCatalogEnrichmentValidator": "prism_cam",
+        "CAMCatalogPhysicsLinkerEngine": "prism_cam",
+        "CAMCatalogSplitterEngine": "prism_cam"
+      },
+      "domain": "CAM / strategy",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-echo-02",
+      "slot": "echo",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_cam",
+      "engines": [
+        "CAMLoRAAdapterTrainerEngine",
+        "CAMMLDriftMonitorEngine",
+        "CAMMLSplitEngine",
+        "CAMPhase5Stubs",
+        "CAMPostInvokeOrchestratorEngine",
+        "CAMTrainingExtractionAggregatorEngine"
+      ],
+      "dispatchers": {
+        "CAMLoRAAdapterTrainerEngine": "prism_cam",
+        "CAMMLDriftMonitorEngine": "prism_cam",
+        "CAMMLSplitEngine": "prism_cam",
+        "CAMPhase5Stubs": "prism_cam",
+        "CAMPostInvokeOrchestratorEngine": "prism_cam",
+        "CAMTrainingExtractionAggregatorEngine": "prism_cam"
+      },
+      "domain": "CAM / strategy",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-echo-03",
+      "slot": "echo",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "CAMTribalRAGEngine",
+        "CAMTribalTipLinkerEngine",
+        "CAMUtilityEngines",
+        "CimatronCAMBridgeEngine",
+        "CrossCAMComparisonLedgerEngine",
+        "FusionDeepLearningEngine"
+      ],
+      "dispatchers": {
+        "CAMTribalRAGEngine": "prism_cam",
+        "CAMTribalTipLinkerEngine": "prism_cam",
+        "CAMUtilityEngines": "prism_cam",
+        "CimatronCAMBridgeEngine": "prism_cam",
+        "CrossCAMComparisonLedgerEngine": "prism_cam",
+        "FusionDeepLearningEngine": "UNKNOWN"
+      },
+      "domain": "CAM / strategy",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-echo-04",
+      "slot": "echo",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "HybridPostMergeEngine",
+        "HyperMillACBridgeEngine",
+        "HyperMillACScriptExecutor",
+        "HyperMillPluginAdapterEngine",
+        "HyperMillSchemaUnifier",
+        "InventorCAMCodeGeneratorEngine"
+      ],
+      "dispatchers": {
+        "HybridPostMergeEngine": "prism_cam",
+        "HyperMillACBridgeEngine": "UNKNOWN",
+        "HyperMillACScriptExecutor": "prism_skill_script",
+        "HyperMillPluginAdapterEngine": "UNKNOWN",
+        "HyperMillSchemaUnifier": "UNKNOWN",
+        "InventorCAMCodeGeneratorEngine": "prism_cam"
+      },
+      "domain": "CAM / strategy",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-echo-05",
+      "slot": "echo",
+      "type": "wire",
+      "title": "Wire 1 engine → prism_cam",
+      "engines": [
+        "InventorCAMStrategyEngine"
+      ],
+      "dispatchers": {
+        "InventorCAMStrategyEngine": "prism_cam"
+      },
+      "domain": "CAM / strategy",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-foxtrot-01",
+      "slot": "foxtrot",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "AssetSynergyDetectorEngine",
+        "CacheEngine",
+        "CoatingSelectionEngine",
+        "CpsParserEngine",
+        "ElectrospinningEngine",
+        "FormalVerificationEngine"
+      ],
+      "dispatchers": {
+        "AssetSynergyDetectorEngine": "UNKNOWN",
+        "CacheEngine": "UNKNOWN",
+        "CoatingSelectionEngine": "prism_material_processing",
+        "CpsParserEngine": "UNKNOWN",
+        "ElectrospinningEngine": "UNKNOWN",
+        "FormalVerificationEngine": "UNKNOWN"
+      },
+      "domain": "machining know-how / tribal",
+      "tribal": "mill",
+      "wikiKw": "shop practice tribal"
+    },
+    {
+      "id": "U-DEA-foxtrot-02",
+      "slot": "foxtrot",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "FusionStrategyKnowledgeEngine",
+        "InsertChangeRecommendationEngine",
+        "LatheMasterPostUnifiedOutputEngine",
+        "LathePrintToleranceStackEngine",
+        "LatheUnifiedPhysicsOrchestrationEngine",
+        "MachineOptionMatrixEngine"
+      ],
+      "dispatchers": {
+        "FusionStrategyKnowledgeEngine": "prism_ai",
+        "InsertChangeRecommendationEngine": "UNKNOWN",
+        "LatheMasterPostUnifiedOutputEngine": "prism_cam",
+        "LathePrintToleranceStackEngine": "prism_turning",
+        "LatheUnifiedPhysicsOrchestrationEngine": "prism_turning",
+        "MachineOptionMatrixEngine": "UNKNOWN"
+      },
+      "domain": "machining know-how / tribal",
+      "tribal": "mill",
+      "wikiKw": "shop practice tribal"
+    },
+    {
+      "id": "U-DEA-foxtrot-03",
+      "slot": "foxtrot",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MultiSetupFeasibilityChainEngine",
+        "OrchestratorConfidenceFeedbackEngine",
+        "PactContractTestEngine",
+        "ProcessVariabilityIntegrationEngine",
+        "SaaSAPIEngine",
+        "SoftJawBoringGCodeEngine"
+      ],
+      "dispatchers": {
+        "MultiSetupFeasibilityChainEngine": "prism_feasibility",
+        "OrchestratorConfidenceFeedbackEngine": "prism_orchestrate",
+        "PactContractTestEngine": "UNKNOWN",
+        "ProcessVariabilityIntegrationEngine": "UNKNOWN",
+        "SaaSAPIEngine": "UNKNOWN",
+        "SoftJawBoringGCodeEngine": "prism_cam"
+      },
+      "domain": "machining know-how / tribal",
+      "tribal": "mill",
+      "wikiKw": "shop practice tribal"
+    },
+    {
+      "id": "U-DEA-foxtrot-04",
+      "slot": "foxtrot",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "StockFeedCycleEngine",
+        "TPEHyperparameterSearchEngine",
+        "TribalEvolutionEngine",
+        "WEDMPostTypes",
+        "WEDMStartPointOptimizationEngine",
+        "WetRunRetentionPolicyEngine"
+      ],
+      "dispatchers": {
+        "StockFeedCycleEngine": "UNKNOWN",
+        "TPEHyperparameterSearchEngine": "UNKNOWN",
+        "TribalEvolutionEngine": "UNKNOWN",
+        "WEDMPostTypes": "prism_cam",
+        "WEDMStartPointOptimizationEngine": "prism_edm",
+        "WetRunRetentionPolicyEngine": "UNKNOWN"
+      },
+      "domain": "machining know-how / tribal",
+      "tribal": "mill",
+      "wikiKw": "shop practice tribal"
+    },
+    {
+      "id": "U-DEA-foxtrot-05",
+      "slot": "foxtrot",
+      "type": "wire",
+      "title": "Wire 1 engine → prism_edm",
+      "engines": [
+        "WireEDMPredictiveIntelligenceEngine"
+      ],
+      "dispatchers": {
+        "WireEDMPredictiveIntelligenceEngine": "prism_edm"
+      },
+      "domain": "machining know-how / tribal",
+      "tribal": "mill",
+      "wikiKw": "shop practice tribal"
+    },
+    {
+      "id": "U-DEA-hotel-01",
+      "slot": "hotel",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "CostEstimationEngine",
+        "CostEstimatorEngine",
+        "CreoAddinRibbonEngine",
+        "CustomerKnowledgeEngine",
+        "CustomerPortfolioMinerEngine",
+        "cycleSchedulingBridge"
+      ],
+      "dispatchers": {
+        "CostEstimationEngine": "prism_business",
+        "CostEstimatorEngine": "prism_business",
+        "CreoAddinRibbonEngine": "UNKNOWN",
+        "CustomerKnowledgeEngine": "prism_business",
+        "CustomerPortfolioMinerEngine": "prism_business",
+        "cycleSchedulingBridge": "prism_scheduling"
+      },
+      "domain": "ERP / business",
+      "tribal": "lathe",
+      "wikiKw": "erp business cost"
+    },
+    {
+      "id": "U-DEA-hotel-02",
+      "slot": "hotel",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "DocustrataCustomerIndexEngine",
+        "EmbeddingFilterEngine",
+        "ERPImportEngine",
+        "ERPWorkOrderEngine",
+        "FourthAxisDecisionEngine",
+        "InsertGradeSelectionEngine"
+      ],
+      "dispatchers": {
+        "DocustrataCustomerIndexEngine": "prism_business",
+        "EmbeddingFilterEngine": "UNKNOWN",
+        "ERPImportEngine": "UNKNOWN",
+        "ERPWorkOrderEngine": "prism_business",
+        "FourthAxisDecisionEngine": "UNKNOWN",
+        "InsertGradeSelectionEngine": "UNKNOWN"
+      },
+      "domain": "ERP / business",
+      "tribal": "lathe",
+      "wikiKw": "erp business cost"
+    },
+    {
+      "id": "U-DEA-hotel-03",
+      "slot": "hotel",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MachinePackageAPIEngine",
+        "MultiPathReasoningEngine",
+        "MultiSignalAutoRollbackEngine",
+        "PDFHandbookBatchProcessorEngine",
+        "ProgramEquivalentIndexEngine",
+        "SBOMReviewEngine"
+      ],
+      "dispatchers": {
+        "MachinePackageAPIEngine": "UNKNOWN",
+        "MultiPathReasoningEngine": "prism_business",
+        "MultiSignalAutoRollbackEngine": "UNKNOWN",
+        "PDFHandbookBatchProcessorEngine": "UNKNOWN",
+        "ProgramEquivalentIndexEngine": "UNKNOWN",
+        "SBOMReviewEngine": "UNKNOWN"
+      },
+      "domain": "ERP / business",
+      "tribal": "lathe",
+      "wikiKw": "erp business cost"
+    },
+    {
+      "id": "U-DEA-hotel-04",
+      "slot": "hotel",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SchedulingPhysicsEngine",
+        "ShopFloorCostEngine",
+        "ShopFloorQuoteEngine",
+        "StreamVsBatchReconciliationEngine",
+        "SubprogramExtractionEngine",
+        "TransferLearningAdapterEngine"
+      ],
+      "dispatchers": {
+        "SchedulingPhysicsEngine": "prism_scheduling",
+        "ShopFloorCostEngine": "prism_business",
+        "ShopFloorQuoteEngine": "prism_business",
+        "StreamVsBatchReconciliationEngine": "prism_business",
+        "SubprogramExtractionEngine": "UNKNOWN",
+        "TransferLearningAdapterEngine": "UNKNOWN"
+      },
+      "domain": "ERP / business",
+      "tribal": "lathe",
+      "wikiKw": "erp business cost"
+    },
+    {
+      "id": "U-DEA-hotel-05",
+      "slot": "hotel",
+      "type": "triage+wire",
+      "title": "Triage + wire 1 engine (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "WetRunStateMachineEngine"
+      ],
+      "dispatchers": {
+        "WetRunStateMachineEngine": "UNKNOWN"
+      },
+      "domain": "ERP / business",
+      "tribal": "lathe",
+      "wikiKw": "erp business cost"
+    },
+    {
+      "id": "U-DEA-india-01",
+      "slot": "india",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ConcentrationInequalityEngine",
+        "CUSUMEngine",
+        "DataQualityEngine",
+        "DNCCompareEngine",
+        "DNCFileTransferEngine",
+        "DNCGenerateEngine"
+      ],
+      "dispatchers": {
+        "ConcentrationInequalityEngine": "prism_quality",
+        "CUSUMEngine": "prism_process_control",
+        "DataQualityEngine": "prism_quality",
+        "DNCCompareEngine": "UNKNOWN",
+        "DNCFileTransferEngine": "UNKNOWN",
+        "DNCGenerateEngine": "UNKNOWN"
+      },
+      "domain": "post-processor / quality",
+      "tribal": "cam",
+      "wikiKw": "post processor controller"
+    },
+    {
+      "id": "U-DEA-india-02",
+      "slot": "india",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "DNCQREngine",
+        "DNCSendEngine",
+        "DNCVerifyEngine",
+        "DOETaguchEngine",
+        "ERPQualityEngine",
+        "HyperMillFAIBridge"
+      ],
+      "dispatchers": {
+        "DNCQREngine": "UNKNOWN",
+        "DNCSendEngine": "UNKNOWN",
+        "DNCVerifyEngine": "UNKNOWN",
+        "DOETaguchEngine": "prism_process_control",
+        "ERPQualityEngine": "prism_quality",
+        "HyperMillFAIBridge": "prism_quality"
+      },
+      "domain": "post-processor / quality",
+      "tribal": "cam",
+      "wikiKw": "post processor controller"
+    },
+    {
+      "id": "U-DEA-india-03",
+      "slot": "india",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "HyperMillSPCBridge",
+        "IntegrationForesightEngine",
+        "MachinePackageSelectionEngine",
+        "MultiSpindleAutomaticEngine",
+        "MultivariateSPCEngine",
+        "PDFSourceRegistryEngine"
+      ],
+      "dispatchers": {
+        "HyperMillSPCBridge": "prism_quality",
+        "IntegrationForesightEngine": "UNKNOWN",
+        "MachinePackageSelectionEngine": "UNKNOWN",
+        "MultiSpindleAutomaticEngine": "UNKNOWN",
+        "MultivariateSPCEngine": "prism_quality",
+        "PDFSourceRegistryEngine": "UNKNOWN"
+      },
+      "domain": "post-processor / quality",
+      "tribal": "cam",
+      "wikiKw": "post processor controller"
+    },
+    {
+      "id": "U-DEA-india-04",
+      "slot": "india",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ProgrammerProductivityEngine",
+        "QualityFormulasEngine",
+        "SchemaMigrationRollbackEngine",
+        "SPCProcessCapabilityEngine",
+        "SurfaceLocationErrorEngine",
+        "TransformerEngine"
+      ],
+      "dispatchers": {
+        "ProgrammerProductivityEngine": "UNKNOWN",
+        "QualityFormulasEngine": "prism_quality",
+        "SchemaMigrationRollbackEngine": "UNKNOWN",
+        "SPCProcessCapabilityEngine": "prism_quality",
+        "SurfaceLocationErrorEngine": "UNKNOWN",
+        "TransformerEngine": "UNKNOWN"
+      },
+      "domain": "post-processor / quality",
+      "tribal": "cam",
+      "wikiKw": "post processor controller"
+    },
+    {
+      "id": "U-DEA-india-05",
+      "slot": "india",
+      "type": "triage+wire",
+      "title": "Triage + wire 1 engine (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "WhiteLabelConfigEngine"
+      ],
+      "dispatchers": {
+        "WhiteLabelConfigEngine": "UNKNOWN"
+      },
+      "domain": "post-processor / quality",
+      "tribal": "cam",
+      "wikiKw": "post processor controller"
+    },
+    {
+      "id": "U-DEA-juliett-01",
+      "slot": "juliett",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "AlgorithmOrchestratorEngine",
+        "CalculatorPRISMModeEngine",
+        "CoolantOptimizationPhysicsEngine",
+        "FeedbackCollectorEngine",
+        "FeedbackLoopDoctorEngine",
+        "FormulaWiringEngine"
+      ],
+      "dispatchers": {
+        "AlgorithmOrchestratorEngine": "prism_calc",
+        "CalculatorPRISMModeEngine": "prism_calc",
+        "CoolantOptimizationPhysicsEngine": "prism_calc",
+        "FeedbackCollectorEngine": "UNKNOWN",
+        "FeedbackLoopDoctorEngine": "UNKNOWN",
+        "FormulaWiringEngine": "prism_calc"
+      },
+      "domain": "speed-feed / physics",
+      "tribal": "mill",
+      "wikiKw": "speed feed physics"
+    },
+    {
+      "id": "U-DEA-juliett-02",
+      "slot": "juliett",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "GrepOptimizerEngine",
+        "IntelligentSequencingAdapter",
+        "MachineConfidenceCalculatorEngine",
+        "MachineProfilePropagationEngine",
+        "MonteCarloProcessEngine",
+        "MonteCarloScheduleEngine"
+      ],
+      "dispatchers": {
+        "GrepOptimizerEngine": "prism_calc",
+        "IntelligentSequencingAdapter": "UNKNOWN",
+        "MachineConfidenceCalculatorEngine": "prism_calc",
+        "MachineProfilePropagationEngine": "UNKNOWN",
+        "MonteCarloProcessEngine": "prism_calc",
+        "MonteCarloScheduleEngine": "prism_calc"
+      },
+      "domain": "speed-feed / physics",
+      "tribal": "mill",
+      "wikiKw": "speed feed physics"
+    },
+    {
+      "id": "U-DEA-juliett-03",
+      "slot": "juliett",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MultiTurretSyncEngine",
+        "OptimizationEngine",
+        "OptimizationFormulasEngine",
+        "PalletPoolOptimizerEngine",
+        "PDFTableExtractionEngine",
+        "PipelineOptimizationEngine"
+      ],
+      "dispatchers": {
+        "MultiTurretSyncEngine": "UNKNOWN",
+        "OptimizationEngine": "prism_calc",
+        "OptimizationFormulasEngine": "prism_calc",
+        "PalletPoolOptimizerEngine": "prism_calc",
+        "PDFTableExtractionEngine": "UNKNOWN",
+        "PipelineOptimizationEngine": "prism_calc"
+      },
+      "domain": "speed-feed / physics",
+      "tribal": "mill",
+      "wikiKw": "speed feed physics"
+    },
+    {
+      "id": "U-DEA-juliett-04",
+      "slot": "juliett",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "QdrantSurfaceEngine",
+        "RealTimeOptimizationEngine",
+        "ScrewConveyorEngine",
+        "SFCOptimizeEngine",
+        "SweptVolumeEngine",
+        "TriLevelKillSwitchEngine"
+      ],
+      "dispatchers": {
+        "QdrantSurfaceEngine": "UNKNOWN",
+        "RealTimeOptimizationEngine": "prism_calc",
+        "ScrewConveyorEngine": "UNKNOWN",
+        "SFCOptimizeEngine": "prism_calc",
+        "SweptVolumeEngine": "UNKNOWN",
+        "TriLevelKillSwitchEngine": "UNKNOWN"
+      },
+      "domain": "speed-feed / physics",
+      "tribal": "mill",
+      "wikiKw": "speed feed physics"
+    },
+    {
+      "id": "U-DEA-juliett-05",
+      "slot": "juliett",
+      "type": "triage+wire",
+      "title": "Triage + wire 1 engine (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "WorldModelEngine"
+      ],
+      "dispatchers": {
+        "WorldModelEngine": "UNKNOWN"
+      },
+      "domain": "speed-feed / physics",
+      "tribal": "mill",
+      "wikiKw": "speed feed physics"
+    },
+    {
+      "id": "U-DEA-kilo-01",
+      "slot": "kilo",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AtomicMultiFileWriteEngine",
+        "CapabilityIndexEngine",
+        "CodeGenerationIntegrityEngine",
+        "CreoIntegrationTestSuiteEngine",
+        "EmbeddingGuardEngine",
+        "FourthAxisIndexingEngine"
+      ],
+      "dispatchers": {
+        "AtomicMultiFileWriteEngine": "UNKNOWN",
+        "CapabilityIndexEngine": "UNKNOWN",
+        "CodeGenerationIntegrityEngine": "UNKNOWN",
+        "CreoIntegrationTestSuiteEngine": "UNKNOWN",
+        "EmbeddingGuardEngine": "UNKNOWN",
+        "FourthAxisIndexingEngine": "UNKNOWN"
+      },
+      "domain": "print-to-program",
+      "tribal": "cam",
+      "wikiKw": "print to program"
+    },
+    {
+      "id": "U-DEA-kilo-02",
+      "slot": "kilo",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "HardenedAgentCapabilitiesEngine",
+        "IntentRouterEngine",
+        "LatheMetaLearningEngine",
+        "LathePrintToolpathGeneratorEngine",
+        "LoRAAdapterRegistryEngine",
+        "MachineToolErrorBudgetEngine"
+      ],
+      "dispatchers": {
+        "HardenedAgentCapabilitiesEngine": "prism_orchestrate",
+        "IntentRouterEngine": "UNKNOWN",
+        "LatheMetaLearningEngine": "prism_turning",
+        "LathePrintToolpathGeneratorEngine": "prism_cam",
+        "LoRAAdapterRegistryEngine": "prism_ai",
+        "MachineToolErrorBudgetEngine": "UNKNOWN"
+      },
+      "domain": "print-to-program",
+      "tribal": "cam",
+      "wikiKw": "print to program"
+    },
+    {
+      "id": "U-DEA-kilo-03",
+      "slot": "kilo",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "NCPatternMinerEngine",
+        "PairedPrintProgramBundleEngine",
+        "PhysicsAwareDataAugmentationEngine",
+        "PrintMatchStallDetectorEngine",
+        "QdrantVectorStoreEngine",
+        "SelfModelEngine"
+      ],
+      "dispatchers": {
+        "NCPatternMinerEngine": "UNKNOWN",
+        "PairedPrintProgramBundleEngine": "prism_ai",
+        "PhysicsAwareDataAugmentationEngine": "UNKNOWN",
+        "PrintMatchStallDetectorEngine": "UNKNOWN",
+        "QdrantVectorStoreEngine": "UNKNOWN",
+        "SelfModelEngine": "UNKNOWN"
+      },
+      "domain": "print-to-program",
+      "tribal": "cam",
+      "wikiKw": "print to program"
+    },
+    {
+      "id": "U-DEA-kilo-04",
+      "slot": "kilo",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SwissChannelFileEmitterEngine",
+        "TroubleshootingDecisionTreeEngine",
+        "TurningStrategyCatalog",
+        "WEDMProcessCausalityEngine",
+        "WEDMStrategyLibraryEngine",
+        "WireEDMResearchAIEngine"
+      ],
+      "dispatchers": {
+        "SwissChannelFileEmitterEngine": "UNKNOWN",
+        "TroubleshootingDecisionTreeEngine": "UNKNOWN",
+        "TurningStrategyCatalog": "prism_turning",
+        "WEDMProcessCausalityEngine": "prism_edm",
+        "WEDMStrategyLibraryEngine": "prism_edm",
+        "WireEDMResearchAIEngine": "prism_edm"
+      },
+      "domain": "print-to-program",
+      "tribal": "cam",
+      "wikiKw": "print to program"
+    },
+    {
+      "id": "U-DEA-lima-01",
+      "slot": "lima",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AttractorDetectionEngine",
+        "CAPAWorkflowEngine",
+        "CodexClientEngine",
+        "CreoToolkitBridgeEngine",
+        "EngineRegistryEngine",
+        "FreezeDryingEngine"
+      ],
+      "dispatchers": {
+        "AttractorDetectionEngine": "UNKNOWN",
+        "CAPAWorkflowEngine": "UNKNOWN",
+        "CodexClientEngine": "UNKNOWN",
+        "CreoToolkitBridgeEngine": "UNKNOWN",
+        "EngineRegistryEngine": "UNKNOWN",
+        "FreezeDryingEngine": "UNKNOWN"
+      },
+      "domain": "PRISM-academy / AI",
+      "tribal": "mill",
+      "wikiKw": "learning academy"
+    },
+    {
+      "id": "U-DEA-lima-02",
+      "slot": "lima",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "InferenceChainEngine",
+        "InstructorDashboardEngine",
+        "InterOperationStateEngine",
+        "LathePrintToProgramDLIntelligenceEngine",
+        "MachineLoRABaseEngine",
+        "MacroConversionAnalyzerEngine"
+      ],
+      "dispatchers": {
+        "InferenceChainEngine": "prism_ai",
+        "InstructorDashboardEngine": "UNKNOWN",
+        "InterOperationStateEngine": "UNKNOWN",
+        "LathePrintToProgramDLIntelligenceEngine": "prism_turning",
+        "MachineLoRABaseEngine": "prism_ai",
+        "MacroConversionAnalyzerEngine": "UNKNOWN"
+      },
+      "domain": "PRISM-academy / AI",
+      "tribal": "mill",
+      "wikiKw": "learning academy"
+    },
+    {
+      "id": "U-DEA-lima-03",
+      "slot": "lima",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "NewCoderModeEngine",
+        "PhysicsPredictionEngine",
+        "PostAMFinishingPlanEngine",
+        "QTValidationSuiteEngine",
+        "SemanticAssetIndexEngine",
+        "StockBoundaryGateEngine"
+      ],
+      "dispatchers": {
+        "NewCoderModeEngine": "UNKNOWN",
+        "PhysicsPredictionEngine": "UNKNOWN",
+        "PostAMFinishingPlanEngine": "prism_cam",
+        "QTValidationSuiteEngine": "UNKNOWN",
+        "SemanticAssetIndexEngine": "UNKNOWN",
+        "StockBoundaryGateEngine": "prism_safety"
+      },
+      "domain": "PRISM-academy / AI",
+      "tribal": "mill",
+      "wikiKw": "learning academy"
+    },
+    {
+      "id": "U-DEA-lima-04",
+      "slot": "lima",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SwissGuideBushingPhysicsEngine",
+        "TurretLayoutEngine",
+        "UncertaintyPropagationEngine",
+        "WEDMProductionReadinessEngine",
+        "WEDMTabStrategyEngine",
+        "WireEDMSelfAwarenessIntegrationEngine"
+      ],
+      "dispatchers": {
+        "SwissGuideBushingPhysicsEngine": "UNKNOWN",
+        "TurretLayoutEngine": "UNKNOWN",
+        "UncertaintyPropagationEngine": "prism_ai",
+        "WEDMProductionReadinessEngine": "prism_edm",
+        "WEDMTabStrategyEngine": "prism_edm",
+        "WireEDMSelfAwarenessIntegrationEngine": "prism_edm"
+      },
+      "domain": "PRISM-academy / AI",
+      "tribal": "mill",
+      "wikiKw": "learning academy"
+    },
+    {
+      "id": "U-DEA-mike-01",
+      "slot": "mike",
+      "type": "wire",
+      "title": "Wire 6 engines (mixed dispatchers — see per-engine target)",
+      "engines": [
+        "AgentAutoUpdateEngine",
+        "AgenticLoopEngine",
+        "AgentSpecializationProfileEngine",
+        "AgentWorkflowEngine",
+        "AIMLFormulasEngine",
+        "AssemblyPlannerEngine"
+      ],
+      "dispatchers": {
+        "AgentAutoUpdateEngine": "prism_orchestrate",
+        "AgenticLoopEngine": "prism_orchestrate",
+        "AgentSpecializationProfileEngine": "prism_orchestrate",
+        "AgentWorkflowEngine": "prism_orchestrate",
+        "AIMLFormulasEngine": "prism_ai",
+        "AssemblyPlannerEngine": "prism_orchestrate"
+      },
+      "domain": "misc / orchestration",
+      "tribal": "mill",
+      "wikiKw": "orchestration misc"
+    },
+    {
+      "id": "U-DEA-mike-02",
+      "slot": "mike",
+      "type": "wire",
+      "title": "Wire 6 engines (mixed dispatchers — see per-engine target)",
+      "engines": [
+        "AuthorityRankingEngine",
+        "BuildPlannerEngine",
+        "CATIAIntegrationTestSuiteEngine",
+        "ChainExecutorEngine",
+        "ComplexPartPlannerEngine",
+        "ConsensusAIBridgeEngine"
+      ],
+      "dispatchers": {
+        "AuthorityRankingEngine": "prism_auth",
+        "BuildPlannerEngine": "prism_orchestrate",
+        "CATIAIntegrationTestSuiteEngine": "prism_ai",
+        "ChainExecutorEngine": "prism_ai",
+        "ComplexPartPlannerEngine": "prism_orchestrate",
+        "ConsensusAIBridgeEngine": "prism_ai"
+      },
+      "domain": "misc / orchestration",
+      "tribal": "mill",
+      "wikiKw": "orchestration misc"
+    },
+    {
+      "id": "U-DEA-mike-03",
+      "slot": "mike",
+      "type": "wire",
+      "title": "Wire 6 engines → prism_ai",
+      "engines": [
+        "ConsensusNeuralFeedbackEngine",
+        "CrossProcessAIBridge",
+        "DecisionReasoningEngine",
+        "DeepAIIntelligenceEngine",
+        "DependencyGraphEngine",
+        "DetachedLoRARunnerEngine"
+      ],
+      "dispatchers": {
+        "ConsensusNeuralFeedbackEngine": "prism_ai",
+        "CrossProcessAIBridge": "prism_ai",
+        "DecisionReasoningEngine": "prism_ai",
+        "DeepAIIntelligenceEngine": "prism_ai",
+        "DependencyGraphEngine": "prism_ai",
+        "DetachedLoRARunnerEngine": "prism_ai"
+      },
+      "domain": "misc / orchestration",
+      "tribal": "mill",
+      "wikiKw": "orchestration misc"
+    },
+    {
+      "id": "U-DEA-mike-04",
+      "slot": "mike",
+      "type": "wire",
+      "title": "Wire 6 engines (mixed dispatchers — see per-engine target)",
+      "engines": [
+        "DomainOrchestratorPluginRegistry",
+        "EditPlannerEngine",
+        "EnsembleMLEngine",
+        "ErrorExplainerEngine",
+        "ForceNeuralPredictorEngine",
+        "ForesightOrchestratorEngine"
+      ],
+      "dispatchers": {
+        "DomainOrchestratorPluginRegistry": "prism_ai",
+        "EditPlannerEngine": "prism_orchestrate",
+        "EnsembleMLEngine": "prism_ai",
+        "ErrorExplainerEngine": "prism_ai",
+        "ForceNeuralPredictorEngine": "prism_ai",
+        "ForesightOrchestratorEngine": "prism_orchestrate"
+      },
+      "domain": "misc / orchestration",
+      "tribal": "mill",
+      "wikiKw": "orchestration misc"
+    },
+    {
+      "id": "U-DEA-mike-05",
+      "slot": "mike",
+      "type": "wire",
+      "title": "Wire 1 engine → prism_ai",
+      "engines": [
+        "FormulaIntegrationEngine"
+      ],
+      "dispatchers": {
+        "FormulaIntegrationEngine": "prism_ai"
+      },
+      "domain": "misc / orchestration",
+      "tribal": "mill",
+      "wikiKw": "orchestration misc"
+    },
+    {
+      "id": "U-DEA-november-01",
+      "slot": "november",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "AcousticEmissionMonitoringEngine",
+        "ArchiveToPartsCatalogIngesterEngine",
+        "BuildAdvisorEngine",
+        "BuildDebriefEngine",
+        "CalibratedSimulationEngine",
+        "ContextualBoundaryEngine"
+      ],
+      "dispatchers": {
+        "AcousticEmissionMonitoringEngine": "prism_monitoring",
+        "ArchiveToPartsCatalogIngesterEngine": "prism_safety",
+        "BuildAdvisorEngine": "prism_dev",
+        "BuildDebriefEngine": "prism_dev",
+        "CalibratedSimulationEngine": "UNKNOWN",
+        "ContextualBoundaryEngine": "prism_session"
+      },
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy"
+    },
+    {
+      "id": "U-DEA-november-02",
+      "slot": "november",
+      "type": "wire",
+      "title": "Wire 6 engines (mixed dispatchers — see per-engine target)",
+      "engines": [
+        "CorrigibilityGateEngine",
+        "CounterfactualBuildSimulatorEngine",
+        "EmergentBehaviorMonitorEngine",
+        "GateFailureHistoryEngine",
+        "GitSafetyEngine",
+        "HyperMillMetricCfgExtractor"
+      ],
+      "dispatchers": {
+        "CorrigibilityGateEngine": "prism_safety",
+        "CounterfactualBuildSimulatorEngine": "prism_dev",
+        "EmergentBehaviorMonitorEngine": "prism_monitoring",
+        "GateFailureHistoryEngine": "prism_safety",
+        "GitSafetyEngine": "prism_safety",
+        "HyperMillMetricCfgExtractor": "prism_monitoring"
+      },
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy"
+    },
+    {
+      "id": "U-DEA-november-03",
+      "slot": "november",
+      "type": "wire",
+      "title": "Wire 6 engines (mixed dispatchers — see per-engine target)",
+      "engines": [
+        "InferenceLoRAGateEngine",
+        "InMemoryFileOverlayEngine",
+        "LiveToolingIntelligenceEngine",
+        "LiveToolingSyntaxEngine",
+        "MemoryConflictResolverEngine",
+        "MOUStallGateEngine"
+      ],
+      "dispatchers": {
+        "InferenceLoRAGateEngine": "prism_safety",
+        "InMemoryFileOverlayEngine": "prism_session",
+        "LiveToolingIntelligenceEngine": "prism_safety",
+        "LiveToolingSyntaxEngine": "prism_safety",
+        "MemoryConflictResolverEngine": "prism_session",
+        "MOUStallGateEngine": "prism_safety"
+      },
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy"
+    },
+    {
+      "id": "U-DEA-november-04",
+      "slot": "november",
+      "type": "wire",
+      "title": "Wire 6 engines (mixed dispatchers — see per-engine target)",
+      "engines": [
+        "OllamaContextFloorEngine",
+        "OutcomeEpisodicMemoryBridgeEngine",
+        "PilotPhaseExitGateEngine",
+        "PreWetRunChaosGateEngine",
+        "PrometheusMetricsEngine",
+        "PromotionGateEngine"
+      ],
+      "dispatchers": {
+        "OllamaContextFloorEngine": "prism_session",
+        "OutcomeEpisodicMemoryBridgeEngine": "prism_session",
+        "PilotPhaseExitGateEngine": "prism_safety",
+        "PreWetRunChaosGateEngine": "prism_safety",
+        "PrometheusMetricsEngine": "prism_monitoring",
+        "PromotionGateEngine": "prism_safety"
+      },
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy"
+    },
+    {
+      "id": "U-DEA-november-05",
+      "slot": "november",
+      "type": "wire",
+      "title": "Wire 1 engine → prism_safety",
+      "engines": [
+        "SpindleTorqueGateEngine"
+      ],
+      "dispatchers": {
+        "SpindleTorqueGateEngine": "prism_safety"
+      },
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy"
+    },
+    {
+      "id": "U-DEA-oscar-01",
+      "slot": "oscar",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AutodeskFusionMCPProxyEngine",
+        "CashFlowProjectionEngine",
+        "CommonlyMissedPatternsRegistry",
+        "CriticalPathDetectorEngine",
+        "EntropyTrackerEngine",
+        "FrequentPathEngine"
+      ],
+      "dispatchers": {
+        "AutodeskFusionMCPProxyEngine": "UNKNOWN",
+        "CashFlowProjectionEngine": "UNKNOWN",
+        "CommonlyMissedPatternsRegistry": "UNKNOWN",
+        "CriticalPathDetectorEngine": "UNKNOWN",
+        "EntropyTrackerEngine": "UNKNOWN",
+        "FrequentPathEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-oscar-02",
+      "slot": "oscar",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ISO13485QMSEngine",
+        "JMDiePostProcessorLearningEngine",
+        "LatheOpusReasoningEngine",
+        "LathePrintToProgramKnowledgeGraphEngine",
+        "MakeVsBuyDecisionEngine",
+        "MastercamHeadlessIntegrationTestEngine"
+      ],
+      "dispatchers": {
+        "ISO13485QMSEngine": "UNKNOWN",
+        "JMDiePostProcessorLearningEngine": "prism_cam",
+        "LatheOpusReasoningEngine": "prism_turning",
+        "LathePrintToProgramKnowledgeGraphEngine": "prism_turning",
+        "MakeVsBuyDecisionEngine": "UNKNOWN",
+        "MastercamHeadlessIntegrationTestEngine": "prism_cam"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-oscar-03",
+      "slot": "oscar",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "NXOpenAssemblyDrawingEngine",
+        "PipelineRegistryBridge",
+        "PostProcessorUnificationEngine",
+        "QuotingEngine",
+        "SensorDataSchemaEngine",
+        "STRIPSPlannerEngine"
+      ],
+      "dispatchers": {
+        "NXOpenAssemblyDrawingEngine": "UNKNOWN",
+        "PipelineRegistryBridge": "UNKNOWN",
+        "PostProcessorUnificationEngine": "prism_cam",
+        "QuotingEngine": "UNKNOWN",
+        "SensorDataSchemaEngine": "UNKNOWN",
+        "STRIPSPlannerEngine": "prism_orchestrate"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-oscar-04",
+      "slot": "oscar",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SwissPartTransferSequenceEngine",
+        "TypeAwareReferenceEngine",
+        "UncertaintyPropagationPipelineEngine",
+        "WEDMProgramComparisonEngine",
+        "WEDMTaperErrorBudgetEngine",
+        "WorkholdingRetrofitAdvisorEngine"
+      ],
+      "dispatchers": {
+        "SwissPartTransferSequenceEngine": "prism_multi_op",
+        "TypeAwareReferenceEngine": "UNKNOWN",
+        "UncertaintyPropagationPipelineEngine": "prism_ai",
+        "WEDMProgramComparisonEngine": "prism_edm",
+        "WEDMTaperErrorBudgetEngine": "prism_edm",
+        "WorkholdingRetrofitAdvisorEngine": "prism_safety"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-papa-01",
+      "slot": "papa",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AutomatedResourceHarvestingPipeline",
+        "CatalogRegistryBridgeEngine",
+        "CompleteMachiningEngine",
+        "CrossToolCouplingEngine",
+        "EntryExitStrategyAdapter",
+        "GageRRMSAEngine"
+      ],
+      "dispatchers": {
+        "AutomatedResourceHarvestingPipeline": "UNKNOWN",
+        "CatalogRegistryBridgeEngine": "UNKNOWN",
+        "CompleteMachiningEngine": "UNKNOWN",
+        "CrossToolCouplingEngine": "UNKNOWN",
+        "EntryExitStrategyAdapter": "UNKNOWN",
+        "GageRRMSAEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-papa-02",
+      "slot": "papa",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ISO14971RiskManagementEngine",
+        "KnowledgeGraphFeatureProjectorEngine",
+        "LatheOrchestrationEngine",
+        "LathePrintToProgramReasoningEngine",
+        "MastercamMillTurnBridge",
+        "MasterIndexGenerator"
+      ],
+      "dispatchers": {
+        "ISO14971RiskManagementEngine": "UNKNOWN",
+        "KnowledgeGraphFeatureProjectorEngine": "prism_ai",
+        "LatheOrchestrationEngine": "prism_turning",
+        "LathePrintToProgramReasoningEngine": "prism_turning",
+        "MastercamMillTurnBridge": "prism_cam",
+        "MasterIndexGenerator": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-papa-03",
+      "slot": "papa",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "OllamaHookBridgeEngine",
+        "PlaywrightAutomationEngine",
+        "PowerMillStrategyEngine",
+        "RateLimitEngine",
+        "SensorFusionEngine",
+        "SustainCarbonEngine"
+      ],
+      "dispatchers": {
+        "OllamaHookBridgeEngine": "UNKNOWN",
+        "PlaywrightAutomationEngine": "prism_automation",
+        "PowerMillStrategyEngine": "UNKNOWN",
+        "RateLimitEngine": "UNKNOWN",
+        "SensorFusionEngine": "UNKNOWN",
+        "SustainCarbonEngine": "prism_diagnosis"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-papa-04",
+      "slot": "papa",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SwissTypeDecisionEngine",
+        "TypeFlowTracerEngine",
+        "UnifiedPPAGIOrchestrationEngine",
+        "WEDMProgramOptimizerEngine",
+        "WEDMTradeoffElicitationEngine",
+        "WorkholdingSelectionEngine"
+      ],
+      "dispatchers": {
+        "SwissTypeDecisionEngine": "UNKNOWN",
+        "TypeFlowTracerEngine": "UNKNOWN",
+        "UnifiedPPAGIOrchestrationEngine": "prism_ai",
+        "WEDMProgramOptimizerEngine": "prism_edm",
+        "WEDMTradeoffElicitationEngine": "prism_edm",
+        "WorkholdingSelectionEngine": "prism_safety"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-quebec-01",
+      "slot": "quebec",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "BackupRestoreDrillEngine",
+        "CATIAAddinPluginEngine",
+        "ComplexityAwareRouterEngine",
+        "CuriosityDrivenExplorerEngine",
+        "EPackTableImportEngine",
+        "GapPredictorEngine"
+      ],
+      "dispatchers": {
+        "BackupRestoreDrillEngine": "UNKNOWN",
+        "CATIAAddinPluginEngine": "UNKNOWN",
+        "ComplexityAwareRouterEngine": "UNKNOWN",
+        "CuriosityDrivenExplorerEngine": "UNKNOWN",
+        "EPackTableImportEngine": "UNKNOWN",
+        "GapPredictorEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-quebec-02",
+      "slot": "quebec",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ISO286ExtendedEngine",
+        "KnowledgeGraphNeuralBridgeEngine",
+        "LathePartFamilyPlanningEngine",
+        "LatheProgrammingStyleSelectorEngine",
+        "MaterialHardnessStateClassifierEngine",
+        "MeasurementSystemAnalysisEngine"
+      ],
+      "dispatchers": {
+        "ISO286ExtendedEngine": "UNKNOWN",
+        "KnowledgeGraphNeuralBridgeEngine": "prism_ai",
+        "LathePartFamilyPlanningEngine": "prism_turning",
+        "LatheProgrammingStyleSelectorEngine": "prism_turning",
+        "MaterialHardnessStateClassifierEngine": "prism_data",
+        "MeasurementSystemAnalysisEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-quebec-03",
+      "slot": "quebec",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "OnshapeAPIBridgeEngine",
+        "PluginEngine",
+        "PrintCorpusOrchestratorEngine",
+        "RCSAEngine",
+        "SensorSimulatorEngine",
+        "SustainEnergyEngine"
+      ],
+      "dispatchers": {
+        "OnshapeAPIBridgeEngine": "UNKNOWN",
+        "PluginEngine": "UNKNOWN",
+        "PrintCorpusOrchestratorEngine": "prism_orchestrate",
+        "RCSAEngine": "UNKNOWN",
+        "SensorSimulatorEngine": "UNKNOWN",
+        "SustainEnergyEngine": "prism_diagnosis"
+      },
+      "domain": "general / overflow",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-quebec-04",
+      "slot": "quebec",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SwissTypeIntelligenceEngine",
+        "UnifiedProgramParserEngine",
+        "UserModelEngine",
+        "WEDMProgramVerificationEngine",
+        "WEDMWhatIfSimulatorEngine",
+        "XProcNeuralAutoFireEngine"
+      ],
+      "dispatchers": {
+        "SwissTypeIntelligenceEngine": "UNKNOWN",
+        "UnifiedProgramParserEngine": "UNKNOWN",
+        "UserModelEngine": "prism_auth",
+        "WEDMProgramVerificationEngine": "prism_edm",
+        "WEDMWhatIfSimulatorEngine": "prism_edm",
+        "XProcNeuralAutoFireEngine": "prism_ai"
+      },
+      "domain": "general / overflow",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-romeo-01",
+      "slot": "romeo",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AbstractionHierarchyEngine",
+        "BallMillEngine",
+        "CATIACAAV5BridgeEngine",
+        "CompositionalSynthesisEngine",
+        "CycloneSeparatorEngine",
+        "ErrorBudgetEngine"
+      ],
+      "dispatchers": {
+        "AbstractionHierarchyEngine": "UNKNOWN",
+        "BallMillEngine": "UNKNOWN",
+        "CATIACAAV5BridgeEngine": "UNKNOWN",
+        "CompositionalSynthesisEngine": "UNKNOWN",
+        "CycloneSeparatorEngine": "UNKNOWN",
+        "ErrorBudgetEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-romeo-02",
+      "slot": "romeo",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "GeminiClientEngine",
+        "JmDieMachineConfigEngine",
+        "KnowledgeInjectionPipelineEngine",
+        "LathePostGeneratorActiveLearningEngine",
+        "LatheProofCarryingEmitEngine",
+        "MaterialHarvesterEngine"
+      ],
+      "dispatchers": {
+        "GeminiClientEngine": "UNKNOWN",
+        "JmDieMachineConfigEngine": "UNKNOWN",
+        "KnowledgeInjectionPipelineEngine": "prism_ai",
+        "LathePostGeneratorActiveLearningEngine": "prism_cam",
+        "LatheProofCarryingEmitEngine": "prism_turning",
+        "MaterialHarvesterEngine": "prism_data"
+      },
+      "domain": "general / overflow",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-romeo-03",
+      "slot": "romeo",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MeasureSummaryEngine",
+        "OnshapeLiveCollabAdapter",
+        "PredictiveWorldSimulatorEngine",
+        "RadialEngagementControllerEngine",
+        "ReceptanceCouplingEngine",
+        "SFCCompareEngine"
+      ],
+      "dispatchers": {
+        "MeasureSummaryEngine": "UNKNOWN",
+        "OnshapeLiveCollabAdapter": "UNKNOWN",
+        "PredictiveWorldSimulatorEngine": "UNKNOWN",
+        "RadialEngagementControllerEngine": "prism_cam",
+        "ReceptanceCouplingEngine": "UNKNOWN",
+        "SFCCompareEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-romeo-04",
+      "slot": "romeo",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SustainOptimizeEngine",
+        "SymbolImpactEngine",
+        "UniversalFeedbackCommandEngine",
+        "VideoELearningAIEngine",
+        "WEDMRecipeAdaptationEngine",
+        "WEDMWireBreakRiskCostEngine"
+      ],
+      "dispatchers": {
+        "SustainOptimizeEngine": "prism_diagnosis",
+        "SymbolImpactEngine": "UNKNOWN",
+        "UniversalFeedbackCommandEngine": "UNKNOWN",
+        "VideoELearningAIEngine": "prism_ai",
+        "WEDMRecipeAdaptationEngine": "prism_edm",
+        "WEDMWireBreakRiskCostEngine": "prism_edm"
+      },
+      "domain": "general / overflow",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-sierra-01",
+      "slot": "sierra",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AcquisitionRecommendationEngine",
+        "BarRemnantManagementEngine",
+        "CentrifugeEngine",
+        "ConsensusObsidianPersistenceEngine",
+        "DeadLetterQueueEngine",
+        "EWMAEngine"
+      ],
+      "dispatchers": {
+        "AcquisitionRecommendationEngine": "UNKNOWN",
+        "BarRemnantManagementEngine": "UNKNOWN",
+        "CentrifugeEngine": "UNKNOWN",
+        "ConsensusObsidianPersistenceEngine": "UNKNOWN",
+        "DeadLetterQueueEngine": "UNKNOWN",
+        "EWMAEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-sierra-02",
+      "slot": "sierra",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "GoldenBaselineManagerEngine",
+        "KalmanFilterEngine",
+        "LatheCAMIntelligenceEngine",
+        "LathePostKnowledgeGraphEngine",
+        "LatheQualityGateEngine",
+        "MembraneFiltrationEngine"
+      ],
+      "dispatchers": {
+        "GoldenBaselineManagerEngine": "UNKNOWN",
+        "KalmanFilterEngine": "UNKNOWN",
+        "LatheCAMIntelligenceEngine": "prism_cam",
+        "LathePostKnowledgeGraphEngine": "prism_cam",
+        "LatheQualityGateEngine": "prism_turning",
+        "MembraneFiltrationEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-sierra-03",
+      "slot": "sierra",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MetrologyUncertaintyEngine",
+        "OperatorPreferencesEngine",
+        "PreMOUKickoffChecklistEngine",
+        "reactiveChainBootstrap",
+        "RegressionBaselineEngine",
+        "ShopDataCompletenessEngine"
+      ],
+      "dispatchers": {
+        "MetrologyUncertaintyEngine": "prism_ai",
+        "OperatorPreferencesEngine": "UNKNOWN",
+        "PreMOUKickoffChecklistEngine": "UNKNOWN",
+        "reactiveChainBootstrap": "prism_ai",
+        "RegressionBaselineEngine": "UNKNOWN",
+        "ShopDataCompletenessEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-sierra-04",
+      "slot": "sierra",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SVIImpactProjectorEngine",
+        "TappingTorqueEngine",
+        "UnusedAssetSurfacerEngine",
+        "WEDMParetoFrontierSearchEngine",
+        "WEDMRewardShapingEngine",
+        "WEDMWirePremiumROIEngine"
+      ],
+      "dispatchers": {
+        "SVIImpactProjectorEngine": "prism_dev",
+        "TappingTorqueEngine": "UNKNOWN",
+        "UnusedAssetSurfacerEngine": "UNKNOWN",
+        "WEDMParetoFrontierSearchEngine": "prism_edm",
+        "WEDMRewardShapingEngine": "prism_edm",
+        "WEDMWirePremiumROIEngine": "prism_edm"
+      },
+      "domain": "general / overflow",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-tango-01",
+      "slot": "tango",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ActionSequenceExtractorEngine",
+        "BatchQueryEngine",
+        "CertificateEngine",
+        "ConversationTrimmerEngine",
+        "DeepSeekClientEngine",
+        "ExecutionVerificationEngine"
+      ],
+      "dispatchers": {
+        "ActionSequenceExtractorEngine": "prism_multi_op",
+        "BatchQueryEngine": "UNKNOWN",
+        "CertificateEngine": "UNKNOWN",
+        "ConversationTrimmerEngine": "UNKNOWN",
+        "DeepSeekClientEngine": "UNKNOWN",
+        "ExecutionVerificationEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-tango-02",
+      "slot": "tango",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "GrokCLIClientEngine",
+        "LatheLoRATrainingMonitorEngine",
+        "LathePostProcessorAIEngine",
+        "LatheReinforcementLearningEngine",
+        "LiveTurretCAxisEngine",
+        "MetacognitionBudgetEngine"
+      ],
+      "dispatchers": {
+        "GrokCLIClientEngine": "UNKNOWN",
+        "LatheLoRATrainingMonitorEngine": "prism_turning",
+        "LathePostProcessorAIEngine": "prism_cam",
+        "LatheReinforcementLearningEngine": "prism_turning",
+        "LiveTurretCAxisEngine": "UNKNOWN",
+        "MetacognitionBudgetEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-tango-03",
+      "slot": "tango",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MITCourseKnowledgeEngine",
+        "OpusCapabilityEngine",
+        "PrismAddinArchitectureEngine",
+        "RegretMinimizationEngine",
+        "ReplanTriggerEngine",
+        "ShopFloorDashboardEngine"
+      ],
+      "dispatchers": {
+        "MITCourseKnowledgeEngine": "prism_ai",
+        "OpusCapabilityEngine": "UNKNOWN",
+        "PrismAddinArchitectureEngine": "UNKNOWN",
+        "RegretMinimizationEngine": "UNKNOWN",
+        "ReplanTriggerEngine": "prism_orchestrate",
+        "ShopFloorDashboardEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-tango-04",
+      "slot": "tango",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SwarmGroupExecutor",
+        "TaptiteElectrodeMacroBridgeEngine",
+        "UtilizationContractEngine",
+        "WEDMPartFamilyMatcherEngine",
+        "WEDMRLControllerEngine",
+        "WEDMWireSpoolConsumptionEngine"
+      ],
+      "dispatchers": {
+        "SwarmGroupExecutor": "prism_orchestrate",
+        "TaptiteElectrodeMacroBridgeEngine": "UNKNOWN",
+        "UtilizationContractEngine": "UNKNOWN",
+        "WEDMPartFamilyMatcherEngine": "prism_edm",
+        "WEDMRLControllerEngine": "prism_cam",
+        "WEDMWireSpoolConsumptionEngine": "prism_edm"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-uniform-01",
+      "slot": "uniform",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "ActionTraceEngine",
+        "BladeProfileLibraryEngine",
+        "ChangeImpactRadiusEngine",
+        "ConveyorBeltEngine",
+        "DesignHistoryFileEngine",
+        "ExtendedThinkingBridgeEngine"
+      ],
+      "dispatchers": {
+        "ActionTraceEngine": "UNKNOWN",
+        "BladeProfileLibraryEngine": "UNKNOWN",
+        "ChangeImpactRadiusEngine": "UNKNOWN",
+        "ConveyorBeltEngine": "UNKNOWN",
+        "DesignHistoryFileEngine": "UNKNOWN",
+        "ExtendedThinkingBridgeEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-uniform-02",
+      "slot": "uniform",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "GrokClientEngine",
+        "LatheLoRATransferStrategyEngine",
+        "LathePostRegressionTestGeneratorEngine",
+        "LatheResourceKnowledgeEngine",
+        "LocalEmbeddingEngine",
+        "MicroMillingEngine"
+      ],
+      "dispatchers": {
+        "GrokClientEngine": "UNKNOWN",
+        "LatheLoRATransferStrategyEngine": "prism_turning",
+        "LathePostRegressionTestGeneratorEngine": "prism_cam",
+        "LatheResourceKnowledgeEngine": "prism_turning",
+        "LocalEmbeddingEngine": "UNKNOWN",
+        "MicroMillingEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-uniform-03",
+      "slot": "uniform",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MixerAgitatorEngine",
+        "OutcomeCaptureBusEngine",
+        "PRISMIntelligenceLayer",
+        "RepetitionDetectorEngine",
+        "RoadmapDAGEngine",
+        "ShopFloorJobEngine"
+      ],
+      "dispatchers": {
+        "MixerAgitatorEngine": "prism_ai",
+        "OutcomeCaptureBusEngine": "UNKNOWN",
+        "PRISMIntelligenceLayer": "UNKNOWN",
+        "RepetitionDetectorEngine": "UNKNOWN",
+        "RoadmapDAGEngine": "prism_orchestrate",
+        "ShopFloorJobEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-uniform-04",
+      "slot": "uniform",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SwissTypeCollisionEngine",
+        "TenantOnboardingRunbookEngine",
+        "VariabilitySourceTrackerEngine",
+        "WEDMPartFamilyTemplateExtractorEngine",
+        "WEDMRLPolicyPersistence",
+        "WEDMWireThreadingMinEngine"
+      ],
+      "dispatchers": {
+        "SwissTypeCollisionEngine": "prism_safety",
+        "TenantOnboardingRunbookEngine": "UNKNOWN",
+        "VariabilitySourceTrackerEngine": "UNKNOWN",
+        "WEDMPartFamilyTemplateExtractorEngine": "prism_edm",
+        "WEDMRLPolicyPersistence": "prism_edm",
+        "WEDMWireThreadingMinEngine": "prism_edm"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-victor-01",
+      "slot": "victor",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AdvancedCNCConfigEngine",
+        "BooleanKernelEngine",
+        "ChangePointDetectionEngine",
+        "ConveyorDesignEngine",
+        "DesignToFloorPipelineEngine",
+        "FeatureRegistryEngine"
+      ],
+      "dispatchers": {
+        "AdvancedCNCConfigEngine": "UNKNOWN",
+        "BooleanKernelEngine": "UNKNOWN",
+        "ChangePointDetectionEngine": "UNKNOWN",
+        "ConveyorDesignEngine": "UNKNOWN",
+        "DesignToFloorPipelineEngine": "UNKNOWN",
+        "FeatureRegistryEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-victor-02",
+      "slot": "victor",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "GroundTruthBatchExtractor",
+        "LatheMasterPostAPIEngine",
+        "LathePrintFeatureStrategySelectorEngine",
+        "LatheSafetyPredicateEngine",
+        "LokiLogSinkEngine",
+        "MicroMillingSizeEffectEngine"
+      ],
+      "dispatchers": {
+        "GroundTruthBatchExtractor": "UNKNOWN",
+        "LatheMasterPostAPIEngine": "prism_cam",
+        "LathePrintFeatureStrategySelectorEngine": "prism_turning",
+        "LatheSafetyPredicateEngine": "prism_turning",
+        "LokiLogSinkEngine": "UNKNOWN",
+        "MicroMillingSizeEffectEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-victor-03",
+      "slot": "victor",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MLLineageEngine",
+        "OutcomeDriftCalibrationBridgeEngine",
+        "PRISMVerificationPluginEngine",
+        "ReportRenderer",
+        "RollbackPlannerEngine",
+        "ShopFloorScheduleEngine"
+      ],
+      "dispatchers": {
+        "MLLineageEngine": "prism_ai",
+        "OutcomeDriftCalibrationBridgeEngine": "UNKNOWN",
+        "PRISMVerificationPluginEngine": "UNKNOWN",
+        "ReportRenderer": "UNKNOWN",
+        "RollbackPlannerEngine": "prism_orchestrate",
+        "ShopFloorScheduleEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-victor-04",
+      "slot": "victor",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "SyncCodeVerificationEngine",
+        "ThermoelectricEngine",
+        "VendorEngine",
+        "WEDMPartRecognitionEngine",
+        "WEDMRolloutSimulatorEngine",
+        "WetRunAuthorizationEngine"
+      ],
+      "dispatchers": {
+        "SyncCodeVerificationEngine": "prism_dev",
+        "ThermoelectricEngine": "UNKNOWN",
+        "VendorEngine": "UNKNOWN",
+        "WEDMPartRecognitionEngine": "prism_edm",
+        "WEDMRolloutSimulatorEngine": "prism_edm",
+        "WetRunAuthorizationEngine": "prism_auth"
+      },
+      "domain": "general / overflow",
+      "tribal": "wedm",
+      "wikiKw": "wire edm electrode"
+    },
+    {
+      "id": "U-DEA-whiskey-01",
+      "slot": "whiskey",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AMSAAReliabilityGrowthEngine",
+        "BucketElevatorEngine",
+        "ChaosDrillSchedulerEngine",
+        "CoolantStrategyAdapter",
+        "DisasterRecoveryEngine",
+        "FileAccessPatternEngine"
+      ],
+      "dispatchers": {
+        "AMSAAReliabilityGrowthEngine": "UNKNOWN",
+        "BucketElevatorEngine": "UNKNOWN",
+        "ChaosDrillSchedulerEngine": "UNKNOWN",
+        "CoolantStrategyAdapter": "UNKNOWN",
+        "DisasterRecoveryEngine": "UNKNOWN",
+        "FileAccessPatternEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-whiskey-02",
+      "slot": "whiskey",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "HolderOperationMatchEngine",
+        "LatheMasterPostDeepReasoningEngine",
+        "LathePrintIngestPipelineEngine",
+        "LatheThermodynamicsEngine",
+        "LSHDedupEngine",
+        "MITCourseExpansionEngine"
+      ],
+      "dispatchers": {
+        "HolderOperationMatchEngine": "UNKNOWN",
+        "LatheMasterPostDeepReasoningEngine": "prism_cam",
+        "LathePrintIngestPipelineEngine": "prism_turning",
+        "LatheThermodynamicsEngine": "prism_turning",
+        "LSHDedupEngine": "UNKNOWN",
+        "MITCourseExpansionEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-whiskey-03",
+      "slot": "whiskey",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MobileAlarmEngine",
+        "OutcomePublishAdapterEngine",
+        "ProcessCapabilityPredictionEngine",
+        "ResourceExtractionStateEngine",
+        "SamplingPlanEngine",
+        "ShopMachineOverlayEngine"
+      ],
+      "dispatchers": {
+        "MobileAlarmEngine": "prism_diagnosis",
+        "OutcomePublishAdapterEngine": "UNKNOWN",
+        "ProcessCapabilityPredictionEngine": "UNKNOWN",
+        "ResourceExtractionStateEngine": "UNKNOWN",
+        "SamplingPlanEngine": "prism_orchestrate",
+        "ShopMachineOverlayEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-whiskey-04",
+      "slot": "whiskey",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "TebisCAMBridgeEngine",
+        "ThickenerEngine",
+        "VirtualMachiningDeepLearningEngine",
+        "WEDMPostAgieEngine",
+        "WEDMRULEngine",
+        "WetRunPilotOrchestratorEngine"
+      ],
+      "dispatchers": {
+        "TebisCAMBridgeEngine": "prism_cam",
+        "ThickenerEngine": "UNKNOWN",
+        "VirtualMachiningDeepLearningEngine": "UNKNOWN",
+        "WEDMPostAgieEngine": "prism_cam",
+        "WEDMRULEngine": "prism_edm",
+        "WetRunPilotOrchestratorEngine": "prism_orchestrate"
+      },
+      "domain": "general / overflow",
+      "tribal": "cad",
+      "wikiKw": "cad geometry feature"
+    },
+    {
+      "id": "U-DEA-xray-01",
+      "slot": "xray",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "AnchoredConfidenceEngine",
+        "BurdenRateEngine",
+        "ChatterStabilityLobeEngine",
+        "CopyPasteDetectorEngine",
+        "DistillationColumnEngine",
+        "FisherInformationEngine"
+      ],
+      "dispatchers": {
+        "AnchoredConfidenceEngine": "UNKNOWN",
+        "BurdenRateEngine": "UNKNOWN",
+        "ChatterStabilityLobeEngine": "prism_vibration_physics",
+        "CopyPasteDetectorEngine": "UNKNOWN",
+        "DistillationColumnEngine": "UNKNOWN",
+        "FisherInformationEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-xray-02",
+      "slot": "xray",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "HTNDecomposerEngine",
+        "LatheMasterPostEnsembleCrossCheckEngine",
+        "LathePrintProgramEmitterEngine",
+        "LatheTransferLearningEngine",
+        "MachineConsumerBindingEngine",
+        "MITCourseIntegrationEngine"
+      ],
+      "dispatchers": {
+        "HTNDecomposerEngine": "UNKNOWN",
+        "LatheMasterPostEnsembleCrossCheckEngine": "prism_cam",
+        "LathePrintProgramEmitterEngine": "prism_turning",
+        "LatheTransferLearningEngine": "prism_turning",
+        "MachineConsumerBindingEngine": "UNKNOWN",
+        "MITCourseIntegrationEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-xray-03",
+      "slot": "xray",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MultiAgentCoordinatorEngine",
+        "OutcomeReplayBufferBridgeEngine",
+        "ProcessDigitalTwinEngine",
+        "ResponseCacheEngine",
+        "SessionEventLogEngine",
+        "ShopRepositoryPort"
+      ],
+      "dispatchers": {
+        "MultiAgentCoordinatorEngine": "prism_orchestrate",
+        "OutcomeReplayBufferBridgeEngine": "UNKNOWN",
+        "ProcessDigitalTwinEngine": "UNKNOWN",
+        "ResponseCacheEngine": "UNKNOWN",
+        "SessionEventLogEngine": "prism_auth",
+        "ShopRepositoryPort": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-xray-04",
+      "slot": "xray",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "TimeSeriesForecastEngine",
+        "TrainingDatasetSnapshotEngine",
+        "VisionActionAnalyzerEngine",
+        "WEDMPostFanucEngine",
+        "WEDMSchedulingEngine",
+        "WetRunSessionLogEngine"
+      ],
+      "dispatchers": {
+        "TimeSeriesForecastEngine": "UNKNOWN",
+        "TrainingDatasetSnapshotEngine": "prism_ai",
+        "VisionActionAnalyzerEngine": "UNKNOWN",
+        "WEDMPostFanucEngine": "prism_cam",
+        "WEDMSchedulingEngine": "prism_edm",
+        "WetRunSessionLogEngine": "prism_auth"
+      },
+      "domain": "general / overflow",
+      "tribal": "cam",
+      "wikiKw": "cam strategy toolpath"
+    },
+    {
+      "id": "U-DEA-yankee-01",
+      "slot": "yankee",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ArchardAdhesiveWearEngine",
+        "BusinessDocumentExtractorEngine",
+        "CircularDependencyEngine",
+        "CounterfactualMillEngine",
+        "DistributedCriticalPathEngine",
+        "FixtureClampingEngine"
+      ],
+      "dispatchers": {
+        "ArchardAdhesiveWearEngine": "prism_welding",
+        "BusinessDocumentExtractorEngine": "UNKNOWN",
+        "CircularDependencyEngine": "UNKNOWN",
+        "CounterfactualMillEngine": "UNKNOWN",
+        "DistributedCriticalPathEngine": "UNKNOWN",
+        "FixtureClampingEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-yankee-02",
+      "slot": "yankee",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "HypothesisRankerEngine",
+        "LatheMasterPostRegressionMatrixEngine",
+        "LathePrintProgramSignoffEngine",
+        "LatheTribalIntegrationEngine",
+        "MachineLayerMerger",
+        "MobileCacheEngine"
+      ],
+      "dispatchers": {
+        "HypothesisRankerEngine": "UNKNOWN",
+        "LatheMasterPostRegressionMatrixEngine": "prism_cam",
+        "LathePrintProgramSignoffEngine": "prism_turning",
+        "LatheTribalIntegrationEngine": "prism_turning",
+        "MachineLayerMerger": "UNKNOWN",
+        "MobileCacheEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-yankee-03",
+      "slot": "yankee",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MultiCamKnowledgeEngine",
+        "OutcomeRLBridgeEngine",
+        "ProcessEnvironmentSensitivityEngine",
+        "RhinoCommonBridgeEngine",
+        "SessionInsightsLedgerEngine",
+        "SimulationStallDetectorEngine"
+      ],
+      "dispatchers": {
+        "MultiCamKnowledgeEngine": "prism_cam",
+        "OutcomeRLBridgeEngine": "UNKNOWN",
+        "ProcessEnvironmentSensitivityEngine": "UNKNOWN",
+        "RhinoCommonBridgeEngine": "UNKNOWN",
+        "SessionInsightsLedgerEngine": "prism_auth",
+        "SimulationStallDetectorEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-yankee-04",
+      "slot": "yankee",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ToolDatabaseDeepLearningEngine",
+        "TribalExplanationEngine",
+        "VisualLabEngine",
+        "WEDMPostMakinoEngine",
+        "WEDMSequencingEngine",
+        "WireEDMDeepAIHardeningEngine"
+      ],
+      "dispatchers": {
+        "ToolDatabaseDeepLearningEngine": "UNKNOWN",
+        "TribalExplanationEngine": "prism_orchestrate",
+        "VisualLabEngine": "UNKNOWN",
+        "WEDMPostMakinoEngine": "prism_cam",
+        "WEDMSequencingEngine": "prism_edm",
+        "WireEDMDeepAIHardeningEngine": "prism_edm"
+      },
+      "domain": "general / overflow",
+      "tribal": "mill",
+      "wikiKw": "milling toolpath"
+    },
+    {
+      "id": "U-DEA-zulu-01",
+      "slot": "zulu",
+      "type": "triage+wire",
+      "title": "Triage + wire 6 engines (suggestedDispatcher UNKNOWN — review before wiring)",
+      "engines": [
+        "AS9100TraceabilityEngine",
+        "BusinessIntelligenceEngine",
+        "CNCToolOffsetPersistenceEngine",
+        "CounterfeitPartPreventionEngine",
+        "DistributedLockEngine",
+        "FlotationCellEngine"
+      ],
+      "dispatchers": {
+        "AS9100TraceabilityEngine": "UNKNOWN",
+        "BusinessIntelligenceEngine": "UNKNOWN",
+        "CNCToolOffsetPersistenceEngine": "UNKNOWN",
+        "CounterfeitPartPreventionEngine": "UNKNOWN",
+        "DistributedLockEngine": "UNKNOWN",
+        "FlotationCellEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-zulu-02",
+      "slot": "zulu",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "IncrementalReadEngine",
+        "LatheMasterPostRouterEngine",
+        "LathePrintSequencePlannerEngine",
+        "LatheTurningFeatureRecognizerEngine",
+        "MachineModelAcquisitionEngine",
+        "MobileTimerEngine"
+      ],
+      "dispatchers": {
+        "IncrementalReadEngine": "UNKNOWN",
+        "LatheMasterPostRouterEngine": "prism_cam",
+        "LathePrintSequencePlannerEngine": "prism_turning",
+        "LatheTurningFeatureRecognizerEngine": "prism_turning",
+        "MachineModelAcquisitionEngine": "UNKNOWN",
+        "MobileTimerEngine": "UNKNOWN"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-zulu-03",
+      "slot": "zulu",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "MultiToolOrchestratorEngine",
+        "OutcomeTraceEngine",
+        "ProcessIntelligenceRouterEngine",
+        "RocketNozzleEngine",
+        "SmartPrefetchEngine",
+        "SmartToolSelectorOrchestratorAdapter"
+      ],
+      "dispatchers": {
+        "MultiToolOrchestratorEngine": "prism_orchestrate",
+        "OutcomeTraceEngine": "UNKNOWN",
+        "ProcessIntelligenceRouterEngine": "UNKNOWN",
+        "RocketNozzleEngine": "UNKNOWN",
+        "SmartPrefetchEngine": "UNKNOWN",
+        "SmartToolSelectorOrchestratorAdapter": "prism_orchestrate"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-zulu-04",
+      "slot": "zulu",
+      "type": "wire+triage",
+      "title": "Wire/triage 6 engines (mixed — review UNKNOWN entries first; see per-engine target)",
+      "engines": [
+        "ToolLifeGnnEngine",
+        "TribalKnowledgeApplicatorEngine",
+        "WebhookEngine",
+        "WEDMPostMitsubishiEngine",
+        "WEDMSetupSheetEngine",
+        "WireEDMDeepReasoningEngine"
+      ],
+      "dispatchers": {
+        "ToolLifeGnnEngine": "UNKNOWN",
+        "TribalKnowledgeApplicatorEngine": "prism_ai",
+        "WebhookEngine": "UNKNOWN",
+        "WEDMPostMitsubishiEngine": "prism_cam",
+        "WEDMSetupSheetEngine": "prism_edm",
+        "WireEDMDeepReasoningEngine": "prism_edm"
+      },
+      "domain": "general / overflow",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning"
+    },
+    {
+      "id": "U-DEA-bravo-TRILOBE",
+      "slot": "bravo",
+      "type": "wire+codegen",
+      "title": "Lathe trilobe / eccentric turning + macro G-code",
+      "detail": "Wire the 4 trilobe/eccentric engines into prism_turning AND generate macro-based G-code: X-axis modulation X(C) as a parametric profile for trilobe, eccentric-offset transform, polygon-turning G51.2 synchronization. Math: trochoidal/parametric profile + offset kinematics.",
+      "engines": [
+        "EccentricTurningEngine",
+        "TrilobeDeformationEngine",
+        "ColdHeadingToolConfiguratorEngine",
+        "ExpandingMandrelEngine"
+      ],
+      "domain": "lathe / turning",
+      "tribal": "lathe",
+      "wikiKw": "lathe turning trilobe macro"
+    },
+    {
+      "id": "U-DEA-november-P01",
+      "title": "Activate acc_thermal_error -> post_inject_motion",
+      "detail": "Wire machine-error thermal compensation into the post-processor motion injection so emitted G-code carries thermal-growth offsets.",
+      "targets": [
+        "acc_thermal_error",
+        "post_inject_motion",
+        "post_thermal_compensate"
+      ],
+      "slot": "november",
+      "type": "activate",
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy metrology",
+      "engines": [
+        "acc_thermal_error",
+        "post_inject_motion",
+        "post_thermal_compensate"
+      ]
+    },
+    {
+      "id": "U-DEA-november-P02",
+      "title": "Activate acc_volumetric / acc_abbe / acc_ball_bar -> cad_machine_capability_get",
+      "detail": "Feed volumetric/Abbe/ball-bar error envelope into machine-capability lookup so strategy selection sees the real accuracy envelope.",
+      "targets": [
+        "acc_volumetric",
+        "acc_abbe_offset",
+        "acc_ball_bar",
+        "cad_machine_capability_get"
+      ],
+      "slot": "november",
+      "type": "activate",
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy metrology",
+      "engines": [
+        "acc_volumetric",
+        "acc_abbe_offset",
+        "acc_ball_bar",
+        "cad_machine_capability_get"
+      ]
+    },
+    {
+      "id": "U-DEA-november-P03",
+      "title": "Activate diamond_turning_* -> cam_strategy_recommend",
+      "detail": "Wire diamond-turning surface/forces/wear models into CAM strategy recommendation for sub-micron finish operations.",
+      "targets": [
+        "diamond_turning_surface",
+        "diamond_turning_forces",
+        "diamond_turning_wear",
+        "cam_strategy_recommend"
+      ],
+      "slot": "november",
+      "type": "activate",
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy metrology",
+      "engines": [
+        "diamond_turning_surface",
+        "diamond_turning_forces",
+        "diamond_turning_wear",
+        "cam_strategy_recommend"
+      ]
+    },
+    {
+      "id": "U-DEA-november-P04",
+      "title": "Activate laser_interferometer_* -> machine_warmup_calculate",
+      "detail": "Wire laser-interferometer wavelength/deadpath/comp-table into machine warmup + leveling setup.",
+      "targets": [
+        "laser_interferometer_wavelength",
+        "laser_interferometer_comp_table",
+        "machine_warmup_calculate"
+      ],
+      "slot": "november",
+      "type": "activate",
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy metrology",
+      "engines": [
+        "laser_interferometer_wavelength",
+        "laser_interferometer_comp_table",
+        "machine_warmup_calculate"
+      ]
+    },
+    {
+      "id": "U-DEA-november-P05",
+      "title": "Activate spm_* -> quality_kpis / spc_calculate",
+      "detail": "Wire statistical-process-monitoring (Hotelling T2, PCA, HMM, SPRT) into the quality KPI + SPC surfaces.",
+      "targets": [
+        "spm_hotelling_t2",
+        "spm_pca_monitoring",
+        "spm_combined_spc",
+        "quality_kpis",
+        "spc_calculate"
+      ],
+      "slot": "november",
+      "type": "activate",
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy metrology",
+      "engines": [
+        "spm_hotelling_t2",
+        "spm_pca_monitoring",
+        "spm_combined_spc",
+        "quality_kpis",
+        "spc_calculate"
+      ]
+    },
+    {
+      "id": "U-DEA-november-P06",
+      "title": "Activate cad_probe_drift_* -> probe_routine_generate + wire PrintAccuracyProofEngine",
+      "detail": "Wire probe-drift record/analyze/alerts into probe routine generation; wire the unwired PrintAccuracyProofEngine.",
+      "targets": [
+        "cad_probe_drift_record",
+        "cad_probe_drift_analyze",
+        "probe_routine_generate",
+        "PrintAccuracyProofEngine"
+      ],
+      "slot": "november",
+      "type": "activate",
+      "domain": "precision / dev-infra",
+      "tribal": "mill",
+      "wikiKw": "precision accuracy metrology",
+      "engines": [
+        "cad_probe_drift_record",
+        "cad_probe_drift_analyze",
+        "probe_routine_generate",
+        "PrintAccuracyProofEngine"
+      ]
+    }
+  ]
+}

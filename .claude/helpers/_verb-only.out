@@ -1,0 +1,125 @@
+TAP version 13
+# Subtest: matchVerbTrigger: 'summarize this file' → verb-summarize
+ok 1 - matchVerbTrigger: 'summarize this file' → verb-summarize
+  ---
+  duration_ms: 1.6655
+  ...
+# Subtest: matchVerbTrigger: 'explain how this code works' → verb-explain
+ok 2 - matchVerbTrigger: 'explain how this code works' → verb-explain
+  ---
+  duration_ms: 0.5091
+  ...
+# Subtest: matchVerbTrigger: 'walk me through the function' → verb-explain
+ok 3 - matchVerbTrigger: 'walk me through the function' → verb-explain
+  ---
+  duration_ms: 0.096
+  ...
+# Subtest: matchVerbTrigger: 'classify these items' → verb-classify
+ok 4 - matchVerbTrigger: 'classify these items' → verb-classify
+  ---
+  duration_ms: 0.0988
+  ...
+# Subtest: matchVerbTrigger: 'add a docstring' → verb-docstring
+ok 5 - matchVerbTrigger: 'add a docstring' → verb-docstring
+  ---
+  duration_ms: 0.0978
+  ...
+# Subtest: matchVerbTrigger: 'lint check this' → verb-lint
+ok 6 - matchVerbTrigger: 'lint check this' → verb-lint
+  ---
+  duration_ms: 0.0798
+  ...
+# Subtest: matchVerbTrigger: 'summarize the diff' → verb-diff-summary (NOT verb-summarize)
+ok 7 - matchVerbTrigger: 'summarize the diff' → verb-diff-summary (NOT verb-summarize)
+  ---
+  duration_ms: 0.1431
+  ...
+# Subtest: matchVerbTrigger: 'why is this failing' → verb-error-triage
+ok 8 - matchVerbTrigger: 'why is this failing' → verb-error-triage
+  ---
+  duration_ms: 0.1242
+  ...
+# Subtest: matchVerbTrigger: diff-summary precedes summarize (specific > general)
+ok 9 - matchVerbTrigger: diff-summary precedes summarize (specific > general)
+  ---
+  duration_ms: 0.269
+  ...
+# Subtest: matchVerbTrigger: empty string returns null
+ok 10 - matchVerbTrigger: empty string returns null
+  ---
+  duration_ms: 0.3261
+  ...
+# Subtest: matchVerbTrigger: null/undefined returns null
+ok 11 - matchVerbTrigger: null/undefined returns null
+  ---
+  duration_ms: 0.1431
+  ...
+# Subtest: matchVerbTrigger: non-string returns null
+ok 12 - matchVerbTrigger: non-string returns null
+  ---
+  duration_ms: 0.0794
+  ...
+# Subtest: matchVerbTrigger: prompt with no offload verbs returns null
+ok 13 - matchVerbTrigger: prompt with no offload verbs returns null
+  ---
+  duration_ms: 0.1506
+  ...
+# Subtest: matchVerbTrigger: prompt with the word 'explain' but no target → no match (no over-fire)
+ok 14 - matchVerbTrigger: prompt with the word 'explain' but no target → no match (no over-fire)
+  ---
+  duration_ms: 0.0884
+  ...
+# Subtest: matchVerbTrigger: very long prompt with no verb match returns null in bounded time
+ok 15 - matchVerbTrigger: very long prompt with no verb match returns null in bounded time
+  ---
+  duration_ms: 0.1703
+  ...
+# Subtest: matchVerbTrigger: prompt with bracket/markup noise still matches
+ok 16 - matchVerbTrigger: prompt with bracket/markup noise still matches
+  ---
+  duration_ms: 0.0579
+  ...
+# Subtest: matchPipelineTrigger: /forge-audit → forge-audit
+ok 17 - matchPipelineTrigger: /forge-audit → forge-audit
+  ---
+  duration_ms: 0.1294
+  ...
+# Subtest: matchPipelineTrigger: /rgs → rgs
+ok 18 - matchPipelineTrigger: /rgs → rgs
+  ---
+  duration_ms: 0.1478
+  ...
+# Subtest: matchPipelineTrigger: bare verb-prompt returns null (verb fallback's job)
+ok 19 - matchPipelineTrigger: bare verb-prompt returns null (verb fallback's job)
+  ---
+  duration_ms: 0.3096
+  ...
+# Subtest: matchPipelineTrigger: null returns null (defensive)
+ok 20 - matchPipelineTrigger: null returns null (defensive)
+  ---
+  duration_ms: 0.0728
+  ...
+# Subtest: precedence: a prompt with BOTH /forge-audit AND 'summarize this file' takes pipeline route
+ok 21 - precedence: a prompt with BOTH /forge-audit AND 'summarize this file' takes pipeline route
+  ---
+  duration_ms: 0.0658
+  ...
+# Subtest: matchVerbTrigger: case-insensitive (Summarize / SUMMARIZE)
+ok 22 - matchVerbTrigger: case-insensitive (Summarize / SUMMARIZE)
+  ---
+  duration_ms: 0.0557
+  ...
+# Subtest: matchVerbTrigger: en-US vs en-GB spellings ('summarise' too)
+ok 23 - matchVerbTrigger: en-US vs en-GB spellings ('summarise' too)
+  ---
+  duration_ms: 0.0522
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 501.8374

@@ -6,6 +6,9 @@ policy:
     - "pre review"
     - "r1 draft"
     - "deepseek draft"
+consumes:
+  - "prism_ai:pre_review"
+  - "prism_context:coord_sqlite"
 ---
 # /pre-review — DeepSeek-R1 drafts, Claude refines
 

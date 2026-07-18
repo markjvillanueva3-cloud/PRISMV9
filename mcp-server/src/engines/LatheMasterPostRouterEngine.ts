@@ -209,7 +209,15 @@ class LatheMasterPostRouterEngine {
    * Find machine by ID, name, or model (case-insensitive).
    */
   private findMachine(identifier: string): JMDieMachine | undefined {
-    // Guard against empty/whitespace-only input
+    // Guard against missing/non-string/empty/whitespace-only input. route() passes
+    // params.machine_id via an `as string` cast that is unsound -- at runtime it can be
+    // undefined (e.g. an operations-shaped caller that never set machine_id), so a
+    // non-string must return "not found" -> route()'s fallbackRoute, never crash on
+    // `.trim()` of undefined (R12 fail-loud, not fail-crash). Found live by the
+    // post-training harness driving lathe_master_post_route (U-PP-LATHE-ROUTER-NULLGUARD, 2026-06-27).
+    if (typeof identifier !== "string") {
+      return undefined;
+    }
     const trimmed = identifier.trim();
     if (!trimmed || trimmed.length < 2) {
       return undefined;

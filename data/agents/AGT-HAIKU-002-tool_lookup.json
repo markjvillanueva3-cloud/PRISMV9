@@ -1,0 +1,108 @@
+{
+  "agent_id": "AGT-HAIKU-002",
+  "name": "tool_lookup",
+  "tier": "HAIKU",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Tool Lookup - Fast Cutting Tool Data Retrieval",
+  
+  "domain_expertise": [
+    "Tool database queries",
+    "Tool geometry lookup",
+    "Coating specifications",
+    "Tool holder matching",
+    "ISO tool classification"
+  ],
+
+  "design_principle": "Speed over complexity - fast, reliable lookups",
+
+  "capabilities": [
+    {
+      "id": "CAP-TLOOK-001",
+      "name": "Tool By ID Lookup",
+      "description": "Retrieves tool by PRISM ID",
+      "category": "LOOKUP",
+      "inputs": { "required": ["tool_id"] },
+      "outputs": { "primary": "tool_data" },
+      "skills_used": ["prism-manufacturing-tables"],
+      "latency_target_ms": 50
+    },
+    {
+      "id": "CAP-TLOOK-002",
+      "name": "Tool Geometry Lookup",
+      "description": "Retrieves tool geometry parameters",
+      "category": "LOOKUP",
+      "inputs": { "required": ["tool_id"] },
+      "outputs": { "primary": "geometry", "secondary": ["diameter", "length", "flutes", "helix_angle"] },
+      "skills_used": ["prism-manufacturing-tables"],
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-TLOOK-003",
+      "name": "Tool Coating Lookup",
+      "description": "Retrieves tool coating specifications",
+      "category": "LOOKUP",
+      "inputs": { "required": ["tool_id"] },
+      "outputs": { "primary": "coating", "secondary": ["type", "hardness", "temperature_limit"] },
+      "skills_used": ["prism-manufacturing-tables"],
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-TLOOK-004",
+      "name": "Tool By Type Search",
+      "description": "Searches tools by type (endmill, drill, tap, etc.)",
+      "category": "SEARCH",
+      "inputs": { "required": ["tool_type"], "optional": ["diameter_range"] },
+      "outputs": { "primary": "matching_tools" },
+      "skills_used": ["prism-manufacturing-tables"],
+      "latency_target_ms": 200
+    },
+    {
+      "id": "CAP-TLOOK-005",
+      "name": "Tool Holder Lookup",
+      "description": "Retrieves compatible tool holders",
+      "category": "LOOKUP",
+      "inputs": { "required": ["tool_id_or_shank"] },
+      "outputs": { "primary": "compatible_holders" },
+      "skills_used": ["prism-tool-holder-schema"],
+      "latency_target_ms": 100
+    },
+    {
+      "id": "CAP-TLOOK-006",
+      "name": "Recommended Speeds Lookup",
+      "description": "Retrieves manufacturer recommended speeds for tool+material",
+      "category": "LOOKUP",
+      "inputs": { "required": ["tool_id", "material_id"] },
+      "outputs": { "primary": "recommendations", "secondary": ["sfm_min", "sfm_max", "feed_per_tooth"] },
+      "skills_used": ["prism-manufacturing-tables"],
+      "latency_target_ms": 100
+    },
+    {
+      "id": "CAP-TLOOK-007",
+      "name": "Tool Life Data Lookup",
+      "description": "Retrieves expected tool life data",
+      "category": "LOOKUP",
+      "inputs": { "required": ["tool_id", "material_id"] },
+      "outputs": { "primary": "tool_life_data" },
+      "skills_used": ["prism-material-physics"],
+      "latency_target_ms": 100
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-manufacturing-tables",
+    "prism-tool-holder-schema",
+    "prism-material-physics"
+  ],
+
+  "hooks_subscribed": ["tool:preLookup"],
+
+  "can_delegate_to": [],
+  "receives_from": ["force_calculator", "optimizer", "machinist"],
+
+  "performance_metrics": {
+    "lookup_accuracy": 1.0,
+    "average_latency_ms": 60,
+    "cache_hit_rate": 0.75
+  }
+}

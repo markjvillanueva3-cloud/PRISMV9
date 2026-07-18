@@ -1,0 +1,329 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_for": "U-MACHDB-03 Phase 3 verification: physics/class gap-fill over all machines",
+  "total_machines": 1015,
+  "coverage_before_enrich": {
+    "way_type": {
+      "count": 67,
+      "pct": 6.6
+    },
+    "kinematics": {
+      "count": 212,
+      "pct": 20.9
+    },
+    "axis_accuracy": {
+      "count": 104,
+      "pct": 10.2
+    },
+    "axis_repeatability": {
+      "count": 51,
+      "pct": 5
+    },
+    "rapid_rate": {
+      "count": 150,
+      "pct": 14.8
+    },
+    "acceleration_gforce": {
+      "count": 36,
+      "pct": 3.5
+    },
+    "jerk": {
+      "count": 5,
+      "pct": 0.5
+    },
+    "spindle_diameter": {
+      "count": 71,
+      "pct": 7
+    },
+    "spindle_balance": {
+      "count": 1,
+      "pct": 0.1
+    },
+    "spindle_thermal": {
+      "count": 0,
+      "pct": 0
+    },
+    "rigidity_frf": {
+      "count": 0,
+      "pct": 0
+    },
+    "thermal_comp": {
+      "count": 0,
+      "pct": 0
+    },
+    "corner_rounding": {
+      "count": 9,
+      "pct": 0.9
+    },
+    "look_ahead": {
+      "count": 269,
+      "pct": 26.5
+    },
+    "high_speed": {
+      "count": 6,
+      "pct": 0.6
+    },
+    "table_type": {
+      "count": 717,
+      "pct": 70.6
+    },
+    "machine_weight": {
+      "count": 370,
+      "pct": 36.5
+    },
+    "surface_finish": {
+      "count": 0,
+      "pct": 0
+    },
+    "build_quality": {
+      "count": 0,
+      "pct": 0
+    },
+    "robustness": {
+      "count": 0,
+      "pct": 0
+    }
+  },
+  "coverage_after_enrich": {
+    "way_type": {
+      "count": 1015,
+      "pct": 100
+    },
+    "kinematics": {
+      "count": 1015,
+      "pct": 100
+    },
+    "axis_accuracy": {
+      "count": 991,
+      "pct": 97.6
+    },
+    "axis_repeatability": {
+      "count": 991,
+      "pct": 97.6
+    },
+    "rapid_rate": {
+      "count": 991,
+      "pct": 97.6
+    },
+    "acceleration_gforce": {
+      "count": 991,
+      "pct": 97.6
+    },
+    "jerk": {
+      "count": 991,
+      "pct": 97.6
+    },
+    "spindle_diameter": {
+      "count": 941,
+      "pct": 92.7
+    },
+    "spindle_balance": {
+      "count": 1015,
+      "pct": 100
+    },
+    "spindle_thermal": {
+      "count": 718,
+      "pct": 70.7
+    },
+    "rigidity_frf": {
+      "count": 1015,
+      "pct": 100
+    },
+    "thermal_comp": {
+      "count": 718,
+      "pct": 70.7
+    },
+    "corner_rounding": {
+      "count": 1015,
+      "pct": 100
+    },
+    "look_ahead": {
+      "count": 1015,
+      "pct": 100
+    },
+    "high_speed": {
+      "count": 177,
+      "pct": 17.4
+    },
+    "table_type": {
+      "count": 1015,
+      "pct": 100
+    },
+    "machine_weight": {
+      "count": 927,
+      "pct": 91.3
+    },
+    "surface_finish": {
+      "count": 1015,
+      "pct": 100
+    },
+    "build_quality": {
+      "count": 1015,
+      "pct": 100
+    },
+    "robustness": {
+      "count": 1015,
+      "pct": 100
+    }
+  },
+  "distribution": {
+    "kind": {
+      "vmc": 391,
+      "5axis": 243,
+      "lathe": 156,
+      "hmc": 92,
+      "millturn": 71,
+      "swiss": 34,
+      "unknown": 18,
+      "edm": 6,
+      "grinder": 3,
+      "router": 1
+    },
+    "tier": {
+      "premium": 451,
+      "production": 394,
+      "heavy_duty": 118,
+      "precision": 52
+    },
+    "wayType": {
+      "linear_guide": 732,
+      "box_way": 190,
+      "hydrostatic": 52,
+      "roller": 41
+    },
+    "rpmClass": {
+      "medium": 474,
+      "high": 294,
+      "low": 227,
+      "ultra_hs": 20
+    }
+  },
+  "provenance": {
+    "way_type": {
+      "inferred": 948,
+      "oem": 0
+    },
+    "spindle.balance_grade": {
+      "inferred": 1014,
+      "oem": 0
+    },
+    "spindle.bore_mm": {
+      "inferred": 870,
+      "oem": 0
+    },
+    "frf": {
+      "inferred": 1015,
+      "oem": 0
+    },
+    "kinematics": {
+      "inferred": 803,
+      "oem": 0
+    },
+    "build_quality": {
+      "inferred": 1015,
+      "oem": 0
+    }
+  },
+  "samples": [
+    {
+      "id": "HAAS_VF_1",
+      "manufacturer": "Haas",
+      "model": "VF-1",
+      "class": "kind=vmc;tier=production;rpmClass=medium;way=box_way",
+      "way_type": "box_way",
+      "balance": "G2.5",
+      "bore_mm": 70,
+      "frf": {
+        "natural_frequency_hz": 102,
+        "damping_ratio": 0.06,
+        "stiffness_n_um": 150
+      },
+      "build_quality": "production",
+      "robustness": "high (continuous production / heavy roughing)",
+      "best_ra_um": 0.4,
+      "kinematics": "serial_XYZ",
+      "gforce": "inferred:accel/9.80665=0.41g",
+      "inferred_field_count": 15
+    },
+    {
+      "id": "HAAS_VF_2",
+      "manufacturer": "Haas",
+      "model": "VF-2",
+      "class": "kind=vmc;tier=production;rpmClass=medium;way=box_way",
+      "way_type": "box_way",
+      "balance": "G2.5",
+      "bore_mm": 70,
+      "frf": {
+        "natural_frequency_hz": 96,
+        "damping_ratio": 0.06,
+        "stiffness_n_um": 150
+      },
+      "build_quality": "production",
+      "robustness": "high (continuous production / heavy roughing)",
+      "best_ra_um": 0.4,
+      "kinematics": "serial_XYZ",
+      "gforce": "inferred:accel/9.80665=0.41g",
+      "inferred_field_count": 15
+    },
+    {
+      "id": "HAAS_VF_2_TR",
+      "manufacturer": "Haas",
+      "model": "VF-2TR",
+      "class": "kind=5axis;tier=production;rpmClass=high;way=box_way",
+      "way_type": "box_way",
+      "balance": "G1.0",
+      "bore_mm": 70,
+      "frf": {
+        "natural_frequency_hz": 84,
+        "damping_ratio": 0.06,
+        "stiffness_n_um": 150
+      },
+      "build_quality": "production",
+      "robustness": "high (continuous production / heavy roughing)",
+      "best_ra_um": 0.4,
+      "kinematics": "table_table",
+      "gforce": "inferred:accel/9.80665=0.41g",
+      "inferred_field_count": 16
+    },
+    {
+      "id": "HAAS_VF_2_TRT100",
+      "manufacturer": "Haas",
+      "model": "VF-2 WITH TRT100",
+      "class": "kind=5axis;tier=production;rpmClass=medium;way=linear_guide",
+      "way_type": "linear_guide",
+      "balance": "G2.5",
+      "bore_mm": 70,
+      "frf": {
+        "natural_frequency_hz": 67,
+        "damping_ratio": 0.03,
+        "stiffness_n_um": 80
+      },
+      "build_quality": "production",
+      "robustness": "medium-high (production duty)",
+      "best_ra_um": 0.4,
+      "kinematics": "table_table",
+      "gforce": "inferred:accel/9.80665=0.70g",
+      "inferred_field_count": 19
+    },
+    {
+      "id": "HAAS_VF_2SSYT",
+      "manufacturer": "Haas",
+      "model": "VF-2SSYT",
+      "class": "kind=vmc;tier=production;rpmClass=medium;way=linear_guide",
+      "way_type": "linear_guide",
+      "balance": "G2.5",
+      "bore_mm": 70,
+      "frf": {
+        "natural_frequency_hz": 69,
+        "damping_ratio": 0.03,
+        "stiffness_n_um": 80
+      },
+      "build_quality": "production",
+      "robustness": "medium-high (production duty)",
+      "best_ra_um": 0.4,
+      "kinematics": "serial_XYZ",
+      "gforce": "inferred:accel/9.80665=0.70g",
+      "inferred_field_count": 19
+    }
+  ]
+}

@@ -42,7 +42,7 @@ export interface RenderedLesson {
 }
 
 export interface RenderedSection {
-  type: ContentType;
+  type: ContentType | string;
   html: string;
   interactiveConfig?: InteractiveConfig;
   animations?: AnimationDef[];
@@ -52,7 +52,7 @@ export interface InteractiveConfig {
   engineName: string;
   inputs: InputField[];
   outputs: OutputField[];
-  defaults: Record<string, number>;
+  defaults: Record<string, number | string>;
   liveUpdate: boolean;
 }
 
@@ -376,7 +376,7 @@ export class LessonRendererEngine {
     engine: string;
     inputFields: string[];
     outputFields: string[];
-    defaults?: Record<string, number>;
+    defaults?: Record<string, number | string>;
   }): InteractiveConfig {
     const inputs = config.inputFields.map(
       f => CALCULATOR_FIELDS[f] ?? {

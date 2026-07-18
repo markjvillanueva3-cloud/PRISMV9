@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="37d48a8e4ff09a43019f16291c8db352d8f3a164febc6e37b90d5cb7a32ba78d">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QUOTING-PIPELINE-MS0 — Assessment + Scope</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>QUOTING-PIPELINE-MS0 — Assessment + Scope</h1>
+<div class="meta">rendered from state/shared/specs/QUOTING-PIPELINE-MS0-ASSESSMENT-2026-05-24.md</div>
+<div class="meta">Generated 2026-05-24T19:56:52.174Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">QUOTING-PIPELINE-MS0 — Assessment + Scope</li><li class="prism-toc-l2">Executive Summary</li><li class="prism-toc-l2">HAVE — already built (inventory by capability)</li><li class="prism-toc-l3">Quote orchestration (8 engines)</li><li class="prism-toc-l3">Process-specific quote (5 engines)</li><li class="prism-toc-l3">Cost / labor / markup (15 engines)</li><li class="prism-toc-l3">Billing / invoice (3 engines)</li><li class="prism-toc-l3">OCR / vision (14 engines)</li><li class="prism-toc-l3">Chat / troubleshoot (10 engines)</li><li class="prism-toc-l3">JM Die docustrata + program corpus (12 engines)</li><li class="prism-toc-l3">Customer (7 engines)</li><li class="prism-toc-l3">Tool / insert catalog (8 engines)</li><li class="prism-toc-l3">Catalog ingest (10 engines)</li><li class="prism-toc-l3">Mobile / camera (8 engines)</li><li class="prism-toc-l3">Web pages already live (17 quote-relevant)</li><li class="prism-toc-l3">JM Die corpus (filesystem)</li><li class="prism-toc-l3">Extracted/ legacy corpus (39 engines, 25 sub-dirs)</li><li class="prism-toc-l2">GAP — what&#39;s missing for /goal-13 (the wires)</li><li class="prism-toc-l3">G1 — InsertBoxOCR → ToolLibrary lookup bridge ❌</li><li class="prism-toc-l3">G2 — MachineServiceTagOCR → Parts BOM + realtime pricing ❌</li><li class="prism-toc-l3">G3 — VendorRealtimePricingClientEngine ❌</li><li class="prism-toc-l3">G4 — Blueprint → instant program pipeline ⚠ (partial — verify)</li><li class="prism-toc-l3">G5 — Live-chat UI bridge to TroubleshootingAssistantEngine ❌</li><li class="prism-toc-l3">G6 — Mobile-first capture+quote page ⚠ (partial)</li><li class="prism-toc-l3">G7 — Camera intake → multi-route dispatcher ❌</li><li class="prism-toc-l3">G8 — Legacy <code class="prism-inline-code">PRISM_COST_DATABASE.js</code> harvest ❌</li><li class="prism-toc-l3">G9 — <code class="prism-inline-code">prism_quoting</code> dispatcher actions for the new bridges ❌</li><li class="prism-toc-l3">G10 — End-to-end E2E test against a real JM Die part ❌</li><li class="prism-toc-l2">WIRE — milestone scope (12 units across 3 phases)</li><li class="prism-toc-l3">P0 — Wiring + bridges (8 units)</li><li class="prism-toc-l3">P1 — UI surfaces (3 units)</li><li class="prism-toc-l3">P2 — Real-data E2E (1 unit)</li><li class="prism-toc-l2">SYNERGY — PSN wiring per leg</li><li class="prism-toc-l2">RISKS + R12 honesty</li><li class="prism-toc-l2">DELIVERABLES (this assessment unit)</li></ul></nav><h1 class="prism-h1">QUOTING-PIPELINE-MS0 — Assessment + Scope</h1>
+<p><strong>Date:</strong> 2026-05-24 <strong>Slot:</strong> charlie (/goal-13 iter1) <strong>Trigger:</strong> &quot;/forge-audit-v2, /system-viz utilize PSN to assess and scope the current quoting system…&quot; + camera-OCR (3 scopes) + live chat AI + web/phone app <strong>Methodology:</strong> PSN/system-viz HAVE survey → gap analysis → NEED inventory → WIRE plan → milestone envelope</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Executive Summary</h2>
+<p>PRISM already has a <strong>dense quoting backbone</strong> — ~30+ quote/cost/billing engines, a working <code class="prism-inline-code">BlueprintToQuoteBridgeEngine</code> that maps <code class="prism-inline-code">BlueprintOCREngine</code> output → <code class="prism-inline-code">QuoteEstimatorEngine</code> input (Xometry-class upload→quote), and a 117KB <code class="prism-inline-code">QuoteBuilderPage</code> UI. The <strong>mobile/PWA scaffold exists</strong> (<code class="prism-inline-code">EmployeeShopFloorMobileEngine</code>, <code class="prism-inline-code">MobileInterfaceEngine</code>, <code class="prism-inline-code">MobileLookupEngine</code>, <code class="prism-inline-code">MobileVoiceEngine</code>, <code class="prism-inline-code">EmployeePhonePortalPage</code>). The <strong>troubleshooting LLM exists</strong> (<code class="prism-inline-code">TroubleshootingAssistantEngine</code> at 120KB, <code class="prism-inline-code">LatheTroubleshootingIntelligenceEngine</code> at 60KB).</p>
+<p>What&#39;s missing is <strong>wiring, not engines</strong> — three OCR-to-pricing bridges (insert box → catalog lookup, machine service tag → parts BOM, tool body → compatible inserts), a real-time vendor pricing client, a live-chat UI bridge from the front-end to <code class="prism-inline-code">TroubleshootingAssistantEngine</code>, and a mobile-first quote+capture page that ties the camera intake to the existing <code class="prism-inline-code">BlueprintToQuoteBridge</code>. That&#39;s a <strong>wiring/bridge milestone</strong>, not a from-scratch build.</p>
+<p>R12 fail-loud: <strong>CaptureOpsPage (43KB) and BlueprintOCREngine (35.7KB) are not yet read end-to-end for full delivery surface confirmation</strong> — this assessment scopes on dispatcher action inventory + filename catalog; a P0 verification pass during U-QP01 reads each candidate to verify it does what the name claims (no stub returns, no placeholder OCR).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">HAVE — already built (inventory by capability)</h2>
+<h3 class="prism-h3">Quote orchestration (8 engines)</h3>
+<table class="prism-md-table"><thead><tr><th>Engine</th><th>Size</th><th>Role</th></tr></thead><tbody><tr><td><code class="prism-inline-code">QuoteToShipOrchestratorEngine</code></td><td>205.9K</td><td>end-to-end pipeline</td></tr>
+<tr><td><code class="prism-inline-code">QuoteEstimatorEngine</code></td><td>39.7K</td><td>core estimate calc</td></tr>
+<tr><td><code class="prism-inline-code">QuoteAutopilotEngine</code></td><td>16.4K</td><td>autonomous quoting</td></tr>
+<tr><td><code class="prism-inline-code">QuoteAnalyticsEngine</code></td><td>19.4K</td><td>post-quote analytics</td></tr>
+<tr><td><code class="prism-inline-code">QuoteRevisionEngine</code></td><td>14.0K</td><td>rev tracking</td></tr>
+<tr><td><code class="prism-inline-code">QuoteToOrderBridgeEngine</code></td><td>10.4K</td><td>quote → ERP order</td></tr>
+<tr><td><code class="prism-inline-code">QuoteEngine</code></td><td>7.4K</td><td>base / facade</td></tr>
+<tr><td><code class="prism-inline-code">BlueprintToQuoteBridgeEngine</code></td><td>15.0K</td><td><strong>drawing → quote input</strong> (key pathway)</td></tr></tbody></table>
+<h3 class="prism-h3">Process-specific quote (5 engines)</h3>
+<table class="prism-md-table"><thead><tr><th>Engine</th><th>Process</th></tr></thead><tbody><tr><td><code class="prism-inline-code">AdditiveQuoteEngine</code></td><td>additive / 3D print</td></tr>
+<tr><td><code class="prism-inline-code">CastingQuoteEngine</code></td><td>casting</td></tr>
+<tr><td><code class="prism-inline-code">SheetMetalQuoteEngine</code></td><td>sheet metal</td></tr>
+<tr><td><code class="prism-inline-code">ShopFloorQuoteEngine</code></td><td>shop-floor walk-up</td></tr>
+<tr><td><code class="prism-inline-code">WeldFabricationQuoteEngine</code></td><td>weld fab</td></tr>
+<tr><td><code class="prism-inline-code">WEDMQuoteBridgeEngine</code></td><td>wire EDM</td></tr></tbody></table>
+<h3 class="prism-h3">Cost / labor / markup (15 engines)</h3>
+<p><code class="prism-inline-code">ActualCostEngine</code>, <code class="prism-inline-code">CostEstimationEngine</code>, <code class="prism-inline-code">CostEstimatorEngine</code>, <code class="prism-inline-code">CostAlarmEngine</code>, <code class="prism-inline-code">CostSavingsTrackerEngine</code>, <code class="prism-inline-code">CoolantCostOptimizationEngine</code>, <code class="prism-inline-code">EDMCostDocumentationEngine</code>, <code class="prism-inline-code">ERPCostFeedbackEngine</code>, <code class="prism-inline-code">SetupCostOptimizationEngine</code>, <code class="prism-inline-code">ShopFloorCostEngine</code>, <code class="prism-inline-code">SinkerElectrodeCostEngine</code>, <code class="prism-inline-code">StrategyCostOptimalEngine</code>, <code class="prism-inline-code">ToolCostPerPartEngine</code>, <code class="prism-inline-code">ToolCostPredictorEngine</code>, <code class="prism-inline-code">CycleTimeEstimatorEngine</code> (48.5K — drives labor hours).</p>
+<h3 class="prism-h3">Billing / invoice (3 engines)</h3>
+<p><code class="prism-inline-code">BillingEngine</code> (24.6K), <code class="prism-inline-code">StripeBillingEngine</code> (14.3K, already wired), <code class="prism-inline-code">WEDMInvoiceLineEngine</code> (13.9K).</p>
+<h3 class="prism-h3">OCR / vision (14 engines)</h3>
+<p><code class="prism-inline-code">BlueprintOCREngine</code> (35.7K), <code class="prism-inline-code">BlueprintVisionOCREngine</code> (37.9K), <code class="prism-inline-code">BlueprintOCRAdapter</code>, <code class="prism-inline-code">CADLiveBlueprintOcrAdapter</code>, <code class="prism-inline-code">ImageOCRPipelineEngine</code> (6.1K — <strong>generic image pipeline</strong>), <code class="prism-inline-code">CADFeatureRecognitionEngine</code>, <code class="prism-inline-code">FeatureRecognitionEngine</code>, <code class="prism-inline-code">CADRevisionDetectorEngine</code>, <code class="prism-inline-code">CADRevisionPromotionWorkflowEngine</code>, <code class="prism-inline-code">CrossProcessVisionTabularFusionEngine</code>, <code class="prism-inline-code">VisionActionAnalyzerEngine</code>, <code class="prism-inline-code">WEDMPartRecognitionEngine</code>, <code class="prism-inline-code">QuoteRevisionEngine</code>.</p>
+<h3 class="prism-h3">Chat / troubleshoot (10 engines)</h3>
+<p><code class="prism-inline-code">TroubleshootingAssistantEngine</code> (120.2K — <strong>largest LLM</strong>), <code class="prism-inline-code">LatheTroubleshootingIntelligenceEngine</code> (59.7K), <code class="prism-inline-code">TroubleshootingDecisionTreeEngine</code> (39.5K), <code class="prism-inline-code">TroubleshootingEngine</code> (14.5K), <code class="prism-inline-code">ChatBusEngine</code> (16.4K), <code class="prism-inline-code">ConversationalMemoryEngine</code> (15.3K), <code class="prism-inline-code">ConversationBudgetEngine</code>, <code class="prism-inline-code">ConversationStaleDetectorEngine</code>, <code class="prism-inline-code">ConversationTrimmerEngine</code>.</p>
+<h3 class="prism-h3">JM Die docustrata + program corpus (12 engines)</h3>
+<p><code class="prism-inline-code">DocustrataCustomerIndexEngine</code> (15.2K — <strong>docustrata index live</strong>), <code class="prism-inline-code">JMDieArchiveBackAnnotationEngine</code> (33.4K), <code class="prism-inline-code">JMDIEPatternAnalyzer</code> (20.9K), <code class="prism-inline-code">JMDieMillProgramHarvestEngine</code> + <code class="prism-inline-code">JMDieMillProgramHarvesterEngine</code> (35.4K combined), <code class="prism-inline-code">JMDieLatheProgramUpgraderEngine</code> + V2 (18.7K), <code class="prism-inline-code">JMDiePostProcessorLearningEngine</code> (26.2K), <code class="prism-inline-code">JMDieMachineEnvelopeCatalogEngine</code> (8.5K — <strong>shipped today U-PP01</strong>), <code class="prism-inline-code">CADJMDieArchetypeFrequencyEngine</code>, <code class="prism-inline-code">BusinessDocumentExtractorEngine</code> (17.2K), <code class="prism-inline-code">DocumentInboxEngine</code> (37.9K).</p>
+<h3 class="prism-h3">Customer (7 engines)</h3>
+<p><code class="prism-inline-code">CustomerKnowledgeEngine</code>, <code class="prism-inline-code">CustomerManagementEngine</code>, <code class="prism-inline-code">CustomerMaterialMapEngine</code>, <code class="prism-inline-code">CustomerPortalEngine</code>, <code class="prism-inline-code">CustomerPortfolioMinerEngine</code>, <code class="prism-inline-code">CrossCustomerPolicyTransferEngine</code>, <code class="prism-inline-code">CustomerPortalPage</code> (64.7K UI).</p>
+<h3 class="prism-h3">Tool / insert catalog (8 engines)</h3>
+<p><code class="prism-inline-code">CAMToolLibraryEngine</code>, <code class="prism-inline-code">FusionToolLibraryEngine</code>, <code class="prism-inline-code">FusionToolLibraryExtractorEngine</code>, <code class="prism-inline-code">ShopToolLibraryEngine</code>, <code class="prism-inline-code">InsertChangeRecommendationEngine</code>, <code class="prism-inline-code">InsertGradeSelectionEngine</code>, <code class="prism-inline-code">ToolAssemblyEngine</code>, <code class="prism-inline-code">ToolAssemblyModelEngine</code>.</p>
+<h3 class="prism-h3">Catalog ingest (10 engines)</h3>
+<p><code class="prism-inline-code">ArchiveToPartsCatalogIngesterEngine</code>, <code class="prism-inline-code">BatchCAMOperationCatalogEngines</code>, <code class="prism-inline-code">CADReverseCorpusCatalogEngine</code>, <code class="prism-inline-code">CAMCatalogLoaderEngine</code>, <code class="prism-inline-code">CAMCatalogPhysicsLinkerEngine</code>, <code class="prism-inline-code">CAMCatalogSplitterEngine</code>, <code class="prism-inline-code">CatalogExtractionEngine</code>, <code class="prism-inline-code">CatalogRegistryBridgeEngine</code>, <code class="prism-inline-code">Fusion360ControllerCatalogEngine</code>, <code class="prism-inline-code">FixturePartCatalogEngine</code>, <code class="prism-inline-code">HyperMillControllerCatalogEngine</code>.</p>
+<h3 class="prism-h3">Mobile / camera (8 engines)</h3>
+<p><code class="prism-inline-code">EmployeeShopFloorMobileEngine</code> (20.7K), <code class="prism-inline-code">MobileInterfaceEngine</code> (17.2K), <code class="prism-inline-code">MobileLookupEngine</code> (11.6K — <strong>part lookup</strong>), <code class="prism-inline-code">MobileVoiceEngine</code> (11.3K), <code class="prism-inline-code">MobileAlarmEngine</code>, <code class="prism-inline-code">MobileCacheEngine</code>, <code class="prism-inline-code">MobileTimerEngine</code>, <code class="prism-inline-code">CADScreenshotCapturer</code> (18.9K), <code class="prism-inline-code">CaptureSharpenEngine</code> (11.1K).</p>
+<h3 class="prism-h3">Web pages already live (17 quote-relevant)</h3>
+<ul class="prism-md-list"><li><code class="prism-inline-code">QuoteBuilderPage</code> (117.4K), <code class="prism-inline-code">QuoteAnalyticsPage</code> (25.4K), <code class="prism-inline-code">QuoteFollowUpPage</code> (42.3K)</li><li><code class="prism-inline-code">BlueprintQuotePage</code> (10.4K), <code class="prism-inline-code">AdditiveQuotePage</code> (15.6K), <code class="prism-inline-code">SheetMetalQuotePage</code> (10.7K)</li><li><code class="prism-inline-code">CostEstimatorPage</code> (6.6K), <code class="prism-inline-code">ToolingCostPage</code> (10.9K), <code class="prism-inline-code">MachineRatesPage</code> (37.5K)</li><li><code class="prism-inline-code">CaptureOpsPage</code> (43.0K), <code class="prism-inline-code">LatheUploadPage</code>, <code class="prism-inline-code">MillingUploadPage</code>, <code class="prism-inline-code">WireEdmUploadPage</code></li><li><code class="prism-inline-code">ToolOptimizationPage</code> (27.4K), <code class="prism-inline-code">ToolpathAdvisorPage</code> (39.9K)</li><li><code class="prism-inline-code">EmployeePhonePortalPage</code> (24.2K — <strong>mobile prototype</strong>)</li><li><code class="prism-inline-code">CustomerPortalPage</code> (64.7K)</li></ul>
+<h3 class="prism-h3">JM Die corpus (filesystem)</h3>
+<p>Root <code class="prism-inline-code">H:/PRISM/JM DIE/</code> has 19 program-class directories incl. <code class="prism-inline-code">CNC LATHE/</code>, <code class="prism-inline-code">CNC MILL HAAS/</code>, <code class="prism-inline-code">CNC OKUMA MULTUS/</code>, <code class="prism-inline-code">HURCO CNC PROGRAMS/</code>, <code class="prism-inline-code">LATHE/</code>, <code class="prism-inline-code">MACRO PROGRAMS/</code>, <code class="prism-inline-code">OKUMA/</code>, <code class="prism-inline-code">ROKU-ROKU/</code>, <code class="prism-inline-code">SETUPS/</code>, <code class="prism-inline-code">WIRE EDM/</code>, <code class="prism-inline-code">_PART LIBRARY/</code>, <code class="prism-inline-code">PRISM CAD TESTING/</code>, <code class="prism-inline-code">Automated Program_Corrected 5-25.xlsm</code> (5.3MB master), <code class="prism-inline-code">vba Sheet11–16.cls</code> (VBA source for the macro pipeline).</p>
+<h3 class="prism-h3">Extracted/ legacy corpus (39 engines, 25 sub-dirs)</h3>
+<ul class="prism-md-list"><li><code class="prism-inline-code">Extracted/business/</code> — <code class="prism-inline-code">PRISM_COST_DATABASE.js</code> (288.2K!), <code class="prism-inline-code">PRISM_COST_ESTIMATION.js</code>, <code class="prism-inline-code">PRISM_BUSINESS_AI_SYSTEM.js</code>, <code class="prism-inline-code">PRISM_SCHEDULING_ENGINE.js</code>, <code class="prism-inline-code">PRISM_SHOP_ANALYTICS_ENGINE.js</code>, <code class="prism-inline-code">PRISM_SHOP_LEARNING_ENGINE.js</code>, <code class="prism-inline-code">PRISM_SHOP_OPTIMIZER.js</code></li><li><code class="prism-inline-code">Extracted/engines/</code> — physics catalog (Kienzle/Taylor/thermal). Already harvested.</li><li>(No <code class="prism-inline-code">Extracted Modules/</code> dir — does not exist; only <code class="prism-inline-code">Extracted/</code>.)</li></ul>
+<p>The 288KB <code class="prism-inline-code">PRISM_COST_DATABASE.js</code> is a <strong>major un-harvested asset</strong> — likely the canonical legacy pricing table set.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">GAP — what&#39;s missing for /goal-13 (the wires)</h2>
+<h3 class="prism-h3">G1 — InsertBoxOCR → ToolLibrary lookup bridge ❌</h3>
+<p>No engine takes a photo of an insert box / tool body, runs OCR on the part number, and resolves it to <code class="prism-inline-code">ShopToolLibraryEngine</code> + compatible-insert recommendations via <code class="prism-inline-code">InsertGradeSelectionEngine</code> + <code class="prism-inline-code">InsertChangeRecommendationEngine</code>. The OCR exists (<code class="prism-inline-code">ImageOCRPipelineEngine</code>); the catalogs exist. The <strong>bridge</strong> does not.</p>
+<h3 class="prism-h3">G2 — MachineServiceTagOCR → Parts BOM + realtime pricing ❌</h3>
+<p>No engine takes a photo of a machine service tag (make + model + serial), resolves to a parts BOM, and pulls real-time pricing from vendor APIs. The OCR exists. The vendor catalog ingester exists (<code class="prism-inline-code">ArchiveToPartsCatalogIngesterEngine</code>). The <strong>service-tag parser + parts-BOM resolver + vendor-pricing client</strong> do not exist.</p>
+<h3 class="prism-h3">G3 — VendorRealtimePricingClientEngine ❌</h3>
+<p>No engine queries vendor APIs (Misumi, McMaster, Sandvik, Iscar, Kennametal) for live SKU pricing. Required for G2 + insert-replacement quoting + tool-replacement quoting. R12 caveat: scope likely needs to start with <strong>vendor-CSV + Z-API stub + per-vendor adapter shape</strong>, real APIs need keys + scraping policy.</p>
+<h3 class="prism-h3">G4 — Blueprint → instant program pipeline ⚠ (partial — verify)</h3>
+<p><code class="prism-inline-code">BlueprintToQuoteBridgeEngine</code> covers print→quote. The print→<strong>program</strong> side leans on existing pipelines (<code class="prism-inline-code">PrintToProgramPipeline</code>, <code class="prism-inline-code">QuoteToShipOrchestratorEngine</code>) but the <strong>one-touch path from a photo capture to an emitted G-code</strong> is not surfaced as a single API. Needs verification + UI bridge.</p>
+<h3 class="prism-h3">G5 — Live-chat UI bridge to TroubleshootingAssistantEngine ❌</h3>
+<p><code class="prism-inline-code">TroubleshootingAssistantEngine</code> (120K!) + <code class="prism-inline-code">ChatBusEngine</code> exist but no <code class="prism-inline-code">LiveChatRouterEngine</code> brokers a user-facing chat session → assistant → ChatBus → response with citation provenance.</p>
+<h3 class="prism-h3">G6 — Mobile-first capture+quote page ⚠ (partial)</h3>
+<p><code class="prism-inline-code">EmployeePhonePortalPage</code> exists but is employee-internal. The <strong>customer-facing mobile quote page</strong> (camera intake → BlueprintToQuoteBridge → live quote) is not present as a discrete page; <code class="prism-inline-code">CaptureOpsPage</code> (43K) overlaps but needs verification it&#39;s customer-grade.</p>
+<h3 class="prism-h3">G7 — Camera intake → multi-route dispatcher ❌</h3>
+<p>A single mobile <code class="prism-inline-code">CameraIntakeRouterEngine</code> that classifies &quot;this image is: blueprint | insert-box | tool-body | machine-service-tag&quot; and routes to the right OCR + bridge does not exist. Needed so one camera button works for all three scopes.</p>
+<h3 class="prism-h3">G8 — Legacy <code class="prism-inline-code">PRISM_COST_DATABASE.js</code> harvest ❌</h3>
+<p>288.2KB of canonical pricing data sitting un-imported in <code class="prism-inline-code">Extracted/business/</code>. Likely contains the historical material+labor+overhead rate tables that should seed <code class="prism-inline-code">JMDieMaterialPricingEngine</code>. R12: until harvested, current quote estimates are running on whatever&#39;s wired today — may be partial.</p>
+<h3 class="prism-h3">G9 — <code class="prism-inline-code">prism_quoting</code> dispatcher actions for the new bridges ❌</h3>
+<p>Each new bridge engine needs a dispatcher action so the web/mobile UI + Claude/Codex sessions can invoke it without bespoke wiring. Wire to <code class="prism-inline-code">prism_quoting</code> (if exists, else create) + <code class="prism-inline-code">prism_intelligence</code> for the chat router.</p>
+<h3 class="prism-h3">G10 — End-to-end E2E test against a real JM Die part ❌</h3>
+<p>Per CLAUDE.md R9 + R12: every new bridge needs an E2E test on a real JM Die print (e.g. one of the <code class="prism-inline-code">_PART LIBRARY/</code> SVGs or a scanned drawing) — not a synthetic fixture — to prove the entire pipeline actually quotes correctly. No such test exists today for camera-intake.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">WIRE — milestone scope (12 units across 3 phases)</h2>
+<h3 class="prism-h3">P0 — Wiring + bridges (8 units)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Title</th><th>Files</th></tr></thead><tbody><tr><td><code class="prism-inline-code">U-QP01</code></td><td>Audit: end-to-end read of CaptureOpsPage + BlueprintOCREngine + QuoteBuilderPage; verify no stub returns (R12)</td><td>spec only</td></tr>
+<tr><td><code class="prism-inline-code">U-QP02</code></td><td><code class="prism-inline-code">CameraIntakeRouterEngine</code> — classifies image type, routes to OCR + bridge</td><td>engine + 12 tests</td></tr>
+<tr><td><code class="prism-inline-code">U-QP03</code></td><td><code class="prism-inline-code">InsertBoxToCatalogBridgeEngine</code> — wires ImageOCRPipeline → ShopToolLibrary + InsertGradeSelection</td><td>engine + 12 tests</td></tr>
+<tr><td><code class="prism-inline-code">U-QP04</code></td><td><code class="prism-inline-code">MachineServiceTagOCREngine</code> — make/model/SN extraction (uses ImageOCRPipeline base)</td><td>engine + 12 tests</td></tr>
+<tr><td><code class="prism-inline-code">U-QP05</code></td><td><code class="prism-inline-code">MachinePartsBOMResolverEngine</code> — service-tag → parts BOM via DocustrataCustomerIndex</td><td>engine + 12 tests</td></tr>
+<tr><td><code class="prism-inline-code">U-QP06</code></td><td><code class="prism-inline-code">VendorRealtimePricingClientEngine</code> — vendor adapter shape (Misumi + McMaster stubs first; real-API knobs)</td><td>engine + 15 tests</td></tr>
+<tr><td><code class="prism-inline-code">U-QP07</code></td><td><code class="prism-inline-code">LiveChatRouterEngine</code> — UI session ↔ TroubleshootingAssistantEngine ↔ ChatBus with citation provenance</td><td>engine + 12 tests</td></tr>
+<tr><td><code class="prism-inline-code">U-QP08</code></td><td><code class="prism-inline-code">prism_quoting</code> dispatcher — wire 5 new action slots (camera_intake_route, insert_box_lookup, machine_tag_parts, vendor_realtime_price, live_chat)</td><td>dispatcher + schemas + 8 tests</td></tr></tbody></table>
+<h3 class="prism-h3">P1 — UI surfaces (3 units)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Title</th><th>Files</th></tr></thead><tbody><tr><td><code class="prism-inline-code">U-QP09</code></td><td><code class="prism-inline-code">MobileCameraQuotePage</code> — customer-facing mobile-first capture → BlueprintToQuote → live estimate</td><td>web/src/pages + 6 component tests</td></tr>
+<tr><td><code class="prism-inline-code">U-QP10</code></td><td><code class="prism-inline-code">LiveChatWidget</code> component — embeddable troubleshoot chat (calls live_chat action)</td><td>component + 6 tests</td></tr>
+<tr><td><code class="prism-inline-code">U-QP11</code></td><td>PWA manifest + service-worker for offline cache (<code class="prism-inline-code">MobileCacheEngine</code> exists, needs registration)</td><td>manifest + sw + 4 tests</td></tr></tbody></table>
+<h3 class="prism-h3">P2 — Real-data E2E (1 unit)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Title</th><th>Files</th></tr></thead><tbody><tr><td><code class="prism-inline-code">U-QP12</code></td><td>E2E integration test: photograph of a real JM Die <code class="prism-inline-code">_PART LIBRARY/</code> drawing → CameraIntakeRouter → BlueprintToQuote → cost ± 15% of historical actual cost. Plus a real tool-body photo for InsertBoxToCatalog. (Per R9: tests verify intent, not behavior — quote ± 15% encodes the business invariant.)</td><td>integration test (real JPG fixtures)</td></tr></tbody></table>
+<p><strong>Out of scope for MS0</strong> (tracked for MS1):</p>
+<ul class="prism-md-list"><li>Native iOS/Android app (PWA only in MS0).</li><li>Real vendor-API integration (adapter stub layer in MS0; real-API keys + scraping policy in MS1).</li><li><code class="prism-inline-code">PRISM_COST_DATABASE.js</code> harvest — separate G8 unit, hand off to golf-slot or echo for ingestion pass.</li><li>Visual G-code preview (CaptureOpsPage may already cover; verify in U-QP01).</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">SYNERGY — PSN wiring per leg</h2>
+<table class="prism-md-table"><thead><tr><th>PSN leg</th><th>Wired by</th></tr></thead><tbody><tr><td><strong>Obsidian brain</strong></td><td>Each new bridge writes a <code class="prism-inline-code">reference_qp_*.md</code> memory pointer; live troubleshoot chat sessions feed Obsidian via existing Stop hook</td></tr>
+<tr><td><strong>PRISM OS</strong></td><td><code class="prism-inline-code">prism_quoting</code> actions surface in <code class="prism-inline-code">prism_operating_system</code> workspace</td></tr>
+<tr><td><strong>Wiki</strong></td><td><code class="prism-inline-code">knowledge/wiki/architecture/quoting-pipeline-ms0.md</code></td></tr>
+<tr><td><strong>Memories</strong></td><td>12 unit-keyed references + 1 milestone close-out</td></tr>
+<tr><td><strong>Tribal</strong></td><td><code class="prism-inline-code">LiveChatRouterEngine</code> queries <code class="prism-inline-code">CAMTribalRAGEngine</code> + <code class="prism-inline-code">CAMTribalKnowledgeEngine</code> for citation provenance</td></tr>
+<tr><td><strong>System Viz</strong></td><td>New <code class="prism-inline-code">ghost.quoting_pipeline</code> roost; 12 new nodes + edges to existing quote engines</td></tr>
+<tr><td><strong>Engines</strong></td><td>7 new engines reuse 30+ existing quote/cost/OCR/troubleshoot/catalog engines (high leverage ratio)</td></tr>
+<tr><td><strong>Algorithms</strong></td><td>Reuses interval-arithmetic (PROGRAM-PROOF-MS0/U-PP02) for cost-uncertainty bounds; Bayesian update for historical-actuals feedback</td></tr>
+<tr><td><strong>Formulas</strong></td><td>Cost = labor + tooling + material + overhead + margin; vendor pricing uses canonical rate-table format</td></tr>
+<tr><td><strong>NN/GNN</strong></td><td>Quote outcomes feed <code class="prism-inline-code">PSNAutonomyLoopEngine</code> as <code class="prism-inline-code">psi_delta</code> signals (per E07-E10 wiring)</td></tr>
+<tr><td><strong>PRISM AI</strong></td><td><code class="prism-inline-code">LiveChatRouterEngine</code> routes deep-reasoning queries to <code class="prism-inline-code">aiSystemRouterEngine</code> (Claude vs Ollama vs prism_calc)</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">RISKS + R12 honesty</h2>
+<ul class="prism-md-list"><li><strong>R12-1</strong> — Real vendor pricing APIs typically require commercial keys + are rate-limited. MS0 ships adapter shape + stubs only; no real prices until MS1 commercial layer.</li><li><strong>R12-2</strong> — Camera OCR quality on handheld shop-floor photos (oil, glare, motion blur) is meaningfully worse than scanned PDFs. <code class="prism-inline-code">CaptureSharpenEngine</code> helps but the E2E test in U-QP12 needs a real (imperfect) photo, not a clean scan.</li><li><strong>R12-3</strong> — <code class="prism-inline-code">PRISM_COST_DATABASE.js</code> un-harvested means current quote estimates are running on whatever&#39;s already wired; until G8 is closed, &quot;real&quot; quote accuracy is bounded by today&#39;s wiring (we don&#39;t know the gap until we measure).</li><li><strong>R12-4</strong> — <code class="prism-inline-code">EmployeePhonePortalPage</code> is employee-internal; a customer-facing mobile page (U-QP09) means new auth/session scope, not just a re-skin.</li><li><strong>R12-5</strong> — <code class="prism-inline-code">TroubleshootingAssistantEngine</code> is 120KB but until U-QP01 reads it end-to-end we don&#39;t know its output schema; the chat-router bridge depends on that schema.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">DELIVERABLES (this assessment unit)</h2>
+<ol class="prism-md-list"><li>✅ This file: <code class="prism-inline-code">state/shared/specs/QUOTING-PIPELINE-MS0-ASSESSMENT-2026-05-24.md</code></li><li>→ milestone envelope: <code class="prism-inline-code">mcp-server/data/milestones/QUOTING-PIPELINE-MS0.json</code> (12 units)</li><li>→ roadmap-index entry</li><li>→ CLAUDE.md <code class="prism-inline-code">## QUOTING-PIPELINE-MS0</code> pointer + <code class="prism-inline-code">## Recent regressions</code> tail</li><li>→ memory <code class="prism-inline-code">reference_quoting_pipeline_ms0_assessment_2026_05_24.md</code></li></ol>
+<p>Next iteration (<code class="prism-inline-code">/loop</code> /goal-13 iter2): begin U-QP01 audit pass (end-to-end read of CaptureOpsPage + BlueprintOCREngine + QuoteBuilderPage), then U-QP02 CameraIntakeRouterEngine.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

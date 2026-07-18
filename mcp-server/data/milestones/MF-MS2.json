@@ -1,0 +1,218 @@
+{
+  "id": "MF-MS2",
+  "version": "6.3.0",
+  "title": "Sequence Feasibility + Dead-End Detection + Auto-Resequencing + PUOA Integration",
+  "created_at": "2026-03-14T16:00:00Z",
+  "updated_at": "2026-04-14T14:05:00Z",
+  "description": "Build the SequenceFeasibilityEngine that forward-simulates the operation sequence, checking all physical feasibility constraints at each step. Detect dead-ends where completing one operation makes a future operation impossible. Implement backtracking search with constraint propagation to find valid orderings or prove none exist. Enhanced with PUOA integration for LLM-level AI reasoning.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Forward Simulation + Dead-End Detection",
+      "units": [
+        {
+          "id": "U-MF01",
+          "title": "SequenceFeasibilityEngine: forward simulation with accessibility, workholding, rigidity checks at each step",
+          "status": "completed",
+          "completed_at": "2026-04-14T14:05:00Z",
+          "tests": 22,
+          "test_file": "mf-ms2-sequence-feasibility.test.ts",
+          "steps": [
+            "simulate(): for each op in sequence: applyOperation → check ALL remaining ops for feasibility",
+            "Dead-end detection: if any remaining op fails accessibility, workholding, or rigidity → flag",
+            "Report format: 'After op N (rough pocket), op M (finish shelf) becomes impossible because tool cannot reach shelf through pocket walls'",
+            "Per-step checks: AccessibilityAnalysis + WorkholdingViability + RigidityDegradation for ALL remaining ops",
+            "Performance: cache IPW state at each step for backtracking without full recompute",
+            "riskScore(): Monte Carlo variation on uncertain parameters → P(success) per operation",
+            "findDeadEnds(): identify ALL dead-ends, not just the first one"
+          ],
+          "exit_conditions": [
+            "Forward simulation detects known dead-end scenario",
+            "Risk scores produce meaningful probabilities",
+            "Performance: <500ms for 10-operation sequence",
+            "20+ tests including dead-end, no-dead-end, and multi-dead-end scenarios"
+          ],
+          "legacy_id": "U01",
+          "description": "SequenceFeasibilityEngine: forward simulation with accessibility, workholding, rigidity checks at each step — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-MF02",
+          "title": "Auto-resequencing: backtracking search with constraint propagation to find valid orderings",
+          "status": "completed",
+          "completed_at": "2026-04-14T14:05:00Z",
+          "tests": 12,
+          "test_file": "mf-ms2-sequence-feasibility.test.ts",
+          "steps": [
+            "suggestReordering(): when dead-end found, search for valid orderings",
+            "Constraint propagation: prune impossible orderings early (e.g., roughing must precede finishing)",
+            "Heuristics: try 'outside-in', 'thick-to-thin', 'top-down' ordering strategies first",
+            "Backtracking with depth limit (max 1000 permutations for ≤15 ops)",
+            "If no valid ordering exists: report with explanation of conflicting constraints",
+            "Optimize valid orderings: among feasible sequences, pick best for cycle time/tool life",
+            "whatIf(): test impact of moving one specific operation"
+          ],
+          "exit_conditions": [
+            "Finds valid reordering for solvable dead-ends",
+            "Reports 'no solution' with explanation for unsolvable cases",
+            "whatIf produces meaningful comparison",
+            "15+ tests"
+          ],
+          "legacy_id": "U02",
+          "description": "Auto-resequencing: backtracking search with constraint propagation to find valid orderings — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "PUOA Integration",
+      "units": [
+        {
+          "id": "U-MF03",
+          "title": "SequenceFeasibilityEngine PUOA Integration: LLM/CLI sequence-based pre-flight",
+          "status": "completed",
+          "completed_at": "2026-04-14T14:05:00Z",
+          "tests": 12,
+          "test_file": "mf-ms2-puoa-integration.test.ts",
+          "steps": [
+            "assessSequenceForPUOA(): Returns PUOA-compatible assessment with risks, dead-ends, fallbacks",
+            "suggestResequencingForPUOA(): Returns resequencing suggestions in PUOA format",
+            "PUOASequenceAssessment: Output format matching PUOA pre-flight assessment",
+            "Risk categorization: accessibility, workholding, rigidity, datum_available, sequence",
+            "Dead-end reporting: blocking_op, blocked_op, reason",
+            "Severity levels: low, medium, high, critical",
+            "Fallback strategies: Recommended alternatives including resequencing",
+            "Success probability: Combined sequence-based probability (0-1)",
+            "PUOA assessSequenceFeasibility(): Direct entry point on PRISMUnifiedOrchestratorEngine",
+            "PUOA suggestResequencing(): Direct resequencing entry point",
+            "PUOA assessPreFlightWithSequence(): Enhanced pre-flight with sequence risk overlay"
+          ],
+          "exit_conditions": [
+            "assessSequenceForPUOA returns valid PUOA assessment",
+            "Risk categories match PUOA format",
+            "Dead-ends converted to critical risks with resequencing fallback",
+            "Success probability in valid range [0,1]",
+            "PUOA engine has direct sequence assessment methods",
+            "Pre-flight enhanced with sequence risks prefixed [Sequence]",
+            "12 integration tests passing"
+          ],
+          "legacy_id": "U03",
+          "description": "SequenceFeasibilityEngine PUOA Integration: LLM/CLI sequence-based pre-flight — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "completed",
+  "total_tests": 34,
+  "test_files": [
+    "mf-ms2-sequence-feasibility.test.ts",
+    "mf-ms2-puoa-integration.test.ts"
+  ],
+  "summary": {
+    "engines_enhanced": [
+      "SequenceFeasibilityEngine",
+      "PRISMUnifiedOrchestratorEngine"
+    ],
+    "key_methods": [
+      "assessSequenceForPUOA(input: SimulateSequenceInput): Promise<PUOASequenceAssessment>",
+      "suggestResequencingForPUOA(input: ResequenceInput): PUOAResequenceSuggestion",
+      "assessSequenceFeasibility(input: SimulateSequenceInput): Promise<PUOASequenceAssessment>",
+      "suggestResequencing(input: ResequenceInput): Promise<PUOAResequenceSuggestion>",
+      "assessPreFlightWithSequence(puoaInput, routing, sequenceInput?): Promise<PreFlightAssessment>"
+    ],
+    "ai_integration": "Direct PUOA integration enables LLM-level AI reasoning with sequence-based pre-flight assessment including dead-end detection and auto-resequencing"
+  },
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mf-ms2-gate",
+    "mcp_action": "prism_mf:mf_ms2_run",
+    "skill_command": "/mf-ms2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mf-ms2-gate"
+    ],
+    "new_actions": [
+      "mf_ms2_run"
+    ],
+    "new_skills": [
+      "/mf-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build the SequenceFeasibilityEngine that forward-simulates the operation sequence, checking all physical feasibility constraints at each step. Detect dead-ends where completing one operation makes a future operation impossible. Implement backtracking search with constraint propagation to find valid orderings or prove none exist. Enhanced with PUOA integration for LLM-level AI reasoning.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

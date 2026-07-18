@@ -28,7 +28,9 @@ import { spawn } from "node:child_process";
 
 const LOG_DIR = "H:/prism/.claude/cache/stop-bg-logs";
 const MAX_LOG_AGE_DAYS = 3;
-const NODE_BIN = "H:/.claude/bin/portable-node";
+// (Removed the dead `NODE_BIN = ".../portable-node"` const: it was never used for the spawn -- the
+// launcher correctly uses process.execPath, see ~line 86 -- and it read as if this hook spawned the
+// non-spawnable extensionless shim, a trap for anyone auditing the silent-spawn bug class.)
 
 function readStdinSafe() {
   try {

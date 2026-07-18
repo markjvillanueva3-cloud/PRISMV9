@@ -209,6 +209,7 @@ export interface ReasoningStep {
   evidence: string[];
   conclusion: string;
   confidence: number;
+  dependencies?: number[];
 }
 
 /** Post processor generation request */
@@ -866,7 +867,7 @@ export class PostProcessorAISelfAwarenessIntegrationEngine {
     const workOffsetSetup = this.buildWorkOffsetSetup(request.controller);
 
     // Build coolant codes
-    const coolantCodes = this.buildCoolantCodes(request.controller, context.machineProfile);
+    const coolantCodes = this.buildCoolantCodes(request.controller, context.machineProfile ?? null);
 
     // Build HSM control
     const hsmControl = this.buildHSMControl(ck);

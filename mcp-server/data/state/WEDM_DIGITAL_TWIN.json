@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "twinId": "DT-WEDM-FA20S-001",
+  "machineId": "MITSUBISHI-FA20S-001",
+  "lastSync": "2026-04-15T21:00:00.000Z",
+  "syncLatency_ms": 12,
+  "model": {
+    "version": "1.0.0",
+    "kinematics": "4-axis-XYUV",
+    "workEnvelope": {
+      "x_mm": 400,
+      "y_mm": 300,
+      "z_mm": 220,
+      "u_mm": 100,
+      "v_mm": 100
+    },
+    "maxTaper_deg": 30,
+    "maxFeedrate_mm_min": 500
+  },
+  "physicsState": {
+    "wireTension_n": 11.8,
+    "sparkGap_um": 25,
+    "mrr_mm2_min": 0,
+    "temperature_gradient": []
+  },
+  "kalmanState": {
+    "position": [0, 0, 0, 0, 0],
+    "velocity": [0, 0, 0, 0, 0],
+    "covariance": [[0.001, 0, 0, 0, 0], [0, 0.001, 0, 0, 0], [0, 0, 0.001, 0, 0], [0, 0, 0, 0.001, 0], [0, 0, 0, 0, 0.001]],
+    "processNoise": 0.0001,
+    "measurementNoise": 0.001
+  },
+  "predictions": {
+    "nextWireBreak_hours": null,
+    "filterChange_hours": 120,
+    "maintenanceDue_hours": 505
+  },
+  "anomalyScores": {
+    "vibration": 0.12,
+    "temperature": 0.08,
+    "electrical": 0.05
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-16T15:40:00.000Z",
+  "description": "Deterministic hook execution order for WEDM hooks (18 total)",
+  "phases": {
+    "session-start": {
+      "order": 1,
+      "hooks": [
+        { "id": "wedm-awareness-inject", "priority": 100 },
+        { "id": "wedm-svi-inject", "priority": 90 }
+      ]
+    },
+    "pre-tool": {
+      "order": 2,
+      "hooks": [
+        { "id": "wedm-workflow-monitor", "priority": 10 },
+        { "id": "wedm-sx-safety", "priority": 100 },
+        { "id": "wedm-calibration-validate", "priority": 95 },
+        { "id": "wedm-gcode-injection", "priority": 95 },
+        { "id": "wedm-ecode-consistency", "priority": 80 },
+        { "id": "wedm-taper-limits", "priority": 90 },
+        { "id": "wedm-tension-safety", "priority": 95 },
+        { "id": "wedm-batch-deps", "priority": 85 },
+        { "id": "wedm-schedule-conflict", "priority": 85 },
+        { "id": "wedm-ood-detector", "priority": 60 }
+      ]
+    },
+    "post-tool": {
+      "order": 3,
+      "hooks": [
+        { "id": "wedm-neural-sanity", "priority": 95 },
+        { "id": "wedm-cost-confidence", "priority": 70 },
+        { "id": "wedm-drift-alert", "priority": 65 },
+        { "id": "wedm-quality-audit", "priority": 30 },
+        { "id": "wedm-learning-trigger", "priority": 75 },
+        { "id": "wedm-svi-milestone-gate", "priority": 90 }
+      ]
+    }
+  },
+  "orderingRules": {
+    "primary": "phase (session-start -> pre-tool -> post-tool)",
+    "secondary": "priority (higher priority first)",
+    "tertiary": "alphabetical by id (tiebreaker)",
+    "blocking_beats_warning": true
+  },
+  "totalHooks": 18
+}

@@ -4,7 +4,7 @@
  * role-based redirect after login.
  */
 import { useState, useRef, useEffect, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
@@ -85,7 +85,7 @@ export default function LoginPage() {
           color: 'var(--text-primary, #f1f5f9)',
           marginBottom: 8,
         }}>
-          PRISM
+          Kienzle
         </h1>
         <p style={{
           textAlign: 'center',
@@ -188,7 +188,19 @@ export default function LoginPage() {
 
         <p style={{
           textAlign: 'center',
-          marginTop: 24,
+          marginTop: 20,
+          fontSize: 14,
+          color: 'var(--text-secondary, #94a3b8)',
+        }}>
+          New to Kienzle?{' '}
+          <Link to="/signup" style={{ color: '#3b82f6', fontWeight: 600 }}>
+            Create an account
+          </Link>
+        </p>
+
+        <p style={{
+          textAlign: 'center',
+          marginTop: 16,
           fontSize: 13,
           color: 'var(--text-secondary, #64748b)',
         }}>

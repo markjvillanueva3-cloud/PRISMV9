@@ -1,0 +1,70 @@
+{
+  "id": "RT-ADAPTIVE-MS22b",
+  "version": "1.0.0",
+  "title": "Active in-cycle adaptive feedback (POST-PILOT — feed/spindle/thermal closed loop)",
+  "brief": "POST-PILOT continuation of MS22a. Now telemetry is captured (MS22a) and MS9 is trained on real data, this MS adds the actuation path: chatter onset → spindle-speed shift <200ms; thermal dT>15C → comp engaged. Required for marketing 'intelligent adaptive' claims post-ship. Gated on operator opt-in + MS9 Omega=1.0 status (no autonomous actuation without explicit safety green-light).",
+  "created_at": "2026-05-05T13:35:00Z",
+  "created_by": "claude-opus-4-7-v3.1",
+  "track": "L3-RUNTIME",
+  "track_name": "Real-time / Active feedback Post-pilot",
+  "status": "post-pilot-tranche",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Active feedback: feed override + spindle shift + thermal comp + safety interlock",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "AdaptiveControlEngine: chatter detection + feed override <200ms",
+          "effort": 180,
+          "dependencies": [],
+          "exit_conditions": [
+            "chatter onset (FFT spike at known stability lobe) triggers spindle-speed shift within 200ms",
+            "1 staged chatter scenario suppressed within 3 RPM steps",
+            "false-positive rate <5% on synthetic non-chatter noise (validated against MS22a labeled negatives)",
+            "tests: chatter + non-chatter signals + boundary cases"
+          ],
+          "description": "Reuses MS22a telemetry stream + chatter probability from SpindleHarmonicsQualityEngine. Pin process priority + IPC over socket to hold 200ms budget on Windows.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Thermal compensation: dT > 15C engages comp from MachineRegistry thermal-map",
+          "effort": 120,
+          "dependencies": [],
+          "exit_conditions": [
+            "spindle thermistor + ballscrew temp ingested via MS22a stream",
+            "dT > 15C engages thermal-map comp from MachineRegistry per machine",
+            "tests: simulated thermal ramp engages at correct threshold; rollback when dT <10C"
+          ],
+          "description": "Standard thermal-comp tables. Reuse MachineRegistry.thermal_map fields if present, else add via MS27 migration runner.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Safety interlock: actuation requires Omega=1.0 from MS9 + operator opt-in",
+          "effort": 90,
+          "dependencies": ["P0-U01", "P0-U02"],
+          "exit_conditions": [
+            "any speed/feed override blocked unless current job has Omega=1.0 per omega-tolerance.json",
+            "operator must opt-in per machine per shift via MS24 CLI prompt",
+            "kill-switch wired to E-stop sequence (hardware fallback)",
+            "tests: 3 actuation requests, 1 with Ω<1.0 (BLOCKED), 1 without operator opt-in (BLOCKED), 1 fully gated (PASSES)"
+          ],
+          "description": "No autonomous actuation without explicit safety green-light. Operator opt-in defaults OFF; explicit per-shift activation.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "in-cycle MTConnect feed-rate override demonstrated on 1 mill + 1 lathe + 1 WEDM; chatter onset triggers spindle shift <200ms; thermal-comp engages at dT>15C; actuation gated on MS9 Omega=1.0 (per omega-tolerance.json) AND operator opt-in (per MS24 CLI); kill-switch tested on E-stop.",
+  "risks": [
+    {"id": "R1", "description": "Real-time loop on Windows blows 200ms budget; mitigation = pin process priority + IPC over socket not file"},
+    {"id": "R2", "description": "Operators distrust auto-override (per pass-2 metric-reality gap); mitigation = explicit opt-in per machine per shift; defaults OFF; CLI surfaces every override decision for audit"},
+    {"id": "R3", "description": "OPC-UA security; covered by MS20 OT-IT-SECURITY which blocks this milestone"}
+  ],
+  "blocks": [],
+  "blocked_by": ["SHIP-RELEASE-MS19", "OT-IT-SECURITY-MS20", "RT-ADAPTIVE-MS22a"]
+}

@@ -6,12 +6,11 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { isSkippable } from "./lib/roadmap-terminal-status.mjs";
 
 const REPO = "H:/prism";
 const INDEX_PATH = resolve(REPO, "mcp-server/data/roadmap-index.json");
 const REPORT_PATH = resolve(REPO, "mcp-server/data/state/roadmap-drift-report.json");
-
-const SKIP_STATUSES = new Set(["complete", "superseded", "consolidated", "deprecated"]);
 
 const index = JSON.parse(readFileSync(INDEX_PATH, "utf8"));
 const milestones = index.milestones || [];
@@ -34,7 +33,7 @@ const allCommits = gitLog([]).split(/\r?\n/).filter(Boolean);
 const drifts = [];
 
 for (const m of milestones) {
-  if (SKIP_STATUSES.has(m.status)) continue;
+  if (isSkippable(m.status)) continue;
   if (!m.id) continue;
 
   // Match commits like "[MAIN] <ID>/U-... " or "<ID>/U-..." or "<ID>:" prefix

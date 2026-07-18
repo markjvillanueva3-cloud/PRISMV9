@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-pre-tool-p1.mjs — Phase 1 Tier 0
-PreTool hook that validates tool calls before execution.
-Foundation for all pre-execution checks.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

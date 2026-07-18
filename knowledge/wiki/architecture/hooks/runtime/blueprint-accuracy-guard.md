@@ -21,11 +21,12 @@ related:
 
 ## Description (from file header)
 
-blueprint-accuracy-guard.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI08Monitors BlueprintToCADGenerationEngine output quality:- Dimensional accuracy < 99% (exit gate requirement)- GD&T preservation < 95%- OCR confidence < 0.8- Missing views (no front/top/side)
+_(no header docblock — read source for behavior)_
 
 ## Events
 
 - `PostToolUse`
+- `Stop`
 
 ## Doctrine
 

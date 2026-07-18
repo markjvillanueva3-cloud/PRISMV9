@@ -1,0 +1,155 @@
+TAP version 13
+# Subtest: exports version + list code references app.documents
+ok 1 - exports version + list code references app.documents
+  ---
+  duration_ms: 1.307
+  ...
+# Subtest: SAFETY: the active+modified operator doc is NEVER closable
+ok 2 - SAFETY: the active+modified operator doc is NEVER closable
+  ---
+  duration_ms: 0.3097
+  ...
+# Subtest: SAFETY: a modified-but-inactive doc is protected by default (unsaved work)
+ok 3 - SAFETY: a modified-but-inactive doc is protected by default (unsaved work)
+  ---
+  duration_ms: 0.2044
+  ...
+# Subtest: DISPOSABLE: allowModified lets a loop-OWNED modified candidate be closable (own throwaway)
+ok 4 - DISPOSABLE: allowModified lets a loop-OWNED modified candidate be closable (own throwaway)
+  ---
+  duration_ms: 1.2447
+  ...
+# Subtest: DISPOSABLE: even with allowModified, ACTIVE + protected-name + not-in-only still protect (operator safe)
+ok 5 - DISPOSABLE: even with allowModified, ACTIVE + protected-name + not-in-only still protect (operator safe)
+  ---
+  duration_ms: 0.3173
+  ...
+# Subtest: closeDocByNameCode disposable=true omits the modified guard but keeps the active guard
+ok 6 - closeDocByNameCode disposable=true omits the modified guard but keeps the active guard
+  ---
+  duration_ms: 0.2112
+  ...
+# Subtest: activateNonOwnedCode: activates a doc NOT in the owned set; json-safe
+ok 7 - activateNonOwnedCode: activates a doc NOT in the owned set; json-safe
+  ---
+  duration_ms: 0.2224
+  ...
+# Subtest: DISPOSABLE reap: owned candidate is ACTIVE → reactivate non-owned, then close owned (operator safe)
+ok 8 - DISPOSABLE reap: owned candidate is ACTIVE → reactivate non-owned, then close owned (operator safe)
+  ---
+  duration_ms: 0.6879
+  ...
+# Subtest: onlyNames: only loop-created docs are closable; operator's other docs untouched
+ok 9 - onlyNames: only loop-created docs are closable; operator's other docs untouched
+  ---
+  duration_ms: 0.3781
+  ...
+# Subtest: protectedNames blocks a named doc even if otherwise closable
+ok 10 - protectedNames blocks a named doc even if otherwise closable
+  ---
+  duration_ms: 0.3995
+  ...
+# Subtest: clean leftover docs (inactive, unmodified, not protected) ARE closable
+ok 11 - clean leftover docs (inactive, unmodified, not protected) ARE closable
+  ---
+  duration_ms: 0.2149
+  ...
+# Subtest: closeDocByNameCode: json-quotes the name (no injection) + guards active/modified in Fusion
+ok 12 - closeDocByNameCode: json-quotes the name (no injection) + guards active/modified in Fusion
+  ---
+  duration_ms: 0.1261
+  ...
+# Subtest: listDocuments: parses a successful /execute response
+ok 13 - listDocuments: parses a successful /execute response
+  ---
+  duration_ms: 0.1389
+  ...
+# Subtest: listDocuments: a failed /execute → ok:false, no throw, error surfaced
+ok 14 - listDocuments: a failed /execute → ok:false, no throw, error surfaced
+  ---
+  duration_ms: 0.1182
+  ...
+# Subtest: listDocuments: requires postExecute (fail loud)
+ok 15 - listDocuments: requires postExecute (fail loud)
+  ---
+  duration_ms: 0.4257
+  ...
+# Subtest: closeDocuments: reports per-doc closed/refused; a refusal is surfaced not hidden (R12)
+ok 16 - closeDocuments: reports per-doc closed/refused; a refusal is surfaced not hidden (R12)
+  ---
+  duration_ms: 0.1839
+  ...
+# Subtest: reapLeakedDocuments: protects active doc by name, closes only clean leftovers — END TO END
+ok 17 - reapLeakedDocuments: protects active doc by name, closes only clean leftovers — END TO END
+  ---
+  duration_ms: 0.3029
+  ...
+# Subtest: reapLeakedDocuments: onlyNames mode reaps just the loop's own docs
+ok 18 - reapLeakedDocuments: onlyNames mode reaps just the loop's own docs
+  ---
+  duration_ms: 0.2026
+  ...
+# Subtest: reapLeakedDocuments: bridge list failure → ok:false, nothing closed
+ok 19 - reapLeakedDocuments: bridge list failure → ok:false, nothing closed
+  ---
+  duration_ms: 0.1118
+  ...
+# Subtest: reapByPrefixCode: closes high→low, guards active, json-safe prefix
+ok 20 - reapByPrefixCode: closes high→low, guards active, json-safe prefix
+  ---
+  duration_ms: 0.1357
+  ...
+# Subtest: reapByPrefix: parses the in-Fusion result
+ok 21 - reapByPrefix: parses the in-Fusion result
+  ---
+  duration_ms: 0.1525
+  ...
+# Subtest: reapByPrefix: REFUSES empty prefix (would reap everything — fail loud)
+ok 22 - reapByPrefix: REFUSES empty prefix (would reap everything — fail loud)
+  ---
+  duration_ms: 0.1756
+  ...
+# Subtest: reapByPrefix: failed execute → ok:false, closed 0; requires postExecute
+ok 23 - reapByPrefix: failed execute → ok:false, closed 0; requires postExecute
+  ---
+  duration_ms: 0.1972
+  ...
+# Subtest: computeCreatedDocs: current MINUS before = the docs this run created (order preserved)
+ok 24 - computeCreatedDocs: current MINUS before = the docs this run created (order preserved)
+  ---
+  duration_ms: 0.1488
+  ...
+# Subtest: computeCreatedDocs: catches the /new-doubling non-prefixed Untitled (not just prefixed names)
+ok 25 - computeCreatedDocs: catches the /new-doubling non-prefixed Untitled (not just prefixed names)
+  ---
+  duration_ms: 0.1693
+  ...
+# Subtest: computeCreatedDocs: null / garbage → [] (no throw)
+ok 26 - computeCreatedDocs: null / garbage → [] (no throw)
+  ---
+  duration_ms: 0.4554
+  ...
+# Subtest: reapCreatedDocs: nothing created (current ⊆ before) → closed:[] (no spurious close)
+ok 27 - reapCreatedDocs: nothing created (current ⊆ before) → closed:[] (no spurious close)
+  ---
+  duration_ms: 0.424
+  ...
+# Subtest: reapCreatedDocs: reaps ONLY the created doc, protects the pre-existing operator doc
+ok 28 - reapCreatedDocs: reaps ONLY the created doc, protects the pre-existing operator doc
+  ---
+  duration_ms: 0.4848
+  ...
+# Subtest: reapCreatedDocs: requires postExecute
+ok 29 - reapCreatedDocs: requires postExecute
+  ---
+  duration_ms: 0.1618
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 398.2809

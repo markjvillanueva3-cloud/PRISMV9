@@ -210,7 +210,7 @@ export function MillingUploadPage() {
       <WorkspaceHero
         eyebrow="Upload your part"
         title="Milling Program Generator"
-        description="Drop a photo of your engineering drawing, upload a 3D CAD file (STEP/IGES/DXF), STL mesh, or PDF print. PRISM will detect features, recommend strategies, and generate your CNC milling program."
+        description="Drop a photo of your engineering drawing, upload a 3D CAD file (STEP/IGES/DXF), STL mesh, or PDF print. Kienzle will detect features, recommend strategies, and generate your CNC milling program."
         metrics={
           <>
             <SummaryTile label="Supported inputs" value="4 types" hint="Photo, CAD, STL, PDF" />

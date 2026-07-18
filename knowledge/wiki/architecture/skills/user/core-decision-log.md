@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `decision-log` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/core/decision-log.md` |
+| Source | `C:/Users/wompu/.claude/commands/core/decision-log.md` |
 | Model | default |
 | Tags | _(none)_ |
 

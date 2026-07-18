@@ -19,7 +19,7 @@ const STALE_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour
 
 function isPidAlive(pid) {
   try {
-    const result = execSync(`tasklist //FI "PID eq ${pid}" 2>NUL`, { encoding: "utf-8" });
+    const result = execSync(`tasklist //FI "PID eq ${pid}" 2>NUL`, { windowsHide: true, encoding: "utf-8" });
     return !result.includes("No tasks are running");
   } catch {
     return false;

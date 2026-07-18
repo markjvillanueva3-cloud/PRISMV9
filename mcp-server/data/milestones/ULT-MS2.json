@@ -1,0 +1,604 @@
+{
+  "id": "ULT-MS2",
+  "version": "1.0.0",
+  "title": "Role-Aware Experience Layer",
+  "brief": "Create employee, lead, manager, and admin experience policies so every person sees the right shell, workflows, and live data for their role while keeping sensitive HR and business data out of the default employee experience.",
+  "created_at": "2026-03-27T18:20:00Z",
+  "created_by": "codex-rgs-forge-triple",
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Policy + Experience Shell",
+      "description": "Define role-aware access policies, employee portal contracts, and frontend shells that expose only the right tools to each persona.",
+      "sessions": "1-2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Employee experience policy engine",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Schema Architect",
+          "model": "opus-4.6",
+          "effort": 90,
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "completeness"
+            }
+          ],
+          "entry_conditions": [
+            "The canonical employee, department, and execution-core contracts are defined.",
+            "Personas for employee, lead, planner, manager, and admin are documented."
+          ],
+          "exit_conditions": [
+            "A role policy engine maps job function, title, department, permissions, and default tabs into one experience contract.",
+            "The policy model supports auto-fill defaults plus explicit overrides for edge cases.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the policy engine and revert to the current shared-shell routing model.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define a policy engine that resolves role, department, station, and permission bundles into allowed routes, widgets, and defaults.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_validate:completeness"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Extend authentication-facing contracts so role resolution and override provenance are available at login time.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "The login contract can explain why a user sees or does not see a route or widget."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/EmployeeExperiencePolicyEngine.ts",
+              "type": "source",
+              "description": "Central role-aware shell, widget, and workflow policy resolution engine.",
+              "line_count_est": 240
+            },
+            {
+              "path": "src/engines/AuthEngine.ts",
+              "type": "source",
+              "description": "Auth enrichment with role-policy resolution and override provenance.",
+              "line_count_est": 90
+            }
+          ],
+          "estimated_minutes": 150,
+          "description": "Employee experience policy engine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Employee portal route surface",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 84,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_bridge",
+              "action": "route_map"
+            },
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            }
+          ],
+          "entry_conditions": [
+            "Role policies resolve the allowed shell surfaces and workflow affordances.",
+            "Auth middleware can emit role-aware experience claims."
+          ],
+          "exit_conditions": [
+            "A dedicated employee portal route surface exists for login, me, shell config, and workstation context.",
+            "Role-aware route claims can be consumed without exposing private HR or management-only data.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the employee portal routes and return the frontend to generic post-login bootstrapping.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Expose employee-shell bootstrap routes for sign-in, profile context, allowed tabs, workstation defaults, and role overrides.",
+              "tool_calls": [
+                "prism_bridge:route_map",
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Update auth route handling so role-aware claims are returned alongside the bootstrap payload in one request chain.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "The frontend can mount a role-filtered shell without fetching restricted datasets."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/routes/employeePortal.ts",
+              "type": "source",
+              "description": "Role-aware employee portal bootstrap and context routes.",
+              "line_count_est": 210
+            },
+            {
+              "path": "src/routes/auth.ts",
+              "type": "source",
+              "description": "Auth route integration for employee shell bootstrap and permission claims.",
+              "line_count_est": 80
+            }
+          ],
+          "estimated_minutes": 120,
+          "description": "Employee portal route surface — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Frontend employee shell + role matrix",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 86,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_session",
+              "action": "state_checkpoint"
+            }
+          ],
+          "entry_conditions": [
+            "The backend can provide employee shell config and route claims.",
+            "The current frontend shell and app router have been audited for sensitive surfaces."
+          ],
+          "exit_conditions": [
+            "An employee-only shell exists with role-filtered tabs, widgets, and defaults.",
+            "App bootstrapping supports persona-aware routing without duplicating every page.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the employee shell and return the app router to the one-shell model.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Add a frontend role matrix and shell component that maps backend claims into tabs, defaults, nav groups, and hidden surfaces.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_session:state_checkpoint"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Update app bootstrapping to choose the correct shell and prevent restricted routes from rendering in the default employee experience.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "A default employee login cannot see HR, finance, or private management tabs unless explicitly granted."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/auth/roleMatrix.ts",
+              "type": "source",
+              "description": "Frontend role-to-shell mapping and default-tab policy model.",
+              "line_count_est": 160
+            },
+            {
+              "path": "web/src/components/employee/EmployeeShell.tsx",
+              "type": "source",
+              "description": "Role-filtered employee shell with auto-filled defaults and restricted nav.",
+              "line_count_est": 260
+            },
+            {
+              "path": "web/src/App.tsx",
+              "type": "source",
+              "description": "App bootstrap integration for persona-aware shell selection and guarded routes.",
+              "line_count_est": 120
+            }
+          ],
+          "estimated_minutes": 170,
+          "description": "Frontend employee shell + role matrix — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.84,
+        "ralph_required": true,
+        "custom_checks": [
+          "Restricted tabs and widgets are hidden by policy before frontend rendering.",
+          "Every visible employee action has a matching policy explanation and override path."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Least privilege",
+        "Bootstrap ergonomics",
+        "Override clarity"
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Forge-Triple Shell Hardening",
+      "description": "Produce command and template assets for the role-aware shell and add drift protection around authorization behavior.",
+      "sessions": "1",
+      "primary_role": "R7",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Employee portal command + shell template",
+          "phase": "P2",
+          "sequence": 4,
+          "role": "R7",
+          "role_name": "Prompt Engineer",
+          "model": "opus-4.6",
+          "effort": 84,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "tools": [
+            {
+              "tool": "prism_skill_script",
+              "action": "skill_search"
+            },
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            }
+          ],
+          "entry_conditions": [
+            "The employee portal flow is stable enough to document for operators and builders.",
+            "The role matrix and shell decisions are encoded in one canonical place."
+          ],
+          "exit_conditions": [
+            "A slash-command style employee portal doc explains sign-in, role defaults, and override behavior.",
+            "A forge-triple shell template exists for future role-aware features.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the command and template docs and fall back to ad hoc portal guidance.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write an employee portal command doc that explains sign-in, role-aware tabs, personalization, and manager-approved overrides.",
+              "tool_calls": [
+                "prism_skill_script:skill_search",
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Create a reusable shell template that future frontend units can use when adding role-aware widgets or routes.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "The command doc and template use the same role and claim vocabulary as the policy engine."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/employee-portal.md",
+              "type": "doc",
+              "description": "Slash-command style guide for the role-aware employee portal experience.",
+              "line_count_est": 100
+            },
+            {
+              "path": "data/templates/ultimate-app/prism-role-aware-shell.md",
+              "type": "doc",
+              "description": "Forge-triple shell template for role-aware experiences and claims.",
+              "line_count_est": 85
+            }
+          ],
+          "estimated_minutes": 60,
+          "description": "Employee portal command + shell template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Authorization drift guard + shell tests",
+          "phase": "P2",
+          "sequence": 5,
+          "role": "R4",
+          "role_name": "Verifier",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": [
+            "P2-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_review",
+              "action": "run"
+            }
+          ],
+          "entry_conditions": [
+            "The role-aware shell is mounted in the frontend.",
+            "A stable experience policy contract exists for assertion."
+          ],
+          "exit_conditions": [
+            "Authorization drift is guarded with a dedicated rule for route and widget visibility.",
+            "Frontend tests prove that employees only see relevant tabs while higher roles see expanded views.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable the new guard and revert to the previous route test suite if false positives appear.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Add a route authorization drift guard that catches claim mismatches between backend policy and frontend shell rendering.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Create role-aware shell tests for employee, lead, manager, and admin views, including hidden HR and finance surfaces.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_review:run"
+              ],
+              "validation": "The test suite proves default employees cannot reach restricted features through nav or direct route render."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/routeAuthorizationDrift.ts",
+              "type": "source",
+              "description": "Authorization drift guard between backend claims and frontend route exposure.",
+              "line_count_est": 90
+            },
+            {
+              "path": "web/src/__tests__/roleAwareShell.test.tsx",
+              "type": "test",
+              "description": "Persona-driven shell coverage for employee, lead, manager, and admin role visibility.",
+              "line_count_est": 180
+            }
+          ],
+          "estimated_minutes": 95,
+          "description": "Authorization drift guard + shell tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.86,
+        "ralph_required": true,
+        "custom_checks": [
+          "The role-aware command surface matches the live policy vocabulary.",
+          "Tests prove restricted routes are not visible or mountable for default employees."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Policy fidelity",
+        "Front-end guard coverage",
+        "Customization safety"
+      ]
+    }
+  ],
+  "total_units": 5,
+  "total_sessions": "2-3",
+  "dependency_graph": "ULT-MS1 -> ULT-MS2; P1-U01 -> P1-U02 -> P1-U03 -> P2-U01 -> P2-U02",
+  "role_matrix": [
+    {
+      "code": "R1",
+      "name": "Schema Architect",
+      "model": "opus-4.6",
+      "effort": 90
+    },
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 86
+    },
+    {
+      "code": "R4",
+      "name": "Verifier",
+      "model": "opus-4.6",
+      "effort": 90
+    },
+    {
+      "code": "R6",
+      "name": "Integrator",
+      "model": "sonnet-4.6",
+      "effort": 84
+    },
+    {
+      "code": "R7",
+      "name": "Prompt Engineer",
+      "model": "opus-4.6",
+      "effort": 84
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_sp",
+      "phases": [
+        "P1",
+        "P2"
+      ],
+      "purpose": "Implement policies, routes, shell code, and tests"
+    },
+    {
+      "tool": "prism_bridge",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Align auth and portal route surfaces"
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Check policy completeness and bootstrap contract shape"
+    },
+    {
+      "tool": "prism_review",
+      "phases": [
+        "P2"
+      ],
+      "purpose": "Review shell exposure and guard coverage"
+    }
+  ],
+  "existing_leverage": [
+    {
+      "asset": "src/engines/EmployeeEngine.ts",
+      "type": "engine",
+      "usage": "Employee identity, title, and department defaults"
+    },
+    {
+      "asset": "src/middleware/auth.ts",
+      "type": "middleware",
+      "usage": "Auth enforcement and permission attachment"
+    },
+    {
+      "asset": "web/src/components/Layout.tsx",
+      "type": "frontend",
+      "usage": "Existing shell patterns and responsive navigation"
+    },
+    {
+      "asset": "web/src/pages/ShopFloorClockPage.tsx",
+      "type": "frontend",
+      "usage": "Primary employee workflow destination once role-aware shell exists"
+    }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 6,
+    "convergence_rule": "delta < 2",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 92
+  },
+  "scrutiny_log": "state/ULT-MS2/scrutiny-log.json",
+  "position_file": "state/ULT-MS2/position.json",
+  "state_dir": "state/ULT-MS2",
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms2-gate",
+    "mcp_action": "prism_ult:ult_ms2_run",
+    "skill_command": "/ult-ms2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms2-gate"
+    ],
+    "new_actions": [
+      "ult_ms2_run"
+    ],
+    "new_skills": [
+      "/ult-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Create employee, lead, manager, and admin experience policies so every person sees the right shell, workflows, and live data for their role while keeping sensitive HR and business data out of the default employee experience.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

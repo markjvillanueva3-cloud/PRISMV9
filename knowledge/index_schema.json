@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-02-17",
+  "branches": {
+    "1_execution_chain": {
+      "storage": "C:\\PRISM\\knowledge\\code-index\\EXECUTION_CHAIN.json",
+      "schema": {
+        "dispatchers": { "type": "map", "key": "dispatcher_name", "value": { "file": "string", "actions": { "type": "map", "key": "action_name", "value": { "engines": "string[]", "registries_read": "string[]", "formulas_used": "string[]", "safety_critical": "boolean" }}}},
+        "engines": { "type": "map", "key": "engine_name", "value": { "file": "string", "called_by": "string[]", "calls": "string[]" }},
+        "formulas": { "type": "map", "key": "formula_name", "value": { "domain": "string", "used_by": "string[]" }}
+      },
+      "regenerate_on": "npm run build",
+      "built_in": "DA-MS6"
+    },
+    "2_data_taxonomy": {
+      "storage": "C:\\PRISM\\knowledge\\data-index\\DATA_TAXONOMY.json",
+      "schema": {
+        "materials": { "total": "number", "organization": "ISO_group > family > grade", "groups": "map", "coverage": "map" },
+        "tools": { "total": "number", "organization": "category > type > subtype", "categories": "map" },
+        "machines": { "total": "number", "organization": "manufacturer > model", "manufacturers": "map" },
+        "alarms": { "total": "number", "organization": "controller > range > severity", "families": "map" },
+        "formulas": { "total": "number", "organization": "domain > formula_name", "domains": "map" }
+      },
+      "regenerate_on": "registry enrichment",
+      "built_in": "R1"
+    },
+    "3_relationships": { "storage": "C:\\PRISM\\knowledge\\RELATIONSHIPS.json", "status": "scaffold", "built_in": "R2" },
+    "4_session_knowledge": { "storage": "C:\\PRISM\\knowledge\\sessions\\SESSION_KNOWLEDGE_INDEX.json", "status": "scaffold", "built_in": "DA-MS7" },
+    "5_skills_hooks_scripts": { "storage": "C:\\PRISM\\knowledge\\ops-index\\SKILLS_HOOKS.json", "status": "scaffold", "built_in": "DA-MS6+" },
+    "6_protocols_gsd_config": { "storage": "C:\\PRISM\\knowledge\\ops-index\\PROTOCOLS_GSD.json", "status": "scaffold", "built_in": "DA-MS6+" },
+    "7_documentation_index": { "storage": "C:\\PRISM\\knowledge\\docs-index\\DOC_INDEX.json", "status": "scaffold", "built_in": "DA-MS6+" },
+    "8_test_validation": { "storage": "C:\\PRISM\\knowledge\\test-index\\TEST_COVERAGE.json", "status": "scaffold", "built_in": "R2" }
+  }
+}

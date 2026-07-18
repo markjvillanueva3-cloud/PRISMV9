@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-04-15T03:12:50.386Z",
+  "totalSamples": 2,
+  "samples": [
+    {
+      "features": {
+        "passCount": 9,
+        "eCodePrimary": "E1221",
+        "offsetValue": 0.0085,
+        "feedRate": 25,
+        "hasTaper": false,
+        "hasAdaptiveControl": true,
+        "lineCount": 144,
+        "moveCount": 43.199999999999996
+      },
+      "labels": {
+        "qualityScore": 0.95,
+        "wireBreakRisk": 0.5,
+        "estimatedCycleTimeMinutes": 11.700000000000001,
+        "complexityScore": 0.8540000000000001
+      },
+      "sourceFile": "ITW SHAKEPROOF 500-30540-24000-04.NC",
+      "customer": "UNKNOWN"
+    },
+    {
+      "features": {
+        "passCount": 6,
+        "eCodePrimary": "E2821",
+        "offsetValue": 0,
+        "feedRate": 25,
+        "hasTaper": true,
+        "hasAdaptiveControl": true,
+        "lineCount": 115,
+        "moveCount": 34.5
+      },
+      "labels": {
+        "qualityScore": 0.88,
+        "wireBreakRisk": 0.5,
+        "estimatedCycleTimeMinutes": 8.75,
+        "complexityScore": 0.865
+      },
+      "sourceFile": "NOZE TEST.NC",
+      "customer": "UNKNOWN"
+    }
+  ],
+  "featureSchema": {
+    "passCount": "integer - number of cutting passes",
+    "eCodePrimary": "string - primary E-code (technology table)",
+    "offsetValue": "float - wire offset value in inches",
+    "feedRate": "float - cutting feed rate in IPM",
+    "hasTaper": "boolean - taper cutting enabled",
+    "hasAdaptiveControl": "boolean - adaptive control (M90) enabled",
+    "lineCount": "integer - total lines in program",
+    "moveCount": "integer - approximate motion commands"
+  },
+  "labelSchema": {
+    "qualityScore": "float 0-1 - overall program quality",
+    "wireBreakRisk": "float 0-1 - wire break probability",
+    "estimatedCycleTimeMinutes": "float - estimated run time",
+    "complexityScore": "float 0-1 - program complexity"
+  }
+}

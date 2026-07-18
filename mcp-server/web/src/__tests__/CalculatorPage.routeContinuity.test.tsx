@@ -80,7 +80,7 @@ describe('CalculatorPage routed continuity', () => {
   it('routes calculator release continuity through the canonical JM Die selector packet', async () => {
     await renderCalculator();
 
-    fireEvent.click(screen.getByRole('button', { name: /open prism flow/i }));
+    fireEvent.click(screen.getByRole('button', { name: /open kienzle flow/i }));
     fireEvent.click(screen.getByRole('button', { name: /open print to cnc/i }));
 
     await waitFor(() => {
@@ -122,7 +122,9 @@ describe('CalculatorPage routed continuity', () => {
     });
 
     expect(screen.queryByRole('button', { name: /stage toolpath advisor/i })).toBeNull();
-    expect(screen.getByText(/Toolpath Advisor is not yet wired for the routed Wire EDM posture/i)).toBeDefined();
+    // Presence check: the fail-closed Wire EDM notice renders in more than one place (banner + handoff
+    // card), so assert via getAllByText length -- corrects an over-strict singular query, not weaker.
+    expect(screen.getAllByText(/Toolpath Advisor is not yet wired for the routed Wire EDM posture/i).length).toBeGreaterThan(0);
   });
 
   it('carries routed JM Die lathe authority into the post workflow from calculator', async () => {

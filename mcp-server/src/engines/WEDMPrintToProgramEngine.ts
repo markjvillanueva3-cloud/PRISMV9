@@ -997,7 +997,7 @@ export class WEDMPrintToProgramEngine {
           line_count: result.line_count,
           estimated_time_min: result.estimated_time_min,
           predicted_ra_um: result.predicted_ra_um,
-          confidence_score: result.confidence_score.overall,
+          confidence_score: result.confidence_score?.overall ?? 0,
           stages_completed_count: result.stages_completed.length,
           controller: result.controller,
           material_name: input.material,
@@ -1017,3 +1017,25 @@ export class WEDMPrintToProgramEngine {
 }
 
 export const wedmPrintToProgramEngine = new WEDMPrintToProgramEngine();
+
+/**
+ * Back-compat aliases — EPackTableImportEngine, WEDMJobCreatorEngine, and
+ * WEDMSetupSheetEngine historically imported `WEDMProgramResult` / `PassSummary`
+ * (legacy names) and a top-level `decodeEPackCode` helper.
+ */
+export type WEDMProgramResult = WEDMGenerateResult;
+export type PassSummary = PassDetail;
+
+/**
+ * Parse a Mitsubishi/Sodick-style E-pack code (e.g. "E1234").
+ * Returns the parsed numeric id + zero-padded code, or null on a malformed input.
+ * Used by EPackTableImportEngine to validate uploaded E-pack rows.
+ */
+export function decodeEPackCode(code: string): { code: string; id: number } | null {
+  if (typeof code !== "string") return null;
+  const m = code.trim().toUpperCase().match(/^E(\d{1,5})$/);
+  if (!m) return null;
+  const id = Number.parseInt(m[1], 10);
+  if (!Number.isFinite(id) || id < 0) return null;
+  return { code: `E${m[1].padStart(4, "0")}`, id };
+}

@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-local-compute-intent.mjs — UserPromptSubmit hookRE-ENABLED: 2026-04-26 (LOCAL-LLM-MS0 U-LLMH02)Detects prompts that would benefit from the local compute stack(Ollama for local LLM inference / embeddings, Docker for servicecontainers like Qdrant / postgres / prometheus).When intent is detected and the relevant stack is not already running,this hook launches the canonical local-compute activator in thebackground. It never blocks the prompt on Docker startup.SILENT MODE (LOCAL-LLM-MS0):- O
+_(no header docblock — read source for behavior)_
 
 ## Events
 

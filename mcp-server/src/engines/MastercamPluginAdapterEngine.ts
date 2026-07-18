@@ -193,7 +193,7 @@ export const MCEventSchema = z.object({
     "post.complete",
     "analysis.request"
   ]),
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
   event_id: z.number(),
 });
 

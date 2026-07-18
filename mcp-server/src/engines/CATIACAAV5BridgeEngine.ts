@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-CAD-APP add-in bridge -- injected CatiaTransport, no singleton; referenced by CATIAAddinPluginEngine (shares its transport; CATIA CAA V5 add-in host), not a standalone prism_* dispatcher action.
 /**
  * CATIACAAV5BridgeEngine — U-CAD-APP-04 (PHASE-48)
  *

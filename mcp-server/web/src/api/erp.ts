@@ -26,6 +26,7 @@ import type {
   ErpApiResponse,
 } from "../types/erp";
 import { ApiError } from "./client";
+import { getAuthHeaders } from './authToken';
 
 const BASE_URL = "/api/v1/erp";
 const TIMEOUT_MS = 30_000;
@@ -45,7 +46,7 @@ async function erpPost<TReq, TRes>(
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify(body),
       signal: combinedSignal,
     });

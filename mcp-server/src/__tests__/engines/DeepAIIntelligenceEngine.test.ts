@@ -47,6 +47,19 @@ describe("DeepAIIntelligenceEngine", () => {
       expect(result.processingTimeMs).toBeGreaterThan(0);
     });
 
+    it("never returns zero suggestions — falls back to domain reasoning when the awareness index is cold", async () => {
+      // A nonsense query produces no awareness-index match (proactiveReason returns
+      // empty arrays), so suggestions must come from the engine's OWN domain reasoning
+      // (the U-DEEPAI-SUGGEST-TIMING-FIX fallback) instead of []. Pins the fallback
+      // path + its "Primary approach:" shape against regression.
+      const result = await deepAIIntelligenceEngine.deepReason({
+        query: "xyzzy plugh frobnicate qqq",
+        domain: "uncategorized_nonexistent_domain"
+      });
+      expect(result.suggestions.length).toBeGreaterThan(0);
+      expect(result.suggestions.some(s => s.startsWith("Primary approach:"))).toBe(true);
+    });
+
     it("applies domain-specific reasoning for manufacturing", async () => {
       const context: IntelligenceContext = {
         query: "Calculate cutting force for milling operation",

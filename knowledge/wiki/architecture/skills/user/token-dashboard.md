@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `token-dashboard` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/token-dashboard.md` |
+| Source | `C:/Users/wompu/.claude/commands/token-dashboard.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Shows **budget · spend · waste · burn · compression ROI** in one pane. Combines signals from `TokenEconomyEngine` (MXU-MS2) and `SessionTokenLedgerEngine` into a single compact dashboard — complements `/token-ledger` (per-tool spend) and `/token-budget` (budget planning) by unifying them.
+
+# Token Dashboard — Unified Token Economy View
 
 <!-- AUTO-END -->
 

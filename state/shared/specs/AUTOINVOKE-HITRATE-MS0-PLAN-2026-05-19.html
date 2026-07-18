@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="f1b190222a2e31f913b16a64d553ad1ce6fa3be82c72848ce5288ff8dabc752e">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUTOINVOKE-HITRATE-MS0 — Unified Fix Plan</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>AUTOINVOKE-HITRATE-MS0 — Unified Fix Plan</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/AUTOINVOKE-HITRATE-MS0-PLAN-2026-05-19.md</div>
+<div class="meta">Generated 2026-05-19T20:33:27.245Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">AUTOINVOKE-HITRATE-MS0 — Unified Fix Plan</li><li class="prism-toc-l2">Root cause (one paragraph)</li><li class="prism-toc-l2">Design spine</li><li class="prism-toc-l2">Phases (every unit carries a Phase-0.7 verification channel)</li><li class="prism-toc-l3">Phase A — Baseline + coordinate (BLOCKS all build until done)</li><li class="prism-toc-l3">Phase B — Memory: revive + de-orphan (highest leverage — currently 0)</li><li class="prism-toc-l3">Phase C — Memory: semantic upgrade + un-gate</li><li class="prism-toc-l3">Phase D — Skill: close the high-ROI tail (bounded, NOT 394)</li><li class="prism-toc-l3">Phase E — MEMORY.md recall hole</li><li class="prism-toc-l3">Phase F — Unify + instrument + regression-proof</li><li class="prism-toc-l2">Reuse ledger (duplication-guard pre-cleared)</li><li class="prism-toc-l2">Sequencing &amp; dependencies</li><li class="prism-toc-l2">Risks</li><li class="prism-toc-l2">Verification rollup</li></ul></nav><hr class="prism-hr">
+<p>title: AUTOINVOKE-HITRATE-MS0 — Unified Fix Plan (skill + memory auto-invocation → high accurate hit rate) date: 2026-05-19 slot: foxtrot session: claude-6437979f tool: /forge7 (plan-only — no build this session) audits: state/shared/specs/SKILL-AUTOINVOKE-COVERAGE-AUDIT-2026-05-19.md (peer-reviewed) + memory audit (this session) status: PLAN — awaiting approval; coordinate with concurrent memory chat before build advisoryOnly: true</p>
+<hr class="prism-hr">
+<h1 class="prism-h1">AUTOINVOKE-HITRATE-MS0 — Unified Fix Plan</h1>
+<h2 class="prism-h2">Root cause (one paragraph)</h2>
+<p>PRISM&#39;s auto-invoke surfaces all use <strong>keyword/substring matching</strong>, and the one memory hook that fires on prompts (<code class="prism-inline-code">memory-rag-inject.mjs</code>) is <strong>orphaned</strong> (not in settings.json; last fired 2026-05-10; even then <code class="prism-inline-code">scanned=0</code>). The <em>semantic</em> retrieval capability already exists — <code class="prism-inline-code">prism_memory:semantic_search</code>/<code class="prism-inline-code">qdrant_vector_search</code>/<code class="prism-inline-code">find_similar</code>, <code class="prism-inline-code">ObsidianMemoryRagEngine</code>, warm <code class="prism-inline-code">nomic-embed-text</code> — but <strong>nothing auto-invokes it</strong>. Fix = wire existing semantic retrieval into the auto-invoke hooks, on the right events, with hit-rate instrumentation. No new retrieval engine is built (duplication guard applies).</p>
+<h2 class="prism-h2">Design spine</h2>
+<p>A single shared helper — <code class="prism-inline-code">scripts/lib/semantic-retrieve.mjs</code> (the <em>one</em> genuinely new artifact) — wraps <code class="prism-inline-code">prism_memory:semantic_search</code> (nomic-embed cosine; Qdrant when up, in-process fallback). Both <code class="prism-inline-code">skill-auto-trigger.mjs</code> and the revived <code class="prism-inline-code">memory-rag-inject.mjs</code> call it against their own corpus (trigger ledger / memory vault). One semantic core, two consumers. This is the synergy: today there are two independent keyword matchers; after, one embedding retriever feeding both.</p>
+<h2 class="prism-h2">Phases (every unit carries a Phase-0.7 verification channel)</h2>
+<h3 class="prism-h3">Phase A — Baseline + coordinate (BLOCKS all build until done)</h3>
+<p><strong>U-A1 · Coordinate with the concurrent memory chat</strong> Post to chat bus; inventory exactly what index/engine that chat produced (keyword vs embedding; consumed or orphaned). Do not touch memory hooks until its scope is known.</p>
+<pre class="prism-codeblock"><code>verify: channel=integration · tool=`node .claude/helpers/agent-coordination.mjs post` + written inventory in this doc&#39;s §Memory-chat-inventory · expected=ack + artifact list · re_run=n/a</code></pre>
+<p><strong>U-A2 · Hit-rate baseline (before any fix)</strong> Read EXISTING telemetry — <code class="prism-inline-code">recall-counter-track</code> counts, <code class="prism-inline-code">post-memory-context-eval</code> scores, <code class="prism-inline-code">skill-trigger-coverage.mjs</code>. Emit <code class="prism-inline-code">state/shared/autoinvoke-hitrate-baseline.json</code>.</p>
+<pre class="prism-codeblock"><code>verify: channel=metric · tool=`node scripts/skill-trigger-coverage.mjs --json` + parse recall-counter/eval logs · expected=baseline JSON {skill_cov_pct, mem_precision_at3, mem_recall_rate} · baseline=skill 23.5%, mem recall ≈ 0 (memory-rag-inject dead) · re_run=5s</code></pre>
+<h3 class="prism-h3">Phase B — Memory: revive + de-orphan (highest leverage — currently 0)</h3>
+<p><strong>U-B1 · Re-wire <code class="prism-inline-code">memory-rag-inject.mjs</code> into settings.json UserPromptSubmit</strong> It is orphaned. Restore the entry (C: settings.json → c-to-h-mirror propagates).</p>
+<pre class="prism-codeblock"><code>verify: channel=integration · tool=`grep -n memory-rag-inject &quot;H:/.claude/settings.json&quot;` + fire on a test prompt · expected=1 match + log line `triggered=...` (not absent) · baseline=0 matches, last log 2026-05-10 · re_run=10s</code></pre>
+<p><strong>U-B2 · Fix <code class="prism-inline-code">ObsidianMemoryRagEngine</code> <code class="prism-inline-code">scanned=0</code></strong> Even when invoked it scanned ZERO vault entries — same class as the documented <code class="prism-inline-code">memory-relevance-inject</code> &quot;hardcoded foreign-user path → 0% recall&quot; regression. Derive vault dir from <code class="prism-inline-code">os.homedir()</code>; add a fail-loud assertion that scanned&gt;0 when the vault is non-empty.</p>
+<pre class="prism-codeblock"><code>verify: channel=test · tool=`obsidianMemoryRagEngine.query({query:&lt;known memory topic&gt;})` · expected=scanned&gt;0 AND ≥1 hit on a memory known to exist · baseline=scanned=0 hits=0 · re_run=3s</code></pre>
+<p><strong>U-B3 · Settings-wiring-drift guard</strong> The orphaning is the known <code class="prism-inline-code">feedback_settings_wiring_drift_2026_05_16</code> class. Add the critical auto-invoke hooks to a settings-presence assertion (reuse the MINIMAL_ALLOWLIST / settings-audit pattern — do NOT build a new guard engine).</p>
+<pre class="prism-codeblock"><code>verify: channel=test · tool=drift-guard unit test: delete the entry → guard flags it · expected=BLOCK/advisory fires · baseline=no guard (silent un-wire) · re_run=2s</code></pre>
+<h3 class="prism-h3">Phase C — Memory: semantic upgrade + un-gate</h3>
+<p><strong>U-C1 · Swap disk-scan → semantic retrieval (REUSE, do not rebuild)</strong> <code class="prism-inline-code">ObsidianMemoryRagEngine</code> calls the new <code class="prism-inline-code">semantic-retrieve.mjs</code> → <code class="prism-inline-code">prism_memory:semantic_search</code> (nomic-embed). Keep keyword scan as the offline fallback only.</p>
+<pre class="prism-codeblock"><code>verify: channel=eval · tool=precision@3 on a 30-query labeled set (queries→expected memory) · expected=precision@3 ≥ keyword baseline + 0.20 · baseline=measured in U-A2 · re_run=20s</code></pre>
+<p><strong>U-C2 · Un-gate from keyword-only</strong> Today it only triggers on <code class="prism-inline-code">remember/recall/previous/...</code>. Replace with a semantic-relevance floor (mirror skill-auto-trigger&#39;s 0.65 surface gate) so a prompt that NEEDS a memory but doesn&#39;t say &quot;remember&quot; still retrieves.</p>
+<pre class="prism-codeblock"><code>verify: channel=eval · tool=recall-rate on the subset of the labeled set whose prompts contain NO recall keyword · expected=recall 0 → ≥0.5 · baseline=0 (gated out) · re_run=20s</code></pre>
+<h3 class="prism-h3">Phase D — Skill: close the high-ROI tail (bounded, NOT 394)</h3>
+<p><strong>U-D1 · <code class="prism-inline-code">--exclude-wrappers</code> flag on <code class="prism-inline-code">skill-trigger-coverage.mjs</code></strong> — makes the META number honest (raw 19.5% counts 104 wrappers).</p>
+<pre class="prism-codeblock"><code>verify: channel=test · tool=`node scripts/skill-trigger-coverage.mjs --json --exclude-wrappers` · expected=coveragePct == honest 23.5% · baseline=raw 19.5% · re_run=3s</code></pre>
+<p><strong>U-D2 · Author triggers + descriptions for the top ~40-60 dark-gap skills</strong> Rank via <code class="prism-inline-code">high-roi-skill-rank.mjs</code>; generate <code class="prism-inline-code">triggers:</code>/<code class="prism-inline-code">description:</code> blocks by <strong>embedding-similarity to nearest covered skill</strong> (semantic-retrieve.mjs again — same spine), human-approve, not from scratch.</p>
+<pre class="prism-codeblock"><code>verify: channel=metric · tool=`skill-trigger-coverage.mjs --json` after re-extract · expected=honest coverage 23.5% → ≥40% · baseline=23.5% · re_run=5s</code></pre>
+<p><strong>U-D3 · Fix the 2 declared-but-broken</strong> (<code class="prism-inline-code">checkin-mike</code> remove block; <code class="prism-inline-code">wedm-hook-disable</code> repair).</p>
+<pre class="prism-codeblock"><code>verify: channel=test · tool=`skill-trigger-coverage.mjs --json | .declaredNotCaptured` · expected=0 · baseline=2 · re_run=3s</code></pre>
+<h3 class="prism-h3">Phase E — MEMORY.md recall hole</h3>
+<p><strong>U-E1 · Recompact MEMORY.md under the 24.4 KB ceiling</strong> (currently 32.5 KB → SessionStart index truncates = static-recall hole; known recurring regression with an existing watchdog).</p>
+<pre class="prism-codeblock"><code>verify: channel=metric · tool=`node scripts/node-staleness-rank.mjs --json | jq .memory.bytes` · expected=&lt;22000 AND status==fresh · baseline=32.5KB/critical · re_run=3s</code></pre>
+<h3 class="prism-h3">Phase F — Unify + instrument + regression-proof</h3>
+<p><strong>U-F1 · Shared hit-rate dashboard</strong> — one re-runnable read over the EXISTING telemetry (recall-counter-track + post-memory-context-eval + skill-auto-trigger telemetry). The compounding META artifact.</p>
+<pre class="prism-codeblock"><code>verify: channel=metric · tool=`node scripts/autoinvoke-hitrate.mjs --json` · expected={skill_cov, mem_precision@3, mem_recall_rate} all present · baseline=no unified surface · re_run=5s</code></pre>
+<p><strong>U-F2 · Schedule weekly re-measure</strong> — <code class="prism-inline-code">/loop --interval 7d</code> re-run of U-F1; drift down = regression alarm. (Offered, not auto-registered.)</p>
+<h2 class="prism-h2">Reuse ledger (duplication-guard pre-cleared)</h2>
+<table class="prism-md-table"><thead><tr><th>Need</th><th>Reuse (do NOT rebuild)</th><th>New?</th></tr></thead><tbody><tr><td>Semantic retrieval</td><td><code class="prism-inline-code">prism_memory:semantic_search</code>/<code class="prism-inline-code">qdrant</code>/<code class="prism-inline-code">find_similar</code>, nomic-embed</td><td>—</td></tr>
+<tr><td>Memory RAG engine</td><td><code class="prism-inline-code">ObsidianMemoryRagEngine</code> (fix, don&#39;t replace)</td><td>—</td></tr>
+<tr><td>Skill coverage measure</td><td><code class="prism-inline-code">skill-trigger-coverage.mjs</code> (U-LIMA-A5; add 1 flag)</td><td>—</td></tr>
+<tr><td>Skill ROI ranking</td><td><code class="prism-inline-code">high-roi-skill-rank.mjs</code></td><td>—</td></tr>
+<tr><td>Hit-rate telemetry</td><td><code class="prism-inline-code">recall-counter-track.mjs</code>, <code class="prism-inline-code">post-memory-context-eval.mjs</code></td><td>—</td></tr>
+<tr><td>Shared semantic wrapper</td><td>—</td><td><code class="prism-inline-code">scripts/lib/semantic-retrieve.mjs</code> (the ONE new artifact)</td></tr></tbody></table>
+<h2 class="prism-h2">Sequencing &amp; dependencies</h2>
+<p>A (A1→A2) gates everything. B1→B2→B3 sequential (revive → fix → guard). C depends on B2 (engine must scan before it can be made semantic). D is independent of B/C (skill side) — parallelizable. E independent. F depends on B+C+D landing (it measures them). <strong>A1 (coordinate) is hard-blocking</strong>: do not start B until the memory chat&#39;s scope is known.</p>
+<h2 class="prism-h2">Risks</h2>
+<ul class="prism-md-list"><li><strong>Collision with the memory chat</strong> — A1 mitigates; if that chat already rewired memory-rag-inject, B1/B2 collapse to verification-only.</li><li><strong>Embedding latency on UserPromptSubmit</strong> — semantic-retrieve must stay ≤ the hook&#39;s existing 4 s budget; Qdrant-down fallback must be the keyword scan, never a block.</li><li><strong>Un-gating (C2) → context bloat</strong> — the semantic floor must be tuned to cap injected memories (mirror skill-auto-trigger top-K + char cap) or every prompt balloons.</li></ul>
+<h2 class="prism-h2">Verification rollup</h2>
+<p>Single command proves the whole milestone moved the needle: <code class="prism-inline-code">node scripts/autoinvoke-hitrate.mjs --json</code> (U-F1) vs <code class="prism-inline-code">autoinvoke-hitrate-baseline.json</code> (U-A2). Ship gate: skill coverage ≥40%, memory precision@3 ≥ baseline+0.20, memory recall-rate 0 → measurable, MEMORY.md &lt; 22 KB.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

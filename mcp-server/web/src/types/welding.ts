@@ -20,7 +20,9 @@ export interface WeldingResult {
   weld_strength_MPa: number;
   distortion_mm: number;
   haz_width_mm: number;
-  cooling_rate_C_s: number;
+  // Optional: omitted by the /welding/calculate adapter when the engine's t8/5 cooling time is 0
+  // (divide-by-zero guard) -- the type matches that runtime contract. (slot:bravo 2026-06-19)
+  cooling_rate_C_s?: number;
   deposition_rate_kg_h: number;
   preheat_required: boolean;
   preheat_temp_C: number;
@@ -42,12 +44,15 @@ export interface JointDesignParams {
 export interface JointDesignResult {
   weld_size_mm: number;
   throat_thickness_mm: number;
-  effective_length_mm: number;
+  // Optional: the /welding/joint-design adapter (weld_strength_calculate sizing search) does not
+  // produce joint-prep geometry or an effective-length reduction -- those three are omitted, not
+  // fabricated; the type matches that runtime contract. (slot:bravo 2026-06-19)
+  effective_length_mm?: number;
   allowable_stress_MPa: number;
   actual_stress_MPa: number;
   utilization_pct: number;
-  groove_angle_deg: number;
-  root_gap_mm: number;
+  groove_angle_deg?: number;
+  root_gap_mm?: number;
   recommendations: string[];
 }
 

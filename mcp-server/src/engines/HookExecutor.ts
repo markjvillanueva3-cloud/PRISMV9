@@ -118,12 +118,16 @@ export type HookCategory =
   | "orchestration"
   | "schema"
   | "controller"
-  | "cadence";
+  | "cadence"
+  | "quality"
+  | "data-quality";
 
 /** Context passed to hook handlers */
 export interface HookContext {
   /** Operation being performed */
   operation: string;
+  /** Lifecycle phase of the hook invocation (set by dispatchers that fire hooks). */
+  phase?: HookPhase;
   /** Target of the operation */
   target?: {
     type: "calculation" | "file" | "material" | "machine" | "tool" | "output" | "dispatch" | string;
@@ -236,6 +240,18 @@ export interface HookDefinition {
    *  Not consumed by HookExecutor itself — advisory metadata for the
    *  HookRegistry side of the registration pipeline (see HookRegistry.ts:821). */
   event?: string;
+  /** Optional gating predicate authored on the hook definition: when present it
+   *  is intended to decide whether the hook applies for a given context (e.g.
+   *  `ctx.operation?.includes("force")`). NOTE: currently advisory -- HookExecutor
+   *  does not yet evaluate it (no `.condition` consumer in the execution path),
+   *  so hooks that set it still fire unconditionally. Declared here so authored
+   *  definitions type-check; wiring it into the executor is a separate
+   *  behavior-changing unit for the hook owner. */
+  condition?: (context: HookContext) => boolean;
+  /** Optional per-hook execution timeout in milliseconds, authored on the hook
+   *  definition. Advisory metadata for executors/orchestrators that honor a
+   *  per-hook deadline; declared here so authored definitions type-check. */
+  timeoutMs?: number;
   /** The handler function */
   handler: (context: HookContext) => HookResult | Promise<HookResult>;
 }
@@ -334,6 +350,8 @@ const PRIORITY_ORDER: Record<HookPriority, number> = {
 class HookExecutorEngine {
   private hooks: Map<HookPhase, HookDefinition[]> = new Map();
   private allHooks: Map<string, HookDefinition> = new Map();
+  /** Lifetime count of execute() phase-chain invocations (getStats.totalExecutions). */
+  private executionCount = 0;
 
   /**
    * Initialize the hook executor (no-op, hooks are registered on demand)
@@ -385,6 +403,12 @@ class HookExecutorEngine {
    * @returns Combined result - blocked if any hook blocks
    */
   async execute(phase: HookPhase, context: Partial<HookContext>): Promise<{
+    /** The lifecycle phase that was executed (added U-HOOKEXEC-API for callers/telemetry). */
+    phase: HookPhase;
+    /** true when no blocking hook blocked the chain (added U-HOOKEXEC-API). */
+    success: boolean;
+    /** Count of hooks that actually ran in this phase (added U-HOOKEXEC-API). */
+    totalHooks: number;
     blocked: boolean;
     results: HookResult[];
     blockingHook?: string;
@@ -394,11 +418,12 @@ class HookExecutorEngine {
     /** Alias for message — dispatchers render `result.summary` in error payloads. */
     summary?: string;
   }> {
+    this.executionCount++;
     const phaseHooks = this.hooks.get(phase) || [];
     const enabledHooks = phaseHooks.filter(h => h.enabled);
 
     if (enabledHooks.length === 0) {
-      return { blocked: false, results: [] };
+      return { phase, success: true, totalHooks: 0, blocked: false, results: [] };
     }
 
     const fullContext: HookContext = {
@@ -425,6 +450,9 @@ class HookExecutorEngine {
         if (hook.mode === "blocking" && result.blocked) {
           log.warn(`[HookExecutor] Hook ${hook.id} BLOCKED operation: ${result.message}`);
           return {
+            phase,
+            success: false,
+            totalHooks: results.length,
             blocked: true,
             results,
             blockingHook: hook.id,
@@ -451,7 +479,7 @@ class HookExecutorEngine {
       }
     }
 
-    return { blocked: false, results };
+    return { phase, success: true, totalHooks: results.length, blocked: false, results };
   }
 
   /**
@@ -490,6 +518,58 @@ class HookExecutorEngine {
     if (!hook) return false;
     hook.enabled = enabled;
     return true;
+  }
+
+  // --------------------------------------------------------------------------
+  // Registry accessors (U-HOOKEXEC-API): a consistent public read API over the
+  // same allHooks/hooks Maps. The terse get()/getAll()/getForPhase() above are
+  // retained for the 30+ existing dispatcher consumers; these are the canonical
+  // self-documenting names plus the previously-missing category/stats lookups.
+  // --------------------------------------------------------------------------
+
+  /** Get a registered hook by id (undefined if absent). */
+  getHook(id: string): HookDefinition | undefined {
+    return this.allHooks.get(id);
+  }
+
+  /** Every registered hook across all phases. */
+  getAllHooks(): HookDefinition[] {
+    return Array.from(this.allHooks.values());
+  }
+
+  /** Hooks registered for a given lifecycle phase (priority-sorted at register time). */
+  getHooksByPhase(phase: HookPhase): HookDefinition[] {
+    return this.hooks.get(phase) ?? [];
+  }
+
+  /** Hooks registered under a given category, across all phases. */
+  getHooksByCategory(category: HookCategory): HookDefinition[] {
+    return Array.from(this.allHooks.values()).filter(h => h.category === category);
+  }
+
+  /** Registry + execution statistics for introspection / dashboards. */
+  getStats(): {
+    totalHooks: number;
+    enabledHooks: number;
+    byCategory: Record<string, number>;
+    byPhase: Record<string, number>;
+    totalExecutions: number;
+  } {
+    const byCategory: Record<string, number> = {};
+    const byPhase: Record<string, number> = {};
+    let enabledHooks = 0;
+    for (const hook of this.allHooks.values()) {
+      byCategory[hook.category] = (byCategory[hook.category] ?? 0) + 1;
+      byPhase[hook.phase] = (byPhase[hook.phase] ?? 0) + 1;
+      if (hook.enabled) enabledHooks++;
+    }
+    return {
+      totalHooks: this.allHooks.size,
+      enabledHooks,
+      byCategory,
+      byPhase,
+      totalExecutions: this.executionCount,
+    };
   }
 }
 

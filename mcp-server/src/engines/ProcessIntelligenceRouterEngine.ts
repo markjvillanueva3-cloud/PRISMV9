@@ -48,6 +48,12 @@ import type {
   AIOrchestrateResult,
   ProcessClassification,
 } from "./CrossProcessAIBridge.js";
+import {
+  DomainAGIIntentSchema,
+  DOMAIN_AGI_CONTRACT_VERSION,
+  type DomainAGIIntent,
+  type DomainAGIResult,
+} from "../schemas/domainAGIContract.js";
 
 // ============================================================================
 // CONSTANTS
@@ -441,5 +447,92 @@ export class ProcessIntelligenceRouterEngine {
           "Full AI orchestration via MillMaster/LatheMaster/WEDMComplete (live or dry_run)",
       },
     ];
+  }
+
+  // ==========================================================================
+  // DOMAIN AGI CONTRACT — INFRA-AGI-ROUTER-MS2/P0-U05
+  // ==========================================================================
+
+  /**
+   * Uniform domain dispatcher — classify intent.domain and delegate to the
+   * matching domain AGI's `orchestrate(intent)` adapter. This replaces the
+   * pre-2026-05 pattern where callers had to know whether they were holding
+   * a mill / lathe / wedm intent and branch manually.
+   *
+   * Dispatch table:
+   *   mill  → MillingAGIMasterEngine.orchestrate(intent, opts?)        (P0-U02)
+   *   lathe → LatheAGIKnowledgeUnificationEngine.orchestrate(...)      (P0-U03)
+   *   wedm  → WireEDMAGIOrchestrator.orchestrate(...)                  (P0-U04)
+   *
+   * Engines lazy-imported so a single-domain caller doesn't pay the load cost
+   * of the other two clusters. Validation + error mapping happens INSIDE the
+   * delegate — this router only handles the schema gate + the dispatch.
+   *
+   * Pipeline-level confidence rollup convention (per domainAGIContract design
+   * note): the router accepts the per-engine rollup as-is. Each domain engine
+   * runs its own joint-probability rollup over its decisions[]; the router
+   * is not in a position to combine across domains because mill/lathe/wedm
+   * intents are independent — there is no "joint" across them in this layer.
+   *
+   * @param intent — DomainAGIIntent (re-validated against schema)
+   * @returns DomainAGIResult from the dispatched domain engine
+   */
+  static async orchestrate(intent: DomainAGIIntent): Promise<DomainAGIResult> {
+    // Schema gate at the router boundary — fail fast before paying the engine
+    // import cost. Each domain engine also re-validates internally so a buggy
+    // caller that bypasses the router still gets the same error code.
+    const parsed = DomainAGIIntentSchema.safeParse(intent);
+    if (!parsed.success) {
+      return {
+        schemaVersion: DOMAIN_AGI_CONTRACT_VERSION,
+        success: false,
+        decisions: [],
+        confidence: 0,
+        outcomes: [],
+        warnings: [],
+        error: {
+          code: "INVALID_INTENT",
+          message: `DomainAGIIntent failed validation: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`,
+          stage: "router_validation",
+        },
+      };
+    }
+    const v = parsed.data;
+
+    switch (v.domain) {
+      case "mill": {
+        const { millingAGIMasterEngine } = await import("./MillingAGIMasterEngine.js");
+        return millingAGIMasterEngine.orchestrate(v);
+      }
+      case "lathe": {
+        const { latheAGIKnowledgeUnificationEngine } = await import(
+          "./LatheAGIKnowledgeUnificationEngine.js"
+        );
+        return latheAGIKnowledgeUnificationEngine.orchestrate(v);
+      }
+      case "wedm": {
+        const { wireEDMAGIOrchestrator } = await import("./WireEDMAGIOrchestrator.js");
+        return wireEDMAGIOrchestrator.orchestrate(v);
+      }
+      default: {
+        // Exhaustiveness guard — a new domain added to the contract without a
+        // case here fails the build (`v.domain` no longer `never`), instead of
+        // silently returning undefined at runtime (R12).
+        const _exhaustive: never = v.domain;
+        return {
+          schemaVersion: DOMAIN_AGI_CONTRACT_VERSION,
+          success: false,
+          decisions: [],
+          confidence: 0,
+          outcomes: [],
+          warnings: [],
+          error: {
+            code: "UNROUTABLE_DOMAIN",
+            message: `ProcessIntelligenceRouterEngine.orchestrate: unhandled domain '${String(_exhaustive)}' — add a dispatch case.`,
+            stage: "router_dispatch",
+          },
+        };
+      }
+    }
   }
 }

@@ -367,4 +367,50 @@ describe("PPWireEDMPostEngine", () => {
       expect(sizes).toContain(0.10);
     });
   });
+
+  // ==========================================================================
+  // NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP) -- a NaN/Infinity start
+  // coord, profile point, or taper UV must never leak a literal XNaN/UInfinity the
+  // M800 control rejects. WEDM-product arm of the bug-class sweep; sibling of the
+  // OkumaOSP/HurcoV11/Mitsubishi/OkumaB250/PPOkumaTurning fixes.
+  // ==========================================================================
+  describe("non-finite emit guard (U-PP-NONFINITE-EMIT-SWEEP)", () => {
+    const gen = (op: Record<string, unknown>) =>
+      ppWireEDMPostEngine.generate({ machine_id: "jmdie-mitsubishi-mv1200r", operations: [{ type: "profile", pass: "rough", ...op }] as never });
+    // The danger is a non-finite EXECUTABLE token (`XNaN`/`UInfinity`); the diagnostic
+    // ERROR comment intentionally echoes the value as the fail-loud signal (R12).
+    const noBadToken = (g: string) => {
+      expect(g).not.toMatch(/[XYUVD]NaN/);
+      expect(g).not.toMatch(/[XYUVD]Infinity/);
+    };
+
+    it("[regression] finite start + profile emit real motion with NO non-finite warning", () => {
+      const r = gen({ start_x: 5, start_y: 5, profile_points: [{ x: 10, y: 0 }, { x: 10, y: 10 }] });
+      expect(r.gcode_text).toContain("G0 X");
+      expect(r.gcode_text.includes("G1 X")).toBe(true);
+      expect(r.warnings.some(w => w.includes("non-finite"))).toBe(false);
+      expect(r.gcode_text).not.toContain("SKIPPED");
+    });
+
+    it("NaN start_x replaces the rapid with an ERROR marker -- no literal XNaN", () => {
+      const r = gen({ start_x: NaN, start_y: 5, profile_points: [{ x: 10, y: 10 }] });
+      noBadToken(r.gcode_text);
+      expect(r.warnings.some(w => w.includes("non-finite start XY"))).toBe(true);
+      expect(r.gcode_text).toContain("NON-FINITE START COORD");
+    });
+
+    it("Infinity profile point is skipped -- no literal XInfinity", () => {
+      const r = gen({ start_x: 0, start_y: 0, profile_points: [{ x: Infinity, y: 5 }, { x: 20, y: 20 }] });
+      noBadToken(r.gcode_text);
+      expect(r.warnings.some(w => w.includes("non-finite XY"))).toBe(true);
+      expect(r.gcode_text).toContain("PROFILE POINT");
+      expect(/X20/.test(r.gcode_text)).toBe(true); // finite point still emits
+    });
+
+    it("non-finite taper U/V is omitted -- no literal UNaN/VInfinity", () => {
+      const r = gen({ start_x: 0, start_y: 0, profile_points: [{ x: 10, y: 10, u: NaN, v: Infinity }] });
+      noBadToken(r.gcode_text);
+      expect(r.warnings.some(w => w.includes("non-finite taper U/V"))).toBe(true);
+    });
+  });
 });

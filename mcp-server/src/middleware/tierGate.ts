@@ -34,6 +34,31 @@ export interface TierCheckResult {
   reason: string;
 }
 
+/**
+ * Runtime list of the feature keys the entitlement layer actually ENFORCES
+ * (the GatedFeature union). The per-seat override admin endpoint validates
+ * against this so a shop admin can NEVER store an override on a key that
+ * nothing checks (the silent-no-op revoke / R12 honesty gap). Keep in sync with
+ * the GatedFeature union above.
+ */
+export const GATED_FEATURES: readonly GatedFeature[] = [
+  "speed_feed",
+  "program_generate",
+  "simulation",
+  "dfm",
+  "stochastic",
+  "api_access",
+  "print_to_program",
+  "edm_program",
+  "laser_program",
+  "waterjet_program",
+];
+
+/** True if a feature key is one the entitlement layer actually enforces. */
+export function isGatedFeature(feature: string): feature is GatedFeature {
+  return (GATED_FEATURES as readonly string[]).includes(feature);
+}
+
 // ============================================================================
 // Tier limits table — single source of truth
 // ============================================================================
@@ -189,9 +214,34 @@ export function checkTierAccess(
 export function requireTier(feature: string) {
   return (req: Request, res: Response, next: NextFunction): void => {
     // Read plan from augmented request — default to "free" if not set
-    const user = (req as any).user as { plan?: Plan; usage?: Record<string, number> } | undefined;
+    const user = (req as any).user as { plan?: Plan; usage?: Record<string, number>; overrides?: Record<string, boolean>; licenses?: string[] } | undefined;
     const plan: Plan = user?.plan ?? "free";
     const currentUsage: number = user?.usage?.[feature] ?? 0;
+
+    // U-COMM-05: a per-seat admin override can DENY a feature below the plan
+    // ceiling (it never grants above it). Check the deny BEFORE everything else --
+    // an admin revoke is the strongest control and must beat even a perpetual grant.
+    if (user?.overrides?.[feature] === false) {
+      res.status(403).json({
+        error: {
+          status: 403,
+          message: `Access to "${feature}" has been disabled for your account by your administrator.`,
+          code: "ENTITLEMENT_REVOKED",
+        },
+        timestamp: new Date().toISOString(),
+      });
+      return;
+    }
+
+    // U-COMM-08: a one-time perpetual license (e.g. sfc_perpetual -> "speed_feed")
+    // grants the feature ABOVE the plan ceiling. Checked after the admin-deny and
+    // before the plan check, so a perpetual buyer is never blocked by free-tier
+    // caps. Controller-scoped post grants are NOT here -- those are enforced per
+    // controller at the post-generation route via licenseStore.hasPostLicense.
+    if (user?.licenses?.includes(feature)) {
+      next();
+      return;
+    }
 
     const result = checkTierAccess(plan, feature as GatedFeature, currentUsage);
 

@@ -180,6 +180,14 @@ export class MachineLogHarvesterEngine {
   static findByAlarm(alarmCode: string): HarvestResult[] {
     return [...this.results.values()].filter((r) => r.alarms.some((a) => a.includes(alarmCode)));
   }
+  /** Flat list of every harvested alarm code, tagged with its source file. */
+  static getAllAlarms(): { total: number; alarms: Array<{ code: string; file: string }> } {
+    const alarms: Array<{ code: string; file: string }> = [];
+    for (const r of this.results.values()) {
+      for (const code of r.alarms) alarms.push({ code, file: r.metadata.path });
+    }
+    return { total: alarms.length, alarms };
+  }
   static getGlobalPatternStats(): { total: number; byCategory: Record<PatternCategory, number>; topPatterns: LogPattern[] } {
     const byCategory: Record<PatternCategory, number> = {
       alarm: 0, error: 0, warning: 0, cycle_time: 0, tool_change: 0, parameter: 0, speed_feed: 0, temperature: 0, unknown: 0,

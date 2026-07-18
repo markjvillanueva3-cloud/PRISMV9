@@ -228,6 +228,15 @@ const ai_resource_training_data = z.object({}).passthrough();
 /** Knowledge-coverage summary across pattern types + sources. */
 const ai_resource_knowledge_coverage = z.object({}).passthrough();
 
+/** College-course + resource-PDF AUTOGEN-SPEC corpus pointers (iter15..iter20). */
+const ai_college_corpus_pointers = z.object({}).passthrough();
+
+/** CAD+CAM consolidated training-corpus pointers (india iter23..iter26). */
+const ai_cadcam_corpus_pointers = z.object({}).passthrough();
+
+/** Per-domain (10 non-cadcam) tribal-corpus pointers + live counts (zulu all-domain feeders). */
+const ai_domain_corpus_pointers = z.object({}).passthrough();
+
 // ───────────────────────────────────────────────────────────────────────────
 // Training (Master Ledger) — MasterAITrainingLedgerEngine
 // ───────────────────────────────────────────────────────────────────────────
@@ -470,7 +479,7 @@ export const AI_CAPABILITY_ACTIONS = [
   "ai_capability_apply_reasoning_pattern",
   "ai_capability_report",
 
-  // Resource (14)
+  // Resource (17)
   "ai_resource_code_quality",
   "ai_resource_material_parameters",
   "ai_resource_hypermill_patterns",
@@ -485,6 +494,9 @@ export const AI_CAPABILITY_ACTIONS = [
   "ai_resource_generate_hypermill_template",
   "ai_resource_training_data",
   "ai_resource_knowledge_coverage",
+  "ai_college_corpus_pointers",
+  "ai_cadcam_corpus_pointers",
+  "ai_domain_corpus_pointers",
 
   // Training — Master ledger (8)
   "ai_training_master_ingest",
@@ -545,6 +557,9 @@ export const ACTION_AI_CAPABILITY_SCHEMAS: Record<AICapabilityAction, z.ZodTypeA
   ai_resource_generate_hypermill_template,
   ai_resource_training_data,
   ai_resource_knowledge_coverage,
+  ai_college_corpus_pointers,
+  ai_cadcam_corpus_pointers,
+  ai_domain_corpus_pointers,
 
   ai_training_master_ingest,
   ai_training_master_replay,

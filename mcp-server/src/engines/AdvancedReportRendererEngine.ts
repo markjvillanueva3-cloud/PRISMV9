@@ -709,8 +709,11 @@ export class AdvancedReportRendererEngine {
 
   // ── Helpers ──
 
-  private normalizeMaterial(material: string): string {
-    const m = material.toLowerCase().replace(/[\s\-_]+/g, "_");
+  private normalizeMaterial(material: string | undefined | null): string {
+    // Guard: a missing/non-string material must not crash (report_tool_life_forecast called with no
+    // material threw "Cannot read properties of undefined (reading 'toLowerCase')"). Coerce to "" so it
+    // falls through to the "steel" fallback below -- the most common default for a tool-life forecast.
+    const m = String(material ?? "").toLowerCase().replace(/[\s\-_]+/g, "_");
     if (m.includes("steel") || m.includes("1045") || m.includes("4140") || m.includes("aisi")) return "steel";
     if (m.includes("stainless") || m.includes("304") || m.includes("316")) return "stainless";
     if (m.includes("aluminum") || m.includes("aluminium") || m.includes("6061") || m.includes("7075")) return "aluminum";

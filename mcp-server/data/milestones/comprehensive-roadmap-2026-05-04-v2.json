@@ -1,0 +1,919 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PRISM-COMPREHENSIVE-2026-05-04-V2",
+  "title": "PRISM 7-Layer Multi-Model Integration Roadmap (V2 — Scrutinized)",
+  "generatedAt": "2026-05-05",
+  "generationMethod": "5-role parallel Claude scrutiny (architect+researcher+safety+reviewer+planner) on top of 5-voice V1 brainstorm",
+  "totalEffortDays": 344,
+  "criticalPathDaysCorrected": 143,
+  "estimatedDurationMonths": 15,
+  "fourEngineerMakespanWeeks": 18,
+  "omegaTarget": 1,
+  "omegaTargetSource": "MEMORY.md (user-stated mandate, all future milestones)",
+  "supersedes": [
+    "PRISM-COMPREHENSIVE-2026-05-04"
+  ],
+  "linkedDoc": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "criticalPath": [
+    "INFRA-CONSENSUS-WIRE-MS0",
+    "INFRA-NEURAL-LEDGER-MS1",
+    "INFRA-AGI-ROUTER-MS2",
+    "MILL-P2P-CONSENSUS-MS3",
+    "LATHE-P2P-CONSENSUS-MS4",
+    "SAFETY-OMEGA-GATE-MS9",
+    "BIZ-QUOTE-FEED-MS12",
+    "BIZ-SCHED-CAPACITY-MS13",
+    "BIZ-ERP-SYNC-MS14",
+    "OT-IT-SECURITY-MS20",
+    "PILOT-HEDGE-MS33",
+    "SHIP-RELEASE-MS19a"
+  ],
+  "criticalPathDays": 143,
+  "firstDomainRecommendation": "WEDM-P2P-CONSENSUS-MS5",
+  "firstDomainReasoning": "P(MS19 on-time | WEDM-first)=0.78 vs mill=0.55. WEDM has 95% existing coverage (62 engines, 101 tests). Lets MS9 gate validate against the most-complete pipeline first.",
+  "milestones": [
+    {
+      "id": "INFRA-CONSENSUS-WIRE-MS0",
+      "title": "Wire 4-way consensus into dispatcher decision points",
+      "layer": 0,
+      "scope_units": 5,
+      "effort_days": 12,
+      "risk": "med",
+      "value": "high",
+      "critical_path": true,
+      "blocks": [
+        "INFRA-NEURAL-LEDGER-MS1",
+        "MILL-P2P-CONSENSUS-MS3",
+        "HITL-OPERATOR-UI-MS24",
+        "CONSENSUS-INTEGRITY-MS32"
+      ],
+      "blocked_by": [],
+      "acceptance": "prism_ai:consensus_decide returns 3-of-4 vote with provenance; AND >=1 production dispatcher path calls consensus_decide per high-stakes pick (machine, strategy, post); engines confirmed at H:/prism/mcp-server/src/engines/{MultiModelConsensusEngine,ConsensusCoordinatorEngine,CodexClientEngine,GeminiClientEngine,GrokClientEngine,OllamaClientEngine}.ts (copied from prism-iooms0 in V3.3); smoke test passes across Claude+Codex+Gemini+Ollama; >=3 negative cases (deliberate disagreement) trigger correct fallback.",
+      "v3_3_note": "engines copied from prism-iooms0 worktree to canonical primary in V3.3 (closes Codex P3 grounding gap)"
+    },
+    {
+      "id": "INFRA-NEURAL-LEDGER-MS1",
+      "title": "Cross-process outcome ledger + neural feedback bus",
+      "layer": 0,
+      "scope_units": 4,
+      "effort_days": 10,
+      "risk": "low",
+      "value": "high",
+      "critical_path": true,
+      "blocks": [
+        "INFRA-AGI-ROUTER-MS2",
+        "FEEDBACK-CALIB-MS10",
+        "LEARN-XPROC-TRANSFER-MS18",
+        "L6-BACKPROP-REGISTRY-MS25"
+      ],
+      "blocked_by": [
+        "INFRA-CONSENSUS-WIRE-MS0"
+      ],
+      "acceptance": "CrossProcessOutcomeStore engine BUILT in H:/prism/mcp-server/src/engines/ (does not yet exist; this MS builds it — Codex P3 confirmed not in prism-iooms0/xproc-neural either); every print-to-program run writes structured outcome event with schemaVersion; replay reproduces last 100 jobs byte-identical; ledger is append-only and audit-checked.",
+      "v3_3_note": "CrossProcessOutcomeStore not present in any worktree — this MS owns the build (Codex P3 finding)"
+    },
+    {
+      "id": "INFRA-AGI-ROUTER-MS2",
+      "title": "Unify MillingAGI/LatheAGI/WEDMAGI behind ProcessIntelligenceRouter",
+      "layer": 1,
+      "scope_units": 5,
+      "effort_days": 14,
+      "risk": "med",
+      "value": "high",
+      "critical_path": true,
+      "blocks": [
+        "MILL-P2P-CONSENSUS-MS3",
+        "LATHE-P2P-CONSENSUS-MS4",
+        "WEDM-P2P-CONSENSUS-MS5",
+        "SINKER-P2P-MS6",
+        "LASER-P2P-MS7",
+        "WJET-P2P-MS8",
+        "TWIN-SIM-GATE-MS23"
+      ],
+      "blocked_by": [
+        "INFRA-NEURAL-LEDGER-MS1"
+      ],
+      "acceptance": "single orchestrate(intent) call dispatches to correct domain AGI with consensus gating; 3 domain smoke tests green; router contract published day 1 to unblock MS6/7/8 stub-development"
+    },
+    {
+      "id": "ATOM-REGISTRY-AUDIT-MS0a",
+      "title": "Atomic registry completeness + schema-version pass",
+      "layer": 1,
+      "scope_units": 3,
+      "effort_days": 3,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "MILL-P2P-CONSENSUS-MS3",
+        "LATHE-P2P-CONSENSUS-MS4",
+        "SCHEMA-MIGRATION-RUNNER-MS27"
+      ],
+      "blocked_by": [],
+      "acceptance": "all 26 registries pass schemaVersion gate; new registries created for AirTypeRegistry+TurretTypeRegistry+InsertRegistry (engine layer already exists per researcher report — registry shells only); foreign-key joins (insert→holder→spindle→machine) validated"
+    },
+    {
+      "id": "MILL-P2P-CONSENSUS-MS3",
+      "title": "Mill print-to-program with consensus-gated decisions (PATTERN TEMPLATE for MS4-MS8)",
+      "layer": 2,
+      "scope_units": 7,
+      "effort_days": 21,
+      "risk": "high",
+      "value": "high",
+      "critical_path": true,
+      "blocks": [
+        "LATHE-P2P-CONSENSUS-MS4",
+        "WEDM-P2P-CONSENSUS-MS5",
+        "SINKER-P2P-MS6",
+        "LASER-P2P-MS7",
+        "WJET-P2P-MS8",
+        "BIZ-QUOTE-FEED-MS12",
+        "TWIN-SIM-GATE-MS23",
+        "HITL-OPERATOR-UI-MS24",
+        "SAFETY-OMEGA-GATE-MS9",
+        "ORCH-MULTIDOMAIN-MS11",
+        "RT-ADAPTIVE-MS22a",
+        "ADOPTION-GATE-MS35"
+      ],
+      "blocked_by": [
+        "INFRA-AGI-ROUTER-MS2",
+        "ATOM-REGISTRY-AUDIT-MS0a",
+        "INFRA-CONSENSUS-WIRE-MS0"
+      ],
+      "acceptance": "end-to-end mill PDF/STEP -> validated NC for >=30 JM Die parts spanning P/M/K/N/S/H ISO groups; Vericut backplot + G-code linter (Omega=1.0) + first-article CMM Cpk>=1.33 on critical dims; zero post-machining edits in git over 20-job baseline; >=3 deliberately-bad parts trigger BLOCK; pipeline-level confidence rollup engine published as reusable pattern"
+    },
+    {
+      "id": "LATHE-P2P-CONSENSUS-MS4",
+      "title": "Lathe print-to-program with consensus-gated decisions",
+      "layer": 2,
+      "scope_units": 7,
+      "effort_days": 21,
+      "risk": "med",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [
+        "BIZ-QUOTE-FEED-MS12",
+        "SAFETY-OMEGA-GATE-MS9"
+      ],
+      "blocked_by": [
+        "INFRA-AGI-ROUTER-MS2",
+        "MILL-P2P-CONSENSUS-MS3",
+        "ATOM-REGISTRY-AUDIT-MS0a"
+      ],
+      "acceptance": "30 JM Die turning parts produce validated G-code with consensus on insert/CSS/threading; reuses MS3 confidence-rollup pattern; LathePartoffSafetyRailEngine wired into Omega gate"
+    },
+    {
+      "id": "WEDM-P2P-CONSENSUS-MS5",
+      "title": "Wire EDM print-to-program with consensus tier-gating (FIRST DOMAIN — ship first)",
+      "layer": 2,
+      "scope_units": 6,
+      "effort_days": 18,
+      "risk": "low",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [
+        "BIZ-QUOTE-FEED-MS12",
+        "SAFETY-OMEGA-GATE-MS9",
+        "ORCH-MULTIDOMAIN-MS11"
+      ],
+      "blocked_by": [
+        "INFRA-AGI-ROUTER-MS2",
+        "MILL-P2P-CONSENSUS-MS3"
+      ],
+      "acceptance": "30 WEDM jobs (Tier 1-6) produce 4-axis programs with verified passes/recast/wire-break gates and consensus on parameter set; reconciles with existing WEDMSafetyEnvelopeEngine + WEDMProgramSafetyGateEngine (no double-gating); reuses MS3 rollup pattern"
+    },
+    {
+      "id": "SINKER-P2P-MS6",
+      "title": "Sinker EDM consensus gating + AGI master (orchestrator already exists, V3.3 corrected scope)",
+      "layer": 2,
+      "scope_units": 3,
+      "effort_days": 5,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "BIZ-QUOTE-FEED-MS12",
+        "AGI-MASTER-PARITY-MS30"
+      ],
+      "blocked_by": [
+        "INFRA-AGI-ROUTER-MS2",
+        "MILL-P2P-CONSENSUS-MS3"
+      ],
+      "acceptance": "SinkerEDMPrintToProgramEngine.ts already exists per Codex P3 — V3.3 corrected scope: this MS adds (a) consensus gating around the existing orchestrator (b) SinkerAGIMasterEngine for parity with Mill/Lathe/WEDM AGIs (c) wire to MS9 Omega gate for VDI scale + electrode wear consensus picks; >=5 sinker jobs route through with consensus on VDI scale and wear comp.",
+      "v3_3_note": "effort reduced 8d->5d: orchestrator already built (per Codex P3 ground-truth)"
+    },
+    {
+      "id": "LASER-P2P-MS7",
+      "title": "Laser cut/mark/weld print-to-program orchestrator (NEW LaserPrintToProgramEngine)",
+      "layer": 2,
+      "scope_units": 4,
+      "effort_days": 10,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "BIZ-QUOTE-FEED-MS12",
+        "AGI-MASTER-PARITY-MS30"
+      ],
+      "blocked_by": [
+        "INFRA-AGI-ROUTER-MS2",
+        "MILL-P2P-CONSENSUS-MS3"
+      ],
+      "acceptance": "laser cut DXF -> validated program with kerf/HAZ/gas selection consensus; new LaserPrintToProgramEngine.ts wires existing 9 laser engines + LoRA cadence; reuses MS3 rollup pattern"
+    },
+    {
+      "id": "WJET-P2P-MS8",
+      "title": "Waterjet print-to-program orchestrator (NEW WaterjetPrintToProgramEngine)",
+      "layer": 2,
+      "scope_units": 4,
+      "effort_days": 10,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "BIZ-QUOTE-FEED-MS12",
+        "AGI-MASTER-PARITY-MS30"
+      ],
+      "blocked_by": [
+        "INFRA-AGI-ROUTER-MS2",
+        "MILL-P2P-CONSENSUS-MS3"
+      ],
+      "acceptance": "waterjet job produces toolpath + abrasive plan + taper comp; cost matches quote within 5%; new WaterjetPrintToProgramEngine.ts wires existing 6 waterjet engines + LoRA stack; reuses MS3 rollup pattern"
+    },
+    {
+      "id": "TWIN-SIM-GATE-MS23",
+      "title": "Digital-twin G-code dry-run engine (third consensus checkpoint for MS9)",
+      "layer": 3,
+      "scope_units": 3,
+      "effort_days": 8,
+      "risk": "med",
+      "value": "high",
+      "critical_path": true,
+      "blocks": [
+        "SAFETY-OMEGA-GATE-MS9"
+      ],
+      "blocked_by": [
+        "INFRA-AGI-ROUTER-MS2",
+        "MILL-P2P-CONSENSUS-MS3"
+      ],
+      "acceptance": "prism_cam:cnc_simulate_predictive runs full RTCP envelope check + collision sim + reach margin; collision count = 0 on 20 reference programs; correctly flags 5 known-bad programs (>=2 5-axis singularities); covers ISO-EIA + Heidenhain conversational + Hurco NCL + EDM .ISO dialects"
+    },
+    {
+      "id": "SAFETY-OMEGA-GATE-MS9",
+      "title": "Omega + S(x) + 7 new gates wired into all 6 P2P pipelines",
+      "layer": 3,
+      "scope_units": 6,
+      "effort_days": 15,
+      "risk": "high",
+      "value": "high",
+      "critical_path": true,
+      "blocks": [
+        "BIZ-QUOTE-FEED-MS12",
+        "SHIP-RELEASE-MS19a",
+        "FEEDBACK-CALIB-MS10",
+        "L6-BACKPROP-REGISTRY-MS25",
+        "COMPLIANCE-AUDIT-MS17"
+      ],
+      "blocked_by": [
+        "MILL-P2P-CONSENSUS-MS3",
+        "LATHE-P2P-CONSENSUS-MS4",
+        "WEDM-P2P-CONSENSUS-MS5",
+        "TWIN-SIM-GATE-MS23",
+        "RT-ADAPTIVE-MS22a",
+        "HOOK-MANIFEST-DAG-MS26",
+        "LABEL-PROVENANCE-MS31",
+        "CONSENSUS-INTEGRITY-MS32"
+      ],
+      "acceptance": "every released program has Omega=1.0 AND min(per-dimension)>=0.50 AND S(x)>=0.70; 7 new gates wired (G_cumulative_tol, G_kinematic, G_min_dim, G_constant_provenance, G_domain, G_post_validation, G_thermal_cycle); per-domain addenda (wire-break, back-refl, garnet-flow); INLINED CONSTANTS MIGRATION: PipelineSafetyOrchestratorEngine.ts lines 219-262 currently inline POWER_DERATING/CHATTER_THRESHOLD/etc — V3.3 acceptance ADDS hard requirement: CI gate (grep) blocks merge if any of these constants are inlined in safety-orchestrator (must be imported from src/physics/constants.ts); gate ledger at SAFETY_GATE_LEDGER.jsonl; >=2 known-bad cases per pipeline trigger BLOCK.",
+      "blocked_by_v3_added": [
+        "HOOK-MANIFEST-DAG-MS26"
+      ],
+      "v3_3_note": "inlined-constant CI grep-gate added per Codex P3 finding"
+    },
+    {
+      "id": "FEEDBACK-CALIB-MS10",
+      "title": "Cycle-to-cycle feedback calibration across domains",
+      "layer": 3,
+      "scope_units": 4,
+      "effort_days": 11,
+      "risk": "med",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [
+        "LEARN-XPROC-TRANSFER-MS18",
+        "L6-BACKPROP-REGISTRY-MS25"
+      ],
+      "blocked_by": [
+        "INFRA-NEURAL-LEDGER-MS1",
+        "SAFETY-OMEGA-GATE-MS9"
+      ],
+      "acceptance": "MAPE on rolling 50-job holdout drops >=30% from initial 7-day baseline; paired t-test p<0.05; calibration deltas auto-applied with rollback path"
+    },
+    {
+      "id": "L6-BACKPROP-REGISTRY-MS25",
+      "title": "Calibrated-coefficient writeback into atomic registries with provenance",
+      "layer": 6,
+      "scope_units": 3,
+      "effort_days": 9,
+      "risk": "med",
+      "value": "high",
+      "critical_path": true,
+      "blocks": [
+        "LEARN-XPROC-TRANSFER-MS18",
+        "SHIP-RELEASE-MS19a"
+      ],
+      "blocked_by": [
+        "FEEDBACK-CALIB-MS10",
+        "SAFETY-OMEGA-GATE-MS9",
+        "INFRA-NEURAL-LEDGER-MS1"
+      ],
+      "acceptance": "calibrated kc/Taylor/Johnson-Cook coefficients written back to FormulaRegistry/MaterialRegistry with provenance (job_id, sample_n, confidence_band); rollback path tested with 1 known-bad calibration; closes the L6->L1 loop the NN model demands"
+    },
+    {
+      "id": "ORCH-MULTIDOMAIN-MS11",
+      "title": "Multi-domain job orchestrator (mill+EDM+grind hybrid jobs) + tolerance-stack propagation",
+      "layer": 3,
+      "scope_units": 5,
+      "effort_days": 14,
+      "risk": "high",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [
+        "BIZ-QUOTE-FEED-MS12"
+      ],
+      "blocked_by": [
+        "MILL-P2P-CONSENSUS-MS3",
+        "WEDM-P2P-CONSENSUS-MS5"
+      ],
+      "acceptance": "hybrid mill+WEDM job sequenced and validated end-to-end with cross-process handoff; tolerance-stack propagation across mill->grind->inspect chain validated on 5 historical hybrid jobs"
+    },
+    {
+      "id": "RT-ADAPTIVE-MS22a",
+      "title": "Passive MTConnect/OPC-UA telemetry capture (PRE-SHIP — MS9 training data)",
+      "layer": 3,
+      "scope_units": 2,
+      "effort_days": 4,
+      "risk": "low",
+      "value": "high",
+      "critical_path": false,
+      "phase": "pre-ship",
+      "blocks": [
+        "SAFETY-OMEGA-GATE-MS9",
+        "RT-ADAPTIVE-MS22b",
+        "LABEL-PROVENANCE-MS31"
+      ],
+      "blocked_by": [
+        "MILL-P2P-CONSENSUS-MS3"
+      ],
+      "acceptance": "read-only MTConnect/OPC-UA streams from 3 machines (1 mill+1 lathe+1 WEDM) logged with job correlation; 100 staged events round-trip with correct labels; ledger feeds MS9 calibration AND MS18 LoRA training; no write-back path exposed (verified via packet capture)."
+    },
+    {
+      "id": "RT-ADAPTIVE-MS22b",
+      "title": "Active in-cycle adaptive feedback (POST-PILOT — feed/spindle/thermal closed loop)",
+      "layer": 3,
+      "scope_units": 3,
+      "effort_days": 8,
+      "risk": "high",
+      "value": "med",
+      "critical_path": false,
+      "phase": "post-pilot",
+      "blocks": [],
+      "blocked_by": [
+        "SHIP-RELEASE-MS19a",
+        "OT-IT-SECURITY-MS20",
+        "RT-ADAPTIVE-MS22a"
+      ],
+      "acceptance": "in-cycle MTConnect feed-rate override on 1 mill+1 lathe+1 WEDM; chatter onset triggers spindle shift <200ms; thermal-comp engages at dT>15C; actuation gated on MS9 Omega=1.0 + operator opt-in."
+    },
+    {
+      "id": "HITL-OPERATOR-UI-MS24",
+      "title": "Operator pendant-button override (PHYSICAL — accept-after-30s default)",
+      "layer": 3,
+      "scope_units": 1,
+      "effort_days": 3,
+      "risk": "low",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [
+        "SHIP-RELEASE-MS19a",
+        "PILOT-HEDGE-MS33",
+        "ADOPTION-GATE-MS35"
+      ],
+      "blocked_by": [
+        "INFRA-CONSENSUS-WIRE-MS0",
+        "MILL-P2P-CONSENSUS-MS3"
+      ],
+      "acceptance": "physical button on machine pendant (NOT CLI, NOT screen); 1-button accept (default after 30s timeout WHEN door_closed AND spindle_running AND no_motion_at_pendant_for_15s — pause timer if operator walks away); 2-button reject with pre-canned reason dropdown (chatter/wrong-tool/bad-finish/material/fixture/other); foreman dual-auth via phone-tap approval <10s (NOT walk-across-shop); customer-history Omega override: parts with >=50 prior accepted runs at given Cpk auto-downgrade Omega block to YELLOW advisory (no override paperwork); thermal-comp defaults ON (low-risk auto-help); chatter/feed-override stays opt-in.",
+      "v3_3_note": "motion-aware timer + phone-tap dual-auth + customer-history Omega override per operator-empathy follow-up"
+    },
+    {
+      "id": "BIZ-QUOTE-FEED-MS12",
+      "title": "Wire P2P cycle-time/cost into quoting engine",
+      "layer": 4,
+      "scope_units": 4,
+      "effort_days": 10,
+      "risk": "low",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [
+        "BIZ-ERP-SYNC-MS14",
+        "SHIP-RELEASE-MS19a",
+        "BIZ-SCHED-CAPACITY-MS13"
+      ],
+      "blocked_by": [
+        "MILL-P2P-CONSENSUS-MS3",
+        "LATHE-P2P-CONSENSUS-MS4",
+        "SAFETY-OMEGA-GATE-MS9",
+        "WEDM-P2P-CONSENSUS-MS5",
+        "SINKER-P2P-MS6",
+        "LASER-P2P-MS7",
+        "WJET-P2P-MS8",
+        "ORCH-MULTIDOMAIN-MS11"
+      ],
+      "acceptance": "instant_quote uses live P2P estimates; >=40 historical quotes reproduced within +-8% MAPE, no individual >+-15%, holdout disjoint from training"
+    },
+    {
+      "id": "BIZ-SCHED-CAPACITY-MS13",
+      "title": "Capacity planning fed by per-machine cycle estimates",
+      "layer": 4,
+      "scope_units": 4,
+      "effort_days": 9,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "BIZ-ERP-SYNC-MS14"
+      ],
+      "blocked_by": [
+        "BIZ-QUOTE-FEED-MS12"
+      ],
+      "acceptance": "21-machine load chart updates from live job queue; bottleneck detection green on staged scenario; clock-skew tolerance >=5min"
+    },
+    {
+      "id": "BIZ-ERP-SYNC-MS14",
+      "title": "ERP/accounting/HR sync (E2/QB/payroll) end-to-end",
+      "layer": 4,
+      "scope_units": 5,
+      "effort_days": 13,
+      "risk": "med",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [
+        "SHIP-RELEASE-MS19b",
+        "BIZ-PORTAL-CUSTOMER-MS15",
+        "OBS-MONITOR-MS16",
+        "COMPLIANCE-AUDIT-MS17",
+        "TENANT-ONBOARD-MS29",
+        "OT-IT-SECURITY-MS20",
+        "PRICING-PACKAGING-MS36"
+      ],
+      "blocked_by": [
+        "BIZ-QUOTE-FEED-MS12",
+        "BIZ-SCHED-CAPACITY-MS13"
+      ],
+      "acceptance": "job created in PRISM lands in E2 + QB GL + payroll with three-way match (PO line ↔ goods-receipt qty ↔ invoice line within $0.01 + <=1 UOM tolerance); duplicate-invoice attack blocked; negative-qty receipt blocked"
+    },
+    {
+      "id": "BIZ-PORTAL-CUSTOMER-MS15",
+      "title": "Customer portal + order/quote/quality docs (operator UI moved to MS24)",
+      "layer": 4,
+      "scope_units": 3,
+      "effort_days": 8,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "SHIP-RELEASE-MS19b"
+      ],
+      "blocked_by": [
+        "BIZ-ERP-SYNC-MS14"
+      ],
+      "acceptance": "customer can view quote, accept, see order status, download FAI/MTRs via signed token; scope reduced from V1 (HITL operator UI split out as MS24)"
+    },
+    {
+      "id": "OBS-MONITOR-MS16",
+      "title": "Grafana/Prometheus dashboards for OEE + AI decisions",
+      "layer": 4,
+      "scope_units": 3,
+      "effort_days": 7,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "SHIP-RELEASE-MS19b"
+      ],
+      "blocked_by": [
+        "BIZ-ERP-SYNC-MS14"
+      ],
+      "acceptance": "live OEE per machine + consensus accuracy (vs deterministic oracle, exact-match-rate over N>=200) + tool-life dashboards in Grafana"
+    },
+    {
+      "id": "COMPLIANCE-AUDIT-MS17",
+      "title": "AS9100/ISO13485/ITAR audit trail + retention",
+      "layer": 4,
+      "scope_units": 3,
+      "effort_days": 8,
+      "risk": "med",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "SHIP-RELEASE-MS19b"
+      ],
+      "blocked_by": [
+        "BIZ-ERP-SYNC-MS14",
+        "SAFETY-OMEGA-GATE-MS9"
+      ],
+      "acceptance": "internal audit by AS9100 Lead Auditor cert holder finds zero major NCRs across §4-10 clauses; ITAR export-control gate blocks 1 staged restricted part; expired-cert + out-of-cal gauge tests trigger BLOCK"
+    },
+    {
+      "id": "LEARN-XPROC-TRANSFER-MS18",
+      "title": "XPROC transfer learning + LoRA adapters per domain (POST-PILOT per V3.2)",
+      "layer": 5,
+      "scope_units": 5,
+      "effort_days": 14,
+      "risk": "high",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [],
+      "blocked_by": [
+        "FEEDBACK-CALIB-MS10",
+        "INFRA-NEURAL-LEDGER-MS1",
+        "L6-BACKPROP-REGISTRY-MS25",
+        "AGI-MASTER-PARITY-MS30",
+        "SHIP-RELEASE-MS19a",
+        "LABEL-PROVENANCE-MS31"
+      ],
+      "acceptance": "new material in mill auto-bootstraps from lathe data; LoRA improves prediction MAE by >=15% on customer-disjoint, time-ordered holdout; 5-fold CV; train/test split commit hash documented; no leakage from prior calibration runs",
+      "phase": "post-pilot"
+    },
+    {
+      "id": "HOOK-MANIFEST-DAG-MS26",
+      "title": "Central hook precedence/ordering registry + cycle detector (NEW)",
+      "layer": 0,
+      "scope_units": 2,
+      "effort_days": 5,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "SAFETY-OMEGA-GATE-MS9"
+      ],
+      "blocked_by": [],
+      "acceptance": "all 424 Claude + 54 source hooks registered with precedence; cycle detector finds 0 cycles; deterministic order on Stop hook stack; closes architect risk #4"
+    },
+    {
+      "id": "SCHEMA-MIGRATION-RUNNER-MS27",
+      "title": "Versioned migration runner for 26 registries + state JSONs (NEW)",
+      "layer": 0,
+      "scope_units": 2,
+      "effort_days": 6,
+      "risk": "low",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "SHIP-RELEASE-MS19b",
+        "INCIDENT-RESPONSE-MS37"
+      ],
+      "blocked_by": [
+        "ATOM-REGISTRY-AUDIT-MS0a"
+      ],
+      "acceptance": "migration runner upgrades N-1 schemas with rollback; tested on 1 staged breaking-change migration; CI gate blocks merges that bump schemaVersion without migration"
+    },
+    {
+      "id": "MULTI-CLI-SYNC-HOOK-MS28",
+      "title": "Wire sync-cli-context-files.mjs as Stop hook + drift detector (NEW)",
+      "layer": 0,
+      "scope_units": 1,
+      "effort_days": 2,
+      "risk": "low",
+      "value": "low",
+      "critical_path": false,
+      "blocks": [],
+      "blocked_by": [],
+      "acceptance": "CLAUDE.md edit auto-propagates to GEMINI.md + AGENTS.md within same session; drift detector reports diff if files diverge >24h"
+    },
+    {
+      "id": "TENANT-ONBOARD-MS29",
+      "title": "Second-customer tenant template (SOFT GATE — synthetic tenant E2E)",
+      "layer": 5,
+      "scope_units": 3,
+      "effort_days": 7,
+      "risk": "med",
+      "value": "high",
+      "critical_path": false,
+      "blocks": [
+        "SHIP-RELEASE-MS19b"
+      ],
+      "blocked_by": [
+        "BIZ-ERP-SYNC-MS14"
+      ],
+      "acceptance": "second-customer LOI signed (verbal/email acceptable as soft gate) AND tenant template runs end-to-end on SYNTHETIC tenant data (no real second customer required for ship); first quote-to-ship cycle on real second customer ALLOWED post-MS19; soft gate prevents single-customer-veto on ship date; auto-downgrade to soft after 60-day timer if hard LOI not signed (logged as risk acceptance)."
+    },
+    {
+      "id": "AGI-MASTER-PARITY-MS30",
+      "title": "SinkerAGI + LaserAGI + WaterjetAGI masters (NEW)",
+      "layer": 2,
+      "scope_units": 4,
+      "effort_days": 12,
+      "risk": "med",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "LEARN-XPROC-TRANSFER-MS18"
+      ],
+      "blocked_by": [
+        "SINKER-P2P-MS6",
+        "LASER-P2P-MS7",
+        "WJET-P2P-MS8"
+      ],
+      "acceptance": "three new AGI master engines parallel to MillingAGIMasterEngine/LatheAGIMasterEngine/WEDMAGIMasterEngine; closes architect risk #6 (domain coverage asymmetry); enables cross-process transfer in MS18"
+    },
+    {
+      "id": "OT-IT-SECURITY-MS20",
+      "title": "OT/IT cybersecurity for machine network integration (V1 candidate, now scheduled)",
+      "layer": 4,
+      "scope_units": 3,
+      "effort_days": 9,
+      "risk": "med",
+      "value": "med",
+      "critical_path": false,
+      "blocks": [
+        "RT-ADAPTIVE-MS22b",
+        "PILOT-HEDGE-MS33"
+      ],
+      "blocked_by": [
+        "BIZ-ERP-SYNC-MS14"
+      ],
+      "acceptance": "MTConnect/OPC-UA traffic mTLS-encrypted; network segmentation between OT VLAN + IT VLAN; intrusion-detection signature for unauthorized G-code injection"
+    },
+    {
+      "id": "SHIP-RELEASE-MS19a",
+      "title": "Pilot ship: JM Die quote-to-ship live (NARROW per V3.3)",
+      "layer": 6,
+      "scope_units": 2,
+      "effort_days": 6,
+      "risk": "high",
+      "value": "high",
+      "critical_path": true,
+      "phase": "pre-ship",
+      "blocks": [
+        "SHIP-RELEASE-MS19b",
+        "RT-ADAPTIVE-MS22b",
+        "LEARN-XPROC-TRANSFER-MS18"
+      ],
+      "blocked_by": [
+        "SAFETY-OMEGA-GATE-MS9",
+        "BIZ-QUOTE-FEED-MS12",
+        "HITL-OPERATOR-UI-MS24",
+        "L6-BACKPROP-REGISTRY-MS25",
+        "PRICING-PACKAGING-MS36",
+        "INCIDENT-RESPONSE-MS37",
+        "ADOPTION-GATE-MS35",
+        "PILOT-HEDGE-MS33"
+      ],
+      "acceptance": "3 JM Die jobs flow quote -> P2P -> ship -> invoice with zero human keystrokes in ERP UI AND zero clipboard-paste events PRISM->ERP, telemetry-verified over 20 cycles; ALL safety + adoption gates green; pilot is JM-Die-only acceptable (does NOT require multi-tenant or full biz-stack — those are MS19b)."
+    },
+    {
+      "id": "SHIP-RELEASE-MS19b",
+      "title": "Platform release: multi-tenant + full biz-stack + compliance (BROAD per V3.3)",
+      "layer": 6,
+      "scope_units": 3,
+      "effort_days": 6,
+      "risk": "high",
+      "value": "high",
+      "critical_path": false,
+      "phase": "post-pilot",
+      "blocks": [],
+      "blocked_by": [
+        "SHIP-RELEASE-MS19a",
+        "BIZ-ERP-SYNC-MS14",
+        "BIZ-PORTAL-CUSTOMER-MS15",
+        "OBS-MONITOR-MS16",
+        "COMPLIANCE-AUDIT-MS17",
+        "REG-HARDENING-MS34",
+        "SCHEMA-MIGRATION-RUNNER-MS27",
+        "TENANT-ONBOARD-MS29"
+      ],
+      "acceptance": "second customer onboarded via tenant template; AS9100/CMMC/ITAR audit pass; Grafana dashboards live; ERP/Portal/Compliance all green; this is the GA milestone, distinct from MS19a pilot."
+    },
+    {
+      "id": "LABEL-PROVENANCE-MS31",
+      "title": "Operator-signed event labels for MS22a + outlier rejection",
+      "layer": 3,
+      "scope_units": 2,
+      "effort_days": 2,
+      "risk": "low",
+      "value": "high",
+      "critical_path": false,
+      "phase": "pre-ship",
+      "blocks": [
+        "SAFETY-OMEGA-GATE-MS9",
+        "LEARN-XPROC-TRANSFER-MS18"
+      ],
+      "blocked_by": [
+        "RT-ADAPTIVE-MS22a"
+      ],
+      "acceptance": "every MS22a outcome event signed with operator+machine cert; >3 sigma outlier rejected before MS9/MS18 ingest; 100 staged events with 5 mislabels detected with FPR<5%; closes red-team risk #1 (label poisoning)."
+    },
+    {
+      "id": "CONSENSUS-INTEGRITY-MS32",
+      "title": "Voice reputation + rotating tiebreaker + agreement-anomaly detector",
+      "layer": 0,
+      "scope_units": 2,
+      "effort_days": 2,
+      "risk": "med",
+      "value": "high",
+      "critical_path": false,
+      "phase": "pre-ship",
+      "blocks": [
+        "SAFETY-OMEGA-GATE-MS9"
+      ],
+      "blocked_by": [
+        "INFRA-CONSENSUS-WIRE-MS0"
+      ],
+      "acceptance": "voice reputation tracked over 50-call window; persistent <70% accuracy = demote; rotating tiebreaker (Claude/Codex/Gemini/Ollama round-robin) prevents Sybil collusion; anomaly detector flags persistent 3-of-4 patterns; closes red-team risk #2."
+    },
+    {
+      "id": "PILOT-HEDGE-MS33",
+      "title": "Dual-auth overrides + customer-scoped at-rest encryption + 2-customer floor",
+      "layer": 5,
+      "scope_units": 3,
+      "effort_days": 3,
+      "risk": "med",
+      "value": "high",
+      "critical_path": false,
+      "phase": "pre-ship",
+      "blocks": [
+        "SHIP-RELEASE-MS19a"
+      ],
+      "blocked_by": [
+        "HITL-OPERATOR-UI-MS24",
+        "OT-IT-SECURITY-MS20"
+      ],
+      "acceptance": "safety-tier override (Omega<1.0) requires 2-person sign-off (operator + foreman); CrossProcessOutcomeStore AES-256 at-rest with per-customer ACL; pilot floor >=2 customers (synthetic counts via MS29-soft); closes red-team risks #3, #4, #7."
+    },
+    {
+      "id": "REG-HARDENING-MS34",
+      "title": "AS9100 §8.5.6/8.7 + CMMC L2 + ITAR ECCN + SOTIF ODD declaration (PARALLEL SWIMLANE per V3.3 — gates only MS19 not chained through MS17)",
+      "layer": 4,
+      "scope_units": 4,
+      "effort_days": 8,
+      "risk": "med",
+      "value": "high",
+      "critical_path": false,
+      "phase": "pre-ship",
+      "blocks": [
+        "SHIP-RELEASE-MS19b"
+      ],
+      "blocked_by": [],
+      "acceptance": "WORM ledger for AS9100 §8.5.6 change-control; NCR/MRB workflow engine (§8.7); ECCN/USML tags on part-master + deemed-export gate; CMMC L2 SPRS self-score >=88; ODD declared + Mahalanobis OOD detector wired to Omega gate (SOTIF/ISO 21448); external mock-audit by AS9100 Lead Auditor returns 0 majors, <=3 minors.",
+      "parallel_swimlane": true
+    },
+    {
+      "id": "ADOPTION-GATE-MS35",
+      "title": "MS19 adoption-rate gate (consensus_execution_rate + opt-in rate)",
+      "layer": 6,
+      "scope_units": 1,
+      "effort_days": 3,
+      "risk": "low",
+      "value": "high",
+      "critical_path": true,
+      "phase": "pre-ship",
+      "blocks": [
+        "SHIP-RELEASE-MS19a"
+      ],
+      "blocked_by": [
+        "HITL-OPERATOR-UI-MS24",
+        "MILL-P2P-CONSENSUS-MS3"
+      ],
+      "acceptance": "consensus_execution_rate >= 0.50 over 20-job baseline AND outcome_correlation: parts-in-spec rate must NOT differ between accept and reject buckets by >5% (catches operator rubber-stamping); reject-with-reason histogram tracked, \"other\" category capped at 20% (catches hidden-distrust); opt-in rate >= 60% across 3 machines.",
+      "v3_3_note": "gameability fix per operator-empathy + Codex P5: rubber-stamp detection via outcome correlation"
+    },
+    {
+      "id": "PRICING-PACKAGING-MS36",
+      "title": "SaaS pricing tiers, SKUs, billing plumbing (Codex WSJF #7)",
+      "layer": 5,
+      "scope_units": 2,
+      "effort_days": 5,
+      "risk": "low",
+      "value": "high",
+      "critical_path": false,
+      "phase": "pre-ship",
+      "blocks": [
+        "SHIP-RELEASE-MS19a"
+      ],
+      "blocked_by": [
+        "BIZ-ERP-SYNC-MS14"
+      ],
+      "acceptance": "tier definitions (Free/Starter/Pro/Enterprise) with feature gates; Stripe billing wired; per-tenant SKU assignment via prism_tenant; usage-based metering for SFC + Master Post calls; 3 staged customer signups round-trip to invoice in <1d; without this, $100K-in-4-months pilot cannot bill; closes pass-2 ROI gap."
+    },
+    {
+      "id": "INCIDENT-RESPONSE-MS37",
+      "title": "Outage runbook, on-call rotation, rollback automation (Codex WSJF #3)",
+      "layer": 0,
+      "scope_units": 1,
+      "effort_days": 3,
+      "risk": "low",
+      "value": "high",
+      "critical_path": false,
+      "phase": "pre-ship",
+      "blocks": [
+        "SHIP-RELEASE-MS19a"
+      ],
+      "blocked_by": [
+        "SCHEMA-MIGRATION-RUNNER-MS27"
+      ],
+      "acceptance": "rollback automation: any deployed version can be reverted in <2 min via single command; on-call rotation defined (Mark + 1 backup); 3 staged outage scenarios (db-down, mcp-dead, ollama-flap) have documented runbook entries; postmortem template + ledger; incident_log.jsonl persists; without this, 1 pilot outage kills reference customer."
+    }
+  ],
+  "newMilestonesV2": [
+    "TWIN-SIM-GATE-MS23",
+    "RT-ADAPTIVE-MS22",
+    "HITL-OPERATOR-UI-MS24",
+    "L6-BACKPROP-REGISTRY-MS25",
+    "HOOK-MANIFEST-DAG-MS26",
+    "SCHEMA-MIGRATION-RUNNER-MS27",
+    "MULTI-CLI-SYNC-HOOK-MS28",
+    "TENANT-ONBOARD-MS29",
+    "AGI-MASTER-PARITY-MS30",
+    "OT-IT-SECURITY-MS20"
+  ],
+  "scopeChanges": {
+    "ATOM-REGISTRY-AUDIT-MS0a": "effort 7d -> 3d (researcher: many engines exist, only registry shells missing)",
+    "SINKER-P2P-MS6": "effort 15d -> 8d (researcher: SinkerEDMPrintToProgramEngine + 7 sibling engines exist, only orchestrator wiring needed)",
+    "LASER-P2P-MS7": "effort 12d -> 10d (researcher: 9 laser engines + LoRA exist, only LaserPrintToProgramEngine.ts new)",
+    "WJET-P2P-MS8": "effort 10d -> 10d unchanged (waterjet has 6 engines + LoRA, similar gap)",
+    "SAFETY-OMEGA-GATE-MS9": "effort 10d -> 15d (+5d for 7 new gates per safety oracle)",
+    "BIZ-PORTAL-CUSTOMER-MS15": "effort 10d -> 8d (HITL UI split into MS24)",
+    "MS6/MS7/MS8 blocked_by": "added MS3 dependency (forces inheritance of pipeline-confidence-rollup pattern, prevents 3 reinventions)",
+    "MS9 blocked_by": "added TWIN-SIM-GATE-MS23 (sim becomes engine, not prose)",
+    "MS18 blocked_by": "added L6-BACKPROP-REGISTRY-MS25 (backprop closes loop before LoRA claims)",
+    "MS19 blocked_by": "added RT-ADAPTIVE-MS22 + HITL-OPERATOR-UI-MS24 + L6-BACKPROP-REGISTRY-MS25 + SCHEMA-MIGRATION-RUNNER-MS27"
+  },
+  "acceptanceCriteriaTightened": [
+    "MS3",
+    "MS10",
+    "MS12",
+    "MS14",
+    "MS16",
+    "MS17",
+    "MS18",
+    "MS19"
+  ],
+  "verdicts": {
+    "criticalPath": "V1 advertised 79d, true value with V2 additions = 110d (110d serial spine)",
+    "fourEngineerMakespan": "~85d / 17 weeks (vs V1 73d) — bottleneck remains MS0->MS1->MS2 serial spine",
+    "firstDomain": "WEDM (MS5) — P(on-time)=0.78 vs mill=0.55",
+    "msNineGate": "V1 BLOCK (insufficient); V2 PASS-eligible after 7 new gates wired",
+    "coverageBias": "V1 systematically underestimated non-WEDM EDM/laser/waterjet coverage by 15-25 points"
+  },
+  "decisionsResolved": [
+    "First-domain pick: WEDM (was open in V1)",
+    "Codex retry: done in V1, no new info needed"
+  ],
+  "decisionsRemaining": [
+    "User sign-off on V2 30-milestone plan",
+    "OT-IT-SECURITY-MS20 + TOLERANCE-MULTI-STAGE folded into MS11 — accept or split out MS21?",
+    "Pilot scope: JM Die only (current MS19), or wire MS29 TENANT-ONBOARD into MS19 acceptance for second-customer stress test?"
+  ],
+  "v3_1_applied": "2026-05-05T13:40:58.836Z",
+  "v3_1_changes": [
+    "MS22 split into MS22a (pre-ship telemetry, 4d) + MS22b (post-pilot active feedback, 8d)",
+    "MS24 lite-CLI replaces full UI (10d -> 3d, saves 7d on critical path)",
+    "MS29 softened to synthetic-tenant gate (no single-customer-veto)",
+    "28 reciprocal blocks/blocked_by edges added (symmetry sweep)",
+    "totalEffortDays recomputed: 321",
+    "criticalPathDays recomputed: 115",
+    "orphans: 0"
+  ],
+  "v3_2_applied": "2026-05-05T14:22:21.172Z",
+  "v3_2_changes": [
+    "MS18 LoRA moved to post-pilot (Codex contrarian + ROI)",
+    "Added MS31 LABEL-PROVENANCE (closes red-team #1)",
+    "Added MS32 CONSENSUS-INTEGRITY (closes red-team #2)",
+    "Added MS33 PILOT-HEDGE (closes red-team #3,#4,#7)",
+    "Added MS34 REG-HARDENING (AS9100/CMMC/ITAR/SOTIF)",
+    "Added MS35 ADOPTION-GATE (closes pre-mortem #1)",
+    "MS24 pendant-button redesign (operator-empathy)",
+    "CP recomputed (topological longest-path): 12 nodes, 153d",
+    "Total effort: 339d",
+    "Reciprocal edges added: 14"
+  ],
+  "v3_2_cycle_break": "MS19->MS16->MS18->MS19 broken: removed MS18 from MS16.blocked_by (MS18 is post-pilot, cannot block pre-ship dashboards)",
+  "v3_3_applied": "2026-05-05T14:46:50.239Z",
+  "v3_3_changes": [
+    "MS34 moved off critical path (parallel swimlane, no longer chained through MS17)",
+    "MS35 acceptance: outcome_correlation gameability fix (operators rubber-stamping detected)",
+    "MS24 acceptance: motion-aware 30s timer + phone-tap foreman dual-auth + customer-history Omega override",
+    "MS0/MS1 acceptance updated to reflect engine paths (12 consensus engines copied from prism-iooms0 to primary)",
+    "MS6 acceptance: orchestrator EXISTS — V3.3 reduced scope from 8d to 5d (Codex P3 ground-truth)",
+    "MS9 acceptance: CI grep-gate added for inlined constants migration",
+    "Added MS36 PRICING-PACKAGING (5d, Codex WSJF #7 — required for $100K pilot)",
+    "Added MS37 INCIDENT-RESPONSE (3d, Codex WSJF #3 — outage runbook + rollback)",
+    "Split MS19 into MS19a (pilot/JM Die) + MS19b (platform/multi-tenant) — Codex P4 finding",
+    "CP recomputed (topological longest-path to MS19a): 12 nodes, 143d",
+    "Total effort: 344d",
+    "Reciprocal edges added: 4",
+    "Cycles remaining: 0"
+  ]
+}

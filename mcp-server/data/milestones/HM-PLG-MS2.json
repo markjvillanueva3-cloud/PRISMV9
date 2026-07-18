@@ -1,0 +1,338 @@
+{
+  "id": "HM-PLG-MS2",
+  "version": "8.3.0",
+  "title": "Physics Advisor Panel (HTML/JS)",
+  "track": "HM-PLUGIN",
+  "status": "not_started",
+  "description": "Build the PRISM Physics Advisor panel that displays inside hyperMILL. Shows Kienzle cutting force predictions, stability lobe diagram (SLD) safe RPM zones, tool deflection warnings, and recommended speeds/feeds with P90 confidence bands. Includes an 'Apply to Operation' button that injects optimized parameters into the active hyperMILL cycle. Material-specific warnings for Ti thermal limits, Inconel work hardening, and hardened steel CBN routing.",
+  "dependencies": [
+    "HM-PLG-MS1",
+    "HM-REV-MS2"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "SpeedFeedOrchestratorEngine",
+      "KienzleForceModelEngine",
+      "ChatterStabilityLobeEngine",
+      "ToolDeflectionEngine",
+      "CuttingTemperatureEngine"
+    ],
+    "registries": [
+      "MaterialRegistry",
+      "ToolRegistry",
+      "MachineRegistry",
+      "FormulaRegistry"
+    ],
+    "services": [
+      "prism-mcp-server"
+    ],
+    "physics": [
+      "Kienzle kc1.1 constants per ISO group",
+      "Taylor tool life equation",
+      "Euler-Bernoulli deflection model"
+    ],
+    "reference": [
+      "hypermill-speed-feed-catalog",
+      "hypermill-materials-catalog"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hm-plugin:physics-advisor-param-validation — BUILT (validates S/F before Apply injection)",
+    "action": "hypermill_plugin:get_physics_advisory — BUILT (returns force + SLD + deflection for current op)",
+    "skill": "/hypermill-physics-advisor — BUILT (full physics advisory for active hyperMILL operation)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-PLG-MS2-S1",
+      "title": "Physics Engine Integration + Panel UI",
+      "smart_config": {
+        "role": "CNC-physics-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "SpeedFeedOrchestratorEngine (2,851 LOC)",
+        "KienzleForceModelEngine",
+        "ChatterStabilityLobeEngine",
+        "ToolDeflectionEngine"
+      ],
+      "intent": "Wire the physics engines (Kienzle force, SLD chatter, deflection) to a plugin-facing action and build the HTML/JS panel that visualizes force predictions, stability lobes, and deflection warnings with confidence bands.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG05",
+          "title": "Physics Advisory Action (Force + SLD + Deflection)",
+          "description": "Create the hypermill_plugin:get_physics_advisory action that takes current operation context (material, tool, machine, cutting params) and returns Kienzle cutting force, ChatterStabilityLobe safe RPM zones, ToolDeflection predictions, and SpeedFeedOrchestrator recommended S/F with P90 confidence band. Wire through SpeedFeedOrchestratorEngine's 8 resolvers.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Action returns Kienzle Fc with ±5% confidence interval for ISO P/M/K/N/S/H groups",
+            "SLD output includes safe RPM zones as array of {rpm_min, rpm_max, depth_limit} ranges",
+            "Deflection prediction returns value in mm with pass/fail against 0.05mm threshold"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/PhysicsAdvisorEngine.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/hypermillPluginDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "physics output diverges >10% from reference"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PhysicsAdvisorEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG06",
+          "title": "Physics Panel HTML/JS UI",
+          "description": "Build the Physics Advisor HTML/JS panel with: force gauge visualization (Kienzle Fc as percentage of machine capacity), SLD chart (RPM vs depth-of-cut with safe/unsafe zones), deflection bar (green/yellow/red), recommended S/F card with confidence band. Use Canvas 2D for SLD chart rendering. Responsive layout that works docked or floating in hyperCAD-S.",
+          "depends_on": [
+            "U-PLG05"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "SLD chart renders with RPM on X-axis, axial depth on Y-axis, stable/unstable zones colored",
+            "Force gauge shows Fc as percentage of machine spindle torque capacity",
+            "Recommended S/F card displays spindle speed, feed rate, and P90 confidence range"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/panels/physics-advisor-panel.html"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/panels/"
+          }
+        },
+        {
+          "id": "U-PLG07",
+          "title": "Material-Specific Warnings System",
+          "description": "Implement context-aware material warnings: Ti-6Al-4V thermal limit warnings (>800C), Inconel 718 work hardening alerts (feed below 0.05mm/tooth triggers hardening), hardened steel (>55 HRC) CBN routing recommendations, stainless steel BUE warnings at low speed. Wire to MaterialRegistry for ISO group and machinability class lookup.",
+          "depends_on": [
+            "U-PLG05"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Ti-6Al-4V operations show thermal warning when predicted temp exceeds 800C",
+            "Inconel 718 shows work hardening alert when fz < 0.05 mm/tooth",
+            "Hardened steel >55 HRC triggers CBN/PCBN tool routing recommendation"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/PhysicsAdvisorEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PhysicsAdvisorEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Physics advisory returns valid force+SLD+deflection + panel renders all visualizations | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "hm-plugin:physics-advisor-param-validation"
+        ],
+        "new_actions": [
+          "hypermill_plugin:get_physics_advisory"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-PLG-MS2-S2",
+      "title": "Apply-to-Operation + Integration Testing",
+      "smart_config": {
+        "role": "CNC-physics-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "AC Python API for parameter injection",
+        "hyperMILL cycle parameter structure"
+      ],
+      "intent": "Build the Apply to Operation button that injects optimized S/F parameters into the active hyperMILL cycle, and write integration tests for the full physics advisory pipeline.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG08",
+          "title": "Apply-to-Operation Parameter Injection",
+          "description": "Build the 'Apply to Operation' button handler that takes SpeedFeedOrchestrator recommendations and injects them into the active hyperMILL cycle via AC Python API. Map PRISM output (spindle_speed, feed_rate, depth_of_cut, stepover) to hyperMILL cycle parameter names. Add undo support (save original params before injection). Add confirmation dialog showing before/after comparison.",
+          "depends_on": [
+            "U-PLG06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Apply button injects S/F/ap/ae into active hyperMILL cycle via AC API",
+            "Undo restores original parameters with single click",
+            "Before/after comparison dialog shows delta for each parameter"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/PhysicsAdvisorEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PhysicsAdvisorEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG09",
+          "title": "Physics Advisor Integration Tests",
+          "description": "Write integration tests covering the full physics advisory pipeline: material lookup → force calculation → SLD generation → deflection check → S/F recommendation → parameter injection. Test with 5 representative materials (Ti-6Al-4V, Inconel 718, 4140 steel, 6061-T6 aluminum, hardened D2). Verify physics output against reference values from manufacturer datasheets.",
+          "depends_on": [
+            "U-PLG05",
+            "U-PLG07",
+            "U-PLG08"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "5 material test cases pass with force predictions within 10% of reference",
+            "SLD safe zones validated against analytical Altintas model for simple cases",
+            "Parameter injection round-trip test (inject → read back → compare) passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/engines/hypermill/plugin/physics-advisor.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/__tests__/engines/hypermill/plugin/"
+          }
+        }
+      ],
+      "exit_gate": "Apply button injects params + 5 material test cases pass + SLD validated | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "hypermill_plugin:apply_physics_params"
+        ],
+        "new_skills": [
+          "/hypermill-physics-advisor"
+        ],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms2-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms2_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the PRISM Physics Advisor panel that displays inside hyperMILL. Shows Kienzle cutting force predictions, stability lobe diagram (SLD) safe RPM zones, tool deflection warnings, and recommended speeds/feeds with P90 confidence bands. Includes an 'Apply to Operation' button that injects optimized parameters into the active hyperMILL cycle. Material-specific warnings for Ti thermal limits, Inconel work hardening, and hardened steel CBN routing.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS2 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS2. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

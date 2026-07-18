@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `ai-analyze` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/ai-analyze.md` |
+| Source | `C:/Users/wompu/.claude/commands/ai-analyze.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Analyze existing code, G-code, cutting parameters, or engine output using PRISM's full AI analysis stack: pattern database matching, JM Die program profiling, tribal-knowledge checks, physics validation, and cross-engine integrity audits.
+
+# /ai-analyze — Full-Stack AI Analysis of Code or Parameters
 
 <!-- AUTO-END -->
 

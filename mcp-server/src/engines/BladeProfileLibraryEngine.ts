@@ -216,6 +216,37 @@ export class BladeProfileLibraryEngine {
     return a.y + t * (b.y - a.y);
   }
 
+  // ─── Capability probe ─────────────────────────────────────────────────
+
+  /**
+   * Can this library synthesize the given designation? Parse-only (no
+   * geometry). Returns a structured result instead of throwing, so downstream
+   * generators (e.g. BliskCADEngine.validate) can fail loud at *validate* time
+   * rather than throwing at generate(). Uses the same parser, so
+   * `canGenerate(d).ok` iff `getProfile(d)` will not throw a parse/library
+   * error. U-BLISK-6SERIES-PARSE.
+   *
+   * @param designation NACA designation, e.g. "NACA 0012".
+   * @returns `{ ok: true }` when generatable, else `{ ok:false, reason }`.
+   */
+  canGenerate(designation: string): { ok: boolean; reason?: string } {
+    try {
+      const parsed = parseDesignation(designation);
+      if (parsed.family === "naca-5") {
+        const key = parsed.digits.slice(0, 3);
+        if (!NACA5_MEAN_LINE[key]) {
+          return {
+            ok: false,
+            reason: `NACA 5-digit mean-line "${key}" is not implemented (supported: ${Object.keys(NACA5_MEAN_LINE).join(", ")})`,
+          };
+        }
+      }
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, reason: e instanceof Error ? e.message : String(e) };
+    }
+  }
+
   // ─── NACA 4-digit ─────────────────────────────────────────────────────
 
   private generateNACA4(
@@ -392,6 +423,23 @@ function normaliseDesignation(d: string): string {
 
 function parseDesignation(d: string): ParsedNACA4 | ParsedNACA5 {
   const norm = normaliseDesignation(d);
+  // NACA 6-series (laminar-flow) -- e.g. "NACA 65-010", "NACA 65(216)-010",
+  // "NACA 64A010". Their basic thickness form is TABULATED (NACA Report 824 /
+  // Abbott & von Doenhoff, "Theory of Wing Sections", App. I), derived by
+  // conformal mapping -- NOT the analytic 4-/5-digit polynomial implemented
+  // here -- so this library cannot synthesize them yet. Fail loud with an
+  // honest, actionable message; NEVER silently substitute a 4-digit section
+  // (its thickness distribution differs -> wrong blade geometry). The dash or
+  // 'A' modifier distinguishes them from valid 4-/5-digit designations, which
+  // never contain either. See unit U-BLISK-6SERIES-ORDINATES.
+  if (/^NACA\s*6\d.*-\d{3}$/.test(norm) || /^NACA\s*6\dA\d{3}$/.test(norm)) {
+    throw new AirfoilParseError(
+      d,
+      "NACA 6-series (laminar-flow) sections require tabulated thickness-form " +
+        "ordinates (NACA Report 824 / Abbott & von Doenhoff App. I) not yet " +
+        "loaded in this library; supported families: NACA 4-digit and 5-digit",
+    );
+  }
   const m = norm.match(/^NACA\s*(\d{4,5})$/);
   if (!m) throw new AirfoilParseError(d, "expected 'NACA <4-or-5-digits>'");
   const digits = m[1]!;

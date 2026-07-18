@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mastercam-setup` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/mastercam-setup.md` |
+| Source | `C:/Users/wompu/.claude/commands/mastercam-setup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

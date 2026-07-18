@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-31",
+  "advisoryOnly": false,
+  "mustHumanVerify": true,
+  "author": "kilo (CAM)",
+  "purpose": "Decision-rule registry for autonomous CAM-drive replay. Every judgment call a human/Claude makes while driving Fusion 360 CAM is encoded here as a DETERMINISTIC rule (closed-form formula | ranked argmax | decision-table | threshold-with-fallback) the CAMDriveRecipeEngine evaluates with ZERO LLM. Referenced by stable id from recipe step.decisionRuleRef. Constants live in physics/constants.ts or the recipe header — NEVER inlined here (so the learning loop tunes by editing data, not code).",
+  "constantsRef": "mcp-server/src/physics/constants.ts",
+  "units": "inch",
+  "learningLoop": {
+    "tunedBy": "MillingMetaLearningEngine via OutcomeFeedbackWireEngine.computeCorpusDelta() at >=50 outcomes",
+    "tunableFields": ["strategy.by_feature.table", "tool.rank_costeff_mrr.weights", "stock.oversize.params", "parting.geometry_driven.AREA_FRAC"]
+  },
+  "rules": {
+    "place.center_bbox": {
+      "kind": "GEOMETRIC",
+      "inputs": ["partBbox(min,max) from /cam/geometry-detail", "fixture.jawCenterXY"],
+      "formula": "tx = jawCx - (bboxMinX+bboxMaxX)/2 ; ty = jawCy - (bboxMinY+bboxMaxY)/2",
+      "output": "transform.x, transform.y (inch)",
+      "guard": "fixture must be X/Y symmetric about table center (jawCenterXY=[0,0] for the MATE vise)",
+      "provenValue_UPSET": "tx=0.0 (part X-symmetric), ty=+0.228 (part Y-center -0.228 -> 0)"
+    },
+    "place.seat_bottom_riser": {
+      "kind": "GEOMETRIC",
+      "inputs": ["partBbox.minZ", "fixture.jawTopLipZ", "params.fixtureClearance"],
+      "formula": "transform.z = fixture.jawTopLipZ + params.fixtureClearance - bboxMinZ",
+      "output": "transform.z (inch)",
+      "params": { "fixtureClearance": 0.5 },
+      "rationale": "Part RAISED above the jaw top lip by a riser of extra material so finishing the overall height clears the jaws/parallels (no tool/holder collision). The [jawTopLipZ, jawTopLipZ+clearance] gap is sacrificial riser, removed in Op-2. SOURCE: operator rule 2026-05-31 [[feedback_setup_extra_material_fixture_clearance]].",
+      "guard": "fixtureClearance >= finishing-tool+holder clearance above fixture; default 0.5in, tune larger for big-D holders / short tools",
+      "provenValue_UPSET": "jawTopLipZ=5.63, clearance=0.5 -> part bottom Z=6.13 (bbox Z[6.13,10.74])"
+    },
+    "parting.geometry_driven": {
+      "kind": "GEOMETRIC+THRESHOLD",
+      "inputs": ["body faces (area,normal,z) from /cam/geometry-detail", "partBbox", "params.AREA_FRAC"],
+      "algorithm": "largest-flat-face-Z-or-midheight: among faces with normal +/-Z, pick max-area; if area >= AREA_FRAC*bboxFootprint -> partingZ = that face Z; ELSE partingZ = bboxMinZ + 0.5*(bboxMaxZ-bboxMinZ) (mid-height fallback)",
+      "params": { "AREA_FRAC": 0.35 },
+      "output": "partingZ (inch) — Op-1 machines above this + side walls down to it; below stays gripped for Op-2",
+      "guard": "partingZ STRICTLY interior: minZ < z < maxZ (a face AT a boundary is the top/bottom face, not a parting plane). NEVER at/below part bottom (riser/jaws). On AREA_FRAC miss or mid-height fallback -> needsOperatorConfirm=true, which the engine turns into a forced gate_to_operator before any actuation.",
+      "provenValue_UPSET": "operator interpretation 'top half' -> mid-height fallback partingZ=8.435 (fixture) / part-local 2.305"
+    },
+    "stock.oversize": {
+      "kind": "GEOMETRIC",
+      "inputs": ["partBbox", "params.{radial,top,bottom}"],
+      "formula": "stockBox = {x:[minX-radial,maxX+radial], y:[minY-radial,maxY+radial], z:[minZ-bottom, maxZ+top]}",
+      "params": { "radial": 0.040, "top": 0.060, "bottom": 0.0 },
+      "output": "fixed-box stock dims (inch). bottom=0 because the seated/riser face is the Z reference",
+      "guard": "stock must not intersect fixture below the seated face; radial may grow per 'oversize on length to avoid jaws' policy"
+    },
+    "wcs.stock_bottom_center": {
+      "kind": "SELECTION",
+      "inputs": ["stockBox", "fixture.jawTopLipZ"],
+      "formula": "origin = { x: (stockMinX+stockMaxX)/2, y: (stockMinY+stockMaxY)/2, z: stockMinZ }",
+      "output": "WCS origin (machine-from-table-center; stock-bottom-center)",
+      "provenValue_UPSET": "(0, 0, 5.63) fixture coords = jaw top lip / stock bottom"
+    },
+    "strategy.by_feature": {
+      "kind": "SELECTION",
+      "inputs": ["featureType + dims from /cam/feature-candidates", "TemplateApplicabilityClassifierEngine decision(direct|override|compose|gate)"],
+      "table": {
+        "face": ["face"],
+        "pocket": ["adaptive_rough", "rest_rough", "semi_finish", "finish"],
+        "open_pocket": ["adaptive_rough", "rest_rough", "semi_finish", "finish"],
+        "bore_large": ["boring_bar_bore"],
+        "bore_small": ["multiaxis_drill"],
+        "through_hole": ["multiaxis_drill"],
+        "blind_hole": ["drill"],
+        "contour3d": ["ball_finish"],
+        "sculpted": ["scallop", "ball_finish"],
+        "edge_break": ["chamfer"]
+      },
+      "guard": "bore_large iff diameter within boring-bar range (L/D feasible per tool lib); else bore_small. catalogOperation per entry validated by gate.catalog_validate.",
+      "rationale": "static decision-table keyed on feature class; entries re-ranked by the learning loop via outcomes (no code change). Op-1 chain proven on UP SET."
+    },
+    "tool.spindle_match": {
+      "kind": "CATALOG_LOOKUP",
+      "inputs": ["machine.spindle (taper+interface)", "toolLibrary.tools[].holder"],
+      "filter": "holder.taper == machine.spindle.taper AND holder.interface includes machine.spindle.interface",
+      "output": "candidate tool+holder assemblies",
+      "provenValue_UPSET": "machine spindle = CAT40 BIG-PLUS -> filter to BIG-PLUS CAT40 holders (upset-h13-bigplus-cat40-tools.json)"
+    },
+    "tool.rank_costeff_mrr": {
+      "kind": "SELECTION",
+      "inputs": ["spindle-matched candidates feasible for feature (DC fits width, LB reaches depth+clearance)", "params.weights"],
+      "objective": "argmax( w_mrr*norm(MRR) + w_cost*norm(costEff) - w_defl*norm(deflection) )",
+      "definitions": "MRR = chipLoad*DC*ap*feed ; deflection = F*L^3/(3*E*I) (canonical constants.ts) ; costEff = toolLife / toolCost",
+      "params": { "weights": { "mrr": 0.5, "cost": 0.4, "defl": 0.1 } },
+      "output": "selected tool+holder per operation",
+      "tieBreak": "larger DC (stiffer)",
+      "rationale": "makes 'maximize cost-eff x MRR' a concrete reproducible argmax"
+    },
+    "feed.kienzle": {
+      "kind": "PHYSICS",
+      "formula": "Fc = kc1_1 * ap * fz^(1-mc)",
+      "constantsRef": "constants.ts MATERIAL_DB ISO group H (H13): kc1_1=3200, mc per table; apply annealed-H13 derate multiplier from constants (~0.8, hot-work)",
+      "inputs": ["ap", "fz", "material ISO group"],
+      "output": "cutting force Fc (N)",
+      "guard": "NEVER inline kc1.1/mc — reference constants.ts. H13 annealed = ISO P-behavior derate but H-group base; verify MATERIAL_DB entry."
+    },
+    "feed.taylor_vc": {
+      "kind": "PHYSICS",
+      "formula": "T = (C/Vc)^(1/n)  ->  Vc = C / T^n  for target tool life T",
+      "constantsRef": "constants.ts Taylor C,n for coating/material pair (H13: C~350, n~0.25)",
+      "output": "cutting speed Vc"
+    },
+    "feed.chipload_rpm": {
+      "kind": "PHYSICS",
+      "formula": "rpm = Vc*1000/(pi*Dmm) [inch-convert for Okuma] ; vf = rpm*fz*flutes",
+      "inputs": ["Vc", "tool DC", "tool flutes", "fz seed from tool start-values presets"],
+      "output": "spindle rpm + feed vf (IN/MIN — unit-suffixed expression for the inch doc)",
+      "guard": "clamp fz to physics max: spindle power Pc = Fc*Vc/60000 <= machine.max_power_kw. EMIT feeds as inch expressions ('14 in/min'), NOT mm CAM_PARAM_MAP x0.1 (the 10x feed-bug)."
+    },
+    "feed.deflection_clamp": {
+      "kind": "PHYSICS+THRESHOLD",
+      "formula": "if delta = F*L^3/(3*E*I) > params.DEFL_TOL -> reduce ap/fz by bisection until within tol (capped iters)",
+      "params": { "DEFL_TOL": 0.0005 },
+      "output": "clamped ap, fz",
+      "guard": "deterministic bisection, capped iterations; tol per tolerance class (.001 part -> tighter)"
+    },
+    "gate.catalog_validate": {
+      "kind": "THRESHOLD_GATE",
+      "delegate": "CAMDriveGateEngine.gate({system:'fusion360', operation, params})",
+      "blocks": ["missingRequired", "outOfRange", "invalidEnum", "non-finite", "unknown-op"],
+      "output": "clearedToActuate boolean + violations",
+      "guard": "MANDATORY before op_create + post (recipe step.gate.required=true). Already enforced inside cam_drive_create_operation. NO judgment — pure validation against grounded catalog. allowUnknownParams advisory (catalogs ~55-59% complete)."
+    }
+  }
+}

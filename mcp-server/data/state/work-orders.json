@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "store": "work-orders",
+  "description": "ERP work-order store (DB-COVERAGE-GAPFILL-MS0/U-ERP02). Records conform to WorkOrderImportSchema in src/engines/ERPImportEngine.ts (the importWorkOrder contract). JM Die runs JobBoss; work centers map to the 21-machine ShopConfigurationEngine fleet. Customers + job ids are consistent with data/state/invoices.json. Before U-ERP02 this store had no JSON file — JobsPage/JobPlannerPage rendered with PostgreSQL-only backing (resets in dev).",
+  "generated_by": "slot:juliett claude-ee38014f (DB-COVERAGE-GAPFILL-MS0/U-ERP02)",
+  "generated_at": "2026-06-08",
+  "work_orders": [
+    {
+      "erpSystem": "jobboss",
+      "workOrderNumber": "WO-2026-0101",
+      "partNumber": "ITW-PD-4480",
+      "revision": "C",
+      "description": "Progressive die plate set — D2, wire EDM + surface grind",
+      "customer": "ITW",
+      "quantityOrdered": 2,
+      "quantityComplete": 2,
+      "dueDate": "2026-04-30",
+      "releaseDate": "2026-04-02",
+      "priority": 2,
+      "routing": [
+        { "operationNumber": 10, "workCenter": "SAW-01", "description": "Cut D2 blank to size", "setupHours": 0.5, "runHoursPerUnit": 0.4, "setupComplete": true, "quantityComplete": 2 },
+        { "operationNumber": 20, "workCenter": "VMC-03", "description": "Rough mill plate + bolt pattern", "setupHours": 1.5, "runHoursPerUnit": 2.1, "setupComplete": true, "quantityComplete": 2 },
+        { "operationNumber": 30, "workCenter": "GRIND-02", "description": "Surface grind to ±0.0002", "setupHours": 0.75, "runHoursPerUnit": 1.2, "setupComplete": true, "quantityComplete": 2 },
+        { "operationNumber": 40, "workCenter": "WEDM-01", "description": "Wire EDM die openings", "setupHours": 1.0, "runHoursPerUnit": 6.5, "setupComplete": true, "quantityComplete": 2 }
+      ],
+      "bom": [
+        { "itemNumber": "D2-PLATE-1.0", "description": "D2 tool steel plate 12x8x1.0 in", "quantityPer": 1, "unitOfMeasure": "EA", "issued": true }
+      ],
+      "notes": "JOB-2026-0101. Customer ITW. Die clearance per print rev C."
+    },
+    {
+      "erpSystem": "jobboss",
+      "workOrderNumber": "WO-2026-0104",
+      "partNumber": "ALC-FORM-2210",
+      "revision": "A",
+      "description": "Forming die inserts — A2, hardened 58-60 HRC",
+      "customer": "Alcoa",
+      "quantityOrdered": 8,
+      "quantityComplete": 5,
+      "dueDate": "2026-05-14",
+      "releaseDate": "2026-04-18",
+      "priority": 3,
+      "routing": [
+        { "operationNumber": 10, "workCenter": "VMC-01", "description": "Mill insert blanks", "setupHours": 1.2, "runHoursPerUnit": 1.6, "setupComplete": true, "quantityComplete": 8 },
+        { "operationNumber": 20, "workCenter": "HEAT-TREAT", "description": "Harden A2 to 58-60 HRC (outsourced)", "setupHours": 0.0, "runHoursPerUnit": 0.0, "setupComplete": true, "quantityComplete": 8 },
+        { "operationNumber": 30, "workCenter": "GRIND-01", "description": "Finish grind post-HT", "setupHours": 0.5, "runHoursPerUnit": 0.9, "setupComplete": true, "quantityComplete": 5 }
+      ],
+      "bom": [
+        { "itemNumber": "A2-BLOCK-2.0", "description": "A2 tool steel block 4x3x2 in", "quantityPer": 1, "unitOfMeasure": "EA", "issued": true }
+      ],
+      "notes": "JOB-2026-0104. In progress — 3 inserts remaining post-grind."
+    },
+    {
+      "erpSystem": "jobboss",
+      "workOrderNumber": "WO-2026-0108",
+      "partNumber": "OPT-TRIM-7755",
+      "revision": "B",
+      "description": "Trim die — 4140 PHT, milled + jig bore",
+      "customer": "Optimas",
+      "quantityOrdered": 1,
+      "quantityComplete": 0,
+      "dueDate": "2026-06-20",
+      "releaseDate": "2026-06-01",
+      "priority": 4,
+      "routing": [
+        { "operationNumber": 10, "workCenter": "VMC-05", "description": "Rough + finish mill die body", "setupHours": 2.0, "runHoursPerUnit": 8.0, "setupComplete": false, "quantityComplete": 0 },
+        { "operationNumber": 20, "workCenter": "JIG-BORE", "description": "Jig bore pilot holes ±0.0001", "setupHours": 1.5, "runHoursPerUnit": 3.0, "setupComplete": false, "quantityComplete": 0 }
+      ],
+      "bom": [
+        { "itemNumber": "4140PHT-PLATE", "description": "4140 pre-hard plate 16x10x2 in", "quantityPer": 1, "unitOfMeasure": "EA", "issued": false }
+      ],
+      "notes": "JOB-2026-0108. Not started — material not yet issued."
+    },
+    {
+      "erpSystem": "jobboss",
+      "workOrderNumber": "WO-2026-0115",
+      "partNumber": "SFS-PUNCH-3320",
+      "revision": "A",
+      "description": "Punch set — M2 HSS, lathe + cylindrical grind",
+      "customer": "SFS",
+      "quantityOrdered": 12,
+      "quantityComplete": 12,
+      "dueDate": "2026-05-02",
+      "releaseDate": "2026-04-10",
+      "priority": 3,
+      "routing": [
+        { "operationNumber": 10, "workCenter": "LATHE-02", "description": "Turn punch OD + shank", "setupHours": 0.75, "runHoursPerUnit": 0.5, "setupComplete": true, "quantityComplete": 12 },
+        { "operationNumber": 20, "workCenter": "CYL-GRIND", "description": "Cylindrical grind to ±0.0001", "setupHours": 0.5, "runHoursPerUnit": 0.3, "setupComplete": true, "quantityComplete": 12 }
+      ],
+      "bom": [
+        { "itemNumber": "M2-ROD-0.75", "description": "M2 HSS round bar 0.75 in dia", "quantityPer": 1, "unitOfMeasure": "EA", "issued": true }
+      ],
+      "notes": "JOB-2026-0115. Complete — shipped to SFS."
+    },
+    {
+      "erpSystem": "jobboss",
+      "workOrderNumber": "WO-2026-0123",
+      "partNumber": "HK-DIE-9901",
+      "revision": "D",
+      "description": "Cold-header die — carbide insert pocket, EDM finish",
+      "customer": "Holo-Krome",
+      "quantityOrdered": 4,
+      "quantityComplete": 1,
+      "dueDate": "2026-07-08",
+      "releaseDate": "2026-06-05",
+      "priority": 5,
+      "routing": [
+        { "operationNumber": 10, "workCenter": "VMC-02", "description": "Mill die body + carbide pocket", "setupHours": 1.8, "runHoursPerUnit": 4.0, "setupComplete": true, "quantityComplete": 4 },
+        { "operationNumber": 20, "workCenter": "SINKER-EDM", "description": "Sinker EDM finish carbide pocket", "setupHours": 1.0, "runHoursPerUnit": 5.5, "setupComplete": true, "quantityComplete": 1 }
+      ],
+      "bom": [
+        { "itemNumber": "D2-BLOCK-3.0", "description": "D2 block 5x4x3 in", "quantityPer": 1, "unitOfMeasure": "EA", "issued": true },
+        { "itemNumber": "CARBIDE-INSERT-CH", "description": "Tungsten carbide cold-header insert blank", "quantityPer": 1, "unitOfMeasure": "EA", "issued": true }
+      ],
+      "notes": "JOB-2026-0123. 1 of 4 through sinker EDM."
+    }
+  ]
+}

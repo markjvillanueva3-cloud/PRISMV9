@@ -442,7 +442,7 @@ class MITCourseKnowledgeEngine {
     for (const subcategories of Object.values(ALGORITHM_CATEGORIES)) {
       for (const algorithms of Object.values(subcategories)) {
         for (const algo of algorithms) {
-          if (algo.prismEngines.some(e => e.toLowerCase().includes(engineLower))) {
+          if (algo.prismEngines.some((e: string) => e.toLowerCase().includes(engineLower))) {
             results.push({
               name: algo.name,
               course: algo.course,
@@ -518,7 +518,7 @@ class MITCourseKnowledgeEngine {
           categoryCounts[category]++;
           courseSet.add(algo.course);
           courseCounts[algo.course] = (courseCounts[algo.course] ?? 0) + 1;
-          algo.prismEngines.forEach(e => prismEngineSet.add(e));
+          algo.prismEngines.forEach((e: string) => prismEngineSet.add(e));
         }
       }
     }

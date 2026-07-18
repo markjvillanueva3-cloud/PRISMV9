@@ -17,9 +17,9 @@ vi.mock('../api/client', () => ({
   docList: vi.fn().mockResolvedValue({
     result: {
       documents: [
-        { id: 'DOC-001', file_path: 'C:/PRISM/CATALOGS/test.pdf', title: 'Test Catalog', format: 'pdf', status: 'complete', created_at: '2026-03-06', error: null },
-        { id: 'DOC-002', file_path: 'C:/PRISM/CATALOGS/pending.pdf', title: null, format: 'pdf', status: 'pending', created_at: '2026-03-06', error: null },
-        { id: 'DOC-003', file_path: 'C:/PRISM/CATALOGS/failed.pdf', title: 'Failed Doc', format: 'pdf', status: 'failed', created_at: '2026-03-06', error: 'Parse error' },
+        { id: 'DOC-001', file_path: 'C:/Kienzle/CATALOGS/test.pdf', title: 'Test Catalog', format: 'pdf', status: 'complete', created_at: '2026-03-06', error: null },
+        { id: 'DOC-002', file_path: 'C:/Kienzle/CATALOGS/pending.pdf', title: null, format: 'pdf', status: 'pending', created_at: '2026-03-06', error: null },
+        { id: 'DOC-003', file_path: 'C:/Kienzle/CATALOGS/failed.pdf', title: 'Failed Doc', format: 'pdf', status: 'failed', created_at: '2026-03-06', error: 'Parse error' },
       ],
     },
     safety: { score: 1, warnings: [] },

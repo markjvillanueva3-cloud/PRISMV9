@@ -81,8 +81,69 @@ swarm** allocation (5 waves, manual ROI ranking). This allocator is the
 the ROI spec captures judgment calls, this one captures the mechanical
 priority-ordered partition that re-runs without drift.
 
+## Injecting into live slot queues
+
+The allocation spec is advisory; `scripts/topup-slot-queues.mjs` is the
+companion that makes it *live*. The runtime per-slot task queue is
+`state/shared/slot-task-queues.json`, read by `scripts/slot-queue.mjs` which
+`/checkin-<slot> /loop` uses as its preferred pickup source.
+
+`topup-slot-queues.mjs` is **non-destructive**: it never removes or reorders
+existing queue entries. For each slot whose *eligible* count (measured via
+`slot-queue.mjs --status`) is below `--min-depth` (default 6), it appends units
+toward that depth — first from the slot's curated RGS allocation, then from a
+`priority-queue.mjs` deep-tail fallback when the allocation is exhausted by
+dedup. Properties:
+
+- **Global dedup** — a unit already in ANY slot's queue is skipped (the
+  cross-slot "no unit in two queues" invariant), keyed case-insensitively.
+- **golf exempt from the fallback** — the priority-queue tail is feature units;
+  golf only ever receives its curated RGS hygiene allocation.
+- **Shipped / peer-claimed units skipped**; atomic write; `--dry-run`,
+  `--no-fallback`, `--allocation <path>`, `--json`. Re-runnable as slots drain.
+- **`depends_on: []` on every topped-up entry** — the RGS/priority-queue
+  consolidated inventory carries no dependency data (0/3197 units); this is
+  recorded honestly in the file's `lastTopup.note` provenance, not implied.
+
+First run (2026-05-17): topped up 9 starved slots (charlie/delta/echo/golf/
+india/juliett/kilo/lima/mike) with 33 units — every slot reached eligible ≥ 6.
+
+```bash
+node scripts/topup-slot-queues.mjs --dry-run   # preview
+node scripts/topup-slot-queues.mjs             # apply
+node scripts/slot-queue.mjs --status --json    # verify
+```
+
+## Domain-specialized allocation (2026-05-17)
+
+A later work order — *"break up prism related tasks into the 12 chats, each chat
+owns one PRISM system domain"* — superseded the priority round-robin with a
+**domain partition**. `scripts/allocate-domains-to-slots.mjs` re-keys
+`slot-task-queues.json` so each slot owns one domain:
+
+```
+alpha=mill  bravo=lathe  charlie=wire  delta=cad  echo=cam
+foxtrot=machining-knowhow+tribal  hotel=erp/business+hr
+india=post-processor+master-post  juliett=speed-feed  kilo=print-to-program
+lima=prism-academy+learning  mike=misc  golf=database+maintenance(+hygiene)
+```
+
+It classifies every ROADMAP-CONSOLIDATED unit (pending_units + unconsolidated_prose)
+into a domain by an ordered first-match keyword ruleset (cam BEFORE mill —
+"HYPERMILL" contains "MILL"), and merges `FEATURE-GAP-UNITS-2026-05-17.json` —
+64 audit-discovered features that lead each slot's queue (`wave: "GAP"`).
+First run: **3235 units across 13 domain-keyed slots**. Re-runnable, advisory,
+atomic write, preserves all non-`queues` top-level keys.
+
+This was driven by a `/forge-audit-v2` run (6-agent scan of specs, handoffs,
+unwired engines, the v8.89 `extracted/` monolith, `Resources/`, `JM DIE/`) —
+see [[feature-gap-audit-2026-05-17]] for the gap inventory: 674 unwired engines
+(~595 absent from any roadmap), the monolith's digest=0 features, and the
+Resources/JM-DIE corpora.
+
 ## See also
 
 - [[juliett-12chat-allocation-ms0]] — the parent milestone
 - [[priority-queue]] — the delegated picker
 - [[roadmap-consolidation]] — the RGS master remaining-work inventory
+- [[feature-gap-audit-2026-05-17]] — the forge-audit-v2 gap inventory

@@ -689,6 +689,60 @@ const mod12Lessons: Lesson[] = [{
   }],
 }];
 
+const mod13Lessons: Lesson[] = [{
+  id: `${COURSE_ID}-m13-l1`, moduleId: `${COURSE_ID}-mod-13`,
+  title: "Citation Discipline — Manufacturing Standards", order: 1,
+  content: [{
+    type: "text",
+    body: `# Citation Discipline — Manufacturing Standards
+
+**Prerequisite:** Modules 1-12 of this course.
+**Learning objective:** For every safety rule, machine spec, and process step you'll execute, identify the governing standard. Manufacturing is regulated by OSHA, ISO, and ANSI — your work has to map to them.
+**Assessment:** Pick one machine in your shop. Identify the safety standard it conforms to + the inspection record.
+
+## Why Manufacturing Needs Cited Standards
+
+A machinist who can't cite the safety standard their guarding meets is a machinist who can't defend a near-miss investigation. A shop that can't cite which G-code standard its posts target can't onboard a new controller. Standards are the language between operator, programmer, supplier, and regulator.
+
+## The Citation Pattern (Manufacturing Variant)
+
+\`<claim/rule/spec> [per <standard>, <issuing body>, <revision>, <clause>]\`
+
+Cited claims revisiting modules of THIS course:
+
+- **"Machine guarding required on rotating spindles"** [per OSHA 29 CFR 1910.212(a)(1), *General requirements for all machines* — US Department of Labor; subpart O.]
+- **"Hearing protection above 85 dBA TWA"** [per OSHA 29 CFR 1910.95, *Occupational noise exposure* — DoL.]
+- **"Lockout/Tagout for service & maintenance"** [per OSHA 29 CFR 1910.147, *The control of hazardous energy* — DoL.]
+- **"G-code program structure"** [per ISO 6983-1:2009, *Automation systems and integration — Numerical control of machines — Program format and definitions of address words* — ISO; clause 4.]
+- **"Machine-tool accuracy test methods"** [per ISO 230-1:2012, *Test code for machine tools — Part 1: Geometric accuracy of machines* — ISO; or ASME B5.54 for US.]
+- **"Manual machine guarding"** [per ANSI B11.6-2001 (R2007), *Manual Turning Machines (Lathes) with or without Automatic Control* — issuing body: ANSI / AMT.]
+- **"ISO material groups P/M/K/N/S/H"** [per ISO 513:2012, *Classification and application of hard cutting materials* — ISO. PRISM kc1.1 values per group live in \`mcp-server/src/physics/constants.ts\` (do not inline).]
+
+## Doctrine vs Technique vs Reference (Shop-Floor Lens)
+
+| Category | In manufacturing | Examples |
+|----------|-----------------|----------|
+| **Doctrine** | Safety rules. Never optional. | OSHA LOTO before service · machine-guard interlocks · no gloves near rotating spindle |
+| **Technique** | Operator/programmer procedures. | Setting work-zero · running a dry-cycle · debugging a post |
+| **Reference** | Standards + machine-specific docs. | ISO 6983 G-code syntax · controller manual · OEM probing manual |
+
+## The Audit Failure Mode
+
+An OSHA inspection finds an unguarded belt drive on a manual mill. The shop's defense is "we've never had an incident" — irrelevant. The inspection cites 29 CFR 1910.212. The fine + retrofit + downtime costs an order of magnitude more than the original guard would have. **Rule: if you can't cite the standard your machine meets, assume it doesn't.**
+
+## Practice (Assessment)
+
+For the machine you operate most:
+
+1. Locate the **safety conformance label** (CE, ANSI/AMT B11, ISO).
+2. Find the **G-code standard** the post-processor targets (vendor manual, usually ISO 6983 + vendor extensions).
+3. Check the **last machine accuracy test** date (per ISO 230 / ASME B5.54).
+4. Verify your **LOTO procedure** is documented and posted (29 CFR 1910.147).
+
+If any is missing → escalate to maintenance / safety officer. An uncited machine is operating on luck.`,
+  }],
+}];
+
 // ═══════════════════════════════════════════════════════════
 // Quiz Questions — Per Module
 // ═══════════════════════════════════════════════════════════
@@ -808,6 +862,23 @@ export const COURSE_1_QUIZZES: Record<string, Question[]> = {
       tags: ["safety"],
     },
   ],
+  "course-1-mod-13-quiz": [
+    {
+      id: "c1-m13-q1", type: "multiple_choice", difficulty: 2,
+      text: "An OSHA inspector asks for the standard your machine-guarding conforms to. You can't produce a citation. What is the most defensible response?",
+      options: [
+        { id: "a", text: "Argue 'we've never had an incident here'", isCorrect: false,
+          explanation: "Incident-free history is not a defense against an unguarded-machinery citation under 29 CFR 1910.212." },
+        { id: "b", text: "Document the gap, retrofit per ANSI B11 series, and update the safety register", isCorrect: true },
+        { id: "c", text: "Pull the machine out of service permanently", isCorrect: false,
+          explanation: "Over-correction — retrofit + documentation is the proportional response." },
+        { id: "d", text: "Argue the machine is too old to require guarding", isCorrect: false,
+          explanation: "OSHA's general duty clause + 1910.212 apply regardless of machine age." },
+      ],
+      explanation: "Citation: 29 CFR 1910.212(a)(1) requires guarding on all machines; ANSI B11 series gives the technical retrofit standards. The right move is documented retrofit, not denial.",
+      tags: ["citation_discipline", "osha", "machine_guarding"],
+    },
+  ],
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -827,4 +898,5 @@ export const COURSE_1_MODULES: Module[] = [
   { id: `${COURSE_ID}-mod-10`, courseId: COURSE_ID, title: "Workholding", description: "Vise, chuck, fixtures, vacuum, 3-2-1 principle", order: 10, lessons: mod10Lessons, quiz: { id: `${COURSE_ID}-mod-10-quiz`, moduleId: `${COURSE_ID}-mod-10`, questions: [], passingScore: 70 }, estimatedMinutes: 40 },
   { id: `${COURSE_ID}-mod-11`, courseId: COURSE_ID, title: "Coolant Basics", description: "Flood, MQL, through-spindle, cryogenic — when and why", order: 11, lessons: mod11Lessons, quiz: { id: `${COURSE_ID}-mod-11-quiz`, moduleId: `${COURSE_ID}-mod-11`, questions: [], passingScore: 70 }, estimatedMinutes: 30 },
   { id: `${COURSE_ID}-mod-12`, courseId: COURSE_ID, title: "Shop Safety", description: "PPE, machine guards, chip handling, emergency procedures", order: 12, lessons: mod12Lessons, quiz: { id: `${COURSE_ID}-mod-12-quiz`, moduleId: `${COURSE_ID}-mod-12`, questions: COURSE_1_QUIZZES[`${COURSE_ID}-mod-12-quiz`] ?? [], passingScore: 70 }, estimatedMinutes: 30 },
+  { id: `${COURSE_ID}-mod-13`, courseId: COURSE_ID, title: "Citation Discipline — Manufacturing Standards", description: "OSHA/ISO/ANSI citations for every safety rule and machine spec", order: 13, lessons: mod13Lessons, quiz: { id: `${COURSE_ID}-mod-13-quiz`, moduleId: `${COURSE_ID}-mod-13`, questions: COURSE_1_QUIZZES[`${COURSE_ID}-mod-13-quiz`] ?? [], passingScore: 70 }, estimatedMinutes: 35 },
 ];

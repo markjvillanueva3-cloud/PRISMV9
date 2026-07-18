@@ -1,0 +1,23 @@
+---
+session: claude-82514795
+topic: india-wire-backlog-post
+slot: india
+written_at: 2026-05-19T00:55:00.240Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-82514795
+status: active
+---
+
+# HANDOFF: claude-82514795
+Updated: 2026-05-19T00:55:00.240Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-82514795
+
+## STATE
+Session claude-82514795 india. DONE: PPG-WIRE-MS5 verified already-shipped b6f4b01c54 (golf extract stale); SFC-ACCURACY-MS1-DESIGN.md committed 0ee7855eab; 3-of-3 scrutiny on U-STAGE4/5 — arm-C FAIL (zod default 3 tsc errors + R9) FIXED 52fdada4d8, all arms PASS, ledger cleared. NEXT: U-WIRE-BACKLOG-POST recon complete (above), execute on fresh context post-/compact. R13 freshness gate: re-check done, --ack-stale stamp written (30min).
+
+## RESUME
+EXECUTE U-WIRE-BACKLOG-POST (claimed india, FEATURE-GAP-AUDIT-MS0, ack-stale done — engines verified VALID+unwired this session). Wire 3 confirmed orphan post engines into camDispatcher.ts (prism_cam): (1) dncGenerateEngine [singleton @ DNCGenerateEngine.ts:363, class:86, input GenerateOptionsSchema@56 + DNCProgramSchema@22] (2) gapEscalationControllerEngine [singleton @ GapEscalationControllerEngine.ts:595, class:101] (3) realTimeAdaptiveControllerEngine [singleton @ RealTimeAdaptiveControllerEngine.ts:592, public update(inputs:SensorInputs):ControlOutput]. Pattern: add ACTIONS z.enum entries + lazy-import case handlers in camDispatcher.ts (mirror existing post actions; alphabetical within section) + 1 wiring test asserting enum+handler presence with concrete assertions (no toBeDefined). Then check for ~5 MORE unwired post engines (grep mcp-server/src/engines for orphan post/DNC/adaptive/escalation engines w/ zero dispatcher ref) to complete the '~8' scope. Per-file scrutiny (2 agents) each dispatcher edit + 3-of-3 Stop gate. Commit [MAIN] [FEATURE-GAP-AUDIT-MS0]/U-WIRE-BACKLOG-POST (slot:india). PRIORITY: backend-dev units before app-features (user standing directive 2026-05-18, [[feedback_prioritize_devtools_backend]]).
+
+## CONTEXT
+

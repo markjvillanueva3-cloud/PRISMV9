@@ -184,7 +184,7 @@ describe('buildCalculatorPrismModePlan', () => {
     expect(plan.evidence.some((item) => /Preferred coolant posture: Flood or TSC/i.test(item))).toBe(true);
   });
 
-  it('pushes PRISM mode toward air-led roughing for steel carbide roughing when the machine supports it', () => {
+  it('pushes Kienzle mode toward air-led roughing for steel carbide roughing when the machine supports it', () => {
     const machine = MACHINE_CATALOG.find((item) => item.id === 'okuma-m460v-5ax');
     const material = MATERIAL_CATALOG.find((item) => item.id === '4140');
     const tool = TOOL_CATALOG.find((item) => item.id === 'adaptive-endmill');
@@ -232,7 +232,7 @@ describe('buildCalculatorPrismModePlan', () => {
     expect(plan.signals.find((signal) => signal.id === 'coolant')?.detail).toMatch(/Carbide roughing in steels/i);
   });
 
-  it('can translate live ROI engine output into ranked PRISM purchase cards', () => {
+  it('can translate live ROI engine output into ranked Kienzle purchase cards', () => {
     const machine = MACHINE_CATALOG.find((item) => item.id === 'okuma-m460v-5ax');
     const material = MATERIAL_CATALOG.find((item) => item.id === 'd2');
     const tool = TOOL_CATALOG.find((item) => item.id === 'ball-endmill');

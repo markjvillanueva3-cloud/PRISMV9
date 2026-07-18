@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAUDE-MD PATCH — R13 task-freshness doctrine + TASK-FRESHNESS-GATE-MS0</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CLAUDE-MD PATCH — R13 task-freshness doctrine + TASK-FRESHNESS-GATE-MS0</h1>
+<div class="meta">rendered from state/shared/dashboards/patches/CLAUDE-MD-PATCH-r13-task-freshness.md</div>
+<div class="meta">Generated 2026-05-18T17:35:26.385Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">CLAUDE-MD PATCH — R13 task-freshness doctrine + TASK-FRESHNESS-GATE-MS0</li><li class="prism-toc-l2">PATCH 1 — append R13 to the &quot;## CLAUDE.md RULES 5–12&quot; block</li><li class="prism-toc-l2">PATCH 2 — add a milestone-pointer paragraph (after the FLEET-TASK-HEALTH-MS0 section, the last ## section)</li><li class="prism-toc-l2">PATCH 3 — no settings.json change</li></ul></nav><h1 class="prism-h1">CLAUDE-MD PATCH — R13 task-freshness doctrine + TASK-FRESHNESS-GATE-MS0</h1>
+<p><strong>Why a patch-sibling:</strong> <code class="prism-inline-code">CLAUDE.md</code> is peer-claimed by bravo (OBSIDIAN-BRAIN-FIX-MS0/U-OBF-F1+F2 drain, chat-bus 2026-05-17T21:28Z). Per the PATCH-SIBLING convention (JULIETT-12CHAT-ALLOCATION-MS0), foxtrot writes the intended CLAUDE.md delta here; the lock-holder (or a later foxtrot pass) splices it into the live file.</p>
+<p><strong>Authored by:</strong> foxtrot / claude-93351de7 · TASK-FRESHNESS-GATE-MS0/U-TFG01 · 2026-05-18</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">PATCH 1 — append R13 to the &quot;## CLAUDE.md RULES 5–12&quot; block</h2>
+<p>Rename the section header <code class="prism-inline-code">## CLAUDE.md RULES 5–12</code> → <code class="prism-inline-code">## CLAUDE.md RULES 5–13</code> and append after the R12 bullet:</p>
+<blockquote class="prism-quote">- <strong>R13 — Reconcile task age before building.</strong> A task generated/surfaced/scheduled before recent fleet activity may already be shipped, rescoped, or invalidated. Before committing to build a unit, check (a) the timestamp of the task source (envelope <code class="prism-inline-code">created_at</code> + the unit&#39;s own <code class="prism-inline-code">status</code>/<code class="prism-inline-code">completed_at</code> row / audit-spec filename date / inventory <code class="prism-inline-code">generatedAt</code> / handoff frontmatter <code class="prism-inline-code">written_at</code>), (b) commits + envelope flips + peer ships since then, (c) reconcile. Significant activity since generation → re-check spec, dedup, peer claims before code. → PRISM: enforced by <code class="prism-inline-code">.claude/hooks/task-freshness-gate.mjs</code> (wired in <code class="prism-inline-code">bash-bundle.mjs</code>) at <code class="prism-inline-code">slot-task-claim.mjs claim</code>; clear a stale block with the <code class="prism-inline-code">--ack-stale</code> token or one-shot <code class="prism-inline-code">PRISM_TASK_FRESHNESS_BYPASS=1</code> (audited). Kill switch <code class="prism-inline-code">PRISM_TASK_FRESHNESS_GATE_DISABLE=1</code>.</blockquote>
+<p>(The &quot;Keep this section ≤20 lines&quot; note still applies — R13 is one bullet; the detail lives in the wiki entry below, this is a pointer.)</p>
+<h2 class="prism-h2">PATCH 2 — add a milestone-pointer paragraph (after the FLEET-TASK-HEALTH-MS0 section, the last ## section)</h2>
+<blockquote class="prism-quote">## TASK-FRESHNESS-GATE-MS0 (2026-05-18, slot foxtrot — R13 enforcement)</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote">Hard PreToolUse gate over 4 task surfaces (atomic-roadmap envelopes + audit-specs + derived inventories + handoff RESUMEs). Intercepts <code class="prism-inline-code">slot-task-claim.mjs claim --unit &lt;MS::U-ID&gt;</code> and BLOCKS when the unit source is stale vs fleet activity — strongest signal is the unit&#39;s own envelope <code class="prism-inline-code">status:completed</code> row (already-shipped), then future-dated/untrusted-anchor/git-unprovable conservative blocks, then age&gt;24h or ≥5 peer-commits-since-gen. <strong>Pure core</strong> <code class="prism-inline-code">.claude/helpers/task-freshness.mjs</code> (injectable readers, 8 exports) + <strong>hook</strong> <code class="prism-inline-code">.claude/hooks/task-freshness-gate.mjs</code> (fast-path IO-free on non-claim Bash, fail-open on any internal error, exit-0-always — block via stdout JSON only per bundle contract). Wired as one <code class="prism-inline-code">BASH_HOOKS[]</code> entry in <strong><code class="prism-inline-code">.claude/hooks/bundles/bash-bundle.mjs</code></strong> (the bundle, NOT a loose <code class="prism-inline-code">.claude/hooks/*.mjs</code> file) between commit-ownership-guard and worktree-commit-route; the bundle itself is wired in <code class="prism-inline-code">H:/.claude/settings.json</code> PreToolUse <code class="prism-inline-code">^Bash$</code> matcher (~line 640). Verify: <code class="prism-inline-code">grep -n task-freshness-gate H:/prism/.claude/hooks/bundles/bash-bundle.mjs</code>. Own-active-claim → silent allow (mid-/loop heartbeat not re-gated). Quote-evasion closed: <code class="prism-inline-code">stripQuoted</code> kills echo/grep false-positives, <code class="prism-inline-code">unquote()</code> normalises quoted <code class="prism-inline-code">--unit</code>, malformed <code class="prism-inline-code">--unit</code> fails CLOSED. Knobs: <code class="prism-inline-code">PRISM_TASK_FRESHNESS_{GATE_DISABLE,STALE_HRS=24,PEER_COMMITS_TRIGGER=5,ACK_TTL_MIN=30,BYPASS,GIT_TIMEOUT_MS,VERBOSE}</code>. 36 node:test (hermetic + 2 real-data E2E + fork-storm control pair). Wiki: [<code class="prism-inline-code">knowledge/wiki/architecture/task-freshness-gate.md</code>]. Memory: [[feedback_task_freshness_pre_build]].</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>Recent regressions row to add:</strong></blockquote>
+<blockquote class="prism-quote">- 2026-05-18 | <strong>bundled sub-hook must signal block via stdout JSON, NEVER process.exit(2)</strong> — a sub-hook that exits 2 in the stdout write-callback risks the documented Windows pipe-truncation race → empty stdout → bundle sees no block → STALE claim silently allowed (gate-bypass class). hook-runner.mjs reads <code class="prism-inline-code">parsed.decision===&quot;block&quot;</code> only; the BUNDLE re-derives outward exit-2 itself. Siblings (commit-ownership-guard.mjs) emit block JSON + exit 0. | observed-by: claude-93351de7 slot foxtrot per-file scrutiny round-2 (reviewer B caught; reviewer A missed — graded PASS without cross-checking the aggregator → exactly why the 2-reviewer gate exists). | verify: <code class="prism-inline-code">grep -n &quot;process.exit(0)&quot; H:/prism/.claude/hooks/task-freshness-gate.mjs</code> (only 0, never 2).</blockquote>
+<h2 class="prism-h2">PATCH 3 — no settings.json change</h2>
+<p>The gate is wired via the <code class="prism-inline-code">bash-bundle.mjs</code> BASH_HOOKS array, NOT a settings.json entry. No <code class="prism-inline-code">H:/.claude/settings.json</code> edit. Registry auto-regen queued by PostToolUse on the <code class="prism-inline-code">.claude/hooks/</code> change.</p>
+<hr class="prism-hr">
+<p><strong>Splice instructions for the lock-holder (grep-anchored, not mtime-fragile):</strong></p>
+<ul class="prism-md-list"><li>PATCH 1: locate the line containing <code class="prism-inline-code">## CLAUDE.md RULES 5–12</code>, rename in place to <code class="prism-inline-code">5–13</code>, append the R13 blockquote bullet immediately after the line containing the R12 bullet (<code class="prism-inline-code"><strong>R12 — Fail loud.</strong></code>).</li><li>PATCH 2: insert the milestone-pointer paragraph + the &quot;Recent regressions row&quot; immediately after the LAST existing <code class="prism-inline-code">## Recent regressions</code> table block (grep <code class="prism-inline-code">^## Recent regressions</code> → append under the most recent one), NOT &quot;after the last ## section&quot; (mtime-fragile if a peer appends a newer milestone first).</li><li>PATCH 3 is informational (no-op).</li><li>Total CLAUDE.md growth ≈ 1 bullet + ~12 lines — within the doctrine-pointer budget. Cross-refs: [[feedback_task_freshness_pre_build]] + [[reference_task_freshness_gate_ms0_2026_05_18]] (both exist in <code class="prism-inline-code">H:/.claude/projects/H--PRISM/memory/</code>, indexed in MEMORY.md) + wiki <code class="prism-inline-code">knowledge/wiki/architecture/task-freshness-gate.md</code>.</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-18T17:35:26.385Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

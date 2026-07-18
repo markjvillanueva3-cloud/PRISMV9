@@ -1,0 +1,888 @@
+{
+  "id": "BIZ-MS4",
+  "version": "1.0.0",
+  "title": "Advanced Quoting, Sales Pipeline & Procurement",
+  "brief": "Eight new sales and procurement capabilities layered on top of the quoting, customer management, and purchase-order engines already in place from BIZ-MS0. Adds an RFQ inbox with PDF/email parse and auto-routing, a weighted-forecast sales pipeline dashboard wired to QuoteAnalyticsEngine and CustomerManagementEngine, a quote follow-up workflow with win/loss reason capture and competitor intelligence, a commission/bonus tracker with tiered rules triggered on invoice payment, a credit management tab with aging alerts and order-hold enforcement, a vendor scorecard with composite quality/delivery metrics, a receiving and inspection page wired to PurchaseOrderEngine and QualityManagementEngine for NCR creation, and a shipping/packing page that generates BOLs and captures tracking numbers on order completion.",
+  "created_at": "2026-04-08T23:00:00Z",
+  "created_by": "claude-opus-4-6",
+  "track": "BIZ",
+  "track_name": "Business Management Platform",
+  "status": "complete",
+  "total_units": 8,
+  "total_sessions": "6-9",
+  "plan_file": "H:/prism/plans/erp-employee/BUSINESS-MANAGEMENT-MASTER-PLAN.md",
+  "phases": [
+    {
+      "id": "BIZ-MS4-P1",
+      "title": "Sales Pipeline, RFQ Inbox & Quote Follow-Up",
+      "description": "Build the inbound RFQ intake flow (file upload, auto-parse, assign, status track), the weighted-forecast pipeline dashboard, the quote follow-up reminders with win/loss reason capture, and the commission/bonus tracker. All four units touch quoting and customer data — wire to existing QuoteEstimatorEngine, InstantQuoteEngine, QuoteRevisionEngine, QuoteAnalyticsEngine, and CustomerManagementEngine. Add new dispatcher actions to businessDispatcher as required.",
+      "sessions": "3-5",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ28",
+          "title": "Add RFQ Inbox Page — receive, parse, assign, track response deadlines",
+          "phase": "BIZ-MS4-P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 110,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/pages/CustomerPortalPage.tsx (1116 lines) to understand how file upload and customer data flows are currently handled before creating any new code"
+            },
+            {
+              "number": 2,
+              "instruction": "Read src/tools/dispatchers/businessDispatcher.ts and locate the z.enum action list to understand the current list of business actions and the pattern used for adding new actions"
+            },
+            {
+              "number": 3,
+              "instruction": "Read src/schemas/businessActionSchemas.ts to understand how schemas are defined — check for any existing rfq_ schemas before creating new ones"
+            },
+            {
+              "number": 4,
+              "instruction": "In businessDispatcher.ts, add the following four values to the z.enum action list if not already present: 'rfq_create', 'rfq_list', 'rfq_assign', 'rfq_update_status'. Then add case handlers: rfq_create calls quoteEstimatorEngine.createRFQ(args), rfq_list calls quoteEstimatorEngine.listRFQs(args.filters), rfq_assign calls quoteEstimatorEngine.assignRFQ(args.rfq_id, args.assignee_id), rfq_update_status calls quoteEstimatorEngine.updateRFQStatus(args.rfq_id, args.status)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add Zod schemas to businessActionSchemas.ts for each new action — NO .passthrough() allowed. rfq_create: { customer_id: z.string(), material: z.string().optional(), quantity: z.number().optional(), tolerances: z.string().optional(), deadline: z.string().optional(), process_type: z.enum(['milling','turning','edm','grinding','laser','waterjet','other']).optional(), raw_text: z.string().optional() }. rfq_list: { status: z.enum(['received','reviewing','quoted','won','lost']).optional(), assignee_id: z.string().optional() }. rfq_assign: { rfq_id: z.string(), assignee_id: z.string() }. rfq_update_status: { rfq_id: z.string(), status: z.enum(['received','reviewing','quoted','won','lost']) }"
+            },
+            {
+              "number": 6,
+              "instruction": "Create web/src/pages/RFQInboxPage.tsx. The page must include: (a) a file upload drop-zone accepting PDF and .eml/.txt files (mime types application/pdf, message/rfc822, text/plain); when a file is dropped, POST the file as multipart/form-data to POST /api/erp/rfq-upload and display parsed fields (material, quantity, tolerances, deadline) in an editable preview form before saving; (b) a table of all RFQs with columns: RFQ ID, customer, material, quantity, process type, received date, response deadline, assignee, status; (c) a countdown timer column showing days/hours remaining until the response deadline — yellow at 48 h, red at 12 h; (d) a status pill with transitions Received → Reviewing → Quoted → Won/Lost; (e) an assign button that opens a dropdown of available estimators and calls rfq_assign"
+            },
+            {
+              "number": 7,
+              "instruction": "Add the route /app/rfq-inbox to web/src/App.tsx (or the router config file) with lazy import of RFQInboxPage and clearance requirement of 'lead'"
+            },
+            {
+              "number": 8,
+              "instruction": "Add 'RFQ Inbox' nav item to web/src/components/shell/shellCatalog.ts under the Sales section with path '/app/rfq-inbox', icon 'InboxIcon', and minClearance: 'lead'"
+            },
+            {
+              "number": 9,
+              "instruction": "Add a POST /api/erp/rfq-upload route to src/routes/erp.ts that accepts multipart/form-data, reads the uploaded file buffer, attempts basic text extraction (PDF: use the existing pdfParse utility if available, otherwise extract raw text; email: read plain text body), then calls quoteEstimatorEngine.parseRFQText(rawText) which must return { material, quantity, tolerances, deadline, process_type } using keyword matching. Store the RFQ record with status 'received' and return the parsed fields plus the rfq_id"
+            },
+            {
+              "number": 10,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors before proceeding. Verify 0 errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/RFQInboxPage.tsx",
+              "type": "source",
+              "description": "RFQ inbox page with file upload, parse preview, assignment, countdown timer, and status workflow"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "Added rfq_create, rfq_list, rfq_assign, rfq_update_status actions to z.enum and case handlers"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Zod schemas for all 4 RFQ actions without .passthrough()"
+            },
+            {
+              "path": "src/routes/erp.ts",
+              "type": "source",
+              "description": "POST /api/erp/rfq-upload route with multipart file handling and text parse"
+            }
+          ],
+          "exit_conditions": [
+            "PDF or text file uploaded via drag-drop → parsed fields (material, quantity, tolerances, deadline) displayed in preview form",
+            "RFQ saved with status 'received' and appears in inbox table",
+            "Assignee dropdown populated from employee list, rfq_assign saves the assignment",
+            "Countdown timer shows correct days/hours to deadline, turns red at 12 h",
+            "Status pill advances through Received → Reviewing → Quoted → Won/Lost",
+            "Route /app/rfq-inbox accessible only to clearance >= lead",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "web/src/pages/CustomerPortalPage.tsx",
+            "src/engines/QuoteEstimatorEngine.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "src/routes/erp.ts"
+          ],
+          "abort_criteria": [
+            "QuoteEstimatorEngine has no createRFQ/parseRFQText methods — add minimal stubs to the engine class before wiring dispatcher (do NOT create a new engine file)",
+            "No multipart upload utility exists in the server — use busboy or multer if already in package.json; if neither is present, read the uploaded base64 body instead and document the limitation"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "web/src/pages/RFQInboxPage.tsx",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "src/routes/erp.ts"
+            ],
+            "procedure": "git checkout -- src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts src/routes/erp.ts && git rm web/src/pages/RFQInboxPage.tsx"
+          }
+        },
+        {
+          "id": "U-BIZ29",
+          "title": "Add Sales Pipeline Dashboard — funnel, weighted forecast, conversion, time-in-stage",
+          "phase": "BIZ-MS4-P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 95,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/QuoteAnalyticsEngine.ts (494 lines) in full to understand the analytics_conversion() and analytics_accuracy() method signatures, their input parameters, and what data they return"
+            },
+            {
+              "number": 2,
+              "instruction": "Read src/engines/CustomerManagementEngine.ts (276 lines) to understand how customer_pipeline() and customer_analytics() work — look at the return shape and what stage data is included"
+            },
+            {
+              "number": 3,
+              "instruction": "Create web/src/pages/SalesPipelinePage.tsx with the following sections: (a) Funnel visualization: five vertical columns labeled RFQ | Quoted | Negotiation | Won | Lost. Each column displays the count and total value of quotes in that stage. Compute per-column totals from the live quote list. Use Recharts FunnelChart or a custom CSS funnel built with div widths proportional to quote count. (b) Weighted forecast panel: compute sum(quote_value * probability_pct / 100) across all Quoted and Negotiation stage quotes. Group by expected close month and render a Recharts BarChart with months on x-axis and weighted value on y-axis. (c) Conversion rates table: per customer (top 20 by quote volume) — show total quoted, total won, win rate %, and average margin %. Wire to QuoteAnalyticsEngine.analytics_conversion() via GET /api/erp/quote-analytics-conversion. (d) By process type conversion: same win-rate breakdown but grouped by milling/turning/EDM/grinding/laser/waterjet. (e) Time-in-stage table: for each stage (RFQ/Quoted/Negotiation), show average days and max days a quote has spent in that stage. Compute using (Date.now() - stage_entered_at) for open quotes and (stage_exited_at - stage_entered_at) for closed quotes"
+            },
+            {
+              "number": 4,
+              "instruction": "Wire data fetching: on mount, call GET /api/erp/customer-pipeline (CustomerManagementEngine.customer_pipeline()) for the full quote list with stage data, and GET /api/erp/quote-analytics-conversion for conversion rates. Use React Query or direct fetch with useState/useEffect — match the pattern already used in CustomersPage.tsx"
+            },
+            {
+              "number": 5,
+              "instruction": "Add route /app/sales-pipeline to the router config with lazy import of SalesPipelinePage and clearance requirement of 'lead'"
+            },
+            {
+              "number": 6,
+              "instruction": "Add 'Sales Pipeline' to shellCatalog.ts under the Sales section with path '/app/sales-pipeline', icon 'TrendingUpIcon', minClearance: 'lead'"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and verify 0 errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/SalesPipelinePage.tsx",
+              "type": "source",
+              "description": "Sales pipeline dashboard with funnel, weighted forecast, conversion rates by customer and process type, and time-in-stage analysis"
+            }
+          ],
+          "exit_conditions": [
+            "Funnel columns show correct count and value for each stage based on real quote data",
+            "Weighted forecast bar chart shows sum(value * probability) grouped by expected close month",
+            "Conversion table shows win rate % per customer (top 20) and per process type",
+            "Time-in-stage table shows average and max days per stage",
+            "Route /app/sales-pipeline accessible only to clearance >= lead",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/QuoteAnalyticsEngine.ts",
+            "src/engines/CustomerManagementEngine.ts",
+            "web/src/pages/CustomersPage.tsx",
+            "web/src/components/shell/shellCatalog.ts"
+          ],
+          "abort_criteria": [
+            "CustomerManagementEngine.customer_pipeline() does not return stage or probability data — add stage and probability_pct fields to the CustomerOpportunity interface and return them from customer_pipeline()",
+            "Recharts is not installed in the web project — check package.json first; if absent, install with npm install recharts before importing"
+          ],
+          "rollback": {
+            "files_created": ["web/src/pages/SalesPipelinePage.tsx"],
+            "files_modified": [
+              "web/src/components/shell/shellCatalog.ts"
+            ],
+            "procedure": "git rm web/src/pages/SalesPipelinePage.tsx && git checkout -- web/src/components/shell/shellCatalog.ts"
+          }
+        },
+        {
+          "id": "U-BIZ30",
+          "title": "Add Quote Follow-Up Workflow — auto-reminders, win/loss reasons, competitor intel",
+          "phase": "BIZ-MS4-P1",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 85,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/QuoteAnalyticsEngine.ts (494 lines) to find how analytics_update_outcome() stores quote outcomes. Identify whether win_loss_reason and competitor data fields exist on the outcome record before adding new methods"
+            },
+            {
+              "number": 2,
+              "instruction": "Add two new methods to QuoteAnalyticsEngine.ts: analytics_win_loss_reason(params: { quote_id: string; outcome: 'won' | 'lost'; reason: WinLossReason; notes?: string }) and analytics_competitor_intel(params: { quote_id: string; competitor_name: string; competitor_price?: number; won_by_competitor: boolean }). Define the WinLossReason type as: 'price' | 'lead_time' | 'capability' | 'relationship' | 'quality' | 'other'. Both methods update the analytics record for the quote_id and call persist()"
+            },
+            {
+              "number": 3,
+              "instruction": "Add 'analytics_win_loss_reason' and 'analytics_competitor_intel' to the z.enum action list in businessDispatcher.ts. Add case handlers calling quoteAnalyticsEngine.analytics_win_loss_reason(args) and quoteAnalyticsEngine.analytics_competitor_intel(args)"
+            },
+            {
+              "number": 4,
+              "instruction": "Add Zod schemas to businessActionSchemas.ts for both new actions — NO .passthrough(). analytics_win_loss_reason: { quote_id: z.string(), outcome: z.enum(['won','lost']), reason: z.enum(['price','lead_time','capability','relationship','quality','other']), notes: z.string().optional() }. analytics_competitor_intel: { quote_id: z.string(), competitor_name: z.string(), competitor_price: z.number().optional(), won_by_competitor: z.boolean() }"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement auto-reminder scheduling: in QuoteRevisionEngine.ts, when quote_status_change() transitions a quote to status 'sent', schedule follow-up reminders at 3, 7, and 14 days. Use a lightweight in-process scheduler — store reminder records in a new reminders Map<string, ReminderRecord[]> within QuoteRevisionEngine where ReminderRecord has { quote_id, due_at: Date, day_mark: 3|7|14, sent: boolean }. Add a checkReminders() method that scans the map for unsent reminders where due_at <= now and calls NotificationEngine.notify() for each. Wire checkReminders() to a setInterval(checkReminders, 60_000) started in the constructor, cleared in a destroy() method"
+            },
+            {
+              "number": 6,
+              "instruction": "Add a follow-up queue section to web/src/pages/QuoteAnalyticsPage.tsx (or QuoteBuilderPage.tsx — read both file headers to determine which already imports QuoteAnalyticsEngine and has a follow-up concept). The section shows: a table of open quotes with columns Quote ID, Customer, Value, Days Since Sent, Next Reminder, Win/Loss (for closed quotes). For won/lost quotes, add an inline form with a reason dropdown (price/lead_time/capability/relationship/quality/other), an optional notes textarea, and optional competitor name + price fields. On submit, call analytics_win_loss_reason and optionally analytics_competitor_intel"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and verify 0 errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/QuoteAnalyticsEngine.ts",
+              "type": "source",
+              "description": "New analytics_win_loss_reason() and analytics_competitor_intel() methods with persist() calls"
+            },
+            {
+              "path": "src/engines/QuoteRevisionEngine.ts",
+              "type": "source",
+              "description": "Auto-reminder scheduling on quote sent status — 3/7/14-day reminders with in-process setInterval"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "analytics_win_loss_reason and analytics_competitor_intel added to z.enum and case handlers"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Zod schemas for both new analytics actions without .passthrough()"
+            }
+          ],
+          "exit_conditions": [
+            "Quote transitioned to 'sent' status triggers 3/7/14-day reminder records stored in reminders Map",
+            "checkReminders() fires every 60 s and calls NotificationEngine.notify() for due reminders",
+            "analytics_win_loss_reason stores reason code and notes on the quote analytics record",
+            "analytics_competitor_intel stores competitor_name, competitor_price, won_by_competitor on the record",
+            "Follow-up queue section visible in the analytics or builder page showing days-since-sent",
+            "Win/loss form submits reason and optional competitor data correctly",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/QuoteAnalyticsEngine.ts",
+            "src/engines/QuoteRevisionEngine.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/pages/QuoteAnalyticsPage.tsx",
+            "web/src/pages/QuoteBuilderPage.tsx"
+          ],
+          "abort_criteria": [
+            "NotificationEngine does not have a notify() method — use a console.warn fallback and add a TODO comment for NotificationEngine wiring rather than blocking the unit",
+            "QuoteRevisionEngine already has reminder logic — read the existing implementation fully before adding new scheduler code to avoid duplication"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/QuoteAnalyticsEngine.ts",
+              "src/engines/QuoteRevisionEngine.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts"
+            ],
+            "procedure": "git checkout -- src/engines/QuoteAnalyticsEngine.ts src/engines/QuoteRevisionEngine.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts"
+          }
+        },
+        {
+          "id": "U-BIZ31",
+          "title": "Add Commission/Bonus Tracker — tiered rules, per-salesperson earned/pending/paid, invoice trigger",
+          "phase": "BIZ-MS4-P1",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 100,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/InvoicingEngine.ts to identify the invoice_payment() method signature (or equivalent payment event trigger). Determine whether it already emits an event or calls a callback that could hook commission calculation. Read the full file before planning changes"
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/engines/CommissionEngine.ts. Export a singleton commissionEngine. The engine must contain: (a) CommissionRule interface: { id: string; salesperson_id: string; tier_brackets: Array<{ threshold_dollars: number; rate_pct: number }>; quarterly_target: number; team_bonus_pool_pct: number; effective_from: string }. Default tier: 0–10K at 5%, 10K–50K at 7%, 50K+ at 10%. (b) CommissionRecord interface: { id: string; salesperson_id: string; invoice_id: string; invoice_amount: number; margin_amount: number; commission_amount: number; status: 'earned' | 'pending' | 'paid'; earned_at: string; paid_at?: string }. (c) Methods: configureRule(salesperson_id, rule), calculateCommission(salesperson_id, invoice_id, margin_amount): CommissionRecord — applies tiered brackets to margin_amount, stores and returns record with status='earned'; payout(record_ids: string[]): void — marks records as paid with paid_at timestamp; getSummary(salesperson_id): { earned: number; pending: number; paid: number; ytd_total: number }. (d) Register commissions and commission_rules Maps with persistenceBridge in the constructor. Call persist() after every mutation"
+            },
+            {
+              "number": 3,
+              "instruction": "In InvoicingEngine.ts, after recording a successful payment in the invoice_payment() handler (or equivalent), call commissionEngine.calculateCommission(invoice.salesperson_id, invoice_id, invoice.margin_amount) if invoice.salesperson_id is defined. Import commissionEngine lazily to avoid circular dependencies"
+            },
+            {
+              "number": 4,
+              "instruction": "Add three new actions to businessDispatcher.ts z.enum: 'commission_configure', 'commission_calculate', 'commission_payout'. Case handlers: commission_configure calls commissionEngine.configureRule(args.salesperson_id, args.rule); commission_calculate calls commissionEngine.calculateCommission(args.salesperson_id, args.invoice_id, args.margin_amount); commission_payout calls commissionEngine.payout(args.record_ids)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add Zod schemas to businessActionSchemas.ts for all three new actions — NO .passthrough(). commission_configure: { salesperson_id: z.string(), rule: z.object({ tier_brackets: z.array(z.object({ threshold_dollars: z.number(), rate_pct: z.number() })), quarterly_target: z.number(), team_bonus_pool_pct: z.number(), effective_from: z.string() }) }. commission_calculate: { salesperson_id: z.string(), invoice_id: z.string(), margin_amount: z.number() }. commission_payout: { record_ids: z.array(z.string()) }"
+            },
+            {
+              "number": 6,
+              "instruction": "Add CommissionEngine to BusinessStore.ts ENTITY_CONFIGS: commissions entity with knownColumns [id, salesperson_id, invoice_id, invoice_amount, margin_amount, commission_amount, status, earned_at, paid_at] and jsonColumns []; commission_rules entity with knownColumns [id, salesperson_id, effective_from, quarterly_target, team_bonus_pool_pct] and jsonColumns [tier_brackets]"
+            },
+            {
+              "number": 7,
+              "instruction": "Create web/src/pages/CommissionTrackerPage.tsx with three panels: (a) Commission summary cards per salesperson — earned (green), pending (yellow), paid (gray), YTD total. Wire to GET /api/erp/commission-summary?salesperson_id. (b) Commission records table — columns: date, invoice ID, invoice amount, margin, commission amount, status pill (earned/pending/paid), payout button for earned records. (c) Rules configuration panel (visible to hr_manager+): shows current tier brackets as an editable table of threshold/rate pairs, quarterly target input, save button calling commission_configure"
+            },
+            {
+              "number": 8,
+              "instruction": "Add route /app/commissions to the router config with lazy import of CommissionTrackerPage and clearance requirement of 'hr_manager'"
+            },
+            {
+              "number": 9,
+              "instruction": "Add 'Commissions' to shellCatalog.ts under the HR section with path '/app/commissions', icon 'CurrencyDollarIcon', minClearance: 'hr_manager'"
+            },
+            {
+              "number": 10,
+              "instruction": "Run npm run build:fast and verify 0 errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/CommissionEngine.ts",
+              "type": "source",
+              "description": "Commission engine with tiered bracket calculation, earned/pending/paid status, payout, and PersistenceBridge wiring"
+            },
+            {
+              "path": "src/engines/InvoicingEngine.ts",
+              "type": "source",
+              "description": "Invoice payment hook calling commissionEngine.calculateCommission() on payment event"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "commission_configure, commission_calculate, commission_payout added to z.enum and case handlers"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Zod schemas for all three commission actions without .passthrough()"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS entries for commissions and commission_rules entities"
+            },
+            {
+              "path": "web/src/pages/CommissionTrackerPage.tsx",
+              "type": "source",
+              "description": "Commission tracker with summary cards, records table, and rules configuration panel"
+            }
+          ],
+          "exit_conditions": [
+            "CommissionEngine.calculateCommission() applies tiered brackets: 0–10K at 5%, 10K–50K at 7%, 50K+ at 10% of margin",
+            "Invoice payment event automatically triggers commission calculation when salesperson_id is present on the invoice",
+            "Commission records persist across server restart (PersistenceBridge registered)",
+            "CommissionTrackerPage shows earned/pending/paid per salesperson with correct totals",
+            "Payout button marks selected records as paid with paid_at timestamp",
+            "Rules config panel saves new tier brackets via commission_configure",
+            "Route /app/commissions accessible only to clearance >= hr_manager",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/InvoicingEngine.ts",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/pages/CustomersPage.tsx (pattern for clearance-gated page)"
+          ],
+          "abort_criteria": [
+            "InvoicingEngine does not have an identifiable invoice_payment entry point — read the entire file and identify the closest method that fires on payment confirmation, then hook there",
+            "CommissionEngine would duplicate an existing engine — check ENGINE_DIGEST.md for any commission or sales-incentive engine before creating a new file"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/CommissionEngine.ts",
+              "web/src/pages/CommissionTrackerPage.tsx"
+            ],
+            "files_modified": [
+              "src/engines/InvoicingEngine.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "src/db/BusinessStore.ts"
+            ],
+            "procedure": "git rm src/engines/CommissionEngine.ts web/src/pages/CommissionTrackerPage.tsx && git checkout -- src/engines/InvoicingEngine.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts src/db/BusinessStore.ts"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "RFQ parse: correct field extraction from PDF and email text without false positives",
+        "Pipeline forecast: weighted sum math verified against manual calculation",
+        "Follow-up scheduler: reminders fire at correct day marks, no duplicate sends",
+        "Commission tiers: bracket application correct at threshold boundaries (10K, 50K)",
+        "Persistence: CommissionEngine survives server restart",
+        "Auth gates: commissions blocked below hr_manager, pipeline blocked below lead"
+      ]
+    },
+    {
+      "id": "BIZ-MS4-P2",
+      "title": "Credit Management, Vendor Scorecard, Receiving & Shipping",
+      "description": "Four procurement and fulfillment capabilities: customer credit limits and aging hold enforcement wired into CustomerManagementEngine and InvoicingEngine; a vendor scorecard engine and page with composite quality/delivery metrics from PurchaseOrderEngine; a receiving and inspection page wired to po_receive and NCR creation; and a shipping/packing page with BOL generation and tracking number capture wired to OrderManagerEngine. Three new engine files (CommissionEngine already created in P1), plus new dispatcher actions and pages.",
+      "sessions": "3-4",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ32",
+          "title": "Add Customer Credit Management — credit limits, payment terms, aging alerts, order-hold enforcement",
+          "phase": "BIZ-MS4-P2",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 85,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/CustomerManagementEngine.ts (276 lines) in full to understand the customer data model — identify whether credit_limit, payment_terms, and credit_status fields already exist on the Customer interface before adding anything"
+            },
+            {
+              "number": 2,
+              "instruction": "If missing, add the following to the Customer interface in CustomerManagementEngine.ts: credit_limit: number (default 0 = unlimited); payment_terms: 'Net30' | 'Net45' | 'Net60' | 'COD' | 'Prepay' (default 'Net30'); credit_status: 'good' | 'warning' | 'hold' (default 'good'); credit_hold_since?: string (ISO date, set when status transitions to 'hold')"
+            },
+            {
+              "number": 3,
+              "instruction": "Add a computeCreditStatus(customer_id: string): { status: 'good' | 'warning' | 'hold'; overdue_30: number; overdue_60: number; oldest_overdue_days: number } method to CustomerManagementEngine.ts. It calls InvoicingEngine.getAgingReport(customer_id) (or equivalent aging method — read InvoicingEngine.ts first to find the exact method). Returns 'good' if oldest_overdue_days < 30, 'warning' if 30–60, 'hold' if > 60. Update customer.credit_status accordingly and persist()"
+            },
+            {
+              "number": 4,
+              "instruction": "Add a checkCreditHold(customer_id: string): { blocked: boolean; reason: string } method to CustomerManagementEngine.ts. Returns { blocked: true, reason: 'Credit hold: invoice overdue >60 days' } when credit_status === 'hold'. This method must be called from OrderManagerEngine.createOrder() before accepting any new order for the customer"
+            },
+            {
+              "number": 5,
+              "instruction": "Read src/engines/OrderManagerEngine.ts and add a credit hold check at the start of createOrder(): call customerManagementEngine.checkCreditHold(customer_id). If blocked is true, throw an Error with the reason string and HTTP status 403. Import customerManagementEngine lazily to avoid circular dependencies"
+            },
+            {
+              "number": 6,
+              "instruction": "In web/src/pages/CustomersPage.tsx (531 lines), add a 'Credit' tab to the customer detail view. The tab must show: credit_limit field (editable input, number, updates via customer_update action), payment_terms selector (Net30/Net45/Net60/COD/Prepay), credit_status pill (green=good, yellow=warning, red=hold), aging summary cards (current, 1–30 days overdue, 31–60 days, 60+ days), and a 'Refresh Credit Status' button that calls computeCreditStatus. If status is 'hold', display a red banner: 'Orders blocked — invoice overdue >60 days'"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and verify 0 errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/CustomerManagementEngine.ts",
+              "type": "source",
+              "description": "Customer interface with credit_limit, payment_terms, credit_status, credit_hold_since; computeCreditStatus() and checkCreditHold() methods"
+            },
+            {
+              "path": "src/engines/OrderManagerEngine.ts",
+              "type": "source",
+              "description": "createOrder() blocks on checkCreditHold() before accepting the order"
+            },
+            {
+              "path": "web/src/pages/CustomersPage.tsx",
+              "type": "source",
+              "description": "Credit tab added with aging summary, status pill, credit limit editing, and hold banner"
+            }
+          ],
+          "exit_conditions": [
+            "Customer interface has credit_limit, payment_terms, credit_status, credit_hold_since",
+            "computeCreditStatus() returns 'warning' at 30+ days overdue and 'hold' at 60+ days overdue",
+            "createOrder() throws 403 when customer credit_status is 'hold'",
+            "Credit tab visible in CustomersPage with aging cards and status pill",
+            "Editing credit_limit and payment_terms saves via customer_update action",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/CustomerManagementEngine.ts",
+            "src/engines/OrderManagerEngine.ts",
+            "src/engines/InvoicingEngine.ts",
+            "web/src/pages/CustomersPage.tsx"
+          ],
+          "abort_criteria": [
+            "InvoicingEngine has no aging report method — read the full file; if absent, compute aging from raw invoice records by comparing due_date to today inside computeCreditStatus()",
+            "Customer interface already has credit_status — verify each field individually before modifying and only add genuinely absent fields"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/CustomerManagementEngine.ts",
+              "src/engines/OrderManagerEngine.ts",
+              "web/src/pages/CustomersPage.tsx"
+            ],
+            "procedure": "git checkout -- src/engines/CustomerManagementEngine.ts src/engines/OrderManagerEngine.ts web/src/pages/CustomersPage.tsx"
+          }
+        },
+        {
+          "id": "U-BIZ33",
+          "title": "Add Vendor Scorecard — composite quality/delivery score, trend charts, PO-sourced data",
+          "phase": "BIZ-MS4-P2",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 105,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Check ENGINE_DIGEST.md for any existing vendor scorecard or vendor performance engine before creating a new one. If one exists, read it and wire to it instead of creating VendorScorecardEngine.ts"
+            },
+            {
+              "number": 2,
+              "instruction": "Read src/engines/PurchaseOrderEngine.ts (315 lines) in full to understand how PO receipt data is stored — specifically what fields are available for delivery date, expected date, line item quality rejection, and vendor_id"
+            },
+            {
+              "number": 3,
+              "instruction": "Create src/engines/VendorScorecardEngine.ts (only if no equivalent exists). Export a singleton vendorScorecardEngine. Define VendorScore interface: { vendor_id: string; vendor_name: string; on_time_delivery_pct: number; quality_rejection_rate_pct: number; price_competitiveness_score: number; lead_time_reliability_score: number; composite_score: number; month_scores: Array<{ month: string; composite: number }> }. Define composite_score = (on_time_delivery_pct * 0.40) + ((100 - quality_rejection_rate_pct) * 0.35) + (price_competitiveness_score * 0.15) + (lead_time_reliability_score * 0.10)"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement vendor_score_calculate(vendor_id: string): VendorScore in VendorScorecardEngine.ts. Fetch all completed POs for the vendor from purchaseOrderEngine.listPOsByVendor(vendor_id) (or equivalent). Compute: on_time_delivery_pct = (POs where received_date <= expected_date) / total_POs * 100; quality_rejection_rate_pct = (total rejected line items) / (total received line items) * 100; lead_time_reliability_score = 100 - clamp((stddev of actual_lead_time - quoted_lead_time) * 5, 0, 100); price_competitiveness_score = 100 (placeholder until multi-vendor comparison is available — add TODO). Compute month_scores for trailing 12 months by filtering POs by received_date month"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement vendor_score_list(): VendorScore[] returning all scored vendors sorted by composite_score descending. Implement vendor_score_trend(vendor_id: string, months: number = 12): Array<{ month: string; composite: number }> returning the month_scores array for the vendor. Register a vendor_scores Map with persistenceBridge in constructor, call persist() after vendor_score_calculate()"
+            },
+            {
+              "number": 6,
+              "instruction": "Add three actions to businessDispatcher.ts z.enum: 'vendor_score_calculate', 'vendor_score_list', 'vendor_score_trend'. Add case handlers calling vendorScorecardEngine.vendor_score_calculate(args.vendor_id), vendorScorecardEngine.vendor_score_list(), and vendorScorecardEngine.vendor_score_trend(args.vendor_id, args.months)"
+            },
+            {
+              "number": 7,
+              "instruction": "Add Zod schemas to businessActionSchemas.ts — NO .passthrough(). vendor_score_calculate: { vendor_id: z.string() }. vendor_score_list: { sort_by: z.enum(['composite','delivery','quality','price','lead_time']).optional() }. vendor_score_trend: { vendor_id: z.string(), months: z.number().int().min(1).max(24).optional() }"
+            },
+            {
+              "number": 8,
+              "instruction": "Add VendorScorecardEngine to BusinessStore.ts ENTITY_CONFIGS: vendor_scores entity with knownColumns [vendor_id, vendor_name, on_time_delivery_pct, quality_rejection_rate_pct, price_competitiveness_score, lead_time_reliability_score, composite_score] and jsonColumns [month_scores]"
+            },
+            {
+              "number": 9,
+              "instruction": "Create web/src/pages/VendorScorecardPage.tsx with: (a) ranked vendor table — columns: rank, vendor name, on-time delivery %, quality rejection rate %, price score, lead time score, composite score (bold), trend arrow (up/down vs last month); (b) clicking a vendor row expands a 12-month Recharts LineChart of composite_score over time; (c) a 'Recalculate' button per vendor row that calls vendor_score_calculate"
+            },
+            {
+              "number": 10,
+              "instruction": "Add route /app/vendor-scorecard with lazy import of VendorScorecardPage and clearance 'lead'. Add to shellCatalog.ts under the Procurement section with path '/app/vendor-scorecard', icon 'StarIcon', minClearance: 'lead'"
+            },
+            {
+              "number": 11,
+              "instruction": "Run npm run build:fast and verify 0 errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/VendorScorecardEngine.ts",
+              "type": "source",
+              "description": "Vendor scorecard engine with composite scoring formula (40/35/15/10 weights), 12-month trend, PersistenceBridge"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "vendor_score_calculate, vendor_score_list, vendor_score_trend added to z.enum and case handlers"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Zod schemas for all three vendor scorecard actions without .passthrough()"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS entry for vendor_scores"
+            },
+            {
+              "path": "web/src/pages/VendorScorecardPage.tsx",
+              "type": "source",
+              "description": "Vendor scorecard page with ranked table, drill-down trend chart, and recalculate button"
+            }
+          ],
+          "exit_conditions": [
+            "vendor_score_calculate() produces on_time_delivery_pct, quality_rejection_rate_pct, and composite_score from real PO records",
+            "Composite formula: 0.40*OTD + 0.35*(100-rejection) + 0.15*price + 0.10*lead_time_reliability",
+            "month_scores array covers trailing 12 calendar months",
+            "VendorScorecardPage ranked table sorts by composite_score descending",
+            "Trend line chart renders for selected vendor",
+            "Scores persist across server restart (PersistenceBridge)",
+            "Route /app/vendor-scorecard accessible only to clearance >= lead",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "ENGINE_DIGEST.md (check for existing vendor engine first)",
+            "src/engines/PurchaseOrderEngine.ts",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts"
+          ],
+          "abort_criteria": [
+            "PurchaseOrderEngine.listPOsByVendor() does not exist — read the full PO engine and use the closest available method (e.g., listPOs with vendor_id filter); adapt the calculation to the available data shape",
+            "No vendor_id field on PO records — check if vendor is stored as vendor_name string and adapt the grouping key accordingly"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/VendorScorecardEngine.ts",
+              "web/src/pages/VendorScorecardPage.tsx"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "src/db/BusinessStore.ts"
+            ],
+            "procedure": "git rm src/engines/VendorScorecardEngine.ts web/src/pages/VendorScorecardPage.tsx && git checkout -- src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts src/db/BusinessStore.ts"
+          }
+        },
+        {
+          "id": "U-BIZ34",
+          "title": "Add Receiving & Inspection Page — receive against PO, incoming inspection, NCR on reject, lot tracking",
+          "phase": "BIZ-MS4-P2",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/PurchaseOrderEngine.ts (315 lines) in full. Identify the po_receive() method signature — check what parameters it accepts and what it returns. Also check whether lot_number is stored anywhere on receipt records"
+            },
+            {
+              "number": 2,
+              "instruction": "Read src/engines/QualityManagementEngine.ts to find the ncr_create() method signature — check required parameters (part number, vendor, defect description, quantity, severity)"
+            },
+            {
+              "number": 3,
+              "instruction": "If po_receive() does not already accept lot_number, enhance it to accept { po_id: string; line_items: Array<{ po_line_id: string; quantity_received: number; lot_number: string; inspection_result: 'accept' | 'reject' | 'conditional' }> } as its params. Update the PoReceipt record to store lot_number per line. If it already accepts these fields, skip this step"
+            },
+            {
+              "number": 4,
+              "instruction": "Create web/src/pages/ReceivingInspectionPage.tsx with the following flow: (a) PO lookup: a text input for PO number (or barcode scan via autoFocus hidden input) that calls GET /api/erp/po/:id on submit and displays the PO header (vendor, expected date) and line items (part number, description, ordered qty, previously received qty, open qty); (b) per-line receipt form: for each open line item, show: quantity_received number input, lot_number text input (required), inspection_result radio buttons (Accept / Reject / Conditional Accept). (c) On submit, call po_receive with all line items. For any line item where inspection_result is 'reject' or 'conditional', automatically open an NCR creation modal pre-filled with vendor, part number, and quantity_rejected; the modal has defect_description textarea and severity dropdown (minor/major/critical); submit calls QualityManagementEngine.ncr_create() via the existing quality dispatcher or a direct API call. (d) After submission, display a receipt confirmation with lot numbers assigned and any NCR IDs created"
+            },
+            {
+              "number": 5,
+              "instruction": "Add route /app/receiving to the router config with lazy import of ReceivingInspectionPage and clearance 'shop_floor'"
+            },
+            {
+              "number": 6,
+              "instruction": "Add 'Receiving' to shellCatalog.ts under the Procurement section with path '/app/receiving', icon 'TruckIcon', minClearance: 'shop_floor'"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and verify 0 errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/ReceivingInspectionPage.tsx",
+              "type": "source",
+              "description": "Receiving and inspection page with PO lookup, per-line receipt, lot number assignment, and NCR auto-trigger on reject"
+            },
+            {
+              "path": "src/engines/PurchaseOrderEngine.ts",
+              "type": "source",
+              "description": "po_receive() enhanced with lot_number and inspection_result per line item (if fields were absent)"
+            }
+          ],
+          "exit_conditions": [
+            "PO number entry loads the PO header and open line items",
+            "Each line item has quantity_received input, lot_number input, and inspection radio buttons",
+            "Submitting receipt calls po_receive with lot_number stored on each receipt line",
+            "Rejected or conditional line items trigger NCR creation modal pre-filled with vendor and part data",
+            "NCR ID returned and displayed in confirmation after submission",
+            "Route /app/receiving accessible to shop_floor clearance and above",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/PurchaseOrderEngine.ts",
+            "src/engines/QualityManagementEngine.ts",
+            "web/src/pages/CustomerPortalPage.tsx (file upload and form flow pattern)",
+            "web/src/components/shell/shellCatalog.ts"
+          ],
+          "abort_criteria": [
+            "QualityManagementEngine.ncr_create() requires fields that are not available at receive time — include only available fields (vendor, part, qty) and mark non-available fields as TBD in the NCR, rather than blocking the receipt",
+            "PO line items do not have a unique po_line_id — use array index or part_number as the key and document the limitation"
+          ],
+          "rollback": {
+            "files_created": ["web/src/pages/ReceivingInspectionPage.tsx"],
+            "files_modified": [
+              "src/engines/PurchaseOrderEngine.ts",
+              "web/src/components/shell/shellCatalog.ts"
+            ],
+            "procedure": "git rm web/src/pages/ReceivingInspectionPage.tsx && git checkout -- src/engines/PurchaseOrderEngine.ts web/src/components/shell/shellCatalog.ts"
+          }
+        },
+        {
+          "id": "U-BIZ35",
+          "title": "Add Shipping & Packing Page — packing list, BOL, carrier selection, tracking number capture",
+          "phase": "BIZ-MS4-P2",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 105,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Check ENGINE_DIGEST.md for any existing shipping or logistics engine before creating ShippingEngine.ts"
+            },
+            {
+              "number": 2,
+              "instruction": "Read src/engines/OrderManagerEngine.ts to understand how order completion is represented — identify the method that marks an order as complete/shipped and what fields are available (customer_id, line_items, part_number, quantity, job_id)"
+            },
+            {
+              "number": 3,
+              "instruction": "Create src/engines/ShippingEngine.ts. Export a singleton shippingEngine. Define interfaces: PackingList { id: string; order_id: string; customer_id: string; created_at: string; lines: Array<{ part_number: string; description: string; quantity: number; lot_number?: string; job_id?: string }>; status: 'draft' | 'confirmed' | 'shipped' }. BillOfLading { id: string; packing_list_id: string; carrier: Carrier; service_level: string; weight_lbs: number; dimensions?: string; tracking_number?: string; bol_number: string; created_at: string }. Carrier: 'UPS' | 'FedEx' | 'LTL_Freight' | 'Customer_Pickup' | 'Other'. Implement: ship_packing_list(order_id: string): PackingList — fetches order lines from OrderManagerEngine and creates a PackingList in 'draft' status; ship_bol(packing_list_id: string, params: { carrier: Carrier; service_level: string; weight_lbs: number; dimensions?: string }): BillOfLading — generates a BOL with auto-incremented bol_number (format: BOL-YYYYMMDD-NNNN); ship_carrier_select(bol_id: string, carrier: Carrier, service_level: string): void — updates carrier on an existing BOL; ship_tracking(bol_id: string, tracking_number: string): void — records tracking number, marks PackingList as 'shipped', and calls orderManagerEngine.completeOrder(order_id) to mark the order complete. Register packing_lists and bills_of_lading Maps with persistenceBridge. Call persist() after every mutation"
+            },
+            {
+              "number": 4,
+              "instruction": "Add four actions to businessDispatcher.ts z.enum: 'ship_packing_list', 'ship_bol', 'ship_carrier_select', 'ship_tracking'. Add case handlers: ship_packing_list calls shippingEngine.ship_packing_list(args.order_id); ship_bol calls shippingEngine.ship_bol(args.packing_list_id, args); ship_carrier_select calls shippingEngine.ship_carrier_select(args.bol_id, args.carrier, args.service_level); ship_tracking calls shippingEngine.ship_tracking(args.bol_id, args.tracking_number)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add Zod schemas to businessActionSchemas.ts — NO .passthrough(). ship_packing_list: { order_id: z.string() }. ship_bol: { packing_list_id: z.string(), carrier: z.enum(['UPS','FedEx','LTL_Freight','Customer_Pickup','Other']), service_level: z.string(), weight_lbs: z.number().positive(), dimensions: z.string().optional() }. ship_carrier_select: { bol_id: z.string(), carrier: z.enum(['UPS','FedEx','LTL_Freight','Customer_Pickup','Other']), service_level: z.string() }. ship_tracking: { bol_id: z.string(), tracking_number: z.string().min(1) }"
+            },
+            {
+              "number": 6,
+              "instruction": "Add ShippingEngine to BusinessStore.ts ENTITY_CONFIGS: packing_lists entity with knownColumns [id, order_id, customer_id, created_at, status] and jsonColumns [lines]; bills_of_lading entity with knownColumns [id, packing_list_id, carrier, service_level, weight_lbs, dimensions, tracking_number, bol_number, created_at] and jsonColumns []"
+            },
+            {
+              "number": 7,
+              "instruction": "Create web/src/pages/ShippingPage.tsx with a three-step wizard flow: Step 1 — Order selection: a text input to enter order_id (or scan barcode), a 'Generate Packing List' button that calls ship_packing_list and displays the generated packing list table (part number, description, quantity, lot number, job ID). Step 2 — BOL creation: form fields for carrier dropdown (UPS/FedEx/LTL Freight/Customer Pickup/Other), service level text input (e.g. 'Ground', '2-Day Air'), weight in lbs number input, optional dimensions text input. A 'Create BOL' button calls ship_bol and displays the generated BOL number. Step 3 — Tracking: a text input for tracking number, a 'Mark Shipped' button that calls ship_tracking. On success display a green confirmation card with BOL number, carrier, tracking number, and ship date. Also display a printable packing list (use @media print CSS to format for letter paper)"
+            },
+            {
+              "number": 8,
+              "instruction": "Add route /app/shipping to the router config with lazy import of ShippingPage and clearance 'shop_floor'"
+            },
+            {
+              "number": 9,
+              "instruction": "Add 'Shipping' to shellCatalog.ts under the Fulfillment section (create section if absent) with path '/app/shipping', icon 'TruckIcon', minClearance: 'shop_floor'"
+            },
+            {
+              "number": 10,
+              "instruction": "Run npm run build:fast and verify 0 errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/ShippingEngine.ts",
+              "type": "source",
+              "description": "Shipping engine with packing list generation, BOL creation, carrier selection, tracking number capture, order completion trigger, and PersistenceBridge"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "ship_packing_list, ship_bol, ship_carrier_select, ship_tracking added to z.enum and case handlers"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Zod schemas for all four shipping actions without .passthrough()"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS entries for packing_lists and bills_of_lading"
+            },
+            {
+              "path": "web/src/pages/ShippingPage.tsx",
+              "type": "source",
+              "description": "Three-step shipping wizard with packing list, BOL, carrier, and tracking capture plus printable layout"
+            }
+          ],
+          "exit_conditions": [
+            "ship_packing_list() generates a PackingList from order line items and stores it in draft status",
+            "ship_bol() creates a BOL with auto-incremented bol_number (format BOL-YYYYMMDD-NNNN)",
+            "ship_tracking() sets tracking number, marks PackingList as shipped, and marks order complete in OrderManagerEngine",
+            "PackingLists and BOLs persist across server restart (PersistenceBridge)",
+            "ShippingPage three-step wizard completes end-to-end: order → packing list → BOL → tracking → shipped",
+            "@media print formatting produces a clean packing list printout",
+            "Route /app/shipping accessible to shop_floor clearance and above",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "ENGINE_DIGEST.md (check for existing shipping engine first)",
+            "src/engines/OrderManagerEngine.ts",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts"
+          ],
+          "abort_criteria": [
+            "OrderManagerEngine.completeOrder() does not exist — read the full engine and find the nearest order-completion method; call that method instead and add a code comment referencing this unit",
+            "ShippingEngine would duplicate an existing engine found in ENGINE_DIGEST.md — wire to the existing engine instead of creating a new file"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/ShippingEngine.ts",
+              "web/src/pages/ShippingPage.tsx"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "src/db/BusinessStore.ts"
+            ],
+            "procedure": "git rm src/engines/ShippingEngine.ts web/src/pages/ShippingPage.tsx && git checkout -- src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts src/db/BusinessStore.ts"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Credit hold enforcement: order blocked at exactly >60 days overdue, not >59 or >61",
+        "Vendor composite formula: weight sum must equal 1.0 (0.40+0.35+0.15+0.10)",
+        "NCR auto-creation: fires on reject/conditional, not on accept",
+        "Shipping BOL number format: BOL-YYYYMMDD-NNNN sequence resets correctly per day",
+        "Persistence: ShippingEngine and VendorScorecardEngine both survive server restart",
+        "ENTITY_CONFIGS coverage: every new Map registered with persistenceBridge has a matching entry in BusinessStore.ts"
+      ]
+    }
+  ],
+  "dependencies": ["BIZ-MS0"],
+  "exit_conditions": [
+    "RFQ file upload → parse → assign → status track flow works end-to-end",
+    "SalesPipelinePage shows weighted forecast sum(value * probability) matching manual calculation",
+    "Quote follow-up reminders fire at 3/7/14 days after quote sent status is set",
+    "Win/loss reason and competitor intel stored on analytics record and visible in follow-up queue",
+    "CommissionEngine applies tiered brackets (5%/7%/10%) and triggers on invoice payment",
+    "Customer credit_status transitions to 'warning' at 30-day overdue and 'hold' at 60-day overdue",
+    "createOrder() throws 403 when customer credit_status is 'hold'",
+    "VendorScorecardPage composite score = 0.40*OTD + 0.35*(100-rejection) + 0.15*price + 0.10*lead_time",
+    "ReceivingInspectionPage logs receipt against PO with lot numbers, auto-creates NCR on reject",
+    "ShippingPage generates BOL (format BOL-YYYYMMDD-NNNN), captures tracking, marks order complete",
+    "All new engines persist across server restart (PersistenceBridge + ENTITY_CONFIGS)",
+    "All new dispatcher actions have z.enum entries, case handlers, and Zod schemas without .passthrough()",
+    "Route clearance gates enforced: shop_floor, lead, hr_manager as specified per unit",
+    "npm run build:fast produces 0 errors",
+    "npx vitest run shows no regressions from prior BIZ milestones"
+  ],
+  "forge_triple": {
+    "hook": "biz-sales-guard — warns when a new order is created for a customer whose credit_status is 'warning' (not yet 'hold') and surfaces the overdue aging summary in the warning message so the user can decide before the hard block at 60 days",
+    "action": "prism_business:biz_sales_pipeline_summary — returns a single JSON snapshot of the full sales funnel: count and value per stage, weighted forecast total, top 5 customers by open quote value, and RFQs with response deadline within 48 hours",
+    "skill": "/biz-pipeline — displays the sales pipeline funnel inline: stage counts, weighted forecast, top overdue RFQs, and any customers currently on credit hold"
+  },
+  "enforcement": {
+    "pre_hooks": ["search-router-hook.mjs", "navigate-first-hook.mjs", "copilot-dedup-hook.mjs"],
+    "post_hooks": ["build-guard-hook.mjs", "token-economy-hook.mjs"],
+    "review_required": true
+  }
+}

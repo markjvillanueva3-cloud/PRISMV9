@@ -245,7 +245,7 @@ function FallbackStage({ preview }: { preview: CalculatorSetupPreviewModel }) {
       <div className="max-w-xl space-y-3">
         <div className="text-sm font-semibold text-slate-100">3D preview is ready when WebGL is available.</div>
         <div className="text-sm leading-6 text-slate-400">
-          PRISM is still calculating the same setup posture here. In the live browser, this card renders the spindle housing,
+          Kienzle is still calculating the same setup posture here. In the live browser, this card renders the spindle housing,
           holder, tool, and cut zone with red highlights for likely failures.
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -344,7 +344,7 @@ export function CalculatorSetupPreview3D({ preview }: { preview: CalculatorSetup
               <div className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
                 <p><span className="font-semibold text-cyan-100">Cyan / steel</span> means the setup looks aligned.</p>
                 <p><span className="font-semibold text-amber-100">Amber</span> means a rigidity or process watchpoint needs review.</p>
-                <p><span className="font-semibold text-rose-100">Red</span> means PRISM thinks that part of the setup is likely to fail or is mismatched.</p>
+                <p><span className="font-semibold text-rose-100">Red</span> means Kienzle thinks that part of the setup is likely to fail or is mismatched.</p>
               </div>
             </div>
           </div>

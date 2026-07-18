@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="b73ec6279905dbe76335cd37a3cb20f345a157529b232f5a0b7a0bef7dd11ca0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Print-to-Inspection Pipeline V2 (Routes A + B)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Print-to-Inspection Pipeline V2 (Routes A + B)</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/PRINT-TO-INSPECTION-PIPELINE-V2.md</div>
+<div class="meta">Generated 2026-05-20T04:14:57.363Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Print-to-Inspection Pipeline V2 — operator-facing 9-stage spec (AMENDED post peer-review + ACServer audit)</li><li class="prism-toc-l2">Route selector</li><li class="prism-toc-l2">Route A — hyperCAD-S setup-first (preferred when ACServer bridge ships)</li><li class="prism-toc-l3">What changes vs Route B</li><li class="prism-toc-l3">Route A stage map</li><li class="prism-toc-l3">Route A prerequisites (not yet built — see ACSERVER-BRIDGE-AUDIT)</li><li class="prism-toc-l3">Route A failure modes (additional to Route B&#39;s)</li><li class="prism-toc-l2">Stage map (Route B — works TODAY)</li><li class="prism-toc-l2">GD&amp;T propagation (peer-review composition bug — addressed via new Stage 2.5)</li><li class="prism-toc-l2">Glue spec — the missing piece</li><li class="prism-toc-l3">Operator API (target)</li><li class="prism-toc-l3">Per-stage contract (each stage MUST emit)</li><li class="prism-toc-l2">Stage-by-stage best practices</li><li class="prism-toc-l3">Stage 1 — PRINT_INTAKE</li><li class="prism-toc-l3">Stage 2 — CAD_GEN (Fusion 360)</li><li class="prism-toc-l3">Stage 2.5 — GD&amp;T_HANDOFF (orchestrator-internal side-channel)</li><li class="prism-toc-l3">Stage 3 — CAM_TRANSFER (hyperMILL)</li><li class="prism-toc-l3">Stage 4 — SETUP_GEN (HARD BLOCK on envelope mismatch — peer-review fix)</li><li class="prism-toc-l3">Stage 5 — CAM_PROG (with PRISM toolpath injection)</li><li class="prism-toc-l3">Stage 6 — SIMULATE (hyperMILL)</li><li class="prism-toc-l3">Stage 7 — POST_PROCESS</li><li class="prism-toc-l3">Stage 8 — SETUP_SHEET</li><li class="prism-toc-l3">Stage 9 — INSPECTION (measurement-tool-aware — expanded post peer-review)</li><li class="prism-toc-l2">Failure modes the orchestrator must handle (R12 fail-loud)</li><li class="prism-toc-l2">What&#39;s already built vs the V2 delta (HONEST scope — peer-review fix)</li><li class="prism-toc-l2">Acceptance criteria (when this spec is &quot;done&quot;)</li><li class="prism-toc-l2">See also</li></ul></nav><h1 class="prism-h1">Print-to-Inspection Pipeline V2 — operator-facing 9-stage spec (AMENDED post peer-review + ACServer audit)</h1>
+<blockquote class="prism-quote">Companion to <code class="prism-inline-code">CAD-PIPELINE-AUDIT-2026-05-20.md</code> and <code class="prism-inline-code">ACSERVER-BRIDGE-AUDIT-2026-05-20.md</code>.</blockquote>
+<blockquote class="prism-quote">Specializes the broader DOMAIN-PIPELINE-MS0 18-stage canonical pipeline onto</blockquote>
+<blockquote class="prism-quote">the user&#39;s specific brief: print upload → CAD → hyperMILL → setup → CAM →</blockquote>
+<blockquote class="prism-quote">sim → post → setup-sheet → inspection.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>TWO ROUTES</strong> per the operator&#39;s design-in-setup-assembly insight:</blockquote>
+<blockquote class="prism-quote">- <strong>Route A — hyperCAD-S setup-first</strong> (preferred when target CAM is hyperMILL): model the part directly in an assembly that already holds the stock + fixture + machine envelope. No STEP round-trip. No GD&amp;T propagation gap. Stages 2–3 collapse into one. <strong>Gated on the ACServer bridge build (~2 sessions of work — see ACSERVER-BRIDGE-AUDIT for details).</strong></blockquote>
+<blockquote class="prism-quote">- <strong>Route B — Fusion 360 → STEP → hyperMILL</strong> (works TODAY): the original V2 flow with Stage 2.5 GD&amp;T side-channel. Ships now; works without any new bridge work.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>Status: AMENDED 2026-05-20</strong> post peer-review. Four composition bugs</blockquote>
+<blockquote class="prism-quote">resolved:</blockquote>
+<blockquote class="prism-quote">1. GD&amp;T side-channel between Stage 2 and Stage 3 (STEP AP203/AP214 doesn&#39;t</blockquote>
+<blockquote class="prism-quote">   carry GD&amp;T; Fusion 360&#39;s default export doesn&#39;t write AP242).</blockquote>
+<blockquote class="prism-quote">2. HARD BLOCK at Stage 4 on machine-envelope mismatch (was warning).</blockquote>
+<blockquote class="prism-quote">3. Inspection routing table expanded — surface plate + height gauge +</blockquote>
+<blockquote class="prism-quote">   optical comparator added (standard metrology for a die/mold job shop).</blockquote>
+<blockquote class="prism-quote">4. V2 delta re-labeled &quot;net-new orchestration&quot; not &quot;composition only&quot; —</blockquote>
+<blockquote class="prism-quote">   the conditional branching and side-channel handoffs are real new logic.</blockquote>
+<h2 class="prism-h2">Route selector</h2>
+<p>The orchestrator picks Route A or Route B based on (a) target CAM platform and (b) whether the OPEN MIND ACServer bridge is available on the host.</p>
+<pre class="prism-codeblock"><code>IF target CAM == &quot;hypermill&quot; AND ACServer bridge healthy:
+   → Route A (setup-first in hyperCAD-S)
+ELSE IF target CAM == &quot;hypermill&quot; AND ACServer bridge NOT healthy:
+   → Route B with cadPlatform=&quot;fusion360&quot;   (today&#39;s only working path)
+ELSE IF customer requires native .f3d / .sldprt / .ipt file:
+   → Route B with the matching cadPlatform
+ELSE IF batch-headless / no-UI workflow:
+   → Route B with cadPlatform=&quot;cadquery&quot;   (Python → STEP, no app)
+ELSE:
+   → Route B with cadPlatform=&quot;fusion360&quot;   (PRISM default, deepest substrate)</code></pre>
+<p>The orchestrator MUST emit a <code class="prism-inline-code">routeChosen: &quot;A&quot; | &quot;B&quot;</code> field with the selection rationale so the operator can override if needed.</p>
+<h2 class="prism-h2">Route A — hyperCAD-S setup-first (preferred when ACServer bridge ships)</h2>
+<h3 class="prism-h3">What changes vs Route B</h3>
+<table class="prism-md-table"><thead><tr><th>Aspect</th><th>Route B (Fusion → STEP → hyperMILL)</th><th>Route A (hyperCAD-S setup-first)</th></tr></thead><tbody><tr><td>Stage 2 (CAD_GEN) location</td><td>Fusion 360 Design workspace</td><td>hyperCAD-S, inside the assembly that becomes the hyperMILL setup</td></tr>
+<tr><td>Stage 2.5 (GD&amp;T handoff)</td><td>Required (STEP doesn&#39;t carry GD&amp;T)</td><td><strong>Eliminated</strong> — assembly carries all semantics</td></tr>
+<tr><td>Stage 3 (CAM_TRANSFER)</td><td>Real handoff step (STEP + side-channel)</td><td><strong>Collapsed into Stage 2</strong> — same document, no transfer</td></tr>
+<tr><td>Stage 4 (SETUP_GEN)</td><td>Defined after the model exists</td><td>Defined BEFORE the model (assembly is the setup) — modeling is constrained by the fixture/stock from the start</td></tr>
+<tr><td>Coordinate system</td><td>Set at STEP import; risk of drift between CAD WCS and CAM WCS</td><td>Single WCS owned by the assembly — no drift possible</td></tr>
+<tr><td>Operator UX</td><td>Two apps, two coordinate systems, two file formats</td><td>One app, one assembly, one coordinate system</td></tr></tbody></table>
+<h3 class="prism-h3">Route A stage map</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Stage</th><th>Where it happens</th><th>Engines</th></tr></thead><tbody><tr><td>0 (new)</td><td>SETUP_FRAME</td><td>Operator opens or composes the assembly: machine envelope + fixture + stock placed first</td><td><code class="prism-inline-code">ShopConfigurationEngine</code>, <code class="prism-inline-code">MachineEnvelopeGuardEngine</code>, <code class="prism-inline-code">WorkholdingViabilityEngine</code> (informs the placed-fixture choice)</td></tr>
+<tr><td>1</td><td>PRINT_INTAKE</td><td>Same as Route B</td><td><code class="prism-inline-code">BlueprintVisionOCREngine</code>, <code class="prism-inline-code">PrintReadingEngine</code>, etc.</td></tr>
+<tr><td>2</td><td><strong>CAD_GEN_IN_SETUP</strong></td><td>Model the part as a body inside the SETUP_FRAME assembly. Constraints reference the stock and fixture directly — designed-for-machining from the first sketch.</td><td><code class="prism-inline-code">HyperCADSAutomationEngine</code> (generates AC Python), <code class="prism-inline-code">PrintToHyperCADSBridge</code> (composes import + heal + workpiece-assign), pending <code class="prism-inline-code">HyperMillAutomationBridge</code> (Track 1 of ACSERVER-BRIDGE-AUDIT)</td></tr>
+<tr><td>~~2.5~~</td><td>~~GDT_HANDOFF~~</td><td><strong>Eliminated under Route A</strong> — GD&amp;T lives in the assembly natively</td><td>—</td></tr>
+<tr><td>~~3~~</td><td>~~CAM_TRANSFER~~</td><td><strong>Collapsed into Stage 2</strong> — already in the same hyperMILL document</td><td>—</td></tr>
+<tr><td>4</td><td>SETUP_GEN</td><td>Already done at Stage 0; here this stage validates and locks the setup</td><td>Same as Route B (HARD BLOCK on envelope/fixture mismatch)</td></tr>
+<tr><td>5</td><td>CAM_PROG</td><td>hyperMILL CAM operations run against the assembly directly. PRISM toolpath injection still available via <code class="prism-inline-code">MillingPrintToProgramEngine</code> etc.</td><td>Same as Route B</td></tr>
+<tr><td>6</td><td>SIMULATE</td><td>hyperMILL Virtual Machining in-place</td><td>Same as Route B</td></tr>
+<tr><td>7</td><td>POST_PROCESS</td><td>Same as Route B</td><td>Same as Route B</td></tr>
+<tr><td>8</td><td>SETUP_SHEET</td><td>Same as Route B; <code class="prism-inline-code">HyperMillSetupSheetBridge</code> renders the OPEN MIND native format</td><td>Same as Route B</td></tr>
+<tr><td>9</td><td>INSPECTION</td><td>Same as Route B (expanded routing table for surface plate, height gauge, optical comparator)</td><td>Same as Route B</td></tr></tbody></table>
+<h3 class="prism-h3">Route A prerequisites (not yet built — see ACSERVER-BRIDGE-AUDIT)</h3>
+<table class="prism-md-table"><thead><tr><th>Prerequisite</th><th>Status today</th><th>Cost to ship</th></tr></thead><tbody><tr><td>TS-side AC HTTP server (HyperMillACBridgeEngine, E1144)</td><td><strong>MISSING</strong> — config exists, server doesn&#39;t</td><td>~300 LOC</td></tr>
+<tr><td>HyperMillAutomationBridge orchestrator</td><td><strong>MISSING</strong></td><td>~200 LOC</td></tr>
+<tr><td>Real AC session handshake (beyond TCP probe)</td><td><strong>MISSING</strong></td><td>~50 LOC patch</td></tr>
+<tr><td>Host-side <code class="prism-inline-code">prism_ac</code> Python module</td><td><strong>NOT IN PRISM REPO</strong> — must be installed per hyperMILL workstation</td><td>~150 LOC + installer</td></tr>
+<tr><td>Live round-trip E2E test</td><td><strong>MISSING</strong></td><td>~150 LOC</td></tr>
+<tr><td><code class="prism-inline-code">prism_cam:hypermill_drive</code> dispatcher action</td><td><strong>MISSING</strong></td><td>~50 LOC</td></tr></tbody></table>
+<p><strong>Total: ~900-1100 LOC + one host-side Python install per workstation. ~2 focused sessions with per-file scrutiny gates.</strong></p>
+<h3 class="prism-h3">Route A failure modes (additional to Route B&#39;s)</h3>
+<table class="prism-md-table"><thead><tr><th>Failure</th><th>Detect at</th><th>Surface as</th></tr></thead><tbody><tr><td>ACServer not reachable on <code class="prism-inline-code">:18365</code></td><td>Stage 0 / route-selector</td><td>Fall through to Route B with <code class="prism-inline-code">cadPlatform=fusion360</code>; emit a warning</td></tr>
+<tr><td>hyperMILL license missing or expired</td><td>Stage 0</td><td>Abort with license-renewal pointer</td></tr>
+<tr><td><code class="prism-inline-code">prism_ac</code> Python module missing on host</td><td>first script execution</td><td>Surface install instructions + fall through to Route B</td></tr>
+<tr><td>AC version mismatch (TS expects v33.0, host has v32.x)</td><td>first script execution</td><td>Block with compat-matrix link</td></tr>
+<tr><td>Operator manually edited the assembly during Stage 5–7</td><td>Stage 6/7 reads stale assembly state</td><td>Re-snapshot the assembly, warn operator, continue OR HARD BLOCK if structural change</td></tr></tbody></table>
+<h2 class="prism-h2">Stage map (Route B — works TODAY)</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Stage</th><th>Default platform</th><th>Engines that compose it</th></tr></thead><tbody><tr><td>1</td><td>PRINT_INTAKE</td><td>n/a</td><td><code class="prism-inline-code">BlueprintVisionOCREngine</code>, <code class="prism-inline-code">PrintReadingEngine</code>, <code class="prism-inline-code">PrintLibraryEngine</code>, <code class="prism-inline-code">PrintToGeometryEngine</code></td></tr>
+<tr><td>2</td><td>CAD_GEN</td><td><strong>Fusion 360</strong></td><td><code class="prism-inline-code">PrintToFusion360Bridge</code>, <code class="prism-inline-code">Fusion360LiveBridgeEngine</code>, <code class="prism-inline-code">Fusion360CADGeneratorAdapter</code>, <code class="prism-inline-code">CADClassFeatureLibraryEngine</code>, <code class="prism-inline-code">CADSystemRouterEngine</code></td></tr>
+<tr><td>2.5</td><td><strong>GD&amp;T_HANDOFF</strong> (new)</td><td>orchestrator-internal</td><td>side-channel payload (see §GD&amp;T propagation)</td></tr>
+<tr><td>3</td><td>CAM_TRANSFER</td><td><strong>hyperMILL</strong></td><td><code class="prism-inline-code">PrintToHyperMillBridge</code>, <code class="prism-inline-code">HyperMillSchemaUnifier</code>, <code class="prism-inline-code">HyperMillCycleParameterPipeline</code>, <code class="prism-inline-code">HyperMillPPPInputAdapter</code></td></tr>
+<tr><td>4</td><td>SETUP_GEN</td><td>machine-driven</td><td><code class="prism-inline-code">ShopConfigurationEngine</code> (21-machine fleet), <code class="prism-inline-code">MachineEnvelopeGuardEngine</code>, <code class="prism-inline-code">MachineCapabilityEngine</code>, <code class="prism-inline-code">WorkholdingViabilityEngine</code>, <code class="prism-inline-code">LathePrintSetupSelectionEngine</code></td></tr>
+<tr><td>5</td><td>CAM_PROG</td><td><strong>hyperMILL + PRISM toolpath injection</strong></td><td><code class="prism-inline-code">HyperMillStrategyEngine</code>, <code class="prism-inline-code">HyperMillCycleDefaultsEngine</code>, <code class="prism-inline-code">HyperMillMultiAxisEngine</code>, <code class="prism-inline-code">CrossCamRecommenderEngine</code>, <code class="prism-inline-code">MillingPrintToProgramEngine</code>, <code class="prism-inline-code">TurningPrintToProgramEngine</code>, <code class="prism-inline-code">MultiAxisPrintToProgramEngine</code>, <code class="prism-inline-code">WEDMPrintToProgramEngine</code></td></tr>
+<tr><td>6</td><td>SIMULATE</td><td><strong>hyperMILL</strong></td><td><code class="prism-inline-code">HyperMillSafetyHooks</code>, <code class="prism-inline-code">Fusion360SafetyHooksEngine</code>, <code class="prism-inline-code">CollisionCheckFull</code> (<code class="prism-inline-code">prism_safety:collision_check_full</code>)</td></tr>
+<tr><td>7</td><td>POST_PROCESS</td><td>per-machine</td><td><code class="prism-inline-code">MasterPostProcessorEngine</code>, <code class="prism-inline-code">MasterPostProcessorAGIOrchestrationEngine</code>, <code class="prism-inline-code">OkumaOSPMillMasterPostEngine</code>, <code class="prism-inline-code">OkumaB250LatheMasterPostEngine</code>, <code class="prism-inline-code">HurcoV11MillMasterPostEngine</code>, <code class="prism-inline-code">MitsubishiMV1200RWireEDMMasterPostEngine</code>, <code class="prism-inline-code">LatheMasterPostRouterEngine</code></td></tr>
+<tr><td>8</td><td>SETUP_SHEET</td><td>platform-agnostic</td><td><code class="prism-inline-code">SetupSheetEngine</code>, <code class="prism-inline-code">SetupSheetFromGCodeEngine</code>, <code class="prism-inline-code">SetupSheetLibraryEngine</code>, <code class="prism-inline-code">SetupSheetPipelineEngine</code>, <code class="prism-inline-code">HyperMillSetupSheetBridge</code></td></tr>
+<tr><td>9</td><td>INSPECTION</td><td>metrology-driven</td><td><code class="prism-inline-code">FirstArticleInspectionPipelineEngine</code>, <code class="prism-inline-code">TurningInspectionPlanEngine</code>, <code class="prism-inline-code">WetRunSampleInspectionPlanEngine</code>, <code class="prism-inline-code">CMMPathPlanningEngine</code>, <code class="prism-inline-code">ProbeRoutineGeneratorEngine</code></td></tr></tbody></table>
+<h2 class="prism-h2">GD&amp;T propagation (peer-review composition bug — addressed via new Stage 2.5)</h2>
+<p><strong>The bug:</strong> STEP AP203 and AP214 (Fusion 360&#39;s default export formats) carry geometry only — they do NOT embed semantic GD&amp;T (datums, feature control frames, tolerance values). STEP AP242 does, but Fusion 360 does not natively export AP242 in all configurations. So if Stage 3 (CAM_TRANSFER) receives only the STEP file from Stage 2, hyperMILL gets geometry with no tolerance semantics — and Stage 7 (POST_PROCESS) can&#39;t know which features need tight-tolerance feeds or which surfaces need a finish pass.</p>
+<p><strong>Resolution:</strong> Stage 2.5 is an orchestrator-internal side-channel handoff that propagates the Stage 1 OCR payload (GD&amp;T, surface finish, material spec, tolerance budget) directly into the Stage 3 input alongside the STEP. The orchestrator owns this transfer; the STEP is the geometry carrier, the side-channel is the semantics carrier.</p>
+<pre class="prism-codeblock" data-lang="typescript"><code>interface GDTSideChannel {
+  source: &quot;stage_1_ocr&quot;;
+  dimensions: Array&lt;{ id: string; nominal: number; tol: { upper: number; lower: number; itGrade?: string } }&gt;;
+  gdt: Array&lt;{ featureId: string; symbol: string; tolerance: number; datums: string[] }&gt;;
+  surfaceFinish: Array&lt;{ featureId: string; ra: number; rz?: number; lay?: string }&gt;;
+  materialSpec: { uns?: string; aisi?: string; iso?: string; heatTreat?: string };
+  attachToStageInputs: [&quot;stage_3&quot;, &quot;stage_5&quot;, &quot;stage_7&quot;, &quot;stage_9&quot;];
+  // Survives across stages — Stage 9 (INSPECTION) needs the full dimensions
+  // list to generate the per-feature inspection card.
+}</code></pre>
+<p><strong>Acceptance:</strong> the orchestrator&#39;s result includes <code class="prism-inline-code">gdtSideChannel</code> echoed at Stages 3, 5, 7, and 9 with field-by-field consistency check between Stage 1 source and Stage N consumer. Any drop = R12 fail-loud.</p>
+<p><strong>Alternative considered + rejected:</strong> export STEP AP242 from Fusion 360 via plugin extension. Rejected because (a) Fusion&#39;s AP242 support is intermittent across versions, (b) downstream hyperMILL AP242 ingestion is also uneven, (c) keeping the side-channel orchestrator-owned isolates the risk to one place we control.</p>
+<h2 class="prism-h2">Glue spec — the missing piece</h2>
+<p>A single composition engine is needed to chain these stages with operator visibility per stage and Karpathy R12 fail-loud at every boundary. Proposed name (subject to <code class="prism-inline-code">duplicationGuardEngine.mustCheckBeforeCreating()</code>): <code class="prism-inline-code">PrintToInspectionOrchestratorEngine</code>. The duplication guard will likely route the work into the existing <code class="prism-inline-code">PrintToProgramPipelineEngine</code> instead — that engine already does stages 1–4 + 7 in its 5-stage flow; the V2 extension adds stages 5–6 and 8–9 as named, per-stage <code class="prism-inline-code">StageResult</code> objects in its output payload, plus the Stage 2.5 side-channel.</p>
+<h3 class="prism-h3">Operator API (target)</h3>
+<pre class="prism-codeblock" data-lang="typescript"><code>const result = await printToInspectionOrchestrator.run({
+  printPath: &quot;H:/prism/JM DIE/CNC LATHE/ALCOA/part-2475-037.pdf&quot;,
+  cadPlatform: &quot;fusion360&quot;,         // default
+  camPlatform: &quot;hypermill&quot;,         // default
+  targetMachine: &quot;okuma-osp-mill&quot;,  // resolved from ShopConfigurationEngine
+  injectPRISMToolpaths: true,       // user brief
+  inspectionTools: [&quot;mitutoyo-mic&quot;, &quot;starrett-caliper&quot;, &quot;cmm-zeiss&quot;, &quot;surface-plate&quot;, &quot;height-gauge&quot;, &quot;optical-comparator&quot;],
+});
+// result.stages[1..9].{ok, ms, payload, warnings, hardFail}
+// result.gdtSideChannel — Stage 2.5 payload, echoed at consumer stages
+// result.outputs: { stepFile, hyperMillProject, gCode, setupSheet, inspectionReport }</code></pre>
+<h3 class="prism-h3">Per-stage contract (each stage MUST emit)</h3>
+<pre class="prism-codeblock" data-lang="typescript"><code>interface StageResult&lt;T&gt; {
+  stage: 1 | 2 | &quot;2.5&quot; | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  stageName: string;       // &quot;CAD_GEN&quot;, &quot;GDT_HANDOFF&quot;, etc.
+  ok: boolean;
+  ms: number;              // duration
+  payload?: T;             // stage-specific
+  warnings: string[];
+  hardFail?: { reason: string; reproduce: string };
+  // hardFail propagates upstream — Karpathy R12 — never silent
+}</code></pre>
+<h2 class="prism-h2">Stage-by-stage best practices</h2>
+<h3 class="prism-h3">Stage 1 — PRINT_INTAKE</h3>
+<ul class="prism-md-list"><li>Accept PDF, PNG, JPG, TIFF.</li><li>OCR via <code class="prism-inline-code">BlueprintVisionOCREngine</code> (multi-vendor: eDOCr2 / vision-LLM / Tesseract).</li><li>Title-block fields, dimensions, GD&amp;T, surface finish, material spec → structured payload.</li><li>Confidence per extracted field; below 0.7 → operator-confirm dialog with the visual region highlighted.</li></ul>
+<h3 class="prism-h3">Stage 2 — CAD_GEN (Fusion 360)</h3>
+<ul class="prism-md-list"><li>Resolve part class (rev / prismatic / sheet / freeform) via <code class="prism-inline-code">CADClassFeatureLibraryEngine</code>.</li><li>Use class template to drive <code class="prism-inline-code">Fusion360LiveBridgeEngine</code> (<code class="prism-inline-code">:18360</code>) with typed primitives.</li><li><strong>Order of operations for the CAD build itself:</strong></li></ul>
+<ol class="prism-md-list"><li>Sketch base profile on the XY work plane.</li><li>Extrude / revolve to solid.</li><li>Cut major features in size order (largest pockets first → smallest holes last).</li><li>Apply chamfers / fillets LAST (per CADClassFeatureLibraryEngine <code class="prism-inline-code">buildSequenceFor</code> PHASE9 spec).</li><li>Export STEP for downstream CAM ingestion.</li></ol>
+<ul class="prism-md-list"><li>Fidelity score &lt; 0.85 → flag for operator review before continuing.</li></ul>
+<h3 class="prism-h3">Stage 2.5 — GD&amp;T_HANDOFF (orchestrator-internal side-channel)</h3>
+<ul class="prism-md-list"><li>Attaches the Stage 1 OCR payload (dimensions + tolerances + GD&amp;T + surface finish + material) to the orchestrator state.</li><li>Echoed at Stages 3, 5, 7, 9 as immutable input.</li><li>HARD BLOCK if any Stage-1 toleranced dim is missing a Stage-3 consumer reference (catches silent drop).</li></ul>
+<h3 class="prism-h3">Stage 3 — CAM_TRANSFER (hyperMILL)</h3>
+<ul class="prism-md-list"><li>Hand off STEP via <code class="prism-inline-code">PrintToHyperMillBridge</code> and <code class="prism-inline-code">HyperMillSchemaUnifier</code>.</li><li><strong>Inject GD&amp;T side-channel</strong> from Stage 2.5 into <code class="prism-inline-code">HyperMillPPPInputAdapter</code> — material spec + tolerance + GD&amp;T payload flows through PPP, not through the STEP file.</li><li>HARD BLOCK if the PPP rejects any side-channel field.</li></ul>
+<h3 class="prism-h3">Stage 4 — SETUP_GEN (HARD BLOCK on envelope mismatch — peer-review fix)</h3>
+<ul class="prism-md-list"><li>Read live shop state via <code class="prism-inline-code">ShopConfigurationEngine.getProfile(&quot;jm-die&quot;)</code> — 21-machine fleet.</li><li>Match by envelope + kinematics + spindle HP via <code class="prism-inline-code">MachineEnvelopeGuardEngine</code>.</li><li><strong>HARD BLOCK</strong> if part envelope exceeds machine envelope — a part that won&#39;t fit is a tool/fixture crash risk, not a warning. Operator may resolve by:</li></ul>
+<p>(a) picking a different machine,   (b) changing stock orientation,   (c) reducing the part envelope (e.g., dropping a feature to a secondary op).</p>
+<ul class="prism-md-list"><li>Pick workholding via <code class="prism-inline-code">WorkholdingViabilityEngine</code>: vise + stop (mill), 3-jaw (lathe), 3R (wire EDM); apply force gate.</li><li>Fixture-collision pre-check via <code class="prism-inline-code">prism_safety:check_fixture_clearance</code> — also HARD BLOCK on collision verdict (not warn).</li></ul>
+<h3 class="prism-h3">Stage 5 — CAM_PROG (with PRISM toolpath injection)</h3>
+<ul class="prism-md-list"><li>Default route: hyperMILL strategy auto-select via <code class="prism-inline-code">HyperMillStrategyEngine</code>.</li><li><strong>PRISM-injection override:</strong> when the operator opts in OR the hyperMILL default fails a safety gate, inject PRISM-native toolpaths via the domain-specific PrintToProgram engines and have hyperMILL consume the path as imported geometry.</li><li>Speeds/feeds always from <code class="prism-inline-code">AutoSpeedFeedEngine</code> (Kienzle force + Taylor life + machine HP budget — canonical <code class="prism-inline-code">physics/constants.ts</code>).</li><li>Cross-CAM blind spot detection via <code class="prism-inline-code">CrossCamRecommenderEngine</code>.</li><li>HARD BLOCK on <code class="prism-inline-code">S(x) &lt; 0.98</code> (shop_floor tier).</li></ul>
+<h3 class="prism-h3">Stage 6 — SIMULATE (hyperMILL)</h3>
+<ul class="prism-md-list"><li>hyperMILL Virtual Machining for swept-volume + machine-kinematic articulation.</li><li>Cross-check via <code class="prism-inline-code">prism_safety:collision_check_full</code> for an independent mathematical pass.</li><li>BVH-based fast pre-screen via <code class="prism-inline-code">prism_calc:bvh_raycast</code> before the full sim runs.</li><li>HARD BLOCK on any collision verdict — operator must resolve, no auto-override.</li></ul>
+<h3 class="prism-h3">Stage 7 — POST_PROCESS</h3>
+<ul class="prism-md-list"><li>Match machine to master post via <code class="prism-inline-code">LatheMasterPostRouterEngine</code> (lathe) or the milling equivalent.</li><li>If a perfect per-machine post exists (<code class="prism-inline-code">OkumaOSPMillMasterPostEngine</code>, <code class="prism-inline-code">OkumaB250LatheMasterPostEngine</code>, <code class="prism-inline-code">HurcoV11MillMasterPostEngine</code>, <code class="prism-inline-code">MitsubishiMV1200RWireEDMMasterPostEngine</code>) use it directly.</li><li>Otherwise fall through to <code class="prism-inline-code">MasterPostProcessorEngine</code> + <code class="prism-inline-code">MasterPostFineTuningEngine</code> (generates a per-machine perfect post from the canonical master + machine fingerprint).</li><li>AGI uncertainty pass via <code class="prism-inline-code">MasterPostProcessorAGIOrchestrationEngine</code> — surfaces any ambiguous translation (M-code dialect, canned-cycle availability).</li><li>Use GD&amp;T side-channel to bias finish-pass parameters for tight-tolerance features.</li></ul>
+<h3 class="prism-h3">Stage 8 — SETUP_SHEET</h3>
+<ul class="prism-md-list"><li>Generate from G-code (not from CAM tree) via <code class="prism-inline-code">SetupSheetFromGCodeEngine</code> — survives format conversion + handles edited G-code that drifts from the CAM tree.</li><li>Library-backed via <code class="prism-inline-code">SetupSheetLibraryEngine</code> for shop-standard tool numbering + fixture call-outs.</li><li>For hyperMILL-native rendering use <code class="prism-inline-code">HyperMillSetupSheetBridge</code> (matches Open Mind&#39;s own format).</li></ul>
+<h3 class="prism-h3">Stage 9 — INSPECTION (measurement-tool-aware — expanded post peer-review)</h3>
+<p>Reads <code class="prism-inline-code">inspectionTools</code> operator input. Matches each toleranced dim/feature from the Stage 2.5 side-channel to the most appropriate available tool.</p>
+<p><strong>Measurement-tool routing table (expanded per peer review):</strong></p>
+<table class="prism-md-table"><thead><tr><th>Feature type</th><th>Primary tool</th><th>Fallback chain</th></tr></thead><tbody><tr><td>Bore Ø &gt; 6 mm, IT6–IT9</td><td>Bore gauge</td><td>Pin gauge → CMM</td></tr>
+<tr><td>Bore Ø ≤ 6 mm</td><td>Pin gauge</td><td>CMM</td></tr>
+<tr><td>External Ø, IT6–IT9</td><td>Micrometer</td><td>Caliper → optical comparator → CMM</td></tr>
+<tr><td>External Ø, IT &gt; IT9</td><td>Caliper</td><td>Micrometer</td></tr>
+<tr><td>Linear distance, IT6–IT9</td><td>Caliper</td><td>Height gauge (with surface plate) → CMM</td></tr>
+<tr><td>Linear distance, IT &gt; IT9</td><td>Caliper</td><td>—</td></tr>
+<tr><td><strong>Step height, shoulder height</strong> (new)</td><td><strong>Height gauge + surface plate</strong></td><td>Depth mic → CMM</td></tr>
+<tr><td><strong>Shoulder squareness, parallelism</strong> (new)</td><td><strong>Surface plate + indicator on height stand</strong></td><td>CMM</td></tr>
+<tr><td><strong>2D profile, complex form, small radii</strong> (new)</td><td><strong>Optical comparator</strong></td><td>CMM with form-error analysis</td></tr>
+<tr><td><strong>Thread form, pitch verification</strong> (new)</td><td><strong>Optical comparator</strong></td><td>Thread Go/No-Go gauges → CMM threading probe</td></tr>
+<tr><td>Surface finish Ra</td><td>Profilometer (Mitutoyo SJ-210 or equiv)</td><td>— (no good fallback)</td></tr>
+<tr><td>True position / GD&amp;T (Ø, ⊥, ∥, ⌀, ⌖)</td><td>CMM (Zeiss / Hexagon)</td><td>Surface plate + indicators for simple cases</td></tr>
+<tr><td>Thread internal / external (class fit)</td><td>Go/No-Go gauges (per thread class)</td><td>—</td></tr>
+<tr><td>Surface flatness, free-form</td><td>CMM with form-error analysis</td><td>Surface plate sweep for first-pass</td></tr></tbody></table>
+<p><strong>Why these additions matter for JM Die&#39;s shop:</strong></p>
+<ul class="prism-md-list"><li><strong>Surface plate + height gauge</strong> — primary shop-floor tool for step</li></ul>
+<p>heights, shoulder squareness, and parallelism. Faster + cheaper than   CMM for go/no-go decisions. Every die/mold shop has at least one.</p>
+<ul class="prism-md-list"><li><strong>Optical comparator</strong> — first-reach for any 2D profile feature</li></ul>
+<p>(thread forms, complex contours, small radii). Faster than CMM for   profile-only checks, often more reliable for small features the CMM   probe can&#39;t reach.</p>
+<p><strong>Output:</strong> per-dimension inspection card with tool, expected reading, tolerance band, measurement steps, and a fallback chain in case the primary tool isn&#39;t available on the day.</p>
+<p>Route through <code class="prism-inline-code">FirstArticleInspectionPipelineEngine</code> for FAI generation, <code class="prism-inline-code">ProbeRoutineGeneratorEngine</code> for in-machine probe routines, <code class="prism-inline-code">CMMPathPlanningEngine</code> for CMM program generation. Stage 2.5 side-channel provides the full dimension list — no stage drops any toleranced feature.</p>
+<h2 class="prism-h2">Failure modes the orchestrator must handle (R12 fail-loud)</h2>
+<table class="prism-md-table"><thead><tr><th>Failure</th><th>Detect at</th><th>Surface as</th></tr></thead><tbody><tr><td>OCR confidence &lt; 0.7 on any toleranced dim</td><td>Stage 1</td><td>operator-confirm dialog, do NOT proceed</td></tr>
+<tr><td>Fusion 360 live bridge offline (<code class="prism-inline-code">:18360</code> unreachable, or MISC-305 incomplete)</td><td>Stage 2</td><td>fall back to CadQuery headless OR fail-loud per operator preference</td></tr>
+<tr><td>GD&amp;T side-channel dropped a toleranced dim between Stage 1 and Stage 3</td><td>Stage 2.5</td><td><strong>HARD BLOCK</strong></td></tr>
+<tr><td>hyperMILL session not licensed for the customer site</td><td>Stage 3</td><td>abort with link to procurement workflow</td></tr>
+<tr><td>Part envelope exceeds machine envelope</td><td>Stage 4</td><td><strong>HARD BLOCK</strong> (per peer-review fix)</td></tr>
+<tr><td>Fixture-collision verdict</td><td>Stage 4</td><td><strong>HARD BLOCK</strong> (per peer-review fix)</td></tr>
+<tr><td>No machine in fleet matches envelope after all candidates exhausted</td><td>Stage 4</td><td><strong>HARD BLOCK</strong> — flag stock-form change or off-shop quote</td></tr>
+<tr><td>Speed/feed violates <code class="prism-inline-code">S(x) &lt; 0.98</code> shop-floor tier</td><td>Stage 5</td><td><strong>HARD BLOCK</strong></td></tr>
+<tr><td>Collision verdict (either hyperMILL or PRISM)</td><td>Stage 6</td><td><strong>HARD BLOCK</strong> — never auto-override</td></tr>
+<tr><td>No per-machine post AND master post can&#39;t translate a feature</td><td>Stage 7</td><td>surface the unmappable feature + propose CAM-side workaround</td></tr>
+<tr><td>Setup-sheet generator can&#39;t find tool in shop catalog</td><td>Stage 8</td><td>flag missing tool, propose <code class="prism-inline-code">ToolCatalogEngine</code> substitution</td></tr>
+<tr><td>Operator&#39;s <code class="prism-inline-code">inspectionTools</code> list can&#39;t measure a toleranced dim from Stage 2.5 side-channel</td><td>Stage 9</td><td>flag with the dim + propose tool acquisition</td></tr></tbody></table>
+<h2 class="prism-h2">What&#39;s already built vs the V2 delta (HONEST scope — peer-review fix)</h2>
+<p><strong>Already built (substrate):</strong> every engine cell in the table above exists on disk. Verify via <code class="prism-inline-code">node scripts/cad-pipeline-coverage-scorer.mjs --json</code> — six platforms, nine stages.</p>
+<p><strong>V2 delta — NET-NEW ORCHESTRATION (NOT pure composition):</strong></p>
+<p>The original spec said &quot;composition only — no new physics, no new constants.&quot; Peer reviewer correctly pushed back: the V2 delta is real new orchestration logic with conditional branching, side-channel plumbing, and new dispatcher contract. Honest scope:</p>
+<ol class="prism-md-list"><li><strong>NEW</strong> — Stage 2.5 GD&amp;T side-channel: payload definition, attach/echo</li></ol>
+<p>contract, drop-detection HARD BLOCK. ~50–100 LOC, net new.</p>
+<ol class="prism-md-list"><li><strong>EXTEND</strong> — <code class="prism-inline-code">PrintToProgramPipelineEngine.run</code> payload to surface ALL</li></ol>
+<p>stages 1–9 (plus 2.5) as explicit <code class="prism-inline-code">StageResult</code> objects with the new    union type. Today&#39;s 5-stage flow becomes 10-stage. Real refactor.</p>
+<ol class="prism-md-list"><li><strong>NEW</strong> — <code class="prism-inline-code">cadPlatform</code> + <code class="prism-inline-code">camPlatform</code> selector params with the</li></ol>
+<p>per-platform default routing logic (Fusion 360 → hyperMILL).</p>
+<ol class="prism-md-list"><li><strong>NEW</strong> — <code class="prism-inline-code">injectPRISMToolpaths: boolean</code> switch at Stage 5 with the</li></ol>
+<p>conditional branching to <code class="prism-inline-code">MillingPrintToProgramEngine</code> /    <code class="prism-inline-code">TurningPrintToProgramEngine</code> / etc. depending on detected feature    domain. Real branching logic, not a passthrough.</p>
+<ol class="prism-md-list"><li><strong>NEW</strong> — <code class="prism-inline-code">inspectionTools: string[]</code> operator input → Stage 9</li></ol>
+<p>measurement-tool router with the expanded routing table from §9.</p>
+<ol class="prism-md-list"><li><strong>NEW</strong> — HARD BLOCK reachability tests at Stages 2.5, 4 (envelope +</li></ol>
+<p>fixture), 5 (S(x)), 6 (collision) — the unconditional safety gates    must be provable, not just present.</p>
+<ol class="prism-md-list"><li><strong>NEW</strong> — <code class="prism-inline-code">prism_cam:print_to_inspection_full</code> dispatcher action with</li></ol>
+<p>Zod schema matching the operator API; lazy import; round-trip E2E    test through the dispatcher (not just the engine singleton).</p>
+<p><strong>Honest estimate:</strong> 7 V2 delta items, ~600–1000 LOC of new code, plus the test suite (per <code class="prism-inline-code">comprehensive-build-enforce</code> floor — happy + 3 failure modes + 2 adversarial + variability across CAD/CAM platform combos). One focused session if done as a single multi-file build with per-file scrutiny gates; two sessions if the GD&amp;T side-channel design needs operator-input on field shape.</p>
+<h2 class="prism-h2">Acceptance criteria (when this spec is &quot;done&quot;)</h2>
+<ul class="prism-md-list"><li>[ ] <code class="prism-inline-code">PrintToProgramPipelineEngine</code> (or new <code class="prism-inline-code">PrintToInspectionOrchestratorEngine</code>) exposes all 9 stages plus Stage 2.5 by name in its result payload.</li><li>[ ] <code class="prism-inline-code">prism_cam:print_to_inspection_full</code> action wired with Zod schema matching the operator API.</li><li>[ ] Round-trip test against ≥ 1 real JM Die print (proposed: <code class="prism-inline-code">2475-037</code> per the canonical PHASE15 reference).</li><li>[ ] Setup sheet matches shop standard format (visual diff against JM Die&#39;s archived setup sheets).</li><li>[ ] Inspection report covers every toleranced dimension in the print AND only proposes tools from the operator&#39;s <code class="prism-inline-code">inspectionTools</code> list.</li><li>[ ] Every stage produces a <code class="prism-inline-code">StageResult</code> even on success — no silent passthrough.</li><li>[ ] HARD BLOCK reachability test: deliberately fail each gate (Stage 2.5, Stage 4 envelope, Stage 4 fixture, Stage 5 safety, Stage 6 collision) and prove the pipeline halts.</li><li>[ ] GD&amp;T side-channel field-by-field consistency check between Stage 1 source and consumer stages.</li></ul>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/CAD-PIPELINE-AUDIT-2026-05-20.md</code> — the amended audit</li><li><code class="prism-inline-code">state/shared/specs/DOMAIN-PIPELINE-MS0-DESIGN.md</code> — the broader 18-stage canonical pipeline</li><li><code class="prism-inline-code">mcp-server/src/engines/PrintToProgramPipelineEngine.ts</code> — the existing master engine to extend</li><li><code class="prism-inline-code">mcp-server/src/engines/PrintToCADOrchestratorEngine.ts</code> — the existing 5-stage CAD diagnostic</li><li><code class="prism-inline-code">knowledge/memories/reference/reference_cad_software_pipeline_recommendation.md</code> — canonical CAD-platform recommendation</li><li><code class="prism-inline-code">scripts/cad-pipeline-coverage-scorer.mjs</code> — META artifact (peer-review-patched)</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

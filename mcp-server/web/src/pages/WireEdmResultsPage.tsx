@@ -416,7 +416,7 @@ export function WireEdmResultsPage() {
                     locState?.workspaceContext?.controllerLabel ??
                     locState?.workspaceContext?.controllerId,
                   unsupportedReason:
-                    'Post processor generation is not yet supported for this routed wire EDM posture. PRISM keeps this surface fail-closed until the canonical EDM post and controller contract is extracted.',
+                    'Post processor generation is not yet supported for this routed wire EDM posture. Kienzle keeps this surface fail-closed until the canonical EDM post and controller contract is extracted.',
                 },
               },
             )

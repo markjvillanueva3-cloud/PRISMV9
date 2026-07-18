@@ -1,0 +1,38 @@
+{
+  "audit_date": "2026-02-28",
+  "section": "4. ENGINES",
+  "current_master_index": {
+    "listed_engines": 33,
+    "header_claim": "102 files"
+  },
+  "reality": {
+    "exported_in_index_ts": 125,
+    "unwired_on_disk": 66,
+    "total_ts_files": 191,
+    "total_lines_exported": 62082,
+    "total_lines_unwired": 12938
+  },
+  "discrepancies": {
+    "missing_from_section4": 92,
+    "coverage_pct": 26.4,
+    "stale_line_counts": [
+      {"file": "ManufacturingCalculations.ts", "listed": 550, "actual": 991, "error_pct": 80},
+      {"file": "CollisionEngine.ts", "listed": 1923, "actual": 2089, "error_pct": 9},
+      {"file": "ComplianceEngine.ts", "listed": 722, "actual": 824, "error_pct": 14},
+      {"file": "CoolantValidationEngine.ts", "listed": 752, "actual": 767, "error_pct": 2},
+      {"file": "HookEngine.ts", "listed": 802, "actual": 819, "error_pct": 2},
+      {"file": "HookExecutor.ts", "listed": 835, "actual": 851, "error_pct": 2},
+      {"file": "KnowledgeQueryEngine.ts", "listed": 871, "actual": 1196, "error_pct": 37},
+      {"file": "AdvancedCalculations.ts", "listed": 623, "actual": 639, "error_pct": 3},
+      {"file": "AgentExecutor.ts", "listed": 818, "actual": 835, "error_pct": 2},
+      {"file": "WorkholdingEngine.ts", "listed": 1409, "actual": 1486, "error_pct": 5}
+    ],
+    "section15_stale": {
+      "listed_roadmap": "v5.2.0, 82 milestones, 57 complete",
+      "actual_roadmap": "v5.3.0, 94 milestones, 64 complete",
+      "listed_tests": "37 test files, 1115 passing",
+      "actual_tests": "43 test files, 1244 total (1123 passing)"
+    }
+  },
+  "recommendation": "Full regeneration of Section 4 with all 125 exported engines, grouped by category"
+}

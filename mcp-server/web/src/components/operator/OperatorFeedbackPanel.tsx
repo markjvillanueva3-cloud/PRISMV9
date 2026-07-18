@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react';
 import { ThumbsUp, ThumbsDown, MessageSquare, Wifi, WifiOff, Send, X } from 'lucide-react';
 import { offlineQueueManager } from '../../lib/OfflineQueueManager';
+import { getRequestHeaders } from '../../api/client';
 
 interface FeedbackContext {
   machineId?: string;
@@ -66,9 +67,12 @@ export function OperatorFeedbackPanel({
   async function syncPendingFeedback() {
     try {
       await offlineQueueManager.replayAll(async (actionType, payload) => {
+        // U-ERP-P2-HARDENING: /api/operator/feedback is verifyToken-gated (RLHF
+        // training-data injection close). getRequestHeaders() carries the Bearer;
+        // headers are read at REPLAY time so the live session's token applies.
         const res = await fetch('/api/operator/feedback', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getRequestHeaders(),
           body: JSON.stringify(payload),
         });
         return res;
@@ -96,7 +100,7 @@ export function OperatorFeedbackPanel({
       if (isOnline) {
         await fetch('/api/operator/feedback', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getRequestHeaders(),
           body: JSON.stringify(payload),
         });
       } else {

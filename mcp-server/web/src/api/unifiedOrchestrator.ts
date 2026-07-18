@@ -91,7 +91,7 @@ type OrchestrationEnvelope<T> = {
   error?: string;
 };
 
-async function requestUnified<T>(path: string, body: Record<string, unknown>, fallbackMessage: string) {
+async function requestUnified<T>(path: string, body: unknown, fallbackMessage: string) {
   const response = await fetchJson<OrchestrationEnvelope<T>>(`${API_BASE}${path}`, {
     method: 'POST',
     headers: getRequestHeaders(),
@@ -107,13 +107,13 @@ async function requestUnified<T>(path: string, body: Record<string, unknown>, fa
 }
 
 export function executeUnifiedIntent(input: PUOAInput) {
-  return requestUnified<PUOAResult>('/execute', input, 'Unified PRISM AI execution failed');
+  return requestUnified<PUOAResult>('/execute', input, 'Unified Kienzle AI execution failed');
 }
 
 export function classifyUnifiedIntent(input: Pick<PUOAInput, 'intent' | 'context'>) {
-  return requestUnified<IntentClassification>('/classify', input, 'Unified PRISM AI classification failed');
+  return requestUnified<IntentClassification>('/classify', input, 'Unified Kienzle AI classification failed');
 }
 
 export function routeUnifiedIntent(input: Pick<PUOAInput, 'intent' | 'context' | 'constraints'>) {
-  return requestUnified<TierRoutingResult>('/route', input, 'Unified PRISM AI routing preview failed');
+  return requestUnified<TierRoutingResult>('/route', input, 'Unified Kienzle AI routing preview failed');
 }

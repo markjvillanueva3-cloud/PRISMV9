@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Tool report customization </title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Tool report customization </h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>OPEN MIND/hyperMILL/31.0/AddIns/hmAutoColor/doc/documents/Tool report customization .pdf</code></dd>
+<dt>Pages</dt><dd>10</dd>
+<dt>Text chars</dt><dd>2179</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>1
+Modifying the tool report template
+We have a very nice solution in hyperMILL to generate tool reports.
+This application is Automation Center based.
+That means, the AC is running behind.
+In this documentation we are going to explain how to customize a new template.
+
+-- 1 of 10 --
+
+2
+Path definitions
+• The Addins path in the settings we will call in this document &lt;ADDINS&gt;
+• The Automation Center path in the settings we will call in this document &lt;AUTOMATION&gt;
+
+-- 2 of 10 --
+
+3
+• The new name of the report we will call &lt;REPORT_NAME&gt;
+• The language of the report we will call &lt;LANGUAGE&gt;
+
+-- 3 of 10 --
+
+4
+Copy folder
+Copy the folder OM_REPORT_2
+We can find this folder on:
+• &lt;ADDINS&gt;\hmAutoColor\SYSTEM_PROCESS\Reports\ToolReports
+Past folder
+Past the folder OM_REPORT_2 on:
+• &lt;AUTOMATION&gt;\REPORTS\toolReports\report_templates\
+Maybe the folder report_templates does not exist in your computer.
+If this is your case, just create a new folder named as report_templates.
+
+-- 4 of 10 --
+
+5
+Rename the template folder
+Rename the template folder as your &lt;REPORT_NAME&gt;
+After that, a new folder will appear to be selected in the Tool report configuration
+
+-- 5 of 10 --
+
+6
+Rename files
+• The file Template_OM_REPORT_2.xlsx must be renamed to
+Template_&lt;REPORT_NAME&gt;.&lt;LANGUAGE&gt;.xlsx
+• The file ToolReport_OM_REPORT_2.xlsx must be renamed to
+ToolReport _&lt;REPORT_NAME&gt;.xlsx
+• The file OM_REPORT_2_JL.jpg must be renamed to
+&lt;REPORT_NAME&gt;_JL.jpg
+
+-- 6 of 10 --
+
+7
+Modifying the template
+• Open the file (Template_&lt;REPORT_NAME&gt;.&lt;LANGUAGE&gt;.xlsx)
+• Customize the template as do you wish
+
+-- 7 of 10 --
+
+8
+Modifying the Header definition
+• Open the file (ToolReport _&lt;REPORT_NAME&gt;.xlsx)
+• Go to Header tab
+• Only existing parameters from column “B” can be used
+• Rows must not be changed
+• Cell address can be specified in columns “C”
+
+-- 8 of 10 --
+
+9
+Modifying the tool definition
+• Open the file (ToolReport _&lt;REPORT_NAME&gt;.xlsx)
+• Go to Tool Part Definition tab
+• Only existing parameters from column “B” can be used
+• Rows must not be changed
+• Cell address can be specified in columns “C”
+
+-- 9 of 10 --
+
+10
+Final step
+• Start the report configuration and run the report
+
+-- 10 of 10 --
+
+</pre>
+</body></html>

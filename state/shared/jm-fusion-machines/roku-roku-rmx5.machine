@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<machine xmlns="http://www.hsmworks.com/xml/2009/machine">
+  <vendor>Roku-Roku</vendor>
+  <model>RMX-5</model>
+  <description>Roku-Roku RMX-5 (5-axis, Mitsubishi) -- WARNING: 5-axis rotary range/pivot OFFSET are datasheet-unverified placeholders; set from the OEM datasheet before 5-axis simulation/collision.</description>
+  <control>Mitsubishi</control>
+  <machining additive="no" inspection="yes" jet="no" milling="yes" turning="no"/>
+  <dimensions depth="0mm" height="0mm" weight="0kg" width="0mm"/>
+  <capacities depth="0mm" height="0mm" weight="0kg" width="0mm"/>
+  <coolant options="MIST AIR"/>
+  <multiAxis adjust="yes" angle="10deg" feedrateMethod="fpm" linearizationTolerance="0.04mm" maximumFeedrate="9999" method="multiaxis" reconfigure="no" safePlungeFeedrate="250mm/min" safeRetractDistance="25mm" safeRetractFeedrate="500mm/min" tolerance="0.04mm" virtualToolTip="no"/>
+  <tooling maximumToolDiameter="0mm" maximumToolLength="0mm" maximumToolWeight="0kg" numberOfTools="16" toolChanger="yes" toolPreload="yes"/>
+  <machiningTime ratio="1" toolChangeTime="15s"/>
+  <capabilities maximumBlockProcessingSpeed="0" maximumFeedrate="0mm/min" workOffsets="100"/>
+  <simulation tableAttachPoint="0mm 0mm 0mm" toolAttachPoint="0mm 0mm 0mm" wcs="0mm 0mm 0mm">
+    <machineAssembly></machineAssembly>
+  </simulation>
+  <post>
+    <postProcessor></postProcessor>
+    <postProperties><Parameters/></postProperties>
+  </post>
+
+  <axis actuator="linear" coordinate="X" homePosition="0mm" id="X" link="head" maximumFeed="0mm/min" name="" offset="0mm 0mm 0mm" range="0mm 500mm" rapidFeed="0mm/min" resolution="0mm"/>
+
+  <axis actuator="linear" coordinate="Y" homePosition="0mm" id="Y" link="head" maximumFeed="0mm/min" name="" offset="0mm 0mm 0mm" range="0mm 400mm" rapidFeed="0mm/min" resolution="0mm"/>
+
+  <axis actuator="linear" coordinate="Z" homePosition="0mm" id="Z" link="head" maximumFeed="0mm/min" name="" offset="0mm 0mm 0mm" range="-300mm 0mm" rapidFeed="0mm/min" resolution="0mm"/>
+
+  <spindle axis="0 0 1" maximumSpeed="40000rpm" minimumSpeed="0rpm"><description>5.5 kW, HSK-E25</description></spindle>
+
+  <axis actuator="rotational" axis="1 0 0" control="driven" coordinate="A" cyclic="no" homePosition="0deg" id="A" link="table" maximumFeed="0deg/min" name="" offset="0mm 0mm 0mm" preference="dont care" range="-120deg 120deg" reset="previous" tcp="yes"/>
+
+  <axis actuator="rotational" axis="0 1 0" control="driven" coordinate="B" cyclic="no" homePosition="0deg" id="B" link="table" maximumFeed="0deg/min" name="" offset="0mm 0mm 0mm" preference="dont care" range="-120deg 120deg" reset="previous" tcp="yes"/>
+</machine>

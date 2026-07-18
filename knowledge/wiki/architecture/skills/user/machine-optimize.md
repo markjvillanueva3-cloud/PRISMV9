@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `machine-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/machine-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/machine-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Machine Optimize — Full Machine Utilization Analysis
+
+Maximize throughput on a specific machine while staying within its limits. Combines machine capability check, harmonic RPM selection, optimized speeds/feeds, stability analysis, and cycle time optimization.
+
+## Args:
+- Machine + operation description (e.g., "Haas VF-2SS roughing 4140 steel")
+- Machine profile name from catalog (e.g., 
 
 <!-- AUTO-END -->
 

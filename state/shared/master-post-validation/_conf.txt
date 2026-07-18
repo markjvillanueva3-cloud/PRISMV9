@@ -1,0 +1,17 @@
+NC conformance: state/shared/master-post-validation/hurco_live_sample.nc [rich] — 1/15 (score 7%)
+  FAIL  units                    expected=inch actual=null  <-- a units mismatch is a 25.4x scale error
+  FAIL  work-offset              expected=G54 actual=null  <-- 
+  FAIL  tool-T1-present          expected=T1 called actual=absent  <-- 
+  FAIL  tool-T2-present          expected=T2 called actual=absent  <-- 
+  FAIL  tool-T3-present          expected=T3 called actual=absent  <-- 
+  FAIL  tool-T4-present          expected=T4 called actual=absent  <-- 
+  PASS  no-unexpected-tools      expected=only T[1,2,3,4] actual=none
+  FAIL  spindle-speed-T1         expected=3000 actual=null  <-- emitted S must match spec/SFC rpm
+  FAIL  spindle-speed-T2         expected=6000 actual=null  <-- emitted S must match spec/SFC rpm
+  FAIL  spindle-speed-T3         expected=8000 actual=null  <-- emitted S must match spec/SFC rpm
+  FAIL  spindle-speed-T4         expected=4000 actual=null  <-- emitted S must match spec/SFC rpm
+  FAIL  drill-T4-canned-cycle    expected=a G8x drilling cycle actual=tool absent  <-- 
+  FAIL  program-number           expected=an O-number actual=none  <-- 
+  FAIL  safe-retract             expected=a G28 retract actual=none  <-- 
+  FAIL  program-end              expected=M30 end actual=none  <-- 
+  NOTE  live SFC leg skipped (static mode (pass --live to compare emitted speeds against the live SFC). spec-rpm comparison is the static correctness check.)

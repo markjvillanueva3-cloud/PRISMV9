@@ -41,7 +41,10 @@ describe("calculator live catalog audit", () => {
   it("keeps the live tooling registry on the large tool corpus instead of a curated subset", async () => {
     await toolRegistry.load();
 
-    const result = toolRegistry.search({ query: "*", limit: 20000, offset: 0 });
+    // limit must exceed the live corpus so the audit fetches it whole (length === total).
+    // Bumped 20000 -> 1_000_000 after BRAND-CATALOG-APP-WIRING (2026-06-19) grew the tooling
+    // registry past 20K (now ~86K: existing extracted/curated + the 72,406-tool brand catalog).
+    const result = toolRegistry.search({ query: "*", limit: 1_000_000, offset: 0 });
 
     expect(result.total).toBeGreaterThanOrEqual(13000);
     expect(result.tools.length).toBe(result.total);

@@ -90,12 +90,19 @@ vi.mock('../api/client', () => ({
       active_rules: ['wire_break_detection', 'servo_adjust'],
     },
   })),
+  // U-WEDM-LIVE-ROUTES: the PRODUCTION shape -- the 5 components the degradation model
+  // actually tracks (the old wire_spool/guide/power_feed mock matched no engine).
   wedmRulStatus: vi.fn(() => Promise.resolve({
     data: {
-      wire_spool: { remaining_pct: 75, remaining_meters: 4500, estimated_cuts_remaining: 12 },
-      upper_guide: { rul_pct: 60, hours_remaining: 180, condition: 'good' },
-      lower_guide: { rul_pct: 45, hours_remaining: 135, condition: 'fair' },
-      power_feed: { rul_pct: 88, cycles_remaining: 50000 },
+      components: [
+        { component: 'guide_wear', label: 'Wire Guides', rul_pct: 60, hours_remaining: 180, band: 'planned' },
+        { component: 'wire_erosion', label: 'Wire Erosion', rul_pct: 75, hours_remaining: null, band: 'healthy' },
+        { component: 'filter_capacity', label: 'Filter Capacity', rul_pct: 45, hours_remaining: 135, band: 'soon' },
+        { component: 'filter_clogging', label: 'Filter Clogging', rul_pct: 88, hours_remaining: null, band: 'healthy' },
+        { component: 'wire_fatigue', label: 'Wire Fatigue', rul_pct: 92, hours_remaining: null, band: 'healthy' },
+      ],
+      worst_component: 'filter_capacity',
+      worst_band: 'soon',
       last_updated: '2026-04-18T10:30:00Z',
     },
   })),
@@ -916,12 +923,18 @@ describe('WireEdmWizardPage RUL Gauge + Maintenance Advisory', () => {
         active_rules: [],
       },
     } as any);
+    // U-WEDM-LIVE-ROUTES production shape (see module mock above).
     vi.mocked(wedmRulStatus).mockResolvedValue({
       data: {
-        wire_spool: { remaining_pct: 75, remaining_meters: 4500, estimated_cuts_remaining: 12 },
-        upper_guide: { rul_pct: 60, hours_remaining: 180, condition: 'good' },
-        lower_guide: { rul_pct: 45, hours_remaining: 135, condition: 'fair' },
-        power_feed: { rul_pct: 88, cycles_remaining: 50000 },
+        components: [
+          { component: 'guide_wear', label: 'Wire Guides', rul_pct: 60, hours_remaining: 180, band: 'planned' },
+          { component: 'wire_erosion', label: 'Wire Erosion', rul_pct: 75, hours_remaining: null, band: 'healthy' },
+          { component: 'filter_capacity', label: 'Filter Capacity', rul_pct: 45, hours_remaining: 135, band: 'soon' },
+          { component: 'filter_clogging', label: 'Filter Clogging', rul_pct: 88, hours_remaining: null, band: 'healthy' },
+          { component: 'wire_fatigue', label: 'Wire Fatigue', rul_pct: 92, hours_remaining: null, band: 'healthy' },
+        ],
+        worst_component: 'filter_capacity',
+        worst_band: 'soon',
         last_updated: '2026-04-18T10:30:00Z',
       },
     } as any);
@@ -941,6 +954,20 @@ describe('WireEdmWizardPage RUL Gauge + Maintenance Advisory', () => {
     wrap(<WireEdmWizardPage />);
     await waitFor(() => {
       expect(screen.getByTestId('rul-maintenance-panel')).toBeInTheDocument();
+    });
+  });
+
+  it("renders '--' confidence when absent (the PRODUCTION wire: the live route never emits confidence)", async () => {
+    const { wedmAutonomyStatus } = await import('../api/client');
+    // The real /wedm-live/autonomy adapter intentionally omits confidence (no honest
+    // source field in AutonomyStatusSnapshot) -- this is the only branch prod exercises.
+    vi.mocked(wedmAutonomyStatus).mockResolvedValue({
+      data: { level: 2, level_label: 'L2 Partial', can_promote: false, active_rules: [] },
+    } as any);
+    wrap(<WireEdmWizardPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Confidence')).toBeInTheDocument();
+      expect(screen.getByText('--')).toBeInTheDocument();
     });
   });
 
@@ -994,30 +1021,36 @@ describe('WireEdmWizardPage RUL Gauge + Maintenance Advisory', () => {
     });
   });
 
-  it('shows wire spool percentage', async () => {
+  it('shows per-component RUL percentages (the degradation model components)', async () => {
     wrap(<WireEdmWizardPage />);
 
     await waitFor(() => {
       const rulGauge = screen.getByTestId('rul-gauge');
-      expect(rulGauge).toHaveTextContent('75%');
+      expect(rulGauge).toHaveTextContent('Wire Guides');
+      expect(rulGauge).toHaveTextContent('60%');
+      expect(rulGauge).toHaveTextContent('Filter Capacity');
+      expect(rulGauge).toHaveTextContent('45%');
     });
   });
 
-  it('shows wire spool details', async () => {
+  it('shows hours remaining, and the honest not-aging state when there is no usage feed', async () => {
     wrap(<WireEdmWizardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/4500m remaining/)).toBeInTheDocument();
+      const rulGauge = screen.getByTestId('rul-gauge');
+      expect(rulGauge).toHaveTextContent(/180h remaining/);
+      expect(rulGauge).toHaveTextContent(/not aging \(no usage feed\)/);
     });
   });
 
-  it('shows guide condition', async () => {
+  it('maps RUL bands to condition chips (planned->fair, soon->worn, healthy->good)', async () => {
     wrap(<WireEdmWizardPage />);
 
     await waitFor(() => {
       const rulGauge = screen.getByTestId('rul-gauge');
       expect(rulGauge).toHaveTextContent('good');
       expect(rulGauge).toHaveTextContent('fair');
+      expect(rulGauge).toHaveTextContent('worn');
     });
   });
 
@@ -1108,10 +1141,17 @@ describe('WireEdmWizardPage Controller Code Preview', () => {
     } as any);
     vi.mocked(wedmRulStatus).mockResolvedValue({
       data: {
-        wire_spool: { remaining_pct: 75, remaining_meters: 4500, estimated_cuts_remaining: 12 },
-        upper_guide: { rul_pct: 60, hours_remaining: 180, condition: 'good' },
-        lower_guide: { rul_pct: 45, hours_remaining: 135, condition: 'fair' },
-        power_feed: { rul_pct: 88, cycles_remaining: 50000 },
+        // U-WEDM-LIVE-ROUTES production shape (5 real degradation components).
+        components: [
+          { component: 'guide_wear', label: 'Wire Guides', rul_pct: 60, hours_remaining: 180, band: 'planned' },
+          { component: 'wire_erosion', label: 'Wire Erosion', rul_pct: 75, hours_remaining: null, band: 'healthy' },
+          { component: 'filter_capacity', label: 'Filter Capacity', rul_pct: 45, hours_remaining: 135, band: 'soon' },
+          { component: 'filter_clogging', label: 'Filter Clogging', rul_pct: 88, hours_remaining: null, band: 'healthy' },
+          { component: 'wire_fatigue', label: 'Wire Fatigue', rul_pct: 92, hours_remaining: null, band: 'healthy' },
+        ],
+        worst_component: 'filter_capacity',
+        worst_band: 'soon',
+        last_updated: '2026-04-18T10:30:00Z',
       },
     } as any);
     vi.mocked(wedmMaintenanceStatus).mockResolvedValue({
@@ -1288,10 +1328,17 @@ describe('WireEdmWizardPage ERP Panel', () => {
     } as any);
     vi.mocked(wedmRulStatus).mockResolvedValue({
       data: {
-        wire_spool: { remaining_pct: 75, remaining_meters: 4500, estimated_cuts_remaining: 12 },
-        upper_guide: { rul_pct: 60, hours_remaining: 180, condition: 'good' },
-        lower_guide: { rul_pct: 45, hours_remaining: 135, condition: 'fair' },
-        power_feed: { rul_pct: 88, cycles_remaining: 50000 },
+        // U-WEDM-LIVE-ROUTES production shape (5 real degradation components).
+        components: [
+          { component: 'guide_wear', label: 'Wire Guides', rul_pct: 60, hours_remaining: 180, band: 'planned' },
+          { component: 'wire_erosion', label: 'Wire Erosion', rul_pct: 75, hours_remaining: null, band: 'healthy' },
+          { component: 'filter_capacity', label: 'Filter Capacity', rul_pct: 45, hours_remaining: 135, band: 'soon' },
+          { component: 'filter_clogging', label: 'Filter Clogging', rul_pct: 88, hours_remaining: null, band: 'healthy' },
+          { component: 'wire_fatigue', label: 'Wire Fatigue', rul_pct: 92, hours_remaining: null, band: 'healthy' },
+        ],
+        worst_component: 'filter_capacity',
+        worst_band: 'soon',
+        last_updated: '2026-04-18T10:30:00Z',
       },
     } as any);
     vi.mocked(wedmMaintenanceStatus).mockResolvedValue({
@@ -1636,10 +1683,17 @@ describe('WireEdmWizardPage Approval Gate + Studio Handoff', () => {
     } as any);
     vi.mocked(wedmRulStatus).mockResolvedValue({
       data: {
-        wire_spool: { remaining_pct: 75, remaining_meters: 4500, estimated_cuts_remaining: 12 },
-        upper_guide: { rul_pct: 60, hours_remaining: 180, condition: 'good' },
-        lower_guide: { rul_pct: 45, hours_remaining: 135, condition: 'fair' },
-        power_feed: { rul_pct: 88, cycles_remaining: 50000 },
+        // U-WEDM-LIVE-ROUTES production shape (5 real degradation components).
+        components: [
+          { component: 'guide_wear', label: 'Wire Guides', rul_pct: 60, hours_remaining: 180, band: 'planned' },
+          { component: 'wire_erosion', label: 'Wire Erosion', rul_pct: 75, hours_remaining: null, band: 'healthy' },
+          { component: 'filter_capacity', label: 'Filter Capacity', rul_pct: 45, hours_remaining: 135, band: 'soon' },
+          { component: 'filter_clogging', label: 'Filter Clogging', rul_pct: 88, hours_remaining: null, band: 'healthy' },
+          { component: 'wire_fatigue', label: 'Wire Fatigue', rul_pct: 92, hours_remaining: null, band: 'healthy' },
+        ],
+        worst_component: 'filter_capacity',
+        worst_band: 'soon',
+        last_updated: '2026-04-18T10:30:00Z',
       },
     } as any);
     vi.mocked(wedmMaintenanceStatus).mockResolvedValue({

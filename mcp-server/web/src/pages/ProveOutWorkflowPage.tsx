@@ -214,7 +214,7 @@ export function ProveOutWorkflowPage() {
           controller,
         },
       });
-      const data = (result as { data?: ProveOutResult }).data ?? (result as ProveOutResult);
+      const data = (result as unknown as { data?: ProveOutResult }).data ?? (result as unknown as ProveOutResult);
       setProveOutResult(data);
       setStep('prove-out');
     } catch (cause) {
@@ -239,7 +239,7 @@ export function ProveOutWorkflowPage() {
         stock_top_z: 0,
         machine: buildMachineContext(machineName, controller, workspaceContext),
       });
-      const data = (result as { data?: AirCutResult }).data ?? (result as AirCutResult);
+      const data = (result as unknown as { data?: AirCutResult }).data ?? (result as unknown as AirCutResult);
       setAirCutResult(data);
       setShowAirCuts(true);
     } catch (cause) {
@@ -267,7 +267,7 @@ export function ProveOutWorkflowPage() {
         job_number: jobNumber,
         include_sign_off: true,
       });
-      const data = (result as { data?: PromoteResult }).data ?? (result as PromoteResult);
+      const data = (result as unknown as { data?: PromoteResult }).data ?? (result as unknown as PromoteResult);
       setPromoteResult(data);
       setStep('promote');
     } catch (cause) {

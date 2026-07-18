@@ -31,7 +31,7 @@ function pass(msg = "pass") {
 
 function git(args) {
   try {
-    return execFileSync("git", ["-C", REPO, ...args], { encoding: "utf8", timeout: 5000 });
+    return execFileSync("git", ["-C", REPO, ...args], { windowsHide: true, encoding: "utf8", timeout: 5000 });
   } catch { return ""; }
 }
 
@@ -93,7 +93,7 @@ async function main() {
   // Find this chat's handoff file
   let handoffPath = null;
   try {
-    const stableId = execFileSync("node", [STABLE_ID_HELPER], { encoding: "utf8", timeout: 3000 }).trim();
+    const stableId = execFileSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true, encoding: "utf8", timeout: 3000 }).trim();
     if (stableId) {
       handoffPath = resolve(REPO, "state/shared/handoffs", `HANDOFF-${stableId}.md`);
     }

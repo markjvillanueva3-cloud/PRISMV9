@@ -1,0 +1,4252 @@
+{
+  "metadata": {
+    "project": "PRISM Manufacturing Intelligence",
+    "database": "Verified Alarm Fix Procedures",
+    "version": "1.0.0",
+    "created": "2026-01-28T16:00:00.000000",
+    "purpose": "Verified alarm-specific fix procedures with source attribution",
+    "safety_note": "All procedures derived from manufacturer documentation or authorized service sources",
+    "sources_used": [
+      {
+        "name": "Tri Star CNC Services",
+        "url": "https://www.tristarcnc.com",
+        "type": "FANUC Authorized Service Provider",
+        "coverage": ["FANUC Servo", "FANUC Spindle", "FANUC Power Supply", "FANUC System"]
+      },
+      {
+        "name": "Haas Service & Support",
+        "url": "https://www.haascnc.com/service.html",
+        "type": "Manufacturer Official",
+        "coverage": ["HAAS Alarms"]
+      },
+      {
+        "name": "Siemens SINUMERIK Diagnostics Manual",
+        "document_id": "DAsl_0115_en_en-US.pdf",
+        "type": "Manufacturer Official",
+        "coverage": ["SIEMENS SINUMERIK 840D sl", "SINAMICS S120"]
+      },
+      {
+        "name": "Okuma OSP Alarm & Error List",
+        "type": "Manufacturer Official",
+        "coverage": ["Okuma OSP-U100M", "Okuma OSP-P200", "Okuma OSP-P300"]
+      }
+    ],
+    "verification_levels": {
+      "MANUFACTURER_VERIFIED": "Procedure from official manufacturer documentation",
+      "AUTHORIZED_SERVICE": "From manufacturer-authorized service provider",
+      "FIELD_TESTED": "Verified by experienced field technicians",
+      "COMMUNITY_VALIDATED": "Multiple forum confirmations with technical accuracy"
+    }
+  },
+  "procedures": {
+    "FANUC": {
+      "SERVO": [
+        {
+          "alarm_code": "400",
+          "alarm_name": "SERVO ALARM: n-TH AXIS OVERLOAD",
+          "description": "The n-th axis (axis 1-8) overload signal is on. Refer to diagnostic display No. 201, 720 or 721 for details.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "source_url": "https://www.tristarcnc.com/FanucAlarm/400Servo",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. E-STOP if machine is moving",
+              "2. Do NOT reset immediately - investigate cause first",
+              "3. Record alarm axis number and conditions"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding or excessive load on the n-th axis",
+              "2. Inspect servo motor and connections for damage or loose connections",
+              "3. Verify axis parameters are correctly set for the application",
+              "4. Check diagnostic display No. 201, 720, or 721 for overload signal details"
+            ],
+            "resolution_steps": [
+              "1. If mechanical binding: resolve binding issue, check lubrication",
+              "2. If parameter issue: adjust servo parameters within allowable limits",
+              "3. If persistent: power off CNC machine, wait a few minutes, power back on",
+              "4. If unresolved: contact qualified FANUC service technician"
+            ],
+            "verification": [
+              "1. Jog axis slowly in both directions",
+              "2. Run test program at reduced feed rate",
+              "3. Monitor servo load during operation"
+            ]
+          },
+          "related_diagnostics": ["201", "720", "721"],
+          "requires_power_cycle": true,
+          "safety_warning": "Do not attempt repairs unless qualified. Contact authorized service for persistent issues."
+        },
+        {
+          "alarm_code": "401",
+          "alarm_name": "SERVO ALARM: n-TH AXIS VRDY OFF",
+          "description": "The n-th axis (axis 1-8) servo amplifier READY signal (DRDY) went off.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "source_url": "https://www.tristarcnc.com/FanucAlarm/401Servo",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note which axis triggered the alarm",
+              "2. Check servo amplifier LED display for alarm code"
+            ],
+            "diagnostic_steps": [
+              "1. Check servo amplifier status LEDs",
+              "2. Verify power supply to servo amplifier",
+              "3. Check cable connections between CNC and servo amp",
+              "4. Review diagnostic display for additional details"
+            ],
+            "resolution_steps": [
+              "1. If power issue: verify input power to servo system",
+              "2. If cable issue: check and reseat all connections",
+              "3. If amp fault: address specific amp alarm code",
+              "4. If persistent: servo amplifier may need repair or replacement"
+            ],
+            "verification": [
+              "1. Power cycle and verify DRDY signal comes on",
+              "2. Jog axis to confirm operation"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Servo amplifier contains high voltage. Do not open covers without proper training."
+        },
+        {
+          "alarm_code": "404",
+          "alarm_name": "SERVO ALARM: n-TH AXIS VRDY ON",
+          "description": "Even though the n-th axis (axis 1-8) READY signal (MCON) went off, the servo amplifier READY signal (DRDY) is still on. Or, when the power was turned on, DRDY went on even though MCON was off.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Power off the machine",
+              "2. Check servo interface module and servo amp connections"
+            ],
+            "diagnostic_steps": [
+              "1. Verify cable connections between CNC and servo amplifier",
+              "2. Check for communication errors",
+              "3. Inspect servo interface module"
+            ],
+            "resolution_steps": [
+              "1. Reseat all servo system connections",
+              "2. Check for damaged cables or connectors",
+              "3. If persistent: servo interface or amp may be faulty"
+            ],
+            "verification": [
+              "1. Power cycle system",
+              "2. Verify proper startup sequence"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "410",
+          "alarm_name": "SERVO ALARM: n-TH AXIS - EXCESS ERROR (STOPPED)",
+          "description": "The position deviation value when the n-th axis (axis 1-8) stops is larger than the set value.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Do not force axis movement",
+              "2. Note axis and conditions"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding or obstruction",
+              "2. Verify encoder/pulsecoder function",
+              "3. Check servo parameter settings",
+              "4. Review position deviation diagnostic display"
+            ],
+            "resolution_steps": [
+              "1. If mechanical: resolve binding, check lubrication",
+              "2. If encoder: check cable, may need replacement",
+              "3. If parameter: adjust position error limit if appropriate",
+              "4. If servo gain: tune servo parameters"
+            ],
+            "verification": [
+              "1. Jog axis and verify position tracking",
+              "2. Run program and monitor position deviation"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "411",
+          "alarm_name": "SERVO ALARM: n-TH AXIS - EXCESS ERROR (MOVING)",
+          "description": "The position deviation value when the n-th axis (axis 1-8) moves is larger than the set value.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop motion immediately",
+              "2. Reduce feedrate if continuing"
+            ],
+            "diagnostic_steps": [
+              "1. Check mechanical system for binding or excessive friction",
+              "2. Verify servo motor and encoder function",
+              "3. Check for improper feedrate or acceleration settings"
+            ],
+            "resolution_steps": [
+              "1. Reduce rapid traverse rate or cutting feedrate",
+              "2. Check and adjust servo gains if needed",
+              "3. Verify mechanical system is properly lubricated",
+              "4. Check for worn ballscrew or guides"
+            ],
+            "verification": [
+              "1. Run test program at reduced feed",
+              "2. Monitor position deviation during motion"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "416",
+          "alarm_name": "SERVO ALARM: n-TH AXIS - DISCONNECTION",
+          "description": "Position detection system fault in the n-th axis pulse coder (disconnection alarm). Refer to diagnosis display No. 201 for details.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Do not move axis manually",
+              "2. Check encoder cable connections"
+            ],
+            "diagnostic_steps": [
+              "1. Check diagnostic display No. 201 for specific error",
+              "2. Inspect encoder cable for damage or loose connections",
+              "3. Check encoder connector at motor and amplifier ends",
+              "4. Test cable continuity if accessible"
+            ],
+            "resolution_steps": [
+              "1. Reseat encoder cable connections",
+              "2. Replace damaged cable if found",
+              "3. If cable OK: encoder may need replacement",
+              "4. Contact service if encoder replacement needed"
+            ],
+            "verification": [
+              "1. Power cycle and check for alarm clear",
+              "2. Jog axis and verify position feedback"
+            ]
+          },
+          "related_diagnostics": ["201"],
+          "requires_power_cycle": true,
+          "safety_warning": "Encoder cables carry sensitive signals. Handle with care."
+        },
+        {
+          "alarm_code": "430",
+          "alarm_name": "n AXIS: SV. MOTOR OVERHEAT",
+          "description": "A servo motor overheat occurred.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop all axis motion immediately",
+              "2. Allow motor to cool - do NOT continue operation"
+            ],
+            "diagnostic_steps": [
+              "1. Check ambient temperature and ventilation",
+              "2. Verify motor cooling fan is operating (if equipped)",
+              "3. Check for mechanical binding causing excessive load",
+              "4. Review recent operation conditions (heavy cuts, rapid moves)"
+            ],
+            "resolution_steps": [
+              "1. Allow motor to cool completely before restart",
+              "2. Improve ventilation if ambient temp is high",
+              "3. Reduce machining loads if persistent",
+              "4. Check motor thermal sensor if false alarm suspected"
+            ],
+            "verification": [
+              "1. Monitor motor temperature during operation",
+              "2. Run lighter cuts initially after restart"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Hot motor surfaces can cause burns. Allow cooling before touching."
+        },
+        {
+          "alarm_code": "436",
+          "alarm_name": "n AXIS: SOFTTHERMAL (OVC)",
+          "description": "The digital servo software detected the soft thermal state (OVC).",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Allow system to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check for sustained high current operation",
+              "2. Verify motor sizing is appropriate for application",
+              "3. Check for mechanical issues causing high torque demand"
+            ],
+            "resolution_steps": [
+              "1. Reduce machining loads",
+              "2. Allow cooling between heavy operations",
+              "3. Check servo gain settings",
+              "4. If persistent: motor may be undersized for application"
+            ],
+            "verification": [
+              "1. Monitor current draw during operation",
+              "2. Run program with reduced loads initially"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "438",
+          "alarm_name": "n AXIS: INV. ABNORMAL CURRENT",
+          "description": "SVM/SVU: The motor current is too high.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. E-STOP immediately",
+              "2. Do not attempt to restart without investigation"
+            ],
+            "diagnostic_steps": [
+              "1. Check servo amplifier LED for specific fault code",
+              "2. Measure motor phase resistance",
+              "3. Check for ground fault in motor or cables",
+              "4. Verify motor connections"
+            ],
+            "resolution_steps": [
+              "1. If motor short: motor may need replacement",
+              "2. If cable issue: repair or replace motor cable",
+              "3. If amplifier fault: may need amp repair/replacement",
+              "4. Contact qualified service for motor/amp issues"
+            ],
+            "verification": [
+              "1. Measure motor resistance before restart",
+              "2. Carefully jog axis if cleared"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "High current faults can indicate serious electrical problems. Do not bypass."
+        }
+      ],
+      "SPINDLE": [
+        {
+          "alarm_code": "01",
+          "alarm_name": "SPINDLE MOTOR OVER TEMP",
+          "description": "Spindle motor over temperature detected.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "source_url": "https://www.tristarcnc.com/AlarmCodes/SpindleAmplifier",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle immediately",
+              "2. Do NOT restart until motor cools",
+              "3. Check for smoke or burning smell"
+            ],
+            "diagnostic_steps": [
+              "1. Check motor surface temperature",
+              "2. Verify cooling fan operation",
+              "3. Check ambient temperature",
+              "4. Review recent cutting conditions (heavy loads)"
+            ],
+            "resolution_steps": [
+              "1. Allow motor to cool completely",
+              "2. Check/clean cooling vents",
+              "3. Reduce cutting loads if persistent",
+              "4. Verify motor thermal sensor function"
+            ],
+            "verification": [
+              "1. Run spindle at low RPM first",
+              "2. Gradually increase speed",
+              "3. Monitor temperature during operation"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Hot surfaces can cause burns. Allow cooling before inspection."
+        },
+        {
+          "alarm_code": "07",
+          "alarm_name": "OVERSPEED (DIGITAL)",
+          "description": "The motor rotates at a speed exceeding 115% of the maximum allowable speed.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. E-STOP immediately",
+              "2. Note commanded vs actual speed"
+            ],
+            "diagnostic_steps": [
+              "1. Check spindle speed command in program",
+              "2. Verify spindle parameters (max speed setting)",
+              "3. Check encoder/sensor function",
+              "4. Review gear ratio settings"
+            ],
+            "resolution_steps": [
+              "1. Correct program speed commands",
+              "2. Verify max speed parameter matches motor specs",
+              "3. Check for runaway speed condition",
+              "4. If sensor issue: may need service"
+            ],
+            "verification": [
+              "1. Run spindle at low speed first",
+              "2. Verify speed feedback matches command"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "09",
+          "alarm_name": "HEAT SINK OVERHEATED",
+          "description": "Temperature of the heat sink of the SPM main circuit has risen to the set value.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle operation",
+              "2. Allow amplifier to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check cooling fan operation on amplifier",
+              "2. Verify air flow to amplifier cabinet",
+              "3. Check cabinet filters for blockage",
+              "4. Verify ambient temperature"
+            ],
+            "resolution_steps": [
+              "1. Clean/replace air filters",
+              "2. Repair/replace cooling fan if not operating",
+              "3. Improve cabinet ventilation",
+              "4. Reduce duty cycle if persistent"
+            ],
+            "verification": [
+              "1. Monitor heat sink temperature during operation",
+              "2. Verify cooling fan operation"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "11",
+          "alarm_name": "DC LINK OVERVOLTAGE",
+          "description": "PSM detected that the DC link voltage was excessively high.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Power off system",
+              "2. Do not restart immediately"
+            ],
+            "diagnostic_steps": [
+              "1. Check input power voltage",
+              "2. Verify regenerative circuit function",
+              "3. Check for rapid deceleration conditions",
+              "4. Review PSM status display"
+            ],
+            "resolution_steps": [
+              "1. If power issue: verify input voltage is within spec",
+              "2. If regen issue: may need regenerative resistor service",
+              "3. Reduce deceleration rate if applicable",
+              "4. Contact service for PSM issues"
+            ],
+            "verification": [
+              "1. Monitor DC link voltage after restart",
+              "2. Check during deceleration operations"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "DC link contains high voltage. Do not open covers."
+        },
+        {
+          "alarm_code": "29",
+          "alarm_name": "SHORT-PERIOD OVERLOAD",
+          "description": "An excessive load has been applied continuously for a certain period.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Allow system to recover"
+            ],
+            "diagnostic_steps": [
+              "1. Review cutting conditions",
+              "2. Check for mechanical binding in spindle",
+              "3. Verify tool condition (dull tool increases load)",
+              "4. Check belt tension if belt-driven"
+            ],
+            "resolution_steps": [
+              "1. Reduce cutting loads (speed, feed, DOC)",
+              "2. Replace dull tooling",
+              "3. Check spindle bearings if mechanical issue suspected",
+              "4. Allow recovery time between heavy cuts"
+            ],
+            "verification": [
+              "1. Monitor spindle load meter",
+              "2. Run lighter cuts initially"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "31",
+          "alarm_name": "MOTOR LOCK ALARM",
+          "description": "The motor failed to rotate as specified, and has stopped or is rotating at a very low speed.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. E-STOP",
+              "2. Do NOT force spindle rotation"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical obstruction",
+              "2. Verify drive belts are not broken/slipping",
+              "3. Check encoder/sensor signals",
+              "4. Check motor connections"
+            ],
+            "resolution_steps": [
+              "1. If mechanical: clear obstruction",
+              "2. If belt: repair/replace belt",
+              "3. If electrical: check motor and amplifier",
+              "4. Contact service for motor/drive issues"
+            ],
+            "verification": [
+              "1. Manually verify spindle can rotate (with power off)",
+              "2. Run spindle at low speed first"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Do not manually rotate spindle with power on."
+        },
+        {
+          "alarm_code": "51",
+          "alarm_name": "DC LINK UNDERVOLTAGE",
+          "description": "The PSM detected that the DC link voltage was excessively low.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note conditions when alarm occurred",
+              "2. Check incoming power"
+            ],
+            "diagnostic_steps": [
+              "1. Verify input power voltage",
+              "2. Check for power sags or brownouts",
+              "3. Check PSM status display",
+              "4. Verify main circuit breaker status"
+            ],
+            "resolution_steps": [
+              "1. If power issue: address facility power quality",
+              "2. If PSM fault: may need service/replacement",
+              "3. Check for loose power connections",
+              "4. Verify transformer tap settings if applicable"
+            ],
+            "verification": [
+              "1. Monitor input voltage during operation",
+              "2. Verify stable power supply"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "750",
+          "alarm_name": "SPINDLE SERIAL LINK START FAULT",
+          "description": "Generated when the spindle control unit is not ready for starting correctly when the power is turned on.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Power off CNC and spindle amplifier",
+              "2. Check optical cable connections"
+            ],
+            "diagnostic_steps": [
+              "1. Verify optical cable is properly connected",
+              "2. Check spindle amplifier power is ON",
+              "3. Check spindle amp LED for alarm codes",
+              "4. Review diagnostic display No. 409"
+            ],
+            "resolution_steps": [
+              "1. Reseat/replace optical cable if damaged",
+              "2. If spindle amp has alarm: address that alarm first",
+              "3. Power cycle spindle amp then CNC",
+              "4. If second spindle: check SP2 parameter"
+            ],
+            "verification": [
+              "1. Power up system and verify link established",
+              "2. Check diagnostic 409 for spindle status"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "751",
+          "alarm_name": "FIRST SPINDLE ALARM DETECTION (AL-XX)",
+          "description": "An alarm is generated in the spindle unit. XX is the alarm number shown on the spindle amplifier.",
+          "verification_level": "AUTHORIZED_SERVICE",
+          "source": "Tri Star CNC Services",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note the XX alarm code displayed",
+              "2. Check spindle amplifier LED display"
+            ],
+            "diagnostic_steps": [
+              "1. Look up the specific AL-XX code in spindle amp alarm list",
+              "2. The NC displays the spindle amp's internal alarm",
+              "3. Address the specific spindle amplifier alarm"
+            ],
+            "resolution_steps": [
+              "1. Resolve the specific spindle amplifier alarm",
+              "2. Refer to spindle amplifier alarm troubleshooting",
+              "3. May require spindle amp service"
+            ],
+            "verification": [
+              "1. Clear spindle amp alarm",
+              "2. Verify spindle operation"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ]
+    },
+    "HAAS": {
+      "SERVO": [
+        {
+          "alarm_code": "102",
+          "alarm_name": "SERVOS OFF",
+          "description": "Indicates that the servo motors are off, the tool changer is disabled, the coolant pump is off, and the spindle motor is stopped. Caused by Emergency Stop, motor fault, or power failure.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "source_url": "https://www.haascnc.com/service.html",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check if E-Stop is pressed",
+              "2. Note any additional alarms displayed"
+            ],
+            "diagnostic_steps": [
+              "1. Check E-Stop button status",
+              "2. Verify no motor faults present",
+              "3. Check for power failure indicators"
+            ],
+            "resolution_steps": [
+              "1. Release E-Stop if pressed",
+              "2. Press RESET to power servos on",
+              "3. Address any underlying motor faults"
+            ],
+            "verification": [
+              "1. Verify servos enable after RESET",
+              "2. Jog axes to confirm operation"
+            ]
+          },
+          "requires_power_cycle": false,
+          "note": "This alarm also appears at startup as informative alarm"
+        },
+        {
+          "alarm_code": "103",
+          "alarm_name": "X SERVO ERROR TOO LARGE",
+          "description": "Load on X-axis Servomotor has exceeded parameter 9 X-axis Max Error. Servos are turned off.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note axis position when alarm occurred",
+              "2. Check for mechanical obstruction"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding on X-axis",
+              "2. Inspect ballscrew and guides for damage",
+              "3. Verify encoder cable connections",
+              "4. Check motor-encoder interface"
+            ],
+            "resolution_steps": [
+              "1. If mechanical binding: resolve obstruction",
+              "2. If encoder issue: check/replace cable",
+              "3. Verify machine parameters match screw pitch",
+              "4. Press RESET to clear alarm and turn on servos"
+            ],
+            "verification": [
+              "1. Jog X-axis slowly in both directions",
+              "2. Verify smooth motion without alarm"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "104",
+          "alarm_name": "Y SERVO ERROR TOO LARGE",
+          "description": "Load on Y-axis Servomotor has exceeded parameter limit. Servos are turned off.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note axis position when alarm occurred",
+              "2. Check for mechanical obstruction"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding on Y-axis",
+              "2. Inspect ballscrew and guides for damage",
+              "3. Verify encoder cable connections",
+              "4. Check motor brake release (if equipped)"
+            ],
+            "resolution_steps": [
+              "1. If mechanical binding: resolve obstruction",
+              "2. If encoder issue: check/replace cable",
+              "3. Press RESET to clear alarm and turn on servos"
+            ],
+            "verification": [
+              "1. Jog Y-axis slowly in both directions",
+              "2. Verify smooth motion without alarm"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "105",
+          "alarm_name": "Z SERVO ERROR TOO LARGE",
+          "description": "Load on Z-axis Servomotor has exceeded parameter limit. Servos are turned off.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Support spindle head if necessary",
+              "2. Check for tool/part interference"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding on Z-axis",
+              "2. Verify counterbalance system (if equipped)",
+              "3. Check encoder cable connections",
+              "4. Verify motor brake release"
+            ],
+            "resolution_steps": [
+              "1. If crash: carefully clear interference",
+              "2. If counterbalance issue: check cylinder/pressure",
+              "3. Press RESET to clear alarm and turn on servos"
+            ],
+            "verification": [
+              "1. Jog Z-axis slowly in both directions",
+              "2. Verify smooth motion without alarm"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Z-axis may drop if counterbalance fails. Use caution."
+        },
+        {
+          "alarm_code": "108",
+          "alarm_name": "X SERVO OVERLOAD",
+          "description": "X-axis servo motor is overloaded - cannot maintain required torque or load.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Haas Service Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Allow motor to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding",
+              "2. Verify ballscrew/way lubrication",
+              "3. Check for debris in guides",
+              "4. Review cutting conditions"
+            ],
+            "resolution_steps": [
+              "1. Resolve any mechanical binding",
+              "2. Lubricate axis if needed",
+              "3. Reduce feed rates if excessive",
+              "4. Check servo parameters match load"
+            ],
+            "verification": [
+              "1. Run lighter cuts initially",
+              "2. Monitor servo load during operation"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "161",
+          "alarm_name": "X AXIS DRIVE FAULT",
+          "description": "Current in X servo motor beyond limit. Possibly caused by stalled or overloaded motor. Can be caused by running axis into mechanical stop, short in motor, or motor lead grounded.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "source_url": "https://www.haascnc.com/service/troubleshooting-and-how-to/troubleshooting/sigma-1---axis-servo-motor-and-cables---troubleshooting-guide.html",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. E-STOP if not already triggered",
+              "2. Do not attempt to move axis"
+            ],
+            "diagnostic_steps": [
+              "1. Check if axis hit mechanical stop",
+              "2. Inspect motor cables for damage",
+              "3. Check for coolant contamination at connectors",
+              "4. Measure motor resistance leg-to-leg and leg-to-ground"
+            ],
+            "resolution_steps": [
+              "1. If mechanical stop: jog away carefully",
+              "2. If cable damage: repair/replace cable",
+              "3. If contamination: clean connectors thoroughly",
+              "4. If motor short: motor replacement required"
+            ],
+            "verification": [
+              "1. Measure motor resistance before restart",
+              "2. Jog axis slowly to verify operation"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "High current indicates potential electrical fault. Verify motor resistance before restart."
+        },
+        {
+          "alarm_code": "162",
+          "alarm_name": "Y AXIS DRIVE FAULT",
+          "description": "Current in Y servo motor beyond limit. Possibly caused by stalled or overloaded motor.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. E-STOP if not already triggered",
+              "2. Do not attempt to move axis"
+            ],
+            "diagnostic_steps": [
+              "1. Check if axis hit mechanical stop",
+              "2. Inspect motor cables for damage",
+              "3. Check amplifier for fault indicators",
+              "4. Measure motor resistance"
+            ],
+            "resolution_steps": [
+              "1. If mechanical stop: jog away carefully",
+              "2. If cable damage: repair/replace cable",
+              "3. If motor short: motor replacement required"
+            ],
+            "verification": [
+              "1. Measure motor resistance before restart",
+              "2. Jog axis slowly to verify operation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "163",
+          "alarm_name": "Z AXIS DRIVE FAULT",
+          "description": "Current in Z servo motor beyond limit. Possibly caused by stalled or overloaded motor.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. E-STOP if not already triggered",
+              "2. Support spindle head if necessary"
+            ],
+            "diagnostic_steps": [
+              "1. Check for tool/part crash",
+              "2. Verify counterbalance function",
+              "3. Inspect motor cables",
+              "4. Measure motor resistance"
+            ],
+            "resolution_steps": [
+              "1. Clear any crash interference",
+              "2. Verify counterbalance pressure",
+              "3. If motor fault: contact service"
+            ],
+            "verification": [
+              "1. Verify counterbalance supports head",
+              "2. Jog axis slowly to verify operation"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Z-axis drive fault may indicate crash. Inspect carefully."
+        }
+      ],
+      "SPINDLE": [
+        {
+          "alarm_code": "119",
+          "alarm_name": "OVERVOLTAGE",
+          "description": "DC bus voltage too high. Can be caused by regen issues or input voltage problems.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle operation",
+              "2. Note conditions when alarm occurred"
+            ],
+            "diagnostic_steps": [
+              "1. Check input line voltage",
+              "2. Check transformer tap settings",
+              "3. Verify regen load resistance",
+              "4. Check DC bus voltage on diagnostics"
+            ],
+            "resolution_steps": [
+              "1. If input voltage high: adjust transformer taps",
+              "2. If regen issue: check regen resistor",
+              "3. Verify 160VDC power supply is 145-175VDC range"
+            ],
+            "verification": [
+              "1. Monitor DC bus voltage during operation",
+              "2. Check second page of diagnostics display"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "122",
+          "alarm_name": "REGEN OVERHEAT",
+          "description": "Regenerative resistor overheated, typically from high spindle start/stop duty cycle.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle operation",
+              "2. Allow regen resistor to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check spindle duty cycle",
+              "2. Verify regen resistor cooling",
+              "3. Check for high ambient temperature",
+              "4. Verify input voltage (high voltage causes more regen)"
+            ],
+            "resolution_steps": [
+              "1. Reduce spindle start/stop frequency",
+              "2. Allow cooling between operations",
+              "3. Check cabinet ventilation",
+              "4. If persistent: regen resistor may need service"
+            ],
+            "verification": [
+              "1. Monitor regen temperature during operation",
+              "2. Reduce duty cycle if alarm recurs"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "123",
+          "alarm_name": "SPINDLE DRIVE FAULT",
+          "description": "Failure of spindle drive, motor or regen load. Can be caused by shorted motor, overvoltage, overcurrent, undervoltage, or failure of drive.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "source_url": "https://www.haascnc.com/service/troubleshooting-and-how-to/troubleshooting/vector-drive---troubleshooting-guide---chc.html",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. E-STOP immediately",
+              "2. Note any other alarms (160, 119)"
+            ],
+            "diagnostic_steps": [
+              "1. Check for overvoltage alarm 119",
+              "2. Check for undervoltage alarm 160",
+              "3. Verify spindle motor resistance",
+              "4. Check regen load resistance"
+            ],
+            "resolution_steps": [
+              "1. If overvoltage: address power/regen issues",
+              "2. If motor short: motor may need replacement",
+              "3. If regen fault: check regen resistor",
+              "4. Contact Haas service for drive replacement"
+            ],
+            "verification": [
+              "1. Measure motor resistance before restart",
+              "2. Run spindle at low RPM first"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Vector drive contains high voltage. Follow LOTO procedures."
+        },
+        {
+          "alarm_code": "160",
+          "alarm_name": "UNDERVOLTAGE",
+          "description": "DC bus voltage too low. Can indicate power supply or incoming power issues.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note conditions when alarm occurred",
+              "2. Check facility power status"
+            ],
+            "diagnostic_steps": [
+              "1. Verify incoming line voltage",
+              "2. Check for power sags/brownouts",
+              "3. Verify transformer tap settings",
+              "4. Check DC bus voltage on diagnostics"
+            ],
+            "resolution_steps": [
+              "1. If facility power issue: address with electrician",
+              "2. Adjust transformer taps if needed",
+              "3. 160VDC supply should be 145-175VDC"
+            ],
+            "verification": [
+              "1. Monitor DC bus voltage",
+              "2. Verify stable during spindle acceleration"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ],
+      "SYSTEM": [
+        {
+          "alarm_code": "101",
+          "alarm_name": "COMM. FAILURE WITH MOCON/MOCON MEMORY FAULT",
+          "description": "During self-test of communications between MOCON and main processor, the main processor does not respond. May also be caused by memory fault on MOCON.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Power off machine",
+              "2. Check cable connections"
+            ],
+            "diagnostic_steps": [
+              "1. Check ADDRESS and DATA bus cables",
+              "2. Check MOCON/PROCESSOR status lights",
+              "3. Verify correct power to MOCON",
+              "4. Check for loose board connections"
+            ],
+            "resolution_steps": [
+              "1. Re-seat ADDRESS and DATA bus cables",
+              "2. Re-seat MOCON board if accessible",
+              "3. If persistent: board may be faulty",
+              "4. Contact Haas service for board replacement"
+            ],
+            "verification": [
+              "1. Power up and verify no alarm",
+              "2. Run machine self-test"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "107",
+          "alarm_name": "EMERGENCY OFF",
+          "description": "Emergency stop has been activated.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Identify reason for E-Stop",
+              "2. Ensure safe condition before reset"
+            ],
+            "diagnostic_steps": [
+              "1. Locate which E-Stop was pressed",
+              "2. Check for any hazardous conditions",
+              "3. Verify no other alarms present"
+            ],
+            "resolution_steps": [
+              "1. Address the condition that caused E-Stop",
+              "2. Release/reset E-Stop button",
+              "3. Press RESET to clear alarm"
+            ],
+            "verification": [
+              "1. Verify safe condition",
+              "2. Test machine operation"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "120",
+          "alarm_name": "LOW AIR PRESSURE",
+          "description": "Pneumatic air pressure below minimum required level.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Check shop air supply"
+            ],
+            "diagnostic_steps": [
+              "1. Check compressor output",
+              "2. Verify regulator setting",
+              "3. Check for air leaks",
+              "4. Inspect air filter for blockage"
+            ],
+            "resolution_steps": [
+              "1. Verify shop air supply is adequate",
+              "2. Clean/replace air filter",
+              "3. Repair any air leaks found",
+              "4. Adjust regulator if needed"
+            ],
+            "verification": [
+              "1. Verify air pressure at machine",
+              "2. Test pneumatic functions"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "121",
+          "alarm_name": "LOW LUBE OR LOW PRESSURE",
+          "description": "Way lube system low on lubricant or pressure below required level.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation if axes moving",
+              "2. Check lube reservoir level"
+            ],
+            "diagnostic_steps": [
+              "1. Check way lube reservoir level",
+              "2. Verify lube pump operation",
+              "3. Check for lube line leaks",
+              "4. Inspect lube filter"
+            ],
+            "resolution_steps": [
+              "1. Refill lube reservoir with correct oil",
+              "2. Repair any leaks found",
+              "3. Replace filter if clogged",
+              "4. Verify pump operation"
+            ],
+            "verification": [
+              "1. Verify lube pressure restored",
+              "2. Check for proper distribution"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Do not run machine without lubrication - can damage ways and ballscrews."
+        },
+        {
+          "alarm_code": "124",
+          "alarm_name": "LOW BATTERY",
+          "description": "Memory batteries need replacing within 30 days. The 3.3V Lithium battery is below 2.5 volts.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Back up all programs and parameters",
+              "2. Note alarm for scheduled maintenance"
+            ],
+            "diagnostic_steps": [
+              "1. Verify battery is accessible",
+              "2. Confirm correct replacement battery type"
+            ],
+            "resolution_steps": [
+              "1. Backup programs, parameters, offsets, settings",
+              "2. Replace 3.3V lithium battery",
+              "3. Do not delay - loss of memory within 30 days"
+            ],
+            "verification": [
+              "1. Verify alarm clears after battery replacement",
+              "2. Confirm all data retained"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Replace battery promptly to avoid loss of programs and parameters."
+        }
+      ],
+      "ATC": [
+        {
+          "alarm_code": "113",
+          "alarm_name": "SHUTTLE IN FAULT (Mill) / TURRET UNLOCK FAULT (Lathe)",
+          "description": "Tool changer shuttle failed to reach in position, or turret failed to unlock.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Do NOT force mechanism manually",
+              "2. Check for obvious obstructions"
+            ],
+            "diagnostic_steps": [
+              "1. Check proximity switch signals",
+              "2. Verify air pressure adequate",
+              "3. Check for tool interference",
+              "4. Inspect mechanism for debris"
+            ],
+            "resolution_steps": [
+              "1. Clear any obstructions",
+              "2. Verify air pressure (>80 PSI typically)",
+              "3. Check/adjust proximity switches",
+              "4. Clean and lubricate mechanism"
+            ],
+            "verification": [
+              "1. Cycle tool changer empty",
+              "2. Test with tool changes"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "115",
+          "alarm_name": "TURRET ROTATE FAULT",
+          "description": "Tool turret failed to rotate to commanded position.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Note commanded vs actual position"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical obstruction",
+              "2. Verify turret drive motor operation",
+              "3. Check encoder/position sensor",
+              "4. Verify hydraulic pressure (if hydraulic turret)"
+            ],
+            "resolution_steps": [
+              "1. Clear any obstructions",
+              "2. Check motor connections",
+              "3. Verify tool pocket assignments",
+              "4. May need turret re-homing"
+            ],
+            "verification": [
+              "1. Index turret through all positions",
+              "2. Verify accurate positioning"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "116",
+          "alarm_name": "SPINDLE ORIENTATION FAULT",
+          "description": "Spindle failed to orient to correct position for tool change.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Haas Maintenance Manual 96-0284",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop tool change sequence",
+              "2. Note spindle position"
+            ],
+            "diagnostic_steps": [
+              "1. Check orientation sensor",
+              "2. Verify spindle encoder function",
+              "3. Check for mechanical obstruction",
+              "4. Verify spindle drive parameters"
+            ],
+            "resolution_steps": [
+              "1. If sensor issue: adjust or replace",
+              "2. If encoder: check connections/replace",
+              "3. Re-run spindle orientation calibration",
+              "4. Contact service if persistent"
+            ],
+            "verification": [
+              "1. Manually command orientation",
+              "2. Verify repeatable positioning"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ]
+    },
+    "SIEMENS": {
+      "NCK_SYSTEM": [
+        {
+          "alarm_code": "2000",
+          "alarm_name": "PLC sign-of-life monitoring",
+          "description": "The PLC must give a sign of life within a defined time, or the alarm is triggered.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "source_url": "https://support.industry.siemens.com/cs/attachments/61629312/DAsl_0911_en_en-US.pdf",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note alarm conditions",
+              "2. Check PLC status indicators"
+            ],
+            "diagnostic_steps": [
+              "1. Check PLC CPU status (RUN/STOP)",
+              "2. Verify PLC program is running",
+              "3. Check communication between NCK and PLC",
+              "4. Review PLC diagnostic buffer"
+            ],
+            "resolution_steps": [
+              "1. If PLC stopped: restart PLC",
+              "2. If communication error: check bus connections",
+              "3. Verify PLC program is loaded correctly",
+              "4. May need to reload PLC program"
+            ],
+            "verification": [
+              "1. Verify PLC returns to RUN state",
+              "2. Clear alarm and verify no recurrence"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2100",
+          "alarm_name": "NCK battery warning threshold reached",
+          "description": "The undervoltage monitor of the NCK battery has reached the prewarning threshold.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Back up all NC data immediately",
+              "2. Schedule battery replacement"
+            ],
+            "diagnostic_steps": [
+              "1. Check battery voltage if accessible",
+              "2. Verify backup power status"
+            ],
+            "resolution_steps": [
+              "1. Order replacement battery",
+              "2. Replace battery during planned downtime",
+              "3. Follow Siemens battery replacement procedure"
+            ],
+            "verification": [
+              "1. Verify alarm clears after replacement",
+              "2. Confirm NC data retained"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Replace battery promptly to avoid data loss."
+        },
+        {
+          "alarm_code": "2101",
+          "alarm_name": "NCK battery alarm",
+          "description": "The undervoltage monitoring of the NCK battery has responded during cyclic operation.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. URGENT: Back up all NC data immediately",
+              "2. Do not power off until battery replaced"
+            ],
+            "diagnostic_steps": [
+              "1. Verify battery condition",
+              "2. Check for recent power interruptions"
+            ],
+            "resolution_steps": [
+              "1. Replace battery immediately",
+              "2. Follow proper battery replacement procedure",
+              "3. Reload NC data if lost"
+            ],
+            "verification": [
+              "1. Verify NC data integrity",
+              "2. Confirm alarm cleared"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "CRITICAL: Data loss imminent. Replace battery immediately."
+        },
+        {
+          "alarm_code": "2110",
+          "alarm_name": "NCK temperature alarm",
+          "description": "The temperature sensor has reached the response threshold.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Reduce machine operation",
+              "2. Check cabinet ventilation"
+            ],
+            "diagnostic_steps": [
+              "1. Check NCU fan operation",
+              "2. Verify cabinet cooling system",
+              "3. Check air filters for blockage",
+              "4. Verify ambient temperature"
+            ],
+            "resolution_steps": [
+              "1. Clean or replace air filters",
+              "2. Repair/replace NCU fan if faulty",
+              "3. Improve cabinet ventilation",
+              "4. Reduce ambient temperature if possible"
+            ],
+            "verification": [
+              "1. Monitor NCU temperature",
+              "2. Verify alarm does not recur"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2120",
+          "alarm_name": "NCK fan alarm",
+          "description": "The fan speed monitoring at the NC module has responded.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check if fan is visibly rotating",
+              "2. Monitor NCU temperature closely"
+            ],
+            "diagnostic_steps": [
+              "1. Inspect fan for obstruction",
+              "2. Check fan electrical connections",
+              "3. Verify fan power supply"
+            ],
+            "resolution_steps": [
+              "1. Clear any obstructions",
+              "2. Replace fan if not operating",
+              "3. Siemens fan/battery module is replaceable unit"
+            ],
+            "verification": [
+              "1. Verify fan operates at correct speed",
+              "2. Monitor temperature after repair"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "NCU will auto-shutdown if overheated. Replace fan promptly."
+        },
+        {
+          "alarm_code": "3000",
+          "alarm_name": "Emergency stop",
+          "description": "The EMERGENCY STOP request is applied to the NCK/PLC interface DB10 DBX56.1.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Identify E-Stop source",
+              "2. Ensure safe condition before reset"
+            ],
+            "diagnostic_steps": [
+              "1. Check all E-Stop buttons",
+              "2. Check safety door interlocks",
+              "3. Check external E-Stop circuits",
+              "4. Review PLC diagnostics"
+            ],
+            "resolution_steps": [
+              "1. Address condition that caused E-Stop",
+              "2. Release/reset E-Stop devices",
+              "3. Acknowledge alarm on control"
+            ],
+            "verification": [
+              "1. Verify all safety circuits closed",
+              "2. Test machine operation"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ],
+      "SINAMICS_DRIVE": [
+        {
+          "alarm_code": "201000",
+          "alarm_name": "Internal software error",
+          "description": "An internal software error has occurred in SINAMICS.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINAMICS S120 Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Record fault buffer contents (r0945)",
+              "2. Note conditions when error occurred"
+            ],
+            "diagnostic_steps": [
+              "1. Evaluate fault buffer (r0945)",
+              "2. Check data on memory card",
+              "3. Check firmware version"
+            ],
+            "resolution_steps": [
+              "1. Carry out POWER ON (power off/on) for all components",
+              "2. If required, check memory card data",
+              "3. Upgrade firmware to later version",
+              "4. If persistent: contact Siemens hotline or replace Control Unit"
+            ],
+            "verification": [
+              "1. Verify system starts without error",
+              "2. Monitor for recurrence"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "201007",
+          "alarm_name": "POWER ON for DRIVE-CLiQ component required",
+          "description": "A DRIVE-CLiQ component requires power cycling.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINAMICS S120 Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note the specified DRIVE-CLiQ component",
+              "2. Prepare for power cycle"
+            ],
+            "diagnostic_steps": [
+              "1. Identify the affected component",
+              "2. Check DRIVE-CLiQ wiring to component"
+            ],
+            "resolution_steps": [
+              "1. Switch off power to the specified component",
+              "2. Wait 10 seconds",
+              "3. Switch power back on",
+              "4. For SINUMERIK: POWER ON all components and restart commissioning"
+            ],
+            "verification": [
+              "1. Verify component initializes correctly",
+              "2. Check alarm clears"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "201009",
+          "alarm_name": "CU: Control module overtemperature",
+          "description": "Control Unit temperature has exceeded threshold.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINAMICS S120 Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Reduce drive operation",
+              "2. Check for cabinet door open"
+            ],
+            "diagnostic_steps": [
+              "1. Check air intake for Control Unit",
+              "2. Check Control Unit fan operation",
+              "3. Verify cabinet cooling",
+              "4. Check air filters"
+            ],
+            "resolution_steps": [
+              "1. Clean air intake/filters",
+              "2. Repair/replace CU fan if faulty",
+              "3. Improve cabinet ventilation",
+              "4. Allow cooling before restart"
+            ],
+            "verification": [
+              "1. Monitor CU temperature after restart",
+              "2. Verify fan operation"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "201011",
+          "alarm_name": "Download interrupted",
+          "description": "A download to the drive was interrupted.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINAMICS S120 Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Do not power off immediately",
+              "2. Check communication cable"
+            ],
+            "diagnostic_steps": [
+              "1. Check communication cable connections",
+              "2. Verify network/bus status",
+              "3. Check memory card if used"
+            ],
+            "resolution_steps": [
+              "1. Check and reseat communication cables",
+              "2. Download project again",
+              "3. Or boot from previously saved files (p0976)",
+              "4. When loading from memory card, use matching version"
+            ],
+            "verification": [
+              "1. Verify download completes successfully",
+              "2. Verify drive parameters correct"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "201013",
+          "alarm_name": "CU: Fan operating time reached or exceeded",
+          "description": "The Control Unit fan has reached its service life limit.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINAMICS S120 Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Schedule fan replacement",
+              "2. Monitor temperatures closely"
+            ],
+            "diagnostic_steps": [
+              "1. Check current fan operation",
+              "2. Verify fan speed"
+            ],
+            "resolution_steps": [
+              "1. Replace fan in Control Unit",
+              "2. Reset operating hours counter (p3961 = 0)"
+            ],
+            "verification": [
+              "1. Verify new fan operates correctly",
+              "2. Confirm alarm clears"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ],
+      "CYCLE": [
+        {
+          "alarm_code": "61000",
+          "alarm_name": "No tool offset active",
+          "description": "A canned cycle was called without an active tool offset.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop program execution",
+              "2. Review program for missing tool call"
+            ],
+            "diagnostic_steps": [
+              "1. Check for T-word and D-word in program",
+              "2. Verify tool offset is loaded",
+              "3. Check active tool in status display"
+            ],
+            "resolution_steps": [
+              "1. Add tool call (T...) before cycle",
+              "2. Add tool offset selection (D...)",
+              "3. Verify tool data is correct"
+            ],
+            "verification": [
+              "1. Clear alarm with RESET",
+              "2. Restart program and verify"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "61001",
+          "alarm_name": "Thread pitch incorrectly defined",
+          "description": "Thread pitch parameter is incorrect or missing in threading cycle.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop program execution",
+              "2. Review threading cycle parameters"
+            ],
+            "diagnostic_steps": [
+              "1. Check thread size parameter",
+              "2. Verify pitch setting",
+              "3. Check for metric/inch confusion"
+            ],
+            "resolution_steps": [
+              "1. Correct thread pitch parameter",
+              "2. Verify units (mm or inch)",
+              "3. Program correction before cycle call"
+            ],
+            "verification": [
+              "1. Clear alarm with RESET",
+              "2. Verify correct thread parameters"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "61003",
+          "alarm_name": "No feed programmed in cycle",
+          "description": "A canned cycle was called without a feed rate programmed.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop program execution",
+              "2. Check feed parameter"
+            ],
+            "diagnostic_steps": [
+              "1. Check cycle call parameters",
+              "2. Verify F-word in program",
+              "3. Check modal feed status"
+            ],
+            "resolution_steps": [
+              "1. Add feed rate (F...) to program",
+              "2. Or modify cycle feed parameter"
+            ],
+            "verification": [
+              "1. Clear alarm with RESET",
+              "2. Verify feed is active"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ],
+      "COMMUNICATION": [
+        {
+          "alarm_code": "380001",
+          "alarm_name": "PROFIBUS/PROFINET: Startup error",
+          "description": "An error occurred during the startup of the PROFIBUS/PROFINET master.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note error reason code",
+              "2. Check network status"
+            ],
+            "diagnostic_steps": [
+              "1. Check PROFIBUS/PROFINET cables",
+              "2. Verify network configuration",
+              "3. Check slave device status",
+              "4. Review reason parameter in alarm"
+            ],
+            "resolution_steps": [
+              "1. Repair any cable issues",
+              "2. Verify network addresses",
+              "3. Check slave device power",
+              "4. May need to reconfigure network"
+            ],
+            "verification": [
+              "1. Verify all devices online",
+              "2. Clear alarm and restart"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "380003",
+          "alarm_name": "PROFIBUS/PROFINET: Operating error",
+          "description": "An operating error occurred on the PROFIBUS/PROFINET in cyclic mode.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Siemens SINUMERIK 840D sl Diagnostics Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note error details",
+              "2. Check network status LEDs"
+            ],
+            "diagnostic_steps": [
+              "1. Check cable connections",
+              "2. Check for EMC interference",
+              "3. Verify cycle times",
+              "4. Check slave diagnostics"
+            ],
+            "resolution_steps": [
+              "1. Repair cable/connection issues",
+              "2. Improve cable routing for EMC",
+              "3. Replace faulty slave if identified",
+              "4. Verify bus termination"
+            ],
+            "verification": [
+              "1. Monitor for communication errors",
+              "2. Verify stable operation"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ]
+    },
+    "OKUMA": {
+      "ALARM_P": [
+        {
+          "alarm_code": "0001",
+          "alarm_name": "BUS ERROR",
+          "description": "A bus error has occurred in the CPU. NC functions are inoperative.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma OSP-P300S/P300L Alarm & Error List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note alarm details displayed",
+              "2. Do not attempt to continue operation"
+            ],
+            "diagnostic_steps": [
+              "1. Check CPU board status LEDs",
+              "2. Verify all board connections",
+              "3. Check for EMI interference sources"
+            ],
+            "resolution_steps": [
+              "1. Turn power off, wait 30 seconds",
+              "2. Turn power back on",
+              "3. If persistent: contact Okuma service"
+            ],
+            "verification": [
+              "1. Verify system boots without alarm",
+              "2. Run diagnostic test if available"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Alarm P shuts off axis drive power. System inoperative until resolved."
+        },
+        {
+          "alarm_code": "0700",
+          "alarm_name": "NC START-UP ERROR",
+          "description": "Error occurred during NC system startup.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma OSP-P300S/P300L Alarm & Error List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note full alarm message",
+              "2. Do not repeatedly cycle power"
+            ],
+            "diagnostic_steps": [
+              "1. Check system startup sequence",
+              "2. Verify software integrity",
+              "3. Check for recent changes/updates"
+            ],
+            "resolution_steps": [
+              "1. Power cycle system once",
+              "2. If alarm persists: may need software reload",
+              "3. Contact Okuma service for assistance"
+            ],
+            "verification": [
+              "1. Verify complete startup",
+              "2. Check all functions operational"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ],
+      "ALARM_A": [
+        {
+          "alarm_code": "100",
+          "alarm_name": "FOLLOW UP ERROR / DIF OVER",
+          "description": "Follow-up error in axis movement exceeds the permissible error range (position deviation too large).",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma OSP5020 Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note which axis alarmed",
+              "2. Check for mechanical obstruction"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding",
+              "2. Verify slideway lubrication",
+              "3. Check for collision condition",
+              "4. Inspect position encoder",
+              "5. Check drive unit status"
+            ],
+            "resolution_steps": [
+              "1. If mechanical binding: resolve obstruction",
+              "2. If lubrication: check/refill way lube",
+              "3. If encoder: check connections, may need replacement",
+              "4. If drive unit: contact Okuma service"
+            ],
+            "verification": [
+              "1. Reset alarm and jog axis slowly",
+              "2. Verify smooth motion in both directions"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "721",
+          "alarm_name": "SAFETY IO LINK ERROR",
+          "description": "A problem has developed in the safety IO link, often caused by shorted solenoid or contaminated switch.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Okuma Technical Documentation",
+          "source_url": "https://www.okuma.com/blog/alarming-news-5-machine-alarms-you-may-not-know-about",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note the specific code following the alarm",
+              "2. Check for obvious wiring damage"
+            ],
+            "diagnostic_steps": [
+              "1. The code after alarm points to input/output location",
+              "2. Check for coolant contamination at switches",
+              "3. Check solenoid valve condition",
+              "4. Inspect IO board for damage"
+            ],
+            "resolution_steps": [
+              "1. Clean contaminated switches/connectors",
+              "2. Replace shorted solenoid if identified",
+              "3. Replace damaged IO board if necessary",
+              "4. Repair damaged wiring"
+            ],
+            "verification": [
+              "1. Clear alarm and verify system operation",
+              "2. Test affected safety circuit"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ],
+      "SYSTEM": [
+        {
+          "alarm_code": "BATTERY",
+          "alarm_name": "BATTERY ERROR",
+          "description": "Battery backup capacity reduced or battery error detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma OSP-E100M Alarm & Error List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Back up all programs and parameters immediately",
+              "2. Schedule battery replacement"
+            ],
+            "diagnostic_steps": [
+              "1. Check battery voltage",
+              "2. Verify battery age/condition"
+            ],
+            "resolution_steps": [
+              "1. Replace battery with correct type",
+              "2. Follow Okuma battery replacement procedure",
+              "3. Verify data retained after replacement"
+            ],
+            "verification": [
+              "1. Confirm alarm clears",
+              "2. Verify all data intact"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Replace battery promptly to avoid data loss."
+        },
+        {
+          "alarm_code": "FAN_ALARM",
+          "alarm_name": "CPU FAN OR POWER SUPPLY FAN ALARM",
+          "description": "CPU fan or power supply fan is not operating at specified threshold speed.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Okuma Technical Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Visually inspect fans",
+              "2. Monitor system temperature"
+            ],
+            "diagnostic_steps": [
+              "1. Check if fans are plugged in correctly",
+              "2. Verify fans are rotating properly",
+              "3. Check for dust/debris blocking fans"
+            ],
+            "resolution_steps": [
+              "1. Clean fans if dusty",
+              "2. Reseat fan connections",
+              "3. Replace fan if rotating slowly or stopped",
+              "4. If fans OK: inspect panel computer"
+            ],
+            "verification": [
+              "1. Verify fan operates at correct speed",
+              "2. Monitor temperature during operation"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "INVERTER",
+          "alarm_name": "INVERTER ALARM",
+          "description": "Issue with inverter - defective control board, motor over current, voltage issue, or shorted motor.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Okuma Technical Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation immediately",
+              "2. Note specific inverter alarm code"
+            ],
+            "diagnostic_steps": [
+              "1. Check inverter control board",
+              "2. Check motor current draw",
+              "3. Verify input voltage",
+              "4. Check motor resistance"
+            ],
+            "resolution_steps": [
+              "1. If motor shorted: replace motor",
+              "2. If voltage issue: check power supply",
+              "3. If inverter fault: may need drive replacement",
+              "4. Contact Okuma service for diagnosis"
+            ],
+            "verification": [
+              "1. Test at low load first",
+              "2. Monitor during normal operation"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Faulty motor can damage drive unit. Verify motor before restart."
+        },
+        {
+          "alarm_code": "MCS_LINK",
+          "alarm_name": "MCS SERIAL LINK ERROR",
+          "description": "OSP control sees a discrepancy in the serial link of the MCS system during control boot-up.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma Technical Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note full alarm message",
+              "2. Check for recent changes to system"
+            ],
+            "diagnostic_steps": [
+              "1. Check for faulty drive unit",
+              "2. Verify controller ID address settings",
+              "3. Check servo cabling connections",
+              "4. Look for miswiring in MCS serial link"
+            ],
+            "resolution_steps": [
+              "1. Reseat all servo cable connections",
+              "2. Verify ID address settings are correct",
+              "3. Check for previous troubleshooting changes",
+              "4. Contact Okuma service if unresolved"
+            ],
+            "verification": [
+              "1. Power cycle and verify clean boot",
+              "2. Test all axis operation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "VOLTAGE",
+          "alarm_name": "POWER SUPPLY VOLTAGE ALARM",
+          "description": "Supplied voltage is abnormally high or low for proper operation.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma Technical Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note when alarm occurs (acceleration/deceleration)",
+              "2. Check incoming power"
+            ],
+            "diagnostic_steps": [
+              "1. Measure input voltage levels",
+              "2. Check during heavy spindle load",
+              "3. Verify power line connections",
+              "4. Check KVA rating vs machine requirements"
+            ],
+            "resolution_steps": [
+              "1. Ensure power supply matches machine KVA rating",
+              "2. Tighten loose power line connections",
+              "3. Check facility power quality",
+              "4. May need dedicated power circuit"
+            ],
+            "verification": [
+              "1. Monitor voltage during spindle acceleration",
+              "2. Verify stable during heavy cuts"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "1071",
+          "alarm_name": "MEMORY BOARD BATTERY DEPLETED",
+          "description": "Memory board battery is depleted and needs replacement.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma OSP-P300S/P300L Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Back up all programs and parameters immediately",
+              "2. Do not power off until backup complete"
+            ],
+            "diagnostic_steps": [
+              "1. Verify battery type required",
+              "2. Check battery location in control"
+            ],
+            "resolution_steps": [
+              "1. Obtain correct replacement battery",
+              "2. With power ON, replace battery",
+              "3. Follow Okuma battery replacement procedure",
+              "4. Verify data retained after replacement"
+            ],
+            "verification": [
+              "1. Confirm alarm clears after replacement",
+              "2. Power cycle and verify all data intact"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Replace battery with power ON to prevent data loss."
+        },
+        {
+          "alarm_code": "0814",
+          "alarm_name": "MCS DATA FILE ERROR",
+          "description": "Error occurred reading or transferring servo link data file, or data file contains abnormal data.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma OSP-E100M Alarm & Error List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note full error code displayed",
+              "2. Do not attempt repeated restarts"
+            ],
+            "diagnostic_steps": [
+              "1. Check inverter unit LED status",
+              "2. Verify FCP board status",
+              "3. Check MCS connection cables",
+              "4. Check for software issues"
+            ],
+            "resolution_steps": [
+              "1. Reseat MCS connection cables",
+              "2. Power cycle system",
+              "3. If persistent: may need software reload",
+              "4. Contact Okuma service for data file issues"
+            ],
+            "verification": [
+              "1. Verify clean startup",
+              "2. Test all axes for proper operation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "W00-W999",
+          "alarm_name": "WARNING MESSAGES",
+          "description": "Warning messages that do not stop NC operation but indicate conditions requiring attention.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Okuma OSP 5000 Electrical Maintenance Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note specific warning code",
+              "2. Operation can continue but investigate"
+            ],
+            "diagnostic_steps": [
+              "1. Refer to alarm list for specific code meaning",
+              "2. Check related systems/components",
+              "3. Monitor for escalation to alarm"
+            ],
+            "resolution_steps": [
+              "1. Address underlying condition",
+              "2. Warning clears when cause removed",
+              "3. Schedule maintenance if needed"
+            ],
+            "verification": [
+              "1. Verify warning clears",
+              "2. Monitor for recurrence"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ]
+    },
+    "MAZAK": {
+      "SYSTEM_DRIVE": [
+        {
+          "alarm_code": "001",
+          "alarm_name": "EMERGENCY STOP",
+          "description": "The emergency stop button on the operation panel has been pressed.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL FUSION 640M Alarm List H735SA0027E",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Identify which E-Stop was pressed",
+              "2. Ensure safe condition"
+            ],
+            "diagnostic_steps": [
+              "1. Check all E-Stop buttons",
+              "2. Check safety door interlocks",
+              "3. Verify no hazardous condition exists"
+            ],
+            "resolution_steps": [
+              "1. Release the pressed E-Stop button",
+              "2. Reset NC system to initial state"
+            ],
+            "verification": [
+              "1. Verify all safety circuits closed",
+              "2. Test machine operation"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "002",
+          "alarm_name": "EMERGENCY STOP (Hardware)",
+          "description": "Hardware emergency stop - turn power off and back on.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL FUSION 640M Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note conditions when alarm occurred",
+              "2. Check for obvious faults"
+            ],
+            "diagnostic_steps": [
+              "1. Verify E-Stop circuits",
+              "2. Check for hardware faults"
+            ],
+            "resolution_steps": [
+              "1. Turn power off",
+              "2. Wait 30 seconds",
+              "3. Turn power back on",
+              "4. If alarm persists: contact Mazak service"
+            ],
+            "verification": [
+              "1. Verify system starts normally",
+              "2. Test safety functions"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "003",
+          "alarm_name": "EMERGENCY STOP (System Software)",
+          "description": "Contents of system software and/or custom software have been destroyed.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL FUSION 640M Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Do not attempt repeated restarts",
+              "2. Contact Mazak service"
+            ],
+            "diagnostic_steps": [
+              "1. This is a critical system error",
+              "2. Software corruption detected"
+            ],
+            "resolution_steps": [
+              "1. Contact Yamazaki Mazak service station",
+              "2. System software reload may be required"
+            ],
+            "verification": [
+              "1. Full system test after software reload"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Do not operate machine until software verified by Mazak service."
+        },
+        {
+          "alarm_code": "006",
+          "alarm_name": "S-RAM ABNORMAL",
+          "description": "The S-RAM mounted on the CPU card has become abnormal.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL FUSION 640M Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note any recent events",
+              "2. Contact Mazak service"
+            ],
+            "diagnostic_steps": [
+              "1. This is a hardware fault",
+              "2. CPU card memory failure"
+            ],
+            "resolution_steps": [
+              "1. Contact Yamazaki Mazak service station",
+              "2. CPU card may need replacement"
+            ],
+            "verification": [
+              "1. Full diagnostic after repair"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "010",
+          "alarm_name": "ABSOLUTE POSITION LOST",
+          "description": "Absolute position detection system has lost absolute position data.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL FUSION 640M Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Do not attempt automatic operation",
+              "2. Note which axis lost position"
+            ],
+            "diagnostic_steps": [
+              "1. Check encoder batteries",
+              "2. Verify encoder connections",
+              "3. Check for recent power loss"
+            ],
+            "resolution_steps": [
+              "1. Replace encoder batteries if low",
+              "2. Re-establish machine zero position",
+              "3. Contact Mazak service if persistent"
+            ],
+            "verification": [
+              "1. Verify all axes at correct position",
+              "2. Test positioning accuracy"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Verify machine zero position before resuming operation."
+        }
+      ],
+      "NC_CONTROL": [
+        {
+          "alarm_code": "100",
+          "alarm_name": "MODE SELECTION ERROR",
+          "description": "Incorrect mode selection or mode selector switch malfunction.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL MATRIX Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check mode selector position",
+              "2. Verify correct mode for operation"
+            ],
+            "diagnostic_steps": [
+              "1. Check mode selector switch function",
+              "2. Verify switch connections"
+            ],
+            "resolution_steps": [
+              "1. Select correct mode",
+              "2. If switch malfunction: contact Mazak service"
+            ],
+            "verification": [
+              "1. Test mode selection function"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "101",
+          "alarm_name": "CUTTING FEED OVERRIDE 0%",
+          "description": "The cutting-feed override value is set to 0 on the machine operating panel.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL MATRIX Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check feedrate override dial/switch"
+            ],
+            "diagnostic_steps": [
+              "1. Verify override setting",
+              "2. If not 0: check signal line for short"
+            ],
+            "resolution_steps": [
+              "1. Change cutting-feed override to value greater than 0",
+              "2. If signal line short: repair wiring"
+            ],
+            "verification": [
+              "1. Verify feed operates at set override"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "103",
+          "alarm_name": "SPINDLE NOT ROTATING",
+          "description": "Spindle rotation did not start when spindle rotation command was issued.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL MATRIX Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check spindle amplifier status",
+              "2. Note any additional alarms"
+            ],
+            "diagnostic_steps": [
+              "1. Check spindle amplifier for normal operation",
+              "2. Check spindle encoder function",
+              "3. Verify spindle drive connections"
+            ],
+            "resolution_steps": [
+              "1. If amplifier fault: may need service",
+              "2. If encoder issue: check connections/replace",
+              "3. Contact Mazak Technical Center if unresolved"
+            ],
+            "verification": [
+              "1. Test spindle at low RPM first",
+              "2. Verify encoder feedback"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "104",
+          "alarm_name": "SPINDLE SPEED LIMIT EXCEEDED",
+          "description": "The spindle speed limit has been exceeded.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak MAZATROL MATRIX Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle operation",
+              "2. Check programmed speed"
+            ],
+            "diagnostic_steps": [
+              "1. Verify programmed spindle speed",
+              "2. Check spindle amplifier operation",
+              "3. Check encoder feedback"
+            ],
+            "resolution_steps": [
+              "1. Reduce spindle speed in program",
+              "2. If amplifier fault: contact Mazak service"
+            ],
+            "verification": [
+              "1. Verify speed stays within limits",
+              "2. Check speed feedback accuracy"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ],
+      "PLC": [
+        {
+          "alarm_code": "200",
+          "alarm_name": "LOW HYDRAULIC PRESSURE",
+          "description": "Hydraulic pressure is low, detected by compound oil controller unit.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak FH6000 PLC Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Check hydraulic tank level"
+            ],
+            "diagnostic_steps": [
+              "1. Check hydraulic fluid level",
+              "2. Check for leaks in system",
+              "3. Verify pump operation",
+              "4. Check pressure sensor"
+            ],
+            "resolution_steps": [
+              "1. Refill hydraulic fluid if low",
+              "2. Repair any leaks found",
+              "3. Check/replace pump if faulty",
+              "4. Check filter for blockage"
+            ],
+            "verification": [
+              "1. Verify pressure returns to normal",
+              "2. Test hydraulic functions"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "208",
+          "alarm_name": "LOW SLIDEWAY LUBRICATING OIL",
+          "description": "Slideway lubricating oil level is low, detected by sensor SL4.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak FH6000 PLC Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop axis movement if possible",
+              "2. Check way lube reservoir"
+            ],
+            "diagnostic_steps": [
+              "1. Check lubricant level in reservoir",
+              "2. Check for leaks in lube lines",
+              "3. Verify pump operation"
+            ],
+            "resolution_steps": [
+              "1. Refill lubricant reservoir with correct oil",
+              "2. Repair any leaks",
+              "3. Verify pump delivers lube"
+            ],
+            "verification": [
+              "1. Verify alarm clears",
+              "2. Check for proper lube distribution"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Do not operate without lubrication - can damage ways and ballscrews."
+        },
+        {
+          "alarm_code": "219",
+          "alarm_name": "MAIN TRANSFORMER OVERHEAT",
+          "description": "Main transformer temperature has exceeded 120°C, detected by sensor X10.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak FH6000 PLC Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation immediately",
+              "2. Allow transformer to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check transformer cooling",
+              "2. Verify cabinet ventilation",
+              "3. Check ambient temperature",
+              "4. Check for overload condition"
+            ],
+            "resolution_steps": [
+              "1. Allow cooling before restart",
+              "2. Clean ventilation/filters",
+              "3. Reduce machine duty cycle if needed",
+              "4. Check for short circuits causing overload"
+            ],
+            "verification": [
+              "1. Monitor temperature during operation",
+              "2. Verify adequate cooling"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Hot transformer can cause fire. Allow cooling before service."
+        },
+        {
+          "alarm_code": "226",
+          "alarm_name": "TOOL BREAKAGE DETECTED",
+          "description": "Tool breakage detected during tool breakage detection cycle.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mazak FH6000 PLC Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Do not resume until tool checked"
+            ],
+            "diagnostic_steps": [
+              "1. Inspect tool for breakage",
+              "2. Check workpiece for damage",
+              "3. Verify detection system function"
+            ],
+            "resolution_steps": [
+              "1. Replace broken tool",
+              "2. Update tool offset if needed",
+              "3. Check workpiece condition",
+              "4. Review cutting parameters"
+            ],
+            "verification": [
+              "1. Verify new tool installed correctly",
+              "2. Test cut with new tool"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ]
+    },
+    "HEIDENHAIN": {
+      "NC_ERRORS": [
+        {
+          "alarm_code": "ERROR_CLASS",
+          "alarm_name": "NC Error (ERROR Class)",
+          "description": "Program run is interrupted by the TNC (INTERNER STOP). Severe error requiring attention.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note the error number displayed",
+              "2. Select error message with cursor",
+              "3. Open HELP window for associated text"
+            ],
+            "diagnostic_steps": [
+              "1. Press ERR key to display error list",
+              "2. Review error class (ERROR causes program stop)",
+              "3. Check if error persists after CE key"
+            ],
+            "resolution_steps": [
+              "1. If error can be acknowledged: press CE key",
+              "2. If error persists after CE: correct underlying cause",
+              "3. If severe error (cannot confirm with CE): press END key",
+              "4. If END key fails: switch off power, wait several seconds, switch on again"
+            ],
+            "verification": [
+              "1. Verify error clears after correction",
+              "2. Test program operation"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "PLC_ERROR",
+          "alarm_name": "PLC Error Message",
+          "description": "PLC error detected. Logged in system with line number reference to PLC error text file.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note PLC error message and line number",
+              "2. Check machine status indicators"
+            ],
+            "diagnostic_steps": [
+              "1. Access PLC diagnosis functions",
+              "2. Check LOG function for error history",
+              "3. Reference PLC error text file for details"
+            ],
+            "resolution_steps": [
+              "1. Address cause indicated by PLC error",
+              "2. Contact machine manufacturer for PLC-specific issues",
+              "3. Reset control after correction"
+            ],
+            "verification": [
+              "1. Verify PLC error clears",
+              "2. Test affected machine function"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "POWER_FAIL",
+          "alarm_name": "Power Fail Interrupt",
+          "description": "Control was switched off by a POWERFAIL. File system test may be required.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check power supply status",
+              "2. Verify incoming power"
+            ],
+            "diagnostic_steps": [
+              "1. Control performs file system test after improper shutdown",
+              "2. Check LOG entries for power fail records",
+              "3. Verify UPS if installed"
+            ],
+            "resolution_steps": [
+              "1. Verify stable power supply",
+              "2. Restart control properly",
+              "3. Allow file system check to complete",
+              "4. If power issues frequent: check electrical installation"
+            ],
+            "verification": [
+              "1. Verify clean startup",
+              "2. Check file system integrity"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ],
+      "SYSTEM": [
+        {
+          "alarm_code": "CONTROL_READY_FAIL",
+          "alarm_name": "Control-is-Ready Failure",
+          "description": "Control-is-ready output check failed during power-on. If functional error detected, control switches output off.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note blinking error message",
+              "2. Check if PLC program stopped"
+            ],
+            "diagnostic_steps": [
+              "1. Check control-is-ready acknowledgment circuit",
+              "2. Verify acknowledgment occurs within 1 second",
+              "3. Check basic circuit diagram connections"
+            ],
+            "resolution_steps": [
+              "1. Correct the error indicated",
+              "2. Restart switch-on routine",
+              "3. Contact machine manufacturer if issue persists"
+            ],
+            "verification": [
+              "1. Verify control-is-ready output high",
+              "2. Verify acknowledgment signal proper"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Control-is-ready output must trigger emergency stop if failed."
+        },
+        {
+          "alarm_code": "SYSTEM_RESTART",
+          "alarm_name": "System Restart Required",
+          "description": "Control requires system restart. May be due to configuration change or severe error.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Save any unsaved data",
+              "2. Note conditions before restart"
+            ],
+            "diagnostic_steps": [
+              "1. Check what triggered restart requirement",
+              "2. Review recent configuration changes"
+            ],
+            "resolution_steps": [
+              "1. Press END key to initiate restart",
+              "2. If END key fails: switch off power switch",
+              "3. Wait several seconds before switching on again"
+            ],
+            "verification": [
+              "1. Verify clean system startup",
+              "2. Check all functions operational"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "ENCODER_ERROR",
+          "alarm_name": "Encoder Interface Error",
+          "description": "Position encoder communication or signal error detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note which axis affected",
+              "2. Stop any axis movement"
+            ],
+            "diagnostic_steps": [
+              "1. Check encoder cable connections",
+              "2. Verify encoder signal levels",
+              "3. Use integrated oscilloscope if available",
+              "4. Check encoder interface circuit"
+            ],
+            "resolution_steps": [
+              "1. Reseat encoder cable connections",
+              "2. Check for cable damage",
+              "3. Replace encoder if faulty",
+              "4. Contact HEIDENHAIN service for encoder-specific issues"
+            ],
+            "verification": [
+              "1. Verify encoder signals correct",
+              "2. Test axis positioning accuracy"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "TRAILING_ERROR",
+          "alarm_name": "Trailing Error / Following Error",
+          "description": "Position deviation between commanded and actual position exceeds tolerance.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note which axis affected",
+              "2. Check for mechanical obstruction"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding",
+              "2. Verify servo drive status",
+              "3. Check encoder feedback",
+              "4. Review feedrate and acceleration settings"
+            ],
+            "resolution_steps": [
+              "1. If mechanical: resolve binding/obstruction",
+              "2. If drive: check servo amplifier",
+              "3. If encoder: check connections/signal",
+              "4. May need to adjust servo parameters"
+            ],
+            "verification": [
+              "1. Test axis movement at low speed",
+              "2. Verify following error within tolerance"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ],
+      "DATA_MEDIA": [
+        {
+          "alarm_code": "FILE_SYSTEM_ERROR",
+          "alarm_name": "File System / Data Media Error",
+          "description": "Error detected in TNC file system or data media.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note specific error message",
+              "2. Do not delete files yet"
+            ],
+            "diagnostic_steps": [
+              "1. Run data medium test",
+              "2. Check file system integrity",
+              "3. Review LOG for related errors"
+            ],
+            "resolution_steps": [
+              "1. Use TNCremoNT to backup important files",
+              "2. Run file system repair if available",
+              "3. May need to restore files from backup",
+              "4. Contact HEIDENHAIN service if data unrecoverable"
+            ],
+            "verification": [
+              "1. Verify file system passes test",
+              "2. Verify programs load correctly"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "TNC_PARTITION_ERROR",
+          "alarm_name": "TNC Partition Error",
+          "description": "Error in TNC partition where NC programs and data are stored.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HEIDENHAIN iTNC 530 Service Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note error details",
+              "2. Check if programs accessible"
+            ],
+            "diagnostic_steps": [
+              "1. Check TNC:\\ partition access",
+              "2. Verify program manager settings",
+              "3. Check system time settings"
+            ],
+            "resolution_steps": [
+              "1. Restart control",
+              "2. If programs lost: restore from backup",
+              "3. Contact machine manufacturer for recovery assistance"
+            ],
+            "verification": [
+              "1. Verify partition accessible",
+              "2. Verify programs intact"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ]
+    },
+    "MITSUBISHI": {
+      "SERVO_DRIVE": [
+        {
+          "alarm_code": "IPM_OVERHEAT",
+          "alarm_name": "IPM Overheat Detection",
+          "description": "The IPM (Intelligent Power Module) overheat detection functioned.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS MDS Series Alarm Manual USA-E99351",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation immediately",
+              "2. Allow drive to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check motor temperature",
+              "2. Check overheat sensor",
+              "3. Verify drive cooling fan operation",
+              "4. Check ambient temperature"
+            ],
+            "resolution_steps": [
+              "1. Clean drive heat sink and air filters",
+              "2. Repair/replace cooling fan if faulty",
+              "3. Reduce duty cycle if overloading",
+              "4. Allow cooling before restart"
+            ],
+            "verification": [
+              "1. Monitor drive temperature during operation",
+              "2. Verify alarm does not recur"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "MOTOR_GROUND_FAULT",
+          "alarm_name": "Motor Ground Fault",
+          "description": "A ground fault occurred in the motor.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS MDS Series Alarm Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation immediately",
+              "2. Power off drive"
+            ],
+            "diagnostic_steps": [
+              "1. Check motor cable insulation",
+              "2. Measure motor insulation resistance",
+              "3. Check for coolant or contamination in motor/cables",
+              "4. Inspect motor terminals"
+            ],
+            "resolution_steps": [
+              "1. Repair or replace damaged cables",
+              "2. If motor insulation failed: replace motor",
+              "3. Clean and dry motor if contaminated",
+              "4. Contact MELDAS service for diagnosis"
+            ],
+            "verification": [
+              "1. Verify insulation resistance proper",
+              "2. Test at low load first"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Ground faults can cause electrical shock. Power off before inspection."
+        },
+        {
+          "alarm_code": "POWER_CUTOFF",
+          "alarm_name": "Power Cut Off",
+          "description": "The power was cut off for 50 msec or more.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS MDS Series Alarm Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check power supply status",
+              "2. Note when alarm occurred"
+            ],
+            "diagnostic_steps": [
+              "1. Verify incoming power stability",
+              "2. Check for voltage sags",
+              "3. Verify power supply connections",
+              "4. Check main breaker status"
+            ],
+            "resolution_steps": [
+              "1. If power unstable: check electrical installation",
+              "2. Verify proper grounding",
+              "3. May need UPS for sensitive loads",
+              "4. Restart after power stable"
+            ],
+            "verification": [
+              "1. Monitor for power fluctuations",
+              "2. Verify clean restart"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "REGEN_RESISTOR_OVERHEAT",
+          "alarm_name": "Regenerative Resistor Overheat",
+          "description": "Regeneration resistor overheated alarm generated on power supply unit (Alarm K).",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS 700 Series Alarm Parameter Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Reduce spindle/axis deceleration frequency",
+              "2. Allow resistor to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check regenerative resistor condition",
+              "2. Verify cooling for resistor",
+              "3. Check for excessive deceleration cycles",
+              "4. Review machine duty cycle"
+            ],
+            "resolution_steps": [
+              "1. Reduce spindle start/stop frequency",
+              "2. Increase deceleration times if possible",
+              "3. Check/improve resistor ventilation",
+              "4. May need larger regen capacity"
+            ],
+            "verification": [
+              "1. Monitor resistor temperature",
+              "2. Verify alarm does not recur"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "OVERVOLTAGE",
+          "alarm_name": "DC Bus Overvoltage",
+          "description": "Overvoltage alarm generated on power supply unit (Alarm L).",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS 700 Series Alarm Parameter Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Check input voltage"
+            ],
+            "diagnostic_steps": [
+              "1. Verify input voltage within specification",
+              "2. Check regenerative circuit operation",
+              "3. Verify deceleration settings",
+              "4. Check for excessive regeneration"
+            ],
+            "resolution_steps": [
+              "1. If input voltage high: check transformer taps",
+              "2. If regen issue: check regen resistor/circuit",
+              "3. Increase deceleration time to reduce regen",
+              "4. Contact MELDAS service if unresolved"
+            ],
+            "verification": [
+              "1. Monitor DC bus voltage",
+              "2. Test deceleration cycles"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "POWER_MODULE_OVERHEAT",
+          "alarm_name": "Power Module or PC Board Overheat",
+          "description": "Power module or PC board overheated alarm generated on power supply unit (Alarm n).",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS 700 Series Alarm Parameter Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation immediately",
+              "2. Allow unit to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check power supply cooling fan",
+              "2. Verify cabinet ventilation",
+              "3. Check air filters",
+              "4. Verify ambient temperature"
+            ],
+            "resolution_steps": [
+              "1. Clean or replace air filters",
+              "2. Repair/replace cooling fan if faulty",
+              "3. Improve cabinet ventilation",
+              "4. Reduce ambient temperature if possible"
+            ],
+            "verification": [
+              "1. Monitor temperatures during operation",
+              "2. Verify fans operating"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ],
+      "PROGRAM": [
+        {
+          "alarm_code": "1036",
+          "alarm_name": "Mirror Image Disable State",
+          "description": "External mirror image or parameter mirror image commanded during facing turret mirror image.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS 60/60S Alarm/Parameter Manual BNP-B2201",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Press RESET key",
+              "2. Review program"
+            ],
+            "diagnostic_steps": [
+              "1. Check mirror image commands in program",
+              "2. Verify parameter settings"
+            ],
+            "resolution_steps": [
+              "1. Correct program mirror image commands",
+              "2. Verify parameters compatible with operation"
+            ],
+            "verification": [
+              "1. Test program execution",
+              "2. Verify mirror image works correctly"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "1037",
+          "alarm_name": "Synchronous Control Error",
+          "description": "Synchronous control was started or canceled when it could not be started or canceled.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS 60/60S Alarm/Parameter Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Press RESET key",
+              "2. Review program"
+            ],
+            "diagnostic_steps": [
+              "1. Check synchronous control commands",
+              "2. Verify machine state before sync command"
+            ],
+            "resolution_steps": [
+              "1. Correct synchronous control sequence in program",
+              "2. Verify parameters match program requirements"
+            ],
+            "verification": [
+              "1. Test synchronous operation",
+              "2. Verify proper timing"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "1043",
+          "alarm_name": "No Spindle Speed Clamp",
+          "description": "Constant surface speed (G96) issued without spindle speed clamp (G92/G50) under multiple spindle control.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS 60/60S Alarm/Parameter Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Press RESET key",
+              "2. Review program"
+            ],
+            "diagnostic_steps": [
+              "1. Check for G92/G50 spindle clamp command",
+              "2. Verify spindle selection before clamp"
+            ],
+            "resolution_steps": [
+              "1. Add G92/G50 spindle clamp before G96",
+              "2. Select spindle before commanding clamp"
+            ],
+            "verification": [
+              "1. Test CSS operation",
+              "2. Verify speed clamping works"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ],
+      "SYSTEM": [
+        {
+          "alarm_code": "Z70",
+          "alarm_name": "System Alarm",
+          "description": "System-level alarm requiring attention. May indicate hardware or software issue.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Mitsubishi MELDAS Technical Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note complete alarm message",
+              "2. Check for additional alarm codes"
+            ],
+            "diagnostic_steps": [
+              "1. Enter ALARM/DGN PLC mode",
+              "2. Check system diagnostics",
+              "3. Review parameter settings"
+            ],
+            "resolution_steps": [
+              "1. Power cycle system",
+              "2. If alarm persists: may need parameter reload",
+              "3. Contact Mitsubishi service for Z-series alarms"
+            ],
+            "verification": [
+              "1. Verify system starts without alarm",
+              "2. Test basic operations"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "EEPROM_ERROR",
+          "alarm_name": "EEPROM Error (Alarm 7F)",
+          "description": "Error detected in EEPROM when high-gain mode and normal mode was selected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Mitsubishi MELDAS 700 Series Alarm Parameter Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Turn amplifier power ON again",
+              "2. Note if alarm persists"
+            ],
+            "diagnostic_steps": [
+              "1. Check mode selection",
+              "2. Verify if alarm recurs after power cycle"
+            ],
+            "resolution_steps": [
+              "1. Cycle amplifier power",
+              "2. If alarm persists: EEPROM error exists",
+              "3. Refer to MELDAS AC Servo Maintenance Manual",
+              "4. May require service center support"
+            ],
+            "verification": [
+              "1. Verify mode switches correctly",
+              "2. Monitor for recurring alarm"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ]
+    },
+    "DOOSAN": {
+      "SYSTEM": [
+        {
+          "alarm_code": "2001",
+          "alarm_name": "Emergency Stop / Overtravel Detected",
+          "description": "Emergency button pressed or overtravel of axes detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check if emergency stop button is pressed",
+              "2. Check for axis overtravel conditions"
+            ],
+            "diagnostic_steps": [
+              "1. Verify E-stop button status",
+              "2. Check limit switch activation",
+              "3. Verify axis positions"
+            ],
+            "resolution_steps": [
+              "1. Release emergency stop button",
+              "2. If overtravel: jog axis away from limit",
+              "3. Reset alarm after cause removed"
+            ],
+            "verification": [
+              "1. Verify E-stop released",
+              "2. Verify axes within travel limits"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2002",
+          "alarm_name": "Main Spindle Motor / Servo Unit Alarm",
+          "description": "Alarms of main spindle motor and servo unit detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note alarm display on servo unit",
+              "2. Stop operation"
+            ],
+            "diagnostic_steps": [
+              "1. Check alarm display on servo unit",
+              "2. Check spindle motor status",
+              "3. Verify drive connections"
+            ],
+            "resolution_steps": [
+              "1. Address specific servo/spindle alarm",
+              "2. Power off-on after correction",
+              "3. Retry operation"
+            ],
+            "verification": [
+              "1. Verify servo unit shows no alarm",
+              "2. Test spindle operation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "2003",
+          "alarm_name": "Control Power Overcurrent",
+          "description": "Abnormally large current flow detected in control power circuit.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Power off immediately",
+              "2. Do not attempt restart"
+            ],
+            "diagnostic_steps": [
+              "1. Check for short circuit in control power",
+              "2. Inspect wiring and connections",
+              "3. Check for damaged components"
+            ],
+            "resolution_steps": [
+              "1. Locate and repair short circuit",
+              "2. Replace damaged wiring/components",
+              "3. Contact service if unable to locate cause"
+            ],
+            "verification": [
+              "1. Verify no short circuits present",
+              "2. Power on and monitor current"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Overcurrent can cause fire. Power off before inspection."
+        },
+        {
+          "alarm_code": "2004",
+          "alarm_name": "Hydraulic Pump Motor Overload",
+          "description": "Hydraulic pump motor overload detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Allow motor to cool"
+            ],
+            "diagnostic_steps": [
+              "1. Check overload value on thermal relay",
+              "2. Check motor condition",
+              "3. Verify hydraulic system pressure"
+            ],
+            "resolution_steps": [
+              "1. Reset thermal relay after cooling",
+              "2. Check for hydraulic restrictions",
+              "3. Check motor for mechanical issues",
+              "4. Replace motor if faulty"
+            ],
+            "verification": [
+              "1. Monitor motor current during operation",
+              "2. Verify thermal relay does not trip"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2005",
+          "alarm_name": "Hydraulic Pressure Down",
+          "description": "Hydraulic pressure is down below required level.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation",
+              "2. Check hydraulic fluid level"
+            ],
+            "diagnostic_steps": [
+              "1. Check hydraulic pressure switch",
+              "2. Verify pressure gauge reading",
+              "3. Check for hydraulic leakage"
+            ],
+            "resolution_steps": [
+              "1. Add hydraulic fluid if low",
+              "2. Repair any leaks found",
+              "3. Check/replace pressure switch if faulty",
+              "4. Check hydraulic pump operation"
+            ],
+            "verification": [
+              "1. Verify pressure at specification",
+              "2. Monitor for pressure drop"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2007",
+          "alarm_name": "Spindle Rotation Abnormal",
+          "description": "Spindle rotation is abnormal - speed deviation or feedback error.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle",
+              "2. Note commanded vs actual speed"
+            ],
+            "diagnostic_steps": [
+              "1. Check spindle encoder",
+              "2. Verify spindle drive status",
+              "3. Check for mechanical binding"
+            ],
+            "resolution_steps": [
+              "1. Check encoder connections",
+              "2. Verify belt tension if applicable",
+              "3. Check spindle bearings",
+              "4. Replace encoder if faulty"
+            ],
+            "verification": [
+              "1. Test spindle at various speeds",
+              "2. Verify speed feedback accurate"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2010",
+          "alarm_name": "Inverter Fault Alarm",
+          "description": "Inverter fault detected on spindle or auxiliary drive.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note inverter fault code",
+              "2. Stop operation"
+            ],
+            "diagnostic_steps": [
+              "1. Check inverter display for specific fault",
+              "2. Verify input power to inverter",
+              "3. Check motor connections"
+            ],
+            "resolution_steps": [
+              "1. Address specific inverter fault",
+              "2. Check motor insulation if ground fault",
+              "3. Check cooling if overheat",
+              "4. Power cycle after correction"
+            ],
+            "verification": [
+              "1. Verify inverter fault clears",
+              "2. Test driven motor operation"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ]
+    },
+    "DOOSAN": {
+      "SYSTEM": [
+        {
+          "alarm_code": "2001",
+          "alarm_name": "Emergency Stop / Overtravel",
+          "description": "Emergency button pressed or overtravel of axes detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check if emergency stop button is pressed",
+              "2. Check axis positions for overtravel"
+            ],
+            "diagnostic_steps": [
+              "1. Release emergency stop button if pressed",
+              "2. Check limit switches for overtravel",
+              "3. Verify axis positions within limits"
+            ],
+            "resolution_steps": [
+              "1. Release emergency stop button",
+              "2. If overtravel: manually jog axis away from limit",
+              "3. Reset alarm after condition cleared"
+            ],
+            "verification": [
+              "1. Verify emergency stop released",
+              "2. Verify all axes within travel limits"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2002",
+          "alarm_name": "Main Spindle/Servo Unit Alarm",
+          "description": "Alarms of main spindle motor and servo unit detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check alarm display on servo unit",
+              "2. Note specific servo alarm code"
+            ],
+            "diagnostic_steps": [
+              "1. Check servo unit LED display for specific alarm",
+              "2. Reference FANUC alarm codes (most Doosan use FANUC)",
+              "3. Check drive connections"
+            ],
+            "resolution_steps": [
+              "1. Address specific servo alarm indicated",
+              "2. Power off and on after correction",
+              "3. Contact service if alarm persists"
+            ],
+            "verification": [
+              "1. Verify servo alarm clears",
+              "2. Test spindle/axis operation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "2003",
+          "alarm_name": "Control Power Overcurrent",
+          "description": "Abnormally large current flow detected in control power circuit.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Power off immediately",
+              "2. Check for smoke or burning smell"
+            ],
+            "diagnostic_steps": [
+              "1. Check control power circuit for short circuit",
+              "2. Inspect wiring for damage",
+              "3. Check power supply outputs"
+            ],
+            "resolution_steps": [
+              "1. Locate and repair short circuit",
+              "2. Replace damaged components",
+              "3. Verify power supply proper before restart"
+            ],
+            "verification": [
+              "1. Measure control power voltages",
+              "2. Verify no overcurrent on restart"
+            ]
+          },
+          "requires_power_cycle": true,
+          "safety_warning": "Power off before inspecting electrical circuits."
+        },
+        {
+          "alarm_code": "2004",
+          "alarm_name": "Hydraulic Pump Motor Overload",
+          "description": "Hydraulic pump motor overload detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop hydraulic pump operation",
+              "2. Check thermal relay status"
+            ],
+            "diagnostic_steps": [
+              "1. Check overload value on thermal relay",
+              "2. Inspect motor temperature",
+              "3. Check hydraulic fluid level and condition",
+              "4. Verify pump operation"
+            ],
+            "resolution_steps": [
+              "1. Allow motor to cool",
+              "2. Reset thermal relay",
+              "3. Check for hydraulic system restrictions",
+              "4. Verify pump and motor condition"
+            ],
+            "verification": [
+              "1. Monitor motor current during operation",
+              "2. Verify thermal relay does not trip"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2005",
+          "alarm_name": "Hydraulic Pressure Low",
+          "description": "Hydraulic pressure is down.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check hydraulic pressure gauge",
+              "2. Stop operations requiring hydraulic pressure"
+            ],
+            "diagnostic_steps": [
+              "1. Check hydraulic pressure switch",
+              "2. Verify pressure value",
+              "3. Check for hydraulic leakage",
+              "4. Inspect pump operation"
+            ],
+            "resolution_steps": [
+              "1. Repair any leaks found",
+              "2. Check and fill hydraulic fluid",
+              "3. Verify pump operation",
+              "4. Adjust pressure if needed"
+            ],
+            "verification": [
+              "1. Verify pressure at specification",
+              "2. Test hydraulic functions"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2007",
+          "alarm_name": "Spindle Rotation Abnormal",
+          "description": "Spindle rotation is abnormal - speed deviation or erratic operation.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle operation",
+              "2. Note commanded vs actual speed"
+            ],
+            "diagnostic_steps": [
+              "1. Check spindle encoder/feedback",
+              "2. Verify spindle drive status",
+              "3. Check for mechanical issues",
+              "4. Verify spindle belt if applicable"
+            ],
+            "resolution_steps": [
+              "1. If encoder issue: check connections, replace if faulty",
+              "2. If drive issue: check drive alarms",
+              "3. If mechanical: check bearings, belt tension"
+            ],
+            "verification": [
+              "1. Test spindle at various speeds",
+              "2. Verify speed matches commanded"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "2010",
+          "alarm_name": "Inverter Fault Alarm",
+          "description": "Inverter fault detected - check inverter status.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Doosan MX Series Alarm List",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note inverter fault code",
+              "2. Stop affected operation"
+            ],
+            "diagnostic_steps": [
+              "1. Check inverter display for specific fault",
+              "2. Check motor connections",
+              "3. Verify input power to inverter"
+            ],
+            "resolution_steps": [
+              "1. Address specific inverter fault",
+              "2. Reset inverter after correction",
+              "3. Power cycle if needed"
+            ],
+            "verification": [
+              "1. Verify inverter fault clears",
+              "2. Test operation controlled by inverter"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ]
+    },
+    "DMG_MORI": {
+      "MORI_EX_ALARMS": [
+        {
+          "alarm_code": "EX0099",
+          "alarm_name": "Panel Alarm",
+          "description": "Panel alarm - typically power supply related.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Mori Seiki Technical Documentation / Field Experience",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check if control panel powers up",
+              "2. Note any other alarms present"
+            ],
+            "diagnostic_steps": [
+              "1. Check 24VDC power supplies (typically 2 Izumi units)",
+              "2. Verify power supply outputs",
+              "3. Check for loose connections"
+            ],
+            "resolution_steps": [
+              "1. Replace faulty 24VDC power supply if found",
+              "2. Check all power connections",
+              "3. Power cycle after correction"
+            ],
+            "verification": [
+              "1. Verify all panel indicators light",
+              "2. Verify alarm clears after power cycle"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "EX0491",
+          "alarm_name": "Spindle Speed Abnormal",
+          "description": "Programmed spindle RPM differs from actual RPM by excessive margin.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Mori Seiki Technical Documentation / Practical Machinist",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle operation",
+              "2. Note programmed vs actual speed"
+            ],
+            "diagnostic_steps": [
+              "1. Check spindle encoder",
+              "2. Verify spindle drive status",
+              "3. Check for mechanical load issues",
+              "4. Review PMC parameters for allowable deviation"
+            ],
+            "resolution_steps": [
+              "1. If encoder faulty: replace encoder",
+              "2. If drive faulty: check/replace servo drive",
+              "3. If motor faulty: replace motor",
+              "4. Check PMC ladder for parameter adjustment"
+            ],
+            "verification": [
+              "1. Test spindle speed accuracy",
+              "2. Verify alarm does not recur"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "EX1061",
+          "alarm_name": "Motor Interruption Abnormal",
+          "description": "Motor interruption is abnormal - safety interlock or drive issue.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Mori Seiki Technical Documentation / IndustryArena",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check door interlock status",
+              "2. Note machine state when alarm occurred"
+            ],
+            "diagnostic_steps": [
+              "1. Check door lock switch operation",
+              "2. Verify safety relay module",
+              "3. Check spindle amplifier module (A06B-6088-H226)",
+              "4. Check servo amplifier (A06B-6082-H206)"
+            ],
+            "resolution_steps": [
+              "1. If door switch issue: replace switch",
+              "2. If safety relay issue: replace faulty relay",
+              "3. If amplifier issue: have module tested/repaired",
+              "4. Check power transistor modules"
+            ],
+            "verification": [
+              "1. Verify door interlock sequence works",
+              "2. Test machine operation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "7115",
+          "alarm_name": "Spindle Switch Control Alarm",
+          "description": "Spindle switch control alarm - power supply or relay issue.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Mori Seiki Technical Documentation / CNCzone",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check 24VDC power supplies",
+              "2. Note other alarms present"
+            ],
+            "diagnostic_steps": [
+              "1. Check Izumi 24VDC power supplies",
+              "2. Verify power supply outputs",
+              "3. Check relays in safety module"
+            ],
+            "resolution_steps": [
+              "1. Replace faulty 24VDC power supply",
+              "2. Replace faulty relays (KM1, KM101)",
+              "3. Check wiring connections"
+            ],
+            "verification": [
+              "1. Verify power supplies output correct voltage",
+              "2. Test spindle control"
+            ]
+          },
+          "requires_power_cycle": true
+        }
+      ],
+      "PROGRAM": [
+        {
+          "alarm_code": "P203",
+          "alarm_name": "D Command Figure Error",
+          "description": "Profile shape error in G71 or G72 cycle - Z-axis movement in wrong direction.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "DMG MORI Technical Support / FANUC Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop program execution",
+              "2. Review program geometry"
+            ],
+            "diagnostic_steps": [
+              "1. Check profile definition between P and Q blocks",
+              "2. Verify profile is monotonous (no reversals)",
+              "3. Check tool nose radius compensation"
+            ],
+            "resolution_steps": [
+              "1. Correct profile geometry to be monotonous",
+              "2. Ensure no Z+ moves during Z- roughing",
+              "3. Use I/K format for arcs to catch radius errors",
+              "4. Check parameter #8110 for pocketing setting"
+            ],
+            "verification": [
+              "1. Simulate toolpath before running",
+              "2. Test program execution"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "300APC",
+          "alarm_name": "Absolute Position Lost",
+          "description": "Absolute pulse coder position data lost - machine needs re-referencing.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "DMG MORI / FANUC Technical Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Do not attempt to run program",
+              "2. Note which axes affected"
+            ],
+            "diagnostic_steps": [
+              "1. Check encoder battery status",
+              "2. Verify encoder cables not disconnected",
+              "3. Check for power interruption"
+            ],
+            "resolution_steps": [
+              "1. Perform zero return (reference) for all affected axes",
+              "2. Follow machine builder's re-referencing procedure",
+              "3. If battery low: replace encoder battery"
+            ],
+            "verification": [
+              "1. Verify zero return completes successfully",
+              "2. Check axis positions are correct"
+            ]
+          },
+          "requires_power_cycle": false,
+          "note": "This alarm occurs when absolute encoder memory is lost. Re-referencing required."
+        },
+        {
+          "alarm_code": "PALLET_CHANGE",
+          "alarm_name": "Pallet Change Error",
+          "description": "Error during pallet change sequence.",
+          "verification_level": "FIELD_TESTED",
+          "source": "DMG MORI / Mori Seiki Service Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop pallet change operation",
+              "2. Note pallet position"
+            ],
+            "diagnostic_steps": [
+              "1. Check pallet position sensors",
+              "2. Verify clamping mechanism",
+              "3. Check hydraulic pressure",
+              "4. Inspect pallet locators"
+            ],
+            "resolution_steps": [
+              "1. Clear obstruction if present",
+              "2. Reset pallet changer",
+              "3. If sensor issue: clean or replace sensor",
+              "4. Check hydraulic system if clamping issue"
+            ],
+            "verification": [
+              "1. Test pallet change cycle manually",
+              "2. Verify pallet locks properly"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "COOLANT_LEVEL",
+          "alarm_name": "Coolant Level Low",
+          "description": "Coolant tank level below minimum threshold.",
+          "verification_level": "FIELD_TESTED",
+          "source": "DMG MORI Technical Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check coolant tank level",
+              "2. Note coolant condition"
+            ],
+            "diagnostic_steps": [
+              "1. Verify level sensor operation",
+              "2. Check for coolant leaks",
+              "3. Inspect coolant pump"
+            ],
+            "resolution_steps": [
+              "1. Refill coolant to proper level",
+              "2. Repair any leaks found",
+              "3. Replace level sensor if faulty"
+            ],
+            "verification": [
+              "1. Verify alarm clears after refill",
+              "2. Test coolant flow"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "HYDRAULIC_PRESS",
+          "alarm_name": "Hydraulic Pressure Low",
+          "description": "Hydraulic system pressure below required level.",
+          "verification_level": "FIELD_TESTED",
+          "source": "DMG MORI / Mori Seiki Service Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check hydraulic unit operation",
+              "2. Check fluid level"
+            ],
+            "diagnostic_steps": [
+              "1. Check hydraulic oil level",
+              "2. Verify hydraulic pump running",
+              "3. Check for leaks",
+              "4. Verify pressure gauge reading"
+            ],
+            "resolution_steps": [
+              "1. Add hydraulic oil if low",
+              "2. Repair leaks found",
+              "3. Check pump operation",
+              "4. Adjust relief valve if needed"
+            ],
+            "verification": [
+              "1. Verify pressure at specification",
+              "2. Test hydraulic functions"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ]
+    },
+    "HURCO": {
+      "SYSTEM": [
+        {
+          "alarm_code": "SYSTEM_ALARM_0",
+          "alarm_name": "System Alarm 0",
+          "description": "General system alarm indicating control system error.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HURCO WinMax Help Center",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note complete alarm message",
+              "2. Check machine status"
+            ],
+            "diagnostic_steps": [
+              "1. Access WinMax diagnostics",
+              "2. Collect NavErr record if needed",
+              "3. Check system logs"
+            ],
+            "resolution_steps": [
+              "1. Reset control system",
+              "2. If persistent: restart CNC",
+              "3. Contact HURCO Service at 800-638-1849 if unresolved"
+            ],
+            "verification": [
+              "1. Verify alarm clears",
+              "2. Test basic operations"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "CONVERTER_ERROR",
+          "alarm_name": "Converter System Error",
+          "description": "Converter system error detected - power conversion issue.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HURCO WinMax Help Center",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note error number (1 or 2)",
+              "2. Stop operation"
+            ],
+            "diagnostic_steps": [
+              "1. Check power supply status",
+              "2. Verify CNC and Field power supplies",
+              "3. Check terminal block connections"
+            ],
+            "resolution_steps": [
+              "1. Check power supply outputs",
+              "2. Verify connections to Slice I/O",
+              "3. Contact HURCO service for diagnosis"
+            ],
+            "verification": [
+              "1. Verify power supplies stable",
+              "2. Test system operation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "SERVO_OVERRUN",
+          "alarm_name": "Servo Overrun Detected",
+          "description": "Servo position overrun detected - axis exceeded commanded position.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HURCO WinMax Help Center",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop all axis motion",
+              "2. Note which axis affected"
+            ],
+            "diagnostic_steps": [
+              "1. Check for mechanical binding",
+              "2. Verify servo drive status",
+              "3. Check encoder feedback"
+            ],
+            "resolution_steps": [
+              "1. If mechanical: resolve binding/obstruction",
+              "2. If encoder: check connections, replace if faulty",
+              "3. Reset alarm after correction"
+            ],
+            "verification": [
+              "1. Test axis movement carefully",
+              "2. Verify position accuracy"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "ENCODER_PHASE_ERROR",
+          "alarm_name": "Pulse Encoder Phase Error",
+          "description": "Encoder phase A/C disconnection or pulse error detected.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HURCO WinMax Help Center",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop axis motion",
+              "2. Note which axis affected"
+            ],
+            "diagnostic_steps": [
+              "1. Check encoder cable connections",
+              "2. Verify encoder signals",
+              "3. Check for cable damage"
+            ],
+            "resolution_steps": [
+              "1. Reseat encoder connections",
+              "2. Replace damaged cables",
+              "3. Replace encoder if faulty"
+            ],
+            "verification": [
+              "1. Verify encoder signals proper",
+              "2. Test axis positioning"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ],
+      "ATC": [
+        {
+          "alarm_code": "TMC_ERROR",
+          "alarm_name": "Duplomatic TMC Turret Controller Error",
+          "description": "Error from Duplomatic TMC turret controller unit.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "HURCO WinMax Help Center",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note TMC error code number",
+              "2. Stop ATC operation"
+            ],
+            "diagnostic_steps": [
+              "1. Search alarm code in WinMax (Alarm Code dropdown)",
+              "2. Check turret position sensors",
+              "3. Verify hydraulic/pneumatic pressure if applicable"
+            ],
+            "resolution_steps": [
+              "1. Address specific TMC error",
+              "2. Check tool clamping mechanism",
+              "3. Reset turret controller"
+            ],
+            "verification": [
+              "1. Test tool change cycle",
+              "2. Verify turret indexing"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ]
+    },
+    "BROTHER": {
+      "SYSTEM": [
+        {
+          "alarm_code": "OVERCURRENT",
+          "alarm_name": "Overcurrent Alarm",
+          "description": "Overcurrent detected in drive system. Often power supply related.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Brother Speedio Technical Documentation / Practical Machinist",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop operation immediately",
+              "2. Check power supply status"
+            ],
+            "diagnostic_steps": [
+              "1. Check input power quality",
+              "2. Verify drive amplifier status",
+              "3. Check motor condition",
+              "4. Verify power phase balance (if using RPC)"
+            ],
+            "resolution_steps": [
+              "1. If using rotary phase converter: consider digital phase converter",
+              "2. Check drive amplifier - replace if faulty",
+              "3. Check motor encoder - replace if needed",
+              "4. Contact Brother service for diagnosis"
+            ],
+            "verification": [
+              "1. Monitor current during operation",
+              "2. Verify alarm does not recur"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "REGEN_RESISTANCE",
+          "alarm_name": "Regenerative Resistance Alarm",
+          "description": "Regenerative resistance alarm during spindle deceleration.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Brother Speedio Technical Documentation / Practical Machinist",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note spindle speed when alarm occurred",
+              "2. Stop spindle operation"
+            ],
+            "diagnostic_steps": [
+              "1. Check regenerative resistor",
+              "2. Verify amplifier status",
+              "3. Check spindle encoder"
+            ],
+            "resolution_steps": [
+              "1. Replace amplifier if faulty",
+              "2. If power unbalance: improve input power",
+              "3. Consider Phase Perfect digital converter"
+            ],
+            "verification": [
+              "1. Test spindle start/stop at various speeds",
+              "2. Verify alarm does not recur"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "SM4007",
+          "alarm_name": "Address Range Exceeded",
+          "description": "Specified data exceeds address range or N-number limit exceeded.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Brother Speedio Control Documentation / Practical Machinist",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note program location when alarm occurred",
+              "2. Check N-number in program"
+            ],
+            "diagnostic_steps": [
+              "1. Check if N-number exceeded 1000000",
+              "2. Check incremental positioning commands",
+              "3. Review program data values"
+            ],
+            "resolution_steps": [
+              "1. If N-number issue: reduce increment or disable N-numbers",
+              "2. If positioning issue: check 800 degree rotary limit",
+              "3. Modify program as needed"
+            ],
+            "verification": [
+              "1. Test program execution",
+              "2. Verify no address overflow"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "Z_OVERTRAVEL",
+          "alarm_name": "Z-Axis Overtravel",
+          "description": "Z-axis overtravel - often occurs when spindle is UP after loading new tool.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Brother Speedio Control Documentation / Practical Machinist",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check spindle position (UP/DOWN)",
+              "2. Check Z-axis position"
+            ],
+            "diagnostic_steps": [
+              "1. In MANU MODE, check if spindle needs to be lowered",
+              "2. Verify tool is properly seated",
+              "3. Check ATC sequence"
+            ],
+            "resolution_steps": [
+              "1. Use ATC button to lower spindle before Cycle Start",
+              "2. Verify tool in spindle is correct",
+              "3. Reset alarm and retry"
+            ],
+            "verification": [
+              "1. Verify spindle DOWN before starting",
+              "2. Test program execution"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "SERVO_204",
+          "alarm_name": "B-Axis Servo Alarm 204",
+          "description": "B-axis (rotary) servo alarm - often encoder mismatch or amplifier issue.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Brother Technical Documentation / Practical Machinist",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check servo amplifier LED display",
+              "2. Note specific error code (A.C.C. etc.)"
+            ],
+            "diagnostic_steps": [
+              "1. Check dip switches on amplifier",
+              "2. Verify rotary switch settings",
+              "3. Check encoder cable connections",
+              "4. Verify B-axis parameters correct"
+            ],
+            "resolution_steps": [
+              "1. Reset encoder if mismatch",
+              "2. If A.C.C. error persists: may need amplifier replacement",
+              "3. Verify dip/rotary switch settings per documentation",
+              "4. Contact Yamazen service for assistance"
+            ],
+            "verification": [
+              "1. Verify amplifier LED shows no error",
+              "2. Test B-axis rotation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "TOOL_CHANGE",
+          "alarm_name": "Tool Change Error",
+          "description": "Error during tool change - tool not properly seated or key misaligned.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Brother Speedio Technical Documentation / Practical Machinist",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop tool change operation",
+              "2. Check tool position"
+            ],
+            "diagnostic_steps": [
+              "1. Verify tool key alignment with magazine holder",
+              "2. Check if tool properly seated in spindle",
+              "3. Look under tool to see drive slot alignment"
+            ],
+            "resolution_steps": [
+              "1. Reinstall tool with proper key alignment",
+              "2. Ensure tool clicks into position",
+              "3. Verify tool seated before resuming"
+            ],
+            "verification": [
+              "1. Test tool change cycle manually",
+              "2. Verify tool clamps properly"
+            ]
+          },
+          "requires_power_cycle": false,
+          "safety_warning": "Improper tool installation can cause tool ejection. Verify seating before running."
+        },
+        {
+          "alarm_code": "SPINDLE_ORIENTATION",
+          "alarm_name": "Spindle Orientation Error",
+          "description": "Spindle failed to orient properly for tool change or C-axis operation.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Brother Speedio Technical Documentation",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Stop spindle",
+              "2. Note spindle position"
+            ],
+            "diagnostic_steps": [
+              "1. Check spindle encoder",
+              "2. Verify orientation sensor",
+              "3. Check for mechanical interference"
+            ],
+            "resolution_steps": [
+              "1. Clean spindle encoder if contaminated",
+              "2. Check orientation sensor alignment",
+              "3. Reset spindle and retry orientation"
+            ],
+            "verification": [
+              "1. Test spindle orientation command",
+              "2. Verify tool change completes"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "TAPPING_SYNC",
+          "alarm_name": "Tapping Synchronization Error",
+          "description": "Tapping cycle synchronization error - speed/feed mismatch.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Brother Speedio Technical Documentation / Practical Machinist",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note tapping parameters",
+              "2. Check tool condition"
+            ],
+            "diagnostic_steps": [
+              "1. Verify tap pitch matches programmed F",
+              "2. Check spindle encoder",
+              "3. Verify Z-axis following error"
+            ],
+            "resolution_steps": [
+              "1. Correct feed/pitch relationship (F = S x pitch)",
+              "2. Check tap for damage",
+              "3. Verify encoder signal quality"
+            ],
+            "verification": [
+              "1. Test tap cycle in air first",
+              "2. Verify thread quality"
+            ]
+          },
+          "requires_power_cycle": false,
+          "note": "Tapping cycles on Speedio are very fast - verify tool/depth setup carefully."
+        }
+      ]
+    },
+    "FAGOR": {
+      "PROGRAM": [
+        {
+          "alarm_code": "1039",
+          "alarm_name": "No F Programmed",
+          "description": "No feedrate (F) has been programmed for interpolated move.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Fagor CNC 8055 Error Solution Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check program for missing F command",
+              "2. Review block where error occurred"
+            ],
+            "diagnostic_steps": [
+              "1. Verify F command before interpolated moves",
+              "2. Check modal F value"
+            ],
+            "resolution_steps": [
+              "1. Add F command before linear/circular interpolation",
+              "2. Verify F value is reasonable for operation"
+            ],
+            "verification": [
+              "1. Test program execution",
+              "2. Verify feedrate proper"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "1055",
+          "alarm_name": "Nesting Exceeded",
+          "description": "Subroutine nesting level exceeded maximum allowed.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Fagor CNC 8055 Error Solution Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Review program structure",
+              "2. Check subroutine calls"
+            ],
+            "diagnostic_steps": [
+              "1. Count subroutine nesting levels",
+              "2. Check for recursive calls"
+            ],
+            "resolution_steps": [
+              "1. Reduce subroutine nesting depth",
+              "2. Restructure program if needed"
+            ],
+            "verification": [
+              "1. Test program execution",
+              "2. Verify subroutines work correctly"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "1072",
+          "alarm_name": "Tool Radius Compensation Error",
+          "description": "Tool radius compensation not properly activated or cancelled.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Fagor CNC 8055 Error Solution Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Review cutter compensation commands",
+              "2. Check G41/G42/G40 sequence"
+            ],
+            "diagnostic_steps": [
+              "1. Verify compensation activated before cutting",
+              "2. Check compensation cancelled before tool change"
+            ],
+            "resolution_steps": [
+              "1. Add proper G41/G42 before cutting moves",
+              "2. Add G40 before tool changes or program end"
+            ],
+            "verification": [
+              "1. Test program execution",
+              "2. Verify compensation works correctly"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ],
+      "SYSTEM": [
+        {
+          "alarm_code": "2000",
+          "alarm_name": "External Emergency Active",
+          "description": "External emergency stop is active - PLC message error.",
+          "verification_level": "FIELD_TESTED",
+          "source": "Fagor CNC 8055 Technical Documentation / IndustryArena",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Check emergency stop buttons",
+              "2. Check for PLC error messages (49, 50)"
+            ],
+            "diagnostic_steps": [
+              "1. Check all emergency stop circuits",
+              "2. Verify overtravel switches",
+              "3. Check wiring to X9 connector pin 37 (+24V)"
+            ],
+            "resolution_steps": [
+              "1. Release emergency stop if pressed",
+              "2. Repair broken wiring if found",
+              "3. Replace faulty switches",
+              "4. Verify +24V to pin 37 of X9"
+            ],
+            "verification": [
+              "1. Verify emergency circuit complete",
+              "2. Test all E-stop buttons and limits"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "1202",
+          "alarm_name": "Axis Overtravel Error",
+          "description": "Axis has exceeded travel limits.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Fagor CNC 8055 Error Solution Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note which axis is in overtravel",
+              "2. Check limit switch status"
+            ],
+            "diagnostic_steps": [
+              "1. Verify axis position",
+              "2. Check overtravel limit switches",
+              "3. Check for mechanical issues"
+            ],
+            "resolution_steps": [
+              "1. Jog axis away from limit in opposite direction",
+              "2. Check/replace limit switch if faulty",
+              "3. Re-reference axis after clearing"
+            ],
+            "verification": [
+              "1. Verify axis within travel limits",
+              "2. Test limit switches"
+            ]
+          },
+          "requires_power_cycle": false
+        },
+        {
+          "alarm_code": "SERVO_ERROR",
+          "alarm_name": "Servo Error",
+          "description": "Servo drive error detected - check drive status.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Fagor CNC 8055 Error Solution Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note servo error code",
+              "2. Check servo drive display"
+            ],
+            "diagnostic_steps": [
+              "1. Check servo drive LED/display for specific fault",
+              "2. Verify motor connections",
+              "3. Check encoder feedback"
+            ],
+            "resolution_steps": [
+              "1. Address specific servo fault code",
+              "2. Check encoder and motor cables",
+              "3. Reset servo drive after correction"
+            ],
+            "verification": [
+              "1. Verify servo alarm clears",
+              "2. Test axis operation"
+            ]
+          },
+          "requires_power_cycle": true
+        },
+        {
+          "alarm_code": "PLC_ERROR",
+          "alarm_name": "PLC Error",
+          "description": "PLC error detected - check PLC message.",
+          "verification_level": "MANUFACTURER_VERIFIED",
+          "source": "Fagor CNC 8055 Error Solution Manual",
+          "fix_procedure": {
+            "immediate_actions": [
+              "1. Note PLC error message number",
+              "2. Check machine status"
+            ],
+            "diagnostic_steps": [
+              "1. Check PLC I/O status",
+              "2. Verify sensor/switch status",
+              "3. Check PLC program logic"
+            ],
+            "resolution_steps": [
+              "1. Address condition causing PLC error",
+              "2. Check sensors and actuators",
+              "3. Contact machine builder for PLC-specific issues"
+            ],
+            "verification": [
+              "1. Verify PLC error clears",
+              "2. Test affected function"
+            ]
+          },
+          "requires_power_cycle": false
+        }
+      ]
+    }
+  }
+}

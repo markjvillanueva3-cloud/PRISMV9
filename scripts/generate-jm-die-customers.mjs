@@ -28,6 +28,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -134,7 +135,7 @@ function generate() {
   const top = ranked.slice(0, TOP_CUSTOMER_CAP);
   const tail = ranked.slice(TOP_CUSTOMER_CAP);
 
-  const graph = fs.existsSync(GRAPH) ? JSON.parse(fs.readFileSync(GRAPH, "utf8")) : { nodes: [] };
+  const graph = fs.existsSync(GRAPH) ? (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8"))) : { nodes: [] };
   const existingIds = new Set(graph.nodes.map(n => n.id));
 
   const newNodes = [];

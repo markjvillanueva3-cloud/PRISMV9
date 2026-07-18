@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-cite` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-cite.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-cite.md` |
 | Model | default |
 | Tags | _(none)_ |
 

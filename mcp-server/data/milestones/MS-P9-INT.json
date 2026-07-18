@@ -1,0 +1,138 @@
+{
+  "id": "MS-P9-INT",
+  "title": "WEDM End-to-End Integration Tests",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P9",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "Real backend, real DXF, real LoRA retrain — all in CI. No mocks.",
+  "total_units": 1,
+  "completed_units": 0,
+  "sessions": 1,
+  "dependencies": [
+    "MS-P9-WIRE",
+    "MS-P9-XAI"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.005,
+  "knowledge_sources": {
+    "engines": [
+      "all P1-P9 engines"
+    ],
+    "reference": [
+      "mcp-server/src/__tests__ existing integration patterns"
+    ]
+  },
+  "smart_config": {
+    "role": "IntegrationTestEngineer",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/test",
+    "/scope"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP"
+  ],
+  "units": [
+    {
+      "id": "U-P9-INT-01",
+      "title": "20+ integration tests + CI workflow",
+      "files_created": [
+        "mcp-server/src/__tests__/wedm-e2e-integration.test.ts",
+        ".github/workflows/wedm-e2e.yml"
+      ],
+      "abort_conditions": [
+        "any test uses toBeGreaterThan(0), bare .includes(), or mocks backend",
+        "E2E latency > 90s",
+        "CI flake rate > 5%"
+      ],
+      "rollback": "git checkout mcp-server/src/__tests__/wedm-e2e-integration.test.ts .github/workflows/wedm-e2e.yml",
+      "exit_criteria": [
+        "≥ 20 assertions",
+        "real DXF round-trip succeeds",
+        "job logged + LoRA retrained + weights diff verified",
+        "CI passes 3 consecutive runs",
+        "banned-pattern-block reports 0 violations"
+      ],
+      "description": "20+ integration tests + CI workflow — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-e2e-ci-gate",
+      "built_in": "U-P9-INT-01"
+    },
+    "action": {
+      "name": "prism_edm:wedm_e2e_report",
+      "built_in": "U-P9-INT-01"
+    },
+    "skill": {
+      "name": "/wedm-e2e",
+      "built_in": "U-P9-INT-01"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "20+ E2E tests pass 3 consecutive CI runs",
+      "0 banned patterns"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+0.5%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-e2e-ci-gate"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_e2e_report"
+    ],
+    "new_skills": [
+      "/wedm-e2e"
+    ],
+    "available_to": [
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM End-to-End Integration Tests per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

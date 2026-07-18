@@ -368,7 +368,7 @@ function buildMaterialPosture(
   if (!material) {
     return {
       tone: 'neutral' as const,
-      detail: 'No material context is active yet, so PRISM is leaning on machine, tooling, and crib posture.',
+      detail: 'No material context is active yet, so Kienzle is leaning on machine, tooling, and crib posture.',
       evidence: [] as string[],
     };
   }
@@ -386,9 +386,9 @@ function buildMaterialPosture(
     .join(' · ');
   const coolantNote = material.idealCoolant
     ? coolantChanged
-      ? `PRISM is shifting coolant from ${currentCoolantId} toward ${recommendedCoolantLabel} because ${material.name} leans toward ${material.idealCoolant}.`
+      ? `Kienzle is shifting coolant from ${currentCoolantId} toward ${recommendedCoolantLabel} because ${material.name} leans toward ${material.idealCoolant}.`
       : `${material.name} already lines up with the current ${recommendedCoolantLabel} coolant posture.`
-    : `${material.name} does not carry a strong coolant preference, so PRISM is weighting machine and toolpath posture more heavily.`;
+    : `${material.name} does not carry a strong coolant preference, so Kienzle is weighting machine and toolpath posture more heavily.`;
 
   return {
     tone,
@@ -772,7 +772,7 @@ function buildPurchaseRecommendations(
       return {
         id: `calculator-prism-${tier.id}`,
         title,
-        category: 'Calculator PRISM mode',
+        category: 'Calculator Kienzle mode',
         detail:
           focus === 'holder-package'
             ? `${tier.label} for ${input.machine?.model ?? 'the active machine'} centered on ${holderLabel}, ${toolLabel}, ${materialContextLabel}, and a ${recommendedSetup.setupSource.replace(/-/g, ' ')} setup posture.`
@@ -784,7 +784,7 @@ function buildPurchaseRecommendations(
         roiStrength: `${roiStrength} · ${Math.round(annualSavings / 100) * 100} est. annual savings`,
         estimatedPrice: tier.priceLabel,
         payback: paybackLabel,
-        whyNow: `Ranked with ${confidenceLabel}, ${inventorySignals.label.toLowerCase()}, the saved machine-profile posture, and the ${regionLabel} sourcing lane so PRISM does not recommend unsupported combinations.`,
+        whyNow: `Ranked with ${confidenceLabel}, ${inventorySignals.label.toLowerCase()}, the saved machine-profile posture, and the ${regionLabel} sourcing lane so Kienzle does not recommend unsupported combinations.`,
         distributors,
         rankingScore,
       };
@@ -793,7 +793,7 @@ function buildPurchaseRecommendations(
 
   return rankedRecommendations.map(({ rankingScore: _rankingScore, ...recommendation }, index) => ({
     ...recommendation,
-    category: `Calculator PRISM mode · Rank #${index + 1}`,
+    category: `Calculator Kienzle mode · Rank #${index + 1}`,
   }));
 }
 
@@ -901,12 +901,12 @@ export function buildPurchaseRecommendationsFromToolRoi(
       const title = buildToolRecommendationTitle(tierId);
       const whyNowPrefix = roiResult.crib_recommendation
         ? `The live crib already has ${roiResult.crib_recommendation.tool.name}, so this ranking compares buy-now tiers against an on-hand baseline.`
-        : 'No strong crib baseline is available, so PRISM is ranking tiered buy paths directly from the ROI engine.';
+        : 'No strong crib baseline is available, so Kienzle is ranking tiered buy paths directly from the ROI engine.';
 
       return {
         id: `calculator-prism-live-${tierId}`,
         title,
-        category: 'Calculator PRISM mode',
+        category: 'Calculator Kienzle mode',
         detail:
           tierId === 'budget'
             ? `${title} built around ${recommendation.tool.name} for ${input.machine?.model ?? 'the active machine'} when spend discipline matters more than peak cycle time on ${materialContextLabel}.`
@@ -926,7 +926,7 @@ export function buildPurchaseRecommendationsFromToolRoi(
   return {
     recommendations: rankedRecommendations.map(({ rankingScore: _rankingScore, ...recommendation }, index) => ({
       ...recommendation,
-      category: `Calculator PRISM mode - Rank #${index + 1}`,
+      category: `Calculator Kienzle mode - Rank #${index + 1}`,
     })),
     sourceLabel: roiResult.crib_recommendation
       ? `ROI engine live - ${regionLabel} crib and catalog`
@@ -1040,8 +1040,8 @@ export function buildCalculatorPrismModePlan(input: CalculatorPrismModeInput): C
     recommendedSetupSource === 'shop-crib'
       ? `Run from the crib-first posture and keep the setup close to what the floor already owns${selectionContextLabel ? ` for ${selectionContextLabel}` : ''}.`
       : recommendedSetupSource === 'recommended'
-        ? `Use the saved machine truth as the baseline, then let PRISM tighten the active setup around it${selectionContextLabel ? ` for ${selectionContextLabel}` : ''}.`
-        : `Treat this as a new-package job and let PRISM rank the fastest legal way to fill the gaps${selectionContextLabel ? ` for ${selectionContextLabel}` : ''}.`;
+        ? `Use the saved machine truth as the baseline, then let Kienzle tighten the active setup around it${selectionContextLabel ? ` for ${selectionContextLabel}` : ''}.`
+        : `Treat this as a new-package job and let Kienzle rank the fastest legal way to fill the gaps${selectionContextLabel ? ` for ${selectionContextLabel}` : ''}.`;
   const evidence = uniqueIds([
     ...inventorySignals.evidence,
     ...materialPosture.evidence,
@@ -1097,7 +1097,7 @@ export function buildCalculatorPrismModePlan(input: CalculatorPrismModeInput): C
   );
 
   return {
-    summary: `PRISM mode sees ${inventorySignals.label.toLowerCase()} and ${confidenceLabel.toLowerCase()} for ${input.machine?.manufacturer ?? 'the active machine'} ${input.machine?.model ?? ''}${selectionContextLabel ? ` · ${selectionContextLabel}` : ''}`.trim(),
+    summary: `Kienzle mode sees ${inventorySignals.label.toLowerCase()} and ${confidenceLabel.toLowerCase()} for ${input.machine?.manufacturer ?? 'the active machine'} ${input.machine?.model ?? ''}${selectionContextLabel ? ` · ${selectionContextLabel}` : ''}`.trim(),
     detail: dominantRecommendation,
     confidenceScore,
     confidenceLabel,

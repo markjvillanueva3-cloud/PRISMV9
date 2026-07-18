@@ -35,9 +35,8 @@ import { z } from "zod";
 import { captureSFC } from "../middleware/sfcOutcomeWire.js";
 import {
   CANONICAL_MATERIAL_DB,
-  CANONICAL_KIENZLE,
-  CANONICAL_TAYLOR,
   AISI_ALIAS,
+  buildMaterialPhysics,
   type ISOGroup,
   type MaterialPhysics,
 } from "../physics/constants.js";
@@ -77,6 +76,7 @@ export const LatheSpeedFeedInputSchema = z.object({
       "parting",
       "drilling",
       "boring",
+      "facing",
     ]),
     depth_of_cut_mm: z.number().positive().optional(),
     width_of_cut_mm: z.number().positive().optional(),
@@ -220,35 +220,28 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
       }
     }
 
-    // Try partial match on name
-    for (const [key, props] of Object.entries(CANONICAL_MATERIAL_DB)) {
-      if (props.name.toLowerCase().includes(lowerMat)) {
-        return { props, key, resolved_via: `name_contains:${props.name}` };
+    // Try partial match on name -- but ONLY for a meaningful query. A blank or
+    // 1-2 char string makes props.name.toLowerCase().includes(lowerMat) match the
+    // FIRST DB entry ("" is a substring of every name; "st"/"a" hit many), which
+    // silently resolved an UNSPECIFIED material to AISI 304 at full confidence.
+    // Require >=3 non-whitespace chars so a blank/truncated material falls through
+    // to the fail-loud not-found path (returns null -> success:false) instead.
+    const trimmedMat = lowerMat.trim();
+    if (trimmedMat.length >= 3) {
+      for (const [key, props] of Object.entries(CANONICAL_MATERIAL_DB)) {
+        if (props.name.toLowerCase().includes(trimmedMat)) {
+          return { props, key, resolved_via: `name_contains:${props.name}` };
+        }
       }
     }
 
-    // Fall back to ISO group if provided
+    // Fall back to ISO group if provided — buildMaterialPhysics fills every
+    // cutting-physics field from the canonical per-ISO tables (Kienzle,
+    // Taylor, turning speeds, machinability, modulus), so the generic
+    // material is complete and runtime-safe (no undefined/NaN).
     if (isoOverride) {
-      const kienzle = CANONICAL_KIENZLE[isoOverride];
-      const taylor = CANONICAL_TAYLOR[isoOverride];
       return {
-        props: {
-          name: `Generic ISO ${isoOverride}`,
-          iso_group: isoOverride,
-          kc1_1: kienzle.kc1_1,
-          mc: kienzle.mc,
-          taylor_C: taylor.C,
-          taylor_n: taylor.n,
-          k_thermal: 30,
-          sigma_y_MPa: 400,
-          density_kg_m3: 7850,
-          hardness_HB: 200,
-          vc_base_roughing: 150,
-          vc_base_finishing: 220,
-          machinability_factor: 1.0,
-          cp_J_kgK: 480,
-          E_GPa: 200,
-        },
+        props: buildMaterialPhysics({ name: `Generic ISO ${isoOverride}` }, isoOverride),
         key: `iso_${isoOverride}`,
         resolved_via: `iso_group_fallback:${isoOverride}`,
       };
@@ -288,6 +281,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
       parting: 0.60,          // Parting: ~60% of roughing Vc
       drilling: 0.68,         // Drilling: ~68% of roughing Vc
       boring: 0.90,           // Boring: close to turning
+      facing: 1.0,            // Facing: general OD-turning surface speed (radial face cut)
     };
     const opFactor = opFactors[operation.type] ?? 1.0;
 
@@ -349,6 +343,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
       parting: 0.08,        // Sandvik: 0.05-0.12 → midpoint ~0.08
       drilling: 0.20,       // Sandvik: 0.1-0.3 → midpoint ~0.20
       boring: 0.15,         // Similar to semi-finishing
+      facing: 0.20,         // Facing: moderate radial feed (Sandvik facing 0.1-0.3 → ~0.20)
     };
 
     let feed = baseFeeds[operation.type] ?? 0.15;
@@ -426,6 +421,7 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
       parting: 3.0, // Full width
       drilling: 0, // Not applicable
       boring: 1.5,
+      facing: 1.5, // Facing: moderate axial engagement per face pass
     };
 
     let doc = operation.depth_of_cut_mm ?? baseDepths[operation.type] ?? 1.0;
@@ -466,33 +462,52 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
     };
   }
 
+  /** Practical spindle-speed bounds, used ONLY as defaults when the machine does not
+   * supply its own limit. 6000 is a typical CNC-lathe main-spindle ceiling; it must
+   * never override a faster machine.max_rpm (Swiss / high-speed spindles run 10-15k).
+   * MIN avoids a stalled / meaningless sub-50-rpm recommendation. */
+  private static readonly DEFAULT_SPINDLE_MAX_RPM = 6000;
+  private static readonly MIN_PRACTICAL_RPM = 50;
+
   /**
    * Calculate RPM from cutting speed and workpiece diameter.
    * n = (1000 × Vc) / (π × D)
+   *
+   * Honors machine.max_rpm UPWARD -- the 6000 default applies only when no machine
+   * limit is given, so it never dead-caps a faster spindle. When the target Vc demands
+   * more rpm than the spindle can deliver, the ACHIEVABLE surface speed is back-computed
+   * from the capped rpm so Vc and rpm stay mutually consistent; otherwise
+   * cutting_speed_m_min / MRR / cycle-time over-predict by the spindle-shortfall ratio
+   * (up to ~10x on a Swiss machine reporting Vc for an unreachable rpm).
    */
   private static calculateRPM(
     vc: number,
     diameter_mm?: number,
     maxRPM?: number
-  ): { rpm: number; reasoning: ReasoningStep } {
+  ): { rpm: number; achievable_vc_m_min: number; saturated: boolean; reasoning: ReasoningStep } {
     const d = diameter_mm ?? 50; // Default 50mm
-    let rpm = (1000 * vc) / (Math.PI * d);
+    const requestedRpm = (1000 * vc) / (Math.PI * d);
 
-    // Clamp to machine max
-    if (maxRPM && rpm > maxRPM) {
-      rpm = maxRPM;
-    }
+    // Ceiling = the machine's real spindle limit if known, else the practical default.
+    const ceiling = maxRPM ?? this.DEFAULT_SPINDLE_MAX_RPM;
+    const rpm = Math.round(Math.max(this.MIN_PRACTICAL_RPM, Math.min(ceiling, requestedRpm)));
 
-    // Practical limits
-    rpm = Math.max(50, Math.min(6000, rpm));
+    // Spindle-limited iff the ceiling (not the min floor, not rounding) bound the target.
+    // Then the real cutting speed is what the capped rpm actually delivers.
+    const saturated = requestedRpm > ceiling;
+    const achievable_vc_m_min = saturated
+      ? Math.round(((Math.PI * d * rpm) / 1000) * 10) / 10
+      : vc;
 
     return {
-      rpm: Math.round(rpm),
+      rpm,
+      achievable_vc_m_min,
+      saturated,
       reasoning: {
         step: "Spindle RPM calculation",
-        inputs: { vc_m_min: vc, diameter_mm: d, max_rpm: maxRPM ?? "unlimited" },
-        outputs: { rpm: Math.round(rpm) },
-        method: "n = (1000 × Vc) / (π × D)",
+        inputs: { vc_m_min: vc, diameter_mm: d, max_rpm: maxRPM ?? `default ${this.DEFAULT_SPINDLE_MAX_RPM}` },
+        outputs: { rpm, achievable_vc_m_min, saturated },
+        method: "n = (1000 × Vc) / (π × D); Vc back-computed from capped rpm when spindle-limited",
       },
     };
   }
@@ -510,13 +525,19 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
 
     // Taylor: T = (C/Vc)^(1/n)
     const life = Math.pow(C / vc, 1 / n);
+    // Preserve sub-minute predictions: a plain Math.round() collapses a real life like
+    // 0.33 min (20 s) to 0, which reads as "instant tool failure" -- a physically
+    // impossible, misleading output. Keep 3 significant figures below 1 minute and round
+    // to whole minutes at or above 1 minute. (Lathe-wizard combinatorial-sweep finding,
+    // 2026-07-02: high-Vc stainless finishing produced predicted_tool_life_min=0.)
+    const life_min = life >= 1 ? Math.round(life) : Number(life.toPrecision(3));
 
     return {
-      life_min: Math.round(life),
+      life_min,
       reasoning: {
         step: "Tool life estimation (Taylor)",
         inputs: { vc_m_min: vc, taylor_C: C, taylor_n: n },
-        outputs: { tool_life_min: Math.round(life) },
+        outputs: { tool_life_min: life_min },
         method: "T = (C / Vc)^(1/n) — ISO 3685 Taylor equation",
       },
     };
@@ -696,28 +717,39 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
       recommendation: { depth_of_cut_mm: docResult.doc },
     });
 
-    // Calculate RPM
+    // Calculate RPM (honors machine.max_rpm upward; back-computes achievable Vc if spindle-limited)
     const rpmResult = this.calculateRPM(vcResult.vc, workpiece?.diameter_mm, machine?.max_rpm);
     reasoning.push(rpmResult.reasoning);
 
+    // Use the spindle-ACHIEVABLE cutting speed for the recommendation and every Vc-derived
+    // downstream (tool life, power) so Vc / rpm / MRR / cycle-time stay mutually consistent.
+    // When the target Vc is reachable, effectiveVc === vcResult.vc (no behaviour change).
+    const effectiveVc = rpmResult.achievable_vc_m_min;
+    if (rpmResult.saturated) {
+      warnings.push(
+        `Target cutting speed ${Math.round(vcResult.vc)} m/min is spindle-unreachable on this machine; ` +
+        `capped at ${rpmResult.rpm} rpm -> achievable Vc ${effectiveVc} m/min. Downstream MRR / cycle-time reflect the achievable speed.`
+      );
+    }
+
     // Build recommendation
     const recommendation: SpeedFeedRecommendation = {
-      cutting_speed_m_min: vcResult.vc,
+      cutting_speed_m_min: effectiveVc,
       rpm: rpmResult.rpm,
       feed_mm_rev: feedResult.feed,
       depth_of_cut_mm: docResult.doc,
     };
 
-    // Estimate tool life
-    const lifeResult = this.estimateToolLife(vcResult.vc, resolved.props);
+    // Estimate tool life (at the achievable cutting speed)
+    const lifeResult = this.estimateToolLife(effectiveVc, resolved.props);
     reasoning.push(lifeResult.reasoning);
 
     // Estimate cutting force
     const forceResult = this.estimateCuttingForce(feedResult.feed, docResult.doc, resolved.props);
     reasoning.push(forceResult.reasoning);
 
-    // Estimate power
-    const powerResult = this.estimatePower(forceResult.force_N, vcResult.vc);
+    // Estimate power (at the achievable cutting speed, consistent with the capped rpm)
+    const powerResult = this.estimatePower(forceResult.force_N, effectiveVc);
     reasoning.push(powerResult.reasoning);
 
     // Check power limit

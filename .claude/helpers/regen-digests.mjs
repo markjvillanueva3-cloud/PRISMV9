@@ -12,6 +12,7 @@
  */
 import { promises as fs } from "node:fs";
 import { join, basename, relative } from "node:path";
+import { writeAtomic } from "./atomic-write.mjs";
 
 const PRISM_ROOT = "H:/prism";
 const MCP_ROOT = join(PRISM_ROOT, "mcp-server");
@@ -183,7 +184,7 @@ async function generateEngineDigest() {
   }
 
   const content = lines.join("\n") + "\n";
-  await fs.writeFile(join(DOCS_OUT, "ENGINE_DIGEST.md"), content, "utf8");
+  await writeAtomic(join(DOCS_OUT, "ENGINE_DIGEST.md"), content, { fsync: false });
   info(`ENGINE_DIGEST: ${unique.length} engines`);
   return { count: unique.length, entries: unique };
 }
@@ -368,7 +369,7 @@ async function generateDispatcherDigest() {
   lines.push(`**Total actions across all dispatchers: ${totalActions}**`);
 
   const content = lines.join("\n") + "\n";
-  await fs.writeFile(join(DOCS_OUT, "DISPATCHER_DIGEST.md"), content, "utf8");
+  await writeAtomic(join(DOCS_OUT, "DISPATCHER_DIGEST.md"), content, { fsync: false });
   info(`DISPATCHER_DIGEST: ${entries.length} dispatchers, ${totalActions} actions`);
   return { count: entries.length, actionCount: totalActions };
 }
@@ -434,7 +435,7 @@ async function generateDirectoryDigest() {
     "| Action schemas | `src/schemas/` | — |",
     "| API routes | `src/routes/` | — |",
     "| Type definitions | `src/types/` | — |",
-    "| Milestones | `data/milestones/` | M001-M110 |",
+    "| Milestones | `data/milestones/` | -- |",
     "| Documentation | `data/docs/` | DOC01-DOC36 |",
     "| Hooks | `src/hooks/` | H01-H21 |",
     "| Registries | `src/registries/` | RG01-RG22 |",
@@ -488,7 +489,7 @@ async function generateDirectoryDigest() {
   }
 
   const content = lines.join("\n") + "\n";
-  await fs.writeFile(join(DOCS_OUT, "DIRECTORY_DIGEST.md"), content, "utf8");
+  await writeAtomic(join(DOCS_OUT, "DIRECTORY_DIGEST.md"), content, { fsync: false });
   info(`DIRECTORY_DIGEST: ${totalDirs} dirs, ${totalFiles} files`);
   return { dirCount: totalDirs, fileCount: totalFiles };
 }
@@ -568,10 +569,10 @@ async function generateMasterIndex(engineCount, dispatcherCount, actionCount) {
   ];
 
   const content = lines.join("\n") + "\n";
-  await fs.writeFile(join(COMPACT_OUT, "MASTER_INDEX_COMPACT.md"), content, "utf8");
+  await writeAtomic(join(COMPACT_OUT, "MASTER_INDEX_COMPACT.md"), content, { fsync: false });
 
   // Also write a copy to data/docs for discoverability
-  await fs.writeFile(join(DOCS_OUT, "MASTER_INDEX_COMPACT.md"), content, "utf8").catch(() => {});
+  await writeAtomic(join(DOCS_OUT, "MASTER_INDEX_COMPACT.md"), content, { fsync: false }).catch(() => {});
 
   info(`MASTER_INDEX: ${engineCount} engines, ${dispatcherCount} dispatchers, ${actionCount} actions, ${testFiles} tests`);
   return { testFiles, algoFiles, registryFiles, hookFiles };

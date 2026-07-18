@@ -137,11 +137,118 @@ export interface AttendanceRecord {
   shift_end: string;
 }
 
+/** One immutable timecard-change audit record (append-only; never mutated after write). */
+export interface TimecardAuditEntry {
+  id: string;
+  timestamp: string; // ISO datetime of the change
+  employee_id: string;
+  entity_type: "shift" | "job";
+  entity_id: string;
+  action: "clock_in" | "clock_out" | "break_added" | "job_start" | "job_pause" | "job_resume" | "job_stop";
+  from_status?: string;
+  to_status?: string;
+  job_id?: string;
+  detail?: string;
+}
+
 class TimeClockEngine {
   private shifts: Map<string, ShiftEntry> = new Map();
   private jobTimes: Map<string, JobTimeEntry> = new Map();
+  private auditLog: Map<string, TimecardAuditEntry> = new Map();
   private nextShiftId = 1;
   private nextJobTimeId = 1;
+  private nextAuditId = 1;
+  private nextAuditIdSeeded = false;
+
+  /**
+   * Seed nextAuditId from the largest loaded TA-NNNNNN suffix once (after registerMap reloads persisted
+   * rows on startup) so a restart cannot re-mint an existing id and silently clobber a persisted audit
+   * record (soul: no silent clobber). O(n) once, then O(1). Mirrors A3ReportEngine.seedNextId().
+   */
+  private seedAuditId(): void {
+    if (this.nextAuditIdSeeded) return;
+    let max = 0;
+    for (const id of this.auditLog.keys()) {
+      const m = id.match(/^TA-(\d+)$/);
+      if (m) max = Math.max(max, Number(m[1]));
+    }
+    this.nextAuditId = max + 1;
+    this.nextAuditIdSeeded = true;
+  }
+
+  /**
+   * Append an immutable audit record for a timecard change. Called from every status-transition
+   * write path (clock in/out, break, job start/pause/resume/stop) so timecardAuditLog() has a real
+   * trail to read -- the trail is the source, never reconstructed/fabricated from current state.
+   */
+  private recordAudit(e: {
+    employee_id: string;
+    entity_type: "shift" | "job";
+    entity_id: string;
+    action: TimecardAuditEntry["action"];
+    from_status?: string;
+    to_status?: string;
+    job_id?: string;
+    detail?: string;
+    timestamp?: string;
+  }): void {
+    this.seedAuditId();
+    const entry: TimecardAuditEntry = {
+      id: `TA-${String(this.nextAuditId++).padStart(6, "0")}`,
+      timestamp: e.timestamp ?? new Date().toISOString(),
+      employee_id: e.employee_id,
+      entity_type: e.entity_type,
+      entity_id: e.entity_id,
+      action: e.action,
+      from_status: e.from_status,
+      to_status: e.to_status,
+      job_id: e.job_id,
+      detail: e.detail,
+    };
+    this.auditLog.set(entry.id, entry);
+    persistenceBridge.persist("timecard_audit", entry.id, entry as any);
+  }
+
+  /**
+   * Read the timecard-change audit trail for the ERP "timecard-audit-log" dashboard. Returns the
+   * recorded status transitions (newest first), optionally filtered. data_available:false when the
+   * trail is empty. The trail is populated by the write paths -- nothing is inferred from current state.
+   *
+   * @param opts.employee_id / job_id / entity_type / action  exact-match filters
+   * @param opts.since  ISO datetime lower bound (inclusive)
+   * @param opts.limit  max rows returned (default 100, capped 1000)
+   */
+  timecardAuditLog(opts: {
+    employee_id?: string;
+    job_id?: string;
+    entity_type?: "shift" | "job";
+    action?: string;
+    since?: string;
+    limit?: number;
+  } = {}): {
+    data_available: boolean;
+    generated_at: string;
+    total: number;
+    returned: number;
+    entries: TimecardAuditEntry[];
+  } {
+    const limit = Math.min(1000, Number(opts.limit) > 0 ? Math.floor(Number(opts.limit)) : 100);
+    let rows = [...this.auditLog.values()];
+    if (opts.employee_id) rows = rows.filter((r) => r.employee_id === opts.employee_id);
+    if (opts.job_id) rows = rows.filter((r) => r.job_id === opts.job_id);
+    if (opts.entity_type) rows = rows.filter((r) => r.entity_type === opts.entity_type);
+    if (opts.action) rows = rows.filter((r) => r.action === opts.action);
+    if (opts.since) rows = rows.filter((r) => r.timestamp >= opts.since!);
+    rows.sort((a, b) => (a.timestamp < b.timestamp ? 1 : a.timestamp > b.timestamp ? -1 : 0)); // newest first
+    const total = rows.length;
+    return {
+      data_available: total > 0,
+      generated_at: new Date().toISOString(),
+      total,
+      returned: Math.min(total, limit),
+      entries: rows.slice(0, limit),
+    };
+  }
 
   // ─── Shift Clock In/Out ─────────────────────────────────
 
@@ -165,6 +272,7 @@ class TimeClockEngine {
     };
     this.shifts.set(id, entry);
     persistenceBridge.persist("time_entries", id, entry as any);
+    this.recordAudit({ employee_id: entry.employee_id, entity_type: "shift", entity_id: id, action: "clock_in", to_status: "active", timestamp: entry.clock_in });
     return entry;
   }
 
@@ -213,6 +321,7 @@ class TimeClockEngine {
     if (handoffNotes) active.handoff_notes = sanitizeText(handoffNotes);
 
     persistenceBridge.persist("time_entries", active.id, active as any);
+    this.recordAudit({ employee_id: active.employee_id, entity_type: "shift", entity_id: active.id, action: "clock_out", from_status: "active", to_status: "completed", timestamp: now });
     return active;
   }
 
@@ -230,6 +339,7 @@ class TimeClockEngine {
     if (!active) throw new Error(`Employee ${employeeId} is not clocked in`);
     active.break_minutes += minutes;
     persistenceBridge.persist("time_entries", active.id, active as any);
+    this.recordAudit({ employee_id: active.employee_id, entity_type: "shift", entity_id: active.id, action: "break_added", detail: `+${minutes}min` });
     return active;
   }
 
@@ -273,6 +383,7 @@ class TimeClockEngine {
     };
     this.jobTimes.set(id, entry);
     persistenceBridge.persist("job_time_entries", id, entry as any);
+    this.recordAudit({ employee_id: entry.employee_id, entity_type: "job", entity_id: id, job_id: entry.job_id, action: "job_start", to_status: "active", timestamp: entry.start_time });
     return entry;
   }
 
@@ -288,6 +399,7 @@ class TimeClockEngine {
     });
     entry.status = "paused";
     persistenceBridge.persist("job_time_entries", entry.id, entry as any);
+    this.recordAudit({ employee_id: entry.employee_id, entity_type: "job", entity_id: entry.id, job_id: entry.job_id, action: "job_pause", from_status: "active", to_status: "paused", detail: input.reason_category, timestamp: entry.pause_periods[entry.pause_periods.length - 1]?.start });
     return entry;
   }
 
@@ -302,6 +414,7 @@ class TimeClockEngine {
     }
     entry.status = "active";
     persistenceBridge.persist("job_time_entries", entry.id, entry as any);
+    this.recordAudit({ employee_id: entry.employee_id, entity_type: "job", entity_id: entry.id, job_id: entry.job_id, action: "job_resume", from_status: "paused", to_status: "active", timestamp });
     return entry;
   }
 
@@ -350,6 +463,7 @@ class TimeClockEngine {
     if (input.improvement_note) entry.improvement_note = sanitizeText(input.improvement_note);
 
     persistenceBridge.persist("job_time_entries", entry.id, entry as any);
+    this.recordAudit({ employee_id: entry.employee_id, entity_type: "job", entity_id: entry.id, job_id: entry.job_id, action: "job_stop", to_status: "completed", timestamp: now });
     return entry;
   }
 
@@ -649,5 +763,10 @@ persistenceBridge.registerMap({
 persistenceBridge.registerMap({
   entity: "job_time_entries",
   getMap: () => (timeClockEngine as any).jobTimes as Map<string, any>,
+  keyField: "id",
+});
+persistenceBridge.registerMap({
+  entity: "timecard_audit",
+  getMap: () => (timeClockEngine as any).auditLog as Map<string, any>,
   keyField: "id",
 });

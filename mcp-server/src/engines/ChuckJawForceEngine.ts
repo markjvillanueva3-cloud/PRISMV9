@@ -143,7 +143,15 @@ export class ChuckJawForceEngine {
       contactPressure > 50 || (wallThickness > 0 && wallThickness < 2) ? "high"
       : contactPressure > 20 ? "low" : "none";
 
-    const isSafe = sf >= SAFETY_FACTOR_MIN && input.spindle_rpm <= maxSafeRpm;
+    // requiredWithSafety ALREADY bakes in the 2.5x ISO 10218 factor (requiredGrip * SAFETY_FACTOR_MIN above),
+    // and sf = effectiveGrip/requiredGrip = SAFETY_FACTOR_MIN - jawCentrifugal/requiredGrip. Testing
+    // sf >= SAFETY_FACTOR_MIN here DOUBLE-COUNTED the factor (demanded 6.25x base grip) → is_safe was
+    // structurally false for every rotating job (jawCentrifugal>0 ⇒ sf<2.5 always). The correct check is
+    // that the safety-factored grip SURVIVES centrifugal loss with the base requirement still covered:
+    // effectiveGrip >= requiredGrip ⟺ sf >= 1.0. The 2.5x margin remains fully enforced at requiredWithSafety;
+    // this only removes the duplicate (physics-review confirmed: correctness fix, NOT a threshold softening).
+    // maxSafeRpm (solved at the sf=1.0 boundary) is now consistent with this conjunct.
+    const isSafe = sf >= 1.0 && input.spindle_rpm <= maxSafeRpm;
 
     // Recommendations
     const recs: string[] = [];

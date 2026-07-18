@@ -216,7 +216,7 @@ describe('CustomersPage', () => {
 
     const quoteUrl = new URL(
       screen.getByRole('link', { name: 'Open Quote Builder' }).getAttribute('href') ?? '',
-      'https://prism.local',
+      'https://kienzle.local',
     );
     expect(quoteUrl.pathname).toBe('/quote-builder');
     expect(quoteUrl.searchParams.get('source')).toBe('customers');
@@ -228,7 +228,7 @@ describe('CustomersPage', () => {
 
     const portalUrl = new URL(
       screen.getByRole('link', { name: 'Open Customer Portal' }).getAttribute('href') ?? '',
-      'https://prism.local',
+      'https://kienzle.local',
     );
     expect(portalUrl.pathname).toBe('/customer-portal');
     expect(portalUrl.searchParams.get('source')).toBe('customers');
@@ -238,7 +238,7 @@ describe('CustomersPage', () => {
 
     const followUpUrl = new URL(
       screen.getByRole('link', { name: 'Open Quote Follow-Up' }).getAttribute('href') ?? '',
-      'https://prism.local',
+      'https://kienzle.local',
     );
     expect(followUpUrl.pathname).toBe('/quote-follow-up');
     expect(followUpUrl.searchParams.get('source')).toBe('customers');
@@ -248,7 +248,7 @@ describe('CustomersPage', () => {
 
     const messagesUrl = new URL(
       screen.getByRole('link', { name: 'Open Messages follow-up' }).getAttribute('href') ?? '',
-      'https://prism.local',
+      'https://kienzle.local',
     );
     expect(messagesUrl.pathname).toBe('/messages');
     expect(messagesUrl.searchParams.get('source')).toBe('customers');

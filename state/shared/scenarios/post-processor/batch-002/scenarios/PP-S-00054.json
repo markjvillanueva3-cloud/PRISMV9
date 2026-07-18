@@ -1,0 +1,82 @@
+{
+  "id": "PP-S-00054",
+  "schemaVersion": "2.0.0",
+  "controller": {
+    "id": "siemens-840dsl",
+    "vendor": "Siemens",
+    "family": "840D sl",
+    "dialect": "siemens",
+    "market_share": 0.25
+  },
+  "machine": {
+    "name": "Haas Minimill",
+    "make": "Haas",
+    "model": "Minimill",
+    "type": "Mill"
+  },
+  "spindle": {
+    "taper_id": "CAT40",
+    "taper_type": "CAT",
+    "taper_size": 40,
+    "max_rpm": 15000,
+    "min_rpm": 0,
+    "power_hp": 7.5,
+    "drive_type": "direct-drive",
+    "hp_class": "medium"
+  },
+  "operation": "threading",
+  "cycle": "tap-rigid",
+  "axis_count": 3,
+  "material": {
+    "id": "S-Inconel-718",
+    "group": "S",
+    "name": "nickel superalloy"
+  },
+  "geometry": {
+    "depth_mm": 138.1,
+    "diameter_mm": 22.58,
+    "pitch_mm": 0.51,
+    "rapid_z_mm": 217.3
+  },
+  "optional_features": [
+    "sub_spindle"
+  ],
+  "rejected_features": [
+    "cas",
+    "ssv",
+    "mist",
+    "probing_renishaw"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 20,
+    "lines_max": 200,
+    "must_contain": [],
+    "must_not_contain": []
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "feature_gate_applied": "featureValidForController",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor AND all_features_controller_supported",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold",
+      "feature-not-supported-by-controller"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:18:53.794Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06",
+    "schema": "v2.0.0",
+    "forced_controller": true,
+    "forced_reason": "original_machine_make_Haas_pool_did_not_yield_siemens_after_3_retries"
+  }
+}

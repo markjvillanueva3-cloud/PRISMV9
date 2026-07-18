@@ -1,0 +1,2037 @@
+[
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-CRD01",
+  "title": "MultiCADSessionEngine — coordinates simultaneous sessions across multiple CADs with shared intent state",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadaistatemachineengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/dispatcher-session.md",
+    "knowledge/wiki/architecture/engines/cad/cadtenantnamespaceengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "shared-state coordination via lock-guarded read-modify-write",
+    "session registry / actor model",
+    "concurrent map keyed by sessionId"
+   ],
+   "buildNote": "Concurrent CAD sessions must share intent state through a lock-guarded store — never two writers racing the same session record."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-CRD02",
+  "title": "CrossCADIntentFusionEngine — fuses intents from heterogeneous sources (sketch, voice, drawing parse, prior session)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadfeaturerecognitionengine.md",
+    "knowledge/wiki/architecture/engines/fusion/sensorfusionengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadfeatureembeddingengine.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "multi-source evidence fusion / weighted voting",
+    "embedding-space similarity for intent matching",
+    "Dempster-Shafer or confidence-weighted aggregation"
+   ],
+   "buildNote": "Fuse heterogeneous intent sources by confidence-weighted aggregation — surface disagreement, never silently average conflicting intents."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-CRD03",
+  "title": "CrossCADConsistencyValidatorEngine — validates identical semantic output across 2+ CADs within tolerance",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadvisualdiffengine.md",
+    "knowledge/wiki/architecture/engines/cad/groundtruthvalidationengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadphysicsconsistencygateengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadregression.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "semantic equivalence checking under tolerance",
+    "geometric hash comparison",
+    "epsilon-tolerance float comparison"
+   ],
+   "buildNote": "Validate semantic equivalence with explicit numeric tolerance — assert identical output across CADs against real reference values, not stubs."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CCCO07",
+  "title": "U-CCCO07 — CAD-COMPLETE-MS0 unit 7",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/engines/cad/cadfeaturerecognitionengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "CAD generation pipeline staging",
+    "feature-tree synthesis"
+   ],
+   "buildNote": "Read the CAD-COMPLETE-MS0 milestone envelope for the real unit-7 spec before building — title is a placeholder."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CCCO08",
+  "title": "U-CCCO08 — CAD-COMPLETE-MS0 unit 8",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/engines/cad/cadfeaturerecognitionengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "CAD generation pipeline staging",
+    "feature-tree synthesis"
+   ],
+   "buildNote": "Read the CAD-COMPLETE-MS0 milestone envelope for the real unit-8 spec before building — title is a placeholder."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-FS-04",
+  "title": "CADRevisionPromotionWorkflowEngine — draft→review→released state machine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadrevisionpromotionworkflowengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadrevisiondetectorengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadbundlesigningversioningengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadaistatemachineengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "atomic-write-idempotency-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "finite-state machine with guarded transitions",
+    "state-transition table",
+    "draft→review→released forward-only lifecycle"
+   ],
+   "buildNote": "Model draft→review→released as an FSM with explicit guarded transitions — illegal transitions must fail loud, never silently no-op."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-FS-12",
+  "title": "CADAccessControlRBACABACEngine — RBAC+ABAC+session-record",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadaccesscontrolrbacabacengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadtenantnamespaceengine.md",
+    "knowledge/wiki/architecture/dispatcher-auth.md",
+    "knowledge/wiki/architecture/dispatcher-security.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "RBAC role-permission matrix",
+    "ABAC attribute-policy evaluation",
+    "default-deny authorization decision"
+   ],
+   "buildNote": "Authorization defaults to deny — every RBAC/ABAC decision path needs a real test asserting both grant and deny, with the session record written atomically."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CAD-APP-03",
+  "title": "CreoIntegrationTestSuite — headless fixtures",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "headless integration test fixture / harness",
+    "COM automation mocking",
+    "deterministic fixture setup-teardown"
+   ],
+   "buildNote": "Headless Creo fixtures must run without GUI — verify each fixture exercises the real automation API, not a stub that returns hardcoded geometry."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CAD-APP-06",
+  "title": "CATIAIntegrationTestSuite — headless CAA fixtures",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "headless CAA fixture harness",
+    "COM/CAA automation mocking",
+    "suite-lifetime fixture setup-teardown"
+   ],
+   "buildNote": "CATIA CAA headless fixtures must be suite-lifetime (not per-test) so backup/restore is symmetric — asymmetric per-test teardown is a footgun on real files."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CAD-APP-13",
+  "title": "CADCrashRecoveryEngine — per-app watchdog + re-attach + replay",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadcrashrecoveryengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/hooks/runtime/agent-watchdog.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "atomic-write-idempotency-patterns",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "watchdog process supervision",
+    "checkpoint-and-replay recovery",
+    "idempotent re-attach handshake"
+   ],
+   "buildNote": "Crash recovery must be idempotent — re-attach + replay can't double-apply commands; checkpoint the command log atomically before each replay."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CAD-APP-16",
+  "title": "CADPluginTamperAuditLogEngine — hash-chained command log",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadplugintamperauditlogengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadpluginmtlssecurityengine.md",
+    "knowledge/wiki/architecture/dispatcher-security.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "hash-chained / Merkle append-only log",
+    "SHA-256 cryptographic linking",
+    "tamper-evident audit trail"
+   ],
+   "buildNote": "Each log entry hashes the prior entry's hash — any gap or mismatch in the chain must fail loud as tamper detection, never be silently skipped."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CAD-APP-19",
+  "title": "MastercamHeadlessIntegrationTestSuite — filling cap-11 gap for #1 app",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mastercam/mastercamheadlessintegrationtestengine.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "headless integration test harness",
+    "Mastercam NET-Hook / API fixtures",
+    "deterministic golden-output comparison"
+   ],
+   "buildNote": "Headless Mastercam suite must drive the real NET-Hook API — a test that passes against a fake harness does not prove production wiring."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-ML-11",
+  "title": "ContinualLearningBufferEngine — EWC++ + replay buffer",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/ml/prioritizedreplaybufferengine.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-ml.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "Elastic Weight Consolidation (EWC) Fisher-information penalty",
+    "experience replay buffer with prioritized sampling",
+    "catastrophic-forgetting mitigation"
+   ],
+   "buildNote": "EWC++ needs the Fisher information matrix computed over prior tasks — test against a real continual-learning sequence that would forget without the penalty."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-AI-11",
+  "title": "SecondOpinionConsensusEngine — 2+ models + disagreement surfacing",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/ai/consensusneuralfeedbackengine.md",
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/codex-review-arm.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "prompt-engineering-rails"
+   ],
+   "csKnowledge": [
+    "multi-model consensus / quorum voting",
+    "disagreement detection (Jaccard / divergence)",
+    "ensemble inference"
+   ],
+   "buildNote": "Consensus must surface disagreement explicitly — when 2+ models diverge, return the conflict, do not pick silently or average."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-INT-07",
+  "title": "CADUnitPreferenceEngine — per-user/customer metric/imperial/mixed",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/engines/cad/cadtenantnamespaceengine.md",
+    "knowledge/wiki/architecture/dispatcher-context.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "unit-system conversion (metric/imperial) with exact factors",
+    "per-user preference resolution / fallback chain",
+    "dimensional analysis"
+   ],
+   "buildNote": "Unit conversion factors must be exact (25.4 mm/in) — never lossy-round; resolve per-user/customer/mixed via a deterministic preference fallback chain."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-INT-08",
+  "title": "CADAccessibilityUIAuditEngine — WCAG 2.2 AA + screen-reader + keyboard-only",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/frontends/",
+    "knowledge/wiki/architecture/dispatcher-validation.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "WCAG 2.2 AA conformance checks",
+    "ARIA role / accessible-name computation",
+    "keyboard focus-order traversal"
+   ],
+   "buildNote": "Audit each WCAG 2.2 AA success criterion concretely — assert real contrast ratios and focus order, not a checklist of toBeDefined stubs."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-INT-10",
+  "title": "CADSTEPAP238Engine — STEP-NC machining-info export",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/stepap242pmiextractorengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "STEP-NC ISO 14649 AP238 part-21 serialization",
+    "EXPRESS schema entity emission",
+    "machining-feature to STEP-NC workingstep mapping"
+   ],
+   "buildNote": "AP238 export must emit valid part-21 entities per the EXPRESS schema — round-trip parse the output to verify, don't trust write-only."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-INT-18",
+  "title": "CADCrashRecoveryPlatformEngine — orphan COM + disk-full checkpoint + clock-skew",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadcrashrecoveryengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadreplicationdurabilityengine.md",
+    "knowledge/wiki/architecture/hooks/runtime/agent-watchdog.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "atomic-write-idempotency-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "orphan COM process detection / reaping",
+    "disk-full checkpoint guard with fsync",
+    "monotonic clock for skew-resilient timestamps"
+   ],
+   "buildNote": "Checkpoint writes must survive disk-full (write-temp-then-rename, check ENOSPC) and use a monotonic clock so clock-skew can't corrupt recovery ordering."
+  }
+ },
+ {
+  "id": "CAD-GROUND-TRUTH-MS0::U-CGT01",
+  "title": "FCStdNativeParserEngine — direct ZIP+XML extraction",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/groundtruthfeaturetreeextractor.md",
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "ZIP archive entry extraction",
+    "XML parsing (FreeCAD Document.xml / GuiDocument.xml)",
+    "DOM tree traversal"
+   ],
+   "buildNote": "FCStd is a ZIP of XML — parse Document.xml directly; verify against a real FreeCAD file, not a synthetic XML fragment."
+  }
+ },
+ {
+  "id": "CAD-GROUND-TRUTH-MS0::U-CGT02",
+  "title": "F3DSQLiteParserEngine — Fusion360 archive extraction",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fusion/fusioncpsparserengine.md",
+    "knowledge/wiki/architecture/engines/fusion/fusion360functionindexengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "SQLite database file reading",
+    "Fusion360 .f3d archive structure",
+    "binary-blob column extraction"
+   ],
+   "buildNote": "F3D embeds a SQLite DB — query the real schema (read it first, don't assume table names); verify against an actual Fusion archive."
+  }
+ },
+ {
+  "id": "CAD-GROUND-TRUTH-MS0::U-CGT03",
+  "title": "CADToSTEPPipelineEngine — one pipeline per format",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/engines/cad/stepap242pmiextractorengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "pipeline / strategy pattern per file format",
+    "format dispatch table",
+    "STEP geometry export"
+   ],
+   "buildNote": "One pipeline per format keeps dispatch clean — share a common interface so CADToSTEP behaves identically regardless of source format."
+  }
+ },
+ {
+  "id": "CAD-GROUND-TRUTH-MS0::U-CGT06",
+  "title": "CADScreenshotCapturer — reference views for visual diff",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadvisualdiffengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadpreviewthumbnailcacheengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadregression.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "deterministic camera/view orientation for repeatable capture",
+    "perceptual image hashing for diff",
+    "screenshot pixel comparison"
+   ],
+   "buildNote": "Reference-view capture must be deterministic (fixed camera, lighting, resolution) or visual diff produces false regressions."
+  }
+ },
+ {
+  "id": "CAD-GROUND-TRUTH-MS0::U-CGT07",
+  "title": "GroundTruthBatchExtractor — 20K parallel extraction",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/batchcamengine.md",
+    "knowledge/wiki/architecture/engines/cad/groundtruthfeaturetreeextractor.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "atomic-write-idempotency-patterns",
+    "per-file-scrutiny-gate",
+    "token-budget-management"
+   ],
+   "csKnowledge": [
+    "worker-pool parallelism with bounded concurrency",
+    "checkpointing for resumable batch jobs",
+    "dependency-aware task scheduling"
+   ],
+   "buildNote": "20K-file parallel extraction needs bounded worker pool + checkpointing — a crash at file 12K must resume, not restart."
+  }
+ },
+ {
+  "id": "CAD-GROUND-TRUTH-MS0::U-CGT08",
+  "title": "GroundTruthRegistryEngine — indexed, queryable corpus",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/groundtruthregistryengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadsearchuniversalengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "mcp-tool-design",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "inverted index for queryable corpus",
+    "registry / catalog data structure",
+    "indexed lookup by class / feature"
+   ],
+   "buildNote": "Registry must be queryable by class and feature — build an index, not a linear scan; persist it with an atomic write + schemaVersion."
+  }
+ },
+ {
+  "id": "CAD-GROUND-TRUTH-MS0::U-CGT10",
+  "title": "Regression test: ground-truth determinism",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/engines/cad/groundtruthvalidationengine.md",
+    "knowledge/wiki/architecture/tests/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "determinism verification (same input → byte-identical output)",
+    "fail-on-revert regression oracle",
+    "golden-file comparison"
+   ],
+   "buildNote": "Determinism test must fail when output drifts — assert byte-identical results across runs against a real ground-truth corpus, not a stub."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF01",
+  "title": "CADFileIndexerEngine — master 20,006-file catalog",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadsearchuniversalengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "mcp-tool-design",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "file-system catalog / index build",
+    "bounded-depth directory recursion",
+    "incremental index update by mtime"
+   ],
+   "buildNote": "20K-file catalog must be incrementally updatable (mtime-keyed) and persisted atomically — a full rewalk on every change won't scale."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF02",
+  "title": "CADFileClassifierEngine — part/assembly/drawing/CAM classification",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadfeatureclassifierengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "mcp-tool-design"
+   ],
+   "csKnowledge": [
+    "multi-class classification (part/assembly/drawing/CAM)",
+    "file-extension + content-signature heuristics",
+    "decision-tree rule classifier"
+   ],
+   "buildNote": "Classify by file signature + extension, not extension alone — assert every class branch in tests with real example files."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF03",
+  "title": "CADTestStateSchema — per-file atomic state",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+    "knowledge/wiki/architecture/registries/"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Zod schema validation",
+    "per-file atomic state record (temp+rename)",
+    "schemaVersion migration"
+   ],
+   "buildNote": "Per-file state must carry schemaVersion and write atomically — a reader hitting a mid-write file must never see truncated JSON."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF05",
+  "title": "CADTestCheckpointEngine — resumable state every 100 files",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/engines/cam/batchcamengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "checkpoint / resume pattern every N units",
+    "atomic checkpoint write (temp+rename)",
+    "idempotent restart from last checkpoint"
+   ],
+   "buildNote": "Checkpoint every 100 files atomically — restart must resume from the last good checkpoint without re-processing or skipping files."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF06",
+  "title": "CADFailureTriageEngine — classify every failure",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadtrialerrorlearningengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/dispatcher-diagnosis.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "failure taxonomy / classification",
+    "exception-type to failure-category mapping",
+    "rule-based triage"
+   ],
+   "buildNote": "Every failure must land in a named category — an unclassified failure is a finding; never let one fall through to an 'unknown' silent bucket."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF07",
+  "title": "CADArtifactStorageEngine — diff/image/log capture",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/ai/cadartifactstorageengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadregression.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "content-addressable storage (SHA-256 keyed)",
+    "artifact deduplication",
+    "atomic blob write"
+   ],
+   "buildNote": "Store diffs/images/logs content-addressed so identical artifacts dedupe — write blobs atomically and key by hash."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF09",
+  "title": "CADRegressionDashboardUI — web visualization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/frontends/",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "web dashboard rendering from JSON state",
+    "React component state management",
+    "API endpoint serving regression results"
+   ],
+   "buildNote": "Dashboard renders from the regression results JSON — verify the UI reflects real aggregated metrics, not hardcoded placeholder data."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF10",
+  "title": "CADRegressionResultsAnalyzerEngine — aggregate metrics",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/engines/cad/groundtruthvalidationengine.md",
+    "knowledge/wiki/architecture/dispatcher-quality.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "aggregate metric computation (pass-rate, percentiles)",
+    "streaming reduce over result records",
+    "pass/fail/error tally"
+   ],
+   "buildNote": "Aggregate pass-rate and percentiles over real result records — read the result-state schema before assuming field names."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF11",
+  "title": "CADRegressionReportGeneratorEngine — PDF/HTML reports",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/engines/cad/pdfblueprintdimensionextractorengine.md",
+    "knowledge/wiki/architecture/dispatcher-document.md"
+   ],
+   "seWiki": [
+    "doc-reflection-rule",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "HTML report templating",
+    "PDF generation from structured data",
+    "markdown-to-HTML rendering"
+   ],
+   "buildNote": "Report generator consumes the analyzer's aggregate JSON — produce PDF/HTML that reflects real metrics; round-trip-verify the output is well-formed."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF13",
+  "title": "CADRegressionSafetyHooks — abort on cascading failure",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/engine/cadregressionsafetyhooks.md",
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/hooks/engine/enforcementhooks.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "safety-tier-discipline",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "circuit-breaker pattern (abort on cascading failure)",
+    "failure-rate threshold gate",
+    "fail-fast guard"
+   ],
+   "buildNote": "Safety hook must abort the run when failure rate crosses a threshold — fail loud and stop, never let a cascade run to completion silently."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF14",
+  "title": "Regression test: 100-file smoke corpus validation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/engines/cad/groundtruthvalidationengine.md",
+    "knowledge/wiki/architecture/tests/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "smoke-test corpus subset selection",
+    "deterministic 100-file validation",
+    "fail-on-revert oracle"
+   ],
+   "buildNote": "100-file smoke corpus must exercise real CAD files across all classes — the test fails loud on any extraction regression."
+  }
+ },
+ {
+  "id": "CAD-INFRA-MS0::U-CINF15",
+  "title": "Documentation + runbook",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadregression.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "doc-reflection-rule",
+    "wiki-automation-discipline",
+    "claude-md-as-pointer-index",
+    "handoff-discipline"
+   ],
+   "csKnowledge": [
+    "operator runbook structure",
+    "documentation-as-code"
+   ],
+   "buildNote": "Runbook must describe the real recovery + operating procedure for the CAD regression infra — keep it a concise pointer, drill into wiki for detail."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE01",
+  "title": "Extract Mastercam Basics Tutorial",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-knowledgeext.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "document-to-structured-knowledge extraction",
+    "tutorial step parsing",
+    "action-sequence extraction"
+   ],
+   "buildNote": "Extract Mastercam Basics into structured KnowledgeTip records — route through the knowledge-conversion lanes, advisory + human-verify."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE02",
+  "title": "Extract Mastercam Solids Tutorial",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-knowledgeext.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "document-to-structured-knowledge extraction",
+    "solid-modeling tutorial step parsing"
+   ],
+   "buildNote": "Extract Mastercam Solids tutorial into structured tips — dedupe against already-extracted Mastercam(45) before adding."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE03",
+  "title": "Extract Mastercam Wire EDM Tutorials",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mastercam/mastercamedmbridge.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-edm.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "Wire-EDM tutorial extraction",
+    "EDM action-sequence parsing"
+   ],
+   "buildNote": "Mastercam Wire EDM extraction feeds the EDM knowledge lane — verify EDM-specific parameters (wire, flush, taper) survive extraction."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE04",
+  "title": "Extract InventorCAM 2.5D Milling + 3D HSM",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/inventorcamaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-knowledgeext.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "2.5D milling strategy extraction",
+    "3D HSM toolpath knowledge parsing"
+   ],
+   "buildNote": "Extract InventorCAM 2.5D + HSM strategy knowledge into structured records — keep extraction advisory until human-verified."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE05",
+  "title": "Extract InventorCAM 5-Axis Training (3 Volumes)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/inventorcamaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/solid/solidcamfunctionindexengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-fiveaxis.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "5-axis training-volume extraction",
+    "multi-document corpus consolidation"
+   ],
+   "buildNote": "Three 5-axis training volumes consolidate into one action-sequence set — dedupe overlapping topics across volumes."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE06",
+  "title": "Extract InventorCAM Advanced + iLogic",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/inventorcamaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-knowledgeext.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "iLogic / parametric-rule extraction",
+    "advanced-strategy document parsing"
+   ],
+   "buildNote": "Capture InventorCAM advanced + iLogic rule knowledge — iLogic is parametric scripting, extract the rule logic not just prose."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE07",
+  "title": "Extract SolidWorks Training",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/solid/solideditingengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-knowledgeext.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "SolidWorks tutorial extraction",
+    "modeling-feature step parsing"
+   ],
+   "buildNote": "Extract SolidWorks training into structured knowledge — register through the extraction-training registry to avoid duplicate ingestion."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE08",
+  "title": "Extract Fusion 360 Training",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fusion/fusion360functionindexengine.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-knowledgeext.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "Fusion 360 training extraction",
+    "CAM + tool knowledge parsing"
+   ],
+   "buildNote": "Extract Fusion 360 training (CAM + tools) — cross-reference the cad-fusion-training-ms0 corpus to avoid re-extracting."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE09",
+  "title": "Extract FreeCAD Path Workbench (Online Sources)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-resourceextraction.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "online-source / web-page extraction",
+    "FreeCAD Path Workbench API inventory"
+   ],
+   "buildNote": "FreeCAD Path knowledge comes from online sources — capture the Path Workbench API surface, attribute source URLs."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE10",
+  "title": "Consolidate hyperMILL Extractions into Action Sequences",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-knowledgeext.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "action-sequence consolidation / dedup",
+    "extraction merge across documents"
+   ],
+   "buildNote": "Consolidate scattered hyperMILL extractions into coherent action sequences — dedupe against already-extracted hyperMILL(25)."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE11",
+  "title": "Build CAD Action Sequence Index",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadclassfeaturelibraryengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadfeatureembeddingengine.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "action-sequence index (inverted index)",
+    "embedding-based retrieval index",
+    "build-resolution index lookup"
+   ],
+   "buildNote": "Build a queryable CAD action-sequence index — persist atomically with schemaVersion; index by class + feature for retrieval."
+  }
+ },
+ {
+  "id": "CAD-TRAINING-EXTRACT-MS0::U-CTE12",
+  "title": "Wire Action Sequences to CAD Learning Engines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadtrialerrorlearningengine.md",
+    "knowledge/wiki/architecture/engines/cad/camfeaturelearningengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "batch ingestion into learning engine",
+    "pattern recommendation from learned sequences"
+   ],
+   "buildNote": "Wire action sequences into the CAD learning engines via the real ingest API — verify recommend() returns the ingested patterns."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC04",
+  "title": "Unknown-extension detector + surface",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "extension allowlist / supports-extension check",
+    "unknown-file surfacing",
+    "set-difference of seen vs known extensions"
+   ],
+   "buildNote": "Unknown-extension detector must surface every unrecognized file loudly — silence on an unknown extension hides a coverage gap."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC05",
+  "title": "New-customer-directory watcher (Stop hook, debounced hourly)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/agent-watchdog.md",
+    "knowledge/wiki/architecture/engines/cad/cadfilesystemreconciliationengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "atomic-write-idempotency-patterns",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Stop-hook debounce (throttle to hourly)",
+    "directory-change detection by mtime/stamp",
+    "stamp-file throttling"
+   ],
+   "buildNote": "Customer-directory watcher must debounce to hourly via a stamp file — many Stops collapsing to one sweep, not a sweep per Stop."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC06",
+  "title": "Volume-delta alert in AGENT_CHAT.md on >5% extension-volume shift",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+    "knowledge/wiki/architecture/fleet-memory-monitor.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "atomic-write-idempotency-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "delta / percentage-change detection vs baseline",
+    "threshold alerting (>5%)",
+    "append-only event log to AGENT_CHAT"
+   ],
+   "buildNote": "Volume-delta alert fires only when extension-volume shift exceeds 5% vs the stored baseline — append one advisory line, don't spam."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC07",
+  "title": "P0 gap: DXF generator — pure-JS DxfWriterEngine + bridge",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/igesimportengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "DXF entity serialization (ENTITIES section)",
+    "DXF group-code text format",
+    "AutoCAD R12/2000 DXF spec"
+   ],
+   "buildNote": "Pure-JS DXF writer must emit valid group-code pairs — round-trip the output through a DXF reader to verify, not write-only."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC08",
+  "title": "P0 gap: Mastercam native save (.mcx-8 / .mcx / .mcx-6)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "Mastercam .mcx binary format serialization",
+    "native-save via NET-Hook automation",
+    "version-specific format dispatch"
+   ],
+   "buildNote": "Mastercam native save likely requires the NET-Hook automation API per version (.mcx-6/.mcx/.mcx-8) — verify each version writes a loadable file."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC09",
+  "title": "P1 gap: DWG bridge (ODA File Converter or LibreDWG)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/engines/cad/igesimportengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "external-converter subprocess bridge (ODA / LibreDWG)",
+    "DWG binary format",
+    "subprocess exit-code handling"
+   ],
+   "buildNote": "DWG bridge shells out to ODA/LibreDWG — handle converter-missing and nonzero-exit fail-loud, never produce a silent empty output."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC10",
+  "title": "P2 gap: Inventor .idw drawing export",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/inventor/plugininventoryengine.md",
+    "knowledge/wiki/architecture/dispatcher-export.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "Inventor COM automation (.idw drawing)",
+    "drawing-document export API",
+    "COM interop"
+   ],
+   "buildNote": "Inventor .idw export drives the COM automation API — verify the exported drawing opens and contains the expected views."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC11",
+  "title": "P2 gap: STL via CadQuery (trivial wrapper)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/engines/cad/stltovoxelgridengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "CadQuery STL export wrapper",
+    "Python CAD-kernel bridge",
+    "mesh tessellation export"
+   ],
+   "buildNote": "STL via CadQuery is a thin wrapper around the Python kernel — verify the wrapper passes mesh-resolution params through, not just calls export."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC12",
+  "title": "P3 gap: Parasolid .x_b / .x_t (STEP round-trip)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/engines/cad/stepap242pmiextractorengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "Parasolid .x_b/.x_t format",
+    "STEP round-trip conversion",
+    "B-rep geometry preservation"
+   ],
+   "buildNote": "Parasolid via STEP round-trip risks geometry loss — assert B-rep fidelity (face/edge counts) survives the round-trip in tests."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC13",
+  "title": "P3 gap: IGES .igs translator",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/igesimportengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "IGES .igs fixed-column record format",
+    "IGES section parsing (S/G/D/P/T)",
+    "directory-entry to parameter-data linking"
+   ],
+   "buildNote": "IGES is a fixed-72-column record format with linked Directory and Parameter sections — parse the column layout exactly, verify on a real .igs file."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC14",
+  "title": "Natural-language CAD routing tests (SlashCommandRecommender + AgentRegistry)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/skills/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "prompt-engineering-rails"
+   ],
+   "csKnowledge": [
+    "natural-language intent classification / routing",
+    "slash-command recommendation matching",
+    "keyword + similarity routing"
+   ],
+   "buildNote": "NL CAD routing tests must assert real prompts route to the correct CAD bridge — verify intent classification with concrete example phrases."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC15",
+  "title": "Coverage regression test — integration smoke that all 6 bridges respond via prism_ai",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/dispatcher-cadregression.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "mcp-tool-design"
+   ],
+   "csKnowledge": [
+    "integration smoke test across N bridges",
+    "round-trip dispatcher assertion",
+    "coverage gap detection"
+   ],
+   "buildNote": "Coverage regression smoke must drive all 6 bridges through prism_ai and assert each responds — a missing-from-enum action passes a mock but breaks production."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC16",
+  "title": "CAD-coverage volume telemetry → SVI gated milestone gate",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "safety-tier-discipline"
+   ],
+   "csKnowledge": [
+    "coverage telemetry computation (by-extension, by-volume)",
+    "milestone gate threshold check",
+    "SVI / coverage metric aggregation"
+   ],
+   "buildNote": "Coverage telemetry must compute by-extension AND by-volume and feed a real milestone gate — the gate blocks until the threshold is met."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC17",
+  "title": "Write-path integration tests per bridge (export verification)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "write-path integration test (export then re-read)",
+    "round-trip export verification",
+    "per-bridge fixture parameterization"
+   ],
+   "buildNote": "Write-path tests must export then re-import to verify the file is valid — a write test that only checks 'no exception' proves nothing."
+  }
+ },
+ {
+  "id": "CAD-UNIVERSAL-CONTROL-MS0::U-CUC18",
+  "title": "Milestone exit gate: coverage ≥ 95% by ext + by volume; ingestion mechanisms all live; AI routing canaries pass",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/close-out-audit.md",
+    "knowledge/wiki/architecture/dispatcher-cadregression.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "safety-tier-discipline",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "milestone exit-gate threshold evaluation",
+    "multi-criterion gate (coverage + ingestion + canaries)",
+    "canary test assertion"
+   ],
+   "buildNote": "Exit gate requires coverage >=95% by-ext AND by-volume AND all ingestion live AND AI canaries pass — every criterion must be a real measured check."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI01",
+  "title": "LOCBasedAdaptiveParameterEngine — Core",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/adaptive/adaptivechiploadengine.md",
+    "knowledge/wiki/architecture/engines/adaptive/adaptiveengagementengine.md",
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/dispatcher-mill.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "safety-tier-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "length-of-cut (LOC) based parameter adaptation",
+    "engagement-angle to feed scaling",
+    "adaptive control loop"
+   ],
+   "buildNote": "LOC-based parameter adaptation must import Kienzle/material constants from physics/constants.ts — never inline cutting coefficients."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI03",
+  "title": "CADCAMAGIOrchestrationEngine — Master Controller",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/intelligence/machiningintelligenceorchestratorengine.md",
+    "knowledge/wiki/architecture/dispatcher-orchestration.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "master controller / orchestration pattern",
+    "pipeline stage sequencing",
+    "sub-engine dependency graph"
+   ],
+   "buildNote": "AGI master controller orchestrates sub-engines — wire it to every engine it consumes in the same commit; a stage failure must fail loud."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI04",
+  "title": "CadQueryBridgeEngine — Python CAD Kernel Bridge",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/engines/cad/stltovoxelgridengine.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "Python CAD-kernel subprocess bridge (CadQuery/OCCT)",
+    "JSON IPC across process boundary",
+    "B-rep geometry operations"
+   ],
+   "buildNote": "CadQuery bridge crosses a process boundary — handle Python-missing and subprocess errors fail-loud; verify against real geometry ops."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI05",
+  "title": "FreeCADPathBridgeEngine — FreeCAD CAM Integration",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "FreeCAD Path Workbench API bridge",
+    "CAM operation translation",
+    "Python interop for CAM"
+   ],
+   "buildNote": "FreeCAD Path bridge translates PRISM CAM ops to Path Workbench calls — verify generated toolpaths against a real FreeCAD Path job."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI06",
+  "title": "MastercamAutomationBridgeEngine — .NET Automation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    ".NET / COM automation bridge to Mastercam",
+    "NET-Hook API invocation",
+    "automation-error recovery"
+   ],
+   "buildNote": "Mastercam .NET automation bridge must handle Mastercam-not-running and COM-error fail-loud — verify each automation call returns the expected effect."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI07",
+  "title": "InventorILogicBridgeEngine — Parametric CAD Driver",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/parametricpartlibraryengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "Inventor iLogic parametric driver",
+    "COM automation for parametric CAD",
+    "rule-driven model regeneration"
+   ],
+   "buildNote": "Inventor iLogic bridge drives parametric models by rule — verify parameter changes regenerate the model and report failures loud."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI09",
+  "title": "StockAutoSelectionChainEngine — Inventory-Aware Stock",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/stockmodelengine.md",
+    "knowledge/wiki/architecture/engines/inventor/inventoryawaretoolselectorengine.md",
+    "knowledge/wiki/architecture/engines/inventor/inventoryeoqengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "chain-of-responsibility selection pattern",
+    "inventory-aware constraint satisfaction",
+    "stock-size optimization (minimize waste)"
+   ],
+   "buildNote": "Stock auto-selection must consult real inventory and minimize waste — the selection chain falls through deterministically when stock is unavailable."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI11",
+  "title": "ToolAutoSelectionChainEngine — Tooling Intelligence",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/tool/toolselectionadvisorengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolselectionrecommenderengine.md",
+    "knowledge/wiki/architecture/engines/inventor/inventoryawaretoolselectorengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "chain-of-responsibility tool selection",
+    "tooling-database constraint matching",
+    "ISO 13399 tool data lookup"
+   ],
+   "buildNote": "Tool auto-selection chain matches feature+material to real tool-library entries — dedupe against existing tool-selection engines before building."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI13",
+  "title": "RapidMovementOptimizerEngine — Motion Optimization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/rapidrepositionoptengine.md",
+    "knowledge/wiki/architecture/engines/cam/pprapidmovevalidatorengine.md",
+    "knowledge/wiki/architecture/engines/toolpath/toolpathlinkingengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "safety-tier-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "traveling-salesman / nearest-neighbor route optimization",
+    "rapid-move sequencing",
+    "collision-safe retract planning"
+   ],
+   "buildNote": "Rapid-move optimizer reorders moves to cut air time — every reordered rapid must still clear stock/fixture; safety beats time savings."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI14",
+  "title": "ToolChangeMinimizationEngine — Tool Change Optimization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/tool/toolmagazineoptimizationengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolcalldeduplicatorengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolcallbatchoptimizerengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "operation reordering to batch tool calls",
+    "minimize tool-change count (set cover / grouping)",
+    "magazine-slot assignment"
+   ],
+   "buildNote": "Tool-change minimization reorders ops to group same-tool work — reordering must preserve op dependencies (rough before finish)."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI15",
+  "title": "CycleTimeOptimizerEngine — Time Optimization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/tool/cycletimeaccuracyengine.md",
+    "knowledge/wiki/architecture/engines/cam/rapidrepositionoptengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/dispatcher-calc.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "safety-tier-discipline"
+   ],
+   "csKnowledge": [
+    "cycle-time estimation (feed/rapid/dwell summation)",
+    "acceleration/deceleration modeling",
+    "bottleneck identification"
+   ],
+   "buildNote": "Cycle-time optimizer must compute time from real feed/rapid/accel physics — verify estimates against measured machine cycle times."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI16",
+  "title": "PartComplexityClassifierEngine — ML Complexity Scoring",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadfeatureclassifierengine.md",
+    "knowledge/wiki/architecture/engines/cad/featureclusteringengine.md",
+    "knowledge/wiki/architecture/dispatcher-ml.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "ML complexity scoring (feature vector → score)",
+    "part-feature feature engineering",
+    "regression / gradient-boosted scoring model"
+   ],
+   "buildNote": "Part-complexity classifier scores from real geometric features — test that score moves monotonically with added features, not a hardcoded constant."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI17",
+  "title": "MasterPostProcessorEnhancement — Controller Optimization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/masterpostprocessoragiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/masterpostprocessorengine.md",
+    "knowledge/wiki/architecture/dispatcher-pp.md",
+    "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "safety-tier-discipline"
+   ],
+   "csKnowledge": [
+    "controller dialect optimization",
+    "post-processor capability matrix",
+    "G/M-code emission tuning"
+   ],
+   "buildNote": "Master post-processor enhancement tunes per-controller output — verify generated G-code parses for each target controller dialect."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI18",
+  "title": "VariabilityIntegrationLayer — Ever-Evolving Conditions",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategyevolutionengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadtrialerrorlearningengine.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "online adaptation to changing conditions",
+    "skill / parameter evolution layer",
+    "feedback-driven re-tuning"
+   ],
+   "buildNote": "Variability integration layer must adapt to ever-changing conditions — verify it re-tunes from real outcome feedback, not a static config."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI19",
+  "title": "SoftwareRouterEngine — CAD/CAM Software Selection",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/intelligence/processintelligencerouterengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadsearchuniversalengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "software-selection routing (capability matching)",
+    "scored routing decision",
+    "feature-to-software capability lookup"
+   ],
+   "buildNote": "Software router picks the CAD/CAM software by capability match — surface ties/conflicts, don't silently pick when two are equally capable."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI20",
+  "title": "Dispatcher Wiring — cadCamAgiDispatcher",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/mcp-tool-design.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "dispatcher action enum + Zod input schema",
+    "MCP tool registration",
+    "round-trip dispatcher contract"
+   ],
+   "buildNote": "cadCamAgiDispatcher: every action must be in the z.enum() AND have an executor body — a mock bypasses the enum gate, so add a real round-trip E2E test."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI21",
+  "title": "Integration Testing — Full Pipeline",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/intelligence/machiningintelligenceorchestratorengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/tests/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "mcp-tool-design"
+   ],
+   "csKnowledge": [
+    "end-to-end pipeline integration test",
+    "multi-stage E2E assertion",
+    "real-data integration oracle"
+   ],
+   "buildNote": "Full-pipeline integration test must drive CAD→CAM→post through real engines — hermetic fakes do not prove production wiring."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI22",
+  "title": "Skills — /agi-program Command",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/skills/",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "doc-reflection-rule",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "slash-command skill frontmatter + trigger keywords",
+    "skill-to-dispatcher invocation"
+   ],
+   "buildNote": "/agi-program skill must carry valid command frontmatter and route to cadCamAgiDispatcher — validate against the command-frontmatter schema."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI23",
+  "title": "Documentation — AGI System Guide",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/close-out-audit.md",
+    "knowledge/wiki/architecture/wiki-automation-discipline.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+   ],
+   "seWiki": [
+    "doc-reflection-rule",
+    "wiki-automation-discipline",
+    "claude-md-as-pointer-index",
+    "handoff-discipline"
+   ],
+   "csKnowledge": [
+    "documentation-as-code",
+    "system-guide structure"
+   ],
+   "buildNote": "AGI system guide is documentation — keep CLAUDE.md a concise pointer, put detail in the wiki, reflect across all four doc surfaces."
+  }
+ },
+ {
+  "id": "CADCAM-AGI-MS0::U-AGI24",
+  "title": "Safety Validation — AGI Safety Gate",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/agi-safety-envelope-guard.md",
+    "knowledge/wiki/architecture/dispatcher-safety.md",
+    "knowledge/wiki/architecture/domain-safety.md",
+    "knowledge/wiki/architecture/hooks/engine/enforcementhooks.md"
+   ],
+   "seWiki": [
+    "safety-tier-discipline",
+    "fail-loud-r12-patterns",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "safety-tier classification",
+    "hard-gate validation (block vs warn)",
+    "safety-envelope constraint check"
+   ],
+   "buildNote": "AGI safety gate is a hard block — it must refuse unsafe AGI output loud and unconditionally; safety constants come from physics/constants.ts."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS1::U-DASAL02",
+  "title": "CadQueryActionExecutorEngine — DSL chain synthesis",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/engines/cad/parametricpartlibraryengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "DSL chain synthesis (fluent builder)",
+    "CadQuery method-chain generation",
+    "AST / sequence-to-DSL translation"
+   ],
+   "buildNote": "CadQuery action executor synthesizes a DSL method chain — verify the generated chain executes and produces the intended geometry, not just compiles."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS1::U-DASAL09",
+  "title": "HyperMillActionExecutorEngine — Automation Interface",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "hyperMILL automation interface",
+    "action-to-API command mapping",
+    "automation-error handling"
+   ],
+   "buildNote": "hyperMILL action executor maps PRISM actions to the automation API — handle hyperMILL-not-running fail-loud, verify each action's real effect."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS1::U-DASAL11",
+  "title": "InventorActionExecutorEngine — Apprentice + iLogic",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/parametricpartlibraryengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "Inventor Apprentice read-only API",
+    "iLogic parametric automation",
+    "COM interop"
+   ],
+   "buildNote": "Inventor action executor uses Apprentice (read-only) + iLogic (write) — keep the read/write split explicit; verify write actions regenerate the model."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS1::U-DASAL12",
+  "title": "SolidCAMiMachiningBridgeEngine — iMachining knowledge",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/solid/solidcamimachiningfunctionindexengine.md",
+    "knowledge/wiki/architecture/engines/solid/solidcamfunctionindexengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "SolidCAM iMachining bridge",
+    "adaptive chipload / engagement knowledge",
+    "iMachining technology-wizard parameters"
+   ],
+   "buildNote": "SolidCAM iMachining bridge encodes iMachining knowledge — import chipload/engagement constants from physics/constants.ts, never inline them."
+  }
+ }
+]

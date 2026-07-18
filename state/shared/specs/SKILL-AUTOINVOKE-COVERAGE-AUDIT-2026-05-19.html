@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="246ef151a2ec7597ca79bc48c9fd795cb9f13d497a3b92cd36360d7a93f2528e">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill Auto-Invocation Coverage Audit — 2026-05-19</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Skill Auto-Invocation Coverage Audit — 2026-05-19</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/SKILL-AUTOINVOKE-COVERAGE-AUDIT-2026-05-19.md</div>
+<div class="meta">Generated 2026-05-19T20:09:30.710Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Skill Auto-Invocation Coverage — Audit</li><li class="prism-toc-l2">Phase 0 — Live baseline (measured 2026-05-19)</li><li class="prism-toc-l2">Findings (6 — each with verification channel)</li><li class="prism-toc-l3">F1 — [RESOLVED — but the prior audit MISDIAGNOSED the cause]</li><li class="prism-toc-l3">F2 — [CRITICAL → REFRAMED] Layer-2 coverage is 23.5%; 394 genuine skills are keyword-dark — but 100% is the <em>wrong target</em></li><li class="prism-toc-l3">F3 — [MINOR BUG] 2 skills declare a <code class="prism-inline-code">triggers:</code> block that emits 0 ledger entries</li><li class="prism-toc-l3">F4 — [ARCHITECTURAL] 32% of project skills have no <code class="prism-inline-code">description:</code> — the lever that feeds Layer 1</li><li class="prism-toc-l3">F5 — [VIZ GAP] The 394 dark-gap skills are invisible in <code class="prism-inline-code">/system-viz</code></li><li class="prism-toc-l3">F6 — [META / recurring class] A superseding audit must verify <em>why</em> the prior finding was wrong</li><li class="prism-toc-l2">Neural angle (honest scope)</li><li class="prism-toc-l2">What the article validates (no action — confirms PRISM design)</li><li class="prism-toc-l2">META artifact (compounding-gains tax)</li><li class="prism-toc-l2">Verdict</li><li class="prism-toc-l2">Next actions (operator-gated — NOT auto-built)</li></ul></nav><hr class="prism-hr">
+<p>title: Skill Auto-Invocation Coverage Audit date: 2026-05-19 slot: foxtrot session: claude-6437979f tool: /forge-audit-v2 brief: &quot;Read the &#39;20 Claude Skills&#39; article (sairahul1 X / BrowserAct) and apply its &#39;the right skill loads when relevant&#39; thesis to PRISM&#39;s skill auto-invocation — measure which skills are dark to skill-auto-trigger.mjs. Utilize system-viz + obsidian + neural network.&quot; meta_artifact: scripts/skill-trigger-coverage.mjs  (PRE-EXISTING — U-LIMA-A5, NOT rebuilt) verdict: PARTIAL — F3-prior symptom resolved (parser fix, not scope); F2 reframed; F1/F4 corrected post-peer-review; F3/F5/F6 minor peerReview: FAIL-then-corrected (agent ab5510c8, isolation:worktree — F1 + F4 failed, fixed with git-verified evidence) advisoryOnly: true mustHumanVerify: true supersedes_partial: state/shared/specs/HIGH-ROI-SKILL-ROUTING-AUDIT-2026-05-17.md (F3 leg)</p>
+<hr class="prism-hr">
+<h1 class="prism-h1">Skill Auto-Invocation Coverage — Audit</h1>
+<p><strong>Brief origin.</strong> The &quot;20 Claude Skills Most Builders Don&#39;t Know Exist&quot; article (sairahul1 X long-form, login-walled; content traced to the BrowserAct blog via the Indie Hackers cross-post) makes one load-bearing claim: <em>&quot;The right skill loads when relevant, the rest are ignored.&quot;</em> This audit measures how true that is for PRISM&#39;s 622-skill surface.</p>
+<p><strong>Verification channel (declared up front, Phase 3 gate).</strong> Every finding cites the exact command that re-measures its baseline. Primary tool: <code class="prism-inline-code">node scripts/skill-trigger-coverage.mjs --json</code> (pre-existing META artifact, <code class="prism-inline-code">U-LIMA-A5</code>). Wrapper-adjusted reading: <code class="prism-inline-code">/tmp/cov-analysis.mjs</code> logic, folded below.</p>
+<h2 class="prism-h2">Phase 0 — Live baseline (measured 2026-05-19)</h2>
+<table class="prism-md-table"><thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Total skills (project + 2 user trees, name-deduped)</td><td><strong>622</strong></td><td><code class="prism-inline-code">skill-trigger-coverage.mjs --json .total</code></td></tr>
+<tr><td>Covered (≥1 surfaceable ledger trigger)</td><td><strong>121</strong></td><td><code class="prism-inline-code">.covered</code></td></tr>
+<tr><td>Raw coverage</td><td><strong>19.5%</strong></td><td><code class="prism-inline-code">.coveragePct</code></td></tr>
+<tr><td>NATO slot-wrappers (checkin/handoff/precompact/startup-*)</td><td><strong>104</strong></td><td>wrapper-regex on <code class="prism-inline-code">.uncovered</code></td></tr>
+<tr><td><code class="prism-inline-code">six-chat-*</code> (correctly dark)</td><td><strong>3</strong></td><td>regex</td></tr>
+<tr><td><strong>Genuine dark-gap skills</strong> (no <code class="prism-inline-code">triggers:</code> block, not a wrapper)</td><td><strong>394</strong></td><td><code class="prism-inline-code">/tmp/dark-gap.txt</code></td></tr>
+<tr><td>Declared-but-broken (<code class="prism-inline-code">triggers:</code> block emits 0)</td><td><strong>2</strong></td><td><code class="prism-inline-code">.declaredNotCaptured</code></td></tr>
+<tr><td><strong>Honest coverage</strong> (covered / non-wrapper, n=515)</td><td><strong>23.5%</strong></td><td>121 / (622−107)</td></tr>
+<tr><td>Skill-trigger ledger entries</td><td><strong>481</strong></td><td><code class="prism-inline-code">wc -l _skill-triggers.jsonl</code></td></tr>
+<tr><td>Ledger trigger score quality</td><td>32 strong (≥0.8) · 448 ok · <strong>1 sub-floor</strong></td><td>ledger score histogram</td></tr>
+<tr><td>Stale ledger rows (name in ledger, no <code class="prism-inline-code">.md</code>)</td><td><strong>0</strong></td><td><code class="prism-inline-code">.staleLedgerCount</code></td></tr></tbody></table>
+<p>Two auto-invocation layers exist — the audit metric above measures <strong>Layer 2 only</strong>:</p>
+<ul class="prism-md-list"><li><strong>Layer 1 — model-level.</strong> Every Claude session is injected ~440 skill names+descriptions at SessionStart; the model invokes via the <code class="prism-inline-code">Skill</code> tool by relevance judgement. <em>This is the article&#39;s actual mechanism</em> (&quot;the right skill loads&quot;) and it reaches the whole surface.</li><li><strong>Layer 2 — <code class="prism-inline-code">skill-auto-trigger.mjs</code></strong> (UserPromptSubmit/PostToolUse/Stop hook). BM25 keyword match against <code class="prism-inline-code">_skill-triggers.jsonl</code>; injects a top-3 <em>suggestion</em> into prompt context. A hook physically cannot invoke a skill — it can only nudge. Layer 2 covers <strong>121 skills</strong>.</li></ul>
+<h2 class="prism-h2">Findings (6 — each with verification channel)</h2>
+<h3 class="prism-h3">F1 — [RESOLVED — but the prior audit MISDIAGNOSED the cause]</h3>
+<p>The ledger grew <strong>36 → 481</strong> entries since 2026-05-17, so the prior audit&#39;s F3 <em>symptom</em> (&quot;only 36 entries reach the ledger&quot;) is gone. But the prior audit&#39;s stated <em>root cause</em> — &quot;the extractor probably reads only <code class="prism-inline-code">H:/prism/.claude/commands/</code>&quot; — was <strong>wrong</strong>, and an earlier draft of this audit propagated it (caught by peer review — see F6). Git history, verified this session:</p>
+<ul class="prism-md-list"><li><strong><code class="prism-inline-code">2ba5d4baf3</code> — <code class="prism-inline-code">U-HRR-PARSER-FLAT</code></strong> is the dominant fix: commit subject <em>&quot;parseTriggers handles flat-string trigger shape — 36 → 399 ledger entries (11×).&quot;</em> Body: 87 of 124 trigger-bearing skills declare triggers as bare strings (<code class="prism-inline-code">- &quot;wedm explain&quot;</code>), not the nested <code class="prism-inline-code">event/matcher/score</code> schema the parser expected — <code class="prism-inline-code">parseTriggers</code> <strong>silently dropped them</strong>. A YAML-parser bug, not a directory-scope bug.</li><li><strong><code class="prism-inline-code">ef1a44f4a4</code> — <code class="prism-inline-code">U-LIMA-A4</code></strong> (&quot;cross-tree trigger union&quot;) is a secondary contribution (399 → 481).</li></ul>
+<p>The extractor scope was never the primary defect. Lesson recorded as F6.</p>
+<pre class="prism-codeblock"><code>verify:   git log -1 --format=%s 2ba5d4baf3        # → the parser fix, &quot;36 → 399 ... (11x)&quot;
+          node -e &quot;console.log(require(&#39;fs&#39;).readFileSync(&#39;H:/prism/knowledge/wiki/architecture/_skill-triggers.jsonl&#39;,&#39;utf8&#39;).split(&#39;\n&#39;).filter(Boolean).length)&quot;
+expected: parser-fix commit subject + current ledger line count
+baseline: ledger 481 (was 36 on 2026-05-17); cause = U-HRR-PARSER-FLAT (parser), NOT directory scope</code></pre>
+<p>No action on the symptom — recorded so a future audit neither re-raises it nor re-misattributes it.</p>
+<h3 class="prism-h3">F2 — [CRITICAL → REFRAMED] Layer-2 coverage is 23.5%; 394 genuine skills are keyword-dark — but 100% is the <em>wrong target</em></h3>
+<p>121 of 515 non-wrapper skills carry a keyword trigger. 394 do not, and they include high-value, frequently-relevant skills — <code class="prism-inline-code">ai-analyze</code>, <code class="prism-inline-code">ai-optimize</code>, <code class="prism-inline-code">ai-reason</code>, <code class="prism-inline-code">auto-speed-feed</code>, <code class="prism-inline-code">blueprint-read</code>, <code class="prism-inline-code">cad-review</code>, <code class="prism-inline-code">calc</code>, <code class="prism-inline-code">dfm-check</code>, <code class="prism-inline-code">troubleshoot</code>, … (full list: <code class="prism-inline-code">/tmp/dark-gap.txt</code>).</p>
+<p><strong>The reframe (this is the audit&#39;s core insight).</strong> Layer 2 surfaces the <strong>top-3</strong> by BM25 keyword score. If all 622 skills carried triggers, the top-3 slots would be <em>more contested and noisier</em>, not more useful. The article&#39;s &quot;the right skill loads&quot; works for Anthropic&#39;s native Skills because the <strong>model</strong> judges relevance from each skill&#39;s <code class="prism-inline-code">description</code> — a precision mechanism — not a keyword top-3. PRISM already has that precision mechanism: <strong>Layer 1</strong>. So the correct target is <strong>not</strong> 100% Layer-2 coverage — it is <em>precision-weighted</em> coverage: author triggers for the high-frequency-relevance dark skills, and deliberately leave the long tail dark.</p>
+<pre class="prism-codeblock"><code>verify:   node scripts/skill-trigger-coverage.mjs --json   → .coveragePct (raw) ; /tmp/dark-gap.txt (the 394)
+expected: honest coverage = covered / (total − wrappers − six-chat)
+baseline: 23.5%  (121 / 515)   re-run cost: ~3s</code></pre>
+<p><strong>Recommended fix (bounded, NOT 394 units of busywork):</strong> rank the 394 dark-gap skills by relevance/usage (the prior audit&#39;s <code class="prism-inline-code">scripts/high-roi-skill-rank.mjs</code> is the ranking input), author <code class="prism-inline-code">triggers:</code> frontmatter for the <strong>top ~40-60 high-ROI tail</strong> only. Mechanism for authoring at scale → see <em>Neural angle</em> below.</p>
+<h3 class="prism-h3">F3 — [MINOR BUG] 2 skills declare a <code class="prism-inline-code">triggers:</code> block that emits 0 ledger entries</h3>
+<p><code class="prism-inline-code">checkin-mike</code> and <code class="prism-inline-code">wedm-hook-disable</code> each have a <code class="prism-inline-code">triggers:</code> frontmatter block, but neither reaches the ledger.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">checkin-mike</code> — a NATO slot-wrapper; it should be dark <em>anyway</em> (explicit-invocation only). Its <code class="prism-inline-code">triggers:</code> block is mis-authored — harmless, but should be removed for cleanliness.</li><li><code class="prism-inline-code">wedm-hook-disable</code> — a genuine skill; its trigger block is malformed (parse failure, non-<code class="prism-inline-code">UserPromptSubmit</code> event, or all scores below the 0.50 extract floor). This is a real, tiny dark-by-bug case.</li></ul>
+<pre class="prism-codeblock"><code>verify:   node scripts/skill-trigger-coverage.mjs --json   → .uncovered[] | select(.declared==true)
+expected: list of declared-but-uncovered skill names
+baseline: [&quot;checkin-mike&quot;,&quot;wedm-hook-disable&quot;]  (2)</code></pre>
+<h3 class="prism-h3">F4 — [ARCHITECTURAL] 32% of project skills have no <code class="prism-inline-code">description:</code> — the lever that feeds Layer 1</h3>
+<p>Layer 1 (the model picking from skill descriptions) is the article&#39;s real mechanism and reaches every skill — <em>if</em> each skill has a sharp, disambiguating <code class="prism-inline-code">description</code>. Measured this session: of <strong>294</strong> project command files, <strong>199 (67.7%)</strong> carry a <code class="prism-inline-code">description:</code> field; <strong>95 (32.3%) have none</strong>. A skill with no description is weakly picked by Layer 1 <strong>and</strong>, if also trigger-less, dark to Layer 2 — doubly invisible. Description coverage lifts the layer that spans the whole surface, and is higher-leverage than authoring keyword triggers.</p>
+<pre class="prism-codeblock"><code>verify:   node -e &quot;const fs=require(&#39;fs&#39;),d=&#39;H:/prism/.claude/commands&#39;;const f=fs.readdirSync(d).filter(x=&gt;x.endsWith(&#39;.md&#39;));let n=0;for(const x of f){const m=fs.readFileSync(d+&#39;/&#39;+x,&#39;utf8&#39;).match(/^---\r?\n([\s\S]*?)\r?\n---/);if(m&amp;&amp;/^description:/m.test(m[1]))n++;}console.log(n+&#39;/&#39;+f.length);&quot;
+expected: skills-with-description / total project commands
+baseline: 199/294 = 67.7%  (measured 2026-05-19)</code></pre>
+<h3 class="prism-h3">F5 — [VIZ GAP] The 394 dark-gap skills are invisible in <code class="prism-inline-code">/system-viz</code></h3>
+<p>The system-viz graph (243,687 nodes / 11 layers) carries ghost roosts for unwired engines (<code class="prism-inline-code">ghost.unwired-engine</code>), misc-tasks, priority-queue, and the feature-gap-audit — but <strong>no <code class="prism-inline-code">ghost.dark_skills</code> roost</strong>. The graph&#39;s only skill nodes are the <code class="prism-inline-code">core.skills</code> aggregate (&quot;247 → 14 buckets&quot;) and the <code class="prism-inline-code">skillScript</code> dispatcher; dark skills have no representation. Adding a <code class="prism-inline-code">ghost.dark_skills</code> roost (mirroring <code class="prism-inline-code">scripts/generate-feature-gap-features.mjs</code> — emit roost + per-skill child, register in <code class="prism-inline-code">regen-viz.mjs</code> FAST[] + <code class="prism-inline-code">merge-augmentations.mjs</code> splice) would surface the auto-invoke gap on the live system map.</p>
+<pre class="prism-codeblock"><code>verify:   grep -rl &quot;ghost.dark_skills&quot; H:/prism/scripts/
+expected: ≥1 generator file
+baseline: 0  (roost does not exist)</code></pre>
+<h3 class="prism-h3">F6 — [META / recurring class] A superseding audit must verify <em>why</em> the prior finding was wrong</h3>
+<p>Surfaced by this audit&#39;s own peer review (Phase 4B): the first draft of F1 copied the prior audit&#39;s misdiagnosis (extractor directory scope) instead of checking git. This is the recurring class CLAUDE.md <code class="prism-inline-code">## Recent regressions</code> already logs twice (&quot;META-tool assumed a schema without reading the file first&quot;, 2026-05-16/17) — here as &quot;audit asserted a root cause without reading the source.&quot; An audit that supersedes a prior audit must confirm the prior <em>root cause</em> against primary evidence (git, source), not merely observe that the metric moved.</p>
+<pre class="prism-codeblock"><code>verify:   F1 now cites commit 2ba5d4baf3; peer-review verdict (agent ab5510c8) records the catch
+expected: every finding&#39;s root cause traceable to a commit/source, not an assumption
+baseline: caught by peer reviewer Phase 4B, corrected before ship</code></pre>
+<h2 class="prism-h2">Neural angle (honest scope)</h2>
+<p>The user asked to &quot;utilize the neural network.&quot; Stated plainly:</p>
+<ul class="prism-md-list"><li><strong>NN-graph tier-5 (GraphSAGE, <code class="prism-inline-code">NN-GRAPH-MS0..2</code>) does NOT apply here.</strong> It is a link-prediction GNN that classifies <em>unwired engine</em> nodes into a dispatcher. Skill-trigger authoring is a keyword/semantic task, not a graph-edge-prediction task. Forcing it would be a category error.</li><li><strong>The genuine neural lever is embedding similarity.</strong> <code class="prism-inline-code">nomic-embed-text</code> is warm in VRAM. The scalable way to author the F2 top-tail triggers: embed each dark skill&#39;s <code class="prism-inline-code">description</code>, embed each <em>covered</em> skill&#39;s trigger keyword-set, and for each dark skill propose a <code class="prism-inline-code">triggers:</code> block by analogy to its nearest covered neighbour. This makes &quot;author 40-60 triggers&quot; a review-and-approve task, not a from-scratch task. This is the recommended mechanism for the F2 fix — it is a follow-up unit, not built by this audit.</li></ul>
+<h2 class="prism-h2">What the article validates (no action — confirms PRISM design)</h2>
+<table class="prism-md-table"><thead><tr><th>Article item</th><th>PRISM equivalent</th><th>Status</th></tr></thead><tbody><tr><td>Skill Creator (meta-skill)</td><td><code class="prism-inline-code">/forge-triple</code>, <code class="prism-inline-code">/forge</code>..<code class="prism-inline-code">/forge7</code></td><td>Exceeded</td></tr>
+<tr><td>Superpowers (planning phase)</td><td><code class="prism-inline-code">prism_sp</code> dispatcher + per-file scrutiny + 3-of-3 gate</td><td>Exceeded — Superpowers is a first-class dispatcher</td></tr>
+<tr><td>Document skills (PDF/DOCX/…)</td><td><code class="prism-inline-code">pdf</code> skill, <code class="prism-inline-code">/pdf-learn</code>, <code class="prism-inline-code">/video-learn</code>, <code class="prism-inline-code">prism_doc_learn</code></td><td>Covered</td></tr>
+<tr><td>Obsidian skills (auto-tag/link)</td><td><code class="prism-inline-code">stop-obsidian-memory-feed.mjs</code>, wiki, auto-<code class="prism-inline-code">[[link]]</code></td><td>Covered</td></tr>
+<tr><td>&quot;Skills &gt; prompts / build &gt; consume&quot;</td><td>622 skills, forge pipeline, 100% self-built</td><td>Exceeded</td></tr></tbody></table>
+<p>The article is a beginner→intermediate listicle about <em>consuming</em> official skills; PRISM is the advanced &quot;build your own&quot; case it points toward. The single genuine gap it surfaces is the Layer-2 coverage tail (F2) — and even that is bounded, not a 394-unit deficit.</p>
+<h2 class="prism-h2">META artifact (compounding-gains tax)</h2>
+<p><code class="prism-inline-code">scripts/skill-trigger-coverage.mjs</code> — <strong>pre-existing</strong> (<code class="prism-inline-code">U-LIMA-A5</code>, BACKEND-DEV-LOOP). NOT rebuilt this audit; the duplication guard correctly blocked a re-create. Known defect surfaced here: its raw <code class="prism-inline-code">coveragePct</code> (19.5%) counts the 104 correctly-dark NATO wrappers, deflating the honest figure (23.5%). <strong>Recommended follow-up:</strong> add an <code class="prism-inline-code">--exclude-wrappers</code> flag so the tool&#39;s own number is honest for future re-runs (1-flag change, foxtrot worktree).</p>
+<h2 class="prism-h2">Verdict</h2>
+<p><strong>PARTIAL.</strong> The prior audit&#39;s F3 <em>symptom</em> (36 ledger entries) is resolved — but via a YAML-parser fix (<code class="prism-inline-code">U-HRR-PARSER-FLAT</code>), not the directory-scope cause the prior audit claimed (see F1, F6). F2 is reframed from &quot;80% broken&quot; to &quot;23.5% Layer-2 coverage, and 100% is the wrong target&quot; — the genuine gap is the high-ROI dark-skill tail (~40-60 skills), not 394; the peer reviewer independently validated this reframe as a sound precision property, not rationalization. F3 (2 broken trigger blocks), F4 (32% of skills lack a <code class="prism-inline-code">description</code>), F5 (no viz roost) are minor/architectural. PRISM&#39;s auto-invocation is <strong>healthy and correctly designed</strong> — the article validates it.</p>
+<p><strong>Peer review (Phase 4B — agent <code class="prism-inline-code">ab5510c8</code>, <code class="prism-inline-code">isolation:worktree</code>):</strong> first pass returned <strong>FAIL</strong> — F1 (wrong root cause) + F4 (no runnable verify command). Both corrected here with git-verified evidence + a live measurement; F2&#39;s core reframe validated PASS; F3/F5 PASS. F6 added per the reviewer&#39;s missed-finding. A second full review pass was not re-dispatched — the corrections rest on git history (<code class="prism-inline-code">2ba5d4baf3</code>, <code class="prism-inline-code">ef1a44f4a4</code>) and a re-runnable measurement, which are objective, not opinion.</p>
+<h2 class="prism-h2">Next actions (operator-gated — NOT auto-built)</h2>
+<ol class="prism-md-list"><li><strong>F3 fix</strong> — remove the mis-authored <code class="prism-inline-code">triggers:</code> block from <code class="prism-inline-code">checkin-mike</code>; repair <code class="prism-inline-code">wedm-hook-disable</code>&#39;s block. Tiny.</li><li><strong>F2 fix</strong> — rank dark-gap skills via <code class="prism-inline-code">high-roi-skill-rank.mjs</code>; author triggers for the top ~40-60 via the embedding-similarity mechanism above.</li><li><strong>F4 fix</strong> — author a <code class="prism-inline-code">description:</code> for the 95 project skills that lack one (raises Layer-1 pick quality — the layer that spans the whole surface).</li><li><strong>F5</strong> — <code class="prism-inline-code">ghost.dark_skills</code> viz roost (mirror <code class="prism-inline-code">generate-feature-gap-features.mjs</code>).</li><li><strong>META</strong> — <code class="prism-inline-code">--exclude-wrappers</code> flag on <code class="prism-inline-code">skill-trigger-coverage.mjs</code> so its raw number is honest.</li><li>Re-run this audit: <code class="prism-inline-code">node scripts/skill-trigger-coverage.mjs --json</code> weekly; coverage should drift up as the F2/F4 tails are authored.</li></ol></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

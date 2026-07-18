@@ -1,0 +1,151 @@
+{
+  "id": "PP-MOAT-MS1",
+  "version": "1.0.0",
+  "title": "PP Engine Wiring — LineByLine, SLD Rewriter, Probing, Thread Milling",
+  "track": "PP-MOAT",
+  "created_at": "2026-04-01T17:00:00Z",
+  "description": "Wire the 4 highest-impact orphaned engines into the PP pipeline. LineByLineAdaptiveEngine replaces 8 simplified inline Phase 2 stages with 10 physics-complete modules. StabilityRPMRewriterEngine adds SLD-aware G-code RPM rewriting (unique in industry). ProbingCycleEngine replaces the Stage 6.2 stub with multi-dialect probing. ThreadMillingPhysicsEngine adds thread class prediction from deflection physics.",
+  "dependencies": ["PP-MOAT-MS0"],
+  "knowledge_sources": {
+    "engines": [
+      "LineByLineAdaptiveEngine (1,037 lines) — 10 per-line optimization modules",
+      "StabilityRPMRewriterEngine (297 lines) — SLD-aware RPM rewriting",
+      "ProbingCycleEngine (510 lines) — multi-dialect probing (Renishaw/Heidenhain/Siemens)",
+      "ProbingProgramEngine (120 lines) — higher-level probing assembly",
+      "ThreadMillingPhysicsEngine (1,228 lines) — helical kinematics + thread class prediction",
+      "TappingTorqueEngine (337 lines) — tapping torque + breakage risk",
+      "ChatterStabilityLobeEngine — SLD data source for RPM rewriter"
+    ],
+    "formulas": [
+      "Chip thinning factor CTF = 1/sqrt(1-(1-ae/D)^2) — in LineByLineAdaptiveEngine",
+      "Altintas SDOF SLD — in StabilityRPMRewriterEngine",
+      "Kienzle radial/axial thread forces — in ThreadMillingPhysicsEngine",
+      "ISO 68-1 thread tolerances — in ThreadMillingPhysicsEngine"
+    ],
+    "tribal": [
+      "controller-knowledge.json — probing macro numbers per controller",
+      "MachiningPlaybookEngine — threading best practices (SEQ-xxx rules)"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pp-engine-wiring-check — blocks PP edits that duplicate existing engine logic inline instead of calling the engine",
+    "mcp_action": "prism_cam post_process_enhanced — post-process with all enhanced engines active",
+    "skill": "/pp-enhanced — run post-processor with LineByLine + SLD rewrite + probing + threading"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "LineByLineAdaptiveEngine Integration (Stage 2.0)",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Add LineByLineAdaptiveEngine to _getEngine() and wire as Stage 2.0",
+          "status": "complete",
+          "steps": [
+            "Read LineByLineAdaptiveEngine.ts fully — understand its 10 modules (chip thinning, engagement-adaptive feed, corner decel, arc/plunge limits, wear+thermal tracking, entry/exit optimizer, S-curve feed smoothing, chip evacuation, block density)",
+            "Add to _getEngine() lazy loader as 'lineByLine'",
+            "Add StageConfig flag: line_by_line_adaptive (default: true)",
+            "Wire as Stage 2.0: after Phase 1 physics but before existing Phase 2 inline stages",
+            "Pass current G-code string + tool/material/machine params to lineByLineAdaptiveEngine.optimize()",
+            "Map OptimizedLine[] result back to ToolpathBlock[] — update feed, speed, add per-line annotations",
+            "When line_by_line_adaptive=true, SKIP existing inline Phase 2 stages 2.1-2.7 (they duplicate this engine)",
+            "When false, fall back to existing inline stages for backward compat"
+          ],
+          "exit_conditions": [
+            "Build passes, 117+ tests pass",
+            "New test: LineByLine produces per-line feed annotations with physics reasons",
+            "New test: cycle time delta reported in analytics",
+            "New test: disable flag falls back to inline Phase 2 without regression"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "StabilityRPMRewriterEngine Integration (Stage 3.5)",
+      "units": [
+        {
+          "id": "U02",
+          "title": "Wire StabilityRPMRewriterEngine as Stage 3.5 — SLD-aware G-code RPM rewriting",
+          "status": "complete",
+          "steps": [
+            "Read StabilityRPMRewriterEngine.ts — understand rewrite() method",
+            "Add to _getEngine() as 'stabilityRewriter'",
+            "Add StageConfig flag: stability_rewrite (default: true)",
+            "Wire as Stage 3.5: after motion dynamics (3.2) and smoothing (3.1), before Phase 4",
+            "Pass current G-code string + SLD data from Stage 1.3 (StochasticChatterEngine result)",
+            "Call stabilityRPMRewriter.rewrite(gcodeStr, { lobes, toolFlutes, currentDoc, feedPerTooth, minRPM: machine.min_rpm, maxRPM: machine.max_rpm })",
+            "Report RPM changes in analytics: sld_rpm_rewrites count, avg_shift, chatter_risk assessment"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: G-code with S3000 near chatter zone gets rewritten to stable pocket",
+            "New test: feed adjusted proportionally to maintain chip load after RPM shift",
+            "Analytics report includes sld_rpm_rewrites field"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "ProbingCycleEngine Integration (Stage 6.2)",
+      "units": [
+        {
+          "id": "U03",
+          "title": "Replace Stage 6.2 hardcoded G65 stub with ProbingCycleEngine",
+          "status": "complete",
+          "steps": [
+            "Read ProbingCycleEngine.ts — understand generate() method, 4 controller dialects, 12 probe operations",
+            "Add to _getEngine() as 'probingCycle'",
+            "In Stage 6.2 (probe_routines), replace the hardcoded G65 P9810 loop with:",
+            "  Map machine.controller to ProbeController: fanuc/haas → renishaw_fanuc/renishaw_haas, heidenhain → heidenhain, siemens → siemens",
+            "  Infer probe operations from program context: first XY → corner probe, Z surface → surface_z, circular pocket → bore, boss → boss",
+            "  Call probingCycleEngine.generate({ controller, operations, wcs, toolNumber }) for each inferred operation",
+            "  Append generated probing G-code to output (separate section or prepended setup block)",
+            "Add probe_routines_generated to analytics"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: Fanuc controller generates Renishaw G65 P981x probing",
+            "New test: Siemens controller generates CYCLE977/978 probing",
+            "New test: Heidenhain controller generates TCH PROBE cycles",
+            "Analytics report shows probe_routines_generated count and types"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "ThreadMillingPhysicsEngine Integration (Stage 1.8)",
+      "units": [
+        {
+          "id": "U04",
+          "title": "Wire ThreadMillingPhysicsEngine for thread operations — thread class prediction",
+          "status": "complete",
+          "steps": [
+            "Read ThreadMillingPhysicsEngine.ts — helical kinematics, force modeling, deflection→pitch error→thread class",
+            "Add to _getEngine() as 'threadMilling'",
+            "Add StageConfig flag: thread_milling_physics (default: true)",
+            "Detect thread milling operations: tool type = thread_mill + helical G2/G3 blocks, or tap_cycle blocks",
+            "Wire as Stage 1.8 (after deflection 1.5, before chip morphology 1.6):",
+            "  Call threadMillingPhysicsEngine.helicalKinematics() for Vc correction",
+            "  Call threadMillingPhysicsEngine.cuttingForces() for radial/axial force components",
+            "  Call threadMillingPhysicsEngine.deflectionError() for pitch diameter error",
+            "  Call threadMillingPhysicsEngine.threadQuality() for thread class prediction (6H/6g etc.)",
+            "Attach thread_quality to ToolpathBlock: { predicted_class, deflection_mm, within_tolerance, recommendations }",
+            "Feed warnings to Phase 5 safety output if thread class degrades below spec"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: M12x1.75 thread milling predicts thread class from deflection",
+            "New test: excessive feed degrades predicted class with warning",
+            "New test: non-thread operations skip this stage cleanly",
+            "Thread quality appears in analytics report"
+          ]
+        }
+      ]
+    }
+  ],
+  "exit_gate": "All 4 engines wired. LineByLine as Stage 2.0, SLD Rewriter as Stage 3.4b, Probing as Stage 6.2, ThreadMilling as Stage 1.5b. 219/219 tests pass across 6 files.",
+  "status": "complete"
+}

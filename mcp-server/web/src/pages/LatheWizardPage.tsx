@@ -5,6 +5,7 @@ import {
   submitLatheWizard,
 } from '../api/client';
 import { WorkspaceRecoveryScaffold } from '../components/workspace/WorkspaceRecoveryScaffold';
+import { GatedError } from '../components/entitlement';
 import {
   ActionButton,
   Field,
@@ -51,8 +52,14 @@ export function LatheWizardPage() {
   const launchControllerLabel = launchState?.workspaceContext?.controllerLabel;
   const [material, setMaterial] = useState(() => launchState?.materialName ?? '4140 steel');
   const [operation, setOperation] = useState(() => launchState?.operation ?? 'turning');
-  const [diameter, setDiameter] = useState(() => formatWizardNumber(launchState?.stockDiameterMm, '1.25'));
-  const [length, setLength] = useState(() => formatWizardNumber(launchState?.stockLengthMm, '4.00'));
+  // UNITS-FIRST: the wizard fields are INCH (labels "Diameter (in)" / "Length (in)" + the
+  // submit sends diameter_in/length_in), but the launch/workspace context carries stock dims
+  // in MM. Convert mm/25.4 -> in on seed, else a workspace-launched wizard would submit a mm
+  // value as inch -- a 25.4x scale error (the exact UNITS-FIRST hazard). Plain defaults are inch.
+  const [diameter, setDiameter] = useState(() => formatWizardNumber(
+    typeof launchState?.stockDiameterMm === 'number' ? launchState.stockDiameterMm / 25.4 : undefined, '1.25'));
+  const [length, setLength] = useState(() => formatWizardNumber(
+    typeof launchState?.stockLengthMm === 'number' ? launchState.stockLengthMm / 25.4 : undefined, '4.00'));
   const [tolerance, setTolerance] = useState('0.001');
   const [notes, setNotes] = useState(() => {
     const seededNotes = [launchState?.notes];
@@ -64,6 +71,7 @@ export function LatheWizardPage() {
   const [loading, setLoading] = useState(false);
   const [loadingResult, setLoadingResult] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [wizardResponse, setWizardResponse] = useState<Record<string, unknown> | null>(null);
   const [latheResult, setLatheResult] = useState<LatheResultState | null>(null);
 
@@ -88,6 +96,7 @@ export function LatheWizardPage() {
       }
     } catch (issue) {
       setWizardResponse(null);
+      setGateError(issue);
       setError(errorMessage(issue, 'Unable to submit the lathe wizard request.'));
     } finally {
       setLoading(false);
@@ -104,6 +113,7 @@ export function LatheWizardPage() {
       setLatheResult(response);
     } catch (issue) {
       setLatheResult(null);
+      setGateError(issue);
       setError(errorMessage(issue, 'Unable to retrieve the lathe wizard result.'));
     } finally {
       setLoadingResult(false);
@@ -152,12 +162,12 @@ export function LatheWizardPage() {
 
   return (
     <WorkspaceRecoveryScaffold
-      eyebrow="Machining planning"
-      title="Lathe Wizard"
-      description="The lathe wizard route is restored as an APPW planning surface with mounted wizard submission, follow-up result lookup, and PRISM AI to translate the solver output into machinist action."
+      eyebrow="Lathe programming"
+      title="Kienzle"
+      description="Kienzle is the lathe print-to-program wizard: a planning surface with mounted wizard submission, follow-up result lookup, and Kienzle AI to translate the solver output into machinist action."
       surfaces={['jobDesk']}
       metrics={metrics}
-      aiSummary="PRISM AI can explain the lathe wizard assumptions, summarize solver output, and call out the next programming or setup decision."
+      aiSummary="Kienzle AI can explain the lathe wizard assumptions, summarize solver output, and call out the next programming or setup decision."
       aiContext={aiContext}
       suggestions={[
         {
@@ -204,7 +214,7 @@ export function LatheWizardPage() {
           <textarea
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
-            className="min-h-[160px] w-full rounded-[22px] border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-cyan-300/32"
+            className="min-h-[160px] w-full rounded-ios-lg border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-cyan-300/32"
             placeholder="Part geometry notes, tool constraints, or setup details."
           />
         </label>
@@ -220,15 +230,17 @@ export function LatheWizardPage() {
         </div>
 
         {error ? (
-          <div className="mt-4 rounded-2xl border border-rose-300/18 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
-            {error}
-          </div>
+          <GatedError error={gateError} feature='wizard.lathe' fallback={
+            <div className="mt-4 rounded-ios-lg border border-rose-300/18 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
+              {error}
+            </div>
+          } />
         ) : null}
       </PanelCard>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <PanelCard title="Wizard response" subtitle="Latest mounted wizard acknowledgement.">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300">
+          <div className="rounded-ios-lg border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300">
             {wizardResponse ? formatJsonPreview(wizardResponse) : 'No wizard response is mounted yet.'}
           </div>
         </PanelCard>
@@ -239,7 +251,7 @@ export function LatheWizardPage() {
               <StatusPill label={`Status ${latheResult?.status ?? 'idle'}`} tone={latheResult?.status === 202 ? 'amber' : 'sky'} />
               {latheResult?.payload ? <StatusPill label="Payload mounted" tone="emerald" /> : null}
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300">
+            <div className="rounded-ios-lg border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300">
               {latheResult?.payload ? formatJsonPreview(latheResult.payload) : 'No lathe result payload is currently mounted for this wizard run.'}
             </div>
           </div>

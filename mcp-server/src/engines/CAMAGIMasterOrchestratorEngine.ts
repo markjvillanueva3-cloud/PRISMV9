@@ -33,7 +33,7 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { hyperMillStrategyEngine } from "./HyperMillStrategyEngine.js";
+import { hyperMillStrategyEngine, type GeometryType } from "./HyperMillStrategyEngine.js";
 import { mastercamStrategyEngine } from "./MastercamStrategyEngine.js";
 import { fusion360CodeGeneratorEngine } from "./Fusion360CodeGeneratorEngine.js";
 import { millTribalKnowledgeEngine } from "./MillTribalKnowledgeEngine.js";
@@ -875,7 +875,6 @@ export class CAMAGIMasterOrchestratorEngine {
             source: tip.source,
             confidence: tip.confidence,
             materials: tip.materials,
-            operations: tip.operations,
           });
         }
       }
@@ -1093,8 +1092,8 @@ export class CAMAGIMasterOrchestratorEngine {
 
   // ── Helper Methods ───────────────────────────────────────────────────────
 
-  private mapFeatureToHyperMillGeometry(feature: FeatureType): string {
-    const mapping: Record<FeatureType, string> = {
+  private mapFeatureToHyperMillGeometry(feature: FeatureType): GeometryType {
+    const mapping: Record<FeatureType, GeometryType> = {
       pocket_2d: "pocket_2d",
       contour_2d: "contour_2d",
       face: "face",
@@ -1221,14 +1220,8 @@ export class CAMAGIMasterOrchestratorEngine {
   private performAnalysis(request: CAMOrchestrationRequest, steps: ReasoningStep[]): unknown {
     // Delegate to MillMasterOrchestratorFacadeEngine for physics analysis
     const result = millMasterOrchestratorFacadeEngine.orchestrate({
-      type: "scientific",
+      request_type: "scientific",
       material: request.material ?? "4140",
-      operation: request.operation,
-      tool_diameter_mm: request.tool_diameter_mm,
-      cutting_speed_m_min: 100,
-      feed_per_tooth_mm: 0.1,
-      axial_depth_mm: 2,
-      radial_depth_mm: request.tool_diameter_mm ? request.tool_diameter_mm * 0.5 : 6,
     });
     return result;
   }

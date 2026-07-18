@@ -40,6 +40,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { CAD_AUTOMATION_ACTION_SCHEMAS } from "../../schemas/cadAutomationActionSchemas.js";
 import type { ICADCodeGenerator } from "../../interfaces/ICADCodeGenerator.js";
+import type { TribalTipProvider } from "../../engines/CADTrialErrorLearningEngine.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 // Lazy singletons
@@ -59,6 +60,54 @@ async function getMockLayer() {
   const mod = await import("../../engines/CADAutomationMockLayer.js");
   _mockLayer = mod.cadAutomationMockLayer;
   return _mockLayer;
+}
+
+/**
+ * Build a pure TribalTipProvider for the CAD trial-error learning loop's
+ * knowledge-injection arm (U-CAD-LEARN-TRIBAL-INJECT). Pre-loads the
+ * CADTribalDrawInjectionEngine + the tracked CAD tribal corpus (same source as
+ * cad_tribal_draw_query) so the returned provider is SYNCHRONOUS -- the learning
+ * engine invokes it inline while staying pure (no corpus I/O of its own).
+ *
+ * The provider maps a recommendation's risk profile (top failure categories +
+ * candidate part/feature/generator) to a DrawContext and returns the ranked,
+ * matched tribal lessons. So a topology-risk candidate surfaces "topology before
+ * tolerance", a STEP-emit candidate surfaces the inch-unit lesson, etc.
+ *
+ * @param inlineCorpus optional caller-supplied corpus override (else the tracked default)
+ * @returns a synchronous, side-effect-free TribalTipProvider
+ */
+async function buildCadTribalProvider(inlineCorpus?: unknown[]): Promise<TribalTipProvider> {
+  const { cadTribalDrawInjectionEngine } = await import(
+    "../../engines/CADTribalDrawInjectionEngine.js"
+  );
+  const corpus = Array.isArray(inlineCorpus)
+    ? inlineCorpus
+    : (await import("../../data/cadDrawTribalTips.js")).CAD_DRAW_TRIBAL_TIPS;
+  return ({ categories, candidate, limit }) => {
+    // Category names are snake_case (topology_mismatch) -> de-underscore so they
+    // token-match the tip text ("topology"). Candidate part/feature/generator add
+    // domain context for the ranker.
+    const queryParts = [
+      ...categories.map((c) => String(c).replace(/_/g, " ")),
+      candidate.partType,
+      candidate.generator,
+      ...(candidate.features ?? []),
+    ].filter((x): x is string => typeof x === "string" && x.length > 0);
+    const ctx = {
+      featureType: candidate.features?.[0] ?? candidate.partType,
+      query: queryParts.join(" "),
+      limit: limit ?? 5,
+    };
+    const injection = cadTribalDrawInjectionEngine.recommend(ctx as never, corpus as never);
+    return injection.applied.map((t) => ({
+      id: t.id,
+      tip: t.tip ?? "",
+      relevanceScore: t.relevanceScore,
+      source: t.source,
+      kind: t.kind,
+    }));
+  };
 }
 
 const ACTIONS = [
@@ -277,6 +326,9 @@ const ACTIONS = [
   "cad_learning_recommend",
   "cad_learning_stats",
   "cad_learning_reset",
+  "cad_learning_trend",
+  "cad_learning_record_recommendation",
+  "cad_learning_efficacy",
   "cad_rag_filter",
   "cad_rag_retrieve",
   "cad_rag_format",
@@ -2789,7 +2841,19 @@ Actions: ${ACTIONS.join(", ")}.`,
               features?: string[];
               generator?: string;
             } | undefined;
-            const recommendation = cadTrialErrorLearningEngine.recommendAdjustments(candidate ?? {});
+            // Knowledge-injection arm (U-CAD-LEARN-TRIBAL-INJECT): wire the CAD tribal
+            // corpus via CADTribalDrawInjectionEngine so risk recommendations surface
+            // the operator's curated lessons. disable_tribal skips it; tribal_corpus overrides.
+            const tribalProvider = params["disable_tribal"]
+              ? undefined
+              : await buildCadTribalProvider(params["tribal_corpus"] as unknown[] | undefined);
+            const recommendation = cadTrialErrorLearningEngine.recommendAdjustments(candidate ?? {}, {
+              tribalProvider,
+              // Closed-loop self-calibration (U-CAD-LEARN-CALIBRATE): recalibrate the raw
+              // aggregate risk toward the realized failure rate. No-op until >=
+              // MIN_EFFICACY_SAMPLES scored recs exist, so empty/thin ledgers are unchanged.
+              calibrate: params["disable_calibrate"] ? false : true,
+            });
             result = { ...recommendation, source: "CADTrialErrorLearningEngine.recommendAdjustments" };
             break;
           }
@@ -2808,6 +2872,46 @@ Actions: ${ACTIONS.join(", ")}.`,
             const eraseLedger = params["erase_ledger"] as boolean | undefined;
             cadTrialErrorLearningEngine.reset({ eraseLedger: eraseLedger ?? false });
             result = { reset: true, erasedLedger: eraseLedger ?? false, source: "CADTrialErrorLearningEngine.reset" };
+            break;
+          }
+          case "cad_learning_trend": {
+            // Loop-health: is the CAD failure rate dropping as the corpus grows?
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const trend = cadTrialErrorLearningEngine.getLearningTrend();
+            result = { ...trend, source: "CADTrialErrorLearningEngine.getLearningTrend" };
+            break;
+          }
+          case "cad_learning_record_recommendation": {
+            // Closed-loop: issue + persist a recommendation so a later outcome
+            // (ingested with this recommendationId) can be attributed back to it.
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const candidate = params["candidate"] as {
+              partType?: string;
+              features?: string[];
+              generator?: string;
+            } | undefined;
+            const recommendationId = params["recommendation_id"] as string | undefined;
+            // Same knowledge-injection arm as cad_learning_recommend; the injected
+            // tribalTipCount is persisted on the recommendation record (U-CAD-LEARN-TRIBAL-INJECT).
+            const tribalProvider = params["disable_tribal"]
+              ? undefined
+              : await buildCadTribalProvider(params["tribal_corpus"] as unknown[] | undefined);
+            const recorded = cadTrialErrorLearningEngine.recordRecommendation(candidate ?? {}, {
+              ...(recommendationId ? { recommendationId } : {}),
+              tribalProvider,
+              // getLoopEfficacy's Brier then measures the CALIBRATED predictions vs reality, while
+              // the shift basis is the separately-persisted RAW prediction -- so the loop converges
+              // on the realized rate as scored data grows, not a biased fixed point (U-CAD-LEARN-CALIBRATE).
+              calibrate: params["disable_calibrate"] ? false : true,
+            });
+            result = { ...recorded, source: "CADTrialErrorLearningEngine.recordRecommendation" };
+            break;
+          }
+          case "cad_learning_efficacy": {
+            // Closed-loop retrain signal: predicted-vs-realized + recommendation lift.
+            const { cadTrialErrorLearningEngine } = await import("../../engines/CADTrialErrorLearningEngine.js");
+            const efficacy = cadTrialErrorLearningEngine.getLoopEfficacy();
+            result = { ...efficacy, source: "CADTrialErrorLearningEngine.getLoopEfficacy" };
             break;
           }
           case "cad_rag_filter": {

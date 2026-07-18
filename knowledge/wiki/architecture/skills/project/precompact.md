@@ -30,7 +30,7 @@ related:
 ## Description (first paragraph)
 
 
-# Pre-Compact — Session Continuation Handoff
+# /precompact — write the session-continuation handoff via psk
 
 <!-- AUTO-END -->
 

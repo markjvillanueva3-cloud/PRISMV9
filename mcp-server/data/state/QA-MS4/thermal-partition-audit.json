@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS4-P0-U04",
+  "algorithm": "thermal_partition",
+  "files": [
+    "src/algorithms/ThermalPartitionModel.ts",
+    "src/engines/CuttingThermalEngine.ts",
+    "src/engines/CoolantDynamicsEngine.ts"
+  ],
+  "audited_at": "2026-04-12T19:25:00.000Z",
+  "auditor": "claude-opus-4.5",
+  "jaeger_model_verification": {
+    "file": "src/algorithms/ThermalPartitionModel.ts",
+    "formula": "R = 1 / (1 + 1.328 × √(Vc × a / α))",
+    "implementation": {
+      "jaeger_term": {
+        "line": 145,
+        "code": "1.328 * Math.sqrt((Vc_m_s * 1000 * contactLength) / chipDiffusivity)",
+        "correct": true
+      },
+      "partition_ratio": {
+        "line": 146,
+        "code": "partitionRatio = 1 / (1 + jaegerTerm)",
+        "correct": true
+      }
+    },
+    "coefficient_1328": {
+      "value": 1.328,
+      "source": "Jaeger (1942) moving heat source constant",
+      "verified": true
+    }
+  },
+  "partition_sum_verification": {
+    "requirement": "chip + tool + workpiece = 100%",
+    "implementations": [
+      {
+        "file": "src/algorithms/ThermalPartitionModel.ts",
+        "lines": "149-153",
+        "chip": "partitionRatio × 100",
+        "tool": "(1 - partitionRatio) × 0.15 × 100",
+        "workpiece": "100 - chip - tool",
+        "sum_to_100": true,
+        "verified": true
+      },
+      {
+        "file": "src/engines/CuttingThermalEngine.ts",
+        "method": "heatPartition",
+        "lines": "187-189",
+        "R_chip": "0.6 + 0.2 × speed_factor",
+        "R_tool": "(1 - R_chip) × e_work / (e_work + e_tool)",
+        "R_work": "1 - R_chip - R_tool",
+        "sum_to_1": true,
+        "verified": true
+      }
+    ]
+  },
+  "material_dependent_partition_verification": {
+    "jaeger_method": {
+      "file": "src/algorithms/ThermalPartitionModel.ts",
+      "diffusivity_lookup": "lines 73-80",
+      "iso_groups": {
+        "P_steel": "13.0 mm²/s",
+        "M_stainless": "4.0 mm²/s (low — more heat to tool)",
+        "K_cast_iron": "12.0 mm²/s",
+        "N_aluminum": "80.0 mm²/s (high — most heat to chip)",
+        "S_superalloys": "3.0 mm²/s (very low — tool critical)",
+        "H_hardened": "8.0 mm²/s"
+      },
+      "physics_correct": true,
+      "note": "Lower α → higher R (more to chip), higher α → lower R (more heat escapes)"
+    },
+    "shaw_effusivity_method": {
+      "file": "src/engines/CuttingThermalEngine.ts",
+      "effusivity_formula": "β = √(k × ρ × c)",
+      "lines": "182-183",
+      "partition_formula": "R_tool = (1 - R_chip) × e_work / (e_work + e_tool)",
+      "line": 188,
+      "physics_correct": true,
+      "reference": "Shaw, M.C. (2005) Metal Cutting Principles"
+    }
+  },
+  "coolant_effect_verification": {
+    "modeled_in": "src/engines/CoolantDynamicsEngine.ts",
+    "line": 281,
+    "model": "Loewen-Shaw heat partition with coolant",
+    "jaeger_model_note": "Does not model coolant (documented limitation)",
+    "status": "coolant modeling available in separate engine"
+  },
+  "peclet_number_verification": {
+    "formula": "Pe = V × a / α",
+    "file": "src/algorithms/ThermalPartitionModel.ts",
+    "line": 141,
+    "implementation": "pecletNumber = (Vc_m_s * 1000 * contactLength) / chipDiffusivity",
+    "correct": true,
+    "interpretation": {
+      "Pe_high": "Convection dominates, heat carried away by chip",
+      "Pe_low": "Conduction important, heat spreads into tool/workpiece"
+    }
+  },
+  "exit_conditions_met": {
+    "partition_sums_to_100": true,
+    "material_dependent": true,
+    "coolant_effect_available": true
+  },
+  "audit_result": "PASS",
+  "safety_score": 0.95,
+  "notes": [
+    "Jaeger moving heat source model correctly implemented with 1.328 constant",
+    "Shaw effusivity model provides alternative in CuttingThermalEngine",
+    "Heat partitions verified to sum to 100%",
+    "Material-dependent via thermal diffusivity (Jaeger) and effusivity (Shaw)",
+    "Coolant effects available in CoolantDynamicsEngine (separate module)"
+  ]
+}

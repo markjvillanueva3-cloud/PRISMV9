@@ -1,0 +1,473 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SESSION_ARTIFACTS Schema",
+  "description": "Artifact metadata generated at end of each session to track feature creation and wiring status",
+  "type": "object",
+  "required": [
+    "session_id",
+    "timestamp",
+    "agent",
+    "machine",
+    "roadmap_position",
+    "artifacts",
+    "quality_metrics"
+  ],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "pattern": "^(0|1|2|3|4|5|6)-[A-Z]+-[0-9]+[a-z]?$",
+      "description": "Session identifier e.g., 0-D-7, 1-1b, 6-2"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when session ended"
+    },
+    "agent": {
+      "type": "string",
+      "enum": ["Claude", "Codex", "Claude+Codex"],
+      "description": "Which agent(s) executed this session"
+    },
+    "machine": {
+      "type": "string",
+      "description": "Machine name where session ran, e.g., DESKTOP-N7MI1VB"
+    },
+    "roadmap_position": {
+      "type": "string",
+      "description": "Human-readable roadmap position, e.g., Phase 0-D, Unit 7 of 9"
+    },
+    "units_completed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^U-[A-Z0-9]+$",
+            "description": "Unit ID from roadmap, e.g., U-PROC1"
+          },
+          "title": {
+            "type": "string",
+            "description": "Human-readable unit title"
+          }
+        }
+      },
+      "description": "List of units completed in this session"
+    },
+    "artifacts": {
+      "type": "object",
+      "required": [
+        "engines",
+        "hooks",
+        "actions",
+        "skills",
+        "registries",
+        "tribal_knowledge",
+        "constants"
+      ],
+      "properties": {
+        "engines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "file",
+              "lines",
+              "purpose",
+              "inputs",
+              "outputs",
+              "ready_for",
+              "tests",
+              "coverage"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][a-zA-Z0-9]+Engine$",
+                "description": "Engine class name"
+              },
+              "file": {
+                "type": "string",
+                "pattern": "^src/engines/.*\\.ts$",
+                "description": "Relative file path to engine"
+              },
+              "lines": {
+                "type": "integer",
+                "minimum": 50,
+                "description": "Total lines of code"
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 20,
+                "description": "One-sentence purpose statement"
+              },
+              "inputs": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "List of input parameter names"
+              },
+              "outputs": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "List of output field names"
+              },
+              "ready_for": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "List of other engines/pipelines that can consume this"
+              },
+              "tests": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of tests written for this engine"
+              },
+              "coverage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Code coverage percentage (0.0 to 1.0)"
+              }
+            }
+          },
+          "description": "New engines created this session"
+        },
+        "hooks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "file",
+              "triggered_on",
+              "purpose",
+              "blocks_if"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Hook name, e.g., physics-constant-validator"
+              },
+              "file": {
+                "type": "string",
+                "pattern": "^\\.claude/hooks/lib/.*\\.sh$",
+                "description": "Relative file path to hook script"
+              },
+              "triggered_on": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "pre-edit",
+                    "post-edit",
+                    "pre-task",
+                    "post-task",
+                    "pre-tool-use",
+                    "post-tool-use",
+                    "session-end",
+                    "session-start"
+                  ]
+                },
+                "description": "When this hook fires"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "What this hook enforces or validates"
+              },
+              "blocks_if": {
+                "type": "string",
+                "description": "Condition that causes hook to block, e.g., mismatch detected"
+              },
+              "auto_fix": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether hook auto-fixes issues or just alerts"
+              }
+            }
+          },
+          "description": "New hooks created or activated this session"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "engine",
+              "dispatcher",
+              "input_schema",
+              "output_schema",
+              "ready_for_wiring",
+              "test_count"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Action name as registered in dispatcher"
+              },
+              "engine": {
+                "type": "string",
+                "description": "Engine that this action calls"
+              },
+              "dispatcher": {
+                "type": "string",
+                "pattern": "^[A-Z][a-zA-Z0-9]+Dispatcher$",
+                "description": "Dispatcher where action is registered"
+              },
+              "input_schema": {
+                "type": "string",
+                "pattern": "^schemas/.*\\.ts$",
+                "description": "Path to input schema file"
+              },
+              "output_schema": {
+                "type": "string",
+                "pattern": "^schemas/.*\\.ts$",
+                "description": "Path to output schema file"
+              },
+              "ready_for_wiring": {
+                "type": "boolean",
+                "description": "Whether action is complete and ready to use"
+              },
+              "test_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of tests for this action"
+              }
+            }
+          },
+          "description": "New dispatcher actions wired this session"
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "file",
+              "purpose",
+              "triggers_engine",
+              "dependencies",
+              "examples_count"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^/[a-z-]+$",
+                "description": "Skill name with / prefix"
+              },
+              "file": {
+                "type": "string",
+                "pattern": "^.*\\.md$",
+                "description": "Path to skill documentation"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "What this skill does"
+              },
+              "triggers_engine": {
+                "type": "string",
+                "description": "Which engine this skill primarily calls"
+              },
+              "dependencies": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "List of registries/engines this skill depends on"
+              },
+              "examples_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of working examples in documentation"
+              }
+            }
+          },
+          "description": "New skills/commands created this session"
+        },
+        "registries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "file",
+              "entries",
+              "schema",
+              "purpose"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][a-zA-Z0-9]+Registry$",
+                "description": "Registry class name"
+              },
+              "file": {
+                "type": "string",
+                "pattern": "^src/registries/.*\\.ts$",
+                "description": "Path to registry file"
+              },
+              "entries": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Number of entries in registry"
+              },
+              "schema": {
+                "type": "string",
+                "description": "TypeScript interface/type that entries conform to"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "What this registry indexes"
+              }
+            }
+          },
+          "description": "New registries created this session"
+        },
+        "tribal_knowledge": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "tip_id",
+              "category",
+              "content",
+              "source",
+              "confidence"
+            ],
+            "properties": {
+              "tip_id": {
+                "type": "string",
+                "pattern": "^TK-[0-9]+$",
+                "description": "Unique tribal knowledge tip ID"
+              },
+              "category": {
+                "type": "string",
+                "description": "Category e.g., burnishing, grinding, turning"
+              },
+              "content": {
+                "type": "string",
+                "minLength": 30,
+                "description": "The actual tip/rule"
+              },
+              "source": {
+                "type": "string",
+                "description": "Where this knowledge came from (manual, book, etc.)"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Confidence score 0.0 to 1.0"
+              }
+            }
+          },
+          "description": "New tribal knowledge items added this session"
+        },
+        "constants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "constant_id",
+              "value",
+              "unit",
+              "source",
+              "formula_id"
+            ],
+            "properties": {
+              "constant_id": {
+                "type": "string",
+                "pattern": "^[A-Z_]+$",
+                "description": "Constant identifier in src/physics/constants.ts"
+              },
+              "value": {
+                "oneOf": [
+                  { "type": "number" },
+                  { "type": "string" }
+                ],
+                "description": "The constant value"
+              },
+              "unit": {
+                "type": "string",
+                "description": "Physical unit or dimensionless"
+              },
+              "source": {
+                "type": "string",
+                "description": "Citation/reference for this constant"
+              },
+              "formula_id": {
+                "type": "string",
+                "pattern": "^F-[A-Z]+-[0-9]+$",
+                "description": "Reference to formula in FormulaRegistry"
+              }
+            }
+          },
+          "description": "New physics constants added to canonical src/physics/constants.ts"
+        }
+      }
+    },
+    "quality_metrics": {
+      "type": "object",
+      "required": [
+        "wiring_completeness",
+        "test_coverage",
+        "physics_validation",
+        "code_review_status",
+        "all_linting_passed"
+      ],
+      "properties": {
+        "wiring_completeness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fraction of engines wired to dispatchers (0.0 to 1.0)"
+        },
+        "test_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Average code coverage for all artifacts"
+        },
+        "physics_validation": {
+          "type": "string",
+          "enum": ["passed", "failed", "not_applicable"],
+          "description": "Did physics review pass?"
+        },
+        "code_review_status": {
+          "type": "string",
+          "enum": ["approved", "changes_requested", "approved_with_conditions"],
+          "description": "Code review outcome"
+        },
+        "all_linting_passed": {
+          "type": "boolean",
+          "description": "Did all linting checks pass?"
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["depends_on_engine"],
+        "properties": {
+          "depends_on_engine": {
+            "type": "string",
+            "description": "Engine or registry this session depends on"
+          },
+          "depends_on_registry": {
+            "type": "string",
+            "description": "Registry this session depends on"
+          },
+          "wired": {
+            "type": "boolean",
+            "description": "Is dependency already wired?"
+          }
+        }
+      },
+      "description": "External dependencies (engines, registries) required by these artifacts"
+    },
+    "downstream_opportunities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of follow-on opportunities for next sessions"
+    }
+  }
+}

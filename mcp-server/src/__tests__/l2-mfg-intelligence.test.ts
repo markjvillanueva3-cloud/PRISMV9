@@ -4,6 +4,7 @@
  * Each engine gets ≥1 smoke test verifying singleton, core computation, and API shape.
  */
 
+import { describe, test, expect } from "vitest";
 import { toolSelectionEngine } from "../engines/ToolSelectionEngine.js";
 import { materialSelectionEngine } from "../engines/MaterialSelectionEngine.js";
 import { machineSelectionEngine } from "../engines/MachineSelectionEngine.js";
@@ -416,7 +417,11 @@ describe("TribalKnowledgeEngine", () => {
   });
 
   test("search finds sim 5-axis strategy selection tip", () => {
-    const tips = tribalKnowledgeEngine.search({ query: "Geodesic", limit: 5 });
+    // Query updated 2026-07-01: the original single-token "Geodesic" query was written before
+    // the doc-learned corpus ingested the TK-DL-doc-inventorcam2024-geodesic-machining-* family,
+    // which now dominates that token (TK-DL-sim5x-001 fell out of even the top-20). The tip's
+    // own intent query ranks it #1 (verified live) and is robust to corpus growth.
+    const tips = tribalKnowledgeEngine.search({ query: "sim 5-axis strategy selection", limit: 5 });
     expect(tips.some(t => t.id === "TK-DL-sim5x-001")).toBe(true);
   });
 

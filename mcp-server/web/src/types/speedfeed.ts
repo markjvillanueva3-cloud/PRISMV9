@@ -100,6 +100,15 @@ export interface OrchestratorResult {
     sobol_contributions: { kc_pct: number; life_pct: number; ra_pct: number };
     dominant_uncertainty_source: string;
     suggested_measurement: string;
+    // Optional fields the backend always/conditionally emits but the UI previously dropped
+    // (U-SFC-UI-UNCERTAINTY, slot:oscar). condition_warning = thin-wall / high-temp edge-condition
+    // signal (conditional); *_cv_pct = coefficient-of-variation % per metric (always present).
+    condition_warning?: string;
+    speed_cv_pct?: number;
+    feed_cv_pct?: number;
+    life_cv_pct?: number;
+    force_cv_pct?: number;
+    ra_cv_pct?: number;
   };
   stability_assessment: {
     zone: "stable" | "marginal" | "unstable";
@@ -161,4 +170,111 @@ export interface OptimizeResult {
 export interface ApiError {
   message: string;
   code?: string;
+}
+
+// === Vendor Tri-Compare Types (sfc.vendor_parity) ===
+// Mirrors the backend SpeedFeedTriComparatorEngine result: PRISM x baseline(literature)
+// x HSMAdvisor(live) x G-Wizard(crib) on one axis basis + consensus + per-vendor deltas.
+// Reached via api/speedfeed.ts sfTriCompare -> POST /api/v1/speed-feed/tri-compare ->
+// prism_calc:speed_feed_tri_compare. The FE renders what the dispatcher returns; it
+// never recomputes physics (quebec soul).
+
+export type TriCompareSystemName = 'prism' | 'baseline' | 'hsmadvisor' | 'gwizard';
+
+/** A system's recommendation in Kienzle-canonical metric. mrr is null where the system has no cut depth. */
+export interface TriCompareSystemAxes {
+  vc_mpm: number;
+  fz_mm: number;
+  rpm: number;
+  feed_mmmin: number;
+  mrr_cm3min: number | null;
+}
+
+export interface TriCompareSystemOpinion {
+  system: TriCompareSystemName;
+  /** false when the external system is not installed / has no aligned data -- render the reason, never a blank cell. */
+  available: boolean;
+  unavailable_reason?: string;
+  axes: TriCompareSystemAxes | null;
+  source_note: string;
+  /** HSMAdvisor / G-Wizard only: does the live tool actually match the canonical input diameter? */
+  aligned?: boolean;
+}
+
+export type TriCompareAxisVerdict = 'aligned' | 'prism_higher' | 'prism_lower' | 'no_consensus';
+
+export interface TriComparePrismVsConsensusAxis {
+  axis: 'vc' | 'fz' | 'rpm' | 'feed';
+  prism: number;
+  consensus: number;
+  delta_abs: number;
+  delta_pct: number;
+  verdict: TriCompareAxisVerdict;
+  agreement: number;
+}
+
+/** Per-published-source Kienzle-vs-vendor variance (e.g. cnccookbook = G-Wizard publisher, hsmadvisor). */
+export interface TriComparePerSource {
+  source: string;
+  citation: string;
+  vc_variance_pct: number;
+  fz_variance_pct: number;
+  notes: string;
+}
+
+export interface TriCompareResult {
+  canonical_input: {
+    iso_group: string;
+    tool_material: string;
+    operation: string;
+    cut_type: string;
+    tool_diameter_mm: number;
+    flutes: number | null;
+    mode: string;
+  };
+  /** Fixed order [prism, baseline, hsmadvisor, gwizard] (subject to include_* flags). */
+  systems: TriCompareSystemOpinion[];
+  /** Per-axis median across AVAILABLE EXTERNAL systems (excludes Kienzle). null if none available. */
+  consensus: { vc_mpm: number; fz_mm: number; rpm: number; feed_mmmin: number } | null;
+  prism_vs_consensus: {
+    per_axis: TriComparePrismVsConsensusAxis[];
+    overall_agreement: number;
+    external_systems_used: number;
+    verdict_summary: string;
+  } | null;
+  pairwise: Array<{ vs: TriCompareSystemName; agreement: number }>;
+  baseline_detail: {
+    baseline_found: boolean;
+    baseline_key?: string;
+    per_source: TriComparePerSource[];
+  } | null;
+  warnings: string[];
+}
+
+export interface TriCompareInput {
+  material: {
+    iso_group?: 'P' | 'M' | 'K' | 'N' | 'S' | 'H';
+    name?: string;
+    hardness_hb?: number;
+    hardness_hrc?: number;
+  };
+  tooling: {
+    tool_diameter_mm: number;
+    flutes?: number;
+    tool_material?: 'carbide' | 'hss' | 'cermet' | 'ceramic' | 'cbn' | 'pcd';
+    coating?: string;
+    helix_angle_deg?: number;
+    corner_radius_mm?: number;
+    stickout_mm?: number;
+  };
+  toolpath?: {
+    operation?: 'milling' | 'turning' | 'drilling' | 'tapping' | 'reaming' | 'boring' | 'thread_milling';
+    cut_type?: 'roughing' | 'semi_finishing' | 'finishing';
+    axial_depth_mm?: number;
+    radial_depth_mm?: number;
+  };
+  optimization_mode?: 'cost_batch' | 'aggressive_rush' | 'prism_optimized';
+  include_baseline?: boolean;
+  include_hsmadvisor?: boolean;
+  include_gwizard?: boolean;
 }

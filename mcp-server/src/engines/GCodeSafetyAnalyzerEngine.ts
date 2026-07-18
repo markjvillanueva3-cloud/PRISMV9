@@ -3,7 +3,7 @@
  *
  * Catches dangerous G-code patterns that would cause crashes, tool breakage,
  * or operator injury. Uses modal state tracking and contextual pattern
- * analysis to detect 24 safety rules across 6 CNC controllers.
+ * analysis to detect 25 safety rules across 6 CNC controllers.
  *
  * Supported controllers: fanuc, haas, siemens, heidenhain, mazak, okuma
  *
@@ -142,6 +142,41 @@ const CUTTER_COMP_OFF = new Set(['G40']);
 const TOOL_LENGTH_ON = new Set(['G43', 'G44']);
 const TOOL_LENGTH_OFF = new Set(['G49']);
 
+/**
+ * 5-axis TCP / RTCP (tool-center-point control) ON/OFF code tokens per controller.
+ *
+ * Every code is cited to an in-repo canonical source — NONE is derived from a manual
+ * (echo soul rule; this table is the guard against the G170/G168 fabrication class,
+ * memory reference_echo_okuma_5axis_g170_tcp_correction_2026_06_29):
+ *   - fanuc / mazak: ON `G43.4 H{offset}`  OFF `G49`
+ *       FiveAxisPostEngine.ts:72-82 TCPC_MAP (fanuc_31i/30i/0i/generic, mazak_smooth_*)
+ *   - haas:          ON `G234` (Haas TCPC) or `G43.4`   OFF `G49`
+ *       controller-knowledge-tips.ts:280 ("G234 ... equivalent to Fanuc G43.4"),
+ *       course-31-cadcam-operations-atlas.ts:397, course-34-per-machine-type-operations.ts:208
+ *   - okuma:         ON `G169` (native) / `G43.4` / `G43.5` (P300/P500)   OFF `G170` / `G49`
+ *       OkumaOSPMillMasterPostEngine.ts:962-975 (G169 on / G170 off, .cps:47,515),
+ *       FiveAxisPostEngine.ts:83 (okuma_osp_p300 G43.4/G49)
+ *
+ * NOTE the decimal codes (G43.4 / G43.5) are matched against the RAW comment-stripped
+ * line, NOT the normalized gCodes: normalizeCode() collapses `G43.4` -> `G43`
+ * (parseInt("43.4") === 43), so the decimal TCP variant is invisible in gCodes.
+ *
+ * OUT OF SCOPE for this static G-code balance check (no entry = rule does not fire):
+ * Siemens (TRAORI / TRAFOOF) and Heidenhain (FUNCTION TCPM / FUNCTION RESET TCPM,
+ * older iTNC M128 / M129) use WORD commands, not G-codes (FiveAxisPostEngine.ts:78-79,238).
+ * A follow-up unit adds their word-pair balance.
+ */
+interface TcpTokenSet {
+  on: RegExp[];
+  off: RegExp[];
+}
+const TCP_TOKENS: Partial<Record<ControllerType, TcpTokenSet>> = {
+  fanuc: { on: [/\bG0*43\.[45]\b/], off: [/\bG0*49\b/] },
+  mazak: { on: [/\bG0*43\.[45]\b/], off: [/\bG0*49\b/] },
+  haas: { on: [/\bG234\b/, /\bG0*43\.[45]\b/], off: [/\bG0*49\b/] },
+  okuma: { on: [/\bG169\b/, /\bG0*43\.[45]\b/], off: [/\bG170\b/, /\bG0*49\b/] },
+};
+
 /** Comment format patterns per controller */
 const COMMENT_PATTERNS: Record<ControllerType, RegExp> = {
   fanuc: /\(.*\)/,
@@ -152,14 +187,33 @@ const COMMENT_PATTERNS: Record<ControllerType, RegExp> = {
   okuma: /\(.*\)/,
 };
 
-/** Safe start block requirements per controller */
+/**
+ * Safe start block requirements per controller.
+ *
+ * Per-controller note (U-GCANALYZER-OKUMA-START-BLOCK, whiskey 2026-05-24):
+ * - fanuc / haas / mazak: mill-centric Fanuc convention with G80 (canned
+ *   cycle cancel), G49 (tool offset comp cancel), G17 (XY plane).
+ * - siemens: G90 + G40 + G17 (less rigid Fanuc convention).
+ * - heidenhain: no required codes (different dialect entirely).
+ * - okuma: OSP-controller lathes default-init to G90 (absolute), G40 (cutter
+ *   comp off), and operate in lathe-mode (no G17/G49/G80 — those are
+ *   mill-centric). The canonical OSP lathe safe-start is `G50 S<rpm>` (max
+ *   RPM clamp) + `G97`/`G96` (constant RPM vs constant surface speed) — NOT
+ *   the Fanuc mill subset. Requiring G80/G49/G17 on lathe programs was a
+ *   false-positive cascade across the JM Die corpus.
+ *
+ * The okuma list below is intentionally LIBERAL — only the absolute-
+ * positioning code is universally required. Lathe-specific safety
+ * (G50 max-RPM clamp) is checked separately via a dedicated rule in a
+ * follow-up unit (U-OKUMA-LATHE-G50-CHECK).
+ */
 const SAFE_START_CODES: Record<ControllerType, string[]> = {
   fanuc: ['G90', 'G80', 'G40', 'G49', 'G17'],
   haas: ['G90', 'G80', 'G40', 'G49', 'G17'],
   siemens: ['G90', 'G40', 'G17'],
   heidenhain: [],
   mazak: ['G90', 'G80', 'G40', 'G49', 'G17'],
-  okuma: ['G90', 'G80', 'G40', 'G49', 'G17'],
+  okuma: ['G90'],
 };
 
 const MAX_CARBIDE_SFM = 1200;
@@ -169,7 +223,7 @@ const MAX_CARBIDE_SFM = 1200;
 /**
  * GCodeSafetyAnalyzerEngine - Contextual G-code safety analysis
  *
- * Tracks modal state through entire programs and detects 24 safety
+ * Tracks modal state through entire programs and detects 25 safety
  * rules spanning critical (crash/injury), high (tool/part damage),
  * and medium (operational) severity levels.
  */
@@ -223,8 +277,14 @@ export class GCodeSafetyAnalyzerEngine {
       mCodes.push(this.normalizeCode(`M${m[1]}`));
     }
 
-    // Extract address values (X, Y, Z, F, S, T, R, etc.)
-    const addrPattern = /([A-Z])\s*(-?\d+\.?\d*)/gi;
+    // Extract address values (X, Y, Z, F, S, T, R, etc.).
+    // The numeric pattern accepts BOTH "0.040" AND ".040" — Okuma OSP
+    // programs (JM Die fleet) commonly emit leading-dot decimals (`F.006`,
+    // `X-.040`). Prior regex `/-?\d+\.?\d*/` required digits before the
+    // decimal, silently failing to parse `F.006` → modal feedRate stayed 0
+    // → CRIT-05 fired on every cut. Fix per JM-DIE-LATHE-UPGRADE-MS0/
+    // U-GCANALYZER-MODAL-F-TRACK (whiskey 2026-05-24).
+    const addrPattern = /([A-Z])\s*(-?(?:\d+\.?\d*|\.\d+))/gi;
     const addrMatches = code.matchAll(addrPattern);
     for (const m of addrMatches) {
       const letter = m[1].toUpperCase();
@@ -1012,6 +1072,210 @@ export class GCodeSafetyAnalyzerEngine {
     return null;
   }
 
+  /**
+   * HIGH-19 (U-OKUMA-LATHE-G50-CHECK, whiskey 2026-05-24): Okuma OSP lathes
+   * require `G50 S<max_rpm>` to clamp spindle speed. Without G50, a small-
+   * diameter cut in CSS (constant surface speed, G96) mode can drive the
+   * spindle to mechanical destruction. Mill-mode programs skip this check.
+   * Searches the first 20 non-comment lines for an `G50` block carrying an
+   * S-address. Lathe-only — fires only when controller=okuma.
+   */
+  private checkOkumaG50MaxRpmClamp(
+    lines: ParsedLine[],
+    config: SafetyAnalysisConfig,
+  ): SafetyIssue | null {
+    if (config.controller !== 'okuma') return null;
+    const HEADER_SCAN_LINES = 20;
+    const firstLines = lines
+      .filter((l) => !l.isComment)
+      .slice(0, HEADER_SCAN_LINES);
+    const hasG50WithS = firstLines.some(
+      (l) => l.gCodes.includes('G50') && l.addresses.has('S'),
+    );
+    if (hasG50WithS) return null;
+    return {
+      rule_id: 'HIGH-19',
+      line: firstLines[0]?.lineNum ?? 1,
+      code_snippet: firstLines[0]?.raw ?? '',
+      description:
+        'Okuma lathe program missing G50 S<max_rpm> spindle-speed clamp. ' +
+        'Without it, a small-diameter cut in CSS (G96) mode can drive the ' +
+        'spindle past mechanical limits — catastrophic failure mode.',
+      fix_suggestion:
+        'Add `G50 S<max_rpm>` near the program header (typical value: ' +
+        '2500-3600 for steel, machine-dependent). Required even when G97 ' +
+        '(constant RPM) is used downstream — the clamp applies globally.',
+      severity: 'high',
+    };
+  }
+
+  /**
+   * HIGH-20 (U-LW-A1, whiskey 2026-07-05): controller-agnostic lathe CSS
+   * spindle-overspeed clamp check. The Okuma-scoped HIGH-19 above let real
+   * Fanuc/Haas/Mazak turning programs through — the JM-Die accuracy harness
+   * (scripts/lathe-jmdie-param-accuracy-harness.mjs) flagged 3 live shop
+   * programs (ITW/UPSET2528-25203-01B, EJOT/T120030271-STOP, MACOMB/HD-014-02-M-B)
+   * running `G96 S250` with no G50 cap. In constant-surface-speed (G96) mode
+   * the commanded RPM rises as the cut diameter shrinks; without a
+   * `G50 S<max_rpm>` (or legacy-Fanuc `G92 S<max_rpm>`) clamp the spindle can
+   * be driven past its mechanical / chuck limit (chuck burst, part ejection) —
+   * SAFETY-CRITICAL.
+   *
+   * Trigger is the physically-exact hazard: G96 present AND no G50/G92-with-S
+   * clamp set BEFORE the first G96 block (a clamp appearing after the CSS block
+   * leaves the initial shrinking-diameter cut unclamped). Scoped to the lathe
+   * dialects that use
+   * the G50/G92 clamp form (fanuc/haas/mazak); Okuma is owned by HIGH-19, and
+   * Siemens/Heidenhain clamp CSS via a different mechanism (LIMS=) so they are
+   * out of scope for this rule (excluding them avoids a false positive).
+   *
+   * @param lines  parsed program lines
+   * @param config analysis config (controller + strictness)
+   * @returns a HIGH SafetyIssue when a G96 program lacks a max-RPM clamp, else null
+   */
+  private checkLatheCssOverspeedClamp(
+    lines: ParsedLine[],
+    config: SafetyAnalysisConfig,
+  ): SafetyIssue | null {
+    const G50_CLAMP_CONTROLS: ReadonlyArray<ControllerType> = [
+      'fanuc',
+      'haas',
+      'mazak',
+    ];
+    if (!G50_CLAMP_CONTROLS.includes(config.controller)) return null;
+
+    const code = lines.filter((l) => !l.isComment);
+
+    // Trigger: constant-surface-speed mode actually used somewhere.
+    const g96Idx = code.findIndex((l) => l.gCodes.includes('G96'));
+    if (g96Idx === -1) return null;
+    const g96Line = code[g96Idx];
+
+    // Mitigation: a max-RPM clamp `G50 S` (modern) or `G92 S` (legacy Fanuc
+    // lathe). Requiring the S-address disambiguates the clamp meaning from G50
+    // coordinate-set / G92 threading blocks (which carry X/Z, not S) — same
+    // convention HIGH-19 uses. The clamp is only protective if it is set BEFORE
+    // the first G96: a clamp that appears after the CSS block leaves the initial
+    // shrinking-diameter cut unclamped, so scan only the lines preceding G96.
+    const hasClampBeforeCss = code
+      .slice(0, g96Idx)
+      .some(
+        (l) =>
+          (l.gCodes.includes('G50') || l.gCodes.includes('G92')) &&
+          l.addresses.has('S'),
+      );
+    if (hasClampBeforeCss) return null;
+
+    return {
+      rule_id: 'HIGH-20',
+      line: g96Line.lineNum,
+      code_snippet: g96Line.raw,
+      description:
+        'Lathe program uses G96 (constant surface speed) with no ' +
+        'G50/G92 S<max_rpm> spindle-speed clamp. As the cut diameter shrinks, ' +
+        'CSS commands ever-higher RPM — without the clamp the spindle can be ' +
+        'driven past its mechanical / chuck limit (chuck burst, part ' +
+        `ejection). Controller: ${config.controller}.`,
+      fix_suggestion:
+        'Add a max-RPM clamp before the first G96 block — `G50 S<max_rpm>` ' +
+        '(Fanuc/Haas/Mazak turning, e.g. G50 S3000) or `G92 S<max_rpm>` on ' +
+        'legacy Fanuc lathes. Set it to the lower of the chuck/collet rating ' +
+        'and the workpiece safe RPM.',
+      severity: 'high',
+    };
+  }
+
+  /**
+   * CRITICAL-11: 5-axis TCP / RTCP left active -- missing cancel code.
+   *
+   * A tool-center-point-control mode turned ON but never cancelled is a crash: on the
+   * next positioning / machine-home / tool-change move the control re-interprets the
+   * rotary + linear words under the (now-unwanted) kinematic transform. This is the
+   * exact hazard class of the 2026-06-29 Okuma G170/G168 regression
+   * (reference_echo_okuma_5axis_g170_tcp_correction_2026_06_29): a non-cancel of TCPC
+   * crashes the Genos M460V on the next positioning move.
+   *
+   * Fires when a per-controller verified ON-token appears and either:
+   *   (a) a G28/G53 machine home or M6 tool change occurs while TCP is still active, OR
+   *   (b) the program reaches its end with TCP still active (no matching OFF-token).
+   *
+   * G-code TCP dialects only (see TCP_TOKENS: fanuc/haas/mazak/okuma). Controllers with
+   * no token set (siemens/heidenhain word-commands) do not fire this rule.
+   */
+  private checkTcpLeftActive(
+    lines: ParsedLine[],
+    config: SafetyAnalysisConfig,
+  ): SafetyIssue[] {
+    const tokens = TCP_TOKENS[config.controller];
+    if (!tokens) return [];
+
+    const issues: SafetyIssue[] = [];
+    let tcpActive = false;
+    let onLine = 0;
+    let onSnippet = '';
+
+    for (const line of lines) {
+      if (line.isComment) continue;
+      // Strip () and [] comments so a token inside a comment never counts.
+      const view = line.raw
+        .replace(/\([^)]*\)/g, ' ')
+        .replace(/\[[^\]]*\]/g, ' ')
+        .toUpperCase();
+      const isOff = tokens.off.some((re) => re.test(view));
+      const isOn = tokens.on.some((re) => re.test(view));
+
+      // (a) home / tool-change while TCP still active (and not cancelled on this line)
+      if (tcpActive && !isOff) {
+        const homes = /\bG28\b/.test(view) || /\bG53\b/.test(view);
+        const toolChange = line.mCodes.includes('M6');
+        if (homes || toolChange) {
+          issues.push({
+            rule_id: 'CRIT-11',
+            line: line.lineNum,
+            code_snippet: line.raw,
+            description:
+              `${homes ? 'Machine home (G28/G53)' : 'Tool change (M6)'} while ` +
+              `5-axis TCP/RTCP is still active (turned on at line ${onLine}). The ` +
+              'control applies the tool-center-point transform to this move -- ' +
+              'crash on the next positioning move (Okuma G170/G168 regression class).',
+            fix_suggestion:
+              'Cancel TCP/RTCP before the home/tool-change. Sequence: retract to a ' +
+              'safe plane, then G170 (Okuma native) or G49 (Fanuc/Haas/Mazak, and ' +
+              'Okuma P300/P500) BEFORE G28/G53/M6.',
+            severity: 'critical',
+          });
+        }
+      }
+
+      if (isOff) tcpActive = false;
+      if (isOn) {
+        tcpActive = true;
+        onLine = line.lineNum;
+        onSnippet = line.raw;
+      }
+    }
+
+    // (b) reached program end still active
+    if (tcpActive) {
+      issues.push({
+        rule_id: 'CRIT-11',
+        line: onLine,
+        code_snippet: onSnippet,
+        description:
+          `5-axis TCP/RTCP turned on at line ${onLine} is never cancelled before ` +
+          'program end (no G170/G49). The mode persists past M30 into the next run / ' +
+          'the next positioning move -- crash (Okuma G170/G168 regression class).',
+        fix_suggestion:
+          'Emit the matching TCP cancel before program end: G170 (Okuma native), or ' +
+          'G49 (Fanuc/Haas/Mazak, and Okuma P300/P500). Pair every ' +
+          'G169 / G43.4 / G43.5 / G234 with its cancel.',
+        severity: 'critical',
+      });
+    }
+
+    return issues;
+  }
+
   /** HIGH-18: Missing safe start block */
   private checkSafeStartBlock(
     lines: ParsedLine[],
@@ -1290,7 +1554,7 @@ export class GCodeSafetyAnalyzerEngine {
    * Full safety analysis of a G-code program.
    *
    * Parses the entire program, tracks modal state line-by-line,
-   * and applies all 24 safety rules. Returns categorized issues
+   * and applies all 25 safety rules. Returns categorized issues
    * and a safety score.
    *
    * @param gcode - Raw G-code program text
@@ -1325,6 +1589,25 @@ export class GCodeSafetyAnalyzerEngine {
 
     const blockDeleteIssue = this.checkExcessiveBlockDelete(lines);
     if (blockDeleteIssue) medium.push(blockDeleteIssue);
+
+    // U-OKUMA-LATHE-G50-CHECK (whiskey 2026-05-24): Okuma OSP-controller
+    // lathes use G50 S<rpm> to clamp the max spindle RPM — critical when
+    // the part is small-diameter (constant-surface-speed mode can compute a
+    // runaway RPM otherwise). Absence is a HIGH severity safety lint.
+    const g50Issue = this.checkOkumaG50MaxRpmClamp(lines, config);
+    if (g50Issue) high.push(g50Issue);
+
+    // HIGH-20 (U-LW-A1, whiskey 2026-07-05): controller-agnostic CSS-overspeed
+    // clamp. HIGH-19 above only covers Okuma; this catches Fanuc/Haas/Mazak
+    // turning programs that run G96 without a G50/G92 S<max_rpm> clamp — the
+    // exact class the JM-Die accuracy harness found HIGH-19 was letting through.
+    const cssClampIssue = this.checkLatheCssOverspeedClamp(lines, config);
+    if (cssClampIssue) high.push(cssClampIssue);
+
+    // CRIT-11: 5-axis TCP/RTCP left active (missing cancel code). Program-level,
+    // controller-aware. Addresses the 2026-06-29 Okuma G170/G168 TCP-cancel regression.
+    const tcpIssues = this.checkTcpLeftActive(lines, config);
+    critical.push(...tcpIssues);
 
     // Line-by-line analysis with modal state tracking
     for (const line of lines) {
@@ -1532,6 +1815,7 @@ export class GCodeSafetyAnalyzerEngine {
     const lines = gcode.split(/\r?\n/);
     const critical: SafetyIssue[] = [];
     const state = this.createInitialState();
+    const parsedLines: ParsedLine[] = [];
 
     for (let i = 0; i < lines.length; i++) {
       const raw = lines[i].trim();
@@ -1544,6 +1828,7 @@ export class GCodeSafetyAnalyzerEngine {
       }
 
       const parsed = this.parseLine(raw, i + 1, 'fanuc');
+      parsedLines.push(parsed);
 
       const c01 = this.checkRapidIntoStock(parsed, state);
       if (c01) critical.push(c01);
@@ -1570,6 +1855,15 @@ export class GCodeSafetyAnalyzerEngine {
 
       this.updateState(state, parsed);
     }
+
+    // CRIT-11: program-level TCP/RTCP-left-active (fanuc token set on the fast path;
+    // the full analyze() path is controller-aware).
+    critical.push(
+      ...this.checkTcpLeftActive(parsedLines, {
+        controller: 'fanuc',
+        strictness: 'standard',
+      }),
+    );
 
     return critical;
   }
@@ -1825,6 +2119,7 @@ export class GCodeSafetyAnalyzerEngine {
     sections.push('    CRIT-08  G28 with active cutter comp');
     sections.push('    CRIT-09  Over-travel (exceeds envelope)');
     sections.push('    CRIT-10  Missing M19 before probe');
+    sections.push('    CRIT-11  5-axis TCP/RTCP left active (no cancel)');
     sections.push('');
     sections.push('  HIGH (Tool/Part Damage):');
     sections.push('    HIGH-11  Excessive feed rate for tool');
@@ -1835,6 +2130,8 @@ export class GCodeSafetyAnalyzerEngine {
     sections.push('    HIGH-16  Spindle speed exceeds tool max');
     sections.push('    HIGH-17  Coolant on during tool change');
     sections.push('    HIGH-18  Missing safe start block');
+    sections.push('    HIGH-19  Okuma lathe missing G50 S max-RPM clamp');
+    sections.push('    HIGH-20  Lathe G96 CSS without G50/G92 max-RPM clamp');
     sections.push('');
     sections.push('  MEDIUM (Operational):');
     sections.push('    MED-19   Redundant modal codes');

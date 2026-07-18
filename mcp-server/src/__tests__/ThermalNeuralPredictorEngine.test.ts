@@ -522,4 +522,33 @@ describe("ThermalNeuralPredictorEngine (MILL-AGI P0.3)", () => {
       expect(thermalNeuralPredictorEngine).toBeInstanceOf(ThermalNeuralPredictorEngine);
     });
   });
+
+  // Row 2 of the verified SFC fix-plan (U-OSC-SFC-THERMALNEURAL-GATE): the LSTM has NO
+  // training/checkpoint path, so its Xavier weights are RANDOM -- ungated, the interface
+  // temperature swung a nondeterministic +-20% per process start. The correction is now
+  // gated to 0 until a real trained checkpoint exists (same class as the shipped
+  // ForceNeuralPredictorEngine gate). These pin the deterministic contract -- a revert to
+  // the ungated random forward pass fails all three.
+  describe("untrained-LSTM gate (deterministic physics base)", () => {
+    it("neural_correction is exactly 0 while no trained checkpoint exists", () => {
+      const p = engine.predict(steelDryInput);
+      expect(p.neural_correction).toBe(0);
+    });
+
+    it("interface temperature equals the Loewen-Shaw physics base (no random +-20% swing)", () => {
+      const p = engine.predict(steelDryInput);
+      // interfaceTemp = physics_base.loewen_shaw_c * (1 + 0 * 0.2) -- byte-equal to the base
+      expect(p.temperatures.interface_c).toBeCloseTo(p.physics_base.loewen_shaw_c, 6);
+    });
+
+    it("prediction is deterministic: fresh engine instances (fresh random weights) agree exactly", () => {
+      // Pre-gate, two instances Xavier-init different random weights -> different temps.
+      // Post-gate, the random weights are unreachable, so instances MUST agree.
+      const a = new ThermalNeuralPredictorEngine().predict(steelDryInput);
+      const b = new ThermalNeuralPredictorEngine().predict(steelDryInput);
+      expect(a.temperatures.interface_c).toBe(b.temperatures.interface_c);
+      expect(a.heat_partition.to_chip).toBe(b.heat_partition.to_chip);
+      expect(a.heat_partition.to_tool).toBe(b.heat_partition.to_tool);
+    });
+  });
 });

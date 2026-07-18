@@ -1,141 +1,389 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>PRISM Token-Savings Audit — 2026-05-17</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="0017d0661c66eae4d1e68eeccf857763fc33f56370dc9dfec9f50a843bf9a5f5">
+<title>PRISM Token-Savings Audit — 2026-05-17 (lima)</title>
 <style>
-:root{--bg:#0e1117;--fg:#e6edf3;--mute:#7d8590;--card:#161b22;--bd:#30363d;--p0:#f85149;--p1:#d29922;--p2:#bc8cff;--ok:#3fb950}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font:14px/1.55 ui-monospace,Menlo,Consolas,monospace;margin:0;padding:24px;max-width:1100px;margin-left:auto;margin-right:auto}
-h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 8px;border-bottom:1px solid var(--bd);padding-bottom:4px}h3{margin:18px 0 6px}
-.muted{color:var(--mute)}.p0{color:var(--p0);font-weight:bold}.p1{color:var(--p1);font-weight:bold}.p2{color:var(--p2);font-weight:bold}.ok{color:var(--ok)}
-table{width:100%;border-collapse:collapse;margin:12px 0}th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
-th{color:var(--mute);font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.5px}
-tr.p0 td:first-child{border-left:3px solid var(--p0)}tr.p1 td:first-child{border-left:3px solid var(--p1)}tr.p2 td:first-child{border-left:3px solid var(--p2)}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin:14px 0}
-code{background:#0d1117;border:1px solid var(--bd);border-radius:4px;padding:1px 6px;color:#79c0ff;font-size:12.5px}
-pre{background:#010409;border:1px solid var(--bd);border-radius:6px;padding:12px;overflow:auto;color:#c9d1d9;font-size:12.5px}
-.bar{display:inline-block;height:14px;background:var(--bd);border-radius:3px;position:relative;width:160px;vertical-align:middle;margin-right:8px}
-.bar>span{position:absolute;left:0;top:0;bottom:0;background:var(--p1);border-radius:3px}
-.bar.crit>span{background:var(--p0)}.bar.warn>span{background:var(--p1)}.bar.ok>span{background:var(--ok)}
-.toc a{color:#79c0ff;text-decoration:none;margin-right:14px}
-.kv{display:grid;grid-template-columns:200px 1fr;gap:4px 14px;margin:6px 0}.kv b{color:var(--mute);font-weight:500}
-.verify{background:#161b22;border-left:3px solid var(--ok);padding:6px 10px;margin:6px 0;font-size:12.5px}
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
 </style>
 </head>
 <body>
-<h1>PRISM Token-Savings Audit</h1>
-<div class="muted">2026-05-17 · slot lima · claude-77971357 · scope: token-savings measures effectiveness · <code>/forge-audit-v2</code></div>
-
-<div class="card">
-  <div><b>Verdict:</b> <span class="p0">2 P0</span> · <span class="p1">5 P1</span> · <span class="p2">1 P2</span> &nbsp;<span class="muted">(post-peer-review)</span></div>
-  <div class="muted">META artifact (re-runnable): <code>node scripts/token-savings-rank.mjs --json --history</code> &nbsp;·&nbsp; Peer reviewer: agent <code>a0310b5d6</code> verdict <code>FIX-FIRST</code> — revisions applied</div>
-</div>
-
-<div class="toc">
-<a href="#snapshot">Snapshot</a><a href="#findings">Findings</a><a href="#actions">Actions</a><a href="#loop">/loop re-run</a>
-</div>
-
-<h2 id="snapshot">Snapshot (2026-05-17 15:33 UTC)</h2>
-<table>
-  <tr><th>Surface</th><th>Measure</th><th>Target</th><th>Status</th></tr>
-  <tr class="p0"><td>Ollama offload</td><td>9.6% (65/678) · 14,880 tokens saved in 19d</td><td>≥30%</td><td><span class="bar crit"><span style="width:32%"></span></span> <span class="p0">P0</span></td></tr>
-  <tr class="p0"><td>MEMORY.md size</td><td>24,603 B (headroom −27 B)</td><td>&lt;22,000 B</td><td><span class="bar crit"><span style="width:100%"></span></span> <span class="p0">P0</span></td></tr>
-  <tr class="p1"><td>RTK passthrough</td><td>65.3% archive entries unfiltered</td><td>&lt;5%</td><td><span class="bar warn"><span style="width:65%"></span></span> <span class="p1">P1</span></td></tr>
-  <tr class="p1"><td>RTK hooks wired</td><td>0 of 4 on disk</td><td>≥3</td><td><span class="bar warn"><span style="width:0%"></span></span> <span class="p1">P1</span></td></tr>
-  <tr class="p1"><td>Ollama suggestion UI</td><td>2 injected / 868 silent (0.23%)</td><td>≥5%</td><td><span class="bar warn"><span style="width:5%"></span></span> <span class="p1">P1</span></td></tr>
-  <tr class="p1"><td>error-pattern-promote</td><td>99.8% no-op (2412/2417 fires)</td><td>&lt;60%</td><td><span class="bar warn"><span style="width:99%"></span></span> <span class="p1">P1</span></td></tr>
-  <tr class="p1"><td>Hooks zero-fire (17d)</td><td>513 of 523 (98.1%)</td><td>&lt;300</td><td><span class="bar warn"><span style="width:98%"></span></span> <span class="p1">P1</span></td></tr>
-  <tr class="p2"><td>CLAUDE.md size</td><td>115,521 B / <b>610 lines</b> (corrected from 3,200)</td><td>&lt;80KB / &lt;400 lines</td><td><span class="bar"><span style="width:77%;background:var(--p2)"></span></span> <span class="p2">P2</span></td></tr>
-  <tr class="p2"><td>token-budget slot map</td><td>57.7% fires unmapped (602/1042)</td><td>&lt;20%</td><td><span class="bar"><span style="width:58%;background:var(--p2)"></span></span> <span class="p2">P2</span></td></tr>
-  <tr class="p1"><td><b>Cache reader-path</b> <span class="muted">(all 3 caches)</span></td><td>0 hits / 100 keys (bash 1, grep 3, file-read 96)</td><td>≥10 hits/day</td><td><span class="bar warn"><span style="width:100%"></span></span> <span class="p1">P1 (upgraded)</span></td></tr>
-  <tr><td class="muted">System synergy (already-tracked)</td><td class="muted">21.1% (regression −1.09pp vs 22.2%)</td><td class="muted">≥30%</td><td class="muted">tracked by synergy-regression-watch</td></tr>
-</table>
-
-<h2 id="findings">Findings (Boris-discipline — each carries its verification channel)</h2>
-
-<div class="card">
-  <h3>[<span class="p0">P0</span>] F2 — MEMORY.md is actively truncating fleet-wide RIGHT NOW</h3>
-  <div class="kv"><b>What</b><span>24,603 B / 24,576 B truncation ceiling. Headroom −27 B. Every chat's auto-loaded MEMORY.md is truncated this session.</span></div>
-  <div class="kv"><b>Why it matters</b><span>MEMORY.md is auto-injected on EVERY SessionStart for EVERY chat. Truncation degrades the recall surface 13 chats lean on for cross-session continuity.</span></div>
-  <div class="kv"><b>History</b><span>Same regression fired 2026-05-16 — compressed to 21,474 B that day, re-grew to 24,603 B in 1 day. No durable watchdog action; <code>memory-size-watch.mjs</code> only advises.</span></div>
-  <div class="verify">Verify: <code>node scripts/memory-size-watch.mjs --json | jq .status</code> &nbsp;→&nbsp; expected <code>"fresh"</code>; currently <code>"critical"</code></div>
-  <div class="kv"><b>Fix</b><span>1) Trim 5–8 oldest entries from MEMORY.md NOW (~2KB headroom). 2) Wire memory-size-watch into a Stop hook that auto-triggers <code>/memory-prune</code> when status ≥ warn.</span></div>
-</div>
-
-<div class="card">
-  <h3>[<span class="p0">P0</span>] F3 — Ollama offload at 9.6% vs 30% target (3.1× below)</h3>
-  <div class="kv"><b>What</b><span>65 / 678 tasks routed to Ollama. 14,880 tokens saved over 19 days = ~780/day = noise floor.</span></div>
-  <div class="kv"><b>Sub-findings</b><span>
-    <ul style="margin:4px 0">
-      <li><code>fleet-reaper-coordinator</code> fired 440× with <code>offloaded:0</code>, <code>suggested:440</code> — its routing hint never converts to an actual offload</li>
-      <li>Only 3 categories trigger offload: <code>summary</code> (60), <code>cache-hit</code> (2), <code>explanation</code> (3) — classification scope is narrow</li>
-      <li>byHook: <code>ollama-task-offloader</code> 63/613 = 10.3% conversion is the only meaningful path</li>
-    </ul>
-  </span></div>
-  <div class="verify">Verify: <code>node scripts/ollama-offload-dashboard.mjs --json | jq '.offloaded/(.offloaded+.keptOnClaude)'</code> &nbsp;→&nbsp; expected ≥0.30</div>
-  <div class="kv"><b>Fix</b><span>1) Drop <code>INJECT_THRESHOLD</code> 0.90→0.80 in <code>ollama-task-offloader.mjs</code>. 2) Remove the <code>/</code>-prefix skip at <code>ollama-auto-router.mjs:166</code>. 3) Wire fleet-reaper-coordinator's hint to flip the offloader threshold (it writes the hint but conversion is broken).</span></div>
-</div>
-
-<div class="card">
-  <h3>[<span class="p1">P1</span>] F1 — RTK filter hook is NOT installed; 65% of recorded calls passthrough</h3>
-  <div class="kv"><b>What</b><span>280/429 (65.3%) <code>rtk-archive.jsonl</code> entries carry <code>/!\ No hook installed</code> warning. Zero <code>rtk-*</code> hooks wired in <code>settings.json</code>.</span></div>
-  <div class="kv"><b>Nuance</b><span>The <code>savings: { lines: N }</code> field in archive entries is a heuristic line-count guess, NOT measured savings. The CLAUDE.md doctrine pointer's "60–90% reduction" claim is currently delivering ~0%.</span></div>
-  <div class="verify">Verify: <code>grep -c "No hook installed" state/shared/rtk-archive.jsonl</code> &nbsp;→&nbsp; expected &lt;5% of total</div>
-  <div class="kv"><b>Fix</b><span>Run <code>rtk init -g</code>; verify <code>rtk-*</code> hooks land in settings.json; re-measure archive 1 day later.</span></div>
-</div>
-
-<div class="card">
-  <h3>[<span class="p1">P1</span>] F4 — Ollama suggestion UI is dark (868 silent / 2 injected)</h3>
-  <div class="kv"><b>What</b><span>Operator sees 0.23% of the offloader's suggestions. The suggest-only mode (below INJECT_THRESHOLD) is invisible feedback.</span></div>
-  <div class="kv"><b>Relation</b><span>Closes the loop on F3 — if the operator could see "this task is 0.85-confident offload-able", adoption would rise.</span></div>
-  <div class="verify">Verify: <code>node scripts/ollama-offload-dashboard.mjs --json | jq '.injectedSuggestions / .silentSuggestions'</code> &nbsp;→&nbsp; expected ≥0.05</div>
-</div>
-
-<div class="card">
-  <h3>[<span class="p1">P1</span>] F5 — error-pattern-promote 99.8% no-op (pure overhead)</h3>
-  <div class="kv"><b>What</b><span>2416 fires in 17 days, 2412 noop_below_threshold, 4 actual promotions.</span></div>
-  <div class="verify">Verify: <code>node scripts/hook-fire-rank.mjs --json | jq '.ranked[] | select(.hook=="error-pattern-promote")'</code> &nbsp;→&nbsp; expected noop_ratio &lt; 0.60</div>
-  <div class="kv"><b>Fix</b><span>Early-exit guard at top of hook OR move to T4 async dispatcher (<code>AsyncHookDispatcher</code>, HOOK-SYNERGY-MS0/H7) to remove sync-path tax.</span></div>
-</div>
-
-<div class="card">
-  <h3>[<span class="p1">P1</span>] F6 — Bundle-aware: ≤373 of 523 hooks (≤71%) appear orphan (raw 513 misleading)</h3>
-  <div class="kv"><b>What</b><span>Raw zero-fire = 513 / 523 = 98.1%. Peer reviewer confirmed bundles reference <b>140 unique child .mjs files</b> that fire under the bundle's name — bundle-aware true orphan estimate ~373.</span></div>
-  <div class="kv"><b>Framing correction</b><span>The "98.1%" headline was overstated. Severity stays P1 because ~373 dead matchers is still systemic, but the prose was tightened.</span></div>
-  <div class="verify">Verify: <code>node scripts/hook-fire-rank.mjs --json | jq .totals.zero_fire_hooks</code> + bundle-aware subtraction (see fix outline)</div>
-</div>
-
-<div class="card">
-  <h3>[<span class="p2">P2</span>] F7 — CLAUDE.md self-violates its own "≤200 lines" rule (<b>610 lines</b>, 115KB)</h3>
-  <div class="kv"><b>Correction</b><span>Initial audit said "~3,200 lines"; peer reviewer caught — actual is 610 lines. The byte-density is the real problem (~190 chars/line). Severity P2 holds.</span></div>
-  <div class="verify">Verify: <code>wc -l H:/prism/CLAUDE.md</code> &nbsp;→&nbsp; expected &lt;400 lines AND &lt;80KB</div>
-</div>
-
-<div class="card">
-  <h3>[<span class="p1">P1</span>] F8 — Cache reader-path is <b>systemically dead</b> across all 3 caches (peer-review upgrade)</h3>
-  <div class="kv"><b>What</b><span><code>bash-result-cache</code> 1/0, <code>grep-result-cache</code> 3/0, <code>file-read-cache</code> <b>96/0</b>. 100 keys total, 0 hits. Writers populate, no reader-hook ever checks.</span></div>
-  <div class="kv"><b>Upgrade</b><span>Initially P2 ("bash-result cold"). Peer reviewer caught the file-read-cache 96-key signal proving the gap is fleet-wide → promoted to P1. file-read-cache is the actively-bleeding surface (≈28K tokens/day if 50% of re-reads could hit cache).</span></div>
-  <div class="verify">Verify: <code>node -e "['bash-result-cache','grep-result-cache','file-read-cache'].forEach(n=>{const c=JSON.parse(require('fs').readFileSync('.claude/cache/'+n+'.json','utf8'));console.log(n,Object.keys(c).length,Object.values(c).reduce((a,v)=>a+(v.hits||0),0))})"</code></div>
-</div>
-
-<h2 id="actions">Leverage-ranked action list (post-peer-review)</h2>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">PRISM Token-Savings Audit — 2026-05-17 (lima)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.213Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#token-savings-audit-2026-05-17">Token-Savings Audit — 2026-05-17</a></li>
+<li class="toc-l2"><a href="#scope-statement-phase-1">Scope statement (Phase 1)</a></li>
+<li class="toc-l2"><a href="#snapshot-baseline-phase-0-captured-2026-05-17t1533z">Snapshot baseline (Phase 0, captured 2026-05-17T15:33Z)</a></li>
+<li class="toc-l2"><a href="#findings-boris-discipline-each-finding-declares-its-verification-channel">Findings (Boris-discipline: each finding declares its verification channel)</a></li>
+<li class="toc-l3"><a href="#p0-f2-memorymd-is-actively-truncating-fleet-wide-right-now">[P0] F2 — MEMORY.md is actively truncating fleet-wide right now</a></li>
+<li class="toc-l3"><a href="#p0-f3-ollama-offload-rate-at-96-vs-30-target-31-below">[P0] F3 — Ollama offload rate at 9.6% vs 30% target (3.1× below)</a></li>
+<li class="toc-l3"><a href="#p1-f1-rtk-filter-hook-is-not-installed-65-of-recorded-calls-passthrough">[P1] F1 — RTK filter hook is NOT installed; 65% of recorded calls passthrough</a></li>
+<li class="toc-l3"><a href="#p1-f4-ollama-suggestion-ui-is-dark-868-silent-2-injected">[P1] F4 — Ollama suggestion UI is dark (868 silent / 2 injected)</a></li>
+<li class="toc-l3"><a href="#p1-f5-error-pattern-promote-fires-2416-with-998-no-op">[P1] F5 — error-pattern-promote fires 2416× with 99.8% no-op</a></li>
+<li class="toc-l3"><a href="#p1-f6-bundle-aware-373-of-523-hooks-71-appear-orphan-raw-zero-fire-is-513-but-misleading">[P1] F6 — Bundle-aware: ~373 of 523 hooks (≤71%) appear orphan; raw zero-fire is 513 but misleading</a></li>
+<li class="toc-l3"><a href="#p2-f7-claudemd-self-violates-its-own-200-lines-rule-115521-b-610-lines">[P2] F7 — CLAUDE.md self-violates its own &#39;≤200 lines&#39; rule (115,521 B / 610 lines)</a></li>
+<li class="toc-l3"><a href="#corrected-was-p1-now-p2-f8-cache-dedup-liveness-the-reader-path-dead-finding-was-a-misdiagnosis">[CORRECTED — was P1, now P2] F8 — cache dedup liveness (the &quot;reader-path dead&quot; finding was a MISDIAGNOSIS)</a></li>
+<li class="toc-l2"><a href="#karpathy-anti-drift-checkpoint-after-5-findings">Karpathy anti-drift checkpoint (after 5 findings)</a></li>
+<li class="toc-l2"><a href="#cross-refs">Cross-refs</a></li>
+<li class="toc-l2"><a href="#leverage-ranked-action-list-post-peer-review">Leverage-ranked action list (post-peer-review)</a></li>
+<li class="toc-l2"><a href="#loop-re-run-registration">/loop re-run registration</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>PRISM Token-Savings Audit — 2026-05-17 (lima)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-17</td></tr>
+<tr><th scope="row">slot</th><td>lima</td></tr>
+<tr><th scope="row">chat</th><td>claude-77971357</td></tr>
+<tr><th scope="row">scope</th><td>token-savings measures effectiveness across the 13-chat fleet</td></tr>
+<tr><th scope="row">sources</th><td>/system-viz query, Obsidian memory vault, BUILD_STATE, hook-fire ledger, ollama-offload-stats, token-budget telemetry, rtk-archive, cache dir</td></tr>
+<tr><th scope="row">meta-artifact</th><td>scripts/token-savings-rank.mjs (re-runnable; appends to state/shared/token-savings-history.jsonl)</td></tr>
+<tr><th scope="row">verdict</th><td>2 P0 · 4 P1 · 3 P2</td></tr>
+<tr><th scope="row">revision-log</th><td>&quot;2026-05-17 — peer reviewer (agent a0310b5d6) returned FIX-FIRST; revisions applied: F6 framing tightened (bundle-aware), F7 line count corrected 3200→610, F3/F4 drift caveat added, F8 upgraded to systemic cache-readpath-dead across all 3 caches&quot;</td></tr>
+<tr><th scope="row">NOTE</th><td>Live counters in this document are snapshot at 2026-05-17T15:33Z. Numbers may drift +/- 10% between snapshot and re-measurement — the conclusions hold; consult <code>state/shared/token-savings-history.jsonl</code> for current values.</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="token-savings-audit-2026-05-17"><a class="anchor" href="#token-savings-audit-2026-05-17" aria-label="Permalink to Token-Savings Audit — 2026-05-17">#</a>Token-Savings Audit — 2026-05-17</h1>
+<h2 id="scope-statement-phase-1"><a class="anchor" href="#scope-statement-phase-1" aria-label="Permalink to Scope statement (Phase 1)">#</a>Scope statement (Phase 1)</h2>
+<p>I am auditing <strong>every token-saving measure PRISM ships</strong>, looking for <strong>measures that are wired but ineffective in the field</strong>, with verification channels rooted in <strong>on-disk telemetry that any chat can re-measure in &lt;30s via <code>scripts/token-savings-rank.mjs</code></strong>.</p>
+<p>The brief&#39;s two doctrinal anchors:</p>
+<ul>
+<li><code>/system-viz</code> is the search surface (not Grep) — used for <code>ollama</code>, <code>rtk</code>, <code>master-index</code>, <code>token-budget</code> enumeration</li>
+<li>Obsidian memory vault is the source for prior context (8 memory entries already document parts of this picture: <code>feedback_ollama_token_routing</code>, <code>feedback_ollama_docker_pipeline_dead_code_2026_05_16</code>, <code>reference_token_budget_telemetry</code>, <code>reference_ollama_cost_routing</code>, <code>reference_ollama_pipeline_ms0_2026_05_15</code>, <code>feedback_ollama_offload_target_30pct</code>, plus 2 more under feedback/)</li>
+</ul>
+<h2 id="snapshot-baseline-phase-0-captured-2026-05-17t1533z"><a class="anchor" href="#snapshot-baseline-phase-0-captured-2026-05-17t1533z" aria-label="Permalink to Snapshot baseline (Phase 0, captured 2026-05-17T15:33Z)">#</a>Snapshot baseline (Phase 0, captured 2026-05-17T15:33Z)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Surface</th><th>Current</th><th>Target</th><th>Gap</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Ollama offload rate</td><td><strong>9.6%</strong> (65/678)</td><td>≥30%</td><td>-20.4pp</td><td>🔴 P0</td></tr>
+<tr><td>MEMORY.md size</td><td><strong>24,603 B</strong> / 24,576 B ceiling</td><td>&lt;22,000 B</td><td>-27 B headroom</td><td>🔴 P0</td></tr>
+<tr><td>RTK archive passthrough</td><td><strong>65.3%</strong> (&quot;No hook installed&quot;)</td><td>&lt;5%</td><td>+60pp</td><td>🟡 P1</td></tr>
+<tr><td>RTK hooks wired in settings.json</td><td><strong>0</strong> of 4 on disk</td><td>≥3</td><td>-3</td><td>🟡 P1</td></tr>
+<tr><td>Silent Ollama suggestions</td><td><strong>868</strong> silent / <strong>2</strong> injected (0.23%)</td><td>≥5% surfaced</td><td>-4.8pp</td><td>🟡 P1</td></tr>
+<tr><td>error-pattern-promote no-op</td><td><strong>99.8%</strong> (2412/2417)</td><td>&lt;60%</td><td>+39.8pp</td><td>🟡 P1</td></tr>
+<tr><td>Hooks zero-fire (17-day window)</td><td><strong>513</strong> of 523 (98.1%)</td><td>&lt;300</td><td>+213</td><td>🟡 P1</td></tr>
+<tr><td>CLAUDE.md size</td><td><strong>115,521 B</strong> / <strong>610 lines</strong></td><td>&lt;100KB / &lt;400 lines</td><td>+15.5KB / +210 lines</td><td>🟠 P2</td></tr>
+<tr><td>token-budget-gate slots unmapped</td><td><strong>57.7%</strong> (602/1042)</td><td>&lt;20%</td><td>+37.7pp</td><td>🟠 P2</td></tr>
+<tr><td>Cache reader-path (all 3 caches)</td><td><strong>0 hits</strong> across 100 keys (bash 1/0, grep 3/0, file-read 96/0)</td><td>≥10 hits/day</td><td>systemic</td><td>🟡 P1</td></tr>
+<tr><td>System synergy (week-over-week)</td><td>21.1% (was 22.2%)</td><td>≥30%</td><td>-1.1pp drift</td><td>🟡 already-tracked</td></tr>
+</tbody>
+</table></div>
+<p>Live JSON: <code>node scripts/token-savings-rank.mjs --json</code>. History: <code>state/shared/token-savings-history.jsonl</code>.</p>
+<h2 id="findings-boris-discipline-each-finding-declares-its-verification-channel"><a class="anchor" href="#findings-boris-discipline-each-finding-declares-its-verification-channel" aria-label="Permalink to Findings (Boris-discipline: each finding declares its verification channel)">#</a>Findings (Boris-discipline: each finding declares its verification channel)</h2>
+<h3 id="p0-f2-memorymd-is-actively-truncating-fleet-wide-right-now"><a class="anchor" href="#p0-f2-memorymd-is-actively-truncating-fleet-wide-right-now" aria-label="Permalink to [P0] F2 — MEMORY.md is actively truncating fleet-wide right now">#</a>[P0] F2 — MEMORY.md is <strong>actively truncating</strong> fleet-wide right now</h3>
+<pre><code class="language-yaml">finding: &quot;MEMORY.md is 24,603 bytes — 27 bytes OVER the 24,576 truncation ceiling — every chat&#39;s auto-loaded MEMORY.md context is truncated NOW&quot;
+verifies_via:
+  tool: &quot;node scripts/memory-size-watch.mjs --json | jq .status&quot;
+  expected_signal: &#39;&quot;fresh&quot; status (bytes &lt; 22,118 / 0.90 ceiling); currently &quot;critical&quot;&#39;
+  re_run_cost: &quot;&lt;200ms&quot;
+  baseline: &quot;24,603 bytes, status=critical, headroom=-27 B&quot;
+  history: &quot;Same regression fired 2026-05-16 (line in CLAUDE.md §Recent regressions). One-shot compress to 21,474 B that day; re-grew to 24,603 B in 1 day — no durable watchdog action.&quot;
+fix_outline:
+  1. Stop hook should auto-compress when status=warn (≥90%). Watchdog exists (memory-size-watch.mjs) but only ADVISES. Wire it to fire `/memory-prune` skill instead of just printing.
+  2. Trim 5–8 oldest entries from MEMORY.md NOW to drop ~2KB headroom.
+leverage: &quot;MEMORY.md is auto-injected on EVERY SessionStart for EVERY chat — truncation degrades the recall surface 9–13 chats lean on for cross-session context.&quot;
+</code></pre>
+<h3 id="p0-f3-ollama-offload-rate-at-96-vs-30-target-31-below"><a class="anchor" href="#p0-f3-ollama-offload-rate-at-96-vs-30-target-31-below" aria-label="Permalink to [P0] F3 — Ollama offload rate at 9.6% vs 30% target (3.1× below)">#</a>[P0] F3 — Ollama offload rate at 9.6% vs 30% target (3.1× below)</h3>
+<pre><code class="language-yaml">finding: &quot;Of 678 tasks the offloader saw, only 65 (9.6%) actually routed to Ollama. The Claude inference budget is paying for ~613 tasks that should have been local. Total saved 14,880 tokens over 19 days = noise floor.&quot;
+verifies_via:
+  tool: &quot;node scripts/ollama-offload-dashboard.mjs --json | jq &#39;.offloaded/(.offloaded+.keptOnClaude)&#39;&quot;
+  expected_signal: &quot;≥0.30&quot;
+  re_run_cost: &quot;&lt;500ms&quot;
+  baseline: &quot;0.096 (9.6%)&quot;
+sub_findings:
+  - &quot;fleet-reaper-coordinator hook fired 440 times with offloaded:0, suggested:440, tokensSaved:0 — its &#39;aggressive offload&#39; routing hint never converts to an actual offload (pure suggest)&quot;
+  - &quot;byHook breakdown: ollama-task-offloader 63 offloaded / 613 kept (10.3%) is the only converting hook; ollama-engine-api-extractor fired exactly 2 times&quot;
+  - &quot;byCategory: only &#39;summary&#39; (60), &#39;cache-hit&#39; (2), &#39;explanation&#39; (3) — the offloader&#39;s classification scope is very narrow&quot;
+fix_outline:
+  1. Lower `INJECT_THRESHOLD` in ollama-task-offloader.mjs (already flagged in CLAUDE.md regression line 2026-05-16 from juliett audit: 0.90→0.80)
+  2. Drop the `/`-prefix skip at `ollama-auto-router.mjs:166` (skill-prompts never trigger the router)
+  3. Wire fleet-reaper-coordinator&#39;s suggested hints to actually flip the offloader&#39;s threshold (it writes the hint but ollama-task-offloader&#39;s `loadRoutingHint` may not be reading it — verify)
+leverage: &quot;Ollama offload is the LARGEST single token-saving surface PRISM ships. 3× gap = ~28 tokens × ~600 tasks/week unspent.&quot;
+</code></pre>
+<h3 id="p1-f1-rtk-filter-hook-is-not-installed-65-of-recorded-calls-passthrough"><a class="anchor" href="#p1-f1-rtk-filter-hook-is-not-installed-65-of-recorded-calls-passthrough" aria-label="Permalink to [P1] F1 — RTK filter hook is NOT installed; 65% of recorded calls passthrough">#</a>[P1] F1 — RTK filter hook is NOT installed; 65% of recorded calls passthrough</h3>
+<pre><code class="language-yaml">finding: &quot;rtk-archive.jsonl shows 280/429 (65.3%) entries carry &#39;/!\\ No hook installed — run rtk init -g for automatic token savings&#39;. Zero rtk-* hooks wired in C:/Users/wompu/.claude/settings.json. The CLAUDE.md doctrine pointer claims &#39;60-90% token reduction on bash commands&#39; — actual filter is bypassed.&quot;
+verifies_via:
+  tool: &#39;grep -c &quot;No hook installed&quot; H:/prism/state/shared/rtk-archive.jsonl&#39;
+  expected_signal: &quot;&lt;5% of total archive entries&quot;
+  re_run_cost: &quot;&lt;100ms&quot;
+  baseline: &quot;280/429 = 65.3% passthrough; 0 hooks wired&quot;
+nuance:
+  - &quot;The &#39;savings: { likelyHigh: true, lines: N }&#39; field in each archive entry is a HEURISTIC line-count guess, NOT measured savings. Token savings claim cannot be confirmed.&quot;
+  - &quot;WHERE rtk returns empty — the `rtk` CLI is not on PATH for hook subshell. Even when invoked, it passthroughs.&quot;
+fix_outline:
+  1. `rtk init -g` to register the global rtk-* hooks
+  2. Verify with `grep -E rtk- C:/Users/wompu/.claude/settings.json` returns ≥3 entries
+  3. Re-measure archive 1 day later — `No hook installed` rate must drop to &lt;5%
+leverage: &quot;RTK&#39;s 60-90% reduction claim is the second-biggest savings surface after Ollama offload. Currently delivering 0%.&quot;
+</code></pre>
+<h3 id="p1-f4-ollama-suggestion-ui-is-dark-868-silent-2-injected"><a class="anchor" href="#p1-f4-ollama-suggestion-ui-is-dark-868-silent-2-injected" aria-label="Permalink to [P1] F4 — Ollama suggestion UI is dark (868 silent / 2 injected)">#</a>[P1] F4 — Ollama suggestion UI is dark (868 silent / 2 injected)</h3>
+<pre><code class="language-yaml">finding: &quot;ollama-task-offloader emitted 868 silent suggestions but only 2 made it into Claude&#39;s context (injectedSuggestions). Operator never sees the routing recommendation, so the suggest-only mode (the offloader&#39;s default when below INJECT_THRESHOLD) is invisible feedback.&quot;
+verifies_via:
+  tool: &quot;node scripts/ollama-offload-dashboard.mjs --json | jq &#39;.injectedSuggestions / .silentSuggestions&#39;&quot;
+  expected_signal: &quot;≥0.05 (5% of suggestions surfaced)&quot;
+  re_run_cost: &quot;&lt;500ms&quot;
+  baseline: &quot;2/868 = 0.23%&quot;
+relation: &quot;This closes the loop on F3 — if the operator could see &#39;this task is 0.85-confident offload-able, offloading now&#39;, adoption would rise. Currently the offloader judges silently and discards.&quot;
+fix_outline:
+  1. Drop INJECT_THRESHOLD from 0.90 to 0.80 — surfaces ~3× more suggestions
+  2. Add a session-end Stop hook that batches the day&#39;s silent-suggestion list into a single advisory (low-volume, high-information)
+leverage: &quot;Decouples F3 from being a one-time threshold tune — surfaces the decisions the offloader is already making.&quot;
+</code></pre>
+<h3 id="p1-f5-error-pattern-promote-fires-2416-with-998-no-op"><a class="anchor" href="#p1-f5-error-pattern-promote-fires-2416-with-998-no-op" aria-label="Permalink to [P1] F5 — error-pattern-promote fires 2416× with 99.8% no-op">#</a>[P1] F5 — error-pattern-promote fires 2416× with 99.8% no-op</h3>
+<pre><code class="language-yaml">finding: &quot;error-pattern-promote is the #2 hook by fire count (2416 fires in 17 days), but 2412 of those (99.83%) decision=noop_below_threshold and only 4 actually drafted a memory entry. Hook overhead is paid for pure noise.&quot;
+verifies_via:
+  tool: &quot;node scripts/hook-fire-rank.mjs --json | jq &#39;.ranked[] | select(.hook==\&quot;error-pattern-promote\&quot;) | {fired:.count, decisions:.decisions}&#39;&quot;
+  expected_signal: &quot;decisions.noop_below_threshold / decisions[total] &lt; 0.60&quot;
+  re_run_cost: &quot;&lt;2s&quot;
+  baseline: &quot;0.9983 no-op ratio (2412/2416)&quot;
+fix_outline:
+  1. Lower error-pattern threshold OR add an early-exit guard so the hook returns within microseconds on no-error events
+  2. Or move to T4 async dispatcher (the AsyncHookDispatcher from HOOK-SYNERGY-MS0/H7) so its overhead doesn&#39;t sit on the synchronous path
+leverage: &quot;2416 unnecessary subprocess spawns over 17 days. At ~50ms each, that&#39;s 2 minutes of cumulative latency tax for 4 useful promotions.&quot;
+</code></pre>
+<h3 id="p1-f6-bundle-aware-373-of-523-hooks-71-appear-orphan-raw-zero-fire-is-513-but-misleading"><a class="anchor" href="#p1-f6-bundle-aware-373-of-523-hooks-71-appear-orphan-raw-zero-fire-is-513-but-misleading" aria-label="Permalink to [P1] F6 — Bundle-aware: ~373 of 523 hooks (≤71%) appear orphan; raw zero-fire is 513 but misleading">#</a>[P1] F6 — Bundle-aware: ~373 of 523 hooks (≤71%) appear orphan; raw zero-fire is 513 but misleading</h3>
+<pre><code class="language-yaml">finding: &quot;Only 10 unique hook names appear in the fire-count ledger over 17 days, but the 9 bundles in .claude/hooks/bundles/ collectively reference ~140 unique child .mjs files that DO fire (just not recorded under their own name). Bundle-adjusted true orphan estimate: ≤373 of 523 hooks (≤71%). The raw 98.1% zero-fire number overstates orphan rate — but ~373 hooks are still likely dead code.&quot;
+verifies_via:
+  tool: &quot;node scripts/hook-fire-rank.mjs --json | jq .totals.zero_fire_hooks  # raw count; bundle-aware via grep-children + setminus&quot;
+  expected_signal: &quot;true-orphan count &lt; 200 after a bundle-aware re-measurement&quot;
+  re_run_cost: &quot;&lt;3s&quot;
+  baseline: &quot;513 raw zero-fire; ~373 bundle-aware (per reviewer agent a0310b5d6 — confirmed 140 unique bundle-child refs across 9 bundles)&quot;
+severity_correction: &quot;Peer reviewer FAIL: &#39;98.1% dead-code&#39; as headline overstated — kept severity at P1 because ~373 orphans is still systemic, but framing tightened to use bundle-aware estimate.&quot;
+fix_outline:
+  1. Bundle-aware fire counter — read .claude/hooks/bundles/*.mjs for HOOK_BASE refs, union with settings.json `command` matches, subtract from zero-fire bucket
+  2. PostToolUse:Write/Edit/MultiEdit on every hook .mjs file — count fires, archive any hook with 0 fires after 30 days to `.claude/hooks/_archive/`
+  3. Pair with hookify:list to identify hooks intentionally on-disk-but-dormant
+leverage: &quot;Settings.json startup-time hook compile + matcher-loop overhead scales with wired count, not fire count. ~373 dead matchers pay every prompt — half of overhead surface.&quot;
+</code></pre>
+<h3 id="p2-f7-claudemd-self-violates-its-own-200-lines-rule-115521-b-610-lines"><a class="anchor" href="#p2-f7-claudemd-self-violates-its-own-200-lines-rule-115521-b-610-lines" aria-label="Permalink to [P2] F7 — CLAUDE.md self-violates its own &#39;≤200 lines&#39; rule (115,521 B / 610 lines)">#</a>[P2] F7 — CLAUDE.md self-violates its own &#39;≤200 lines&#39; rule (115,521 B / 610 lines)</h3>
+<pre><code class="language-yaml">finding: &quot;Global CLAUDE.md (H:/prism/CLAUDE.md) is 115,521 bytes / 610 lines. The R5 doctrine line written into the file itself reads &#39;past ~200 lines total, CLAUDE.md compliance collapses (the article&#39;s own finding).&#39; We are 3× over by line count AND ~16× over by byte count (because lines are dense / very long).&quot;
+verifies_via:
+  tool: &quot;wc -l H:/prism/CLAUDE.md&quot;
+  expected_signal: &quot;&lt;400 lines AND &lt;80KB&quot;
+  re_run_cost: &quot;&lt;100ms&quot;
+  baseline: &quot;610 lines / 115,521 bytes (peer reviewer caught initial 3,200-line claim as 5× overstated)&quot;
+nuance: &quot;PRISM is a doctrine-heavy project; 200 is unrealistic. But the byte-density problem is real — average line is ~190 chars. Sections need promotion to wiki + pointer-only stubs.&quot;
+fix_outline:
+  1. The &#39;Recent regressions&#39; section alone is ~50 lines and growing — move to a sibling `state/shared/RECENT-REGRESSIONS.md` with a 5-line pointer in CLAUDE.md
+  2. Same for the per-milestone sections (FLEET-REAPER-MS0, NN-GRAPH-MS0, etc.) — they have wiki entries already
+  3. Target: pointer-only CLAUDE.md at ~400 lines / &lt;80KB
+leverage: &quot;CLAUDE.md is in every chat&#39;s system prompt — every byte costs context budget × number-of-prompts × number-of-chats. 115KB × 13 chats × ~30 prompts/day = nontrivial.&quot;
+</code></pre>
+<h3 id="corrected-was-p1-now-p2-f8-cache-dedup-liveness-the-reader-path-dead-finding-was-a-misdiagnosis"><a class="anchor" href="#corrected-was-p1-now-p2-f8-cache-dedup-liveness-the-reader-path-dead-finding-was-a-misdiagnosis" aria-label="Permalink to [CORRECTED — was P1, now P2] F8 — cache dedup liveness (the &quot;reader-path dead&quot; finding was a MISDIAGNOSIS)">#</a>[CORRECTED — was P1, now P2] F8 — cache dedup liveness (the &quot;reader-path dead&quot; finding was a MISDIAGNOSIS)</h3>
+<blockquote>
+<p><strong>2026-05-17 correction (post-ship verification):</strong> The original F8 below claimed the cache reader-path was &quot;systemically dead — 0 hits across 100 keys.&quot; That was <strong>wrong</strong> — a probe bug in <code>token-savings-rank.mjs</code>. <code>file-read-cache.mjs</code> IS the reader: a <code>PreToolUse:Read</code> deny-dedup hook wired via <code>read-bundle.mjs</code> (siblings: <code>read-once-cache</code>, <code>read-already-have</code>, <code>read-optimizer</code>). It saves tokens by <strong>DENYING</strong> a redundant re-read — the saving is the denial, there is no <code>.hits</code> counter. Entry shape is <code>{ts, path}</code>. The META probe summed a non-existent <code>.hits</code> field → always 0 → false &quot;dead.&quot; <code>file-read-cache</code> has 64–86 fresh entries (newest &lt;1h old) — it is actively working. This is the exact bug class CLAUDE.md&#39;s 2026-05-16 regression names (&quot;assuming a schema without reading the file first&quot;). <strong>Fix shipped:</strong> the probe now measures newest-entry freshness; F8 is downgraded to P2 and only fires when a dedup cache holds entries but its newest is &gt;48h stale (hook stopped running). The peer reviewer&#39;s &quot;missed finding&quot; upgrade was based on the same bad probe output and is also retracted.</p>
+</blockquote>
+<pre><code class="language-yaml">finding: &quot;[RETRACTED] Three separate caches under .claude/cache/ — bash-result-cache.json (1 key / 0 hits), grep-result-cache.json (3 keys / 0 hits), file-read-cache.json (96 keys / 0 hits). 100 cache entries total — 0 hits across all of them. Writer hooks populate the caches; **no reader hook ever checks them** before re-issuing the underlying call. This is the same systemic shape as F1 (writer exists, reader is unwired) — promoted from P2 to P1 because the file-read-cache 96-key surface proves the gap is fleet-wide, not isolated.&quot;
+verifies_via:
+  tool: &quot;node -e \&quot;[&#39;bash-result-cache&#39;,&#39;grep-result-cache&#39;,&#39;file-read-cache&#39;].forEach(n=&gt;{const c=JSON.parse(require(&#39;fs&#39;).readFileSync(&#39;.claude/cache/&#39;+n+&#39;.json&#39;,&#39;utf8&#39;));console.log(n,Object.keys(c).length,&#39;keys&#39;,Object.values(c).reduce((a,v)=&gt;a+(v.hits||0),0),&#39;hits&#39;)})\&quot;&quot;
+  expected_signal: &quot;ANY cache shows hits &gt; 0 over a day of normal use&quot;
+  re_run_cost: &quot;&lt;300ms&quot;
+  baseline: &quot;bash 1/0, grep 3/0, file-read 96/0 — 0 hits across 100 keys (peer reviewer surfaced this as the missed finding from initial audit)&quot;
+nuance: &quot;file-read-cache being 96-key, 0-hits means 96 separate reads were stored but every subsequent re-read paid Claude tokens to re-load the file instead of consulting the cache. This is the actively-bleeding surface.&quot;
+fix_outline:
+  1. Trace the read path for each cache — which hook(s) are supposed to consult &lt;cache&gt;.json before the Bash/Grep/Read call? Likely the reader-hook was renamed/removed but the writer survived.
+  2. For file-read-cache specifically: the PostToolUse:Read hook `file-read-cache.mjs` (visible in PreCompact echo) likely writes but no PreToolUse:Read reader checks it. Wire a PreToolUse:Read reader-hook that checks cache + short-circuits if hit.
+  3. The same anti-pattern applies to grep-result-cache and bash-result-cache.
+leverage: &quot;MEDIUM-HIGH — 96 file-reads/day × ~300 tokens each = ~28K tokens/day if even half could be cached. Wider than RTK because file-reads happen on EVERY Glob/Read/Grep operation, not just Bash.&quot;
+</code></pre>
+<h2 id="karpathy-anti-drift-checkpoint-after-5-findings"><a class="anchor" href="#karpathy-anti-drift-checkpoint-after-5-findings" aria-label="Permalink to Karpathy anti-drift checkpoint (after 5 findings)">#</a>Karpathy anti-drift checkpoint (after 5 findings)</h2>
+<ul>
+<li><strong>Still on brief?</strong> Yes — every finding ties to a token-saving measure with a verification channel.</li>
+<li><strong>Actionable not catalog?</strong> Yes — each finding has a concrete fix_outline and leverage assessment.</li>
+<li><strong>Verified by reading files?</strong> Yes — <code>od</code>, <code>wc</code>, JSON.parse, fire-count ledger, /system-viz query.</li>
+<li><strong>Composition risk?</strong> F3 + F4 are related (F4 surfaces what F3 needs); F1 + F2 + F3 are 3 independent P0/P1s — the audit IS the audit, not a re-narration of one bug.</li>
+</ul>
+<h2 id="cross-refs"><a class="anchor" href="#cross-refs" aria-label="Permalink to Cross-refs">#</a>Cross-refs</h2>
+<ul>
+<li>Existing memory entries: <code>feedback_ollama_docker_pipeline_dead_code_2026_05_16.md</code>, <code>reference_token_budget_telemetry.md</code>, <code>reference_ollama_cost_routing.md</code>, <code>reference_ollama_pipeline_ms0_2026_05_15.md</code>, <code>feedback_ollama_token_routing.md</code></li>
+<li>Existing wiki: <code>knowledge/wiki/architecture/master-index-surface.md</code>, <code>ollama-pipeline-ms0.md</code>, <code>audit-viz-first.md</code></li>
+<li>CLAUDE.md regression-line antecedents (2026-05-16 juliett): <code>node scripts/ollama-offload-dashboard.mjs --json | jq &#39;.totals|(.offloaded/(.offloaded+.keptOnClaude))&#39;</code> ≥0.30</li>
+<li>META artifact: <code>scripts/token-savings-rank.mjs</code> (re-runnable, exits 0/1/2/3, appends history)</li>
+<li>Sibling META artifacts (compounding pattern): <code>scripts/synergy-regression-watch.mjs</code>, <code>scripts/memory-size-watch.mjs</code>, <code>scripts/node-staleness-rank.mjs</code>, <code>scripts/hook-fire-rank.mjs</code></li>
+</ul>
+<h2 id="leverage-ranked-action-list-post-peer-review"><a class="anchor" href="#leverage-ranked-action-list-post-peer-review" aria-label="Permalink to Leverage-ranked action list (post-peer-review)">#</a>Leverage-ranked action list (post-peer-review)</h2>
 <ol>
-  <li><span class="p0">F2</span> — trim MEMORY.md NOW (~2KB headroom), wire watchdog to auto-trigger compress</li>
-  <li><span class="p0">F3</span> + <span class="p1">F4</span> — drop ollama-task-offloader INJECT_THRESHOLD 0.90→0.80; remove <code>/</code>-prefix skip in ollama-auto-router; verify ratio climbs ≥20% in 1 day</li>
-  <li><span class="p1">F1</span> — <code>rtk init -g</code>; verify rtk-* hooks land in settings.json; re-measure archive</li>
-  <li><span class="p1">F8</span> — wire reader-hooks for the 3 caches (file-read most leverage at 96 keys / 0 hits)</li>
-  <li><span class="p1">F5</span> — early-exit guard on error-pattern-promote</li>
-  <li><span class="p1">F6</span> — bundle-aware zero-fire re-measurement (~373 true orphans, not 513)</li>
-  <li><span class="p2">F7</span> — promote CLAUDE.md sections to wiki + pointer-only stubs; target &lt;400 lines</li>
+<li><strong>F2 (P0)</strong> — trim MEMORY.md NOW (~2KB headroom), wire watchdog to auto-trigger compress (not just advise)</li>
+<li><strong>F3 + F4 (P0/P1)</strong> — drop ollama-task-offloader <code>INJECT_THRESHOLD</code> 0.90→0.80; remove <code>/</code>-prefix skip from ollama-auto-router; verify ratio climbs ≥20% within 1 day</li>
+<li><strong>F1 (P1)</strong> — run <code>rtk init -g</code>; verify rtk-* hooks land in settings.json; re-measure archive</li>
+<li><strong>F8 (P1, upgraded by peer review)</strong> — wire reader-hooks for the 3 caches (file-read most leverage at 96 keys / 0 hits)</li>
+<li><strong>F5 (P1)</strong> — gate error-pattern-promote with an early-exit (fires already wasted, change is microseconds-level)</li>
+<li><strong>F6 (P1)</strong> — bundle-aware re-measurement of zero-fire hooks (raw 513 overstates; true ~373)</li>
+<li><strong>F7 (P2)</strong> — promote CLAUDE.md sections to wiki + pointer-only stubs; target &lt;400 lines / &lt;80KB</li>
 </ol>
+<h2 id="loop-re-run-registration"><a class="anchor" href="#loop-re-run-registration" aria-label="Permalink to /loop re-run registration">#</a>/loop re-run registration</h2>
+<pre><code>/loop --interval 7d --max 4 &#39;node H:/prism/scripts/token-savings-rank.mjs --history &amp;&amp; cat H:/prism/state/shared/token-savings-history.jsonl | tail -1&#39;
+</code></pre>
+<p>Or invoke <code>/forge-audit-v2 token-savings</code> on a 7-day cadence to re-run the full audit chain.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="AUDIT-TOKEN-SAVINGS-2026-05-17.md">AUDIT-TOKEN-SAVINGS-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
 
-<h2 id="loop">/loop re-run registration</h2>
-<pre>/loop --interval 7d --max 4 'node H:/prism/scripts/token-savings-rank.mjs --history && cat H:/prism/state/shared/token-savings-history.jsonl | tail -1'</pre>
-<div class="muted">Or invoke <code>/forge-audit-v2 token-savings</code> on a 7-day cadence to re-run the full audit chain. The META artifact owns the measurement; the audit doc owns the synthesis.</div>
-
-<div class="muted" style="margin-top:32px;border-top:1px solid var(--bd);padding-top:14px">
-META artifact: <code>scripts/token-savings-rank.mjs</code> · History: <code>state/shared/token-savings-history.jsonl</code> · Markdown sibling: <code>AUDIT-TOKEN-SAVINGS-2026-05-17.md</code>
+</footer>
 </div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
 </body>
 </html>

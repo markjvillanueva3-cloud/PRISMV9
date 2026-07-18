@@ -1,0 +1,19 @@
+---
+name: reference_hermes_bridge_operational_2026_06_17
+description: Hermes bridge is LIVE + operated as a Hermes agent (2026-06-17) -- the ask-hermes offload lane (OpenAI-compatible proxy :8645/v1 fronting xAI Grok 1M-ctx); how it differs from Ollama/OpenRouter, and that the Hermes-domain build backlog is operator-blocked
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.604Z
+aliases: reference_hermes_bridge_operational_2026_06_17
+---
+
+
+The HERMES BRIDGE (offload lane) verified LIVE + exercised 2026-06-17 (slot:alpha, operator "test out our hermes bridge, operate as a hermes agent"):
+
+**What it is:** `scripts/ask-hermes.mjs` mirrors `ask-ollama.mjs`'s text modes (ask/summarize/explain/triage/...) but routes to an OpenAI-compatible proxy at `http://127.0.0.1:8645/v1` (`PRISM_HERMES_PROXY_URL`, bearer `PRISM_HERMES_TOKEN`=`prism`). The proxy ("Nous Hermes" desktop app's `hermes proxy`) currently FRONTS `grok-4.20-0309-non-reasoning` (xAI Grok, 1M ctx). Tallies into `mcp-server/data/state/ollama-offload-stats.json` (same offload ledger as Ollama). LIVE PROOF: `/v1/models` returned the roster; `node scripts/ask-hermes.mjs ask "..."` returned the exact token (exit 0); a real `summarize` of a 12.6KB ledger returned a clean 700-tok triage (offloaded from Claude context).
+
+**KEY: NOT a free-local lane.** Unlike Ollama (local GPU, $0), the proxy fronts PAID Grok (the /v1/models entry carries `prompt_text_token_price`/`completion_text_token_price`). So in the cheapest-qualified ladder it is NOT a $0 rung -- it is a capable 1M-ctx remote model (cheaper-than-Opus class, like OpenRouter nemotron but paid vs nemotron's free tier). This is why Hermes is NOT a lane in the cheapest-qualified executor routers (smart-executor.mjs / model-routing-policy.mjs / ollama-cost-router.mjs / ollama-task-offloader.mjs) -- adding it there is a deliberate cost-design decision, not a free additive rung.
+
+**Architecture (well-built, no orphan gap):** keepalive = `scripts/hermes-proxy-ensure.mjs` (idempotent; spawns `hermes proxy start` DETACHED if :8645 down; exit 0 up / 3 fail-loud) + `install-hermes-proxy-task.ps1` (scheduled task). The `/ask-hermes` skill ensures-then-calls. `ask-hermes.mjs` itself does NOT auto-ensure (assumes up, fail-soft fallback via `shouldFallback`). Two distinct "Hermes" concepts: (1) THIS ask-hermes LLM proxy (offload tool); (2) the "hermes" lane in `task-substrate-router.mjs` / `feature-routing-graph.mjs` execution = the AGENT FAN-OUT (Workflow/forge-team Agents via `hermes-workflow-planner.shouldUseWorkflow`), NOT the LLM proxy.
+
+**Hermes-DOMAIN build backlog (bravo/zebra; via the bridge's own triage of `state/shared/specs/BRAVO-HERMES-ZULU-OPEN-TASKS-LEDGER.md`) is OPERATOR-BLOCKED:** (1) 5h-quota populator -- COMPLETE (main ac8cc4e7c8; subsystem = populate-5h-quota.mjs + populate-five-hour-sidecar.mjs + lib/five-hour-token-sum.mjs + lib/five-hour-switch-gate.mjs + account-switch-{monitor,restart-coordinator} + arm/switch-claude-account, bravo/zebra-owned). Needs operator to supply the 5h token CEILING. **The "pivot to `anthropic-ratelimit-*-reset` headers" alternative is RULED OUT (scoped 2026-06-17):** those headers appear ONLY in raw transcript JSONLs, NEVER in any PRISM script/engine -- they are not exposed to tools/hooks, so PRISM code cannot read them. Do NOT re-chase the reset-header path; it needs harness-level changes out of fleet scope. The ceiling-value path is the only viable one, and it gates on operator input; (2) cron_mode deny->enable -- needs operator-present Hermes-app launch + GUI + config.yaml:435 edit; (3) mcp-obsidian stdio bridge -- not installed, both apps must be up. So alpha cannot unilaterally advance the Hermes autonomy chain -- it gates on operator-present GUI/quota input. Related: [[reference_openrouter_lane_live_2026_06_17]] (the sibling cloud lane) · [[feedback_ollama_fallback_sonnet_agents]].

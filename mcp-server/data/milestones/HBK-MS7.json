@@ -1,0 +1,53 @@
+{
+  "id": "HBK-MS7",
+  "version": "1.0.0",
+  "title": "Physics Pipeline Handbook Integration",
+  "brief": "Wire handbook capability data into SpeedFeedOrchestratorEngine, KienzleForceModelEngine, and ChatterStabilityLobeEngine. Replace generic spindle defaults with actual torque curves, use real axis acceleration limits for feed optimization, and incorporate thermal compensation data into cutting temperature models.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T04:00:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Physics Integration",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Wire MachineCapabilityIntelligenceEngine into SpeedFeedOrchestratorEngine: replace generic spindle torque/power limits with handbook-sourced curves, apply actual max RPM and gear ranges to speed clamping",
+          "effort": 85,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Wire handbook axis acceleration data into FeedRateOptimizationEngine: use actual rapid traverse rates and axis accel limits for corner deceleration and feed profiling",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Wire handbook thermal compensation data into ToolpathThermalEngine and CuttingTemperatureEngine: use machine-specific thermal growth coefficients and compensation table parameters",
+          "effort": 75,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Build comparison test suite: run speed/feed calculations with generic defaults vs handbook data for 3 sample machines, verify handbook-sourced results are closer to measured shop-floor actuals",
+          "effort": 70,
+          "dependencies": ["P0-U01", "P0-U02", "P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS4"],
+  "exit_conditions": [
+    "SpeedFeedOrchestratorEngine uses actual spindle torque curves when handbook data is available for the target machine",
+    "FeedRateOptimizationEngine respects handbook-sourced axis acceleration limits for feed profiling",
+    "Comparison tests show handbook-sourced speed/feed results are within 10% of measured shop-floor actuals for at least 2 test machines",
+    "Fallback to generic defaults works correctly when no handbook data is available"
+  ]
+}

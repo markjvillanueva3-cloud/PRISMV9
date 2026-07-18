@@ -37,6 +37,13 @@ const TEST_TOKEN = "Bearer test-token";
 beforeAll(async () => {
   const app = express();
   app.use(express.json({ limit: "1mb" }));
+  // Stand-in for the global /api optionalToken (index.ts:140): set req.userId when an Authorization header
+  // is present, never reject anon. /quote/rates is NOT verifyToken-gated, so this is the ONLY thing that
+  // makes a caller "authed" on it -- mirroring production. (U-WEDMERP-RATES-REDACT.)
+  app.use((req, _res, next) => {
+    if (req.headers.authorization) (req as { userId?: string }).userId = "test-user";
+    next();
+  });
   app.use("/api/v1/wedm-erp", createWedmErpRouter());
   server = createServer(app);
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));
@@ -66,8 +73,8 @@ async function post(path: string, body: unknown, auth = true): Promise<{ status:
   const parsed = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   return { status: res.status, body: parsed };
 }
-async function get(path: string): Promise<{ status: number; body: Record<string, unknown> }> {
-  const res = await fetch(`${baseUrl}${path}`);
+async function get(path: string, auth = false): Promise<{ status: number; body: Record<string, unknown> }> {
+  const res = await fetch(`${baseUrl}${path}`, auth ? { headers: { Authorization: TEST_TOKEN } } : undefined);
   const parsed = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   return { status: res.status, body: parsed };
 }
@@ -75,23 +82,41 @@ async function get(path: string): Promise<{ status: number; body: Record<string,
 // ─── U-WEDM-ERP04: GET /quote/rates ─────────────────────────────────────────
 
 describe("U-WEDM-ERP04: GET /quote/rates", () => {
-  it("returns full rate card with machine/operator/overhead/margin", async () => {
-    const r = await get("/quote/rates");
+  it("AUTHED — returns the FULL rate card incl. internal overhead_pct + margin_pct", async () => {
+    const r = await get("/quote/rates", true);
     expect(r.status).toBe(200);
     expect(r.body.ok).toBe(true);
     const data = r.body.data as Record<string, number | object | string>;
     expect(data.machine_rate_usd_hr).toBeGreaterThan(0);
     expect(data.operator_rate_usd_hr).toBeGreaterThan(0);
-    expect(typeof data.overhead_pct).toBe("number");
-    expect(typeof data.margin_pct).toBe("number");
+    expect(typeof data.overhead_pct).toBe("number");   // internal -- present for an authed caller
+    expect(typeof data.margin_pct).toBe("number");      // internal -- present for an authed caller
     expect(data.wire_cost_usd_per_m).toBeTypeOf("object");
     expect(typeof data.updated_at).toBe("string");
     expect(typeof data.source).toBe("string");
   });
 
-  it("is public — accessible without auth token", async () => {
-    const r = await get("/quote/rates");
-    expect(r.status).toBe(200);
+  // U-WEDMERP-RATES-REDACT: the rate card is anon-reachable (prospect-facing), but overhead_pct +
+  // margin_pct are the shop's INTERNAL margin/overhead structure and must NEVER reach an anon caller.
+  it("ANON — public rate card WITHOUT the internal overhead_pct / margin_pct (no leak)", async () => {
+    const r = await get("/quote/rates"); // no auth header => anon
+    expect(r.status).toBe(200);          // still a 200 public card (not a 401)
+    expect(r.body.ok).toBe(true);
+    const data = r.body.data as Record<string, unknown>;
+    // Customer-facing rates survive:
+    expect(data.machine_rate_usd_hr).toBeGreaterThan(0);
+    expect(data.operator_rate_usd_hr).toBeGreaterThan(0);
+    expect(data.wire_cost_usd_per_m).toBeTypeOf("object");
+    // The internal margin/overhead are STRIPPED:
+    expect(data).not.toHaveProperty("overhead_pct");
+    expect(data).not.toHaveProperty("margin_pct");
+  });
+
+  it("ANON wire scan — the response carries no margin_pct / overhead_pct key", async () => {
+    const res = await fetch(`${baseUrl}/quote/rates`);
+    const raw = await res.text();
+    expect(raw).not.toContain("margin_pct");
+    expect(raw).not.toContain("overhead_pct");
   });
 });
 

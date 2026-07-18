@@ -488,3 +488,225 @@ describe("OkumaOSPMillMasterPostEngine — singleton + introspection", () => {
     expect(engine.getStats().tribal_tips).toBeGreaterThan(0);
   });
 });
+
+// ============================================================================
+// NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP) -- a NaN/Infinity coordinate,
+// feed, or arc param must never leak a literal XNaN/FInfinity/IInfinity the OSP
+// control rejects. Sibling of the RokuRoku/HaasNGC/OkumaB250-lathe fixes (R15).
+// ============================================================================
+describe("OkumaOSPMillMasterPostEngine -- non-finite emit guard (U-PP-NONFINITE-EMIT-SWEEP)", () => {
+  const joined = (out: { gcode: string[] }) => out.gcode.join("\n");
+
+  it("[regression] finite coordinates emit real motion with NO non-finite warning (byte path unchanged)", () => {
+    const out = engine.generateProgram([makeOp()], makeCfg());
+    expect(out.gcode.some((l) => /X50\.000 Y0\.000/.test(l))).toBe(true);
+    expect(out.warnings.some((w) => w.includes("non-finite"))).toBe(false);
+    expect(joined(out)).not.toContain("SKIPPED");
+  });
+
+  it("NaN X coordinate is skipped + warned -- no literal XNaN in G-code", () => {
+    const out = engine.generateProgram([
+      makeOp({ coordinates: [
+        { x: 0, y: 0, z: 5, type: "rapid" },
+        { x: NaN, y: 0, z: -2, type: "linear" },
+        { x: 50, y: 0, z: -2, type: "linear" },
+      ] }),
+    ], makeCfg());
+    expect(joined(out)).not.toContain("XNaN");
+    expect(joined(out)).not.toContain("NaN");
+    expect(out.warnings.some((w) => w.includes("non-finite XYZ"))).toBe(true);
+    expect(out.gcode.some((l) => l.includes("NON-FINITE COORD SKIPPED"))).toBe(true);
+    // the surrounding finite move still emits (only the bad move is dropped)
+    expect(out.gcode.some((l) => /X50\.000/.test(l))).toBe(true);
+  });
+
+  it("Infinity Z coordinate is skipped -- no literal ZInfinity", () => {
+    const out = engine.generateProgram([
+      makeOp({ coordinates: [
+        { x: 0, y: 0, z: Infinity, type: "rapid" },
+        { x: 10, y: 10, z: -1, type: "linear" },
+      ] }),
+    ], makeCfg());
+    expect(joined(out)).not.toContain("Infinity");
+    expect(out.warnings.some((w) => w.includes("non-finite XYZ"))).toBe(true);
+  });
+
+  it("non-finite feed_mm_min emits a flagged F token (never FNaN/FInfinity) + warns", () => {
+    const out = engine.generateProgram([makeOp({ feed_mm_min: Infinity })], makeCfg());
+    expect(joined(out)).not.toContain("FInfinity");
+    expect(joined(out)).not.toContain("FNaN");
+    expect(out.warnings.some((w) => w.includes("feed_mm_min") && w.includes("non-finite"))).toBe(true);
+  });
+
+  it("non-finite arc I/J is omitted -- no literal IInfinity/JNaN", () => {
+    const out = engine.generateProgram([
+      makeOp({
+        coordinates: [
+          { x: 0, y: 0, z: -1, type: "linear" },
+          { x: 10, y: 10, z: -1, type: "arc_cw" },
+        ],
+        arc_data: [{}, { i: Infinity, j: NaN }],
+      }),
+    ], makeCfg());
+    expect(joined(out)).not.toContain("IInfinity");
+    expect(joined(out)).not.toContain("Infinity");
+    expect(joined(out)).not.toContain("NaN");
+    expect(out.warnings.some((w) => w.includes("non-finite I/J"))).toBe(true);
+  });
+});
+
+// ============================================================================
+// DRILLING CANNED CYCLES (op.cycle field -- additive, dialect-code sourced)
+//
+// G-codes come from ControllerDialectEngine okuma_osp_p300 canned_cycles DB:
+//   drill->G81, peck->G83 (peck_drill), chip_break->G73 (deep_hole),
+//   tap->G84, bore->G85, cancel->G80
+// The first cycle line is BARE (no XY) -- the approach block positions there.
+// Subsequent holes are modal X Y. G80 cancels.
+// Absent op.cycle -> byte-identical long-hand move list (additive invariant).
+// ============================================================================
+describe("OkumaOSPMillMasterPostEngine -- drilling canned cycles", () => {
+  const cfg = makeCfg({ osp_family: "P300" });
+  const gcode = (out: { gcode: string[] }) => out.gcode.join("\n");
+
+  // Base drill op with a single hole at (10, 20). Depth -12 mm, R-plane 2 mm.
+  function makeDrillOp(overrides: Partial<MillOperation> = {}): MillOperation {
+    return {
+      operation_type: "drill",
+      tool_number: 3,
+      tool_diameter_mm: 8,
+      tool_flutes: 2,
+      material_iso: "P",
+      spindle_rpm: 1200,
+      feed_mm_min: 120,
+      axial_depth_mm: 12,
+      coolant: "flood",
+      coordinates: [
+        { x: 10, y: 20, z: 5, type: "rapid" },  // approach -- bare cycle drills here
+      ],
+      ...overrides,
+    };
+  }
+
+  // (a) drill op WITH cycle:{type:"drill"} -> G81 line + G80 cancel
+  it("drill cycle emits G81 bare cycle line and G80 cancel", () => {
+    const op = makeDrillOp({
+      cycle: { type: "drill", depth_mm: -12, retract_mm: 2 },
+    });
+    const out = engine.generateProgram([op], cfg);
+    const gc = gcode(out);
+    // Dialect-sourced G81 with Z depth, R retract, and feed
+    expect(gc).toContain("G81");
+    expect(gc).toContain("Z-12.000");
+    expect(gc).toContain("R2.000");
+    expect(gc).toContain("F120");
+    // Cancel
+    expect(gc).toContain("G80");
+    // No long-hand linear moves for the drill point
+    expect(gc).not.toMatch(/G1 X10\.000 Y20\.000/);
+    // Retract mode defaults to G99
+    expect(gc).toContain("G99");
+  });
+
+  // (b) peck -> G83 + Q peck word
+  it("peck cycle emits G83 with Q peck increment", () => {
+    const op = makeDrillOp({
+      cycle: { type: "peck", depth_mm: -15, retract_mm: 2, peck_mm: 3 },
+    });
+    const out = engine.generateProgram([op], cfg);
+    const gc = gcode(out);
+    // Dialect-sourced G83 (peck_drill)
+    expect(gc).toContain("G83");
+    expect(gc).toContain("Z-15.000");
+    expect(gc).toContain("R2.000");
+    expect(gc).toContain("Q3.000");
+    expect(gc).toContain("G80");
+  });
+
+  // (c) ADDITIVE INVARIANT: drill op WITHOUT cycle field -> same long-hand
+  //     move list as before this change (no G8x codes anywhere)
+  it("drill op WITHOUT cycle field emits long-hand moves (no G8x) -- additive invariant", () => {
+    const opNoCycle = makeDrillOp(); // no cycle field
+    const out = engine.generateProgram([opNoCycle], cfg);
+    const gc = gcode(out);
+    // Must NOT emit any canned cycle G-code
+    expect(gc).not.toContain("G81");
+    expect(gc).not.toContain("G83");
+    // No standalone G80 cancel line (G80 inside safe_start G90..G80 is fine)
+    expect(out.gcode.some((l) => l.trim() === "G80")).toBe(false);
+    // Must emit the long-hand rapid move from coordinates[]
+    expect(gc).toContain("G0 X10.000 Y20.000 Z5.000");
+  });
+
+  // (d) 4-hole pattern -> modal X Y for holes 2..4
+  it("4-hole pattern emits bare first-hole cycle then modal X Y for remaining holes", () => {
+    const op = makeDrillOp({
+      cycle: { type: "drill", depth_mm: -10, retract_mm: 2 },
+      coordinates: [
+        { x: 10, y: 0, z: 5, type: "rapid" },
+        { x: 30, y: 0, z: 5, type: "rapid" },
+        { x: 50, y: 0, z: 5, type: "rapid" },
+        { x: 70, y: 0, z: 5, type: "rapid" },
+      ],
+    });
+    const out = engine.generateProgram([op], cfg);
+    const gc = gcode(out);
+    // First-hole cycle line (BARE -- no X/Y on the cycle line itself)
+    expect(gc).toContain("G99 G81 Z-10.000 R2.000 F120");
+    // Modal positions for holes 2, 3, 4
+    expect(gc).toContain("X30.000 Y0.000");
+    expect(gc).toContain("X50.000 Y0.000");
+    expect(gc).toContain("X70.000 Y0.000");
+    // Exactly one standalone G80 cancel line (safe_start embeds G80 inside a longer line)
+    expect(out.gcode.filter((l) => l.trim() === "G80").length).toBe(1);
+  });
+
+  // (e) chip_break -> G73 (deep_hole in dialect DB)
+  it("chip_break cycle emits G73 with Q", () => {
+    const op = makeDrillOp({
+      cycle: { type: "chip_break", depth_mm: -20, retract_mm: 2, peck_mm: 5 },
+    });
+    const out = engine.generateProgram([op], cfg);
+    const gc = gcode(out);
+    expect(gc).toContain("G73");
+    expect(gc).toContain("Q5.000");
+    expect(gc).toContain("G80");
+  });
+
+  // (f) peck cycle missing peck_mm -> downgraded to G81 + warning
+  it("peck cycle missing peck_mm downgrades to G81 and warns", () => {
+    const op = makeDrillOp({
+      cycle: { type: "peck", depth_mm: -12, retract_mm: 2 }, // no peck_mm
+    });
+    const out = engine.generateProgram([op], cfg);
+    const gc = gcode(out);
+    expect(gc).toContain("G81"); // downgraded
+    expect(gc).not.toContain("G83");
+    expect(out.warnings.some((w) => w.includes("peck") && w.includes("downgraded"))).toBe(true);
+  });
+
+  // (g) bore op with cycle -> G85
+  it("bore op with cycle:{type:bore} emits G85", () => {
+    const op: MillOperation = {
+      ...makeDrillOp(),
+      operation_type: "bore",
+      cycle: { type: "bore", depth_mm: -8, retract_mm: 2 },
+    };
+    const out = engine.generateProgram([op], cfg);
+    const gc = gcode(out);
+    expect(gc).toContain("G85");
+    expect(gc).toContain("Z-8.000");
+    expect(gc).toContain("G80");
+  });
+
+  // (h) G98 retract mode -> emits G98 not G99
+  it("retract_mode:initial emits G98 instead of G99", () => {
+    const op = makeDrillOp({
+      cycle: { type: "drill", depth_mm: -10, retract_mm: 2, retract_mode: "initial" },
+    });
+    const out = engine.generateProgram([op], cfg);
+    const gc = gcode(out);
+    expect(gc).toContain("G98");
+    expect(gc).not.toContain("G99 G81");
+  });
+});

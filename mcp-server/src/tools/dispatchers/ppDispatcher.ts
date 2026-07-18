@@ -55,6 +55,7 @@ let _ppDeepReasoning: any;
 let _ppKnowledgeGraph: any;
 let _ppCognition: any;
 let _ppTransformer: any;
+let _ppTranspiler: any;
 let _ppMetaLearning: any;
 let _ppFeedOptimizer: any;
 let _ppGenerator: any;
@@ -470,6 +471,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCognition ??= (await import("../../engines/PostProcessorCognitiveEngine.js")).postProcessorCognitiveEngine;
     case "transformer":
       return _ppTransformer ??= (await import("../../engines/PostProcessorTransformerEngine.js")).postProcessorTransformerEngine;
+    case "transpiler":
+      return _ppTranspiler ??= (await import("../../engines/GCodeTranspilerEngine.js")).gcodeTranspiler;
     case "metaLearning":
       return _ppMetaLearning ??= (await import("../../engines/PostProcessorMetaLearningEngine.js")).postProcessorMetaLearningEngine;
     case "feedOptimizer":
@@ -786,6 +789,7 @@ const ACTIONS = [
   "pp_analyze_optimization",     // Analyze optimization opportunities
   "pp_analyze_controller_fit",   // Analyze controller compatibility
   "pp_analyze_complexity",       // Analyze program complexity
+  "pp_verify_posted_nc",         // End-to-end verify a posted .NC vs (machine,controller,features) — PostProcessorVerificationOrchestratorEngine (U-PP-VERIFY-ORCH-WIRE, closes a stop_on_unwired_assets orphan)
 
   // ===== PP_OPTIMIZE: Optimization (6 actions) =====
   "pp_optimize_feed",            // Optimize feed rates
@@ -925,6 +929,9 @@ const ACTIONS = [
   "pp_online_metrics",             // Get domain metrics
   "pp_online_stats",               // Full stats with drift alerts
   "pp_online_export",              // Export labeled data for retraining
+
+  // ===== PP_OUTCOME_EMIT: post->india OutcomeCaptureBus emit (INDIA-AI-ORPHAN-WIRE bravo 2026-06-11) =====
+  "pp_outcome_emit",               // Publish a post-emit recommendation to the cross-galaxy OutcomeCaptureBus (closes the post->india self-learning loop)
 
   // ===== PP_UNCERTAINTY: Ensemble uncertainty (3 actions) — PP-DL-MS8 =====
   "pp_uncertainty_estimate",       // Estimate scenario uncertainty with risk analysis
@@ -1629,8 +1636,8 @@ const ACTIONS = [
 export function registerPPDispatcher(server: any): void {
   server.tool(
     "prism_pp",
-    `PostProcessor dispatcher — G-code generation, optimization, validation, physics-aware processing.
-75 actions across 14 categories: generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics, strategy, troubleshoot, formula, learning, graph.
+    `PostProcessor dispatcher (prism_pp) -- G-code generation, optimization, validation, physics-aware processing.
+${ACTIONS.length} actions across 14 categories: generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics, strategy, troubleshoot, formula, learning, graph.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
@@ -1712,6 +1719,18 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_analyze_gcode": {
             const engine = await getEngine("pipeline");
             result = engine.analyzeGcode?.(params.gcode) ?? engine.parse?.(params.gcode) ?? analyzeGcodeBasic(params.gcode);
+            break;
+          }
+          // U-PP-VERIFY-ORCH-WIRE — PostProcessorVerificationOrchestratorEngine (was a
+          // stop_on_unwired_assets orphan). End-to-end verifies a posted .NC file against a
+          // (machine_id, controller_id, declared_features) tuple by piping it through PRISM's
+          // existing analyzers (8-dim quality + kinematics + runtime + feature-coverage) →
+          // unified PASS/FAIL/WARN scorecard. `quick:true` runs the fast feature-coverage path only.
+          case "pp_verify_posted_nc": {
+            const { postProcessorVerificationOrchestratorEngine } = await import("../../engines/PostProcessorVerificationOrchestratorEngine.js");
+            result = await postProcessorVerificationOrchestratorEngine.verify(
+              params as Parameters<typeof postProcessorVerificationOrchestratorEngine.verify>[0],
+            );
             break;
           }
           case "pp_analyze_safety": {
@@ -1925,8 +1944,28 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "pp_controller_translate": {
-            const engine = await getEngine("transformer");
-            result = engine.translate?.(params) ?? engine.transform?.(params) ?? { error: "translate not found" };
+            // UNMASK (U-PP-UNMASK-CONTROLLER-TRANSLATE): was wrongly wired to PostProcessorTransformerEngine
+            // (a neural diffusion/tokenizer with NO translate/transform method -> always {error}). Cross-
+            // controller dialect translation is GCodeTranspilerEngine's job. Route to its real transpile().
+            const engine = await getEngine("transpiler");
+            const TRANSPILE_DIALECTS = ["fanuc", "siemens", "heidenhain", "mazak", "okuma", "haas"];
+            const source = String(params.sourceController ?? "").toLowerCase();
+            const target = String(params.targetController ?? "").toLowerCase();
+            if (!TRANSPILE_DIALECTS.includes(source) || !TRANSPILE_DIALECTS.includes(target)) {
+              // Fail-loud: the transpiler dialect set is narrower than the pp controller enum.
+              result = {
+                error: "unsupported_dialect",
+                message: `GCodeTranspilerEngine supports ${TRANSPILE_DIALECTS.join("/")}; got source='${source}' target='${target}'`,
+                supported: TRANSPILE_DIALECTS,
+              };
+            } else {
+              const tr = engine.transpile(String(params.gcode ?? ""), {
+                source,
+                target,
+                preserveComments: params.preserveComments,
+              });
+              result = { gcode: tr.gcode, stats: tr.stats, lines: tr.lines };
+            }
             break;
           }
           case "pp_controller_optimize": {
@@ -2285,6 +2324,36 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_online_export": {
             const engine = await getEngine("onlineLearning");
             result = { records: engine.exportLabeledData() };
+            break;
+          }
+
+          // INDIA-AI-ORPHAN-WIRE (bravo, 2026-06-11): PPGOutcomeCaptureWireEngine was dark (false
+          // // WIRE-EXEMPT marker -- it claims "called by PPG engines internally" but had ZERO real
+          // callers). It publishes a post-emit recommendation to the cross-galaxy OutcomeCaptureBus
+          // (domain:"post_processor", kind:"recommendation_emitted") so india's closed loop can
+          // correlate emitted G-code with later operator edits / alarms / cycle-time actuals. This
+          // closes the post->india self-learning EMIT side. Distinct from pp_online_outcome (a
+          // different OnlineLearningEngine substrate). R12-safe: bus.record of post DATA, never throws,
+          // never NN inference. recordEmission requires `engine` (the producer id) + `recommended`.
+          case "pp_outcome_emit": {
+            if (typeof params.engine !== "string" || !params.engine) {
+              result = { success: false, error: "engine (string) is required -- the PPG producer engine id that emitted this recommendation" };
+              break;
+            }
+            if (params.recommended === undefined || params.recommended === null) {
+              result = { success: false, error: "recommended is required -- the emitted G-code string or post-output object to capture" };
+              break;
+            }
+            const { ppgOutcomeCaptureWireEngine } = await import("../../engines/PPGOutcomeCaptureWireEngine.js");
+            result = ppgOutcomeCaptureWireEngine.recordEmission({
+              engine: params.engine,
+              action: typeof params.action === "string" ? params.action : undefined,
+              context: (params.context && typeof params.context === "object" && !Array.isArray(params.context)) ? params.context : undefined,
+              recommended: params.recommended,
+              lineageId: typeof params.lineageId === "string" ? params.lineageId : (typeof params.lineage_id === "string" ? params.lineage_id : undefined),
+              agentId: typeof params.agentId === "string" ? params.agentId : undefined,
+              confidence: typeof params.confidence === "number" ? params.confidence : undefined,
+            });
             break;
           }
 

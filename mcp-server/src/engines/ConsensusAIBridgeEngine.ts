@@ -97,13 +97,13 @@ export interface AIBridgeStep {
 }
 
 const TASK_TIER_DEFAULTS: Record<AITaskType, { codexEffort: ConsensusInput["codexEffort"]; ollamaModel: string; timeoutMs: number }> = {
-  plan:     { codexEffort: "xhigh",  ollamaModel: "deepseek-r1:14b",      timeoutMs: 180_000 },
-  build:    { codexEffort: "high",   ollamaModel: "deepseek-r1:14b",      timeoutMs: 120_000 },
-  review:   { codexEffort: "high",   ollamaModel: "deepseek-r1:14b",      timeoutMs: 120_000 },
-  decide:   { codexEffort: "medium", ollamaModel: "qwen2.5-coder:14b",    timeoutMs: 60_000 },
-  explain:  { codexEffort: "medium", ollamaModel: "qwen2.5-coder:14b",    timeoutMs: 90_000 },
-  extract:  { codexEffort: "low",    ollamaModel: "qwen2.5-coder:14b",    timeoutMs: 45_000 },
-  validate: { codexEffort: "medium", ollamaModel: "deepseek-r1:14b",      timeoutMs: 60_000 },
+  plan:     { codexEffort: "xhigh",  ollamaModel: "qwen2.5-coder:32b",      timeoutMs: 180_000 },
+  build:    { codexEffort: "high",   ollamaModel: "qwen2.5-coder:32b",      timeoutMs: 120_000 },
+  review:   { codexEffort: "high",   ollamaModel: "qwen2.5-coder:32b",      timeoutMs: 120_000 },
+  decide:   { codexEffort: "medium", ollamaModel: "qwen2.5-coder:32b",    timeoutMs: 60_000 },
+  explain:  { codexEffort: "medium", ollamaModel: "qwen2.5-coder:32b",    timeoutMs: 90_000 },
+  extract:  { codexEffort: "low",    ollamaModel: "qwen2.5-coder:32b",    timeoutMs: 45_000 },
+  validate: { codexEffort: "medium", ollamaModel: "qwen2.5-coder:32b",      timeoutMs: 60_000 },
 };
 
 const HIGH_CONFIDENCE_THRESHOLD = 0.7;

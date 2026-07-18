@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `peer-review` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/peer-review.md` |
+| Source | `C:/Users/wompu/.claude/commands/peer-review.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 ---
 policy:

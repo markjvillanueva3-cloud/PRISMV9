@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "ts": "2026-06-12T20:09:44.513Z",
+  "host": {
+    "vramGB": 95.6,
+    "ollamaUrl": "http://127.0.0.1:11434"
+  },
+  "config": {
+    "baseline": "qwen3-vl:8b-instruct",
+    "count": 3,
+    "difficulty": "easy",
+    "seedBase": 7000,
+    "warm": true,
+    "maxTimeSec": 480,
+    "marginF1": 0.02,
+    "minWinRate": 0.5,
+    "minCoverage": 0.5
+  },
+  "models": {
+    "runnable": [
+      "qwen3-vl:8b-instruct",
+      "qwen2.5vl:7b"
+    ],
+    "skippedNotPulled": [],
+    "excludedThinkingTrap": []
+  },
+  "promptsGenerated": 3,
+  "genFailures": [],
+  "warmFailures": [],
+  "caveat": "CAPABILITY measurement on CLEAN SYNTHETIC prints (perfect labels) — isolates model dimension-reading skill, NOT real-scanned-print accuracy. A win here is necessary but not sufficient; confirm on the real corpus before production. Run --difficulty hard for tolerances/GD&T/noise.",
+  "perModel": [
+    {
+      "model": "qwen3-vl:8b-instruct",
+      "f1": 0.9412,
+      "recall": 1,
+      "precision": 0.8889,
+      "maeMm": 0,
+      "p50LatencyMs": 24790,
+      "p95LatencyMs": 47377.3,
+      "meanLatencyMs": 31508.3,
+      "coverage": 1,
+      "ocrOk": 3,
+      "count": 3,
+      "ran": true,
+      "paired": "(baseline)",
+      "cases": [
+        {
+          "seed": 7000,
+          "ms": 24790,
+          "recall": 1,
+          "precision": 1,
+          "matched": 5,
+          "n_truth": 5,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7001,
+          "ms": 49887,
+          "recall": 1,
+          "precision": 0.8571,
+          "matched": 6,
+          "n_truth": 6,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7002,
+          "ms": 19848,
+          "recall": 1,
+          "precision": 0.8333,
+          "matched": 5,
+          "n_truth": 5,
+          "mae_mm": 0,
+          "pn_hit": true
+        }
+      ]
+    },
+    {
+      "model": "qwen2.5vl:7b",
+      "f1": 0.5,
+      "recall": 0.4545,
+      "precision": 0.5556,
+      "maeMm": 0,
+      "p50LatencyMs": 59101.5,
+      "p95LatencyMs": 76668.15,
+      "meanLatencyMs": 59101.5,
+      "coverage": 0.6667,
+      "ocrOk": 2,
+      "count": 3,
+      "ran": true,
+      "paired": {
+        "nPaired": 2,
+        "wins": 0,
+        "losses": 2,
+        "ties": 0,
+        "meanF1Delta": -0.4199,
+        "winRate": 0
+      },
+      "cases": [
+        {
+          "seed": 7000,
+          "ms": 39583,
+          "recall": 0.6,
+          "precision": 1,
+          "matched": 3,
+          "n_truth": 5,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7001,
+          "ms": 78620,
+          "recall": 0.3333,
+          "precision": 0.3333,
+          "matched": 2,
+          "n_truth": 6,
+          "mae_mm": 0,
+          "pn_hit": true
+        },
+        {
+          "seed": 7002,
+          "error": "parse: JSON parse (object, repair failed): Unexpected token '}', ...\"ce_upper\":}]}\" is not valid JSON",
+          "ms": 51667
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "action": "stay",
+    "recommendedModel": "qwen3-vl:8b-instruct",
+    "baselineModel": "qwen3-vl:8b-instruct",
+    "baselineF1": 0.9412,
+    "candidateModel": "qwen2.5vl:7b",
+    "candidateF1": 0.5,
+    "deltaF1": -0.4412,
+    "marginF1": 0.02,
+    "beatsMargin": false,
+    "pairedWinRate": 0,
+    "minWinRate": 0.5,
+    "latencyWarning": "candidate p95 latency 76668ms/page exceeds budget 60000ms — acceptable on big-VRAM hosts, costly elsewhere",
+    "ranked": [
+      {
+        "model": "qwen3-vl:8b-instruct",
+        "f1": 0.9412,
+        "recall": 1,
+        "precision": 0.8889,
+        "maeMm": 0,
+        "p50LatencyMs": 24790,
+        "p95LatencyMs": 47377.3,
+        "meanLatencyMs": 31508.3,
+        "coverage": 1,
+        "ocrOk": 3,
+        "count": 3,
+        "ran": true
+      },
+      {
+        "model": "qwen2.5vl:7b",
+        "f1": 0.5,
+        "recall": 0.4545,
+        "precision": 0.5556,
+        "maeMm": 0,
+        "p50LatencyMs": 59101.5,
+        "p95LatencyMs": 76668.15,
+        "meanLatencyMs": 59101.5,
+        "coverage": 0.6667,
+        "ocrOk": 2,
+        "count": 3,
+        "ran": true
+      }
+    ],
+    "rationale": "no upgrade — best candidate \"qwen2.5vl:7b\" ΔF1 -0.4412 < margin 0.02; staying on safe default \"qwen3-vl:8b-instruct\""
+  },
+  "recommendation": {
+    "action": "stay",
+    "recommendedModel": "qwen3-vl:8b-instruct",
+    "currentSelection": "qwen3-vl:8b-instruct",
+    "alreadySelected": true,
+    "recommendedIsThinkingTrap": false,
+    "nextStep": "keep the safe default \"qwen3-vl:8b-instruct\" — no benchmark-backed reason to change",
+    "evidence": {
+      "baselineModel": "qwen3-vl:8b-instruct",
+      "baselineF1": 0.9412,
+      "candidateModel": "qwen2.5vl:7b",
+      "candidateF1": 0.5,
+      "deltaF1": -0.4412,
+      "marginF1": 0.02,
+      "pairedWinRate": 0,
+      "latencyWarning": "candidate p95 latency 76668ms/page exceeds budget 60000ms — acceptable on big-VRAM hosts, costly elsewhere"
+    }
+  }
+}

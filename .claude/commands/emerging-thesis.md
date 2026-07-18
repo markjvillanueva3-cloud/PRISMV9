@@ -1,8 +1,14 @@
 ---
 description: TF-IDF synthesis over recent vault activity — surfaces the dominant concept emerging from knowledge/memories in the last 24h/7d/30d. Returns thesis sentence + confidence + supporting files. Use to anchor daily/weekly summaries in actual vault content rather than hallucination.
 allowed-tools: mcp__prism_safe__prism_memory, Read
+composes_with:
+  - "/awareness-snapshot"
+  - "/master-index"
+  - "/utilization-dashboard"
+  - "/weekly-synthesis"
+consumes:
+  - "prism_memory:emerging_thesis"
 ---
-
 # /emerging-thesis — What is the vault saying right now?
 
 Computes the implicit thesis emerging from recent activity in `knowledge/memories/` using TF-IDF (term-frequency × inverse-document-frequency). Returns:

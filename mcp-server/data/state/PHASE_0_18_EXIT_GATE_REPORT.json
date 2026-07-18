@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-20T01:02:30.911Z",
+  "milestone": "MASTER-AI-SYSTEM-ROADMAP-2026-04-15",
+  "unit": "U-AGI-EXIT",
+  "phase": "0.18",
+  "totalDurationMs": 2.59,
+  "verdict": "PASS",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "errored": 0
+  },
+  "gates": [
+    {
+      "id": "G1",
+      "title": "AutonomousGoalSynthesisEngine.propose() >=3 non-trivial goals",
+      "status": "PASS",
+      "threshold": ">=3 goals with score>=1.0",
+      "measurement": "3 non-trivial of 3 returned",
+      "durationMs": 0.16,
+      "details": {
+        "topGoal": {
+          "id": "gap-psi-1",
+          "kind": "coverage",
+          "title": "Wire orphan engines to dispatchers",
+          "score": 6.5025,
+          "rationale": "Ψ=8.5 × urgency=0.9 × feasibility=0.85 = 6.5025",
+          "source": {
+            "id": "gap-psi-1",
+            "kind": "coverage",
+            "title": "Wire orphan engines to dispatchers",
+            "psiImpact": 8.5,
+            "urgency": 0.9,
+            "feasibility": 0.85,
+            "tags": [
+              "wiring"
+            ],
+            "origin": "canary"
+          }
+        },
+        "allGoals": [
+          {
+            "id": "gap-psi-1",
+            "score": 6.5025
+          },
+          {
+            "id": "gap-psi-3",
+            "score": 5.5575
+          },
+          {
+            "id": "gap-psi-2",
+            "score": 3.744
+          }
+        ]
+      }
+    },
+    {
+      "id": "G2",
+      "title": "CausalReasoningEngine.traceImpact('critical-file') >=10-node graph in <500ms",
+      "status": "PASS",
+      "threshold": ">=10 nodes && <500ms trace",
+      "measurement": "13 nodes in 0.22ms",
+      "durationMs": 0.28,
+      "details": {
+        "nodeCount": 13,
+        "traceMs": 0.22,
+        "topPaths": [
+          {
+            "target": "dispatcher-a",
+            "hops": 1,
+            "confidence": 0.9,
+            "polarity": "positive",
+            "via": [
+              "dispatcher-a"
+            ]
+          },
+          {
+            "target": "dispatcher-b",
+            "hops": 1,
+            "confidence": 0.85,
+            "polarity": "positive",
+            "via": [
+              "dispatcher-b"
+            ]
+          },
+          {
+            "target": "engine-1",
+            "hops": 2,
+            "confidence": 0.81,
+            "polarity": "positive",
+            "via": [
+              "dispatcher-a",
+              "engine-1"
+            ]
+          },
+          {
+            "target": "dispatcher-c",
+            "hops": 1,
+            "confidence": 0.8,
+            "polarity": "positive",
+            "via": [
+              "dispatcher-c"
+            ]
+          },
+          {
+            "target": "engine-2",
+            "hops": 2,
+            "confidence": 0.792,
+            "polarity": "positive",
+            "via": [
+              "dispatcher-a",
+              "engine-2"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "G3",
+      "title": "TransferLearningBridgeEngine.findAnalogies('adaptive spindle') >=1 cross-domain in <500ms",
+      "status": "PASS",
+      "threshold": ">=1 cross-domain match && <500ms",
+      "measurement": "3 cross-domain of 3 matches in 0.33ms",
+      "durationMs": 0.61,
+      "details": {
+        "topMatches": [
+          {
+            "id": "p-turning-01",
+            "domain": "turning",
+            "crossDomain": true,
+            "score": 0.4035,
+            "rationale": "cosine=0.438 jaccard=0.200 +10% cross-domain"
+          },
+          {
+            "id": "p-wedm-01",
+            "domain": "wire-edm",
+            "crossDomain": true,
+            "score": 0.2878,
+            "rationale": "cosine=0.267 jaccard=0.250 +10% cross-domain"
+          },
+          {
+            "id": "p-grinding-01",
+            "domain": "grinding",
+            "crossDomain": true,
+            "score": 0.2834,
+            "rationale": "cosine=0.261 jaccard=0.250 +10% cross-domain"
+          }
+        ]
+      }
+    },
+    {
+      "id": "G4",
+      "title": "PredictiveWorldSimulatorEngine.simulate() >80% accuracy on canary",
+      "status": "PASS",
+      "threshold": "accuracy > 0.80",
+      "measurement": "19/20 correct = 95.0%",
+      "durationMs": 0.28,
+      "details": {
+        "accuracy": 0.95,
+        "correct": 19,
+        "total": 20,
+        "mispredictions": [
+          {
+            "path": "ForceHub.ts",
+            "predicted": "low",
+            "actual": true,
+            "prob": 0.156
+          }
+        ]
+      }
+    },
+    {
+      "id": "G5",
+      "title": "AbstractionHierarchyEngine.hierarchy() >=3 levels, >=50 entries",
+      "status": "PASS",
+      "threshold": ">=3 distinct levels populated && >=50 nodes",
+      "measurement": "64 nodes, 4 levels populated, sample chain depth=4 (4 distinct levels)",
+      "durationMs": 0.62,
+      "details": {
+        "size": 64,
+        "levels": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "chainDepth": 4,
+        "chainLevels": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "G6",
+      "title": "AGI Parity Test v2 (scriptable subset)",
+      "status": "PASS",
+      "threshold": "3/3 scriptable v2 checks pass",
+      "measurement": "3/3 scriptable pass; 5 session-level checks require live verification",
+      "durationMs": 0.03,
+      "details": {
+        "checks": [
+          {
+            "id": "v1-1",
+            "name": "Query routes through AwarenessQueryEngine (not raw grep)",
+            "status": "FAIL",
+            "detail": "requires live-session observation",
+            "scriptable": false
+          },
+          {
+            "id": "v1-2",
+            "name": "Creating new engine auto-runs /dedup without prompt",
+            "status": "FAIL",
+            "detail": "requires live-session observation",
+            "scriptable": false
+          },
+          {
+            "id": "v1-3",
+            "name": "mustCheckBeforeCreating block triggers reflection + alternative",
+            "status": "FAIL",
+            "detail": "requires live-session observation",
+            "scriptable": false
+          },
+          {
+            "id": "v1-4",
+            "name": "Accept new goal mid-session -> goal-stack delta",
+            "status": "FAIL",
+            "detail": "requires live-session observation",
+            "scriptable": false
+          },
+          {
+            "id": "v1-5",
+            "name": "Post-compact session references prior learnings",
+            "status": "FAIL",
+            "detail": "requires live-session observation",
+            "scriptable": false
+          },
+          {
+            "id": "v2-1",
+            "name": "Goal synthesis engine returns >=3 non-trivial goals",
+            "status": "PASS",
+            "detail": "3 non-trivial of 3 returned",
+            "scriptable": true
+          },
+          {
+            "id": "v2-2",
+            "name": "Causal explanation of breakage via traceImpact()",
+            "status": "PASS",
+            "detail": "13 nodes in 0.22ms",
+            "scriptable": true
+          },
+          {
+            "id": "v2-3",
+            "name": "Cross-domain analogy via findAnalogies()",
+            "status": "PASS",
+            "detail": "3 cross-domain of 3 matches in 0.33ms",
+            "scriptable": true
+          }
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "Gate 6 (AGI Parity v2) only asserts the 3 engine-level v2 checks.",
+    "The 5 v1 session-level checks (awareness query routing, /dedup auto-run,",
+    "reflection loop, goal-stack, compact handoff) must be verified by a live",
+    "session parity canary documented in MASTER-AI-SYSTEM-ROADMAP section 0.18.",
+    "Seeded canary data is disposable — engines are cleared before each gate."
+  ]
+}

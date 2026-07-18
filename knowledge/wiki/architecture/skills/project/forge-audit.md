@@ -30,15 +30,19 @@ related:
 ## Description (first paragraph)
 
 
+# Forge Audit — Codebase Quality Scan Autopilot
 
-# Forge Audit — Omniscient Mode
+Comprehensive quality scan across PRISM. Designed for background execution — produces structured findings report.
 
-Upgrades from blind scan to a conductor of PRISM's 5 awareness layers
-(`system-graph.json`, `CODE_SYSTEM_INDEX.json`, `wiki/index.md` + memories,
-`CLAUDE.md`, `BUILD_STATE.json` + `MILESTONE_PROGRESS.json` +
-`PRISM-INVENTORY-LATEST.md`). Emits 4 load-bearing artifacts:
-- `state/shared/AUDIT-LATEST.json`  (machine — `/rgs6 generate` ingests)
-- `state/shar
+## Preflight (MANDATORY — run first)
+
+Refresh the live inventory so all counts are current, then read it:
+
+```bash
+node scripts/update-prism-inventory.mjs --quiet
+```
+
+Then read `PRISM-INVENTORY-LATEST.md` for the authorit
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_from": "H:\\prism\\state\\shared\\ocr-training-loop\\perfect-print-cad-program-parts.json",
+  "models": [
+    "qwen3-vl:8b-instruct",
+    "qwen2.5vl:7b"
+  ],
+  "rel_tol": 0.02,
+  "recall_pass_threshold": 0.5,
+  "parts_listed": 6,
+  "scored": 2,
+  "passed": 0,
+  "pass_rate": 0,
+  "mean_recall": 0.3215,
+  "mean_precision": 0.2616,
+  "skipped": {
+    "print_unresolved": 0,
+    "program_unresolved": 0,
+    "program_not_nc": 3,
+    "program_non_lathe": 1,
+    "raster_failed": 0,
+    "ocr_failed": 0
+  },
+  "note": "GT = CALLOUT-CLASS machined dims (distinct G1/G2/G3 FEED-move feature diameters + overall feed-Z length, inch→mm) — NOT every toolpath vertex (a roughing pass has ~100+ points a print never dimensions; using those as the recall denominator would falsely fail even perfect OCR). recall = fraction of callout-class GT the OCR corroborated; precision = fraction of OCR dims that are real machined dims. PASS at recall>=0.5. GUARDS: only POSTED G-code text (binary .mcx-8/CAM sources skipped as program-not-nc); only LATHE axis (X=diameter; mill/unknown skipped as program-non-lathe). HONESTY: a low recall here = real-scan OCR reads few dims (a domain-shift weakness vs clean synthetic prints), NOT a metric artifact. Resumable: re-run continues from processed-cursor.jsonl."
+}

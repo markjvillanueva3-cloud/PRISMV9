@@ -4,7 +4,7 @@ export const PLATFORM_LEARNING_SNAPSHOT: PlatformLearningSnapshot = {
   shopProfile: {
     shopLabel: 'JM Die Company',
     specialization: 'Cold heading die tooling, sinker EDM electrodes, wire EDM details, and precision turning/milling',
-    autonomyPosture: 'JM Die is the canonical PRISM seed shop, so playbooks should adapt to its real routing, tooling, labor, and release behavior first.',
+    autonomyPosture: 'JM Die is the canonical Kienzle seed shop, so playbooks should adapt to its real routing, tooling, labor, and release behavior first.',
     adaptationScore: '92% local fit',
     policyNote:
       'Private shop behavior stays tenant-scoped first; only approved pattern deltas and anonymized outcomes should graduate into the broader network-learning layer.',
@@ -14,7 +14,7 @@ export const PLATFORM_LEARNING_SNAPSHOT: PlatformLearningSnapshot = {
         label: 'Job execution loop',
         scope: 'shop',
         status: 'live',
-        detail: 'Traveler scans, hot jobs, labor starts/stops, quantity actuals, and release posture should teach PRISM how JM Die actually prioritizes the floor.',
+        detail: 'Traveler scans, hot jobs, labor starts/stops, quantity actuals, and release posture should teach Kienzle how JM Die actually prioritizes the floor.',
         coverage: 'Jobs, scheduling, floor clock, employee shell',
       },
       {
@@ -39,7 +39,7 @@ export const PLATFORM_LEARNING_SNAPSHOT: PlatformLearningSnapshot = {
         id: 'improvement-shop-routing',
         title: 'Routing suggestions should adapt by department reality',
         source: 'shop',
-        detail: 'As JM Die adds programs, people, machines, controllers, holders, tooling, materials, and prints, PRISM should reprioritize sequences and dispatch rules to match actual flow.',
+        detail: 'As JM Die adds programs, people, machines, controllers, holders, tooling, materials, and prints, Kienzle should reprioritize sequences and dispatch rules to match actual flow.',
         impact: 'Better due-date confidence and less planner rework',
       },
       {
@@ -62,7 +62,7 @@ export const PLATFORM_LEARNING_SNAPSHOT: PlatformLearningSnapshot = {
         label: 'Cross-shop process intelligence',
         scope: 'network',
         status: 'warming',
-        detail: 'Opt-in shops can feed anonymized process outcomes so PRISM learns what setup families, tooling packages, and scheduling responses work best across environments.',
+        detail: 'Opt-in shops can feed anonymized process outcomes so Kienzle learns what setup families, tooling packages, and scheduling responses work best across environments.',
         coverage: 'Quoting, process planning, scheduling, tool life',
       },
       {

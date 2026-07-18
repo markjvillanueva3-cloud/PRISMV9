@@ -1,18 +1,33 @@
 /**
  * OfflineRL Orchestrator Engine Tests — U-LEARN-08
  */
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { offlineRLOrchestratorEngine } from "../engines/OfflineRLOrchestratorEngine.js";
 import { iqlEngine } from "../engines/IQLEngine.js";
 import { maxEntIRLEngine } from "../engines/MaxEntIRLEngine.js";
 import { safetyShieldEngine } from "../engines/SafetyShieldEngine.js";
+import { PolicyExperienceLedgerEngine } from "../engines/PolicyExperienceLedgerEngine.js";
+import { mkdtempSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 describe("OfflineRLOrchestratorEngine", () => {
+  let ledgerRoot: string;
+
   beforeEach(() => {
     offlineRLOrchestratorEngine.clear();
     iqlEngine.clear();
     maxEntIRLEngine.clear();
     safetyShieldEngine.clear();
+    // Isolate the persistent experience ledger in a FRESH tmp dir per test so
+    // suites never race on the cwd-shared state/policy/experience.jsonl, and so
+    // "empty experience" asserts aren't polluted by stale tuples from prior runs.
+    ledgerRoot = mkdtempSync(path.join(os.tmpdir(), "prism-offlinerl-"));
+    offlineRLOrchestratorEngine.setLedgerForTest(new PolicyExperienceLedgerEngine(ledgerRoot));
+  });
+
+  afterEach(() => {
+    try { rmSync(ledgerRoot, { recursive: true, force: true }); } catch { /* ignore */ }
   });
 
   it("trains with empty experience returns zero metrics", () => {

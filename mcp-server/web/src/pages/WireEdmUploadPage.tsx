@@ -97,10 +97,10 @@ export function WireEdmUploadPage() {
     <WorkspaceRecoveryScaffold
       eyebrow="Wire EDM intake"
       title="Wire EDM Upload"
-      description="The Wire EDM upload desk is back on a live APPW scaffold. OCR and geometry parsing now sit on explicit backend seams, with PRISM AI available to interpret what the parser returned."
+      description="The Wire EDM upload desk is back on a live APPW scaffold. OCR and geometry parsing now sit on explicit backend seams, with Kienzle AI available to interpret what the parser returned."
       surfaces={['jobDesk']}
       metrics={metrics}
-      aiSummary="PRISM AI can interpret OCR and geometry parse output, call out missing information, and translate the current Wire EDM intake state into the next programming action."
+      aiSummary="Kienzle AI can interpret OCR and geometry parse output, call out missing information, and translate the current Wire EDM intake state into the next programming action."
       aiContext={aiContext}
       suggestions={[
         {

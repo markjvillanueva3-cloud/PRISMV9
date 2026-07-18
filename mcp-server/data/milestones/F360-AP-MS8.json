@@ -1,0 +1,115 @@
+{
+  "id": "F360-AP-MS8",
+  "version": "1.0.0",
+  "title": "Learning Pipeline + Cloud Indexing + Beta Program",
+  "brief": "CloudCAMIndexerEngine crawls cloud library. Ingest 30 BOX parts + 225 tools + 150 CPS. Feedback loop. Shop-specific calibration. Similar-part matching. 5-shop beta.",
+  "created_at": "2026-04-01T17:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "F360-AP",
+  "track_name": "Fusion 360 AutoProgram",
+  "status": "not_started",
+  "total_units": 6,
+  "completed_units": 0,
+  "estimated_sessions": 3,
+  "dependencies": [
+    "F360-AP-MS7"
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "f360-ap-ms8-gate",
+    "mcp_action": "prism_f360-ap:f360_ap_ms8_run",
+    "skill_command": "/f360-ap-ms8",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "f360-ap-ms8-gate"
+    ],
+    "new_actions": [
+      "f360_ap_ms8_run"
+    ],
+    "new_skills": [
+      "/f360-ap-ms8"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "CloudCAMIndexerEngine crawls cloud library. Ingest 30 BOX parts + 225 tools + 150 CPS. Feedback loop. Shop-specific calibration. Similar-part matching. 5-shop beta.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-FXXX01",
+      "title": "F360-AP-MS8 — Coordinator",
+      "description": "Master coordinator envelope for F360-AP-MS8. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

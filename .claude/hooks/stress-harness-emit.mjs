@@ -71,13 +71,13 @@ function resolveSlot(sid) {
 }
 
 function gitBranch() {
-  try { return execFileSync("git", ["-C", REPO_ROOT, "rev-parse", "--abbrev-ref", "HEAD"], { encoding: "utf-8", timeout: 2000 }).trim(); }
+  try { return execFileSync("git", ["-C", REPO_ROOT, "rev-parse", "--abbrev-ref", "HEAD"], { windowsHide: true, encoding: "utf-8", timeout: 2000 }).trim(); }
   catch { return null; }
 }
 
 function gitTopic() {
   try {
-    const subj = execFileSync("git", ["-C", REPO_ROOT, "log", "-1", "--pretty=%s"], { encoding: "utf-8", timeout: 2000 }).trim();
+    const subj = execFileSync("git", ["-C", REPO_ROOT, "log", "-1", "--pretty=%s"], { windowsHide: true, encoding: "utf-8", timeout: 2000 }).trim();
     const m = subj.match(/\[([A-Z0-9-]+)\]/);
     return m ? m[1].toLowerCase() : null;
   } catch { return null; }

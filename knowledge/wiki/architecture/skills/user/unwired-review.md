@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `unwired-review` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/unwired-review.md` |
+| Source | `C:/Users/wompu/.claude/commands/unwired-review.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Unwired Review — Structured Unwired Engine Triage
+
+Systematically triage the 63+ unwired engines in PRISM — engines that exist on disk but aren't exported from index.ts or reachable from any dispatcher. Score, rank, and generate wiring stubs for the best candidates.
+
+## Args: $ARGUMENTS
+- Empty: full triage report with rankings
+- `list`: ranked triage table only (no wiring stubs)
+- `[en
 
 <!-- AUTO-END -->
 

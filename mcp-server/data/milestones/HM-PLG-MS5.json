@@ -1,0 +1,308 @@
+{
+  "id": "HM-PLG-MS5",
+  "version": "8.3.0",
+  "title": "Tool Crib Panel + TDB Import",
+  "track": "HM-PLUGIN",
+  "status": "not_started",
+  "description": "Build the PRISM Tool Crib panel for hyperMILL. Provides searchable access to the 95,608-tool catalog from within hyperMILL. Includes 'Import to TDB' button that exports selected tools to hyperMILL's tool database (.hmt SQLite format) via HyperMillToolExportEngine. Tool availability check against shop crib inventory. Collision geometry preview for holder + tool assembly.",
+  "dependencies": [
+    "HM-PLG-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "ToolCatalogEngine",
+      "HyperMillToolExportEngine",
+      "ToolAssemblyCollisionEngine",
+      "ToolInventoryEngine"
+    ],
+    "registries": [
+      "ToolRegistry"
+    ],
+    "services": [
+      "prism-mcp-server"
+    ],
+    "physics": [],
+    "reference": [
+      "hypermill-tools-json",
+      "hypermill-tool-schema-notes",
+      "hmt-sqlite-format"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hm-plugin:tool-import-validation — BUILT (validates tool geometry compatibility before .hmt import)",
+    "action": "hypermill_plugin:search_tool_catalog — BUILT (searches 95K tools with fuzzy match)",
+    "skill": "/hypermill-tool-crib — BUILT (search, preview, and import tools into hyperMILL TDB)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-PLG-MS5-S1",
+      "title": "Tool Search + Catalog Action",
+      "smart_config": {
+        "role": "tooling-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "ToolCatalogEngine (95,608 tools)",
+        "ToolRegistry",
+        "hypermill-tools.json (587 tools)"
+      ],
+      "intent": "Build the tool search action with fuzzy matching across 95K tools, and the panel UI with search bar, filter facets, and result cards showing tool geometry previews.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG18",
+          "title": "Tool Catalog Search Action",
+          "description": "Create hypermill_plugin:search_tool_catalog action that searches the 95,608-tool ToolRegistry with fuzzy matching on: tool type, diameter, flute count, material, manufacturer, coating, overall length. Support faceted filtering (type, diameter range, material grade). Return top-20 results ranked by relevance with geometry summary. Performance target: <200ms for any query.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Fuzzy search returns relevant results for partial names (e.g., 'sandvik 12mm' finds CoroMill entries)",
+            "Faceted filters narrow results by tool type, diameter range, and coating",
+            "Search latency <200ms for 95K catalog with cold cache"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/ToolCribEngine.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/hypermillPluginDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "search latency > 500ms"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/ToolCribEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG19",
+          "title": "Tool Crib Panel HTML/JS UI",
+          "description": "Build the Tool Crib panel with: search bar with auto-suggest, filter sidebar (type, diameter, manufacturer, coating), result cards showing tool geometry SVG preview + key specs (D, L, Z, corner radius). Paginated results (20 per page). Tool detail expansion showing full geometry dimensions, recommended cutting data, and holder compatibility.",
+          "depends_on": [
+            "U-PLG18"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Search bar triggers search on 300ms debounce with auto-suggest dropdown",
+            "Result cards show tool type icon, diameter, length, flute count, and manufacturer",
+            "Tool detail expansion shows full geometry dimensions with SVG cross-section preview"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/panels/tool-crib-panel.html"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/panels/"
+          }
+        }
+      ],
+      "exit_gate": "Search returns relevant results <200ms + panel displays tool cards with geometry | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "hypermill_plugin:search_tool_catalog"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-PLG-MS5-S2",
+      "title": "TDB Import + Inventory Check",
+      "smart_config": {
+        "role": "tooling-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillToolExportEngine (1,136 LOC)",
+        "hmt SQLite schema (29 geometry classes)",
+        "Tool inventory management"
+      ],
+      "intent": "Build the Import to TDB button that exports selected tools to hyperMILL's .hmt SQLite format, and add shop crib inventory status checking.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG20",
+          "title": "HMT Import Action + Geometry Mapping",
+          "description": "Create hypermill_plugin:import_to_tdb action that takes a selected tool from the catalog and exports it to hyperMILL's tool database via HyperMillToolExportEngine. Map PRISM's tool geometry to hyperMILL's 29 geometry classes (flat endmill, ball nose, bull nose, drill, tap, etc.). Handle holder selection and tool assembly creation. Write .hmt SQLite file to hyperMILL's TDB path.",
+          "depends_on": [
+            "U-PLG18"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Tool geometry correctly mapped to one of 29 hyperMILL geometry classes",
+            ".hmt SQLite file written with valid schema (tested with hyperMILL's TDB reader)",
+            "Holder + tool assembly created with correct coupling dimensions"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/ToolCribEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              ".hmt file fails schema validation"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/ToolCribEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG21",
+          "title": "Inventory Check + Collision Preview",
+          "description": "Add shop crib inventory status to tool search results (in-stock/low/out-of-stock badge). Wire ToolInventoryEngine to check tool availability. Add collision geometry preview that shows holder + tool assembly outline for the selected tool against the current workpiece bounding box. 'Import to TDB' button disabled for out-of-stock tools with reorder suggestion.",
+          "depends_on": [
+            "U-PLG19",
+            "U-PLG20"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Inventory status badge (green=in-stock, yellow=low, red=out) shown on each tool card",
+            "Collision geometry preview renders 2D side-view of holder+tool assembly outline",
+            "Out-of-stock tools show 'Reorder' link instead of 'Import to TDB' button"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/ToolCribEngine.ts",
+              "src/engines/hypermill/plugin/panels/tool-crib-panel.html"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/ToolCribEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Import creates valid .hmt + inventory badges shown + collision preview renders | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "hm-plugin:tool-import-validation"
+        ],
+        "new_actions": [
+          "hypermill_plugin:import_to_tdb",
+          "hypermill_plugin:check_tool_inventory"
+        ],
+        "new_skills": [
+          "/hypermill-tool-crib"
+        ],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms5-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms5_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the PRISM Tool Crib panel for hyperMILL. Provides searchable access to the 95,608-tool catalog from within hyperMILL. Includes 'Import to TDB' button that exports selected tools to hyperMILL's tool database (.hmt SQLite format) via HyperMillToolExportEngine. Tool availability check against shop crib inventory. Collision geometry preview for holder + tool assembly.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS5 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS5. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

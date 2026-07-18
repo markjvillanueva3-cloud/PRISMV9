@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "1.2.0",
+  "title": "JM Lathe CAM Optimization Rules (machine-consumable, applied by the recipe resolver)",
+  "owner": "kilo",
+  "date": "2026-06-01",
+  "unit": "U-CAM-OPT-RULES (v1.1 adversarial-hardened by U-CAM-OPT-VERIFIED; v1.2 dialect-corrected by U-CAM-CORPUS-DEEP-STRUCTURE — 16,558-program corpus disproved Fanuc-G75 grooving; grv rule re-grounded on G74 peck / G81-G82 LAP)",
+  "purpose": "The actionable 'learn to optimize' layer: per op-family directives that move a resolved recipe from observed JM practice toward the physics-optimal, ranked by the 4 objectives (safety > accuracy > time > efficiency). Consumed by cam-turning-recipe-resolver.applyOptimizationRules(). Grounded in CAM-CORPUS-PROFILE.md (observed) + CAM-OPTIMAL-REFERENCE-FINDINGS.md (physics-optimal) + the 8 worka68bp family analyses. v1.1 applies the 2 P0 + 16 P1 corrections from the 8-family adversarial audit (CAM-OPTIMIZATION-VERIFIED.md) — every guard a rule needs now lives in the rule OBJECT (L5: guards-in-prose != guards-in-consumed-object).",
+  "grounding_findings": [
+    "SFM is MATERIAL-DEPENDENT — canonical turning envelope ISO-H 80/130, ISO-S 35/70, ISO-P 220/320, ISO-N 400/600 (~17x range). NEVER a fixed target; resolve ISO group from the print first; resolver emits 'pending' (no silent tool_steel default).",
+    "G50 max-rpm cap is MANDATORY whenever G96 CSS is selected (rpm -> inf as effective dia -> 0). Most-violated invariant — every G96 rule must carry it.",
+    "Deflection (L/D, delta=FL^3/3EI) — not torque/MRR — is the binding constraint on slender work; aggressive radial/axial moves carry an L/D gate delegated to whiskey lathe_safety_predicate_evaluate.",
+    "Min-chip-load floor: finish/light-feed moves must not drive feed below insert edge-radius min chip load (rubbing/heat); if Ra demands lower, switch nose R / wiper insert.",
+    "Cutting numbers are physics-delegated (prism_calc/UltimateSpeedFeed, whiskey prism_turning/thread; derates via speed_feed / lathe_safety_predicate_evaluate) — rules carry DIRECTIVES, never inlined constants.",
+    "DIALECT (corpus-confirmed 2026-06-01, 16,558 JM .MIN): Okuma OSP is INVERTED vs Fanuc — G85/G87=LAP rough/finish, G81/G82=shape-def, G80=LAP end, G71/G72=THREADING, G74=peck drill/groove, G76=in-shape chamfer. Fanuc G75 grooving is ABSENT; grooving = G74 peck-and-shift or G81/G82 LAP, NOT G75. Feed-per-rev (G95) is the implicit OSP default (~91% of files omit G94/G95) — emit/read feeds as in/REV (IPR), never in/min (12-60x error). Strong shop habits to PRESERVE as positive training signal (R11): 97-98% G50 cap, ~92% G96 CSS, ~73%/69% G85/G87 LAP, A-angle/G76 chamfer idiom."
+  ],
+  "objective_priority": ["safety", "accuracy", "time", "efficiency"],
+  "verification": "8-family adversarial audit 2026-06-01 (CAM-OPTIMIZATION-VERIFIED.md): all 2 P0 + 16 P1 applied here; SFM/feed/DOC physically correct per ISO group; no physics constant inlined.",
+
+  "families": {
+    "facing": {
+      "rules": [
+        { "id": "face-css", "axis": "mode", "move": "use G96 CSS for the bulk of the face; below min_diameter_for_css the G50 clamp holds capped rpm and effective SFM falls — accept reduced finish near center OR drop to G97 / feed-taper in the center region (CSS does NOT hold speed to dia=0)", "roi": "accuracy", "physics_delegate": false, "material_dependent": false, "guard": "G50 max-rpm cap mandatory under G96" },
+        { "id": "face-sfm", "axis": "sfm", "move": "set SFM from physics for {ISO group, grade, facing} — material-dependent, NOT a fixed number", "roi": "time", "physics_delegate": true, "material_dependent": true },
+        { "id": "face-passes", "axis": "passes", "move": "single rough + single finish; compute rough pass count from true stock, never a fixed 3 (kills 2-3 air-cut passes)", "roi": "time", "physics_delegate": false, "material_dependent": false, "guard": "derate DOC + feed on low-rigidity/thin/high-L/D or interrupted face; escalate whiskey lathe_safety_predicate_evaluate; respect insert max DOC + torque/power envelope (prism_safety) — protect the Z-datum flatness" }
+      ]
+    },
+    "OD_roughing": {
+      "rules": [
+        { "id": "odr-air", "axis": "passes", "move": "eliminate manual same-Z air-cut passes; let Fusion stock-aware roughing compute pass count from the stock model", "roi": "time", "physics_delegate": false, "material_dependent": false, "evidence": "observed 3 G1 passes at same Z, only pass 1 cuts (15-30s/part)", "guard": "stock model verified (turned-bar default OK; cast/forged/irregular stock must confirm true stock envelope before trusting auto pass count — wrong model plunges full-DOC into uncut stock)" },
+        { "id": "odr-sfm", "axis": "sfm", "move": "physics-set SFM per ISO group — do NOT blanket-raise; ISO-H~180 (observed 250 slightly high), ISO-P 600-1000+", "roi": "time", "physics_delegate": true, "material_dependent": true, "guard": "interrupted cut (cross-hole/flat/spline) or ISO-S (Ti/Inconel) -> derate SFM + tougher grade + lighter feed, do not apply smooth-OD envelope" },
+        { "id": "odr-doc", "axis": "doc", "move": "increase radial DOC toward physics-optimal per {ISO,grade,rigidity,L/D} (source speed_feed) -> fewer passes", "roi": "efficiency", "physics_delegate": true, "material_dependent": true, "guard": "torque/power within machine envelope (prism_safety); respect insert max DOC; L/D radial-deflection gate (whiskey lathe_safety_predicate_evaluate) — cap DOC / escalate on slender OD, deflection (delta=FL^3/3EI) governs not MRR" }
+      ]
+    },
+    "OD_finishing": {
+      "rules": [
+        { "id": "odf-feed", "axis": "feed", "move": "derive finish feed from required Ra via Ra = f^2/(8*nose_R) — accuracy-first, not a copied default", "roi": "accuracy", "physics_delegate": true, "material_dependent": false, "guard": "finish feed >= insert min-chip-load; if Ra-derived f < min-chip-load, switch to larger nose R / wiper insert, do NOT lower feed (below min chip load -> rubbing/heat/work-hardening)" },
+        { "id": "odf-sfm", "axis": "sfm", "move": "physics-set SFM per ISO + grade for tool life; material-dependent", "roi": "time", "physics_delegate": true, "material_dependent": true, "guard": "high L/D (slender shaft) -> derate SFM + support (steady/follower rest); escalate whiskey lathe_safety_predicate_evaluate before raising" },
+        { "id": "odf-g50", "axis": "rpm", "move": "set G50 cap only at the true chuck/part-balance safe-max, not a defensive habit value", "roi": "efficiency", "physics_delegate": false, "material_dependent": false, "guard": "G50 cap still mandatory under G96" }
+      ]
+    },
+    "ID_boring": {
+      "rules": [
+        { "id": "idb-sfm", "axis": "sfm", "move": "on the ROUGH/semi-finish bar, raise SFM off the observed 50-75 toward physics-optimal per ISO, DERATED by bar deflection", "roi": "time", "physics_delegate": true, "material_dependent": true, "guard": "L/D <= 4 steel / <= 6 carbide (whiskey lathe_safety_predicate_evaluate); derate or escalate if exceeded" },
+        { "id": "idb-finish-feed", "axis": "feed", "move": "finish-bar feed from required Ra via Ra=f^2/(8*nose_R), never raised for time; keep above insert min-chip-load to avoid rubbing", "roi": "accuracy", "physics_delegate": true, "material_dependent": false },
+        { "id": "idb-peck", "axis": "peck", "move": "peck/retract on deep blind bore for chip evacuation; no single deep G1 plunge at raised feed", "roi": "safety", "physics_delegate": false, "material_dependent": false, "guard": "depth > ~3x bore dia OR blind bore -> peck mandatory (re-cutting packed chips snaps the bar)" },
+        { "id": "idb-css", "axis": "mode", "move": "use G96 CSS where bore diameter varies (observed hardcoded G97)", "roi": "accuracy", "physics_delegate": false, "material_dependent": false, "guard": "G50 max-rpm cap MANDATORY under G96; small-bore dia drives rpm up — below min-dia hold capped rpm, do not chase CSS" },
+        { "id": "idb-bar", "axis": "tool", "move": "pick the shortest boring bar that reaches depth (minimize L/D)", "roi": "accuracy", "physics_delegate": false, "material_dependent": false }
+      ]
+    },
+    "drilling_centering": {
+      "rules": [
+        { "id": "drl-rpm", "axis": "rpm", "move": "scale rpm WITH drill diameter (rpm = SFM*12/(pi*dia)); observed runs 0.14in and 0.375in near-identical (10-25% waste)", "roi": "time", "physics_delegate": true, "material_dependent": true, "guard": "rpm <= min(spindle_max, drill_mfr_max_rpm); small drills are torque/runout-limited — cap, never SFM-scale uncapped (rpm explodes as dia -> 0; 0.062in @ 100 SFM ~ 6160 rpm -> snap). Drilling stays G97 (no CSS on axial)" },
+        { "id": "drl-peck", "axis": "peck", "move": "peck depth proportional to diameter + chip-breaking need, not a fixed 0.15in", "roi": "time", "physics_delegate": true, "material_dependent": false, "guard": "peck mandatory for L/D > ~3 (chip pack); gummy 304SS/aluminum need longer retract than cast iron (chip-breaking material coupling)" }
+      ]
+    },
+    "grooving": {
+      "rules": [
+        { "id": "grv-peck-shift", "axis": "cycle", "move": "replace manual multi-pass G0/G1 + single-deep-plunge/G4-dwell grooving with a G74 peck-and-shift cycle (radial) or G81/G82 LAP define+replay (profile/face groove) — observed one file = 41 hand-coded blocks. NOT Fanuc G75 (ABSENT in JM Okuma corpus; dialect correction 2026-06-01 from 16,558-program analysis)", "roi": "time", "physics_delegate": false, "material_dependent": false, "guard": "depth > 3x insert width MUST peck (no single full-depth plunge); G50 max-rpm cap MANDATORY if face-groove uses G96 (swept-dia CSS over-speed); L/D deflection gate on slender/long-overhang -> whiskey lathe_safety_predicate_evaluate (derate feed/SFM, do NOT deepen peck); interrupted cut (keyway/cross-hole/flat) -> reduce SFM+feed, never raise; applies to op family grooving only — route part-off to parting_cutoff" },
+        { "id": "grv-sfm", "axis": "sfm", "move": "raise off the observed ~70 floor toward the DERATED grooving optimum (never toward OD-turn SFM) per {ISO group, grade, grooving, groove_dia, insert_width}", "roi": "time", "physics_delegate": true, "material_dependent": true, "groove_derate": "Vc_groove = 0.70-0.80 * Vc_turn(ISO,grade) — computed by speed_feed op='grooving', not inlined", "guard": "do NOT exceed material Vc envelope after groove-derate; ISO-H/S ceiling is LOW; direction is off-floor-toward-derated-optimum, never toward OD-turn SFM (full insert-width engagement, h=f, closed-slot chip evac, narrow weak blade); below insert min chip load -> rubbing/heat" },
+        { "id": "grv-feed", "axis": "feed", "move": "groove feed in/REV (G95) light, driven by insert_width + material — source speed_feed op='grooving'", "roi": "accuracy", "physics_delegate": true, "material_dependent": true, "guard": "below insert min chip load -> rub; feed is in/REV not in/min (units-first, IPR != IPM); feed is the dominant fracture lever on a narrow blade" },
+        { "id": "grv-width-step", "axis": "passes", "move": "width_passes = groove_width / insert_width plunge step-over for wide grooves", "roi": "time", "physics_delegate": false, "material_dependent": false },
+        { "id": "grv-finish", "axis": "passes", "move": "side+bottom finish pass when groove-width/Ra tolerance tight — a single roughing plunge will not hold (snap-ring/seal groove)", "roi": "accuracy", "physics_delegate": false, "material_dependent": false }
+      ]
+    },
+    "parting_cutoff": {
+      "rules": [
+        { "id": "prt-g50", "axis": "rpm", "move": "trim the defensive double-limit (observed G96 S250 + redundant G50 S600) to the true safe-max — reclaims 15-25% spindle on small OD", "roi": "efficiency", "physics_delegate": false, "material_dependent": false, "guard": "G50 cap MANDATORY (CSS spikes rpm as dia -> 0)" },
+        { "id": "prt-taper", "axis": "feed", "move": "feed taper toward center to control burr (accuracy) without stalling", "roi": "accuracy", "physics_delegate": true, "material_dependent": false },
+        { "id": "prt-peck", "axis": "peck", "move": "peck for deep cutoff (chip evac); reduce air-cut retract rapids (30-50% of a 0.2in cutoff is positioning)", "roi": "time", "physics_delegate": false, "material_dependent": false, "guard": "depth > 3x blade width -> peck; gate rapid-reduction + aggression on part_support_present (part-catcher/sub-spindle/tailstock) — on unsupported overhang keep full retract clearance and reduce feed near center (prevents stub-grab/whip/launch)" }
+      ]
+    },
+    "threading": {
+      "rules": [
+        { "id": "thr-doc", "axis": "doc", "move": "decreasing-DOC infeed schedule (constant chip area), adapt by pitch — observed fixed 0.003in wastes coarse threads + chatters fine", "roi": "accuracy", "physics_delegate": true, "material_dependent": false, "guard": "multi-pass infeed; no full-depth single pass; per-pass infeed force-bounded by ISO group via prism_safety torque/force check (derate ISO-H/S — high kc1.1); floor final DOC >= insert min chip-load (edge radius), single intentional spring pass only — do not shrink last passes to ~0; ID thread: boring-bar L/D <= 4 steel / <= 6 carbide -> derate or escalate whiskey" },
+        { "id": "thr-rpm", "axis": "rpm", "move": "pitch/diameter-aware rpm or G96 CSS — observed constant 250-300 makes SFM swing 25-123 across diameters", "roi": "time", "physics_delegate": true, "material_dependent": true, "guard": "spindle-sync feed = pitch (not overridable); G50 max-rpm cap MANDATORY whenever G96 selected — ID/decreasing-pitch-dia spikes rpm as effective dia -> 0 on a synchronized pass; ID thread: boring-bar L/D <= 4 steel / <= 6 carbide -> derate or escalate whiskey" }
+      ]
+    },
+    "profile": {
+      "rules": [
+        { "id": "prof-lap-promote", "axis": "cycle", "move": "promote hand-coded G1/G2/G3 contour stepover (1120-2516 line extremes) to a G85/G81-G82/G80 LAP define + G87 finish replay — controller computes passes, no typo propagation", "roi": "time", "physics_delegate": false, "material_dependent": false, "guard": "verify shape monotonicity for LAP (re-entrant/undercut profiles need plunge/groove ops, not a longitudinal LAP); cast/irregular stock -> confirm stock envelope before trusting auto pass count" },
+        { "id": "prof-css", "axis": "mode", "move": "force G96 CSS over the contour (posted profilers often run fixed G97 -> surface speed collapses on small-dia segments)", "roi": "accuracy", "physics_delegate": false, "material_dependent": false, "guard": "G50 max-rpm cap MANDATORY under G96 (smallest contour dia drives rpm up)" },
+        { "id": "prof-sfm", "axis": "sfm", "move": "physics-set SFM per ISO group + grade over the contour; material-dependent", "roi": "time", "physics_delegate": true, "material_dependent": true, "guard": "L/D radial-deflection gate on slender contours (whiskey lathe_safety_predicate_evaluate); interrupted/lobed contour -> derate, do not apply smooth-OD envelope" }
+      ]
+    },
+    "face_grooving": {
+      "rules": [
+        { "id": "fgrv-g82-lap", "axis": "cycle", "move": "use the G82 face shape-def + G85 LAP rough -> G87 finish idiom (JM's own strength) as the DEFAULT for face grooves; preserve as positive training signal (R11)", "roi": "time", "physics_delegate": false, "material_dependent": false, "guard": "depth > 3x insert width -> peck-and-shift (G74); add side+bottom spring pass on dimensional grooves" },
+        { "id": "fgrv-g50", "axis": "rpm", "move": "G50 cap because the face-groove diameter SWEEPS toward center under G96 (over-speed risk as dia -> 0)", "roi": "safety", "physics_delegate": false, "material_dependent": false, "guard": "G50 max-rpm cap MANDATORY under G96 (sweeping face dia spikes rpm at small dia)" },
+        { "id": "fgrv-feed", "axis": "feed", "move": "face-groove feed in/REV (G95), light, driven by insert_width + material", "roi": "accuracy", "physics_delegate": true, "material_dependent": true, "guard": "below insert min chip load -> rub; feed is in/REV not in/min (units-first)" }
+      ]
+    },
+    "chamfer": {
+      "rules": [
+        { "id": "cham-idiom", "axis": "cycle", "move": "emit the A-angle (G1 X.. A<deg>) / G76 in-shape corner chamfer as the default lead-in/out + part-face break (matches ~59% shop convention, R11)", "roi": "accuracy", "physics_delegate": false, "material_dependent": false, "guard": "chamfer direction must not gouge the adjacent face/shoulder (geometry check); Okuma G76 here = corner chamfer, NOT threading" },
+        { "id": "cham-on-finish", "axis": "passes", "move": "emit the chamfer as part of the finish pass (no extra tool change / air move)", "roi": "time", "physics_delegate": false, "material_dependent": false, "guard": "G50 cap if the chamfer rides a G96 finish pass" }
+      ]
+    },
+    "bore_finish": {
+      "rules": [
+        { "id": "bf-single-pass", "axis": "passes", "move": "do NOT force a multi-pass LAP where a single finish bore to size is correct (avoids needless air passes)", "roi": "time", "physics_delegate": false, "material_dependent": false, "guard": "single pass only valid when the rough bore already left uniform finish stock; else route to ID_boring LAP" },
+        { "id": "bf-tnr", "axis": "accuracy", "move": "MANDATORY TNR comp (G41/G42) on the finish bore — baseline ~79% omit comp so ID radius/taper accuracy rides the programmer", "roi": "accuracy", "physics_delegate": false, "material_dependent": false, "guard": "comp lead-in/out clearance inside the bore; finish feed >= insert min chip load" },
+        { "id": "bf-ld", "axis": "tool", "move": "shortest finish bar reaching depth; derate feed by deflection on long overhang", "roi": "accuracy", "physics_delegate": true, "material_dependent": false, "guard": "L/D <= 4 steel / <= 6 carbide (whiskey lathe_safety_predicate_evaluate)" }
+      ]
+    },
+    "live_tool_milling": {
+      "rules": [
+        { "id": "lt-feedmode-revert", "axis": "mode", "move": "assert the G94 (in/min) feed-mode for the milling move is EXPLICIT and REVERTS to G95 (in/rev) after — the one place G94 is correct on a lathe", "roi": "safety", "physics_delegate": false, "material_dependent": false, "guard": "feed MUST revert to G95 after the live-tool move; a leaked G94 makes the next turning feed 12-60x wrong (units-first)" },
+        { "id": "lt-milling-physics", "axis": "feed", "move": "use MILLING (feed-per-tooth) physics for live-tool moves, NOT turning; rpm = live-tool spindle SB=", "roi": "accuracy", "physics_delegate": true, "material_dependent": true, "guard": "live-tool rpm within holder rating; C-axis clamp engaged before milling load" },
+        { "id": "lt-peck", "axis": "peck", "move": "peck deep cross-holes (radial drilling via live tool)", "roi": "safety", "physics_delegate": false, "material_dependent": false, "guard": "cross-hole depth/dia > ~3 -> peck; C-axis index accuracy from PMI" }
+      ]
+    },
+    "peck_drill": {
+      "rules": [
+        { "id": "pk-auto-insert", "axis": "peck", "move": "auto-insert G74 peck when depth/dia > ~3-5x or gummy material (baseline single-plunges deep holes -> chip-pack / drill snap)", "roi": "safety", "physics_delegate": false, "material_dependent": false, "guard": "peck MANDATORY for L/D > ~3; gummy 304SS/aluminum need longer retract than cast iron (chip-breaking material coupling)" },
+        { "id": "pk-depth", "axis": "peck", "move": "peck depth proportional to drill dia + chip-break need (~1-1.5x dia), not a fixed 0.15in", "roi": "time", "physics_delegate": true, "material_dependent": false, "guard": "progressively shorter pecks on deeper holes (chip clearance)" },
+        { "id": "pk-rpm", "axis": "rpm", "move": "rpm = SFM*12/(pi*dia) per drill; raise the timid .001-.003 IPR feed within rigidity; G97 (no CSS on axial)", "roi": "time", "physics_delegate": true, "material_dependent": true, "guard": "rpm <= min(spindle_max, drill_mfr_max); small drills snap as rpm explodes with 1/dia" }
+      ]
+    },
+    "tap": {
+      "rules": [
+        { "id": "tap-sync", "axis": "mode", "move": "synchronized/rigid tap: feed = pitch, spindle-locked (never an independent feed); pilot-drill sized from tap-drill chart", "roi": "safety", "physics_delegate": false, "material_dependent": false, "guard": "feed = pitch (spindle-sync); correct tap-drill size (undersize = broken tap); STUB family — verify against a real JM tapped program before live emit (corpus uses single-point G71/G72 instead)" },
+        { "id": "tap-stub-flag", "axis": "passes", "move": "FORWARD STUB — not corpus-grounded; when a real tapped JM program appears, re-ground rpm/feed/depth against it", "roi": "accuracy", "physics_delegate": false, "material_dependent": false }
+      ]
+    }
+  },
+  "consumer": "cam-turning-recipe-resolver.applyOptimizationRules(recipe, rules) -> recipe.optimization_plan[]; material_dependent rules are flagged pending when inputs.material_iso_group is absent (no silent default).",
+  "pairs_with": ["CAM-OP-TEMPLATE-MATRIX.json", "CAM-CORPUS-PROFILE.md", "CAM-OPTIMAL-REFERENCE-FINDINGS.md", "CAM-OPTIMIZATION-VERIFIED.md"]
+}

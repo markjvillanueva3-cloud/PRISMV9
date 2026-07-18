@@ -6,14 +6,14 @@
   "brief": "Make the live PRISM /system-viz (126,441 nodes / 11 layers) directly addressable as LLM context. Foundation for spatial-UI agent coordination + GraphRAG retrieval over PRISM substrate.",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-11T19:27:19.879Z",
+  "updated_at": "2026-06-15",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "GRAPH-AS-LLM-CONTEXT",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
   "roadmap_priority": 0,
   "tier": 1,
   "priority": "P1",
-  "status": "not_started",
+  "status": "complete",
   "assigned_lane": null,
   "commit_prefix": null,
   "critical_path_role": "unblocks atomization viz_node_id resolution for every other milestone",
@@ -54,9 +54,9 @@
             "U-HKA01"
           ],
           "viz_node_id": "eng.knowledge.graphcontextlensengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "created",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -93,9 +93,9 @@
             "U-GAC04"
           ],
           "viz_node_id": "eng.knowledge.graphragretrievalengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "created",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -130,9 +130,9 @@
             "U-GAC04"
           ],
           "viz_node_id": "eng.system.codegraphprojectionengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "created",
           "loop_schedule": "24h (rebuild on source-tree change)",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -167,9 +167,9 @@
             "U-GAC03"
           ],
           "viz_node_id": "eng.system.dualchannelcontextengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -185,7 +185,15 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-GAC04"
+          "atomized_anchor": "## U-GAC04",
+          "ship_record": {
+            "commit": "aa70ccc154",
+            "slot": "sierra",
+            "shipped_at": "2026-06-15",
+            "tests": "30 (engine 16 + dispatcher-wire 4 + render-script 10)",
+            "wired": "prism_session:dual_channel_dispatch + scripts/render-viz-screenshot.mjs",
+            "note": "JSON+viz dual channel; system-Chrome PNG best-effort w/ mermaid+markdown fallback; 2-agent scrutiny all P0/P1 fixed"
+          }
         },
         {
           "id": "U-GAC05",
@@ -204,9 +212,9 @@
             "U-GAC06"
           ],
           "viz_node_id": "eng.coordination.spatialaddressbookengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -222,7 +230,15 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-GAC05"
+          "atomized_anchor": "## U-GAC05",
+          "ship_record": {
+            "commit": "039c5cdcdf",
+            "slot": "sierra",
+            "shipped_at": "2026-06-15",
+            "tests": "16 (engine 12 + dispatcher-wire 4)",
+            "wired": "prism_session:spatial_resolve + .claude/hooks/agent-handoff-canonicalize.mjs (UserPromptSubmit, wired settings.json)",
+            "note": "resolveAlias ladder exact-id/exact-label/fuzzy/ambiguous/unknown over find-cache; composes GAC02; 2-agent scrutiny P0/P1 fixed (ASCII tiebreak, NaN-cap, ambiguityMargin plumb)"
+          }
         },
         {
           "id": "U-GAC06",
@@ -242,9 +258,9 @@
             "U-GAC08"
           ],
           "viz_node_id": "eng.knowledge.communitysummaryengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": "7d (regenerate weekly)",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -260,7 +276,15 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-GAC06"
+          "atomized_anchor": "## U-GAC06",
+          "ship_record": {
+            "commit": "8538abcb29",
+            "slot": "sierra",
+            "shipped_at": "2026-06-15",
+            "tests": "15 (engine 12 + dispatcher-wire 3)",
+            "wired": "prism_dev:community_summary + scripts/community-summary-gen.mjs",
+            "note": "cluster 3222-engine catalog by domain -> token-bounded summaries (10 domains, all 80-91 tok); extractive default + opt-in Ollama; 2-agent scrutiny P1/P2 fixed (suffix-cap, doc accuracy, schema co-change)"
+          }
         },
         {
           "id": "U-GAC07",
@@ -279,9 +303,9 @@
             "U-GAC08"
           ],
           "viz_node_id": "core.hooks.stalegraphguard (TBD-create hook)",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": "1h (cron check)",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -297,7 +321,15 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-GAC07"
+          "atomized_anchor": "## U-GAC07",
+          "ship_record": {
+            "commit": "3786b3bfcf",
+            "slot": "sierra",
+            "shipped_at": "2026-06-15",
+            "tests": "6 (combined node:test)",
+            "wired": ".claude/hooks/stale-graph-guard.mjs (PreToolUse, settings.json mcp matcher)",
+            "note": "PreToolUse staleness guard; default warn, block via env; statSync mtime only; future-mtime=fresh; 2-agent scrutiny PASS"
+          }
         },
         {
           "id": "U-GAC08",
@@ -316,9 +348,9 @@
             "U-GAC07"
           ],
           "viz_node_id": "core.hooks.hallucinatednodeidguard (TBD-create hook)",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -334,12 +366,20 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-GAC08"
+          "atomized_anchor": "## U-GAC08",
+          "ship_record": {
+            "commit": "3786b3bfcf",
+            "slot": "sierra",
+            "shipped_at": "2026-06-15",
+            "tests": "9 (combined node:test)",
+            "wired": ".claude/hooks/hallucinated-node-id-guard.mjs (PreToolUse Bash matcher, settings.json)",
+            "note": "hallucinated-node-id guard; default advisory zero-load, block via env validates find-cache id-set fail-OPEN; decision:block+exit2; 2-agent scrutiny P0/P1 fixed (exit2-stdout, lastIndex, find-cache-validation)"
+          }
         }
       ]
     }
   ],
   "total_units": 8,
   "declared_total_units": 8,
-  "completed_units": 0
+  "completed_units": 8
 }

@@ -21,6 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -46,7 +47,7 @@ for (let i = 2; i < process.argv.length; i++) {
 
 // ── load graph ────────────────────────────────────────────────────────────────
 let G;
-try { G = JSON.parse(fs.readFileSync(GRAPH, "utf8")); }
+try { G = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8"))); }
 catch (e) {
   console.error(`ERROR: cannot read ${GRAPH}\n  ${e.message}`);
   process.exit(2);

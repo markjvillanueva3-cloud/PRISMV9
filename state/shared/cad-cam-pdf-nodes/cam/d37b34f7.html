@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>formulas</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>formulas</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/MASTERCAM/mcamX8/compressed/common/Editors/CIMCOEdit7/Samples/Formulas/formulas.pdf</code></dd>
+<dt>Pages</dt><dd>6</dd>
+<dt>Text chars</dt><dd>2814</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Formulas in Macros
+CIMCO Edit5 Professional can now calculate and output values based upon a user input
+value. This has many uses and increases the power of the macro function.
+Please copy Formulas.mac to C:\cimco\cimcoedit5\types. Start CIMCO Edit5 and select
+Formulas in the drop down list
+
+-- 1 of 6 --
+
+The formulas are used much the same as variables, and are called @N as opposed to $N,
+and allow the same formatting. To add a formula, enter the macro setup and press the “Add
+Formula button”. Build your formula inside the {}
+Example of Circle area calculation
+@2{$1*$1*PI}
+This Formula takes the user input value $1 and multiples it by itself and then multiplies it by
+Pi.
+The formulas supports * / + - % (for modulus), nested expressions using () and the following
+trigonometric functions: abs,acos,asin,atan,cos,cosh,floor,ln,log,sign,sin,sinh,sqrt,tan and
+tanh.
+PI can be used instead of entering 3.1415.
+Angles are in degrees
+Please use () for the input values in the trig functions eg sin($1)
+If you only need to output the calculated value into the NC program include all your user
+input values inside the formula expression. When the Circle Area macro below is run only
+the @2 variable is output into the NC program
+
+-- 2 of 6 --
+
+You can choose to hide the results of the calculations on the macro dialog. This is a global
+setting and all your macros will not show the results on the dialog
+
+-- 3 of 6 --
+
+Here is a macro with the results being shown
+This is the same macro without the results being shown. The output is the same in the NC
+file but the dialog does not show the calculated values. This can be useful if you have many
+calculated values in the macro.
+
+-- 4 of 6 --
+
+There is an option to display the formula results for each macro individually. If the “Hide NC
+Assistant formula result” is ticked in General settings it will override the macro setup option
+Formatting of formula values
+The formatting of formula values is the same as for normal user input values
+
+-- 5 of 6 --
+
+You can also select “as specifed” for the number of decimals for formula values. If you enter
+10 (no decimal point) as the user input the formula value will be formatted with no decimal
+point when it is output in the NC file. If you enter 10. (with decimal point) the formula value is
+output with the decimal point.
+Please check the results of the formulas carefully to make sure you are getting the correct
+value and format.
+Outputting Fanuc macro B variables.
+The macros can output any text. If you need to output a Fanuc Macro B variable eg #1 you
+may need to include an extra # in front of the variable. The # symbol is used by the macros
+to output a line number and by putting an extra # it stops the line number being output.
+Please see the Macro B Circle macro in the supplied file
+.
+
+-- 6 of 6 --
+
+</pre>
+</body></html>

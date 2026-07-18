@@ -1,0 +1,490 @@
+{
+  "id": "HM-KC-MS8",
+  "version": "8.3.0",
+  "title": "Physics Mapping Layer — Map Each Param to PRISM Engine ~8,163 Mappings",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Create the physics mapping layer that connects every parameter in the ~8,163 parameter catalog to the PRISM engine that computes its optimal value. This is the intelligence layer: for each parameter, define which engine(s) compute the recommended value, what inputs they need (material, tool, machine, geometry), and how the computed value maps back to the parameter range. Covers force-based mappings (Kienzle), speed/feed mappings (SpeedFeedOrchestrator), stability mappings (SLD), deflection mappings, thermal mappings, surface quality mappings, and safety limit mappings.",
+  "dependencies": [
+    "HM-KC-MS3",
+    "HM-KC-MS4"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "KienzleForceModelEngine",
+      "SpeedFeedOrchestratorEngine",
+      "ChatterStabilityLobeEngine",
+      "ToolDeflectionEngine",
+      "ThermalWearCouplingEngine",
+      "SurfaceFinishPredictorEngine",
+      "SurfaceIntegrityEngine",
+      "CuttingTemperatureEngine",
+      "ToolWearProgressionEngine"
+    ],
+    "registries": [
+      "FormulaRegistry",
+      "MaterialRegistry",
+      "ToolRegistry",
+      "MachineRegistry",
+      "AlgorithmRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json (all domains)",
+      "src/engines/ (all physics engines for mapping targets)",
+      "src/algorithms/ (51 algorithms for formula-backed mappings)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "physicsMappingCoverageValidator — BUILT — flags parameters without physics mapping",
+    "action": "generate_physics_mappings — BUILT — generates physics mapping layer for all parameters",
+    "skill": "/hypermill-physics-map — BUILT — shows which engine optimizes each parameter"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS8-S1",
+      "title": "Force + Speed/Feed + Stability Physics Mappings (~3,000 mappings)",
+      "smart_config": {
+        "role": "physics-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "KienzleForceModelEngine — kc1.1, mc per ISO group, rake/wear/speed corrections",
+        "SpeedFeedOrchestratorEngine — 8 resolvers, 2,851 lines, Monte Carlo UQ",
+        "ChatterStabilityLobeEngine — SLD generation, critical depth of cut",
+        "All cutting data parameters from KC-3 and KC-4 that map to these engines"
+      ],
+      "intent": "Create physics mappings for cutting data parameters (spindle speed, feed rate, depth of cut, stepover, stepdown) to KienzleForceModel, SpeedFeedOrchestrator, and ChatterStabilityLobe engines. Each mapping defines: source_parameter → target_engine → computation_method → output_mapping → confidence_level.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint",
+        "/physics-verify",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC40",
+          "title": "Cutting Data → KienzleForceModel Mappings — ~1,200 mappings",
+          "description": "Map all cutting data parameters (spindle_speed, feed_rate, feed_per_tooth, depth_of_cut, stepover, stepdown across all cycle types) to KienzleForceModelEngine computations. Each mapping specifies: (1) which Kienzle inputs to derive from the parameter (ap, ae, fz, vc), (2) material-specific kc1.1/mc from constants.ts, (3) correction factors (rake, wear, speed, size effect), (4) output force/power that constrains the parameter, (5) confidence interval from Monte Carlo UQ.",
+          "depends_on": [
+            "U-HKC22",
+            "U-HKC27"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            ">= 1,100 parameter-to-Kienzle mappings covering all cycle type cutting data",
+            "Each mapping references canonical kc1.1/mc from src/physics/constants.ts",
+            "Force output constrains parameter range (max_force → max allowed ap/ae/fz)",
+            "Power output constrains spindle speed (P_spindle >= P_cutting)",
+            "Unit tests validate force computation for 3 material groups (P-steel, M-stainless, K-cast iron)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillKienzleMappingEngine.ts",
+              "data/hypermill/physics-mappings/kienzle-mappings.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "mappings < 1000"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillKienzleMappingEngine.ts data/hypermill/physics-mappings/"
+          }
+        },
+        {
+          "id": "U-HKC41",
+          "title": "Speed/Feed → SpeedFeedOrchestrator + SLD Mappings — ~1,800 mappings",
+          "description": "Map all speed/feed-related parameters to SpeedFeedOrchestratorEngine (8 resolvers) and ChatterStabilityLobeEngine. SpeedFeedOrchestrator mappings connect: material + tool + operation → recommended vc/fz/ap/ae with Monte Carlo confidence bands. SLD mappings connect: spindle_speed + depth_of_cut → stability lobe diagram check, with stable/unstable zone classification. Covers drilling, 2D, 3D, 5-axis, and turning domains.",
+          "depends_on": [
+            "U-HKC22",
+            "U-HKC27"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            ">= 1,200 parameter-to-SpeedFeedOrchestrator mappings",
+            ">= 500 parameter-to-SLD stability mappings",
+            "Each S/F mapping specifies which of 8 resolvers handles the computation",
+            "SLD mappings classify parameter combinations as stable/marginal/unstable",
+            "Unit tests validate S/F recommendation for endmill in P-steel and ball-nose in S-titanium"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillSpeedFeedMappingEngine.ts",
+              "data/hypermill/physics-mappings/speedfeed-mappings.json",
+              "data/hypermill/physics-mappings/sld-mappings.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "mappings < 1500"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillSpeedFeedMappingEngine.ts data/hypermill/physics-mappings/speedfeed-mappings.json data/hypermill/physics-mappings/sld-mappings.json"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 2,800 force + S/F + SLD mappings | ✓ canonical constants used | ✓ Monte Carlo UQ | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "compute_kienzle_mapping",
+          "compute_speedfeed_mapping",
+          "compute_sld_mapping"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS8-S2",
+      "title": "Deflection + Thermal + Surface Quality Physics Mappings (~2,500 mappings)",
+      "smart_config": {
+        "role": "physics-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "ToolDeflectionEngine, PartDeflectionEngine — beam theory, FEA-lite",
+        "ThermalWearCouplingEngine — RK4 coupled ODE",
+        "CuttingTemperatureEngine — chip/tool/workpiece temperature prediction",
+        "SurfaceFinishPredictorEngine — Ra/Rz from feed, nose radius, vibration"
+      ],
+      "intent": "Create physics mappings for deflection-sensitive parameters (stepdown, tool overhang, wall thickness), thermal parameters (speed, feed in hardened materials), and surface quality parameters (feed, stepover, scallop height). These mappings constrain parameter values based on physical limits.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint",
+        "/physics-verify",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC42",
+          "title": "Deflection + Thermal Physics Mappings — ~1,500 mappings",
+          "description": "Map deflection-sensitive parameters (stepdown, stepover, tool overhang, thin wall operations) to ToolDeflectionEngine and PartDeflectionEngine. Map thermal-sensitive parameters (cutting speed in hardened steel, feed in titanium, engagement in nickel alloys) to ThermalWearCouplingEngine and CuttingTemperatureEngine. Deflection mappings: parameter → force → deflection → deflection_limit_check. Thermal mappings: parameter → temperature → thermal_limit_check (white layer, tool coating failure).",
+          "depends_on": [
+            "U-HKC22",
+            "U-HKC27"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            ">= 800 deflection-sensitive parameter mappings with force → deflection chain",
+            ">= 600 thermal-sensitive parameter mappings with temperature prediction",
+            "Deflection limit check uses 0.050mm default tolerance (adjustable per finish requirement)",
+            "Thermal limit check uses white layer threshold from SurfaceIntegrityEngine",
+            "Unit tests for thin-wall deflection mapping and Ti-6Al-4V thermal mapping"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillDeflectionMappingEngine.ts",
+              "src/engines/hypermill/HyperMillThermalMappingEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillDeflectionMappingEngine.ts src/engines/hypermill/HyperMillThermalMappingEngine.ts"
+          }
+        },
+        {
+          "id": "U-HKC43",
+          "title": "Surface Quality + Safety Limit Physics Mappings — ~1,000 mappings",
+          "description": "Map surface quality parameters (feed_per_rev, stepover, scallop_height, nose_radius) to SurfaceFinishPredictorEngine (Ra = f²/(32R) for turning, scallop_h = R - sqrt(R² - (ae/2)²) for milling). Map safety limit parameters (all hook-validated parameters) to the specific engine that determines the safe boundary. Create a unified PhysicsMappingRegistry that indexes all ~8,163 mappings by parameter ID for instant lookup.",
+          "depends_on": [
+            "U-HKC22",
+            "U-HKC27"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            ">= 600 surface quality parameter mappings with Ra/Rz prediction",
+            ">= 400 safety limit parameter mappings linked to specific blocking hooks",
+            "PhysicsMappingRegistry indexes all mappings by parameter ID (HM-P-XXXX)",
+            "Coverage report: >= 90% of all ~8,163 parameters have at least one physics mapping",
+            "Unit tests for Ra prediction from feed/nose-radius and scallop height from stepover/radius"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillSurfaceQualityMappingEngine.ts",
+              "src/registries/PhysicsMappingRegistry.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "coverage < 85%"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillSurfaceQualityMappingEngine.ts src/registries/PhysicsMappingRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 2,400 deflection + thermal + surface mappings | ✓ PhysicsMappingRegistry built | ✓ >= 90% coverage | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "physicsMappingCoverageValidator"
+        ],
+        "new_actions": [
+          "compute_deflection_mapping",
+          "compute_thermal_mapping",
+          "compute_surface_mapping"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS8-S3",
+      "title": "CAD + Fixture + Linking + Settings Physics Mappings (~1,500 mappings)",
+      "smart_config": {
+        "role": "physics-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "CAD parameter physics: draft angle → DFM, wall thickness → deflection, tolerance → manufacturing cost",
+        "Fixture parameter physics: clamp force → Kienzle, stock allowance → material cost, WCS → probe accuracy",
+        "Linking parameter physics: approach speed → tool entry force, retract → cycle time",
+        "Settings parameter physics: tolerance → computation time, mesh density → simulation accuracy"
+      ],
+      "intent": "Create physics mappings for the remaining non-CAM domains (CAD, fixture, linking, settings). Many of these are indirect mappings (parameter → downstream effect on manufacturing) rather than direct computation. DFM mappings, cost impact mappings, and cycle time impact mappings.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint",
+        "/physics-verify",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC44",
+          "title": "CAD + Fixture + Linking + Settings Mappings — ~1,500 mappings",
+          "description": "Create physics/DFM/cost mappings for non-CAM domains: CAD parameters (draft_angle → moldability DFM check, wall_thickness → deflection limit, fillet_radius → tooling feasibility, tolerance → manufacturing cost curve — ~275 mappings), fixture parameters (clamp_force → Kienzle-computed cutting force comparison, stock_allowance → material cost, clearance_plane → retract time — ~200 mappings), linking parameters (approach_speed → tool entry impact force, stay_down → cycle time reduction, lead_in_radius → surface quality at entry — ~960 mappings), settings parameters (tolerance → computation time estimate, mesh_density → simulation accuracy — ~265 mappings). Many are advisory (cost/time impact) rather than blocking.",
+          "depends_on": [
+            "U-HKC11",
+            "U-HKC15",
+            "U-HKC31",
+            "U-HKC39"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "CAD physics mappings: >= 250 with DFM feasibility checks",
+            "Fixture physics mappings: >= 190 with clamp force validation",
+            "Linking physics mappings: >= 900 with cycle time impact estimation",
+            "Settings physics mappings: >= 250 with computation time estimates",
+            "Total PhysicsMappingRegistry reaches >= 7,500 mappings (>= 90% of ~8,163)",
+            "Coverage report shows unmapped parameters with justification"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillNonCAMMappingEngine.ts"
+            ],
+            "files_modified": [
+              "src/registries/PhysicsMappingRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "total mappings < 7000"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillNonCAMMappingEngine.ts src/registries/PhysicsMappingRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 7,500 total physics mappings | ✓ >= 90% parameter coverage | ✓ DFM + cost + cycle time mappings | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "generate_physics_mappings"
+        ],
+        "new_skills": [
+          "/hypermill-physics-map"
+        ],
+        "available_to": [
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS8-S4",
+      "title": "Physics Mapping Validation + Coverage Gap Closure",
+      "smart_config": {
+        "role": "physics-validator",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "PhysicsMappingRegistry (all mappings from S1-S3)",
+        "HyperMillParameterCatalog (all ~8,163 parameters)",
+        "Coverage report from S3"
+      ],
+      "intent": "Validate all physics mappings for correctness, close coverage gaps for unmapped parameters, verify that physics computations produce values within parameter ranges, and generate the final physics mapping coverage report.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint",
+        "/physics-verify",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC45",
+          "title": "Physics Mapping Validation + Gap Closure — ~8,163 mappings verified",
+          "description": "Validate all physics mappings: (1) verify each mapping's engine reference resolves to an existing engine, (2) verify computation outputs fall within parameter ranges, (3) identify remaining unmapped parameters and either create mappings or document as intentionally unmapped (display-only, cosmetic settings), (4) generate final coverage report with domain-by-domain breakdown, (5) run integration tests that exercise the full parameter → physics → recommendation pipeline for 5 representative operations.",
+          "depends_on": [
+            "U-HKC40",
+            "U-HKC41",
+            "U-HKC42",
+            "U-HKC43",
+            "U-HKC44"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "All engine references in mappings resolve to existing engines (zero dangling refs)",
+            "Physics computation outputs verified within parameter ranges for 100 sample parameters",
+            "Coverage >= 95% of ~8,163 parameters (remaining ~5% documented as display-only/cosmetic)",
+            "Integration test: full pipeline for endmill pocket in P-steel produces valid S/F/ap/ae recommendations",
+            "Integration test: full pipeline for ball-nose 3D finish in S-titanium produces valid scallop/feed"
+          ],
+          "rollback": {
+            "files_created": [
+              "data/hypermill/physics-mappings/COVERAGE_REPORT.json"
+            ],
+            "files_modified": [
+              "src/registries/PhysicsMappingRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "coverage < 90%",
+              "integration tests fail"
+            ],
+            "rollback_procedure": "git checkout -- data/hypermill/physics-mappings/COVERAGE_REPORT.json src/registries/PhysicsMappingRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 95% physics mapping coverage | ✓ zero dangling engine refs | ✓ 5 integration tests pass | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms8-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms8_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms8"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Create the physics mapping layer that connects every parameter in the ~8,163 parameter catalog to the PRISM engine that computes its optimal value. This is the intelligence layer: for each parameter, define which engine(s) compute the recommended value, what inputs they need (material, tool, machine, geometry), and how the computed value maps back to the parameter range. Covers force-based mappings (Kienzle), speed/feed mappings (SpeedFeedOrchestrator), stability mappings (SLD), deflection mappings, thermal mappings, surface quality mappings, and safety limit mappings.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS8 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS8. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

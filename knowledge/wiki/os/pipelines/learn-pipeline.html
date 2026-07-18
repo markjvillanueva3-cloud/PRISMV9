@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>`/learn-pipeline` — Knowledge Ingest Pipeline (U-CK20)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>`/learn-pipeline` — Knowledge Ingest Pipeline (U-CK20)</h1>
+<div class="meta">rendered from H:/prism/knowledge/wiki/os/pipelines/learn-pipeline.md</div>
+<div class="meta">Generated 2026-05-17T22:41:26.807Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1"><code class="prism-inline-code">/learn-pipeline</code> — Knowledge Ingest Pipeline (U-CK20)</li><li class="prism-toc-l2">Stage table</li><li class="prism-toc-l2">Rollback chain</li><li class="prism-toc-l2">Inputs</li><li class="prism-toc-l2">Composes-with</li><li class="prism-toc-l2">Karpathy discipline pins</li><li class="prism-toc-l2">Knobs</li><li class="prism-toc-l2">Related</li><li class="prism-toc-l2">See also</li></ul></nav><hr class="prism-hr">
+<p>title: PRISM pipeline — /learn-pipeline knowledge ingest chain slug: learn-pipeline kind: pipeline status: shipped date: 2026-05-17 milestone: COMMAND-KERNEL-MS0 unit: U-CK20 author: claude-2d30710b (slot hotel, /loop command-kernel) trigger: command composed_of: [source-classifier, /pdf-learn, /video-learn, /shop-knowledge, course-data-router, duplication-guard, tribal-store-append, wiki-write, memory-write, KnowledgeInjectionPipelineEngine] stages: [detect, extract, dedup, tribal, wiki, memory, register] consumes:</p>
+<ul class="prism-md-list"><li>knowledge/memories/MEMORY.md</li><li>knowledge/wiki/index.md</li><li>DuplicationGuardEngine</li><li>KnowledgeInjectionPipelineEngine</li></ul>
+<p>produces:</p>
+<ul class="prism-md-list"><li>tribal-tip-append</li><li>wiki-entry</li><li>memory-entry</li><li>kip-injection-record</li><li>close-out-debt-eliminated</li></ul>
+<p>downgrade:   mode: user-prompt   fallback_to: manual-step-by-step telemetry:   ledger: state/shared/pipeline-telemetry.jsonl   fields: [fire_ts, chain_id, step_id, latency_ms, outcome, session_id, slot]</p>
+<hr class="prism-hr">
+<h1 class="prism-h1"><code class="prism-inline-code">/learn-pipeline</code> — Knowledge Ingest Pipeline (U-CK20)</h1>
+<p>Composed front-end over the canonical PRISM knowledge ingest chain. Threads source → tribal/wiki/memory/KIP-registry so the operator types one entry instead of running 5 leaf surfaces in sequence. R8: adds 0 logic.</p>
+<p>Solves the <strong>extracted-but-not-consumed</strong> class — the <code class="prism-inline-code">feedback_ollama_docker_pipeline_dead_code_2026_05_16</code> lesson (88% of Ollama hook surface unwired despite shipping milestone) + the KNOWLEDGE-CONVERSION-MS0 7-unit close-out (3-lane A/B/C router existed, KIP closed the consumer-binding loop). Without the REGISTER stage (7), every prior extraction was silent close-out debt waiting to happen.</p>
+<h2 class="prism-h2">Stage table</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Stage</th><th>What</th><th>Stop-on-fail</th></tr></thead><tbody><tr><td>1</td><td>detect</td><td>classify src into pdf/video/shop-text/course/monolith/unknown</td><td>yes — unknown halts; run /research first</td></tr>
+<tr><td>2</td><td>extract</td><td>dispatch to /pdf-learn / /video-learn / /shop-knowledge / course-data-router / monolith-to-*</td><td>yes — unparseable logs to failure ledger</td></tr>
+<tr><td>3</td><td>dedup</td><td>duplicationGuardEngine.checkBeforeCreating() per candidate fact</td><td>yes — dup THROW honored</td></tr>
+<tr><td>4</td><td>tribal</td><td>knowledge_store/&lt;domain&gt;.json append (lane A direct-wire); engine auto-loads</td><td>yes — write failure bails</td></tr>
+<tr><td>5</td><td>wiki</td><td>knowledge/wiki/{concepts,entities,...}/&lt;slug&gt;.md for compounding-doc facts</td><td>yes — frontmatter FAIL must fix</td></tr>
+<tr><td>6</td><td>memory</td><td>knowledge/memories/{reference,feedback}/&lt;name&gt;.md + MEMORY.md pointer</td><td>yes — 24KB ceiling triggers prune</td></tr>
+<tr><td>7</td><td>register</td><td>KIP plan + executeInjection → PRISM OS + Obsidian + PRISM AI registry</td><td>yes — null plan means classify wrong</td></tr></tbody></table>
+<h2 class="prism-h2">Rollback chain</h2>
+<table class="prism-md-table"><thead><tr><th>Failed stage</th><th>Rollback</th></tr></thead><tbody><tr><td>1 detect</td><td>no-op (read-only)</td></tr>
+<tr><td>2 extract</td><td>clean partial files in <code class="prism-inline-code">state/shared/extracted-partials/</code>; log failure</td></tr>
+<tr><td>3 dedup</td><td>no-op (read-only)</td></tr>
+<tr><td>4 tribal</td><td>revert knowledge_store/&lt;domain&gt;.json append (last N rows)</td></tr>
+<tr><td>5 wiki</td><td>git restore wiki entry</td></tr>
+<tr><td>6 memory</td><td>git restore memory + revert MEMORY.md pointer line</td></tr>
+<tr><td>7 register</td><td>KIP supports <code class="prism-inline-code">revertInjection(injectionId)</code> — call it</td></tr></tbody></table>
+<h2 class="prism-h2">Inputs</h2>
+<table class="prism-md-table"><thead><tr><th>Flag</th><th>Default</th><th>Purpose</th></tr></thead><tbody><tr><td><code class="prism-inline-code">&lt;src&gt;</code></td><td>(required)</td><td>file / dir / URL</td></tr>
+<tr><td><code class="prism-inline-code">--domain &lt;name&gt;</code></td><td>(auto)</td><td>force tribal domain</td></tr>
+<tr><td>`--lane A</td><td>B</td><td>C`</td><td>(auto per classifier)</td><td>force KIP lane</td></tr>
+<tr><td><code class="prism-inline-code">--dry-run</code></td><td>false</td><td>KIP plan only</td></tr>
+<tr><td><code class="prism-inline-code">--no-register</code></td><td>false</td><td>stop after stage 6</td></tr></tbody></table>
+<h2 class="prism-h2">Composes-with</h2>
+<p>Composed BY:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">/session-cycle</code> (U-CK17) BUILD when deliverable is source ingest</li><li><code class="prism-inline-code">/loop</code> autonomous-iter learn sweeps (e.g. nightly PDF batch)</li><li><code class="prism-inline-code">/pipeline execute learn-pipeline</code> (U-CK25)</li><li>direct operator invocation when a new source lands</li></ul>
+<p>Composes:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">/pdf-learn</code>, <code class="prism-inline-code">/video-learn</code>, <code class="prism-inline-code">/shop-knowledge</code> — extract leaves</li><li><code class="prism-inline-code">scripts/course-data-router.mjs</code> — lane A/B/C (KNOWLEDGE-CONVERSION-MS0)</li><li><code class="prism-inline-code">scripts/monolith-to-tribal-tips.mjs</code>, <code class="prism-inline-code">monolith-to-formulas.mjs</code> — monolith leaves</li><li><code class="prism-inline-code">DuplicationGuardEngine.checkBeforeCreating()</code> — DEDUP</li><li><code class="prism-inline-code">KnowledgeInjectionPipelineEngine</code> — REGISTER closed loop</li></ul>
+<h2 class="prism-h2">Karpathy discipline pins</h2>
+<ul class="prism-md-list"><li><strong>R8</strong> — DETECT stage IS the classify-before-extract step</li><li><strong>R10</strong> — each stage emits explicit verdict (classified? extracted N facts? deduped to N&#39;? injected?)</li><li><strong>R12</strong> — unparseable source logs to failure ledger; never silent-skip; dup THROW honored; null KIP plan halts</li><li><strong>WIRE-UNWIRED-MS0</strong> — REGISTER stage 7 IS the close-the-loop step that prevents silent ingestion debt</li><li><strong>never delete only disable</strong> — superseded facts are deprecated in their wiki frontmatter, not removed</li></ul>
+<h2 class="prism-h2">Knobs</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">PRISM_LEARN_PIPELINE_DRY_RUN=1</code>, <code class="prism-inline-code">_NO_REGISTER=1</code>, <code class="prism-inline-code">_FORCE_LANE=A|B|C</code></li><li>Scrutiny gate not fired (this skill writes docs, not code); wiki-lint hook is backstop</li></ul>
+<h2 class="prism-h2">Related</h2>
+<ul class="prism-md-list"><li>[[session-cycle]] — fires learn-pipeline in BUILD for ingest units</li><li>[[knowledge-injection]] — KIP closed loop (REGISTER stage)</li><li>[[research]] — fallback classifier when DETECT can&#39;t classify (U-CK18)</li><li>[[pipeline]] — meta-command (U-CK25)</li></ul>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/commands/learn-pipeline.md</code> — operator skill spec (gitignored mirror)</li><li><code class="prism-inline-code">feedback_ollama_docker_pipeline_dead_code_2026_05_16.md</code> — extracted-but-not-consumed lesson</li><li><code class="prism-inline-code">reference_knowledge_conversion_ms0_2026_05_17.md</code> — KNOWLEDGE-CONVERSION-MS0 lessons (3-lane router)</li><li><code class="prism-inline-code">mcp-server/src/engines/KnowledgeInjectionPipelineEngine.ts</code> — REGISTER stage engine</li><li><code class="prism-inline-code">mcp-server/data/milestones/COMMAND-KERNEL-MS0.json</code> U-CK20 — envelope</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T22:41:26.807Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

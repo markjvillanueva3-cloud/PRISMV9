@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="06fe329543520c57bfa6e4a21caff87394f8e2567d8df90b4aa504dbe47ab1ca">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HM Training Exhaustion Audit — 2026-05-20</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>HM Training Exhaustion Audit — 2026-05-20</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/HM-TRAINING-EXHAUSTION-AUDIT-2026-05-20.md</div>
+<div class="meta">Generated 2026-05-20T16:11:05.465Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">hyperMILL / hyperCAD Training-Corpus Exhaustion Audit — 2026-05-20</li><li class="prism-toc-l2">1. Scope-binding statement</li><li class="prism-toc-l3">Headline gap (newly surfaced this run)</li><li class="prism-toc-l2">2. Findings (verification-channel-gated)</li><li class="prism-toc-l3">F1 — hyperCAD-S Manual extraction yielded ZERO tips — CRITICAL</li><li class="prism-toc-l3">F2 — Four additional ZERO-tip extractions</li><li class="prism-toc-l3">F3 — hyperMILL v31.0 manuals not separately extracted from v33.0</li><li class="prism-toc-l3">F4 — tribal-embed-index has ZERO hyperMILL/hyperCAD entries — CRITICAL</li><li class="prism-toc-l3">F5 — Wiki has hyperMILL pages but coverage is unverified for HC</li><li class="prism-toc-l3">F6 — 9 consumer engines reference HM tribal but none has been measurement-verified to USE the JSON ingest path</li><li class="prism-toc-l3">F7 — Neural-network tier-5 (GraphSAGE GNN) is dormant by data, not by code</li><li class="prism-toc-l2">3. Headline numbers</li><li class="prism-toc-l2">4. Verdict</li><li class="prism-toc-l2">5. META artifact</li><li class="prism-toc-l2">6. /forge7 plan companion</li><li class="prism-toc-l2">7. Self-scheduled re-run</li><li class="prism-toc-l1">/loop 5m — re-run this audit on a fast cadence while the wiring units land</li><li class="prism-toc-l2">See also</li></ul></nav><h1 class="prism-h1">hyperMILL / hyperCAD Training-Corpus Exhaustion Audit — 2026-05-20</h1>
+<blockquote class="prism-quote">Author: claude-3db3fb3d (slot=foxtrot), /forge-audit-v2 run.</blockquote>
+<blockquote class="prism-quote">Scope: assess whether the hyperMILL/hyperCAD-S training corpus is exhausted and whether harvested tribal knowledge + wiki is wired into the CAD AI / neural-network / learning engines.</blockquote>
+<blockquote class="prism-quote">Status: <strong>ADVISORY</strong>. Verification channels declared per finding; META artifact is <code class="prism-inline-code">scripts/hm-extraction-coverage.mjs</code> (deterministic, re-runnable).</blockquote>
+<blockquote class="prism-quote">Companions: <code class="prism-inline-code">ACSERVER-BRIDGE-AUDIT-2026-05-20.md</code>, <code class="prism-inline-code">HYPERCAD-TEST-PLAYBOOK-2026-05-20.md</code>, <code class="prism-inline-code">HYPERMILL-HYPERCAD-CLOSE-OUT-TRIAGE-2026-05-20.md</code>.</blockquote>
+<h2 class="prism-h2">1. Scope-binding statement</h2>
+<p>I am auditing the <em>training-data exhaustion</em> of the hyperMILL + hyperCAD-S corpus that ships on disk under <code class="prism-inline-code">H:/prism/Resources/OPEN MIND/</code> against the harvested-tribal store under <code class="prism-inline-code">H:/prism/cad-engine/knowledge_store/doc-*.json</code> and the vector-recall surface <code class="prism-inline-code">H:/prism/state/shared/tribal-embed-index.json</code>, plus consumer wiring across the 9 candidate AI/learning engines named below. The verification channel for every finding is <code class="prism-inline-code">scripts/hm-extraction-coverage.mjs --json</code> — a deterministic re-runnable measurement returning corpus-on-disk vs corpus-extracted vs corpus-in-embed-index counts. Baseline this session (from <code class="prism-inline-code">scripts/hm-extraction-coverage.mjs --json</code>, 2026-05-20T16:09Z): <strong>48 PDFs on disk · 15 HM-related extractions · 3 544 HM tribal tips harvested · 4 ZERO-tip extraction failures · 36 UNPROCESSED PDFs · 0 HM entries in tribal-embed-index · GraphSAGE pool=0 deferred=true</strong>.</p>
+<h3 class="prism-h3">Headline gap (newly surfaced this run)</h3>
+<p>30+ unprocessed <code class="prism-inline-code">hmAutoColor</code> Automation-Center PDFs (operator-authored workflow recipes: &quot;Running the AC in a Server&quot;, &quot;Tool report customization&quot;, &quot;Customer toolbar&quot;, &quot;Calculation in a server&quot;, &quot;Setup new Clamp&quot; — across v31.0 AddIns, v31.0 addins project, v33.0 AddIns, v33.0 addins project). These are exactly the kind of tribal-idiom content the AI hierarchy benefits most from — they describe HOW operators actually use AC, not just the API surface. ZERO of these are extracted.</p>
+<h2 class="prism-h2">2. Findings (verification-channel-gated)</h2>
+<h3 class="prism-h3">F1 — hyperCAD-S Manual extraction yielded ZERO tips — CRITICAL</h3>
+<p><code class="prism-inline-code">doc-cad-manual-en-us.json</code> exists in <code class="prism-inline-code">knowledge_store/</code> but <code class="prism-inline-code">.tips=[]</code> — the hyperCAD-S CAD manual produced no tribal output. This is the single highest-leverage gap: the CAD AI systems have no manual-derived tips to learn from for hyperCAD-S authoring features.</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>finding: hyperCAD-S CAD_Manual extracted but produced 0 tribal tips
+verifies_via:
+  tool: node -e &quot;console.log(JSON.parse(require(&#39;fs&#39;).readFileSync(&#39;H:/prism/cad-engine/knowledge_store/doc-cad-manual-en-us.json&#39;,&#39;utf8&#39;)).tips.length)&quot;
+  expected_signal: integer tip count
+  re_run_cost: ~50ms
+  baseline: 0 (CRITICAL)
+  target: ≥200 tips (parity with hyperMILL CAM Manual which produced 488)</code></pre>
+<h3 class="prism-h3">F2 — Four additional ZERO-tip extractions</h3>
+<p><code class="prism-inline-code">doc-fusion-cad.json</code>, <code class="prism-inline-code">doc-hypermill-sql-tool-db.json</code>, <code class="prism-inline-code">doc-inventorhsm-getting-started.json</code>, <code class="prism-inline-code">doc-sql-macro-database-manual-en-us.json</code> all <code class="prism-inline-code">.tips=[]</code>. Some (sql-tool-db) are intrinsically content-poor (DBA setup); others (fusion-cad, inventorhsm-getting-started) are legitimately useful CAD/CAM material that the extractor failed on.</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>finding: 4 additional extractions returned 0 tips
+verifies_via:
+  tool: node scripts/hm-extraction-coverage.mjs --json | jq &#39;.zero_tip_files&#39;
+  expected_signal: list of files with .tips.length===0
+  re_run_cost: ~200ms
+  baseline: 5 zero-tip files
+  target: ≤1 (only intrinsically content-poor: sql-tool-db DBA setup)</code></pre>
+<h3 class="prism-h3">F3 — hyperMILL v31.0 manuals not separately extracted from v33.0</h3>
+<p>Disk has both v31.0 and v33.0 manuals for hyperMILL, hyperCAD-S, AUTOMATION Center. Only v33.0 was extracted. v31.0 contains historical idioms + features that v33.0 deprecated — these are exactly the tribal patterns AI training benefits most from (older syntax that still appears in operator-written templates).</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>finding: hyperMILL/hyperCAD-S v31.0 manuals unprocessed
+verifies_via:
+  tool: node scripts/hm-extraction-coverage.mjs --json | jq &#39;.unprocessed_pdfs&#39;
+  expected_signal: list of FS PDFs with no corresponding extraction-log entry
+  re_run_cost: ~300ms
+  baseline: 6 v31.0 PDFs unprocessed (hyperMILL Manual, hyperCAD-S Manual, AUTOMATION Center Manual, Installation, SQL Tool Database, SQL Macro Database)
+  target: 0 (v31.0 separately extracted as `*-vol31*` to preserve idioms)</code></pre>
+<h3 class="prism-h3">F4 — tribal-embed-index has ZERO hyperMILL/hyperCAD entries — CRITICAL</h3>
+<p>The 2 988 HM tips exist as JSON but <code class="prism-inline-code">grep -cE &#39;&quot;source&quot;:\s*&quot;(doc-hypermill|hypermill|hyperCAD)&#39; tribal-embed-index.json</code> returns <strong>0</strong>. The <code class="prism-inline-code">tribal-by-domain-inject</code> UserPromptSubmit hook (slot-domain-aware tribal injection) is structurally blind to HM tips — they exist in storage but cannot be surfaced by vector recall.</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>finding: HM tips not embedded in tribal-embed-index
+verifies_via:
+  tool: grep -cE &#39;&quot;source&quot;\s*:\s*&quot;(doc-hypermill|hypermill|hyperCAD)&#39; state/shared/tribal-embed-index.json
+  expected_signal: integer count
+  re_run_cost: ~100ms
+  baseline: 0 (CRITICAL — vector recall blind to 2 988 tips)
+  target: ≥2 500 entries (allowing for dedup/embed failures)</code></pre>
+<h3 class="prism-h3">F5 — Wiki has hyperMILL pages but coverage is unverified for HC</h3>
+<p><code class="prism-inline-code">knowledge/wiki/</code> reports ~418 HM wiki entries (pre-compact enumeration). hyperCAD-S authoring/parametric/sketcher coverage was not separately verifiable in this session — same surface, different sub-corpus.</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>finding: hyperCAD-S wiki coverage unverified
+verifies_via:
+  tool: ls knowledge/wiki/*/hyper-cad*.md knowledge/wiki/*/hypercad*.md 2&gt;/dev/null | wc -l
+  expected_signal: count of hyperCAD-S wiki entries (separate from hyperMILL CAM)
+  re_run_cost: ~50ms
+  baseline: unknown
+  target: ≥40 (proportional to ~488 hyperMILL CAM entries — CAD-side is smaller surface)</code></pre>
+<h3 class="prism-h3">F6 — 9 consumer engines reference HM tribal but none has been measurement-verified to USE the JSON ingest path</h3>
+<p><code class="prism-inline-code">grep</code> finds 9 engines naming HM tribal/knowledge_store paths: HyperMillDeepLearningEngine, HyperMillStrategyKnowledgeEngine, HyperMillAIOrchestrationEngine, HyperMillFunctionIndexEngine, MillingAIUnificationEngine, CAMTrainingExtractionAggregatorEngine, CAMPluginSDKEngine, PostProcessorAGIMasterRegistryEngine, and <code class="prism-inline-code">index.ts-2</code>. Wiring presence ≠ functional consumption. No measured-tip-loaded-into-engine baseline exists.</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>finding: HM tribal consumer wiring is grep-confirmed but not measurement-confirmed
+verifies_via:
+  tool: node scripts/hm-extraction-coverage.mjs --json | jq &#39;.consumers[]&#39;
+  expected_signal: per-consumer load-count (tips read in/used)
+  re_run_cost: ~500ms (requires engine instantiation in test harness)
+  baseline: 0 measured / 9 grep-named
+  target: ≥3 measurement-verified consumers (HyperMillDeepLearningEngine, HyperMillStrategyKnowledgeEngine, MillingAIUnificationEngine)</code></pre>
+<h3 class="prism-h3">F7 — Neural-network tier-5 (GraphSAGE GNN) is dormant by data, not by code</h3>
+<p>Per CLAUDE.md §NN-GRAPH-MS2, the GNN cascade tier-5 was deployed but data-side-blocked (<code class="prism-inline-code">poolSize:0</code> because 0 reference ghosts). Wiring 2 988 HM tips as ghost reference nodes would directly lift that. This is the most leveraged consumer for HM corpus exhaustion.</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>finding: GraphSAGE tier-5 dormant; HM tips are highest-leverage ghost-pool feedstock
+verifies_via:
+  tool: cat state/shared/nn-graph/NN-EVAL.json | jq &#39;.poolSize, .deferred&#39;
+  expected_signal: poolSize integer, deferred boolean
+  re_run_cost: ~10ms
+  baseline: poolSize 0, deferred:true
+  target: poolSize ≥500 from HM ghost seeding, deferred:false</code></pre>
+<h2 class="prism-h2">3. Headline numbers</h2>
+<table class="prism-md-table"><thead><tr><th>Metric</th><th>Baseline (now)</th><th>Target</th></tr></thead><tbody><tr><td>HM PDFs on disk</td><td>48</td><td>—</td></tr>
+<tr><td>HM-related extractions</td><td>15</td><td>51 (v31.0 main + 36 hmAutoColor + 4 zero-tip fixes)</td></tr>
+<tr><td>Unprocessed PDFs</td><td><strong>36</strong></td><td>0</td></tr>
+<tr><td>HM tribal tips harvested</td><td>3 544</td><td>≥6 000 (re-extract zero-tip + hmAutoColor + v31.0)</td></tr>
+<tr><td>HM tips in embed-index</td><td><strong>0</strong></td><td>≥5 000</td></tr>
+<tr><td>HM consumer engines wired</td><td>8/8 grep / 0 measured</td><td>≥3 measurement-verified</td></tr>
+<tr><td>GraphSAGE pool from HM</td><td>0 (deferred)</td><td>≥500 (deferred:false)</td></tr></tbody></table>
+<h2 class="prism-h2">4. Verdict</h2>
+<p><strong>Not exhausted.</strong> The corpus on disk is materially under-harvested:</p>
+<ol class="prism-md-list"><li>hyperCAD-S manual extracted but zero-yield (F1 — single highest-leverage rebuild target).</li><li>4 other zero-yield extractions (F2).</li><li>v31.0 manuals never separately extracted (F3).</li><li>Even the 2 988 tips that ARE harvested are unreachable by the vector-recall surface (F4 — the structural blocker).</li><li>Consumer wiring exists but is grep-confirmed only (F6).</li><li>The neural-net tier most able to benefit (GraphSAGE) is data-dormant and HM is its best seed source (F7).</li></ol>
+<p>Closing F4 alone (embed-index population) unlocks the 2 988 tips for fleet-wide tribal recall in every chat. Closing F1 (re-extract hyperCAD-S) unlocks CAD-side AI training. F7 (ghost-seed GraphSAGE) compounds both.</p>
+<h2 class="prism-h2">5. META artifact</h2>
+<p><code class="prism-inline-code">scripts/hm-extraction-coverage.mjs</code> — re-runnable measurement returning all baselines above as JSON. Drives Phase 6 of every subsequent re-audit. See <code class="prism-inline-code">/loop</code> registration at §7.</p>
+<h2 class="prism-h2">6. /forge7 plan companion</h2>
+<p>See <code class="prism-inline-code">state/shared/specs/HM-TRAINING-WIRING-PLAN-2026-05-20.md</code> for the 7-unit plan (<code class="prism-inline-code">/forge7 /yolo-mode</code>).</p>
+<h2 class="prism-h2">7. Self-scheduled re-run</h2>
+<pre class="prism-codeblock" data-lang="bash"><code># /loop 5m — re-run this audit on a fast cadence while the wiring units land
+/loop 5m /forge-audit-v2 assess HM/HC training exhaustion vs wiring progress</code></pre>
+<p>The fast 5-minute cadence is operator-directed (see Stop-hook goal). Default /forge-audit-v2 cadence is 7d; this is a hot-loop while wiring lands.</p>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/ACSERVER-BRIDGE-AUDIT-2026-05-20.md</code></li><li><code class="prism-inline-code">state/shared/specs/HYPERCAD-TEST-PLAYBOOK-2026-05-20.md</code></li><li><code class="prism-inline-code">state/shared/dashboards/HYPERMILL-HYPERCAD-CLOSE-OUT-TRIAGE-2026-05-20.md</code></li><li><code class="prism-inline-code">state/shared/specs/HM-TRAINING-WIRING-PLAN-2026-05-20.md</code> (/forge7 companion)</li><li>CLAUDE.md §NN-GRAPH-MS2 (tier-5 dormancy)</li><li>CLAUDE.md §KNOWLEDGE-CONVERSION-MS0 (lane-A direct-wire pattern reusable here)</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

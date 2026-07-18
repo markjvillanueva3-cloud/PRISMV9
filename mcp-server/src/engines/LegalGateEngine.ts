@@ -126,7 +126,7 @@ export class LegalGateEngine {
       ear_controlled: true,
       usml_category: "Category XI — Military Electronics",
       eccn: "9E003",
-      license_exception: null,
+      license_exception: undefined,
       last_review_date: "2026-01-15",
       reviewer: "legal_team",
     });
@@ -509,8 +509,9 @@ export class LegalGateEngine {
     try {
       const content = fs.readFileSync(this.consentsPath, "utf-8");
       const data = JSON.parse(content);
-      this.consentsCache = data.customers || {};
-      return this.consentsCache;
+      const loaded: Record<string, CustomerConsent> = data.customers || {};
+      this.consentsCache = loaded;
+      return loaded;
     } catch {
       return {};
     }
@@ -522,8 +523,9 @@ export class LegalGateEngine {
     try {
       const content = fs.readFileSync(this.standardsPath, "utf-8");
       const data = JSON.parse(content);
-      this.standardsCache = data.standards || {};
-      return this.standardsCache;
+      const loaded: Record<string, StandardLicense> = data.standards || {};
+      this.standardsCache = loaded;
+      return loaded;
     } catch {
       return {};
     }

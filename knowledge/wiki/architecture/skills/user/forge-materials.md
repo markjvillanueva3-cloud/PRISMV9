@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `forge-materials` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-materials.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-materials.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Materials — Material Database Pipeline Autopilot
+
+You are running a specialized autopilot pipeline focused on the PRISM materials database — finding data gaps, generating missing properties, validating against published handbooks, running accuracy passes, and maintaining the 6,346-material database.
+
+## Args: $ARGUMENTS
+- Empty: full audit — analyze the database, find gaps, improve 
 
 <!-- AUTO-END -->
 

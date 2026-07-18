@@ -214,50 +214,12 @@ describe("VideoLearningEngine", () => {
     });
   });
 
-  describe("analyzeKeyframes", () => {
-    it("sends batched frames to Claude Vision", async () => {
-      process.env.ANTHROPIC_API_KEY = "test-key";
-      mockFs.readFileSync = () => Buffer.from("PNG_DATA");
-
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          content: [{
-            text: JSON.stringify([
-              {
-                timestamp: 0,
-                description: "hyperMILL roughing dialog",
-                extracted_values: { "Stepdown": "2mm", "Feedrate": "500mm/min" },
-                ui_elements: ["Parameters tab", "Strategy dropdown"],
-                category: "parameters",
-              },
-            ]),
-          }],
-        }),
-      });
-
-      const frames = [
-        { path: "/tmp/frame_0001.png", timestamp: 5 },
-        { path: "/tmp/frame_0002.png", timestamp: 15 },
-      ];
-
-      const results = await engine.analyzeKeyframes(frames, { title: "Test" }, 4);
-      expect(results).toHaveLength(1);
-      expect(results[0].extracted_values.Stepdown).toBe("2mm");
-      expect(results[0].timestamp).toBe(5); // corrected to actual frame timestamp
-
-      delete process.env.ANTHROPIC_API_KEY;
-    });
-
-    it("skips analysis without API key", async () => {
-      delete process.env.ANTHROPIC_API_KEY;
-      const results = await engine.analyzeKeyframes(
-        [{ path: "/tmp/f.png", timestamp: 0 }],
-        {}
-      );
-      expect(results).toHaveLength(0);
-    });
-  });
+  // analyzeKeyframes vision-route coverage MOVED to video-learning-llm-route.test.ts
+  // (FREE-AI-MIGRATION/U-VIDEO-LEARNING-LLM-ROUTE): the engine now routes through the free
+  // Ollama-first llmEngine.queryVision substrate instead of a direct Claude-Vision fetch, so the
+  // old fetch-mock tests here were obsolete (they asserted the removed api.anthropic.com path).
+  // The dedicated file proves routing + seam-removal + multi-image batch + success-parse
+  // (with frame-timestamp mapping) + offline-skip + non-JSON-answer skip -- strictly stronger.
 
   describe("fuseKnowledge", () => {
     it("creates knowledge items from frame analysis with parameters", () => {

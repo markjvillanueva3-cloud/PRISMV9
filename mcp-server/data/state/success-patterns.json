@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "patterns": [
+    {
+      "type": "build",
+      "command": "cd \"H:/prism/mcp-server\" && npm run build:fast 2>&1 | head -50",
+      "timestamp": "2026-04-18T02:39:02.237Z"
+    },
+    {
+      "type": "build",
+      "command": "cd H:/prism-wedm-agi/mcp-server && npm run build:fast 2>&1 | tail -15",
+      "timestamp": "2026-04-18T02:42:19.475Z"
+    },
+    {
+      "type": "build",
+      "command": "cd H:/prism-wedm-agi/mcp-server && npm run build:fast 2>&1 | grep -E \"ERROR|Could not resolve\" | hea",
+      "timestamp": "2026-04-18T02:42:30.010Z"
+    },
+    {
+      "type": "build",
+      "command": "cd H:/prism-wedm-agi/mcp-server && npx tsc --noEmit src/engines/WEDMCompleteOrchestrationEngine.ts 2",
+      "timestamp": "2026-04-18T02:42:43.564Z"
+    },
+    {
+      "type": "build",
+      "command": "cd H:/prism-lathe-master/mcp-server && npm run build:fast 2>&1 | tail -30",
+      "timestamp": "2026-04-18T02:45:50.585Z"
+    },
+    {
+      "type": "build",
+      "command": "cd H:/prism-wedm-agi/mcp-server && npm run build:fast 2>&1 | tail -20",
+      "timestamp": "2026-04-18T02:46:40.924Z"
+    },
+    {
+      "type": "build",
+      "command": "cd H:/prism-wedm-agi/mcp-server && npm run build:fast 2>&1 | tail -30",
+      "timestamp": "2026-04-18T02:49:44.619Z"
+    },
+    {
+      "type": "build",
+      "command": "cd \"H:/prism-pp-master/mcp-server\" && npm run build:fast 2>&1 | tail -5",
+      "timestamp": "2026-04-18T02:51:39.571Z"
+    }
+  ],
+  "stats": {
+    "builds": 727,
+    "tests": 0,
+    "commits": 360
+  },
+  "lastSuccess": "2026-04-20T01:46:11.082Z"
+}

@@ -36,13 +36,13 @@
  *    - Shop floor calibration
  *    - Continuous model refinement
  *
- * Physics Integration:
- * --------------------
+ * Physics Integration (inline approximations — NOT yet algorithm-module
+ * composed; module wiring is tracked by milestone SF-PSN-WIRE-MS0):
  * - Kienzle force model (Fc = kc1.1 * ap * fz^(1-mc))
  * - Taylor tool life (VT^n = C)
- * - Loewen-Shaw thermal model
+ * - Loewen-Shaw thermal approximation (inline)
  * - Chip thinning compensation
- * - Stability lobe integration
+ * - Stability lobe approximation (inline)
  *
  * @module engines/SpeedFeedDeepLearningEngine
  * @version 1.0.0
@@ -54,6 +54,13 @@ import {
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
 } from "../physics/constants.js";
+// SF-PSN-WIRE-MS0/U-SFPSN-09 (slot:juliett, 2026-05-23): close the SF outcome
+// feedback loop. Audit F9 measured: "sfcOutcomeWire is imported by 5 SF engines
+// but NOT by SpeedFeedDeepLearningEngine, which holds the calibrationFactors
+// self-learning state — so outcomes are captured at the calculator layer and
+// discarded before the AI-ladder sink." This import + the captureRecommendation
+// method + the captureSFC emit in recordFeedback close that loop.
+import { captureSFC } from "../middleware/sfcOutcomeWire.js";
 
 // ============================================================================
 // TYPES
@@ -1189,6 +1196,46 @@ class SpeedFeedDeepLearningEngine {
       actual,
       error_pct: errorPct,
     });
+
+    // U-SFPSN-09: emit actual-vs-predicted outcome to the SFC outcome bus so
+    // downstream consumers (CrossProcessNeuralLearningEngine, outcome replay,
+    // calibration drift bridges) see the AI-ladder's feedback signal too.
+    // captureSFC is fire-and-forget (swallows errors) — never breaks
+    // recordFeedback's contract even if the bus is down.
+    captureSFC({
+      engine: "SpeedFeedDeepLearningEngine",
+      action: "recordFeedback",
+      context: { material: undefined, tool_id: undefined, operation: undefined },
+      recommended: { predicted, actual, error_pct: errorPct },
+      lineageId: jobId,
+      confidence: undefined,
+    });
+  }
+
+  /**
+   * U-SFPSN-09: capture a fresh recommendation onto the SFC outcome bus.
+   * Pairs with recordFeedback (the downstream-actuals input) — together they
+   * close the AI-ladder feedback loop the SF-PSN audit F9 named: the AI ladder
+   * now BOTH emits to and consumes from the same outcome bus the 5 calculator
+   * engines emit to. Fire-and-forget; never throws.
+   *
+   * Returns the bus lineage_id so the caller can thread it into its own
+   * response shape for provenance.
+   */
+  captureRecommendation(
+    jobId: string,
+    recommendation: { speed_mpm: number; feed_mm: number; tool_life_min?: number; Ra_um?: number; confidence?: number },
+    context?: { material?: string; tool_id?: string; operation?: string }
+  ): string {
+    const result = captureSFC({
+      engine: "SpeedFeedDeepLearningEngine",
+      action: "captureRecommendation",
+      context,
+      recommended: recommendation,
+      lineageId: jobId,
+      confidence: recommendation.confidence,
+    });
+    return result.lineage_id || jobId;
   }
 
   getSelfLearningStats(): { total_feedback: number; calibrated: boolean; avg_errors: Record<string, number> } {

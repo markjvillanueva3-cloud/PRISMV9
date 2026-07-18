@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM — BUILD_STATE</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PRISM — BUILD_STATE</h1>
+<div class="meta">What&#39;s built / wiring / pending / frontend</div>
+<div class="meta">Generated 2026-06-24T18:14:06.333Z</div>
+
+<div class="headline-grid">
+<div class="card ok">
+  <div class="lbl">Engines wired</div>
+  <div class="val">3827</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">With wiki entry</div>
+  <div class="val">1293</div>
+  
+</div>
+<div class="card warn">
+  <div class="lbl">Needs wiring</div>
+  <div class="val">4</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">Pending units</div>
+  <div class="val">3862</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">Active milestones</div>
+  <div class="val">51</div>
+  
+</div>
+<div class="card warn">
+  <div class="lbl">Frontend pending</div>
+  <div class="val">2</div>
+  
+</div>
+<div class="card warn">
+  <div class="lbl">Envelope drift</div>
+  <div class="val">23</div>
+  
+</div>
+<div class="card warn">
+  <div class="lbl">Stale milestones</div>
+  <div class="val">386</div>
+  
+</div>
+</div>
+<h2>Top unwired engine domains</h2>
+<svg class="bar-chart" viewBox="0 0 600 108" width="600" height="108" role="img" aria-label="Top unwired engine domains">
+<g>
+  <text x="0" y="19" text-anchor="start">Auth</text>
+  <rect class="bar warn" x="80" y="4" width="448" height="22" rx="2"/>
+  <text x="532" y="19" text-anchor="start">1</text>
+</g>
+<g>
+  <text x="0" y="45" text-anchor="start">Pre</text>
+  <rect class="bar warn" x="80" y="30" width="448" height="22" rx="2"/>
+  <text x="532" y="45" text-anchor="start">1</text>
+</g>
+<g>
+  <text x="0" y="71" text-anchor="start">Other</text>
+  <rect class="bar warn" x="80" y="56" width="448" height="22" rx="2"/>
+  <text x="532" y="71" text-anchor="start">1</text>
+</g>
+<g>
+  <text x="0" y="97" text-anchor="start">Blueprint</text>
+  <rect class="bar warn" x="80" y="82" width="448" height="22" rx="2"/>
+  <text x="532" y="97" text-anchor="start">1</text>
+</g>
+</svg>
+<table><caption>Envelope-status drift (claim vs git)</caption>
+<thead><tr><th>Milestone</th><th>Claimed</th><th>Real</th><th>Drift</th></tr></thead>
+<tbody>
+<tr><td>CAMK-MS2</td><td>not_started</td><td><span class="badge warn">completed_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>CAMX-MS11</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>CC-EXT-MS0</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>CPL-MS2</td><td>not_started</td><td><span class="badge warn">completed_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>MF-MS3</td><td>not_started</td><td><span class="badge warn">completed_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>MF-MS4</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>SCI-MS1</td><td>not_started</td><td><span class="badge warn">completed_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>TC-MS0</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>ACP-MS0</td><td>completed</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>BP-MS0</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>CADCAM-DAGI-MS4</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>CK-MS12</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>CLI-MS0</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>COMBO-EFFICIENCY-MS0</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>EIGC-MS10</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>DEA-MS0</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>KNOWLEDGE-VAULT-MS0</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>LATHE-MASTER</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>PPG-MS2</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>MS-CAM-MASTERY</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>MS-CRITWIRE</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>SF-PSN-WIRE-MS0</td><td>not_started</td><td><span class="badge warn">completed_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+<tr><td>TOOL-INVENTORY-MS0</td><td>not_started</td><td><span class="badge warn">in_progress_real</span></td><td><span class="badge fail">claims_not_started_but_has_shipped_units</span></td></tr>
+</tbody>
+</table>
+<table><caption>Frontend trees</caption>
+<thead><tr><th>ID</th><th>Path</th><th>Stack</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>main-web</td><td>mcp-server/web</td><td>React + Vite</td><td><span class="badge ok">merged</span></td></tr>
+<tr><td>cqask-orion-cad</td><td>cqask/ui</td><td>Next.js 13 + Ant Design + Tailwind</td><td><span class="badge warn">PENDING_MERGE</span></td></tr>
+<tr><td>mcp-cadquery-frontend</td><td>mcp-cadquery/frontend</td><td>Vite + React 19 + Three.js (@react-three/fiber)</td><td><span class="badge warn">PENDING_MERGE</span></td></tr>
+</tbody>
+</table>
+<table><caption>Coverage by domain (top 15 of 1032)</caption>
+<thead><tr><th>Domain</th><th>Total</th><th>Wired</th><th>Unwired</th><th>Coverage %</th></tr></thead>
+<tbody>
+<tr><td>Other</td><td class="right">714</td><td class="right"><span class="badge ok">713</span></td><td class="right"><span class="badge warn">1</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Blueprint</td><td class="right">11</td><td class="right"><span class="badge ok">10</span></td><td class="right"><span class="badge warn">1</span></td><td class="right"><span class="badge ok">91%</span></td></tr>
+<tr><td>Auth</td><td class="right">3</td><td class="right"><span class="badge ok">2</span></td><td class="right"><span class="badge warn">1</span></td><td class="right"><span class="badge warn">67%</span></td></tr>
+<tr><td>Pre</td><td class="right">3</td><td class="right"><span class="badge ok">2</span></td><td class="right"><span class="badge warn">1</span></td><td class="right"><span class="badge warn">67%</span></td></tr>
+<tr><td>Lathe</td><td class="right">194</td><td class="right"><span class="badge ok">194</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Cross</td><td class="right">73</td><td class="right"><span class="badge ok">73</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Hyper</td><td class="right">73</td><td class="right"><span class="badge ok">73</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Mill</td><td class="right">72</td><td class="right"><span class="badge ok">72</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Post</td><td class="right">63</td><td class="right"><span class="badge ok">63</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Tool</td><td class="right">63</td><td class="right"><span class="badge ok">63</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Machine</td><td class="right">49</td><td class="right"><span class="badge ok">49</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Fusion</td><td class="right">37</td><td class="right"><span class="badge ok">37</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Milling</td><td class="right">34</td><td class="right"><span class="badge ok">34</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Multi</td><td class="right">31</td><td class="right"><span class="badge ok">31</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+<tr><td>Mastercam</td><td class="right">28</td><td class="right"><span class="badge ok">28</span></td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge ok">100%</span></td></tr>
+</tbody>
+</table>
+<table><caption>Stale milestones (top 15 of 40)</caption>
+<thead><tr><th>Milestone</th><th>Track</th><th>Reason</th><th>Pending</th><th>Shipped/Total</th><th>Last shipped</th></tr></thead>
+<tbody>
+<tr><td>MS-WIRE-FRONTEND</td><td>revenue</td><td>never_started</td><td class="right">90</td><td>0/90</td><td>never</td></tr>
+<tr><td>MS-WIRE-BACKEND</td><td>revenue</td><td>never_started</td><td class="right">60</td><td>0/60</td><td>never</td></tr>
+<tr><td>MS-MASTERPOST</td><td>revenue</td><td>never_started</td><td class="right">44</td><td>0/44</td><td>never</td></tr>
+<tr><td>MS1</td><td>revenue</td><td>never_started</td><td class="right">39</td><td>0/39</td><td>never</td></tr>
+<tr><td>MS-AUDIT-DERIVED-2026-05-10</td><td>audit-derived</td><td>never_started</td><td class="right">30</td><td>0/30</td><td>never</td></tr>
+<tr><td>MS2</td><td>revenue</td><td>never_started</td><td class="right">30</td><td>0/30</td><td>never</td></tr>
+<tr><td>MS-TRAIN-DEEP</td><td>revenue</td><td>never_started</td><td class="right">26</td><td>0/26</td><td>never</td></tr>
+<tr><td>CADCAM-AGI-MS0</td><td>CAD-CAM-AGI</td><td>never_started</td><td class="right">24</td><td>0/24</td><td>never</td></tr>
+<tr><td>MS-SFC-CALIBRATE</td><td>revenue</td><td>never_started</td><td class="right">24</td><td>0/24</td><td>never</td></tr>
+<tr><td>SCIMATH-MS5</td><td>SCIMATH</td><td>never_started</td><td class="right">23</td><td>0/23</td><td>never</td></tr>
+<tr><td>MS-PILOT</td><td>revenue</td><td>never_started</td><td class="right">20</td><td>0/20</td><td>never</td></tr>
+<tr><td>SCIMATH-MS1</td><td>SCIMATH</td><td>never_started</td><td class="right">20</td><td>0/20</td><td>never</td></tr>
+<tr><td>CAMX-V17-P1</td><td>—</td><td>never_started</td><td class="right">18</td><td>0/18</td><td>never</td></tr>
+<tr><td>MS-DESKTOP</td><td>revenue</td><td>never_started</td><td class="right">18</td><td>0/18</td><td>never</td></tr>
+<tr><td>SCIMATH-MS0</td><td>SCIMATH</td><td>never_started</td><td class="right">17</td><td>0/17</td><td>never</td></tr>
+</tbody>
+</table>
+<table><caption>Top pending units (most-recently-active milestones first, top 15 of 24)</caption>
+<thead><tr><th>Milestone</th><th>Phase</th><th>Unit</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>MS-PRINT-PROGRAM-LOOP</td><td>P0</td><td>U-PPL-A2</td><td>[Track A] U-FAMILY-PARAM-EXTRACT — per family, extract the 8-15 driving parameters (ODs/lengths/bore-dia/thread-spec/chamfers) — the turning analogue of the .xlsm&#39;s 34 dims</td></tr>
+<tr><td>MS-PRINT-PROGRAM-LOOP</td><td>P0</td><td>U-PPL-A3</td><td>[Track A] MS-RES-XLSM-ENGINE core — olevba-decode the .xlsm&#39;s vbaProject.bin → reverse the 34-dim→geometry math per the 11 die templates; register the mill die families as PRISM parametric templates (wrap &amp; extend) — see MS-RES-XLSM-ENGINE</td></tr>
+<tr><td>MS-PRINT-PROGRAM-LOOP</td><td>P0</td><td>U-PPL-A4</td><td>[Track A] MachineDomainTemplateLibraryEngine (NEW) — registry of parametric program skeletons keyed by (partFamily, machineDomain, controller); each refs a ProvenRecipe + a GCodeTemplate parametrization; wire to prism_proven_pipeline (template_register/get/list/instantiate) + prism_cam</td></tr>
+<tr><td>MS-PRINT-PROGRAM-LOOP</td><td>P0</td><td>U-PPL-A6</td><td>[Track A] Wire proven_generate_pipeline → final G-code; add proven_generate_program — bridge adapted-recipe → TurningProgramAssemblerEngine (turning) / MillingPrintToProgramEngine (mill) → emit. New action prism_proven_pipeline:proven_generate_program</td></tr>
+<tr><td>FEATURE-GAP-AUDIT-MS0</td><td></td><td>U-WIRE-BACKLOG-MILL</td><td>Wire the ~20 unwired mill engines (MillingAIUltraIntelligence, FiveAxisAIUltraIntelligence, MillingUltimateAI, FiveAxisOrchestration) — see BUILD_STATE NEEDS_WIRING</td></tr>
+<tr><td>FEATURE-GAP-AUDIT-MS0</td><td></td><td>U-WIRE-BACKLOG-LATHE</td><td>Wire the ~77 unwired lathe engines (LatheThermodynamics, LatheUnifiedPhysicsOrchestration, LatheOpusReasoning, LatheMetaLearning, LatheQualityGate) — largest clean unwired gap</td></tr>
+<tr><td>FEATURE-GAP-AUDIT-MS0</td><td></td><td>U-WIRE-BACKLOG-WIRE</td><td>Wire the ~73 unwired WEDM engines (WEDMNeuralTraining, WireEDMDeepAIHardening, ElectrodeUltimateAI, WEDMProgramOptimizer, WEDMStrategyLibrary)</td></tr>
+<tr><td>FEATURE-GAP-AUDIT-MS0</td><td></td><td>U-GAP-WIRE-JMDIE-CORPUS</td><td>WEDM program-learning corpus from JM DIE WIRE EDM/ (4058 Mastercam .mcx-8 + Sodick .esp across ~100 customers)</td></tr>
+<tr><td>KNOWLEDGE-VAULT-MS0</td><td>P0</td><td>U-VAULT01</td><td>Vault-schema doc (CLAUDE.md role definition)</td></tr>
+<tr><td>KNOWLEDGE-VAULT-MS0</td><td>P0</td><td>U-VAULT04</td><td>Skill ↔ wiki cross-trigger registry</td></tr>
+<tr><td>KNOWLEDGE-VAULT-MS0</td><td>P0</td><td>U-VAULT05</td><td>Domain MOC generator (Nick Milo pattern)</td></tr>
+<tr><td>MS-P1-100PCT</td><td></td><td>U-P1-02</td><td>Fold EDMEngine.ts (294 LOC synthetic) → deprecated shim</td></tr>
+<tr><td>MS-P1-100PCT</td><td></td><td>U-P1-03</td><td>Fold EDMParameterEngine.ts → deprecated</td></tr>
+<tr><td>MS-P1-100PCT</td><td></td><td>U-P1-04</td><td>Fold EDMWireEngine.ts → deprecated</td></tr>
+<tr><td>MS-CAM-MASTERY</td><td>P0</td><td>U-CAMM-FUS-B</td><td>P0 Fusion pillar B — &#39;how to use Fusion CAM/HSM&#39; (Fusion360FunctionIndexEngine + FusionDeepLearningEngine + every 2D/3D/5-ax/turn/mill-turn/probe strategy + every dialog input → wiki entity pages)</td></tr>
+</tbody>
+</table>
+<footer><div>Source JSON: state/shared/BUILD_STATE.json · render schema 1.0.0</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

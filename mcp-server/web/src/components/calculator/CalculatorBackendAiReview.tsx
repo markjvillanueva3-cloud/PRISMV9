@@ -165,7 +165,7 @@ export function CalculatorBackendAiReview(props: CalculatorBackendAiReviewProps)
   );
 
   const reviewIntent = useMemo(() => {
-    return `Review the current calculator backend build for release readiness. Use the live solve source, backend preflight, machine legality, tooling posture, workflow continuity, and result confidence to decide whether this setup should be released, refined, or handed to another PRISM desk next.`;
+    return `Review the current calculator backend build for release readiness. Use the live solve source, backend preflight, machine legality, tooling posture, workflow continuity, and result confidence to decide whether this setup should be released, refined, or handed to another Kienzle desk next.`;
   }, []);
 
   const reviewKey = useMemo(
@@ -325,13 +325,13 @@ export function CalculatorBackendAiReview(props: CalculatorBackendAiReviewProps)
     <div data-testid="calculator-backend-ai-review">
       <PanelCard
         title="Backend AI review"
-        subtitle="Unified PRISM AI reviews the live calculator backend build, not just the browser state."
+        subtitle="Unified Kienzle AI reviews the live calculator backend build, not just the browser state."
       >
         <div className="space-y-4">
           <div className="rounded-[22px] border border-cyan-300/16 bg-cyan-300/[0.08] px-4 py-4 text-sm leading-6 text-cyan-50/90">
             {reviewAvailable
-              ? `The backend solve is live. PRISM can now reason over release risk, downstream routing, and machine-tooling continuity for ${props.selectedMachineTitle}.`
-              : 'Run a live backend solve to unlock the PRISM backend release review for this calculator setup.'}
+              ? `The backend solve is live. Kienzle can now reason over release risk, downstream routing, and machine-tooling continuity for ${props.selectedMachineTitle}.`
+              : 'Run a live backend solve to unlock the Kienzle backend release review for this calculator setup.'}
           </div>
 
           <div className="flex flex-wrap gap-2">

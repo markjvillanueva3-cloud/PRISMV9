@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `forge-types` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-types.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-types.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Types — TypeScript Type Coverage Analyzer
+
+You are running a specialized autopilot pipeline that analyzes TypeScript type coverage across the PRISM MCP server, identifies weak typing patterns, and optionally strengthens them. Designed to run in the **background** for analysis, with optional interactive fix mode.
+
+## Args: $ARGUMENTS
+- Empty: full scan — all source files for type cov
 
 <!-- AUTO-END -->
 

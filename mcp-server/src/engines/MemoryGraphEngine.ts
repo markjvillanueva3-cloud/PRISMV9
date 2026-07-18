@@ -87,6 +87,47 @@ function computeNodeChecksum(node: Omit<GraphNode, 'checksum'>): string {
 /** Memory Graph Engine engine/manager.
  */
 export class MemoryGraphEngine {
+  // [GOLF-HIGHRROI-2026-05-27] Idempotent process-signal handlers.
+  // Without these statics, EACH instance ran process.on('SIGINT'|'SIGTERM'|
+  // 'beforeExit', ...) in its constructor — leaking 3 listeners per instance.
+  // At N=4 instances Node logged MaxListenersExceededWarning (observed in
+  // the test suite's stderr: "11 SIGINT listeners added to [process]"); at
+  // signal time, all N handlers ran in parallel racing to write the SAME
+  // checkpoint files via shutdown(). Now: one bind, one iteration of the
+  // active-engine set on signal. Static so a fresh `import` from a peer
+  // module path doesn't get a separate registry — the class is the registry.
+  private static activeEngines: Set<MemoryGraphEngine> = new Set();
+  private static processSignalsBound: boolean = false;
+
+  private static bindProcessSignalsOnce(): void {
+    if (MemoryGraphEngine.processSignalsBound) return;
+    MemoryGraphEngine.processSignalsBound = true;
+    const shutdownAll = () => {
+      // Snapshot before iterating — shutdown() mutates the set, which would
+      // otherwise throw "Set iterator invalidated" mid-iteration. Using
+      // Array.from() captures the live members at signal time so a freshly-
+      // added engine (race with very-late signal) is also handled if it
+      // registered before this snapshot ran.
+      for (const eng of Array.from(MemoryGraphEngine.activeEngines)) {
+        try { eng.shutdown(); } catch { /* best effort — never block exit */ }
+      }
+    };
+    process.on('SIGINT', shutdownAll);
+    process.on('SIGTERM', shutdownAll);
+    process.on('beforeExit', shutdownAll);
+  }
+
+  /** Diagnostic: how many engine instances are alive in this process right
+   * now. Useful for detecting singleton drift (the bug where multiple module
+   * import paths each construct their own "singleton") — a healthy MCP
+   * server has ONE registered engine; >1 means a singleton-drift hunt is in
+   * order.
+   * @returns number — count of init'd, not-yet-shutdown engines
+   */
+  static getActiveEngineCount(): number {
+    return MemoryGraphEngine.activeEngines.size;
+  }
+
   private config: MemoryGraphConfig;
   private nodes: Map<string, GraphNode> = new Map();
   private edges: Map<string, GraphEdge> = new Map();
@@ -100,6 +141,30 @@ export class MemoryGraphEngine {
   private operationsSinceCheckpoint: number = 0;
   private operationsSinceIntegrity: number = 0;
   private initialized: boolean = false;
+
+  // [GOLF-MCP-HOTLOOP-FIX 2026-05-27] Dirty-state tracking so saveCheckpoint
+  // no-ops when state hasn't changed since the last successful save. Without
+  // this, the 60s periodic timer (line 132) AND the operations-driven path
+  // (line 458) both unconditionally rewrite identical state + emit a
+  // `[GRAPH] Checkpoint saved...` log line. With multiple engine instances
+  // (or even one instance + active operations), the log loop dominates the
+  // event-loop and pins :3100 unresponsive (observed 2026-05-27 — every chat
+  // got the "MCP DISCONNECTED" banner because the HTTP server couldn't yield
+  // between checkpoint writes).
+  //
+  // Sentinel: -1 ensures the FIRST save always proceeds (first-checkpoint
+  // guarantee, even when state is empty — keeps loadCheckpoint/saveCheckpoint
+  // symmetric so a freshly-empty engine still writes its zero-state files).
+  // After the first save, subsequent calls compare walSeq + node/edge counts;
+  // unchanged on all three = no-op. The node/edge counts are defense-in-depth
+  // because walSeq stays at 0 when nothing has been appended to the WAL
+  // buffer (flushWAL early-returns on empty buffer at line 473) so walSeq
+  // alone can miss in-memory mutations that haven't been WAL-batched yet.
+  private lastCheckpointWalSeq: number = -1;
+  private lastCheckpointNodeCount: number = -1;
+  private lastCheckpointEdgeCount: number = -1;
+  private lastCheckpointAt: number = 0;
+  private lastCheckpointWasSkipped: boolean = false;
 
   constructor(configOverrides?: Partial<MemoryGraphConfig>) {
     this.config = { ...DEFAULT_GRAPH_CONFIG, ...configOverrides };
@@ -144,13 +209,15 @@ export class MemoryGraphEngine {
       }
     }, 60_000);
 
-    // Process signal handlers — save on kill
-    const gracefulShutdown = () => {
-      try { this.shutdown(); } catch { /* best effort */ }
-    };
-    process.on('SIGINT', gracefulShutdown);
-    process.on('SIGTERM', gracefulShutdown);
-    process.on('beforeExit', gracefulShutdown);
+    // [GOLF-HIGHRROI-2026-05-27] Register process-signal handlers ONCE
+    // (module-level via the static guard), then add THIS instance to the
+    // shared active-engines registry. On signal, the bound handler iterates
+    // the registry and calls shutdown() on each — no per-instance listener
+    // leak, no race on checkpoint files when N instances try to save in
+    // parallel. Set.add is idempotent so re-init() after shutdown() does the
+    // right thing (re-registers without duplicating).
+    MemoryGraphEngine.bindProcessSignalsOnce();
+    MemoryGraphEngine.activeEngines.add(this);
 
     this.initialized = true;
     log.info(`[GRAPH] Engine initialized (${this.nodes.size} nodes, ${this.edges.size} edges)`);
@@ -165,6 +232,12 @@ export class MemoryGraphEngine {
     this.flushWAL();
     this.saveCheckpoint();
     this.initialized = false;
+    // [GOLF-HIGHRROI-2026-05-27] Remove from the active-engines registry.
+    // A subsequent SIGTERM/SIGINT/beforeExit would otherwise still iterate
+    // this already-shutdown instance, re-flushing an empty WAL buffer and
+    // re-saving (now-skipped via the dirty-flag guard but still a wasted
+    // call). Set.delete is idempotent on missing entries.
+    MemoryGraphEngine.activeEngines.delete(this);
   }
 
   // ==========================================================================
@@ -852,6 +925,23 @@ export class MemoryGraphEngine {
    * @returns void
    */
   saveCheckpoint(): void {
+    // [GOLF-MCP-HOTLOOP-FIX 2026-05-27] Dirty-check guard. Bail out when none
+    // of (walSeq, nodes.size, edges.size) has changed since the last
+    // successful save. The first save (sentinel lastCheckpointWalSeq === -1)
+    // ALWAYS proceeds so an engine freshly constructed with on-disk state
+    // still produces at-least-one save per session. Failure path leaves the
+    // tracking fields untouched so a retry on the next tick will re-attempt.
+    const isFirstSave = this.lastCheckpointWalSeq < 0;
+    const isDirty = isFirstSave
+      || this.walSeq !== this.lastCheckpointWalSeq
+      || this.nodes.size !== this.lastCheckpointNodeCount
+      || this.edges.size !== this.lastCheckpointEdgeCount;
+    if (!isDirty) {
+      this.lastCheckpointWasSkipped = true;
+      return;
+    }
+    this.lastCheckpointWasSkipped = false;
+
     try {
       ensureStateDir();
 
@@ -880,10 +970,40 @@ export class MemoryGraphEngine {
       const walPath = path.join(STATE_DIR, 'wal.jsonl');
       safeWriteSync(walPath, '');
 
+      // Tracking update — ONLY after all writes succeeded. On any throw above
+      // we fall into the catch block without touching these fields, so the
+      // next call sees the engine as still-dirty and retries.
+      this.lastCheckpointWalSeq = this.walSeq;
+      this.lastCheckpointNodeCount = this.nodes.size;
+      this.lastCheckpointEdgeCount = this.edges.size;
+      this.lastCheckpointAt = Date.now();
+
       log.info(`[GRAPH] Checkpoint saved (${this.nodes.size} nodes, ${this.edges.size} edges, WAL seq=${this.walSeq})`);
     } catch (e) {
       log.warn(`[GRAPH] Checkpoint save failed: ${(e as Error).message}`);
     }
+  }
+
+  /** Returns true when the most recent saveCheckpoint() call no-op'd because
+   * state was unchanged since the prior checkpoint. Diagnostic surface for
+   * the GOLF-MCP-HOTLOOP-FIX test suite — and useful telemetry for the
+   * MCP Server Watchdog (a fleet that's checkpoint-saving but never marking
+   * skipped is doing real work; one that's stuck at skipped=false in a hot
+   * loop is the bug). Public so callers can grep without breaking encapsulation.
+   * @returns boolean — true if last saveCheckpoint was a dirty-flag skip
+   */
+  wasLastCheckpointSkipped(): boolean {
+    return this.lastCheckpointWasSkipped;
+  }
+
+  /** Returns the Unix ms timestamp of the most recent SUCCESSFUL checkpoint
+   * write (failed or skipped saves do not advance this). Returns 0 when no
+   * save has ever succeeded in this engine instance — callers should treat
+   * 0 as "never saved" not "saved at epoch".
+   * @returns number — Unix ms of last successful checkpoint, or 0
+   */
+  getLastCheckpointAt(): number {
+    return this.lastCheckpointAt;
   }
 
   private loadCheckpoint(): void {

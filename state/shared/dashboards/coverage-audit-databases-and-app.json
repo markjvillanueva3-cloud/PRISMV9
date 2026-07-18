@@ -1,0 +1,75 @@
+{
+  "source": "databases+app+misc",
+  "generatedAt": "2026-05-24",
+  "slot": "alpha",
+  "schemaVersion": "1.0.0",
+  "universes": {
+    "state": {
+      "count": 16260,
+      "bucket": "NA",
+      "rationale": "Read-only JSON data files under H:/prism/state/**/*.json — databases, ledgers, snapshots. Not tool surfaces.",
+      "path": "H:/prism/state"
+    },
+    "mcpData": {
+      "count": 1610,
+      "bucket": "NA",
+      "rationale": "Engine state, registries, dispatcher metadata, cross-session registries under H:/prism/mcp-server/data/**/*.json. Backing store, not invokable tool.",
+      "path": "H:/prism/mcp-server/data"
+    },
+    "jmDieArchive": {
+      "count": 959,
+      "bucket": "NA",
+      "rationale": "JM Die customer archive directories (depth-2). Static reference shop corpus — not a tool surface.",
+      "path": "H:/prism/JM DIE",
+      "scanDepth": 2
+    },
+    "frontendComponents": {
+      "count": 492,
+      "bucket": "NA",
+      "rationale": "React TSX components under mcp-server/web/src — UI surface, not tool calls. Out of scope for tool-savings audit.",
+      "path": "H:/prism/mcp-server/web/src"
+    },
+    "tests": {
+      "count": 5035,
+      "bucket": "NA",
+      "breakdown": {
+        "srcTests": 4325,
+        "rootTests": 710
+      },
+      "rationale": "Vitest/node-test files under mcp-server/src/__tests__ + H:/prism/tests. Verification corpus, not tool surfaces.",
+      "paths": ["H:/prism/mcp-server/src/__tests__", "H:/prism/tests"]
+    },
+    "mitOcw": {
+      "count": 0,
+      "bucket": "NA",
+      "rationale": "Canonical path H:/prism/knowledge/mit-ocw/ not present at audit time. MIT-OCW content lives elsewhere (see CLAUDE.md §KNOWLEDGE-CONVERSION-MS0 — courses ingested into tribal/wiki/engines).",
+      "path": "H:/prism/knowledge/mit-ocw",
+      "note": "Knowledge corpus already converted to other PSN legs; raw OCW dir does not exist."
+    },
+    "scheduledTasks": {
+      "count": 21,
+      "bucket": "COVERED",
+      "rationale": "All 21 PRISM scheduled tasks are PSN-aware — documented in CLAUDE.md (fleet-reaper, fleet-memory-monitor, NN-graph retrain, slot-worktree migration, system-viz-revwalk, RGS-planner, zulu-orchestrator, MCP-server watchdog, SFC variability, synergy-watch, system-awareness freshness, hook-janitor, handoff-prune, etc.). Each runs via Task Scheduler, emits telemetry to state/, and is operator-controllable via env knobs.",
+      "path": "H:/prism/.claude/helpers/install-*.ps1",
+      "tasks": [
+        "blueprint-join-refresh", "cleanup-orchestrator", "cost-alarm", "fleet-memory-monitor",
+        "fleet-reaper", "handoff-prune", "hook-janitor", "mcp-server", "mcp-server-watchdog",
+        "memory-pressure", "nn-graph-retrain", "node-cleaner", "rgs-planner", "sfc-variability",
+        "slot-worktree-migration-status", "source-monitor", "synergy-watch",
+        "system-awareness-freshness", "system-viz-revwalk", "zulu-orchestrator", "zombie-reaper"
+      ]
+    }
+  },
+  "bucketSummary": {
+    "NA": 6,
+    "COVERED": 1,
+    "CANDIDATE": 0,
+    "totalUniverses": 7,
+    "totalAssetCount": 24377
+  },
+  "notes": [
+    "All 6 NA universes are backing-store / corpus / UI surfaces — not invokable tool routes. Excluded from tool-savings denominator by design.",
+    "scheduledTasks is the only universe in this audit slice with operational coverage relevance; all 21 are already PSN-aware (no CANDIDATE).",
+    "MIT-OCW raw corpus absent at canonical path; content already absorbed into wiki/tribal/engines per KNOWLEDGE-CONVERSION-MS0."
+  ]
+}

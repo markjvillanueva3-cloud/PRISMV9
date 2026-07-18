@@ -79,7 +79,7 @@ export function usePhysicsPreview(
     loading: false,
     error: null,
   });
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!input) {
@@ -137,7 +137,7 @@ export function usePhysicsPreviewBatch(
     loading: false,
     error: null,
   });
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!inputs || inputs.length === 0) {

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `aware` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/aware.md` |
+| Source | `C:/Users/wompu/.claude/commands/aware.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Query PRISM's current situational awareness state including session context, goal stack, and system health.
+
+# /aware — Phase 0.13 Situational Awareness Query
 
 <!-- AUTO-END -->
 

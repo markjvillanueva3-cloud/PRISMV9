@@ -270,8 +270,13 @@ const productivity = z.object({
 const engagement = z.object({
   tool_diameter: posNum,
   radial_depth: posNum,
-  feed_per_tooth: posNum,
-  cutting_speed: posNum,
+  // feed_per_tooth + cutting_speed are OPTIONAL: the core engagement geometry (arc/entry/exit/
+  // radial%) is purely geometric (D + ae + climb). They only drive the secondary chip-thickness +
+  // effective-speed outputs, so a geometry-only request (e.g. the SFC web /engagement endpoint, which
+  // sends only tool_diameter+radial_depth) must validate. The engine reports 0 chip thickness when fz
+  // is absent, never NaN (U-OSC-ENGAGEMENT-OPTIONAL-FEED).
+  feed_per_tooth: optPosNum,
+  cutting_speed: optPosNum,
   is_climb: optBool,
 }).passthrough();
 
@@ -326,12 +331,72 @@ const arc_fit = z.object({
   block_time: optPosNum,
 }).passthrough();
 
+// Kasa point-cloud → G02/G03 arc fitter (ArcFittingEngine.fit).
+// Distinct from `arc_fit` above (which is a scalar block-time calc).
+const arc_fit_kasa = z.object({
+  points: z.array(z.object({
+    x: z.number(),
+    y: z.number(),
+    z: z.number(),
+  })).min(2).describe("Linear point sequence to convert to arc moves"),
+  tolerance_mm: optPosNum.describe("Max chord error (default 0.005mm)"),
+  min_points: z.number().int().positive().optional().describe("Min points per arc segment (default 5)"),
+  max_radius_mm: optPosNum.describe("Max accepted arc radius (default 5000mm)"),
+  min_radius_mm: optPosNum.describe("Min accepted arc radius (default 0.5mm)"),
+  plane: z.enum(["XY", "XZ", "YZ"]).optional().describe("Fitting plane (default XY)"),
+  emit_gcode: z.boolean().optional().describe("Also return G02/G03 GCodeArc[] in addition to FittedArc[]"),
+  feedrate: optPosNum.describe("Optional feedrate stamped on emitted G02/G03 blocks"),
+}).passthrough();
+
 const chip_thinning = z.object({
   tool_diameter: posNum,
   radial_depth: posNum,
   feed_per_tooth: posNum,
   number_of_teeth: z.number().int().positive().optional(),
   cutting_speed: optPosNum,
+}).passthrough();
+
+// MachiningEnergyModelEngine — Gutowski energy model + Kienzle cutting force.
+// Inputs mirror MachiningEnergyInput exactly. Wired 2026-05-17 (kilo, U-WIRE-ENERGY).
+// Action was previously enum-listed + slimmed but had NO executor case body —
+// a "ghost-wired" half-orphan. This schema + the executor case close it.
+const machining_energy_model = z.object({
+  cutting: z.object({
+    spindle_rpm: posNum.describe("Spindle speed (RPM)"),
+    feed_rate_mmmin: posNum.describe("Feed rate (mm/min, table-frame)"),
+    axial_depth_mm: posNum.describe("Axial depth of cut ap (mm)"),
+    radial_depth_mm: posNum.describe("Radial depth of cut ae (mm)"),
+    cutting_speed_m_min: posNum.describe("Cutting speed Vc (m/min)"),
+  }).describe("Cutting condition tuple"),
+  tool: z.object({
+    diameter_mm: posNum.describe("Tool diameter (mm)"),
+    flute_count: z.number().int().positive().describe("Number of cutting teeth"),
+  }).describe("Tool geometry tuple"),
+  material: z.object({
+    iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group"),
+    volume_to_remove_cm3: posNum.describe("Total material volume to remove (cm³)"),
+  }).describe("Material + part-volume tuple"),
+  machine: z.object({
+    standby_power_kw: posNum.describe("Machine standby/idle power draw (kW)"),
+    // Spindle efficiency is bounded (0, 1] — passing >1 would invert the
+    // (P/eff) division and produce nonsense kWh. Reviewer B P0 hardening
+    // 2026-05-17 kilo: prevent caller fat-fingering (e.g. 50 = 5000%).
+    spindle_efficiency: z.number().gt(0).lte(1).optional().describe("Spindle drive efficiency in (0, 1] (default 0.85)"),
+    axis_power_kw: optPosNum.describe("Axis-drive power (kW, default 1.5)"),
+    coolant_pump_kw: optPosNum.describe("Flood coolant pump power (kW, default 2.5)"),
+    atc_time_s: optPosNum.describe("Average ATC time per change (s, default 5)"),
+    // tool_changes upper bound — sanity ceiling, see canonical
+    // MAX_TOOL_CHANGES_PER_PART in sustainability-constants.ts.
+    // U-WIRE-ENERGY P2 deferral closed 2026-05-17 kilo: rejects misconfigured
+    // loops / per-batch values passed as per-part / typo inputs.
+    tool_changes: z.number().int().nonnegative().max(10000).describe("Number of tool changes in cycle (0..10000)"),
+  }).describe("Machine power-draw tuple"),
+  coolant_type: z.enum(["flood", "mist", "mql", "dry"]).describe("Coolant delivery mode"),
+  // electricity_cost upper bound — sanity ceiling, see canonical
+  // MAX_ELECTRICITY_COST_USD_PER_KWH in sustainability-constants.ts.
+  // U-WIRE-ENERGY P2 deferral closed 2026-05-17 kilo: catches unit-of-measure
+  // errors (caller passing MWh price or millicents).
+  electricity_cost_per_kwh: z.number().positive().max(1.0).optional().describe("Local electricity cost ($/kWh, default 0.12, max 1.00)"),
 }).passthrough();
 
 const multi_pass = z.object({
@@ -787,6 +852,17 @@ const monte_carlo_histogram = z.object({
   bin_count: z.number().int().min(2).max(1000).optional(),
 }).passthrough();
 
+// minimum_zone_fit — ASME Y14.5.1 minimum-zone (Chebyshev) GD&T form-error fit
+const minimum_zone_fit = z.object({
+  feature: z.enum(["straightness", "flatness", "circularity"])
+    .describe("GD&T form feature to evaluate by the minimum-zone criterion"),
+  points: z.array(z.object({
+    x: z.number().describe("Measured X coordinate"),
+    y: z.number().describe("Measured Y coordinate"),
+    z: z.number().optional().describe("Measured Z coordinate — required for flatness"),
+  })).min(3).describe("Measured CMM points — {x,y} for straightness/circularity, {x,y,z} for flatness"),
+}).passthrough();
+
 // ============================================================================
 // SPINDLE HARMONICS + WEAR COMPENSATION (6 actions)
 // ============================================================================
@@ -1216,7 +1292,9 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   stepover,
   cycle_time,
   arc_fit,
+  arc_fit_kasa,
   chip_thinning,
+  machining_energy_model,
   multi_pass,
   coolant_strategy,
 
@@ -1271,6 +1349,7 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   monte_carlo_tool_life,
   monte_carlo_tolerance,
   monte_carlo_histogram,
+  minimum_zone_fit,
 
   // Physics prediction (delegated — passthrough)
   surface_integrity_predict: physicsPrediction,
@@ -2979,6 +3058,7 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
       price: z.number().nonnegative().describe("Tool replacement price [USD]"),
     }).passthrough()).optional().describe("Known on-hand tool inventory"),
     optimization_goal: z.enum(["cost", "performance", "balanced"]).default("balanced").describe("Recommendation posture"),
+    annual_parts: z.number().positive().optional().describe("Annual production volume [parts/year] for the annual-savings extrapolation; omitted -> an assumed-default estimate is returned"),
   }).passthrough(),
 
   // ============================================================================
@@ -3385,4 +3465,293 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     from_scale: z.enum(['Ra_um','Rz_um','Rq_um','Rt_um','Ra_uin','N_grade']).describe('Source scale'),
     to_scale: z.enum(['Ra_um','Rz_um','Rq_um','Rt_um','Ra_uin','N_grade']).describe('Target scale'),
   }).passthrough().describe('Convert between surface-roughness scales (ISO 4287/1302) — returns value + all-equivalents + N-grade label + typical process + uncertainty %'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-PARTIAL-L1-STATS (2026-05-20): SpeedFeedDeepLearningEngine L1 introspection wire.
+  // R12-safe — exposes calibration/training status, NOT inference output (the L1 NN has random-init weights until trained).
+  // Operator-load-bearing: tells you whether L2/L3 SF-AI ladder is safe to wire/use yet.
+  speedfeed_dl_stats: z.object({}).passthrough().describe('SpeedFeedDeepLearningEngine L1 introspection: queries_processed, neural_networks count, self_learning_feedback total, calibrated boolean (true once >=10 feedback rounds), avg_errors_pct per axis. R12-safe — does NOT call inference paths.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-GILBERT (2026-05-20): GilbertEconomicSpeedEngine wire — Gilbert (1950) minimum-cost cutting velocity for turning.
+  // Pure economics + Taylor — no NN, no random init. Closes 1 of ~12 unwired SF engines.
+  // Refs: Gilbert ASME 1950, Shaw "Metal Cutting Principles" §20, Armarego "Machining of Metals" §9.5.
+  gilbert_econ_speed_compute: z.object({
+    K_T: z.number().positive().describe('Taylor constant C at 1 min tool life — m/min'),
+    n: z.number().gt(0).lt(1).describe('Taylor exponent n (typical 0.15-0.35 for carbide; must satisfy 0 < n < 1)'),
+    machining_cost_per_sec_usd: z.number().positive().describe('Machining cost rate M ($/s) — labor + overhead + amortized machine'),
+    tool_change_time_sec: z.number().nonnegative().describe('Tool change time t_ct (s)'),
+    tool_cost_per_edge_usd: z.number().nonnegative().describe('Cost per tool edge C_tool ($)'),
+    cut_length_mm: z.number().positive().optional().describe('Total length of cut per part (mm) — required for per-part cost'),
+    f_mm_rev: z.number().positive().optional().describe('Feed (mm/rev) — required with diameter for t_m'),
+    diameter_mm: z.number().positive().optional().describe('Workpiece diameter (mm) — required to convert Vc to RPM'),
+    revenue_per_part_usd: z.number().positive().optional().describe('Revenue per part (USD) — enables profit curve + Vc_max_profit'),
+    rpm_clamp: z.number().positive().optional().describe('Optional RPM clamp (machine max) — surfaces advisory if exceeded'),
+  }).describe('Gilbert (1950) minimum-cost cutting velocity for turning. Returns Vc_min_cost, Vc_min_time, Hi-E band, tool life at each, plus optional per-part cost + RPM + max-profit Vc when economics inputs supplied.'),
+
+  gilbert_econ_speed_compare_vc: z.object({
+    candidate_vc_m_min: z.number().positive().describe('Candidate Vc to compare against Gilbert optimum (m/min)'),
+    K_T: z.number().positive().describe('Taylor constant C at 1 min tool life — m/min'),
+    n: z.number().gt(0).lt(1).describe('Taylor exponent n (must satisfy 0 < n < 1)'),
+    machining_cost_per_sec_usd: z.number().positive().describe('Machining cost rate M ($/s)'),
+    tool_change_time_sec: z.number().nonnegative().describe('Tool change time (s)'),
+    tool_cost_per_edge_usd: z.number().nonnegative().describe('Cost per tool edge ($)'),
+  }).describe('Compare a candidate Vc against Gilbert min-cost optimum — returns {relative: below/at/above, ratio, recommendation}. Tolerance for "at" is +/-5%.'),
+
+  gilbert_econ_speed_stats: z.object({}).passthrough().describe('Gilbert economic-speed engine formula + reference inventory — useful for operator-facing tooltips and verification that the engine is loaded.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-BARPITCH (2026-05-20): BarFeedPitchOptimizerEngine wire — 1-D bar-feed pitch optimization for lathe/Swiss workflows.
+  // Pure bin-packing math (no NN, no random init). Closes 1 of ~12 unwired SF engines per FEATURE-GAP-AUDIT-MS0 backlog.
+  // Refs: ISO 6983 · Sandvik Cutting Tools Technical Guide (collet/feed losses).
+  bar_feed_pitch_optimize: z.object({
+    part_length_mm: z.number().positive().describe('Finished part length (mm) — does NOT include cutoff kerf'),
+    quantity_needed: z.number().int().positive().describe('Batch quantity required (drives bars_required = ceil(qty / parts_per_bar))'),
+    bar_length_mm: z.number().positive().describe('Raw bar stock length (mm)'),
+    cutoff_kerf_mm: z.number().nonnegative().optional().describe('Kerf consumed per cutoff (default 2 mm typical for 2mm cutoff tool)'),
+    bar_end_loss_mm: z.number().nonnegative().optional().describe('Collet/feed-back loss at bar tail — Swiss: one grip + feed-back dead zone (default 50 mm)'),
+    bar_head_face_mm: z.number().nonnegative().optional().describe('Initial facing allowance consumed at bar head (default 3 mm)'),
+    candidate_bar_diameters_mm: z.array(z.number().positive()).optional().describe('Candidate bar diameters (mm) to evaluate — skipped if smaller than part_max_diameter_mm. Omit to use bar_diameter_mm.'),
+    bar_diameter_mm: z.number().positive().optional().describe('Fixed bar diameter (mm) if no candidates supplied. One of bar_diameter_mm or candidate_bar_diameters_mm is required.'),
+    part_max_diameter_mm: z.number().positive().optional().describe('Part maximum diameter (mm) — used to disqualify too-small bar candidates'),
+    material_density_kgm3: z.number().positive().optional().describe('Material density kg/m^3 (default 7850 = carbon steel)'),
+    material_price_per_kg: z.number().nonnegative().optional().describe('Material price per kg for waste-cost calculation'),
+    part_mass_kg: z.number().positive().optional().describe('Pre-computed part mass override (skips cylindrical estimate)'),
+  }).describe('Optimize bar-feed pitch + bar selection. Returns best candidate (highest score) + all candidates with parts/bar, remnant, bars_required, utilization%, waste mass/cost. Score = utilization minus bars-needed penalty.'),
+
+  bar_feed_pitch_stats: z.object({}).passthrough().describe('BarFeedPitchOptimizerEngine reference inventory — ISO 6983 + Sandvik collet/feed-loss conventions.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-CSS-CHIPLOAD (2026-05-20): CSSChipLoadInvariantCoordinatorEngine wire.
+  // Maintains constant chip load during CSS (G96) transitions by coordinating feed-rate adjustments with spindle RPM changes.
+  // Pure Kienzle physics (no NN, no random init). Closes 1 of ~12 unwired SF engines.
+  // Refs: Kienzle, Kronenberg. Constraints: feed slew ≤ 50 mm/rev/s, spindle accel ≤ 300ms, RPM clamp default 4000.
+  css_chipload_analyze: z.object({
+    cutting_speed_m_min: z.number().positive().describe('Target CSS cutting velocity Vc (m/min) — G96 constant surface speed'),
+    base_feed_mm_rev: z.number().positive().describe('Baseline feed (mm/rev) at largest diameter'),
+    lead_angle_deg: z.number().min(0).max(90).optional().describe('Tool lead angle κ_r (deg, default 90 for face/turn)'),
+    depth_of_cut_mm: z.number().positive().describe('Radial depth of cut b (mm)'),
+    diameter_start_mm: z.number().positive().describe('Starting diameter for the transition (mm) — facing: large; turning: small'),
+    diameter_end_mm: z.number().positive().describe('Ending diameter for the transition (mm)'),
+    material_kc1_1_MPa: z.number().positive().describe('Material Kienzle kc1.1 (MPa) — see src/physics/constants.ts for canonical values'),
+    material_mc: z.number().min(0).max(1).optional().describe('Material Kienzle exponent mc (default 0.25)'),
+    max_spindle_rpm: z.number().positive().optional().describe('Spindle RPM clamp (default 4000 rpm chuck-safety)'),
+    spindle_accel_time_ms: z.number().positive().optional().describe('Spindle acceleration time τ (ms, default 300)'),
+    max_feed_slew_rate_mm_rev_s: z.number().positive().optional().describe('Max feed slew rate df/dt (mm/rev/s, default 50 — prevents shock loading)'),
+    z_travel_mm: z.number().positive().describe('Total Z travel during the diameter transition (mm)'),
+  }).describe('CSS (G96) chip-load invariance analysis. Returns target chip thickness, force variation, clamped fraction, face-center risk, per-segment feed compensation, and physics-constraint validation flags. Use BEFORE running a facing or contour cut with significant diameter change to verify chip load stays constant.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-AUTO-CALC (2026-05-20): AutoSpeedFeedCalculatorEngine wire.
+  // Multi-operation SF auto-calc: imperial RPM = SFM·3.8197/D, metric RPM = SCS·318.31/D, G50 clamp, boring-bar L/D
+  // feed scaling, Brammertz Ra = (fz²·32)/(r·1000) via predictedRa, Kienzle power check Pc = Fc·Vc/(60000·η).
+  // Engine imports rpmFromVc + predictedRa from src/physics/constants.ts (no inlined formulas). Refs: Machinery's
+  // Handbook 31st ed, Sandvik Coromant Technical Guide. Closes 1 of ~10 remaining unwired SF calculator engines.
+  auto_speed_feed_calc: z.object({
+    unit_system: z.enum(["imperial", "metric"]).describe('Unit system — drives RPM formula choice'),
+    operations: z.array(z.object({
+      station: z.number().int().nonnegative().describe('Tool station number'),
+      operation: z.enum([
+        "od_rough", "od_finish", "id_rough", "id_finish",
+        "face", "center_drill", "drill", "peck_drill",
+        "bore_rough", "bore_finish", "groove", "cutoff",
+        "thread", "tap", "ream", "chamfer",
+      ]).describe('Operation type — drives default G50 clamp'),
+      sfm: z.number().positive().describe('Surface speed (SFM for imperial, m/min for metric)'),
+      feed: z.number().positive().describe('Feed (IPR for imperial, mm/rev for metric)'),
+      cutting_diameter: z.number().positive().describe('Cutting diameter at the tool engagement point'),
+      doc: z.number().positive().optional().describe('Depth of cut (for Kienzle power estimate)'),
+      nose_radius: z.number().positive().optional().describe('Insert nose radius (same units as feed) — enables Ra prediction'),
+      max_rpm_override: z.number().positive().optional().describe('Operation-specific G50 max-RPM override'),
+      bar_diameter: z.number().positive().optional().describe('Boring-bar diameter (mm or in) for L/D rigidity feed scaling'),
+      bar_stickout: z.number().positive().optional().describe('Boring-bar stickout (same units as bar_diameter)'),
+      peck_mode: z.enum(["first_full", "first_1xD", "decreasing"]).optional().describe('Drill peck-schedule mode'),
+      material_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe('ISO material group for Kienzle power estimate'),
+    })).min(1).describe('One-or-more operations to calculate'),
+    machine_max_rpm: z.number().positive().optional().describe('Machine spindle RPM ceiling (default 4500)'),
+    machine_power_kw: z.number().positive().optional().describe('Machine spindle power, kW (default 15) — Kienzle power-check budget'),
+    spindle_efficiency: z.number().min(0).max(1).optional().describe('Spindle efficiency 0-1 (default 0.85)'),
+  }).describe('Auto-calculate speeds, feeds, RPM, peck schedules, surface-finish prediction, and Kienzle power check for a multi-operation program. Returns per-op {calculated_rpm, clamped_rpm, was_clamped, adjusted_feed, feed_scaled, predicted_ra_um, peck_schedule, estimated_force_n, estimated_power_kw, power_ok, okuma_lines, warnings} + aggregate stats + concatenated Okuma macro lines. Use BEFORE generating an Okuma macro to lock in safe speeds/feeds + verify spindle power budget.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-FEEDRATE-OPT (2026-05-20, slot:juliett): FeedRateOptimizationEngine.optimize.
+  feed_rate_optimize: z.object({
+    base_feed_per_tooth: z.number().positive().describe('Base feed per tooth fz (mm/tooth) — pre-optimization seed value.'),
+    tool_diameter: z.number().positive().describe('Tool cutting diameter Dc (mm).'),
+    number_of_flutes: z.number().int().positive().describe('Flute count z.'),
+    spindle_rpm: z.number().positive().describe('Spindle speed n (rev/min).'),
+    radial_depth: z.number().positive().describe('Radial engagement ae (mm).'),
+    axial_depth: z.number().positive().describe('Axial depth ap (mm).'),
+    material: z.string().optional().describe('Material key (aluminum, brass, copper, cast_iron, mild_steel, alloy_steel, stainless, titanium, inconel, hardened_steel). Default mild_steel.'),
+    operation: z.enum(["roughing", "finishing", "semi_finishing"]).optional().describe('Operation classification — drives the material feed multiplier table choice. Default roughing.'),
+    spindle_power_kw: z.number().positive().optional().describe('Available spindle power (kW) — enables Kienzle power-limited feed capping.'),
+    specific_cutting_force: z.number().positive().optional().describe('Kienzle kc1.1 (N/mm²) — material specific cutting force.'),
+    max_acceleration_mm_s2: z.number().positive().optional().describe('Explicit machine acceleration limit (mm/s²) — overrides machine_id lookup.'),
+    rapid_traverse_mm_min: z.number().positive().optional().describe('Explicit machine rapid traverse limit (mm/min) — overrides machine_id lookup.'),
+    target_chip_thickness: z.number().positive().optional().describe('Target chip thickness override (mm) — drives chip-thinning compensation.'),
+    machine_id: z.string().optional().describe('Machine identifier — auto-resolves accel/rapid limits via MachineCapabilityIntelligenceEngine.'),
+  }).describe('Optimize feed rate via engagement-aware chip-thinning compensation + Kienzle power cap + material feed factor. Returns {nominal_feed_rate, optimized_feed_rate, feed_per_tooth_adjusted, chip_thinning_factor, engagement_angle_deg, power_utilization_pct, is_power_limited, is_accel_limited, material_factor, warnings}. Use to tune fz against the real radial engagement before emitting G-code.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-CAM-BRIDGE (2026-05-21, slot:juliett): CAMSpeedFeedBridgeEngine.compute —
+  // per-CAM translation layer (7 hosts) wrapping SpeedFeedOrchestratorEngine. Pure translation + encoding.
+  cam_speed_feed_bridge: z.object({
+    target: z.enum(["hypermill", "fusion360", "inventor_hsm", "mastercam", "esprit", "solidcam", "generic"]).describe('Target CAM host — selects native-parameter vocabulary and response encoding. SFM-units (Mastercam/ESPRIT) auto-convert to m/min.'),
+    native_request: z.object({
+      operation_id: z.string().min(1).describe('Caller-supplied request id, echoed back in the wire payload for correlation.'),
+      material: z.string().optional().describe('Workpiece material key (e.g., "mild_steel", "aluminum_6061").'),
+      iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe('ISO 513 material group (P=steel, M=stainless, K=cast-iron, N=alum/non-ferrous, S=heat-resistant, H=hardened).'),
+      // hyperMILL native fields
+      toolDiameter: z.number().positive().optional().describe('Tool diameter (mm) — hyperMILL/Fusion 360 field name.'),
+      flutes: z.number().int().positive().optional().describe('Number of cutting edges / flutes.'),
+      cuttingSpeedVc: z.number().positive().optional().describe('Cutting speed Vc (m/min) — hyperMILL native (metric).'),
+      feedPerTooth_fz: z.number().positive().optional().describe('Feed per tooth fz (mm/tooth) — hyperMILL native.'),
+      // Fusion 360
+      spindleSpeed: z.number().positive().optional().describe('Spindle speed (rev/min) — Fusion 360 native.'),
+      feedPerTooth: z.number().positive().optional().describe('Feed per tooth (mm/tooth) — Fusion 360 / Inventor HSM native.'),
+      // Inventor HSM
+      toolDia: z.number().positive().optional().describe('Tool diameter (mm) — Inventor HSM native.'),
+      spindleRpm: z.number().positive().optional().describe('Spindle RPM — Inventor HSM native.'),
+      // Mastercam X8
+      dia: z.number().positive().optional().describe('Tool diameter (mm) — Mastercam native.'),
+      rpm: z.number().positive().optional().describe('Spindle RPM — Mastercam native.'),
+      sfm: z.number().positive().optional().describe('Surface feet per minute — Mastercam (US-centric); auto-converts to m/min × 0.3048.'),
+      fpt: z.number().positive().optional().describe('Feed per tooth (mm/tooth) — Mastercam native.'),
+      // ESPRIT
+      cutterDiameter: z.number().positive().optional().describe('Cutter diameter (mm) — ESPRIT native.'),
+      surfaceSpeed: z.number().positive().optional().describe('Surface speed (SFM) — ESPRIT native (US-centric); auto-converts to m/min.'),
+      feedPerToothEsp: z.number().positive().optional().describe('Feed per tooth (mm/tooth) — ESPRIT native.'),
+      // SolidCAM
+      solidcamDiameter: z.number().positive().optional().describe('Tool diameter (mm) — SolidCAM native.'),
+      spinSpeed: z.number().positive().optional().describe('Spindle speed (rev/min) — SolidCAM native.'),
+      feedZ: z.number().positive().optional().describe('Feed per tooth (mm/tooth) — SolidCAM native.'),
+      // Generic
+      tool_diameter_mm: z.number().positive().optional().describe('Tool diameter (mm) — generic snake_case.'),
+      spindle_rpm: z.number().positive().optional().describe('Spindle RPM — generic snake_case.'),
+      feed_per_tooth: z.number().positive().optional().describe('Feed per tooth (mm/tooth) — generic snake_case.'),
+      // Common
+      axial_depth_mm: z.number().positive().optional().describe('Axial depth of cut ap (mm).'),
+      radial_depth_mm: z.number().positive().optional().describe('Radial engagement ae (mm).'),
+      operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).optional().describe('Operation classification — passes through to the orchestrator.'),
+      cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).optional().describe('Cut classification — passes through to the orchestrator.'),
+    }).passthrough().describe('Native host payload — only the fields a given CAM host emits will be populated; the bridge uses pickFirst() to pull the value from whichever field is set. Extra fields are passed through to the orchestrator.'),
+  }).describe('Translate a native CAM-host speed/feed request (hyperMILL/Fusion 360/Inventor HSM/Mastercam/ESPRIT/SolidCAM/generic) → OrchestratorInput, run SpeedFeedOrchestratorEngine.compute, then encode the result back into the host\'s wire format. Returns {target, operation_id, translated_input, orchestrator_result, native_payload, status:"ok"|"compute_error", error}. native_payload is the encoded string a host can consume directly: XML-RPC for hyperMILL, JSON-RPC for Fusion 360, flat-JSON for Inventor HSM / SolidCAM / generic, pipe-delimited for Mastercam / ESPRIT.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-PP-SCALER (2026-05-21, slot:juliett): PPFeedSpeedScalerEngine.scale —
+  // pure G-code F/S text rewriter; not physics, not engagement-aware. Preserves paren-comments and ;-tail comments.
+  pp_feed_speed_scale: z.object({
+    gcode: z.string().min(1).describe('G-code program text. F-words and S-words are rewritten per the options; paren-comments and ;-tail comments are preserved verbatim.'),
+    options: z.object({
+      feed_factor: z.number().nonnegative().optional().describe('Multiplier applied to every eligible F-word (default 1). feed_factor=0 emits a warning (probably unintended).'),
+      speed_factor: z.number().nonnegative().optional().describe('Multiplier applied to every S-word (default 1). speed_factor=0 emits a warning.'),
+      max_feed: z.number().positive().optional().describe('Hard ceiling on F after scaling (mm/min). Triggers reason:"clamped_max".'),
+      max_speed: z.number().positive().optional().describe('Hard ceiling on S after scaling (rpm). Triggers reason:"clamped_max".'),
+      min_feed: z.number().nonnegative().optional().describe('Floor on F after scaling. Triggers reason:"clamped_min".'),
+      min_speed: z.number().nonnegative().optional().describe('Floor on S after scaling. Triggers reason:"clamped_min".'),
+      feed_range_min: z.number().nonnegative().optional().describe('Only scale F-words >= this value (e.g., leave plunge feeds untouched). F < range_min → reason:"out_of_range" (unchanged).'),
+      feed_range_max: z.number().positive().optional().describe('Only scale F-words <= this value. F > range_max → reason:"out_of_range" (unchanged).'),
+      skip_rapid_feeds: z.boolean().optional().describe('If true (default), F on a G0 block is left untouched (reason:"skipped_rapid").'),
+      round_decimals: z.number().int().min(0).max(10).optional().describe('Decimal places for scaled values (default 4). 0 = integer F/S.'),
+    }).optional().describe('Scaling options. Omit for identity (no-op pass-through). Modes are combinable: e.g., feed_factor=0.5 + max_feed=2000 + skip_rapid_feeds=true does trial-cut scaling with machine-limit clamp on cutting moves only.'),
+  }).describe('Rewrite F-words and S-words in a G-code program per uniform/clamp/range rules. Use for trial cuts (50% feed), software feed/spindle override, legacy-program adjustment, or clamping feeds after import from a faster machine. Returns {text, total_lines, total_bytes, changes:ScalingChange[], feeds_scaled, speeds_scaled, feeds_clamped, speeds_clamped, feeds_skipped, warnings}. Each ScalingChange has {line_number, letter:F|S, original_value, new_value, reason}. Paren-comments and ;-tail comments are preserved verbatim — F/S inside (...) are NEVER modified.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-MINER (2026-05-21, slot:juliett): SpeedFeedMinerEngine.mine — pure
+  // statistical mining over parsed program records. records[] shape comes from ProgramDatabaseEngine.ProgramRecord.
+  speed_feed_mine: z.object({
+    records: z.array(z.object({
+      id: z.string().describe('Program identifier — survives into outlier records for traceability.'),
+      machine_type: z.string().describe('Machine type / family (e.g., "okuma_lb3000", "haas_st30") — groups statistics by machine family.'),
+      material_hint: z.string().nullable().optional().describe('Material classification (e.g., "steel", "aluminum", "stainless"). null → grouped as "unknown".'),
+      tools: z.array(z.object({
+        tool_number: z.number().int().describe('Turret/magazine tool number.'),
+        description: z.string().nullable().optional().describe('Optional tool description string from the program header.'),
+        operation_types: z.array(z.string()).describe('Operations this tool performed (e.g., ["od_rough", "od_finish"]).'),
+        speed_rpm: z.number().nullable().describe('Spindle speed value from the program. CSS-mode tools store SFM here per the engine\'s CSS-aware outlier check.'),
+        feed: z.number().nullable().describe('Feed rate from the program (ipr for turning, ipm for milling — passed through verbatim).'),
+        css_mode: z.boolean().describe('true → G96 constant-surface-speed mode (speed is SFM); false → G97 direct RPM.'),
+      })).describe('Per-tool records harvested from the program.'),
+    }).passthrough()).describe('Parsed program records (typically from OkumaOSPParserEngine, HaasParserEngine, HurcoParserEngine, RokuRokuParserEngine). Extra ProgramRecord fields are accepted via passthrough.'),
+  }).describe('Mine speed/feed patterns from a batch of parsed CNC programs. Groups samples by (material × operation × machine_type), computes mean/median/stddev/min/max for speed and feed, detects CSS-mode outliers vs canonical SFM ranges (steel/aluminum/stainless), and emits shop-median calibration entries (only for groups with ≥3 samples). Returns {total_samples, stats[], outliers[], calibration_data[], summary:{materials_found[], operations_found[], machines_found[], programs_analyzed, outlier_count, outlier_pct}}. Outlier severity: critical (>2x max range), danger (>1.5x), warning (anything outside the canonical band).'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-MINER (2026-05-21, slot:juliett): SpeedFeedMinerEngine.compareToBaseline —
+  // grade a single program against a pre-computed stats baseline.
+  speed_feed_compare_to_baseline: z.object({
+    record: z.object({
+      id: z.string().describe('Program identifier.'),
+      machine_type: z.string().describe('Machine family — must match a baseline entry\'s machine_type for the comparison to fire.'),
+      material_hint: z.string().nullable().optional().describe('Material — must match baseline entry. null → "unknown".'),
+      tools: z.array(z.object({
+        tool_number: z.number().int(),
+        operation_types: z.array(z.string()),
+        speed_rpm: z.number().nullable(),
+        feed: z.number().nullable(),
+      }).passthrough()).describe('Tool records to grade.'),
+    }).passthrough().describe('Single program record to compare against the baseline.'),
+    baseline: z.array(z.object({
+      material: z.string(),
+      operation: z.string(),
+      machine_type: z.string(),
+      speed_median: z.number(),
+      feed_median: z.number(),
+    }).passthrough()).describe('Pre-computed statistics (typically the .stats[] field of a prior speed_feed_mine result).'),
+  }).describe('Grade a single program against a pre-computed baseline. Returns one entry per (tool, operation) match found in baseline: {tool, operation, speed_rpm, baseline_speed, speed_diff_pct, feed, baseline_feed, feed_diff_pct, assessment}. Assessment thresholds: |speed_diff| ≤30% → optimal, 30-50% conservative (slow) or aggressive (fast), >50% dangerous. Tools without a matching baseline entry are silently skipped.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-AUTOPILOT (2026-05-21, slot:juliett): SpeedFeedAutopilotEngine.run —
+  // end-to-end speed/feed product autopilot.
+  speed_feed_autopilot: z.object({
+    material: z.string().min(1).describe('Workpiece material name. Accepts common names (steel, 1018, 4140, stainless, 304, 316, aluminum, 6061, 7075, titanium, Ti-6Al-4V, inconel, hardened steel, D2, H13, brass, copper) — engine resolves via MATERIAL_ALIASES → CANONICAL_MATERIAL_DB (Kc1.1/mc/Taylor C/n).'),
+    tool_diameter_mm: z.number().positive().describe('Tool diameter (mm). Drives default flute count (≤6mm:2, ≤12mm:3, ≤25mm:4, >25mm:6), default tool type (≤3mm:micro_endmill, >50mm:face_mill, else endmill), and surface-speed → RPM derivation.'),
+    flute_count: z.number().int().positive().optional().describe('Number of cutting flutes. Defaults by diameter (see above). Explicit value bumps tool resolution confidence 0.7 → 0.9.'),
+    operation: z.enum(["roughing", "finishing", "slotting", "profiling", "drilling", "facing"]).optional().describe('Operation classification. Drives feed-per-tooth table choice, helix-angle default, rake-angle default, and stepover defaults (slotting → full diameter, finishing → 0.5mm DOC, else → 50% diameter DOC + 40% diameter WOC).'),
+    machine_name: z.string().optional().describe('Machine name. Engine maps via partial-string match (haas vf-2, haas vf-4, dmg mori, mazak, okuma) → max_rpm/power_kw/torque/rigidity. Unrecognized/omitted → generic VMC (12000 RPM, 15 kW, medium rigidity).'),
+    depth_of_cut_mm: z.number().positive().optional().describe('Axial depth ap (mm). Overrides operation-driven default.'),
+    width_of_cut_mm: z.number().positive().optional().describe('Radial engagement ae (mm). Overrides operation-driven default.'),
+    hardness_hrc: z.number().min(0).max(70).optional().describe('Material Rockwell C hardness. Values >45 trigger Kc1.1 boost (×(1 + (HRC-45) × 0.015)) AND feed reduction (×0.7) — hardened-material correction per Sandvik shop practice.'),
+    coolant: z.enum(["flood", "mist", "air", "none"]).optional().describe('Coolant strategy — accepted for downstream use; current safety scoring does not differentiate.'),
+    surface_finish_target_Ra: z.number().positive().optional().describe('Target surface roughness Ra (μm) — accepted for downstream use; current chain does not optimize against it.'),
+  }).describe('Run the end-to-end speed/feed autopilot. Minimal input (material name + tool diameter) → full output: {chain_id, task_class, started_at, completed_at, duration_ms, status:success|partial|failed, steps[], material, tool, machine, output:{rpm, feed_mm_min, feed_per_tooth_mm, depth_of_cut_mm, width_of_cut_mm, surface_speed_m_min, mrr_cm3_min, cutting_force_N, power_kW, confidence, limiting_factor:none|spindle_rpm|spindle_power|cutting_force}, safety_score, recommendations[]}. Safety scoring: -0.2 if power >0.9×machine_max, -0.1 if Fc >3000N, -0.2 if material confidence <0.5, -0.15 if fz >0.3mm. Power constraint auto-reduces feed to keep power ≤0.85×machine_max. Status: failed if any step.status="fail", partial if any "warn", else success.'),
+
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-MACHINE-AWARE (2026-05-21, slot:juliett): MachineAwareSpeedFeedEngine.constrain —
+  // clamp speed/feed to CanonicalMachinePackage limits. Accepts the slim subset of the package the engine actually reads.
+  machine_aware_constrain: z.object({
+    input: z.object({
+      spindleRpm: z.number().positive().describe('Calculated/requested spindle speed (RPM). Will be clamped to [spindle.min_rpm, spindle.max_rpm].'),
+      feedRate: z.number().positive().optional().describe('Calculated/requested feed rate (mm/min). Clamped to ≤max_feed_rate (engine default 15000 mm/min).'),
+      feedPerTooth: z.number().positive().optional().describe('Feed per tooth fz (mm/tooth) — for milling. If feedRate omitted, engine derives feedRate = fz × numberOfFlutes × spindleRpm.'),
+      feedPerRev: z.number().positive().optional().describe('Feed per revolution (mm/rev) — for turning. If feedRate omitted and feedPerTooth omitted, engine derives feedRate = feedPerRev × spindleRpm.'),
+      cuttingSpeed: z.number().positive().optional().describe('Cutting speed Vc (m/min) — informational; not used for clamping but passed through.'),
+      toolDiameter: z.number().positive().optional().describe('Tool diameter (mm).'),
+      numberOfFlutes: z.number().int().positive().optional().describe('Flute/tooth count — required for fpt → feedRate derivation.'),
+      depthOfCut: z.number().positive().optional().describe('Axial depth of cut ap (mm).'),
+      widthOfCut: z.number().positive().optional().describe('Radial engagement ae (mm).'),
+      requiredPower: z.number().positive().optional().describe('Required cutting power (kW) — engine checks against spindle.power; >max triggers powerLimited:true.'),
+      requiredTorque: z.number().positive().optional().describe('Required torque (Nm) — checked against torqueAtRpm(spindleRpm, spindle.torque, base_rpm=1500). >available triggers torqueLimited:true.'),
+      operation: z.string().optional().describe('Operation classification — passed through.'),
+    }).passthrough().describe('SpeedFeedInput — calculated values to clamp against machine limits.'),
+    machine: z.object({
+      canonical_id: z.string().min(1).describe('Canonical machine ID (echoed back in result.machine.id).'),
+      manufacturer: z.string().describe('Normalized manufacturer name.'),
+      model: z.string().describe('Model designation.'),
+      spindle: z.object({
+        max_rpm: z.number().positive().optional().describe('Maximum spindle RPM — engine clamps spindleRpm to this. Default 10000 if omitted.'),
+        min_rpm: z.number().positive().optional().describe('Minimum spindle RPM — engine floors spindleRpm at this. Default 50 if omitted.'),
+        power: z.number().positive().optional().describe('Spindle rated power (kW) — engine checks against requiredPower. Default 15 if omitted.'),
+        torque: z.number().positive().optional().describe('Spindle rated torque (Nm) — engine checks against requiredTorque (with constant-power derating above base_rpm=1500). Default 100 if omitted.'),
+      }).passthrough().describe('MachineSpindle — the 4 spindle limits the engine clamps against.'),
+      axes: z.object({
+        x_rapid: z.number().positive().optional().describe('X-axis rapid traverse rate (mm/min). Default 30000 if omitted.'),
+      }).passthrough().optional().describe('MachineAxes — only x_rapid is read; reports as result.machine.constraints.rapidRate.'),
+    }).passthrough().describe('CanonicalMachinePackage — accepts the slim 8-field subset MachineAwareSpeedFeedEngine.constrain() actually reads (canonical_id, manufacturer, model, spindle.{max_rpm,min_rpm,power,torque}, axes.x_rapid). Full CanonicalMachinePackage objects compatible via .passthrough().'),
+  }).describe('Clamp a calculated speed/feed (SpeedFeedInput) to a real machine\'s limits (CanonicalMachinePackage). Returns {unconstrained, constrained, constraints:{rpmLimited,feedLimited,powerLimited,torqueLimited,limitingFactor:none|spindle_max_rpm|max_feed_rate|spindle_power|spindle_torque}, machine:{id,manufacturer,model,constraints}, headroom:{rpm,feed,power,torque}, safety:{passed,hooksExecuted[],warnings[]}, recommendations[]}. Physics: RPM clamp = min(n_calc, n_max); feed clamp = min(f_calc, f_max); power check P=T·n/9549 ≤ P_max; torque at RPM T_avail = T_max × (n_base/n) for n > n_base=1500 (constant-power region above base RPM).'),
+  // U-WIRE-MOEA-STOP: MOEAStoppingCriterion HV-saturation stopping (slot:papa->tango 2026-06-15).
+  moea_stopping_evaluate: z.object({
+    fronts: z.array(z.array(z.array(z.number()))).min(1).describe("Sequence of per-generation Pareto fronts; each front is an array of objective vectors (minimization-normalized number[])"),
+    config: z.object({
+      tolerance: z.number().positive().optional().describe("Relative-improvement saturation tolerance (default 1e-3)"),
+      stableWindow: z.number().int().positive().optional().describe("Consecutive sub-tolerance gens to confirm convergence (default 3)"),
+      lookback: z.number().int().positive().optional().describe("Lookback window for the improvement ratio (default 5)"),
+      reference: z.array(z.number()).optional().describe("Shared HV reference point (objective vector) for comparable HV across generations"),
+      maxGenerations: z.number().int().positive().optional().describe("Hard generation cap even if HV has not saturated (default 200)"),
+    }).optional(),
+  }),
+  // U-WIRE-SFC-PSN: SpeedFeedPSNDecisionPriorEngine.query (slot:papa->oscar 2026-06-15). NineAxisInput --
+  // material + tooling required (objects); the engine best-effort-extracts the rest, so the boundary stays
+  // passthrough-tolerant (do NOT re-derive the full 9-axis schema here -- oscar owns it).
+  sfc_psn_decision_prior: z.object({
+    material: z.record(z.string(), z.unknown()).describe("NineAxisMaterial (required) -- material identity for PSN source matching"),
+    tooling: z.record(z.string(), z.unknown()).describe("NineAxisTooling (required; diameter_mm at minimum)"),
+  }).passthrough(),
 };

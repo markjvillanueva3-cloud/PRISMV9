@@ -122,7 +122,7 @@ function ownSessionId(payload) {
   if (explicit) return `claude-${String(explicit).slice(0, 8)}`;
   // Fall back to the stable-session-id helper that pins the id to Claude's PID.
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], {
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true,
       timeout: STABLE_ID_TIMEOUT_MS,
       encoding: "utf-8",
     });

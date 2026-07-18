@@ -267,8 +267,8 @@ describe("P5-U05 — prism_intelligence:diagnose_failure", () => {
   it("DiagnosticReasoningEngine.diagnoseFromSymptoms produces deterministic shape", async () => {
     const { DiagnosticReasoningEngine } = await import("../engines/DiagnosticReasoningEngine.js");
     const symptoms = [
-      { description: "Motor hot", observed: true, severity: "high" as const, source: "machine" as const },
-      { description: "Position error", observed: true, severity: "medium" as const, source: "machine" as const },
+      { description: "Motor hot", observed: true, severity: "high" as const, source: "sensor" as const },
+      { description: "Position error", observed: true, severity: "medium" as const, source: "sensor" as const },
     ];
     const direct = DiagnosticReasoningEngine.diagnoseFromSymptoms("vmc-haas", symptoms);
     expect(typeof direct.diagnosis_id).toBe("string");
@@ -306,8 +306,8 @@ describe("P5-U05 — prism_intelligence:diagnose_failure", () => {
       params: {
         machineType: "vmc-haas",
         symptoms: [
-          { description: "Motor hot", observed: true, severity: "high", source: "machine" },
-          { description: "Position drift", observed: true, severity: "medium", source: "machine" },
+          { description: "Motor hot", observed: true, severity: "high", source: "sensor" },
+          { description: "Position drift", observed: true, severity: "medium", source: "sensor" },
         ],
       },
     });

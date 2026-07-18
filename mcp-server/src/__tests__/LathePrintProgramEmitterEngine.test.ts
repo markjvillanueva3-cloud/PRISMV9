@@ -429,5 +429,160 @@ describe("LathePrintProgramEmitterEngine", () => {
     it("ACTIONS contains lathe_p2p_emit_dry_run", () => {
       expect(camActions).toContain("lathe_p2p_emit_dry_run");
     });
+    it("ACTIONS contains lathe_p2p_emit_consensus", () => {
+      expect(camActions).toContain("lathe_p2p_emit_consensus");
+    });
+  });
+
+  // ============================================================================
+  // CONSENSUS-GATED POST SELECTION — LATHE-P2P-CONSENSUS-MS4/P1-U02
+  // ============================================================================
+
+  describe("Consensus-Gated Post Selection (P1-U02)", () => {
+    it("single candidate → consensus SKIPPED, emit runs with that controller", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      const result = await lathePrintProgramEmitterEngine.emitWithConsensus(
+        tp,
+        ["fanuc"],
+        {},
+        { publish: () => {} },
+      );
+      expect(result.selected_controller).toBe("fanuc");
+      expect(result.consensus.skipped).toBe(true);
+      expect(result.consensus.confidence).toBe(1);
+      expect(result.consensus.voters).toHaveLength(0);
+      expect(result.escalated_to_human).toBe(false);
+      expect(result.emitted.controller).toBe("fanuc");
+      expect(result.emitted.gcode_lines).toBeGreaterThan(10);
+    });
+
+    it("multi-candidate → consensus picks winner, emit runs with it", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      const result = await lathePrintProgramEmitterEngine.emitWithConsensus(
+        tp,
+        ["okuma_osp", "fanuc", "mazak"],
+        {},
+        {
+          consensusDecide: async () => ({
+            answer: "okuma_osp",
+            confidence: 0.88,
+            voters: ["claude", "codex", "gemini"],
+            auditId: "audit-post-okuma",
+          }),
+          publish: () => {},
+        },
+      );
+      expect(result.selected_controller).toBe("okuma_osp");
+      expect(result.consensus.skipped).toBe(false);
+      expect(result.consensus.confidence).toBeCloseTo(0.88, 5);
+      expect(result.consensus.agreement_met).toBe(true);
+      expect(result.escalated_to_human).toBe(false);
+      expect(result.consensus.auditId).toBe("audit-post-okuma");
+      expect(result.emitted.controller).toBe("okuma_osp");
+    });
+
+    it("below-threshold confidence flags escalated_to_human (program still emitted)", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      const result = await lathePrintProgramEmitterEngine.emitWithConsensus(
+        tp,
+        ["fanuc", "haas"],
+        {},
+        {
+          agreementThreshold: 0.75,
+          consensusDecide: async () => ({
+            answer: "haas",
+            confidence: 0.4,
+            voters: ["claude"],
+          }),
+          publish: () => {},
+        },
+      );
+      expect(result.selected_controller).toBe("haas");
+      expect(result.consensus.agreement_met).toBe(false);
+      expect(result.escalated_to_human).toBe(true);
+      expect(result.emitted.controller).toBe("haas");
+    });
+
+    it("seam throw → fail-open to first candidate, escalation flagged", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      const result = await lathePrintProgramEmitterEngine.emitWithConsensus(
+        tp,
+        ["mazak", "okuma_osp"],
+        {},
+        {
+          consensusDecide: async () => {
+            throw new Error("voices unreachable");
+          },
+          publish: () => {},
+        },
+      );
+      expect(result.selected_controller).toBe("mazak");
+      expect(result.consensus.voters).toHaveLength(0);
+      expect(result.consensus.confidence).toBe(0);
+      expect(result.escalated_to_human).toBe(true);
+    });
+
+    it("unknown vote answer falls back to first candidate", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      const result = await lathePrintProgramEmitterEngine.emitWithConsensus(
+        tp,
+        ["fanuc", "siemens"],
+        {},
+        {
+          consensusDecide: async () => ({ answer: "made_up_post", confidence: 0.9, voters: ["claude"] }),
+          publish: () => {},
+        },
+      );
+      expect(result.selected_controller).toBe("fanuc");
+    });
+
+    it("publishes one outcome event per emit call (multi-candidate)", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      const events: unknown[] = [];
+      await lathePrintProgramEmitterEngine.emitWithConsensus(
+        tp,
+        ["fanuc", "haas"],
+        {},
+        {
+          consensusDecide: async () => ({ answer: "fanuc", confidence: 0.9, voters: ["claude", "codex"] }),
+          publish: (e) => events.push(e),
+        },
+      );
+      expect(events).toHaveLength(1);
+      const evt = events[0] as { kind: string; domain: string; schemaVersion: string };
+      expect(evt.kind).toBe("cross_process_decision");
+      expect(evt.domain).toBe("lathe");
+      expect(evt.schemaVersion).toBe("1.1.0");
+    });
+
+    it("publishes outcome even when consensus is skipped (single candidate)", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      const events: unknown[] = [];
+      await lathePrintProgramEmitterEngine.emitWithConsensus(
+        tp,
+        ["fanuc"],
+        {},
+        { publish: (e) => events.push(e) },
+      );
+      expect(events).toHaveLength(1);
+    });
+
+    it("empty candidate list throws (R12 fail-loud)", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      await expect(
+        lathePrintProgramEmitterEngine.emitWithConsensus(tp, [], {}, { publish: () => {} }),
+      ).rejects.toThrow(/at least one controller family/);
+    });
+
+    it("jobId is propagated when supplied", async () => {
+      const tp = buildToolpath(JM_PIN, STEEL);
+      const result = await lathePrintProgramEmitterEngine.emitWithConsensus(
+        tp,
+        ["fanuc"],
+        {},
+        { jobId: "job-post-2026-05-23", publish: () => {} },
+      );
+      expect(result.job_id).toBe("job-post-2026-05-23");
+    });
   });
 });

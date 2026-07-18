@@ -1,0 +1,62 @@
+# HERMES CONFIG TEMPLATE -- sanitized known-good desired-state (HERMES-LAUNCH-RELIABILITY-MS0)
+#
+# This is the VERSION-CONTROLLED record of the load-bearing Hermes config blocks that make the
+# desktop app + CLI launch reliably on the Blackwell box. It closes the "AppData-only orphan"
+# (the live config at C:\Users\<you>\AppData\Local\hermes\config.yaml is NOT in git, which is why
+# every slot re-discovered and re-patched it). It is NOT a full byte-for-byte config -- the live
+# file carries Hermes-internal fields + secrets. The ENFORCER of these blocks is
+# `scripts/hermes-config-apply.py` (run `--check` to diff the live config against this intent,
+# `--apply` to restore it). Secrets are shown as <ENV:NAME> placeholders -- never commit real keys.
+#
+# Canonical doctrine: state/shared/specs/HERMES-OPERATING-DOCTRINE.md
+
+# --- PRIMARY MODEL: gpt-oss:120b on the local Blackwell GPU, >= Hermes's 64K floor -----------
+model:
+  provider: ollama
+  default: gpt-oss:120b
+  base_url: http://127.0.0.1:11434/v1
+  api_key: ollama-local            # ollama ignores the value; non-empty avoids a client error
+  ollama_num_ctx: 65536            # Hermes HARD-REJECTS < 64000; 65536 is the known-good floor
+  max_tokens: 32768
+
+# --- FALLBACK: local-only valid chain. NEVER a cloud model NVIDIA serves < 64K (that hard-fails
+#     the launch -- the original "1 of 10" bug was NVIDIA meta/llama-3.3-70b-instruct @ 32K). -----
+fallback_model:
+  provider: ollama
+  model: qwen2.5-coder:32b
+  base_url: http://127.0.0.1:11434/v1
+  api_key: ollama-local
+  context_length: 131072
+
+fallback_providers:
+  - provider: ollama
+    model: gpt-oss:20b
+    base_url: http://127.0.0.1:11434/v1
+    api_key: ollama-local
+    context_length: 65536
+  - provider: ollama
+    model: qwen2.5-coder:32b
+    base_url: http://127.0.0.1:11434/v1
+    api_key: ollama-local
+    context_length: 131072
+# NVIDIA NIM stays a documented MANUAL cloud lane (key already present), NOT an auto-fallback:
+#   provider: nvidia · base_url: https://integrate.api.nvidia.com/v1 · bearer: <ENV:NVIDIA_API_KEY>
+#   -- only add a NVIDIA model here once verified it serves >= 64K context.
+
+# --- PRISM INTEGRATION (lean -- the heavy prism :3100 is intentionally ABSENT; see doctrine §7) --
+mcp_servers:
+  prism:                            # the lean Hermes->PRISM facade (6 tools, ~1.5K-token init)
+    command: node
+    args:
+      - H:/prism/scripts/prism-mcp-for-hermes.mjs
+  h-drive:                          # full H: drive (vault + scripts + CLAUDE.md + souls)
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-filesystem'
+      - H:/
+
+# --- DESKTOP DECOUPLE: the desktop profile fires ZERO in-process crons (doctrine §6) ----------
+# cron/jobs.json AND profiles/<active>/cron/jobs.json: every job enabled: false.
+# Fleet automation crons belong on a DEDICATED non-desktop profile, never the one the operator chats.
+cron_mode: deny

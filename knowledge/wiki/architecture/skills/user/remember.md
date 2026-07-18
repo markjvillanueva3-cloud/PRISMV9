@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `remember` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/remember.md` |
+| Source | `C:/Users/wompu/.claude/commands/remember.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Remember — Structured Memory Persistence
+
+You are saving knowledge to persistent memory in the most token-efficient way possible. This command ensures every memory write is intentional, deduplicated, correctly routed, and minimally sized. Use this instead of ad-hoc memory writes.
+
+## Args: $ARGUMENTS
+- `[text]`: save the specified insight/fact/preference (e.g., `remember always use vitest
 
 <!-- AUTO-END -->
 

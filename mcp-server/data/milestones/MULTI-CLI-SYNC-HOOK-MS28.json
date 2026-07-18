@@ -1,0 +1,49 @@
+{
+  "id": "MULTI-CLI-SYNC-HOOK-MS28",
+  "version": "1.0.0",
+  "title": "Wire sync-cli-context-files.mjs as Stop hook + drift detector",
+  "brief": "CLAUDE.md/GEMINI.md/AGENTS.md are kept in sync by helper but currently manual. Drift compounds across multi-CLI sessions. This MS wires the helper as a Stop hook + drift detector. 2 days of work, biggest insurance-per-day in V2.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "L0-INFRA",
+  "track_name": "Dev Infrastructure / Multi-CLI Discipline",
+  "status": "complete",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Stop hook + drift detector",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Wire sync-cli-context-files.mjs as Stop hook",
+          "effort": 45,
+          "dependencies": [],
+          "exit_conditions": ["Stop hook fires when CLAUDE.md changed in session", "propagates to GEMINI.md + AGENTS.md within same Stop", "test: edit CLAUDE.md -> Stop -> all 3 files identical"],
+          "description": "Existing helper at H:/PRISM/.claude/helpers/sync-cli-context-files.mjs. Add hook entry to settings.json (via /update-config skill, not direct edit).",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "complete",
+          "shipped": "2026-06-18 slot:golf -- .claude/hooks/stop-sync-cli-context.mjs (drift-gated Stop hook + injectable detectDrift) wired into settings.json Stop array (C: + H:, valid JSON, 69 entries); 9/9 detectDrift tests (happy + failure + adversarial) + live-validated {continue:true} + sync path proven (6 mirrors updated on drift). Settings edited via the c-to-h mirror (canonical path; /update-config note is obsolete)."
+        },
+        {
+          "id": "P0-U02",
+          "title": "DriftDetectorEngine: alert on >24h divergence",
+          "effort": 60,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["periodic check (cron or SessionStart) compares 6 mirror files", "if any pair drifts (different mtime AND different content), warning emitted", "test: corrupt 1 mirror -> detector flags it"],
+          "description": "Cheap insurance. Warning only, not blocking. NOTE: P0-U01's Stop hook auto-syncs on SOURCE drift, so source-newer divergence self-heals; P0-U02 remains valuable for MIRROR corruption (a mirror manually edited / content-diverged WITHOUT a source change -- the Stop hook's mtime gate does not catch that). Build as a SessionStart/cron content-compare detector, warning-only.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "complete",
+          "shipped": "2026-06-18 slot:golf -- .claude/hooks/sessionstart-cli-context-drift-warn.mjs (SessionStart warning-only detector) reuses the exported MIRRORS/stripExistingHeader/CODEX_ADDENDA from sync-cli-context-files.mjs (refactored: main-guarded + exports) to content-compare each mirror vs its source-derived body; flags MIRROR corruption the P0-U01 mtime gate misses. Wired into the user-global settings.json SessionStart array (C:+H:, valid JSON, 63 entries). 10/10 findDivergedMirrors tests + live-validated (corrupted GEMINI.md -> flagged 2 diverged incl a real pre-existing AGENTS.md drift -> sync restored -> clean). Knob: PRISM_CLI_CONTEXT_DRIFT_WARN_DISABLE=1."
+        }
+      ]
+    }
+  ],
+  "acceptance": "CLAUDE.md edit auto-propagates to GEMINI.md + AGENTS.md within same session; drift detector reports diff if files diverge >24h.",
+  "risks": [
+    {"id": "R1", "description": "Stop hook latency adds to session-end UX; mitigation = run async, no-block on Stop"}
+  ],
+  "blocks": [],
+  "blocked_by": []
+}

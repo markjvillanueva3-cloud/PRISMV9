@@ -119,46 +119,48 @@ export async function parallelAPICalls(
   model: string;
   error?: string;
 }>> {
-  if (!hasValidApiKey()) {
-    throw new Error('ANTHROPIC_API_KEY required for parallel API calls');
-  }
+  // FREE-AI-MIGRATION/U-PARALLELAPI-LLM-ROUTE (slot:india): route each prompt through the free
+  // Ollama-first llmEngine.query substrate (Ollama -> Claude backup -> offline) instead of a direct
+  // PAID Anthropic client.messages.create. No ANTHROPIC_API_KEY required (the old hasValidApiKey
+  // throw is gone); complexity:"high" so a weak local answer escalates to the Claude backup. The
+  // return shape is byte-identical, so all consumers are unaffected. R12: a per-prompt "offline"
+  // result (no provider answered) surfaces as the `error` field -- never a silent empty success.
+  const { llmEngine } = await import("../engines/LLMEngine.js");
 
-  const client = getAnthropicClient();
-  const defaultModel = apiConfig.sonnetModel;
-
-  const promises = prompts.map(async (prompt, index) => {
-    const model = prompt.model || defaultModel;
+  const promises = prompts.map(async (prompt) => {
     const startTime = Date.now();
-
     try {
-      const response = await client.messages.create({
-        model,
+      const res = await llmEngine.query({
+        prompt: prompt.user,
+        system: prompt.system,
+        complexity: "high",
         max_tokens: prompt.maxTokens || 1024,
         temperature: prompt.temperature ?? 0.3,
-        system: prompt.system,
-        messages: [{ role: 'user', content: prompt.user }]
       });
-
-      const text = response.content
-        .filter(block => block.type === 'text')
-        .map(block => (block as any).text)
-        .join('\n');
-
+      // R12: "offline" = no provider answered (a degraded stub message, not a real result). Match the
+      // catch path's contract -- empty text + error field -- so a consumer never reads the offline
+      // message as if it were reasoning output.
+      if (res.model === "offline") {
+        return {
+          text: '',
+          tokens: res.tokens_used,
+          duration_ms: Date.now() - startTime,
+          model: res.model,
+          error: 'no reasoning provider available (Ollama offline + no Claude backup key)',
+        };
+      }
       return {
-        text,
-        tokens: {
-          input: response.usage?.input_tokens || 0,
-          output: response.usage?.output_tokens || 0
-        },
+        text: res.answer ?? '',
+        tokens: res.tokens_used,
         duration_ms: Date.now() - startTime,
-        model
+        model: res.model,
       };
     } catch (error) {
       return {
         text: '',
         tokens: { input: 0, output: 0 },
         duration_ms: Date.now() - startTime,
-        model,
+        model: prompt.model || apiConfig.sonnetModel,
         error: error instanceof Error ? error.message : String(error)
       };
     }

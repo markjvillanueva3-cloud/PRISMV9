@@ -21,7 +21,13 @@ related:
 
 ## Description (from file header)
 
-Lathe Safety Hooks — MS8 of LATHE-AWARE-HARDEN Roadmap8 lathe-specific hooks for turning safety, quality, and workflow control:  - 3 Blocking (CRITICAL safety checks)  - 3 Warning (quality gates)  - 2 Logging (audit trail)@version 1.0.0@milestone LATHE-AWARE-HARDEN MS8 (U-LAT63)
+Lathe Safety Hooks — MS8 of LATHE-AWARE-HARDEN Roadmap
+8 lathe-specific hooks for turning safety, quality, and workflow control:
+  - 3 Blocking (CRITICAL safety checks)
+  - 3 Warning (quality gates)
+  - 2 Logging (audit trail)
+@version 1.0.0
+@milestone LATHE-AWARE-HARDEN MS8 (U-LAT63)
 
 ## Events
 

@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Run a complete audit on any CNC program from the Box drive: parse → identify material/tools → physics optimization → safety check → comparison report.
+
+# /program-audit — Full CNC Program Audit Pipeline
 
 <!-- AUTO-END -->
 

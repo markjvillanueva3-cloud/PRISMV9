@@ -68,6 +68,7 @@ import {
   CANONICAL_MATERIAL_DB,
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
+  type ISOGroup,
 } from "../physics/constants.js";
 
 // ============================================================================
@@ -1165,7 +1166,7 @@ function performMultiModalFusion(
 ): MultiModalFusionResult {
   // Physics source
   const isoGroup = resolveISOGroup(material);
-  const taylor = CANONICAL_TAYLOR[isoGroup] || CANONICAL_TAYLOR.P;
+  const taylor = CANONICAL_TAYLOR[isoGroup as ISOGroup] || CANONICAL_TAYLOR.P;
   const physicsSpeed = Math.round(taylor.C * Math.pow(45, -taylor.n)); // Target 45 min life
   const physicsFeed = cutType === "finishing" ? 0.06 : 0.12;
 

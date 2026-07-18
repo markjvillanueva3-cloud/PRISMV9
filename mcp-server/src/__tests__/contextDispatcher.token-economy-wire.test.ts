@@ -237,7 +237,14 @@ describe("U-WIRE-COG-BATCH1 / DiffTokenEstimatorEngine", () => {
     expect(est.filesChanged).toBeGreaterThanOrEqual(0);
     expect(["inline", "summarize", "skip"]).toContain(est.recommendation);
     expect(est.reason.length).toBeGreaterThan(0);
-    expect(Array.isArray(est.perFile)).toBe(true);
+    // perFile lists exactly the changed files; slimResponse strips it from the MCP
+    // envelope only when empty (responseSlimmer drops empty arrays). So normalize a
+    // stripped value to [] and assert the real invariant: one perFile entry per changed
+    // file. This catches the silent-ENOBUFS regression (filesChanged>0 but perFile empty)
+    // that the DiffTokenEstimator maxBuffer/--numstat fix repaired — a bare Array.isArray
+    // check passed right through it.
+    const perFile = (est.perFile ?? []) as unknown[];
+    expect(perFile.length).toBe(est.filesChanged);
     expect(typeof r.data.summary).toBe("string");
     expect((r.data.summary as string).length).toBeGreaterThan(0);
   });
@@ -311,5 +318,75 @@ describe("U-WIRE-COG-BATCH1 / adversarial", () => {
     expect(plan.totalAllocated).toBeGreaterThan(0);
     expect(plan.allocations[0]!.allocated).toBeGreaterThan(0);
     expect(Number.isFinite(plan.totalAllocated)).toBe(true);
+  });
+});
+
+describe("U-TOKENECON-ROI / TokenEconomyEngine.computeROI via prism_context", () => {
+  // rating bands (TokenEconomyEngine.ts:400-403): <10k excellent, <25k good, <50k fair, else poor
+  it("compute_roi(backend, 8000, 2) → cost_per_capability 4000, rating 'excellent'", async () => {
+    const r = await call(server, "token_economy_compute_roi", { task_class: "backend", tokens_spent: 8000, capabilities_delivered: 2 });
+    expect(r.ok).toBe(true);
+    const roi = r.data.roi as Record<string, unknown>;
+    expect(roi.task_class).toBe("backend");
+    expect(roi.tokens_spent).toBe(8000);
+    expect(roi.capabilities_unlocked).toBe(2);
+    expect(roi.cost_per_capability).toBe(4000); // 8000/2
+    expect(roi.efficiency_rating).toBe("excellent"); // 4000 < 10_000
+  });
+
+  it("compute_roi cost 15000 → 'good' (10k ≤ x < 25k band)", async () => {
+    const r = await call(server, "token_economy_compute_roi", { task_class: "web", tokens_spent: 30000, capabilities_delivered: 2 });
+    expect(r.ok).toBe(true);
+    const roi = r.data.roi as Record<string, unknown>;
+    expect(roi.cost_per_capability).toBe(15000); // 30000/2
+    expect(roi.efficiency_rating).toBe("good");
+  });
+
+  it("compute_roi cost 35000 → 'fair' (25k ≤ x < 50k band)", async () => {
+    const r = await call(server, "token_economy_compute_roi", { task_class: "general", tokens_spent: 35000, capabilities_delivered: 1 });
+    expect(r.ok).toBe(true);
+    const roi = r.data.roi as Record<string, unknown>;
+    expect(roi.cost_per_capability).toBe(35000);
+    expect(roi.efficiency_rating).toBe("fair");
+  });
+
+  it("compute_roi cost ≥ 50000 → 'poor'", async () => {
+    const r = await call(server, "token_economy_compute_roi", { task_class: "audit", tokens_spent: 120000, capabilities_delivered: 1 });
+    expect(r.ok).toBe(true);
+    const roi = r.data.roi as Record<string, unknown>;
+    expect(roi.cost_per_capability).toBe(120000);
+    expect(roi.efficiency_rating).toBe("poor");
+  });
+
+  it("compute_roi with 0 capabilities → Infinity cost (JSON-serialized to null), rating 'poor'", async () => {
+    // The engine's ternary `capabilitiesDelivered > 0 ? spent/cap : Infinity` returns Infinity
+    // (NOT 0/0=NaN — the guard prevents division), Math.round(Infinity)=Infinity, and
+    // JSON.stringify(Infinity)=null over the MCP envelope. Honest round-trip assertion.
+    const r = await call(server, "token_economy_compute_roi", { task_class: "backend", tokens_spent: 5000, capabilities_delivered: 0 });
+    expect(r.ok).toBe(true);
+    const roi = r.data.roi as Record<string, unknown>;
+    expect(roi.cost_per_capability).toBeNull();
+    expect(roi.efficiency_rating).toBe("poor");
+  });
+
+  // adversarial / schema rejections
+  it("rejects unknown task_class", async () => {
+    const r = await call(server, "token_economy_compute_roi", { task_class: "not_a_class", tokens_spent: 5000, capabilities_delivered: 2 });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects NaN tokens_spent (z.number().min(0) fails on NaN)", async () => {
+    const r = await call(server, "token_economy_compute_roi", { task_class: "backend", tokens_spent: NaN, capabilities_delivered: 2 });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects negative tokens_spent", async () => {
+    const r = await call(server, "token_economy_compute_roi", { task_class: "backend", tokens_spent: -1, capabilities_delivered: 2 });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects non-integer capabilities_delivered", async () => {
+    const r = await call(server, "token_economy_compute_roi", { task_class: "backend", tokens_spent: 5000, capabilities_delivered: 2.5 });
+    expect(r.ok).toBe(false);
   });
 });

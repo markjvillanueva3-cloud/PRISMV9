@@ -187,6 +187,27 @@ describe("ThermalModelingEngine", () => {
       const r = thermalModelingEngine.loewenShawTemperature(baseParams);
       expect(r.pecletNumber).toBeGreaterThan(0);
     });
+
+    // Row 15 (U-OSC-SFC-LOEWENSHAW-DIMENSIONAL): absolute-scale reference. The previous
+    // expression mixed mm/m/s bases and produced ~1e7 "C" (nonphysical) -- invisible to the
+    // positivity/monotonicity tests above (relative tests cannot catch scale errors).
+    // Hand-derived for steel (u=2000 MPa, rho=7850, cp=486, k=50 W/mK, Vc=150 m/min,
+    // f=0.1 mm): alpha=1.31e-5 m^2/s, Pe=9.54, beta_work=0.147, Gamma=0.853,
+    // u_s=0.75*2e9 J/m^3, deltaT = 0.853*1.5e9/3.815e6 = ~335 K -> shear ~355 C.
+    // Published Loewen-Shaw steel band at these conditions: ~300-500 C. Fails on a revert.
+    it("absolute scale: steel at 150 m/min gives ~335 K rise (was ~1e7 pre-fix)", () => {
+      const r = thermalModelingEngine.loewenShawTemperature({
+        cuttingSpeed: 150, feed: 0.1, depthOfCut: 2,
+        specificCuttingForce: 2000, materialDensity: 7850,
+        specificHeat: 486, thermalConductivity: 50,
+      });
+      expect(r.temperatureRise_C).toBeGreaterThan(300);
+      expect(r.temperatureRise_C).toBeLessThan(370);
+      expect(r.shearZoneTemp_C).toBeGreaterThan(320);
+      expect(r.shearZoneTemp_C).toBeLessThan(390);
+      expect(r.pecletNumber).toBeGreaterThan(8);  // corrected Pe ~9.5 (was ~9500 with t in mm)
+      expect(r.pecletNumber).toBeLessThan(11);
+    });
   });
 
   describe("triggerTemperature", () => {

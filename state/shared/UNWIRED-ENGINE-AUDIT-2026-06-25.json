@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-06-25T14:20:40.753Z",
+  "generatedBy": "scripts/audit-unwired-engines.mjs",
+  "canonicalEnginesFolder": "H:\\prism\\mcp-server\\src\\engines",
+  "counts": {
+    "totalCanonicalEngines": 3833,
+    "WIRED-DIRECT": 3622,
+    "WIRED-VIA-ORCH": 33,
+    "WIRE-EXEMPT": 123,
+    "UNWIRED": 4,
+    "WIRED-VIA-ENGINE": 26,
+    "DORMANT-BRIDGE": 1,
+    "WIRED-VIA-ROUTE": 14,
+    "WIRED-VIA-HOOK": 6,
+    "TYPE-ONLY": 1,
+    "WIRED-VIA-SINGLETON": 2,
+    "WIRED-VIA-ENTRY": 1
+  },
+  "orphans": {
+    "legacyTopLevel": {
+      "path": "H:\\prism\\src\\engines",
+      "uniqueNotInCanonical": [
+        "MilestoneIntelligenceEngine.ts",
+        "OperatingSystemIntelligenceEngine.ts",
+        "PhysicsFusionOrchestrator.types.ts",
+        "SolidCAMiMachiningEngine.ts"
+      ]
+    },
+    "forgeArchive": {
+      "path": "H:\\prism-forge-archive\\src\\engines",
+      "note": "Full archive of canonical. Leave alone (per user policy: copy never move)."
+    },
+    "worktreeClones": {
+      "pattern": "H:/prism-*/mcp-server/src/engines/",
+      "note": "Per-milestone branch scaffolding (~30 worktrees). Expected, not orphans."
+    }
+  },
+  "unwiredEngines": [
+    {
+      "engine": "AuthEngineV7",
+      "mtime": "2026-03-16T14:27:06.000Z",
+      "size_kb": 8,
+      "suggestedDispatcher": "prism_auth"
+    },
+    {
+      "engine": "PreMOUKickoffChecklistEngine",
+      "mtime": "2026-04-19T22:05:23.544Z",
+      "size_kb": 13,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "SFCInferenceGateWireEngine",
+      "mtime": "2026-06-22T15:55:38.117Z",
+      "size_kb": 10,
+      "suggestedDispatcher": "prism_safety"
+    },
+    {
+      "engine": "BlueprintOCRAdapter",
+      "mtime": "2026-06-23T09:23:01.843Z",
+      "size_kb": 9,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    }
+  ],
+  "dormantBridges": [
+    {
+      "engine": "cycleSchedulingBridge",
+      "mtime": "2026-06-16T22:29:28.861Z",
+      "size_kb": 16,
+      "gateEnv": "PRISM_REACTIVE_CHAINS_ENABLE",
+      "remedy": "boot-wired but default-off -- set PRISM_REACTIVE_CHAINS_ENABLE=1 to activate (NOT a dispatcher-wiring gap)"
+    }
+  ],
+  "typeOnlyModules": [
+    {
+      "engine": "IEngine",
+      "mtime": "2026-04-22T20:27:57.048Z",
+      "size_kb": 0,
+      "remedy": "type-only module (exports only TS types/interfaces) -- not a wireable engine, no dispatcher action needed"
+    }
+  ],
+  "notes": [
+    "DORMANT-BRIDGE: an engine wired SOLELY via a gated module-load boot path (reactive-chains-boot's REGISTRATION_MODULES, gated default-off behind PRISM_REACTIVE_CHAINS_ENABLE). BUILT + boot-wired but DORMANT in prod -- a distinct backend-completion state from fully-active WIRED-* and from UNWIRED. Remedy: enable the gate (NOT add a dispatcher action). Driven by the boot module's own REGISTRATION_MODULES export -- not a hardcoded list.",
+    "WIRE-EXEMPT engines have a `// WIRE-EXEMPT: <reason>` marker in the first 2KB.",
+    "TYPE-ONLY: a module that exports only TS types/interfaces (e.g. `export type { ... } from`, `export interface`) and erases to zero runtime JavaScript -- it cannot be wired to a dispatcher, so it is NOT a UNWIRED orphan. Detected by CONTENT (isTypeOnlyModule) over the UNWIRED candidate set, because a conventionally-named type-only file (IEngine.ts) escapes the name-based `.types.ts` filter. Conservative: only reclassified when the source has a positive type-export AND zero runtime exports (2026-06-22, U-AUDIT-TYPE-ONLY).",
+    "Singleton wrappers count as WIRED-VIA-SINGLETON. The wrapping engine itself must still be wired separately.",
+    "WIRED-VIA-ENGINE means the engine is consumed by another engine (library-layer) -- a library dependency, NOT a dispatcher-wiring target. SINGLE-HOP: the pass does not verify the consuming engine is itself wired, so an engine consumed only by a dormant engine is still WIRED-VIA-ENGINE (the dormant ROOT stays UNWIRED, which is the actionable signal). Only UNWIRED (zero consumers of any kind) engines are candidate for wiring.",
+    "WIRED-VIA-MIDDLEWARE means the engine is consumed by an HTTP server request-middleware (mcp-server/src/middleware/*.ts, e.g. attachUserPlan importing EntitlementOverrideStore) -- a genuine active wiring path reached on every request, NOT a dispatcher-wiring gap. Added 2026-06-21 (U-AUDIT-WIRED-VIA-MIDDLEWARE) because an engine consumed SOLELY by middleware was falsely UNWIRED.",
+    "An engine can have multiple wiring paths; classification stops at first match in priority order.",
+    "Run with: node scripts/audit-unwired-engines.mjs"
+  ]
+}

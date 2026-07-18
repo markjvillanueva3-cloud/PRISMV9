@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 2,
+  "graphId": "wedm-causal-v2",
+  "generatedAt": "2026-04-16T17:40:00.000Z",
+  "lastUpdated": "2026-04-16T17:40:00.000Z",
+  "sources": [
+    "Klocke F. (2013) Manufacturing Processes 3: Cutting",
+    "DiBitonto D.D. et al. (1989) Theoretical models of the EDM process",
+    "Jameson E.C. (2001) Electrical Discharge Machining (SME)",
+    "Ho K.H., Newman S.T. (2003) State of the art in WEDM",
+    "WEDM field observations — JM Die Company"
+  ],
+  "notes": "Domain causal graph for WEDM process. Shape matches CausalReasoningEngine.CausalEdge {from,to,confidence,polarity,reason}. Polarity is the sign of the effect: 'positive' means up/up (or down/down), 'negative' means up/down.",
+  "edges": [
+    { "from": "peak_current", "to": "discharge_energy", "confidence": 0.95, "polarity": "positive", "reason": "E = U*I*t — energy scales linearly with peak current (DiBitonto 1989)" },
+    { "from": "on_time", "to": "discharge_energy", "confidence": 0.95, "polarity": "positive", "reason": "Longer pulse duration delivers more joules per discharge" },
+    { "from": "gap_voltage", "to": "discharge_energy", "confidence": 0.80, "polarity": "positive", "reason": "Higher gap voltage raises the per-pulse energy envelope" },
+    { "from": "discharge_energy", "to": "crater_size", "confidence": 0.92, "polarity": "positive", "reason": "Crater volume V ∝ E^0.88 (Jameson 2001)" },
+    { "from": "crater_size", "to": "Ra", "confidence": 0.90, "polarity": "positive", "reason": "Ra is the RMS of overlapping crater profiles (Klocke 2013)" },
+    { "from": "discharge_energy", "to": "Ra", "confidence": 0.88, "polarity": "positive", "reason": "Klocke model Ra = C·(ie·te)^k — direct energy dependence" },
+    { "from": "crater_size", "to": "recast_thickness", "confidence": 0.75, "polarity": "positive", "reason": "Larger melt pools leave thicker resolidified layers" },
+
+    { "from": "discharge_energy", "to": "plasma_temperature", "confidence": 0.90, "polarity": "positive", "reason": "Plasma channel temperature scales with deposited energy" },
+    { "from": "peak_current", "to": "plasma_temperature", "confidence": 0.85, "polarity": "positive", "reason": "Current density drives plasma column temperature" },
+    { "from": "plasma_temperature", "to": "HAZ_depth", "confidence": 0.82, "polarity": "positive", "reason": "Heat penetration depth grows with source temperature (Ho & Newman 2003)" },
+    { "from": "plasma_temperature", "to": "recast_thickness", "confidence": 0.80, "polarity": "positive", "reason": "Higher temps melt more parent material before resolidification" },
+    { "from": "HAZ_depth", "to": "microcracking", "confidence": 0.78, "polarity": "positive", "reason": "Thermal gradient across HAZ induces surface microcracks" },
+    { "from": "recast_thickness", "to": "surface_integrity", "confidence": 0.80, "polarity": "negative", "reason": "Thicker recast = more tensile residual stress, lower integrity" },
+
+    { "from": "wire_tension", "to": "wire_vibration", "confidence": 0.82, "polarity": "negative", "reason": "Higher tension raises natural frequency, damps transverse vibration" },
+    { "from": "wire_speed", "to": "wire_vibration", "confidence": 0.60, "polarity": "positive", "reason": "Faster wire feed increases transverse perturbations" },
+    { "from": "wire_vibration", "to": "Ra_uniformity", "confidence": 0.78, "polarity": "negative", "reason": "Wire oscillation smears discharge locations, spoiling uniformity" },
+    { "from": "wire_tension", "to": "wire_break_prob", "confidence": 0.50, "polarity": "positive", "reason": "Excess tension can exceed wire UTS, especially after thermal weakening" },
+    { "from": "wire_vibration", "to": "dimensional_accuracy", "confidence": 0.72, "polarity": "negative", "reason": "Transverse oscillation widens effective kerf, blurring geometry" },
+    { "from": "wire_tension", "to": "dimensional_accuracy", "confidence": 0.80, "polarity": "positive", "reason": "Proper tension keeps wire straight between guides (JM Die field data)" },
+
+    { "from": "flushing_pressure", "to": "debris_evacuation", "confidence": 0.88, "polarity": "positive", "reason": "Flow rate drives particle removal from the gap" },
+    { "from": "debris_evacuation", "to": "arc_stability", "confidence": 0.85, "polarity": "positive", "reason": "Clean gap prevents re-arcing through stagnant debris clouds" },
+    { "from": "debris_evacuation", "to": "short_circuit_rate", "confidence": 0.82, "polarity": "negative", "reason": "Debris bridges gap and causes shorts; evacuation reduces them" },
+    { "from": "arc_stability", "to": "mrr", "confidence": 0.75, "polarity": "positive", "reason": "Stable discharges maintain productive spark duty" },
+    { "from": "arc_stability", "to": "wire_break_prob", "confidence": 0.75, "polarity": "negative", "reason": "Unstable arcs deposit concentrated heat that fails the wire" },
+    { "from": "short_circuit_rate", "to": "wire_break_prob", "confidence": 0.70, "polarity": "positive", "reason": "Sustained shorts overheat the wire locally" },
+
+    { "from": "on_time", "to": "duty_cycle", "confidence": 0.90, "polarity": "positive", "reason": "duty = on/(on+off) — numerator rises with on_time" },
+    { "from": "off_time", "to": "duty_cycle", "confidence": 0.90, "polarity": "negative", "reason": "Longer off_time reduces duty ratio" },
+    { "from": "duty_cycle", "to": "mrr", "confidence": 0.85, "polarity": "positive", "reason": "More sparks per unit time removes more material" },
+    { "from": "duty_cycle", "to": "plasma_temperature", "confidence": 0.70, "polarity": "positive", "reason": "Higher duty = less time to dissipate heat between pulses" },
+    { "from": "duty_cycle", "to": "Ra", "confidence": 0.65, "polarity": "positive", "reason": "High duty raises average discharge intensity, roughening surface" },
+    { "from": "duty_cycle", "to": "wire_break_prob", "confidence": 0.70, "polarity": "positive", "reason": "Less cooling between pulses accelerates thermal wire fatigue" },
+    { "from": "off_time", "to": "arc_stability", "confidence": 0.72, "polarity": "positive", "reason": "Off-time lets deionization complete before next discharge" },
+
+    { "from": "corner_radius", "to": "wire_deflection", "confidence": 0.75, "polarity": "negative", "reason": "Larger programmed radius reduces lateral cutting-force demand" },
+    { "from": "feed_rate", "to": "wire_deflection", "confidence": 0.70, "polarity": "positive", "reason": "Higher servo advance increases lateral reaction force on wire" },
+    { "from": "wire_deflection", "to": "dimensional_accuracy", "confidence": 0.85, "polarity": "negative", "reason": "Bowed wire under-cuts commanded geometry" },
+    { "from": "wire_deflection", "to": "corner_error", "confidence": 0.88, "polarity": "positive", "reason": "Deflection concentrates as corner drag-back (Ho & Newman 2003)" },
+    { "from": "corner_radius", "to": "corner_error", "confidence": 0.70, "polarity": "negative", "reason": "Larger corners allow the wire to follow without lag buildup" },
+
+    { "from": "taper_angle", "to": "wire_lag", "confidence": 0.82, "polarity": "positive", "reason": "Tilted wire geometry increases guide-to-workpiece lever arm" },
+    { "from": "feed_rate", "to": "wire_lag", "confidence": 0.65, "polarity": "positive", "reason": "Faster feed accentuates static wire lag through the kerf" },
+    { "from": "wire_lag", "to": "dimensional_error", "confidence": 0.85, "polarity": "positive", "reason": "Lag offsets actual cut from programmed path" },
+    { "from": "wire_lag", "to": "Ra_uniformity", "confidence": 0.55, "polarity": "negative", "reason": "Variable lag produces uneven spark distribution along cut" },
+    { "from": "taper_angle", "to": "dimensional_error", "confidence": 0.72, "polarity": "positive", "reason": "Upper/lower UV offsets compound into geometric error" },
+
+    { "from": "material_hardness", "to": "mrr", "confidence": 0.70, "polarity": "negative", "reason": "Harder carbides resist melt-flush removal" },
+    { "from": "material_hardness", "to": "wire_wear", "confidence": 0.65, "polarity": "positive", "reason": "Abrasive residues from hard materials erode the wire faster" },
+    { "from": "thickness", "to": "mrr", "confidence": 0.60, "polarity": "negative", "reason": "Thicker stock increases gap-length spark losses" },
+    { "from": "thickness", "to": "flushing_pressure_required", "confidence": 0.80, "polarity": "positive", "reason": "Deeper kerf demands more pressure to clear debris" },
+    { "from": "thickness", "to": "wire_break_prob", "confidence": 0.60, "polarity": "positive", "reason": "Longer discharge column raises wire thermal load" },
+
+    { "from": "wire_wear", "to": "Ra", "confidence": 0.60, "polarity": "positive", "reason": "Worn wire discharges irregularly, roughening surface" },
+    { "from": "wire_wear", "to": "wire_break_prob", "confidence": 0.82, "polarity": "positive", "reason": "Reduced cross-section lowers fracture margin" },
+    { "from": "dielectric_temp", "to": "arc_stability", "confidence": 0.68, "polarity": "negative", "reason": "Hot dielectric deionizes slowly, destabilizing arcs" },
+    { "from": "dielectric_temp", "to": "short_circuit_rate", "confidence": 0.62, "polarity": "positive", "reason": "Hot dielectric conducts residual ions longer" },
+    { "from": "peak_current", "to": "spark_gap", "confidence": 0.60, "polarity": "positive", "reason": "Higher current opens a wider effective plasma channel" },
+    { "from": "spark_gap", "to": "dimensional_accuracy", "confidence": 0.70, "polarity": "negative", "reason": "Unaccounted gap widens kerf vs. commanded offset" }
+  ]
+}

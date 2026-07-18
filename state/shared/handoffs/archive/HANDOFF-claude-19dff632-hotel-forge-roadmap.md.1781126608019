@@ -1,0 +1,23 @@
+---
+session: claude-19dff632
+topic: hotel-forge-roadmap
+slot: hotel
+written_at: 2026-06-10T16:05:52.819Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-19dff632
+status: active
+---
+
+# HANDOFF: claude-19dff632
+Updated: 2026-06-10T16:05:52.819Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-19dff632
+
+## STATE
+iOS U1/U2/U2.5/U3 all shipped+3of3 (foundation+primitives+reconcile+hooks). Next U3b wire hooks (customizer panel + ActionButton haptic; NO density control -- dead dial). Sole owner. Clobbered+restored 1 peer wiki file (notified).
+
+## RESUME
+SOLE FRONTEND OWNER (quebec offline). iOS redesign foundation COMPLETE+all-3of3: U1 7cc24f0482 (tokens+SF font) | U2 ecdd33a2ea (WorkspacePrimitives ghost-fix/focus/44pt/ResultCard/Stepper, 22 tests) | U2.5 9240a261d2 +P0fix 4c45c2c652 (bridge my tokens->quebec ios-theme.css authentic Apple values under body[data-theme=ios]; tracked the untracked ios-theme.css; fixed prism-theme->prism-shell-mode localStorage collision) | U3 d0c46e3d34 +docfix 3d23b9b42d (useThemeTokens + useHaptics hooks, 12 tests). NEXT = U3b WIRE the hooks (R15, they have NO consumer yet): (a) build a ThemeCustomizer panel consuming useThemeTokens -- accent swatches from ACCENT_PRESETS + radius selector; **do NOT expose a density control: --density is a DEAD DIAL (zero var(--density) consumers) until wired into primitive sizing** (scrutiny arm-C P2). (b) wire useHaptics().impact('light') into ActionButton onClick in WorkspacePrimitives.tsx (re-run its 22 tests). Then U4 ErpDashboard migrate, U5 hotel 22 ERP pages (Workflow fan-out, WIRES ResultCard/Stepper), U6 quebec ~89, U7 Capacitor. P2 deferred: ActionButton solid uses literal bg-cyan-300 -> change to rgb(var(--accent-rgb)) so button FILLS go systemBlue in iOS mode (pairs w/ useThemeTokens accent). LESSON: shared-tree staged-deletion clobbered peer wiki cad-fusion-live-applied-practice.md in 3d23b9b42d -> restored on disk + notified claude-b5de5424; ALWAYS git status --short for stray staged deletions before shared-tree commit. ALT lane: hotel ERP queue 134 (3 PTO bugs).
+
+## CONTEXT
+

@@ -1,0 +1,370 @@
+{
+  "schemaVersion": 1,
+  "store": "employees",
+  "description": "ERP employee roster. Field shape matches the frontend Employee interface in web/src/api/types.ts (id, first_name, last_name, department, role, status, clearance_level, auth_user_id, labor_rates{regular,overtime,double_time}, overtime_policy, shift_differential, skills[], certifications[{name,expires?,status?}], hire_date, email?, phone?) consumed by EmployeeDirectoryPage.tsx via /erp/employees. status enum: active|inactive|on_leave|terminated. clearance_level enum: shop_floor|lead|hr_manager|admin (mirrors JMDieEmployeeSeed in src/data/jm-die-employees.ts). 18 employees across 6 departments. JM Die floor is Polish/Spanish-primary (project_jm_die_shop_floor_languages) — names reflect that. Synthetic seed (DB-COVERAGE-GAPFILL-MS0/U-ERP01) — NOT real PII. labor_rates.overtime = 1.5x regular, double_time = 2.0x regular.",
+  "generated_by": "DB-COVERAGE-GAPFILL-MS0/U-ERP01",
+  "generated_at": "2026-06-03",
+  "employees": [
+    {
+      "id": "EMP-0101",
+      "first_name": "Krzysztof",
+      "last_name": "Kowalski",
+      "department": "machining",
+      "role": "operator",
+      "status": "active",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 32.0, "overtime": 48.0, "double_time": 64.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["okuma_lathe_setup", "vmc_operate", "deburr"],
+      "certifications": [
+        { "name": "JM Die Floor Readiness", "status": "active" },
+        { "name": "Forklift and Material Handling", "expires": "2027-02-12", "status": "active" }
+      ],
+      "hire_date": "2021-03-15",
+      "email": "krzysztof.kowalski@jmdie.com",
+      "phone": "860-555-0101"
+    },
+    {
+      "id": "EMP-0102",
+      "first_name": "Mateusz",
+      "last_name": "Nowak",
+      "department": "machining",
+      "role": "operator",
+      "status": "active",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 30.5, "overtime": 45.75, "double_time": 61.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": { "second_shift_premium": 1.5, "third_shift_premium": 2.5 },
+      "skills": ["haas_vf2_operate", "wedm_load", "surface_grind"],
+      "certifications": [
+        { "name": "JM Die Floor Readiness", "status": "active" }
+      ],
+      "hire_date": "2022-06-01",
+      "email": "mateusz.nowak@jmdie.com",
+      "phone": "860-555-0102"
+    },
+    {
+      "id": "EMP-0103",
+      "first_name": "Carlos",
+      "last_name": "Ramirez",
+      "department": "machining",
+      "role": "operator",
+      "status": "active",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 31.0, "overtime": 46.5, "double_time": 62.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": { "second_shift_premium": 1.5, "third_shift_premium": 2.5 },
+      "skills": ["roku_roku_electrode_setup", "edm_sinker_operate"],
+      "certifications": [
+        { "name": "JM Die Floor Readiness", "status": "active" },
+        { "name": "EDM Operator Level 2", "expires": "2026-07-01", "status": "active" }
+      ],
+      "hire_date": "2020-09-14",
+      "email": "carlos.ramirez@jmdie.com",
+      "phone": "860-555-0103"
+    },
+    {
+      "id": "EMP-0104",
+      "first_name": "Tomasz",
+      "last_name": "Wisniewski",
+      "department": "machining",
+      "role": "lead",
+      "status": "active",
+      "clearance_level": "lead",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 38.0, "overtime": 57.0, "double_time": 76.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["machine_release_authority", "dispatch_board_oversight", "5axis_setup"],
+      "certifications": [
+        { "name": "Shift Lead Dispatch Authority", "status": "active" }
+      ],
+      "hire_date": "2018-11-26",
+      "email": "tomasz.wisniewski@jmdie.com",
+      "phone": "860-555-0104"
+    },
+    {
+      "id": "EMP-0105",
+      "first_name": "Javier",
+      "last_name": "Morales",
+      "department": "machining",
+      "role": "operator",
+      "status": "on_leave",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 29.0, "overtime": 43.5, "double_time": 58.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["mill_operate", "saw_cutoff"],
+      "certifications": [
+        { "name": "JM Die Floor Readiness", "status": "active" }
+      ],
+      "hire_date": "2023-02-20",
+      "email": "javier.morales@jmdie.com",
+      "phone": "860-555-0105"
+    },
+    {
+      "id": "EMP-0106",
+      "first_name": "Andrzej",
+      "last_name": "Lewandowski",
+      "department": "programming",
+      "role": "programmer",
+      "status": "active",
+      "clearance_level": "lead",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 43.0, "overtime": 64.5, "double_time": 86.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["mastercam_lathe_programming", "edm_program_release", "hypermill_mill"],
+      "certifications": [
+        { "name": "Mastercam Programming Standard", "status": "active" },
+        { "name": "Program Release Authority", "status": "active" }
+      ],
+      "hire_date": "2020-08-03",
+      "email": "andrzej.lewandowski@jmdie.com",
+      "phone": "860-555-0106"
+    },
+    {
+      "id": "EMP-0107",
+      "first_name": "Sofia",
+      "last_name": "Hernandez",
+      "department": "programming",
+      "role": "programmer",
+      "status": "active",
+      "clearance_level": "lead",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 41.5, "overtime": 62.25, "double_time": 83.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["fusion_cam", "wire_edm_programming", "post_processor_edit"],
+      "certifications": [
+        { "name": "Fusion CAM Certified", "expires": "2027-01-15", "status": "active" }
+      ],
+      "hire_date": "2022-04-11",
+      "email": "sofia.hernandez@jmdie.com",
+      "phone": "860-555-0107"
+    },
+    {
+      "id": "EMP-0108",
+      "first_name": "Piotr",
+      "last_name": "Zielinski",
+      "department": "programming",
+      "role": "programmer",
+      "status": "active",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 39.0, "overtime": 58.5, "double_time": 78.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["cimco_edit", "g_code_review"],
+      "certifications": [
+        { "name": "CNC Programming Apprentice", "expires": "2026-06-30", "status": "active" }
+      ],
+      "hire_date": "2024-01-08",
+      "email": "piotr.zielinski@jmdie.com",
+      "phone": "860-555-0108"
+    },
+    {
+      "id": "EMP-0109",
+      "first_name": "Lucia",
+      "last_name": "Gonzalez",
+      "department": "quality",
+      "role": "inspector",
+      "status": "active",
+      "clearance_level": "lead",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 36.0, "overtime": 54.0, "double_time": 72.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["cmm_and_fai_release", "spc_signoff", "electrode_packet_validation"],
+      "certifications": [
+        { "name": "FAI and SPC Signoff", "status": "active" }
+      ],
+      "hire_date": "2019-06-10",
+      "email": "lucia.gonzalez@jmdie.com",
+      "phone": "860-555-0109"
+    },
+    {
+      "id": "EMP-0110",
+      "first_name": "Marek",
+      "last_name": "Kaminski",
+      "department": "quality",
+      "role": "inspector",
+      "status": "active",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 34.0, "overtime": 51.0, "double_time": 68.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": { "second_shift_premium": 1.5, "third_shift_premium": 2.5 },
+      "skills": ["metrology_evidence_capture", "shipment_blocker_review"],
+      "certifications": [
+        { "name": "Inspection Evidence Handling", "status": "active" }
+      ],
+      "hire_date": "2023-02-13",
+      "email": "marek.kaminski@jmdie.com",
+      "phone": "860-555-0110"
+    },
+    {
+      "id": "EMP-0111",
+      "first_name": "Diego",
+      "last_name": "Torres",
+      "department": "quality",
+      "role": "inspector",
+      "status": "inactive",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 33.0, "overtime": 49.5, "double_time": 66.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["gage_calibration", "receiving_inspection"],
+      "certifications": [
+        { "name": "Gage R&R Certified", "expires": "2025-11-01", "status": "expired" }
+      ],
+      "hire_date": "2021-10-04",
+      "email": "diego.torres@jmdie.com",
+      "phone": "860-555-0111"
+    },
+    {
+      "id": "EMP-0112",
+      "first_name": "Agnieszka",
+      "last_name": "Wojcik",
+      "department": "engineering",
+      "role": "engineer",
+      "status": "active",
+      "clearance_level": "lead",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 48.0, "overtime": 72.0, "double_time": 96.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["process_planning", "tooling_and_material_qualification", "dfm_review"],
+      "certifications": [
+        { "name": "Engineering Change Authority", "status": "active" }
+      ],
+      "hire_date": "2022-01-24",
+      "email": "agnieszka.wojcik@jmdie.com",
+      "phone": "860-555-0112"
+    },
+    {
+      "id": "EMP-0113",
+      "first_name": "Rafael",
+      "last_name": "Castillo",
+      "department": "engineering",
+      "role": "engineer",
+      "status": "active",
+      "clearance_level": "lead",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 46.0, "overtime": 69.0, "double_time": 92.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["fixture_design", "tolerance_stackup", "cad_modeling"],
+      "certifications": [
+        { "name": "GD&T ASME Y14.5 Certified", "expires": "2027-05-01", "status": "active" }
+      ],
+      "hire_date": "2021-07-19",
+      "email": "rafael.castillo@jmdie.com",
+      "phone": "860-555-0113"
+    },
+    {
+      "id": "EMP-0114",
+      "first_name": "Katarzyna",
+      "last_name": "Szymanska",
+      "department": "engineering",
+      "role": "engineer",
+      "status": "active",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 44.0, "overtime": 66.0, "double_time": 88.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["controller_lineage", "print_program_lineage"],
+      "certifications": [
+        { "name": "Manufacturing Engineer I", "expires": "2026-09-30", "status": "active" }
+      ],
+      "hire_date": "2023-08-21",
+      "email": "katarzyna.szymanska@jmdie.com",
+      "phone": "860-555-0114"
+    },
+    {
+      "id": "EMP-0115",
+      "first_name": "Manuel",
+      "last_name": "Vargas",
+      "department": "management",
+      "role": "manager",
+      "status": "active",
+      "clearance_level": "admin",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 56.0, "overtime": 84.0, "double_time": 112.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["capacity_and_margin_review", "customer_release_authority"],
+      "certifications": [
+        { "name": "Executive Approval Authority", "status": "active" }
+      ],
+      "hire_date": "2017-05-01",
+      "email": "manuel.vargas@jmdie.com",
+      "phone": "860-555-0115"
+    },
+    {
+      "id": "EMP-0116",
+      "first_name": "Barbara",
+      "last_name": "Dabrowska",
+      "department": "management",
+      "role": "manager",
+      "status": "active",
+      "clearance_level": "hr_manager",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 52.0, "overtime": 78.0, "double_time": 104.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["payroll_oversight", "hr_compliance", "benefits_admin"],
+      "certifications": [
+        { "name": "SHRM-CP", "expires": "2027-03-01", "status": "active" }
+      ],
+      "hire_date": "2019-02-11",
+      "email": "barbara.dabrowska@jmdie.com",
+      "phone": "860-555-0116"
+    },
+    {
+      "id": "EMP-0117",
+      "first_name": "Elena",
+      "last_name": "Flores",
+      "department": "planning",
+      "role": "planner",
+      "status": "active",
+      "clearance_level": "lead",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 37.0, "overtime": 55.5, "double_time": 74.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["dispatch_and_release_planning", "customer_pull_in_management"],
+      "certifications": [
+        { "name": "Planning and Dispatch Authority", "status": "active" }
+      ],
+      "hire_date": "2023-09-05",
+      "email": "elena.flores@jmdie.com",
+      "phone": "860-555-0117"
+    },
+    {
+      "id": "EMP-0118",
+      "first_name": "Grzegorz",
+      "last_name": "Mazur",
+      "department": "planning",
+      "role": "planner",
+      "status": "terminated",
+      "clearance_level": "shop_floor",
+      "auth_user_id": null,
+      "labor_rates": { "regular": 35.0, "overtime": 52.5, "double_time": 70.0 },
+      "overtime_policy": { "rule": "weekly", "daily_threshold_hrs": 8, "weekly_threshold_hrs": 40, "ot_multiplier": 1.5, "dt_multiplier": 2.0 },
+      "shift_differential": null,
+      "skills": ["scheduling", "material_pull"],
+      "certifications": [],
+      "hire_date": "2020-03-30",
+      "email": "grzegorz.mazur@jmdie.com",
+      "phone": "860-555-0118"
+    }
+  ]
+}

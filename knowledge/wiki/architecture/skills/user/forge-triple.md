@@ -23,13 +23,13 @@ related:
 |-------|-------|
 | Name | `forge-triple` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-triple.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-triple.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Run three forge pipelines back-to-back in a single session for maximum system growth.
+The canonical PRISM `/forge-triple` pipeline (engines → skills → hooks, exhaustive extraction, dedup-gated) lives in the repo and is the source of truth:
 
 <!-- AUTO-END -->
 

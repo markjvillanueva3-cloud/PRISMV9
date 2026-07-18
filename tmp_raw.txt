@@ -1,0 +1,63 @@
+commit 96ce4966b47506a5fe075cae6f9b6709a7d41eb3
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Tue May 5 20:58:04 2026 -0500
+
+    [CAM-EXHAUST-MS0]/U-CAM123: AI Health Dashboard — operator UI + alert classifier
+    
+    Surfaces the U-CAM122 CAMModelServingEngine production fabric to operators
+    through a 5-tab read-only React dashboard. Lifecycle-mutating actions
+    (promote / rollback / retire) are intentionally excluded — promotion runs
+    through the operator runbook in k8s/model-serving/README.md.
+    
+    Backend (routes/cam.ts):
+      +6 read-only HTTP routes under /api/v1/cam/serve/*:
+        list-models, get-model, list-health, get-health,
+        list-routing-policies, list-pending-confirmations
+      Each bridges to the existing cam_serve_* dispatcher actions.
+    
+    Web client:
+      - api/camServe.ts: typed wrappers, 15s timeout, narrow ModelStatus +
+        CamServeHealth + CamServeRoutingPolicy + CamServePendingConfirmation
+        types matching the engine's output shape.
+      - data/camAiAlerts.ts: 5 SLO-backed alert thresholds (p95 latency,
+        error rate, drift score, queue depth, request count) sourced from
+        U-CAM122 k8s AnalysisTemplate (success_rate ≥ 0.90, p95 ≤ 200 ms).
+        classifyHealth/classifyFleet are pure functions: high-direction +
+        low-direction handling, NaN/Infinity rejection, severity-sorted
+        output with stable model_id tie-break.
+      - pages/cam-ai-dashboard.tsx: 5-tab dashboard
+          Overview      — fleet KPIs (total/active/canary/shadow/retired,
+                          avg+worst p95, avg+worst error rate, total reqs)
+                          + top-8 alert summary
+          Models        — registry table with status FSM badges
+                          (pending/shadow/canary/active/retired/rollback_pending)
+          Routing       — policies per (cam_system, task) with ε + min samples
+          Confirmations — pending operator approvals (FSM)
+          Alerts        — threshold definitions + live classifications
+        Concurrent fetch via Promise.all; data-testid hooks for tests.
+      - App.tsx: lazy import + secure('lead') Route at /cam-ai-dashboard
+        (lead clearance because surface exposes production model lifecycle
+        decisions; promotion still requires runbook flow).
+    
+    Tests (16/16 passing in 309 ms):
+      - classifyHealth (9): healthy fleet, critical p95, exact warn boundary,
+        error_rate critical, low-direction crit, low-direction warning,
+        missing fields, NaN/Infinity, empty thresholds
+      - classifyFleet (1): severity sort + model_id tie-break
+      - threshold table (1): SLO ids present + crit/warn ordering invariant
+      - CamAiDashboardPage (5): pre-load header, error surface, KPIs+alert
+        count from mocked fleet, empty-fleet state, no lifecycle buttons
+    
+    Surface zero new tsc errors (pre-existing inherited errors elsewhere
+    remain out of scope).
+    
+    Milestone JSON updated: U-CAM123 status → completed with deliverables_actual.
+    
+    Composes-with prior CAM AGI arc:
+      U-CAM118 CAMReasoningChainEngine     — explainability chains
+      U-CAM119 CAMConfidenceCalibration    — uncertainty quantification
+      U-CAM121 CAMTransferLearningEngine   — cross-CAM knowledge transfer
+      U-CAM122 CAMModelServingEngine       — production deploy + canary + SLO
+      U-CAM123 CAM AI Health Dashboard     — operator-facing observability
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>

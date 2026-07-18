@@ -212,3 +212,6 @@ export class AtomicStepDecomposerEngine {
 }
 
 export const atomicStepDecomposerEngine = new AtomicStepDecomposerEngine();
+
+/** Back-compat alias: callers (CounterfactualBuildSimulatorEngine, RollbackPlannerEngine) historically imported `BuildStep`. */
+export type BuildStep = AtomicStep;

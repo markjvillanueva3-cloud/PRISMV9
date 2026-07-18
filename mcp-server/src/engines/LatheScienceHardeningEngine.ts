@@ -27,6 +27,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE, type ISOGroup } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -41,6 +42,8 @@ export interface TurningChatterInput {
   depth_of_cut_mm: number;
   spindle_rpm: number;
   tool_nose_radius_mm?: number;
+  /** Structural damping ratio ζ of the workpiece mode (default 0.035; measured range ≈0.02–0.05) */
+  damping_ratio?: number;
 }
 
 export interface ChatterResult {
@@ -144,6 +147,27 @@ const E_MATERIAL: Record<string, number> = {
   steel: 210, aluminum: 69, titanium: 114, stainless: 200, cast_iron: 170,
 };
 
+/** Mass density by material [kg/m³] — used for workpiece modal mass → natural frequency */
+const DENSITY_MATERIAL: Record<string, number> = {
+  steel: 7800, aluminum: 2700, titanium: 4430, stainless: 8000, cast_iron: 7200,
+};
+
+/**
+ * ISO cutting-group by workpiece material — resolves the canonical specific
+ * cutting force kc1_1 from CANONICAL_KIENZLE (physics/constants.ts) instead of
+ * inlining magic numbers. Kc drives the chatter stability limit b_lim.
+ */
+const ISO_BY_MATERIAL: Record<string, ISOGroup> = {
+  steel: "P", aluminum: "N", titanium: "S", stainless: "M", cast_iron: "K",
+};
+
+/**
+ * Default structural damping ratio ζ for a turned workpiece (chuck/tailstock
+ * mounted steel bar). Typical measured range ζ ≈ 0.02–0.05; 0.035 is the
+ * mid-range default. Overridable per-call via TurningChatterInput.damping_ratio.
+ */
+const DEFAULT_WORKPIECE_DAMPING_RATIO = 0.035;
+
 /** Bore bottom dwell by ISO group [seconds] */
 const BORE_DWELL_BY_ISO: Record<string, number> = {
   P: 0.3, M: 0.5, K: 0.3, N: 0.2, S: 0.8, H: 0.5,
@@ -178,6 +202,19 @@ class LatheScienceHardeningEngineImpl {
     const D = input.workpiece_diameter_mm;
     const L = input.workpiece_length_mm;
 
+    // Fail-SAFE input guard (safety CV-1): degenerate geometry or a non-positive DOC must
+    // NOT return a permissive "stable" verdict — a prior form let L=0 → k=∞ → b_lim=∞ →
+    // stable:true. Return the conservative zero-limit result (matches the mass=0 fail path).
+    if (!Number.isFinite(D) || !Number.isFinite(L) || !(D > 0) || !(L > 0) || !(input.depth_of_cut_mm > 0)) {
+      return {
+        stable: false,
+        critical_rpm_zones: [],
+        max_stable_doc_mm: 0,
+        workpiece_stiffness_N_mm: 0,
+        recommendation: `Invalid workpiece geometry/DOC (D=${D}, L=${L}, DOC=${input.depth_of_cut_mm}) — cannot assess stability; treat as UNSAFE until corrected`,
+      };
+    }
+
     // Workpiece stiffness (cantilever for chuck-only, simply-supported for tailstock)
     const I = (Math.PI * Math.pow(D, 4)) / 64; // mm^4
     const E_Nmm2 = E * 1000; // GPa → N/mm²
@@ -191,18 +228,36 @@ class LatheScienceHardeningEngineImpl {
       stiffness = (48 * E_Nmm2 * I) / Math.pow(L, 3);
     }
 
-    // Critical DOC = stiffness / (2 × kc × overlap factor)
-    // Simplified: use Kc ≈ 2000 N/mm² for steel turning
-    const kc = input.workpiece_material === "aluminum" ? 700 :
-      input.workpiece_material === "titanium" ? 1800 :
-      input.workpiece_material === "cast_iron" ? 1100 : 2000;
-    const overlapFactor = 1.0; // single-point turning: full overlap
-    const maxStableDoc = stiffness / (2 * kc * overlapFactor * 1000); // mm
+    // Absolute stability limit (regenerative chatter, Altintas–Budak SDOF).
+    //   b_lim(ω) = −1 / (2·Kc·Re[G(iω)]),  G = workpiece receptance.
+    // For a single-DOF mode G(r) = 1/(k·(1−r²+i·2ζr)), Re[G] is most negative at
+    // r=√(1+2ζ) where min Re[G] = −1/(k·4ζ(1+ζ)); substituting gives the closed-form
+    // ABSOLUTE limit b_lim = 2·k·ζ·(1+ζ)/Kc  [mm]  (k[N/mm], Kc[N/mm²]).
+    // Turning is a continuous single-point cut → directional/immersion factor = 1
+    // (no milling α_xx·z term). Kc from the canonical Kienzle table (no inline magic).
+    // (Replaces a prior b_lim = k/(2·kc·1000) whose extraneous ÷1000 made the limit
+    //  ~1000× too small — see U-OSC-SCIENCE-ROUNDTRIP + reference_chatter_sld_fn_defects.)
+    const kc = CANONICAL_KIENZLE[ISO_BY_MATERIAL[input.workpiece_material] ?? "P"].kc1_1;
+    // ζ clamped to [0.001, 0.15] (no real turned-workpiece structural mode exceeds ~0.15);
+    // Number.isFinite guard so a NaN damping_ratio falls back to the default (?? only traps null/undefined).
+    const zeta = Math.min(0.15, Math.max(0.001,
+      Number.isFinite(input.damping_ratio) ? (input.damping_ratio as number) : DEFAULT_WORKPIECE_DAMPING_RATIO));
+    const maxStableDoc = (2 * stiffness * zeta * (1 + zeta)) / kc; // mm
 
-    // Critical RPM zones — avoid integer ratio of natural frequency
-    // fn ≈ (1/2π) × √(k/m), simplified for turning
-    const mass_kg = (Math.PI / 4 * Math.pow(D / 1000, 2) * (L / 1000)) * 7800; // steel density
-    const fn = mass_kg > 0 ? (1 / (2 * Math.PI)) * Math.sqrt(stiffness / (mass_kg * 1000)) : 500; // Hz
+    // Undamped natural frequency fn = (1/2π)·√(k/m). Modal mass uses the workpiece
+    // material density. Unit fix: k is [N/mm]; converting to [N/m] MULTIPLIES by 1000
+    // (a prior √(k/(m·1000)) inverted this, making fn ~1000× too low → the resonant
+    // critical-RPM zones were never populated).
+    const density = DENSITY_MATERIAL[input.workpiece_material] ?? 7800;
+    const bar_mass_kg = (Math.PI / 4 * Math.pow(D / 1000, 2) * (L / 1000)) * density;
+    // Effective MODAL mass of the fundamental bending mode — NOT the full bar mass.
+    // Euler–Bernoulli 1st-mode SDOF reduction: m_eff ≈ 0.243·m (cantilever tip) or 0.5·m
+    // (simply supported, center). Using the full bar mass under-predicts fn ~2× and
+    // mislocates the resonant critical-RPM zones low; the factors reproduce the exact
+    // continuous fn to ~1% for the paired static stiffness (3EI/L³ | 48EI/L³).
+    const modalMassFactor = input.support_type === "chuck_only" ? 0.2427 : 0.5;
+    const modalMass_kg = bar_mass_kg * modalMassFactor;
+    const fn = modalMass_kg > 0 ? (1 / (2 * Math.PI)) * Math.sqrt((stiffness * 1000) / modalMass_kg) : 500; // Hz
 
     const criticalZones: ChatterResult["critical_rpm_zones"] = [];
     for (let n = 1; n <= 5; n++) {
@@ -222,9 +277,9 @@ class LatheScienceHardeningEngineImpl {
 
     let recommendation: string;
     if (stable && !inCriticalZone) {
-      recommendation = `Stable: DOC ${input.depth_of_cut_mm}mm within limit ${maxStableDoc.toFixed(2)}mm`;
+      recommendation = `Stable: DOC ${input.depth_of_cut_mm}mm within limit ${maxStableDoc.toFixed(2)}mm (assumed ζ=${zeta.toFixed(3)}; supply a measured damping_ratio for a tighter limit)`;
     } else if (!stable) {
-      recommendation = `Chatter risk: DOC ${input.depth_of_cut_mm}mm exceeds stable limit ${maxStableDoc.toFixed(2)}mm — reduce DOC or add support`;
+      recommendation = `Chatter risk: DOC ${input.depth_of_cut_mm}mm exceeds stable limit ${maxStableDoc.toFixed(2)}mm (assumed ζ=${zeta.toFixed(3)}) — reduce DOC or add support`;
     } else {
       recommendation = `RPM ${input.spindle_rpm} is in critical zone — shift RPM by ±5-10%`;
     }

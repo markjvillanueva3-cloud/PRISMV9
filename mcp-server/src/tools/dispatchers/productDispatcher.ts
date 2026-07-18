@@ -72,6 +72,7 @@ const PPG_ACTIONS = [
   "ppg_prove_out_generate",
   "ppg_prove_out_promote",
   "ppg_air_cut_detect",
+  "ppg_interrupted_cut_detect",
   "ppg_rapid_optimize",
   "ppg_cross_cam_inject",
   "ppg_rl_feedback",
@@ -255,6 +256,19 @@ export function registerProductDispatcher(server: any): void {
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           Object.assign(params, normalizeParams(rawParams));
         } catch { /* normalizer not available */ }
+
+        // SFC machine-data shape bridge: the SFC web page (web/src/components/sfc/buildSfcRequest.ts)
+        // posts FLAT machine_max_rpm/machine_power_kw to POST /api/v1/sfc/calculate -> prism_product:
+        // sfc_calculate, but the pre-calculation machine-validation hooks read the NESTED
+        // machine.spindle.* shape -> pre-machine-completeness-gate FALSE-BLOCKS every web SFC calc
+        // (verified live: flat -> blocked, nested -> full result). calcDispatcher already bridges its
+        // sf_* SFC actions; this wires the SAME shared bridge into the product path. Additive +
+        // non-destructive: SFC compute actions only, never overwrites an explicit machine, and a
+        // genuinely-incomplete spec STILL blocks (no safety weakening). See utils/sfcMachineBridge.ts.
+        try {
+          const { applySfcMachineBridge } = await import("../../utils/sfcMachineBridge.js");
+          applySfcMachineBridge(action, params);
+        } catch { /* bridge not available -- gate behaves as before (blocks a flat-only SFC payload) */ }
 
         // Pre-hooks
         const hookCtx = {
@@ -621,6 +635,35 @@ export function registerProductDispatcher(server: any): void {
               detection_count: airResult.detections.length,
             };
           }
+        } else if (action === "ppg_interrupted_cut_detect") {
+          // CAM-SELF-TEACHING-PIPELINE-MS0 / U-INTERRUPTED-CUT-AVOID — sequence-mode
+          // OR G-code-mode interrupted-cut detection + remediation recommendations.
+          const { interruptedCutAvoidanceEngine } = await import("../../engines/InterruptedCutAvoidanceEngine.js");
+          const detectResult = interruptedCutAvoidanceEngine.detect(
+            params.mode === "gcode"
+              ? {
+                  mode: "gcode",
+                  gcode: params.gcode || "",
+                  controller: params.controller,
+                  material_iso_group: params.material_iso_group,
+                  stock_top_z: params.stock_top_z,
+                  min_engagement_pct: params.min_engagement_pct,
+                }
+              : {
+                  mode: "sequence",
+                  steps: params.steps || [],
+                  material_iso_group: params.material_iso_group,
+                  machine_rigidity: params.machine_rigidity,
+                  tolerate_minor: params.tolerate_minor,
+                },
+          );
+          result = {
+            detections: detectResult.detections,
+            detection_count: detectResult.detections.length,
+            optimized_sequence: detectResult.optimized_sequence,
+            summary: detectResult.summary,
+            report: detectResult.report,
+          };
         } else if (action === "ppg_rapid_optimize") {
           const { rapidRepositionOptEngine } = await import("../../engines/RapidRepositionOptEngine.js");
           result = rapidRepositionOptEngine.fullOptimize({
@@ -718,7 +761,7 @@ export function registerProductDispatcher(server: any): void {
             ppg_tool_change_optimize: "production", ppg_magazine_layout: "production",
             ppg_tool_sharing: "production", ppg_magazine_calculate: "production",
             ppg_sister_tool: "production", ppg_auto_probe: "production",
-            ppg_air_cut_detect: "production", ppg_rapid_optimize: "production",
+            ppg_air_cut_detect: "production", ppg_interrupted_cut_detect: "production", ppg_rapid_optimize: "production",
             ppg_subprogram_extract: "production",
             // Enterprise
             ppg_cross_cam_inject: "enterprise", ppg_rl_feedback: "enterprise",
@@ -763,12 +806,13 @@ export function registerProductDispatcher(server: any): void {
                   "Tool change optimization (TSP)", "Magazine layout optimization",
                   "Tool sharing consolidation", "Sister tool management",
                   "Auto probe routine generation", "Air-cut detection + elimination",
+                  "Interrupted-cut auto-avoidance + sequence-swap remediations",
                   "Rapid repositioning optimization",
                   "Subprogram extraction (auto-detect repeating patterns)",
                 ],
                 actions: ["ppg_tool_change_optimize", "ppg_magazine_layout", "ppg_tool_sharing",
                   "ppg_magazine_calculate", "ppg_sister_tool", "ppg_auto_probe",
-                  "ppg_air_cut_detect", "ppg_rapid_optimize", "ppg_subprogram_extract"],
+                  "ppg_air_cut_detect", "ppg_interrupted_cut_detect", "ppg_rapid_optimize", "ppg_subprogram_extract"],
               },
               enterprise: {
                 price_monthly: 499,

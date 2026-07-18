@@ -1177,7 +1177,7 @@ describe('calculator catalog coverage hardening', () => {
   });
 
   it('keeps live-tool mill-turn paths selectable on the live-tooling seat without dragging Swiss-only sync paths into that seat', () => {
-    const prismLathe = PROGRAMMING_ENVIRONMENTS.find((programming) => programming.id === 'prism-lathe');
+    const prismLathe = PROGRAMMING_ENVIRONMENTS.find((programming) => programming.id === 'kienzle-lathe');
     const gibbsLathe = PROGRAMMING_ENVIRONMENTS.find((programming) => programming.id === 'gibbscam-lathe');
     const espritLathe = PROGRAMMING_ENVIRONMENTS.find((programming) => programming.id === 'esprit-lathe');
     const liveToolLathe = MACHINE_CATALOG.find((machine) => machine.id === 'okuma-multus-u3000');
@@ -1195,8 +1195,8 @@ describe('calculator catalog coverage hardening', () => {
     const espritSwissSync = filterToolpathsForLicense(espritLathe!, espritLathe!.toolpaths, 'swiss-sync', swissLathe!);
 
     expect(prismLiveTooling.map((toolpath) => toolpath.id)).toEqual(expect.arrayContaining([
-      'prism-syncguard-rough',
-      'prism-live-handshake',
+      'kienzle-syncguard-rough',
+      'kienzle-live-handshake',
     ]));
     expect(gibbsLiveTooling.map((toolpath) => toolpath.id)).toContain('gibbs-millturn');
     expect(espritLiveTooling.map((toolpath) => toolpath.id)).toContain('esprit-live-tool');

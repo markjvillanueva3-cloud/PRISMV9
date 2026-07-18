@@ -1,0 +1,85 @@
+TAP version 13
+# Subtest: exports version + domain/kind enums
+ok 1 - exports version + domain/kind enums
+  ---
+  duration_ms: 3.1179
+  ...
+# Subtest: buildFixEntry: a print dimension misread → entry routed to print-reader training
+ok 2 - buildFixEntry: a print dimension misread → entry routed to print-reader training
+  ---
+  duration_ms: 0.236
+  ...
+# Subtest: buildFixEntry: a cad geometry-param fix → routed to cad-gen training
+ok 3 - buildFixEntry: a cad geometry-param fix → routed to cad-gen training
+  ---
+  duration_ms: 0.1245
+  ...
+# Subtest: buildFixEntry: REJECTS a fix with no before/after (R12 — no training signal)
+ok 4 - buildFixEntry: REJECTS a fix with no before/after (R12 — no training signal)
+  ---
+  duration_ms: 0.4048
+  ...
+# Subtest: buildFixEntry: REJECTS wrong === right (not a fix)
+ok 5 - buildFixEntry: REJECTS wrong === right (not a fix)
+  ---
+  duration_ms: 0.2057
+  ...
+# Subtest: buildFixEntry: fail loud on bad domain / kind / missing field
+ok 6 - buildFixEntry: fail loud on bad domain / kind / missing field
+  ---
+  duration_ms: 0.2379
+  ...
+# Subtest: recordFix: appends a JSONL line via injected sink + stamps ts from now
+ok 7 - recordFix: appends a JSONL line via injected sink + stamps ts from now
+  ---
+  duration_ms: 0.3396
+  ...
+# Subtest: recordFix: requires appendLine
+ok 8 - recordFix: requires appendLine
+  ---
+  duration_ms: 0.2572
+  ...
+# Subtest: deriveFixesFromCompare: failing checks → fix examples (src=right ground truth, regen=wrong)
+ok 9 - deriveFixesFromCompare: failing checks → fix examples (src=right ground truth, regen=wrong)
+  ---
+  duration_ms: 0.6154
+  ...
+# Subtest: deriveFixesFromCompare: empty/no-checks → empty list, no throw
+ok 10 - deriveFixesFromCompare: empty/no-checks → empty list, no throw
+  ---
+  duration_ms: 0.3798
+  ...
+# Subtest: summarizeFixes: tallies by domain/kind + per-training-side counts
+ok 11 - summarizeFixes: tallies by domain/kind + per-training-side counts
+  ---
+  duration_ms: 0.3102
+  ...
+# Subtest: trainingDataToFixEntries: each missing feature → a domain:cad missing-feature fix (absent-in-regen vs present-in-print)
+ok 12 - trainingDataToFixEntries: each missing feature → a domain:cad missing-feature fix (absent-in-regen vs present-in-print)
+  ---
+  duration_ms: 0.2958
+  ...
+# Subtest: buildFixEntry: verified/buildable are OPTIONAL pass-through (omitted when not provided — back-compat)
+ok 13 - buildFixEntry: verified/buildable are OPTIONAL pass-through (omitted when not provided — back-compat)
+  ---
+  duration_ms: 0.1376
+  ...
+# Subtest: trainingDataToFixEntries: a verified vs unverified correction is distinguishable in the note
+ok 14 - trainingDataToFixEntries: a verified vs unverified correction is distinguishable in the note
+  ---
+  duration_ms: 0.1038
+  ...
+# Subtest: trainingDataToFixEntries: empty / malformed / no-missingFeature → [] (no fabricated signal, no throw)
+ok 15 - trainingDataToFixEntries: empty / malformed / no-missingFeature → [] (no fabricated signal, no throw)
+  ---
+  duration_ms: 0.1444
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 107.1831

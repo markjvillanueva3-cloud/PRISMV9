@@ -239,12 +239,72 @@ export interface MillOperation {
     type: "rapid" | "linear" | "arc_cw" | "arc_ccw";
   }>;
   arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+  /**
+   * Per-move A-axis (trunnion tilt) and C-axis (table rotation) angles in
+   * degrees, supplied by the CAM post (foxtrot/hyperMILL/Fusion).  When
+   * present on a 3d_surface or adaptive op, the engine wraps the toolpath
+   * in a TCP open/close block and emits the A/C words on every linear move.
+   * Array must be parallel to `coordinates[]`; a missing or non-finite
+   * entry for a move leaves the rotary words off that line and warns.
+   * Absent (undefined) -> 3-axis byte-identical path (additive, no
+   * existing tests change).
+   *
+   * Genos M460V is an A/C trunnion: the TILT axis is the A-axis (A-word),
+   * the rotary TABLE is the C-axis (C-word) -- per the verified post source
+   * OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps:833 (aOutput prefix "A") +
+   * :1097 (coordinate-0 tilt axis [1,0,0], coordinate-2 table axis [0,0,1]),
+   * matching this engine's own OO88 A-axis fixture macro.  Angles come from
+   * the CAM post -- the engine does NOT compute inverse kinematics (that
+   * is MillKinematicsCollisionEngine's domain).
+   */
+  rotary_moves?: Array<{ a_deg: number; c_deg: number }>;
+  /**
+   * Tool-axis unit vector [i, j, k] from the CAM post (foxtrot/Fusion/
+   * hyperMILL).  Used ONLY for the RTCP singularity advisory:
+   * when k is near +1 (tool axis ~= +Z) the trunnion approaches its
+   * singularity and the post emits a warning comment.
+   * Absent -> no singularity check.  The engine NEVER computes kinematics.
+   */
+  tool_axis_k?: number;
   /** Indexed A-axis (table tilt) angle in degrees. Used by the CALL OO88
    *  fixture-offset macro on P500 5-axis ops. Default 0 = horizontal table.
    *  Genos M460V trunnion travel: [-110°, +10°]. */
   rotary_a_deg?: number;
   /** Indexed C-axis (table rotation) angle in degrees. Default 0. */
   rotary_c_deg?: number;
+  /**
+   * Optional drilling canned cycle. When present on a drill or bore op,
+   * generateToolpath emits a modal canned cycle (G81/G82/G83/G73/G84/G85)
+   * from coordinates[] hole XY positions, INSTEAD of the long-hand move
+   * list. Codes sourced from ControllerDialectEngine.canned_cycles (Okuma
+   * OSP-P300/P500 DB entry) -- never re-derived from a manual.
+   * Absent -> byte-identical move-list (additive; no existing test changes).
+   */
+  cycle?: OkumaDrillCycle;
+}
+
+/**
+ * Drilling canned cycle for Okuma OSP-P300M / OSP-P500M.
+ * G-codes are sourced from the controller-dialect DB
+ * (ControllerDialectEngine okuma_osp_p300/p500 canned_cycles table):
+ *   drill->G81 / dwell->G82 / peck->G83 / chip_break->G73 / tap->G84 / bore->G85
+ * These are ISO/Fanuc-family codes the Okuma OSP uses natively in ISO mode
+ * (confirmed by the engine header doc-comment ~L19 and the dialect DB).
+ */
+export interface OkumaDrillCycle {
+  /** drill->G81 / dwell->G82 / peck->G83 (full retract) / chip_break->G73
+   *  (high-speed peck) / tap->G84 (rigid) / bore->G85. */
+  type: "drill" | "dwell" | "peck" | "chip_break" | "tap" | "bore";
+  /** Final hole depth -- absolute Z in mm (negative below the part top). */
+  depth_mm: number;
+  /** R-plane clearance above the part top, mm (positive). */
+  retract_mm: number;
+  /** Q peck increment (mm) -- REQUIRED for peck/chip_break; missing/<=0 downgrades to G81 + warns. */
+  peck_mm?: number;
+  /** P dwell at hole bottom, seconds -- REQUIRED for dwell; missing/<=0 downgrades to G81 + warns. */
+  dwell_s?: number;
+  /** G98 retract-to-initial-plane | G99 retract-to-R-plane (default). */
+  retract_mode?: "initial" | "rplane";
 }
 
 export interface AdvancedPipelineSummary {
@@ -323,6 +383,56 @@ export interface AdvancedPipelineSummary {
   } | null;
 }
 
+/**
+ * HURCO-VM30I-FULL-PSN-MS0/MS1 (echo iter18 2026-05-25) — PSN enrichment
+ * payload for the Okuma OSP master post (mirrors HurcoPSNEnrichment shape
+ * so cross-vendor reporters can consume both via a structural typecheck).
+ *
+ * Populated only by `generateProgramWithFullPSN()`; the legacy synchronous
+ * `generateProgram()` leaves `psn_enrichment` undefined so all existing
+ * Okuma test files stay byte-identical. Each substrate sub-field is
+ * independent + best-effort: a single PSN-substrate failure never blocks
+ * the rest of the enrichment (fail-soft, advisory-only — engine NEVER
+ * throws from a substrate; throw means the caller hit the legacy WCS
+ * collision gate, which is shared with `generateProgram()`).
+ */
+export interface OkumaOSPMillPSNEnrichment {
+  /** Runtime prediction via GCodeRuntimePredictorEngine (kinematic-aware). */
+  runtime_estimate?: {
+    total_minutes: number;
+    machine_id: string;
+    confidence: number;
+    error?: string;
+  };
+  /** Bidirectional optimizer recommendations (cycle / wear / surface / cost / safety). */
+  optimizer_recommendations?: {
+    count: number;
+    top_3: Array<{ category: string; description: string; estimated_savings_pct?: number }>;
+    error?: string;
+  };
+  /** Cost report (per-part labor + machine + overhead). First-order estimate
+   *  derived from runtime + shop_rates; deep CostEfficiencyBridge routing
+   *  is reserved for future composition (HURCO-VM30I-FULL-PSN-MS1+). */
+  cost_report?: {
+    total_cost_usd: number;
+    cycle_min: number;
+    most_expensive_line_item: string;
+    error?: string;
+  };
+  /** PRISM AI feature recommendations relevant to the part + material. */
+  ai_feature_recommendations?: {
+    count: number;
+    top_5: Array<{ feature: string; reason: string; priority?: string }>;
+    error?: string;
+  };
+  /** ISO timestamp of enrichment pass. */
+  enriched_at: string;
+  /** True iff every requested PSN call returned a populated field. */
+  full_psn_engaged: boolean;
+  /** Per-substrate error log for operator-visibility. */
+  substrate_errors: string[];
+}
+
 export interface OkumaOSPMillPostOutput {
   gcode: string[];
   program_number: number;
@@ -351,6 +461,13 @@ export interface OkumaOSPMillPostOutput {
    * passes verbatim to `sealMasterPostOutput` for sidecar+verify.
    */
   block_annotations: BlockAnnotation[];
+  /**
+   * PSN-substrate enrichment (HURCO-VM30I-FULL-PSN-MS0/MS1, echo iter18).
+   * Populated ONLY by `generateProgramWithFullPSN()`. Legacy
+   * `generateProgram()` leaves it undefined so existing callers stay
+   * byte-identical (no existing Okuma test file is touched by this field).
+   */
+  psn_enrichment?: OkumaOSPMillPSNEnrichment;
 }
 
 // ============================================================================
@@ -719,9 +836,20 @@ export class OkumaOSPMillMasterPostEngine {
       const blockId = padDigits > 0
         ? "N" + String(blockNum).padStart(padDigits, "0")
         : "N" + blockNum;
+      // U-PP-NONFINITE-EMIT-SWEEP: a non-finite spindle_rpm/feed would emit a literal
+      // `SInfinity`/`FNaN` the OSP control rejects -- emit a flagged 0 sentinel + warn
+      // (a finite op is byte-unchanged). Sibling of generateToolpath's coord guard.
+      const rpmFinite = typeof op.spindle_rpm === "number" && Number.isFinite(op.spindle_rpm);
+      const feedFiniteHdr = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min);
+      if (!rpmFinite || !feedFiniteHdr) {
+        const bad = [!rpmFinite ? `spindle_rpm=${op.spindle_rpm}` : "", !feedFiniteHdr ? `feed_mm_min=${op.feed_mm_min}` : ""].filter(Boolean).join(", ");
+        warnings.push(`Op ${i + 1} spindle-start line has non-finite ${bad} -- emitted a flagged 0 token to avoid a literal SInfinity/FNaN the OSP control rejects; fix before running.`);
+      }
+      const rpmWord = rpmFinite ? `${op.spindle_rpm}` : "0";
+      const feedWord = feedFiniteHdr ? `${op.feed_mm_min}` : "0";
       const spindleLine =
-        `${blockId} S${op.spindle_rpm} ${dialect.spindle_cw} F${op.feed_mm_min} ` +
-        this.fmtComment(dialect, `SPINDLE CW ${op.spindle_rpm} RPM, FEED ${op.feed_mm_min}`);
+        `${blockId} S${rpmWord} ${dialect.spindle_cw} F${feedWord} ` +
+        this.fmtComment(dialect, `SPINDLE CW ${rpmWord} RPM, FEED ${feedWord}${rpmFinite && feedFiniteHdr ? "" : " - NON-FINITE INPUT, REVIEW"}`);
       gcode.push(spindleLine);
 
       // Coolant
@@ -737,7 +865,7 @@ export class OkumaOSPMillMasterPostEngine {
       tribalTipsApplied.push(...tips);
 
       // Toolpath
-      const toolpath = this.generateToolpath(op, cfg, dialect);
+      const toolpath = this.generateToolpath(op, cfg, dialect, warnings);
       gcode.push(...toolpath);
 
       // Sidecar annotation — vc / fpt derived from canonical formulae
@@ -810,43 +938,339 @@ export class OkumaOSPMillMasterPostEngine {
     return `${dialect.comment_open}${text}${dialect.comment_close}`;
   }
 
+  /**
+   * Resolve the TCP on/off codes for this config.
+   *
+   * Priority:
+   *   1. cfg.tcp_mode === "G169_G170"  -> Okuma-native pair (JM Die convention;
+   *      source: OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps:47,515)
+   *   2. cfg.tcp_mode === "G43.4"      -> Fanuc-style with tool-number H offset
+   *   3. dialect.features.tcpc         -> DB default (P300:"G43.4"/G49,
+   *      P500:"G43.5 H{offset}"/G49)
+   *   4. Hard fallback G43.4 / G49     -> should never be reached given the
+   *      dialect DB always carries tcpc for Okuma entries.
+   *
+   * Codes are sourced from the ControllerDialectEngine DB or the verified
+   * .cps source -- never derived from a manual (echo soul rule).
+   */
+  private resolveTcpCodes(
+    cfg: OkumaOSPMillPostConfig,
+    dialect: ReturnType<typeof controllerDialectEngine.getDialect>,
+    toolNumber: number,
+  ): { on: string; off: string } {
+    if (cfg.tcp_mode === "G169_G170") {
+      // Okuma OSP-P*MA-H native TCP control. G169 = TCPC ON, G170 = TCPC OFF.
+      // Source: OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps:47 ("// TCP CONTROL (G169/G170)"),
+      // :515 ("Output G169 (TCP on) and G170 (TCP off)"), real writeBlock :4538/:4697 emit G170 TCP OFF.
+      // G168 is NOT a documented Okuma TCPC-off code (Okuma OSP 5-axis manual: G169 on / G170 off);
+      // the prior off:"G168" was a regression (ed5a7ae10d) from a misread citation -- corrected this commit.
+      return { on: "G169", off: "G170" };
+    }
+    if (cfg.tcp_mode === "G43.4") {
+      return { on: `G43.4 H${toolNumber}`, off: "G49" };
+    }
+    // Use dialect DB value (P300: "G43.4" / P500: "G43.5 H{offset}").
+    const tcpc = dialect.features?.tcpc as { on?: string; off?: string } | undefined;
+    const onRaw = tcpc?.on ?? "G43.4";
+    const offRaw = tcpc?.off ?? "G49";
+    // Substitute {offset} placeholder with the tool number.
+    return {
+      on: onRaw.replace("{offset}", String(toolNumber)),
+      off: offRaw,
+    };
+  }
+
+  /**
+   * RTCP singularity advisory threshold.
+   *
+   * When the tool-axis k-component (cos of tilt angle from +Z) exceeds this
+   * threshold the tool axis is nearly parallel to +Z -- the trunnion (A-axis)
+   * approaches its mechanical singularity (~A=0 deg). At that point small
+   * XYZ perturbations cause large B/C excursions and feedrate spikes.
+   *
+   * The post WARNS (advisory comment in the NC) but does NOT alter the path.
+   * Kinematic collision checking routes to MillKinematicsCollisionEngine.
+   *
+   * Threshold: cos(5 deg) ~= 0.9962. Below 5 deg tilt the risk is real;
+   * above it the trunnion has enough separation to run safely.
+   * Source: Okuma 5-axis application notes / foxtrot 5-axis gate rule.
+   */
+  private static readonly SINGULARITY_K_THRESHOLD = Math.cos(5 * Math.PI / 180); // cos(5 deg)
+
   private generateToolpath(
     op: MillOperation,
     cfg: OkumaOSPMillPostConfig,
     dialect: ReturnType<typeof controllerDialectEngine.getDialect>,
+    warnings: string[],
   ): string[] {
     const lines: string[] = [];
+    const isFiveAxis = (op.operation_type === "3d_surface" || op.operation_type === "adaptive")
+      && Array.isArray(op.rotary_moves) && op.rotary_moves.length > 0;
+
+    if (isFiveAxis) {
+      // SINGULARITY ADVISORY:
+      // Warn when the tool axis is near-parallel to +Z (k ~= 1, A ~= 0 deg).
+      // The post only warns -- it does NOT alter the path (kinematics = foxtrot).
+      const k = typeof op.tool_axis_k === "number" && Number.isFinite(op.tool_axis_k)
+        ? op.tool_axis_k : null;
+      if (k !== null && k > OkumaOSPMillMasterPostEngine.SINGULARITY_K_THRESHOLD) {
+        const tiltDeg = (Math.acos(Math.min(1, Math.abs(k))) * 180 / Math.PI).toFixed(1);
+        const msg =
+          `SINGULARITY ADVISORY: tool axis near +Z (k=${k.toFixed(4)}, tilt=${tiltDeg}deg < 5deg threshold). ` +
+          `Trunnion A-axis approaching singularity -- verify feedrate + B/C excursion with MillKinematicsCollisionEngine before running`;
+        lines.push(this.fmtComment(dialect, msg));
+        warnings.push(
+          `SINGULARITY ADVISORY: 5-axis op tool_axis_k=${k.toFixed(4)} (tilt=${tiltDeg}deg) is within 5deg of Z-axis singularity. Verify kinematics before running.`,
+        );
+      }
+
+      // TCP ON
+      const tcp = this.resolveTcpCodes(cfg, dialect, op.tool_number);
+      lines.push(`${tcp.on} ${this.fmtComment(dialect, "TCP ON")}`);
+
+      // Approach rapid at safe Z (no rotary words on the initial retract).
+      lines.push(`${dialect.rapid_code} Z${(cfg.safe_z_mm ?? 50).toFixed(3)}`);
+
+      // 5-AXIS MOVES: XYZ + B C words on every move
+      const feedFinite = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min);
+      if (!feedFinite) {
+        warnings.push(`Op feed_mm_min=${op.feed_mm_min} is non-finite -- emitted a flagged F token for operator review (never FNaN/FInfinity).`);
+      }
+      const feedTok = feedFinite ? `${op.feed_mm_min}` : "0 (NON-FINITE FEED - REVIEW)";
+
+      for (let i = 0; i < op.coordinates.length; i++) {
+        const coord = op.coordinates[i];
+        if (!Number.isFinite(coord.x) || !Number.isFinite(coord.y) || !Number.isFinite(coord.z)) {
+          warnings.push(`5-axis move ${i + 1} has non-finite XYZ (${coord.x},${coord.y},${coord.z}) -- skipped`);
+          lines.push(`${dialect.comment_open}ERROR: 5-AXIS MOVE ${i + 1} NON-FINITE COORD SKIPPED${dialect.comment_close}`);
+          continue;
+        }
+        const rot = op.rotary_moves![i];
+        const hasRot = rot !== undefined
+          && Number.isFinite(rot.a_deg) && Number.isFinite(rot.c_deg);
+        if (!hasRot && rot !== undefined) {
+          warnings.push(`5-axis move ${i + 1} has non-finite A/C angles -- rotary words omitted for this move`);
+        }
+        // A = trunnion tilt (.cps aOutput prefix "A"), C = rotary table.
+        const rotSuffix = hasRot
+          ? ` A${rot.a_deg.toFixed(3)} C${rot.c_deg.toFixed(3)}`
+          : "";
+
+        if (coord.type === "rapid") {
+          lines.push(
+            `${dialect.rapid_code} X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)} Z${coord.z.toFixed(3)}${rotSuffix}`,
+          );
+        } else {
+          // linear / arc_cw / arc_ccw all emitted as G1 in RTCP mode
+          // (arc interpolation in RTCP is unsafe without kinematic verification --
+          //  CAM posts already linearize RTCP surfacing into dense G1 segments).
+          // Surface the arc->linear downgrade loudly (parity with the file's
+          // fail-loud idiom) so an operator/CAM author knows an arc was chorded.
+          if (coord.type === "arc_cw" || coord.type === "arc_ccw") {
+            warnings.push(
+              `5-axis move ${i + 1} is an ${coord.type} arc -- downgraded to a linear G1 in RTCP mode (arc interpolation under active TCP is unsafe without kinematic verification; verify the chord with MillKinematicsCollisionEngine)`,
+            );
+          }
+          lines.push(
+            `${dialect.linear_code} X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)} Z${coord.z.toFixed(3)}${rotSuffix} F${feedTok}`,
+          );
+        }
+      }
+
+      // Retract at safe Z before TCP cancel.
+      lines.push(`${dialect.rapid_code} Z${(cfg.safe_z_mm ?? 50).toFixed(3)}`);
+
+      // TCP OFF
+      lines.push(`${tcp.off} ${this.fmtComment(dialect, "TCP OFF")}`);
+      return lines;
+    }
+
+    // 3-axis path -- byte-identical to prior behaviour for all non-5-axis ops.
     lines.push(`${dialect.rapid_code} Z${(cfg.safe_z_mm ?? 50).toFixed(3)}`);
+
+    // Canned cycle path (additive -- only fires when op.cycle is present on drill/bore ops).
+    // Absent -> existing long-hand move list (byte-identical to before this change).
+    if (op.cycle && (op.operation_type === "drill" || op.operation_type === "bore")) {
+      lines.push(...this.emitCannedCycle(op, dialect, cfg, warnings));
+    } else {
+      lines.push(...this.generateToolpathMoves(op, dialect, cfg, warnings));
+    }
+
+    lines.push(`${dialect.rapid_code} Z${(cfg.safe_z_mm ?? 50).toFixed(3)}`);
+    return lines;
+  }
+
+  /**
+   * Long-hand move list (G0/G1/G2/G3). Extracted from the original
+   * generateToolpath body so emitCannedCycle can fall back to it on
+   * non-finite depth/retract. Byte-identical to the previous implementation.
+   */
+  private generateToolpathMoves(
+    op: MillOperation,
+    dialect: ReturnType<typeof controllerDialectEngine.getDialect>,
+    cfg: OkumaOSPMillPostConfig,
+    warnings: string[],
+  ): string[] {
+    const lines: string[] = [];
+
+    // U-PP-NONFINITE-EMIT-SWEEP: a non-finite feed_mm_min would emit a literal
+    // `FNaN`/`FInfinity` the OSP control rejects. Format it once (the F word repeats
+    // across moves) and flag it loudly rather than leaking the garbage token.
+    const feedFinite = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min);
+    if (!feedFinite) {
+      warnings.push(`Op feed_mm_min=${op.feed_mm_min} is non-finite -- emitted a flagged F token for operator review (never FNaN/FInfinity).`);
+    }
+    const feedTok = feedFinite ? `${op.feed_mm_min}` : "0 (NON-FINITE FEED - REVIEW)";
 
     for (let i = 0; i < op.coordinates.length; i++) {
       const coord = op.coordinates[i];
       const arc = op.arc_data?.[i];
+      // U-PP-NONFINITE-EMIT-SWEEP: a non-finite X/Y/Z would emit a literal
+      // `XNaN`/`YInfinity`/`ZNaN` the OSP control rejects -- skip the move + warn,
+      // never leak the garbage token (mirrors the RokuRoku/HaasNGC/OkumaB250 fixes).
+      if (!Number.isFinite(coord.x) || !Number.isFinite(coord.y) || !Number.isFinite(coord.z)) {
+        warnings.push(`Move ${i + 1} (${coord.type}) has non-finite XYZ (${coord.x},${coord.y},${coord.z}) -- skipped to avoid a literal XNaN/YNaN/ZNaN the OSP control rejects; fix the upstream toolpath.`);
+        lines.push(`${dialect.comment_open}ERROR: MOVE ${i + 1} NON-FINITE COORD SKIPPED - REVIEW TOOLPATH${dialect.comment_close}`);
+        continue;
+      }
       let line = "";
       switch (coord.type) {
         case "rapid":
           line = `${dialect.rapid_code} X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)} Z${coord.z.toFixed(3)}`;
           break;
         case "linear":
-          line = `${dialect.linear_code} X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)} Z${coord.z.toFixed(3)} F${op.feed_mm_min}`;
+          line = `${dialect.linear_code} X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)} Z${coord.z.toFixed(3)} F${feedTok}`;
           break;
         case "arc_cw":
         case "arc_ccw": {
           const arcCode = coord.type === "arc_cw" ? dialect.cw_arc_code : dialect.ccw_arc_code;
           line = `${arcCode} X${coord.x.toFixed(3)} Y${coord.y.toFixed(3)}`;
-          // Dialect arc_format = "ijk_incremental" for OSP — prefer I/J over R
+          // Dialect arc_format = "ijk_incremental" for OSP -- prefer I/J over R.
+          // A non-finite I/J/R is the same XNaN class: omit it + warn rather than
+          // emit `IInfinity`/`RNaN` (a finite arc stays byte-unchanged).
           if (arc?.i !== undefined && arc?.j !== undefined) {
-            line += ` I${arc.i.toFixed(3)} J${arc.j.toFixed(3)}`;
+            if (Number.isFinite(arc.i) && Number.isFinite(arc.j)) {
+              line += ` I${arc.i.toFixed(3)} J${arc.j.toFixed(3)}`;
+            } else {
+              warnings.push(`Arc move ${i + 1} has non-finite I/J (${arc.i},${arc.j}) -- omitted to avoid a literal INaN/JNaN; review the arc geometry.`);
+            }
           } else if (arc?.r !== undefined) {
-            line += ` R${arc.r.toFixed(3)}`;
+            if (Number.isFinite(arc.r)) {
+              line += ` R${arc.r.toFixed(3)}`;
+            } else {
+              warnings.push(`Arc move ${i + 1} has non-finite R (${arc.r}) -- omitted to avoid a literal RNaN; review the arc geometry.`);
+            }
           }
-          line += ` F${op.feed_mm_min}`;
+          line += ` F${feedTok}`;
           break;
         }
       }
       lines.push(line);
     }
 
-    lines.push(`${dialect.rapid_code} Z${(cfg.safe_z_mm ?? 50).toFixed(3)}`);
+    return lines;
+  }
+
+  /**
+   * Canned-cycle type -> Okuma OSP G-code, sourced from the controller-dialect
+   * DB (ControllerDialectEngine okuma_osp_p300 canned_cycles table).
+   * Fallback literals mirror HaasNGC (same ISO codes) for robustness.
+   */
+  private static readonly CYCLE_GCODE: Record<OkumaDrillCycle["type"], string> = {
+    drill: "G81", dwell: "G82", peck: "G83", chip_break: "G73", tap: "G84", bore: "G85",
+  };
+
+  /**
+   * Emit a modal drilling canned cycle from op.cycle + coordinates[] hole XYs:
+   *   {G98|G99} G8x Z{depth} R{retract} [Q{peck}] [P{dwell}] F{feed}  <- first hole (no XY -- BARE)
+   *   X.. Y..                                                           <- each subsequent hole (modal)
+   *   G80                                                               <- cancel
+   *
+   * G-codes come from the dialect DB (okuma_osp_p300/p500 canned_cycles);
+   * cancel code is dialect.canned_cycles.cancel ("G80"). The first-hole line
+   * is BARE (no XY) because the per-op approach block already rapided there
+   * (mirrors the proven Haas/JM Die golden archive convention).
+   *
+   * Fail-loud (R12):
+   *   - 0 valid holes -> warn + emit nothing
+   *   - non-finite depth/retract -> warn + fall back to long-hand move list
+   *   - peck/chip_break missing Q -> downgrade to G81 + warn
+   *   - dwell missing P -> downgrade to G81 + warn
+   *   - bad feed -> flagged F token, never FNaN/FInfinity
+   */
+  private emitCannedCycle(
+    op: MillOperation,
+    dialect: ReturnType<typeof controllerDialectEngine.getDialect>,
+    cfg: OkumaOSPMillPostConfig,
+    warnings: string[],
+  ): string[] {
+    const cyc = op.cycle!;
+    const lines: string[] = [];
+    const holes = op.coordinates.filter((c) => Number.isFinite(c.x) && Number.isFinite(c.y));
+
+    if (holes.length === 0) {
+      warnings.push(`Canned cycle (${cyc.type}) has no valid hole XY positions -- emitted nothing`);
+      return lines;
+    }
+    if (!Number.isFinite(cyc.depth_mm) || !Number.isFinite(cyc.retract_mm)) {
+      warnings.push(`Canned cycle (${cyc.type}) has non-finite depth_mm/retract_mm -- fell back to long-hand move list`);
+      return this.generateToolpathMoves(op, dialect, cfg, warnings);
+    }
+
+    // Geometry sanity (advisory -- still emit, but flag)
+    if (cyc.depth_mm >= cyc.retract_mm) {
+      warnings.push(`Canned cycle depth_mm (${cyc.depth_mm}) is not below retract_mm (${cyc.retract_mm}) -- inverted/no-cut geometry, verify Z/R signs`);
+    }
+    if (cyc.retract_mm <= 0) {
+      warnings.push(`Canned cycle retract_mm (${cyc.retract_mm}) is not a positive R-plane -- verify clearance`);
+    }
+
+    // Resolve effective cycle type, downgrading when required param is absent
+    let type: OkumaDrillCycle["type"] = cyc.type;
+    const hasPeck = Number.isFinite(cyc.peck_mm) && (cyc.peck_mm as number) > 0;
+    const hasDwell = Number.isFinite(cyc.dwell_s) && (cyc.dwell_s as number) > 0;
+    if ((type === "peck" || type === "chip_break") && !hasPeck) {
+      warnings.push(`${type} cycle needs a positive peck_mm (Q) -- downgraded to G81 simple drill`);
+      type = "drill";
+    } else if (type === "dwell" && !hasDwell) {
+      warnings.push(`dwell cycle needs a positive dwell_s (P) -- downgraded to G81 simple drill`);
+      type = "drill";
+    }
+
+    // G-code from dialect DB; fall back to the static map if the dialect entry is absent
+    const cycCodes = dialect.canned_cycles ?? {};
+    const dialectG: Record<string, string> = {
+      drill: cycCodes.drill ?? "G81",
+      dwell: "G82",  // OSP uses G82 (standard ISO; not in every dialect DB entry)
+      peck: cycCodes.peck_drill ?? "G83",
+      chip_break: cycCodes.deep_hole ?? "G73",
+      tap: cycCodes.tap ?? "G84",
+      bore: cycCodes.bore ?? "G85",
+    };
+    const g = dialectG[type] ?? OkumaOSPMillMasterPostEngine.CYCLE_GCODE[type] ?? "G81";
+    const cancelG = cycCodes.cancel ?? "G80";
+
+    const retractG = cyc.retract_mode === "initial" ? "G98" : "G99";
+
+    const feedFinite = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min);
+    if (!feedFinite) {
+      warnings.push(`Canned cycle has non-finite feed_mm_min=${op.feed_mm_min} -- emitted flagged F token for operator review`);
+    }
+    const feedTok = feedFinite ? `F${op.feed_mm_min}` : "F0 (NON-FINITE FEED - REVIEW)";
+
+    // First hole: BARE cycle line (no XY -- the approach block already positioned there)
+    let first = `${retractG} ${g} Z${cyc.depth_mm.toFixed(3)} R${cyc.retract_mm.toFixed(3)}`;
+    if (type === "peck" || type === "chip_break") first += ` Q${(cyc.peck_mm as number).toFixed(3)}`;
+    if (type === "dwell") first += ` P${(cyc.dwell_s as number).toFixed(2)}`;
+    first += ` ${feedTok}`;
+    lines.push(first);
+
+    // Subsequent holes: modal X Y
+    for (let i = 1; i < holes.length; i++) {
+      lines.push(`X${holes[i].x.toFixed(3)} Y${holes[i].y.toFixed(3)}`);
+    }
+
+    lines.push(cancelG);
     return lines;
   }
 
@@ -1249,6 +1673,216 @@ export class OkumaOSPMillMasterPostEngine {
       },
     };
   }
+
+  /**
+   * HURCO-VM30I-FULL-PSN-MS0/MS1 (echo iter18 2026-05-25) — Okuma PSN-engaged
+   * variant of `generateProgram()`. Composes the same 4 PSN substrates as
+   * `HurcoV11MillMasterPostEngine.generateProgramWithFullPSN()`:
+   *
+   *   • GCodeRuntimePredictorEngine.predictForMachine() — kinematic runtime
+   *   • GCodeBidirectionalOptimizerEngine.optimize() — recommendations
+   *   • First-order cost estimate (labor + machine + overhead via shop_rates)
+   *   • PRISMSelfAwarenessEngine.recommendAIFeatures() — relevant features
+   *
+   * Returns the legacy `OkumaOSPMillPostOutput` extended with an optional
+   * `psn_enrichment: OkumaOSPMillPSNEnrichment` field. Every substrate call
+   * is wrapped in try/catch — one failure populates an `error` sub-field
+   * and toggles `full_psn_engaged: false`, never the legacy fields. Legacy
+   * `generateProgram()` leaves `psn_enrichment` undefined so all existing
+   * Okuma test files stay byte-identical (anti-regression).
+   *
+   * @param operations  Mill operations (same shape as generateProgram).
+   * @param config      Okuma post config (same shape as generateProgram).
+   * @param partContext Optional part-level context (material, machine_id,
+   *                    shop_rates, part_description). Sensible defaults.
+   */
+  async generateProgramWithFullPSN(
+    operations: MillOperation[],
+    config?: Partial<OkumaOSPMillPostConfig>,
+    partContext?: {
+      program_id?: string;
+      part_description?: string;
+      material?: { name: string; iso_group: ISOGroup; price_per_kg_usd?: number; density_g_cm3?: number };
+      machine_id?: string;
+      shop_rates?: { labor_per_hr_usd: number; machine_per_hr_usd: number; overhead_pct: number };
+    },
+  ): Promise<OkumaOSPMillPostOutput> {
+    // Step 1 — base emit (byte-identical to legacy path).
+    const base = this.generateProgram(operations, config);
+
+    const substrate_errors: string[] = [];
+    const enrichment: OkumaOSPMillPSNEnrichment = {
+      enriched_at: new Date().toISOString(),
+      full_psn_engaged: true,
+      substrate_errors,
+    };
+
+    // Default machine: the registered MACHINE_LIBRARY id for the JM Die
+    // Okuma Genos M460V-5AX. Reviewer A flagged the previous default
+    // `"okuma_genos_m460v"` as a silent-substrate-failure trap: that id
+    // is NOT in `GCodeRuntimePredictorEngine.MACHINE_LIBRARY` (only
+    // `"okuma_m460v"` is registered), so the runtime + optimizer try/catch
+    // blocks would both swallow `Unknown machine_id` errors while the
+    // catch path echoed the input string back into `runtime_estimate.machine_id`,
+    // masking the failure (R12 violation — `full_psn_engaged: false` shipped
+    // undetected on every default-machine call). Operator overrides via
+    // `partContext.machine_id` for other Okuma variants.
+    const machineId = partContext?.machine_id ?? "okuma_m460v";
+
+    // Convert MillOperation[] → ParsedBlock[] for the runtime predictor +
+    // bidirectional optimizer. Same minimal mapping as V11: one G0 header
+    // rapid per op + one G1/G2/G3 block per cutting coordinate. Lossy on
+    // macro/probe ops; covers cycle-time-dominant cutting moves.
+    const blocks = operationsToParsedBlocksForOkuma(operations);
+
+    // Step 2 — runtime prediction (kinematic-aware, machine-library lookup).
+    try {
+      const { gcodeRuntimePredictorEngine } = await import("./GCodeRuntimePredictorEngine.js");
+      const rt = gcodeRuntimePredictorEngine.predictForMachine(blocks, machineId);
+      const coverage = blocks.length > 0
+        ? Math.min(1, rt.blocks?.length ? rt.blocks.length / blocks.length : 1)
+        : 0;
+      enrichment.runtime_estimate = {
+        total_minutes: rt.total_min,
+        machine_id: rt.machine.machine_id,
+        confidence: coverage,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`runtime_estimate: ${msg}`);
+      enrichment.runtime_estimate = { total_minutes: 0, machine_id: machineId, confidence: 0, error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 3 — bidirectional optimizer recommendations.
+    try {
+      const [{ gcodeBidirectionalOptimizerEngine }, { MACHINE_LIBRARY }] = await Promise.all([
+        import("./GCodeBidirectionalOptimizerEngine.js"),
+        import("./GCodeRuntimePredictorEngine.js"),
+      ]);
+      const machine = MACHINE_LIBRARY[machineId];
+      if (!machine) throw new Error(`Unknown machine_id '${machineId}' for optimizer`);
+      const opt = gcodeBidirectionalOptimizerEngine.optimize({ blocks, machine });
+      const recs = Array.isArray(opt?.recommendations) ? opt.recommendations : [];
+      enrichment.optimizer_recommendations = {
+        count: recs.length,
+        top_3: recs.slice(0, 3).map((r: { category?: string; description?: string; estimated_savings_sec?: number }) => ({
+          category: r.category ?? "uncategorized",
+          description: r.description ?? "",
+          estimated_savings_pct: typeof r.estimated_savings_sec === "number"
+            ? Math.round((r.estimated_savings_sec / Math.max(1, base.estimated_cycle_min * 60)) * 1000) / 10
+            : undefined,
+        })),
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`optimizer_recommendations: ${msg}`);
+      enrichment.optimizer_recommendations = { count: 0, top_3: [], error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 4 — first-order cost estimate (mirrors V11 calc; deep
+    // CostEfficiencyBridge routing reserved for future PSN-MS1).
+    try {
+      const rates = partContext?.shop_rates ?? {
+        labor_per_hr_usd: 65,
+        machine_per_hr_usd: 95,
+        overhead_pct: 0.15,
+      };
+      const cycle_min = enrichment.runtime_estimate?.total_minutes ?? base.estimated_cycle_min;
+      const cycle_hr = cycle_min / 60;
+      const labor_cost = rates.labor_per_hr_usd * cycle_hr;
+      const machine_cost = rates.machine_per_hr_usd * cycle_hr;
+      const subtotal = labor_cost + machine_cost;
+      const overhead = subtotal * rates.overhead_pct;
+      const total = subtotal + overhead;
+      // Compare RATES not absolute costs — when cycle_hr === 0 (runtime
+      // substrate miss + base.estimated_cycle_min === 0), absolute costs
+      // are both 0 and the strict-greater comparison degenerates. Rate
+      // ratio is the load-bearing signal: whichever per-hour rate wins
+      // will always dominate the cost at any cycle_hr > 0. V11 uses
+      // absolute-cost `>=` which produces correct results only when
+      // cycle_hr > 0; this Okuma variant is the cycle-hr-invariant form.
+      const most_expensive = rates.machine_per_hr_usd > rates.labor_per_hr_usd
+        ? "machine_time"
+        : "labor";
+      enrichment.cost_report = {
+        total_cost_usd: Math.round(total * 100) / 100,
+        cycle_min,
+        most_expensive_line_item: most_expensive,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`cost_report: ${msg}`);
+      enrichment.cost_report = { total_cost_usd: 0, cycle_min: base.estimated_cycle_min, most_expensive_line_item: "unknown", error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 5 — PRISM AI feature recommendations.
+    try {
+      const { prismSelfAwarenessEngine } = await import("./PRISMSelfAwarenessEngine.js");
+      const query = partContext?.part_description
+        ?? `Okuma OSP-${config?.osp_family ?? this.defaultConfig.osp_family ?? "P300"}M program for ${partContext?.material?.name ?? "aluminum_6061"} on ${machineId}`;
+      const recs = prismSelfAwarenessEngine.recommendAIFeatures(query);
+      const arr = Array.isArray(recs) ? recs : [];
+      enrichment.ai_feature_recommendations = {
+        count: arr.length,
+        top_5: arr.slice(0, 5).map((r: { feature?: string; reason?: string; priority?: string }) => ({
+          feature: r.feature ?? "unknown",
+          reason: r.reason ?? "",
+          priority: r.priority,
+        })),
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`ai_feature_recommendations: ${msg}`);
+      enrichment.ai_feature_recommendations = { count: 0, top_5: [], error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    return { ...base, psn_enrichment: enrichment };
+  }
+}
+
+// Local helper — minimal MillOperation[] → ParsedBlock[] mapper for the
+// PSN-enrichment runtime + optimizer calls. Mirrors HurcoV11's helper
+// (intentionally NOT shared yet to keep both engines self-contained;
+// promotion to a shared module is HURCO-VM30I-FULL-PSN-MS1 candidate).
+// Emits one G0 rapid per op header followed by one block per cutting
+// coordinate (G1/G2/G3). Returns [] when operations is empty.
+// Defensive against missing fields (Number.isFinite gates).
+function operationsToParsedBlocksForOkuma(
+  operations: MillOperation[],
+): Array<{ motion: "G0" | "G1" | "G2" | "G3"; x?: number; y?: number; z?: number; f?: number; s?: number; t?: number }> {
+  const out: Array<{ motion: "G0" | "G1" | "G2" | "G3"; x?: number; y?: number; z?: number; f?: number; s?: number; t?: number }> = [];
+  for (const op of operations) {
+    if (!op?.coordinates?.length) continue;
+    const f = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min) ? op.feed_mm_min : undefined;
+    const s = typeof op.spindle_rpm === "number" && Number.isFinite(op.spindle_rpm) ? op.spindle_rpm : undefined;
+    const t = typeof op.tool_number === "number" && Number.isFinite(op.tool_number) ? op.tool_number : undefined;
+    const first = op.coordinates[0];
+    out.push({
+      motion: "G0",
+      x: typeof first?.x === "number" && Number.isFinite(first.x) ? first.x : undefined,
+      y: typeof first?.y === "number" && Number.isFinite(first.y) ? first.y : undefined,
+      z: typeof first?.z === "number" && Number.isFinite(first.z) ? first.z : undefined,
+      t,
+    });
+    for (const c of op.coordinates) {
+      if (!c) continue;
+      const motion: "G1" | "G2" | "G3" = c.type === "arc_cw" ? "G2" : c.type === "arc_ccw" ? "G3" : "G1";
+      out.push({
+        motion,
+        x: typeof c.x === "number" && Number.isFinite(c.x) ? c.x : undefined,
+        y: typeof c.y === "number" && Number.isFinite(c.y) ? c.y : undefined,
+        z: typeof c.z === "number" && Number.isFinite(c.z) ? c.z : undefined,
+        f,
+        s,
+        t,
+      });
+    }
+  }
+  return out;
 }
 
 // Singleton export — matches HurcoV11 / OkumaB250 export shape.

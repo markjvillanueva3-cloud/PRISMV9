@@ -99,8 +99,6 @@ export class MastercamEDMBridge {
       case "open_contour":
       case "closed_contour_no_core":
         return "wire_2axis";
-      case "micro_hole":
-        return "micro";
     }
   }
 

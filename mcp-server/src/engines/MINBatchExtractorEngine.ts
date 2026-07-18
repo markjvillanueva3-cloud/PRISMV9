@@ -5,7 +5,7 @@
  * Bounded-concurrency batch parser for the JM Die `.MIN` corpus
  * (5,297 production Okuma OSP programs).  The unit spec is explicit:
  *
- *   • Bounded worker pool: `min(os.cpus()-1, 8)`.
+ *   • Bounded worker pool: `min(os.availableParallelism()-1, 16)` (ceiling raised 8→16 for the 9950X3D2 16C/32T; HARDWARE-DRIVE-SYNC-AUDIT-2026-06-08 §3.3).
  *   • Backpressure: in-flight count never exceeds the pool size.
  *   • Per-file byte cap (default 32 MiB; spec allows up to 64).
  *   • Checkpoint every N completions (default 250).
@@ -119,10 +119,17 @@ export const DEFAULT_MAX_BYTES_PER_FILE = 32 * 1024 * 1024;
 export const DEFAULT_CHECKPOINT_EVERY = 250;
 export const SCHEMA_VERSION: MINBatchCheckpoint["schemaVersion"] = "1.0.0";
 
-/** Default concurrency: min(os.cpus()-1, 8), floor 1. */
+/**
+ * Default concurrency: min(parallelism-1, 16), floor 1.
+ * Ceiling raised 8→16 for the 9950X3D2 (16C/32T); HARDWARE-DRIVE-SYNC-AUDIT-2026-06-08 §3.3.
+ * Prefer os.availableParallelism() (honors cgroup/affinity limits) with cpus().length fallback.
+ */
 export function defaultConcurrency(): number {
-  const cpus = os.cpus()?.length ?? 1;
-  return Math.max(1, Math.min(cpus - 1, 8));
+  const parallelism =
+    typeof os.availableParallelism === "function"
+      ? os.availableParallelism()
+      : (os.cpus()?.length ?? 1);
+  return Math.max(1, Math.min(parallelism - 1, 16));
 }
 
 // --------------------------------------------------------------------------

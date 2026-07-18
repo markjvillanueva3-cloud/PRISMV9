@@ -1,0 +1,200 @@
+# PRISM System Context — Auto-loaded every session
+
+## What PRISM Is
+CNC manufacturing intelligence platform that takes engineering drawings and produces
+physics-optimized CNC programs with per-block variable speeds/feeds. The system matches
+AND improves upon human-programmed results.
+
+## Architecture
+```
+MCP Server (TypeScript):  H:/prism/mcp-server/ — 1,478 engines, 78 dispatchers, 4,130 actions
+Web App (React/Vite):     H:/prism/mcp-server/web/src/ — 77 pages, 89 tests, React 19 + Vite 6
+CAD Engine (Python):      H:/prism/cad-engine/ — CadQuery 2.x + OpenCascade, 97 Python files
+CLI (Commander.js):       H:/prism/mcp-server/src/cli/ — 37 commands, built at dist/cli.js
+Physics Constants:        H:/prism/mcp-server/src/physics/constants.ts — canonical Kienzle/Taylor
+Registries:               H:/prism/mcp-server/src/registries/ — 24 registries, 24 MB
+Data:                     95,608 tools, 910 machines, 2,957 materials, 4,127 tribal tips
+Tests:                    1,104 test files in src/__tests__/
+```
+
+## What's Built — Use These Instead of Building New
+### 9 Manufacturing Pipelines (DON'T rebuild, wire to them):
+- `PrintToProgramPipelineEngine` — milling (has X0 Y0 bug, planned fix)
+- `TurningPrintToProgramEngine` — turning (G96/G97, TNRC, 24 gaps)
+- `MultiAxisPrintToProgramEngine` — 5-axis
+- `MillTurnSwissPipelineEngine` — mill-turn/swiss (multi-channel)
+- `EDMProgramAssemblerEngine` — wire/sinker/micro EDM (6 dialects, production-ready)
+- `GrindingProgramAssemblerEngine` — 5 types, 6 dialects (ONLY engine using canonical enrichment)
+- `LaserProgramAssemblerEngine` — cut/mark/weld/drill + nesting (7 dialects)
+- `WaterjetProgramAssemblerEngine` — AWJ/pure/taper/depth + nesting (6 dialects)
+- `QuoteToShipOrchestratorEngine` — 21-stage business pipeline (NOT exported from index.ts yet)
+
+### PostProcessor (38 stages, production-grade):
+- `PostProcessorPipelineEngine` — per-block S/F variability, 20 controller dialects
+- 7 phases: input normalization → physics → block-by-block → motion → stochastic → safety → output
+
+### Central Physics Hub:
+- `SpeedFeedOrchestratorEngine` — 8 resolvers, 2,851 lines, Monte Carlo UQ
+- `KienzleForceModelEngine` — Kienzle with corrections (rake, wear, speed, size effect)
+- `ChatterStabilityLobeEngine` — SLD generation
+- `ThermalWearCouplingEngine` — coupled ODE (RK4), Usui wear
+
+### Key Registries (USE these, don't hardcode data):
+- `MaterialRegistry` — 2,957 materials with physics properties
+- `ToolRegistry` — 95,608 tools with geometry
+- `MachineRegistry` — 910 machines with kinematics
+- `ToolpathStrategyRegistry` — 762 strategies across 18 CAM systems
+- `FormulaRegistry` — 499 formulas
+- `AlgorithmRegistry` — 51 algorithms
+
+### Automation Control Plane (ACP — 7 engines, 22 dispatcher actions):
+- `AutomationChainEngine` — 9-class task classifier, chain routing, context bundles
+- `BuildGuardChainEngine` — pre-edit safety, edit tracking, typecheck, test resolution
+- `ChainFailureRecoveryEngine` — retry with backoff, graceful degradation, notifications
+- `ContextChainEngine` — task-aware bundle loading, pressure estimation, compaction planning
+- `SpeedFeedAutopilotEngine` — material→tool→machine→S/F end-to-end chain
+- `PostProcessorAutopilotEngine` — 20-dialect PPG + print-to-program chain
+- `QuoteAutopilotEngine` — DFM→cost→qty breaks + telemetry calibration
+
+### Max Utilization (MXU — 10 engines, 35 dispatcher actions):
+- `UtilizationContractEngine` + `CapabilityCensusEngine` — live system census
+- `CodingCopilotEngine` — reuse suggestion, duplication detection, templates
+- `TokenEconomyEngine` — budget/spending/waste/compression per task class
+- `PersistentMemoryEngine` — cross-session learning, preferences, calibration
+- `CapabilityPathEngine` — 4 learning paths (S/F, PP, Quote, Quality)
+- `WorkflowOrchestrationEngine` — multi-agent workflow coordination
+- `ProductPillarEngine` — 8 product pillars with completeness scoring
+- `DiscoverabilityEngine` — capability search, browse, recommend
+- `CapabilityEffectivenessEngine` — E2E validation, usage telemetry
+
+### Also exist (check ENGINE_DIGEST.md for full list):
+- Quality: SPC, FAI (AS9102), MaterialCert, Metrology
+- Business: 350 actions in businessDispatcher (Quote, Cost, Capacity, OEE, etc.)
+- Learning: Onboarding, Apprentice, Playbook (296 rules), TribalKnowledge (4,127 tips)
+- Memory: MemoryGraph, SessionEventLog, Telemetry, ContextSnapshot
+
+## Token-Efficient Navigation (use INSTEAD of Glob/Grep):
+- `ENGINE_DIGEST.md` — ALL 1,477+ engines with 1-line descriptions
+- `DISPATCHER_DIGEST.md` — ALL 81 dispatchers with action counts
+- `MASTER_INDEX_COMPACT.md` — full system map (~735 tokens)
+- `/navigate <topic>` — zero-IO file routing
+- `/code-index <shortcode>` — resolve E0001→path instantly
+
+## Roadmap:
+`H:/prism/CAMX-RESTRUCTURED-ROADMAP-v24.md` | Current position: HANDOFF.md
+```
+0-A/B/C: COMPLETE | 0-D: IN PROGRESS (registry wiring + CAD engine)
+Phase 1-4: Knowledge → Business → Physics Fusion → Simulation
+Phase 5-14: Per-machine pipelines → Validation → Web UI → Future
+```
+
+## Compact Instructions
+When compacting this conversation, PRESERVE these critical facts:
+- Current roadmap position (read from HANDOFF.md)
+- Any physics constants or formulas being worked on (exact values, not approximations)
+- Engine wiring state: which engines were modified and whether tests/review passed
+- Incomplete work: what was started but not finished, with exact file paths
+- Build state: last known build pass/fail and test counts
+- Active bugs or regressions discovered during this session
+
+After compaction, IMMEDIATELY:
+1. Read H:/prism/state/HANDOFF.md for the RESUME section
+2. Execute the resume instruction without asking the user
+3. Do NOT summarize what happened — just continue working
+
+## V24 ROADMAP EXECUTION PROTOCOL — MANDATORY, NOT ADVISORY
+
+**THIS IS A BLOCKING REQUIREMENT. You MUST follow these steps IN ORDER when working on
+any v24 roadmap session. Skipping steps is a bug, not an optimization. If you catch yourself
+writing engine code without having done steps 1-3, STOP and go back.**
+
+### Session Start (before writing ANY code):
+1. **READ the session block** from `CAMX-RESTRUCTURED-ROADMAP-v24.md` — find the exact
+   SESSION heading (e.g., "SESSION 0-D-7b") and read its SMART CONFIG, KNOWLEDGE SOURCES,
+   INTENT, WORK, and EXIT GATE sections completely.
+2. **CREATE TASKS** from the WORK section — one task per unit (e.g., U-PROC1, U-PROC2).
+   Each task must include the 4-LOOP steps as subtasks.
+3. **READ the KNOWLEDGE SOURCES** listed in the session block before touching any code.
+
+### Per Unit (the 4-LOOP — execute ALL three, no exceptions):
+4. **LOOP 1 — BUILD**: Write/modify the code. Run `npx tsc --noEmit` → 0 errors.
+5. **LOOP 2 — SCRUTINIZE**: Run `/prism-review` with domain-adaptive agents.
+   Fix ALL CRITICAL + HIGH + MEDIUM findings. Do NOT label issues "pre-existing" to skip them.
+   Do NOT cap at 3 fixes and move on. Fix them ALL.
+6. **LOOP 3 — GAP FILL + TIE UP**: Run affected tests → 0 failures. Check wiring
+   (import + call + result). Check constants are from canonical source. Confirm the output
+   would be accepted by a machinist.
+
+### Session Exit (before /compact):
+7. **EXIT GATE**: Verify every checkbox in the session block's EXIT GATE line.
+8. **FORGE-TRIPLE** (if specified): Create hook + MCP action + skill enhancement.
+9. **`/compact`** — writes HANDOFF.md with RESUME line for next session.
+
+### Enforcement:
+- A PreToolUse hook (`review-gate.sh`) BLOCKS engine edits when `engine_edits_since_review > 3`
+  without a `/prism-review` run. This is mechanical — you cannot override it.
+- The `session-edit-counter.json` tracks your progress. It resets on review completion.
+- **TEST QUALITY GATE** (`test-quality-gate-stop.mjs`) BLOCKS session stop if any test file
+  written this session is shallow. Engine/dispatcher/system tests require: ≥10 test cases,
+  nested describes, substantive assertions on return values (not .toBeDefined()), edge cases
+  (zero/negative/invalid/boundary), real manufacturing inputs, .toBeCloseTo() for floats,
+  and ≥3 actions for dispatcher tests. ALL roadmap sessions must follow this — no exceptions.
+- If you find yourself wanting to skip a step "because it's simple" or "just a small change" —
+  that is EXACTLY when the protocol matters most. Small changes compound into large gaps.
+
+## Automated Compact-Resume Loop (MANDATORY during autopilot)
+When autopilot mode is active (`H:/prism/.claude/cache/autopilot-active` exists):
+1. **Auto-compact trigger**: When context-pressure-tracker reports CRITICAL (75%+),
+   you MUST immediately write HANDOFF.md with a `## RESUME` section and run `/compact`
+2. **Auto-resume after compact**: The PostCompact hook (`auto-resume-injector.mjs`)
+   injects RESUME instructions. Execute them IMMEDIATELY — do NOT ask the user, do NOT
+   summarize, do NOT run /startup. Just read HANDOFF.md and continue working.
+3. **Stop blocking**: The Stop hook (`auto-compact-gate.mjs`) BLOCKS stopping when
+   autopilot is active and context is critical. You must compact instead of stopping.
+4. **The loop**: work → context fills → compact → resume → work. This continues until
+   the active roadmap track is complete.
+5. **Activate**: `node H:/prism/.claude/helpers/autopilot-flag.mjs set --track TRACK_NAME`
+6. **Deactivate**: `node H:/prism/.claude/helpers/autopilot-flag.mjs clear`
+
+## Token-Saving Auto-Fire Hooks (11 hooks — OBEY their guidance)
+Hooks fire automatically via portable-user-settings.json. When they inject
+`additionalContext`, FOLLOW the suggestion — it saves tokens.
+
+**PreToolUse (fire BEFORE the tool runs):**
+- `search-router-hook.mjs` (Grep|Glob) — Routes 65 keywords to exact files via KEYWORD_ROUTES.json.
+  When it says "Files: X, Y" → Read those files directly instead of scanning.
+- `navigate-first-hook.mjs` (Glob) — Suggests ENGINE_DIGEST/DISPATCHER_DIGEST before broad scans.
+  When it says "check digest first" → do it. Saves 200-500 tokens per search.
+- `large-read-guard-hook.mjs` (Read) — Warns on files >50KB without offset/limit.
+  When it warns → use offset/limit to read only the section you need.
+- `bash-redirect-hook.mjs` (Bash) — Detects cat/grep/find/sed that should use Read/Grep/Glob/Edit.
+  When it warns → switch to the dedicated tool. Better output, fewer tokens.
+- `agent-spawn-guard-hook.mjs` (Agent) — Warns on 3+ agents in 2 min.
+  When it warns → use direct tools (Read/Grep/Glob) instead of agents for simple lookups.
+- `copilot-dedup-hook.mjs` (Write) — Blocks duplicate engine creation.
+
+**PostToolUse (fire AFTER the tool runs):**
+- `token-economy-hook.mjs` (all tools) — Tracks spending per category, detects waste patterns.
+- `build-guard-hook.mjs` (Write|Edit) — Tracks edits, suggests tests at 3/5/12 edit thresholds.
+
+**Other events:**
+- `context-chain-hook.mjs` (PreCompact) — Preserves critical facts before compaction.
+- `prompt-classifier-hook.mjs` (UserPromptSubmit) — Classifies task into 9 types.
+- `chain-recovery-hook.mjs` (PostToolUseFailure) — Suggests recovery on tool failure.
+
+**Token-saving rules (MANDATORY):**
+- Check KEYWORD_ROUTES.json or ENGINE_DIGEST.md BEFORE Grep/Glob searches
+- Use `offset`/`limit` on Read for files >50KB
+- Use Read/Grep/Glob instead of cat/grep/find in Bash
+- Reserve Agent for complex multi-step research, not simple lookups
+- Use `rtk` prefix for long-output commands (vitest, npm install)
+
+## Critical Rules
+- **Effort: MAX always** (`/effort max` every session)
+- **Compact every 2-3 units** (never exceed 3 without compacting)
+- **Real-world validation** — all tests compare to manufacturer data
+- **Multi-role scrutiny** at session exits (/prism-review with domain-adaptive agents)
+- **Follow V24 PROTOCOL above** — read session block → tasks → 4-LOOP → EXIT GATE
+- **Don't rebuild what exists** — check ENGINE_DIGEST.md first
+- **Canonical constants** — import from src/physics/constants.ts, never inline
+- **Desktop Claude coordination** — read/write H:/prism/state/shared/ for sync

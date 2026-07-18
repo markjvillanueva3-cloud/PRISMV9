@@ -29,6 +29,7 @@ import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
+import { stripLoneSurrogates } from "../../scripts/lib/safe-truncate.mjs";
 
 function readStdinSafe() {
   try {
@@ -91,7 +92,7 @@ function resolveSessionId(stdinSid) {
     return `claude-${stdinSid.slice(0, 8)}`;
   }
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { encoding: "utf-8", timeout: 1500 });
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true, encoding: "utf-8", timeout: 1500 });
     const id = (r.stdout || "").trim();
     if (id && id.length >= 8) return id;
   } catch {
@@ -294,7 +295,7 @@ async function main() {
       continue: true,
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
-        additionalContext: brief,
+        additionalContext: stripLoneSurrogates(brief),
       },
     })
   );

@@ -940,7 +940,7 @@ export class TurretLayoutEngine {
         return this.analyzeTurretCapability(params.config as TurretConfig);
 
       case "turret_optimize_layout":
-        return this.optimizeToolLayout(params as TurretOptimizationInput);
+        return this.optimizeToolLayout(params as unknown as TurretOptimizationInput);
 
       case "turret_plan_gang":
         return this.planGangToolLayout(

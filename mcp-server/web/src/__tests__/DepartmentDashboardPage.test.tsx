@@ -31,7 +31,8 @@ beforeEach(() => {
 describe('DepartmentDashboardPage', () => {
   it('renders mounted overview, utilization, downtime, and cost lanes', async () => {
     mockWhoClockedIn.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         employees: [
           {
             employee_id: 'EMP-01',
@@ -52,7 +53,8 @@ describe('DepartmentDashboardPage', () => {
       },
     } as any);
     mockEmployeeDeptSummary.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         departments: [
           {
             department: 'Machining',
@@ -67,7 +69,8 @@ describe('DepartmentDashboardPage', () => {
       },
     } as any);
     mockEmployeeUtilization.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         utilization_pct: 82,
         billable_hours: 6.6,
         total_hours: 8,
@@ -95,7 +98,8 @@ describe('DepartmentDashboardPage', () => {
 
   it('fails closed when utilization or cost fields are missing', async () => {
     mockWhoClockedIn.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         employees: [
           {
             employee_id: 'EMP-77',
@@ -110,7 +114,8 @@ describe('DepartmentDashboardPage', () => {
       },
     } as any);
     mockEmployeeDeptSummary.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         departments: [
           {
             department: 'Grinding',

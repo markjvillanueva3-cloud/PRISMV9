@@ -1129,7 +1129,7 @@ export class PostProcessorDeepAIHardeningEngine {
    */
   getFeatureCompatibilityMatrix(): Record<string, Record<string, boolean>> {
     const features = ["rigid_tapping", "peck_tapping", "5_axis_tcp", "tilted_work_plane", "smoothing", "probing"];
-    const controllers: ControllerFamily[] = ["hurco_winmax", "haas_ngc", "fanuc_31i", "okuma_osp", "heidenhain_tnc", "siemens_840d"];
+    const controllers: ControllerFamily[] = ["hurco_winmax", "haas_ngc", "fanuc", "okuma_osp", "heidenhain_tnc", "siemens_sinumerik"];
 
     const matrix: Record<string, Record<string, boolean>> = {};
 

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="d9dfd5cdd2ef23534822b62d20cbbb0639c093b2828dc89be018b65ab96990d2">
+<title>U-REGEN-VIZ-MERGE-FAILLOUD — fail-loud the silent merge step</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">U-REGEN-VIZ-MERGE-FAILLOUD — fail-loud the silent merge step</h1>
+<p class="provenance">Generated 2026-05-18T17:34:21.178Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#u-regen-viz-merge-failloud-fail-loud-the-silent-merge-step">U-REGEN-VIZ-MERGE-FAILLOUD — fail-loud the silent merge step</a></li>
+<li class="toc-l2"><a href="#bug">Bug</a></li>
+<li class="toc-l2"><a href="#classify-technique-edge-cases-failure-modes-karpathy">Classify · Technique · Edge cases · Failure modes (Karpathy)</a></li>
+<li class="toc-l2"><a href="#scope-sizing-s-2-3-hours">Scope sizing (S — ~2-3 hours)</a></li>
+<li class="toc-l2"><a href="#out-of-scope-separate-units">Out of scope (separate units)</a></li>
+<li class="toc-l2"><a href="#tests">Tests</a></li>
+<li class="toc-l2"><a href="#sister-surfaces-to-update-per-feedbackreflectallchangespost_update">Sister surfaces to update (per feedbackreflectallchangespost_update)</a></li>
+<li class="toc-l2"><a href="#coordination">Coordination</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">unit</th><td>U-REGEN-VIZ-MERGE-FAILLOUD</td></tr>
+<tr><th scope="row">slot</th><td>lima (claude-77971357)</td></tr>
+<tr><th scope="row">created</th><td>2026-05-17</td></tr>
+<tr><th scope="row">domain</th><td>backend-dev / harness-tooling</td></tr>
+<tr><th scope="row">sister-to</th><td>precompact-handoff bare-node-spawnSync fix (CLAUDE.md 2026-05-16, commit 5c4778b59)</td></tr>
+<tr><th scope="row">status</th><td>planned (not started)</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="u-regen-viz-merge-failloud-fail-loud-the-silent-merge-step"><a class="anchor" href="#u-regen-viz-merge-failloud-fail-loud-the-silent-merge-step" aria-label="Permalink to U-REGEN-VIZ-MERGE-FAILLOUD — fail-loud the silent merge step">#</a>U-REGEN-VIZ-MERGE-FAILLOUD — fail-loud the silent merge step</h1>
+<h2 id="bug"><a class="anchor" href="#bug" aria-label="Permalink to Bug">#</a>Bug</h2>
+<p><code>scripts/regen-viz.mjs --full</code> spawns <code>scripts/merge-augmentations.mjs</code> to splice augmentations into <code>state/shared/system-viz/system-graph.json</code>. Under default Node heap (~4GB) and 97% commit-memory pressure, the merge subprocess crashes (likely <code>JavaScript heap out of memory</code>) but:</p>
+<ol>
+<li>The parent captures <strong>zero stderr</strong> (subprocess output not piped/inherited or silently swallowed).</li>
+<li>The parent emits one cryptic line: <code>[regen-viz] ✗ merge failed</code>.</li>
+<li>The parent <strong>continues through post-merge stages</strong> against the <strong>stale pre-merge graph</strong>.</li>
+<li>The script <strong>exits 0</strong> with <code>failed=1 · driftFail=false</code>.</li>
+<li>drift-gate reports clean (because the stale graph IS structurally clean — just stale).</li>
+</ol>
+<p>Reproduced 2026-05-17 in lima session 77971357: a <code>--full</code> regen completed in 150.3s with apparent success but the new fs-deep augmentation (34.3 MB, 37,791 new nodes) was rolled back. Direct invocation <code>node --max-old-space-size=8192 scripts/merge-augmentations.mjs</code> succeeded immediately — confirming the only thing wrong was the parent&#39;s spawn config + error handling.</p>
+<p><strong>Class:</strong> fail-silent. Identical family to the <code>precompact-handoff.mjs</code> bare-node-spawnSync regression already in CLAUDE.md (2026-05-16 / 5c4778b59). Karpathy R12 violation — &quot;merge failed&quot; returning exit 0 is dishonest.</p>
+<h2 id="classify-technique-edge-cases-failure-modes-karpathy"><a class="anchor" href="#classify-technique-edge-cases-failure-modes-karpathy" aria-label="Permalink to Classify · Technique · Edge cases · Failure modes (Karpathy)">#</a>Classify · Technique · Edge cases · Failure modes (Karpathy)</h2>
+<p><strong>CLASSIFY:</strong> spawn-failure-handling + heap-config bug in an orchestrator script.</p>
+<p><strong>TECHNIQUE:</strong></p>
+<ol>
+<li><strong>Pass <code>--max-old-space-size=8192</code></strong> when spawning merge-augmentations.mjs (its graph buffer is now 331 MB; default 4 GB heap is too tight under host-OS pressure).</li>
+<li><strong>Capture subprocess stdout + stderr</strong> into the parent log instead of dropping them (<code>spawnSync(..., { stdio: &#39;inherit&#39; })</code> or explicit capture-and-print).</li>
+<li><strong>Treat non-zero exit as FATAL</strong> — the script must exit non-zero, NOT continue through post-merge stages against a stale graph.</li>
+<li><strong>Pre/post sanity assert</strong> — if augmentations emitted N nodes/edges per their JSON files but the merge step records 0 deltas across all merge counters, fail loud (covers the &quot;subprocess silently truncated graph&quot; case).</li>
+<li><strong>Sweep the orchestrator</strong> — apply the same capture + fail-loud pattern to every <code>spawnSync</code>/<code>exec</code> of a sub-stage in regen-viz.mjs (drift detector, engine-classification, dedup, restructure, parent-edges, obsidian-bridge, executive-briefing, wiki-debt). They all share the same anti-pattern by inspection of the prior log.</li>
+</ol>
+<p><strong>EDGE CASES:</strong></p>
+<ul>
+<li>Subprocess crashed (exit ≠ 0, stderr empty): parent must print <code>merge process exited N: &lt;stderr or &#39;(no stderr)&#39;&gt;</code>.</li>
+<li>Subprocess OOM: bumped heap should prevent recurrence; if not, captured stderr surfaces <code>JavaScript heap out of memory</code>.</li>
+<li>Subprocess hung: add a <code>timeout: 240000</code> to the spawnSync call; on TIMEOUT fail loud, do NOT roll back to stale.</li>
+<li>Subprocess wrote a partial graph file on disk: VERIFY <code>merge-augmentations.mjs</code> uses atomic write-and-rename (tmp + rename); if not, ship that as a sibling fix.</li>
+<li>spawn ENOENT (e.g., portable-node missing from PATH): same fail-loud message.</li>
+</ul>
+<p><strong>FAILURE MODES (what success looks like):</strong></p>
+<ul>
+<li>≥1 augmentation file present + merge subprocess exit 0 → merged graph; post-merge stages run.</li>
+<li>Augmentation file present + merge subprocess exit ≠ 0 → script exits ≠ 0, prints stderr, does NOT run post-merge stages.</li>
+<li>Augmentation file present + merge subprocess exit 0 + 0 deltas reported across all merge counters AND ≥1 augmentation file had non-zero content → script exits ≠ 0 (sanity assert).</li>
+<li>No augmentation files (fresh checkout) → no merge spawn, script exits 0 (existing happy path).</li>
+</ul>
+<h2 id="scope-sizing-s-2-3-hours"><a class="anchor" href="#scope-sizing-s-2-3-hours" aria-label="Permalink to Scope sizing (S — ~2-3 hours)">#</a>Scope sizing (S — ~2-3 hours)</h2>
+<ul>
+<li>~50 LOC change in <code>scripts/regen-viz.mjs</code> (runStage hardening + heap arg + capture + sanity assert).</li>
+<li>~30 LOC test file: <code>scripts/__tests__/regen-viz-merge-faillod.test.mjs</code> (inject failing merge sub-step via PATH override + fixture spawn, assert exit ≠ 0 and stderr captured).</li>
+<li>1 regression line in <code>H:/prism/CLAUDE.md</code> <code>## Recent regressions</code> section.</li>
+<li>0 schema changes, 0 dispatcher wiring, 0 engine churn.</li>
+</ul>
+<h2 id="out-of-scope-separate-units"><a class="anchor" href="#out-of-scope-separate-units" aria-label="Permalink to Out of scope (separate units)">#</a>Out of scope (separate units)</h2>
+<ul>
+<li><strong>Audit other orchestrator scripts</strong> for the same anti-pattern (regen-wiki-from-viz.mjs, build-state-snapshot.mjs, etc.) — flag as <code>U-ORCHESTRATOR-SPAWN-AUDIT</code>.</li>
+<li><strong>merge-augmentations.mjs internal perf</strong> — it ran clean direct with 8 GB heap. Heap reduction is a follow-up unit if telemetry shows the box can&#39;t always spare 8 GB.</li>
+<li><strong>fs-deep generator perf</strong> — 3.0s incremental is fine; cold-start cost untested.</li>
+</ul>
+<h2 id="tests"><a class="anchor" href="#tests" aria-label="Permalink to Tests">#</a>Tests</h2>
+<ul>
+<li><code>regen-viz-merge-faillod.test.mjs</code> — happy path · failing sub-step exits ≠ 0 with stderr in parent log · 0-delta sanity assert · timeout enforcement · ENOENT path.</li>
+<li>Coverage floor (per CLAUDE.md <code>COMPREHENSIVE-BUILD ENFORCEMENT</code>): happy + 3 failure modes + ≥2 adversarial (truncated augmentation JSON, NaN node count in counters).</li>
+</ul>
+<h2 id="sister-surfaces-to-update-per-feedbackreflectallchangespost_update"><a class="anchor" href="#sister-surfaces-to-update-per-feedbackreflectallchangespost_update" aria-label="Permalink to Sister surfaces to update (per feedbackreflectallchangespost_update)">#</a>Sister surfaces to update (per <code>feedback_reflect_all_changes_post_update</code>)</h2>
+<ul>
+<li><code>H:/prism/CLAUDE.md</code> <code>## Recent regressions</code> line citing this commit.</li>
+<li><code>knowledge/wiki/architecture/regen-viz-faillod.md</code> — short wiki entry.</li>
+<li>Memory file: <code>C:/Users/wompu/.claude/projects/H--PRISM/memory/reference_u_regen_viz_merge_faillod_2026_05_17.md</code>.</li>
+</ul>
+<h2 id="coordination"><a class="anchor" href="#coordination" aria-label="Permalink to Coordination">#</a>Coordination</h2>
+<ul>
+<li>Lima slot will claim <code>U-REGEN-VIZ-MERGE-FAILLOUD</code> via <code>slot-task-claim.mjs</code> before editing <code>scripts/regen-viz.mjs</code>.</li>
+<li><code>scripts/regen-viz.mjs</code> is NOT currently peer-claimed (verified at planning time 2026-05-17 03:50 local).</li>
+<li>Single-file edit + 1 new test file — no multi-file scrutiny gate burden beyond the standard 2-reviewer per-file pass.</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="U-REGEN-VIZ-MERGE-FAILLOUD-FIX-PLAN-2026-05-17.md">U-REGEN-VIZ-MERGE-FAILLOUD-FIX-PLAN-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

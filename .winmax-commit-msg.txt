@@ -1,0 +1,23 @@
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [POST-TRAIN-MS0]/U-WINMAX-BUTTON-SIGNATURE (slot:echo): vision-free Button-automationId tiebreak resolves the field-less WinMax Draw/Verify screen
+
+Condition-1 live bug (signatureOf too coarse for field-less screens -> whereami false-ambiguous on
+the Graphics/Draw/Verify view) FIXED with an ADDITIVE distinctive-Button discriminator -- no vision,
+Edit-signature path byte-identical (sigEqual/fingerprint ignore the new buttons field).
+
+- distinctiveButtons(): named Button ids, excludes window chrome + numeric F-key softkeys
+  (orthogonal to the softkey dimension -- no double-counting)
+- signatureOf.buttons (additive) + disambiguateByButtons() (Jaccard, strict-beat, ties->null)
+- matchScreen: button tiebreak BEFORE the vision softkey fallback, tags resolvedBy:"buttons"
+- map: recorded DRAW_VERIFY screen w/ REAL live-captured 26-button signature (Max5UI pid87672,
+  2026-06-01); entryUnobserved:true -- no fabricated transition; closes gaps[0]
+- fix latent crash: CLI-guard dereferenced process.argv[1] unguarded (threw on dynamic import)
+
+PROVEN offline against the real map via real matchScreen: real Draw/Verify buttons ->
+match=DRAW_VERIFY resolvedBy=buttons ambiguous=false (was false-ambiguous). Softkey-only menu still
+null/ambiguous (no false positive). 31/31 tests green.
+
+Scrutiny 2-of-2 (code-analyzer + reviewer) PASS all invariants; both caught a brittle pre-existing
+toBeCloseTo(1/N,5) assertion the 6th field-less screen tipped over -- fixed to the code's 3dp contract.
+
+Follow-up (pre-existing, scrutiny-surfaced): U-WINMAX-NAV-PATH-CONTRACT -- winmax-course-run nav reads
+path.ok/path.keys but the path CLI emits a bare array; live nav broken by the shape mismatch.

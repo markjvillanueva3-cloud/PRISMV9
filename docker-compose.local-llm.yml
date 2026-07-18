@@ -1,0 +1,54 @@
+# PRISM LOCAL-LLM serving (vLLM) - Phase-0 POC. Materializes blueprint TIER-0.3
+# (LOCAL-LLM-FOUNDATION-BLUEPRINT-2026-06-03.md) and serves the OpenAI-compatible
+# endpoint the existing .claude/hooks/lib/vllm-hook-bridge.mjs already expects:
+#   GET  http://127.0.0.1:8020/v1/models
+#   POST http://127.0.0.1:8020/v1/chat/completions   (served-model-name = local-vllm)
+#
+# OPT-IN ONLY (profile "vllm") - does NOT auto-start with the default PRISM stack.
+# The 80B fp8 target reserves ~43GB VRAM (gpu-memory-utilization 0.45 of 96GB), which
+# fits the three-way 88GB budget ONLY when Ollama large models are evicted first
+# (see VLLM-INCORPORATION-PLAN-2026-06-10.md section 5.2 + the GPU-VRAM admission guard).
+#
+# Start (80B fp8 target):  docker compose -f docker-compose.local-llm.yml --profile vllm up -d
+# Smoke (small model):     VLLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct VLLM_QUANT=None VLLM_MAX_LEN=8192 \
+#                          VLLM_GPU_UTIL=0.10 docker compose -f docker-compose.local-llm.yml --profile vllm up
+# Stop / teardown:         docker compose -f docker-compose.local-llm.yml --profile vllm down
+#
+# NOTE: Qwen3-Next is a newer hybrid architecture - if vllm/vllm-openai:latest does not
+# yet support it, pin VLLM_IMAGE to a tag that does (verify at smoke time; fail-loud, do
+# not assume). HF gated weights need HF_TOKEN in the environment.
+
+services:
+  vllm:
+    image: ${VLLM_IMAGE:-vllm/vllm-openai:latest}
+    container_name: prism-vllm
+    profiles: ["vllm"]
+    restart: "no"
+    ports:
+      - "${VLLM_PORT:-8020}:8000"
+    ipc: host                       # vLLM requires host IPC / large shared memory
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-}
+    volumes:
+      - ${HF_CACHE_DIR:-./.cache/huggingface}:/root/.cache/huggingface
+    command: >
+      --model ${VLLM_MODEL:-Qwen/Qwen3-Next-80B-A3B-Instruct}
+      --served-model-name ${VLLM_SERVED_NAME:-local-vllm}
+      --quantization ${VLLM_QUANT:-fp8}
+      --max-model-len ${VLLM_MAX_LEN:-262144}
+      --gpu-memory-utilization ${VLLM_GPU_UTIL:-0.45}
+      --port 8000
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/v1/models').status==200 else 1)\" || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 30
+      start_period: 900s            # 80B fp8 cold weight-load is slow (first run also downloads)

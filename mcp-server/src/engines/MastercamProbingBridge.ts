@@ -251,7 +251,14 @@ export class MastercamProbingBridge {
     lines.push("");
 
     // Select macro set based on controller
-    const macros = controller === "haas" ? HAAS_MACROS : RENISHAW_FANUC_MACROS;
+    const macros = (controller === "haas" ? HAAS_MACROS : RENISHAW_FANUC_MACROS) as {
+      single_point_z?: string;
+      bore?: string;
+      boss?: string;
+      web?: string;
+      tool_length?: string;
+      tool_breakage?: string;
+    };
 
     // Tool call for probe
     lines.push("T99 M6 (PROBE)");
@@ -382,7 +389,13 @@ export class MastercamProbingBridge {
         measured: Math.round(measured * 10000) / 10000,
         deviation: Math.round(deviation * 10000) / 10000,
         in_tolerance: inTolerance,
-        action_taken: inTolerance ? "none" : cycle.compensation_action || "alarmed",
+        action_taken: inTolerance ? "none" : (
+          cycle.compensation_action === "update_wcs" || cycle.compensation_action === "update_tool"
+            ? "compensated"
+            : cycle.compensation_action === "skip"
+              ? "skipped"
+              : "alarmed"
+        ),
         timestamp: new Date().toISOString()
       };
     });

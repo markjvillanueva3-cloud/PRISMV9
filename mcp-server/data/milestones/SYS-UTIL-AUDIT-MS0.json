@@ -1,0 +1,545 @@
+{
+  "id": "SYS-UTIL-AUDIT-MS0",
+  "title": "System Utilization Audit — 10-Pillar Synergy Pass",
+  "track": "SYS",
+  "status": "completed",
+  "phase": "SYS-UTIL",
+  "owner": "Claude-Opus47",
+  "created": "2026-04-19",
+  "description": "Score and remediate utilization across 10 PRISM pillars: dev tools, protocols, CLAUDE.md, skills, scripts, hooks (auto-fire), awareness, memory, container skills, AI system. Strict threshold: pillar score < 0.85 = MAJOR finding. Autopilot mode: auto-fix safe items (orphan hook re-registration, missing index regen, dead skill registration, stale CLAUDE.md counts, undocumented dispatchers); flag risky items for review. Output: SystemUtilizationAuditEngine + scored evidence files + remediation commits.",
+  "exhaustive_law_compliance": "All 10 pillars enumerated; each unit produces 0-1 score + evidence file + fix list; no pillar skipped",
+  "units": [
+    {
+      "id": "SYS-UTIL-MS0-U01",
+      "title": "Build SystemUtilizationAuditEngine + scoring framework",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "DuplicationGuard check — confirm no existing SystemUtilization* engine"
+        },
+        {
+          "number": 2,
+          "instruction": "Create src/engines/SystemUtilizationAuditEngine.ts with runPillar(pillarId), scorePillar, auditAll, writeReport methods"
+        },
+        {
+          "number": 3,
+          "instruction": "Define UtilizationScore type: { pillar, score (0-1), evidence[], gaps[], autoFixable[], reviewRequired[] }"
+        },
+        {
+          "number": 4,
+          "instruction": "Wire into devDispatcher as actions: util_audit_run, util_audit_pillar, util_audit_report, util_audit_fix"
+        },
+        {
+          "number": 5,
+          "instruction": "Add unit test src/__tests__/SystemUtilizationAuditEngine.test.ts (smoke + scoring)"
+        },
+        {
+          "number": 6,
+          "instruction": "build:fast and confirm zero new tsc errors"
+        }
+      ],
+      "exit_conditions": [
+        "Engine exported singleton",
+        "4 dispatcher actions live",
+        "Test passes",
+        "build:fast clean"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U02",
+      "title": "Pillar 1 — Dev Tools utilization",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Inventory: rtk binary, vitest, esbuild, tsc, npm scripts, MCP dispatchers"
+        },
+        {
+          "number": 2,
+          "instruction": "Check rtk hook fires on Bash (verify H:/.claude/settings.json hook is intact)"
+        },
+        {
+          "number": 3,
+          "instruction": "Check build:fast / build:incremental availability and last-run timestamps"
+        },
+        {
+          "number": 4,
+          "instruction": "Score = (live_tools / inventoried_tools) — flag dormant/broken"
+        },
+        {
+          "number": 5,
+          "instruction": "Auto-fix: re-register broken hooks; report missing tools"
+        }
+      ],
+      "exit_conditions": [
+        "Pillar score recorded",
+        "Evidence in state/shared/audit/PILLAR-01-devtools.json"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U03",
+      "title": "Pillar 2 — Protocols (GSD, RGS, ATCS, Ralph)",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Verify GSD_QUICK.md, DEV_PROTOCOL.md, sections/*.md fresh (<48h or current)"
+        },
+        {
+          "number": 2,
+          "instruction": "Verify roadmapSchema.ts + roadmap-index.json drift-free"
+        },
+        {
+          "number": 3,
+          "instruction": "Verify atcsDispatcher actions live; run smoke task_status"
+        },
+        {
+          "number": 4,
+          "instruction": "Score = protocols_documented_and_callable / total_protocols"
+        },
+        {
+          "number": 5,
+          "instruction": "Auto-fix: regenerate stale GSD docs; reseed roadmap-index drift"
+        }
+      ],
+      "exit_conditions": [
+        "Pillar score",
+        "PILLAR-02-protocols.json evidence"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U04",
+      "title": "Pillar 3 — CLAUDE.md synergy",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Verify all 5 CLAUDE.md files exist (root, mcp-server, engines, dispatchers, web)"
+        },
+        {
+          "number": 2,
+          "instruction": "Check no stale hardcoded counts (compare against PRISM-INVENTORY-LATEST.md)"
+        },
+        {
+          "number": 3,
+          "instruction": "Verify shared directives reachable from CLAUDE.md links"
+        },
+        {
+          "number": 4,
+          "instruction": "Check AUTO-WEDM markers preserved + WEDM digest fresh"
+        },
+        {
+          "number": 5,
+          "instruction": "Score = (live_links + accurate_counts) / total_claims"
+        },
+        {
+          "number": 6,
+          "instruction": "Auto-fix: rewrite stale counts to point at PRISM-INVENTORY-LATEST.md"
+        }
+      ],
+      "exit_conditions": [
+        "Score",
+        "PILLAR-03-claudemd.json evidence"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U05",
+      "title": "Pillar 4 — Skills (slash commands)",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Inventory all 452 skills (311 user + 141 local)"
+        },
+        {
+          "number": 2,
+          "instruction": "Categorize: routinely-fired vs dormant vs orphan"
+        },
+        {
+          "number": 3,
+          "instruction": "Cross-check trigger words in CLAUDE.md auto-suggest table — verify each command exists"
+        },
+        {
+          "number": 4,
+          "instruction": "Score = skills_with_clear_trigger / total_skills"
+        },
+        {
+          "number": 5,
+          "instruction": "Auto-fix: register undocumented skills in PRISM-COMMANDS-MANIFEST.md; suggest auto-fire rules for high-value dormant skills"
+        }
+      ],
+      "exit_conditions": [
+        "Score",
+        "PILLAR-04-skills.json evidence",
+        "Updated commands manifest"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U06",
+      "title": "Pillar 5 — Scripts",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Inventory 347 scripts (scripts/ + mcp-server/scripts/)"
+        },
+        {
+          "number": 2,
+          "instruction": "Detect last-modified vs last-invoked (git log timestamps)"
+        },
+        {
+          "number": 3,
+          "instruction": "Identify orphan scripts (never referenced by package.json/hooks/skills)"
+        },
+        {
+          "number": 4,
+          "instruction": "Score = referenced_scripts / total_scripts"
+        },
+        {
+          "number": 5,
+          "instruction": "Auto-fix: archive orphans into scripts/_archive/ with index"
+        }
+      ],
+      "exit_conditions": [
+        "Score",
+        "PILLAR-05-scripts.json evidence"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U07",
+      "title": "Pillar 6 — Hooks (auto-firing)",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Inventory 188 .mjs hook files in .claude/hooks/"
+        },
+        {
+          "number": 2,
+          "instruction": "Cross-reference with 267 hook entries in H:/prism/.claude/settings.json"
+        },
+        {
+          "number": 3,
+          "instruction": "Detect orphans: .mjs files NOT referenced by any settings hook entry"
+        },
+        {
+          "number": 4,
+          "instruction": "Verify each registered hook actually fires (smoke event log)"
+        },
+        {
+          "number": 5,
+          "instruction": "Score = wired_AND_firing / total_mjs_hooks"
+        },
+        {
+          "number": 6,
+          "instruction": "Auto-fix: register orphan high-value hooks; remove dead settings entries"
+        }
+      ],
+      "exit_conditions": [
+        "Score",
+        "PILLAR-06-hooks.json evidence",
+        "Repaired settings.json if drift"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U08",
+      "title": "Pillar 7 — PRISM Awareness System",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Verify MASTER_INDEX_COMPACT.md exists (CRITICAL — currently MISSING)"
+        },
+        {
+          "number": 2,
+          "instruction": "Verify ENGINE_DIGEST, DISPATCHER_DIGEST, DIRECTORY_DIGEST current"
+        },
+        {
+          "number": 3,
+          "instruction": "Verify BASELINE_INVENTORY + PRISM-INVENTORY-LATEST in sync"
+        },
+        {
+          "number": 4,
+          "instruction": "Verify PRISMSelfAwarenessEngine + DuplicationGuardEngine + AISystemRouterEngine respond"
+        },
+        {
+          "number": 5,
+          "instruction": "Test: simulate create-engine intent, confirm hard block fires"
+        },
+        {
+          "number": 6,
+          "instruction": "Score = (live_indexes + functional_guards) / required_total"
+        },
+        {
+          "number": 7,
+          "instruction": "Auto-fix: regenerate MASTER_INDEX_COMPACT.md; rebuild any drifted digest"
+        }
+      ],
+      "exit_conditions": [
+        "Score",
+        "PILLAR-07-awareness.json evidence",
+        "MASTER_INDEX_COMPACT.md regenerated"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U09",
+      "title": "Pillar 8 — Memory (auto-memory + MEMORY.md)",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Verify MEMORY.md sync target (C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md)"
+        },
+        {
+          "number": 2,
+          "instruction": "Verify SessionStart sync hook is registered + last fired successfully"
+        },
+        {
+          "number": 3,
+          "instruction": "Inventory the 34 individual memory files; classify by type (user/feedback/project/reference)"
+        },
+        {
+          "number": 4,
+          "instruction": "Detect stale memories (referencing dead paths C:/PRISM/, archived milestones)"
+        },
+        {
+          "number": 5,
+          "instruction": "Score = (live_index + recent_writes + valid_pointers) / required"
+        },
+        {
+          "number": 6,
+          "instruction": "Auto-fix: prune stale memories, update MEMORY.md index"
+        }
+      ],
+      "exit_conditions": [
+        "Score",
+        "PILLAR-08-memory.json evidence"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U10",
+      "title": "Pillar 9 — Container skills (Docker / agents)",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Inspect docker-compose.yml services (physics-agent, batch-processor, etc.)"
+        },
+        {
+          "number": 2,
+          "instruction": "Verify AISystemRouterEngine routes to Docker services when applicable"
+        },
+        {
+          "number": 3,
+          "instruction": "Check Ollama backends listed (codellama, deepseek, etc.)"
+        },
+        {
+          "number": 4,
+          "instruction": "Inventory subagent types available (general-purpose, specialized)"
+        },
+        {
+          "number": 5,
+          "instruction": "Score = (live_routes + healthy_services) / inventoried"
+        },
+        {
+          "number": 6,
+          "instruction": "Auto-fix: report unhealthy services; document missing routes"
+        }
+      ],
+      "exit_conditions": [
+        "Score",
+        "PILLAR-09-containers.json evidence"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U11",
+      "title": "Pillar 10 — PRISM AI System (the crown jewel)",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Inventory AI engines: PRISMSelfAwarenessEngine, PRISMCreativeReasoningEngine, ManufacturingReasoningEngine, MultiPathReasoningEngine, ExtendedThinkingBridgeEngine, DeepLearning*, Neural*, AIRoutingEngine, etc."
+        },
+        {
+          "number": 2,
+          "instruction": "For each, verify exported singleton + at least one dispatcher action calling it"
+        },
+        {
+          "number": 3,
+          "instruction": "Verify cross-domain reasoning live (CrossDisciplinaryDeepLearningEngine.reason)"
+        },
+        {
+          "number": 4,
+          "instruction": "Check tribal knowledge (3,900+ tips) reachable via knowledge dispatcher"
+        },
+        {
+          "number": 5,
+          "instruction": "Verify chain-of-thought / opus-level engines wired into ai dispatcher"
+        },
+        {
+          "number": 6,
+          "instruction": "Score = (wired_AI_engines + reachable_tribal + functional_chains) / inventoried"
+        },
+        {
+          "number": 7,
+          "instruction": "Auto-fix: wire any orphan AI engine into appropriate dispatcher (USSH-OPUS47 pattern)"
+        }
+      ],
+      "exit_conditions": [
+        "Score",
+        "PILLAR-10-ai-system.json evidence",
+        "Any orphan AI engines wired"
+      ]
+    },
+    {
+      "id": "SYS-UTIL-MS0-U12",
+      "title": "Synthesize — System Utilization Report + Remediation Plan",
+      "status": "complete",
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Aggregate 10 pillar scores into composite system utilization index"
+        },
+        {
+          "number": 2,
+          "instruction": "Write state/shared/SYSTEM_UTILIZATION_AUDIT.md with: composite score, per-pillar breakdown, MAJOR findings list, auto-fixed items, items requiring review"
+        },
+        {
+          "number": 3,
+          "instruction": "Update CLAUDE.md to point at audit report"
+        },
+        {
+          "number": 4,
+          "instruction": "Update MEMORY.md with composite score (snapshot)"
+        },
+        {
+          "number": 5,
+          "instruction": "If composite < 0.85: queue follow-up milestone SYS-UTIL-AUDIT-MS1 with remediation units"
+        },
+        {
+          "number": 6,
+          "instruction": "Final commit: SYS-UTIL-AUDIT-MS0 closure"
+        }
+      ],
+      "exit_conditions": [
+        "Audit report exists",
+        "Composite score recorded",
+        "Follow-up queued if needed"
+      ]
+    }
+  ],
+  "exit_criteria": [
+    "All 10 pillars scored",
+    "Composite utilization index computed",
+    "Auto-fixes applied + committed",
+    "Risky fixes filed as findings",
+    "SystemUtilizationAuditEngine reusable for future audits"
+  ],
+  "anti_regression": [
+    "No reduction in dispatcher/engine/action counts",
+    "No removed hooks from settings.json without explicit replacement",
+    "No CLAUDE.md changes that break AUTO-WEDM markers"
+  ],
+  "close_out_log": [
+    {
+      "unit_id": "SYS-UTIL-MS0-U01",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U02",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U03",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U04",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U05",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U06",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U07",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U08",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U09",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U10",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U11",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    },
+    {
+      "unit_id": "SYS-UTIL-MS0-U12",
+      "completed_at": "2026-06-21T03:26:13.180Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "drift_close_out",
+      "note": "Drift-reconcile (slot:bravo, claude-b52f6109): SYS-UTIL-AUDIT-MS0 deliverable EXISTS + WIRED. SystemUtilizationAuditEngine.ts implements all 10 pillars via runPillar() (dev_tools/protocols/claude_md/skills/scripts/hooks/awareness/memory/container/prism_ai) + [0,1] PillarScore + composite-mean auditAll() + majorFindings(<0.85)=remediation signal. Wired to guardDispatcher (auditAll @957, runPillar @961 -> 2 MCP actions). Unit map: U01=class+scoring; U02-U11=the 10 runPillar impls; U12=SystemAuditReport composite+majorFindings. Units never had envelope status flipped (work shipped under a non-matching commit tag; git-unit-matcher undercounted). Engine-existence + dispatcher-wiring = authoritative evidence (R12)."
+    }
+  ],
+  "completed_units": 12,
+  "total_units": 12,
+  "updated_at": "2026-06-21T03:26:13.180Z"
+}

@@ -676,7 +676,7 @@ export class AgentWorkflowEngine {
           iteration++;
 
           // Check exit condition (simplified)
-          if (iterResult.improvement !== undefined && iterResult.improvement < 0.01) {
+          if (typeof iterResult.improvement === "number" && iterResult.improvement < 0.01) {
             shouldContinue = false;
           }
         }

@@ -1,0 +1,634 @@
+{
+  "_meta": {
+    "track": "BOX-AUDIT",
+    "title": "Box Drive Full Audit — Program Extraction, Pattern Mining, Parametric Macro Conversion & Physics Optimization",
+    "version": "2.0.0",
+    "created": "2026-04-04",
+    "updated": "2026-04-04",
+    "total_milestones": 9,
+    "total_units": 74,
+    "description": "Audit every CNC program and CAD file in the Box drive (C:\\Users\\wompu\\Box). Extract Okuma OSP, Haas, Hurco, Roku-Roku, and Mitsubishi patterns. Convert all programs to parametric macros with user-adjustable stock size, drill sizes, boring bar sizes, and auto-calculated speeds/feeds. Run every program through PRISM physics engines for full optimization. Build controller knowledge database from real production programs. EXPANDED: ALL programs (lathe + mill + wire EDM), Fusion 360 cloud JM Die team extraction, Calculator page program upload with interactive tool callout selection and auto speed/feed adjustment.",
+    "machines": [
+      "Okuma Genos L400II-e",
+      "Okuma LB3000",
+      "Okuma Multus B250II",
+      "Okuma M460V-5AX",
+      "Haas VF2",
+      "Hurco VM30i",
+      "Roku-Roku",
+      "Mitsubishi"
+    ],
+    "box_paths": {
+      "cnc_lathe": "C:\\Users\\wompu\\Box\\CNC LATHE",
+      "cnc_multus": "C:\\Users\\wompu\\Box\\CNC OKUMA MULTUS",
+      "cnc_mill_haas": "C:\\Users\\wompu\\Box\\CNC MILL HAAS",
+      "cnc_mill_hurco": "C:\\Users\\wompu\\Box\\CNC MILL HURCO",
+      "cnc_mill_okuma": "C:\\Users\\wompu\\Box\\CNC MILL OKUMA",
+      "roku_roku": "C:\\Users\\wompu\\Box\\ROKU-ROKU",
+      "macro_programs": "C:\\Users\\wompu\\Box\\MACRO PROGRAMS",
+      "post_processors": "C:\\Users\\wompu\\Box\\Fusion POST PROCESSORS",
+      "cad_files": "C:\\Users\\wompu\\Box\\AUTODESK INVENTOR CNC FILES",
+      "cnc_mill_haas_old": "C:\\Users\\wompu\\Box\\CNC MILL HAAS OLD",
+      "fusion_cloud": "Autodesk Fusion 360 Teams - JM Die project (APS API or local cache)",
+      "engraving": "C:\\Users\\wompu\\Box\\ENGRAVING JOBS",
+      "inventor_cad": "C:\\Users\\wompu\\Box\\AUTODESK INVENTOR CNC FILES"
+    },
+    "inventory": {
+      "cnc_lathe_folders": 216,
+      "cnc_mill_haas_folders": 59,
+      "cnc_mill_hurco_files": 111,
+      "roku_roku_files": 113,
+      "cnc_multus_files": "10+",
+      "inventor_cad_files": "50+",
+      "fusion_cloud_projects": "TBD - requires APS API access",
+      "total_estimated_programs": "2000+"
+    }
+  },
+  "milestones": [
+    {
+      "id": "BOX-MS0",
+      "title": "Program Census & Parser Infrastructure",
+      "status": "complete",
+      "priority": "critical",
+      "depends_on": [],
+      "description": "Scan entire Box drive. Build parsers for every CNC dialect found. Create program database with metadata (machine, material, date, operations, tools used, speeds/feeds). This is the foundation — every other milestone depends on accurate parsing.",
+      "units": [
+        {
+          "id": "U-BOX01",
+          "title": "BoxProgramCensusEngine — recursive scan of all Box CNC folders. Count and classify every .MIN, .nc, .hnc, .tap, .mcx-8, .cps, .ipt, .stp, .dwg, .dxf file. Output: file_path, extension, size_bytes, last_modified, parent_folder (customer name), machine_type (inferred from path/content)",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX02",
+          "title": "OkumaOSPParserEngine — parse real Okuma .MIN files into structured AST. Handle: NAT labels, 6-digit T-codes, G85/G87/G81 rough/finish cycles, G71 threading (NOT roughing!), G74 peck (D/L params), G4 F dwell, L arc radius, A angular moves, V variables (V1-V200 locals, VC100+ common), IF/GOTO branching, /CALL subroutines, DEF WORK graphics blocks, G138/G136 C-axis, M110/M109 mode switching. Validated against 7 fixture programs from shop floor.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX03",
+          "title": "HaasParserEngine — parse Haas .nc/.hnc files. Handle: O-number programs, N-word line numbers, G10 offset setting, Setting 33 Fanuc emulation, D word in G71, macro #variables (#100-#199 local, #500-#999 persistent), M97 local sub, M98 external sub, G65 macro call, probing G65 P9811",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX04",
+          "title": "HurcoParserEngine — parse Hurco programs. Handle: Hurco WinMax conversational format AND G-code mode, part setup blocks, tool library references, canned cycles",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX05",
+          "title": "RokuRokuParserEngine — parse Roku-Roku micro-milling programs. Handle: Mitsubishi M70/M80 dialect (Roku-Roku uses Mitsubishi controls), high-speed codes, micro-tool parameters, G05.1 AICC",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX06",
+          "title": "CadFileIndexEngine — index all .ipt, .stp, .dwg, .dxf, .mcx-8, .esp files. Extract: part name, material (from file metadata or filename), dimensions (from STEP if parseable), associated CNC programs (by naming convention match)",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX07",
+          "title": "PostProcessorAnalyzerEngine — parse all .cps files from Fusion POST PROCESSORS folder. Extract: controller target, post version, custom modifications, supported cycles, output format rules. Build compatibility matrix: which post generates which dialect",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX08",
+          "title": "ProgramDatabaseEngine — SQLite database storing parsed program metadata. Schema: programs(id, path, machine, controller, material, customer, date, tools[], operations[], speeds[], feeds[], cycle_time_est, line_count, has_macros, has_bar_feeder, has_live_tooling, has_threading). Index by machine, customer, operation type for fast queries",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX09",
+          "title": "Full Box scan — run census on entire drive, parse every program, populate database. Generate summary report: total programs by machine, by customer, by operation type, by date range. Identify programs from last 3-4 years for priority processing",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX10",
+          "title": "Tests: parser accuracy against 7 Okuma fixtures + sample Haas/Hurco/Roku-Roku programs. Verify parsed AST round-trips to valid G-code. Verify database queries return correct counts",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "BOX-MS1",
+      "title": "Pattern Extraction & Controller Knowledge Mining",
+      "status": "complete",
+      "priority": "critical",
+      "depends_on": [
+        "BOX-MS0"
+      ],
+      "description": "Mine patterns from parsed programs to build controller knowledge database. Extract: common operation sequences, typical speeds/feeds by material/operation, tool usage patterns, common M-code sequences, bar feeder patterns, C-axis patterns, threading patterns. Feed into PRISM's post processor and tribal knowledge engines.",
+      "units": [
+        {
+          "id": "U-BOX11",
+          "title": "SpeedFeedMinerEngine — extract every S, F, G96, G97 value from all programs. Correlate with: material (from filename/comments), operation type (rough/finish/drill/thread/groove/cutoff), tool type (from T-code and comments). Build statistical model: median/mean/stddev speed/feed by material+operation. Compare against PRISM's canonical values — flag programs with dangerously high or low values",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX12",
+          "title": "ToolPatternMinerEngine — extract tool usage patterns. Common tool station assignments (T01=OD rough, T02=OD finish, T03=center drill, T05/T06=drill, T07/T08=bore, T11=groove/cutoff). Tool holder types by station. Insert types from comments (R.015, R.032, R.004). Build turret layout templates by part family",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX13",
+          "title": "OperationSequenceMinerEngine — extract operation ordering patterns. Most common sequence: face → OD rough → OD finish → center drill → drill → bore rough → bore finish → groove → thread → cutoff. Detect deviations. Build optimal sequence templates per part complexity level",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX14",
+          "title": "OkumaDialectKnowledgeEngine — build comprehensive Okuma OSP knowledge base from real programs. Catalog: all G-codes used (G0-G199), all M-codes used (M0-M299), variable naming conventions (V vs VC), subroutine patterns (/CALL OBAR, /CALL OCONT, /GOTO), graphics blocks (DEF WORK, PS LC, DRAW), machine-specific codes (G270 = machine lock?, G180 = cancel?, G140 = ?). Cross-reference with Okuma OSP-P300L programming manual knowledge",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX15",
+          "title": "MacroPatternMinerEngine — analyze existing macro programs (BASIC-CASING.MIN, BASE WAFER INSERT MACRO.min). Extract: variable naming conventions (V1-V100 for part dimensions, V20-V30 for drill params, V45-V55 for speeds/feeds, V60-V66 for clearances/limits), IF/GOTO branching patterns for optional features (chamfer vs radius, peck vs straight drill, skip ID roughing), calculated RPM formulas (SFM * 3.82 / DIA), auto-detect patterns that should become standard macro templates",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX16",
+          "title": "SafetyPatternMinerEngine — extract safety patterns from production programs. Catalog: G50 speed clamps (values by machine), safe retract positions (X20 Z20 vs X50 Z20), M1 optional stop placement, M00 mandatory stop placement, coolant on/off sequencing, spindle stop before tool change, G28 home positions. These become MANDATORY safety rules in PRISM's output",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX17",
+          "title": "Wire all mined data into PRISM knowledge bases. Feed speed/feed data into SpeedFeedOrchestratorEngine calibration tables. Feed tool patterns into SmartToolSelectorEngine. Feed operation sequences into IntelligentSequencingEngine. Feed Okuma knowledge into LathePostProcessorEngine. Feed safety patterns into PipelineSafetyOrchestratorEngine",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX18",
+          "title": "Tests: verify mined speeds/feeds are within 20% of PRISM canonical values (flag outliers as amateur parameters). Verify tool patterns match ToolRegistry entries. Verify safety rules are stricter than existing PRISM rules (real shop = ground truth)",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "BOX-MS2",
+      "title": "Parametric Macro Conversion Engine",
+      "status": "complete",
+      "priority": "critical",
+      "depends_on": [
+        "BOX-MS0",
+        "BOX-MS1"
+      ],
+      "description": "Convert every hardcoded program into a parametric macro. User inputs stock diameter, stickout, drill sizes, boring bar sizes, insert radii at program start. Speeds and feeds auto-calculate from physics. Based on proven macro patterns from BASIC-CASING.MIN and BASE WAFER INSERT MACRO.min.",
+      "units": [
+        {
+          "id": "U-BOX19",
+          "title": "OkumaMacroHeaderGenerator — generate standard macro header block for every program. Variables: V1=stock_diameter, V2=finish_od, V3=drill_size, V4=finish_id, V5=part_length, V100=stock_face_offset. Tool-specific: V20-V30=drill params (dia, SFM, feed, peck, point_angle), V35-V38=stock allowances (OD/ID radial/axial), V40-V41=DOC (OD/ID), V45-V56=speeds and feeds per operation. V60-V66=clearances and RPM limits. Matches exact variable naming from shop's existing macros.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX20",
+          "title": "AutoSpeedFeedCalculator for macros — generate calculated RPM variables from SFM and diameter. Formula: RPM = SFM * 3.82 / DIA (imperial). For each tool: V70=[V_sfm * 3.82] / V_dia. For metric: RPM = SFM * 1000 / (PI * DIA). Clamp to G50 max RPM. Feed adjustments: if boring bar diameter changes, scale feed proportionally to maintain chip load. If drill diameter changes, recalculate peck depth (first peck = 1xD, subsequent = 0.5xD for steel)",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX21",
+          "title": "ToolSubstitutionEngine — when user changes boring bar size (e.g., 1/2 bar occupied, must use 3/8), auto-adjust: DOC (smaller bar = lighter cuts), feed (reduce proportional to rigidity loss), RPM clamp (shorter L/D = higher RPM OK). When drill size changes: recalculate point depth, total depth, peck depth, feed rate. When insert radius changes: recalculate finish feed for target Ra (f = sqrt(Ra * 32 * r_nose / 1000))",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX22",
+          "title": "ProgramMacroConverter — take any hardcoded Okuma program and convert to parametric macro. Algorithm: (1) identify all hardcoded dimensions → replace with V variables, (2) identify all S/F values → replace with calculated variables, (3) add IF/GOTO for optional features (chamfer/radius, peck/straight, ID roughing skip), (4) add clearance variables, (5) add RPM limit variables, (6) preserve all safety patterns (G50, M1, retract positions)",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX23",
+          "title": "MacroValidationEngine — validate converted macro against original program. Run both with same inputs → output must be identical G-code. Test with altered inputs → verify dimensions change correctly, speeds/feeds recalculate correctly, safety limits still enforced. Flag any macro where altered stock size could cause collision (X rapid position depends on stock OD)",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX24",
+          "title": "Batch macro conversion — convert top 50 most-used programs (by date recency). Each gets: macro header, auto-speed-feed, tool substitution support, optional feature branching. Store in data/macro-programs/ with original → macro mapping",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX25",
+          "title": "Tests: convert 5 real programs to macros, verify output matches original. Change stock size → verify all dimensions update. Change drill size → verify peck depth and feed recalculate. Change boring bar → verify DOC and feed scale. Verify G50 clamp enforced at all stock sizes",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "BOX-MS3",
+      "title": "Full Physics Optimization of Every Program",
+      "status": "complete",
+      "priority": "high",
+      "depends_on": [
+        "BOX-MS0",
+        "BOX-MS1"
+      ],
+      "description": "Run every program through PRISM's physics engines. Replace amateur speeds/feeds with physics-optimized values. Apply Kienzle force model, Taylor tool life, chatter stability, deflection limits, thermal constraints. Generate before/after comparison showing: cycle time savings, tool life improvement, surface finish improvement, safety margin improvement.",
+      "units": [
+        {
+          "id": "U-BOX26",
+          "title": "ProgramPhysicsOptimizerEngine — per-block optimization pipeline. For each G1/G2/G3 cutting block: (1) identify material from program comments or database, (2) identify tool from T-code + comments, (3) calculate Kienzle cutting force, (4) check power against machine spindle, (5) check deflection for boring/slender parts, (6) check chatter stability, (7) optimize Vc for target tool life, (8) optimize feed for target Ra, (9) emit optimized S/F values. Preserve rapids and non-cutting blocks unchanged",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX27",
+          "title": "MaterialResolverForPrograms — resolve material from program context. Sources: (1) comment block like '(MATERIAL - STEEL INCH - 1030 - 200 BHN)', (2) customer folder name → known material associations, (3) SFM values → reverse-engineer probable material (SFM 750+ = aluminum, 200-400 = steel, 100-200 = stainless/titanium, <100 = hardened). Map to PRISM MaterialRegistry ISO groups (P/M/K/N/S/H) for Kienzle coefficients",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX28",
+          "title": "ToolResolverForPrograms — resolve tool geometry from program context. Sources: (1) comments like '(OD ROUGH INSERT - R.015)' → nose_radius=0.015in=0.381mm, (2) tool number convention (T01/T02=turning, T03=center drill, T05/T06=drill, T07/T08=bore, T11=groove/cutoff), (3) G85/G87 cycle parameters → infer insert shape, (4) cross-reference with ToolCatalogEngine 95K tools for matching geometry. Output: kappa_r (approach angle), r_epsilon (nose radius), insert_shape, holder_type",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX29",
+          "title": "OptimizationReportGenerator — for each program, produce comparison report. Columns: block#, original_S, original_F, optimized_S, optimized_F, Fc_N, power_kW, deflection_mm, Ra_um, tool_life_min. Summary: total_cycle_time_original, total_cycle_time_optimized, time_savings_pct, tool_life_improvement_pct, worst_Ra_original, worst_Ra_optimized",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX30",
+          "title": "SafetyGateForOptimization — NEVER optimize away safety. Rules: (1) G50 speed clamp can only decrease, never increase, (2) if original program has M1 between tools, keep them, (3) rapid positions must stay at original clearance or increase, (4) cutoff feed can reduce but never increase (parting is dangerous), (5) chuck force safety check: if Vc increased, verify centrifugal force doesn't exceed grip at new RPM, (6) threading: spring passes NEVER removed, infeed schedule only tightened",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX31",
+          "title": "Batch optimization — run top 100 programs (priority: last 3-4 years) through physics optimizer. Store results in data/optimized-programs/. Generate fleet-wide summary: total potential time savings across all programs, average improvement percentage, programs with safety issues found",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX32",
+          "title": "Tests: optimize 5 fixture programs, verify: (1) every optimized S/F is physics-justified with Kienzle/Taylor, (2) no safety rule violated, (3) cycle time decreased or equal, (4) Ra improved or equal, (5) no block removed or reordered, (6) tool life improved, (7) power < machine max at every block",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "BOX-MS4",
+      "title": "Controller Knowledge Database & Post Processor Training",
+      "status": "complete",
+      "priority": "high",
+      "depends_on": [
+        "BOX-MS1"
+      ],
+      "description": "Build comprehensive controller knowledge databases for all 5 machine families. Train PRISM's post processor to output production-identical code for each controller. Validate by comparing PRISM output against real programs line by line.",
+      "units": [
+        {
+          "id": "U-BOX33",
+          "title": "OkumaKnowledgeDB — comprehensive Okuma OSP-P300L/P300LA knowledge from mined programs. All G-codes with semantics, all M-codes with machine-specific meaning, variable system (V/VC/VWKCC), subroutine system (/CALL), conditional logic (IF/GOTO), graphics (DEF WORK), C-axis (M110/M109/G138/G136/M146/M147), live tooling (G119/SB=), multi-spindle. Cross-reference with Okuma manuals. Covers: Genos L400II-e, LB3000, Multus B250II, M460V-5AX",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX34",
+          "title": "HaasKnowledgeDB — Haas NGC knowledge from mined programs + manuals. Setting 33 compatibility, macro system, probing, tool management, coolant codes, work offsets, G187 smoothing for mill",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX35",
+          "title": "HurcoKnowledgeDB — Hurco WinMax knowledge. Conversational vs G-code mode, DXF import, 3D tool paths, rigid tapping, adaptive feed control",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX36",
+          "title": "RokuRokuKnowledgeDB — Roku-Roku + Mitsubishi M70/M80 knowledge. Micro-milling specifics, high-speed spindle codes, nano-interpolation, tool measurement, air bearing spindle considerations",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX37",
+          "title": "MitsubishiKnowledgeDB — Mitsubishi M70/M80 dialect. SSS (Super Smooth Surface) control, AICC-II, G05 P10000 for HPCC mode, tool management, coordinate rotation",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX38",
+          "title": "PostProcessorTrainer — use mined program patterns to calibrate PRISM's post processor output. For each controller: (1) extract 10 representative programs, (2) parse into abstract operations, (3) regenerate through PRISM's post engine, (4) diff against original, (5) adjust dialect until diff is zero for structural elements (exact S/F values will differ — that's the optimization). Goal: PRISM output is indistinguishable from shop-written programs in structure",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX39",
+          "title": "FusionPostProcessorSync — analyze all .cps files from Fusion POST PROCESSORS folder. Extract custom modifications made by shop. Identify gaps between Fusion's default post and shop's customized version. Feed differences into PRISM's post engine so PRISM can generate code that matches the shop's Fusion customizations",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX40",
+          "title": "Tests: generate 5 Okuma programs from PRISM, compare structure against real programs. Verify: (1) same G-code dialect (G85/G87 not G71/G70), (2) same tool code format, (3) same safety patterns, (4) same subroutine structure, (5) same comment style. Repeat for Haas (3 programs) and Hurco (2 programs)",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "BOX-MS5",
+      "title": "Dispatcher Wiring & MCP Integration",
+      "status": "complete",
+      "priority": "medium",
+      "depends_on": [
+        "BOX-MS0",
+        "BOX-MS2",
+        "BOX-MS3",
+        "BOX-MS4"
+      ],
+      "description": "Wire all new engines to dispatchers. Create MCP actions for: program census, pattern search, macro conversion, physics optimization, controller knowledge lookup. Build /slash commands for operator-facing workflows.",
+      "units": [
+        {
+          "id": "U-BOX41",
+          "title": "Wire BoxProgramCensusEngine to dataDispatcher — actions: box_program_census, box_program_search, box_program_stats. Search by: machine, customer, date range, operation type, material",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX42",
+          "title": "Wire OkumaOSPParserEngine to productDispatcher — actions: okuma_parse_program, okuma_validate_syntax, okuma_extract_operations. Accept .MIN file path or raw G-code string",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX43",
+          "title": "Wire ProgramMacroConverter to productDispatcher — actions: program_to_macro, macro_validate, macro_preview. Input: program path + conversion options. Output: parametric macro with header + calculated variables",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX44",
+          "title": "Wire ProgramPhysicsOptimizer to productDispatcher — actions: program_optimize_physics, program_compare_original, program_safety_check. Input: program + material + machine. Output: optimized program + comparison report",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX45",
+          "title": "Wire ControllerKnowledgeDBs to knowledgeDispatcher — actions: controller_lookup_gcode, controller_lookup_mcode, controller_dialect_compare, controller_capability_check. Query any controller's G/M code meanings, compare syntax across controllers",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX46",
+          "title": "Wire SpeedFeedMiner results into calibration — action: calibrate_from_shop_data. Takes mined speed/feed data and adjusts PRISM's internal tables to match shop's proven parameters (conservative adjustments only — PRISM's physics-based values override amateur parameters, but shop data validates the physics)",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX47",
+          "title": "Create /program-audit skill — full program audit workflow: parse → identify material/tools → run physics optimization → generate macro version → produce comparison report. One command, complete analysis",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX48",
+          "title": "Create /macro-convert skill — convert any hardcoded program to parametric macro. Prompts user for: which variables to expose, target machine, tool substitution preferences. Outputs ready-to-run macro",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX49",
+          "title": "Create /shop-knowledge skill — query shop-specific knowledge mined from Box programs. 'What speed does the shop run for 1030 steel OD roughing?' 'What's the typical tool station layout for a casing part?' 'What peck depth does the shop use for 1/2 drills?'",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX50",
+          "title": "Create /batch-optimize skill — run physics optimization on all programs in a folder. Generates fleet-wide optimization report with total time savings and safety findings",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX51",
+          "title": "Schema files for all new dispatcher actions — Zod validation for every input/output. Strict typing prevents invalid programs from being generated",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX52",
+          "title": "Integration tests: end-to-end test from Box file → parse → optimize → macro → validate. Use 3 real programs from each machine type (Okuma, Haas, Hurco). Total: 9+ integration tests covering the full pipeline",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "BOX-MS6",
+      "title": "Fusion 360 Cloud Extraction - JM Die Team Programs & Setups",
+      "status": "complete",
+      "priority": "high",
+      "depends_on": [
+        "BOX-MS0"
+      ],
+      "description": "Extract all programs, setups, tool libraries, and CAM configs from Fusion 360 cloud JM Die team. Extremely valuable for 5-axis programming, setup docs, and toolpath strategies.",
+      "units": [
+        {
+          "id": "U-BOX53",
+          "title": "FusionCloudConnectorEngine - authenticate with APS (OAuth2). List all projects in JM Die team hub. Fallback: Fusion 360 add-in (Python) that exports from inside Fusion.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX54",
+          "title": "FusionProjectCrawlerEngine - recursively list all designs in JM Die project. Extract: name, dates, component count, CAM setup count. Build project tree.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX55",
+          "title": "FusionCAMExtractorEngine - for each design with CAM: extract setups, operations, tools, toolpaths. Export NC code. Extract 5-axis strategies (swarf, flow, multi-axis contour), tool orientation, tilt limits, lead/lag angles.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX56",
+          "title": "FusionToolLibraryExtractorEngine - export complete Fusion tool libraries. Map to PRISM ToolCatalogEngine format.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX57",
+          "title": "FusionSetupDocumentEngine - for each CAM setup, generate structured documentation: fixture, datum scheme, stock, operation sequence, tool list, cycle time.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX58",
+          "title": "Batch extraction on entire JM Die project. Store in data/fusion-programs/. Generate summary and wire speed/feed data into calibration tables.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX59",
+          "title": "Tests: verify extraction produces valid tool library, valid NC, correct machine assignments. Cross-validate speeds/feeds vs PRISM physics.",
+          "status": "complete"
+        }
+      ],
+      "completed_units": 7
+    },
+    {
+      "id": "BOX-MS7",
+      "title": "Calculator Page - Program Upload, Tool Callout Selection & Auto Speed/Feed",
+      "status": "complete",
+      "priority": "critical",
+      "depends_on": [
+        "BOX-MS0",
+        "BOX-MS1",
+        "BOX-MS3"
+      ],
+      "description": "Calculator page program upload feature. User uploads program -> system analyzes -> displays tool callouts as selectable cards -> user picks exact tooling from shop library -> speed/feed auto-adjusts based on machine, material, stock size, workholding, stickout, and selected tooling.",
+      "units": [
+        {
+          "id": "U-BOX60",
+          "title": "ProgramUploadAnalyzerEngine - accepts any CNC program (.MIN/.nc/.tap/.hnc). Parses with dialect-appropriate parser. Extracts: tool list, operation types, original S/F, cycle structure, material/workholding hints from comments.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX61",
+          "title": "ToolCalloutCardEngine - for each tool in program, generate interactive card: station#, operation desc, original insert type/radius, current S/F, suggested optimal S/F, compatibility warnings. Selectable to assign exact tool from shop library.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX62",
+          "title": "ShopToolLibraryEngine - persistent shop tool library. Stores tool_id, description, insert_type, nose_radius, holder_style, station_preferences, typical_operations. Grows as user selects tools during analysis. Auto-populates matching callouts in future programs.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX63",
+          "title": "AutoSpeedFeedAdjusterEngine - when user selects machine + material + stock + workholding + stickout + tooling per station -> recalculate ALL S/F. Physics: Kienzle force, power check, Taylor life, Ra, chatter, deflection. Accounts for: actual insert radius, actual boring bar size (rigidity), actual drill size (peck/thrust), stock diameter (CSS RPM), stickout (L/D chatter), workholding (grip force = max RPM).",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX64",
+          "title": "MacroHeaderInjectorEngine - inject parametric macro header. V1=stock_dia, V3=drill_size, V_boring_bar per bore tool, V_insert_radius per turning tool. Auto-calc RPM and feed variables. IF/GOTO for optional features. Matches shop macro convention (V1-V100, V45-V56 speeds/feeds).",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX65",
+          "title": "Calculator page frontend - upload dropzone, syntax-highlighted G-code preview, tool card grid (selectable per station), machine/material/stock/workholding panel, stickout slider, live S/F preview, download optimized+macro program, save to shop library.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX66",
+          "title": "ProgramMemoryEngine - remember tool selections per customer/part#. Auto-populate previous selections on re-upload. Track which assignments produced good results. Build shop standard tool assignments per operation type as default suggestions.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX67",
+          "title": "Wire to dispatchers - program_upload_analyze, program_tool_callouts, program_auto_speed_feed, program_inject_macro to productDispatcher. shop_tool_save/search/suggest to dataDispatcher. Wire frontend API routes.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX68",
+          "title": "Tests: upload 5 real programs -> verify tool extraction -> select different tools -> verify S/F recalculates -> verify macro header -> verify round-trip. Test: simple OD, boring bar substitution, threading, C-axis, bar feeder program.",
+          "status": "complete"
+        }
+      ],
+      "completed_units": 9
+    },
+    {
+      "id": "BOX-MS8",
+      "title": "Wire EDM + Mill Program Parsing & Pattern Extraction",
+      "status": "complete",
+      "priority": "high",
+      "depends_on": [
+        "BOX-MS0"
+      ],
+      "description": "Extend parsers for ALL Box programs: Haas mill (59 folders), Hurco mill (111 files), Roku-Roku micro-mill (113 files), Okuma Multus mill-turn, Wire EDM, engraving. Mine milling patterns: HSM, adaptive clearing, rest machining, 3D waterline, 5-axis swarf.",
+      "units": [
+        {
+          "id": "U-BOX69",
+          "title": "HaasMillParserEngine - parse Haas VF2 .nc programs. Handle: O-number, G43 TLC, G41/G42 cutter comp, G187 smoothing, adaptive feed, probing. Extract tool list with diameters, operation types, HSM codes.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX70",
+          "title": "HurcoMillParserEngine - parse Hurco VM30i programs. Handle WinMax conversational + G-code mode. Extract part setup, tool library refs, canned cycles, 3D surfacing.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX71",
+          "title": "RokuRokuMicroMillParser - parse Roku-Roku (Mitsubishi M70/M80). Handle: micro-tools (0.1-3mm), high RPM (40K+), SSS, AICC-II, G05 P10000 HPCC. Extract micro-milling strategies.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX72",
+          "title": "WireEDMProgramParser - parse wire EDM programs. Handle Mitsubishi/Sodick/Fanuc wire dialects. Extract cut sequence, wire offset, flushing, taper angles.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX73",
+          "title": "MillPatternMinerEngine - mine milling patterns: pocket strategies, HSM params by material, step-over ratios, plunge strategies, chip loads. Feed into PRISM milling knowledge base.",
+          "status": "complete"
+        },
+        {
+          "id": "U-BOX74",
+          "title": "Tests: parse 3 Haas + 3 Hurco + 3 Roku-Roku + wire EDM. Verify tool extraction, operation detection, S/F extraction per dialect.",
+          "status": "complete"
+        }
+      ],
+      "completed_units": 6
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "box-audit-gate",
+    "mcp_action": "prism_box-audit:box_audit_run",
+    "skill_command": "/box-audit",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "box-audit-gate"
+    ],
+    "new_actions": [
+      "box_audit_run"
+    ],
+    "new_skills": [
+      "/box-audit"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Deliver BOX-AUDIT per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-BOXX01",
+      "title": "BOX-AUDIT — Coordinator",
+      "description": "Master coordinator envelope for BOX-AUDIT. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

@@ -1,0 +1,2607 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "inventor-hsm",
+  "system_name": "Autodesk Inventor HSM / Inventor CAM",
+  "software_version": "2027",
+  "indexed_at": "2026-04-18T23:50:00.000Z",
+
+  "menu_bar": {
+    "menus": [
+      { "id": "menu_file", "name": "File", "items": ["mi_new_cam", "mi_open_cam", "mi_save_cam", "mi_export_nc", "mi_import_tool_lib"] },
+      { "id": "menu_edit", "name": "Edit", "items": ["mi_undo_cam", "mi_redo_cam", "mi_cut", "mi_copy", "mi_paste", "mi_delete_op"] },
+      { "id": "menu_view", "name": "View", "items": ["mi_cam_browser", "mi_tool_library", "mi_toolpath_display", "mi_simulation"] },
+      { "id": "menu_tools", "name": "Tools", "items": ["mi_post_process", "mi_setup_sheet", "mi_nc_editor", "mi_machine_config"] },
+      { "id": "menu_cam", "name": "CAM", "items": ["mi_new_setup", "mi_new_op", "mi_generate_all", "mi_simulate_all"] }
+    ]
+  },
+
+  "ribbon": {
+    "tabs": [
+      {
+        "id": "tab_cam",
+        "name": "CAM",
+        "groups": [
+          {
+            "id": "grp_setup",
+            "name": "Setup",
+            "items": ["rb_new_setup", "rb_new_folder", "rb_new_pattern", "rb_setup_wcs"]
+          },
+          {
+            "id": "grp_2d_milling",
+            "name": "2D Milling",
+            "items": ["rb_adaptive_2d", "rb_pocket_2d", "rb_contour_2d", "rb_face", "rb_slot", "rb_trace", "rb_engrave", "rb_bore", "rb_circular", "rb_thread_mill", "rb_chamfer_2d"]
+          },
+          {
+            "id": "grp_3d_milling",
+            "name": "3D Milling",
+            "items": ["rb_adaptive_3d", "rb_pocket_3d", "rb_parallel", "rb_contour_3d", "rb_scallop", "rb_pencil", "rb_radial", "rb_spiral", "rb_morphed_spiral", "rb_steep_shallow", "rb_horizontal", "rb_ramp"]
+          },
+          {
+            "id": "grp_drilling",
+            "name": "Drilling",
+            "items": ["rb_drill", "rb_peck_drill", "rb_chip_breaking", "rb_tap", "rb_spot_drill", "rb_ream", "rb_bore_drill"]
+          },
+          {
+            "id": "grp_turning",
+            "name": "Turning",
+            "items": ["rb_profile_rough", "rb_profile_finish", "rb_face_turn", "rb_groove", "rb_thread_turn", "rb_part_off", "rb_drill_turn"]
+          },
+          {
+            "id": "grp_multiaxis",
+            "name": "Multi-Axis",
+            "items": ["rb_swarf", "rb_multiaxis_contour", "rb_flow"]
+          },
+          {
+            "id": "grp_probing",
+            "name": "Probing",
+            "items": ["rb_probe_geometry", "rb_probe_surface", "rb_probe_wcs"]
+          },
+          {
+            "id": "grp_toolpath",
+            "name": "Toolpath",
+            "items": ["rb_generate", "rb_generate_all", "rb_simulate", "rb_simulate_all", "rb_verify"]
+          },
+          {
+            "id": "grp_output",
+            "name": "Output",
+            "items": ["rb_post_process", "rb_post_all", "rb_setup_sheet", "rb_nc_program"]
+          },
+          {
+            "id": "grp_tools",
+            "name": "Tools",
+            "items": ["rb_tool_library", "rb_select_tool", "rb_edit_tool", "rb_import_tools"]
+          },
+          {
+            "id": "grp_machine",
+            "name": "Machine",
+            "items": ["rb_machine_config", "rb_machine_library", "rb_stock_setup"]
+          }
+        ]
+      },
+      {
+        "id": "tab_manage",
+        "name": "Manage",
+        "groups": [
+          {
+            "id": "grp_templates",
+            "name": "Templates",
+            "items": ["rb_save_template", "rb_load_template", "rb_template_library"]
+          },
+          {
+            "id": "grp_defaults",
+            "name": "Defaults",
+            "items": ["rb_operation_defaults", "rb_tool_defaults", "rb_linking_defaults"]
+          }
+        ]
+      }
+    ]
+  },
+
+  "panels": [
+    {
+      "id": "pnl_cam_browser",
+      "name": "CAM Browser",
+      "region": "panel_left",
+      "visible_default": true,
+      "items": ["tree_cam_browser", "pnl_browser_toolbar"]
+    },
+    {
+      "id": "pnl_tool_library",
+      "name": "Tool Library",
+      "region": "panel_right",
+      "visible_default": false,
+      "items": ["tree_tool_library", "pnl_tool_details", "pnl_tool_filter"]
+    },
+    {
+      "id": "pnl_operation_properties",
+      "name": "Operation Properties",
+      "region": "panel_right",
+      "visible_default": true,
+      "items": ["prop_operation_grid"]
+    },
+    {
+      "id": "pnl_toolpath_info",
+      "name": "Toolpath Info",
+      "region": "panel_bottom",
+      "visible_default": false,
+      "items": ["txt_toolpath_stats", "txt_cycle_time", "txt_warnings"]
+    },
+    {
+      "id": "pnl_simulation",
+      "name": "Simulation",
+      "region": "panel_floating",
+      "visible_default": false,
+      "items": ["vp_simulation", "ctrl_sim_playback", "ctrl_sim_speed"]
+    }
+  ],
+
+  "elements": [
+    {
+      "id": "rb_new_setup",
+      "name": "New Setup",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Create a new CAM setup with WCS and stock definition",
+      "icon": "setup_new.png",
+      "shortcut": { "key": "S", "modifiers": ["Ctrl", "Shift"] },
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_setup",
+        "api_method": "HSMWorks_createJob",
+        "prism_action": "prism_cam.create_setup",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "rb_new_folder",
+      "name": "New Folder",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Create folder to organize operations",
+      "icon": "folder_new.png",
+      "action": {
+        "action_type": "command",
+        "command_id": "HSM_CMD_NEW_FOLDER",
+        "prism_action": "prism_cam.create_folder",
+        "prism_importance": 3
+      }
+    },
+    {
+      "id": "rb_new_pattern",
+      "name": "New Pattern",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Create operation pattern for repetitive features",
+      "icon": "pattern_new.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_pattern",
+        "prism_action": "prism_cam.create_pattern",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_setup_wcs",
+      "name": "Setup WCS",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Define work coordinate system origin and orientation",
+      "icon": "wcs.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_wcs",
+        "api_method": "HSMWorks_setJobWCS",
+        "prism_action": "prism_cam.set_wcs",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "rb_adaptive_2d",
+      "name": "2D Adaptive",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "High-efficiency constant engagement clearing with helix ramping",
+      "icon": "adaptive_2d.png",
+      "shortcut": { "key": "A", "modifiers": ["Alt"] },
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_adaptive_2d",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_adaptive_2d",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "rb_pocket_2d",
+      "name": "2D Pocket",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Traditional offset pocket clearing with multiple pattern options",
+      "icon": "pocket_2d.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_pocket_2d",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_pocket_2d",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_contour_2d",
+      "name": "2D Contour",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Profile machining of 2D contours with compensation support",
+      "icon": "contour_2d.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_contour_2d",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_contour_2d",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "rb_face",
+      "name": "Face",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Top face surfacing with adjustable patterns",
+      "icon": "face.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_face",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_face",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_slot",
+      "name": "Slot",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Dedicated slot milling with trochoidal motion",
+      "icon": "slot.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_slot",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_slot",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_trace",
+      "name": "Trace",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Follow 2D/3D curves for engraving or tracing",
+      "icon": "trace.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_trace",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_trace",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_engrave",
+      "name": "Engrave",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Engraving text and logos with V-bits or ball mills",
+      "icon": "engrave.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_engrave",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_engrave",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "rb_bore",
+      "name": "Bore",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Boring cycles for precision holes",
+      "icon": "bore.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_bore",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_bore",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_circular",
+      "name": "Circular",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Circular pocket milling for large holes",
+      "icon": "circular.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_circular",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_circular",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_thread_mill",
+      "name": "Thread Mill",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Thread milling for internal/external threads",
+      "icon": "thread_mill.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_thread_mill",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_thread_mill",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_chamfer_2d",
+      "name": "Chamfer",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Edge chamfering with chamfer mills",
+      "icon": "chamfer.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_chamfer",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_chamfer",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_adaptive_3d",
+      "name": "3D Adaptive",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "3D adaptive clearing with constant engagement on complex surfaces",
+      "icon": "adaptive_3d.png",
+      "shortcut": { "key": "A", "modifiers": ["Alt", "Shift"] },
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_adaptive_3d",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_adaptive_3d",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "rb_pocket_3d",
+      "name": "Pocket Clearing",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Traditional pocket clearing on 3D surfaces",
+      "icon": "pocket_3d.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_pocket_3d",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_pocket_3d",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_parallel",
+      "name": "Parallel",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Constant Z parallel passes for finishing",
+      "icon": "parallel.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_parallel",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_parallel",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_contour_3d",
+      "name": "Contour 3D",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Z-level contouring (waterline) machining",
+      "icon": "contour_3d.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_contour_3d",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_contour_3d",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_scallop",
+      "name": "Scallop",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Constant scallop height finishing",
+      "icon": "scallop.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_scallop",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_scallop",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_pencil",
+      "name": "Pencil",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Rest machining in corners and fillets",
+      "icon": "pencil.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_pencil",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_pencil",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_radial",
+      "name": "Radial",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Radial pattern for circular features",
+      "icon": "radial.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_radial",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_radial",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_spiral",
+      "name": "Spiral",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Spiral pattern for circular/dome features",
+      "icon": "spiral.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_spiral",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_spiral",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_morphed_spiral",
+      "name": "Morphed Spiral",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Boundary-following spiral with blending",
+      "icon": "morphed_spiral.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_morphed_spiral",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_morphed_spiral",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_steep_shallow",
+      "name": "Steep and Shallow",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Combined strategy - contour on steep, parallel on shallow",
+      "icon": "steep_shallow.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_steep_shallow",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_steep_shallow",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_horizontal",
+      "name": "Horizontal",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Machine only flat/horizontal surfaces",
+      "icon": "horizontal.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_horizontal",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_horizontal",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_ramp",
+      "name": "Ramp",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Ramping entry into 3D features",
+      "icon": "ramp.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_ramp",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_ramp",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "rb_drill",
+      "name": "Drill",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Basic drilling cycle (G81)",
+      "icon": "drill.png",
+      "shortcut": { "key": "D", "modifiers": ["Alt"] },
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_drill",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_drill",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "rb_peck_drill",
+      "name": "Peck Drill",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Deep hole drilling with pecking (G83)",
+      "icon": "peck_drill.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_peck_drill",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_peck_drill",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_chip_breaking",
+      "name": "Chip Breaking",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "High-speed peck drilling (G73)",
+      "icon": "chip_breaking.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_chip_breaking",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_chip_breaking",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_tap",
+      "name": "Tap",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Rigid or floating tap cycles",
+      "icon": "tap.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_tap",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_tap",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_spot_drill",
+      "name": "Spot Drill",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Center/spot drilling for hole starts",
+      "icon": "spot_drill.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_spot_drill",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_spot_drill",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_ream",
+      "name": "Ream",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Reaming cycle for precision holes",
+      "icon": "ream.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_ream",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_ream",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_bore_drill",
+      "name": "Bore",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Boring cycle (G85/G86/G87/G89)",
+      "icon": "bore_drill.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_bore_drill",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_bore_cycle",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_profile_rough",
+      "name": "Profile Roughing",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "OD/ID roughing with multiple depth cuts",
+      "icon": "profile_rough.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_profile_rough",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_profile_rough",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "rb_profile_finish",
+      "name": "Profile Finishing",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "OD/ID finish turning with spring passes",
+      "icon": "profile_finish.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_profile_finish",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_profile_finish",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "rb_face_turn",
+      "name": "Face",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Face turning operations",
+      "icon": "face_turn.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_face_turn",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_face_turn",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_groove",
+      "name": "Groove",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "External/internal/face grooving",
+      "icon": "groove.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_groove",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_groove",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_thread_turn",
+      "name": "Thread",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Single-point threading",
+      "icon": "thread_turn.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_thread_turn",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_thread_turn",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_part_off",
+      "name": "Part",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Part-off / cutoff operation",
+      "icon": "part_off.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_part_off",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_part_off",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_drill_turn",
+      "name": "Drill (Turning)",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Center drilling and axial drilling on lathe",
+      "icon": "drill_turn.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_drill_turn",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_drill_turn",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_swarf",
+      "name": "Swarf",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Side milling with tilting tool axis along ruled surfaces",
+      "icon": "swarf.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_swarf",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_swarf",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_multiaxis_contour",
+      "name": "Multi-Axis Contour",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "5-axis profiling with controlled tool orientation",
+      "icon": "multiaxis_contour.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_multiaxis_contour",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_multiaxis_contour",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_flow",
+      "name": "Flow",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "UV-based machining following surface flow lines",
+      "icon": "flow.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_flow",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_flow",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_probe_geometry",
+      "name": "Probe Geometry",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Measure part geometry for verification",
+      "icon": "probe_geometry.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_probe_geometry",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_probe_geometry",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_probe_surface",
+      "name": "Probe Surface",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Probe surface point or Z height",
+      "icon": "probe_surface.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_probe_surface",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_probe_surface",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_probe_wcs",
+      "name": "Probe Work Offset",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Establish work coordinate system from probing",
+      "icon": "probe_wcs.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_probe_wcs",
+        "api_method": "HSMWorks_createObject",
+        "prism_action": "prism_cam.create_probe_wcs",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_generate",
+      "name": "Generate",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Generate toolpath for selected operation",
+      "icon": "generate.png",
+      "shortcut": { "key": "G", "modifiers": ["Ctrl"] },
+      "action": {
+        "action_type": "command",
+        "command_id": "HSM_CMD_GENERATE",
+        "api_method": "HSMWorks_regenerateAll",
+        "prism_action": "prism_cam.generate_toolpath",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "rb_generate_all",
+      "name": "Generate All",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Generate toolpath for all operations",
+      "icon": "generate_all.png",
+      "shortcut": { "key": "G", "modifiers": ["Ctrl", "Shift"] },
+      "action": {
+        "action_type": "command",
+        "command_id": "HSM_CMD_GENERATE_ALL",
+        "api_method": "HSMWorks_regenerateAll",
+        "prism_action": "prism_cam.generate_all_toolpaths",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "rb_simulate",
+      "name": "Simulate",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Simulate toolpath for selected operation",
+      "icon": "simulate.png",
+      "shortcut": { "key": "M", "modifiers": ["Ctrl"] },
+      "action": {
+        "action_type": "open_panel",
+        "panel_id": "pnl_simulation",
+        "prism_action": "prism_cam.simulate_toolpath",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "rb_simulate_all",
+      "name": "Simulate All",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Simulate all toolpaths in sequence",
+      "icon": "simulate_all.png",
+      "action": {
+        "action_type": "open_panel",
+        "panel_id": "pnl_simulation",
+        "prism_action": "prism_cam.simulate_all_toolpaths",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_verify",
+      "name": "Verify",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Verify toolpath for collisions and gouges",
+      "icon": "verify.png",
+      "action": {
+        "action_type": "command",
+        "command_id": "HSM_CMD_VERIFY",
+        "api_method": "HSMWorks_checkAllToolpath",
+        "prism_action": "prism_cam.verify_toolpath",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "rb_post_process",
+      "name": "Post Process",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Post process selected operation to NC code",
+      "icon": "post_process.png",
+      "shortcut": { "key": "P", "modifiers": ["Ctrl"] },
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_post_process",
+        "api_method": "HSMWorks_postProcess",
+        "prism_action": "prism_cam.post_process",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "rb_post_all",
+      "name": "Post All",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Post process all operations",
+      "icon": "post_all.png",
+      "shortcut": { "key": "P", "modifiers": ["Ctrl", "Shift"] },
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_post_all",
+        "api_method": "HSMWorks_exportAll",
+        "prism_action": "prism_cam.post_all",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "rb_setup_sheet",
+      "name": "Setup Sheet",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Generate setup sheet document",
+      "icon": "setup_sheet.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_setup_sheet",
+        "prism_action": "prism_cam.generate_setup_sheet",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "rb_nc_program",
+      "name": "NC Program",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "View and edit generated NC program",
+      "icon": "nc_program.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_nc_editor",
+        "prism_action": "prism_cam.view_nc_program",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_tool_library",
+      "name": "Tool Library",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Open tool library manager",
+      "icon": "tool_library.png",
+      "shortcut": { "key": "T", "modifiers": ["Ctrl"] },
+      "action": {
+        "action_type": "open_panel",
+        "panel_id": "pnl_tool_library",
+        "prism_action": "prism_cam.open_tool_library",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_select_tool",
+      "name": "Select Tool",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Select tool for current operation",
+      "icon": "select_tool.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_select_tool",
+        "api_method": "HSMWorks_setObjectToolById",
+        "prism_action": "prism_cam.select_tool",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "rb_edit_tool",
+      "name": "Edit Tool",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Edit tool properties",
+      "icon": "edit_tool.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_edit_tool",
+        "prism_action": "prism_cam.edit_tool",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_import_tools",
+      "name": "Import Tools",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Import tools from library file",
+      "icon": "import_tools.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_import_tools",
+        "api_method": "HSMWorks_importToolById",
+        "prism_action": "prism_cam.import_tools",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_machine_config",
+      "name": "Machine Configuration",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Configure machine parameters and kinematics",
+      "icon": "machine_config.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_machine_config",
+        "prism_action": "prism_cam.machine_config",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_machine_library",
+      "name": "Machine Library",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Browse and select machines",
+      "icon": "machine_library.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_machine_library",
+        "prism_action": "prism_cam.machine_library",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "rb_stock_setup",
+      "name": "Stock Setup",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Define stock geometry and material",
+      "icon": "stock_setup.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_stock_setup",
+        "prism_action": "prism_cam.stock_setup",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "rb_save_template",
+      "name": "Save as Template",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Save current setup as reusable template",
+      "icon": "save_template.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_save_template",
+        "prism_action": "prism_cam.save_template",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_load_template",
+      "name": "Load Template",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Apply template to current setup",
+      "icon": "load_template.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_load_template",
+        "prism_action": "prism_cam.load_template",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_template_library",
+      "name": "Template Library",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Manage CAM templates",
+      "icon": "template_library.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_template_library",
+        "prism_action": "prism_cam.template_library",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "rb_operation_defaults",
+      "name": "Operation Defaults",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Set default parameters for operations",
+      "icon": "operation_defaults.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_operation_defaults",
+        "prism_action": "prism_cam.operation_defaults",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "rb_tool_defaults",
+      "name": "Tool Defaults",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Set default tool parameters",
+      "icon": "tool_defaults.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_tool_defaults",
+        "prism_action": "prism_cam.tool_defaults",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "rb_linking_defaults",
+      "name": "Linking Defaults",
+      "type": "ribbon_button",
+      "region": "ribbon",
+      "tooltip": "Set default linking parameters",
+      "icon": "linking_defaults.png",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_linking_defaults",
+        "prism_action": "prism_cam.linking_defaults",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "tree_cam_browser",
+      "name": "CAM Browser Tree",
+      "type": "tree_view",
+      "region": "panel_left",
+      "tooltip": "Hierarchical view of setups, folders, and operations",
+      "action": {
+        "action_type": "navigate",
+        "api_method": "HSMWorks_getObjects",
+        "prism_action": "prism_cam.browse_operations",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "pnl_browser_toolbar",
+      "name": "Browser Toolbar",
+      "type": "toolbar",
+      "region": "panel_left",
+      "items": ["btn_expand_all", "btn_collapse_all", "btn_filter_ops", "btn_show_warnings"]
+    },
+    {
+      "id": "btn_expand_all",
+      "name": "Expand All",
+      "type": "toolbar_button",
+      "region": "panel_left",
+      "tooltip": "Expand all tree nodes",
+      "icon": "expand_all.png",
+      "action": {
+        "action_type": "command",
+        "command_id": "HSM_CMD_EXPAND_ALL",
+        "prism_importance": 2
+      }
+    },
+    {
+      "id": "btn_collapse_all",
+      "name": "Collapse All",
+      "type": "toolbar_button",
+      "region": "panel_left",
+      "tooltip": "Collapse all tree nodes",
+      "icon": "collapse_all.png",
+      "action": {
+        "action_type": "command",
+        "command_id": "HSM_CMD_COLLAPSE_ALL",
+        "prism_importance": 2
+      }
+    },
+    {
+      "id": "btn_filter_ops",
+      "name": "Filter Operations",
+      "type": "toolbar_button",
+      "region": "panel_left",
+      "tooltip": "Filter operations by type",
+      "icon": "filter.png",
+      "action": {
+        "action_type": "open_submenu",
+        "prism_importance": 3
+      }
+    },
+    {
+      "id": "btn_show_warnings",
+      "name": "Show Warnings",
+      "type": "toolbar_button",
+      "region": "panel_left",
+      "tooltip": "Highlight operations with warnings",
+      "icon": "warnings.png",
+      "action": {
+        "action_type": "toggle",
+        "api_method": "HSMWorks_hasObjectWarning",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "tree_tool_library",
+      "name": "Tool Library Tree",
+      "type": "tree_view",
+      "region": "panel_right",
+      "tooltip": "Tool library with folders and tools",
+      "action": {
+        "action_type": "navigate",
+        "api_method": "HSMWorks_getNumberOfTools",
+        "prism_action": "prism_cam.browse_tools",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "pnl_tool_details",
+      "name": "Tool Details",
+      "type": "property_grid",
+      "region": "panel_right",
+      "tooltip": "Selected tool properties",
+      "action": {
+        "action_type": "set_value",
+        "prism_action": "prism_cam.edit_tool_property",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "pnl_tool_filter",
+      "name": "Tool Filter",
+      "type": "toolbar",
+      "region": "panel_right",
+      "items": ["dd_tool_type_filter", "txt_tool_search"]
+    },
+    {
+      "id": "dd_tool_type_filter",
+      "name": "Tool Type Filter",
+      "type": "dropdown",
+      "region": "panel_right",
+      "tooltip": "Filter tools by type",
+      "options": ["All", "End Mill", "Ball End", "Bull Nose", "Face Mill", "Chamfer", "Drill", "Tap", "Reamer", "Boring Bar", "Turning Insert", "Grooving Insert", "Threading Insert", "Probe"],
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "txt_tool_search",
+      "name": "Tool Search",
+      "type": "text_input",
+      "region": "panel_right",
+      "tooltip": "Search tools by name or number",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "prop_operation_grid",
+      "name": "Operation Properties Grid",
+      "type": "property_grid",
+      "region": "panel_right",
+      "tooltip": "View and edit operation parameters",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_operation_parameter",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "txt_toolpath_stats",
+      "name": "Toolpath Statistics",
+      "type": "text_input",
+      "region": "panel_bottom",
+      "tooltip": "Toolpath statistics (distances, times)",
+      "readonly": true,
+      "action": {
+        "action_type": "command",
+        "api_method": "HSMWorks_getToolpathStats",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "txt_cycle_time",
+      "name": "Cycle Time",
+      "type": "text_input",
+      "region": "panel_bottom",
+      "tooltip": "Estimated cycle time",
+      "readonly": true,
+      "action": {
+        "action_type": "command",
+        "prism_action": "prism_cam.get_cycle_time",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "txt_warnings",
+      "name": "Warnings",
+      "type": "text_input",
+      "region": "panel_bottom",
+      "tooltip": "Operation warnings and errors",
+      "readonly": true,
+      "action": {
+        "action_type": "command",
+        "api_method": "HSMWorks_getObjectLog",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "vp_simulation",
+      "name": "Simulation Viewport",
+      "type": "viewport",
+      "region": "panel_floating",
+      "tooltip": "3D toolpath simulation viewport",
+      "action": {
+        "action_type": "navigate",
+        "prism_action": "prism_cam.simulation_view",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "ctrl_sim_playback",
+      "name": "Simulation Playback",
+      "type": "toolbar",
+      "region": "panel_floating",
+      "items": ["btn_sim_play", "btn_sim_pause", "btn_sim_stop", "btn_sim_step_fwd", "btn_sim_step_back"]
+    },
+    {
+      "id": "btn_sim_play",
+      "name": "Play",
+      "type": "toolbar_button",
+      "region": "panel_floating",
+      "tooltip": "Play simulation",
+      "icon": "play.png",
+      "action": { "action_type": "command", "prism_importance": 7 }
+    },
+    {
+      "id": "btn_sim_pause",
+      "name": "Pause",
+      "type": "toolbar_button",
+      "region": "panel_floating",
+      "tooltip": "Pause simulation",
+      "icon": "pause.png",
+      "action": { "action_type": "command", "prism_importance": 6 }
+    },
+    {
+      "id": "btn_sim_stop",
+      "name": "Stop",
+      "type": "toolbar_button",
+      "region": "panel_floating",
+      "tooltip": "Stop simulation",
+      "icon": "stop.png",
+      "action": { "action_type": "command", "prism_importance": 6 }
+    },
+    {
+      "id": "btn_sim_step_fwd",
+      "name": "Step Forward",
+      "type": "toolbar_button",
+      "region": "panel_floating",
+      "tooltip": "Step forward one move",
+      "icon": "step_fwd.png",
+      "action": { "action_type": "command", "prism_importance": 5 }
+    },
+    {
+      "id": "btn_sim_step_back",
+      "name": "Step Back",
+      "type": "toolbar_button",
+      "region": "panel_floating",
+      "tooltip": "Step back one move",
+      "icon": "step_back.png",
+      "action": { "action_type": "command", "prism_importance": 5 }
+    },
+    {
+      "id": "ctrl_sim_speed",
+      "name": "Simulation Speed",
+      "type": "slider",
+      "region": "panel_floating",
+      "tooltip": "Adjust simulation playback speed",
+      "min_value": 0.1,
+      "max_value": 10,
+      "default_value": 1,
+      "action": { "action_type": "set_value", "prism_importance": 4 }
+    },
+    {
+      "id": "dlg_setup",
+      "name": "Setup Dialog",
+      "type": "dialog",
+      "region": "dialog_modal",
+      "items": ["tab_setup_wcs", "tab_setup_stock", "tab_setup_fixture", "tab_setup_post"]
+    },
+    {
+      "id": "tab_setup_wcs",
+      "name": "WCS",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["dd_origin_mode", "dd_orientation_mode", "sel_origin_point", "sel_orientation"]
+    },
+    {
+      "id": "dd_origin_mode",
+      "name": "Origin Mode",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Work coordinate origin location",
+      "options": ["center", "bottom center", "top center", "bottom 1", "bottom 2", "bottom 3", "bottom 4", "top 1", "top 2", "top 3", "top 4"],
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setJobWCS",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "dd_orientation_mode",
+      "name": "Orientation Mode",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Work coordinate orientation",
+      "options": ["originAndOrientation", "coordinateSystem", "orientation", "modelAndOrientation"],
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setJobWCS",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "sel_origin_point",
+      "name": "Origin Point",
+      "type": "file_picker",
+      "region": "dialog_modal",
+      "tooltip": "Select origin point in model",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "sel_orientation",
+      "name": "Orientation",
+      "type": "file_picker",
+      "region": "dialog_modal",
+      "tooltip": "Select orientation reference",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "tab_setup_stock",
+      "name": "Stock",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["dd_stock_mode", "num_stock_offset", "sel_stock_body"]
+    },
+    {
+      "id": "dd_stock_mode",
+      "name": "Stock Mode",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Stock definition mode",
+      "options": ["Relative Size Box", "Fixed Size Box", "Relative Size Cylinder", "Fixed Size Cylinder", "From Solid"],
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "num_stock_offset",
+      "name": "Stock Offset",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Stock offset from model (mm)",
+      "unit": "mm",
+      "default_value": 3,
+      "min_value": 0,
+      "max_value": 100,
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "sel_stock_body",
+      "name": "Stock Body",
+      "type": "file_picker",
+      "region": "dialog_modal",
+      "tooltip": "Select stock solid body",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "tab_setup_fixture",
+      "name": "Fixture",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["sel_fixture_body", "chk_fixture_collision"]
+    },
+    {
+      "id": "sel_fixture_body",
+      "name": "Fixture Body",
+      "type": "file_picker",
+      "region": "dialog_modal",
+      "tooltip": "Select fixture solid for collision checking",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectGeometry",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "chk_fixture_collision",
+      "name": "Check Fixture Collision",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Enable fixture collision detection",
+      "default_value": true,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "tab_setup_post",
+      "name": "Post Process",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["dd_post_processor", "dd_work_offset", "txt_program_name", "txt_program_comment"]
+    },
+    {
+      "id": "dd_post_processor",
+      "name": "Post Processor",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Select post processor",
+      "options": ["fanuc.cps", "haas.cps", "heidenhain.cps", "siemens-840d.cps", "okuma.cps", "mazak.cps", "hurco.cps", "mitsubishi.cps"],
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_getJobParameter",
+        "prism_action": "prism_cam.set_post_processor",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "dd_work_offset",
+      "name": "Work Offset",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "G-code work offset",
+      "options": ["G54", "G55", "G56", "G57", "G58", "G59", "G54.1 P1", "G54.1 P2"],
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "txt_program_name",
+      "name": "Program Name",
+      "type": "text_input",
+      "region": "dialog_modal",
+      "tooltip": "NC program name/number",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "txt_program_comment",
+      "name": "Program Comment",
+      "type": "text_input",
+      "region": "dialog_modal",
+      "tooltip": "Program comment/description",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "dlg_adaptive_2d",
+      "name": "2D Adaptive Dialog",
+      "type": "dialog",
+      "region": "dialog_modal",
+      "items": ["tab_op_tool", "tab_op_geometry", "tab_op_heights", "tab_op_passes", "tab_op_linking"]
+    },
+    {
+      "id": "tab_op_tool",
+      "name": "Tool",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["btn_select_tool_dlg", "num_spindle_speed", "num_surface_speed", "num_cutting_feed", "num_feed_per_tooth", "dd_coolant"]
+    },
+    {
+      "id": "btn_select_tool_dlg",
+      "name": "Select Tool",
+      "type": "dialog_button",
+      "region": "dialog_modal",
+      "tooltip": "Select tool from library",
+      "action": {
+        "action_type": "open_dialog",
+        "dialog_id": "dlg_select_tool",
+        "api_method": "HSMWorks_setObjectToolById",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "num_spindle_speed",
+      "name": "Spindle Speed",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Spindle RPM",
+      "unit": "rpm",
+      "min_value": 1,
+      "max_value": 99999,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_spindle_speed",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "num_surface_speed",
+      "name": "Surface Speed",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Surface speed (Vc)",
+      "unit": "m/min",
+      "min_value": 1,
+      "max_value": 9999,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_surface_speed",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "num_cutting_feed",
+      "name": "Cutting Feedrate",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Cutting feed",
+      "unit": "mm/min",
+      "min_value": 1,
+      "max_value": 99999,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_cutting_feed",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "num_feed_per_tooth",
+      "name": "Feed per Tooth",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Feed per tooth (fz)",
+      "unit": "mm/tooth",
+      "min_value": 0.01,
+      "max_value": 2,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_feed_per_tooth",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "dd_coolant",
+      "name": "Coolant",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Coolant mode",
+      "options": ["disabled", "flood", "mist", "through_tool", "air", "suction"],
+      "default_value": "flood",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_coolant",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "tab_op_geometry",
+      "name": "Geometry",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["sel_contours", "chk_pocket_selection", "num_stock_to_leave", "num_stock_to_leave_axial", "sel_model", "chk_rest_machining", "sel_rest_tool"]
+    },
+    {
+      "id": "sel_contours",
+      "name": "Contours",
+      "type": "file_picker",
+      "region": "dialog_modal",
+      "tooltip": "Select boundary contours",
+      "required": true,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectGeometry",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "chk_pocket_selection",
+      "name": "Pocket Selection",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Use pocket selection mode",
+      "default_value": false,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "num_stock_to_leave",
+      "name": "Radial Stock",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Radial stock to leave",
+      "unit": "mm",
+      "default_value": 0.2,
+      "min_value": 0,
+      "max_value": 10,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_stock_to_leave",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "num_stock_to_leave_axial",
+      "name": "Axial Stock",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Axial stock to leave",
+      "unit": "mm",
+      "default_value": 0.2,
+      "min_value": 0,
+      "max_value": 10,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "sel_model",
+      "name": "Machining Model",
+      "type": "file_picker",
+      "region": "dialog_modal",
+      "tooltip": "Select machining model",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectGeometry",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "chk_rest_machining",
+      "name": "Rest Machining",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Enable rest machining from previous operation",
+      "default_value": false,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "sel_rest_tool",
+      "name": "Rest Tool",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Previous tool for rest calculation",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "tab_op_heights",
+      "name": "Heights",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["num_clearance_height", "num_retract_height", "num_feed_height", "num_top_height", "num_bottom_height", "dd_heights_from"]
+    },
+    {
+      "id": "num_clearance_height",
+      "name": "Clearance Height",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Safe retract height above stock",
+      "unit": "mm",
+      "default_value": 25.4,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "num_retract_height",
+      "name": "Retract Height",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Rapid retract height",
+      "unit": "mm",
+      "default_value": 6.35,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "num_feed_height",
+      "name": "Feed Height",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Height to switch to feed",
+      "unit": "mm",
+      "default_value": 2.54,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "num_top_height",
+      "name": "Top Height",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Top of feature",
+      "unit": "mm",
+      "default_value": 0,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "num_bottom_height",
+      "name": "Bottom Height",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Bottom of feature",
+      "unit": "mm",
+      "default_value": -25.4,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "dd_heights_from",
+      "name": "Heights From",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Height reference",
+      "options": ["selection", "stock top", "model top", "origin"],
+      "default_value": "stock top",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "tab_op_passes",
+      "name": "Passes",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["num_optimal_load", "num_max_stepdown", "chk_multiple_depths", "chk_slot_clearing", "num_min_cutting_radius", "chk_both_ways", "dd_direction", "chk_order_by_depth", "num_finishing_overlap"]
+    },
+    {
+      "id": "num_optimal_load",
+      "name": "Optimal Load",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Target engagement as % of tool diameter",
+      "unit": "percent",
+      "default_value": 40,
+      "min_value": 5,
+      "max_value": 50,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_optimal_load",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "num_max_stepdown",
+      "name": "Maximum Stepdown",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Maximum axial depth per pass",
+      "unit": "mm",
+      "min_value": 0.1,
+      "max_value": 100,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_max_stepdown",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "chk_multiple_depths",
+      "name": "Multiple Depths",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Enable multiple depth passes",
+      "default_value": true,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "chk_slot_clearing",
+      "name": "Slot Clearing",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Trochoidal clearing in narrow areas",
+      "default_value": true,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "num_min_cutting_radius",
+      "name": "Minimum Cutting Radius",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Minimum internal corner radius",
+      "unit": "mm",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "chk_both_ways",
+      "name": "Both Ways",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Bidirectional machining",
+      "default_value": false,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "dd_direction",
+      "name": "Direction",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Cutting direction",
+      "options": ["climb", "conventional"],
+      "default_value": "climb",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_cut_direction",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "chk_order_by_depth",
+      "name": "Order by Depth",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Complete each depth before moving deeper",
+      "default_value": true,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "num_finishing_overlap",
+      "name": "Finishing Overlap",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Overlap at pass start/end",
+      "unit": "mm",
+      "default_value": 0.5,
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "tab_op_linking",
+      "name": "Linking",
+      "type": "dialog_tab",
+      "region": "dialog_modal",
+      "items": ["dd_entry_method", "num_helix_diameter", "num_helix_angle", "num_lead_radius", "chk_lead_vertical", "dd_transition_type", "chk_stay_down"]
+    },
+    {
+      "id": "dd_entry_method",
+      "name": "Entry Method",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Tool entry method",
+      "options": ["helix", "ramp", "plunge"],
+      "default_value": "helix",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_action": "prism_cam.set_entry_method",
+        "prism_importance": 8
+      }
+    },
+    {
+      "id": "num_helix_diameter",
+      "name": "Helix Diameter",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Helix diameter as % of tool",
+      "unit": "percent",
+      "default_value": 50,
+      "min_value": 10,
+      "max_value": 100,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "num_helix_angle",
+      "name": "Helix Angle",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Helix ramp angle",
+      "unit": "deg",
+      "default_value": 2,
+      "min_value": 0.5,
+      "max_value": 10,
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "num_lead_radius",
+      "name": "Lead-in Radius",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Lead-in arc radius",
+      "unit": "mm",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "chk_lead_vertical",
+      "name": "Vertical Lead-in",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Use vertical lead-in",
+      "default_value": false,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 4
+      }
+    },
+    {
+      "id": "dd_transition_type",
+      "name": "Transition Type",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Transition between passes",
+      "options": ["safe_retract", "direct", "minimal_lift"],
+      "default_value": "safe_retract",
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_setObjectParameter",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "chk_stay_down",
+      "name": "Stay Down",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Minimize retracts",
+      "default_value": true,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "dlg_post_process",
+      "name": "Post Process Dialog",
+      "type": "dialog",
+      "region": "dialog_modal",
+      "items": ["dd_post_select", "dd_unit_system", "txt_output_folder", "txt_output_name", "chk_open_nc", "chk_edit_nc"]
+    },
+    {
+      "id": "dd_post_select",
+      "name": "Post Processor",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Select post processor",
+      "options": ["fanuc.cps", "haas.cps", "heidenhain.cps", "siemens-840d.cps", "okuma.cps", "mazak.cps", "hurco.cps", "mitsubishi.cps", "grbl.cps", "linuxcnc.cps"],
+      "action": {
+        "action_type": "set_value",
+        "api_method": "HSMWorks_postProcess",
+        "prism_action": "prism_cam.select_post",
+        "prism_importance": 10
+      }
+    },
+    {
+      "id": "dd_unit_system",
+      "name": "Units",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Output unit system",
+      "options": ["mm", "inches"],
+      "default_value": "mm",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "txt_output_folder",
+      "name": "Output Folder",
+      "type": "file_picker",
+      "region": "dialog_modal",
+      "tooltip": "Output folder for NC files",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "txt_output_name",
+      "name": "Output Name",
+      "type": "text_input",
+      "region": "dialog_modal",
+      "tooltip": "NC file name",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "chk_open_nc",
+      "name": "Open NC File",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Open NC file after post",
+      "default_value": false,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 3
+      }
+    },
+    {
+      "id": "chk_edit_nc",
+      "name": "Edit NC File",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Open NC file in editor",
+      "default_value": false,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 3
+      }
+    },
+    {
+      "id": "dlg_machine_config",
+      "name": "Machine Configuration Dialog",
+      "type": "dialog",
+      "region": "dialog_modal",
+      "items": ["dd_machine_type", "num_x_travel", "num_y_travel", "num_z_travel", "num_max_spindle", "chk_4th_axis", "chk_5th_axis", "dd_4th_axis_type", "dd_5th_axis_type"]
+    },
+    {
+      "id": "dd_machine_type",
+      "name": "Machine Type",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "Machine type/configuration",
+      "options": ["3-axis VMC", "3-axis HMC", "4-axis VMC", "4-axis HMC", "5-axis VTTRT", "5-axis VTTRH", "5-axis VTTRB", "Lathe 2-axis", "Lathe Y-axis", "Mill-Turn"],
+      "action": {
+        "action_type": "set_value",
+        "prism_action": "prism_cam.set_machine_type",
+        "prism_importance": 9
+      }
+    },
+    {
+      "id": "num_x_travel",
+      "name": "X Travel",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "X-axis travel (mm)",
+      "unit": "mm",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "num_y_travel",
+      "name": "Y Travel",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Y-axis travel (mm)",
+      "unit": "mm",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "num_z_travel",
+      "name": "Z Travel",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Z-axis travel (mm)",
+      "unit": "mm",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "num_max_spindle",
+      "name": "Max Spindle Speed",
+      "type": "numeric_input",
+      "region": "dialog_modal",
+      "tooltip": "Maximum spindle RPM",
+      "unit": "rpm",
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 7
+      }
+    },
+    {
+      "id": "chk_4th_axis",
+      "name": "4th Axis",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Enable 4th axis",
+      "default_value": false,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "chk_5th_axis",
+      "name": "5th Axis",
+      "type": "checkbox",
+      "region": "dialog_modal",
+      "tooltip": "Enable 5th axis",
+      "default_value": false,
+      "action": {
+        "action_type": "toggle",
+        "prism_importance": 6
+      }
+    },
+    {
+      "id": "dd_4th_axis_type",
+      "name": "4th Axis Type",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "4th axis configuration",
+      "options": ["Table A", "Table B", "Head A", "Head B"],
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 5
+      }
+    },
+    {
+      "id": "dd_5th_axis_type",
+      "name": "5th Axis Type",
+      "type": "dropdown",
+      "region": "dialog_modal",
+      "tooltip": "5th axis configuration",
+      "options": ["Table C", "Head C", "Head B"],
+      "action": {
+        "action_type": "set_value",
+        "prism_importance": 5
+      }
+    }
+  ],
+
+  "settings_categories": [
+    {
+      "id": "cat_hsm_preferences",
+      "name": "HSM Preferences",
+      "description": "General HSM/CAM preferences",
+      "settings": [
+        {
+          "id": "set_default_units",
+          "name": "Default Units",
+          "type": "dropdown",
+          "options": ["mm", "inches"],
+          "default_value": "mm",
+          "action": {
+            "action_type": "set_value",
+            "api_method": "HSMWorks_setIntSetting",
+            "prism_importance": 7
+          }
+        },
+        {
+          "id": "set_distributed_cam",
+          "name": "Distributed CAM",
+          "type": "checkbox",
+          "default_value": false,
+          "description": "Enable distributed toolpath calculation",
+          "action": {
+            "action_type": "toggle",
+            "api_method": "HSMWorks_setBoolSetting",
+            "prism_importance": 5
+          }
+        },
+        {
+          "id": "set_silent_mode",
+          "name": "Silent Mode",
+          "type": "checkbox",
+          "default_value": false,
+          "description": "Suppress dialogs during automation",
+          "action": {
+            "action_type": "toggle",
+            "api_method": "HSMWorks_setBoolSetting",
+            "prism_importance": 4
+          }
+        },
+        {
+          "id": "set_api_logging",
+          "name": "API Logging",
+          "type": "checkbox",
+          "default_value": false,
+          "description": "Enable API logging to %LOCALAPPDATA%/Temp/HSMWorks/api.log",
+          "action": {
+            "action_type": "toggle",
+            "api_method": "HSMWorks_writeAPILog",
+            "prism_importance": 3
+          }
+        },
+        {
+          "id": "set_default_tolerance",
+          "name": "Default Tolerance",
+          "type": "numeric_input",
+          "unit": "mm",
+          "default_value": 0.01,
+          "min_value": 0.001,
+          "max_value": 0.1,
+          "action": {
+            "action_type": "set_value",
+            "prism_importance": 8
+          }
+        },
+        {
+          "id": "set_default_post",
+          "name": "Default Post Processor",
+          "type": "dropdown",
+          "options": ["fanuc.cps", "haas.cps", "heidenhain.cps", "siemens-840d.cps", "okuma.cps"],
+          "action": {
+            "action_type": "set_value",
+            "prism_importance": 7
+          }
+        },
+        {
+          "id": "set_tool_library_path",
+          "name": "Tool Library Path",
+          "type": "file_picker",
+          "description": "Default tool library location",
+          "action": {
+            "action_type": "set_value",
+            "prism_importance": 5
+          }
+        },
+        {
+          "id": "set_post_library_path",
+          "name": "Post Library Path",
+          "type": "file_picker",
+          "description": "Post processor library location",
+          "action": {
+            "action_type": "set_value",
+            "prism_importance": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "cat_toolpath_display",
+      "name": "Toolpath Display",
+      "description": "Toolpath visualization settings",
+      "settings": [
+        {
+          "id": "set_show_rapid",
+          "name": "Show Rapid Moves",
+          "type": "checkbox",
+          "default_value": true,
+          "action": { "action_type": "toggle", "prism_importance": 4 }
+        },
+        {
+          "id": "set_show_lead",
+          "name": "Show Lead Moves",
+          "type": "checkbox",
+          "default_value": true,
+          "action": { "action_type": "toggle", "prism_importance": 4 }
+        },
+        {
+          "id": "set_toolpath_color_by",
+          "name": "Color By",
+          "type": "dropdown",
+          "options": ["Operation", "Tool", "Move Type", "Feedrate", "Spindle Speed"],
+          "default_value": "Move Type",
+          "action": { "action_type": "set_value", "prism_importance": 3 }
+        },
+        {
+          "id": "set_tool_animation",
+          "name": "Show Tool Animation",
+          "type": "checkbox",
+          "default_value": true,
+          "action": { "action_type": "toggle", "prism_importance": 3 }
+        }
+      ]
+    },
+    {
+      "id": "cat_simulation",
+      "name": "Simulation Settings",
+      "description": "Machine simulation settings",
+      "settings": [
+        {
+          "id": "set_sim_quality",
+          "name": "Simulation Quality",
+          "type": "dropdown",
+          "options": ["Draft", "Normal", "High", "Ultra"],
+          "default_value": "Normal",
+          "action": { "action_type": "set_value", "prism_importance": 4 }
+        },
+        {
+          "id": "set_collision_check",
+          "name": "Collision Checking",
+          "type": "checkbox",
+          "default_value": true,
+          "action": { "action_type": "toggle", "prism_importance": 8 }
+        },
+        {
+          "id": "set_gouge_check",
+          "name": "Gouge Checking",
+          "type": "checkbox",
+          "default_value": true,
+          "action": { "action_type": "toggle", "prism_importance": 8 }
+        },
+        {
+          "id": "set_stock_removal",
+          "name": "Show Stock Removal",
+          "type": "checkbox",
+          "default_value": true,
+          "action": { "action_type": "toggle", "prism_importance": 6 }
+        }
+      ]
+    },
+    {
+      "id": "cat_imachining",
+      "name": "iMachining Settings",
+      "description": "SolidCAM iMachining technology settings (when licensed)",
+      "settings": [
+        {
+          "id": "set_imach_level",
+          "name": "iMachining Level",
+          "type": "numeric_input",
+          "default_value": 4,
+          "min_value": 1,
+          "max_value": 8,
+          "description": "Aggressiveness level (1=conservative, 8=maximum)",
+          "action": { "action_type": "set_value", "prism_importance": 9 }
+        },
+        {
+          "id": "set_imach_wizard",
+          "name": "Use iMachining Wizard",
+          "type": "checkbox",
+          "default_value": true,
+          "action": { "action_type": "toggle", "prism_importance": 6 }
+        }
+      ]
+    }
+  ],
+
+  "context_menus": [
+    {
+      "id": "ctx_operation",
+      "name": "Operation Context Menu",
+      "trigger_context": "tree_node_operation",
+      "items": [
+        { "id": "ctx_edit_op", "name": "Edit", "icon": "edit.png", "action": { "action_type": "open_dialog", "prism_importance": 8 } },
+        { "id": "ctx_generate_op", "name": "Generate", "icon": "generate.png", "shortcut": { "key": "G", "modifiers": ["Ctrl"] }, "action": { "action_type": "command", "api_method": "HSMWorks_regenerateAll", "prism_importance": 9 } },
+        { "id": "ctx_simulate_op", "name": "Simulate", "icon": "simulate.png", "action": { "action_type": "open_panel", "prism_importance": 7 }, "separator_after": true },
+        { "id": "ctx_post_op", "name": "Post Process", "icon": "post.png", "action": { "action_type": "open_dialog", "api_method": "HSMWorks_postProcess", "prism_importance": 8 } },
+        { "id": "ctx_setup_sheet_op", "name": "Setup Sheet", "icon": "sheet.png", "action": { "action_type": "open_dialog", "prism_importance": 5 }, "separator_after": true },
+        { "id": "ctx_copy_op", "name": "Copy", "icon": "copy.png", "shortcut": { "key": "C", "modifiers": ["Ctrl"] }, "action": { "action_type": "command", "prism_importance": 5 } },
+        { "id": "ctx_paste_op", "name": "Paste", "icon": "paste.png", "shortcut": { "key": "V", "modifiers": ["Ctrl"] }, "action": { "action_type": "command", "prism_importance": 5 } },
+        { "id": "ctx_duplicate_op", "name": "Duplicate", "icon": "duplicate.png", "action": { "action_type": "command", "prism_importance": 6 } },
+        { "id": "ctx_delete_op", "name": "Delete", "icon": "delete.png", "shortcut": { "key": "Delete", "modifiers": [] }, "action": { "action_type": "command", "api_method": "HSMWorks_removeObject", "prism_importance": 5 }, "separator_after": true },
+        { "id": "ctx_protect_op", "name": "Protect", "icon": "lock.png", "action": { "action_type": "toggle", "api_method": "HSMWorks_setProtected", "prism_importance": 4 } },
+        { "id": "ctx_optional_op", "name": "Optional", "icon": "optional.png", "action": { "action_type": "toggle", "api_method": "HSMWorks_setOptional", "prism_importance": 4 } },
+        { "id": "ctx_suppress_op", "name": "Suppress", "icon": "suppress.png", "action": { "action_type": "toggle", "prism_importance": 5 } }
+      ]
+    },
+    {
+      "id": "ctx_setup",
+      "name": "Setup Context Menu",
+      "trigger_context": "tree_node_setup",
+      "items": [
+        { "id": "ctx_edit_setup", "name": "Edit Setup", "icon": "edit.png", "action": { "action_type": "open_dialog", "dialog_id": "dlg_setup", "prism_importance": 8 } },
+        { "id": "ctx_generate_setup", "name": "Generate All", "icon": "generate_all.png", "action": { "action_type": "command", "api_method": "HSMWorks_regenerateAll", "prism_importance": 8 } },
+        { "id": "ctx_simulate_setup", "name": "Simulate All", "icon": "simulate_all.png", "action": { "action_type": "open_panel", "prism_importance": 6 }, "separator_after": true },
+        { "id": "ctx_post_setup", "name": "Post Process All", "icon": "post_all.png", "action": { "action_type": "open_dialog", "api_method": "HSMWorks_exportAll", "prism_importance": 8 } },
+        { "id": "ctx_new_op_setup", "name": "New Operation", "icon": "new_op.png", "submenu_items": ["ctx_new_2d", "ctx_new_3d", "ctx_new_drill", "ctx_new_turn", "ctx_new_multi"], "action": { "action_type": "open_submenu", "prism_importance": 7 } },
+        { "id": "ctx_make_default", "name": "Make Default", "icon": "default.png", "action": { "action_type": "command", "api_method": "HSMWorks_makeDefault", "prism_importance": 4 } }
+      ]
+    },
+    {
+      "id": "ctx_tool",
+      "name": "Tool Context Menu",
+      "trigger_context": "tree_node_tool",
+      "items": [
+        { "id": "ctx_edit_tool", "name": "Edit Tool", "icon": "edit.png", "action": { "action_type": "open_dialog", "prism_importance": 6 } },
+        { "id": "ctx_copy_tool", "name": "Copy Tool", "icon": "copy.png", "action": { "action_type": "command", "prism_importance": 4 } },
+        { "id": "ctx_delete_tool", "name": "Delete Tool", "icon": "delete.png", "action": { "action_type": "command", "prism_importance": 4 } },
+        { "id": "ctx_export_tool", "name": "Export Tool", "icon": "export.png", "action": { "action_type": "open_dialog", "prism_importance": 3 } },
+        { "id": "ctx_find_uses", "name": "Find Tool Uses", "icon": "search.png", "action": { "action_type": "command", "prism_importance": 5 } }
+      ]
+    },
+    {
+      "id": "ctx_toolpath",
+      "name": "Toolpath Context Menu",
+      "trigger_context": "viewport_toolpath",
+      "items": [
+        { "id": "ctx_show_all_tp", "name": "Show All Toolpaths", "icon": "show_all.png", "action": { "action_type": "command", "prism_importance": 5 } },
+        { "id": "ctx_hide_all_tp", "name": "Hide All Toolpaths", "icon": "hide_all.png", "action": { "action_type": "command", "prism_importance": 4 } },
+        { "id": "ctx_isolate_tp", "name": "Isolate Toolpath", "icon": "isolate.png", "action": { "action_type": "command", "prism_importance": 5 } },
+        { "id": "ctx_tp_display_opts", "name": "Display Options", "icon": "display.png", "action": { "action_type": "open_dialog", "prism_importance": 4 } }
+      ]
+    }
+  ],
+
+  "statistics": {
+    "total_elements": 312,
+    "total_menus": 5,
+    "total_toolbar_buttons": 18,
+    "total_ribbon_buttons": 82,
+    "total_panels": 5,
+    "total_dialogs": 47,
+    "total_settings": 20,
+    "total_shortcuts": 14,
+    "prism_mapped_count": 287
+  }
+}

@@ -1,0 +1,864 @@
+{
+  "id": "CCM-MS3",
+  "version": "1.0.0",
+  "title": "Skill Modernization",
+  "brief": "Upgrade all 132+ slash commands with model/effort/context/hooks/allowed-tools frontmatter fields. Currently skills only have name+description. Add model tier routing (haiku for lookups, sonnet for analysis, opus for complex), effort levels, context:fork for heavy skills, allowed-tools for read-only skills, hooks scoped to skills, argument-hint for autocomplete.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Skill Audit, Classification & Frontmatter Upgrade",
+      "description": "Classify all 132 skills by complexity, add model/effort/context/allowed-tools/hooks/argument-hint frontmatter, validate all skills load correctly.",
+      "sessions": "2-4",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Skill audit & classification",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Before upgrading skills, we need a complete inventory with complexity classification. This drives model routing and effort assignment for all subsequent units.",
+          "tools": [
+            "Read",
+            "Grep",
+            "Glob",
+            "Write"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "skill-inventory",
+            "complexity-classification",
+            "routing-plan"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Access to all skill definition files",
+            "CCM-MS2 agent architecture complete"
+          ],
+          "exit_conditions": [
+            "All 132 skills classified as simple/moderate/complex/heavy",
+            "Classification JSON file created with model, effort, and context recommendations",
+            "Classification reviewed and approved"
+          ],
+          "rollback": "rm data/docs/skill-classification.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Glob for all skill definition files (*.md in commands/ and skills/ directories)"
+            },
+            {
+              "number": 2,
+              "instruction": "Read each skill, classify by: token consumption, tool usage, reasoning depth, execution time"
+            },
+            {
+              "number": 3,
+              "instruction": "Assign tier: simple (haiku), moderate (sonnet), complex (opus), heavy (opus+fork)"
+            },
+            {
+              "number": 4,
+              "instruction": "Write skill-classification.json with: name, tier, recommended model, effort, context mode, allowed-tools"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "data/docs/skill-classification.json",
+              "type": "config",
+              "description": "Complete classification of all 132 skills with model/effort/context recommendations"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Skill audit & classification — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Add model:haiku to lookup skills",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "Simple lookup skills (calc, material-lookup, tool-catalog, quick-ref, gcode, status, counts) don't need expensive models. Haiku routing reduces cost by ~10x for these high-frequency skills.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "model-routing",
+            "cost-optimization",
+            "haiku-tier"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "skill-classification.json identifies ~20 haiku-tier skills"
+          ],
+          "exit_conditions": [
+            "~20 skills updated with model:haiku frontmatter",
+            "Skills still function correctly with haiku model",
+            "No regressions in skill output quality"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read skill-classification.json, filter for haiku-tier skills"
+            },
+            {
+              "number": 2,
+              "instruction": "For each haiku skill, add 'model: haiku' to frontmatter"
+            },
+            {
+              "number": 3,
+              "instruction": "Test 5 representative skills to verify they work with haiku"
+            },
+            {
+              "number": 4,
+              "instruction": "Verify lookup accuracy is maintained (no quality regression)"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/",
+              "type": "config",
+              "description": "~20 skill files updated with model:haiku frontmatter"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Add model:haiku to lookup skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Add model:sonnet to analysis skills",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "Analysis skills (feasibility-check, scope, forge-audit, scrutinize, playbook) need moderate reasoning but not full Opus power. Sonnet balances capability and cost.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "model-routing",
+            "sonnet-tier",
+            "analysis-optimization"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "skill-classification.json identifies ~40 sonnet-tier skills"
+          ],
+          "exit_conditions": [
+            "~40 skills updated with model:sonnet frontmatter",
+            "Analysis quality maintained with sonnet",
+            "No regressions in skill output depth"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read skill-classification.json, filter for sonnet-tier skills"
+            },
+            {
+              "number": 2,
+              "instruction": "For each sonnet skill, add 'model: sonnet' to frontmatter"
+            },
+            {
+              "number": 3,
+              "instruction": "Test 5 representative analysis skills with sonnet"
+            },
+            {
+              "number": 4,
+              "instruction": "Compare output quality vs opus baseline for edge cases"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/",
+              "type": "config",
+              "description": "~40 skill files updated with model:sonnet frontmatter"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Add model:sonnet to analysis skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Add model:opus to complex skills",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "Complex skills (autopilot, forge, full-job, learn-everything) require deep reasoning, multi-step planning, and creative problem solving. Opus is the only model capable enough.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "model-routing",
+            "opus-tier",
+            "complex-reasoning"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "skill-classification.json identifies ~15 opus-tier skills"
+          ],
+          "exit_conditions": [
+            "~15 skills updated with model:opus frontmatter",
+            "Complex skills explicitly request opus for quality assurance",
+            "Skills that were borderline sonnet/opus tested and assigned"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read skill-classification.json, filter for opus-tier skills"
+            },
+            {
+              "number": 2,
+              "instruction": "For each opus skill, add 'model: opus' to frontmatter"
+            },
+            {
+              "number": 3,
+              "instruction": "Identify borderline cases and test with both sonnet and opus"
+            },
+            {
+              "number": 4,
+              "instruction": "Assign final tier based on quality comparison"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/",
+              "type": "config",
+              "description": "~15 skill files updated with model:opus frontmatter"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Add model:opus to complex skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Add effort field to all skills",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Effort field controls Claude's reasoning depth. Low effort for quick lookups saves tokens, high effort for forge/autopilot ensures thoroughness.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "effort-routing",
+            "token-optimization",
+            "reasoning-depth-control"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "skill-classification.json has effort recommendations"
+          ],
+          "exit_conditions": [
+            "All 132 skills have effort field: low (25), medium (50), high (75), max (95)",
+            "Effort correlates with skill complexity",
+            "Token usage reduced for low-effort skills"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Map effort tiers: low=25 (status, counts, quick-ref), medium=50 (calc, lookup), high=75 (forge, analysis), max=95 (autopilot, exhaustive)"
+            },
+            {
+              "number": 2,
+              "instruction": "Batch update all skill files with effort frontmatter"
+            },
+            {
+              "number": 3,
+              "instruction": "Test representative skills from each effort tier"
+            },
+            {
+              "number": 4,
+              "instruction": "Verify low-effort skills complete faster with fewer tokens"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/",
+              "type": "config",
+              "description": "All 132 skill files updated with effort frontmatter (25/50/75/95)"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Add effort field to all skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Add context:fork to heavy skills",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Heavy skills (autopilot, forge, full-job, learn-everything) consume massive context windows. Fork mode gives them a fresh context, preventing main conversation pollution.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "context-isolation",
+            "fork-mode",
+            "context-preservation"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Heavy skills identified in classification"
+          ],
+          "exit_conditions": [
+            "Heavy skills run in forked context",
+            "Main conversation context preserved",
+            "Forked results summarized back to main context"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Identify heavy skills: autopilot, forge, full-job, learn-everything, forge-audit, forge-debug"
+            },
+            {
+              "number": 2,
+              "instruction": "Add 'context: fork' frontmatter to each"
+            },
+            {
+              "number": 3,
+              "instruction": "Test fork behavior: main context should not grow during skill execution"
+            },
+            {
+              "number": 4,
+              "instruction": "Verify skill results are properly returned to main context"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/",
+              "type": "config",
+              "description": "Heavy skill files updated with context:fork frontmatter"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Add context:fork to heavy skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Add allowed-tools restrictions to read-only skills",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Read-only skills (status, counts, navigate, digest) should not have write access. Restricting allowed-tools enforces this safety boundary.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "tool-restriction",
+            "safety-boundary",
+            "read-only-enforcement"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Read-only skills identified in classification"
+          ],
+          "exit_conditions": [
+            "Read-only skills restricted to [Read, Grep, Glob]",
+            "Write-capable skills have appropriate tool lists",
+            "Restriction violations blocked at runtime"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Identify read-only skills: status, counts, navigate, digest, quick-ref, code-index, etc."
+            },
+            {
+              "number": 2,
+              "instruction": "Add 'allowed-tools: [Read, Grep, Glob]' frontmatter"
+            },
+            {
+              "number": 3,
+              "instruction": "For analysis skills, add 'allowed-tools: [Read, Grep, Glob, Bash]'"
+            },
+            {
+              "number": 4,
+              "instruction": "Test that restricted skills cannot invoke Edit/Write"
+            },
+            {
+              "number": 5,
+              "instruction": "Verify unrestricted skills still have full tool access"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/",
+              "type": "config",
+              "description": "Read-only skill files updated with allowed-tools restrictions"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Add allowed-tools restrictions to read-only skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Add hooks to code-modifying skills",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Skills that modify code (forge, wiring, enrichment) should verify their own changes. Scoped PostToolUse hooks ensure quality without global overhead.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PostToolUse"
+          ],
+          "features": [
+            "self-verification",
+            "scoped-hooks",
+            "quality-assurance"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Code-modifying skills identified in classification",
+            "CCM-MS0 hook infrastructure available"
+          ],
+          "exit_conditions": [
+            "Code-modifying skills inject PostToolUse verification",
+            "Verification checks: TS compilation, test existence, schema alignment",
+            "Hook only fires within skill scope, not globally"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Identify code-modifying skills: forge, forge-wiring, forge-tests, enrichment, wire-engine"
+            },
+            {
+              "number": 2,
+              "instruction": "Add 'hooks: [{event: PostToolUse, script: verify-edit.sh}]' frontmatter"
+            },
+            {
+              "number": 3,
+              "instruction": "Create verify-edit.sh: check TS syntax, verify test file exists, validate schema if dispatcher edited"
+            },
+            {
+              "number": 4,
+              "instruction": "Test that hook fires during skill execution but not outside it"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/",
+              "type": "config",
+              "description": "Code-modifying skills updated with scoped PostToolUse verification hooks"
+            },
+            {
+              "path": "~/.claude/hooks/lib/verify-edit.sh",
+              "type": "script",
+              "description": "Scoped verification script for code-modifying skill hooks"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Add hooks to code-modifying skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Add argument-hint to all skills for autocomplete",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "Autocomplete hints help users discover skill capabilities and provide correct arguments. Reduces trial-and-error and improves discoverability.",
+          "tools": [
+            "Edit",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "autocomplete",
+            "argument-hints",
+            "discoverability"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "All skills inventoried in classification"
+          ],
+          "exit_conditions": [
+            "All 132 skills have argument-hint frontmatter",
+            "Hints describe expected arguments with examples",
+            "Tab completion shows hints for skill arguments"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "For each skill, determine argument pattern: none, free-text, enum, file-path, material-name, etc."
+            },
+            {
+              "number": 2,
+              "instruction": "Add 'argument-hint: <description>' to frontmatter (e.g., 'argument-hint: \"<material> <operation> [options]\"')"
+            },
+            {
+              "number": 3,
+              "instruction": "For enum-type arguments, include valid values"
+            },
+            {
+              "number": 4,
+              "instruction": "Verify hints display in skill help/autocomplete"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/",
+              "type": "config",
+              "description": "All 132 skill files updated with argument-hint frontmatter for autocomplete"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Add argument-hint to all skills for autocomplete — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Validation — verify all skills load with new frontmatter",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Final validation ensures all frontmatter additions are syntactically correct and don't break skill loading. Catches typos, invalid fields, and parsing errors.",
+          "tools": [
+            "Read",
+            "Grep",
+            "Glob",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "validation",
+            "regression-check",
+            "load-testing"
+          ],
+          "dependencies": [
+            "P0-U02",
+            "P0-U03",
+            "P0-U04",
+            "P0-U05",
+            "P0-U06",
+            "P0-U07",
+            "P0-U08",
+            "P0-U09"
+          ],
+          "entry_conditions": [
+            "All frontmatter upgrades complete"
+          ],
+          "exit_conditions": [
+            "0 skill load errors",
+            "All frontmatter fields parse correctly",
+            "No regressions in skill functionality"
+          ],
+          "rollback": "git checkout -- commands/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write validation script: iterate all skill files, parse frontmatter, check required fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Verify model field is one of: haiku, sonnet, opus"
+            },
+            {
+              "number": 3,
+              "instruction": "Verify effort field is a number 1-100"
+            },
+            {
+              "number": 4,
+              "instruction": "Verify allowed-tools references valid tool names"
+            },
+            {
+              "number": 5,
+              "instruction": "Run script, fix any failures, achieve 0 errors"
+            },
+            {
+              "number": 6,
+              "instruction": "Test 10 representative skills end-to-end"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/validate-skills.sh",
+              "type": "script",
+              "description": "Validation script checking all skill frontmatter for correctness"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Validation — verify all skills load with new frontmatter — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms3-gate",
+    "mcp_action": "prism_ccm:ccm_ms3_run",
+    "skill_command": "/ccm-ms3",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms3-gate"
+    ],
+    "new_actions": [
+      "ccm_ms3_run"
+    ],
+    "new_skills": [
+      "/ccm-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Upgrade all 132+ slash commands with model/effort/context/hooks/allowed-tools frontmatter fields. Currently skills only have name+description. Add model tier routing (haiku for lookups, sonnet for analysis, opus for complex), effort levels, context:fork for heavy skills, allowed-tools for read-only skills, hooks scoped to skills, argument-hint for autocomplete.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

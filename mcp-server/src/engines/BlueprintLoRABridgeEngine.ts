@@ -20,6 +20,7 @@
  */
 
 import * as fs from "node:fs";
+import { ANONYMIZATION_PATTERNS, applyAnonymizationPatterns } from "./blueprint-vision/blueprintRedaction.js";
 import * as path from "node:path";
 import { z } from "zod";
 
@@ -58,23 +59,14 @@ export const LoRABundleManifestSchema = z
 export type LoRABundleManifest = z.infer<typeof LoRABundleManifestSchema>;
 
 /**
- * Spec-mandated customer-name deny list. Every exported bundle is scrubbed
- * via these patterns. The spec test asserts these specific names never appear.
+ * Spec-mandated customer-name deny list + part-number patterns -- EXTRACTED to the shared
+ * blueprint-vision/blueprintRedaction module (U-APP-REDACT-LIB) so the LoRA export and the new
+ * app-facing drawing redaction share ONE redactor (build-once, R15/R16). Re-exported here for
+ * back-compat: existing importers and the `not.toMatch(/ALCOA|ITW|.../)` spec tests are unaffected --
+ * the CORE deny-list is coverage-identical (separator matching only widened from `-?` to `[\s_-]*`,
+ * never narrowed) and the [REDACTED] mask token + ordered scrub are preserved.
  */
-export const ANONYMIZATION_PATTERNS: readonly RegExp[] = [
-  /\bALCOA\b/gi,
-  /\bITW\b/gi,
-  /\bCONTINENTAL[\s_-]?MIDLAND\b/gi,
-  /\bCONTINENTAL\b/gi,
-  /\bOPTIMAS\b/gi,
-  /\bSFS\b/gi,
-  /\bHOLO-?KROME\b/gi,
-  /\bFASTENAL\b/gi,
-  /\bJM[\s_-]?DIE\b/gi,
-  // Part numbers — common patterns
-  /\b[A-Z]{1,4}-\d{3,6}\b/g,
-  /\b\d{3,8}-[A-Z]{1,4}\b/g,
-];
+export { ANONYMIZATION_PATTERNS, applyAnonymizationPatterns };
 
 export const DEFAULT_STAGING_DIR = "mcp-server/data/training/lora/staging";
 export const OPERATOR_APPROVAL_MARKER = "_LORA_EXPORT_OPERATOR_APPROVED";
@@ -297,15 +289,9 @@ export function anonymizeText(text: string): string {
   return applyAnonymizationPatterns(text);
 }
 
-export function applyAnonymizationPatterns(text: string): string {
-  if (typeof text !== "string") return "";
-  let out = text;
-  for (const pat of ANONYMIZATION_PATTERNS) {
-    // Re-instantiate to reset lastIndex for global flags
-    out = out.replace(new RegExp(pat.source, pat.flags), "[REDACTED]");
-  }
-  return out;
-}
+// applyAnonymizationPatterns is now imported + re-exported from blueprint-vision/blueprintRedaction
+// (U-APP-REDACT-LIB build-once). anonymizeText (above) calls the imported binding; behavior is
+// byte-identical (same CORE deny-list, [REDACTED] token, non-string -> "" contract, per-pass fresh RegExp).
 
 export function formatBundleForProvider(set: TrainingSetSelection, provider: LoRAProvider): string {
   switch (provider) {

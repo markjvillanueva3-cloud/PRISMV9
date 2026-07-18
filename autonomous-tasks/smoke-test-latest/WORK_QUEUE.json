@@ -1,0 +1,384 @@
+{
+  "units": [
+    {
+      "unit_id": 1,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-001: prism_data→material_search — Search materials DB",
+      "params": {
+        "test_id": "SMK-001",
+        "dispatcher": "prism_data",
+        "action": "material_search",
+        "call_params": {
+          "query": "1045"
+        },
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:06.298Z"
+    },
+    {
+      "unit_id": 2,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-002: prism_calc→mrr — Calculate MRR",
+      "params": {
+        "test_id": "SMK-002",
+        "dispatcher": "prism_calc",
+        "action": "mrr",
+        "call_params": {
+          "depth_of_cut_mm": 2,
+          "feed_rate_mm_rev": 0.2,
+          "cutting_speed_m_min": 200
+        },
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:06.299Z"
+    },
+    {
+      "unit_id": 3,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-003: prism_safety→get_safe_cutting_limits — Get safe cutting limits",
+      "params": {
+        "test_id": "SMK-003",
+        "dispatcher": "prism_safety",
+        "action": "get_safe_cutting_limits",
+        "call_params": {
+          "tool_diameter_mm": 12,
+          "material": "steel"
+        },
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:06.300Z"
+    },
+    {
+      "unit_id": 4,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-004: prism_thread→get_thread_specifications — Get thread specs",
+      "params": {
+        "test_id": "SMK-004",
+        "dispatcher": "prism_thread",
+        "action": "get_thread_specifications",
+        "call_params": {
+          "thread_standard": "metric",
+          "size": "M10"
+        },
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:06.301Z"
+    },
+    {
+      "unit_id": 5,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-005: prism_toolpath→stats — Toolpath strategy stats",
+      "params": {
+        "test_id": "SMK-005",
+        "dispatcher": "prism_toolpath",
+        "action": "stats",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:06.301Z"
+    },
+    {
+      "unit_id": 6,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-006: prism_validate→safety — Safety validation",
+      "params": {
+        "test_id": "SMK-006",
+        "dispatcher": "prism_validate",
+        "action": "safety",
+        "call_params": {
+          "content": "test",
+          "context": "smoke"
+        },
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:06.302Z"
+    },
+    {
+      "unit_id": 7,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-007: prism_omega→history — Omega history",
+      "params": {
+        "test_id": "SMK-007",
+        "dispatcher": "prism_omega",
+        "action": "history",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:07.332Z"
+    },
+    {
+      "unit_id": 8,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-008: prism_ralph→scrutinize — Ralph scrutinize",
+      "params": {
+        "test_id": "SMK-008",
+        "dispatcher": "prism_ralph",
+        "action": "scrutinize",
+        "call_params": {
+          "content": "test"
+        },
+        "expect": "error_ok"
+      },
+      "completed": "2026-02-09T15:14:07.333Z"
+    },
+    {
+      "unit_id": 9,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-009: prism_session→context_size — Context size",
+      "params": {
+        "test_id": "SMK-009",
+        "dispatcher": "prism_session",
+        "action": "context_size",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:07.334Z"
+    },
+    {
+      "unit_id": 10,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-010: prism_context→todo_read — Read todo",
+      "params": {
+        "test_id": "SMK-010",
+        "dispatcher": "prism_context",
+        "action": "todo_read",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:07.335Z"
+    },
+    {
+      "unit_id": 11,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-011: prism_gsd→quick — GSD quick",
+      "params": {
+        "test_id": "SMK-011",
+        "dispatcher": "prism_gsd",
+        "action": "quick",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:07.336Z"
+    },
+    {
+      "unit_id": 12,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-012: prism_dev→server_info — Server info",
+      "params": {
+        "test_id": "SMK-012",
+        "dispatcher": "prism_dev",
+        "action": "server_info",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:07.337Z"
+    },
+    {
+      "unit_id": 13,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-013: prism_doc→list — List docs",
+      "params": {
+        "test_id": "SMK-013",
+        "dispatcher": "prism_doc",
+        "action": "list",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:08.357Z"
+    },
+    {
+      "unit_id": 14,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-014: prism_sp→evidence_level — Evidence level",
+      "params": {
+        "test_id": "SMK-014",
+        "dispatcher": "prism_sp",
+        "action": "evidence_level",
+        "call_params": {
+          "claim": "test",
+          "evidence": "test"
+        },
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:08.358Z"
+    },
+    {
+      "unit_id": 15,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-015: prism_guard→lkg_status — LKG status",
+      "params": {
+        "test_id": "SMK-015",
+        "dispatcher": "prism_guard",
+        "action": "lkg_status",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:08.359Z"
+    },
+    {
+      "unit_id": 16,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-016: prism_orchestrate→queue_stats — Queue stats",
+      "params": {
+        "test_id": "SMK-016",
+        "dispatcher": "prism_orchestrate",
+        "action": "queue_stats",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:08.360Z"
+    },
+    {
+      "unit_id": 17,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-017: prism_autopilot_d→registry_status — Registry status",
+      "params": {
+        "test_id": "SMK-017",
+        "dispatcher": "prism_autopilot_d",
+        "action": "registry_status",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:08.360Z"
+    },
+    {
+      "unit_id": 18,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-018: prism_manus→list_tasks — List manus tasks",
+      "params": {
+        "test_id": "SMK-018",
+        "dispatcher": "prism_manus",
+        "action": "list_tasks",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:08.361Z"
+    },
+    {
+      "unit_id": 19,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-019: prism_atcs→task_status — ATCS status",
+      "params": {
+        "test_id": "SMK-019",
+        "dispatcher": "prism_atcs",
+        "action": "task_status",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:09.408Z"
+    },
+    {
+      "unit_id": 20,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-020: prism_skill_script→skill_stats — Skill stats",
+      "params": {
+        "test_id": "SMK-020",
+        "dispatcher": "prism_skill_script",
+        "action": "skill_stats",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:09.410Z"
+    },
+    {
+      "unit_id": 21,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-021: prism_knowledge→stats — Knowledge stats",
+      "params": {
+        "test_id": "SMK-021",
+        "dispatcher": "prism_knowledge",
+        "action": "stats",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:09.410Z"
+    },
+    {
+      "unit_id": 22,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-022: prism_hook→status — Hook status",
+      "params": {
+        "test_id": "SMK-022",
+        "dispatcher": "prism_hook",
+        "action": "status",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:09.411Z"
+    },
+    {
+      "unit_id": 23,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-023: prism_generator→stats — Generator stats",
+      "params": {
+        "test_id": "SMK-023",
+        "dispatcher": "prism_generator",
+        "action": "stats",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:09.412Z"
+    },
+    {
+      "unit_id": 24,
+      "batch": 1,
+      "type": "smoke_test",
+      "status": "COMPLETE",
+      "description": "SMK-024: prism_autonomous→auto_status — Autonomous status",
+      "params": {
+        "test_id": "SMK-024",
+        "dispatcher": "prism_autonomous",
+        "action": "auto_status",
+        "call_params": {},
+        "expect": "success"
+      },
+      "completed": "2026-02-09T15:14:09.413Z"
+    }
+  ]
+}

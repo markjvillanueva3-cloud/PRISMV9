@@ -140,7 +140,11 @@ export class GCodeOptimizationEngine {
       } else if (/G0?1[^0-9]/.test(line.code) || line.code.includes("G01")) {
         feedMoves++;
         totalFeedDist += dist;
-      } else if (/G0?[23]/.test(line.code)) {
+      } else if (/G0?[23](?![0-9])/.test(line.code)) {
+        // Negative lookahead: match G2/G02/G3/G03 arcs but NOT G20/G21 (unit codes),
+        // G28/G29 (return-to-ref), or G30-G39 (home/coordinate). Without it, those rapid/
+        // setup codes were miscounted as arcs and inflated total_feed_distance ×1.5,
+        // skewing the cycle-time estimate on essentially every real program.
         arcMoves++;
         totalFeedDist += dist * 1.5; // arc is longer than chord
       }

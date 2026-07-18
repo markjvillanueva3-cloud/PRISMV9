@@ -1,0 +1,28 @@
+# PRISM Alert Rules - Safety-Critical Manufacturing
+groups:
+  - name: prism_safety
+    rules:
+      - alert: PRISMDown
+        expr: prism_up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "PRISM MCP server is down"
+          description: "Safety-critical manufacturing intelligence unavailable"
+
+      - alert: HighMemoryUsage
+        expr: prism_heap_used_bytes > 3221225472  # 3GB
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PRISM heap usage above 3GB ({{ $value | humanize }})"
+
+      - alert: RegistryEmpty
+        expr: prism_registry_total == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PRISM registries empty - no data loaded"

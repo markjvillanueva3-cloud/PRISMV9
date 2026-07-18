@@ -1,0 +1,393 @@
+{
+  "id": "HM-KC-MS1",
+  "version": "8.3.0",
+  "title": "CAD Parameter Catalog — hyperCAD-S ~275 Schemas",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Generate complete parameter schemas, skills, AC Python scripts, and validation hooks for all ~275 hyperCAD-S CAD input parameters. Covers sketch constraints (~80 params), solid modeling (extrude/revolve/fillet ~50), surface operations (~40), analysis tools (~30), electrode design (~25), import/export settings (~20), measure/bounding (~30). Each parameter gets a Zod schema, skill template, AC setter script, and safety hook rule.",
+  "dependencies": [
+    "HM-KC-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillCycleCatalogEngine",
+      "HyperMillCodeGeneratorEngine"
+    ],
+    "registries": [
+      "FormulaRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json (CAD domain subset)",
+      "hyperCAD-S training manuals (sketch, solid, surface, analysis, electrode sections)",
+      "hypermill-cam-tips-ext.ts (hm-118 to hm-160, CAD-relevant tips)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "cadParameterRangeValidator — BUILT — blocks out-of-range CAD params",
+    "action": "generate_cad_catalog — BUILT — generates CAD domain artifacts from schemas",
+    "skill": "/hypermill-cad-params — BUILT — CAD parameter reference and recommendations"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS1-S1",
+      "title": "Sketch + Solid Modeling Parameter Schemas (~130 params)",
+      "smart_config": {
+        "role": "cad-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "data/hypermill/HyperMillParameterCatalog.json (CAD domain)",
+        "hyperCAD-S sketch reference (20 constraint types × 3-5 params each)",
+        "hyperCAD-S solid modeling reference (extrude, revolve, sweep, loft, shell, draft, fillet, chamfer, boolean, pattern, mirror)"
+      ],
+      "intent": "Generate Zod schemas, skill templates, AC Python setter scripts, and validation hooks for all sketch constraint parameters (~80) and solid modeling parameters (~50). Each parameter gets full metadata: type, range, default, unit, physics mapping placeholder.",
+      "skills": [
+        "/forge-engines",
+        "/forge-schemas",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC07",
+          "title": "Sketch Constraint Parameter Schemas — 20 constraint types, ~80 parameters",
+          "description": "Generate Zod schemas for all sketch constraint parameters: coincident, tangent, equal, parallel, perpendicular, horizontal, vertical, dimension, radius, angle, plus 10 additional constraint types. Each gets type definition, valid range, default value, and AC Python setter call pattern.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zod schemas generated for >= 75 sketch constraint parameters",
+            "Each schema has: name, type (number/string/enum/boolean), range, default, unit",
+            "AC Python setter templates generated for each parameter",
+            "Unit tests validate schema parsing for 5 representative constraint types"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cad/sketchConstraintSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "schema count < 70"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cad/"
+          }
+        },
+        {
+          "id": "U-HKC08",
+          "title": "Solid Modeling Parameter Schemas — 11 operation types, ~50 parameters",
+          "description": "Generate Zod schemas for solid modeling operation parameters: extrude (direction, distance, taper, draft_angle, symmetric, offset, boolean_type), revolve, sweep, loft, shell, draft, fillet (radius, variable_radius, face_blend), chamfer (setback), boolean, pattern, mirror. Each with range validation and DFM-aware hooks.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zod schemas generated for >= 45 solid modeling parameters",
+            "DFM hooks generated for draft angle, wall thickness, and undercut parameters",
+            "AC Python setter templates generated for all 11 operation types",
+            "Unit tests validate extrude and fillet schemas against known parameter sets"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cad/solidModelingSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cad/solidModelingSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 125 CAD schemas (sketch + solid) | ✓ AC Python setters for all | ✓ DFM hooks for critical params | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "cadDraftAngleValidator",
+          "cadWallThicknessValidator"
+        ],
+        "new_actions": [
+          "generate_sketch_schemas",
+          "generate_solid_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS10"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS1-S2",
+      "title": "Surface + Analysis + Electrode Parameter Schemas (~95 params)",
+      "smart_config": {
+        "role": "cad-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "hyperCAD-S surface operations reference (offset, thicken, extend, trim, stitch, patch, ruled, sweep)",
+        "hyperCAD-S analysis tools reference (draft, undercut, curvature, wall thickness, spherical, feature recognition)",
+        "hyperCAD-S electrode design reference (design, holder lib, virtual electrode, side electrode, spark gap)"
+      ],
+      "intent": "Generate schemas for surface operation parameters (~40), analysis tool parameters (~30), and electrode design parameters (~25). Surface schemas include continuity (G0/G1/G2) validation. Electrode schemas include spark gap and overcut validation hooks.",
+      "skills": [
+        "/forge-engines",
+        "/forge-schemas",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC09",
+          "title": "Surface + Analysis Parameter Schemas — ~70 parameters",
+          "description": "Generate schemas for surface operations (offset_distance, continuity G0/G1/G2, trim_extend, stitch_tolerance) and analysis tools (draft_pull_direction, min_radius, curvature_display, wall_threshold). Continuity validation hooks ensure G2 minimum for finish surfaces.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Surface operation schemas: >= 35 parameters with continuity validation",
+            "Analysis tool schemas: >= 28 parameters with DFM gate integration",
+            "Hooks: surface continuity validator, min-radius DFM check",
+            "Unit tests for continuity enum validation and tolerance range checks"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cad/surfaceSchemas.ts",
+              "src/schemas/hypermill/cad/analysisSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cad/surfaceSchemas.ts src/schemas/hypermill/cad/analysisSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC10",
+          "title": "Electrode + Import/Export + Measure/Bounding Schemas — ~55 parameters",
+          "description": "Generate schemas for electrode design (overcut_rough, overcut_finish, electrode_material, spark_gap, wear_ratio — 25 params), import/export settings (healing_tolerance, unit_mode, layer_mapping — 20 params), and measure/bounding (bounding box, offset solid, stock from model — 10 params). Electrode hooks validate spark gap vs material conductivity.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Electrode schemas: >= 23 parameters with spark gap validation hook",
+            "Import/Export schemas: >= 18 parameters with format validation",
+            "Measure/Bounding schemas: >= 10 parameters",
+            "Total CAD domain reaches >= 270 parameter schemas across all S1+S2 units"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cad/electrodeSchemas.ts",
+              "src/schemas/hypermill/cad/importExportSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cad/electrodeSchemas.ts src/schemas/hypermill/cad/importExportSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 270 total CAD parameter schemas | ✓ electrode spark gap hooks | ✓ surface continuity hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "surfaceContinuityValidator",
+          "electrodeSparkGapValidator"
+        ],
+        "new_actions": [
+          "generate_surface_schemas",
+          "generate_electrode_schemas"
+        ],
+        "new_skills": [
+          "/hypermill-cad-params"
+        ],
+        "available_to": [
+          "HM-KC-MS8",
+          "HM-KC-MS10"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS1-S3",
+      "title": "CAD Artifact Generation — Skills + Scripts + Hook Registration",
+      "smart_config": {
+        "role": "artifact-generator",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "All CAD parameter schemas from S1 + S2",
+        "Existing skill templates in src/skills/",
+        "AC Python scripting API patterns from HyperMillCodeGeneratorEngine"
+      ],
+      "intent": "Auto-generate skill markdown files, AC Python setter scripts, and hook rule registrations for all ~275 CAD parameters. Bulk generation from schemas — not hand-written. Register all hooks in hook pipeline.",
+      "skills": [
+        "/forge-skills",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC11",
+          "title": "CAD Skill + Script + Hook Batch Generation — ~275 artifacts per type",
+          "description": "Artifact generation engine that reads all CAD parameter schemas and auto-generates: (1) skill markdown templates with parameter documentation and physics mapping references, (2) AC Python setter scripts for each parameter, (3) hook validation rules for safety-critical parameters. Registers all hooks in HookExecutor pipeline.",
+          "depends_on": [
+            "U-HKC07",
+            "U-HKC08",
+            "U-HKC09",
+            "U-HKC10"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Skill templates generated for all ~275 CAD parameters",
+            "AC Python setter scripts generated for all ~275 CAD parameters",
+            "Safety hooks registered for >= 18 critical CAD parameters (draft, wall thickness, undercut, electrode, continuity)",
+            "tsc --noEmit passes with 0 errors on all generated TypeScript artifacts"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillCADArtifactGeneratorEngine.ts"
+            ],
+            "files_modified": [
+              "src/hooks/hookRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "generated artifacts < 200"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillCADArtifactGeneratorEngine.ts src/hooks/hookRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ ~275 skill templates | ✓ ~275 AC scripts | ✓ >= 18 safety hooks registered | ✓ tsc clean | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "cadParameterRangeValidator"
+        ],
+        "new_actions": [
+          "generate_cad_catalog"
+        ],
+        "new_skills": [
+          "/hypermill-cad-params"
+        ],
+        "available_to": [
+          "HM-KC-MS8",
+          "HM-KC-MS9",
+          "HM-KC-MS10"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms1-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms1_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Generate complete parameter schemas, skills, AC Python scripts, and validation hooks for all ~275 hyperCAD-S CAD input parameters. Covers sketch constraints (~80 params), solid modeling (extrude/revolve/fillet ~50), surface operations (~40), analysis tools (~30), electrode design (~25), import/export settings (~20), measure/bounding (~30). Each parameter gets a Zod schema, skill template, AC setter script, and safety hook rule.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS1 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS1. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

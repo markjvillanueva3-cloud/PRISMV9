@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="2fe22fbc3b80dc80fc75d705a59de414d90ef52ac5c9c81d7885fc18e3d22593">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>/system-viz Galaxy — Why it doesn&#39;t function + what to build</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>/system-viz Galaxy — Why it doesn&#39;t function + what to build</h1>
+<div class="meta">rendered from state/shared/specs/SYSTEM-VIZ-GALAXY-RESEARCH-2026-05-25.md</div>
+<div class="meta">Generated 2026-05-25T19:35:29.156Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">/system-viz Galaxy — Why it doesn&#39;t function + what to build</li><li class="prism-toc-l2">TL;DR — the 5 root causes</li><li class="prism-toc-l2">The recipe the popular videos actually use</li><li class="prism-toc-l2">What PRISM already has (don&#39;t rebuild)</li><li class="prism-toc-l2">What PRISM lacks — 24 items, 6 groups</li><li class="prism-toc-l3">Group A — Data structure (5)</li><li class="prism-toc-l3">Group B — Layout engine (4)</li><li class="prism-toc-l3">Group C — Rendering performance (4)</li><li class="prism-toc-l3">Group D — Interaction UX (4)</li><li class="prism-toc-l3">Group E — Live updates (3)</li><li class="prism-toc-l3">Group F — Brain rituals (4, Obsidian-specific)</li><li class="prism-toc-l2">Immediate drift fix — concrete command</li><li class="prism-toc-l2">Sequenced priority — if you ship one thing at a time</li><li class="prism-toc-l2">Honest expectations</li><li class="prism-toc-l2">Out of scope (named, parked)</li><li class="prism-toc-l2">What this doc IS</li><li class="prism-toc-l2">What this doc IS NOT</li><li class="prism-toc-l2">Appendix A — Stratified Manifold Architecture (the hybrid)</li><li class="prism-toc-l3">The 5 levels</li><li class="prism-toc-l3">Tesseract mechanics (L3 — the novel piece)</li><li class="prism-toc-l3">Tesseract axes adapt to node type</li><li class="prism-toc-l3">Math drives every visual property</li><li class="prism-toc-l3">Two additional layers (don&#39;t pick one — overlay them)</li><li class="prism-toc-l3">Worked example: <code class="prism-inline-code">CADAdaptiveLearningEngine</code></li><li class="prism-toc-l3">Build effort breakdown</li><li class="prism-toc-l3">Why this works for PRISM specifically</li></ul></nav><h1 class="prism-h1">/system-viz Galaxy — Why it doesn&#39;t function + what to build</h1>
+<p><strong>Date:</strong> 2026-05-25 <strong>Scope:</strong> Why PRISM&#39;s <code class="prism-inline-code">/system-viz</code> 3D graph doesn&#39;t behave like the popular &quot;Obsidian galaxy OS&quot; videos, and what concretely needs to be built to close the gap. <strong>Status:</strong> Research deliverable. Not a build plan. Sequenced shortlist at the end.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">TL;DR — the 5 root causes</h2>
+<ol class="prism-md-list"><li><strong>Scale mismatch.</strong> &quot;Obsidian galaxy&quot; videos show 1-3K nodes with ~5 edges/node. PRISM&#39;s full graph is ~50K+ nodes / ~150K+ edges. Force-directed layouts don&#39;t converge above ~5K nodes; they collapse into a hairball. The galactic <em>look</em> requires curated sparsity, not raw completeness.</li><li><strong>No semantic clustering.</strong> Galaxy videos cluster by topic via co-citation + Louvain/Leiden community detection. PRISM clusters by folder/file-type, which has no natural community structure → no constellation pattern emerges.</li><li><strong>No MOC (Map of Content) layer.</strong> MOC notes are the gravity wells that organize Obsidian galaxies into named regions. PRISM has <code class="prism-inline-code">wiki/index.md</code> (a flat list) instead. Without curated hubs, every node has equal visual weight.</li><li><strong>Renderer chokes at scale.</strong> Three.js + 50K nodes = 5fps. Videos use WebGL2 instancing + level-of-detail (LOD) culling. PRISM&#39;s regen-viz pipeline also OOM-crashes at the <em>data</em> layer (<code class="prism-inline-code">merge augmentations</code> stage, exit 134) before render even runs.</li><li><strong>Edges aren&#39;t maintained, just generated.</strong> Obsidian graphs work because every <code class="prism-inline-code">[[link]]</code> is a navigable, real connection. PRISM has many INFERRED edges that don&#39;t survive node rename/move → dangling refs → visual chaos.</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">The recipe the popular videos actually use</h2>
+<table class="prism-md-table"><thead><tr><th>Archetype</th><th>Tools</th><th>Why it works visually</th></tr></thead><tbody><tr><td>&quot;Linking Your Thinking&quot; (Nick Milo)</td><td>MOCs + atomic notes + tag taxonomy</td><td>Curated hubs create gravity</td></tr>
+<tr><td>&quot;Smart Connections&quot; galaxies</td><td>OpenAI/Ollama embeddings → semantic similarity edges</td><td>Edges encode meaning, not just text mentions</td></tr>
+<tr><td>&quot;ExcaliBrain&quot; hierarchical</td><td>Parent/child/friend relations in YAML frontmatter</td><td>Forced topology = predictable layout</td></tr>
+<tr><td>&quot;Juggl&quot; advanced graph</td><td>Cypher-like graph query language</td><td>Subgraph filtering</td></tr>
+<tr><td>&quot;Graph Analysis&quot; plugin</td><td>Co-citation + Louvain communities</td><td>Auto-cluster by usage</td></tr></tbody></table>
+<p><strong>Common ingredients across all of them:</strong> atomic notes + maintained bidirectional links + semantic embeddings + community detection + LOD rendering + filter-down navigation.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">What PRISM already has (don&#39;t rebuild)</h2>
+<ul class="prism-md-list"><li>✅ Atomic markdown notes in <code class="prism-inline-code">knowledge/wiki/</code> (Karpathy LLM-wiki pattern)</li><li>✅ Memory vault (<code class="prism-inline-code">knowledge/memories/</code>)</li><li>✅ <code class="prism-inline-code">/system-viz</code> 3D renderer substrate</li><li>✅ <code class="prism-inline-code">system-graph.json</code> + 28 augmentation overlay roosts</li><li>✅ Ollama for embeddings (when daemon up — currently down)</li><li>✅ Multi-layer L1-L13 roosts (galaxy → cluster equivalent)</li><li>✅ <code class="prism-inline-code">wiki/index.md</code> (proto-MOC, flat list form)</li><li>✅ Tribal corpus (3700+ tips)</li><li>✅ Orphan-inventory + close-out-audit (active pruning machinery)</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">What PRISM lacks — 24 items, 6 groups</h2>
+<h3 class="prism-h3">Group A — Data structure (5)</h3>
+<ul class="prism-md-list"><li><strong>A1: MOC notes per domain.</strong> Curated hub-notes (mill, lathe, wedm, cam, cad, post, scheduling, quality, business) with hand-picked links. Single biggest visual transformation — gravity wells.</li><li><strong>A2: Bidirectional link integrity engine.</strong> Rename a node → all refs auto-update. Today dangling refs accumulate.</li><li><strong>A3: Semantic embedding edges.</strong> Ollama-driven similarity links. Edges = meaning, not just text matches. Gated on Ollama daemon health.</li><li><strong>A4: Tag taxonomy beyond folders.</strong> <code class="prism-inline-code">#concept/X</code>, <code class="prism-inline-code">#psn-leg/Y</code>, <code class="prism-inline-code">#status/Z</code>. Folders are too coarse for galaxy color-coding.</li><li><strong>A5: Backlinks incremental index.</strong> No more full-regen of backlinks per change.</li></ul>
+<h3 class="prism-h3">Group B — Layout engine (4)</h3>
+<ul class="prism-md-list"><li><strong>B1: Louvain (or Leiden) community detection.</strong> Auto-color clusters. Required for the constellation pattern.</li><li><strong>B2: Pre-computed spatial positions cached.</strong> Don&#39;t recompute layout every render — pin positions, only adjust on graph change.</li><li><strong>B3: Constrained force simulation.</strong> Bounded iterations + decay schedule = converges instead of jittering.</li><li><strong>B4: Hierarchical zoom topology.</strong> Galaxy → cluster → constellation → star. LOD shells, not single zoom level.</li></ul>
+<h3 class="prism-h3">Group C — Rendering performance (4)</h3>
+<ul class="prism-md-list"><li><strong>C1: WebGL2 instancing.</strong> Single draw call for 10K+ nodes.</li><li><strong>C2: Level-of-detail (LOD).</strong> Distant nodes render as points, only near nodes as full meshes.</li><li><strong>C3: Viewport culling.</strong> Don&#39;t render what&#39;s off-screen.</li><li><strong>C4: Streamed graph data.</strong> Load galaxy → cluster → star progressively, not 520MB up-front.</li></ul>
+<h3 class="prism-h3">Group D — Interaction UX (4)</h3>
+<ul class="prism-md-list"><li><strong>D1: Live filters.</strong> By tag, PSN-leg, recency, status, build-class. Persistent URL state.</li><li><strong>D2: Local graph view.</strong> Click node → see N-hop subgraph in side panel.</li><li><strong>D3: Drill-down navigation.</strong> Click cluster → expand to its stars with smooth camera.</li><li><strong>D4: Search-with-highlight.</strong> Type → matching nodes glow → camera frames the matches.</li></ul>
+<h3 class="prism-h3">Group E — Live updates (3)</h3>
+<ul class="prism-md-list"><li><strong>E1: Incremental regen.</strong> Append a single node without full pipeline re-run.</li><li><strong>E2: Watch-mode.</strong> Node change on disk → graph update in &lt;1s (currently 7min).</li><li><strong>E3: Stale-edge invalidation.</strong> Removed node → its edges auto-prune.</li></ul>
+<h3 class="prism-h3">Group F — Brain rituals (4, Obsidian-specific)</h3>
+<ul class="prism-md-list"><li><strong>F1: Daily notes</strong> as time-anchored entry points (we have handoffs but no daily notes).</li><li><strong>F2: Spaced repetition surface</strong> for resurfacing dormant notes (we have <code class="prism-inline-code">wiki-morning</code> skill, not graph-promoted).</li><li><strong>F3: Note atomicity enforcement</strong> — one-concept-per-note (CLAUDE.md is monolithic and growing).</li><li><strong>F4: Active orphan curation</strong> — auto-route orphan-inventory → graph-promoted UX, not buried report file.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Immediate drift fix — concrete command</h2>
+<p>The data-layer blocker is <code class="prism-inline-code">regen-viz.mjs</code> OOM at the merge-augmentations stage (exit 134, last seen 2026-05-25T17:15:42Z). The known-good pattern from <code class="prism-inline-code">[MCP-OOM-FIX]/U-SUPERVISOR-HEAP-BUMP</code> (commit ee8be4fd2) is:</p>
+<pre class="prism-codeblock" data-lang="bash"><code>NODE_OPTIONS=&quot;--max-old-space-size=16384&quot; node scripts/regen-viz.mjs</code></pre>
+<p>If 16GB still OOMs (the merge-augmentations stage loads all 28 overlays into RAM simultaneously — that&#39;s the real bug), the next step is a streaming-merge refactor: process one augmentation at a time, write incrementally, free between batches. Tracked as <code class="prism-inline-code">[BUG-FIX]/U-REGEN-VIZ-STREAMING-MERGE</code>.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Sequenced priority — if you ship one thing at a time</h2>
+<p>Compounding-leverage order (each enables the next):</p>
+<table class="prism-md-table"><thead><tr><th>Order</th><th>Item</th><th>Why now</th></tr></thead><tbody><tr><td>1</td><td>Drift fix (regen-viz heap-bump or streaming)</td><td>Without fresh data, every other improvement renders stale junk</td></tr>
+<tr><td>2</td><td>A1 MOCs (~9 domain hubs)</td><td>Single biggest visual transformation — galaxy gets its gravity wells</td></tr>
+<tr><td>3</td><td>B1 Louvain communities</td><td>Colors the galaxy into named regions</td></tr>
+<tr><td>4</td><td>C1 + C2 LOD rendering</td><td>50K nodes become navigable instead of hairball</td></tr>
+<tr><td>5</td><td>B4 hierarchical zoom</td><td>The &quot;drill into a cluster&quot; UX from the videos</td></tr>
+<tr><td>6</td><td>A3 Ollama semantic edges</td><td>When daemon is healthy; transforms edge meaning</td></tr>
+<tr><td>7</td><td>D1-D4 interaction</td><td>Finishes the UX gap</td></tr>
+<tr><td>8</td><td>E1-E3 live updates</td><td>Removes the regen lag</td></tr>
+<tr><td>9</td><td>A2, A4, A5</td><td>Hygiene that compounds over time</td></tr>
+<tr><td>10</td><td>F1-F4 brain rituals</td><td>The &quot;OS&quot; half of &quot;galaxy OS&quot;</td></tr></tbody></table>
+<p><strong>First 4 items would visually transform <code class="prism-inline-code">/system-viz</code> from &quot;hairball&quot; to &quot;navigable galaxy&quot; with a few days of work — assuming the OOM is fixable.</strong></p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Honest expectations</h2>
+<ul class="prism-md-list"><li><strong>You will not get a galaxy with 50K nodes.</strong> No video does. The videos curate down to 1-3K. PRISM should similarly emit a <em>visualized</em> graph that&#39;s a curated subgraph of the <em>queryable</em> graph. Two artifacts, two purposes.</li><li><strong>The 2D HTML index proposed earlier is the queryable surface.</strong> The 3D galaxy is the <em>visual</em> surface for human navigation, not a data tool.</li><li><strong>Ollama down breaks A3 (semantic edges).</strong> Until the daemon is stable, plan around regex/community-detection-only edges.</li><li><strong>&quot;Galaxy OS&quot; videos heavily edit for visual effect.</strong> Real-time interaction at video-level smoothness requires the C-group items (LOD + WebGL2 + culling), which is real engineering, not config.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Out of scope (named, parked)</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">[BUG-FIX]/U-REGEN-VIZ-OOM-HEAP-BUMP</code> — fixed in seconds via NODE_OPTIONS; tracked</li><li><code class="prism-inline-code">[BUG-FIX]/U-REGEN-VIZ-STREAMING-MERGE</code> — proper fix; multi-hour work</li><li><code class="prism-inline-code">[BUG-FIX]/U-OLLAMA-DAEMON-HEALTH</code> — separate, the <code class="prism-inline-code">/api/chat</code> death banner has been firing all session</li><li><code class="prism-inline-code">[INFRA]/U-CLAUDE-GRAPH-INDEX</code> — the 2D HTML + JSONL index for Claude (proposed earlier)</li><li><code class="prism-inline-code">PSN-HYBRID-ORCHESTRATOR-MS0</code> — the forcing-function milestone proposed earlier</li><li>This research → spec → milestone path is: <code class="prism-inline-code">SYSTEM-VIZ-GALAXY-MS0</code> (24 items × 6 groups; multi-week)</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">What this doc IS</h2>
+<p>A research deliverable to guide future build sessions. It is not a roadmap envelope. It will be linked from:</p>
+<ul class="prism-md-list"><li>A new milestone envelope when one is approved (operator decision)</li><li>Wiki entry: <code class="prism-inline-code">knowledge/wiki/architecture/system-viz-galaxy-research.md</code> (TBD)</li><li>CLAUDE.md pointer (when the build kicks off)</li></ul>
+<h2 class="prism-h2">What this doc IS NOT</h2>
+<ul class="prism-md-list"><li>A build approval</li><li>A claim that current <code class="prism-inline-code">/system-viz</code> is fully broken (the renderer works; the data layer is stale)</li><li>A claim that PRISM should ape Obsidian completely (PRISM&#39;s graph is bigger and more wired; it needs a tiered visualization)</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Appendix A — Stratified Manifold Architecture (the hybrid)</h2>
+<p><strong>Decision:</strong> the visual is NOT a single metaphor. It is a <strong>5-level semantic-zoom stratified manifold</strong> where each scale uses the visual metaphor that fits that scale, and the math underlying every pixel comes from PRISM&#39;s actual graph metrics.</p>
+<h3 class="prism-h3">The 5 levels</h3>
+<table class="prism-md-table"><thead><tr><th>Level</th><th>Scale</th><th>Metaphor</th><th>Why this fits here</th></tr></thead><tbody><tr><td>L0 — Cosmos</td><td>50K nodes overview</td><td><strong>Constellation map</strong> — 11 labeled PSN-leg regions</td><td>Sparse + labeled = humans orient</td></tr>
+<tr><td>L1 — Region</td><td>~1K nodes/leg</td><td><strong>Subway lines</strong> + cluster shading</td><td>Workflow paths through the region</td></tr>
+<tr><td>L2 — Neighborhood</td><td>~50 nodes</td><td><strong>Force-directed local graph</strong></td><td>Classic Obsidian &quot;local graph&quot; view</td></tr>
+<tr><td>L3 — Node interior</td><td>1 node × facets</td><td><strong>🔷 Tesseract</strong></td><td>Each node is genuinely 4D</td></tr>
+<tr><td>L4 — Source</td><td>The file</td><td><strong>Markdown / code panel</strong></td><td>The leaf</td></tr></tbody></table>
+<p>Transitions are morphs, never jump cuts. Eye follows one anchor the whole way down — this is the failure mode in multi-scale viz, so it&#39;s the primary UX constraint.</p>
+<h3 class="prism-h3">Tesseract mechanics (L3 — the novel piece)</h3>
+<p>A tesseract has 8 cubical cells. Showing all 8 is spaghetti. Therefore:</p>
+<ol class="prism-md-list"><li><strong>Default view:</strong> 3 cells visible as nested cubes; 4th axis collapsed to a side slider</li><li><strong>Slider sweep:</strong> drag the slider → inner cube morphs across the 4th dimension in real time</li><li><strong>Axis swap:</strong> click any axis label → promote it to &quot;in-view&quot;, demote another to slider. Like rotating a Rubik&#39;s cube in 4D</li><li><strong>Cell hover:</strong> highlight the 2D face + side panel shows the underlying numbers</li><li><strong>Pivot to neighbor:</strong> click the &quot;outputs&quot; cell → smooth zoom out to L2 with that downstream node as new center</li></ol>
+<h3 class="prism-h3">Tesseract axes adapt to node type</h3>
+<table class="prism-md-table"><thead><tr><th>Node type</th><th>4 axes</th></tr></thead><tbody><tr><td>Engine</td><td>inputs · algorithms · outputs · time (versions)</td></tr>
+<tr><td>Dispatcher</td><td>actions · schemas · consumers · routing rules</td></tr>
+<tr><td>Hook</td><td>events · matchers · outcomes · success-rate</td></tr>
+<tr><td>Memory</td><td>timestamp · refs-to · refs-from · usage count</td></tr>
+<tr><td>Skill</td><td>triggers · tools invoked · outcomes · adoption rate</td></tr>
+<tr><td>Wiki entry</td><td>links-out · links-in · revisions · tags</td></tr>
+<tr><td>Algorithm</td><td>inputs · kernel · convergence · stability domain</td></tr>
+<tr><td>Formula</td><td>variables · physical regime · uncertainty · provenance</td></tr></tbody></table>
+<h3 class="prism-h3">Math drives every visual property</h3>
+<p>Nothing decorative. Every pixel encodes a query-able number:</p>
+<table class="prism-md-table"><thead><tr><th>Property</th><th>Driver</th><th>PRISM source</th></tr></thead><tbody><tr><td>L0/L1 position</td><td>UMAP/t-SNE projection of node embedding</td><td>embedding index (gated on Ollama)</td></tr>
+<tr><td>Node size</td><td>PageRank centrality</td><td><code class="prism-inline-code">pr_compute_scores</code> action</td></tr>
+<tr><td>Node color</td><td>Louvain/Leiden community</td><td>community detection lib</td></tr>
+<tr><td>Edge thickness</td><td>Mutual information / causal strength</td><td>NN-graph predictor scores</td></tr>
+<tr><td>Edge curvature</td><td>Hyperbolic distance</td><td>Poincaré ball projection</td></tr>
+<tr><td>Cluster boundary</td><td>Silhouette score threshold</td><td>cluster validation</td></tr>
+<tr><td>Tesseract face brightness</td><td>Attention weight for current query</td><td>NN attention</td></tr>
+<tr><td>Time-axis position</td><td>Recency × usage decay</td><td>commit log + usage telemetry</td></tr></tbody></table>
+<h3 class="prism-h3">Two additional layers (don&#39;t pick one — overlay them)</h3>
+<ul class="prism-md-list"><li><strong>Fractal self-similarity.</strong> repo → domain → engine → algorithm → formula → constant. Each scale shows the same archetype (hub-spoke-with-bridges). UX: the gesture that works at L0 works at L3. Muscle-memory transfer.</li><li><strong>Knot diagrams at L1 for bridges.</strong> The 16 deep-integration bridges (SFC→CAM, Master-Post→CAM, 3-tier AI) rendered as mathematical knots — over/under crossings. Topology becomes data: trefoil = strongly linked, simple arc = loose coupling, crossing number = integration complexity.</li></ul>
+<h3 class="prism-h3">Worked example: <code class="prism-inline-code">CADAdaptiveLearningEngine</code></h3>
+<pre class="prism-codeblock"><code>L0  Constellation: &quot;Engines&quot; leg, ~3500 stars. Click &quot;CAD&quot; cluster.
+L1  Subway: &quot;learn-loop&quot; line visible. Engine is a station. Click it.
+L2  Local graph: this engine + 12 neighbors. Edges visible:
+    LearningSystem (in), CADReplayBuffer (in), PRISMSelfAwareness (out),
+    4 dispatchers wired. Click the engine.
+L3  Tesseract opens: inputs cell + algorithms cell + outputs cell visible,
+    time slider on the right. Drag slider to yesterday → see what changed.
+    Click an algorithm name in cell 2.
+L4  Source code panel for that algorithm. Tesseract collapses to thumbnail.</code></pre>
+<h3 class="prism-h3">Build effort breakdown</h3>
+<table class="prism-md-table"><thead><tr><th>Component</th><th>Effort vs flat-galaxy</th><th>Note</th></tr></thead><tbody><tr><td>L0 constellation rendering</td><td>1.0×</td><td>Same as today&#39;s <code class="prism-inline-code">/system-viz</code> overview</td></tr>
+<tr><td>L1 subway layer</td><td>1.0×</td><td>New; uses existing pipeline-edge data</td></tr>
+<tr><td>L2 local graph</td><td>0.5×</td><td>Partially built</td></tr>
+<tr><td><strong>L3 tesseract</strong></td><td><strong>2.0×</strong></td><td>Novel; needs WebGL + 4D projection math</td></tr>
+<tr><td>L4 transition</td><td>0.5×</td><td>Standard panel swap</td></tr>
+<tr><td>Smooth transitions</td><td>1.0×</td><td>Polish layer</td></tr>
+<tr><td>Fractal coherence</td><td>0.5×</td><td>Design once, reuse</td></tr>
+<tr><td>Knot rendering</td><td>0.5×</td><td>Only 16 edges</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>~5.0×</strong> flat-galaxy</td><td>Multi-week milestone</td></tr></tbody></table>
+<p><strong>Sequenceable:</strong> L0+L1+L2 alone = ~2.5× effort, delivers 70% of the UX win. L3 tesseract can be a v2 unit. The milestone is not all-or-nothing.</p>
+<h3 class="prism-h3">Why this works for PRISM specifically</h3>
+<ul class="prism-md-list"><li>PRISM has <strong>named structure</strong> (PSN legs) — the metaphor uses it (constellation regions)</li><li>PRISM has <strong>pipelines</strong> (print→program, quote→ship) — the metaphor uses them (subway lines)</li><li>PRISM has <strong>multi-dimensional nodes</strong> — tesseract is the right tool</li><li>PRISM is <strong>self-similar</strong> at every scale — fractal is the right gesture</li><li>PRISM has <strong>explicit cross-domain bridges</strong> — knots make them visible</li></ul>
+<p>It&#39;s principled (the structure actually is stratified at different topology per scale), it&#39;s mathematical (every visual is a number), and it&#39;s novel (no YouTube video has this — it&#39;s a real contribution, not aesthetic copy).</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,273 @@
+{
+  "id": "CAMX-MS0.7",
+  "version": "7.0.0",
+  "title": "Uncertainty Chain Completion — End-to-End Statistical Variability",
+  "brief": "Connect three isolated uncertainty pockets into one chain: Material(±σ)→Force(±σ)→Deflection(±σ)→Finish(±σ)→Strategy(CI)→ToolLife(Weibull)→Cost(±σ)→Output(confidence). Add Taguchi, Markov, digital twin calibration.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Complete the Uncertainty Chain",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Wire UncertaintyPropagationPipelineEngine into SFO",
+          "description": "Replace SFO inline MC with UncertaintyPropagationPipeline (full MC/FOSM/PCE chain). Currently test-only.",
+          "exit_conditions": [
+            "UncertaintyPropagation called from SFO",
+            "MC/FOSM/PCE methods available",
+            "CI95 in SFO output"
+          ],
+          "status": "not_started",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Connect Link 4: Surface Finish(±σ) → Strategy Selection(CI)",
+          "description": "CrossCamRecommender accepts Ra_distribution. Uncertainty penalty for high-variance strategies. Confidence interval on ranking.",
+          "exit_conditions": [
+            "Ra distribution consumed",
+            "Uncertainty penalty in scoring",
+            "CI on strategy ranking"
+          ],
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Connect Link 5: Strategy → Tool Life(Weibull)",
+          "description": "Wire StochasticToolLifeEngine into CrossCamRecommender. Full Weibull per strategy. Score includes P(survive target life).",
+          "exit_conditions": [
+            "Weibull per strategy candidate",
+            "P(survive) in scoring",
+            "MLE fitting used"
+          ],
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "Connect Link 6: Tool Life(Weibull) → Cost(±σ)",
+          "description": "QuoteEstimatorEngine accepts Weibull tool life. Cost CI95 instead of point estimate.",
+          "exit_conditions": [
+            "Cost has CI95",
+            "Weibull-aware tool amortization",
+            "Variance propagated"
+          ],
+          "status": "not_started",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "Connect Link 7: Cost(±σ) → Pipeline Output(confidence)",
+          "description": "P2P outputs statistical confidence: P(all_params_within_spec) from propagated distributions. Replace heuristic deduction score.",
+          "exit_conditions": [
+            "Statistical confidence in output",
+            "Propagated from MC distributions",
+            "Replaces heuristic score"
+          ],
+          "status": "not_started",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "Sobol sensitivity at pipeline output",
+          "description": "Sobol indices showing which input contributes most to uncertainty. Actionable: 'Measure kc1.1 for this material lot.'",
+          "exit_conditions": [
+            "Sobol indices in output",
+            "Actionable recommendations",
+            "Top-3 sensitivity factors"
+          ],
+          "status": "not_started",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Taguchi robustness in strategy selection",
+          "description": "DOETaguchEngine for top-3 strategies. L9 analysis varying noise factors. Select best S/N ratio.",
+          "exit_conditions": [
+            "Taguchi L9 for top strategies",
+            "S/N ratio comparison",
+            "Most robust strategy selected"
+          ],
+          "status": "not_started",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "Markov tool state integration",
+          "description": "MarkovChainEngine for wear state transitions (fresh→worn→near-failure→failed). Predict tool change timing.",
+          "exit_conditions": [
+            "Markov tool states modeled",
+            "Tool change timing predicted",
+            "Fed into cost model"
+          ],
+          "status": "not_started",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX09",
+          "title": "Digital twin calibration loop",
+          "description": "ProcessDigitalTwinEngine consumes actual results via MTConnect/OPC-UA. Auto-calibrate kc1.1, Taylor C/n, stiffness.",
+          "exit_conditions": [
+            "Digital twin calibration active",
+            "Auto-adjusts physics constants",
+            "Improves with each part"
+          ],
+          "status": "not_started",
+          "legacy_id": "U09",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX10",
+          "title": "Uncertainty chain tests",
+          "description": "40+ tests: end-to-end chain, Sobol indices, Taguchi, Markov, digital twin. CI95 narrows with calibration data.",
+          "exit_conditions": [
+            "40+ tests pass",
+            "Full chain verified",
+            "CI narrows with data"
+          ],
+          "status": "not_started",
+          "legacy_id": "U10",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-ms0.7-gate",
+    "mcp_action": "prism_camx:camx_ms0.7_run",
+    "skill_command": "/camx-ms0.7",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-ms0.7-gate"
+    ],
+    "new_actions": [
+      "camx_ms0.7_run"
+    ],
+    "new_skills": [
+      "/camx-ms0.7"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Connect three isolated uncertainty pockets into one chain: Material(±σ)→Force(±σ)→Deflection(±σ)→Finish(±σ)→Strategy(CI)→ToolLife(Weibull)→Cost(±σ)→Output(confidence). Add Taguchi, Markov, digital twin calibration.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

@@ -1,11 +1,12 @@
 ---
 name: feedback_always_close_out
 description: "Standing rule (2026-05-12) — never defer to follow-up; close out EVERY task of a unit before stopping, including doc-sync, memory/tribal-index sync, and pre-existing follow-ups surfaced during the work."
-metadata: 
-  node_type: memory
-  type: feedback
-  originSessionId: bd3291fd-6067-425b-b510-51df78b24e8d
+aliases: feedback_always_close_out
+type: feedback
+source: prism-memory
+synced: 2026-06-27T20:30:46.398Z
 ---
+
 
 When the user asks for a unit / task, finish ALL of it before reporting done — not just the core code. That includes: the doc-sync long tail (CLAUDE.md, hook block messages, script docblocks, PRISM-side `memory.db` entries, tribal-embed-index, wiki pages), the test/wiring/coverage floor, AND any pre-existing follow-up items that surfaced while doing the work (e.g. reviewer-flagged "not a blocker, pre-existing" notes) — close those too, in the same pass.
 

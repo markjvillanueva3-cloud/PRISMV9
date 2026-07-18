@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "platform": "openscad",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "(implicit XY plane)",
+      "args": [],
+      "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "polygon([[x1,y1],[x2,y2]])",
+      "args": [
+        "points"
+      ],
+      "notes": "Use polygon for explicit line segments"
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "polygon([...])",
+      "args": [
+        "points"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "(approximate via polygon)",
+      "args": [
+        "points"
+      ],
+      "notes": "OpenSCAD: discretize arc to polygon"
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "(discretize)",
+      "args": [],
+      "notes": "Approximate via polygon"
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "circle(r=radius)",
+      "args": [
+        "radius"
+      ],
+      "notes": "$fn controls facetting"
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "scale([a/r,b/r])circle(r)",
+      "args": [
+        "a",
+        "b"
+      ],
+      "notes": "Approximate ellipse via scaled circle"
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "(polygon discretize)",
+      "args": [
+        "points"
+      ],
+      "notes": "OpenSCAD has no native splines"
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "square([w,h])",
+      "args": [
+        "w",
+        "h"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "translate([-w/2,-h/2])square([w,h])",
+      "args": [
+        "w",
+        "h"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "circle(r=radius,$fn=N)",
+      "args": [
+        "radius",
+        "N"
+      ],
+      "notes": "Native polygon via facet count"
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "hull(){translate(p1)circle(r=w/2);translate(p2)circle(r=w/2);}",
+      "args": [
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": "Hull idiom"
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "(2D minkowski of arc + circle)",
+      "args": [
+        "arcCenter",
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "offset(r=distance)",
+      "args": [
+        "distance"
+      ],
+      "notes": "2D module"
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "(boolean difference)",
+      "args": [],
+      "notes": "OpenSCAD has no trim — use CSG difference"
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "offset(r=R)offset(r=-R){...}",
+      "args": [
+        "radius"
+      ],
+      "notes": "Erosion+dilation trick"
+    },
+    {
+      "op": "op.extrude",
+      "fn": "linear_extrude(height=distance)",
+      "args": [
+        "distance"
+      ],
+      "notes": "2D module argument is the profile"
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "difference(){...; linear_extrude(...);}",
+      "args": [
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.revolve",
+      "fn": "rotate_extrude(angle=angle){profile}",
+      "args": [
+        "angle"
+      ],
+      "notes": "2D profile around Z"
+    },
+    {
+      "op": "op.loft",
+      "fn": "(approximate via hull or BOSL2 skin)",
+      "args": [
+        "sections[]"
+      ],
+      "notes": "No native loft"
+    },
+    {
+      "op": "op.sweep",
+      "fn": "(BOSL2 path_sweep)",
+      "args": [
+        "profile",
+        "path"
+      ],
+      "notes": "Requires BOSL2 library"
+    },
+    {
+      "op": "op.shell",
+      "fn": "difference(){body; offset_3d(-thickness)body;}",
+      "args": [
+        "thickness"
+      ],
+      "notes": "Approximate via offset"
+    },
+    {
+      "op": "op.fillet",
+      "fn": "(minkowski with sphere)",
+      "args": [
+        "radius"
+      ],
+      "notes": "Slow; use BOSL2 for performance"
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "(BOSL2 chamfer)",
+      "args": [
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "(non-trivial in OpenSCAD)",
+      "args": [
+        "angle"
+      ],
+      "notes": "Use BOSL2 or convex_hull"
+    },
+    {
+      "op": "op.mirror",
+      "fn": "mirror([1,0,0]){...}",
+      "args": [
+        "axis"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "for(i=[0:qty1-1])for(j=[0:qty2-1])translate([i*sx,j*sy,0]){...}",
+      "args": [
+        "qty1",
+        "qty2",
+        "spacing"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "for(a=[0:360/qty:360-0.1])rotate([0,0,a]){...}",
+      "args": [
+        "axis",
+        "qty"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "difference(){body; translate(pos)cylinder(d=D,h=H);}",
+      "args": [
+        "position",
+        "diameter",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "(BOSL2 threaded_rod difference)",
+      "args": [
+        "size",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "(BOSL2 threaded_rod)",
+      "args": [
+        "pitch",
+        "length"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "union(){...}",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "difference(){...}",
+      "args": [],
+      "notes": "First child − rest"
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "intersection(){...}",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "use<file>;module();",
+      "args": [
+        "file"
+      ],
+      "notes": "OpenSCAD include/use"
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "translate(p){use<file>;};",
+      "args": [
+        "transform"
+      ],
+      "notes": "Positional"
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "translate(axis){use<file>;};",
+      "args": [
+        "axis"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "translate([0,0,distance]){use<file>;};",
+      "args": [
+        "distance"
+      ],
+      "notes": ""
+    }
+  ]
+}

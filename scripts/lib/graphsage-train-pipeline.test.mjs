@@ -36,6 +36,7 @@ import {
   evaluatePipeline,
   extractNodeTypes,
   sampleStratifiedEvalNegatives,
+  loadEmbeddingFeatures,
   runTrainingPipeline,
   parseArgs,
   main,
@@ -370,6 +371,50 @@ describe("runTrainingPipeline", () => {
   });
 });
 
+// U-GNN-HETEROPHILY-WIRE: the H2GCN feature-enrichment seam in runTrainingPipeline.
+describe("runTrainingPipeline -- heterophily (H2GCN) feature enrichment", () => {
+  it("heterophilyHops:0 (default) is a no-op -- metrics.heterophily null, inputDim unchanged", () => {
+    const base = runTrainingPipeline({ graph: clusterGraph(3, 12), epochs: 10, maxNodes: 500, seed: 5 });
+    assert.equal(base.skipped, false);
+    assert.equal(base.metrics.heterophily, null);
+    // explicit 0 must equal the default (both no-op)
+    const explicit0 = runTrainingPipeline({ graph: clusterGraph(3, 12), epochs: 10, maxNodes: 500, seed: 5, heterophilyHops: 0 });
+    assert.equal(explicit0.metrics.inputDim, base.metrics.inputDim);
+    assert.equal(explicit0.metrics.heterophily, null);
+    // PROVE byte-identity (don't just argue it): the hops:0 code path must reconstruct
+    // the EXACT same trained weights as the legacy default (same seed). The block is
+    // >0-gated and consumes no RNG, so layers must deep-equal -- mirrors the sibling
+    // seed-determinism + LEGACY-PARITY assertions in this file.
+    assert.deepEqual(explicit0.checkpoint.layers, base.checkpoint.layers);
+  });
+
+  it("PIPELINE_DEFAULTS pin heterophily off-by-default (a nonzero default would silently widen every fleet retrain)", () => {
+    assert.equal(PIPELINE_DEFAULTS.heterophilyHops, 0);
+    assert.equal(PIPELINE_DEFAULTS.heterophilyNormalize, "mean");
+  });
+
+  it("heterophilyHops>0 widens inputDim to egoDim*(1+hops) and still trains (createModel sees the new dim)", () => {
+    const baseDim = runTrainingPipeline({ graph: clusterGraph(3, 12), epochs: 5, maxNodes: 500, seed: 5 }).metrics.inputDim;
+    const r2 = runTrainingPipeline({ graph: clusterGraph(3, 12), epochs: 10, maxNodes: 500, seed: 5, heterophilyHops: 2 });
+    assert.equal(r2.skipped, false, "must still train, not skip");
+    assert.ok(r2.metrics.heterophily, "metrics.heterophily must be populated when hops>0");
+    assert.equal(r2.metrics.heterophily.hops, 2);
+    assert.equal(r2.metrics.heterophily.egoDim, baseDim);
+    assert.equal(r2.metrics.heterophily.embeddingDim, baseDim * 3); // egoDim * (1 + 2)
+    assert.equal(r2.metrics.inputDim, baseDim * 3, "inputDim must be reassigned to the widened dim before createModel");
+    assert.equal(r2.metrics.heterophily.droppedEdges, 0, "train-edge endpoints are all in the feature set -> no drops");
+    assert.equal(r2.metrics.heterophily.normalize, "mean");
+    assert.ok(Number.isFinite(r2.metrics.finalLoss), "the widened-feature model must still train to a finite loss");
+  });
+
+  it("heterophilyHops=3 widens to egoDim*4 (stride parity with the lib)", () => {
+    const baseDim = runTrainingPipeline({ graph: clusterGraph(3, 12), epochs: 5, maxNodes: 500, seed: 7 }).metrics.inputDim;
+    const r3 = runTrainingPipeline({ graph: clusterGraph(3, 12), epochs: 5, maxNodes: 500, seed: 7, heterophilyHops: 3 });
+    assert.equal(r3.metrics.inputDim, baseDim * 4);
+    assert.equal(r3.metrics.heterophily.embeddingDim, baseDim * 4);
+  });
+});
+
 describe("parseArgs", () => {
   it("parses numeric flags", () => {
     const a = parseArgs(["--epochs", "40", "--seed", "7", "--max-nodes", "1000"]);
@@ -404,6 +449,17 @@ describe("parseArgs", () => {
 
   it("returns an empty object for no arguments", () => {
     assert.deepEqual(parseArgs([]), {});
+  });
+
+  it("parses --heterophily-hops (numeric) and --heterophily-normalize (string)", () => {
+    const a = parseArgs(["--heterophily-hops", "2", "--heterophily-normalize", "sum"]);
+    assert.equal(a.heterophilyHops, 2);
+    assert.equal(a.heterophilyNormalize, "sum");
+  });
+
+  it("throws when --heterophily-hops is non-numeric / --heterophily-normalize is valueless", () => {
+    assert.throws(() => parseArgs(["--heterophily-hops", "two"]), /needs a finite number/);
+    assert.throws(() => parseArgs(["--heterophily-normalize"]), /needs a value/);
   });
 });
 
@@ -449,6 +505,23 @@ describe("main (CLI)", () => {
       const graphPath = path.join(dir, "empty.json");
       fs.writeFileSync(graphPath, JSON.stringify({ nodes: [{ id: "a" }], edges: [] }));
       assert.equal(main(["--graph", graphPath, "--out", path.join(dir, "c.json")]), 1);
+    });
+  });
+
+  it("threads --heterophily-hops through to the pipeline (widens the persisted checkpoint inputDim)", () => {
+    withTmp((dir) => {
+      const graphPath = path.join(dir, "graph.json");
+      fs.writeFileSync(graphPath, JSON.stringify(clusterGraph(3, 12)));
+      const baseOut = path.join(dir, "base.json");
+      const h2Out = path.join(dir, "h2.json");
+      assert.equal(main(["--graph", graphPath, "--out", baseOut, "--epochs", "8", "--seed", "5"]), 0);
+      assert.equal(main(["--graph", graphPath, "--out", h2Out, "--epochs", "8", "--seed", "5", "--heterophily-hops", "2"]), 0);
+      const base = JSON.parse(fs.readFileSync(baseOut, "utf8"));
+      const h2 = JSON.parse(fs.readFileSync(h2Out, "utf8"));
+      // The CLI flag must reach runTrainingPipeline: hops=2 widens inputDim to 3x ego.
+      assert.equal(h2.metadata.inputDim, base.metadata.inputDim * 3);
+      assert.equal(h2.metadata.heterophily.hops, 2);
+      assert.equal(base.metadata.heterophily, null);
     });
   });
 });
@@ -753,5 +826,372 @@ describe("PIPELINE_DEFAULTS", () => {
     for (const k of ["maxNodes", "hiddenDim", "embedDim", "epochs", "testFraction", "seed"]) {
       assert.ok(Number.isFinite(PIPELINE_DEFAULTS[k]), `${k} must be a finite default`);
     }
+  });
+
+  it("carries the NN-1 embeddingSource knob (default off)", () => {
+    assert.equal(PIPELINE_DEFAULTS.embeddingSource, null);
+  });
+});
+
+// ─── NN-GRAPH-MS2 U-NNG-768D-FEATURES ──────────────────────────────────────
+// The model-side lever for the AUROC=0.096 deferred-deploy-gate: swap the 8-d
+// projected hand-features for the wiki brain's existing 768-d nomic-embed-text
+// vectors. These tests pin the loader's intent (R9) and prove the
+// runTrainingPipeline wiring against real on-disk fixtures (the "hermetic fakes
+// don't prove production wiring" oracle — see [[reference_rgs_tool_autoinvoke_ms1]]
+// and [[reference_fleet_reaper_tier1_2026_05_17]]).
+
+describe("loadEmbeddingFeatures (NN-1: 768d-feature loader)", () => {
+  const META = `{"__meta":true,"model":"nomic","dim":3,"count":2}`;
+  const ROW_A = `{"n":"a","q":[127,0,-127]}`;
+  const ROW_B = `{"n":"b","q":[64,64,64]}`;
+  const fixture = (lines) => `${lines.join("\n")}\n`;
+
+  it("dequantizes int8 q exactly via q[i]/127", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a", "b"]), {
+      readFileImpl: () => fixture([META, ROW_A, ROW_B]),
+    });
+    assert.equal(r.dim, 3);
+    assert.equal(r.hit, 2);
+    assert.deepEqual(r.features.get("a"), [1, 0, -1]); // 127/127 · 0/127 · -127/127
+    for (const x of r.features.get("b")) assert.ok(Math.abs(x - 64 / 127) < 1e-12);
+  });
+
+  it("restricts results to wanted nodeIds (no extras leak through)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => fixture([META, ROW_A, ROW_B]),
+    });
+    assert.equal(r.hit, 1);
+    assert.ok(r.features.has("a"));
+    assert.ok(!r.features.has("b"));
+  });
+
+  it("infers dim from the first data row when no __meta is present", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => fixture([ROW_A]),
+    });
+    assert.equal(r.dim, 3);
+    assert.equal(r.hit, 1);
+  });
+
+  it("skips ragged data rows (q.length !== dim) without failing the run", () => {
+    const ragged = `{"n":"c","q":[1,2]}`; // dim=3 vs q.length=2 → skip
+    const r = loadEmbeddingFeatures("x", new Set(["a", "c"]), {
+      readFileImpl: () => fixture([META, ROW_A, ragged]),
+    });
+    assert.equal(r.hit, 1);
+    assert.ok(r.features.has("a"));
+    assert.ok(!r.features.has("c"));
+  });
+
+  it("returns null when the injected reader throws (fail-soft)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => { throw new Error("ENOENT"); },
+    });
+    assert.equal(r, null);
+  });
+
+  it("returns null when the default fs reader fails on a nonexistent path", () => {
+    const ghost = path.join(
+      os.tmpdir(),
+      `nn1-ghost-loader-${Date.now()}-${Math.random().toString(36).slice(2)}.jsonl`,
+    );
+    const r = loadEmbeddingFeatures(ghost, new Set(["a"]));
+    assert.equal(r, null);
+  });
+
+  it("rejects a row that parses to null (defensive null-obj guard)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => fixture([META, "null", ROW_A]),
+    });
+    assert.equal(r.hit, 1);
+    assert.equal(r.scanned, 3); // null still counts as scanned but is rejected
+  });
+
+  it("rejects a row that parses to an array (typeof [] === 'object', defensive)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => fixture([META, '["arr","not","row"]', ROW_A]),
+    });
+    assert.equal(r.hit, 1);
+  });
+
+  it("rejects a malformed __meta header with non-numeric dim (infers from first data row)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => fixture([`{"__meta":true,"dim":"3"}`, ROW_A]),
+    });
+    assert.equal(r.dim, 3); // inferred from ROW_A's q.length, not "3"
+    assert.equal(r.hit, 1);
+  });
+
+  it("rejects a malformed __meta header with non-positive dim (infers from first data row)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => fixture([`{"__meta":true,"dim":0}`, ROW_A]),
+    });
+    assert.equal(r.dim, 3);
+    assert.equal(r.hit, 1);
+  });
+
+  it("returns null on empty raw input", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), { readFileImpl: () => "" });
+    assert.equal(r, null);
+  });
+
+  it("returns null when nodeIds is empty", () => {
+    const r = loadEmbeddingFeatures("x", new Set(), {
+      readFileImpl: () => fixture([META, ROW_A]),
+    });
+    assert.equal(r, null);
+  });
+
+  it("returns {dim, hit:0} when zero rows match — preserves dim so the predictor can zero-pad (U-NN-PREDICTOR-EMBED-WIRE follow-up 2026-05-24)", () => {
+    // Pre-2026-05-24 behavior: returned null on zero matches, forcing the
+    // 8-d projected fallback. For a 768-d-trained checkpoint, that crashed
+    // the predictor's inputDim guard. New honest semantics: return the dim
+    // declared by the source + hit=0, so the predictor can zero-pad eval-
+    // subgraph nodes and produce uninformative-but-runnable predictions
+    // instead of deferring forever.
+    const r = loadEmbeddingFeatures("x", new Set(["z"]), {
+      readFileImpl: () => fixture([META, ROW_A, ROW_B]),
+    });
+    assert.ok(r && typeof r === "object", "must return a result object, not null");
+    assert.ok(Number.isFinite(r.dim) && r.dim > 0, `dim must be a positive finite number (got ${r && r.dim})`);
+    assert.equal(r.hit, 0, "hit=0 surfaces the no-overlap signal");
+    assert.ok(r.features instanceof Map && r.features.size === 0, "features map must be empty");
+  });
+
+  it("trainer-side gate still rejects zero-hit results (preserves projected fallback for training)", () => {
+    // The pre-2026-05-24 invariant that protected the trainer is the
+    // `emb.hit > 0` gate at the call site in graphsage-train-pipeline.mjs:500,
+    // NOT a null return from this loader. This test pins the contract: the
+    // loader hands back a valid result with hit=0, and downstream consumers
+    // decide whether to use embedding-features or fall back to projected.
+    const r = loadEmbeddingFeatures("x", new Set(["z"]), {
+      readFileImpl: () => fixture([META, ROW_A, ROW_B]),
+    });
+    const trainerWouldUseEmbedding = r && Number.isFinite(r.dim) && r.dim > 0 && r.hit > 0;
+    assert.equal(trainerWouldUseEmbedding, false, "trainer's hit>0 gate correctly rejects zero-overlap");
+  });
+
+  it("rejects a non-string filePath defensively", () => {
+    assert.equal(loadEmbeddingFeatures(null, new Set(["a"])), null);
+    assert.equal(loadEmbeddingFeatures(42, new Set(["a"])), null);
+    assert.equal(loadEmbeddingFeatures("", new Set(["a"])), null);
+  });
+
+  it("treats non-finite q components as 0 (defensive dequant)", () => {
+    const row = `{"n":"a","q":[null,127,null]}`;
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => fixture([`{"__meta":true,"dim":3}`, row]),
+    });
+    assert.deepEqual(r.features.get("a"), [0, 1, 0]);
+  });
+
+  it("survives JSON.parse errors on individual rows (skips them, never throws)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => fixture([META, "not-json", ROW_A]),
+    });
+    assert.equal(r.hit, 1);
+    assert.ok(r.features.has("a"));
+  });
+
+  it("counts every non-empty line in `scanned` (visibility for operators)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a", "b"]), {
+      readFileImpl: () => fixture([META, ROW_A, ROW_B]),
+    });
+    assert.equal(r.scanned, 3); // meta + 2 data rows
+  });
+
+  it("does not require a trailing newline (last line still parsed)", () => {
+    const r = loadEmbeddingFeatures("x", new Set(["a"]), {
+      readFileImpl: () => `${META}\n${ROW_A}`,
+    });
+    assert.equal(r.hit, 1);
+  });
+
+  it("accepts an array nodeIds (auto-wraps into a Set)", () => {
+    const r = loadEmbeddingFeatures("x", ["a"], {
+      readFileImpl: () => fixture([META, ROW_A]),
+    });
+    assert.equal(r.hit, 1);
+  });
+});
+
+describe("runTrainingPipeline — NN-1 (768d embedding feature source)", () => {
+  /** Build a tiny on-disk JSONL embedding file for real-wiring tests. */
+  function writeEmbFixture(graph, dim = 4) {
+    const tmp = path.join(
+      os.tmpdir(),
+      `nn1-emb-${Date.now()}-${Math.random().toString(36).slice(2)}.jsonl`,
+    );
+    const lines = [JSON.stringify({ __meta: true, model: "fixture", dim, count: graph.nodes.length })];
+    for (const n of graph.nodes) {
+      const q = new Array(dim);
+      let h = 0;
+      for (let i = 0; i < n.id.length; i++) h = ((h * 31) + n.id.charCodeAt(i)) | 0;
+      for (let i = 0; i < dim; i++) q[i] = ((h + i * 7) % 127);
+      lines.push(JSON.stringify({ n: n.id, q }));
+    }
+    fs.writeFileSync(tmp, lines.join("\n") + "\n");
+    return tmp;
+  }
+
+  it("activates embedding feature mode when --embedding-source is set (REAL-WIRING)", () => {
+    const graph = clusterGraph(3, 5); // 15 nodes
+    const embPath = writeEmbFixture(graph, 16);
+    try {
+      const r = runTrainingPipeline({ graph, embeddingSource: embPath, epochs: 2, maxNodes: 50 });
+      assert.equal(r.skipped, false);
+      assert.equal(r.metrics.featureSource, "embedding");
+      assert.equal(r.metrics.inputDim, 16);
+      assert.equal(r.metrics.embeddingDim, 16);
+      // Exact equality (not >=) so an inflated hit count fails this test.
+      assert.equal(r.metrics.embeddingHitCount, 15);
+      assert.equal(r.metrics.embeddingMissCount, 0); // fixture covers every node
+    } finally {
+      try { fs.unlinkSync(embPath); } catch {}
+    }
+  });
+
+  it("LEGACY-PARITY: byte-identical metrics when embeddingSource is unset vs null (R12 invariant)", () => {
+    const graph = clusterGraph(3, 5);
+    const a = runTrainingPipeline({ graph, epochs: 2, maxNodes: 50 });
+    const b = runTrainingPipeline({ graph, epochs: 2, maxNodes: 50, embeddingSource: null });
+    // Full deepEqual minus trainedAt (the only non-deterministic field). A
+    // drift in cappedNodes / edgeCount / brierRaw / calibratorN / etc. now
+    // fails this — much tighter than asserting a hand-picked subset.
+    const stripTs = (m) => {
+      const { trainedAt, ...rest } = m;
+      return rest;
+    };
+    assert.deepEqual(stripTs(a.metrics), stripTs(b.metrics));
+    // Explicit invariants for documentation + grep-ability:
+    assert.equal(a.metrics.featureSource, "projected");
+    assert.equal(a.metrics.inputDim, FEATURE_DIM);
+    assert.equal(a.metrics.embeddingDim, null);
+    assert.equal(a.metrics.embeddingHitCount, 0);
+    assert.equal(a.metrics.embeddingMissCount, 0);
+  });
+
+  it("PARTIAL-HIT: nodes absent from the embedding file get zero-vectors + emit honest miss count", () => {
+    // This is the realistic deploy-gate config — the live wiki has embeddings
+    // for ~80-95% of system-viz nodes, never 100%. The zero-fill behavior is
+    // load-bearing for the production retrain that lifts AUROC above 0.78.
+    const graph = clusterGraph(3, 5); // 15 nodes
+    const present = graph.nodes.slice(0, 9); // 9 covered
+    const tmp = path.join(
+      os.tmpdir(),
+      `nn1-partial-${Date.now()}-${Math.random().toString(36).slice(2)}.jsonl`,
+    );
+    const lines = [JSON.stringify({ __meta: true, dim: 4 })];
+    for (const n of present) lines.push(JSON.stringify({ n: n.id, q: [1, 2, 3, 4] }));
+    fs.writeFileSync(tmp, lines.join("\n") + "\n");
+    try {
+      const r = runTrainingPipeline({ graph, embeddingSource: tmp, epochs: 2, maxNodes: 50 });
+      assert.equal(r.skipped, false);
+      assert.equal(r.metrics.featureSource, "embedding");
+      assert.equal(r.metrics.inputDim, 4);
+      assert.equal(r.metrics.embeddingDim, 4);
+      assert.equal(r.metrics.embeddingHitCount, 9);
+      assert.equal(r.metrics.embeddingMissCount, 6); // 15 - 9
+    } finally {
+      try { fs.unlinkSync(tmp); } catch {}
+    }
+  });
+
+  it("FAIL-SOFT: a nonexistent embedding file falls through to the projected path", () => {
+    const graph = clusterGraph(3, 4);
+    // Cross-platform tmpdir-based "guaranteed-absent" path.
+    const ghost = path.join(
+      os.tmpdir(),
+      `nn1-ghost-${Date.now()}-${Math.random().toString(36).slice(2)}.jsonl`,
+    );
+    const r = runTrainingPipeline({
+      graph,
+      embeddingSource: ghost,
+      epochs: 2,
+      maxNodes: 40,
+    });
+    assert.equal(r.skipped, false);
+    assert.equal(r.metrics.featureSource, "projected");
+    assert.equal(r.metrics.inputDim, FEATURE_DIM);
+    assert.equal(r.metrics.embeddingDim, null);
+  });
+
+  it("FAIL-SOFT: a zero-hit embedding file (no matching ids) falls through to projected", () => {
+    const graph = clusterGraph(3, 4);
+    const tmp = path.join(
+      os.tmpdir(),
+      `nn1-zero-${Date.now()}-${Math.random().toString(36).slice(2)}.jsonl`,
+    );
+    fs.writeFileSync(
+      tmp,
+      `{"__meta":true,"dim":4}\n{"n":"NOMATCH_a","q":[1,2,3,4]}\n{"n":"NOMATCH_b","q":[5,6,7,8]}\n`,
+    );
+    try {
+      const r = runTrainingPipeline({ graph, embeddingSource: tmp, epochs: 2, maxNodes: 40 });
+      assert.equal(r.metrics.featureSource, "projected");
+      assert.equal(r.metrics.inputDim, FEATURE_DIM);
+    } finally {
+      try { fs.unlinkSync(tmp); } catch {}
+    }
+  });
+
+  it("threads opts.readFileImpl through into loadEmbeddingFeatures (hermetic injection)", () => {
+    const graph = clusterGraph(2, 4);
+    const lines = [JSON.stringify({ __meta: true, dim: 8 })];
+    for (const n of graph.nodes) {
+      const q = new Array(8);
+      for (let i = 0; i < 8; i++) q[i] = (n.id.charCodeAt(0) + i) % 127;
+      lines.push(JSON.stringify({ n: n.id, q }));
+    }
+    const raw = lines.join("\n");
+    const r = runTrainingPipeline({
+      graph,
+      embeddingSource: "memory-only.jsonl",
+      readFileImpl: () => raw,
+      epochs: 2,
+      maxNodes: 40,
+    });
+    assert.equal(r.metrics.featureSource, "embedding");
+    assert.equal(r.metrics.inputDim, 8);
+    assert.equal(r.metrics.embeddingDim, 8);
+  });
+
+  it("checkpoint round-trip preserves the NN-1 metric fields", () => {
+    const graph = clusterGraph(3, 5);
+    const embPath = writeEmbFixture(graph, 12);
+    const ckptPath = path.join(
+      os.tmpdir(),
+      `nn1-ckpt-${Date.now()}-${Math.random().toString(36).slice(2)}.json`,
+    );
+    try {
+      const r = runTrainingPipeline({ graph, embeddingSource: embPath, epochs: 2, maxNodes: 50 });
+      fs.writeFileSync(ckptPath, JSON.stringify(r.checkpoint, null, 2));
+      // Pure-disk round-trip: write -> read -> parse. The loadCheckpoint API
+      // expects a parsed object (not a path), and verifying its exact contract
+      // is outside NN-1's scope — what we pin here is that the NN-1 metric
+      // fields survive JSON serialization intact.
+      const loaded = JSON.parse(fs.readFileSync(ckptPath, "utf8"));
+      assert.equal(loaded.metadata.featureSource, "embedding");
+      assert.equal(loaded.metadata.embeddingDim, 12);
+      assert.equal(loaded.metadata.inputDim, 12);
+      // Exact equality (not >=) to fail on inflated counts.
+      assert.equal(loaded.metadata.embeddingHitCount, 15);
+      assert.equal(loaded.metadata.embeddingMissCount, 0);
+    } finally {
+      try { fs.unlinkSync(embPath); } catch {}
+      try { fs.unlinkSync(ckptPath); } catch {}
+    }
+  });
+});
+
+describe("parseArgs — --embedding-source (NN-1 CLI surface)", () => {
+  it("accepts --embedding-source <path>", () => {
+    const a = parseArgs(["--embedding-source", "/tmp/x.jsonl"]);
+    assert.equal(a.embeddingSource, "/tmp/x.jsonl");
+  });
+
+  it("throws when --embedding-source has no value", () => {
+    assert.throws(() => parseArgs(["--embedding-source"]), /needs a value/);
   });
 });

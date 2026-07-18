@@ -196,7 +196,7 @@ const DEFAULT_SCENARIOS: DRScenario[] = [
   },
 ];
 
-class DisasterRecoveryEngine {
+export class DisasterRecoveryEngine {
   private scenarios: Map<string, DRScenario> = new Map();
   private drillHistory: DRDrillResult[] = [];
   private replications: ReplicationStatus[] = [];

@@ -1,0 +1,325 @@
+---
+effort: high
+maxTurns: 25
+---
+
+# Session Startup Macro
+
+You are initializing a PRISM development session. Run through this checklist to establish context, detect issues, and present the work surface. Execute all steps — do not ask questions until the summary is ready.
+
+## Step 0: Set Effort to MAX (MANDATORY — user requires max effort always)
+Tell the user: "Run `/effort max` now if terminal doesn't show max."
+Note: `max` cannot be set programmatically or persisted in settings. Settings has `"effortLevel": "high"` as fallback. User ALWAYS wants max for PRISM work.
+
+## Step 1: Load Current Position
+Read `H:/prism/state/CURRENT_POSITION.md` and extract:
+- Current phase and roadmap version
+- Milestone completion stats (X/Y complete)
+- Last session's work summary
+
+## Step 1B: Reload Last Session (Handoff — PER-CHAT)
+We run ~6 concurrent chats, so each chat has its OWN handoff at `H:/prism/state/shared/handoffs/HANDOFF-<instance>.md`. Do NOT read the singular `H:/prism/state/HANDOFF.md` — that is legacy and shared across all chats.
+
+**CRITICAL — extract YOUR session ID first.** Look at the chat bus system reminder in your context — it says "You are `claude-XXXXXXXX`". Extract that 8-character ID (e.g., `0377686b`). This is YOUR unique session ID for this chat.
+
+Pass the session ID explicitly to the helper (Bash PID ancestry lookup doesn't work reliably):
+
+```bash
+# Replace XXXXXXXX with YOUR session ID from "You are `claude-XXXXXXXX`" in the chat bus
+"H:/.claude/bin/portable-node" H:/prism/.claude/helpers/per-agent-handoff.mjs read --terminal "claude-XXXXXXXX"
+```
+
+**Example:** If the chat bus says "You are `claude-0377686b`", run:
+```bash
+"H:/.claude/bin/portable-node" H:/prism/.claude/helpers/per-agent-handoff.mjs read --terminal "claude-0377686b"
+```
+
+If the helper reports "no handoff for this instance": report "Fresh session — no handoff for this chat". If the handoff is older than 48 hours: warn "Handoff is stale ([N] hours old)". Display the RESUME section from the returned markdown — that is what Step 7 auto-continues from.
+
+Fallback (only if chat bus doesn't show session ID): use `stable-session-id.mjs` but be aware it may return wrong session with concurrent chats.
+
+## Step 1C: Load Shared Agent Bridges
+Read these shared cross-agent directives:
+- `H:/prism/state/shared/CLAUDE-CODEX-MCP-DIRECTIVE.md`
+- `H:/prism/state/shared/CLAUDE-CODEX-SVI-DIRECTIVE.md`
+- `H:/prism/state/shared/CLAUDE-CODEX-COMMAND-BRIDGE.md`
+- `H:/prism/state/shared/CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md`
+- `H:/prism/state/shared/CLAUDE-CODEX-COORDINATION-DIRECTIVE.md`
+- `H:/prism/state/shared/CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md`
+- `H:/prism/state/shared/CLAUDE-CODEX-RGS-SYNC-PROTOCOL.md`
+- `H:/prism/state/shared/CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md`
+- `H:/prism/state/shared/CLAUDE-CODEX-SPAWNED-AGENT-DIRECTIVE.md`
+
+Report whether each exists. These files are the long-term shared operating directives for Claude/Codex parity on:
+- MCP-server development capability usage, route discovery, and relevance rules
+- SVI / Psi / watch-status behavior
+- slash-command mirroring rules, hook-backed command pipelines, and command bridge limits
+- shared index-first search behavior, concurrent work discipline, and token economy
+- shared workboard/chat coordination so both agents can see current work, next work, and recent completions
+- finish-current-delivery-first roadmap sequencing plus the SVI-aware trigger for the next collaborative gap-roadmap pass
+- canonical `/rgs-sync` status/sync protocol for roadmap convergence updates across both agent families
+- canonical task-queue behavior for dependency-ordered assignment, claims, heartbeat, and completion across both agent families
+
+Also note the registry JSON path for command parity work:
+- `H:/prism/state/shared/claude-codex-command-registry.json`
+And the shared index registry paths:
+- `H:/prism/state/shared/PRISM_SHARED_INDEX_SURFACES.md`
+- `H:/prism/state/shared/PRISM_SHARED_INDEX_SURFACES.json`
+And the shared coordination surfaces:
+- `H:/prism/state/shared/AGENT_COORDINATION_STATUS.md`
+- `H:/prism/state/shared/AGENT_WORKBOARD.md`
+- `H:/prism/state/shared/AGENT_CHAT.md`
+And the roadmap collaboration surface:
+- `H:/prism/state/shared/ROADMAP_COLLABORATION_STATE.md`
+And the task coordination surfaces:
+- `H:/prism/state/shared/TASK_QUEUE.md`
+- `H:/prism/state/shared/TASK_COORDINATION_SPEC.md`
+
+## Step 1D: Load Shared Coordination State
+Read:
+- `H:/prism/state/shared/AGENT_COORDINATION_STATUS.md`
+- `H:/prism/state/shared/AGENT_WORKBOARD.md`
+- `H:/prism/state/shared/AGENT_CHAT.md`
+
+Report whether another agent has active current/next work or unread coordination notes before replanning.
+
+## Step 1F: Load Shared Task Queue
+Read:
+- `H:/prism/state/shared/CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md`
+- `H:/prism/state/shared/TASK_COORDINATION_SPEC.md`
+- `H:/prism/state/shared/TASK_QUEUE.md`
+
+Then run:
+
+```powershell
+node H:\prism\.claude\helpers\task-queue.mjs reap
+node H:\prism\.claude\helpers\task-queue.mjs next
+```
+
+Report:
+- top available task for the current family, if any
+- whether current family tasks are blocked
+- whether another terminal already owns the current family's active task
+
+## Step 1G: Announce Session Start to Coordination
+Write session-start signals to the shared coordination surfaces so Codex and the user can immediately see that Claude is active. Run these two commands using the Bash tool:
+
+```bash
+node H:/prism/.claude/helpers/agent-coordination.mjs post \
+  --agent Claude \
+  --status ready \
+  --lane "session-start" \
+  --current "Session starting — loading context from HANDOFF.md" \
+  --next "Execute RESUME directive from HANDOFF.md" \
+  --message "Session started. Reading handoff, SVI, quality dashboard, and coordination state."
+```
+
+```bash
+node H:/prism/.claude/helpers/roadmap-sync.mjs sync \
+  --agent Claude \
+  --status active \
+  --note "Session starting. Loading coordination state and preparing to execute RESUME."
+```
+
+If either command fails (missing helper script, etc.), log the error but do NOT block startup — continue to the next step.
+
+## Step 1E: Load Shared Roadmap Gate
+Read:
+- `H:/prism/state/shared/CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md`
+- `H:/prism/state/shared/ROADMAP_COLLABORATION_STATE.md`
+
+Report whether the current backend/frontend finish-first gate is still active or whether the next large roadmap pass is allowed to begin.
+
+## Step 2: Check Active Claims
+Scan `H:/prism/mcp-server/data/claims/` for any existing claim directories.
+For each claim found:
+- Read `claim.json` to get claimant, timestamp, unit ID
+- Check if the claim is stale (older than 5 minutes with no heartbeat update)
+- Report: "You have an active claim on [unit]" or "Found stale claim on [unit] — will auto-reap"
+
+Also check `H:/prism/state/ACTIVE_CLAIM.json` — if it exists, report what unit is claimed.
+
+## Step 3: Quick Build Health
+Prefer `prism_dev:build` for the shared build-health snapshot. If MCP is unavailable, fall back to `npm run build 2>&1 | tail -5` from `H:/prism/mcp-server/`. Check for:
+- Build success/failure
+- TypeScript error count
+- Any new warnings
+
+## Step 4: Check for Roadmap Drift
+Read `H:/prism/mcp-server/data/roadmap-index.json` and verify:
+- `total_milestones` matches actual envelope count in `data/milestones/`
+- `completed_milestones` matches entries with `"status": "complete"`
+- Report any drift found
+
+## Step 4B: SVI / Reachability Check
+Read `H:/prism/state/shared/SVI-compact.md` and extract:
+- **SVI** display value (e.g., 1.8 x 10^43)
+- **Psi (Reachability)** percentage (e.g., 40.8%)
+- **Trend** (stable / growing / shrinking)
+- Any **Coverage Alerts** listed at the bottom
+
+If Psi decreased from the previous session's handoff value, flag: `SVI REGRESSION: Psi dropped from [old]% to [new]%`
+
+## Step 4C: Quality Dashboard Check
+Read `H:/prism/state/shared/QUALITY_DASHBOARD.json` if it exists:
+- Extract: system_Q, mean_Q, engines_below_70, formula_accuracy.aggregate_accuracy, improvement.patterns_detected, improvement.fixes_promoted, schema_coverage.coverage_pct, tests.pass_rate
+- If file doesn't exist or is older than 48 hours: note "Dashboard stale — will refresh"
+- If any alerts with severity "critical": flag them immediately
+- Show in Step 5 summary as the `Quality:` line
+
+If the file is missing or stale, run `prism_dev:quality_dashboard` to compute a fresh snapshot (this reads from QualityScoreEngine, FormulaValidationEngine, SelfImprovementPatternEngine, AutoFixPipelineEngine, and SVI data — all aggregated into one view).
+
+## Step 4D: Context Pressure Check
+Quick context health scan (no detailed audit — use `/context` for that):
+1. Count MEMORY.md lines (target <200)
+2. Report: `Memory: [N]/200 lines ([LEAN/OK/HEAVY])`
+3. If >180 lines: suggest `/context-audit` for full diagnosis, then `/slim` to trim before working
+
+## Step 4E: MXU Intelligence Check (NEW — from MXU engines)
+Use the MXU dispatcher actions to pull live intelligence. Run these in parallel:
+
+1. **Product Pillar Readiness** — call `prism_dev:pillar_summary` (ProductPillarEngine)
+   - Show: `Pillars: [X]/8 ready | [list names at 100%]`
+   - Flag any pillar below 50% completeness
+
+2. **Utilization Census** — call `prism_dev:capability_census` (CapabilityCensusEngine)
+   - Show: `Utilization: [N]% | [N] dark engines | [N] domains covered`
+   - If utilization < 50%: flag as improvement opportunity
+
+3. **Token Budget** — call `prism_dev:token_budget` (TokenEconomyEngine)
+   - Show: `Token Budget: [task_class] = [N]K tokens | Waste patterns: [N]`
+   - Read `H:/prism/state/token-economy-session.json` if exists for last session waste
+
+4. **Persistent Memory Recall** — call `prism_dev:memory_search` (PersistentMemoryEngine)
+   - Search for entries tagged with current task/phase
+   - Show: `Memory: [N] relevant entries | Last calibration: [date]`
+   - Surface any user preferences stored
+
+5. **Learning Path Progress** — call `prism_dev:capability_path_list` (CapabilityPathEngine)
+   - Show: `Learning: [path_name] [N]% | Next: [module_name]`
+   - Only show if user has started a path
+
+If any MCP action fails (server not running), skip silently — don't block startup.
+Show results in Step 5 summary as additional lines:
+```
+Pillars:   [X]/8 ready | Calculator, Toolpath, PostProcessor ready
+Utilization: [N]% | [N] dark engines
+Token:     [budget] | [waste_patterns] waste patterns last session
+Memory:    [N] entries | [preferences]
+Learning:  [path] [N]% → [next_module]
+```
+
+## Step 4F: Background Health Suggestions
+Based on session state, suggest background forge tasks the user can launch:
+- If no recent audit: "Consider: `/forge-audit quick` in background for quality pulse"
+- If roadmap drift found: "Consider: `/forge-drift` in background for full drift analysis"
+- If build has warnings: "Consider: `/forge-types report` in background for type coverage"
+- Always available: "`/forge-metrics quick` for codebase health dashboard"
+
+These are **suggestions only** — don't auto-launch. Present as optional Quick Actions.
+
+## Step 5: Present Work Surface
+Show a compact summary:
+
+```
+PRISM Session Startup
+=====================
+Position:  [phase] | Roadmap v[X] | [X]/[Y] milestones complete
+SVI:       [value] | Psi: [N]% | Trend: [stable/growing/shrinking]
+Quality:   Q=[system_Q] mean=[mean_Q] | Accuracy: [N] | Schemas: [N]% | [N] alerts
+Claim:     [active claim or "none"]
+Build:     [pass/fail] | [N] TS errors
+Drift:     [clean / N issues found]
+Memory:    [N]/200 lines | Handoff: [YES/NO/STALE]
+
+Available Tracks (unblocked):
+  SYS-MS0  CLAUDE.md Modular Architecture     [not_started]
+  SYS-MS1  Intelligence Mega-Dispatcher        [not_started]
+  S3-MS2   SFC Calculator Phase 2              [not_started]
+  ...
+
+Quick Actions:
+  /pick-task          — Claim a task and start working
+  /audit-task scan    — Scan completed work for gaps
+  /health             — Detailed system health check
+  /commands           — List all available commands
+```
+
+## Step 5B: Digest System Check
+Verify the file system digest files are current:
+- `data/docs/DIRECTORY_DIGEST.md` — 215 directories with purposes (use `/digest-all` to load)
+- `data/docs/ENGINE_DIGEST.md` — 879 engines with 1-line descriptions
+- `data/docs/DISPATCHER_DIGEST.md` — 66 dispatchers with action counts
+- `data/docs/CODE_SYSTEM_INDEX.json` — 1,865 shortcode mappings
+- If any are missing: "Run digest generators to rebuild file system index"
+- Mention: "Use `/navigate <topic>` for zero-IO file location, `/code-index` for shortcodes"
+
+## Step 5C: Update Coordination with Session Plan
+Now that the work surface has been loaded and the session plan is known, update the shared coordination state with the actual plan. Run this command using the Bash tool, substituting the bracketed values with real data gathered from previous steps:
+
+```bash
+node H:/prism/.claude/helpers/agent-coordination.mjs post \
+  --agent Claude \
+  --status ready \
+  --current "[RESUME directive from HANDOFF.md — what was loaded in Step 1B]" \
+  --next "[suggested next action from Step 6 / auto-suggest reasoning]" \
+  --message "Session initialized. SVI: Psi=[N]%. Build: [PASS/FAIL]. Quality: Q=[N]. Executing: [RESUME directive]."
+```
+
+Replace the bracketed placeholders:
+- `[RESUME directive from HANDOFF.md]` — the actual RESUME line from Step 1B
+- `[suggested next action]` — what Step 6 will suggest (look-ahead from work surface)
+- `[N]%` for Psi — from Step 4B
+- `[PASS/FAIL]` — from Step 3
+- `Q=[N]` — from Step 4C
+
+If the command fails, log the error but do NOT block startup.
+
+## Step 6: Auto-Suggest
+Based on the current state, suggest the most impactful next action:
+- If there's an active claim: "Resume work on [unit] — run `/pick-task [unit-id]` to reload context"
+- If no claim and CRITICAL findings exist: "Priority: fix open CRITICAL findings"
+- If no claim: "Suggested: `/pick-task` to claim your next task"
+- If stale claims found: "Clean up stale claims first"
+
+## Step 7: AUTO-CONTINUE (MANDATORY — do NOT skip, do NOT ask)
+This step makes startup → continue AUTOMATIC. Execute it every time.
+
+1. **Re-read THIS chat's per-agent handoff now** — do NOT read the legacy singular `H:/prism/state/HANDOFF.md` (it's shared across all 6+ concurrent chats and gets clobbered).
+
+   **Use YOUR session ID** (from the chat bus "You are `claude-XXXXXXXX`"):
+
+   ```bash
+   # Replace XXXXXXXX with YOUR session ID from the chat bus
+   "H:/.claude/bin/portable-node" H:/prism/.claude/helpers/per-agent-handoff.mjs read --terminal "claude-XXXXXXXX"
+   ```
+
+   This reads `HANDOFF-claude-XXXXXXXX.md` for THIS chat only. Extract the `## RESUME` section from the returned markdown.
+
+2. The RESUME line tells you EXACTLY what to do next
+3. **DO IT IMMEDIATELY** — do not ask the user, do not summarize, do not wait
+4. If RESUME says "expand 5-Axis knowledge blocks" → start expanding them
+5. If RESUME says "Phase 0-PRE Session 1" → start that session
+6. If RESUME says "fix 3 TS errors" → start fixing them
+7. The ONLY time you stop is if:
+   - Build is BROKEN (Step 3 found errors) → fix errors first
+   - A CRITICAL finding blocks work → address it first
+   - Helper returns `matchedBy: family-latest` with `age_minutes` > 15 → the pin
+     resolution likely failed; report "Fresh session — no handoff for this chat"
+     and ask the user what to work on
+   - Helper reports `{ok: false, error: "No handoff found"}` → same as above
+
+**THE POINT OF THIS STEP:** After compaction, you should seamlessly continue
+working as if the compaction never happened. The user should NOT need to tell
+you what to do — THIS chat's per-agent handoff already says it. Just read and execute.
+
+This is the auto-continuation infrastructure. It works because:
+- /compact fires PreCompact hook `precompact-handoff.mjs` which reads stdin `session_id`
+  and writes `state/shared/handoffs/HANDOFF-Claude-<session_id>.md` for THIS chat
+- session-id-pin.mjs (UserPromptSubmit) pins the session_id to Claude Code's PID
+  so Bash-invoked `stable-session-id.mjs` can resolve THIS chat deterministically
+  even with 10 concurrent chats
+- /startup Step 1B + Step 7 both use the pinned ID → read the correct per-chat handoff
+- The loop is: work → /compact (per-chat HANDOFF saved) → /startup (same pin, same handoff) → work
+
+$ARGUMENTS

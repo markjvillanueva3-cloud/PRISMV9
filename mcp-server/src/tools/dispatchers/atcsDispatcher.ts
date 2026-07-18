@@ -23,17 +23,13 @@ import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 import type { TaskManifest, WorkUnit, StubScanResult, TaskStatus, UnitStatus } from "../../types/prism-schema.js";
-import { hasValidApiKey, getApiKey, getModelForTier } from "../../config/api-config.js";
+import { getModelForTier } from "../../config/api-config.js";
 import { delegateUnits, pollResults, clearCompletedDelegations } from "../../engines/ManusATCSBridge.js";
 import { PATHS } from "../../constants.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_ATCS_SCHEMAS } from "../../schemas/atcsActionSchemas.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
-
-/** API response JSON has dynamic shape — named alias avoids bare `as any` */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ApiResponse = Record<string, any>;
 
 /** Manifest progress has optional dynamic fields — named alias avoids bare `as any` */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,27 +80,40 @@ function genDelegationId(): string {
   return `atcs_del_${++delegationCounter}_${Date.now()}`;
 }
 
-/** Minimal Claude API caller for delegation (same pattern as manusDispatcher) */
-async function callClaudeForUnit(
-  systemPrompt: string, userPrompt: string, model: string, maxTokens = 4096
-): Promise<{ text: string; tokens: { input: number; output: number }; duration_ms: number }> {
-  const apiKey = getApiKey();
+/**
+ * Execute one delegated work-unit prompt through the shared free-AI substrate
+ * (FREE-AI-MIGRATION/U-ATCS-DISPATCHER-LLM-ROUTE). Was a direct PAID Claude fetch
+ * (api.anthropic.com); now routes through `llmEngine.query` -- Ollama-first (free)
+ * with an adaptive Claude backup on availability + capability, then offline.
+ * `complexity:"high"` because delegated build units are non-trivial -- a weak local
+ * answer escalates to the Claude backup. The caller's `systemPrompt` is preserved
+ * via the `system` override.
+ *
+ * R12: an "offline" result means NO real provider answered (Ollama down + no Claude
+ * key) -- a generic stub, not a real delegated build result -- so we THROW; the
+ * caller's existing .catch marks the unit FAILED rather than recording a stub as
+ * COMPLETED. On success `model` reports the REAL provider that answered (honest
+ * provenance). `_model` is advisory -- the provider is chosen by the ladder.
+ */
+export async function callClaudeForUnit(
+  systemPrompt: string, userPrompt: string, _model: string, maxTokens = 4096
+): Promise<{ text: string; tokens: { input: number; output: number }; duration_ms: number; model: string }> {
   const startTime = Date.now();
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model, max_tokens: maxTokens, system: systemPrompt, messages: [{ role: "user", content: userPrompt }] })
+  const { llmEngine } = await import("../../engines/LLMEngine.js");
+  const res = await llmEngine.query({
+    prompt: userPrompt,
+    system: systemPrompt,
+    complexity: "high",
+    max_tokens: maxTokens,
   });
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Claude API ${response.status}: ${errText.slice(0, 200)}`);
+  if (res.model === "offline") {
+    throw new Error("no AI provider available (Ollama down and no Claude backup key) -- delegation produced only an offline stub");
   }
-  const data = await response.json() as ApiResponse;
-  const text = data.content?.map((c: any) => c.text || "").join("\n") || "";
   return {
-    text,
-    tokens: { input: data.usage?.input_tokens || 0, output: data.usage?.output_tokens || 0 },
-    duration_ms: Date.now() - startTime
+    text: res.answer,
+    tokens: res.tokens_used,
+    duration_ms: Date.now() - startTime,
+    model: res.model,
   };
 }
 
@@ -1291,7 +1300,9 @@ export function registerAtcsDispatcher(server: any): void {
           // F2.3: DELEGATE_TO_MANUS — Async delegate work units to Claude API
           // ================================================================
           case "delegate_to_manus": {
-            if (!hasValidApiKey()) return err("ANTHROPIC_API_KEY not configured. Add to .env file.");
+            // FREE-AI-MIGRATION: no Claude-key pre-gate -- callClaudeForUnit routes through the
+            // Ollama-first free substrate (Claude is only the backup). A no-provider run throws
+            // and the per-unit .catch marks it FAILED (R12), not silently refused here.
             const taskId = params.task_id || findActiveTask();
             if (!taskId) return err("No active task found.");
 
@@ -1353,6 +1364,7 @@ export function registerAtcsDispatcher(server: any): void {
                 delUnit.result = r.text;
                 delUnit.tokens = r.tokens;
                 delUnit.duration_ms = r.duration_ms;
+                delUnit.model = r.model; // honest provenance: the REAL provider that answered (ollama/claude)
                 delUnit.completed_at = new Date().toISOString();
                 delegationResults.set(delId, delUnit);
                 saveDelegationState(taskId, [...loadDelegationState(taskId).filter(d => d.manus_id !== delId), delUnit]);

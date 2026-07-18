@@ -1,0 +1,1417 @@
+{
+  "id": "CCM-MS0",
+  "version": "1.0.0",
+  "title": "Hook Event Expansion",
+  "brief": "Wire all 18 Claude Code hook events for complete lifecycle coverage. Currently only 8 events used (PreToolUse, PostToolUse, PreCompact, SessionStart, PermissionRequest, ConfigChange, Stop, TaskCompleted). Add: UserPromptSubmit, PostToolUseFailure, StopFailure, SubagentStart, SubagentStop, WorktreeCreate, WorktreeRemove, PostCompact, SessionEnd, InstructionsLoaded, Elicitation/ElicitationResult.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Hook Event Handlers + Integration",
+      "description": "Create shell-script handlers for all 10 new hook events, integration tests, and advanced auto-recovery behaviors.",
+      "sessions": "3-5",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "UserPromptSubmit hook",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "UserPromptSubmit is the entry point for all user interactions. Hooking it enables prompt validation, context injection, and skill routing before any tool calls happen.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [
+            "userpromptsubmit-handler.sh"
+          ],
+          "hooks": [
+            "UserPromptSubmit"
+          ],
+          "features": [
+            "prompt-validation",
+            "context-injection",
+            "skill-routing"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "~/.claude/hooks/ directory exists",
+            "Existing hook scripts available as reference"
+          ],
+          "exit_conditions": [
+            "Hook fires on every prompt",
+            "Routes detected skill patterns",
+            "Context hints injected for PRISM topics"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/userpromptsubmit-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create userpromptsubmit-handler.sh reading JSON from stdin with user_prompt field"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement prompt validation: reject empty, warn on overly broad requests"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement context hint injection: detect PRISM topics and prepend digest references"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement skill pattern matching: scan prompt for /command patterns and known trigger phrases"
+            },
+            {
+              "number": 5,
+              "instruction": "Register hook in settings.json under UserPromptSubmit event"
+            },
+            {
+              "number": 6,
+              "instruction": "Test with sample prompts covering skill triggers, PRISM topics, and edge cases"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/userpromptsubmit-handler.sh",
+              "type": "script",
+              "description": "UserPromptSubmit event handler — validates prompts, injects context, routes skills"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "UserPromptSubmit hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "PostToolUseFailure hook",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Failed tool calls are currently silent. Capturing failures enables pattern analysis, auto-retry for transient errors, and diagnostic logging.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [
+            "posttooluse-failure-handler.sh"
+          ],
+          "hooks": [
+            "PostToolUseFailure"
+          ],
+          "features": [
+            "failure-logging",
+            "error-classification",
+            "retry-hints"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Existing posttooluse-unified.sh as reference pattern"
+          ],
+          "exit_conditions": [
+            "Failures logged with classification (transient/permanent)",
+            "Error patterns tracked in session state",
+            "JSON output includes retry recommendation"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/posttooluse-failure-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create posttooluse-failure-handler.sh reading JSON with tool_name, error, tool_input fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement error classification: transient (timeout, rate_limit, ENOENT race) vs permanent (syntax, permission, missing dep)"
+            },
+            {
+              "number": 3,
+              "instruction": "Log failure to ~/.prism/telemetry/tool-failures.jsonl with timestamp, tool, error class"
+            },
+            {
+              "number": 4,
+              "instruction": "Output JSON with retry recommendation and corrective hints"
+            },
+            {
+              "number": 5,
+              "instruction": "Register hook in settings.json under PostToolUseFailure event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/posttooluse-failure-handler.sh",
+              "type": "script",
+              "description": "PostToolUseFailure handler — classifies errors, logs patterns, recommends retries"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "PostToolUseFailure hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "StopFailure hook",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "API failures (rate limits, auth, server errors) need structured handling. StopFailure hook enables automatic backoff, re-auth prompts, and graceful degradation.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "stop-failure-handler.sh"
+          ],
+          "hooks": [
+            "StopFailure"
+          ],
+          "features": [
+            "rate-limit-backoff",
+            "auth-recovery",
+            "server-error-retry"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Existing stop-completion-check hook as reference"
+          ],
+          "exit_conditions": [
+            "All 7 failure types handled (rate_limit, auth_failed, server_error, network_error, context_overflow, billing, unknown)",
+            "Backoff timing calculated and output",
+            "Recovery actions specified per failure type"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/stop-failure-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create stop-failure-handler.sh reading JSON with error_type, error_message, retry_after fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement 7-way switch: rate_limit→exponential backoff, auth_failed→prompt, server_error→retry, network_error→wait+retry, context_overflow→compact, billing→stop, unknown→log+stop"
+            },
+            {
+              "number": 3,
+              "instruction": "Calculate backoff with jitter: base * 2^attempt + random(0, base)"
+            },
+            {
+              "number": 4,
+              "instruction": "Log all failures to ~/.prism/telemetry/api-failures.jsonl"
+            },
+            {
+              "number": 5,
+              "instruction": "Register hook in settings.json under StopFailure event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/stop-failure-handler.sh",
+              "type": "script",
+              "description": "StopFailure handler — handles 7 API failure types with backoff, retry, and recovery"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "StopFailure hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "SubagentStart hook",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Agent spawning is currently untracked. SubagentStart hook enables budget enforcement, context injection, and agent lifecycle logging.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "subagent-start-handler.sh"
+          ],
+          "hooks": [
+            "SubagentStart"
+          ],
+          "features": [
+            "agent-tracking",
+            "budget-enforcement",
+            "context-injection"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Claude Code supports SubagentStart hook event"
+          ],
+          "exit_conditions": [
+            "All agent spawns tracked with model and token budget",
+            "Budget cap enforced per agent type",
+            "Agent start logged to ~/.prism/telemetry/agents.jsonl"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/subagent-start-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create subagent-start-handler.sh reading JSON with agent_name, model, max_turns, task fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement budget enforcement: check cumulative agent token spend against session cap (300K)"
+            },
+            {
+              "number": 3,
+              "instruction": "Inject PRISM context hints based on agent task description"
+            },
+            {
+              "number": 4,
+              "instruction": "Log agent spawn to ~/.prism/telemetry/agents.jsonl with timestamp, model, budget"
+            },
+            {
+              "number": 5,
+              "instruction": "Register hook in settings.json under SubagentStart event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/subagent-start-handler.sh",
+              "type": "script",
+              "description": "SubagentStart handler — tracks spawns, enforces budgets, injects context"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "SubagentStart hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "SubagentStop hook",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Agent results need compression and validation. SubagentStop hook captures output quality, compresses verbose results, and enables task chaining.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "subagent-stop-handler.sh"
+          ],
+          "hooks": [
+            "SubagentStop"
+          ],
+          "features": [
+            "result-compression",
+            "completion-validation",
+            "task-chaining"
+          ],
+          "dependencies": [
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "SubagentStart hook exists and is registered"
+          ],
+          "exit_conditions": [
+            "Agent results compressed and logged",
+            "Completion status validated (success/partial/failure)",
+            "Chain-next tasks identified if applicable"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/subagent-stop-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create subagent-stop-handler.sh reading JSON with agent_name, result, tokens_used, status fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Compress agent output if >5K chars using summary extraction"
+            },
+            {
+              "number": 3,
+              "instruction": "Validate completion: check for partial results, silent failures, incomplete deliverables"
+            },
+            {
+              "number": 4,
+              "instruction": "Update agent ledger in ~/.prism/telemetry/agents.jsonl with final token count and status"
+            },
+            {
+              "number": 5,
+              "instruction": "Register hook in settings.json under SubagentStop event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/subagent-stop-handler.sh",
+              "type": "script",
+              "description": "SubagentStop handler — compresses results, validates completion, logs metrics"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "SubagentStop hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "WorktreeCreate hook",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Worktree creation needs naming validation, branch protection, and CLAUDE.md injection to ensure isolated agents have proper context.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "worktree-create-handler.sh"
+          ],
+          "hooks": [
+            "WorktreeCreate"
+          ],
+          "features": [
+            "naming-validation",
+            "branch-protection",
+            "claudemd-injection"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Git worktree support available"
+          ],
+          "exit_conditions": [
+            "Worktrees created with proper naming convention (ccm-<purpose>-<date>)",
+            "CLAUDE.md injected into new worktree",
+            "Branch protection rules applied"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/worktree-create-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create worktree-create-handler.sh reading JSON with worktree_path, branch fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Validate naming: enforce ccm-<purpose>-YYYYMMDD pattern"
+            },
+            {
+              "number": 3,
+              "instruction": "Copy CLAUDE.md and .claude/ config into new worktree"
+            },
+            {
+              "number": 4,
+              "instruction": "Log worktree creation to ~/.prism/telemetry/worktrees.jsonl"
+            },
+            {
+              "number": 5,
+              "instruction": "Register hook in settings.json under WorktreeCreate event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/worktree-create-handler.sh",
+              "type": "script",
+              "description": "WorktreeCreate handler — validates naming, injects CLAUDE.md, logs creation"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "WorktreeCreate hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "WorktreeRemove hook",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Worktree removal needs cleanup validation to prevent data loss — archive results, verify merge status, clean up branches.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "worktree-remove-handler.sh"
+          ],
+          "hooks": [
+            "WorktreeRemove"
+          ],
+          "features": [
+            "result-archival",
+            "merge-tracking",
+            "branch-cleanup"
+          ],
+          "dependencies": [
+            "P0-U06"
+          ],
+          "entry_conditions": [
+            "WorktreeCreate hook exists"
+          ],
+          "exit_conditions": [
+            "Worktrees cleanly removed with results archived",
+            "Unmerged changes warned about",
+            "Branch cleanup performed"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/worktree-remove-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create worktree-remove-handler.sh reading JSON with worktree_path fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Check for unmerged changes and warn if present"
+            },
+            {
+              "number": 3,
+              "instruction": "Archive key results (test output, deliverables) to ~/.prism/archives/"
+            },
+            {
+              "number": 4,
+              "instruction": "Clean up associated branch if fully merged"
+            },
+            {
+              "number": 5,
+              "instruction": "Log removal to ~/.prism/telemetry/worktrees.jsonl"
+            },
+            {
+              "number": 6,
+              "instruction": "Register hook in settings.json under WorktreeRemove event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/worktree-remove-handler.sh",
+              "type": "script",
+              "description": "WorktreeRemove handler — archives results, checks merge status, cleans branches"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "WorktreeRemove hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "PostCompact hook",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Compaction can lose critical context. PostCompact hook validates that essential facts survive compaction by cross-referencing PreCompact saves.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [
+            "postcompact-handler.sh"
+          ],
+          "hooks": [
+            "PostCompact"
+          ],
+          "features": [
+            "context-survival-validation",
+            "fact-restoration",
+            "compaction-quality-check"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Existing precompact-save hook saves critical facts"
+          ],
+          "exit_conditions": [
+            "Critical facts verified present after compaction",
+            "Missing facts restored from PreCompact save file",
+            "Compaction quality score logged"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/postcompact-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create postcompact-handler.sh reading JSON with compacted_context fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Load critical facts from PreCompact save (~/.prism/state/precompact-save.json)"
+            },
+            {
+              "number": 3,
+              "instruction": "Verify each critical fact appears in compacted context"
+            },
+            {
+              "number": 4,
+              "instruction": "If facts missing, output restoration hints to inject them back"
+            },
+            {
+              "number": 5,
+              "instruction": "Log compaction quality score to ~/.prism/telemetry/compaction.jsonl"
+            },
+            {
+              "number": 6,
+              "instruction": "Register hook in settings.json under PostCompact event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/postcompact-handler.sh",
+              "type": "script",
+              "description": "PostCompact handler — validates context survival, restores lost facts, scores quality"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "PostCompact hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "SessionEnd hook",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Session end is the final opportunity to persist state, save metrics, and update memory before context is lost.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "session-end-handler.sh"
+          ],
+          "hooks": [
+            "SessionEnd"
+          ],
+          "features": [
+            "state-persistence",
+            "metrics-export",
+            "memory-update"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "~/.prism/telemetry/ directory exists"
+          ],
+          "exit_conditions": [
+            "Session metrics persisted to ~/.prism/telemetry/",
+            "Total tokens/tools/errors summarized",
+            "Session duration and key actions logged"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/session-end-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create session-end-handler.sh reading JSON with session_id, duration, token_count fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Aggregate session metrics: total tokens, tool calls, errors, files modified"
+            },
+            {
+              "number": 3,
+              "instruction": "Write session summary to ~/.prism/telemetry/sessions.jsonl"
+            },
+            {
+              "number": 4,
+              "instruction": "Clean up temporary state files from ~/.prism/state/"
+            },
+            {
+              "number": 5,
+              "instruction": "Register hook in settings.json under SessionEnd event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/session-end-handler.sh",
+              "type": "script",
+              "description": "SessionEnd handler — persists metrics, aggregates session summary, cleans state"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "SessionEnd hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "InstructionsLoaded hook",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "CLAUDE.md instructions may reference stale paths, deleted files, or outdated rules. InstructionsLoaded hook validates freshness on every load.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [
+            "instructions-loaded-handler.sh"
+          ],
+          "hooks": [
+            "InstructionsLoaded"
+          ],
+          "features": [
+            "freshness-check",
+            "stale-detection",
+            "dynamic-context"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CLAUDE.md exists with file references"
+          ],
+          "exit_conditions": [
+            "Stale references flagged with warnings",
+            "File mtime checked against last known good",
+            "Dynamic context injected for current session"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/instructions-loaded-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create instructions-loaded-handler.sh reading JSON with instructions_path, content fields"
+            },
+            {
+              "number": 2,
+              "instruction": "Extract all file paths referenced in CLAUDE.md content"
+            },
+            {
+              "number": 3,
+              "instruction": "Check each path exists and compare mtime against threshold (7 days)"
+            },
+            {
+              "number": 4,
+              "instruction": "Warn on stale or missing references"
+            },
+            {
+              "number": 5,
+              "instruction": "Register hook in settings.json under InstructionsLoaded event"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/instructions-loaded-handler.sh",
+              "type": "script",
+              "description": "InstructionsLoaded handler — validates CLAUDE.md freshness, flags stale references"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "InstructionsLoaded hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U11",
+          "title": "Elicitation/ElicitationResult hooks",
+          "phase": "P0",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "MCP elicitation events need tracking for audit trails and to validate user responses match expected schemas.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "elicitation-handler.sh"
+          ],
+          "hooks": [
+            "Elicitation",
+            "ElicitationResult"
+          ],
+          "features": [
+            "elicitation-logging",
+            "response-validation",
+            "audit-trail"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "MCP elicitation system exists (elicitation.ts)"
+          ],
+          "exit_conditions": [
+            "All elicitation events logged with prompt and response",
+            "Response schema validation performed",
+            "Audit trail in ~/.prism/telemetry/elicitations.jsonl"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/elicitation-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create elicitation-handler.sh handling both Elicitation and ElicitationResult events"
+            },
+            {
+              "number": 2,
+              "instruction": "For Elicitation: log the prompt, schema, and context"
+            },
+            {
+              "number": 3,
+              "instruction": "For ElicitationResult: validate response against schema, log result"
+            },
+            {
+              "number": 4,
+              "instruction": "Write all events to ~/.prism/telemetry/elicitations.jsonl"
+            },
+            {
+              "number": 5,
+              "instruction": "Register both hooks in settings.json"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/elicitation-handler.sh",
+              "type": "script",
+              "description": "Elicitation handler — logs prompts, validates responses, maintains audit trail"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Elicitation/ElicitationResult hooks — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U12",
+          "title": "Integration test suite for all 18 hook events",
+          "phase": "P0",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "All 18 hook events need integration testing to verify they fire correctly, handle edge cases, and interact properly.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "integration-testing",
+            "event-verification",
+            "edge-case-coverage"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03",
+            "P0-U04",
+            "P0-U05",
+            "P0-U06",
+            "P0-U07",
+            "P0-U08",
+            "P0-U09",
+            "P0-U10",
+            "P0-U11"
+          ],
+          "entry_conditions": [
+            "All 11 hook scripts created and registered"
+          ],
+          "exit_conditions": [
+            "All 18 hook events tested",
+            "Edge cases covered (empty input, malformed JSON, missing fields)",
+            "Tests pass in CI"
+          ],
+          "rollback": "git checkout -- __tests__/hooks/hook-events-integration.test.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create __tests__/hooks/hook-events-integration.test.ts"
+            },
+            {
+              "number": 2,
+              "instruction": "Test each of the 18 hook events fires with correct JSON schema"
+            },
+            {
+              "number": 3,
+              "instruction": "Test error handling: malformed input, missing fields, script errors"
+            },
+            {
+              "number": 4,
+              "instruction": "Test hook chaining: PreToolUse→PostToolUse→PostToolUseFailure flow"
+            },
+            {
+              "number": 5,
+              "instruction": "Test lifecycle: SessionStart→...→SessionEnd flow"
+            },
+            {
+              "number": 6,
+              "instruction": "Verify all hooks registered in settings.json"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "__tests__/hooks/hook-events-integration.test.ts",
+              "type": "code",
+              "description": "Integration tests for all 18 Claude Code hook events"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Integration test suite for all 18 hook events — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U13",
+          "title": "UserPromptSubmit auto-skill-match",
+          "phase": "P0",
+          "sequence": 13,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Extends UserPromptSubmit to automatically detect and invoke matching skills from natural language, not just /command patterns.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "UserPromptSubmit"
+          ],
+          "features": [
+            "auto-skill-detection",
+            "trigger-pattern-matching",
+            "natural-language-routing"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "UserPromptSubmit hook exists and fires"
+          ],
+          "exit_conditions": [
+            "Skill auto-match fires for top 30 skills",
+            "Natural language triggers mapped (e.g., 'calculate speed and feed' → /sf)",
+            "False positive rate <5%"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/userpromptsubmit-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build trigger pattern map: 30 skills × 3-5 trigger phrases each"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement fuzzy matching with confidence threshold (>0.8)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add to userpromptsubmit-handler.sh as auto-skill-match module"
+            },
+            {
+              "number": 4,
+              "instruction": "Test with 50+ sample prompts, verify <5% false positive rate"
+            },
+            {
+              "number": 5,
+              "instruction": "Add opt-out flag for users who prefer explicit /commands"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/skill-trigger-map.json",
+              "type": "config",
+              "description": "Trigger pattern map for 30 skills with natural language phrases"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "UserPromptSubmit auto-skill-match — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U14",
+          "title": "PostToolUseFailure auto-retry",
+          "phase": "P0",
+          "sequence": 14,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Transient failures (timeouts, race conditions) can often be resolved by retrying. Auto-retry with exponential backoff + jitter reduces manual intervention.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "PostToolUseFailure"
+          ],
+          "features": [
+            "auto-retry",
+            "exponential-backoff",
+            "jitter"
+          ],
+          "dependencies": [
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "PostToolUseFailure hook exists with error classification"
+          ],
+          "exit_conditions": [
+            "Transient errors retried up to 3x",
+            "Exponential backoff with jitter applied",
+            "Permanent errors not retried"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/posttooluse-failure-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extend posttooluse-failure-handler.sh with retry logic"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement exponential backoff: delay = min(base * 2^attempt, 30s) + random(0, base)"
+            },
+            {
+              "number": 3,
+              "instruction": "Track retry count per tool call in state file"
+            },
+            {
+              "number": 4,
+              "instruction": "After 3 failed retries, escalate to user with diagnostic info"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with simulated transient and permanent failures"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/posttooluse-failure-handler.sh",
+              "type": "script",
+              "description": "Extended PostToolUseFailure handler with auto-retry for transient errors"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "PostToolUseFailure auto-retry — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U15",
+          "title": "StopFailure auto-recovery",
+          "phase": "P0",
+          "sequence": 15,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Rate limits and server errors are recoverable without user intervention. Auto-recovery reduces session interruptions.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "StopFailure"
+          ],
+          "features": [
+            "auto-queue",
+            "re-auth-prompt",
+            "server-retry"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "StopFailure hook exists with 7-way classification"
+          ],
+          "exit_conditions": [
+            "All recoverable failures auto-handled",
+            "rate_limit: auto-queue with backoff",
+            "auth_failed: prompt re-auth",
+            "server_error: retry 3x"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/stop-failure-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extend stop-failure-handler.sh with auto-recovery logic"
+            },
+            {
+              "number": 2,
+              "instruction": "rate_limit: parse retry-after header, queue with calculated delay"
+            },
+            {
+              "number": 3,
+              "instruction": "auth_failed: output re-auth instruction to user"
+            },
+            {
+              "number": 4,
+              "instruction": "server_error: retry up to 3x with increasing delay"
+            },
+            {
+              "number": 5,
+              "instruction": "Test each recovery path with simulated failures"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/stop-failure-handler.sh",
+              "type": "script",
+              "description": "Extended StopFailure handler with auto-recovery for all recoverable failure types"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "StopFailure auto-recovery — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U16",
+          "title": "InstructionsLoaded auto-freshness",
+          "phase": "P0",
+          "sequence": 16,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "CLAUDE.md references can go stale as files are renamed, moved, or deleted. Auto-freshness checking prevents hallucinations from outdated instructions.",
+          "tools": [
+            "Write",
+            "Edit",
+            "Bash",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "InstructionsLoaded"
+          ],
+          "features": [
+            "mtime-checking",
+            "path-validation",
+            "stale-detection"
+          ],
+          "dependencies": [
+            "P0-U10"
+          ],
+          "entry_conditions": [
+            "InstructionsLoaded hook exists with path extraction"
+          ],
+          "exit_conditions": [
+            "Stale CLAUDE.md references auto-detected",
+            "File mtime vs memory references compared",
+            "Missing paths flagged with suggested corrections"
+          ],
+          "rollback": "git checkout -- ~/.claude/hooks/instructions-loaded-handler.sh",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extend instructions-loaded-handler.sh with auto-freshness logic"
+            },
+            {
+              "number": 2,
+              "instruction": "Extract all file/path references from CLAUDE.md content"
+            },
+            {
+              "number": 3,
+              "instruction": "Check each path: exists? mtime within 7 days? content hash matches?"
+            },
+            {
+              "number": 4,
+              "instruction": "For missing paths, search for likely renames using basename matching"
+            },
+            {
+              "number": 5,
+              "instruction": "Output warnings with suggested corrections for stale references"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/instructions-loaded-handler.sh",
+              "type": "script",
+              "description": "Extended InstructionsLoaded handler with auto-freshness detection and correction suggestions"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "InstructionsLoaded auto-freshness — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms0-gate",
+    "mcp_action": "prism_ccm:ccm_ms0_run",
+    "skill_command": "/ccm-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms0-gate"
+    ],
+    "new_actions": [
+      "ccm_ms0_run"
+    ],
+    "new_skills": [
+      "/ccm-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Wire all 18 Claude Code hook events for complete lifecycle coverage. Currently only 8 events used (PreToolUse, PostToolUse, PreCompact, SessionStart, PermissionRequest, ConfigChange, Stop, TaskCompleted). Add: UserPromptSubmit, PostToolUseFailure, StopFailure, SubagentStart, SubagentStop, WorktreeCreate, WorktreeRemove, PostCompact, SessionEnd, InstructionsLoaded, Elicitation/ElicitationResult.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

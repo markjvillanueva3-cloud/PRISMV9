@@ -144,6 +144,93 @@ export function decideTscRegressionGate({
   };
 }
 
+/**
+ * Classify whether a `tsc --noEmit` subprocess RAN TO COMPLETION, so the caller
+ * can decide whether its error count is trustworthy. This is the load-bearing
+ * guard against a false-green: when tsc is killed mid-stream (OOM SIGKILL,
+ * timeout SIGTERM, or maxBuffer overflow) it can still have flushed PARTIAL
+ * stdout. A naive line-grep on that truncated stream returns a falsely-LOW
+ * error count which -- fed into decideTscRegressionGate as `current` -- both
+ * poisons the fingerprint cache AND (on first run) initializes the baseline far
+ * too low, silently lowering the regression gate forever. (Observed slot:papa
+ * 2026-06-11: `npx tsc` OOM'd under host memory pressure; the truncated output
+ * grepped to ~0 errors, looking like a clean build.)
+ *
+ * Completion contract (verified live against this repo 2026-06-11) -- tsc sets a
+ * normal exit code ONLY after it finishes type-checking and prints every
+ * diagnostic, so a clean exit code IS the completion proof. A killed run never
+ * reaches that return: it is terminated by a signal, or a V8 OOM flushes a
+ * `FATAL ERROR` / `heap out of memory` marker and aborts. A run is COMPLETE iff:
+ *   - exit code 0                          => clean, zero type errors (tsc is silent)
+ *   - exit code 1 or 2 AND >=1 parsed error line => tsc finished with diagnostics
+ *     (NOTE: `tsc --noEmit` with errors exits 1, not 2, and prints NO
+ *      "Found N errors" footer on this repo -- completion must not depend on one)
+ * Everything else is INCOMPLETE and its output MUST NOT be counted:
+ *   - any kill signal (SIGKILL/SIGTERM/SIGABRT)       => killed-signal
+ *   - the timeout flag / ETIMEDOUT                    => timed-out
+ *   - ENOBUFS (maxBuffer overflow)                    => buffer-overflow
+ *   - a V8/Node fatal OOM marker in the output        => node-fatal-oom
+ *   - exit 1/2 but ZERO parsed error lines            => diagnostics-exit-no-error-lines
+ *   - any other exit code (3 = bad tsconfig, etc)     => unexpected-exit
+ *
+ * Pure: no I/O. The returned errorCount is computed the SAME per-line way the
+ * gate always counted, so a COMPLETE run's count -- and the baseline semantics
+ * built on it -- are preserved byte-for-byte. This function only gates *trust*.
+ *
+ * @param {object} input
+ * @param {number|null} input.status    subprocess exit code (spawnSync .status; null when signalled)
+ * @param {string|null} input.signal    kill signal (spawnSync .signal) or null
+ * @param {boolean} [input.timedOut]    true if spawnSync timed out (error.code === "ETIMEDOUT")
+ * @param {string} input.stdout         merged stdout+stderr of the run
+ * @param {{code?:string}|null} [input.error]  spawnSync .error (carries ETIMEDOUT/ENOBUFS)
+ * @returns {{completed: boolean, reason: string, errorCount: number}}
+ */
+export function classifyTscRun({ status, signal, timedOut = false, stdout, error = null }) {
+  const out = typeof stdout === "string" ? stdout : "";
+  // Count error lines the SAME way the gate always has (per-line grep), so a
+  // COMPLETE run's count stays byte-identical to the pre-guard behavior.
+  const errorCount = out.split("\n").filter((l) => /\): error TS\d+/.test(l)).length;
+  const ecode = error && typeof error.code === "string" ? error.code : null;
+
+  // ---- INCOMPLETE: killed or crashed mid-check -- trust NOTHING it printed. ----
+  // A POSIX kill signal: SIGKILL (often an OOM abort), SIGTERM (spawnSync timeout
+  // or maxBuffer kill), SIGABRT (a V8 fatal on POSIX).
+  if (signal) {
+    return { completed: false, reason: `killed-signal:${signal}`, errorCount };
+  }
+  if (timedOut || ecode === "ETIMEDOUT") {
+    return { completed: false, reason: "timed-out", errorCount };
+  }
+  if (ecode === "ENOBUFS") {
+    return { completed: false, reason: "buffer-overflow", errorCount };
+  }
+  // A V8 / Node fatal OOM that exits WITHOUT a POSIX signal (the Windows path):
+  // node flushes these markers to stderr just before aborting, so the diagnostic
+  // stream is truncated even though `signal` is null. The markers are chosen to
+  // be V8-RUNTIME-EXCLUSIVE (they never appear in a tsc diagnostic line), so a
+  // COMPLETE run whose error text merely quotes "FATAL ERROR" can't trip this.
+  if (/JavaScript heap out of memory|Reached heap limit Allocation failed|<--- Last few GCs --->/.test(out)) {
+    return { completed: false, reason: "node-fatal-oom", errorCount };
+  }
+
+  // ---- COMPLETE: tsc set a normal exit code, which it only does AFTER it has
+  // finished type-checking and printed every diagnostic. ----
+  if (status === 0) {
+    return { completed: true, reason: "clean", errorCount: 0 };
+  }
+  // Require >=1 parsed error line to corroborate exit 1/2 (which asserts
+  // diagnostics ARE present): zero parsed lines on a 1/2 exit means the stream
+  // was a non-diagnostic crash (e.g. an internal tsc exception), not "0 errors".
+  if ((status === 1 || status === 2) && errorCount > 0) {
+    return { completed: true, reason: "errors-found", errorCount };
+  }
+  if (status === 1 || status === 2) {
+    return { completed: false, reason: "diagnostics-exit-no-error-lines", errorCount };
+  }
+  // Exit 3 (invalid tsconfig), 4 (project-ref cycle), null without signal, etc.
+  return { completed: false, reason: `unexpected-exit:${status}`, errorCount };
+}
+
 // ──────────────────────────────────────────────────────────────────────
 // U-AF03: reviewer-fail-latch
 // ──────────────────────────────────────────────────────────────────────

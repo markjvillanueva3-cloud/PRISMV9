@@ -34,6 +34,14 @@ export interface AllowResult {
   remainingThisTurn: number;
 }
 
+// WIRE-EXEMPT: in-process per-turn metacognition rate-limiter, NOT a dispatcher query
+// surface. Its API is the hook lifecycle (startTurn @UserPromptSubmit, observePostTool
+// @PostToolUse, tryInvoke/completeInvoke) driven by the Phase-0.13 metacognition hook; the
+// only read, snapshot(), is turn-scoped singleton state that is always empty (turnId=null)
+// when queried out-of-band via MCP, so a dispatcher action would carry zero information.
+// (R12 note for the metacognition-hook owner: this engine is currently consumed by NOTHING
+// but its own test -- an orphan awaiting the Phase-0.13 hook wiring, not a dispatcher task
+// for papa's wire campaign.) slot:papa 2026-06-13.
 export class MetacognitionBudgetEngine {
   private config: BudgetConfig;
   private turnId: string | null = null;

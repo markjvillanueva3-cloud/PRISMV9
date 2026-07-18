@@ -382,6 +382,20 @@ export class HybridPostMergeEngine {
     }
   }
 
+  /**
+   * Dispatcher execute wrapper — POST-ULT pattern.
+   * Single action `post_hybrid_merge` routes to compute().
+   * Throws on unknown action (R12 fail-loud).
+   */
+  execute(action: string, params: any): unknown {
+    switch (action) {
+      case "post_hybrid_merge":
+        return this.compute(params as MergeInput);
+      default:
+        throw new Error(`HybridPostMergeEngine.execute: unknown action "${action}"`);
+    }
+  }
+
   private filterGcode(lines: string[], camSource: string): string[] {
     // Strip headers, footers, and program numbers from source CAM output
     return lines.filter(line => {

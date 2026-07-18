@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.0.0",
+  "slot": "whiskey",
+  "session_date": "2026-05-27",
+  "final_iter": 206,
+  "domain": "lathe",
+  "status": "session-final-clean-exit",
+  "doctrine": "feedback_yolo_mode_nonterminal_goal_pattern",
+  "cron": {
+    "id": "4d08d27a",
+    "schedule": "*/5 * * * *",
+    "recurring": true,
+    "auto_continues_into_next_session": true
+  },
+  "implementation": {
+    "p0_engines_complete": 6,
+    "p0_engines_total": 6,
+    "test_count": 132,
+    "test_pass_rate": 1.0,
+    "test_files": 10,
+    "engine_files": 7,
+    "production_loc_estimate": 2300,
+    "test_loc_estimate": 1500
+  },
+  "real_data_validation": {
+    "programs_validated": 12,
+    "customers_sampled": 4,
+    "okuma_model_variants": 4,
+    "byte_exact_roundtrip_rate": 1.0,
+    "false_positive_rate": 0.0,
+    "parse_failure_rate": 0.0
+  },
+  "real_data_fixes": [
+    { "iter": 148, "name": "CRLF preservation" },
+    { "iter": 150, "name": "operation inference from G-codes" },
+    { "iter": 151, "name": "Mazak T-format normalization" },
+    { "iter": 153, "name": "drilling-cycle G-code expansion" },
+    { "iter": 154, "name": "byte-exact no-change passthrough" },
+    { "iter": 156, "name": "T-block comment operation inference" },
+    { "iter": 159, "name": "controller-aware G70 detection" },
+    { "iter": 165, "name": "A-marker stripping in AB-locator" },
+    { "iter": 200, "name": "PRISM_UPGRADED folder B-version detection" },
+    { "iter": 203, "name": "customer-rootfile UNKNOWN classification" }
+  ],
+  "ab_pair_full_scan": {
+    "iter": 202,
+    "scan_root": "H:/PRISM/JM DIE/CNC LATHE",
+    "paired_count": 14475,
+    "unpaired_count": 265,
+    "customer_count": 118,
+    "output_jsonl": "mcp-server/data/ingestion_cache/jm-die-ab-pairs-2026-05-27.jsonl",
+    "runner_script": "scripts/scan-jm-die-ab-pairs.mjs"
+  },
+  "regression_test_suites": 6,
+  "ab_locator_test_count": 22,
+  "entry_point_memory": "reference_whiskey_session_final_iter167_2026_05_27",
+  "directory_readme": "scripts/lib/README-whiskey-lathe.md",
+  "next_session_priority_order": [
+    "real_shop_tool_list_ingestion",
+    "real_master_index_pdf_ingestion",
+    "mcp_dispatcher_action_wiring",
+    "ab_locator_cli_scan_runner",
+    "typescript_engine_wiring"
+  ]
+}

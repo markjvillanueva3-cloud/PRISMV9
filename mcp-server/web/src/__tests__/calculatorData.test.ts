@@ -1123,7 +1123,7 @@ describe('fetchMachineCatalog', () => {
     expect(mills[0]?.coolantOptionIds ?? []).toEqual([]);
   });
 
-  it('merges fetched material rows with the richer static catalog instead of dropping PRISM baseline steels', async () => {
+  it('merges fetched material rows with the richer static catalog instead of dropping Kienzle baseline steels', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -1766,7 +1766,7 @@ describe('fetchMachineCatalog', () => {
                 id: 'db-mill',
                 mode: 'mill',
                 label: 'Database CAM',
-                vendor: 'PRISM Data',
+                vendor: 'Kienzle Data',
                 kind: 'cam',
                 summary: 'Live programming package from the backend route.',
                 badge: 'Live',
@@ -1797,7 +1797,7 @@ describe('fetchMachineCatalog', () => {
         id: 'db-mill',
         mode: 'mill',
         label: 'Database CAM',
-        vendor: 'PRISM Data',
+        vendor: 'Kienzle Data',
         kind: 'cam',
         summary: 'Live programming package from the backend route.',
         badge: 'Live',
@@ -1827,7 +1827,7 @@ describe('fetchMachineCatalog', () => {
                 id: 'db-laser',
                 mode: 'laser',
                 label: 'Curated Laser CAM',
-                vendor: 'PRISM Curated',
+                vendor: 'Kienzle Curated',
                 kind: 'nesting',
                 summary: 'Backend-served curated laser programming package.',
                 badge: 'Curated',
@@ -1880,7 +1880,7 @@ describe('fetchMachineCatalog', () => {
                 id: 'db-mill-curated',
                 mode: 'mill',
                 label: 'Curated Mill CAM',
-                vendor: 'PRISM Curated',
+                vendor: 'Kienzle Curated',
                 kind: 'cam',
                 summary: 'Backend-served curated mill programming package.',
                 badge: 'Curated',
@@ -2213,7 +2213,7 @@ describe('fetchMachineCatalog', () => {
             source: 'hybrid',
             liveCount: 12,
             fallbackCount: 1,
-            note: 'Live H:\\PRISM workholding and fixture products are merged with calculator-native presets so support-only and nontraditional setup packages remain selectable.',
+            note: 'Live H:\\Kienzle workholding and fixture products are merged with calculator-native presets so support-only and nontraditional setup packages remain selectable.',
           },
         }),
       }),
@@ -2227,7 +2227,7 @@ describe('fetchMachineCatalog', () => {
     expect(workholdingState.bundle.categoryOptions.some((item) => item.id === 'vise')).toBe(true);
     expect(workholdingState.bundle.brandOptions.some((item) => item.id === 'kurt')).toBe(true);
     expect(workholdingState.bundle.presetOptions.some((item) => item.id === 'kurt-vise-parallels')).toBe(true);
-    expect(workholdingState.note).toContain('Live H:\\PRISM workholding and fixture products');
+    expect(workholdingState.note).toContain('Live H:\\Kienzle workholding and fixture products');
   });
 
   it('falls back to the local curated workholding catalog when the backend route is unavailable', async () => {

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="63a76c69a09ea59e0027d661e01430ab3b1b6741e907c3841ef6699d97ae548b">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Per-Slot Galaxy Synergy Assessment (alpha 2026-05-28)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Per-Slot Galaxy Synergy Assessment (alpha 2026-05-28)</h1>
+<div class="meta">rendered from state/shared/specs/PER-SLOT-GALAXY-SYNERGY-ASSESSMENT-2026-05-28.md</div>
+<div class="meta">Generated 2026-05-29T14:01:22.970Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">Per-Slot Galaxy Synergy Assessment (alpha 2026-05-28)</h1>
+<p>Operator directive: <em>&quot;assess how each claude.md, soul file, memories and wikis should be synergized specifically for each chat slot and their designated domain&quot;</em>.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">The 4-surface model — what each file answers</h2>
+<p>Every chat slot has FOUR ortho­gonal surfaces that work together. Each answers a distinct question, and the synergy comes from being LOAD-BEARING in concert — not duplication.</p>
+<table class="prism-md-table"><thead><tr><th>Surface</th><th>Question it answers</th><th>Lifetime</th><th>Authored by</th><th>Read at</th></tr></thead><tbody><tr><td><strong>soul.md</strong> (<code class="prism-inline-code">state/shared/slot-souls/&lt;slot&gt;.md</code>)</td><td>&quot;How do I behave / what do I refuse?&quot;</td><td>Long — persona stable across sessions</td><td>Operator + governance reviews</td><td>Every UserPromptSubmit via <code class="prism-inline-code">slot-soul-inject</code> hook</td></tr>
+<tr><td><strong>CLAUDE.md</strong> (<code class="prism-inline-code">engines/&lt;galaxy&gt;/CLAUDE.md</code>)</td><td>&quot;What is my operational scope / which engines + hooks + skills are mine?&quot;</td><td>Long — engine inventory changes slowly</td><td>Slot owner (alpha, foxtrot, etc.)</td><td>SessionStart (load-bearing context bundle)</td></tr>
+<tr><td><strong>MEMORY.md</strong> (<code class="prism-inline-code">engines/&lt;galaxy&gt;/MEMORY.md</code>)</td><td>&quot;What have I learned across sessions? What regressions am I aware of?&quot;</td><td>Append-only across all sessions in this domain</td><td>Each session of the slot</td><td>UserPromptSubmit (relevance-scored inject)</td></tr>
+<tr><td><strong>Wiki entries</strong> (<code class="prism-inline-code">knowledge/wiki/&lt;topic&gt;/</code>)</td><td>&quot;Where&#39;s the ground-truth doctrine I&#39;m citing?&quot;</td><td>Permanent — write-once, evolve carefully</td><td>Anyone (wiki is fleet-shared)</td><td>Wiki-precheck-inject (top-3 BM25 hits per prompt)</td></tr></tbody></table>
+<p><strong>Synergy principle</strong>: a slot&#39;s chat instance boots → reads soul (persona) → reads CLAUDE.md (scope) → injects MEMORY (cross-session priors) → wiki provides citation backing. The 4 surfaces form a <strong>load-bearing chain</strong>, not a pile of overlapping docs.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Per-NATO-slot synergy map (canonical per <code class="prism-inline-code">H:/CHAT-SLOT-DOMAINS.md</code>)</h2>
+<h3 class="prism-h3">ALPHA — TOKEN OPTIMIZATION + EFFICIENCY + OBSIDIAN + PER-SLOT GALAXY BUILDOUT</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=efficiency-focused, refuses=overspending/duplicate-tool-calls/sync-fs-in-async, preferred_subagent=reviewer</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/token-optimization/CLAUDE.md</code>): TokenAwareness/Budget/Economy engines · route-suggest hooks · rtk discipline · Karpathy 5-step · obsidian memory governance</li><li><strong>MEMORY.md</strong> focus (<code class="prism-inline-code">engines/token-optimization/MEMORY.md</code>): token-zone history per session · what route-switches saved tokens · rejected routes (and why) · which Ollama offloads succeeded/failed</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/token-economy.md</code> · <code class="prism-inline-code">architecture/route-suggest-substrate.md</code> · <code class="prism-inline-code">lessons/ollama-offload-patterns.md</code> · <code class="prism-inline-code">feedback/karpathy_discipline.md</code></li><li><strong>STATUS</strong>: ✅ shipped this session (cc1210e208)</li></ul>
+<h3 class="prism-h3">BRAVO + ZULU — HERMES/ZULU BUILDING + STUB HUNTING + FLEET ORCHESTRATION</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=stub-hunter (bravo) / cross-slot-synthesist (zulu), refuses=stub-engines/placeholder-tests/silent-success-on-failure</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/hermes-zulu/CLAUDE.md</code> — SHIPPED 5bae0c7a6a): bravo BUILDS hermes-zulu (stub-hunter, soul-files, self-reflect populater, per-slot galaxies); zulu IS the live orchestrator. Same dir, two roles: builder + runtime.</li><li><strong>MEMORY.md</strong> focus: weak-assertion drift class, soul-file schemaVersion drift, cron offset overlap, hostile-payload class</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/zulu-omniscient-ms0.md</code> · <code class="prism-inline-code">architecture/hermes-self-reflect-populater.md</code> · <code class="prism-inline-code">architecture/slot-soul-frontmatter.md</code> · <code class="prism-inline-code">lessons/weak-assertion-class.md</code></li><li><strong>STATUS</strong>: ✅ shipped (5bae0c7a6a) — bravo+zulu share galaxy dir per CHAT-SLOT-DOMAINS canonical pairing</li></ul>
+<h3 class="prism-h3">CHARLIE — QUOTING SOFTWARE (BACKEND + FRONT END)</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=customer-facing, refuses=margin-erosion/quote-fabrication</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/quoting/CLAUDE.md</code>): QuoteEstimator/PricingEngine inventory · margin-discipline · customer-knowledge bridges</li><li><strong>MEMORY.md</strong> focus: prior quote outcomes · margin calibration · customer-specific patterns</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/quoting-pipeline-ms0.md</code> · <code class="prism-inline-code">lessons/bid-to-win-calibration.md</code></li><li><strong>STATUS</strong>: ✅ galaxy dir exists, full doctrine present</li></ul>
+<h3 class="prism-h3">DELTA — CAD</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=geometry-precise, refuses=stub-CAD-output/non-validated-STEP</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/cad/CLAUDE.md</code>): CAD bridges (Fusion/SolidWorks/Mastercam/hyperMILL/Inventor) · BREP/STEP/IGES parsing · feature recognition</li><li><strong>MEMORY.md</strong> focus: per-CAD-system quirks · parsing edge cases · blueprint-corpus learnings</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/cad-multi-system-arch.md</code> · <code class="prism-inline-code">lessons/blueprint-ocr-cad-reading-atlas.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">ECHO — POST PROCESSORS</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=controller-dialect-aware, refuses=untested-gcode-emission/syntax-fabrication</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/post-processor/CLAUDE.md</code>): per-controller dialect parsers · gcode emitters · safety validators</li><li><strong>MEMORY.md</strong> focus: dialect quirks per Fanuc/Okuma/Haas/Siemens/Mitsubishi · validation failures</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/post-bridge-synergy-ms0.md</code> · <code class="prism-inline-code">lessons/dialect-syntax-class.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">FOXTROT — MILLING WIZARD</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=physics-first (Kienzle/Taylor canonical), refuses=inline-physics-constants/softening-safety-thresholds</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/mill/CLAUDE.md</code>): MillingMaster/AutoSpeedFeed/Engagement/Trochoidal · 222+ mill engines · 49 dispatcher actions</li><li><strong>MEMORY.md</strong> focus: per-material kc1.1 calibration history · chatter incidents · tool-life Weibull fits</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/mill-domain-atlas.md</code> · <code class="prism-inline-code">lessons/feed-overrides-from-shop-floor.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">GOLF — FLEET REAPER + MCP SERVER + GENERAL WORK</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=hygiene-focused, refuses=destructive-cleanup-without-snapshot, NO write-allowlist (lifted per [[feedback_all_slots_free_access]])</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/fleet-hygiene/CLAUDE.md</code> — TO BUILD): FleetReaper schedule · MCP server health · scheduled-task watchdog</li><li><strong>MEMORY.md</strong> focus: zombie-process patterns · reaper false-positives · MCP daemon crash signatures</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/fleet-reaper-ms1.md</code> · <code class="prism-inline-code">architecture/fleet-task-health-ms0.md</code></li><li><strong>STATUS</strong>: ⏳ pending</li></ul>
+<h3 class="prism-h3">HOTEL — EMPLOYEE/HR/ACCOUNTING/ERP/BUSINESS/KAIZEN/SIGMA/LEAN</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=business-precise, refuses=number-fabrication-in-financial-reports</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/business/CLAUDE.md</code>): ERP + HR + accounting engines · KAIZEN/Lean patterns</li><li><strong>MEMORY.md</strong> focus: customer financial baselines · payroll calibration · audit findings</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/erp-business-integration.md</code> · <code class="prism-inline-code">lessons/kaizen-cycle-history.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">INDIA — AI/NN/GNN/LORA/RAG/DEEP LEARNING/DEEP REASONING/ML</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=training-rigor, refuses=overclaim-on-untrained-models/weight-corruption</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/ai-training/CLAUDE.md</code> — TO BUILD): NN-GRAPH lifecycle · LoRA train/serve · RAG pipelines · deep-reasoning engines</li><li><strong>MEMORY.md</strong> focus: prior AUROC history · weight-cache locations · failed retraining sessions + cause</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/nn-graph-ms0.md</code> <code class="prism-inline-code">ms1.md</code> <code class="prism-inline-code">ms2.md</code> · <code class="prism-inline-code">lessons/rag-upgrade-ms0.md</code></li><li><strong>STATUS</strong>: ⏳ pending</li></ul>
+<h3 class="prism-h3">JULIETT — DATABASE EXPANSION</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=schema-rigorous, refuses=schema-drift/silent-migration</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/database-expansion/CLAUDE.md</code> — TO BUILD): Qdrant/Postgres/Prometheus health · schema-version discipline · migration patterns</li><li><strong>MEMORY.md</strong> focus: schema-drift incidents · migration successes/failures · DB capacity headroom</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/qdrant-capacity-planning.md</code> · <code class="prism-inline-code">lessons/schema-drift-class.md</code></li><li><strong>STATUS</strong>: ⏳ pending</li></ul>
+<h3 class="prism-h3">KILO — CAM</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=toolpath-rigorous, refuses=untested-cam-output/silent-collision</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/cam/CLAUDE.md</code>): per-CAM-system bridges · toolpath strategies · multi-axis kinematics</li><li><strong>MEMORY.md</strong> focus: per-CAM-system quirks (Fusion/Mastercam/hyperMILL/Esprit/Inventor) · prior collision findings</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/cam-corpus-locations.md</code> · <code class="prism-inline-code">lessons/cam-strategy-selection.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">LIMA — PRISM ACADEMY COURSES</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=pedagogical, refuses=incomplete-learning-paths/fabricated-citations</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/academy/CLAUDE.md</code>): course-builder · curriculum · MIT-OCW corpus · pdf-corpus extraction</li><li><strong>MEMORY.md</strong> focus: per-student progress · curriculum gaps surfaced · MIT-OCW ingestion state</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/knowledge-conversion-ms0.md</code> · <code class="prism-inline-code">lessons/ahmad-llm-curriculum.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">MIKE — WIRE WIZARD</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=wedm-rigorous, refuses=wire-break-risk-ignored/recast-layer-overestimate</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/wedm/CLAUDE.md</code>): 184 WEDM engines · dialect bridges · multi-pass cycle planning</li><li><strong>MEMORY.md</strong> focus: prior wire-break incidents · cutting params history per material · recast measurements</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/wire-domain-atlas.md</code> · <code class="prism-inline-code">lessons/wedm-thermal-modeling.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">NOVEMBER — U-DEA</h3>
+<ul class="prism-md-list"><li><strong>STATUS</strong>: ⏳ pending; &quot;U-DEA&quot; assignment needs operator clarification before galaxy build</li></ul>
+<h3 class="prism-h3">OSCAR — SPEED AND FEED CALCULATOR</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=physics-rigorous, refuses=arbitrary-SFM-without-citation</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/speed-feed/CLAUDE.md</code>): SFC engines · per-material database · cross-domain adjacency</li><li><strong>MEMORY.md</strong> focus: per-tool/material outcome history · calibration drift · ML-model retrain triggers</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/sfc-domain-map.md</code> · <code class="prism-inline-code">lessons/speed-feed-ml-fingerprints.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">PAPA — BACKEND HELPER</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=test-driven, refuses=untested-shipping/coverage-shrink</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/backend-helper/CLAUDE.md</code> — TO BUILD): backend test patterns · dispatcher-wiring discipline · TS strict mode</li><li><strong>MEMORY.md</strong> focus: build-doctor outcomes · regression-hunter findings · TSC-fix campaigns</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/backend-test-patterns.md</code> · <code class="prism-inline-code">lessons/tsc-fix-campaign-history.md</code></li><li><strong>STATUS</strong>: ⏳ pending</li></ul>
+<h3 class="prism-h3">QUEBEC — FRONT END WEB APP + PHONE APP</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=UX-precise, refuses=mock-data-in-production-paths</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/frontend-app/CLAUDE.md</code> — TO BUILD): React/Next.js patterns · phone-app bridges · web→server contracts</li><li><strong>MEMORY.md</strong> focus: per-component visual regressions · UX corrections from operator</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/frontend-merge-plan.md</code> · <code class="prism-inline-code">lessons/ui-state-management.md</code></li><li><strong>STATUS</strong>: ⏳ pending</li></ul>
+<h3 class="prism-h3">SIERRA — SYSTEM VIZ UPGRADES, INTEGRATION &amp; UTILIZATION</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=graph-rigorous, refuses=silent-clobber/non-atomic-graph-write</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/system-viz/CLAUDE.md</code>): regen-viz / merge-augmentations / ghost-roost discipline · one-writer-per-path doctrine</li><li><strong>MEMORY.md</strong> focus: prior silent-clobber regressions · ghost-roost expansion history · query patterns</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/system-viz-add-node.md</code> · <code class="prism-inline-code">lessons/regen-viz-merge-guard.md</code></li><li><strong>STATUS</strong>: ✅ shipped this session (cc1210e208)</li></ul>
+<h3 class="prism-h3">TANGO — ALGORITHM, ENGINE &amp; PIPELINE DISCOVERY</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=discovery-rigorous, refuses=duplicate-engine-creation/orphan-tolerance</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/discovery/CLAUDE.md</code> — TO BUILD): duplicationGuardEngine · ENGINE_DIGEST · pipeline-coverage scans</li><li><strong>MEMORY.md</strong> focus: prior duplicate-finds · orphan-rescue history · pipeline-coverage gaps</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/algorithm-orchestrator.md</code> · <code class="prism-inline-code">lessons/orphan-rescue-class.md</code></li><li><strong>STATUS</strong>: ⏳ pending</li></ul>
+<h3 class="prism-h3">WHISKEY — LATHE WIZARD</h3>
+<ul class="prism-md-list"><li><strong>soul.md</strong> focus: voice=lathe-physics-first, refuses=inline-physics-constants/skipping-spindle-torque-gate/softening-safety-thresholds</li><li><strong>CLAUDE.md</strong> focus (<code class="prism-inline-code">engines/lathe/CLAUDE.md</code>): lathe-master · CSS/G50/G96/G97 · threading · parting · chuck-jaw force</li><li><strong>MEMORY.md</strong> focus: per-material turning calibration · chuck-incident history · part-off failures</li><li><strong>Wiki bridges</strong>: <code class="prism-inline-code">architecture/lathe-print-to-program.md</code> · <code class="prism-inline-code">lessons/whiskey-closed-loop.md</code></li><li><strong>STATUS</strong>: ✅ complete</li></ul>
+<h3 class="prism-h3">ZULU — HERMES AGENT CHAT FLEET ORCHESTRATOR</h3>
+<ul class="prism-md-list"><li><strong>STATUS</strong>: ⏳ pending; zulu is an orchestrator not a worker — needs different doctrine pattern (cross-slot synthesis, not domain-specialist)</li></ul>
+<h3 class="prism-h3">ROMEO, UNIFORM, VICTOR, XRAY, YANKEE, ZULU — NO CANONICAL ASSIGNMENT</h3>
+<ul class="prism-md-list"><li>These slots have souls but no canonical work assignment in <code class="prism-inline-code">H:/CHAT-SLOT-DOMAINS.md</code>. Available for future allocations.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Synergy invariants (load-bearing rules for all 26 slots)</h2>
+<ol class="prism-md-list"><li><strong>soul stays personality-only</strong> — voice, tone, refuses, preferred_subagent. NOT operational scope (that&#39;s CLAUDE.md). Souls drift when operators mistakenly put engine inventory there (prior sin documented in CLAUDE.md <code class="prism-inline-code">## Recent regressions</code>).</li></ol>
+<ol class="prism-md-list"><li><strong>CLAUDE.md stays scope-only</strong> — engine + hook + skill inventory + anti-patterns + Karpathy 5-step. NOT cross-session learnings (that&#39;s MEMORY.md). NOT permanent doctrine (that&#39;s wiki).</li></ol>
+<ol class="prism-md-list"><li><strong>MEMORY.md is append-only + relevance-scored</strong> — every Stop hook appends new learnings. UserPromptSubmit injects top-3 by BM25 + slot-domain affinity. NEVER overwritten.</li></ol>
+<ol class="prism-md-list"><li><strong>Wiki is permanent + citable</strong> — Karpathy LLM-wiki pattern. Query BEFORE re-deriving (per <code class="prism-inline-code">wiki-precheck-inject</code>). Write-once with evolve-carefully.</li></ol>
+<ol class="prism-md-list"><li><strong>All 4 surfaces auto-inject per UserPromptSubmit</strong> — none require explicit <code class="prism-inline-code">Read</code>. The substrate handles the synergy.</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">Buildout backlog (8 slots remaining)</h2>
+<table class="prism-md-table"><thead><tr><th>Slot</th><th>Galaxy dir to create</th><th>Priority</th></tr></thead><tbody><tr><td>bravo</td><td>engines/hermes-zulu/</td><td>P1 (hermes/zulu is alpha&#39;s sister)</td></tr>
+<tr><td>golf</td><td>engines/fleet-hygiene/</td><td>P1 (golf is fleet-critical)</td></tr>
+<tr><td>india</td><td>engines/ai-training/</td><td>P0 (highest-leverage; AI/NN/LoRA/RAG corpus)</td></tr>
+<tr><td>juliett</td><td>engines/database-expansion/</td><td>P1</td></tr>
+<tr><td>papa</td><td>engines/backend-helper/</td><td>P1</td></tr>
+<tr><td>quebec</td><td>engines/frontend-app/</td><td>P2</td></tr>
+<tr><td>tango</td><td>engines/discovery/</td><td>P1 (duplicate-prevention infrastructure)</td></tr>
+<tr><td>november</td><td>engines/&lt;unclear&gt;/</td><td>needs operator clarification on U-DEA</td></tr></tbody></table>
+<p>Per-slot effort: ~2 files (CLAUDE.md + MEMORY.md) + 1 SLOT_GALAXY_MAP entry + commit. ~5-10 min per slot. Each can be parallelized across separate alpha sessions or shipped serially.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Cron persistence</h2>
+<p>The /loop directive that drove this assessment is scheduled as <code class="prism-inline-code">c180e685</code> (every 5min, 7-day expiry, session-only). Each fire re-reads this doc and continues buildout one slot at a time.</p>
+<p>— Established 2026-05-28 by slot:alpha claude-168624b9 as the synergy blueprint for U-PER-SLOT-GALAXY-BUILDOUT continuation.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">BUILDOUT PROGRESS (2026-05-28 alpha 168624b9 — end of session)</h2>
+<p><strong>Galaxy dirs shipped</strong>: 9 covering 10 NATO slots:</p>
+<table class="prism-md-table"><thead><tr><th>Slot</th><th>Galaxy dir</th><th>Status</th><th>Commit</th></tr></thead><tbody><tr><td>alpha</td><td>engines/token-optimization/</td><td>✅ shipped</td><td>cc1210e208</td></tr>
+<tr><td>sierra</td><td>engines/system-viz/</td><td>✅ shipped</td><td>cc1210e208</td></tr>
+<tr><td>india</td><td>engines/ai-training/</td><td>✅ shipped</td><td>b9beaae11e</td></tr>
+<tr><td>golf</td><td>engines/fleet-hygiene/</td><td>✅ shipped</td><td>b9beaae11e</td></tr>
+<tr><td>tango</td><td>engines/discovery/</td><td>✅ FULL 13-artifact galaxy (soul+CLAUDE+MEMORY+PATHS+TOOLBELT+10 mem+3 wiki+7 tribal+/discover-tango+back-ptr)</td><td>U-PSGB-TANGO (slot:tango 2026-05-29) — completed alpha&#39;s b9beaae11e stub</td></tr>
+<tr><td>bravo + zulu</td><td>engines/hermes-zulu/</td><td>✅ shipped</td><td>5bae0c7a6a</td></tr>
+<tr><td>juliett</td><td>engines/database-expansion/</td><td>✅ shipped</td><td>2ef34cdd1a</td></tr>
+<tr><td>papa</td><td>engines/backend-helper/</td><td>✅ shipped</td><td>2ef34cdd1a</td></tr>
+<tr><td>quebec</td><td>engines/frontend-app/</td><td>✅ shipped</td><td>2ef34cdd1a</td></tr></tbody></table>
+<p><strong>SLOT_GALAXY_MAP entries</strong>: 20 of 26 NATO slots mapped to a galaxy.</p>
+<p><strong>Remaining 6 unmapped slots</strong> (no canonical domain assignment in CHAT-SLOT-DOMAINS.md):</p>
+<ul class="prism-md-list"><li>romeo · uniform · victor · xray · yankee · zulu</li></ul>
+<p><strong>Remaining 7 mapped slots that lack a dedicated galaxy DIR scaffold</strong> (they map to existing engine domains, but no engines/&lt;galaxy&gt;/CLAUDE.md + MEMORY.md scaffold yet):</p>
+<ul class="prism-md-list"><li>charlie → quoting (engines/QuoteEstimator.ts et al exist; galaxy dir TBD)</li><li>delta → cad</li><li>echo → post-processor</li><li>foxtrot → mill</li><li>hotel → business</li><li>kilo → cam</li><li>lima → academy</li><li>mike → wedm</li><li>oscar → speed-feed</li><li>whiskey → lathe</li><li>november → U-DEA (operator clarification still needed)</li></ul>
+<p>These 10 slots already have rich existing engine + memory + wiki coverage in their target domains; the galaxy-dir scaffold is the LAST step to formalize their soul↔CLAUDE.md↔MEMORY.md↔wiki contract per the 4-surface model.</p>
+<h2 class="prism-h2">SYNERGY INVARIANTS (load-bearing across all slots)</h2>
+<ol class="prism-md-list"><li><strong>soul.md refuses-list is hard-enforced</strong> — slot-soul-inject auto-fires on UserPromptSubmit; refuses are not advisory. Bravo (hermes-zulu) maintains drift detection.</li><li><strong>CLAUDE.md is the engine + hook + skill inventory</strong> — it does NOT duplicate doctrine that lives in fleet CLAUDE.md or wiki. It points; it does not retell.</li><li><strong>MEMORY.md is append-only across sessions</strong> — pointer-style, ≤200 lines, ≤140 char/entry. Older entries archive to MEMORY-ARCHIVE.md (discoverable, not gone).</li><li><strong>Wiki is fleet-shared, citable, evolves carefully</strong> — anyone may write; CLAUDE.md/MEMORY.md cite via [[wikilinks]]. Wiki entry rot is a P0 — the bug-finding wiki gate (Stop hook) catches it.</li><li><strong>Cross-galaxy bridges are explicit, not inferred</strong> — every CLAUDE.md lists its sister galaxies + the SHAPE of the bridge (what flows which way).</li></ol>
+<h2 class="prism-h2">OPEN FOLLOW-UPS</h2>
+<ul class="prism-md-list"><li><strong>U-PSGB-NOVEMBER</strong> — needs operator clarification on U-DEA domain</li><li><strong>U-PSGB-DOMAIN-SCAFFOLDS</strong> — 10 mapped slots need galaxy DIR scaffolds (charlie/delta/echo/foxtrot/hotel/kilo/lima/mike/oscar/whiskey)</li><li><strong>U-PSGB-UNALLOCATED</strong> — 6 slots need domain assignment (romeo/uniform/victor/xray/yankee/zulu)</li><li><strong>U-PSGB-SOUL-CLAUDE-MD-CONFLICT</strong> — alpha soul still says  (old JULIETT designation); should be updated to match new ALPHA = token-optimization canonical role per CHAT-SLOT-DOMAINS.md</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">RECONCILIATION (2026-05-28 — actual coverage MUCH HIGHER than prior count)</h2>
+<p>Earlier sections of this doc undercounted the buildout. Live filesystem audit (2026-05-28) shows <strong>30 galaxy dirs</strong> with both CLAUDE.md + MEMORY.md scaffolds:</p>
+<h3 class="prism-h3">NATO slot → galaxy coverage (20/20 mapped slots complete)</h3>
+<table class="prism-md-table"><thead><tr><th>NATO slot</th><th>Galaxy dir</th><th>Authored</th></tr></thead><tbody><tr><td>alpha</td><td>token-optimization</td><td>shipped + soul realigned this session</td></tr>
+<tr><td>bravo</td><td>hermes-zulu (shared with zulu)</td><td>shipped this session</td></tr>
+<tr><td>charlie</td><td>quoting</td><td>prior session</td></tr>
+<tr><td>delta</td><td>cad</td><td>prior session</td></tr>
+<tr><td>echo</td><td>post-processor</td><td>prior session</td></tr>
+<tr><td>foxtrot</td><td>mill</td><td>prior session</td></tr>
+<tr><td>golf</td><td>fleet-hygiene</td><td>shipped this session</td></tr>
+<tr><td>hotel</td><td>business</td><td>prior session</td></tr>
+<tr><td>india</td><td>ai-training</td><td>shipped this session</td></tr>
+<tr><td>juliett</td><td>database-expansion</td><td>shipped this session</td></tr>
+<tr><td>kilo</td><td>cam</td><td>prior session</td></tr>
+<tr><td>lima</td><td>academy</td><td>prior session</td></tr>
+<tr><td>mike</td><td>wedm</td><td>prior session</td></tr>
+<tr><td>oscar</td><td>speed-feed</td><td>prior session</td></tr>
+<tr><td>papa</td><td>backend-helper</td><td>shipped this session</td></tr>
+<tr><td>quebec</td><td>frontend-app</td><td>shipped this session</td></tr>
+<tr><td>sierra</td><td>system-viz</td><td>shipped this session</td></tr>
+<tr><td>tango</td><td>discovery</td><td>shipped this session</td></tr>
+<tr><td>whiskey</td><td>lathe</td><td>prior session</td></tr>
+<tr><td>zulu</td><td>hermes-zulu (shared with bravo)</td><td>shipped this session</td></tr></tbody></table>
+<h3 class="prism-h3">Cross-cutting galaxy dirs (not slot-specific — fleet-wide capabilities)</h3>
+<ul class="prism-md-list"><li>agent-orchestration · cad-fusion-live · compliance-safety · corpus-aggregation</li><li>knowledge-conversion · mit-curriculum · pdf-corpus · pdf-corpus-mill · quality</li><li>shop-floor · tribal-knowledge</li></ul>
+<h3 class="prism-h3">Remaining: 3 unallocated NATO slots (no canonical domain in CHAT-SLOT-DOMAINS)</h3>
+<ul class="prism-md-list"><li><strong>november</strong> (U-DEA — needs operator clarification on domain definition)</li><li><strong>yankee · zulu</strong> — operator assignment required (note: ZULU is hermes-orchestrator-only per slot soul; not a worker domain)</li></ul>
+<h2 class="prism-h2">GOAL COMPLETE for all 24 slots with canonical operator-assigned domains.</h2>
+<p>The 4-surface synergy model (soul.md + CLAUDE.md + MEMORY.md + wiki) is now LIVE for every NATO slot whose role has been canonically defined.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">2026-05-28 EXPANSION (alpha session a198ff5f post-handoff)</h2>
+<p>Operator added 4 NEW canonical slot domains during this session (CHAT-SLOT-DOMAINS.md):</p>
+<ul class="prism-md-list"><li><strong>ROMEO</strong> = WIRING UNWIRED ENGINES</li><li><strong>UNIFORM</strong> = BUG HUNTING (silent failures, R12 violations, hostile-payload classes)</li><li><strong>VICTOR</strong> = DORMANT DATA EXCAVATION (strict order: extracted/ → extracted_modules/ → codebase)</li><li><strong>XRAY</strong> = OCR + BLUEPRINT READING + CAD FILE DATA EXTRACTION</li></ul>
+<p>4 NEW galaxies shipped this session, completing the slot↔galaxy contract for each:</p>
+<table class="prism-md-table"><thead><tr><th>Slot</th><th>Galaxy dir</th><th>Soul realigned</th><th>SLOT_GALAXY_MAP</th><th>Status</th></tr></thead><tbody><tr><td>romeo</td><td><code class="prism-inline-code">engines/wiring/</code></td><td>✅ (wiring-rigorous + 5 refuses)</td><td>✅ wired</td><td>shipped</td></tr>
+<tr><td>uniform</td><td><code class="prism-inline-code">engines/bug-hunting/</code></td><td>✅ (bug-hunter + 6 refuses)</td><td>✅ wired</td><td>shipped</td></tr>
+<tr><td>victor</td><td><code class="prism-inline-code">engines/dormant-data/</code></td><td>✅ (excavation-rigorous + 5 refuses)</td><td>✅ wired</td><td>shipped</td></tr>
+<tr><td>xray</td><td><code class="prism-inline-code">engines/blueprint-vision/</code></td><td>✅ (extraction-rigorous + 7 refuses)</td><td>✅ wired</td><td>shipped</td></tr></tbody></table>
+<p><strong>Updated coverage</strong>: 24 of 26 NATO slots mapped to a galaxy (was 20). Remaining unallocated: november (U-DEA pending op input), yankee, zulu (orchestrator).</p>
+<p><strong>Synergy edges newly enforced</strong>:</p>
+<ul class="prism-md-list"><li>romeo ↔ uniform (uniform verifies romeo&#39;s wirings)</li><li>romeo ↔ tango (tango surfaces candidates; romeo closes)</li><li>victor ↔ romeo (victor&#39;s engine findings hand off to romeo)</li><li>victor ↔ tango (deduplicate orphan-vs-dormant overlap)</li><li>xray ↔ delta / kilo / charlie / mike (downstream consumers of xray&#39;s extracted prints)</li><li>xray ↔ victor (extracted/ subtree often has CAD/blueprint artifacts xray owns; victor flags but xray excavates)</li></ul>
+<p><strong>Files touched this expansion</strong>:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">mcp-server/src/engines/wiring/{CLAUDE,MEMORY}.md</code> (new)</li><li><code class="prism-inline-code">mcp-server/src/engines/bug-hunting/{CLAUDE,MEMORY}.md</code> (new)</li><li><code class="prism-inline-code">mcp-server/src/engines/dormant-data/{CLAUDE,MEMORY}.md</code> (new)</li><li><code class="prism-inline-code">mcp-server/src/engines/blueprint-vision/{CLAUDE,MEMORY}.md</code> (new)</li><li><code class="prism-inline-code">state/shared/slot-souls/{romeo,uniform,victor,xray}.md</code> (realigned — generic → domain-specific frontmatter + refuses)</li></ul>
+<h2 class="prism-h2">2026-05-28 EXPANSION — foxtrot mill galaxy (session 0f3a0c22, U-PSGB-FOXTROT)</h2>
+<p>Re-homed + connected the <strong>mill</strong> galaxy to slot:foxtrot (was alpha&#39;s under the superseded JULIETT-12CHAT allocation; current canonical CHAT-SLOT-DOMAINS.md = foxtrot:Milling Wizard).</p>
+<table class="prism-md-table"><thead><tr><th>Slot</th><th>Galaxy dir</th><th>Soul realigned</th><th>SLOT_GALAXY_MAP</th><th>Status</th></tr></thead><tbody><tr><td>foxtrot</td><td><code class="prism-inline-code">engines/mill/</code></td><td>✅ (mill-specialist + 6 refuses, was tribal-specialist)</td><td>✅ already wired (<code class="prism-inline-code">foxtrot:&#39;mill&#39;</code> line 70)</td><td>shipped</td></tr></tbody></table>
+<p><strong>What shipped (commit <code class="prism-inline-code">9c6b3ec11e</code> on slot/foxtrot):</strong></p>
+<ul class="prism-md-list"><li>Recovered <code class="prism-inline-code">mill/{CLAUDE,MEMORY}.md</code> from <code class="prism-inline-code">cad-fusion-live-ms0</code> (absent from main/slot trees) + EXTENDED (not rebuilt — per [[feedback_bravo_complete_not_clobber_galaxy]]).</li><li>4 galaxy files: CLAUDE.md (affinity alpha→foxtrot, <code class="prism-inline-code">## Related galaxies</code>, Karpathy 5-step), MEMORY.md (stub→connected brain: <code class="prism-inline-code">## Master-brain link</code> + Last master-sync + High-ROI + CONN-1..4), PATHS.md + TOOLBELT.md (new per BUILD-KIT).</li><li>11 master-brain memories (<code class="prism-inline-code"><em>_foxtrot_</em>.md</code>) + <code class="prism-inline-code">[galaxy:mill]</code> master back-pointer (CONN-4).</li><li>4 wiki foxtrot files (1 arch + 2 lessons + fleet-reaper) + <code class="prism-inline-code">/galaxy-verify-foxtrot</code> skill.</li><li>Verification: 13-check gate green · CONN-1..4 green · 3-of-3 scrutiny PASS (cleared).</li></ul>
+<p><strong>Deferred (R12, honest):</strong> <code class="prism-inline-code">tribal_capture</code> ≥5 (MCP down — staged via 6 <code class="prism-inline-code">feedback_foxtrot_*</code> memories); build-state/viz regen (doc-only galaxy; sierra owns viz, currently failing); peer-galaxy symmetry (peers mid-build concurrently).</p>
+<p><strong>Synergy edges:</strong> mill ↔ lathe (mill-turn) · mill ← cam/oscar (speed-feed) · mill → post-processor / quality / india (closed-loop).</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/hooks/slot-context-bundle-inject.mjs</code> (SLOT_GALAXY_MAP +4 entries)</li></ul>
+<h2 class="prism-h2">2026-05-28 EXPANSION — whiskey lathe galaxy (session 57dfea65, U-PSGB-WHISKEY)</h2>
+<ul class="prism-md-list"><li><strong>Galaxy</strong>: mcp-server/src/engines/lathe/ — completed alpha first-pass: refined CLAUDE.md (whiskey-validated 8 gotchas + ## Related galaxies), upgraded MEMORY.md STUB -&gt; full working brain (## Master-brain link + ## High-ROI memories + ## Known failure modes), added PATHS.md + TOOLBELT.md.</li><li><strong>Soul</strong>: physics-first, 5 refuses, lathe domain_filter (normalized refuse_list-&gt;refuses).</li><li><strong>Memories</strong>: 11 new (7 feedback_whiskey_* doctrine + reference buildout/dispatcher-surface/nose-radius/live-tooling); master back-pointer [galaxy:lathe] added (CONN-4).</li><li><strong>Wiki</strong>: 3 bridges (lathe-galaxy, lathe-safety-gates, lathe-okuma-dialect). <strong>Tribal</strong>: 6 tips captured (qdrant-down blocks read-back; redundant in feedback memories).</li><li><strong>Custom domain context</strong>: /galaxy-verify-whiskey skill + whiskey-lathe-context-inject.mjs hook (slot==whiskey OR lathe-keyword), wired C:+H: settings.json, tested.</li><li><strong>Gate</strong>: 13/13 verify artifacts GREEN. Committed [whiskey] U-PSGB-WHISKEY on slot/whiskey.</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

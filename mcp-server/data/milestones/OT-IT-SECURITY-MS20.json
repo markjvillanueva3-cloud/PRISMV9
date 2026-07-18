@@ -1,0 +1,54 @@
+{
+  "id": "OT-IT-SECURITY-MS20",
+  "version": "1.0.0",
+  "title": "OT/IT cybersecurity for machine network integration",
+  "brief": "When machines actually go on-network (MTConnect/OPC-UA), unsecured pipes are a liability. mTLS + VLAN segmentation + intrusion-detection signatures gate the real-time loop (MS22).",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "L4-BUSINESS",
+  "track_name": "Security / OT-IT",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Network segmentation + mTLS + IDS",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "VLAN segmentation: OT vs IT, no L3 routing without firewall",
+          "effort": 120,
+          "dependencies": [],
+          "exit_conditions": ["MTConnect/OPC-UA traffic isolated to OT VLAN", "no direct routing OT->IT except through firewall", "tests: tcpdump from IT side sees zero MTConnect packets"],
+          "description": "Network architecture, not code. Document in operations runbook.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "mTLS for MTConnect/OPC-UA streams",
+          "effort": 150,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["all MTConnect/OPC-UA endpoints require client cert", "cert rotation runbook + 30-day expiry warnings", "tests: untrusted client rejected"],
+          "description": "Standard mTLS. Use existing PKI if any, else generate ephemeral CA.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "IDS signature: unauthorized G-code injection detection",
+          "effort": 120,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": ["IDS rule fires on G-code byte stream entering OT VLAN from outside MS22 ingest endpoint", "tests: simulated injection -> alert within 5s"],
+          "description": "Signature-based. Reuse open-source Suricata/Snort.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "MTConnect/OPC-UA traffic mTLS-encrypted; OT VLAN segmented from IT VLAN with firewall; intrusion-detection signature for unauthorized G-code injection alerts within 5s of staged event.",
+  "risks": [
+    {"id": "R1", "description": "JM Die may not have segmented network; mitigation = PRISM ships secure-by-default config + customer onboarding requires VLAN verification"}
+  ],
+  "blocks": ["RT-ADAPTIVE-MS22"],
+  "blocked_by": ["BIZ-ERP-SYNC-MS14"]
+}

@@ -1,0 +1,1387 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-19T04:53:59.734Z",
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "note": "Per-unit verdict against actual codebase reality. DEDUP-WIN units are ALREADY SHIPPED — close them out (status: completed). PARTIAL-* units name the REAL gap (tests vs wiring vs port). GENUINE-GAP / UNKNOWN need human review.",
+  "summary": {
+    "DEDUP-WIN": 8,
+    "PARTIAL-NO-WIRING": 0,
+    "PARTIAL-NO-TESTS": 9,
+    "PARTIAL-PORT-ONLY": 1,
+    "GENUINE-GAP": 13,
+    "BATCH-WIRE": 8,
+    "UNKNOWN": 29
+  },
+  "perDomain": {
+    "mill": {
+      "GENUINE-GAP": 1,
+      "BATCH-WIRE": 1
+    },
+    "lathe": {
+      "DEDUP-WIN": 1,
+      "PARTIAL-NO-TESTS": 1,
+      "BATCH-WIRE": 1
+    },
+    "wire": {
+      "BATCH-WIRE": 1,
+      "UNKNOWN": 1
+    },
+    "cad": {
+      "DEDUP-WIN": 3,
+      "GENUINE-GAP": 3,
+      "PARTIAL-NO-TESTS": 2,
+      "UNKNOWN": 1
+    },
+    "cam": {
+      "PARTIAL-NO-TESTS": 2,
+      "GENUINE-GAP": 2,
+      "DEDUP-WIN": 1,
+      "BATCH-WIRE": 1,
+      "UNKNOWN": 1
+    },
+    "tribal": {
+      "UNKNOWN": 2,
+      "PARTIAL-NO-TESTS": 1,
+      "BATCH-WIRE": 1
+    },
+    "erp": {
+      "GENUINE-GAP": 3,
+      "PARTIAL-NO-TESTS": 2,
+      "DEDUP-WIN": 1,
+      "UNKNOWN": 3
+    },
+    "post": {
+      "DEDUP-WIN": 2,
+      "UNKNOWN": 1,
+      "BATCH-WIRE": 1
+    },
+    "speedfeed": {
+      "GENUINE-GAP": 1,
+      "UNKNOWN": 2
+    },
+    "print2prog": {
+      "UNKNOWN": 3
+    },
+    "academy": {
+      "GENUINE-GAP": 2,
+      "UNKNOWN": 5,
+      "BATCH-WIRE": 1
+    },
+    "database": {
+      "UNKNOWN": 6,
+      "BATCH-WIRE": 1
+    },
+    "misc": {
+      "PARTIAL-NO-TESTS": 1,
+      "GENUINE-GAP": 1,
+      "PARTIAL-PORT-ONLY": 1,
+      "UNKNOWN": 4
+    }
+  },
+  "units": [
+    {
+      "unit_id": "U-GAP-MILL-FFT-CHATTER",
+      "title": "Re-modularize PRISM_FFT_PREDICTIVE_CHATTER from v8.89 monolith — FFT-based chatter prediction",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: FftPredictiveChatterEngine, FFTPredictiveChatterEngine, PredictiveChatterEngine, ChatterEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "mill",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-MILL",
+      "title": "Wire the ~20 unwired mill engines (MillingAIUltraIntelligence, FiveAxisAIUltraIntelligence, MillingUltimateAI, FiveAxisOrchestration) — see BUILD_STATE NEEDS_WIRING",
+      "kind": "wire-batch",
+      "verdict": "BATCH-WIRE",
+      "matched_engines": [
+        {
+          "candidate": "MillingAIUltraIntelligenceEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\MillingAIUltraIntelligenceEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "FiveAxisAIUltraIntelligenceEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\FiveAxisAIUltraIntelligenceEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "MillingUltimateAIEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\MillingUltimateAIEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\MillingUltimateAIEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "FiveAxisOrchestrationEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\FiveAxisOrchestrationEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "wire-batch unit: 0/4 named representatives already wired (MillingAIUltraIntelligenceEngine.ts, FiveAxisAIUltraIntelligenceEngine.ts, MillingUltimateAIEngine.ts, FiveAxisOrchestrationEngine.ts)"
+      ],
+      "confidence": 0.6,
+      "domain": "mill",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-LATHE-NOSE-RADIUS-COMP",
+      "title": "Re-modularize PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "DEDUP-WIN",
+      "matched_engines": [
+        {
+          "candidate": "ToolNoseRadiusCompensationEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\ToolNoseRadiusCompensationEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\ToolNoseRadiusCompensationEngine.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine ToolNoseRadiusCompensationEngine.ts exists, 1 dispatcher ref(s), 1 test file(s)"
+      ],
+      "confidence": 0.95,
+      "domain": "lathe",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-LATHE-LIVE-TOOLING",
+      "title": "Re-modularize PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "LiveToolingEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\LiveToolingEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "lathe",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-LATHE",
+      "title": "Wire the ~77 unwired lathe engines (LatheThermodynamics, LatheUnifiedPhysicsOrchestration, LatheOpusReasoning, LatheMetaLearning, LatheQualityGate) — largest clean unwired gap",
+      "kind": "wire-batch",
+      "verdict": "BATCH-WIRE",
+      "matched_engines": [
+        {
+          "candidate": "LatheThermodynamicsEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\LatheThermodynamicsEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\engines\\LatheThermodynamicsEngine.test.ts",
+            "H:\\prism\\mcp-server\\src\\__tests__\\LatheThermodynamicsEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "LatheUnifiedPhysicsOrchestrationEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\LatheUnifiedPhysicsOrchestrationEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\LatheUnifiedPhysicsOrchestrationEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "LatheOpusReasoningEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\LatheOpusReasoningEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\engines\\LatheOpusReasoningEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "LatheMetaLearningEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\LatheMetaLearningEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\engines\\LatheMetaLearningEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "LatheQualityGateEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\LatheQualityGateEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\LatheQualityGateEngine.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "wire-batch unit: 0/5 named representatives already wired (LatheThermodynamicsEngine.ts, LatheUnifiedPhysicsOrchestrationEngine.ts, LatheOpusReasoningEngine.ts, LatheMetaLearningEngine.ts, LatheQualityGateEngine.ts)"
+      ],
+      "confidence": 0.6,
+      "domain": "lathe",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-WIRE",
+      "title": "Wire the ~73 unwired WEDM engines (WEDMNeuralTraining, WireEDMDeepAIHardening, ElectrodeUltimateAI, WEDMProgramOptimizer, WEDMStrategyLibrary)",
+      "kind": "wire-batch",
+      "verdict": "BATCH-WIRE",
+      "matched_engines": [
+        {
+          "candidate": "WEDMNeuralTrainingEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\WEDMNeuralTrainingEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\WEDMNeuralTrainingEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "WireEDMDeepAIHardeningEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\WireEDMDeepAIHardeningEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "ElectrodeUltimateAIEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\ElectrodeUltimateAIEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "WEDMProgramOptimizerEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\WEDMProgramOptimizerEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\WEDMProgramOptimizerEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "WEDMStrategyLibraryEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\WEDMStrategyLibraryEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\WEDMStrategyLibraryEngine.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "wire-batch unit: 1/5 named representatives already wired (WEDMNeuralTrainingEngine.ts, WireEDMDeepAIHardeningEngine.ts, ElectrodeUltimateAIEngine.ts, WEDMProgramOptimizerEngine.ts, WEDMStrategyLibraryEngine.ts)"
+      ],
+      "confidence": 0.6,
+      "domain": "wire",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-WIRE-JMDIE-CORPUS",
+      "title": "WEDM program-learning corpus from JM DIE WIRE EDM/ (4058 Mastercam .mcx-8 + Sodick .esp across ~100 customers)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "wire",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-GEODESIC",
+      "title": "Re-modularize PRISM_GEODESIC_DISTANCE_ENGINE from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "DEDUP-WIN",
+      "matched_engines": [
+        {
+          "candidate": "GeodesicDistanceEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\GeodesicDistanceEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\GeodesicDistanceEngine.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine GeodesicDistanceEngine.ts exists, 1 dispatcher ref(s), 1 test file(s)"
+      ],
+      "confidence": 0.95,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-MESH-DECIMATION",
+      "title": "Re-modularize PRISM_MESH_DECIMATION_ENGINE from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "DEDUP-WIN",
+      "matched_engines": [
+        {
+          "candidate": "MeshDecimationEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\MeshDecimationEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\MeshDecimationEngine.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine MeshDecimationEngine.ts exists, 1 dispatcher ref(s), 1 test file(s)"
+      ],
+      "confidence": 0.95,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-SURFACE-RECON",
+      "title": "Re-modularize PRISM_SURFACE_RECONSTRUCTION_ENGINE from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "DEDUP-WIN",
+      "matched_engines": [
+        {
+          "candidate": "SurfaceReconstructionEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\SurfaceReconstructionEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\SurfaceReconstructionEngine.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine SurfaceReconstructionEngine.ts exists, 1 dispatcher ref(s), 1 test file(s)"
+      ],
+      "confidence": 0.95,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-SPECTRAL-GRAPH",
+      "title": "Re-modularize PRISM_SPECTRAL_GRAPH_CAD from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: SpectralGraphCadEngine, GraphCadEngine, GRAPHCadEngine, GRAphCadEngine, CadEngine, CADEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-BREP-TESSELLATOR",
+      "title": "Re-modularize PRISM_BREP_TESSELLATOR + ADAPTIVE_TESSELLATION_ENGINE_V2 from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: BrepTessellatorEngine, BREPTessellatorEngine, BREpTessellatorEngine, TessellatorEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-VORONOI-ISOSURFACE",
+      "title": "Re-modularize PRISM_VORONOI_ENGINE + PRISM_ISOSURFACE_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "VoronoiEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\VoronoiEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "IsosurfaceEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\IsosurfaceEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-CURVATURE-OFFSET",
+      "title": "Re-modularize PRISM_CURVATURE_ANALYSIS_ENGINE + PRISM_OFFSET_SURFACE_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "CurvatureAnalysisEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\CurvatureAnalysisEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "OffsetSurfaceEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\OffsetSurfaceEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-COMPLETE-GEN",
+      "title": "Re-modularize PRISM_COMPLETE_CAD_GENERATION_ENGINE (2915 lines) from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: CompleteCadGenerationEngine, CadGenerationEngine, CADGenerationEngine, GenerationEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAD-JMDIE-REVERSE-ENG",
+      "title": "Reverse-engineering pipeline: scanned-image/JPG + DXF -> solid model, from JM DIE REVERSE ENGINEERING/ (47 jpg+dxf+ipt triplets)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "cad",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAM-ADAPTIVE-CLEARING",
+      "title": "Re-modularize PRISM_ADAPTIVE_CLEARING_ENGINE from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "AdaptiveClearingEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\AdaptiveClearingEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "cam",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAM-CLIPPER2",
+      "title": "Re-modularize PRISM_CLIPPER2_ENGINE (polygon offsetting) from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: Clipper2Engine"
+      ],
+      "confidence": 0.7,
+      "domain": "cam",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAM-AIRCUT-ELIM",
+      "title": "Re-modularize PRISM_AIRCUT_ELIMINATION_ENGINE from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: AircutEliminationEngine, EliminationEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "cam",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAM-REST-VOXEL",
+      "title": "Re-modularize PRISM_REST_MACHINING_ENGINE + PRISM_VOXEL_STOCK_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "DEDUP-WIN",
+      "matched_engines": [
+        {
+          "candidate": "RestMachiningEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\RestMachiningEngine.ts",
+          "dispatcherRefs": 2,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\RestMachiningEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "VoxelStockEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\VoxelStockEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine RestMachiningEngine.ts exists, 2 dispatcher ref(s), 1 test file(s)"
+      ],
+      "confidence": 0.95,
+      "domain": "cam",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAM-MULTIAXIS-TOOLPATH",
+      "title": "Re-modularize PRISM_MULTIAXIS_TOOLPATH_ENGINE + SIEMENS_5AXIS_CAM_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "MultiaxisToolpathEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\MultiaxisToolpathEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "cam",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-CAM",
+      "title": "Wire the ~26 unwired CAM engines incl. CimatronCAMBridge + SprutCAMBridge (vendor bridges built but unwired)",
+      "kind": "wire-batch",
+      "verdict": "BATCH-WIRE",
+      "matched_engines": [],
+      "findings": [
+        "wire-batch unit: no named representatives in title"
+      ],
+      "confidence": 0.3,
+      "domain": "cam",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-CAM-HYPERMILL-SDK",
+      "title": "hyperMILL SDK API mapper from Resources OPEN MIND/Shared SDK (~2110 Python automation scripts)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "cam",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-TRIBAL-FORMULA-REGISTRY",
+      "title": "Formula-registry harvester — 400+ formulas in Resources MACHINING KNOWLEDGE FORMULAS (3 JS files ~310KB)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "tribal",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-TRIBAL-KNOWLEDGE-GRAPH",
+      "title": "Re-modularize PRISM_KNOWLEDGE_GRAPH + PRISM_KNOWLEDGE_FUSION from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "KnowledgeGraphEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\KnowledgeGraphEngine.ts",
+          "dispatcherRefs": 4,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "tribal",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-TRIBAL-MACRO-INTEL",
+      "title": "Macro-program intelligence from JM DIE MACRO PROGRAMS/ — operator common-variable + part-counter loop patterns",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "tribal",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-TRIBAL",
+      "title": "Wire the 12 unwired tribal engines incl. PlaybookRulesEngine (133KB — largest single unwired engine)",
+      "kind": "wire-batch",
+      "verdict": "BATCH-WIRE",
+      "matched_engines": [],
+      "findings": [
+        "wire-batch unit: no named representatives in title"
+      ],
+      "confidence": 0.3,
+      "domain": "tribal",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ERP-SUBSCRIPTION-SYSTEM",
+      "title": "Re-modularize PRISM_SUBSCRIPTION_SYSTEM from v8.89 monolith (digest=0, absent) — billing/proration/dunning",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: SubscriptionSystemEngine, SystemEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ERP-LEAN-SIXSIGMA",
+      "title": "Re-modularize PRISM_LEAN_SIX_SIGMA_KAIZEN engine from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: LeanSixSigmaKaizenEngine, LEANSixSigmaKaizenEngine, LEAnSixSigmaKaizenEngine, SixSigmaKaizenEngine, SIXSigmaKaizenEngine, SigmaKaizenEngine, SIGMAKaizenEngine, SIGmaKaizenEngine, KaizenEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ERP-QUOTING-JOBCOST",
+      "title": "Re-modularize PRISM_QUOTING_ENGINE + PRISM_JOB_COSTING_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "QuotingEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\QuotingEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "JobCostingEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\JobCostingEngine.ts",
+          "dispatcherRefs": 2,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ERP-JOBSHOP-SCHEDULING",
+      "title": "Re-modularize PRISM_JOB_SHOP_SCHEDULING_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "DEDUP-WIN",
+      "matched_engines": [
+        {
+          "candidate": "JobShopSchedulingEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\JobShopSchedulingEngine.ts",
+          "dispatcherRefs": 2,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\dispatcher.jobShopScheduling.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "SchedulingEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\SchedulingEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\cycle-scheduling-bridge.test.ts",
+            "H:\\prism\\mcp-server\\src\\__tests__\\scheduling-physics.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine JobShopSchedulingEngine.ts exists, 2 dispatcher ref(s), 1 test file(s)"
+      ],
+      "confidence": 0.95,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ERP-PURCHASING-INVENTORY",
+      "title": "Re-modularize PRISM_PURCHASING_SYSTEM + PRISM_INVENTORY_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: PurchasingSystemEngine, SystemEngine, InventoryEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ERP-FINANCIAL-ANALYTICS",
+      "title": "Re-modularize PRISM_FINANCIAL_ENGINE + PRISM_SHOP_ANALYTICS_ENGINE + PRISM_ORDER_MANAGER from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "OrderManagerEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\OrderManagerEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ERP-HR-EMPLOYEE",
+      "title": "HR/employee subsystem — scheduling, skills matrix, certifications, labor tracking (no current PRISM engine)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ERP-DRAWING-AUTOMATION",
+      "title": "Drawing-automation workflow ingestion from JM DIE Automated Program xlsm (34-dim parametric VBA system)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-ERP",
+      "title": "Wire the ~17 unwired erp/business engines (BusinessIntelligence, CustomerKnowledge, BusinessDocumentExtractor)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "erp",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-POST-RL-POSTPROCESSOR",
+      "title": "Re-modularize PRISM_RL_POST_PROCESSOR (reinforcement-learning post tuning) from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "DEDUP-WIN",
+      "matched_engines": [
+        {
+          "candidate": "RLPostProcessorEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\RLPostProcessorEngine.ts",
+          "dispatcherRefs": 2,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\RLPostProcessorEngine.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "PostProcessorEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\PostProcessorEngine.ts",
+          "dispatcherRefs": 2,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine RLPostProcessorEngine.ts exists, 2 dispatcher ref(s), 1 test file(s)"
+      ],
+      "confidence": 0.95,
+      "domain": "post",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-POST-GCODE-BACKPLOT",
+      "title": "Re-modularize PRISM_GCODE_BACKPLOT_ENGINE from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "DEDUP-WIN",
+      "matched_engines": [
+        {
+          "candidate": "BackplotEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\BackplotEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\BackplotEngine.test.ts",
+            "H:\\prism\\mcp-server\\src\\__tests__\\wedm-backplot-integration.test.ts",
+            "H:\\prism\\mcp-server\\src\\__tests__\\wedm-backplot.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine BackplotEngine.ts exists, 1 dispatcher ref(s), 3 test file(s)"
+      ],
+      "confidence": 0.95,
+      "domain": "post",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-POST-JMDIE-LEARNING",
+      "title": "Post-processor learning from JM DIE PRISM MODIFIED POST PROCESSORS/ (12 PRISM-enhanced .cps: Haas/Hurco/Okuma/Roku-Roku)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "post",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-POST",
+      "title": "Wire the ~8 unwired post engines (RealTimeAdaptiveController, GapEscalationController, DNCGenerate)",
+      "kind": "wire-batch",
+      "verdict": "BATCH-WIRE",
+      "matched_engines": [
+        {
+          "candidate": "RealTimeAdaptiveControllerEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\RealTimeAdaptiveControllerEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "GapEscalationControllerEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\GapEscalationControllerEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\GapEscalationControllerEngine.test.ts"
+          ],
+          "wireExempt": true
+        },
+        {
+          "candidate": "DNCGenerateEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\DNCGenerateEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "wire-batch unit: 2/3 named representatives already wired (RealTimeAdaptiveControllerEngine.ts, GapEscalationControllerEngine.ts, DNCGenerateEngine.ts)"
+      ],
+      "confidence": 0.6,
+      "domain": "post",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-SF-ADVANCED-FEED-OPT",
+      "title": "Re-modularize PRISM_ADVANCED_FEED_OPTIMIZER from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: AdvancedFeedOptimizerEngine, FeedOptimizerEngine, FEEDOptimizerEngine, FEEdOptimizerEngine, OptimizerEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "speedfeed",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-SF-NC-CALIBRATION",
+      "title": "Shop-proven speed/feed calibration mined from 35K+ JM DIE NC programs (.min/.mcx-8/.cyc)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "speedfeed",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-SF",
+      "title": "Wire the ~12 unwired speed-feed engines (SpeedFeedUltimateAI/AdvancedAI/DeepLearning — the SF-AI L1-L3 ladder)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "speedfeed",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-P2P-JMDIE-PARTLIB",
+      "title": "Print-to-program training corpus from JM DIE _PART LIBRARY/ — 76K blueprint PDFs paired with 16.5K .min programs",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "print2prog",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-P2P-OCR-DIMENSION",
+      "title": "Blueprint-OCR/vision dimension extraction (eDOCr2/PaddleOCR) — JM DIE GENERAL BANDAGES + QUEUE PDF prints",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "print2prog",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-P2P-VALIDATION-HARNESS",
+      "title": "Print->program validation harness from JM DIE QUEUE/CLAUDE matched QT print+part+gcode triples",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "print2prog",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ACADEMY-220-COURSES",
+      "title": "Re-modularize PRISM_220_COURSES_MASTER curriculum + PRISM_COURSE_GATEWAY_GENERATOR from v8.89 monolith (digest=0, absent)",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: 220CoursesMasterEngine, CoursesMasterEngine, MasterEngine, CourseGatewayGeneratorEngine, GatewayGeneratorEngine, GeneratorEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "academy",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ACADEMY-MIT-KERNELS",
+      "title": "Re-modularize MIT algorithm kernels (NumericalMethods, NURBS, ODESolvers, ControlSystems, DigitalControl, DFM) from v8.89 monolith",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "academy",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ACADEMY-UNIVERSITY-ALGS",
+      "title": "Re-modularize PRISM_UNIVERSITY_ALGORITHMS from v8.89 monolith",
+      "kind": "remodularize",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: UniversityAlgorithmsEngine, AlgorithmsEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "academy",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ACADEMY-MIT-OCW-INGEST",
+      "title": "MIT-OCW course ingestion from Resources MIT COURSES/ (354 PDFs / 730 HTML across 8+ course dirs)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "academy",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-ACADEMY-TRAINING-DAYS",
+      "title": "Training-day curriculum ingestion from Resources Basic Training Day 1/2/3 + MILL INTRO CLASS.pptx",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "academy",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-ACADEMY",
+      "title": "Wire the 9 unwired learning engines (VideoELearningAI, MITCourseIntegration, ToolDatabaseDeepLearning) — all absent from roadmap",
+      "kind": "wire-batch",
+      "verdict": "BATCH-WIRE",
+      "matched_engines": [
+        {
+          "candidate": "VideoELearningAIEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\VideoELearningAIEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "MITCourseIntegrationEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\MITCourseIntegrationEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\engines\\MITCourseIntegrationEngine.test.ts",
+            "H:\\prism\\mcp-server\\src\\__tests__\\mitCourseIntegration.test.ts"
+          ],
+          "wireExempt": false
+        },
+        {
+          "candidate": "ToolDatabaseDeepLearningEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\ToolDatabaseDeepLearningEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "wire-batch unit: 0/3 named representatives already wired (VideoELearningAIEngine.ts, MITCourseIntegrationEngine.ts, ToolDatabaseDeepLearningEngine.ts)"
+      ],
+      "confidence": 0.6,
+      "domain": "academy",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-DB-MASTER-ALARM",
+      "title": "Ingest the v8.89 MASTER_ALARM_DATABASE — 2500 controller alarms + 68 vendor alarm files (Fanuc/Haas/Mazak/Siemens/...)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "database",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-DB-VERIFIED-FIX-PROC",
+      "title": "Ingest v8.89 VERIFIED_FIX_PROCEDURES + ALARM_FIX_PROCEDURES — controller-diagnostic fix database",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "database",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-DB-GCODE-MCODE",
+      "title": "Ingest v8.89 GCODE_MCODE_DATABASE — canonical G/M-code reference",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "database",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-DB-MACHINE-LIBRARY",
+      "title": "Ingest v8.89 machines/ ALL_MACHINES.json + 12 ENHANCED batch JSONs + OEM STEP-model library from Resources",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "database",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-DB-TOOL-CATALOG-HARVEST",
+      "title": "Tool-database harvester — Resources OPEN MIND Tool DB + 287 .tooldb/.db/.mdb (~131MB)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "database",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-DB-PARTLIB-MASTER",
+      "title": "JM DIE _PART LIBRARY part-master DB — 134K files, 29K JSON metadata, customer->part-number index + version dedup",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "database",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-DATABASE",
+      "title": "Wire the ~12 unwired database engines (PDFSourceRegistry, PhysicsPluginRegistry, WetRunDeviationRegistry)",
+      "kind": "wire-batch",
+      "verdict": "BATCH-WIRE",
+      "matched_engines": [
+        {
+          "candidate": "PDFSourceRegistryEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\PDFSourceRegistryEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "PhysicsPluginRegistry",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\PhysicsPluginRegistry.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "WetRunDeviationRegistryEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\WetRunDeviationRegistryEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [
+            "H:\\prism\\mcp-server\\src\\__tests__\\engines\\WetRunDeviationRegistryEngine.test.ts"
+          ],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "wire-batch unit: 0/3 named representatives already wired (PDFSourceRegistryEngine.ts, PhysicsPluginRegistry.ts, WetRunDeviationRegistryEngine.ts)"
+      ],
+      "confidence": 0.6,
+      "domain": "database",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-MISC-OPTIMIZERS",
+      "title": "Re-modularize v8.89 optimization engines: PolicyGradient, DifferentialEvolution, MOEA/D, TrustRegion, InteriorPoint, LP-solvers (digest=0)",
+      "kind": "remodularize-list",
+      "verdict": "PARTIAL-NO-TESTS",
+      "matched_engines": [
+        {
+          "candidate": "DifferentialEvolutionEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\DifferentialEvolutionEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "TrustRegionEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\TrustRegionEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        },
+        {
+          "candidate": "InteriorPointEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\InteriorPointEngine.ts",
+          "dispatcherRefs": 1,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine + wiring present, NO test coverage — real gap is tests"
+      ],
+      "confidence": 0.85,
+      "domain": "misc",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-MISC-DATA-STRUCTURES",
+      "title": "Re-modularize v8.89 data-structure primitives: KDTree, Octree, Bezier, Interval-arithmetic (digest=0)",
+      "kind": "remodularize-list",
+      "verdict": "GENUINE-GAP",
+      "matched_engines": [],
+      "findings": [
+        "no engine class matched candidates: KDTree, KDTreeEngine, Octree, OctreeEngine, Bezier, BezierEngine"
+      ],
+      "confidence": 0.7,
+      "domain": "misc",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-MISC-AI-ENGINES",
+      "title": "Re-modularize v8.89 AI/ML engines: GNN-Complete, Transformer, AdvancedDQN, XAI-Complete, TimeSeries-Complete",
+      "kind": "remodularize-list",
+      "verdict": "PARTIAL-PORT-ONLY",
+      "matched_engines": [
+        {
+          "candidate": "TransformerEngine",
+          "file": "H:\\prism\\mcp-server\\src\\engines\\TransformerEngine.ts",
+          "dispatcherRefs": 0,
+          "testFiles": [],
+          "wireExempt": false
+        }
+      ],
+      "findings": [
+        "engine TransformerEngine.ts on disk, but neither wired nor tested"
+      ],
+      "confidence": 0.8,
+      "domain": "misc",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-MISC-AS9100-TRACE",
+      "title": "Wire AS9100TraceabilityEngine (47KB, self-labeled P0-CRITICAL aerospace traceability — built, unwired, unplanned)",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "misc",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-MISC",
+      "title": "Wire/triage the ~328 unwired misc engines — bulk of the unwired-engine debt; rank by leverage via /wire-unwired",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "misc",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-HERMES-EVAL",
+      "title": "Evaluate NousResearch Hermes Agent adoption strategy — full port vs cherry-pick (closed learning loop, soul.md personality, tool gateway, 20+ messaging surfaces); output go/no-go matrix per pattern. Source: hermes-shann-article.md + HERMES-EVOLVING-SKILLS-RESEARCH-2026-05-17.md.",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "misc",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-SKILL-AUTO-GEN-MS0",
+      "title": "Build evolving-skills closed loop — harness observes successful workflows, clusters patterns, auto-emits /forge-triple stubs, reviewer-agent gate, ship-to-library (Hermes harness-writes-skills + Voyager skill-library evolution); compounding-capability lever across all 13 slots.",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "academy",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-HERMES-MULTI-SURFACE-MSG",
+      "title": "Adapt Hermes 20+ messaging-surfaces pattern (Telegram/Discord/Slack/email/voice) — required for prism-revenue operator-in-the-loop hand-off + JM-Die shop-floor confirmation loops on Speed/Feed results.",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "misc",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    },
+    {
+      "unit_id": "U-GAP-POST-BUILD-UTILITY-SCAN",
+      "title": "Proactive post-build utility-scan: every chat that ships an asset auto-runs a 3-surface query (/system-viz neighbors + prism_session:master_index_query + prism awareness snapshot + Obsidian brain) to surface where the new asset can be utilized — wires, dispatchers, dependent engines, matching FEATURE-GAP units — and proposes memory node if feasible. Stop-chain advisory hook. Closes the 'we built X but never connected it to Y' silent-waste class.",
+      "kind": "unknown",
+      "verdict": "UNKNOWN",
+      "matched_engines": [],
+      "findings": [
+        "title does not match remodularize/wire-batch patterns"
+      ],
+      "confidence": 0,
+      "domain": "academy",
+      "milestone": "FEATURE-GAP-AUDIT-MS0"
+    }
+  ],
+  "source": {
+    "auditInput": "state/shared/specs/FEATURE-GAP-UNITS-2026-05-17.json",
+    "auditGeneratedAt": "2026-05-17",
+    "auditGeneratedBy": "claude-9f57075a (juliett) /forge-audit-v2"
+  }
+}

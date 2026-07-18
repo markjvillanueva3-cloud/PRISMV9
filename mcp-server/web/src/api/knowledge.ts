@@ -5,13 +5,14 @@
  * auto-generated courses, and fleet learning endpoints.
  */
 import { fetchJson } from './requestCore';
+import { getAuthHeaders } from './authToken';
 
 const API_BASE = '/api/v1/knowledge';
 
 async function post<T>(path: string, body: Record<string, unknown> = {}): Promise<T> {
   const json = await fetchJson<T | { data?: T }>(`${API_BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(body),
     fallbackMessage: 'Knowledge API request failed',
   });

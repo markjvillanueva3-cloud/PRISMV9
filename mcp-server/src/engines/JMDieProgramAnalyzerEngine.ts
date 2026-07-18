@@ -432,7 +432,12 @@ export class JMDieProgramAnalyzerEngine {
         currentSpindle = {
           mode: "css",
           value: parseInt(g96Match[1]),
-          max_rpm: currentSpindle?.max_rpm ?? null,
+          // TS over-narrows `currentSpindle` to null at this self-reassignment (let + loop +
+          // self-reference), collapsing the optional-chain non-null arm to `never` even though
+          // max_rpm is on the declared type (L384). Cast back to the declared shape -- runtime-
+          // identical to `currentSpindle?.max_rpm ?? null` (cast erased); defeats a flow
+          // false-positive, does NOT mask an API mismatch (verified: regression-diff un-masks 0).
+          max_rpm: (currentSpindle as { mode: "css" | "rpm"; value: number; max_rpm: number | null } | null)?.max_rpm ?? null,
         };
         if (currentOperation) {
           currentOperation.spindle_mode = "css";

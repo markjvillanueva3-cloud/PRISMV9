@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `propose-goal` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/propose-goal.md` |
+| Source | `C:/Users/wompu/.claude/commands/propose-goal.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Phase 0.18 skill. Given detected gaps (orphan surfaces, Ψ deficits, failing tests, extraction candidates, user-model desires), synthesise the top-N goals ranked by `Ψ_impact × urgency × feasibility`, then — for each goal — surface cross-domain analogies from PRISM's solved-problem corpus so the user can borrow from a neighbouring domain instead of starting from scratch.
+
+# /propose-goal — Autonomous Goal Synthesis + Cross-Domain Analogy
 
 <!-- AUTO-END -->
 

@@ -50,6 +50,25 @@ export interface OEEResult {
   recommendations: string[];
 }
 
+/** A single Six-Big-Losses entry, bucketed into the OEE component it degrades.
+ *  Shape mirrors the OEEDashboardPage `BigLoss` FE contract exactly (id/name/category/minutes_lost/description). */
+export interface OEELoss {
+  id: string;
+  name: string;
+  category: "availability" | "performance" | "quality";
+  minutes_lost: number;
+  description: string;
+}
+
+/** One day of OEE history. Shape mirrors the OEEDashboardPage `TrendDay` FE contract exactly. */
+export interface OEETrendDay {
+  date: string;
+  oee_pct: number;
+  availability_pct: number;
+  performance_pct: number;
+  quality_pct: number;
+}
+
 // ============================================================================
 // ENGINE CLASS
 // ============================================================================
@@ -148,6 +167,132 @@ export class OEECalculatorEngine {
       recommendations: recs,
     };
   }
+
+  /**
+   * Project the Six Big Losses (from `calculate()`) into the OEE component each one degrades,
+   * for the OEEDashboardPage Losses tab. Pure derivation of `calculate()` -- no new data, no I/O.
+   * Reject COUNTS (startup/production) are converted to minutes lost via the ideal cycle time
+   * (each scrapped part consumed `ideal_cycle_time_sec` of capacity). Sorted worst-first to match
+   * the page's ranked display. TPM bucketing per Nakajima (1988): breakdowns + setup/changeover ->
+   * availability, speed losses (minor stops + reduced speed) -> performance, defects -> quality.
+   * @param input - the OEE measurement window (same shape `calculate()` consumes).
+   * @returns the six losses as OEELoss[] (FE BigLoss contract), ranked by minutes_lost desc.
+   */
+  losses(input: OEEInput): OEELoss[] {
+    // FAIL-CLOSED (symmetric with trend([]) -> []): if the window is UNMEASURED -- the core fields the
+    // six-big-losses math depends on are missing / non-finite (e.g. the FE's first-load empty {} body) --
+    // return [] so the page shows honest "Unavailable" rather than fabricated "0 min lost / Live" cards.
+    // The fields below are exactly those calculate() reads for the loss breakdown; any absent/NaN one means
+    // there is no real measurement to project.
+    if (!isMeasuredWindow(input)) return [];
+
+    const r = this.calculate(input);
+    const l = r.six_big_losses;
+    // Convert reject counts to minutes lost: each defect consumed one ideal cycle of capacity.
+    const idealCycleMin = (input.ideal_cycle_time_sec ?? 0) / 60;
+    const startupMin = Math.round(l.startup_rejects * idealCycleMin * 10) / 10;
+    const prodMin = Math.round(l.production_rejects * idealCycleMin * 10) / 10;
+
+    // Clamp every emitted minutes_lost to a finite, non-negative value: a loss is time lost, never negative,
+    // and a NaN/Infinity (degenerate input) must not render as a 0-width or overflowing bar on the page.
+    const safeMin = (v: number): number => (Number.isFinite(v) && v > 0 ? v : 0);
+
+    const losses: OEELoss[] = [
+      {
+        id: "breakdowns",
+        name: "Breakdowns",
+        category: "availability",
+        minutes_lost: safeMin(l.breakdowns_min),
+        description: "Equipment failures and unplanned stoppages that halt production.",
+      },
+      {
+        id: "setup_adjustment",
+        name: "Setup & Adjustment",
+        category: "availability",
+        minutes_lost: safeMin(l.setup_adjustment_min),
+        description: "Changeover, tooling swaps, and adjustment time between runs.",
+      },
+      {
+        id: "minor_stops",
+        name: "Minor Stops",
+        category: "performance",
+        minutes_lost: safeMin(l.minor_stops_min),
+        description: "Brief stoppages, jams, and idling that interrupt steady cutting.",
+      },
+      {
+        id: "reduced_speed",
+        name: "Reduced Speed",
+        category: "performance",
+        minutes_lost: safeMin(l.reduced_speed_min),
+        description: "Running below the ideal cycle time -- slow cycles and derated feeds.",
+      },
+      {
+        id: "startup_rejects",
+        name: "Startup Rejects",
+        category: "quality",
+        minutes_lost: safeMin(startupMin),
+        description: `${l.startup_rejects} scrap part(s) during warm-up / first-off before the process stabilized.`,
+      },
+      {
+        id: "production_rejects",
+        name: "Production Rejects",
+        category: "quality",
+        minutes_lost: safeMin(prodMin),
+        description: `${l.production_rejects} scrap part(s) produced during steady-state running.`,
+      },
+    ];
+
+    // Worst-first (matches the page's ranked-by-impact display).
+    return losses.sort((a, b) => b.minutes_lost - a.minutes_lost);
+  }
+
+  /**
+   * Project a series of daily OEE measurement windows into per-day OEE history for the
+   * OEEDashboardPage Trends tab. Pure derivation of `calculate()` -- no synthetic/random data.
+   * Returns [] when no samples are supplied so the fail-closed page shows honest "Unavailable"
+   * rather than fabricated trend data; samples with no `date` are dropped (the FE drops them too).
+   * @param samples - an array of daily OEEInput measurements (each should carry a `date`).
+   * @returns OEETrendDay[] (FE TrendDay contract), one row per dated sample, in input order.
+   */
+  trend(samples: OEEInput[]): OEETrendDay[] {
+    if (!Array.isArray(samples) || samples.length === 0) return [];
+    const days: OEETrendDay[] = [];
+    for (const sample of samples) {
+      const date = sample?.date;
+      if (typeof date !== "string" || date.length === 0) continue; // drop dateless rows (FE drops them)
+      const r = this.calculate(sample);
+      days.push({
+        date,
+        oee_pct: r.oee_pct,
+        availability_pct: r.availability_pct,
+        performance_pct: r.performance_pct,
+        quality_pct: r.quality_pct,
+      });
+    }
+    return days;
+  }
+}
+
+/**
+ * Is this OEEInput a REAL measurement window, or an empty/partial first-load body?
+ * The six-big-losses projection (losses()) is only meaningful when the fields its math reads are
+ * present finite numbers; an empty {} (the FE's first-load analyticsOEELosses({}) call) or a window
+ * missing core fields has nothing to project -> losses() returns [] so the page shows honest
+ * "Unavailable" instead of fabricated "0 min lost" cards. (Negatives are allowed through here so a
+ * genuine bad-data window still surfaces -- the per-loss safeMin() clamp keeps the rendered bars sane.)
+ */
+function isMeasuredWindow(input: OEEInput): boolean {
+  if (!input || typeof input !== "object") return false;
+  const required: Array<keyof OEEInput> = [
+    "planned_production_time_min",
+    "actual_run_time_min",
+    "planned_downtime_min",
+    "unplanned_downtime_min",
+    "ideal_cycle_time_sec",
+    "total_parts_produced",
+    "good_parts",
+  ];
+  return required.every((k) => Number.isFinite(input[k] as number));
 }
 
 /** Oee Calculator Engine constant.

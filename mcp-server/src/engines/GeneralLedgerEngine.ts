@@ -478,6 +478,247 @@ class GeneralLedgerEngine {
   }
 
   /**
+   * Net-margin trend over recent periods for the ERP "margin-trends" dashboard. Composes the
+   * (already-correct) income statement per period -- net_margin_pct = net_income / total_revenue
+   * * 100, null when a period has no revenue. Returns { data_available:false } when NO period has
+   * posted revenue (honest empty, mirrors value_stream_map -- never fake zeros).
+   *
+   * NOTE: this is NET margin (net_income / revenue). GROSS margin (revenue - COGS) is intentionally
+   * NOT computed -- the chart of accounts types every expense as "expense" with no COGS subtype to
+   * split on, so a real gross-margin split needs COGS account categorization (a documented follow-up,
+   * not faked here).
+   *
+   * @param opts.months  trailing calendar months to report (default 6); ignored when periods given
+   * @param opts.asOf    end date (YYYY-MM-DD) of the trailing window (default today)
+   * @param opts.periods explicit [{label,start,end}] periods -- overrides months/asOf (used by tests)
+   */
+  marginTrends(opts: {
+    months?: number;
+    asOf?: string;
+    periods?: Array<{ label: string; start: string; end: string }>;
+  } = {}): {
+    data_available: boolean;
+    generated_at: string;
+    metric: "net_margin";
+    periods: Array<{
+      label: string;
+      period_start: string;
+      period_end: string;
+      total_revenue: number;
+      total_expenses: number;
+      net_income: number;
+      net_margin_pct: number | null;
+    }>;
+    avg_net_margin_pct: number | null;
+    message?: string;
+  } {
+    const round1 = (n: number): number => Math.round(n * 10) / 10;
+    // Cap at 60 months (5y) so an untrusted ?months= can't trigger N unbounded ledger scans.
+    const months = Math.min(60, Number(opts.months) > 0 ? Math.floor(Number(opts.months)) : 6);
+    const periods = opts.periods ?? this.buildTrailingMonths(months, opts.asOf);
+
+    const rows = periods.map((p) => {
+      const is = this.getIncomeStatement(p.start, p.end);
+      return {
+        label: p.label,
+        period_start: p.start,
+        period_end: p.end,
+        total_revenue: is.total_revenue,
+        total_expenses: is.total_expenses,
+        net_income: is.net_income,
+        net_margin_pct: is.total_revenue !== 0 ? round1((is.net_income / is.total_revenue) * 100) : null,
+      };
+    });
+
+    const margins = rows.map((r) => r.net_margin_pct).filter((m): m is number => m !== null);
+    if (rows.every((r) => r.total_revenue === 0)) {
+      return {
+        data_available: false,
+        generated_at: new Date().toISOString(),
+        metric: "net_margin",
+        periods: rows,
+        avg_net_margin_pct: null,
+        message: "No posted revenue in the requested periods.",
+      };
+    }
+    return {
+      data_available: true,
+      generated_at: new Date().toISOString(),
+      metric: "net_margin",
+      periods: rows,
+      avg_net_margin_pct: margins.length ? round1(margins.reduce((s, m) => s + m, 0) / margins.length) : null,
+    };
+  }
+
+  /**
+   * Direct-method cash-flow summary over recent periods for the ERP "cash-flow" dashboard. For each
+   * period it sums posted movements of the Cash account(s): a debit to cash is an INFLOW, a credit an
+   * OUTFLOW; net_cash_flow = inflow - outflow. Returns { data_available:false } when NO period has any
+   * cash movement (honest empty -- no fake zeros).
+   *
+   * NOTE: this is TOTAL net cash flow. An operating/investing/financing classification is intentionally
+   * NOT computed here -- it requires categorising each entry's counterpart account, a documented
+   * follow-up (not faked).
+   *
+   * @param opts.months  trailing calendar months (default 6, capped 60); ignored when periods given
+   * @param opts.asOf    end date (YYYY-MM-DD) of the window (default today)
+   * @param opts.periods explicit [{label,start,end}] periods -- overrides months/asOf (used by tests)
+   */
+  cashFlowSummary(opts: {
+    months?: number;
+    asOf?: string;
+    periods?: Array<{ label: string; start: string; end: string }>;
+  } = {}): {
+    data_available: boolean;
+    generated_at: string;
+    cash_accounts: string[];
+    periods: Array<{
+      label: string;
+      period_start: string;
+      period_end: string;
+      cash_inflow: number;
+      cash_outflow: number;
+      net_cash_flow: number;
+    }>;
+    total_net_cash_flow: number;
+    message?: string;
+  } {
+    const months = Math.min(60, Number(opts.months) > 0 ? Math.floor(Number(opts.months)) : 6);
+    const periods = opts.periods ?? this.buildTrailingMonths(months, opts.asOf);
+    const cashIds = CHART_OF_ACCOUNTS.filter((a) => a.type === "asset" && /\bcash\b/i.test(a.name)).map((a) => a.id);
+    const cashSet = new Set(cashIds);
+
+    const rows = periods.map((p) => {
+      let inflow = 0;
+      let outflow = 0;
+      for (const e of this.postedEntriesInRange(p.start, p.end)) {
+        for (const line of e.lines) {
+          if (cashSet.has(line.account_id)) {
+            inflow += line.debit;
+            outflow += line.credit;
+          }
+        }
+      }
+      return {
+        label: p.label,
+        period_start: p.start,
+        period_end: p.end,
+        cash_inflow: round2(inflow),
+        cash_outflow: round2(outflow),
+        net_cash_flow: round2(inflow - outflow),
+      };
+    });
+
+    const hasMovement = rows.some((r) => r.cash_inflow !== 0 || r.cash_outflow !== 0);
+    return {
+      data_available: hasMovement,
+      generated_at: new Date().toISOString(),
+      cash_accounts: cashIds,
+      periods: rows,
+      total_net_cash_flow: round2(rows.reduce((s, r) => s + r.net_cash_flow, 0)),
+      ...(hasMovement ? {} : { message: "No cash movement in the requested periods." }),
+    };
+  }
+
+  /**
+   * Revenue forecast for the ERP "revenue-forecast" dashboard. Fits a least-squares LINEAR TREND to the
+   * trailing `lookbackMonths` of REAL monthly revenue (from getIncomeStatement) and projects the next
+   * `horizonMonths` forward at that trend (clamped >= 0 -- revenue can't be negative). Returns
+   * { data_available:false } when the lookback window has no posted revenue (cannot forecast from nothing).
+   *
+   * R12: this is a TREND/RUN-RATE projection of historical BOOKED revenue -- NOT a demand model, sales
+   * pipeline, or order-book forecast. method = "linear_trend_runrate".
+   *
+   * @param opts.lookbackMonths trailing months of history to fit (default 6, capped 60)
+   * @param opts.horizonMonths  future months to project (default 3, capped 24)
+   * @param opts.asOf           end of history / start of forecast (default today)
+   */
+  revenueForecast(opts: { lookbackMonths?: number; horizonMonths?: number; asOf?: string } = {}): {
+    data_available: boolean;
+    generated_at: string;
+    method: "linear_trend_runrate";
+    lookback_months: number;
+    horizon_months: number;
+    avg_monthly_revenue: number;
+    trend_slope_per_month: number;
+    history: Array<{ label: string; revenue: number }>;
+    forecast: Array<{ label: string; projected_revenue: number }>;
+    message?: string;
+  } {
+    const lookback = Math.min(60, Number(opts.lookbackMonths) > 0 ? Math.floor(Number(opts.lookbackMonths)) : 6);
+    const horizon = Math.min(24, Number(opts.horizonMonths) > 0 ? Math.floor(Number(opts.horizonMonths)) : 3);
+    const history = this.buildTrailingMonths(lookback, opts.asOf).map((p) => ({
+      label: p.label,
+      revenue: this.getIncomeStatement(p.start, p.end).total_revenue,
+    }));
+
+    if (history.every((h) => h.revenue === 0)) {
+      return {
+        data_available: false, generated_at: new Date().toISOString(), method: "linear_trend_runrate",
+        lookback_months: lookback, horizon_months: horizon, avg_monthly_revenue: 0, trend_slope_per_month: 0,
+        history: history.map((h) => ({ label: h.label, revenue: round2(h.revenue) })), forecast: [],
+        message: "No posted revenue in the lookback window -- cannot forecast.",
+      };
+    }
+
+    // Least-squares linear fit y = intercept + slope*x over x = 0..n-1.
+    const n = history.length;
+    const ys = history.map((h) => h.revenue);
+    const xbar = (n - 1) / 2;
+    const ybar = ys.reduce((s, y) => s + y, 0) / n;
+    let num = 0;
+    let den = 0;
+    for (let i = 0; i < n; i++) {
+      num += (i - xbar) * (ys[i] - ybar);
+      den += (i - xbar) ** 2;
+    }
+    const slope = den !== 0 ? num / den : 0;
+    const intercept = ybar - slope * xbar;
+
+    const forecast = this.buildForwardMonths(horizon, opts.asOf).map((label, k) => ({
+      label,
+      projected_revenue: round2(Math.max(0, intercept + slope * (n + k))),
+    }));
+
+    return {
+      data_available: true, generated_at: new Date().toISOString(), method: "linear_trend_runrate",
+      lookback_months: lookback, horizon_months: horizon,
+      avg_monthly_revenue: round2(ybar), trend_slope_per_month: round2(slope),
+      history: history.map((h) => ({ label: h.label, revenue: round2(h.revenue) })),
+      forecast,
+    };
+  }
+
+  /** Build the next `n` forward calendar-month labels (UTC) AFTER the asOf month (default today). */
+  private buildForwardMonths(n: number, asOf?: string): string[] {
+    const validAsOf = asOf && /^\d{4}-\d{2}-\d{2}$/.test(asOf);
+    const ref = validAsOf ? new Date(`${asOf}T00:00:00.000Z`) : new Date();
+    const out: string[] = [];
+    for (let k = 1; k <= n; k++) {
+      const d = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() + k, 1));
+      out.push(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`);
+    }
+    return out;
+  }
+
+  /** Build the last `n` trailing calendar months (UTC) as {label:"YYYY-MM", start, end} date strings. */
+  private buildTrailingMonths(n: number, asOf?: string): Array<{ label: string; start: string; end: string }> {
+    // Ignore a malformed asOf (would yield NaN-NaN labels) and fall back to today -- fail safe.
+    const validAsOf = asOf && /^\d{4}-\d{2}-\d{2}$/.test(asOf);
+    const ref = validAsOf ? new Date(`${asOf}T00:00:00.000Z`) : new Date();
+    const out: Array<{ label: string; start: string; end: string }> = [];
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() - i, 1));
+      const y = d.getUTCFullYear();
+      const m = d.getUTCMonth();
+      const mm = String(m + 1).padStart(2, "0");
+      const lastDay = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+      out.push({ label: `${y}-${mm}`, start: `${y}-${mm}-01`, end: `${y}-${mm}-${String(lastDay).padStart(2, "0")}` });
+    }
+    return out;
+  }
+
+  /**
    * Balance sheet as of a date. Balanced iff assets = liabilities + equity + retained earnings.
    * Retained earnings are computed as cumulative net income from all periods.
    */

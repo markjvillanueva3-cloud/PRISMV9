@@ -1,3 +1,4 @@
+import { getAuthHeaders } from './authToken';
 /**
  * wedmStudio.ts — Wire EDM Studio API Client
  * WEDM-MS0 U-WEDM03
@@ -79,7 +80,7 @@ async function post<T>(
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify(body),
       signal: controller.signal,
     });

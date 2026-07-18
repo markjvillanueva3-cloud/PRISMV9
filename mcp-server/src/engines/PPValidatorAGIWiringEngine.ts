@@ -435,7 +435,7 @@ export class PPValidatorAGIWiringEngine {
         const fMatch = line.match(/F(\d+\.?\d*)/);
         if (fMatch && context.material_iso) {
           const feed = parseFloat(fMatch[1]);
-          const kc = CANONICAL_KIENZLE.kc1_1[isoGroup];
+          const kc = CANONICAL_KIENZLE[isoGroup].kc1_1;
           // Max safe feed based on material (rough estimate)
           const maxSafeFeed = isoGroup === "N" ? 10000 : isoGroup === "S" ? 500 : 5000;
           physicsCtx = `kc1.1=${kc} MPa, max safe feed ~${maxSafeFeed} mm/min for ISO ${isoGroup}`;

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="461e7f9797dfbe5c66cdad5cc27a0c40603e328ceda41b0f245df695bcf0078c">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hurco V11 Mill Post Processor — Verification Report</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Hurco V11 Mill Post Processor — Verification Report</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.md</div>
+<div class="meta">Generated 2026-05-23T03:41:28.268Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">Hurco V11 Mill Post Processor — Verification Report</h1>
+<p><strong>Date:</strong> 2026-05-22 · <strong>Slot:</strong> india · <strong>Session:</strong> <code class="prism-inline-code">bde6fa1d</code> · <strong>Trigger:</strong> operator request — <em>&quot;utilize the apps to test the hurco post processor to ensure its built and coded properly&quot;</em></p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Executive Verdict</h2>
+<blockquote class="prism-quote"><strong>The HurcoV11MillMasterPostEngine is NOT in a &quot;built and coded properly&quot; state.</strong> The auxiliary pipelines (advanced post, coolant, aggressiveness, prove-out, rapid optimization, HSM dwell, feature sequencer, sidecar) all pass — but the <strong>core engine output format</strong> has 25 test failures including Hurco-specific feature codes that are silently missing.</blockquote>
+<p><strong>Test fleet (11 HurcoV11 test files, 223 tests total):</strong></p>
+<table class="prism-md-table"><thead><tr><th>Category</th><th>Files</th><th>Tests</th><th>Status</th></tr></thead><tbody><tr><td>Core engine output (<code class="prism-inline-code">HurcoV11MillMasterPostEngine.test.ts</code>)</td><td>1</td><td>50</td><td><strong>25 FAIL / 25 PASS (50% PASS)</strong></td></tr>
+<tr><td>Advanced pipeline + 9 auxiliary suites</td><td>10</td><td>173</td><td>173 PASS (100%)</td></tr></tbody></table>
+<p><strong>Token economy note:</strong> the test suite is mostly green (88.8% overall pass). The failures concentrate in ONE file, but that one file is the <strong>canonical output contract</strong> for the post — which is what Fusion 360&#39;s posted .NC would have to honor before WinMax PC sees it.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Environment</h2>
+<ul class="prism-md-list"><li><strong>WinMax PC installed:</strong> <code class="prism-inline-code">C:\Program Files\Hurco\MT WinMax Desktop\WinMaxMill.exe</code> v11.4.3.31916 (exact target — engine header says &quot;Hurco VMX24 - WinMax V11&quot;)</li><li><strong>JM Die historical Hurco corpus:</strong> essentially <strong>none</strong> — 62k+ files scanned (out of ~100k+, ran out of time), zero <code class="prism-inline-code">.HCM</code> files found, 43 <code class="prism-inline-code">.NC</code> files (mostly Okuma/Haas), 12,042 <code class="prism-inline-code">.MIN</code> files (Okuma lathe). Regression-against-archive plan is NOT viable.</li><li><strong>Engine LOC:</strong> 1664 in <code class="prism-inline-code">mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts</code></li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">25 Failures, categorized</h2>
+<h3 class="prism-h3">A. Missing Hurco-specific output (highest WinMax impact — 3)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>1</td><td><code class="prism-inline-code">UltiMotion G187 P3 emitted by default</code></td><td><strong>CORRECTED 2026-05-22 by operator:</strong> the correct Hurco V11 smoothing/UltiMotion inline code is <strong><code class="prism-inline-code">G05.3 P&lt;n&gt;</code></strong> (similar to Fanuc HPCC G05.1 / G05 P10000). The test expects G187 (Haas dialect — wrong), the engine emits only a comment annotation citing &quot;Hurco V11 has NO inline UltiMotion G-code&quot; (also wrong — operator confirms G05.3 IS valid Hurco). <strong>BOTH engine comment and test need fixing:</strong> engine should emit <code class="prism-inline-code">G05.3 P&lt;mode&gt;</code> when <code class="prism-inline-code">use_ultimotion: true</code>; test should assert that line. Engine line 597-606 comment is misinformation that needs replacement.</td></tr>
+<tr><td>2</td><td><code class="prism-inline-code">emits G54.1 P12 extended offset for work_offset 12</code></td><td>Extended work offsets <code class="prism-inline-code">G54.1 P#</code> (for work_offset &gt; 9) — engine emits wrong format</td></tr>
+<tr><td>3</td><td><code class="prism-inline-code">emits S&lt;rpm&gt; M03 spindle CW with exact RPM value</code></td><td>The basic <code class="prism-inline-code">S&lt;rpm&gt; M03</code> spindle-on block is wrong somehow</td></tr></tbody></table>
+<h3 class="prism-h3">B. Physics check string format (8) — <code class="prism-inline-code">physics_checks[].check</code> strings don&#39;t include the constants</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>4</td><td><code class="prism-inline-code">Kienzle Fc check uses CANONICAL_KIENZLE constants...</code></td><td><code class="prism-inline-code">check</code> string omits <code class="prism-inline-code">kc1_1=1500</code> &amp; <code class="prism-inline-code">mc=0.25</code> (canonical for ISO M) — observed: <code class="prism-inline-code">&quot;Cutting force 666 N vs machine limit 2000 N&quot;</code></td></tr>
+<tr><td>5</td><td><code class="prism-inline-code">Taylor tool-life check uses canonical C and n constants...</code></td><td>Same pattern — Taylor C/n constants missing from check string</td></tr>
+<tr><td>6</td><td><code class="prism-inline-code">stickout deflection check appears only when tool.stickout_mm provided</code></td><td>Stickout deflection check not appearing OR not matching ratio condition</td></tr>
+<tr><td>7</td><td><code class="prism-inline-code">custom kc1_1 override is honored</code></td><td>Override path doesn&#39;t reflect custom value in check string</td></tr>
+<tr><td>8</td><td><code class="prism-inline-code">falls back to canonical kc1_1 when no override (ISO M)</code></td><td>Fallback path doesn&#39;t surface canonical value</td></tr>
+<tr><td>9</td><td><code class="prism-inline-code">partial override (kc1_1 only) keeps canonical mc and surfaces both</code></td><td>Partial-override surfacing broken</td></tr>
+<tr><td>10</td><td><code class="prism-inline-code">getStats reports ... 5 base physics checks ...</code></td><td><strong>engine reports <code class="prism-inline-code">physics_checks: 4</code> but spec says 5</strong> — one physics check is genuinely missing</td></tr>
+<tr><td>11</td><td><code class="prism-inline-code">warnings array contains operation index + RPM value when physics check fails</code></td><td>Warning format missing <code class="prism-inline-code">Op 1 line</code> prefix</td></tr></tbody></table>
+<h3 class="prism-h3">C. Material-constant override validation (5) — U-PPGH04 silent-disable guard</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>12</td><td><code class="prism-inline-code">rejects kc1_1 override below safe floor</code></td><td>No floor validation — silently accepts</td></tr>
+<tr><td>13</td><td><code class="prism-inline-code">rejects kc1_1 override above safe ceiling</code></td><td>No ceiling validation — silently accepts</td></tr>
+<tr><td>14</td><td><code class="prism-inline-code">rejects mc override outside [0.10, 0.45]</code></td><td>No mc range validation</td></tr>
+<tr><td>15</td><td><code class="prism-inline-code">rejects mismatched iso_group between op.material_iso and op.material.iso_group</code></td><td>No cross-field validation</td></tr>
+<tr><td>16</td><td><code class="prism-inline-code">Kienzle-bounded feed optimization &gt; reduces feed when predicted Fc exceeds max_cutting_force_N</code></td><td>Feed-bound loop not triggering</td></tr>
+<tr><td>17</td><td><code class="prism-inline-code">Kienzle-bounded feed optimization &gt; optimized feed produces Fc ≤ limit</code></td><td>When it does run, the bound is wrong</td></tr></tbody></table>
+<blockquote class="prism-quote">⚠️ U-PPGH04 ships under-validated. Per R12 fail-loud doctrine, silently accepting out-of-range kc1_1 is the bug class that lets a programmer push 4× canonical force into a real spindle. This is safety-relevant.</blockquote>
+<h3 class="prism-h3">D. Setup sheet emission (3)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>18</td><td><code class="prism-inline-code">emits setup_sheet by default with machine=&#39;Hurco VMX24&#39; and controller=&#39;WinMax V11&#39;</code></td><td><code class="prism-inline-code">setup_sheet</code> not in result OR fields missing</td></tr>
+<tr><td>19</td><td><code class="prism-inline-code">setup_sheet.tools deduplicated and sorted ascending by tool number</code></td><td>Dedup + sort logic missing</td></tr>
+<tr><td>20</td><td><code class="prism-inline-code">setup_sheet.operations rows have sequential 1-based sequence numbers in order</code></td><td>Sequence numbering missing</td></tr></tbody></table>
+<h3 class="prism-h3">E. postSingle simplified API (4)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>21</td><td><code class="prism-inline-code">wraps a single PostMove array into a complete program</code></td><td><code class="prism-inline-code">postSingle</code> either missing or doesn&#39;t wrap properly</td></tr>
+<tr><td>22</td><td><code class="prism-inline-code">PostMove arc_cw with R is preserved through to G02 R# output</code></td><td>Arc with R-form not emitting <code class="prism-inline-code">G02 R#</code></td></tr>
+<tr><td>23</td><td><code class="prism-inline-code">aggressiveness param flows through to output and header</code></td><td>Aggressiveness header line missing</td></tr>
+<tr><td>24</td><td><code class="prism-inline-code">structured tool coating + stickout flow into setup sheet</code></td><td>Structured-tool→setup-sheet pipe missing</td></tr></tbody></table>
+<h3 class="prism-h3">F. Tool/config precedence (1)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>25</td><td><code class="prism-inline-code">uses structured tool.description override when supplied (flat tool_description shadowed)</code></td><td>Config precedence wrong — flat key wins over structured</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">What this means for your Fusion-to-WinMax workflow</h2>
+<p>You said <em>&quot;when we get to testing, I&#39;ll log into fusion to post hurco programs&quot;</em>. <strong>Important distinction:</strong> there are TWO separate posts here:</p>
+<ol class="prism-md-list"><li><strong>PRISM&#39;s <code class="prism-inline-code">HurcoV11MillMasterPostEngine</code></strong> — TypeScript engine that consumes <code class="prism-inline-code">MillOperation[]</code> and emits G-code lines. Tested above. Has 25 failing assertions.</li><li><strong>Fusion 360&#39;s Hurco <code class="prism-inline-code">.cps</code> post processor</strong> — JavaScript that Fusion uses internally. Lives in Fusion&#39;s posts folder. PRISM does not (yet?) ship a Fusion <code class="prism-inline-code">.cps</code> post for Hurco V11.</li></ol>
+<p>If you post in Fusion 360, <strong>Fusion uses ITS post processor, not PRISM&#39;s engine</strong>. Verifying PRISM&#39;s engine and the Fusion <code class="prism-inline-code">.cps</code> are two separate verification jobs. Things to know:</p>
+<ul class="prism-md-list"><li>Fusion&#39;s default Hurco post (<code class="prism-inline-code">hurco.cps</code>) is shipped by Autodesk + maintained by their HSM team — different code from PRISM&#39;s</li><li>If you want PRISM&#39;s logic in Fusion&#39;s post path, that&#39;s a <code class="prism-inline-code">.cps</code> wrapper unit (significant work — translate the TypeScript engine into Fusion&#39;s JavaScript Post Processor format)</li><li>WinMax PC will load whatever .NC you give it regardless of which post produced it</li></ul>
+<p><strong>Realistic next steps to actually test &quot;the Hurco post&quot;:</strong></p>
+<table class="prism-md-table"><thead><tr><th>Path</th><th>Effort</th><th>Value</th></tr></thead><tbody><tr><td><strong>A. Fix PRISM&#39;s engine</strong> (25 test failures → 0)</td><td>1-2 days dedicated milestone (<code class="prism-inline-code">HURCO-POST-REMEDIATION-MS0</code>)</td><td>Restores the canonical post + makes the engine reliable</td></tr>
+<tr><td><strong>B. Post from Fusion + load in WinMax</strong></td><td>Operator does it manually</td><td>Verifies Fusion&#39;s Autodesk post + WinMax — does NOT verify PRISM&#39;s engine</td></tr>
+<tr><td><strong>C. Build a Fusion <code class="prism-inline-code">.cps</code> wrapper around PRISM&#39;s engine</strong></td><td>2-3 day milestone, AFTER (A) is green</td><td>Routes Fusion&#39;s output through PRISM physics gates. Highest long-term value.</td></tr>
+<tr><td><strong>D. Build a WinMax GUI driver</strong></td><td>Half-day</td><td>Useful for any path above. Premature until (A) lands.</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">Recommendation</h2>
+<ol class="prism-md-list"><li><strong>Don&#39;t ship a WinMax GUI driver this session</strong> — the upstream engine isn&#39;t ready. Building UIA automation on top of a 50%-failing post is premature.</li><li><strong>Open <code class="prism-inline-code">HURCO-POST-REMEDIATION-MS0</code></strong> as a milestone with the 25 failures as units. Categories A + C are safety-relevant (UltiMotion missing → wrong cycle behavior; material-override floor missing → unsafe force). Categories B+D+E are output-fidelity.</li><li><strong>For your Fusion-to-WinMax test pass</strong> that you said you&#39;ll do: it&#39;ll exercise <strong>Fusion&#39;s</strong> post, not PRISM&#39;s. Useful as an independent baseline + good for spotting WinMax-side issues, but it&#39;s a different test than verifying PRISM&#39;s engine.</li><li><strong>Reproduce the failures yourself:</strong> <code class="prism-inline-code">cd H:/prism/mcp-server &amp;&amp; npx vitest run src/__tests__/HurcoV11MillMasterPostEngine.test.ts</code></li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">Artifacts</h2>
+<ul class="prism-md-list"><li>This report: <code class="prism-inline-code">state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.md</code></li><li>Raw failure list: <code class="prism-inline-code">state/shared/specs/HURCO-POST-VERIFICATION-FAILURES-2026-05-22.txt</code></li><li>Engine: <code class="prism-inline-code">mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts</code> (1664 LOC)</li><li>Tests: <code class="prism-inline-code">mcp-server/src/__tests__/HurcoV11*.test.ts</code> (11 files, 223 tests, 198 PASS / 25 FAIL)</li><li>Corpus probe: <code class="prism-inline-code">state/shared/hurco-quick.json</code> + <code class="prism-inline-code">state/shared/hurco-ncfiles.json</code></li><li>WinMax PC: <code class="prism-inline-code">C:\Program Files\Hurco\MT WinMax Desktop\WinMaxMill.exe</code> v11.4.3.31916</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

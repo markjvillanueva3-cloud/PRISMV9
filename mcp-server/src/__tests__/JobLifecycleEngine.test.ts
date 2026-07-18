@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { jobLifecycleEngine } from "../engines/JobLifecycleEngine.js";
+import { jobLifecycleEngine, JOB_STATUS } from "../engines/JobLifecycleEngine.js";
 
 describe("JobLifecycleEngine", () => {
   describe("createJob()", () => {
@@ -143,6 +143,68 @@ describe("JobLifecycleEngine", () => {
       const dash = jobLifecycleEngine.dashboard();
       expect(typeof dash).toBe("object");
       expect(dash).not.toBeNull();
+    });
+  });
+
+  describe("operationsKpis()", () => {
+    it("returns a real, bounded KPI rollup once jobs exist", () => {
+      jobLifecycleEngine.createJob({ customer: "TEST-OPS", part_number: "OPS-1", quantity: 1 });
+      const k = jobLifecycleEngine.operationsKpis();
+      expect(k.data_available).toBe(true);
+      expect(k.total_jobs).toBeGreaterThan(0);
+      expect(typeof k.by_status).toBe("object");
+      // percentages are either null (no qualifying jobs) or bounded to [0,100]
+      for (const v of [k.on_time_delivery_rate, k.schedule_health_pct]) {
+        if (v !== null) {
+          expect(v).toBeGreaterThanOrEqual(0);
+          expect(v).toBeLessThanOrEqual(100);
+        }
+      }
+      expect(k.overdue_pct).toBeGreaterThanOrEqual(0);
+      expect(k.at_risk_pct).toBeLessThanOrEqual(100);
+    });
+
+    it("counts an active past-due job as overdue (derived from real due_date, not fabricated)", () => {
+      const before = jobLifecycleEngine.operationsKpis();
+      jobLifecycleEngine.createJob({
+        customer: "TEST-OVERDUE", part_number: "OD-1", quantity: 1,
+        due_date: "2020-01-01T00:00:00.000Z",
+      });
+      const after = jobLifecycleEngine.operationsKpis();
+      expect(after.overdue).toBe(before.overdue + 1);
+    });
+
+    it("does NOT count a far-future-due active job as overdue", () => {
+      const before = jobLifecycleEngine.operationsKpis();
+      jobLifecycleEngine.createJob({
+        customer: "TEST-FUTURE", part_number: "FT-1", quantity: 1,
+        due_date: "2099-01-01T00:00:00.000Z",
+      });
+      const after = jobLifecycleEngine.operationsKpis();
+      expect(after.overdue).toBe(before.overdue);
+      expect(after.active_jobs).toBe(before.active_jobs + 1);
+    });
+
+    it("on-time-delivery rate uses actual_end vs due_date: an on-time ship lifts it, a late ship never raises it", () => {
+      // On-time: future due, shipped now -> actual_end <= due_date.
+      const onTime = jobLifecycleEngine.createJob({
+        customer: "TEST-ONTIME", part_number: "OT-1", quantity: 1,
+        due_date: "2099-01-01T00:00:00.000Z",
+      });
+      jobLifecycleEngine.updateStatus(onTime.id, JOB_STATUS.SHIPPED);
+      const mid = jobLifecycleEngine.operationsKpis();
+      expect(mid.on_time_delivery_rate).not.toBeNull();
+      expect(mid.on_time_delivery_rate as number).toBeGreaterThan(0);
+
+      // Late: past due, shipped now -> actual_end > due_date. Adding a late ship cannot raise the rate.
+      const late = jobLifecycleEngine.createJob({
+        customer: "TEST-LATE", part_number: "LT-1", quantity: 1,
+        due_date: "2020-01-01T00:00:00.000Z",
+      });
+      jobLifecycleEngine.updateStatus(late.id, JOB_STATUS.SHIPPED);
+      const after = jobLifecycleEngine.operationsKpis();
+      expect(after.completed_jobs).toBe(mid.completed_jobs + 1);
+      expect(after.on_time_delivery_rate as number).toBeLessThanOrEqual(mid.on_time_delivery_rate as number);
     });
   });
 });

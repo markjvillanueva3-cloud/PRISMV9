@@ -1,0 +1,200 @@
+{
+  "id": "MF-MS4",
+  "version": "6.2.0",
+  "title": "System Integration — PP Pipeline + Simulation + CAM + Fusion 360",
+  "created_at": "2026-03-14T16:00:00Z",
+  "description": "Wire the feasibility stack into all PRISM subsystems: PP pipeline Stage 0.8 (pre-check), CNC simulation bridge (IPW-aware physics), CAM program assembly pre-hook, and Fusion 360 LiveBridge for real geometry extraction and CAM tree validation. Build the FeasibilityOrchestratorEngine that chains all layers.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Orchestrator + PP Integration",
+      "units": [
+        {
+          "id": "U-MF01",
+          "title": "FeasibilityOrchestratorEngine: master orchestrator chaining all 6 layers",
+          "status": "shipped",
+          "steps": [
+            "fullAnalysis(): run complete forward simulation with all checks",
+            "quickCheck(): fast pass/fail (top 5 risks in <100ms)",
+            "whatIf(): test impact of moving one operation",
+            "Chain: WorkpieceState → Accessibility → Workholding → Rigidity → Sequence → Report",
+            "Output: CompleteFeasibilityReport with per-operation risk, dead-ends, suggestions"
+          ],
+          "exit_conditions": [
+            "Full analysis runs all layers",
+            "Quick check completes in <100ms",
+            "whatIf produces meaningful comparison"
+          ],
+          "legacy_id": "U01",
+          "description": "FeasibilityOrchestratorEngine: master orchestrator chaining all 6 layers — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "auto_close_out_at": "2026-05-24T00:59:31.300Z",
+          "auto_close_out_reason": "dispatcher-wired engine FeasibilityOrchestratorEngine found in corpus"
+        },
+        {
+          "id": "U-MF02",
+          "title": "PP Pipeline Stage 0.8: feasibility pre-check before physics optimization",
+          "status": "pending",
+          "steps": [
+            "Add Stage 0.8 to PostProcessorPipelineEngine between smart defaults (0.6) and physics (1.1)",
+            "Quick mode: check top risks, add warnings to pipeline output",
+            "Full mode: forward simulation, block pipeline if dead-end detected",
+            "Configurable: stages.feasibility_precheck = true/false"
+          ],
+          "exit_conditions": [
+            "Stage 0.8 appears in pipeline output",
+            "Dead-end blocks pipeline with actionable error",
+            "Quick mode adds warnings without blocking"
+          ],
+          "legacy_id": "U02",
+          "description": "PP Pipeline Stage 0.8: feasibility pre-check before physics optimization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Simulation + CAM + Fusion Integration",
+      "units": [
+        {
+          "id": "U-MF03",
+          "title": "CNC Simulation bridge: feed IPW state for progressive physics verification",
+          "status": "pending",
+          "steps": [
+            "Feed WorkpieceState to CNCSimulationPipelineEngine at each operation boundary",
+            "Block-by-block force check against evolving geometry (not just static stock)",
+            "Detect mid-program force spikes from changing engagement conditions",
+            "Wire to PhysicsAwareSimulationEngine for thermal/deflection/Ra tracking"
+          ],
+          "exit_conditions": [
+            "Simulation uses evolving IPW, not static stock",
+            "Force spikes from geometry changes detected",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "legacy_id": "U03",
+          "description": "CNC Simulation bridge: feed IPW state for progressive physics verification — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-MF04",
+          "title": "CAM + Fusion integration: pre-validate sequences, extract live geometry",
+          "status": "pending",
+          "steps": [
+            "CNCProgramAssemblerEngine pre-hook: validate sequence before assembly",
+            "Fusion360LiveBridgeEngine: extract B-rep geometry for Level 3 analysis",
+            "Fusion CAM tree reader (via LiveBridge): read operation list, tool assignments, setup orientations",
+            "AutoResequence: if dead-end found, suggest valid ordering via MCP response",
+            "Wire 12 dispatcher actions to camDispatcher"
+          ],
+          "exit_conditions": [
+            "CAM assembly pre-check catches dead-ends before G-code generation",
+            "Fusion geometry extraction works for Level 3 analysis",
+            "All 12 actions callable through dispatcher"
+          ],
+          "legacy_id": "U04",
+          "description": "CAM + Fusion integration: pre-validate sequences, extract live geometry — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mf-ms4-gate",
+    "mcp_action": "prism_mf:mf_ms4_run",
+    "skill_command": "/mf-ms4",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mf-ms4-gate"
+    ],
+    "new_actions": [
+      "mf_ms4_run"
+    ],
+    "new_skills": [
+      "/mf-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Wire the feasibility stack into all PRISM subsystems: PP pipeline Stage 0.8 (pre-check), CNC simulation bridge (IPW-aware physics), CAM program assembly pre-hook, and Fusion 360 LiveBridge for real geometry extraction and CAM tree validation. Build the FeasibilityOrchestratorEngine that chains all layers.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": {},
+  "updated_at": "2026-05-24"
+}

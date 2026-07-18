@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="994fb9e4b8582a1f0185e93fcbc13987bfa54af35dc3c3fddada912db4fc7870">
+<title>Alpha-Slot Carryover Backlog — 2026-05-17</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Alpha-Slot Carryover Backlog — 2026-05-17</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.136Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#alpha-slot-carryover-backlog-2026-05-17">Alpha-Slot Carryover Backlog — 2026-05-17</a></li>
+<li class="toc-l2"><a href="#tier-a-active-carryover-alpha-worked-on-this-in-last-48h-units-remain">TIER A — Active carryover (alpha worked on this in last 48h, units remain)</a></li>
+<li class="toc-l2"><a href="#tier-b-carryover-with-significant-progress-alpha-didnt-close">TIER B — Carryover with significant progress, alpha didn&#39;t close</a></li>
+<li class="toc-l2"><a href="#tier-c-likely-closed-but-referenced-verify-before-flagging-missing">TIER C — Likely-closed-but-referenced (verify before flagging missing)</a></li>
+<li class="toc-l2"><a href="#tier-d-one-shot-alpha-tasks-deliverable-scoped-to-a-single-chat">TIER D — One-shot alpha tasks (deliverable scoped to a single chat)</a></li>
+<li class="toc-l2"><a href="#what-to-do-with-this-backlog">What to do with this backlog</a></li>
+<li class="toc-l2"><a href="#recommended-highest-leverage-picks-per-domain-pipeline-doctrine-2026-05-17">Recommended highest-leverage picks (per domain-pipeline doctrine 2026-05-17)</a></li>
+<li class="toc-l2"><a href="#source">Source</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="alpha-slot-carryover-backlog-2026-05-17"><a class="anchor" href="#alpha-slot-carryover-backlog-2026-05-17" aria-label="Permalink to Alpha-Slot Carryover Backlog — 2026-05-17">#</a>Alpha-Slot Carryover Backlog — 2026-05-17</h1>
+<blockquote>
+<p>Generated by <code>scripts/lib/alpha-backlog-extract.mjs</code> from 95 alpha-tagged handoffs across 56 historical alpha chats. Advisory only — every item must be human-verified before action (per [[reference_close_out_audit]]). Cross-referenced against <code>state/shared/MILESTONE_PROGRESS.json</code> (envelope vs git reality).</p>
+</blockquote>
+<p><strong>Scanned:</strong> 95 handoffs · <strong>Historical alpha chats:</strong> 56 · <strong>Milestones with carryover:</strong> 39 · <strong>Newest:</strong> 2026-05-17T23:27Z · <strong>This chat:</strong> <code>claude-69c63409</code></p>
+<hr>
+<h2 id="tier-a-active-carryover-alpha-worked-on-this-in-last-48h-units-remain"><a class="anchor" href="#tier-a-active-carryover-alpha-worked-on-this-in-last-48h-units-remain" aria-label="Permalink to TIER A — Active carryover (alpha worked on this in last 48h, units remain)">#</a>TIER A — Active carryover (alpha worked on this in last 48h, units remain)</h2>
+<blockquote>
+<p><strong>2026-05-17T23:40Z update — silent close-out debt class confirmed.</strong> Verified during /loop iter-1: CAMK-MS0, MF-MS1, MF-MS3 all have engines+tests+wiring on disk but MILESTONE_PROGRESS shows 0/N (commits never tagged <code>[SCOPE]/U-ID</code>). The <code>audit-close-out-candidates.mjs</code> script returns 0 candidates while this drift class is real. <strong>NEW backlog unit needed:</strong> fix the audit heuristic to detect envelope-vs-MILESTONE_PROGRESS drift, not just envelope-vs-file-presence.</p>
+</blockquote>
+<div class="table-wrap"><table>
+<thead><tr><th>Milestone</th><th>Real Status</th><th>Verified</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>COMMAND-KERNEL-MS0</strong></td><td>in_progress_real</td><td>NOT verified</td><td>peer-claimed by bravo (claude-23651823 on U-CK03) + 2d30710b /loop on CK17-CK25 — <strong>do not race</strong></td></tr>
+<tr><td><strong>OBSIDIAN-INTELLIGENCE-MS3</strong></td><td>needs verify</td><td>NOT verified</td><td>check existing U-VOICE-CAPTURE / U-RESOURCES-INGEST-CRON / U-WEEKLY-SYNTHESIS engines before claiming &quot;not_started&quot;</td></tr>
+<tr><td><del><strong>CAMK-MS0</strong></del></td><td><strong>✅ shipped 5/5</strong></td><td>2026-05-17T23:40Z</td><td>ToolAxisOptimizationEngine 486 LOC, 14/14 tests PASS, wired to toolpathDispatcher action <code>tool_axis_optimize</code>. <strong>Silent close-out — needs MILESTONE_PROGRESS reconcile.</strong></td></tr>
+<tr><td><del><strong>MF-MS1</strong></del></td><td><strong>✅ shipped 4/4</strong></td><td>2026-05-17T23:40Z</td><td>AccessibilityAnalysisEngine 689 LOC, wired to feasibilityDispatcher. <strong>Silent close-out.</strong></td></tr>
+<tr><td><del><strong>MF-MS3</strong></del></td><td><strong>✅ likely shipped 3/3</strong></td><td>2026-05-17T23:40Z (partial)</td><td>SetupTransitionEngine + PredictiveFailureEngine + ForceCapabilityEngine all on disk. setupTransition wired to feasibilityDispatcher line 55. <strong>Verify tests pass before flipping envelope.</strong></td></tr>
+<tr><td><strong>NN-GRAPH-MS2</strong></td><td>in-flight</td><td>partial</td><td>U1 + U2 + NN-1 shipped this week per CLAUDE.md. Next gate is data-side (operator stratified retrain) — NOT a build task</td></tr>
+<tr><td><strong>REAPER-PERMFIX-MS0</strong></td><td>in-flight</td><td>NOT verified</td><td>Tier 1+2 shipped; Tier 3 (Windows Service supervisor) — golf-owned per 2026-05-16 doctrine flip</td></tr>
+<tr><td><strong>SLOT-DRIFT-FIX-MS0</strong></td><td>shipped via SDF04-19</td><td>done</td><td>per CLAUDE.md Recent regressions block; bravo closed</td></tr>
+<tr><td><strong>WIRE-UNWIRED-MS0</strong></td><td>peer-claimed bc59280b /loop iter 1/20</td><td>active</td><td><strong>do not race</strong></td></tr>
+</tbody>
+</table></div>
+<h2 id="tier-b-carryover-with-significant-progress-alpha-didnt-close"><a class="anchor" href="#tier-b-carryover-with-significant-progress-alpha-didnt-close" aria-label="Permalink to TIER B — Carryover with significant progress, alpha didn&#39;t close">#</a>TIER B — Carryover with significant progress, alpha didn&#39;t close</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Milestone</th><th>Real Status</th><th>Pending</th><th>Last Alpha Touch</th><th>Mentioned Units</th></tr></thead>
+<tbody>
+<tr><td><strong>CLEANUP-MS0</strong></td><td>in_progress_real</td><td>8/73 (11%)</td><td>2026-05-14T17:56</td><td>7 actionable left: B9/B12/C5/D6/D8/F1/F2B (per claude-c3bb4979 RESUME)</td></tr>
+<tr><td><strong>CAM-PARITY-AGI-MS0</strong></td><td>in_progress_real</td><td>12/16 (75%)</td><td>2026-05-13T17:04</td><td>U-CAMP01, U-CAMP13/14/15, U-COORD04/05/11/13</td></tr>
+<tr><td><strong>AUTO-LEARNING-LOOP-MS0</strong></td><td>in_progress_real (envelope says complete)</td><td>8/12 (67%)</td><td>2026-05-13T20:14</td><td>—</td></tr>
+<tr><td><strong>TRAINING-LEARNING-MS0</strong></td><td>in_progress_real (envelope says completed)</td><td>4/7 (57%)</td><td>2026-05-13T18:47</td><td>U-TL-U4 (WEDMPartFamilyTemplate + TaptiteElectrodeMacroBridge — forked to H:/prism-training-learning-u4)</td></tr>
+<tr><td><strong>AI-MAX-MS0</strong></td><td>in_progress_real</td><td>3/12 (25%)</td><td>2026-05-13T13:53</td><td>U-AIMAX11 (next pick at that time)</td></tr>
+<tr><td><strong>CAD-INFRA-MS0</strong></td><td>in_progress_real (envelope says complete)</td><td>12/16 (75%)</td><td>2026-05-12T20:00</td><td>U-COORD07, U-COORD10</td></tr>
+<tr><td><strong>CAD-COMPLETE-MS0</strong></td><td>in_progress_real</td><td>302/335 (90%)</td><td>2026-05-13T15:26</td><td>U-CADC-AI03 (next pick at that time)</td></tr>
+</tbody>
+</table></div>
+<h2 id="tier-c-likely-closed-but-referenced-verify-before-flagging-missing"><a class="anchor" href="#tier-c-likely-closed-but-referenced-verify-before-flagging-missing" aria-label="Permalink to TIER C — Likely-closed-but-referenced (verify before flagging missing)">#</a>TIER C — Likely-closed-but-referenced (verify before flagging missing)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Milestone</th><th>Status</th><th>Reason for inclusion</th></tr></thead>
+<tbody>
+<tr><td>AUTOCOMPACT-AUTONOMOUS-MS0</td><td>likely shipped</td><td>RESUME says shipped commits 1f76f0355</td></tr>
+<tr><td>OBSIDIAN-COMPOUND-MS1</td><td>closed_out (per envelope)</td><td>claude-a2b1b5ca closed via d024a03fc audit</td></tr>
+<tr><td>OBSIDIAN-PRISM-OS-MS0</td><td>likely shipped</td><td>11 U-units; closed-out via audit reconciliation</td></tr>
+<tr><td>PILLAR-TELEMETRY-RECOVERY-MS0</td><td>likely partial</td><td>U-PTR01+04 shipped; U-PTR02 (esbuild) + U-PTR03 (operator-restart) open</td></tr>
+<tr><td>WORKTREE-CONSOLIDATE-MS0</td><td>superseded by SLOT-WORKTREE-MS0</td><td>claimed superseded — no-op carryover</td></tr>
+<tr><td>BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0</td><td>likely shipped</td><td>claude-aec2148c RESUME says 8/8 complete @ work/skills-utilization-ms0 HEAD 6ef530b5b</td></tr>
+<tr><td>BACKEND-DEVTOOLS-RGS6-HOOK-SYNERGY-MS0</td><td>partially shipped</td><td>3 commits done; U-H1/H2/H3/H6 mentioned</td></tr>
+<tr><td>INTEL-OLLAMA-OBSIDIAN-MS0</td><td>shipped 80/92 (87%) — peer-owned per slot allocation</td><td>12 units pending; not alpha&#39;s lane post-domain-split</td></tr>
+<tr><td>CALC-RESTORE-MS0</td><td>abandoned mid-Phase-1A</td><td>~80% turning-cost wiring done; needs revival</td></tr>
+<tr><td>CHECKIN-UPGRADE-MS0</td><td>likely shipped</td><td>P3-SCRUTINY-FIXES committed 92c262373</td></tr>
+</tbody>
+</table></div>
+<h2 id="tier-d-one-shot-alpha-tasks-deliverable-scoped-to-a-single-chat"><a class="anchor" href="#tier-d-one-shot-alpha-tasks-deliverable-scoped-to-a-single-chat" aria-label="Permalink to TIER D — One-shot alpha tasks (deliverable scoped to a single chat)">#</a>TIER D — One-shot alpha tasks (deliverable scoped to a single chat)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Milestone/Topic</th><th>Chat</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>JULIETT-12CHAT-ALLOCATION-MS0</td><td>claude-69c63409 (current), claude-1296da87</td><td>U-PRECOMMIT-PATHSPEC-ONLY shipped 22418a618a; ENVELOPE created</td></tr>
+<tr><td>L8-P0-MS2</td><td>many chats reference as &quot;Next&quot; — handoff template auto-injected, NOT alpha-owned</td><td>Filter out (false carryover from precompact auto-resume)</td></tr>
+<tr><td>INFRA-CONSENSUS-WIRE-MS0</td><td>&quot;Next&quot; template entry</td><td>Filter out</td></tr>
+<tr><td>INFRA-AGI-ROUTER-MS2</td><td>&quot;Next&quot; template entry</td><td>Filter out</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="what-to-do-with-this-backlog"><a class="anchor" href="#what-to-do-with-this-backlog" aria-label="Permalink to What to do with this backlog">#</a>What to do with this backlog</h2>
+<ol>
+<li><strong>Verify TIER A first</strong> — these are still load-bearing. <code>derivedStatus: in_progress_real</code> + units mentioned in alpha handoffs but not in <code>shipped_units[]</code>.</li>
+<li><strong>Cross-check TIER B against current peer claims</strong> — <code>node .claude/helpers/slot-task-claim.mjs list</code> and <code>node .claude/helpers/chat-slots.mjs status</code> to confirm no peer slot is mid-work on the same unit before claiming.</li>
+<li><strong>TIER C requires human triage</strong> — read each milestone&#39;s envelope JSON + recent commits before declaring complete or revival-needed. Use <code>/close-out-audit</code> to surface candidates.</li>
+<li><strong>TIER D auto-filter</strong> — generic &quot;Next:&quot; template lines from <code>per-agent-handoff.mjs</code> are not alpha-specific work. Drop.</li>
+</ol>
+<h2 id="recommended-highest-leverage-picks-per-domain-pipeline-doctrine-2026-05-17"><a class="anchor" href="#recommended-highest-leverage-picks-per-domain-pipeline-doctrine-2026-05-17" aria-label="Permalink to Recommended highest-leverage picks (per domain-pipeline doctrine 2026-05-17)">#</a>Recommended highest-leverage picks (per domain-pipeline doctrine 2026-05-17)</h2>
+<p>Per the domain partition (2026-05-17), alpha owns <strong>mill</strong> (mill-domain) per <code>state/shared/slot-task-queues.json</code>. The most aligned carryover for alpha:</p>
+<ul>
+<li><strong>CAMK-MS0/U05</strong> (ToolAxisOptimizationEngine, 5-axis tool orientation, new engine) — explicit mill-domain unit, never shipped, derived_status not_started_real</li>
+<li><strong>MF-MS1/U-MF01</strong> (AccessibilityAnalysisEngine — tool reach/holder clearance/corner radius/approach angle) — mill-domain feasibility, new engine</li>
+<li><strong>NN-GRAPH-MS2/U2-SELF-RETRAIN-LIFECYCLE</strong> — already-shipped (see CLAUDE.md NN-GRAPH-MS2 section); next gate is data-side (operator stratified retrain) — <strong>NOT a build task</strong>, an op task</li>
+<li><strong>REAPER-PERMFIX-MS0/Tier-3 Windows Service supervisor</strong> — already in-flight per claude-420260fa handoff; verify peer (golf?) hasn&#39;t picked it up</li>
+</ul>
+<h2 id="source"><a class="anchor" href="#source" aria-label="Permalink to Source">#</a>Source</h2>
+<ul>
+<li>Extractor: <code>scripts/lib/alpha-backlog-extract.mjs</code> (this session, claude-69c63409)</li>
+<li>Raw JSON: re-run <code>node scripts/lib/alpha-backlog-extract.mjs &gt; state/shared/specs/ALPHA-SLOT-CARRYOVER-BACKLOG-2026-05-17.json</code></li>
+<li>Handoff dir: <code>state/shared/handoffs/HANDOFF-claude-*-alpha-*.md</code> (95 files)</li>
+<li>Cross-ref: <code>state/shared/MILESTONE_PROGRESS.json</code> (shipped/total per milestone)</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="ALPHA-SLOT-CARRYOVER-BACKLOG-2026-05-17.md">ALPHA-SLOT-CARRYOVER-BACKLOG-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

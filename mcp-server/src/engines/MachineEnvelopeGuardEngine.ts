@@ -13,6 +13,8 @@
  * @module engines/MachineEnvelopeGuardEngine
  */
 
+import { resolveSpindlePowerKw, resolveMaxRpm, resolveMinRpm } from "../registries/machine-normalizer.js";
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -221,9 +223,9 @@ export class MachineEnvelopeGuardEngine {
    */
   fromMachineData(machine: Record<string, any>): MachineEnvelope {
     return {
-      max_rpm: machine.max_rpm ?? machine.max_spindle_rpm ?? machine.spindle?.max_rpm,
-      min_rpm: machine.min_rpm ?? machine.spindle?.min_rpm ?? 50,
-      max_power_kW: machine.max_power_kW ?? machine.power_kW ?? machine.spindle?.power_continuous,
+      max_rpm: machine.max_rpm ?? machine.max_spindle_rpm ?? resolveMaxRpm(machine.spindle).value ?? machine.spindle?.max_rpm, // U-MACHDB-08: 6-key RPM variant union -- over-speed clamp now sees ratedRpm/max_speed/rpm_max/maxRpm (was undefined = no clamp)
+      min_rpm: machine.min_rpm ?? resolveMinRpm(machine.spindle).value ?? machine.spindle?.min_rpm ?? 50,
+      max_power_kW: machine.max_power_kW ?? machine.power_kW ?? resolveSpindlePowerKw(machine.spindle).value ?? machine.spindle?.power_continuous, // U-MACHDB-07: 8-key variant union (power-limit guard sees real variant-keyed power)
       max_feed_mm_min: machine.max_feed_mm_min ?? machine.max_cutting_feed ?? 15000,
       rapid_rate_mm_min: machine.rapid_rate_mm_min ?? machine.rapid_rate?.x ?? 30000,
       work_volume: machine.work_volume ?? (machine.envelope ? {

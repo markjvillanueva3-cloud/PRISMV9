@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `erp-sync` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/erp-sync.md` |
+| Source | `C:/Users/wompu/.claude/commands/erp-sync.md` |
 | Model | default |
 | Tags | _(none)_ |
 

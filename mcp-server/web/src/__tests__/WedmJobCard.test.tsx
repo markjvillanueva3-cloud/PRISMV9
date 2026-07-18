@@ -92,7 +92,7 @@ describe('U-WEDM-ERP09: chip labels and status coverage', () => {
     render(<WedmJobCard job={makeJob({ priority: 'emergency' })} />);
     const chip = screen.getByTestId('wedm-card-priority');
     expect(chip.textContent).toMatch(/Emergency/);
-    expect(chip.className).toMatch(/prism-glow-red/);
+    expect(chip.className).toMatch(/kienzle-glow-red/);
   });
 
   it('falls back to Standard label for unknown priority', () => {
@@ -303,10 +303,10 @@ describe('U-WEDM-ERP09: card click + keyboard navigation', () => {
 // ─── Non-traditional glow (violet) ──────────────────────────────────────────
 
 describe('U-WEDM-ERP09: visual differentiation', () => {
-  it('applies prism-glow-violet class to distinguish from milling/turning', () => {
+  it('applies kienzle-glow-violet class to distinguish from milling/turning', () => {
     render(<WedmJobCard job={makeJob()} />);
     const card = screen.getByTestId('wedm-job-card-WEDM-001');
-    expect(card.className).toMatch(/prism-glow-violet/);
+    expect(card.className).toMatch(/kienzle-glow-violet/);
   });
 
   it('applies compact min-width when compact prop set', () => {

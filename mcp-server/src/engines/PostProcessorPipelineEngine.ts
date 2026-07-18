@@ -264,6 +264,7 @@ export interface StageConfig {
   monte_carlo?: boolean;
   uncertainty_propagation?: boolean;
   dimensional_verification?: boolean;
+  dimensional_ci_advisory?: boolean; // opt-in: always surface predicted dimensional Cpk + 95% CI to warnings[] (default OFF -> emitted NC byte-identical)
   surface_finish_verification?: boolean;
   environmental?: boolean;
   batch_variability?: boolean;
@@ -272,6 +273,7 @@ export interface StageConfig {
   safety_analysis?: boolean;
   playbook_rules?: boolean;
   tribal_knowledge?: boolean;
+  tribal_knowledge_live?: boolean; // opt-in: augment stage 5.3 with the live tribal DB (3,700+ tips); default OFF keeps emitted NC byte-identical (goldens unaffected)
   reliability_check?: boolean;
   energy_optimization?: boolean;
   sustainability_lca?: boolean;
@@ -285,6 +287,8 @@ export interface StageConfig {
   analytics_report?: boolean;
   cycle_time?: boolean;
   digital_twin?: boolean;
+  /** P6: emit this post-gen outcome to the cross-galaxy OutcomeCaptureBus (default on). */
+  outcome_emit?: boolean;
 }
 
 /** Pipeline input — the complete job specification */
@@ -649,6 +653,7 @@ class PostProcessorPipelineEngineImpl {
   private _engagementAdaptive: any = null;
   private _safetyAnalyzer: any = null;
   private _playbook: any = null;
+  private _selfAwareness: any = null;
   private _motionDynamics: any = null;
   private _toolpathSmoothing: any = null;
   private _cycleTimeEst: any = null;
@@ -690,6 +695,8 @@ class PostProcessorPipelineEngineImpl {
         return (this._safetyAnalyzer ??= (await import("./GCodeSafetyAnalyzerEngine.js")).gcSafetyAnalyzer);
       case "playbook":
         return (this._playbook ??= (await import("./MachiningPlaybookEngine.js")).machiningPlaybookEngine);
+      case "selfAwareness":
+        return (this._selfAwareness ??= (await import("./PRISMSelfAwarenessEngine.js")).prismSelfAwarenessEngine);
       case "motionDynamics":
         return (this._motionDynamics ??= (await import("./MotionDynamicsProfileEngine.js")).motionDynamicsProfileEngine);
       case "smoothing":
@@ -2971,6 +2978,44 @@ class PostProcessorPipelineEngineImpl {
       });
     }
 
+    // Stage 4.3b: Dimensional CI-95 advisory (opt-in; default OFF -> emitted NC byte-identical).
+    // Stage 4.3's DIM_VERIFY warnings fire ONLY on Cpk<1.33; this ALWAYS surfaces the predicted
+    // process capability + a 95% confidence interval on the dimension (from the ALREADY-computed
+    // Stage 4.2 uncertainty / Stage 4.3 Cpk) so quoting/setup sees the confidence even when capable.
+    // Adds a CI-95 line to warnings[] ONLY -- it does NOT alter emitted G-code. Fail-soft: no-op when
+    // the capability chain (4.2/4.3) produced no real data. Z_95 is the two-sided standard-normal z
+    // for a 95% CI (a statistical definition, not a physics constant).
+    if (stageFlags.dimensional_ci_advisory) {
+      _localRunStage("4.3b_dimensional_ci_advisory", 4, stages, () => {
+        const Z_95 = 1.96;
+        const s43 = stages.find((s) => s.stage === "4.3_dimensional_verification" && s.data);
+        const s42 = stages.find((s) => s.stage === "4.2_uncertainty_propagation" && s.data);
+        let cpk = (s43?.data as any)?.predicted_cpk as number | undefined;
+        // 4.3's "no-uncertainty = assume capable" 999 sentinel is not a real Cpk -- do not surface it.
+        if (typeof cpk === "number" && cpk >= 900) cpk = undefined;
+        const uncertaintyUm = (s42?.data as any)?.max_dim_uncertainty_um as number | undefined;
+        const parts: string[] = [];
+        if (typeof cpk === "number" && Number.isFinite(cpk)) parts.push(`Cpk=${cpk.toFixed(2)}`);
+        let ci95Mm: number | undefined;
+        if (typeof uncertaintyUm === "number" && Number.isFinite(uncertaintyUm) && uncertaintyUm > 0) {
+          ci95Mm = (Z_95 * uncertaintyUm) / 1000;
+          parts.push(`95%CI=+/-${ci95Mm.toFixed(4)}mm`);
+        }
+        if (parts.length === 0) {
+          return { surfaced: false, reason: "no real dimensional-capability data (enable dimensional_verification + uncertainty_propagation)" };
+        }
+        const tolMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
+        warnings.push(`CI-95: predicted dimensional capability ${parts.join(" ")} @ +/-${tolMm}mm tol`);
+        return {
+          surfaced: true,
+          cpk: typeof cpk === "number" ? +cpk.toFixed(2) : null,
+          ci95_mm: ci95Mm !== undefined ? +ci95Mm.toFixed(4) : null,
+        };
+      });
+    } else {
+      stages.push({ stage: "4.3b_dimensional_ci_advisory", phase: 4, status: "skipped", duration_ms: 0, summary: "Disabled (opt-in)", data: null });
+    }
+
     // Stage 4.4: Surface finish verification (Ra prediction)
     if (stageFlags.surface_finish_verification === true) {
       _localRunStage("4.4_surface_finish_verification", 4, stages, () => {
@@ -3237,7 +3282,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 5.3: Tribal knowledge — CAM-system-specific tips
     if (stageFlags.tribal_knowledge && material) {
-      _localRunStage("5.3_tribal_knowledge", 5, stages, () => {
+      await _localRunStageAsync("5.3_tribal_knowledge", 5, stages, async () => {
         const tips: string[] = [];
         const isoGroup = material.iso_group;
 
@@ -3264,8 +3309,41 @@ class PostProcessorPipelineEngineImpl {
           if (tool.type === "ball_endmill") tips.push(`TK: T${tool.id} ball nose — maintain min 5° tilt for effective cutting`);
         }
 
+        // LIVE tribal-DB augmentation (opt-in via stages.tribal_knowledge_live; default OFF ->
+        // emitted NC byte-identical, goldens unaffected). The engine's 3,700+ tip tribal DB
+        // (searchTribalKnowledgeSync) was previously bypassed here (dormant). When enabled, query
+        // the live DB by material name / operation type / tool type and append source-tagged tips.
+        // Fail-soft: sync read, [] on any error, so a DB miss or read failure never blocks a post.
+        let liveTipsApplied = 0;
+        if (stageFlags.tribal_knowledge_live) {
+          try {
+            const sa = await this._getEngine("selfAwareness");
+            const seen = new Set<string>(tips);
+            const opTypes = Array.from(new Set((input.operations ?? []).map((o: any) => o?.type).filter(Boolean)));
+            const toolTypes = Array.from(new Set(tools.map((t) => t.type).filter(Boolean)));
+            const queries = [material.name, ...opTypes, ...toolTypes].filter(
+              (q): q is string => typeof q === "string" && q.trim().length >= 3,
+            );
+            const MAX_LIVE = 12;
+            for (const q of queries) {
+              if (liveTipsApplied >= MAX_LIVE) break;
+              for (const entry of sa.searchTribalKnowledgeSync(q, { limit: 5 })) {
+                const line = `TK[${entry.source}]: ${entry.tip}`;
+                if (entry.tip && !seen.has(line)) {
+                  seen.add(line);
+                  tips.push(line);
+                  liveTipsApplied++;
+                  if (liveTipsApplied >= MAX_LIVE) break;
+                }
+              }
+            }
+          } catch {
+            /* fail-soft: hardcoded tips still emit; live augmentation is best-effort */
+          }
+        }
+
         if (tips.length > 0) warnings.push(...tips);
-        return { tips_applied: tips.length, material_group: isoGroup };
+        return { tips_applied: tips.length, live_tips_applied: liveTipsApplied, material_group: isoGroup };
       });
     } else {
       stages.push({ stage: "5.3_tribal_knowledge", phase: 5, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
@@ -4050,6 +4128,56 @@ class PostProcessorPipelineEngineImpl {
       blocks,
     }];
 
+    // Stage 6.9: Outcome emission -- publish this post-gen result to the cross-galaxy
+    // OutcomeCaptureBus (domain "post_processor") so the india self-learning loop can
+    // correlate emitted G-code with later operator edits / machine-alarm / cycle-time
+    // actuals. Closes the in-pipeline auto-emit gap: the dispatcher action
+    // prism_pp:pp_outcome_emit existed, but pipeline-generated posts never reached the
+    // bus. Best-effort -- the wire engine never throws/blocks; placed AFTER overall_status
+    // is fixed so this telemetry can never flip the pipeline verdict. Gated on real output
+    // (analyze()/dry-runs emit nothing) and opt-out via stages.outcome_emit === false.
+    const emitController = machine?.controller ?? input.controller;
+    if (outputGcode.length > 0 && input.stages?.outcome_emit !== false) {
+      await _localRunStageAsync("6.9_outcome_emit", 6, stages, async () => {
+        try {
+          const { ppgOutcomeCaptureWireEngine } = await import("./PPGOutcomeCaptureWireEngine.js");
+          const emit = ppgOutcomeCaptureWireEngine.recordEmission({
+            engine: "PostProcessorPipelineEngine",
+            action: "process",
+            // controller travels in `recommended` below (PPGEmissionContext has no
+            // controller field); context carries only its declared keys.
+            context: {
+              material: material?.name,
+            },
+            recommended: {
+              // block_count is derived by the summarizer from the emitted G-code line
+              // count (the true emitted-program metric); do NOT pass blocks.length -- on
+              // the gcode_generation:false + input.gcode passthrough path blocks may be
+              // empty while output is real, and an explicit 0 would mask the line count.
+              gcode: outputGcode,
+              controller: emitController,
+              overall_status: overallStatus,
+            },
+            confidence: overallStatus === "pass" ? 0.9 : overallStatus === "warn" ? 0.6 : 0.3,
+          });
+          return {
+            ok: emit.ok,
+            lineage_id: emit.lineage_id,
+            event_id: emit.event_id,
+            block_count: emit.summary.block_count,
+          };
+        } catch (err) {
+          return { status: "wire_unavailable", error: String(err) };
+        }
+      });
+    } else {
+      stages.push({
+        stage: "6.9_outcome_emit", phase: 6, status: "skipped", duration_ms: 0,
+        summary: outputGcode.length > 0 ? "Disabled (stages.outcome_emit=false)" : "No output to emit",
+        data: null,
+      });
+    }
+
     return {
       output_gcode: outputGcode,
       stages,
@@ -4447,6 +4575,7 @@ class PostProcessorPipelineEngineImpl {
       safety_analysis: s.safety_analysis !== false,
       playbook_rules: s.playbook_rules !== false,
       tribal_knowledge: s.tribal_knowledge !== false,
+      tribal_knowledge_live: s.tribal_knowledge_live === true, // opt-in: live tribal-DB augmentation (default OFF -> emitted NC byte-identical, goldens safe)
       robustness_score: s.robustness_score === true, // opt-in
       energy_optimization: s.energy_optimization === true, // opt-in
       sustainability_lca: s.sustainability_lca === true, // opt-in
@@ -4457,6 +4586,7 @@ class PostProcessorPipelineEngineImpl {
       monte_carlo: s.monte_carlo === true, // opt-in (expensive)
       uncertainty_propagation: s.uncertainty_propagation === true, // opt-in
       dimensional_verification: s.dimensional_verification === true, // opt-in
+      dimensional_ci_advisory: s.dimensional_ci_advisory === true, // opt-in advisory (default OFF -> byte-identical)
       surface_finish_verification: s.surface_finish_verification === true, // opt-in
       environmental: s.environmental === true, // opt-in
       batch_variability: s.batch_variability === true, // opt-in

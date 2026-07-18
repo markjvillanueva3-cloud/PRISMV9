@@ -1,0 +1,707 @@
+{
+  "id": "F360-AP-MS0",
+  "version": "2.0.0",
+  "title": "Fusion CAM API Surface + Cloud Library + HTTP Resilience",
+  "brief": "Build the foundation for PRISM AutoProgram: CAM setup/operation creation endpoints, B-Rep geometry extraction, Fusion 360 cloud library access, HTTP bridge hardening. This unblocks the entire AutoProgram pipeline (F360-AP-MS1 through MS8).",
+  "created_at": "2026-04-01T17:00:00Z",
+  "updated_at": "2026-04-01T18:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "F360-AP",
+  "track_name": "Fusion 360 AutoProgram",
+  "status": "complete",
+  "total_units": 10,
+  "completed_units": 10,
+  "estimated_sessions": 5,
+  "dependencies": [],
+  "context_for_cold_start": {
+    "what_is_this": "PRISM AutoProgram is a one-button automated CNC programming system inside Fusion 360. It chains 20+ existing PRISM engines through a 10-stage pipeline: Model Intake → Feature Recognition → DFM → Process Planning → Tool Selection → Strategy Selection → S/F Optimization → Fusion CAM Creation → Verification → Output Package. MS0 builds the Fusion 360 side of the bridge — the Python endpoints that create CAM operations, extract geometry, and access cloud data.",
+    "architecture": "TypeScript MCP server (port 3000) ↔ HTTP ↔ Python add-in (port 18360) ↔ adsk.cam/adsk.fusion API. The Python add-in uses a CustomEvent dispatch pattern for thread safety — ALL adsk.* calls MUST run on Fusion's main UI thread. HTTP requests arrive on a daemon thread, get dispatched to main thread via _run_on_main_thread(), results returned to HTTP thread.",
+    "primary_file": "H:/prism/mcp-server/scripts/fusion360-addin/fusion360_api_server.py (1576 LOC)",
+    "secondary_file": "H:/prism/mcp-server/src/engines/Fusion360LiveBridgeEngine.ts (752 LOC)",
+    "deploy_to": "%APPDATA%/Autodesk/Autodesk Fusion 360/API/AddIns/PRISMBridge/",
+    "critical_rules": [
+      "ALL adsk.* calls must run on main thread via CustomEvent dispatch — NEVER call from HTTP thread",
+      "Fusion 360 internal units are CENTIMETERS — always divide mm values by 10 when passing to adsk API",
+      "adsk.doEvents() must be called after geometry/CAM operations to let kernel regenerate",
+      "time.sleep() on main thread causes DEADLOCK — never use it",
+      "CORS restricted to localhost:3000 — do not open to *",
+      "ThreadedHTTPServer (not HTTPServer) — allows /health during long operations",
+      "150ms cooldown between geometry operations (MIN_OP_INTERVAL_S)"
+    ],
+    "existing_patterns_to_follow": {
+      "add_GET_route": "In _dispatch_get(), add 'elif path == \"/your/path\":' before the 'else:' clause. See lines 165-189.",
+      "add_POST_route": "In _dispatch_post(), add to the dispatch dict at line 196. Pattern: '\"/your/path\": self._your_handler,'",
+      "handler_method": "Add method to _FusionAPILogic class. Must return a JSON-serializable dict. Use try/except for all adsk calls.",
+      "query_param_parsing": "For GET params: query.get('name', [''])[0] if isinstance(query.get('name'), list) else query.get('name', '')",
+      "unit_conversion": "mm→cm: divide by 10. cm→mm: multiply by 10. Volume cm³→mm³: multiply by 1000. Area cm²→mm²: multiply by 100."
+    }
+  },
+  "knowledge_sources": {
+    "engines": [
+      "H:/prism/mcp-server/scripts/fusion360-addin/fusion360_api_server.py (1576 LOC) — THE file to modify for all Python endpoints",
+      "H:/prism/mcp-server/src/engines/Fusion360LiveBridgeEngine.ts (752 LOC) — TypeScript HTTP client, add typed methods here",
+      "H:/prism/mcp-server/src/engines/FeatureRecognitionEngine.ts (302 LOC) — RecognizedFeature schema (target output format for U06)",
+      "H:/prism/mcp-server/src/engines/FusionToolExportEngine.ts (542 LOC) — tool format reference for U03",
+      "H:/prism/mcp-server/src/engines/CAMKernelEngine.ts — OperationType enum + operation type definitions"
+    ],
+    "tribal": [
+      "H:/prism/mcp-server/src/data/fusion360-cam-tips.ts (495 lines) — Fusion-specific tribal knowledge",
+      "H:/prism/mcp-server/src/data/fusion360-cam-tips-ext.ts (1996 lines) — extended Fusion tips",
+      "H:/prism/mcp-server/src/data/controller-knowledge-tips.ts — controller-specific rules",
+      "H:/prism/mcp-server/data/machine-handbooks/okuma-multus-b300ii.json (867 lines) — Okuma reference"
+    ],
+    "formulas": [
+      "Unit conversion: mm / 10 = cm (Fusion internal). ALWAYS divide by 10 for lengths.",
+      "Kienzle: Fc = kc1.1 × ap × fz^(1-mc) — from src/physics/constants.ts, NEVER inline",
+      "Chip thinning: CTF = D / (2×sqrt(ae×(D-ae))) — for validation"
+    ],
+    "reference": [
+      "H:/prism/.claude/worktrees/brave-euclid/mcp-server/scripts/fusion360-prism-addin/auto_cam.py (352 LOC) — prototype with feature extraction",
+      "H:/prism/BOX/FUSION BASIC POSTS/ — 150+ CPS post-processor files",
+      "H:/prism/BOX/PRISM FOLDER FROM HOME/FUSION TOOL LIBRARY/ — 225 shop tools in 7 CSVs",
+      "H:/prism/BOX/PART MODELS FOR LEARNING ENGINE/BATCH 1/ — 30 STEP parts for validation"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "fusion-cam-write-safety — validate CAM writes against machine envelope before execution",
+    "mcp_actions": [
+      "f360_cam_create_setup",
+      "f360_cam_create_operation",
+      "f360_cam_assign_tool",
+      "f360_cam_generate_toolpath",
+      "f360_cam_post_process",
+      "f360_data_projects",
+      "f360_data_search",
+      "f360_geometry_detail",
+      "f360_feature_candidates"
+    ],
+    "skill": "/fusion-cam-create — interactive CAM operation creation in Fusion 360"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read fusion360_api_server.py BEFORE editing)",
+      "context-retention"
+    ],
+    "post_level": [
+      "stub-detector (no placeholder returns)",
+      "constants-checker (no inline physics)",
+      "wiring-agent (endpoints registered in dispatch)"
+    ],
+    "compact_level": [
+      "review-gate",
+      "wiring-gate",
+      "forge-triple-gate",
+      "session-audit"
+    ],
+    "post_compact": [
+      "auto-continuation from HANDOFF.md RESUME"
+    ]
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "CAM Setup + Operation Creation",
+      "sessions": "2",
+      "session_boundary_after": true,
+      "compact_after": true,
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "POST /cam/setup — Create CAM setup with stock, WCS, model bodies",
+          "status": "not_started",
+          "effort": 90,
+          "dependencies": [],
+          "intent": "After this unit, PRISM can create a new CAM setup in Fusion 360 via HTTP. A machinist opens a model, and PRISM can programmatically set up the manufacturing workspace with correct stock, WCS origin, and model body selection — the first step of any CNC programming workflow.",
+          "knowledge_before": [
+            "READ fusion360_api_server.py lines 147-212 — understand _FusionAPILogic class and dispatch pattern",
+            "READ fusion360_api_server.py lines 1247-1413 — existing CAM helper methods (_find_setup, _get_cam_setups, etc.)",
+            "Fusion 360 CAM API: adsk.cam.CAM.cast(app.activeProduct) gets CAM product",
+            "cam.setups.createInput(adsk.cam.OperationTypes.MillingOperation) creates setup input",
+            "setup_input.models = ObjectCollection of BRepBodies (by index from root.bRepBodies)",
+            "cam.setups.add(setup_input) finalizes the setup",
+            "setup.parameters.itemByName('stock_mode') — set stock type",
+            "setup.parameters.itemByName('stock_size_width/height/depth') — set dimensions (IN CM!)"
+          ],
+          "implementation": {
+            "file": "H:/prism/mcp-server/scripts/fusion360-addin/fusion360_api_server.py",
+            "step_1": "Add '/cam/setup': self._create_cam_setup to dispatch dict in _dispatch_post() at line ~196",
+            "step_2": "Add method _create_cam_setup(self, body) to _FusionAPILogic class, BEFORE _select_edges method",
+            "request_body": {
+              "name": "string — setup name (default: 'PRISM-Setup-1')",
+              "type": "string — 'milling' | 'turning' (default: 'milling')",
+              "model_body_indices": "number[] — indices into root.bRepBodies (default: [0] = first body)",
+              "stock": {
+                "mode": "string — 'fixed_size' | 'relative' | 'from_body' (default: 'relative')",
+                "width_mm": "number — stock width (only for fixed_size)",
+                "height_mm": "number — stock height",
+                "depth_mm": "number — stock depth",
+                "offset_top_mm": "number — offset from model top (default: 2)",
+                "offset_sides_mm": "number — offset from model sides (default: 2)",
+                "offset_bottom_mm": "number — offset from model bottom (default: 0)"
+              },
+              "wcs_origin": "string — 'stock_box_point' | 'model_origin' (default: 'stock_box_point')"
+            },
+            "response_body": {
+              "success": "boolean",
+              "setup_name": "string",
+              "setup_index": "number",
+              "model_count": "number",
+              "stock_mode": "string"
+            },
+            "key_code_pattern": "app = adsk.core.Application.get()\ncam = adsk.cam.CAM.cast(app.activeProduct)\nif not cam: return {'error': 'No CAM product. Switch to MANUFACTURE workspace.'}\nsetup_type_map = {'milling': adsk.cam.OperationTypes.MillingOperation, 'turning': adsk.cam.OperationTypes.TurningOperation}\nsetup_input = cam.setups.createInput(setup_type_map.get(body.get('type','milling'), adsk.cam.OperationTypes.MillingOperation))\n# Assign model bodies from indices\ndesign = adsk.fusion.Design.cast(app.activeProduct)\nroot = design.rootComponent\nmodels = adsk.core.ObjectCollection.create()\nfor idx in body.get('model_body_indices', [0]):\n    if idx < root.bRepBodies.count:\n        models.add(root.bRepBodies.item(idx))\nsetup_input.models = models\nnew_setup = cam.setups.add(setup_input)\n# Set stock parameters via setup.parameters\n# REMEMBER: all dimensions must be divided by 10 (mm → cm)"
+          },
+          "exit_criteria": [
+            "POST /cam/setup creates a real Fusion CAM setup visible in the browser tree",
+            "Stock dimensions set correctly (verify by reading back via GET /cam/setup/stock)",
+            "Model bodies correctly assigned (verify via GET /cam/setup/bodies)",
+            "Works for both milling and turning setup types",
+            "Returns error gracefully when no document is open or no CAM workspace exists"
+          ],
+          "edge_cases": [
+            "No active document → return {error: 'No active document'}",
+            "Active product is not CAM → return {error: 'Switch to MANUFACTURE workspace'}",
+            "model_body_indices out of range → skip invalid indices, warn in response",
+            "Multiple bodies → all selected bodies appear in setup",
+            "Setup name already exists → Fusion auto-increments (Setup1, Setup2, etc.)"
+          ],
+          "four_loop": {
+            "build": "Write the endpoint. Run: python -c \"import py_compile; py_compile.compile('fusion360_api_server.py', doraise=True)\" → SYNTAX OK",
+            "scrutinize": "Review: thread safety (all adsk.* on main thread), unit conversion (mm→cm), error handling (try/except), CORS (localhost:3000 only)",
+            "gap_fill": "Test: deploy to Fusion AddIns dir, restart add-in, curl POST /cam/setup with test body. Verify setup appears in Fusion browser.",
+            "tie_up": "No TODOs, no stubs, docstring complete, response matches schema, deployed copy matches source"
+          },
+          "skills_to_use": [
+            "/prism-review after implementation",
+            "/test to validate"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "POST /cam/operation — Create operations with 25+ type mapping",
+          "status": "not_started",
+          "effort": 120,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "intent": "After this unit, PRISM can create any of 25+ CAM operation types (face mill, adaptive clear, pocket, contour, drill, bore, thread, slot, etc.) inside a Fusion 360 CAM setup via HTTP. Each operation gets correct parameters with mm→cm conversion. This is the most critical endpoint — without it, AutoProgram cannot generate programs.",
+          "knowledge_before": [
+            "READ CAMKernelEngine.ts — OperationType enum (face_mill, pocket_2d, contour_2d, adaptive_clear, etc.)",
+            "Fusion 360 creates operations via: setup.createOperationInput('commandString') where commandString maps to Fusion's internal operation names",
+            "Key Fusion command strings: 'face', 'pocket2d', 'contour2d', 'adaptive', 'drill', 'chamfer2d', 'thread', 'bore', 'slot', 'contour3d', 'parallel', 'scallop', 'pencil', 'swarf', 'multiAxisContour'",
+            "Parameters set via: operation.parameters.itemByName('tool_spindleSpeed').expression = '4000'",
+            "Feed parameters: 'tool_feedCutting' (feed in cm/min — divide mm/min by 10!)",
+            "Depth parameters: 'maximumStepdown' (in cm), 'maximumStepover' (in cm)"
+          ],
+          "implementation": {
+            "file": "H:/prism/mcp-server/scripts/fusion360-addin/fusion360_api_server.py",
+            "step_1": "Add OPERATION_TYPE_MAP dict at module level (after PORT = 18360): maps PRISM types to Fusion command strings",
+            "step_2": "Add '/cam/operation': self._create_cam_operation to dispatch dict",
+            "step_3": "Add _create_cam_operation(self, body) method",
+            "operation_type_map": {
+              "face_mill": "face",
+              "pocket_2d": "pocket2d",
+              "contour_2d": "contour2d",
+              "adaptive_clear": "adaptive",
+              "drill_peck": "drill",
+              "chamfer": "chamfer2d",
+              "thread_mill": "thread",
+              "bore": "bore",
+              "rest_machining": "restMachining",
+              "slot": "slot",
+              "spiral_2d": "spiral",
+              "steep_shallow": "steepAndShallow",
+              "waterline": "contour3d",
+              "parallel_3d": "parallel",
+              "scallop_3d": "scallop",
+              "pencil_mill": "pencil",
+              "swarf_5ax": "swarf",
+              "multiaxis_contour": "multiAxisContour",
+              "projection": "project",
+              "radial": "radial",
+              "circular_2d": "circular"
+            },
+            "request_body": {
+              "setup_name": "string — target setup name (or use setup_index)",
+              "setup_index": "number — target setup index (default: 0)",
+              "operation_type": "string — PRISM operation type from map above",
+              "parameters": {
+                "spindle_speed_rpm": "number — RPM (set directly, no conversion)",
+                "feed_cutting_mm_min": "number — feed rate (DIVIDE BY 10 for Fusion cm/min)",
+                "feed_ramp_mm_min": "number — ramp feed (DIVIDE BY 10)",
+                "max_stepdown_mm": "number — axial DOC (DIVIDE BY 10)",
+                "max_stepover_mm": "number — radial WOC (DIVIDE BY 10)",
+                "tolerance_mm": "number — path tolerance (DIVIDE BY 10)",
+                "stock_to_leave_mm": "number — stock for finishing (DIVIDE BY 10)",
+                "coolant": "string — 'flood' | 'mist' | 'through_tool' | 'disabled'"
+              }
+            },
+            "parameter_mapping_code": "PARAM_MAP = {\n    'spindle_speed_rpm': ('tool_spindleSpeed', 1.0),      # direct, no conversion\n    'feed_cutting_mm_min': ('tool_feedCutting', 0.1),      # mm/min → cm/min\n    'feed_ramp_mm_min': ('tool_feedEntry', 0.1),\n    'max_stepdown_mm': ('maximumStepdown', 0.1),           # mm → cm\n    'max_stepover_mm': ('maximumStepover', 0.1),\n    'tolerance_mm': ('tolerance', 0.1),\n    'stock_to_leave_mm': ('stockToLeave', 0.1),\n}\nfor prism_key, (fusion_key, factor) in PARAM_MAP.items():\n    val = params.get(prism_key)\n    if val is not None:\n        try:\n            p = operation.parameters.itemByName(fusion_key)\n            if p:\n                p.expression = str(val * factor)\n        except: pass"
+          },
+          "exit_criteria": [
+            "At least 10 operation types create successfully in Fusion",
+            "Parameters correctly converted (mm→cm: verified by reading back)",
+            "Operation appears in setup's operation list in Fusion browser",
+            "Invalid operation type returns clear error message",
+            "Works with setup found by name or index"
+          ],
+          "edge_cases": [
+            "Unknown operation_type → return {error: 'Unknown type: X. Valid: [list]'}",
+            "Setup not found → return {error: 'Setup not found'}",
+            "Parameter name doesn't exist for this op type → skip silently, log warning",
+            "createOperationInput fails → try fallback via /execute with generated Python"
+          ],
+          "four_loop": {
+            "build": "Write endpoint + OPERATION_TYPE_MAP. Syntax check.",
+            "scrutinize": "Review: mm→cm conversion factors correct (0.1 for all lengths), RPM stays 1.0, error handling per parameter",
+            "gap_fill": "Test: create face + adaptive + drill operations on test model. Verify parameters read back correctly.",
+            "tie_up": "All 21 mapped types documented, fallback path documented, deployed"
+          }
+        },
+        {
+          "id": "P0-U03",
+          "title": "POST /cam/assign-tool — Tool assignment from library or inline",
+          "status": "not_started",
+          "effort": 80,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "intent": "After this unit, PRISM can assign cutting tools to CAM operations — either by finding a matching tool in Fusion's library or creating one inline from PRISM's tool spec. Without tools, operations are empty shells that can't generate toolpaths.",
+          "knowledge_before": [
+            "Fusion 360 tool assignment: operation.tool = adsk.cam.Tool object",
+            "Tools can come from library (existing) or be created inline",
+            "adsk.cam.Tool.createFromJson(json_string) creates a tool from JSON spec",
+            "Tool JSON format: {\"type\": \"flat end mill\", \"geometry\": {\"DC\": 10, \"LCF\": 30, \"OAL\": 75, \"NOF\": 3}, ...}",
+            "FusionToolExportEngine.ts has the convert_tool() function showing the full JSON schema",
+            "Existing /tool-library/search endpoint can find tools in Fusion libraries",
+            "Existing /tool-import endpoint can import tools — reuse its tool JSON format"
+          ],
+          "implementation": {
+            "file": "H:/prism/mcp-server/scripts/fusion360-addin/fusion360_api_server.py",
+            "request_body": {
+              "setup_name": "string",
+              "operation_name": "string — name of operation to assign tool to",
+              "tool_spec": {
+                "diameter_mm": "number",
+                "type": "string — 'flat end mill' | 'ball end mill' | 'bull nose end mill' | 'drill' | 'tap' | 'face mill'",
+                "flute_count": "number",
+                "flute_length_mm": "number",
+                "overall_length_mm": "number",
+                "corner_radius_mm": "number (optional)",
+                "coating": "string (optional)",
+                "manufacturer": "string (optional)",
+                "description": "string (optional)"
+              },
+              "search_library_first": "boolean — try to find matching tool in Fusion library before creating (default: true)"
+            }
+          },
+          "exit_criteria": [
+            "Tool assigned to operation (verify: operation.tool is not None)",
+            "Tool diameter matches spec (within ±0.01mm)",
+            "Flute count matches spec",
+            "If search_library_first=true: prefers existing library tool over inline creation",
+            "If no library match: creates tool from spec via Tool.createFromJson()"
+          ],
+          "four_loop": {
+            "build": "Write endpoint. Syntax check.",
+            "scrutinize": "Review: tool JSON schema matches FusionToolExportEngine output, diameter in mm not cm",
+            "gap_fill": "Test: assign endmill, drill, face mill to operations",
+            "tie_up": "Deployed, documented"
+          },
+          "edge_cases": [
+            "Tool not in any Fusion library → create inline from spec",
+            "Wrong tool type for operation → warn but assign",
+            "Insert tool vs solid tool → different JSON schema",
+            "Multiple tools with same diameter → pick by flute count match"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "POST /cam/toolpath + POST /cam/post — Async toolpath generation + G-code post-processing",
+          "status": "not_started",
+          "effort": 100,
+          "dependencies": [
+            "P0-U03"
+          ],
+          "intent": "After this unit, PRISM can trigger toolpath generation (which takes 5-60+ seconds) with async polling, and post-process the result to G-code. This completes the full CAM creation pipeline: setup → operations → tools → toolpaths → G-code.",
+          "knowledge_before": [
+            "cam.generateToolpath(operation) returns GenerateToolpathFuture (async!)",
+            "cam.generateAllToolpaths(False) generates for all operations (False = don't prompt user)",
+            "future.isGenerationCompleted — poll this for completion",
+            "Toolpath gen can take 5-60+ seconds — DO NOT block the HTTP thread",
+            "CRITICAL: Cannot use time.sleep() on main thread — use a job tracking pattern instead",
+            "Post-processing: adsk.cam.PostProcessInput.createInput(cps_path, program_name, output_folder, unit_option)",
+            "cam.postProcess(setup_or_operation, post_input) — generates G-code file",
+            "CPS files available at: H:/prism/BOX/FUSION BASIC POSTS/ (150+ files)"
+          ],
+          "implementation": {
+            "file": "H:/prism/mcp-server/scripts/fusion360-addin/fusion360_api_server.py",
+            "architecture": "Use a background job pattern: POST /cam/toolpath fires generation and returns a job_id immediately. GET /cam/toolpath/status?job_id=X polls completion. The GenerateToolpathFuture is stored in a module-level dict _cam_jobs.",
+            "toolpath_request": {
+              "setup_name": "string",
+              "operation_names": "string[] (optional, empty = all)",
+              "generate_all": "boolean (default: true)"
+            },
+            "toolpath_response": {
+              "success": true,
+              "job_id": "string",
+              "status": "generating",
+              "operations_queued": "number"
+            },
+            "status_response": {
+              "job_id": "string",
+              "status": "generating | complete | error",
+              "elapsed_sec": "number"
+            },
+            "post_request": {
+              "setup_name": "string",
+              "post_processor_path": "string — full path to .cps file",
+              "program_name": "string",
+              "output_folder": "string",
+              "output_units": "'mm' | 'inch'"
+            },
+            "post_response": {
+              "success": true,
+              "output_file": "string",
+              "program_name": "string",
+              "line_count": "number"
+            }
+          },
+          "exit_criteria": [
+            "POST /cam/toolpath returns immediately with job_id (not blocking)",
+            "GET /cam/toolpath/status reports 'generating' then 'complete'",
+            "Toolpath generation completes without crash for face + pocket operations",
+            "POST /cam/post generates G-code file at specified output path",
+            "G-code output for at least Fanuc and Haas controller dialects",
+            "Timeout handling: if generation exceeds 180s, status reports 'timeout'"
+          ],
+          "edge_cases": [
+            "No operations with tools → error before generation",
+            "CPS file not found → clear error with path attempted",
+            "Output folder doesn't exist → create it or error",
+            "Polling a completed/expired job_id → return cached result or 'expired'"
+          ],
+          "four_loop": {
+            "build": "Write both endpoints + job tracking dict. Syntax check.",
+            "scrutinize": "Review: no time.sleep() on main thread, job dict has max size limit, timeout at 180s",
+            "gap_fill": "Test: generate toolpath for simple face+pocket, post to Fanuc CPS",
+            "tie_up": "Deployed, job tracking cleaned up after 5 min TTL"
+          }
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "B-Rep Geometry Extraction + Feature Candidates",
+      "sessions": "1",
+      "session_boundary_after": true,
+      "compact_after": true,
+      "units": [
+        {
+          "id": "P1-U05",
+          "title": "GET /cam/geometry-detail — Face-level B-Rep extraction",
+          "status": "not_started",
+          "effort": 90,
+          "dependencies": [],
+          "intent": "After this unit, PRISM can read the 3D model's topology face-by-face — surface types (plane, cylinder, cone, sphere, torus, NURBS), normals, radii, areas. This is the raw data that FeatureRecognitionEngine needs to classify holes, pockets, slots, and bosses.",
+          "knowledge_before": [
+            "Existing /geometry endpoint (line ~300) returns only aggregate metrics (body count, volume, bounding box)",
+            "adsk.fusion.BRepFace: face.geometry gives the surface type (Plane, Cylinder, Cone, Sphere, Torus, NurbsSurface)",
+            "adsk.core.Plane: normal vector. adsk.core.Cylinder: radius, axis. adsk.core.Cone: halfAngle.",
+            "face.isParamReversed — indicates concavity (True = hole, False = boss for cylinders)",
+            "face.area — in cm², multiply by 100 for mm²",
+            "face.boundingBox — min/max points in cm"
+          ],
+          "implementation": {
+            "file": "H:/prism/mcp-server/scripts/fusion360-addin/fusion360_api_server.py",
+            "add_to": "_dispatch_get at line ~165, before else clause",
+            "response_structure": {
+              "body_count": "number",
+              "faces": [
+                {
+                  "index": "number",
+                  "surface_type": "'plane' | 'cylinder' | 'cone' | 'sphere' | 'torus' | 'nurbs'",
+                  "area_mm2": "number",
+                  "normal": "[x, y, z] — for planar faces",
+                  "radius_mm": "number — for cylindrical/conical/spherical",
+                  "axis": "[x, y, z] — for cylindrical/conical",
+                  "is_hole": "boolean — True if concave cylinder (face.isParamReversed)",
+                  "bounding_box_mm": {
+                    "min": "[x,y,z]",
+                    "max": "[x,y,z]"
+                  }
+                }
+              ],
+              "grouped_by_type": {
+                "planar": "number — count",
+                "cylindrical": "number",
+                "other": "number"
+              }
+            }
+          },
+          "exit_criteria": [
+            "Every face in the model enumerated with correct surface type",
+            "Planar faces have normal vectors",
+            "Cylindrical faces have radius + axis + is_hole flag",
+            "All units in mm (converted from cm)",
+            "Tested on at least 1 BOX part (CASING WITH SINGLE SIDE BORE.step)"
+          ],
+          "four_loop": {
+            "build": "Write endpoint. Syntax check.",
+            "scrutinize": "Review: unit conversion (cm→mm), surface type classification completeness, error handling for complex geometry",
+            "gap_fill": "Test on bracket.step and CASING.step from reference parts",
+            "tie_up": "Deployed, response documented"
+          },
+          "edge_cases": [
+            "NURBS surfaces → type=nurbs, no normal/radius",
+            "Zero-area faces → skip",
+            "Assembly with multiple components → enumerate all",
+            "Coplanar faces → may share normal but different positions"
+          ]
+        },
+        {
+          "id": "P1-U06",
+          "title": "GET /cam/feature-candidates — Topology-based feature grouping",
+          "status": "not_started",
+          "effort": 90,
+          "dependencies": [
+            "P1-U05"
+          ],
+          "intent": "After this unit, PRISM can identify manufacturing features (holes, pockets, bosses, faces) from raw B-Rep geometry. The output matches FeatureRecognitionEngine's RecognizedFeature[] schema, so it can be fed directly into the AutoProgram pipeline's Stage 2.",
+          "knowledge_before": [
+            "READ FeatureRecognitionEngine.ts first 100 lines — RecognizedFeature interface and FeatureType enum",
+            "Feature types: through_hole, blind_hole, counterbore, countersink, tapped_hole, pocket_rectangular, pocket_circular, slot_through, slot_blind, keyway, boss_circular, boss_rectangular, fillet, chamfer, face, step, groove, thread_external, contour_2d",
+            "Grouping logic: cylindrical faces with same axis → hole candidate. Through vs blind determined by face loop analysis.",
+            "Planar faces at same Z-level → pocket floor candidate",
+            "Convex cylinders → boss candidate"
+          ],
+          "implementation": {
+            "file": "H:/prism/mcp-server/scripts/fusion360-addin/fusion360_api_server.py",
+            "depends_on": "P1-U05 output (face-level geometry data)",
+            "response_format": "Must match FeatureRecognitionEngine RecognizedFeature[] schema",
+            "response_structure": {
+              "features": [
+                {
+                  "type": "string — FeatureType from list above",
+                  "dimensions": {
+                    "diameter_mm": "number",
+                    "depth_mm": "number",
+                    "width_mm": "number",
+                    "height_mm": "number"
+                  },
+                  "position": {
+                    "x": "number",
+                    "y": "number",
+                    "z": "number"
+                  },
+                  "confidence": "number 0-1",
+                  "face_indices": "number[] — which faces comprise this feature"
+                }
+              ],
+              "complexity_score": "number 0-10",
+              "estimated_operations": "number"
+            }
+          },
+          "exit_criteria": [
+            "Output format matches FeatureRecognitionEngine.ts RecognizedFeature[] exactly",
+            "Holes correctly identified from cylindrical concave faces (through vs blind)",
+            "Pocket floors identified from planar faces below top surface",
+            "Boss features identified from convex cylinders",
+            "Validated on CASING WITH SINGLE SIDE BORE.step — expect holes + bore + face features",
+            "Validated on bracket.step — expect holes + pocket + face"
+          ],
+          "four_loop": {
+            "build": "Write endpoint using P1-U05 geometry data. Syntax check.",
+            "scrutinize": "Review: feature type coverage, confidence scoring logic, schema match to TS engine",
+            "gap_fill": "Test on 2+ BOX parts, compare detected features to visual inspection",
+            "tie_up": "Deployed, output validated against FeatureRecognitionEngine schema"
+          },
+          "edge_cases": [
+            "Blind vs through holes → check if cylinder has 2 end caps or 1",
+            "Complex pocket with islands → multiple floor faces at same Z",
+            "Compound features (counterbore = 2 coaxial cylinders) → detect pair",
+            "No recognizable features → return empty list with complexity_score=0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Cloud Library Access",
+      "sessions": "1",
+      "session_boundary_after": true,
+      "compact_after": true,
+      "units": [
+        {
+          "id": "P2-U07",
+          "title": "Cloud browsing: GET /data/projects + POST /data/folder/list + POST /data/search",
+          "status": "not_started",
+          "effort": 80,
+          "dependencies": [],
+          "intent": "After this unit, PRISM can browse the user's entire Fusion 360 cloud library — list projects, traverse folders, search files by name. This gives access to ALL shop parts with their CAM history, 50-100x richer than local STEP files.",
+          "knowledge_before": [
+            "app.data — the Data API entry point",
+            "app.data.dataProjects — iterable collection of DataProject objects",
+            "project.rootFolder — root DataFolder",
+            "folder.dataFolders — subfolders (DataFolder collection)",
+            "folder.dataFiles — files in folder (DataFile collection)",
+            "dataFile.name, .fileExtension, .createdDate, .modifiedDate, .size, .versions"
+          ],
+          "exit_criteria": [
+            "GET /data/projects returns all cloud projects with names and IDs",
+            "POST /data/folder/list traverses folder tree (max depth 10)",
+            "POST /data/search finds files by name substring across all projects",
+            "Handles empty projects gracefully",
+            "Tested on real Fusion 360 cloud project"
+          ],
+          "edge_cases": [
+            "Empty project (0 files) → return empty arrays",
+            "Deep nesting >10 levels → stop recursion, warn",
+            "Large project >1000 files → paginate, max 50 per response",
+            "No cloud connection → return error with instructions"
+          ],
+          "four_loop": {
+            "build": "Write 3 endpoints. Syntax check.",
+            "scrutinize": "Recursion depth limited. Pagination for large results.",
+            "gap_fill": "Test on real Fusion 360 cloud project. Verify file count matches Fusion UI.",
+            "tie_up": "All 3 endpoints return consistent format. Deployed."
+          }
+        },
+        {
+          "id": "P2-U08",
+          "title": "File metadata + CAM extraction: POST /data/file/open + /data/file/metadata + /data/file/versions",
+          "status": "not_started",
+          "effort": 90,
+          "dependencies": [
+            "P2-U07"
+          ],
+          "intent": "After this unit, PRISM can open any cloud-stored design and extract its full manufacturing history — feature tree, CAM setups, operations, tools, S/F values, version history. This is the foundation for the learning pipeline (MS8) and 'similar part' recommendation.",
+          "knowledge_before": [
+            "dataFile.open() — opens cloud file into Fusion workspace (returns Document)",
+            "adsk.fusion.Design.cast(doc.products.itemByProductType('DesignProductType')) — get design",
+            "doc.products.itemByProductType('CAMProductType') — get CAM product if it exists",
+            "adsk.cam.CAM.cast(cam_product) — access setups and operations",
+            "dataFile.versions — DataFileVersions collection (version history)",
+            "dataFile.activeVersion — current version"
+          ],
+          "exit_criteria": [
+            "POST /data/file/open loads a cloud file into Fusion workspace",
+            "POST /data/file/metadata returns design info (features, bodies, sketches) + CAM info (setups, operations, tools)",
+            "POST /data/file/versions returns full version history with dates and comments",
+            "Handles files without CAM workspace gracefully",
+            "Tested on 3 real cloud files"
+          ],
+          "edge_cases": [
+            "File without CAM workspace → return design info only, cam_setups: []",
+            "Corrupted/failed cloud file → error with file name",
+            "Version with no comment → comment: empty string",
+            "File currently open → skip open step, use active doc"
+          ],
+          "four_loop": {
+            "build": "Write 3 endpoints. Syntax check.",
+            "scrutinize": "File open/close lifecycle handled. No orphaned open docs.",
+            "gap_fill": "Test: open 3 different cloud files, extract metadata, verify CAM data.",
+            "tie_up": "Handles all file types (f3d, stp, iges). Deployed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "HTTP Bridge Hardening",
+      "sessions": "1",
+      "session_boundary_after": false,
+      "compact_after": true,
+      "units": [
+        {
+          "id": "P3-U09",
+          "title": "Retry + timeout + health monitoring in Fusion360LiveBridgeEngine.ts",
+          "status": "not_started",
+          "effort": 70,
+          "dependencies": [],
+          "intent": "After this unit, the TypeScript→Python HTTP bridge is resilient to transient failures. If Python crashes or the network glitches, the TS side retries with exponential backoff instead of failing immediately. This prevents AutoProgram from dying mid-pipeline due to a single HTTP hiccup.",
+          "knowledge_before": [
+            "READ Fusion360LiveBridgeEngine.ts — current HTTP client with AbortController timeout",
+            "Current pattern: single fetch() call with 30s timeout, no retry",
+            "Need: exponential backoff (100ms, 500ms, 2000ms), per-stage timeout config, health check before pipeline"
+          ],
+          "implementation": {
+            "file": "H:/prism/mcp-server/src/engines/Fusion360LiveBridgeEngine.ts",
+            "changes": [
+              "Add retry wrapper: retryFetch(url, options, maxRetries=3, backoffMs=[100,500,2000])",
+              "Add per-stage timeout map: {geometry: 30000, toolpath: 180000, post: 60000, default: 30000}",
+              "Add healthCheck() method: GET /health with 5s timeout, returns boolean",
+              "Add isConnected property: caches health check result for 10s"
+            ]
+          },
+          "exit_criteria": [
+            "3 retries with exponential backoff on transient HTTP failures",
+            "Per-stage timeout correctly applied (geometry: 30s, toolpath: 180s)",
+            "healthCheck() returns true when Python add-in is running",
+            "Bridge survives 1 simulated network failure without crashing"
+          ],
+          "edge_cases": [
+            "Python process crash → all 3 retries fail → return connection error",
+            "Network timeout on retry 2 → retry 3 succeeds → return result",
+            "Health check fails → isConnected=false → pipeline refuses to start",
+            "Concurrent health checks → deduplicate, return cached result"
+          ],
+          "four_loop": {
+            "build": "Add retry wrapper + health check to Fusion360LiveBridgeEngine.ts. tsc --noEmit.",
+            "scrutinize": "Backoff timing correct (100/500/2000ms). No infinite retry loop.",
+            "gap_fill": "Simulate: stop Python add-in, verify retries fire, restart, verify recovery.",
+            "tie_up": "TypeScript compiles clean. Retry + health tested."
+          }
+        },
+        {
+          "id": "P3-U10",
+          "title": "Request queuing + memory management + typed client methods",
+          "status": "not_started",
+          "effort": 70,
+          "dependencies": [
+            "P3-U09"
+          ],
+          "intent": "After this unit, the TypeScript bridge has typed methods for all new CAM endpoints (createSetup, createOperation, assignTool, generateToolpath, postProcess, getGeometryDetail, getFeatureCandidates, listProjects, searchFiles, getFileMetadata). Plus request queuing to prevent overwhelming Fusion 360.",
+          "knowledge_before": [
+            "Current bridge methods: getStatus(), createSketch(), createExtrude(), etc.",
+            "Follow same pattern: async method, typed input/output interfaces, AbortController"
+          ],
+          "implementation": {
+            "file": "H:/prism/mcp-server/src/engines/Fusion360LiveBridgeEngine.ts",
+            "add_methods": [
+              "createCamSetup(input: CamSetupInput): Promise<CamSetupResult>",
+              "createCamOperation(input: CamOperationInput): Promise<CamOperationResult>",
+              "assignTool(input: AssignToolInput): Promise<AssignToolResult>",
+              "generateToolpaths(input: ToolpathInput): Promise<ToolpathJobResult>",
+              "getToolpathStatus(jobId: string): Promise<ToolpathStatusResult>",
+              "postProcess(input: PostProcessInput): Promise<PostProcessResult>",
+              "getGeometryDetail(): Promise<GeometryDetailResult>",
+              "getFeatureCandidates(): Promise<FeatureCandidateResult>",
+              "listDataProjects(): Promise<DataProject[]>",
+              "searchCloudFiles(query: string): Promise<CloudFileResult[]>",
+              "getFileMetadata(fileId: string): Promise<FileMetadataResult>"
+            ],
+            "add_queue": "Simple FIFO queue with max 5 concurrent requests. If queue full, wait for slot (Promise-based)."
+          },
+          "exit_criteria": [
+            "All 11 new typed methods added with input/output interfaces",
+            "Request queue limits concurrent requests to 5",
+            "TypeScript compiles without errors (npx tsc --noEmit)",
+            "Queue handles burst of 10 requests without dropping any"
+          ],
+          "edge_cases": [
+            "Queue full (5 concurrent) → 6th request waits, does not drop",
+            "Request in queue cancelled by client → remove from queue",
+            "Memory spike during large geometry extraction → stays under 500MB",
+            "Tool catalog TTL expires → next request refreshes cache"
+          ],
+          "four_loop": {
+            "build": "Add queue + typed methods. tsc --noEmit.",
+            "scrutinize": "All 11 methods have correct input/output types. Queue FIFO order preserved.",
+            "gap_fill": "Test: fire 10 rapid requests, verify queue handles without crash.",
+            "tie_up": "TypeScript compiles clean. All methods match Python endpoint schemas."
+          }
+        }
+      ]
+    }
+  ]
+}

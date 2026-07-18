@@ -23,16 +23,14 @@ related:
 |-------|-------|
 | Name | `pr-swarm` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/pr-swarm.md` |
+| Source | `C:/Users/wompu/.claude/commands/pr-swarm.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Replaces ad-hoc single-agent PR reviews with a **parallel fan-out across
-five specialized pr-review-toolkit agents**, then aggregates their
-findings into one consolidated verdict. Matches the U-PLG8 canonical
-delegation pattern in `MASTER-AI-SYSTEM-ROADMAP-2026-04-15.md`.
+
+# /pr-swarm — Phase 0.17 U-PLG8 Multi-Agent PR Review Orchestration
 
 <!-- AUTO-END -->
 

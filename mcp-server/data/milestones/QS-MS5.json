@@ -1,0 +1,88 @@
+{
+  "id": "QS-MS5",
+  "version": "6.3.0",
+  "title": "Type Safety + Error Observability",
+  "track": "QS",
+  "created_at": "2026-03-15T17:00:00Z",
+  "status": "complete",
+  "total_units": 4,
+  "completed_units": 4,
+  "description": "Remove @ts-nocheck from 2 orchestrators, replace 19 any-typed lazy engine fields in PostProcessorPipeline with proper interfaces, replace 49 empty catch blocks with observable error handling, and clean up 12+ as-any casts in GCodeIntelligencePipeline. Target: ALL pipelines/dispatchers 95+.",
+  "dependencies": [
+    "QS-MS4"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Remove @ts-nocheck from 2 orchestrators",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Add proper types to MathIntegration and PredictionFeedback orchestrators",
+          "description": "Remove @ts-nocheck from MathIntegrationPipelineEngine and PredictionFeedbackOrchestratorEngine. Add proper types for all sub-engine calls. Fix all resulting TS errors.",
+          "acceptance": [
+            "@ts-nocheck removed from both engines",
+            "All sub-engine calls properly typed",
+            "0 new TS errors introduced",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "PostProcessorPipelineEngine type safety",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Replace 19 any-typed lazy engine fields",
+          "description": "Replace 19 any-typed lazy engine fields in PostProcessorPipelineEngine with proper interfaces. Use typed _getEngine<T>() generic helper. Apply 10+ type fixes.",
+          "acceptance": [
+            "19 any-typed fields replaced with proper interfaces",
+            "Typed _getEngine<T>() generic helper implemented",
+            "10+ type fixes applied",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Error observability for 49 empty catch blocks",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Create silentCatch utility and replace empty catches",
+          "description": "Create src/utils/silentCatch.ts utility: silentCatch(fn, context, fallback) that logs warning + returns fallback. Replace 49 empty catch blocks across PostProcessor (14), PredictionFeedback (29), Feasibility (4), EndToEnd (2). Warnings feed into pipeline quality scores.",
+          "acceptance": [
+            "silentCatch utility created at src/utils/silentCatch.ts",
+            "All 49 empty catch blocks replaced with silentCatch calls",
+            "Warnings are logged with context information",
+            "5+ tests verifying silentCatch behavior"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "GCodeIntelligencePipeline as-any cleanup",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Replace 12+ as-any casts with proper types",
+          "description": "Replace 12+ 'as any' casts in GCodeIntelligencePipelineEngine with proper TypeScript types.",
+          "acceptance": [
+            "12+ as-any casts replaced with proper types",
+            "3+ tests verifying type correctness",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-03-15T18:00:00Z"
+}

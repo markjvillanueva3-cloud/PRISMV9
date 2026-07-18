@@ -23,13 +23,25 @@ related:
 |-------|-------|
 | Name | `boot` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/boot.md` |
+| Source | `C:/Users/wompu/.claude/commands/boot.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Boot — Ultra-Fast Session Bootstrap
+
+Minimal-cost session initialization. Loads ONLY what's needed in < 5 seconds, < 50 tokens output.
+
+## What to do:
+1. Read `H:/prism/mcp-server/data/quick-ref.json` (35 lines, ~100 tokens)
+2. Output the `compact` field as the session header
+3. Output the `recent_commits` array (last 5 commits)
+4. Done. No other files needed.
+
+## Output format:
+```
 
 <!-- AUTO-END -->
 

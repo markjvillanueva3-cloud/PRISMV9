@@ -1,0 +1,129 @@
+# Test cases for CAD_SYSTEM_PROMPT (knowledge extraction)
+# Each test verifies the LLM extracts structured CAD features from tutorial transcripts.
+
+- vars:
+    input: >
+      OK so first we're going to create a sketch on the XY plane. Draw a rectangle
+      100mm by 60mm. Then we'll extrude that up 20mm to make our base plate.
+      Now select the top face, and we'll add a through hole, 12mm diameter,
+      right in the center. That hole is for our mounting bolt.
+  assert:
+    - type: is-json
+    - type: javascript
+      value: "JSON.parse(output).features !== undefined"
+    - type: javascript
+      value: "JSON.parse(output).features.length >= 3"
+    - type: icontains
+      value: "extrude"
+    - type: icontains
+      value: "hole"
+    - type: icontains
+      value: "sketch"
+    - type: contains
+      value: "cad-001"
+
+- vars:
+    input: >
+      In this tutorial I'll show you how to make a simple gear housing.
+      Start with a cylinder, 80mm diameter, 50mm tall. We revolve a circle
+      of radius 40mm around the Y axis. Then we shell it out to 3mm wall
+      thickness. Finally add 4 mounting holes on a 60mm bolt circle,
+      each hole is M6, so 6.5mm clearance diameter.
+  assert:
+    - type: is-json
+    - type: javascript
+      value: "JSON.parse(output).features.length >= 4"
+    - type: icontains
+      value: "shell"
+    - type: icontains
+      value: "hole"
+    - type: javascript
+      value: "JSON.parse(output).design_intent_summary !== undefined"
+
+- vars:
+    input: >
+      Let me show you filleting in SolidWorks. We have our block here,
+      40x40x40mm cube. Select these four vertical edges - I'll apply a
+      5mm fillet to all of them. Then on the top edges, let's do a 2mm
+      chamfer instead. The reason for the fillet on the verticals is
+      stress concentration - sharp corners crack under load.
+  assert:
+    - type: is-json
+    - type: javascript
+      value: "JSON.parse(output).features.length >= 3"
+    - type: icontains
+      value: "fillet"
+    - type: icontains
+      value: "chamfer"
+    - type: javascript
+      value: "let f = JSON.parse(output).features; f.some(x => x.feature_type === 'fillet' || x.feature_type === 'chamfer')"
+
+- vars:
+    input: >
+      Today we're building a phone stand. Start with a base, 80mm wide,
+      60mm deep, 5mm thick plate. Extrude a back wall from the rear edge,
+      5mm thick, 100mm tall, angled back 10 degrees. We add a 15mm fillet
+      where the wall meets the base for strength. Then cut a slot in the
+      base, 70mm x 3mm, 15mm from the front edge - that's where the phone
+      sits. The design intent is a sturdy stand that works for any phone up
+      to 8mm thick.
+  assert:
+    - type: is-json
+    - type: javascript
+      value: "JSON.parse(output).features.length >= 4"
+    - type: icontains
+      value: "extrude"
+    - type: icontains
+      value: "fillet"
+    - type: javascript
+      value: "JSON.parse(output).design_intent_summary && JSON.parse(output).design_intent_summary.length > 10"
+
+- vars:
+    input: >
+      Now I'll demonstrate a loft operation in Fusion 360. On the bottom
+      plane, sketch a 50mm square. Move up 40mm and sketch a 30mm circle.
+      Select both profiles and loft between them. Use the ruled option
+      for straighter sides. This creates a transition piece from square
+      ductwork to a round pipe.
+  assert:
+    - type: is-json
+    - type: javascript
+      value: "JSON.parse(output).features.length >= 3"
+    - type: icontains
+      value: "loft"
+    - type: icontains
+      value: "sketch"
+    - type: javascript
+      value: "JSON.parse(output).modeling_approach !== undefined"
+
+- vars:
+    input: >
+      We need to create a sheet metal bracket. Start with a base flange
+      100mm x 50mm from 1.5mm thick steel. Add an edge flange on the long
+      side, 25mm tall, bent at 90 degrees with a 2mm bend radius.
+      Mirror that flange to the other side. Then add two 8mm holes
+      centered 15mm from each end of the base for mounting.
+  assert:
+    - type: is-json
+    - type: javascript
+      value: "JSON.parse(output).features.length >= 4"
+    - type: javascript
+      value: "let f = JSON.parse(output).features; f.some(x => x.feature_type === 'sheet_metal' || x.feature_type === 'mirror' || x.feature_type === 'hole')"
+    - type: icontains
+      value: "mirror"
+
+- vars:
+    input: >
+      Here's a quick one - just a simple dowel pin. Create a circle 8mm
+      diameter on the XY plane, extrude it 30mm. Add a 0.5mm chamfer
+      on both ends for easy insertion. That's it - tolerance is h6.
+  assert:
+    - type: is-json
+    - type: javascript
+      value: "JSON.parse(output).features.length >= 2"
+    - type: icontains
+      value: "extrude"
+    - type: javascript
+      value: "let f = JSON.parse(output).features; f.some(x => x.feature_type === 'chamfer')"
+    - type: contains
+      value: "cad-001"

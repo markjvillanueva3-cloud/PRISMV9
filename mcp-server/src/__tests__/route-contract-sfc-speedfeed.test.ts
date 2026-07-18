@@ -136,12 +136,47 @@ describe("calcDispatcher — SFC route actions", () => {
     expect(typeof result.rapid_time).toBe("number");
   });
 
-  it("engagement: 50% ae → ~120° engagement", async () => {
+  it("engagement: 50% ae (ae/D=0.5) -> 90 deg full swept arc", async () => {
     const { calculateEngagementAngle } = await import("../engines/ToolpathCalculations.js");
     const result = calculateEngagementAngle(12, 6, 0.1, true, 150);
-    expect(result.arc_of_engagement).toBeGreaterThan(90);  // ae/D=0.5 → ~120°
-    expect(result.arc_of_engagement).toBeLessThanOrEqual(180);
-    expect(typeof result.radial_engagement_percent).toBe("number");
+    // phi = acos(1 - 2ae/D) = acos(0) = 90 deg (the FULL swept arc). Previously asserted
+    // >90 ("~120 deg"), which ENCODED the engagement-arc doubling bug -- corrected 2026-06-23.
+    expect(result.arc_of_engagement).toBeCloseTo(90, 0);
+    expect(result.radial_engagement_percent).toBeCloseTo(50, 0);
+  });
+
+  // U-OSC-ENGAGEMENT-OPTIONAL-FEED: the SFC web /engagement endpoint posts ONLY
+  // { tool_diameter, radial_depth } (geometry-only). feed_per_tooth + cutting_speed must be
+  // OPTIONAL in the schema AND the engine must report 0 chip thickness (never NaN) when fz is absent.
+  it("engagement: schema accepts a geometry-only request (no feed_per_tooth / cutting_speed)", async () => {
+    const { ACTION_CALC_SCHEMAS } = await import("../schemas/calcActionSchemas.js");
+    const parsed = ACTION_CALC_SCHEMAS.engagement.parse({ tool_diameter: 12, radial_depth: 6 });
+    expect(parsed.tool_diameter).toBe(12);
+    expect(parsed.radial_depth).toBe(6);
+    expect(() =>
+      ACTION_CALC_SCHEMAS.engagement.parse({ tool_diameter: 12, radial_depth: 6, feed_per_tooth: 0.1, cutting_speed: 150 }),
+    ).not.toThrow();
+  });
+
+  it("engagement: geometry-only call returns valid geometry + ZERO chip thickness (never NaN)", async () => {
+    const { calculateEngagementAngle } = await import("../engines/ToolpathCalculations.js");
+    const geo = calculateEngagementAngle(12, 6); // no fz, no cutting_speed
+    expect(geo.arc_of_engagement).toBeCloseTo(90, 0);
+    expect(geo.radial_engagement_percent).toBeCloseTo(50, 0);
+    expect(Number.isNaN(geo.max_chip_thickness)).toBe(false);
+    expect(Number.isNaN(geo.average_chip_thickness)).toBe(false);
+    expect(geo.max_chip_thickness).toBe(0);
+    expect(geo.average_chip_thickness).toBe(0);
+    expect(geo.effective_cutting_speed).toBe(0);
+    expect(geo.warnings.some((w) => /chip thickness very thin/i.test(w))).toBe(false);
+  });
+
+  it("engagement: WITH feed/speed still produces positive chip thickness (backward compat)", async () => {
+    const { calculateEngagementAngle } = await import("../engines/ToolpathCalculations.js");
+    const full = calculateEngagementAngle(12, 6, 0.1, true, 150);
+    expect(full.max_chip_thickness).toBeGreaterThan(0);
+    expect(full.average_chip_thickness).toBeGreaterThan(0);
+    expect(full.effective_cutting_speed).toBeGreaterThan(0);
   });
 
   it("mrr: Q = ap × ae × Vf", async () => {

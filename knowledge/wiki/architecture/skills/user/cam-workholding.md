@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-workholding` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-workholding.md` |
+| Source | `C:/Users/wompu/.claude/commands/cam-workholding.md` |
 | Model | default |
 | Tags | _(none)_ |
 

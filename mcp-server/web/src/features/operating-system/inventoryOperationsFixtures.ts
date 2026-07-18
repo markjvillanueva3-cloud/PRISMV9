@@ -12,7 +12,7 @@ export const INVENTORY_OPERATIONS_WORKSPACE: InventoryOperationsWorkspace = {
       summary: 'Extract supplier, PO, part numbers, ordered quantity, unit cost, and target department from incoming buy documents.',
       extractionTargets: ['Supplier and PO number', 'Part number and description', 'Ordered quantity and unit cost', 'Suggested department route'],
       confidencePosture: 'Best for ERP-generated PDFs and emailed PO attachments.',
-      samplePath: 'C:/PRISM/DOCS/receiving/po-4821.pdf',
+      samplePath: 'C:/Kienzle/DOCS/receiving/po-4821.pdf',
     },
     {
       id: 'delivery-order',
@@ -20,7 +20,7 @@ export const INVENTORY_OPERATIONS_WORKSPACE: InventoryOperationsWorkspace = {
       summary: 'Confirm what actually arrived, capture lots or serials, and stage discrepancies before items hit the floor.',
       extractionTargets: ['Delivered quantity', 'Lot or serial identifiers', 'Received-vs-ordered mismatch', 'Receiving timestamp'],
       confidencePosture: 'Highest confidence when the supplier slip is cleanly scanned or vendor-generated.',
-      samplePath: 'C:/PRISM/DOCS/receiving/delivery-1138.pdf',
+      samplePath: 'C:/Kienzle/DOCS/receiving/delivery-1138.pdf',
     },
     {
       id: 'tooling-invoice',
@@ -28,7 +28,7 @@ export const INVENTORY_OPERATIONS_WORKSPACE: InventoryOperationsWorkspace = {
       summary: 'Populate the tool crib with insert grades, holder SKUs, manufacturer part numbers, and pack sizes.',
       extractionTargets: ['Tool or insert part number', 'Pack size and unit of measure', 'Supplier pricing', 'Reorder baseline'],
       confidencePosture: 'Useful for inserts, holders, drills, taps, and consumable tooling.',
-      samplePath: 'C:/PRISM/DOCS/tooling/kennametal-invoice-774.pdf',
+      samplePath: 'C:/Kienzle/DOCS/tooling/kennametal-invoice-774.pdf',
     },
     {
       id: 'machine-packet',
@@ -36,7 +36,7 @@ export const INVENTORY_OPERATIONS_WORKSPACE: InventoryOperationsWorkspace = {
       summary: 'Extract machine, controller, taper, toolchanger, and service-part identifiers into the machine inventory and alarm desks.',
       extractionTargets: ['Machine model and serial', 'Controller family', 'Service part identifiers', 'Consumable maintenance references'],
       confidencePosture: 'Best for OEM PDFs and service bulletins that repeat part numbers consistently.',
-      samplePath: 'C:/PRISM/DOCS/machines/vf2-service-packet.pdf',
+      samplePath: 'C:/Kienzle/DOCS/machines/vf2-service-packet.pdf',
     },
   ],
   receivingQueue: [
@@ -188,7 +188,7 @@ export const INVENTORY_OPERATIONS_WORKSPACE: InventoryOperationsWorkspace = {
       label: 'Reorder and shortage posture',
       purpose: 'Blend demand, remaining tooling life, and supplier ETA into one restock signal.',
       output: 'usage trend + remaining edges + queue demand + ETA risk -> reorder posture',
-      note: 'Yes, PRISM should use custom formulas here, but a small shared set is better than dozens of disconnected algorithms.',
+      note: 'Yes, Kienzle should use custom formulas here, but a small shared set is better than dozens of disconnected algorithms.',
     },
   ],
 };

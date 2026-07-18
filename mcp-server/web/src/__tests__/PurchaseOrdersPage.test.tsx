@@ -165,15 +165,14 @@ afterAll(() => {
 describe('PurchaseOrdersPage', () => {
   it('renders orders and approval actions', async () => {
     mockPoList.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         orders: [
           { id: 'PO-001', supplier_name: 'MSC', total: 420, created_at: '2026-03-25T00:00:00Z', status: 'pending_approval', line_items: [] },
         ],
       },
-      safety: { score: 0.94, warnings: [] },
-      meta: { formula_used: 'po-list', uncertainty: 0.06 },
     } as any);
-    mockPoApprove.mockResolvedValue({ result: { ok: true } } as any);
+    mockPoApprove.mockResolvedValue({ ok: true, data: { ok: true } } as any);
 
     renderPage();
 
@@ -190,9 +189,10 @@ describe('PurchaseOrdersPage', () => {
     });
   });
 
-  it('keeps the PRISM AI copilot built into the purchase orders desk with persistent memory context', async () => {
+  it('keeps the Kienzle AI copilot built into the purchase orders desk with persistent memory context', async () => {
     mockPoList.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         orders: [
           { id: 'PO-001', supplier_name: 'MSC', total: 420, created_at: '2026-03-25T00:00:00Z', status: 'pending_approval', line_items: [] },
         ],
@@ -203,8 +203,8 @@ describe('PurchaseOrdersPage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Purchase Orders' })).toBeDefined();
-      expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
-      expect(screen.getByText(/Persistent PRISM memory/i)).toBeDefined();
+      expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
+      expect(screen.getByText(/Persistent Kienzle memory/i)).toBeDefined();
       expect(screen.getByText(/Safety-critical CNC manufacturing control system\./i)).toBeDefined();
       expect(screen.getByText(/Mounted poList route/i)).toBeDefined();
     });
@@ -217,7 +217,8 @@ describe('PurchaseOrdersPage', () => {
 
   it('receives approved orders through the mounted ERP route', async () => {
     mockPoList.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         orders: [
           {
             id: 'PO-002',
@@ -230,7 +231,7 @@ describe('PurchaseOrdersPage', () => {
         ],
       },
     } as any);
-    mockPoReceive.mockResolvedValue({ result: { ok: true } } as any);
+    mockPoReceive.mockResolvedValue({ ok: true, data: { ok: true } } as any);
 
     renderPage();
 
@@ -252,12 +253,11 @@ describe('PurchaseOrdersPage', () => {
   });
 
   it('creates a purchase order and renders AP aging', async () => {
-    mockPoList.mockResolvedValue({ result: { orders: [] } } as any);
-    mockPoCreate.mockResolvedValue({ result: { id: 'PO-NEW' } } as any);
+    mockPoList.mockResolvedValue({ ok: true, data: { orders: [] } } as any);
+    mockPoCreate.mockResolvedValue({ ok: true, data: { id: 'PO-NEW' } } as any);
     mockPoAging.mockResolvedValue({
-      result: { current: 1000, days_30: 200, days_60: 100, days_90_plus: 50, total: 1350 },
-      safety: { score: 0.93, warnings: [] },
-      meta: { formula_used: 'ap-aging', uncertainty: 0.07 },
+      ok: true,
+      data: { current: 1000, days_30: 200, days_60: 100, days_90_plus: 50, total: 1350 },
     } as any);
 
     renderPage();
@@ -289,16 +289,14 @@ describe('PurchaseOrdersPage', () => {
   });
 
   it('renders three-way match and spend analysis', async () => {
-    mockPoList.mockResolvedValue({ result: { orders: [] } } as any);
+    mockPoList.mockResolvedValue({ ok: true, data: { orders: [] } } as any);
     mockPoThreeWayMatch.mockResolvedValue({
-      result: { matched: true, po_id: 'PO-001', variance: 0 },
-      safety: { score: 0.95, warnings: [] },
-      meta: { formula_used: 'three-way-match', uncertainty: 0.05 },
+      ok: true,
+      data: { matched: true, po_id: 'PO-001', variance: 0 },
     } as any);
     mockPoSpendByCategory.mockResolvedValue({
-      result: { categories: [{ category: 'tooling', total_spend: 4200, po_count: 8, pct: 57.5 }] },
-      safety: { score: 0.94, warnings: [] },
-      meta: { formula_used: 'spend', uncertainty: 0.06 },
+      ok: true,
+      data: { categories: [{ category: 'tooling', total_spend: 4200, po_count: 8, pct: 57.5 }] },
     } as any);
 
     renderPage();
@@ -321,7 +319,8 @@ describe('PurchaseOrdersPage', () => {
 
   it('routes purchase-order continuity into inventory, messages, quote builder, and capture ops', async () => {
     mockPoList.mockResolvedValue({
-      result: {
+      ok: true,
+      data: {
         orders: [
           { id: 'PO-001', supplier_name: 'MSC', total: 420, created_at: '2026-03-25T00:00:00Z', status: 'pending_approval', line_items: [] },
         ],
@@ -339,10 +338,10 @@ describe('PurchaseOrdersPage', () => {
     const quoteBuilderLink = screen.getByRole('link', { name: /Open Quote Builder/i });
     const captureLink = screen.getByRole('link', { name: /Open Capture Ops/i });
 
-    const inventoryUrl = new URL(inventoryLink.getAttribute('href')!, 'https://prism.local');
-    const messagesUrl = new URL(messagesLink.getAttribute('href')!, 'https://prism.local');
-    const quoteBuilderUrl = new URL(quoteBuilderLink.getAttribute('href')!, 'https://prism.local');
-    const captureUrl = new URL(captureLink.getAttribute('href')!, 'https://prism.local');
+    const inventoryUrl = new URL(inventoryLink.getAttribute('href')!, 'https://kienzle.local');
+    const messagesUrl = new URL(messagesLink.getAttribute('href')!, 'https://kienzle.local');
+    const quoteBuilderUrl = new URL(quoteBuilderLink.getAttribute('href')!, 'https://kienzle.local');
+    const captureUrl = new URL(captureLink.getAttribute('href')!, 'https://kienzle.local');
 
     expect(inventoryUrl.pathname).toBe('/inventory');
     expect(inventoryUrl.searchParams.get('originSource')).toBe('quote-builder');

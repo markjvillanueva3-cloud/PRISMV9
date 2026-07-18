@@ -1,0 +1,78 @@
+[
+  {
+    "id": "S0-MS1",
+    "title": "System Health Verification",
+    "track": "S0",
+    "deps": [],
+    "status": "complete",
+    "units": 11,
+    "completed": 11,
+    "sessions": "1",
+    "brief": "Verify PRISM MCP server health: build, tests, dispatcher count, engine count, registry counts, skills/scripts/hooks inventory."
+  },
+  {
+    "id": "L0-NEW-MS0",
+    "title": "Data Consolidation & Deduplication",
+    "track": "L0",
+    "deps": [
+      "S0-MS1"
+    ],
+    "status": "not_started",
+    "units": 12,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Merge 1775 files (216MB) from extracted/ and extracted_modules/ into data/registries/. Triage: port useful data, archive rest, eliminate duplicates."
+  },
+  {
+    "id": "L0-P0-MS1",
+    "title": "Create 12 Core Databases",
+    "track": "L0",
+    "deps": [
+      "L0-NEW-MS0"
+    ],
+    "status": "not_started",
+    "units": 12,
+    "completed": 0,
+    "sessions": "3-4",
+    "brief": "Create 12 new databases: WorkholdingDB, InsertDB, ThreadDB, GradeDB, SurfaceFinishDB, ToleranceDB, ControllerDB, PostProcessorDB, CuttingFluidDB, FeatureDB + 2 consolidated DBs."
+  },
+  {
+    "id": "L0-P0-MS2",
+    "title": "Create 12 PASS2 Specialty Databases",
+    "track": "L0",
+    "deps": [
+      "L0-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 12,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Create 12 specialty databases from PASS2."
+  },
+  {
+    "id": "L0-P1-MS1",
+    "title": "Registry Enrichment - Full Coverage",
+    "track": "L0",
+    "deps": [
+      "L0-P0-MS2"
+    ],
+    "status": "not_started",
+    "units": 10,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Enrich ALL 18516 registry entries."
+  },
+  {
+    "id": "L0-P2-MS1",
+    "title": "Registry Infrastructure + Cross-Registry Index + DSL",
+    "track": "L0",
+    "deps": [
+      "L0-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 11,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Fix 6 critical DSL gaps."
+  }
+]

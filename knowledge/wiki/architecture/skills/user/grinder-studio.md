@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `grinder-studio` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/grinder-studio.md` |
+| Source | `C:/Users/wompu/.claude/commands/grinder-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 

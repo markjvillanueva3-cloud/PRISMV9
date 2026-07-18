@@ -16,7 +16,8 @@
  *     controls, axial straightness). Invalid on flatness/roundness/etc.
  *   - Diameter symbol (Ø) valid only for position, concentricity, runout
  *   - Position tolerance requires at least a primary datum
- *   - Concentricity + symmetry are deprecated in Y14.5-2018 (note, not error)
+ *   - Concentricity + symmetry require >=1 datum (location controls); also deprecated in
+ *     Y14.5-2018 (the missing datum is an error; the deprecation is a separate warning)
  *   - Composite FCF: refinement tol ≤ primary, same symbol
  *   - Circular runout & total runout require ≥1 datum
  *   - Profile tolerance with datums → profile-to-datum
@@ -120,9 +121,15 @@ class FCFSyntaxValidatorEngineImpl {
       });
     }
 
-    // --- Orientation/location/profile/runout need datums ---
+    // --- Orientation/runout + the coaxiality/symmetry location controls need datums ---
+    // Concentricity & symmetry are LOCATION controls relative to a datum axis / center plane:
+    // they require >=1 datum. Deprecation in Y14.5-2018 does NOT exempt them (position has its
+    // own POSITION_NO_DATUM below, so it is intentionally not folded in here -- no double error).
     if (
-      (ORIENTATION_SYMBOLS.includes(f.symbol) || RUNOUT_SYMBOLS.includes(f.symbol)) &&
+      (ORIENTATION_SYMBOLS.includes(f.symbol) ||
+        RUNOUT_SYMBOLS.includes(f.symbol) ||
+        f.symbol === "concentricity" ||
+        f.symbol === "symmetry") &&
       f.datums.length === 0
     ) {
       issues.push({
@@ -272,7 +279,7 @@ class FCFSyntaxValidatorEngineImpl {
     return {
       rules_applied: [
         "form tolerance must not reference datums",
-        "orientation/runout/position require datums",
+        "orientation/runout/position/concentricity/symmetry require datums",
         "diameter prefix only on position/concentricity/runout",
         "material modifier only on features of size",
         "composite refinement ≤ primary tolerance",

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS11",
+  "version": "1.0.0",
+  "title": "PPG-MS11 — Online Tuning Loop (live telemetry → outcome capture → post recalibration)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 7,
+  "completed_units": 0,
+  "description": "Closes the loop: live spindle load + feed override + dimensional outcome from MTConnect/OPC-UA flows back into PSAU-PPG-SFC outcome store, which recalibrates kc1.1 / Taylor C/n / chatter SLD per-machine, which gets baked into the next sidecar. Without this milestone the AGI gates from PPG-MS9 have only quote-time data; with it they have run-time data.",
+  "rationale": "The post is a one-shot artifact today. The shop accumulates measured spindle load, actual cycle time, surface finish results, and tool change events — and none of it goes back to PRISM. This milestone makes the post a continuously-improving artifact whose sidecar gets sharper on every successful cut.",
+  "leverage_existing": [
+    "MTConnect adapter (read-only) and OPC-UA adapter (write+read) — machine_live dispatcher (already wired)",
+    "PSAU-PPG-SFC outcome capture (already shipped) — provenance + outcome store",
+    "BayesianToolLifeEngine + ChatterStabilityLobeEngine — accept per-machine recalibration deltas",
+    "RTMI (Real-Time Manufacturing Intelligence) actions: rtmi_spindle_monitor, rtmi_chatter_detect, rtmi_tool_life_countdown",
+    "BlockByBlockFeedEngine (PPG-MS1) — accepts recalibrated kc1.1 per-block"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Hurco V11 cuts 50 D2 (ISO-H, kc1.1=3200) dies over 2 weeks. Each cut posts spindle load + cycle time to MTConnect.",
+    "today_pre_ppg_ms11": "Telemetry logged in MTConnect agent but never read back to PRISM. Sidecar kc1.1 stays at canonical 3200 (ISO-H) even though this Hurco actual measured kc1.1 trends to 3110 (slightly worn ballscrews → reduced effective rigidity).",
+    "should_be_post_ppg_ms11": "Outcome aggregator notes a 60-cut sample; calibration delta calc trims kc1.1 to 3110 with σ=25 for this specific Hurco V11. Next post regeneration carries machine-specific override in the sidecar (canonical 3200 preserved in src/physics/constants.ts). Block-by-block S/F sharpens 3-5%.",
+    "gap_now_closed": "Posts get smarter the longer they run on a given machine."
+  },
+  "units": [
+    {
+      "id": "U-PPGM66",
+      "title": "Telemetry capture pipeline (MTConnect + OPC-UA reader)",
+      "scope": "src/services/PostTelemetryIngestor.ts — periodic pull of spindle load, position, alarm, tool-change events; persist to outcome store with provenance"
+    },
+    {
+      "id": "U-PPGM67",
+      "title": "Outcome aggregator",
+      "scope": "src/engines/PostOutcomeAggregatorEngine.ts — group by (machine, material, feature); compute mean + σ for kc1.1, Taylor C/n, chatter lobes, surface finish"
+    },
+    {
+      "id": "U-PPGM68",
+      "title": "Calibration delta computation",
+      "scope": "src/engines/PostCalibrationDeltaEngine.ts — Bayesian update on canonical priors; emit per-machine override deltas with confidence"
+    },
+    {
+      "id": "U-PPGM69",
+      "title": "Feedback into post regeneration",
+      "scope": "Sidecar emit (PPG-MS0 stage 0) consumes per-machine deltas; emits override block in sidecar JSON; block-by-block S/F (PPG-MS1) honors overrides"
+    },
+    {
+      "id": "U-PPGM70",
+      "title": "Closed-loop end-to-end test",
+      "scope": "src/__tests__/OnlineTuningLoop.integration.test.ts — synthetic 50-cut telemetry stream → aggregator → delta → next post → assert measurable S/F sharpening, no chatter/force violation"
+    },
+    {
+      "id": "U-PPGM70b",
+      "title": "post_outcome_record dispatcher action",
+      "scope": "prism_cam dispatcher action post_outcome_record — write surface for outcome capture (per CLAUDE-CODEX-MCP-DIRECTIVE: every read needs a write).",
+      "files_to_modify": [
+        "src/tools/dispatchers/camDispatcher.ts",
+        "src/schemas/camActionSchemas.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PostOutcomeRecordAction.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM70c",
+      "title": "Tool-life countdown emit (sister-tool swap M-codes + countdown comments)",
+      "scope": "Wire rtmi_tool_life_countdown into PostProcessorPipelineEngine emit stage. Emit comment block with predicted tool-life remaining + sister-tool M-code (per controller dialect from MS5). Tier-aware: shop_floor emits sister-tool swap automatically when countdown <2× cycle time; sim emits warning only.",
+      "files_to_modify": [
+        "src/engines/PostProcessorPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ToolLifeCountdownEmit.integration.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Telemetry ingestor pulls from at least Hurco V11 (OPC-UA) and Okuma B250 (MTConnect) in continuous service mode",
+    "Aggregator + calibration delta produce per-machine overrides with confidence band",
+    "Next-generation post sidecar carries the overrides; block-by-block S/F honors them",
+    "Closed-loop test demonstrates ≥3% measurable cycle-time improvement at convergence (defined: rolling 10-cut Δ-feed-override <0.5% AND Δ-spindle-override <0.5% for ≥5 consecutive windows) with zero safety violations"
+  ],
+  "depends_on": [
+    "PPG-MS1",
+    "PPG-MS8",
+    "PPG-MS9",
+    "PSAU-PPG-SFC",
+    "INTEL-OLLAMA-OBSIDIAN-MS0",
+    "PPG-MS4",
+    "PPG-MS5",
+    "PPG-MS24",
+    "PPG-MS25"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS16",
+    "PPG-MS19",
+    "PPG-MS20",
+    "PPG-MS22",
+    "PPG-MS23",
+    "PPG-MS26",
+    "PPG-MS28",
+    "PPG-MS29",
+    "PPG-MS34"
+  ],
+  "consumes_from_psau": [
+    "PSAU-PPG-SFC/U-01..02 (OutcomeCapture)",
+    "PSAU-PPG-SFC/U-14 (ClosedLoopE2E)"
+  ],
+  "_graph_reciprocity_patch": "ppg-fixes-round2-2026-04-29",
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

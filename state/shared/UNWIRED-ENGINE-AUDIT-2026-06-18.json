@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-06-18T20:33:26.162Z",
+  "generatedBy": "scripts/audit-unwired-engines.mjs",
+  "canonicalEnginesFolder": "H:\\PRISM\\mcp-server\\src\\engines",
+  "counts": {
+    "totalCanonicalEngines": 3812,
+    "WIRED-DIRECT": 3597,
+    "WIRED-VIA-ORCH": 36,
+    "WIRE-EXEMPT": 122,
+    "WIRED-VIA-ROUTE": 12,
+    "WIRED-VIA-ENGINE": 26,
+    "UNWIRED": 7,
+    "DORMANT-BRIDGE": 1,
+    "WIRED-VIA-HOOK": 8,
+    "WIRED-VIA-SINGLETON": 2,
+    "WIRED-VIA-ENTRY": 1
+  },
+  "orphans": {
+    "legacyTopLevel": {
+      "path": "H:\\PRISM\\src\\engines",
+      "uniqueNotInCanonical": [
+        "MilestoneIntelligenceEngine.ts",
+        "OperatingSystemIntelligenceEngine.ts",
+        "PhysicsFusionOrchestrator.types.ts",
+        "SolidCAMiMachiningEngine.ts"
+      ]
+    },
+    "forgeArchive": {
+      "path": "H:\\prism-forge-archive\\src\\engines",
+      "note": "Full archive of canonical. Leave alone (per user policy: copy never move)."
+    },
+    "worktreeClones": {
+      "pattern": "H:/prism-*/mcp-server/src/engines/",
+      "note": "Per-milestone branch scaffolding (~30 worktrees). Expected, not orphans."
+    }
+  },
+  "unwiredEngines": [
+    {
+      "engine": "CreoToolkitBridgeEngine",
+      "mtime": "2026-04-20T00:11:59.920Z",
+      "size_kb": 7,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "CATIACAAV5BridgeEngine",
+      "mtime": "2026-04-20T22:02:40.896Z",
+      "size_kb": 10,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "RhinoCommonBridgeEngine",
+      "mtime": "2026-04-22T12:32:51.758Z",
+      "size_kb": 14,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "OnshapeAPIBridgeEngine",
+      "mtime": "2026-04-22T12:59:43.150Z",
+      "size_kb": 14,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "OnshapeLiveCollabAdapter",
+      "mtime": "2026-04-22T13:06:27.647Z",
+      "size_kb": 14,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "NXOpenAssemblyDrawingEngine",
+      "mtime": "2026-04-22T13:51:34.668Z",
+      "size_kb": 40,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "HyperMillACBridgeEngine",
+      "mtime": "2026-05-20T04:55:20.239Z",
+      "size_kb": 17,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    }
+  ],
+  "dormantBridges": [
+    {
+      "engine": "cycleSchedulingBridge",
+      "mtime": "2026-06-16T22:29:28.861Z",
+      "size_kb": 16,
+      "gateEnv": "PRISM_REACTIVE_CHAINS_ENABLE",
+      "remedy": "boot-wired but default-off -- set PRISM_REACTIVE_CHAINS_ENABLE=1 to activate (NOT a dispatcher-wiring gap)"
+    }
+  ],
+  "notes": [
+    "DORMANT-BRIDGE: an engine wired SOLELY via a gated module-load boot path (reactive-chains-boot's REGISTRATION_MODULES, gated default-off behind PRISM_REACTIVE_CHAINS_ENABLE). BUILT + boot-wired but DORMANT in prod -- a distinct backend-completion state from fully-active WIRED-* and from UNWIRED. Remedy: enable the gate (NOT add a dispatcher action). Driven by the boot module's own REGISTRATION_MODULES export -- not a hardcoded list.",
+    "WIRE-EXEMPT engines have a `// WIRE-EXEMPT: <reason>` marker in the first 2KB.",
+    "Singleton wrappers count as WIRED-VIA-SINGLETON. The wrapping engine itself must still be wired separately.",
+    "WIRED-VIA-ENGINE means the engine is consumed by another engine (library-layer) -- a library dependency, NOT a dispatcher-wiring target. SINGLE-HOP: the pass does not verify the consuming engine is itself wired, so an engine consumed only by a dormant engine is still WIRED-VIA-ENGINE (the dormant ROOT stays UNWIRED, which is the actionable signal). Only UNWIRED (zero consumers of any kind) engines are candidate for wiring.",
+    "An engine can have multiple wiring paths; classification stops at first match in priority order.",
+    "Run with: node scripts/audit-unwired-engines.mjs"
+  ]
+}

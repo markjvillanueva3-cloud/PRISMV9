@@ -16,8 +16,12 @@ export interface SheetMetalResult {
   bend_deduction_mm: number;
   springback_angle_deg: number;
   bending_force_kN: number;
-  minimum_bend_radius_mm: number;
-  blank_size_mm: number;
+  // Optional: the /forming/sheet-metal adapter (press_brake_calculate) does not produce these
+  // two -- PressBrakeEngine has no min-bend-radius output and blank size needs per-flange
+  // geometry not in SheetMetalParams. Omitted (undefined) rather than fabricated; the type
+  // matches that runtime contract. (slot:bravo U-FE-SPECIALTY-FORMING-CONTRACT 2026-06-19)
+  minimum_bend_radius_mm?: number;
+  blank_size_mm?: number;
   tonnage_required: number;
   recommendations: string[];
 }

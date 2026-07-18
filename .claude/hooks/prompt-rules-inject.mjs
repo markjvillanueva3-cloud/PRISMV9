@@ -77,7 +77,7 @@ function readStdin() {
 
 function currentSessionId() {
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { encoding: "utf-8", timeout: 1500 });
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true, encoding: "utf-8", timeout: 1500 });
     return (r.stdout || "").trim() || null;
   } catch { return null; }
 }
@@ -100,7 +100,7 @@ function activeClaimFor(sid) {
 
 function latestCommit() {
   try {
-    const r = spawnSync("git", ["log", "-1", "--pretty=format:%s"], { encoding: "utf-8", timeout: 1500, cwd: process.cwd() });
+    const r = spawnSync("git", ["log", "-1", "--pretty=format:%s"], { windowsHide: true, encoding: "utf-8", timeout: 1500, cwd: process.cwd() });
     if (r.status === 0) return (r.stdout || "").trim().slice(0, 120);
   } catch { /* ignore */ }
   return null;

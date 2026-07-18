@@ -21,6 +21,7 @@ import {
   ManufacturingReasoningEngine,
   ManufacturingReasoningChain,
   ManufacturingProblem,
+  ManufacturingDomain,
 } from "./ManufacturingReasoningEngine.js";
 import {
   ToolExecutionEngine,
@@ -477,7 +478,7 @@ export class AgenticLoopEngine {
 
     if (config.thinkingDepth !== "shallow") {
       reasoning = await this.reasoningEngine.reason(problem);
-      reasoningConfidence = reasoning.confidence;
+      reasoningConfidence = reasoning.current_confidence;
     }
 
     // Plan actions based on routing
@@ -862,17 +863,17 @@ export class AgenticLoopEngine {
     }
   }
 
-  private mapIntentToDomain(category: string): string {
-    const mapping: Record<string, string> = {
+  private mapIntentToDomain(category: string): ManufacturingDomain {
+    const mapping: Record<string, ManufacturingDomain> = {
       calculation: "machining",
-      quote: "business",
+      quote: "cost",
       selection: "machining",
-      query: "general",
+      query: "machining",
       validation: "safety",
-      generation: "cam",
+      generation: "machining",
       comparison: "machining"
     };
-    return mapping[category] || "general";
+    return mapping[category] ?? "machining";
   }
 
   private describeApproach(observation: Observation, actions: PlannedAction[]): string {

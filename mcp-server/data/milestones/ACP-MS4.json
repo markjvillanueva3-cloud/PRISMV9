@@ -1,0 +1,208 @@
+{
+  "id": "ACP-MS4",
+  "version": "1.0.0",
+  "title": "Speed/Feed Product Autopilot",
+  "brief": "Wire PhysicsFusionOrchestratorEngine for Tier 2+ converged recommendations (not just single-pass). Auto material-to-ISO group resolution. Auto tier selection based on input completeness. Result confidence reporting to user. Must wire through Physics Fusion, not just legacy single-pass.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Physics Fusion Autopilot Wiring",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Wire PhysicsFusionOrchestratorEngine into automation chain: input validation, engine dispatch, result collection",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Wire PhysicsFusionOrchestratorEngine into automation chain: input validation, engine dispatch, result collection — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement auto material-to-ISO group resolution: material name/grade lookup, fuzzy match, ISO-P/M/K/N/S/H classification",
+          "effort": 75,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement auto material-to-ISO group resolution: material name/grade lookup, fuzzy match, ISO-P/M/K/N/S/H classification — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Implement auto tier selection: assess input completeness, select Tier 2/3/4 based on available parameters",
+          "effort": 70,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement auto tier selection: assess input completeness, select Tier 2/3/4 based on available parameters — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Implement result confidence reporting: convergence quality, source agreement, parameter sensitivity indicators",
+          "effort": 65,
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement result confidence reporting: convergence quality, source agreement, parameter sensitivity indicators — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "End-to-end test: natural language query through entry router to converged Physics Fusion result with confidence score",
+          "effort": 70,
+          "dependencies": [
+            "P0-U04"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "End-to-end test: natural language query through entry router to converged Physics Fusion result with confidence score — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "ACP-MS3",
+    "MXU-MS6"
+  ],
+  "exit_conditions": [
+    "PhysicsFusionOrchestratorEngine wired into automation chain (not legacy single-pass)",
+    "Material-to-ISO group auto-resolution working for common materials",
+    "Tier auto-selection picks correct tier based on input completeness",
+    "Confidence reporting shows convergence quality and source agreement",
+    "Token budget stays within <5K for product autopilot chain"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "acp-ms4-gate",
+    "mcp_action": "prism_acp:acp_ms4_run",
+    "skill_command": "/acp-ms4",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "acp-ms4-gate"
+    ],
+    "new_actions": [
+      "acp_ms4_run"
+    ],
+    "new_skills": [
+      "/acp-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Wire PhysicsFusionOrchestratorEngine for Tier 2+ converged recommendations (not just single-pass). Auto material-to-ISO group resolution. Auto tier selection based on input completeness. Result confidence reporting to user. Must wire through Physics Fusion, not just legacy single-pass.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

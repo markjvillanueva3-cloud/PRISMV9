@@ -1,0 +1,142 @@
+{
+  "id": "L10-P0-MS1",
+  "version": "3.1.0",
+  "title": "Session & Context Products",
+  "brief": "SessionEngine: lifecycle management, state persistence, recovery. ContextBudgetEngine: token tracking, budget allocation. ConversationEngine: thread management, history. StateEngine: cross-session persistence, checkpoint/restore.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Session & Context Products",
+      "description": "Implement SessionEngine (lifecycle management, state persistence, recovery), ContextBudgetEngine (token tracking, budget allocation), ConversationEngine (thread management, history), and StateEngine (cross-session persistence, checkpoint/restore).",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Implement Session & Context Products",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            },
+            {
+              "tool": "prism_validate"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": [
+            "L9-P0-MS1 complete"
+          ],
+          "exit_conditions": [
+            "SessionEngine implements lifecycle management, state persistence, and recovery",
+            "ContextBudgetEngine implements token tracking and budget allocation",
+            "ConversationEngine implements thread management and history",
+            "StateEngine implements cross-session persistence and checkpoint/restore",
+            "All 58 product units registered and wired to dispatchers",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- src/products/session/ src/products/context/ src/products/conversation/ src/products/state/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement SessionEngine with lifecycle management, state persistence, recovery"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement ContextBudgetEngine with token tracking and budget allocation"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement ConversationEngine with thread management and history"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement StateEngine with cross-session persistence and checkpoint/restore"
+            },
+            {
+              "number": 5,
+              "instruction": "Wire all 58 products to dispatchers, register in product registry, verify API integration"
+            }
+          ],
+          "deliverables": [],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": []
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 58,
+  "total_sessions": "1",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 80
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_dev",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P0"
+      ]
+    }
+  ],
+  "deliverables_index": [],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  },
+  "status": "not_started"
+}

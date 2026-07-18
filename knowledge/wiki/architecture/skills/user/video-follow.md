@@ -23,13 +23,24 @@ related:
 |-------|-------|
 | Name | `video-follow` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/video-follow.md` |
+| Source | `C:/Users/wompu/.claude/commands/video-follow.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Video Follow — Interactive CAD/CAM Learning from Video
+
+Step through a tutorial video interactively — review each action, correct mistakes, and teach the system as you go.
+
+## Args: $ARGUMENTS
+- Path to a local video file (mp4, avi, mkv, mov)
+- Optional: `--target onshape|tinkercad|freecad|cadquery` (default: cadquery)
+
+## How It Works
+
+Unlike `/video-replay` (fully autonomous), `/vi
 
 <!-- AUTO-END -->
 

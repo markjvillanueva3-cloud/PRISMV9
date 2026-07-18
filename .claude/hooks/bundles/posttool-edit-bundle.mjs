@@ -52,13 +52,15 @@ const SUB_HOOKS = [
   { path: `${HOOK_BASE}/jm-die-provenance-guard.mjs`,           timeout: 3000 },
   { path: `${HOOK_BASE}/ingestion-cache-root-guard.mjs`,        timeout: 3000 },
   { path: `${HOOK_BASE}/physics-canonical-constants-guard.mjs`, timeout: 3000 },
-  { path: `${HOOK_BASE}/token-economy-hook.mjs`,                timeout: 2000 },
   { path: `${HOOK_BASE}/write-tracker.mjs`,                     timeout: 2000 },
   { path: `${HOOK_BASE}/write-import-check.mjs`,                timeout: 3000 },
   { path: `${HOOK_BASE}/edit-batch-detector.mjs`,               timeout: 2000 },
   { path: `${HOOK_BASE}/memory-mirror-to-vault.mjs`,            timeout: 5000 },
   { path: `${HOOK_BASE}/tribal-autowire.mjs`,                   timeout: 3000 },
   { path: `${HOOK_BASE}/unified-edit-tap.mjs`,                  timeout: 2000 },
+  // Awareness #5 (slot:bravo 2026-06-11): post-edit blast-radius advisory —
+  // surfaces REAL git-grep importers of an edited src file (throttled, advisory).
+  { path: `${HOOK_BASE}/edit-consumer-advisory.mjs`,            timeout: 3000 },
   { path: `${HOOK_BASE}/recall-counter-track.mjs`,              timeout: 2500 },
 ];
 

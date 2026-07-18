@@ -112,7 +112,7 @@ export interface MultiPathProblem extends ManufacturingProblem {
   maxDepth?: number;
   beamWidth?: number;
   pruneThreshold?: number;
-  strategy?: GenerationStrategy;
+  explorationStrategy?: GenerationStrategy;
   scoreWeights?: Partial<ScoreWeights>;
   timeoutMs?: number;
   approaches?: string[];
@@ -302,7 +302,7 @@ export class MultiPathReasoningEngine {
       maxDepth: problem.maxDepth || 3,
       beamWidth: problem.beamWidth || 3,
       pruneThreshold: problem.pruneThreshold || 0.3,
-      strategy: problem.strategy || "beam_search",
+      strategy: problem.explorationStrategy || "beam_search",
       weights: { ...this.DEFAULT_WEIGHTS, ...problem.scoreWeights },
       timeoutMs: problem.timeoutMs || 30000
     };

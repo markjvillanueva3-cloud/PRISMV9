@@ -1,0 +1,112 @@
+{
+  "id": "PIPE-MS1",
+  "title": "Pipeline Integration — Wire Real Engines Into Print-to-Program Chain",
+  "track": "PIPE",
+  "version": "1.0.0",
+  "created_at": "2026-03-14T00:00:00Z",
+  "status": "complete",
+  "completed_at": "2026-03-15T15:43:00Z",
+  "total_units": 8,
+  "completed_units": 8,
+  "description": "The PrintToProgramPipelineEngine currently reimplements physics inline (Kienzle/Taylor) and generates G-code independently. This milestone refactors it to ACTUALLY CALL the existing production-tested engines: SpeedFeedOrchestratorEngine (51 tests), PostProcessorPipelineEngine (130 tests), OperationSequencerEngine (79 tests), QuoteEstimatorEngine, FeatureRecognitionEngine, InventoryAwareToolSelectorEngine, ROIAdvisorEngine. Each unit closes one gap in the chain with proper type adapters.",
+  "units": [
+    {
+      "id": "P0-U01",
+      "title": "PrintToGeometry returns structured features alongside CadQuery script",
+      "status": "not_started",
+      "description": "Modify PrintToGeometryEngine.convert() to return a `recognized_features: RecognizedFeature[]` array in addition to cadquery_script. Each feature gets id, type, dimensions, position from the BlueprintFeature input — no CadQuery parsing needed, just pass through the structured data. This closes Gap #1 (CadQuery TEXT → Feature OBJECTS).",
+      "acceptance_criteria": [
+        "GeometryResult interface gains `recognized_features: Array<{ id, type, dimensions, position, count }>`",
+        "convert() populates recognized_features from input.features",
+        "Existing tests still pass",
+        "New test: verify recognized_features matches input features",
+        "Build: 0 errors"
+      ]
+    },
+    {
+      "id": "P0-U02",
+      "title": "Inventory bridge — Pipeline calls UserToolLibraryEngine",
+      "status": "not_started",
+      "description": "Modify PrintToProgramPipelineEngine to import and call InventoryAwareToolSelectorEngine.select() instead of hardcoded selectToolForOperation(). If no user inventory provided, fall back to catalog recommendation. This closes Gap #6.",
+      "acceptance_criteria": [
+        "Pipeline imports InventoryAwareToolSelectorEngine",
+        "selectToolForOperation replaced with inventoryAwareToolSelectorEngine.select()",
+        "Falls back to catalog defaults if inventory empty",
+        "Tool condition_factor applied to S/F calculations",
+        "Missing tools logged in pipeline warnings",
+        "Tests: 2 new (inventory match, empty inventory fallback)"
+      ]
+    },
+    {
+      "id": "P0-U03",
+      "title": "Pipeline calls SpeedFeedOrchestratorEngine instead of inline Kienzle",
+      "status": "not_started",
+      "description": "Replace inline Kienzle/Taylor physics in PrintToProgramPipelineEngine with actual call to SpeedFeedOrchestratorEngine.compute(). Map feature+tool+machine context to OrchestratorInput. This closes Gap #3 and upgrades from ~5 inline formulas to 67-point physics hub with MOPSO, stochastic CI95, stability lobes.",
+      "acceptance_criteria": [
+        "Pipeline imports speedFeedOrchestratorEngine",
+        "planOperations() calls orchestrator.compute() per operation",
+        "OrchestratorInput built from: machine catalog lookup, tool selection, material DB, feature geometry",
+        "Stochastic results (CI95, Weibull) included in pipeline output",
+        "Falls back to inline physics if orchestrator fails",
+        "Tests: 2 new (orchestrator integration, fallback)"
+      ]
+    },
+    {
+      "id": "P1-U01",
+      "title": "Pipeline calls OperationSequencerEngine for optimal ordering",
+      "status": "not_started",
+      "description": "Replace simple feature-type sorting with actual call to OperationSequencerEngine.sequence(). Map tool assignments + feature geometry to SequencerInput. Gains: topo sort, TSP tool-change minimization, thermal relaxation, deflection-aware sequencing. Closes Gap #2.",
+      "acceptance_criteria": [
+        "Pipeline imports OperationSequencerEngine",
+        "ToolAssignment[] + Feature[] → SequencerInput adapter",
+        "Sequencer output (SequenceStep[]) feeds into S/F stage",
+        "Falls back to simple ordering if sequencer fails"
+      ]
+    },
+    {
+      "id": "P1-U02",
+      "title": "Pipeline calls CNCProgramAssemblerEngine for G-code",
+      "status": "not_started",
+      "description": "Replace inline G-code generation with CNCProgramAssemblerEngine.assemble(). Map SpeedFeed results + sequence + controller to ProgramAssemblyInput. Gains: proper tool change management, coolant strategy, safe Z handling, multi-operation coordination. Closes Gap #4.",
+      "acceptance_criteria": [
+        "Pipeline imports CNCProgramAssemblerEngine",
+        "Per-operation SpeedFeed results → ProgramAssemblyInput adapter",
+        "Assembled G-code replaces inline gcode template"
+      ]
+    },
+    {
+      "id": "P1-U03",
+      "title": "Pipeline calls PostProcessorPipelineEngine for controller-specific output",
+      "status": "not_started",
+      "description": "After G-code assembly, run through PostProcessorPipelineEngine for 26-stage optimization with controller dialect translation. Map machine name → MachineContext via catalog lookup. Closes Gap #5 partially.",
+      "acceptance_criteria": [
+        "Pipeline imports PostProcessorPipelineEngine",
+        "Machine name → MachineContext resolver (catalog lookup)",
+        "26-stage post-processing applied",
+        "17 controller dialects supported"
+      ]
+    },
+    {
+      "id": "P2-U01",
+      "title": "Pipeline calls QuoteEstimatorEngine for physics-backed costing",
+      "status": "not_started",
+      "description": "Replace inline cost estimation with QuoteEstimatorEngine. Map cycle time + operations + material + quantity to QuoteEstimateInput. Closes Gap #5.",
+      "acceptance_criteria": [
+        "Pipeline imports QuoteEstimatorEngine",
+        "Pipeline output includes full QuoteEstimateResult",
+        "Secondary ops, NRE, learning curve included"
+      ]
+    },
+    {
+      "id": "P2-U02",
+      "title": "Pipeline calls ROIAdvisorEngine for upgrade suggestions",
+      "status": "not_started",
+      "description": "Wire ROIAdvisorEngine into pipeline final stage. Map missing tools + current setup + quote to ROI analysis. Closes Gap #7.",
+      "acceptance_criteria": [
+        "Pipeline imports ROIAdvisorEngine",
+        "Missing tools from inventory selector → ROI suggestions",
+        "Payback analysis in pipeline output"
+      ]
+    }
+  ]
+}

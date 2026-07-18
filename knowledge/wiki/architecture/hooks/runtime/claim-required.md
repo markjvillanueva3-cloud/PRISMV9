@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-claim-required.mjs — Phase 1 Tier 5D
-PreTool hook that blocks milestone/unit edits without a claim.
-Prevents concurrent work conflicts on the same roadmap unit.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

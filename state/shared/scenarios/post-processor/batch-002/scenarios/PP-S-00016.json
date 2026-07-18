@@ -1,0 +1,91 @@
+{
+  "id": "PP-S-00016",
+  "schemaVersion": "2.0.0",
+  "controller": {
+    "id": "fanuc-0itf",
+    "vendor": "Fanuc",
+    "family": "0i-TF",
+    "dialect": "fanuc",
+    "market_share": 0.35
+  },
+  "machine": {
+    "name": "IHCNC RF45",
+    "make": "Industrial Hobbies",
+    "model": "IHCNC RF45",
+    "type": "Mill"
+  },
+  "spindle": {
+    "taper_id": "R8",
+    "taper_type": "R8",
+    "taper_size": 40,
+    "max_rpm": 1600,
+    "min_rpm": 0,
+    "power_hp": 2,
+    "drive_type": "belt-or-gear",
+    "hp_class": "manual-mill"
+  },
+  "operation": "boring",
+  "cycle": "bore-back",
+  "axis_count": 5,
+  "material": {
+    "id": "N-6061-T6",
+    "group": "N",
+    "name": "aluminium alloy"
+  },
+  "geometry": {
+    "depth_mm": 148.89,
+    "diameter_mm": 11.48,
+    "pitch_mm": null,
+    "rapid_z_mm": 170.9
+  },
+  "optional_features": [
+    "atc",
+    "bar_feeder",
+    "five_axis_tcp"
+  ],
+  "rejected_features": [
+    "probing_heidenhain",
+    "probing_renishaw",
+    "cas"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 70,
+    "lines_max": 200,
+    "must_contain": [
+      "%",
+      "O",
+      "G90",
+      "G54",
+      "G43.4"
+    ],
+    "must_not_contain": [
+      "CYCL DEF",
+      "BEGIN PGM",
+      "G15 H"
+    ]
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "feature_gate_applied": "featureValidForController",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor AND all_features_controller_supported",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold",
+      "feature-not-supported-by-controller"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:18:53.793Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06",
+    "schema": "v2.0.0"
+  }
+}

@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-corpus-integrity.mjs — CADCAM-DAGI-MS0/U-DAGI03 guard hookPostToolUse(Write|Edit|MultiEdit) hook that protects the CAD trainingcorpus pipeline. It runs in two modes:  1. Engine-surface check — when CADCorpusIngesterEngine.ts is edited,     assert it still exports the five public methods the dispatcher     and trainers depend on: classify, ingest, dedup, stats, toJsonl.  2. Corpus JSONL integrity — when any file under     mcp-server/data/cad-corpus/*.jsonl is written, stream-parse every  
+_(no header docblock — read source for behavior)_
 
 ## Events
 

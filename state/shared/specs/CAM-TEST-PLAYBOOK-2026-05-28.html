@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="36e906561ccba941caaf54c3eb2ec8316b02d2549acc72368aaa45a507467f86">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAM Test Playbook</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CAM Test Playbook</h1>
+<div class="meta">rendered from state/shared/specs/CAM-TEST-PLAYBOOK-2026-05-28.md</div>
+<div class="meta">Generated 2026-05-28T02:44:01.491Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">CAM Live-Test Playbook — 2026-05-28</li><li class="prism-toc-l2">Pre-flight checklist (one-time, per workstation)</li><li class="prism-toc-l2">Platform A — HyperMill / HyperCAD-S</li><li class="prism-toc-l3">A1. Confirm <code class="prism-inline-code">prism_ac</code> Python module reachable</li><li class="prism-toc-l3">A2. Enable Automation Center in hyperMILL</li><li class="prism-toc-l3">A3. Tier 1 — Mock-mode smoke test (no machine needed)</li><li class="prism-toc-l3">A4. Tier 2 — Live single round-trip (closes delta MISC-305 analog)</li><li class="prism-toc-l3">A5. Tier 3 — MCP-driven (operator from a Claude session)</li><li class="prism-toc-l3">A6. Tier 4 — Adaptive-pipeline orchestrator (when <code class="prism-inline-code">U-ADAPTIVE-PIPELINE-ORCH</code> ships)</li><li class="prism-toc-l2">Platform B — Mastercam X8</li><li class="prism-toc-l3">B1. Pre-flight — confirm Mastercam X8 install + VBScript surface</li><li class="prism-toc-l1">→ True (confirmed 2026-05-27)</li><li class="prism-toc-l1">→ True (C-Hook .EQN macros present)</li><li class="prism-toc-l3">B2. Tier 1 — Mock-mode (planned, when <code class="prism-inline-code">MastercamVBScriptBridgeEngine</code> ships)</li><li class="prism-toc-l3">B3. Tier 2 — Live single round-trip (requires Mastercam X8 launched with dongle)</li><li class="prism-toc-l3">B4. Tier 3 — MCP-driven</li><li class="prism-toc-l3">B5. Tier 4 — Adaptive-pipeline (post-orchestrator-ship)</li><li class="prism-toc-l2">Platform C — Fusion 360</li><li class="prism-toc-l3">C1. Pre-flight — confirm socket-bridge listener</li><li class="prism-toc-l3">C2. Tier 1 — Mock-mode</li><li class="prism-toc-l3">C3. Tier 2 — Live single round-trip (resolves delta MISC-305)</li><li class="prism-toc-l3">C4. Tier 2.5 — Offline .f3d feature-tree extract (NO Fusion launch required)</li><li class="prism-toc-l3">C5. Tier 3 — MCP-driven via Autodesk MCP</li><li class="prism-toc-l3">C6. Tier 4 — Adaptive-pipeline</li><li class="prism-toc-l2">Diagnostics — what to check if something breaks</li><li class="prism-toc-l2">Verification commands (re-run after any bridge change)</li><li class="prism-toc-l1">HyperMill bridge engine + Python module exist</li><li class="prism-toc-l1">Fusion 360 live bridge engine exists</li><li class="prism-toc-l1">F3D extractor exists + finds .f3d corpus</li><li class="prism-toc-l1">CAM coverage scorer baseline current</li><li class="prism-toc-l2">What WASN&#39;T built this audit cycle (deferred)</li><li class="prism-toc-l2">See also</li></ul></nav><h1 class="prism-h1">CAM Live-Test Playbook — 2026-05-28</h1>
+<blockquote class="prism-quote">For the operator testing PRISM&#39;s CAM bridges against real hyperMILL / Mastercam X8 / Fusion 360 installs with valid licenses.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>Methodology mirror:</strong> delta&#39;s <code class="prism-inline-code">HYPERCAD-TEST-PLAYBOOK-2026-05-20.md</code> (Tier 1 mock → Tier 2 live → Tier 3 MCP → Tier 4 orchestrator). Same shape, three platforms.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>Status:</strong> specification; Tier 1 mock-mode tests already pass for HyperMill (<code class="prism-inline-code">HyperMillACBridgeEngine.test.ts</code>). Tier 2-4 are operator-action.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">Pre-flight checklist (one-time, per workstation)</h2>
+<ul class="prism-md-list"><li>[ ] PowerShell 5.1+ available (default on Win 10/11)</li><li>[ ] Node 22 reachable from <code class="prism-inline-code">H:/.claude/bin/portable-node</code></li><li>[ ] Python 3.7+ on PATH for hyperMILL host module + .f3d batch extraction</li><li>[ ] Workstation has the CAM software installed + license dongle inserted (per platform)</li><li>[ ] PRISM repo present at <code class="prism-inline-code">H:/prism-slot-kilo</code> (or sibling)</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Platform A — HyperMill / HyperCAD-S</h2>
+<h3 class="prism-h3">A1. Confirm <code class="prism-inline-code">prism_ac</code> Python module reachable</h3>
+<pre class="prism-codeblock" data-lang="powershell"><code>cd H:/prism-slot-kilo/mcp-server/python
+pip install -e .
+python -c &quot;import prism_ac; import json; print(json.dumps(prism_ac.ping(), indent=2))&quot;</code></pre>
+<p><strong>Expected (no hyperMILL running yet):</strong></p>
+<pre class="prism-codeblock" data-lang="json"><code>{ &quot;ok&quot;: false, &quot;error&quot;: &quot;ac_unreachable&quot;, &quot;detail&quot;: &quot;127.0.0.1:18365 — ...&quot; }</code></pre>
+<h3 class="prism-h3">A2. Enable Automation Center in hyperMILL</h3>
+<p>Launch hyperMILL with USB key inserted → <code class="prism-inline-code">Tools → Automation Center → Enable Remote</code>. Confirm AC listens on <code class="prism-inline-code">127.0.0.1:18365</code>.</p>
+<pre class="prism-codeblock" data-lang="powershell"><code>Test-NetConnection -ComputerName 127.0.0.1 -Port 18365 -InformationLevel Quiet</code></pre>
+<h3 class="prism-h3">A3. Tier 1 — Mock-mode smoke test (no machine needed)</h3>
+<pre class="prism-codeblock" data-lang="powershell"><code>$env:PRISM_CAD_MOCK = &quot;1&quot;
+cd H:/prism-slot-kilo/mcp-server
+npm run build:fast
+npx vitest run src/__tests__/HyperMillACBridgeEngine.test.ts</code></pre>
+<p><strong>Expected:</strong> all happy-path + failure-mode + adversarial tests pass; <code class="prism-inline-code">LIVE</code> describe block SKIPPED.</p>
+<h3 class="prism-h3">A4. Tier 2 — Live single round-trip (closes delta MISC-305 analog)</h3>
+<pre class="prism-codeblock" data-lang="powershell"><code>Remove-Item Env:PRISM_CAD_MOCK -ErrorAction SilentlyContinue
+$env:PRISM_HYPERMILL_LIVE = &quot;1&quot;
+npx vitest run src/__tests__/HyperMillACBridgeEngine.test.ts -t &quot;LIVE&quot;</code></pre>
+<p><strong>Expected:</strong> <code class="prism-inline-code">ping</code> round-trip returns <code class="prism-inline-code">ok: true, ac_reachable: true, hm_available: true</code>.</p>
+<h3 class="prism-h3">A5. Tier 3 — MCP-driven (operator from a Claude session)</h3>
+<pre class="prism-codeblock" data-lang="javascript"><code>await prism_cam.cam_hypermill_ac_bridge_start({});
+await prism_cam.cam_hypermill_drive({ op: &quot;open&quot;, file_path: &quot;&lt;test.hmc&gt;&quot; });
+await prism_cam.cam_hypermill_drive({ op: &quot;geometry&quot; });
+await prism_cam.cam_hypermill_drive({ op: &quot;operation_tree&quot; });
+await prism_cam.cam_hypermill_drive({ op: &quot;export_step&quot;, output_path: &quot;&lt;step.stp&gt;&quot; });
+await prism_cam.cam_hypermill_drive({ op: &quot;close&quot; });
+await prism_cam.cam_hypermill_ac_bridge_stop({});</code></pre>
+<h3 class="prism-h3">A6. Tier 4 — Adaptive-pipeline orchestrator (when <code class="prism-inline-code">U-ADAPTIVE-PIPELINE-ORCH</code> ships)</h3>
+<p>Drive ONE JM Die part end-to-end. Recommended candidates from <code class="prism-inline-code">H:/PRISM/JM DIE/OKUMA/JM Die Company/</code>:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.hmc</code> flagship from VALLEY FASTENER or SFS subfolders.</li></ul>
+<p>Expected output: <code class="prism-inline-code">{detections, sequence, machine_pick, stock_size, workholding, tools, post_emit, setup_sheet, outcome_ledger_id}</code>.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Platform B — Mastercam X8</h2>
+<blockquote class="prism-quote"><strong>Status:</strong> PRISM has zero platform-specific bridge engines for Mastercam today (per F2 of <code class="prism-inline-code">CAM-PIPELINE-AUDIT-2026-05-28.md</code>). This playbook section is the <strong>spec for <code class="prism-inline-code">U-MASTERCAM-VBSCRIPT-DRIVE</code></strong>, not a live-runnable today.</blockquote>
+<h3 class="prism-h3">B1. Pre-flight — confirm Mastercam X8 install + VBScript surface</h3>
+<pre class="prism-codeblock" data-lang="powershell"><code>Test-Path &quot;H:/PRISM/resources/MasterCam/MASTERCAM/mcamX8/compressed/common/SharedDefaults/vb/RunCommand.vbs&quot;
+# → True (confirmed 2026-05-27)
+Test-Path &quot;H:/PRISM/resources/MasterCam/MASTERCAM/mcamX8/compressed/chooks/&quot;
+# → True (C-Hook .EQN macros present)</code></pre>
+<h3 class="prism-h3">B2. Tier 1 — Mock-mode (planned, when <code class="prism-inline-code">MastercamVBScriptBridgeEngine</code> ships)</h3>
+<pre class="prism-codeblock" data-lang="powershell"><code>$env:PRISM_CAM_MOCK = &quot;1&quot;
+npx vitest run src/__tests__/MastercamVBScriptBridgeEngine.test.ts</code></pre>
+<h3 class="prism-h3">B3. Tier 2 — Live single round-trip (requires Mastercam X8 launched with dongle)</h3>
+<p>Recommended ops for first wet-run:</p>
+<ol class="prism-md-list"><li><strong>Open <code class="prism-inline-code">.mcx-8</code></strong> — wrap <code class="prism-inline-code">RunCommand.vbs</code> to invoke Mastercam&#39;s File-Open dialog programmatically OR use C-Hook <code class="prism-inline-code">LoadFile()</code>.</li><li><strong>Pull geometry summary</strong> — VBScript can query the active Mastercam document for entity counts + bbox.</li><li><strong>Export STEP for PRISM analysis</strong> — Mastercam&#39;s built-in STEP exporter accessible via Workspace API.</li></ol>
+<h3 class="prism-h3">B4. Tier 3 — MCP-driven</h3>
+<pre class="prism-codeblock" data-lang="javascript"><code>// AFTER U-MASTERCAM-VBSCRIPT-DRIVE ships:
+await prism_cam.cam_mastercam_drive({ op: &quot;open&quot;, file_path: &quot;&lt;test.mcx-8&gt;&quot; });
+await prism_cam.cam_mastercam_drive({ op: &quot;geometry&quot; });
+await prism_cam.cam_mastercam_drive({ op: &quot;operation_tree&quot; });
+await prism_cam.cam_mastercam_drive({ op: &quot;export_step&quot;, output_path: &quot;&lt;step.stp&gt;&quot; });
+await prism_cam.cam_mastercam_drive({ op: &quot;close&quot; });</code></pre>
+<h3 class="prism-h3">B5. Tier 4 — Adaptive-pipeline (post-orchestrator-ship)</h3>
+<p>Drive ONE JM Die Mastercam part end-to-end. Recommended candidates: <code class="prism-inline-code">H:/PRISM/JM DIE/CNC MILL HAAS/**/*.mcx-8</code> (ATF, TAPTITE, CONTINENTAL MIDLAN customer families).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Platform C — Fusion 360</h2>
+<h3 class="prism-h3">C1. Pre-flight — confirm socket-bridge listener</h3>
+<pre class="prism-codeblock" data-lang="powershell"><code>Test-NetConnection -ComputerName 127.0.0.1 -Port 18360 -InformationLevel Quiet</code></pre>
+<p>If <code class="prism-inline-code">False</code> — Fusion 360 isn&#39;t listening yet. Launch Fusion + load the PRISM add-in OR wait for <code class="prism-inline-code">Fusion360LiveBridgeEngine</code> to start its socket server.</p>
+<h3 class="prism-h3">C2. Tier 1 — Mock-mode</h3>
+<pre class="prism-codeblock" data-lang="powershell"><code>$env:PRISM_CAD_MOCK = &quot;1&quot;
+npx vitest run src/__tests__/Fusion360LiveBridgeEngine.test.ts</code></pre>
+<h3 class="prism-h3">C3. Tier 2 — Live single round-trip (resolves delta MISC-305)</h3>
+<pre class="prism-codeblock" data-lang="powershell"><code>Remove-Item Env:PRISM_CAD_MOCK -ErrorAction SilentlyContinue
+$env:PRISM_FUSION_LIVE = &quot;1&quot;
+npx vitest run src/__tests__/Fusion360LiveBridgeEngine.test.ts -t &quot;LIVE&quot;</code></pre>
+<p><strong>Expected:</strong> <code class="prism-inline-code">ping</code> returns <code class="prism-inline-code">ok: true, socket_reachable: true, fusion_version: &quot;...&quot;</code>.</p>
+<h3 class="prism-h3">C4. Tier 2.5 — Offline .f3d feature-tree extract (NO Fusion launch required)</h3>
+<p>While the live socket is unverified, the <strong>offline path is fully functional</strong>:</p>
+<pre class="prism-codeblock" data-lang="powershell"><code>H:/Tools/python/python.exe H:/prism-slot-kilo/scripts/extract-f3d-feature-trees.py `
+    &quot;H:/PRISM/JM DIE/FUSION CAD AND CAM FILES/JM/.25 SALVI WIRE STOP/.25 SALVI WIRE STOP OP1 v1.f3d&quot; `
+    --out-dir H:/prism-slot-kilo/state/shared/cad-rev-eng/</code></pre>
+<p>Or in batch (all 1640 .f3d files):</p>
+<pre class="prism-codeblock" data-lang="powershell"><code>H:/Tools/python/python.exe H:/prism-slot-kilo/scripts/extract-f3d-feature-trees.py `
+    --batch &quot;H:/PRISM/JM DIE/FUSION CAD AND CAM FILES/&quot; `
+    --out-dir H:/prism-slot-kilo/state/shared/cad-rev-eng/</code></pre>
+<p><strong>Expected:</strong> per-file JSON dumps of the embedded <code class="prism-inline-code">model.sqlite</code> feature tree + CAM operation tree. Output aggregate at <code class="prism-inline-code">state/shared/cad-rev-eng/f3d-coverage-report.json</code>.</p>
+<p><strong>This is the answer to operator&#39;s &quot;we&#39;re posting all programs but it&#39;s taking a while&quot;</strong> — the .f3d feature tree contains the CAM operations + parameters directly, no post-processing needed for kilo&#39;s training pipeline.</p>
+<h3 class="prism-h3">C5. Tier 3 — MCP-driven via Autodesk MCP</h3>
+<p>PRISM&#39;s <code class="prism-inline-code">AutodeskFusionMCPProxyEngine</code> is the JSON-RPC client for Autodesk&#39;s Claude connector (released 2026-04-28). Operator setup:</p>
+<ol class="prism-md-list"><li>Install Autodesk Claude connector per Autodesk docs.</li><li>From a PRISM Claude session: <code class="prism-inline-code">await prism_cam.fusion_mcp_proxy({ op: &quot;list_documents&quot; })</code> etc.</li></ol>
+<h3 class="prism-h3">C6. Tier 4 — Adaptive-pipeline</h3>
+<p>Drive ONE JM Die Fusion part end-to-end. Recommended candidates: <code class="prism-inline-code">H:/PRISM/JM DIE/FUSION CAD AND CAM FILES/{ELECTRODES, JM, MANNY, OKUMA(1756902819851), ROKU ROKU}/**/*.f3d</code>.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Diagnostics — what to check if something breaks</h2>
+<table class="prism-md-table"><thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead><tbody><tr><td>HyperMill <code class="prism-inline-code">ac_unreachable</code> on Tier 2</td><td>AC not enabled in hyperMILL</td><td>Tools → Automation Center → Enable Remote (then re-run A2 probe)</td></tr>
+<tr><td>HyperMill <code class="prism-inline-code">prism_ac not installed</code></td><td>pip installed against wrong Python</td><td><code class="prism-inline-code">where.exe python</code> + <code class="prism-inline-code">where.exe pip</code> — confirm same prefix</td></tr>
+<tr><td>HyperMill <code class="prism-inline-code">hm_open_failed</code></td><td>License dongle removed or hyperMILL not running</td><td>Check USB key + relaunch hyperMILL</td></tr>
+<tr><td>HyperMill <code class="prism-inline-code">payload_too_large</code></td><td>NC content &gt; 1 MB</td><td>Split program OR raise BridgeEngine&#39;s 1MB cap</td></tr>
+<tr><td>Mastercam Tier 2 doesn&#39;t exist</td><td>No <code class="prism-inline-code">MastercamVBScriptBridgeEngine</code> yet</td><td>Ship <code class="prism-inline-code">U-MASTERCAM-VBSCRIPT-DRIVE</code> first</td></tr>
+<tr><td>Fusion 360 <code class="prism-inline-code">socket_unreachable</code></td><td>PRISM add-in not loaded OR :18360 listener not started</td><td>Load PRISM add-in in Fusion → verify with <code class="prism-inline-code">Test-NetConnection 18360</code></td></tr>
+<tr><td>Fusion 360 .f3d extract fails</td><td><code class="prism-inline-code">model.sqlite</code> schema unrecognized</td><td><code class="prism-inline-code">extract-f3d-feature-trees.py</code> flags <code class="prism-inline-code">unknown_schema</code> honestly — file is not parseable, NOT silently faked</td></tr>
+<tr><td>Tier 4 orchestrator missing</td><td><code class="prism-inline-code">U-ADAPTIVE-PIPELINE-ORCH</code> not shipped yet</td><td>Ship that unit first</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">Verification commands (re-run after any bridge change)</h2>
+<pre class="prism-codeblock" data-lang="powershell"><code># HyperMill bridge engine + Python module exist
+node -e &quot;console.log(require(&#39;fs&#39;).existsSync(&#39;H:/prism-slot-kilo/mcp-server/src/engines/HyperMillACBridgeEngine.ts&#39;))&quot;
+node -e &quot;console.log(require(&#39;fs&#39;).existsSync(&#39;H:/prism-slot-kilo/mcp-server/python/prism_ac/__init__.py&#39;))&quot;
+
+# Fusion 360 live bridge engine exists
+node -e &quot;console.log(require(&#39;fs&#39;).existsSync(&#39;H:/prism-slot-kilo/mcp-server/src/engines/Fusion360LiveBridgeEngine.ts&#39;))&quot;
+
+# F3D extractor exists + finds .f3d corpus
+H:/Tools/python/python.exe H:/prism-slot-kilo/scripts/extract-f3d-feature-trees.py --help
+ls &quot;H:/PRISM/JM DIE/FUSION CAD AND CAM FILES/&quot; -Recurse -Filter *.f3d | Measure-Object | Select-Object -ExpandProperty Count
+
+# CAM coverage scorer baseline current
+node H:/prism-slot-kilo/scripts/cam-pipeline-coverage-scorer.mjs</code></pre>
+<hr class="prism-hr">
+<h2 class="prism-h2">What WASN&#39;T built this audit cycle (deferred)</h2>
+<ul class="prism-md-list"><li><strong><code class="prism-inline-code">U-MASTERCAM-VBSCRIPT-DRIVE</code></strong> — Mastercam X8 PRISM bridge (Platform B Tier 2-4 path). Single highest-leverage CAM bridge gap.</li><li><strong><code class="prism-inline-code">U-INVENTOR-LIVE-DRIVE</code></strong> — Inventor HSM live socket bridge (analog of Fusion 360).</li><li><strong><code class="prism-inline-code">U-ADAPTIVE-PIPELINE-ORCH</code></strong> — outer orchestrator. Tier 4 path for ALL three platforms.</li><li><strong><code class="prism-inline-code">U-F3D-EXTRACT-BATCH-RUN</code></strong> — operator-actionable: run the existing <code class="prism-inline-code">extract-f3d-feature-trees.py</code> over all 1640 .f3d files NOW. No PRISM build needed.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/CAM-PIPELINE-AUDIT-2026-05-28.md</code> — this audit&#39;s audit doc.</li><li><code class="prism-inline-code">state/shared/specs/cam-pipeline-coverage-LATEST.{json,md}</code> — baseline data.</li><li><code class="prism-inline-code">state/shared/specs/CAD-TO-CAM-HANDOFF-CONTRACT-2026-05-28.md</code> — handoff contract.</li><li><code class="prism-inline-code">state/shared/specs/HYPERCAD-TEST-PLAYBOOK-2026-05-20.md</code> — delta&#39;s CAD-side equivalent.</li><li><code class="prism-inline-code">mcp-server/src/engines/HyperMillACBridgeEngine.ts</code> — Platform A bridge.</li><li><code class="prism-inline-code">scripts/extract-f3d-feature-trees.py</code> — kilo-authored .f3d extractor (Platform C Tier 2.5).</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="e0daaf46cae1eabe51304f6ee1f081415fa9e14cb0ebd733094957049c4fa1d8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>U-MERGE-SLOT-DELTA — conflict refresh (2026-06-26)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1 id="u-merge-slot-delta-conflict-refresh-2026-06-26">U-MERGE-SLOT-DELTA — conflict refresh (2026-06-26)</h1>
+<div class="meta">rendered from state/shared/specs/DELTA-MERGE-CONFLICT-REFRESH-2026-06-26.md</div>
+<div class="meta">Generated 2026-06-26T04:26:20.108Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><a href="#content" class="skip-link">Skip to content</a><main class="prism-md-body" role="main" id="content"><p>&lt;!--   Refreshed merge-conflict assessment for U-MERGE-SLOT-DELTA, computed read-only (git merge-base +   diff intersection, no working-tree touch) on 2026-06-26 by slot:delta. Updates the 16-day-stale   DELTA-P1-MERGE-PLAYBOOK-2026-06-10.md (19 conflicts) with the CURRENT state (22). De-risks the   operator-gated merge window. NOT the merge itself (operator-only, fleet-quiet window required). --&gt;</p>
+<h1 class="prism-h1" id="u-merge-slot-delta-conflict-refresh-2026-06-26-1">U-MERGE-SLOT-DELTA — conflict refresh (2026-06-26)</h1>
+<p><strong>Method:</strong> read-only <code class="prism-inline-code">git merge-base cad-fusion-live-ms0 slot/delta</code> (= <code class="prism-inline-code">aa58c8f3eb</code>) then the intersection of files changed on each side since. No working-tree/merge performed (fully reversible reconnaissance).</p>
+<h2 class="prism-h2" id="current-state-vs-the-2026-06-10-playbook">Current state vs the 2026-06-10 playbook</h2>
+<table class="prism-md-table"><thead><tr><th>metric</th><th>2026-06-10 playbook</th><th>2026-06-26 (now)</th><th>delta</th></tr></thead><tbody><tr><td>slot/delta commits ahead</td><td>410</td><td><strong>432</strong></td><td>+22</td></tr>
+<tr><td>trunk commits ahead of base</td><td>(n/a)</td><td><strong>5368</strong></td><td>16 days of fleet churn</td></tr>
+<tr><td>files changed: trunk / slot</td><td>—</td><td>17,218 / 3,974</td><td>—</td></tr>
+<tr><td><strong>conflict candidates</strong></td><td>19</td><td><strong>22</strong></td><td><strong>+3</strong></td></tr></tbody></table>
+<p><strong>Verdict:</strong> still tractable — the merge grew only modestly (19→22) despite 5,368 trunk commits, and the high-effort files are unchanged from the playbook. The playbook&#39;s resolution strategy still applies; this just refreshes the file set.</p>
+<h2 class="prism-h2" id="the-22-conflict-candidates-by-resolution-strategy">The 22 conflict candidates, by resolution strategy</h2>
+<p><strong>A. Fleet-infra — UNION-merge (both sides appended; take both):</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/settings.json</code> (hook wiring — careful union, the highest-risk infra file)</li><li><code class="prism-inline-code">CLAUDE.md</code> · <code class="prism-inline-code">.gitignore</code> · <code class="prism-inline-code">knowledge/wiki/index.md</code> · <code class="prism-inline-code">knowledge/wiki/log.md</code> (append-union)</li></ul>
+<p><strong>B. CAD galaxy docs — delta-owned, PREFER slot/delta (or union the newer content):</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">mcp-server/src/engines/cad/CLAUDE.md</code> · <code class="prism-inline-code">MEMORY.md</code> · <code class="prism-inline-code">PATHS.md</code> · <code class="prism-inline-code">TOOLBELT.md</code></li><li><code class="prism-inline-code">knowledge/wiki/architecture/cad-galaxy.md</code> · <code class="prism-inline-code">.claude/hooks/delta-cad-awareness-inject.mjs</code></li></ul>
+<p><strong>C. CAD dispatcher — HIGHEST-EFFORT union (both sides added actions; keep ALL z.enum entries + cases from both):</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">mcp-server/src/tools/dispatchers/cadDispatcher.ts</code></li></ul>
+<p><strong>D. Cross-domain — NOT delta&#39;s; coordinate / prefer trunk (these moved on trunk under other slots):</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">mcp-server/src/engines/MultiModelConsensusEngine.ts</code> + <code class="prism-inline-code">MultiModelConsensus.test.ts</code> (octopus/hermes — sierra/india)</li><li><code class="prism-inline-code">mcp-server/src/engines/CreoIntegrationTestSuiteEngine.ts</code> · <code class="prism-inline-code">CreoToolkitBridgeEngine.ts</code> (Creo — CAD-adjacent, verify both)</li><li><code class="prism-inline-code">scripts/lib/graphsage-trainer.mjs</code> (india GNN) · <code class="prism-inline-code">scripts/ollama-prism-bridge.mjs</code> + test (ollama infra)</li><li><code class="prism-inline-code">mcp-server/data/state/HYPERMILL_SDK_APIS.json</code> (hypermill — kilo)</li><li><code class="prism-inline-code">.claude/helpers/precompact-handoff.mjs</code> + <code class="prism-inline-code">precompact-handoff-loop-state.test.mjs</code> (session continuity — fleet infra)</li></ul>
+<h2 class="prism-h2" id="operator-action">Operator action</h2>
+<p>Schedule the merge in a <strong>fleet-quiet window</strong>: backup-branch trunk → <code class="prism-inline-code">git merge --no-ff slot/delta</code> → resolve the 22 above (A union, B prefer-slot, C union-all-actions, D coordinate) → full <code class="prism-inline-code">npm run build</code> + <code class="prism-inline-code">npx vitest run</code> → commit. Unlocks the smooth-solid emitter + the deep dim-by-dim validator (<code class="prism-inline-code">cad-analyze-step.mjs</code>) on trunk = the CAD-gen loop&#39;s T2/T3 accuracy test. Companion: <code class="prism-inline-code">DELTA-P1-MERGE-PLAYBOOK-2026-06-10.md</code> (per-file detail), <code class="prism-inline-code">CAD-COMPLETION-ROADMAP-2026-06-26.md</code>.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

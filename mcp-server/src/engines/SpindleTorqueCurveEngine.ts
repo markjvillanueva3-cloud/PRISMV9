@@ -226,22 +226,39 @@ export class SpindleTorqueCurveEngine {
     }
 
     if (rpm <= spindle.max_rpm) {
-      // Constant power region: T = P × 9550 / n
-      const torque = (spindle.max_power_kW * 9550) / rpm;
+      // Constant power region: T = P / ω  (= P × 60000 / (2π·n), i.e. P × 9550 / n).
+      // SAFETY: the available torque can never exceed the motor's rated T_max, nor
+      // the available power exceed rated P_max. When the declared base speed sits
+      // BELOW the true corner speed (n_corner = 60000·P / (2π·T)), the P/ω hyperbola
+      // would report torque ABOVE what the motor delivers — a stall that
+      // checkCutFeasibility would green-light. Take the physically consistent
+      // envelope T = min(T_max, P/ω) and P = min(P_max, T_max·ω); these are exact
+      // inverses so P = T·ω holds in every sub-region.
+      // Ref: constant-power spindle-drive characteristic (Tlusty, "Manufacturing
+      // Processes and Equipment", spindle drives; ISO 16090-1).
+      const torque = Math.min(spindle.max_torque_Nm, (spindle.max_power_kW * 60000) / (2 * Math.PI * rpm));
+      const power = Math.min(spindle.max_power_kW, (spindle.max_torque_Nm * 2 * Math.PI * rpm) / 60000);
       return {
         torque_Nm: torque,
-        power_kW: spindle.max_power_kW,
+        power_kW: power,
         region: "constant_power",
         base_speed_rpm: baseSpeed,
       };
     }
 
-    // Field weakening: beyond max_rpm, both torque and power drop
+    // Field weakening: beyond max_rpm both torque and power drop. In this
+    // high-speed (region-3) regime the deliverable POWER falls as 1/n, so torque
+    // must fall as 1/n² to keep P = T·ω consistent. (Fix: torque previously fell
+    // as 1/n, which implied CONSTANT power — contradicting the 1/n power reported
+    // alongside it, an internal inconsistency of up to 2×.)
+    // Ref: field-weakening motor characteristic (constant-power × speed-squared
+    // torque roll-off).
     const ratio = spindle.max_rpm / rpm;
-    const torqueAtMax = (spindle.max_power_kW * 9550) / spindle.max_rpm;
+    const power = spindle.max_power_kW * ratio;
+    const torqueAtMax = (spindle.max_power_kW * 60000) / (2 * Math.PI * spindle.max_rpm);
     return {
-      torque_Nm: torqueAtMax * ratio,
-      power_kW: spindle.max_power_kW * ratio,
+      torque_Nm: torqueAtMax * ratio * ratio,
+      power_kW: power,
       region: "field_weakening",
       base_speed_rpm: baseSpeed,
     };
@@ -572,12 +589,15 @@ export class SpindleTorqueCurveEngine {
       availTorque = maxTorque;
       region = "constant_torque";
     } else if (opRpm <= maxRpm) {
-      availTorque = (maxPower * 1000 * 60) / (2 * Math.PI * opRpm);
+      // Constant power: T = P / ω — clamped to the rated T_max, which the motor can
+      // never exceed. Below the true corner speed the hyperbola would overstate
+      // torque and green-light a stalling cut. (Fix: was unclamped.)
+      availTorque = Math.min(maxTorque, (maxPower * 1000 * 60) / (2 * Math.PI * opRpm));
       region = "constant_power";
     } else {
+      // Field weakening: P falls as 1/n ⇒ T falls as 1/n² to keep P = T·ω.
       const ratio = maxRpm / opRpm;
-      availTorque = (maxPower * 1000 * 60) /
-        (2 * Math.PI * maxRpm) * ratio;
+      availTorque = ((maxPower * 1000 * 60) / (2 * Math.PI * maxRpm)) * ratio * ratio;
       region = "field_weakening";
     }
 
@@ -586,7 +606,9 @@ export class SpindleTorqueCurveEngine {
     if (opRpm <= baseSpeed) {
       availPower = (maxTorque * 2 * Math.PI * opRpm) / (60 * 1000);
     } else if (opRpm <= maxRpm) {
-      availPower = maxPower;
+      // Consistent with the (possibly torque-clamped) available torque: below the
+      // true corner speed the deliverable power is T_max·ω, not the full P_max.
+      availPower = Math.min(maxPower, (maxTorque * 2 * Math.PI * opRpm) / (60 * 1000));
     } else {
       availPower = maxPower * (maxRpm / opRpm);
     }

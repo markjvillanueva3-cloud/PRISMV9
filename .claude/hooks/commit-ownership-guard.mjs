@@ -51,7 +51,7 @@ function getSessionId(hookInput) {
 
 function git(args, cwd = REPO) {
   try {
-    return execFileSync("git", args, {
+    return execFileSync("git", args, { windowsHide: true,
       cwd,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
@@ -204,7 +204,7 @@ function main() {
     const unstageFailed = [];
     for (const f of foreignFiles) {
       try {
-        execFileSync("git", ["reset", "HEAD", "--", f.file], {
+        execFileSync("git", ["reset", "HEAD", "--", f.file], { windowsHide: true,
           cwd: commitCwd,
           stdio: ["ignore", "pipe", "pipe"],
           timeout: 5000,

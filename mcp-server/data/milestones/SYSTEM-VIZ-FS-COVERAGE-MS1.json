@@ -7,7 +7,13 @@
   "created_by": "claude-b6c4b196 (slot alpha)",
   "track": "devtools",
   "track_name": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP",
-  "status": "in_progress",
+  "status": "completed",
+  "closeout": {
+    "completed_at": "2026-05-22T16:06:00.000Z",
+    "completed_by": "claude-b2bcf85e (slot sierra)",
+    "summary": "Phase 0 shipped 2026-05-15. Phase 1+2 deliverables verified on disk: cron-revwalk.mjs, namespace-churn-ranker.mjs (33/33 tests pass), detect-system-viz-drift.mjs (runs + writes DRIFT_REPORT.json), /system-viz-drift skill, stop-system-viz-drift.mjs (wired in settings.json). U-MS1-CRON-RUNNER finished this session — scheduled task 'PRISM System-Viz Re-walk Daily' registered via install-system-viz-revwalk-task.ps1 (daily 03:15, state=Ready, nextRun 2026-05-23).",
+    "followup_finding": "detect-system-viz-drift.mjs reports 0 fsCoverage namespaces in the current system-graph.json — the L12 filesystem augmentation from MS0/MS1-Phase0 is no longer present in the live graph (regeneration drift). cron-revwalk re-walks EXISTING ranked namespaces and cannot bootstrap from empty; a fresh expand-system-viz-l12-files.mjs full walk is needed to re-populate fsCoverage. Tracked as a separate follow-up, not an MS1 unit gap."
+  },
   "scope_note": "MS0 declared every H: file represented BUT 3 namespaces hit the safety cap and are flagged truncated. MS1 (a) recovers those, (b) institutes a cron cadence so the snapshot stays current, (c) detects drift between graph and disk so an operator (or chat) knows when a re-walk is overdue.",
   "priority": 0,
   "tier": 1,
@@ -55,42 +61,42 @@
     },
     "1": {
       "title": "Cron-driven daily re-walk for top-churn namespaces",
-      "status": "deferred",
+      "status": "complete",
       "units": [
         {
           "unit_id": "U-MS1-CRON-RUNNER",
           "title": "scripts/cron-revwalk.mjs — daily Windows scheduled task that re-walks top-N namespaces by churn (dir mtime delta since last walk)",
-          "status": "deferred",
+          "status": "complete",
           "deliverable": "Scheduled task `PRISM System-Viz Re-walk Daily` registered, runs 03:00 local"
         },
         {
           "unit_id": "U-MS1-CHURN-RANKER",
           "title": "Pure helper that ranks namespaces by churn rate (recent disk activity vs lastWalkedAt)",
-          "status": "deferred",
+          "status": "complete",
           "deliverable": "scripts/lib/namespace-churn-ranker.mjs + tests"
         }
       ]
     },
     "2": {
       "title": "Drift detection — graph vs disk reality",
-      "status": "deferred",
+      "status": "complete",
       "units": [
         {
           "unit_id": "U-MS1-DRIFT-DETECTOR",
           "title": "scripts/detect-system-viz-drift.mjs — diffs fsCoverage.lastWalkedAt against current dir mtimes, flags >24h stale + >5% file-count delta",
-          "status": "deferred",
+          "status": "complete",
           "deliverable": "scripts/detect-system-viz-drift.mjs + state/shared/system-viz/DRIFT_REPORT.json"
         },
         {
           "unit_id": "U-MS1-DRIFT-SKILL",
           "title": "Skill: /system-viz-drift surfaces the latest drift report inline",
-          "status": "deferred",
+          "status": "complete",
           "deliverable": ".claude/commands/system-viz-drift.md"
         },
         {
           "unit_id": "U-MS1-DRIFT-STOP-HOOK",
           "title": "Stop hook: stop-system-viz-drift.mjs — once per session, if drift report >12h old or >10 stale namespaces, nudge a refresh",
-          "status": "deferred",
+          "status": "complete",
           "deliverable": ".claude/hooks/stop-system-viz-drift.mjs wired in BOTH settings.json copies"
         }
       ]

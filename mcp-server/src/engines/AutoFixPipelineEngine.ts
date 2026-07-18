@@ -123,27 +123,11 @@ export class AutoFixPipelineEngine {
       };
     }
 
-    // Stage 2: Generate fix candidates for high-priority patterns
-    const candidates: FixCandidate[] = [];
+    // Stage 2-3: Generate + dry-run-validate candidates for high-priority patterns.
+    // Shared with suggest() via buildCandidates (which drops malformed candidates and
+    // records a warning for each). highPriority is kept here for patterns_analyzed.
     const highPriority = patterns.filter((p) => p.priority >= PRIORITY_THRESHOLD);
-
-    for (const pattern of highPriority) {
-      const candidate = this.generateCandidate(pattern, candidates.length + 1);
-      if (candidate) {
-        // Stage 3: Dry-run validation
-        this.validateCandidate(candidate);
-        candidates.push(candidate);
-      }
-    }
-
-    // Output validation: reject malformed candidates
-    const validCandidates = candidates.filter((c) => {
-      if (!c.id || !c.template || !c.file_path) {
-        this.warnings.push(`Rejected malformed candidate for pattern ${c.pattern_id}`);
-        return false;
-      }
-      return true;
-    });
+    const validCandidates = this.buildCandidates(patterns);
 
     // Compute improvement rate from promotion log
     const promotionLog = this.loadPromotionLog();
@@ -299,9 +283,52 @@ export class AutoFixPipelineEngine {
     return lines.join("\n");
   }
 
+  /**
+   * SelfImprovement -> AutoFix handoff (P9-U02). Generate validated fix candidates
+   * directly from patterns WITHOUT persisting -- the pure, in-memory counterpart to
+   * compute(). When `patterns` is omitted it loads from SELF_IMPROVEMENT_PATTERNS.json
+   * (so an ad-hoc caller and the scan pipeline share one entry point); an explicit
+   * (even empty) array is used as-is -- never falling back to disk. Filters by the same
+   * PRIORITY_THRESHOLD as compute() and returns only the candidate list.
+   * @param patterns Optional patterns to suggest fixes for; omit to load from disk.
+   * @returns The generated FixCandidate[] (empty when nothing qualifies). Never writes.
+   */
+  suggest(patterns?: ImprovementPattern[]): FixCandidate[] {
+    this.warnings = [];
+    // `??` (nullish) so an explicit [] is respected; only undefined loads from disk.
+    const source = patterns ?? this.loadPatterns() ?? [];
+    return this.buildCandidates(source);
+  }
+
   // ==========================================================================
   // CANDIDATE GENERATION
   // ==========================================================================
+
+  /**
+   * Pure candidate core shared by compute() and suggest(): filter patterns to the
+   * PRIORITY_THRESHOLD, generate a typed fix candidate per qualifying pattern, dry-run
+   * validate it, and drop malformed candidates (recording a warning for each). Assigns
+   * sequential AFX ids in pattern order exactly as the original compute() loop did.
+   * Does NOT persist -- the caller decides whether to saveResults().
+   */
+  private buildCandidates(patterns: ImprovementPattern[]): FixCandidate[] {
+    const candidates: FixCandidate[] = [];
+    const highPriority = patterns.filter((p) => p.priority >= PRIORITY_THRESHOLD);
+    for (const pattern of highPriority) {
+      const candidate = this.generateCandidate(pattern, candidates.length + 1);
+      if (candidate) {
+        this.validateCandidate(candidate);
+        candidates.push(candidate);
+      }
+    }
+    return candidates.filter((c) => {
+      if (!c.id || !c.template || !c.file_path) {
+        this.warnings.push(`Rejected malformed candidate for pattern ${c.pattern_id}`);
+        return false;
+      }
+      return true;
+    });
+  }
 
   private generateCandidate(
     pattern: ImprovementPattern,

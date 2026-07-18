@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="7de63854ba8f093189a22c785a35f78635e4eac273ad777b85f8849eabf62781">
+<title>BRAVO TASK QUEUE — OBSIDIAN-BRAIN-FIX-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">BRAVO TASK QUEUE — OBSIDIAN-BRAIN-FIX-MS0</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.327Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#bravo-task-queue-obsidian-brain-fix-ms0">BRAVO TASK QUEUE — OBSIDIAN-BRAIN-FIX-MS0</a></li>
+<li class="toc-l2"><a href="#origin">Origin</a></li>
+<li class="toc-l2"><a href="#already-shipped-context-not-queue">Already shipped (context — NOT queue)</a></li>
+<li class="toc-l2"><a href="#the-queue-remaining-work-5-units">The queue (remaining work — 5 units)</a></li>
+<li class="toc-l3"><a href="#u-obf03-memorymd-auto-compaction-redesign-independent-do-first">U-OBF03 — MEMORY.md auto-compaction redesign  [independent · do first]</a></li>
+<li class="toc-l3"><a href="#u-obf-f1-claudemd-regression-drain-redesign-claudemd-chain-1st">U-OBF-F1 — CLAUDE.md regression drain (REDESIGN)  [CLAUDE.md chain · 1st]</a></li>
+<li class="toc-l3"><a href="#u-obf-f2-collapse-claudemd-milestone-narratives-to-wiki-pointers-claudemd-chain-2nd">U-OBF-F2 — collapse CLAUDE.md milestone narratives to wiki pointers  [CLAUDE.md chain · 2nd]</a></li>
+<li class="toc-l3"><a href="#u-obf-f4-hook-fire-audit-dead-hook-disable-independent">U-OBF-F4 — hook-fire audit + dead-hook disable  [independent]</a></li>
+<li class="toc-l3"><a href="#u-obf-golf-golf-write-only-claudemd-governance-claudemd-chain-3rd">U-OBF-GOLF — golf-write-only CLAUDE.md governance  [CLAUDE.md chain · 3rd]</a></li>
+<li class="toc-l2"><a href="#sequencing">Sequencing</a></li>
+<li class="toc-l2"><a href="#doctrine-for-whoever-builds-this">Doctrine for whoever builds this</a></li>
+<li class="toc-l2"><a href="#verification-meta-tool-already-shipped-re-runnable">Verification META tool (already shipped, re-runnable)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="bravo-task-queue-obsidian-brain-fix-ms0"><a class="anchor" href="#bravo-task-queue-obsidian-brain-fix-ms0" aria-label="Permalink to BRAVO TASK QUEUE — OBSIDIAN-BRAIN-FIX-MS0">#</a>BRAVO TASK QUEUE — OBSIDIAN-BRAIN-FIX-MS0</h1>
+<p><strong>Saved:</strong> 2026-05-17 · slot bravo · claude-339c8ff7 <strong>Purpose:</strong> durable plan so the remaining &quot;make the obsidian brain efficient&quot; work survives session end. The /loop crons are session-only and were intentionally cancelled; THIS file is the authoritative pickup list.</p>
+<p><strong>To resume:</strong> new chat → <code>/checkin-bravo</code> → read this file → build top-of-queue. Session TaskList #63 + #64 mirror U-OBF03 + F1 (ephemeral; this file is durable).</p>
+<hr>
+<h2 id="origin"><a class="anchor" href="#origin" aria-label="Permalink to Origin">#</a>Origin</h2>
+<p>User report: <em>&quot;obsidian brain / memory system supposed to make us always aware of everything — clearly not working.&quot;</em> Diagnosed 2026-05-17. Two distinct leaks:</p>
+<ol>
+<li><strong>Topic-drift orphaning</strong> — handoffs are replace-not-merge; cross-topic unfinished work was unreadable. → <strong>FIXED</strong> (U-OBF01/U-OBF02, shipped).</li>
+<li><strong>Always-loaded-file bloat</strong> — CLAUDE.md 129 KB / 711 lines (~6× Anthropic&#39;s ≤200-line guidance; past that Claude <em>ignores</em> the file&#39;s rules) + MEMORY.md at 99.9 % of its 24,576-byte truncation ceiling. → <strong>THIS QUEUE.</strong></li>
+</ol>
+<p><code>/forge-audit-v2</code> (2026-05-17) measured it: CLAUDE.md 31.8 % dead log lines, ~50 KB milestone narrative. Web research confirmed Anthropic guidance: ≤200 lines, &quot;cut any line whose removal wouldn&#39;t cause a mistake,&quot; progressive disclosure (detail → skills/wiki, not CLAUDE.md).</p>
+<h2 id="already-shipped-context-not-queue"><a class="anchor" href="#already-shipped-context-not-queue" aria-label="Permalink to Already shipped (context — NOT queue)">#</a>Already shipped (context — NOT queue)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Commit</th><th>Unit</th><th>What</th></tr></thead>
+<tbody>
+<tr><td><code>6eae58748c</code></td><td>U-OBF01</td><td><code>scripts/handoff-consolidate.mjs</code> — per-slot open-threads merger (2-round gate PASS)</td></tr>
+<tr><td><code>182df1aa35</code></td><td>U-OBF02</td><td>consolidated open-threads wired into post-/compact resume-read (2-round gate PASS)</td></tr>
+<tr><td><code>d815eb5c8e</code></td><td>FORGE-AUDIT-V2/META</td><td><code>scripts/claude-md-weight.mjs</code> — re-runnable CLAUDE.md token-weight measure</td></tr>
+</tbody>
+</table></div>
+<h2 id="the-queue-remaining-work-5-units"><a class="anchor" href="#the-queue-remaining-work-5-units" aria-label="Permalink to The queue (remaining work — 5 units)">#</a>The queue (remaining work — 5 units)</h2>
+<h3 id="u-obf03-memorymd-auto-compaction-redesign-independent-do-first"><a class="anchor" href="#u-obf03-memorymd-auto-compaction-redesign-independent-do-first" aria-label="Permalink to U-OBF03 — MEMORY.md auto-compaction redesign  [independent · do first]">#</a>U-OBF03 — MEMORY.md auto-compaction redesign  <code>[independent · do first]</code></h3>
+<ul>
+<li><strong>Why:</strong> MEMORY.md at 24,550 / 24,576 B = 99.9 %; fleet-wide silent truncation imminent. <code>memory-size-watch.mjs</code> only <em>alerts</em>.</li>
+<li><strong>What:</strong> first impl FAILED per-file gate (targeted line-bloat; real failure is entry-count growth). REDESIGN per <strong>task #63</strong>: rotate oldest pointers to a discoverable archive (<code>memory/ARCHIVE</code> the SessionStart brain still reaches), lockfile-guarded atomic RMW (PER-SLOT-CLAIM pattern, NOT optimistic mtime), abort-not-proceed on stat/lock failure, stamp-throttle, ≤200-CHARS vs bytes reconciled, node:test + per-file 2-reviewer gate.</li>
+<li><strong>Depends on:</strong> nothing. <strong>Blocks:</strong> nothing. Disjoint from CLAUDE.md — safe to do first/parallel.</li>
+<li><strong>Verify:</strong> <code>node scripts/memory-size-watch.mjs --json | jq .pctOfCeiling</code> → &lt;0.90 (baseline 0.999).</li>
+</ul>
+<h3 id="u-obf-f1-claudemd-regression-drain-redesign-claudemd-chain-1st"><a class="anchor" href="#u-obf-f1-claudemd-regression-drain-redesign-claudemd-chain-1st" aria-label="Permalink to U-OBF-F1 — CLAUDE.md regression drain (REDESIGN)  [CLAUDE.md chain · 1st]">#</a>U-OBF-F1 — CLAUDE.md regression drain (REDESIGN)  <code>[CLAUDE.md chain · 1st]</code></h3>
+<ul>
+<li><strong>Why:</strong> <code>## Recent regressions</code> section = 28.9 KB of append-only forensic log in the always-loaded file. Move to <code>knowledge/wiki/lessons/claude-md-regression-log.md</code>, keep newest few + pointer.</li>
+<li><strong>What:</strong> first impl (<code>scripts/claude-md-archive-regressions.mjs</code>, uncommitted/inert) FAILED gate BOTH arms — built without reading the collaborator <code>regression-auto-write.mjs</code> (R8 violation). REDESIGN per <strong>task #64</strong> (8-point spec): pointer MUST be an HTML comment (auto-writer skip-loop only walks blank + <code>&lt;!-- --&gt;</code>); <code>planDrain</code> preamble by content-regex not position; strip prior pointer + trailing blank; verify-after-rename; drain↔auto-writer interleave test.</li>
+<li><strong>Depends on:</strong> reading <code>.claude/hooks/regression-auto-write.mjs</code> FIRST. <strong>Blocks:</strong> F2, GOLF.</li>
+<li><strong>Verify:</strong> <code>node scripts/claude-md-weight.mjs --json | jq &#39;.results[0].datedLogPct&#39;</code> → &lt;0.05 (baseline 0.318).</li>
+</ul>
+<h3 id="u-obf-f2-collapse-claudemd-milestone-narratives-to-wiki-pointers-claudemd-chain-2nd"><a class="anchor" href="#u-obf-f2-collapse-claudemd-milestone-narratives-to-wiki-pointers-claudemd-chain-2nd" aria-label="Permalink to U-OBF-F2 — collapse CLAUDE.md milestone narratives to wiki pointers  [CLAUDE.md chain · 2nd]">#</a>U-OBF-F2 — collapse CLAUDE.md milestone narratives to wiki pointers  <code>[CLAUDE.md chain · 2nd]</code></h3>
+<ul>
+<li><strong>Why:</strong> ~50 KB of per-milestone NARRATIVE (FLEET-REAPER-MS1 9 KB, SESSION-CONTINUITY 8.7 KB, KNOWLEDGE-VAULT 9.8 KB, KNOWLEDGE-CONVERSION-MS0 5.2 KB, NN-GRAPH, RGS-*, OLLAMA-PIPELINE, JULIETT-12CHAT, FLEET-MEMORY-MONITOR, DEV-VELOCITY, WEDM digest, OLLAMA dashboard…). The file&#39;s own KNOWLEDGE-VAULT section mandates &quot;≤200 lines of dense pointers, NOT a 6th namespace.&quot; Each milestone already has a wiki entry.</li>
+<li><strong>What:</strong> collapse each <code>## &lt;MILESTONE&gt;-MS#</code> block → <code>## &lt;MS&gt; — one-line purpose · Wiki: [[entry]]</code>. Also drain inline dated-log clusters (CLAUDE.md lines ~186-205 + ~240-294) to the F1 wiki log.</li>
+<li><strong>Depends on:</strong> F1 (sequence CLAUDE.md edits; claim the file, atomic). <strong>Blocks:</strong> the ≤200-line / &lt;40 KB target.</li>
+<li><strong>Verify:</strong> <code>node scripts/claude-md-weight.mjs --json | jq &#39;.results[0].totalLines&#39;</code> → ≤250 (baseline 711).</li>
+</ul>
+<h3 id="u-obf-f4-hook-fire-audit-dead-hook-disable-independent"><a class="anchor" href="#u-obf-f4-hook-fire-audit-dead-hook-disable-independent" aria-label="Permalink to U-OBF-F4 — hook-fire audit + dead-hook disable  [independent]">#</a>U-OBF-F4 — hook-fire audit + dead-hook disable  <code>[independent]</code></h3>
+<ul>
+<li><strong>Why:</strong> 526 hooks on disk; a prior audit found ~500/510 never fire. Dead hooks = load/scan overhead + xmalloc fork-storm risk (documented in CLAUDE.md regression log).</li>
+<li><strong>What:</strong> run <code>node scripts/hook-fire-rank.mjs</code>; if the never-fire ratio verifies, <strong>disable</strong> dead hooks (<code>hooks:[]</code> + <code>_disabled_by</code> — NEVER delete, per [[feedback_never_delete_only_disable]]).</li>
+<li><strong>Depends on:</strong> nothing. <strong>Blocks:</strong> nothing.</li>
+<li><strong>Verify:</strong> <code>node scripts/hook-fire-rank.mjs</code> → fired-vs-never ratio; settings.json hook count drops.</li>
+</ul>
+<h3 id="u-obf-golf-golf-write-only-claudemd-governance-claudemd-chain-3rd"><a class="anchor" href="#u-obf-golf-golf-write-only-claudemd-governance-claudemd-chain-3rd" aria-label="Permalink to U-OBF-GOLF — golf-write-only CLAUDE.md governance  [CLAUDE.md chain · 3rd]">#</a>U-OBF-GOLF — golf-write-only CLAUDE.md governance  <code>[CLAUDE.md chain · 3rd]</code></h3>
+<ul>
+<li><strong>Why:</strong> operator-decided architecture (rejected the per-slot-copy idea — it 13×&#39;s the bloat + needs a 13-way merge). CLAUDE.md stays ONE shared file; only the golf maintenance slot edits it. Work chats route regressions to the <code>## Recent regressions</code> inbox; golf drains twice daily via the F1 tool. Eliminates contention at the source — no copies, no merge.</li>
+<li><strong>What:</strong> (a) a PreToolUse guard hook blocking non-golf Edit/Write to CLAUDE.md (inverse of the existing <code>golf-slot-write-allowlist.mjs</code>); (b) wire the F1 drain into golf&#39;s twice-daily cadence (Windows scheduled task or golf Stop hook); (c) document the golf-owns-CLAUDE.md doctrine in the compressed CLAUDE.md.</li>
+<li><strong>Depends on:</strong> F1 (the drain tool IS the golf mechanism). <strong>Blocks:</strong> nothing.</li>
+<li><strong>Verify:</strong> a non-golf chat&#39;s Edit to CLAUDE.md is blocked; golf&#39;s is allowed.</li>
+</ul>
+<h2 id="sequencing"><a class="anchor" href="#sequencing" aria-label="Permalink to Sequencing">#</a>Sequencing</h2>
+<pre><code>U-OBF03 ───────────────┐  (independent)
+U-OBF-F4 ──────────────┤  (independent)
+U-OBF-F1 → U-OBF-F2 → U-OBF-GOLF   (CLAUDE.md chain — must sequence; all touch CLAUDE.md / depend on F1)
+</code></pre>
+<p>Recommended order in a fresh session: <strong>U-OBF03</strong> (most urgent — truncation imminent) → <strong>F1 → F2 → GOLF</strong> → <strong>F4</strong>.</p>
+<h2 id="doctrine-for-whoever-builds-this"><a class="anchor" href="#doctrine-for-whoever-builds-this" aria-label="Permalink to Doctrine for whoever builds this">#</a>Doctrine for whoever builds this</h2>
+<ul>
+<li><strong>Read the collaborator first (R8).</strong> Both failed first-attempts (U-OBF03, F1) failed the gate for skipping this. F1: read <code>regression-auto-write.mjs</code>. CLAUDE.md edits: check peer claims (it is the most-contended file in the repo).</li>
+<li><strong>CLAUDE.md is the most peer-contended file</strong> — claim it on the chat bus, edit atomically, commit immediately, or do it from the golf slot once GOLF lands.</li>
+<li><strong>Per-file 2-reviewer gate</strong> on every code unit; FAIL → fix → re-dispatch → BOTH PASS before commit.</li>
+<li><strong>Never delete, only disable</strong> (hooks, settings) — [[feedback_never_delete_only_disable]].</li>
+<li>Target end-state: CLAUDE.md ≤200 lines / &lt;40 KB of dense pointers; MEMORY.md &lt;90 % of ceiling.</li>
+</ul>
+<h2 id="verification-meta-tool-already-shipped-re-runnable"><a class="anchor" href="#verification-meta-tool-already-shipped-re-runnable" aria-label="Permalink to Verification META tool (already shipped, re-runnable)">#</a>Verification META tool (already shipped, re-runnable)</h2>
+<p><code>node scripts/claude-md-weight.mjs</code> — exit 1 while over budget; the queue is done when it exits 0. Baseline at save time: project CLAUDE.md 129.5 KB / 711 lines / 31.8 % dated-log. MEMORY.md: <code>node scripts/memory-size-watch.mjs --json</code>.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BRAVO-TASK-QUEUE-OBSIDIAN-BRAIN-FIX-2026-05-17.md">BRAVO-TASK-QUEUE-OBSIDIAN-BRAIN-FIX-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1127,7 +1127,7 @@ class PostProcessorUnifiedPhysicsOrchestrationEngine {
    */
   public getStatistics(): {
     version: string;
-    prismCapabilities: typeof this.prismCapabilities;
+    prismCapabilities: PostProcessorUnifiedPhysicsOrchestrationEngine["prismCapabilities"];
     physicsModels: string[];
     materialDatabase: number;
     integrationPoints: string[];

@@ -11,6 +11,7 @@
  */
 
 import { machineService } from "../services/MachineService.js";
+import { resolveSpindlePowerKw } from "../registries/machine-normalizer.js";
 
 // ============================================================================
 // TYPES
@@ -111,7 +112,7 @@ void (async () => {
           loaded.push({
             id: m.id, name: m.model ?? m.name ?? m.id, type: t,
             x: m.envelope?.x_travel ?? 500, y: m.envelope?.y_travel ?? 400, z: m.envelope?.z_travel ?? 400,
-            rpm: m.spindle?.max_rpm ?? 10000, power: m.spindle?.power_continuous ?? 20,
+            rpm: m.spindle?.max_rpm ?? 10000, power: resolveSpindlePowerKw(m.spindle).value ?? m.spindle?.power_continuous ?? 20, // U-MACHDB-07: 8-key variant union
             taper: m.spindle?.spindle_nose ?? "BT40",
             tools: m.tool_changer?.capacity ?? 20,
             accuracy: 0.01, rate: 100,

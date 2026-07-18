@@ -47,6 +47,10 @@ const ACTIONS = [
   "autoclave_calculate", "electrochemical_calculate",
   "cryogenic_treatment_calc", "heat_treatment_response_calc", "shot_peening_calc",
   "electroplating_calc", "passivation_calc",
+  // WIRE-COATING-DIRECT-MS0/U-VICTOR-COATING-DIRECT (slot:victor, 2026-05-26)
+  // CoatingSelectionEngine.calculate + CoatingSelectionAdapter.selectCoatingOrchestrated
+  // — distinct from coating_thickness_calculate (CoatingThicknessEngine, deposit-rate).
+  "coating_select", "coating_select_orchestrated",
 ] as const;
 
 export function registerMaterialProcessingDispatcher(server: any): void {
@@ -99,9 +103,20 @@ Actions: ${ACTIONS.join(", ")}.`,
           passivation_calc: "passivation",
         };
 
-        const engineKey = engineMap[action];
-        const eng = await getEngine(engineKey);
-        result = eng.calculate?.(params) ?? eng.predict?.(params) ?? eng.compute?.(params) ?? { error: `${engineKey} method not found` };
+        // WIRE-COATING-DIRECT-MS0/U-VICTOR-COATING-DIRECT (2026-05-26) — 2 specialized
+        // selection engines BEFORE the engineMap fallthrough (their methods are
+        // not named `.calculate/.predict/.compute` so the generic dispatch misses).
+        if (action === "coating_select") {
+          const { coatingSelectionEngine } = await import("../../engines/CoatingSelectionEngine.js");
+          result = coatingSelectionEngine.calculate(params as any);
+        } else if (action === "coating_select_orchestrated") {
+          const { coatingSelectionAdapter } = await import("../../engines/CoatingSelectionAdapter.js");
+          result = coatingSelectionAdapter.selectCoatingOrchestrated(params as any);
+        } else {
+          const engineKey = engineMap[action];
+          const eng = await getEngine(engineKey);
+          result = eng.calculate?.(params) ?? eng.predict?.(params) ?? eng.compute?.(params) ?? { error: `${engineKey} method not found` };
+        }
 
         try {
           await hookExecutor.execute("post-calculation", { ...hookCtx, metadata: { ...hookCtx.metadata, result } });

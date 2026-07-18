@@ -152,6 +152,20 @@ const JOHNSON_COOK_DB: Record<string, JohnsonCookParams> = {
 };
 
 // ============================================================================
+// INPUT VALIDATION HELPERS (defensive guards — reject NaN/Infinity/out-of-range)
+// ============================================================================
+
+/** True only for a finite, strictly-positive number (rejects 0, negatives, NaN, +/-Infinity). */
+function isPositiveFinite(x: number): boolean {
+  return Number.isFinite(x) && x > 0;
+}
+
+/** True for a finite, non-negative number (allows 0 — e.g. plastic strain; rejects negatives, NaN, +/-Infinity). */
+function isNonNegativeFinite(x: number): boolean {
+  return Number.isFinite(x) && x >= 0;
+}
+
+// ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
@@ -260,6 +274,18 @@ export class FusionMaterialPhysicsBridge {
     const profile = this.getPhysicsProfile(fusionMaterialId);
     if (!profile) return null;
 
+    // Input guard: reject non-positive / non-finite geometry & kinematics.
+    // (Prevents fz=0 -> Infinity specific-force & NaN cutting force, and
+    //  fz<0 -> NaN from a fractional power of a negative base.)
+    if (
+      !isPositiveFinite(axialDepth_mm) ||
+      !isPositiveFinite(feedPerTooth_mm) ||
+      !isPositiveFinite(cuttingSpeed_m_min) ||
+      !isPositiveFinite(toolDiameter_mm)
+    ) {
+      return null;
+    }
+
     const { kc1_1, mc, source } = profile.kienzle;
 
     // Kienzle specific cutting force
@@ -302,6 +328,11 @@ export class FusionMaterialPhysicsBridge {
     const profile = this.getPhysicsProfile(fusionMaterialId);
     if (!profile) return null;
 
+    // Input guard: cutting speed must be positive & finite (Vc<=0 -> Infinite life);
+    // an optional target life, when supplied, must be positive & finite too.
+    if (!isPositiveFinite(cuttingSpeed_m_min)) return null;
+    if (targetLife_min !== undefined && !isPositiveFinite(targetLife_min)) return null;
+
     const { C, n, source } = profile.taylor;
 
     // Taylor equation: T = (C/Vc)^(1/n)
@@ -343,6 +374,17 @@ export class FusionMaterialPhysicsBridge {
   ): FlowStressResult | null {
     const profile = this.getPhysicsProfile(fusionMaterialId);
     if (!profile || !profile.johnson_cook) return null;
+
+    // Input guard: strain must be finite & non-negative (strain<0 -> NaN from a
+    // fractional power of a negative base; strain=0 is a valid quasi-static case);
+    // strain rate and absolute temperature must be finite & positive.
+    if (
+      !isNonNegativeFinite(strain) ||
+      !isPositiveFinite(strainRate) ||
+      !isPositiveFinite(temperature_K)
+    ) {
+      return null;
+    }
 
     const jc = profile.johnson_cook;
 

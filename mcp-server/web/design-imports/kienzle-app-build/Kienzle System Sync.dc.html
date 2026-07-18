@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzdash { to { stroke-dashoffset: -16; } }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⊹</span>SYNC</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">System Sync</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">ONE SOURCE · jm-data.js · {{ screenCount }} SCREENS CORRELATED</div></div>
+      <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(54,211,153,0.25);background:rgba(54,211,153,0.06);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#36D399;"><span style="width:6px;height:6px;border-radius:50%;background:#36D399;animation:kzpulse 2s infinite;"></span>IN SYNC</div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 392px;min-height:0;">
+
+      <section style="min-width:0;padding:16px 18px;background:radial-gradient(900px 500px at 50% 40%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;margin-bottom:8px;">Data-flow graph · {{ scenarioName }}</div>
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;overflow:hidden;">
+          <svg viewBox="0 0 760 680" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+            <sc-for list="{{ edges }}" as="e" hint-placeholder-count="14">
+              <line x1="{{ e.x1 }}" y1="{{ e.y1 }}" x2="{{ e.x2 }}" y2="{{ e.y2 }}" stroke="{{ e.color }}" stroke-width="{{ e.w }}" stroke-dasharray="{{ e.dash }}" style="{{ e.anim }}"></line>
+            </sc-for>
+            <circle cx="380" cy="320" r="62" fill="rgba(255,90,43,0.1)" stroke="#FF5A2B" stroke-width="2"></circle>
+            <text x="380" y="312" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="15" fill="#FF7A4D">jm-data.js</text>
+            <text x="380" y="330" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#9398A2">SOURCE OF TRUTH</text>
+            <text x="380" y="344" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#6B7280">machines · materials · jobs</text>
+            <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="14">
+              <g style="cursor:pointer;" onClick="{{ n.on }}">
+                <rect x="{{ n.x }}" y="{{ n.y }}" width="{{ n.w }}" height="34" rx="8" fill="{{ n.fill }}" stroke="{{ n.stroke }}" stroke-width="{{ n.sw }}"></rect>
+                <text x="{{ n.cx }}" y="{{ n.ty }}" text-anchor="middle" font-family="Archivo" font-weight="600" font-size="11" fill="{{ n.textColor }}">{{ n.label }}</text>
+              </g>
+            </sc-for>
+          </svg>
+        </div>
+        <div style="flex:none;display:flex;gap:14px;margin-top:11px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:0;border-top:2px solid #FF5A2B;"></span>reads source</span>
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:0;border-top:2px dashed #36D399;"></span>derived flow</span>
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:11px;height:11px;border-radius:3px;background:rgba(255,90,43,0.4);"></span>touched by change</span>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">CHANGE ONE THING →</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <sc-for list="{{ scenarios }}" as="sc" hint-placeholder-count="4">
+            <div onClick="{{ sc.on }}" style="{{ sc.style }}">
+              <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:{{ sc.titleColor }};">{{ sc.title }}</div>
+              <div style="font-size:11px;color:#9398A2;line-height:1.35;margin-top:2px;">{{ sc.desc }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">PROPAGATES TO · {{ affectedCount }}</div>
+        <sc-for list="{{ affected }}" as="a" hint-placeholder-count="5">
+          <div style="display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="flex:none;width:7px;height:7px;border-radius:50%;background:#FF5A2B;margin-top:5px;"></span>
+            <div style="flex:1;min-width:0;"><div style="font-size:12.5px;color:#F3F4F6;">{{ a.screen }}</div><div style="font-size:11px;color:#9398A2;line-height:1.35;margin-top:1px;">{{ a.effect }}</div></div>
+          </div>
+        </sc-for>
+        <div style="margin-top:14px;background:linear-gradient(135deg,rgba(54,211,153,0.06),#0E0F12);border:1px solid rgba(54,211,153,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#36D399;margin-bottom:9px;">✓ CORRELATION GUARANTEE</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.55;">{{ guarantee }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { scenario: 'sig', scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  // screens positioned around the hub; group: make / run / biz
+  NODES = [
+    { id: 'sfc', label: 'Speed & Feed', x: 70, y: 70, group: 'make' },
+    { id: 'crib', label: 'Tool Crib', x: 70, y: 150, group: 'make' },
+    { id: 'post', label: 'Post Processor', x: 70, y: 230, group: 'make' },
+    { id: 'trilobe', label: 'Trilobe', x: 70, y: 310, group: 'make' },
+    { id: 'cad', label: 'CAD Features', x: 70, y: 390, group: 'make' },
+    { id: 'thermal', label: 'Thermal/Warm-Up', x: 70, y: 470, group: 'make' },
+    { id: 'materials', label: 'Materials DB', x: 70, y: 550, group: 'make' },
+    { id: 'quote', label: 'Quote', x: 590, y: 70, group: 'biz' },
+    { id: 'jobcost', label: 'Job Cost', x: 590, y: 150, group: 'biz' },
+    { id: 'erp', label: 'Shop Command', x: 590, y: 230, group: 'biz' },
+    { id: 'inventory', label: 'Inventory', x: 590, y: 310, group: 'biz' },
+    { id: 'shop', label: 'Tooling Shop', x: 590, y: 390, group: 'biz' },
+    { id: 'floor', label: 'Shop Floor', x: 590, y: 470, group: 'run' },
+    { id: 'sched', label: 'Scheduling', x: 590, y: 550, group: 'run' },
+    { id: 'payroll', label: 'Payroll', x: 320, y: 580, group: 'biz' },
+    { id: 'portal', label: 'Employee', x: 440, y: 580, group: 'run' },
+    { id: 'quality', label: 'Quality/SPC', x: 320, y: 40, group: 'run' },
+    { id: 'academy', label: 'Academy', x: 440, y: 40, group: 'run' },
+    { id: 'alarm', label: 'Alarm Decoder', x: 590, y: 630, group: 'run' },
+  ];
+  SCEN = {
+    sig: { title: 'SIG cavity feeds re-posted', desc: 'Re-solve the losing job through the calculator', source: 'JOBS · solveSpeedFeed',
+      affected: [
+        ['Job Cost', 'labor variance closes −$4.6k; job flips to positive margin'],
+        ['Payroll', 'J. Chen efficiency on JOB-4459 climbs 74% → ~100%'],
+        ['Shop Floor', 'VM30i OEE performance factor rises; cycle drops'],
+        ['Scheduling', 'Multus frees ~3 hrs; on-time forecast +'],
+        ['Academy', 'the Kaizen card resolves; standard documented'],
+      ],
+      touched: ['sfc', 'jobcost', 'payroll', 'floor', 'sched', 'academy', 'erp'],
+      guarantee: 'Because all six read the same JOBS[4] + solveSpeedFeed(), fixing the feed in one place moves cost, labor, OEE, schedule and training together — they can\u2019t disagree.' },
+    d2: { title: 'D2 kc1.1 recalibrated', desc: 'New JM test-cut data updates the material constant', source: 'MATERIALS.d2.kc',
+      affected: [
+        ['Speed & Feed', 'RPM/feed/force re-solve for every D2 job'],
+        ['Materials DB', 'kc card + recommended SFM update'],
+        ['Quote', 'D2 part cycle-time + price recompute'],
+        ['Post Processor', 'injected S/F values shift to match'],
+        ['Quality', 'expected cutting force baseline moves'],
+      ],
+      touched: ['sfc', 'materials', 'quote', 'post', 'quality', 'trilobe'],
+      guarantee: 'kc1.1 lives once in MATERIALS.d2. Every screen that touches D2 derives from it, so a calibration never has to be copied by hand into five places.' },
+    machine: { title: 'Add a 13th machine', desc: 'New VMC arrives; one entry in MACHINES', source: 'MACHINES',
+      affected: [
+        ['Tool Crib', 'appears with correct ATC/travels + collision envelope'],
+        ['Shop Floor', 'shows on the live floor map'],
+        ['Scheduling', 'becomes a schedulable resource'],
+        ['Speed & Feed', 'selectable with its spindle/torque limits'],
+        ['Warm-Up Gen', 'generates a warm-up in its dialect'],
+      ],
+      touched: ['crib', 'floor', 'sched', 'sfc', 'thermal', 'post'],
+      guarantee: 'One MACHINES entry — every machine-aware screen picks it up. No screen can be left out of sync with the real shop floor.' },
+    customer: { title: 'New customer + RFQ', desc: 'Onboard an account; one entry in CUSTOMERS', source: 'CUSTOMERS · JOBS',
+      affected: [
+        ['Quote', 'selectable customer with terms'],
+        ['Shop Command', 'rolls into top-customers + revenue'],
+        ['Employee Portal', 'their jobs appear in operator queues'],
+        ['Inventory', 'their material demand feeds reorder'],
+      ],
+      touched: ['quote', 'erp', 'portal', 'inventory', 'jobcost'],
+      guarantee: 'Customers + jobs are defined once and referenced by id everywhere, so a new account is consistent across sales, floor and finance the moment it\u2019s added.' },
+  };
+  renderVals() {
+    const s = this.state, sc = this.SCEN[s.scenario] || this.SCEN.sig;
+    const touched = new Set(sc.touched);
+    const hub = { x: 380, y: 320 };
+    const nodes = this.NODES.map(n => { const t = touched.has(n.id); const cx = n.x + 60, cy = n.y + 17; return {
+      x: n.x, y: n.y, w: 120, cx, ty: cy + 4, label: n.label, on: () => {},
+      fill: t ? 'rgba(255,90,43,0.16)' : '#14161B', stroke: t ? '#FF7A4D' : 'rgba(255,255,255,0.12)', sw: t ? 2 : 1, textColor: t ? '#FF7A4D' : '#C7CCD4',
+      _cx: cx, _cy: cy, _t: t,
+    }; });
+    const edges = nodes.map(n => { const t = n._t; return {
+      x1: hub.x, y1: hub.y, x2: n._cx.toFixed(0), y2: n._cy.toFixed(0),
+      color: t ? '#FF5A2B' : 'rgba(255,255,255,0.07)', w: t ? 1.8 : 1, dash: t ? '5 4' : '0',
+      anim: t ? 'animation:kzdash 0.8s linear infinite;' : '',
+    }; });
+    const scenarios = Object.keys(this.SCEN).map(k => { const on = k === s.scenario; const o = this.SCEN[k]; return {
+      on: () => this.setState({ scenario: k }), title: o.title, desc: o.desc, titleColor: on ? '#FF7A4D' : '#F3F4F6',
+      style: `padding:11px 13px;border-radius:11px;cursor:pointer;background:${on ? 'rgba(255,90,43,0.08)' : '#0C0D11'};border:1px solid ${on ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.07)'};`,
+    }; });
+    const affected = sc.affected.map(a => ({ screen: a[0], effect: a[1] }));
+    return {
+      scale: s.scale, screenCount: this.NODES.length, scenarioName: sc.title,
+      nodes, edges, scenarios, affected, affectedCount: sc.affected.length + ' screens', guarantee: sc.guarantee,
+    };
+  }
+}
+</script>
+</body>
+</html>

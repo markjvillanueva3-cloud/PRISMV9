@@ -377,7 +377,7 @@ export class SafetyExplanationEngine {
 
     if (first.adjusted_params) {
       for (const [key, val] of Object.entries(first.adjusted_params)) {
-        const origVal = (report.original_params as Record<string, unknown>)[key];
+        const origVal = report.original_params[key as keyof VetoParams];
         changes.push({
           parameter: key,
           from: typeof origVal === "number" ? origVal : 0,
@@ -559,7 +559,7 @@ export class SafetyExplanationEngine {
 
       const changes: Counterfactual["changes"] = [];
       for (const [key, val] of Object.entries(f.adjusted_params)) {
-        const origVal = (report.original_params as Record<string, unknown>)[key];
+        const origVal = report.original_params[key as keyof VetoParams];
         changes.push({
           parameter: key,
           from: typeof origVal === "number" ? origVal : 0,

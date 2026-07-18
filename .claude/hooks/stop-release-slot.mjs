@@ -30,7 +30,7 @@ function emitNoOp(msg) {
 function getStableId() {
   if (existsSync(STABLE_ID_HELPER)) {
     try {
-      const r = spawnSync(process.execPath, [STABLE_ID_HELPER], {
+      const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true,
         encoding: "utf-8",
         timeout: 2000,
       });

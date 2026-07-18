@@ -35,6 +35,23 @@ import { prismSelfAwarenessEngine } from "./PRISMSelfAwarenessEngine.js";
 
 const PRISM_ROOT = "H:/prism";
 const GRAPH_PATH = path.join(PRISM_ROOT, "state/shared/system-viz/system-graph.json");
+/**
+ * Parseable search sidecar, read when system-graph.json exceeds V8's ~512MB max
+ * string length (readFileSync(,"utf8") throws above it). Carries nodes + a
+ * derived index but NO edges — so utilization/degree ranking is unavailable when
+ * this fallback is used. See U-SIERRA-MASTERINDEX-SIDECAR-READ (2026-07-04).
+ */
+const GRAPH_INDEX_PATH = path.join(PRISM_ROOT, "state/shared/system-viz/system-graph-index.json");
+/**
+ * Last-resort fallback graph (~88MB, node+edge SUBSET, always under the cap).
+ * When BOTH system-graph.json (over-cap) AND system-graph-index.json (unreadable/
+ * absent) fail, buildGraphCache degrades to this instead of going fully dark —
+ * matching the sibling reader master-index-search-lib.mjs. It carries edges, so
+ * degrees are real for the subset. See U-SIERRA-MASTERINDEX-SIDECAR-ROBUSTNESS.
+ */
+const ARCH_GRAPH_PATH = path.join(PRISM_ROOT, "state/shared/system-viz/architecture-graph.json");
+/** V8's max string length (0x1fffffe8 chars ~= bytes for ASCII JSON); readFileSync(,"utf8") throws above it. */
+const V8_MAX_STRING_BYTES = 0x1fffffe8;
 const BUILD_STATE_PATH = path.join(PRISM_ROOT, "state/shared/BUILD_STATE.json");
 const KNOWLEDGE_DIR = path.join(PRISM_ROOT, "knowledge");
 
@@ -94,14 +111,40 @@ const HIGH_DEGREE_PCTILE = 0.85;
 const LOW_DEGREE_THRESHOLD = 1;
 /** Cap on rows returned in dashboard top-K lists. */
 const DASHBOARD_TOP_K = 25;
-/** Stopwords stripped from queries (English noise + PRISM-meta noise). */
-const STOPWORDS = new Set([
+/**
+ * Stopword sets — pickable per-query via `opts.stopwords`.
+ *
+ * `default`: full set — English noise + PRISM-meta vocabulary. Back-compat;
+ *   current behavior preserved when `opts.stopwords` is unset.
+ * `minimal`: English noise ONLY — drops the PRISM-meta vocabulary
+ *   (`engine`/`system`/`wiki`/`memory`/`prism`/`feature`/`node`/`label`/`info`)
+ *   so a code-search query like "engine dispatcher" actually scores hits
+ *   matching "engine" instead of degrading to "dispatcher" only.
+ * `off`: empty set — every token reaches the inverted index.
+ *
+ * Callers may also pass an explicit `string[]` for a custom set.
+ *
+ * Iter-2 of BACKEND-DEV-LOOP (slot hotel, 2026-05-18) addresses pinned-quirk
+ * #2 from iter-0: the prior unconditional inclusion of PRISM-meta tokens
+ * was UX-hostile for the engine's own primary use case (searching PRISM
+ * codebase for engines / systems / wiki entries).
+ */
+const STOPWORDS_DEFAULT = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
   "has", "have", "in", "is", "it", "its", "of", "on", "or", "the",
   "to", "was", "were", "with", "this", "that", "these", "those",
   "engine", "engines", "feature", "features", "system", "systems",
   "node", "label", "info", "wiki", "memory", "prism",
 ]);
+const STOPWORDS_MINIMAL = new Set([
+  "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
+  "has", "have", "in", "is", "it", "its", "of", "on", "or", "the",
+  "to", "was", "were", "with", "this", "that", "these", "those",
+]);
+const STOPWORDS_OFF = new Set<string>();
+
+/** Back-compat alias — older code references STOPWORDS directly. */
+const STOPWORDS = STOPWORDS_DEFAULT;
 
 // ============================================================================
 // TYPES
@@ -131,6 +174,19 @@ interface GraphEdge {
   intensity?: number;
 }
 
+/**
+ * Degree block emitted by build-graph-index.mjs (sidecar schema ≥ 1.1.0). `in`
+ * and `out` are per-node in/out-degree arrays index-ALIGNED to the sidecar's
+ * `nodes[]` (in[k] is the in-degree of nodes[k].id); `maxIn` is the graph-wide
+ * max in-degree. Lets the sidecar-fallback path restore utilization/degree
+ * ranking without loading the >512MB graph. See U-SIERRA-MASTERINDEX-DEGREE-SIDECAR.
+ */
+interface SidecarDegrees {
+  in?: number[];
+  out?: number[];
+  maxIn?: number;
+}
+
 /** Cached graph (lazy-loaded, mtime-keyed). */
 interface CachedGraph {
   mtimeMs: number;
@@ -146,6 +202,24 @@ interface CachedGraph {
   invertedIndex: Map<string, Set<string>>;
   /** nodeId → GraphNode lookup. */
   nodeById: Map<string, GraphNode>;
+  /**
+   * True when the raw system-graph.json was unreadable (typically because it
+   * exceeded V8's ~512MB string cap) and this cache was built from the
+   * system-graph-index.json sidecar. Kept as a provenance flag (raw edges are
+   * still absent under this path); degradation now gates on `degreesAvailable`,
+   * not this. query() surfaces this as a warning only when degrees are missing.
+   */
+  sidecarFallback?: boolean;
+  /**
+   * True when in/out-degree data is trustworthy — computed from real edges on the
+   * normal path, OR restored from a degree-carrying system-graph-index.json sidecar
+   * (schema ≥ 1.1.0, U-SIERRA-MASTERINDEX-DEGREE-SIDECAR). When FALSE (a legacy
+   * degree-less 1.0.0 sidecar), degree/utilization/hub-orphan-ghost callers must
+   * degrade + fail loud rather than report false zeros. Distinct from
+   * `sidecarFallback`: a degree-carrying sidecar is sidecarFallback=true yet
+   * degreesAvailable=true, so utilization ranking works without the 900MB graph.
+   */
+  degreesAvailable: boolean;
 }
 
 /** Cached BUILD_STATE projection (just the fields we use). */
@@ -210,6 +284,16 @@ export interface MasterIndexQueryOptions {
   minConfidence?: number;
   /** Drop hits whose buildClass is not in this set. */
   buildClasses?: Array<MasterIndexHit["buildClass"]>;
+  /**
+   * Stopword mode for query tokenization. `"default"` (or unset) preserves
+   * the historical full-stop-list behavior. `"minimal"` drops only English
+   * noise (a/the/is/are/…) so code-search terms like `engine`, `system`,
+   * `wiki`, `memory`, `prism` reach the inverted index. `"off"` disables
+   * stopword filtering entirely. An explicit `string[]` defines a custom set.
+   *
+   * Added BACKEND-DEV-LOOP/U-MIQ-STOPWORDS-CONFIG (iter-2, 2026-05-18).
+   */
+  stopwords?: "default" | "minimal" | "off" | string[];
 }
 
 /** Full query result. */
@@ -235,6 +319,15 @@ export interface NodeStatus {
   inDegree?: number;
   outDegree?: number;
   utilization?: number;
+  /**
+   * True when degree/utilization is unavailable because the graph was served
+   * from the edgeless system-graph-index.json sidecar (system-graph.json over
+   * V8's ~512MB string cap). In that case inDegree/outDegree/utilization are
+   * OMITTED (not reported as a false 0), and `warning` explains why.
+   * See U-SIERRA-MASTERINDEX-SIDECAR-READ.
+   */
+  degreeUnavailable?: boolean;
+  warning?: string;
 }
 
 /**
@@ -311,7 +404,7 @@ function safeReadJson<T>(p: string): T | null {
  * info / wiki entry names survive. Truncation backsteps to a whitespace
  * boundary so a long query can't lose its final token mid-word.
  */
-function tokenize(text: string): string[] {
+function tokenize(text: string, stopwords: Set<string> = STOPWORDS_DEFAULT): string[] {
   if (!text || typeof text !== "string") return [];
   let trimmed = text;
   if (text.length > MAX_QUERY_LEN) {
@@ -326,13 +419,45 @@ function tokenize(text: string): string[] {
   const out: string[] = [];
   for (const tok of cleaned.split(/\s+/)) {
     if (tok.length < MIN_TOKEN_LEN) continue;
-    if (STOPWORDS.has(tok)) continue;
+    if (stopwords.has(tok)) continue;
     if (seen.has(tok)) continue;
     seen.add(tok);
     out.push(tok);
     if (out.length >= MAX_QUERY_TOKENS) break;
   }
   return out;
+}
+
+/**
+ * Resolve the user's `opts.stopwords` value to the actual Set used by
+ * tokenize(). Returns the back-compat `STOPWORDS_DEFAULT` for unset / null /
+ * empty inputs so existing callers see no behavior change.
+ *
+ * Accepts:
+ *   - `"default"` (or unset) → STOPWORDS_DEFAULT
+ *   - `"minimal"`            → STOPWORDS_MINIMAL (English noise only)
+ *   - `"off"`                → STOPWORDS_OFF (empty set, nothing dropped)
+ *   - `string[]`             → custom set built from the array (lowercased,
+ *                              empty/non-string entries dropped — never throws)
+ *
+ * Unknown string mode → falls back to default (defensive — never silently
+ * misinterprets a caller's intent, never throws either).
+ */
+function resolveStopwords(value: unknown): Set<string> {
+  if (value === undefined || value === null) return STOPWORDS_DEFAULT;
+  if (Array.isArray(value)) {
+    const out = new Set<string>();
+    for (const item of value) {
+      if (typeof item === "string" && item.length > 0) out.add(item.toLowerCase());
+    }
+    return out;
+  }
+  if (typeof value === "string") {
+    if (value === "minimal") return STOPWORDS_MINIMAL;
+    if (value === "off" || value === "none") return STOPWORDS_OFF;
+    return STOPWORDS_DEFAULT; // "default" + any unknown string
+  }
+  return STOPWORDS_DEFAULT;
 }
 
 /**
@@ -472,17 +597,90 @@ class MasterIndexEngine {
   private async buildGraphCache(mtimeMs: number): Promise<CachedGraph | null> {
     const tryRead = (): { nodes?: GraphNode[]; edges?: GraphEdge[] } | null =>
       safeReadJson<{ nodes?: GraphNode[]; edges?: GraphEdge[] }>(GRAPH_PATH);
-    let raw = tryRead();
-    if (!raw || !Array.isArray(raw.nodes) || !Array.isArray(raw.edges)) {
+    // Stat first: skip the raw readFileSync entirely when the graph exceeds V8's
+    // ~512MB string cap. Reading an 873MB file into a buffer only to throw on the
+    // utf8→string conversion is slow AND certain to fail, and the transient-EBUSY
+    // retry below just doubles that wasted cost. Only attempt the raw read + retry
+    // when the file is a readable size.
+    let graphBytes = 0;
+    try { graphBytes = fs.statSync(GRAPH_PATH).size; } catch { /* absent */ }
+    const graphReadableSize = graphBytes > 0 && graphBytes <= V8_MAX_STRING_BYTES;
+
+    let raw = graphReadableSize ? tryRead() : null;
+    if (graphReadableSize && (!raw || !Array.isArray(raw.nodes))) {
       await new Promise((r) => setTimeout(r, GRAPH_READ_RETRY_DELAY_MS));
       raw = tryRead();
     }
-    if (!raw || !Array.isArray(raw.nodes) || !Array.isArray(raw.edges)) {
-      log.warn(`[MasterIndexEngine] system-graph.json missing or malformed at ${GRAPH_PATH}`);
+
+    // Sidecar fallback (U-SIERRA-MASTERINDEX-SIDECAR-READ, 2026-07-04): when the
+    // raw graph is unreadable — the common cause is it grew past V8's ~512MB max
+    // string length, so readFileSync(,"utf8") throws and safeReadJson returns null
+    // — fall back to the parseable system-graph-index.json search sidecar. It
+    // carries nodes (search + the inverted index still work) but NO edges, so
+    // degree/utilization ranking degrades to 0. Fail LOUD; never silently serve
+    // zero graph hits (the pre-fix behavior that broke fleet-wide search).
+    let sidecarFallback = false;
+    const overCap = graphBytes > V8_MAX_STRING_BYTES;
+    // Degree block carried by a schema ≥ 1.1.0 sidecar (index-aligned to nodes[]);
+    // null for a legacy 1.0.0 sidecar or the raw-graph path. Restored into the
+    // degree maps below (U-SIERRA-MASTERINDEX-DEGREE-SIDECAR, 2026-07-05).
+    let sidecarDegrees: SidecarDegrees | null = null;
+    if (!raw || !Array.isArray(raw.nodes)) {
+      // Rank-8 proactive gate: skip the doomed readFileSync when the sidecar ITSELF
+      // exceeds V8's string cap (reading ~500MB only to throw on the utf8 decode is
+      // wasted I/O). safeReadJson would return null anyway; the gate fails fast and
+      // drops straight to the architecture-graph fallback below.
+      let idxBytes = 0;
+      try { idxBytes = fs.statSync(GRAPH_INDEX_PATH).size; } catch { /* absent */ }
+      const idx = (idxBytes > 0 && idxBytes <= V8_MAX_STRING_BYTES)
+        ? safeReadJson<{ nodes?: GraphNode[]; degrees?: SidecarDegrees }>(GRAPH_INDEX_PATH)
+        : null;
+      if (idx && Array.isArray(idx.nodes)) {
+        raw = { nodes: idx.nodes, edges: [] };
+        sidecarFallback = true;
+        sidecarDegrees = idx.degrees ?? null;
+        // The outcome-aware warn is emitted AFTER the degree restore below, so it
+        // can report whether utilization was RESTORED from the degree sidecar or
+        // is DEGRADED (legacy edgeless sidecar).
+      }
+    }
+
+    // Last-resort tier (rank 2, U-SIERRA-MASTERINDEX-SIDECAR-ROBUSTNESS): both the
+    // raw graph (over-cap) AND the sidecar (unreadable/absent) failed. Rather than go
+    // fully DARK — return null → zero graph search fleet-wide, strictly worse than the
+    // sibling reader master-index-search-lib.mjs which degrades to architecture-graph
+    // — fall back to that ~88MB node+edge SUBSET. Coverage is reduced but NOT blind,
+    // and it carries edges → real degrees for the subset (degreesAvailable stays true).
+    if (!raw || !Array.isArray(raw.nodes)) {
+      // Same proactive over-cap gate as the sidecar read + the sibling reader's arch
+      // fallback (master-index-search-lib.mjs): architecture-graph.json is generated
+      // from the same graph, so if IT ever crosses the cap a bare read would throw →
+      // null → the fully-dark landing this tier exists to prevent. Gate it.
+      let archBytes = 0;
+      try { archBytes = fs.statSync(ARCH_GRAPH_PATH).size; } catch { /* absent */ }
+      const arch = (archBytes > 0 && archBytes <= V8_MAX_STRING_BYTES)
+        ? safeReadJson<{ nodes?: GraphNode[]; edges?: GraphEdge[] }>(ARCH_GRAPH_PATH)
+        : null;
+      if (arch && Array.isArray(arch.nodes)) {
+        raw = { nodes: arch.nodes, edges: Array.isArray(arch.edges) ? arch.edges : [] };
+        log.warn(
+          `[MasterIndexEngine] system-graph.json AND system-graph-index.json both ` +
+            `unreadable — degraded to architecture-graph.json (${arch.nodes.length} nodes, ` +
+            `REDUCED coverage; search + degrees preserved for the subset). Regenerate the ` +
+            `full graph/sidecar (build-graph-index.mjs) to restore complete coverage.`,
+        );
+      }
+    }
+
+    if (!raw || !Array.isArray(raw.nodes)) {
+      log.warn(
+        `[MasterIndexEngine] system-graph.json, system-graph-index.json AND ` +
+          `architecture-graph.json all missing/malformed at ${GRAPH_PATH} — graph hits unavailable`,
+      );
       return null;
     }
     const nodes = raw.nodes;
-    const edges = raw.edges;
+    const edges = Array.isArray(raw.edges) ? raw.edges : [];
 
     // Edge degree counts.
     const inDegree = new Map<string, number>();
@@ -496,6 +694,52 @@ class MasterIndexEngine {
       outDegree.set(e.from, (outDegree.get(e.from) ?? 0) + 1);
     }
 
+    // Degree restore (U-SIERRA-MASTERINDEX-DEGREE-SIDECAR): the normal path derived
+    // degrees from real edges above → trustworthy. The sidecar path has edges=[], so
+    // those maps are empty; if the sidecar carried a schema ≥ 1.1.0 degree block
+    // (index-aligned to nodes[]), rehydrate the maps from it so utilization/degree/
+    // classification work WITHOUT the >512MB graph. Length-guarded: a mismatched or
+    // absent block leaves degreesAvailable=false → callers degrade + fail loud.
+    let degreesAvailable = !sidecarFallback;
+    if (
+      sidecarFallback &&
+      sidecarDegrees &&
+      Array.isArray(sidecarDegrees.in) &&
+      Array.isArray(sidecarDegrees.out) &&
+      sidecarDegrees.in.length === nodes.length &&
+      sidecarDegrees.out.length === nodes.length
+    ) {
+      const inArr = sidecarDegrees.in;
+      const outArr = sidecarDegrees.out;
+      for (let k = 0; k < nodes.length; k++) {
+        const nid = nodes[k]?.id;
+        if (typeof nid !== "string") continue;
+        const inD = inArr[k] | 0;
+        const outD = outArr[k] | 0;
+        if (inD) inDegree.set(nid, inD);
+        if (outD) outDegree.set(nid, outD);
+      }
+      maxInDegree = Number.isFinite(sidecarDegrees.maxIn as number)
+        ? Number(sidecarDegrees.maxIn)
+        : maxInDegree;
+      degreesAvailable = true;
+    }
+
+    if (sidecarFallback) {
+      const mb = Math.round(graphBytes / 1048576);
+      const capNote = overCap ? ` (${mb}MB EXCEEDS V8's ~512MB string cap)` : ``;
+      log.warn(
+        degreesAvailable
+          ? `[MasterIndexEngine] system-graph.json unreadable${capNote} — served from ` +
+              `system-graph-index.json sidecar: SEARCH + utilization/degree ranking ` +
+              `RESTORED from the degree sidecar (raw edges still absent).`
+          : `[MasterIndexEngine] system-graph.json unreadable${capNote} — served from the ` +
+              `EDGELESS system-graph-index.json sidecar: SEARCH ok but utilization/degree/` +
+              `classification DEGRADED. FIX: regenerate the sidecar with build-graph-index.mjs ` +
+              `(schema ≥ 1.1.0 emits a degree block) or shard system-graph.json below 512MB.`,
+      );
+    }
+
     // Inverted index over node id + label + info + pre-joined wiki/memory
     // entry names. Without the wiki/memory tokens, P1-2 in v1.0.0 review
     // would leave nodes that only matched on Obsidian metadata invisible.
@@ -507,7 +751,14 @@ class MasterIndexEngine {
       const wikiNames = (n.knowledge?.wikiEntries ?? []).map(entryName).join(" ");
       const memNames = (n.knowledge?.memoryEntries ?? []).map(entryName).join(" ");
       const blob = `${n.id} ${n.label ?? ""} ${n.info ?? ""} ${wikiNames} ${memNames}`;
-      for (const tok of tokenize(blob)) {
+      // BACKEND-DEV-LOOP/U-MIQ-STOPWORDS-CONFIG (iter-2): build the index
+      // with the MINIMAL stopword set (English noise only). Without this,
+      // PRISM-meta tokens (engine/system/wiki/memory/prism/feature/node/
+      // label/info) would never get inverted-index buckets — making them
+      // unfindable regardless of which stopword mode the QUERY uses. Index
+      // size grows ~9 buckets × N (bounded); query-time filtering still
+      // applies the caller's chosen stopword set against this richer index.
+      for (const tok of tokenize(blob, STOPWORDS_MINIMAL)) {
         let bucket = invertedIndex.get(tok);
         if (!bucket) {
           bucket = new Set<string>();
@@ -526,6 +777,8 @@ class MasterIndexEngine {
       maxInDegree,
       invertedIndex,
       nodeById,
+      sidecarFallback,
+      degreesAvailable,
     };
   }
 
@@ -586,7 +839,10 @@ class MasterIndexEngine {
       MAX_LIMIT,
       Math.max(1, Number.isFinite(opts.limit) ? Number(opts.limit) : DEFAULT_LIMIT),
     );
-    const tokens = tokenize(query ?? "");
+    // Stopword resolution — opt-in per-query. Unset / null / unknown → the
+    // historical STOPWORDS_DEFAULT set, so every existing caller is unchanged.
+    const activeStopwords = resolveStopwords(opts.stopwords);
+    const tokens = tokenize(query ?? "", activeStopwords);
 
     // Empty query → empty structured result. Never throw.
     if (tokens.length === 0) {
@@ -610,6 +866,13 @@ class MasterIndexEngine {
     }
     const buildState = this.getBuildState();
     if (!buildState) warnings.push("BUILD_STATE.json unavailable; buildClass annotations missing");
+    if (graph && !graph.degreesAvailable) {
+      warnings.push(
+        "system-graph.json exceeded the readable size cap; served from an edgeless " +
+          "system-graph-index.json sidecar (no degree block) — utilization ranking " +
+          "unavailable. Regenerate the sidecar (build-graph-index.mjs ≥ schema 1.1.0).",
+      );
+    }
 
     const unwiredSet = buildState?.unwiredEngines ?? new Set<string>();
     const allowedSources = opts.sources && opts.sources.length > 0
@@ -725,10 +988,17 @@ class MasterIndexEngine {
         : (c.engine ?? c.capability);
       const buildClass = classifyBuildClass(undefined, id, unwiredSet);
       if (allowedClasses && !allowedClasses.has(buildClass)) continue;
-      // Capability hits don't have edge utilization — surface 0 (caller can
-      // sort by confidence alone if utilization isn't relevant for skills).
+      // Capability hits (engine/action/skill/hook from PRISMSelfAwarenessEngine)
+      // do NOT carry edge-graph utilization. We surface 0 as the API-visible
+      // value, but 0 here is a SENTINEL for "N/A" — not a real "low utilization"
+      // measurement. Applying `minUtilization > 0` against this sentinel would
+      // silently nuke every capability hit — a R12 contract violation in the
+      // same class as the iter-0 min_confidence blend bug (see
+      // U-MIQ-MINCONF-CONTRACT). Fix (iter-3, U-MIQ-CAPABILITY-MIN-UTIL):
+      // `minUtilization` is a graph-node concept; capability hits are exempt.
+      // Callers wanting to exclude capability hits should use
+      // `sources: ["graph_node", ...]` (the documented surface).
       const utilization = 0;
-      if (typeof opts.minUtilization === "number" && utilization < opts.minUtilization) continue;
       if (typeof opts.minConfidence === "number" && c.confidence < opts.minConfidence) continue;
       hits.push({
         source,
@@ -749,27 +1019,45 @@ class MasterIndexEngine {
       const utilFactor = Math.max(UTIL_FLOOR, Math.pow(h.utilization, UTIL_BIAS));
       h.confidence = Math.max(0, Math.min(1, h.confidence * utilFactor));
     }
-    hits.sort((a, b) => b.confidence - a.confidence);
 
-    // ----- Aggregations + final cap -----
+    // ----- Post-blend filter pass (R12 contract enforcement) -----
+    // The early prune at lines 668/732 cuts items whose RAW confidence is
+    // below threshold (perf optimization — saves scoring work on obvious
+    // losers). But the user-facing `confidence` is the BLENDED score
+    // (raw × utilFactor where utilFactor ∈ [UTIL_FLOOR, 1]). Since the
+    // blend monotonically reduces, items passing the raw prune can still
+    // fall below threshold after blending. The user's contract is
+    // "every returned hit has confidence ≥ minConfidence" against the
+    // value they see — so we re-apply the filter post-blend. Mirrored
+    // by MasterIndexFilters.dispatcher.e2e.test.ts (regression oracle).
+    let filteredHits = hits;
+    if (typeof opts.minConfidence === "number") {
+      const minConf = opts.minConfidence;
+      filteredHits = filteredHits.filter((h) => h.confidence >= minConf);
+    }
+    filteredHits.sort((a, b) => b.confidence - a.confidence);
+
+    // ----- Aggregations + final cap (all derived from filteredHits — the
+    // post-blend, post-min-confidence array — so totals match what the user
+    // actually sees) -----
     const bySource: Record<string, number> = {};
     const byBuildClass: Record<string, number> = {};
-    for (const h of hits) {
+    for (const h of filteredHits) {
       bySource[h.source] = (bySource[h.source] ?? 0) + 1;
       byBuildClass[h.buildClass] = (byBuildClass[h.buildClass] ?? 0) + 1;
     }
-    const topUtilized = [...hits]
+    const topUtilized = [...filteredHits]
       .filter((h) => h.utilization > 0)
       .sort((a, b) => b.utilization - a.utilization)
       .slice(0, 5);
-    const underUtilized = hits
+    const underUtilized = filteredHits
       .filter((h) => h.source === "graph_node" && h.utilization < 0.1)
       .slice(0, 5);
 
     return {
       query: query ?? "",
-      totalHits: hits.length,
-      hits: hits.slice(0, limit),
+      totalHits: filteredHits.length,
+      hits: filteredHits.slice(0, limit),
       bySource,
       byBuildClass,
       topUtilized,
@@ -799,15 +1087,53 @@ class MasterIndexEngine {
     if (!graph) return { id, found: false };
     const node = graph.nodeById.get(id);
     if (!node) return { id, found: false };
-    const inDeg = graph.inDegree.get(id) ?? 0;
-    const outDeg = graph.outDegree.get(id) ?? 0;
-    const utilization = normalizeUtilization(inDeg, graph.maxInDegree);
     const buildState = this.getBuildState();
     const buildClass = classifyBuildClass(
       node.status,
       node.id,
       buildState?.unwiredEngines ?? new Set<string>(),
     );
+    const wikiEntries = (node.knowledge?.wikiEntries ?? [])
+      .map(entryName)
+      .filter((s) => s.length > 0)
+      .slice(0, 8);
+    const memoryEntries = (node.knowledge?.memoryEntries ?? [])
+      .map(entryName)
+      .filter((s) => s.length > 0)
+      .slice(0, 6);
+    const label = (node.label ?? node.id).split("\n")[0].slice(0, 120);
+    // U-SIERRA-MASTERINDEX-SIDECAR-READ + DEGREE-SIDECAR: degree data is UNKNOWN
+    // (not 0) ONLY when served from an edgeless sidecar with no degree block. A
+    // schema ≥ 1.1.0 sidecar restores degrees (degreesAvailable=true) → fall
+    // through to the real-degree path below. Omit + flag so a real hub is never
+    // silently reported as a zero-utilization orphan (fail LOUD).
+    if (!graph.degreesAvailable) {
+      return {
+        id,
+        found: true,
+        degreeUnavailable: true,
+        warning:
+          "system-graph.json exceeded the readable size cap; served from an " +
+          "edgeless index sidecar (no degree block) — inDegree/outDegree/utilization " +
+          "unavailable. Regenerate the sidecar (build-graph-index.mjs ≥ schema 1.1.0).",
+        node: {
+          source: "graph_node",
+          id: node.id,
+          label,
+          layer: node.layer,
+          status: node.status,
+          description: node.info,
+          confidence: 1,
+          utilization: 0,
+          buildClass,
+          wikiEntries,
+          memoryEntries,
+        },
+      };
+    }
+    const inDeg = graph.inDegree.get(id) ?? 0;
+    const outDeg = graph.outDegree.get(id) ?? 0;
+    const utilization = normalizeUtilization(inDeg, graph.maxInDegree);
     return {
       id,
       found: true,
@@ -817,21 +1143,15 @@ class MasterIndexEngine {
       node: {
         source: "graph_node",
         id: node.id,
-        label: (node.label ?? node.id).split("\n")[0].slice(0, 120),
+        label,
         layer: node.layer,
         status: node.status,
         description: node.info,
         confidence: 1,
         utilization,
         buildClass,
-        wikiEntries: (node.knowledge?.wikiEntries ?? [])
-          .map(entryName)
-          .filter((s) => s.length > 0)
-          .slice(0, 8),
-        memoryEntries: (node.knowledge?.memoryEntries ?? [])
-          .map(entryName)
-          .filter((s) => s.length > 0)
-          .slice(0, 6),
+        wikiEntries,
+        memoryEntries,
       },
     };
   }
@@ -869,6 +1189,30 @@ class MasterIndexEngine {
         warnings: ["system-graph.json unavailable"],
       };
     }
+    // U-SIERRA-MASTERINDEX-SIDECAR-READ + DEGREE-SIDECAR: when served from an
+    // edgeless sidecar with NO degree block, EVERY node has degree 0 →
+    // hub/orphan/ghost classification would be uniformly FALSE (all reported as
+    // orphans). Return the empty-unavailable dashboard with a loud reason rather
+    // than a populated-but-false punch-list (fail LOUD). A schema ≥ 1.1.0 degree
+    // sidecar sets degreesAvailable=true → fall through to real classification.
+    if (!graph.degreesAvailable) {
+      return {
+        totals: { nodesScanned: 0, hubs: 0, sinks: 0, sources: 0, orphans: 0, ghosts: 0, normal: 0 },
+        byLayer: {},
+        topHubs: [],
+        topOrphans: [],
+        topGhosts: [],
+        generatedAt,
+        graphMtime: new Date(graph.mtimeMs).toISOString(),
+        warnings: [
+          "system-graph.json exceeded the readable size cap; served from an edgeless " +
+            "system-graph-index.json sidecar (no degree block) — utilization / hub / " +
+            "orphan / ghost classification is UNAVAILABLE (would be uniformly false). " +
+            "Regenerate the sidecar (build-graph-index.mjs ≥ schema 1.1.0 emits a degree " +
+            "block) or shard system-graph.json below 512MB.",
+        ],
+      };
+    }
 
     const allowedLayers = opts.layers && opts.layers.length > 0
       ? new Set<string>(opts.layers)
@@ -901,6 +1245,19 @@ class MasterIndexEngine {
 
     // Classify + collect rows.
     const totals = { nodesScanned: 0, hubs: 0, sinks: 0, sources: 0, orphans: 0, ghosts: 0, normal: 0 };
+    // Explicit class → totals bucket. Replaces the former `totals[`${cls}s`]` +
+    // `as keyof typeof totals` cast: string-pluralizing the class mis-bucketed
+    // "normal" → a phantom "normals" key (absent from the type — the cast silenced
+    // it), leaving totals.normal permanently 0. An exhaustive Record makes a new
+    // UtilizationClass without a bucket a COMPILE error, never a silent 0.
+    const TOTALS_KEY: Record<UtilizationClass, Exclude<keyof typeof totals, "nodesScanned">> = {
+      hub: "hubs",
+      sink: "sinks",
+      source: "sources",
+      orphan: "orphans",
+      ghost: "ghosts",
+      normal: "normal",
+    };
     const byLayer: Record<string, Record<UtilizationClass, number>> = {};
     const rows: NodeUtilizationRow[] = [];
 
@@ -928,7 +1285,7 @@ class MasterIndexEngine {
       else cls = "normal";
 
       totals.nodesScanned += 1;
-      totals[`${cls}s` as keyof typeof totals] = (totals[`${cls}s` as keyof typeof totals] ?? 0) + 1;
+      totals[TOTALS_KEY[cls]] += 1;
       const layerKey = n.layer ?? "?";
       if (!byLayer[layerKey]) {
         byLayer[layerKey] = { hub: 0, sink: 0, source: 0, orphan: 0, ghost: 0, normal: 0 };

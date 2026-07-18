@@ -230,8 +230,11 @@ describe("classificationToGraphUpdate (tier-5 merge helper)", () => {
   test("returns a well-formed proposed-wire edge", () => {
     const edge = classificationToGraphUpdate(
       ghostNode(), { engine: "XEngine", dispatcher: "prism_calc", confidence: 0.8, reason: "r" }, "m");
+    // U-VIZ-G4-DEAD-EDGE (2026-05-30 sierra): the edge target is now the
+    // canonical file-derived disp node id (prism_calc → disp.calcdispatcher),
+    // not the dead `dispatcher.prism_calc`. Matches seed-ghost-from-unwired.
     assert.deepEqual(edge, {
-      from: "ghost.unwired.X", to: "dispatcher.prism_calc", type: "ghost-wire",
+      from: "ghost.unwired.X", to: "disp.calcdispatcher", type: "ghost-wire",
       relation: "proposed-wire", status: "proposed", intensity: 0.8,
     });
   });

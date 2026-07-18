@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `welder-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/welder-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/welder-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Optimize welding programs for cycle time, distortion, or weld quality.
+
+# /welder-optimize — Welding Program Optimization
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,536 @@
+Application Tutorial | InventorCAM 2024
+
+5X Basic Training | Vol. 3
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+          Contents
+
+Contents
+
+1. Introduction..................................................................................................................................................1
+2. CAM-Part Definition.....................................................................................................................................3
+3. 5-Axis Strategies..........................................................................................................................................7
+
+                                                                                                                                                                    i
+Introduction  1
+About this course
+This purpose of this tutorial is to explain the side tilt definitions, the strategy of tilted through curve definition, different
+sub-tilt definitions, the gouge check definitions, the perpendicular to curve strategy.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the InventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task. The theoretical explanations are embedded into these exercises to
+give an overview of machining a port inlet.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial.
+This book is made with Autodesk Inventor Professional 2024 and InventorCAM 2024 SP2.
+
+2
+2 CAM-Part Definition
+The CAM-Part definition process for the part consists of the following stages:
+
+                                                         CAM-Part creation
+
+                                                     CNC-Machine de nition
+
+                                                 Coordinate System de nition
+
+                                                 Stock and Target de nition
+
+        · CAM-Part creation. At this stage, you have to define the CAM-Part name and location. InventorCAM defines
+            the necessary system files and a folder to allocate the place to store InventorCAM data.
+
+        · CNC-controller definition. It is necessary to choose the CNC-controller. The controller type influences the
+            Coordinate System definition and the Geometry definition.
+
+        · Coordinate System definition. You have to define the Coordinate System, which is the origin for all machining
+            operations of the CAM-Part. You can create multiple CoordSys positions and in each machining step select
+            which CoordSys you want to use for the operation.
+
+        · Stock and Target definition. It is necessary to define a boundary of the stock that is used for the CAM-Part
+            machining. InventorCAM enables you to define the model of the part in its final stage after the machining.
+
+The following exercises describe the full process of the CAM-Part definition. It is recommended to go through the
+stages in order to understand how the CAM-Part features are built. For this purpose, you must first go to InventorCAM
+> Options > CAM Settings and turn off the automatic CAM-Part definition.
+1. Browse and open PORT_INLET_PART.ipt.
+2. Click InventorCAM2024 > New > Milling.
+
+3. In the CNC-Machine list, click table_table_exercise.
+4. Click CoordSys button in the Define section to set the coordinate system for
+this part.
+5. In the Place CoordSys origin to list, click Top center of model box.
+
+4
+                                                                       2. CAM-Part Definition
+
+6. Select the face as shown in the image.
+7. The coordinate system is set and looks like as shown in the image.
+
+8. Click
+The CoordSys Data window displays.
+
+9. Enter the values as shown in the image.
+
+10. Click
+
+11. Click  in the CoordSys Manager window.
+
+12. Click to come out of the Milling Part Data dialog box.
+
+The CAM part is now defined.
+
+                                                                                                                                                                         5
+6
+5-Axis Strategies  3
+1. Right click Operations > Machine Setup > Add at start of operations tree.
+Machine setup allows to define the position of the part with respect to the machine table. It also allows you to define
+fixtures and other holding elements.
+The Machine Setup window displays.
+2. Click Part Mounting [MAC 1 (1-Position)].
+3. Enter a value of 250 in Z column.
+This will move the part 250 mm above the machine bed.
+
+4. Click to see how the part mounting looks on the machine.
+This is how the preview looks.
+
+5. Close the Machine Preview window.
+6. Click OK to close the Machine Setup window.
+The Machine Setup is now defined.
+
+8
+                                                                                                                                               3. 5-Axis Strategies
+
+Perpendicular to curve strategy
+
+The Perpendicular to Curve strategy enables you to create a tool path perpendicular to a lead curve (drive curve) on a
+selected drive surface. If the curve is a straight line, then the cuts are created parallel to each other. You can use a surface
+edge as the lead curve, or a curve that is on the surface. If the curve is not on the surface then it is projected onto the
+drive surface to create the tool path.
+
+In the above picture you can see that the tool path cuts are taken perpendicular to the lead curve. This is done by
+distributing points on the lead curve (Equal to the Step Over) and then taking the slices on the drive surface on each of
+these points by creating planes normal to the lead cuve at that point. The lead curve need not be the edge of the drive
+surface, it could be any curve and the cuts will be perpendicular to that curve.
+
+7. Right click Setup > Add Milling Operation > Sim 5-Axis Milling.
+
+8. In the Technology list, click Perpendicular to curve.
+
+9. Click the Geometry page.
+
+10. Click  under Drive surface.
+
+11. Select the highlighted faces.
+
+12. Click
+
+                                   9
+13. Click  under Lead curve.
+
+14. Select the highlighted curve.
+
+15. Click Accept chain.
+
+16. Click
+
+17. In the Type list, click Limit cuts by one or two points.
+18. Click Points.
+The Limit Cuts Between 2 Points window displays.
+19. Click Data.
+
+20. Select the point as shown in the image.
+21. Click OK.
+
+22. Define the first margin as -0.3 in the Z field. This is
+needed as there is no other way to define margins while
+selecting the two points option.
+
+23. Click Data.
+
+24. Select the point as shown in the image.
+
+25. Click OK.
+
+10
+                                                                            3. 5-Axis Strategies
+
+26. Set the value in the Z field as -92.081745.
+27. Click OK in the Limit Cuts Between 2 Points window.
+28. Click Tool > Select.
+29. Select LOLLIPOP MILL.Enter the parameters as shown in the below image.
+
+30. Select BT 40 ER 32X60 as the holder.
+
+31. Click
+32. Click the Levels page.
+33. Select Plane from the Type list.
+34. Ensure that Z-Axis is selected from the Direction list.
+35. Select User-Defined from the Height list.
+36. Enter a value of 75 mm in the Plane height field.
+37. Click the Tool path parameters page.
+38. If the check box of Cut tolerance is selected under Surface quality, unselect it.
+39. Select the Sorting tab.
+
+                                                                                                                                                                        11
+40. Enter the parameters as shown in the image.
+
+41. Click the Tool axis control page.
+42. Select Tilted through curve as the Tool axis direction.
+43. Click the Model tab.
+44. Click Modeling.
+45. Expand Design Model: 1 > TILT SKETCH 1 > click Visibility.
+46. Click the InventorCAM Manager tab.
+
+47. Click the Tilt curve tab.
+
+48. Click  under Tilt curve.
+
+49. Select the curve as shown in the image. Ensure that the selection is from
+top to bottom.
+
+50. Click Accept chain.
+
+51. Click
+
+12
+                                                                                                                                               3. 5-Axis Strategies
+
+52. In the Curve tilt type list, click From start to end.
+This tilt type is used to force the tool axis to always follow the tilt curve from start of the curve to the end of the curve.
+This is the most used tilt type option for machining ports.
+
+53. Click the Gouge check page
+
+54. Select the Enable/Disable check box.
+
+55. In the Strategy lists, select Retract tool and Along to cut center.
+The Retract tool along to cut center strategy, helps to push the tool path to the centre of the geometry so that it does not
+gouge the geometry. This ensures that the tool sticks to the geometry without gouging the part surfaces.
+
+56. Select the Drive surfaces check box.
+
+57. Click
+
+58. Click  once the tool path is calculated.
+
+The Simulation window appears.
+
+59. Click
+The calculated tool path should look as displayed in the image:
+
+You can see that a retract is coming through the part and will cause a major crash on the machine. This must be fixed.
+60. Click
+
+                                                                                                                                                                        13
+61. Click the Link page.
+62. In the Last exit list, click Back to clearance through tube center.
+63. Click on Default Lead-In/Out.
+64. Enter the parameters as shown in the image.
+
+65. Click Machine control.
+66. Click Advanced.
+67. Select and set the Interpolation for distance as 5.
+68. Click
+69. Click once the tool path is calculated.
+70. Click
+The calculated tool path should look as displayed in the image:
+
+The tool is now retracting out through the center without causing any gouges to the part. This retract option is exclusively
+used for machining port geometries.
+
+14
+                                             3. 5-Axis Strategies
+
+71. Click
+
+72. Click to close the operations manager.
+
+73. Right click the operation > Add Milling Operation > Sim.5- Axis Milling.
+
+74. In the Technology list, click Morph between two boundary curves.
+The Morph between two boundary curves option creates a morph tool path between two leading curves. Morph means
+that the generated tool path gradually interpolates between the two curves and it is evenly spread over the surface. When
+selecting the two curves, the geometry should be selected directly from the drive surfaces.
+
+75. Click the Geometry page.
+
+76. In the list click faces. This is the same drive surface you had selected for the earlier operation.
+
+77. Click  under Start edge curve.
+
+78. Select the curve as shown in the image.
+
+79. Click Yes in OK to accept? window.
+
+80. Click
+
+81. Click  under End edge curve.
+
+82. Select the curve as shown in the image.
+
+83. Click Yes in OK to accept? window.
+
+84. Click
+
+85. In the Type list, click Limit cuts by one or two points.
+86. Click Points.
+87. Click the Data button in the first row.
+
+                                                                                                                                                                        15
+88. Select the point as shown in the image.
+89. Click OK.
+
+90. Define the first margin again as -0.3 in the Z field.
+91. Click the Data button in the second row.
+92. Select the point as shown in the image.
+93. Click OK.
+
+94. Set the value in the Z field as -92.081745.
+95. Click OK in the Limit Cuts Between 2 Points window.
+96. Click the Tool page > Select.
+97. Select the same LOLLIPOP MILL tool.
+98. Click the Levels.
+99. Enter a value of 75 mm in the Plane height field.
+100. Click the Tool path parameters page.
+101. Select the Sorting tab.
+102. In the Cutting method list, click Spiral.
+103. Click the Tool axis control page.
+104. In the Tool axis direction list, click Tilted through curve.
+105. Click the Tilt curve tab.
+
+106. Click  under Tilt curve.
+
+16
+                                                                                       3. 5-Axis Strategies
+
+107. Select the curve as shown in the image.
+108. Click Accept chain.
+109. Click
+
+110. In the Curve tilt type list, click From start to end.
+111. Click the Link page.
+112. Ensure that Back to clearance through tube center is selected in Last exit list.
+113. Click on Default Lead-In/Out.
+114. Enter the parameters as shown in the image.
+
+115. Click Machine control.
+116. Click Advanced.
+117. Select and set the Interpolation for distance as 5.
+118. Click the Gouge check page.
+119. Select the Enable/Disable check box.
+120. In the Strategy lists, select Retract tool and Along to cut center.
+121. Select the Drive surfaces check box.
+122. Click
+123. Click once the tool path is calculated.
+124. Click
+
+                                                                                                                                                                        17
+The calculated tool path should look as displayed in the image:
+
+125. Click
+126. Click to close the operations manager.
+Let us now machine the other port which is octagonal in shape. For that, switch on the required sketch.
+127. Click the Model tab.
+128. In the Design Model: 1, switch off the Visiblity of TILT SKETCH 1 and switch on the Visiblity of TILT SKETCH 2.
+129. Click the InventorCAM Manager tab.
+130. Right click the operation > Add Milling Operation > Sim.5 Axis Milling.
+131. In the Technology list, click Morph between two boundary curves.
+132. Click the Geometry page.
+
+133. Click  under Drive surface.
+
+134. Select all the surfaces of the octagonal curve as shown in the image.
+
+135. Change the Name as Octa_Port.
+
+136. Click
+
+18
+137. Click  under Start edge curve.                            3. 5-Axis Strategies
+                                                                                       19
+138. Select the curve as shown in the image.
+
+139. Click Yes in the OK to accept? window.
+
+140. Change the Name as Octo_Top.
+
+141. Click
+
+142. Click  under End edge curve.
+
+143. Select the curve as shown in the image.
+
+144. Click Yes in the OK to accept? window.
+
+145. Click
+
+146. In the Type list, click Limit cuts by one or two points.
+147. Click Points.
+148. Click Data.
+149. Select the point as shown in the image.
+150. Enter a value of -0.3 in the Z field.
+151. Click OK.
+
+152. Click Data.
+153. Select the point as shown in the image.
+154. Click OK.
+155. Set the value in the Z field as -83.148427.
+156. Ensure the parameters are same as shown.
+157. Click OK in the Limit Cuts Between 2 Points window.
+158. Click the Tool page > Select.
+159. Select the same LOLLIPOP MILL tool.
+160. Click the Tool path parameters page.
+161. Set the Cut tolerance to 0.01.
+162. Select the Sorting tab.
+163. In the Cutting method list, click Spiral.
+164. Click the Link page.
+165. In the First entry list, click Use Lead-In.
+166. Click
+167. Enter the values as shown in the image.
+168. Click OK.
+
+169. In the Last exit list, click Use Lead-Out.
+170. Click
+171. Enter the values as shown in the image.
+172. Click OK.
+
+20
+                                                                          3. 5-Axis Strategies
+
+173. In the Last exit list, click Back to clearance through tube center.
+174. Click the Tool axis control page.
+175. Enter the parameters as shown in the image.
+
+176. Click the Tilt curve tab.
+177. In the Curve tilt type list, click From start to end.
+
+178. Click  under Tilt curve.
+
+179. Select the curve as shown in the image.
+
+180. Click Accept chain.
+
+181. Click
+
+182. Click the Gouge check page.
+183. Enter the parameters as shown in the image.
+184. Click
+185. Click once the tool path is calculated.
+186. Click
+
+                                                                          21
+The calculated tool path should look as displayed in the image:
+
+There are no gouges but the tool path does not look very smooth. Let us fix this.
+187. Click
+188. Click to close the operations manager.
+189. Right click > Copy the operation.
+190. Right click > Paste the operation.
+191. Right click > Edit the operation.
+192. Click the Model tab.
+193. Click Modeling.
+194. Click Design Model: 1 > Surface Bodies(1) > Srf1 > Visibility.
+
+22
+                                                                                3. 5-Axis Strategies
+
+You can see that the dummy surface is a circle driven along the curve. It uses
+the same guide curve that was used to create the octagonal surface.
+
+195. Click the InventorCAM Manager tab.
+
+196. Click the Geometry page.
+
+197. Click  under Drive surface.
+
+You will use the cylinder. As the cylinder is hidden inside the solid model, it is difficult to select the geometry. You must
+therefore, select it from the design model.
+
+198. Select the surface as shown in the image.
+
+199. Click
+
+200. Click  under Start edge curve.
+
+201. Select the curve as shown in the image.
+
+202. Click Yes in OK to accept? window.
+
+203. Click
+
+204. Click  under End edge curve.
+
+205. Select the curve as shown in the image.
+
+206. Click Yes in OK to accept? window.
+
+207. Click
+
+                                                                                23
+208. Click Levels.
+209. Set the Clearance area type as Plane.
+210. Set the Plane height as 10 mm.
+211. Click on Default Lead-In/Out.
+212. Set the parameters as shown in the image.
+
+213. Click the Gouge check page.
+214. Enter the parameters as shown in the image.
+
+215. In the Check surfaces 1 list, click Octa_Port.
+216. Click Show
+The selected surfaces must look like as shown in the image.
+Once the tool finds the gouges, it will move the tool away till it retracts towards
+the cut center so that all the gouges disappear. This results in a gouge free
+tool path.With this strategy, the tool path is effectively projected on these octo
+surfaces in such a way that no gouges remain.
+
+24
+                                                                 3. 5-Axis Strategies
+
+217. Click
+
+218. Click
+
+219. Click
+The calculated tool path should look as displayed in the image:
+
+The tool path now looks much better as it has taken the circular tool path and projected it on these octagonal surfaces.
+220. Click
+221. Click to close the operations manager.
+
+                                                             End of tutorial
+
+                                                                                                                                                                        25
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

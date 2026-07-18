@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌂</span>SHOP</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Shop Floor — Live</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · 15 MACHINES · {{ shiftLabel }}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(127,178,255,0.25);background:rgba(127,178,255,0.07);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7FB2FF;">📷 floor plotted via phone walkthrough</div>
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid {{ oeeBorder }};background:{{ oeeBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ oeeColor }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ oeeColor }};animation:kzpulse 1.6s infinite;"></span>SHOP OEE {{ shopOee }}%</div>
+      </div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 416px;min-height:0;">
+
+      <section style="min-width:0;padding:18px 20px;background:radial-gradient(900px 480px at 55% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;">Interactive floor map</div>
+          <div style="display:flex;gap:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;"><span style="color:#36D399;">● {{ runCount }} run</span><span style="color:#F4B740;">● {{ setupCount }} setup</span><span style="color:#FF5247;">● {{ downCount }} down</span><span style="color:#6B7280;">● {{ idleCount }} idle</span></div>
+        </div>
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:8px;position:relative;">
+          <svg viewBox="0 0 760 600" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+            <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0 L0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs>
+            <rect x="8" y="8" width="744" height="584" rx="8" fill="url(#grid)" stroke="rgba(255,255,255,0.08)" stroke-width="1"></rect>
+            <sc-for list="{{ zones }}" as="z" hint-placeholder-count="4">
+              <rect x="{{ z.x }}" y="{{ z.y }}" width="{{ z.w }}" height="{{ z.h }}" rx="6" fill="rgba(255,255,255,0.015)" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4 4"></rect>
+              <text x="{{ z.tx }}" y="{{ z.ty }}" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" fill="#4B5563">{{ z.label }}</text>
+            </sc-for>
+            <sc-for list="{{ cells }}" as="m" hint-placeholder-count="15">
+              <g style="cursor:pointer;" onClick="{{ m.on }}">
+                <rect x="{{ m.x }}" y="{{ m.y }}" width="{{ m.w }}" height="{{ m.h }}" rx="7" fill="{{ m.fill }}" stroke="{{ m.stroke }}" stroke-width="{{ m.sw }}"></rect>
+                <circle cx="{{ m.dotX }}" cy="{{ m.dotY }}" r="4" fill="{{ m.dot }}"></circle>
+                <text x="{{ m.cx }}" y="{{ m.ny }}" text-anchor="middle" font-family="Space Grotesk" font-weight="600" font-size="12" fill="#F3F4F6">{{ m.short }}</text>
+                <text x="{{ m.cx }}" y="{{ m.sy }}" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#9398A2">{{ m.oee }}% OEE</text>
+              </g>
+            </sc-for>
+          </svg>
+          <div style="position:absolute;left:18px;bottom:14px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#4B5563;">tap a machine to set up · program · monitor</div>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 40px;background:#0A0B0D;">
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;">
+          <span style="flex:none;width:40px;height:40px;border-radius:10px;background:{{ selStatusBg }};display:flex;align-items:center;justify-content:center;font-size:18px;">{{ selIcon }}</span>
+          <div style="flex:1;min-width:0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;">{{ selName }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ selStatusColor }};">{{ selStatusLabel }} · {{ selKind }}</div></div>
+        </div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;margin-bottom:4px;">CURRENT JOB</div>
+          <div style="font-size:13px;color:#F3F4F6;">{{ selJob }}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;margin-top:3px;">{{ selJobDetail }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px 16px;margin-bottom:12px;">
+          <svg viewBox="0 0 96 96" width="92" height="92" style="flex:none;">
+            <circle cx="48" cy="48" r="38" fill="none" stroke="#1B1E24" stroke-width="9"></circle>
+            <circle cx="48" cy="48" r="38" fill="none" stroke="{{ selOeeColor }}" stroke-width="9" stroke-linecap="round" stroke-dasharray="{{ selOeeDash }}" transform="rotate(-90 48 48)"></circle>
+            <text x="48" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="21" font-weight="700" fill="#F3F4F6">{{ selOee }}</text>
+            <text x="48" y="60" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#6B7280">OEE</text>
+          </svg>
+          <div style="flex:1;">
+            <sc-for list="{{ factors }}" as="f" hint-placeholder-count="3">
+              <div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;color:#9398A2;margin-bottom:3px;"><span>{{ f.label }}</span><span style="font-family:'JetBrains Mono',monospace;color:{{ f.color }};">{{ f.val }}</span></div><div style="height:6px;border-radius:999px;background:#1B1E24;overflow:hidden;"><div style="height:100%;width:{{ f.bar }};background:{{ f.color }};border-radius:999px;"></div></div></div>
+            </sc-for>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">A × P × Q</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px;">
+          <button style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:11px;padding:13px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;">⌀ Set up &amp; program</button>
+          <button style="border:1px solid rgba(255,255,255,0.14);background:transparent;color:#C7CCD4;border-radius:11px;padding:13px;font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">Tool crib →</button>
+        </div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;margin-bottom:10px;">DOWNTIME PARETO · TODAY · {{ downtimeTotal }} MIN</div>
+          <sc-for list="{{ pareto }}" as="p" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;"><span style="flex:none;width:96px;font-size:11px;color:#C7CCD4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.cause }}</span><div style="flex:1;height:8px;border-radius:999px;background:#1B1E24;overflow:hidden;"><div style="height:100%;width:{{ p.bar }};background:{{ p.color }};border-radius:999px;"></div></div><span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;width:40px;text-align:right;">{{ p.min }}m</span></div>
+          </sc-for>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(255,90,43,0.06),#0E0F12);border:1px solid rgba(255,90,43,0.2);border-radius:13px;padding:13px 15px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:8px;">◆ KIENZLE SEES</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.5;">{{ insight }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { sel: 'vf2', tick: 0, scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() {
+    this._trySync = (n) => { try { const K = (typeof window !== 'undefined') && window.KIENZLE; if (K && K.MACHINES) { this._synced = true; this.forceUpdate(); } else if ((n || 0) < 25) { setTimeout(() => this._trySync((n || 0) + 1), 100); } } catch (e) {} };
+    this._trySync(0);
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); this._t = setInterval(() => this.setState(s => ({ tick: s.tick + 1 })), 3000); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); if (this._t) clearInterval(this._t); }
+  // floor cells: x,y,w,h in 760x600; st run|setup|down|idle; a/p/q; zone implied
+  MACH = [
+    { id: 'lb3000', short: 'LB3000', name: 'Okuma LB3000', kind: 'CNC lathe', st: 'run', job: 'SEMBLEX trilobe ×500', jd: 'OP20 · 1h12m left', a: .94, p: .91, q: .99, x: 40, y: 60, w: 100, h: 74 },
+    { id: 'lb300m', short: 'LB300-M', name: 'Okuma LB300-M', kind: 'mill-turn', st: 'run', job: 'OPTIMAS hex die', jd: 'OP10 · 44m', a: .88, p: .86, q: .98, x: 160, y: 60, w: 100, h: 74 },
+    { id: 'genos2', short: 'Genos L2', name: 'Okuma Genos L2', kind: 'CNC lathe', st: 'run', job: 'SFS pin ×1.2k', jd: 'cycle 38%', a: .91, p: .95, q: .99, x: 280, y: 60, w: 100, h: 74 },
+    { id: 'genos3', short: 'Genos L3', name: 'Okuma Genos L3', kind: 'CNC lathe', st: 'setup', job: 'TOPURA insert', jd: 'fixturing · 22m over', a: .72, p: 0, q: 1, x: 400, y: 60, w: 100, h: 74 },
+    { id: 'lu3000', short: 'LU3000', name: 'Okuma LU3000', kind: 'twin-turret', st: 'run', job: 'STALCOP collar', jd: 'OP10 · 1h', a: .90, p: .88, q: .98, x: 520, y: 60, w: 100, h: 74 },
+    { id: 'captain', short: 'Captain', name: 'Okuma Captain', kind: 'CNC lathe', st: 'idle', job: 'queue: 2 jobs', jd: 'awaiting stock', a: .4, p: 0, q: 1, x: 640, y: 60, w: 80, h: 74 },
+    { id: 'multus', short: 'Multus', name: 'Multus U3000', kind: 'mill-turn', st: 'run', job: 'ALTRACS punch', jd: 'OP30 · 22m', a: .92, p: .9, q: .99, x: 40, y: 250, w: 110, h: 80 },
+    { id: 'vm30i', short: 'VM30i', name: 'Hurco VM30i', kind: 'VMC', st: 'run', job: 'SIG core cavity', jd: 'OP20 · 51m', a: .85, p: .79, q: .97, x: 170, y: 250, w: 110, h: 80 },
+    { id: 'm460v', short: 'M460V', name: 'Okuma M460V', kind: '5-axis VMC', st: 'run', job: 'D2 ejector plate', jd: 'roughing', a: .9, p: .92, q: .99, x: 300, y: 250, w: 110, h: 80 },
+    { id: 'vf2', short: 'VF-2', name: 'Haas VF-2', kind: 'VMC', st: 'down', job: 'spindle alarm 720', jd: 'maint paged 11m ago', a: .55, p: 0, q: 1, x: 430, y: 250, w: 110, h: 80 },
+    { id: 'roku', short: 'Roku-R', name: 'Roku-Roku HC658', kind: 'graphite HSM', st: 'run', job: 'graphite electrode', jd: 'finish 0.4 Ra', a: .93, p: .94, q: .99, x: 560, y: 250, w: 110, h: 80 },
+    { id: 'mikron', short: 'Mikron', name: 'Mikron Mill', kind: 'VMC', st: 'setup', job: 'SEMBLEX cavity', jd: 'tool load', a: .7, p: 0, q: 1, x: 40, y: 440, w: 100, h: 74 },
+    { id: 'wire1', short: 'Wire-1', name: 'Mitsubishi MV1200', kind: 'wire EDM', st: 'run', job: 'carbide form punch', jd: 'skim 2/3', a: .96, p: .93, q: 1, x: 280, y: 440, w: 100, h: 74 },
+    { id: 'wire2', short: 'Wire-2', name: 'Mitsubishi MV2400', kind: 'wire EDM', st: 'run', job: 'OPTIMAS die window', jd: 'rough cut', a: .94, p: .9, q: .99, x: 400, y: 440, w: 100, h: 74 },
+    { id: 'sinker', short: 'Sinker', name: 'Sinker EDM', kind: 'sinker EDM', st: 'idle', job: 'queue: 1 job', jd: 'electrode prep', a: .45, p: 0, q: 1, x: 520, y: 440, w: 100, h: 74 },
+  ];
+  ZONES = [{ label: 'TURNING', x: 24, y: 44, w: 712, h: 108, tx: 32, ty: 40 }, { label: 'MILLING', x: 24, y: 234, w: 712, h: 112, tx: 32, ty: 230 }, { label: 'EDM', x: 264, y: 424, w: 372, h: 108, tx: 272, ty: 420 }, { label: 'GRIND / BENCH', x: 24, y: 424, w: 232, h: 108, tx: 32, ty: 420 }];
+  col(st) { return st === 'run' ? '#36D399' : st === 'setup' ? '#F4B740' : st === 'down' ? '#FF5247' : '#6B7280'; }
+  renderVals() {
+    const s = this.state;
+    const oee = (m) => Math.round(m.a * m.p * m.q * 100);
+    const cells = this.MACH.map(m => { const on = m.id === s.sel; const c = this.col(m.st); return {
+      on: () => this.setState({ sel: m.id }), x: m.x, y: m.y, w: m.w, h: m.h, cx: m.x + m.w / 2, ny: m.y + m.h / 2 + 1, sy: m.y + m.h / 2 + 16,
+      dotX: m.x + 12, dotY: m.y + 14, dot: c, short: m.short, oee: oee(m),
+      fill: on ? 'rgba(255,90,43,0.12)' : '#14161B', stroke: on ? '#FF7A4D' : (m.st === 'down' ? 'rgba(255,82,71,0.5)' : 'rgba(255,255,255,0.1)'), sw: on ? 2.5 : 1,
+    }; });
+    const zones = this.ZONES.map(z => ({ ...z }));
+    const counts = { run: 0, setup: 0, down: 0, idle: 0 }; this.MACH.forEach(m => counts[m.st]++);
+    const shopOee = Math.round(this.MACH.reduce((a, m) => a + (m.st === 'run' ? m.a * m.p * m.q : 0), 0) / this.MACH.filter(m => m.st === 'run').length * 100);
+    const m = this.MACH.find(x => x.id === s.sel) || this.MACH[0];
+    const sc = this.col(m.st), o = oee(m);
+    const icons = { run: '⚙', setup: '🔧', down: '⚠', idle: '⏸' };
+    const labels = { run: 'RUNNING', setup: 'IN SETUP', down: 'DOWN', idle: 'IDLE' };
+    const oeeC = (v) => v >= 75 ? '#36D399' : v >= 60 ? '#F4B740' : '#FF5247';
+    const factors = [['Availability', m.a], ['Performance', m.p], ['Quality', m.q]].map(([label, v]) => ({ label, val: Math.round(v * 100) + '%', bar: Math.round(v * 100) + '%', color: v >= .9 ? '#36D399' : v >= .75 ? '#F4B740' : '#FF5247' }));
+    const ptot = m.st === 'down' ? 240 : m.st === 'setup' ? 95 : 38;
+    const causes = m.st === 'down' ? [['Spindle fault', 180, '#FF5247'], ['Wait maint.', 40, '#F4B740'], ['Reroute', 20, '#7FB2FF']] : m.st === 'setup' ? [['Tool load', 38, '#F4B740'], ['Fixturing', 32, '#F4B740'], ['First-off', 18, '#7FB2FF'], ['Material', 7, '#6B7280']] : [['Tool change', 16, '#F4B740'], ['Chip clear', 12, '#7FB2FF'], ['Inspect', 7, '#6B7280'], ['Micro-stop', 3, '#6B7280']];
+    const pmax = Math.max(...causes.map(c => c[1]));
+    const pareto = causes.map(c => ({ cause: c[0], min: c[1], bar: (c[1] / pmax * 100).toFixed(0) + '%', color: c[2] }));
+    const insight = m.st === 'down' ? `${m.short} is your #1 downtime source 3 months running — a spindle rebuild pays back in ~7 weeks at current load. D2 plate already rerouted to M460V.`
+      : m.st === 'setup' ? `${m.short} setup is running over standard — the soft-jaw step is the culprit. Pre-set offline to recover ~18 min/job.`
+      : m.st === 'idle' ? `${m.short} idle on stock-out — pull the queued jobs' material to receiving now so it's not starved next shift.`
+      : o < 75 ? `${m.short} performance is the drag on its OEE — the program feeds are conservative. Re-post through the calculator to lift P.`
+      : `${m.short} is running clean at ${o}% OEE — capture these feeds as the documented standard for this part family.`;
+    return {
+      scale: s.scale, shiftLabel: this._synced ? 'WED JUN 24 · 1ST SHIFT · ⊹' : 'WED JUN 24 · 1ST SHIFT',
+      shopOee, oeeColor: oeeC(shopOee), oeeBorder: shopOee >= 75 ? 'rgba(54,211,153,0.25)' : 'rgba(244,183,64,0.3)', oeeBg: shopOee >= 75 ? 'rgba(54,211,153,0.06)' : 'rgba(244,183,64,0.05)',
+      runCount: counts.run, setupCount: counts.setup, downCount: counts.down, idleCount: counts.idle,
+      cells, zones,
+      selName: m.name, selKind: m.kind, selStatusLabel: labels[m.st], selStatusColor: sc, selIcon: icons[m.st], selStatusBg: 'rgba(' + (m.st === 'run' ? '54,211,153' : m.st === 'down' ? '255,82,71' : m.st === 'setup' ? '244,183,64' : '107,114,128') + ',0.14)',
+      selJob: m.job, selJobDetail: m.jd,
+      selOee: o, selOeeColor: oeeC(o), selOeeDash: (o / 100 * 238.8).toFixed(1) + ' 238.8', factors,
+      downtimeTotal: ptot, pareto, insight,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `startup` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/startup.md` |
+| Source | `C:/Users/wompu/.claude/commands/startup.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-You are initializing a PRISM development session. Run through this checklist to establish context, detect issues, and present the work surface. Execute all steps — do not ask questions until the summary is ready.
+
+# /startup — full session bootstrap via psk
 
 <!-- AUTO-END -->
 

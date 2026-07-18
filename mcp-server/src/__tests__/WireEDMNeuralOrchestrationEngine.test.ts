@@ -318,7 +318,7 @@ describe("WireEDMNeuralOrchestrationEngine", () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.recommended_parameters.wire_diameter).toBe("0.20");
+      expect(result.recommended_parameters.wire_diameter).toBe(0.2); // WireDiameter is a numeric literal union (0.10|0.15|0.20|0.25|0.30), not a string
     });
 
     it("handles medium sections (10-50mm)", () => {
@@ -328,7 +328,7 @@ describe("WireEDMNeuralOrchestrationEngine", () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.recommended_parameters.wire_diameter).toBe("0.25");
+      expect(result.recommended_parameters.wire_diameter).toBe(0.25); // numeric WireDiameter literal
     });
 
     it("handles thick sections (> 50mm)", () => {
@@ -338,7 +338,7 @@ describe("WireEDMNeuralOrchestrationEngine", () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.recommended_parameters.wire_diameter).toBe("0.30");
+      expect(result.recommended_parameters.wire_diameter).toBe(0.3); // numeric WireDiameter literal
       expect(result.decision_chain.risk_mitigations.length).toBeGreaterThan(0);
     });
 
@@ -361,7 +361,7 @@ describe("WireEDMNeuralOrchestrationEngine", () => {
     it("returns parameters without full decision chain", () => {
       const params = engine.getQuickParameters("D2", 25, 0.8);
 
-      expect(params.wire_type).toBe("brass");
+      expect(params.wire_type).toBe("plain_brass"); // canonical WireType enum member ("brass" is not in the union)
       expect(params.num_passes).toBeGreaterThan(0);
       expect(params.on_time_us).toBeGreaterThan(0);
       expect(params.off_time_us).toBeGreaterThan(0);

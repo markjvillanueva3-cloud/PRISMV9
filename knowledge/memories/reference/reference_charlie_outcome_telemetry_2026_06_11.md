@@ -1,0 +1,19 @@
+---
+name: reference_charlie_outcome_telemetry_2026_06_11
+description: U-QP-CLOSED-LOOP-OUTCOME-TELEMETRY — full-distribution feedOutcome telemetry on the quoting OODA loop + a recurred shared-tree git-stash hazard.
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.511Z
+aliases: reference_charlie_outcome_telemetry_2026_06_11
+---
+
+
+**QUOTING-SYNERGY-MS0/U-QP-CLOSED-LOOP-OUTCOME-TELEMETRY** (slot:charlie, 2026-06-11, provenance commit `edb4986a50`). Adds a full-distribution self-learning telemetry channel to the quoting closed loop (`QuotingClosedLoopEngine`).
+
+**What shipped.** An additive optional `feedOutcome?: (signal: CycleOutcomeSignal) => Promise<void>` dep on `ClosedLoopDeps`, fired ONCE on EVERY terminal verdict (PROMOTED / NO_DRIFT_NO_OP / ROLLED_BACK / WITHHELD_SYNTHETIC / INSUFFICIENT_DATA / STAGE_FAILED). This complements the existing `feedPSIDelta` which fires PROMOTED-only. The PSN can now learn the loop's *own behavior distribution*: a high withhold rate signals a data-provenance problem, a high rollback rate signals drift the calibration can't fix — both are learning signals, not just the applied-improvement signal feedPSIDelta carries.
+
+**Design (build-once, zero-risk).** The original `runCycle` body was renamed to `private static async computeCycle`; a new thin `static async runCycle(deps, options?)` wrapper (signature unchanged) calls `computeCycle`, then fires `deps.feedOutcome(toOutcomeSignal(result))` inside a try/catch. Telemetry is strictly POST-compute + fail-soft: a thrown feedOutcome is swallowed (`log.warn` only) and can NEVER alter a verdict or any gate/safety decision (R12 + charlie soul: telemetry observes, never gates). `toOutcomeSignal(result)` is a pure total projection — `mape_delta = before.mape − after.mape` (null unless BOTH accuracy reports exist), `applied` true ONLY for PROMOTED, `provenance` from `result.provenance?.verdict`. `CycleOutcomeSignal` is exported from the engine; the runner `buildLiveDeps` wires `feedOutcome` to a JSONL ledger at `state/shared/quoting/quoting-cycle-outcomes.jsonl` (`DEFAULT_OUTCOME_LEDGER_PATH`, overridable via `outcomeLedgerPath`). The live CLI consumer `scripts/run-quoting-closed-loop-jm-corpus.mjs` inherits it for free.
+
+**Evidence.** +18 tests (engine 56 + runner 24 = 80/80 PASS); tsc clean on all 4 files. 3-of-3 scrutiny PASS (arm A holistic: rename byte-identical, no dropped logic; arm B test-integrity: fail-soft test genuinely fails on contract break, append-not-truncate proven; arm C analyst: no caller broke, exactly-once incl STAGE_FAILED, I/O append-only safe). P2 deferred: ledger rotation (unbounded JSONL growth — mirror `fleet-memory-history.jsonl` 512KB rotation) + a telemetry-failure health surface; P3: explicit STAGE_FAILED-feeds-once test.
+
+**⚠ SHARED-TREE HAZARD recurred (R12 honesty).** Two of [[feedback_no_git_stash_for_test_investigation_2026_05_21]] + [[feedback_shared_tree_absorption_pattern]] failure modes bit this session: (1) I ran `git stash` in `H:/prism` to investigate a STALE `.tsbuildinfo` tsc error (line-286 phantom) — it stashed 20k peer files and the pop CONFLICTED on my 2 tracked files; recovered surgically via `git show "stash@{0}:<path>" > <path>` (no index/lock). (2) My uncommitted engine edits were SWEPT into bravo's commit `b4bdf8f699` before I committed — so the code shipped but my `runCycle <pathspec>` commit reported "no changes" (already in HEAD) and the diff carried no U-ID. Fix: an `--allow-empty` provenance commit recording the U-ID + rationale + sweep note so the close-out/audit chain isn't blind. RE-AFFIRMED doctrine: never `git stash` the shared tree; commit WIP every file; `tsc` phantom errors are usually stale `.tsbuildinfo` (`rm -f tsconfig.tsbuildinfo` before trusting a single-file tsc error). See [[reference_charlie_floor_spike_guard_2026_06_11]] (iter 1, same loop). Queue: NEXT = T9 per-query telemetry counter.

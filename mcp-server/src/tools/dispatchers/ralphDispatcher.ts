@@ -1,7 +1,8 @@
 /**
  * Ralph Dispatcher - Consolidates 3 ralph tools → 1
  * Actions: loop, scrutinize, assess
- * All use LIVE Claude API calls - no simulation
+ * All phases run on the FREE Ollama-first llmEngine substrate (Claude is the
+ * adaptive backup); a no-provider (offline) state fails loud, never simulated.
  * 4 phases: SCRUTINIZE → IMPROVE → VALIDATE → ASSESS
  */
 import { z } from "zod";
@@ -19,25 +20,37 @@ const VALIDATORS = ["SAFETY_AUDITOR", "CODE_REVIEWER", "SPEC_VERIFIER", "FORMULA
 const ACTIONS = ["loop", "scrutinize", "assess"] as const;
 const RALPH_DIR = path.join(PATHS.STATE_DIR, "ralph_loops");
 
-function getApiKey(): string | null {
-  return apiConfig.anthropicApiKey || process.env.ANTHROPIC_API_KEY || null;
-}
-
-async function callClaudeApi(systemPrompt: string, userPrompt: string, model: string = apiConfig.sonnetModel): Promise<string> {
-  const apiKey = getApiKey();
-  if (!apiKey) throw new Error(`ANTHROPIC_API_KEY not set. Add key to ${PATHS.MCP_SERVER}\\.env file.`);
-  log.info(`[ralph] API call: model=${model}, prompt_len=${userPrompt.length}`);
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model, max_tokens: 4096, system: systemPrompt, messages: [{ role: "user", content: userPrompt }] })
+/**
+ * Run one ralph validation/assessment prompt through the shared free-AI substrate
+ * (FREE-AI-MIGRATION/U-RALPH-DISPATCHER-LLM-ROUTE). Was a direct PAID Claude fetch
+ * (api.anthropic.com); now routes through `llmEngine.query` -- Ollama-first (free)
+ * with an adaptive Claude backup on availability + capability, then offline.
+ * `complexity:"high"` because every ralph phase (scrutinize / improve / validate /
+ * assess) is deep critical reasoning -- a weak local answer escalates to the Claude
+ * backup. The caller's `systemPrompt` is preserved via the `system` override.
+ *
+ * R12: ralph's entire purpose is a REAL provider review; an "offline" result is a
+ * generic stub, NOT a valid validation/assessment, so we THROW (the dispatcher's
+ * try/catch surfaces it honestly via dispatcherError) rather than record the stub as
+ * a finding. `_model` is advisory -- the provider is chosen by the ladder.
+ * @param systemPrompt - system prompt
+ * @param userPrompt - user prompt
+ * @param _model - advisory model hint (provider chosen by the ladder)
+ * @returns the provider's answer text
+ */
+export async function callClaudeApi(systemPrompt: string, userPrompt: string, _model: string = apiConfig.sonnetModel): Promise<string> {
+  log.info(`[ralph] LLM call: prompt_len=${userPrompt.length}`);
+  const { llmEngine } = await import("../../engines/LLMEngine.js");
+  const res = await llmEngine.query({
+    prompt: userPrompt,
+    system: systemPrompt,
+    complexity: "high",
+    max_tokens: 4096,
   });
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    throw new Error(`Claude API ${response.status} ${response.statusText} (model=${model}): ${body.slice(0, 200)}`);
+  if (res.model === "offline") {
+    throw new Error("no AI provider available (Ollama down and no Claude backup key) -- ralph requires a real provider; an offline stub is not a valid validation/assessment");
   }
-  const data: any = await response.json();
-  return data.content?.map((b: any) => b.text || "").join("\n") || "No response";
+  return res.answer;
 }
 
 function getValidatorPrompt(validator: string): string {
@@ -62,7 +75,9 @@ async function executeAssessment(content: string, context?: string): Promise<any
   const systemPrompt = "You are a senior manufacturing systems assessor using Claude Opus. Provide comprehensive quality assessment with letter grade (A/B/C/D/F), Ω(x) score, production readiness verdict, and detailed recommendations.";
   const userPrompt = `Assess this content for production readiness:\n\n${content.substring(0, 8000)}\n\n${context ? `Context: ${context}` : ""}\n\nProvide:\n1. Letter grade (A/B/C/D/F)\n2. Component scores: R(reasoning), C(code), P(process), S(safety), L(learning)\n3. Ω(x) = 0.25R + 0.20C + 0.15P + 0.30S + 0.10L\n4. Production readiness: READY / NOT_READY / CONDITIONAL\n5. Key findings and recommendations`;
   const result = await callClaudeApi(systemPrompt, userPrompt, apiConfig.opusModel);
-  return { assessment: result, timestamp: new Date().toISOString(), model: apiConfig.opusModel };
+  // R12 provenance: the real provider is chosen by the llmEngine ladder (Ollama-first, Claude
+  // backup), so report the substrate rather than falsely claiming a specific paid Opus tier.
+  return { assessment: result, timestamp: new Date().toISOString(), model: "llmEngine:ollama-first (claude backup)" };
 }
 
 /** Registers ralph dispatcher.
@@ -72,7 +87,7 @@ async function executeAssessment(content: string, context?: string): Promise<any
 export function registerRalphDispatcher(server: any): void {
   server.tool(
     "prism_ralph",
-    `Execute 4-phase Ralph validation with REAL Claude API calls.\nActions: ${ACTIONS.join(", ")}\n\nloop: Full 4-phase validation (SCRUTINIZE→IMPROVE→VALIDATE→ASSESS)\nscrutinize: Single validator pass\nassess: Standalone Phase 4 assessment with OPUS\n\nAll phases make REAL Claude API calls - no simulation.`,
+    `Execute 4-phase Ralph validation on the FREE Ollama-first llmEngine substrate (Claude is the adaptive backup).\nActions: ${ACTIONS.join(", ")}\n\nloop: Full 4-phase validation (SCRUTINIZE -> IMPROVE -> VALIDATE -> ASSESS)\nscrutinize: Single validator pass\nassess: Standalone Phase 4 assessment\n\nAll phases run on a real provider via llmEngine -- no simulation; a no-provider (offline) state fails loud, never faked.`,
     {
       action: z.enum(ACTIONS).describe("Ralph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters")

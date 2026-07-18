@@ -1,0 +1,12 @@
+# HANDOFF: claude-0413eca6
+Updated: 2026-05-09T19:46:13.646Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-0413eca6
+
+## STATE
+Memory pressure forced compact at 96.6%. Regen chain ran successfully (graph schema 2.7.0, 390 nodes/654 edges, exhaustiveAudit folded with reconciliation 859.20/866.06 GB = 99.2%). Stranded-engine diff complete: 5 candidates analyzed, SolidCAMiMachining REJECTED (already renamed), 4 cleared for promotion. Memory cleanup: zombie reaper found nothing to kill (system already clean — pressure is from active chat heap, not zombies). Tasks #28 in_progress, #29 #30 pending.
+
+## RESUME
+PROCEED with option (a) — promote 4 stranded engines from H:/prism-forge-archive/ to H:/PRISM/mcp-server/src/engines/ ONE AT A TIME, each with dispatcher wiring + tests. Engines (in order): (1) PPMacroFlowValidatorEngine (353 lines, no engine deps — easiest first); (2) PPMachineSpecificPostEngine (259, deps: ControllerDialectEngine + PPControllerAdaptationEngine + PPPhysicsConstraintValidatorEngine — all exist in main); (3) PPMachineVectorEncoderEngine (317, dep: PostProcessorMachineKinematicsEngine — exists); (4) LatheAGICoreEngine (1173, deps: latheAITrainingEngine + latheDeepLearningIntelligenceEngine + latheShopAwareOptimizationEngine — verify all exist). DO NOT promote SolidCAMiMachiningEngine (already shipped as PrismPathConstantEngagementEngine via patent rename in commit f3c2c09a6 — confirmed, do not duplicate). Forge-archive paths: H:/prism-forge-archive/mcp-server/src/engines/<Name>.ts + matching __tests__/<Name>.test.ts. Each promotion: copy engine + test, wire to appropriate dispatcher (likely prism_cam for PP*, prism_turning for LatheAGI), add action enum + schema, run vitest on the engine test, commit as [MAIN] [CAD-FUSION-LIVE-MS0]/U-PROMOTE-FORGE-<NAME>: title. After all 4 promoted, proceed to: (b) reap 4 untracked stale clones (prism-lathe-master, prism-mill-master, prism-ussh, prism-ussh-p2 — confirm not in 'git worktree list' first); (c) propose git gc plan for H:/PRISM/.git (42 GB → ~5 GB).
+
+## CONTEXT
+

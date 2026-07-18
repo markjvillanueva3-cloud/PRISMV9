@@ -1,0 +1,211 @@
+{
+  "id": "PCCA-MS1",
+  "version": "1.0.0",
+  "title": "Skill, Script, and Hook Activation Repair",
+  "brief": "Repair the activation and registry layer so high-value converted assets can actually load and be discovered. Reconcile runtime, docs, and shell layers.",
+  "created_at": "2026-03-30T18:00:00Z",
+  "created_by": "claude-haiku-4-5",
+  "track": "PCCA",
+  "track_name": "PRISM Capability Conversion and Activation",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Activation Infrastructure Repair",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Build skill-reconcile script to repair orphan, phantom, and polluted trigger mappings",
+          "effort": 70,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build skill-reconcile script to repair orphan, phantom, and polluted trigger mappings — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Build script-census and script-registry-sync scripts to align real script surface with public index",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build script-census and script-registry-sync scripts to align real script surface with public index — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build one bundle resolver for task-based loading with deterministic activation order",
+          "effort": 50,
+          "dependencies": [
+            "P0-U01",
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build one bundle resolver for task-based loading with deterministic activation order — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Reconcile TypeScript hooks, shell hooks, and documented hooks via one truth-sync pass",
+          "effort": 60,
+          "dependencies": [
+            "P0-U03"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Reconcile TypeScript hooks, shell hooks, and documented hooks via one truth-sync pass — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Build route/action contract gate for capability claims with early failure on drift",
+          "effort": 50,
+          "dependencies": [
+            "P0-U04"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build route/action contract gate for capability claims with early failure on drift — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "PCCA-MS0"
+  ],
+  "exit_conditions": [
+    "High-value bundles auto-load deterministically",
+    "Script catalog truth matches real script surface",
+    "Hook truth reconciled across docs, runtime, and shell",
+    "Route contract drift fails early"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-prism-capability-conversion-roadmap-design.md",
+  "primary_sources": [
+    "skills-consolidated/SKILLS_AUDIT_2026-02-13.md",
+    "skills-consolidated/TRIGGER_MAP.json",
+    "skills-consolidated/AUTO_SKILL_HOOKS.json",
+    "mcp-server/data/docs/SCRIPT_INDEX.json",
+    "mcp-server/data/docs/HOOK_DEFINITIONS_v20.md"
+  ],
+  "notes": "Injection target: Phase 13 (Final Wiring + Web UI). Must complete before Phase 13 finalizes UI wiring.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pcca-ms1-gate",
+    "mcp_action": "prism_pcca:pcca_ms1_run",
+    "skill_command": "/pcca-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pcca-ms1-gate"
+    ],
+    "new_actions": [
+      "pcca_ms1_run"
+    ],
+    "new_skills": [
+      "/pcca-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Repair the activation and registry layer so high-value converted assets can actually load and be discovered. Reconcile runtime, docs, and shell layers.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

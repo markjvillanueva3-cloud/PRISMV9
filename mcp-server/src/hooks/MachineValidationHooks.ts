@@ -439,6 +439,55 @@ const preMachineCompletenessGate: HookDefinition = {
     const issues: string[] = [];
     const warnings: string[] = [];
 
+    // U-COST-EST-MACHINE-GATE-SCOPE (charlie 2026-06-26): this gate guards machine-PHYSICS calcs
+    // (spindle RPM / power / speed-feed) against unreliable machine data. It must NOT force-block a
+    // machine-AGNOSTIC calculation that never needed a machine. `process_cost` amortizes a default
+    // $/hr rate (machine_rate_per_hour) over a batch -- it does no spindle physics -- yet the gate
+    // hard-blocked it on BOTH /api/v1/cost/estimate AND /api/v1/pipeline/quote whenever no machine was
+    // supplied (verified live on :3100: "INCOMPLETE MACHINE DATA: ... spindle.max_rpm, spindle.power").
+    // The sibling pre-machine-spindle-limits already WARNS-not-blocks when no machine is present (~L93);
+    // this gate was the inconsistent outlier. FIX = an explicit machine-agnostic ACTION allowlist:
+    // skip the gate ONLY for those actions when NO machine was actually selected. NON-WEAKENING:
+    //   - a machine-PHYSICS action (sfc_calculate / job_plan / speed_feed / ...) is NOT in the allowlist
+    //     -> still blocks with no machine (the U-OSC-SFC-PRODUCT-BRIDGE no-machine-blocks contract holds);
+    //   - even a machine-agnostic action STILL blocks if a machine WAS selected but is incomplete
+    //     (the skip requires BOTH the allowlist AND zero machine context).
+    const MACHINE_AGNOSTIC_ACTIONS = new Set([
+      "process_cost", // cost amortization on a $/hr rate -- no spindle physics
+      // U-BRAVO-SFC-COMPONENT-GATE-SCOPE (bravo 2026-06-26): the SFC web component endpoints
+      // (POST /api/v1/sfc/{surface-finish,engagement,deflection,tool-life,power-torque,cycle-time})
+      // compute descriptive physics from material+tool+cut GEOMETRY and resolve NO machine envelope,
+      // yet ALL returned {blocked:"pre-machine-completeness-gate"} live on :3100 -- 6/7 component
+      // panels dead. Same machine-AGNOSTIC class as process_cost. Each is pure physics:
+      "surface_finish",                 // Ra = f^2/(32*r) -- feed + nose radius only
+      "tool_life",                      // Taylor T = (C/Vc)^(1/n) -- speed + material constants only
+      "engagement",                     // geometric arc-of-engagement -- tool dia + radial depth only
+      "deflection",                     // cantilever delta = F*L^3/(3*E*I) -- tool/force/overhang only
+      "power", "power_torque", "torque", // power/torque DEMAND (machine CAPACITY, if a machine is
+                                        //   supplied, is still checked by pre-machine-power-budget)
+      "cycle_time",                     // distance / feedrate -- no spindle physics
+      // adjacent machine-agnostic descriptive physics on the same calc surface:
+      "cutting_force", "mrr", "chip_load", "flow_stress", "thermal", "specific_cutting_energy",
+      "drilling_force", "turning_force", "tapping_torque", "uts_based_force",
+      "helix_angle_force_decomposition", "chip_formation", "chip_diagnose",
+      "piispanen_shear_strain", "zorev_stress_distribution", "thick_shear_zone",
+      "chip_thinning_compensation", "tolerance_analysis", "fit_analysis",
+    ]);
+    const action = String(ctx.operation ?? (ctx.metadata as Record<string, any> | undefined)?.action ?? "");
+    const machineIntended =
+      d.machinePackage !== undefined ||
+      d.machine !== undefined ||
+      d.machine_id !== undefined ||
+      d.machineId !== undefined ||
+      d.confidence !== undefined;
+    if (!machineIntended && MACHINE_AGNOSTIC_ACTIONS.has(action)) {
+      return hookSuccess(
+        preMachineCompletenessGate,
+        `No machine selected and '${action}' is machine-agnostic -- machine-completeness validation skipped`,
+        { data: { machineIntended: false, machineAgnostic: true, action } },
+      );
+    }
+
     // Extract machine package or confidence data
     const pkg = d.machinePackage ?? d.machine ?? {};
     const confidence = pkg.confidence ?? d.confidence ?? {};

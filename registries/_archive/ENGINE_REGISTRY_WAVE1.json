@@ -1,0 +1,2904 @@
+{
+  "version": "1.0.0",
+  "wave": 1,
+  "focus": "PHYSICS",
+  "generatedAt": "2026-01-31T17:31:37.785816",
+  "totalEngines": 121,
+  "byNovelty": {
+    "STANDARD": 32,
+    "ENHANCED": 31,
+    "NOVEL": 28,
+    "INVENTION": 30
+  },
+  "engines": [
+    {
+      "id": "ENG-FORCE-KIENZLE_BASIC",
+      "name": "Kienzle Cutting Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Fc = kc1.1 \u00d7 h^mc \u00d7 b",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-CUT-001",
+        "F-CUT-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-KIENZLE_EXTENDED",
+      "name": "Extended Kienzle with corrections",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Speed, rake, wear corrections",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-CUT-001",
+        "F-CUT-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MERCHANT_SHEAR",
+      "name": "Merchant Shear Plane Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Shear angle analysis",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-OXLEY_PREDICTIVE",
+      "name": "Oxley Predictive Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Strain rate sensitive",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-LEE_SHAFFER",
+      "name": "Lee-Shaffer Slip Line",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Slip line field theory",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MECHANISTIC",
+      "name": "Mechanistic Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Cutting coefficient based",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-FEM_CUTTING",
+      "name": "FEM-based Cutting Simulation",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Finite element analysis",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-KIENZLE_THERMAL",
+      "name": "Kienzle with Thermal Softening",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Temperature-dependent kc",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-CUT-001",
+        "F-CUT-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MERCHANT_BUE",
+      "name": "Merchant with BUE Effects",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Built-up edge consideration",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-OXLEY_JOHNSON_COOK",
+      "name": "Oxley-Johnson-Cook Hybrid",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Combined constitutive",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MECHANISTIC_RUNOUT",
+      "name": "Mechanistic with Runout",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Tool runout effects",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-OBLIQUE_CUTTING",
+      "name": "Oblique Cutting Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "3D chip flow",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-HYBRID_PHYSICS_ML_FORCE",
+      "name": "Hybrid Physics-ML Force Prediction",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Physics-informed neural network",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-REAL_TIME_FORCE_ADAPT",
+      "name": "Real-time Adaptive Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Online learning force prediction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MULTI_MATERIAL_FORCE",
+      "name": "Multi-Material Interface Forces",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Composite/stack cutting",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MICRO_CUTTING_FORCE",
+      "name": "Micro-Cutting Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Size effect integration",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-CRYOGENIC_FORCE",
+      "name": "Cryogenic Cutting Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "LN2/CO2 cooling effects",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-ULTRASONIC_ASSISTED_FORCE",
+      "name": "Ultrasonic-Assisted Cutting Force",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "VAM force reduction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-LASER_ASSISTED_FORCE",
+      "name": "Laser-Assisted Machining Force",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Thermal softening integration",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-PREDICTIVE_FORCE_FIELD",
+      "name": "Predictive Force Field Engine",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "3D force distribution prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-ADAPTIVE_COEFFICIENT_ENGINE",
+      "name": "Self-Calibrating Coefficient Engine",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Auto-tuning kc from sensor data",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-FORCE_FINGERPRINT_ENGINE",
+      "name": "Force Fingerprint Recognition",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Anomaly detection via force signature",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-QUANTUM_FORCE_MODEL",
+      "name": "Quantum-Enhanced Force Prediction",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Quantum computing optimization",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-DIGITAL_TWIN_FORCE",
+      "name": "Digital Twin Force Synchronization",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Real-time model updating",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-FLASH_TEMPERATURE",
+      "name": "Flash Temperature Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Tool-chip interface temp",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-BULK_TEMPERATURE",
+      "name": "Bulk Temperature Distribution",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Average cutting zone temp",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-HEAT_PARTITION",
+      "name": "Heat Partition Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Chip/tool/workpiece distribution",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-MOVING_HEAT_SOURCE",
+      "name": "Moving Heat Source Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Jaeger's solution",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-FINITE_DIFF_THERMAL",
+      "name": "Finite Difference Thermal",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Numerical heat transfer",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-MULTI_ZONE_THERMAL",
+      "name": "Multi-Zone Thermal Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Primary/secondary/tertiary zones",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-TRANSIENT_THERMAL",
+      "name": "Transient Thermal Analysis",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Time-dependent temperature",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-COOLANT_THERMAL",
+      "name": "Coolant Effect Thermal Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Flood/MQL/cryogenic",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-COATING_THERMAL",
+      "name": "Coating Thermal Barrier Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Multi-layer coating effects",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-INTERRUPTED_CUT_THERMAL",
+      "name": "Interrupted Cutting Thermal",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Milling thermal cycles",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-HYBRID_THERMAL_ML",
+      "name": "Hybrid Thermal-ML Prediction",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Physics-informed temperature",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-REAL_TIME_THERMAL_MAP",
+      "name": "Real-time Thermal Mapping",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "IR camera integration",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-CRYOGENIC_THERMAL",
+      "name": "Cryogenic Cooling Thermal Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "LN2 jet cooling analysis",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-MQL_DROPLET_THERMAL",
+      "name": "MQL Droplet Thermal Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Micro-lubrication cooling",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-TOOL_WEAR_THERMAL_COUPLING",
+      "name": "Tool Wear-Thermal Coupling",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Bidirectional modeling",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-PREDICTIVE_THERMAL_FIELD",
+      "name": "Predictive Thermal Field Engine",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "3D temperature prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-THERMAL_DAMAGE_PREDICTOR",
+      "name": "Thermal Damage Prediction Engine",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "White layer/burn prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-ADAPTIVE_COOLING_OPTIMIZER",
+      "name": "Adaptive Cooling Optimization",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Real-time coolant adjustment",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-THERMAL_DIGITAL_TWIN",
+      "name": "Thermal Digital Twin Engine",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Live thermal model sync",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-QUANTUM_THERMAL_SOLVER",
+      "name": "Quantum-Enhanced Thermal Solver",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Fast thermal simulation",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-STABILITY_LOBES",
+      "name": "Stability Lobe Diagram Generator",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Chatter-free zone mapping",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-FRF_ANALYZER",
+      "name": "FRF Analysis Engine",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Frequency response function",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-MODAL_ANALYSIS",
+      "name": "Modal Analysis Engine",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Natural frequencies/modes",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-SDOF_CHATTER",
+      "name": "SDOF Chatter Model",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Single degree of freedom",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-MDOF_CHATTER",
+      "name": "MDOF Chatter Model",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Multi-degree of freedom",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-PROCESS_DAMPING",
+      "name": "Process Damping Model",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Low-speed stability",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-RUNOUT_VIBRATION",
+      "name": "Runout-Induced Vibration",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Tool runout effects",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-VARIABLE_PITCH_STABILITY",
+      "name": "Variable Pitch Stability",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Unequal tooth spacing",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-VARIABLE_HELIX_STABILITY",
+      "name": "Variable Helix Stability",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Helix angle variation",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-THIN_WALL_CHATTER",
+      "name": "Thin-Wall Chatter Model",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Flexible workpiece",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-REAL_TIME_STABILITY",
+      "name": "Real-time Stability Monitoring",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Online chatter detection",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-ADAPTIVE_SPINDLE_SPEED",
+      "name": "Adaptive Spindle Speed Control",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Active chatter avoidance",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-ML_CHATTER_PREDICTION",
+      "name": "ML-Based Chatter Prediction",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Pattern recognition",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-HYBRID_STABILITY_SOLVER",
+      "name": "Hybrid Stability Solver",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Semi-analytical + ML",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-MULTI_TOOL_STABILITY",
+      "name": "Multi-Tool Stability Analysis",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Tool assembly dynamics",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-PREDICTIVE_VIBRATION_FIELD",
+      "name": "Predictive Vibration Field",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "3D vibration mapping",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-ACTIVE_DAMPING_OPTIMIZER",
+      "name": "Active Damping Optimization",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Smart tool holder control",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-CHATTER_FINGERPRINT",
+      "name": "Chatter Fingerprint Engine",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Vibration signature library",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-STABILITY_DIGITAL_TWIN",
+      "name": "Stability Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Real-time stability sync",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-QUANTUM_MODAL_SOLVER",
+      "name": "Quantum Modal Analysis",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Fast eigenvalue computation",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-THEORETICAL_ROUGHNESS",
+      "name": "Theoretical Surface Roughness",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Geometric Ra prediction",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-ACTUAL_ROUGHNESS",
+      "name": "Actual Surface Roughness Model",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "With tool wear effects",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-SURFACE_TEXTURE",
+      "name": "Surface Texture Analysis",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Waviness, roughness, lay",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-RESIDUAL_STRESS",
+      "name": "Residual Stress Prediction",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Machining-induced stress",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-BALL_END_SURFACE",
+      "name": "Ball End Mill Surface Model",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Scallop height/cusp",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-MULTI_AXIS_SURFACE",
+      "name": "Multi-Axis Surface Quality",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "5-axis surface finish",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-VIBRATION_SURFACE",
+      "name": "Vibration-Induced Surface",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Chatter marks prediction",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-THERMAL_SURFACE",
+      "name": "Thermal-Induced Surface Effects",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "White layer, burns",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-ML_SURFACE_PREDICTION",
+      "name": "ML Surface Roughness Prediction",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Multi-factor ML model",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-REAL_TIME_SURFACE_MONITOR",
+      "name": "Real-time Surface Monitoring",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "In-process measurement",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-HYBRID_SURFACE_MODEL",
+      "name": "Hybrid Physics-ML Surface",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Combined prediction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-SURFACE_DIGITAL_TWIN",
+      "name": "Surface Quality Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Live surface prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-ADAPTIVE_SURFACE_OPTIMIZER",
+      "name": "Adaptive Surface Optimization",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Real-time parameter adjust",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-SURFACE_FINGERPRINT",
+      "name": "Surface Fingerprint Engine",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Quality signature matching",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-NANO_SURFACE_PREDICTOR",
+      "name": "Nano-Scale Surface Prediction",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Atomic-level modeling",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-TAYLOR_TOOL_LIFE",
+      "name": "Taylor Tool Life Equation",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "VT^n = C",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-EXTENDED_TAYLOR",
+      "name": "Extended Taylor Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Feed, depth corrections",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-FLANK_WEAR",
+      "name": "Flank Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "VB progression",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-CRATER_WEAR",
+      "name": "Crater Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "KT progression",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-NOTCH_WEAR",
+      "name": "Notch Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Depth-of-cut notching",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-USUI_WEAR",
+      "name": "Usui Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Adhesive/abrasive combined",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-DIFFUSION_WEAR",
+      "name": "Diffusion Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "High-temperature diffusion",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-ABRASIVE_WEAR",
+      "name": "Abrasive Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Hard particle effects",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-COMBINED_WEAR",
+      "name": "Combined Wear Mechanisms",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Multi-mechanism model",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-ML_WEAR_PREDICTION",
+      "name": "ML Tool Wear Prediction",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Pattern-based prediction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-REAL_TIME_WEAR_MONITOR",
+      "name": "Real-time Wear Monitoring",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Sensor-based estimation",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-HYBRID_WEAR_MODEL",
+      "name": "Hybrid Physics-ML Wear",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Combined approach",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-COATING_WEAR_MODEL",
+      "name": "Coating-Specific Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Multi-layer coating wear",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-PREDICTIVE_WEAR_FIELD",
+      "name": "Predictive Wear Field Engine",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "3D wear distribution",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-ADAPTIVE_TOOL_CHANGE",
+      "name": "Adaptive Tool Change Optimizer",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Optimal replacement timing",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-WEAR_FINGERPRINT",
+      "name": "Wear Fingerprint Engine",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Wear pattern recognition",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-DIGITAL_TWIN_WEAR",
+      "name": "Tool Wear Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Real-time wear sync",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-SELF_HEALING_PREDICTION",
+      "name": "Self-Healing Tool Prediction",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Regenerative coating model",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_FORMATION_BASIC",
+      "name": "Basic Chip Formation Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Continuous/discontinuous",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_THICKNESS",
+      "name": "Chip Thickness Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Deformed chip geometry",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_CURL",
+      "name": "Chip Curl Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Curl radius prediction",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_BREAKING",
+      "name": "Chip Breaking Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Natural/forced breaking",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-SEGMENTED_CHIP",
+      "name": "Segmented Chip Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Adiabatic shear bands",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-BUE_FORMATION",
+      "name": "BUE Formation Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Built-up edge dynamics",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_FLOW_3D",
+      "name": "3D Chip Flow Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Oblique cutting chip",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-ML_CHIP_PREDICTION",
+      "name": "ML Chip Form Prediction",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Image-based classification",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-REAL_TIME_CHIP_MONITOR",
+      "name": "Real-time Chip Monitoring",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Vision-based analysis",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_DIGITAL_TWIN",
+      "name": "Chip Formation Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Real-time chip prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-ADAPTIVE_CHIPBREAKER",
+      "name": "Adaptive Chipbreaker Optimizer",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Geometry optimization",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_EVACUATION_PREDICTOR",
+      "name": "Chip Evacuation Predictor",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Clearance analysis",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-TOOL_DEFLECTION",
+      "name": "Tool Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Cantilever beam analysis",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-WORKPIECE_DEFLECTION",
+      "name": "Workpiece Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Flexible part bending",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-FIXTURE_DEFLECTION",
+      "name": "Fixture Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Clamping deformation",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-MACHINE_DEFLECTION",
+      "name": "Machine Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Structural compliance",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-COMBINED_DEFLECTION",
+      "name": "Combined Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "All sources combined",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-DYNAMIC_DEFLECTION",
+      "name": "Dynamic Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Time-varying deflection",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-THERMAL_DEFLECTION",
+      "name": "Thermal Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Temperature-induced",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-REAL_TIME_DEFLECTION",
+      "name": "Real-time Deflection Compensation",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Online correction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-ML_DEFLECTION_PREDICTION",
+      "name": "ML Deflection Prediction",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Learning-based",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-DEFLECTION_DIGITAL_TWIN",
+      "name": "Deflection Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Real-time deflection sync",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-ADAPTIVE_COMPENSATION",
+      "name": "Adaptive Deflection Compensation",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Self-adjusting toolpath",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-PREDICTIVE_ACCURACY",
+      "name": "Predictive Accuracy Engine",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Part accuracy prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    }
+  ]
+}

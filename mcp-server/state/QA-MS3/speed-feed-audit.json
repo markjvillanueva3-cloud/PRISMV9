@@ -1,0 +1,184 @@
+{
+  "unit_id": "P0-U02",
+  "title": "SpeedFeedEngine: recommendation logic + material coverage",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-04-12T16:35:00Z",
+  "status": "PASS",
+  "engine_path": "src/engines/SpeedFeedOrchestratorEngine.ts",
+  "formula_verification": {
+    "cutting_speed_calculation": {
+      "formula": "Vc = Vc_base * coating_factor * insert_grade_factor * coolant_factor * cam_multiplier * geom_derating * grade_factor * cal_factor",
+      "implementation_line": 2194,
+      "verified": true,
+      "notes": "Multi-factor derating/amplification based on context"
+    },
+    "rpm_calculation": {
+      "formula": "RPM = 1000 * Vc / (pi * D)",
+      "implementation_line": 2211,
+      "implementation_code": "let rpm = (1000 * Vc) / (Math.PI * D);",
+      "verified": true,
+      "notes": "Standard speed-to-RPM conversion. Clamped to machine/holder max."
+    },
+    "vc_from_rpm": {
+      "formula": "Vc = pi * D * RPM / 1000",
+      "implementation_line": 2217,
+      "implementation_code": "Vc = (Math.PI * D * rpm) / 1000;",
+      "verified": true,
+      "notes": "Recalculated when RPM is clamped"
+    },
+    "table_feed": {
+      "formula": "Vf = fz * z * RPM",
+      "implementation_line": 2293,
+      "implementation_code": "let Vf = fz * z * rpm;",
+      "verified": true,
+      "notes": "Standard table feed calculation"
+    },
+    "feed_per_tooth": {
+      "formula": "fz = D * 0.01 (roughing) or D * 0.005 (finishing)",
+      "implementation_lines": [2277, 2279],
+      "verified": true,
+      "notes": "Heuristic base fz scaled by diameter, modified by CAM and TIR factors"
+    }
+  },
+  "material_coverage": {
+    "canonical_material_db": {
+      "source": "src/physics/constants.ts",
+      "count": 13,
+      "materials": [
+        "steel", "alloy_steel", "tool_steel",
+        "stainless_304", "stainless_316",
+        "cast_iron", "ductile_iron",
+        "aluminum_6061", "aluminum_7075", "brass",
+        "titanium_gr5", "inconel_718", "copper"
+      ]
+    },
+    "material_registry": {
+      "source": "src/registries/MaterialRegistry.ts",
+      "count": "1,662+",
+      "note": "Dynamic loading from registry"
+    },
+    "total_coverage": "1,675+ materials",
+    "coverage_percentage": "Comprehensive for common engineering materials"
+  },
+  "material_resolution_logic": {
+    "step_1": {
+      "method": "fuzzy_match",
+      "confidence": 0.85,
+      "description": "Fuzzy match user input against known material names"
+    },
+    "step_2": {
+      "method": "iso_group_mapping",
+      "confidence": 0.85,
+      "description": "Map ISO group (P/M/K/N/S/H) to representative material"
+    },
+    "step_3": {
+      "method": "material_registry_search",
+      "confidence": 0.85,
+      "description": "Search MaterialRegistry for unknown materials"
+    },
+    "step_4_fallback": {
+      "method": "default_steel",
+      "confidence": 0.30,
+      "description": "Fall back to steel with low confidence if nothing matches"
+    },
+    "fallback_behavior_verified": true
+  },
+  "derating_factors": {
+    "coating": {
+      "source": "COATING_DB",
+      "range": "1.0-2.0",
+      "verified": true
+    },
+    "insert_grade": {
+      "source": "GRADE_SPEED_FACTORS",
+      "range": "1.0-1.15",
+      "verified": true
+    },
+    "coolant": {
+      "source": "resolveCoolant()",
+      "range": "0.7-1.2",
+      "verified": true
+    },
+    "cam_strategy": {
+      "source": "resolveCAMStrategy()",
+      "range": "0.8-1.5",
+      "verified": true
+    },
+    "geometry": {
+      "thin_wall": 0.80,
+      "long_reach": 0.85,
+      "verified": true
+    }
+  },
+  "safety_features": {
+    "rpm_clamping": {
+      "implemented": true,
+      "line": 2213,
+      "description": "RPM clamped to min(machine_max, holder_max)"
+    },
+    "vc_floor": {
+      "implemented": true,
+      "line": 2203,
+      "formula": "vcFloor = vcBase * (roughing ? 0.23 : 0.30)",
+      "description": "Prevents unrealistically low cutting speeds"
+    },
+    "dn_bearing_limit": {
+      "implemented": true,
+      "line": 2266,
+      "limit": 2000000,
+      "description": "Warns when RPM * bore_diameter exceeds DN limit"
+    },
+    "gear_range_clamping": {
+      "implemented": true,
+      "lines": [2226, 2248],
+      "description": "Clamps RPM to valid gear ranges when provided"
+    },
+    "fz_clamping": {
+      "implemented": true,
+      "line": 2282,
+      "range": "[0.01, 0.5] mm/tooth",
+      "description": "Prevents extreme feed values"
+    }
+  },
+  "integration_points": {
+    "count": 67,
+    "key_integrations": [
+      "MonteCarloEngine",
+      "StochasticToolLifeEngine",
+      "MachiningPlaybookEngine",
+      "MaterialRegistry",
+      "CANONICAL_MATERIAL_DB",
+      "CANONICAL_KIENZLE",
+      "CANONICAL_TAYLOR",
+      "machine-torque-curves",
+      "TribalKnowledgeEngine"
+    ]
+  },
+  "atomic_value_compliance": {
+    "all_outputs_wrapped": true,
+    "confidence_tracked": true,
+    "source_documented": true,
+    "outputs_checked": [
+      "cutting_speed_mpm",
+      "rpm",
+      "feed_per_tooth_mm",
+      "table_feed_mmpm",
+      "axial_depth_mm",
+      "radial_depth_mm"
+    ]
+  },
+  "literature_references": [
+    "Standard machining handbook speed/feed relationships",
+    "Sandvik Coromant General Turning Guide",
+    "ISO 513 insert classification"
+  ],
+  "findings": [],
+  "recommendations": [],
+  "score": {
+    "correctness": 1.0,
+    "completeness": 1.0,
+    "safety": 1.0,
+    "performance": 1.0,
+    "overall": 1.0
+  }
+}

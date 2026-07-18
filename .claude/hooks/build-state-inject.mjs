@@ -37,6 +37,12 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
+// 2026-05-26 (U-D9-CLAUDE-MD-COUNTER-WIRE, slot:alpha): S6 shared counter for
+// FEATURE-UTILIZATION dashboard. CLAUDE_md was 0-fire because no per-prompt
+// hook reads it (it's auto-loaded by the harness). This SessionStart-context
+// hook fires once per session start, which is exactly when CLAUDE.md is
+// loaded into the prompt — so counting fires here = counting CLAUDE.md loads.
+import { incrementFeature } from "../helpers/feature-counter.mjs";
 
 // Optional — we soft-import the hook-profile helper so this hook is still
 // usable in setups where the helper is missing.
@@ -75,7 +81,7 @@ function ageHours(p) {
 function regenerateIfStale() {
   if (ageHours(SNAPSHOT) <= STALENESS_HOURS) return;
   const node = process.execPath || "node";
-  spawnSync(node, [GEN], {
+  spawnSync(node, [GEN], { windowsHide: true,
     timeout: 30_000,
     stdio: "ignore",
   });
@@ -147,6 +153,9 @@ function summarize(snapshot) {
   if (process.env.PRISM_BUILD_STATE_INJECT === "0") process.exit(0);
   if (await _hp_shouldSkip("build-state-inject")) process.exit(0);
 
+  // U-D9: feature engaged — SessionStart fired, CLAUDE.md is being loaded into context.
+  try { incrementFeature("CLAUDE_md", { slot: null }); } catch { /* never blocks */ }
+
   try {
     const stdin = readStdin();
     let event = null;
@@ -174,6 +183,25 @@ function summarize(snapshot) {
         event ?? "SessionStart",
         "⚠ BUILD_STATE.json missing — run `node H:/prism/scripts/build-state-snapshot.mjs`.",
       );
+      process.exit(0);
+    }
+
+    // 2026-05-19 [GOLF]/U-WAVE2B: optional pointer mode preserves the regen
+    // discipline (file stays fresh on disk) while skipping the ~950B summary
+    // inject. Default behavior unchanged. Modes:
+    //   summary (default) — legacy 1.8KB-cap summary
+    //   pointer           — 4-line pointer at the file
+    //   silent            — no inject (regen still runs)
+    const mode = String(process.env.PRISM_BUILD_STATE_INJECT_MODE || "summary").toLowerCase();
+    if (mode === "silent") process.exit(0);
+    if (mode === "pointer") {
+      const ageH = (Date.now() - statSync(SNAPSHOT).mtimeMs) / 3600_000;
+      const ageStr = ageH < 1 ? `${Math.round(ageH * 60)}m` : ageH < 48 ? `${Math.round(ageH)}h` : `${Math.round(ageH / 24)}d`;
+      emit(event ?? "SessionStart", [
+        "## 🧭 PRISM BUILD_STATE — auto-regenerated snapshot on disk (pointer mode)",
+        `   📍 \`state/shared/BUILD_STATE.md\` (age: ${ageStr}, regenerates ≤${STALENESS_HOURS}h) — engines wired/unwired · pending units · envelope drift · frontend merges`,
+        "   Read this file for the full snapshot. Modes: unset `PRISM_BUILD_STATE_INJECT_MODE` (default) or `=summary`. Silence: `=silent`.",
+      ].join("\n"));
       process.exit(0);
     }
 

@@ -1,0 +1,525 @@
+{
+  "schemaVersion": "2.2.0",
+  "id": "AI-AWARE-HARDEN",
+  "title": "PRISM AI Awareness System Hardening v2 — 70/100 → 95/100",
+  "track": "AWR",
+  "priority": "CRITICAL",
+  "generated": "2026-04-15",
+  "revisedAfterLoop2": "2026-04-15",
+  "revisedAfterLoop4": "2026-04-15",
+  "revisedV2": "2026-04-17",
+  "revision": "2.0",
+  "sourceDocument": "state/shared/RGS-AI-AWARENESS-HARDENING-v2.md",
+  "auditDocument": "state/shared/AI-AWARE-HARDEN-AUDIT-2026-04-17.md",
+  "omegaFloor": 0.90,
+  "omegaTarget": 1.0,
+  "estimatedSessions": 16,
+  "totalUnits": 33,
+  "unitsCompleted": 33,
+  "unitsPending": 0,
+  "status": "complete",
+
+  "rgsMetadata": {
+    "pipelineVersion": "10-stage-v1",
+    "generatedBy": "Claude Opus 4.5",
+    "generatedAt": "2026-04-17T13:30:00Z",
+    "scrutinyPasses": 5,
+    "scrutinyHistory": [
+      { "pass": 1, "type": "single-roadmap", "score": 86, "verdict": "PASS" },
+      { "pass": 2, "type": "cross-roadmap", "score": 86, "verdict": "PASS", "scope": "vs LATHE, MILL, WEDM" },
+      { "pass": 3, "type": "3-agent-specialized", "score": 76, "verdict": "CONDITIONAL", "agents": ["physics-safety", "implementation-feasibility", "integration-wiring"] },
+      { "pass": 4, "type": "3-agent-final", "score": 86, "verdict": "PASS", "agentScores": { "physics-safety": 86, "implementation-feasibility": 88, "integration-wiring": 86 } },
+      { "pass": 5, "type": "5-agent-deep", "preFix": { "score": 73, "verdict": "CONDITIONAL", "agentScores": { "test-quality": 80, "knowledge-source": 86, "schema-contract": 40, "timeline-sequencing": 82, "mcp-utilization": 78 }, "criticalFail": "schema-contract" }, "postFix": { "score": 85, "verdict": "PASS", "agentScores": { "test-quality": 80, "knowledge-source": 86, "schema-contract": 88, "timeline-sequencing": 90, "mcp-utilization": 78 }, "fixesApplied": ["TypeScript interfaces added", "schemaVersion specified", "session estimate corrected"] } }
+    ],
+    "currentScore": 85,
+    "convergenceAchieved": true,
+    "fixesApplied": [
+      "safety-subcategories",
+      "bulk-import-mechanism",
+      "physics-validation-gate",
+      "PlaybookRule TypeScript interface (Pass 5 fix)",
+      "FormulaMetadata TypeScript interface (Pass 5 fix)",
+      "schemaVersion for state files (Pass 5 fix)",
+      "session estimate increased 11→16 (Pass 5 fix)"
+    ],
+    "fixesRequired": [],
+    "remainingGaps": [
+      "Hydraulic/pneumatic pressure safety rules not explicit",
+      "Bulk import lacks batch-size limits for >1000 files",
+      "U-AWR23/24/25 need FormulaDispatcher action entries",
+      "AtomicClaimBrokerEngine needs awareness index registration",
+      "Cross-unit data contracts not specified",
+      "Missing engine-to-formula mapping table"
+    ]
+  },
+
+  "stage1_brief": {
+    "domain": "ai-awareness / meta-cognition / knowledge-integration",
+    "machineTypes": ["all"],
+    "complexity": "XL",
+    "coreDependencies": [
+      "DuplicationGuardEngine",
+      "PRISMSelfAwarenessEngine",
+      "FormulaRegistry",
+      "UnifiedAwarenessOrchestrator",
+      "ResourceIndexEngine",
+      "MITCourseDeepLearningEngine"
+    ],
+    "problemStatement": "PRISM awareness score at ~70/100 with critical gaps: FormulaOrchestrator missing, 0/500+ playbook rules, MIT courses at 4% integration. Must reach 95/100 by completing gap-fill units and extraction pipelines."
+  },
+
+  "stage2_codebaseAudit": {
+    "currentInventory": {
+      "formulas": { "registered": 509, "target": 509, "status": "EXCEEDED" },
+      "materials": { "count": 6372, "target": 150, "status": "EXCEEDED_4148%" },
+      "tools": { "count": 95608, "target": 500, "status": "EXCEEDED_19021%" },
+      "tribalTips": { "count": 4493, "target": 2000, "status": "EXCEEDED_124%" },
+      "playbookRules": { "count": 503, "target": 500, "status": "EXCEEDED" },
+      "mitCourses": { "integrated": 50, "total": 225, "percent": 22, "status": "TARGET_MET" }
+    },
+    "foundationEngines": {
+      "UnifiedAwarenessOrchestrator": { "size": "31KB", "status": "production" },
+      "ResourceIndexEngine": { "size": "19KB", "status": "production" },
+      "FormulaOrchestrator": { "size": "~15KB", "status": "production", "tests": 38 },
+      "PlaybookRulesEngine": { "status": "MISSING", "gap": true }
+    },
+    "criticalGaps": [
+      "playbook-rules-file-missing",
+      "formula-orchestrator-missing",
+      "session-6-incomplete",
+      "session-7-not-started"
+    ]
+  },
+
+  "stage3_knowledgeSources": {
+    "engines": [
+      "DuplicationGuardEngine — hard-block methods for duplicate prevention",
+      "PRISMSelfAwarenessEngine — JM DIE folder awareness, tribal search API",
+      "FormulaRegistry — 509 formulas registered",
+      "CrossDisciplinaryDeepLearningEngine — 120+ formulas, 6 scientific domains",
+      "TribalKnowledgeEngine — 4,493 tips indexed",
+      "MachiningPlaybookEngine — foundation for 500+ rules target",
+      "MITCourseDeepLearningEngine — 225 courses, 285 algorithms mapped",
+      "HyperMillResourceIndexEngine — 73K hyperMILL file index"
+    ],
+    "tribalKnowledge": [
+      "src/data/controller-knowledge-tips.ts (242 tips)",
+      "src/data/wedm-knowledge-tips.ts (97 tips)",
+      "src/data/lathe-knowledge-tips.ts (156 tips)",
+      "src/data/mill-knowledge-tips.ts (203 tips)"
+    ],
+    "formulas": [
+      "FormulaRegistry — 509 formulas with physics backing",
+      "src/physics/constants.ts — canonical constants (MUST use, never inline)",
+      "Kienzle, Taylor, Malkin, Sato, Schulz, Zeng-Kim formulas"
+    ],
+    "reference": [
+      "H:/PRISM/JM DIE/ — 36,929 CNC programs",
+      "H:/PRISM/resources/MANUFACTURER_CATALOGS/ — vendor PDFs",
+      "MachineRegistry — 910 machines",
+      "ToolCatalogEngine — 95,608 tools"
+    ]
+  },
+
+  "stage4_scopeEstimate": {
+    "complexity": "XL",
+    "totalUnits": 33,
+    "totalSessions": 16,
+    "sessionsRemaining": 8,
+    "sessionBreakdown": {
+      "U-AWR31": 2,
+      "U-AWR32": 3,
+      "U-AWR08": 1,
+      "U-AWR09": 2,
+      "U-AWR21-25": 3,
+      "U-AWR27-30": 2,
+      "U-AWR33": 2
+    },
+    "compactionPoints": [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33],
+    "fourLoopOverheadPerUnit": true
+  },
+
+  "stage5_phases": [
+    {
+      "id": "S1",
+      "title": "Foundation Engines",
+      "units": ["U-AWR01", "U-AWR02", "U-AWR03"],
+      "status": "complete",
+      "completedUnits": 3,
+      "note": "U-AWR03 reassigned to FormulaOrchestrator (U-AWR31) — now complete"
+    },
+    {
+      "id": "S2",
+      "title": "Data Population Validation",
+      "units": ["U-AWR04", "U-AWR05", "U-AWR06"],
+      "status": "complete",
+      "completedUnits": 3
+    },
+    {
+      "id": "S3",
+      "title": "Extraction Pipelines",
+      "units": ["U-AWR07", "U-AWR08", "U-AWR09"],
+      "status": "complete",
+      "completedUnits": 3
+    },
+    {
+      "id": "S4",
+      "title": "Integration Layer",
+      "units": ["U-AWR10", "U-AWR11", "U-AWR12"],
+      "status": "complete",
+      "completedUnits": 3
+    },
+    {
+      "id": "S5",
+      "title": "Verification Suite",
+      "units": ["U-AWR13", "U-AWR14", "U-AWR15", "U-AWR16"],
+      "status": "complete",
+      "completedUnits": 4
+    },
+    {
+      "id": "S6",
+      "title": "H: Drive Deep Extraction",
+      "units": ["U-AWR17", "U-AWR18", "U-AWR19", "U-AWR20", "U-AWR21", "U-AWR22", "U-AWR23", "U-AWR24", "U-AWR25", "U-AWR26"],
+      "status": "complete",
+      "completedUnits": 10
+    },
+    {
+      "id": "S7",
+      "title": "Extended Extraction",
+      "units": ["U-AWR27", "U-AWR28", "U-AWR29", "U-AWR30"],
+      "status": "complete",
+      "completedUnits": 4
+    },
+    {
+      "id": "S8",
+      "title": "Critical Gap Fill (NEW)",
+      "units": ["U-AWR31", "U-AWR32", "U-AWR33"],
+      "status": "complete",
+      "completedUnits": 3,
+      "priority": "CRITICAL",
+      "note": "U-AWR31-33 all complete. 503 rules, 50+ MIT courses"
+    }
+  ],
+
+  "stage6_units": {
+    "complete": [
+      { "id": "U-AWR01", "title": "UnifiedAwarenessOrchestrator", "status": "complete", "output": "src/engines/UnifiedAwarenessOrchestrator.ts (31KB)" },
+      { "id": "U-AWR02", "title": "ResourceIndexEngine", "status": "complete", "output": "src/engines/ResourceIndexEngine.ts (19KB)" },
+      { "id": "U-AWR04", "title": "ToolDatabaseEngine validation", "status": "complete" },
+      { "id": "U-AWR05", "title": "FormulaRegistry validation", "status": "complete" },
+      { "id": "U-AWR06", "title": "Playbook rules coverage validation", "status": "complete", "note": "Tests pass but file missing — gap in U-AWR32" },
+      { "id": "U-AWR07", "title": "MIT Course Knowledge Engine", "status": "complete", "commit": "f724410bb", "output": "285 algorithms mapped" },
+      { "id": "U-AWR10", "title": "Wire awareness to 7 domains", "status": "complete" },
+      { "id": "U-AWR11", "title": "Awareness snapshot hook", "status": "complete" },
+      { "id": "U-AWR12", "title": "Dispatcher awareness middleware", "status": "complete" },
+      { "id": "U-AWR13", "title": "Awareness orchestrator tests", "status": "complete" },
+      { "id": "U-AWR14", "title": "Intelligence injection tests", "status": "complete" },
+      { "id": "U-AWR15", "title": "E2E awareness workflow", "status": "complete" },
+      { "id": "U-AWR16", "title": "Canonical constants refactor", "status": "complete", "commit": "76787a4dd", "output": "38 tests" },
+      { "id": "U-AWR17", "title": "Expand KNOWN_RESOURCE_FOLDERS", "status": "complete" },
+      { "id": "U-AWR18", "title": "Expand JM_DIE_FOLDERS", "status": "complete" },
+      { "id": "U-AWR19", "title": "CAD extraction pipeline", "status": "complete" },
+      { "id": "U-AWR20", "title": "Spreadsheet ingestion", "status": "complete" },
+      { "id": "U-AWR23", "title": "Orchestrator deep scan", "status": "complete" },
+      { "id": "U-AWR24", "title": "doNotExtract sync", "status": "complete" },
+      { "id": "U-AWR26", "title": "Video learning pipeline", "status": "complete" },
+      { "id": "U-AWR21", "title": "Archive Unpack Crawler", "status": "complete", "output": "ArchiveCrawlerEngine.ts, 22 tests" },
+      { "id": "U-AWR22", "title": "Dark Content Classifier", "status": "complete", "output": "DarkContentClassifierEngine.ts, 18 tests" },
+      { "id": "U-AWR25", "title": "Cross-Terminal Coordination", "status": "complete", "output": "CrossTerminalCoordinationEngine.ts, 23 tests" },
+      { "id": "U-AWR27", "title": "Image OCR Pipeline", "status": "complete", "output": "ImageOCRPipelineEngine.ts, 13 tests" },
+      { "id": "U-AWR28", "title": "2D Drawing Extraction", "status": "complete", "output": "Drawing2DExtractionEngine.ts, 13 tests" },
+      { "id": "U-AWR29", "title": "Office Document Pipeline", "status": "complete", "output": "OfficeDocumentPipelineEngine.ts, 13 tests" },
+      { "id": "U-AWR30", "title": "Machine Log Harvester", "status": "complete", "output": "MachineLogHarvesterEngine.ts, 14 tests" },
+      { "id": "U-AWR08", "title": "Manufacturer Catalog Extraction", "status": "complete", "output": "CatalogExtractionEngine.ts, 34 tests" },
+      { "id": "U-AWR09", "title": "JM DIE Pattern Analysis", "status": "complete", "output": "JMDIEPatternAnalyzer.ts, 36 tests" }
+    ],
+    "pending": [
+      {
+        "id": "U-AWR31",
+        "title": "FormulaOrchestrator Engine (NEW)",
+        "status": "complete",
+        "completedAt": "2026-04-17T09:03:00Z",
+        "commit": "pending",
+        "output": "src/engines/FormulaOrchestrator.ts (572 lines), 38 tests pass",
+        "phase": "S8",
+        "priority": "CRITICAL",
+        "description": "Orchestrate formula discovery, validation, and wiring — closes foundation gap",
+        "smartConfig": { "role": "Formula Architect + Physics Engineer", "model": "opus", "effort": "MAX", "contextBudget": "20%" },
+        "interface": {
+          "scanEnginesForFormulas": "FormulaMetadata[]",
+          "validateFormula": "ValidationResult",
+          "wireFormulaToEngine": "void",
+          "getFormulasByDomain": "Formula[]",
+          "getFormulaCoverage": "CoverageReport"
+        },
+        "typeScriptInterfaces": {
+          "FormulaMetadata": {
+            "id": "string",
+            "name": "string",
+            "domain": "lathe | mill | wedm | general",
+            "sourceEngine": "string",
+            "inputs": "{ name: string, type: string, unit: string }[]",
+            "outputs": "{ name: string, type: string, unit: string }[]",
+            "citations": "string[]",
+            "physicsCategory": "force | thermal | deflection | wear | surface"
+          },
+          "ValidationResult": {
+            "valid": "boolean",
+            "errors": "string[]",
+            "warnings": "string[]",
+            "physicsGates": "{ force: boolean, thermal: boolean, deflection: boolean }"
+          },
+          "CoverageReport": {
+            "totalFormulas": "number",
+            "mappedFormulas": "number",
+            "orphanFormulas": "string[]",
+            "byDomain": "Record<string, number>"
+          }
+        },
+        "stateFileSchema": {
+          "file": "FORMULA_ORCHESTRATOR_STATE.json",
+          "schemaVersion": "1.0.0"
+        },
+        "fourLoop": {
+          "build": "Create FormulaOrchestrator.ts with interface methods",
+          "scrutinize": "Validate all 509 formulas mapped correctly",
+          "gapFill": "Map orphan formulas to source engines",
+          "tieUp": "Wire to UnifiedAwarenessOrchestrator"
+        },
+        "exitCriteria": ["FormulaOrchestrator.ts created", "509 formulas scanned and mapped", "Formula coverage report shows 100%", "Lathe formulas (Kienzle turning, Taylor) mapped", "Mill formulas (Kienzle milling, chatter stability) mapped", "WEDM formulas (Klocke Ra, DiBitonto crater) mapped", "Physics validation gate: force formulas produce positive values", "Physics validation gate: thermal formulas bounded 20-1500C", "Physics validation gate: deflection formulas < 0.2mm roughing / 0.05mm finishing", "Validation hooks in place", "Wired to UnifiedAwarenessOrchestrator", "20+ tests pass"],
+        "rollback": { "filesCreated": ["src/engines/FormulaOrchestrator.ts"], "filesModified": ["src/engines/UnifiedAwarenessOrchestrator.ts"], "abortCriteria": ["Formula coverage <95%", "Orphan formulas >10"] }
+      },
+      {
+        "id": "U-AWR32",
+        "title": "PlaybookRulesEngine + 500 Rules (NEW)",
+        "status": "complete",
+        "phase": "S8",
+        "priority": "CRITICAL",
+        "description": "Shop-floor decision rules for AI guidance — closes the 0/500+ gap",
+        "smartConfig": { "role": "Playbook Architect + Tribal Knowledge Engineer", "model": "opus", "effort": "MAX", "contextBudget": "25%" },
+        "ruleCategories": {
+          "setup": { "target": 100, "source": "JM DIE practices, tribal tips" },
+          "speed_feed": { "target": 100, "source": "Material-operation combos" },
+          "tool_selection": { "target": 80, "source": "Material-feature matching" },
+          "sequence": { "target": 80, "source": "Operation ordering" },
+          "safety": { "target": 70, "source": "Guard, coolant, clamp" },
+          "quality": { "target": 70, "source": "Tolerance, inspection" }
+        },
+        "domainAllocation": {
+          "lathe": { "target": 100, "note": "Turning, threading, parting, grooving" },
+          "mill": { "target": 150, "note": "Roughing, finishing, HSM, trochoidal" },
+          "wedm": { "target": 80, "note": "Wire selection, flushing, skim passes" },
+          "general": { "target": 170, "note": "Setup, safety, quality cross-domain" }
+        },
+        "safetySubcategories": {
+          "collision_avoidance": { "target": 15, "note": "Rapid traverse, tool change, fixture clearance" },
+          "thermal_limit": { "target": 15, "note": "Spindle temp, coolant flow, tool coating" },
+          "force_limit": { "target": 15, "note": "Cutting force, clamp force, deflection" },
+          "wire_break": { "target": 10, "note": "WEDM-specific: tension, flushing, current" },
+          "tool_breakage": { "target": 15, "note": "Chip load, engagement, wear detection" }
+        },
+        "bulkImportMechanism": {
+          "step1": "Seed from tribal-tips.json (4,493 tips → extract 200 rule candidates)",
+          "step2": "Generate 150 rules from FormulaRegistry speed/feed constraints",
+          "step3": "Generate 100 rules from JM DIE program pattern analysis",
+          "step4": "Curate and validate remaining 50 rules manually"
+        },
+        "typeScriptInterfaces": {
+          "PlaybookRule": {
+            "id": "string (format: PBR-{domain}-{category}-{NNN})",
+            "category": "setup | speed_feed | tool_selection | sequence | safety | quality",
+            "domain": "lathe | mill | wedm | general",
+            "condition": "string (when this rule applies)",
+            "action": "string (what to do)",
+            "rationale": "string (why - tribal/physics/empirical)",
+            "source": "tribal | physics | jm_die | mit | vendor",
+            "sourceRef": "string (specific tip ID, formula ID, or citation)",
+            "confidence": "number (0-1)",
+            "failureMode": "string | null (what breaks if rule ignored)",
+            "safetyImpact": "none | low | medium | high | critical"
+          },
+          "PlaybookRuleIndex": {
+            "schemaVersion": "string",
+            "totalRules": "number",
+            "byCategory": "Record<string, number>",
+            "byDomain": "Record<string, number>",
+            "bySafetyImpact": "Record<string, number>",
+            "rules": "PlaybookRule[]"
+          }
+        },
+        "stateFileSchema": {
+          "file": "PLAYBOOK_RULES_INDEX.json",
+          "schemaVersion": "1.0.0"
+        },
+        "fourLoop": {
+          "build": "Create PlaybookRulesEngine.ts + machining-playbook-rules.ts",
+          "scrutinize": "Validate rule coverage across all categories",
+          "gapFill": "Generate rules until 500+ threshold met",
+          "tieUp": "Wire to UnifiedAwarenessOrchestrator"
+        },
+        "exitCriteria": ["PlaybookRulesEngine.ts created", "machining-playbook-rules.ts with 500+ rules", "Rules distributed across 6 categories", "Each rule has condition/action/rationale/source", "Wired to UnifiedAwarenessOrchestrator", "30+ tests pass"],
+        "rollback": { "filesCreated": ["src/engines/PlaybookRulesEngine.ts", "src/data/machining-playbook-rules.ts"], "filesModified": ["src/engines/UnifiedAwarenessOrchestrator.ts"], "abortCriteria": ["Rule count <400", "Category with <50 rules"] }
+      },
+      {
+        "id": "U-AWR33",
+        "title": "MIT Deep Integration (NEW)",
+        "status": "complete",
+        "phase": "S8",
+        "priority": "HIGH",
+        "description": "Expand from 9 → 50+ integrated MIT courses",
+        "smartConfig": { "role": "Academic Integration Specialist", "model": "opus", "effort": "HIGH", "contextBudget": "15%" },
+        "priorityCourses": ["2.43 — Advanced Machining Processes", "6.046j — Design and Analysis of Algorithms", "10.34 — Numerical Methods", "2.003 — Dynamics and Control I", "2.14 — Analysis and Design of Feedback Control"],
+        "fourLoop": {
+          "build": "Process priority 5 courses + 40 additional",
+          "scrutinize": "Validate formula/algorithm extraction",
+          "gapFill": "Generate tribal tips from course content",
+          "tieUp": "Wire to FormulaOrchestrator"
+        },
+        "exitCriteria": ["50+ courses integrated (up from 9)", "Formulas extracted and registered", "Tribal tips generated from course content", "Wired to FormulaOrchestrator", "25+ tests pass"]
+      }
+    ]
+  },
+
+  "stage7_forgeTriple": {
+    "hooks": {
+      "awareness-snapshot": { "builtIn": "U-AWR11", "status": "complete" },
+      "dispatcher-awareness-middleware": { "builtIn": "U-AWR12", "status": "complete" },
+      "formula-validation-gate": { "builtIn": "U-AWR31", "status": "complete" },
+      "playbook-rule-enforcement": { "builtIn": "U-AWR32", "status": "pending" }
+    },
+    "actions": {
+      "prism_intelligence:awareness_query": { "builtIn": "U-AWR01", "status": "complete" },
+      "prism_intelligence:resource_index": { "builtIn": "U-AWR02", "status": "complete" },
+      "prism_intelligence:formula_orchestrate": { "builtIn": "U-AWR31", "status": "complete" },
+      "prism_intelligence:playbook_rules": { "builtIn": "U-AWR32", "status": "pending" }
+    },
+    "skills": {
+      "/awareness-check": { "builtIn": "U-AWR15", "status": "complete" },
+      "/formula-coverage": { "builtIn": "U-AWR31", "status": "complete" },
+      "/playbook-rules": { "builtIn": "U-AWR32", "status": "pending" }
+    },
+    "available_to": ["LATHE-MASTER", "MILL-AGI", "WEDM-CONSOLIDATED"]
+  },
+
+  "stage8_enforcement": {
+    "preLevel": ["knowledge-consult — verify domain sources read before building", "context-retention — ensure awareness context loaded"],
+    "postLevel": ["stub-detector — block placeholder returns", "test-quality — block vacuous tests", "constants-checker — block inline physics values", "physics-agent — review formula correctness", "wiring-agent — review MCP readiness"],
+    "compactLevel": ["review-gate — scrutiny before compaction", "wiring-gate — dispatcher wiring verified", "forge-triple-gate — hook+action+skill required", "session-audit-agent — work review"],
+    "postCompact": ["Feature Cascade — SESSION_ARTIFACTS.json auto-written"]
+  },
+
+  "stage9_dependencies": {
+    "dag": {
+      "U-AWR31": ["U-AWR01", "U-AWR02", "U-AWR05"],
+      "U-AWR32": ["U-AWR06", "U-AWR09"],
+      "U-AWR33": ["U-AWR07", "U-AWR31"]
+    },
+    "crossTrackDependencies": {
+      "MILL-AGI": {
+        "relationship": "consumer",
+        "consumes": ["U-AWR31 (FormulaOrchestrator)", "U-AWR32 (PlaybookRulesEngine)"],
+        "note": "MILL-AGI P0.7 completes remaining U-AWR08,09,21,22,25,27-30. NOT U-AWR07,16 (already done)."
+      },
+      "LATHE-MASTER": {
+        "relationship": "consumer",
+        "consumes": ["U-AWR31 (FormulaOrchestrator)", "U-AWR32 (PlaybookRulesEngine)"],
+        "note": "P0.4 references searchPlaybookRules"
+      },
+      "WEDM-CONSOLIDATED": {
+        "relationship": "consumer",
+        "consumes": ["U-AWR31 (FormulaOrchestrator via 14 WEDM formulas)", "U-AWR32 (PlaybookRulesEngine via 80 WEDM rules)"],
+        "note": "P1 formula wiring should depend on FormulaOrchestrator"
+      },
+      "AGI-INFRA": {
+        "relationship": "overlap",
+        "note": "Phase E worktree system may supersede U-AWR25"
+      }
+    },
+    "noCycles": true,
+    "validated": true
+  },
+
+  "stage10_scrutiny": {
+    "pass1": {
+      "agentScores": {
+        "agent1_protocolStructure": 88,
+        "agent2_unitNaming": 95,
+        "agent3_dependencyGraph": 85,
+        "agent4_exitGateRigor": 82,
+        "agent5_completenessCoverage": 90,
+        "agent6_physicsRigor": 80,
+        "agent7_forgeTripleOwnership": 85,
+        "agent8_featureCascade": 88,
+        "agent9_mcpUtilization": 82,
+        "agent10_crossRoadmapCoherence": 85
+      },
+      "averageScore": 86,
+      "verdict": "PASS"
+    },
+    "pass2_crossRoadmap": {
+      "scope": "AI-AWARE-HARDEN vs LATHE-MASTER, MILL-AGI, WEDM-CONSOLIDATED",
+      "agentScores": {
+        "agent1_protocolStructure": 88,
+        "agent2_unitNaming": 95,
+        "agent3_dependencyGraph": 85,
+        "agent4_exitGateRigor": 82,
+        "agent5_completenessCoverage": 90,
+        "agent6_physicsRigor": 80,
+        "agent7_forgeTripleOwnership": 85,
+        "agent8_featureCascade": 88,
+        "agent9_mcpUtilization": 82,
+        "agent10_crossRoadmapCoherence": 88
+      },
+      "averageScore": 86,
+      "verdict": "PASS",
+      "findings": [
+        "MILL-AGI P0.7 had stale AI-AWARE-HARDEN unit references (U-AWR07, U-AWR16 already complete)",
+        "WEDM-CONSOLIDATED added as downstream consumer of FormulaOrchestrator/PlaybookRulesEngine",
+        "Domain allocation added to U-AWR32 (lathe:100, mill:150, wedm:80, general:170)",
+        "Domain coverage exit criteria added to U-AWR31"
+      ],
+      "fixesApplied": [
+        "Added WEDM-CONSOLIDATED to available_to",
+        "Added domainAllocation to U-AWR32",
+        "Added domain formula mapping to U-AWR31 exitCriteria"
+      ],
+      "pendingFixes": [
+        "Update MILL-AGI P0.7 to remove stale unit references (external roadmap)"
+      ]
+    },
+    "auditDocument": "state/shared/AI-AWARE-HARDEN-CROSS-ROADMAP-SCRUTINY-2026-04-17.md"
+  },
+
+  "successCriteria": {
+    "metricsTarget": {
+      "unitsComplete": { "before": 20, "after": 33 },
+      "playbookRules": { "before": 0, "after": 500 },
+      "formulaOrchestrator": { "before": "missing", "after": "built" },
+      "mitCourses": { "before": 9, "after": 50 },
+      "awarenessScore": { "before": 70, "after": 95 },
+      "jsonAccuracy": { "before": "10%", "after": "100%" }
+    }
+  },
+
+  "executionPriority": {
+    "critical_doFirst": ["U-AWR32: PlaybookRulesEngine + 500 rules — #1 gap", "U-AWR31: FormulaOrchestrator — foundation missing"],
+    "high_session3": ["U-AWR08: Manufacturer catalogs", "U-AWR09: JM DIE patterns"],
+    "medium_session6": ["U-AWR21: Archive crawler", "U-AWR22: Dark content classifier", "U-AWR25: Cross-terminal coordination"],
+    "lower_extended": ["U-AWR27-30: Extended pipelines", "U-AWR33: MIT deep integration"]
+  },
+
+  "mcpUtilization": {
+    "sessionStart": ["prism_session:context_boot", "prism_session:dispatcher_map", "prism_session:memory_recall", "prism_session:system_snapshot", "prism_session:action_search"],
+    "duringWork": ["prism_session:auto_checkpoint", "prism_session:action_search", "prism_session:tool_route_best", "prism_session:wip_capture"],
+    "sessionEnd": ["prism_session:memory_save", "prism_session:system_snapshot", "prism_session:checkpoint_enhanced"],
+    "plugins": ["vitest-mcp", "eslint-mcp", "codebase-memory-mcp"],
+    "skills": ["/forge-engines", "/forge-wiring", "/prism-review", "/test", "/physics-verify", "/forge-triple", "/scrutinize", "/trace", "/dedup", "/awareness-check"]
+  },
+
+  "immediateNextActions": [
+    "Execute U-AWR32: Create PlaybookRulesEngine + 500 rules (CRITICAL)",
+    "Execute U-AWR31: Create FormulaOrchestrator (foundation gap)",
+    "Execute U-AWR08-09: Complete extraction batch",
+    "Re-run awareness score calculation to verify progress"
+  ]
+}

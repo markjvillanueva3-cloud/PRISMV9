@@ -39,6 +39,7 @@ import {
   type WEDMJobOutcome,
   type WEDMJobHistory,
 } from "../schemas/wedmJobHistorySchema.js";
+import { emitFromWEDMJobOutcome } from "../utils/shopFloorOutcomeBridge.js";
 
 const DATA_ROOT = path.resolve(process.cwd(), "data/state");
 const LEDGER_PATH = path.join(DATA_ROOT, "WEDM_OUTCOME_LEDGER.jsonl");
@@ -179,6 +180,24 @@ class WEDMJobOutcomeEngine {
     }
 
     this.appendLedger(outcome);
+
+    // BRIDGE-DEEP / U-BRIDGE-SHOPFLOOR-LEARN — mirror the accepted outcome to
+    // the universal outcome bus so cross-domain learning consumers
+    // (CrossProcessNeuralLearningEngine, LearningAdaptationEngine, etc.) see
+    // WEDM job data. The bus is fire-and-forget by contract; the try/catch is
+    // defense-in-depth against a future bridge-contract regression — emit
+    // failure never breaks recordOutcome (the WEDM ledger above is the local
+    // truth). Disable knob: PRISM_WEDM_BRIDGE_DISABLE=1 (sister to every
+    // other fire-and-forget side-effect path per the
+    // never-delete-only-disable doctrine).
+    if (process.env.PRISM_WEDM_BRIDGE_DISABLE !== "1") {
+      try {
+        emitFromWEDMJobOutcome(outcome);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        log.warn(`[WEDMJobOutcomeEngine] bridge emit failed: ${msg}`);
+      }
+    }
 
     // Rollup update
     this.history.recent.unshift(outcome);

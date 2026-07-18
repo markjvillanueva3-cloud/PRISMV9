@@ -1,13 +1,18 @@
 /**
  * prism_multiaxis_program — Multi-Axis Print-to-Program Dispatcher
  *
- * 2 actions across 1 engine:
+ * 5 actions across 2 engines:
  *   MultiAxisPrintToProgramEngine (2): multiaxis_print_to_program, multiaxis_process_plan
+ *   MillProgramReplicationEngine (3):  replicate_from_print, replicate_similarity_search,
+ *                                      replicate_corpus_index
  *
- * Generates CNC programs for 3+2 indexed and 5-axis simultaneous machining.
- * Supports impeller blades, ports, undercuts, swept surfaces, angled features.
+ * Generates CNC programs for 3+2 indexed and 5-axis simultaneous machining
+ * (synthesis), AND replicates programs by reading a print: retrieve the most
+ * similar existing program from a corpus and adapt it (3 → 4 → 5 axis, gated by
+ * the target machine's axis count). Supports impeller blades, ports, undercuts,
+ * swept surfaces, angled features.
  *
- * @milestone PIPE-MS2
+ * @milestone PIPE-MS2 / PRINT-TO-PROGRAM-REPLICATION
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -16,6 +21,7 @@ import { ACTION_MULTIAXIS_PROGRAM_SCHEMAS } from "../../schemas/multiAxisProgram
 
 // Lazy engine cache
 let _multiAxisProg: any;
+let _replicationEng: any;
 
 async function getEngine(): Promise<any> {
   return _multiAxisProg ??= (
@@ -23,9 +29,18 @@ async function getEngine(): Promise<any> {
   ).multiAxisPrintToProgramEngine;
 }
 
+async function getReplicationEngine(): Promise<any> {
+  return _replicationEng ??= (
+    await import("../../engines/MillProgramReplicationEngine.js")
+  ).millProgramReplicationEngine;
+}
+
 const ACTIONS = [
   "multiaxis_print_to_program",
   "multiaxis_process_plan",
+  "replicate_from_print",
+  "replicate_similarity_search",
+  "replicate_corpus_index",
 ] as const;
 
 const actionEnum = z.enum(ACTIONS);
@@ -91,6 +106,15 @@ Params: material, features[] (type, orientation {A_deg,B_deg,C_deg}, depth_mm, e
           }
           case "multiaxis_process_plan": {
             const eng = await getEngine();
+            const result = eng.calculate(action, params);
+            return dispatcherResult(result);
+          }
+          case "replicate_from_print":
+          case "replicate_similarity_search":
+          case "replicate_corpus_index": {
+            // Print-to-program by retrieval + adaptation: pick the most similar
+            // existing program from the corpus and adapt it to the new print.
+            const eng = await getReplicationEngine();
             const result = eng.calculate(action, params);
             return dispatcherResult(result);
           }

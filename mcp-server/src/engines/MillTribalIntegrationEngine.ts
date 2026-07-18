@@ -433,9 +433,9 @@ export class MillTribalIntegrationEngine {
       toolType,
       opType,
       12, // default diameter
-      rpm / signal.adjustment.rpm_factor || rpm, // original
-      feed / signal.adjustment.feed_factor || feed,
-      doc / signal.adjustment.doc_factor || doc,
+      rpm / (signal.adjustment.rpm_factor ?? 1), // original
+      feed / (signal.adjustment.feed_factor ?? 1),
+      doc / (signal.adjustment.doc_factor ?? 1),
       5, // z levels
       false, // cutter comp
       true, // treat as proven (tribal knowledge)

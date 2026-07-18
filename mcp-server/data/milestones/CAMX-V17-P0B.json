@@ -1,0 +1,230 @@
+{
+  "id": "CAMX-V17-P0B",
+  "version": "8.0.0",
+  "title": "Critical Bug Fixes — Multi-Start Threading, Facing, MillTurn, Routing",
+  "brief": "Fix all CRITICAL severity bugs found during 14 scrutinization passes. Each fix gets a regression test.",
+  "created_at": "2026-03-23T11:07:22Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v17-final",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Bug Fixes",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Fix multi-start threading — generate N G76 blocks",
+          "description": "TurningPrintToProgramEngine threading section generates only 1 G76 regardless of thread_starts. Fix: generate N G76 blocks with Q offset by 360/starts degrees. Create regression test.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Multi-start generates correct G76 count",
+            "Regression test passes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "files_to_read_first": [
+            "src/engines/TurningPrintToProgramEngine.ts"
+          ],
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Fix facing — implement G72 multi-pass or loop",
+          "description": "Face operation does single-pass G01 X-1.0. Fix: implement G72 facing cycle or multi-pass G01 loop with DOC from physics.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Facing generates multi-pass",
+            "Regression test passes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Fix MillTurn assembleProgram() crash",
+          "description": "MillTurnSwissPipelineEngine dispatches to assembleProgram() which doesn't exist. Implement full multi-channel G-code assembly with sync codes for 6 controller dialects.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "assembleProgram() exists and returns program_text",
+            "No runtime crash",
+            "Multi-channel sync codes correct"
+          ],
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "Fix routing — action names + method names",
+          "description": "MultiProcessCAMBridge uses wrong action name 'turning_program' (should be 'turning_print_to_program'). QuoteToShip uses .generate/.run (should be .calculate). Fix all mismatches. Test each route.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "All 9 routes produce output",
+            "No silent failures",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "Fix Kienzle approach angle in turning",
+          "description": "TurningPrintToProgram passes ap directly as chip width. Correct: b=ap/sin(κr), h=f×sin(κr). Add approach angle from insert geometry.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Force calculation uses approach angle",
+            "VNMG at 35° gives different force than CNMG at 95°",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "Fix robustness_weight=0 in OptimalStrategySelection",
+          "description": "WEIGHT_PROFILES all set robustness:0.00. Engagement control has zero influence on strategy scoring. Set to 0.15 for balanced, higher for tool_life priority.",
+          "smart_config": "SONNET/MED",
+          "exit_conditions": [
+            "robustness_weight > 0",
+            "Engagement-controlled strategies score higher",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Fix grooving G75 Q parameter",
+          "description": "G75 Q is set to groove_width×1000 but Q should be insert_width minus overlap for multi-plunge. Fix Q calculation.",
+          "smart_config": "SONNET/MED",
+          "exit_conditions": [
+            "Wide groove generates correct Q for multi-plunge",
+            "Regression test passes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-v17-p0b-gate",
+    "mcp_action": "prism_camx-v17:camx_v17_p0b_run",
+    "skill_command": "/camx-v17-p0b",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-v17-p0b-gate"
+    ],
+    "new_actions": [
+      "camx_v17_p0b_run"
+    ],
+    "new_skills": [
+      "/camx-v17-p0b"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Fix all CRITICAL severity bugs found during 14 scrutinization passes. Each fix gets a regression test.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

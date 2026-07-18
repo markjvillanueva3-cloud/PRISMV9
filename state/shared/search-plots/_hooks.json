@@ -1,0 +1,5316 @@
+{
+  "surface": "hooks",
+  "count": 691,
+  "generatedAt": null,
+  "entries": [
+    {
+      "name": "_envelope.mjs",
+      "file": ".claude/hooks/_envelope.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "_envelope.mjs — HOOK-SYNERGY-MS0 / U-HOOK-ENVELOPE (H4)"
+    },
+    {
+      "name": "_rpc-shim.mjs",
+      "file": ".claude/hooks/_rpc-shim.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "_rpc-shim.mjs — U-DOCKER-HOOK-BROKER-P4",
+      "exports": [
+        "readStdinText",
+        "postToBroker",
+        "fallbackToOriginal",
+        "runShim"
+      ]
+    },
+    {
+      "name": "activate-before-build-precheck.mjs",
+      "file": ".claude/hooks/activate-before-build-precheck.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "activate-before-build-precheck.mjs — PreToolUse:Write/MultiEdit advisory hook",
+      "exports": [
+        "classifyPath",
+        "buildQuery",
+        "renderBlock",
+        "clampedTopK",
+        "searchWithTimeout",
+        "decide"
+      ]
+    },
+    {
+      "name": "active-chat-priority-boost.mjs",
+      "file": ".claude/hooks/active-chat-priority-boost.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "active-chat-priority-boost.mjs — UserPromptSubmit hook for FLEET-REAPER-MS3/U-FR-MS3-A.",
+      "exports": [
+        "listStampDir"
+      ]
+    },
+    {
+      "name": "active-chat-priority-decay.mjs",
+      "file": ".claude/hooks/active-chat-priority-decay.mjs",
+      "trigger": "Stop",
+      "purpose": "active-chat-priority-decay.mjs — Stop hook for FLEET-REAPER-MS3/U-FR-MS3-A.",
+      "exports": [
+        "pickExpiredStamps",
+        "loadStamps",
+        "main"
+      ]
+    },
+    {
+      "name": "agent-boundary-guard.mjs",
+      "file": ".claude/hooks/agent-boundary-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "Agent Boundary Guard Hook (PreToolUse)"
+    },
+    {
+      "name": "agent-pid-tracker.mjs",
+      "file": ".claude/hooks/agent-pid-tracker.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "agent-pid-tracker.mjs — PostToolUse hook for Agent"
+    },
+    {
+      "name": "agent-registry-load.mjs",
+      "file": ".claude/hooks/agent-registry-load.mjs",
+      "trigger": "SessionStart",
+      "purpose": "SessionStart hook — surfaces Task-tool agent registry (AGENT_REGISTRY.json)"
+    },
+    {
+      "name": "agent-rules-inject.mjs",
+      "file": ".claude/hooks/agent-rules-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "agent-rules-inject.mjs — PreToolUse hook for the Task tool"
+    },
+    {
+      "name": "agent-util-log.mjs",
+      "file": ".claude/hooks/agent-util-log.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "PostToolUse hook — Task-tool invocation ledger."
+    },
+    {
+      "name": "agent-vs-direct.mjs",
+      "file": ".claude/hooks/agent-vs-direct.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "agent-vs-direct.mjs - PreToolUse Agent"
+    },
+    {
+      "name": "agent-watchdog.mjs",
+      "file": ".claude/hooks/agent-watchdog.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "agent-watchdog.mjs — stall detector for the 10-chat PRISM fleet.",
+      "exports": [
+        "detectStalls",
+        "shouldAlert",
+        "stampPathFor",
+        "buildAlertRecord",
+        "buildSummary"
+      ]
+    },
+    {
+      "name": "agent-worktree-stale-unlock.mjs",
+      "file": ".claude/hooks/agent-worktree-stale-unlock.mjs",
+      "trigger": "SessionStart",
+      "purpose": "agent-worktree-stale-unlock.mjs — HARNESS-AUDIT/U-TIER3/#7 (SessionStart)"
+    },
+    {
+      "name": "aggressive-killer-stop.mjs",
+      "file": ".claude/hooks/aggressive-killer-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "aggressive-killer-stop.mjs - Stop hook wrapper around 06-aggressive-killer.mjs."
+    },
+    {
+      "name": "agi-safety-envelope-guard.mjs",
+      "file": ".claude/hooks/agi-safety-envelope-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "agi-safety-envelope-guard.mjs — PreToolUse hook (U-LTH62)"
+    },
+    {
+      "name": "ai-auto-command-router.mjs",
+      "file": ".claude/hooks/ai-auto-command-router.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "AI Auto-Command Router — UserPromptSubmit Hook"
+    },
+    {
+      "name": "ai-command-awareness.mjs",
+      "file": ".claude/hooks/ai-command-awareness.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ai-command-awareness.mjs — SessionStart hook (pointer mode by default, Wave 2)."
+    },
+    {
+      "name": "ai-deep-intelligence.mjs",
+      "file": ".claude/hooks/ai-deep-intelligence.mjs",
+      "trigger": "SessionStart",
+      "purpose": "ai-deep-intelligence.mjs — SessionStart hook (pointer mode by default)."
+    },
+    {
+      "name": "ai-duplication-guard.mjs",
+      "file": ".claude/hooks/ai-duplication-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "AI Duplication Guard — PreToolUse Hook (Phase 0.1 Fix)"
+    },
+    {
+      "name": "ai-feature-recommend.mjs",
+      "file": ".claude/hooks/ai-feature-recommend.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ai-feature-recommend.mjs — UserPromptSubmit injector (U-AWARE04).",
+      "exports": [
+        "shouldHint"
+      ]
+    },
+    {
+      "name": "ai-reasoning-inject.mjs",
+      "file": ".claude/hooks/ai-reasoning-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "AI Reasoning Inject — PreToolUse Hook for Complex Operations"
+    },
+    {
+      "name": "ai-session-sync.mjs",
+      "file": ".claude/hooks/ai-session-sync.mjs",
+      "trigger": "Stop",
+      "purpose": "AI Session Sync — Stop Hook"
+    },
+    {
+      "name": "ai-synergy-awareness-inject.mjs",
+      "file": ".claude/hooks/ai-synergy-awareness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "AI-SYNERGY-AUDIT-MS0/U-AISYN-AWARENESS (slot:charlie) -- per-galaxy AI-synergy",
+      "exports": [
+        "resolveSlot",
+        "renderBlock"
+      ]
+    },
+    {
+      "name": "ai-system-activate.mjs",
+      "file": ".claude/hooks/ai-system-activate.mjs",
+      "trigger": "SessionStart",
+      "purpose": "AI System Activation — SessionStart Hook"
+    },
+    {
+      "name": "ai-system-router-inject.mjs",
+      "file": ".claude/hooks/ai-system-router-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "AI System Router Injection Hook (PreToolUse)"
+    },
+    {
+      "name": "allow-superseding.mjs",
+      "file": ".claude/hooks/allow-superseding.mjs",
+      "trigger": "",
+      "purpose": "allow-superseding.mjs — Phase 1 Tier 5B",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "alpha-slot-reaper-guardian.mjs",
+      "file": ".claude/hooks/alpha-slot-reaper-guardian.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "alpha-slot-reaper-guardian.mjs — the ALPHA slot owns the fleet reaper."
+    },
+    {
+      "name": "alpha-token-domain-awareness-inject.mjs",
+      "file": ".claude/hooks/alpha-token-domain-awareness-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "alpha-token-domain-awareness-inject.mjs — SessionStart hook (slot:alpha ONLY).",
+      "exports": [
+        "decideRegen"
+      ]
+    },
+    {
+      "name": "always-build-guard.mjs",
+      "file": ".claude/hooks/always-build-guard.mjs",
+      "trigger": "Stop",
+      "purpose": "always-build-guard.mjs - Stop hook to enforce task completion before session end"
+    },
+    {
+      "name": "anti-pattern-detector.mjs",
+      "file": ".claude/hooks/anti-pattern-detector.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "anti-pattern-detector.mjs — PreToolUse hook for Edit/Write/MultiEdit"
+    },
+    {
+      "name": "anti-regression-auto-sweep.mjs",
+      "file": ".claude/hooks/anti-regression-auto-sweep.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "anti-regression-auto-sweep.mjs — PostToolUse hook"
+    },
+    {
+      "name": "api-contract-enforcer.mjs",
+      "file": ".claude/hooks/api-contract-enforcer.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "RE-ENABLED 2026-04-27 by user approval (RESUME_AT_WORK section 5)."
+    },
+    {
+      "name": "appdata-junction-guard.mjs",
+      "file": ".claude/hooks/appdata-junction-guard.mjs",
+      "trigger": "SessionStart",
+      "purpose": "appdata-junction-guard.mjs — SessionStart enforcement for the AppData→H: junction."
+    },
+    {
+      "name": "archived-skill-suggest.mjs",
+      "file": ".claude/hooks/archived-skill-suggest.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "archived-skill-suggest.mjs — UserPromptSubmit hook (HS-06 Phase 2 / smart-recall)."
+    },
+    {
+      "name": "ascii-guard.mjs",
+      "file": ".claude/hooks/ascii-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "ascii-guard.mjs - PreToolUse hook (Edit|Write|MultiEdit). ENFORCED, not advisory.",
+      "exports": [
+        "collectNewText",
+        "collectOldText",
+        "findOffenders"
+      ]
+    },
+    {
+      "name": "asset-deletion-block.mjs",
+      "file": ".claude/hooks/asset-deletion-block.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "asset-deletion-block.mjs — PreToolUse hook"
+    },
+    {
+      "name": "async-pattern-checker.mjs",
+      "file": ".claude/hooks/async-pattern-checker.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "RE-ENABLED 2026-04-27 by user approval (RESUME_AT_WORK section 5)."
+    },
+    {
+      "name": "audit-awareness-inject.mjs",
+      "file": ".claude/hooks/audit-awareness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "audit-awareness-inject.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "audit-viz-first-inject.mjs",
+      "file": ".claude/hooks/audit-viz-first-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "UserPromptSubmit T2 hook.",
+      "exports": [
+        "detectAuditIntent",
+        "extractNoun",
+        "shouldFire"
+      ]
+    },
+    {
+      "name": "auto-bug-hunt-after-build.mjs",
+      "file": ".claude/hooks/auto-bug-hunt-after-build.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "auto-bug-hunt-after-build.mjs — PostToolUse:Bash hook."
+    },
+    {
+      "name": "auto-consensus-critical-edit.mjs",
+      "file": ".claude/hooks/auto-consensus-critical-edit.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "auto-consensus-critical-edit.mjs — PreToolUse hook for high-stakes file edits."
+    },
+    {
+      "name": "auto-consensus-sync-bash.mjs",
+      "file": ".claude/hooks/auto-consensus-sync-bash.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "auto-consensus-sync-bash.mjs — PreToolUse:Bash sync octopus trigger for",
+      "exports": [
+        "classifyDestructiveBash",
+        "renderVerdict"
+      ]
+    },
+    {
+      "name": "auto-consensus-userprompt.mjs",
+      "file": ".claude/hooks/auto-consensus-userprompt.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "auto-consensus-userprompt.mjs — UserPromptSubmit hook."
+    },
+    {
+      "name": "auto-fix-blackwell-doctrine-inject.mjs",
+      "file": ".claude/hooks/auto-fix-blackwell-doctrine-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "auto-fix-blackwell-doctrine-inject.mjs",
+      "exports": [
+        "buildDoctrineMessage",
+        "loadSeen",
+        "shouldInject",
+        "recordSeen"
+      ]
+    },
+    {
+      "name": "auto-fork-executor.mjs",
+      "file": ".claude/hooks/auto-fork-executor.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "auto-fork-executor.mjs — PreToolUse(Bash for git commit) auto-fork hook."
+    },
+    {
+      "name": "auto-learn-budget-guard.mjs",
+      "file": ".claude/hooks/auto-learn-budget-guard.mjs",
+      "trigger": "",
+      "purpose": "auto-learn-budget-guard — AUTO-LEARNING-LOOP-MS0 / U-ALL11",
+      "exports": [
+        "STATE_FILE",
+        "SCHEMA_VERSION",
+        "DEFAULT_DAILY_DISPATCHES",
+        "DEFAULT_DAILY_COST_USD",
+        "utcDayKey",
+        "loadState",
+        "evaluateBudget",
+        "recordDispatch",
+        "persistState"
+      ]
+    },
+    {
+      "name": "auto-lint-post-edit.mjs",
+      "file": ".claude/hooks/auto-lint-post-edit.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "auto-lint-post-edit.mjs — PostToolUse hook (Edit|Write|MultiEdit, via posttool-edit-bundle)"
+    },
+    {
+      "name": "auto-postmortem-on-failure-restart.mjs",
+      "file": ".claude/hooks/auto-postmortem-on-failure-restart.mjs",
+      "trigger": "Stop",
+      "purpose": "auto-postmortem-on-failure-restart.mjs — Stop hook"
+    },
+    {
+      "name": "auto-precompact-watchdog.mjs",
+      "file": ".claude/hooks/auto-precompact-watchdog.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "auto-precompact-watchdog.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "auto-record-tool-call.mjs",
+      "file": ".claude/hooks/auto-record-tool-call.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "auto-record-tool-call.mjs — PostToolUse hook"
+    },
+    {
+      "name": "autonomous-loop-defer.mjs",
+      "file": ".claude/hooks/autonomous-loop-defer.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "autonomous-loop-defer.mjs — PreToolUse rate-limiter (\"defer\") for runaway loops.",
+      "exports": [
+        "resolveThresholds",
+        "isDisabled",
+        "decideToolRate",
+        "cacheDir",
+        "safeSid",
+        "ratePath",
+        "readWindow",
+        "runDecision"
+      ]
+    },
+    {
+      "name": "autonomous-loop-watchdog.mjs",
+      "file": ".claude/hooks/autonomous-loop-watchdog.mjs",
+      "trigger": "Stop",
+      "purpose": "autonomous-loop-watchdog — Stop hook for autonomous yolo-mode runs."
+    },
+    {
+      "name": "awareness-bootstrap.mjs",
+      "file": ".claude/hooks/awareness-bootstrap.mjs",
+      "trigger": "SessionStart",
+      "purpose": "awareness-bootstrap.mjs — Phase 0.13 Awareness Bootstrap",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "awareness-snapshot-inject.mjs",
+      "file": ".claude/hooks/awareness-snapshot-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "awareness-snapshot-inject.mjs — SessionStart injector"
+    },
+    {
+      "name": "awareness-snapshot.mjs",
+      "file": ".claude/hooks/awareness-snapshot.mjs",
+      "trigger": "SessionStart",
+      "purpose": "Awareness Snapshot Hook — AI-AWARE-HARDEN/U-AWR11"
+    },
+    {
+      "name": "ban-facade-patterns.mjs",
+      "file": ".claude/hooks/ban-facade-patterns.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "ban-facade-patterns.mjs — PreToolUse enforcement hook"
+    },
+    {
+      "name": "bash-destructive-guard.mjs",
+      "file": ".claude/hooks/bash-destructive-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "bash-destructive-guard.mjs - PreToolUse Bash"
+    },
+    {
+      "name": "bash-orphan-cleaner.mjs",
+      "file": ".claude/hooks/bash-orphan-cleaner.mjs",
+      "trigger": "Stop",
+      "purpose": "bash-orphan-cleaner.mjs — Stop hook that kills orphaned bash.exe subprocesses"
+    },
+    {
+      "name": "bash-result-cache.mjs",
+      "file": ".claude/hooks/bash-result-cache.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "Bash Result Cache — PreToolUse Hook"
+    },
+    {
+      "name": "blueprint-accuracy-guard.mjs",
+      "file": ".claude/hooks/blueprint-accuracy-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "blueprint-accuracy-guard.mjs — PostToolUse hook (BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U5)",
+      "exports": [
+        "getConfig",
+        "isBlueprintExtractionContent",
+        "computeThresholdWarnings",
+        "formatWarnings",
+        "extractConfidences",
+        "confidenceBoundWidth",
+        "extractBalancedBrace",
+        "detectOperatorCorrection",
+        "detectGroundTruthMatch",
+        "loadState",
+        "saveState",
+        "detectDrift"
+      ]
+    },
+    {
+      "name": "blueprint-coverage-floor-guard.mjs",
+      "file": ".claude/hooks/blueprint-coverage-floor-guard.mjs",
+      "trigger": "Stop",
+      "purpose": "blueprint-coverage-floor-guard.mjs — Stop hook (BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U5)",
+      "exports": [
+        "resolveRepoRoot",
+        "getConfig",
+        "resetBlockCount",
+        "gitChangedFiles",
+        "findExtractionPathTouches",
+        "inspectAuditMarker",
+        "isU8EngineShipped",
+        "bumpBlockCount",
+        "appendJsonl",
+        "decideStop",
+        "formatBlockMessage",
+        "formatDeferMessage"
+      ]
+    },
+    {
+      "name": "blueprint-join-index-stale-check.mjs",
+      "file": ".claude/hooks/blueprint-join-index-stale-check.mjs",
+      "trigger": "SessionStart",
+      "purpose": "blueprint-join-index-stale-check.mjs — SessionStart hook"
+    },
+    {
+      "name": "build-cache-guard.mjs",
+      "file": ".claude/hooks/build-cache-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "build-cache-guard.mjs — build/test result cache with edit-invalidation.",
+      "exports": [
+        "ttlMs",
+        "normalizeCmd",
+        "hasUnsafeShell",
+        "isBuildCmd",
+        "cacheKey",
+        "decideBuildCheck",
+        "summarizeBuildOutput",
+        "fmtAge",
+        "main"
+      ]
+    },
+    {
+      "name": "build-create-detector.mjs",
+      "file": ".claude/hooks/build-create-detector.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "build-create-detector.mjs — PreToolUse hook (U-AWARE01)"
+    },
+    {
+      "name": "build-state-inject.mjs",
+      "file": ".claude/hooks/build-state-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "build-state-inject.mjs — UserPromptSubmit + SessionStart hook."
+    },
+    {
+      "name": "c-to-h-mirror.mjs",
+      "file": ".claude/hooks/c-to-h-mirror.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "c-to-h-mirror.mjs — PostToolUse hook"
+    },
+    {
+      "name": "cad-accuracy-gate.mjs",
+      "file": ".claude/hooks/cad-accuracy-gate.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cad-accuracy-gate.mjs — PostToolUse hook"
+    },
+    {
+      "name": "cad-coverage-auto-refresh.mjs",
+      "file": ".claude/hooks/cad-coverage-auto-refresh.mjs",
+      "trigger": "SessionStart",
+      "purpose": "SessionStart hook — CAD_COVERAGE_MATRIX.json staleness-gated refresh."
+    },
+    {
+      "name": "cad-coverage-surface.mjs",
+      "file": ".claude/hooks/cad-coverage-surface.mjs",
+      "trigger": "SessionStart",
+      "purpose": "SessionStart hook — surfaces CAD_COVERAGE_MATRIX.json so every session"
+    },
+    {
+      "name": "cad-graph-integrity.mjs",
+      "file": ".claude/hooks/cad-graph-integrity.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cad-graph-integrity.mjs — CADCAM-DAGI-MS0/U-DAGI02 guard hook"
+    },
+    {
+      "name": "cad-pipeline-knowledge-inject.mjs",
+      "file": ".claude/hooks/cad-pipeline-knowledge-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "CAD-PIPELINE-WIRE-MS0/U-CAD-KNOWLEDGE-INJECT"
+    },
+    {
+      "name": "cad-step-lint-guard.mjs",
+      "file": ".claude/hooks/cad-step-lint-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "PostToolUse (Write|Edit|MultiEdit)"
+    },
+    {
+      "name": "cad-token-vocabulary-guard.mjs",
+      "file": ".claude/hooks/cad-token-vocabulary-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cad-token-vocabulary-guard.mjs — CADCAM-DAGI-MS0/U-DAGI01 guard hook"
+    },
+    {
+      "name": "cad-unknown-ext-surface.mjs",
+      "file": ".claude/hooks/cad-unknown-ext-surface.mjs",
+      "trigger": "SessionStart",
+      "purpose": "SessionStart hook — UNKNOWN_CAD_EXTENSIONS.jsonl surface."
+    },
+    {
+      "name": "cag-cold-cache-anchor.mjs",
+      "file": ".claude/hooks/cag-cold-cache-anchor.mjs",
+      "trigger": "SessionStart",
+      "purpose": ".claude/hooks/cag-cold-cache-anchor.mjs",
+      "exports": [
+        "snapshotColdSources",
+        "renderAnchorBlock",
+        "writeAnchorSidecar"
+      ]
+    },
+    {
+      "name": "cag-router-inject.mjs",
+      "file": ".claude/hooks/cag-router-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": ".claude/hooks/cag-router-inject.mjs"
+    },
+    {
+      "name": "cag-soul-cache-block.mjs",
+      "file": ".claude/hooks/cag-soul-cache-block.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "U-CAG-01-SOUL-TO-SESSIONSTART — emit the static slot-soul as a SessionStart",
+      "exports": [
+        "resolveSlot",
+        "buildCachedBlock",
+        "writeSidecar"
+      ]
+    },
+    {
+      "name": "canonical-constants.mjs",
+      "file": ".claude/hooks/canonical-constants.mjs",
+      "trigger": "",
+      "purpose": "canonical-constants.mjs — Phase 1 Tier 5C Physics Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "capability-manifest-surface.mjs",
+      "file": ".claude/hooks/capability-manifest-surface.mjs",
+      "trigger": "SessionStart",
+      "purpose": "SessionStart hook — CAPABILITY_MANIFEST.json freshness + surface."
+    },
+    {
+      "name": "capability-reminder.mjs",
+      "file": ".claude/hooks/capability-reminder.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Capability Reminder — UserPromptSubmit Hook"
+    },
+    {
+      "name": "charlie-quoting-awareness-inject.mjs",
+      "file": ".claude/hooks/charlie-quoting-awareness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "charlie-quoting-awareness-inject.mjs — UserPromptSubmit hook (slot:charlie galaxy).",
+      "exports": [
+        "isCharlieSession",
+        "extractHeadline"
+      ]
+    },
+    {
+      "name": "charlie-quoting-knowledge-inject.mjs",
+      "file": ".claude/hooks/charlie-quoting-knowledge-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "charlie-quoting-knowledge-inject.mjs — UserPromptSubmit hook (slot:charlie galaxy).",
+      "exports": [
+        "isCharlieSession",
+        "tokenize",
+        "matchEntries"
+      ]
+    },
+    {
+      "name": "chat-bus-inject.mjs",
+      "file": ".claude/hooks/chat-bus-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "chat-bus-inject.mjs — UserPromptSubmit hook",
+      "exports": [
+        "COMPACT_MODE_ENV",
+        "formatCompactBadge",
+        "formatBrief"
+      ]
+    },
+    {
+      "name": "chat-cleanup-on-stop.mjs",
+      "file": ".claude/hooks/chat-cleanup-on-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "chat-cleanup-on-stop.mjs — Stop hook"
+    },
+    {
+      "name": "chat-slot-heartbeat.mjs",
+      "file": ".claude/hooks/chat-slot-heartbeat.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "chat-slot-heartbeat.mjs — PostToolUse hook (all matchers)"
+    },
+    {
+      "name": "chat-state-isolator.mjs",
+      "file": ".claude/hooks/chat-state-isolator.mjs",
+      "trigger": "SessionStart",
+      "purpose": "chat-state-isolator.mjs — SessionStart hook"
+    },
+    {
+      "name": "checkin-args-surface.mjs",
+      "file": ".claude/hooks/checkin-args-surface.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "checkin-args-surface.mjs — UserPromptSubmit hook.",
+      "exports": [
+        "extractWorkOrder"
+      ]
+    },
+    {
+      "name": "checkpoint-auto-trigger.mjs",
+      "file": ".claude/hooks/checkpoint-auto-trigger.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "checkpoint-auto-trigger.mjs — Context Retention Hook"
+    },
+    {
+      "name": "claim-registry-precompact.mjs",
+      "file": ".claude/hooks/claim-registry-precompact.mjs",
+      "trigger": "SessionStart",
+      "purpose": "PreCompact hook — flush this terminal's active claims to status=compacted"
+    },
+    {
+      "name": "claim-registry-release.mjs",
+      "file": ".claude/hooks/claim-registry-release.mjs",
+      "trigger": "Stop",
+      "purpose": "Stop / SessionEnd hook — release this terminal's claims so peers can"
+    },
+    {
+      "name": "claim-registry-surface.mjs",
+      "file": ".claude/hooks/claim-registry-surface.mjs",
+      "trigger": "SessionStart",
+      "purpose": "SessionStart hook — surfaces other sessions' active roadmap claims in"
+    },
+    {
+      "name": "claim-required.mjs",
+      "file": ".claude/hooks/claim-required.mjs",
+      "trigger": "",
+      "purpose": "claim-required.mjs — Phase 1 Tier 5D",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "claude-brief-inject.mjs",
+      "file": ".claude/hooks/claude-brief-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "claude-brief-inject.mjs — SessionStart hook (pointer mode by default, Wave 2)."
+    },
+    {
+      "name": "claude-brief-precompact.mjs",
+      "file": ".claude/hooks/claude-brief-precompact.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "claude-brief-precompact.mjs — PreCompact hook"
+    },
+    {
+      "name": "claude-brief-staleness-check.mjs",
+      "file": ".claude/hooks/claude-brief-staleness-check.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "claude-brief-staleness-check.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "claude-md-golf-only-guard.mjs",
+      "file": ".claude/hooks/claude-md-golf-only-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "claude-md-golf-only-guard.mjs — PreToolUse T0 hook (OBSIDIAN-BRAIN-FIX-MS0/U-OBF-GOLF)",
+      "exports": [
+        "_internals"
+      ]
+    },
+    {
+      "name": "claude-md-mirror.mjs",
+      "file": ".claude/hooks/claude-md-mirror.mjs",
+      "trigger": "SessionStart",
+      "purpose": "claude-md-mirror.mjs — SessionStart: mirror H:\\.claude\\CLAUDE.md → ~/.claude/CLAUDE.md."
+    },
+    {
+      "name": "claude-no-delete-files.mjs",
+      "file": ".claude/hooks/claude-no-delete-files.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "claude-no-delete-files.mjs — PreToolUse Bash hook.",
+      "exports": [
+        "DESTRUCTIVE_PATTERNS",
+        "NARROW_EXCEPTIONS",
+        "commandHasException",
+        "findFirstDestructive",
+        "logBypass",
+        "decide"
+      ]
+    },
+    {
+      "name": "claudemd-ollama-enforcer.mjs",
+      "file": ".claude/hooks/claudemd-ollama-enforcer.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "claudemd-ollama-enforcer.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "claudemd-section-update.mjs",
+      "file": ".claude/hooks/claudemd-section-update.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "claudemd-section-update.mjs — PostToolUse hook"
+    },
+    {
+      "name": "close-out-audit-suggest.mjs",
+      "file": ".claude/hooks/close-out-audit-suggest.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "close-out-audit-suggest.mjs"
+    },
+    {
+      "name": "code-completeness-gate.mjs",
+      "file": ".claude/hooks/code-completeness-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "code-completeness-gate.mjs — PreToolUse hook for Edit/Write"
+    },
+    {
+      "name": "coding-pattern-hint.mjs",
+      "file": ".claude/hooks/coding-pattern-hint.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "coding-pattern-hint.mjs — Coding Standards Auto-Inject"
+    },
+    {
+      "name": "cog-bridge-ai-memory-capture.mjs",
+      "file": ".claude/hooks/cog-bridge-ai-memory-capture.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cog-bridge-ai-memory-capture.mjs — COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10"
+    },
+    {
+      "name": "cog-bridge-awareness-rebuild.mjs",
+      "file": ".claude/hooks/cog-bridge-awareness-rebuild.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cog-bridge-awareness-rebuild.mjs — COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10"
+    },
+    {
+      "name": "cog-bridge-context-auto-compact.mjs",
+      "file": ".claude/hooks/cog-bridge-context-auto-compact.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "cog-bridge-context-auto-compact.mjs — COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10"
+    },
+    {
+      "name": "cognitive-budget-allocator.mjs",
+      "file": ".claude/hooks/cognitive-budget-allocator.mjs",
+      "trigger": "",
+      "purpose": "cognitive-budget-allocator.mjs — U-AI06 Cognitive Budget Allocator"
+    },
+    {
+      "name": "command-telemetry-record.mjs",
+      "file": ".claude/hooks/command-telemetry-record.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "command-telemetry-record.mjs — PostToolUse \"Skill\" hook",
+      "exports": [
+        "decideRecord",
+        "recordViaPsk",
+        "deriveChatId",
+        "main"
+      ]
+    },
+    {
+      "name": "commit-coordination-acquire.mjs",
+      "file": ".claude/hooks/commit-coordination-acquire.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "PreToolUse(Bash) hook."
+    },
+    {
+      "name": "commit-coordination-release.mjs",
+      "file": ".claude/hooks/commit-coordination-release.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "PostToolUse(Bash) hook."
+    },
+    {
+      "name": "commit-draft-suggest.mjs",
+      "file": ".claude/hooks/commit-draft-suggest.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "commit-draft-suggest.mjs — OLLAMA-DEV-03"
+    },
+    {
+      "name": "commit-format-validator.mjs",
+      "file": ".claude/hooks/commit-format-validator.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "commit-format-validator.mjs — PostToolUse Bash (P6-U02).",
+      "exports": [
+        "isValidSubject",
+        "extractCommitSubject"
+      ]
+    },
+    {
+      "name": "commit-ownership-guard.mjs",
+      "file": ".claude/hooks/commit-ownership-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "commit-ownership-guard.mjs — Prevents cross-session commit mixing."
+    },
+    {
+      "name": "commit-pressure-stop-gate.mjs",
+      "file": ".claude/hooks/commit-pressure-stop-gate.mjs",
+      "trigger": "Stop",
+      "purpose": "commit-pressure-stop-gate.mjs - Proactive memory-pressure gate with self-heal"
+    },
+    {
+      "name": "compact-interval-warning.mjs",
+      "file": ".claude/hooks/compact-interval-warning.mjs",
+      "trigger": "Stop",
+      "purpose": "compact-interval-warning.mjs — Stop",
+      "exports": [
+        "lastCompactMs",
+        "unitCommitsSince"
+      ]
+    },
+    {
+      "name": "compaction-budget-nudge.mjs",
+      "file": ".claude/hooks/compaction-budget-nudge.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "compaction-budget-nudge.mjs — PostToolUse hook"
+    },
+    {
+      "name": "compaction-survival-auto.mjs",
+      "file": ".claude/hooks/compaction-survival-auto.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "compaction-survival-auto.mjs — PostToolUse hook"
+    },
+    {
+      "name": "complexity-gate.mjs",
+      "file": ".claude/hooks/complexity-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass."
+    },
+    {
+      "name": "comprehensive-build-enforce.mjs",
+      "file": ".claude/hooks/comprehensive-build-enforce.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "comprehensive-build-enforce.mjs — UserPromptSubmit enforcement hook"
+    },
+    {
+      "name": "compression-precompact.mjs",
+      "file": ".claude/hooks/compression-precompact.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "compression-precompact.mjs — Context Compression Before Compact"
+    },
+    {
+      "name": "consistent-return-checker.mjs",
+      "file": ".claude/hooks/consistent-return-checker.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "RE-ENABLED 2026-04-27 by user approval (RESUME_AT_WORK section 5)."
+    },
+    {
+      "name": "context-priority-coordinator.mjs",
+      "file": ".claude/hooks/context-priority-coordinator.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "context-priority-coordinator.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "coordination-startup-banner.mjs",
+      "file": ".claude/hooks/coordination-startup-banner.mjs",
+      "trigger": "SessionStart",
+      "purpose": "coordination-startup-banner.mjs (U-COORD06)"
+    },
+    {
+      "name": "coordination-update-reminder.mjs",
+      "file": ".claude/hooks/coordination-update-reminder.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Coordination Update Reminder Hook (PostToolUse for Bash git commit)"
+    },
+    {
+      "name": "corpus-integrity.mjs",
+      "file": ".claude/hooks/corpus-integrity.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "corpus-integrity.mjs — CADCAM-DAGI-MS0/U-DAGI03 guard hook"
+    },
+    {
+      "name": "cost-bridge-dispatch.mjs",
+      "file": ".claude/hooks/cost-bridge-dispatch.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-dispatch.mjs — consolidated PostToolUse cost-bridge router (slot:charlie quoting galaxy).",
+      "exports": [
+        "RULES",
+        "extractAction",
+        "matchRules",
+        "buildAdvisory"
+      ]
+    },
+    {
+      "name": "cost-bridge-margin-floor-gate.mjs",
+      "file": ".claude/hooks/cost-bridge-margin-floor-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "cost-bridge-margin-floor-gate.mjs — PreToolUse BLOCKING gate (slot:charlie quoting galaxy).",
+      "exports": [
+        "isQuoteEmitAction",
+        "marginFloor",
+        "extractQuoteCost",
+        "assessMargin"
+      ]
+    },
+    {
+      "name": "cost-bridge-on-cad-import.mjs",
+      "file": ".claude/hooks/cost-bridge-on-cad-import.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-cad-import.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-cam-strategy-select.mjs",
+      "file": ".claude/hooks/cost-bridge-on-cam-strategy-select.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-cam-strategy-select.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-cam-tool-select.mjs",
+      "file": ".claude/hooks/cost-bridge-on-cam-tool-select.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-cam-tool-select.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-machine-rate.mjs",
+      "file": ".claude/hooks/cost-bridge-on-machine-rate.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-machine-rate.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-material-price.mjs",
+      "file": ".claude/hooks/cost-bridge-on-material-price.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-material-price.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-operator-override.mjs",
+      "file": ".claude/hooks/cost-bridge-on-operator-override.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-operator-override.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-pdf-extract.mjs",
+      "file": ".claude/hooks/cost-bridge-on-pdf-extract.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-pdf-extract.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-precommit.mjs",
+      "file": ".claude/hooks/cost-bridge-on-precommit.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-precommit.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-program-emit.mjs",
+      "file": ".claude/hooks/cost-bridge-on-program-emit.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-program-emit.mjs — PostToolUse advisory hook."
+    },
+    {
+      "name": "cost-bridge-on-quote-accept.mjs",
+      "file": ".claude/hooks/cost-bridge-on-quote-accept.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-quote-accept.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-reverse-cad.mjs",
+      "file": ".claude/hooks/cost-bridge-on-reverse-cad.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-reverse-cad.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-runtime-predict.mjs",
+      "file": ".claude/hooks/cost-bridge-on-runtime-predict.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-runtime-predict.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-shop-config-change.mjs",
+      "file": ".claude/hooks/cost-bridge-on-shop-config-change.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-shop-config-change.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-spc-log.mjs",
+      "file": ".claude/hooks/cost-bridge-on-spc-log.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-spc-log.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-tool-catalog.mjs",
+      "file": ".claude/hooks/cost-bridge-on-tool-catalog.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-tool-catalog.mjs — PostToolUse advisory."
+    },
+    {
+      "name": "cost-bridge-on-tool-wear-log.mjs",
+      "file": ".claude/hooks/cost-bridge-on-tool-wear-log.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "cost-bridge-on-tool-wear-log.mjs — fires when operator logs tool wear."
+    },
+    {
+      "name": "cost-ceiling-stop.mjs",
+      "file": ".claude/hooks/cost-ceiling-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "cost-ceiling-stop — Stop hook."
+    },
+    {
+      "name": "critical-file-guard.mjs",
+      "file": ".claude/hooks/critical-file-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "critical-file-guard.mjs — Phase 0.16 Safety-Critical File Guard",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "critical-memory-compact-nudge.mjs",
+      "file": ".claude/hooks/critical-memory-compact-nudge.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "critical-memory-compact-nudge.mjs — UserPromptSubmit actuator that drives a",
+      "exports": [
+        "stableIdFromPayload",
+        "slotForChatId",
+        "fmtBytes",
+        "decideNudge"
+      ]
+    },
+    {
+      "name": "cross-chat-directive-detector.mjs",
+      "file": ".claude/hooks/cross-chat-directive-detector.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "cross-chat-directive-detector.mjs — UserPromptSubmit hook."
+    },
+    {
+      "name": "cross-session-awareness.mjs",
+      "file": ".claude/hooks/cross-session-awareness.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "cross-session-awareness.mjs — Force Cross-Session Visibility"
+    },
+    {
+      "name": "cross-session-orchestrator.mjs",
+      "file": ".claude/hooks/cross-session-orchestrator.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "cross-session-orchestrator.mjs — PreToolUse / PostToolUse cross-session event bridge"
+    },
+    {
+      "name": "cross-terminal-conflict.mjs",
+      "file": ".claude/hooks/cross-terminal-conflict.mjs",
+      "trigger": "",
+      "purpose": "cross-terminal-conflict.mjs — Phase 1 Tier 5D",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "curiosity-explorer.mjs",
+      "file": ".claude/hooks/curiosity-explorer.mjs",
+      "trigger": "SessionStart",
+      "purpose": "curiosity-explorer.mjs — U-AI05 Curiosity-Driven Explorer"
+    },
+    {
+      "name": "customer-directory-watcher.mjs",
+      "file": ".claude/hooks/customer-directory-watcher.mjs",
+      "trigger": "Stop",
+      "purpose": "customer-directory-watcher.mjs — U-CUC05 Stop hook"
+    },
+    {
+      "name": "dead-pixel-guard.mjs",
+      "file": ".claude/hooks/dead-pixel-guard.mjs",
+      "trigger": "SessionStart",
+      "purpose": "dead-pixel-guard.mjs (SessionStart advisory hook)"
+    },
+    {
+      "name": "decision-capture.mjs",
+      "file": ".claude/hooks/decision-capture.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Decision Capture — PostToolUse Hook"
+    },
+    {
+      "name": "dedup-auto-invoke.mjs",
+      "file": ".claude/hooks/dedup-auto-invoke.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "dedup-auto-invoke.mjs — PreToolUse hook (HOOK-SYNERGY-MS0 / U-HOOK-COMPRESS H9)"
+    },
+    {
+      "name": "delta-cad-awareness-inject.mjs",
+      "file": ".claude/hooks/delta-cad-awareness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "UserPromptSubmit",
+      "exports": [
+        "activeSlotIsDelta",
+        "buildContext",
+        "shouldInject"
+      ]
+    },
+    {
+      "name": "dep-graph-impact.mjs",
+      "file": ".claude/hooks/dep-graph-impact.mjs",
+      "trigger": "",
+      "purpose": "dep-graph-impact.mjs — Phase 1 Tier 5D",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "dev-outcome-tracker.mjs",
+      "file": ".claude/hooks/dev-outcome-tracker.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Dev Outcome Tracker — PostToolUse Hook (Bash)"
+    },
+    {
+      "name": "dfm-block.mjs",
+      "file": ".claude/hooks/dfm-block.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "dfm-block.mjs — PostToolUse hook"
+    },
+    {
+      "name": "directive-summary-refresh-iooms.mjs",
+      "file": ".claude/hooks/directive-summary-refresh-iooms.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "directive-summary-refresh.mjs — PostToolUse hook",
+      "exports": [
+        "extractDirectiveTarget"
+      ]
+    },
+    {
+      "name": "directive-summary-refresh.mjs",
+      "file": ".claude/hooks/directive-summary-refresh.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "directive-summary-refresh.mjs"
+    },
+    {
+      "name": "discipline-expert-inject.mjs",
+      "file": ".claude/hooks/discipline-expert-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "discipline-expert-inject.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "dispatcher-digest-regen.mjs",
+      "file": ".claude/hooks/dispatcher-digest-regen.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "dispatcher-digest-regen.mjs — PostToolUse:Edit|Write|MultiEdit (BACKEND-DEVTOOLS-HVA / iter 7)."
+    },
+    {
+      "name": "dispatcher-import-validator.mjs",
+      "file": ".claude/hooks/dispatcher-import-validator.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "dispatcher-import-validator.mjs — PostToolUse hook"
+    },
+    {
+      "name": "dist-integrity-check.mjs",
+      "file": ".claude/hooks/dist-integrity-check.mjs",
+      "trigger": "SessionStart",
+      "purpose": "dist-integrity-check.mjs — SessionStart hook (PILLAR-TELEMETRY-RECOVERY-MS0/U-PTR04)",
+      "exports": [
+        "checkDistIntegrity",
+        "formatDegradedContext"
+      ]
+    },
+    {
+      "name": "doc-cascade.mjs",
+      "file": ".claude/hooks/doc-cascade.mjs",
+      "trigger": "",
+      "purpose": "doc-cascade.mjs — Phase 0.15 Documentation Cascade",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "doc-freshness-check.mjs",
+      "file": ".claude/hooks/doc-freshness-check.mjs",
+      "trigger": "SessionStart",
+      "purpose": "doc-freshness-check.mjs — Phase 0.15 Documentation Freshness Check",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "docker-intel-autostart.mjs",
+      "file": ".claude/hooks/docker-intel-autostart.mjs",
+      "trigger": "SessionStart",
+      "purpose": "docker-intel-autostart.mjs — Auto-start the PRISM intel-stack containers"
+    },
+    {
+      "name": "docker-service-health-stop.mjs",
+      "file": ".claude/hooks/docker-service-health-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "docker-service-health-stop.mjs — Stop-hook arm of the Docker-service health",
+      "exports": [
+        "buildDockerAdvisory",
+        "buildOllamaAdvisory",
+        "ollamaNativeProbe"
+      ]
+    },
+    {
+      "name": "document-preserve-guard.mjs",
+      "file": ".claude/hooks/document-preserve-guard.mjs",
+      "trigger": "Stop",
+      "purpose": "Document Preservation Guard — Stop Hook"
+    },
+    {
+      "name": "dotclaude-junctions-guard.mjs",
+      "file": ".claude/hooks/dotclaude-junctions-guard.mjs",
+      "trigger": "SessionStart",
+      "purpose": "dotclaude-junctions-guard.mjs — SessionStart verification for ~/.claude subfolder junctions."
+    },
+    {
+      "name": "dsl-output-compressor.mjs",
+      "file": ".claude/hooks/dsl-output-compressor.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "dsl-output-compressor.mjs — PostToolUse hook (any tool)."
+    },
+    {
+      "name": "duplication-guard-stop.mjs",
+      "file": ".claude/hooks/duplication-guard-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "duplication-guard-stop.mjs — Stop hook"
+    },
+    {
+      "name": "duplication-hard-block.mjs",
+      "file": ".claude/hooks/duplication-hard-block.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "duplication-hard-block.mjs — PreToolUse hook (U-AWARE07)"
+    },
+    {
+      "name": "echo-post-domain-inject.mjs",
+      "file": ".claude/hooks/echo-post-domain-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "custom post-processor domain-awareness surface (slot:echo galaxy)"
+    },
+    {
+      "name": "edit-batch-detector.mjs",
+      "file": ".claude/hooks/edit-batch-detector.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "edit-batch-detector.mjs - PostToolUse Edit"
+    },
+    {
+      "name": "edit-consumer-advisory.mjs",
+      "file": ".claude/hooks/edit-consumer-advisory.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "edit-consumer-advisory.mjs — Awareness deliverable #5 (slot:bravo, 2026-06-11).",
+      "exports": [
+        "DEFAULT_COOLDOWN_MS",
+        "DEFAULT_MIN_IMPORTERS",
+        "DEFAULT_TOPN",
+        "COOLDOWN_PATH",
+        "SRC_ROOT",
+        "cooldownMsFromEnv",
+        "minImportersFromEnv",
+        "topNFromEnv",
+        "basenameNoExt",
+        "isRelevantFile",
+        "shouldThrottle",
+        "buildRgPattern"
+      ]
+    },
+    {
+      "name": "edit-multiedit-suggest.mjs",
+      "file": ".claude/hooks/edit-multiedit-suggest.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "edit-multiedit-suggest.mjs — PostToolUse Edit"
+    },
+    {
+      "name": "edit-old-string-verify.mjs",
+      "file": ".claude/hooks/edit-old-string-verify.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "edit-old-string-verify.mjs - PreToolUse Edit"
+    },
+    {
+      "name": "efficiency-monitor.mjs",
+      "file": ".claude/hooks/efficiency-monitor.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Efficiency Monitor — PostToolUse Hook"
+    },
+    {
+      "name": "embed-vault-on-save.mjs",
+      "file": ".claude/hooks/embed-vault-on-save.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "embed-vault-on-save.mjs",
+      "exports": [
+        "extractEditedPath",
+        "isVaultMarkdown",
+        "readCache",
+        "writeCache",
+        "sha256",
+        "embed",
+        "processEditedPath"
+      ]
+    },
+    {
+      "name": "embedder-inject-qdrant.mjs",
+      "file": ".claude/hooks/embedder-inject-qdrant.mjs",
+      "trigger": "SessionStart",
+      "purpose": "embedder-inject-qdrant.mjs — SessionStart smoke test for Qdrant embedder"
+    },
+    {
+      "name": "embedding-cache-guard.mjs",
+      "file": ".claude/hooks/embedding-cache-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "embedding-cache-guard.mjs — PostToolUse hook"
+    },
+    {
+      "name": "encoding-guard.mjs",
+      "file": ".claude/hooks/encoding-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "encoding-guard.mjs — PreToolUse hook (Phase A.3 of DEV-VELOCITY-AUTOTRIGGER-MS0)."
+    },
+    {
+      "name": "enforce-handoff-topic.mjs",
+      "file": ".claude/hooks/enforce-handoff-topic.mjs",
+      "trigger": "Stop",
+      "purpose": "enforce-handoff-topic.mjs — Stop hook"
+    },
+    {
+      "name": "enforce-roadmap-closeout.mjs",
+      "file": ".claude/hooks/enforce-roadmap-closeout.mjs",
+      "trigger": "Stop",
+      "purpose": "enforce-roadmap-closeout.mjs — Stop hook",
+      "exports": [
+        "detectClosingDrift",
+        "buildBlockMessage",
+        "metadata"
+      ]
+    },
+    {
+      "name": "engine-digest-precheck.mjs",
+      "file": ".claude/hooks/engine-digest-precheck.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "engine-digest-precheck.mjs — PreToolUse Write/Edit (P6-U02).",
+      "exports": [
+        "tokenize",
+        "jaccard",
+        "findSimilarEngines"
+      ]
+    },
+    {
+      "name": "erp-quote-variance-guard.mjs",
+      "file": ".claude/hooks/erp-quote-variance-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "erp-quote-variance-guard.mjs — PreToolUse hook (U-LTH57 P5)"
+    },
+    {
+      "name": "error-block-capture.mjs",
+      "file": ".claude/hooks/error-block-capture.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "error-block-capture — PostToolUse hook.",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "error-block-prewarn.mjs",
+      "file": ".claude/hooks/error-block-prewarn.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "error-block-prewarn — PreToolUse hook.",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "error-fix-vault-bridge.mjs",
+      "file": ".claude/hooks/error-fix-vault-bridge.mjs",
+      "trigger": "Stop",
+      "purpose": "error-fix-vault-bridge.mjs — Stop hook (T3 observer).",
+      "exports": [
+        "loadFixPairs",
+        "isDurable",
+        "extractContentHash",
+        "formatRecord",
+        "writeWithGuard",
+        "selectForDay"
+      ]
+    },
+    {
+      "name": "error-learner-hook.mjs",
+      "file": ".claude/hooks/error-learner-hook.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Error Learner Hook — PostToolUse Hook"
+    },
+    {
+      "name": "error-pattern-capture.mjs",
+      "file": ".claude/hooks/error-pattern-capture.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "EXTENSION to existing error-block-capture infrastructure."
+    },
+    {
+      "name": "error-pattern-learner.mjs",
+      "file": ".claude/hooks/error-pattern-learner.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "error-pattern-learner.mjs — dual-mode hook."
+    },
+    {
+      "name": "error-pattern-memory.mjs",
+      "file": ".claude/hooks/error-pattern-memory.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "error-pattern-memory.mjs — PostToolUse Hook (Bash, Edit, Write)"
+    },
+    {
+      "name": "error-pattern-promote.mjs",
+      "file": ".claude/hooks/error-pattern-promote.mjs",
+      "trigger": "Stop",
+      "purpose": "error-pattern-promote.mjs — Stop hook."
+    },
+    {
+      "name": "error-recovery-memory.mjs",
+      "file": ".claude/hooks/error-recovery-memory.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "error-recovery-memory.mjs - PostToolUse (all tools)"
+    },
+    {
+      "name": "expert-role-inject.mjs",
+      "file": ".claude/hooks/expert-role-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "expert-role-inject.mjs — SessionStart hook"
+    },
+    {
+      "name": "extended-thinking-auto.mjs",
+      "file": ".claude/hooks/extended-thinking-auto.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Extended Thinking Auto-Switch — UserPromptSubmit Hook"
+    },
+    {
+      "name": "extraction-log-drift.mjs",
+      "file": ".claude/hooks/extraction-log-drift.mjs",
+      "trigger": "",
+      "purpose": "extraction-log-drift.mjs — Phase 1 Tier 5B",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "extraction-to-tribal.mjs",
+      "file": ".claude/hooks/extraction-to-tribal.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Extraction to Tribal Knowledge — PostToolUse Hook"
+    },
+    {
+      "name": "figma-ui-consistency.mjs",
+      "file": ".claude/hooks/figma-ui-consistency.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "figma-ui-consistency.mjs — PreToolUse hook"
+    },
+    {
+      "name": "file-claim-commit-guard.mjs",
+      "file": ".claude/hooks/file-claim-commit-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "file-claim-commit-guard.mjs — PreToolUse Bash hook"
+    },
+    {
+      "name": "file-claim-guard.mjs",
+      "file": ".claude/hooks/file-claim-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "file-claim-guard.mjs — PreToolUse hook for Edit | Write | MultiEdit"
+    },
+    {
+      "name": "file-ownership-tracker.mjs",
+      "file": ".claude/hooks/file-ownership-tracker.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "file-ownership-tracker.mjs — Tracks which session is editing which files."
+    },
+    {
+      "name": "file-read-cache.mjs",
+      "file": ".claude/hooks/file-read-cache.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "file-read-cache.mjs — PreToolUse:Read hard-dedup hook",
+      "exports": [
+        "isExempt",
+        "cacheKey",
+        "canonicalPath",
+        "pruneCache",
+        "loadCache",
+        "saveCache",
+        "decideRead",
+        "clearSession"
+      ]
+    },
+    {
+      "name": "fix-stdin-pattern.mjs",
+      "file": ".claude/hooks/fix-stdin-pattern.mjs",
+      "trigger": "",
+      "purpose": "Batch fix /dev/stdin pattern in hooks for Windows compatibility."
+    },
+    {
+      "name": "fleet-reaper-stop.mjs",
+      "file": ".claude/hooks/fleet-reaper-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "fleet-reaper-stop.mjs — Stop-hook arm of the slot-aware orphan reaper."
+    },
+    {
+      "name": "fleet-task-health-stop.mjs",
+      "file": ".claude/hooks/fleet-task-health-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "fleet-task-health-stop.mjs — Stop-hook arm of the scheduled-task health",
+      "exports": [
+        "buildAdvisory"
+      ]
+    },
+    {
+      "name": "forge-intent-claim.mjs",
+      "file": ".claude/hooks/forge-intent-claim.mjs",
+      "trigger": "",
+      "purpose": "forge-intent-claim.mjs — Phase 1 Tier 5D",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "formula-algorithm-suggest.mjs",
+      "file": ".claude/hooks/formula-algorithm-suggest.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Formula & Algorithm Suggest — UserPromptSubmit Hook"
+    },
+    {
+      "name": "foxtrot-mill-awareness-inject.mjs",
+      "file": ".claude/hooks/foxtrot-mill-awareness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "UserPromptSubmit",
+      "exports": [
+        "activeSlotIsFoxtrot",
+        "buildContext",
+        "shouldInject"
+      ]
+    },
+    {
+      "name": "galaxy-completeness-advisory.mjs",
+      "file": ".claude/hooks/galaxy-completeness-advisory.mjs",
+      "trigger": "Stop",
+      "purpose": "Stop hook (ADVISORY, GALAXY-KIT-MS0, slot:bravo 2026-05-29)."
+    },
+    {
+      "name": "git-add-lane-guard.mjs",
+      "file": ".claude/hooks/git-add-lane-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "git-add-lane-guard.mjs — PreToolUse(Bash) `git add` SLOT-LANE gate.",
+      "exports": [
+        "canonicalize",
+        "parseGitAddInvocations",
+        "tokenize",
+        "isWithin",
+        "findWorktreeForBranch",
+        "resolveSlotScope",
+        "decideOnInvocations"
+      ]
+    },
+    {
+      "name": "git-anti-clobber-release.mjs",
+      "file": ".claude/hooks/git-anti-clobber-release.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "Git Anti-Clobber Release — PostToolUse (Worktree-Aware v2)"
+    },
+    {
+      "name": "git-anti-clobber.mjs",
+      "file": ".claude/hooks/git-anti-clobber.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "Git Anti-Clobber Hook — PreToolUse (Worktree-Aware v2)"
+    },
+    {
+      "name": "git-commit-checkin.mjs",
+      "file": ".claude/hooks/git-commit-checkin.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "git-commit-checkin.mjs — PreToolUse check-in on git commit/push"
+    },
+    {
+      "name": "git-health-guard.mjs",
+      "file": ".claude/hooks/git-health-guard.mjs",
+      "trigger": "SessionStart",
+      "purpose": "git-health-guard.mjs — SessionStart guard for git repository health."
+    },
+    {
+      "name": "git-index-lock-sweep.mjs",
+      "file": ".claude/hooks/git-index-lock-sweep.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "git-index-lock-sweep.mjs — PreToolUse:Bash — clear a DEAD orphan",
+      "exports": [
+        "isIndexTouchingGitCommand",
+        "resolveSharedIndexLock",
+        "run"
+      ]
+    },
+    {
+      "name": "git-lock-sweeper.mjs",
+      "file": ".claude/hooks/git-lock-sweeper.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "git-lock-sweeper.mjs — HS-02 mid-session stale-lock cleanup."
+    },
+    {
+      "name": "git-output-condenser.mjs",
+      "file": ".claude/hooks/git-output-condenser.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "git-output-condenser.mjs — PostToolUse Bash hook."
+    },
+    {
+      "name": "git-sync-fetch.mjs",
+      "file": ".claude/hooks/git-sync-fetch.mjs",
+      "trigger": "SessionStart",
+      "purpose": "git-sync-fetch.mjs — SessionStart hook for cross-PC continuity."
+    },
+    {
+      "name": "git-sync-stop.mjs",
+      "file": ".claude/hooks/git-sync-stop.mjs",
+      "trigger": "SessionStart",
+      "purpose": "git-sync-stop.mjs — Stop hook for cross-PC continuity."
+    },
+    {
+      "name": "glob-narrow-path.mjs",
+      "file": ".claude/hooks/glob-narrow-path.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "glob-narrow-path.mjs - PreToolUse Glob"
+    },
+    {
+      "name": "goal-complete-gate.mjs",
+      "file": ".claude/hooks/goal-complete-gate.mjs",
+      "trigger": "Stop",
+      "purpose": "goal-complete-gate.mjs"
+    },
+    {
+      "name": "goal-prereq-inject.mjs",
+      "file": ".claude/hooks/goal-prereq-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "goal-prereq-inject.mjs — UserPromptSubmit hook for /goal awareness."
+    },
+    {
+      "name": "goal-stack-init.mjs",
+      "file": ".claude/hooks/goal-stack-init.mjs",
+      "trigger": "SessionStart",
+      "purpose": "goal-stack-init.mjs — Phase 0.13 Goal Stack Initialization",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "goal-stack-inject.mjs",
+      "file": ".claude/hooks/goal-stack-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "goal-stack-inject.mjs — Phase 0.13 Goal Stack Injection Hook"
+    },
+    {
+      "name": "goal-synergy-status-inject.mjs",
+      "file": ".claude/hooks/goal-synergy-status-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": ".claude/hooks/goal-synergy-status-inject.mjs",
+      "exports": [
+        "loadStatus",
+        "formatDigest"
+      ]
+    },
+    {
+      "name": "golf-slot-reaper-guardian.mjs",
+      "file": ".claude/hooks/golf-slot-reaper-guardian.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "golf-slot-reaper-guardian.mjs — the GOLF slot owns the fleet reaper."
+    },
+    {
+      "name": "golf-slot-write-allowlist.mjs",
+      "file": ".claude/hooks/golf-slot-write-allowlist.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "golf-slot-write-allowlist.mjs — PreToolUse T0 hook (U-CLEANUP-A5)",
+      "exports": [
+        "_internals"
+      ]
+    },
+    {
+      "name": "gpu-vram-admission-guard.mjs",
+      "file": ".claude/hooks/gpu-vram-admission-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "gpu-vram-admission-guard.mjs -- PreToolUse:Bash advisory guard."
+    },
+    {
+      "name": "grep-index-first.mjs",
+      "file": ".claude/hooks/grep-index-first.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "grep-index-first.mjs - PreToolUse Grep",
+      "exports": [
+        "getGraphNodeHits",
+        "recordTelemetry",
+        "PENDING_FILE",
+        "PENDING_TTL_MS",
+        "extractSuggestionPaths",
+        "readPending",
+        "writePendingMap",
+        "writePending",
+        "surfacedIndexFiles"
+      ]
+    },
+    {
+      "name": "grep-index-taken-correlator.mjs",
+      "file": ".claude/hooks/grep-index-taken-correlator.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "grep-index-taken-correlator.mjs - PreToolUse Read",
+      "exports": [
+        "pathMatches",
+        "correlateRead"
+      ]
+    },
+    {
+      "name": "grep-result-cache.mjs",
+      "file": ".claude/hooks/grep-result-cache.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "grep-result-cache.mjs - PostToolUse Grep"
+    },
+    {
+      "name": "gsd-inject.mjs",
+      "file": ".claude/hooks/gsd-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "GSD Inject — SessionStart Hook"
+    },
+    {
+      "name": "gsd-section-retrieve.mjs",
+      "file": ".claude/hooks/gsd-section-retrieve.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "gsd-section-retrieve.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "gsd-section-update.mjs",
+      "file": ".claude/hooks/gsd-section-update.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "gsd-section-update.mjs — PostToolUse hook"
+    },
+    {
+      "name": "h-drive-audit.mjs",
+      "file": ".claude/hooks/h-drive-audit.mjs",
+      "trigger": "SessionStart",
+      "purpose": "H: Drive Audit Hook — SessionStart"
+    },
+    {
+      "name": "h-drive-enforcement.mjs",
+      "file": ".claude/hooks/h-drive-enforcement.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "H: Drive Enforcement Hook — PreToolUse"
+    },
+    {
+      "name": "h-to-c-obsidian-mirror.mjs",
+      "file": ".claude/hooks/h-to-c-obsidian-mirror.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "U-GALAXY-MS1-B1 (2026-05-27, slot:alpha — sierra's territory, alpha-skeleton ship):"
+    },
+    {
+      "name": "handoff-memory-seed-stop.mjs",
+      "file": ".claude/hooks/handoff-memory-seed-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "Stop hook"
+    },
+    {
+      "name": "harness-audit-staleness.mjs",
+      "file": ".claude/hooks/harness-audit-staleness.mjs",
+      "trigger": "SessionStart",
+      "purpose": "harness-audit-staleness — SessionStart hook.",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "heartbeat-keepalive.mjs",
+      "file": ".claude/hooks/heartbeat-keepalive.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "heartbeat-keepalive.mjs — UserPromptSubmit hook that refreshes this chat's"
+    },
+    {
+      "name": "hook-basin-drift.mjs",
+      "file": ".claude/hooks/hook-basin-drift.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "hook_basin_drift — USSH Phase 0.25"
+    },
+    {
+      "name": "hook-circular-dep-check.mjs",
+      "file": ".claude/hooks/hook-circular-dep-check.mjs",
+      "trigger": "SessionStart",
+      "purpose": "hook_circular_dep_check — USSH Phase 0.25"
+    },
+    {
+      "name": "hook-condition-number.mjs",
+      "file": ".claude/hooks/hook-condition-number.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "hook_condition_number — USSH Phase 0.25"
+    },
+    {
+      "name": "hook-creation-gate.mjs",
+      "file": ".claude/hooks/hook-creation-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "hook-creation-gate.mjs — PreToolUse(Write) advisory dedup gate",
+      "exports": [
+        "evaluate"
+      ]
+    },
+    {
+      "name": "hook-cross-worktree-block.mjs",
+      "file": ".claude/hooks/hook-cross-worktree-block.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "hook-cross-worktree-block.mjs — Tier-0 PreToolUse firewall",
+      "exports": [
+        "evaluate"
+      ]
+    },
+    {
+      "name": "hook-modification-justification.mjs",
+      "file": ".claude/hooks/hook-modification-justification.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "hook-modification-justification.mjs — PreToolUse:Edit|Write|MultiEdit gate."
+    },
+    {
+      "name": "hook-registry-regen.mjs",
+      "file": ".claude/hooks/hook-registry-regen.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "hook-registry-regen.mjs — PostToolUse:Edit|Write|MultiEdit (HOOK-SYNERGY-MS0 / U-H1 step-4)."
+    },
+    {
+      "name": "hook-saturation-alert.mjs",
+      "file": ".claude/hooks/hook-saturation-alert.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "hook_saturation_alert — USSH Phase 0.25"
+    },
+    {
+      "name": "hook-stability-check.mjs",
+      "file": ".claude/hooks/hook-stability-check.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "hook_stability_check — USSH Phase 0.25"
+    },
+    {
+      "name": "hook-tier-validator.mjs",
+      "file": ".claude/hooks/hook-tier-validator.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "hook-tier-validator.mjs — HOOK-SYNERGY-MS0 / U-HOOK-TIERS (H3)"
+    },
+    {
+      "name": "hook-tla-invariant.mjs",
+      "file": ".claude/hooks/hook-tla-invariant.mjs",
+      "trigger": "SessionStart",
+      "purpose": "hook_tla_invariant — USSH Phase 0.25"
+    },
+    {
+      "name": "html-companion-guard.mjs",
+      "file": ".claude/hooks/html-companion-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "html-companion-guard.mjs — per-commit guard for HTML spec/research companions.",
+      "exports": [
+        "isCompanionTarget"
+      ]
+    },
+    {
+      "name": "import-verifier.mjs",
+      "file": ".claude/hooks/import-verifier.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "import-verifier.mjs — PreToolUse hook for Edit/Write/MultiEdit"
+    },
+    {
+      "name": "inbox-capture-sharpen.mjs",
+      "file": ".claude/hooks/inbox-capture-sharpen.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "inbox-capture-sharpen.mjs — PostToolUse hook",
+      "exports": [
+        "processInboxFile"
+      ]
+    },
+    {
+      "name": "inbox-lag-advisory.mjs",
+      "file": ".claude/hooks/inbox-lag-advisory.mjs",
+      "trigger": "Stop",
+      "purpose": "inbox-lag-advisory.mjs — Stop hook",
+      "exports": [
+        "findStaleFiles",
+        "buildResponse"
+      ]
+    },
+    {
+      "name": "india-awareness-inject.mjs",
+      "file": ".claude/hooks/india-awareness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "UserPromptSubmit hook. SLOT-GATED: a NO-OP for every slot except india"
+    },
+    {
+      "name": "ingestion-cache-root-guard.mjs",
+      "file": ".claude/hooks/ingestion-cache-root-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "ingestion-cache-root-guard.mjs — CAM-UIX-INFRA-00/U-CACHEROOT01"
+    },
+    {
+      "name": "injection-budget-cap-enforce.mjs",
+      "file": ".claude/hooks/injection-budget-cap-enforce.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "injection-budget-cap-enforce.mjs -- PreToolUse(Write) per-prompt injection",
+      "exports": [
+        "DEFAULT_CAP_BYTES",
+        "DEFAULT_TTL_MS",
+        "capFromEnv",
+        "ttlFromEnv",
+        "readSnapshot",
+        "evaluate"
+      ]
+    },
+    {
+      "name": "injection-budget-snapshot-refresh.mjs",
+      "file": ".claude/hooks/injection-budget-snapshot-refresh.mjs",
+      "trigger": "SessionStart",
+      "purpose": "injection-budget-snapshot-refresh.mjs -- SessionStart opportunistic refresher",
+      "exports": [
+        "ROOT",
+        "MEASURE_SCRIPT",
+        "REFRESH_MARKER_PATH",
+        "DEFAULT_INTERVAL_MS",
+        "DEFAULT_COOLDOWN_MS",
+        "intervalFromEnv",
+        "cooldownFromEnv",
+        "ageOfFile",
+        "decideRefresh"
+      ]
+    },
+    {
+      "name": "injection-knob-enforce.mjs",
+      "file": ".claude/hooks/injection-knob-enforce.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "injection-knob-enforce.mjs -- PreToolUse(Write) HARD-BLOCK enforcement gate.",
+      "exports": [
+        "targetsRecurringInjection",
+        "suggestKnobName",
+        "evaluate"
+      ]
+    },
+    {
+      "name": "intake-quarantine-guard.mjs",
+      "file": ".claude/hooks/intake-quarantine-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "intake-quarantine-guard.mjs — PreToolUse T0 hook (ULTRACODE-SYNERGY-MS0 / Pattern 13)",
+      "exports": [
+        "HIGH_PRIVILEGE",
+        "INJECTION_PATTERNS",
+        "PII_PATTERNS",
+        "scanContent",
+        "isHighPrivilege",
+        "decide"
+      ]
+    },
+    {
+      "name": "inventory-check-guard.mjs",
+      "file": ".claude/hooks/inventory-check-guard.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "inventory-check-guard.mjs — UserPromptSubmit hook (U-AWARE02, refactored H9 + saturation arm).",
+      "exports": [
+        "CREATE_PATTERNS",
+        "hasCreateIntent",
+        "SATURATION_THRESHOLDS",
+        "detectSaturatedCategories"
+      ]
+    },
+    {
+      "name": "inventory-on-write.mjs",
+      "file": ".claude/hooks/inventory-on-write.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Inventory On-Write — PostToolUse hook"
+    },
+    {
+      "name": "inventory-refresh.mjs",
+      "file": ".claude/hooks/inventory-refresh.mjs",
+      "trigger": "SessionStart",
+      "purpose": "Inventory Refresh — SessionStart hook"
+    },
+    {
+      "name": "iterate-retrieve-suggest.mjs",
+      "file": ".claude/hooks/iterate-retrieve-suggest.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "iterate-retrieve-suggest — PreToolUse hook for Agent tool calls.",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "jm-die-provenance-guard.mjs",
+      "file": ".claude/hooks/jm-die-provenance-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "jm-die-provenance-guard.mjs — CAM-UIX-INFRA-00/U-JMDP01 guard hook"
+    },
+    {
+      "name": "json-read-summarizer.mjs",
+      "file": ".claude/hooks/json-read-summarizer.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "json-read-summarizer.mjs — PreToolUse large-JSON preview"
+    },
+    {
+      "name": "karpathy-discipline-inject.mjs",
+      "file": ".claude/hooks/karpathy-discipline-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "karpathy-discipline-inject.mjs — SessionStart hook"
+    },
+    {
+      "name": "kienzle-coeff-check.mjs",
+      "file": ".claude/hooks/kienzle-coeff-check.mjs",
+      "trigger": "",
+      "purpose": "kienzle-coeff-check.mjs — Phase 1 Tier 5C Physics Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "knowledge-link-audit-inject.mjs",
+      "file": ".claude/hooks/knowledge-link-audit-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": ".claude/hooks/knowledge-link-audit-inject.mjs",
+      "exports": [
+        "loadAudit",
+        "brokenRatio",
+        "pickTopBroken",
+        "formatDigest"
+      ]
+    },
+    {
+      "name": "large-read-digest-advisory.mjs",
+      "file": ".claude/hooks/large-read-digest-advisory.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "- PreToolUse:Read advisory hook",
+      "exports": [
+        "DEFAULT_MIN_LINES",
+        "HOOK_KEY",
+        "STATS_PATH",
+        "estimateLineCount",
+        "classifySourcePath",
+        "decideAdvisory"
+      ]
+    },
+    {
+      "name": "lathe-gcode-lint-guard.mjs",
+      "file": ".claude/hooks/lathe-gcode-lint-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "lathe-gcode-lint-guard.mjs  (WHISKEY-LATHE-LINT, operator 2026-05-29, slot:whiskey)"
+    },
+    {
+      "name": "lathe-master-post-quality-gate.mjs",
+      "file": ".claude/hooks/lathe-master-post-quality-gate.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass."
+    },
+    {
+      "name": "lathe-p2p-suggest.mjs",
+      "file": ".claude/hooks/lathe-p2p-suggest.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "lathe-p2p-suggest.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "leave-a-copy-behind-guard.mjs",
+      "file": ".claude/hooks/leave-a-copy-behind-guard.mjs",
+      "trigger": "Stop",
+      "purpose": "leave-a-copy-behind-guard.mjs — Stop hook"
+    },
+    {
+      "name": "literature-citation.mjs",
+      "file": ".claude/hooks/literature-citation.mjs",
+      "trigger": "",
+      "purpose": "literature-citation.mjs — Phase 1 Tier 5C Physics Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "local-compute-intent.mjs",
+      "file": ".claude/hooks/local-compute-intent.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "local-compute-intent.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "localhost-ollama-hardcode-guard.mjs",
+      "file": ".claude/hooks/localhost-ollama-hardcode-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "PreToolUse:Write|Edit advisory guard.",
+      "exports": [
+        "extractContent",
+        "decideWarn"
+      ]
+    },
+    {
+      "name": "loop-detector.mjs",
+      "file": ".claude/hooks/loop-detector.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "loop-detector.mjs — PostToolUse hook (any tool)."
+    },
+    {
+      "name": "loop-iteration-inject.mjs",
+      "file": ".claude/hooks/loop-iteration-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "loop-iteration-inject.mjs — UserPromptSubmit hook for /loop awareness."
+    },
+    {
+      "name": "macro-bulk-emit-guard.mjs",
+      "file": ".claude/hooks/macro-bulk-emit-guard.mjs",
+      "trigger": "Stop",
+      "purpose": "macro-bulk-emit-guard — MACRO-PROGRAM-PIPELINE-MS0/MS0-U6 SAFETY HOOK.",
+      "exports": [
+        "parseBulkLog",
+        "checkBlocking"
+      ]
+    },
+    {
+      "name": "magic-number-detector.mjs",
+      "file": ".claude/hooks/magic-number-detector.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "RE-ENABLED 2026-04-27 by user approval (RESUME_AT_WORK section 5).",
+      "exports": [
+        "stripNoiseForScan"
+      ]
+    },
+    {
+      "name": "main-tree-write-block.mjs",
+      "file": ".claude/hooks/main-tree-write-block.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "main-tree-write-block.mjs — PreToolUse(Edit | Write | MultiEdit) main-tree gate.",
+      "exports": [
+        "canonicalize",
+        "isWithin",
+        "isSlotBranch",
+        "resolveSlotBinding",
+        "decideOnEdit"
+      ]
+    },
+    {
+      "name": "managed-block-guard.mjs",
+      "file": ".claude/hooks/managed-block-guard.mjs",
+      "trigger": "",
+      "purpose": "managed-block-guard.mjs — Phase 0.15 Managed Block Guard",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "master-coder-protocol.mjs",
+      "file": ".claude/hooks/master-coder-protocol.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "master-coder-protocol.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "master-index-precheck-inject.mjs",
+      "file": ".claude/hooks/master-index-precheck-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "master-index-precheck-inject.mjs — UserPromptSubmit injector",
+      "exports": [
+        "applyLexicalRerank"
+      ]
+    },
+    {
+      "name": "master-index-search-gate.mjs",
+      "file": ".claude/hooks/master-index-search-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "master-index-search-gate.mjs — PreToolUse hook (U-AWARE03)"
+    },
+    {
+      "name": "mcp-broadcast-reconnect-inject.mjs",
+      "file": ".claude/hooks/mcp-broadcast-reconnect-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "mcp-broadcast-reconnect-inject.mjs — UserPromptSubmit hook."
+    },
+    {
+      "name": "mcp-config-resolve.mjs",
+      "file": ".claude/hooks/mcp-config-resolve.mjs",
+      "trigger": "SessionStart",
+      "purpose": "mcp-config-resolve.mjs — Regenerate ~/.claude/.mcp.json with PC-specific node.exe path."
+    },
+    {
+      "name": "mcp-connection-coordinator.mjs",
+      "file": ".claude/hooks/mcp-connection-coordinator.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "mcp-connection-coordinator.mjs — PreToolUse hook"
+    },
+    {
+      "name": "mcp-connectivity-check.mjs",
+      "file": ".claude/hooks/mcp-connectivity-check.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "mcp-connectivity-check.mjs — UserPromptSubmit hook.",
+      "exports": [
+        "getConfig",
+        "loadState",
+        "saveState",
+        "shouldProbe",
+        "probeUrl",
+        "buildBanner",
+        "runCheck"
+      ]
+    },
+    {
+      "name": "mcp-daemon-autostart.mjs",
+      "file": ".claude/hooks/mcp-daemon-autostart.mjs",
+      "trigger": "SessionStart",
+      "purpose": "mcp-daemon-autostart.mjs — SessionStart Hook"
+    },
+    {
+      "name": "mcp-readonly-cache.mjs",
+      "file": ".claude/hooks/mcp-readonly-cache.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "mcp-readonly-cache.mjs - duplicate read-only MCP dispatcher-call guard.",
+      "exports": [
+        "ttlMs",
+        "isReadOnlyAction",
+        "stableStringify",
+        "cacheKey",
+        "decideMcpCheck",
+        "main"
+      ]
+    },
+    {
+      "name": "mcp-route-suggest.mjs",
+      "file": ".claude/hooks/mcp-route-suggest.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "mcp-route-suggest.mjs",
+      "exports": [
+        "_PREFERRED_ACTION_FOR_CLASSIFIER",
+        "_REDUNDANT_CLASSIFIERS",
+        "isCompanionCovered",
+        "nonRedundantFires",
+        "formatActionHint",
+        "appendActionHints",
+        "formatTakeRateAdvisory",
+        "isBroadGrep",
+        "isVerboseBash",
+        "isLargeRead",
+        "isLargeWrite",
+        "isBroadSearch"
+      ]
+    },
+    {
+      "name": "mcp-route-takeup.mjs",
+      "file": ".claude/hooks/mcp-route-takeup.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "mcp-route-takeup.mjs",
+      "exports": [
+        "_ACTION_TO_CLASSIFIERS",
+        "extractMcpAction",
+        "classifiersTakenBy"
+      ]
+    },
+    {
+      "name": "mcp-safety-bridge.mjs",
+      "file": ".claude/hooks/mcp-safety-bridge.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "mcp-safety-bridge.mjs — PostToolUse(Edit|Write|MultiEdit) → physics edit ⇒ run the safety validator.",
+      "exports": [
+        "isDisabled",
+        "mcpUrl",
+        "isPhysicsCritical",
+        "buildAdvisory",
+        "runBridge"
+      ]
+    },
+    {
+      "name": "memory-autocompact-stop.mjs",
+      "file": ".claude/hooks/memory-autocompact-stop.mjs",
+      "trigger": "SessionStart",
+      "purpose": "memory-autocompact-stop.mjs — Stop hook. The ACT counterpart to the",
+      "exports": [
+        "isPointerLine",
+        "compactPointerLine",
+        "compactIndex",
+        "run"
+      ]
+    },
+    {
+      "name": "memory-index-precheck-inject.mjs",
+      "file": ".claude/hooks/memory-index-precheck-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "UserPromptSubmit injector (T2, advisory)."
+    },
+    {
+      "name": "memory-index-sidecar-regen.mjs",
+      "file": ".claude/hooks/memory-index-sidecar-regen.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Stop hook (T3, advisory)."
+    },
+    {
+      "name": "memory-mirror-to-vault.mjs",
+      "file": ".claude/hooks/memory-mirror-to-vault.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "memory-mirror-to-vault.mjs — PostToolUse hook",
+      "exports": [
+        "classifyOntologyInline",
+        "formatOntologyInline",
+        "hasOntologyBlock",
+        "mergeOntologyInline"
+      ]
+    },
+    {
+      "name": "memory-rag-inject.mjs",
+      "file": ".claude/hooks/memory-rag-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "memory-rag-inject.mjs — UserPromptSubmit hook",
+      "exports": [
+        "hasRecallKeyword",
+        "precheckCoversPrompt",
+        "renderRecallBlock"
+      ]
+    },
+    {
+      "name": "memory-relevance-inject.mjs",
+      "file": ".claude/hooks/memory-relevance-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "memory-relevance-inject.mjs — PreToolUse hook for Edit/Write/MultiEdit.",
+      "exports": [
+        "applyLexicalRerank"
+      ]
+    },
+    {
+      "name": "memory-system-init.mjs",
+      "file": ".claude/hooks/memory-system-init.mjs",
+      "trigger": "SessionStart",
+      "purpose": "Memory System Init — SessionStart Hook"
+    },
+    {
+      "name": "meta-learning-inject.mjs",
+      "file": ".claude/hooks/meta-learning-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "U-META-INJECT-PATTERNS — UserPromptSubmit hook that surfaces the most",
+      "exports": [
+        "readLatestConsolidation",
+        "pickTopFailures",
+        "formatInjectBlock"
+      ]
+    },
+    {
+      "name": "meta-learning-trigger.mjs",
+      "file": ".claude/hooks/meta-learning-trigger.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Meta-Learning Trigger — PostToolUse Hook"
+    },
+    {
+      "name": "metacognition-check.mjs",
+      "file": ".claude/hooks/metacognition-check.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "metacognition-check.mjs — Phase 0.13 Metacognition Budget Check",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "mio-proactive-intelligence.mjs",
+      "file": ".claude/hooks/mio-proactive-intelligence.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "MIO Proactive Intelligence — Auto-Fire Hook"
+    },
+    {
+      "name": "mirror-c-to-h.mjs",
+      "file": ".claude/hooks/mirror-c-to-h.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "mirror-c-to-h.mjs — PostToolUse hook",
+      "exports": [
+        "translateCToH",
+        "mirrorOne"
+      ]
+    },
+    {
+      "name": "multi-computer-awareness.mjs",
+      "file": ".claude/hooks/multi-computer-awareness.mjs",
+      "trigger": "SessionStart",
+      "purpose": "multi-computer-awareness.mjs — SessionStart hook"
+    },
+    {
+      "name": "multi-session-awareness.mjs",
+      "file": ".claude/hooks/multi-session-awareness.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "multi-session-awareness.mjs — PreToolUse hook"
+    },
+    {
+      "name": "naming-convention-enforcer.mjs",
+      "file": ".claude/hooks/naming-convention-enforcer.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass."
+    },
+    {
+      "name": "nav-rerank-advisory.mjs",
+      "file": ".claude/hooks/nav-rerank-advisory.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "- PreToolUse:Bash advisory hook",
+      "exports": [
+        "HOOK_KEY",
+        "STATS_PATH",
+        "parseFindCommand",
+        "decideNavAdvisory"
+      ]
+    },
+    {
+      "name": "neural-ai-optimizer.mjs",
+      "file": ".claude/hooks/neural-ai-optimizer.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Neural AI Optimizer — UserPromptSubmit Hook"
+    },
+    {
+      "name": "neural-cad-validation.mjs",
+      "file": ".claude/hooks/neural-cad-validation.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "neural-cad-validation.mjs — PostToolUse hook"
+    },
+    {
+      "name": "neural-roadmap-resume-detect.mjs",
+      "file": ".claude/hooks/neural-roadmap-resume-detect.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "neural-roadmap-resume-detect.mjs"
+    },
+    {
+      "name": "nim-autostart.mjs",
+      "file": ".claude/hooks/nim-autostart.mjs",
+      "trigger": "SessionStart",
+      "purpose": "nim-autostart.mjs — SessionStart hook"
+    },
+    {
+      "name": "nn-graph-health-inject.mjs",
+      "file": ".claude/hooks/nn-graph-health-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": ".claude/hooks/nn-graph-health-inject.mjs",
+      "exports": [
+        "PROMOTE_AUROC_MIN",
+        "PROMOTE_BRIER_MAX",
+        "loadEval",
+        "classifyGnn",
+        "formatDigest"
+      ]
+    },
+    {
+      "name": "no-re-extract.mjs",
+      "file": ".claude/hooks/no-re-extract.mjs",
+      "trigger": "",
+      "purpose": "no-re-extract.mjs — Phase 1 Tier 5B",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "no-silent-catch.mjs",
+      "file": ".claude/hooks/no-silent-catch.mjs",
+      "trigger": "",
+      "purpose": "no-silent-catch.mjs — Phase 1 Tier 5D Workflow Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "node-capability-inject.mjs",
+      "file": ".claude/hooks/node-capability-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "node-capability-inject.mjs — NODE-CAPABILITY-INJECT-MS0 / U-NCI-HOOK"
+    },
+    {
+      "name": "node-card-prefetch-inject.mjs",
+      "file": ".claude/hooks/node-card-prefetch-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "node-card-prefetch-inject.mjs — UserPromptSubmit injector",
+      "exports": [
+        "TRIGGER_PREFIXES",
+        "detectNodeIds",
+        "renderCard",
+        "buildPrefetchContext"
+      ]
+    },
+    {
+      "name": "node-orphan-cleaner.mjs",
+      "file": ".claude/hooks/node-orphan-cleaner.mjs",
+      "trigger": "Stop",
+      "purpose": "node-orphan-cleaner.mjs - Stop hook closeout orchestrator."
+    },
+    {
+      "name": "node-process-janitor.mjs",
+      "file": ".claude/hooks/node-process-janitor.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "Node Process Janitor — PreToolUse `.*` (hot path) + scheduled `--full` (backstop)"
+    },
+    {
+      "name": "npm-output-condenser.mjs",
+      "file": ".claude/hooks/npm-output-condenser.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "npm-output-condenser.mjs — PostToolUse Bash hook."
+    },
+    {
+      "name": "obsidian-learning-revival-sessionstart.mjs",
+      "file": ".claude/hooks/obsidian-learning-revival-sessionstart.mjs",
+      "trigger": "SessionStart",
+      "purpose": "obsidian-learning-revival-sessionstart.mjs — SessionStart arm of the",
+      "exports": [
+        "buildAdvisory"
+      ]
+    },
+    {
+      "name": "obsidian-precheck-inject.mjs",
+      "file": ".claude/hooks/obsidian-precheck-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "obsidian-precheck-inject.mjs — UserPromptSubmit hook",
+      "exports": [
+        "readStdinJson",
+        "tokenize",
+        "parseMemoryFrontmatter",
+        "loadMemoryCorpus",
+        "scoreMemory",
+        "rankMemories",
+        "renderInject",
+        "runHook"
+      ]
+    },
+    {
+      "name": "obsidian-vault-precheck-inject.mjs",
+      "file": ".claude/hooks/obsidian-vault-precheck-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "obsidian-vault-precheck-inject.mjs — UserPromptSubmit"
+    },
+    {
+      "name": "octopus-provider-probe.mjs",
+      "file": ".claude/hooks/octopus-provider-probe.mjs",
+      "trigger": "SessionStart",
+      "purpose": "octopus-provider-probe.mjs — SessionStart hook",
+      "exports": [
+        "buildBanner",
+        "probeEnvKey"
+      ]
+    },
+    {
+      "name": "ollama-auto-router.mjs",
+      "file": ".claude/hooks/ollama-auto-router.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-auto-router.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "ollama-autostart.mjs",
+      "file": ".claude/hooks/ollama-autostart.mjs",
+      "trigger": "SessionStart",
+      "purpose": "ollama-autostart.mjs — SessionStart hook"
+    },
+    {
+      "name": "ollama-context-aggregator.mjs",
+      "file": ".claude/hooks/ollama-context-aggregator.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-context-aggregator.mjs — Single UserPromptSubmit injection point"
+    },
+    {
+      "name": "ollama-engine-api-extractor.mjs",
+      "file": ".claude/hooks/ollama-engine-api-extractor.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "ollama-engine-api-extractor — PreToolUse hook on Read of engine source files."
+    },
+    {
+      "name": "ollama-nav-enforce-inject.mjs",
+      "file": ".claude/hooks/ollama-nav-enforce-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "- UserPromptSubmit advisory hook",
+      "exports": [
+        "HOOK_KEY",
+        "STATS_PATH",
+        "SEEN_PATH",
+        "MAX_PROMPT_CHARS",
+        "MAX_QUESTION_CHARS",
+        "classifyNavIntent",
+        "sanitizeForCommand",
+        "navQuestionKey",
+        "BRIDGE_TOOL_MODEL",
+        "buildNavSuggestion"
+      ]
+    },
+    {
+      "name": "ollama-obsidian-rag.mjs",
+      "file": ".claude/hooks/ollama-obsidian-rag.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-obsidian-rag.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "ollama-pipeline-injector.mjs",
+      "file": ".claude/hooks/ollama-pipeline-injector.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-pipeline-injector.mjs — UserPromptSubmit hook",
+      "exports": [
+        "_VERB_ROUTES_FOR_TESTS",
+        "matchVerbTrigger",
+        "matchPipelineTrigger"
+      ]
+    },
+    {
+      "name": "ollama-prewarm-on-pipeline.mjs",
+      "file": ".claude/hooks/ollama-prewarm-on-pipeline.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-prewarm-on-pipeline.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "ollama-prism-intelligence.mjs",
+      "file": ".claude/hooks/ollama-prism-intelligence.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-prism-intelligence.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "ollama-reviewer-second-opinion.mjs",
+      "file": ".claude/hooks/ollama-reviewer-second-opinion.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "ollama-reviewer-second-opinion — PreToolUse hook on Bash for `git commit`."
+    },
+    {
+      "name": "ollama-route-check-inject.mjs",
+      "file": ".claude/hooks/ollama-route-check-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-route-check-inject.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "ollama-route-pretooluse.mjs",
+      "file": ".claude/hooks/ollama-route-pretooluse.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "ollama-route-pretooluse.mjs — PreToolUse:Read — route trivial bulk reads at the local LLM.",
+      "exports": [
+        "isDisabled",
+        "loadRouteConfig",
+        "classifyReadTarget",
+        "isGistSafe",
+        "decideRoute",
+        "runRoute"
+      ]
+    },
+    {
+      "name": "ollama-route-recommender.mjs",
+      "file": ".claude/hooks/ollama-route-recommender.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-route-recommender.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "ollama-schema-engine-sync-gate.mjs",
+      "file": ".claude/hooks/ollama-schema-engine-sync-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "ollama-schema-engine-sync-gate — PreToolUse hook on Edit/Write of schema files."
+    },
+    {
+      "name": "ollama-session-continuity.mjs",
+      "file": ".claude/hooks/ollama-session-continuity.mjs",
+      "trigger": "PreCompact",
+      "purpose": "ollama-session-continuity.mjs — PreCompact hook"
+    },
+    {
+      "name": "ollama-skill-suggester.mjs",
+      "file": ".claude/hooks/ollama-skill-suggester.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-skill-suggester.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "ollama-task-offloader.mjs",
+      "file": ".claude/hooks/ollama-task-offloader.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "NOTE: no shebang. The hook runs via explicit `node X.mjs` in the harness's",
+      "exports": [
+        "loadRoutingHint",
+        "detectFileTarget",
+        "buildOffloadDirective",
+        "buildClaudeFallbackDirective"
+      ]
+    },
+    {
+      "name": "ollama-terminal-watcher.mjs",
+      "file": ".claude/hooks/ollama-terminal-watcher.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "ollama-terminal-watcher.mjs — PostToolUse hook"
+    },
+    {
+      "name": "ollama-unified-semantic-router.mjs",
+      "file": ".claude/hooks/ollama-unified-semantic-router.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ollama-unified-semantic-router.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "omega-floor.mjs",
+      "file": ".claude/hooks/omega-floor.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "omega-floor.mjs — Phase 1 Tier 5D Workflow Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "optimal-context-inject.mjs",
+      "file": ".claude/hooks/optimal-context-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Optimal Context Inject — UserPromptSubmit Hook"
+    },
+    {
+      "name": "orchestrator-advisory-inject.mjs",
+      "file": ".claude/hooks/orchestrator-advisory-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "orchestrator-advisory-inject.mjs — UserPromptSubmit hook that injects",
+      "exports": [
+        "stableIdFromPayload",
+        "slotForChatId",
+        "decideAdvisoryInject",
+        "formatAdvisoryText"
+      ]
+    },
+    {
+      "name": "orphan-type-detector.mjs",
+      "file": ".claude/hooks/orphan-type-detector.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "orphan-type-detector.mjs — Phase 0.9 Specific Orphan Type Detection"
+    },
+    {
+      "name": "outcome-bus-auto-tap.mjs",
+      "file": ".claude/hooks/outcome-bus-auto-tap.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "PER-SLOT-CLOSED-LOOP-INTEGRATION/U-PSCL03 — outcome-bus-auto-tap (india #1)."
+    },
+    {
+      "name": "output-cache-capture.mjs",
+      "file": ".claude/hooks/output-cache-capture.mjs",
+      "trigger": "Stop",
+      "purpose": "output-cache-capture.mjs — Stop hook"
+    },
+    {
+      "name": "output-cache-inject.mjs",
+      "file": ".claude/hooks/output-cache-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "output-cache-inject.mjs — SessionStart hook"
+    },
+    {
+      "name": "path-frequency-tracker.mjs",
+      "file": ".claude/hooks/path-frequency-tracker.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "path-frequency-tracker.mjs - PostToolUse Read/Edit/Write"
+    },
+    {
+      "name": "path-replay-advise.mjs",
+      "file": ".claude/hooks/path-replay-advise.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Thin stdin shim over scripts/lib/path-replay-advise-core.mjs (tested). Surfaces proven working-paths"
+    },
+    {
+      "name": "path-shortener.mjs",
+      "file": ".claude/hooks/path-shortener.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "path-shortener.mjs — PostToolUse hook (any tool)."
+    },
+    {
+      "name": "performance-pattern-detector.mjs",
+      "file": ".claude/hooks/performance-pattern-detector.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass."
+    },
+    {
+      "name": "periodic-checkin.mjs",
+      "file": ".claude/hooks/periodic-checkin.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "periodic-checkin.mjs — UserPromptSubmit periodic heartbeat + chat poll"
+    },
+    {
+      "name": "permission-denied-retry.mjs",
+      "file": ".claude/hooks/permission-denied-retry.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "permission-denied-retry.mjs — PostToolUse classifier for denied / failed tool calls.",
+      "exports": [
+        "extractErrorText",
+        "looksLikeFailure",
+        "classifyDenial",
+        "cacheDir",
+        "cachePath",
+        "callHash",
+        "decideRetry",
+        "runClassifier"
+      ]
+    },
+    {
+      "name": "physics-canonical-constants-guard.mjs",
+      "file": ".claude/hooks/physics-canonical-constants-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "physics-canonical-constants-guard.mjs — CAM-UIX-INFRA-00/U-PHYSCONST01"
+    },
+    {
+      "name": "pick-prefresh-inject.mjs",
+      "file": ".claude/hooks/pick-prefresh-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "pick-prefresh-inject.mjs — UserPromptSubmit hook for /pick-unit /pick-task /checkin."
+    },
+    {
+      "name": "plugin-inventory-surface.mjs",
+      "file": ".claude/hooks/plugin-inventory-surface.mjs",
+      "trigger": "SessionStart",
+      "purpose": "SessionStart hook — surfaces PLUGIN_INVENTORY.json (MCP servers +"
+    },
+    {
+      "name": "plugin-path-fixer.mjs",
+      "file": ".claude/hooks/plugin-path-fixer.mjs",
+      "trigger": "SessionStart",
+      "purpose": "plugin-path-fixer.mjs — SessionStart hook"
+    },
+    {
+      "name": "portable-node-guard.mjs",
+      "file": ".claude/hooks/portable-node-guard.mjs",
+      "trigger": "SessionStart",
+      "purpose": "portable-node-guard.mjs — SessionStart verification for portable Node.js on H:."
+    },
+    {
+      "name": "portable-python-guard.mjs",
+      "file": ".claude/hooks/portable-python-guard.mjs",
+      "trigger": "SessionStart",
+      "purpose": "portable-python-guard.mjs — SessionStart verification for portable Python on H:."
+    },
+    {
+      "name": "post-extract-sync.mjs",
+      "file": ".claude/hooks/post-extract-sync.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Post-Extract Sync Hook — AI-AWARE-HARDEN/U-AWR24"
+    },
+    {
+      "name": "post-memory-context-eval.mjs",
+      "file": ".claude/hooks/post-memory-context-eval.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "post-memory-context-eval.mjs"
+    },
+    {
+      "name": "post-nc-dialect-guard.mjs",
+      "file": ".claude/hooks/post-nc-dialect-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "post-nc-dialect-guard.mjs — PostToolUse hook (Edit|Write|MultiEdit)"
+    },
+    {
+      "name": "post-pipeline-integrity-check.mjs",
+      "file": ".claude/hooks/post-pipeline-integrity-check.mjs",
+      "trigger": "SessionStart",
+      "purpose": "post-pipeline-integrity-check.mjs (CPP-MS5-U-CPP34)"
+    },
+    {
+      "name": "post-recommendation-capture.mjs",
+      "file": ".claude/hooks/post-recommendation-capture.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "post-recommendation-capture.mjs — PostToolUse hook for U-LEARN-01."
+    },
+    {
+      "name": "post-ship-distill.mjs",
+      "file": ".claude/hooks/post-ship-distill.mjs",
+      "trigger": "Stop",
+      "purpose": "Stop hook (T3 observer)."
+    },
+    {
+      "name": "post-tool-batch-budget.mjs",
+      "file": ".claude/hooks/post-tool-batch-budget.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "post-tool-batch-budget.mjs — PostToolUse — alarm when a session is burning through the tool budget.",
+      "exports": [
+        "cacheDir",
+        "logPath",
+        "statePath",
+        "samplesPath",
+        "recommendationPath",
+        "isDisabled",
+        "recommendCeiling",
+        "resolveCeiling",
+        "resolveConfig",
+        "readWindowCount",
+        "decideAlarm",
+        "runBudget"
+      ]
+    },
+    {
+      "name": "post-tool-p1.mjs",
+      "file": ".claude/hooks/post-tool-p1.mjs",
+      "trigger": "",
+      "purpose": "post-tool-p1.mjs — Phase 1 Tier 0",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "postgen-validator-skip-guard.mjs",
+      "file": ".claude/hooks/postgen-validator-skip-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "postgen-validator-skip-guard.mjs",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "posttool-bayesian-update.mjs",
+      "file": ".claude/hooks/posttool-bayesian-update.mjs",
+      "trigger": "",
+      "purpose": "posttool-bayesian-update.mjs — U-AI02 Bayesian Posterior Update"
+    },
+    {
+      "name": "posttool-curiosity-tick.mjs",
+      "file": ".claude/hooks/posttool-curiosity-tick.mjs",
+      "trigger": "",
+      "purpose": "posttool-curiosity-tick.mjs — hook_idle_curiosity_v2 (PP-0.18 U-AGI5)"
+    },
+    {
+      "name": "posttool-emergence-scan.mjs",
+      "file": ".claude/hooks/posttool-emergence-scan.mjs",
+      "trigger": "",
+      "purpose": "posttool-emergence-scan.mjs — hook_emergence_scan (PP-0.18 U-AGI11)"
+    },
+    {
+      "name": "posttool-error-explain.mjs",
+      "file": ".claude/hooks/posttool-error-explain.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "posttool-error-explain.mjs — PostToolUse Bash hook"
+    },
+    {
+      "name": "posttool-mcp-backend-audit.mjs",
+      "file": ".claude/hooks/posttool-mcp-backend-audit.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "posttool-mcp-backend-audit.mjs"
+    },
+    {
+      "name": "posttool-ollama-offload-nudge.mjs",
+      "file": ".claude/hooks/posttool-ollama-offload-nudge.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "posttool-ollama-offload-nudge.mjs — PostToolUse hook",
+      "exports": [
+        "isLargeRead",
+        "formatOffloadNudge"
+      ]
+    },
+    {
+      "name": "posttool-ollama-rewriter-corpus.mjs",
+      "file": ".claude/hooks/posttool-ollama-rewriter-corpus.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "posttool-ollama-rewriter-corpus.mjs — PostToolUse hook",
+      "exports": [
+        "shouldRecord",
+        "sha8",
+        "extractCorpusRecord",
+        "shouldThrottle",
+        "readMostRecentSuccess"
+      ]
+    },
+    {
+      "name": "posttool-rtk-adoption-measure.mjs",
+      "file": ".claude/hooks/posttool-rtk-adoption-measure.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "posttool-rtk-adoption-measure.mjs — PostToolUse:Bash",
+      "exports": [
+        "baseFromRtkCommand",
+        "calibrate"
+      ]
+    },
+    {
+      "name": "posttool-threshold-nudges.mjs",
+      "file": ".claude/hooks/posttool-threshold-nudges.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "posttool-threshold-nudges.mjs — PostToolUse hook",
+      "exports": [
+        "THRESHOLDS",
+        "classifyResultPattern",
+        "formatNudge"
+      ]
+    },
+    {
+      "name": "posttool-websearch-summarize-nudge.mjs",
+      "file": ".claude/hooks/posttool-websearch-summarize-nudge.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "posttool-websearch-summarize-nudge.mjs — PostToolUse hook (WebSearch)",
+      "exports": [
+        "formatWebSearchNudge"
+      ]
+    },
+    {
+      "name": "pre-bash-graph-inject.mjs",
+      "file": ".claude/hooks/pre-bash-graph-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-bash-graph-inject.mjs — PreToolUse:Bash graph-context injector.",
+      "exports": [
+        "renderInject"
+      ]
+    },
+    {
+      "name": "pre-commit-conflict-sim.mjs",
+      "file": ".claude/hooks/pre-commit-conflict-sim.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "hooks/pre-commit-conflict-sim.mjs"
+    },
+    {
+      "name": "pre-compact-p1.mjs",
+      "file": ".claude/hooks/pre-compact-p1.mjs",
+      "trigger": "PreCompact",
+      "purpose": "pre-compact-p1.mjs — Phase 1 Tier 0",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "pre-create-marketplace-dup-check.mjs",
+      "file": ".claude/hooks/pre-create-marketplace-dup-check.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "U-GALAXY-MS1-A2 (2026-05-27, slot:alpha): PreToolUse:Write hook."
+    },
+    {
+      "name": "pre-delete-guard.mjs",
+      "file": ".claude/hooks/pre-delete-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-delete-guard.mjs — Phase 0.8 Delete Guard Hook"
+    },
+    {
+      "name": "pre-edit-galaxy-cascade-inject.mjs",
+      "file": ".claude/hooks/pre-edit-galaxy-cascade-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "U-GALAXY-MS1-F1 (2026-05-27, slot:alpha): PreToolUse:Edit|Write|MultiEdit hook."
+    },
+    {
+      "name": "pre-edit-impact-analyzer.mjs",
+      "file": ".claude/hooks/pre-edit-impact-analyzer.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass."
+    },
+    {
+      "name": "pre-edit-lane-guard.mjs",
+      "file": ".claude/hooks/pre-edit-lane-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-edit-lane-guard.mjs — PreToolUse(Edit | Write | MultiEdit) lane gate."
+    },
+    {
+      "name": "pre-flight-check.mjs",
+      "file": ".claude/hooks/pre-flight-check.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "Pre-Flight Check — PreToolUse Hook"
+    },
+    {
+      "name": "pre-grep-graph-inject.mjs",
+      "file": ".claude/hooks/pre-grep-graph-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-grep-graph-inject.mjs — PreToolUse:Grep graph-context injector.",
+      "exports": [
+        "renderInject"
+      ]
+    },
+    {
+      "name": "pre-read-graph-inject.mjs",
+      "file": ".claude/hooks/pre-read-graph-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-read-graph-inject.mjs — PreToolUse:Read graph-context injector.",
+      "exports": [
+        "renderInject"
+      ]
+    },
+    {
+      "name": "pre-rename-guard.mjs",
+      "file": ".claude/hooks/pre-rename-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-rename-guard.mjs — Phase 0.8 Rename Guard Hook"
+    },
+    {
+      "name": "pre-tool-bash-rtk-enforce.mjs",
+      "file": ".claude/hooks/pre-tool-bash-rtk-enforce.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-tool-bash-rtk-enforce.mjs — PreToolUse:Bash HARD-ENFORCE rtk wrap",
+      "exports": [
+        "RTK_WRAPPABLE_BASES",
+        "baseFromCommand",
+        "shouldEnforce"
+      ]
+    },
+    {
+      "name": "pre-tool-p1.mjs",
+      "file": ".claude/hooks/pre-tool-p1.mjs",
+      "trigger": "",
+      "purpose": "pre-tool-p1.mjs — Phase 1 Tier 0",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "pre-tool-router-table-advise.mjs",
+      "file": ".claude/hooks/pre-tool-router-table-advise.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-tool-router-table-advise.mjs — unified router-table consumer hook",
+      "exports": [
+        "RTK_WRAPPABLE_BIN",
+        "commandToCandidateId",
+        "buildNudge",
+        "decideRoute"
+      ]
+    },
+    {
+      "name": "pre-tool-savings-multi.mjs",
+      "file": ".claude/hooks/pre-tool-savings-multi.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-tool-savings-multi.mjs — multi-PreToolUse advisory hook",
+      "exports": [
+        "GREP_BROAD_PATH",
+        "GLOB_TOO_BROAD",
+        "WRITE_LARGE_BYTES",
+        "classifyGrep",
+        "classifyGlob",
+        "classifyWrite",
+        "classifyBashGit",
+        "classifyBashNode",
+        "READ_PREFER_DIGEST_PATHS",
+        "classifyWebSearch",
+        "classifyRead"
+      ]
+    },
+    {
+      "name": "pre-write-cross-galaxy-warn.mjs",
+      "file": ".claude/hooks/pre-write-cross-galaxy-warn.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "U-GALAXY-MS1-F2 (2026-05-27, slot:alpha): PreToolUse:Write|Edit|MultiEdit hook"
+    },
+    {
+      "name": "pre-write-graph-inject.mjs",
+      "file": ".claude/hooks/pre-write-graph-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pre-write-graph-inject.mjs — PreToolUse:Write graph-context injector.",
+      "exports": [
+        "renderInject"
+      ]
+    },
+    {
+      "name": "pre-write-roadmap-home.mjs",
+      "file": ".claude/hooks/pre-write-roadmap-home.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "DEFERRED IMPLEMENTATION — temporary no-op stub."
+    },
+    {
+      "name": "precompact-auto-trigger.mjs",
+      "file": ".claude/hooks/precompact-auto-trigger.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "precompact-auto-trigger.mjs — Enforce /precompact at 160K tokens."
+    },
+    {
+      "name": "precompact-dossier.mjs",
+      "file": ".claude/hooks/precompact-dossier.mjs",
+      "trigger": "PreCompact",
+      "purpose": "precompact-dossier.mjs — U-CTX03 Rich PreCompact Dossier"
+    },
+    {
+      "name": "precompact-memo-emit.mjs",
+      "file": ".claude/hooks/precompact-memo-emit.mjs",
+      "trigger": "Stop",
+      "purpose": "precompact-memo-emit.mjs — compaction→memo emitter (lever #3 of",
+      "exports": [
+        "buildSessionTrace",
+        "renderMemo",
+        "nextCompactIndex"
+      ]
+    },
+    {
+      "name": "precompact-pending-guard.mjs",
+      "file": ".claude/hooks/precompact-pending-guard.mjs",
+      "trigger": "",
+      "purpose": "precompact-pending-guard.mjs — Warn about pending work before compact"
+    },
+    {
+      "name": "precompact-release-slot.mjs",
+      "file": ".claude/hooks/precompact-release-slot.mjs",
+      "trigger": "SessionStart",
+      "purpose": "precompact-release-slot.mjs — PreCompact hook",
+      "exports": [
+        "stableIdFromSession",
+        "releaseSlot"
+      ]
+    },
+    {
+      "name": "precompact-stale-prune-suggest.mjs",
+      "file": ".claude/hooks/precompact-stale-prune-suggest.mjs",
+      "trigger": "PreCompact",
+      "purpose": "precompact-stale-prune-suggest.mjs — PreCompact hook"
+    },
+    {
+      "name": "pretool-causal-trace.mjs",
+      "file": ".claude/hooks/pretool-causal-trace.mjs",
+      "trigger": "",
+      "purpose": "pretool-causal-trace.mjs — hook_pre_tool_causal_trace (PP-0.18 U-AGI2)"
+    },
+    {
+      "name": "pretool-change-radius.mjs",
+      "file": ".claude/hooks/pretool-change-radius.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pretool-change-radius.mjs — PreToolUse Write|Edit hook"
+    },
+    {
+      "name": "pretool-context-forecast.mjs",
+      "file": ".claude/hooks/pretool-context-forecast.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pretool-context-forecast.mjs — PreToolUse hook"
+    },
+    {
+      "name": "pretool-edit-batching-nudge.mjs",
+      "file": ".claude/hooks/pretool-edit-batching-nudge.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pretool-edit-batching-nudge.mjs — PreToolUse hook (Edit)",
+      "exports": [
+        "recordEdit",
+        "shouldNudge",
+        "formatBatchNudge"
+      ]
+    },
+    {
+      "name": "pretool-gap-predictor.mjs",
+      "file": ".claude/hooks/pretool-gap-predictor.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pretool-gap-predictor.mjs — PreToolUse Write|Edit hook"
+    },
+    {
+      "name": "pretool-memory-size-gate.mjs",
+      "file": ".claude/hooks/pretool-memory-size-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pretool-memory-size-gate.mjs — U-MEMORY-COMPRESS-V2 (JULIETT-12CHAT-ALLOCATION-MS0).",
+      "exports": [
+        "MEMORY_GATE_THRESHOLD",
+        "isMemoryFile",
+        "applyEditToContent",
+        "simulateEdits",
+        "decideGate"
+      ]
+    },
+    {
+      "name": "pretool-session-dedup.mjs",
+      "file": ".claude/hooks/pretool-session-dedup.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pretool-session-dedup.mjs — PreToolUse hook",
+      "exports": [
+        "signatureFor",
+        "isCacheHit",
+        "recordCall",
+        "formatDedupNudge"
+      ]
+    },
+    {
+      "name": "pretool-world-simulator.mjs",
+      "file": ".claude/hooks/pretool-world-simulator.mjs",
+      "trigger": "",
+      "purpose": "pretool-world-simulator.mjs — U-AI01 WorldSimulator PreTool Hook"
+    },
+    {
+      "name": "pretool-write-exists-check.mjs",
+      "file": ".claude/hooks/pretool-write-exists-check.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "pretool-write-exists-check.mjs — PreToolUse hook (Write/MultiEdit)",
+      "exports": [
+        "formatWriteExistsNudge"
+      ]
+    },
+    {
+      "name": "prism-ai-memo-coverage-inject.mjs",
+      "file": ".claude/hooks/prism-ai-memo-coverage-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": ".claude/hooks/prism-ai-memo-coverage-inject.mjs",
+      "exports": [
+        "loadAudit",
+        "pickTopMissing",
+        "formatDigest"
+      ]
+    },
+    {
+      "name": "prism-awareness-cache.mjs",
+      "file": ".claude/hooks/prism-awareness-cache.mjs",
+      "trigger": "SessionStart",
+      "purpose": "prism-awareness-cache.mjs — SessionStart hook"
+    },
+    {
+      "name": "prism-awareness-v2.mjs",
+      "file": ".claude/hooks/prism-awareness-v2.mjs",
+      "trigger": "SessionStart",
+      "purpose": "prism-awareness-v2.mjs — SessionStart hook"
+    },
+    {
+      "name": "prism-http-autostart.mjs",
+      "file": ".claude/hooks/prism-http-autostart.mjs",
+      "trigger": "SessionStart",
+      "purpose": "prism-http-autostart.mjs — SessionStart hook"
+    },
+    {
+      "name": "prism-intelligence-briefing.mjs",
+      "file": ".claude/hooks/prism-intelligence-briefing.mjs",
+      "trigger": "SessionStart",
+      "purpose": "PRISM Intelligence Briefing — SessionStart Hook"
+    },
+    {
+      "name": "prompt-context-inject.mjs",
+      "file": ".claude/hooks/prompt-context-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "prompt-context-inject.mjs — UserPromptSubmit hook (PRISM-STAB-MS0/U-C2)."
+    },
+    {
+      "name": "prompt-rewriter-health-warn.mjs",
+      "file": ".claude/hooks/prompt-rewriter-health-warn.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "prompt-rewriter-health-warn.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "prompt-rewriter-ollama.mjs",
+      "file": ".claude/hooks/prompt-rewriter-ollama.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "prompt-rewriter-ollama.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "prompt-rules-inject.mjs",
+      "file": ".claude/hooks/prompt-rules-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "prompt-rules-inject.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "protect-document-content.mjs",
+      "file": ".claude/hooks/protect-document-content.mjs",
+      "trigger": "",
+      "purpose": ""
+    },
+    {
+      "name": "psn-leg-state-inject.mjs",
+      "file": ".claude/hooks/psn-leg-state-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "psn-leg-state-inject.mjs — UserPromptSubmit injector",
+      "exports": [
+        "PSN_TOTAL_LEGS",
+        "shouldInject",
+        "legStateMemories",
+        "legStateSystemViz",
+        "legStateWiki",
+        "legStateTribal",
+        "legStateEngines",
+        "legStateNnGraph",
+        "PSN_LEG_OWNER_SLOT",
+        "LEG_LABEL_TO_KEY",
+        "legOwnerForLabel",
+        "formatLegState"
+      ]
+    },
+    {
+      "name": "psn-prompt-checklist-inject.mjs",
+      "file": ".claude/hooks/psn-prompt-checklist-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "psn-prompt-checklist-inject.mjs — UserPromptSubmit injector",
+      "exports": [
+        "shouldInject",
+        "buildChecklist"
+      ]
+    },
+    {
+      "name": "psn-tag-parser-inject.mjs",
+      "file": ".claude/hooks/psn-tag-parser-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ZULU-ORCHESTRATOR-MS3 / U-ZPSN03 — psn-tag-parser-inject UserPromptSubmit hook."
+    },
+    {
+      "name": "publish-pipeline-metrics.mjs",
+      "file": ".claude/hooks/publish-pipeline-metrics.mjs",
+      "trigger": "SessionStart",
+      "purpose": "publish-pipeline-metrics.mjs (CPP-MS5-U-CPP37)"
+    },
+    {
+      "name": "quality-dashboard-alert.mjs",
+      "file": ".claude/hooks/quality-dashboard-alert.mjs",
+      "trigger": "Stop",
+      "purpose": "quality-dashboard-alert.mjs — Stop + PreCompact hook",
+      "exports": [
+        "alertKey",
+        "buildAlertReport"
+      ]
+    },
+    {
+      "name": "quality-dashboard-inject.mjs",
+      "file": ".claude/hooks/quality-dashboard-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Quality Dashboard Inject — UserPromptSubmit Hook"
+    },
+    {
+      "name": "rag-relevance-guard.mjs",
+      "file": ".claude/hooks/rag-relevance-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "rag-relevance-guard.mjs — PostToolUse hook"
+    },
+    {
+      "name": "read-already-have.mjs",
+      "file": ".claude/hooks/read-already-have.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "read-already-have.mjs - PreToolUse Read"
+    },
+    {
+      "name": "read-auto-limit.mjs",
+      "file": ".claude/hooks/read-auto-limit.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "read-auto-limit.mjs - PreToolUse Read"
+    },
+    {
+      "name": "read-once-cache.mjs",
+      "file": ".claude/hooks/read-once-cache.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "read-once-cache.mjs — PreToolUse Read hook."
+    },
+    {
+      "name": "reasoning-completeness.mjs",
+      "file": ".claude/hooks/reasoning-completeness.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "reasoning-completeness.mjs — PostToolUse hook"
+    },
+    {
+      "name": "recall-counter-track.mjs",
+      "file": ".claude/hooks/recall-counter-track.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "recall-counter-track.mjs — PostToolUse hook for Read events on vault files"
+    },
+    {
+      "name": "recall-first-advisory.mjs",
+      "file": ".claude/hooks/recall-first-advisory.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "PreToolUse:Read advisory (U-GCF-RECALL-FIRST). Pure thin wrapper over the"
+    },
+    {
+      "name": "reference-inject.mjs",
+      "file": ".claude/hooks/reference-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass."
+    },
+    {
+      "name": "reference-value-injector.mjs",
+      "file": ".claude/hooks/reference-value-injector.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "RE-ENABLED 2026-04-27 by user approval (RESUME_AT_WORK section 5)."
+    },
+    {
+      "name": "regression-auto-write.mjs",
+      "file": ".claude/hooks/regression-auto-write.mjs",
+      "trigger": "Stop",
+      "purpose": "regression-auto-write.mjs — Stop hook (T3 observer).",
+      "exports": [
+        "isRegressionFixSubject",
+        "isOptedOut",
+        "formatRegressionEntry",
+        "hasShaAlready",
+        "insertEntry",
+        "capRegressionsSection",
+        "writeWithConcurrencyGuard"
+      ]
+    },
+    {
+      "name": "rename-window-intercept.mjs",
+      "file": ".claude/hooks/rename-window-intercept.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "rename-window-intercept.mjs — UserPromptSubmit hook.",
+      "exports": [
+        "chatIdFromSession",
+        "parseRenameArg",
+        "isPeerForm",
+        "composeSlotTitle"
+      ]
+    },
+    {
+      "name": "reviewer-fail-latch.mjs",
+      "file": ".claude/hooks/reviewer-fail-latch.mjs",
+      "trigger": "Stop",
+      "purpose": "reviewer-fail-latch — Stop hook."
+    },
+    {
+      "name": "rgs-outcome-record-stop.mjs",
+      "file": ".claude/hooks/rgs-outcome-record-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "rgs-outcome-record-stop.mjs — Stop hook"
+    },
+    {
+      "name": "roadmap-checkpoint.mjs",
+      "file": ".claude/hooks/roadmap-checkpoint.mjs",
+      "trigger": "Stop",
+      "purpose": "roadmap-checkpoint.mjs — Stop hook"
+    },
+    {
+      "name": "roadmap-completion-logger.mjs",
+      "file": ".claude/hooks/roadmap-completion-logger.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "roadmap-completion-logger.mjs — PostToolUse roadmap unit tracker"
+    },
+    {
+      "name": "roadmap-reconcile.mjs",
+      "file": ".claude/hooks/roadmap-reconcile.mjs",
+      "trigger": "",
+      "purpose": "roadmap-reconcile.mjs — One-time reconciliation"
+    },
+    {
+      "name": "roadmap-resume.mjs",
+      "file": ".claude/hooks/roadmap-resume.mjs",
+      "trigger": "SessionStart",
+      "purpose": "roadmap-resume.mjs — SessionStart hook"
+    },
+    {
+      "name": "route-savings-session-start-inject.mjs",
+      "file": ".claude/hooks/route-savings-session-start-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "route-savings-session-start-inject.mjs — SessionStart hook",
+      "exports": [
+        "formatBanner",
+        "computeRateBand",
+        "shouldEmitBanner"
+      ]
+    },
+    {
+      "name": "rtk-archive-and-index.mjs",
+      "file": ".claude/hooks/rtk-archive-and-index.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "rtk-archive-and-index.mjs — RTK ↔ Obsidian ↔ /system-viz linkage."
+    },
+    {
+      "name": "rtk-auto-suggest.mjs",
+      "file": ".claude/hooks/rtk-auto-suggest.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "rtk-auto-suggest.mjs - PreToolUse Bash"
+    },
+    {
+      "name": "rtk-path-ensure.mjs",
+      "file": ".claude/hooks/rtk-path-ensure.mjs",
+      "trigger": "SessionStart",
+      "purpose": "rtk-path-ensure.mjs — SessionStart hook"
+    },
+    {
+      "name": "rtk-prefix-reminder.mjs",
+      "file": ".claude/hooks/rtk-prefix-reminder.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "rtk-prefix-reminder.mjs — PreToolUse:Bash",
+      "exports": [
+        "loadRateState",
+        "saveRateState",
+        "shouldNagNow",
+        "recordNag",
+        "VERBOSE_COMMANDS",
+        "normalizeCommand",
+        "shouldRemind",
+        "buildReminder"
+      ]
+    },
+    {
+      "name": "rtk-savings-headline-inject.mjs",
+      "file": ".claude/hooks/rtk-savings-headline-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "rtk-savings-headline-inject.mjs — UserPromptSubmit hook",
+      "exports": [
+        "summarizeLedger",
+        "formatHeadline"
+      ]
+    },
+    {
+      "name": "rtk-savings-stop-rollup.mjs",
+      "file": ".claude/hooks/rtk-savings-stop-rollup.mjs",
+      "trigger": "Stop",
+      "purpose": "rtk-savings-stop-rollup.mjs — Stop hook",
+      "exports": [
+        "rollupLedger"
+      ]
+    },
+    {
+      "name": "schema-version-bump.mjs",
+      "file": ".claude/hooks/schema-version-bump.mjs",
+      "trigger": "",
+      "purpose": "schema-version-bump.mjs — Phase 1 Tier 5D Workflow Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "schema-version-read.mjs",
+      "file": ".claude/hooks/schema-version-read.mjs",
+      "trigger": "",
+      "purpose": "schema-version-read.mjs — Phase 1 Tier 5D",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "script-summary-inject.mjs",
+      "file": ".claude/hooks/script-summary-inject.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "script-summary-inject.mjs — PreToolUse Bash hook"
+    },
+    {
+      "name": "scrutinize-before-stop.mjs",
+      "file": ".claude/hooks/scrutinize-before-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "scrutinize-before-stop — Stop hook (UNIVERSAL ENFORCEMENT).",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "scrutiny-verdict-persist.mjs",
+      "file": ".claude/hooks/scrutiny-verdict-persist.mjs",
+      "trigger": "Stop",
+      "purpose": "scrutiny-verdict-persist.mjs — Stop hook (T3 observer).",
+      "exports": [
+        "resolveSessionId",
+        "hasReviewSignal",
+        "formatRecord",
+        "extractContentHash",
+        "writeWithGuard",
+        "loadEntry"
+      ]
+    },
+    {
+      "name": "search-thoroughness-inject.mjs",
+      "file": ".claude/hooks/search-thoroughness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "search-thoroughness-inject.mjs — UserPromptSubmit advisory hook.",
+      "exports": [
+        "shouldFire",
+        "buildContext",
+        "main"
+      ]
+    },
+    {
+      "name": "self-awareness-enforce.mjs",
+      "file": ".claude/hooks/self-awareness-enforce.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Self-Awareness Enforcement Hook (UserPromptSubmit)"
+    },
+    {
+      "name": "self-improvement-activate.mjs",
+      "file": ".claude/hooks/self-improvement-activate.mjs",
+      "trigger": "SessionStart",
+      "purpose": "Self-Improvement Activation — SessionStart Hook"
+    },
+    {
+      "name": "session_start_inventory_inject.mjs",
+      "file": ".claude/hooks/session_start_inventory_inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session_start_inventory_inject.mjs — U-ACT04 Inventory Hydration"
+    },
+    {
+      "name": "session_start_local_compute_warm.mjs",
+      "file": ".claude/hooks/session_start_local_compute_warm.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "session_start_local_compute_warm.mjs — SessionStart hook"
+    },
+    {
+      "name": "session-action-memory.mjs",
+      "file": ".claude/hooks/session-action-memory.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Session Action Memory — PostToolUse Hook"
+    },
+    {
+      "name": "session-cleanup.mjs",
+      "file": ".claude/hooks/session-cleanup.mjs",
+      "trigger": "Stop",
+      "purpose": "session-cleanup.mjs — Stop hook to clean up orphaned MCP processes"
+    },
+    {
+      "name": "session-consolidate-graph.mjs",
+      "file": ".claude/hooks/session-consolidate-graph.mjs",
+      "trigger": "Stop",
+      "purpose": "session-consolidate-graph.mjs — SessionEnd / Stop hook"
+    },
+    {
+      "name": "session-continuity-chain.mjs",
+      "file": ".claude/hooks/session-continuity-chain.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-continuity-chain.mjs — U-CTX05 Multi-Session Handoff Chain"
+    },
+    {
+      "name": "session-cost-summary.mjs",
+      "file": ".claude/hooks/session-cost-summary.mjs",
+      "trigger": "Stop",
+      "purpose": "Session Cost Summary — Stop Hook"
+    },
+    {
+      "name": "session-end-goal-synthesis.mjs",
+      "file": ".claude/hooks/session-end-goal-synthesis.mjs",
+      "trigger": "Stop",
+      "purpose": "session-end-goal-synthesis.mjs — U-AI04 Autonomous Goal Synthesis"
+    },
+    {
+      "name": "session-end-p1.mjs",
+      "file": ".claude/hooks/session-end-p1.mjs",
+      "trigger": "Stop",
+      "purpose": "session-end-p1.mjs — Phase 1 Tier 0",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "session-end-peer-share.mjs",
+      "file": ".claude/hooks/session-end-peer-share.mjs",
+      "trigger": "Stop",
+      "purpose": "session-end-peer-share.mjs — hook_post_session_peer_share (PP-0.18 U-AGI14)"
+    },
+    {
+      "name": "session-handoff-load.mjs",
+      "file": ".claude/hooks/session-handoff-load.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-handoff-load.mjs — SessionStart hook"
+    },
+    {
+      "name": "session-id-pin.mjs",
+      "file": ".claude/hooks/session-id-pin.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "session-id-pin.mjs — Pins THIS chat's session_id to every PID in the"
+    },
+    {
+      "name": "session-learning-feedback.mjs",
+      "file": ".claude/hooks/session-learning-feedback.mjs",
+      "trigger": "Stop",
+      "purpose": "session-learning-feedback.mjs — Stop Hook"
+    },
+    {
+      "name": "session-reorient-capture.mjs",
+      "file": ".claude/hooks/session-reorient-capture.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "session-reorient-capture.mjs — PostToolUse companion to session-reorient-inject.mjs"
+    },
+    {
+      "name": "session-reorient-inject.mjs",
+      "file": ".claude/hooks/session-reorient-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "session-reorient-inject.mjs — UserPromptSubmit hook"
+    },
+    {
+      "name": "session-start-auto-resume.mjs",
+      "file": ".claude/hooks/session-start-auto-resume.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-auto-resume.mjs — Auto-resume after /compact.",
+      "exports": [
+        "SLOT_NAMES",
+        "extractResume",
+        "extractMemorySeed",
+        "ageMinutesFromFrontmatter",
+        "stableIdFromSession",
+        "parseSlotAndTopic",
+        "buildCheckinDirective",
+        "buildSlotWrapperDirective",
+        "buildBootResumeContext",
+        "getRecoveryPointer"
+      ]
+    },
+    {
+      "name": "session-start-causal-trace.mjs",
+      "file": ".claude/hooks/session-start-causal-trace.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-causal-trace.mjs — U-AI03 Causal Graph SessionStart Hook"
+    },
+    {
+      "name": "session-start-claim-slot.mjs",
+      "file": ".claude/hooks/session-start-claim-slot.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "session-start-claim-slot.mjs — SessionStart hook"
+    },
+    {
+      "name": "session-start-compact-p1.mjs",
+      "file": ".claude/hooks/session-start-compact-p1.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-compact-p1.mjs — Phase 1 Tier 0",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "session-start-dev-keyword-launcher.mjs",
+      "file": ".claude/hooks/session-start-dev-keyword-launcher.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-dev-keyword-launcher.mjs — F6"
+    },
+    {
+      "name": "session-start-goal-inject.mjs",
+      "file": ".claude/hooks/session-start-goal-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-goal-inject.mjs — hook_session_goal_synthesis (PP-0.18 U-AGI1)"
+    },
+    {
+      "name": "session-start-memory-pulse-inject.mjs",
+      "file": ".claude/hooks/session-start-memory-pulse-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-memory-pulse-inject.mjs — auto-inject USER.md + ≤1KB memory pulse on SessionStart."
+    },
+    {
+      "name": "session-start-ollama-chat-probe.mjs",
+      "file": ".claude/hooks/session-start-ollama-chat-probe.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-ollama-chat-probe.mjs — SessionStart hook"
+    },
+    {
+      "name": "session-start-p1.mjs",
+      "file": ".claude/hooks/session-start-p1.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-p1.mjs — Phase 1 Tier 0",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "session-start-savings-headline.mjs",
+      "file": ".claude/hooks/session-start-savings-headline.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-savings-headline.mjs — SessionStart hook",
+      "exports": [
+        "formatLedgerBreakdown",
+        "formatHeadline"
+      ]
+    },
+    {
+      "name": "session-start-terminal-pin.mjs",
+      "file": ".claude/hooks/session-start-terminal-pin.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-terminal-pin.mjs — Auto-claim the slot owned by THIS terminal",
+      "exports": [
+        "shouldForceReclaim",
+        "peerBlocksForceReclaim"
+      ]
+    },
+    {
+      "name": "session-start-zombie-reap.mjs",
+      "file": ".claude/hooks/session-start-zombie-reap.mjs",
+      "trigger": "SessionStart",
+      "purpose": "session-start-zombie-reap.mjs — SessionStart hook"
+    },
+    {
+      "name": "session-state-auto.mjs",
+      "file": ".claude/hooks/session-state-auto.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Session State Auto — PostToolUse Hook"
+    },
+    {
+      "name": "session-write-tracker.mjs",
+      "file": ".claude/hooks/session-write-tracker.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "session-write-tracker.mjs — PostToolUse per-session write log"
+    },
+    {
+      "name": "sessionstart-critical-path.mjs",
+      "file": ".claude/hooks/sessionstart-critical-path.mjs",
+      "trigger": "SessionStart",
+      "purpose": "sessionstart-critical-path.mjs — SessionStart hook"
+    },
+    {
+      "name": "sessionstart-graph-staleness-inject.mjs",
+      "file": ".claude/hooks/sessionstart-graph-staleness-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "sessionstart-graph-staleness-inject.mjs — SessionStart hook (T2 injector)",
+      "exports": [
+        "decideStalenessAdvisory"
+      ]
+    },
+    {
+      "name": "settings-baseline-snapshot.mjs",
+      "file": ".claude/hooks/settings-baseline-snapshot.mjs",
+      "trigger": "SessionStart",
+      "purpose": "settings-baseline-snapshot.mjs — SessionStart hook"
+    },
+    {
+      "name": "settings-json-addonly-guard.mjs",
+      "file": ".claude/hooks/settings-json-addonly-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "settings-json-addonly-guard.mjs — PreToolUse(Edit|Write) guard"
+    },
+    {
+      "name": "settings-mirror-guard.mjs",
+      "file": ".claude/hooks/settings-mirror-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "settings-mirror-guard.mjs — PRISM-STAB-MS0/U-A5 (2026-05-09)."
+    },
+    {
+      "name": "sierra-graph-health-inject.mjs",
+      "file": ".claude/hooks/sierra-graph-health-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "UserPromptSubmit hook. SLOT-GATED no-op for every slot except sierra (zero blast radius"
+    },
+    {
+      "name": "signature-drift-detector.mjs",
+      "file": ".claude/hooks/signature-drift-detector.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "signature-drift-detector.mjs — Phase 0.8 Signature Drift Hook"
+    },
+    {
+      "name": "silent-suggestion-surfacer-stop.mjs",
+      "file": ".claude/hooks/silent-suggestion-surfacer-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "silent-suggestion-surfacer-stop.mjs — Stop hook (advisory, T3).",
+      "exports": [
+        "computeSilentSummary",
+        "decideFire",
+        "renderAdvisory"
+      ]
+    },
+    {
+      "name": "skill-3q-gate.mjs",
+      "file": ".claude/hooks/skill-3q-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "skill-3q-gate.mjs — U-SKU01 (SKILLS-UTILIZATION-MS0) PreToolUse gate."
+    },
+    {
+      "name": "skill-auto-trigger.mjs",
+      "file": ".claude/hooks/skill-auto-trigger.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "skill-auto-trigger.mjs — pipeline-aware multi-event suggester.",
+      "exports": [
+        "LIFECYCLE_STATE_GATED_SKILLS",
+        "INVOKE_NOW_SKILLS",
+        "parsePipelineFrontmatter",
+        "readPipelines",
+        "matchPipelinesForPrompt",
+        "matchPipelinesForTool",
+        "matchPipelinesForStop",
+        "pathGlobToRegex",
+        "matchesPathGlob",
+        "main"
+      ]
+    },
+    {
+      "name": "skill-candidate-observe.mjs",
+      "file": ".claude/hooks/skill-candidate-observe.mjs",
+      "trigger": "Stop",
+      "purpose": "HERMES-MS0 / U-HERMES03 — Stop-hook observation tagger for the closed learning loop."
+    },
+    {
+      "name": "skill-chain-suggest.mjs",
+      "file": ".claude/hooks/skill-chain-suggest.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "skill-chain-suggest.mjs — Workflow Skill Chaining"
+    },
+    {
+      "name": "skill-lint-stop.mjs",
+      "file": ".claude/hooks/skill-lint-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "skill-lint-stop.mjs — U-SKU03 (SKILLS-UTILIZATION-MS0) Stop hook."
+    },
+    {
+      "name": "skill-usage-tracker.mjs",
+      "file": ".claude/hooks/skill-usage-tracker.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Skill Usage Tracker — UserPromptSubmit Hook"
+    },
+    {
+      "name": "skill-utilization-index.mjs",
+      "file": ".claude/hooks/skill-utilization-index.mjs",
+      "trigger": "SessionStart",
+      "purpose": "Skill Utilization Index — SessionStart Hook"
+    },
+    {
+      "name": "slash-command-registry-load.mjs",
+      "file": ".claude/hooks/slash-command-registry-load.mjs",
+      "trigger": "SessionStart",
+      "purpose": "SessionStart hook — load SLASH_COMMAND_REGISTRY.json into the AI-routable"
+    },
+    {
+      "name": "slot-bind-enforce.mjs",
+      "file": ".claude/hooks/slot-bind-enforce.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "slot-bind-enforce.mjs — UserPromptSubmit hook",
+      "exports": [
+        "SLOT_NAMES",
+        "decideSlotBind",
+        "findBoundSlot",
+        "performClaim"
+      ]
+    },
+    {
+      "name": "slot-brief-inject.mjs",
+      "file": ".claude/hooks/slot-brief-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "HERMES-MASTER-ORCHESTRATOR / slot-brief-inject — UserPromptSubmit hook.",
+      "exports": [
+        "resolveSlot",
+        "briefHash",
+        "formatStamp",
+        "truncateBrief",
+        "buildBriefBlock"
+      ]
+    },
+    {
+      "name": "slot-commit-worktree-enforce.mjs",
+      "file": ".claude/hooks/slot-commit-worktree-enforce.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "slot-commit-worktree-enforce.mjs — PreToolUse(Bash) slot-branch HARD enforcement"
+    },
+    {
+      "name": "slot-context-bundle-inject.mjs",
+      "file": ".claude/hooks/slot-context-bundle-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ZULU-OMNISCIENT-MS0/U-ZO-MS0-FLEET-PRECHECK — per-slot context-bundle precheck."
+    },
+    {
+      "name": "slot-domain-awareness-inject.mjs",
+      "file": ".claude/hooks/slot-domain-awareness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "slot-domain-awareness-inject.mjs — UserPromptSubmit hook."
+    },
+    {
+      "name": "slot-session-sidecar-heartbeat.mjs",
+      "file": ".claude/hooks/slot-session-sidecar-heartbeat.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "slot-session-sidecar-heartbeat.mjs — UserPromptSubmit heartbeat hook (U-SR03)"
+    },
+    {
+      "name": "slot-session-sidecar-sessionstart.mjs",
+      "file": ".claude/hooks/slot-session-sidecar-sessionstart.mjs",
+      "trigger": "SessionStart",
+      "purpose": "slot-session-sidecar-sessionstart.mjs — SessionStart hook (U-SR02)"
+    },
+    {
+      "name": "slot-session-sidecar-stop.mjs",
+      "file": ".claude/hooks/slot-session-sidecar-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "slot-session-sidecar-stop.mjs — Stop hook (U-SR04)"
+    },
+    {
+      "name": "slot-signature-advisory.mjs",
+      "file": ".claude/hooks/slot-signature-advisory.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "slot-signature-advisory.mjs — PreToolUse:Edit|Write|MultiEdit",
+      "exports": [
+        "detectCarrier",
+        "isExemptPath",
+        "parseSignature",
+        "aliveSlots",
+        "currentSlotFor",
+        "decideWarning"
+      ]
+    },
+    {
+      "name": "slot-soul-inject.mjs",
+      "file": ".claude/hooks/slot-soul-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "HERMES-MS0 / U-HERMES02 — slot-soul-inject UserPromptSubmit hook."
+    },
+    {
+      "name": "slot-worktree-cwd-advisory.mjs",
+      "file": ".claude/hooks/slot-worktree-cwd-advisory.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "slot-worktree-cwd-advisory.mjs — UserPromptSubmit hook (fires after slot-bind-enforce).",
+      "exports": [
+        "normalizePath",
+        "expectedWorktreeFor",
+        "classifyCwdVsSlot",
+        "buildAdvisory",
+        "loadState",
+        "saveState",
+        "throttleKey",
+        "shouldEmit",
+        "recordEmit",
+        "readSlotBindingFromFile",
+        "checkWorktreeExists",
+        "runCheck"
+      ]
+    },
+    {
+      "name": "smart-skill-suggest.mjs",
+      "file": ".claude/hooks/smart-skill-suggest.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "Smart Skill Suggest — UserPromptSubmit Hook"
+    },
+    {
+      "name": "soul-escalation-gate.mjs",
+      "file": ".claude/hooks/soul-escalation-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "soul-escalation-gate.mjs — PreToolUse hook that consults the current slot's"
+    },
+    {
+      "name": "sparc-optin-gate.mjs",
+      "file": ".claude/hooks/sparc-optin-gate.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "UserPromptSubmit hook — SPARC opt-in gate."
+    },
+    {
+      "name": "staged-hygiene-check.mjs",
+      "file": ".claude/hooks/staged-hygiene-check.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "staged-hygiene-check.mjs — PreToolUse absorption prevention"
+    },
+    {
+      "name": "stale-claim-sweeper.mjs",
+      "file": ".claude/hooks/stale-claim-sweeper.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "stale-claim-sweeper.mjs — SessionStart + Stop hook.",
+      "exports": [
+        "sweepFileOwnership",
+        "sweepGitLocks",
+        "sweepAtomicWriteTmps",
+        "sweepWorkboard",
+        "sweepChatBusMessages",
+        "sweepChatBusClaims",
+        "sweepClaudeTaskOutputs",
+        "parseWmiCreationDate",
+        "parseWmicRow",
+        "isClaudeTaskOutputFile",
+        "shouldSkipUnlinkDueToRace",
+        "sweepZombieNodeHooks"
+      ]
+    },
+    {
+      "name": "stale-state-warn.mjs",
+      "file": ".claude/hooks/stale-state-warn.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "stale-state-warn.mjs — UserPromptSubmit hook (one-line nudge)."
+    },
+    {
+      "name": "state-write-watch.mjs",
+      "file": ".claude/hooks/state-write-watch.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "state-write-watch.mjs — PreToolUse concurrent-write detector for state JSONs"
+    },
+    {
+      "name": "stop_close_prism_nodes_v2.mjs",
+      "file": ".claude/hooks/stop_close_prism_nodes_v2.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_close_prism_nodes_v2.mjs — PRISM-STAB-MS0/U-A3 (2026-05-09)."
+    },
+    {
+      "name": "stop_close_prism_nodes.mjs",
+      "file": ".claude/hooks/stop_close_prism_nodes.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_close_prism_nodes.mjs — Stop hook"
+    },
+    {
+      "name": "stop_on_awareness_degraded.mjs",
+      "file": ".claude/hooks/stop_on_awareness_degraded.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_awareness_degraded.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_broken_imports.mjs",
+      "file": ".claude/hooks/stop_on_broken_imports.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_broken_imports.mjs — Tier 6 Stop Hook (IMPROVED)"
+    },
+    {
+      "name": "stop_on_build_error.mjs",
+      "file": ".claude/hooks/stop_on_build_error.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_build_error.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_c_drive_write.mjs",
+      "file": ".claude/hooks/stop_on_c_drive_write.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "stop_on_c_drive_write.mjs — Stop Hook"
+    },
+    {
+      "name": "stop_on_circular_deps.mjs",
+      "file": ".claude/hooks/stop_on_circular_deps.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_circular_deps.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_content_deletion.mjs",
+      "file": ".claude/hooks/stop_on_content_deletion.mjs",
+      "trigger": "Stop",
+      "purpose": "Stop Hook: Content Deletion Guard"
+    },
+    {
+      "name": "stop_on_cutting_calculation_protocol.mjs",
+      "file": ".claude/hooks/stop_on_cutting_calculation_protocol.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_cutting_calculation_protocol.mjs"
+    },
+    {
+      "name": "stop_on_dirty_registry.mjs",
+      "file": ".claude/hooks/stop_on_dirty_registry.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_dirty_registry.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_duplicate_created.mjs",
+      "file": ".claude/hooks/stop_on_duplicate_created.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_duplicate_created.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_extraction_incomplete.mjs",
+      "file": ".claude/hooks/stop_on_extraction_incomplete.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_extraction_incomplete.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_failing_tests.mjs",
+      "file": ".claude/hooks/stop_on_failing_tests.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_failing_tests.mjs — Stop Hook (SAFETY-CRITICAL, FAIL-CLOSED)"
+    },
+    {
+      "name": "stop_on_formula_uncited.mjs",
+      "file": ".claude/hooks/stop_on_formula_uncited.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_formula_uncited.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_hook_unregistered.mjs",
+      "file": ".claude/hooks/stop_on_hook_unregistered.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_hook_unregistered.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_hook_unregistration.mjs",
+      "file": ".claude/hooks/stop_on_hook_unregistration.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "stop_on_hook_unregistration.mjs — Stop hook",
+      "exports": [
+        "buildVerdict"
+      ]
+    },
+    {
+      "name": "stop_on_incomplete_pipeline.mjs",
+      "file": ".claude/hooks/stop_on_incomplete_pipeline.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_incomplete_pipeline.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_missing_tests.mjs",
+      "file": ".claude/hooks/stop_on_missing_tests.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_missing_tests.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_non_h_roadmap.mjs",
+      "file": ".claude/hooks/stop_on_non_h_roadmap.mjs",
+      "trigger": "Stop",
+      "purpose": "DEFERRED IMPLEMENTATION — temporary no-op stub."
+    },
+    {
+      "name": "stop_on_open_claim.mjs",
+      "file": ".claude/hooks/stop_on_open_claim.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_open_claim.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_open_lock.mjs",
+      "file": ".claude/hooks/stop_on_open_lock.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_open_lock.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_orphan_children.mjs",
+      "file": ".claude/hooks/stop_on_orphan_children.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_orphan_children.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_orphan_engine.mjs",
+      "file": ".claude/hooks/stop_on_orphan_engine.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_orphan_engine.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_repeat_error.mjs",
+      "file": ".claude/hooks/stop_on_repeat_error.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_repeat_error.mjs — Stop hook"
+    },
+    {
+      "name": "stop_on_roadmap_drift.mjs",
+      "file": ".claude/hooks/stop_on_roadmap_drift.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_roadmap_drift.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_session_mistake_digest.mjs",
+      "file": ".claude/hooks/stop_on_session_mistake_digest.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_session_mistake_digest.mjs — Stop hook (non-blocking)"
+    },
+    {
+      "name": "stop_on_skill_unwired.mjs",
+      "file": ".claude/hooks/stop_on_skill_unwired.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_skill_unwired.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_stale_handoff.mjs",
+      "file": ".claude/hooks/stop_on_stale_handoff.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_stale_handoff.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_svi_regression.mjs",
+      "file": ".claude/hooks/stop_on_svi_regression.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_svi_regression.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_sx_fail.mjs",
+      "file": ".claude/hooks/stop_on_sx_fail.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_sx_fail.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_uncommitted_critical.mjs",
+      "file": ".claude/hooks/stop_on_uncommitted_critical.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_uncommitted_critical.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_uncommitted_memory.mjs",
+      "file": ".claude/hooks/stop_on_uncommitted_memory.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_uncommitted_memory.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_undocumented_action.mjs",
+      "file": ".claude/hooks/stop_on_undocumented_action.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_undocumented_action.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_unregistered_asset.mjs",
+      "file": ".claude/hooks/stop_on_unregistered_asset.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_unregistered_asset.mjs — Tier 6 Stop Hook"
+    },
+    {
+      "name": "stop_on_unsafe_gcode.mjs",
+      "file": ".claude/hooks/stop_on_unsafe_gcode.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_unsafe_gcode.mjs — Tier 6 Stop Hook (IMPROVED)"
+    },
+    {
+      "name": "stop_on_unwired_assets.mjs",
+      "file": ".claude/hooks/stop_on_unwired_assets.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_unwired_assets.mjs — Stop Hook",
+      "exports": [
+        "fooEngine",
+        "foo",
+        "findUnhandledActions"
+      ]
+    },
+    {
+      "name": "stop_on_user_correction.mjs",
+      "file": ".claude/hooks/stop_on_user_correction.mjs",
+      "trigger": "Stop",
+      "purpose": "stop_on_user_correction.mjs — Stop hook"
+    },
+    {
+      "name": "stop-audit-registry-refresh.mjs",
+      "file": ".claude/hooks/stop-audit-registry-refresh.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-audit-registry-refresh.mjs — Stop hook"
+    },
+    {
+      "name": "stop-auto-capture-per-slot.mjs",
+      "file": ".claude/hooks/stop-auto-capture-per-slot.mjs",
+      "trigger": "Stop",
+      "purpose": "PER-SLOT-AUTO-CAPTURE/U-AC01 — auto-capture important session signals into"
+    },
+    {
+      "name": "stop-auto-wire.mjs",
+      "file": ".claude/hooks/stop-auto-wire.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "stop-auto-wire.mjs — Stop hook"
+    },
+    {
+      "name": "stop-bash-orphan-cleaner.mjs",
+      "file": ".claude/hooks/stop-bash-orphan-cleaner.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-bash-orphan-cleaner.mjs — Stop hook"
+    },
+    {
+      "name": "stop-bg-runner.mjs",
+      "file": ".claude/hooks/stop-bg-runner.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-bg-runner.mjs — wrapper that runs a target Stop hook in the background."
+    },
+    {
+      "name": "stop-brain-refresh.mjs",
+      "file": ".claude/hooks/stop-brain-refresh.mjs",
+      "trigger": "Stop",
+      "purpose": "Stop hook: fire-and-forget the consolidated brain-refresh."
+    },
+    {
+      "name": "stop-bug-finding-wiki-gate.mjs",
+      "file": ".claude/hooks/stop-bug-finding-wiki-gate.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-bug-finding-wiki-gate.mjs — Stop advisory hook enforcing the",
+      "exports": [
+        "BUG_KEYWORDS",
+        "MEMORY_BUG_PATTERNS",
+        "detectBugFindings",
+        "slugify",
+        "hasCompanionWikiEntry",
+        "renderAdvisory",
+        "renderWikiStub",
+        "createWikiStub",
+        "runGate"
+      ]
+    },
+    {
+      "name": "stop-close-own-bg-tasks.mjs",
+      "file": ".claude/hooks/stop-close-own-bg-tasks.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-close-own-bg-tasks.mjs — \"close your tool calls\" enforcement (2026-05-30, slot golf)",
+      "exports": [
+        "selectUnclosedBgTasks",
+        "resolveChatPid",
+        "decideEnforcement",
+        "parseCsvLine",
+        "parseWmicDate",
+        "enumerateProcesses"
+      ]
+    },
+    {
+      "name": "stop-cohort-drift-watch.mjs",
+      "file": ".claude/hooks/stop-cohort-drift-watch.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-cohort-drift-watch.mjs — Stage 5 of the lego-stacking plan."
+    },
+    {
+      "name": "stop-compounding-budget.mjs",
+      "file": ".claude/hooks/stop-compounding-budget.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-compounding-budget.mjs — F4 advisory."
+    },
+    {
+      "name": "stop-consensus-drain.mjs",
+      "file": ".claude/hooks/stop-consensus-drain.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "stop-consensus-drain.mjs — Stop hook that triggers async consensus queue drain.",
+      "exports": [
+        "queueDepth",
+        "pickDrainer",
+        "run"
+      ]
+    },
+    {
+      "name": "stop-cross-slot-skill-suggest.mjs",
+      "file": ".claude/hooks/stop-cross-slot-skill-suggest.mjs",
+      "trigger": "Stop",
+      "purpose": "U-HFR02 wire — cross-slot skill propagation Stop driver."
+    },
+    {
+      "name": "stop-cross-tree-collision-advisory.mjs",
+      "file": ".claude/hooks/stop-cross-tree-collision-advisory.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-cross-tree-collision-advisory.mjs — Stop hook (T3, non-blocking)"
+    },
+    {
+      "name": "stop-dashboard-regen.mjs",
+      "file": ".claude/hooks/stop-dashboard-regen.mjs",
+      "trigger": "Stop",
+      "purpose": "matcher: Stop",
+      "exports": [
+        "isThrottled",
+        "writeStamp",
+        "resolveScriptPath"
+      ]
+    },
+    {
+      "name": "stop-defer-queue-drain.mjs",
+      "file": ".claude/hooks/stop-defer-queue-drain.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "stop-defer-queue-drain.mjs — Stop hook"
+    },
+    {
+      "name": "stop-dream-queue-produce.mjs",
+      "file": ".claude/hooks/stop-dream-queue-produce.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-dream-queue-produce.mjs -- the missing PRODUCER for the dream-queue."
+    },
+    {
+      "name": "stop-dream-queue-surface.mjs",
+      "file": ".claude/hooks/stop-dream-queue-surface.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-dream-queue-surface.mjs — Stop hook that surfaces today's pending"
+    },
+    {
+      "name": "stop-fleet-soul-graduation.mjs",
+      "file": ".claude/hooks/stop-fleet-soul-graduation.mjs",
+      "trigger": "Stop",
+      "purpose": "U-HFR04 wire — fleet-wide soul-rule graduation Stop driver."
+    },
+    {
+      "name": "stop-force-handoff.mjs",
+      "file": ".claude/hooks/stop-force-handoff.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-force-handoff.mjs — AUTONOMOUS-FLEET-MS0/U-AF-STOP-FORCE-HANDOFF"
+    },
+    {
+      "name": "stop-force-loop-continue.mjs",
+      "file": ".claude/hooks/stop-force-loop-continue.mjs",
+      "trigger": "SessionStart",
+      "purpose": "stop-force-loop-continue.mjs — AUTONOMOUS-FLEET-MS0/U-AF-STOP-FORCE-LOOP-CONTINUE",
+      "exports": [
+        "handoffNeedle",
+        "findHandoff",
+        "progressGate",
+        "blockReason"
+      ]
+    },
+    {
+      "name": "stop-goal-clear-advance.mjs",
+      "file": ".claude/hooks/stop-goal-clear-advance.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-goal-clear-advance.mjs — AUTONOMOUS-FLEET-MS0/U-GOAL-CLEAR-ADVANCE"
+    },
+    {
+      "name": "stop-graph-staleness-backstop.mjs",
+      "file": ".claude/hooks/stop-graph-staleness-backstop.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-graph-staleness-backstop.mjs — Stop hook (T3, non-blocking)",
+      "exports": [
+        "decideBackstop"
+      ]
+    },
+    {
+      "name": "stop-hook-aggregator.mjs",
+      "file": ".claude/hooks/stop-hook-aggregator.mjs",
+      "trigger": "Stop",
+      "purpose": "Stop hook (T3, non-blocking)"
+    },
+    {
+      "name": "stop-index-sync.mjs",
+      "file": ".claude/hooks/stop-index-sync.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-index-sync.mjs — Stop hook for index synchronization"
+    },
+    {
+      "name": "stop-ledger-prune.mjs",
+      "file": ".claude/hooks/stop-ledger-prune.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-ledger-prune.mjs — Stop hook"
+    },
+    {
+      "name": "stop-mark-completed-tasks.mjs",
+      "file": ".claude/hooks/stop-mark-completed-tasks.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-mark-completed-tasks.mjs — Stop hook"
+    },
+    {
+      "name": "stop-memory-size-watchdog.mjs",
+      "file": ".claude/hooks/stop-memory-size-watchdog.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-memory-size-watchdog.mjs — Stop hook (T3, auto-compact + advisory)"
+    },
+    {
+      "name": "stop-memory-to-wiki-suggest.mjs",
+      "file": ".claude/hooks/stop-memory-to-wiki-suggest.mjs",
+      "trigger": "Stop",
+      "purpose": "U-HRP06 — memory→wiki promotion advisory Stop hook.",
+      "exports": [
+        "findRecentMemoryFiles",
+        "extractMemorySummary",
+        "listWikiCandidates",
+        "suggestWikiPromotions",
+        "formatAdvisory",
+        "filterUnseenSuggestions"
+      ]
+    },
+    {
+      "name": "stop-obsidian-memory-extract.mjs",
+      "file": ".claude/hooks/stop-obsidian-memory-extract.mjs",
+      "trigger": "SessionStart",
+      "purpose": "stop-obsidian-memory-extract.mjs — Stop Hook"
+    },
+    {
+      "name": "stop-obsidian-memory-feed.mjs",
+      "file": ".claude/hooks/stop-obsidian-memory-feed.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-obsidian-memory-feed.mjs — Stop Hook"
+    },
+    {
+      "name": "stop-playbook-corpus-drift-advisory.mjs",
+      "file": ".claude/hooks/stop-playbook-corpus-drift-advisory.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-playbook-corpus-drift-advisory.mjs — PLAYBOOK-CAPABILITY follow-up",
+      "exports": [
+        "scanPlaybookSource"
+      ]
+    },
+    {
+      "name": "stop-psn-automate-status.mjs",
+      "file": ".claude/hooks/stop-psn-automate-status.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-psn-automate-status.mjs"
+    },
+    {
+      "name": "stop-psn-autonomy-tick.mjs",
+      "file": ".claude/hooks/stop-psn-autonomy-tick.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-psn-autonomy-tick.mjs — Stop hook (T3 advisory)"
+    },
+    {
+      "name": "stop-psn-savings-aggregate.mjs",
+      "file": ".claude/hooks/stop-psn-savings-aggregate.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-psn-savings-aggregate.mjs — Stop hook"
+    },
+    {
+      "name": "stop-rag-index-staleness-check.mjs",
+      "file": ".claude/hooks/stop-rag-index-staleness-check.mjs",
+      "trigger": "Stop",
+      "purpose": "U-HFR05 — RAG-index staleness advisory (Stop hook)."
+    },
+    {
+      "name": "stop-regression-backflow.mjs",
+      "file": ".claude/hooks/stop-regression-backflow.mjs",
+      "trigger": "SessionStart",
+      "purpose": "stop-regression-backflow.mjs — Boris back-flow pattern (U-VAULT03)."
+    },
+    {
+      "name": "stop-release-slot.mjs",
+      "file": ".claude/hooks/stop-release-slot.mjs",
+      "trigger": "SessionStart",
+      "purpose": "stop-release-slot.mjs — Stop hook"
+    },
+    {
+      "name": "stop-rtk-fraction-recalibrate.mjs",
+      "file": ".claude/hooks/stop-rtk-fraction-recalibrate.mjs",
+      "trigger": "Stop",
+      "purpose": "Stop advisory",
+      "exports": [
+        "computeTuningDeltas",
+        "shouldEmit",
+        "formatSuggestionEntry",
+        "extractCurrentFractions"
+      ]
+    },
+    {
+      "name": "stop-session-spend-summary.mjs",
+      "file": ".claude/hooks/stop-session-spend-summary.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-session-spend-summary.mjs — Stop hook (S4)",
+      "exports": [
+        "summarizeSession",
+        "formatSpendSummary"
+      ]
+    },
+    {
+      "name": "stop-slot-task-claims-advisory.mjs",
+      "file": ".claude/hooks/stop-slot-task-claims-advisory.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-slot-task-claims-advisory.mjs — PER-SLOT-CLAIM-MS0/U-PSC05 (2026-05-16)",
+      "exports": [
+        "identifyOwner",
+        "formatAdvisory"
+      ]
+    },
+    {
+      "name": "stop-soul-evolution.mjs",
+      "file": ".claude/hooks/stop-soul-evolution.mjs",
+      "trigger": "Stop",
+      "purpose": "U-HRP05 wire -- soul-evolution Stop driver."
+    },
+    {
+      "name": "stop-system-awareness-freshness.mjs",
+      "file": ".claude/hooks/stop-system-awareness-freshness.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-system-awareness-freshness.mjs — SYSTEM-AWARENESS-FRESHNESS-MS0/U-SAF-F1.",
+      "exports": [
+        "throttleAllows",
+        "pickLatestBaseline",
+        "computeDelta",
+        "formatAdvisory"
+      ]
+    },
+    {
+      "name": "stop-system-viz-drift.mjs",
+      "file": ".claude/hooks/stop-system-viz-drift.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-system-viz-drift.mjs — SYSTEM-VIZ-FS-COVERAGE-MS1/U-MS1-DRIFT-STOP-HOOK"
+    },
+    {
+      "name": "stop-system-viz-reminder.mjs",
+      "file": ".claude/hooks/stop-system-viz-reminder.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-system-viz-reminder.mjs — Advisory Stop hook."
+    },
+    {
+      "name": "stop-tab-blink.mjs",
+      "file": ".claude/hooks/stop-tab-blink.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-tab-blink.mjs - Flash this terminal tab when Claude's turn ends."
+    },
+    {
+      "name": "stop-task-boundary-compact-nudge.mjs",
+      "file": ".claude/hooks/stop-task-boundary-compact-nudge.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-task-boundary-compact-nudge.mjs -- SESSION-CONTINUITY-AGENTIC/U-TASK-BOUNDARY-COMPACT"
+    },
+    {
+      "name": "stop-token-savings-summary.mjs",
+      "file": ".claude/hooks/stop-token-savings-summary.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-token-savings-summary.mjs — Stop hook",
+      "exports": [
+        "LEDGERS",
+        "parseLedgerTail",
+        "parseLedgerJson",
+        "aggregateAcrossLedgers",
+        "formatSummary",
+        "shouldEmit",
+        "collectAllLedgers"
+      ]
+    },
+    {
+      "name": "stop-tribal-distill-suggest.mjs",
+      "file": ".claude/hooks/stop-tribal-distill-suggest.mjs",
+      "trigger": "Stop",
+      "purpose": "U-HFR03 wire — tribal-distillation Stop driver."
+    },
+    {
+      "name": "stop-wiki-from-nodes-autopopulate.mjs",
+      "file": ".claude/hooks/stop-wiki-from-nodes-autopopulate.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-wiki-from-nodes-autopopulate.mjs — Stop hook (T3, non-blocking)"
+    },
+    {
+      "name": "stop-wiki-stub-stager.mjs",
+      "file": ".claude/hooks/stop-wiki-stub-stager.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-wiki-stub-stager.mjs — Stop hook (T4, fire-and-forget)",
+      "exports": [
+        "extractUnitId",
+        "unitSlug",
+        "wikiEntryExists"
+      ]
+    },
+    {
+      "name": "stop-wiring-audit-suggest.mjs",
+      "file": ".claude/hooks/stop-wiring-audit-suggest.mjs",
+      "trigger": "Stop",
+      "purpose": "stop-wiring-audit-suggest.mjs — Stop hook (T3 advisory)"
+    },
+    {
+      "name": "stress-harness-emit.mjs",
+      "file": ".claude/hooks/stress-harness-emit.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "stress-harness-emit.mjs — AUTONOMOUS-FLEET-MS0/U-AF-STRESS-HARNESS"
+    },
+    {
+      "name": "subagent-start-context.mjs",
+      "file": ".claude/hooks/subagent-start-context.mjs",
+      "trigger": "SubagentStart",
+      "purpose": "subagent-start-context.mjs — SubagentStart hook"
+    },
+    {
+      "name": "subagent-stop-verifier.mjs",
+      "file": ".claude/hooks/subagent-stop-verifier.mjs",
+      "trigger": "SubagentStop",
+      "purpose": "subagent-stop-verifier.mjs — SubagentStop hook: verify a subagent's deliverable claims.",
+      "exports": [
+        "findRoot",
+        "extractFileClaims",
+        "verifyClaims",
+        "decideVerdict",
+        "getSubagentText",
+        "runVerifier"
+      ]
+    },
+    {
+      "name": "substrate-health-inject.mjs",
+      "file": ".claude/hooks/substrate-health-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": ".claude/hooks/substrate-health-inject.mjs",
+      "exports": [
+        "formatDigest"
+      ]
+    },
+    {
+      "name": "success-pattern-tracker.mjs",
+      "file": ".claude/hooks/success-pattern-tracker.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "Success Pattern Tracker — PostToolUse Hook (Bash)"
+    },
+    {
+      "name": "svi-inject.mjs",
+      "file": ".claude/hooks/svi-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": "svi-inject.mjs — Phase 0.14 SVI Session Injection",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "svi-projection.mjs",
+      "file": ".claude/hooks/svi-projection.mjs",
+      "trigger": "",
+      "purpose": "svi-projection.mjs — Phase 0.14 SVI Impact Projection",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "svi-regression-guard.mjs",
+      "file": ".claude/hooks/svi-regression-guard.mjs",
+      "trigger": "Stop",
+      "purpose": "SVI Regression Guard Hook (Stop hook)"
+    },
+    {
+      "name": "svi-watch-refresh.mjs",
+      "file": ".claude/hooks/svi-watch-refresh.mjs",
+      "trigger": "",
+      "purpose": "svi-watch-refresh.mjs — Phase 0.14 SVI Watch Refresh",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "sx-gate.mjs",
+      "file": ".claude/hooks/sx-gate.mjs",
+      "trigger": "",
+      "purpose": "sx-gate.mjs — Phase 1 Tier 5C Physics Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "system-viz-live-bridge.mjs",
+      "file": ".claude/hooks/system-viz-live-bridge.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "system-viz-live-bridge.mjs — PostToolUse(Edit|Write|MultiEdit) → ping the live system-viz.",
+      "exports": [
+        "isGraphRelevant",
+        "isDisabled",
+        "vizUrl",
+        "cacheDir",
+        "cooldownFile",
+        "vizDownFile",
+        "shouldFire",
+        "runBridge",
+        "telemetryRecordFor"
+      ]
+    },
+    {
+      "name": "task-created-claim-guard.mjs",
+      "file": ".claude/hooks/task-created-claim-guard.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "task-created-claim-guard.mjs — PreToolUse(TaskCreate) → deny duplicate task creation across chats.",
+      "exports": [
+        "normalizeSubject",
+        "tokensOf",
+        "similarity",
+        "isForced",
+        "findDuplicate",
+        "decideClaim",
+        "ledgerPath",
+        "readLedger",
+        "runGuard"
+      ]
+    },
+    {
+      "name": "task-freshness-gate.mjs",
+      "file": ".claude/hooks/task-freshness-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "TASK-FRESHNESS-GATE-MS0/U-TFG01 (2026-05-18)"
+    },
+    {
+      "name": "task-goal-tracker.mjs",
+      "file": ".claude/hooks/task-goal-tracker.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass."
+    },
+    {
+      "name": "taylor-coeff-check.mjs",
+      "file": ".claude/hooks/taylor-coeff-check.mjs",
+      "trigger": "",
+      "purpose": "taylor-coeff-check.mjs — Phase 1 Tier 5C Physics Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "telemetry-autofire.mjs",
+      "file": ".claude/hooks/telemetry-autofire.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "telemetry-autofire.mjs"
+    },
+    {
+      "name": "terminal-title-update.mjs",
+      "file": ".claude/hooks/terminal-title-update.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "terminal-title-update.mjs — Auto-update terminal title with current task"
+    },
+    {
+      "name": "test-100-percent-gate.mjs",
+      "file": ".claude/hooks/test-100-percent-gate.mjs",
+      "trigger": "Stop",
+      "purpose": "test-100-percent-gate.mjs — Stop Hook"
+    },
+    {
+      "name": "test-coverage-enforcer.mjs",
+      "file": ".claude/hooks/test-coverage-enforcer.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "test-coverage-enforcer.mjs — PreToolUse hook for Write (new files)"
+    },
+    {
+      "name": "test-legitimacy.mjs",
+      "file": ".claude/hooks/test-legitimacy.mjs",
+      "trigger": "",
+      "purpose": "test-legitimacy.mjs — Phase 1 Tier 5D Workflow Hook",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "text-to-cad-validation.mjs",
+      "file": ".claude/hooks/text-to-cad-validation.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "text-to-cad-validation.mjs — PostToolUse hook"
+    },
+    {
+      "name": "tier1-context-pack.mjs",
+      "file": ".claude/hooks/tier1-context-pack.mjs",
+      "trigger": "SessionStart",
+      "purpose": "tier1-context-pack.mjs — U-CTX01 Tier-1 Always-On Context Pack"
+    },
+    {
+      "name": "tier1-data-refresh.mjs",
+      "file": ".claude/hooks/tier1-data-refresh.mjs",
+      "trigger": "SessionStart",
+      "purpose": "tier1-data-refresh.mjs — Refresh Tier-1 data sources before session_start_tier1_bolster"
+    },
+    {
+      "name": "token-awareness-inject.mjs",
+      "file": ".claude/hooks/token-awareness-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "TOKEN-AWARENESS-MS0 / U-TA05 — model-visible inject hook.",
+      "exports": [
+        "isAutonomousLoopPrompt",
+        "renderInject"
+      ]
+    },
+    {
+      "name": "token-awareness-sidecar.mjs",
+      "file": ".claude/hooks/token-awareness-sidecar.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "TOKEN-AWARENESS-MS0 / U-TA03 — sidecar writer hook.",
+      "exports": [
+        "CTX_MAX_TOKENS",
+        "TRANSCRIPT_TAIL_BYTES",
+        "STATUSLINE_BYTES_PER_TOKEN",
+        "CTX_SANITY_CAP_TOKENS",
+        "estimateCtxFromBytes"
+      ]
+    },
+    {
+      "name": "token-awareness-stop-advisory.mjs",
+      "file": ".claude/hooks/token-awareness-stop-advisory.mjs",
+      "trigger": "Stop",
+      "purpose": "TOKEN-AWARENESS-MS0 / U-TA08 — Stop hook advisory.",
+      "exports": [
+        "decideAdvisory"
+      ]
+    },
+    {
+      "name": "token-budget-gate.mjs",
+      "file": ".claude/hooks/token-budget-gate.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "token-budget-gate.mjs — Token Budget Awareness Hook",
+      "exports": [
+        "buildTelemetryRow"
+      ]
+    },
+    {
+      "name": "tolerance-stack-guard.mjs",
+      "file": ".claude/hooks/tolerance-stack-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "tolerance-stack-guard.mjs — PostToolUse hook"
+    },
+    {
+      "name": "tool-pattern-learner.mjs",
+      "file": ".claude/hooks/tool-pattern-learner.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "tool-pattern-learner.mjs - PostToolUse (all tools)"
+    },
+    {
+      "name": "tool-watchdog.mjs",
+      "file": ".claude/hooks/tool-watchdog.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "tool-watchdog.mjs — HS-12 + HS-15 tool-call runtime monitor."
+    },
+    {
+      "name": "training-convergence-guard.mjs",
+      "file": ".claude/hooks/training-convergence-guard.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "training-convergence-guard.mjs — PostToolUse hook"
+    },
+    {
+      "name": "tribal-autowire.mjs",
+      "file": ".claude/hooks/tribal-autowire.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "tribal-autowire.mjs — L6 of TRIBAL × AI"
+    },
+    {
+      "name": "tribal-by-domain-inject.mjs",
+      "file": ".claude/hooks/tribal-by-domain-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "UserPromptSubmit",
+      "exports": [
+        "SLOT_TRIBAL_DOMAIN",
+        "extractPrompt",
+        "inferTribalDomain",
+        "parseRerankOutput",
+        "applyLexicalRerank",
+        "formatInjection"
+      ]
+    },
+    {
+      "name": "tribal-inject-on-edit.mjs",
+      "file": ".claude/hooks/tribal-inject-on-edit.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "tribal-inject-on-edit.mjs — L4 of TRIBAL × AI"
+    },
+    {
+      "name": "tribal-spike.mjs",
+      "file": ".claude/hooks/tribal-spike.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "Synchronous read to EOF (Claude Code closes the hook's stdin after writing)."
+    },
+    {
+      "name": "try-before-asking.mjs",
+      "file": ".claude/hooks/try-before-asking.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "try-before-asking.mjs — UserPromptSubmit Stop Hook"
+    },
+    {
+      "name": "tsc-baseline-regression-gate.mjs",
+      "file": ".claude/hooks/tsc-baseline-regression-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "tsc-baseline-regression-gate — PreToolUse hook on Bash."
+    },
+    {
+      "name": "tsc-error-dedup.mjs",
+      "file": ".claude/hooks/tsc-error-dedup.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "tsc-error-dedup.mjs — PostToolUse Bash hook."
+    },
+    {
+      "name": "type-safety-checker.mjs",
+      "file": ".claude/hooks/type-safety-checker.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "RE-ENABLED 2026-04-27 by user approval (RESUME_AT_WORK section 5)."
+    },
+    {
+      "name": "unified-edit-tap.mjs",
+      "file": ".claude/hooks/unified-edit-tap.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "unified-edit-tap.mjs — PRISM-STAB-MS0/U-D2 (2026-05-10)."
+    },
+    {
+      "name": "unified-local-validation.mjs",
+      "file": ".claude/hooks/unified-local-validation.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "unified-local-validation.mjs — PreToolUse hook for Edit/Write/MultiEdit"
+    },
+    {
+      "name": "unit-knowledge-pack-inject.mjs",
+      "file": ".claude/hooks/unit-knowledge-pack-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "unit-knowledge-pack-inject.mjs — UserPromptSubmit hook",
+      "exports": [
+        "readStdinJson",
+        "deriveChatId",
+        "resolveSlotForChat",
+        "readActiveClaim",
+        "shouldInject",
+        "stampPath",
+        "recordInject",
+        "renderCompact",
+        "runHook"
+      ]
+    },
+    {
+      "name": "unknown-cad-extensions-surface.mjs",
+      "file": ".claude/hooks/unknown-cad-extensions-surface.mjs",
+      "trigger": "SessionStart",
+      "purpose": "unknown-cad-extensions-surface.mjs — U-CUC04 SessionStart hook"
+    },
+    {
+      "name": "user-prompt-submit-p1.mjs",
+      "file": ".claude/hooks/user-prompt-submit-p1.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "user-prompt-submit-p1.mjs — Phase 1 Tier 0",
+      "exports": [
+        "metadata"
+      ]
+    },
+    {
+      "name": "userprompt-multi-tool-planner-nudge.mjs",
+      "file": ".claude/hooks/userprompt-multi-tool-planner-nudge.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "userprompt-multi-tool-planner-nudge.mjs — UserPromptSubmit hook",
+      "exports": [
+        "scoreMultiToolPrompt",
+        "formatPlannerNudge"
+      ]
+    },
+    {
+      "name": "userprompt-skill-and-subagent-nudges.mjs",
+      "file": ".claude/hooks/userprompt-skill-and-subagent-nudges.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "userprompt-skill-and-subagent-nudges.mjs — UserPromptSubmit hook",
+      "exports": [
+        "SKILL_PHRASE_MAP",
+        "suggestSkill",
+        "SUBAGENT_REUSE_PATTERNS",
+        "shouldHintSubagentReuse",
+        "formatNudge"
+      ]
+    },
+    {
+      "name": "vitest-output-condenser.mjs",
+      "file": ".claude/hooks/vitest-output-condenser.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "vitest-output-condenser.mjs — PostToolUse Bash hook."
+    },
+    {
+      "name": "viz-first-redirect.mjs",
+      "file": ".claude/hooks/viz-first-redirect.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "PreToolUse:Glob|Grep",
+      "exports": [
+        "extractPattern",
+        "shouldQueryViz",
+        "parseFindOutput",
+        "formatInjection"
+      ]
+    },
+    {
+      "name": "volume-delta-alert.mjs",
+      "file": ".claude/hooks/volume-delta-alert.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "volume-delta-alert.mjs — U-CUC06 PostToolUse hook"
+    },
+    {
+      "name": "warn-redundant-read.mjs",
+      "file": ".claude/hooks/warn-redundant-read.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "warn-redundant-read.mjs — PreToolUse hook (Read only)"
+    },
+    {
+      "name": "wedm-tier6-geom-gate.mjs",
+      "file": ".claude/hooks/wedm-tier6-geom-gate.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "WEDM Tier 6 Geometry Gate Hook"
+    },
+    {
+      "name": "whiskey-lathe-context-inject.mjs",
+      "file": ".claude/hooks/whiskey-lathe-context-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "whiskey-lathe-context-inject.mjs  (WHISKEY-LATHE-GALAXY-SYNERGY, operator 2026-05-28, slot:whiskey)"
+    },
+    {
+      "name": "wiki-link-suggest.mjs",
+      "file": ".claude/hooks/wiki-link-suggest.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "wiki-link-suggest.mjs — PostToolUse hook for memory/wiki writes"
+    },
+    {
+      "name": "wiki-precheck-inject.mjs",
+      "file": ".claude/hooks/wiki-precheck-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "wiki-precheck-inject.mjs — UserPromptSubmit hook."
+    },
+    {
+      "name": "wiki-propagation-watchdog-stop.mjs",
+      "file": ".claude/hooks/wiki-propagation-watchdog-stop.mjs",
+      "trigger": "Stop",
+      "purpose": "wiki-propagation-watchdog-stop.mjs — Stop-hook arm of the iter10",
+      "exports": [
+        "repoPaths",
+        "throttleDecision",
+        "buildAdvisory",
+        "decideRecoveryAction"
+      ]
+    },
+    {
+      "name": "wiki-read-offload-advisory.mjs",
+      "file": ".claude/hooks/wiki-read-offload-advisory.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "PreToolUse:Read advisory hook",
+      "exports": [
+        "DEFAULT_MIN_LINES",
+        "HOOK_KEY",
+        "STATS_PATH",
+        "classifyWikiPath",
+        "countLines",
+        "decideAdvisory"
+      ]
+    },
+    {
+      "name": "wiki-recall-on-read.mjs",
+      "file": ".claude/hooks/wiki-recall-on-read.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "wiki-recall-on-read.mjs — PostToolUse hook (matcher: Read)."
+    },
+    {
+      "name": "wiki-recall-on-write.mjs",
+      "file": ".claude/hooks/wiki-recall-on-write.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "wiki-recall-on-write.mjs — PostToolUse hook for Write|Edit|MultiEdit on vault files",
+      "exports": [
+        "deriveKey",
+        "isVaultPath",
+        "isWriteTool",
+        "recordWriteEvent"
+      ]
+    },
+    {
+      "name": "wiki-tribal-coverage-inject.mjs",
+      "file": ".claude/hooks/wiki-tribal-coverage-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": ".claude/hooks/wiki-tribal-coverage-inject.mjs",
+      "exports": [
+        "loadAudit",
+        "coverageGap",
+        "pickTopMissing",
+        "formatDigest",
+        "perDomainWillRender"
+      ]
+    },
+    {
+      "name": "wiki-tribal-coverage-per-domain-inject.mjs",
+      "file": ".claude/hooks/wiki-tribal-coverage-per-domain-inject.mjs",
+      "trigger": "SessionStart",
+      "purpose": ".claude/hooks/wiki-tribal-coverage-per-domain-inject.mjs — U-VICTOR-A2",
+      "exports": [
+        "REPORT_PATH",
+        "DEFAULT_THRESHOLD",
+        "DEFAULT_TOPK",
+        "DEFAULT_STALE_HRS",
+        "loadReport",
+        "pickWorst",
+        "formatPayload"
+      ]
+    },
+    {
+      "name": "work-broadcast.mjs",
+      "file": ".claude/hooks/work-broadcast.mjs",
+      "trigger": "SessionStart",
+      "purpose": "work-broadcast.mjs — Cross-Session Work Broadcasting"
+    },
+    {
+      "name": "work-claim.mjs",
+      "file": ".claude/hooks/work-claim.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "work-claim.mjs — Claim Work Before Starting"
+    },
+    {
+      "name": "working-set-awareness.mjs",
+      "file": ".claude/hooks/working-set-awareness.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "Working Set Awareness — PreToolUse Hook (Write/Edit)"
+    },
+    {
+      "name": "worktree-commit-route.mjs",
+      "file": ".claude/hooks/worktree-commit-route.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "worktree-commit-route.mjs — PreToolUse(Bash) worktree-routing enforcement"
+    },
+    {
+      "name": "write-import-check.mjs",
+      "file": ".claude/hooks/write-import-check.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "write-import-check.mjs - PostToolUse Write"
+    },
+    {
+      "name": "write-tracker.mjs",
+      "file": ".claude/hooks/write-tracker.mjs",
+      "trigger": "PostToolUse",
+      "purpose": "write-tracker.mjs - PostToolUse Write/Edit"
+    },
+    {
+      "name": "xray-blueprint-domain-inject.mjs",
+      "file": ".claude/hooks/xray-blueprint-domain-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "UserPromptSubmit",
+      "exports": [
+        "activeSlotIsXray",
+        "buildContext",
+        "shouldInject"
+      ]
+    },
+    {
+      "name": "zany-reintroduction-block.mjs",
+      "file": ".claude/hooks/zany-reintroduction-block.mjs",
+      "trigger": "PreToolUse",
+      "purpose": "zany-reintroduction-block.mjs — PreToolUse Write/Edit/MultiEdit hook",
+      "exports": [
+        "countZAny",
+        "applyMultiEdit",
+        "computeProposedText"
+      ]
+    },
+    {
+      "name": "zulu-advisory-inject.mjs",
+      "file": ".claude/hooks/zulu-advisory-inject.mjs",
+      "trigger": "UserPromptSubmit",
+      "purpose": "ZULU-ORCHESTRATOR-MS0 / U-ZULU06 — advisory inject hook.",
+      "exports": [
+        "resolveSlotFromSlotsFile",
+        "buildChatState",
+        "renderAdvisory",
+        "normalizePressure"
+      ]
+    }
+  ]
+}

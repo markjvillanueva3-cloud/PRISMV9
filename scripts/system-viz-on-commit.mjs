@@ -40,7 +40,13 @@
 import { spawnSync, spawn } from "node:child_process";
 import path from "node:path";
 import fs from "node:fs";
+import os from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import {
+  acquireGraphWriteLock,
+  installGraphWriteLockReleaseOnExit,
+  lockTtlMs,
+} from "./lib/system-graph-write-lock.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -57,6 +63,77 @@ const FOLD_DEBT_PATH = process.env.PRISM_FOLD_DEBT_PATH
 const NEWLY_BUILT_PATH = process.env.PRISM_NEWLY_BUILT_PATH
   || path.join(ROOT, "state", "shared", "system-viz", "newly-built.json");
 const DEFAULT_FOLD_DEBT_MAX_HRS = 6;
+
+// GRAPH-OCTOPUS-AUTOWIRE-MS0 / U-GO-B2: completion sentinel. The post-commit
+// hook runs this script backgrounded with output discarded — a failed or
+// skipped chain was invisible (the graph froze 9.5h once and nobody knew).
+// On a SUCCESSFUL chain we stamp .last-successful-regen.json so a staleness
+// check (U-GO-B5 SessionStart inject) can detect "graph stopped updating"
+// without re-deriving it from raw git history.
+const REGEN_SENTINEL_PATH = process.env.PRISM_REGEN_SENTINEL_PATH
+  || path.join(ROOT, "state", "shared", "system-viz", ".last-successful-regen.json");
+
+// GRAPH-OCTOPUS-AUTOWIRE-MS0 / U-GO-B4: companion failure marker. The
+// post-commit hook runs this script with stderr discarded (>/dev/null 2>&1),
+// so a graceful chain failure left no trace — only success was observable
+// (the sentinel). On the `if (!ok)` path we now stamp .last-regen-failure.json
+// with the failed stage + exit code + a stderr tail, so an operator (and the
+// U-GO-B5 SessionStart staleness inject) can see WHY the graph stopped
+// updating without re-running the chain or digging through git history.
+// Success and failure markers never delete each other — a reader compares
+// their `ts` fields; the newer marker is the current state.
+const REGEN_FAILURE_PATH = process.env.PRISM_REGEN_FAILURE_PATH
+  || path.join(ROOT, "state", "shared", "system-viz", ".last-regen-failure.json");
+
+/**
+ * Stamp the last-successful-regen sentinel. Best-effort: a sentinel write
+ * failure must never fail the chain (the graph itself is already fresh by
+ * the time this runs). Records the graph's own mtime so a reader can tell
+ * a stale sentinel (script ran) from a stale graph (merge silently no-op'd).
+ */
+function writeRegenSentinel(extra = {}) {
+  try {
+    let graphMtime = null;
+    let graphBytes = null;
+    try {
+      const st = fs.statSync(path.join(ROOT, "state", "shared", "system-viz", "system-graph.json"));
+      graphMtime = st.mtime.toISOString();
+      graphBytes = st.size;
+    } catch { /* graph missing — leave null (itself a signal) */ }
+    fs.writeFileSync(REGEN_SENTINEL_PATH, JSON.stringify({
+      ts: new Date().toISOString(),
+      ok: true,
+      host: os.hostname(),
+      pid: process.pid,
+      graphMtime,
+      graphBytes,
+      ...extra,
+    }, null, 2));
+  } catch (e) {
+    console.error(`system-viz-on-commit: regen sentinel write failed: ${e.message}`);
+  }
+}
+
+/**
+ * U-GO-B4: stamp the last-regen-failure marker so a failed chain is loud
+ * despite the post-commit hook discarding this script's stderr. Best-effort —
+ * a marker write must never mask the underlying chain failure (the caller
+ * still process.exit(1)s). `extra` carries the failed stage / exit code /
+ * stderr tail captured by run().
+ */
+export function writeRegenFailure(extra = {}) {
+  try {
+    fs.writeFileSync(REGEN_FAILURE_PATH, JSON.stringify({
+      ts: new Date().toISOString(),
+      ok: false,
+      host: os.hostname(),
+      pid: process.pid,
+      ...extra,
+    }, null, 2));
+  } catch (e) {
+    console.error(`system-viz-on-commit: regen failure marker write failed: ${e.message}`);
+  }
+}
 
 /**
  * Count newly-built nodes from newly-built.json (best-effort; 0 on any
@@ -151,12 +228,26 @@ function pidFileGuard() {
     const existing = fs.readFileSync(PIDFILE, "utf8").trim();
     const pid = parseInt(existing, 10);
     if (Number.isFinite(pid) && pid > 0) {
-      try {
-        process.kill(pid, 0); // liveness probe, throws ESRCH if dead
-        console.log(`system-viz-on-commit: another instance running (pid=${pid}), skipping`);
-        process.exit(0);
-      } catch {
-        // dead pid — claim the lock by overwriting
+      // U-GO-B2: TTL backstop — a pidfile older than the TTL is stale
+      // regardless of the liveness probe. Mirrors the same defense added to
+      // scripts/lib/system-graph-write-lock.mjs: a Windows PID-reuse phantom
+      // (an unrelated live process inheriting a crashed regen's recycled pid)
+      // makes process.kill(pid,0) read "alive" and wedges the autoupdate
+      // forever. Observed in production: pid 24784 froze the graph 9.5h.
+      // The on-commit chain runs ~100s; the 30-min default TTL is wide
+      // headroom yet still self-heals a wedged pidfile within half an hour.
+      let ageMs = Infinity;
+      try { ageMs = Date.now() - fs.statSync(PIDFILE).mtimeMs; } catch { /* unstatable → treat as stale */ }
+      if (ageMs <= lockTtlMs()) {
+        try {
+          process.kill(pid, 0); // liveness probe, throws ESRCH if dead
+          console.log(`system-viz-on-commit: another instance running (pid=${pid}), skipping`);
+          process.exit(0);
+        } catch {
+          // dead pid — claim the lock by overwriting
+        }
+      } else {
+        console.log(`system-viz-on-commit: stale pidfile (pid=${pid}, age ${(ageMs / 60000).toFixed(1)}m exceeds TTL) — reclaiming`);
       }
     }
   } catch {
@@ -174,13 +265,69 @@ function pidFileGuard() {
   process.on("SIGTERM", () => { cleanup(); process.exit(143); });
 }
 
+// GRAPH-OCTOPUS-AUTOWIRE-MS0 / U-GO-B1: the DOMINANT cause of the stale
+// graph. merge-augmentations.mjs OOM-crashes (exit 134 / SIGABRT, V8 heap
+// abort) folding the ~412 MB system-graph.json under Node's default
+// ~2 GB old-space — observed every run. The stale locks (U-GO-B2) gated
+// SOME runs; this gated EVERY run that got past them. Raise the heap for
+// every child of the chain via NODE_OPTIONS (inherited by grandchildren).
+// Knob: PRISM_VIZ_REGEN_HEAP_MB (MB, floor 2048, default 24576). The graph grew
+// 412 -> 630 MB (2026-06-10); at 630 MB the prior 8192 default OOMs on the heavy
+// stages, so this on-commit chain is raised to MATCH the canonical regen-viz.mjs
+// heap (its NODE_ARGS = --max-old-space-size=24576). SAFE on commit pressure:
+// regen + build-graph-index + merge-augmentations are SINGLE SEQUENTIAL batch
+// jobs that run ALONE, so a higher per-proc cap here never adds to the ~130-proc
+// fleet commit baseline -- unlike a hook/daemon cap, which on Windows IS a commit
+// RESERVATION counted against the 227 GB ceiling even when unused (see lesson
+// commit-pressure-find-the-real-committer: raise THOSE and the box stops
+// spawning; this one is a lone transient).
+//
+// HEAP ONLY (this chain spawns via NODE_OPTIONS): regen-viz.mjs ALSO passes
+// --stack-size=8192 for merge-augmentations on the >600 MB graph, but --stack-size
+// is NOT allowed in NODE_OPTIONS -- only the argv-spawned regen-viz can pass it.
+// LIVE-VALIDATED 2026-06-10 (golf): even regen-viz at the FULL 24576 + stack-size
+// STILL fails merge-augmentations exit 1 -- so the master-index degradation is a
+// REAL merge bug at 630 MB, NOT a heap-cap shortfall; this bump only re-provisions
+// the non-merge stages. The merge fix + the streaming-augment rewrite are sierra's
+// (system-viz) follow-up. STATUS (sierra 2026-06-10): BOTH RESOLVED + LIVE-VALIDATED.
+// (1) streaming-augment rewrite SHIPPED ae55cea3f7: augment-molecules.mjs uses off-heap
+// streamGraphArray() (projects only L5/L3/L9 fields, never materializes the graph), so
+// the "augment molecules" stage no longer OOMs under ANY heap. (2) MERGE fix: a full
+// regen-viz run (2026-06-10, 430.3s, driftFail=false) folded 557.9 MB of augmentations
+// into a 660 MB graph and SUCCEEDED (obsidian:yes, build-graph-index 335,482 nodes) --
+// 660MB is OVER golf's 630MB failure point AND V8's 512 MiB string cap, so golf's
+// "630MB merge exit-1" does NOT reproduce. It was the truncation cascade (a prior
+// non-atomic write left a torn graph -> next merge's readGraphStreaming threw), closed
+// by writeGraphStreamingAtomic (153887a519); loadOptional is now also cap-safe
+// (628aaa51f5). master-index sidecar rebuilds clean at >512 MiB -- no stale-graph
+// fallback needed. See [[reference_augment_molecules_stream_2026_06_09]].
+const REGEN_HEAP_MB = (() => {
+  const v = Number(process.env.PRISM_VIZ_REGEN_HEAP_MB);
+  return Number.isFinite(v) && v >= 2048 ? Math.floor(v) : 24576;
+})();
+
+// U-GO-B4: the most-recent failed run() — stage / exit code / signal /
+// stderr tail. main()'s if(!ok) block reads this to populate the failure
+// marker (writeRegenFailure) so a discarded-stderr chain failure is loud.
+let lastRunFailure = null;
+
 function run(label, cmd, args) {
   const start = Date.now();
-  const r = spawnSync(cmd, args, { cwd: ROOT, stdio: "pipe", encoding: "utf8" });
+  const childEnv = {
+    ...process.env,
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS || ""} --max-old-space-size=${REGEN_HEAP_MB}`.trim(),
+  };
+  const r = spawnSync(cmd, args, { cwd: ROOT, stdio: "pipe", encoding: "utf8", env: childEnv });
   const ms = Date.now() - start;
   if (r.status !== 0) {
     console.error(`✗ ${label} (${ms}ms) FAILED — exit ${r.status}`);
     if (r.stderr) console.error(r.stderr.split("\n").slice(-6).join("\n"));
+    lastRunFailure = {
+      stage: label,
+      exitCode: r.status,
+      signal: r.signal ?? null,
+      stderrTail: (r.stderr ?? "").split("\n").filter(Boolean).slice(-8).join("\n"),
+    };
     return false;
   }
   const lastLine = (r.stdout ?? "").split("\n").filter(Boolean).slice(-2).join(" · ");
@@ -188,12 +335,63 @@ function run(label, cmd, args) {
   return true;
 }
 
+// GRAPH-OCTOPUS-AUTOWIRE-MS0 / U-GO-B3: rebuild the master-index sidecar from
+// the freshly-merged graph. system-graph.json (>400 MB) exceeds master-index-
+// search-lib's 200 MB loadGraph cap, so master-index search depends ENTIRELY
+// on the compact system-graph-index.json sidecar. loadGraph's staleness gate
+// rejects any sidecar built from an older graph — so a regen that advances the
+// graph WITHOUT rebuilding the sidecar silently degrades the WHOLE fleet's
+// search to the 20K-node architecture-graph fallback. regen-viz.mjs already
+// chains build-graph-index.mjs; this on-commit chain — the dominant graph
+// writer (post-commit hook, every commit) — did not, which is why the sidecar
+// was observed 2 days stale behind a fresh graph. Non-fatal: a sidecar failure
+// only degrades search to the legacy path, the graph itself is fresh.
+//
+// `runFn` is injected (the module's run(label,cmd,args)->boolean spawner) so
+// the wiring is unit-testable without spawning the real ~16 s build — mirrors
+// the foldDebtVerdict pure-helper extraction.
+export function rebuildMasterIndexSidecar(node, runFn) {
+  return runFn(
+    "rebuild master-index sidecar",
+    node,
+    // Explicit heap flag → build-graph-index.mjs's self-re-exec is a no-op
+    // (parity with regen-viz.mjs's NODE_ARGS-spawned sidecar stage).
+    [`--max-old-space-size=${REGEN_HEAP_MB}`, "scripts/build-graph-index.mjs"],
+  );
+}
+
 // The side-effecting refresh chain. Guarded by an entry-point check at the
 // bottom so importing this module (e.g. the test suite, or any consumer of
 // foldDebtVerdict/readNewlyBuiltCount) does NOT spawn the ~80s chain or take
 // the pid lock. W1 fix: making the module importable required this guard.
 function main() {
+  const chainStart = Date.now();
   pidFileGuard();
+
+  // U-VIZ-F11-CROSS-LOCK: on-commit is the THIRD independent system-graph.json
+  // writer (its chain runs merge-augmentations.mjs ×2). Its own .system-viz-
+  // on-commit.pid only excludes other on-commit instances — it does NOT
+  // exclude a concurrent operator/cron `regen-viz.mjs`, which holds the
+  // SHARED .system-graph-write.pid for its merge chain. Without this, an
+  // on-commit merge and a regen-viz merge race the same 41MB graph (the
+  // open leg F11 closes; F1 already isolated generate-system-viz to
+  // architecture-graph.json so it is NOT a racer). Acquire the SAME shared
+  // lock here so all three writers (regen-viz · on-commit · add-node) are
+  // mutually exclusive on ONE lock. add-node DEFERS on it (its TIER-1b).
+  // Skip semantics MIRROR this script's own pidFileGuard: exit 0, the next
+  // commit's run recovers (on-commit is post-commit-hook-invoked + detached
+  // — exit 0 is its established skip contract, NOT regen-viz's exit-4).
+  const f11Lock = acquireGraphWriteLock();
+  if (!f11Lock.acquired) {
+    console.log(
+      `system-viz-on-commit: shared system-graph.json write-lock held by ` +
+      `pid ${f11Lock.heldBy} (a regen-viz / peer on-commit is mid-merge), ` +
+      `skipping — next commit's run recovers (lock: ${f11Lock.path}).`,
+    );
+    process.exit(0);
+  }
+  installGraphWriteLockReleaseOnExit();
+
   const node = process.execPath;
   console.log("PRISM system-viz refresh chain:");
 
@@ -222,8 +420,24 @@ if (ok && process.env.FOLD_NEWLY_BUILT === "1") {
 
 if (!ok) {
   console.error("\n⚠ chain incomplete — viz may be stale until next run");
+  // U-GO-B4: record WHY (failed stage + exit code + stderr tail) so the
+  // failure is observable despite the post-commit hook discarding stderr.
+  writeRegenFailure({ durationMs: Date.now() - chainStart, ...(lastRunFailure || {}) });
   process.exit(1);
 }
+
+// U-GO-B3: rebuild the master-index sidecar from the now-fresh graph. The
+// shared graph-write lock is still held, so build-graph-index reads a
+// consistent graph. Non-fatal — a failure degrades search to the legacy
+// path, never the graph itself.
+const sidecarOk = rebuildMasterIndexSidecar(node, run);
+if (!sidecarOk) {
+  console.error("⚠ sidecar rebuild failed — master-index search degrades to the legacy/architecture fallback until the next successful regen");
+}
+
+// U-GO-B2: stamp the success sentinel so staleness is observable even
+// though the post-commit hook discards this script's stdout.
+writeRegenSentinel({ durationMs: Date.now() - chainStart, pendingCount, sidecarOk });
 console.log("\n✓ system-viz fully refreshed; viewer auto-poll will pick up within 30s");
 
 // U-VIZ-AUTO-REGEN-WIKI / U-CLEANUP-F5: regenerate the Obsidian wiki from the
@@ -242,7 +456,7 @@ if (process.env.PRISM_SKIP_WIKI_REGEN !== "1") {
     const child = spawn(node, ["scripts/viz-regen-guard.mjs", "--quiet"], {
       cwd: ROOT,
       stdio: "ignore",
-      detached: true,
+      detached: true, windowsHide: true,
     });
     child.unref();
     console.log("✓ wiki regen routed through viz-regen-guard (detached) — guard skips/refuses/runs as warranted, does not block git");

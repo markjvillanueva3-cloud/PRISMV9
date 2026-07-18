@@ -1,4 +1,6 @@
 import { getRequestHeaders } from "./client";
+import { ApiError } from "./requestCore";
+import { assertNoEnvelopeError, assertNotBlocked } from "./envelopeGuard";
 import type {
   SfcCalculateRequest, SfcCalculateResult,
   CycleTimeRequest, CycleTimeResult,
@@ -23,10 +25,36 @@ async function post<TReq, TRes>(
     signal,
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || "SFC request failed");
+    const err = (await res.json().catch(() => null)) as
+      | { error?: unknown; message?: unknown }
+      | null;
+    // The backend error envelope is { error: { status, message, code } } (or a
+    // bare string). Extract the human message + machine code -- never stringify
+    // the object to "[object Object]" (the old `err.error || ...` bug).
+    const errObj =
+      err && typeof err.error === "object" && err.error !== null
+        ? (err.error as { message?: unknown; code?: unknown })
+        : null;
+    const message =
+      (errObj && typeof errObj.message === "string" && errObj.message) ||
+      (typeof err?.error === "string" && err.error) ||
+      (typeof err?.message === "string" && err.message) ||
+      res.statusText ||
+      "SFC request failed";
+    const code = errObj && typeof errObj.code === "string" ? errObj.code : undefined;
+    // Preserve status + code (403 TIER_LIMIT vs ENTITLEMENT_REVOKED) so the page
+    // can show the right upgrade / contact-admin prompt, not a raw error.
+    throw new ApiError(res.status, message, { code });
   }
-  return res.json();
+  // Silent-zero guard: a 200 OK body is a handled failure when it carries
+  // { error } (assertNoEnvelopeError) OR a { blocked: true } gate envelope
+  // (assertNotBlocked) -- e.g. the SFC pre-machine-completeness-gate, which
+  // returns 200 with no `error` key when machine spindle data is missing. Both
+  // are failures that DID NOT produce a calc, so they must throw (surfacing the
+  // backend reason) -- never resolve as success (frontend-app/CLAUDE.md s2 + s5).
+  const json = await res.json();
+  assertNoEnvelopeError<TRes>(json, endpoint);
+  return assertNotBlocked<TRes>(json, endpoint);
 }
 
 type Wrapped<T> = { result: T; safety?: SfcCalculateResult["safety"]; meta?: Record<string, unknown> };

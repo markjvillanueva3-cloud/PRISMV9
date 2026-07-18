@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="7581893941907fb502378753ebfd8d9de5078c9651e720566b204a32a4c3d1ea">
+<title>JULIETT CONSOLIDATED WORK PLAN v2 — 2026-05-17</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT CONSOLIDATED WORK PLAN v2 — 2026-05-17</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.591Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#juliett-consolidated-work-plan-v2-2026-05-17">JULIETT CONSOLIDATED WORK PLAN v2 — 2026-05-17</a></li>
+<li class="toc-l2"><a href="#new-doctrine-user-message-2026-05-17t0410z">NEW DOCTRINE (user message 2026-05-17T04:10Z)</a></li>
+<li class="toc-l2"><a href="#stages-v2-canonical-order-stage-0-first-stage-6-last">STAGES (v2 canonical order — Stage 0 first, Stage 6 last)</a></li>
+<li class="toc-l3"><a href="#stage-0-prerequisites-must-ship-before-downstream-1-2-sessions">STAGE 0 — Prerequisites (must ship before downstream — ~1-2 sessions)</a></li>
+<li class="toc-l3"><a href="#stage-1-cheap-p0-fixes-ship-in-current-session-window">STAGE 1 — Cheap P0 fixes (ship in current session window)</a></li>
+<li class="toc-l3"><a href="#stage-2-doctrine-meta-layer-after-stage-0">STAGE 2 — Doctrine + META layer (after Stage 0)</a></li>
+<li class="toc-l3"><a href="#stage-3-token-economy-after-stage-0-prereqs">STAGE 3 — Token economy (after Stage 0 prereqs)</a></li>
+<li class="toc-l3"><a href="#stage-4-knowledge-hygiene-cleanup">STAGE 4 — Knowledge hygiene + cleanup</a></li>
+<li class="toc-l3"><a href="#stage-5-conditional-only-if-goal-driven">STAGE 5 — Conditional (only if goal-driven)</a></li>
+<li class="toc-l3"><a href="#stage-6-telemetry-multipliers-v12-if-budget">STAGE 6 — Telemetry multipliers (v1.2 if budget)</a></li>
+<li class="toc-l3"><a href="#stage-7-per-slot-pickup-files-refresh">STAGE 7 — Per-slot pickup files refresh</a></li>
+<li class="toc-l3"><a href="#stage-8-prism-app-handoff">STAGE 8 — PRISM-app handoff</a></li>
+<li class="toc-l2"><a href="#obsidian-prism-os-integration-checklist-apply-per-unit">OBSIDIAN PRISM-OS INTEGRATION CHECKLIST (apply per unit)</a></li>
+<li class="toc-l2"><a href="#activate-before-build-checklist-per-unit">ACTIVATE-BEFORE-BUILD CHECKLIST (per unit)</a></li>
+<li class="toc-l2"><a href="#5-open-questions-operator-decision-required">5 OPEN QUESTIONS (operator decision required)</a></li>
+<li class="toc-l2"><a href="#verification-commands-top-10">VERIFICATION COMMANDS (top 10)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="juliett-consolidated-work-plan-v2-2026-05-17"><a class="anchor" href="#juliett-consolidated-work-plan-v2-2026-05-17" aria-label="Permalink to JULIETT CONSOLIDATED WORK PLAN v2 — 2026-05-17">#</a>JULIETT CONSOLIDATED WORK PLAN v2 — 2026-05-17</h1>
+<blockquote>
+<p>v1 + v1.1 scrutiny deltas applied. Sources of truth:</p>
+<ul>
+<li>v1 master: <code>JULIETT-CONSOLIDATED-WORK-PLAN-2026-05-17.md</code></li>
+<li>v1.1 deltas: <code>JULIETT-PLAN-V1.1-SCRUTINY-DELTAS-2026-05-17.md</code></li>
+<li>Per-slot queues: <code>SLOT-PICKUPS-ALL.md</code> (needs v2 update; see Stage 7 below)</li>
+<li>Operator-facing deferrals: <code>PRISM-APP-QUEUE.md</code> (sibling file, created with v2)</li>
+<li>This is v2 — operator-actionable canonical.</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="new-doctrine-user-message-2026-05-17t0410z"><a class="anchor" href="#new-doctrine-user-message-2026-05-17t0410z" aria-label="Permalink to NEW DOCTRINE (user message 2026-05-17T04:10Z)">#</a>NEW DOCTRINE (user message 2026-05-17T04:10Z)</h2>
+<p><strong>&quot;Activate before build.&quot;</strong> Most of the engines, hooks, skills, scripts, and memories the plan needs <strong>are already on disk</strong>. Default action when a need surfaces is:</p>
+<ol>
+<li><code>node H:/prism/scripts/system-viz-query.mjs find &lt;keyword&gt;</code> — does it exist?</li>
+<li><code>grep -r &lt;name&gt; mcp-server/data/docs/ENGINE_DIGEST.md</code> — was it built before?</li>
+<li><code>cat C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md | grep &lt;topic&gt;</code> — is there prior tribal knowledge?</li>
+<li>Only after 1-3 return empty: design + build new.</li>
+</ol>
+<p><strong>Funnel-into-pipelines focus.</strong> When you find an existing-but-cold asset, the work is usually:</p>
+<ul>
+<li>Wire it to its natural dispatcher</li>
+<li>Route it via an existing inject hook (skill-auto-trigger, master-index-precheck, tribal-by-domain-inject)</li>
+<li>Surface it in <code>/checkin</code> Step injection list</li>
+<li>Add its trigger keywords to the relevant skill frontmatter</li>
+</ul>
+<p>This is the doctrinal answer to &quot;constant updating and integration of new tools and features and skills and memories.&quot;</p>
+<p><strong>Obsidian PRISM-OS awareness.</strong> The Obsidian-vault knowledge layer (<code>knowledge/wiki/</code>, <code>knowledge/memories/</code>, <code>obsidian:*</code> skills, <code>OBSIDIAN-INTELLIGENCE-MS3</code>, <code>IdeaBlockRagEngine</code>, <code>KnowledgeDistillationEngine</code>, <code>MemoryConsolidationEngine</code>, <code>AgentOverlayEngine</code>, <code>VoiceCaptureEngine</code>, <code>Obsidian-PRISM-OS routing</code>) is the second brain. Every backend-dev unit should ask: &quot;does this also belong in the vault?&quot; If yes, write a wiki entry / memory note / canvas anchor as part of the unit, not as a follow-up.</p>
+<hr>
+<h2 id="stages-v2-canonical-order-stage-0-first-stage-6-last"><a class="anchor" href="#stages-v2-canonical-order-stage-0-first-stage-6-last" aria-label="Permalink to STAGES (v2 canonical order — Stage 0 first, Stage 6 last)">#</a>STAGES (v2 canonical order — Stage 0 first, Stage 6 last)</h2>
+<h3 id="stage-0-prerequisites-must-ship-before-downstream-1-2-sessions"><a class="anchor" href="#stage-0-prerequisites-must-ship-before-downstream-1-2-sessions" aria-label="Permalink to STAGE 0 — Prerequisites (must ship before downstream — ~1-2 sessions)">#</a>STAGE 0 — Prerequisites (must ship before downstream — ~1-2 sessions)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>U-LOOP-DURABLE-INTERVAL</td><td>Windows scheduled-task wrapper for /loop intervals (mirror <code>install-fleet-reaper-task.ps1</code> S4U pattern)</td><td>bravo</td><td>Unblocks all <code>/loop --interval 1d</code> items</td></tr>
+<tr><td>U-OLLAMA-HOOK-SMOKE-HARNESS</td><td>Fixture-driven invoker for each ollama-* hook</td><td>foxtrot</td><td>Unblocks any Ollama wire-audit</td></tr>
+<tr><td>U-DOCKER-RCA</td><td>Log harvest + classification of why Docker daemon failed this session</td><td>foxtrot</td><td>Recovery without RCA = restart loop</td></tr>
+<tr><td>U-DOC-SURFACE-SPEC</td><td>Class → required-doc-surfaces matrix (engine → CLAUDE.md OR wiki; hook → settings.json wiring entry; skill → frontmatter; dispatcher → DISPATCHER_DIGEST entry). Without it, B1 is theatre</td><td>echo</td><td>Unblocks B1</td></tr>
+<tr><td>U-STOP-CHAIN-INVENTORY</td><td>Read Stop chain slot allocation; ensure space for new hooks</td><td>kilo</td><td>30min; can be inline in A6</td></tr>
+<tr><td>U-CRON-BATCH-REGISTER</td><td>One unit registers all PRISM scheduled tasks; avoids 4-slot install-task collisions</td><td>bravo</td><td>Pattern collapse</td></tr>
+</tbody>
+</table></div>
+<h3 id="stage-1-cheap-p0-fixes-ship-in-current-session-window"><a class="anchor" href="#stage-1-cheap-p0-fixes-ship-in-current-session-window" aria-label="Permalink to STAGE 1 — Cheap P0 fixes (ship in current session window)">#</a>STAGE 1 — Cheap P0 fixes (ship in current session window)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-STOP-FORCE-LOOP-1LINE</td><td><code>stop-force-loop-continue.mjs:174</code> <code>&quot;active&quot;</code> → <code>&quot;running&quot;</code></td><td>alpha</td><td>grep reads <code>!== &quot;running&quot;</code></td></tr>
+<tr><td>U-BRIDGE-VALIDATE-RERUN</td><td><code>node scripts/validate-unwired-signal.mjs</code> + publish fresh false-positive %</td><td>alpha</td><td>5-min publish; <strong>MOVE FIRST</strong> to unblock 11 wiring slots in parallel</td></tr>
+<tr><td>U-UTIL-CLASSIFIER-FIX</td><td>Fix degenerate utilization classifier (drop binary doc-edge rule)</td><td>alpha</td><td><code>node-staleness-rank.mjs --json | jq &#39;.utilization.orphan&#39;</code> &gt; 0</td></tr>
+<tr><td>U-AWARENESS-CONTRADICTION</td><td>Reconcile AWARENESS-SNAPSHOT (12,129 orphans) vs node-staleness-rank (0 orphans/degenerate). TWO classifiers in same chat give opposite answers</td><td>alpha</td><td>unified output</td></tr>
+<tr><td>U-TRIBAL-EMBED-SYMLINK</td><td>Re-symlink <code>mcp-server/data/tribal-embed-index.json</code> → <code>state/shared/</code> (currently 0 bytes)</td><td>delta</td><td><code>wc -c state/shared/tribal-embed-index.json</code> &gt; 0</td></tr>
+<tr><td>U-MEMORY-RELEVANCE-FIX</td><td>Fix MEMORY_DIR path derivation in <code>memory-relevance-inject.mjs</code> (0% recall)</td><td>bravo</td><td>recall test surfaces ≥1 hit</td></tr>
+<tr><td>U-BUNDLE-CHILD-FIX</td><td>Fix <code>posttool-edit-bundle.mjs:46-47</code> refs (<code>build-cache-manager.mjs</code> + <code>build-tracker.mjs</code> live in <code>helpers/</code>)</td><td>kilo</td><td>runtime smoke test</td></tr>
+<tr><td>U-C9B-DIGEST-PARSER-FIX</td><td>Fix DISPATCHER_DIGEST parser for <code>z.enum([...A, ...B] as const)</code> spread arrays</td><td>kilo</td><td><code>high-value-additions-rank.mjs --json | jq &#39;.dispatchers.digestParserBroken&#39;</code> → false</td></tr>
+<tr><td>U-DANGLING-REFS-REMOVE</td><td>Remove 6 dangling settings.json refs (after golf releases CLAUDE.md/settings.json claim)</td><td>mike</td><td><code>harness-wiring-audit.mjs</code> dangling = 0</td></tr>
+</tbody>
+</table></div>
+<h3 id="stage-2-doctrine-meta-layer-after-stage-0"><a class="anchor" href="#stage-2-doctrine-meta-layer-after-stage-0" aria-label="Permalink to STAGE 2 — Doctrine + META layer (after Stage 0)">#</a>STAGE 2 — Doctrine + META layer (after Stage 0)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th></tr></thead>
+<tbody>
+<tr><td>U-A6-WIRING-AUDIT-STOP-GATE (advisory mode)</td><td>Wire <code>harness-wiring-audit.mjs</code> to Stop chain as advisory (NOT blocker until AAM04 false-positive &lt; 10%)</td><td>kilo</td></tr>
+<tr><td>U-B1-DOC-BACKFLOW-WATCH</td><td>Fail any commit touching engines/hooks/skills without updating ≥1 doc surface per U-DOC-SURFACE-SPEC</td><td>echo</td></tr>
+<tr><td><strong>U-NEW-TOOL-AUTO-WIRE</strong></td><td>Stop hook detects new <code>.claude/commands/*.md</code> OR <code>scripts/*.mjs</code> → auto-appends to <code>_skill-triggers.jsonl</code> + broadcasts to chat-bus. <strong>This is the forward-feedback loop for &quot;constant updating&quot; the user named.</strong></td><td>echo</td></tr>
+<tr><td><strong>U-AUTO-MEMORY-WRITE</strong></td><td>Stop hook detects repeated error/fix pattern (≥3× across sessions) → auto-drafts <code>feedback_&lt;pattern&gt;.md</code> for operator approval. <strong>The user explicitly named &quot;automatic memory generation&quot;.</strong></td><td>bravo</td></tr>
+<tr><td>U-DOCTRINE-OBSOLESCENCE-SWEEP</td><td><code>scripts/audit-stale-doctrine.mjs</code> — score CLAUDE.md sections/skill bodies/wiki entries/tribal canonical by last-touched + last-referenced + invocation-telemetry; quarterly archive list</td><td>echo</td></tr>
+<tr><td>U-B4-MEMORY-INDEX-VALIDATOR</td><td>Stop hook validates MEMORY.md <code>[[backlinks]]</code> resolve</td><td>bravo</td></tr>
+<tr><td>U-B3-CLAUDE-MD-DRIFT</td><td>Detect duplicated sections across global + project CLAUDE.md</td><td>echo</td></tr>
+<tr><td>U-A3-CLAUDE-MD-COLLAPSE</td><td>Fold project CLAUDE.md §EXPERT ROLE + §ENFORCEMENT into pointer to global (after golf releases)</td><td>mike</td></tr>
+<tr><td>U-A4-WIKI-BACKFLOW-WATCH</td><td>Wiki-index drift detector</td><td>echo</td></tr>
+</tbody>
+</table></div>
+<h3 id="stage-3-token-economy-after-stage-0-prereqs"><a class="anchor" href="#stage-3-token-economy-after-stage-0-prereqs" aria-label="Permalink to STAGE 3 — Token economy (after Stage 0 prereqs)">#</a>STAGE 3 — Token economy (after Stage 0 prereqs)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th></tr></thead>
+<tbody>
+<tr><td>U-DOCKER-RECOVERY</td><td>After U-DOCKER-RCA names known-safe restart conditions</td><td>foxtrot</td></tr>
+<tr><td>U-OLLAMA-CLASSIFIER-DIAG</td><td>Diagnose + rebuild OFFLOADABLE_PATTERNS (broken — 0% successful offloads)</td><td>foxtrot</td></tr>
+<tr><td>U-F2-R2 → R4 → R5 (sequential, single foxtrot lane, no fan-out)</td><td>Lower threshold + rate-limit + auto-execute (after DIAG fixes classifier)</td><td>foxtrot</td></tr>
+<tr><td>U-F2-R1 follow-up coordination</td><td>claude-773c6214 has active claim; F2-R1 line change in code (66aa07afa4) but chat iterating</td><td>foxtrot waits, coordinates</td></tr>
+<tr><td>U-F1-SPLIT</td><td>Static/dynamic split in 3 UserPromptSubmit injectors</td><td>echo (solo, not paired)</td></tr>
+<tr><td>U-MEMORY-WATCH-LOOP-BIND</td><td>After U-LOOP-DURABLE-INTERVAL ships</td><td>bravo</td></tr>
+<tr><td>U-SYNERGY-WATCH-WIRE</td><td>Same prerequisite</td><td>bravo</td></tr>
+<tr><td>U-F4-MODEL-ROUTER</td><td>Read existing <code>model-router</code> skill first; if gap real, 20-line patch — else KILL</td><td>bravo</td></tr>
+</tbody>
+</table></div>
+<h3 id="stage-4-knowledge-hygiene-cleanup"><a class="anchor" href="#stage-4-knowledge-hygiene-cleanup" aria-label="Permalink to STAGE 4 — Knowledge hygiene + cleanup">#</a>STAGE 4 — Knowledge hygiene + cleanup</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th></tr></thead>
+<tbody>
+<tr><td>U-OLLAMA-WIRE-AUDIT</td><td>Per-hook 7-point doctrine check against unwired ollama-* hooks; survivors wired individually (NOT en bloc)</td><td>foxtrot</td></tr>
+<tr><td>U-WIKI-BOOTSTRAP-RUN</td><td>Refresh wiki/index.md confidence scores (currently generic 0.7)</td><td>charlie</td></tr>
+<tr><td>U-OBSIDIAN-VAULT-AUDIT</td><td>Stale wiki audit (≥30-day old without recent edits)</td><td>echo (moved from charlie)</td></tr>
+<tr><td>U-TRIBAL-CONSOLIDATE-CRON</td><td>Verify reader exists FIRST; if dead, fix reader before cron</td><td>india</td></tr>
+<tr><td>U-C7-INGEST-GATE</td><td>Gate <code>auto-ingested-tips.ts</code> ingestor behind quality threshold (title ≥5 chars, body min-length, source validation)</td><td>mike</td></tr>
+<tr><td>U-MISC-TRIAGE</td><td>Triage 318 MISC-TASKS orphans (close / envelope / drop)</td><td>mike</td></tr>
+<tr><td>U-ORPHAN-HOOK-TRIAGE</td><td>Classify 353 orphan hooks (legit-helper vs dead-code vs misplaced)</td><td>mike (kilo consulted)</td></tr>
+<tr><td>U-DRIFT-FIX</td><td>Reconcile 30 drifted milestones via <code>/envelope-drift-fix</code></td><td>echo</td></tr>
+<tr><td>U-AWARENESS-MILESTONE-DRIFT-INVERSION</td><td>Distinct from U-DRIFT-FIX — these envelopes claim &quot;completed&quot; but show 0 evidence (MF-MS1, MF-MS2, ACP-MS0, HOOKS-AUTOMATION-V2-MS0, HTML-PRIMARY-MS0). Envelopes lie OR derivation broken</td><td>echo</td></tr>
+<tr><td>U-FOLD-DEBT-CRON-VERIFY</td><td><code>.newly-built-fold-debt.json</code> reports 0 while reality is 1348 engines without wiki entries</td><td>alpha</td></tr>
+<tr><td>U-DSL-DEAD-CODE-AUDIT</td><td>14 dead DSL codes (e.g., <code>cam-hypermill-skill-*</code> resolving to no dispatcher)</td><td>alpha</td></tr>
+<tr><td>U-LOOP-ABANDONED-PICKUP</td><td>3 abandoned /loop sessions (bravo BLUEPRINT-OCR-TRAINING 6/8, hotel D2 ontology, alpha B4 weekly-synthesis) — operator decides resume / archive / triage</td><td>juliett</td></tr>
+<tr><td>U-L5-STUB-HEAVY-OTHER</td><td><code>L5/stub_heavy Other (in 265 · out 2429)</code> — 265 nodes depend on a STUB</td><td>hotel</td></tr>
+</tbody>
+</table></div>
+<h3 id="stage-5-conditional-only-if-goal-driven"><a class="anchor" href="#stage-5-conditional-only-if-goal-driven" aria-label="Permalink to STAGE 5 — Conditional (only if goal-driven)">#</a>STAGE 5 — Conditional (only if goal-driven)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th><th>Condition</th></tr></thead>
+<tbody>
+<tr><td>U-NEG-SAMPLE-STRATIFIED</td><td>Unblock NN-GRAPH-MS0 tier-5</td><td>alpha</td><td>Answer &quot;what user task does tier-5 GNN unblock?&quot; first</td></tr>
+<tr><td>U-OLLAMA-REVIEWER-WIRE</td><td>Wire as <code>PRISM_OLLAMA_REVIEWER_DRY_RUN=1</code> advisory first; promote to T0 blocker only after 1 week telemetry shows precision ≥0.9</td><td>foxtrot</td><td>Never wire blocker day-1</td></tr>
+<tr><td>U-MEMORY-CONSOLIDATION-WIRE / U-MEMORY-GRAPH-WIRE / U-TRIBAL-ENGINE-WIRE</td><td>Per charlie doctrine: name a real consumer or DROP</td><td>bravo (re-routed from charlie due to delta&#39;s memoryDispatcher.ts claim)</td><td>doctrine pass required</td></tr>
+<tr><td>U-ERROR-LEARN-5-WIRE</td><td>Check <code>error-pattern-promote</code> still wired (YOLO-25 not reverted); only ship remaining 4 if so</td><td>kilo</td><td>doctrine + cascade check</td></tr>
+<tr><td>U-HERMES-CLARIFY</td><td>1-line operator question: build PRISM Hermes, or use external?</td><td>juliett</td><td>open question</td></tr>
+</tbody>
+</table></div>
+<h3 id="stage-6-telemetry-multipliers-v12-if-budget"><a class="anchor" href="#stage-6-telemetry-multipliers-v12-if-budget" aria-label="Permalink to STAGE 6 — Telemetry multipliers (v1.2 if budget)">#</a>STAGE 6 — Telemetry multipliers (v1.2 if budget)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th></tr></thead>
+<tbody>
+<tr><td>U-CHAT-COST-DASHBOARD</td><td>Per-chat token/$ per slot per day</td><td>bravo</td></tr>
+<tr><td>U-HOOK-FIRE-COST</td><td>Cost of each hook&#39;s injection (tokens × fire rate × model price)</td><td>foxtrot</td></tr>
+<tr><td>U-SKILL-INVOCATION-TELEMETRY</td><td>Which ~440 skills actually invoked per week</td><td>foxtrot</td></tr>
+<tr><td>U-PARALLEL-TOOL-CALL-LINTER</td><td>Stop hook scans transcripts for sequential tool calls that could&#39;ve been parallel</td><td>echo</td></tr>
+<tr><td>U-COMPRESSION-QUALITY-PROBE</td><td>A/B harness for compression-without-quality-loss (user explicit ask)</td><td>foxtrot</td></tr>
+<tr><td>U-WIKI-INJECT-EFFICACY</td><td>Telemetry pairing inject-event → response-content cross-reference (which wiki entries actually USED)</td><td>echo</td></tr>
+<tr><td>U-PRE-COMPACT-DIGEST-QUALITY</td><td>Score auto-resume RESUME blocks for continuation accuracy</td><td>bravo</td></tr>
+<tr><td>U-MODEL-DOWNGRADE-PROBE</td><td>For each task on Opus, retroactively assess if Sonnet/Haiku could&#39;ve handled it</td><td>bravo</td></tr>
+</tbody>
+</table></div>
+<h3 id="stage-7-per-slot-pickup-files-refresh"><a class="anchor" href="#stage-7-per-slot-pickup-files-refresh" aria-label="Permalink to STAGE 7 — Per-slot pickup files refresh">#</a>STAGE 7 — Per-slot pickup files refresh</h3>
+<p><code>SLOT-PICKUPS-ALL.md</code> (v1) is now stale due to KILL/RESCOPE/RE-ASSIGN. Regenerate from this v2 sequence.</p>
+<h3 id="stage-8-prism-app-handoff"><a class="anchor" href="#stage-8-prism-app-handoff" aria-label="Permalink to STAGE 8 — PRISM-app handoff">#</a>STAGE 8 — PRISM-app handoff</h3>
+<p>Once Stages 1-4 clear (real backend-dev queue), operator opens <code>PRISM-APP-QUEUE.md</code> and dispatches operator-facing work (the 660 deferred items: 6 SFC bridges, MASTERPOST-CAM, CAD-CAM-HANDOFF, SHOPFLOOR-LEARN, LEARN-SFC, LEARN-CAM, ERP-SCHED, ERP-QUOTE, OPERATOR-GATES, Lathe(89), Mobile(5), Print(6), Hyper(7), Milling(7), Mill(4), Mastercam(5), WET(7), Wire(6), Electrode(4), Okuma(4), Turning(11), Swiss(6), Shop(9), Tool(9), Fusion(7), Machine(17), LongTail(442)).</p>
+<hr>
+<h2 id="obsidian-prism-os-integration-checklist-apply-per-unit"><a class="anchor" href="#obsidian-prism-os-integration-checklist-apply-per-unit" aria-label="Permalink to OBSIDIAN PRISM-OS INTEGRATION CHECKLIST (apply per unit)">#</a>OBSIDIAN PRISM-OS INTEGRATION CHECKLIST (apply per unit)</h2>
+<p>Every Stage 1-6 unit should:</p>
+<ul>
+<li>[ ] Add a wiki entry under <code>knowledge/wiki/architecture/</code> if it introduces a new pattern</li>
+<li>[ ] Add a memory note under <code>knowledge/memories/{feedback,reference,project}/</code> if it establishes doctrine</li>
+<li>[ ] Update <code>MEMORY.md</code> index (per ≤200-char rule)</li>
+<li>[ ] Add a canvas anchor in <code>knowledge/PRISM-System-Map.canvas</code> if the unit is hot-path</li>
+<li>[ ] If it ships a new hook/skill/script — verify B1 / U-NEW-TOOL-AUTO-WIRE catches it</li>
+</ul>
+<hr>
+<h2 id="activate-before-build-checklist-per-unit"><a class="anchor" href="#activate-before-build-checklist-per-unit" aria-label="Permalink to ACTIVATE-BEFORE-BUILD CHECKLIST (per unit)">#</a>ACTIVATE-BEFORE-BUILD CHECKLIST (per unit)</h2>
+<p>Before writing code for any unit:</p>
+<ol>
+<li><code>node H:/prism/scripts/system-viz-query.mjs find &lt;unit-keyword&gt;</code> — built?</li>
+<li><code>grep -ri &lt;unit-keyword&gt; mcp-server/data/docs/ENGINE_DIGEST.md</code> — engine exists?</li>
+<li><code>grep -ri &lt;unit-keyword&gt; .claude/commands/*.md</code> — skill exists?</li>
+<li><code>grep -ri &lt;unit-keyword&gt; .claude/hooks/*.mjs</code> — hook exists?</li>
+<li><code>grep -ri &lt;unit-keyword&gt; C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md</code> — prior tribal knowledge?</li>
+<li>Only after all 5 return empty: design new. Otherwise activate existing.</li>
+</ol>
+<hr>
+<h2 id="5-open-questions-operator-decision-required"><a class="anchor" href="#5-open-questions-operator-decision-required" aria-label="Permalink to 5 OPEN QUESTIONS (operator decision required)">#</a>5 OPEN QUESTIONS (operator decision required)</h2>
+<p>Same as v1.1 deltas — copied for completeness:</p>
+<ol>
+<li><strong>Hermes</strong> — build PRISM Hermes, or use external?</li>
+<li><strong>Lima slot</strong> — operator claim (currently empty in <code>chat-slots.json</code>), or distribute 12 items?</li>
+<li><strong>PRISM-APP-QUEUE timing</strong> — Stage 8 strict-after-Stage-4, or allow parallel?</li>
+<li><strong>MS1 envelope</strong> — formalize roadmap-consolidation as milestone, or treat as continuous ops?</li>
+<li><strong>NN-GRAPH deploy goal</strong> — what user task is unblocked? If none, defer.</li>
+</ol>
+<hr>
+<h2 id="verification-commands-top-10"><a class="anchor" href="#verification-commands-top-10" aria-label="Permalink to VERIFICATION COMMANDS (top 10)">#</a>VERIFICATION COMMANDS (top 10)</h2>
+<pre><code class="language-bash"># Always-current state
+node H:/prism/.claude/helpers/chat-slots.mjs status
+node H:/prism/scripts/fleet-status.mjs
+node H:/prism/scripts/memory-size-watch.mjs --json | jq &#39;.bytes,.pctOfCeiling,.status&#39;
+node H:/prism/scripts/ollama-offload-dashboard.mjs --json | jq &#39;.totals|(.offloaded/(.offloaded+.keptOnClaude))&#39;
+node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.utilization.orphan,.utilization.classifierDegenerate&#39;
+
+# Stage 1 gates
+node H:/prism/scripts/validate-unwired-signal.mjs   # publish false-positive %
+node H:/prism/scripts/audit-roadmap-drift.mjs       # drift count
+node H:/prism/scripts/harness-wiring-audit.mjs      # dangling refs + orphans
+
+# Activate-before-build
+node H:/prism/scripts/system-viz-query.mjs find &lt;keyword&gt;
+grep -ri &lt;keyword&gt; mcp-server/data/docs/ENGINE_DIGEST.md
+</code></pre>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="JULIETT-CONSOLIDATED-WORK-PLAN-V2.md">JULIETT-CONSOLIDATED-WORK-PLAN-V2.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -25,6 +25,9 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { complexityFor as complexityForImpl } from "./lib/rgs-complexity.mjs";
+import { makeRIEComplexityFn } from "./lib/rgs-rie-adapter.mjs";
+import { makeCalibrationFn } from "./lib/rgs-calibration-adapter.mjs";
+import { makeTransferPriorsOutcomes } from "./lib/rgs-transfer-priors-adapter.mjs";
 
 // ---------------------------------------------------------------------------
 // Repo-root resolution
@@ -450,6 +453,7 @@ function sleep(ms) {
  * @param {{
  *   units: Array<{key:string, milestone:string, unitId:string, title:string, description:string, effort:number}>,
  *   complexityFor: (unit: object) => {tier: string, verdict: string},
+ *   calibrateConfidence?: (rawConfidence: number) => number,
  *   readers: object,
  *   sidecarPath: string,
  *   checkpointPath: string,
@@ -459,6 +463,11 @@ function sleep(ms) {
  *   nowFn?: () => number,
  *   onFlush?: () => void,
  * }} opts
+ *
+ * calibrateConfidence (U-LIMA-A7) optionally remaps each plan's confidence
+ * through the empirically-calibrated CAMConfidenceCalibrationEngine mapping.
+ * Omitted (the default) leaves confidence untouched — runPlanner behaves
+ * exactly as before the calibration unit.
  * @returns {Promise<{planned:number, skipped:number, deferred:number, budgetExhausted:boolean, degraded:boolean, sidecar:string}>}
  *
  * timeBudgetMs>0 caps wall-clock runtime: once the budget is spent the loop
@@ -470,6 +479,7 @@ function sleep(ms) {
 export async function runPlanner({
   units,
   complexityFor: complexityFn,
+  calibrateConfidence,
   readers,
   sidecarPath,
   checkpointPath,
@@ -533,6 +543,31 @@ export async function runPlanner({
     if (plan === null) {
       skipped++;
       continue;
+    }
+
+    // U-LIMA-A7: remap the plan's confidence through the empirically-
+    // calibrated mapping. `rawConfidence` stashes the pre-calibration value
+    // so the NEXT run's calibration join recovers the RAW signal — the
+    // mapping must be fit on raw model outputs, never on already-calibrated
+    // ones. The remap itself is skipped for missing-milestone units —
+    // fuseSignals hard-zeros their confidence and calibration must not
+    // resurrect that deliberate zero. The calibrate call is defensively
+    // wrapped: the adapter closure is contractually never-throws, but a
+    // per-unit failure must never abort the whole batch. Neither confidence
+    // nor rawConfidence is part of sourceHash, so this never triggers a
+    // re-plan stampede.
+    if (typeof calibrateConfidence === "function") {
+      plan.rawConfidence = plan.confidence;
+      if (unit.milestone) {
+        try {
+          plan.confidence = calibrateConfidence(plan.confidence);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          process.stderr.write(
+            `[rgs-tool-planner] calibration skipped for ${unit.key}: ${msg}\n`,
+          );
+        }
+      }
     }
 
     plans[unit.key] = plan;
@@ -662,12 +697,25 @@ async function main() {
 
   // Build readers
   const tribalReader = await makeTribalReader();
+  // U-LIMA-A8: cross-pipeline transfer priors back the outcomes reader. When a
+  // pipeline has its own non-zero {shipped, blocked, reverted} the wrapper is a
+  // no-op pass-through. When the own count is {0,0,0} (cold-start pipeline) the
+  // wrapper aggregates outcomes from donor pipelines in related clusters and
+  // returns a discounted (default 0.5x) aggregate so the re-rank multiplier has
+  // signal even for never-tried pipelines. PRISM_RGS_TRANSFER_PRIORS=0 reverts
+  // to the bare reader. Graceful degradation per-call — any reader/donor
+  // failure resolves to the same {0,0,0} the bare reader would have produced.
+  const baseOutcomesReader = makeOutcomesReader();
+  const outcomesReader =
+    process.env.PRISM_RGS_TRANSFER_PRIORS === "0"
+      ? baseOutcomesReader
+      : makeTransferPriorsOutcomes(baseOutcomesReader);
   const readers = {
     capabilities:  makeCapabilitiesReader(G),
     tribal:        tribalReader,
     skillTriggers: makeSkillTriggersReader(),
     buildState:    makeBuildStateReader(),
-    outcomes:      makeOutcomesReader(),
+    outcomes:      outcomesReader,
   };
   if (!degraded && queryOllamaFn) {
     readers.ollama = makeOllamaReader(queryOllamaFn);
@@ -676,9 +724,27 @@ async function main() {
   // Lock refresh: runPlanner calls onFlush after every sidecar flush; we
   // re-stamp the lock there so a long --time-budget run never lets its own
   // lock age past LOCK_MAX_AGE_MS and get stolen by a concurrent invocation.
+  // U-LIMA-A6: complexity tiering is RoadmapIntelligenceEngine-backed by
+  // default; PRISM_RGS_RIE_ADAPTER=0 reverts to the pure rgs-complexity.mjs
+  // cascade. The adapter degrades to that cascade per-unit on any RIE
+  // failure, so default-on never makes the planner less robust.
+  const complexityFn =
+    process.env.PRISM_RGS_RIE_ADAPTER === "0"
+      ? complexityFor
+      : await makeRIEComplexityFn();
+  // U-LIMA-A7: ToolPlan.confidence is empirically calibrated via
+  // CAMConfidenceCalibrationEngine once >=50 RGS feedback outcomes accumulate.
+  // Below that (the current "degenerate before" state) and on any engine /
+  // ledger failure the adapter resolves to identity pass-through, so default-on
+  // never makes the planner less robust. PRISM_RGS_CALIBRATION=0 disables it.
+  const calibrateConfidence =
+    process.env.PRISM_RGS_CALIBRATION === "0"
+      ? undefined
+      : await makeCalibrationFn();
   const result = await runPlanner({
     units,
-    complexityFor: complexityFor,
+    complexityFor: complexityFn,
+    calibrateConfidence,
     readers,
     sidecarPath,
     checkpointPath,

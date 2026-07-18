@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select { -webkit-appearance: none; appearance: none; font-family: 'Archivo', sans-serif; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌀</span>MAKE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">$</span>QUOTE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▤</span>RUN</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌂</span>SHOP</button>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;">Payroll &amp; Labor</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · PEOPLE OPS · {{ periodLabel }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <select value="{{ period }}" onChange="{{ setPeriod }}" style="height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 12px;"><option value="wk">This week</option><option value="pp">Pay period</option><option value="mtd">Month to date</option></select>
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid {{ effBorder }};background:{{ effBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ effColor }};">SHOP EFF {{ shopEff }}%</div>
+        <button style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:9px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">Run payroll →</button>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:330px minmax(0,1fr) 416px;min-height:0;">
+
+      <!-- ───────── PEOPLE ───────── -->
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 16px 44px;background:#0A0B0D;">
+        <div style="display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;">
+          <sc-for list="{{ deptFilters }}" as="d" hint-placeholder-count="5"><button onClick="{{ d.on }}" style="{{ d.style }}">{{ d.label }}</button></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 46px 40px;gap:6px;padding:0 10px 7px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.05em;color:#6B7280;"><span>OPERATOR · DEPT</span><span style="text-align:right;">HRS</span><span style="text-align:right;">EFF</span></div>
+        <sc-for list="{{ empRows }}" as="e" hint-placeholder-count="9">
+          <div onClick="{{ e.on }}" style="{{ e.style }}">
+            <div style="min-width:0;"><div style="font-size:12.5px;color:{{ e.nameColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ e.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ e.dept }}{{ e.otTag }}</div></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#C7CCD4;text-align:right;">{{ e.hrs }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;color:{{ e.effColor }};text-align:right;">{{ e.eff }}</span>
+          </div>
+        </sc-for>
+      </section>
+
+      <!-- ───────── OPERATOR DETAIL ───────── -->
+      <section style="overflow:hidden;min-width:0;padding:16px 18px;background:radial-gradient(900px 480px at 75% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:none;display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;align-items:center;gap:13px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;color:#AEB4BE;">{{ selInitials }}</div>
+            <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;">{{ selName }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;">{{ selDept }} · {{ selClass }} · ${{ selRate }}/hr</div></div>
+          </div>
+          <div style="display:flex;gap:18px;">
+            <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">CLOCK HRS</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#C7CCD4;">{{ selHrs }}</div></div>
+            <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">OVERTIME</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:{{ selOtColor }};">{{ selOt }}</div></div>
+          </div>
+        </div>
+
+        <div style="flex:none;display:grid;grid-template-columns:200px minmax(0,1fr);gap:13px;">
+          <div style="background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:14px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 120 120" width="128" height="128">
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#1B1E24" stroke-width="11"></circle>
+              <circle cx="60" cy="60" r="48" fill="none" stroke="{{ selEffColor }}" stroke-width="11" stroke-linecap="round" stroke-dasharray="{{ selEffDash }}" transform="rotate(-90 60 60)"></circle>
+              <text x="60" y="56" text-anchor="middle" font-family="JetBrains Mono" font-size="26" font-weight="700" fill="#F3F4F6">{{ selEff }}</text>
+              <text x="60" y="76" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7280">EFFICIENCY</text>
+            </svg>
+            <div style="font-size:11px;color:#9398A2;text-align:center;margin-top:6px;line-height:1.4;">{{ selEarned }} earned ÷ {{ selHrs }} actual hrs</div>
+          </div>
+          <div style="background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:14px 16px;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;margin-bottom:12px;">Labor distribution → jobs</div>
+            <sc-for list="{{ jobDist }}" as="j" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+                <span style="flex:none;width:120px;font-size:11.5px;color:#C7CCD4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ j.job }}</span>
+                <div style="flex:1;height:9px;border-radius:999px;background:#1B1E24;overflow:hidden;"><div style="height:100%;width:{{ j.bar }};background:{{ j.color }};border-radius:999px;"></div></div>
+                <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;width:52px;text-align:right;">{{ j.hrs }}h</span>
+                <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:{{ j.effColor }};width:38px;text-align:right;">{{ j.eff }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:14px 18px;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;">Daily hours · reg + OT</span><div style="display:flex;gap:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;"><span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:2px;background:#2A6FDB;"></span>regular</span><span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:2px;background:#FF5A2B;"></span>OT</span></div></div>
+          <div style="flex:1;min-height:0;">
+            <svg viewBox="0 0 740 220" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <line x1="40" y1="180" x2="724" y2="180" stroke="#23262E" stroke-width="1"></line>
+              <line x1="40" y1="{{ stdY }}" x2="724" y2="{{ stdY }}" stroke="rgba(54,211,153,0.4)" stroke-width="1" stroke-dasharray="4 3"></line>
+              <text x="726" y="{{ stdLabelY }}" font-family="JetBrains Mono" font-size="9" fill="#36D399">8h std</text>
+              <sc-for list="{{ dayBars }}" as="d" hint-placeholder-count="5">
+                <rect x="{{ d.x }}" y="{{ d.regY }}" width="{{ d.w }}" height="{{ d.regH }}" rx="2" fill="#2A6FDB"></rect>
+                <rect x="{{ d.x }}" y="{{ d.otY }}" width="{{ d.w }}" height="{{ d.otH }}" rx="2" fill="#FF5A2B"></rect>
+                <text x="{{ d.tx }}" y="198" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#9398A2">{{ d.label }}</text>
+                <text x="{{ d.tx }}" y="{{ d.valY }}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#C7CCD4">{{ d.val }}</text>
+              </sc-for>
+            </svg>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+            <sc-for list="{{ certs }}" as="c" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid {{ c.border }};background:{{ c.bg }};border-radius:7px;font-size:11px;color:{{ c.color }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ c.color }};"></span>{{ c.label }}</span></sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── PAYROLL + DEPT + COMPLIANCE ───────── -->
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 18px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">PAYROLL RUN · {{ periodLabel }}</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:14px;">
+          <sc-for list="{{ payRows }}" as="p" hint-placeholder-count="5"><div style="{{ p.style }}"><span style="font-size:{{ p.size }};color:{{ p.labelColor }};">{{ p.label }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:{{ p.size }};font-weight:{{ p.weight }};color:{{ p.valColor }};">{{ p.val }}</span></div></sc-for>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">DEPARTMENT ROLLUP</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 16px;margin-bottom:14px;">
+          <sc-for list="{{ deptRows }}" as="d" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <span style="flex:none;width:84px;font-size:11.5px;color:#C7CCD4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ d.dept }}</span>
+              <div style="flex:1;height:7px;border-radius:999px;background:#1B1E24;overflow:hidden;"><div style="height:100%;width:{{ d.bar }};background:{{ d.color }};border-radius:999px;"></div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;width:42px;text-align:right;">{{ d.hrs }}h</span>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ d.effColor }};width:38px;text-align:right;">{{ d.eff }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(244,183,64,0.06),#0E0F12);border:1px solid rgba(244,183,64,0.22);border-radius:14px;padding:14px 16px;margin-bottom:13px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#F4B740;margin-bottom:10px;">⚠ HR COMPLIANCE</div>
+          <sc-for list="{{ complianceRows }}" as="c" hint-placeholder-count="3">
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid rgba(255,255,255,0.05);">
+              <span style="flex:none;margin-top:3px;width:8px;height:8px;border-radius:50%;background:{{ c.color }};"></span>
+              <div style="flex:1;min-width:0;"><div style="font-size:12px;color:#F3F4F6;line-height:1.3;">{{ c.title }}</div><div style="font-size:10.5px;color:#9398A2;line-height:1.3;margin-top:1px;">{{ c.detail }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ c.color }};">{{ c.tag }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#0E0F12;border:1px solid rgba(54,211,153,0.2);border-radius:14px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#36D399;margin-bottom:9px;">◆ LABOR → MARGIN</div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.5;">{{ tieNote }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    period: 'pp', dept: 'all', selEmp: 'rmoreno',
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6,
+  };
+  componentDidMount() {
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit();
+    this._trySync = (n) => { try { const K = (typeof window !== 'undefined') && window.KIENZLE; if (K && K.JOBS) { this._synced = true; this.forceUpdate(); } else if ((n || 0) < 25) { setTimeout(() => this._trySync((n || 0) + 1), 100); } } catch (e) {} };
+    this._trySync(0);
+  }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  // hrs = clock hours; earned = standard hours earned (job std ÷ actual); eff = earned/hrs
+  EMP = [
+    { id: 'rmoreno', name: 'R. Moreno', dept: 'Wire EDM', cls: 'Lead', rate: 34, hrs: 82, earned: 88, ot: 2, days: [8.5, 8, 8, 9, 8, 0, 0], certs: [['Mitsubishi WEDM', 'ok'], ['Forklift', 'ok'], ['First aid', 'soon']], jobs: [['SEMBLEX punch', 18, 1.06], ['OPTIMAS die', 22, 1.02], ['Carbide form', 30, 0.96], ['ALTRACS punch', 12, 1.08]] },
+    { id: 'jchen', name: 'J. Chen', dept: 'Milling', cls: 'Programmer', rate: 38, hrs: 80, earned: 92, ot: 0, days: [8, 8, 8, 8, 8, 0, 0], certs: [['hyperMILL', 'ok'], ['CMM', 'ok']], jobs: [['SIG cavity', 26, 0.74], ['Core plates', 30, 1.12], ['Programming', 24, 1.0]] },
+    { id: 'dpatel', name: 'D. Patel', dept: 'Turning', cls: 'Machinist', rate: 31, hrs: 86, earned: 79, ot: 6, days: [9, 9, 8, 8.5, 9.5, 4, 0], certs: [['Okuma OSP', 'ok'], ['Crane', 'expired']], jobs: [['SFS pin run', 40, 0.92], ['STALCOP collar', 28, 0.86], ['Setup/idle', 18, 0.6]] },
+    { id: 'kowens', name: 'K. Owens', dept: 'Grinding', cls: 'Machinist', rate: 30, hrs: 78, earned: 81, ot: 0, days: [8, 8, 8, 7.5, 8, 0, 0], certs: [['Jig grind', 'ok'], ['First aid', 'ok']], jobs: [['Punch grind', 34, 1.05], ['Die finish', 30, 1.0], ['Inspection hold', 14, 0.92]] },
+    { id: 'msilva', name: 'M. Silva', dept: 'Sinker EDM', cls: 'Operator', rate: 28, hrs: 84, earned: 71, ot: 4, days: [8.5, 8, 9, 8, 8.5, 0, 0], certs: [['Roku-Roku', 'soon'], ['OSHA 10', 'ok']], jobs: [['Electrode burn', 38, 0.82], ['Cavity sink', 30, 0.78], ['Setup', 16, 0.7]] },
+    { id: 'tboyd', name: 'T. Boyd', dept: 'Inspection', cls: 'QC', rate: 32, hrs: 80, earned: 84, ot: 0, days: [8, 8, 8, 8, 8, 0, 0], certs: [['AS9102', 'ok'], ['GD&T', 'ok'], ['Cal', 'soon']], jobs: [['FAI reports', 30, 1.02], ['SPC audits', 26, 1.08], ['Receiving insp', 24, 1.0]] },
+    { id: 'lgarza', name: 'L. Garza', dept: 'Milling', cls: 'Machinist', rate: 29, hrs: 88, earned: 76, ot: 8, days: [9.5, 9, 9, 9, 9.5, 6, 0], certs: [['Haas NGC', 'ok'], ['Forklift', 'ok']], jobs: [['SIG cavity', 32, 0.7], ['Plate work', 34, 0.88], ['Rework', 22, 0.62]] },
+    { id: 'afarah', name: 'A. Farah', dept: 'Wire EDM', cls: 'Operator', rate: 27, hrs: 80, earned: 83, ot: 0, days: [8, 8, 8, 8, 8, 0, 0], certs: [['Mitsubishi WEDM', 'ok'], ['OSHA 10', 'ok']], jobs: [['ALTRACS punch', 36, 1.04], ['Carbide form', 28, 1.0], ['TOPURA insert', 16, 1.05]] },
+    { id: 'bkoch', name: 'B. Koch', dept: 'Turning', cls: 'Lead', rate: 35, hrs: 81, earned: 90, ot: 1, days: [8, 8, 8.5, 8, 8.5, 0, 0], certs: [['Okuma OSP', 'ok'], ['Multus live', 'ok'], ['First aid', 'ok']], jobs: [['SFS pin run', 30, 1.1], ['Mill-turn', 34, 1.12], ['Setup', 17, 0.95]] },
+  ];
+  DEPTS = ['Wire EDM', 'Sinker EDM', 'Milling', 'Turning', 'Grinding', 'Inspection'];
+  DEPTC = { 'Wire EDM': '#FF5A2B', 'Sinker EDM': '#A855F7', 'Milling': '#2A6FDB', 'Turning': '#36D399', 'Grinding': '#F4B740', 'Inspection': '#7FB2FF' };
+
+  effColor(e) { return e >= 1.0 ? '#36D399' : e >= 0.85 ? '#F4B740' : '#FF5247'; }
+  usd(v) { return Math.round(v).toLocaleString('en-US'); }
+
+  renderVals() {
+    const s = this.state, mult = s.period === 'wk' ? 1 : s.period === 'mtd' ? 4.3 : 2;
+    const filtered = this.EMP.filter(e => s.dept === 'all' ? true : e.dept === s.dept);
+    let sel = this.EMP.find(e => e.id === s.selEmp) || this.EMP[0];
+
+    const empRows = filtered.map(e => { const eff = e.earned / e.hrs, on = e.id === sel.id; return {
+      on: () => this.setState({ selEmp: e.id }), name: e.name, dept: e.dept, otTag: e.ot > 0 ? ' · OT ' + e.ot + 'h' : '',
+      hrs: e.hrs, eff: (eff * 100).toFixed(0) + '%', effColor: this.effColor(eff), nameColor: on ? '#F3F4F6' : '#C7CCD4',
+      style: `display:grid;grid-template-columns:1fr 46px 40px;gap:6px;align-items:center;padding:9px 10px;margin-bottom:4px;border-radius:9px;cursor:pointer;background:${on ? 'rgba(255,90,43,0.1)' : 'transparent'};border:1px solid ${on ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.04)'};`,
+    }; });
+
+    const selEff = sel.earned / sel.hrs;
+    const jobDist = sel.jobs.map(([job, hrs, eff]) => ({ job, hrs, eff: (eff * 100).toFixed(0) + '%', bar: (hrs / Math.max(...sel.jobs.map(x => x[1])) * 100).toFixed(0) + '%', color: this.DEPTC[sel.dept] || '#2A6FDB', effColor: this.effColor(eff) }));
+    const certs = sel.certs.map(([label, st]) => ({ label, color: st === 'ok' ? '#36D399' : st === 'soon' ? '#F4B740' : '#FF5247', border: st === 'ok' ? 'rgba(54,211,153,0.25)' : st === 'soon' ? 'rgba(244,183,64,0.25)' : 'rgba(255,82,71,0.3)', bg: st === 'ok' ? 'rgba(54,211,153,0.05)' : st === 'soon' ? 'rgba(244,183,64,0.05)' : 'rgba(255,82,71,0.05)' }));
+
+    // daily bars
+    const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const maxDay = 12, base = 180, topY = 20, stdY = base - (8 / maxDay) * (base - topY);
+    const bw = 56, gap = (684 - 7 * bw) / 6;
+    const dayBars = sel.days.map((h, i) => { const reg = Math.min(8, h), ot = Math.max(0, h - 8); const x = 40 + i * (bw + gap); const regH = (reg / maxDay) * (base - topY), otH = (ot / maxDay) * (base - topY); const regY = base - regH, otY = regY - otH; return {
+      x: x.toFixed(1), w: bw, regY: regY.toFixed(1), regH: regH.toFixed(1), otY: otY.toFixed(1), otH: otH.toFixed(1),
+      tx: (x + bw / 2).toFixed(1), label: dayLabels[i], val: h > 0 ? h : '', valY: (otY - 4).toFixed(1),
+    }; });
+
+    // payroll
+    const reg = filtered.reduce((a, e) => a + Math.min(80, e.hrs - e.ot) * e.rate, 0) * (mult / 2);
+    const otPay = filtered.reduce((a, e) => a + e.ot * e.rate * 1.5, 0) * (mult / 2);
+    const gross = reg + otPay, burden = gross * 0.31, total = gross + burden;
+    const pr = (label, val, o = {}) => ({ label, val: '$' + this.usd(val), size: o.big ? '14px' : '12.5px', weight: o.big ? '700' : '500', labelColor: o.big ? '#F3F4F6' : '#9398A2', valColor: o.color || '#C7CCD4', style: `display:flex;justify-content:space-between;align-items:center;padding:${o.big ? '11px' : '7px'} 0;${o.top ? 'border-top:1px solid rgba(255,255,255,0.1);margin-top:4px;' : 'border-bottom:1px solid rgba(255,255,255,0.05);'}` });
+    const payRows = [pr('Regular', reg), pr('Overtime (1.5×)', otPay, { color: otPay > gross * 0.08 ? '#FF8A6A' : '#C7CCD4' }), pr('Gross wages', gross, { big: true, top: true }), pr('Burden (31%)', burden), pr('Total labor cost', total, { big: true, top: true, color: '#FF7A4D' })];
+
+    // dept rollup
+    const deptRows = this.DEPTS.map(d => { const es = this.EMP.filter(e => e.dept === d); if (!es.length) return null; const hrs = es.reduce((a, e) => a + e.hrs, 0); const eff = es.reduce((a, e) => a + e.earned, 0) / hrs; return {
+      dept: d, hrs, eff: (eff * 100).toFixed(0) + '%', effColor: this.effColor(eff), color: this.DEPTC[d], bar: (eff * 70).toFixed(0) + '%',
+    }; }).filter(Boolean);
+
+    // shop efficiency
+    const shopEff = (this.EMP.reduce((a, e) => a + e.earned, 0) / this.EMP.reduce((a, e) => a + e.hrs, 0) * 100);
+    const shopEffColor = shopEff >= 100 ? '#36D399' : shopEff >= 90 ? '#F4B740' : '#FF5247';
+
+    // compliance
+    const complianceRows = [];
+    this.EMP.forEach(e => e.certs.forEach(([c, st]) => { if (st === 'expired') complianceRows.push({ title: e.name + ' · ' + c + ' EXPIRED', detail: 'Pull from affected work until renewed — liability + audit risk.', color: '#FF5247', tag: 'EXPIRED' }); }));
+    this.EMP.forEach(e => e.certs.forEach(([c, st]) => { if (st === 'soon') complianceRows.push({ title: e.name + ' · ' + c, detail: 'Renews within 30 days — schedule before it lapses.', color: '#F4B740', tag: '<30d' }); }));
+    const otHigh = this.EMP.filter(e => e.ot >= 6);
+    if (otHigh.length) complianceRows.push({ title: otHigh.length + ' operators ≥ 6h OT', detail: otHigh.map(e => e.name.split(' ')[1] || e.name).join(', ') + ' — burnout + premium-pay watch.', color: '#F4B740', tag: 'OT' });
+
+    const lowest = this.EMP.reduce((a, e) => (e.earned / e.hrs) < (a.earned / a.hrs) ? e : a, this.EMP[0]);
+    const tieNote = `${lowest.name} runs ${((lowest.earned / lowest.hrs) * 100).toFixed(0)}% on the SIG cavity — the same job bleeding margin in Job Cost. It's not the operator; it's the amateur program. Re-post it through the calculator and the earned-hours catch up to the clock.`;
+
+    const df = (id, label) => ({ label, on: () => this.setState({ dept: id }), style: `border:1px solid ${s.dept === id ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${s.dept === id ? 'rgba(255,90,43,0.12)' : 'transparent'};color:${s.dept === id ? '#FF7A4D' : '#9398A2'};border-radius:7px;padding:5px 9px;font-size:10.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` });
+
+    return {
+      scale: s.scale, period: s.period, periodLabel: ({ wk: 'WK 25 · JUN 16–20', pp: 'PAY PERIOD 12', mtd: 'JUN 2026 MTD' }[s.period]) + (this._synced ? ' · ⊹' : ''),
+      setPeriod: (e) => this.setState({ period: e.target.value }),
+      shopEff: shopEff.toFixed(0), effColor: shopEffColor, effBorder: shopEff >= 95 ? 'rgba(54,211,153,0.25)' : 'rgba(244,183,64,0.3)', effBg: shopEff >= 95 ? 'rgba(54,211,153,0.06)' : 'rgba(244,183,64,0.05)',
+      deptFilters: [df('all', 'All'), ...this.DEPTS.map(d => df(d, d.replace(' EDM', '').replace('Inspection', 'Insp')))],
+      empRows,
+      selName: sel.name, selDept: sel.dept, selClass: sel.cls, selRate: sel.rate, selHrs: sel.hrs, selEarned: sel.earned,
+      selInitials: sel.name.split(' ').map(p => p[0]).join(''), selOt: sel.ot + 'h', selOtColor: sel.ot >= 6 ? '#FF5247' : sel.ot > 0 ? '#F4B740' : '#9398A2',
+      selEff: (selEff * 100).toFixed(0) + '%', selEffColor: this.effColor(selEff), selEffDash: (Math.min(1.1, selEff) / 1.1 * 301.6).toFixed(1) + ' 301.6',
+      jobDist, certs,
+      dayBars, stdY: stdY.toFixed(1), stdLabelY: (stdY + 3).toFixed(1),
+      payRows, deptRows, complianceRows, tieNote,
+    };
+  }
+}
+</script>
+</body>
+</html>

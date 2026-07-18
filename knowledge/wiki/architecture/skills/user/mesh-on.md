@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `mesh-on` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/mesh-on.md` |
+| Source | `C:/Users/wompu/.claude/commands/mesh-on.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-The Live Session Mesh is **always active** on all sessions. This command shows the current mesh status.
+
+# /mesh-on — Live Session Mesh Status
 
 <!-- AUTO-END -->
 

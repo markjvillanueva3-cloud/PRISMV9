@@ -26,9 +26,16 @@
 
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { readFileSync, existsSync } from "node:fs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const HELPER_PATH = resolve(__dirname, "..", ".claude", "helpers", "chat-slots.mjs");
+const SLOT_SOULS_DIR = resolve(__dirname, "..", "state", "shared", "slot-souls");
+// Canonical chat-slot domain catalog (operator-maintained, NOT slot-soul .md
+// frontmatter — souls carry Hermes personality voice + refuses, the file
+// below carries the operator's per-slot WORK ASSIGNMENT). Path lives at the
+// H:\ drive root, outside the repo, mirroring the c-to-h-mirror discipline.
+const CHAT_SLOT_DOMAINS_FILE = "H:/CHAT-SLOT-DOMAINS.md";
 
 // ─── Glyphs ─────────────────────────────────────────────────────────────
 const GLYPH = { alive: "🟢", stale: "🟡", crashed: "🔴", idle: "⚫" };
@@ -50,6 +57,60 @@ const SLOT_ROLES = {
 function roleOf(slot) {
   return SLOT_ROLES[slot] ?? "work";
 }
+
+// ─── Chat-slot domain catalog (operator-canonical) ─────────────────────
+// Source of truth: H:/CHAT-SLOT-DOMAINS.md — operator-maintained file
+// listing each NATO slot's WORK ASSIGNMENT in the format:
+//   ALPHA - TOKEN OPTIMIZATION + EFFICIENCY HUNTING + OBSIDIAN ...
+//   BRAVO - HERMES/ZEBRA BUILDING + STUB HUNTING
+//   ...
+//
+// NOT the slot-soul .md frontmatter — souls carry Hermes personality
+// (voice/tone/refuses) which is orthogonal to the work assignment.
+// Cached on first parse. Returns null if file missing/unreadable (graceful).
+let __DOMAIN_CACHE = null;
+function parseChatSlotDomains(src) {
+  const out = {};
+  for (const rawLine of src.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    // Match "SLOTNAME - description" — slot is uppercase NATO; description
+    // is anything after the first dash with surrounding whitespace.
+    const m = line.match(/^([A-Z]+)\s*-\s*(.+?)\s*$/);
+    if (!m) continue;
+    const slot = m[1].toLowerCase();
+    // Sanity: ignore header lines like "CURRENT CHAT SLOT DESIGINATION"
+    // which lack the slot-name structure and won't have a dash anyway, or
+    // pseudo-slots that aren't in the NATO universe.
+    out[slot] = m[2];
+  }
+  return out;
+}
+export function readChatSlotDomains() {
+  if (__DOMAIN_CACHE) return __DOMAIN_CACHE;
+  try {
+    if (!existsSync(CHAT_SLOT_DOMAINS_FILE)) { __DOMAIN_CACHE = {}; return __DOMAIN_CACHE; }
+    const src = readFileSync(CHAT_SLOT_DOMAINS_FILE, "utf8");
+    __DOMAIN_CACHE = parseChatSlotDomains(src);
+  } catch { __DOMAIN_CACHE = {}; }
+  return __DOMAIN_CACHE;
+}
+
+export function domainOf(slot) {
+  const map = readChatSlotDomains();
+  return map[slot] || null;
+}
+
+// Back-compat shim: callers that imported domainFilterOf from the prior
+// slot-soul-based implementation continue to work; we just return the full
+// description (the same string domainOf returns) since CHAT-SLOT-DOMAINS.md
+// doesn't separate domain-filter from work-assignment.
+export function domainFilterOf(slot) {
+  return domainOf(slot);
+}
+
+// Test-injection helper — clears the cache so unit tests can swap fixtures.
+export function __resetChatSlotDomainsCache() { __DOMAIN_CACHE = null; }
 
 // ─── Formatting helpers ─────────────────────────────────────────────────
 function formatAge(ms) {
@@ -167,6 +228,15 @@ function renderBoxed(snapshot, reclaimed, opts = {}) {
     if (s.state) {
       lines.push(`│${pad(`              topic: ${trunc(s.state.topic ?? "(no topic)", 50)}`, W)}│`);
     }
+    // Per-slot domain assignment — operator-canonical source is
+    // H:/CHAT-SLOT-DOMAINS.md (read via readChatSlotDomains()). Renders for
+    // ALL slots — claimed or idle — so the dashboard answers "which chat
+    // does what?" alongside "which chat is alive?". Long descriptions get
+    // truncated to fit the 78-col box.
+    const domain = domainOf(s.slot);
+    if (domain) {
+      lines.push(`│${pad(`              domain: ${trunc(domain, 60)}`, W)}│`);
+    }
     lines.push(`│${pad("", W)}│`);
   }
 
@@ -204,6 +274,8 @@ function pad(s, w) {
 // Pure helpers are exported so vitest can render synthetic snapshots
 // without spawning a subprocess or depending on live chat-slots state.
 export { renderBoxed, renderCompact, summaryByRole, roleOf, SLOT_ROLES };
+// readSlotSoul + domainOf + domainFilterOf are exported inline at their
+// definitions (above) — see "Slot-soul domain reader" section.
 
 // ─── Main driver ────────────────────────────────────────────────────────
 // Everything below runs ONLY when invoked as the main script. Tests that
@@ -249,7 +321,12 @@ async function main() {
       // distinguish work vs hygiene without re-importing chat-slots.mjs.
       const enriched = {
         ...snapshot,
-        slots: snapshot.slots.map(s => ({ ...s, role: roleOf(s.slot) })),
+        slots: snapshot.slots.map(s => ({
+          ...s,
+          role: roleOf(s.slot),
+          domain: domainOf(s.slot),
+          domain_filter: domainFilterOf(s.slot),
+        })),
         summaryByRole: summaryByRole(snapshot),
         reclaimed,
       };

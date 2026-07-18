@@ -1,0 +1,1535 @@
+---
+title: "Hermes weekly self-reflection (anchor 2026-06-07)"
+anchor: 2026-06-07
+window_days: 7
+memo_count: 1494
+source: hermes-self-reflect-populater.mjs
+unit: U-GALAXY-MS1-B3-HMEMV06
+---
+
+> **SUPERSEDED 2026-06-07 -- see [[weekly-hermes-reflection-2026-06-14]].**
+
+# Hermes weekly self-reflection — anchor 2026-06-07
+
+Window: last 7 days · total memos: 1494 · by type — feedback=181 / reference=1300 / project=13
+
+## Top recurring keywords
+
+- `skills` × 9036
+- `mjs` × 3976
+- `engines` × 3381
+- `slot` × 2999
+- `prism` × 2530
+- `commit` × 2471
+- `shared` × 2372
+- `json` × 2245
+- `scripts` × 2197
+- `test` × 2168
+- `source` × 2130
+- `wiki` × 2069
+
+## Feedback (181)
+
+- **2026-06-08** [`reference_shared_tree_commit_contamination_2026_06_08.md`](feedback/reference_shared_tree_commit_contamination_2026_06_08.md) — reference_shared_tree_commit_contamination_2026_06_08.md
+- **2026-06-08** [`feedback_yolo_mode_stop_hook_unsatisfiable_loop.md`](feedback/feedback_yolo_mode_stop_hook_unsatisfiable_loop.md) — /yolo-mode Stop hook ↔ non-terminal-doctrine unsatisfiable loop
+- **2026-06-08** [`feedback_yolo_mode_nonterminal_goal_pattern.md`](feedback/feedback_yolo_mode_nonterminal_goal_pattern.md) — /yolo-mode is a non-terminal goal pattern
+- **2026-06-08** [`feedback_xray_verify_engine_name_before_reference.md`](feedback/feedback_xray_verify_engine_name_before_reference.md) — feedback_xray_verify_engine_name_before_reference.md
+- **2026-06-08** [`feedback_xray_per_field_confidence_mandatory.md`](feedback/feedback_xray_per_field_confidence_mandatory.md) — feedback_xray_per_field_confidence_mandatory.md
+- **2026-06-08** [`feedback_write_tool_space_to_nul_separator.md`](feedback/feedback_write_tool_space_to_nul_separator.md) — feedback_write_tool_space_to_nul_separator.md
+- **2026-06-08** [`feedback_xray_multi_print_split_before_ocr.md`](feedback/feedback_xray_multi_print_split_before_ocr.md) — feedback_xray_multi_print_split_before_ocr.md
+- **2026-06-08** [`feedback_wire_test_validate_all_galaxies.md`](feedback/feedback_wire_test_validate_all_galaxies.md) — feedback_wire_test_validate_all_galaxies.md
+- **2026-06-08** [`feedback_wiki_for_how_to_memory_for_pointers.md`](feedback/feedback_wiki_for_how_to_memory_for_pointers.md) — Wiki for how-to, memory for pointers (delta's convention)
+- **2026-06-08** [`feedback_wire_algos_into_galaxies.md`](feedback/feedback_wire_algos_into_galaxies.md) — feedback_wire_algos_into_galaxies.md
+- **2026-06-08** [`feedback_whiskey_threading_multipass.md`](feedback/feedback_whiskey_threading_multipass.md) — feedback_whiskey_threading_multipass.md
+- **2026-06-08** [`feedback_whiskey_subspindle_phase_tolerance.md`](feedback/feedback_whiskey_subspindle_phase_tolerance.md) — feedback_whiskey_subspindle_phase_tolerance.md
+- **2026-06-08** [`feedback_whiskey_parting_peck_evacuation.md`](feedback/feedback_whiskey_parting_peck_evacuation.md) — feedback_whiskey_parting_peck_evacuation.md
+- **2026-06-08** [`feedback_whiskey_okuma_first_corpus.md`](feedback/feedback_whiskey_okuma_first_corpus.md) — feedback_whiskey_okuma_first_corpus.md
+- **2026-06-08** [`feedback_whiskey_nose_radius_surface_finish.md`](feedback/feedback_whiskey_nose_radius_surface_finish.md) — feedback_whiskey_nose_radius_surface_finish.md
+- **2026-06-08** [`feedback_whiskey_live_tooling_polar_mode.md`](feedback/feedback_whiskey_live_tooling_polar_mode.md) — feedback_whiskey_live_tooling_polar_mode.md
+- **2026-06-08** [`feedback_whiskey_g50_css_cap_mandatory.md`](feedback/feedback_whiskey_g50_css_cap_mandatory.md) — feedback_whiskey_g50_css_cap_mandatory.md
+- **2026-06-08** [`feedback_whiskey_feed_ipr_ipm_dialect.md`](feedback/feedback_whiskey_feed_ipr_ipm_dialect.md) — feedback_whiskey_feed_ipr_ipm_dialect.md
+- **2026-06-08** [`feedback_whiskey_boring_bar_ld_ratio.md`](feedback/feedback_whiskey_boring_bar_ld_ratio.md) — feedback_whiskey_boring_bar_ld_ratio.md
+- **2026-06-08** [`feedback_when_to_use_hybrid_retrieval.md`](feedback/feedback_when_to_use_hybrid_retrieval.md) — feedback_when_to_use_hybrid_retrieval.md
+- **2026-06-08** [`feedback_verify_workflow_gaplists_before_acting.md`](feedback/feedback_verify_workflow_gaplists_before_acting.md) — feedback_verify_workflow_gaplists_before_acting.md
+- **2026-06-08** [`feedback_verify_no_committed_imports_uncommitted.md`](feedback/feedback_verify_no_committed_imports_uncommitted.md) — feedback_verify_no_committed_imports_uncommitted.md
+- **2026-06-08** [`feedback_verify_actual_contract_not_proxy.md`](feedback/feedback_verify_actual_contract_not_proxy.md) — Reproduce the actual contract, not a proxy for it
+- **2026-06-08** [`feedback_use_playwright_for_web_reading.md`](feedback/feedback_use_playwright_for_web_reading.md) — Use Playwright for web reading when WebFetch can't
+- **2026-06-08** [`feedback_use_lima_pypdf_page_extractor.md`](feedback/feedback_use_lima_pypdf_page_extractor.md) — Use lima's pypdf page-by-page extractor (CANONICAL — all chats)
+- **2026-06-08** [`feedback_user_build_requests_log.md`](feedback/feedback_user_build_requests_log.md) — feedback_user_build_requests_log.md
+- **2026-06-08** [`feedback_ui_ux_ai_mutations_flag_gated.md`](feedback/feedback_ui_ux_ai_mutations_flag_gated.md) — feedback_ui_ux_ai_mutations_flag_gated.md
+- **2026-06-08** [`feedback_token_savings_discoveries_2026_05_23.md`](feedback/feedback_token_savings_discoveries_2026_05_23.md) — Token-savings discoveries (2026-05-23, alpha slot autonomous /loop)
+- **2026-06-08** [`feedback_think_ahead_extract_adjacent_databases.md`](feedback/feedback_think_ahead_extract_adjacent_databases.md) — feedback_think_ahead_extract_adjacent_databases.md
+- **2026-06-08** [`feedback_tests_plan_for_variability.md`](feedback/feedback_tests_plan_for_variability.md) — feedback_tests_plan_for_variability.md
+- **2026-06-08** [`feedback_task_freshness_pre_build.md`](feedback/feedback_task_freshness_pre_build.md) — feedback_task_freshness_pre_build.md
+- **2026-06-08** [`feedback_tango_schema_read_first.md`](feedback/feedback_tango_schema_read_first.md) — feedback_tango_schema_read_first.md
+- **2026-06-08** [`feedback_tango_orphan_needs_decision.md`](feedback/feedback_tango_orphan_needs_decision.md) — feedback_tango_orphan_needs_decision.md
+- **2026-06-08** [`feedback_tango_complete_not_clobber.md`](feedback/feedback_tango_complete_not_clobber.md) — feedback_tango_complete_not_clobber.md
+- **2026-06-08** [`feedback_tango_dedup_audit_tooling.md`](feedback/feedback_tango_dedup_audit_tooling.md) — feedback_tango_dedup_audit_tooling.md
+- **2026-06-08** [`feedback_system_viz_first_audit.md`](feedback/feedback_system_viz_first_audit.md) — feedback_system_viz_first_audit.md
+- **2026-06-08** [`feedback_subagent_rate_limit_partial_2026_05_24.md`](feedback/feedback_subagent_rate_limit_partial_2026_05_24.md) — Subagent rate-limit partial output — verify before commit
+- **2026-06-08** [`feedback_stale_slot_build_break_escalate_resync.md`](feedback/feedback_stale_slot_build_break_escalate_resync.md) — A slot's `build:fast` "Could not resolve" is un-merged divergence — self-merge, don't rebuild
+- **2026-06-08** [`feedback_slot_query_by_name_and_recency.md`](feedback/feedback_slot_query_by_name_and_recency.md) — feedback_slot_query_by_name_and_recency.md
+- **2026-06-08** [`feedback_slot_worktree_node_modules.md`](feedback/feedback_slot_worktree_node_modules.md) — feedback_slot_worktree_node_modules.md
+- **2026-06-08** [`feedback_skill_autoinvoke_mandatory_2026_05_28.md`](feedback/feedback_skill_autoinvoke_mandatory_2026_05_28.md) — feedback_skill_autoinvoke_mandatory_2026_05_28.md
+- **2026-06-08** [`feedback_shared_tree_absorption_pattern.md`](feedback/feedback_shared_tree_absorption_pattern.md) — Shared-tree commit-absorption — operating procedure
+- **2026-06-08** [`feedback_sierra_graph_correctness_is_fleet_search.md`](feedback/feedback_sierra_graph_correctness_is_fleet_search.md) — feedback_sierra_graph_correctness_is_fleet_search.md
+- **2026-06-08** [`feedback_shared_index_race_pathspec_commit.md`](feedback/feedback_shared_index_race_pathspec_commit.md) — feedback_shared_index_race_pathspec_commit.md
+- **2026-06-08** [`feedback_setup_extra_material_fixture_clearance.md`](feedback/feedback_setup_extra_material_fixture_clearance.md) — feedback_setup_extra_material_fixture_clearance.md
+- **2026-06-08** [`feedback_settings_wiring_drift_2026_05_16.md`](feedback/feedback_settings_wiring_drift_2026_05_16.md) — Settings.json wiring silently reverts across multi-chat fleets
+- **2026-06-08** [`feedback_scrutiny_codex_captures_peer_work.md`](feedback/feedback_scrutiny_codex_captures_peer_work.md) — Scrutiny codex arm captures peer-commit diffs in shared-tree mode
+- **2026-06-08** [`feedback_scrutiny_gate_finds_hostile_payload_class.md`](feedback/feedback_scrutiny_gate_finds_hostile_payload_class.md) — Per-file scrutiny gate catches the hostile-LLM-payload bug class
+- **2026-06-08** [`feedback_scrutiny_3of3_readonly.md`](feedback/feedback_scrutiny_3of3_readonly.md) — feedback_scrutiny_3of3_readonly.md
+- **2026-06-08** [`feedback_scripted_multifile_edit_corruption_guard.md`](feedback/feedback_scripted_multifile_edit_corruption_guard.md) — feedback_scripted_multifile_edit_corruption_guard.md
+- **2026-06-08** [`feedback_scan_lived_signals_for_wiki_gaps.md`](feedback/feedback_scan_lived_signals_for_wiki_gaps.md) — feedback_scan_lived_signals_for_wiki_gaps.md
+- **2026-06-08** [`feedback_rtk_vitest_run_watch_hang.md`](feedback/feedback_rtk_vitest_run_watch_hang.md) — feedback_rtk_vitest_run_watch_hang.md
+- **2026-06-08** [`feedback_roadmap_close_out.md`](feedback/feedback_roadmap_close_out.md) — feedback_roadmap_close_out.md
+- **2026-06-08** [`feedback_rtk_git_commit_routes_to_main_tree.md`](feedback/feedback_rtk_git_commit_routes_to_main_tree.md) — `rtk git commit` from a slot worktree trips slot-commit-enforce — use `command git commit`
+- **2026-06-08** [`feedback_resolve_paths_from_import_meta_not_cwd.md`](feedback/feedback_resolve_paths_from_import_meta_not_cwd.md) — Resolve paths from import.meta.url / PRISM_ROOT, never bare process.cwd()
+- **2026-06-08** [`feedback_regex_token_direction_blindspot.md`](feedback/feedback_regex_token_direction_blindspot.md) — Two-part lesson: regex token direction + don't rationalize away a high-trust wrong result
+- **2026-06-08** [`feedback_reflect_all_changes_post_update.md`](feedback/feedback_reflect_all_changes_post_update.md) — feedback_reflect_all_changes_post_update.md
+- **2026-06-08** [`feedback_recurring_fleet_write_mistakes.md`](feedback/feedback_recurring_fleet_write_mistakes.md) — Recurring fleet-wide write mistakes — many chats fail in the *same exact way*
+- **2026-06-08** [`feedback_read_tool_strips_control_chars.md`](feedback/feedback_read_tool_strips_control_chars.md) — Read-tool strips control chars when rendering
+- **2026-06-08** [`feedback_psn_definition.md`](feedback/feedback_psn_definition.md) — PSN — PRISM Synergy Network (canonical 11 legs)
+- **2026-06-08** [`feedback_prism_for_inexperienced_machinists.md`](feedback/feedback_prism_for_inexperienced_machinists.md) — feedback_prism_for_inexperienced_machinists.md
+- **2026-06-08** [`feedback_prioritize_devtools_backend.md`](feedback/feedback_prioritize_devtools_backend.md) — feedback_prioritize_devtools_backend.md
+- **2026-06-08** [`feedback_port_gate_operator_byte_faithful.md`](feedback/feedback_port_gate_operator_byte_faithful.md) — Porting a gate operator: `??` ≠ `||` ≠ `&&` — a byte-faithful match or it fails OPEN
+- **2026-06-08** [`feedback_plot_path_capture_working_path.md`](feedback/feedback_plot_path_capture_working_path.md) — feedback_plot_path_capture_working_path.md
+- **2026-06-08** [`feedback_plot_path_track_movements.md`](feedback/feedback_plot_path_track_movements.md) — Plot the path · track every movement · wire proven paths into autonomous+learning · propagate fleet-wide
+- **2026-06-08** [`feedback_patch_sibling_queue_strategy.md`](feedback/feedback_patch_sibling_queue_strategy.md) — Patch-sibling queue: don't manually full-drain; it auto-replenishes
+- **2026-06-08** [`feedback_pick_unit_system_viz_guidance.md`](feedback/feedback_pick_unit_system_viz_guidance.md) — feedback_pick_unit_system_viz_guidance.md
+- **2026-06-08** [`feedback_parallel_scrutiny_per_file.md`](feedback/feedback_parallel_scrutiny_per_file.md) — feedback_parallel_scrutiny_per_file.md
+- **2026-06-08** [`feedback_parallel_agents_default_for_extractions.md`](feedback/feedback_parallel_agents_default_for_extractions.md) — DEFAULT to parallel Agent batching for independent extraction work
+- **2026-06-08** [`feedback_oscar_sf_round_at_display_not_calc.md`](feedback/feedback_oscar_sf_round_at_display_not_calc.md) — Round at display, never in the calc (oscar R12 doctrine)
+- **2026-06-08** [`feedback_oscar_css_g50_cap_mandatory.md`](feedback/feedback_oscar_css_g50_cap_mandatory.md) — Every G96/CSS move needs a max-RPM cap (oscar + whiskey doctrine)
+- **2026-06-08** [`feedback_oscar_sfc_physics_discipline.md`](feedback/feedback_oscar_sfc_physics_discipline.md) — SFC physics discipline (oscar standing doctrine)
+- **2026-06-08** [`feedback_oscar_chip_thinning_mandatory.md`](feedback/feedback_oscar_chip_thinning_mandatory.md) — Chip-thinning is mandatory on light-radial / non-90° cuts (oscar doctrine)
+- **2026-06-08** [`feedback_ollama_pull_monitoring_discipline.md`](feedback/feedback_ollama_pull_monitoring_discipline.md) — feedback_ollama_pull_monitoring_discipline.md
+- **2026-06-08** [`feedback_ollama_docker_pipeline_dead_code_2026_05_16.md`](feedback/feedback_ollama_docker_pipeline_dead_code_2026_05_16.md) — Ollama + Docker pipeline utilization is mostly dead-code-on-disk
+- **2026-06-08** [`feedback_no_parallel_agents_high_pressure.md`](feedback/feedback_no_parallel_agents_high_pressure.md) — branch on the value
+- **2026-06-08** [`feedback_no_rm_shared_lock_with_staged_index.md`](feedback/feedback_no_rm_shared_lock_with_staged_index.md) — feedback_no_rm_shared_lock_with_staged_index.md
+- **2026-06-08** [`feedback_no_schedule_wakeup_in_loop.md`](feedback/feedback_no_schedule_wakeup_in_loop.md) — Never pause between /loop iterations
+- **2026-06-08** [`feedback_no_git_stash_for_test_investigation_2026_05_21.md`](feedback/feedback_no_git_stash_for_test_investigation_2026_05_21.md) — git stash for test investigation in shared H:/prism tree LOST 1077+ lines of P0-U04 work
+- **2026-06-08** [`feedback_no_background_git_commit.md`](feedback/feedback_no_background_git_commit.md) — feedback_no_background_git_commit.md
+- **2026-06-08** [`feedback_never_remove_git_lock_on_assumed_time.md`](feedback/feedback_never_remove_git_lock_on_assumed_time.md) — feedback_never_remove_git_lock_on_assumed_time.md
+- **2026-06-08** [`feedback_node_path_must_be_repo_root_relative.md`](feedback/feedback_node_path_must_be_repo_root_relative.md) — Node→path output must be repo-root-relative (Readable from the consumer's cwd)
+- **2026-06-08** [`feedback_never_amend_on_shared_tree.md`](feedback/feedback_never_amend_on_shared_tree.md) — NEVER `git --amend` on the shared `cad-fusion-live-ms0` tree
+- **2026-06-08** [`feedback_net_benefit_auto_build.md`](feedback/feedback_net_benefit_auto_build.md) — feedback_net_benefit_auto_build.md
+- **2026-06-08** [`feedback_meta_learning_trigger_intentional_retirement_2026_06_01.md`](feedback/feedback_meta_learning_trigger_intentional_retirement_2026_06_01.md) — feedback_meta_learning_trigger_intentional_retirement_2026_06_01.md
+- **2026-06-08** [`feedback_missing_file_copy_back.md`](feedback/feedback_missing_file_copy_back.md) — feedback_missing_file_copy_back.md
+- **2026-06-08** [`feedback_mcp_autoreconnect_each_turn.md`](feedback/feedback_mcp_autoreconnect_each_turn.md) — feedback_mcp_autoreconnect_each_turn.md
+- **2026-06-08** [`feedback_master_index_system_viz_first.md`](feedback/feedback_master_index_system_viz_first.md) — feedback_master_index_system_viz_first.md
+- **2026-06-08** [`feedback_mathematical_exhaustive_completeness.md`](feedback/feedback_mathematical_exhaustive_completeness.md) — Mathematical / Statistical Exhaustive Completeness — standing doctrine (2026-05-24)
+- **2026-06-08** [`feedback_low_take_rate_nudges_are_net_negative.md`](feedback/feedback_low_take_rate_nudges_are_net_negative.md) — Low-take-rate advisory nudges are a net token COST, not a saving
+- **2026-06-08** [`feedback_kilo_cam_defer_gcode_to_echo_2026_05_28.md`](feedback/feedback_kilo_cam_defer_gcode_to_echo_2026_05_28.md) — feedback_kilo_cam_defer_gcode_to_echo_2026_05_28.md
+- **2026-06-08** [`feedback_lima_physics_constants_never_inline.md`](feedback/feedback_lima_physics_constants_never_inline.md) — feedback_lima_physics_constants_never_inline.md
+- **2026-06-08** [`feedback_kilo_cam_collision_gate_2026_05_28.md`](feedback/feedback_kilo_cam_collision_gate_2026_05_28.md) — feedback_kilo_cam_collision_gate_2026_05_28.md
+- **2026-06-08** [`feedback_juliett_schema_probe_before_read.md`](feedback/feedback_juliett_schema_probe_before_read.md) — feedback_juliett_schema_probe_before_read.md
+- **2026-06-08** [`feedback_juliett_rotate_never_delete_ledgers.md`](feedback/feedback_juliett_rotate_never_delete_ledgers.md) — feedback_juliett_rotate_never_delete_ledgers.md
+- **2026-06-08** [`feedback_juliett_readback_smoke_test.md`](feedback/feedback_juliett_readback_smoke_test.md) — feedback_juliett_readback_smoke_test.md
+- **2026-06-08** [`feedback_juliett_migration_with_bump.md`](feedback/feedback_juliett_migration_with_bump.md) — feedback_juliett_migration_with_bump.md
+- **2026-06-08** [`feedback_juliett_atomic_write_discipline.md`](feedback/feedback_juliett_atomic_write_discipline.md) — feedback_juliett_atomic_write_discipline.md
+- **2026-06-08** [`feedback_jm_machine_manual_coverage_doctrine.md`](feedback/feedback_jm_machine_manual_coverage_doctrine.md) — JM-machine manual coverage doctrine
+- **2026-06-08** [`feedback_jm_machine_extraction_after_pdf_exhaustion.md`](feedback/feedback_jm_machine_extraction_after_pdf_exhaustion.md) — feedback_jm_machine_extraction_after_pdf_exhaustion.md
+- **2026-06-08** [`feedback_jm_folder_top_of_cad_cam_search.md`](feedback/feedback_jm_folder_top_of_cad_cam_search.md) — feedback_jm_folder_top_of_cad_cam_search.md
+- **2026-06-08** [`feedback_jm_die_b_versions_are_ai_not_human_upgrade.md`](feedback/feedback_jm_die_b_versions_are_ai_not_human_upgrade.md) — JM-Die B-versions are AI-upgraded, not human-upgraded
+- **2026-06-08** [`feedback_india_stratify_before_train.md`](feedback/feedback_india_stratify_before_train.md) — feedback_india_stratify_before_train.md
+- **2026-06-08** [`feedback_india_oom_streaming_embed.md`](feedback/feedback_india_oom_streaming_embed.md) — feedback_india_oom_streaming_embed.md
+- **2026-06-08** [`feedback_india_galaxy_superset_in_worktree.md`](feedback/feedback_india_galaxy_superset_in_worktree.md) — feedback_india_galaxy_superset_in_worktree.md
+- **2026-06-08** [`feedback_india_eval_before_assert.md`](feedback/feedback_india_eval_before_assert.md) — feedback_india_eval_before_assert.md
+- **2026-06-08** [`feedback_india_deploy_gate_hard.md`](feedback/feedback_india_deploy_gate_hard.md) — feedback_india_deploy_gate_hard.md
+- **2026-06-08** [`feedback_india_candidate_file_checkpoint.md`](feedback/feedback_india_candidate_file_checkpoint.md) — feedback_india_candidate_file_checkpoint.md
+- **2026-06-08** [`feedback_hotel_quote_to_ship_atomic.md`](feedback/feedback_hotel_quote_to_ship_atomic.md) — feedback_hotel_quote_to_ship_atomic.md
+- **2026-06-08** [`feedback_hotel_pii_redaction_on_export.md`](feedback/feedback_hotel_pii_redaction_on_export.md) — feedback_hotel_pii_redaction_on_export.md
+- **2026-06-08** [`feedback_hotel_per_category_cost_variance.md`](feedback/feedback_hotel_per_category_cost_variance.md) — feedback_hotel_per_category_cost_variance.md
+- **2026-06-08** [`feedback_hotel_financial_invariant_gate.md`](feedback/feedback_hotel_financial_invariant_gate.md) — feedback_hotel_financial_invariant_gate.md
+- **2026-06-08** [`feedback_hotel_e2e_no_paper_bridges.md`](feedback/feedback_hotel_e2e_no_paper_bridges.md) — feedback_hotel_e2e_no_paper_bridges.md
+- **2026-06-08** [`feedback_high_roi_backend_first_slot_queue.md`](feedback/feedback_high_roi_backend_first_slot_queue.md) — High-ROI backend-dev first when working the slot-task queue
+- **2026-06-08** [`feedback_golf_owns_reaper.md`](feedback/feedback_golf_owns_reaper.md) — feedback_golf_owns_reaper.md
+- **2026-06-08** [`feedback_golf_insession_tail_not_viable.md`](feedback/feedback_golf_insession_tail_not_viable.md) — feedback_golf_insession_tail_not_viable.md
+- **2026-06-08** [`feedback_golf_ancestry_orphan_reaping.md`](feedback/feedback_golf_ancestry_orphan_reaping.md) — feedback_golf_ancestry_orphan_reaping.md
+- **2026-06-08** [`feedback_git_add_absorbs_working_tree_whitespace.md`](feedback/feedback_git_add_absorbs_working_tree_whitespace.md) — feedback_git_add_absorbs_working_tree_whitespace.md
+- **2026-06-08** [`feedback_galaxy_self_commit.md`](feedback/feedback_galaxy_self_commit.md) — feedback_galaxy_self_commit.md
+- **2026-06-08** [`feedback_gitignored_wiki_needs_byname_grep.md`](feedback/feedback_gitignored_wiki_needs_byname_grep.md) — feedback_gitignored_wiki_needs_byname_grep.md
+- **2026-06-08** [`feedback_foxtrot_spindle_power_headroom.md`](feedback/feedback_foxtrot_spindle_power_headroom.md) — Spindle power headroom gate (mill) — installed HP − 20%
+- **2026-06-08** [`feedback_full_recursive_parallel_search.md`](feedback/feedback_full_recursive_parallel_search.md) — Full-recursive + parallel-agent search (FLEET RULE, all slots/galaxies)
+- **2026-06-08** [`feedback_foxtrot_hypermill_coolant_block_hurco.md`](feedback/feedback_foxtrot_hypermill_coolant_block_hurco.md) — HyperMILL 4-char `<Coolant>` block breaks Hurco V11 (mill→post)
+- **2026-06-08** [`feedback_foxtrot_galaxy_recover_not_rebuild.md`](feedback/feedback_foxtrot_galaxy_recover_not_rebuild.md) — Recover galaxy files from the shared branch before rebuilding
+- **2026-06-08** [`feedback_foxtrot_five_axis_singularity_gate.md`](feedback/feedback_foxtrot_five_axis_singularity_gate.md) — 5-axis singularity gate (mill) — check before generating A-axis < 0.5° from zero
+- **2026-06-08** [`feedback_foxtrot_chip_thinning_mandatory.md`](feedback/feedback_foxtrot_chip_thinning_mandatory.md) — Chip-thinning is mandatory below 50% radial engagement (mill)
+- **2026-06-08** [`feedback_foxtrot_canonical_constants_import.md`](feedback/feedback_foxtrot_canonical_constants_import.md) — Canonical constants only (mill) — import, never inline
+- **2026-06-08** [`feedback_fleet_design_10_chats.md`](feedback/feedback_fleet_design_10_chats.md) — feedback_fleet_design_10_chats.md
+- **2026-06-08** [`feedback_find_all_wiring_endpoints_and_combinations.md`](feedback/feedback_find_all_wiring_endpoints_and_combinations.md) — feedback_find_all_wiring_endpoints_and_combinations.md
+- **2026-06-08** [`feedback_enumerate_before_read.md`](feedback/feedback_enumerate_before_read.md) — feedback_enumerate_before_read.md
+- **2026-06-08** [`feedback_engine_tests_in_tests_dir.md`](feedback/feedback_engine_tests_in_tests_dir.md) — feedback_engine_tests_in_tests_dir.md
+- **2026-06-08** [`feedback_engineering_failure_classes.md`](feedback/feedback_engineering_failure_classes.md) — feedback_engineering_failure_classes.md
+- **2026-06-08** [`feedback_edit_tool_not_powershell_for_repo_files.md`](feedback/feedback_edit_tool_not_powershell_for_repo_files.md) — Edit repo files with the Edit/Write tool, never PowerShell WriteAllText
+- **2026-06-08** [`feedback_edit_tool_crlf_flips_lf_files.md`](feedback/feedback_edit_tool_crlf_flips_lf_files.md) — The Edit/Write tools write CRLF; repo files are LF → whole-file EOL flip on commit
+- **2026-06-08** [`feedback_echo_stub_wired_is_dark.md`](feedback/feedback_echo_stub_wired_is_dark.md) — feedback_echo_stub_wired_is_dark.md
+- **2026-06-08** [`feedback_echo_no_inline_post_constants.md`](feedback/feedback_echo_no_inline_post_constants.md) — feedback_echo_no_inline_post_constants.md
+- **2026-06-08** [`feedback_echo_masterpost_pipeline_route.md`](feedback/feedback_echo_masterpost_pipeline_route.md) — feedback_echo_masterpost_pipeline_route.md
+- **2026-06-08** [`feedback_echo_cps_byte_equivalence.md`](feedback/feedback_echo_cps_byte_equivalence.md) — feedback_echo_cps_byte_equivalence.md
+- **2026-06-08** [`feedback_each_slot_merges_own_galaxy.md`](feedback/feedback_each_slot_merges_own_galaxy.md) — feedback_each_slot_merges_own_galaxy.md
+- **2026-06-08** [`feedback_each_slot_can_merge_2026_05_31.md`](feedback/feedback_each_slot_can_merge_2026_05_31.md) — feedback_each_slot_can_merge_2026_05_31.md
+- **2026-06-08** [`feedback_do_optional_high_roi_work.md`](feedback/feedback_do_optional_high_roi_work.md) — feedback_do_optional_high_roi_work.md
+- **2026-06-08** [`feedback_dont_wire_for_wiring_sake_2026_05_16.md`](feedback/feedback_dont_wire_for_wiring_sake_2026_05_16.md) — Don't wire just for the sake of wiring
+- **2026-06-08** [`feedback_domain_discovery_memories.md`](feedback/feedback_domain_discovery_memories.md) — Make domain-discovery memories during discover phases (fleet/galaxy-wide)
+- **2026-06-08** [`feedback_domains_own_ai_training_systems.md`](feedback/feedback_domains_own_ai_training_systems.md) — feedback_domains_own_ai_training_systems.md
+- **2026-06-08** [`feedback_dispatcher_path_green_not_engine_green.md`](feedback/feedback_dispatcher_path_green_not_engine_green.md) — feedback_dispatcher_path_green_not_engine_green.md
+- **2026-06-08** [`feedback_disable_vs_optimize_net_negative_hooks.md`](feedback/feedback_disable_vs_optimize_net_negative_hooks.md) — Disable beats optimize for a chronically net-negative hook — and coordinate before fixing a peer-domain asset
+- **2026-06-08** [`feedback_delta_topology_before_tolerance.md`](feedback/feedback_delta_topology_before_tolerance.md) — Topology before tolerance (delta CAD prime directive)
+- **2026-06-08** [`feedback_delta_no_inline_iso286.md`](feedback/feedback_delta_no_inline_iso286.md) — Never inline ISO 286 fit deviations (delta refuse)
+- **2026-06-08** [`feedback_crossroad_brainstorm_workflow.md`](feedback/feedback_crossroad_brainstorm_workflow.md) — feedback_crossroad_brainstorm_workflow.md
+- **2026-06-08** [`feedback_commit_to_slot_worktree.md`](feedback/feedback_commit_to_slot_worktree.md) — Commit to the slot worktree, NOT the shared H:/prism tree
+- **2026-06-08** [`feedback_commit_prefix_main_on_shared_tree.md`](feedback/feedback_commit_prefix_main_on_shared_tree.md) — feedback_commit_prefix_main_on_shared_tree.md
+- **2026-06-08** [`feedback_close_background_tasks_at_stop.md`](feedback/feedback_close_background_tasks_at_stop.md) — feedback_close_background_tasks_at_stop.md
+- **2026-06-08** [`feedback_claude_md_guard_bypass_when_legit.md`](feedback/feedback_claude_md_guard_bypass_when_legit.md) — feedback_claude_md_guard_bypass_when_legit.md
+- **2026-06-08** [`feedback_check_units_first.md`](feedback/feedback_check_units_first.md) — feedback_check_units_first.md
+- **2026-06-08** [`feedback_checkin_loop_goal_utilization_audit_2026_05_16.md`](feedback/feedback_checkin_loop_goal_utilization_audit_2026_05_16.md) — Audit: /checkin + /loop + /goal — dev-tool utilization to highest capability
+- **2026-06-08** [`feedback_checkin_args_are_primary_work_order.md`](feedback/feedback_checkin_args_are_primary_work_order.md) — /checkin-<slot> args ARE the work order — don't let the report swallow them
+- **2026-06-08** [`feedback_charlie_quoting_no_inline_rates.md`](feedback/feedback_charlie_quoting_no_inline_rates.md) — feedback_charlie_quoting_no_inline_rates.md
+- **2026-06-08** [`feedback_charlie_quoting_drift_freshness.md`](feedback/feedback_charlie_quoting_drift_freshness.md) — feedback_charlie_quoting_drift_freshness.md
+- **2026-06-08** [`feedback_build_in_logical_order.md`](feedback/feedback_build_in_logical_order.md) — feedback_build_in_logical_order.md
+- **2026-06-08** [`feedback_build_comprehensive_route.md`](feedback/feedback_build_comprehensive_route.md) — feedback_build_comprehensive_route.md
+- **2026-06-08** [`feedback_bravo_verify_cited_paths_before_enshrining.md`](feedback/feedback_bravo_verify_cited_paths_before_enshrining.md) — feedback_bravo_verify_cited_paths_before_enshrining.md
+- **2026-06-08** [`feedback_bravo_launches_hermes_obsidian_apps.md`](feedback/feedback_bravo_launches_hermes_obsidian_apps.md) — feedback_bravo_launches_hermes_obsidian_apps.md
+- **2026-06-08** [`feedback_bravo_golf_papa_quebec_fix_known_failures.md`](feedback/feedback_bravo_golf_papa_quebec_fix_known_failures.md) — Rule — bravo/golf/papa/quebec must fix known failures, not just record them
+- **2026-06-08** [`feedback_bravo_complete_not_clobber_galaxy.md`](feedback/feedback_bravo_complete_not_clobber_galaxy.md) — feedback_bravo_complete_not_clobber_galaxy.md
+- **2026-06-08** [`feedback_bootstrap_commit_check_peer_wip.md`](feedback/feedback_bootstrap_commit_check_peer_wip.md) — Bootstrap-committing to main absorbs peer WIP — check `git diff` first
+- **2026-06-08** [`feedback_auto_memory_feeds_obsidian_stophook.md`](feedback/feedback_auto_memory_feeds_obsidian_stophook.md) — Auto-memory must auto-feed Obsidian (dedicated Stop hook)
+- **2026-06-08** [`feedback_auto_close_out.md`](feedback/feedback_auto_close_out.md) — Always close out completed units — automated detection + manual verification
+- **2026-06-08** [`feedback_autonomous_loop_drift_discipline.md`](feedback/feedback_autonomous_loop_drift_discipline.md) — feedback_autonomous_loop_drift_discipline.md
+- **2026-06-08** [`feedback_always_update_wiki_on_bug_finding.md`](feedback/feedback_always_update_wiki_on_bug_finding.md) — feedback_always_update_wiki_on_bug_finding.md
+- **2026-06-08** [`feedback_always_fill_gaps.md`](feedback/feedback_always_fill_gaps.md) — Always fill gaps when discovered (fleet-wide, operator directive 2026-05-30)
+- **2026-06-08** [`feedback_always_close_out.md`](feedback/feedback_always_close_out.md) — feedback_always_close_out.md
+- **2026-06-08** [`feedback_always_check_units_vs_part_and_print.md`](feedback/feedback_always_check_units_vs_part_and_print.md) — feedback_always_check_units_vs_part_and_print.md
+- **2026-06-08** [`feedback_always_capture_lessons.md`](feedback/feedback_always_capture_lessons.md) — Always capture lessons — the MISTAKE-LEARNING-LOOP only flags, it doesn't capture
+- **2026-06-08** [`feedback_alpha_route_before_grep.md`](feedback/feedback_alpha_route_before_grep.md) — feedback_alpha_route_before_grep.md
+- **2026-06-08** [`feedback_alpha_owns_reaper.md`](feedback/feedback_alpha_owns_reaper.md) — feedback_alpha_owns_reaper.md
+- **2026-06-08** [`feedback_alpha_ollama_offline_degradation.md`](feedback/feedback_alpha_ollama_offline_degradation.md) — feedback_alpha_ollama_offline_degradation.md
+- **2026-06-08** [`feedback_all_slots_free_access.md`](feedback/feedback_all_slots_free_access.md) — feedback_all_slots_free_access.md
+- **2026-06-08** [`feedback_ai_upgrade_broadcast_protocol.md`](feedback/feedback_ai_upgrade_broadcast_protocol.md) — Fleet AI-upgrade broadcast protocol (operator directive, 2026-05-30)
+- **2026-06-08** [`feedback_ai_training_first_before_revenue.md`](feedback/feedback_ai_training_first_before_revenue.md) — feedback_ai_training_first_before_revenue.md
+- **2026-06-06** [`feedback_maintree_block_stale_slot_binding_2026_06_05.md`](feedback/feedback_maintree_block_stale_slot_binding_2026_06_05.md) — feedback_maintree_block_stale_slot_binding_2026_06_05.md
+- **2026-06-02** [`feedback_pathspec_commit_on_shared_tree.md`](feedback/feedback_pathspec_commit_on_shared_tree.md) — feedback_pathspec_commit_on_shared_tree.md
+
+## Reference (1300)
+
+- **2026-06-08** [`reference_zulu_orchestrator_ms1_2026_05_22.md`](reference/reference_zulu_orchestrator_ms1_2026_05_22.md) — reference_zulu_orchestrator_ms1_2026_05_22.md
+- **2026-06-08** [`reference_zulu_hermes_gaps_campaign_2026_05_20.md`](reference/reference_zulu_hermes_gaps_campaign_2026_05_20.md) — ZULU-HERMES-GAPS campaign + ZULU-OMNISCIENT-MS0 scoping
+- **2026-06-08** [`reference_zulu_hwnd_tabbed_fleet_2026_05_22.md`](reference/reference_zulu_hwnd_tabbed_fleet_2026_05_22.md) — reference_zulu_hwnd_tabbed_fleet_2026_05_22.md
+- **2026-06-08** [`reference_zulu_obsidian_live_2026_05_30.md`](reference/reference_zulu_obsidian_live_2026_05_30.md) — reference_zulu_obsidian_live_2026_05_30.md
+- **2026-06-08** [`reference_zulu_awareness_ms0_2026_05_20.md`](reference/reference_zulu_awareness_ms0_2026_05_20.md) — ZULU-AWARENESS-MS0 shipped 2026-05-20 (slot november/foxtrot via claude-5852a0b9)
+- **2026-06-08** [`reference_zulu_fleet_precheck_2026_05_25.md`](reference/reference_zulu_fleet_precheck_2026_05_25.md) — Zulu fleet precheck + dashboard — every chat self-aware via loadSlotContext
+- **2026-06-08** [`reference_zulu_governor_wire_2026_06_01.md`](reference/reference_zulu_governor_wire_2026_06_01.md) — reference_zulu_governor_wire_2026_06_01.md
+- **2026-06-08** [`reference_zpsn01_psn_synergy_2026_05_22.md`](reference/reference_zpsn01_psn_synergy_2026_05_22.md) — U-ZPSN01 — zulu↔PSN synergy gap closed
+- **2026-06-08** [`reference_zpsn02_souls_filled_2026_05_23.md`](reference/reference_zpsn02_souls_filled_2026_05_23.md) — U-ZPSN02 — slot-soul population (24 → 27 souls)
+- **2026-06-08** [`reference_zpsn03_target_parser_2026_05_23.md`](reference/reference_zpsn03_target_parser_2026_05_23.md) — U-ZPSN03 — Target-side `[psn:...]` parser hook
+- **2026-06-08** [`reference_youtube_toolpath_tribal_extraction_2026_05_26.md`](reference/reference_youtube_toolpath_tribal_extraction_2026_05_26.md) — YouTube toolpath tribal extraction (slot:delta /loop iters 6-7 2026-05-26)
+- **2026-06-08** [`reference_zodchii_self_correcting_claude_md_2026_05_28.md`](reference/reference_zodchii_self_correcting_claude_md_2026_05_28.md) — reference_zodchii_self_correcting_claude_md_2026_05_28.md
+- **2026-06-08** [`reference_youtube_free_extraction_pipeline_2026_05_26.md`](reference/reference_youtube_free_extraction_pipeline_2026_05_26.md) — YouTube FREE extraction pipeline (2026-05-26, slot:victor)
+- **2026-06-08** [`reference_xray_vl_trainer_2026_06_04.md`](reference/reference_xray_vl_trainer_2026_06_04.md) — reference_xray_vl_trainer_2026_06_04.md
+- **2026-06-08** [`reference_x_article_cyrilxbt_2026_05_26.md`](reference/reference_x_article_cyrilxbt_2026_05_26.md) — cyrilXBT tweet 2052923836090167526 — Obsidian Vault writes BACK (PARTIAL)
+- **2026-06-08** [`reference_x_article_dunik_7_2026_05_26.md`](reference/reference_x_article_dunik_7_2026_05_26.md) — dunik_7 tweet 2058905748579418615 — UNFETCHED (R12 fail-loud)
+- **2026-06-08** [`reference_yolo_bypass_active_2026_05_24.md`](reference/reference_yolo_bypass_active_2026_05_24.md) — YOLO bypass active — operator-authorized 2026-05-24 (slot golf)
+- **2026-06-08** [`reference_xray_training_corpus_state_2026_05_29.md`](reference/reference_xray_training_corpus_state_2026_05_29.md) — reference_xray_training_corpus_state_2026_05_29.md
+- **2026-06-08** [`reference_xray_vision_ab_benchmark_2026_06_03.md`](reference/reference_xray_vision_ab_benchmark_2026_06_03.md) — reference_xray_vision_ab_benchmark_2026_06_03.md
+- **2026-06-08** [`reference_xray_vlm_ensemble_ocr_2026_06_04.md`](reference/reference_xray_vlm_ensemble_ocr_2026_06_04.md) — reference_xray_vlm_ensemble_ocr_2026_06_04.md
+- **2026-06-08** [`reference_xray_ocr_pipeline_overnight_ready_2026_05_30.md`](reference/reference_xray_ocr_pipeline_overnight_ready_2026_05_30.md) — reference_xray_ocr_pipeline_overnight_ready_2026_05_30.md
+- **2026-06-08** [`reference_xray_pypdf_canonical_extractor_path.md`](reference/reference_xray_pypdf_canonical_extractor_path.md) — reference_xray_pypdf_canonical_extractor_path.md
+- **2026-06-08** [`reference_xray_ocr_gpu_concurrency_2026_05_31.md`](reference/reference_xray_ocr_gpu_concurrency_2026_05_31.md) — reference_xray_ocr_gpu_concurrency_2026_05_31.md
+- **2026-06-08** [`reference_xray_ocr_parse_truncation_fix_2026_06_06.md`](reference/reference_xray_ocr_parse_truncation_fix_2026_06_06.md) — OCR closed-loop "0 models survived" — whole-print extraction lost at JSON parse (slot:xray, 2026-06-06)
+- **2026-06-08** [`reference_xray_ocr_gateway_unblocked_2026_05_29.md`](reference/reference_xray_ocr_gateway_unblocked_2026_05_29.md) — reference_xray_ocr_gateway_unblocked_2026_05_29.md
+- **2026-06-08** [`reference_xray_ocr_closed_loop_training_2026_06_04.md`](reference/reference_xray_ocr_closed_loop_training_2026_06_04.md) — reference_xray_ocr_closed_loop_training_2026_06_04.md
+- **2026-06-08** [`reference_xray_ocr_corpus_resumable_multipage_2026_06_08.md`](reference/reference_xray_ocr_corpus_resumable_multipage_2026_06_08.md) — OCR closed-loop → corpus-scale-ready (resumable + multi-page + real denominator) — slot:xray 2026-06-08
+- **2026-06-08** [`reference_xray_no_native_reader_gaps.md`](reference/reference_xray_no_native_reader_gaps.md) — reference_xray_no_native_reader_gaps.md
+- **2026-06-08** [`reference_xray_ocr_closed_loop_2026_06_01.md`](reference/reference_xray_ocr_closed_loop_2026_06_01.md) — reference_xray_ocr_closed_loop_2026_06_01.md
+- **2026-06-08** [`reference_xray_docustrata_96pct_unverified.md`](reference/reference_xray_docustrata_96pct_unverified.md) — reference_xray_docustrata_96pct_unverified.md
+- **2026-06-08** [`reference_xray_engine_inventory_verified_2026_05_29.md`](reference/reference_xray_engine_inventory_verified_2026_05_29.md) — reference_xray_engine_inventory_verified_2026_05_29.md
+- **2026-06-08** [`reference_xray_jm_die_print_corpus_paths.md`](reference/reference_xray_jm_die_print_corpus_paths.md) — reference_xray_jm_die_print_corpus_paths.md
+- **2026-06-08** [`reference_xray_juliett_database_wiring.md`](reference/reference_xray_juliett_database_wiring.md) — reference_xray_juliett_database_wiring.md
+- **2026-06-08** [`reference_xray_blueprint_lora_stage_2026_06_04.md`](reference/reference_xray_blueprint_lora_stage_2026_06_04.md) — reference_xray_blueprint_lora_stage_2026_06_04.md
+- **2026-06-08** [`reference_xray_cad_dispatcher_primary_surface.md`](reference/reference_xray_cad_dispatcher_primary_surface.md) — reference_xray_cad_dispatcher_primary_surface.md
+- **2026-06-08** [`reference_xray_confidence_thresholds_reconciled.md`](reference/reference_xray_confidence_thresholds_reconciled.md) — reference_xray_confidence_thresholds_reconciled.md
+- **2026-06-08** [`reference_xray_cross_source_dim_reconcile_2026_06_02.md`](reference/reference_xray_cross_source_dim_reconcile_2026_06_02.md) — reference_xray_cross_source_dim_reconcile_2026_06_02.md
+- **2026-06-08** [`reference_workholding_db_safety_factor_drift_2026_06_03.md`](reference/reference_workholding_db_safety_factor_drift_2026_06_03.md) — reference_workholding_db_safety_factor_drift_2026_06_03.md
+- **2026-06-08** [`reference_worktree_not_main_for_big_changesets_2026_05_30.md`](reference/reference_worktree_not_main_for_big_changesets_2026_05_30.md) — reference_worktree_not_main_for_big_changesets_2026_05_30.md
+- **2026-06-08** [`reference_xproc_orch_dual_close_2026_05_23.md`](reference/reference_xproc_orch_dual_close_2026_05_23.md) — Dual-milestone close-out — LEARN-XPROC-TRANSFER-MS18 + ORCH-MULTIDOMAIN-MS11
+- **2026-06-08** [`reference_xray_blueprint_extraction_ledgers.md`](reference/reference_xray_blueprint_extraction_ledgers.md) — reference_xray_blueprint_extraction_ledgers.md
+- **2026-06-08** [`reference_wire_unwired_marathon_2026_05_26.md`](reference/reference_wire_unwired_marathon_2026_05_26.md) — Wire-unwired marathon (2026-05-26, slot:victor)
+- **2026-06-08** [`reference_wire_unwired_ms0_u_wire01_2026_05_16.md`](reference/reference_wire_unwired_ms0_u_wire01_2026_05_16.md) — WIRE-UNWIRED-MS0/U-WIRE01 — wire unwired backend-dev engines
+- **2026-06-08** [`reference_wizard_closed_loop_training_paths_2026_05_27.md`](reference/reference_wizard_closed_loop_training_paths_2026_05_27.md) — Wizard closed-loop training — 4-path priority
+- **2026-06-08** [`reference_winmax_pocket_holder_chain_2026_05_31.md`](reference/reference_winmax_pocket_holder_chain_2026_05_31.md) — WinMax tool-pocket auto-selection + holder chain (slot:echo, 2026-05-31)
+- **2026-06-08** [`reference_wire_domain_atlas_for_mike_2026_05_27.md`](reference/reference_wire_domain_atlas_for_mike_2026_05_27.md) — Wire-EDM domain atlas — fast-lookup for mike slot
+- **2026-06-08** [`reference_wire_exempt_monolith_false_ghost_2026_06_04.md`](reference/reference_wire_exempt_monolith_false_ghost_2026_06_04.md) — reference_wire_exempt_monolith_false_ghost_2026_06_04.md
+- **2026-06-08** [`reference_wire_shop_outcome_ingest_2026_06_04.md`](reference/reference_wire_shop_outcome_ingest_2026_06_04.md) — reference_wire_shop_outcome_ingest_2026_06_04.md
+- **2026-06-08** [`reference_winmax_launch_fix_2026_06_01.md`](reference/reference_winmax_launch_fix_2026_06_01.md) — reference_winmax_launch_fix_2026_06_01.md
+- **2026-06-08** [`reference_wiki_recall_index_stale_2026_05_18.md`](reference/reference_wiki_recall_index_stale_2026_05_18.md) — reference_wiki_recall_index_stale_2026_05_18.md
+- **2026-06-08** [`reference_wiki_watchdog_stop_iter11_2026_05_18.md`](reference/reference_wiki_watchdog_stop_iter11_2026_05_18.md) — reference_wiki_watchdog_stop_iter11_2026_05_18.md
+- **2026-06-08** [`reference_winmax_controller_map.md`](reference/reference_winmax_controller_map.md) — reference_winmax_controller_map.md
+- **2026-06-08** [`reference_winmax_course_framework_2026_05_31.md`](reference/reference_winmax_course_framework_2026_05_31.md) — WinMax course framework + vision-free boundary (slot:echo, 2026-05-31)
+- **2026-06-08** [`reference_wikilink_graphrank_arm_2026_06_01.md`](reference/reference_wikilink_graphrank_arm_2026_06_01.md) — reference_wikilink_graphrank_arm_2026_06_01.md
+- **2026-06-08** [`reference_wiki_domain_bias.md`](reference/reference_wiki_domain_bias.md) — wiki-domain-bias — milestone-domain ranking boost
+- **2026-06-08** [`reference_wiki_leafidx_failloud_2026_05_18.md`](reference/reference_wiki_leafidx_failloud_2026_05_18.md) — reference_wiki_leafidx_failloud_2026_05_18.md
+- **2026-06-08** [`reference_whiskey_slot_stale_build_red_cross_tree_2026_05_31.md`](reference/reference_whiskey_slot_stale_build_red_cross_tree_2026_05_31.md) — Whiskey self-merge runbook — slot/whiskey build:fast RED is OWN un-merged galaxy work (2026-05-31)
+- **2026-06-08** [`reference_whiskey_swiss_bar_feed_doctrine_2026_05_29.md`](reference/reference_whiskey_swiss_bar_feed_doctrine_2026_05_29.md) — reference_whiskey_swiss_bar_feed_doctrine_2026_05_29.md
+- **2026-06-08** [`reference_whiskey_real_data_validation_pattern_2026_05_27.md`](reference/reference_whiskey_real_data_validation_pattern_2026_05_27.md) — Real-data validation findings (iter145-iter157)
+- **2026-06-08** [`reference_whiskey_session_final_iter167_2026_05_27.md`](reference/reference_whiskey_session_final_iter167_2026_05_27.md) — Whiskey lathe-domain session — FINAL state (iter167)
+- **2026-06-08** [`reference_whiskey_session_final_iter228_2026_05_27.md`](reference/reference_whiskey_session_final_iter228_2026_05_27.md) — Whiskey lathe-domain session — FINAL state (iter228)
+- **2026-06-08** [`reference_whiskey_lathe_soul_designation_2026_05_27.md`](reference/reference_whiskey_lathe_soul_designation_2026_05_27.md) — Whiskey lathe-soul designation (2026-05-27)
+- **2026-06-08** [`reference_whiskey_lathe_wire_ms0_2026_05_30.md`](reference/reference_whiskey_lathe_wire_ms0_2026_05_30.md) — LATHE-WIRE-MS0 — zero-coverage lathe backend wiring (slot:whiskey, 2026-05-30)
+- **2026-06-08** [`reference_whiskey_lathe_quality_gate_sx_silent_bug_2026_06_01.md`](reference/reference_whiskey_lathe_quality_gate_sx_silent_bug_2026_06_01.md) — LatheQualityGateEngine S(x) silent-safety bug + wire (CLOSED-LOOP-MS0/U-CL11, slot:whiskey, 2026-06-01)
+- **2026-06-08** [`reference_whiskey_lathe_session_close_iter143_2026_05_27.md`](reference/reference_whiskey_lathe_session_close_iter143_2026_05_27.md) — Whiskey lathe domain — session close at iter143
+- **2026-06-08** [`reference_whiskey_lathe_next_session_p0_implementation_roadmap_2026_05_27.md`](reference/reference_whiskey_lathe_next_session_p0_implementation_roadmap_2026_05_27.md) — Whiskey lathe — next-session P0 implementation roadmap
+- **2026-06-08** [`reference_whiskey_lathe_lora_tier_complete_2026_05_30.md`](reference/reference_whiskey_lathe_lora_tier_complete_2026_05_30.md) — LATHE-LORA-MS0 — 8-engine self-improving-AI tier COMPLETE (slot:whiskey, 2026-05-30)
+- **2026-06-08** [`reference_whiskey_lathe_implementation_state_iter137_2026_05_27.md`](reference/reference_whiskey_lathe_implementation_state_iter137_2026_05_27.md) — Whiskey lathe — implementation state at iter137
+- **2026-06-08** [`reference_whiskey_lathe_lint_tooling_2026_05_29.md`](reference/reference_whiskey_lathe_lint_tooling_2026_05_29.md) — reference_whiskey_lathe_lint_tooling_2026_05_29.md
+- **2026-06-08** [`reference_whiskey_lathe_design_memo_verification_checklist_2026_05_27.md`](reference/reference_whiskey_lathe_design_memo_verification_checklist_2026_05_27.md) — Design-memo verification checklist (next-session pre-flight)
+- **2026-06-08** [`reference_whiskey_lathe_galaxy_dispatcher_surface_2026_05_28.md`](reference/reference_whiskey_lathe_galaxy_dispatcher_surface_2026_05_28.md) — reference_whiskey_lathe_galaxy_dispatcher_surface_2026_05_28.md
+- **2026-06-08** [`reference_whiskey_lathe_gsd_protocol_2026_05_29.md`](reference/reference_whiskey_lathe_gsd_protocol_2026_05_29.md) — reference_whiskey_lathe_gsd_protocol_2026_05_29.md
+- **2026-06-08** [`reference_whiskey_lathe_corpus_state_2026_05_27_iter101.md`](reference/reference_whiskey_lathe_corpus_state_2026_05_27_iter101.md) — Whiskey lathe corpus state — 2026-05-27 (iter101)
+- **2026-06-08** [`reference_whiskey_lathe_corpus_state_2026_05_27_iter42.md`](reference/reference_whiskey_lathe_corpus_state_2026_05_27_iter42.md) — Whiskey lathe corpus state — 2026-05-27 (iter42)
+- **2026-06-08** [`reference_whiskey_lathe_db_wire_ms0_2026_05_29.md`](reference/reference_whiskey_lathe_db_wire_ms0_2026_05_29.md) — reference_whiskey_lathe_db_wire_ms0_2026_05_29.md
+- **2026-06-08** [`reference_whiskey_jm_v2_envelope_fit_gate_2026_05_29.md`](reference/reference_whiskey_jm_v2_envelope_fit_gate_2026_05_29.md) — reference_whiskey_jm_v2_envelope_fit_gate_2026_05_29.md
+- **2026-06-08** [`reference_whiskey_lathe_complete_asset_map_2026_05_27.md`](reference/reference_whiskey_lathe_complete_asset_map_2026_05_27.md) — Whiskey Lathe — Complete Asset Map
+- **2026-06-08** [`reference_whiskey_lathe_complete_design_synthesis_2026_05_27.md`](reference/reference_whiskey_lathe_complete_design_synthesis_2026_05_27.md) — Whiskey lathe domain — complete design synthesis (iter121 landing page)
+- **2026-06-08** [`reference_whiskey_jm_param_optimization_audit_2026_06_02.md`](reference/reference_whiskey_jm_param_optimization_audit_2026_06_02.md) — JM lathe param-optimization fleet audit (CLOSED-LOOP-MS0/U-CL15 consumer, slot:whiskey, 2026-06-02)
+- **2026-06-08** [`reference_whiskey_aisi_coeff_key_fix_2026_05_30.md`](reference/reference_whiskey_aisi_coeff_key_fix_2026_05_30.md) — PHYS-FIX-MS0/U-AISI-COEFF-KEY — activate dead AISI per-material override (slot:whiskey, 2026-05-30)
+- **2026-06-08** [`reference_whiskey_galaxy_buildout_2026_05_28.md`](reference/reference_whiskey_galaxy_buildout_2026_05_28.md) — reference_whiskey_galaxy_buildout_2026_05_28.md
+- **2026-06-08** [`reference_whiskey_india_ai_substrate_2026_05_29.md`](reference/reference_whiskey_india_ai_substrate_2026_05_29.md) — reference_whiskey_india_ai_substrate_2026_05_29.md
+- **2026-06-08** [`reference_whiskey_iter250_cron_re_establishment_2026_05_27.md`](reference/reference_whiskey_iter250_cron_re_establishment_2026_05_27.md) — Whiskey lathe — iter250 cron re-establishment
+- **2026-06-08** [`reference_whiskey_jm_enhanced_program_assessment_2026_06_01.md`](reference/reference_whiskey_jm_enhanced_program_assessment_2026_06_01.md) — JM enhanced-lathe-program assessment — CLOSED-LOOP-MS0/U-CL1 (slot:whiskey, 2026-06-01)
+- **2026-06-08** [`reference_wedm_wizard_proof_and_architecture_2026_05_22.md`](reference/reference_wedm_wizard_proof_and_architecture_2026_05_22.md) — reference_wedm_wizard_proof_and_architecture_2026_05_22.md
+- **2026-06-08** [`reference_whiskey_academy_lathe_bridge_2026_05_26.md`](reference/reference_whiskey_academy_lathe_bridge_2026_05_26.md) — Academy → Lathe Wizard bridge (WHISKEY-ACADEMY-LATHE-BRIDGE-MS0/U-EXTRACT-PRIORS)
+- **2026-06-08** [`reference_wedm_print2program_pipeline_2026_05_31.md`](reference/reference_wedm_print2program_pipeline_2026_05_31.md) — WEDM true print->program pipeline — inventory-driven, closed-loop (slot mike, 2026-05-31)
+- **2026-06-08** [`reference_wedm_training_regimen_catalog_2026_05_31.md`](reference/reference_wedm_training_regimen_catalog_2026_05_31.md) — WEDM master training-regimen catalog + oracle-augmentation architecture (slot mike, U-WEDM-TRAINING-REGIMENS, 2026-05-31
+- **2026-06-08** [`reference_wedm_phase_a_walker_v2_finding_2026_05_22.md`](reference/reference_wedm_phase_a_walker_v2_finding_2026_05_22.md) — reference_wedm_phase_a_walker_v2_finding_2026_05_22.md
+- **2026-06-08** [`reference_wedm_phase_a_walker_v3_yield_2026_05_22.md`](reference/reference_wedm_phase_a_walker_v3_yield_2026_05_22.md) — reference_wedm_phase_a_walker_v3_yield_2026_05_22.md
+- **2026-06-08** [`reference_wedm_phase_a1_parser_blank_line_bug_2026_05_22.md`](reference/reference_wedm_phase_a1_parser_blank_line_bug_2026_05_22.md) — reference_wedm_phase_a1_parser_blank_line_bug_2026_05_22.md
+- **2026-06-08** [`reference_wedm_phase_a1_parser_gap_2026_05_22.md`](reference/reference_wedm_phase_a1_parser_gap_2026_05_22.md) — AF102-05.dxf → 2 CIRCLE, 1 POLYLINE
+- **2026-06-08** [`reference_wedm_phase_a1_proven_end_to_end_2026_05_22.md`](reference/reference_wedm_phase_a1_proven_end_to_end_2026_05_22.md) — reference_wedm_phase_a1_proven_end_to_end_2026_05_22.md
+- **2026-06-08** [`reference_wedm_engines_data_fixture_dependency_2026_05_26.md`](reference/reference_wedm_engines_data_fixture_dependency_2026_05_26.md) — WEDM* engines — hidden filesystem dependency (U-DEA-november-EXTRA83 rollback)
+- **2026-06-08** [`reference_wedm_lora_finetune_complete_2026_05_31.md`](reference/reference_wedm_lora_finetune_complete_2026_05_31.md) — WEDM LoRA fine-tune COMPLETE — in-galaxy (slot mike, U-WEDM-FINETUNE-RUN, 2026-05-31)
+- **2026-06-08** [`reference_wedm_next_ms0_wn06_wn08_closeout_2026_05_23.md`](reference/reference_wedm_next_ms0_wn06_wn08_closeout_2026_05_23.md) — WEDM-NEXT-MS0/U-WN06+U-WN08 — silent close-out drift correction
+- **2026-06-08** [`reference_vmc05_roku_post_gap_2026_05_30.md`](reference/reference_vmc05_roku_post_gap_2026_05_30.md) — VMC-05 Roku-Roku post — RESOLVED as a NON-gap (foxtrot, 2026-05-30)
+- **2026-06-08** [`reference_watchdog_orchestrator_2026_05_19.md`](reference/reference_watchdog_orchestrator_2026_05_19.md) — Watchdog-stack orchestrator — /fleet-reaper Step 0 (U-WD-ORCHESTRATE, 2026-05-19)
+- **2026-06-08** [`reference_vendor_catalog_db_2026_05_31.md`](reference/reference_vendor_catalog_db_2026_05_31.md) — reference_vendor_catalog_db_2026_05_31.md
+- **2026-06-08** [`reference_video_embed_and_route_fix_2026_05_27.md`](reference/reference_video_embed_and_route_fix_2026_05_27.md) — Video embed + route fix — authorship note (lima, 2026-05-27)
+- **2026-06-08** [`reference_vitest4_pooloptions_silently_ignored_2026_06_08.md`](reference/reference_vitest4_pooloptions_silently_ignored_2026_06_08.md) — reference_vitest4_pooloptions_silently_ignored_2026_06_08.md
+- **2026-06-08** [`reference_viz_first_redirect_glob.md`](reference/reference_viz_first_redirect_glob.md) — viz-first-redirect — Glob|Grep PreToolUse hook
+- **2026-06-08** [`reference_u_zo_ms0_05_06_2026_05_25.md`](reference/reference_u_zo_ms0_05_06_2026_05_25.md) — U-ZO-MS0-05 + U-ZO-MS0-06 + CLI — MS0 envelope CLOSE
+- **2026-06-08** [`reference_v8_graph_read_mass_migration_2026_05_25.md`](reference/reference_v8_graph_read_mass_migration_2026_05_25.md) — V8 graph-read mass-migration — papa 2026-05-25
+- **2026-06-08** [`reference_vault_gap_fill_2026_06_08.md`](reference/reference_vault_gap_fill_2026_06_08.md) — reference_vault_gap_fill_2026_06_08.md
+- **2026-06-08** [`reference_vault_rag_wire_fix_2026_06_08.md`](reference/reference_vault_rag_wire_fix_2026_06_08.md) — reference_vault_rag_wire_fix_2026_06_08.md
+- **2026-06-08** [`reference_u_wire_session_event_log_2026_05_18.md`](reference/reference_u_wire_session_event_log_2026_05_18.md) — U-WIRE-SESSION-EVENT-LOG (2026-05-18 charlie)
+- **2026-06-08** [`reference_u_wire_swarm_group_2026_05_18.md`](reference/reference_u_wire_swarm_group_2026_05_18.md) — U-WIRE-SWARM-GROUP (2026-05-18 charlie)
+- **2026-06-08** [`reference_u_wire_wedm_outcome_3_misattribution_2026_05_22.md`](reference/reference_u_wire_wedm_outcome_3_misattribution_2026_05_22.md) — reference_u_wire_wedm_outcome_3_misattribution_2026_05_22.md
+- **2026-06-08** [`reference_u_zo_ms0_02_03_04_2026_05_25.md`](reference/reference_u_zo_ms0_02_03_04_2026_05_25.md) — U-ZO-MS0-02 + U-ZO-MS0-03 + U-ZO-MS0-04 — 3 read-side library extensions
+- **2026-06-08** [`reference_u_wire_arcfit_2026_05_17.md`](reference/reference_u_wire_arcfit_2026_05_17.md) — U-WIRE-ARCFIT — wire ArcFittingEngine into `prism_calc:arc_fit_kasa`
+- **2026-06-08** [`reference_u_wire_batch_processor_misattribution_2026_05_21.md`](reference/reference_u_wire_batch_processor_misattribution_2026_05_21.md) — U-WIRE-BATCH-PROCESSOR — shared-tree misattribution (2026-05-21, kilo iter 1)
+- **2026-06-08** [`reference_u_wire_energy_2026_05_17.md`](reference/reference_u_wire_energy_2026_05_17.md) — U-WIRE-ENERGY — wire MachiningEnergyModelEngine into `prism_calc:machining_energy_model`
+- **2026-06-08** [`reference_u_wire_energy_p2_p3_close_2026_05_17.md`](reference/reference_u_wire_energy_p2_p3_close_2026_05_17.md) — U-WIRE-ENERGY P2+P3 deferral close — 2026-05-17 kilo
+- **2026-06-08** [`reference_u_wire_fluid_pumps_2026_05_20.md`](reference/reference_u_wire_fluid_pumps_2026_05_20.md) — U-WIRE-FLUID-PUMPS-5 — kilo /loop iter 1 (2026-05-20)
+- **2026-06-08** [`reference_u_vault01_knowledge_vault_schema.md`](reference/reference_u_vault01_knowledge_vault_schema.md) — U-VAULT01 — Knowledge Vault Schema
+- **2026-06-08** [`reference_u_viz_ghost_wire_validate_2026_05_21.md`](reference/reference_u_viz_ghost_wire_validate_2026_05_21.md) — reference_u_viz_ghost_wire_validate_2026_05_21.md
+- **2026-06-08** [`reference_u_viz_tribal_density_2026_05_21.md`](reference/reference_u_viz_tribal_density_2026_05_21.md) — reference_u_viz_tribal_density_2026_05_21.md
+- **2026-06-08** [`reference_u_wiki_tribal_audit_2026_05_21.md`](reference/reference_u_wiki_tribal_audit_2026_05_21.md) — reference_u_wiki_tribal_audit_2026_05_21.md
+- **2026-06-08** [`reference_u_swarm_launcher_spec_2026_05_21.md`](reference/reference_u_swarm_launcher_spec_2026_05_21.md) — U-GOAL-SYNERGY-SWARM-LAUNCHER-SPEC — swarm-launcher design (iter 15)
+- **2026-06-08** [`reference_u_tdp08_paired_band_rc_2026_05_19.md`](reference/reference_u_tdp08_paired_band_rc_2026_05_19.md) — U-TDP08 — paired-tolerance-band + Rc hardness (slot mike, 2026-05-19, commit `cafd0871c1`)
+- **2026-06-08** [`reference_u_tdp09_quad_2026_05_19.md`](reference/reference_u_tdp09_quad_2026_05_19.md) — U-TDP09 quad — all 4 deferred candidates shipped (slot mike, 2026-05-19)
+- **2026-06-08** [`reference_u_tdp10_corpus_driven_2026_05_19.md`](reference/reference_u_tdp10_corpus_driven_2026_05_19.md) — U-TDP10 quintet — corpus-driven print-reader accuracy (slot mike, 2026-05-19)
+- **2026-06-08** [`reference_u_tribal_to_wiki_promote_2026_05_20.md`](reference/reference_u_tribal_to_wiki_promote_2026_05_20.md) — reference_u_tribal_to_wiki_promote_2026_05_20.md
+- **2026-06-08** [`reference_u_stop_hook_aggregator_2026_05_20.md`](reference/reference_u_stop_hook_aggregator_2026_05_20.md) — reference_u_stop_hook_aggregator_2026_05_20.md
+- **2026-06-08** [`reference_u_substrate_meta_roost_2026_05_21.md`](reference/reference_u_substrate_meta_roost_2026_05_21.md) — U-GOAL-SYNERGY-META-ROOST-VIZ — system-viz meta-roost (iter 12)
+- **2026-06-08** [`reference_u_sfm81_joint_optimize_2026_05_26.md`](reference/reference_u_sfm81_joint_optimize_2026_05_26.md) — U-SFM81-JOINT-OPTIMIZE — joint speed-feed max-MRR solver (2026-05-26, slot:tango /goal /loop iter1)
+- **2026-06-08** [`reference_u_slot_task_claim_drift_2026_05_20.md`](reference/reference_u_slot_task_claim_drift_2026_05_20.md) — reference_u_slot_task_claim_drift_2026_05_20.md
+- **2026-06-08** [`reference_u_rag_psn_os_wire_2026_05_23.md`](reference/reference_u_rag_psn_os_wire_2026_05_23.md) — U-RAG-PSN-OS-WIRE — RAG synergized with PSN leg #2 (2026-05-23, golf)
+- **2026-06-08** [`reference_u_regen_viz_merge_faillod_2026_05_17.md`](reference/reference_u_regen_viz_merge_faillod_2026_05_17.md) — reference_u_regen_viz_merge_faillod_2026_05_17.md
+- **2026-06-08** [`reference_u_rag_5_eval_harness_2026_05_22.md`](reference/reference_u_rag_5_eval_harness_2026_05_22.md) — U-RAG-5 — retrieval eval harness (DONE)
+- **2026-06-08** [`reference_u_rag_6_gpu_embedder_deferred_2026_05_22.md`](reference/reference_u_rag_6_gpu_embedder_deferred_2026_05_22.md) — U-RAG-6 — GPU embedder migration (DEFERRED)
+- **2026-06-08** [`reference_u_rag_psn_ai_wire_2026_05_22.md`](reference/reference_u_rag_psn_ai_wire_2026_05_22.md) — U-RAG-PSN-AI-WIRE — RAG synergized with PSN leg #11 (2026-05-22, golf, post-/compact)
+- **2026-06-08** [`reference_u_rag_3_wiki_absorption_2026_05_22.md`](reference/reference_u_rag_3_wiki_absorption_2026_05_22.md) — U-RAG-3 — wiki entry peer-absorption (2026-05-22, golf)
+- **2026-06-08** [`reference_u_rag_4_synergy_wiring_2026_05_22.md`](reference/reference_u_rag_4_synergy_wiring_2026_05_22.md) — U-RAG-4 — edge-ordering + milestone synergy wiring
+- **2026-06-08** [`reference_u_rag_2_two_stage_rerank_2026_05_22.md`](reference/reference_u_rag_2_two_stage_rerank_2026_05_22.md) — U-RAG-2 — two-stage lexical rerank in all 4 inject hooks (2026-05-22)
+- **2026-06-08** [`reference_u_rag_3_batch_context_plumbing_2026_05_22.md`](reference/reference_u_rag_3_batch_context_plumbing_2026_05_22.md) — U-RAG-3-BATCH-CONTEXT-PLUMBING — batch driver now supports --with-context
+- **2026-06-08** [`reference_u_rag_3_contextual_retrieval_2026_05_22.md`](reference/reference_u_rag_3_contextual_retrieval_2026_05_22.md) — U-RAG-3 — Contextual Retrieval (PENDING)
+- **2026-06-08** [`reference_u_prism_ai_memo_xref_producer_2026_05_21.md`](reference/reference_u_prism_ai_memo_xref_producer_2026_05_21.md) — U-GOAL-SYNERGY-AI-MEMO-XREF-PRODUCER — substrate-13 producer
+- **2026-06-08** [`reference_u_psn_aliases_frontmatter_2026_05_23.md`](reference/reference_u_psn_aliases_frontmatter_2026_05_23.md) — reference_u_psn_aliases_frontmatter_2026_05_23.md
+- **2026-06-08** [`reference_u_psn_unlinked_mentions_misattribution_2026_05_23.md`](reference/reference_u_psn_unlinked_mentions_misattribution_2026_05_23.md) — reference_u_psn_unlinked_mentions_misattribution_2026_05_23.md
+- **2026-06-08** [`reference_u_pq_embedded_uid_2026_05_20.md`](reference/reference_u_pq_embedded_uid_2026_05_20.md) — reference_u_pq_embedded_uid_2026_05_20.md
+- **2026-06-08** [`reference_u_precommit_pathspec_only_closeout_2026_05_20.md`](reference/reference_u_precommit_pathspec_only_closeout_2026_05_20.md) — reference_u_precommit_pathspec_only_closeout_2026_05_20.md
+- **2026-06-08** [`reference_u_prism_ai_memo_consumer_2026_05_21.md`](reference/reference_u_prism_ai_memo_consumer_2026_05_21.md) — U-GOAL-SYNERGY-AI-MEMO-CONSUMER — substrate-3 consumer (iter 14)
+- **2026-06-08** [`reference_u_ppl_d5_bridge_shipped.md`](reference/reference_u_ppl_d5_bridge_shipped.md) — U-PPL-D5-BRIDGE — McxProgramParser → ProgramEquivalentIndex bridge
+- **2026-06-08** [`reference_u_ppl_d4_ext_cad_archive_join_augmenter.md`](reference/reference_u_ppl_d4_ext_cad_archive_join_augmenter.md) — U-PPL-D4-EXT — CADArchiveJoinAugmenterEngine
+- **2026-06-08** [`reference_u_ppl_d4_program_equivalent_index.md`](reference/reference_u_ppl_d4_program_equivalent_index.md) — U-PPL-D4 — ProgramEquivalentIndexEngine
+- **2026-06-08** [`reference_u_ppl_d5_already_built.md`](reference/reference_u_ppl_d5_already_built.md) — U-PPL-D5 — Mastercam .mcx-8 parser is ALREADY BUILT (honest-scoping catch)
+- **2026-06-08** [`reference_u_ppl_d2_print_pointer_fields.md`](reference/reference_u_ppl_d2_print_pointer_fields.md) — U-PPL-D2 — Print-Pointer Fields + Auto-Link Orchestration
+- **2026-06-08** [`reference_u_ppl_d3_archive_to_parts_catalog.md`](reference/reference_u_ppl_d3_archive_to_parts_catalog.md) — U-PPL-D3 — ArchiveToPartsCatalogIngesterEngine
+- **2026-06-08** [`reference_u_ppl_d1_program_print_link_index.md`](reference/reference_u_ppl_d1_program_print_link_index.md) — U-PPL-D1 — Program/Print Link Index Engine
+- **2026-06-08** [`reference_u_ppl_a1_b1_shipped_2026_05_16.md`](reference/reference_u_ppl_a1_b1_shipped_2026_05_16.md) — U-PPL-A1 + U-PPL-B1 — MS-PRINT-PROGRAM-LOOP, slot foxtrot 2026-05-16
+- **2026-06-08** [`reference_u_ppl_c2_customer_material_map.md`](reference/reference_u_ppl_c2_customer_material_map.md) — U-PPL-C2 — CustomerMaterialMapEngine
+- **2026-06-08** [`reference_u_p0_u02_recovery_2026_05_18.md`](reference/reference_u_p0_u02_recovery_2026_05_18.md) — U-P0-U02 recovery — Ollama model-resolve (2026-05-18 charlie)
+- **2026-06-08** [`reference_u_pb_corpus_drift_hook_2026_05_23.md`](reference/reference_u_pb_corpus_drift_hook_2026_05_23.md) — reference_u_pb_corpus_drift_hook_2026_05_23.md
+- **2026-06-08** [`reference_u_oe_docker_compose_2026_05_18.md`](reference/reference_u_oe_docker_compose_2026_05_18.md) — U-OE-DOCKER-COMPOSE — ollama-bridge deployment topology (2026-05-18 echo)
+- **2026-06-08** [`reference_u_offload_ratelimit_hint_2026_05_18.md`](reference/reference_u_offload_ratelimit_hint_2026_05_18.md) — U-OFFLOAD-RATELIMIT-HINT (2026-05-18 charlie)
+- **2026-06-08** [`reference_u_orphan_rescue_stripe_2026_05_20.md`](reference/reference_u_orphan_rescue_stripe_2026_05_20.md) — reference_u_orphan_rescue_stripe_2026_05_20.md
+- **2026-06-08** [`reference_u_nng_pipeline_stratified_wire_2026_05_17.md`](reference/reference_u_nng_pipeline_stratified_wire_2026_05_17.md) — NN-GRAPH-MS1 / U-NNG-PIPELINE-STRATIFIED-WIRE (2026-05-17, slot alpha)
+- **2026-06-08** [`reference_u_nn_graph_health_2026_05_21.md`](reference/reference_u_nn_graph_health_2026_05_21.md) — U-GOAL-SYNERGY-NN-GRAPH-HEALTH — neural-network/gnn substrate consumer (iter 18)
+- **2026-06-08** [`reference_u_oe_bridge_l2b_2026_05_18.md`](reference/reference_u_oe_bridge_l2b_2026_05_18.md) — reference_u_oe_bridge_l2b_2026_05_18.md
+- **2026-06-08** [`reference_u_monolith_workholding_loader_2026_05_26.md`](reference/reference_u_monolith_workholding_loader_2026_05_26.md) — U-DB-MONOLITH-WORKHOLDING-LOADER — monolith → typed engine + bridge wire (juliett, 2026-05-26)
+- **2026-06-08** [`reference_u_ms1_u2_pdf_blueprint_pattern_rescue.md`](reference/reference_u_ms1_u2_pdf_blueprint_pattern_rescue.md) — reference_u_ms1_u2_pdf_blueprint_pattern_rescue.md
+- **2026-06-08** [`reference_u_ms1_u5_blueprint_coverage_floor_guard.md`](reference/reference_u_ms1_u5_blueprint_coverage_floor_guard.md) — reference_u_ms1_u5_blueprint_coverage_floor_guard.md
+- **2026-06-08** [`reference_u_meta_roost_integrate_2026_05_21.md`](reference/reference_u_meta_roost_integrate_2026_05_21.md) — U-GOAL-SYNERGY-META-ROOST-INTEGRATE — meta-roost compound payoff (iter 17)
+- **2026-06-08** [`reference_u_memory_index_search_2026_05_20.md`](reference/reference_u_memory_index_search_2026_05_20.md) — reference_u_memory_index_search_2026_05_20.md
+- **2026-06-08** [`reference_u_memory_index_sidecar_2026_05_20.md`](reference/reference_u_memory_index_sidecar_2026_05_20.md) — reference_u_memory_index_sidecar_2026_05_20.md
+- **2026-06-08** [`reference_u_memory_index_audit_2026_05_21.md`](reference/reference_u_memory_index_audit_2026_05_21.md) — U-GOAL-SYNERGY-MEMORY-INDEX-AUDIT — memories-substrate hygiene (iter 19)
+- **2026-06-08** [`reference_u_memory_compress_v2_2026_05_19.md`](reference/reference_u_memory_compress_v2_2026_05_19.md) — reference_u_memory_compress_v2_2026_05_19.md
+- **2026-06-08** [`reference_u_link_audit_viz_roost_2026_05_21.md`](reference/reference_u_link_audit_viz_roost_2026_05_21.md) — reference_u_link_audit_viz_roost_2026_05_21.md
+- **2026-06-08** [`reference_u_mcx_metadata_wire_2026_05_23.md`](reference/reference_u_mcx_metadata_wire_2026_05_23.md) — reference_u_mcx_metadata_wire_2026_05_23.md
+- **2026-06-08** [`reference_u_lima_a7_calibration_2026_05_20.md`](reference/reference_u_lima_a7_calibration_2026_05_20.md) — U-LIMA-A7 U-CALIBRATION — RGS confidence calibration adapter
+- **2026-06-08** [`reference_u_lima_a8_transfer_priors_2026_05_21.md`](reference/reference_u_lima_a8_transfer_priors_2026_05_21.md) — U-LIMA-A8 U-TRANSFER-PRIORS — final LIMA-ROSTER unit
+- **2026-06-08** [`reference_u_knowledge_link_audit_wire_2026_05_20.md`](reference/reference_u_knowledge_link_audit_wire_2026_05_20.md) — reference_u_knowledge_link_audit_wire_2026_05_20.md
+- **2026-06-08** [`reference_u_lathe_prog_opt_wire_2026_05_18.md`](reference/reference_u_lathe_prog_opt_wire_2026_05_18.md) — reference_u_lathe_prog_opt_wire_2026_05_18.md
+- **2026-06-08** [`reference_u_fge01_geometry_evidence_2026_05_18.md`](reference/reference_u_fge01_geometry_evidence_2026_05_18.md) — reference_u_fge01_geometry_evidence_2026_05_18.md
+- **2026-06-08** [`reference_u_knowledge_link_audit_consumer_2026_05_21.md`](reference/reference_u_knowledge_link_audit_consumer_2026_05_21.md) — reference_u_knowledge_link_audit_consumer_2026_05_21.md
+- **2026-06-08** [`reference_u_dhb_milestone_complete_2026_05_22.md`](reference/reference_u_dhb_milestone_complete_2026_05_22.md) — U-DOCKER-HOOK-BROKER milestone — COMPLETE (2026-05-22, hotel post-compact)
+- **2026-06-08** [`reference_u_dhb_p1_hook_broker_classifier_2026_05_22.md`](reference/reference_u_dhb_p1_hook_broker_classifier_2026_05_22.md) — U-DOCKER-HOOK-BROKER-P1 — hook-broker compat classifier (2026-05-22, hotel)
+- **2026-06-08** [`reference_u_dispatcher_2026_05_16.md`](reference/reference_u_dispatcher_2026_05_16.md) — reference_u_dispatcher_2026_05_16.md
+- **2026-06-08** [`reference_u_docu_05_jm_die_back_annotation.md`](reference/reference_u_docu_05_jm_die_back_annotation.md) — U-DOCU-05 — JM-Die Archive Back-Annotation Engine
+- **2026-06-08** [`reference_u_domain_rules_2026_05_16.md`](reference/reference_u_domain_rules_2026_05_16.md) — reference_u_domain_rules_2026_05_16.md
+- **2026-06-08** [`reference_u_feedback_forcing_2026_05_17.md`](reference/reference_u_feedback_forcing_2026_05_17.md) — reference_u_feedback_forcing_2026_05_17.md
+- **2026-06-08** [`reference_u_cw_01_false_positive_2026_05_20.md`](reference/reference_u_cw_01_false_positive_2026_05_20.md) — reference_u_cw_01_false_positive_2026_05_20.md
+- **2026-06-08** [`reference_u_db_bridge_01_2026_05_26.md`](reference/reference_u_db_bridge_01_2026_05_26.md) — U-DB-BRIDGE-01 — QdrantMemoryVectorBridgeEngine (juliett, 2026-05-26)
+- **2026-06-08** [`reference_u_db_bridge_03_ext_2026_05_26.md`](reference/reference_u_db_bridge_03_ext_2026_05_26.md) — U-DB-BRIDGE-03-EXT — CatalogUnifiedQuery +holders +workholding (juliett, 2026-05-26)
+- **2026-06-08** [`reference_u_db_monolith_unified_query_2026_05_27.md`](reference/reference_u_db_monolith_unified_query_2026_05_27.md) — JULIETT-DB-BRIDGE-MS0/U-DB-MONOLITH-UNIFIED-QUERY (2026-05-27, slot juliett)
+- **2026-06-08** [`reference_u_coord08_harden_ship.md`](reference/reference_u_coord08_harden_ship.md) — U-COORD08-HARDEN — atomic broadcast-channel trim + setMaxListeners
+- **2026-06-08** [`reference_u_coord11_ipc.md`](reference/reference_u_coord11_ipc.md) — U-COORD11 — IPC for Hook Queries
+- **2026-06-08** [`reference_u_css_chipload_complete_2026_05_20.md`](reference/reference_u_css_chipload_complete_2026_05_20.md) — reference_u_css_chipload_complete_2026_05_20.md
+- **2026-06-08** [`reference_u_coord02_optimistic_locking_2026_05_16.md`](reference/reference_u_coord02_optimistic_locking_2026_05_16.md) — U-COORD02 — Optimistic Locking with Version Field
+- **2026-06-08** [`reference_u_coord05_hook_wiring.md`](reference/reference_u_coord05_hook_wiring.md) — U-COORD05 — Wire Orchestrator to Hook System (shipped)
+- **2026-06-08** [`reference_u_coord06_ship.md`](reference/reference_u_coord06_ship.md) — reference_u_coord06_ship.md
+- **2026-06-08** [`reference_u_ck01_ship.md`](reference/reference_u_ck01_ship.md) — Re-verify ship + close-out
+- **2026-06-08** [`reference_u_ck06_command_frontmatter_schema.md`](reference/reference_u_ck06_command_frontmatter_schema.md) — U-CK06 — Command Frontmatter Schema
+- **2026-06-08** [`reference_u_ck15_2026_05_19.md`](reference/reference_u_ck15_2026_05_19.md) — reference_u_ck15_2026_05_19.md
+- **2026-06-08** [`reference_u_cadc_lp01_durable_fix_2026_05_20.md`](reference/reference_u_cadc_lp01_durable_fix_2026_05_20.md) — U-CADC-LP01 — durable-channel P0 (2026-05-20, slot delta)
+- **2026-06-08** [`reference_u_camx22_fix_silent_skip_2026_05_18.md`](reference/reference_u_camx22_fix_silent_skip_2026_05_18.md) — reference_u_camx22_fix_silent_skip_2026_05_18.md
+- **2026-06-08** [`reference_u_camx23_2026_05_17.md`](reference/reference_u_camx23_2026_05_17.md) — reference_u_camx23_2026_05_17.md
+- **2026-06-08** [`reference_u_cinf04x_shipped.md`](reference/reference_u_cinf04x_shipped.md) — U-CINF04.x shipped — CADRegressionWorkerThreadRunnerEngine
+- **2026-06-08** [`reference_u_bridge_wire_agent_misattribution_2026_05_23.md`](reference/reference_u_bridge_wire_agent_misattribution_2026_05_23.md) — U-BRIDGE-WIRE-AGENT misattribution (mike → delta) — 2026-05-23
+- **2026-06-08** [`reference_u_bridge_wire_business_2026_05_20.md`](reference/reference_u_bridge_wire_business_2026_05_20.md) — U-BRIDGE-WIRE-BUSINESS + COST-CASCADE carryover (2026-05-20, slot hotel)
+- **2026-06-08** [`reference_u_bridge_wire_mastercam_2026_05_18.md`](reference/reference_u_bridge_wire_mastercam_2026_05_18.md) — U-BRIDGE-WIRE-MASTERCAM — MastercamCADFunctionIndexEngine wired (2026-05-18 echo)
+- **2026-06-08** [`reference_u_bridge_wire_mill_loop_2026_05_22.md`](reference/reference_u_bridge_wire_mill_loop_2026_05_22.md) — U-BRIDGE-WIRE-MILL — alpha /loop, 2026-05-22
+- **2026-06-08** [`reference_u_axis4_mill_adapter_2026_05_26.md`](reference/reference_u_axis4_mill_adapter_2026_05_26.md) — U-AXIS4-MILL-ADAPTER-BIND — DomainWizardPipelineTestEngine × MillingPrintToProgramEngine (2026-05-26, slot:tango /goal /
+- **2026-06-08** [`reference_u_bpa_consumer_2026_05_18.md`](reference/reference_u_bpa_consumer_2026_05_18.md) — reference_u_bpa_consumer_2026_05_18.md
+- **2026-06-08** [`reference_u_bridge_erp_quote_2026_05_20.md`](reference/reference_u_bridge_erp_quote_2026_05_20.md) — U-BRIDGE-ERP-QUOTE — generic quote→ERP-order bridge (2026-05-20, slot hotel)
+- **2026-06-08** [`reference_u_bridge_erp_sched_2026_05_20.md`](reference/reference_u_bridge_erp_sched_2026_05_20.md) — U-BRIDGE-ERP-SCHED — generic ERP WO→scheduling bridge (2026-05-20, slot hotel)
+- **2026-06-08** [`reference_u_bridge_wire_agent_absorbed_2026_05_23.md`](reference/reference_u_bridge_wire_agent_absorbed_2026_05_23.md) — U-BRIDGE-WIRE-AGENT absorbed into hotel peer commit (oscar 2026-05-23)
+- **2026-06-08** [`reference_u_axis2_numeric_dialect_2026_05_26.md`](reference/reference_u_axis2_numeric_dialect_2026_05_26.md) — U-AXIS2-NUMERIC-DIALECT — numeric-precision drift detector (2026-05-26, slot:tango /loop iter2)
+- **2026-06-08** [`reference_u_ai_memo_viz_roost_2026_05_21.md`](reference/reference_u_ai_memo_viz_roost_2026_05_21.md) — U-GOAL-SYNERGY-AI-MEMO-VIZ-ROOST — substrate-3 viz roost (iter 16)
+- **2026-06-08** [`reference_u_axis1_viz_closure_2026_05_26.md`](reference/reference_u_axis1_viz_closure_2026_05_26.md) — U-AXIS1-VIZ-CLOSURE — testing-infra ghost roost in /system-viz (2026-05-26, slot:tango)
+- **2026-06-08** [`reference_us_c25_electrode_cost_2026_05_22.md`](reference/reference_us_c25_electrode_cost_2026_05_22.md) — reference_us_c25_electrode_cost_2026_05_22.md
+- **2026-06-08** [`reference_u_aimax10_ship.md`](reference/reference_u_aimax10_ship.md) — U-AIMAX10 — 46 AI capability/resource/training actions wired to prism_ai
+- **2026-06-08** [`reference_u_aiw01_close_out_drift_2026_05_21.md`](reference/reference_u_aiw01_close_out_drift_2026_05_21.md) — U-AIW01 drift close-out (AI-WIRE-MS0) — 2026-05-21 lima iter 1
+- **2026-06-08** [`reference_us_c21_electrode_material_decision_2026_05_22.md`](reference/reference_us_c21_electrode_material_decision_2026_05_22.md) — reference_us_c21_electrode_material_decision_2026_05_22.md
+- **2026-06-08** [`reference_us_c22_electrode_pairing_2026_05_22.md`](reference/reference_us_c22_electrode_pairing_2026_05_22.md) — reference_us_c22_electrode_pairing_2026_05_22.md
+- **2026-06-08** [`reference_twid_resolver_cache_2026_05_15.md`](reference/reference_twid_resolver_cache_2026_05_15.md) — terminal-window-id.mjs resolver cache (shipped 2026-05-15, commit 5c4778b59)
+- **2026-06-08** [`reference_ultimatespeedfeed_calculate_slow_2026_06_01.md`](reference/reference_ultimatespeedfeed_calculate_slow_2026_06_01.md) — UltimateSpeedFeed.calculate is ~2.5s/call — memoize per-cell SFC sweeps (slot foxtrot, 2026-06-01)
+- **2026-06-08** [`reference_unblock_detect_2026_05_16.md`](reference/reference_unblock_detect_2026_05_16.md) — U-P5-MULTI-CHAT-UNBLOCK-DETECT — scripts/unblock-detect.mjs
+- **2026-06-08** [`reference_tribal_septet_capstone_2026_05_24.md`](reference/reference_tribal_septet_capstone_2026_05_24.md) — Tribal-corpus SEPTET + capstone — foxtrot iter44-iter52 (2026-05-24)
+- **2026-06-08** [`reference_turning_cascade_api_bug_2026_05_19.md`](reference/reference_turning_cascade_api_bug_2026_05_19.md) — reference_turning_cascade_api_bug_2026_05_19.md
+- **2026-06-08** [`reference_twid_cache_hit_autoupgrade_2026_05_15.md`](reference/reference_twid_cache_hit_autoupgrade_2026_05_15.md) — terminal-window-id cache-hit auto-upgrade probe (2026-05-15)
+- **2026-06-08** [`reference_tribal_domain_map_gap_2026_06_01.md`](reference/reference_tribal_domain_map_gap_2026_06_01.md) — reference_tribal_domain_map_gap_2026_06_01.md
+- **2026-06-08** [`reference_tribal_domain_map_premise_false_2026_06_01.md`](reference/reference_tribal_domain_map_premise_false_2026_06_01.md) — reference_tribal_domain_map_premise_false_2026_06_01.md
+- **2026-06-08** [`reference_tribal_embed_gap_2026_05_18.md`](reference/reference_tribal_embed_gap_2026_05_18.md) — reference_tribal_embed_gap_2026_05_18.md
+- **2026-06-08** [`reference_tribal_enrichment_engine_bug.md`](reference/reference_tribal_enrichment_engine_bug.md) — TribalEnrichmentCoordinatorEngine — pre-existing engine bugs surfaced by U-ORPHAN-RESCUE-TRIBAL-ENRICH
+- **2026-06-08** [`reference_tribal_graph_ms0_content_mine.md`](reference/reference_tribal_graph_ms0_content_mine.md) — TRIBAL-GRAPH-MS0 / U-CONTENT-MINE (iter 7) — shipped 2026-05-16
+- **2026-06-08** [`reference_tribal_index_keyscheme_clobber_2026_05_22.md`](reference/reference_tribal_index_keyscheme_clobber_2026_05_22.md) — tribal-embed-index.json — U-RAG-1 was a measurement bug, not a structural block (2026-05-22)
+- **2026-06-08** [`reference_training_learning_ms0_u1_collision.md`](reference/reference_training_learning_ms0_u1_collision.md) — reference_training_learning_ms0_u1_collision.md
+- **2026-06-08** [`reference_tribal_by_domain_inject.md`](reference/reference_tribal_by_domain_inject.md) — tribal-by-domain-inject — domain-aware tribal precontext on every prompt
+- **2026-06-08** [`reference_tribal_coverage_audit_2026_05_18.md`](reference/reference_tribal_coverage_audit_2026_05_18.md) — Tribal coverage audit — first run, 2026-05-18
+- **2026-06-08** [`reference_tool_catalog_ingest_ms0_2026_05_24.md`](reference/reference_tool_catalog_ingest_ms0_2026_05_24.md) — TOOL-CATALOG-INGEST-MS0 — Phase A complete, B-F open for pickup
+- **2026-06-08** [`reference_topology_math_cad_cam_research_2026_05_22.md`](reference/reference_topology_math_cad_cam_research_2026_05_22.md) — Topology math → PRISM CAD/CAM/CNC applicability (2026-05-22, slot november)
+- **2026-06-08** [`reference_trainer_export_regression_2026_05_23.md`](reference/reference_trainer_export_regression_2026_05_23.md) — Trainer-export regression — `graphsage-trainer.mjs` missing exports (2026-05-23, slot golf)
+- **2026-06-08** [`reference_tool_catalog_ingest_iter20_21_2026_05_24.md`](reference/reference_tool_catalog_ingest_iter20_21_2026_05_24.md) — TOOL-CATALOG-INGEST-MS0 — iter20-21 session (2026-05-24 juliett)
+- **2026-06-08** [`reference_tool_catalog_ingest_iter20_24_rollup_2026_05_24.md`](reference/reference_tool_catalog_ingest_iter20_24_rollup_2026_05_24.md) — TOOL-CATALOG-INGEST-MS0 — iter20-24 ROLLUP (2026-05-24 juliett)
+- **2026-06-08** [`reference_token_savings_iter22_misattribution_2026_05_22.md`](reference/reference_token_savings_iter22_misattribution_2026_05_22.md) — TOKEN-SAVINGS-PIVOT iter22 misattribution — 2026-05-22, slot:alpha
+- **2026-06-08** [`reference_token_savings_pivot_2026_05_22.md`](reference/reference_token_savings_pivot_2026_05_22.md) — TOKEN-SAVINGS-PIVOT — 2026-05-22, slot alpha
+- **2026-06-08** [`reference_tool_catalog_ingest_iter16_19_2026_05_24.md`](reference/reference_tool_catalog_ingest_iter16_19_2026_05_24.md) — TOOL-CATALOG-INGEST-MS0 — iter16-19 session (2026-05-24 juliett)
+- **2026-06-08** [`reference_token_budget_telemetry.md`](reference/reference_token_budget_telemetry.md) — token-budget-telemetry — fleet-wide token-pressure observability
+- **2026-06-08** [`reference_token_efficiency_playbook_2026_05_18.md`](reference/reference_token_efficiency_playbook_2026_05_18.md) — reference_token_efficiency_playbook_2026_05_18.md
+- **2026-06-08** [`reference_this_pc_onedrive_desktop_2026_05_28.md`](reference/reference_this_pc_onedrive_desktop_2026_05_28.md) — DESKTOP-N7MI1VB — hardware spec + OneDrive Desktop redirect + PRISM Fleet launcher layout
+- **2026-06-08** [`reference_tmp_orphan_leak_janitor_2026_05_30.md`](reference/reference_tmp_orphan_leak_janitor_2026_05_30.md) — reference_tmp_orphan_leak_janitor_2026_05_30.md
+- **2026-06-08** [`reference_token_awareness_ms0_2026_05_20.md`](reference/reference_token_awareness_ms0_2026_05_20.md) — TOKEN-AWARENESS-MS0 (2026-05-20, 12 units)
+- **2026-06-08** [`reference_tango_stale_slot_worktree_2026_05_29.md`](reference/reference_tango_stale_slot_worktree_2026_05_29.md) — reference_tango_stale_slot_worktree_2026_05_29.md
+- **2026-06-08** [`reference_tango_tribal_capture_fallback_2026_05_29.md`](reference/reference_tango_tribal_capture_fallback_2026_05_29.md) — reference_tango_tribal_capture_fallback_2026_05_29.md
+- **2026-06-08** [`reference_tapping_feed_pitch_locked_2026_06_01.md`](reference/reference_tapping_feed_pitch_locked_2026_06_01.md) — Tapping feed is pitch-locked, not chip-load (slot foxtrot, 2026-06-01)
+- **2026-06-08** [`reference_task_freshness_gate_ms0_2026_05_18.md`](reference/reference_task_freshness_gate_ms0_2026_05_18.md) — reference_task_freshness_gate_ms0_2026_05_18.md
+- **2026-06-08** [`reference_tango_heterophily_aggregator_2026_05_29.md`](reference/reference_tango_heterophily_aggregator_2026_05_29.md) — reference_tango_heterophily_aggregator_2026_05_29.md
+- **2026-06-08** [`reference_tango_lowrank_svd_2026_05_29.md`](reference/reference_tango_lowrank_svd_2026_05_29.md) — reference_tango_lowrank_svd_2026_05_29.md
+- **2026-06-08** [`reference_tango_mcp_down_fallbacks_2026_05_29.md`](reference/reference_tango_mcp_down_fallbacks_2026_05_29.md) — reference_tango_mcp_down_fallbacks_2026_05_29.md
+- **2026-06-08** [`reference_tango_ml_dispatcher_wire_2026_05_29.md`](reference/reference_tango_ml_dispatcher_wire_2026_05_29.md) — reference_tango_ml_dispatcher_wire_2026_05_29.md
+- **2026-06-08** [`reference_tango_discovery_engine_map_2026_05_29.md`](reference/reference_tango_discovery_engine_map_2026_05_29.md) — reference_tango_discovery_engine_map_2026_05_29.md
+- **2026-06-08** [`reference_tango_galaxy_buildout_2026_05_29.md`](reference/reference_tango_galaxy_buildout_2026_05_29.md) — reference_tango_galaxy_buildout_2026_05_29.md
+- **2026-06-08** [`reference_tango_algo_synergy_batch_2026_05_29.md`](reference/reference_tango_algo_synergy_batch_2026_05_29.md) — reference_tango_algo_synergy_batch_2026_05_29.md
+- **2026-06-08** [`reference_tango_attention_algorithm_2026_05_29.md`](reference/reference_tango_attention_algorithm_2026_05_29.md) — reference_tango_attention_algorithm_2026_05_29.md
+- **2026-06-08** [`reference_tango_audit_surfaces_2026_05_29.md`](reference/reference_tango_audit_surfaces_2026_05_29.md) — reference_tango_audit_surfaces_2026_05_29.md
+- **2026-06-08** [`reference_system_viz_fs_coverage_ms0_phase23.md`](reference/reference_system_viz_fs_coverage_ms0_phase23.md) — reference_system_viz_fs_coverage_ms0_phase23.md
+- **2026-06-08** [`reference_system_viz_fs_coverage_ms1_2026_05_16.md`](reference/reference_system_viz_fs_coverage_ms1_2026_05_16.md) — reference_system_viz_fs_coverage_ms1_2026_05_16.md
+- **2026-06-08** [`reference_system_viz_type_backfill_2026_05_20.md`](reference/reference_system_viz_type_backfill_2026_05_20.md) — reference_system_viz_type_backfill_2026_05_20.md
+- **2026-06-08** [`reference_system_viz_dsl_ms0_2026_05_16.md`](reference/reference_system_viz_dsl_ms0_2026_05_16.md) — reference_system_viz_dsl_ms0_2026_05_16.md
+- **2026-06-08** [`reference_system_viz_fs_coverage_ms0.md`](reference/reference_system_viz_fs_coverage_ms0.md) — reference_system_viz_fs_coverage_ms0.md
+- **2026-06-08** [`reference_system_viz_closeout_2026_05_22.md`](reference/reference_system_viz_closeout_2026_05_22.md) — reference_system_viz_closeout_2026_05_22.md
+- **2026-06-08** [`reference_system_viz_dead_pixel_sweep_2026_05_20.md`](reference/reference_system_viz_dead_pixel_sweep_2026_05_20.md) — reference_system_viz_dead_pixel_sweep_2026_05_20.md
+- **2026-06-08** [`reference_synergy_precompact_loop_state_2026_05_20.md`](reference/reference_synergy_precompact_loop_state_2026_05_20.md) — synergy-precompact-loop-state — RESUME line leads with /loop state
+- **2026-06-08** [`reference_synergy_regression_watch_2026_05_16.md`](reference/reference_synergy_regression_watch_2026_05_16.md) — synergy-regression-watch.mjs — `/forge-audit-v2` META artifact
+- **2026-06-08** [`reference_subagent_psn_substrate_upgrade_2026_05_24.md`](reference/reference_subagent_psn_substrate_upgrade_2026_05_24.md) — Subagent PSN-substrate upgrade (2026-05-24, slot:alpha)
+- **2026-06-08** [`reference_substrate_health_inject_2026_05_19.md`](reference/reference_substrate_health_inject_2026_05_19.md) — substrate-health-inject — SessionStart drift digest
+- **2026-06-08** [`reference_subagent_per_task_presearch_2026_05_15.md`](reference/reference_subagent_per_task_presearch_2026_05_15.md) — Per-subagent master-index + tribal pre-search (2026-05-15)
+- **2026-06-08** [`reference_stop_advisory_wiring_cluster_2026_05_15.md`](reference/reference_stop_advisory_wiring_cluster_2026_05_15.md) — Stop advisory wiring cluster (2026-05-15)
+- **2026-06-08** [`reference_stop_unwired_assets_false_positive_2026_05_23.md`](reference/reference_stop_unwired_assets_false_positive_2026_05_23.md) — False positive: stop_on_unwired_assets reports handled actions as UNHANDLED (2026-05-23)
+- **2026-06-08** [`reference_source_chain_engine_u_hagi08_2026_05_24.md`](reference/reference_source_chain_engine_u_hagi08_2026_05_24.md) — U-HAGI08 SourceChainEngine — BUILT, TESTED, WIRED (2026-05-24, slot bravo)
+- **2026-06-08** [`reference_stale_unwired_inventory_2026_05_26.md`](reference/reference_stale_unwired_inventory_2026_05_26.md) — Stale .wire-unwired-loop-*.json inventory (2026-05-26, slot:victor)
+- **2026-06-08** [`reference_statusline_tdz_regression_2026_05_29.md`](reference/reference_statusline_tdz_regression_2026_05_29.md) — reference_statusline_tdz_regression_2026_05_29.md
+- **2026-06-08** [`reference_step_assembly_extract_2026_05_26.md`](reference/reference_step_assembly_extract_2026_05_26.md) — STEP assembly extractor — 234/234 zero-failure run (slot:delta 2026-05-26 /loop iter1 /goal /yolo-mode)
+- **2026-06-08** [`reference_slot_worktree_ms0_p3_cutover_complete.md`](reference/reference_slot_worktree_ms0_p3_cutover_complete.md) — SLOT-WORKTREE-MS0/P3-CUTOVER complete (2026-05-15, slot charlie)
+- **2026-06-08** [`reference_slot_worktree_ms0_phase0_rescue.md`](reference/reference_slot_worktree_ms0_phase0_rescue.md) — SLOT-WORKTREE-MS0/U-PHASE0 — orphan-rescue shipped 2026-05-14
+- **2026-06-08** [`reference_solidworks_local_install_2026_05_27.md`](reference/reference_solidworks_local_install_2026_05_27.md) — Local CAD seats available on THIS workstation (2026-05-27)
+- **2026-06-08** [`reference_slot_synergy_map_ms0_2026_05_19.md`](reference/reference_slot_synergy_map_ms0_2026_05_19.md) — reference_slot_synergy_map_ms0_2026_05_19.md
+- **2026-06-08** [`reference_slot_worktree_activation_2026_05_16.md`](reference/reference_slot_worktree_activation_2026_05_16.md) — Slot-worktree fleet activation (2026-05-16, slot alpha claude-339c8ff7)
+- **2026-06-08** [`reference_slot_worktree_command_gap_2026_05_29.md`](reference/reference_slot_worktree_command_gap_2026_05_29.md) — reference_slot_worktree_command_gap_2026_05_29.md
+- **2026-06-08** [`reference_slot_worktree_ms0_p1_routing_complete.md`](reference/reference_slot_worktree_ms0_p1_routing_complete.md) — reference_slot_worktree_ms0_p1_routing_complete.md
+- **2026-06-08** [`reference_slot_queue_and_commit_tree_doctrine_2026_05_18.md`](reference/reference_slot_queue_and_commit_tree_doctrine_2026_05_18.md) — Doctrine — each chat slot owns its task queue AND its commit tree
+- **2026-06-08** [`reference_slot_reclaim_2026_05_19.md`](reference/reference_slot_reclaim_2026_05_19.md) — reference_slot_reclaim_2026_05_19.md
+- **2026-06-08** [`reference_slot_force_fix_2026_05_16.md`](reference/reference_slot_force_fix_2026_05_16.md) — reference_slot_force_fix_2026_05_16.md
+- **2026-06-08** [`reference_slot_golf_destructive_reset_2026_05_20.md`](reference/reference_slot_golf_destructive_reset_2026_05_20.md) — reference_slot_golf_destructive_reset_2026_05_20.md
+- **2026-06-08** [`reference_slot_identity_cache_2026_05_17.md`](reference/reference_slot_identity_cache_2026_05_17.md) — Sticky chatId→slot cache — closes /compact slot-drift class (2026-05-17, slot bravo claude-339c8ff7)
+- **2026-06-08** [`reference_slot_id_alpha_delta_discrepancy_2026_06_01.md`](reference/reference_slot_id_alpha_delta_discrepancy_2026_06_01.md) — reference_slot_id_alpha_delta_discrepancy_2026_06_01.md
+- **2026-06-08** [`reference_slot_commit_worktree_enforce_2026_05_24.md`](reference/reference_slot_commit_worktree_enforce_2026_05_24.md) — slot-commit-worktree-enforce — HARD enforcement that slot chats commit from their NATO-named worktree (2026-05-24, slot 
+- **2026-06-08** [`reference_slot_cutover_sync_2026_06_04.md`](reference/reference_slot_cutover_sync_2026_06_04.md) — reference_slot_cutover_sync_2026_06_04.md
+- **2026-06-08** [`reference_slot_drift_worktree_transcript_2026_05_30.md`](reference/reference_slot_drift_worktree_transcript_2026_05_30.md) — reference_slot_drift_worktree_transcript_2026_05_30.md
+- **2026-06-08** [`reference_slot_bridge_ms0_2026_05_26.md`](reference/reference_slot_bridge_ms0_2026_05_26.md) — SLOT-BRIDGE-MS0 — auto-seed slot-branch binding on first claim
+- **2026-06-08** [`reference_slot_brief_channel_2026_06_02.md`](reference/reference_slot_brief_channel_2026_06_02.md) — reference_slot_brief_channel_2026_06_02.md
+- **2026-06-08** [`reference_slimresponse_strips_empty_arrays.md`](reference/reference_slimresponse_strips_empty_arrays.md) — slimResponse strips empty arrays at MCP transport
+- **2026-06-08** [`reference_slim_response_strips_empty_arrays_2026_05_26.md`](reference/reference_slim_response_strips_empty_arrays_2026_05_26.md) — slimResponse strips empty arrays — gotcha for dispatcher tests
+- **2026-06-08** [`reference_slot_bind_enforce_2026_05_18.md`](reference/reference_slot_bind_enforce_2026_05_18.md) — reference_slot_bind_enforce_2026_05_18.md
+- **2026-06-08** [`reference_skill_trigger_revive_fix1_deferred_2026_05_20.md`](reference/reference_skill_trigger_revive_fix1_deferred_2026_05_20.md) — U-SKILL-LEDGER-REVIVE-FIX1 — deferred (2026-05-20 kilo iter 4)
+- **2026-06-08** [`reference_slash_cmd_fidelity_ms0_2026_05_16.md`](reference/reference_slash_cmd_fidelity_ms0_2026_05_16.md) — reference_slash_cmd_fidelity_ms0_2026_05_16.md
+- **2026-06-08** [`reference_silent_close_out_drift_2026_05_17.md`](reference/reference_silent_close_out_drift_2026_05_17.md) — Silent Close-Out Drift Detector (2026-05-17, alpha /loop)
+- **2026-06-08** [`reference_skill_autoinvoke_coverage_audit_2026_05_19.md`](reference/reference_skill_autoinvoke_coverage_audit_2026_05_19.md) — reference_skill_autoinvoke_coverage_audit_2026_05_19.md
+- **2026-06-08** [`reference_skill_tier_wire_pattern.md`](reference/reference_skill_tier_wire_pattern.md) — SkillTierRegistryEngine wire — canonical orphan-rescue pattern
+- **2026-06-08** [`reference_skill_trigger_ledger_revive_2026_05_20.md`](reference/reference_skill_trigger_ledger_revive_2026_05_20.md) — SKILL-TRIGGER-LEDGER-REVIVE — kilo /loop iter 3 (2026-05-20)
+- **2026-06-08** [`reference_sierra_to_alpha_route_suggest_findings_2026_06_02.md`](reference/reference_sierra_to_alpha_route_suggest_findings_2026_06_02.md) — sierra → alpha: route-suggest / token-savings findings + non-dup seam (2026-06-02)
+- **2026-06-08** [`reference_sierra_viz_first_search.md`](reference/reference_sierra_viz_first_search.md) — reference_sierra_viz_first_search.md
+- **2026-06-08** [`reference_sierra_viz_query_subcommands.md`](reference/reference_sierra_viz_query_subcommands.md) — reference_sierra_viz_query_subcommands.md
+- **2026-06-08** [`reference_sierra_system_viz_brain_ms0_drift_audit_2026_06_03.md`](reference/reference_sierra_system_viz_brain_ms0_drift_audit_2026_06_03.md) — SYSTEM-VIZ-BRAIN-MS0 envelope drift — audit (sierra, 2026-06-03)
+- **2026-06-08** [`reference_sierra_three_graphs_consumer_map.md`](reference/reference_sierra_three_graphs_consumer_map.md) — reference_sierra_three_graphs_consumer_map.md
+- **2026-06-08** [`reference_sierra_token_savings_cag_2026_05_29.md`](reference/reference_sierra_token_savings_cag_2026_05_29.md) — reference_sierra_token_savings_cag_2026_05_29.md
+- **2026-06-08** [`reference_sierra_ranked_hybrid_n1_2026_05_29.md`](reference/reference_sierra_ranked_hybrid_n1_2026_05_29.md) — reference_sierra_ranked_hybrid_n1_2026_05_29.md
+- **2026-06-08** [`reference_sierra_regen_fast_registration_gap_2026_05_29.md`](reference/reference_sierra_regen_fast_registration_gap_2026_05_29.md) — reference_sierra_regen_fast_registration_gap_2026_05_29.md
+- **2026-06-08** [`reference_sierra_regen_pipeline_stages.md`](reference/reference_sierra_regen_pipeline_stages.md) — reference_sierra_regen_pipeline_stages.md
+- **2026-06-08** [`reference_sierra_split_out_file.md`](reference/reference_sierra_split_out_file.md) — reference_sierra_split_out_file.md
+- **2026-06-08** [`reference_sierra_system_viz_brain_assessment_2026_05_29.md`](reference/reference_sierra_system_viz_brain_assessment_2026_05_29.md) — reference_sierra_system_viz_brain_assessment_2026_05_29.md
+- **2026-06-08** [`reference_sierra_notecount_bridge_plan_2026_06_02.md`](reference/reference_sierra_notecount_bridge_plan_2026_06_02.md) — sierra noteCount-bridge plan — RESOLVED 2026-06-02
+- **2026-06-08** [`reference_sierra_obsidian_bridge_stringcap_2026_05_31.md`](reference/reference_sierra_obsidian_bridge_stringcap_2026_05_31.md) — reference_sierra_obsidian_bridge_stringcap_2026_05_31.md
+- **2026-06-08** [`reference_sierra_obsidian_deeplink_2026_05_31.md`](reference/reference_sierra_obsidian_deeplink_2026_05_31.md) — reference_sierra_obsidian_deeplink_2026_05_31.md
+- **2026-06-08** [`reference_sierra_one_writer_per_path.md`](reference/reference_sierra_one_writer_per_path.md) — reference_sierra_one_writer_per_path.md
+- **2026-06-08** [`reference_sierra_psn_legs_for_system_viz.md`](reference/reference_sierra_psn_legs_for_system_viz.md) — reference_sierra_psn_legs_for_system_viz.md
+- **2026-06-08** [`reference_sierra_leverage_ranked_wiring_queue.md`](reference/reference_sierra_leverage_ranked_wiring_queue.md) — reference_sierra_leverage_ranked_wiring_queue.md
+- **2026-06-08** [`reference_sierra_masterindex_notecount_2026_06_02.md`](reference/reference_sierra_masterindex_notecount_2026_06_02.md) — sierra: noteCount on the master-index search substrate — SHIPPED 2026-06-02
+- **2026-06-08** [`reference_sierra_n2_wrong_substrate_2026_05_29.md`](reference/reference_sierra_n2_wrong_substrate_2026_05_29.md) — reference_sierra_n2_wrong_substrate_2026_05_29.md
+- **2026-06-08** [`reference_sierra_node_path_template_2026_06_03.md`](reference/reference_sierra_node_path_template_2026_06_03.md) — Node-path template + token-saving nav wiring (sierra, U-SV-NODE-PATH-TEMPLATE, 2026-06-03)
+- **2026-06-08** [`reference_sierra_node_vault_paths_2026_06_06.md`](reference/reference_sierra_node_vault_paths_2026_06_06.md) — Node→vault-paths hook wiring — slot:sierra, 2026-06-06 (U-SV-NODE-VAULT-PATHS)
+- **2026-06-08** [`reference_sierra_galaxy_buildout_2026_05_29.md`](reference/reference_sierra_galaxy_buildout_2026_05_29.md) — reference_sierra_galaxy_buildout_2026_05_29.md
+- **2026-06-08** [`reference_sierra_git_lock_discriminator_2026_06_01.md`](reference/reference_sierra_git_lock_discriminator_2026_06_01.md) — reference_sierra_git_lock_discriminator_2026_06_01.md
+- **2026-06-08** [`reference_sierra_graph_oom_classes.md`](reference/reference_sierra_graph_oom_classes.md) — reference_sierra_graph_oom_classes.md
+- **2026-06-08** [`reference_sierra_graph_writers_history.md`](reference/reference_sierra_graph_writers_history.md) — reference_sierra_graph_writers_history.md
+- **2026-06-08** [`reference_sierra_dead_edge_id_mismatch_2026_05_30.md`](reference/reference_sierra_dead_edge_id_mismatch_2026_05_30.md) — reference_sierra_dead_edge_id_mismatch_2026_05_30.md
+- **2026-06-08** [`reference_sierra_dispatcher_id_ssot.md`](reference/reference_sierra_dispatcher_id_ssot.md) — reference_sierra_dispatcher_id_ssot.md
+- **2026-06-08** [`reference_sierra_domain_gsd_2026_05_29.md`](reference/reference_sierra_domain_gsd_2026_05_29.md) — reference_sierra_domain_gsd_2026_05_29.md
+- **2026-06-08** [`reference_sierra_fast_splice_dual_registration.md`](reference/reference_sierra_fast_splice_dual_registration.md) — reference_sierra_fast_splice_dual_registration.md
+- **2026-06-08** [`reference_sierra_find_cache_cold_parse_2026_06_01.md`](reference/reference_sierra_find_cache_cold_parse_2026_06_01.md) — system-viz find-cache cold-parse hazard (sierra, 2026-06-01)
+- **2026-06-08** [`reference_shop_tool_library_bridge_design_2026_05_27.md`](reference/reference_shop_tool_library_bridge_design_2026_05_27.md) — Shop tool-library bridge design
+- **2026-06-08** [`reference_shared_tree_commit_sweep_2026_06_02.md`](reference/reference_shared_tree_commit_sweep_2026_06_02.md) — Shared H:/PRISM tree — concurrent-committer sweep + orphan hazard
+- **2026-06-08** [`reference_shared_tree_git_contention_plumbing_merge_2026_06_06.md`](reference/reference_shared_tree_git_contention_plumbing_merge_2026_06_06.md) — reference_shared_tree_git_contention_plumbing_merge_2026_06_06.md
+- **2026-06-08** [`reference_shared_tree_git_lock_contention_2026_06_02.md`](reference/reference_shared_tree_git_lock_contention_2026_06_02.md) — Shared-tree git index.lock contention (H:/prism, multi-peer)
+- **2026-06-08** [`reference_shared_tree_absorption_rate_2026_05_26.md`](reference/reference_shared_tree_absorption_rate_2026_05_26.md) — Shared-tree commit-absorption empirical rate (2026-05-26, slot quebec)
+- **2026-06-08** [`reference_sf_miner_misattribution_2026_05_21.md`](reference/reference_sf_miner_misattribution_2026_05_21.md) — SF-MINER wire — misattribution, 2026-05-21 juliett
+- **2026-06-08** [`reference_sf_studio_playwright_audit_2026_05_21.md`](reference/reference_sf_studio_playwright_audit_2026_05_21.md) — Speed-Feed Calculator Studio — Playwright audit, 2026-05-21 juliett
+- **2026-06-08** [`reference_shared_index_churn_split_commit_2026_06_02.md`](reference/reference_shared_index_churn_split_commit_2026_06_02.md) — reference_shared_index_churn_split_commit_2026_06_02.md
+- **2026-06-08** [`reference_shared_tree_absorption_2026_06_03.md`](reference/reference_shared_tree_absorption_2026_06_03.md) — reference_shared_tree_absorption_2026_06_03.md
+- **2026-06-08** [`reference_session_wire_orphans_tsc_drift_2026_06_02.md`](reference/reference_session_wire_orphans_tsc_drift_2026_06_02.md) — reference_session_wire_orphans_tsc_drift_2026_06_02.md
+- **2026-06-08** [`reference_sfc_inference_gate_wire_la1_2026_06_01.md`](reference/reference_sfc_inference_gate_wire_la1_2026_06_01.md) — reference_sfc_inference_gate_wire_la1_2026_06_01.md
+- **2026-06-08** [`reference_sfc_loop_feed_and_audit_blindspot_2026_06_01.md`](reference/reference_sfc_loop_feed_and_audit_blindspot_2026_06_01.md) — reference_sfc_loop_feed_and_audit_blindspot_2026_06_01.md
+- **2026-06-08** [`reference_sfc_speed_feed_bugs_2026_05_31.md`](reference/reference_sfc_speed_feed_bugs_2026_05_31.md) — SFC speed_feed bugs found via live :3100 audit (slot echo, 2026-05-31)
+- **2026-06-08** [`reference_session_2026_05_14_e2_g10_ship.md`](reference/reference_session_2026_05_14_e2_g10_ship.md) — 2026-05-14 session — E2 + G10 ship, G1 yield
+- **2026-06-08** [`reference_session_continuity_ms0_2026_05_22.md`](reference/reference_session_continuity_ms0_2026_05_22.md) — reference_session_continuity_ms0_2026_05_22.md
+- **2026-06-08** [`reference_session_continuity_stack_2026_05_15.md`](reference/reference_session_continuity_stack_2026_05_15.md) — Session Continuity Stack — shipped 2026-05-15 by slot alpha (claude-6eac1b66)
+- **2026-06-08** [`reference_session_papa_2026-06-08.md`](reference/reference_session_papa_2026-06-08.md) — Session trace — slot papa · 2026-06-08
+- **2026-06-08** [`reference_scrutiny_2of2_2026_05_20.md`](reference/reference_scrutiny_2of2_2026_05_20.md) — reference_scrutiny_2of2_2026_05_20.md
+- **2026-06-08** [`reference_scrutiny_verdict_persist_2026_05_16.md`](reference/reference_scrutiny_verdict_persist_2026_05_16.md) — Gap #2 — scrutiny-verdict-persist.mjs (Obsidian 2nd-brain)
+- **2026-06-08** [`reference_seeder_prefix_fix_2026_05_20.md`](reference/reference_seeder_prefix_fix_2026_05_20.md) — reference_seeder_prefix_fix_2026_05_20.md
+- **2026-06-08** [`reference_sessionstart_token_bloat_audit_2026_05_26.md`](reference/reference_sessionstart_token_bloat_audit_2026_05_26.md) — SessionStart Token-Bloat Audit (2026-05-26, slot:golf /loop iter1)
+- **2026-06-08** [`reference_route_suggest_zero_take_classifiers_2026_05_30.md`](reference/reference_route_suggest_zero_take_classifiers_2026_05_30.md) — reference_route_suggest_zero_take_classifiers_2026_05_30.md
+- **2026-06-08** [`reference_scheduled_task_install_pwsh7_2026_06_06.md`](reference/reference_scheduled_task_install_pwsh7_2026_06_06.md) — reference_scheduled_task_install_pwsh7_2026_06_06.md
+- **2026-06-08** [`reference_scripts_lib_coverage_2026_05_20.md`](reference/reference_scripts_lib_coverage_2026_05_20.md) — reference_scripts_lib_coverage_2026_05_20.md
+- **2026-06-08** [`reference_romeo_cimco_machine_bind_2026_06_04.md`](reference/reference_romeo_cimco_machine_bind_2026_06_04.md) — reference_romeo_cimco_machine_bind_2026_06_04.md
+- **2026-06-08** [`reference_romeo_shared_tree_absorption_2026_06_03.md`](reference/reference_romeo_shared_tree_absorption_2026_06_03.md) — reference_romeo_shared_tree_absorption_2026_06_03.md
+- **2026-06-08** [`reference_rocket_nozzle_engine_me_iteration_bug_2026_05_26.md`](reference/reference_rocket_nozzle_engine_me_iteration_bug_2026_05_26.md) — RocketNozzleEngine — Me iteration bug (U-DEA-november-EXTRA77-ENGINE-FIX)
+- **2026-06-08** [`reference_rody_cyril_claude_setup_articles_2026_06_08.md`](reference/reference_rody_cyril_claude_setup_articles_2026_06_08.md) — reference_rody_cyril_claude_setup_articles_2026_06_08.md
+- **2026-06-08** [`reference_rgs_tool_autoinvoke_ms0_2026_05_16.md`](reference/reference_rgs_tool_autoinvoke_ms0_2026_05_16.md) — RGS-TOOL-AUTOINVOKE-MS0
+- **2026-06-08** [`reference_rgs_tool_autoinvoke_ms1_2026_05_16.md`](reference/reference_rgs_tool_autoinvoke_ms1_2026_05_16.md) — reference_rgs_tool_autoinvoke_ms1_2026_05_16.md
+- **2026-06-08** [`reference_roadmap_consolidation_2026_05_16.md`](reference/reference_roadmap_consolidation_2026_05_16.md) — PRISM Roadmap Consolidation (2026-05-16, slot juliett, forge7)
+- **2026-06-08** [`reference_roadmap_index_writer_consolidate_2026_05_19.md`](reference/reference_roadmap_index_writer_consolidate_2026_05_19.md) — reference_roadmap_index_writer_consolidate_2026_05_19.md
+- **2026-06-08** [`reference_reasoning_outcome_loop_cl5_2026_06_01.md`](reference/reference_reasoning_outcome_loop_cl5_2026_06_01.md) — reference_reasoning_outcome_loop_cl5_2026_06_01.md
+- **2026-06-08** [`reference_recall_counter_concurrency_finding_2026_05_16.md`](reference/reference_recall_counter_concurrency_finding_2026_05_16.md) — reference_recall_counter_concurrency_finding_2026_05_16.md
+- **2026-06-08** [`reference_regen_viz_segfault_2026_05_26.md`](reference/reference_regen_viz_segfault_2026_05_26.md) — regen-viz.mjs crashes at "generate base graph" step (2026-05-26, slot:golf /loop iter6)
+- **2026-06-08** [`reference_regen_viz_string_length_2026_05_23.md`](reference/reference_regen_viz_string_length_2026_05_23.md) — regen-viz crash — V8 max-string-length on 495MB graph
+- **2026-06-08** [`reference_reverse_merge_then_ff_only.md`](reference/reference_reverse_merge_then_ff_only.md) — reference_reverse_merge_then_ff_only.md
+- **2026-06-08** [`reference_rag_hybrid_ms0_2026_05_30.md`](reference/reference_rag_hybrid_ms0_2026_05_30.md) — reference_rag_hybrid_ms0_2026_05_30.md
+- **2026-06-08** [`reference_rag_hybrid_v2_dense_arm_2026_05_31.md`](reference/reference_rag_hybrid_v2_dense_arm_2026_05_31.md) — reference_rag_hybrid_v2_dense_arm_2026_05_31.md
+- **2026-06-08** [`reference_rag_upgrade_ms0_2026_05_22.md`](reference/reference_rag_upgrade_ms0_2026_05_22.md) — RAG-UPGRADE-MS0 — PRISM retrieval upgrade (2026-05-22, slot golf, /goal /loop)
+- **2026-06-08** [`reference_reaper_guardian_false_negative_2026_05_26.md`](reference/reference_reaper_guardian_false_negative_2026_05_26.md) — Reaper-Guardian "not-registered" false-negative (2026-05-26, slot:golf /loop iter2)
+- **2026-06-08** [`reference_reaper_staleslot_overreport_2026_06_04.md`](reference/reference_reaper_staleslot_overreport_2026_06_04.md) — reference_reaper_staleslot_overreport_2026_06_04.md
+- **2026-06-08** [`reference_quoting_synergy_ms0_iter11_14_2026_05_25.md`](reference/reference_quoting_synergy_ms0_iter11_14_2026_05_25.md) — QUOTING-SYNERGY-MS0 — iter11-iter19 arc (charlie /goal-20, 2026-05-25)
+- **2026-06-08** [`reference_rag_eval_harness_u_path_5_2026_05_31.md`](reference/reference_rag_eval_harness_u_path_5_2026_05_31.md) — reference_rag_eval_harness_u_path_5_2026_05_31.md
+- **2026-06-08** [`reference_quoting_pipeline_session_2026_05_26.md`](reference/reference_quoting_pipeline_session_2026_05_26.md) — Quoting calibration pipeline — overnight session 2026-05-26
+- **2026-06-08** [`reference_quoting_registry_bridge_gap_2026_05_26.md`](reference/reference_quoting_registry_bridge_gap_2026_05_26.md) — reference_quoting_registry_bridge_gap_2026_05_26.md
+- **2026-06-08** [`reference_quoting_pipeline_ms0_shipped_2026_05_24.md`](reference/reference_quoting_pipeline_ms0_shipped_2026_05_24.md) — QUOTING-PIPELINE-MS0 — SHIPPED close-out (charlie /goal-13, 2026-05-24)
+- **2026-06-08** [`reference_quoting_closed_loop_jm_corpus_first_live_2026_05_26.md`](reference/reference_quoting_closed_loop_jm_corpus_first_live_2026_05_26.md) — reference_quoting_closed_loop_jm_corpus_first_live_2026_05_26.md
+- **2026-06-08** [`reference_quoting_completeness_goal_20_2026_05_25.md`](reference/reference_quoting_completeness_goal_20_2026_05_25.md) — QUOTING-COMPLETENESS-MS0 — /goal-20 session close-out (charlie, 2026-05-25)
+- **2026-06-08** [`reference_quoting_pipeline_iter58_iter59_2026_05_27.md`](reference/reference_quoting_pipeline_iter58_iter59_2026_05_27.md) — Quoting training pipeline — iter58+59 close-out (charlie 2026-05-27)
+- **2026-06-08** [`reference_quoting_pipeline_ms0_assessment_2026_05_24.md`](reference/reference_quoting_pipeline_ms0_assessment_2026_05_24.md) — QUOTING-PIPELINE-MS0 — assessment + envelope (charlie /goal-13 iter1, 2026-05-24)
+- **2026-06-08** [`reference_quoting_active_factor_runtime_2026_05_25.md`](reference/reference_quoting_active_factor_runtime_2026_05_25.md) — Quoting active-factor runtime + CoV verify + Health UI (charlie /goal-19, 2026-05-25)
+- **2026-06-08** [`reference_quoting_calibration_u_qt10_2026_05_25.md`](reference/reference_quoting_calibration_u_qt10_2026_05_25.md) — U-QT10 QuotingCalibrationEngine — closes inner training loop (charlie /goal-18 iter2, 2026-05-25)
+- **2026-06-08** [`reference_quoting_closed_loop_engine_2026_05_26.md`](reference/reference_quoting_closed_loop_engine_2026_05_26.md) — reference_quoting_closed_loop_engine_2026_05_26.md
+- **2026-06-08** [`reference_quoting_closed_loop_full_goal_block_2026_05_26.md`](reference/reference_quoting_closed_loop_full_goal_block_2026_05_26.md) — reference_quoting_closed_loop_full_goal_block_2026_05_26.md
+- **2026-06-08** [`reference_psn_training_substrate_2026_05_25.md`](reference/reference_psn_training_substrate_2026_05_25.md) — PSN deep-learning + deep-reasoning training substrate — papa 2026-05-25
+- **2026-06-08** [`reference_psn_viz_pipeline_complete_2026_05_24.md`](reference/reference_psn_viz_pipeline_complete_2026_05_24.md) — PSN docu/OCR + regen-viz pipeline complete — papa /loop 2026-05-23..24
+- **2026-06-08** [`reference_pure_algorithm_extraction_campaign_2026_05_24.md`](reference/reference_pure_algorithm_extraction_campaign_2026_05_24.md) — Pure Algorithm Extraction Campaign — 2026-05-24 (slot:golf)
+- **2026-06-08** [`reference_quebec_frontend_galaxy_2026_05_28.md`](reference/reference_quebec_frontend_galaxy_2026_05_28.md) — reference_quebec_frontend_galaxy_2026_05_28.md
+- **2026-06-08** [`reference_psn_synergy_collect_ms0_2026_05_23.md`](reference/reference_psn_synergy_collect_ms0_2026_05_23.md) — then pipe snapshot.inventories into the dispatcher:
+- **2026-06-08** [`reference_psn_synergy_collect_ms3_2026_06_03.md`](reference/reference_psn_synergy_collect_ms3_2026_06_03.md) — reference_psn_synergy_collect_ms3_2026_06_03.md
+- **2026-06-08** [`reference_psn_synergy_obsidian_tribal_blindspot_2026_06_02.md`](reference/reference_psn_synergy_obsidian_tribal_blindspot_2026_06_02.md) — reference_psn_synergy_obsidian_tribal_blindspot_2026_06_02.md
+- **2026-06-08** [`reference_psn_r4_deep_stack_2026_05_25.md`](reference/reference_psn_r4_deep_stack_2026_05_25.md) — PSN R4 deep-stack research — papa 2026-05-25
+- **2026-06-08** [`reference_psn_self_improving_loop_ms0_iter1to3_2026_05_25.md`](reference/reference_psn_self_improving_loop_ms0_iter1to3_2026_05_25.md) — PSN-SELF-IMPROVING-LOOP-MS0 — iter1-3 ship (slot:india /goal-psn-self-improving 2026-05-25)
+- **2026-06-08** [`reference_psn_shop_wire_misattribution_2026_05_22.md`](reference/reference_psn_shop_wire_misattribution_2026_05_22.md) — PSN-SYNERGY / U-SHOP-WIRE — 8 Shop engines wired + peer-absorption misattribution
+- **2026-06-08** [`reference_psn_qdrant_populate_2026_05_25.md`](reference/reference_psn_qdrant_populate_2026_05_25.md) — reference_psn_qdrant_populate_2026_05_25.md
+- **2026-06-08** [`reference_psn_multi_wire_2026_05_23.md`](reference/reference_psn_multi_wire_2026_05_23.md) — PSN-SYNERGY / U-MULTI-WIRE — 9 dormant Multi engines wired
+- **2026-06-08** [`reference_psn_nudge_r12_audit_chain_2026_05_23.md`](reference/reference_psn_nudge_r12_audit_chain_2026_05_23.md) — PSN nudge R12 audit chain (2026-05-23, slot:alpha autonomous /loop iters 4-9)
+- **2026-06-08** [`reference_psn_octopus_fleet_synergy_2026_05_31.md`](reference/reference_psn_octopus_fleet_synergy_2026_05_31.md) — reference_psn_octopus_fleet_synergy_2026_05_31.md
+- **2026-06-08** [`reference_psn_outcome_wire_2026_05_22.md`](reference/reference_psn_outcome_wire_2026_05_22.md) — PSN-SYNERGY / U-OUTCOME-WIRE — 8 dormant Outcome engines wired
+- **2026-06-08** [`reference_psn_process_wire_2026_05_22.md`](reference/reference_psn_process_wire_2026_05_22.md) — PSN-SYNERGY / U-PROCESS-WIRE — 7 dormant Process engines wired
+- **2026-06-08** [`reference_psn_qdrant_payload_debug_2026_05_25.md`](reference/reference_psn_qdrant_payload_debug_2026_05_25.md) — reference_psn_qdrant_payload_debug_2026_05_25.md
+- **2026-06-08** [`reference_psn_leg_owner_route_2026_06_03.md`](reference/reference_psn_leg_owner_route_2026_06_03.md) — reference_psn_leg_owner_route_2026_06_03.md
+- **2026-06-08** [`reference_psn_master_index_aliases_synthesis_2026_05_23.md`](reference/reference_psn_master_index_aliases_synthesis_2026_05_23.md) — reference_psn_master_index_aliases_synthesis_2026_05_23.md
+- **2026-06-08** [`reference_psn_hybrid_viz_roost_wire_2026_05_25.md`](reference/reference_psn_hybrid_viz_roost_wire_2026_05_25.md) — reference_psn_hybrid_viz_roost_wire_2026_05_25.md
+- **2026-06-08** [`reference_psn_incorporation_ms0_2026_05_23.md`](reference/reference_psn_incorporation_ms0_2026_05_23.md) — PSN-INCORPORATION-MS0 — 105 candidate systems registered (charlie /goal-6, 2026-05-23)
+- **2026-06-08** [`reference_psn_injection_dedup_lib_2026_05_23.md`](reference/reference_psn_injection_dedup_lib_2026_05_23.md) — reference_psn_injection_dedup_lib_2026_05_23.md
+- **2026-06-08** [`reference_psn_hybrid_retrieval_wire_2026_05_25.md`](reference/reference_psn_hybrid_retrieval_wire_2026_05_25.md) — reference_psn_hybrid_retrieval_wire_2026_05_25.md
+- **2026-06-08** [`reference_psn_hybrid_viz_roost_2026_05_25.md`](reference/reference_psn_hybrid_viz_roost_2026_05_25.md) — reference_psn_hybrid_viz_roost_2026_05_25.md
+- **2026-06-08** [`reference_psn_high_roi_audit_2026_05_23.md`](reference/reference_psn_high_roi_audit_2026_05_23.md) — PSN-HIGH-ROI-SURFACE-AUDIT (charlie /goal-3, 2026-05-23, commit 7636dc07bd)
+- **2026-06-08** [`reference_psn_hook_stop_helpers_2026_05_23.md`](reference/reference_psn_hook_stop_helpers_2026_05_23.md) — reference_psn_hook_stop_helpers_2026_05_23.md
+- **2026-06-08** [`reference_psn_hybrid_mcp_verify_2026_05_26.md`](reference/reference_psn_hybrid_mcp_verify_2026_05_26.md) — reference_psn_hybrid_mcp_verify_2026_05_26.md
+- **2026-06-08** [`reference_psn_graphiti_wire_2026_05_24.md`](reference/reference_psn_graphiti_wire_2026_05_24.md) — reference_psn_graphiti_wire_2026_05_24.md
+- **2026-06-08** [`reference_psn_graphiti_lite_2026_05_24.md`](reference/reference_psn_graphiti_lite_2026_05_24.md) — Seed (one-shot or cron)
+- **2026-06-08** [`reference_psn_graphiti_seed_expanded_2026_05_25.md`](reference/reference_psn_graphiti_seed_expanded_2026_05_25.md) — reference_psn_graphiti_seed_expanded_2026_05_25.md
+- **2026-06-08** [`reference_psn_graphiti_seed_tests_2026_05_25.md`](reference/reference_psn_graphiti_seed_tests_2026_05_25.md) — tests 17
+- **2026-06-08** [`reference_psn_fill_gaps_parallel_2026_05_24.md`](reference/reference_psn_fill_gaps_parallel_2026_05_24.md) — reference_psn_fill_gaps_parallel_2026_05_24.md
+- **2026-06-08** [`reference_psn_enhance_ms0_closeout_2026_05_23.md`](reference/reference_psn_enhance_ms0_closeout_2026_05_23.md) — reference_psn_enhance_ms0_closeout_2026_05_23.md
+- **2026-06-08** [`reference_psn_docu_ocr_wiring_2026_05_23.md`](reference/reference_psn_docu_ocr_wiring_2026_05_23.md) — PSN docu/OCR wiring pass — papa /loop, 2026-05-23
+- **2026-06-08** [`reference_psn_automate_kernel_2026_05_23.md`](reference/reference_psn_automate_kernel_2026_05_23.md) — PSN automation kernel (charlie /goal-7, 2026-05-23)
+- **2026-06-08** [`reference_psn_bridge_audit_2026_05_22.md`](reference/reference_psn_bridge_audit_2026_05_22.md) — PSN bridge dormancy audit (2026-05-22, whiskey)
+- **2026-06-08** [`reference_psn_aliases_backfill_2026_05_24.md`](reference/reference_psn_aliases_backfill_2026_05_24.md) — reference_psn_aliases_backfill_2026_05_24.md
+- **2026-06-08** [`reference_psn_aliases_maxed_2026_05_24.md`](reference/reference_psn_aliases_maxed_2026_05_24.md) — reference_psn_aliases_maxed_2026_05_24.md
+- **2026-06-08** [`reference_priority_galaxy_wiki_pages_2026_06_01.md`](reference/reference_priority_galaxy_wiki_pages_2026_06_01.md) — reference_priority_galaxy_wiki_pages_2026_06_01.md
+- **2026-06-08** [`reference_priority_queue_ms0_2026_05_16.md`](reference/reference_priority_queue_ms0_2026_05_16.md) — PRIORITY-QUEUE-MS0 (2026-05-16, slot juliett, forge7)
+- **2026-06-08** [`reference_prism_reference_db_2026_05_30.md`](reference/reference_prism_reference_db_2026_05_30.md) — reference_prism_reference_db_2026_05_30.md
+- **2026-06-08** [`reference_prism_task_always_active_hardening_2026_05_31.md`](reference/reference_prism_task_always_active_hardening_2026_05_31.md) — reference_prism_task_always_active_hardening_2026_05_31.md
+- **2026-06-08** [`reference_programcompare_modal_regex_bug_2026_06_01.md`](reference/reference_programcompare_modal_regex_bug_2026_06_01.md) — ProgramCompareEngine modal-regex bug — G00/G01 never detected (slot foxtrot, 2026-06-01)
+- **2026-06-08** [`reference_program_scorer_knowledge_corpus_mismatch_2026_05_30.md`](reference/reference_program_scorer_knowledge_corpus_mismatch_2026_05_30.md) — Program-output RLHF scorers mismatch knowledge/advisory corpora (slot mike / wedm, 2026-05-30)
+- **2026-06-08** [`reference_prompt_rewriter_fix_2026_05_24.md`](reference/reference_prompt_rewriter_fix_2026_05_24.md) — reference_prompt_rewriter_fix_2026_05_24.md
+- **2026-06-08** [`reference_psn_action_hint_and_banner_fail_loud_2026_05_23.md`](reference/reference_psn_action_hint_and_banner_fail_loud_2026_05_23.md) — PSN-action-hint + banner-fail-loud (2026-05-23, slot:alpha autonomous /loop)
+- **2026-06-08** [`reference_predict_with_trend_2026_05_17.md`](reference/reference_predict_with_trend_2026_05_17.md) — U-GAP-MILL-FFT-CHATTER — predictWithTrend method (2026-05-17, slot alpha)
+- **2026-06-08** [`reference_print_to_program_replication_wire_2026_06_02.md`](reference/reference_print_to_program_replication_wire_2026_06_02.md) — reference_print_to_program_replication_wire_2026_06_02.md
+- **2026-06-08** [`reference_precompact_bare_node_enoent_2026_05_16.md`](reference/reference_precompact_bare_node_enoent_2026_05_16.md) — precompact-handoff.mjs bare-"node" ENOENT regression (2026-05-16, slot bravo claude-339c8ff7)
+- **2026-06-08** [`reference_precompact_hook_autowrite_2026_05_15.md`](reference/reference_precompact_hook_autowrite_2026_05_15.md) — /compact → auto-precompact handoff (shipped 2026-05-15, commit 5c4778b59)
+- **2026-06-08** [`reference_post_ship_system-viz-brain-ms0-u-p1-tribal-by-domain-inject.md`](reference/reference_post_ship_system-viz-brain-ms0-u-p1-tribal-by-domain-inject.md) — SYSTEM-VIZ-BRAIN-MS0/U-P1-TRIBAL-BY-DOMAIN-INJECT
+- **2026-06-08** [`reference_post_ship_system-viz-brain-ms0-u-p1-wiki-preload-by-domain.md`](reference/reference_post_ship_system-viz-brain-ms0-u-p1-wiki-preload-by-domain.md) — SYSTEM-VIZ-BRAIN-MS0/U-P1-WIKI-PRELOAD-BY-DOMAIN
+- **2026-06-08** [`reference_post_ship_system-viz-brain-ms0-u-p4-rtk-auto-wrap.md`](reference/reference_post_ship_system-viz-brain-ms0-u-p4-rtk-auto-wrap.md) — SYSTEM-VIZ-BRAIN-MS0/U-P4-RTK-AUTO-WRAP
+- **2026-06-08** [`reference_post_ship_wire-unwired-ms0-u-wire-tool-call-batch-optimize-memo.md`](reference/reference_post_ship_wire-unwired-ms0-u-wire-tool-call-batch-optimize-memo.md) — WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-BATCH-OPTIMIZE-MEMO
+- **2026-06-08** [`reference_post_ship_wire-unwired-ms0-u-wire-tool-call-throttle.md`](reference/reference_post_ship_wire-unwired-ms0-u-wire-tool-call-throttle.md) — WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-THROTTLE
+- **2026-06-08** [`reference_post_ship_slot-compact-synergy-ms0-u-wave3.md`](reference/reference_post_ship_slot-compact-synergy-ms0-u-wave3.md) — SLOT-COMPACT-SYNERGY-MS0/U-WAVE3
+- **2026-06-08** [`reference_post_ship_slot-compact-synergy-ms0-u-wave4a.md`](reference/reference_post_ship_slot-compact-synergy-ms0-u-wave4a.md) — SLOT-COMPACT-SYNERGY-MS0/U-WAVE4a
+- **2026-06-08** [`reference_post_ship_slot-compact-synergy-ms0-u-wave5c.md`](reference/reference_post_ship_slot-compact-synergy-ms0-u-wave5c.md) — SLOT-COMPACT-SYNERGY-MS0/U-WAVE5c
+- **2026-06-08** [`reference_post_ship_slot-drift-fix-ms1-u-slot-heartbeat-fix.md`](reference/reference_post_ship_slot-drift-fix-ms1-u-slot-heartbeat-fix.md) — SLOT-DRIFT-FIX-MS1/U-SLOT-HEARTBEAT-FIX
+- **2026-06-08** [`reference_post_ship_system-synergy-audit-u-handoff-prune.md`](reference/reference_post_ship_system-synergy-audit-u-handoff-prune.md) — SYSTEM-SYNERGY-AUDIT/U-HANDOFF-PRUNE
+- **2026-06-08** [`reference_post_ship_system-viz-brain-ms0-u-p0-audit-viz-first.md`](reference/reference_post_ship_system-viz-brain-ms0-u-p0-audit-viz-first.md) — SYSTEM-VIZ-BRAIN-MS0/U-P0-AUDIT-VIZ-FIRST
+- **2026-06-08** [`reference_post_ship_ollama-pipeline-ms0-u-opm01-doc-reflect.md`](reference/reference_post_ship_ollama-pipeline-ms0-u-opm01-doc-reflect.md) — OLLAMA-PIPELINE-MS0/U-OPM01-DOC-REFLECT
+- **2026-06-08** [`reference_post_ship_prism-efficiency-ms0-u-misl-fallback.md`](reference/reference_post_ship_prism-efficiency-ms0-u-misl-fallback.md) — PRISM-EFFICIENCY-MS0/U-MISL-FALLBACK
+- **2026-06-08** [`reference_post_ship_prism-search-ms0-u-psm01.md`](reference/reference_post_ship_prism-search-ms0-u-psm01.md) — PRISM-SEARCH-MS0/U-PSM01
+- **2026-06-08** [`reference_post_ship_slot-compact-synergy-ms0-u-wave1.md`](reference/reference_post_ship_slot-compact-synergy-ms0-u-wave1.md) — SLOT-COMPACT-SYNERGY-MS0/U-WAVE1
+- **2026-06-08** [`reference_post_ship_slot-compact-synergy-ms0-u-wave2a.md`](reference/reference_post_ship_slot-compact-synergy-ms0-u-wave2a.md) — SLOT-COMPACT-SYNERGY-MS0/U-WAVE2A
+- **2026-06-08** [`reference_post_ship_slot-compact-synergy-ms0-u-wave2b.md`](reference/reference_post_ship_slot-compact-synergy-ms0-u-wave2b.md) — SLOT-COMPACT-SYNERGY-MS0/U-WAVE2B
+- **2026-06-08** [`reference_post_ship_obsidian-prism-os-ms0-u-orphan-rescue-impact-analysis-fix.md`](reference/reference_post_ship_obsidian-prism-os-ms0-u-orphan-rescue-impact-analysis-fix.md) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-IMPACT-ANALYSIS-FIX
+- **2026-06-08** [`reference_post_ship_obsidian-prism-os-ms0-u-orphan-rescue-pm-fix.md`](reference/reference_post_ship_obsidian-prism-os-ms0-u-orphan-rescue-pm-fix.md) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PM-FIX
+- **2026-06-08** [`reference_post_ship_ollama-expand-ms0-u-oe-bridge-l2b-wiki-leaves.md`](reference/reference_post_ship_ollama-expand-ms0-u-oe-bridge-l2b-wiki-leaves.md) — OLLAMA-EXPAND-MS0/U-OE-BRIDGE-L2B-WIKI-LEAVES
+- **2026-06-08** [`reference_post_ship_ollama-expand-ms0-u-oe-doc-reflect-charlie-2026-05-18.md`](reference/reference_post_ship_ollama-expand-ms0-u-oe-doc-reflect-charlie-2026-05-18.md) — OLLAMA-EXPAND-MS0/U-OE-DOC-REFLECT-CHARLIE-2026-05-18
+- **2026-06-08** [`reference_post_ship_machining-tribal-coverage-u-mtc06.md`](reference/reference_post_ship_machining-tribal-coverage-u-mtc06.md) — MACHINING-TRIBAL-COVERAGE/U-MTC06
+- **2026-06-08** [`reference_post_ship_ms-print-program-loop-u-ppl-c2-closeout.md`](reference/reference_post_ship_ms-print-program-loop-u-ppl-c2-closeout.md) — MS-PRINT-PROGRAM-LOOP/U-PPL-C2-CLOSEOUT
+- **2026-06-08** [`reference_post_ship_obsidian-brain-fix-ms0-u-obf-f4.md`](reference/reference_post_ship_obsidian-brain-fix-ms0-u-obf-f4.md) — OBSIDIAN-BRAIN-FIX-MS0/U-OBF-F4
+- **2026-06-08** [`reference_post_ship_obsidian-prism-os-ms0-u-orphan-rescue-finish-target-advisor.md`](reference/reference_post_ship_obsidian-prism-os-ms0-u-orphan-rescue-finish-target-advisor.md) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-FINISH-TARGET-ADVISOR
+- **2026-06-08** [`reference_post_ship_machining-tribal-coverage-u-mtc02.md`](reference/reference_post_ship_machining-tribal-coverage-u-mtc02.md) — MACHINING-TRIBAL-COVERAGE/U-MTC02
+- **2026-06-08** [`reference_post_ship_machining-tribal-coverage-u-mtc05.md`](reference/reference_post_ship_machining-tribal-coverage-u-mtc05.md) — MACHINING-TRIBAL-COVERAGE/U-MTC05
+- **2026-06-08** [`reference_post_ship_knowledge-conversion-ms0-u-kip03.md`](reference/reference_post_ship_knowledge-conversion-ms0-u-kip03.md) — KNOWLEDGE-CONVERSION-MS0/U-KIP03
+- **2026-06-08** [`reference_post_ship_machining-tribal-coverage-u-mtc01.md`](reference/reference_post_ship_machining-tribal-coverage-u-mtc01.md) — MACHINING-TRIBAL-COVERAGE/U-MTC01
+- **2026-06-08** [`reference_post_ship_infra-devtools-u-cold-archive-validation.md`](reference/reference_post_ship_infra-devtools-u-cold-archive-validation.md) — INFRA-DEVTOOLS/U-COLD-ARCHIVE-VALIDATION
+- **2026-06-08** [`reference_post_ship_infra-devtools-u-orphan-helper-kar.md`](reference/reference_post_ship_infra-devtools-u-orphan-helper-kar.md) — INFRA-DEVTOOLS/U-ORPHAN-HELPER-KAR
+- **2026-06-08** [`reference_post_ship_infra-devtools-u-synergy-probes.md`](reference/reference_post_ship_infra-devtools-u-synergy-probes.md) — INFRA-DEVTOOLS/U-SYNERGY-PROBES
+- **2026-06-08** [`reference_post_ship_infra-mirror-u-bootstrap-c-mirror.md`](reference/reference_post_ship_infra-mirror-u-bootstrap-c-mirror.md) — INFRA-MIRROR/U-BOOTSTRAP-C-MIRROR
+- **2026-06-08** [`reference_post_ship_infra-perf-u-viz-find-cache-fence.md`](reference/reference_post_ship_infra-perf-u-viz-find-cache-fence.md) — INFRA-PERF/U-VIZ-FIND-CACHE-FENCE
+- **2026-06-08** [`reference_post_ship_guard-u-mtc-allowlist.md`](reference/reference_post_ship_guard-u-mtc-allowlist.md) — GUARD/U-MTC-ALLOWLIST
+- **2026-06-08** [`reference_post_ship_infra-devtools-u-cold-archive-6dirs.md`](reference/reference_post_ship_infra-devtools-u-cold-archive-6dirs.md) — INFRA-DEVTOOLS/U-COLD-ARCHIVE-6DIRS
+- **2026-06-08** [`reference_post_ship_infra-devtools-u-cold-archive-core-py.md`](reference/reference_post_ship_infra-devtools-u-cold-archive-core-py.md) — INFRA-DEVTOOLS/U-COLD-ARCHIVE-CORE-PY
+- **2026-06-08** [`reference_post_ship_infra-devtools-u-cold-archive-pattern-3.md`](reference/reference_post_ship_infra-devtools-u-cold-archive-pattern-3.md) — INFRA-DEVTOOLS/U-COLD-ARCHIVE-PATTERN-3
+- **2026-06-08** [`reference_post_ship_guard-u-mtc-allowlist-2.md`](reference/reference_post_ship_guard-u-mtc-allowlist-2.md) — GUARD/U-MTC-ALLOWLIST-2
+- **2026-06-08** [`reference_post_ship_guard-u-mtc-allowlist-4.md`](reference/reference_post_ship_guard-u-mtc-allowlist-4.md) — GUARD/U-MTC-ALLOWLIST-4
+- **2026-06-08** [`reference_post_ship_fusion-train-geom-evidence-u-fge01.md`](reference/reference_post_ship_fusion-train-geom-evidence-u-fge01.md) — FUSION-TRAIN-GEOM-EVIDENCE/U-FGE01
+- **2026-06-08** [`reference_post_ship_fusion-train-geom-evidence-u-fge02.md`](reference/reference_post_ship_fusion-train-geom-evidence-u-fge02.md) — FUSION-TRAIN-GEOM-EVIDENCE/U-FGE02
+- **2026-06-08** [`reference_post_ship_fleet-safety-ms0-u-slot-worktree-bootstrap.md`](reference/reference_post_ship_fleet-safety-ms0-u-slot-worktree-bootstrap.md) — FLEET-SAFETY-MS0/U-SLOT-WORKTREE-BOOTSTRAP
+- **2026-06-08** [`reference_post_ship_forge-audit-v2-u-obr01.md`](reference/reference_post_ship_forge-audit-v2-u-obr01.md) — FORGE-AUDIT-V2/U-OBR01
+- **2026-06-08** [`reference_post_ship_fleet-safety-ms0-u-alphabet-expand.md`](reference/reference_post_ship_fleet-safety-ms0-u-alphabet-expand.md) — FLEET-SAFETY-MS0/U-ALPHABET-EXPAND
+- **2026-06-08** [`reference_post_ship_fleet-safety-ms0-u-no-delete-guard.md`](reference/reference_post_ship_fleet-safety-ms0-u-no-delete-guard.md) — FLEET-SAFETY-MS0/U-NO-DELETE-GUARD
+- **2026-06-08** [`reference_post_ship_fleet-reaper-ms2-u-fr-s3.md`](reference/reference_post_ship_fleet-reaper-ms2-u-fr-s3.md) — FLEET-REAPER-MS2/U-FR-S3
+- **2026-06-08** [`reference_post_ship_fleet-reaper-ms2-u-fr-t1.md`](reference/reference_post_ship_fleet-reaper-ms2-u-fr-t1.md) — FLEET-REAPER-MS2/U-FR-T1
+- **2026-06-08** [`reference_post_ship_docker-mcp-wire-ms0-u-catalog-audit.md`](reference/reference_post_ship_docker-mcp-wire-ms0-u-catalog-audit.md) — DOCKER-MCP-WIRE-MS0/U-CATALOG-AUDIT
+- **2026-06-08** [`reference_post_ship_docker-mcp-wire-ms0-u-docker-mcp-reader.md`](reference/reference_post_ship_docker-mcp-wire-ms0-u-docker-mcp-reader.md) — DOCKER-MCP-WIRE-MS0/U-DOCKER-MCP-READER
+- **2026-06-08** [`reference_post_ship_echo-ms-print-program-loop-u-ppl-d5-bridge.md`](reference/reference_post_ship_echo-ms-print-program-loop-u-ppl-d5-bridge.md) — ECHO-MS-PRINT-PROGRAM-LOOP/U-PPL-D5-BRIDGE
+- **2026-06-08** [`reference_post_ship_fleet-reaper-fix-u-fr-monitor-selfreap.md`](reference/reference_post_ship_fleet-reaper-fix-u-fr-monitor-selfreap.md) — FLEET-REAPER-FIX/U-FR-MONITOR-SELFREAP
+- **2026-06-08** [`reference_post_ship_fleet-reaper-ms2-u-doc-reflect.md`](reference/reference_post_ship_fleet-reaper-ms2-u-doc-reflect.md) — FLEET-REAPER-MS2/U-DOC-REFLECT
+- **2026-06-08** [`reference_post_ship_fleet-reaper-ms2-u-fr-s2.md`](reference/reference_post_ship_fleet-reaper-ms2-u-fr-s2.md) — FLEET-REAPER-MS2/U-FR-S2
+- **2026-06-08** [`reference_post_ship_checkin-upgrade-ms0-p5-scrutiny.md`](reference/reference_post_ship_checkin-upgrade-ms0-p5-scrutiny.md) — CHECKIN-UPGRADE-MS0/P5-SCRUTINY
+- **2026-06-08** [`reference_post_ship_checkin-upgrade-ms0-p6-scrutiny.md`](reference/reference_post_ship_checkin-upgrade-ms0-p6-scrutiny.md) — CHECKIN-UPGRADE-MS0/P6-SCRUTINY
+- **2026-06-08** [`reference_post_ship_command-kernel-ms0-u-ck15.md`](reference/reference_post_ship_command-kernel-ms0-u-ck15.md) — COMMAND-KERNEL-MS0/U-CK15
+- **2026-06-08** [`reference_post_ship_command-kernel-ms0-u-ck26-producer.md`](reference/reference_post_ship_command-kernel-ms0-u-ck26-producer.md) — COMMAND-KERNEL-MS0/U-CK26-PRODUCER
+- **2026-06-08** [`reference_post_ship_checkin-upgrade-ms0-p2-autoupgrade.md`](reference/reference_post_ship_checkin-upgrade-ms0-p2-autoupgrade.md) — CHECKIN-UPGRADE-MS0/P2-AUTOUPGRADE
+- **2026-06-08** [`reference_post_ship_checkin-upgrade-ms0-p4-doc.md`](reference/reference_post_ship_checkin-upgrade-ms0-p4-doc.md) — CHECKIN-UPGRADE-MS0/P4-DOC
+- **2026-06-08** [`reference_post_ship_checkin-upgrade-ms0-p4-subagent.md`](reference/reference_post_ship_checkin-upgrade-ms0-p4-subagent.md) — CHECKIN-UPGRADE-MS0/P4-SUBAGENT
+- **2026-06-08** [`reference_post_ship_blueprint-ocr-training-ms2-u-tdp03.md`](reference/reference_post_ship_blueprint-ocr-training-ms2-u-tdp03.md) — BLUEPRINT-OCR-TRAINING-MS2/U-TDP03
+- **2026-06-08** [`reference_post_ship_blueprint-ocr-training-ms2-u-tdp05.md`](reference/reference_post_ship_blueprint-ocr-training-ms2-u-tdp05.md) — BLUEPRINT-OCR-TRAINING-MS2/U-TDP05
+- **2026-06-08** [`reference_post_ship_bravo-hygiene-u-git-tree-cleanup.md`](reference/reference_post_ship_bravo-hygiene-u-git-tree-cleanup.md) — BRAVO-HYGIENE/U-GIT-TREE-CLEANUP
+- **2026-06-08** [`reference_post_ship_bridge-wiring-u-bridge-wire-electrode.md`](reference/reference_post_ship_bridge-wiring-u-bridge-wire-electrode.md) — BRIDGE-WIRING/U-BRIDGE-WIRE-ELECTRODE
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-ukp02-docs.md`](reference/reference_post_ship_backend-dev-loop-u-ukp02-docs.md) — BACKEND-DEV-LOOP/U-UKP02-DOCS
+- **2026-06-08** [`reference_post_ship_backend-devtools-hva-u-hva-rewire-iter19-fix.md`](reference/reference_post_ship_backend-devtools-hva-u-hva-rewire-iter19-fix.md) — BACKEND-DEVTOOLS-HVA/U-HVA-REWIRE-ITER19-FIX
+- **2026-06-08** [`reference_post_ship_backend-devtools-hva-u-hva-rewire-iter20.md`](reference/reference_post_ship_backend-devtools-hva-u-hva-rewire-iter20.md) — BACKEND-DEVTOOLS-HVA/U-HVA-REWIRE-ITER20
+- **2026-06-08** [`reference_post_ship_blueprint-ocr-training-ms2-u-bpa-consumer.md`](reference/reference_post_ship_blueprint-ocr-training-ms2-u-bpa-consumer.md) — BLUEPRINT-OCR-TRAINING-MS2/U-BPA-CONSUMER
+- **2026-06-08** [`reference_post_ship_blueprint-ocr-training-ms2-u-tdp01.md`](reference/reference_post_ship_blueprint-ocr-training-ms2-u-tdp01.md) — BLUEPRINT-OCR-TRAINING-MS2/U-TDP01
+- **2026-06-08** [`reference_post_ship_blueprint-ocr-training-ms2-u-tdp02.md`](reference/reference_post_ship_blueprint-ocr-training-ms2-u-tdp02.md) — BLUEPRINT-OCR-TRAINING-MS2/U-TDP02
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-tribal-backend-dev-wire.md`](reference/reference_post_ship_backend-dev-loop-u-tribal-backend-dev-wire.md) — BACKEND-DEV-LOOP/U-TRIBAL-BACKEND-DEV-WIRE
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-ukp01-docs.md`](reference/reference_post_ship_backend-dev-loop-u-ukp01-docs.md) — BACKEND-DEV-LOOP/U-UKP01-DOCS
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-ukp01.md`](reference/reference_post_ship_backend-dev-loop-u-ukp01.md) — BACKEND-DEV-LOOP/U-UKP01
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-tribal-backend-dev-exhaust-3.md`](reference/reference_post_ship_backend-dev-loop-u-tribal-backend-dev-exhaust-3.md) — BACKEND-DEV-LOOP/U-TRIBAL-BACKEND-DEV-EXHAUST-3
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-tribal-backend-dev-expand.md`](reference/reference_post_ship_backend-dev-loop-u-tribal-backend-dev-expand.md) — BACKEND-DEV-LOOP/U-TRIBAL-BACKEND-DEV-EXPAND
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-tribal-backend-dev-wikis.md`](reference/reference_post_ship_backend-dev-loop-u-tribal-backend-dev-wikis.md) — BACKEND-DEV-LOOP/U-TRIBAL-BACKEND-DEV-WIKIS
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-prism-dev-wikis-high-roi.md`](reference/reference_post_ship_backend-dev-loop-u-prism-dev-wikis-high-roi.md) — BACKEND-DEV-LOOP/U-PRISM-DEV-WIKIS-HIGH-ROI
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-prism-dev-wikis-nav.md`](reference/reference_post_ship_backend-dev-loop-u-prism-dev-wikis-nav.md) — BACKEND-DEV-LOOP/U-PRISM-DEV-WIKIS-NAV
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-prism-dev-wikis-obsidian.md`](reference/reference_post_ship_backend-dev-loop-u-prism-dev-wikis-obsidian.md) — BACKEND-DEV-LOOP/U-PRISM-DEV-WIKIS-OBSIDIAN
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-reaper-coord-noise.md`](reference/reference_post_ship_backend-dev-loop-u-reaper-coord-noise.md) — BACKEND-DEV-LOOP/U-REAPER-COORD-NOISE
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-tribal-backend-dev-alpha-deepen.md`](reference/reference_post_ship_backend-dev-loop-u-tribal-backend-dev-alpha-deepen.md) — BACKEND-DEV-LOOP/U-TRIBAL-BACKEND-DEV-ALPHA-DEEPEN
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-tribal-backend-dev-alpha-retag.md`](reference/reference_post_ship_backend-dev-loop-u-tribal-backend-dev-alpha-retag.md) — BACKEND-DEV-LOOP/U-TRIBAL-BACKEND-DEV-ALPHA-RETAG
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-tribal-backend-dev-deepen.md`](reference/reference_post_ship_backend-dev-loop-u-tribal-backend-dev-deepen.md) — BACKEND-DEV-LOOP/U-TRIBAL-BACKEND-DEV-DEEPEN
+- **2026-06-08** [`reference_post_ship_autocompact-autonomous-ms0-u-aam01.md`](reference/reference_post_ship_autocompact-autonomous-ms0-u-aam01.md) — AUTOCOMPACT-AUTONOMOUS-MS0/U-AAM01
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-infra-docker-fix.md`](reference/reference_post_ship_backend-dev-loop-u-infra-docker-fix.md) — BACKEND-DEV-LOOP/U-INFRA-DOCKER-FIX
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-miq-docs-honesty.md`](reference/reference_post_ship_backend-dev-loop-u-miq-docs-honesty.md) — BACKEND-DEV-LOOP/U-MIQ-DOCS-HONESTY
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-miq-docs-iter2.md`](reference/reference_post_ship_backend-dev-loop-u-miq-docs-iter2.md) — BACKEND-DEV-LOOP/U-MIQ-DOCS-ITER2
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-miq-minconf-contract.md`](reference/reference_post_ship_backend-dev-loop-u-miq-minconf-contract.md) — BACKEND-DEV-LOOP/U-MIQ-MINCONF-CONTRACT
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-miq-stopwords-config.md`](reference/reference_post_ship_backend-dev-loop-u-miq-stopwords-config.md) — BACKEND-DEV-LOOP/U-MIQ-STOPWORDS-CONFIG
+- **2026-06-08** [`reference_post_ship_backend-dev-loop-u-obsidian-precheck.md`](reference/reference_post_ship_backend-dev-loop-u-obsidian-precheck.md) — BACKEND-DEV-LOOP/U-OBSIDIAN-PRECHECK
+- **2026-06-08** [`reference_post_bridge_synergy_phase_1_3_complete_2026_05_27.md`](reference/reference_post_bridge_synergy_phase_1_3_complete_2026_05_27.md) — POST-BRIDGE-SYNERGY-MS0 phase 1-3 closeout — 2026-05-27 (slot:echo)
+- **2026-06-08** [`reference_post_knowledge_enrich_2026_06_01.md`](reference/reference_post_knowledge_enrich_2026_06_01.md) — Post-training knowledge-enrichment leg (`--from-knowledge`) — slot:echo, 2026-06-01
+- **2026-06-08** [`reference_post_processor_fleet_baselines_2026_05_25.md`](reference/reference_post_processor_fleet_baselines_2026_05_25.md) — Post-Processor Fleet — Baselines + Consolidation Architecture (2026-05-25)
+- **2026-06-08** [`reference_post_ship_ai-training-first-ms0-u-aitrain-post-cnc-controller-dl-step1-2.md`](reference/reference_post_ship_ai-training-first-ms0-u-aitrain-post-cnc-controller-dl-step1-2.md) — AI-TRAINING-FIRST-MS0/U-AITRAIN-POST-CNC-CONTROLLER-DL-STEP1-2
+- **2026-06-08** [`reference_post_ship_aps-fusion-cloud-ms0-u-afc-p012-tail.md`](reference/reference_post_ship_aps-fusion-cloud-ms0-u-afc-p012-tail.md) — APS-FUSION-CLOUD-MS0/U-AFC-P012-TAIL
+- **2026-06-08** [`reference_pillar_telemetry_recovery_ms0.md`](reference/reference_pillar_telemetry_recovery_ms0.md) — reference_pillar_telemetry_recovery_ms0.md
+- **2026-06-08** [`reference_pivot_wiki_tribal_2026_05_21.md`](reference/reference_pivot_wiki_tribal_2026_05_21.md) — Pivot wiki+tribal high-ROI generation — 2026-05-21 hotel /loop
+- **2026-06-08** [`reference_playbook_conflict_detect_2026_05_22.md`](reference/reference_playbook_conflict_detect_2026_05_22.md) — U-PB-CONFLICT-DETECT — playbook semantic conflict detector
+- **2026-06-08** [`reference_playbook_suggest_resolution_2026_05_22.md`](reference/reference_playbook_suggest_resolution_2026_05_22.md) — U-PB-SUGGEST-RESOLUTION — playbook resolution engine + R12 fail-loud
+- **2026-06-08** [`reference_per_slot_claim_ms0_2026_05_16.md`](reference/reference_per_slot_claim_ms0_2026_05_16.md) — PER-SLOT-CLAIM-MS0 — per-slot unit-claim locks (2026-05-16, slot bravo)
+- **2026-06-08** [`reference_phase_a_3iter_progression_2026_05_23.md`](reference/reference_phase_a_3iter_progression_2026_05_23.md) — reference_phase_a_3iter_progression_2026_05_23.md
+- **2026-06-08** [`reference_phase_a_full_arc_2026_05_23.md`](reference/reference_phase_a_full_arc_2026_05_23.md) — reference_phase_a_full_arc_2026_05_23.md
+- **2026-06-08** [`reference_phase_b_inventions_2026_05_21.md`](reference/reference_phase_b_inventions_2026_05_21.md) — Phase-B inventions — 2026-05-21 (slot:hotel autonomous /loop)
+- **2026-06-08** [`reference_picker_shipped_union_slot_domain_2026_05_17.md`](reference/reference_picker_shipped_union_slot_domain_2026_05_17.md) — Picker-fix → bridge arc (2026-05-17, slot echo, /loop cdc4a2c4)
+- **2026-06-08** [`reference_pdf_extract_meh_stress_strain_2026_05_25.md`](reference/reference_pdf_extract_meh_stress_strain_2026_05_25.md) — reference_pdf_extract_meh_stress_strain_2026_05_25.md
+- **2026-06-08** [`reference_pdf_extract_meh_vibration_2026_05_25.md`](reference/reference_pdf_extract_meh_vibration_2026_05_25.md) — reference_pdf_extract_meh_vibration_2026_05_25.md
+- **2026-06-08** [`reference_pdf_extract_solidworks_tolerance_2026_05_25.md`](reference/reference_pdf_extract_solidworks_tolerance_2026_05_25.md) — reference_pdf_extract_solidworks_tolerance_2026_05_25.md
+- **2026-06-08** [`reference_pdf_node_wiki_tribal_pipeline_run_2026_05_26.md`](reference/reference_pdf_node_wiki_tribal_pipeline_run_2026_05_26.md) — PDF→Nodes→Wiki→Tribal pipeline run (slot:delta 2026-05-26 /loop iter5+6)
+- **2026-06-08** [`reference_pdf_extract_fundamentals_cnc_2026_05_25.md`](reference/reference_pdf_extract_fundamentals_cnc_2026_05_25.md) — reference_pdf_extract_fundamentals_cnc_2026_05_25.md
+- **2026-06-08** [`reference_pdf_extract_meh_heat_transfer_2026_05_25.md`](reference/reference_pdf_extract_meh_heat_transfer_2026_05_25.md) — reference_pdf_extract_meh_heat_transfer_2026_05_25.md
+- **2026-06-08** [`reference_pdf_extract_foc2014_workholding_2026_05_25.md`](reference/reference_pdf_extract_foc2014_workholding_2026_05_25.md) — reference_pdf_extract_foc2014_workholding_2026_05_25.md
+- **2026-06-08** [`reference_pathway_coordination_ms0_2026_05_31.md`](reference/reference_pathway_coordination_ms0_2026_05_31.md) — reference_pathway_coordination_ms0_2026_05_31.md
+- **2026-06-08** [`reference_pdf_course_bridge_iter20_2026_05_24.md`](reference/reference_pdf_course_bridge_iter20_2026_05_24.md) — PDF↔Course → Engine bridge — iter20 (2026-05-24)
+- **2026-06-08** [`reference_oscar_traditional_lane_2026_06_02.md`](reference/reference_oscar_traditional_lane_2026_06_02.md) — reference_oscar_traditional_lane_2026_06_02.md
+- **2026-06-08** [`reference_p06_misattribution_2026_05_23.md`](reference/reference_p06_misattribution_2026_05_23.md) — P06 Misattribution — golf broad-add absorbed november work (2026-05-23)
+- **2026-06-08** [`reference_p0_u05_tests_misattribution_2026_05_21.md`](reference/reference_p0_u05_tests_misattribution_2026_05_21.md) — P0-U05-TESTS shipped under juliett's banner — git-add window misattribution
+- **2026-06-08** [`reference_p0_u06_post_processor_corpus_2026_05_25.md`](reference/reference_p0_u06_post_processor_corpus_2026_05_25.md) — P0-U06 — Post-Processor Cross-Controller Validation Corpus
+- **2026-06-08** [`reference_p2p_substrate_trio_2026_05_24.md`](reference/reference_p2p_substrate_trio_2026_05_24.md) — Print-to-program substrate trio (2026-05-23..24, slot:kilo)
+- **2026-06-08** [`reference_p6_u02_hooks_wired_2026_05_20.md`](reference/reference_p6_u02_hooks_wired_2026_05_20.md) — reference_p6_u02_hooks_wired_2026_05_20.md
+- **2026-06-08** [`reference_oscar_speedfeed_material_aware_shipped_2026_06_02.md`](reference/reference_oscar_speedfeed_material_aware_shipped_2026_06_02.md) — reference_oscar_speedfeed_material_aware_shipped_2026_06_02.md
+- **2026-06-08** [`reference_oscar_speedfeed_material_blind_diagnosis_2026_06_01.md`](reference/reference_oscar_speedfeed_material_blind_diagnosis_2026_06_01.md) — reference_oscar_speedfeed_material_blind_diagnosis_2026_06_01.md
+- **2026-06-08** [`reference_oscar_speedfeed_param_passthrough_2026_06_02.md`](reference/reference_oscar_speedfeed_param_passthrough_2026_06_02.md) — reference_oscar_speedfeed_param_passthrough_2026_06_02.md
+- **2026-06-08** [`reference_oscar_toolsteel_condition_classification_2026_05_31.md`](reference/reference_oscar_toolsteel_condition_classification_2026_05_31.md) — reference_oscar_toolsteel_condition_classification_2026_05_31.md
+- **2026-06-08** [`reference_oscar_sfc_quality_gate_ecosystem_2026_05_29.md`](reference/reference_oscar_sfc_quality_gate_ecosystem_2026_05_29.md) — SFC quality-gate ecosystem — check before building (2026-05-29, slot:oscar)
+- **2026-06-08** [`reference_oscar_sfc_t1b_sdm_chatter_2026_05_30.md`](reference/reference_oscar_sfc_t1b_sdm_chatter_2026_05_30.md) — reference_oscar_sfc_t1b_sdm_chatter_2026_05_30.md
+- **2026-06-08** [`reference_oscar_sfc_test_gauntlet_401.md`](reference/reference_oscar_sfc_test_gauntlet_401.md) — SFC 401-assertion test gauntlet
+- **2026-06-08** [`reference_oscar_sfc_vendor_parity_state.md`](reference/reference_oscar_sfc_vendor_parity_state.md) — SFC vendor-parity live state (operator's HSMAdvisor + G-Wizard)
+- **2026-06-08** [`reference_oscar_shoptool_csv_auto_absorb_2026_06_01.md`](reference/reference_oscar_shoptool_csv_auto_absorb_2026_06_01.md) — reference_oscar_shoptool_csv_auto_absorb_2026_06_01.md
+- **2026-06-08** [`reference_oscar_shoptool_rank_action_2026_06_03.md`](reference/reference_oscar_shoptool_rank_action_2026_06_03.md) — reference_oscar_shoptool_rank_action_2026_06_03.md
+- **2026-06-08** [`reference_oscar_sfc_knowledge_index_2026_05_29.md`](reference/reference_oscar_sfc_knowledge_index_2026_05_29.md) — SFC knowledge + path index (2026-05-29, slot:oscar)
+- **2026-06-08** [`reference_oscar_sfc_monolith_absorb_plan_2026_05_29.md`](reference/reference_oscar_sfc_monolith_absorb_plan_2026_05_29.md) — reference_oscar_sfc_monolith_absorb_plan_2026_05_29.md
+- **2026-06-08** [`reference_oscar_sfc_nine_axis_contract.md`](reference/reference_oscar_sfc_nine_axis_contract.md) — SFC 9-axis orchestrator contract (the real recommendation path)
+- **2026-06-08** [`reference_oscar_sfc_galaxy_2026_05_28.md`](reference/reference_oscar_sfc_galaxy_2026_05_28.md) — Oscar SFC galaxy — birth snapshot (2026-05-28, U-PSGB-OSCAR)
+- **2026-06-08** [`reference_oscar_sfc_galaxy_completeness_audit_2026_05_29.md`](reference/reference_oscar_sfc_galaxy_completeness_audit_2026_05_29.md) — SFC galaxy completeness audit — COMPLETE *after remediation* (2026-05-29, slot:oscar)
+- **2026-06-08** [`reference_oscar_sfc_gsd_2026_05_29.md`](reference/reference_oscar_sfc_gsd_2026_05_29.md) — SFC domain GSD — Speed-Feed dev/session protocol (2026-05-29, slot:oscar)
+- **2026-06-08** [`reference_oscar_sfc_jc_celsius_family_2026_05_31.md`](reference/reference_oscar_sfc_jc_celsius_family_2026_05_31.md) — reference_oscar_sfc_jc_celsius_family_2026_05_31.md
+- **2026-06-08** [`reference_oscar_sfc_jc_single_source_2026_05_31.md`](reference/reference_oscar_sfc_jc_single_source_2026_05_31.md) — reference_oscar_sfc_jc_single_source_2026_05_31.md
+- **2026-06-08** [`reference_oscar_sfc_juliett_database_bridge_2026_05_29.md`](reference/reference_oscar_sfc_juliett_database_bridge_2026_05_29.md) — SFC ↔ juliett (database-expansion) PSN edge (2026-05-29, slot:oscar)
+- **2026-06-08** [`reference_oscar_sfc_domain_map_2026_05_27.md`](reference/reference_oscar_sfc_domain_map_2026_05_27.md) — SFC Domain Map — oscar's fast file-lookup index
+- **2026-06-08** [`reference_oscar_sfc_feedback_ingest_2026_05_31.md`](reference/reference_oscar_sfc_feedback_ingest_2026_05_31.md) — reference_oscar_sfc_feedback_ingest_2026_05_31.md
+- **2026-06-08** [`reference_oscar_sfc_fe_p3_strategy_panel_2026_05_30.md`](reference/reference_oscar_sfc_fe_p3_strategy_panel_2026_05_30.md) — reference_oscar_sfc_fe_p3_strategy_panel_2026_05_30.md
+- **2026-06-08** [`reference_oscar_sfc_full_parity_readiness_2026_05_29.md`](reference/reference_oscar_sfc_full_parity_readiness_2026_05_29.md) — SFC full-combination parity readiness — NOT-READY (2026-05-29, slot:oscar)
+- **2026-06-08** [`reference_oscar_sfc_close_loop_2026_05_31.md`](reference/reference_oscar_sfc_close_loop_2026_05_31.md) — reference_oscar_sfc_close_loop_2026_05_31.md
+- **2026-06-08** [`reference_oscar_sfc_db_auto_absorb_2026_05_31.md`](reference/reference_oscar_sfc_db_auto_absorb_2026_05_31.md) — reference_oscar_sfc_db_auto_absorb_2026_05_31.md
+- **2026-06-08** [`reference_oscar_sfc_db_registry_2026_05_29.md`](reference/reference_oscar_sfc_db_registry_2026_05_29.md) — reference_oscar_sfc_db_registry_2026_05_29.md
+- **2026-06-08** [`reference_oscar_sfc_divergence_investigation_2026_05_27.md`](reference/reference_oscar_sfc_divergence_investigation_2026_05_27.md) — SFC Divergence Investigation — 2026-05-27 (post catalog-joiner unlock)
+- **2026-06-08** [`reference_oscar_sfc_9axis_ship_absorbed_2026_05_25.md`](reference/reference_oscar_sfc_9axis_ship_absorbed_2026_05_25.md) — OSCAR-SFC-9AXIS-MS0/U-OSC9-01 — shipped, peer-absorbed
+- **2026-06-08** [`reference_oscar_sfc_9axis_u_osc9_14_2026_05_26.md`](reference/reference_oscar_sfc_9axis_u_osc9_14_2026_05_26.md) — U-OSC9-14 — 2026-05-26 cross-vendor batch comparator + live finding
+- **2026-06-08** [`reference_oscar_sfc_awareness_surface_2026_05_28.md`](reference/reference_oscar_sfc_awareness_surface_2026_05_28.md) — Custom SFC domain awareness surface + synergy audit (2026-05-28, slot:oscar)
+- **2026-06-08** [`reference_oscar_sfc_baseline_coverage_ceiling.md`](reference/reference_oscar_sfc_baseline_coverage_ceiling.md) — SFC baseline-comparison coverage ceiling (structural, not a bug)
+- **2026-06-08** [`reference_oscar_sfc_canonical_kc_per_iso.md`](reference/reference_oscar_sfc_canonical_kc_per_iso.md) — Canonical kc1.1 per ISO group (the most-cited SFC constant)
+- **2026-06-08** [`reference_oscar_sfc_closed_loop_readiness_2026_05_31.md`](reference/reference_oscar_sfc_closed_loop_readiness_2026_05_31.md) — reference_oscar_sfc_closed_loop_readiness_2026_05_31.md
+- **2026-06-08** [`reference_oscar_jm_first_cohort_2026_06_02.md`](reference/reference_oscar_jm_first_cohort_2026_06_02.md) — reference_oscar_jm_first_cohort_2026_06_02.md
+- **2026-06-08** [`reference_oscar_lathe_master_post_gate_disabled_2026_05_29.md`](reference/reference_oscar_lathe_master_post_gate_disabled_2026_05_29.md) — lathe-master-post-quality-gate is DISABLED on disk (found 2026-05-29, slot:oscar)
+- **2026-06-08** [`reference_oscar_op_cuttype_map_2026_06_02.md`](reference/reference_oscar_op_cuttype_map_2026_06_02.md) — reference_oscar_op_cuttype_map_2026_06_02.md
+- **2026-06-08** [`reference_oscar_quad_lane_comparator_2026_06_02.md`](reference/reference_oscar_quad_lane_comparator_2026_06_02.md) — reference_oscar_quad_lane_comparator_2026_06_02.md
+- **2026-06-08** [`reference_oscar_segmented_calibration_2026_06_01.md`](reference/reference_oscar_segmented_calibration_2026_06_01.md) — reference_oscar_segmented_calibration_2026_06_01.md
+- **2026-06-08** [`reference_oscar_seg_calib_forward_2026_06_01.md`](reference/reference_oscar_seg_calib_forward_2026_06_01.md) — reference_oscar_seg_calib_forward_2026_06_01.md
+- **2026-06-08** [`reference_oscar_sfc_9axis_ms0_2026_05_26.md`](reference/reference_oscar_sfc_9axis_ms0_2026_05_26.md) — OSCAR-SFC-9AXIS-MS0 — 2026-05-26 6-unit ship + envelope close-out
+- **2026-06-08** [`reference_oscar_hsmadvisor_live_wire_2026_06_01.md`](reference/reference_oscar_hsmadvisor_live_wire_2026_06_01.md) — reference_oscar_hsmadvisor_live_wire_2026_06_01.md
+- **2026-06-08** [`reference_oscar_jc_multifit_registry_u1_2026_05_31.md`](reference/reference_oscar_jc_multifit_registry_u1_2026_05_31.md) — reference_oscar_jc_multifit_registry_u1_2026_05_31.md
+- **2026-06-08** [`reference_oscar_baseline_findfix_2026_06_03.md`](reference/reference_oscar_baseline_findfix_2026_06_03.md) — reference_oscar_baseline_findfix_2026_06_03.md
+- **2026-06-08** [`reference_oscar_full_sweep_run_2026_06_03.md`](reference/reference_oscar_full_sweep_run_2026_06_03.md) — reference_oscar_full_sweep_run_2026_06_03.md
+- **2026-06-08** [`reference_oscar_gwizard_lane_honest_2026_06_02.md`](reference/reference_oscar_gwizard_lane_honest_2026_06_02.md) — reference_oscar_gwizard_lane_honest_2026_06_02.md
+- **2026-06-08** [`reference_oscar_gwizard_zero_sfm_honest_2026_06_03.md`](reference/reference_oscar_gwizard_zero_sfm_honest_2026_06_03.md) — reference_oscar_gwizard_zero_sfm_honest_2026_06_03.md
+- **2026-06-08** [`reference_open_source_vision_options_2026_05_27.md`](reference/reference_open_source_vision_options_2026_05_27.md) — Open-source vision/OCR alternatives to Claude Vision API
+- **2026-06-08** [`reference_order_flow_canonical_2026_05_27.md`](reference/reference_order_flow_canonical_2026_05_27.md) — Canonical order flow — JM Die (2026-05-27 lock)
+- **2026-06-08** [`reference_online_cad_cam_tips_extraction_rollup_2026_05_26.md`](reference/reference_online_cad_cam_tips_extraction_rollup_2026_05_26.md) — Online CAD/CAM tips extraction — /goal session rollup (slot:delta /loop iters 1-4)
+- **2026-06-08** [`reference_ollama_rewriter_failure_recovery_2026_05_27.md`](reference/reference_ollama_rewriter_failure_recovery_2026_05_27.md) — Ollama rewriter failure-recovery — 2026-05-27 (slot:alpha observation)
+- **2026-06-08** [`reference_ollama_stats_tmp_leak_fix_2026_05_31.md`](reference/reference_ollama_stats_tmp_leak_fix_2026_05_31.md) — reference_ollama_stats_tmp_leak_fix_2026_05_31.md
+- **2026-06-08** [`reference_ollama_prism_bridge_l2.md`](reference/reference_ollama_prism_bridge_l2.md) — reference_ollama_prism_bridge_l2.md
+- **2026-06-08** [`reference_ollama_hooks_localhost_ipv6_bug_2026_05_30.md`](reference/reference_ollama_hooks_localhost_ipv6_bug_2026_05_30.md) — reference_ollama_hooks_localhost_ipv6_bug_2026_05_30.md
+- **2026-06-08** [`reference_ollama_pipeline_ms0_2026_05_15.md`](reference/reference_ollama_pipeline_ms0_2026_05_15.md) — OLLAMA-PIPELINE-MS0/U-OPM01 (2026-05-15)
+- **2026-06-08** [`reference_ollama_get_running_2026_05_17.md`](reference/reference_ollama_get_running_2026_05_17.md) — Ollama "get up and running" session — 2026-05-17 alpha
+- **2026-06-08** [`reference_ollama_expand_ms0.md`](reference/reference_ollama_expand_ms0.md) — reference_ollama_expand_ms0.md
+- **2026-06-08** [`reference_ollama_generation_hang_2026_05_30.md`](reference/reference_ollama_generation_hang_2026_05_30.md) — reference_ollama_generation_hang_2026_05_30.md
+- **2026-06-08** [`reference_ollama_cpu_inference_host_thrash_2026_06_02.md`](reference/reference_ollama_cpu_inference_host_thrash_2026_06_02.md) — Ollama CPU inference at AboveNormal = the real host-thrash cause
+- **2026-06-08** [`reference_ollama_cpu_keepalive_nim_contention_2026_06_03.md`](reference/reference_ollama_cpu_keepalive_nim_contention_2026_06_03.md) — reference_ollama_cpu_keepalive_nim_contention_2026_06_03.md
+- **2026-06-08** [`reference_ollama_9p_bind_fix_2026_05_29.md`](reference/reference_ollama_9p_bind_fix_2026_05_29.md) — reference_ollama_9p_bind_fix_2026_05_29.md
+- **2026-06-08** [`reference_ollama_blackwell_gpu_consolidation_2026_06_03.md`](reference/reference_ollama_blackwell_gpu_consolidation_2026_06_03.md) — reference_ollama_blackwell_gpu_consolidation_2026_06_03.md
+- **2026-06-08** [`reference_ollama_cost_routing.md`](reference/reference_ollama_cost_routing.md) — ollama-cost-routing — category-aware Ollama model tiering
+- **2026-06-08** [`reference_ollama_cpu_cap_fix_2026_06_03.md`](reference/reference_ollama_cpu_cap_fix_2026_06_03.md) — Ollama CPU-grind durable fix (User-scope env caps)
+- **2026-06-08** [`reference_octopus_loader_leg_starvation_bug_2026_05_31.md`](reference/reference_octopus_loader_leg_starvation_bug_2026_05_31.md) — reference_octopus_loader_leg_starvation_bug_2026_05_31.md
+- **2026-06-08** [`reference_offloader_cat_fix_2026_05_16.md`](reference/reference_offloader_cat_fix_2026_05_16.md) — U-OFFLOADER-CAT-FIX — offloader category accuracy + Unicode-bypass safety pre-gate
+- **2026-06-08** [`reference_octopus_consensus_ms1_2026_05_18.md`](reference/reference_octopus_consensus_ms1_2026_05_18.md) — Octopus consensus — got it working (2026-05-18, slot juliett)
+- **2026-06-08** [`reference_octopus_consumption_substrate_2026_06_01.md`](reference/reference_octopus_consumption_substrate_2026_06_01.md) — reference_octopus_consumption_substrate_2026_06_01.md
+- **2026-06-08** [`reference_octopus_domain_aware_corpus_2026_05_31.md`](reference/reference_octopus_domain_aware_corpus_2026_05_31.md) — reference_octopus_domain_aware_corpus_2026_05_31.md
+- **2026-06-08** [`reference_obsidian_learning_revival_2026_06_08.md`](reference/reference_obsidian_learning_revival_2026_06_08.md) — Obsidian/Hermes offline-learning revival actuator (lever #4, slot:papa, 2026-06-08)
+- **2026-06-08** [`reference_obsidian_vault_audit_2026_06_08.md`](reference/reference_obsidian_vault_audit_2026_06_08.md) — reference_obsidian_vault_audit_2026_06_08.md
+- **2026-06-08** [`reference_obsidian_vault_ops_2026_06_06.md`](reference/reference_obsidian_vault_ops_2026_06_06.md) — Obsidian vault ops — slot:sierra, 2026-06-06
+- **2026-06-08** [`reference_node_memory_pointer_autopopulate_2026_05_22.md`](reference/reference_node_memory_pointer_autopopulate_2026_05_22.md) — Node-memory pointer + auto-populate (2026-05-22, whiskey)
+- **2026-06-08** [`reference_nvidia_nim_local_setup_2026_05_18.md`](reference/reference_nvidia_nim_local_setup_2026_05_18.md) — reference_nvidia_nim_local_setup_2026_05_18.md
+- **2026-06-08** [`reference_obsidian_brain_fix_ms0_2026_05_17.md`](reference/reference_obsidian_brain_fix_ms0_2026_05_17.md) — Obsidian-brain fix — topic-drift orphaning was the real "not aware" bug (2026-05-17, slot bravo claude-339c8ff7)
+- **2026-06-08** [`reference_node_capability_injection_2026_05_22.md`](reference/reference_node_capability_injection_2026_05_22.md) — NODE-CAPABILITY-INJECT-MS0 (2026-05-22, whiskey)
+- **2026-06-08** [`reference_nn_leg_schema_read_fix_2026_06_02.md`](reference/reference_nn_leg_schema_read_fix_2026_06_02.md) — NN/GNN PSN-leg schema-read fix (slot:india, 2026-06-02, commit f436b2c614)
+- **2026-06-08** [`reference_nn_predictor_embed_wire_2026_05_23.md`](reference/reference_nn_predictor_embed_wire_2026_05_23.md) — NN-GRAPH predictor embed-wire — follow-up to U-GNN-NODE-EMBED-BRIDGE + U-NN-TRAINER-EXPORT-RESTORE (2026-05-23, slot gol
+- **2026-06-08** [`reference_nn_predictor_embed_wire_followup_2026_05_24.md`](reference/reference_nn_predictor_embed_wire_followup_2026_05_24.md) — NN tier-5 unblocked — papa /loop, 2026-05-24
+- **2026-06-08** [`reference_nn_graph_ms0_2026_05_16.md`](reference/reference_nn_graph_ms0_2026_05_16.md) — NN-GRAPH-MS0 — GraphSAGE GNN tier-5 wiring inference
+- **2026-06-08** [`reference_nn_graph_ms2_nn1_768d_features_2026_05_17.md`](reference/reference_nn_graph_ms2_nn1_768d_features_2026_05_17.md) — NN-GRAPH-MS2 / NN-1 — U-NNG-768D-FEATURES (2026-05-17, slot alpha)
+- **2026-06-08** [`reference_nn_graph_ms2_u1_2026_05_17.md`](reference/reference_nn_graph_ms2_u1_2026_05_17.md) — NN-GRAPH-MS2 / U1-REFERENCE-POOL-SEED-STAGE (2026-05-17, slot alpha)
+- **2026-06-08** [`reference_nn_graph_ms2_u2_2026_05_17.md`](reference/reference_nn_graph_ms2_u2_2026_05_17.md) — NN-GRAPH-MS2 / U2-SELF-RETRAIN-LIFECYCLE (2026-05-17, slot alpha)
+- **2026-06-08** [`reference_ms3_a2_settings_wiring_2026_05_16.md`](reference/reference_ms3_a2_settings_wiring_2026_05_16.md) — reference_ms3_a2_settings_wiring_2026_05_16.md
+- **2026-06-08** [`reference_nim_gpu_capacity_ceiling_2026_05_22.md`](reference/reference_nim_gpu_capacity_ceiling_2026_05_22.md) — reference_nim_gpu_capacity_ceiling_2026_05_22.md
+- **2026-06-08** [`reference_nn_768d_embedding_staleness_2026_06_03.md`](reference/reference_nn_768d_embedding_staleness_2026_06_03.md) — 768d GNN feature coverage root cause: wiki-basename gap, NOT staleness (slot:india, 2026-06-03)
+- **2026-06-08** [`reference_nn_graded_schema_read_fix_2026_06_03.md`](reference/reference_nn_graded_schema_read_fix_2026_06_03.md) — NN/GNN GRADED-shape schema-read fix (slot:india, 2026-06-03, commit 93f85ec067)
+- **2026-06-08** [`reference_model_retired_test_stale_2026_06_08.md`](reference/reference_model_retired_test_stale_2026_06_08.md) — Model-retired-but-test-stale regression (BLACKWELL-AI-MS0, slot:india, 2026-06-08)
+- **2026-06-08** [`reference_monitor_persistent_unreliable.md`](reference/reference_monitor_persistent_unreliable.md) — Claude Code Monitor persistent-mode is unreliable for long watches
+- **2026-06-08** [`reference_monolith_db_gap_2026_05_29.md`](reference/reference_monolith_db_gap_2026_05_29.md) — Monolith un-extracted DB gaps (foxtrot DB-completeness sweep, 2026-05-29)
+- **2026-06-08** [`reference_mit_courses_goal_scope_handoff_2026_05_23.md`](reference/reference_mit_courses_goal_scope_handoff_2026_05_23.md) — MIT courses /goal — scope assessment + handoff to next session (2026-05-23)
+- **2026-06-08** [`reference_mit_ocw_resolver_joint_course_slug_bug_2026_05_23.md`](reference/reference_mit_ocw_resolver_joint_course_slug_bug_2026_05_23.md) — MitOcwResourceResolverEngine — joint-course slug bug + fix (2026-05-23)
+- **2026-06-08** [`reference_mit_2_830_ewma_formula_engine_triplet_2026_05_23.md`](reference/reference_mit_2_830_ewma_formula_engine_triplet_2026_05_23.md) — MIT 2.830 → EWMA formula → EWMAEngine triplet (2026-05-23)
+- **2026-06-08** [`reference_min_template_corruption_2026_05_16.md`](reference/reference_min_template_corruption_2026_05_16.md) — .MIN template corruption — Resources/MACRO PROGRAMS/
+- **2026-06-08** [`reference_misc008_misattribution_2026_05_23.md`](reference/reference_misc008_misattribution_2026_05_23.md) — MISC-008 misattribution (mike → hotel) — 2026-05-23
+- **2026-06-08** [`reference_misc_tasks_extraction_2026_05_16.md`](reference/reference_misc_tasks_extraction_2026_05_16.md) — Misc-Tasks Extraction (2026-05-16, slot juliett, forge7)
+- **2026-06-08** [`reference_mill_tribal_training_bridge_unwired_2026_06_02.md`](reference/reference_mill_tribal_training_bridge_unwired_2026_06_02.md) — Mill print→program training: knowledge plumbing mostly wired — gap is narrow, not content (foxtrot, 2026-06-02)
+- **2026-06-08** [`reference_min_files_not_wire_programs.md`](reference/reference_min_files_not_wire_programs.md) — `.MIN` files are NOT wire-EDM programs (they are Okuma lathe programs)
+- **2026-06-08** [`reference_min_is_okuma_lathe_not_wire_2026_05_31.md`](reference/reference_min_is_okuma_lathe_not_wire_2026_05_31.md) — `.MIN` in WIRE EDM = misfiled Okuma LATHE, not wire (slot mike, 2026-05-31, operator-confirmed)
+- **2026-06-08** [`reference_mill_test_inventory_2026_05_30.md`](reference/reference_mill_test_inventory_2026_05_30.md) — Mill Wizard test inventory + triage (foxtrot, 2026-05-30)
+- **2026-06-08** [`reference_mill_tribal_ground_trainer_shipped_2026_06_02.md`](reference/reference_mill_tribal_ground_trainer_shipped_2026_06_02.md) — Mill trainer tribal grounding shipped (foxtrot, 2026-06-02)
+- **2026-06-08** [`reference_mill_producer_power_autoderate_2026_06_02.md`](reference/reference_mill_producer_power_autoderate_2026_06_02.md) — Mill producer power auto-derate shipped (foxtrot, 2026-06-02)
+- **2026-06-08** [`reference_mill_producer_power_headroom_2026_06_02.md`](reference/reference_mill_producer_power_headroom_2026_06_02.md) — Mill producer power-headroom grounding shipped (foxtrot, 2026-06-02)
+- **2026-06-08** [`reference_mill_program_enhance_contract_2026_06_01.md`](reference/reference_mill_program_enhance_contract_2026_06_01.md) — mill_program_enhance — rec#3-gen contract findings (slot foxtrot, 2026-06-01)
+- **2026-06-08** [`reference_mill_galaxy_complete_stale_audit_flags_2026_06_02.md`](reference/reference_mill_galaxy_complete_stale_audit_flags_2026_06_02.md) — Mill galaxy is complete; the gap dashboards are stale (foxtrot, 2026-06-02)
+- **2026-06-08** [`reference_mill_optimizer_dead_actions_2026_06_01.md`](reference/reference_mill_optimizer_dead_actions_2026_06_01.md) — 4 dead prism_mill actions → MillProgramOptimizerEngine (slot foxtrot, 2026-06-01)
+- **2026-06-08** [`reference_mill_domain_atlas_for_foxtrot_2026_05_27.md`](reference/reference_mill_domain_atlas_for_foxtrot_2026_05_27.md) — Mill-Domain Asset Atlas (for foxtrot slot)
+- **2026-06-08** [`reference_mike_wedm_galaxy_buildout_2026_05_29.md`](reference/reference_mike_wedm_galaxy_buildout_2026_05_29.md) — mike WEDM galaxy buildout (2026-05-29, slot:mike claude-87d96286)
+- **2026-06-08** [`reference_mike_wedm_triple_join_gap_2026_05_29.md`](reference/reference_mike_wedm_triple_join_gap_2026_05_29.md) — WEDM print+program+sketch triple — corpora exist but DON'T join by stem (slot:mike, 2026-05-29)
+- **2026-06-08** [`reference_mill_course_plotting_substrate_2026_05_31.md`](reference/reference_mill_course_plotting_substrate_2026_05_31.md) — Mill autonomous course-plotting substrate (foxtrot /goal /loop, 2026-05-31)
+- **2026-06-08** [`reference_mike_osp_profile_engine_2026_05_23.md`](reference/reference_mike_osp_profile_engine_2026_05_23.md) — OkumaLatheOSPProfileEngine — mike 2026-05-23
+- **2026-06-08** [`reference_mike_wedm_archive_composition_data_gap_2026_05_29.md`](reference/reference_mike_wedm_archive_composition_data_gap_2026_05_29.md) — JM Die WIRE EDM archive composition + print→wire-program training-data gap (slot:mike, 2026-05-29)
+- **2026-06-08** [`reference_mike_wedm_discharge_gotchas_2026_05_29.md`](reference/reference_mike_wedm_discharge_gotchas_2026_05_29.md) — WEDM discharge-physics gotchas — verified + cited (slot:mike, 2026-05-29)
+- **2026-06-08** [`reference_mike_lathe_ground_truth_2026_05_24.md`](reference/reference_mike_lathe_ground_truth_2026_05_24.md) — JM Die Lathe Program Ground Truth — mike 2026-05-24
+- **2026-06-08** [`reference_mike_lathe_to_wedm_pivot_2026_05_24.md`](reference/reference_mike_lathe_to_wedm_pivot_2026_05_24.md) — Mike → Whiskey lathe handoff + WEDM pivot — 2026-05-24
+- **2026-06-08** [`reference_mike_lathe_capability_engine_2026_05_24.md`](reference/reference_mike_lathe_capability_engine_2026_05_24.md) — JMDieLatheCapabilityEngine — mike 2026-05-24
+- **2026-06-08** [`reference_mike_lathe_deep_capability_2026_05_24.md`](reference/reference_mike_lathe_deep_capability_2026_05_24.md) — JMDieLatheDeepCapabilityEngine — mike 2026-05-24
+- **2026-06-08** [`reference_memory_recall_supersede_exclusion_2026_06_01.md`](reference/reference_memory_recall_supersede_exclusion_2026_06_01.md) — Supersession-aware recall exclusion (U-MRS-EXCLUDE, 2026-06-01 slot:golf)
+- **2026-06-08** [`reference_mike_bridge_wiring_session_2026_05_23.md`](reference/reference_mike_bridge_wiring_session_2026_05_23.md) — Mike /goal — 13 BRIDGE-WIRING units (2026-05-23)
+- **2026-06-08** [`reference_mike_closeout_phases_envelope_fix_2026_05_22.md`](reference/reference_mike_closeout_phases_envelope_fix_2026_05_22.md) — mike /loop close-out — phases-envelope crediting bug (2026-05-22)
+- **2026-06-08** [`reference_mcp_sdk_single_transport_invariant_2026_05_25.md`](reference/reference_mcp_sdk_single_transport_invariant_2026_05_25.md) — MCP SDK single-transport invariant
+- **2026-06-08** [`reference_mcp_server_3100_crash_fix_2026_05_22.md`](reference/reference_mcp_server_3100_crash_fix_2026_05_22.md) — "chat slots exit out of the prism MCP server" — root cause + fix (2026-05-22, slot lima)
+- **2026-06-08** [`reference_mcp_supervisor_persistence_fix_2026_05_31.md`](reference/reference_mcp_supervisor_persistence_fix_2026_05_31.md) — reference_mcp_supervisor_persistence_fix_2026_05_31.md
+- **2026-06-08** [`reference_memory_index_inject_disabled_finding_2026_06_01.md`](reference/reference_memory_index_inject_disabled_finding_2026_06_01.md) — memory-index-precheck injector is DISABLED fleet-wide (the invocation lever)
+- **2026-06-08** [`reference_mcp_multi_instance_leak_3100_2026_06_02.md`](reference/reference_mcp_multi_instance_leak_3100_2026_06_02.md) — MCP :3100 multi-instance leak → fleet-wide connect failure
+- **2026-06-08** [`reference_mcp_orphan_server_leak_2026_05_29.md`](reference/reference_mcp_orphan_server_leak_2026_05_29.md) — reference_mcp_orphan_server_leak_2026_05_29.md
+- **2026-06-08** [`reference_mcp_resilience_plan_2026_06_04.md`](reference/reference_mcp_resilience_plan_2026_06_04.md) — MCP-RESILIENCE plan — keep :3100 up under the 26-slot fleet (golf, 2026-06-04)
+- **2026-06-08** [`reference_mcp_fleet_scale_fix_2026_05_29.md`](reference/reference_mcp_fleet_scale_fix_2026_05_29.md) — reference_mcp_fleet_scale_fix_2026_05_29.md
+- **2026-06-08** [`reference_mcp_metrics_observability_2026_05_30.md`](reference/reference_mcp_metrics_observability_2026_05_30.md) — reference_mcp_metrics_observability_2026_05_30.md
+- **2026-06-08** [`reference_mcp_bootgrace_dormant_wiring_2026_06_04.md`](reference/reference_mcp_bootgrace_dormant_wiring_2026_06_04.md) — reference_mcp_bootgrace_dormant_wiring_2026_06_04.md
+- **2026-06-08** [`reference_mcp_cwd_convention_conflict_2026_06_08.md`](reference/reference_mcp_cwd_convention_conflict_2026_06_08.md) — MCP daemon cwd-convention conflict (drive-swap N:→H: regression) — 2026-06-08 (slot:bravo)
+- **2026-06-08** [`reference_math_science_coverage_audit_2026_05_22.md`](reference/reference_math_science_coverage_audit_2026_05_22.md) — PRISM Math & Science Coverage Audit (2026-05-22, slot november, /forge-audit-v2)
+- **2026-06-08** [`reference_mazatrol_vs_gmcode_paradigm_2026_05_27.md`](reference/reference_mazatrol_vs_gmcode_paradigm_2026_05_27.md) — Mazatrol vs G/M-code paradigm
+- **2026-06-08** [`reference_master_index_hit_counter_2026_05_18.md`](reference/reference_master_index_hit_counter_2026_05_18.md) — U-MASTER-INDEX-HIT-COUNTER (2026-05-18 charlie)
+- **2026-06-08** [`reference_master_index_query_telemetry_2026_05_20.md`](reference/reference_master_index_query_telemetry_2026_05_20.md) — reference_master_index_query_telemetry_2026_05_20.md
+- **2026-06-08** [`reference_master_index_sidecar_2026_05_19.md`](reference/reference_master_index_sidecar_2026_05_19.md) — reference_master_index_sidecar_2026_05_19.md
+- **2026-06-08** [`reference_master_index_surface.md`](reference/reference_master_index_surface.md) — Master Index — search-first to cut Grep/Glob/Agent token waste
+- **2026-06-08** [`reference_machining_math_inventions_audit_2026_05_22.md`](reference/reference_machining_math_inventions_audit_2026_05_22.md) — Machining × Math Inventions Audit (2026-05-22, slot november, /forge-audit-v2)
+- **2026-06-08** [`reference_machining_resources_materials_census_2026_05_29.md`](reference/reference_machining_resources_materials_census_2026_05_29.md) — Machining resources + materials census (2026-05-29, slot:foxtrot, shared fleet-wide)
+- **2026-06-08** [`reference_main_tree_untracked_work_2026_05_30.md`](reference/reference_main_tree_untracked_work_2026_05_30.md) — reference_main_tree_untracked_work_2026_05_30.md
+- **2026-06-08** [`reference_lima_tribal_routing_chain_2026_05_29.md`](reference/reference_lima_tribal_routing_chain_2026_05_29.md) — reference_lima_tribal_routing_chain_2026_05_29.md
+- **2026-06-08** [`reference_lintstaged_noop_config_eats_commits.md`](reference/reference_lintstaged_noop_config_eats_commits.md) — lint-staged fake no-op config silently eats commits
+- **2026-06-08** [`reference_lock_orphan_leak_ufgc2_2026_06_04.md`](reference/reference_lock_orphan_leak_ufgc2_2026_06_04.md) — reference_lock_orphan_leak_ufgc2_2026_06_04.md
+- **2026-06-08** [`reference_loop_inject_cost_audit_2026_05_18.md`](reference/reference_loop_inject_cost_audit_2026_05_18.md) — reference_loop_inject_cost_audit_2026_05_18.md
+- **2026-06-08** [`reference_loop_inject_dedup_2026_05_18.md`](reference/reference_loop_inject_dedup_2026_05_18.md) — reference_loop_inject_dedup_2026_05_18.md
+- **2026-06-08** [`reference_lima_mit_ocw_harvest_on_demand.md`](reference/reference_lima_mit_ocw_harvest_on_demand.md) — reference_lima_mit_ocw_harvest_on_demand.md
+- **2026-06-08** [`reference_lima_pypdf_extraction_canonical_2026_05_26.md`](reference/reference_lima_pypdf_extraction_canonical_2026_05_26.md) — Lima's pypdf extractor — empirically canonical (slot:delta 2026-05-26)
+- **2026-06-08** [`reference_lima_scaffold_force_multiplier.md`](reference/reference_lima_scaffold_force_multiplier.md) — reference_lima_scaffold_force_multiplier.md
+- **2026-06-08** [`reference_lima_course_namespaces.md`](reference/reference_lima_course_namespaces.md) — reference_lima_course_namespaces.md
+- **2026-06-08** [`reference_lima_loop_post_compact_2026_05_22.md`](reference/reference_lima_loop_post_compact_2026_05_22.md) — lima /loop post-compact continuation — 2026-05-22
+- **2026-06-08** [`reference_lima_mcdl_mcfi_in_prism_dev.md`](reference/reference_lima_mcdl_mcfi_in_prism_dev.md) — reference_lima_mcdl_mcfi_in_prism_dev.md
+- **2026-06-08** [`reference_lima_academy_three_leg_ship.md`](reference/reference_lima_academy_three_leg_ship.md) — reference_lima_academy_three_leg_ship.md
+- **2026-06-08** [`reference_lima_branch_drift_academy.md`](reference/reference_lima_branch_drift_academy.md) — reference_lima_branch_drift_academy.md
+- **2026-06-08** [`reference_lima_citation_at_claim.md`](reference/reference_lima_citation_at_claim.md) — reference_lima_citation_at_claim.md
+- **2026-06-08** [`reference_lima_academy_expansion_2026_05_24_session.md`](reference/reference_lima_academy_expansion_2026_05_24_session.md) — Lima Academy Expansion Session — 2026-05-24 iter25-iter31
+- **2026-06-08** [`reference_lima_academy_galaxy_2026_05_28.md`](reference/reference_lima_academy_galaxy_2026_05_28.md) — reference_lima_academy_galaxy_2026_05_28.md
+- **2026-06-08** [`reference_lima_academy_engine_map.md`](reference/reference_lima_academy_engine_map.md) — reference_lima_academy_engine_map.md
+- **2026-06-08** [`reference_lima_academy_awareness_surface_2026_05_29.md`](reference/reference_lima_academy_awareness_surface_2026_05_29.md) — reference_lima_academy_awareness_surface_2026_05_29.md
+- **2026-06-08** [`reference_lima_academy_audits.md`](reference/reference_lima_academy_audits.md) — reference_lima_academy_audits.md
+- **2026-06-08** [`reference_lathe_wizard_vendor_lookup_design_2026_05_27.md`](reference/reference_lathe_wizard_vendor_lookup_design_2026_05_27.md) — Wizard vendor-lookup design
+- **2026-06-08** [`reference_lathe_wizard_build_wire_plan_2026_05_27.md`](reference/reference_lathe_wizard_build_wire_plan_2026_05_27.md) — Lathe Wizard — Build/Wire Execution Plan
+- **2026-06-08** [`reference_lathe_vendor_expansion_deep_curate_design_2026_05_27.md`](reference/reference_lathe_vendor_expansion_deep_curate_design_2026_05_27.md) — Tier-B vendor deep-curate design
+- **2026-06-08** [`reference_lathe_vendor_graph_node_design_2026_05_27.md`](reference/reference_lathe_vendor_graph_node_design_2026_05_27.md) — Lathe-vendor /system-viz roost design
+- **2026-06-08** [`reference_lathe_vendor_pdf_download_design_2026_05_27.md`](reference/reference_lathe_vendor_pdf_download_design_2026_05_27.md) — Vendor PDF download workflow design
+- **2026-06-08** [`reference_lathe_roundtrip_accuracy_rung_b_2026_06_03.md`](reference/reference_lathe_roundtrip_accuracy_rung_b_2026_06_03.md) — Lathe print→program ROUNDTRIP accuracy — Rung B (slot:whiskey, 2026-06-03)
+- **2026-06-08** [`reference_lathe_training_loop_stages_1_5_design_2026_05_27.md`](reference/reference_lathe_training_loop_stages_1_5_design_2026_05_27.md) — Training-loop stages 1-5 implementation design
+- **2026-06-08** [`reference_lathe_tribal_query_dispatcher_design_2026_05_27.md`](reference/reference_lathe_tribal_query_dispatcher_design_2026_05_27.md) — Tribal-query MCP dispatcher design
+- **2026-06-08** [`reference_lathe_p2p_consensus_ms4_2026_05_23.md`](reference/reference_lathe_p2p_consensus_ms4_2026_05_23.md) — LATHE-P2P-CONSENSUS-MS4 — 7/7 units shipped 2026-05-23 (slot echo)
+- **2026-06-08** [`reference_lathe_print_to_program_accuracy_state_2026_06_03.md`](reference/reference_lathe_print_to_program_accuracy_state_2026_06_03.md) — reference_lathe_print_to_program_accuracy_state_2026_06_03.md
+- **2026-06-08** [`reference_lathe_program_quality_rubric_2026_05_27.md`](reference/reference_lathe_program_quality_rubric_2026_05_27.md) — Lathe-program quality rubric (10-point)
+- **2026-06-08** [`reference_lathe_media_ingest_pipeline_design_2026_05_27.md`](reference/reference_lathe_media_ingest_pipeline_design_2026_05_27.md) — Manufacturing-magazine media ingest pipeline design
+- **2026-06-08** [`reference_lathe_goal_phase1_compile_2026_05_22.md`](reference/reference_lathe_goal_phase1_compile_2026_05_22.md) — Lathe multi-phase /goal — Phase 1 compile (2026-05-22, hotel)
+- **2026-06-08** [`reference_lathe_h_class_cbn_expansion_design_2026_05_27.md`](reference/reference_lathe_h_class_cbn_expansion_design_2026_05_27.md) — H-class CBN expansion design
+- **2026-06-08** [`reference_lathe_machine_vendor_models_design_2026_05_27.md`](reference/reference_lathe_machine_vendor_models_design_2026_05_27.md) — Machine-vendor-models design
+- **2026-06-08** [`reference_lathe_dispatcher_wire_session_2026_05_19.md`](reference/reference_lathe_dispatcher_wire_session_2026_05_19.md) — reference_lathe_dispatcher_wire_session_2026_05_19.md
+- **2026-06-08** [`reference_lathe_g76_thread_validator_design_2026_05_27.md`](reference/reference_lathe_g76_thread_validator_design_2026_05_27.md) — G76 thread-validator design
+- **2026-06-08** [`reference_lathe_cycle_time_levers_2026_05_27.md`](reference/reference_lathe_cycle_time_levers_2026_05_27.md) — CNC lathe cycle-time levers
+- **2026-06-08** [`reference_lathe_adaptive_pipeline_assessment_2026_05_27.md`](reference/reference_lathe_adaptive_pipeline_assessment_2026_05_27.md) — Lathe adaptive pipeline assessment — pointer
+- **2026-06-08** [`reference_lathe_canned_cycle_dialects_2026_05_27.md`](reference/reference_lathe_canned_cycle_dialects_2026_05_27.md) — Lathe canned-cycle dialect map
+- **2026-06-08** [`reference_knowledge_injection_pipeline_2026_05_17.md`](reference/reference_knowledge_injection_pipeline_2026_05_17.md) — reference_knowledge_injection_pipeline_2026_05_17.md
+- **2026-06-08** [`reference_kp2p01_fiveaxis_absorption_2026_05_22.md`](reference/reference_kp2p01_fiveaxis_absorption_2026_05_22.md) — reference_kp2p01_fiveaxis_absorption_2026_05_22.md
+- **2026-06-08** [`reference_lathe_ab_version_locator_design_2026_05_27.md`](reference/reference_lathe_ab_version_locator_design_2026_05_27.md) — A/B-version locator design
+- **2026-06-08** [`reference_kimi_k26_ollama_cloud_free_verdict_2026_06.md`](reference/reference_kimi_k26_ollama_cloud_free_verdict_2026_06.md) — reference_kimi_k26_ollama_cloud_free_verdict_2026_06.md
+- **2026-06-08** [`reference_knowledge_conversion_ms0_2026_05_17.md`](reference/reference_knowledge_conversion_ms0_2026_05_17.md) — KNOWLEDGE-CONVERSION-MS0 — shipped 2026-05-17
+- **2026-06-08** [`reference_kilo_fusion_backend_nav_map_2026_05_31.md`](reference/reference_kilo_fusion_backend_nav_map_2026_05_31.md) — reference_kilo_fusion_backend_nav_map_2026_05_31.md
+- **2026-06-08** [`reference_kilo_queue_false_positives_2026_05_20.md`](reference/reference_kilo_queue_false_positives_2026_05_20.md) — Kilo task queue — remaining units are false positives (2026-05-20)
+- **2026-06-08** [`reference_kilo_reorient_2026_05_26.md`](reference/reference_kilo_reorient_2026_05_26.md) — Kilo reorient 2026-05-26 — queue exhausted post-CAM-AI-TRAINING closeout (slot:kilo)
+- **2026-06-08** [`reference_kilo_cam_wiring_campaign_2026_05_29.md`](reference/reference_kilo_cam_wiring_campaign_2026_05_29.md) — reference_kilo_cam_wiring_campaign_2026_05_29.md
+- **2026-06-08** [`reference_kilo_fusion_addin_port_fork_2026_05_30.md`](reference/reference_kilo_fusion_addin_port_fork_2026_05_30.md) — reference_kilo_fusion_addin_port_fork_2026_05_30.md
+- **2026-06-08** [`reference_kilo_cam_strategy_class_map_2026_05_28.md`](reference/reference_kilo_cam_strategy_class_map_2026_05_28.md) — reference_kilo_cam_strategy_class_map_2026_05_28.md
+- **2026-06-08** [`reference_kilo_cam_vendor_bridges_2026_05_28.md`](reference/reference_kilo_cam_vendor_bridges_2026_05_28.md) — reference_kilo_cam_vendor_bridges_2026_05_28.md
+- **2026-06-08** [`reference_kilo_cam_mastery_campaign_close_2026_05_25.md`](reference/reference_kilo_cam_mastery_campaign_close_2026_05_25.md) — Kilo CAM-mastery campaign close-out (2026-05-25, slot:kilo)
+- **2026-06-08** [`reference_kilo_cam_pivot_2026_05_24.md`](reference/reference_kilo_cam_pivot_2026_05_24.md) — Kilo CAM-specialist pivot (2026-05-24, slot:kilo /loop)
+- **2026-06-08** [`reference_kilo_cam_psn_edges_complete_2026_05_29.md`](reference/reference_kilo_cam_psn_edges_complete_2026_05_29.md) — reference_kilo_cam_psn_edges_complete_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_juliett_edge_2026_05_29.md`](reference/reference_kilo_cam_juliett_edge_2026_05_29.md) — reference_kilo_cam_juliett_edge_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_live_drive_layer_exists_2026_05_29.md`](reference/reference_kilo_cam_live_drive_layer_exists_2026_05_29.md) — reference_kilo_cam_live_drive_layer_exists_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_fusion_enumerator_2026_05_29.md`](reference/reference_kilo_cam_fusion_enumerator_2026_05_29.md) — reference_kilo_cam_fusion_enumerator_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_galaxy_buildout_2026_05_28.md`](reference/reference_kilo_cam_galaxy_buildout_2026_05_28.md) — reference_kilo_cam_galaxy_buildout_2026_05_28.md
+- **2026-06-08** [`reference_kilo_cam_galaxy_completeness_audit_2026_05_29.md`](reference/reference_kilo_cam_galaxy_completeness_audit_2026_05_29.md) — reference_kilo_cam_galaxy_completeness_audit_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_gsd_2026_05_29.md`](reference/reference_kilo_cam_gsd_2026_05_29.md) — reference_kilo_cam_gsd_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_drive_ms0_2026_05_29.md`](reference/reference_kilo_cam_drive_ms0_2026_05_29.md) — reference_kilo_cam_drive_ms0_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_drive_recipe_engine_2026_05_31.md`](reference/reference_kilo_cam_drive_recipe_engine_2026_05_31.md) — reference_kilo_cam_drive_recipe_engine_2026_05_31.md
+- **2026-06-08** [`reference_kilo_cam_dispatcher_surface_2026_05_28.md`](reference/reference_kilo_cam_dispatcher_surface_2026_05_28.md) — reference_kilo_cam_dispatcher_surface_2026_05_28.md
+- **2026-06-08** [`reference_kilo_cam_awareness_surface_2026_05_28.md`](reference/reference_kilo_cam_awareness_surface_2026_05_28.md) — reference_kilo_cam_awareness_surface_2026_05_28.md
+- **2026-06-08** [`reference_kilo_cam_catalog_grounded_source_feasibility_2026_05_29.md`](reference/reference_kilo_cam_catalog_grounded_source_feasibility_2026_05_29.md) — reference_kilo_cam_catalog_grounded_source_feasibility_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_catalog_query_2026_05_29.md`](reference/reference_kilo_cam_catalog_query_2026_05_29.md) — reference_kilo_cam_catalog_query_2026_05_29.md
+- **2026-06-08** [`reference_kilo_cam_collision_gate_2026_05_29.md`](reference/reference_kilo_cam_collision_gate_2026_05_29.md) — reference_kilo_cam_collision_gate_2026_05_29.md
+- **2026-06-08** [`reference_khairallah_5layer_context_engineering_2026_05_28.md`](reference/reference_khairallah_5layer_context_engineering_2026_05_28.md) — reference_khairallah_5layer_context_engineering_2026_05_28.md
+- **2026-06-08** [`reference_kilo_5axis_setup_sop_2026_05_30.md`](reference/reference_kilo_5axis_setup_sop_2026_05_30.md) — reference_kilo_5axis_setup_sop_2026_05_30.md
+- **2026-06-08** [`reference_juliett_u_mono_mat_repoint_broken_2026_05_25.md`](reference/reference_juliett_u_mono_mat_repoint_broken_2026_05_25.md) — U-MONO-MAT-REPOINT — R12 fail-loud finding (2026-05-25 juliett `claude-f75381c1`)
+- **2026-06-08** [`reference_karpathy_obsidian_4layer_framework_2026_05_28.md`](reference/reference_karpathy_obsidian_4layer_framework_2026_05_28.md) — reference_karpathy_obsidian_4layer_framework_2026_05_28.md
+- **2026-06-08** [`reference_juliett_tmp_orphan_leak_2026_05_29.md`](reference/reference_juliett_tmp_orphan_leak_2026_05_29.md) — reference_juliett_tmp_orphan_leak_2026_05_29.md
+- **2026-06-08** [`reference_juliett_tooling_stock_handoff_to_hotel_2026_05_29.md`](reference/reference_juliett_tooling_stock_handoff_to_hotel_2026_05_29.md) — reference_juliett_tooling_stock_handoff_to_hotel_2026_05_29.md
+- **2026-06-08** [`reference_juliett_tribal_corpus_pattern_2026_05_29.md`](reference/reference_juliett_tribal_corpus_pattern_2026_05_29.md) — reference_juliett_tribal_corpus_pattern_2026_05_29.md
+- **2026-06-08** [`reference_juliett_galaxy_buildout_2026_05_29.md`](reference/reference_juliett_galaxy_buildout_2026_05_29.md) — reference_juliett_galaxy_buildout_2026_05_29.md
+- **2026-06-08** [`reference_juliett_jm_die_database_2026_05_29.md`](reference/reference_juliett_jm_die_database_2026_05_29.md) — reference_juliett_jm_die_database_2026_05_29.md
+- **2026-06-08** [`reference_juliett_nwriter_race_map_2026_05_29.md`](reference/reference_juliett_nwriter_race_map_2026_05_29.md) — reference_juliett_nwriter_race_map_2026_05_29.md
+- **2026-06-08** [`reference_juliett_persistence_engine_inventory_2026_05_29.md`](reference/reference_juliett_persistence_engine_inventory_2026_05_29.md) — reference_juliett_persistence_engine_inventory_2026_05_29.md
+- **2026-06-08** [`reference_juliett_sf_queue_stale_drift_2026_05_22.md`](reference/reference_juliett_sf_queue_stale_drift_2026_05_22.md) — reference_juliett_sf_queue_stale_drift_2026_05_22.md
+- **2026-06-08** [`reference_juliett_store_paths_2026_05_29.md`](reference/reference_juliett_store_paths_2026_05_29.md) — reference_juliett_store_paths_2026_05_29.md
+- **2026-06-08** [`reference_juliett_tmp_janitor_2026_05_29.md`](reference/reference_juliett_tmp_janitor_2026_05_29.md) — reference_juliett_tmp_janitor_2026_05_29.md
+- **2026-06-08** [`reference_juliett_12chat_allocation_2026_05_17.md`](reference/reference_juliett_12chat_allocation_2026_05_17.md) — JULIETT 12-chat allocation (2026-05-17, juliett iter-2)
+- **2026-06-08** [`reference_juliett_db_coverage_consolidation_insight_2026_06_03.md`](reference/reference_juliett_db_coverage_consolidation_insight_2026_06_03.md) — reference_juliett_db_coverage_consolidation_insight_2026_06_03.md
+- **2026-06-08** [`reference_juliett_devtools_synergy_map_2026_05_17.md`](reference/reference_juliett_devtools_synergy_map_2026_05_17.md) — JULIETT devtools synergy map (2026-05-17, juliett iter-3 + iter-3.5)
+- **2026-06-08** [`reference_jsonl_db_loader_regression_2026_06_06.md`](reference/reference_jsonl_db_loader_regression_2026_06_06.md) — reference_jsonl_db_loader_regression_2026_06_06.md
+- **2026-06-08** [`reference_jm_vmc_spindle_envelopes_2026_06_02.md`](reference/reference_jm_vmc_spindle_envelopes_2026_06_02.md) — JM mill fleet spindle envelopes — verified (slot foxtrot, 2026-06-02)
+- **2026-06-08** [`reference_jm_trilobe_example_step_analysis_2026_05_27.md`](reference/reference_jm_trilobe_example_step_analysis_2026_05_27.md) — JM Trilobe Reference STEP File — Full Analysis (2026-05-27)
+- **2026-06-08** [`reference_jm_lathe_corpus_and_lightsout_subroutines_2026_06_02.md`](reference/reference_jm_lathe_corpus_and_lightsout_subroutines_2026_06_02.md) — JM lathe .min corpus + lights-out subroutines (slot:whiskey, 2026-06-02)
+- **2026-06-08** [`reference_jm_lathe_finishing_allowances_carbide_pressfit_2026_06_01.md`](reference/reference_jm_lathe_finishing_allowances_carbide_pressfit_2026_06_01.md) — JM Die lathe finishing-allowance practice — carbide press-fit (slot:whiskey, 2026-06-01)
+- **2026-06-08** [`reference_jm_lathe_post_audit_2026_05_23.md`](reference/reference_jm_lathe_post_audit_2026_05_23.md) — JM Die Lathe Post-Processor Audit — mike 2026-05-23
+- **2026-06-08** [`reference_jm_financial_stores_pathed_2026_06_04.md`](reference/reference_jm_financial_stores_pathed_2026_06_04.md) — reference_jm_financial_stores_pathed_2026_06_04.md
+- **2026-06-08** [`reference_jm_fusion_compat_gate_machine_db_2026_06_01.md`](reference/reference_jm_fusion_compat_gate_machine_db_2026_06_01.md) — reference_jm_fusion_compat_gate_machine_db_2026_06_01.md
+- **2026-06-08** [`reference_jm_fusion_matgroup_libraries_2026_06_01.md`](reference/reference_jm_fusion_matgroup_libraries_2026_06_01.md) — reference_jm_fusion_matgroup_libraries_2026_06_01.md
+- **2026-06-08** [`reference_jm_die_v2_upgrade_pattern_2026_05_27.md`](reference/reference_jm_die_v2_upgrade_pattern_2026_05_27.md) — JM-Die v2.0.0 upgrade pattern (empirical training signal)
+- **2026-06-08** [`reference_jm_doc_population_ms0_2026_06_02.md`](reference/reference_jm_doc_population_ms0_2026_06_02.md) — JM-DOC-POPULATION-MS0 (slot:hotel, 2026-06-02)
+- **2026-06-08** [`reference_jm_doc_query_wired_2026_06_04.md`](reference/reference_jm_doc_query_wired_2026_06_04.md) — reference_jm_doc_query_wired_2026_06_04.md
+- **2026-06-08** [`reference_jm_die_v2_upgrade_camcar_passthrough_2026_05_27.md`](reference/reference_jm_die_v2_upgrade_camcar_passthrough_2026_05_27.md) — CAMCAR v2.0.0 = pure annotation pass-through
+- **2026-06-08** [`reference_jm_die_tribal_wiki_extraction_starter_2026_05_26.md`](reference/reference_jm_die_tribal_wiki_extraction_starter_2026_05_26.md) — JM DIE/TRIBAL + WIKI extraction — starter pass (slot:delta 2026-05-26)
+- **2026-06-08** [`reference_jm_die_tribal_wiki_full_extraction_run_2026_05_26.md`](reference/reference_jm_die_tribal_wiki_full_extraction_run_2026_05_26.md) — JM DIE/TRIBAL + WIKI full extraction run (slot:delta 2026-05-26 /loop /yolo /goal)
+- **2026-06-08** [`reference_jm_die_tribal_wiki_100pct_complete_2026_05_26.md`](reference/reference_jm_die_tribal_wiki_100pct_complete_2026_05_26.md) — JM DIE/TRIBAL + WIKI — 100% extraction complete (slot:delta 2026-05-26 /loop /yolo /goal)
+- **2026-06-08** [`reference_jm_die_shop_page_e2e_verified_2026_05_24.md`](reference/reference_jm_die_shop_page_e2e_verified_2026_05_24.md) — JM-Die Shop Page · End-to-End Verified (slot:romeo, 2026-05-24)
+- **2026-06-08** [`reference_jm_die_organize_ms0_2026_05_27.md`](reference/reference_jm_die_organize_ms0_2026_05_27.md) — JM-DIE-ORGANIZE-MS0 (2026-05-27, slot uniform)
+- **2026-06-08** [`reference_jm_die_lathe_upgrade_v2_physics_2026_05_24.md`](reference/reference_jm_die_lathe_upgrade_v2_physics_2026_05_24.md) — JM Die Lathe Upgrader V2 — physics-driven, ISO-group-aware
+- **2026-06-08** [`reference_jm_die_lathe_upgrade_yolo_session_2026_05_25.md`](reference/reference_jm_die_lathe_upgrade_yolo_session_2026_05_25.md) — JM-DIE-LATHE-UPGRADE-MS0 YOLO session — 2026-05-25 whiskey iter22-37
+- **2026-06-08** [`reference_jm_die_library_consolidation_2026_05_24.md`](reference/reference_jm_die_library_consolidation_2026_05_24.md) — JM-Die part library consolidation — papa /loop 2026-05-24
+- **2026-06-08** [`reference_jm_die_fleet_scan_ms0_2026_05_24.md`](reference/reference_jm_die_fleet_scan_ms0_2026_05_24.md) — JM-DIE-FLEET-SCAN-MS0 — SHIPPED (charlie /goal-16, 2026-05-24)
+- **2026-06-08** [`reference_jm_die_is_okuma_heavy_implications_2026_05_27.md`](reference/reference_jm_die_is_okuma_heavy_implications_2026_05_27.md) — JM-Die is Okuma-heavy — wizard-lever firing implications
+- **2026-06-08** [`reference_jm_die_curriculum_pipeline_2026_05_26.md`](reference/reference_jm_die_curriculum_pipeline_2026_05_26.md) — JM Die curriculum pipeline (iter9-17, slot echo, 2026-05-26)
+- **2026-06-08** [`reference_jm_die_electrode_xlsm_format_2026_05_27.md`](reference/reference_jm_die_electrode_xlsm_format_2026_05_27.md) — JM Die Electrode xlsm — canonical parametric-CAD template format (2026-05-27)
+- **2026-06-08** [`reference_i_track_not_phantom_2026_05_20.md`](reference/reference_i_track_not_phantom_2026_05_20.md) — reference_i_track_not_phantom_2026_05_20.md
+- **2026-06-08** [`reference_jc_canonical_branch_divergence_2026_06_03.md`](reference/reference_jc_canonical_branch_divergence_2026_06_03.md) — reference_jc_canonical_branch_divergence_2026_06_03.md
+- **2026-06-08** [`reference_jmdoc05_part_library_seed_2026_06_03.md`](reference/reference_jmdoc05_part_library_seed_2026_06_03.md) — reference_jmdoc05_part_library_seed_2026_06_03.md
+- **2026-06-08** [`reference_iter4_gilbert_clean_attribution_2026_05_20.md`](reference/reference_iter4_gilbert_clean_attribution_2026_05_20.md) — Iter-4 — Gilbert wire clean attribution + the pattern that beat peer-absorption
+- **2026-06-08** [`reference_iter3_misattribution_2026_05_20.md`](reference/reference_iter3_misattribution_2026_05_20.md) — Iter-3 misattribution — speedfeed_dl_stats R12-safe wire shipped under wrong slot banner
+- **2026-06-08** [`reference_iter2_html_adopt_misattribution_2026_05_18.md`](reference/reference_iter2_html_adopt_misattribution_2026_05_18.md) — reference_iter2_html_adopt_misattribution_2026_05_18.md
+- **2026-06-08** [`reference_iter279_sfs_g80_anomaly_2026_05_27.md`](reference/reference_iter279_sfs_g80_anomaly_2026_05_27.md) — iter279 SFS G80 Anomaly
+- **2026-06-08** [`reference_iter218_alcoa_outlier_retraction_2026_05_27.md`](reference/reference_iter218_alcoa_outlier_retraction_2026_05_27.md) — Iter218 ALCOA-outlier retraction (R12 fail-loud)
+- **2026-06-08** [`reference_iter12_full_swap_attribution_regression_2026_05_18.md`](reference/reference_iter12_full_swap_attribution_regression_2026_05_18.md) — reference_iter12_full_swap_attribution_regression_2026_05_18.md
+- **2026-06-08** [`reference_insert_edge_rotation_strategy_2026_05_27.md`](reference/reference_insert_edge_rotation_strategy_2026_05_27.md) — Insert edge-rotation strategy (ANSI lathe inserts)
+- **2026-06-08** [`reference_intel_ollama_p22_u03_collision.md`](reference/reference_intel_ollama_p22_u03_collision.md) — INTEL-OLLAMA-OBSIDIAN-MS0 / P22-U03 collision — 2026-05-13
+- **2026-06-08** [`reference_iter10_hotel_absorption_2026_05_26.md`](reference/reference_iter10_hotel_absorption_2026_05_26.md) — iter10 charlie commit absorbed hotel-slot peer files (2026-05-26)
+- **2026-06-08** [`reference_iter11_cross_attribution_regression_2026_05_18.md`](reference/reference_iter11_cross_attribution_regression_2026_05_18.md) — reference_iter11_cross_attribution_regression_2026_05_18.md
+- **2026-06-08** [`reference_infra_agi_router_ms2_p1_complete_2026_05_21.md`](reference/reference_infra_agi_router_ms2_p1_complete_2026_05_21.md) — INFRA-AGI-ROUTER-MS2 P1 phase COMPLETE — milestone fully done
+- **2026-06-08** [`reference_infra_agi_router_ms2_p1_u01_2026_05_21.md`](reference/reference_infra_agi_router_ms2_p1_u01_2026_05_21.md) — INFRA-AGI-ROUTER-MS2/P1-U01 — domainAGIAdapterKit extracted
+- **2026-06-08** [`reference_infra_agi_router_ms2_p0_u04_2026_05_21.md`](reference/reference_infra_agi_router_ms2_p0_u04_2026_05_21.md) — INFRA-AGI-ROUTER-MS2/P0-U04 — WireEDMAGI DomainAGIIntent adapter
+- **2026-06-08** [`reference_infra_agi_router_ms2_p0_complete_2026_05_21.md`](reference/reference_infra_agi_router_ms2_p0_complete_2026_05_21.md) — INFRA-AGI-ROUTER-MS2 P0 phase COMPLETE — 5/5 units shipped
+- **2026-06-08** [`reference_infra_agi_router_ms2_p0_u02_2026_05_20.md`](reference/reference_infra_agi_router_ms2_p0_u02_2026_05_20.md) — INFRA-AGI-ROUTER-MS2/P0-U02 — MillingAGIMasterEngine DomainAGIIntent adapter
+- **2026-06-08** [`reference_infra_agi_router_ms2_p0_u03_2026_05_20.md`](reference/reference_infra_agi_router_ms2_p0_u03_2026_05_20.md) — INFRA-AGI-ROUTER-MS2/P0-U03 — LatheAGI DomainAGIIntent adapter
+- **2026-06-08** [`reference_india_self_learning_test_audit_2026_05_29.md`](reference/reference_india_self_learning_test_audit_2026_05_29.md) — reference_india_self_learning_test_audit_2026_05_29.md
+- **2026-06-08** [`reference_india_soul_stale_postprocessor_2026_05_30.md`](reference/reference_india_soul_stale_postprocessor_2026_05_30.md) — reference_india_soul_stale_postprocessor_2026_05_30.md
+- **2026-06-08** [`reference_india_post_wire_2026_05_22.md`](reference/reference_india_post_wire_2026_05_22.md) — INDIA-POST-WIRE — 2 orphaned post engines wired (2026-05-22 india /loop)
+- **2026-06-08** [`reference_india_queue_complete_2026_05_22.md`](reference/reference_india_queue_complete_2026_05_22.md) — INDIA QUEUE COMPLETE — verified empty (2026-05-22 india /loop, post-/compact resume)
+- **2026-06-08** [`reference_india_post_gaps_2026_05_22.md`](reference/reference_india_post_gaps_2026_05_22.md) — INDIA-POST-GAPS — JM Die post-processor gap analysis shipped (2026-05-22 india /loop)
+- **2026-06-08** [`reference_india_post_gaps_viz_roost_2026_05_22.md`](reference/reference_india_post_gaps_viz_roost_2026_05_22.md) — INDIA-POST-GAPS-VIZ-ROOST — /system-viz surface for JM Die gap analysis (2026-05-22 india /loop iter1)
+- **2026-06-08** [`reference_india_nn_graph_state_paths_2026_05_28.md`](reference/reference_india_nn_graph_state_paths_2026_05_28.md) — reference_india_nn_graph_state_paths_2026_05_28.md
+- **2026-06-08** [`reference_india_lora_stack_inventory_2026_05_28.md`](reference/reference_india_lora_stack_inventory_2026_05_28.md) — reference_india_lora_stack_inventory_2026_05_28.md
+- **2026-06-08** [`reference_india_ms1_u6_blueprint_corpus_harvest_2026_05_29.md`](reference/reference_india_ms1_u6_blueprint_corpus_harvest_2026_05_29.md) — reference_india_ms1_u6_blueprint_corpus_harvest_2026_05_29.md
+- **2026-06-08** [`reference_india_iter2_sidecar_pivot_2026_05_23.md`](reference/reference_india_iter2_sidecar_pivot_2026_05_23.md) — India iter2 pivot — sidecar rollout → unwired-engine wiring (2026-05-23)
+- **2026-06-08** [`reference_india_iter3_ppunify_wire_misattributed_2026_05_23.md`](reference/reference_india_iter3_ppunify_wire_misattributed_2026_05_23.md) — India iter3 — PostProcessorUnificationEngine wire (misattributed to lima 2nd time same session)
+- **2026-06-08** [`reference_india_iter4_hpm_wire_2026_05_23.md`](reference/reference_india_iter4_hpm_wire_2026_05_23.md) — India iter4-5 — HybridPostMergeEngine full wire + name-matched test (2026-05-23)
+- **2026-06-08** [`reference_india_knowledge_index_2026_05_29.md`](reference/reference_india_knowledge_index_2026_05_29.md) — reference_india_knowledge_index_2026_05_29.md
+- **2026-06-08** [`reference_india_final_assessment_2026_05_29.md`](reference/reference_india_final_assessment_2026_05_29.md) — reference_india_final_assessment_2026_05_29.md
+- **2026-06-08** [`reference_india_galaxy_audit_2026_05_29.md`](reference/reference_india_galaxy_audit_2026_05_29.md) — reference_india_galaxy_audit_2026_05_29.md
+- **2026-06-08** [`reference_india_closeout_misattributed_lima_2026_05_23.md`](reference/reference_india_closeout_misattributed_lima_2026_05_23.md) — India iter1 close-out misattributed to lima — 2026-05-23
+- **2026-06-08** [`reference_india_domain_awareness_2026_05_28.md`](reference/reference_india_domain_awareness_2026_05_28.md) — reference_india_domain_awareness_2026_05_28.md
+- **2026-06-08** [`reference_india_domain_rules_gsd_2026_05_29.md`](reference/reference_india_domain_rules_gsd_2026_05_29.md) — reference_india_domain_rules_gsd_2026_05_29.md
+- **2026-06-08** [`reference_india_ai_systems_deepdive_2026_05_29.md`](reference/reference_india_ai_systems_deepdive_2026_05_29.md) — reference_india_ai_systems_deepdive_2026_05_29.md
+- **2026-06-08** [`reference_india_ai_training_galaxy_2026_05_28.md`](reference/reference_india_ai_training_galaxy_2026_05_28.md) — reference_india_ai_training_galaxy_2026_05_28.md
+- **2026-06-08** [`reference_india_alpha_scaffold_corrections_2026_05_28.md`](reference/reference_india_alpha_scaffold_corrections_2026_05_28.md) — reference_india_alpha_scaffold_corrections_2026_05_28.md
+- **2026-06-08** [`reference_india_closed_loop_ownership_2026_05_28.md`](reference/reference_india_closed_loop_ownership_2026_05_28.md) — reference_india_closed_loop_ownership_2026_05_28.md
+- **2026-06-08** [`reference_humza_khalid_obsidian_article_2026_06_08.md`](reference/reference_humza_khalid_obsidian_article_2026_06_08.md) — reference_humza_khalid_obsidian_article_2026_06_08.md
+- **2026-06-08** [`reference_hurco_winmax_proveout_ms0_2026_05_23.md`](reference/reference_hurco_winmax_proveout_ms0_2026_05_23.md) — reference_hurco_winmax_proveout_ms0_2026_05_23.md
+- **2026-06-08** [`reference_hva_validator_collision.md`](reference/reference_hva_validator_collision.md) — 2026-05-15 — HVA validator + parser-fix iter 1+2 commit-collision absorption
+- **2026-06-08** [`reference_hypermill_use_v31_not_v33_2026_05_27.md`](reference/reference_hypermill_use_v31_not_v33_2026_05_27.md) — Open Mind hyperCAD-S / hyperMILL: USE v31, NEVER v33 (2026-05-27)
+- **2026-06-08** [`reference_hotel_mus_customer_analytics_2026_05_22.md`](reference/reference_hotel_mus_customer_analytics_2026_05_22.md) — Hotel /loop — muS customer-analytics cluster (2026-05-22)
+- **2026-06-08** [`reference_hotel_netplat_complete_2026_05_31.md`](reference/reference_hotel_netplat_complete_2026_05_31.md) — reference_hotel_netplat_complete_2026_05_31.md
+- **2026-06-08** [`reference_hotel_psn_audit_2026_05_29.md`](reference/reference_hotel_psn_audit_2026_05_29.md) — reference_hotel_psn_audit_2026_05_29.md
+- **2026-06-08** [`reference_hotel_marathon_iter32_38_2026_05_26.md`](reference/reference_hotel_marathon_iter32_38_2026_05_26.md) — Hotel iter32-iter38 marathon — 2026-05-26 /goal /yolo
+- **2026-06-08** [`reference_hotel_galaxy_completeness_audit_2026_05_29.md`](reference/reference_hotel_galaxy_completeness_audit_2026_05_29.md) — reference_hotel_galaxy_completeness_audit_2026_05_29.md
+- **2026-06-08** [`reference_hotel_jm_die_back_office_geography.md`](reference/reference_hotel_jm_die_back_office_geography.md) — reference_hotel_jm_die_back_office_geography.md
+- **2026-06-08** [`reference_hotel_jm_die_vendor_data_ingest_2026_05_29.md`](reference/reference_hotel_jm_die_vendor_data_ingest_2026_05_29.md) — reference_hotel_jm_die_vendor_data_ingest_2026_05_29.md
+- **2026-06-08** [`reference_hotel_erp_hr_marathon_2026_05_25.md`](reference/reference_hotel_erp_hr_marathon_2026_05_25.md) — HOTEL slot ERP/HR/employee-portal marathon — 2026-05-25 /goal /yolo
+- **2026-06-08** [`reference_hotel_exfat_stub_pattern.md`](reference/reference_hotel_exfat_stub_pattern.md) — reference_hotel_exfat_stub_pattern.md
+- **2026-06-08** [`reference_hotel_business_engine_buckets_2026_05_28.md`](reference/reference_hotel_business_engine_buckets_2026_05_28.md) — reference_hotel_business_engine_buckets_2026_05_28.md
+- **2026-06-08** [`reference_hotel_business_galaxy_2026_05_28.md`](reference/reference_hotel_business_galaxy_2026_05_28.md) — reference_hotel_business_galaxy_2026_05_28.md
+- **2026-06-08** [`reference_hotel_cpk_role_floors.md`](reference/reference_hotel_cpk_role_floors.md) — reference_hotel_cpk_role_floors.md
+- **2026-06-08** [`reference_hotel_dispatcher_bucket_map_2026_05_28.md`](reference/reference_hotel_dispatcher_bucket_map_2026_05_28.md) — reference_hotel_dispatcher_bucket_map_2026_05_28.md
+- **2026-06-08** [`reference_hotel_domain_maximize_2026_05_29.md`](reference/reference_hotel_domain_maximize_2026_05_29.md) — reference_hotel_domain_maximize_2026_05_29.md
+- **2026-06-08** [`reference_hook_wiring_yolo_25_2026_05_16.md`](reference/reference_hook_wiring_yolo_25_2026_05_16.md) — YOLO hook-wiring session — 25 dev-tool hooks wired
+- **2026-06-08** [`reference_hook_wiring_audit_2026_05_15.md`](reference/reference_hook_wiring_audit_2026_05_15.md) — 2026-05-15 — Stop/Pre/Post hook wiring audit (RESOLVED — rewired)
+- **2026-06-08** [`reference_hook_orphan_validator.md`](reference/reference_hook_orphan_validator.md) — scripts/validate-hook-orphan-signal.mjs — companion to engine validator
+- **2026-06-08** [`reference_hook_fork_storm_rootcause_2026_05_16.md`](reference/reference_hook_fork_storm_rootcause_2026_05_16.md) — reference_hook_fork_storm_rootcause_2026_05_16.md
+- **2026-06-08** [`reference_hook_orphan_reconcile_2026_05_17.md`](reference/reference_hook_orphan_reconcile_2026_05_17.md) — SYSTEM-VIZ-BRAIN-MS0 close-out wave 2 (slot echo, 2026-05-17)
+- **2026-06-08** [`reference_hook_fire_counts_selection_bias_2026_05_18.md`](reference/reference_hook_fire_counts_selection_bias_2026_05_18.md) — hook-fire-counts.jsonl has selection bias (2026-05-18, golf claude-b23a56ef)
+- **2026-06-08** [`reference_high_roi_ai_psn_scope_2026_05_23.md`](reference/reference_high_roi_ai_psn_scope_2026_05_23.md) — HIGH-ROI-AI-PSN-SCOPE — 48 enumerated AI/ML/DL units across PSN (2026-05-23, slot golf)
+- **2026-06-08** [`reference_holder_taper_contact_categorization_2026_06_01.md`](reference/reference_holder_taper_contact_categorization_2026_06_01.md) — reference_holder_taper_contact_categorization_2026_06_01.md
+- **2026-06-08** [`reference_hermes_zulu_ms0_2026_05_20.md`](reference/reference_hermes_zulu_ms0_2026_05_20.md) — HERMES-MS0 first units shipped 2026-05-20 (slot november/foxtrot via claude-5852a0b9)
+- **2026-06-08** [`reference_hermes_on_claude_subscription_opus48_2026_06_04.md`](reference/reference_hermes_on_claude_subscription_opus48_2026_06_04.md) — reference_hermes_on_claude_subscription_opus48_2026_06_04.md
+- **2026-06-08** [`reference_hermes_router_u1_2026_06_04.md`](reference/reference_hermes_router_u1_2026_06_04.md) — HERMES-EFFICIENCY-ROUTER — U1 keystone shipped (2026-06-04, slot:alpha)
+- **2026-06-08** [`reference_hermes_memory_vault_ms0_2026_05_23.md`](reference/reference_hermes_memory_vault_ms0_2026_05_23.md) — HERMES-MEMORY-VAULT-MS0 — envelope + research spec (2026-05-23, slot bravo)
+- **2026-06-08** [`reference_hermes_master_orchestrator_arch_2026_06_02.md`](reference/reference_hermes_master_orchestrator_arch_2026_06_02.md) — reference_hermes_master_orchestrator_arch_2026_06_02.md
+- **2026-06-08** [`reference_hermes_mcp_plugin_inventory_ms0_2026_05_24.md`](reference/reference_hermes_mcp_plugin_inventory_ms0_2026_05_24.md) — HERMES-MCP-PLUGIN-INVENTORY-MS0 — MCP servers + Claude Code plugins audit (2026-05-24, slot bravo)
+- **2026-06-08** [`reference_hermes_evolving_skills_gap_2026_05_17.md`](reference/reference_hermes_evolving_skills_gap_2026_05_17.md) — reference_hermes_evolving_skills_gap_2026_05_17.md
+- **2026-06-08** [`reference_hermes_local_model_autonomy_2026_06_04.md`](reference/reference_hermes_local_model_autonomy_2026_06_04.md) — reference_hermes_local_model_autonomy_2026_06_04.md
+- **2026-06-08** [`reference_hermes_control_readiness_nogo_2026_06_01.md`](reference/reference_hermes_control_readiness_nogo_2026_06_01.md) — reference_hermes_control_readiness_nogo_2026_06_01.md
+- **2026-06-08** [`reference_hermes_dreaming_and_webwright_2026_05_26.md`](reference/reference_hermes_dreaming_and_webwright_2026_05_26.md) — Hermes Dreaming + Microsoft Webwright — incorporation analysis for PRISM
+- **2026-06-08** [`reference_hermes_dynamic_workflow_planner_2026_06_04.md`](reference/reference_hermes_dynamic_workflow_planner_2026_06_04.md) — reference_hermes_dynamic_workflow_planner_2026_06_04.md
+- **2026-06-08** [`reference_harness_hang_prevention.md`](reference/reference_harness_hang_prevention.md) — reference_harness_hang_prevention.md
+- **2026-06-08** [`reference_harness_wiring_audit_aam04_2026_05_16.md`](reference/reference_harness_wiring_audit_aam04_2026_05_16.md) — reference_harness_wiring_audit_aam04_2026_05_16.md
+- **2026-06-08** [`reference_hermes_app_incorporation_plan_2026_06_02.md`](reference/reference_hermes_app_incorporation_plan_2026_06_02.md) — reference_hermes_app_incorporation_plan_2026_06_02.md
+- **2026-06-08** [`reference_hermes_capability_expansion_ms0_2026_05_24.md`](reference/reference_hermes_capability_expansion_ms0_2026_05_24.md) — HERMES-CAPABILITY-EXPANSION-MS0 — envelope + research spec (2026-05-24, slot bravo)
+- **2026-06-08** [`reference_haas_tap_bare_g84_no_m29.md`](reference/reference_haas_tap_bare_g84_no_m29.md) — reference_haas_tap_bare_g84_no_m29.md
+- **2026-06-08** [`reference_hagi_ms0_session_close_2026_05_24.md`](reference/reference_hagi_ms0_session_close_2026_05_24.md) — HAGI-MS0 session close (2026-05-24, slot bravo)
+- **2026-06-08** [`reference_handoff_memory_seed.md`](reference/reference_handoff_memory_seed.md) — Handoff memory-seed — top-K distillations attached on Stop
+- **2026-06-08** [`reference_haas_ngc_mill_master_post_2026_06_01.md`](reference/reference_haas_ngc_mill_master_post_2026_06_01.md) — HaasNGCMillMasterPostEngine — Haas mill full post (slot:echo, 2026-06-01, U-PT-HAAS-ENGINE)
+- **2026-06-08** [`reference_h8_coordination_store.md`](reference/reference_h8_coordination_store.md) — 1. Dry-run to preview what would be migrated
+- **2026-06-08** [`reference_h8_misattribution_2026_05_20.md`](reference/reference_h8_misattribution_2026_05_20.md) — reference_h8_misattribution_2026_05_20.md
+- **2026-06-08** [`reference_h8_misattribution_romeo_psn_synergy_2026_05_23.md`](reference/reference_h8_misattribution_romeo_psn_synergy_2026_05_23.md) — reference_h8_misattribution_romeo_psn_synergy_2026_05_23.md
+- **2026-06-08** [`reference_grep_guard_must_police_call_and_array_positions_2026_06_04.md`](reference/reference_grep_guard_must_police_call_and_array_positions_2026_06_04.md) — reference_grep_guard_must_police_call_and_array_positions_2026_06_04.md
+- **2026-06-08** [`reference_grounding_enrichment_gaming_trap_2026_05_31.md`](reference/reference_grounding_enrichment_gaming_trap_2026_05_31.md) — Grounding-enrichment gaming trap (slot mike / wedm, U-KNOWLEDGE-GROUNDING-ENRICH, 2026-05-31)
+- **2026-06-08** [`reference_gwizard_abstains_on_generic_combos_2026_06_04.md`](reference/reference_gwizard_abstains_on_generic_combos_2026_06_04.md) — reference_gwizard_abstains_on_generic_combos_2026_06_04.md
+- **2026-06-08** [`reference_h7_async_hook_dispatcher.md`](reference/reference_h7_async_hook_dispatcher.md) — reference_h7_async_hook_dispatcher.md
+- **2026-06-08** [`reference_golf_worktree_glob_gotcha.md`](reference/reference_golf_worktree_glob_gotcha.md) — reference_golf_worktree_glob_gotcha.md
+- **2026-06-08** [`reference_gptoss_pull_synergy_golf_2026_06_04.md`](reference/reference_gptoss_pull_synergy_golf_2026_06_04.md) — reference_gptoss_pull_synergy_golf_2026_06_04.md
+- **2026-06-08** [`reference_gpu_stack_provisioned_2026_06_06.md`](reference/reference_gpu_stack_provisioned_2026_06_06.md) — Blackwell GPU training stack PROVISIONED (slot:india, 2026-06-06, operator "bypass golf and do it yourself")
+- **2026-06-08** [`reference_golf_ollama_coldload_stall.md`](reference/reference_golf_ollama_coldload_stall.md) — reference_golf_ollama_coldload_stall.md
+- **2026-06-08** [`reference_golf_pathspec_absorption_2026_05_29.md`](reference/reference_golf_pathspec_absorption_2026_05_29.md) — reference_golf_pathspec_absorption_2026_05_29.md
+- **2026-06-08** [`reference_golf_schtasks_via_powershell.md`](reference/reference_golf_schtasks_via_powershell.md) — reference_golf_schtasks_via_powershell.md
+- **2026-06-08** [`reference_goal_synergy_loop_rollup_2026_05_21.md`](reference/reference_goal_synergy_loop_rollup_2026_05_21.md) — GOAL-SYNERGY-LOOP-MS0 — 20-iter roll-up close-out
+- **2026-06-08** [`reference_golf_galaxy_buildout_2026_05_29.md`](reference/reference_golf_galaxy_buildout_2026_05_29.md) — reference_golf_galaxy_buildout_2026_05_29.md
+- **2026-06-08** [`reference_goal_formalizer_ms0_2026_05_29.md`](reference/reference_goal_formalizer_ms0_2026_05_29.md) — reference_goal_formalizer_ms0_2026_05_29.md
+- **2026-06-08** [`reference_goal_ship_report_2026_05_16.md`](reference/reference_goal_ship_report_2026_05_16.md) — U-GOAL-SHIP-REPORT — scripts/goal-ship-report.mjs
+- **2026-06-08** [`reference_gnn_node_embedding_bridge_2026_05_23.md`](reference/reference_gnn_node_embedding_bridge_2026_05_23.md) — Graph-node embedding bridge — RAG-UPGRADE-MS0 / U-GNN-NODE-EMBED-BRIDGE (2026-05-23, slot golf)
+- **2026-06-08** [`reference_gnn_selective_deploy_2026_06_06.md`](reference/reference_gnn_selective_deploy_2026_06_06.md) — GNN tier-5 deploy gate: calibration is a dead end; the tier deploys honestly as a SELECTIVE predictor (slot:india, 2026-
+- **2026-06-08** [`reference_git_history_strip_event_2026_05_12.md`](reference/reference_git_history_strip_event_2026_05_12.md) — 2026-05-12 — git history strip + force-push
+- **2026-06-08** [`reference_git_history_strip_recipe.md`](reference/reference_git_history_strip_recipe.md) — Stripping oversized blobs from PRISM git history
+- **2026-06-08** [`reference_git_index_saturation_camx11_2026_05_18.md`](reference/reference_git_index_saturation_camx11_2026_05_18.md) — reference_git_index_saturation_camx11_2026_05_18.md
+- **2026-06-08** [`reference_git_lock_routing_fix_2026_05_26.md`](reference/reference_git_lock_routing_fix_2026_05_26.md) — Slot-Worktree Routing Re-Armed (2026-05-26, slot:golf /loop iter5)
+- **2026-06-08** [`reference_git_fsmonitor_blocks_bulk_add_2026_05_24.md`](reference/reference_git_fsmonitor_blocks_bulk_add_2026_05_24.md) — git-add hangs on 1000+ files when fsmonitor enabled — 2026-05-24
+- **2026-06-08** [`reference_gemma4_octopus_combo_2026_06_04.md`](reference/reference_gemma4_octopus_combo_2026_06_04.md) — Gemma 4 31B + hybrid/combo octopus LLMs (2026-06-04, slot:alpha, U-BW-GEMMA4)
+- **2026-06-08** [`reference_genomedb_kc_false_alarm_2026_06_03.md`](reference/reference_genomedb_kc_false_alarm_2026_06_03.md) — reference_genomedb_kc_false_alarm_2026_06_03.md
+- **2026-06-08** [`reference_git_commit_pathspec_2026_05_20.md`](reference/reference_git_commit_pathspec_2026_05_20.md) — `git add <pathspec>` is NOT enough on the shared tree — `git commit` needs `-- <pathspec>` too
+- **2026-06-08** [`reference_git_crlf_windows_reality_2026_06_02.md`](reference/reference_git_crlf_windows_reality_2026_06_02.md) — reference_git_crlf_windows_reality_2026_06_02.md
+- **2026-06-08** [`reference_galaxy_kit_ms0_shipped_2026_05_29.md`](reference/reference_galaxy_kit_ms0_shipped_2026_05_29.md) — reference_galaxy_kit_ms0_shipped_2026_05_29.md
+- **2026-06-08** [`reference_galaxy_synergy_state.md`](reference/reference_galaxy_synergy_state.md) — reference_galaxy_synergy_state.md
+- **2026-06-08** [`reference_galaxy_context_federation_viz_roost_2026_06_01.md`](reference/reference_galaxy_context_federation_viz_roost_2026_06_01.md) — reference_galaxy_context_federation_viz_roost_2026_06_01.md
+- **2026-06-08** [`reference_galaxy_context_federation_xdedup_2026_05_31.md`](reference/reference_galaxy_context_federation_xdedup_2026_05_31.md) — reference_galaxy_context_federation_xdedup_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_context_federation_xgalaxy_inject_2026_05_31.md`](reference/reference_galaxy_context_federation_xgalaxy_inject_2026_05_31.md) — reference_galaxy_context_federation_xgalaxy_inject_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_context_federation_rollup_2026_05_31.md`](reference/reference_galaxy_context_federation_rollup_2026_05_31.md) — reference_galaxy_context_federation_rollup_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_context_federation_salience_2026_05_31.md`](reference/reference_galaxy_context_federation_salience_2026_05_31.md) — reference_galaxy_context_federation_salience_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_context_federation_savings_telemetry_2026_05_31.md`](reference/reference_galaxy_context_federation_savings_telemetry_2026_05_31.md) — reference_galaxy_context_federation_savings_telemetry_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_context_federation_knows_map_2026_05_31.md`](reference/reference_galaxy_context_federation_knows_map_2026_05_31.md) — reference_galaxy_context_federation_knows_map_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_context_federation_push_2026_05_31.md`](reference/reference_galaxy_context_federation_push_2026_05_31.md) — reference_galaxy_context_federation_push_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_context_federation_recall_first_2026_05_31.md`](reference/reference_galaxy_context_federation_recall_first_2026_05_31.md) — reference_galaxy_context_federation_recall_first_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_context_federation_compact_2026_05_31.md`](reference/reference_galaxy_context_federation_compact_2026_05_31.md) — reference_galaxy_context_federation_compact_2026_05_31.md
+- **2026-06-08** [`reference_galaxy_canonical_kit_2026_05_29.md`](reference/reference_galaxy_canonical_kit_2026_05_29.md) — reference_galaxy_canonical_kit_2026_05_29.md
+- **2026-06-08** [`reference_galaxy_context_federation_card_2026_05_31.md`](reference/reference_galaxy_context_federation_card_2026_05_31.md) — reference_galaxy_context_federation_card_2026_05_31.md
+- **2026-06-08** [`reference_fusion_tooling_catalog_2026_05_23.md`](reference/reference_fusion_tooling_catalog_2026_05_23.md) — Fusion 360 Tooling Catalog Extractor — mike 2026-05-23
+- **2026-06-08** [`reference_g2_agent_overlay_2026_05_16.md`](reference/reference_g2_agent_overlay_2026_05_16.md) — G2 U-AGENT-PIXEL-DEPT-OVERLAY shipped (OBSIDIAN-INTELLIGENCE-MS3)
+- **2026-06-08** [`reference_fusion_instance_coordination_2026_06_01.md`](reference/reference_fusion_instance_coordination_2026_06_01.md) — Fusion instance coordination kilo↔delta (U-CAM-FUSION-INSTANCE-COORD, slot:kilo, 2026-06-01)
+- **2026-06-08** [`reference_fusion_port_assignment_kilo_18361_2026_06_02.md`](reference/reference_fusion_port_assignment_kilo_18361_2026_06_02.md) — Fusion port assignment — kilo = :18361, delta = :18362 (CAD) — OPERATOR-CONFIRMED 2026-06-02
+- **2026-06-08** [`reference_fusion_scratch_close_enforce_2026_06_01.md`](reference/reference_fusion_scratch_close_enforce_2026_06_01.md) — Fusion scratch-document close enforcement — U-FUSION-DOC-CLOSE-ENFORCE (slot:kilo, 2026-06-01)
+- **2026-06-08** [`reference_full_fleet_coordination_iter4to13_2026_05_25.md`](reference/reference_full_fleet_coordination_iter4to13_2026_05_25.md) — PSN-SELF-IMPROVING-LOOP-MS0 iter4-13 + FULL-FLEET-COORDINATION-MS0 — india /goal /yolo 2026-05-25
+- **2026-06-08** [`reference_full_system_ai_coordinator_tier1_tier2_2026_05_23.md`](reference/reference_full_system_ai_coordinator_tier1_tier2_2026_05_23.md) — FullSystemAICoordinatorEngine shipped — Tier-1 → Tier-2 path (2026-05-23, slot whiskey)
+- **2026-06-08** [`reference_free_cad_book_acquisition_catalog_2026_05_26.md`](reference/reference_free_cad_book_acquisition_catalog_2026_05_26.md) — FREE CAD-book acquisition catalog (slot:delta 2026-05-26 /loop continue-training)
+- **2026-06-08** [`reference_foxtrot_mill_juliett_db_edge_2026_05_29.md`](reference/reference_foxtrot_mill_juliett_db_edge_2026_05_29.md) — mill ← juliett database edge (wired 2026-05-29)
+- **2026-06-08** [`reference_foxtrot_mill_speedfeed_hub.md`](reference/reference_foxtrot_mill_speedfeed_hub.md) — Mill speed/feed hub — the SpeedFeedOrchestrator triad
+- **2026-06-08** [`reference_foxtrot_tribal_slot_fallback_gap_2026_05_28.md`](reference/reference_foxtrot_tribal_slot_fallback_gap_2026_05_28.md) — Tribal slot→domain fallback gap (foxtrot mill)
+- **2026-06-08** [`reference_foxtrot_mill_galaxy_buildout_2026_05_28.md`](reference/reference_foxtrot_mill_galaxy_buildout_2026_05_28.md) — Foxtrot mill galaxy buildout (2026-05-28, U-PSGB-FOXTROT)
+- **2026-06-08** [`reference_foxtrot_mill_binding_preferslot_2026_05_28.md`](reference/reference_foxtrot_mill_binding_preferslot_2026_05_28.md) — chat-slots claim flag is `--preferSlot`, not `--slot`
+- **2026-06-08** [`reference_foxtrot_mill_awareness_2026_05_28.md`](reference/reference_foxtrot_mill_awareness_2026_05_28.md) — Mill custom domain-awareness surface (AWARENESS.md)
+- **2026-06-08** [`reference_fleet_wake_sequencer_2026_06_03.md`](reference/reference_fleet_wake_sequencer_2026_06_03.md) — reference_fleet_wake_sequencer_2026_06_03.md
+- **2026-06-08** [`reference_fmerge_ms0_closeout_2026_05_25.md`](reference/reference_fmerge_ms0_closeout_2026_05_25.md) — FMERGE-MS0 close-out (slot:romeo iter36-37, 2026-05-25)
+- **2026-06-08** [`reference_fleet_task_health_drift_sync_2026_06_01.md`](reference/reference_fleet_task_health_drift_sync_2026_06_01.md) — reference_fleet_task_health_drift_sync_2026_06_01.md
+- **2026-06-08** [`reference_fleet_task_health_ms0_2026_05_17.md`](reference/reference_fleet_task_health_ms0_2026_05_17.md) — FLEET-TASK-HEALTH-MS0 (2026-05-17, slot mike)
+- **2026-06-08** [`reference_fleet_task_health_recovery_2026_05_18.md`](reference/reference_fleet_task_health_recovery_2026_05_18.md) — reference_fleet_task_health_recovery_2026_05_18.md
+- **2026-06-08** [`reference_fleet_synergy_audit_2026_06_01.md`](reference/reference_fleet_synergy_audit_2026_06_01.md) — reference_fleet_synergy_audit_2026_06_01.md
+- **2026-06-08** [`reference_fleet_systemviz_roost_synergy_demo_2026_06_02.md`](reference/reference_fleet_systemviz_roost_synergy_demo_2026_06_02.md) — reference_fleet_systemviz_roost_synergy_demo_2026_06_02.md
+- **2026-06-08** [`reference_fleet_reaper_ship_collision.md`](reference/reference_fleet_reaper_ship_collision.md) — All 5 should print — they're committed.
+- **2026-06-08** [`reference_fleet_reaper_tier1_2026_05_17.md`](reference/reference_fleet_reaper_tier1_2026_05_17.md) — FLEET-REAPER-MS1 Tier-1 (2026-05-17, slot alpha, claude-23c10eea)
+- **2026-06-08** [`reference_fleet_reaper_ms3_a_closeout_2026_05_23.md`](reference/reference_fleet_reaper_ms3_a_closeout_2026_05_23.md) — FLEET-REAPER-MS3/U-FR-MS3-A — silent close-out 2026-05-23 (slot:delta)
+- **2026-06-08** [`reference_fleet_reaper_autonomy_robust_2026_05_16.md`](reference/reference_fleet_reaper_autonomy_robust_2026_05_16.md) — FLEET-REAPER autonomy + enumeration-robustness hardening
+- **2026-06-08** [`reference_fleet_reaper_ms1.md`](reference/reference_fleet_reaper_ms1.md) — reference_fleet_reaper_ms1.md
+- **2026-06-08** [`reference_fleet_reaper.md`](reference/reference_fleet_reaper.md) — reference_fleet_reaper.md
+- **2026-06-08** [`reference_fleet_rate_limit_diagnosis_2026_05_29.md`](reference/reference_fleet_rate_limit_diagnosis_2026_05_29.md) — reference_fleet_rate_limit_diagnosis_2026_05_29.md
+- **2026-06-08** [`reference_fleet_monitor_consolidation_plan_2026_06_04.md`](reference/reference_fleet_monitor_consolidation_plan_2026_06_04.md) — Fleet monitor consolidation + reaper blind-spots (golf, 2026-06-04)
+- **2026-06-08** [`reference_fleet_orchestrate_2026_06_03.md`](reference/reference_fleet_orchestrate_2026_06_03.md) — reference_fleet_orchestrate_2026_06_03.md
+- **2026-06-08** [`reference_fleet_p0_wiring_9of12_2026_06_01.md`](reference/reference_fleet_p0_wiring_9of12_2026_06_01.md) — reference_fleet_p0_wiring_9of12_2026_06_01.md
+- **2026-06-08** [`reference_fleet_master_brain_12of12_complete_2026_06_01.md`](reference/reference_fleet_master_brain_12of12_complete_2026_06_01.md) — reference_fleet_master_brain_12of12_complete_2026_06_01.md
+- **2026-06-08** [`reference_fleet_memory_monitor_2026_05_16.md`](reference/reference_fleet_memory_monitor_2026_05_16.md) — Fleet Memory Monitor MS0 — 2026-05-16 (slot=golf-work, claude-629a6355)
+- **2026-06-08** [`reference_fleet_doctrine_26_2026_05_19.md`](reference/reference_fleet_doctrine_26_2026_05_19.md) — reference_fleet_doctrine_26_2026_05_19.md
+- **2026-06-08** [`reference_fleet_git_contention_golf_pickup_2026_06_04.md`](reference/reference_fleet_git_contention_golf_pickup_2026_06_04.md) — reference_fleet_git_contention_golf_pickup_2026_06_04.md
+- **2026-06-08** [`reference_feature_gap_audit_cad_dedup_wins_2026_05_18.md`](reference/reference_feature_gap_audit_cad_dedup_wins_2026_05_18.md) — reference_feature_gap_audit_cad_dedup_wins_2026_05_18.md
+- **2026-06-08** [`reference_fleet_ai_systems_roadmap_2026_06_01.md`](reference/reference_fleet_ai_systems_roadmap_2026_06_01.md) — reference_fleet_ai_systems_roadmap_2026_06_01.md
+- **2026-06-08** [`reference_fleet_chats_run_from_shared_tree_2026_05_28.md`](reference/reference_fleet_chats_run_from_shared_tree_2026_05_28.md) — reference_fleet_chats_run_from_shared_tree_2026_05_28.md
+- **2026-06-08** [`reference_extraction_priority_gap_2026_05_24.md`](reference/reference_extraction_priority_gap_2026_05_24.md) — Extraction priority gap — 727/876 modules still missing (golf 2026-05-24)
+- **2026-06-08** [`reference_f2_pdf_highlights_wire_2026_05_16.md`](reference/reference_f2_pdf_highlights_wire_2026_05_16.md) — F2 — PDF /Highlight Wire (close-out 2026-05-16)
+- **2026-06-08** [`reference_extraction_iter19_20_2026_05_24.md`](reference/reference_extraction_iter19_20_2026_05_24.md) — Extraction iter 19-20 (slot:golf, 2026-05-24)
+- **2026-06-08** [`reference_extracted_modules_dormancy_audit_2026_05_27.md`](reference/reference_extracted_modules_dormancy_audit_2026_05_27.md) — reference_extracted_modules_dormancy_audit_2026_05_27.md
+- **2026-06-08** [`reference_extracted_modules_pipeline_2026_05_26.md`](reference/reference_extracted_modules_pipeline_2026_05_26.md) — Extracted-modules conversion pipeline — slot:papa 2026-05-26
+- **2026-06-08** [`reference_extracted_dirs_psn_synergy_2026_05_24.md`](reference/reference_extracted_dirs_psn_synergy_2026_05_24.md) — Extracted-dirs → PSN synergy (U-PSN-EXTRACTED-DIRS-NODE-MAP, golf 2026-05-24)
+- **2026-06-08** [`reference_existing_tribal_wiki_pipeline_2026_05_27.md`](reference/reference_existing_tribal_wiki_pipeline_2026_05_27.md) — Existing tribal+wiki closed-loop pipeline (tour, slot:victor 2026-05-27)
+- **2026-06-08** [`reference_engine_wipe_silent_regression_2026_05_26.md`](reference/reference_engine_wipe_silent_regression_2026_05_26.md) — Silent engine-wipe regression (slot:delta 2026-05-26)
+- **2026-06-08** [`reference_error_fix_vault_bridge_2026_05_16.md`](reference/reference_error_fix_vault_bridge_2026_05_16.md) — Gap #4 — error-fix-vault-bridge.mjs (Obsidian 2nd-brain, COMPLETES the ladder 4/4)
+- **2026-06-08** [`reference_error_learn_loop_extension.md`](reference/reference_error_learn_loop_extension.md) — Error-learn-loop — architecture + the 2026-05-15 extension
+- **2026-06-08** [`reference_engine_reachability_classifier_2026_06_04.md`](reference/reference_engine_reachability_classifier_2026_06_04.md) — reference_engine_reachability_classifier_2026_06_04.md
+- **2026-06-08** [`reference_engine_wiki_embedder_2026_05_24.md`](reference/reference_engine_wiki_embedder_2026_05_24.md) — Engine-wiki embedder — closes the bridge data-side — papa /loop 2026-05-24
+- **2026-06-08** [`reference_employee_mobile_portal_2026_05_23.md`](reference/reference_employee_mobile_portal_2026_05_23.md) — U-EMPLOYEE-MOBILE-PORTAL (hotel iter1, 2026-05-23)
+- **2026-06-08** [`reference_embedding_pipeline_lexical_honesty_u_path_6_2026_05_31.md`](reference/reference_embedding_pipeline_lexical_honesty_u_path_6_2026_05_31.md) — reference_embedding_pipeline_lexical_honesty_u_path_6_2026_05_31.md
+- **2026-06-08** [`reference_embedding_ssot_ms0_2026_05_30.md`](reference/reference_embedding_ssot_ms0_2026_05_30.md) — reference_embedding_ssot_ms0_2026_05_30.md
+- **2026-06-08** [`reference_embed_tribal_jsonl_2026_05_26.md`](reference/reference_embed_tribal_jsonl_2026_05_26.md) — embed-tribal-jsonl-into-index — fourth embedder (slot:delta /loop iter2+3 2026-05-26)
+- **2026-06-08** [`reference_ejot_p30247750_exact_dims_2026_05_27.md`](reference/reference_ejot_p30247750_exact_dims_2026_05_27.md) — EJOT P30247750-1D2 — operator-confirmed exact dims (2026-05-27)
+- **2026-06-08** [`reference_echo_prismpaths_feed_core.md`](reference/reference_echo_prismpaths_feed_core.md) — reference_echo_prismpaths_feed_core.md
+- **2026-06-08** [`reference_echo_stub_wired_dark_engines.md`](reference/reference_echo_stub_wired_dark_engines.md) — reference_echo_stub_wired_dark_engines.md
+- **2026-06-08** [`reference_echo_undone_h2_h6_2026_05_20.md`](reference/reference_echo_undone_h2_h6_2026_05_20.md) — ECHO-UNDONE H1–H6 — all complete and wired (2026-05-20, slot echo)
+- **2026-06-08** [`reference_echo_winmax_bridge.md`](reference/reference_echo_winmax_bridge.md) — reference_echo_winmax_bridge.md
+- **2026-06-08** [`reference_echo_post_state_specs.md`](reference/reference_echo_post_state_specs.md) — reference_echo_post_state_specs.md
+- **2026-06-08** [`reference_echo_post_gen_reward.md`](reference/reference_echo_post_gen_reward.md) — reference_echo_post_gen_reward.md
+- **2026-06-08** [`reference_echo_post_processor_domain_map_2026_05_27.md`](reference/reference_echo_post_processor_domain_map_2026_05_27.md) — Echo post-processor domain map (2026-05-27)
+- **2026-06-08** [`reference_echo_post_gen_coverage_audit.md`](reference/reference_echo_post_gen_coverage_audit.md) — reference_echo_post_gen_coverage_audit.md
+- **2026-06-08** [`reference_echo_post_data_corpus_paths.md`](reference/reference_echo_post_data_corpus_paths.md) — reference_echo_post_data_corpus_paths.md
+- **2026-06-08** [`reference_echo_post_dispatcher_surface.md`](reference/reference_echo_post_dispatcher_surface.md) — reference_echo_post_dispatcher_surface.md
+- **2026-06-08** [`reference_echo_masterpost_engine_surface.md`](reference/reference_echo_masterpost_engine_surface.md) — reference_echo_masterpost_engine_surface.md
+- **2026-06-08** [`reference_echo_nc_dialect_lint.md`](reference/reference_echo_nc_dialect_lint.md) — reference_echo_nc_dialect_lint.md
+- **2026-06-08** [`reference_echo_jm_cps_fleet.md`](reference/reference_echo_jm_cps_fleet.md) — reference_echo_jm_cps_fleet.md
+- **2026-06-08** [`reference_echo_legal_gate_masterpost.md`](reference/reference_echo_legal_gate_masterpost.md) — reference_echo_legal_gate_masterpost.md
+- **2026-06-08** [`reference_echo_controller_dialect_matrix.md`](reference/reference_echo_controller_dialect_matrix.md) — reference_echo_controller_dialect_matrix.md
+- **2026-06-08** [`reference_echo_hurco_winmax_priority.md`](reference/reference_echo_hurco_winmax_priority.md) — reference_echo_hurco_winmax_priority.md
+- **2026-06-08** [`reference_e1_ideablock_extractor_2026_05_15.md`](reference/reference_e1_ideablock_extractor_2026_05_15.md) — E1 — IdeaBlockExtractor (Akshay/Blockify pattern)
+- **2026-06-08** [`reference_echo_closed_loop_training_readiness.md`](reference/reference_echo_closed_loop_training_readiness.md) — reference_echo_closed_loop_training_readiness.md
+- **2026-06-08** [`reference_duplicate_scheduled_tasks_2026_05_26.md`](reference/reference_duplicate_scheduled_tasks_2026_05_26.md) — Duplicate PRISM scheduled tasks — operator cleanup needed (2026-05-26, slot:golf /loop iter3)
+- **2026-06-08** [`reference_domain_galaxy_doctrine_2026_05_26.md`](reference/reference_domain_galaxy_doctrine_2026_05_26.md) — Domain-Galaxy Doctrine (2026-05-26, slot:alpha iter12-18)
+- **2026-06-08** [`reference_domain_pipeline_cell_extract_2026_05_17.md`](reference/reference_domain_pipeline_cell_extract_2026_05_17.md) — reference_domain_pipeline_cell_extract_2026_05_17.md
+- **2026-06-08** [`reference_dormant_engine_roadmap_2026_05_22.md`](reference/reference_dormant_engine_roadmap_2026_05_22.md) — Dormant-Engine Activation Roadmap — DEA-MS0 (2026-05-22, slot november, R7)
+- **2026-06-08** [`reference_docustrata_pipeline_2026_05_16.md`](reference/reference_docustrata_pipeline_2026_05_16.md) — Docustrata print-reading pipeline — slot foxtrot, 2026-05-16
+- **2026-06-08** [`reference_dev_velocity_autotrigger.md`](reference/reference_dev_velocity_autotrigger.md) — DEV-VELOCITY-AUTOTRIGGER-MS0 — built 2026-05-12..13
+- **2026-06-08** [`reference_docker_mcp_wire_ms0_2026_05_19.md`](reference/reference_docker_mcp_wire_ms0_2026_05_19.md) — DOCKER-MCP-WIRE-MS0 (2026-05-19, slot juliett)
+- **2026-06-08** [`reference_dev_tools_audit_meta_scripts_2026_05_17.md`](reference/reference_dev_tools_audit_meta_scripts_2026_05_17.md) — DEV-TOOLS-AUDIT META scripts + empirical fleet baselines (2026-05-17, slot echo)
+- **2026-06-08** [`reference_delta_xray_feature_presence_roundtrip_2026_06_01.md`](reference/reference_delta_xray_feature_presence_roundtrip_2026_06_01.md) — reference_delta_xray_feature_presence_roundtrip_2026_06_01.md
+- **2026-06-08** [`reference_dev_pipeline_toolbox_2026_05_17.md`](reference/reference_dev_pipeline_toolbox_2026_05_17.md) — PRISM dev-pipeline toolbox (2026-05-17, lima)
+- **2026-06-08** [`reference_delta_sweep_loft_routes_2026_06_03.md`](reference/reference_delta_sweep_loft_routes_2026_06_03.md) — U-CADFL-SWEEP-LOFT — advanced Fusion live-bridge routes (slot:delta, 2026-06-03)
+- **2026-06-08** [`reference_delta_template_store_format_2026_05_31.md`](reference/reference_delta_template_store_format_2026_05_31.md) — CAD template-store format — single JSON object, NOT jsonl (slot:delta, 2026-05-31)
+- **2026-06-08** [`reference_delta_step_inch_unit_convention.md`](reference/reference_delta_step_inch_unit_convention.md) — STEP inch-unit convention (delta)
+- **2026-06-08** [`reference_delta_roundtrip_test_missing_jm_fixture.md`](reference/reference_delta_roundtrip_test_missing_jm_fixture.md) — Roundtrip test missing JM fixture (delta, 2026-05-28)
+- **2026-06-08** [`reference_delta_per_feature_synergy_sweep_2026_05_29.md`](reference/reference_delta_per_feature_synergy_sweep_2026_05_29.md) — delta per-feature synergy sweep (2026-05-29, session f27ecf49)
+- **2026-06-08** [`reference_delta_proven_step_emitter.md`](reference/reference_delta_proven_step_emitter.md) — Proven STEP emitter (delta)
+- **2026-06-08** [`reference_delta_live_closed_loop_proven_2026_06_01.md`](reference/reference_delta_live_closed_loop_proven_2026_06_01.md) — LIVE closed-loop CAD replication PROVEN (slot:delta, 2026-06-01)
+- **2026-06-08** [`reference_delta_jm_spark_gap_convention.md`](reference/reference_delta_jm_spark_gap_convention.md) — JM Die sinker-EDM spark gap convention (delta)
+- **2026-06-08** [`reference_delta_kinematic_assembly_live_2026_06_02.md`](reference/reference_delta_kinematic_assembly_live_2026_06_02.md) — reference_delta_kinematic_assembly_live_2026_06_02.md
+- **2026-06-08** [`reference_delta_galaxy_buildout_2026_05_28.md`](reference/reference_delta_galaxy_buildout_2026_05_28.md) — Delta CAD galaxy buildout — 2026-05-28
+- **2026-06-08** [`reference_delta_geom_diff_and_channel_lesson_2026_05_31.md`](reference/reference_delta_geom_diff_and_channel_lesson_2026_05_31.md) — U-CADTP-GEOM-DIFF + channel-reliability lesson (slot:delta, 2026-05-31)
+- **2026-06-08** [`reference_delta_fusion_pattern_dup_defect_2026_05_31.md`](reference/reference_delta_fusion_pattern_dup_defect_2026_05_31.md) — Fusion bridge linear-pattern emits 3× coincident duplicate bodies (defect, found by build-map verify)
+- **2026-06-08** [`reference_delta_fusion_isolation_flaky_regressed_2026_06_01.md`](reference/reference_delta_fusion_isolation_flaky_regressed_2026_06_01.md) — reference_delta_fusion_isolation_flaky_regressed_2026_06_01.md
+- **2026-06-08** [`reference_delta_fusion_isolation_and_live_bridge_2026_06_01.md`](reference/reference_delta_fusion_isolation_and_live_bridge_2026_06_01.md) — Fusion multi-instance isolation FAILED + live-bridge closed-loop shipped (slot:delta, 2026-06-01)
+- **2026-06-08** [`reference_delta_fusion_doc_lifecycle_reap_gap_2026_06_02.md`](reference/reference_delta_fusion_doc_lifecycle_reap_gap_2026_06_02.md) — reference_delta_fusion_doc_lifecycle_reap_gap_2026_06_02.md
+- **2026-06-08** [`reference_delta_fusion_fully_accounted_2026_05_29.md`](reference/reference_delta_fusion_fully_accounted_2026_05_29.md) — Fusion 360 FULLY ACCOUNTED (MS-CAM-MASTERY, 2026-05-29)
+- **2026-06-08** [`reference_delta_fusion_backend_map_2026_06_02.md`](reference/reference_delta_fusion_backend_map_2026_06_02.md) — reference_delta_fusion_backend_map_2026_06_02.md
+- **2026-06-08** [`reference_delta_feature_correction_loop_2026_06_01.md`](reference/reference_delta_feature_correction_loop_2026_06_01.md) — reference_delta_feature_correction_loop_2026_06_01.md
+- **2026-06-08** [`reference_delta_doc_close_enforcement_and_dual_training_2026_06_01.md`](reference/reference_delta_doc_close_enforcement_and_dual_training_2026_06_01.md) — Doc-close enforcement + dual-training + dual-gate (slot:delta, 2026-06-01)
+- **2026-06-08** [`reference_delta_designated_port_18632.md`](reference/reference_delta_designated_port_18632.md) — reference_delta_designated_port_18632.md
+- **2026-06-08** [`reference_delta_course_system_and_channel_verify_2026_05_31.md`](reference/reference_delta_course_system_and_channel_verify_2026_05_31.md) — CAD course-plotting system + channel-verify proven dev-path (slot:delta, 2026-05-31)
+- **2026-06-08** [`reference_delta_closed_loop_training_live_2026_06_02.md`](reference/reference_delta_closed_loop_training_live_2026_06_02.md) — reference_delta_closed_loop_training_live_2026_06_02.md
+- **2026-06-08** [`reference_delta_cad_training_pipeline_2026_05_31.md`](reference/reference_delta_cad_training_pipeline_2026_05_31.md) — MS-CAD-TRAINING-PIPELINE — exhaustive CAD feature-template training pipeline (slot:delta, 2026-05-31)
+- **2026-06-08** [`reference_delta_cad_toolchain_session_2026_05_27.md`](reference/reference_delta_cad_toolchain_session_2026_05_27.md) — Slot:delta CAD toolchain — full session recap (2026-05-27)
+- **2026-06-08** [`reference_delta_cad_step_lint_2026_05_29.md`](reference/reference_delta_cad_step_lint_2026_05_29.md) — delta CAD STEP-linter triple (2026-05-29, commits a940393f + 26a18da3)
+- **2026-06-08** [`reference_delta_cad_learning_bridge_2026_05_31.md`](reference/reference_delta_cad_learning_bridge_2026_05_31.md) — delta CAD ↔ fleet AI learning bridge (compound learning, commit b2d89be65c)
+- **2026-06-08** [`reference_delta_cad_port_18632.md`](reference/reference_delta_cad_port_18632.md) — reference_delta_cad_port_18632.md
+- **2026-06-08** [`reference_delta_cad_index_expansion_2026_05_29.md`](reference/reference_delta_cad_index_expansion_2026_05_29.md) — CAD function-index expansion toward "every button" (MS-CAM-MASTERY, 2026-05-29)
+- **2026-06-08** [`reference_delta_cad_galaxy_synergy_audit_2026_05_28.md`](reference/reference_delta_cad_galaxy_synergy_audit_2026_05_28.md) — delta CAD-galaxy synergy audit (2026-05-28, session f27ecf49)
+- **2026-06-08** [`reference_delta_cad_domain_completeness_audit_2026_05_29.md`](reference/reference_delta_cad_domain_completeness_audit_2026_05_29.md) — delta CAD-domain completeness audit (2026-05-29, session f27ecf49)
+- **2026-06-08** [`reference_delta_cad_dispatcher_surface.md`](reference/reference_delta_cad_dispatcher_surface.md) — CAD dispatcher surface (delta — route before reimplement)
+- **2026-06-08** [`reference_delta_cad_asset_generation_2026_05_29.md`](reference/reference_delta_cad_asset_generation_2026_05_29.md) — delta CAD-domain asset generation (2026-05-29, session f27ecf49)
+- **2026-06-08** [`reference_delta_cad_app_automation_architecture_2026_05_29.md`](reference/reference_delta_cad_app_automation_architecture_2026_05_29.md) — CAD/CAM app-automation architecture — how PRISM "drives" the CAD apps (2026-05-29 discovery)
+- **2026-06-08** [`reference_delta_cad_accounting_denominator_2026_05_29.md`](reference/reference_delta_cad_accounting_denominator_2026_05_29.md) — CAD accounting gate — denominator is mode-inflated; real Fusion deficit is ~tractable (2026-05-29)
+- **2026-06-08** [`reference_delta_bspline_periodic_regression.md`](reference/reference_delta_bspline_periodic_regression.md) — B-spline periodic-knot regression (delta, DO NOT REPEAT)
+- **2026-06-08** [`reference_delta_archetype_match_before_scale.md`](reference/reference_delta_archetype_match_before_scale.md) — Archetype match before scale (delta)
+- **2026-06-08** [`reference_db_expansion_bridge_ms0_2026_06_01.md`](reference/reference_db_expansion_bridge_ms0_2026_06_01.md) — reference_db_expansion_bridge_ms0_2026_06_01.md
+- **2026-06-08** [`reference_dea_ms0_november_p_units_complete_2026_05_24.md`](reference/reference_dea_ms0_november_p_units_complete_2026_05_24.md) — DEA-MS0/U-DEA-november P-units complete (2026-05-24)
+- **2026-06-08** [`reference_db_domain_categorization_audit_2026_06_01.md`](reference/reference_db_domain_categorization_audit_2026_06_01.md) — reference_db_domain_categorization_audit_2026_06_01.md
+- **2026-06-08** [`reference_d4_action_traces_2026_05_16.md`](reference/reference_d4_action_traces_2026_05_16.md) — D4 U-ACTION-TRACES shipped (OBSIDIAN-INTELLIGENCE-MS3)
+- **2026-06-08** [`reference_db_bridge_completeness_2026_06_01.md`](reference/reference_db_bridge_completeness_2026_06_01.md) — reference_db_bridge_completeness_2026_06_01.md
+- **2026-06-08** [`reference_d3_conflict_resolution_2026_05_16.md`](reference/reference_d3_conflict_resolution_2026_05_16.md) — D3 U-CONFLICT-RESOLUTION shipped (OBSIDIAN-INTELLIGENCE-MS3)
+- **2026-06-08** [`reference_cyril_vault_retrieval_architecture_2026_05_23.md`](reference/reference_cyril_vault_retrieval_architecture_2026_05_23.md) — reference_cyril_vault_retrieval_architecture_2026_05_23.md
+- **2026-06-08** [`reference_cte_peer_absorption_2026_05_20.md`](reference/reference_cte_peer_absorption_2026_05_20.md) — reference_cte_peer_absorption_2026_05_20.md
+- **2026-06-08** [`reference_cyrilxbt_obsidian_hermes_apply_assessment_2026_06_02.md`](reference/reference_cyrilxbt_obsidian_hermes_apply_assessment_2026_06_02.md) — reference_cyrilxbt_obsidian_hermes_apply_assessment_2026_06_02.md
+- **2026-06-08** [`reference_critical_resource_roots_2026_05_30.md`](reference/reference_critical_resource_roots_2026_05_30.md) — reference_critical_resource_roots_2026_05_30.md
+- **2026-06-08** [`reference_cross_substrate_synergy_ms0_2026_06_03.md`](reference/reference_cross_substrate_synergy_ms0_2026_06_03.md) — reference_cross_substrate_synergy_ms0_2026_06_03.md
+- **2026-06-08** [`reference_cov_engine_2026_05_25.md`](reference/reference_cov_engine_2026_05_25.md) — ChainOfVerificationEngine — generic CoV substrate primitive (charlie /goal-19, 2026-05-25)
+- **2026-06-08** [`reference_course_18_cad_cam_entry_level_2026_05_24.md`](reference/reference_course_18_cad_cam_entry_level_2026_05_24.md) — course-18 CAD/CAM Entry-Level Training — 2026-05-24 lima /loop iter25
+- **2026-06-08** [`reference_course_forge_conversions_2026_05_17.md`](reference/reference_course_forge_conversions_2026_05_17.md) — reference_course_forge_conversions_2026_05_17.md
+- **2026-06-08** [`reference_course_forge_stubs_emitter_2026_05_17.md`](reference/reference_course_forge_stubs_emitter_2026_05_17.md) — reference_course_forge_stubs_emitter_2026_05_17.md
+- **2026-06-08** [`reference_configengine_export_secrets_bug_2026_05_21.md`](reference/reference_configengine_export_secrets_bug_2026_05_21.md) — ConfigEngine.exportConfig(includeSecrets=true) — silent no-op for unredacted secrets
+- **2026-06-08** [`reference_coord_ms0_u4_collision.md`](reference/reference_coord_ms0_u4_collision.md) — COORD-MS0/U-COORD04 absorbed into peer commit b12074821
+- **2026-06-08** [`reference_course_13_wedm_progressive_2026_05_24.md`](reference/reference_course_13_wedm_progressive_2026_05_24.md) — course-13 Wire EDM Progressive — 2026-05-24 lima /loop iter15
+- **2026-06-08** [`reference_compaction_optimal_2026_05_22.md`](reference/reference_compaction_optimal_2026_05_22.md) — COMPACTION-OPTIMAL — 2026-05-22, slot alpha
+- **2026-06-08** [`reference_command_kernel_ms0_register_collision.md`](reference/reference_command_kernel_ms0_register_collision.md) — All three resolve to 7e01cd12b — confirmed.
+- **2026-06-08** [`reference_command_ollama_route_trigger_2026_06_04.md`](reference/reference_command_ollama_route_trigger_2026_06_04.md) — reference_command_ollama_route_trigger_2026_06_04.md
+- **2026-06-08** [`reference_college_courses_psn_incorporation_2026_05_25.md`](reference/reference_college_courses_psn_incorporation_2026_05_25.md) — College courses → PSN incorporation — papa /loop 2026-05-25
+- **2026-06-08** [`reference_college_course_autogen_specs_2026_05_24.md`](reference/reference_college_course_autogen_specs_2026_05_24.md) — College-course AUTOGEN specs — PSN-synergized inventory (2026-05-24)
+- **2026-06-08** [`reference_closed_loop_adoption_audit_2026_06_01.md`](reference/reference_closed_loop_adoption_audit_2026_06_01.md) — reference_closed_loop_adoption_audit_2026_06_01.md
+- **2026-06-08** [`reference_close_loop_bridge_p0u04_2026_06_02.md`](reference/reference_close_loop_bridge_p0u04_2026_06_02.md) — reference_close_loop_bridge_p0u04_2026_06_02.md
+- **2026-06-08** [`reference_codex_review_arm_2026_05_18.md`](reference/reference_codex_review_arm_2026_05_18.md) — reference_codex_review_arm_2026_05_18.md
+- **2026-06-08** [`reference_cimco_verify_open_file_2026_06_04.md`](reference/reference_cimco_verify_open_file_2026_06_04.md) — reference_cimco_verify_open_file_2026_06_04.md
+- **2026-06-08** [`reference_claude_md_compress_2026_05_20.md`](reference/reference_claude_md_compress_2026_05_20.md) — CLAUDE.md hygiene pass — 2026-05-20 (slot:golf)
+- **2026-06-08** [`reference_cimco_spine2_livesim_derisk_2026_06_04.md`](reference/reference_cimco_spine2_livesim_derisk_2026_06_04.md) — reference_cimco_spine2_livesim_derisk_2026_06_04.md
+- **2026-06-08** [`reference_cimco_tmlib_exporter_2026_06_02.md`](reference/reference_cimco_tmlib_exporter_2026_06_02.md) — reference_cimco_tmlib_exporter_2026_06_02.md
+- **2026-06-08** [`reference_cimco_nav_planner_2026_06_04.md`](reference/reference_cimco_nav_planner_2026_06_04.md) — reference_cimco_nav_planner_2026_06_04.md
+- **2026-06-08** [`reference_cimco_ribbon_uia_realization_2026_06_04.md`](reference/reference_cimco_ribbon_uia_realization_2026_06_04.md) — reference_cimco_ribbon_uia_realization_2026_06_04.md
+- **2026-06-08** [`reference_cimco_navmap_2026_06_03.md`](reference/reference_cimco_navmap_2026_06_03.md) — CIMCO blind-navigation map — U-CIMCO-NAV-MAP (slot:echo, 2026-06-03)
+- **2026-06-08** [`reference_cimco_jm_machine_map_2026_06_02.md`](reference/reference_cimco_jm_machine_map_2026_06_02.md) — JM-fleet → CIMCO sim-machine map (slot:echo, 2026-06-02, commit 0a1d8fc168)
+- **2026-06-08** [`reference_cimco_launch_probe_2026_06_03.md`](reference/reference_cimco_launch_probe_2026_06_03.md) — CIMCO launch surface — U-CIMCO-LAUNCH-PROBE (slot:echo, 2026-06-03)
+- **2026-06-08** [`reference_cimco_drift_grouping_bug_2026_06_03.md`](reference/reference_cimco_drift_grouping_bug_2026_06_03.md) — CIMCO post-proof drift audit — Okuma lathe over-report (recon finding, slot:echo, 2026-06-03)
+- **2026-06-08** [`reference_cimco_install_corpus_2026_06_02.md`](reference/reference_cimco_install_corpus_2026_06_02.md) — reference_cimco_install_corpus_2026_06_02.md
+- **2026-06-08** [`reference_cimco_bridge_engine_spine1_2026_06_02.md`](reference/reference_cimco_bridge_engine_spine1_2026_06_02.md) — CIMCO SPINE-1 — bridge engine + prism_cimco dispatcher (slot:echo, 2026-06-02)
+- **2026-06-08** [`reference_cimco_dialect_allowlists_2026_06_03.md`](reference/reference_cimco_dialect_allowlists_2026_06_03.md) — CIMCO dialect G/M allowlists — U-CIMCO-DIALECT-ALLOWLISTS (slot:echo, 2026-06-03)
+- **2026-06-08** [`reference_checkin_loop_fullstack_2026_05_16.md`](reference/reference_checkin_loop_fullstack_2026_05_16.md) — /checkin-<nato> /loop full-stack contract (2026-05-16, slot juliett)
+- **2026-06-08** [`reference_checkin_autonomous_loop_2026_05_16.md`](reference/reference_checkin_autonomous_loop_2026_05_16.md) — /checkin autonomous loop — autopilot+yolo rolled into the slot system (2026-05-16, slot alpha claude-339c8ff7)
+- **2026-06-08** [`reference_checkin_autoinvoke_2026_05_16.md`](reference/reference_checkin_autoinvoke_2026_05_16.md) — /checkin auto-invoke rollout + checkin-recall.mjs (2026-05-16, slot bravo claude-339c8ff7)
+- **2026-06-08** [`reference_cheap_node_access_ms0_2026_06_04.md`](reference/reference_cheap_node_access_ms0_2026_06_04.md) — reference_cheap_node_access_ms0_2026_06_04.md
+- **2026-06-08** [`reference_charlie_underquote_assess_2026_06_02.md`](reference/reference_charlie_underquote_assess_2026_06_02.md) — reference_charlie_underquote_assess_2026_06_02.md
+- **2026-06-08** [`reference_chatter_engine_regression_2026_05_24.md`](reference/reference_chatter_engine_regression_2026_05_24.md) — reference_chatter_engine_regression_2026_05_24.md
+- **2026-06-08** [`reference_charlie_session_close_2026_05_26.md`](reference/reference_charlie_session_close_2026_05_26.md) — reference_charlie_session_close_2026_05_26.md
+- **2026-06-08** [`reference_charlie_train_data_coverage_2026_06_02.md`](reference/reference_charlie_train_data_coverage_2026_06_02.md) — reference_charlie_train_data_coverage_2026_06_02.md
+- **2026-06-08** [`reference_charlie_ref_reliability_2026_06_02.md`](reference/reference_charlie_ref_reliability_2026_06_02.md) — reference_charlie_ref_reliability_2026_06_02.md
+- **2026-06-08** [`reference_charlie_quoting_test_discovery_glob.md`](reference/reference_charlie_quoting_test_discovery_glob.md) — reference_charlie_quoting_test_discovery_glob.md
+- **2026-06-08** [`reference_charlie_quoting_round_boundary.md`](reference/reference_charlie_quoting_round_boundary.md) — reference_charlie_quoting_round_boundary.md
+- **2026-06-08** [`reference_charlie_quoting_standalone_ship.md`](reference/reference_charlie_quoting_standalone_ship.md) — reference_charlie_quoting_standalone_ship.md
+- **2026-06-08** [`reference_charlie_quoting_test_count_drift.md`](reference/reference_charlie_quoting_test_count_drift.md) — reference_charlie_quoting_test_count_drift.md
+- **2026-06-08** [`reference_charlie_quoting_galaxy_audit_2026_05_28.md`](reference/reference_charlie_quoting_galaxy_audit_2026_05_28.md) — reference_charlie_quoting_galaxy_audit_2026_05_28.md
+- **2026-06-08** [`reference_charlie_quoting_iterative_filter.md`](reference/reference_charlie_quoting_iterative_filter.md) — reference_charlie_quoting_iterative_filter.md
+- **2026-06-08** [`reference_charlie_quoting_noncustomer_filter.md`](reference/reference_charlie_quoting_noncustomer_filter.md) — reference_charlie_quoting_noncustomer_filter.md
+- **2026-06-08** [`reference_charlie_quoting_pipeline_verify.md`](reference/reference_charlie_quoting_pipeline_verify.md) — reference_charlie_quoting_pipeline_verify.md
+- **2026-06-08** [`reference_charlie_quoting_engine_map.md`](reference/reference_charlie_quoting_engine_map.md) — reference_charlie_quoting_engine_map.md
+- **2026-06-08** [`reference_charlie_quoting_galaxy_2026_05_28.md`](reference/reference_charlie_quoting_galaxy_2026_05_28.md) — reference_charlie_quoting_galaxy_2026_05_28.md
+- **2026-06-08** [`reference_charlie_quoting_data_ceiling.md`](reference/reference_charlie_quoting_data_ceiling.md) — reference_charlie_quoting_data_ceiling.md
+- **2026-06-08** [`reference_charlie_quoting_defensive_defaults.md`](reference/reference_charlie_quoting_defensive_defaults.md) — reference_charlie_quoting_defensive_defaults.md
+- **2026-06-08** [`reference_charlie_predicted_expose_units_2026_06_01.md`](reference/reference_charlie_predicted_expose_units_2026_06_01.md) — reference_charlie_predicted_expose_units_2026_06_01.md
+- **2026-06-08** [`reference_charlie_outbound_price_prior_2026_06_01.md`](reference/reference_charlie_outbound_price_prior_2026_06_01.md) — reference_charlie_outbound_price_prior_2026_06_01.md
+- **2026-06-08** [`reference_charlie_orch_psi_field_fix_2026_06_02.md`](reference/reference_charlie_orch_psi_field_fix_2026_06_02.md) — reference_charlie_orch_psi_field_fix_2026_06_02.md
+- **2026-06-08** [`reference_charlie_outbound_price_calib_2026_06_01.md`](reference/reference_charlie_outbound_price_calib_2026_06_01.md) — reference_charlie_outbound_price_calib_2026_06_01.md
+- **2026-06-08** [`reference_charlie_loop_close_out_2026_05_22.md`](reference/reference_charlie_loop_close_out_2026_05_22.md) — reference_charlie_loop_close_out_2026_05_22.md
+- **2026-06-08** [`reference_charlie_ledger_ref_reliability_2026_06_02.md`](reference/reference_charlie_ledger_ref_reliability_2026_06_02.md) — reference_charlie_ledger_ref_reliability_2026_06_02.md
+- **2026-06-08** [`reference_charlie_guard_volume_synth_2026_06_01.md`](reference/reference_charlie_guard_volume_synth_2026_06_01.md) — reference_charlie_guard_volume_synth_2026_06_01.md
+- **2026-06-08** [`reference_charlie_extprice_calib_2026_06_01.md`](reference/reference_charlie_extprice_calib_2026_06_01.md) — reference_charlie_extprice_calib_2026_06_01.md
+- **2026-06-08** [`reference_charlie_drift_ref_reliability_2026_06_02.md`](reference/reference_charlie_drift_ref_reliability_2026_06_02.md) — reference_charlie_drift_ref_reliability_2026_06_02.md
+- **2026-06-08** [`reference_charlie_docustrata_variance_2026_06_03.md`](reference/reference_charlie_docustrata_variance_2026_06_03.md) — reference_charlie_docustrata_variance_2026_06_03.md
+- **2026-06-08** [`reference_charlie_baseline_guard_2026_06_01.md`](reference/reference_charlie_baseline_guard_2026_06_01.md) — reference_charlie_baseline_guard_2026_06_01.md
+- **2026-06-08** [`reference_charlie_cost_index_wire_2026_06_01.md`](reference/reference_charlie_cost_index_wire_2026_06_01.md) — reference_charlie_cost_index_wire_2026_06_01.md
+- **2026-06-08** [`reference_charlie_baseline_fallback_2026_06_02.md`](reference/reference_charlie_baseline_fallback_2026_06_02.md) — reference_charlie_baseline_fallback_2026_06_02.md
+- **2026-06-08** [`reference_catalog_index_stale_manifest_2026_06_08.md`](reference/reference_catalog_index_stale_manifest_2026_06_08.md) — reference_catalog_index_stale_manifest_2026_06_08.md
+- **2026-06-08** [`reference_catalog_extraction_pipeline_gap_2026_05_31.md`](reference/reference_catalog_extraction_pipeline_gap_2026_05_31.md) — reference_catalog_extraction_pipeline_gap_2026_05_31.md
+- **2026-06-08** [`reference_catalog_corpus_loader_2026_06_08.md`](reference/reference_catalog_corpus_loader_2026_06_08.md) — reference_catalog_corpus_loader_2026_06_08.md
+- **2026-06-08** [`reference_catalog_dev_prod_split_brain_2026_06_08.md`](reference/reference_catalog_dev_prod_split_brain_2026_06_08.md) — Tool-catalog dev/prod split-brain (verified 2026-06-08, slot:juliett)
+- **2026-06-08** [`reference_cam_tool_data_contract_2026_06_01.md`](reference/reference_cam_tool_data_contract_2026_06_01.md) — CAM tool-data contract kilo↔charlie/hotel (U-CAM-TOOL-DATA-CONTRACT, slot:kilo, 2026-06-01)
+- **2026-06-08** [`reference_cam_selflearn_persist_2026_06_02.md`](reference/reference_cam_selflearn_persist_2026_06_02.md) — CAM self-learn persist — LOAD-side of the closed loop (slot:kilo, 2026-06-02)
+- **2026-06-08** [`reference_cam_self_teaching_pipeline_ms0.md`](reference/reference_cam_self_teaching_pipeline_ms0.md) — CAM-SELF-TEACHING-PIPELINE-MS0 — `U-INTERRUPTED-CUT-AVOID` ship + spec (2026-05-28)
+- **2026-06-08** [`reference_cam_pipeline_audit_2026_05_28.md`](reference/reference_cam_pipeline_audit_2026_05_28.md) — CAM Pipeline Audit — kilo applies delta's CAD methodology to CAM (2026-05-28)
+- **2026-06-08** [`reference_cam_optimization_verified_2026_06_01.md`](reference/reference_cam_optimization_verified_2026_06_01.md) — CAM optimization rules adversarially verified — 2 P0 + 16 P1 fixed (U-CAM-OPT-VERIFIED, slot:kilo, 2026-06-01)
+- **2026-06-08** [`reference_cam_optimal_reference_single_material_2026_06_01.md`](reference/reference_cam_optimal_reference_single_material_2026_06_01.md) — PRISM_UPGRADED "optimal reference" is single-material (U-CAM-OPTIMAL-REFERENCE, slot:kilo, 2026-06-01)
+- **2026-06-08** [`reference_cam_offline_loop_first_run_2026_06_02.md`](reference/reference_cam_offline_loop_first_run_2026_06_02.md) — CAM offline closed-loop — first real run (slot:kilo, 2026-06-02)
+- **2026-06-08** [`reference_cam_feed_regex_broken_2026_06_01.md`](reference/reference_cam_feed_regex_broken_2026_06_01.md) — CAM feed regex was broken — Okuma dot-notation unparseable (U-CAM-FEED-PER-REV, slot:kilo, 2026-06-01)
+- **2026-06-08** [`reference_cam_fusion_live_path_unblocked_2026_06_02.md`](reference/reference_cam_fusion_live_path_unblocked_2026_06_02.md) — CAM Fusion live-drive path unblocked (slot:kilo, 2026-06-02)
+- **2026-06-08** [`reference_cam_learn_loop_gap_fill_2026_05_31.md`](reference/reference_cam_learn_loop_gap_fill_2026_05_31.md) — reference_cam_learn_loop_gap_fill_2026_05_31.md
+- **2026-06-08** [`reference_cam_corpus_locations.md`](reference/reference_cam_corpus_locations.md) — CAM corpus locations (H: drive — JM Die canonical)
+- **2026-06-08** [`reference_cam_corpus_programming_notes_2026_06_01.md`](reference/reference_cam_corpus_programming_notes_2026_06_01.md) — JM Okuma lathe corpus — programming-practice analysis (U-CAM-CORPUS-DEEP-STRUCTURE, slot:kilo, 2026-06-01)
+- **2026-06-08** [`reference_cam_ai_training_ms0_5system_2026_05_26.md`](reference/reference_cam_ai_training_ms0_5system_2026_05_26.md) — CAM-AI-TRAINING-MS0 closeout reference (2026-05-26, slot kilo, /goal 100-iter)
+- **2026-06-08** [`reference_cam_adaptive_pipeline_deep_assessment_2026_05_28.md`](reference/reference_cam_adaptive_pipeline_deep_assessment_2026_05_28.md) — Deep assessment — adaptive-pipeline readiness for closed-loop self-training
+- **2026-06-08** [`reference_calresco_math_concepts_2026_05_22.md`](reference/reference_calresco_math_concepts_2026_05_22.md) — CALResCo math-techniques catalogue → PRISM engines (2026-05-22, slot november)
+- **2026-06-08** [`reference_calresco_complexity_research_2026_05_22.md`](reference/reference_calresco_complexity_research_2026_05_22.md) — CALResCo complexity-science research → PRISM applicability (2026-05-22, slot november /goal /loop)
+- **2026-06-08** [`reference_cag_summarize_nosources_fix_2026_06_03.md`](reference/reference_cag_summarize_nosources_fix_2026_06_03.md) — CAG-router summarize() honest-no-sources render fix (slot:india, 2026-06-03, commit 56b942f50a)
+- **2026-06-08** [`reference_cag_router_hook_inject_2026_05_26.md`](reference/reference_cag_router_hook_inject_2026_05_26.md) — reference_cag_router_hook_inject_2026_05_26.md
+- **2026-06-08** [`reference_cag_router_2026_05_26.md`](reference/reference_cag_router_2026_05_26.md) — CAG-router (Cache-Augmented Generation) — 2026-05-26 (sierra /loop iter1)
+- **2026-06-08** [`reference_cag_injectors_consume_2026_05_27.md`](reference/reference_cag_injectors_consume_2026_05_27.md) — reference_cag_injectors_consume_2026_05_27.md
+- **2026-06-08** [`reference_cag_hook_inject_peer_wire_2026_05_26.md`](reference/reference_cag_hook_inject_peer_wire_2026_05_26.md) — CAG-HOOK-INJECT peer-wired (2026-05-26, sierra iter3 reorient observation)
+- **2026-06-08** [`reference_cad_topology_iter8_13_2026_05_25.md`](reference/reference_cad_topology_iter8_13_2026_05_25.md) — CAD topology pipeline — iter+8..+13 arc (slot:delta 2026-05-25)
+- **2026-06-08** [`reference_cad_topology_iter5_7_2026_05_25.md`](reference/reference_cad_topology_iter5_7_2026_05_25.md) — CAD topology emitter — iter+5..+7 arc (97.7% impeller fidelity)
+- **2026-06-08** [`reference_cad_topology_iter42_46_2026_05_25.md`](reference/reference_cad_topology_iter42_46_2026_05_25.md) — CAD topology pipeline — iter+42..+46 arc (slot:delta 2026-05-25)
+- **2026-06-08** [`reference_cad_topology_iter38_41_2026_05_25.md`](reference/reference_cad_topology_iter38_41_2026_05_25.md) — CAD topology pipeline — iter+38..+41 arc (slot:delta 2026-05-25)
+- **2026-06-08** [`reference_cad_topology_iter23_30_2026_05_25.md`](reference/reference_cad_topology_iter23_30_2026_05_25.md) — CAD topology pipeline — iter+23..+30 arc (architectural maturity)
+- **2026-06-08** [`reference_cad_topology_iter18_22_2026_05_25.md`](reference/reference_cad_topology_iter18_22_2026_05_25.md) — CAD topology pipeline — iter+18..+22 arc (cap-raise loop)
+- **2026-06-08** [`reference_cad_topology_emitter_2026_05_25.md`](reference/reference_cad_topology_emitter_2026_05_25.md) — CAD topology-rich STEP emitter (CAD-PIPELINE-WIRE-MS0 follow-up)
+- **2026-06-08** [`reference_cad_topology_iter14_17_2026_05_25.md`](reference/reference_cad_topology_iter14_17_2026_05_25.md) — CAD topology pipeline — iter+14..+17 arc (tooling + diagnostics)
+- **2026-06-08** [`reference_cad_template_coverage_plateau_2026_05_27.md`](reference/reference_cad_template_coverage_plateau_2026_05_27.md) — CAD template coverage plateau (slot:delta iter25..iter34, 2026-05-27)
+- **2026-06-08** [`reference_cad_template_engineering_wins_2026_05_27.md`](reference/reference_cad_template_engineering_wins_2026_05_27.md) — CAD template engineering wins (slot:delta iter25→iter38, 2026-05-27)
+- **2026-06-08** [`reference_cad_replicate_from_template_workflow_2026_05_27.md`](reference/reference_cad_replicate_from_template_workflow_2026_05_27.md) — CAD-replicate-from-template workflow (2026-05-27, iter124-127)
+- **2026-06-08** [`reference_cad_pipeline_wire_ms0_2026_05_24.md`](reference/reference_cad_pipeline_wire_ms0_2026_05_24.md) — CAD-PIPELINE-WIRE-MS0 — wiki + tribal + courses + PDF injection
+- **2026-06-08** [`reference_cad_piece3_complete_2026_05_27.md`](reference/reference_cad_piece3_complete_2026_05_27.md) — Piece-3 complete (slot:delta iter25-iter64, 2026-05-27)
+- **2026-06-08** [`reference_cad_piece3_fleet_complete_2026_05_27.md`](reference/reference_cad_piece3_fleet_complete_2026_05_27.md) — Piece-3 fleet 100% classified (slot:delta iter25-iter84, 2026-05-27)
+- **2026-06-08** [`reference_cad_pipeline_closed_loop_2026_05_24.md`](reference/reference_cad_pipeline_closed_loop_2026_05_24.md) — CAD-PIPELINE-WIRE-MS0 closed-loop print-compare pipeline
+- **2026-06-08** [`reference_cad_live_regen_ms0_2026_05_26.md`](reference/reference_cad_live_regen_ms0_2026_05_26.md) — CAD live-regen MS0 — Mastercam + HyperCAD-S corpus sweep (slot:delta 2026-05-26 /loop iter3+4)
+- **2026-06-08** [`reference_cad_draw_max_ms0_envelope_2026_05_23.md`](reference/reference_cad_draw_max_ms0_envelope_2026_05_23.md) — CAD-DRAW-MAX-MS0 — envelope created 2026-05-23 (slot:delta)
+- **2026-06-08** [`reference_cad_draw_max_ms1_u_validation_50_2026_05_23.md`](reference/reference_cad_draw_max_ms1_u_validation_50_2026_05_23.md) — CAD-DRAW-MAX-MS1/U-VALIDATION-50 — validation harness shipped 2026-05-23
+- **2026-06-08** [`reference_cad_fusion_training_2026_05_18.md`](reference/reference_cad_fusion_training_2026_05_18.md) — reference_cad_fusion_training_2026_05_18.md
+- **2026-06-08** [`reference_cad_domain_map_for_delta_2026_05_27.md`](reference/reference_cad_domain_map_for_delta_2026_05_27.md) — CAD-domain master map for slot:delta (2026-05-27, iter112)
+- **2026-06-08** [`reference_cad_cam_software_tips_catalog_2026_05_26.md`](reference/reference_cad_cam_software_tips_catalog_2026_05_26.md) — CAD/CAM software online tips catalog (slot:delta /loop 2026-05-26 /goal /yolo-mode)
+- **2026-06-08** [`reference_cad_deep_domain_research_catalog_2026_05_26.md`](reference/reference_cad_deep_domain_research_catalog_2026_05_26.md) — CAD deep-domain research catalog (slot:delta 2026-05-26 /loop /yolo deep research)
+- **2026-06-08** [`reference_cad_cam_seat_paths_2026_05_27.md`](reference/reference_cad_cam_seat_paths_2026_05_27.md) — CAD + CAM seat paths — workstation `DESKTOP-N7MI1VB` (2026-05-27)
+- **2026-06-08** [`reference_cadcam_viz_roost_mcp_action_2026_05_24.md`](reference/reference_cadcam_viz_roost_mcp_action_2026_05_24.md) — reference_cadcam_viz_roost_mcp_action_2026_05_24.md
+- **2026-06-08** [`reference_cad_assembly_gen_layer1_live_2026_05_27.md`](reference/reference_cad_assembly_gen_layer1_live_2026_05_27.md) — Piece-3 layer-1 LIVE (slot:delta iter43-iter44, 2026-05-27)
+- **2026-06-08** [`reference_cad_cam_pdf_extraction_2026_05_26.md`](reference/reference_cad_cam_pdf_extraction_2026_05_26.md) — CAD/CAM PDF extraction layer — 2026-05-26 (slot:kilo, attribution absorbed)
+- **2026-06-08** [`reference_bridge_expand_basename_resolver_2026_05_24.md`](reference/reference_bridge_expand_basename_resolver_2026_05_24.md) — Bridge expand — basename resolver — papa /loop 2026-05-24
+- **2026-06-08** [`reference_cadcam_tribal_wiki_extract_2026_05_24.md`](reference/reference_cadcam_tribal_wiki_extract_2026_05_24.md) — reference_cadcam_tribal_wiki_extract_2026_05_24.md
+- **2026-06-08** [`reference_bravo_stub_hunter_scripts.md`](reference/reference_bravo_stub_hunter_scripts.md) — reference_bravo_stub_hunter_scripts.md
+- **2026-06-08** [`reference_bravo_verify_against_main_not_worktree_2026_05_29.md`](reference/reference_bravo_verify_against_main_not_worktree_2026_05_29.md) — reference_bravo_verify_against_main_not_worktree_2026_05_29.md
+- **2026-06-08** [`reference_bravo_qdrant_down_fallback.md`](reference/reference_bravo_qdrant_down_fallback.md) — reference_bravo_qdrant_down_fallback.md
+- **2026-06-08** [`reference_bravo_slot_worktree_galaxy_split.md`](reference/reference_bravo_slot_worktree_galaxy_split.md) — reference_bravo_slot_worktree_galaxy_split.md
+- **2026-06-08** [`reference_bravo_master_brain_template_clone.md`](reference/reference_bravo_master_brain_template_clone.md) — reference_bravo_master_brain_template_clone.md
+- **2026-06-08** [`reference_bravo_hermes_zulu_engine_surface.md`](reference/reference_bravo_hermes_zulu_engine_surface.md) — reference_bravo_hermes_zulu_engine_surface.md
+- **2026-06-08** [`reference_bravo_hermes_zulu_hooks.md`](reference/reference_bravo_hermes_zulu_hooks.md) — reference_bravo_hermes_zulu_hooks.md
+- **2026-06-08** [`reference_bravo_dispatcher_map_zero_actions.md`](reference/reference_bravo_dispatcher_map_zero_actions.md) — reference_bravo_dispatcher_map_zero_actions.md
+- **2026-06-08** [`reference_bravo_galaxy_buildout_2026_05_28.md`](reference/reference_bravo_galaxy_buildout_2026_05_28.md) — reference_bravo_galaxy_buildout_2026_05_28.md
+- **2026-06-08** [`reference_blueprint_ocr_cad_reading_atlas_2026_05_27.md`](reference/reference_blueprint_ocr_cad_reading_atlas_2026_05_27.md) — Blueprint / OCR / CAD-file-reading atlas (fleet-shareable)
+- **2026-06-08** [`reference_blueprint_ocr_training_ms1_collision.md`](reference/reference_blueprint_ocr_training_ms1_collision.md) — reference_blueprint_ocr_training_ms1_collision.md
+- **2026-06-08** [`reference_brain_refresh_scheduled_2026_05_31.md`](reference/reference_brain_refresh_scheduled_2026_05_31.md) — reference_brain_refresh_scheduled_2026_05_31.md
+- **2026-06-08** [`reference_blueprint_100pct_bypass_2026_05_24.md`](reference/reference_blueprint_100pct_bypass_2026_05_24.md) — Blueprint 100% accuracy — audit-justified bypass — papa /loop 2026-05-24
+- **2026-06-08** [`reference_blackwell_ollama_utilization_optimize_2026_06_03.md`](reference/reference_blackwell_ollama_utilization_optimize_2026_06_03.md) — reference_blackwell_ollama_utilization_optimize_2026_06_03.md
+- **2026-06-08** [`reference_blackwell_token_synergy_ms0_2026_06_03.md`](reference/reference_blackwell_token_synergy_ms0_2026_06_03.md) — reference_blackwell_token_synergy_ms0_2026_06_03.md
+- **2026-06-08** [`reference_blackwell_model_retirement_2026_06_04.md`](reference/reference_blackwell_model_retirement_2026_06_04.md) — Blackwell model retirement + research-driven upgrade (2026-06-04, slot:alpha)
+- **2026-06-08** [`reference_blackwell_ms0_foundation_pair_2026_06_03.md`](reference/reference_blackwell_ms0_foundation_pair_2026_06_03.md) — BLACKWELL-AI-MS0 — GPU-training foundation pair (slot:india, 2026-06-03)
+- **2026-06-08** [`reference_blackwell_gpu_synergy_golf_2026_06_04.md`](reference/reference_blackwell_gpu_synergy_golf_2026_06_04.md) — reference_blackwell_gpu_synergy_golf_2026_06_04.md
+- **2026-06-08** [`reference_blackwell_gpu_training_ready_2026_06_06.md`](reference/reference_blackwell_gpu_training_ready_2026_06_06.md) — Blackwell GPU training stack is LIVE + T3.2 Node→GPU runner shipped (slot:xray, 2026-06-06)
+- **2026-06-08** [`reference_blackwell_model_integration_ms0_2026_06.md`](reference/reference_blackwell_model_integration_ms0_2026_06.md) — reference_blackwell_model_integration_ms0_2026_06.md
+- **2026-06-08** [`reference_blackwell_db_gen_embed_pool_2026_06_04.md`](reference/reference_blackwell_db_gen_embed_pool_2026_06_04.md) — reference_blackwell_db_gen_embed_pool_2026_06_04.md
+- **2026-06-08** [`reference_blackwell_embed_concurrency_2026_06_03.md`](reference/reference_blackwell_embed_concurrency_2026_06_03.md) — reference_blackwell_embed_concurrency_2026_06_03.md
+- **2026-06-08** [`reference_blackwell_catalog_gpu_profile_2026_06_03.md`](reference/reference_blackwell_catalog_gpu_profile_2026_06_03.md) — reference_blackwell_catalog_gpu_profile_2026_06_03.md
+- **2026-06-08** [`reference_blackwell_db_gen_concurrency_2026_06_04.md`](reference/reference_blackwell_db_gen_concurrency_2026_06_04.md) — reference_blackwell_db_gen_concurrency_2026_06_04.md
+- **2026-06-08** [`reference_blackwell_ai_upgrade_plan_2026_06_03.md`](reference/reference_blackwell_ai_upgrade_plan_2026_06_03.md) — reference_blackwell_ai_upgrade_plan_2026_06_03.md
+- **2026-06-08** [`reference_bash_orphan_cleaner_wired_2026_05_16.md`](reference/reference_bash_orphan_cleaner_wired_2026_05_16.md) — bash-orphan-cleaner.mjs wired to Stop chain
+- **2026-06-08** [`reference_bibryam_large_codebase_8_patterns_2026_05_28.md`](reference/reference_bibryam_large_codebase_8_patterns_2026_05_28.md) — reference_bibryam_large_codebase_8_patterns_2026_05_28.md
+- **2026-06-08** [`reference_bash_congestion_fleet_scope_2026_05_23.md`](reference/reference_bash_congestion_fleet_scope_2026_05_23.md) — Bash subsystem congestion — diagnosis + 7 systemic fixes (2026-05-23, slot golf)
+- **2026-06-08** [`reference_b2_universal_unreachable_2026_05_27.md`](reference/reference_b2_universal_unreachable_2026_05_27.md) — B2 — universal namespace unreachable via agent_memory_remember dispatcher (2026-05-27, slot:alpha)
+- **2026-06-08** [`reference_b3_hmemv06_dispatcher_wire_closeout_2026_05_28.md`](reference/reference_b3_hmemv06_dispatcher_wire_closeout_2026_05_28.md) — B3 HMEMV06 dispatcher-wire close-out + B1/B2 silent debt recovery (alpha, 2026-05-28)
+- **2026-06-08** [`reference_awareness_snapshot_broken_big_graph_2026_06_01.md`](reference/reference_awareness_snapshot_broken_big_graph_2026_06_01.md) — reference_awareness_snapshot_broken_big_graph_2026_06_01.md
+- **2026-06-08** [`reference_awareness_stack.md`](reference/reference_awareness_stack.md) — PRISM Awareness Stack — search-first cuts Grep/Glob/Agent waste
+- **2026-06-08** [`reference_auto_learning_loop_ms0_u_all02_collision.md`](reference/reference_auto_learning_loop_ms0_u_all02_collision.md) — AUTO-LEARNING-LOOP-MS0 / U-ALL02 ship — absorbed into peer commit
+- **2026-06-08** [`reference_awareness_readiness_2026_05_19.md`](reference/reference_awareness_readiness_2026_05_19.md) — reference_awareness_readiness_2026_05_19.md
+- **2026-06-08** [`reference_autowiring_stale_js_clash_2026_05_20.md`](reference/reference_autowiring_stale_js_clash_2026_05_20.md) — Stale .js artifacts shadowing .ts engines — auto_wiring clash (2026-05-20, slot alpha)
+- **2026-06-08** [`reference_autocompact_autonomous_ms0_2026_05_15.md`](reference/reference_autocompact_autonomous_ms0_2026_05_15.md) — AUTOCOMPACT-AUTONOMOUS-MS0/U-AAM01 (2026-05-15)
+- **2026-06-08** [`reference_audit_token_savings_2026_05_17.md`](reference/reference_audit_token_savings_2026_05_17.md) — 2026-05-17 token-savings audit (lima)
+- **2026-06-08** [`reference_autocompact_autonomous_aam01_gap3_aam02_2026_05_16.md`](reference/reference_autocompact_autonomous_aam01_gap3_aam02_2026_05_16.md) — reference_autocompact_autonomous_aam01_gap3_aam02_2026_05_16.md
+- **2026-06-08** [`reference_audit_multiline_import_false_orphan_2026_06_02.md`](reference/reference_audit_multiline_import_false_orphan_2026_06_02.md) — Wiring-detector multi-line await-import false-orphan bug (U-AUDIT-MULTILINE-IMPORT-FIX, slot:whiskey, 2026-06-02)
+- **2026-06-08** [`reference_audit_token_context_memory_2026_05_16.md`](reference/reference_audit_token_context_memory_2026_05_16.md) — Token/Context/Memory Audit (2026-05-16, slot juliett, /forge-audit-v2)
+- **2026-06-08** [`reference_audit_awareness_substrate_2026_05_26.md`](reference/reference_audit_awareness_substrate_2026_05_26.md) — Audit-Awareness Substrate — shipped 2026-05-26 (slot:papa)
+- **2026-06-08** [`reference_audit_actionmap_synergy_chain_2026_05_18.md`](reference/reference_audit_actionmap_synergy_chain_2026_05_18.md) — U-ECHO-AUDIT-ACTIONMAP — audit-unwired-engines table-driven detection + synergy chain (2026-05-18 echo)
+- **2026-06-08** [`reference_articles_memory_cag_2026_05_26.md`](reference/reference_articles_memory_cag_2026_05_26.md) — Two X articles → PRISM already-identified P1 gaps
+- **2026-06-08** [`reference_arc_ms10_closeout_debt_2026_05_22.md`](reference/reference_arc_ms10_closeout_debt_2026_05_22.md) — reference_arc_ms10_closeout_debt_2026_05_22.md
+- **2026-06-08** [`reference_alpha_tribal_index_race_2026_05_30.md`](reference/reference_alpha_tribal_index_race_2026_05_30.md) — reference_alpha_tribal_index_race_2026_05_30.md
+- **2026-06-08** [`reference_alpha_workflow_inventory_pattern.md`](reference/reference_alpha_workflow_inventory_pattern.md) — reference_alpha_workflow_inventory_pattern.md
+- **2026-06-08** [`reference_alpha_token_engines_inventory.md`](reference/reference_alpha_token_engines_inventory.md) — reference_alpha_token_engines_inventory.md
+- **2026-06-08** [`reference_alpha_recall_eval_harness_2026_05_30.md`](reference/reference_alpha_recall_eval_harness_2026_05_30.md) — reference_alpha_recall_eval_harness_2026_05_30.md
+- **2026-06-08** [`reference_alpha_token_awareness_surface.md`](reference/reference_alpha_token_awareness_surface.md) — reference_alpha_token_awareness_surface.md
+- **2026-06-08** [`reference_alpha_ollama_coldload_not_contention_2026_05_29.md`](reference/reference_alpha_ollama_coldload_not_contention_2026_05_29.md) — reference_alpha_ollama_coldload_not_contention_2026_05_29.md
+- **2026-06-08** [`reference_alpha_psn_savings_detectors.md`](reference/reference_alpha_psn_savings_detectors.md) — reference_alpha_psn_savings_detectors.md
+- **2026-06-08** [`reference_alpha_obsidian_brain_improvement_research_2026_05_29.md`](reference/reference_alpha_obsidian_brain_improvement_research_2026_05_29.md) — reference_alpha_obsidian_brain_improvement_research_2026_05_29.md
+- **2026-06-08** [`reference_alpha_ollama_chat_hang_host_saturation_2026_05_30.md`](reference/reference_alpha_ollama_chat_hang_host_saturation_2026_05_30.md) — reference_alpha_ollama_chat_hang_host_saturation_2026_05_30.md
+- **2026-06-08** [`reference_alpha_memory_truncation_ceiling.md`](reference/reference_alpha_memory_truncation_ceiling.md) — reference_alpha_memory_truncation_ceiling.md
+- **2026-06-08** [`reference_alpha_memory_index_nofire_2026_05_29.md`](reference/reference_alpha_memory_index_nofire_2026_05_29.md) — reference_alpha_memory_index_nofire_2026_05_29.md
+- **2026-06-08** [`reference_alpha_l2_meta_synthesis_2026_05_29.md`](reference/reference_alpha_l2_meta_synthesis_2026_05_29.md) — reference_alpha_l2_meta_synthesis_2026_05_29.md
+- **2026-06-08** [`reference_alpha_hybrid_memory_retrieval_a6_2026_05_29.md`](reference/reference_alpha_hybrid_memory_retrieval_a6_2026_05_29.md) — reference_alpha_hybrid_memory_retrieval_a6_2026_05_29.md
+- **2026-06-08** [`reference_alpha_glob_backslash_path_bug.md`](reference/reference_alpha_glob_backslash_path_bug.md) — reference_alpha_glob_backslash_path_bug.md
+- **2026-06-08** [`reference_alpha_galaxy_synthesis_claim_2026_05_30.md`](reference/reference_alpha_galaxy_synthesis_claim_2026_05_30.md) — reference_alpha_galaxy_synthesis_claim_2026_05_30.md
+- **2026-06-08** [`reference_alpha_galaxy_brain_recall_indexing_a3_2026_05_29.md`](reference/reference_alpha_galaxy_brain_recall_indexing_a3_2026_05_29.md) — reference_alpha_galaxy_brain_recall_indexing_a3_2026_05_29.md
+- **2026-06-08** [`reference_alpha_galaxy_brain_recall_enrichment_2026_05_29.md`](reference/reference_alpha_galaxy_brain_recall_enrichment_2026_05_29.md) — reference_alpha_galaxy_brain_recall_enrichment_2026_05_29.md
+- **2026-06-08** [`reference_alpha_explore_agent_schema_incompat.md`](reference/reference_alpha_explore_agent_schema_incompat.md) — reference_alpha_explore_agent_schema_incompat.md
+- **2026-06-08** [`reference_alpha_forge_punchlist_2026_06_04.md`](reference/reference_alpha_forge_punchlist_2026_06_04.md) — Alpha forge-find-improve punch list — 2026-06-04 (Workflow w00l0f5c0, 11 agents, adversarially verified)
+- **2026-06-08** [`reference_alpha_embeddings_staleness_gate_2026_05_30.md`](reference/reference_alpha_embeddings_staleness_gate_2026_05_30.md) — reference_alpha_embeddings_staleness_gate_2026_05_30.md
+- **2026-06-08** [`reference_alpha_cag_cold_cache_anchor.md`](reference/reference_alpha_cag_cold_cache_anchor.md) — reference_alpha_cag_cold_cache_anchor.md
+- **2026-06-08** [`reference_alpha_b1_galaxy_reflection_2026_05_29.md`](reference/reference_alpha_b1_galaxy_reflection_2026_05_29.md) — reference_alpha_b1_galaxy_reflection_2026_05_29.md
+- **2026-06-08** [`reference_alpha_brain_refresh_ms0_2026_05_30.md`](reference/reference_alpha_brain_refresh_ms0_2026_05_30.md) — reference_alpha_brain_refresh_ms0_2026_05_30.md
+- **2026-06-08** [`reference_alpha_amp2_incremental_refresh_2026_05_29.md`](reference/reference_alpha_amp2_incremental_refresh_2026_05_29.md) — reference_alpha_amp2_incremental_refresh_2026_05_29.md
+- **2026-06-08** [`reference_alpha_amp_consume_synthesis_line_2026_05_30.md`](reference/reference_alpha_amp_consume_synthesis_line_2026_05_30.md) — reference_alpha_amp_consume_synthesis_line_2026_05_30.md
+- **2026-06-08** [`reference_ai_wire_ms0_lima_2026_05_22.md`](reference/reference_ai_wire_ms0_lima_2026_05_22.md) — AI-WIRE-MS0 U-AIW05 + U-AIW09 — slot lima, 2026-05-22
+- **2026-06-08** [`reference_algorithm_scope_enumeration_audit_2026_05_26.md`](reference/reference_algorithm_scope_enumeration_audit_2026_05_26.md) — 58-Algorithm Scope Enumeration — audit findings (2026-05-26, slot:tango /goal /loop iter5)
+- **2026-06-08** [`reference_ahmad_osman_llm_curriculum_2026_05_25.md`](reference/reference_ahmad_osman_llm_curriculum_2026_05_25.md) — Ahmad Osman — Step-By-Step LLM Engineering Projects (2026 Edition) — papa 2026-05-25
+- **2026-06-08** [`reference_aimax_07_08_shipped.md`](reference/reference_aimax_07_08_shipped.md) — U-AIMAX07 + U-AIMAX08 shipped — DO NOT REBUILD
+- **2026-06-08** [`reference_acu_selector_convergence_2026_06_03.md`](reference/reference_acu_selector_convergence_2026_06_03.md) — WEDM ACU selector convergence (R7) — slot:mike 2026-06-03
+- **2026-06-08** [`reference_acu_7pass_families_regression_2026_06_02.md`](reference/reference_acu_7pass_families_regression_2026_06_02.md) — WEDM ACU 7-pass families regression (E952 / E56xx)
+- **2026-06-08** [`reference_acp_ms6_closeout_2026_05_23.md`](reference/reference_acp_ms6_closeout_2026_05_23.md) — ACP-MS6 close-out — 2026-05-23 hotel /loop
+- **2026-06-08** [`reference_academy_hub_ux_overhaul_2026_05_27.md`](reference/reference_academy_hub_ux_overhaul_2026_05_27.md) — AcademyHub UX Overhaul — lima 2026-05-27
+- **2026-06-08** [`reference_academy_hub_drilldown_2026_05_27.md`](reference/reference_academy_hub_drilldown_2026_05_27.md) — Academy Hub drill-down — authorship note (lima, 2026-05-27)
+- **2026-06-08** [`reference_academy_frontend_gap_2026_05_25.md`](reference/reference_academy_frontend_gap_2026_05_25.md) — Academy Frontend Gap (discovered 2026-05-25 lima iter41)
+- **2026-06-08** [`reference_ab_locator_over_pairing_human_revisions_2026_05_27.md`](reference/reference_ab_locator_over_pairing_human_revisions_2026_05_27.md) — AB-locator over-pairing: human-revisions vs v2.0.0 upgrades
+- **2026-06-08** [`reference_3tier_ai_xproc_actual_2026_05_19.md`](reference/reference_3tier_ai_xproc_actual_2026_05_19.md) — 3-Tier AI Hierarchy — Aspirational Naming vs XPROC Actual
+- **2026-06-08** [`node_course_mit_18_06_linear_algebra_gilbert_strang.md`](reference/node_course_mit_18_06_linear_algebra_gilbert_strang.md) — Node pointer — course/mit_18_06_linear_algebra_gilbert_strang
+- **2026-06-08** [`node_course_mit_2_008_design_and_manufacturing_ii.md`](reference/node_course_mit_2_008_design_and_manufacturing_ii.md) — Node pointer — course/mit_2_008_design_and_manufacturing_ii
+- **2026-06-08** [`node_course_mit_2_813_energy_materials_and_manufacturing_sustainable_manufacturing.md`](reference/node_course_mit_2_813_energy_materials_and_manufacturing_sustainable_manufacturing.md) — Node pointer — course/mit_2_813_energy_materials_and_manufacturing_sustainable_manufacturing
+- **2026-06-08** [`node_course_mit_2_830_control_of_manufacturing_processes.md`](reference/node_course_mit_2_830_control_of_manufacturing_processes.md) — Node pointer — course/mit_2_830_control_of_manufacturing_processes
+- **2026-06-08** [`node_course_mit_6_s191_introduction_to_deep_learning.md`](reference/node_course_mit_6_s191_introduction_to_deep_learning.md) — Node pointer — course/mit_6_s191_introduction_to_deep_learning
+- **2026-06-08** [`node_course_academy_course_33_material_machining_atlas_how_to_cut_different_materials_all_materials.md`](reference/node_course_academy_course_33_material_machining_atlas_how_to_cut_different_materials_all_materials.md) — Node pointer — course/academy_course_33_material_machining_atlas_how_to_cut_different_materials_all_materials
+- **2026-06-08** [`node_course_academy_course_34_per_machine_type_operations_expand_all_domains_of_machining_each_machine.md`](reference/node_course_academy_course_34_per_machine_type_operations_expand_all_domains_of_machining_each_machine.md) — Node pointer — course/academy_course_34_per_machine_type_operations_expand_all_domains_of_machining_each_machine
+- **2026-06-08** [`node_course_academy_course_4_milling_operations_milling_operations.md`](reference/node_course_academy_course_4_milling_operations_milling_operations.md) — Node pointer — course/academy_course_4_milling_operations_milling_operations
+- **2026-06-08** [`node_course_academy_course_5_turning_operations_turning_operations.md`](reference/node_course_academy_course_5_turning_operations_turning_operations.md) — Node pointer — course/academy_course_5_turning_operations_turning_operations
+- **2026-06-08** [`node_course_academy_course_6_to_12_advanced_advanced_through_master_professional.md`](reference/node_course_academy_course_6_to_12_advanced_advanced_through_master_professional.md) — Node pointer — course/academy_course_6_to_12_advanced_advanced_through_master_professional
+- **2026-06-08** [`node_course_academy_course_30_toolpath_catalog_programming_paradigms_account_for_all_possible_tool_pat.md`](reference/node_course_academy_course_30_toolpath_catalog_programming_paradigms_account_for_all_possible_tool_pat.md) — Node pointer — course/academy_course_30_toolpath_catalog_programming_paradigms_account_for_all_possible_tool_pat
+- **2026-06-08** [`node_course_academy_course_31_cadcam_operations_atlas_keep_expanding_until_we_have_full_coverage_for.md`](reference/node_course_academy_course_31_cadcam_operations_atlas_keep_expanding_until_we_have_full_coverage_for.md) — Node pointer — course/academy_course_31_cadcam_operations_atlas_keep_expanding_until_we_have_full_coverage_for
+- **2026-06-08** [`node_course_academy_course_32_machining_math_science_deep_dive_all_tooling_utilization_optimal_paramet.md`](reference/node_course_academy_course_32_machining_math_science_deep_dive_all_tooling_utilization_optimal_paramet.md) — Node pointer — course/academy_course_32_machining_math_science_deep_dive_all_tooling_utilization_optimal_paramet
+- **2026-06-08** [`node_course_academy_course_28_function_index_reference_include_every_single_function_and_input_possibl.md`](reference/node_course_academy_course_28_function_index_reference_include_every_single_function_and_input_possibl.md) — Node pointer — course/academy_course_28_function_index_reference_include_every_single_function_and_input_possibl
+- **2026-06-08** [`node_course_academy_course_29_toolpath_reasoning_dual_level_why_strategies_match_geometry.md`](reference/node_course_academy_course_29_toolpath_reasoning_dual_level_why_strategies_match_geometry.md) — Node pointer — course/academy_course_29_toolpath_reasoning_dual_level_why_strategies_match_geometry
+- **2026-06-08** [`node_course_academy_course_3_gcode_programming_g_code_programming.md`](reference/node_course_academy_course_3_gcode_programming_g_code_programming.md) — Node pointer — course/academy_course_3_gcode_programming_g_code_programming
+- **2026-06-08** [`node_course_academy_course_24_accuracy_improvement_how_to_improve_accuracy_maps_the_4_dominant_accurac.md`](reference/node_course_academy_course_24_accuracy_improvement_how_to_improve_accuracy_maps_the_4_dominant_accurac.md) — Node pointer — course/academy_course_24_accuracy_improvement_how_to_improve_accuracy_maps_the_4_dominant_accurac
+- **2026-06-08** [`node_course_academy_course_25_creo_worknc_gibbscam_edgecam_entry_x.md`](reference/node_course_academy_course_25_creo_worknc_gibbscam_edgecam_entry_x.md) — Node pointer — course/academy_course_25_creo_worknc_gibbscam_edgecam_entry_x
+- **2026-06-08** [`node_course_academy_course_26_hexagon_trio_camworks_entry_x.md`](reference/node_course_academy_course_26_hexagon_trio_camworks_entry_x.md) — Node pointer — course/academy_course_26_hexagon_trio_camworks_entry_x
+- **2026-06-08** [`node_course_academy_course_27_final_six_cam_entry_x.md`](reference/node_course_academy_course_27_final_six_cam_entry_x.md) — Node pointer — course/academy_course_27_final_six_cam_entry_x
+- **2026-06-08** [`node_course_academy_course_22_alarm_troubleshooting_deep_how_to_fix_a_machine_depending_on_alarms_we_h.md`](reference/node_course_academy_course_22_alarm_troubleshooting_deep_how_to_fix_a_machine_depending_on_alarms_we_h.md) — Node pointer — course/academy_course_22_alarm_troubleshooting_deep_how_to_fix_a_machine_depending_on_alarms_we_h
+- **2026-06-08** [`node_course_academy_course_23_prism_database_mastery_module.md`](reference/node_course_academy_course_23_prism_database_mastery_module.md) — Node pointer — course/academy_course_23_prism_database_mastery_module
+- **2026-06-08** [`node_course_academy_course_21_business_management_expand_each_feature_to_cover_business_management.md`](reference/node_course_academy_course_21_business_management_expand_each_feature_to_cover_business_management.md) — Node pointer — course/academy_course_21_business_management_expand_each_feature_to_cover_business_management
+- **2026-06-08** [`node_course_academy_course_17_tooling_codes_tooling_codes_iso_insert_ansi_body_chip_breaker.md`](reference/node_course_academy_course_17_tooling_codes_tooling_codes_iso_insert_ansi_body_chip_breaker.md) — Node pointer — course/academy_course_17_tooling_codes_tooling_codes_iso_insert_ansi_body_chip_breaker
+- **2026-06-08** [`node_course_academy_course_18_cad_cam_entry_level_cad_cam_entry_level_training_alarm_troubleshooting_e.md`](reference/node_course_academy_course_18_cad_cam_entry_level_cad_cam_entry_level_training_alarm_troubleshooting_e.md) — Node pointer — course/academy_course_18_cad_cam_entry_level_cad_cam_entry_level_training_alarm_troubleshooting_e
+- **2026-06-08** [`node_course_academy_course_19_hypermill_nx_solidcam_entry_x.md`](reference/node_course_academy_course_19_hypermill_nx_solidcam_entry_x.md) — Node pointer — course/academy_course_19_hypermill_nx_solidcam_entry_x
+- **2026-06-08** [`node_course_academy_course_20_esprit_powermill_inventor_catia_entry_x.md`](reference/node_course_academy_course_20_esprit_powermill_inventor_catia_entry_x.md) — Node pointer — course/academy_course_20_esprit_powermill_inventor_catia_entry_x
+- **2026-06-08** [`node_course_academy_course_2_speed_feed_mastery_speed_feed_mastery.md`](reference/node_course_academy_course_2_speed_feed_mastery_speed_feed_mastery.md) — Node pointer — course/academy_course_2_speed_feed_mastery_speed_feed_mastery
+- **2026-06-08** [`node_course_academy_course_0b_hand_tools_hand_tools_measurement.md`](reference/node_course_academy_course_0b_hand_tools_hand_tools_measurement.md) — Node pointer — course/academy_course_0b_hand_tools_hand_tools_measurement
+- **2026-06-08** [`node_course_academy_course_0c_blueprint_reading_blueprint_reading_gd_t.md`](reference/node_course_academy_course_0c_blueprint_reading_blueprint_reading_gd_t.md) — Node pointer — course/academy_course_0c_blueprint_reading_blueprint_reading_gd_t
+- **2026-06-08** [`node_course_academy_course_13_wire_edm_progressive_wire_edm_entry_master_progressive.md`](reference/node_course_academy_course_13_wire_edm_progressive_wire_edm_entry_master_progressive.md) — Node pointer — course/academy_course_13_wire_edm_progressive_wire_edm_entry_master_progressive
+- **2026-06-08** [`node_course_academy_course_14_15_16_electrode_robot_sinker_electrode_making_robot_arms_jm_context_sink.md`](reference/node_course_academy_course_14_15_16_electrode_robot_sinker_electrode_making_robot_arms_jm_context_sink.md) — Node pointer — course/academy_course_14_15_16_electrode_robot_sinker_electrode_making_robot_arms_jm_context_sink
+- **2026-06-08** [`node_course_academy_course_1_manufacturing_fundamentals.md`](reference/node_course_academy_course_1_manufacturing_fundamentals.md) — Node pointer — course/academy_course_1_manufacturing_fundamentals
+- **2026-06-08** [`node_course_220_course_knowledge_base_extracted.md`](reference/node_course_220_course_knowledge_base_extracted.md) — Node pointer — course/220_course_knowledge_base_extracted
+- **2026-06-08** [`node_course_academy_course_0a_shop_math_shop_math_for_machinists.md`](reference/node_course_academy_course_0a_shop_math_shop_math_for_machinists.md) — Node pointer — course/academy_course_0a_shop_math_shop_math_for_machinists
+- **2026-06-06** [`reference_hermes_local_wire_ollama_fix_2026_06_06.md`](reference/reference_hermes_local_wire_ollama_fix_2026_06_06.md) — reference_hermes_local_wire_ollama_fix_2026_06_06.md
+- **2026-06-06** [`reference_hermes_app_viz_roost_2026_06_05.md`](reference/reference_hermes_app_viz_roost_2026_06_05.md) — reference_hermes_app_viz_roost_2026_06_05.md
+- **2026-06-03** [`node_tribal_cimco_verification_tribal.md`](reference/node_tribal_cimco_verification_tribal.md) — Node pointer — tribal/cimco_verification_tribal
+- **2026-06-01** [`reference_nn_retrain_2026_06_01_2314.md`](reference/reference_nn_retrain_2026_06_01_2314.md) — NN-GRAPH retrain round — 2026-06-01T23:14:49.676Z
+- **2026-06-01** [`node_tribal_hot_path_injector_safety_patterns.md`](reference/node_tribal_hot_path_injector_safety_patterns.md) — Node pointer — tribal/hot_path_injector_safety_patterns
+
+## Project (13)
+
+- **2026-06-08** [`reference_u_all01_ship.md`](project/reference_u_all01_ship.md) — reference_u_all01_ship.md
+- **2026-06-08** [`reference_roku_roku_primary_electrode_machine_2026_05_27.md`](project/reference_roku_roku_primary_electrode_machine_2026_05_27.md) — Roku-Roku is JM Die's primary electrode machine
+- **2026-06-08** [`reference_jm_master_step_is_die_bore_not_electrode_2026_05_27.md`](project/reference_jm_master_step_is_die_bore_not_electrode_2026_05_27.md) — JM master STEPs encode DIE BORE, not electrode geometry
+- **2026-06-08** [`reference_jm_enhanced_mill_programs_assessment_2026_06_01.md`](project/reference_jm_enhanced_mill_programs_assessment_2026_06_01.md) — "Enhanced JM Mill Programs" — assessment VERDICT (workflow wc7dfjak5, 2026-06-01, slot foxtrot)
+- **2026-06-08** [`reference_delta_camm_phase_decisions_2026_05_29.md`](project/reference_delta_camm_phase_decisions_2026_05_29.md) — MS-CAM-MASTERY — "fullest potential" build doctrine (slot:delta, 2026-05-29)
+- **2026-06-08** [`reference_coord_ms0_u1_collision.md`](project/reference_coord_ms0_u1_collision.md) — COORD-MS0/U-COORD01 absorbed into MACRO-PROGRAM-PIPELINE commit (5th in 48h)
+- **2026-06-08** [`reference_cad_master_step_vs_xlsm_independence_2026_05_27.md`](project/reference_cad_master_step_vs_xlsm_independence_2026_05_27.md) — CAD master STEP vs xlsm parametric defaults — they are independent
+- **2026-06-08** [`project_master_prism_os_node_absorption.md`](project/project_master_prism_os_node_absorption.md) — project_master_prism_os_node_absorption.md
+- **2026-06-08** [`project_jm_die_shop_floor_languages.md`](project/project_jm_die_shop_floor_languages.md) — project_jm_die_shop_floor_languages.md
+- **2026-06-08** [`project_foxtrot_mill_galaxy_ownership_2026_05_28.md`](project/project_foxtrot_mill_galaxy_ownership_2026_05_28.md) — Foxtrot owns the mill galaxy (operator-canonical 2026-05-28)
+- **2026-06-08** [`project_context_nodes_from_sessions_2026_05_30.md`](project/project_context_nodes_from_sessions_2026_05_30.md) — project_context_nodes_from_sessions_2026_05_30.md
+- **2026-06-08** [`project_alpha_owns_obsidian_brain_2026_05_28.md`](project/project_alpha_owns_obsidian_brain_2026_05_28.md) — project_alpha_owns_obsidian_brain_2026_05_28.md
+- **2026-06-08** [`project_alpha_galaxy_build_location_decision.md`](project/project_alpha_galaxy_build_location_decision.md) — project_alpha_galaxy_build_location_decision.md
+
+---
+_Auto-generated by `scripts/hermes-self-reflect-populater.mjs` — mechanical aggregation (no LLM). Re-run weekly to refresh. Paired with B4 `WeeklySynthesisEngine` (DAILY-CONTEXT synthesis via Ollama)._

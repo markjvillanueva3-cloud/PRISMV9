@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+import { TelemetryEventStatusSchema } from "./automationChainSchema.js";
 import type { ActionSchemaMap } from "./actionSchemaTypes.js";
 
 const get_dashboard = z.object({}).passthrough();
@@ -40,6 +41,39 @@ const unfreeze_weights = z.object({
   dispatcher: z.string().optional().describe("Dispatcher to unfreeze (omit for all)"),
 }).passthrough();
 
+// ─── ACP-MS6: AutomationChainTelemetry actions (P1-U01 + P1-U02 + P1-U03) ───
+
+const automation_chain_record = z.object({
+  chain_id: z.string().describe("Chain identifier (matches TelemetryEvent.chain_id)"),
+  step_id: z.string().describe("Step within the chain"),
+  // Single-sourced from the canonical 6-value contract (ACP-MS2) so the
+  // dispatcher front door accepts the `timeout` / `budget_exceeded` statuses
+  // AutomationChainEngine.executeChain now produces -- the old hard-coded
+  // 4-value enum rejected them before ingest() (schema<->engine drift).
+  status: z.enum(TelemetryEventStatusSchema.options).describe("Event status"),
+  token_cost: z.number().describe("Tokens consumed by this event (non-negative)"),
+  latency_ms: z.number().describe("Latency in ms (non-negative)"),
+  timestamp: z.string().optional().describe("ISO8601 event timestamp (defaults to now)"),
+  error: z.string().optional().describe("Error message for status=failed"),
+}).passthrough();
+
+const automation_chain_chain_health = z.object({
+  chain_id: z.string().describe("Chain identifier to query"),
+}).passthrough();
+
+const automation_chain_summary = z.object({}).passthrough();
+
+const automation_chain_session_health = z.object({}).passthrough();
+
+const automation_chain_record_budget = z.object({
+  chain_id: z.string().describe("Chain identifier"),
+  task_class: z.enum([
+    "backend", "web", "cad_python", "roadmap", "audit",
+    "speed_feed", "post_process", "erp", "general",
+  ]).describe("AutomationChainEngine TaskClass label"),
+  token_budget: z.number().describe("Declared token budget (non-negative)"),
+}).passthrough();
+
 export const ACTION_TELEMETRY_SCHEMAS: ActionSchemaMap = {
   get_dashboard,
   get_detail,
@@ -48,4 +82,9 @@ export const ACTION_TELEMETRY_SCHEMAS: ActionSchemaMap = {
   acknowledge,
   freeze_weights,
   unfreeze_weights,
+  automation_chain_record,
+  automation_chain_chain_health,
+  automation_chain_summary,
+  automation_chain_session_health,
+  automation_chain_record_budget,
 };

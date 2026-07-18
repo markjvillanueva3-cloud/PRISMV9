@@ -450,8 +450,8 @@ describe("WEDMProgramNeuralAnalysisEngine", () => {
         e_code: "E1221",
         pass_number: 1,
         pass_type: "rough",
-        on_time_us: 10,
-        off_time_us: 10, // 50% duty - too high
+        on_time_us: 15,
+        off_time_us: 5, // 75% duty -- exceeds canonical max_duty_rough (0.55) wire-break ceiling
       };
 
       const result = engine.predictWireBreakRisk(params);
@@ -504,8 +504,8 @@ describe("WEDMProgramNeuralAnalysisEngine", () => {
         e_code: "E1221",
         pass_number: 1,
         pass_type: "rough",
-        on_time_us: 10,
-        off_time_us: 10,
+        on_time_us: 15,
+        off_time_us: 5, // 75% duty (> 0.55 ceiling) + excessive tension -> compounded risk
         wire_tension_g: 2500,
       };
 

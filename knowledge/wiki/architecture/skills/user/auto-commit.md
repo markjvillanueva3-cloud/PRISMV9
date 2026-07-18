@@ -23,13 +23,22 @@ related:
 |-------|-------|
 | Name | `auto-commit` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/auto-commit.md` |
+| Source | `C:/Users/wompu/.claude/commands/auto-commit.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Auto-Commit — Automatic Git Commits
+
+You are enabling auto-commit mode. After each significant code change, automatically create a well-formatted git commit. This keeps the git history granular and makes rollback easy.
+
+## Args: $ARGUMENTS
+- Empty: activate auto-commit for current session
+- `off`: deactivate auto-commit
+- `now`: create a commit right now for all pending changes
+- `squa
 
 <!-- AUTO-END -->
 

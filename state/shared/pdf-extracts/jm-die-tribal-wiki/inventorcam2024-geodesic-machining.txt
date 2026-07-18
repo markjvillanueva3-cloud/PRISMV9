@@ -1,0 +1,255 @@
+Application Tutorial | InventorCAM 2024
+
+Geodesic Machining
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+          Contents
+
+Contents
+
+1. Introduction.....................................................................................................................................................1
+2. CAM-Part Definition........................................................................................................................................5
+3. Target Definition..............................................................................................................................................9
+4. Geodesic Machining Operation.....................................................................................................................11
+
+                                                                                                                                                                       i
+Introduction  1
+About this course
+The goal of this course is to teach you how to use InventorCAM's Geodesic Machining to machine complex 3D Shapes
+(Solid Model & Surface Groups) with a tool path that has constant stepover and undercut areas. This tutorial covers the
+basic concepts of Geodesic Machining. Once you have developed a good foundation in basic skills, you can refer to the
+online help for information on the less frequently used options.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the I nventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task. The theoretical explanations are embedded into these exercises to
+give an overview of the Geodesic Machining capabilities.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial.
+This book is made using A utodesk Inventor Professional 2024 and InventorCAM 2024 SP1.
+
+2
+                                                                                                                                                      1. Introduction
+
+Geodesic Machining
+Geodesic Machining enables machining of complex 3D Shapes (Solid Model & Surface Groups) with a tool path that
+has constant stepover and undercut areas. It is basically a pattern generator i.e it generates a pattern of tool path with
+measurable constant step over. The stepover remains constant even on steep and shallow walls as it machines different
+surfaces or an entire model. InventorCAM uses a global distance field without a fixed direction. Generally, a step over
+is calculated with reference to a vector direction but in Geodesic Machining we use a global distance, we use a step over
+without a fixed direction which enables us to be fully flexible in terms of calculating various types of patterns while
+maintaining a constant distance between the cuts. Geodesic Machining works on the entire model which means you can
+provide model data for calculation or you could provide a group of surfaces for it to calculate the constant tool path.
+After the tool engagement into the material the final pass is completed after the tool retracts from the final surface. The
+tool is continuously wrapping around with a constant step over. The step over is constant and consistent throughout.
+Geodesic Machining works effectively even in under cut situations. In an undercut situation displayed in the adjacent
+figure, InventorCAM's Geodesic Machining operation generates same consistency of slices when it is making the pattern
+i.e. it starts with a step over and it consistently goes on creating step overs on the entire surface maintaining a constant
+distance between the two cuts including fillets, inner surface with one entry and one exit. All the tool paths now have
+constant step over between the passes and are consistent.
+
+                                                                                                                                                                         3
+4
+2 CAM-Part Definition
+The CAM-Part definition process for the impeller part consists of the following stages:
+
+                                          CAM-Part creation
+
+                                      CNC-Machine de nition
+
+                                  Coordinate System de nition
+
+        · CAM-Part creation. At this stage, you have to define the CAM-Part name and location. InventorCAM defines
+            the necessary system files and a folder to allocate the place to store InventorCAM data.
+
+        · CNC-controller definition. It is necessary to choose the CNC-controller. The controller type influences the
+            Coordinate System definition and the Geometry definition.
+
+        · Coordinate System definition. You have to define the Coordinate System, which is the origin for all machining
+            operations of the CAM-Part. You can create multiple CoordSys positions and in each machining step select
+            which CoordSys you want to use for the operation.
+
+The following exercises describe the full process of the CAM-Part definition. It is recommended to go through the stages
+in order to understand how the CAM-Part features are built. For this purpose, you have to turn off the automatic CAM-
+Part definition.
+1. Click InventorCAM2024 > CAM Settings.
+
+2. In the left pane, select CAM-Part.
+3. Ensure that the settings are as shown in the image.
+4. In the left pane, select Automatic CAM-Part definition.
+5. In the right pane, click the Milling tab.
+
+6
+                                                                                      2. CAM-Part Definition
+
+6. Ensure that the settings are as shown in the image.
+7. Click OK.
+
+8. Browse to open the Autodesk Inventor Professional part Geodesic Machining.ipt.
+9. Click InventorCAM2024 > New > Milling.
+The New Milling Part window displays.
+10. Ensure that Use Model file directory check box is
+selected.
+
+11. Click
+Define the CAM-Part in the Milling Part Data dialog box.
+12. In the CNC-Machine list, click table_table_exercise.
+13. Click CoordSys button in the Define section the coordinate system for this part.
+14. In the Definition options section, select the option of Select face.
+15. In the Place CoordSys origin to list, click Top center of model box.
+16. Select the face as shown in the image.
+
+                                                                                      7
+17. The coordinate system is defined.
+18. Click
+19. The CoordSys Data window displays.
+20. Ensure that the Levels parameters in your file are similar to that shown in the image.
+21. Click
+22. Click to confirm the CoordSys Manager window.
+The CAM part is now defined.
+
+8
+Target Definition  3
+To define the target, follow the steps mentioned in this chapter.
+1. Click the Target button in the Define section.
+2. Select the solid as shown in the image.
+3. Ensure that the Facet tolerance value is set as 0.01.
+4. Click
+5. Click to close the Milling Part Data window.
+6. Right click Operations > Machine Setup > Add at start of operations tree.
+The target is defined and the Setup is added in the CAM-Tree.
+
+10
+Geodesic Machining  4
+       Operation
+1. Right click Setup > Add Milling Operation > Geodesic Machining > Multiaxis.
+2. Click the Geometry page.
+3. In the Geometry selection section, click Surfaces.
+4. In the Input type list, select User-defined curves.
+5. Click under Machining surfaces.
+6. Select all the faces of the model.
+7. Click
+
+8. Click under Drive curve.
+9. Select the curve as shown in the image.
+10. Click Yes in OK to accept? window.
+11. Click
+
+12. Click the Tool page > Select.
+13. On the TOOLKIT page, select the LOLLIPOP MILL tool
+
+12
+                                                                   4. Geodesic Operation
+
+14. Set the values as shown in the image.
+15. Select HSK A 63 SRKIN 16x95 as the Holder
+and BT40 as the Adaptor.
+16. Click to confirm the tool.
+
+17. In the Calculation mode list, click Tool center mode.
+18. Click the Levels page.
+19. Set the values as shown in the image.
+Before selection the constraint boundary, you must first create a
+sketch. Save and close the operations window.
+
+20. Click Sketch > Start 2D Sketch
+21. Select the highlighted plane..
+22. Click the Circle icon > Circle.
+
+                                                                   13
+23. Select the mid point and create a circle as shown in the image.
+
+24. Click
+25. Go to the InventorCAM Manager tab and Double click the saved operation in the CAM-Tree Manager.
+26. Click the Constraint boundaries page.
+27. In the Boundary type section, select the option of Created manually.
+28. In the Projection direction list, select Same as guide curve.
+29. Click under Boundary name.
+30. In the Chain section, ensure only Up to Entity check box is selected.
+31. Select the boundary as shown in the image.
+32. Click Yes in OK to accept? window.
+33. Click to close the Geometry Edit dialog box.
+34. Click the Tool path parameters page.
+35. Set the Cut tolerance value as 0.05.
+36. In the Step over list, select Constant Step Over.
+37. Select the Sorting tab.
+
+14
+                                                                                                 4. Geodesic Operation
+
+38. Set the parameters as shown in the image.
+39. Click the Tool axis control page.
+40. In the Tool axis direction list, select Tilted to axis by fixed angle.
+41. Click the Link page.
+42. In the First entry and Last exit lists, select Use Lead-In and Use Lead-
+Out respectively.
+
+43. Click      next to Use Lead-In.
+
+44. Unselect the Use default Lead-In check box.
+
+45. In the Type list. select Vertical tang. arc.
+
+46. Click OK.
+
+47. Click      next to Use Lead-Out.
+
+48. Unselect the Use default Lead-In check box and in the Type list. select Vertical tang. arc.
+
+49. Click OK.
+
+50.Click       next to Use Lead-Out.
+
+51. Unselect the Use default Lead-In check box and in the Type list. select Vertical tang. arc.
+
+52. Click OK.
+
+53. Click the Default Lead-In/Out page.
+
+54. In the Type list, select Tangential arc.
+
+55. Select the Same as Lead-In check box.
+
+56. Click the Gouge check page and set the parameters as
+shown in the image.
+
+                                                                                                 15
+57. Click the Motion control page and in the Machine limits list, select No limits.
+58. Click Save and Calculate.
+The calculated tool path must look as displayed in the image.
+
+                                                          End of the tutorial
+
+16
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

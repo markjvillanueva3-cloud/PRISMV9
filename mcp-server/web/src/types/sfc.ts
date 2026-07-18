@@ -9,6 +9,24 @@ export interface SfcCalculateRequest {
   depth?: number;
   width?: number;
   coolant?: string;
+  /** Tool coating (TiAlN / AlTiN / AlCrN / DLC / diamond|PCD). Drives the engine's material-specific
+   *  coating cutting-speed/tool-life derate + the diamond-on-ferrous incompatibility warning. Omit /
+   *  empty = uncoated (engine treats as neutral 1.0 -- no derate). */
+  coating?: string;
+  /** Selected machine's spindle ceiling -- the engine clamps rpm (and rescales Vc) to it so the
+   *  page never recommends an unreachable speed (the aluminum-RPM-cap accuracy gap). Omit = unclamped. */
+  machine_max_rpm?: number;
+  /** Selected machine's spindle power (kW) -- feeds the over-power / stall safety score. */
+  machine_power_kw?: number;
+  /** Selected tool's rated ceilings from the catalog entry (maxRpm in rev/min, maxDoc in mm). The
+   *  engine clamps the recommendation to the tighter of machine vs tool so it never publishes a
+   *  speed/DOC the physical tool cannot run. Omit = unclamped. */
+  tool_max_rpm?: number;
+  tool_max_doc?: number;
+  /** Goal selector for the recommended operating point (the cost / balanced / productivity
+   *  slider). Trades tool life vs MRR within the canonical band; balanced (or omitted) yields
+   *  the engine's default recommendation. */
+  optimize_for?: "cost" | "balanced" | "productivity";
 }
 
 /** Speed & feed result */

@@ -1,0 +1,112 @@
+{
+  "company": {
+    "id": "jm-die",
+    "name": "JM Die",
+    "legal_name": "JM Die Company",
+    "type": "cold_heading_die_tooling",
+    "industry": "fastener_tooling",
+    "specialties": [
+      "cold heading dies",
+      "punch and die tooling",
+      "carbide tooling",
+      "fastener tooling",
+      "wire EDM die profiles",
+      "electrode manufacturing",
+      "extrude punches",
+      "header tooling"
+    ],
+    "primary_materials": [
+      "M2 high speed steel",
+      "D2 tool steel",
+      "S7 tool steel",
+      "A2 tool steel",
+      "CPM-10V",
+      "CPM-M4",
+      "tungsten carbide",
+      "cobalt carbide",
+      "H13 tool steel"
+    ],
+    "certifications": [],
+    "programs_root": "H:/prism/JM Die",
+    "created_at": "2026-04-10T00:00:00.000Z"
+  },
+
+  "departments": [
+    {
+      "id": "cnc-lathe",
+      "name": "CNC Lathe",
+      "folder": "CNC LATHE",
+      "machine_ids": ["LTH-01", "LTH-02", "LTH-03", "LTH-04", "LTH-05", "LTH-06", "LTH-07"],
+      "program_extension": ".MIN",
+      "program_format": "okuma_osp",
+      "controller": "okuma",
+      "customer_count": 42,
+      "program_count": 5076,
+      "description": "Punch, die, and case turning for cold heading tooling. 7 Okuma CNC lathes."
+    },
+    {
+      "id": "milling",
+      "name": "Milling",
+      "folder": "ROKU-ROKU",
+      "machine_ids": ["VMC-01", "VMC-02", "VMC-03", "VMC-04", "VMC-05"],
+      "program_extension": ".mcx-8",
+      "program_format": "mastercam",
+      "cam_system": "mastercam",
+      "customer_count": 72,
+      "program_count": 1082,
+      "description": "Die engraving, lettering, graphite electrode milling, 5-axis contouring. 5 mills."
+    },
+    {
+      "id": "wire-edm",
+      "name": "Wire EDM",
+      "folder": "WIRE EDM",
+      "machine_ids": ["WEDM-01"],
+      "program_extension": ".MIN",
+      "program_format": "mitsubishi",
+      "controller": "mitsubishi",
+      "customer_count": 99,
+      "program_count": 4058,
+      "description": "Wire EDM die profiles, quill cuts, and precision tooling geometry. Mitsubishi FA10S."
+    },
+    {
+      "id": "sinker-edm",
+      "name": "Sinker EDM",
+      "machine_ids": ["EDM-01", "EDM-02"],
+      "description": "Die sinking, electrode burning, fine finish. 2 Mitsubishi sinker EDMs."
+    }
+  ],
+
+  "machines_summary": "21 machines total — see ShopConfigurationEngine.ts DEFAULT_MACHINES for authoritative list. 7 Okuma CNC lathes, 5 mills (Hurco/Okuma/Haas/Roku-Roku), 2 Mitsubishi sinker EDMs, 1 Mitsubishi wire EDM, 6 support (grinder, saw, manual lathe, manual mill, CMM, optical comparator).",
+
+  "rates": {
+    "labor_per_hr": 55.00,
+    "overhead_per_hr": 30.00,
+    "admin_per_hr": 15.00,
+    "setup_per_hr": 65.00,
+    "programming_per_hr": 85.00,
+    "inspection_per_hr": 55.00
+  },
+
+  "overhead_pct": 18,
+  "material_markup_pct": 15,
+  "tooling_cost_per_op": 20.00,
+  "material_cost_per_part_default": 35.00,
+  "admin_burden_pct": 12,
+
+  "stats": {
+    "total_customers": 142,
+    "total_programs": 10216,
+    "top_customers": [
+      "Fontana",
+      "ATF",
+      "Agrati",
+      "Arconic",
+      "Akko",
+      "CSM",
+      "Brico",
+      "Ejot",
+      "Archer",
+      "Anderson"
+    ]
+  }
+}

@@ -529,17 +529,15 @@ export class LatheIntelligenceEngine {
               : `Add wait code at Z=${Math.max(op1.z_start_mm, op2.z_start_mm)}`,
           });
 
-          // Add sync point if needed
-          if (risk !== "none") {
-            const waitZ = Math.max(op1.z_start_mm, op2.z_start_mm) + 5;
-            syncPoints.push({
-              position: `Z${waitZ}`,
-              reason: `Prevent collision between ${op1.operation} and ${op2.operation}`,
-              code: machine.controller === "fanuc" ? "M200" :
-                    machine.controller === "okuma" ? "!L" :
-                    machine.controller === "mazak" ? "!WAIT" : "M200",
-            });
-          }
+          // Add sync point if needed (risk is always critical|high|medium here)
+          const waitZ = Math.max(op1.z_start_mm, op2.z_start_mm) + 5;
+          syncPoints.push({
+            position: `Z${waitZ}`,
+            reason: `Prevent collision between ${op1.operation} and ${op2.operation}`,
+            code: machine.controller === "fanuc" ? "M200" :
+                  machine.controller === "okuma" ? "!L" :
+                  machine.controller === "mazak" ? "!WAIT" : "M200",
+          });
         }
       }
     }
@@ -685,7 +683,7 @@ export class LatheIntelligenceEngine {
     // Determine guide bushing requirement
     const guideBushingRequired = slendernessRatio > 4 ||
       (part.tolerance_class === "ultra_precision") ||
-      (part.concentricity_mm && part.concentricity_mm < 0.02);
+      (part.concentricity_mm !== undefined && part.concentricity_mm < 0.02);
 
     // Bushing type recommendation
     let bushingType: "standard" | "carbide" | "rotary" | undefined;

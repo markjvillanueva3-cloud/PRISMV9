@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-Document Preservation Guard — Stop Hook========================================Prevents document updates from REMOVING content.If something needs to be disabled, it must be hardcoded disabled (e.g., `enabled: false`,`status: "disabled"`, or commented out) — NOT deleted.@hook Stop (fires when Claude proposes file writes)@policy Content removal is BLOCKED; disabling via flag is ALLOWED
+_(no header docblock — read source for behavior)_
 
 ## Events
 

@@ -113,6 +113,12 @@ export const ExperienceTupleSchema = z.object({
   action_record: ActionRecordSchema,
   reward_components: z.array(RewardComponentSchema),
   reward_total: z.number(),                      // aggregated scalar reward
+  // GRPO group-relative advantage (ULTRACODE-SYNERGY-MS0 Order 3). OPTIONAL +
+  // additive — pre-GRPO tuples (without it) still validate under 1.0.0. Set by
+  // prism_ai:group_normalize_reward when this tuple was part of an N-trajectory
+  // group; it is the critic-free advantage Â_i = (reward_total − groupMean)/std,
+  // NOT the per-objective normalized_z_score on each reward_component.
+  group_advantage: z.number().optional(),
   next_state: StateRefSchema.optional(),         // may be absent if terminal or pending
   terminal: z.boolean().default(false),
   metadata: z.record(z.string(), z.unknown()).optional(),
@@ -127,6 +133,7 @@ export const AppendExperienceInputSchema = z.object({
   state: StateRefSchema,
   action_record: ActionRecordSchema,
   reward_components: z.array(RewardComponentSchema).min(1),
+  group_advantage: z.number().optional(),        // GRPO advantage (ULTRACODE-SYNERGY-MS0); additive-optional
   next_state: StateRefSchema.optional(),
   terminal: z.boolean().default(false),
   metadata: z.record(z.string(), z.unknown()).optional(),

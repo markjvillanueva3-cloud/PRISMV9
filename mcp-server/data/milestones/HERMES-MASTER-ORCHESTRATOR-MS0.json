@@ -1,0 +1,167 @@
+{
+  "$schema": "milestone-envelope-v1",
+  "schemaVersion": "1.0.0",
+  "milestone_id": "HERMES-MASTER-ORCHESTRATOR-MS0",
+  "title": "Hermes app = slot-less ZULU master orchestrator — wire the desktop Hermes app as conductor above the 25 worker slots (MCP + slot-brief channel + SOUL persona + vault lane), then close the auto-invoke + observability gaps that keep it at ~28% utilization",
+  "status": "in_progress",
+  "created_at": "2026-06-03T00:00:00.000Z",
+  "created_by": "claude-00175b01 slot bravo",
+  "spec_file": "mcp-server/src/engines/hermes-zulu/MEMORY.md (HERMES-MASTER-ORCHESTRATOR-MS0 section, 2026-06-02)",
+  "derived_from": [
+    "mcp-server/src/engines/hermes-zulu/MEMORY.md",
+    "Workflow wf_b5b2319b-0cb hermes-app utilization assessment (2026-06-03, 28% utilized)",
+    "state/shared/specs/LOCAL-LLM-FOUNDATION-BLUEPRINT-2026-06-03.md"
+  ],
+  "psn_legs_touched": [
+    1,
+    2,
+    4,
+    6,
+    11
+  ],
+  "advisory": "ENVELOPE RECONSTRUCTION (slot:bravo 2026-06-03): the P0-P3 work shipped as commits on 2026-06-02 but no milestone envelope existed, so the work was invisible to the fleet milestone-progress surface and zulu's synthesis pass. This envelope back-fills the record AND tracks the still-dormant gaps surfaced by the 2026-06-03 utilization assessment. Completed-unit statuses are derived from the galaxy MEMORY commit log + must be human-verified against git.",
+  "mustHumanVerify": true,
+  "units": [
+    {
+      "id": "U-HMO-P0",
+      "title": "Hermes → PRISM MCP: mcp_servers.prism (:3100/mcp) in the Hermes app config → all ~103 prism_* dispatchers become Hermes tools",
+      "priority": "P0",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [
+        "U-HMO-AUTO-FANOUT",
+        "U-HMO-AUTO-CONSENSUS"
+      ],
+      "description": "Add mcp_servers.prism (HTTP http://127.0.0.1:3100/mcp) to %LOCALAPPDATA%/hermes/config.yaml so Hermes can read+compute over the 11 PSN legs via prism_* dispatchers. sampling OFF (PRISM never drives Hermes' LLM). Needs `pip install --upgrade mcp` + restart.",
+      "exit_criteria": "config.yaml carries the prism MCP entry; assessment confirmed ACTIVE 2026-06-03 (180s timeout, ~103 dispatchers reachable)",
+      "verify": "cat %LOCALAPPDATA%/hermes/config.yaml | grep -A3 mcp_servers"
+    },
+    {
+      "id": "U-HMO-P1",
+      "title": "slot-brief-inject.mjs — READ/deliver side of the targeted consume-once inter-chat brief channel",
+      "priority": "P1",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "SessionStart hook delivering state/shared/slot-briefs/<slot>.md into the slot's context, consume-once, never-throws, traversal-guarded. Verified WIRED in both settings.json (grep slot-brief-inject = 1) 2026-06-03.",
+      "exit_criteria": "hook wired + 21/21 tests",
+      "verify": "git -C H:/prism show 97cf13fee4"
+    },
+    {
+      "id": "U-HMO-P1.5",
+      "title": "SlotBriefEngine + prism_context:slot_brief_{write,list} — secure lane-confined WRITE side",
+      "priority": "P1",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Hermes (or any slot) writes a targeted brief to slot-briefs/<slot>.md via the dispatcher; lane-confined, validated.",
+      "exit_criteria": "engine + dispatcher actions + 13/13 tests, tsc 0-new",
+      "verify": "git -C H:/prism show 69e8232541"
+    },
+    {
+      "id": "U-HMO-P2",
+      "title": "Hermes SOUL.md = ZULU persona (fleet slot→domain table + 34-galaxy awareness + MCP tool map + teacher/learner loop + safety refuses)",
+      "priority": "P1",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Persona manifest the Hermes app loads fresh per message (no restart). NOTE: lives in the Hermes APP dir (%LOCALAPPDATA%/hermes/), NOT the PRISM repo — a repo-only search will not find it (the 2026-06-03 assessment reported 'SOUL.md not found' for exactly this reason).",
+      "exit_criteria": "SOUL.md present in the Hermes app dir with the ZULU persona sections",
+      "verify": "look in %LOCALAPPDATA%/hermes/ (not the repo)"
+    },
+    {
+      "id": "U-HMO-P3",
+      "title": "knowledge/hermes-outputs/ write-confined vault lane + wiki slot-brief-channel.md",
+      "priority": "P2",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "A confined output vault lane for Hermes-authored artifacts + the wiki doc for the brief channel.",
+      "exit_criteria": "directory exists + wiki entry",
+      "verify": "git -C H:/prism show dde9e2d068"
+    },
+    {
+      "id": "U-HMO-P5",
+      "title": "Verify zulu_authority_check + ZuluFleetGovernorEngine present on cad-fusion-live-ms0 (no drift)",
+      "priority": "P2",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Confirm the governor authority predicate engine is wired READ-ONLY via prism_session:zulu_authority_check and has not drifted out of the branch.",
+      "exit_criteria": "engine + dispatcher action present",
+      "verify": "git -C H:/prism show cb3f6a79d7"
+    },
+    {
+      "id": "U-HMO-P4",
+      "title": "system-viz ghost.hermes_app roost — surface the Hermes app + its MCP/brief/octopus activity in the live system map",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "The one remaining original-scope unit. Build a self-contained generate-hermes-app-features.mjs (mirror generate-hermes-octopus-consensus-features.mjs) emitting a ghost.hermes_app roost; wire into regen-viz.mjs FAST[] + additive splice (sierra-owned merge). Makes the Hermes orchestrator visible in /system-viz. OWNER: bravo (build) → sierra (merge approve).",
+      "exit_criteria": "roost generator + FAST[] registration + a non-empty ghost.hermes_app node set in the graph",
+      "estimated_loc": "~300 LOC"
+    },
+    {
+      "id": "U-HMO-AUTO-FANOUT",
+      "title": "Auto-invoke fanout — HermesParallelFanoutPlannerEngine fires automatically when a task exceeds N subtasks (today opt-in only)",
+      "priority": "P1",
+      "status": "completed",
+      "depends_on": [
+        "U-HMO-P0"
+      ],
+      "blocks": [],
+      "description": "The fanout/consensus engines are built + tested but only callable as explicit dispatcher actions — there is no autonomous trigger. Add a threshold-driven auto-invoke so large tasks fan out without an explicit operator call. Surfaced by the 2026-06-03 utilization assessment as the single biggest reason the orchestrator sits at ~28% used.",
+      "exit_criteria": "auto-trigger path + tests asserting fan-out fires at threshold and not below",
+      "estimated_loc": "~120 LOC"
+    },
+    {
+      "id": "U-HMO-AUTO-CONSENSUS",
+      "title": "Auto-trigger multi-model consensus panel when confidence < threshold",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [
+        "U-HMO-P0"
+      ],
+      "blocks": [],
+      "description": "MultiModelConsensusEngine (octopus, already de-stubbed — ledger has 11 real runs) only runs on explicit invocation. Add a confidence-gated auto-trigger so low-confidence reasoning escalates to the 5-voice panel automatically. Coordinate model-tier with the LOCAL-LLM blueprint TIER 3.1 (deepseek-r1:14b / qwen3-next:80b voices) — that model-string bump is golf/india's lane.",
+      "exit_criteria": "confidence gate + auto-escalation path + test",
+      "estimated_loc": "~100 LOC"
+    },
+    {
+      "id": "U-HMO-CRON-REFLECT",
+      "title": "Register the Hermes self-reflect weekly cron (script + installer exist; no scheduled task registered)",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "hermes-self-reflect-populater.mjs + install-hermes-self-reflect-task.ps1 exist and are documented, but `Get-ScheduledTask -TaskName '*Hermes*'` returns nothing → weekly_synthesis_get returns exists:false every time. One elevated install command closes it. OWNER: golf (scheduled-task/install lane).",
+      "exit_criteria": "scheduled task 'PRISM Hermes Self-Reflect Weekly' registered + a weekly-hermes-reflection-*.md produced",
+      "verify": "powershell -ExecutionPolicy Bypass -File H:/.claude/helpers/install-hermes-self-reflect-task.ps1"
+    },
+    {
+      "id": "U-HMO-CRON-DREAM",
+      "title": "Register the Hermes dream-cycle cron (nightly synthesis)",
+      "priority": "P3",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "hermes-dream-cycle-populater.mjs exists; mirror the reflect-cron registration. OWNER: golf.",
+      "exit_criteria": "scheduled task registered + a dream-cycle artifact produced",
+      "estimated_loc": "installer + verify"
+    }
+  ],
+  "notes": "Hermes embodies the slot-LESS ZULU role (do NOT add 'zebra' to SLOT_NAMES). Three inter-chat channels now live: slot-soul (persistent) · chat-bus (broadcast) · slot-brief (targeted, consume-once). The model-tier upgrades for the octopus/reasoning voices belong to the LOCAL-LLM-FOUNDATION-BLUEPRINT (golf/india lanes), not this milestone.",
+  "close_out_log": [
+    {
+      "unit_id": "U-HMO-AUTO-FANOUT",
+      "completed_at": "2026-06-21T06:08:50.741Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "built",
+      "note": "Built the auto-invoke layer that activates the dormant HermesParallelFanoutPlannerEngine: .claude/hooks/auto-fanout-advisory.mjs (UserPromptSubmit) calls scripts/lib/fanout-assess.mjs pre-screen; on >=3 distinct fleet domains OR explicit fleet-wide scope it surfaces an ADVISORY naming candidate slots (mill->foxtrot etc). ADVISORY ONLY -- never auto-spawns (bravo soul: unsafe-fleet-control). Wired UserPromptSubmit (home settings.json C:+H:). 10/10 lib tests + 4/4 hook tests + 3 live smoke. Knobs PRISM_AUTO_FANOUT_{DISABLE,THRESHOLD}."
+    }
+  ],
+  "completed_units": 7,
+  "updated_at": "2026-06-21T06:08:50.741Z"
+}

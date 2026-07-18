@@ -31,6 +31,7 @@ import { readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveEmbedUrl, withLaneOptions, withMainFallback } from "./lib/embed-endpoint.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -85,6 +86,14 @@ const CONCEPT_TYPES = new Set([
   "engine", "dispatcher", "registry", "architecture", "skill", "hook",
   "formula", "algorithm", "milestone", "monolith", "frontend", "domain", "layer",
   "tribal-tip", "code-tribal",
+  // Hand-written wiki sub-trees (knowledge/wiki/<dir>/**). build-wiki-leaf-index.mjs
+  // assigns each entry `type = fm.type || <dir-basename>`, so these basenames MUST
+  // be listed here or the entries are leaf-indexed (BM25-recallable) but NOT
+  // embedded (cosine-recallable) — the half-stagnant state. Keep in sync with
+  // HAND_WIKI_DIRS in build-wiki-leaf-index.mjs.
+  "software-engineering", "lessons", "concepts", "patterns", "decisions",
+  "consensus", "coordination", "entities", "os", "reference",
+  "trajectories", "ux-design", "summaries",
   "memory-feedback", "memory-reference", "memory-project", "memory-user",
   "memory-uncategorized", "memory-mistakes", "memory-patterns",
   "memory-lessons", "memory-decisions", "memory-inbox",
@@ -107,14 +116,15 @@ function embedText(r) {
     .filter(Boolean).join(" — ").slice(0, 1200);
 }
 
-async function ollamaEmbed(model, prompt, timeoutMs = 20000) {
+async function ollamaEmbedAttempt(model, prompt, url, laneFlag, timeoutMs) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const res = await fetch(OLLAMA_URL, {
+    const body = laneFlag ? withLaneOptions({ model, prompt }) : { model, prompt };
+    const res = await fetch(`${url}/api/embeddings`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ model, prompt }),
+      body: JSON.stringify(body),
       signal: ctrl.signal,
     });
     if (!res.ok) return null;
@@ -126,6 +136,20 @@ async function ollamaEmbed(model, prompt, timeoutMs = 20000) {
   } finally {
     clearTimeout(t);
   }
+}
+
+// U-INDIA-EMBED-LANE: prefer the dedicated CPU embed lane (:11435) for this
+// batch wiki-corpus embed -- the shared :11434 starves embed requests under
+// fleet inference load. Auto-resolve ONLY when OLLAMA_HOST was not explicitly
+// set (operator intent is never silently redirected). A FAILED lane attempt
+// retries MAIN once (withMainFallback) -- a broken lane degrades to today's
+// exact behavior (same OLLAMA_URL request, no options field).
+async function ollamaEmbed(model, prompt, timeoutMs = 20000) {
+  if (process.env.OLLAMA_HOST) {
+    return ollamaEmbedAttempt(model, prompt, OLLAMA_URL.replace(/\/api\/embeddings$/, ""), false, timeoutMs);
+  }
+  const lane = await resolveEmbedUrl();
+  return withMainFallback(lane, (url, laneFlag) => ollamaEmbedAttempt(model, prompt, url, laneFlag, timeoutMs));
 }
 
 // L2-normalize then int8-quantize. Stored as { n, s, q } where reconstructed
@@ -183,24 +207,44 @@ async function main() {
   }
   process.stderr.write(`[wiki-embed] Ollama OK · model ${FLAGS.model} · dim ${probe.length} · ${work.length} concept entries · ${prior.byName.size} cached\n`);
 
-  const out = [];
-  let ok = 0, fail = 0, reused = 0;
+  // Throughput: nomic-embed-text (137M) is GPU-idle when fed one request at a
+  // time. We issue up to PRISM_EMBED_CONCURRENCY embed requests in flight via a
+  // bounded worker pool (default 1 = legacy sequential, byte-identical output).
+  // Measured ~15× on an RTX PRO 6000 Blackwell at concurrency 16 (vectors
+  // identical, min cosine 1.0). Cache hits are pure-CPU and resolved up front so
+  // only genuinely-fresh items touch the network. Output preserves input order
+  // (failed items omitted — matches the prior push-on-success behavior).
+  const CONCURRENCY = Math.max(1, parseInt(process.env.PRISM_EMBED_CONCURRENCY || "1", 10) || 1);
+  const out = new Array(work.length); // sparse — holes are cache-miss embed failures
+  let ok = 0, fail = 0, reused = 0, done = 0;
   const t0 = Date.now();
+  const fresh = [];
   for (let i = 0; i < work.length; i++) {
     const r = work[i];
     const h = sha1(embedText(r));
     const cached = prior.byName.get(r.name);
-    if (cached && cached.h === h) { out.push(cached.line); reused++; ok++; continue; }
-    const v = await ollamaEmbed(FLAGS.model, embedText(r));
-    if (!v) { fail++; continue; }
-    const { s, q } = quantize(v);
-    out.push(JSON.stringify({ n: r.name, t: r.type || "", h, s, q }));
-    ok++;
-    if ((i + 1) % 250 === 0) process.stderr.write(`[wiki-embed]   ${i + 1}/${work.length} (${ok} ok / ${reused} reused, ${fail} fail, ${Math.round((Date.now() - t0) / 1000)}s)\n`);
+    if (cached && cached.h === h) { out[i] = cached.line; reused++; ok++; done++; continue; }
+    fresh.push({ i, r, h });
   }
+  let nextFresh = 0;
+  const embedWorker = async () => {
+    for (;;) {
+      const k = nextFresh++;
+      if (k >= fresh.length) return;
+      const { i, r, h } = fresh[k];
+      const v = await ollamaEmbed(FLAGS.model, embedText(r));
+      if (!v) { fail++; }
+      else { const { s, q } = quantize(v); out[i] = JSON.stringify({ n: r.name, t: r.type || "", h, s, q }); ok++; }
+      done++;
+      if (done % 250 === 0) process.stderr.write(`[wiki-embed]   ${done}/${work.length} (${ok} ok / ${reused} reused, ${fail} fail, ${Math.round((Date.now() - t0) / 1000)}s, conc ${CONCURRENCY})\n`);
+    }
+  };
+  const poolSize = Math.min(CONCURRENCY, Math.max(1, fresh.length));
+  await Promise.all(Array.from({ length: poolSize }, () => embedWorker()));
+  const outLines = out.filter((x) => x !== undefined);
   // header line records model + dim + count so the consumer can sanity-check
   const header = JSON.stringify({ __meta: true, model: FLAGS.model, dim: probe.length, count: ok, generatedAt: new Date().toISOString() });
-  const jsonl = [header, ...out].join("\n") + "\n";
+  const jsonl = [header, ...outLines].join("\n") + "\n";
   if (FLAGS.limit) {
     // --limit is a SMOKE TEST — `out` only holds the first N entries, so writing it
     // would clobber the full file. Print stats, don't write. (Use --full + no --limit

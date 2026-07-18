@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">◳</span>CAD</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">CAD &amp; Feature Recognition</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · {{ fileName }} · STEP AP242</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(54,211,153,0.25);background:rgba(54,211,153,0.06);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#36D399;">{{ featCount }} FEATURES FOUND</div>
+        <button style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:9px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">Send to Quote →</button>
+      </div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 416px;min-height:0;">
+      <section style="min-width:0;padding:16px 18px;background:radial-gradient(900px 480px at 60% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;overflow:hidden;position:relative;">
+          <x-import component-from-global-scope="machine-3d" from="./Machine3D.js" data-kind="magazine" data-tx="6" data-ty="3.5" data-tz="4" data-px="5.2" data-py="3.4" data-pz="2.1" data-depth="1.3" data-fixture="0.2" data-toollen="0" data-collision="0" hint-size="100%,100%"></x-import>
+          <div style="position:absolute;left:16px;top:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;pointer-events:none;">{{ partName }} · {{ partDims }} · drag to orbit</div>
+          <div style="position:absolute;left:16px;bottom:14px;display:flex;gap:12px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#9398A2;pointer-events:none;">
+            <span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:2px;background:#FF5A2B;"></span>pocket</span>
+            <span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:2px;background:#7FB2FF;"></span>hole</span>
+            <span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:2px;background:#F4B740;"></span>boss / face</span>
+          </div>
+        </div>
+        <div style="flex:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">STOCK</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;color:#F3F4F6;margin-top:4px;">{{ stockSize }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">REMOVAL</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;color:#F3F4F6;margin-top:4px;">{{ removalPct }}%</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">SETUPS</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;color:#F3F4F6;margin-top:4px;">{{ setups }}</div></div>
+          <div style="background:#0E0F12;border:1px solid {{ dfmBorder }};border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">DFM</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;color:{{ dfmColor }};margin-top:4px;">{{ dfmScore }}</div></div>
+        </div>
+      </section>
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 18px 40px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">RECOGNIZED FEATURES</div>
+        <sc-for list="{{ features }}" as="f" hint-placeholder-count="7">
+          <div onClick="{{ f.on }}" style="{{ f.style }}">
+            <div style="display:flex;align-items:center;gap:11px;">
+              <span style="flex:none;width:30px;height:30px;border-radius:8px;background:{{ f.iconBg }};display:flex;align-items:center;justify-content:center;font-size:13px;">{{ f.icon }}</span>
+              <div style="flex:1;min-width:0;"><div style="font-size:12.5px;color:#F3F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ f.detail }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ f.opColor }};">{{ f.op }}</span>
+            </div>
+          </div>
+        </sc-for>
+        <div style="margin-top:14px;background:linear-gradient(135deg,rgba(255,90,43,0.06),#0E0F12);border:1px solid rgba(255,90,43,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:8px;">◆ AUTO-ROUTING</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.5;">{{ routingNote }}</div>
+        </div>
+        <div style="margin-top:11px;background:#0E0F12;border:1px solid rgba(244,183,64,0.22);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#F4B740;margin-bottom:8px;">⚠ DFM FLAGS</div>
+          <sc-for list="{{ dfmFlags }}" as="d" hint-placeholder-count="2">
+            <div style="display:flex;gap:9px;align-items:flex-start;padding:5px 0;"><span style="flex:none;margin-top:3px;width:7px;height:7px;border-radius:50%;background:{{ d.color }};"></span><span style="font-size:11.5px;color:#C7CCD4;line-height:1.4;">{{ d.text }}</span></div>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { sel: 'pocket1', scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  FEATS = [
+    { id: 'pocket1', icon: '▢', name: 'Open pocket · 2.1×1.4×0.6"', detail: 'floor 32µin · 4 walls', op: 'Adaptive rough + finish', kind: 'pocket' },
+    { id: 'cavity', icon: '◗', name: 'Core cavity · freeform', detail: '3D surface · 16µin', op: 'Roku-Roku HSM', kind: 'pocket' },
+    { id: 'holes4', icon: '⊙', name: '4× thru hole ⌀.250', detail: 'H7 reamed · TP .002', op: 'Spot · drill · ream', kind: 'hole' },
+    { id: 'tap', icon: '⊛', name: '2× tapped ¼-20 UNC', detail: '.50 deep', op: 'Spot · drill · tap', kind: 'hole' },
+    { id: 'bore', icon: '◎', name: 'Bore ⌀.7500 +.0005', detail: 'precision · 8µin', op: 'Bore + finish pass', kind: 'hole' },
+    { id: 'boss', icon: '▣', name: 'Raised boss · 1.0×1.0', detail: 'top face 63µin', op: 'Face mill', kind: 'boss' },
+    { id: 'chamfer', icon: '◣', name: 'Edge chamfer 45°×.030', detail: 'all top edges', op: 'Chamfer mill', kind: 'boss' },
+  ];
+
+  renderVals() {
+    const s = this.state;
+    const colorOf = (k) => k === 'pocket' ? '#FF5A2B' : k === 'hole' ? '#7FB2FF' : '#F4B740';
+    const features = this.FEATS.map(f => { const on = f.id === s.sel; return {
+      on: () => this.setState({ sel: f.id }), icon: f.icon, name: f.name, detail: f.detail, op: f.op,
+      iconBg: 'rgba(' + (f.kind === 'pocket' ? '255,90,43' : f.kind === 'hole' ? '127,178,255' : '244,183,64') + ',0.14)',
+      opColor: colorOf(f.kind),
+      style: `padding:11px 13px;margin-bottom:7px;border-radius:11px;cursor:pointer;background:${on ? 'rgba(255,90,43,0.08)' : '#0C0D11'};border:1px solid ${on ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.07)'};`,
+    }; });
+    return {
+      scale: s.scale, fileName: 'SIG_CORE_CAVITY.step', featCount: this.FEATS.length,
+      partName: 'SIG core cavity', partDims: '5.2 × 3.4 × 2.1 in',
+      stockSize: '5.5×3.6×2.25', removalPct: 41, setups: 2,
+      dfmScore: '82 / B', dfmColor: '#F4B740', dfmBorder: 'rgba(244,183,64,0.25)',
+      features,
+      routingNote: 'Recognized 7 features → 2 setups: OP10 adaptive-rough the pocket + cavity on the M460V (5-axis holds the freeform in one op), OP20 drill/ream/tap + bore. Cavity finish offloads to the Roku-Roku. Feeds pulled from the calculator per feature.',
+      dfmFlags: [
+        { color: '#F4B740', text: 'Bore ⌀.7500 +.0005 needs a finish bore + on-machine probe — adds inspection time.' },
+        { color: '#7FB2FF', text: 'Pocket inside corners ⌀.25 force a ⅛" finish tool; relieve to ⌀.375 if function allows, ~20% faster.' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

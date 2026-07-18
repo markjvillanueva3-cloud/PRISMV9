@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-25T20:45:43.104Z",
+  "targetFiles": 100000,
+  "baselineFiles": 12466,
+  "plannedFiles": 87534,
+  "totalProjectedFiles": 100000,
+  "meetsTarget": true,
+  "deficit": 0,
+  "steps": [
+    {
+      "archive": "FUSION_360_GALLERY",
+      "name": "Fusion 360 Gallery Dataset",
+      "url": "https://github.com/AutodeskAILab/Fusion360GalleryDataset",
+      "license": "AUTODESK_RESEARCH",
+      "filesPlanned": 52734,
+      "estimatedBytes": 2636700000,
+      "priority": 1,
+      "status": "PLANNED",
+      "chunked": false,
+      "chunkPattern": null,
+      "expectedExtensions": [
+        ".step",
+        ".stp",
+        ".smt",
+        ".obj"
+      ],
+      "notes": "Highest-value source for CAM training: Segmentation subset labels every B-Rep face with a machining operation type — this IS the training-signal Phase B needs for template generation."
+    },
+    {
+      "archive": "MCB",
+      "name": "Mechanical Components Benchmark (Purdue)",
+      "url": "https://mcb.cs.purdue.edu/",
+      "license": "PAPER_CITATION_REQUIRED",
+      "filesPlanned": 34800,
+      "estimatedBytes": 1740000000,
+      "priority": 2,
+      "status": "PLANNED",
+      "chunked": false,
+      "chunkPattern": null,
+      "expectedExtensions": [
+        ".obj",
+        ".stl"
+      ],
+      "notes": "Pre-classified by component type (bearing, gear, bolt, nut, washer, …). Useful for the template-generator's per-component-type Phase B work."
+    }
+  ],
+  "realDataConstraint": {
+    "enforced": true,
+    "operator": "no synthetic parts, must be real parts taken from real reputable sources",
+    "issuedAt": "2026-05-25T20:42:00Z"
+  }
+}

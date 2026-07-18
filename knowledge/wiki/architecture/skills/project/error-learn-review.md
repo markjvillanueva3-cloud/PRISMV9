@@ -29,7 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-PRISM auto-captures every hook-block and tool-error via `error-block-capture.mjs` (PostToolUse) into `mcp-server/data/state/ERROR_LEARN_LEDGER.jsonl`. The companion `error-block-prewarn.mjs` (PreToolUse) reads this ledger and warns BEFORE you repeat a blocked pattern.
+> **⚠ 2026-05-16 status**: `error-block-capture.mjs` (PostToolUse) and `error-block-prewarn.mjs` (PreToolUse) were both **UNWIRED in settings.json** as of 2026-05-16 (grep `error-(block|pattern|learner) settings.json` → 0 matches in both C: and H:). Until those hooks are wired, the ledger is empty and this skill returns no captured patterns. `error-pattern-promote.mjs` was wired into Stop[12] same
 
 <!-- AUTO-END -->
 

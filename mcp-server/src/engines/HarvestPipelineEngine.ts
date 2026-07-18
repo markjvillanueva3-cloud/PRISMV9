@@ -391,9 +391,176 @@ class HarvestPipelineEngineImpl {
     return count;
   }
 
-  // ──────────────────────────────────────────────────────────────────────
+  // ---------------------------------------------------------------------------
+  // INSTANCE LIFECYCLE API -- called by resourceHarvesterDispatcher
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Start a new harvest run over all pending files under sourcePath.
+   * Resets in_progress records from prior interrupted runs, then marks
+   * matching pending records in_progress, processes each via its route,
+   * and persists the final state.
+   *
+   * @param opts.sourcePath - Root path prefix to filter records (empty = all)
+   * @param opts.fileTypes  - Optional allowlist of file types to process
+   * @param opts.dryRun     - If true, compute counts but do not execute harvesting
+   * @returns HarvestBatchResult + harvestId correlation token + pending count
+   */
+  async startHarvest(opts: {
+    sourcePath: string;
+    fileTypes?: string[];
+    dryRun?: boolean;
+  }): Promise<HarvestBatchResult & { harvestId: string; pending: number }> {
+    const { sourcePath, fileTypes, dryRun = false } = opts;
+    const startedAt = Date.now();
+
+    // Collect pending records matching the path and type filter
+    const toProcess: HarvestRecord[] = [];
+    for (const rec of this.records.values()) {
+      if (sourcePath && !rec.filePath.startsWith(sourcePath)) continue;
+      if (fileTypes && fileTypes.length > 0 && !fileTypes.includes(rec.fileType)) continue;
+      if (rec.status === "pending" || rec.status === "in_progress") toProcess.push(rec);
+    }
+
+    // Stable correlation token: base64url of path + timestamp
+    const pathSlug = Buffer.from(sourcePath || "all").toString("base64url").slice(0, 12);
+    const harvestId = `harvest-${pathSlug}-${startedAt}`;
+
+    if (dryRun) {
+      return {
+        harvestId,
+        processed: 0,
+        succeeded: 0,
+        failed: 0,
+        skipped: 0,
+        errors: [],
+        duration_ms: Date.now() - startedAt,
+        pending: toProcess.length,
+      };
+    }
+
+    // Mark all matched records as in_progress before executing
+    for (const rec of toProcess) {
+      rec.status = "in_progress";
+    }
+    this.recalcProgress();
+    this.persist();
+
+    const errors: Array<{ file: string; error: string }> = [];
+    let succeeded = 0;
+    let failed = 0;
+    let skipped = 0;
+
+    for (const rec of toProcess) {
+      const route = HARVESTER_ROUTES.find(r => r.fileType === rec.fileType);
+      if (!route) {
+        rec.status = "skipped";
+        skipped++;
+        continue;
+      }
+
+      try {
+        // Dynamic import of the per-type harvester engine
+        const mod = await import(route.importPath);
+        // Try camelCase singleton, then PascalCase, then first export
+        const camel = route.engineName.charAt(0).toLowerCase() + route.engineName.slice(1);
+        const engine: Record<string, unknown> =
+          (mod[camel] as Record<string, unknown>) ??
+          (mod[route.engineName] as Record<string, unknown>) ??
+          (Object.values(mod)[0] as Record<string, unknown>);
+        if (!engine || typeof engine[route.method] !== "function") {
+          throw new Error(`Engine ${route.engineName}.${route.method} not available`);
+        }
+        await (engine[route.method] as (p: string) => Promise<unknown>)(rec.filePath);
+        rec.status = "complete";
+        rec.harvestedAt = new Date().toISOString();
+        rec.itemsExtracted = (rec.itemsExtracted ?? 0) + 1;
+        succeeded++;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        rec.status = "failed";
+        rec.error = msg;
+        rec.harvestedAt = new Date().toISOString();
+        failed++;
+        errors.push({ file: rec.filePath, error: msg });
+      }
+    }
+
+    this.recalcProgress();
+    this.persist();
+
+    return {
+      harvestId,
+      processed: toProcess.length,
+      succeeded,
+      failed,
+      skipped,
+      errors,
+      duration_ms: Date.now() - startedAt,
+      pending: 0,
+    };
+  }
+
+  /**
+   * Return a progress snapshot for the pipeline, optionally tagged with a
+   * harvestId correlation token returned from startHarvest.
+   *
+   * @param harvestId - Optional correlation id (passed through, not stored per-record)
+   * @returns Current HarvestProgress fields, plus the harvestId if provided
+   */
+  getStatus(harvestId?: string): HarvestProgress & { harvestId?: string } {
+    this.recalcProgress();
+    return {
+      ...this.progress,
+      ...(harvestId !== undefined ? { harvestId } : {}),
+    };
+  }
+
+  /**
+   * Resume a harvest session by resetting failed records to pending and
+   * re-running startHarvest. The harvestId from the original run is preserved
+   * as a correlation token on the returned result.
+   *
+   * @param harvestId - Correlation id returned by startHarvest
+   * @returns HarvestBatchResult from the retry pass, with the same harvestId
+   */
+  async resumeHarvest(
+    harvestId: string,
+  ): Promise<HarvestBatchResult & { harvestId: string; pending: number }> {
+    // Decode path prefix from harvestId (best-effort; empty prefix = process all)
+    let sourcePath = "";
+    const m = harvestId.match(/^harvest-([^-]+)-\d+$/);
+    if (m) {
+      try {
+        const decoded = Buffer.from(m[1], "base64url").toString();
+        sourcePath = decoded === "all" ? "" : decoded;
+      } catch {
+        // ignore decode failure; use empty prefix
+      }
+    }
+
+    const retried = HarvestPipelineEngineImpl.retryFailed();
+    if (retried === 0) {
+      // Nothing to resume -- return a no-op result
+      return {
+        harvestId,
+        processed: 0,
+        succeeded: 0,
+        failed: 0,
+        skipped: 0,
+        errors: [],
+        duration_ms: 0,
+        pending: 0,
+      };
+    }
+
+    const result = await this.startHarvest({ sourcePath });
+    return { ...result, harvestId };
+  }
+
+  // ---------------------------------------------------------------------------
   // PRIVATE
-  // ──────────────────────────────────────────────────────────────────────
+  // ---------------------------------------------------------------------------
 
   private recalcProgress(): void {
     let complete = 0, failed = 0, skipped = 0, pending = 0, inProgress = 0;

@@ -64,7 +64,7 @@ function useAsyncOrchestrator<TPayload, TResult>(
       });
       return result;
     } catch (issue) {
-      const apiIssue = toApiError(issue, 'Unified PRISM AI request failed');
+      const apiIssue = toApiError(issue, 'Unified Kienzle AI request failed');
       setState({
         data: null,
         loading: false,

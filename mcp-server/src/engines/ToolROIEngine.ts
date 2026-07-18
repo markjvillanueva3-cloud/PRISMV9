@@ -77,6 +77,9 @@ export interface ToolROIInput {
   current_tool?: CurrentToolSpec;
   user_inventory?: ToolInventoryItem[];
   optimization_goal: "cost" | "performance" | "balanced";
+  /** Annual production volume (parts/year) for the annual-savings extrapolation. When omitted,
+   *  DEFAULT_ANNUAL_PARTS is used and annual_savings is labeled an assumed-default estimate. */
+  annual_parts?: number;
 }
 
 export interface ToolRecommendation {
@@ -202,6 +205,10 @@ const CATALOG_TIERS: Record<string, { budget: CatalogArchetype; standard: Catalo
 
 // ── Engine ─────────────────────────────────────────────────────────
 
+// Fallback annual production volume (parts/year) used ONLY when the caller supplies no
+// input.annual_parts. The annual_savings figure is then labeled an assumed-default estimate.
+const DEFAULT_ANNUAL_PARTS = 5000;
+
 export class ToolROIEngine {
   readonly name = "ToolROIEngine";
 
@@ -281,7 +288,9 @@ export class ToolROIEngine {
     }
 
     // ── 5. Annual savings estimate ────────────────────────────
-    const annualParts = 5000; // default estimate
+    // Use the caller's real annual volume when supplied; else a named default (labeled below).
+    const annualPartsIsDefault = !(input.annual_parts && input.annual_parts > 0);
+    const annualParts = annualPartsIsDefault ? DEFAULT_ANNUAL_PARTS : input.annual_parts!;
     const bestCpp = bestRec.cost_per_part.value;
     const currentCpp = currentCostPerPart?.value ?? bestCpp;
     const annualSavings = Math.max(0, (currentCpp - bestCpp) * annualParts);
@@ -317,7 +326,9 @@ export class ToolROIEngine {
         best_total_per_part: av(r3(bestCpp), "$/part", 0.01,
           `Best option: ${bestRec.tool.name}`),
         annual_savings: av(r0(annualSavings), "$/year", 50,
-          `Savings over ${annualParts} parts/year`),
+          annualPartsIsDefault
+            ? `Savings over an ASSUMED ${annualParts} parts/year (default; pass annual_parts for your real volume)`
+            : `Savings over ${annualParts} parts/year`),
       },
       warnings,
     };

@@ -32,6 +32,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { fileURLToPath } from "node:url";
 import process from "node:process";
 
 const OUTCOMES_DIR = "H:/prism/state/outcomes";
@@ -110,6 +111,73 @@ function extractRecommendation(payload) {
 
   if (Object.keys(hits).length === 0) return null;
   return hits;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Determining-input extractor (U-OUTCOME-INPUT-CAPTURE, slot:india 2026-06-30).
+//
+// THE GAP THIS CLOSES: this hook had the dispatcher's `tool_input` (material,
+// tool, operation, ...) in hand but wrote ONLY {engine, action, hook} to the
+// event context. So every lathe/sinker/grinder/welder/cad recommendation it
+// captured was born input-barren -> the outcome->LoRA SFT converter
+// (scripts/lib/outcome-to-alpaca-converter.mjs, INPUT_KEYS gate) found NO
+// determining inputs and converted them to ZERO learnable pairs (live: lathe
+// 3,459 + sinker_edm 1,231 + grinder/welder/cad all skipped). Surfacing the
+// inputs the hook ALREADY holds makes those captures SFT-learnable -- one fix,
+// every domain this hook covers.
+//
+// Maps the wide variety of dispatcher param spellings onto the converter's
+// context vocabulary (material / tool_id / operation / feature / machine_id /
+// process). Extras (iso / tool_material / tool_diameter_mm) are harmless when a
+// consumer doesn't read them and are ready for a converter that extends its
+// input keys. Best-effort + scalar-only, matching the hook's never-throw
+// contract: an absent input simply isn't surfaced (no degenerate value).
+// ─────────────────────────────────────────────────────────────────────────
+
+const DETERMINING_INPUT_ALIASES = {
+  material:         ["material", "material_name", "materialName", "workpiece_material", "stock_material"],
+  tool_id:          ["tool_id", "toolId", "tool", "tool_name", "toolName", "tool_number", "cutter", "insert"],
+  operation:        ["operation", "op", "operation_type", "operationType", "cut_type", "cutType"],
+  feature:          ["feature", "feature_type", "featureType", "feature_name"],
+  machine_id:       ["machine_id", "machineId", "machine", "machine_name"],
+  process:          ["process", "process_type", "processType"],
+  iso:              ["iso", "iso_group", "isoGroup", "material_group"],
+  tool_material:    ["tool_material", "toolMaterial", "insert_material"],
+  tool_diameter_mm: ["tool_diameter_mm", "tool_diameter", "toolDiameter", "diameter_mm", "diameter"],
+};
+// Dispatchers sometimes nest the real params one level down under a wrapper key.
+const DETERMINING_NESTED_KEYS = ["params", "input", "request", "args", "payload", "options"];
+
+/** Coerce a scalar to a non-empty trimmed string, or null. Objects/arrays/empty -> null. */
+function scalarToStr(v) {
+  if (typeof v === "string") { const t = v.trim(); return t || null; }
+  if (typeof v === "number" && Number.isFinite(v)) return String(v);
+  if (typeof v === "boolean") return String(v);
+  return null;
+}
+
+/**
+ * Pull the determining inputs out of a dispatcher tool_input, normalized onto the
+ * converter's context keys. Searches the top level plus one level into common
+ * wrapper objects; first non-empty scalar alias wins per canonical key. Returns {}
+ * when nothing is found (harmless -- the event still carries engine/action/hook).
+ */
+export function extractDeterminingInputs(toolInput) {
+  if (!toolInput || typeof toolInput !== "object" || Array.isArray(toolInput)) return {};
+  const sources = [toolInput];
+  for (const k of DETERMINING_NESTED_KEYS) {
+    const nested = toolInput[k];
+    if (nested && typeof nested === "object" && !Array.isArray(nested)) sources.push(nested);
+  }
+  const out = {};
+  for (const [canonical, aliases] of Object.entries(DETERMINING_INPUT_ALIASES)) {
+    for (const src of sources) {
+      let found = null;
+      for (const a of aliases) { const s = scalarToStr(src[a]); if (s) { found = s; break; } }
+      if (found) { out[canonical] = found; break; }
+    }
+  }
+  return out;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -213,6 +281,10 @@ async function main() {
       engine: toolName,
       action: String(action ?? "unknown"),
       hook: "post-recommendation-capture",
+      // Surface the determining inputs the dispatcher already passed so the
+      // outcome->LoRA converter can build a learnable (state -> recommendation)
+      // SFT pair instead of an input-barren skip (U-OUTCOME-INPUT-CAPTURE).
+      ...extractDeterminingInputs(toolInput),
     },
     recommended: safeStringify(recommendation),
   };
@@ -238,7 +310,17 @@ async function main() {
   });
 }
 
-main().catch(() => {
-  // Never throw out of the hook — bus must never break the caller.
-  process.stdout.write(JSON.stringify({ continue: true }));
-});
+// Run only as a CLI (PostToolUse child process). When imported by a test the
+// pure exports (extractDeterminingInputs) are used without firing main()'s
+// stdin read / disk write.
+const isMain = (() => {
+  try { return process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url); }
+  catch { return false; }
+})();
+
+if (isMain) {
+  main().catch(() => {
+    // Never throw out of the hook -- bus must never break the caller.
+    process.stdout.write(JSON.stringify({ continue: true }));
+  });
+}

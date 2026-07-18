@@ -790,8 +790,8 @@ export class WireEDMNeuralOrchestrationEngine {
                       input.target_ra_um && input.target_ra_um < 0.8 ? 4 : 3;
 
     const parameters: HybridStrategy["parameters"] = {
-      wire_type: "brass",
-      wire_diameter: input.thickness_mm < 20 ? "0.20" : input.thickness_mm < 50 ? "0.25" : "0.30",
+      wire_type: "plain_brass",
+      wire_diameter: input.thickness_mm < 20 ? 0.20 : input.thickness_mm < 50 ? 0.25 : 0.30,
       num_passes: numPasses,
       on_time_us: Math.round((3 + input.thickness_mm * 0.06) * 10) / 10,
       off_time_us: Math.round((12 + input.thickness_mm * 0.12) * 10) / 10,

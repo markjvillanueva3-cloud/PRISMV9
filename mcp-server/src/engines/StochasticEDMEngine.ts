@@ -245,7 +245,16 @@ export class StochasticEDMEngine {
     const MAX_TRIALS = 100_000;
     const N = Math.min(input.mc_samples ?? 1000, MAX_TRIALS);
 
-    const mat = EDM_MATS[input.material ?? "steel"];
+    const materialKey = input.material ?? "steel";
+    const mat = EDM_MATS[materialKey];
+    // U-india-MaterialValidation FIX: validate the material key up-front and throw a
+    // descriptive error (engines-dir "throw descriptive errors" convention) BEFORE any
+    // undefined EDM_MATS[x] property access forwarded unvalidated from the dispatcher.
+    if (!mat) {
+      throw new Error(
+        `Unknown EDM material: ${materialKey}. Known: ${Object.keys(EDM_MATS).join(", ")}`,
+      );
+    }
     const alpha = input.thermal_diffusivity_mm2_s ?? mat.alpha_mm2_s;
     const Tm = input.melting_point_C ?? mat.Tm_C;
     const elecWearBase = ELECTRODE_WEAR[

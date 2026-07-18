@@ -1,0 +1,7 @@
+# Bulk regenerable CAM tool-library files (CATALOG-APP-WIRING-MS0/U-CAM-TOOL-TREES, slot:romeo).
+# The full material->type->brand tree (.hmt + .mcam-tools, ~tens of MB) is a build artifact of
+# the PRISM tooling catalog, regenerated on demand -- it is NOT committed to keep the shared repo lean.
+#   Regenerate: cd mcp-server && npx tsx scripts/generate-jm-cam-tool-trees.ts
+# INDEX.md + cam-tool-trees.json (the manifest) ARE committed as the proof-of-structure.
+*.hmt
+*.mcam-tools

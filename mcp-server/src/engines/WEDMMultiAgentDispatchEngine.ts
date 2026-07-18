@@ -105,7 +105,7 @@ export class WEDMMultiAgentDispatchEngine {
         cached: aw.cached,
         ok: aw.ok,
       });
-      summary = Array.isArray(aw.summary) && aw.summary.length > 0 ? aw.summary : null;
+      summary = Array.isArray(aw.summary) && aw.summary.length > 0 ? aw.summary.join("; ") : null;
       awarenessLatencyMs = aw.latencyMs ?? 0;
       awarenessCached = aw.cached ?? false;
       const awTips = Array.isArray(aw.summary)

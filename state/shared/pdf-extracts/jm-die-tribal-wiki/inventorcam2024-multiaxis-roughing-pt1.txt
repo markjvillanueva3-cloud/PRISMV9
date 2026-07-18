@@ -1,0 +1,497 @@
+Application Tutorial | InventorCAM 2024
+
+Multiaxis Machining | Part 1
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+Contents
+
+1. Introduction................................................................................................................... 1
+2. CAM-Part Definition...................................................................................................... 5
+3. Stock and Target Definition.......................................................................................... 11
+4. iMachining Operation.................................................................................................... 15
+5. Roughing Operations.................................................................................................... 21
+
+                                                                                                                                                                        i
+Introduction  1
+About this course
+The goal of this course is to teach you how to use InventorCAM's Multiaxis Machining to machine a part This tutorial
+covers the basic concepts of Multiaxis Machining. Once you have developed a good foundation in basic skills, you can
+refer to the online help for information on the less frequently used options.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the InventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task. The theoretical explanations are embedded into these exercises to
+give an overview of the Multiaxis Machining capabilities.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial.
+This book is made with Autodesk Professional 2024 and InventorCAM 2024 SP1.
+
+2
+                                                                                                                                                      1. Introduction
+
+Multiaxis Machining
+The Multiaxis Machining operation creates a multiaxis tool path used to rough out pocket shaped geometries. You can
+specify the inputs for floor, wall and ceiling surfaces which are used by InventorCAM to create the roughing tool path.
+The Multiaxis Machining feature an excellent feature that can be used to rough large amounts of material with multiaxis
+movements.
+In this tutorial, apart from the Multiaxis Machining operation, other operations of HSR, HSM, SWARF, and iMachining
+are also used to help you rough out this part accurately.
+
+                                                                                                                                                                         3
+4
+2 CAM-Part Definition
+The CAM-Part definition process for the part consists of the following stages:
+                                                   CAM-Part creation
+
+                                               CNC-Machine de nition
+
+                                            Coordinate System de nition
+
+                                            Stock and Target de nition
+
+        · CAM-Part creation. At this stage, you have to define the CAM-Part name and location. InventorCAM defines
+            the necessary system files and a folder to allocate the place to store InventorCAM data.
+
+        · CNC-controller definition. It is necessary to choose the CNC-controller. The controller type influences the
+            Coordinate System definition and the Geometry definition.
+
+        · Coordinate System definition. You have to define the Coordinate System, which is the origin for all machining
+            operations of the CAM-Part. You can create multiple CoordSys positions and in each machining step select
+            which CoordSys you want to use for the operation.
+
+        · Stock and Target definition. It is necessary to define a boundary of the stock that is used for the CAM-Part
+            machining. InventorCAM enables you to define the model of the part in its final stage after the machining.
+
+The following exercises describe the full process of the CAM-Part definition. It is recommended to go through the stages
+in order to understand how the CAM-Part features are built. For this purpose, you have to turn off the automatic CAM-
+Part definition.
+1. Go to the Autodesk Inventor ribbon and select InventorCAM 2024 > CAM Settings.
+
+2. In the left pane, select CAM-Part
+
+6
+                                                        2. CAM-Part Definition
+
+3. Ensure that the settings are as shown in the image.
+
+4. In the left pane, select Automatic CAM-Part definition.
+5. In the right pane, click the Milling tab.
+6. Ensure that the settings are as shown in the image.
+7. Click OK.
+
+8. Browse to open the Autodesk Inventor part Multiaxis
+Roughing.ipt.
+9. Click Model.
+10. Expand Solid Bodies(3) > S olid1 >switch on Visibility and save the part.
+This is how the surface looks like:
+
+                                                                                                                                                                         7
+11. Click InventorCAM 2024 > New > Milling.
+The Milling Part Data window displays.
+Define the CAM-Part in the Milling Part Data dialog box.
+12. In the CNC-Machine list, click table_table_exercise.
+13. Click CoordSys button in the Define section to set the coordinate system for this part.
+14. In the Place CoordSys origin to list, click Top center of model box.
+15. Select the face as shown in the image.
+16. Click
+The CoordSys Data window displays.
+
+17. Enter the parameters as shown in the image.
+18. Click
+19. Click to close the CoordSys Manager window.
+20. Click to close the Milling Part Data dialog box.
+
+8
+                                                2. CAM-Part Definition
+
+The defined coordinate system looks like this:
+
+The CAM part is now defined.
+
+                                                9
+10
+Stock and Target  3
+     Definition
+To define the stock you have to follow the steps mentioned in this chapter.
+1. In the CAM tree manager click Stock > Define.
+2. In the Defined by list, click 3D Model.
+3. Select the solid as shown in the image.
+4. Click
+
+5. Click Target > Define. Ensure that the visibility of Solid1 is switched off.
+6. Select the face as shown in the image.
+7. Click
+The stock and target are now defined.
+Next, you must define machine and material for the iMachining operation.
+8. Right click CAM-Part > CAM-Part Definition.
+9. Click Edit iMachining Database.
+The iMachining Database window displays.
+
+10. Right click Machines > New Machine to define a new machine.
+A new machine is added.
+
+12
+                                                                                           3. Stock and Target Definition
+
+11. In the left pane, right click New Machine to change the name.
+
+12. Enter DMU50 as the machine Name.
+13. Enter the parameters as shown in the image.
+14. Click Apply.
+
+15. Right click Materials > New Material to define a new material.
+A new material is added.
+16. In the left pane, right click New Material to change the name.
+17. Enter Al6061 as the material Name.
+18. Enter the MPa value of 460 as shown in the image.
+19. Click Save & Exit.
+
+20. Click  in the Milling Part Data window.
+
+21. Right click CAM-Part > CAM-Part Definition.
+22. In the Edit iMachining Database section, select the machine and material you defined.
+23. Set the Machining level at 6.
+
+24. Click  in the Milling Part Data window.
+
+The iMachining parameters are now defined.
+
+                                                                                           13
+14
+4 iMachining Operation
+1. Select the Model tab.
+2. Right click Solid2 > show Visibility.
+
+3. Select the InventorCAM tab.
+4. Right click Setup > Edit.
+5. Enter a value of 230 in the Z column.
+6. Click ... in the Fixture section to define a new fixture.
+The Model dialog box is displayed.
+
+7. Select the fixture as shown in the image.
+
+The defined fixture is displayed in the Selection
+section of the Model dialog box.
+8. Click
+
+16
+                                                                                          4. iMachining Operation
+
+9. Click OK in the Machine Setup window.
+
+To see how the defined fixture looks like on the machine, click
+The Machine Preview window displays.
+The preview must look like as displayed in the image.
+
+10. Close the Machine Preview window.
+11. Click OK in the Machine Setup window.
+
+The first operation you will use for roughing is 3D iMachining.
+12. Right click Setup > Add Milling Operation > 3D iMachining.
+13. In the Technology list, click 3D General.
+14. Click the Geometry page.
+
+15. Click  under CoordSys. Ensure that the visibility of Solid3 and Srf2 are switched on
+
+                                                                                          17
+16. Select the solid and surface as shown in the image.
+
+17. Click
+
+                           These surfaces are required so that only the top and
+                           side surfaces are roughed and to prevent the cutter
+                           from entering the inside pockets.
+18. Click the Tool page > Select.
+19. Add END MILL as the tool.
+20. Enter the parameters as shown in the image.
+
+21. Click  and double click the Holder icon to display the list of holders.
+
+22. Search for HSK A 63 ER 32x80 and double click it to add it to the tool.
+
+23. Click
+24. Select the Holder collision protection check box.
+25. Set the Holder clearance value as 9 mm.
+26. Click the Levels page.
+27. Click Lower level.
+
+18
+                                                                                 4. iMachining Operation
+
+                           Ensure that the visibility of Solid1 is switched on.
+28. Select the point as shown in the image.
+29. Click
+
+30. Click the Technology Wizard page.
+31. Set the Machining level bar at 3.
+
+32. Click the Technology page.
+33. Enter the parameters as shown in the image.
+34. Click
+
+                                                                                 19
+35. Click  once the operation is calculated.
+
+The Simulation window displays.
+
+36. Click SolidVerify.
+
+37. Click
+The simulation should look as displayed in the image.
+
+38. Click
+39. Click to close the operation
+
+20
+5 Roughing Operations
+First, you will add an HSR operation to rough out the top section of the part.
+1. Click the Model tab and ensure that the visibility of Solid1 is switched off.
+2. Click the InventorCAM Manager tab.
+3. Right click the operation > Add Milling Operation > 3D HSR.
+4. In the Technology list, click HM Roughing.
+5. In the CoordSys list, click target.
+6. Click the Show button..
+7. The target should look as displayed in the image.
+8. Close the Show geometry dialog box.
+
+9. Click the Tool page > Select.
+10. Add END MILL as the tool.
+11. Enter the parameters as shown in the image.
+
+12. Search and select HSK A 63 SRKIN 16x95 as the holder.
+13. Click the Constraint boundaries page.
+
+22
+                                                 5. Roughing operations
+
+14. Enter the parameters as shown in the image.
+
+15. Click the Passes page.
+16. Enter the parameters as shown in the image.
+
+17. Click Z-Bottom.
+18. Select the point as shown in the image.
+19. Click OK.
+
+20. Select the Smoothing tab.
+21. Select the Smoothing check box and set the Max. radius value as 0.8 mm.
+22. Select the Stepdown tab.
+23. Select the Optimize Z level check box and set the Last levels to even value as 2 mm.
+24. Select the Edit Passes tab.
+
+                                                                                                                                                                        23
+25. Enter the parameters as shown in the image.
+
+26. Click the Link page.
+27. Set the General tab parameters as shown in the image.
+
+28. Select the Ramping tab.
+29. Enter the parameters as shown in the image.
+
+30. Select the Strategy tab.
+31. Enter the parameters as shown in the image.
+32. Select the Retracts tab.
+33. Enter the parameters as shown in the image.
+
+24
+                                                          5. Roughing operations
+
+34. Select the Leads tab.
+35. Enter the parameters as shown in the image.
+36. Click
+37. Close the operation window.
+
+The tool path should look as displayed in the image.
+
+38. Simulate the part in SolidVerify mode.
+The simulation must look like as displayed in the image.
+
+                                                          25
+39. Close the Simulation window.
+
+The next roughing operation of the part is using the SWARF machining operation.
+40. Right click the operation > Add Milling Operation > SWARF Machining.
+41. Click the Geometry page.
+42. In the Strategy list, click Shortest distance.
+
+43. Click  under SWARF surfaces.
+
+44. Select all the corner faces as shown in the image.
+
+45. Click
+
+46. Click the Tool page > Select.
+47. Select the END MILL tool that was used for the HSR operation.
+48. Click the Tool path parameters page.
+49. Enter the parameters as shown in the image.
+
+50. Select the Corners tab.
+51. In the Inside corners list, select Sharp corner.
+52. In the Outside corners list, select Roll around.
+53. Click the Roughing and More page.
+
+26
+                                                       5. Roughing operations
+
+54. Enter the parameters as shown in the image.
+
+55. Click the Links tab.
+56. Set the parameters as shown in the image.
+
+57. Use the default Lead-In and Lead-Out parameters.
+58. Click the Misc. parameters page.
+59. Enter the Custom triangulation values as shown in
+the image.
+60. Click
+61. Close the operation window.
+
+                                                       27
+The tool path should look as displayed in the image.
+
+You will now add an HSM operation for roughing the top section of the part.
+62. Right click the operation > Add Milling Operation > 3D HSM.
+63. In the Technology list, click Linear machining.
+64. In the CoordSys list, click model.
+65. Click Tool > Select.
+66. Add BALL NOSE MILL as the tool.
+67. Enter the parameters as shown in the image.
+
+28
+68. Search and select HSK A 63 ER 32x80 as the holder.  5. Roughing operations
+69. Choose the tool for operation.                                                    29
+70. Click the Constraint boundaries page.
+71. Select the Created manually option.
+72. In the list, click User-defined boundary.
+73. Click under Boundary name.
+74. Select the curve as shown in the image.
+75. Click Yes in OK to accept? window.
+76. Click
+
+77. Select Centered under Boundary - Tool Relation.
+78. Click the Passes page.
+79. Enter the parameters as shown in the image.
+
+80. Click the Link page.
+81. Select the Retracts tab.
+82. Click Leads.
+83. Set the Lead in radius and lead out radius as 10.
+84. Enter the parameters as shown in the image.
+
+85. Click
+86. Close the operation window.
+The tool path should look as displayed in the below image.
+
+You will now machine the part from inside using the Multiaxis machining operation. In Multiaxis machining, the tool is
+always normal to the floor.
+87. Right click the operation > Add Milling Operation > Multiaxis Machining.
+88. Select Radial roughing in Technology.
+89. Click the Geometry page.
+
+90. In the Strategy list, select Offset, in the sub-list, select Offset from floor.
+
+91. Click  under Machining surfaces and select Model.
+
+92. Select the face as shown in the image.
+
+93. The selected model looks like this.
+94. Click
+
+30
+                                                                           5. Roughing operations
+
+95. Click  under Floor surfaces.
+
+96. Select the faces as shown in the image.
+
+97. Click
+
+98. Set the Stock to leave on value as 0.5 mm against machining surfaces.
+99. Click Tool > Select.
+100. Add BULL NOSE MILL as the tool.
+101. Enter the parameters as shown in the image.
+
+102. Search for HSK A 63 ER 32x80 and add it to the tool.
+103. Choose the tool for operation.
+104. Click the Levels page.
+105. Enter the parameters as shown in the image.
+
+                                                                                                                                                                        31
+106. Click the Tool path parameters page.
+107. Enter the parameters as shown in the image.
+
+108. Click the Link page.
+109. Enter the parameters as shown in the image.
+
+110. Click the Approach/Retreat tab.
+111. In the First entry and Last exit lists, select Use retract distance.
+112. In the sub -list of First entry, select Use ramp.
+113. Click the Links tab.
+114. Enter the parameters as shown in the image.
+115. Click
+116. Close the operation window.
+
+32
+                                                      5. Roughing operations
+
+The tool path should look as displayed in the image.
+
+For the next operation, you must make a copy of the multiaxis machining operation.
+117. Right click the operation > Copy.
+118. Right click the operation > Paste.
+119. Right click on the pasted operation > Edit.
+120. Click the Link page.
+121. Click the Links tab.
+122. Enter the parameters as shown in the image.
+
+123. Click the Geometry page.
+124. In the Strategy list, click Adaptive.
+125. In the sub-list, select Offset from floor.
+126. Set the Stock to leave on values as shown in the
+image.
+
+                                                                                                                                                                        33
+127. Click the Tool path parameters page.
+In the Step over section you can see the values of Maximum step over and the Desired step over. These values give you
+a near constant cutting condition. You can keep these values as default.
+128. Enter the Step down values as per the image.
+129. Click
+130. Close the operation window.
+The tool path should look as displayed in the image.
+
+Run the machine simulation of the part.
+
+                                                          End of the tutorial.
+
+34
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

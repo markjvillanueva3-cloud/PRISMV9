@@ -1,0 +1,34 @@
+{
+  "generated": "2026-06-25T02:39:33.682Z",
+  "commit": "135fdb5a2e",
+  "branch": "cad-fusion-live-ms0",
+  "counts": {
+    "engines": 3844,
+    "dispatchers": 119,
+    "actions": 13882,
+    "algorithms": 173,
+    "registries": 26,
+    "hooks": 53,
+    "test_files": 4827,
+    "data_modules": 188
+  },
+  "compact": "PRISM: 3844E/119D/13882A/173Alg/26R | 4827 test files | 135fdb5a2e",
+  "recent_commits": [
+    "135fdb5a2e [MAIN-FORCE] [OLLAMA-STRESS]/U-ALPHA-OLLAMA-BATTERIES-6 (slot:alpha): 6 new verified capability batteries extending the stress harness beyond short-mechanical tasks",
+    "7c8c734985 [MAIN-FORCE] [DOMAIN-KNOWLEDGE]/U-PAPA-LORA-DISTILL-MODE (slot:papa): add --distill mode to domain-corpus-to-lora-dataset.mjs -- local Ollama (qwen2.5-coder:14b, R5) synthesizes ONE grounded Q&A pair per (PDF,domain) from the extracted text, MUCH better LoRA than raw text dumps. GIGO-safe: control-byte sanitize + a distill-floor + RAW FALLBACK on any Ollama failure (never blocks). Injectable fetch -> 5 new tests (20/20, no network). Full --distill --out regen of the 65 is the bounded follow-on. Validated live: 2 PDFs -> real post-processor Q&A pairs.",
+    "8eb9d4dadf [MAIN-FORCE] [OCTOPUS]/U-ZULU-PROBE-RESIDENT-CREDIT (slot:zulu): credit /api/ps-resident models as 0-marginal in the capability probe -- fixes the octopus chronic single-voter (a big resident voice was dropped when free VRAM < its nominal size)",
+    "d01b16ae37 [MAIN-FORCE] [HOTEL]/U-HOTEL-FE-WIRING-AUDIT (slot:hotel): ERP FE<->route wiring auditor + full dead-surface map (73 dead client calls across 13 clusters) -- the source of truth for the back-end-to-front-end wiring directive",
+    "5282a059e1 [MAIN-FORCE] [BLUEPRINT-VISION-OCR]/U-XRAY-EXTRACTION-JOB-ENGINE (slot:xray): durable async-OCR job store + runner (foundation of the async drawing/extract path)"
+  ],
+  "key_paths": {
+    "engines": "src/engines/",
+    "dispatchers": "src/tools/dispatchers/",
+    "algorithms": "src/algorithms/",
+    "registries": "src/registries/",
+    "tests": "src/__tests__/",
+    "data": "src/data/",
+    "inventory": "data/docs/SYSTEM_INVENTORY.md",
+    "quick_ref": "data/quick-ref.json",
+    "roadmap": "data/roadmap-index.json"
+  }
+}

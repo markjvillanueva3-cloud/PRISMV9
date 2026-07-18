@@ -60,11 +60,17 @@ export class SteadyRestPlacementEngine {
     const F = input.cutting_force_radial_N;
     const a = input.cutting_position_mm / 1000; // force position from chuck
 
-    // Deflection without support (simply supported beam with point load)
-    // delta = F * a * (L-a)^2 * (2*L*a - a^2 - (L-a)^2) ... simplified:
-    // delta_max ≈ F * L^3 / (48 * E * I) for mid-span load
+    // Deflection under a radial point load F at distance a from the chuck on a
+    // simply-supported span L (chuck + tailstock), measured AT the load point:
+    //   delta = F * a^2 * (L-a)^2 / (3 * E * I * L)   [Roark, simply-supported, load at a]
+    // Units: N*m^2*m^2 / (Pa*m^4*m) = m (a true length). The prior form
+    //   F*a*(L-a)^2/(3EIL) * ((2La-a^2)/L^2)
+    // was DIMENSIONLESS (one power of a short + a spurious factor), so the *1e6 below
+    // produced a meaningless number that mis-fired the "exceeds limit -> add steady rest"
+    // gate for the exact slender bars that need support. At a = L/2 this correctly
+    // reduces to F*L^3/(48*E*I) = the deflWith mid-span form (algebraic invariant).
     const deflWithout = L > 0 && I > 0
-      ? (F * a * (L - a) ** 2) / (3 * E * I * L) * ((2 * L * a - a * a) / (L * L))
+      ? (F * a ** 2 * (L - a) ** 2) / (3 * E * I * L)
       : 0;
     const deflWithoutUm = Math.abs(deflWithout) * 1e6;
 

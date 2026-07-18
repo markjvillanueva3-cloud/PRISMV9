@@ -1,0 +1,349 @@
+{
+  "id": "HM-PLG-MS7",
+  "version": "8.3.0",
+  "title": "Auto-Optimize Pipeline",
+  "track": "HM-PLUGIN",
+  "status": "not_started",
+  "description": "Build the full auto-optimization pipeline that chains all 5 panels into a single-click workflow: analyze setup (material, tools, machine) -> optimize all operations (physics advisory for each) -> enhance NC output (PPP per-block S/F) -> generate quality package (FAI + setup sheet). The 'PRISM Auto-Optimize' toolbar button runs the entire pipeline with progress tracking and produces a comprehensive report.",
+  "dependencies": [
+    "HM-PLG-MS2",
+    "HM-PLG-MS3",
+    "HM-PLG-MS4",
+    "HM-PLG-MS5",
+    "HM-PLG-MS6"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "SpeedFeedOrchestratorEngine",
+      "KienzleForceModelEngine",
+      "ChatterStabilityLobeEngine",
+      "ToolDeflectionEngine",
+      "PostProcessorPipelineEngine",
+      "ResidualStressPredictionEngine",
+      "CollisionPreventionEngine",
+      "FAIEngine",
+      "SetupSheetEngine",
+      "SelfLearningCAMEngine",
+      "CycleTimeEstimatorEngine"
+    ],
+    "registries": [
+      "MaterialRegistry",
+      "ToolRegistry",
+      "MachineRegistry",
+      "FormulaRegistry"
+    ],
+    "services": [
+      "prism-mcp-server"
+    ],
+    "physics": [
+      "Full Kienzle force chain",
+      "SLD chatter prediction",
+      "Taylor tool life",
+      "Surface integrity prediction"
+    ],
+    "reference": [
+      "all-panel-engines-combined"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hm-plugin:auto-optimize-pre-validation — BUILT (validates all prerequisites before pipeline run)",
+    "action": "hypermill_plugin:auto_optimize — BUILT (runs full analyze->optimize->enhance->quality pipeline)",
+    "skill": "/hypermill-auto-optimize — BUILT (one-click full optimization of hyperMILL job)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-PLG-MS7-S1",
+      "title": "Pipeline Orchestration + Setup Analysis",
+      "smart_config": {
+        "role": "manufacturing-systems-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "All 5 panel engines",
+        "SpeedFeedOrchestratorEngine (2,851 LOC)",
+        "PostProcessorPipelineEngine (38 stages)"
+      ],
+      "intent": "Build the pipeline orchestrator that chains setup analysis, per-operation optimization, NC enhancement, and quality package generation into a single automated workflow with progress tracking.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG26",
+          "title": "Pipeline Orchestrator Engine",
+          "description": "Build AutoOptimizePipelineEngine that orchestrates the 4-stage pipeline: (1) Setup Analysis: extract material, tools, machine from active hyperMILL job via AC API. (2) Per-Op Optimization: run PhysicsAdvisorEngine on each operation. (3) NC Enhancement: run PostEnhancerEngine on generated NC file. (4) Quality Package: run QualityGateEngine + FAI + setup sheet. Pipeline runs sequentially with progress callbacks (0-100%) and abort support.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Pipeline executes 4 stages sequentially with progress callback at each stage boundary",
+            "Setup analysis extracts material, tool list, and machine from active hyperMILL job",
+            "Abort support cancels pipeline cleanly at any stage with partial results preserved"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/AutoOptimizePipelineEngine.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/hypermillPluginDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/AutoOptimizePipelineEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG27",
+          "title": "Per-Operation Batch Optimization",
+          "description": "Extend the pipeline to run physics advisory on all operations in the job (not just active one). Batch process: iterate through hyperMILL job list, extract cutting parameters per operation, run Kienzle+SLD+deflection, apply optimized S/F. Track per-operation results (improved/unchanged/flagged). Handle multi-setup jobs with WCS transitions. Support parallel processing for independent operations.",
+          "depends_on": [
+            "U-PLG26"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Batch processes all operations in job list with per-op status tracking",
+            "Multi-setup jobs handled correctly with WCS-aware parameter mapping",
+            "Operations flagged as 'already optimal' when delta < 2% are skipped (no regression)"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/AutoOptimizePipelineEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/AutoOptimizePipelineEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG28",
+          "title": "Auto-Optimize Progress UI + Toolbar Button",
+          "description": "Build the Auto-Optimize progress panel with: stage progress bar (4 stages), per-operation progress within each stage, real-time log of actions taken, estimated time remaining. Add 'PRISM Auto-Optimize' toolbar button that launches the pipeline. Add confirmation dialog showing job summary before starting.",
+          "depends_on": [
+            "U-PLG26"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Progress bar shows 4 stages with current stage highlighted and percentage complete",
+            "Per-operation log scrolls in real-time showing 'Op 3/12: Roughing - optimized S from 4500 to 5200'",
+            "Confirmation dialog shows job name, operation count, and estimated processing time before start"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/panels/auto-optimize-panel.html"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/panels/"
+          }
+        }
+      ],
+      "exit_gate": "Pipeline runs 4 stages with progress + batch optimization processes all ops | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "hm-plugin:auto-optimize-pre-validation"
+        ],
+        "new_actions": [
+          "hypermill_plugin:auto_optimize"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-PLG-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-PLG-MS7-S2",
+      "title": "Comprehensive Report + E2E Testing",
+      "smart_config": {
+        "role": "manufacturing-systems-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "FAIEngine",
+        "SetupSheetEngine",
+        "CycleTimeEstimatorEngine",
+        "Report generation"
+      ],
+      "intent": "Build the comprehensive optimization report that summarizes all improvements, and write E2E tests for the full auto-optimize pipeline.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG29",
+          "title": "Comprehensive Optimization Report",
+          "description": "Generate a comprehensive PDF report after auto-optimize completes. Report includes: executive summary (total cycle time saved, tool life improvement, quality score), per-operation detail table (before/after S/F, force delta, deflection status), quality assessment summary (Ra predictions, surface integrity status per op), and appendices (FAI plan, setup sheet, SLD charts). Report branded with PRISM logo.",
+          "depends_on": [
+            "U-PLG26",
+            "U-PLG27"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "PDF report generates with executive summary showing aggregate cycle time and tool life deltas",
+            "Per-operation table shows before/after comparison for all S/F parameters",
+            "Appendices include generated FAI plan and setup sheet with physics annotations"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/AutoOptimizePipelineEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/AutoOptimizePipelineEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG30",
+          "title": "Auto-Optimize E2E Integration Tests",
+          "description": "Write E2E tests for the full auto-optimize pipeline using 3 representative test jobs: (1) Simple 3-axis prismatic part (4 operations), (2) 5-axis impeller channel (8 operations with multi-axis), (3) Hardened steel mold cavity (6 operations with surface integrity requirements). Verify each stage completes, report generates, and physics outputs are within reference tolerances.",
+          "depends_on": [
+            "U-PLG26",
+            "U-PLG27",
+            "U-PLG28",
+            "U-PLG29"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "3-axis test job: all 4 operations optimized with cycle time improvement > 0%",
+            "5-axis test job: multi-axis operations handled without SLD errors on rotary moves",
+            "Mold cavity test job: surface integrity flags correctly for finishing operations on >55 HRC"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/engines/hypermill/plugin/auto-optimize-e2e.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/__tests__/engines/hypermill/plugin/"
+          }
+        }
+      ],
+      "exit_gate": "Report generates as PDF + 3 E2E test jobs pass all stages | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "hypermill_plugin:generate_optimization_report"
+        ],
+        "new_skills": [
+          "/hypermill-auto-optimize"
+        ],
+        "available_to": [
+          "HM-PLG-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms7-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms7_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms7"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the full auto-optimization pipeline that chains all 5 panels into a single-click workflow: analyze setup (material, tools, machine) -> optimize all operations (physics advisory for each) -> enhance NC output (PPP per-block S/F) -> generate quality package (FAI + setup sheet). The 'PRISM Auto-Optimize' toolbar button runs the entire pipeline with progress tracking and produces a comprehensive report.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS7 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS7. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

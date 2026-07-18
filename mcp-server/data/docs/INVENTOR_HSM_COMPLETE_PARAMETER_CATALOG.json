@@ -1,0 +1,1429 @@
+{
+  "meta": {
+    "title": "Inventor HSM / Inventor CAM Complete Parameter Catalog",
+    "version": "1.0.0",
+    "generated": "2026-04-18",
+    "description": "Comprehensive catalog of ALL Inventor HSM / InventorCAM operations, parameters, and API surfaces for PRISM integration",
+    "sources": [
+      "HSMWorks 2027 AddinAPI.h (1545 lines, 120+ API functions)",
+      "dump.cps diagnostic post (reveals all toolpath parameters)",
+      "Autodesk HSM documentation",
+      "InventorCAMStrategyEngine.ts (PRISM)",
+      "InventorCAMAIOrchestrationEngine.ts (PRISM)",
+      "111 CPS post processor files"
+    ],
+    "total_parameters": 1247,
+    "total_api_functions": 127,
+    "total_operations": 47
+  },
+
+  "operations": {
+    "2d_milling": {
+      "adaptive_2d": {
+        "display_name": "2D Adaptive Clearing",
+        "category": "roughing",
+        "description": "High-efficiency constant engagement clearing with helix ramping",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "contours": { "type": "selection", "description": "Boundary contours", "tab": "Geometry", "required": true },
+            "pocketSelection": { "type": "boolean", "default": false, "description": "Use pocket selection mode", "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0.2, "range": [0, 10], "description": "Radial stock to leave", "tab": "Geometry" },
+            "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.2, "range": [0, 10], "description": "Axial stock to leave", "tab": "Geometry" },
+            "model": { "type": "selection", "description": "Machining model", "tab": "Geometry" },
+            "restMachining": { "type": "boolean", "default": false, "description": "Enable rest machining", "tab": "Geometry" },
+            "restMachiningTool": { "type": "tool_reference", "description": "Previous tool for rest calculation", "tab": "Geometry" }
+          },
+          "heights": {
+            "clearanceHeight": { "type": "number", "unit": "mm", "default": 25.4, "description": "Safe retract height above stock", "tab": "Heights" },
+            "retractHeight": { "type": "number", "unit": "mm", "default": 6.35, "description": "Rapid retract height", "tab": "Heights" },
+            "feedHeight": { "type": "number", "unit": "mm", "default": 2.54, "description": "Height to switch to feed", "tab": "Heights" },
+            "topHeight": { "type": "number", "unit": "mm", "default": 0, "description": "Top of feature", "tab": "Heights" },
+            "bottomHeight": { "type": "number", "unit": "mm", "default": -25.4, "description": "Bottom of feature", "tab": "Heights" },
+            "heightsFrom": { "type": "enum", "values": ["selection", "stock top", "model top", "origin"], "default": "stock top", "tab": "Heights" }
+          },
+          "passes": {
+            "optimalLoad": { "type": "number", "unit": "percent", "default": 40, "range": [5, 50], "description": "Target engagement as % of tool diameter", "tab": "Passes" },
+            "maximumStepdown": { "type": "number", "unit": "mm", "range": [0.1, 100], "description": "Maximum axial depth per pass", "tab": "Passes" },
+            "multipleDepths": { "type": "boolean", "default": true, "description": "Enable multiple depth passes", "tab": "Passes" },
+            "useSlotClearing": { "type": "boolean", "default": true, "description": "Trochoidal clearing in narrow areas", "tab": "Passes" },
+            "minimumCuttingRadius": { "type": "number", "unit": "mm", "description": "Minimum internal corner radius", "tab": "Passes" },
+            "bothWays": { "type": "boolean", "default": false, "description": "Bidirectional machining", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+            "orderByDepth": { "type": "boolean", "default": true, "description": "Complete each depth before moving deeper", "tab": "Passes" },
+            "finishingOverlap": { "type": "number", "unit": "mm", "default": 0.5, "description": "Overlap at pass start/end", "tab": "Passes" }
+          },
+          "linking": {
+            "entryMethod": { "type": "enum", "values": ["helix", "ramp", "plunge"], "default": "helix", "description": "Tool entry method", "tab": "Linking" },
+            "helixDiameter": { "type": "number", "unit": "percent", "default": 50, "range": [10, 100], "description": "Helix diameter as % of tool", "tab": "Linking" },
+            "helixAngle": { "type": "number", "unit": "deg", "default": 2, "range": [0.5, 10], "description": "Helix ramp angle", "tab": "Linking" },
+            "leadRadius": { "type": "number", "unit": "mm", "description": "Lead-in arc radius", "tab": "Linking" },
+            "leadInVertical": { "type": "boolean", "default": false, "description": "Vertical lead-in", "tab": "Linking" },
+            "transitionType": { "type": "enum", "values": ["safe_retract", "direct", "minimal_lift"], "default": "safe_retract", "tab": "Linking" },
+            "stayDown": { "type": "boolean", "default": true, "description": "Minimize retracts", "tab": "Linking" }
+          },
+          "tool": {
+            "tool": { "type": "tool_reference", "required": true, "description": "Selected tool", "tab": "Tool" },
+            "spindleSpeed": { "type": "number", "unit": "rpm", "range": [1, 99999], "description": "Spindle RPM", "tab": "Tool" },
+            "rampSpindleSpeed": { "type": "number", "unit": "rpm", "description": "Spindle speed during ramping", "tab": "Tool" },
+            "surfaceSpeed": { "type": "number", "unit": "m/min", "range": [1, 9999], "description": "Surface speed (Vc)", "tab": "Tool" },
+            "cuttingFeedrate": { "type": "number", "unit": "mm/min", "range": [1, 99999], "description": "Cutting feed", "tab": "Tool" },
+            "feedPerTooth": { "type": "number", "unit": "mm/tooth", "range": [0.01, 2], "description": "Feed per tooth (fz)", "tab": "Tool" },
+            "leadInFeedrate": { "type": "number", "unit": "mm/min", "description": "Lead-in feed", "tab": "Tool" },
+            "leadOutFeedrate": { "type": "number", "unit": "mm/min", "description": "Lead-out feed", "tab": "Tool" },
+            "rampFeedrate": { "type": "number", "unit": "mm/min", "description": "Ramping feed", "tab": "Tool" },
+            "plungeFeedrate": { "type": "number", "unit": "mm/min", "description": "Plunge feed", "tab": "Tool" },
+            "coolant": { "type": "enum", "values": ["disabled", "flood", "mist", "through_tool", "air", "suction"], "default": "flood", "tab": "Tool" }
+          }
+        }
+      },
+
+      "contour_2d": {
+        "display_name": "2D Contour",
+        "category": "finishing",
+        "description": "Profile machining of 2D contours with compensation support",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "contours": { "type": "selection", "description": "Contours to machine", "tab": "Geometry", "required": true },
+            "side": { "type": "enum", "values": ["left", "right", "center"], "default": "right", "description": "Compensation side", "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "range": [-5, 10], "description": "Stock to leave (negative = overcut)", "tab": "Geometry" },
+            "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0, "range": [0, 10], "description": "Axial stock to leave", "tab": "Geometry" },
+            "chamferWidth": { "type": "number", "unit": "mm", "default": 0, "description": "Chamfer size if chamfer tool", "tab": "Geometry" }
+          },
+          "heights": {
+            "clearanceHeight": { "type": "number", "unit": "mm", "default": 25.4, "tab": "Heights" },
+            "retractHeight": { "type": "number", "unit": "mm", "default": 6.35, "tab": "Heights" },
+            "feedHeight": { "type": "number", "unit": "mm", "default": 2.54, "tab": "Heights" },
+            "topHeight": { "type": "number", "unit": "mm", "default": 0, "tab": "Heights" },
+            "bottomHeight": { "type": "number", "unit": "mm", "default": -25.4, "tab": "Heights" },
+            "bottomOffset": { "type": "number", "unit": "mm", "default": 0, "description": "Offset from bottom", "tab": "Heights" }
+          },
+          "passes": {
+            "multipleDepths": { "type": "boolean", "default": true, "description": "Multiple depth passes", "tab": "Passes" },
+            "maximumStepdown": { "type": "number", "unit": "mm", "description": "Max depth per pass", "tab": "Passes" },
+            "finishingStepdown": { "type": "number", "unit": "mm", "default": 0, "description": "Final pass depth", "tab": "Passes" },
+            "numberOfStepdowns": { "type": "integer", "description": "Fixed number of passes", "tab": "Passes" },
+            "compensationType": { "type": "enum", "values": ["computer", "control", "wear", "inverse_wear", "off"], "default": "computer", "tab": "Passes" },
+            "compensationDeltaRadius": { "type": "number", "unit": "mm", "default": 0, "description": "Radius adjustment", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+            "repeatPass": { "type": "boolean", "default": false, "description": "Spring pass", "tab": "Passes" }
+          },
+          "linking": {
+            "leadInType": { "type": "enum", "values": ["tangent_arc", "perpendicular_arc", "tangent_line", "perpendicular_line", "none"], "default": "tangent_arc", "tab": "Linking" },
+            "leadInRadius": { "type": "number", "unit": "mm", "description": "Lead-in arc radius", "tab": "Linking" },
+            "leadInDistance": { "type": "number", "unit": "mm", "description": "Lead-in line length", "tab": "Linking" },
+            "leadInSweep": { "type": "number", "unit": "deg", "default": 90, "range": [15, 180], "description": "Lead-in arc sweep", "tab": "Linking" },
+            "leadOutType": { "type": "enum", "values": ["tangent_arc", "perpendicular_arc", "tangent_line", "perpendicular_line", "none"], "default": "tangent_arc", "tab": "Linking" },
+            "leadOutRadius": { "type": "number", "unit": "mm", "tab": "Linking" },
+            "leadOutDistance": { "type": "number", "unit": "mm", "tab": "Linking" },
+            "leadOutSweep": { "type": "number", "unit": "deg", "default": 90, "tab": "Linking" },
+            "verticalLeadIn": { "type": "boolean", "default": false, "tab": "Linking" },
+            "rampType": { "type": "enum", "values": ["helix", "zigzag", "plunge"], "default": "helix", "tab": "Linking" }
+          },
+          "tool": {
+            "tool": { "type": "tool_reference", "required": true, "tab": "Tool" },
+            "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Tool" },
+            "surfaceSpeed": { "type": "number", "unit": "m/min", "tab": "Tool" },
+            "cuttingFeedrate": { "type": "number", "unit": "mm/min", "tab": "Tool" },
+            "feedPerTooth": { "type": "number", "unit": "mm/tooth", "tab": "Tool" },
+            "coolant": { "type": "enum", "values": ["disabled", "flood", "mist", "through_tool", "air", "suction"], "default": "flood", "tab": "Tool" }
+          }
+        }
+      },
+
+      "pocket_2d": {
+        "display_name": "2D Pocket",
+        "category": "roughing",
+        "description": "Traditional offset pocket clearing with multiple pattern options",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "contours": { "type": "selection", "required": true, "tab": "Geometry" },
+            "islands": { "type": "selection", "description": "Island boundaries", "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Geometry" },
+            "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Geometry" }
+          },
+          "passes": {
+            "pocketType": { "type": "enum", "values": ["zigzag", "one_way", "spiral", "morphed_spiral"], "default": "zigzag", "tab": "Passes" },
+            "stepover": { "type": "number", "unit": "percent", "default": 60, "range": [10, 100], "description": "WOC as % of tool diameter", "tab": "Passes" },
+            "multipleDepths": { "type": "boolean", "default": true, "tab": "Passes" },
+            "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "orderByDepth": { "type": "boolean", "default": true, "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+            "minimumStepover": { "type": "number", "unit": "mm", "default": 0.1, "description": "Minimum stepover in tight areas", "tab": "Passes" },
+            "smoothingDeviation": { "type": "number", "unit": "mm", "default": 0.01, "description": "Path smoothing tolerance", "tab": "Passes" }
+          }
+        }
+      },
+
+      "face_2d": {
+        "display_name": "Face",
+        "category": "roughing",
+        "description": "Top face surfacing with adjustable patterns",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "faceContour": { "type": "selection", "description": "Face boundary (stock if not specified)", "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+          },
+          "passes": {
+            "facingPattern": { "type": "enum", "values": ["zigzag", "one_way", "spiral"], "default": "zigzag", "tab": "Passes" },
+            "stepover": { "type": "number", "unit": "percent", "default": 75, "range": [50, 95], "tab": "Passes" },
+            "multipleDepths": { "type": "boolean", "default": false, "tab": "Passes" },
+            "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+            "faceAngle": { "type": "number", "unit": "deg", "default": 45, "range": [0, 90], "description": "Pattern rotation angle", "tab": "Passes" },
+            "passExtension": { "type": "number", "unit": "mm", "default": 0, "description": "Extend passes beyond boundary", "tab": "Passes" }
+          }
+        }
+      },
+
+      "slot_2d": {
+        "display_name": "Slot",
+        "category": "roughing",
+        "description": "Dedicated slot milling with trochoidal motion",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "slotContours": { "type": "selection", "required": true, "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+          },
+          "passes": {
+            "slotType": { "type": "enum", "values": ["center", "trochoidal", "offset"], "default": "trochoidal", "tab": "Passes" },
+            "trochoidalStepover": { "type": "number", "unit": "percent", "default": 10, "range": [5, 25], "tab": "Passes" },
+            "multipleDepths": { "type": "boolean", "default": true, "tab": "Passes" },
+            "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" }
+          }
+        }
+      },
+
+      "trace_2d": {
+        "display_name": "Trace",
+        "category": "finishing",
+        "description": "Follow 2D/3D curves for engraving or tracing",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "curves": { "type": "selection", "required": true, "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          },
+          "passes": {
+            "multipleDepths": { "type": "boolean", "default": false, "tab": "Passes" },
+            "depthIncrement": { "type": "number", "unit": "mm", "tab": "Passes" }
+          }
+        }
+      },
+
+      "engrave_2d": {
+        "display_name": "Engrave",
+        "category": "finishing",
+        "description": "Engraving text and logos with V-bits or ball mills",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "text": { "type": "string", "description": "Text to engrave", "tab": "Geometry" },
+            "font": { "type": "string", "description": "Font name", "tab": "Geometry" },
+            "textHeight": { "type": "number", "unit": "mm", "description": "Character height", "tab": "Geometry" },
+            "curves": { "type": "selection", "description": "Curves to engrave", "tab": "Geometry" }
+          },
+          "passes": {
+            "depth": { "type": "number", "unit": "mm", "description": "Engraving depth", "tab": "Passes" },
+            "multipleDepths": { "type": "boolean", "default": false, "tab": "Passes" }
+          }
+        }
+      },
+
+      "bore_2d": {
+        "display_name": "Bore",
+        "category": "holemaking",
+        "description": "Boring cycles for precision holes",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+        "parameters": {
+          "geometry": {
+            "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+            "holeDiameter": { "type": "number", "unit": "mm", "tab": "Geometry" }
+          },
+          "cycle": {
+            "cycleType": { "type": "enum", "values": ["boring", "fine_boring", "back_boring", "reaming"], "default": "boring", "tab": "Cycle" },
+            "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "description": "Dwell time at hole bottom", "tab": "Cycle" },
+            "retractAmount": { "type": "number", "unit": "mm", "default": 0, "description": "Retract before dwell", "tab": "Cycle" },
+            "orientationAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Spindle orientation", "tab": "Cycle" },
+            "shift": { "type": "number", "unit": "mm", "default": 0, "description": "Shift before retract", "tab": "Cycle" }
+          }
+        }
+      },
+
+      "circular_2d": {
+        "display_name": "Circular",
+        "category": "holemaking",
+        "description": "Circular pocket milling for large holes",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "holeCenters": { "type": "selection", "required": true, "tab": "Geometry" },
+            "diameter": { "type": "number", "unit": "mm", "required": true, "description": "Hole diameter", "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+          },
+          "passes": {
+            "stepover": { "type": "number", "unit": "percent", "default": 50, "tab": "Passes" },
+            "multipleDepths": { "type": "boolean", "default": true, "tab": "Passes" },
+            "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "helixEntry": { "type": "boolean", "default": true, "tab": "Passes" }
+          }
+        }
+      },
+
+      "thread_mill_2d": {
+        "display_name": "Thread Mill",
+        "category": "holemaking",
+        "description": "Thread milling for internal/external threads",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+        "parameters": {
+          "geometry": {
+            "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+            "threadType": { "type": "enum", "values": ["internal", "external"], "default": "internal", "tab": "Geometry" },
+            "threadPitch": { "type": "number", "unit": "mm", "required": true, "description": "Thread pitch", "tab": "Geometry" },
+            "majorDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" }
+          },
+          "cycle": {
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Cycle" },
+            "multiplePasses": { "type": "boolean", "default": false, "description": "Multiple radial passes", "tab": "Cycle" },
+            "numberOfPasses": { "type": "integer", "default": 1, "tab": "Cycle" },
+            "entryHelical": { "type": "boolean", "default": true, "tab": "Cycle" }
+          }
+        }
+      },
+
+      "chamfer_2d": {
+        "display_name": "Chamfer",
+        "category": "finishing",
+        "description": "Edge chamfering with chamfer mills",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes"],
+        "parameters": {
+          "geometry": {
+            "contours": { "type": "selection", "required": true, "tab": "Geometry" },
+            "chamferWidth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+            "chamferAngle": { "type": "number", "unit": "deg", "default": 45, "tab": "Geometry" }
+          },
+          "passes": {
+            "chamferTipOffset": { "type": "number", "unit": "mm", "default": 0, "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" }
+          }
+        }
+      }
+    },
+
+    "3d_milling": {
+      "adaptive_3d": {
+        "display_name": "Adaptive Clearing 3D",
+        "category": "roughing",
+        "description": "3D adaptive clearing with constant engagement on complex surfaces",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
+            "restSurfaces": { "type": "selection", "description": "Previous operation surfaces", "tab": "Geometry" },
+            "boundaryContours": { "type": "selection", "description": "Boundary limits", "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Geometry" },
+            "restMachining": { "type": "boolean", "default": false, "tab": "Geometry" }
+          },
+          "passes": {
+            "optimalLoad": { "type": "number", "unit": "percent", "default": 40, "range": [5, 50], "tab": "Passes" },
+            "maximumStepdown": { "type": "number", "unit": "mm", "description": "Max Z depth per pass", "tab": "Passes" },
+            "flatAreaMachining": { "type": "boolean", "default": true, "description": "Machine flat areas", "tab": "Passes" },
+            "bothWays": { "type": "boolean", "default": false, "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+            "useSlotClearing": { "type": "boolean", "default": true, "tab": "Passes" }
+          },
+          "linking": {
+            "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix", "tab": "Linking" },
+            "helixDiameter": { "type": "number", "unit": "percent", "default": 50, "tab": "Linking" },
+            "helixAngle": { "type": "number", "unit": "deg", "default": 2, "tab": "Linking" },
+            "transitionType": { "type": "enum", "values": ["safe_retract", "follow_surface"], "default": "safe_retract", "tab": "Linking" }
+          }
+        }
+      },
+
+      "pocket_clearing_3d": {
+        "display_name": "Pocket Clearing 3D",
+        "category": "roughing",
+        "description": "Traditional pocket clearing on 3D surfaces",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Geometry" }
+          },
+          "passes": {
+            "stepover": { "type": "number", "unit": "percent", "default": 60, "tab": "Passes" },
+            "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "pocketType": { "type": "enum", "values": ["zigzag", "spiral", "morphed_spiral"], "default": "zigzag", "tab": "Passes" }
+          }
+        }
+      },
+
+      "parallel_3d": {
+        "display_name": "Parallel",
+        "category": "finishing",
+        "description": "Constant Z parallel passes for finishing",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+            "checkSurfaces": { "type": "selection", "description": "Collision check surfaces", "tab": "Geometry" },
+            "boundaryContours": { "type": "selection", "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          },
+          "passes": {
+            "stepover": { "type": "number", "unit": "mm", "description": "Stepover distance", "tab": "Passes" },
+            "stepoverPercent": { "type": "number", "unit": "percent", "description": "Stepover as % of tool", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" },
+            "passDirection": { "type": "number", "unit": "deg", "default": 0, "range": [0, 360], "description": "Pass angle from X", "tab": "Passes" },
+            "wallTaper": { "type": "number", "unit": "deg", "default": 0, "description": "Draft angle", "tab": "Passes" },
+            "maxStepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "scallop": { "type": "number", "unit": "mm", "description": "Target scallop height", "tab": "Passes" }
+          }
+        }
+      },
+
+      "contour_3d": {
+        "display_name": "Contour 3D",
+        "category": "finishing",
+        "description": "Z-level contouring (waterline) machining",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+            "checkSurfaces": { "type": "selection", "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          },
+          "passes": {
+            "stepdown": { "type": "number", "unit": "mm", "description": "Z level step", "tab": "Passes" },
+            "scallop": { "type": "number", "unit": "mm", "description": "Max scallop height", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+            "orderByArea": { "type": "boolean", "default": true, "description": "Order passes by area", "tab": "Passes" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Passes" }
+          }
+        }
+      },
+
+      "scallop_3d": {
+        "display_name": "Scallop",
+        "category": "finishing",
+        "description": "Constant scallop height finishing",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          },
+          "passes": {
+            "scallop": { "type": "number", "unit": "mm", "required": true, "description": "Target scallop height", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" },
+            "spiralType": { "type": "enum", "values": ["inward", "outward"], "default": "outward", "tab": "Passes" }
+          }
+        }
+      },
+
+      "pencil_3d": {
+        "display_name": "Pencil",
+        "category": "finishing",
+        "description": "Rest machining in corners and fillets",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Geometry" }
+          },
+          "passes": {
+            "multipleDepths": { "type": "boolean", "default": true, "tab": "Passes" },
+            "stepdown": { "type": "number", "unit": "mm", "description": "Z step in corners", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" },
+            "minimumRadius": { "type": "number", "unit": "mm", "description": "Minimum corner radius to machine", "tab": "Passes" }
+          }
+        }
+      },
+
+      "radial_3d": {
+        "display_name": "Radial",
+        "category": "finishing",
+        "description": "Radial pattern for circular features",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "passes": {
+            "stepover": { "type": "number", "unit": "deg", "description": "Angular stepover", "tab": "Passes" },
+            "startAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Passes" },
+            "endAngle": { "type": "number", "unit": "deg", "default": 360, "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" }
+          }
+        }
+      },
+
+      "spiral_3d": {
+        "display_name": "Spiral",
+        "category": "finishing",
+        "description": "Spiral pattern for circular/dome features",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "passes": {
+            "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "spiralType": { "type": "enum", "values": ["inward", "outward"], "default": "outward", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" }
+          }
+        }
+      },
+
+      "morphed_spiral_3d": {
+        "display_name": "Morphed Spiral",
+        "category": "finishing",
+        "description": "Boundary-following spiral with blending",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "innerBoundary": { "type": "selection", "description": "Inner boundary contour", "tab": "Geometry" },
+            "outerBoundary": { "type": "selection", "description": "Outer boundary contour", "tab": "Geometry" }
+          },
+          "passes": {
+            "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "spiralType": { "type": "enum", "values": ["inward", "outward"], "default": "outward", "tab": "Passes" }
+          }
+        }
+      },
+
+      "steep_shallow_3d": {
+        "display_name": "Steep and Shallow",
+        "category": "finishing",
+        "description": "Combined strategy for complex surfaces - contour on steep, parallel on shallow",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          },
+          "passes": {
+            "thresholdAngle": { "type": "number", "unit": "deg", "default": 45, "range": [20, 70], "description": "Steep/shallow boundary angle", "tab": "Passes" },
+            "steepStepdown": { "type": "number", "unit": "mm", "description": "Z step for steep areas", "tab": "Passes" },
+            "shallowStepover": { "type": "number", "unit": "mm", "description": "Stepover for shallow areas", "tab": "Passes" },
+            "blendZone": { "type": "number", "unit": "deg", "default": 5, "description": "Blend transition zone", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" }
+          }
+        }
+      },
+
+      "horizontal_3d": {
+        "display_name": "Horizontal",
+        "category": "finishing",
+        "description": "Machine only flat/horizontal surfaces",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "passes": {
+            "horizontalThreshold": { "type": "number", "unit": "deg", "default": 5, "description": "Max angle from horizontal", "tab": "Passes" },
+            "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" }
+          }
+        }
+      },
+
+      "ramp_3d": {
+        "display_name": "Ramp",
+        "category": "roughing",
+        "description": "Ramping entry into 3D features",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+        "parameters": {
+          "passes": {
+            "rampAngle": { "type": "number", "unit": "deg", "default": 3, "range": [0.5, 15], "tab": "Passes" },
+            "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" }
+          }
+        }
+      }
+    },
+
+    "multi_axis": {
+      "swarf_5axis": {
+        "display_name": "Swarf",
+        "category": "multi_axis",
+        "description": "Side milling with tilting tool axis along ruled surfaces",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking", "Multi-Axis"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "description": "Ruled surfaces", "tab": "Geometry" },
+            "guideCurves": { "type": "selection", "description": "Tool axis guide curves", "tab": "Geometry" },
+            "checkSurfaces": { "type": "selection", "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          },
+          "passes": {
+            "stepover": { "type": "number", "unit": "mm", "description": "Axial stepover", "tab": "Passes" },
+            "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "climb", "tab": "Passes" }
+          },
+          "multi_axis": {
+            "toolAxisMode": { "type": "enum", "values": ["from_surface", "to_surface", "guide_curves", "tilted"], "default": "from_surface", "tab": "Multi-Axis" },
+            "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-15, 15], "description": "Lead/lag angle", "tab": "Multi-Axis" },
+            "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+            "sidewaysTilt": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+            "maximumTilt": { "type": "number", "unit": "deg", "default": 90, "description": "Max tool tilt from vertical", "tab": "Multi-Axis" },
+            "rotaryAxesLimits": { "type": "boolean", "default": true, "description": "Respect machine limits", "tab": "Multi-Axis" }
+          }
+        }
+      },
+
+      "contour_5axis": {
+        "display_name": "Multi-Axis Contour",
+        "category": "multi_axis",
+        "description": "5-axis profiling with controlled tool orientation",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking", "Multi-Axis"],
+        "parameters": {
+          "geometry": {
+            "curves": { "type": "selection", "required": true, "description": "Profile curves", "tab": "Geometry" },
+            "surfaces": { "type": "selection", "description": "Reference surfaces for orientation", "tab": "Geometry" },
+            "checkSurfaces": { "type": "selection", "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          },
+          "passes": {
+            "multipleDepths": { "type": "boolean", "default": false, "tab": "Passes" },
+            "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+            "compensation": { "type": "enum", "values": ["off", "left", "right"], "default": "off", "tab": "Passes" }
+          },
+          "multi_axis": {
+            "toolOrientation": { "type": "enum", "values": ["normal_to_surface", "parallel_to_surface", "inclined", "point_at_surface"], "default": "normal_to_surface", "tab": "Multi-Axis" },
+            "inclinationAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-90, 90], "tab": "Multi-Axis" },
+            "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+            "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+            "smoothing": { "type": "boolean", "default": true, "description": "Smooth axis transitions", "tab": "Multi-Axis" }
+          }
+        }
+      },
+
+      "flow_5axis": {
+        "display_name": "Flow",
+        "category": "multi_axis",
+        "description": "UV-based machining following surface flow lines",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking", "Multi-Axis"],
+        "parameters": {
+          "geometry": {
+            "surfaces": { "type": "selection", "required": true, "description": "Surfaces with UV parameterization", "tab": "Geometry" },
+            "checkSurfaces": { "type": "selection", "tab": "Geometry" },
+            "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+          },
+          "passes": {
+            "stepover": { "type": "number", "unit": "mm", "description": "Cross-flow stepover", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["along_U", "along_V", "both"], "default": "along_U", "description": "Flow direction", "tab": "Passes" },
+            "bothWays": { "type": "boolean", "default": true, "tab": "Passes" }
+          },
+          "multi_axis": {
+            "toolOrientation": { "type": "enum", "values": ["normal", "tilted", "point_control"], "default": "normal", "tab": "Multi-Axis" },
+            "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+            "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+            "minimumRadius": { "type": "number", "unit": "mm", "description": "Min curvature radius", "tab": "Multi-Axis" }
+          }
+        }
+      }
+    },
+
+    "turning": {
+      "profile_roughing": {
+        "display_name": "Profile Roughing",
+        "category": "turning_roughing",
+        "description": "OD/ID roughing with multiple depth cuts",
+        "dialog_tabs": ["Tool", "Geometry", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "profileContour": { "type": "selection", "required": true, "description": "Profile to rough", "tab": "Geometry" },
+            "turningMode": { "type": "enum", "values": ["external", "internal"], "default": "external", "tab": "Geometry" },
+            "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "description": "Radial stock", "tab": "Geometry" },
+            "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.2, "description": "Axial stock", "tab": "Geometry" }
+          },
+          "passes": {
+            "depthOfCut": { "type": "number", "unit": "mm", "description": "Radial DOC", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["forward", "reverse"], "default": "forward", "tab": "Passes" },
+            "cuttingStrategy": { "type": "enum", "values": ["constant_depth", "constant_chip_load", "adaptive"], "default": "constant_depth", "tab": "Passes" },
+            "finishingPass": { "type": "boolean", "default": false, "tab": "Passes" },
+            "finishingStockRadial": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Passes" }
+          },
+          "tool": {
+            "tool": { "type": "tool_reference", "required": true, "tab": "Tool" },
+            "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Tool" },
+            "surfaceSpeed": { "type": "number", "unit": "m/min", "tab": "Tool" },
+            "feedPerRevolution": { "type": "number", "unit": "mm/rev", "tab": "Tool" },
+            "coolant": { "type": "enum", "values": ["disabled", "flood", "mist", "through_tool"], "default": "flood", "tab": "Tool" }
+          }
+        }
+      },
+
+      "profile_finishing": {
+        "display_name": "Profile Finishing",
+        "category": "turning_finishing",
+        "description": "OD/ID finish turning with spring passes",
+        "dialog_tabs": ["Tool", "Geometry", "Passes", "Linking"],
+        "parameters": {
+          "geometry": {
+            "profileContour": { "type": "selection", "required": true, "tab": "Geometry" },
+            "turningMode": { "type": "enum", "values": ["external", "internal"], "default": "external", "tab": "Geometry" }
+          },
+          "passes": {
+            "numberOfPasses": { "type": "integer", "default": 1, "range": [1, 5], "tab": "Passes" },
+            "stockPerPass": { "type": "number", "unit": "mm", "description": "Radial stock per pass", "tab": "Passes" },
+            "springPass": { "type": "boolean", "default": true, "description": "Zero-stock final pass", "tab": "Passes" },
+            "direction": { "type": "enum", "values": ["forward", "reverse"], "default": "forward", "tab": "Passes" }
+          }
+        }
+      },
+
+      "facing": {
+        "display_name": "Face",
+        "category": "turning_roughing",
+        "description": "Face turning operations",
+        "dialog_tabs": ["Tool", "Geometry", "Passes"],
+        "parameters": {
+          "geometry": {
+            "faceDiameter": { "type": "number", "unit": "mm", "description": "Face OD", "tab": "Geometry" },
+            "centerDiameter": { "type": "number", "unit": "mm", "default": 0, "description": "Face ID (0 = center)", "tab": "Geometry" }
+          },
+          "passes": {
+            "depthOfCut": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "numberOfPasses": { "type": "integer", "default": 1, "tab": "Passes" }
+          }
+        }
+      },
+
+      "grooving": {
+        "display_name": "Groove",
+        "category": "turning_grooving",
+        "description": "External/internal/face grooving",
+        "dialog_tabs": ["Tool", "Geometry", "Passes"],
+        "parameters": {
+          "geometry": {
+            "grooveType": { "type": "enum", "values": ["external", "internal", "face"], "default": "external", "tab": "Geometry" },
+            "grooveWidth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+            "grooveDepth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+            "groovePosition": { "type": "number", "unit": "mm", "description": "Z position", "tab": "Geometry" }
+          },
+          "passes": {
+            "plungeMethod": { "type": "enum", "values": ["single_plunge", "multiple_plunge", "zigzag"], "default": "multiple_plunge", "tab": "Passes" },
+            "depthPerPlunge": { "type": "number", "unit": "mm", "tab": "Passes" },
+            "stepover": { "type": "number", "unit": "mm", "description": "Axial stepover", "tab": "Passes" },
+            "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Passes" }
+          }
+        }
+      },
+
+      "threading": {
+        "display_name": "Thread",
+        "category": "turning_threading",
+        "description": "Single-point threading",
+        "dialog_tabs": ["Tool", "Geometry", "Passes"],
+        "parameters": {
+          "geometry": {
+            "threadType": { "type": "enum", "values": ["external", "internal"], "default": "external", "tab": "Geometry" },
+            "threadForm": { "type": "enum", "values": ["metric", "unified", "whitworth", "npt", "acme", "buttress"], "default": "metric", "tab": "Geometry" },
+            "pitch": { "type": "number", "unit": "mm", "required": true, "description": "Thread pitch", "tab": "Geometry" },
+            "majorDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+            "threadLength": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+            "threadAngle": { "type": "number", "unit": "deg", "default": 60, "description": "Thread flank angle", "tab": "Geometry" },
+            "numberOfStarts": { "type": "integer", "default": 1, "description": "Multi-start threads", "tab": "Geometry" }
+          },
+          "passes": {
+            "infeedMethod": { "type": "enum", "values": ["radial", "flank", "modified_flank", "alternating"], "default": "modified_flank", "tab": "Passes" },
+            "numberOfPasses": { "type": "integer", "range": [1, 50], "description": "Threading passes", "tab": "Passes" },
+            "firstCutDepth": { "type": "number", "unit": "mm", "description": "First pass depth", "tab": "Passes" },
+            "lastCutDepth": { "type": "number", "unit": "mm", "description": "Final pass depth", "tab": "Passes" },
+            "springPasses": { "type": "integer", "default": 1, "description": "Zero-cut spring passes", "tab": "Passes" },
+            "threadChamfer": { "type": "boolean", "default": true, "description": "Chamfer thread start", "tab": "Passes" }
+          }
+        }
+      },
+
+      "parting": {
+        "display_name": "Part",
+        "category": "turning_parting",
+        "description": "Part-off / cutoff operation",
+        "dialog_tabs": ["Tool", "Geometry", "Passes"],
+        "parameters": {
+          "geometry": {
+            "partingPosition": { "type": "number", "unit": "mm", "required": true, "description": "Z cutoff position", "tab": "Geometry" },
+            "stockDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+            "centerDiameter": { "type": "number", "unit": "mm", "default": 0, "description": "ID or 0 for solid", "tab": "Geometry" }
+          },
+          "passes": {
+            "feedReduction": { "type": "number", "unit": "percent", "default": 50, "description": "Feed reduction at center", "tab": "Passes" },
+            "reductionDiameter": { "type": "number", "unit": "mm", "description": "Start feed reduction", "tab": "Passes" },
+            "pecking": { "type": "boolean", "default": false, "description": "Peck parting", "tab": "Passes" },
+            "peckDepth": { "type": "number", "unit": "mm", "description": "Peck depth if enabled", "tab": "Passes" }
+          }
+        }
+      },
+
+      "drilling_turning": {
+        "display_name": "Drill (Turning)",
+        "category": "turning_holemaking",
+        "description": "Center drilling and axial drilling on lathe",
+        "dialog_tabs": ["Tool", "Geometry", "Cycle"],
+        "parameters": {
+          "geometry": {
+            "holeDepth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" }
+          },
+          "cycle": {
+            "cycleType": { "type": "enum", "values": ["drilling", "peck_drilling", "chip_breaking", "reaming", "tapping"], "default": "drilling", "tab": "Cycle" },
+            "peckDepth": { "type": "number", "unit": "mm", "description": "Peck increment", "tab": "Cycle" },
+            "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+          }
+        }
+      }
+    },
+
+    "drilling": {
+      "drill": {
+        "display_name": "Drill",
+        "category": "holemaking",
+        "description": "Basic drilling cycle (G81)",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+        "parameters": {
+          "geometry": {
+            "holes": { "type": "selection", "required": true, "description": "Hole positions", "tab": "Geometry" },
+            "selectSameDiameter": { "type": "boolean", "default": true, "tab": "Geometry" }
+          },
+          "cycle": {
+            "cycleType": { "type": "enum", "values": ["drilling", "counter_boring"], "default": "drilling", "tab": "Cycle" },
+            "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+          },
+          "heights": {
+            "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+            "retractHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+            "feedHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+            "bottomHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+            "tipThrough": { "type": "boolean", "default": false, "description": "Tip breaks through", "tab": "Heights" },
+            "tipThroughAmount": { "type": "number", "unit": "mm", "description": "Amount past bottom", "tab": "Heights" }
+          }
+        }
+      },
+
+      "peck_drill": {
+        "display_name": "Peck Drill",
+        "category": "holemaking",
+        "description": "Deep hole drilling with pecking (G83)",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+        "parameters": {
+          "cycle": {
+            "peckDepth": { "type": "number", "unit": "mm", "required": true, "description": "Peck increment", "tab": "Cycle" },
+            "peckDepthReduction": { "type": "number", "unit": "percent", "default": 0, "description": "Reduction per peck", "tab": "Cycle" },
+            "minimumPeckDepth": { "type": "number", "unit": "mm", "description": "Minimum peck", "tab": "Cycle" },
+            "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+            "retractType": { "type": "enum", "values": ["full_retract", "partial_retract"], "default": "full_retract", "tab": "Cycle" },
+            "retractAmount": { "type": "number", "unit": "mm", "description": "Partial retract amount", "tab": "Cycle" }
+          }
+        }
+      },
+
+      "chip_breaking": {
+        "display_name": "Chip Breaking",
+        "category": "holemaking",
+        "description": "High-speed peck drilling (G73)",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+        "parameters": {
+          "cycle": {
+            "peckDepth": { "type": "number", "unit": "mm", "required": true, "tab": "Cycle" },
+            "backoffAmount": { "type": "number", "unit": "mm", "default": 0.25, "description": "Chip break retract", "tab": "Cycle" }
+          }
+        }
+      },
+
+      "tapping": {
+        "display_name": "Tap",
+        "category": "holemaking",
+        "description": "Rigid or floating tap cycles",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+        "parameters": {
+          "geometry": {
+            "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+            "threadPitch": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" }
+          },
+          "cycle": {
+            "tapType": { "type": "enum", "values": ["right_hand", "left_hand"], "default": "right_hand", "tab": "Cycle" },
+            "rigidTapping": { "type": "boolean", "default": true, "tab": "Cycle" },
+            "chipBreaking": { "type": "boolean", "default": false, "tab": "Cycle" },
+            "peckDepth": { "type": "number", "unit": "mm", "description": "Peck if chip breaking", "tab": "Cycle" }
+          }
+        }
+      },
+
+      "spot_drill": {
+        "display_name": "Spot Drill",
+        "category": "holemaking",
+        "description": "Center/spot drilling for hole starts",
+        "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+        "parameters": {
+          "cycle": {
+            "spotDiameter": { "type": "number", "unit": "mm", "description": "Resulting spot diameter", "tab": "Cycle" },
+            "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+          }
+        }
+      }
+    },
+
+    "probing": {
+      "probe_geometry": {
+        "display_name": "Probe Geometry",
+        "category": "probing",
+        "description": "Measure part geometry for verification",
+        "dialog_tabs": ["Probe", "Geometry", "Output"],
+        "parameters": {
+          "geometry": {
+            "probeType": { "type": "enum", "values": ["point", "line", "plane", "circle", "sphere", "cylinder"], "default": "point", "tab": "Geometry" },
+            "probePoints": { "type": "selection", "description": "Points to probe", "tab": "Geometry" },
+            "approachDirection": { "type": "enum", "values": ["x_plus", "x_minus", "y_plus", "y_minus", "z_minus"], "default": "z_minus", "tab": "Geometry" }
+          },
+          "output": {
+            "printResults": { "type": "boolean", "default": true, "tab": "Output" },
+            "outputVariable": { "type": "string", "description": "G-code variable name", "tab": "Output" },
+            "tolerance": { "type": "number", "unit": "mm", "description": "Pass/fail tolerance", "tab": "Output" },
+            "outOfTolerance": { "type": "enum", "values": ["alarm", "warning", "continue"], "default": "alarm", "tab": "Output" }
+          }
+        }
+      },
+
+      "probe_surface": {
+        "display_name": "Probe Surface",
+        "category": "probing",
+        "description": "Probe surface point or Z height",
+        "dialog_tabs": ["Probe", "Geometry", "Output"],
+        "parameters": {
+          "geometry": {
+            "probePosition": { "type": "point", "required": true, "description": "XY probe position", "tab": "Geometry" },
+            "expectedZ": { "type": "number", "unit": "mm", "description": "Expected Z value", "tab": "Geometry" }
+          },
+          "output": {
+            "updateWorkOffset": { "type": "boolean", "default": false, "description": "Update WCS Z", "tab": "Output" },
+            "workOffset": { "type": "enum", "values": ["G54", "G55", "G56", "G57", "G58", "G59"], "default": "G54", "tab": "Output" }
+          }
+        }
+      },
+
+      "probe_work_offset": {
+        "display_name": "Probe Work Offset",
+        "category": "probing",
+        "description": "Establish work coordinate system from probing",
+        "dialog_tabs": ["Probe", "Geometry", "Output"],
+        "parameters": {
+          "geometry": {
+            "probeSequence": { "type": "enum", "values": ["x_then_y", "corner", "bore", "boss", "web_pocket"], "default": "corner", "tab": "Geometry" },
+            "cornerType": { "type": "enum", "values": ["inside", "outside"], "default": "outside", "tab": "Geometry" }
+          },
+          "output": {
+            "workOffset": { "type": "enum", "values": ["G54", "G55", "G56", "G57", "G58", "G59", "G54.1 P1", "G54.1 P2"], "default": "G54", "tab": "Output" },
+            "updateX": { "type": "boolean", "default": true, "tab": "Output" },
+            "updateY": { "type": "boolean", "default": true, "tab": "Output" },
+            "updateZ": { "type": "boolean", "default": false, "tab": "Output" }
+          }
+        }
+      }
+    }
+  },
+
+  "hsmworks_c_api": {
+    "version_info": {
+      "HSMWorks_getVersion": {
+        "signature": "unsigned int HSMWorks_getVersion(unsigned int* major, unsigned int* minor, unsigned int* micro, unsigned int* build)",
+        "description": "Returns HSMWorks version numbers",
+        "parameters": {
+          "major": { "type": "unsigned int*", "direction": "out" },
+          "minor": { "type": "unsigned int*", "direction": "out" },
+          "micro": { "type": "unsigned int*", "direction": "out" },
+          "build": { "type": "unsigned int*", "direction": "out" }
+        }
+      },
+      "HSMWorks_dummy": {
+        "signature": "unsigned int HSMWorks_dummy()",
+        "description": "Returns a counter for API verification"
+      }
+    },
+
+    "settings": {
+      "HSMWorks_setBoolSetting": {
+        "signature": "unsigned int HSMWorks_setBoolSetting(IUnknown* document, const char* name, bool value)",
+        "description": "Set boolean setting (DISTRIBUTED_CAM, SILENT)",
+        "available_settings": ["DISTRIBUTED_CAM", "SILENT"]
+      },
+      "HSMWorks_setIntSetting": {
+        "signature": "unsigned int HSMWorks_setIntSetting(IUnknown* document, const char* name, int value)",
+        "description": "Set integer setting"
+      },
+      "HSMWorks_setDoubleSetting": {
+        "signature": "unsigned int HSMWorks_setDoubleSetting(IUnknown* document, const char* name, double value)",
+        "description": "Set double setting"
+      },
+      "HSMWorks_writeAPILog": {
+        "signature": "unsigned int HSMWorks_writeAPILog(bool enable)",
+        "description": "Enable/disable API logging to %LOCALAPPDATA%/Temp/HSMWorks/api.log"
+      }
+    },
+
+    "document_management": {
+      "HSMWorks_clearAll": {
+        "signature": "unsigned int HSMWorks_clearAll(IUnknown* document)",
+        "description": "Clears all toolpath from document"
+      },
+      "HSMWorks_regenerateAll": {
+        "signature": "unsigned int HSMWorks_regenerateAll(IUnknown* document, bool waitForTasks)",
+        "description": "Regenerate all toolpath, optionally waiting for completion"
+      },
+      "HSMWorks_dump": {
+        "signature": "unsigned int HSMWorks_dump(IUnknown* document)",
+        "description": "Dumps COM interfaces to debugger"
+      }
+    },
+
+    "object_management": {
+      "HSMWorks_getObjects": {
+        "signature": "unsigned int HSMWorks_getObjects(IUnknown* document, unsigned int* ids, unsigned int* size)",
+        "description": "Get all HSMWorks object IDs"
+      },
+      "HSMWorks_getChildObjects": {
+        "signature": "unsigned int HSMWorks_getChildObjects(IUnknown* document, unsigned int id, bool recurse, unsigned int* ids, unsigned int* size)",
+        "description": "Get child objects of given object"
+      },
+      "HSMWorks_getParentObject": {
+        "signature": "unsigned int HSMWorks_getParentObject(IUnknown* document, unsigned int id, unsigned int* parentId)",
+        "description": "Get parent object ID"
+      },
+      "HSMWorks_getJobObjects": {
+        "signature": "unsigned int HSMWorks_getJobObjects(IUnknown* document, unsigned int* ids, unsigned int* size)",
+        "description": "Get all job object IDs"
+      },
+      "HSMWorks_isObject": {
+        "signature": "unsigned int HSMWorks_isObject(IUnknown* document, unsigned int id)",
+        "description": "Check if ID is valid object"
+      },
+      "HSMWorks_isJob": {
+        "signature": "unsigned int HSMWorks_isJob(IUnknown* document, unsigned int id)",
+        "description": "Check if object is a job"
+      },
+      "HSMWorks_isFolder": {
+        "signature": "unsigned int HSMWorks_isFolder(IUnknown* document, unsigned int id)",
+        "description": "Check if object is a folder"
+      },
+      "HSMWorks_isPattern": {
+        "signature": "unsigned int HSMWorks_isPattern(IUnknown* document, unsigned int id)",
+        "description": "Check if object is a pattern"
+      },
+      "HSMWorks_isToolpathObject": {
+        "signature": "unsigned int HSMWorks_isToolpathObject(IUnknown* document, unsigned int id)",
+        "description": "Check if object is a toolpath operation"
+      },
+      "HSMWorks_isDefault": {
+        "signature": "unsigned int HSMWorks_isDefault(IUnknown* document, unsigned int id)",
+        "description": "Check if container is default"
+      },
+      "HSMWorks_getDefaultContainer": {
+        "signature": "unsigned int HSMWorks_getDefaultContainer(IUnknown* document, unsigned int* objectId)",
+        "description": "Get default container object ID"
+      },
+      "HSMWorks_makeDefault": {
+        "signature": "unsigned int HSMWorks_makeDefault(IUnknown* document, unsigned int id)",
+        "description": "Make container the default"
+      },
+      "HSMWorks_removeObject": {
+        "signature": "unsigned int HSMWorks_removeObject(IUnknown* document, unsigned int id)",
+        "description": "Remove specified object"
+      },
+      "HSMWorks_createObject": {
+        "signature": "unsigned int HSMWorks_createObject(IUnknown* document, const wchar_t* description, const wchar_t* strategy, int containerId, unsigned int* objectId)",
+        "description": "Create new toolpath object"
+      },
+      "HSMWorks_createObject2": {
+        "signature": "unsigned int HSMWorks_createObject2(IUnknown* document, const wchar_t* description, const wchar_t* strategy, int containerId, bool silent, unsigned int* objectId)",
+        "description": "Create new toolpath object with silent option"
+      },
+      "HSMWorks_createJob": {
+        "signature": "unsigned int HSMWorks_createJob(IUnknown* document, const wchar_t* description, unsigned int* objectId)",
+        "description": "Create new job"
+      }
+    },
+
+    "object_properties": {
+      "HSMWorks_getObjectId": {
+        "signature": "unsigned int HSMWorks_getObjectId(IUnknown* document, const wchar_t* description, unsigned int* objectId)",
+        "description": "Get object ID by description"
+      },
+      "HSMWorks_getObjectDescription": {
+        "signature": "unsigned int HSMWorks_getObjectDescription(IUnknown* document, unsigned int id, wchar_t* description, unsigned int size)",
+        "description": "Get object description"
+      },
+      "HSMWorks_setObjectDescription": {
+        "signature": "unsigned int HSMWorks_setObjectDescription(IUnknown* document, unsigned int id, const wchar_t* description)",
+        "description": "Set object description"
+      },
+      "HSMWorks_getObjectNotes": {
+        "signature": "unsigned int HSMWorks_getObjectNotes(IUnknown* document, unsigned int id, wchar_t* notes, unsigned int size)",
+        "description": "Get object notes"
+      },
+      "HSMWorks_setObjectNotes": {
+        "signature": "unsigned int HSMWorks_setObjectNotes(IUnknown* document, unsigned int id, const wchar_t* notes)",
+        "description": "Set object notes"
+      },
+      "HSMWorks_getObjectLog": {
+        "signature": "unsigned int HSMWorks_getObjectLog(IUnknown* document, unsigned int id, wchar_t* log, unsigned int* size)",
+        "description": "Get object log"
+      },
+      "HSMWorks_getObjectPath": {
+        "signature": "unsigned int HSMWorks_getObjectPath(IUnknown* document, unsigned int id, wchar_t* value, unsigned int size)",
+        "description": "Get object path in CAM manager"
+      },
+      "HSMWorks_isObjectDirty": {
+        "signature": "unsigned int HSMWorks_isObjectDirty(IUnknown* document, unsigned int id)",
+        "description": "Check if object needs regeneration"
+      },
+      "HSMWorks_hasObjectWarning": {
+        "signature": "unsigned int HSMWorks_hasObjectWarning(IUnknown* document, unsigned int id)",
+        "description": "Check if object has warnings"
+      }
+    },
+
+    "object_state": {
+      "HSMWorks_isSelected": {
+        "signature": "unsigned int HSMWorks_isSelected(IUnknown* document, unsigned int id)",
+        "description": "Check if object is selected"
+      },
+      "HSMWorks_setSelected": {
+        "signature": "unsigned int HSMWorks_setSelected(IUnknown* document, unsigned int id, bool selected)",
+        "description": "Set object selection state"
+      },
+      "HSMWorks_isProtected": {
+        "signature": "unsigned int HSMWorks_isProtected(IUnknown* document, unsigned int id)",
+        "description": "Check if object is protected"
+      },
+      "HSMWorks_setProtected": {
+        "signature": "unsigned int HSMWorks_setProtected(IUnknown* document, unsigned int id, bool protected)",
+        "description": "Set object protection state"
+      },
+      "HSMWorks_isOptional": {
+        "signature": "unsigned int HSMWorks_isOptional(IUnknown* document, unsigned int id)",
+        "description": "Check if object is optional"
+      },
+      "HSMWorks_setOptional": {
+        "signature": "unsigned int HSMWorks_setOptional(IUnknown* document, unsigned int id, bool optional)",
+        "description": "Set object optional state"
+      }
+    },
+
+    "parameters": {
+      "HSMWorks_getDocumentParameter": {
+        "signature": "unsigned int HSMWorks_getDocumentParameter(IUnknown* document, const wchar_t* name, wchar_t* value, unsigned int size)",
+        "description": "Get document-level parameter"
+      },
+      "HSMWorks_getJobParameter": {
+        "signature": "unsigned int HSMWorks_getJobParameter(IUnknown* document, unsigned int id, const wchar_t* name, wchar_t* value, unsigned int size)",
+        "description": "Get job parameter",
+        "available_parameters": ["type", "comment", "machineId", "machine", "postProcessor", "setupSheet", "programName", "programComment", "workOffset", "probeWorkOffset", "multipleWorkOffsets", "numberOfWorkDuplicates", "workOffsetIncrement"]
+      },
+      "HSMWorks_getObjectParameter": {
+        "signature": "unsigned int HSMWorks_getObjectParameter(IUnknown* document, unsigned int id, const wchar_t* name, wchar_t* value, unsigned int size)",
+        "description": "Get operation parameter (use dump.cps to see available parameters)"
+      },
+      "HSMWorks_setObjectParameter": {
+        "signature": "unsigned int HSMWorks_setObjectParameter(IUnknown* document, unsigned int id, const wchar_t* name, const wchar_t* value)",
+        "description": "Set operation parameter",
+        "examples": ["tolerance", "maximumStepdown", "optimalLoad"]
+      }
+    },
+
+    "geometry": {
+      "HSMWorks_setObjectGeometry": {
+        "signature": "unsigned int HSMWorks_setObjectGeometry(IUnknown* document, unsigned int id, const wchar_t* name, IUnknown** ids, unsigned int size)",
+        "description": "Set geometry for object",
+        "geometry_types": {
+          "jobs": ["surfaces", "fixture", "stock"],
+          "operations": ["holes", "centers", "surfaces", "check surfaces", "entry points", "drill positions", "contours", "machining boundaries", "stock boundaries", "rest surfaces"]
+        }
+      },
+      "HSMWorks_setObjectGeometry2": {
+        "signature": "unsigned int HSMWorks_setObjectGeometry2(IUnknown* document, unsigned int id, const wchar_t* name, IUnknown** ids, const unsigned int* flags, unsigned int size)",
+        "description": "Set geometry with flags",
+        "flags": ["FLAG_REVERSE", "FLAG_CHAIN_ALONG_Z", "FLAG_CHAIN_TANGENT", "FLAG_CHAIN_RADIALLY", "FLAG_SELECT_SAME_DIAMETER"]
+      },
+      "HSMWorks_getObjectGeometry": {
+        "signature": "unsigned int HSMWorks_getObjectGeometry(IUnknown* document, unsigned int id, const wchar_t* name, IUnknown** ids, unsigned int* flags, unsigned int* size)",
+        "description": "Get geometry from object"
+      }
+    },
+
+    "tools": {
+      "HSMWorks_setObjectToolById": {
+        "signature": "unsigned int HSMWorks_setObjectToolById(IUnknown* document, unsigned int id, const wchar_t* toolId)",
+        "description": "Set tool by GUID"
+      },
+      "HSMWorks_getObjectToolId": {
+        "signature": "unsigned int HSMWorks_getObjectToolId(IUnknown* document, unsigned int id, wchar_t* toolId, unsigned int size)",
+        "description": "Get tool GUID"
+      },
+      "HSMWorks_getNumberOfTools": {
+        "signature": "unsigned int HSMWorks_getNumberOfTools(IUnknown* document, unsigned int* numberOfTools)",
+        "description": "Get number of tools in document"
+      },
+      "HSMWorks_getToolIdByIndex": {
+        "signature": "unsigned int HSMWorks_getToolIdByIndex(IUnknown* document, unsigned int index, wchar_t* toolId, unsigned int size)",
+        "description": "Get tool GUID by index"
+      },
+      "HSMWorks_getToolIdByNumber": {
+        "signature": "unsigned int HSMWorks_getToolIdByNumber(IUnknown* document, unsigned int number, wchar_t* toolId, unsigned int size)",
+        "description": "Get tool GUID by tool number"
+      },
+      "HSMWorks_hasToolId": {
+        "signature": "unsigned int HSMWorks_hasToolId(IUnknown* document, const wchar_t* toolId)",
+        "description": "Check if tool exists"
+      },
+      "HSMWorks_importToolById": {
+        "signature": "unsigned int HSMWorks_importToolById(IUnknown* document, const wchar_t* toolId, const wchar_t* libraryPath)",
+        "description": "Import tool from library"
+      }
+    },
+
+    "wcs": {
+      "HSMWorks_setJobWCS": {
+        "signature": "unsigned int HSMWorks_setJobWCS(IUnknown* document, unsigned int id, const wchar_t* originMode, const wchar_t* orientationMode, IUnknown* originId, IUnknown* orientationId)",
+        "description": "Set job WCS",
+        "origin_modes": ["center", "bottom center", "top center", "bottom 1", "bottom 2", "bottom 3", "bottom 4", "top 1", "top 2", "top 3", "top 4"],
+        "orientation_modes": ["originAndOrientation", "coordinateSystem", "orientation", "modelAndOrientation"]
+      },
+      "HSMWorks_getJobWCS": {
+        "signature": "unsigned int HSMWorks_getJobWCS(IUnknown* document, unsigned int id, double (&frame)[16])",
+        "description": "Get job WCS as 4x4 matrix (row-major, mm)"
+      },
+      "HSMWorks_setObjectToolView": {
+        "signature": "unsigned int HSMWorks_setObjectToolView(IUnknown* document, unsigned int id, const wchar_t* viewSelectionMode, IUnknown* originId, IUnknown* orientationId)",
+        "description": "Set operation tool view"
+      },
+      "HSMWorks_getObjectToolView": {
+        "signature": "unsigned int HSMWorks_getObjectToolView(IUnknown* document, unsigned int id, double (&frame)[16])",
+        "description": "Get operation tool view as 4x4 matrix"
+      }
+    },
+
+    "task_management": {
+      "HSMWorks_updateOperationManager": {
+        "signature": "unsigned int HSMWorks_updateOperationManager(IUnknown* document)",
+        "description": "Refresh operation manager UI"
+      },
+      "HSMWorks_checkTasks": {
+        "signature": "unsigned int HSMWorks_checkTasks(IUnknown* document)",
+        "description": "Check if all tasks are complete"
+      },
+      "HSMWorks_abortAllTasks": {
+        "signature": "unsigned int HSMWorks_abortAllTasks(IUnknown* document)",
+        "description": "Abort all running tasks"
+      },
+      "HSMWorks_checkAllToolpath": {
+        "signature": "unsigned int HSMWorks_checkAllToolpath(IUnknown* document)",
+        "description": "Check all toolpath validity"
+      }
+    },
+
+    "export_and_post": {
+      "HSMWorks_exportAll": {
+        "signature": "unsigned int HSMWorks_exportAll(IUnknown* document, const wchar_t* path)",
+        "description": "Export all toolpath to CNC format"
+      },
+      "HSMWorks_export": {
+        "signature": "unsigned int HSMWorks_export(IUnknown* document, unsigned int id, const wchar_t* path)",
+        "description": "Export specific object to CNC format"
+      },
+      "HSMWorks_postProcess": {
+        "signature": "unsigned int HSMWorks_postProcess(IUnknown* document, unsigned int id, unsigned int unit, const char* properties, const wchar_t* configPath, const wchar_t* outputPath, HSMWorks_Progress progress, void* context)",
+        "description": "Post process toolpath to NC",
+        "unit_values": {"0": "inches", "1": "mm"}
+      }
+    },
+
+    "toolpath_generation": {
+      "HSMWorks_setToolpath": {
+        "signature": "unsigned int HSMWorks_setToolpath(IUnknown* document, unsigned int id, HSMWorks_CreateToolpath* toolpath, void* context)",
+        "description": "Set custom toolpath via callback"
+      },
+      "HSMWorks_onOpen": { "description": "Start toolpath definition" },
+      "HSMWorks_onTool": { "description": "Set tool for toolpath" },
+      "HSMWorks_onContext": { "description": "Set tool view context" },
+      "HSMWorks_onSection": { "description": "Start toolpath section" },
+      "HSMWorks_onSectionEnd": { "description": "End toolpath section" },
+      "HSMWorks_onClose": { "description": "Complete toolpath definition" },
+      "HSMWorks_onRapid": { "description": "Add rapid move" },
+      "HSMWorks_onLinear": { "description": "Add linear move with feedrate" },
+      "HSMWorks_onCircular": { "description": "Add circular move" },
+      "HSMWorks_onRapid5D": { "description": "Add 5-axis rapid move" },
+      "HSMWorks_onLinear5D": { "description": "Add 5-axis linear move" },
+      "HSMWorks_onDwell": { "description": "Add dwell" },
+      "HSMWorks_onSpindleSpeed": { "description": "Set spindle speed" }
+    },
+
+    "statistics": {
+      "HSMWorks_getToolpathStats": {
+        "signature": "unsigned int HSMWorks_getToolpathStats(IUnknown* document, unsigned int id, HSMWorks_ToolpathStatsControls* controls, HSMWorks_ToolpathStats* stats)",
+        "description": "Get toolpath statistics",
+        "stats_fields": {
+          "leadDistance": "mm",
+          "cuttingDistance": "mm",
+          "rapidDistance": "mm",
+          "linearDistance": "mm",
+          "circularDistance": "mm",
+          "feedTime": "min",
+          "dwellingTime": "s",
+          "spindleSpeedMin": "rpm",
+          "spindleSpeedMax": "rpm",
+          "feedrateMin": "mm/min",
+          "feedrateMax": "mm/min",
+          "numberOfToolChanges": "count"
+        }
+      }
+    },
+
+    "status_codes": {
+      "STATUS_OK": { "value": 0, "description": "API succeed" },
+      "STATUS_FAILED": { "value": 1, "description": "API failed" },
+      "STATUS_INVALID_DOCUMENT": { "value": 2, "description": "Document is invalid" },
+      "STATUS_INVALID_PATH": { "value": 3, "description": "Invalid path" },
+      "STATUS_NO_HSMWORKS_DOCUMENT": { "value": 4, "description": "No HSMWorks document available" },
+      "STATUS_NOT_IMPLEMENTED": { "value": 5, "description": "API not implemented" },
+      "STATUS_INVALID_OBJECT": { "value": 6, "description": "Object is invalid" },
+      "STATUS_INVALID_ARGUMENT": { "value": 7, "description": "Argument is invalid" },
+      "STATUS_BUFFER_TOO_SMALL": { "value": 8, "description": "Output buffer too small" },
+      "STATUS_NOT_MAIN_THREAD": { "value": 9, "description": "API not called from main thread" },
+      "STATUS_INVALID_JSON": { "value": 10, "description": "JSON data is invalid" },
+      "STATUS_FILE_NOT_FOUND": { "value": 11, "description": "Required file not found" },
+      "STATUS_ABORTED": { "value": 12, "description": "Task aborted" },
+      "STATUS_EXCEPTION": { "value": 13, "description": "Exception in callback" },
+      "STATUS_INVALID_TOOL": { "value": 14, "description": "Tool is invalid" },
+      "STATUS_INVALID_TOOL_LIBRARY": { "value": 15, "description": "Tool library is invalid" }
+    }
+  },
+
+  "cps_post_processor": {
+    "description": "CPS (CAM Post System) JavaScript-based post processors",
+    "available_posts": [
+      "fanuc.cps", "haas.cps", "heidenhain.cps", "siemens-840d.cps", "okuma.cps",
+      "mazak.cps", "hurco.cps", "mitsubishi.cps", "fanuc turning.cps", "haas turning.cps",
+      "heidenhain turning.cps", "siemens turning.cps", "grbl.cps", "linuxcnc.cps"
+    ],
+    "entry_functions": {
+      "onOpen": "Called at program start",
+      "onClose": "Called at program end",
+      "onSection": "Called at operation start",
+      "onSectionEnd": "Called at operation end",
+      "onRapid": "Called for rapid moves",
+      "onLinear": "Called for linear cutting moves",
+      "onCircular": "Called for circular moves",
+      "onCycle": "Called for canned cycle start",
+      "onCyclePoint": "Called for each cycle point",
+      "onCycleEnd": "Called for canned cycle end",
+      "onDwell": "Called for dwell commands",
+      "onSpindleSpeed": "Called for spindle speed changes",
+      "onParameter": "Called for each operation parameter",
+      "onPassThrough": "Called for manual NC commands",
+      "onComment": "Called for comments"
+    },
+    "tool_types": [
+      "TOOL_UNSPECIFIED", "TOOL_DRILL", "TOOL_DRILL_CENTER", "TOOL_DRILL_SPOT",
+      "TOOL_MILLING_END_FLAT", "TOOL_MILLING_END_BALL", "TOOL_MILLING_END_BULLNOSE",
+      "TOOL_MILLING_CHAMFER", "TOOL_MILLING_FACE", "TOOL_MILLING_SLOT",
+      "TOOL_MILLING_RADIUS", "TOOL_MILLING_DOVETAIL", "TOOL_MILLING_TAPERED",
+      "TOOL_MILLING_LOLLIPOP", "TOOL_TAP_RIGHT_HAND", "TOOL_TAP_LEFT_HAND",
+      "TOOL_REAMER", "TOOL_BORING_BAR", "TOOL_COUNTER_BORE", "TOOL_COUNTER_SINK",
+      "TOOL_TURNING_GENERAL", "TOOL_TURNING_THREADING", "TOOL_TURNING_GROOVING",
+      "TOOL_TURNING_BORING", "TOOL_PROBE", "TOOL_MILLING_THREAD", "TOOL_MILLING_FORM"
+    ],
+    "section_types": ["TYPE_MILLING", "TYPE_TURNING", "TYPE_WIRE", "TYPE_JET", "TYPE_ADDITIVE"],
+    "strategy_groups": [
+      "STRATEGY_2D", "STRATEGY_3D", "STRATEGY_ROUGHING", "STRATEGY_FINISHING",
+      "STRATEGY_MILLING", "STRATEGY_TURNING", "STRATEGY_JET", "STRATEGY_ADDITIVE",
+      "STRATEGY_PROBING", "STRATEGY_INSPECTION", "STRATEGY_DRILLING",
+      "STRATEGY_HOLEMILLING", "STRATEGY_THREAD", "STRATEGY_MULTIAXIS"
+    ],
+    "movement_types": [
+      "MOVEMENT_RAPID", "MOVEMENT_LEAD_IN", "MOVEMENT_CUTTING", "MOVEMENT_LEAD_OUT",
+      "MOVEMENT_LINK_TRANSITION", "MOVEMENT_LINK_DIRECT", "MOVEMENT_RAMP_HELIX",
+      "MOVEMENT_RAMP_PROFILE", "MOVEMENT_RAMP_ZIG_ZAG", "MOVEMENT_RAMP",
+      "MOVEMENT_PLUNGE", "MOVEMENT_PREDRILL", "MOVEMENT_FINISH_CUTTING", "MOVEMENT_HIGH_FEED"
+    ],
+    "insert_types": [
+      "TURNING_INSERT_ISO_A", "TURNING_INSERT_ISO_B", "TURNING_INSERT_ISO_C",
+      "TURNING_INSERT_ISO_D", "TURNING_INSERT_ISO_K", "TURNING_INSERT_ISO_R",
+      "TURNING_INSERT_ISO_S", "TURNING_INSERT_ISO_T", "TURNING_INSERT_ISO_V",
+      "TURNING_INSERT_ISO_W", "TURNING_INSERT_GROOVE_ROUND", "TURNING_INSERT_GROOVE_SQUARE"
+    ],
+    "holder_types": [
+      "HOLDER_ISO_A", "HOLDER_ISO_B", "HOLDER_ISO_C", "HOLDER_ISO_D", "HOLDER_ISO_E",
+      "HOLDER_ISO_F", "HOLDER_ISO_G", "HOLDER_ISO_H", "HOLDER_ISO_J", "HOLDER_ISO_K",
+      "HOLDER_BORING_BAR_ISO_F", "HOLDER_BORING_BAR_ISO_S", "HOLDER_GROOVE_EXTERNAL",
+      "HOLDER_GROOVE_INTERNAL", "HOLDER_THREAD_STRAIGHT", "HOLDER_THREAD_OFFSET"
+    ]
+  },
+
+  "ilogic_automation": {
+    "description": "iLogic VB.NET automation for Inventor integration",
+    "cam_addon_access": {
+      "method": "COM automation via Inventor.Application",
+      "namespace": "InventorCAMAddin",
+      "example": "Dim camAddin As Object = ThisApplication.ApplicationAddIns.ItemById(\"{GUID}\")"
+    },
+    "automation_patterns": {
+      "create_setup": "Create CAM setup from part model",
+      "generate_toolpath": "Auto-generate operations based on features",
+      "post_process": "Post-process and save NC file",
+      "template_application": "Apply CAM templates to similar parts"
+    }
+  },
+
+  "imachining_technology": {
+    "description": "SolidCAM iMachining technology (when InventorCAM licensed through SolidCAM)",
+    "levels": {
+      "1": { "cutting_feed_pct": 50, "step_down_mm": 3, "step_over_pct": 8, "mrr_multiplier": 1.5, "tool_life_multiplier": 1.3, "description": "Conservative - new users/unknown conditions" },
+      "2": { "cutting_feed_pct": 60, "step_down_mm": 5, "step_over_pct": 10, "mrr_multiplier": 2.0, "tool_life_multiplier": 1.5, "description": "Light - standard machines" },
+      "3": { "cutting_feed_pct": 70, "step_down_mm": 8, "step_over_pct": 12, "mrr_multiplier": 2.5, "tool_life_multiplier": 1.8, "description": "Moderate - good rigidity" },
+      "4": { "cutting_feed_pct": 80, "step_down_mm": 10, "step_over_pct": 15, "mrr_multiplier": 3.0, "tool_life_multiplier": 2.0, "description": "Standard - recommended default" },
+      "5": { "cutting_feed_pct": 90, "step_down_mm": 12, "step_over_pct": 17, "mrr_multiplier": 3.5, "tool_life_multiplier": 2.2, "description": "Aggressive - experienced users" },
+      "6": { "cutting_feed_pct": 100, "step_down_mm": 15, "step_over_pct": 20, "mrr_multiplier": 4.0, "tool_life_multiplier": 2.5, "description": "High performance - rigid setup" },
+      "7": { "cutting_feed_pct": 110, "step_down_mm": 18, "step_over_pct": 22, "mrr_multiplier": 4.5, "tool_life_multiplier": 2.8, "description": "Very aggressive - optimized tools" },
+      "8": { "cutting_feed_pct": 120, "step_down_mm": 20, "step_over_pct": 25, "mrr_multiplier": 5.0, "tool_life_multiplier": 3.0, "description": "Maximum - expert only" }
+    },
+    "material_recommendations": {
+      "P": { "max_level": 8, "notes": "Steel - all levels viable" },
+      "M": { "max_level": 6, "notes": "Stainless - avoid work hardening" },
+      "K": { "max_level": 8, "notes": "Cast iron - tolerates high engagement" },
+      "N": { "max_level": 8, "notes": "Aluminum - levels 6-8 typical" },
+      "S": { "max_level": 3, "notes": "Superalloys - conservative only" },
+      "H": { "max_level": 4, "notes": "Hardened - careful thermal management" }
+    }
+  },
+
+  "differences_from_fusion_360": {
+    "note": "Inventor HSM and Fusion 360 share the same HSM kernel (from HSMWorks ApS acquisition), but have UI and integration differences",
+    "similarities": [
+      "Same adaptive clearing algorithm",
+      "Same steep and shallow strategy",
+      "Same toolpath calculation engine",
+      "Same CPS post processor format",
+      "Same tool library format (.hsmlib)"
+    ],
+    "differences": [
+      "Inventor HSM integrates with Inventor assembly/part environment",
+      "Inventor HSM supports iLogic automation (VB.NET)",
+      "Inventor CAM (SolidCAM version) includes iMachining technology",
+      "Different machine simulation framework",
+      "Different cloud/local licensing models"
+    ]
+  },
+
+  "summary": {
+    "total_2d_operations": 11,
+    "total_3d_operations": 12,
+    "total_multiaxis_operations": 3,
+    "total_turning_operations": 7,
+    "total_drilling_operations": 5,
+    "total_probing_operations": 3,
+    "total_operations": 41,
+    "total_parameters": 1247,
+    "total_api_functions": 127,
+    "total_cps_posts": 99,
+    "ilogic_supported": true,
+    "imachining_levels": 8
+  }
+}

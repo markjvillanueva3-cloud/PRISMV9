@@ -1,0 +1,80 @@
+{
+  "id": "PP-MS2",
+  "version": "6.2.0",
+  "title": "Block-by-Block Optimization Stages — Variable S/F + Wear + Thermal Tracking",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "Wire Phase 2 (block-by-block optimization) into the pipeline. This is where PRISM differentiates from every other post processor — instead of constant S/F per tool, every G-code line gets individually optimized based on instantaneous engagement, chip thinning, corner detection, wear progression, and cumulative thermal state. Uses InstantaneousEngagementEngine, EngagementAdaptiveFeedEngine, StochasticToolWearEngine, ToolpathThermalEngine, and StochasticDeflectionEngine.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Per-Block Engagement Analysis",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Stage 2.1-2.2 — Engagement analysis + Chip thinning compensation per block",
+          "status": "complete",
+          "steps": [
+            "Wire InstantaneousEngagementEngine.computeOptimalSF() as pipeline stage",
+            "For each cutting block: calculate ae (radial depth), ap (axial depth), engagement angle θ",
+            "For ball end mills: calculate D_eff = 2√(2Rap - ap²), adjust RPM to maintain Vc at effective diameter",
+            "Chip thinning: when ae < D/2, actual chip thickness h < fz. Compensate: fz_adj = fz × (D / (2 × √(ae × (D-ae))))",
+            "Store per-block engagement data in ToolpathBlock for downstream stages",
+            "Classify each block: rapid/air/light/nominal/heavy/corner/slotting"
+          ],
+          "exit_conditions": [
+            "Every cutting block has ae, ap, θ, D_eff computed",
+            "Chip thinning factor ≥ 1.0 for all ae ≤ D/2 (invariant)",
+            "Ball end mill D_eff monotonically increases with ap (invariant)",
+            "Feed increases proportionally to chip thinning factor"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Stage 2.3-2.5 — Adaptive feed modes + Corner/plunge detection",
+          "status": "complete",
+          "steps": [
+            "Wire EngagementAdaptiveFeedEngine: select mode based on optimization target",
+            "Constant chip load mode: maintain fz regardless of engagement changes",
+            "Constant force mode: maintain Fc by adjusting feed as engagement changes (Kienzle model)",
+            "Constant MRR mode: maintain volumetric removal rate across varying engagement",
+            "Constant thermal mode: maintain tool-chip interface temperature (Loewen-Shaw)",
+            "Corner detection: when engagement angle spikes >120° at direction changes, reduce feed by engagement ratio",
+            "Plunge detection: Z-dominant moves get 50% feed reduction (axial cutting is weaker)",
+            "Ramp detection: helical/ramp entry gets graduated feed increase",
+            "Small arc detection: arcs with R < 3×tool_diameter get curvature-limited feed"
+          ],
+          "exit_conditions": [
+            "Constant chip load mode produces uniform fz across varying ae",
+            "Corner feed reduction prevents engagement spikes >150%",
+            "Plunge moves correctly identified and derated",
+            "Ramp entries show smooth feed ramp-up"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Stage 2.6-2.8 — Wear progression + Thermal tracking + Deflection-limited feed",
+          "status": "complete",
+          "steps": [
+            "Wire StochasticToolWearEngine: Takeyama-Murata flank wear ODE — VB(t) progresses through program",
+            "Block-by-block wear accumulation: each block's cutting time adds to cumulative wear state",
+            "When VB approaches limit (0.3mm roughing, 0.15mm finishing), reduce speed by 10-20% to extend life",
+            "Proactive tool change advisory: predict remaining life, suggest tool change point for multi-pass operations",
+            "Wire ToolpathThermalEngine: cumulative heat tracking — deep pockets accumulate thermal energy",
+            "After N consecutive cutting blocks, if cumulative_heat > threshold, inject dwell or reduce speed",
+            "Wire StochasticDeflectionEngine: per-block force → deflection check against tolerance",
+            "Blocks where force produces deflection > tolerance/3 get feed reduction",
+            "For thin-wall machining: track workpiece stiffness degradation as material is removed"
+          ],
+          "exit_conditions": [
+            "Wear state increases monotonically through program",
+            "S/F derate activates when VB > 70% of limit",
+            "Thermal accumulation produces measurable speed differences between block 1 and block 50 of a deep pocket",
+            "Deflection-limited blocks are flagged with force and deflection values",
+            "30+ tests across all Phase 2 stages"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "wedm-wire-break-diagnosis",
+  "name": "WEDM Wire Break Diagnosis",
+  "description": "Troubleshooting workflow for wire break incidents",
+  "version": "1.0.0",
+  "trigger": "/wedm-troubleshoot",
+  "category": "troubleshooting",
+  "steps": [
+    {
+      "id": "step-1",
+      "name": "Collect Incident Data",
+      "action": "wedm_collect_incident",
+      "description": "Gather machine state, parameters, and error logs at time of break",
+      "inputs": ["machine_id", "timestamp", "program_id"],
+      "outputs": ["incident_data", "machine_state", "parameters_at_break"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-2",
+      "name": "Analyze Break Location",
+      "action": "wedm_analyze_break_location",
+      "description": "Determine where in the cut the break occurred (geometry analysis)",
+      "inputs": ["incident_data", "program_id", "break_position"],
+      "outputs": ["break_geometry", "geometry_risk_factors"],
+      "timeout_sec": 45
+    },
+    {
+      "id": "step-3",
+      "name": "Check Flushing Conditions",
+      "action": "wedm_check_flushing",
+      "description": "Evaluate flushing pressure, nozzle positions, and debris clearance",
+      "inputs": ["machine_state", "geometry", "material"],
+      "outputs": ["flushing_assessment", "flushing_recommendations"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-4",
+      "name": "Analyze Electrical Parameters",
+      "action": "wedm_analyze_electrical",
+      "description": "Check spark gap, on-time, off-time, and power settings",
+      "inputs": ["parameters_at_break", "material", "wire_type"],
+      "outputs": ["electrical_assessment", "parameter_recommendations"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-5",
+      "name": "Query Similar Incidents",
+      "action": "wedm_query_incidents",
+      "description": "Search historical database for similar break patterns",
+      "inputs": ["material", "geometry_risk_factors", "parameters"],
+      "outputs": ["similar_incidents", "historical_solutions"],
+      "timeout_sec": 60
+    },
+    {
+      "id": "step-6",
+      "name": "Generate Recommendations",
+      "action": "wedm_generate_recommendations",
+      "description": "AI-powered recommendations based on all analysis",
+      "inputs": ["flushing_assessment", "electrical_assessment", "historical_solutions", "geometry_risk_factors"],
+      "outputs": ["recommendations", "confidence", "predicted_success_rate"],
+      "timeout_sec": 45,
+      "hooks": ["wedm-drift-alert"]
+    }
+  ],
+  "onError": {
+    "action": "wedm_escalate_support",
+    "notify": ["supervisor", "maintenance"]
+  },
+  "metadata": {
+    "author": "PRISM WEDM AGI",
+    "created": "2026-04-15",
+    "relatedSkills": ["/wedm-studio", "/wedm-troubleshoot"],
+    "relatedEngines": ["WEDMDiagnosticEngine", "WEDMWireBreakAnalyzer"]
+  }
+}

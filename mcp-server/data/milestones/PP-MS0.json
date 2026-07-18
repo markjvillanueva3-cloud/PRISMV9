@@ -1,0 +1,155 @@
+{
+  "id": "PP-MS0",
+  "version": "6.2.0",
+  "title": "Post Processor Foundation — Pipeline Orchestrator + Input Normalization",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "Build the core PostProcessorPipelineEngine that orchestrates 35+ optimization stages across 7 phases. Create the input normalization layer that accepts G-code, CL data, toolpath JSON, or Fusion CPS context and converts to a unified ToolpathBlock[] internal representation. Build the smart defaults system that fills missing parameters from PRISM's catalogs (910 machines, 46,590 tools, 2,957 materials, 1,164 holders). This milestone is the backbone — every subsequent PP milestone plugs stages into this pipeline.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Pipeline Orchestrator Core",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Create PostProcessorPipelineEngine skeleton with stage registry, phase ordering, and configurable stage enable/disable",
+          "status": "complete",
+          "steps": [
+            "Define PipelineStage interface: { id, phase, order, name, engine, enabled, run(context) → context }",
+            "Define PipelineContext type: carries all state between stages (blocks, tools, machine, material, metrics, warnings)",
+            "Create PostProcessorPipelineEngine with registerStage(), runPipeline(), getStageReport() methods",
+            "Implement phase ordering: P0-INPUT → P1-PHYSICS → P2-BLOCKOPT → P3-MOTION → P4-STOCHASTIC → P5-SAFETY → P6-OUTPUT",
+            "Implement stage dependency resolution — stages can declare dependencies on other stages",
+            "Implement stage skip logic — if input lacks data for a stage, skip gracefully with warning",
+            "Add pipeline timing — track ms per stage for performance profiling",
+            "Add pipeline event emitter — progress callbacks for UI integration"
+          ],
+          "exit_conditions": [
+            "PostProcessorPipelineEngine.ts compiles with 0 errors",
+            "Empty pipeline runs and returns empty context",
+            "Stages execute in declared phase/order sequence",
+            "Disabled stages are skipped",
+            "Stage timing is reported in pipeline result"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Create PipelineContext type system — the universal data contract between all stages",
+          "status": "complete",
+          "steps": [
+            "Define ToolpathBlock: { id, type (rapid/linear/arc/drill/tap/probe), x/y/z/a/b/c, i/j/k/r, feed, speed, tool_number, engagement?: { ae, ap, theta, d_eff }, forces?: { Fc, Ff, Fp }, thermal?: { T_tool, T_chip, cumulative_heat }, wear?: { VB, VB_rate }, confidence?: { feed_ci, force_ci } }",
+            "Define MachineContext: resolved from catalog — spindle curve, axis limits, rapid rates, accel/jerk, controller type, controller version, kinematics, work volume, tool changer type/time",
+            "Define ToolContext: resolved from catalog — geometry (D, L, flute_count, helix, corner_r), grade, kc1_1, mc, max_Vc, coating, stiffness, runout_TIR",
+            "Define HolderContext: resolved from catalog — type, taper, gauge_length, stiffness, max_RPM, balance_grade",
+            "Define MaterialContext: resolved from DB — ISO group, UTS, hardness, thermal_conductivity, specific_heat, constitutive_model_params (JC/ZA coefficients)",
+            "Define CoolantContext: type (flood/mist/MQL/cryo/dry), pressure, flow_rate, nozzle_count",
+            "Define PipelineResult: { blocks: ToolpathBlock[], gcode: string, analytics: AnalyticsReport, setup_sheet: SetupSheet, warnings: Warning[], stage_timings: Map<string,number> }"
+          ],
+          "exit_conditions": [
+            "All context types defined with Zod schemas",
+            "Types are exported and importable by all engine stages",
+            "PipelineContext can carry full state from Stage 0.1 through Stage 6.7"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Input Normalization (Phase 0 Stages)",
+      "units": [
+        {
+          "id": "U03",
+          "title": "Stage 0.1 — Input parser: G-code → ToolpathBlock[], CL data → ToolpathBlock[], toolpath JSON → ToolpathBlock[]",
+          "status": "complete",
+          "steps": [
+            "G-code parser: handle G0/G1/G2/G3, canned cycles (G81-G89), tool changes (T/M6), spindle (S/M3/M4/M5), coolant (M7/M8/M9), work offsets (G54-G59), sub-programs (M98/M99)",
+            "CL data parser: parse APT/CL format — GOTO, CIRCLE, FEDRAT, SPINDL, COOLNT, TURRET, TLDATA",
+            "Toolpath JSON parser: accept PRISM's native { blocks: [...] } format from MCP interface",
+            "Fusion CPS context parser: accept enriched JSON sidecar from Fusion .cps post (tool list, operations, stock, WCS)",
+            "All parsers produce identical ToolpathBlock[] output — unified internal representation",
+            "Auto-detect input format from content inspection (G-code vs CL vs JSON)"
+          ],
+          "exit_conditions": [
+            "G-code with 100+ lines parses correctly to ToolpathBlock[]",
+            "CL data with GOTO/CIRCLE/FEDRAT parses correctly",
+            "JSON passthrough works",
+            "Format auto-detection works for all 4 formats",
+            "15+ unit tests covering parser edge cases"
+          ]
+        },
+        {
+          "id": "U04",
+          "title": "Stage 0.2-0.5 — Context resolution: Machine + Tool + Holder + Material from catalogs",
+          "status": "complete",
+          "steps": [
+            "Machine resolver: match user input (name/model/brand) → MachineContext from 910-machine catalog. Fuzzy match. Extract spindle curve, axis limits, rapid rates, controller type",
+            "Tool resolver: match user input (description/catalog_id/dimensions) → ToolContext from 46,590-tool catalog. Exact match by ID or fuzzy by geometry",
+            "Holder resolver: match user input or auto-select best holder for tool+machine taper from 1,164-holder catalog. Calculate assembly stiffness",
+            "Material resolver: match user input (name/grade/UNS/ISO) → MaterialContext from 2,957-material DB. Extract constitutive model params",
+            "Each resolver returns confidence score (exact_match=1.0, fuzzy=0.5-0.9, default=0.3)",
+            "Log all resolution decisions for traceability"
+          ],
+          "exit_conditions": [
+            "Machine 'DMG MORI DMU 50' resolves to correct catalog entry with spindle curve",
+            "Tool 'OSG AE-VMS-10' resolves to exact catalog entry with kc1.1/mc",
+            "Material '316L stainless' resolves with JC constitutive params",
+            "Fuzzy matching handles abbreviations and common variants",
+            "12+ unit tests"
+          ]
+        },
+        {
+          "id": "U05",
+          "title": "Stage 0.6-0.7 — Smart defaults + Transfer learning for missing inputs",
+          "status": "complete",
+          "steps": [
+            "Smart defaults engine: fill ALL gaps when user provides minimal input",
+            "Missing material → infer from operation context or use generic '4140 steel' with warning",
+            "Missing machine → select best-fit from catalog based on part envelope + operation types",
+            "Missing tool → auto-select from ToolSelectionEngine based on operation + material + dimensions",
+            "Missing holder → auto-select for maximum stiffness at required reach",
+            "Missing coolant → derive from material ISO group + operation type + playbook rules",
+            "Missing tolerance → ISO 2768-m (medium) for general, ISO 2768-f (fine) for finishing ops",
+            "Missing surface finish → Ra 3.2 roughing, Ra 1.6 semi-finish, Ra 0.8 finishing, Ra 0.4 superfinish",
+            "Aggressiveness slider: 0.0 (first article / unknown setup) → 1.0 (proven setup / max productivity). Default 0.5",
+            "Transfer learning integration: query TransferLearningEngine for similar past setups → parameter priors with confidence",
+            "All defaults logged with reasoning for user review"
+          ],
+          "exit_conditions": [
+            "Pipeline runs with ONLY material='aluminum' and operation='roughing' — fills everything else",
+            "Aggressiveness=0.3 produces measurably more conservative S/F than 0.7",
+            "Transfer learning priors override generic defaults when confidence > 0.6",
+            "15+ unit tests for default selection logic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Dispatcher Wiring + Integration Tests",
+      "units": [
+        {
+          "id": "U06",
+          "title": "Wire PostProcessorPipelineEngine to camDispatcher with pipeline actions",
+          "status": "complete",
+          "steps": [
+            "Create postProcessorPipelineActionSchemas.ts with Zod schemas for pipeline actions",
+            "Action: pp_run_full — run complete pipeline (all stages)",
+            "Action: pp_run_partial — run specific phase range (e.g., Phase 2-5 only for re-optimization)",
+            "Action: pp_analyze — dry run, return analytics without generating G-code",
+            "Action: pp_configure — set stage enable/disable, aggressiveness, output format",
+            "Action: pp_resolve_context — run Phase 0 only, return resolved machine/tool/material/holder context",
+            "Wire all actions to camDispatcher with lazy loading",
+            "Create integration test: full pipeline from G-code input → optimized G-code output"
+          ],
+          "exit_conditions": [
+            "All 5 actions callable through camDispatcher",
+            "pp_run_full produces optimized G-code from raw G-code input",
+            "pp_run_partial works for Phase B (re-optimization) scenario",
+            "pp_analyze returns force/thermal/time/cost predictions without codegen",
+            "Build: 0 errors. 20+ tests"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

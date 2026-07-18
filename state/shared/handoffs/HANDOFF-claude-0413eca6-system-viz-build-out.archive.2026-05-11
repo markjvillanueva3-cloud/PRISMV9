@@ -1,0 +1,22 @@
+---
+session: claude-0413eca6
+topic: system-viz-build-out
+written_at: 2026-05-10T16:07:21.752Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-0413eca6
+status: active
+---
+
+# HANDOFF: claude-0413eca6
+Updated: 2026-05-10T16:07:21.752Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-0413eca6
+
+## STATE
+Schema 2.19.0 / 129K nodes / ~135K edges / 22 augmentations. Ghost surface live: 2,572 ghost nodes (306 milestones + 2,256 pending units + 9 specs + 1 roost) + 1,852 ghost edges (suggested_peer + planned_for + designed_for + hook_invoke_suggested). Layer cascade densified: L4→L5 jumped 43→288, L3→L4 14→133, L2→L3 1→33. Engine internal graph: 1,233 atomic engine L5 nodes + 1,842 real engine_import edges + 1,442 ghost suggested_peer. Hook bridges: 26 real + 233 ghost. HUD shows knowledge line + cascade line + ghostSummary block. New generators landed this session: generate-layer-bridges.mjs, generate-stagnant-features.mjs, generate-engine-graph.mjs, generate-hook-bridges.mjs. All wired into merge-augmentations.mjs (load+merge+dedup) and regen-viz.mjs FAST list. system-viz.html JS validated parses clean. NOT yet committed — user wanted to review. 7 peer-chat claims observed; ghost-UI / frontend-pages / combo-detector are all in unclaimed paths.
+
+## RESUME
+Continue /system-viz build-out: complete tasks #41 (Ghost-mode UI toggle in system-viz.html — toolbar btn-ghost + key 'G', dim non-ghost / glow ghost), #42 (generate-frontend-pages.mjs — drill mcp-server/web/pages/ into per-page L1 children for fe.pages.specialty/quoting/admin), #44 (generate-combo-detector.mjs — find ≥3-engine convergence nodes, emit ghost combo-synthesizer L8 nodes proposing variability-adjusted formulas; invent new formula nodes where coverage is sparse). Then wire all into merge-augmentations.mjs + regen-viz.mjs FAST list, bump schema 2.19 → 2.20, run regen, validate viz JS, verify ghostSummary counts in HUD. Tasks #37, #38, #39, #40, #43 already DONE. L11 saturation increased TOP_FILES_PER_NODE 10→50 in generate-fs-deep-inventory.mjs but fs-deep is incremental — to actually saturate, must delete state/shared/system-viz/fs-deep-inventory-augmentation.json then rerun. Bash was hanging in prior session — try short commands first; if they hang use Read/Write/Edit only and rely on the L11 saturation/regen via separate user-triggered run.
+
+## CONTEXT
+User directives in this session: (1) account for every file via L11 saturation, (2) account for every wiring/bridge, (3) surface stagnant/planned features as GHOST nodes, (4) ADD logical node-to-node wirings + ghost wires for what still needs wiring, (5) think about COMBOS: when formulas/algorithms/engines wire together and converge on same node, propose variability-auto-adjusted formulas, INVENT new formulas if needed, (6) always finish prior tasks before pivoting to new request. CLAUDE.md rules: rtk prefix bash, no inline physics constants, run dedup before creating, peer-chat claims must be respected (do not edit claimed files). Files NOT to touch (claims observed during session): docker/ocr-tools/* (claude-d9860be8), system-viz/_MASTER_ENVELOPE.json + _v3_ENVELOPE_FOLD.md (claude-99eca613), tribal-binder worktree (claude-671e2b1f), AISystemRouterEngine.ts (claude-85cedf09), specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md + K2-CLOUD-INTEGRATION-PLAN.md + K2-ROUTER-INVENTORY.md (claude-85cedf09), OutcomeDriftCalibrationBridgeEngine.* (claude-845cf238), PipelineConsistencyHookEngine.test.ts (claude-7b9d1810). Combo-detector design notes: scan all edges for in-degree ≥3 from distinct source-types (engine, formula, registry, dispatcher); for each high-convergence target without a synthesizer engine, emit ghost L8 'combo.<target_id>' node with proposed inputs list; for variability-auto-adjusted formulas, scan formula registry for inputs where ≥2 engines feed the same parameter and emit ghost 'formula.adjusted.<param>'; novel-formula invention candidates = domain-coverage gaps where ≥3 unwired engines exist in a domain but no aggregator. L11 saturation: bumped TOP_FILES_PER_NODE 10→50 but didn't take effect because fs-deep generator is incremental; next session should delete fs-deep-inventory-augmentation.json + rerun (15-30min) OR add a --force flag to the generator.

@@ -2620,12 +2620,38 @@ class OkumaParametricProgramEngineImpl {
     };
 
     const evalCondition = (cond: string): boolean => {
+      // SECURITY (U-OKUMA-EVAL-COND-HARDEN, 2026-06-22, slot:alpha): this used the raw JS
+      // eval built-in on untrusted NC-program condition text -- a code-injection vector (a
+      // crafted IF condition could run arbitrary JS). The sibling numeric path (safeNumEval,
+      // above) was hardened "to prevent code injection"; this condition path was MISSED.
+      // A valid Okuma condition is a single numeric comparison, so: normalize the word
+      // operators, split into lhs/op/rhs, evaluate each SIDE with the existing SAFE numeric
+      // evaluator (evalExpr -> safeNumEval; handles V-substitution + brackets), then apply
+      // the comparison in plain JS. No eval / Function-constructor on untrusted text.
       let e = cond.trim();
       const ops: Record<string, string> = { " LT ": " < ", " GT ": " > ", " EQ ": " == ", " NE ": " != ", " LE ": " <= ", " GE ": " >= " };
       for (const [ok, py] of Object.entries(ops)) e = e.replace(new RegExp(ok.replace(/\s/g, "\\s"), "gi"), py);
-      e = e.replace(/V(\d+)/gi, (_, n) => String(variables[parseInt(n)] ?? 0));
-      e = e.replace(/\[/g, "(").replace(/\]/g, ")");
-      try { return Boolean(eval(e)); } catch { return false; }
+      const m = e.match(/(<=|>=|==|!=|<|>)/);
+      if (!m) {
+        // bare expression, no comparison operator -> truthy iff non-zero (preserves the prior
+        // Boolean(numericValue) semantics for an `IF [Vn]`-style condition), fail-safe on NaN.
+        const v = evalExpr(e);
+        return Number.isFinite(v) && v !== 0;
+      }
+      const op = m[1];
+      const cut = e.indexOf(op);
+      const lhs = evalExpr(e.slice(0, cut));
+      const rhs = evalExpr(e.slice(cut + op.length));
+      if (!Number.isFinite(lhs) || !Number.isFinite(rhs)) return false;
+      switch (op) {
+        case "<":  return lhs < rhs;
+        case ">":  return lhs > rhs;
+        case "<=": return lhs <= rhs;
+        case ">=": return lhs >= rhs;
+        case "==": return lhs === rhs;
+        case "!=": return lhs !== rhs;
+        default:   return false;
+      }
     };
 
     const fmtNum = (v: number): string => {

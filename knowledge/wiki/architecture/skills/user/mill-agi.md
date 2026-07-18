@@ -23,15 +23,14 @@ related:
 |-------|-------|
 | Name | `mill-agi` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-agi.md` |
+| Source | `C:/Users/wompu/.claude/commands/mill-agi.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Direct invocation of `MillingAGIMasterEngine.reason()` via `prism_mill:mill_agi_orchestrate`
-or via the facade route `agi`. Returns a structured reasoning chain with tool and
-strategy recommendations.
+
+# Mill AGI — Deep Reasoning for Milling
 
 <!-- AUTO-END -->
 

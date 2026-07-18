@@ -38,6 +38,7 @@ import {
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
+  buildMaterialPhysics,
   type ISOGroup,
   type MaterialPhysics,
 } from "../physics/constants.js";
@@ -707,38 +708,67 @@ class LatheQualityGateEngineImpl {
       // Calculate S(x) for first operation as representative (full version would aggregate all)
       const firstOp = context.operations[0];
       try {
+        // Map lathe context to the real OperationInput/MaterialInput/MachineInput/
+        // ToolInput/WorkholdingInput shapes (PipelineSafetyOrchestratorEngine.ts:73-160).
+        // fz_mm = feed_mm_rev: single-point lathe tool has num_teeth=1, so
+        // feed/rev == feed/tooth (Sandvik Coromant Turning Guide 2024, p.28).
+        const matPhysics = buildMaterialPhysics({
+          iso_group: context.part.material.iso_group,
+          name: context.part.material.name,
+          kc1_1: context.part.material.kc1_1_mpa,
+          mc: context.part.material.mc_exponent,
+        });
+        // Carbide insert transverse rupture strength from canonical DB entry
+        // "tungsten_carbide" (constants.ts:140, tensile_strength_MPa=3450,
+        // ASM Handbook Vol.2 + ASTM E140-12b conversion).
+        const carbideEntry = CANONICAL_MATERIAL_DB["tungsten_carbide"];
+        const insertTensile = carbideEntry?.tensile_strength_MPa ?? matPhysics.kc1_1 * 2;
+        // Grip force from hydraulic jaw pressure using piston-area formula
+        // F = P * pi * (D/2)^2 / 3 (3 jaws sharing one actuator bore).
+        // Ref: Boothroyd & Knight, Fundamentals of Machining, 3rd ed., Ch. 9.
+        const gripDiamM = (context.workholding.grip_diameter_mm ?? 50) / 1000;
+        const jawPressurePa = 30 * 1e5; // 30 bar -- standard hydraulic 3-jaw chuck
+        const gripForceN = jawPressurePa * Math.PI * (gripDiamM / 2) ** 2 / 3;
         omegaSafety = omegaSafetyScoreEngine.evaluate(
           {
-            type: firstOp.type.includes("thread") ? "threading" :
-                  firstOp.type.includes("groove") ? "grooving" :
-                  firstOp.type.includes("drill") ? "drilling" : "turning",
-            cutting_speed_m_min: firstOp.params.cutting_speed_m_min,
-            feed_mm_rev: firstOp.params.feed_mm_rev,
-            depth_of_cut_mm: firstOp.params.depth_of_cut_mm,
-            spindle_rpm: firstOp.params.spindle_rpm ?? 1000,
-            diameter_mm: 50, // fallback
+            // OperationInput -- PipelineSafetyOrchestratorEngine.ts:73
+            ap_mm: firstOp.params.depth_of_cut_mm,
+            fz_mm: firstOp.params.feed_mm_rev,
+            vc_mpm: firstOp.params.cutting_speed_m_min,
+            tool_diameter_mm: context.part.stock_diameter_mm ?? 50,
+            num_teeth: 1,
+            tool_stickout_mm: firstOp.tool.overhang_mm ?? 40,
+            tolerance_mm: firstOp.target_tolerance_mm,
           },
           {
-            name: context.material.name,
-            iso_group: context.material.iso_group,
-            hardness_hrc: context.material.hardness_hrc ?? 30,
+            // MaterialInput -- PipelineSafetyOrchestratorEngine.ts:101
+            name: context.part.material.name,
+            kc1_1: matPhysics.kc1_1,
+            mc: matPhysics.mc,
+            T_melt_C: matPhysics.melting_point_C,
+            thermal_conductivity_WmK: matPhysics.k_thermal,
+            specific_heat_JkgK: matPhysics.cp_J_kgK,
+            density_kgm3: matPhysics.density_kg_m3,
+            iso_group: context.part.material.iso_group,
           },
           {
-            brand: context.machine.brand ?? "generic",
-            model: context.machine.model ?? "lathe",
-            max_rpm: context.machine.max_spindle_rpm ?? 6000,
-            max_power_kW: context.machine.max_power_kw ?? 15,
+            // MachineInput -- PipelineSafetyOrchestratorEngine.ts:127
+            name: context.machine.model,
+            max_power_kW: context.machine.spindle_power_kw,
+            max_rpm: context.machine.max_spindle_rpm,
           },
           {
-            tool_id: firstOp.tool.tool_id,
-            tool_type: firstOp.tool.tool_type,
-            nose_radius_mm: firstOp.tool.nose_radius_mm,
-            overhang_mm: firstOp.tool.overhang_mm ?? 40,
+            // ToolInput -- PipelineSafetyOrchestratorEngine.ts:143
+            // tensile_strength_MPa = carbide insert transverse rupture strength
+            tensile_strength_MPa: insertTensile,
+            material: "carbide",
           },
           {
-            chuck_type: "3_jaw",
-            jaw_pressure_bar: 30,
-            part_diameter_mm: 50,
+            // WorkholdingInput -- PipelineSafetyOrchestratorEngine.ts:153
+            grip_force_N: gripForceN,
+            // 0.15: serrated-jaw steel-on-steel friction coefficient
+            // Ref: Boothroyd & Knight, Fundamentals of Machining, 3rd ed., Ch. 9.
+            friction_coefficient: 0.15,
           },
         );
         omegaBlocked = !omegaSafety.passed;
@@ -1418,7 +1448,10 @@ class LatheQualityGateEngineImpl {
     const threadOps = operations.filter(op => isThreadingOperation(op.type));
     if (threadOps.length > 0) {
       // Verify threading is after roughing
-      const lastRoughIndex = operations.findLastIndex(op => isRoughingOperation(op.type));
+      let lastRoughIndex = -1;
+      for (let i = operations.length - 1; i >= 0; i--) {
+        if (isRoughingOperation(operations[i].type)) { lastRoughIndex = i; break; }
+      }
       const firstThreadIndex = operations.findIndex(op => isThreadingOperation(op.type));
 
       const threadAfterRough = lastRoughIndex === -1 || firstThreadIndex > lastRoughIndex;

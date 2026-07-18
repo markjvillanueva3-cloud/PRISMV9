@@ -27,6 +27,7 @@
 import { log } from "../utils/Logger.js";
 import {
   resolveMaterial,
+  buildMaterialPhysics,
   kienzleForce,
   taylorLife,
   toolDeflection,
@@ -682,12 +683,10 @@ export class DesignToFloorPipelineEngine {
     stages.push("PRE-PROCESS");
 
     const materialName = input.material || "steel_1045";
-    let matPhysics: MaterialPhysics;
-    try {
-      matPhysics = resolveMaterial(materialName);
-    } catch {
-      matPhysics = resolveMaterial("steel_1045");
-    }
+    // resolveMaterial returns MaterialEntry | undefined; buildMaterialPhysics
+    // backstops with a complete, runtime-safe generic ISO-P material.
+    const matPhysics: MaterialPhysics =
+      resolveMaterial(materialName) ?? buildMaterialPhysics({ name: materialName });
 
     const toolDia = input.tool_diameter_mm || 10;
     const toolLen = input.tool_length_mm || 75;
@@ -948,12 +947,10 @@ export class DesignToFloorPipelineEngine {
     }
 
     const material = job.material;
-    let matPhysics: MaterialPhysics;
-    try {
-      matPhysics = resolveMaterial(material);
-    } catch {
-      matPhysics = resolveMaterial("steel_1045");
-    }
+    // resolveMaterial returns MaterialEntry | undefined; buildMaterialPhysics
+    // backstops with a complete, runtime-safe generic ISO-P material.
+    const matPhysics: MaterialPhysics =
+      resolveMaterial(material) ?? buildMaterialPhysics({ name: material });
 
     // Initialize calibration state if needed
     if (!this.calibrationState.has(material)) {

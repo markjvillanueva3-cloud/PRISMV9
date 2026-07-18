@@ -134,10 +134,10 @@ export function ReportsPage() {
     <WorkspaceRecoveryScaffold
       eyebrow="Executive reporting"
       title="Reports"
-      description="The APPW reporting desk has been rebuilt onto a stable front-end scaffold so leaders can read production, quality, and financial posture while PRISM AI reasons across the mounted reporting routes."
+      description="The APPW reporting desk has been rebuilt onto a stable front-end scaffold so leaders can read production, quality, and financial posture while Kienzle AI reasons across the mounted reporting routes."
       surfaces={['deskCounts', 'commerce']}
       metrics={metrics}
-      aiSummary="PRISM AI can read the mounted reporting payloads, translate the trend and Pareto signals, and recommend what leadership should act on next."
+      aiSummary="Kienzle AI can read the mounted reporting payloads, translate the trend and Pareto signals, and recommend what leadership should act on next."
       aiContext={aiContext}
       suggestions={[
         {

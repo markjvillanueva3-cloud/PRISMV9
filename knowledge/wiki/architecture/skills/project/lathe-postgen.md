@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Generate a complete, validated lathe post-processor from a controller specification.
+
+# /lathe-postgen — Lathe Post-Processor Generator
 
 <!-- AUTO-END -->
 

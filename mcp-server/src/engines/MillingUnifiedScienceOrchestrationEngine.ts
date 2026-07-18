@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: internal cross-domain orchestrator composed by 7 mill-domain engines (AdaptiveMachiningIntegrationEngine, MillTribalKnowledgeEngine, MillingAGIOrchestrationEngine, ToolHolderRegistryEngine, MillResourceAwarenessEngine, MillingProductionKnowledgeHarvesterEngine) plus the milling.ts route. Exposed through those wrappers — no direct dispatcher action.
 /**
  * MillingUnifiedScienceOrchestrationEngine — Complete Scientific Integration
  * ==========================================================================
@@ -619,7 +620,7 @@ export class MillingUnifiedScienceOrchestrationEngine {
    * Get system self-awareness.
    */
   getSelfAwareness(): {
-    capabilities: typeof this.SYSTEM_CAPABILITIES;
+    capabilities: MillingUnifiedScienceOrchestrationEngine["SYSTEM_CAPABILITIES"];
     material_database_size: number;
     formula_coverage: string[];
     scientific_domains: ScientificDomain[];

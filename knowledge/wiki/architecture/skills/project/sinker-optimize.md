@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /sinker-optimize — Sinker EDM Program Optimization
+Optimize sinker EDM burn cycles:
+- Parameter tuning for material removal rate
+- Orbit pattern optimization
+- Electrode wear minimization
+- Surface finish improvement
 
 <!-- AUTO-END -->
 

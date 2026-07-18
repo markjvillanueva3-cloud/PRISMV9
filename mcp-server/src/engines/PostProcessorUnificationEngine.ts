@@ -130,6 +130,36 @@ class PostProcessorUnificationEngine {
     this.initialized = false;
     log.info("[PostProcessorUnification] Reset");
   }
+
+  /**
+   * Dispatcher execute wrapper — matches the POST-ULT pattern in camDispatcher.
+   * Action → method routing. Throws on unknown action so the dispatcher
+   * surfaces the bad call instead of silently returning undefined.
+   * @param action one of: pp_unify_query | pp_unify_get | pp_unify_stats | pp_unify_by_controller
+   * @param params action-specific params (see method signatures)
+   */
+  async execute(action: string, params: any): Promise<unknown> {
+    const p = (params ?? {}) as Record<string, any>;
+    switch (action) {
+      case "pp_unify_query":
+        return this.query({
+          controller: p.controller,
+          machineType: p.machineType,
+          feature: p.feature,
+          limit: typeof p.limit === "number" ? p.limit : undefined,
+        });
+      case "pp_unify_get":
+        return this.getConfig(String(p.id ?? ""));
+      case "pp_unify_stats":
+        return this.getStats();
+      case "pp_unify_by_controller":
+        return this.getByController(String(p.controller ?? ""));
+      default:
+        throw new Error(
+          `PostProcessorUnificationEngine.execute: unknown action "${action}"`,
+        );
+    }
+  }
 }
 
 export const postProcessorUnificationEngine = new PostProcessorUnificationEngine();

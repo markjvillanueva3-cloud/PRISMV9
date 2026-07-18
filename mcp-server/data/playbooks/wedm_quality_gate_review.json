@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "id": "wedm-quality-gate-review",
+  "name": "WEDM Quality Gate Override Review",
+  "description": "Workflow for reviewing and approving quality gate overrides",
+  "version": "1.0.0",
+  "trigger": "quality_gate_fail",
+  "category": "quality",
+  "steps": [
+    {
+      "id": "step-1",
+      "name": "Capture Gate Failure",
+      "action": "wedm_capture_gate_failure",
+      "description": "Record which quality gate failed and why",
+      "inputs": ["gate_id", "failure_reason", "context"],
+      "outputs": ["failure_record", "severity", "affected_parameters"],
+      "timeout_sec": 15
+    },
+    {
+      "id": "step-2",
+      "name": "Assess Override Risk",
+      "action": "wedm_assess_override_risk",
+      "description": "Calculate risk score for proceeding despite gate failure",
+      "inputs": ["failure_record", "program_id", "material", "customer"],
+      "outputs": ["risk_score", "risk_factors", "historical_overrides"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-3",
+      "name": "Require Approval",
+      "action": "wedm_require_approval",
+      "description": "Route to appropriate approver based on risk level",
+      "inputs": ["risk_score", "severity", "operator_id"],
+      "outputs": ["approver", "approval_request_id", "escalation_level"],
+      "timeout_sec": 15,
+      "userConfirmation": true
+    },
+    {
+      "id": "step-4",
+      "name": "Log Override Decision",
+      "action": "wedm_log_override",
+      "description": "Record override decision to audit trail",
+      "inputs": ["approval_request_id", "decision", "approver", "justification"],
+      "outputs": ["audit_record_id", "override_token"],
+      "timeout_sec": 15,
+      "hooks": ["wedm-quality-audit"]
+    }
+  ],
+  "onError": {
+    "action": "wedm_block_override",
+    "notify": ["quality_manager"]
+  },
+  "metadata": {
+    "author": "PRISM WEDM AGI",
+    "created": "2026-04-15",
+    "relatedSkills": ["/wedm-studio"],
+    "relatedEngines": ["WEDMQualityEngine", "WEDMAuditEngine"],
+    "compliance": ["ISO 9001", "AS9100"]
+  }
+}

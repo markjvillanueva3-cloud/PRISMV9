@@ -1,0 +1,101 @@
+{
+  "id": "CAD-FUSION-LIVE-MS0-ACBRIDGE",
+  "version": "1.0.0",
+  "title": "OPEN MIND AC Bridge — loopback HTTP companion + Python host module + dispatcher wiring",
+  "brief": "Loop-back HTTP companion server (port 18365) that proxies MCP commands to the OPEN MIND Automation Center on a hyperMILL / hyperCAD-S workstation, paired with the host-side prism_ac Python module the spawned scripts import. Closes the missing-middle named in ACSERVER-BRIDGE-AUDIT-2026-05-20.md.",
+  "created_at": "2026-05-20T05:50:00Z",
+  "created_by": "claude-3db3fb3d/slot-echo /goal complete-all-hypermill-hypercad",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "ACServer bridge stack",
+      "units": [
+        {
+          "id": "U-ACBRIDGE-HTTP-SERVER",
+          "title": "HyperMillACBridgeEngine — loopback HTTP companion server",
+          "description": "Implements /status, /execute, /job-status, /extract, /optimize routes per HyperMillACServerConfig. Loopback-only (127.0.0.1), CORS restricted to hyperCAD-S panel origins, 1MB body cap, max-concurrent=4, 1h job TTL, pure node:http (no framework).",
+          "exit_conditions": [
+            "Engine file exists at mcp-server/src/engines/HyperMillACBridgeEngine.ts",
+            "All 5 routes return correctly in mock mode",
+            "Non-loopback host rejected by validator",
+            "Payload-size guard sends 413 before destroy (P0-1 peer-review fix)"
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-20T05:50:00Z",
+          "completion_note": "Built this session. Peer-reviewed FAIL → P0-1 (write-after-destroy race) fixed → PASS."
+        },
+        {
+          "id": "U-ACBRIDGE-PYTHON-MODULE",
+          "title": "prism_ac Python host-side module + installer",
+          "description": "Operators pip-install this once per hyperMILL workstation. TS-side spawns python -c which imports prism_ac, which imports OPEN MIND's hm library. Functions: ping, open_project, geometry_json, operation_tree_json, export_step, close_project, extract_databases, optimize_ppp. Mock-safe when hm absent.",
+          "exit_conditions": [
+            "Module file exists at mcp-server/python/prism_ac/__init__.py",
+            "README documents operator install path",
+            "Auto-mock when hm import fails",
+            "Every public function returns JSON-serializable dict",
+            "protocol_version field in every ok response (P1-2 peer-review fix)"
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-20T05:50:00Z",
+          "completion_note": "Built this session. P1-2 fixed (geometry_json mock now uses _ok wrapper)."
+        },
+        {
+          "id": "U-ACBRIDGE-DISPATCHER",
+          "title": "prism_cam dispatcher actions for ACServer bridge",
+          "description": "4 new actions added to camDispatcher: cam_hypermill_drive (op-discriminated call to peer-shipped HyperMILLAutomationBridge — open/geometry/operation_tree/toolpaths/export_step/close); cam_hypermill_ac_bridge_start/stop/status (lifecycle for the HTTP companion server).",
+          "exit_conditions": [
+            "4 actions in z.enum + 4 case handlers (both verified)",
+            "Lazy imports use correct casing (P0-2 peer-review fix)",
+            "Drive op-switch covers all 6 ops + default-clause for unknown ops"
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-20T05:50:00Z",
+          "completion_note": "Wired this session. P0-2 fixed (HyperMILLAutomationBridge.js casing matches existing peer handlers; Linux CI safe)."
+        },
+        {
+          "id": "U-ACBRIDGE-TESTS",
+          "title": "HyperMillACBridgeEngine.test.ts — 31-case vitest suite",
+          "description": "Happy path (5 routes) + failure modes (7 cases: missing fields, bad JSON, unknown route/job, oversize) + adversarial (5 cases: non-loopback bind, malformed JSON, oversize, invalid port, uptime monotonicity) + lifecycle (4 cases: isRunning/double-start/double-stop/listJobs) + PRISM_HYPERMILL_LIVE scaffold (1 case, skipped by default).",
+          "exit_conditions": [
+            "Test file at mcp-server/src/__tests__/HyperMillACBridgeEngine.test.ts",
+            "Real TCP round-trips (not just method calls)",
+            "Coverage: happy + ≥3 failure + ≥2 adversarial (per comprehensive-build-enforce)",
+            "LIVE scaffold gated on PRISM_HYPERMILL_LIVE=1"
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-20T05:50:00Z",
+          "completion_note": "Built this session. 31 cases — well above the floor."
+        },
+        {
+          "id": "U-ACBRIDGE-PLAYBOOK",
+          "title": "HYPERCAD-TEST-PLAYBOOK-2026-05-20.md — operator runbook for hyperCAD USB key test",
+          "description": "4-tier operator test path: Tier 1 (pip install + mock-mode smoke), Tier 2 (PRISM_HYPERMILL_LIVE=1 live test), Tier 3 (MCP dispatch round-trip), Tier 4 (Route A end-to-end — gated on V2 orchestrator).",
+          "exit_conditions": [
+            "Runbook file at state/shared/specs/HYPERCAD-TEST-PLAYBOOK-2026-05-20.md",
+            "Diagnostics table covers ≥6 likely failure modes",
+            "Verification commands work on PowerShell (project's native shell)"
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-20T05:50:00Z",
+          "completion_note": "Shipped this session. Includes pre-flight, 4-tier test path, and diagnostics table."
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completion_pct": 100,
+  "total_units": 5,
+  "completed_units": 5,
+  "last_updated": "2026-05-20T05:50:00Z",
+  "intent": "Register the ACServer bridge deliverables shipped this session as a first-class milestone so they appear in BUILD_STATE + MILESTONE_PROGRESS.",
+  "knowledge_sources": {
+    "audit": "state/shared/specs/ACSERVER-BRIDGE-AUDIT-2026-05-20.md",
+    "playbook": "state/shared/specs/HYPERCAD-TEST-PLAYBOOK-2026-05-20.md",
+    "pipeline_spec": "state/shared/specs/PRINT-TO-INSPECTION-PIPELINE-V2.md",
+    "patch_siblings": [
+      "state/shared/dashboards/patches/HYPERMILL-AC-SCRIPT-EXECUTOR-MOCK-BRANCHES.md",
+      "state/shared/dashboards/patches/HYPERMILL-AC-SERVER-CONFIG-LOCALHOST-PIN.md"
+    ]
+  },
+  "updated_at": "2026-05-20T06:02:47.696Z"
+}

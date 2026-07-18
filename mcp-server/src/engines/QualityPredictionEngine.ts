@@ -193,6 +193,70 @@ function calculateCpk(tolerance_mm: number, processError_mm: number, machineAccu
 }
 
 // ============================================================================
+// STATISTICAL-PROCESS-MONITORING OVERLAY (DEA-MS0 P05)
+// ============================================================================
+
+/** Optional statistical-monitoring overlay for predictQualityWithStatisticalMonitoring.
+ *  Each sub-block is independently optional; an absent block is simply not consulted.
+ *  - combined_spc: univariate Shewhart+CUSUM+EWMA scheme over a single characteristic
+ *  - hotelling_t2: multivariate T-squared over an n x p observation matrix
+ *  - sprt: Wald Sequential Probability Ratio Test for a mean shift h0 -> h1
+ */
+export interface SPMOverlayInput {
+  combined_spc?: { observations: number[]; target: number; sigma: number };
+  hotelling_t2?: { data: number[][]; alpha?: number };
+  sprt?: { observations: number[]; h0_mean: number; h1_mean: number; sigma: number };
+}
+
+/** Combined-SPC sub-result surfaced in the overlay (signal counts + first-detection). */
+export interface CombinedSPCSubResult {
+  detection_chart: "none" | "shewhart" | "cusum" | "ewma";
+  shewhart_signals_count: number;
+  cusum_signals_count: number;
+  ewma_signals_count: number;
+  first_signal_index: number;
+  arl_estimate: number;
+}
+
+/** Hotelling T-squared sub-result surfaced in the overlay. */
+export interface HotellingT2SubResult {
+  n_samples: number;
+  n_characteristics: number;
+  ucl: number;
+  top_contributor_variable: number;
+  out_of_control_count: number;
+}
+
+/** Wald SPRT sub-result surfaced in the overlay. */
+export interface SPRTSubResult {
+  decision: "accept_H0" | "accept_H1" | "continue";
+  samples_used: number;
+  log_likelihood_ratio: number;
+  asn: number;
+}
+
+/** The statistical-monitoring overlay attached to a quality prediction.
+ *  spm_source:
+ *   - "no_data"        no overlay argument supplied at all
+ *   - "not_applicable" overlay supplied but no sub-block could be computed (all empty/invalid)
+ *   - "consulted"      at least one sub-block was computed successfully
+ *  statistical_warnings holds SIGNAL-detection messages (drift / H1-accept), distinct from
+ *  the top-level result.warnings which holds input-VALIDATION messages. */
+export interface SPMOverlay {
+  spm_source: "no_data" | "not_applicable" | "consulted";
+  combined_spc?: CombinedSPCSubResult;
+  hotelling_t2?: HotellingT2SubResult;
+  sprt?: SPRTSubResult;
+  statistical_warnings: string[];
+}
+
+/** QualityPrediction augmented with the SPM overlay + input-validation warnings. */
+export interface QualityPredictionWithSPM extends QualityPrediction {
+  spm_overlay: SPMOverlay;
+  warnings: string[];
+}
+
+// ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
@@ -318,6 +382,142 @@ export class QualityPredictionEngine {
     const overall = riskScore > 60 ? "critical" : riskScore > 40 ? "high" : riskScore > 20 ? "moderate" : "low";
 
     return { overall_risk: overall, risk_score: Math.min(100, Math.round(riskScore)), risks };
+  }
+
+  /**
+   * Quality prediction with an optional statistical-process-monitoring overlay.
+   *
+   * Returns the full base predict() result, plus an `spm_overlay` that lazy-chains
+   * StatisticalProcessMonitoringEngine (Hotelling T2 / combined Shewhart+CUSUM+EWMA /
+   * Wald SPRT) WITHOUT coupling either engine at compile time. Each sub-block is
+   * validated independently; an empty/invalid block is skipped with a named warning
+   * (in result.warnings) rather than throwing, so the base prediction is never lost.
+   *
+   * spm_source: "no_data" (no overlay arg) | "not_applicable" (overlay supplied but no
+   * sub-block computed) | "consulted" (>=1 sub-block computed).
+   *
+   * @param input  base quality-prediction inputs
+   * @param spmData optional statistical-monitoring overlay request
+   * @returns base prediction + spm_overlay + input-validation warnings
+   */
+  async predictQualityWithStatisticalMonitoring(
+    input: QualityInput,
+    spmData?: SPMOverlayInput,
+  ): Promise<QualityPredictionWithSPM> {
+    const base = this.predict(input);
+    const warnings: string[] = [];            // input-VALIDATION messages
+    const statistical_warnings: string[] = []; // SIGNAL-detection messages
+
+    // No overlay argument at all -> nothing to monitor.
+    if (spmData === undefined || spmData === null) {
+      return {
+        ...base,
+        spm_overlay: { spm_source: "no_data", statistical_warnings },
+        warnings,
+      };
+    }
+
+    const overlay: SPMOverlay = { spm_source: "not_applicable", statistical_warnings };
+    let consulted = 0;
+
+    // Lazy-import keeps the two engines decoupled at compile time (R5/R8).
+    const { statisticalProcessMonitoringEngine: spm } = await import(
+      "./StatisticalProcessMonitoringEngine.js"
+    );
+
+    // ── combined_spc ─────────────────────────────────────────────────────
+    if (spmData.combined_spc !== undefined) {
+      const { observations, target, sigma } = spmData.combined_spc;
+      if (!Array.isArray(observations) || observations.length === 0) {
+        warnings.push("combined_spc: observations array empty -- univariate SPC needs >=1 observation");
+      } else if (!(typeof sigma === "number" && sigma > 0 && Number.isFinite(sigma))) {
+        warnings.push("combined_spc: sigma must be a positive finite number");
+      } else {
+        const cs = spm.combinedSPCScheme({ data: observations, target, sigma });
+        overlay.combined_spc = {
+          detection_chart: cs.detection_chart as CombinedSPCSubResult["detection_chart"],
+          shewhart_signals_count: cs.shewhart_signals.length,
+          cusum_signals_count: cs.cusum_signals.length,
+          ewma_signals_count: cs.ewma_signals.length,
+          first_signal_index: cs.first_signal_index,
+          arl_estimate: cs.arl_estimate,
+        };
+        consulted++;
+        if (cs.first_signal_index >= 0) {
+          statistical_warnings.push(
+            `Combined SPC: out-of-control signal at index ${cs.first_signal_index} (${cs.detection_chart} chart)`,
+          );
+        }
+      }
+    }
+
+    // ── hotelling_t2 ─────────────────────────────────────────────────────
+    if (spmData.hotelling_t2 !== undefined) {
+      const { data, alpha } = spmData.hotelling_t2;
+      if (!Array.isArray(data) || data.length === 0 || !Array.isArray(data[0])) {
+        warnings.push("hotelling_t2: data matrix needs a non-empty array of observation vectors");
+      } else {
+        const n = data.length;
+        const p = data[0].length;
+        if (n <= p) {
+          warnings.push(
+            `hotelling_t2: covariance estimation needs n > p (got n=${n} observations, p=${p} characteristics)`,
+          );
+        } else {
+          const ht = spm.hotellingT2({ data, alpha });
+          let topVar = 0;
+          let topContribution = -Infinity;
+          for (const d of ht.decomposition) {
+            if (d.contribution > topContribution) {
+              topContribution = d.contribution;
+              topVar = d.variable;
+            }
+          }
+          overlay.hotelling_t2 = {
+            n_samples: n,
+            n_characteristics: p,
+            ucl: ht.ucl,
+            top_contributor_variable: topVar,
+            out_of_control_count: ht.out_of_control.length,
+          };
+          consulted++;
+          if (ht.out_of_control.length > 0) {
+            statistical_warnings.push(
+              `Hotelling T2: ${ht.out_of_control.length} multivariate out-of-control sample(s); top contributor variable ${topVar}`,
+            );
+          }
+        }
+      }
+    }
+
+    // ── sprt ─────────────────────────────────────────────────────────────
+    if (spmData.sprt !== undefined) {
+      const { observations, h0_mean, h1_mean, sigma } = spmData.sprt;
+      if (!Array.isArray(observations) || observations.length === 0) {
+        warnings.push("sprt: observations array empty -- sequential test needs >=1 observation");
+      } else if (!(typeof sigma === "number" && sigma > 0 && Number.isFinite(sigma))) {
+        warnings.push("sprt: sigma must be a positive finite number");
+      } else if (!Number.isFinite(h0_mean) || !Number.isFinite(h1_mean)) {
+        warnings.push("sprt: h0_mean and h1_mean must be finite numbers");
+      } else {
+        const sp = spm.sprt({ observations, h0_mean, h1_mean, sigma });
+        overlay.sprt = {
+          decision: sp.decision,
+          samples_used: sp.samples_used,
+          log_likelihood_ratio: sp.log_likelihood_ratio,
+          asn: sp.asn,
+        };
+        consulted++;
+        if (sp.decision === "accept_H1") {
+          statistical_warnings.push(
+            `SPRT: H1 accepted after ${sp.samples_used} sample(s) -- process mean shifted toward ${h1_mean}`,
+          );
+        }
+      }
+    }
+
+    overlay.spm_source = consulted > 0 ? "consulted" : "not_applicable";
+    return { ...base, spm_overlay: overlay, warnings };
   }
 }
 

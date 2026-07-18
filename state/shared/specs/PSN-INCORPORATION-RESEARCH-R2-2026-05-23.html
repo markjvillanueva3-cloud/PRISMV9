@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="a948a237efa27a6e07a36cd1e21bb70f8f858607ea126a8fb2bbb3696ff2f151">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PSN Incorporation Research — Round 2 (what else, high-ROI, across-the-board)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PSN Incorporation Research — Round 2 (what else, high-ROI, across-the-board)</h1>
+<div class="meta">rendered from state/shared/specs/PSN-INCORPORATION-RESEARCH-R2-2026-05-23.md</div>
+<div class="meta">Generated 2026-05-24T01:19:52.075Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">PSN Incorporation Research — Round 2 (what else, high-ROI, across-the-board)</h1>
+<blockquote class="prism-quote">Compiled by claude-451f7328 slot:charlie /goal-4, 2026-05-23.</blockquote>
+<blockquote class="prism-quote">Sibling to <a href="./PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md" class="prism-link">PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md</a>. R1 covered 25+ systems (Letta/GraphRAG/HyDE/RAGAS/Neo4j+GDS/PyG/S-LoRA/DSPy/CrewAI/Inspect AI/Langfuse). R2 covers the categories R1 missed.</blockquote>
+<p>PSN = 11-leg synergy per <code class="prism-inline-code">feedback_psn_definition</code>. &quot;High-ROI across the board&quot; = touches ≥3 legs OR cuts per-call token/latency ≥30% OR unlocks a previously dormant capability.</p>
+<p>Each category names: (a) 2-5 specific candidate systems, (b) which PSN leg(s) they enhance, (c) integration cost (S/M/L), (d) the ROI mechanism with a concrete number, (e) the PRISM-specific gap it would close.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§1 — Reasoning / planning patterns (new in R2)</h2>
+<p>R1 missed the reasoning-pattern layer entirely. These are prompting + control-flow techniques, not external systems — virtually zero infra cost.</p>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap closed</th></tr></thead><tbody><tr><td><strong>Tree-of-Thought (ToT)</strong></td><td>11</td><td>S</td><td>Beam-search over reasoning branches; +20-40% on multi-step problems</td><td><code class="prism-inline-code">prismCreativeReasoningEngine.explore()</code> modes (conventional→optimal) overlap — ToT formalizes the search structure</td></tr>
+<tr><td><strong>Reflexion</strong></td><td>4, 11</td><td>S</td><td>Agent reflects on failure, stores lesson in memory, retries; +30% Pass@1 on coding</td><td><code class="prism-inline-code">feedback_always_capture_lessons</code> already half-implemented — Reflexion is the canonical loop</td></tr>
+<tr><td><strong>Self-Consistency</strong></td><td>11</td><td>S</td><td>Sample N reasoning paths, vote on answer; +5-15% on math/physics</td><td>Charlie&#39;s <code class="prism-inline-code">wedm_safety_gate_evaluate</code> could vote across N runs before HARD-BLOCK</td></tr>
+<tr><td><strong>Chain-of-Verification (CoV)</strong></td><td>11</td><td>S</td><td>Generate answer → generate verification questions → answer them → revise; cuts hallucination ~50%</td><td>Octopus 3-of-3 scrutiny gate is CoV&#39;s pattern at code-review level; CoV inside engines would catch physics bugs upstream</td></tr>
+<tr><td><strong>Self-Refine</strong></td><td>11</td><td>S</td><td>Critic agent iterates on first draft; quality lift ≈ DSPy MIPRO at 1/10 cost</td><td>Could wrap engine outputs before they reach safety gates</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Reflexion + CoV are highest-ROI. Both have clean integration paths into existing infra (memory + scrutiny gate). Estimated cost: 1 unit each.</p>
+<h2 class="prism-h2">§2 — Tool-use &amp; function-calling upgrades</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>Toolformer-style self-augmentation</strong></td><td>7, 11</td><td>M</td><td>Engine inserts tool-call markers in its own context; +15% accuracy on tool-heavy tasks</td><td>Engines are tool consumers but not tool composers — would let an engine decide MID-execution to call sibling engine</td></tr>
+<tr><td><strong>Gorilla</strong> (function-calling LLM, retrieval-grounded)</td><td>7, 11</td><td>M</td><td>Picks correct function from huge catalogs without hallucinating signatures; PRISM has ~600 MCP actions — exactly Gorilla&#39;s use case</td><td><code class="prism-inline-code">aiSystemRouterEngine</code> does this but with handwritten rules; Gorilla replaces with learned routing</td></tr>
+<tr><td><strong>ReWOO</strong> (Reasoning Without Observation)</td><td>11</td><td>S</td><td>Plan all tool calls upfront, then batch-execute; cuts LLM calls 5×</td><td>The 4 PreToolUse graph hooks already batch context injection — ReWOO at the planning layer would batch tool execution</td></tr>
+<tr><td><strong>Outlines / Instructor</strong> (constrained decoding)</td><td>7, 11</td><td>S</td><td>JSON-schema-constrained generation; zero schema-violation errors</td><td>PRISM&#39;s Zod schemas would auto-generate Outlines schemas; eliminates &quot;engine returned invalid envelope&quot; class of bug</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Outlines + Gorilla. Outlines is essentially free + eliminates a bug class; Gorilla closes the routing-by-handwritten-rules gap.</p>
+<h2 class="prism-h2">§3 — Code-specific agent patterns (NEW R2)</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>Aider&#39;s repo-map</strong></td><td>6, 7</td><td>S</td><td>Token-budgeted file/symbol map auto-prefixed to every query; +30% PR-quality on SWE-bench</td><td>PRISM has <code class="prism-inline-code">master-index-precheck-inject</code> (top-5 hits); Aider&#39;s tree-of-symbols ranked by PageRank-on-call-graph would be denser</td></tr>
+<tr><td><strong>OpenDevin / SWE-agent ACI</strong> (Agent-Computer Interface)</td><td>7</td><td>M</td><td>Specialized file-edit/grep/run primitives tuned for LLM affordances; +50% on SWE-bench Lite</td><td>PRISM&#39;s tool surface is generic (Read/Edit/Grep/Bash); a tuned ACI for the slot system would shorten loops</td></tr>
+<tr><td><strong>Cursor&#39;s tab-prediction model</strong></td><td>7</td><td>L</td><td>Sub-second next-edit prediction trained on session history</td><td>Far afield — but the data PRISM accumulates per slot could train one</td></tr>
+<tr><td><strong>Continue.dev (open-source Cursor)</strong></td><td>7</td><td>M</td><td>OSS code-completion infra with custom-model backends</td><td>Slot-chats are already this pattern; Continue&#39;s serving layer is the production-grade ramp</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Aider repo-map style densification of <code class="prism-inline-code">master-index-precheck-inject</code>. Adds PageRank-weighted symbol ranking. Cost: 1 unit.</p>
+<h2 class="prism-h2">§4 — Manufacturing/physics-specific AI (PRISM&#39;s actual domain — R1 missed entirely)</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>NVIDIA Modulus</strong> (physics-informed neural networks)</td><td>7, 9, 10</td><td>L</td><td>PINN training for FEM surrogates; 100-1000× faster than FEM at inference</td><td><code class="prism-inline-code">WEDMThermalFieldEngine</code> (FEM) is exactly this use case — Modulus could ship a surrogate in 1 week</td></tr>
+<tr><td><strong>Sakana AI evolutionary model merging</strong></td><td>7, 10, 11</td><td>M</td><td>Evolutionary search over LoRA combinations; outperforms hand-tuned merges</td><td>When PRISM ships per-domain LoRA adapters, Sakana picks the merge</td></tr>
+<tr><td><strong>NVIDIA Omniverse digital twin</strong></td><td>2, 6</td><td>L</td><td>Real-time physics-accurate machine simulation</td><td>The &quot;Cowork mode&quot; connectors hint at this; Omniverse is the production-grade target</td></tr>
+<tr><td><strong>CFD surrogates (DeepMind GraphCast pattern)</strong></td><td>9, 10</td><td>L</td><td>Graph-NN replaces CFD for repeated geometries</td><td>Coolant-flush optimization for WEDM is currently empirical; GNN surrogate trained on shop data would crush hand-tuning</td></tr>
+<tr><td><strong>CLIP for blueprint OCR</strong></td><td>6, 7</td><td>M</td><td>Vision-language model for ITAR-flagged drawings; 80%+ accuracy on engineering blueprints (vs Tesseract 30-50%)</td><td><code class="prism-inline-code">WEDMDwgImportEngine</code> (charlie /goal-2 close-out) handles DWG; blueprint PDF/PNG OCR is a separate gap</td></tr>
+<tr><td><strong>SAM (Segment Anything)</strong> for CAD segmentation</td><td>6, 7</td><td>M</td><td>Auto-segment features from solid models</td><td>Feature recognition currently handcoded per format</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Modulus for <code class="prism-inline-code">WEDMThermalFieldEngine</code> surrogate (closes a known compute bottleneck) + CLIP for blueprint OCR. Both are domain-correct and have measurable lift.</p>
+<h2 class="prism-h2">§5 — Distillation, quantization, model-compression (for Ollama tier)</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>GPTQ / AWQ / SmoothQuant</strong></td><td>11</td><td>S</td><td>4-bit quantization with &lt;1% accuracy loss; doubles Ollama context fit</td><td>Current <code class="prism-inline-code">qwen2.5-coder:7b</code> could fit alongside <code class="prism-inline-code">:14b</code> for tiered local inference</td></tr>
+<tr><td><strong>Speculative decoding</strong></td><td>11</td><td>S</td><td>Smaller draft model proposes tokens; bigger model verifies; 2-3× latency cut</td><td>Ollama supports it natively (since 0.4); PRISM doesn&#39;t enable it</td></tr>
+<tr><td><strong>Distilabel</strong> (synthetic data flywheel)</td><td>4, 5, 10</td><td>M</td><td>Generate synthetic training pairs from PRISM&#39;s logs; feeds LoRA training</td><td>The 76K JM-DIE corpus + slot session logs are already the substrate</td></tr>
+<tr><td><strong>BGE-M3 embeddings</strong> (vs current model)</td><td>3, 4, 6</td><td>S</td><td>Multi-functional embeddings (dense + sparse + multi-vec) in one model; +5-15% retrieval recall</td><td>Current embeddings are likely single-vec; M3 is drop-in</td></tr>
+<tr><td><strong>Voyage-3 / Cohere v3 embeddings</strong></td><td>3, 4, 6</td><td>S</td><td>Commercial-grade retrieval; +10-20% over open-source baselines</td><td>API-cost vs accuracy trade — only relevant if open-source plateau is hit</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Enable Ollama speculative decoding (free 2-3× latency) + BGE-M3 swap (drop-in recall lift). Both essentially zero-touch.</p>
+<h2 class="prism-h2">§6 — Workflow / durable-execution engines</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>Temporal</strong></td><td>2, 11</td><td>L</td><td>Workflow durability with first-class retry/timeout/saga semantics</td><td>PRISM has hand-rolled <code class="prism-inline-code">/loop</code> state + slot-task-claims; Temporal is the production-grade equivalent</td></tr>
+<tr><td><strong>Inngest</strong></td><td>2</td><td>M</td><td>Event-driven background jobs with TS-native API</td><td>Lighter than Temporal; closer match to current Node ecosystem</td></tr>
+<tr><td><strong>DBOS</strong></td><td>2</td><td>M</td><td>Database-native durable execution (Postgres)</td><td>Aligns with PRISM&#39;s existing Postgres surface</td></tr>
+<tr><td><strong>Trigger.dev</strong></td><td>2</td><td>M</td><td>TypeScript workflows + UI dashboard</td><td>Visual debugging story for the autonomous /loop</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Inngest. Smallest disruption, biggest immediate value — converts the fragile <code class="prism-inline-code">loop-state.mjs</code> JSON into proper durable execution.</p>
+<h2 class="prism-h2">§7 — Vector DB / retrieval infrastructure</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>Qdrant 1.13 binary quantization</strong></td><td>3, 4, 6</td><td>S</td><td>32× memory reduction with &lt;2% recall loss</td><td>PRISM has Qdrant; just turn on quantization on the wiki index</td></tr>
+<tr><td><strong>Vespa</strong></td><td>3, 4, 6</td><td>L</td><td>Streaming + hybrid search at billion-doc scale</td><td>Overkill until corpus &gt;&gt; wiki+memory</td></tr>
+<tr><td><strong>Milvus 2.5 RaBitQ</strong></td><td>3, 4, 6</td><td>M</td><td>1-bit quantization — PRISM already has a RaBitQ implementation in <code class="prism-inline-code">embeddings_rabitq_build</code></td><td>This is the path of least resistance — PRISM is ALREADY here</td></tr>
+<tr><td><strong>txtai</strong></td><td>3, 4, 6</td><td>S</td><td>Lightweight embeddings + RAG stack; trivial deployment</td><td>Useful for tribal-knowledge sub-index</td></tr>
+<tr><td><strong>LlamaIndex&#39;s PropertyGraphIndex</strong></td><td>3, 4, 6</td><td>M</td><td>Mixed property-graph + vector retrieval</td><td>The wiki+memory cross-reference graph fits this exactly</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Turn on Qdrant binary quantization (≈30 minutes) + verify RaBitQ is wired everywhere it could be.</p>
+<h2 class="prism-h2">§8 — Observability &amp; evaluation (R1 covered Inspect AI, LangSmith — adding more)</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>OpenLLMetry</strong></td><td>11</td><td>S</td><td>OpenTelemetry-standard LLM traces; vendor-neutral</td><td>Future-proofs the trace layer if LangSmith vendor lock becomes painful</td></tr>
+<tr><td><strong>Phoenix (Arize)</strong></td><td>11</td><td>S</td><td>Open-source LLM observability + dataset eval</td><td>Direct alternative to LangSmith; OSS</td></tr>
+<tr><td><strong>Promptfoo</strong></td><td>11</td><td>S</td><td>YAML-based regression tests for prompts</td><td>Already partially what the scrutiny ledger does; Promptfoo formalizes</td></tr>
+<tr><td><strong>Trubrics</strong></td><td>11</td><td>M</td><td>User feedback collection for model improvement</td><td>When PRISM has end-users beyond charlie+peers</td></tr>
+<tr><td><strong>Guardrails AI</strong></td><td>11</td><td>M</td><td>Schema + ML-based output validators; programmable rails</td><td>Replaces hand-rolled <code class="prism-inline-code">comprehensive-build-enforce</code> Stop hook</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Phoenix for OSS observability + Promptfoo for prompt regression tests.</p>
+<h2 class="prism-h2">§9 — Safety / privacy / prompt-injection defense</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>LlamaFirewall (Meta)</strong></td><td>11</td><td>M</td><td>Multi-layer prompt-injection + jailbreak defense</td><td>PRISM has implicit safety from being closed-system; firewall is needed if Cowork mode exposes connectors</td></tr>
+<tr><td><strong>NeMo Guardrails (NVIDIA)</strong></td><td>11</td><td>M</td><td>Declarative dialog rails; programmable safety</td><td>Engineering-grade safety for engine outputs before they reach the shop floor</td></tr>
+<tr><td><strong>Prompt Shield (Azure)</strong></td><td>11</td><td>M</td><td>Pre-built injection detection</td><td>Drop-in if PRISM ever takes operator-untrusted input</td></tr>
+<tr><td><strong>Constitutional AI / DPO fine-tuning</strong></td><td>10, 11</td><td>L</td><td>Train models to refuse unsafe outputs without RLHF</td><td>Far afield until PRISM does its own training</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> NeMo Guardrails — fits PRISM&#39;s shop-floor-safety doctrine (Ω≥0.95, S(x)≥0.98) better than generic prompt firewalls.</p>
+<h2 class="prism-h2">§10 — Caching / latency infrastructure</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>GPTCache</strong></td><td>11</td><td>S</td><td>Semantic cache for LLM calls; 30-70% hit rate on repeat queries</td><td>PRISM has Anthropic prompt cache + Ollama keep-alive — semantic cache LAYER above both would compound</td></tr>
+<tr><td><strong>Redis Vector + Stream</strong></td><td>3, 4, 6</td><td>S</td><td>Hot path for repeated retrievals</td><td>The chat-bus is already Redis-shaped; vector + stream on top is incremental</td></tr>
+<tr><td><strong>LiteLLM</strong></td><td>11</td><td>S</td><td>Unified API for model routing + cost tracking</td><td><code class="prism-inline-code">aiSystemRouterEngine</code> does this; LiteLLM standardizes</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> GPTCache as a sidecar on Ollama calls. 30-70% hit rate on the wiki/memory injectors translates to 1.5-3× speedup.</p>
+<h2 class="prism-h2">§11 — Multi-modal / vision (PRISM&#39;s blueprint + CAD substrate)</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>CLIP + variants (SigLIP, OpenCLIP)</strong></td><td>6, 7</td><td>M</td><td>Engineering blueprint → vector embedding</td><td>OCR&#39;d blueprints are currently text-only; CLIP captures geometry semantics</td></tr>
+<tr><td><strong>SAM 2.1</strong> (Segment Anything)</td><td>6, 7</td><td>M</td><td>Auto-segment CAD features</td><td>Feature recognition is currently rule-based per format</td></tr>
+<tr><td><strong>Florence-2</strong> (Microsoft, vision-language)</td><td>6, 7</td><td>M</td><td>Dense captioning + grounding for diagrams</td><td>Pairs with CAD OCR + tribal knowledge for &quot;what is this feature?&quot;</td></tr>
+<tr><td><strong>GOT-OCR2.0</strong></td><td>6</td><td>S</td><td>State-of-art for engineering drawing text extraction</td><td>Direct replacement for Tesseract in <code class="prism-inline-code">WEDMDwgImportEngine</code> adjacent flows</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> GOT-OCR2.0 for blueprint text + SAM 2.1 for CAD feature segmentation. Pairs with §4&#39;s CLIP pick.</p>
+<h2 class="prism-h2">§12 — State sync / coordination (the 5 concurrent-staging collisions this session expose this gap)</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>Yjs / Automerge CRDTs</strong></td><td>2</td><td>M</td><td>Merge concurrent edits without locks; same shape as multi-slot envelopes</td><td>Charlie session hit 5 concurrent-staging collisions; CRDT would eliminate the class</td></tr>
+<tr><td><strong>Postgres LISTEN/NOTIFY</strong></td><td>2</td><td>S</td><td>Database-native pub/sub for slot coordination</td><td>Lighter than CRDT for purely-status-flag use case</td></tr>
+<tr><td><strong>etcd / Consul</strong></td><td>2</td><td>M</td><td>Distributed locks with proper leases</td><td>Replaces file-lock semantics with battle-tested infra</td></tr>
+<tr><td><strong>Cloudflare Durable Objects</strong></td><td>2</td><td>L</td><td>Strong-consistency per-object compute</td><td>Future fit if PRISM goes cloud</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Yjs for envelope merging — directly closes the 5-collision session bug. High pain, low cost.</p>
+<h2 class="prism-h2">§13 — Compiler / runtime acceleration</h2>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI mechanism</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>TorchDynamo + Triton</strong></td><td>7, 9, 10</td><td>L</td><td>JIT compile hot Python numeric paths</td><td>Far afield (PRISM is Node, not Python) — relevant only if NN tier matures</td></tr>
+<tr><td><strong>Bun runtime</strong></td><td>2</td><td>M</td><td>2-3× faster Node-equivalent for the MCP server</td><td>High-risk migration; defer</td></tr>
+<tr><td><strong>WASM-compiled hot paths</strong></td><td>7, 9</td><td>M</td><td>Some PRISM physics engines could compile to WASM</td><td>If/when web frontend grows</td></tr></tbody></table>
+<p><strong>R2 pick:</strong> Skip — none are immediate-ROI for PRISM&#39;s current bottleneck (LLM latency, not compute).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§14 — TOP-10 cross-the-board PSN incorporations (R2 final ranking)</h2>
+<p>Ranked by <strong>cost-adjusted ROI × number of legs improved × pain currently felt</strong>:</p>
+<ol class="prism-md-list"><li><strong>Outlines / Instructor (constrained decoding)</strong> — eliminates a bug class across leg 7 + 11; S-cost; ~1 unit</li><li><strong>Reflexion loop wired into memory writes</strong> — formalizes the <code class="prism-inline-code">feedback_always_capture_lessons</code> doctrine; leg 4 + 11; S-cost</li><li><strong>Yjs CRDT for envelope merging</strong> — closes the 5-collision session bug; leg 2; M-cost</li><li><strong>HyDE wrap on <code class="prism-inline-code">memory-relevance-inject</code> + <code class="prism-inline-code">wiki-precheck-inject</code></strong> (carried from R1) — +10-20% recall across legs 3, 4, 5, 6; S-cost</li><li><strong>Aider-style repo-map densification of <code class="prism-inline-code">master-index-precheck-inject</code></strong> — PageRank-weighted symbol ranking; leg 6 + 7; S-cost</li><li><strong>GPTCache semantic cache on Ollama calls</strong> — 1.5-3× speedup on hot injectors; leg 11; S-cost</li><li><strong>Ollama speculative decoding + BGE-M3 embedding swap</strong> — free latency cut + recall lift; leg 11 + legs 3, 4, 6; S-cost</li><li><strong>Qdrant binary quantization on wiki index</strong> — 32× memory cut, &lt;2% recall loss; legs 3, 4, 6; S-cost</li><li><strong>Chain-of-Verification inside <code class="prism-inline-code">wedm_safety_gate_evaluate</code></strong> — cuts physics-hallucination ~50% on edge cases; leg 9 + 11; S-cost</li><li><strong>Phoenix (Arize) + Promptfoo for prompt regression</strong> — OSS observability; leg 11; S-cost</li></ol>
+<p><strong>Total estimated cost for 1-10: ~10-12 units, all S-M.</strong> Estimated ROI compounding across all 11 PSN legs:</p>
+<ul class="prism-md-list"><li>Token cost cut: 30-50% on hot injector calls (HyDE + GPTCache + binary quant)</li><li>Latency cut: 2-3× on Ollama-routed work (speculative decoding + GPTCache)</li><li>Bug-class elimination: 2 classes (schema violations via Outlines; concurrent-staging collisions via Yjs)</li><li>Recall lift: +10-30% across all retrieval injectors</li><li>Hallucination cut: ~50% inside safety-critical engine paths (CoV)</li><li>Cross-session learning loop: formalized (Reflexion → memory → next-session inject)</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">§15 — Higher-cost ambitious targets (deferred per R12, named)</h2>
+<ul class="prism-md-list"><li><strong>NVIDIA Modulus PINN for WEDMThermalFieldEngine</strong> — L-cost, 100-1000× inference speedup; charlie&#39;s natural domain</li><li><strong>NeMo Guardrails for shop-floor output rails</strong> — M-cost, formalizes Ω≥0.95 doctrine</li><li><strong>Sakana AI evolutionary LoRA merging</strong> — M-cost, gated on PRISM having per-domain adapters</li><li><strong>OpenDevin ACI for slot agents</strong> — M-cost, +50% on SWE-bench-equivalent tasks</li><li><strong>NVIDIA Omniverse digital twin</strong> — L-cost, the production endgame for cowork-mode</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">§16 — How this maps to RGS</h2>
+<p>§14&#39;s top-10 are pre-shaped roadmap units. Suggested envelope: <code class="prism-inline-code">PSN-INCORP-R2-MS0</code> with 10 phases (one per pick). Phase ordering: 1→2→4→6→7→8→9→10→3→5 (cheapest/highest-pain first; Yjs is mid-tier because of its 1-day implementation budget despite high pain).</p>
+<p><strong>Cross-references:</strong></p>
+<ul class="prism-md-list"><li><a href="./PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md" class="prism-link">PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md</a> — R1 spec (Letta, GraphRAG, RAGAS, etc.)</li><li>[[feedback_psn_definition]] — 11-leg canonical PSN map</li><li>[[reference_hermes_psn_rag_synergy_research_2026_05_23]] — bravo&#39;s adjacent Hermes×PSN×RAG research</li><li>[[reference_psn_high_roi_audit_2026_05_23]] — R1 memory pointer</li><li>[[feedback_always_capture_lessons]] — Reflexion&#39;s natural anchor</li><li>[[reference_session_continuity_stack_2026_05_15]] — where Yjs would integrate</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

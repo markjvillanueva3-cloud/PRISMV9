@@ -23,16 +23,14 @@ related:
 |-------|-------|
 | Name | `sparc` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/sparc.md` |
+| Source | `C:/Users/wompu/.claude/commands/sparc.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-**Opt-in**, non-default subsystem-design workflow that routes a "design
-a new subsystem" request through the SPARC chain
-(Specification → Pseudocode → Architecture → Refinement → Completion)
-using the five canonical SPARC agents from the `sparc-coord` plugin.
+
+# /sparc — Phase 0.17 U-PLG6 SPARC Methodology Router
 
 <!-- AUTO-END -->
 

@@ -60,6 +60,17 @@ export interface FeatureVector {
   detected_materials: string[];
   estimated_spindle_range_rpm: [number, number];
   estimated_feed_range_mm_min: [number, number];
+  /**
+   * Native feed-per-rev range (raw G95 F-values). DENSE in a constant-surface-speed
+   * (G96) shop where `estimated_feed_range_mm_min` is fundamentally sparse — it is the
+   * CORRECT cutting-condition target for this corpus (see CAM-FIRST-TRAIN-METRICS.md
+   * mm/rev finding). Unit-TAGGED (`feed_per_rev_unit`) so in/rev (JM inch/G20) and
+   * mm/rev (G21) are never silently mixed (the 25.4x mislabel class). Absent when no
+   * G95 feed-per-rev value was present. Added U-CAM-FEED-PER-REV.
+   */
+  estimated_feed_range_per_rev?: [number, number];
+  /** Unit of `estimated_feed_range_per_rev` — resolved from G20/G21; "unknown" when neither declared. */
+  feed_per_rev_unit?: "in/rev" | "mm/rev" | "unknown";
   g_code_dialect_hint: GCodeDialect;
   has_m98_subroutine: boolean;
   has_g41_g42_cutter_comp: boolean;
@@ -280,6 +291,19 @@ export class CAMFeatureExtractorEngine {
     const spindleRPM: number[] = [];
     const feeds: number[] = [];
     const materials = new Set<string>();
+    // Feed/spindle MODE state for CORRECT mm/min feed extraction (U-CAM-FEED-EXTRACT-FIX,
+    // 2026-05-31). Okuma lathe (.MIN): G94=feed/min (mm/min), G95=feed/rev (mm/rev — the
+    // common turning default); G96=constant-surface-speed (S is surface speed, NOT rpm),
+    // G97=direct rpm. The target field is mm/min, so a G95 feed must be converted
+    // mm/min = F(mm/rev) * rpm, and rpm is only known under G97. Pushing a raw G95 value
+    // into an mm/min field was a ~1000x units error; we now convert when determinable and
+    // SKIP (never fabricate) when units are ambiguous (G96 CSS / unknown mode).
+    let feedMode: "G94" | "G95" | null = null;
+    let spindleMode: "G96" | "G97" | null = null;
+    let lastRpm = 0;
+    let feedsSkippedAmbiguous = 0;
+    const feedsPerRev: number[] = [];           // raw G95 feed-per-rev — the CSS shop's dense feed target
+    let programUnit: "in" | "mm" | null = null; // G20/G21 — tags the per-rev unit (prevents 25.4x mislabel)
 
     let has_m98 = false;
     let has_g41_g42 = false;
@@ -318,18 +342,52 @@ export class CAMFeatureExtractorEngine {
         tool_changes += 1;
       }
 
-      // Spindle: S after G50 / G96 / G97 / standalone S
-      const spindleMatch = line.match(/\bS(\d+)/);
+      // Feed/spindle MODE (Okuma) — detect BEFORE the feed value so same-block modes apply.
+      if (/\bG94\b/.test(line)) feedMode = "G94";
+      else if (/\bG95\b/.test(line)) feedMode = "G95";
+      if (/\bG96\b/.test(line)) spindleMode = "G96";
+      else if (/\bG97\b/.test(line)) spindleMode = "G97";
+      if (/\bG20\b/.test(line)) programUnit = "in";        // inch (JM Okuma convention)
+      else if (/\bG21\b/.test(line)) programUnit = "mm";   // metric
+
+      // Strip inline comments so an "(F0.2)" note can't masquerade as a real feed/spindle word.
+      const codePart = line.replace(/\([^)]*\)/g, " ");
+
+      // Spindle: S after G50 / G96 / G97 / standalone S. S is rpm ONLY under G97 (or when the
+      // mode is still unknown — matches the prior all-S behavior); under G96 it is a surface
+      // speed, so it must NOT seed the rpm used to convert a G95 feed to mm/min.
+      const spindleMatch = codePart.match(/\bS(\d+)/);
       if (spindleMatch) {
-        const rpm = parseInt(spindleMatch[1], 10);
-        if (rpm > 0 && rpm < 100000) spindleRPM.push(rpm);
+        const sval = parseInt(spindleMatch[1], 10);
+        if (sval > 0 && sval < 100000) {
+          spindleRPM.push(sval);                       // spindle range proxy (unchanged scope)
+          lastRpm = spindleMode === "G96" ? 0 : sval;  // true rpm under G97 / unknown; CSS → rpm unknown
+        }
       }
 
-      // Feed: F followed by number (integer or decimal)
-      const feedMatch = line.match(/\bF(\d+(?:\.\d+)?)/);
+      // Feed: F + number. NOTE: no leading \b — an inline feed like "Z-1.5F0.15" has NO word
+      // boundary between the digit and F, which silently dropped most feeds before
+      // (U-CAM-FEED-EXTRACT-FIX). Emit mm/min by mode; skip when the units are ambiguous.
+      // Number forms: 0.15, 1, 5.0, AND Okuma's leading-dot (.002) + trailing-dot (1.) notation —
+      // the DOMINANT JM feed format that the prior /F(\d+(?:\.\d+)?)/ regex silently MISSED, which
+      // (with the G96-CSS skip) is the real reason feed coverage was n≈6 (U-CAM-FEED-PER-REV).
+      const feedMatch = codePart.match(/F(\d*\.\d+|\d+\.?)/);
       if (feedMatch) {
         const f = parseFloat(feedMatch[1]);
-        if (f > 0 && f < 100000) feeds.push(f);
+        if (f > 0 && f < 100000) {
+          // G95 feed IS feed-per-rev by definition (independent of spindle mode) — capture
+          // it as the dense native target even when CSS makes the mm/min conversion impossible.
+          if (feedMode === "G95") {
+            feedsPerRev.push(f);
+          }
+          if (feedMode === "G94") {
+            feeds.push(f);                             // already mm/min
+          } else if (feedMode === "G95" && lastRpm > 0) {
+            feeds.push(f * lastRpm);                   // mm/rev * rpm = mm/min
+          } else {
+            feedsSkippedAmbiguous++;                   // G96-CSS / unknown mode → don't mislabel mm/min
+          }
+        }
       }
 
       // G-code flags
@@ -346,6 +404,14 @@ export class CAMFeatureExtractorEngine {
     const parsed_ok = lines.length > 0 && (tools.size > 0 || spindleRPM.length > 0 || feeds.length > 0);
     if (!parsed_ok && warnings.length === 0) {
       warnings.push("No tool/spindle/feed tokens found — file may not be a valid Okuma program");
+    }
+    // R12: surface WHY the feed target is empty rather than silently leaving [0,0].
+    if (feedsSkippedAmbiguous > 0 && feeds.length === 0) {
+      warnings.push(`${feedsSkippedAmbiguous} feed value(s) skipped — ambiguous units (G96 CSS or no G94/G95 mode + rpm); mm/min feed left empty rather than mislabeled. Native feed-per-rev captured in estimated_feed_range_per_rev (${feedsPerRev.length} value(s)).`);
+    }
+    // R12: feed-per-rev captured but G20/G21 not declared → tagged 'unknown' (don't assume inch silently).
+    if (feedsPerRev.length > 0 && programUnit === null) {
+      warnings.push(`${feedsPerRev.length} feed-per-rev value(s) tagged unit='unknown' (no G20/G21 in program; JM Okuma convention is inch). Resolve unit before cross-shop feed training to avoid a 25.4x mix.`);
     }
 
     // U-CAM-ML-02-CLASSIFIER: override extension-based cam_system when the
@@ -371,6 +437,12 @@ export class CAMFeatureExtractorEngine {
       estimated_feed_range_mm_min: feeds.length > 0
         ? [Math.min(...feeds), Math.max(...feeds)]
         : [0, 0],
+      estimated_feed_range_per_rev: feedsPerRev.length > 0
+        ? [Math.min(...feedsPerRev), Math.max(...feedsPerRev)]
+        : undefined,
+      feed_per_rev_unit: feedsPerRev.length > 0
+        ? (programUnit === "mm" ? "mm/rev" : programUnit === "in" ? "in/rev" : "unknown")
+        : undefined,
       g_code_dialect_hint: "okuma",
       has_m98_subroutine: has_m98,
       has_g41_g42_cutter_comp: has_g41_g42,

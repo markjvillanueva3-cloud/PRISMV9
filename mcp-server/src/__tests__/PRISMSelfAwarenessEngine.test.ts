@@ -239,4 +239,220 @@ describe("PRISMSelfAwarenessEngine", () => {
       expect(typeof gaps.hasCapability).toBe("boolean");
     });
   });
+
+  // Synchronous proactive-reasoning surface. These four methods have live
+  // consumers (DeepAIIntelligenceEngine, LatheSelfAwarenessIntegrationEngine,
+  // MachiningIntelligenceOrchestratorEngine, AutonomousSessionIntegrationEngine)
+  // but were previously only exercised by a dead-API fossil test. Coverage
+  // ported here against the CURRENT engine behavior (U-SELFAWARE-FOSSIL-RECONCILE).
+  describe("proactiveReason", () => {
+    it("infers machining_calculation intent and recommends speed/feed for a milling query", () => {
+      const r = prismSelfAwarenessEngine.proactiveReason("mill a pocket in 6061");
+      expect(r.inferredIntent).toBe("machining_calculation");
+      expect(r.relatedCapabilities.some(c => c.fullAction === "prism_calc:speed_feed_calc")).toBe(true);
+      expect(r.recommendedActions).toContain("Calculate optimal speeds and feeds");
+    });
+
+    it("flags missing material context when material is not specified", () => {
+      const r = prismSelfAwarenessEngine.proactiveReason("turn this part");
+      expect(r.missingContext.some(m => m.toLowerCase().includes("material"))).toBe(true);
+      expect(r.proactiveQuestions.length).toBeGreaterThan(0);
+    });
+
+    it("does not flag missing material when material is named in the query", () => {
+      const r = prismSelfAwarenessEngine.proactiveReason("mill titanium material part");
+      expect(r.missingContext.some(m => m.toLowerCase().includes("material"))).toBe(false);
+    });
+
+    it("infers force_analysis intent for a Kienzle force query", () => {
+      const r = prismSelfAwarenessEngine.proactiveReason("kienzle force estimate");
+      expect(r.inferredIntent).toBe("force_analysis");
+      expect(r.relatedCapabilities.some(c => c.fullAction === "prism_calc:cutting_force")).toBe(true);
+    });
+
+    it("returns general_query with well-formed empty arrays for an unrelated query", () => {
+      const r = prismSelfAwarenessEngine.proactiveReason("hello world");
+      expect(r.inferredIntent).toBe("general_query");
+      expect(Array.isArray(r.relatedCapabilities)).toBe(true);
+      expect(Array.isArray(r.proactiveQuestions)).toBe(true);
+      expect(Array.isArray(r.recommendedActions)).toBe(true);
+    });
+
+    it("lets the force branch override intent when a query matches both branches", () => {
+      // Both the machining branch (mill/cut/turn) and the force branch fire; the
+      // force branch runs second, so force_analysis is the resolved intent and
+      // both capabilities are surfaced. Documents branch precedence (R9 intent).
+      const r = prismSelfAwarenessEngine.proactiveReason("mill with cutting force");
+      expect(r.inferredIntent).toBe("force_analysis");
+      expect(r.relatedCapabilities.some(c => c.fullAction === "prism_calc:speed_feed_calc")).toBe(true);
+      expect(r.relatedCapabilities.some(c => c.fullAction === "prism_calc:cutting_force")).toBe(true);
+    });
+  });
+
+  describe("whatCanIDo", () => {
+    it("returns speed_feed_calc with high confidence for a speed/feed query", () => {
+      const r = prismSelfAwarenessEngine.whatCanIDo("what speed and feed should I use");
+      expect(r.results.some(x => x.fullAction === "prism_calc:speed_feed_calc")).toBe(true);
+      expect(r.confidence).toBeGreaterThan(0.8);
+    });
+
+    it("falls back to prism_ai:analyze for an unmatched query", () => {
+      const r = prismSelfAwarenessEngine.whatCanIDo("xyzzy nonsense");
+      expect(r.results).toHaveLength(1);
+      expect(r.results[0].fullAction).toBe("prism_ai:analyze");
+      expect(r.confidence).toBeCloseTo(0.5, 5);
+    });
+
+    it("overall confidence equals the max of individual result confidences", () => {
+      // whatCanIDo reports the BEST available capability's confidence as the
+      // overall score (max, not mean) so a strong primary match is not diluted
+      // by weaker secondary suggestions. This invariant guards that semantics.
+      const r = prismSelfAwarenessEngine.whatCanIDo("speed and tool selection");
+      expect(r.results.length).toBeGreaterThan(1);
+      expect(r.confidence).toBe(Math.max(...r.results.map(x => x.confidence)));
+    });
+  });
+
+  describe("howDoI", () => {
+    it("returns a speed/feed approach with a concrete action path for a feed task", () => {
+      const r = prismSelfAwarenessEngine.howDoI("set the feed rate");
+      expect(r.approach.toLowerCase()).toContain("speed/feed");
+      expect(r.recommendedActions).toContain("prism_calc:speed_feed_calc");
+      expect(r.steps.length).toBeGreaterThan(0);
+    });
+
+    it("falls back to a generic AI-reasoning approach for an unknown task", () => {
+      const r = prismSelfAwarenessEngine.howDoI("organize my desk");
+      expect(r.recommendedActions).toContain("prism_ai:analyze");
+      expect(Array.isArray(r.steps)).toBe(true);
+    });
+  });
+
+  describe("whoHandles", () => {
+    it("routes cutting-force capability to prism_calc + Kienzle engine", () => {
+      const r = prismSelfAwarenessEngine.whoHandles("kienzle force");
+      expect(r.dispatcher).toBe("prism_calc");
+      expect(r.engine).toBe("KienzleForceEngine");
+      expect(r.actions).toContain("cutting_force");
+    });
+
+    it("routes speed/feed capability to the SpeedFeed orchestrator", () => {
+      const r = prismSelfAwarenessEngine.whoHandles("feed rate");
+      expect(r.dispatcher).toBe("prism_calc");
+      expect(r.engine).toBe("SpeedFeedOrchestratorEngine");
+    });
+
+    it("routes safety capability to prism_safety", () => {
+      const r = prismSelfAwarenessEngine.whoHandles("safety validation");
+      expect(r.dispatcher).toBe("prism_safety");
+    });
+
+    it("falls back to prism_ai for an unknown capability", () => {
+      const r = prismSelfAwarenessEngine.whoHandles("astrology");
+      expect(r.dispatcher).toBe("prism_ai");
+      expect(r.actions.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("searchPlaybookRules", () => {
+    it("returns a flat string array, never rule objects (defends the string[] contract)", async () => {
+      const rules = await prismSelfAwarenessEngine.searchPlaybookRules("roughing depth of cut");
+      expect(Array.isArray(rules)).toBe(true);
+      for (const rule of rules) {
+        expect(typeof rule).toBe("string");
+      }
+    });
+
+    it("returns an array for an empty query without throwing", async () => {
+      const rules = await prismSelfAwarenessEngine.searchPlaybookRules("");
+      expect(Array.isArray(rules)).toBe(true);
+    });
+  });
+
+  describe("getJMDieCustomers", () => {
+    it("returns customer entries with name, path, and machineTypes shape", () => {
+      const customers = prismSelfAwarenessEngine.getJMDieCustomers();
+      expect(Array.isArray(customers)).toBe(true);
+      // Corpus-dependent: assert shape on any present entry (JM DIE root exists on the shop host).
+      if (customers.length > 0) {
+        expect(typeof customers[0].name).toBe("string");
+        expect(typeof customers[0].path).toBe("string");
+        expect(Array.isArray(customers[0].machineTypes)).toBe(true);
+      }
+    });
+  });
+
+  describe("getCompactManifest", () => {
+    it("returns an object (not a string) with a dispatcher list and numeric counts", () => {
+      const compact = prismSelfAwarenessEngine.getCompactManifest();
+      expect(Array.isArray(compact.dispatchers)).toBe(true);
+      expect(compact.dispatchers).toContain("prism_calc");
+      expect(typeof compact.engineCount).toBe("number");
+      expect(compact.engineCount).toBeGreaterThan(0);
+      expect(typeof compact.actionCount).toBe("number");
+      expect(compact.actionCount).toBeGreaterThan(0);
+    });
+  });
+
+  describe("searchJMDieCustomer", () => {
+    it("returns {name, path, machineTypes} entries (empty when corpus absent)", () => {
+      const results = prismSelfAwarenessEngine.searchJMDieCustomer("a");
+      expect(Array.isArray(results)).toBe(true);
+      if (results.length > 0) {
+        expect(typeof results[0].name).toBe("string");
+        expect(typeof results[0].path).toBe("string");
+        expect(Array.isArray(results[0].machineTypes)).toBe(true);
+      }
+    });
+
+    it("filters by case-insensitive substring (every hit name contains the query)", () => {
+      const results = prismSelfAwarenessEngine.searchJMDieCustomer("a");
+      for (const r of results) {
+        expect(r.name.toLowerCase()).toContain("a");
+      }
+    });
+
+    it("returns an array for an empty query without throwing", () => {
+      expect(Array.isArray(prismSelfAwarenessEngine.searchJMDieCustomer(""))).toBe(true);
+    });
+  });
+
+  describe("getJMDieProgramPaths", () => {
+    it("returns paths whose directory name contains the machine-type tag", () => {
+      const paths = prismSelfAwarenessEngine.getJMDieProgramPaths("lathe");
+      expect(Array.isArray(paths)).toBe(true);
+      for (const p of paths) {
+        // The engine matches on the directory BASENAME (e.toLowerCase().includes(q)),
+        // not the full path. Assert the last path segment contains the tag so a
+        // regression to full-path matching (which would surface unrelated dirs whose
+        // ancestor happens to contain "lathe") is actually caught.
+        const base = p.replace(/[/\\]+$/, "").split(/[/\\]/).pop() ?? "";
+        expect(base.toLowerCase()).toContain("lathe");
+      }
+    });
+
+    it("returns an empty array when no directory matches the tag", () => {
+      const paths = prismSelfAwarenessEngine.getJMDieProgramPaths("zzz_no_such_machine");
+      expect(Array.isArray(paths)).toBe(true);
+      expect(paths.length).toBe(0);
+    });
+  });
+
+  describe("getFullDriveAwareness", () => {
+    it("returns a structured object (not a string) with prism counts and jmDie stats", async () => {
+      const awareness = await prismSelfAwarenessEngine.getFullDriveAwareness();
+      expect(typeof awareness.prism).toBe("object");
+      expect(typeof awareness.jmDie.customerCount).toBe("number");
+      expect(awareness.jmDie.customerCount).toBeGreaterThanOrEqual(0);
+      expect(Array.isArray(awareness.jmDie.machineTypes)).toBe(true);
+      expect(typeof awareness.jmDie.customersByMachineType).toBe("object");
+      expect(awareness.manifestVersion).toMatch(/^\d+\.\d+\.\d+$/);
+      expect(Number.isNaN(Date.parse(awareness.lastUpdated))).toBe(false);
+    });
+
+    it("machineTypes equals the sorted keys of customersByMachineType (consistency invariant)", async () => {
+      const a = await prismSelfAwarenessEngine.getFullDriveAwareness();
+      expect(a.jmDie.machineTypes).toEqual(Object.keys(a.jmDie.customersByMachineType).sort());
+    });
+  });
 });

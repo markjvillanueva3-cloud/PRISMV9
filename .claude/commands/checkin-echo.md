@@ -1,8 +1,11 @@
 ---
 description: Force-claim slot ECHO + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot echo --force`.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion
+composes_with:
+  - "/checkin"
+  - "/handoff"
+  - "/pick-unit"
 ---
-
 # /checkin-echo — slot-locked /checkin
 
 Force-takes the **echo** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `echo-work`, then runs the standard `/checkin` pipeline. Use when you want this specific slot regardless of who currently holds it.

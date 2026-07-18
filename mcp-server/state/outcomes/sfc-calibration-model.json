@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_from": "state/outcomes/sfc-full-sweep-ledger.jsonl",
+  "ledger_rows_consumed": 192,
+  "ledger_rows_skipped": 384,
+  "total_cells": 576,
+  "entries": [
+    {
+      "iso": "H",
+      "mode": "aggressive_rush",
+      "sample_count": 8,
+      "median_delta_pct": 43.53,
+      "factor": 0.6967,
+      "increases_vc": false,
+      "clamped": false
+    },
+    {
+      "iso": "H",
+      "mode": "cost_batch",
+      "sample_count": 8,
+      "median_delta_pct": -45.88,
+      "factor": 1.5,
+      "increases_vc": true,
+      "clamped": true
+    },
+    {
+      "iso": "H",
+      "mode": "prism_optimized",
+      "sample_count": 8,
+      "median_delta_pct": -10.59,
+      "factor": 1.1184,
+      "increases_vc": true,
+      "clamped": false
+    },
+    {
+      "iso": "K",
+      "mode": "aggressive_rush",
+      "sample_count": 14,
+      "median_delta_pct": 49.91,
+      "factor": 0.6671,
+      "increases_vc": false,
+      "clamped": false
+    },
+    {
+      "iso": "K",
+      "mode": "cost_batch",
+      "sample_count": 14,
+      "median_delta_pct": -24.63,
+      "factor": 1.3268,
+      "increases_vc": true,
+      "clamped": false
+    },
+    {
+      "iso": "K",
+      "mode": "prism_optimized",
+      "sample_count": 14,
+      "median_delta_pct": 11.39,
+      "factor": 0.8978,
+      "increases_vc": false,
+      "clamped": false
+    },
+    {
+      "iso": "M",
+      "mode": "aggressive_rush",
+      "sample_count": 6,
+      "median_delta_pct": 3.7,
+      "factor": 0.9643,
+      "increases_vc": false,
+      "clamped": false
+    },
+    {
+      "iso": "M",
+      "mode": "cost_batch",
+      "sample_count": 6,
+      "median_delta_pct": -55.56,
+      "factor": 1.5,
+      "increases_vc": true,
+      "clamped": true
+    },
+    {
+      "iso": "M",
+      "mode": "prism_optimized",
+      "sample_count": 6,
+      "median_delta_pct": -2.22,
+      "factor": 1.0227,
+      "increases_vc": true,
+      "clamped": false
+    },
+    {
+      "iso": "N",
+      "mode": "aggressive_rush",
+      "sample_count": 14,
+      "median_delta_pct": 32,
+      "factor": 0.7576,
+      "increases_vc": false,
+      "clamped": false
+    },
+    {
+      "iso": "N",
+      "mode": "cost_batch",
+      "sample_count": 14,
+      "median_delta_pct": -57.39,
+      "factor": 1.5,
+      "increases_vc": true,
+      "clamped": true
+    },
+    {
+      "iso": "N",
+      "mode": "prism_optimized",
+      "sample_count": 14,
+      "median_delta_pct": -36.52,
+      "factor": 1.5,
+      "increases_vc": true,
+      "clamped": true
+    },
+    {
+      "iso": "P",
+      "mode": "aggressive_rush",
+      "sample_count": 14,
+      "median_delta_pct": 10,
+      "factor": 0.9091,
+      "increases_vc": false,
+      "clamped": false
+    },
+    {
+      "iso": "P",
+      "mode": "cost_batch",
+      "sample_count": 14,
+      "median_delta_pct": -47.83,
+      "factor": 1.5,
+      "increases_vc": true,
+      "clamped": true
+    },
+    {
+      "iso": "P",
+      "mode": "prism_optimized",
+      "sample_count": 14,
+      "median_delta_pct": 4,
+      "factor": 0.9615,
+      "increases_vc": false,
+      "clamped": false
+    },
+    {
+      "iso": "S",
+      "mode": "aggressive_rush",
+      "sample_count": 8,
+      "median_delta_pct": 38.18,
+      "factor": 0.7237,
+      "increases_vc": false,
+      "clamped": false
+    },
+    {
+      "iso": "S",
+      "mode": "cost_batch",
+      "sample_count": 8,
+      "median_delta_pct": -54.55,
+      "factor": 1.5,
+      "increases_vc": true,
+      "clamped": true
+    },
+    {
+      "iso": "S",
+      "mode": "prism_optimized",
+      "sample_count": 8,
+      "median_delta_pct": -16.36,
+      "factor": 1.1957,
+      "increases_vc": true,
+      "clamped": false
+    }
+  ],
+  "apply_policy": "advisory-only",
+  "notes": [
+    "Factors are ADVISORY — never auto-applied. Apply is operator-gated (PRISM_SFC_CALIB_APPLY default-OFF) + S(x) >= 0.98 safety gate.",
+    "10 of 18 regimes have factor > 1.0 (would INCREASE Vc / make PRISM more aggressive vs an un-safety-validated vendor baseline) — a downstream apply MUST refuse these without explicit review.",
+    "Regimes with no vendor baseline (e.g. titanium/hardened) are excluded, not fabricated.",
+    "384 of 576 ledger rows were UNUSABLE (no finite positive baseline)."
+  ]
+}

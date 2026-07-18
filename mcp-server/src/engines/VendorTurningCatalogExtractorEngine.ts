@@ -392,7 +392,7 @@ export class VendorTurningCatalogExtractorEngine {
       for (const grade of catalog.grades) {
         if (!grade.iso_groups.includes(params.iso_group)) continue;
         if (params.substrate && grade.substrate !== params.substrate) continue;
-        if (params.operation !== "universal" && grade.application_type !== params.operation && grade.application_type !== "universal") continue;
+        if (grade.application_type !== params.operation && grade.application_type !== "universal") continue;
 
         results.push(grade);
       }

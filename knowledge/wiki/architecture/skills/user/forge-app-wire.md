@@ -23,13 +23,16 @@ related:
 |-------|-------|
 | Name | `forge-app-wire` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-app-wire.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-app-wire.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge App Wire — PRISM App UI Full Feature Wiring Pipeline
+
+You are running an exhaustive UI-to-backend integration wiring pipeline across the entire PRISM web application. This command audits every backend route, API endpoint, MCP tool, and engine — then ensures every capability has a corresponding UI component, API client function, TypeScript type, state management context, and route. The 
 
 <!-- AUTO-END -->
 

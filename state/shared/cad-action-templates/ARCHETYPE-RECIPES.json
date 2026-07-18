@@ -1,0 +1,5561 @@
+{
+  "schemaVersion": 1,
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "recipes": {
+    "flat-plate": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "fusion360",
+          "fn": "sketchLines.addTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "Axis-aligned"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "fusion360",
+          "fn": "features.extrudeFeatures.addSimple",
+          "args": [
+            "profile",
+            "distance:ValueInput",
+            "operation"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "fusion360",
+          "fn": "features.filletFeatures.add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypercad-s",
+          "fn": "Rectangle2D.New",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "hypercad-s",
+          "fn": "Extrude.New",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypercad-s",
+          "fn": "Fillet.New",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateCornerRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureExtrusion3",
+          "args": [
+            "sd",
+            "flip",
+            "dir",
+            "endCond",
+            "endCond2",
+            "d1",
+            "d2",
+            "..."
+          ],
+          "notes": "Many overloads"
+        },
+        {
+          "op": "op.fillet",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureFillet3",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "inventor",
+          "fn": "SketchLines.AddAsTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "inventor",
+          "fn": "ExtrudeFeatures.AddByDistanceExtent",
+          "args": [
+            "profile",
+            "distance",
+            "direction"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "inventor",
+          "fn": "FilletFeatures.Add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "catia",
+          "fn": "(four CreateLine calls)",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "V5 builds rect from lines"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewPad",
+          "args": [
+            "sketch",
+            "distance"
+          ],
+          "notes": "Pad = positive extrude"
+        },
+        {
+          "op": "op.fillet",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewEdgeFillet",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "nx",
+          "fn": "Sketch.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "nx",
+          "fn": "Features.CreateExtrude",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "nx",
+          "fn": "Features.CreateEdgeBlend",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "mastercam",
+          "fn": "Geometry.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": "Mastercam imports geometry; extrude is CAD-side"
+        },
+        {
+          "op": "op.fillet",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "powermill",
+          "fn": "CREATE RECTANGLE",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypermill",
+          "fn": "Sketch.AddRect",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "esprit",
+          "fn": "Geometry.AddRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "openscad",
+          "fn": "square([w,h])",
+          "args": [
+            "w",
+            "h"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "openscad",
+          "fn": "linear_extrude(height=distance)",
+          "args": [
+            "distance"
+          ],
+          "notes": "2D module argument is the profile"
+        },
+        {
+          "op": "op.fillet",
+          "platform": "openscad",
+          "fn": "(minkowski with sphere)",
+          "args": [
+            "radius"
+          ],
+          "notes": "Slow; use BOSL2 for performance"
+        }
+      ],
+      "cadquery": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "cadquery",
+          "fn": "Workplane(\"XY\")",
+          "args": [],
+          "notes": "corpus-grounded: 105 gens, 100% freq"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "cadquery",
+          "fn": ".rect(w,h) / .box(w,h,d)",
+          "args": [],
+          "notes": "corpus-grounded: 105 gens, 100% freq"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "cadquery",
+          "fn": ".extrude(h)",
+          "args": [],
+          "notes": "corpus-grounded: 105 gens, 100% freq"
+        }
+      ]
+    },
+    "shaft": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "fusion360",
+          "fn": "sketchLines.addThreePointArc (sequential)",
+          "args": [
+            "points:Point3D[]"
+          ],
+          "notes": "Chain addByTwoPoints calls"
+        },
+        {
+          "op": "op.revolve",
+          "platform": "fusion360",
+          "fn": "features.revolveFeatures.add",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "fusion360",
+          "fn": "features.chamferFeatures.add",
+          "args": [
+            "edges[]",
+            "distance",
+            "type"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "fusion360",
+          "fn": "features.filletFeatures.add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "hypercad-s",
+          "fn": "Polyline2D.New",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "hypercad-s",
+          "fn": "Revolve.New",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "hypercad-s",
+          "fn": "Chamfer.New",
+          "args": [
+            "edges[]",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypercad-s",
+          "fn": "Fillet.New",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreatePolyLine (sequential)",
+          "args": [
+            "points[]"
+          ],
+          "notes": "Chain CreateLine calls"
+        },
+        {
+          "op": "op.revolve",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureRevolve2",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "solidworks",
+          "fn": "FeatureManager.InsertFeatureChamfer",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureFillet3",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "inventor",
+          "fn": "SketchLines.AddByPolyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": "Returns ObjectCollection"
+        },
+        {
+          "op": "op.revolve",
+          "platform": "inventor",
+          "fn": "RevolveFeatures.AddByFullAngle",
+          "args": [
+            "profile",
+            "axis"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "inventor",
+          "fn": "ChamferFeatures.AddUsingDistance",
+          "args": [
+            "edges[]",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "inventor",
+          "fn": "FilletFeatures.Add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "catia",
+          "fn": "Factory2D.CreateLine (sequential)",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewShaft",
+          "args": [
+            "sketch",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewChamfer",
+          "args": [
+            "edges[]",
+            "L",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewEdgeFillet",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "nx",
+          "fn": "Sketch.Polyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "nx",
+          "fn": "Features.CreateRevolve",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "nx",
+          "fn": "Features.CreateChamfer",
+          "args": [
+            "edges[]",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "nx",
+          "fn": "Features.CreateEdgeBlend",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "mastercam",
+          "fn": "Geometry.Polyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "powermill",
+          "fn": "CREATE POLYLINE",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "hypermill",
+          "fn": "Sketch.AddPolyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "esprit",
+          "fn": "Geometry.AddPolyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "openscad",
+          "fn": "polygon([...])",
+          "args": [
+            "points"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "openscad",
+          "fn": "rotate_extrude(angle=angle){profile}",
+          "args": [
+            "angle"
+          ],
+          "notes": "2D profile around Z"
+        },
+        {
+          "op": "op.chamfer",
+          "platform": "openscad",
+          "fn": "(BOSL2 chamfer)",
+          "args": [
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "openscad",
+          "fn": "(minkowski with sphere)",
+          "args": [
+            "radius"
+          ],
+          "notes": "Slow; use BOSL2 for performance"
+        }
+      ],
+      "cadquery": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "cadquery",
+          "fn": "Workplane(\"XY\")",
+          "args": [],
+          "notes": "corpus-grounded: 74 gens, 100% freq"
+        },
+        {
+          "op": "sketch.circle",
+          "platform": "cadquery",
+          "fn": ".circle(r)",
+          "args": [],
+          "notes": "corpus-grounded: 74 gens, 100% freq"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "cadquery",
+          "fn": ".extrude(h)",
+          "args": [],
+          "notes": "corpus-grounded: 74 gens, 100% freq"
+        }
+      ]
+    },
+    "shell": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "fusion360",
+          "fn": "sketchLines.addTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "Axis-aligned"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "fusion360",
+          "fn": "features.extrudeFeatures.addSimple",
+          "args": [
+            "profile",
+            "distance:ValueInput",
+            "operation"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.shell",
+          "platform": "fusion360",
+          "fn": "features.shellFeatures.add",
+          "args": [
+            "bodies",
+            "facesToRemove[]",
+            "thickness"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "fusion360",
+          "fn": "features.filletFeatures.add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypercad-s",
+          "fn": "Rectangle2D.New",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "hypercad-s",
+          "fn": "Extrude.New",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.shell",
+          "platform": "hypercad-s",
+          "fn": "Shell.New",
+          "args": [
+            "body",
+            "facesToRemove[]",
+            "thickness"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypercad-s",
+          "fn": "Fillet.New",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateCornerRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureExtrusion3",
+          "args": [
+            "sd",
+            "flip",
+            "dir",
+            "endCond",
+            "endCond2",
+            "d1",
+            "d2",
+            "..."
+          ],
+          "notes": "Many overloads"
+        },
+        {
+          "op": "op.shell",
+          "platform": "solidworks",
+          "fn": "FeatureManager.InsertFeatureShell2",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureFillet3",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "inventor",
+          "fn": "SketchLines.AddAsTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "inventor",
+          "fn": "ExtrudeFeatures.AddByDistanceExtent",
+          "args": [
+            "profile",
+            "distance",
+            "direction"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.shell",
+          "platform": "inventor",
+          "fn": "ShellFeatures.AddUsingFaceSet",
+          "args": [
+            "faceSet",
+            "thickness"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "inventor",
+          "fn": "FilletFeatures.Add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "catia",
+          "fn": "(four CreateLine calls)",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "V5 builds rect from lines"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewPad",
+          "args": [
+            "sketch",
+            "distance"
+          ],
+          "notes": "Pad = positive extrude"
+        },
+        {
+          "op": "op.shell",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewShell",
+          "args": [
+            "body",
+            "facesToRemove[]",
+            "innerThickness",
+            "outerThickness"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewEdgeFillet",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "nx",
+          "fn": "Sketch.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "nx",
+          "fn": "Features.CreateExtrude",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.shell",
+          "platform": "nx",
+          "fn": "Features.CreateShell",
+          "args": [
+            "body",
+            "facesToRemove[]",
+            "thickness"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "nx",
+          "fn": "Features.CreateEdgeBlend",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "mastercam",
+          "fn": "Geometry.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": "Mastercam imports geometry; extrude is CAD-side"
+        },
+        {
+          "op": "op.shell",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "powermill",
+          "fn": "CREATE RECTANGLE",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.shell",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypermill",
+          "fn": "Sketch.AddRect",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.shell",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "esprit",
+          "fn": "Geometry.AddRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.shell",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "openscad",
+          "fn": "square([w,h])",
+          "args": [
+            "w",
+            "h"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "openscad",
+          "fn": "linear_extrude(height=distance)",
+          "args": [
+            "distance"
+          ],
+          "notes": "2D module argument is the profile"
+        },
+        {
+          "op": "op.shell",
+          "platform": "openscad",
+          "fn": "difference(){body; offset_3d(-thickness)body;}",
+          "args": [
+            "thickness"
+          ],
+          "notes": "Approximate via offset"
+        },
+        {
+          "op": "op.fillet",
+          "platform": "openscad",
+          "fn": "(minkowski with sphere)",
+          "args": [
+            "radius"
+          ],
+          "notes": "Slow; use BOSL2 for performance"
+        }
+      ]
+    },
+    "revolve": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "fusion360",
+          "fn": "sketchLines.addThreePointArc (sequential)",
+          "args": [
+            "points:Point3D[]"
+          ],
+          "notes": "Chain addByTwoPoints calls"
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "fusion360",
+          "fn": "sketchArcs.addByCenterStartSweep",
+          "args": [
+            "center",
+            "start",
+            "sweepRad"
+          ],
+          "notes": "Signed sweep"
+        },
+        {
+          "op": "op.revolve",
+          "platform": "fusion360",
+          "fn": "features.revolveFeatures.add",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "fusion360",
+          "fn": "features.filletFeatures.add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "hypercad-s",
+          "fn": "Polyline2D.New",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "hypercad-s",
+          "fn": "Arc2D.NewByCenter",
+          "args": [
+            "center",
+            "start",
+            "end"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "hypercad-s",
+          "fn": "Revolve.New",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypercad-s",
+          "fn": "Fillet.New",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreatePolyLine (sequential)",
+          "args": [
+            "points[]"
+          ],
+          "notes": "Chain CreateLine calls"
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateArc",
+          "args": [
+            "cx,cy,cz",
+            "sx,sy,sz",
+            "ex,ey,ez"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureRevolve2",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureFillet3",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "inventor",
+          "fn": "SketchLines.AddByPolyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": "Returns ObjectCollection"
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "inventor",
+          "fn": "SketchArcs.AddByCenterStartEndPoint",
+          "args": [
+            "center",
+            "start",
+            "end"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "inventor",
+          "fn": "RevolveFeatures.AddByFullAngle",
+          "args": [
+            "profile",
+            "axis"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "inventor",
+          "fn": "FilletFeatures.Add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "catia",
+          "fn": "Factory2D.CreateLine (sequential)",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "catia",
+          "fn": "Factory2D.CreateArc",
+          "args": [
+            "cx",
+            "cy",
+            "r",
+            "startAngle",
+            "endAngle"
+          ],
+          "notes": "Angles in radians"
+        },
+        {
+          "op": "op.revolve",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewShaft",
+          "args": [
+            "sketch",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewEdgeFillet",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "nx",
+          "fn": "Sketch.Polyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "nx",
+          "fn": "Sketch.ArcByCenterEndpoints",
+          "args": [
+            "center",
+            "start",
+            "end"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "nx",
+          "fn": "Features.CreateRevolve",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "nx",
+          "fn": "Features.CreateEdgeBlend",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "mastercam",
+          "fn": "Geometry.Polyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "mastercam",
+          "fn": "Geometry.Arc.ByCenterStartEnd",
+          "args": [
+            "center",
+            "start",
+            "end"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "powermill",
+          "fn": "CREATE POLYLINE",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "powermill",
+          "fn": "CREATE ARC CENTREENDPOINTS",
+          "args": [
+            "center",
+            "start",
+            "end"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "hypermill",
+          "fn": "Sketch.AddPolyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "hypermill",
+          "fn": "Sketch.AddArc",
+          "args": [
+            "center",
+            "start",
+            "end"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "esprit",
+          "fn": "Geometry.AddPolyline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "esprit",
+          "fn": "Geometry.AddArcByCenter",
+          "args": [
+            "center",
+            "start",
+            "end"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.line-polyline",
+          "platform": "openscad",
+          "fn": "polygon([...])",
+          "args": [
+            "points"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.arc-cse",
+          "platform": "openscad",
+          "fn": "(discretize)",
+          "args": [],
+          "notes": "Approximate via polygon"
+        },
+        {
+          "op": "op.revolve",
+          "platform": "openscad",
+          "fn": "rotate_extrude(angle=angle){profile}",
+          "args": [
+            "angle"
+          ],
+          "notes": "2D profile around Z"
+        },
+        {
+          "op": "op.fillet",
+          "platform": "openscad",
+          "fn": "(minkowski with sphere)",
+          "args": [
+            "radius"
+          ],
+          "notes": "Slow; use BOSL2 for performance"
+        }
+      ],
+      "cadquery": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "cadquery",
+          "fn": "Workplane(\"XY\")",
+          "args": [],
+          "notes": "corpus-grounded: 42 gens, 100% freq"
+        },
+        {
+          "op": "sketch.circle",
+          "platform": "cadquery",
+          "fn": ".circle(r)",
+          "args": [],
+          "notes": "corpus-grounded: 42 gens, 100% freq"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "cadquery",
+          "fn": ".extrude(h)",
+          "args": [],
+          "notes": "corpus-grounded: 42 gens, 100% freq"
+        },
+        {
+          "op": "op.cut",
+          "platform": "cadquery",
+          "fn": ".cutThruAll() / .cutBlind(d) / .cut(tool)",
+          "args": [],
+          "notes": "corpus-grounded: 42 gens, 93% freq"
+        }
+      ]
+    },
+    "extrude": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "fusion360",
+          "fn": "sketchLines.addTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "Axis-aligned"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "fusion360",
+          "fn": "features.extrudeFeatures.addSimple",
+          "args": [
+            "profile",
+            "distance:ValueInput",
+            "operation"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypercad-s",
+          "fn": "Rectangle2D.New",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "hypercad-s",
+          "fn": "Extrude.New",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateCornerRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureExtrusion3",
+          "args": [
+            "sd",
+            "flip",
+            "dir",
+            "endCond",
+            "endCond2",
+            "d1",
+            "d2",
+            "..."
+          ],
+          "notes": "Many overloads"
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "inventor",
+          "fn": "SketchLines.AddAsTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "inventor",
+          "fn": "ExtrudeFeatures.AddByDistanceExtent",
+          "args": [
+            "profile",
+            "distance",
+            "direction"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "catia",
+          "fn": "(four CreateLine calls)",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "V5 builds rect from lines"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewPad",
+          "args": [
+            "sketch",
+            "distance"
+          ],
+          "notes": "Pad = positive extrude"
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "nx",
+          "fn": "Sketch.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "nx",
+          "fn": "Features.CreateExtrude",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "mastercam",
+          "fn": "Geometry.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": "Mastercam imports geometry; extrude is CAD-side"
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "powermill",
+          "fn": "CREATE RECTANGLE",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypermill",
+          "fn": "Sketch.AddRect",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "esprit",
+          "fn": "Geometry.AddRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "openscad",
+          "fn": "square([w,h])",
+          "args": [
+            "w",
+            "h"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "openscad",
+          "fn": "linear_extrude(height=distance)",
+          "args": [
+            "distance"
+          ],
+          "notes": "2D module argument is the profile"
+        }
+      ],
+      "cadquery": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "cadquery",
+          "fn": "Workplane(\"XY\")",
+          "args": [],
+          "notes": "corpus-grounded: 13 gens, 100% freq"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "cadquery",
+          "fn": ".rect(w,h) / .box(w,h,d)",
+          "args": [],
+          "notes": "corpus-grounded: 13 gens, 85% freq"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "cadquery",
+          "fn": ".extrude(h)",
+          "args": [],
+          "notes": "corpus-grounded: 13 gens, 100% freq"
+        }
+      ]
+    },
+    "loft-sweep": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "fusion360",
+          "fn": "sketchFittedSplines.add",
+          "args": [
+            "points:ObjectCollection"
+          ],
+          "notes": "Catmull-Rom by default"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "fusion360",
+          "fn": "sketchFittedSplines.add",
+          "args": [
+            "points:ObjectCollection"
+          ],
+          "notes": "Catmull-Rom by default"
+        },
+        {
+          "op": "op.loft",
+          "platform": "fusion360",
+          "fn": "features.loftFeatures.add(loftInput)",
+          "args": [
+            "sections[]",
+            "guides[]"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "hypercad-s",
+          "fn": "Spline2D.New",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "hypercad-s",
+          "fn": "Spline2D.New",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "hypercad-s",
+          "fn": "Loft.New",
+          "args": [
+            "sections[]",
+            "guides[]"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "solidworks",
+          "fn": "FeatureManager.InsertProtrusionBlend",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "inventor",
+          "fn": "SketchSplines.Add",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "inventor",
+          "fn": "SketchSplines.Add",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "inventor",
+          "fn": "LoftFeatures.AddByLoftDefinition",
+          "args": [
+            "sections[]"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "catia",
+          "fn": "Factory2D.CreateSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "catia",
+          "fn": "Factory2D.CreateSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewLoft",
+          "args": [
+            "sections[]"
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "nx",
+          "fn": "Sketch.StudioSpline",
+          "args": [
+            "points[]",
+            "degree"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "nx",
+          "fn": "Sketch.StudioSpline",
+          "args": [
+            "points[]",
+            "degree"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "nx",
+          "fn": "Features.CreateLoft",
+          "args": [
+            "sections[]"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "mastercam",
+          "fn": "Geometry.NurbsSpline",
+          "args": [
+            "points[]",
+            "degree"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "mastercam",
+          "fn": "Geometry.NurbsSpline",
+          "args": [
+            "points[]",
+            "degree"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "powermill",
+          "fn": "CREATE NURBS-CURVE",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "powermill",
+          "fn": "CREATE NURBS-CURVE",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "hypermill",
+          "fn": "Sketch.AddSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "hypermill",
+          "fn": "Sketch.AddSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "esprit",
+          "fn": "Geometry.AddSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "esprit",
+          "fn": "Geometry.AddSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "openscad",
+          "fn": "(polygon discretize)",
+          "args": [
+            "points"
+          ],
+          "notes": "OpenSCAD has no native splines"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "openscad",
+          "fn": "(polygon discretize)",
+          "args": [
+            "points"
+          ],
+          "notes": "OpenSCAD has no native splines"
+        },
+        {
+          "op": "op.loft",
+          "platform": "openscad",
+          "fn": "(approximate via hull or BOSL2 skin)",
+          "args": [
+            "sections[]"
+          ],
+          "notes": "No native loft"
+        }
+      ],
+      "cadquery": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "cadquery",
+          "fn": "Workplane(\"XY\")",
+          "args": [],
+          "notes": "corpus-grounded: 5 gens, 100% freq"
+        },
+        {
+          "op": "sketch.circle",
+          "platform": "cadquery",
+          "fn": ".circle(r)",
+          "args": [],
+          "notes": "corpus-grounded: 5 gens, 100% freq"
+        },
+        {
+          "op": "op.loft",
+          "platform": "cadquery",
+          "fn": ".loft()",
+          "args": [],
+          "notes": "corpus-grounded: 5 gens, 100% freq"
+        }
+      ]
+    },
+    "threaded": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "fusion360",
+          "fn": "sketchCircles.addByCenterRadius",
+          "args": [
+            "center",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "fusion360",
+          "fn": "features.extrudeFeatures.addSimple(... CutFeatureOperation)",
+          "args": [
+            "profile",
+            "distance",
+            "CutFeatureOperation"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "fusion360",
+          "fn": "features.holeFeatures.createTappedInput",
+          "args": [
+            "face",
+            "size",
+            "depth",
+            "threadSpec"
+          ],
+          "notes": "Threadspec from XMl"
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "fusion360",
+          "fn": "features.circularPatternFeatures.add",
+          "args": [
+            "entities[]",
+            "axis",
+            "qty",
+            "totalAngle"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "hypercad-s",
+          "fn": "Circle2D.NewByCenterRadius",
+          "args": [
+            "center",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "hypercad-s",
+          "fn": "Pocket.New",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "hypercad-s",
+          "fn": "ThreadedHole.New",
+          "args": [
+            "face",
+            "position",
+            "size",
+            "depth"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "hypercad-s",
+          "fn": "PatternCirc.New",
+          "args": [
+            "entities[]",
+            "axis",
+            "qty",
+            "totalAngle"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateCircleByRadius",
+          "args": [
+            "cx",
+            "cy",
+            "cz",
+            "r"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureCut3",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "solidworks",
+          "fn": "FeatureManager.HoleWizard2(Tapped)",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureCircularPattern5",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "inventor",
+          "fn": "SketchCircles.AddByCenterRadius",
+          "args": [
+            "center",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "inventor",
+          "fn": "ExtrudeFeatures.AddByDistanceExtent(...CutOperation)",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "inventor",
+          "fn": "HoleFeatures.AddTapped",
+          "args": [
+            "sketch",
+            "size",
+            "depth"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "inventor",
+          "fn": "CircularPatternFeatures.Add",
+          "args": [
+            "features[]",
+            "axis",
+            "qty",
+            "totalAngle"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "catia",
+          "fn": "Factory2D.CreateClosedCircle",
+          "args": [
+            "cx",
+            "cy",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewPocket",
+          "args": [
+            "sketch",
+            "distance"
+          ],
+          "notes": "Pocket = negative extrude"
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewThreadedHole",
+          "args": [
+            "face",
+            "position",
+            "size",
+            "depth"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewCircPattern",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "nx",
+          "fn": "Sketch.CircleByCenterRadius",
+          "args": [
+            "center",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "nx",
+          "fn": "Features.CreateExtrudeCut",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "nx",
+          "fn": "Features.CreateHoleFeature(Threaded)",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "nx",
+          "fn": "Features.CreatePatternFeature(Circular)",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "mastercam",
+          "fn": "Geometry.Circle.ByCenterRadius",
+          "args": [
+            "center",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "mastercam",
+          "fn": "Xform.PatternCirc",
+          "args": [
+            "entities[]",
+            "axis",
+            "qty",
+            "angle"
+          ],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "powermill",
+          "fn": "CREATE CIRCLE CENTRERADIUS",
+          "args": [
+            "center",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "powermill",
+          "fn": "ENTITY PATTERN CIRC",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "hypermill",
+          "fn": "Sketch.AddCircle",
+          "args": [
+            "center",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "hypermill",
+          "fn": "Entity.PatternCirc",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "esprit",
+          "fn": "Geometry.AddCircle",
+          "args": [
+            "center",
+            "radius"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "esprit",
+          "fn": "Geometry.PatternCirc",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.circle-cr",
+          "platform": "openscad",
+          "fn": "circle(r=radius)",
+          "args": [
+            "radius"
+          ],
+          "notes": "$fn controls facetting"
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "openscad",
+          "fn": "difference(){...; linear_extrude(...);}",
+          "args": [
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.hole-threaded",
+          "platform": "openscad",
+          "fn": "(BOSL2 threaded_rod difference)",
+          "args": [
+            "size",
+            "depth"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "openscad",
+          "fn": "for(a=[0:360/qty:360-0.1])rotate([0,0,a]){...}",
+          "args": [
+            "axis",
+            "qty"
+          ],
+          "notes": ""
+        }
+      ]
+    },
+    "pocket": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "fusion360",
+          "fn": "sketchLines.addTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "Axis-aligned"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "fusion360",
+          "fn": "features.extrudeFeatures.addSimple",
+          "args": [
+            "profile",
+            "distance:ValueInput",
+            "operation"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "fusion360",
+          "fn": "sketchLines.addTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "Axis-aligned"
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "fusion360",
+          "fn": "features.extrudeFeatures.addSimple(... CutFeatureOperation)",
+          "args": [
+            "profile",
+            "distance",
+            "CutFeatureOperation"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "fusion360",
+          "fn": "features.filletFeatures.add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypercad-s",
+          "fn": "Rectangle2D.New",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "hypercad-s",
+          "fn": "Extrude.New",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypercad-s",
+          "fn": "Rectangle2D.New",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "hypercad-s",
+          "fn": "Pocket.New",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypercad-s",
+          "fn": "Fillet.New",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateCornerRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureExtrusion3",
+          "args": [
+            "sd",
+            "flip",
+            "dir",
+            "endCond",
+            "endCond2",
+            "d1",
+            "d2",
+            "..."
+          ],
+          "notes": "Many overloads"
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateCornerRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureCut3",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureFillet3",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "inventor",
+          "fn": "SketchLines.AddAsTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "inventor",
+          "fn": "ExtrudeFeatures.AddByDistanceExtent",
+          "args": [
+            "profile",
+            "distance",
+            "direction"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "inventor",
+          "fn": "SketchLines.AddAsTwoPointRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "inventor",
+          "fn": "ExtrudeFeatures.AddByDistanceExtent(...CutOperation)",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "inventor",
+          "fn": "FilletFeatures.Add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "catia",
+          "fn": "(four CreateLine calls)",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "V5 builds rect from lines"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewPad",
+          "args": [
+            "sketch",
+            "distance"
+          ],
+          "notes": "Pad = positive extrude"
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "catia",
+          "fn": "(four CreateLine calls)",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": "V5 builds rect from lines"
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewPocket",
+          "args": [
+            "sketch",
+            "distance"
+          ],
+          "notes": "Pocket = negative extrude"
+        },
+        {
+          "op": "op.fillet",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewEdgeFillet",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "nx",
+          "fn": "Sketch.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "nx",
+          "fn": "Features.CreateExtrude",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "nx",
+          "fn": "Sketch.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "nx",
+          "fn": "Features.CreateExtrudeCut",
+          "args": [
+            "profile",
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "nx",
+          "fn": "Features.CreateEdgeBlend",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "mastercam",
+          "fn": "Geometry.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": "Mastercam imports geometry; extrude is CAD-side"
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "mastercam",
+          "fn": "Geometry.Rectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "powermill",
+          "fn": "CREATE RECTANGLE",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "powermill",
+          "fn": "CREATE RECTANGLE",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypermill",
+          "fn": "Sketch.AddRect",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "hypermill",
+          "fn": "Sketch.AddRect",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "esprit",
+          "fn": "Geometry.AddRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "esprit",
+          "fn": "Geometry.AddRectangle",
+          "args": [
+            "p1",
+            "p2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "openscad",
+          "fn": "square([w,h])",
+          "args": [
+            "w",
+            "h"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude",
+          "platform": "openscad",
+          "fn": "linear_extrude(height=distance)",
+          "args": [
+            "distance"
+          ],
+          "notes": "2D module argument is the profile"
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "openscad",
+          "fn": "square([w,h])",
+          "args": [
+            "w",
+            "h"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.extrude-cut",
+          "platform": "openscad",
+          "fn": "difference(){...; linear_extrude(...);}",
+          "args": [
+            "distance"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "openscad",
+          "fn": "(minkowski with sphere)",
+          "args": [
+            "radius"
+          ],
+          "notes": "Slow; use BOSL2 for performance"
+        }
+      ],
+      "cadquery": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "cadquery",
+          "fn": "Workplane(\"XY\")",
+          "args": [],
+          "notes": "corpus-grounded: 17 gens, 100% freq"
+        },
+        {
+          "op": "sketch.rect-2pt",
+          "platform": "cadquery",
+          "fn": ".rect(w,h) / .box(w,h,d)",
+          "args": [],
+          "notes": "corpus-grounded: 17 gens, 100% freq"
+        },
+        {
+          "op": "op.extrude",
+          "platform": "cadquery",
+          "fn": ".extrude(h)",
+          "args": [],
+          "notes": "corpus-grounded: 17 gens, 100% freq"
+        },
+        {
+          "op": "op.cut",
+          "platform": "cadquery",
+          "fn": ".cutThruAll() / .cutBlind(d) / .cut(tool)",
+          "args": [],
+          "notes": "corpus-grounded: 17 gens, 100% freq"
+        }
+      ]
+    },
+    "assembly": {
+      "fusion360": [
+        {
+          "op": "asm.insert-component",
+          "platform": "fusion360",
+          "fn": "occurrences.addByComponent",
+          "args": [
+            "component",
+            "transform"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "fusion360",
+          "fn": "occurrences.addByComponent",
+          "args": [
+            "component",
+            "transform"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "fusion360",
+          "fn": "joints.add(rigidJoint)",
+          "args": [
+            "geo1",
+            "geo2"
+          ],
+          "notes": "Rigid joint type"
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "fusion360",
+          "fn": "joints.add(revoluteJoint)",
+          "args": [
+            "axis1",
+            "axis2"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "asm.insert-component",
+          "platform": "hypercad-s",
+          "fn": "Assembly.InsertComponent",
+          "args": [
+            "file",
+            "transform"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "hypercad-s",
+          "fn": "Assembly.InsertComponent",
+          "args": [
+            "file",
+            "transform"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "hypercad-s",
+          "fn": "Constraint.Coincident",
+          "args": [
+            "geo1",
+            "geo2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "hypercad-s",
+          "fn": "Constraint.Concentric",
+          "args": [
+            "axis1",
+            "axis2"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "asm.insert-component",
+          "platform": "solidworks",
+          "fn": "AssemblyDoc.AddComponent5",
+          "args": [
+            "file",
+            "config",
+            "x",
+            "y",
+            "z"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "solidworks",
+          "fn": "AssemblyDoc.AddComponent5",
+          "args": [
+            "file",
+            "config",
+            "x",
+            "y",
+            "z"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "solidworks",
+          "fn": "AssemblyDoc.AddMate3(Coincident)",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "solidworks",
+          "fn": "AssemblyDoc.AddMate3(Concentric)",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "asm.insert-component",
+          "platform": "inventor",
+          "fn": "OccurrencesEnumerator.Add",
+          "args": [
+            "file",
+            "matrix"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "inventor",
+          "fn": "OccurrencesEnumerator.Add",
+          "args": [
+            "file",
+            "matrix"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "inventor",
+          "fn": "Constraints.AddMateConstraint",
+          "args": [
+            "geo1",
+            "geo2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "inventor",
+          "fn": "Constraints.AddInsertConstraint",
+          "args": [
+            "axis1",
+            "axis2"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "asm.insert-component",
+          "platform": "catia",
+          "fn": "Product.AddComponent",
+          "args": [
+            "file"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "catia",
+          "fn": "Product.AddComponent",
+          "args": [
+            "file"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "catia",
+          "fn": "Constraints.AddMonoEltCst(Coincidence)",
+          "args": [
+            "geo1",
+            "geo2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "catia",
+          "fn": "Constraints.AddMonoEltCst(Concentricity)",
+          "args": [
+            "axis1",
+            "axis2"
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "asm.insert-component",
+          "platform": "nx",
+          "fn": "Assembly.AddComponent",
+          "args": [
+            "file",
+            "transform"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "nx",
+          "fn": "Assembly.AddComponent",
+          "args": [
+            "file",
+            "transform"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "nx",
+          "fn": "Assembly.AddConstraint(TouchAlign)",
+          "args": [
+            "geo1",
+            "geo2"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "nx",
+          "fn": "Assembly.AddConstraint(Concentric)",
+          "args": [
+            "axis1",
+            "axis2"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "asm.insert-component",
+          "platform": "mastercam",
+          "fn": "(assembly via Toolpath Groups)",
+          "args": [],
+          "notes": "Mastercam does not have full assemblies"
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "mastercam",
+          "fn": "(assembly via Toolpath Groups)",
+          "args": [],
+          "notes": "Mastercam does not have full assemblies"
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "mastercam",
+          "fn": "(N/A)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "mastercam",
+          "fn": "(N/A)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "asm.insert-component",
+          "platform": "powermill",
+          "fn": "IMPORT MODEL",
+          "args": [
+            "file"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "powermill",
+          "fn": "IMPORT MODEL",
+          "args": [
+            "file"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "powermill",
+          "fn": "(N/A)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "powermill",
+          "fn": "(N/A)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "asm.insert-component",
+          "platform": "hypermill",
+          "fn": "Project.AddModel",
+          "args": [
+            "file"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "hypermill",
+          "fn": "Project.AddModel",
+          "args": [
+            "file"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "hypermill",
+          "fn": "(N/A)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "hypermill",
+          "fn": "(N/A)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "asm.insert-component",
+          "platform": "esprit",
+          "fn": "(import as part)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "esprit",
+          "fn": "(import as part)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "esprit",
+          "fn": "(N/A)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "esprit",
+          "fn": "(N/A)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "asm.insert-component",
+          "platform": "openscad",
+          "fn": "use<file>;module();",
+          "args": [
+            "file"
+          ],
+          "notes": "OpenSCAD include/use"
+        },
+        {
+          "op": "asm.insert-component",
+          "platform": "openscad",
+          "fn": "use<file>;module();",
+          "args": [
+            "file"
+          ],
+          "notes": "OpenSCAD include/use"
+        },
+        {
+          "op": "asm.mate-coincident",
+          "platform": "openscad",
+          "fn": "translate(p){use<file>;};",
+          "args": [
+            "transform"
+          ],
+          "notes": "Positional"
+        },
+        {
+          "op": "asm.mate-concentric",
+          "platform": "openscad",
+          "fn": "translate(axis){use<file>;};",
+          "args": [
+            "axis"
+          ],
+          "notes": ""
+        }
+      ]
+    },
+    "complex-organic": {
+      "fusion360": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "fusion360",
+          "fn": "sketchFittedSplines.add",
+          "args": [
+            "points:ObjectCollection"
+          ],
+          "notes": "Catmull-Rom by default"
+        },
+        {
+          "op": "op.revolve",
+          "platform": "fusion360",
+          "fn": "features.revolveFeatures.add",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "fusion360",
+          "fn": "rootComp.constructionPlanes.add(planeInput)",
+          "args": [
+            "planeInput"
+          ],
+          "notes": "Returns ConstructionPlane; pass to sketches.add"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "fusion360",
+          "fn": "sketchFittedSplines.add",
+          "args": [
+            "points:ObjectCollection"
+          ],
+          "notes": "Catmull-Rom by default"
+        },
+        {
+          "op": "op.loft",
+          "platform": "fusion360",
+          "fn": "features.loftFeatures.add(loftInput)",
+          "args": [
+            "sections[]",
+            "guides[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "fusion360",
+          "fn": "features.circularPatternFeatures.add",
+          "args": [
+            "entities[]",
+            "axis",
+            "qty",
+            "totalAngle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "fusion360",
+          "fn": "features.filletFeatures.add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "hypercad-s": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "hypercad-s",
+          "fn": "Spline2D.New",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "hypercad-s",
+          "fn": "Revolve.New",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypercad-s",
+          "fn": "Plane.New",
+          "args": [
+            "origin",
+            "normalVec"
+          ],
+          "notes": "Macro call via CADCommand wrapper"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "hypercad-s",
+          "fn": "Spline2D.New",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "hypercad-s",
+          "fn": "Loft.New",
+          "args": [
+            "sections[]",
+            "guides[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "hypercad-s",
+          "fn": "PatternCirc.New",
+          "args": [
+            "entities[]",
+            "axis",
+            "qty",
+            "totalAngle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypercad-s",
+          "fn": "Fillet.New",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "solidworks": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureRevolve2",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "solidworks",
+          "fn": "ModelDoc2.InsertSketch2",
+          "args": [
+            "true"
+          ],
+          "notes": "Pre-select a ref plane; second arg deletes prior sketch"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "solidworks",
+          "fn": "SketchManager.CreateSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "solidworks",
+          "fn": "FeatureManager.InsertProtrusionBlend",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureCircularPattern5",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "solidworks",
+          "fn": "FeatureManager.FeatureFillet3",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        }
+      ],
+      "inventor": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "inventor",
+          "fn": "SketchSplines.Add",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "inventor",
+          "fn": "RevolveFeatures.AddByFullAngle",
+          "args": [
+            "profile",
+            "axis"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "inventor",
+          "fn": "PlanarSketches.Add",
+          "args": [
+            "planarEntity"
+          ],
+          "notes": "planarEntity is a Face or WorkPlane"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "inventor",
+          "fn": "SketchSplines.Add",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "inventor",
+          "fn": "LoftFeatures.AddByLoftDefinition",
+          "args": [
+            "sections[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "inventor",
+          "fn": "CircularPatternFeatures.Add",
+          "args": [
+            "features[]",
+            "axis",
+            "qty",
+            "totalAngle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "inventor",
+          "fn": "FilletFeatures.Add",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "catia": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "catia",
+          "fn": "Factory2D.CreateSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewShaft",
+          "args": [
+            "sketch",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "catia",
+          "fn": "Sketches.Add",
+          "args": [
+            "refPlane"
+          ],
+          "notes": "CATIA V5 returns Sketch object"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "catia",
+          "fn": "Factory2D.CreateSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewLoft",
+          "args": [
+            "sections[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewCircPattern",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "catia",
+          "fn": "ShapeFactory.AddNewEdgeFillet",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "nx": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "nx",
+          "fn": "Sketch.StudioSpline",
+          "args": [
+            "points[]",
+            "degree"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "nx",
+          "fn": "Features.CreateRevolve",
+          "args": [
+            "profile",
+            "axis",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "nx",
+          "fn": "Part.Sketches.Create",
+          "args": [
+            "planarReference"
+          ],
+          "notes": "NX Open API"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "nx",
+          "fn": "Sketch.StudioSpline",
+          "args": [
+            "points[]",
+            "degree"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "nx",
+          "fn": "Features.CreateLoft",
+          "args": [
+            "sections[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "nx",
+          "fn": "Features.CreatePatternFeature(Circular)",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "nx",
+          "fn": "Features.CreateEdgeBlend",
+          "args": [
+            "edges[]",
+            "radius"
+          ],
+          "notes": ""
+        }
+      ],
+      "mastercam": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "mastercam",
+          "fn": "Geometry.NurbsSpline",
+          "args": [
+            "points[]",
+            "degree"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "mastercam",
+          "fn": "Plane.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Plane manager interface"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "mastercam",
+          "fn": "Geometry.NurbsSpline",
+          "args": [
+            "points[]",
+            "degree"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "mastercam",
+          "fn": "Xform.PatternCirc",
+          "args": [
+            "entities[]",
+            "axis",
+            "qty",
+            "angle"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "mastercam",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "powermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "powermill",
+          "fn": "CREATE NURBS-CURVE",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "powermill",
+          "fn": "EDIT WORKPLANE",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "Macro command"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "powermill",
+          "fn": "CREATE NURBS-CURVE",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "powermill",
+          "fn": "ENTITY PATTERN CIRC",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "powermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "hypermill": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "hypermill",
+          "fn": "Sketch.AddSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "hypermill",
+          "fn": "Frame.Create",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "ItemFrame in automation API"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "hypermill",
+          "fn": "Sketch.AddSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "hypermill",
+          "fn": "Entity.PatternCirc",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "hypermill",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "esprit": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "esprit",
+          "fn": "Geometry.AddSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.revolve",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "esprit",
+          "fn": "Document.CreateWorkplane",
+          "args": [
+            "origin",
+            "xAxis",
+            "yAxis"
+          ],
+          "notes": "VBScript automation"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "esprit",
+          "fn": "Geometry.AddSpline",
+          "args": [
+            "points[]"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.loft",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "esprit",
+          "fn": "Geometry.PatternCirc",
+          "args": [
+            "..."
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "esprit",
+          "fn": "(handled by post-CAD)",
+          "args": [],
+          "notes": ""
+        }
+      ],
+      "openscad": [
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "openscad",
+          "fn": "(polygon discretize)",
+          "args": [
+            "points"
+          ],
+          "notes": "OpenSCAD has no native splines"
+        },
+        {
+          "op": "op.revolve",
+          "platform": "openscad",
+          "fn": "rotate_extrude(angle=angle){profile}",
+          "args": [
+            "angle"
+          ],
+          "notes": "2D profile around Z"
+        },
+        {
+          "op": "sketch.create-plane",
+          "platform": "openscad",
+          "fn": "(implicit XY plane)",
+          "args": [],
+          "notes": "OpenSCAD sketches not first-class — 2D modules act on implicit plane"
+        },
+        {
+          "op": "sketch.spline-poly",
+          "platform": "openscad",
+          "fn": "(polygon discretize)",
+          "args": [
+            "points"
+          ],
+          "notes": "OpenSCAD has no native splines"
+        },
+        {
+          "op": "op.loft",
+          "platform": "openscad",
+          "fn": "(approximate via hull or BOSL2 skin)",
+          "args": [
+            "sections[]"
+          ],
+          "notes": "No native loft"
+        },
+        {
+          "op": "op.pattern-circ",
+          "platform": "openscad",
+          "fn": "for(a=[0:360/qty:360-0.1])rotate([0,0,a]){...}",
+          "args": [
+            "axis",
+            "qty"
+          ],
+          "notes": ""
+        },
+        {
+          "op": "op.fillet",
+          "platform": "openscad",
+          "fn": "(minkowski with sphere)",
+          "args": [
+            "radius"
+          ],
+          "notes": "Slow; use BOSL2 for performance"
+        }
+      ]
+    },
+    "unknown": {
+      "fusion360": [],
+      "hypercad-s": [],
+      "solidworks": [],
+      "inventor": [],
+      "catia": [],
+      "nx": [],
+      "mastercam": [],
+      "powermill": [],
+      "hypermill": [],
+      "esprit": [],
+      "openscad": []
+    }
+  },
+  "cadqueryReconciledAt": "2026-07-04T03:50:35.828Z"
+}

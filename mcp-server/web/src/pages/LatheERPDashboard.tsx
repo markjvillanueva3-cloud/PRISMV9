@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { callBusinessAction, unwrapBusiness } from "../api/businessDispatch";
 
 // ============================================================================
 // TYPES
@@ -75,17 +76,14 @@ interface AccuracyStats {
 // DISPATCH CLIENT
 // ============================================================================
 
-/** Default HTTP dispatch used by the app; overridable for tests. */
+/**
+ * Default dispatch -- routes through the canonical business client: POST /api/v1/business/dispatch
+ * with the auth token + 15s timeout + the deny-by-default allowlist gate, and `unwrapBusiness`
+ * normalizes the dispatcher's {success,data}-or-bare envelope so each tile receives its plain
+ * domain payload. Overridable for tests.
+ */
 async function defaultDispatch(action: string, params: Record<string, unknown> = {}): Promise<unknown> {
-  const res = await fetch("/api/dispatch/business", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, params }),
-  });
-  if (!res.ok) {
-    throw new Error(`dispatch ${action} failed: ${res.status}`);
-  }
-  return res.json();
+  return unwrapBusiness(await callBusinessAction(action, params));
 }
 
 // ============================================================================
@@ -118,7 +116,7 @@ function PipelineTile({ data }: { data: PipelineSummary | null }) {
   const states: Array<keyof PipelineSummary> = [
     "draft", "quoted", "accepted", "scheduled", "in_production", "shipped", "invoiced", "closed",
   ];
-  const total = states.reduce((s, k) => s + (data[k] ?? 0), 0);
+  const total = states.reduce<number>((s, k) => s + (data[k] ?? 0), 0);
   return (
     <div className="space-y-1 text-sm">
       <p className="text-lg font-bold text-white">{total} orders</p>

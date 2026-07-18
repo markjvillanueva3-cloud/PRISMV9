@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-The cyrilXBT Monday ritual: 15 minutes, one prompt, one output. Read 7 days of memories + wiki entries, surface what's emerging, name what contradicts, point at what's missing, commit to ONE action.
+
+# /weekly-synthesis — Vault → Thesis Ritual
 
 <!-- AUTO-END -->
 

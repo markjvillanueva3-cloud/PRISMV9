@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useErpJobTrack, useErpCapacity, useErpOee } from "../hooks/useErp";
 import Spinner from "../components/ui/Spinner";
 
@@ -65,14 +66,17 @@ export default function ErpDashboard() {
         />
       </div>
 
-      {/* Quick links */}
+      {/* Quick links -- U-ERP-DASH-LINKS (2026-07-05): the original /erp/* hrefs pointed at
+          routes App.tsx never defined (the /erp mount has no children), so every quick action
+          full-reloaded into the 404 fallback. Repointed to the REAL routes that back each
+          action; all are reachable at this page's own lead clearance or below. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <QuickLink label="New Quote" href="/erp/quote" icon="$" />
-        <QuickLink label="Plan Job" href="/erp/jobs" icon="P" />
-        <QuickLink label="Schedule" href="/erp/schedule" icon="S" />
-        <QuickLink label="Job Tracker" href="/erp/tracker" icon="T" />
-        <QuickLink label="Analytics" href="/erp/analytics" icon="A" />
-        <QuickLink label="Maintenance" href="/erp/maintenance" icon="M" />
+        <QuickLink label="New Quote" href="/quote-builder" icon="$" />
+        <QuickLink label="Plan Job" href="/job-planner" icon="P" />
+        <QuickLink label="Schedule" href="/scheduling" icon="S" />
+        <QuickLink label="Job Tracker" href="/jobs" icon="T" />
+        <QuickLink label="Analytics" href="/profitability" icon="A" />
+        <QuickLink label="Maintenance" href="/maintenance" icon="M" />
       </div>
 
       {/* Recent jobs list */}
@@ -137,9 +141,10 @@ function KpiCard({
 }
 
 function QuickLink({ label, href, icon }: { label: string; href: string; icon: string }) {
+  // react-router Link (not <a href>) -- an anchor full-reloads the SPA and drops in-memory state.
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white
         px-3 py-2.5 text-xs font-medium text-slate-700 shadow-sm transition-colors
         hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800
@@ -150,7 +155,7 @@ function QuickLink({ label, href, icon }: { label: string; href: string; icon: s
         {icon}
       </span>
       {label}
-    </a>
+    </Link>
   );
 }
 

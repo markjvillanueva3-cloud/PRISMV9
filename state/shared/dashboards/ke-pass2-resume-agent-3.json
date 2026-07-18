@@ -1,0 +1,3322 @@
+{
+ "COMMAND-KERNEL-MS0::U-CK28": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+   "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md",
+   "knowledge/wiki/architecture/skill-auto-loader.md",
+   "knowledge/wiki/architecture/master-index-surface.md"
+  ],
+  "addSeWiki": [
+   "recall-injection-flow",
+   "prism-self-update-loop",
+   "loop-state-tracking-discipline"
+  ],
+  "systemImpact": "Closes the command-utilization telemetry loop into auto skill-tier promotion: command-telemetry-record (U-CK26) feeds skillAutoLoader and the ai-auto-command-router so under-used skills demote and high-leverage ones auto-load. Read by /checkin Step 12 autonomous loop and surfaced via priorityQueue picker; without this loop high-ROI skills stay cold while low-value ones consume the per-session injection budget.",
+  "csDepth": [
+   "Telemetry feedback loop must be debounced to avoid oscillation under bursty fleet usage (per-slot 1-min throttle).",
+   "Tier-promotion is a monotone state machine — never demote within the same session-window that promoted it (anti-flap invariant).",
+   "Skill-utilization read path is O(n_skills) per UserPromptSubmit; cap at top-K (default 20) injection candidates to bound recall cost."
+  ]
+ },
+ "COMMAND-KERNEL-MS0::U-CK29": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md",
+   "knowledge/wiki/architecture/knowledge-vault-schema.md",
+   "knowledge/wiki/architecture/obsidian-memory-feed-hook.md",
+   "knowledge/wiki/architecture/memory-conflict-resolver-engine.md"
+  ],
+  "addSeWiki": [
+   "obsidian-vault-flow",
+   "recall-injection-flow",
+   "memory-curation-discipline"
+  ],
+  "systemImpact": "Wires outcome telemetry from exception-record-outcome / analytics-update-outcome / roi-log-outcome / cam-feedback-record-outcome / risk-record-outcome into the memory-vault Stop-hook feeder so the psk recommend layer learns from real fleet outcomes. Direct consumers: prism_session:master_index_query, the priorityQueue picker, and the Beta re-rank used by /rgs tool-plan-coverage.",
+  "csDepth": [
+   "Multi-producer single-consumer JSONL append pattern — every producer must use atomic write+rename, never partial writes (jsonl-ledger).",
+   "Outcome conflict resolution: same predicate, divergent results — MemoryConflictResolverEngine must pick by recency × confidence, not raw count.",
+   "Ledger growth is unbounded in expectation; require time-window rotation (default 30d) to keep query latency sublinear."
+  ]
+ },
+ "COST-CASCADE-MS0::U-BUILD-MOA-LAYER2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/cost-cascade-ms0.md",
+   "knowledge/wiki/architecture/domain-cost.md",
+   "knowledge/wiki/architecture/consensus-coordinator.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Aggregator engine consuming the three 3-of-3 scrutiny verdicts (Codex + Claude-A + Claude-B / analyst) and emitting a single MoaLayer2 verdict — read by scrutinize-before-stop.mjs Stop hook and the per-file scrutiny gate. Drives cost-savings telemetry into prism_dev:cost_route_infer.",
+  "csDepth": [
+   "Aggregator must be order-independent (commutative across reviewer arms) and idempotent on duplicate verdict feed.",
+   "Disagreement metric is a partial order — must escalate when no majority emerges instead of silently picking the first verdict.",
+   "Memory of arm latency is O(arms × N) — cap window or use a streaming median to avoid unbounded growth."
+  ]
+ },
+ "COST-CASCADE-MS0::U-CASCADE-CALIBRATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/cost-cascade-ms0.md",
+   "knowledge/wiki/architecture/domain-cost.md",
+   "knowledge/wiki/architecture/domain-calibration.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Probes the cost vs quality Pareto frontier so the cascade router can pick the cheapest model that still clears the quality gate. Consumers: prism_ai:cascade_calibrate, two_pass dispatcher action, and scrutinize-before-stop gate-threshold tuning.",
+  "csDepth": [
+   "Pareto-front probing is exponential in number of tiers — bound with a budget-capped Bayesian search (cap_calls default 20).",
+   "Quality score must be a real-valued metric (AUROC on a held-out oracle), never a stubbed boolean.",
+   "Calibration outputs are time-decaying — stale > 7d points must be down-weighted, not deleted (audit trail invariant)."
+  ]
+ },
+ "COST-CASCADE-MS0::U-CASCADE-FALLBACK-CHAIN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/cost-cascade-ms0.md",
+   "knowledge/wiki/architecture/domain-cost.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Fallback chain orchestrator: when the cheapest model returns low-confidence the request escalates to the next tier (FrugalGPT pattern). Consumed by two_pass cascade in prism_ai and every cost-aware route in prism_dev:cost_route.",
+  "csDepth": [
+   "Chain must terminate — bound max-hops (default 3) or recursion exhausts the budget envelope.",
+   "Each escalation hop adds latency; total response-time is sum of per-tier latencies, must surface a worst-case SLA bound.",
+   "Confidence gate must be fail-loud R12: low-confidence final tier returns error, never silently emits a last-tier result tagged best-effort."
+  ]
+ },
+ "COST-CASCADE-MS0::U-COST-ALARM": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/cost-cascade-ms0.md",
+   "knowledge/wiki/architecture/domain-cost.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "jsonl-ledger-conventions",
+   "cron-and-scheduled-task-discipline"
+  ],
+  "systemImpact": "Alarm signal when cascade spend exceeds a budget threshold. Wired into the token-economy ledger and surfaced via prism_dev:token_ledger_summary plus a Stop-hook advisory.",
+  "csDepth": [
+   "Token-economy budget is a sliding-window counter — must use a monotone clock (process.hrtime) to avoid wall-clock-skew false alarms.",
+   "Alarm cooldown required to prevent storm under sustained over-budget burst (default 5m per slot).",
+   "Threshold storage must be schema-versioned — operators tune at runtime via prism_dev:token_budget_allocate."
+  ]
+ },
+ "COST-CASCADE-MS0::U-COST-DASHBOARD": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/cost-cascade-ms0.md",
+   "knowledge/wiki/architecture/master-index-surface.md"
+  ],
+  "addSeWiki": [
+   "html-companion-discipline",
+   "doc-reflection-rule",
+   "jsonl-ledger-conventions"
+  ],
+  "systemImpact": "Operator dashboard rendering the cost-cascade ledger as MD+HTML. Sibling of the high-roi-skill dashboard; read via /system-viz and the operator HTML companion next to every state/shared/dashboards/* JSON.",
+  "csDepth": [
+   "Render must be O(n_events) one-pass — pretty-print of full event log breaks at >100MB (live ledger size class).",
+   "HTML companion must escape user-controlled strings (model names, prompt heads) to avoid stored-XSS via the dashboard surface.",
+   "Mtime-cache the rendered HTML so dashboards regenerate only on ledger delta."
+  ]
+ },
+ "CPL-MS2::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL-MS2::U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "CPL::U-CPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cpl.md",
+   "knowledge/wiki/architecture/domain-toolpath.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CPL (Clothoid Path Library) engines used by prism_toolpath dispatcher actions and the Mill/Lathe master post-processors for G2-continuous corner transitions and feed-rate smoothing. Sibling of the iMachining-spiral and toolpath-morph engines.",
+  "csDepth": [
+   "Clothoid arc-length integral has no closed form — use a 7-term Taylor series, error bounded < 1e-9 over [0, pi/2] (Fresnel integral identity).",
+   "Continuous-collision detection between blended paths is O(n^2) naive — accelerate with a swept-AABB BVH (log n per query).",
+   "Curvature continuity (G2) constraint must hold across segment boundaries — invariant: |curv_left(t1) - curv_right(t1)| < epsilon."
+  ]
+ },
+ "DB-EXP-MS0::U-DEEX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Coordinator placeholder envelope — unit body is a milestone-scaffold stub with no specific deliverable. Treat as documentation or close-out candidate; verify against state/shared/MILESTONE_PROGRESS.json before building.",
+  "csDepth": [
+   "Placeholder envelopes are a known close-out-debt class (silent-close-out-drift) — must be resolved by either splitting into real units or marking the milestone complete with a [SCOPED] commit."
+  ]
+ },
+ "DB-EXP-MS1::U-DEEX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Coordinator placeholder envelope — unit body is a milestone-scaffold stub with no specific deliverable. Treat as documentation or close-out candidate; verify against state/shared/MILESTONE_PROGRESS.json before building.",
+  "csDepth": [
+   "Placeholder envelopes are a known close-out-debt class (silent-close-out-drift) — must be resolved by either splitting into real units or marking the milestone complete with a [SCOPED] commit."
+  ]
+ },
+ "DB-EXP-MS2::U-DEEX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Coordinator placeholder envelope — unit body is a milestone-scaffold stub with no specific deliverable. Treat as documentation or close-out candidate; verify against state/shared/MILESTONE_PROGRESS.json before building.",
+  "csDepth": [
+   "Placeholder envelopes are a known close-out-debt class (silent-close-out-drift) — must be resolved by either splitting into real units or marking the milestone complete with a [SCOPED] commit."
+  ]
+ },
+ "DB-EXP-MS3::U-DEEX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Coordinator placeholder envelope — unit body is a milestone-scaffold stub with no specific deliverable. Treat as documentation or close-out candidate; verify against state/shared/MILESTONE_PROGRESS.json before building.",
+  "csDepth": [
+   "Placeholder envelopes are a known close-out-debt class (silent-close-out-drift) — must be resolved by either splitting into real units or marking the milestone complete with a [SCOPED] commit."
+  ]
+ },
+ "DB-EXP-MS4::U-DEEX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Coordinator placeholder envelope — unit body is a milestone-scaffold stub with no specific deliverable. Treat as documentation or close-out candidate; verify against state/shared/MILESTONE_PROGRESS.json before building.",
+  "csDepth": [
+   "Placeholder envelopes are a known close-out-debt class (silent-close-out-drift) — must be resolved by either splitting into real units or marking the milestone complete with a [SCOPED] commit."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-ACADEMY-BLUEPRINT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+   "knowledge/wiki/architecture/course-forge-stubs-emitter.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Academy / training cell — feeds the lima slot learning overlay across every domain pipeline. Consumes routed Lane-A KnowledgeTip[] and Lane-C forge-stubs from KNOWLEDGE-CONVERSION-MS0; renders in the operator-facing PRISM Academy surface.",
+  "csDepth": [
+   "Course content must be license-checked at ingest, not at render (cad_harvest_can_redistribute pattern).",
+   "Adaptive quizzing requires a per-student knowledge graph — must use sparse storage to keep memory bounded as student count scales."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-ACADEMY-TUTOR": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+   "knowledge/wiki/architecture/course-forge-stubs-emitter.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Academy / training cell — feeds the lima slot learning overlay across every domain pipeline. Consumes routed Lane-A KnowledgeTip[] and Lane-C forge-stubs from KNOWLEDGE-CONVERSION-MS0; renders in the operator-facing PRISM Academy surface.",
+  "csDepth": [
+   "Course content must be license-checked at ingest, not at render (cad_harvest_can_redistribute pattern).",
+   "Adaptive quizzing requires a per-student knowledge graph — must use sparse storage to keep memory bounded as student count scales."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-ACADEMY-VIDEO": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+   "knowledge/wiki/architecture/course-forge-stubs-emitter.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Academy / training cell — feeds the lima slot learning overlay across every domain pipeline. Consumes routed Lane-A KnowledgeTip[] and Lane-C forge-stubs from KNOWLEDGE-CONVERSION-MS0; renders in the operator-facing PRISM Academy surface.",
+  "csDepth": [
+   "Course content must be license-checked at ingest, not at render (cad_harvest_can_redistribute pattern).",
+   "Adaptive quizzing requires a per-student knowledge graph — must use sparse storage to keep memory bounded as student count scales."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-CAD-PRINT_INTAKE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-cad.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the PRINT_INTAKE stage of the 18-stage Domain Pipeline for the CAD domain (delta slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-CAD-PRINT_OCR": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-cad.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the PRINT_OCR stage of the 18-stage Domain Pipeline for the CAD domain (delta slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-CAM-FIXTURE_DESIGN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the FIXTURE_DESIGN stage of the 18-stage Domain Pipeline for the CAM domain (echo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-CAM-POST_PROCESS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the POST_PROCESS stage of the 18-stage Domain Pipeline for the CAM domain (echo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-CAM-SIMULATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the SIMULATE stage of the 18-stage Domain Pipeline for the CAM domain (echo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-CAM-TOOLING_SELECT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the TOOLING_SELECT stage of the 18-stage Domain Pipeline for the CAM domain (echo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-CAM-TOOLPATH_GEN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the TOOLPATH_GEN stage of the 18-stage Domain Pipeline for the CAM domain (echo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-DATABASE-ALARM_DB": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-data.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database layer feeding every domain pipeline (mill/lathe/wire/cam/cad) at the MATERIAL_SELECT / TOOLING_SELECT / FIXTURE_DESIGN / ALARM stages and the prism_data dispatcher ~700 lookup actions.",
+  "csDepth": [
+   "All catalog reads must be schema-version-checked at load — a silent schema bump corrupts downstream physics (R12 fail-loud).",
+   "Catalog writes must be atomic + per-PID temp-file rename to survive multi-chat fleet contention (atomic-write-idempotency).",
+   "Lookup hot-path is in the speed-feed inner loop — keep O(1) hash on canonical key, never O(n) linear scan."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-DATABASE-FIXTURE_DB": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-data.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database layer feeding every domain pipeline (mill/lathe/wire/cam/cad) at the MATERIAL_SELECT / TOOLING_SELECT / FIXTURE_DESIGN / ALARM stages and the prism_data dispatcher ~700 lookup actions.",
+  "csDepth": [
+   "All catalog reads must be schema-version-checked at load — a silent schema bump corrupts downstream physics (R12 fail-loud).",
+   "Catalog writes must be atomic + per-PID temp-file rename to survive multi-chat fleet contention (atomic-write-idempotency).",
+   "Lookup hot-path is in the speed-feed inner loop — keep O(1) hash on canonical key, never O(n) linear scan."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-DATABASE-MATERIAL_DB": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-data.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database layer feeding every domain pipeline (mill/lathe/wire/cam/cad) at the MATERIAL_SELECT / TOOLING_SELECT / FIXTURE_DESIGN / ALARM stages and the prism_data dispatcher ~700 lookup actions.",
+  "csDepth": [
+   "All catalog reads must be schema-version-checked at load — a silent schema bump corrupts downstream physics (R12 fail-loud).",
+   "Catalog writes must be atomic + per-PID temp-file rename to survive multi-chat fleet contention (atomic-write-idempotency).",
+   "Lookup hot-path is in the speed-feed inner loop — keep O(1) hash on canonical key, never O(n) linear scan."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-DATABASE-TOOL_DB": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-data.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database layer feeding every domain pipeline (mill/lathe/wire/cam/cad) at the MATERIAL_SELECT / TOOLING_SELECT / FIXTURE_DESIGN / ALARM stages and the prism_data dispatcher ~700 lookup actions.",
+  "csDepth": [
+   "All catalog reads must be schema-version-checked at load — a silent schema bump corrupts downstream physics (R12 fail-loud).",
+   "Catalog writes must be atomic + per-PID temp-file rename to survive multi-chat fleet contention (atomic-write-idempotency).",
+   "Lookup hot-path is in the speed-feed inner loop — keep O(1) hash on canonical key, never O(n) linear scan."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-ERP-BILL": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the BILL stage of the 18-stage Domain Pipeline for the ERP/business domain (hotel slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-ERP-COST": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the COST stage of the 18-stage Domain Pipeline for the ERP/business domain (hotel slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-ERP-HR": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the HR stage of the 18-stage Domain Pipeline for the ERP/business domain (hotel slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-ERP-QUOTE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the QUOTE stage of the 18-stage Domain Pipeline for the ERP/business domain (hotel slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-ERP-SCHEDULE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the SCHEDULE stage of the 18-stage Domain Pipeline for the ERP/business domain (hotel slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-FIXTURE_DESIGN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the FIXTURE_DESIGN stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-LEARNING_LOOP": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the LEARNING_LOOP stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-MACHINE_RUN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the MACHINE_RUN stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-MATERIAL_SELECT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the MATERIAL_SELECT stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-OPERATION_SEQUENCE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the OPERATION_SEQUENCE stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-OPERATOR_GATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the OPERATOR_GATE stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-POST_PROCESS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the POST_PROCESS stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-PRINT_INTAKE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the PRINT_INTAKE stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-PRINT_OCR": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the PRINT_OCR stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-QUALITY_VERIFY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the QUALITY_VERIFY stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-SIMULATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the SIMULATE stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-TOOLING_SELECT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the TOOLING_SELECT stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-LATHE-TOOLPATH_GEN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-lathe.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the TOOLPATH_GEN stage of the 18-stage Domain Pipeline for the Lathe domain (bravo slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-FIXTURE_DESIGN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the FIXTURE_DESIGN stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-LEARNING_LOOP": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the LEARNING_LOOP stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-MACHINE_RUN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the MACHINE_RUN stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-MATERIAL_SELECT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the MATERIAL_SELECT stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-OPERATION_SEQUENCE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the OPERATION_SEQUENCE stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-OPERATOR_GATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the OPERATOR_GATE stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-POST_PROCESS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the POST_PROCESS stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-PRINT_INTAKE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the PRINT_INTAKE stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-PRINT_OCR": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the PRINT_OCR stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-QUALITY_VERIFY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the QUALITY_VERIFY stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-SIMULATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the SIMULATE stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-TOOLING_SELECT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the TOOLING_SELECT stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MILL-TOOLPATH_GEN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-mill.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the TOOLPATH_GEN stage of the 18-stage Domain Pipeline for the Mill domain (alpha slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MISC-OBSERVABILITY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/system-viz.md"
+  ],
+  "addSeWiki": [
+   "jsonl-ledger-conventions",
+   "cron-and-scheduled-task-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Misc/infrastructure cell (observability or telemetry) — feeds prism_monitoring (Grafana push), prism_telemetry, and the fleet-wide JSONL ledger consumed by Stop-hook scoreboards and /system-viz.",
+  "csDepth": [
+   "Observability metrics must NEVER block the hot path — use fire-and-forget append with an upstream queue to bound producer latency.",
+   "Telemetry ledger rotation cadence must be set per-host (24h default) to prevent unbounded growth."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-MISC-TELEMETRY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/system-viz.md"
+  ],
+  "addSeWiki": [
+   "jsonl-ledger-conventions",
+   "cron-and-scheduled-task-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Misc/infrastructure cell (observability or telemetry) — feeds prism_monitoring (Grafana push), prism_telemetry, and the fleet-wide JSONL ledger consumed by Stop-hook scoreboards and /system-viz.",
+  "csDepth": [
+   "Observability metrics must NEVER block the hot path — use fire-and-forget append with an upstream queue to bound producer latency.",
+   "Telemetry ledger rotation cadence must be set per-host (24h default) to prevent unbounded growth."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-POST-POST_PROCESS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-post.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the POST_PROCESS stage of the 18-stage Domain Pipeline for the Post-processor domain (india slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-PRINT2PROG-ORCHESTRATE_FULL": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-print.md",
+   "knowledge/wiki/architecture/domain-blueprint.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "PrintToProgram full-orchestrate cell (kilo slot) — composes all 18 pipeline stages across a domain into a single end-to-end print to NC flow. Direct consumer: print_to_program_full / print_to_program_enhanced dispatcher actions; root of the kilo slot domain ownership.",
+  "csDepth": [
+   "Orchestrator must be fail-loud (R12) — a partially-failed stage cannot silently emit a downgraded program; SAFETY_VALIDATE + OPERATOR_GATE are unconditional.",
+   "Stage composition is a DAG, not a chain — implement explicit dependency declaration so adaptive routing can parallelize independent stages.",
+   "End-to-end SLO is the sum of per-stage SLOs + queueing — must be measured end-to-end to detect cross-stage contention regressions."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-TRIBAL-ALL": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-tribal.md"
+  ],
+  "addSeWiki": [
+   "recall-injection-flow",
+   "obsidian-vault-flow",
+   "memory-curation-discipline"
+  ],
+  "systemImpact": "Tribal-knowledge support cell — feeds every domain pipeline at every stage. Wired into the tribal-by-domain-inject UserPromptSubmit hook (top-3 hits per slot domain) and the prism_knowledge:tribal_* search/add actions.",
+  "csDepth": [
+   "Tribal-tip retrieval must be domain-weighted — global ranking buries domain-specific insights under generic-popular tips.",
+   "Conflicting tips (same predicate, different remedy) must surface via MemoryConflictResolverEngine, not be auto-merged."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-FIXTURE_DESIGN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the FIXTURE_DESIGN stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-LEARNING_LOOP": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the LEARNING_LOOP stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-MACHINE_RUN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the MACHINE_RUN stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-MATERIAL_SELECT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the MATERIAL_SELECT stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-OPERATOR_GATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the OPERATOR_GATE stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-POST_PROCESS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the POST_PROCESS stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-PRINT_INTAKE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the PRINT_INTAKE stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-PRINT_OCR": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the PRINT_OCR stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-QUALITY_VERIFY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the QUALITY_VERIFY stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-SIMULATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the SIMULATE stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-TOOLING_SELECT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the TOOLING_SELECT stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "DOMAIN-PIPELINE-MS0::U-DPM0-WIRE-TOOLPATH_GEN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+   "knowledge/wiki/architecture/domain-wire.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Implements the TOOLPATH_GEN stage of the 18-stage Domain Pipeline for the Wire-EDM domain (charlie slot). Consumers: PrintToProgramOrchestratorEngine (kilo slot) routes through this cell; sibling stages in the same domain depend on the artifact this cell produces. Telemetry feeds DOMAIN-PIPELINE-MS0 cell coverage metrics rendered in /system-viz ghost.domain_pipelines.",
+  "csDepth": [
+   "Pipeline cells must be pure functions of their inputs — hidden state leaks across runs and breaks the digital-twin replay invariant.",
+   "Per-cell SLO must be measured (latency + error rate) for the orchestrator adaptive routing; missing telemetry collapses adaptive mode to default.",
+   "SAFETY_VALIDATE + OPERATOR_GATE are unconditional invariants — never compose a domain pipeline that skips them."
+  ]
+ },
+ "EIGC-MS10::P0-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-calibration.md",
+   "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Calibration benchmark corpus + performance baselines that feed prism_ai:calibration_kienzle / calibration_taylor / calibration_drift / calibration_model / calibration_surface dispatcher actions. Used by the NN-GRAPH retrain lifecycle to grade candidate checkpoints against the AUROC/macroF1/Brier gate.",
+  "csDepth": [
+   "Benchmark splits must be customer-disjoint to prevent train-test leakage (per cam_ml_split_customer_disjoint pattern).",
+   "Baselines need versioning + immutability (write-once corpus) — mutation invalidates every downstream calibration measurement.",
+   "Bayesian-update of calibration priors requires conjugate-pair (normal-inverse-gamma) form for O(1) incremental updates."
+  ]
+ },
+ "EIGC-MS2::P0-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-calibration.md",
+   "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Calibration benchmark corpus + performance baselines that feed prism_ai:calibration_kienzle / calibration_taylor / calibration_drift / calibration_model / calibration_surface dispatcher actions. Used by the NN-GRAPH retrain lifecycle to grade candidate checkpoints against the AUROC/macroF1/Brier gate.",
+  "csDepth": [
+   "Benchmark splits must be customer-disjoint to prevent train-test leakage (per cam_ml_split_customer_disjoint pattern).",
+   "Baselines need versioning + immutability (write-once corpus) — mutation invalidates every downstream calibration measurement.",
+   "Bayesian-update of calibration priors requires conjugate-pair (normal-inverse-gamma) form for O(1) incremental updates."
+  ]
+ },
+ "ELEC-PIPE-MS0::U-EPPI01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Electrical / wiring pipeline milestone coordinator stub — no specific engine deliverable. Likely intended for the wiring-batch automation surface; verify status against MILESTONE_PROGRESS before building.",
+  "csDepth": [
+   "Coordinator-placeholder envelopes block silent-close-out-drift detection because path tokens never resolve."
+  ]
+ },
+ "ELEC-PIPE-MS1::U-EPPI01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Electrical / wiring pipeline milestone coordinator stub — no specific engine deliverable. Likely intended for the wiring-batch automation surface; verify status against MILESTONE_PROGRESS before building.",
+  "csDepth": [
+   "Coordinator-placeholder envelopes block silent-close-out-drift detection because path tokens never resolve."
+  ]
+ },
+ "ELEC-PIPE-MS2::U-EPPI01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Electrical / wiring pipeline milestone coordinator stub — no specific engine deliverable. Likely intended for the wiring-batch automation surface; verify status against MILESTONE_PROGRESS before building.",
+  "csDepth": [
+   "Coordinator-placeholder envelopes block silent-close-out-drift detection because path tokens never resolve."
+  ]
+ },
+ "EMP-MS0::U-AUTH1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-auth.md",
+   "knowledge/wiki/architecture/domain-session.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Frontend secure-login context (login/logout, session lifecycle, idle timeout) for the EMP shop-floor UI. Wired to the prism_session dispatcher session API; consumed by ShiftClockWidget and every authenticated EMP route.",
+  "csDepth": [
+   "Session lifecycle must be checked on every protected fetch via a single-source store (avoid stale use-after-free).",
+   "Session refresh must be guarded by a single in-flight promise to prevent the thundering-herd refresh class (N concurrent components -> N refresh attempts).",
+   "Logout must invalidate server-side as well as client-side — local clearing alone leaves a replay window open until expiry."
+  ]
+ },
+ "EMP-MS0::U-AUTH2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-auth.md",
+   "knowledge/wiki/architecture/domain-session.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Frontend secure-login context (login/logout, session lifecycle, idle timeout) for the EMP shop-floor UI. Wired to the prism_session dispatcher session API; consumed by ShiftClockWidget and every authenticated EMP route.",
+  "csDepth": [
+   "Session lifecycle must be checked on every protected fetch via a single-source store (avoid stale use-after-free).",
+   "Session refresh must be guarded by a single in-flight promise to prevent the thundering-herd refresh class (N concurrent components -> N refresh attempts).",
+   "Logout must invalidate server-side as well as client-side — local clearing alone leaves a replay window open until expiry."
+  ]
+ },
+ "EMP-MS0::U-AUTH3": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-auth.md",
+   "knowledge/wiki/architecture/domain-session.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Frontend secure-login context (login/logout, session lifecycle, idle timeout) for the EMP shop-floor UI. Wired to the prism_session dispatcher session API; consumed by ShiftClockWidget and every authenticated EMP route.",
+  "csDepth": [
+   "Session lifecycle must be checked on every protected fetch via a single-source store (avoid stale use-after-free).",
+   "Session refresh must be guarded by a single in-flight promise to prevent the thundering-herd refresh class (N concurrent components -> N refresh attempts).",
+   "Logout must invalidate server-side as well as client-side — local clearing alone leaves a replay window open until expiry."
+  ]
+ },
+ "EMP-MS0::U-AUTH4": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-auth.md",
+   "knowledge/wiki/architecture/domain-session.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Frontend secure-login context (login/logout, session lifecycle, idle timeout) for the EMP shop-floor UI. Wired to the prism_session dispatcher session API; consumed by ShiftClockWidget and every authenticated EMP route.",
+  "csDepth": [
+   "Session lifecycle must be checked on every protected fetch via a single-source store (avoid stale use-after-free).",
+   "Session refresh must be guarded by a single in-flight promise to prevent the thundering-herd refresh class (N concurrent components -> N refresh attempts).",
+   "Logout must invalidate server-side as well as client-side — local clearing alone leaves a replay window open until expiry."
+  ]
+ },
+ "EMP-MS0::U-CLK1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-shop.md",
+   "knowledge/wiki/architecture/shopfloorautomation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ShiftClock widget for shop-floor clock-in/clock-out — consumed by EMP frontend and writes to the timecard ledger that prism_business:clock_in / clock_out / job_time_* actions read.",
+  "csDepth": [
+   "Clock events MUST use monotonic time (server-side) — relying on client wall-clock allows backdated entries (audit-fail).",
+   "Concurrent clock-out from two terminals (one operator, two browsers) must be idempotent via lastWriteWins keyed by terminal id.",
+   "Timecard rollups are O(n_events × n_employees) per day — pre-aggregate on event ingest, not at read time."
+  ]
+ },
+ "EMP-MS0::U-CLK2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-shop.md",
+   "knowledge/wiki/architecture/shopfloorautomation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ShiftClock widget for shop-floor clock-in/clock-out — consumed by EMP frontend and writes to the timecard ledger that prism_business:clock_in / clock_out / job_time_* actions read.",
+  "csDepth": [
+   "Clock events MUST use monotonic time (server-side) — relying on client wall-clock allows backdated entries (audit-fail).",
+   "Concurrent clock-out from two terminals (one operator, two browsers) must be idempotent via lastWriteWins keyed by terminal id.",
+   "Timecard rollups are O(n_events × n_employees) per day — pre-aggregate on event ingest, not at read time."
+  ]
+ },
+ "EMP-MS0::U-CLK3": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-shop.md",
+   "knowledge/wiki/architecture/shopfloorautomation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ShiftClock widget for shop-floor clock-in/clock-out — consumed by EMP frontend and writes to the timecard ledger that prism_business:clock_in / clock_out / job_time_* actions read.",
+  "csDepth": [
+   "Clock events MUST use monotonic time (server-side) — relying on client wall-clock allows backdated entries (audit-fail).",
+   "Concurrent clock-out from two terminals (one operator, two browsers) must be idempotent via lastWriteWins keyed by terminal id.",
+   "Timecard rollups are O(n_events × n_employees) per day — pre-aggregate on event ingest, not at read time."
+  ]
+ },
+ "EMP-MS0::U-CLK4": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-shop.md",
+   "knowledge/wiki/architecture/shopfloorautomation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ShiftClock widget for shop-floor clock-in/clock-out — consumed by EMP frontend and writes to the timecard ledger that prism_business:clock_in / clock_out / job_time_* actions read.",
+  "csDepth": [
+   "Clock events MUST use monotonic time (server-side) — relying on client wall-clock allows backdated entries (audit-fail).",
+   "Concurrent clock-out from two terminals (one operator, two browsers) must be idempotent via lastWriteWins keyed by terminal id.",
+   "Timecard rollups are O(n_events × n_employees) per day — pre-aggregate on event ingest, not at read time."
+  ]
+ },
+ "EMP-MS0::U-CLK5": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-shop.md",
+   "knowledge/wiki/architecture/shopfloorautomation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ShiftClock widget for shop-floor clock-in/clock-out — consumed by EMP frontend and writes to the timecard ledger that prism_business:clock_in / clock_out / job_time_* actions read.",
+  "csDepth": [
+   "Clock events MUST use monotonic time (server-side) — relying on client wall-clock allows backdated entries (audit-fail).",
+   "Concurrent clock-out from two terminals (one operator, two browsers) must be idempotent via lastWriteWins keyed by terminal id.",
+   "Timecard rollups are O(n_events × n_employees) per day — pre-aggregate on event ingest, not at read time."
+  ]
+ },
+ "EMP-MS0::U-COST1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cost.md",
+   "knowledge/wiki/architecture/domain-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Cost-reporting EMP widget tied to prism_business:actual_cost_calculate / actual_cost_variance / actual_cost_profitability and the cost-savings dashboard.",
+  "csDepth": [
+   "Cost rollups must use Decimal arithmetic (never IEEE-754 float) — penny-rounding drift compounds across job-counts and breaks AP reconciliation.",
+   "Variance bands need a per-customer baseline — global thresholds false-fire on inherently low-margin lines."
+  ]
+ },
+ "EMP-MS0::U-COST2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cost.md",
+   "knowledge/wiki/architecture/domain-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Cost-reporting EMP widget tied to prism_business:actual_cost_calculate / actual_cost_variance / actual_cost_profitability and the cost-savings dashboard.",
+  "csDepth": [
+   "Cost rollups must use Decimal arithmetic (never IEEE-754 float) — penny-rounding drift compounds across job-counts and breaks AP reconciliation.",
+   "Variance bands need a per-customer baseline — global thresholds false-fire on inherently low-margin lines."
+  ]
+ },
+ "EMP-MS0::U-COST3": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cost.md",
+   "knowledge/wiki/architecture/domain-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Cost-reporting EMP widget tied to prism_business:actual_cost_calculate / actual_cost_variance / actual_cost_profitability and the cost-savings dashboard.",
+  "csDepth": [
+   "Cost rollups must use Decimal arithmetic (never IEEE-754 float) — penny-rounding drift compounds across job-counts and breaks AP reconciliation.",
+   "Variance bands need a per-customer baseline — global thresholds false-fire on inherently low-margin lines."
+  ]
+ },
+ "EMP-MS0::U-EMP1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/shopfloorautomation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Employee directory + skills matrix UI for EMP. Reads/writes via prism_business:employee_create / employee_update / employee_search / employee_add_skill / employee_utilization actions.",
+  "csDepth": [
+   "Skill-matrix update is concurrent across HR+supervisor sessions — must use optimistic-concurrency revisions to detect lost-update.",
+   "Search index must be denormalized — joining employees × skills × certs on every keystroke is O(n_emp × n_skill)."
+  ]
+ },
+ "EMP-MS0::U-EMP2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/shopfloorautomation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Employee directory + skills matrix UI for EMP. Reads/writes via prism_business:employee_create / employee_update / employee_search / employee_add_skill / employee_utilization actions.",
+  "csDepth": [
+   "Skill-matrix update is concurrent across HR+supervisor sessions — must use optimistic-concurrency revisions to detect lost-update.",
+   "Search index must be denormalized — joining employees × skills × certs on every keystroke is O(n_emp × n_skill)."
+  ]
+ },
+ "EMP-MS0::U-EMP3": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/shopfloorautomation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Employee directory + skills matrix UI for EMP. Reads/writes via prism_business:employee_create / employee_update / employee_search / employee_add_skill / employee_utilization actions.",
+  "csDepth": [
+   "Skill-matrix update is concurrent across HR+supervisor sessions — must use optimistic-concurrency revisions to detect lost-update.",
+   "Search index must be denormalized — joining employees × skills × certs on every keystroke is O(n_emp × n_skill)."
+  ]
+ },
+ "EMP-MS0::U-LEAN1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Lean / six-sigma dashboard widgets for EMP — OEE, bottleneck, Pareto, control-chart. Consumes prism_business:reporting_pareto / reporting_dashboard and prism_automation:oee_calc / bottleneck.",
+  "csDepth": [
+   "OEE has three multiplicative factors (Availability × Performance × Quality) — a divide-by-zero on zero-runtime must surface as undefined, not silently render as 0%.",
+   "Control-chart 8-rule Nelson detection has overlapping windows — implement as a streaming algorithm to avoid O(n×8) re-scan.",
+   "Pareto pre-sort changes only on event ingest — cache the sorted view per shift to keep render O(top_k)."
+  ]
+ },
+ "EMP-MS0::U-LEAN2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Lean / six-sigma dashboard widgets for EMP — OEE, bottleneck, Pareto, control-chart. Consumes prism_business:reporting_pareto / reporting_dashboard and prism_automation:oee_calc / bottleneck.",
+  "csDepth": [
+   "OEE has three multiplicative factors (Availability × Performance × Quality) — a divide-by-zero on zero-runtime must surface as undefined, not silently render as 0%.",
+   "Control-chart 8-rule Nelson detection has overlapping windows — implement as a streaming algorithm to avoid O(n×8) re-scan.",
+   "Pareto pre-sort changes only on event ingest — cache the sorted view per shift to keep render O(top_k)."
+  ]
+ },
+ "EMP-MS0::U-LEAN3": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Lean / six-sigma dashboard widgets for EMP — OEE, bottleneck, Pareto, control-chart. Consumes prism_business:reporting_pareto / reporting_dashboard and prism_automation:oee_calc / bottleneck.",
+  "csDepth": [
+   "OEE has three multiplicative factors (Availability × Performance × Quality) — a divide-by-zero on zero-runtime must surface as undefined, not silently render as 0%.",
+   "Control-chart 8-rule Nelson detection has overlapping windows — implement as a streaming algorithm to avoid O(n×8) re-scan.",
+   "Pareto pre-sort changes only on event ingest — cache the sorted view per shift to keep render O(top_k)."
+  ]
+ },
+ "EMP-MS0::U-LEAN4": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Lean / six-sigma dashboard widgets for EMP — OEE, bottleneck, Pareto, control-chart. Consumes prism_business:reporting_pareto / reporting_dashboard and prism_automation:oee_calc / bottleneck.",
+  "csDepth": [
+   "OEE has three multiplicative factors (Availability × Performance × Quality) — a divide-by-zero on zero-runtime must surface as undefined, not silently render as 0%.",
+   "Control-chart 8-rule Nelson detection has overlapping windows — implement as a streaming algorithm to avoid O(n×8) re-scan.",
+   "Pareto pre-sort changes only on event ingest — cache the sorted view per shift to keep render O(top_k)."
+  ]
+ },
+ "EMP-MS0::U-LEAN5": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Lean / six-sigma dashboard widgets for EMP — OEE, bottleneck, Pareto, control-chart. Consumes prism_business:reporting_pareto / reporting_dashboard and prism_automation:oee_calc / bottleneck.",
+  "csDepth": [
+   "OEE has three multiplicative factors (Availability × Performance × Quality) — a divide-by-zero on zero-runtime must surface as undefined, not silently render as 0%.",
+   "Control-chart 8-rule Nelson detection has overlapping windows — implement as a streaming algorithm to avoid O(n×8) re-scan.",
+   "Pareto pre-sort changes only on event ingest — cache the sorted view per shift to keep render O(top_k)."
+  ]
+ },
+ "EMP-MS0::U-LEAN6": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Lean / six-sigma dashboard widgets for EMP — OEE, bottleneck, Pareto, control-chart. Consumes prism_business:reporting_pareto / reporting_dashboard and prism_automation:oee_calc / bottleneck.",
+  "csDepth": [
+   "OEE has three multiplicative factors (Availability × Performance × Quality) — a divide-by-zero on zero-runtime must surface as undefined, not silently render as 0%.",
+   "Control-chart 8-rule Nelson detection has overlapping windows — implement as a streaming algorithm to avoid O(n×8) re-scan.",
+   "Pareto pre-sort changes only on event ingest — cache the sorted view per shift to keep render O(top_k)."
+  ]
+ },
+ "EMP-MS0::U-LEAN7": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Lean / six-sigma dashboard widgets for EMP — OEE, bottleneck, Pareto, control-chart. Consumes prism_business:reporting_pareto / reporting_dashboard and prism_automation:oee_calc / bottleneck.",
+  "csDepth": [
+   "OEE has three multiplicative factors (Availability × Performance × Quality) — a divide-by-zero on zero-runtime must surface as undefined, not silently render as 0%.",
+   "Control-chart 8-rule Nelson detection has overlapping windows — implement as a streaming algorithm to avoid O(n×8) re-scan.",
+   "Pareto pre-sort changes only on event ingest — cache the sorted view per shift to keep render O(top_k)."
+  ]
+ },
+ "EMP-MS0::U-MOD1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Modular EMP page/component scaffolding (frontend), consumed by the operating-system shell and the existing EMP route surface.",
+  "csDepth": [
+   "Module-registry lookups need to be ordered (deterministic) so a re-render with the same input gives the same DOM (React reconciliation invariant)."
+  ]
+ },
+ "EMP-MS0::U-MOD2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-automation.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Modular EMP page/component scaffolding (frontend), consumed by the operating-system shell and the existing EMP route surface.",
+  "csDepth": [
+   "Module-registry lookups need to be ordered (deterministic) so a re-render with the same input gives the same DOM (React reconciliation invariant)."
+  ]
+ },
+ "EMP-MS0::U-PER1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "Payroll-period UI tied to prism_business:payroll_create_period / payroll_run / payroll_pay_stub. Read by HR and surfaced via the EMP shell.",
+  "csDepth": [
+   "Payroll-run must be idempotent — accidental double-submit cannot duplicate pay-stubs (enforced via period-id unique constraint).",
+   "Tax/withholding tables are time-keyed — must apply the rate effective on the period-end date, not the run date."
+  ]
+ },
+ "EMP-MS0::U-SAN1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-auth.md",
+   "knowledge/wiki/architecture/domain-guard.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "hook-authoring-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Security/sanitization layer for the EMP shop-floor frontend — input validation, RBAC checks, and audit logging. Wired into the prism_guard dispatcher error-ledger and the audit-harness-security skill.",
+  "csDepth": [
+   "RBAC check must default-deny — a missing role marker never falls through to allow.",
+   "Input sanitization must be type-aware (numeric, identifier, free-text) and applied at the API boundary, not the rendering boundary (prevent injection upstream).",
+   "Audit log writes must be fire-and-forget but durable (append-only JSONL, fsync on rotate)."
+  ]
+ },
+ "EMP-MS0::U-SEC1": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-auth.md",
+   "knowledge/wiki/architecture/domain-guard.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "hook-authoring-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Security/sanitization layer for the EMP shop-floor frontend — input validation, RBAC checks, and audit logging. Wired into the prism_guard dispatcher error-ledger and the audit-harness-security skill.",
+  "csDepth": [
+   "RBAC check must default-deny — a missing role marker never falls through to allow.",
+   "Input sanitization must be type-aware (numeric, identifier, free-text) and applied at the API boundary, not the rendering boundary (prevent injection upstream).",
+   "Audit log writes must be fire-and-forget but durable (append-only JSONL, fsync on rotate)."
+  ]
+ },
+ "EMP-MS0::U-SEC2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-auth.md",
+   "knowledge/wiki/architecture/domain-guard.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "hook-authoring-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Security/sanitization layer for the EMP shop-floor frontend — input validation, RBAC checks, and audit logging. Wired into the prism_guard dispatcher error-ledger and the audit-harness-security skill.",
+  "csDepth": [
+   "RBAC check must default-deny — a missing role marker never falls through to allow.",
+   "Input sanitization must be type-aware (numeric, identifier, free-text) and applied at the API boundary, not the rendering boundary (prevent injection upstream).",
+   "Audit log writes must be fire-and-forget but durable (append-only JSONL, fsync on rotate)."
+  ]
+ },
+ "F360-AP-MS0::P1-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 add-in / API milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-AP-MS0::P2-U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 add-in / API milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-AP-MS0::P2-U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 add-in / API milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-AP-MS0::P3-U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 add-in / API milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-AP-MS0::P3-U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 add-in / API milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-AP-MS2::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-AP-MS3::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-AP-MS6::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-AP-MS7::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-AP-MS8::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-FULL-MS1::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-FULL-MS2::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-FULL-MS3::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-FULL-MS4::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-FULL-MS5::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-FULL-MS6::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-FULL-MS7::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-FULL-MS8::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-MS0::U-F360-01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS0::U-F360-02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS0::U-F360-03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS0::U-F360-04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS0::U-F360-05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS0::U-F360-06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS1::U-F360-07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS1::U-F360-08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS1::U-F360-09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS1::U-F360-10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS1::U-F360-11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS2::U-F360-12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS2::U-F360-13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS2::U-F360-14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS2::U-F360-15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS3::U-F360-16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS3::U-F360-17": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS3::U-F360-18": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS4::U-F360-19": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS4::U-F360-20": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS4::U-F360-21": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS5::U-F360-22": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS5::U-F360-23": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-MS5::U-F360-24": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-fusion.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/fusion-cam-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fusion 360 milestone cell — wires into prism_cad / prism_cam dispatcher actions (cam_fusion_*, fusion360_*, f360_live_*) and the Fusion 360 Python add-in bridge for live geometry + toolpath synchronization.",
+  "csDepth": [
+   "Live-API bridges have a connection-lifecycle invariant — every open() must be paired with close(), and crash-recovery must reset the add-in RPC state.",
+   "Fusion 360 API is single-threaded — all script execution must marshal back onto the document thread (no off-thread document mutation).",
+   "Add-in version must match server version (semver-pinned) — silent skew causes RPC schema-drift that corrupts geometry round-trips."
+  ]
+ },
+ "F360-REV-MS10::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS11::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS12::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS2::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS3::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS4::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS5::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS6::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS7::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS8::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "F360-REV-MS9::U-FXXX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Placeholder F360 milestone envelope (U-FXXX01) — coordinator-only stub with no specific deliverable. Treat as documentation or close-out candidate until split into real units.",
+  "csDepth": [
+   "Placeholder envelopes are a documented close-out-debt class — must be resolved by splitting or marking complete with a [SCOPED] commit."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ACADEMY-220-COURSES": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+   "knowledge/wiki/architecture/course-forge-stubs-emitter.md",
+   "knowledge/wiki/architecture/course-forge-conversions.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Academy / training corpus expansion — MIT-OCW courses, MIT kernels, university algorithms — routed through the 6-node-type lane router. Lane-C-eligible items become forge-stubs; Lane-A items emit KnowledgeTip[] for the existing cad-engine/knowledge_store.",
+  "csDepth": [
+   "Course harvesting must respect a redistribution-license check (cad_harvest_can_redistribute) — copyright violation if skipped.",
+   "Duplicate-detection across courses uses content-hash + title-normalize; pure-string dedup misses re-uploads with whitespace drift.",
+   "Algorithm extraction is bounded — courses with >100 algorithm-candidates need triage to keep the forge queue tractable."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ACADEMY-MIT-KERNELS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+   "knowledge/wiki/architecture/course-forge-stubs-emitter.md",
+   "knowledge/wiki/architecture/course-forge-conversions.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Academy / training corpus expansion — MIT-OCW courses, MIT kernels, university algorithms — routed through the 6-node-type lane router. Lane-C-eligible items become forge-stubs; Lane-A items emit KnowledgeTip[] for the existing cad-engine/knowledge_store.",
+  "csDepth": [
+   "Course harvesting must respect a redistribution-license check (cad_harvest_can_redistribute) — copyright violation if skipped.",
+   "Duplicate-detection across courses uses content-hash + title-normalize; pure-string dedup misses re-uploads with whitespace drift.",
+   "Algorithm extraction is bounded — courses with >100 algorithm-candidates need triage to keep the forge queue tractable."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ACADEMY-MIT-OCW-INGEST": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+   "knowledge/wiki/architecture/course-forge-stubs-emitter.md",
+   "knowledge/wiki/architecture/course-forge-conversions.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Academy / training corpus expansion — MIT-OCW courses, MIT kernels, university algorithms — routed through the 6-node-type lane router. Lane-C-eligible items become forge-stubs; Lane-A items emit KnowledgeTip[] for the existing cad-engine/knowledge_store.",
+  "csDepth": [
+   "Course harvesting must respect a redistribution-license check (cad_harvest_can_redistribute) — copyright violation if skipped.",
+   "Duplicate-detection across courses uses content-hash + title-normalize; pure-string dedup misses re-uploads with whitespace drift.",
+   "Algorithm extraction is bounded — courses with >100 algorithm-candidates need triage to keep the forge queue tractable."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ACADEMY-TRAINING-DAYS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+   "knowledge/wiki/architecture/course-forge-stubs-emitter.md",
+   "knowledge/wiki/architecture/course-forge-conversions.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Academy / training corpus expansion — MIT-OCW courses, MIT kernels, university algorithms — routed through the 6-node-type lane router. Lane-C-eligible items become forge-stubs; Lane-A items emit KnowledgeTip[] for the existing cad-engine/knowledge_store.",
+  "csDepth": [
+   "Course harvesting must respect a redistribution-license check (cad_harvest_can_redistribute) — copyright violation if skipped.",
+   "Duplicate-detection across courses uses content-hash + title-normalize; pure-string dedup misses re-uploads with whitespace drift.",
+   "Algorithm extraction is bounded — courses with >100 algorithm-candidates need triage to keep the forge queue tractable."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ACADEMY-UNIVERSITY-ALGS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+   "knowledge/wiki/architecture/course-forge-stubs-emitter.md",
+   "knowledge/wiki/architecture/course-forge-conversions.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Academy / training corpus expansion — MIT-OCW courses, MIT kernels, university algorithms — routed through the 6-node-type lane router. Lane-C-eligible items become forge-stubs; Lane-A items emit KnowledgeTip[] for the existing cad-engine/knowledge_store.",
+  "csDepth": [
+   "Course harvesting must respect a redistribution-license check (cad_harvest_can_redistribute) — copyright violation if skipped.",
+   "Duplicate-detection across courses uses content-hash + title-normalize; pure-string dedup misses re-uploads with whitespace drift.",
+   "Algorithm extraction is bounded — courses with >100 algorithm-candidates need triage to keep the forge queue tractable."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-CAD-COMPLETE-GEN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cad.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/freecad-complete-inventory.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Re-modularize v8.89 monolith CAD engines into PRISM canonical engines wired into prism_cad / cad-engine. Direct consumers: blueprint-to-cad pipeline, cad_text_to_cad_generate, cad_neural_generate, and the existing prism-complete-cad-generation engine wrapper.",
+  "csDepth": [
+   "Monolith re-modularization risks accidentally splitting two functions sharing private state — must extract via dependency-graph analysis, not regex.",
+   "Reverse-engineered JM-DIE prints feed a customer-disjoint train-test split — leakage corrupts the part-similarity index.",
+   "Geometry kernel calls are CPU-bound — re-modularization should preserve the worker-thread offload pattern, not collapse into the main thread."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-CAD-JMDIE-REVERSE-ENG": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cad.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/freecad-complete-inventory.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Re-modularize v8.89 monolith CAD engines into PRISM canonical engines wired into prism_cad / cad-engine. Direct consumers: blueprint-to-cad pipeline, cad_text_to_cad_generate, cad_neural_generate, and the existing prism-complete-cad-generation engine wrapper.",
+  "csDepth": [
+   "Monolith re-modularization risks accidentally splitting two functions sharing private state — must extract via dependency-graph analysis, not regex.",
+   "Reverse-engineered JM-DIE prints feed a customer-disjoint train-test split — leakage corrupts the part-similarity index.",
+   "Geometry kernel calls are CPU-bound — re-modularization should preserve the worker-thread offload pattern, not collapse into the main thread."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-CAM-ADAPTIVE-CLEARING": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/strategy-kb.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CAM gap-units: adaptive clearing, air-cut elimination, Clipper2 boolean kernel, hyperMILL SDK, multi-axis toolpath. Consumers: prism_cam dispatcher (~3400 actions), production_toolpath_generate, and every CAM-system bridge (Mastercam/hyperMILL/Fusion/PowerMILL/Esprit).",
+  "csDepth": [
+   "Adaptive clearing is engagement-bounded — the chip-thinning correction must use the true radial engagement, not the nominal stepover (chip-thinning lookup table).",
+   "Air-cut elimination requires a 3D stock model (dexel/voxel) — naive linkmove-deletion silently skips real cuts.",
+   "Clipper2 polygon-boolean is O(n log n) for n vertices but degenerates near-collinear inputs — round-to-integer prefilter required."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-CAM-AIRCUT-ELIM": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/strategy-kb.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CAM gap-units: adaptive clearing, air-cut elimination, Clipper2 boolean kernel, hyperMILL SDK, multi-axis toolpath. Consumers: prism_cam dispatcher (~3400 actions), production_toolpath_generate, and every CAM-system bridge (Mastercam/hyperMILL/Fusion/PowerMILL/Esprit).",
+  "csDepth": [
+   "Adaptive clearing is engagement-bounded — the chip-thinning correction must use the true radial engagement, not the nominal stepover (chip-thinning lookup table).",
+   "Air-cut elimination requires a 3D stock model (dexel/voxel) — naive linkmove-deletion silently skips real cuts.",
+   "Clipper2 polygon-boolean is O(n log n) for n vertices but degenerates near-collinear inputs — round-to-integer prefilter required."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-CAM-CLIPPER2": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/strategy-kb.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CAM gap-units: adaptive clearing, air-cut elimination, Clipper2 boolean kernel, hyperMILL SDK, multi-axis toolpath. Consumers: prism_cam dispatcher (~3400 actions), production_toolpath_generate, and every CAM-system bridge (Mastercam/hyperMILL/Fusion/PowerMILL/Esprit).",
+  "csDepth": [
+   "Adaptive clearing is engagement-bounded — the chip-thinning correction must use the true radial engagement, not the nominal stepover (chip-thinning lookup table).",
+   "Air-cut elimination requires a 3D stock model (dexel/voxel) — naive linkmove-deletion silently skips real cuts.",
+   "Clipper2 polygon-boolean is O(n log n) for n vertices but degenerates near-collinear inputs — round-to-integer prefilter required."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-CAM-HYPERMILL-SDK": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/strategy-kb.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CAM gap-units: adaptive clearing, air-cut elimination, Clipper2 boolean kernel, hyperMILL SDK, multi-axis toolpath. Consumers: prism_cam dispatcher (~3400 actions), production_toolpath_generate, and every CAM-system bridge (Mastercam/hyperMILL/Fusion/PowerMILL/Esprit).",
+  "csDepth": [
+   "Adaptive clearing is engagement-bounded — the chip-thinning correction must use the true radial engagement, not the nominal stepover (chip-thinning lookup table).",
+   "Air-cut elimination requires a 3D stock model (dexel/voxel) — naive linkmove-deletion silently skips real cuts.",
+   "Clipper2 polygon-boolean is O(n log n) for n vertices but degenerates near-collinear inputs — round-to-integer prefilter required."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-CAM-MULTIAXIS-TOOLPATH": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/strategy-kb.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "CAM gap-units: adaptive clearing, air-cut elimination, Clipper2 boolean kernel, hyperMILL SDK, multi-axis toolpath. Consumers: prism_cam dispatcher (~3400 actions), production_toolpath_generate, and every CAM-system bridge (Mastercam/hyperMILL/Fusion/PowerMILL/Esprit).",
+  "csDepth": [
+   "Adaptive clearing is engagement-bounded — the chip-thinning correction must use the true radial engagement, not the nominal stepover (chip-thinning lookup table).",
+   "Air-cut elimination requires a 3D stock model (dexel/voxel) — naive linkmove-deletion silently skips real cuts.",
+   "Clipper2 polygon-boolean is O(n log n) for n vertices but degenerates near-collinear inputs — round-to-integer prefilter required."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-DB-GCODE-MCODE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-data.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database / catalog gap-units: G/M-code dictionary, machine library, master alarm DB, partlib master, tool catalog harvest, verified fix proc. Direct consumers: prism_data dispatcher (~700 actions), alarm_intelligence_*, tool_catalog_*, machine_capability_*.",
+  "csDepth": [
+   "Catalog harvest must dedupe across vendor sources by canonical key (e.g. ISO 13399 tool key) — vendor IDs collide across catalogs.",
+   "Master-alarm DB across controllers is a sparse table — column-store / SQLite virtual table avoids 90% empty rows.",
+   "Vendor catalog mtime + ETag caching reduces re-harvest cost from O(catalog × day) to O(delta)."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-DB-MACHINE-LIBRARY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-data.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database / catalog gap-units: G/M-code dictionary, machine library, master alarm DB, partlib master, tool catalog harvest, verified fix proc. Direct consumers: prism_data dispatcher (~700 actions), alarm_intelligence_*, tool_catalog_*, machine_capability_*.",
+  "csDepth": [
+   "Catalog harvest must dedupe across vendor sources by canonical key (e.g. ISO 13399 tool key) — vendor IDs collide across catalogs.",
+   "Master-alarm DB across controllers is a sparse table — column-store / SQLite virtual table avoids 90% empty rows.",
+   "Vendor catalog mtime + ETag caching reduces re-harvest cost from O(catalog × day) to O(delta)."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-DB-MASTER-ALARM": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-data.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database / catalog gap-units: G/M-code dictionary, machine library, master alarm DB, partlib master, tool catalog harvest, verified fix proc. Direct consumers: prism_data dispatcher (~700 actions), alarm_intelligence_*, tool_catalog_*, machine_capability_*.",
+  "csDepth": [
+   "Catalog harvest must dedupe across vendor sources by canonical key (e.g. ISO 13399 tool key) — vendor IDs collide across catalogs.",
+   "Master-alarm DB across controllers is a sparse table — column-store / SQLite virtual table avoids 90% empty rows.",
+   "Vendor catalog mtime + ETag caching reduces re-harvest cost from O(catalog × day) to O(delta)."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-DB-PARTLIB-MASTER": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-data.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database / catalog gap-units: G/M-code dictionary, machine library, master alarm DB, partlib master, tool catalog harvest, verified fix proc. Direct consumers: prism_data dispatcher (~700 actions), alarm_intelligence_*, tool_catalog_*, machine_capability_*.",
+  "csDepth": [
+   "Catalog harvest must dedupe across vendor sources by canonical key (e.g. ISO 13399 tool key) — vendor IDs collide across catalogs.",
+   "Master-alarm DB across controllers is a sparse table — column-store / SQLite virtual table avoids 90% empty rows.",
+   "Vendor catalog mtime + ETag caching reduces re-harvest cost from O(catalog × day) to O(delta)."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-DB-TOOL-CATALOG-HARVEST": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-data.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database / catalog gap-units: G/M-code dictionary, machine library, master alarm DB, partlib master, tool catalog harvest, verified fix proc. Direct consumers: prism_data dispatcher (~700 actions), alarm_intelligence_*, tool_catalog_*, machine_capability_*.",
+  "csDepth": [
+   "Catalog harvest must dedupe across vendor sources by canonical key (e.g. ISO 13399 tool key) — vendor IDs collide across catalogs.",
+   "Master-alarm DB across controllers is a sparse table — column-store / SQLite virtual table avoids 90% empty rows.",
+   "Vendor catalog mtime + ETag caching reduces re-harvest cost from O(catalog × day) to O(delta)."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-DB-VERIFIED-FIX-PROC": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-data.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Database / catalog gap-units: G/M-code dictionary, machine library, master alarm DB, partlib master, tool catalog harvest, verified fix proc. Direct consumers: prism_data dispatcher (~700 actions), alarm_intelligence_*, tool_catalog_*, machine_capability_*.",
+  "csDepth": [
+   "Catalog harvest must dedupe across vendor sources by canonical key (e.g. ISO 13399 tool key) — vendor IDs collide across catalogs.",
+   "Master-alarm DB across controllers is a sparse table — column-store / SQLite virtual table avoids 90% empty rows.",
+   "Vendor catalog mtime + ETag caching reduces re-harvest cost from O(catalog × day) to O(delta)."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ERP-DRAWING-AUTOMATION": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ERP gap-units: drawing automation, financial analytics, HR/employee, lean six-sigma, purchasing/inventory, quoting/jobcost, subscription system. Consumers: prism_business dispatcher (~480 actions) plus the EMP frontend.",
+  "csDepth": [
+   "ERP money math MUST be Decimal — IEEE-754 float drift across thousands of jobcost rows compounds into multi-dollar variance.",
+   "Inventory EOQ is convex in order-size — the closed-form (sqrt(2DK/h)) avoids the iterative solver entirely.",
+   "Subscription billing requires idempotency keys on every state-changing webhook (Stripe pattern) — replay attacks otherwise double-charge."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ERP-FINANCIAL-ANALYTICS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ERP gap-units: drawing automation, financial analytics, HR/employee, lean six-sigma, purchasing/inventory, quoting/jobcost, subscription system. Consumers: prism_business dispatcher (~480 actions) plus the EMP frontend.",
+  "csDepth": [
+   "ERP money math MUST be Decimal — IEEE-754 float drift across thousands of jobcost rows compounds into multi-dollar variance.",
+   "Inventory EOQ is convex in order-size — the closed-form (sqrt(2DK/h)) avoids the iterative solver entirely.",
+   "Subscription billing requires idempotency keys on every state-changing webhook (Stripe pattern) — replay attacks otherwise double-charge."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ERP-HR-EMPLOYEE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ERP gap-units: drawing automation, financial analytics, HR/employee, lean six-sigma, purchasing/inventory, quoting/jobcost, subscription system. Consumers: prism_business dispatcher (~480 actions) plus the EMP frontend.",
+  "csDepth": [
+   "ERP money math MUST be Decimal — IEEE-754 float drift across thousands of jobcost rows compounds into multi-dollar variance.",
+   "Inventory EOQ is convex in order-size — the closed-form (sqrt(2DK/h)) avoids the iterative solver entirely.",
+   "Subscription billing requires idempotency keys on every state-changing webhook (Stripe pattern) — replay attacks otherwise double-charge."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ERP-LEAN-SIXSIGMA": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ERP gap-units: drawing automation, financial analytics, HR/employee, lean six-sigma, purchasing/inventory, quoting/jobcost, subscription system. Consumers: prism_business dispatcher (~480 actions) plus the EMP frontend.",
+  "csDepth": [
+   "ERP money math MUST be Decimal — IEEE-754 float drift across thousands of jobcost rows compounds into multi-dollar variance.",
+   "Inventory EOQ is convex in order-size — the closed-form (sqrt(2DK/h)) avoids the iterative solver entirely.",
+   "Subscription billing requires idempotency keys on every state-changing webhook (Stripe pattern) — replay attacks otherwise double-charge."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ERP-PURCHASING-INVENTORY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ERP gap-units: drawing automation, financial analytics, HR/employee, lean six-sigma, purchasing/inventory, quoting/jobcost, subscription system. Consumers: prism_business dispatcher (~480 actions) plus the EMP frontend.",
+  "csDepth": [
+   "ERP money math MUST be Decimal — IEEE-754 float drift across thousands of jobcost rows compounds into multi-dollar variance.",
+   "Inventory EOQ is convex in order-size — the closed-form (sqrt(2DK/h)) avoids the iterative solver entirely.",
+   "Subscription billing requires idempotency keys on every state-changing webhook (Stripe pattern) — replay attacks otherwise double-charge."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ERP-QUOTING-JOBCOST": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ERP gap-units: drawing automation, financial analytics, HR/employee, lean six-sigma, purchasing/inventory, quoting/jobcost, subscription system. Consumers: prism_business dispatcher (~480 actions) plus the EMP frontend.",
+  "csDepth": [
+   "ERP money math MUST be Decimal — IEEE-754 float drift across thousands of jobcost rows compounds into multi-dollar variance.",
+   "Inventory EOQ is convex in order-size — the closed-form (sqrt(2DK/h)) avoids the iterative solver entirely.",
+   "Subscription billing requires idempotency keys on every state-changing webhook (Stripe pattern) — replay attacks otherwise double-charge."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-ERP-SUBSCRIPTION-SYSTEM": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-erp.md",
+   "knowledge/wiki/architecture/domain-business.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ERP gap-units: drawing automation, financial analytics, HR/employee, lean six-sigma, purchasing/inventory, quoting/jobcost, subscription system. Consumers: prism_business dispatcher (~480 actions) plus the EMP frontend.",
+  "csDepth": [
+   "ERP money math MUST be Decimal — IEEE-754 float drift across thousands of jobcost rows compounds into multi-dollar variance.",
+   "Inventory EOQ is convex in order-size — the closed-form (sqrt(2DK/h)) avoids the iterative solver entirely.",
+   "Subscription billing requires idempotency keys on every state-changing webhook (Stripe pattern) — replay attacks otherwise double-charge."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-MISC-AI-ENGINES": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Misc gap-units: AI engines (GNN/Transformer/DQN/XAI/TimeSeries), AS9100 trace, data structures. AI engines feed the prism_ai dispatcher deep-reasoning + neural-recommend + agi orchestrate surfaces.",
+  "csDepth": [
+   "GNN re-modularization must preserve the heterophily-aware aggregator pattern — the live link-prediction model is anti-correlated under naive (homophily-assumed) aggregation (NN-EVAL AUROC 0.096 finding).",
+   "AS9100 traceability is append-only — any mutation breaks the audit chain (immutable ledger invariant).",
+   "Transformer attention is O(seq^2 × d) — must use Flash-Attention or block-sparse for >4k tokens."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-MISC-AS9100-TRACE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Misc gap-units: AI engines (GNN/Transformer/DQN/XAI/TimeSeries), AS9100 trace, data structures. AI engines feed the prism_ai dispatcher deep-reasoning + neural-recommend + agi orchestrate surfaces.",
+  "csDepth": [
+   "GNN re-modularization must preserve the heterophily-aware aggregator pattern — the live link-prediction model is anti-correlated under naive (homophily-assumed) aggregation (NN-EVAL AUROC 0.096 finding).",
+   "AS9100 traceability is append-only — any mutation breaks the audit chain (immutable ledger invariant).",
+   "Transformer attention is O(seq^2 × d) — must use Flash-Attention or block-sparse for >4k tokens."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-MISC-DATA-STRUCTURES": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Misc gap-units: AI engines (GNN/Transformer/DQN/XAI/TimeSeries), AS9100 trace, data structures. AI engines feed the prism_ai dispatcher deep-reasoning + neural-recommend + agi orchestrate surfaces.",
+  "csDepth": [
+   "GNN re-modularization must preserve the heterophily-aware aggregator pattern — the live link-prediction model is anti-correlated under naive (homophily-assumed) aggregation (NN-EVAL AUROC 0.096 finding).",
+   "AS9100 traceability is append-only — any mutation breaks the audit chain (immutable ledger invariant).",
+   "Transformer attention is O(seq^2 × d) — must use Flash-Attention or block-sparse for >4k tokens."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-P2P-JMDIE-PARTLIB": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-print.md",
+   "knowledge/wiki/architecture/domain-blueprint.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Print-to-Program gap-units: JM-DIE partlib seed, OCR dimension extraction, validation harness. Direct consumers: print_to_program_full, print_to_program_enhanced, blueprint_to_3d_model, and the lathe/mill/wire/cad domain pipelines PRINT_OCR + PRINT_INTAKE stages.",
+  "csDepth": [
+   "OCR dimension extraction must distinguish tolerance bands (e.g. 1.000 +/- 0.005) from plain numerics — confusion drops downstream tolerance-stackup correctness.",
+   "Validation-harness must use the JM-DIE customer-disjoint split (no train-test leakage).",
+   "Partlib lookup is O(parts × features) — pre-build a feature-vector kd-tree for sub-linear similarity search."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-P2P-OCR-DIMENSION": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-print.md",
+   "knowledge/wiki/architecture/domain-blueprint.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Print-to-Program gap-units: JM-DIE partlib seed, OCR dimension extraction, validation harness. Direct consumers: print_to_program_full, print_to_program_enhanced, blueprint_to_3d_model, and the lathe/mill/wire/cad domain pipelines PRINT_OCR + PRINT_INTAKE stages.",
+  "csDepth": [
+   "OCR dimension extraction must distinguish tolerance bands (e.g. 1.000 +/- 0.005) from plain numerics — confusion drops downstream tolerance-stackup correctness.",
+   "Validation-harness must use the JM-DIE customer-disjoint split (no train-test leakage).",
+   "Partlib lookup is O(parts × features) — pre-build a feature-vector kd-tree for sub-linear similarity search."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-P2P-VALIDATION-HARNESS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-print.md",
+   "knowledge/wiki/architecture/domain-blueprint.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Print-to-Program gap-units: JM-DIE partlib seed, OCR dimension extraction, validation harness. Direct consumers: print_to_program_full, print_to_program_enhanced, blueprint_to_3d_model, and the lathe/mill/wire/cad domain pipelines PRINT_OCR + PRINT_INTAKE stages.",
+  "csDepth": [
+   "OCR dimension extraction must distinguish tolerance bands (e.g. 1.000 +/- 0.005) from plain numerics — confusion drops downstream tolerance-stackup correctness.",
+   "Validation-harness must use the JM-DIE customer-disjoint split (no train-test leakage).",
+   "Partlib lookup is O(parts × features) — pre-build a feature-vector kd-tree for sub-linear similarity search."
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-POST-JMDIE-LEARNING": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-post.md",
+   "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Post-processor gap-units (JM-DIE learning): mine real shop programs to refine post-processor templates. Consumers: prism_cam:post_* actions and the lathe/mill master-post pipelines.",
+  "csDepth": [
+   "Program-mining for post-processor tuning must preserve customer-disjoint splits — leakage produces a post that overfits one shop idioms.",
+   "Pattern frequency tail is long — top-K coverage with O(1) lookup beats full hash-map at scale.",
+   "Dialect translation rules must be deterministic AND reversible — non-invertible rules block /post_diff regression-replay."
+  ]
+ }
+}

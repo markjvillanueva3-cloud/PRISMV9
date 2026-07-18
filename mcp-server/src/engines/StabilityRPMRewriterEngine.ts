@@ -234,6 +234,17 @@ class StabilityRPMRewriterEngineImpl {
     return lobes;
   }
 
+  // selectStableRPM was REMOVED 2026-07-04 (U-P0-2 remediation). It built a "peak-lobe
+  // optimizer" on generateAnalyticalSLD, which uses the FRF MAGNITUDE (magG) instead of the
+  // negative real part Re[G] -- a lobeless, monotonic curve, so argmax returned the
+  // MINIMUM-MRR rpm while claiming "max-MRR" (proven by the 3-of-3 safety-physics scrutiny arm).
+  // The correct chatter-stable-RPM optimizer is ChatterStabilityLobeEngine.compute() (Altintas-
+  // Budak real-part SLD), surfaced at prism_calc:chatter_stability_sld and, since this remediation,
+  // prism_mill:mill_stable_rpm_select (which now delegates to that engine).
+  // FOLLOW-UP: generateAnalyticalSLD (above) still carries the same magnitude-vs-Re[G] bug and
+  // feeds rewrite()/camDispatcher -- do NOT trust its absolute maxDoc for lobe selection; a
+  // separate unit should correct it or re-point rewrite() at ChatterStabilityLobeEngine.
+
   // -------------------------------------------------------------------------
   // Interpolation
   // -------------------------------------------------------------------------

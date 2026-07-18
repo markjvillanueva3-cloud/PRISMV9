@@ -113,7 +113,7 @@ export function FeatureTogglePanel({
           controller: fingerprint!.controller_family,
         });
         if (!active) return;
-        const data = res as Record<string, unknown>;
+        const data = res as unknown as Record<string, unknown>;
         const inner = (data.result ?? data.data ?? data) as Record<string, unknown>;
         const features = inner.features;
         if (Array.isArray(features)) {

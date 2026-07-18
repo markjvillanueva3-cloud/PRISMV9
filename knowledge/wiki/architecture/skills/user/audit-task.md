@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `audit-task` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/audit-task.md` |
+| Source | `C:/Users/wompu/.claude/commands/audit-task.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 You are entering audit mode for PRISM completed tasks. Your job is to review, verify, find gaps, and enhance work that was already marked complete in the roadmap. This is a quality-assurance pass that runs independently from new feature development.
 
@@ -37,7 +38,7 @@ Arguments: $ARGUMENTS
 ## Step 1: Parse Arguments
 
 Check the arguments:
-- If empty: show all completed milestones grouped by track, 
+- If empty: show all completed milestones grouped by track
 
 <!-- AUTO-END -->
 

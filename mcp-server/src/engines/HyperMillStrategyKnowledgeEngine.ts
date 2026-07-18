@@ -1953,6 +1953,40 @@ export class HyperMillStrategyKnowledgeEngine {
 
     return suggestions;
   }
+
+  /**
+   * Knowledge-base consumption snapshot for THIS engine instance.
+   *
+   * Real measurement: counts best-practice tips + common-mistake entries
+   * actually compiled into the STRATEGIES corpus. Replaces grep-wired
+   * false-confidence with a measured load count
+   * (HM-TRAINING-WIRING-PLAN-2026-05-20 / U-HMT-CONSUMER-MEASURE).
+   *
+   * @returns `tipsLoaded` is the count of best-practice strings across all
+   *   loaded strategies — a non-zero value proves the strategy corpus is
+   *   genuinely resident in this instance, not merely import-wired.
+   */
+  knowledgeStats(): {
+    engine: "HyperMillStrategyKnowledgeEngine";
+    tipsLoaded: number;
+    strategiesLoaded: number;
+    commonMistakesLoaded: number;
+    sourceFiles: string[];
+  } {
+    let tipsLoaded = 0;
+    let commonMistakesLoaded = 0;
+    for (const s of this.strategies.values()) {
+      tipsLoaded += s.best_practices.length;
+      commonMistakesLoaded += s.common_mistakes.length;
+    }
+    return {
+      engine: "HyperMillStrategyKnowledgeEngine",
+      tipsLoaded,
+      strategiesLoaded: this.strategies.size,
+      commonMistakesLoaded,
+      sourceFiles: ["HyperMillStrategyKnowledgeEngine.ts:STRATEGIES"],
+    };
+  }
 }
 
 // ============================================================================

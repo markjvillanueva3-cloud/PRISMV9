@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-26T19:05:00Z",
+  "purpose": "Curriculum-ordered training manifest for the lathe wizard system. Ingests notable lathe machining data from easiest (single-page lookup tables) to most complex (full vendor catalogs + cross-domain CNC textbooks). Each stage is a training tier: master stage N before advancing to stage N+1.",
+  "domain": "lathe",
+  "cross_domain": ["milling"],
+  "stages": [
+    {
+      "stage": 0,
+      "label": "FOUNDATIONS — ISO codes + insert geometry decode",
+      "complexity": "single-page lookup tables",
+      "training_objective": "Map (material → ISO group) + (shape → ANSI insert code) + (use → operation type). No physics, no parameters — pure taxonomy.",
+      "source_artifacts": [
+        "knowledge/wiki/lessons/pdf-extract-iscar-grade-chart.md",
+        "knowledge/wiki/lessons/pdf-extract-tungaloy-grade-2023.md"
+      ],
+      "structured_knowledge_in_master_index": [
+        "iso_material_groups (P/M/K/N/S/H)",
+        "iso_insert_geometry (C/W/D/S/T/V/R)",
+        "ai_query_synonyms.ISO_P through ISO_H"
+      ],
+      "training_targets": {
+        "tasks": [
+          "operator says '316 stainless'  → AI emits 'ISO M (austenitic stainless steel, 10.5% Cr min)'",
+          "operator says 'CNMG'           → AI emits 'C geometry (rhombic 80°), general roughing + facing'",
+          "operator says 'OD finishing'   → AI emits 'tool_type=od_finish, prefer DNMG/VBMT/RCMT insert'"
+        ],
+        "kpi": "100% accuracy on ISO-group classification + insert-code decode"
+      }
+    },
+    {
+      "stage": 1,
+      "label": "VENDOR DATASHEETS — single-grade application notes",
+      "complexity": "single-grade datasheet, 4-25 pages",
+      "training_objective": "For a given grade code (e.g. AH725, KCP25, WPP20G), retrieve vendor's coating type, recommended ISO ranges, and a 1-2 sentence application note.",
+      "source_artifacts": [
+        "knowledge/wiki/lessons/pdf-extract-tungaloy-ah725.md",
+        "knowledge/wiki/lessons/pdf-extract-walter-tigertec-gold-wpp.md"
+      ],
+      "structured_knowledge_in_master_index": [
+        "vendors.<vendor>.grades[].code/iso/coating/use — 87+ rows across 10 vendors"
+      ],
+      "training_targets": {
+        "tasks": [
+          "operator pastes 'CNMG 432-KM AH725' → AI emits 'Tungaloy AH725: PVD multilayer, ISO P20-P30/M10-M20/S, industry-favorite stainless champion'",
+          "operator asks 'best grade for hardened steel 50 HRC'  → AI emits 'TB610 (Ingersoll CBN), TB670 for severe interrupt, TK1001 (Seco) for 40-45 HRC range'"
+        ],
+        "kpi": "85% accuracy on grade-code lookup + correct ISO range identification"
+      }
+    },
+    {
+      "stage": 2,
+      "label": "VENDOR GRADE-SERIES SYSTEMS — multi-grade lineups",
+      "complexity": "vendor series brochures, 14-23 pages",
+      "training_objective": "Understand grade families (Sumitomo AC8000P vs AC5000S, Seco Duratomic TP vs TK, Walter Tiger-tec Silver vs Gold) and pick the right family by application class before drilling to a specific grade.",
+      "source_artifacts": [
+        "knowledge/wiki/lessons/pdf-extract-sumitomo-ac5000s.md",
+        "knowledge/wiki/lessons/pdf-extract-sumitomo-ac8000p.md",
+        "knowledge/wiki/lessons/pdf-extract-ingersoll-turning-cat011.md"
+      ],
+      "training_targets": {
+        "tasks": [
+          "operator asks 'Inconel 718 finishing'                  → AI emits 'Sumitomo AC5005S (lightest finish), or Tungaloy AH725, or Kennametal KCS10'",
+          "operator asks 'general steel turning, balanced grade'  → AI emits 'GC4425, KCP25C, TP2500, UE6020 — pick by vendor availability'"
+        ],
+        "kpi": "Family-level recommendation reaches first_choice in wizard_query_records 80%+ of the time"
+      }
+    },
+    {
+      "stage": 3,
+      "label": "FULL VENDOR CATALOGS — comprehensive multi-system",
+      "complexity": "full insert catalogs, 60+ pages",
+      "training_objective": "Cross-reference geometry × grade × chipformer × ISO group × workpiece condition. Pick optimal insert when operator specifies all constraints.",
+      "source_artifacts": [
+        "knowledge/wiki/lessons/pdf-extract-ingersoll-insert-master.md",
+        "knowledge/wiki/lessons/pdf-extract-cnc-lathe-programming-cnc-lathe-programming-uploaded.md"
+      ],
+      "training_targets": {
+        "tasks": [
+          "operator says '17-4 PH stainless H1025, OD rough with light interrupt, 25 HRC, 2mm DOC, 0.2 mm/rev feed' → AI returns top-3 insert recommendations across vendors with citations"
+        ],
+        "kpi": "Multi-constraint recommendation matches operator first-choice 70%+"
+      }
+    },
+    {
+      "stage": 4,
+      "label": "TURNING PROGRAMMING + G-CODE CANNED CYCLES",
+      "complexity": "programming textbooks + tribal tricks",
+      "training_objective": "Generate Fanuc/Okuma/Haas-compatible lathe programs using G71/G72/G73/G76 canned cycles, G96/G97 spindle modes, G50 RPM caps. Handle controls lacking G71 via tribal IF/GOTO trick.",
+      "source_artifacts": [
+        "knowledge/wiki/lessons/pdf-extract-cnc-lathe-programming-for-turning.md",
+        "knowledge/wiki/lessons/pdf-extract-using-your-mill-cam-for-the-lathe-and-turning-g-code-sneaky-trick-cnccookbook-be.md",
+        "knowledge/wiki/lessons/pdf-extract-using-if-and-goto-for-a-poor-man-s-g71-lathe-roughing-cycle-cnccookbook-be-a-bet.md"
+      ],
+      "structured_knowledge_in_other_artifacts": [
+        "state/shared/extracted-pdfs/whiskey-lathe-tribal-2026-05-26.json (g_code_tips + axis_conventions)"
+      ],
+      "training_targets": {
+        "tasks": [
+          "operator says 'rough OD from 50mm to 40mm, leave 0.3mm radial finish stock, Fanuc 0i'              → AI emits G71 U0.5 R1 / G71 P10 Q20 U0.3 W0.1 F0.25 + N-block contour from largest-OD-in rule",
+          "operator says 'same job, on a Haas SL-10 that doesn't have G71'                                     → AI emits IF/GOTO Poor-Man's G71 loop (per CNCCookbook tribal trick)"
+        ],
+        "kpi": "Generated program runs on simulator with zero alarms; cycle time within 10% of reference"
+      }
+    },
+    {
+      "stage": 5,
+      "label": "FULL PRINT-TO-PROGRAM — cross-domain integration",
+      "complexity": "full engineering guides + CAM training",
+      "training_objective": "From blueprint → fixture plan → tool selection → speed/feed → program → first-part validation. The full lathe pipeline whiskey owns (JM-DIE-LATHE-UPGRADE-MS0).",
+      "source_artifacts": [
+        "knowledge/wiki/lessons/pdf-extract-autodesk-cncbook.md",
+        "knowledge/wiki/lessons/pdf-extract-inventorcam2024-turning-mill-turn-training-course.md"
+      ],
+      "engine_consumers": [
+        "LathePrintIngestPipelineEngine",
+        "LathePrintFeatureStrategySelectorEngine",
+        "LathePrintToProgramReasoningEngine",
+        "LathePrintProgramEmitterEngine",
+        "LathePrintProgramSignoffEngine"
+      ],
+      "training_targets": {
+        "tasks": [
+          "operator uploads a drawing PDF → pipeline returns fixtured-plan + program + cost-estimate"
+        ],
+        "kpi": "First-part pass rate ≥85% across the JM-Die archive baseline (15,251 .MIN files)"
+      }
+    }
+  ],
+  "training_recipe": {
+    "phase_1_supervised": "Run stages 0-2 through LatheAITrainingEngine as VALIDATION priors. Every JM-Die .MIN program parsed gets checked against grades_by_iso_p (etc.) and wizard_query_records — flag deviations as ValidationIssue with vendor URL citation.",
+    "phase_2_active_learn": "Feed stage 3-4 content into LatheActiveLearningEngine. Operator confirms/rejects AI suggestions; corrections weight the next round's priors.",
+    "phase_3_print_to_program": "Run stages 4-5 against new JM-Die jobs end-to-end via the LathePrintToProgram* engine chain. Compare AI-generated program vs operator's program; learn from delta."
+  },
+  "available_vendor_pdfs_on_disk": [
+    "resources/MANUFACTURER_CATALOGS/uploaded/whiskey-fetch-2026-05-26/iscar-grade-chart.pdf",
+    "resources/MANUFACTURER_CATALOGS/uploaded/whiskey-fetch-2026-05-26/tungaloy-grade-2023.pdf",
+    "resources/MANUFACTURER_CATALOGS/uploaded/whiskey-fetch-2026-05-26/tungaloy-ah725.pdf",
+    "resources/MANUFACTURER_CATALOGS/uploaded/whiskey-fetch-2026-05-26/sumitomo-ac5000s.pdf",
+    "resources/MANUFACTURER_CATALOGS/uploaded/whiskey-fetch-2026-05-26/sumitomo-ac8000p.pdf",
+    "resources/MANUFACTURER_CATALOGS/uploaded/whiskey-fetch-2026-05-26/walter-tigertec-gold-wpp.pdf",
+    "resources/MANUFACTURER_CATALOGS/uploaded/whiskey-fetch-2026-05-26/ingersoll-turning-cat011.pdf",
+    "resources/MANUFACTURER_CATALOGS/uploaded/whiskey-fetch-2026-05-26/ingersoll-insert-master.pdf"
+  ],
+  "notable_extracted_atoms": {
+    "iscar_grade_chart": {
+      "iso_groups_seen": ["P","M","K","N","S","H"],
+      "grade_codes_seen": ["IC908","IB55","IC4100","DT7150","IC4050","IC928","IC808","IC830","IC328","IC330","IC810","IC28","IB85","IB25HC","IS8","ID5","ID8","IC07","IC08","IC30N","IC300PVD","IC8080","IC9080","IC1028"],
+      "applications_seen": ["INDEXABLE MILLING","DRILLING","ISO TURNING","THREADING","GROOVING","PARTING","FACING"],
+      "axis_organization": "Harder ↔ Tougher (vertical) × ISO P/M/K/N/S/H (horizontal) — exactly the wizard-decision-axis the master index encodes",
+      "training_value": "single-page reference — operator can paste a code and AI returns vendor + application range immediately"
+    }
+  },
+  "next_units": [
+    { "id": "U-LATHE-VENDOR-PDF-CURRICULUM-PARSE", "priority": "P1", "scope": "Extend pdf-parse-extract to emit page-anchored tribal atoms (page#, section, table-row triples). Currently we extract concatenated text + headings — per-page granularity needs PDFParse v2 API research." },
+    { "id": "U-LATHE-VENDOR-PDF-OCR", "priority": "P2", "scope": "iscar-grade-chart 1-page extract is dense BUT lacks the visual axis labels (Harder/Tougher arrows) that the PDF renders as graphics — OCR via tesseract would recover the visual grade-position semantics" },
+    { "id": "U-LATHE-MORE-CROSS-DOMAIN-INGEST", "priority": "P2", "scope": "Stage 5 sources include Autodesk + InventorCAM. Pull lathe-relevant pages from CNC_Machining_Complete_Guide + Fundamentals_of_CNC_Machining + CNC 501 — these are bigger and 80%+ milling content, so need page-classifier first." }
+  ]
+}

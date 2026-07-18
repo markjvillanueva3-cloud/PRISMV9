@@ -1,0 +1,686 @@
+- generic [ref=e2]:
+  - generic:
+    - generic:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: Don’t miss what’s happening
+          - generic [ref=e9]: People on X are the first to know.
+        - generic [ref=e12]:
+          - link "Log in" [ref=e14] [cursor=pointer]:
+            - /url: /login
+            - generic [ref=e17]: Log in
+          - link "Sign up" [ref=e19] [cursor=pointer]:
+            - /url: /i/flow/signup
+            - generic [ref=e22]: Sign up
+      - generic [ref=e23]:
+        - button "Skip to home timeline" [ref=e24] [cursor=pointer]
+        - button "Skip to trending" [ref=e26] [cursor=pointer]
+        - banner [ref=e28]:
+          - generic [ref=e31]:
+            - heading "X" [level=1] [ref=e33] [cursor=pointer]:
+              - link "X" [ref=e34]:
+                - /url: /
+                - img [ref=e36]
+            - generic:
+              - navigation "Primary"
+        - main [ref=e39]:
+          - generic [ref=e42]:
+            - generic "Home timeline" [ref=e44]:
+              - generic [ref=e45]:
+                - generic [ref=e51] [cursor=pointer]:
+                  - button "Back" [ref=e53]:
+                    - img [ref=e55]
+                  - heading "Article" [level=2] [ref=e60]
+                  - link "Focus mode" [ref=e63]:
+                    - /url: /_avichawla/article/2049037299334472015
+                    - img [ref=e65]
+                - generic:
+                  - generic:
+                    - status:
+                      - button:
+                        - generic:
+                          - img
+                          - generic: See new posts
+              - region "Conversation" [ref=e68]:
+                - heading "Conversation" [level=1] [ref=e69]
+                - 'generic "Timeline: Conversation" [ref=e70]':
+                  - article "Avi Chawla Verified account @_avichawla 13 replies, 83 reposts, 396 likes, 1023 bookmarks, 511131 views" [ref=e75]:
+                    - generic [ref=e77]:
+                      - generic [ref=e81]:
+                        - link [active] [ref=e93] [cursor=pointer]:
+                          - /url: /_avichawla
+                        - generic [ref=e98]:
+                          - generic [ref=e101]:
+                            - link "Avi Chawla Verified account" [ref=e104] [cursor=pointer]:
+                              - /url: /_avichawla
+                              - generic [ref=e105]:
+                                - generic [ref=e107]: Avi Chawla
+                                - img "Verified account" [ref=e110]
+                            - link "@_avichawla" [ref=e116] [cursor=pointer]:
+                              - /url: /_avichawla
+                              - generic [ref=e117]: "@_avichawla"
+                          - button "More" [ref=e123] [cursor=pointer]:
+                            - img [ref=e127]
+                      - generic [ref=e130]:
+                        - generic [ref=e131]:
+                          - link "Image" [ref=e137] [cursor=pointer]:
+                            - /url: /_avichawla/article/2049037299334472015/media/2049036934820003840
+                            - generic "Image" [ref=e141]:
+                              - img "Image" [ref=e143]
+                          - generic [ref=e144]:
+                            - generic [ref=e146]: How top AI labs are building RL agents in 2026 (using Karpathy's system prompt learning idea)
+                            - group "13 replies, 83 reposts, 396 likes, 1023 bookmarks, 511131 views" [ref=e148]:
+                              - button "13 Replies. Reply" [ref=e150] [cursor=pointer]:
+                                - generic [ref=e151]:
+                                  - img [ref=e154]
+                                  - generic [ref=e159]: "13"
+                              - button "83 reposts. Repost" [ref=e161] [cursor=pointer]:
+                                - generic [ref=e162]:
+                                  - img [ref=e165]
+                                  - generic [ref=e170]: "83"
+                              - button "396 Likes. Like" [ref=e172] [cursor=pointer]:
+                                - generic [ref=e173]:
+                                  - img [ref=e176]
+                                  - generic [ref=e181]: "396"
+                              - link "511131 views. View post analytics" [ref=e183] [cursor=pointer]:
+                                - /url: /_avichawla/status/2049037299334472015/analytics
+                                - generic [ref=e184]:
+                                  - img [ref=e187]
+                                  - generic [ref=e192]: 511K
+                              - button "Bookmark" [ref=e194] [cursor=pointer]:
+                                - img [ref=e198]
+                              - button "Share post" [ref=e203] [cursor=pointer]:
+                                - img [ref=e207]
+                            - generic [ref=e215]:
+                              - generic [ref=e218]: How Anthropic, OpenAI, and DeepSeek are converging on a single idea of using the system prompt as the reward function. A full breakdown of the RL evolution from RLHF to RULER, with code.
+                              - separator [ref=e220]
+                              - generic [ref=e223]: "Reinforcement learning, at its core, is straightforward: a system takes an action, the environment rewards it, and the agent updates its behavior to maximize that reward over time."
+                              - generic [ref=e226]: "The interaction above works in discrete steps. At each step, three things happen in order:"
+                              - link "Image" [ref=e233] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048506606695149568
+                                - generic "Image" [ref=e237]:
+                                  - img "Image" [ref=e239]
+                              - list [ref=e240]:
+                                - listitem [ref=e241]:
+                                  - generic [ref=e243]: The agent observes the current state of the environment (S). A state is a description of the situation the agent is in, enough to decide what to do next. For instance, in chess, the state is the board position, and in a dialogue model, the state is the conversation history so far.
+                                - listitem [ref=e244]:
+                                  - generic [ref=e246]: The agent picks an action (A) based on what it sees. The action is the agent's output, the only way it can influence the environment. For instance, in chess, an action is a legal move. For an LLM, an action is the generated response.
+                                - listitem [ref=e247]:
+                                  - generic [ref=e249]: "The environment then does two things: it transitions to a new state (S'), and it emits a reward (R), a scalar number that evaluates the action. The next step begins, and the loop continues."
+                              - generic [ref=e252]: "Stringing these steps together gives a trajectory:"
+                              - link "Image" [ref=e259] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048291914454294529
+                                - generic "Image" [ref=e263]:
+                                  - img "Image" [ref=e265]
+                              - generic [ref=e268]: Reading left to right, this is the entire history of the agent's interaction with the environment. Each (S, A, R, S') quartet is one transition, and much of RL is about learning from these transitions.
+                              - separator [ref=e270]
+                              - heading "Applying RL to LLMs" [level=1] [ref=e272]:
+                                - generic [ref=e274]: Applying RL to LLMs
+                              - generic [ref=e277]: When RL was first applied to LLMs, the environment was human preference.
+                              - generic [ref=e280]: "OpenAI's InstructGPT (2022) introduced RLHF (Reinforcement Learning from Human Feedback), where:"
+                              - link "Image" [ref=e287] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048506864443510784
+                                - generic "Image" [ref=e291]:
+                                  - img "Image" [ref=e293]
+                              - list [ref=e294]:
+                                - listitem [ref=e295]:
+                                  - generic [ref=e297]: humans ranked model outputs
+                                - listitem [ref=e298]:
+                                  - generic [ref=e300]: those rankings trained a reward model
+                                - listitem [ref=e301]:
+                                  - generic [ref=e303]: and PPO (Proximal Policy Optimization) used that reward model to fine-tune the LLM.
+                              - generic [ref=e306]: ChatGPT was built on this exact pipeline.
+                              - generic [ref=e309]: But humans can't sit in the training loop rating every output in real time. If the model generates 16 responses per prompt across thousands of training steps, that's hundreds of thousands of evaluations.
+                              - generic [ref=e312]: OpenAI solved this by splitting the process into two phases.
+                              - link "Image" [ref=e319] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048508406429057024
+                                - generic "Image" [ref=e323]:
+                                  - img "Image" [ref=e325]
+                              - list [ref=e326]:
+                                - listitem [ref=e327]:
+                                  - generic [ref=e329]: First, the offline phase. Here, humans ranked a relatively small set of model outputs and generated pairwise comparisons. This was the expensive human labor part, but it was a one-time cost.
+                                - listitem [ref=e330]:
+                                  - generic [ref=e332]: Second, they trained a reward model on those rankings, which was a separate LLM that learned to predict what humans would prefer. Now you had a neural network that could score any output instantly, without waiting for a human. The reward model was a compressed approximation of human judgment, fast enough to sit inside the training loop.
+                              - generic [ref=e335]: With the reward model in place, PPO could run the actual RL training at GPU speed. The model generated responses, the reward model scored them, and PPO updated the weights, without extensive need for humans.
+                              - generic [ref=e338]: The cost, however, was that PPO required four full-size models in memory simultaneously.
+                              - link "Image" [ref=e345] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048509465658552320
+                                - generic "Image" [ref=e349]:
+                                  - img "Image" [ref=e351]
+                              - list [ref=e352]:
+                                - listitem [ref=e353]:
+                                  - generic [ref=e355]: The policy (the LLM being trained).
+                                - listitem [ref=e356]:
+                                  - generic [ref=e358]: The reference policy (a frozen copy of the original, used to prevent training from drifting too far via a KL divergence penalty).
+                                - listitem [ref=e359]:
+                                  - generic [ref=e361]: The reward model (the human-preference approximator discussed above to score every output).
+                                - listitem [ref=e362]:
+                                  - generic [ref=e364]: And the critic, also called the value model (more about it below).
+                              - generic [ref=e367]: "The critic exists to answer one question:"
+                              - blockquote [ref=e368]:
+                                - generic [ref=e370]: Was this reward good or bad relative to what we'd normally expect for this prompt?
+                              - generic [ref=e373]: We need this because a raw reward of 0.7 means nothing in isolation. For instance, on a simple factual question where most responses score 0.9, a 0.7 is below average.
+                              - generic [ref=e376]: But on a complex open-ended question where most responses score 0.4, a 0.7 is excellent.
+                              - link "Image" [ref=e383] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048509860015460352
+                                - generic "Image" [ref=e387]:
+                                  - img "Image" [ref=e389]
+                              - generic [ref=e392]: The critic learns this baseline by observing thousands of (prompt, reward) pairs during training.
+                              - generic [ref=e395]: PPO's actual training signal is the advantage, which is estimated as the reward minus the critic's predicted baseline.
+                              - generic [ref=e398]: This makes the signal stable across prompts of different difficulty. But the cost involved here is that the critic is a full-size LLM itself, adding another model's worth of memory.
+                              - generic [ref=e401]: For a 7B parameter LLM, that meant roughly 28B parameters in memory at once.
+                              - separator [ref=e403]
+                              - heading "DeepSeek R1 breakthrough using verifiable rewards" [level=1] [ref=e405]:
+                                - generic [ref=e407]: DeepSeek R1 breakthrough using verifiable rewards
+                              - generic [ref=e410]: In January 2025, DeepSeek released R1 with a fundamentally different approach to the reward signal.
+                              - generic [ref=e413]: Instead of training a reward model from human preferences (Phases 1 and 2 of the RLHF pipeline), they used RLVR (Reinforcement Learning with Verifiable Rewards).
+                              - generic [ref=e416]: It's a simple, rule-based verification where the environment itself provides the signal.
+                              - link "Image" [ref=e423] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048510818875314176
+                                - generic "Image" [ref=e427]:
+                                  - img "Image" [ref=e429]
+                              - generic [ref=e432]: "For instance:"
+                              - list [ref=e433]:
+                                - listitem [ref=e434]:
+                                  - generic [ref=e436]: For math problems, the verifier checked if the model's answer matched the known solution.
+                                - listitem [ref=e437]:
+                                  - generic [ref=e439]: "For code, a compiler ran the output and returned pass or fail. Binary rewards: 1 for correct, 0 for wrong."
+                              - generic [ref=e442]: There are no human rankings or explicit reward models required since the ground truth was available (or inferable) to be used as the reward.
+                              - generic [ref=e445]: The RL optimizer was GRPO (Group Relative Policy Optimization), which stripped away most of PPO's infrastructure.
+                              - generic [ref=e448]: It removed the critic model entirely.
+                              - generic [ref=e451]: Instead of training a separate model to predict expected reward per prompt, GRPO generated multiple responses to the same prompt (typically 16) and normalized rewards within each group.
+                              - link "Image" [ref=e458] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048300162758664192
+                                - generic "Image" [ref=e462]:
+                                  - img "Image" [ref=e464]
+                              - generic [ref=e467]: If 4 out of 16 responses got the math problem right, those 4 received a positive advantage, and the other 12 received a negative advantage.
+                              - generic [ref=e470]: This step cut an entire full-size model from memory.
+                              - generic [ref=e473]: GRPO also removed the need for the learned reward model, since RLVR's verifier handled scoring directly.
+                              - generic [ref=e476]: So the four-model PPO setup (policy + reference + critic + reward model) collapsed to just two, i.e., the policy being trained and a reference copy for KL regularization.
+                              - generic [ref=e479]: In fact, in practice, some implementations fold the reference into the policy checkpoint, bringing it close to a single-model setup.
+                              - generic [ref=e482]: With this setup. DeepSeek R1-Zero, trained with just GRPO and verifiable rewards (no supervised fine-tuning at all), went from 15.6% to 77.9% on AIME 2024 math problems.
+                              - generic [ref=e485]: With majority voting, it hit 86.7%, matching OpenAI's o1.
+                              - generic [ref=e488]: The model developed self-verification, reflection, and chain-of-thought reasoning on its own, purely from the binary correct/incorrect signal, and nobody taught it to reason step by step.
+                              - generic [ref=e491]: The RL training loop discovered that reasoning improved the reward, so the model learned to reason.
+                              - generic [ref=e494]: RLVR with GRPO became the dominant approach for training reasoning models through 2025.
+                              - generic [ref=e497]: Every major lab released a reasoning variant following this recipe.
+                              - separator [ref=e499]
+                              - heading "The problem" [level=1] [ref=e501]:
+                                - generic [ref=e503]: The problem
+                              - generic [ref=e506]: GRPO itself is general-purpose.
+                              - generic [ref=e509]: It doesn't care whether the reward comes from a math verifier, a code compiler, a human, or a Python script.
+                              - link "Image" [ref=e516] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048651679537741824
+                                - generic "Image" [ref=e520]:
+                                  - img "Image" [ref=e522]
+                              - generic [ref=e525]: It just needs a number for each response, and it normalizes within each group to produce the training signal.
+                              - generic [ref=e528]: But a clear bottleneck here is where these reward comes from.
+                              - generic [ref=e531]: For math and code, this is fine since the environment provides a deterministic signal.
+                              - generic [ref=e534]: But agents that interact with real-world tools and data don't produce outputs you can string-match against a gold answer.
+                              - generic [ref=e537]: A RAG agent retrieves context and generates a response. There's no single correct answer to compare against. A customer support agent drafts a reply. There's no compiler to run it through. A summarization agent condenses a 20-page document. There are many valid summaries, and no string-matching verifier can distinguish a good one from a mediocre one.
+                              - link "Image" [ref=e544] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048653649241587712
+                                - generic "Image" [ref=e548]:
+                                  - img "Image" [ref=e550]
+                              - generic [ref=e553]: In these cases, the environment doesn't hand you a reward signal the way a math problem does.
+                              - generic [ref=e556]: Of course, some agent tasks do have verifiable outcomes, and for these, RLVR works just fine, even with multi-step tool use. The verifiability depends on the task's outcome, not on whether the model is acting as an agent.
+                              - generic [ref=e559]: But for the majority of agent workflows, the outcome is subjective or multi-dimensional.
+                              - generic [ref=e562]: Intuitively, GRPO is still the right fit here because Agents that take multiple steps, call tools, and compose responses would benefit from learning through exploration, trying different approaches, and getting reinforced for what works.
+                              - generic [ref=e565]: So, while the RL framework is the right fit, the missing piece is the scoring function.
+                              - generic [ref=e568]: One solution is to write custom reward functions where Python code scores each output based on hand-defined criteria.
+                              - link "Image" [ref=e575] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048652896452153345
+                                - generic "Image" [ref=e579]:
+                                  - img "Image" [ref=e581]
+                              - list [ref=e582]:
+                                - listitem [ref=e583]:
+                                  - generic [ref=e585]: A RAG reward function might check whether the response used the retrieved context (faithfulness), penalize content that wasn't in the context (hallucination), reward completeness, and handle cases where the context itself is ambiguous.
+                                - listitem [ref=e586]:
+                                  - generic [ref=e588]: A tool-use reward function might score partial progress through a multi-step task, penalize unnecessary API calls, and measure whether the agent reached the correct final state.
+                              - generic [ref=e591]: Each criterion returns a partial score, and these get summed or weighted into a final reward.
+                              - generic [ref=e594]: This works, but it introduces its own set of problems.
+                              - generic [ref=e597]: Writing a good reward function takes days of iteration. Researchers need to anticipate edge cases, calibrate the weights between different criteria, and test that the function actually rewards the behavior you want.
+                              - generic [ref=e600]: A reward function that over-weights format compliance and under-weights faithfulness will train an agent that produces beautifully formatted hallucinations.
+                              - generic [ref=e603]: Reward functions are also brittle. If you change the retrieval pipeline, add a new tool, or modify the system prompt, the reward function needs to be rewritten.
+                              - generic [ref=e606]: Debugging is problematic too.
+                              - generic [ref=e609]: When the agent learns bad behavior during training, the cause could be the reward function, the training hyperparameters, the data, or something else entirely.
+                              - generic [ref=e612]: But because the reward function is custom code, you often can't tell whether the function is measuring what you think it's measuring until you've already trained a model on it and evaluated the outputs.
+                              - separator [ref=e614]
+                              - generic [ref=e617]: This is the primary reason RL has been widely adopted for verifiable tasks (math, code, logic) but not for agent workflows (RAG, customer support, tool use, summarization).
+                              - generic [ref=e620]: RLVR gave reasoning models a general-purpose, automatic reward signal where they could check the answer and return 0 or 1. No such equivalent exists for most agentic workflows.
+                              - generic [ref=e623]: The distinction isn't about the model. The same Qwen 2.5 14B can serve both roles.
+                              - generic [ref=e626]: The distinction is about the task. Can we verify if an Agent is producing an output that can be automatically checked?
+                              - separator [ref=e628]
+                              - heading "How are AI labs approaching this?" [level=1] [ref=e630]:
+                                - generic [ref=e632]: How are AI labs approaching this?
+                              - generic [ref=e635]: This isn't a gap that only open-source practitioners are noticing.
+                              - generic [ref=e638]: The major AI labs have been converging on the same problem from different directions.
+                              - generic [ref=e641]: Anthropic demonstrated that you don't need humans in the RL loop at all.
+                              - generic [ref=e644]: Their Constitutional AI work showed that if you write down a set of principles (a "constitution"), an AI can evaluate outputs against those principles and generate preference data for RL training.
+                              - link "Image" [ref=e651] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048697173286817792
+                                - generic "Image" [ref=e655]:
+                                  - img "Image" [ref=e657]
+                              - generic [ref=e660]: The AI judged its own outputs against the written principles and used those judgments as the RL signal. This was a significant conceptual shift that a document of rules replaced an army of human evaluators.
+                              - generic [ref=e663]: OpenAI has been working on something similar internally. They are developing "Universal Verifiers," a technique to extend RL beyond math and code into domains like biology, medicine, and general knowledge, where answers can't be checked with a simple string match.
+                              - generic [ref=e666]: The details aren't public, but the direction is clear that we need general-purpose reward signals that work across any domain, not just the ones with deterministic verifiers.
+                              - generic [ref=e669]: Karpathy has been pointing in this direction too.
+                              - link "Image" [ref=e676] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2049030951548944384
+                                - generic "Image" [ref=e680]:
+                                  - img "Image" [ref=e682]
+                              - generic [ref=e685]: He argued in 2025 that we're missing a major learning paradigm for LLMs, something he tentatively called "system prompt learning."
+                              - generic [ref=e688]: The core idea is that the system prompt carries a richer signal than a scalar reward, and RL training should be finding ways to leverage that signal rather than relying solely on hand-crafted reward functions.
+                              - separator [ref=e690]
+                              - heading "RULER" [level=1] [ref=e692]:
+                                - generic [ref=e694]: RULER
+                              - generic [ref=e696]:
+                                - generic [ref=e697]: If you want to see this in practice, RULER, built into
+                                - link "OpenPipe's ART framework" [ref=e699] [cursor=pointer]:
+                                  - /url: https://github.com/OpenPipe/ART
+                                  - generic [ref=e700]: OpenPipe's ART framework
+                                - generic [ref=e701]: (open-source with 9k+ stars) is a general-purpose reward function that replaces all of that custom scoring code with a single function call.
+                              - link "Image" [ref=e708] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048500891721125888
+                                - generic "Image" [ref=e712]:
+                                  - img "Image" [ref=e714]
+                              - generic [ref=e717]: It uses an LLM-as-judge to rank multiple trajectories, and it works by exploiting the same property that makes GRPO powerful, i.e., only relative rankings matter.
+                              - generic [ref=e720]: "Here's how it works step-by-step:"
+                              - link "Image" [ref=e727] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048655454755332096
+                                - generic "Image" [ref=e731]:
+                                  - img "Image" [ref=e733]
+                              - list [ref=e734]:
+                                - listitem [ref=e735]:
+                                  - generic [ref=e737]: For each training step, you generate N trajectories for the same scenario (typically 4 to 8).
+                                - listitem [ref=e738]:
+                                  - generic [ref=e740]: RULER sends all N to a judge LLM (like o3, o4-mini, or even a local Qwen3 32B).
+                                - listitem [ref=e741]:
+                                  - generic [ref=e743]: The judge reads the agent's system prompt to understand what the agent was supposed to do, then scores each trajectory from 0 to 1 relative to the others.
+                              - generic [ref=e746]: "Two properties make this work:"
+                              - generic [ref=e749]: 1) Relative scoring is easier than absolute scoring.
+                              - generic [ref=e752]: LLMs struggle with absolute scoring because there's no shared calibration.
+                              - generic [ref=e755]: But asking "which of these 4 responses best follows the system prompt's instructions" is a comparison task, and LLMs do those consistently well.
+                              - generic [ref=e758]: RULER leans into this by presenting all trajectories together and asking the judge to rank them against each other.
+                              - generic [ref=e761]: 2) GRPO normalizes within each group anyway.
+                              - generic [ref=e765]: Whether the best trajectory scored 0.9 or 0.3 in absolute terms doesn't matter.
+                              - generic [ref=e768]: GRPO takes the scores within a group, computes the mean and standard deviation, and normalizes.
+                              - generic [ref=e771]: The training signal comes from the relative ordering by understanding which trajectories were above average and which were below. RULER's relative rankings map directly onto what GRPO expects.
+                              - separator [ref=e773]
+                              - heading "A rough walkthrough" [level=2] [ref=e775]:
+                                - generic [ref=e777]: A rough walkthrough
+                              - generic [ref=e780]: "Before jumping into code, let's trace what happens conceptually. Say you're training a RAG agent. At each training step, GRPO generates multiple responses for the same query:"
+                              - generic [ref=e783]:
+                                - generic [ref=e784]:
+                                  - generic [ref=e785]: plaintext
+                                  - button "Copy to clipboard" [ref=e787] [cursor=pointer]:
+                                    - img [ref=e789]
+                                - code [ref=e793]: "Scenario: \"What is the refund policy?\" Retrieved context: \"Refunds within 30 days. Digital products non-refundable...\" (Faithful) Response A: \"Refunds within 30 days. Email support@example.com.\" (hallucinated) Response B: \"Refunds within 30 days. Also store credit for 90 days.\" (ignored context) Response C: \"Not sure, check the website.\" (verbose but accurate) Response D: \"The policy states that refunds are available within...\""
+                              - generic [ref=e796]: "In a traditional setup, you'd write a reward function to score each of these:"
+                              - generic [ref=e799]:
+                                - generic [ref=e800]:
+                                  - generic [ref=e801]: python
+                                  - button "Copy to clipboard" [ref=e803] [cursor=pointer]:
+                                    - img [ref=e805]
+                                - code [ref=e809]: "def reward_function(response, context): score = 0.0 if uses_context(response, context): score += 0.4 if not has_hallucination(response, context): score += 0.3 if is_complete(response, context): score += 0.2 if is_concise(response): score += 0.1 return score"
+                              - generic [ref=e812]: Each of those helper functions (uses_context, has_hallucination, is_complete, is_concise) is its own engineering project.
+                              - generic [ref=e815]: You need to define what "uses context" means precisely, decide thresholds, handle edge cases, and test everything.
+                              - generic [ref=e818]: "With RULER, you replace all of that with:"
+                              - generic [ref=e821]:
+                                - generic [ref=e822]:
+                                  - generic [ref=e823]: python
+                                  - button "Copy to clipboard" [ref=e825] [cursor=pointer]:
+                                    - img [ref=e827]
+                                - code [ref=e831]: scored_group = await ruler_score_group(group, "openai/o3")
+                              - generic [ref=e834]: The judge LLM reads the system prompt ("Answer using ONLY the retrieved context. Do not add information not in the context."), reads all four responses and scores them.
+                              - generic [ref=e837]: The system prompt already defines faithfulness, hallucination, and completeness implicitly. The judge applies those criteria without implementing them in Python.
+                              - separator [ref=e839]
+                              - heading "Trajectories and Groups" [level=2] [ref=e841]:
+                                - generic [ref=e843]: Trajectories and Groups
+                              - generic [ref=e846]: ART represents each agent response as a Trajectory, and it is a sequence of messages (system, user, assistant) packaged with metadata that GRPO needs for training.
+                              - generic [ref=e849]: Multiple trajectories for the same scenario form a TrajectoryGroup. This is the unit RULER scores and GRPO trains on.
+                              - generic [ref=e852]:
+                                - generic [ref=e853]:
+                                  - generic [ref=e854]: python
+                                  - button "Copy to clipboard" [ref=e856] [cursor=pointer]:
+                                    - img [ref=e858]
+                                - code [ref=e862]:
+                                  - text: "# A single trajectory: one complete agent interaction traj = art.Trajectory( messages_and_choices=[ {\"role\": \"system\", \"content\": \"You are a RAG support agent...\"}, {\"role\": \"user\", \"content\": \"What is the refund policy?\\n\\n[Context]: ...\"}, Choice(finish_reason=\"stop\", index=0, message=ChatCompletionMessage(role=\"assistant\", content=\"...\")), ], reward=0.0, # RULER fills this in"
+                                  - text: )
+                                  - text: "# A group: multiple trajectories for the same scenario group = art.TrajectoryGroup([traj_a, traj_b, traj_c, traj_d])"
+                                  - text: "# Score the entire group relatively judged_group = await ruler_score_group(group, \"openai/o3\")"
+                              - generic [ref=e865]: The reward=0.0 initialization is a placeholder.
+                              - list [ref=e866]:
+                                - listitem [ref=e867]:
+                                  - generic [ref=e869]: After ruler_score_group returns, each trajectory's reward field is updated with the judge's score.
+                                - listitem [ref=e870]:
+                                  - generic [ref=e872]: The Choice and ChatCompletionMessage objects are OpenAI's standard types, so if you're already using the OpenAI SDK for inference, these are the same objects you're already working with.
+                              - separator [ref=e874]
+                              - heading "Two concrete examples" [level=1] [ref=e876]:
+                                - generic [ref=e878]: Two concrete examples
+                              - generic [ref=e881]: RULER has two levels of API.
+                              - generic [ref=e884]: "1) The lower-level `ruler` function works with plain message dictionaries, so no ART-specific objects are needed."
+                              - generic [ref=e887]: This is the fastest way to see what RULER actually does.
+                              - generic [ref=e890]: Let's look at a minimal example with three trajectories for the same RAG query.
+                              - generic [ref=e893]: "Below, we have defined three message lists: one is faithful, one hallucinates, and one ignores the context entirely."
+                              - generic [ref=e896]:
+                                - generic [ref=e897]:
+                                  - generic [ref=e898]: python
+                                  - button "Copy to clipboard" [ref=e900] [cursor=pointer]:
+                                    - img [ref=e902]
+                                - code [ref=e906]:
+                                  - text: "message_lists = [ # Good: uses retrieved context accurately [ {\"role\": \"system\", \"content\": \"You are a RAG-based support agent. Use the retrieved context to answer user queries accurately.\"}, {\"role\": \"user\", \"content\": \"What is our refund policy?\\n\\n[Retrieved context]: Refunds are available within 30 days of purchase. Digital products are non-refundable after download. Contact support@example.com to initiate.\"}, {\"role\": \"assistant\", \"content\": \"You can get a refund within 30 days of purchase. However, digital products are non-refundable once downloaded. To start the process, email support@example.com.\"}, ], # Mediocre: partially uses context, adds hallucinated details [ {\"role\": \"system\", \"content\": \"You are a RAG-based support agent. Use the retrieved context to answer user queries accurately.\"}, {\"role\": \"user\", \"content\": \"What is our refund policy?\\n\\n[Retrieved context]: Refunds are available within 30 days of purchase. Digital products are non-refundable after download. Contact support@example.com to initiate.\"}, {\"role\": \"assistant\", \"content\": \"Our refund policy allows returns within 30 days. You can also get store credit for up to 90 days. Just call our hotline at 1-800-REFUND.\"}, ], # Bad: ignores context entirely [ {\"role\": \"system\", \"content\": \"You are a RAG-based support agent. Use the retrieved context to answer user queries accurately.\"}, {\"role\": \"user\", \"content\": \"What is our refund policy?\\n\\n[Retrieved context]: Refunds are available within 30 days of purchase. Digital products are non-refundable after download. Contact support@example.com to initiate.\"}, {\"role\": \"assistant\", \"content\": \"I'm not sure about the refund policy. You should check the website or contact someone from the billing team.\"}, ],"
+                                  - text: "]"
+                              - generic [ref=e909]: "Next, we run the scoring:"
+                              - generic [ref=e912]:
+                                - generic [ref=e913]:
+                                  - generic [ref=e914]: python
+                                  - button "Copy to clipboard" [ref=e916] [cursor=pointer]:
+                                    - img [ref=e918]
+                                - code [ref=e922]:
+                                  - text: from art.rewards import ruler scores = await ruler(message_lists, "openai/o3")
+                                  - text: "for label, score in zip([\"Faithful\", \"Hallucinated\", \"Ignored context\"], scores): print(label) print(\"→\", score.score) print(\"→\", score.explanation)"
+                              - generic [ref=e925]: "This produces the following output:"
+                              - generic [ref=e928]:
+                                - button "Copy to clipboard" [ref=e931] [cursor=pointer]:
+                                  - img [ref=e933]
+                                - code [ref=e937]: "Faithful: → 0.97 → Accurately reflects the retrieved policy details, complete and concise. Hallucinated: → 0.45 → Gives correct 30-day refund info but adds unsupported details (90-day credit, hotline), reducing accuracy. Ignored context: → 0.05 → Provides no useful information and ignores available context."
+                              - generic [ref=e940]: Notice that we never wrote a faithfulness checker or coded a hallucination detector.
+                              - generic [ref=e943]: The system prompt mentioned "Use the retrieved context to answer user queries accurately," and the judge applied that as the evaluation criteria.
+                              - generic [ref=e946]: The hallucinated response scored 0.45 (not zero) because it partially used the context. The 30-day refund part was correct.
+                              - generic [ref=e949]: The judge gave partial credit for what it got right and penalized what it invented.
+                              - generic [ref=e952]: That's a nuanced distinction that would take significant engineering to encode in a rule-based reward function.
+                              - generic [ref=e955]: "Moreover, the scores are spread across the 0-1 range: 0.97, 0.45, 0.05, unlike binary pass/fail."
+                              - generic [ref=e958]: RULER produces a gradient that reflects relative quality. GRPO can use this gradient to apply proportional updates to strongly reinforce the faithful behavior, mildly suppress the hallucination pattern (since it was partially correct), and strongly suppress the context-ignoring behavior.
+                              - generic [ref=e961]: "2) The `ruler` function above works for understanding and experimentation, but ART's training loop operates on Trajectory and TrajectoryGroup objects."
+                              - generic [ref=e964]: These carry the reward field that GRPO reads, debug logs for inspection, and the structure that model.train() expects.
+                              - generic [ref=e967]: After this, the higher-level ruler_score_group function handles the conversion.
+                              - generic [ref=e970]: Below, let's look at the same RAG scenario structured the way you'd use it in a real training pipeline, now with 4 trajectories instead of 3.
+                              - generic [ref=e973]:
+                                - generic [ref=e974]:
+                                  - generic [ref=e975]: python
+                                  - button "Copy to clipboard" [ref=e977] [cursor=pointer]:
+                                    - img [ref=e979]
+                                - code [ref=e983]:
+                                  - text: "# The system prompt defines the agent's goal"
+                                  - text: "# RULER uses this as the implicit reward function system_msg = { \"role\": \"system\", \"content\": ( \"You are a RAG-based support agent. \" \"Answer user queries using ONLY the retrieved context. \" \"Do not add information that is not in the context.\" ),"
+                                  - text: "} user_msg = { \"role\": \"user\", \"content\": ( \"What is the refund policy?\\n\\n\" \"[Retrieved context]: Refunds are available within 30 days \" \"of purchase. Digital products are non-refundable after \" \"download. Contact support@example.com to initiate.\" ),"
+                                  - text: "} responses = [ \"You can get a refund within 30 days of purchase. Digital products \" \"are non-refundable once downloaded. Email support@example.com to start.\", \"Refunds are available within 30 days. You can also get store credit \" \"for up to 90 days, and our hotline is 1-800-REFUND.\", \"I'm not sure about the refund policy. Please check the website or \" \"contact the billing team for more details.\", \"Based on the information I have, the refund policy states that \" \"refunds are available within 30 days of purchase. It is important \" \"to note that digital products cannot be refunded after they have \" \"been downloaded. If you wish to initiate a refund, you should \" \"reach out to support@example.com.\","
+                                  - text: "]"
+                              - generic [ref=e986]: Now we have 4 trajectories instead of 3. The fourth is a verbose but accurate response that uses only the retrieved context but wraps it in unnecessary filler words/sentences.
+                              - generic [ref=e989]: "Moving on, we define our Trajectories and Groups as we discussed earlier:"
+                              - generic [ref=e992]:
+                                - generic [ref=e993]:
+                                  - generic [ref=e994]: python
+                                  - button "Copy to clipboard" [ref=e996] [cursor=pointer]:
+                                    - img [ref=e998]
+                                - code [ref=e1002]:
+                                  - text: import art
+                                  - text: from openai.types.chat.chat_completion import Choice
+                                  - text: from openai.types.chat import ChatCompletionMessage trajectories = []
+                                  - text: "for resp in responses: traj = art.Trajectory( messages_and_choices=[ system_msg, user_msg, Choice( finish_reason=\"stop\", index=0, message=ChatCompletionMessage(role=\"assistant\", content=resp), ), ], reward=0.0, ) trajectories.append(traj) group = art.TrajectoryGroup(trajectories)"
+                              - generic [ref=e1005]: "Finally, we run the scoring:"
+                              - generic [ref=e1008]:
+                                - generic [ref=e1009]:
+                                  - generic [ref=e1010]: python
+                                  - button "Copy to clipboard" [ref=e1012] [cursor=pointer]:
+                                    - img [ref=e1014]
+                                - code [ref=e1018]: from art.rewards import ruler_score_group judged_group = await ruler_score_group(group, "openai/o3", debug=True)
+                              - generic [ref=e1021]: With debug=True, RULER prints the judge's raw reasoning with the actual scores.
+                              - generic [ref=e1024]: "This is the raw reasoning:"
+                              - generic [ref=e1027]:
+                                - generic [ref=e1028]:
+                                  - generic [ref=e1029]: json
+                                  - button "Copy to clipboard" [ref=e1031] [cursor=pointer]:
+                                    - img [ref=e1033]
+                                - code [ref=e1037]:
+                                  - text: "{ \"scores\": [ { \"trajectory_id\": \"1\", \"explanation\": \"Accurately answers the question using only the retrieved context, concisely and completely.\", \"score\": 0.98 }, { \"trajectory_id\": \"2\", \"explanation\": \"Includes unsupported details about store credit and a hotline that are not in the retrieved context, so it violates the instruction to use only the context.\", \"score\": 0.2 }, { \"trajectory_id\": \"3\", \"explanation\": \"Does not answer the question despite the needed information being present in the retrieved context.\", \"score\": 0.05 }, { \"trajectory_id\": \"4\", \"explanation\": \"Accurately and completely answers the question using only the retrieved context, though slightly more verbose than necessary.\", \"score\": 0.96 } ]"
+                                  - text: "}"
+                              - generic [ref=e1040]: "And these are the scores (ranked):"
+                              - generic [ref=e1043]:
+                                - generic [ref=e1044]:
+                                  - generic [ref=e1045]: plaintext
+                                  - button "Copy to clipboard" [ref=e1047] [cursor=pointer]:
+                                    - img [ref=e1049]
+                                - code [ref=e1053]: "Rank 1 | Score: 0.980 — Concise, faithful response Rank 2 | Score: 0.960 — Verbose but accurate response Rank 3 | Score: 0.200 — Hallucinated store credit and hotline Rank 4 | Score: 0.050 — Ignored the retrieved context entirely"
+                              - generic [ref=e1056]: If you notice closely...
+                              - list [ref=e1057]:
+                                - listitem [ref=e1058]:
+                                  - generic [ref=e1060]: The concise faithful response (0.98) scored just above the verbose accurate one (0.96). Both used only the retrieved context, both were correct, but the system prompt said "Answer using ONLY the retrieved context," and the concise version did that more directly. The judge recognized verbosity as a minor quality issue, not a correctness issue. That's a nuanced distinction that would be hard to encode in a scoring function because how do you write a rule that says "technically correct but unnecessarily wordy, penalize by 0.02"?
+                                - listitem [ref=e1061]:
+                                  - generic [ref=e1063]: The hallucinated response dropped from 0.45 in the first experiment to 0.20 here. The difference is the system prompt. The first experiment said "Use the retrieved context to answer accurately." This one says "Do not add information that is not in the context." The stricter instruction produced stricter scoring. The judge adapted automatically. If you tighten your system prompt, RULER tightens its evaluation to match, without you changing any scoring code.
+                                - listitem [ref=e1064]:
+                                  - generic [ref=e1066]: The context-ignoring response scored 0.05 in both experiments. When the answer is right there in the retrieved context, and the agent says "I'm not sure," there's no ambiguity regardless of how the system prompt is worded.
+                              - generic [ref=e1069]: "These scored trajectories are exactly what `model.train()` expects, so let's look at that ahead."
+                              - separator [ref=e1071]
+                              - heading "The full training loop" [level=1] [ref=e1073]:
+                                - generic [ref=e1075]: The full training loop
+                              - generic [ref=e1078]: To actually train with these scores, you replace the hardcoded responses with real model inference.
+                              - generic [ref=e1081]: "ART's `gather_trajectory_groups` handles the orchestration."
+                              - generic [ref=e1084]: "Essentially, for each scenario, it generates a group of trajectories using the model's current weights, scores them with RULER, and collects the results for GRPO:"
+                              - generic [ref=e1087]:
+                                - generic [ref=e1088]:
+                                  - generic [ref=e1089]: python
+                                  - button "Copy to clipboard" [ref=e1091] [cursor=pointer]:
+                                    - img [ref=e1093]
+                                - code [ref=e1097]: "for step in range(num_steps): groups = await art.gather_trajectory_groups( ( art.TrajectoryGroup( rollout(model, scenario) for _ in range(4) ) for scenario in scenarios ), after_each=lambda g: ruler_score_group( g, \"openai/o3\"), ) await model.train(groups) # GRPO updates LoRA weights"
+                              - generic [ref=e1100]: In every step, the model generates 4 responses per scenario using its current weights, RULER ranks them relatively, and GRPO reinforces the high-scoring behavior while suppressing the low-scoring behavior.
+                              - generic [ref=e1103]: The agent gets better at following the system prompt's instructions with every iteration.
+                              - generic [ref=e1106]: Over multiple steps, the model learns the patterns that score well (faithfulness, conciseness, grounding in context) and unlearns the patterns that score poorly (hallucination, ignoring context, verbosity).
+                              - generic [ref=e1109]: And notice that no reward function was defined anywhere in this code.
+                              - separator [ref=e1111]
+                              - heading "Custom rubrics" [level=1] [ref=e1113]:
+                                - generic [ref=e1115]: Custom rubrics
+                              - generic [ref=e1118]: "For most tasks, the system prompt provides enough signal for RULER to score effectively. But when you need more specific evaluation criteria, RULER supports custom rubrics:"
+                              - generic [ref=e1121]:
+                                - generic [ref=e1122]:
+                                  - generic [ref=e1123]: python
+                                  - button "Copy to clipboard" [ref=e1125] [cursor=pointer]:
+                                    - img [ref=e1127]
+                                - code [ref=e1131]:
+                                  - text: custom_rubric = """ - Prioritize responses that are concise and clear - Penalize responses that include emojis or informal language - Reward responses that cite sources """
+                                  - text: await ruler_score_group(group, "openai/o3", rubric=custom_rubric)
+                              - generic [ref=e1134]: The rubric is natural language, not Python, so iterating on it is fast.
+                              - generic [ref=e1137]: You just change a sentence, rerun, and check the scores.
+                              - generic [ref=e1140]: Compare this to editing a reward function where a misplaced weight or a buggy condition can silently teach the agent bad behavior that you won't notice until after training.
+                              - separator [ref=e1142]
+                              - heading "Application to non-verifiable tasks" [level=1] [ref=e1144]:
+                                - generic [ref=e1146]: Application to non-verifiable tasks
+                              - generic [ref=e1149]: RULER is general-purpose. It works on any task, not just freeform ones where custom rewards are painful.
+                              - generic [ref=e1152]: The practical question is when RULER adds value over simpler alternatives.
+                              - generic [ref=e1155]: For purely deterministic tasks (did the SQL query return the right rows?), a binary verifier is cheaper and gives a cleaner signal.
+                              - generic [ref=e1158]: "For purely subjective tasks (was the summary good?), RULER is the only automatic option. For tasks that sit in between (did the agent find the right answer AND explain it well?), you can combine both:"
+                              - generic [ref=e1161]:
+                                - generic [ref=e1162]:
+                                  - generic [ref=e1163]: python
+                                  - button "Copy to clipboard" [ref=e1165] [cursor=pointer]:
+                                    - img [ref=e1167]
+                                - code [ref=e1171]:
+                                  - text: judged_group = await ruler_score_group(group, "openai/o3")
+                                  - text: "for traj in judged_group.trajectories: independent_reward = verify_correctness(traj) # binary 0/1 traj.reward += independent_reward"
+                              - generic [ref=e1174]: RULER preserves any rewards you assign during rollout under a separate metric, so you can layer LLM-judge scoring on top of deterministic verification without losing either signal.
+                              - separator [ref=e1176]
+                              - heading "Practical details" [level=1] [ref=e1178]:
+                                - generic [ref=e1180]: Practical details
+                              - generic [ref=e1183]: "Here are some practical insights I have gathered based on using RULER:"
+                              - generic [ref=e1186]: → You don't need the most expensive model as the judge. Cheaper models like Qwen3 32B often work well. You can also use Claude, local models through Ollama, or any model supported by LiteLLM. The choice is a cost-quality tradeoff, not a hard requirement.
+                              - generic [ref=e1189]: → 4 to 8 trajectories per group is the recommended range. Fewer than 4 gives the judge too little to compare against. More than 8 can confuse the judge and increase the cost without proportional benefit.
+                              - generic [ref=e1192]: → When all trajectories in a group share the same system prompt and user message (which they usually do), RULER deduplicates the common prefix automatically. The judge only sees the shared context once, followed by the different responses. This cuts token usage significantly for long system prompts or multi-turn conversations.
+                              - generic [ref=e1195]: → RULER caches judge responses to disk. If you rerun the same trajectories, it won't hit the API again. This matters during debugging when you're iterating on the system prompt or rubric.
+                              - separator [ref=e1197]
+                              - generic [ref=e1200]: The bottleneck in applying RL to agents was never the optimization algorithm.
+                              - generic [ref=e1203]: GRPO handles that well.
+                              - generic [ref=e1206]: It was always the reward signal.
+                              - generic [ref=e1209]: RLVR solved this for verifiable tasks by letting the environment score outputs directly.
+                              - generic [ref=e1212]: RULER solves it for every task (verifiable or non-verifiable) by letting an LLM judge score outputs relatively.
+                              - generic [ref=e1215]: The full implementation is in the ART repo, along with Colab notebooks that walk through the training loop end to end.
+                              - generic [ref=e1217]:
+                                - generic [ref=e1218]: "Repo:"
+                                - link "https://github.com/OpenPipe/ART" [ref=e1220] [cursor=pointer]:
+                                  - /url: https://github.com/OpenPipe/ART
+                                  - generic [ref=e1221]: https://github.com/OpenPipe/ART
+                                - generic [ref=e1222]: (don't forget to star it
+                                - generic [ref=e1225]: ⭐️
+                                - generic [ref=e1226]: )
+                              - link "Image" [ref=e1233] [cursor=pointer]:
+                                - /url: /_avichawla/article/2049037299334472015/media/2048500227460739072
+                                - generic "Image" [ref=e1237]:
+                                  - img "Image" [ref=e1239]
+                              - separator [ref=e1241]
+                              - generic [ref=e1244]: That's a wrap!
+                              - generic [ref=e1247]: "If you enjoyed this tutorial:"
+                              - generic [ref=e1249]:
+                                - generic [ref=e1250]: Find me →
+                                - link "@_avichawla" [ref=e1252] [cursor=pointer]:
+                                  - /url: https://x.com/@_avichawla
+                                  - generic [ref=e1253]: "@_avichawla"
+                              - generic [ref=e1256]: Every day, I share tutorials and insights on DS, ML, LLMs, and RAGs.
+                            - status [ref=e1258]:
+                              - generic [ref=e1259]:
+                                - img [ref=e1260]
+                                - generic [ref=e1264]:
+                                  - generic [ref=e1265]: Want to publish your own Article?
+                                  - link "Upgrade to Premium" [ref=e1266] [cursor=pointer]:
+                                    - /url: /i/premium_sign_up
+                        - generic [ref=e1270]:
+                          - link "3:05 AM · Apr 28, 2026" [ref=e1272] [cursor=pointer]:
+                            - /url: /_avichawla/status/2049037299334472015
+                            - time [ref=e1273]: 3:05 AM · Apr 28, 2026
+                          - generic [ref=e1274]: ·
+                          - link "511.1K Views" [ref=e1275] [cursor=pointer]:
+                            - /url: /_avichawla/status/2049037299334472015/analytics
+                            - generic [ref=e1278]: 511.1K
+                            - generic [ref=e1279]: Views
+                        - group "13 replies, 83 reposts, 396 likes, 1023 bookmarks, 511131 views" [ref=e1282]:
+                          - button "13 Replies. Reply" [ref=e1284] [cursor=pointer]:
+                            - generic [ref=e1285]:
+                              - img [ref=e1288]
+                              - generic [ref=e1293]: "13"
+                          - button "83 reposts. Repost" [ref=e1295] [cursor=pointer]:
+                            - generic [ref=e1296]:
+                              - img [ref=e1299]
+                              - generic [ref=e1304]: "83"
+                          - button "396 Likes. Like" [ref=e1306] [cursor=pointer]:
+                            - generic [ref=e1307]:
+                              - img [ref=e1310]
+                              - generic [ref=e1315]: "396"
+                          - button "1023 Bookmarks. Bookmark" [ref=e1317] [cursor=pointer]:
+                            - generic [ref=e1318]:
+                              - img [ref=e1321]
+                              - generic [ref=e1326]: 1K
+                          - button "Share post" [ref=e1329] [cursor=pointer]:
+                            - img [ref=e1333]
+                        - button "Read 13 replies" [ref=e1336] [cursor=pointer]:
+                          - generic [ref=e1337]:
+                            - img [ref=e1338]
+                            - generic [ref=e1342]: Read 13 replies
+            - generic "Trending" [ref=e1347]:
+              - generic [ref=e1348]:
+                - region "Sign up" [ref=e1350]:
+                  - heading "New to X?" [level=2] [ref=e1352]:
+                    - generic [ref=e1353]: New to X?
+                  - generic [ref=e1354]: Sign up now to get your own personalized timeline!
+                  - generic [ref=e1355]:
+                    - iframe [ref=e1358]:
+                      - button "Sign up with Google. Opens in new tab" [ref=f1e3] [cursor=pointer]:
+                        - generic [ref=f1e5]:
+                          - img [ref=f1e7]
+                          - generic [ref=f1e14]: Sign up with Google
+                    - button "Sign up with Apple" [ref=e1359] [cursor=pointer]:
+                      - generic [ref=e1360]:
+                        - img [ref=e1361]
+                        - generic [ref=e1365]: Sign up with Apple
+                    - link "Create account" [ref=e1366] [cursor=pointer]:
+                      - /url: /i/flow/signup
+                      - generic [ref=e1369]: Create account
+                  - generic [ref=e1370]:
+                    - text: By signing up, you agree to the
+                    - link "Terms of Service" [ref=e1371] [cursor=pointer]:
+                      - /url: https://x.com/tos
+                    - text: and
+                    - link "Privacy Policy" [ref=e1372] [cursor=pointer]:
+                      - /url: https://x.com/privacy
+                    - text: ", including"
+                    - link "Cookie Use." [ref=e1373] [cursor=pointer]:
+                      - /url: https://help.x.com/rules-and-policies/twitter-cookies
+                - complementary "Relevant people" [ref=e1375]:
+                  - heading "Relevant people" [level=2] [ref=e1377]:
+                    - generic [ref=e1378]: Relevant people
+                  - list [ref=e1379]:
+                    - listitem [ref=e1380] [cursor=pointer]:
+                      - generic [ref=e1381]:
+                        - link [ref=e1391]:
+                          - /url: /_avichawla
+                        - generic [ref=e1394]:
+                          - generic [ref=e1395]:
+                            - generic [ref=e1397]:
+                              - link "Avi Chawla Verified account" [ref=e1399]:
+                                - /url: /_avichawla
+                                - generic [ref=e1400]:
+                                  - generic [ref=e1402]: Avi Chawla
+                                  - img "Verified account" [ref=e1405]
+                              - link "@_avichawla" [ref=e1410]:
+                                - /url: /_avichawla
+                                - generic [ref=e1412]: "@_avichawla"
+                            - button "Follow @_avichawla" [ref=e1414]:
+                              - generic [ref=e1417]: Follow
+                          - generic [ref=e1418]:
+                            - text: Daily tutorials and insights on DS, ML, LLMs, and RAGs • Co-founder
+                            - link "@dailydoseofds_" [ref=e1421]:
+                              - /url: /dailydoseofds_
+                            - text: • IIT Varanasi • ex-AI Engineer @ MastercardAI
+                - region "Trending now" [ref=e1423]:
+                  - heading "Trending now" [level=1] [ref=e1424]
+                  - 'generic "Timeline: Trending now" [ref=e1425]':
+                    - generic [ref=e1426]:
+                      - heading "What’s happening" [level=2] [ref=e1430]:
+                        - generic [ref=e1431]: What’s happening
+                      - 'link "Trending in United States #ZIGxONDO" [ref=e1434] [cursor=pointer]':
+                        - generic [ref=e1435]:
+                          - generic [ref=e1437]: Trending in United States
+                          - generic [ref=e1439]: "#ZIGxONDO"
+                      - link "Sports · Trending Sorsby Trending with The NCAA" [ref=e1442] [cursor=pointer]:
+                        - generic [ref=e1443]:
+                          - generic [ref=e1445]: Sports · Trending
+                          - generic [ref=e1446]: Sorsby
+                          - generic [ref=e1447]:
+                            - text: Trending with
+                            - link "The NCAA" [ref=e1448]:
+                              - /url: /search?q=The%20NCAA&src=trend_click&vertical=trends
+                      - link "Sports · Trending Lubbock County" [ref=e1451] [cursor=pointer]:
+                        - generic [ref=e1452]:
+                          - generic [ref=e1454]: Sports · Trending
+                          - generic [ref=e1455]: Lubbock County
+                      - link "Politics · Trending Iran and Israel" [ref=e1458] [cursor=pointer]:
+                        - generic [ref=e1459]:
+                          - generic [ref=e1461]: Politics · Trending
+                          - generic [ref=e1462]: Iran and Israel
+                      - link "Show more" [ref=e1465] [cursor=pointer]:
+                        - /url: /explore/tabs/for-you
+                        - generic [ref=e1466]: Show more
+                - navigation "Footer" [ref=e1468]:
+                  - generic [ref=e1469]:
+                    - link "Terms of Service" [ref=e1470] [cursor=pointer]:
+                      - /url: https://x.com/tos
+                    - generic [ref=e1471]: "|"
+                  - generic [ref=e1472]:
+                    - link "Privacy Policy" [ref=e1473] [cursor=pointer]:
+                      - /url: https://x.com/privacy
+                    - generic [ref=e1474]: "|"
+                  - generic [ref=e1475]:
+                    - link "Cookie Policy" [ref=e1476] [cursor=pointer]:
+                      - /url: https://support.x.com/articles/20170514
+                    - generic [ref=e1477]: "|"
+                  - generic [ref=e1478]:
+                    - link "Accessibility" [ref=e1479] [cursor=pointer]:
+                      - /url: https://help.x.com/resources/accessibility
+                    - generic [ref=e1480]: "|"
+                  - generic [ref=e1481]:
+                    - link "Ads info" [ref=e1482] [cursor=pointer]:
+                      - /url: https://business.x.com/en/help/troubleshooting/how-twitter-ads-work.html?ref=web-twc-ao-gbl-adsinfo&utm_source=twc&utm_medium=web&utm_campaign=ao&utm_content=adsinfo
+                    - generic [ref=e1483]: "|"
+                  - button "More" [ref=e1484] [cursor=pointer]:
+                    - generic [ref=e1485]:
+                      - text: More
+                      - img [ref=e1486]
+                  - generic [ref=e1489]: © 2026 X Corp.

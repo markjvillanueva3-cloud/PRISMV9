@@ -1,0 +1,66 @@
+{
+  "audit_id": "QA-MS6-P0-U01",
+  "title": "Action Categorization and Decomposition Analysis",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T02:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "250 actions in 33 functional groups across 32 engines. Clear prefix-based categorization with natural decomposition boundaries.",
+
+  "categories": {
+    "core_intelligence":    { "count": 11, "engine": "IntelligenceEngine",          "actions": ["job_plan", "setup_sheet", "process_cost", "material_recommend", "tool_recommend", "machine_recommend", "what_if", "failure_diagnose", "parameter_optimize", "cycle_time_estimate", "quality_predict"] },
+    "job_learning":         { "count": 2,  "engine": "JobLearningEngine",           "actions": ["job_record", "job_insights"] },
+    "algorithm_gateway":    { "count": 1,  "engine": "AlgorithmGatewayEngine",      "actions": ["algorithm_select"] },
+    "shop_scheduler":       { "count": 1,  "engine": "ShopSchedulerEngine",         "actions": ["machine_utilization"] },
+    "intent":               { "count": 1,  "engine": "IntentDecompositionEngine",   "actions": ["decompose_intent"] },
+    "formatting":           { "count": 1,  "engine": "ResponseFormatterEngine",     "actions": ["format_response"] },
+    "workflow":             { "count": 3,  "engine": "WorkflowChainsEngine",        "actions": ["workflow_match", "workflow_get", "workflow_list"] },
+    "onboarding":           { "count": 5,  "engine": "OnboardingEngine",            "actions": ["onboarding_welcome", "onboarding_state", "onboarding_record", "onboarding_suggestion", "onboarding_reset"] },
+    "setup_sheet":          { "count": 2,  "engine": "SetupSheetEngine",            "actions": ["setup_sheet_format", "setup_sheet_template"] },
+    "conversation_memory":  { "count": 8,  "engine": "ConversationalMemoryEngine",  "actions": ["conversation_context", "conversation_transition", "job_start", "job_update", "job_find", "job_resume", "job_complete", "job_list_recent"] },
+    "skills":               { "count": 6,  "engine": "UserWorkflowSkillsEngine",    "actions": ["skill_list", "skill_get", "skill_search", "skill_match", "skill_steps", "skill_for_persona"] },
+    "assistance":           { "count": 8,  "engine": "UserAssistanceSkillsEngine",  "actions": ["assist_list", "assist_get", "assist_search", "assist_match", "assist_explain", "assist_confidence", "assist_mistakes", "assist_safety"] },
+    "machine_connectivity": { "count": 16, "engine": "MachineConnectivityEngine",   "actions": ["machine_register", "machine_unregister", "machine_list", "machine_connect", "machine_disconnect", "machine_live_status", "machine_all_status", "machine_ingest", "chatter_detect_live", "tool_wear_start", "tool_wear_update", "tool_wear_status", "thermal_update", "thermal_status", "alert_acknowledge", "alert_history"] },
+    "cam":                  { "count": 6,  "engine": "CAMIntegrationEngine",        "actions": ["cam_recommend", "cam_export", "cam_analyze_op", "cam_tool_library", "cam_tool_get", "cam_systems"] },
+    "dnc":                  { "count": 8,  "engine": "DNCTransferEngine",           "actions": ["dnc_generate", "dnc_send", "dnc_compare", "dnc_verify", "dnc_qr", "dnc_systems", "dnc_history", "dnc_get"] },
+    "mobile":               { "count": 8,  "engine": "MobileInterfaceEngine",       "actions": ["mobile_lookup", "mobile_voice", "mobile_alarm", "mobile_timer_start", "mobile_timer_check", "mobile_timer_reset", "mobile_timer_list", "mobile_cache"] },
+    "erp":                  { "count": 10, "engine": "ERPIntegrationEngine",        "actions": ["erp_import_wo", "erp_get_plan", "erp_cost_feedback", "erp_cost_history", "erp_quality_import", "erp_quality_history", "erp_tool_inventory", "erp_tool_update", "erp_systems", "erp_wo_list"] },
+    "measurement":          { "count": 10, "engine": "MeasurementIntegrationEngine","actions": ["measure_cmm_import", "measure_cmm_history", "measure_cmm_get", "measure_surface", "measure_surface_history", "measure_probe_record", "measure_probe_drift", "measure_probe_history", "measure_bias_detect", "measure_summary"] },
+    "inverse_solver":       { "count": 8,  "engine": "InverseSolverEngine",         "actions": ["inverse_solve", "inverse_surface", "inverse_tool_life", "inverse_dimensional", "inverse_chatter", "inverse_troubleshoot", "inverse_history", "inverse_get"] },
+    "forensics":            { "count": 10, "engine": "FailureForensicsEngine",      "actions": ["forensic_tool_autopsy", "forensic_chip_analysis", "forensic_surface_defect", "forensic_crash", "forensic_failure_modes", "forensic_chip_types", "forensic_surface_types", "forensic_crash_types", "forensic_history", "forensic_get"] },
+    "apprentice":           { "count": 10, "engine": "ApprenticeEngine",            "actions": ["apprentice_explain", "apprentice_lesson", "apprentice_lessons", "apprentice_assess", "apprentice_capture", "apprentice_knowledge", "apprentice_challenge", "apprentice_materials", "apprentice_history", "apprentice_get"] },
+    "genome":               { "count": 10, "engine": "ManufacturingGenomeEngine",   "actions": ["genome_lookup", "genome_predict", "genome_similar", "genome_compare", "genome_list", "genome_fingerprint", "genome_behavioral", "genome_search", "genome_history", "genome_get"] },
+    "maintenance":          { "count": 10, "engine": "PredictiveMaintenanceEngine", "actions": ["maint_analyze", "maint_trend", "maint_predict", "maint_schedule", "maint_models", "maint_thresholds", "maint_alerts", "maint_status", "maint_history", "maint_get"] },
+    "sustainability":       { "count": 10, "engine": "SustainabilityEngine",        "actions": ["sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant", "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get"] },
+    "genplan":              { "count": 10, "engine": "GenerativeProcessEngine",     "actions": ["genplan_plan", "genplan_features", "genplan_setups", "genplan_operations", "genplan_optimize", "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get"] },
+    "knowledge_graph":      { "count": 10, "engine": "KnowledgeGraphEngine",        "actions": ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse", "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get"] },
+    "federated_learning":   { "count": 10, "engine": "FederatedLearningEngine",     "actions": ["learn_contribute", "learn_query", "learn_aggregate", "learn_anonymize", "learn_network_stats", "learn_opt_control", "learn_correction", "learn_transparency", "learn_history", "learn_get"] },
+    "adaptive_control":     { "count": 10, "engine": "AdaptiveControlEngine",       "actions": ["adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override", "adaptive_status", "adaptive_config", "adaptive_log", "adaptive_history", "adaptive_get"] },
+    "product_sfc":          { "count": 10, "engine": "ProductEngine.productSFC",    "actions": ["sfc_calculate", "sfc_compare", "sfc_optimize", "sfc_quick", "sfc_materials", "sfc_tools", "sfc_formulas", "sfc_safety", "sfc_history", "sfc_get"] },
+    "product_ppg":          { "count": 10, "engine": "ProductEngine.productPPG",    "actions": ["ppg_validate", "ppg_translate", "ppg_templates", "ppg_generate", "ppg_controllers", "ppg_compare", "ppg_syntax", "ppg_batch", "ppg_history", "ppg_get"] },
+    "product_shop":         { "count": 10, "engine": "ProductEngine.productShop",   "actions": ["shop_job", "shop_cost", "shop_quote", "shop_schedule", "shop_dashboard", "shop_report", "shop_compare", "shop_materials", "shop_history", "shop_get"] },
+    "product_acnc":         { "count": 10, "engine": "ProductEngine.productACNC",   "actions": ["acnc_program", "acnc_feature", "acnc_simulate", "acnc_output", "acnc_tools", "acnc_strategy", "acnc_validate", "acnc_batch", "acnc_history", "acnc_get"] },
+    "l3_industry":          { "count": 4,  "engine": "inline (l3IndustryAction)",   "actions": ["tool_crib_status", "digital_twin_state", "predictive_maintenance_alert", "energy_report"] }
+  },
+
+  "size_distribution": {
+    "large_16_plus": ["machine_connectivity (16)"],
+    "standard_10": ["core_intelligence (11)", "erp (10)", "measurement (10)", "forensics (10)", "apprentice (10)", "genome (10)", "maintenance (10)", "sustainability (10)", "genplan (10)", "knowledge_graph (10)", "federated_learning (10)", "adaptive_control (10)", "product_sfc (10)", "product_ppg (10)", "product_shop (10)", "product_acnc (10)"],
+    "medium_6_8": ["conversation_memory (8)", "assistance (8)", "dnc (8)", "mobile (8)", "inverse_solver (8)", "cam (6)", "skills (6)"],
+    "small_1_5": ["onboarding (5)", "workflow (3)", "job_learning (2)", "setup_sheet (2)", "algorithm_gateway (1)", "shop_scheduler (1)", "intent (1)", "formatting (1)", "l3_industry (4)"]
+  },
+
+  "natural_decomposition_boundaries": [
+    "Each category already maps 1:1 to a dedicated engine",
+    "Prefix-based naming (cam_*, dnc_*, erp_*, etc.) creates clear boundaries",
+    "No cross-engine action dependencies detected",
+    "The dispatcher is already logically decomposed -- it's a thin routing layer over 32 engines"
+  ],
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "all_250_categorized": true,
+    "category_sizes_calculated": true,
+    "decomposition_boundaries_identified": true
+  }
+}

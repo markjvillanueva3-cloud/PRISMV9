@@ -309,6 +309,14 @@ export interface CADCapabilityMatrix {
   limits?: Record<string, number>;
   /** Optional host software version (e.g. "Fusion360 2.0.19401"). Informational. */
   version?: string;
+  /** Free-form informational note about the generator/host. */
+  notes?: string;
+  /** Max operation count the generator handles before quality degrades. */
+  maxComplexity?: number;
+  /** Whether the host supports undo of generated operations. */
+  supportsUndo?: boolean;
+  /** Whether the host supports parametric (feature-tree) modeling. */
+  supportsParametric?: boolean;
 }
 
 // ── The interface itself ───────────────────────────────────────────────────

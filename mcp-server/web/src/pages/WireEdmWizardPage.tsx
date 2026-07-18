@@ -27,6 +27,7 @@ import {
 } from '../api/client';
 import { wedmErpApi } from '../api/wedmErp';
 import { WorkspaceRecoveryScaffold } from '../components/workspace/WorkspaceRecoveryScaffold';
+import { GatedError } from '../components/entitlement';
 import {
   ActionButton,
   Field,
@@ -177,6 +178,7 @@ export function WireEdmWizardPage() {
   // Solve state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [solution, setSolution] = useState<Record<string, unknown> | null>(null);
 
   // Tribal tips state (U-P2PFS31)
@@ -405,13 +407,15 @@ export function WireEdmWizardPage() {
     async function checkApproval() {
       try {
         const result = await wedmApprovalStatus();
-        if (!cancelled && result.data) {
-          setApprovalStatus(result.data);
+        // PrismResponse uses `.result` not `.data` (see api/types.ts:7).
+        if (!cancelled && result.result) {
+          setApprovalStatus(result.result);
         }
       } catch {
-        // Default to requiring approval
+        // Default to requiring approval — shape matches WedmApprovalStatus + extras
+        // (approved/requires_approval are extra fields per the [key: string]: unknown signature).
         if (!cancelled) {
-          setApprovalStatus({ approved: false, requires_approval: true });
+          setApprovalStatus({ status: 'pending', approved: false, requires_approval: true });
         }
       }
     }
@@ -426,8 +430,9 @@ export function WireEdmWizardPage() {
       const result = await wedmRequestApproval({
         reason: `Wire EDM job for ${material}, ${thickness}mm thickness`,
       });
-      if (result.data) {
-        setApprovalStatus(result.data);
+      // PrismResponse uses `.result` not `.data` (see api/types.ts:7).
+      if (result.result) {
+        setApprovalStatus(result.result);
       }
     } catch {
       setErpError('Failed to request approval');
@@ -505,7 +510,10 @@ export function WireEdmWizardPage() {
         content: fileContent,
       });
 
-      const parsed = response as GeometryParseResult;
+      // Double-cast: wireEdmParseGeometry returns Record<string, unknown> at the type
+       // level (until U-WEDM-PARSE-GEOM-TYPING tightens the API contract); shape is
+       // verified by runtime guards in the geometry consumers.
+      const parsed = response as unknown as GeometryParseResult;
       setGeometry(parsed);
     } catch (err) {
       setParseError(errorMessage(err, 'Failed to parse geometry'));
@@ -528,6 +536,7 @@ export function WireEdmWizardPage() {
   async function handleSolve() {
     setLoading(true);
     setError(null);
+    setGateError(null);
     try {
       const response = await solveWireEdmWizard({
         material,
@@ -540,6 +549,7 @@ export function WireEdmWizardPage() {
       setSolution(asRecord(payloadOf(response)) ?? asRecord(response));
     } catch (issue) {
       setSolution(null);
+      setGateError(issue);
       setError(errorMessage(issue, 'Unable to solve the Wire EDM wizard request.'));
     } finally {
       setLoading(false);
@@ -599,7 +609,7 @@ export function WireEdmWizardPage() {
       description="Upload a DXF/DWG file for AI geometry analysis, configure material and thickness, then solve for optimal cutting parameters."
       surfaces={['jobDesk']}
       metrics={metrics}
-      aiSummary="PRISM AI can explain the wizard output, flag missing assumptions, and tell the programmer what to verify before cutting."
+      aiSummary="Kienzle AI can explain the wizard output, flag missing assumptions, and tell the programmer what to verify before cutting."
       aiContext={aiContext}
       suggestions={[
         {
@@ -754,9 +764,11 @@ export function WireEdmWizardPage() {
         </div>
 
         {error ? (
-          <div className="mt-4 rounded-2xl border border-rose-300/18 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
-            {error}
-          </div>
+          <GatedError error={gateError} feature='wizard.wedm' fallback={
+            <div className="mt-4 rounded-2xl border border-rose-300/18 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
+              {error}
+            </div>
+          } />
         ) : null}
       </PanelCard>
 
@@ -1151,11 +1163,12 @@ function WedmAutonomyIndicator({ status }: WedmAutonomyIndicatorProps) {
         <div className="text-xs text-slate-500">{levelInfo.description}</div>
       </div>
 
-      {/* Confidence */}
+      {/* Confidence -- optional: the autonomy snapshot has no confidence field yet (render
+          "--" honestly rather than NaN%). */}
       <div className="ml-2 flex flex-col items-end">
         <span className="text-xs text-slate-400">Confidence</span>
         <span className={`text-sm font-medium text-${levelInfo.color}-300`}>
-          {Math.round(status.confidence * 100)}%
+          {status.confidence !== undefined ? `${Math.round(status.confidence * 100)}%` : '--'}
         </span>
       </div>
     </div>
@@ -1206,31 +1219,27 @@ function WedmRulGauge({ status }: WedmRulGaugeProps) {
     );
   }
 
-  const components = [
-    {
-      label: 'Wire Spool',
-      pct: status.wire_spool.remaining_pct,
-      detail: `${status.wire_spool.remaining_meters.toFixed(0)}m remaining`,
-      subDetail: `~${status.wire_spool.estimated_cuts_remaining} cuts`,
-    },
-    {
-      label: 'Upper Guide',
-      pct: status.upper_guide.rul_pct,
-      detail: `${status.upper_guide.hours_remaining.toFixed(0)}h remaining`,
-      condition: status.upper_guide.condition,
-    },
-    {
-      label: 'Lower Guide',
-      pct: status.lower_guide.rul_pct,
-      detail: `${status.lower_guide.hours_remaining.toFixed(0)}h remaining`,
-      condition: status.lower_guide.condition,
-    },
-    {
-      label: 'Power Feed',
-      pct: status.power_feed.rul_pct,
-      detail: `${status.power_feed.cycles_remaining.toLocaleString()} cycles`,
-    },
-  ];
+  // U-WEDM-LIVE-ROUTES: render the components the degradation model ACTUALLY tracks
+  // (generic list -- the old wire_spool/guide/power_feed literals matched no engine).
+  // hours_remaining === null means "not aging" (no live usage-rate telemetry yet).
+  const bandCondition: Record<string, string> = {
+    imminent: 'replace',
+    soon: 'worn',
+    planned: 'fair',
+    healthy: 'good',
+  };
+  // Defensive ?? [] only: /wedm-live/rul is a plain res.json route (NO slimResponse -- that
+  // slimming applies to prism_edm dispatcher payloads, not this wire), so components always
+  // arrives; the guard just ensures a malformed body renders an empty panel, never a crash.
+  // If this route is ever moved behind slimResponse, hours_remaining:null would be stripped
+  // too and the !== null check below would need to become != null.
+  const components = (status.components ?? []).map((c) => ({
+    label: c.label,
+    pct: c.rul_pct,
+    detail: c.hours_remaining !== null ? `${c.hours_remaining.toFixed(0)}h remaining` : 'not aging (no usage feed)',
+    subDetail: undefined as string | undefined,
+    condition: bandCondition[c.band] as 'good' | 'fair' | 'worn' | 'replace' | undefined,
+  }));
 
   return (
     <div

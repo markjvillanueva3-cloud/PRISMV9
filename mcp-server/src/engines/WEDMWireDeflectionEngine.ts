@@ -24,6 +24,7 @@
  */
 
 import { EDM_PHYSICS } from "../physics/constants.js";
+import { WEDM_TAPER_SPEC } from "../physics/wedm-constants.js";
 
 // ============================================================================
 // TYPES
@@ -188,6 +189,142 @@ class WEDMWireDeflectionEngine {
    */
   calculateTaperError(max_deflection_mm: number): number {
     return max_deflection_mm;
+  }
+
+  /**
+   * Invert the wire-bow taper error to emit the CORRECTED programmed taper angle.
+   *
+   * On a taper cut the discharge force bows the wire by delta (calculateDeflection); that bow adds an
+   * angular error theta_bow = atan(4*delta/L_eff) (calculateDeflectionAngle) to the cut wall, so the
+   * wall lands OFF the intended taper. To HIT theta_target, PROGRAM theta_prog = theta_target - theta_bow
+   * so the guides pre-tilt less and the bow supplies the remainder. The unsupported wire span grows with
+   * tilt (L_eff = L / cos theta), so delta (hence theta_bow) depends weakly on theta_prog -> solved by a
+   * fixed-point iteration. In the tensioned-string regime this collapses to theta_bow = atan(F/(2*T)),
+   * independent of span/taper (delta = F*L/(8T) => 4*delta/L = F/(2T)), so it converges in one step; the
+   * iteration only does real work in the bending-stiffness regime (STIFF/thick wire at low tension, lambda
+   * < 5 -- thin wire lowers I and RAISES lambda toward the string regime, so bending needs a thick wire).
+   *
+   * Sign: bow opens the wall OUTWARD (adds taper) -> the correction SUBTRACTS theta_bow (bow_direction=+1,
+   * default). bow_direction=-1 handles the (rarer) inward-bow geometry. theta_prog is clamped to
+   * [0, max_taper]; if the correction would drive it out of range (e.g. bow >= target on a near-vertical
+   * wall -- uncorrectable by pre-tilt alone) the angle is clamped and the uncorrected residual_deg is
+   * reported with a warning -- never a silently out-of-range programmed angle (R12).
+   *
+   * Refs: tensioned-string bow delta=F*L/(8T) + guide kinematics L_eff=L/cos(theta) (Mitsubishi MV
+   * Programming Manual Sec 5; Sodick VL400Q Sec 2.4). Guide-span / max-taper defaults: WEDM_TAPER_SPEC.
+   *
+   * @param input target taper + wire/discharge state (guide_span / max_taper default from WEDM_TAPER_SPEC)
+   * @returns corrected programmed taper angle + bow diagnostics + clamp residual (typed result object)
+   */
+  correctTaperAngle(input: {
+    target_taper_deg: number;
+    discharge_force_N: number;
+    wire_tension_N: number;
+    wire_diameter_mm: number;
+    modulus_GPa: number;
+    guide_span_mm?: number;
+    max_taper_deg?: number;
+    bow_direction?: 1 | -1;
+    max_iter?: number;
+    tol_deg?: number;
+  }): {
+    programmed_taper_deg: number;
+    target_taper_deg: number;
+    bow_angle_deg: number;
+    correction_deg: number;
+    deflection_mm: number;
+    effective_span_mm: number;
+    residual_deg: number;
+    converged: boolean;
+    iterations: number;
+    clamped: boolean;
+    warning?: string;
+    source: string;
+  } {
+    const { target_taper_deg, discharge_force_N, wire_tension_N, wire_diameter_mm, modulus_GPa } = input;
+    // Validate -- throw descriptive errors (matches calculateDeflection's contract in this engine).
+    if (!Number.isFinite(target_taper_deg) || target_taper_deg < 0)
+      throw new Error("target_taper_deg must be a finite, non-negative angle");
+    if (!Number.isFinite(discharge_force_N) || discharge_force_N < 0)
+      throw new Error("discharge_force_N must be finite and non-negative");
+    if (!Number.isFinite(wire_tension_N) || wire_tension_N <= 0)
+      throw new Error("wire_tension_N must be positive");
+    // wire_diameter_mm + modulus_GPa feed calculateDeflection -- validate here or a bad value returns
+    // programmed_taper_deg = NaN mislabelled "did not converge" (fail-loud, R12).
+    if (!Number.isFinite(wire_diameter_mm) || wire_diameter_mm <= 0)
+      throw new Error("wire_diameter_mm must be positive");
+    if (!Number.isFinite(modulus_GPa) || modulus_GPa <= 0)
+      throw new Error("modulus_GPa must be positive");
+    const guideSpan = input.guide_span_mm ?? WEDM_TAPER_SPEC.default_guide_span_mm;
+    if (!Number.isFinite(guideSpan) || guideSpan <= 0)
+      throw new Error("guide_span_mm must be positive");
+    const maxTaper = input.max_taper_deg ?? WEDM_TAPER_SPEC.standard_max_taper_deg;
+    // bow_direction / max_iter arrive untyped via the dispatcher (this action ships no Zod schema) ->
+    // runtime-guard: bow_direction=2 would silently DOUBLE the correction; max_iter<1 skips the solve.
+    const rawDir = (input as { bow_direction?: unknown }).bow_direction;
+    if (rawDir !== undefined && rawDir !== 1 && rawDir !== -1)
+      throw new Error("bow_direction must be 1 or -1");
+    const dir: 1 | -1 = (rawDir as 1 | -1) ?? 1;
+    const maxIter = input.max_iter ?? 12;
+    if (!Number.isInteger(maxIter) || maxIter < 1)
+      throw new Error("max_iter must be a positive integer");
+    const tol = input.tol_deg ?? 1e-4;
+
+    let theta = target_taper_deg; // initial guess
+    let deflection = 0;
+    let bow = 0;
+    let effSpan = guideSpan;
+    let iterations = 0;
+    let converged = false;
+    for (; iterations < maxIter; iterations++) {
+      // Effective unsupported span grows with tilt; cos is symmetric so |theta| is safe; cap short of 90 deg.
+      const safeTheta = Math.min(89.9, Math.abs(theta));
+      effSpan = guideSpan / Math.cos((safeTheta * Math.PI) / 180);
+      deflection = this.calculateDeflection(discharge_force_N, wire_tension_N, effSpan, wire_diameter_mm, modulus_GPa);
+      bow = this.calculateDeflectionAngle(deflection, effSpan); // deg, >= 0
+      const next = target_taper_deg - dir * bow;
+      if (Math.abs(next - theta) < tol) {
+        theta = next;
+        iterations++;
+        converged = true;
+        break;
+      }
+      theta = next;
+    }
+
+    let clamped = false;
+    let residual = 0;
+    let warning: string | undefined;
+    if (theta < 0) {
+      residual = -theta;
+      theta = 0;
+      clamped = true;
+      warning =
+        `wire bow (${bow.toFixed(3)}deg) exceeds target taper (${target_taper_deg}deg); pre-tilt clamped to 0deg, ` +
+        `residual ${residual.toFixed(3)}deg is uncorrectable by pre-tilt alone (reduce discharge force or raise wire tension)`;
+    } else if (theta > maxTaper) {
+      residual = theta - maxTaper;
+      theta = maxTaper;
+      clamped = true;
+      warning = `corrected taper exceeds guide max ${maxTaper}deg; clamped, residual ${residual.toFixed(3)}deg`;
+    } else if (!converged) {
+      warning = `fixed-point did not converge within ${maxIter} iterations (last step > ${tol}deg)`;
+    }
+
+    return {
+      programmed_taper_deg: theta,
+      target_taper_deg,
+      bow_angle_deg: bow,
+      correction_deg: target_taper_deg - theta,
+      deflection_mm: deflection,
+      effective_span_mm: effSpan,
+      residual_deg: residual,
+      converged,
+      iterations,
+      clamped,
+      warning,
+      source: "wire-bow-taper-inverse-fixedpoint",
+    };
   }
 
   /**

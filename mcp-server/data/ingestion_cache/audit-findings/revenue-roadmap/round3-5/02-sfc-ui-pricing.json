@@ -1,0 +1,223 @@
+{
+  "round": 3.5,
+  "agent_n": 2,
+  "scope": "SFC UI + pricing",
+  "agent_role": "reviewer-product",
+  "form_factors": [
+    {
+      "name": "web-app-browser",
+      "priority": "P0",
+      "buildout_weeks": 2,
+      "first_revenue_unlock": true,
+      "rationale": "SfcCalculatorPage.tsx + SpeedFeedPage.tsx already scaffold in mcp-server/web. Stack (React+Vite) is canonical 'merged'. Fastest acquisition surface — Stripe checkout + free-tier gating only net-new work. Competitor parity (G-Wizard $70/yr) is browser-first.",
+      "blocking_units": ["U-REV-CAD-SFC-01..06 UI-unstub", "U-AUTH-STRIPE", "U-TIER-GATE-DISPATCHER"]
+    },
+    {
+      "name": "api-only-shop-integration",
+      "priority": "P0",
+      "buildout_weeks": 1,
+      "first_revenue_unlock": true,
+      "rationale": "Dispatcher actions already exist (prism_calc:speedfeed_*). Wrap with API-key auth + per-request quota meter — no UI work. Sells into Shop/Enterprise tier at premium. Reuses tier-gate dispatcher built for web.",
+      "blocking_units": ["U-AUTH-APIKEY", "U-QUOTA-METER", "U-RATELIMIT-MIDDLEWARE"]
+    },
+    {
+      "name": "cam-plugin-fusion360",
+      "priority": "P1",
+      "buildout_weeks": 4,
+      "first_revenue_unlock": false,
+      "rationale": "Fusion 360 add-in (Python/JS) calls existing API. Highest conversion (in-workflow context = no copy/paste). Defer to MS1 — needs web/API stable first, plus Autodesk App Store review cycle (~2 weeks).",
+      "blocking_units": ["U-API-STABLE", "U-FUSION-ADDIN-SCAFFOLD", "U-AUTODESK-APPSTORE-SUBMIT"]
+    },
+    {
+      "name": "cam-plugin-mastercam-chook",
+      "priority": "P2",
+      "buildout_weeks": 6,
+      "first_revenue_unlock": false,
+      "rationale": "C-Hook (C++) higher cost-to-build than Fusion add-in; Mastercam's NetHook (C#) is cheaper. Defer to MS2 — JM Die is Mastercam shop so eventually mandatory, but not first revenue.",
+      "blocking_units": ["U-MASTERCAM-NETHOOK-SCAFFOLD"]
+    },
+    {
+      "name": "cam-plugin-hypermill-tbc",
+      "priority": "P2",
+      "buildout_weeks": 5,
+      "first_revenue_unlock": false,
+      "rationale": "hyperMILL has Technology Database Connector (TBC) for parameter feed. PRISM already has hyperMILL bridge engines (hypermill-material-lookup, hypermill-speeds-feeds skills). Defer to MS2 after Fusion proves plugin economics.",
+      "blocking_units": ["U-HYPERMILL-TBC-BRIDGE"]
+    },
+    {
+      "name": "mobile-pwa-operator",
+      "priority": "P2",
+      "buildout_weeks": 2,
+      "first_revenue_unlock": false,
+      "rationale": "Defer. Operators-at-machine workflow is real (phone-sized lookup at console) but addressable via PWA install of web app — no native build needed. Add responsive breakpoints to web UI in MS1, formal PWA manifest in MS2.",
+      "blocking_units": ["U-PWA-MANIFEST", "U-RESPONSIVE-BREAKPOINTS"]
+    }
+  ],
+  "min_ui_pages": [
+    {
+      "page": "/sfc (single-page calc)",
+      "components": [
+        "MaterialPicker (cascader: ISO group → grade → heat-treat state)",
+        "ToolPicker (type/diameter/flutes/coating/substrate — autocomplete from tool registry)",
+        "MachinePicker (rigidity/spindle/Hp/taper — from ShopConfigurationEngine 21-machine list or custom)",
+        "HolderPicker (collet/shrink-fit/hydraulic/sidelock — overhang slider P1)",
+        "OperationToggle (milling | drilling | turning | reaming | tapping)",
+        "ResultsPanel (Vc, n, fz, ap, ae, Q, Pc, Fc, Tc, δ-deflection, Ra-finish, risk-flags chiclets)",
+        "CopyToClipboardButton (G-code S/F lines)",
+        "SaveRecipeButton (Pro+)",
+        "UpgradePromptModal (when free-tier quota hit)"
+      ],
+      "depends_on_dispatcher": [
+        "prism_calc:speedfeed_orchestrate",
+        "prism_calc:speedfeed_optimize",
+        "prism_safety:validate_physics",
+        "prism_session:material_resolve",
+        "prism_memory:save_recipe"
+      ]
+    },
+    {
+      "page": "/sfc/compare (what-if 3-up — Stretch, P1)",
+      "components": [
+        "ThreeColumnLayout (Setup A | Setup B | Setup C)",
+        "ParamDeltaHighlighter (auto-highlight diffs)",
+        "MetricRadarChart (cycle-time vs tool-life vs cost vs surface-finish)",
+        "WinnerBadge (cheapest / fastest / longest-tool-life)"
+      ],
+      "depends_on_dispatcher": [
+        "prism_calc:speedfeed_orchestrate (3x parallel)",
+        "prism_calc:cost_estimate"
+      ]
+    },
+    {
+      "page": "/sfc/library (saved recipes — Pro+)",
+      "components": [
+        "RecipeListTable (name, material, tool, date, last-used)",
+        "RecipeSearchBar",
+        "ShareLinkButton (Shop+)",
+        "ExportCsvButton",
+        "DeleteWithConfirm"
+      ],
+      "depends_on_dispatcher": [
+        "prism_memory:list_recipes",
+        "prism_memory:delete_recipe",
+        "prism_memory:share_recipe"
+      ]
+    },
+    {
+      "page": "/account/billing (Stripe portal)",
+      "components": [
+        "CurrentPlanCard",
+        "UsageMeter (calcs-today / quota)",
+        "UpgradeDowngradeButtons (Stripe Customer Portal redirect)",
+        "InvoiceHistoryTable",
+        "TeamSeatsManager (Shop+)"
+      ],
+      "depends_on_dispatcher": [
+        "prism_auth:get_subscription",
+        "prism_auth:create_checkout_session",
+        "prism_auth:create_portal_session"
+      ]
+    },
+    {
+      "page": "/sfc/stability (RPM stability lobes — Stretch, P1)",
+      "components": [
+        "LobeChartCanvas (Chebyshev SLD overlay on RPM axis)",
+        "OverhangSlider (recomputes natural-frequency)",
+        "StableRpmHighlighter (snap-to-stable badge on result)"
+      ],
+      "depends_on_dispatcher": [
+        "prism_calc:chatter_stability",
+        "prism_calc:tool_modal_analysis"
+      ]
+    }
+  ],
+  "pricing_tiers": [
+    {
+      "tier": "free",
+      "features": [
+        "3 calculations/day",
+        "1 ISO material group (P-steel only)",
+        "Quick mode only (no Optimize)",
+        "Watermarked CSV export ('PRISM-FREE')",
+        "Community support (Discord)",
+        "Last 5 recipes only"
+      ],
+      "price_usd_monthly": 0,
+      "target": "trial / hobbyist trial"
+    },
+    {
+      "tier": "hobbyist",
+      "features": [
+        "Unlimited calculations",
+        "All ISO groups (P/M/K/N/S/H)",
+        "Optimize mode",
+        "No watermark",
+        "Unlimited saved recipes (single user)",
+        "Email support (48h)"
+      ],
+      "price_usd_monthly": 9,
+      "target": "garage shops, students, makers"
+    },
+    {
+      "tier": "pro",
+      "features": [
+        "All Hobbyist features",
+        "What-if 3-up compare",
+        "RPM stability lobes",
+        "Tool-overhang slider + modal analysis",
+        "Recipe library w/ tags + search",
+        "Priority email support (24h)",
+        "1 seat"
+      ],
+      "price_usd_monthly": 39,
+      "target": "professional machinists, programmers"
+    },
+    {
+      "tier": "shop",
+      "features": [
+        "All Pro features",
+        "Up to 10 seats (per-seat $25 above)",
+        "Team recipe library (shared)",
+        "API access (10k calls/mo)",
+        "CAM plugin install (Fusion add-in)",
+        "JM-Die-style shop profile import",
+        "Slack/Teams integration",
+        "SSO (Google Workspace)"
+      ],
+      "price_usd_monthly": 249,
+      "target": "5-50 machinist job shops"
+    },
+    {
+      "tier": "enterprise",
+      "features": [
+        "Unlimited seats",
+        "API access unlimited",
+        "All CAM plugins (Fusion + Mastercam + hyperMILL)",
+        "On-prem deploy option",
+        "SAML SSO + SCIM",
+        "Audit logs",
+        "Dedicated success manager",
+        "Custom material/tool catalog ingestion",
+        "SLA 99.9%"
+      ],
+      "price_usd_monthly": 999,
+      "target": "50+ machinist shops, OEMs, contract manufacturers",
+      "note": "Annual contract, custom-priced — $999 is floor"
+    }
+  ],
+  "trial_to_paid_path": "Free tier = 3 calcs/day, P-steel only, watermarked CSV, last-5-recipes — enough to demo value (Vc/n/fz are correct, not crippled) but quota hits within first session for any real user. Upgrade modal triggers on (a) 4th calc of day, (b) non-P material selection, (c) Optimize mode click, (d) Compare-3up click, (e) 6th save-recipe. Stripe Checkout one-click to Hobbyist ($9) or Pro ($39). 14-day Pro trial offered on first quota-hit (credit card required to prevent abuse — competitor G-Wizard does free-trial-no-CC and gets gamed). Annual discount 20% (Hobbyist $86/yr vs $108, Pro $375/yr vs $468) shown at checkout.",
+  "recommended_first_merge": "build-fresh",
+  "recommended_first_merge_rationale": "Neither pending merge (cqask/ui Next13+AntD, mcp-cadquery Vite+R19) blocks SFC. SfcCalculatorPage.tsx + SpeedFeedPage.tsx already exist in canonical mcp-server/web on React+Vite — that's where U-REV-CAD-SFC-01..06 land. cqask is for CAD-from-LLM (different product, REVENUE-MS1 'AI CAD' bucket) — port to /apps/cad/ subroute post-revenue. mcp-cadquery is a 3D viewer (React 19 mismatch with main React 18) — only relevant if SFC adds part-preview, which is Stretch/P2. RECOMMEND: ship SFC on existing main-web stack (build-fresh on top of existing scaffold, NOT merge pending frontends). Saves 1-2 weeks of React-version-align + routing-merge work that delivers zero SFC revenue.",
+  "summary": {
+    "weeks_to_first_revenue": 3,
+    "verdict": "GO — ship web+API in 3 weeks on existing main-web stack; defer CAM plugins to MS1+; ignore both pending frontend merges for SFC path.",
+    "one_line": "Week 1: unstub U-REV-CAD-SFC-01..06 + Stripe + tier-gate dispatcher; Week 2: API-key auth + quota meter + Compare-3up; Week 3: billing portal + upgrade modals + soft launch to JM Die + 5 beta shops; CAM plugins MS1 (weeks 4-8).",
+    "weeks_breakdown": {
+      "week_1": "U-REV-CAD-SFC-01..06 UI-unstub (existing SfcCalculatorPage scaffolded), Stripe Checkout + Customer Portal wiring, tier-gate dispatcher (prism_auth:check_quota), free-tier quota meter (Redis counter, daily reset).",
+      "week_2": "API-key auth surface (prism_auth:create_api_key + middleware), per-request quota for API tier, /sfc/compare 3-up page (parallel orchestrate calls), upgrade-modal triggers (5 placements above).",
+      "week_3": "/account/billing page (Stripe portal embed), invoice history, team-seats manager for Shop tier, watermarked-CSV export for free, JM Die beta deploy + 5 external beta shops onboarded at Pro tier free for 60 days (data collection)."
+    },
+    "revenue_model_validation": "Pricing anchored against G-Wizard ($70/yr personal = $5.83/mo) — PRISM Hobbyist $9/mo is 54% premium justified by Optimize mode + multi-ISO + Pc/Fc/Tc/δ outputs (G-Wizard only gives Vc/n/fz). Pro $39/mo is 5x premium justified by Compare-3up + stability lobes (G-Wizard has no comparable). Shop $249/mo (~$25/seat at 10 seats) competitive with Sandvik CoroPlus seat license (~$30/seat/mo bundled). Enterprise $999/mo floor matches Kennametal NOVO Enterprise tier.",
+    "kill_criteria": "If week-3 soft-launch yields <5 paying conversions from beta cohort of 5 shops + JM Die internal seats by week 6, kill SFC-as-standalone-revenue and bundle into PRISM platform tier instead. Indicator: NPS < 30 from beta shops = product-market-fit miss."
+  }
+}

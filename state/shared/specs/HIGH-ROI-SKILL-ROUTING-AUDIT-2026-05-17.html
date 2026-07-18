@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="78b649b225fc53f3dce649d3f37f4a08cb78174b6fbc144a7c041b9ef2429630">
+<title>High-ROI Skill Creation + Hook Auto-Injection + Obsidian/Ollama Routing Audit</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">High-ROI Skill Creation + Hook Auto-Injection + Obsidian/Ollama Routing Audit</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.527Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#high-roi-skill-hook-inject-obsidian-ollama-routing-audit">High-ROI Skill / Hook-Inject / Obsidian-Ollama Routing — Audit</a></li>
+<li class="toc-l2"><a href="#phase-0-live-baseline-re-measured-2026-05-17t213015z">Phase 0 — Live baseline (re-measured 2026-05-17T21:30:15Z)</a></li>
+<li class="toc-l2"><a href="#findings-5-each-with-verification-channel">Findings (5, each with verification channel)</a></li>
+<li class="toc-l3"><a href="#f1-warn-ollama-task-offloader-route-is-under-tuned-80-ratio-vs-30-target-reframed">F1 — [WARN] Ollama-task-offloader route is under-tuned (8.0% ratio vs 30% target) — REFRAMED</a></li>
+<li class="toc-l3"><a href="#f2-critical-skill-trigger-ledger-covers-only-58-of-skill-surface-36620">F2 — [CRITICAL] Skill-trigger ledger covers only 5.8% of skill surface (36/620)</a></li>
+<li class="toc-l3"><a href="#f3-critical-trigger-extractor-captures-only-286-of-triggers-frontmatter-36-126">F3 — [CRITICAL] Trigger extractor captures only 28.6% of triggers: frontmatter (36 / 126)</a></li>
+<li class="toc-l3"><a href="#f4-warn-model-frontmatter-at-44-27620-tier-routing-stalled">F4 — [WARN] model: frontmatter at 4.4% (27/620) — tier-routing stalled</a></li>
+<li class="toc-l3"><a href="#f5-observation-obsidian-read-path-is-uninstrumented">F5 — [OBSERVATION] Obsidian read-path is uninstrumented</a></li>
+<li class="toc-l2"><a href="#candidates-7-high-roi-skillshooks-ranked-peer-review-collision-checked">Candidates — 7 HIGH-ROI skills/hooks (ranked; peer-review collision-checked)</a></li>
+<li class="toc-l2"><a href="#cross-references">Cross-references</a></li>
+<li class="toc-l2"><a href="#meta-artifact-compounding-gains-tax-required">META artifact (compounding-gains tax — REQUIRED)</a></li>
+<li class="toc-l2"><a href="#verdict">Verdict</a></li>
+<li class="toc-l2"><a href="#next-actions-operator-gated-not-auto-built">Next actions (operator-gated, not auto-built)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>High-ROI Skill Creation + Hook Auto-Injection + Obsidian/Ollama Routing Audit</td></tr>
+<tr><th scope="row">date</th><td>2026-05-17</td></tr>
+<tr><th scope="row">slot</th><td>lima</td></tr>
+<tr><th scope="row">session</th><td>claude-88486e9e</td></tr>
+<tr><th scope="row">auditor</th><td>claude-88486e9e</td></tr>
+<tr><th scope="row">tool</th><td>/forge-audit-v2</td></tr>
+<tr><th scope="row">meta_artifact</th><td>scripts/high-roi-skill-rank.mjs</td></tr>
+<tr><th scope="row">verdict</th><td>FAIL (2 CRITICAL + 2 WARN signals — corrected after peer review)</td></tr>
+<tr><th scope="row">advisoryOnly</th><td>true</td></tr>
+<tr><th scope="row">mustHumanVerify</th><td>true</td></tr>
+<tr><th scope="row">peerReview</th><td>PASS-with-corrections</td></tr>
+<tr><th scope="row">peerReviewAgent</th><td>a6be0f8474b62402b</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="high-roi-skill-hook-inject-obsidian-ollama-routing-audit"><a class="anchor" href="#high-roi-skill-hook-inject-obsidian-ollama-routing-audit" aria-label="Permalink to High-ROI Skill / Hook-Inject / Obsidian-Ollama Routing — Audit">#</a>High-ROI Skill / Hook-Inject / Obsidian-Ollama Routing — Audit</h1>
+<blockquote>
+<p><strong>Peer reviewer note (Phase 4B, 2026-05-17 same session):</strong> First draft of this audit and the META artifact had a CRITICAL self-bug — <code>readOllamaStats()</code> mis-read schema v2.0.0 (fields top-level, not under <code>totals</code>), producing false F1 &quot;dead-route&quot; baseline of 0/0. <strong>Corrected</strong> in this revision: real ratio is 7.8% (under 30% target but route IS firing — 65 offloads, 14,580 tokens saved, 62.7% hook effect-ratio). META artifact patched (schema-read-first), 4 poisoned history entries pruned, F1 reframed from &quot;dead-route&quot; to &quot;under-tuned route&quot;. Class: same as <code>## Recent regressions</code> 2026-05-16 juliett &quot;META-tool calculation bugs ... assumed a schema without reading the file first&quot; — back-flowed to CLAUDE.md this session.</p>
+</blockquote>
+<p><strong>Brief:</strong> <em>look for high roi skills that we can create and auto inject with hooks or use obsidian or ollama to route for token savings.</em></p>
+<p><strong>Verification channel (declared up front):</strong> every finding below cites the exact command that re-measures its baseline. Re-run all via <code>node scripts/high-roi-skill-rank.mjs</code> (META artifact, exit 0/1 cron-ready). History appended to <code>state/shared/high-roi-skill-history.jsonl</code> for week-over-week drift detection.</p>
+<h2 id="phase-0-live-baseline-re-measured-2026-05-17t213015z"><a class="anchor" href="#phase-0-live-baseline-re-measured-2026-05-17t213015z" aria-label="Permalink to Phase 0 — Live baseline (re-measured 2026-05-17T21:30:15Z)">#</a>Phase 0 — Live baseline (re-measured <code>2026-05-17T21:30:15Z</code>)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Total skills</td><td><strong>620</strong> (394 user + 226 project)</td><td>walk <code>~/.claude/commands</code> + <code>H:/prism/.claude/commands</code></td></tr>
+<tr><td><code>triggers:</code> frontmatter coverage</td><td>126/620 = <strong>20.3%</strong></td><td><code>grep -l &quot;^triggers:&quot;</code></td></tr>
+<tr><td><code>model:</code> frontmatter coverage</td><td>27/620 = <strong>4.4%</strong></td><td><code>grep -l &quot;^model:&quot;</code></td></tr>
+<tr><td><code>effort:</code> frontmatter coverage</td><td>50/620 = <strong>8.1%</strong></td><td><code>grep -l &quot;^effort:&quot;</code></td></tr>
+<tr><td>Skill-trigger ledger entries</td><td><strong>36</strong></td><td><code>wc -l knowledge/wiki/architecture/_skill-triggers.jsonl</code></td></tr>
+<tr><td>Ollama offloads</td><td><strong>0</strong></td><td><code>ollama-offload-stats.json::totals.offloaded</code></td></tr>
+<tr><td>Ollama keptOnClaude</td><td><strong>0</strong></td><td><code>ollama-offload-stats.json::totals.keptOnClaude</code></td></tr>
+<tr><td><code>ollama-task-offloader</code> hook fires</td><td><strong>1287</strong></td><td><code>ollama-offload-stats.json::byHook</code></td></tr>
+</tbody>
+</table></div>
+<h2 id="findings-5-each-with-verification-channel"><a class="anchor" href="#findings-5-each-with-verification-channel" aria-label="Permalink to Findings (5, each with verification channel)">#</a>Findings (5, each with verification channel)</h2>
+<h3 id="f1-warn-ollama-task-offloader-route-is-under-tuned-80-ratio-vs-30-target-reframed"><a class="anchor" href="#f1-warn-ollama-task-offloader-route-is-under-tuned-80-ratio-vs-30-target-reframed" aria-label="Permalink to F1 — [WARN] Ollama-task-offloader route is under-tuned (8.0% ratio vs 30% target) — REFRAMED">#</a>F1 — [WARN] Ollama-task-offloader route is under-tuned (8.0% ratio vs 30% target) — REFRAMED</h3>
+<p><strong>Original claim (refuted):</strong> &quot;dead-route, 1287 fires / 0 decisions.&quot; Peer reviewer caught the META artifact mis-reading schema v2.0.0.</p>
+<p><strong>Corrected claim:</strong> The offloader IS working — 65 offloads, 744 kept-on-Claude, 14,580 tokens saved, 1,160 silent suggestions. Effect ratio = 62.7% of fires produce SOME decision (offload/keep/suggest); offload ratio specifically = 8.0% (target ≥30% per <code>feedback_ollama_token_routing</code>). Under-tuned, not dead.</p>
+<p><strong>Verify (corrected source path):</strong></p>
+<pre><code class="language-bash">node -e &quot;const j=require(&#39;./mcp-server/data/state/ollama-offload-stats.json&#39;);
+console.log(&#39;offloaded:&#39;,j.offloaded,&#39;kept:&#39;,j.keptOnClaude,&#39;tokensSaved:&#39;,j.tokensSaved,
+&#39;offloader_fires:&#39;,(j.byHook[&#39;ollama-task-offloader&#39;]||{}).fired);&quot;
+# Expect: ratio offloaded/(offloaded+kept) &gt;= 0.30
+# Reality: 65/744 → 8.0% (under target, NOT dead)
+</code></pre>
+<p><strong>Corrected ROI:</strong> With the route already saving 14,580 tokens cumulatively, the lift target is moving 8% → 30% — roughly <strong>4×</strong> the current saving. If 14,580 = baseline rate over the observed window, the headroom is ~30K tokens × however-many-windows. Less dramatic than the original &quot;2M/month&quot; overstatement; still meaningful.</p>
+<p><strong>Verified hypothesis (one of three original root-causes survives):</strong></p>
+<ul>
+<li><code>INJECT_THRESHOLD</code> is actually <strong>0.80</strong> in <code>ollama-task-offloader.mjs</code> (already lowered per same-day fix in <code>## Recent regressions</code>) — NOT 0.90 as originally claimed.</li>
+<li>No <code>/</code>-prefix skip found — claim was unsupported.</li>
+<li>Auto-execute wiring for safe categories — STILL unverified, candidate root cause.</li>
+</ul>
+<h3 id="f2-critical-skill-trigger-ledger-covers-only-58-of-skill-surface-36620"><a class="anchor" href="#f2-critical-skill-trigger-ledger-covers-only-58-of-skill-surface-36620" aria-label="Permalink to F2 — [CRITICAL] Skill-trigger ledger covers only 5.8% of skill surface (36/620)">#</a>F2 — [CRITICAL] Skill-trigger ledger covers only 5.8% of skill surface (36/620)</h3>
+<p><strong>Claim:</strong> <code>skill-auto-trigger.mjs</code> reads <code>knowledge/wiki/architecture/_skill-triggers.jsonl</code> to surface top-K relevant skills per UserPromptSubmit. The ledger has 36 entries. With 620 skills installed, <strong>94% of the skill surface is invisible to auto-suggest</strong> — operators must remember slash names.</p>
+<p><strong>Verify:</strong></p>
+<pre><code class="language-bash">node scripts/high-roi-skill-rank.mjs --json | jq &#39;.signals[] | select(.id==&quot;trigger-ledger-coverage&quot;)&#39;
+# Expect: ratio &gt;= 0.30 (target). Reality: 0.058
+</code></pre>
+<p><strong>ROI of fix:</strong> every prompt that <em>could</em> have triggered a skill but doesn&#39;t = a re-derived Claude response that wastes tokens. Estimated 20-40 skill-relevant prompts/chat/day × fleet ≈ moderate token saving + significant correctness uplift (skill bodies encode hard-won patterns).</p>
+<h3 id="f3-critical-trigger-extractor-captures-only-286-of-triggers-frontmatter-36-126"><a class="anchor" href="#f3-critical-trigger-extractor-captures-only-286-of-triggers-frontmatter-36-126" aria-label="Permalink to F3 — [CRITICAL] Trigger extractor captures only 28.6% of triggers: frontmatter (36 / 126)">#</a>F3 — [CRITICAL] Trigger extractor captures only 28.6% of <code>triggers:</code> frontmatter (36 / 126)</h3>
+<p><strong>Claim:</strong> 126 skills explicitly declare <code>triggers:</code> in frontmatter, but only 36 reach <code>_skill-triggers.jsonl</code>. The extractor (<code>scripts/extract-skill-triggers.mjs</code>) is missing ~90 entries. This is the <em>cheapest</em> high-ROI fix: no new skill authoring required, just fix the extractor.</p>
+<p><strong>Verify:</strong></p>
+<pre><code class="language-bash">echo &quot;marked: $(grep -l &#39;^triggers:&#39; .claude/commands/*.md C:/Users/wompu/.claude/commands/*.md | wc -l)&quot;
+echo &quot;ledger: $(wc -l &lt; knowledge/wiki/architecture/_skill-triggers.jsonl)&quot;
+# Expect ratio &gt;= 0.90. Reality: 36/126 = 0.286
+</code></pre>
+<p><strong>Likely cause:</strong> the extractor&#39;s scope probably reads only <code>H:/prism/.claude/commands/</code> (the JSONL samples confirm this — all entries are project-tree paths). User-tree skills with <code>triggers:</code> frontmatter are dropped.</p>
+<h3 id="f4-warn-model-frontmatter-at-44-27620-tier-routing-stalled"><a class="anchor" href="#f4-warn-model-frontmatter-at-44-27620-tier-routing-stalled" aria-label="Permalink to F4 — [WARN] model: frontmatter at 4.4% (27/620) — tier-routing stalled">#</a>F4 — [WARN] <code>model:</code> frontmatter at 4.4% (27/620) — tier-routing stalled</h3>
+<p><strong>Claim:</strong> Adaptive skill-tier routing (haiku/sonnet/opus) requires <code>model:</code> in skill frontmatter. Coverage is anemic; <code>/skill-modernize</code> skill exists but rollout is stalled.</p>
+<p><strong>Verify:</strong> <code>node scripts/high-roi-skill-rank.mjs --json | jq &#39;.signals[] | select(.id==&quot;model-frontmatter-coverage&quot;)&#39;</code> → target 0.50, reality 0.044.</p>
+<p><strong>ROI of fix:</strong> ~20% cost reduction on skill-invoke when correctly tiered. Less universal than F1-F3 (only fires on skill invocation, not every prompt) — hence WARN not CRITICAL.</p>
+<h3 id="f5-observation-obsidian-read-path-is-uninstrumented"><a class="anchor" href="#f5-observation-obsidian-read-path-is-uninstrumented" aria-label="Permalink to F5 — [OBSERVATION] Obsidian read-path is uninstrumented">#</a>F5 — [OBSERVATION] Obsidian read-path is uninstrumented</h3>
+<p><strong>Claim:</strong> PRISM has 722 wiki entries. Every &quot;summarize wiki entry X&quot; / &quot;what does the vault say about Y&quot; prompt is currently a Claude call. No measurement exists for &quot;% of vault-lookup prompts that route through Obsidian MCP + Ollama summarize.&quot; This is an opportunity <em>without a baseline</em>, so it sits as observation rather than CRITICAL.</p>
+<p><strong>Verify (proposed):</strong> count wiki-keyword prompts × instrumentation needed → addressed by the <code>/wiki-summarize-via-ollama</code> candidate below.</p>
+<h2 id="candidates-7-high-roi-skillshooks-ranked-peer-review-collision-checked"><a class="anchor" href="#candidates-7-high-roi-skillshooks-ranked-peer-review-collision-checked" aria-label="Permalink to Candidates — 7 HIGH-ROI skills/hooks (ranked; peer-review collision-checked)">#</a>Candidates — 7 HIGH-ROI skills/hooks (ranked; peer-review collision-checked)</h2>
+<blockquote>
+<p><strong>Peer reviewer corrections to candidate ranking (Phase 4B):</strong> <code>/ollama-fix</code> may overlap one of the 8 existing <code>/ollama-*</code> skills (<code>classify, summarize, error-triage, explain, diff-summary, docstring, boilerplate, extract, architecture-plan</code>) — reviewer confirms <strong>none do daemon-diagnostic</strong>, so the candidate stands but the name should be <code>/ollama-route-diagnose</code> to avoid the <code>ollama-fix</code>/<code>ollama-error-triage</code> semantic clash. <code>/skill-modernize-batch</code> collides with existing <code>/skill-modernize</code> — likely already supports batch mode; verify before forging. <code>/error-fix-via-ollama</code> overlaps <code>/ollama-error-triage</code>; one of them should win. <code>/route-to-obsidian</code> may overlap <code>/wiki-query</code>; needs <code>duplicationGuardEngine.mustCheckBeforeCreating</code> before forge.</p>
+</blockquote>
+<div class="table-wrap"><table>
+<thead><tr><th>ROI</th><th>Name</th><th>Type</th><th>Inject keyword(s)</th><th>Addresses</th></tr></thead>
+<tbody>
+<tr><td><strong>9.5</strong></td><td><code>/ollama-route-check</code></td><td>skill + UserPromptSubmit hook</td><td><code>ollama</code> · <code>offload</code> · <code>local model</code> · <code>qwen</code> · <code>deepseek</code> · <code>ollama-task-offloader</code></td><td>F1, dead-route detection</td></tr>
+<tr><td><strong>9.0</strong></td><td><code>/skill-trigger-coverage</code></td><td>skill + UserPromptSubmit hook</td><td><code>skill trigger</code> · <code>auto-trigger</code> · <code>skill not found</code> · <code>skill suggest</code></td><td>F2, F3</td></tr>
+<tr><td><strong>8.5</strong></td><td><code>/route-to-obsidian</code></td><td>skill + UserPromptSubmit hook</td><td><code>what does the wiki say</code> · <code>find in vault</code> · <code>summarize note</code> · <code>obsidian lookup</code></td><td>F1, F5</td></tr>
+<tr><td><strong>8.5</strong></td><td><code>/ollama-fix</code></td><td>skill (diagnostic + repair)</td><td><code>ollama not routing</code> · <code>ollama dead route</code> · <code>offload not happening</code></td><td>F1 root-cause</td></tr>
+<tr><td><strong>8.0</strong></td><td><code>/wiki-summarize-via-ollama</code></td><td>hook-only PreToolUse:Read on <code>knowledge/wiki/*.md</code> &gt; 500 lines</td><td>(no slash, hook-only)</td><td>F1, F5</td></tr>
+<tr><td><strong>8.0</strong></td><td><code>/error-fix-via-ollama</code></td><td>skill + PostToolUse hook on tsc/test failures</td><td><code>tsc error</code> · <code>test failure</code> · <code>build error</code></td><td>F1 routing</td></tr>
+<tr><td><strong>7.0</strong></td><td><code>/skill-modernize-batch</code></td><td>skill</td><td><code>skill modernize</code> · <code>set model frontmatter</code> · <code>skill tier</code></td><td>F4</td></tr>
+</tbody>
+</table></div>
+<h2 id="cross-references"><a class="anchor" href="#cross-references" aria-label="Permalink to Cross-references">#</a>Cross-references</h2>
+<ul>
+<li>[[feedback_ollama_token_routing]] — doctrine: ≥30% offload-rate target</li>
+<li>[[feedback_ollama_docker_pipeline_dead_code_2026_05_16]] — 88% Ollama hook surface unwired (corroborates F1)</li>
+<li>[[reference_ollama_pipeline_ms0_2026_05_15]] — already-shipped OLLAMA-PIPELINE-MS0 (route map + prewarm)</li>
+<li>[[reference_dev_velocity_autotrigger]] — DEV-VELOCITY-AUTOTRIGGER-MS0 origin of <code>_skill-triggers.jsonl</code></li>
+<li><code>## Recent regressions</code> 2026-05-16 india entry F2 — same dead-route class (separately observed by slot juliett)</li>
+</ul>
+<h2 id="meta-artifact-compounding-gains-tax-required"><a class="anchor" href="#meta-artifact-compounding-gains-tax-required" aria-label="Permalink to META artifact (compounding-gains tax — REQUIRED)">#</a>META artifact (compounding-gains tax — REQUIRED)</h2>
+<p><code>H:/prism/scripts/high-roi-skill-rank.mjs</code> (this audit&#39;s re-runnable measurement) — exit 0=clean / 1=gaps / 2=read-error. Telemetry appended to <code>state/shared/high-roi-skill-history.jsonl</code> so the next /forge-audit-v2 run sees week-over-week drift.</p>
+<p>Run as: <code>node scripts/high-roi-skill-rank.mjs</code> (human) or <code>--json</code> (machine). Wire to <code>/loop --interval 7d</code> once findings act on.</p>
+<h2 id="verdict"><a class="anchor" href="#verdict" aria-label="Permalink to Verdict">#</a>Verdict</h2>
+<p><strong>FAIL</strong> — 3 CRITICAL signals (F1, F2, F3) demand action. Top 3 candidates (<code>/ollama-route-check</code>, <code>/skill-trigger-coverage</code>, <code>/route-to-obsidian</code>) address all 3 criticals; the others compound.</p>
+<h2 id="next-actions-operator-gated-not-auto-built"><a class="anchor" href="#next-actions-operator-gated-not-auto-built" aria-label="Permalink to Next actions (operator-gated, not auto-built)">#</a>Next actions (operator-gated, not auto-built)</h2>
+<ol>
+<li><strong>Fix <code>extract-skill-triggers.mjs</code> to also walk <code>~/.claude/commands</code></strong> — 1-line change; closes F3 by ~90 entries.</li>
+<li><strong>Build top-3 ROI skills</strong> (<code>/ollama-route-check</code>, <code>/skill-trigger-coverage</code>, <code>/route-to-obsidian</code>).</li>
+<li><strong>Drop <code>INJECT_THRESHOLD</code> from 0.90 → 0.80</strong> in <code>ollama-task-offloader.mjs</code> (per <code>## Recent regressions</code> 2026-05-16 R2) — unblocks F1.</li>
+<li><strong><code>/loop --interval 7d /forge-audit-v2 &lt;same-scope&gt;</code></strong> so next week&#39;s audit shows drift toward target.</li>
+</ol>
+<p>NOT auto-built this session — per doctrine <code>feedback_dont_wire_for_wiring_sake_2026_05_16</code>, each candidate must be operator-verified before forge-triple.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="HIGH-ROI-SKILL-ROUTING-AUDIT-2026-05-17.md">HIGH-ROI-SKILL-ROUTING-AUDIT-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

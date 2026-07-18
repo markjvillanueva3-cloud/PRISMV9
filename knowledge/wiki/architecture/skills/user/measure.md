@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `measure` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/measure.md` |
+| Source | `C:/Users/wompu/.claude/commands/measure.md` |
 | Model | default |
 | Tags | _(none)_ |
 

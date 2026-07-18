@@ -1,0 +1,54 @@
+{
+  "id": "SCHEMA-MIGRATION-RUNNER-MS27",
+  "version": "1.0.0",
+  "title": "Versioned migration runner for 26 registries + state JSONs",
+  "brief": "Every state JSON requires schemaVersion per CLAUDE.md but there is no migration runner for breaking changes across 26 registries. Risk: schema bumps without migration silently corrupt. This MS builds the runner + N-1 compat enforcement.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "L0-INFRA",
+  "track_name": "Dev Infrastructure / Schema Discipline",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Migration runner + CI gate",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "MigrationRunnerEngine: discover, plan, apply, rollback",
+          "effort": 120,
+          "dependencies": [],
+          "exit_conditions": ["engine reads src/migrations/ for ordered N -> N+1 transforms", "plan output: targets[], current vs target version", "apply: dry-run mode + --commit", "rollback: restores backup tarball"],
+          "description": "Per CLAUDE.md migrations live in src/migrations/. Engine orchestrates apply + rollback.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Stage 1 breaking-change migration (proof of life)",
+          "effort": 90,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["1 staged migration ships (e.g. add fk to InsertRegistry pointing at HolderRegistry)", "round-trip: pre-migration JSON -> post-migration JSON -> rollback -> byte-identical", "tests: corrupted source JSON -> migration aborts cleanly"],
+          "description": "Real migration to validate the runner. Use the new registries from MS0a as the test bed.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "CI gate: block merges that bump schemaVersion without migration",
+          "effort": 60,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": ["pre-commit hook checks: any schemaVersion bump must have matching src/migrations/<from>-><to>.ts", "test: PR that bumps version without migration is blocked"],
+          "description": "Hook integration. Reuses existing PreCommit infra.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "migration runner upgrades N-1 schemas with rollback path; tested on 1 staged breaking-change migration; CI gate blocks unmigrated schemaVersion bumps.",
+  "risks": [
+    {"id": "R1", "description": "Migration on live state JSON during a running session corrupts in-flight work; mitigation = Stop-hook quiesce + lock-all-claims gate before run"}
+  ],
+  "blocks": ["SHIP-RELEASE-MS19"],
+  "blocked_by": ["ATOM-REGISTRY-AUDIT-MS0a"]
+}

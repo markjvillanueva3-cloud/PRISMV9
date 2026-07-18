@@ -1,0 +1,542 @@
+{
+  "id": "CADCAM-DAGI-MS7",
+  "version": "1.0.0",
+  "title": "E2E Pipeline Integration — Print-to-Shipped AGI",
+  "brief": "Full end-to-end integration: print/description → CAD model (MS0-3) → CAM program (MS4) → optimized G-code (MS6) → adaptive execution (MS5) → shipped part. JM Die 24,545 programs as regression corpus. Target: beat human programmers on 80%+ of real parts on cycle time + quality.",
+  "track": "CAD-CAM-DEEPAGI",
+  "parent": "CADCAM-DEEPAGI-MASTER",
+  "status": "not_started",
+  "priority": "P0",
+  "omega_target": 1,
+  "created_at": "2026-04-18T22:05:00Z",
+  "created_by": "forge /rgs via Opus 4.7",
+  "dependencies": [
+    "CADCAM-DAGI-MS0",
+    "CADCAM-DAGI-MS1",
+    "CADCAM-DAGI-MS2",
+    "CADCAM-DAGI-MS3",
+    "CADCAM-DAGI-MS4",
+    "CADCAM-DAGI-MS5",
+    "CADCAM-DAGI-MS6"
+  ],
+  "total_units": 8,
+  "total_sessions": 4,
+  "completed_units": 0,
+  "session_plan": [
+    {
+      "session": 1,
+      "units": [
+        "U-DAE2E01",
+        "U-DAE2E02"
+      ],
+      "title": "Pipeline Orchestrator + Input Parsing",
+      "smart_config": {
+        "role": "Systems Integration Architect + NLP Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "All 6 prior milestones' feature cascades",
+          "PRINT-TO-PROGRAM existing pipeline",
+          "JM Die print formats (PDF, DWG, STEP, legacy paper)"
+        ]
+      }
+    },
+    {
+      "session": 2,
+      "units": [
+        "U-DAE2E03",
+        "U-DAE2E04"
+      ],
+      "title": "CAD→CAM Handoff + Machine Selection",
+      "smart_config": {
+        "role": "Process Planner + Shop Floor Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "ShopConfigurationEngine (21 JM Die machines)",
+          "Existing MachineSetupEngine",
+          "Feature cascade from MS3 (CAD validation receipt)"
+        ]
+      }
+    },
+    {
+      "session": 3,
+      "units": [
+        "U-DAE2E05",
+        "U-DAE2E06"
+      ],
+      "title": "JM Die Regression Corpus + Benchmark",
+      "smart_config": {
+        "role": "ML Benchmark Engineer + Master Machinist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "JM Die programs root (H:/PRISM/JM DIE/)",
+          "5,297 .MIN files, 3,713 .mcx-8 files, 1,825 legacy .MCX",
+          "Success criteria: 80%+ AGI beats human on cycle time + quality"
+        ]
+      }
+    },
+    {
+      "session": 4,
+      "units": [
+        "U-DAE2E07",
+        "U-DAE2E08"
+      ],
+      "title": "Shipped-Part Validation + Master Dispatcher",
+      "smart_config": {
+        "role": "QA Lead + Dispatcher Architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "PRISM quality telemetry (job-history.json, parameter-priors.json)",
+          "All 7 sub-milestone dispatchers",
+          "Shipped-part validation (FAI per AS9102)"
+        ]
+      }
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "U-DAE2E01",
+      "title": "PrintToShippedOrchestratorEngine — master pipeline controller",
+      "intent": "Master state machine for print → shipped. Stages: ingest → CAD → validate CAD → CAM plan → post → execute → QA. Each stage has exit gate; failure → automatic replan or human escalation.",
+      "files_created": [
+        "mcp-server/src/engines/PrintToShippedOrchestratorEngine.ts",
+        "mcp-server/src/data/pipeline-state-machine.json",
+        "mcp-server/src/__tests__/PrintToShippedOrchestratorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "State machine. Stage transitions with gates. Rollback/retry policies. Human-in-loop hooks.",
+        "loop_2_scrutinize": "Systems architect + formal methods reviewer. Check: state machine completeness, deadlock freedom.",
+        "loop_3_gap_fill": "Concurrent-part handling, pipeline scheduling.",
+        "loop_4_tie_up": "JSDoc. Pipeline operator guide."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-2e-2",
+        "machinist_acceptance": "10 test parts traverse full pipeline end-to-end with 100% success.",
+        "abort_criteria": "If pipeline stalls or deadlocks.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 30,
+        "coverage_target": "96%"
+      },
+      "forge_triple": {
+        "hook": "pipeline-stall-detector",
+        "action": "e2e.orchestrate",
+        "skill": "/print-to-ship"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "PrintToShippedOrchestratorEngine — master pipeline controller — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAE2E01"
+    },
+    {
+      "unit_id": "U-DAE2E02",
+      "title": "PrintIngestEngine — PDF/DWG/STEP/text parser",
+      "intent": "Parse all input formats: PDF (OCR + GD&T), DWG/DXF (geometry extraction), STEP/IGES (direct import), text description (NLP via text-to-CAD). Output: unified spec object.",
+      "files_created": [
+        "mcp-server/src/engines/PrintIngestEngine.ts",
+        "mcp-server/src/engines/adapters/PDFGDTExtractorAdapter.ts",
+        "mcp-server/src/__tests__/PrintIngestEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/TextToCADGenerationEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Format-dispatch parser. PDF: Tesseract + GD&T regex + view recognition. DWG: ODA/LibreDWG. STEP: already supported.",
+        "loop_2_scrutinize": "NLP + drafting expert. Check: GD&T extraction correctness (feedback FCF control frames).",
+        "loop_3_gap_fill": "Hand-drawn print support (image → vectorized sketch).",
+        "loop_4_tie_up": "JSDoc. Format support matrix."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "95%+ spec extraction accuracy on 20 JM Die PDFs + 20 STEP/DWG files.",
+        "abort_criteria": "If PDF extraction < 80%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 25,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "print-ingest-confidence-gate",
+        "action": "e2e.ingest",
+        "skill": "/print-ingest"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "PrintIngestEngine — PDF/DWG/STEP/text parser — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAE2E02"
+    },
+    {
+      "unit_id": "U-DAE2E03",
+      "title": "CADCAMHandoffEngine — enforce validation receipt chain",
+      "intent": "CAD model with MS3 validation receipt flows to CAM. CAM refuses without valid receipt. Likewise CAM→Post, Post→Exec. Receipts are HMAC-signed, auditable.",
+      "files_created": [
+        "mcp-server/src/engines/CADCAMHandoffEngine.ts",
+        "mcp-server/src/engines/adapters/ReceiptSigningAdapter.ts",
+        "mcp-server/src/__tests__/CADCAMHandoffEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Receipt data model. HMAC signing. Verification at every handoff. Audit log.",
+        "loop_2_scrutinize": "Security reviewer + QA. Check: no bypass, key rotation policy, audit tamper-proof.",
+        "loop_3_gap_fill": "Emergency override with manager approval + audit trail.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "100% of handoffs enforce receipt; 0 bypass found in red-team testing.",
+        "abort_criteria": "If bypass discovered.",
+        "rollback_procedure": "git revert — but pipeline cannot ship without this gate.",
+        "tests_required": 15,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "handoff-receipt-enforcer (Stop hook)",
+        "action": "e2e.handoff",
+        "skill": "/handoff-status"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CADCAMHandoffEngine — enforce validation receipt chain — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAE2E03"
+    },
+    {
+      "unit_id": "U-DAE2E04",
+      "title": "OptimalMachineSelectorEngine — shop-floor-aware routing",
+      "intent": "Select optimal machine from 21 JM Die machines given part characteristics. Balance capability, load, operator skill. Can split ops across machines (rough on Okuma, EDM on Mitsubishi).",
+      "files_created": [
+        "mcp-server/src/engines/OptimalMachineSelectorEngine.ts",
+        "mcp-server/src/__tests__/OptimalMachineSelectorEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/ShopConfigurationEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Capability matcher. Load-aware (current queue). Multi-op routing.",
+        "loop_2_scrutinize": "Shop floor foreman + scheduling expert. Check: load balancing, operator skill alignment.",
+        "loop_3_gap_fill": "Emergency re-route on machine down. Cost-optimal split.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Shop foreman agrees with 85%+ machine selections on 30 part samples.",
+        "abort_criteria": "If foreman approval < 70%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "machine-capability-match-validator",
+        "action": "e2e.machineSelect",
+        "skill": "/select-machine"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "OptimalMachineSelectorEngine — shop-floor-aware routing — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAE2E04"
+    },
+    {
+      "unit_id": "U-DAE2E05",
+      "title": "JMDieRegressionCorpusEngine — 24,545 program benchmark harness",
+      "intent": "Load full JM Die program corpus as regression harness. For each program: extract original part (STEP/drawing), run AGI pipeline, compare output program vs reference. Metrics: cycle time, tool life, surface finish (predicted), safety.",
+      "files_created": [
+        "mcp-server/src/engines/JMDieRegressionCorpusEngine.ts",
+        "mcp-server/src/data/jm-die-regression-metadata.json",
+        "mcp-server/src/__tests__/JMDieRegressionCorpusEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Corpus indexer. Reference-program parser. Pipeline invocation harness. Metric comparator.",
+        "loop_2_scrutinize": "ML benchmark engineer + master machinist. Check: metric definitions, fair comparison discipline.",
+        "loop_3_gap_fill": "Incremental corpus updates, shadow mode (AGI runs alongside human, no shipping).",
+        "loop_4_tie_up": "JSDoc. Benchmark protocol document."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Full corpus runs in < 24 hours. Metrics collected for 100% of programs.",
+        "abort_criteria": "If > 10% programs can't be compared.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "regression-corpus-integrity-check",
+        "action": "e2e.regressionRun",
+        "skill": "/regression-corpus"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "JMDieRegressionCorpusEngine — 24,545 program benchmark harness — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAE2E05"
+    },
+    {
+      "unit_id": "U-DAE2E06",
+      "title": "AGIvsHumanBenchmarkEngine — beat-humans scorecard",
+      "intent": "Scorecard: % of 24,545 programs where AGI output beats or matches human on cycle time AND surface finish AND tool life. Target: >= 80% wins. Publish board-level dashboard.",
+      "files_created": [
+        "mcp-server/src/engines/AGIvsHumanBenchmarkEngine.ts",
+        "mcp-server/src/__tests__/AGIvsHumanBenchmarkEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Win-condition predicates. Aggregator. Dashboard JSON output.",
+        "loop_2_scrutinize": "ML evaluator + QA. Check: statistical significance (binomial test), corpus balance.",
+        "loop_3_gap_fill": "Breakdown by material, operation type, customer.",
+        "loop_4_tie_up": "JSDoc. Benchmark reporting cadence."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-2e-2",
+        "machinist_acceptance": "AGI wins on >= 80% of representative subset (1,000 programs). Statistically significant (p < 0.01).",
+        "abort_criteria": "If AGI wins < 60%, do not ship — retrain MS4.",
+        "rollback_procedure": "git revert. Do not promote AGI to production until >= 80%.",
+        "tests_required": 18,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "benchmark-significance-gate (Stop hook, blocks production deploy)",
+        "action": "e2e.benchmark",
+        "skill": "/agi-vs-human"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AGIvsHumanBenchmarkEngine — beat-humans scorecard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAE2E06"
+    },
+    {
+      "unit_id": "U-DAE2E07",
+      "title": "ShippedPartValidatorEngine — FAI-grade outcome verification",
+      "intent": "After physical part is produced, compare CMM inspection vs CAD model. If out-of-tol, feed back to MS5 (adaptive exec retrain) or MS4 (strategy retrain).",
+      "files_created": [
+        "mcp-server/src/engines/ShippedPartValidatorEngine.ts",
+        "mcp-server/src/__tests__/ShippedPartValidatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "CMM data ingestion. Feature-by-feature compare. Root-cause analyzer (which stage caused deviation?).",
+        "loop_2_scrutinize": "FAI expert + AS9102 compliance. Check: measurement traceability, statistical control.",
+        "loop_3_gap_fill": "Non-CMM inspection (vision, gage, touch probe).",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Generate AS9102-compliant FAI reports for 10 first-article parts; 100% accepted by JM Die QA.",
+        "abort_criteria": "If QA rejects > 10%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "fai-compliance-gate",
+        "action": "e2e.faiValidate",
+        "skill": "/fai-generate"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ShippedPartValidatorEngine — FAI-grade outcome verification — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAE2E07"
+    },
+    {
+      "unit_id": "U-DAE2E08",
+      "title": "MS7 Master Dispatcher + Full System Cascade",
+      "intent": "Wire 7 new engines into master dispatcher. 8 new actions. 8 new skills. Final feature cascade — entire DAGI system operational.",
+      "files_created": [
+        "mcp-server/src/data/CADCAM_DAGI_MS7_CASCADE.json",
+        "mcp-server/src/data/CADCAM_DAGI_FULL_SYSTEM_CASCADE.json",
+        "mcp-server/src/__tests__/cadCamDeepAgiDispatcher.ms7.test.ts",
+        "mcp-server/src/__tests__/cadCamDeepAgiDispatcher.e2e.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/cadCamDeepAgiDispatcher.ts",
+        "mcp-server/src/tools/toolIndex.ts",
+        "mcp-server/src/hooks/registry.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Full dispatcher assembly. End-to-end test (print → shipped simulated). Master cascade JSON.",
+        "loop_2_scrutinize": "Final integration reviewer + master machinist. Check: no gap, all actions routable.",
+        "loop_3_gap_fill": "Missing schemas/routes.",
+        "loop_4_tie_up": "Final cascade + operator runbook."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-2e-2",
+        "machinist_acceptance": "E2E test with 5 real JM Die prints produces shippable G-code, FAI-passing parts.",
+        "abort_criteria": "If any E2E stage fails.",
+        "rollback_procedure": "git revert full MS7.",
+        "tests_required": 30,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "e2e-smoke-test-gate",
+        "action": "e2e.full",
+        "skill": "/dagi-status"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MS7 Master Dispatcher + Full System Cascade — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAE2E08"
+    }
+  ],
+  "feature_cascade": {
+    "new_hooks": 8,
+    "new_actions": 8,
+    "new_skills": 8,
+    "total_system_exposure": {
+      "total_hooks_across_all_ms": 79,
+      "total_actions_across_all_ms": 96,
+      "total_skills_across_all_ms": 84,
+      "_note": "Counts corrected per RGS Stage 10 scrutiny (code_analyzer finding). Original projection of 86/96/96 was inconsistent with per-MS cascade sums. Canonical counts: MS0(5h/14a/8s) + MS1(15h/16a/16s) + MS2(13h/14a/14s) + MS3(10h/10a/10s) + MS4(10h/16a/10s) + MS5(10h/10a/10s) + MS6(8h/8a/8s) + MS7(8h/8a/8s) = 79h/96a/84s"
+    },
+    "production_gate": "AGIvsHumanBenchmarkEngine must score >= 80% before production deploy"
+  },
+  "final_acceptance_criteria": [
+    "80%+ of JM Die 24,545-program corpus: AGI beats or matches human on cycle time + surface finish + tool life",
+    "100% of generated CAD models pass MS3 validation without human rework",
+    "0 safety incidents in 100-hour production burn-in",
+    "Shop foreman signs off on system replacing current CAM operators"
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-dagi-ms7-gate",
+    "mcp_action": "prism_cad-cam-deepagi:cadcam_dagi_ms7_run",
+    "skill_command": "/cadcam-dagi-ms7",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Full end-to-end integration: print/description → CAD model (MS0-3) → CAM program (MS4) → optimized G-code (MS6) → adaptive execution (MS5) → shipped part. JM Die 24,545 programs as regression corpus. Target: beat human programmers on 80%+ of real parts on cycle time + quality.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

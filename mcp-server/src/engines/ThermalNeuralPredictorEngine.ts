@@ -149,6 +149,13 @@ export class ThermalNeuralPredictorEngine {
   };
   private outputWeights: { W: number[][]; b: number[] };
   private hiddenSize = 32;
+  // No training/checkpoint path exists for this LSTM -- the Xavier init below is RANDOM,
+  // so an ungated forward pass would randomize the interface temperature +-20% per process
+  // start (nondeterministic thermal safety output). Until a real trained checkpoint loader
+  // lands, the neural correction is gated to 0 and predictions are the deterministic
+  // Loewen-Shaw physics base (row 2 of the verified SFC fix-plan; same class as the
+  // ForceNeuralPredictorEngine gate, U-OSC-SFC-FORCENEURAL-GATE-CANONICAL).
+  private weightsTrained = false;
 
   constructor() {
     this.lstmWeights = this.initializeLSTMWeights();
@@ -168,8 +175,10 @@ export class ThermalNeuralPredictorEngine {
     const lstmState = this.initLSTMState();
     const lstmOutput = this.lstmForward(features, lstmState);
 
-    const neuralCorrection = lstmOutput[0];
-    const heatPartitionCorrection = lstmOutput.slice(1, 4);
+    // Untrained (random Xavier) weights -> correction 0: deterministic physics base, never a
+    // random +-20% swing on a thermal safety quantity. Flips live only via weightsTrained.
+    const neuralCorrection = this.weightsTrained ? lstmOutput[0] : 0;
+    const heatPartitionCorrection = this.weightsTrained ? lstmOutput.slice(1, 4) : [0, 0, 0];
 
     const interfaceTemp = physicsBase.loewen_shaw_c * (1 + neuralCorrection * 0.2);
     const temperatures = this.computeTemperatureDistribution(

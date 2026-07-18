@@ -1,0 +1,31 @@
+{
+  "base_model": "unsloth/Qwen2.5-Coder-7B-bnb-4bit",
+  "dataset_path": "H:/prism-slot-mike/mcp-server/data/training/wedm-knowledge/wedm_knowledge_train.jsonl",
+  "output_dir": "models/wedm-lora",
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "target_modules": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "learning_rate": 0.0002,
+  "batch_size": 2,
+  "gradient_accumulation": 4,
+  "num_epochs": 3,
+  "max_seq_length": 2048,
+  "warmup_ratio": 0.03,
+  "weight_decay": 0.01,
+  "use_4bit": true,
+  "use_gradient_checkpointing": true,
+  "logging_steps": 10,
+  "save_steps": 100,
+  "eval_steps": 100,
+  "fp16": false,
+  "bf16": true
+}

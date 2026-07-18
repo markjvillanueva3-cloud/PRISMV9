@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `gdnt-check` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/gdnt-check.md` |
+| Source | `C:/Users/wompu/.claude/commands/gdnt-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

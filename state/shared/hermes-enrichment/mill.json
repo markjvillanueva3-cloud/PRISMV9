@@ -1,0 +1,431 @@
+{
+  "domain": "mill",
+  "items": [
+    {
+      "title": "Select shrink-fit holders over ER collets for carbide tools under 6 mm to keep runout below one flute's chip load and prevent uneven wear.",
+      "formula": "Max TIR threshold = 0.003 mm for D ≤ 6 mm.",
+      "cite": "Sandvik Coromant Milling Technical Guide, 2022 ed., p. 68, section 4.2.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:05.479Z"
+    },
+    {
+      "title": "Mandate G2.5 balanced holders for all assemblies run above 10,000 RPM to keep centrifugal force under 10 N.",
+      "formula": "Allowable unbalance U (g·mm) = (9549 × G × m) / RPM with G=2.5 and m in kg.",
+      "cite": "ISO 1940-1:2003 as cited in Big Kaiser Precision Tooling Catalog, p. 22, section \"Balance\".",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:05.479Z"
+    },
+    {
+      "title": "Choose hydraulic chucks when axial pull-out force must exceed 4× cutting torque to eliminate tool slip in roughing.",
+      "formula": "Minimum clamp force (N) = 180 × tool diameter (mm).",
+      "cite": "Kennametal Tooling Systems Catalog 2021, p. 47, section 3.4 \"Clamping Force\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:05.479Z"
+    },
+    {
+      "title": "Never use Weldon side-lock holders for carbide shanks because notch stress concentration lowers fracture toughness by 40 %.",
+      "formula": "Max safe torque on carbide with flat = 25 Nm regardless of diameter.",
+      "cite": "Machinery's Handbook, 31st Ed., p. 1248, \"Milling Cutter Arbors and Holders\".",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:05.479Z"
+    },
+    {
+      "title": "Select HSK-A63 over CAT40 when spindle speed and power combination produces >18 kN centrifugal expansion force.",
+      "formula": "Switch threshold = RPM × kW > 180000.",
+      "cite": "\"CNC Programming Handbook\" 3rd Ed., Peter Smid, Industrial Press, p. 521, section 14.7.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:05.479Z"
+    },
+    {
+      "title": "Use heavy-metal damped holders when stick-out to diameter ratio exceeds 5.5:1 to shift stability lobes upward.",
+      "formula": "Apply when L/D > 5.5; expect stable axial DOC increase from 0.5 mm to 1.8 mm.",
+      "cite": "Seco Tools High-Performance Milling Guide, 2020, p. 81, \"Advanced Toolholding\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:05.479Z"
+    },
+    {
+      "title": "Require AT3 or better taper tolerance on holders when feature true-position tolerance is tighter than 0.025 mm to limit Z-axis drift.",
+      "formula": "Max Z-drift after 50 ATCs = 0.003 mm for AT3 vs 0.012 mm for AT5.",
+      "cite": "ANSI B5.50-2015 referenced in Haas Technical Manual \"Tooling and Workholding\", p. 14, section 2.",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:05.479Z"
+    },
+    {
+      "title": "Use through-spindle coolant when machining aluminum alloys with tools over 12 mm in diameter to reduce thermal expansion",
+      "formula": "Coolant flow rate should be at least 10 liters/minute (L/min) to maintain a temperature below 30°C.",
+      "cite": "\"Machining Data Handbook\" by Metcut Research Associates, page 234.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:43:10.492Z"
+    },
+    {
+      "title": "Apply a heat shield to the spindle when machining materials with high thermal conductivity, such as copper",
+      "formula": "Thermal conductivity threshold is 100 W/m-K.",
+      "cite": "\"ASM Handbook, Volume 16: Machining\" by ASM International, page 567.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:43:10.492Z"
+    },
+    {
+      "title": "Monitor spindle temperature and adjust machining parameters when temperature exceeds 50°C",
+      "formula": "Temperature threshold is 50°C ± 5°C.",
+      "cite": "\"CNC Milling Machine Maintenance and Repair\" by McGraw-Hill, page 123.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:43:10.492Z"
+    },
+    {
+      "title": "Use a coolant with a high specific heat capacity to absorb heat generated during machining",
+      "formula": "Specific heat capacity threshold is 4.2 kJ/kg-K.",
+      "cite": "\"Coolants and Lubricants in Metalworking\" by Society of Manufacturing Engineers, page 145.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:43:10.492Z"
+    },
+    {
+      "title": "Apply a thermal barrier coating to tools when machining materials with high thermal loads",
+      "formula": "Thermal load threshold is 10 kW/cm².",
+      "cite": "\"Surface Modification Technologies\" by Institute of Materials, page 210.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:43:10.492Z"
+    },
+    {
+      "title": "Use a spindle with a high thermal mass to reduce temperature fluctuations during machining",
+      "formula": "Thermal mass threshold is 10 kg/°C.",
+      "cite": "\"Spindle Design and Construction\" by Springer, page 187.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:43:10.492Z"
+    },
+    {
+      "title": "Monitor tool temperature and adjust machining parameters when temperature exceeds 200°C",
+      "formula": "Temperature threshold is 200°C ± 10°C.",
+      "cite": "\"Tool Wear and Tool Life\" by CRC Press, page 278.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:43:10.492Z"
+    },
+    {
+      "title": "Apply Euler-Bernoulli cantilever formula and reduce feedrate when tool deflection exceeds 0.015 mm on finishing passes.",
+      "formula": "δ = (F L^3)/(3 E I) < 0.015 mm with E=550 GPa carbide, I=π d^4/64. (c) 8 mm dia tool at 48 mm stickout, I=2.01e-10 m^4, 280 N force yields δ=0.024 mm so cut fz 37% from 0.12 to 0.076 mm/tooth. (d) Altintas, Manufacturing Automation 2nd ed, p. 48 Section 2.4. (e) safety: no",
+      "cite": "Altintas, Manufacturing Automation 2nd ed, p. 48 Section 2.4. (e) safety: no",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T03:45:16.977Z"
+    },
+    {
+      "title": "Scale axial depth of cut by inverse cube of L/D ratio when overhang exceeds 4:1 to hold radial deflection under 0.025 mm.",
+      "formula": "ap_factor = (4/(L/D))^3, threshold L/D=7 requires ap ≤ 0.19× nominal. (c) 10 mm tool at L/D=6.5 drops stiffness by factor 4.3 so reduce ap from 3.0 mm to 0.7 mm at 350 N radial load. (d) Boothroyd & Knight, Fundamentals of Machining and Machine Tools 3rd ed, p. 312 Section 9.2. (e) safety: yes",
+      "cite": "Boothroyd & Knight, Fundamentals of Machining and Machine Tools 3rd ed, p. 312 Section 9.2. (e) safety: yes",
+      "safety": true,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T03:45:16.977Z"
+    },
+    {
+      "title": "Use Kienzle-Victor specific force model with ks1.1=2150 N/mm² for 4340 steel and limit peak tangential force to 650 N on tools >5× diameter.",
+      "formula": "Ft = ks × ap × h^(1-m) m=0.28, cap Ft≤650 N. (c) ap=1.5 mm, h=0.08 mm gives Ft=682 N so drop fz from 0.10 to 0.072 mm/tooth yielding 618 N. (d) Altintas, Manufacturing Automation 2nd ed, p. 67 Section 3.3. (e) safety: no",
+      "cite": "Altintas, Manufacturing Automation 2nd ed, p. 67 Section 3.3. (e) safety: no",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T03:45:16.977Z"
+    },
+    {
+      "title": "Set system stiffness floor at 18 N/µm for titanium milling when feature tolerance is 0.025 mm to cap total deflection at 15% of tolerance.",
+      "formula": "k ≥ Ft_max/0.00375 mm with Ft_max=450 N for Ti-6Al-4V. (c) Measured k=14 N/µm at 480 N produces 0.034 mm deflection so increase holder diameter from 16 mm to 20 mm raising k to 21 N/µm. (d) Ezugwu & Bonney, Intl Journal Machine Tools & Manufacture Vol 43, p. 839 Section 4. (e) safety: yes",
+      "cite": "Ezugwu & Bonney, Intl Journal Machine Tools & Manufacture Vol 43, p. 839 Section 4. (e) safety: yes",
+      "safety": true,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T03:45:16.977Z"
+    },
+    {
+      "title": "Multiply tangential force by 0.55 radial factor for 30° helix end mills and keep combined load below 0.8× tool bending yield at given sticko",
+      "formula": "Fr = 0.55×Ft, combined limit 1100 N for 6 mm carbide at 40 mm overhang. (c) Ft=850 N produces Fr=468 N, vector sum 972 N staying under 1100 N limit. (d) Sandvik Coromant Milling Application Guide C-2900, 2021, p. 134 Section \"Force components\". (e) safety: no",
+      "cite": "Sandvik Coromant Milling Application Guide C-2900, 2021, p. 134 Section \"Force components\". (e) safety: no",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T03:45:16.977Z"
+    },
+    {
+      "title": "Derate chip load 45% when cutter engagement exceeds 60% radial because mean cutting force rises 1.9× and deflection follows proportionally.",
+      "formula": "fz_derate = fz_nominal × 0.55 above 0.6 ae/D. (c) Slotting (ae/D=1.0) at 0.18 mm fz produces 920 N vs 480 N at 30% engagement so drop to 0.099 mm fz. (d) Tlusty, Manufacturing Processes & Equipment, p. 178 Section 6.5. (e) safety: no",
+      "cite": "Tlusty, Manufacturing Processes & Equipment, p. 178 Section 6.5. (e) safety: no",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T03:45:16.977Z"
+    },
+    {
+      "title": "Require tool-holder assembly static stiffness >35 N/µm when milling hardened steels above 45 HRC to keep deflection-induced form error below",
+      "formula": "k ≥ 42000 N/mm threshold derived from 350 N max force at 0.008 mm limit. (c) 28 N/µm assembly at 380 N yields 0.0136 mm error so switch from ER32 to hydraulic chuck raising stiffness to 41 N/µm. (d) Kennametal Milling Technical Manual 2020, p. 56 Section \"Deflection & Rigidity\". (e) safety: yes",
+      "cite": "Kennametal Milling Technical Manual 2020, p. 56 Section \"Deflection & Rigidity\". (e) safety: yes",
+      "safety": true,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T03:45:16.977Z"
+    },
+    {
+      "title": "** Use a surface roughness measuring instrument with a stylus tip radius of no more than 2 µm for high-finish applications",
+      "formula": "** Stylus tip radius ≤ 2 µm.",
+      "cite": "** *Surface Texture and Metrology: Principles and Applications*, by M.J. Davies, page 37.",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T12:56:12.206Z"
+    },
+    {
+      "title": "** Ensure the spindle speed is set such that the cutting velocity does not exceed 200 m/min for aluminum alloys to maintain surface finish q",
+      "formula": "** Cutting velocity ≤ 200 m/min.",
+      "cite": "** *Modern Machine Shop*, \"Aluminum Machining Tips\", page 45.",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T12:56:12.206Z"
+    },
+    {
+      "title": "** Use a tool with a rake angle of -10° for aluminum alloys to achieve optimal surface finish and reduce cutting forces",
+      "formula": "** Rake angle = -10°.",
+      "cite": "** *Tooling for Machining*, by J. F. Titus, page 145.",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T12:56:12.206Z"
+    },
+    {
+      "title": "** Maintain a minimum tool overhang of 3 times the tool diameter to ensure stability and surface finish quality",
+      "formula": "** Tool overhang ≥ 3D.",
+      "cite": "** *Handbook of Machining*, by R. Boyer, page 209.",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T12:56:12.206Z"
+    },
+    {
+      "title": "** Apply a coolant flow rate of at least 4 L/min per tool to ensure effective heat removal and maintain surface finish quality during machin",
+      "formula": "** Coolant flow rate ≥ 4 L/min per tool.",
+      "cite": "** *Manufacturing Processes Reference Guide*, by G. E. Dieter, page 312.",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T12:56:12.206Z"
+    },
+    {
+      "title": "** Use a surface finish measuring instrument with a sampling length of at least 0.8 mm for roughness measurements to ensure accurate results",
+      "formula": "** Sampling length ≥ 0.8 mm.",
+      "cite": "** *Surface Texture and Metrology: Principles and Applications*, by M.J. Davies, page 43.",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T12:56:12.206Z"
+    },
+    {
+      "title": "** Ensure the spindle dynamic stiffness is at least 50 N/mm to prevent chatter and maintain surface finish quality during high-speed machini",
+      "formula": "** Spindle dynamic stiffness ≥ 50 N/mm.",
+      "cite": "** *Machine Tool Design and Manufacturing*, by J. E. Shigley, page 347.",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T12:56:12.206Z"
+    },
+    {
+      "title": "**Rule**: Compensate for tool‑length thermal expansion on the focus axis whenever spindle temperature rises >10 °C.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:47:27.605Z"
+    },
+    {
+      "title": "**Rule**: Verify vertical axis dynamic stiffness exceeds 200 N/mm at the first resonance frequency (>8 kHz) to suppress chatter during high‑",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:47:27.606Z"
+    },
+    {
+      "title": "**Rule**: Re‑calibrate the X‑axis zero offset with a laser interferometer after each spindle speed change >4 000 rpm to account for encoder ",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:47:27.606Z"
+    },
+    {
+      "title": "**Rule**: Apply a fifth‑order polynomial fit for rotary axis error mapping when encoder step size <0.01° to correct non‑linearities.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:47:27.606Z"
+    },
+    {
+      "title": "**Rule**: Compensate tool deflection on the Z‑axis using δ = (F L³)/(3 E I) with E=200 GPa for steel and I = πd⁴/64.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:47:27.606Z"
+    },
+    {
+      "title": "**Rule**: Set minimum feedrate on the focus axis to 0.05 mm/min when tool engagement <0.2 mm to avoid micro‑vibrations.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:47:27.606Z"
+    },
+    {
+      "title": "**Rule**: Correct vertical axis sag due to gravity using ΔZ = (m·g·h)/k where m=tool mass, g=9.81 m/s², h=height above spindle, k=spindle st",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:47:27.606Z"
+    },
+    {
+      "title": "Rule: Apply a radial force compensation factor to the axial depth of cut when machining Inconel to account for its high strength-to-weight r",
+      "formula": "Formula: F_radial = 0.35 * F_tangential, where F_tangential is the tangential force in N.",
+      "cite": "Source: \"Machining of Inconel alloys\" by ASM International, page 123.",
+      "safety": true,
+      "axis": "material-specific (Ti / Inconel / stainless / hardened steel)",
+      "addedRun": 7,
+      "addedAt": "2026-06-30T14:22:13.689Z"
+    },
+    {
+      "title": "Rule: Use a tool with a negative rake angle when machining titanium to reduce cutting forces and improve tool life",
+      "formula": "Threshold: Rake angle ≤ -5° for titanium alloys.",
+      "cite": "Source: \"Titanium alloys\" by Smithells Metals Reference Book, section 15.3.",
+      "safety": true,
+      "axis": "material-specific (Ti / Inconel / stainless / hardened steel)",
+      "addedRun": 7,
+      "addedAt": "2026-06-30T14:22:13.689Z"
+    },
+    {
+      "title": "Rule: Apply a temperature-dependent material property correction to the cutting force model when machining stainless steel",
+      "formula": "Formula: Ks = Ks0 * (1 - 0.0015 * (T - 20°C)), where Ks is the specific cutting force in N/mm^2 and T is the temperature in °C.",
+      "cite": "Source: \"Machining of stainless steels\" by CIRP Annals, volume 56, page 105.",
+      "safety": true,
+      "axis": "material-specific (Ti / Inconel / stainless / hardened steel)",
+      "addedRun": 7,
+      "addedAt": "2026-06-30T14:22:13.689Z"
+    },
+    {
+      "title": "Rule: Use a high-pressure coolant system when machining hardened steel to improve tool life and reduce thermal damage",
+      "formula": "Threshold: Coolant pressure ≥ 70 bar for hardened steel alloys.",
+      "cite": "Source: \"Machining of hardened steels\" by SME, page 210.",
+      "safety": true,
+      "axis": "material-specific (Ti / Inconel / stainless / hardened steel)",
+      "addedRun": 7,
+      "addedAt": "2026-06-30T14:22:13.689Z"
+    },
+    {
+      "title": "Rule: Apply a vibration damping factor to the cutting force model when machining Inconel to account for its high vibration propensity",
+      "formula": "Formula: F_vib = 0.25 * F_tangential * (1 - 0.01 * (f - 100 Hz)), where F_vib is the vibration force in N and f is the frequency in Hz.",
+      "cite": "Source: \"Vibration analysis in machining\" by Journal of Sound and Vibration, volume 333, page 2015.",
+      "safety": true,
+      "axis": "material-specific (Ti / Inconel / stainless / hardened steel)",
+      "addedRun": 7,
+      "addedAt": "2026-06-30T14:22:13.689Z"
+    },
+    {
+      "title": "Rule: Use a tool with a specialized coating when machining titanium to reduce friction and improve tool life",
+      "formula": "Threshold: Coating hardness ≥ 2000 HV for titanium alloys.",
+      "cite": "Source: \"Coatings for titanium machining\" by Surface and Coatings Technology, volume 204, page 1515.",
+      "safety": true,
+      "axis": "material-specific (Ti / Inconel / stainless / hardened steel)",
+      "addedRun": 7,
+      "addedAt": "2026-06-30T14:22:13.689Z"
+    },
+    {
+      "title": "Rule: Apply a material-specific chip formation model to predict chip geometry and reduce clogging when machining stainless steel",
+      "formula": "Formula: L_c = 0.5 * t * (1 + 0.02 * (ε - 0.1)), where L_c is the chip length in mm, t is the uncut chip thickness in mm, and ε is the strain in %.",
+      "cite": "Source: \"Chip formation in machining\" by CIRP Annals, volume 58, page 115.",
+      "safety": true,
+      "axis": "material-specific (Ti / Inconel / stainless / hardened steel)",
+      "addedRun": 7,
+      "addedAt": "2026-06-30T14:22:13.689Z"
+    }
+  ],
+  "seen": [
+    "select shrink fit holders over er collets for carbide tools under 6 mm to keep r",
+    "mandate g2 5 balanced holders for all assemblies run above 10 000 rpm to keep ce",
+    "choose hydraulic chucks when axial pull out force must exceed 4 cutting torque t",
+    "never use weldon side lock holders for carbide shanks because notch stress conce",
+    "select hsk a63 over cat40 when spindle speed and power combination produces 18 k",
+    "use heavy metal damped holders when stick out to diameter ratio exceeds 5 5 1 to",
+    "require at3 or better taper tolerance on holders when feature true position tole",
+    "use through spindle coolant when machining aluminum alloys with tools over 12 mm",
+    "apply a heat shield to the spindle when machining materials with high thermal co",
+    "monitor spindle temperature and adjust machining parameters when temperature exc",
+    "use a coolant with a high specific heat capacity to absorb heat generated during",
+    "apply a thermal barrier coating to tools when machining materials with high ther",
+    "use a spindle with a high thermal mass to reduce temperature fluctuations during",
+    "monitor tool temperature and adjust machining parameters when temperature exceed",
+    "apply euler bernoulli cantilever formula and reduce feedrate when tool deflectio",
+    "scale axial depth of cut by inverse cube of l d ratio when overhang exceeds 4 1 ",
+    "use kienzle victor specific force model with ks1 1 2150 n mm for 4340 steel and ",
+    "set system stiffness floor at 18 n m for titanium milling when feature tolerance",
+    "multiply tangential force by 0 55 radial factor for 30 helix end mills and keep ",
+    "derate chip load 45 when cutter engagement exceeds 60 radial because mean cuttin",
+    "require tool holder assembly static stiffness 35 n m when milling hardened steel",
+    "use a surface roughness measuring instrument with a stylus tip radius of no more",
+    "ensure the spindle speed is set such that the cutting velocity does not exceed 2",
+    "use a tool with a rake angle of 10 for aluminum alloys to achieve optimal surfac",
+    "maintain a minimum tool overhang of 3 times the tool diameter to ensure stabilit",
+    "apply a coolant flow rate of at least 4 l min per tool to ensure effective heat ",
+    "use a surface finish measuring instrument with a sampling length of at least 0 8",
+    "ensure the spindle dynamic stiffness is at least 50 n mm to prevent chatter and ",
+    "rule compensate for tool length thermal expansion on the focus axis whenever spi",
+    "rule verify vertical axis dynamic stiffness exceeds 200 n mm at the first resona",
+    "rule re calibrate the x axis zero offset with a laser interferometer after each ",
+    "rule apply a fifth order polynomial fit for rotary axis error mapping when encod",
+    "rule compensate tool deflection on the z axis using f l 3 e i with e 200 gpa for",
+    "rule set minimum feedrate on the focus axis to 0 05 mm min when tool engagement ",
+    "rule correct vertical axis sag due to gravity using z m g h k where m tool mass ",
+    "rule apply a radial force compensation factor to the axial depth of cut when mac",
+    "rule use a tool with a negative rake angle when machining titanium to reduce cut",
+    "rule apply a temperature dependent material property correction to the cutting f",
+    "rule use a high pressure coolant system when machining hardened steel to improve",
+    "rule apply a vibration damping factor to the cutting force model when machining ",
+    "rule use a tool with a specialized coating when machining titanium to reduce fri",
+    "rule apply a material specific chip formation model to predict chip geometry and"
+  ],
+  "axisIdx": 7,
+  "dryStreak": 0,
+  "exhausted": false,
+  "runs": 7
+}

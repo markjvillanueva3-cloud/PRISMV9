@@ -1,0 +1,2325 @@
+{
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-06-27T17:46:18.299Z",
+  "pagesDir": "mcp-server/web/src/pages",
+  "totalPages": 162,
+  "byStatus": {
+    "wired": 143,
+    "partial": 0,
+    "dead": 9,
+    "static-ok": 10
+  },
+  "byDomain": {
+    "business-erp": {
+      "wired": 37,
+      "partial": 0,
+      "dead": 0,
+      "static-ok": 0
+    },
+    "academy": {
+      "wired": 7,
+      "partial": 0,
+      "dead": 0,
+      "static-ok": 0
+    },
+    "quoting": {
+      "wired": 17,
+      "partial": 0,
+      "dead": 0,
+      "static-ok": 1
+    },
+    "other": {
+      "wired": 32,
+      "partial": 0,
+      "dead": 1,
+      "static-ok": 9
+    },
+    "shop-floor": {
+      "wired": 12,
+      "partial": 0,
+      "dead": 0,
+      "static-ok": 0
+    },
+    "quality": {
+      "wired": 8,
+      "partial": 0,
+      "dead": 0,
+      "static-ok": 0
+    },
+    "cad": {
+      "wired": 6,
+      "partial": 0,
+      "dead": 1,
+      "static-ok": 0
+    },
+    "sfc": {
+      "wired": 3,
+      "partial": 0,
+      "dead": 0,
+      "static-ok": 0
+    },
+    "cam-post": {
+      "wired": 9,
+      "partial": 0,
+      "dead": 1,
+      "static-ok": 0
+    },
+    "wedm": {
+      "wired": 4,
+      "partial": 0,
+      "dead": 1,
+      "static-ok": 0
+    },
+    "lathe": {
+      "wired": 6,
+      "partial": 0,
+      "dead": 3,
+      "static-ok": 0
+    },
+    "mill": {
+      "wired": 2,
+      "partial": 0,
+      "dead": 2,
+      "static-ok": 0
+    }
+  },
+  "transitiveWired": 4,
+  "note": "CONSERVATIVE heuristic -- \"dead\" = no backend call in the page OR its child-component/context import graph (depth<=2); confirm before wiring. Route-prefix coverage: audit-frontend-backend-contract.mjs; route->action: audit-fe-route-action-contract.mjs.",
+  "queue": [
+    {
+      "name": "CADRegenerationDashboardPage.tsx",
+      "domain": "cad",
+      "status": "dead",
+      "loc": 473,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "todo-wiring"
+      ]
+    },
+    {
+      "name": "PostProcessorPage.tsx",
+      "domain": "cam-post",
+      "status": "dead",
+      "loc": 1181,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "coming-soon"
+      ]
+    },
+    {
+      "name": "LatheStudioPage.tsx",
+      "domain": "lathe",
+      "status": "dead",
+      "loc": 521,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MillTurnPage.tsx",
+      "domain": "lathe",
+      "status": "dead",
+      "loc": 94,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SwissPage.tsx",
+      "domain": "lathe",
+      "status": "dead",
+      "loc": 111,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MillStudioPage.tsx",
+      "domain": "mill",
+      "status": "dead",
+      "loc": 673,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MillingResultsPage.tsx",
+      "domain": "mill",
+      "status": "dead",
+      "loc": 617,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ValueStreamPage.tsx",
+      "domain": "other",
+      "status": "dead",
+      "loc": 411,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "WireEdmResultsPage.tsx",
+      "domain": "wedm",
+      "status": "dead",
+      "loc": 439,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    }
+  ],
+  "records": [
+    {
+      "name": "A3ReportPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 819,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "math-random"
+      ]
+    },
+    {
+      "name": "AILearningDashboardPage.tsx",
+      "domain": "academy",
+      "status": "wired",
+      "loc": 339,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "AdditiveQuotePage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 347,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "AdminPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 258,
+      "apiModules": [
+        "useAdmin"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "AlarmPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 624,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "AuditManagerPage.tsx",
+      "domain": "quality",
+      "status": "wired",
+      "loc": 285,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "BatchPlanningPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 323,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "BlueprintQuotePage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 354,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "BusinessSuitePage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 693,
+      "apiModules": [
+        "prismBusiness"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CADAIStatePage.tsx",
+      "domain": "cad",
+      "status": "wired",
+      "loc": 261,
+      "apiModules": [
+        "cadAIStateMachine"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CADRegenerationDashboardPage.tsx",
+      "domain": "cad",
+      "status": "dead",
+      "loc": 473,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "todo-wiring"
+      ]
+    },
+    {
+      "name": "CADRegressionDashboardPage.tsx",
+      "domain": "cad",
+      "status": "wired",
+      "loc": 368,
+      "apiModules": [
+        "cadRegressionDashboard"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CalculatorPage.tsx",
+      "domain": "sfc",
+      "status": "wired",
+      "loc": 13639,
+      "apiModules": [
+        "speedfeed",
+        "wireEdm",
+        "calculatorData",
+        "parts"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CalibrationPage.tsx",
+      "domain": "quality",
+      "status": "wired",
+      "loc": 176,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CamStrategyPage.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 141,
+      "apiModules": [
+        "cam"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CapacityPlanningPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 361,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CaptureOpsPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 926,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "math-random"
+      ],
+      "wiredTransitive": true,
+      "wiredVia": "WorkspaceAICopilot.tsx"
+    },
+    {
+      "name": "CheckoutOutcomePage.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 124,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CncOpsPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 250,
+      "apiModules": [
+        "useCncOps"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CommissionTrackerPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 68,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CompliancePage.tsx",
+      "domain": "quality",
+      "status": "wired",
+      "loc": 277,
+      "apiModules": [
+        "useCompliance"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CostEstimatorPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 182,
+      "apiModules": [
+        "cost"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CourseViewerPage.tsx",
+      "domain": "cad",
+      "status": "wired",
+      "loc": 410,
+      "apiModules": [
+        "knowledge"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CreditManagementPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 214,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CustomerPortalPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 1318,
+      "apiModules": [
+        "portal"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CustomersPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 798,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "CycleTimePage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 535,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "DailyFlashReportPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 163,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "DashboardPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 1307,
+      "apiModules": [
+        "useWebSocket",
+        "dashboard"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "DataManagementPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 135,
+      "apiModules": [
+        "data"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "DepartmentDashboardPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 890,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "DiagnosisPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 541,
+      "apiModules": [
+        "useDiagnosis"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "DocumentInboxPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 500,
+      "apiModules": [
+        "inbox"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "DocumentLearningPage.tsx",
+      "domain": "academy",
+      "status": "wired",
+      "loc": 533,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "EdmPage.tsx",
+      "domain": "wedm",
+      "status": "wired",
+      "loc": 396,
+      "apiModules": [
+        "useEdm",
+        "wedmStudio"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "EmployeeDirectoryPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 761,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "EmployeePhonePortalPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 498,
+      "apiModules": [
+        "employeePortal"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "EmployeePortalPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 547,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [],
+      "wiredTransitive": true,
+      "wiredVia": "liveProvider.ts"
+    },
+    {
+      "name": "EmployeeProfilePage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 410,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "EquipmentAssetPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 163,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ErpDashboard.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 170,
+      "apiModules": [
+        "useErp"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ExecutiveDashboardPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 337,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ExportsPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 480,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "FeatureTogglePage.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 461,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "FinancialAnalysisPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 586,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "FleetLearningDashboardPage.tsx",
+      "domain": "academy",
+      "status": "wired",
+      "loc": 388,
+      "apiModules": [
+        "knowledge"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "FormingPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 225,
+      "apiModules": [
+        "useForming"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "GeneralLedgerPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 755,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "GrindingPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 198,
+      "apiModules": [
+        "useGrinding"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "HRCompliancePage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 577,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "HotelEmployeeHubPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 388,
+      "apiModules": [
+        "hotelBusiness"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "HotelPortalPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 906,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "IndexGateway.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 45,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "InjectionMoldPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 364,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "IntegrationsPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 217,
+      "apiModules": [
+        "orphanRoutes"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "InventoryPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 941,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "InvoicesPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 524,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "JobPlannerPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 402,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "JobProfitabilityPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 238,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "JobsPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 1844,
+      "apiModules": [
+        "client",
+        "useWebSocket",
+        "traveler",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "KaizenBoardPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 483,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "math-random"
+      ]
+    },
+    {
+      "name": "KanbanBoardPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 524,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "KnowledgeBrowserPage.tsx",
+      "domain": "academy",
+      "status": "wired",
+      "loc": 343,
+      "apiModules": [
+        "knowledge"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "KnowledgeExtPage.tsx",
+      "domain": "academy",
+      "status": "wired",
+      "loc": 187,
+      "apiModules": [
+        "useKnowledgeExt"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "KnowledgeIngestionPage.tsx",
+      "domain": "academy",
+      "status": "wired",
+      "loc": 310,
+      "apiModules": [
+        "knowledge"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LandingPage.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 715,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LatheERPDashboard.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 336,
+      "apiModules": [
+        "businessDispatch"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LathePrintToProgram.tsx",
+      "domain": "lathe",
+      "status": "wired",
+      "loc": 397,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": true,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LathePrintToProgramPage.tsx",
+      "domain": "lathe",
+      "status": "wired",
+      "loc": 424,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LatheResultsPage.tsx",
+      "domain": "lathe",
+      "status": "wired",
+      "loc": 1266,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LatheStudioPage.tsx",
+      "domain": "lathe",
+      "status": "dead",
+      "loc": 521,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LatheUploadPage.tsx",
+      "domain": "lathe",
+      "status": "wired",
+      "loc": 211,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LatheWizardPage.tsx",
+      "domain": "lathe",
+      "status": "wired",
+      "loc": 259,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LearningDashboard.tsx",
+      "domain": "academy",
+      "status": "wired",
+      "loc": 608,
+      "apiModules": [
+        "useLearning",
+        "useLearningCourseRegistry",
+        "useCourses",
+        "useStudentId"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "LoginPage.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 213,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MachineDataAuditPage.tsx",
+      "domain": "quality",
+      "status": "wired",
+      "loc": 395,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": true,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MachineLivePage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 384,
+      "apiModules": [
+        "useMachineLive"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MachineRatesPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 866,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MaintenanceWorkOrderPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 181,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MarketPricingIntelligencePage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 454,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MaterialPricingPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 455,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MechanicalDesignPage.tsx",
+      "domain": "cad",
+      "status": "wired",
+      "loc": 420,
+      "apiModules": [
+        "useMechanical"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "coming-soon"
+      ]
+    },
+    {
+      "name": "MessagesPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 1021,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [],
+      "wiredTransitive": true,
+      "wiredVia": "WorkspaceAICopilot.tsx"
+    },
+    {
+      "name": "MillStudioPage.tsx",
+      "domain": "mill",
+      "status": "dead",
+      "loc": 673,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MillTurnPage.tsx",
+      "domain": "lathe",
+      "status": "dead",
+      "loc": 94,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MillingResultsPage.tsx",
+      "domain": "mill",
+      "status": "dead",
+      "loc": 617,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MillingUploadPage.tsx",
+      "domain": "mill",
+      "status": "wired",
+      "loc": 367,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MillingWizardPage.tsx",
+      "domain": "mill",
+      "status": "wired",
+      "loc": 582,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "MobileCameraQuotePage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 161,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": true,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "OEEDashboardPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 263,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "OSHACompliancePage.tsx",
+      "domain": "quality",
+      "status": "wired",
+      "loc": 269,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "OptimizationReportPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 643,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "OrderTrackingPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 704,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PartsLibraryPage.tsx",
+      "domain": "cad",
+      "status": "wired",
+      "loc": 449,
+      "apiModules": [
+        "parts"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PayrollPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 497,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PipelinePage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 227,
+      "apiModules": [
+        "orphanRoutes"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PostProcessorGeneratorPage.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 4526,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PostProcessorPage.tsx",
+      "domain": "cam-post",
+      "status": "dead",
+      "loc": 1181,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "coming-soon"
+      ]
+    },
+    {
+      "name": "PostProcessorStorePage.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 292,
+      "apiModules": [
+        "billing"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PpgPage.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 414,
+      "apiModules": [
+        "usePpg"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PreventiveMaintenancePage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 277,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PricingPage.tsx",
+      "domain": "quoting",
+      "status": "static-ok",
+      "loc": 269,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "coming-soon"
+      ]
+    },
+    {
+      "name": "PrintDropPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 461,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": true,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ProgramReleasePage.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 1665,
+      "apiModules": [
+        "calculatorData",
+        "parts"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ProveOutWorkflowPage.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 694,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PurchaseOrdersPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 850,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "PurchasingPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 716,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "QualityManagementPage.tsx",
+      "domain": "quality",
+      "status": "wired",
+      "loc": 754,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "QualityPage.tsx",
+      "domain": "quality",
+      "status": "wired",
+      "loc": 266,
+      "apiModules": [
+        "quality"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "QuoteAnalyticsPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 563,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "QuoteBuilderPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 3012,
+      "apiModules": [
+        "useWebSocket",
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "QuoteFollowUpPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 1053,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "QuotingCalibrationHealthPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 680,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": true,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "QuotingWorkbenchPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 456,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": true,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "RFQInboxPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 184,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ReceivingInspectionPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 259,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ReportsPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 282,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "RootCausePage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 711,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "math-random"
+      ]
+    },
+    {
+      "name": "SPCDashboardPage.tsx",
+      "domain": "quality",
+      "status": "wired",
+      "loc": 636,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SafetyDashboardPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 165,
+      "apiModules": [
+        "safety"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SafetyMonitorPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 304,
+      "apiModules": [
+        "types",
+        "safetyMonitor"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SalesPipelinePage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 75,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SchedulingPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 895,
+      "apiModules": [
+        "client",
+        "useWebSocket",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SecondaryOpsPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 399,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SettingsPage.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 279,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SetupSheetPage.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 600,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SfcCalculatorPage.tsx",
+      "domain": "sfc",
+      "status": "wired",
+      "loc": 431,
+      "apiModules": [
+        "useSfc"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [
+        "math-random"
+      ]
+    },
+    {
+      "name": "SheetMetalQuotePage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 230,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ShellGatewayPage.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 379,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ShippingPackingPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 126,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": true,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ShopDashboardPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 295,
+      "apiModules": [
+        "useWebSocket",
+        "dashboard"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ShopFloorClockPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 1520,
+      "apiModules": [
+        "client",
+        "types",
+        "useJobStatusSocket",
+        "useOfflineSync"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ShopFloorLivePage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 130,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ShopFloorTVPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 174,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ShopProfilePage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 1016,
+      "apiModules": [
+        "calculatorData",
+        "shopProfile"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SignupPage.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 199,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SpeedFeedPage.tsx",
+      "domain": "sfc",
+      "status": "wired",
+      "loc": 926,
+      "apiModules": [
+        "useSpeedFeed"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "StockOptimizerPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 286,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SubscriptionPage.tsx",
+      "domain": "other",
+      "status": "static-ok",
+      "loc": 124,
+      "apiModules": [
+        "billing"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "SwissPage.tsx",
+      "domain": "lathe",
+      "status": "dead",
+      "loc": 111,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "TelemetryPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 216,
+      "apiModules": [
+        "useTelemetry"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ThermalPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 273,
+      "apiModules": [
+        "useThermal"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ThreadCalcPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 267,
+      "apiModules": [
+        "orphanRoutes"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "TimecardPage.tsx",
+      "domain": "business-erp",
+      "status": "wired",
+      "loc": 739,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ToolCribPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 1141,
+      "apiModules": [
+        "toolCrib"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ToolOptimizationPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 541,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ToolingCostPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 244,
+      "apiModules": [
+        "client",
+        "types"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ToolpathAdvisorPage.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 895,
+      "apiModules": [
+        "calculatorData",
+        "speedfeed"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "TurningPage.tsx",
+      "domain": "lathe",
+      "status": "wired",
+      "loc": 190,
+      "apiModules": [
+        "useTurning"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ValueStreamPage.tsx",
+      "domain": "other",
+      "status": "dead",
+      "loc": 411,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "VendorCatalogPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 378,
+      "apiModules": [
+        "vendorNetwork"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "VendorComparePage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 435,
+      "apiModules": [
+        "useSpeedFeed"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "VendorScorecardPage.tsx",
+      "domain": "quoting",
+      "status": "wired",
+      "loc": 281,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "VibrationPage.tsx",
+      "domain": "shop-floor",
+      "status": "wired",
+      "loc": 199,
+      "apiModules": [
+        "useVibration"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "ViewerPage.tsx",
+      "domain": "cad",
+      "status": "wired",
+      "loc": 526,
+      "apiModules": [
+        "viewer"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "WeldingPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 240,
+      "apiModules": [
+        "useWelding"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "WhatIfPage.tsx",
+      "domain": "other",
+      "status": "wired",
+      "loc": 503,
+      "apiModules": [
+        "speedfeed"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "WireEdmResultsPage.tsx",
+      "domain": "wedm",
+      "status": "dead",
+      "loc": 439,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "WireEdmStudioPage.tsx",
+      "domain": "wedm",
+      "status": "wired",
+      "loc": 148,
+      "apiModules": [],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": [],
+      "wiredTransitive": true,
+      "wiredVia": "StepReview.tsx"
+    },
+    {
+      "name": "WireEdmUploadPage.tsx",
+      "domain": "wedm",
+      "status": "wired",
+      "loc": 168,
+      "apiModules": [
+        "client"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "WireEdmWizardPage.tsx",
+      "domain": "wedm",
+      "status": "wired",
+      "loc": 1774,
+      "apiModules": [
+        "client",
+        "wedmErp"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    },
+    {
+      "name": "cam-ai-dashboard.tsx",
+      "domain": "cam-post",
+      "status": "wired",
+      "loc": 432,
+      "apiModules": [
+        "camServe"
+      ],
+      "usesBarrel": false,
+      "rawFetchApi": false,
+      "hasQueryHook": false,
+      "deadSignals": []
+    }
+  ]
+}

@@ -15,6 +15,15 @@
  */
 
 import type { Question } from "./CurriculumEngine.js";
+import {
+  tipsForMillingOperation,
+  listMillingOperationsWithTips,
+  type CitedMillingTip,
+} from "../data/tribal-tips/milling-pdf-cited-tips.js";
+import {
+  tribalTipOutcomeBridgeEngine,
+  type TribalTipOutcomeBridgeEngine,
+} from "./TribalTipOutcomeBridgeEngine.js";
 
 // ═══════════════════════════════════════════════════════════════
 // Types
@@ -364,6 +373,149 @@ export class KnowledgeCurriculumBridgeEngine {
   }
 
   // ─────────────────────────────────────────────────────────
+  // Mill-studio wizard bridge (PB-MS0/P3 follow-up, 2026-05-26)
+  // Surfaces PRISM-Academy course-4 content + cited milling tribal
+  // tips when the mill-studio wizard is about to plan a milling op.
+  // ─────────────────────────────────────────────────────────
+
+  /**
+   * Return cited tribal tips relevant to a given milling operation. Used by
+   * MillMasterOrchestratorFacadeEngine.adviseFromAcademy() between toolpath
+   * strategy selection and G-code emission to surface PDF-corpus-derived
+   * shop-floor wisdom (Haas/Hurco/Sandvik/Mastercam/SolidCAM/Open Mind/CNCCookbook).
+   *
+   * Every returned tip carries source attribution per the foxtrot-soul
+   * refuse-list (no anonymous tips). Tips are sorted with
+   * manufacturer_official first, then training, post-processor docs,
+   * industry references.
+   *
+   * @param operation Operation topic (face_milling | pocket_milling | slotting |
+   *                  thread_milling | drilling_strategies | adaptive_hsm |
+   *                  five_axis | workholding | tool_holders | cutter_compensation |
+   *                  program_recovery | ngc_control | contour_milling)
+   * @returns Array of cited tips, severity-ordered. Empty array for unknown ops.
+   */
+  lessonsForOperation(operation: string): CitedMillingTip[] {
+    if (!operation || typeof operation !== "string") return [];
+    return tipsForMillingOperation(operation.toLowerCase());
+  }
+
+  /**
+   * TRIBAL-OUTCOME-LOOP-MS0/U-TTOB03 — same as lessonsForOperation() but
+   * re-ranks the result by closed-loop EFFECTIVENESS score from
+   * TribalTipOutcomeBridgeEngine. Tips with recorded applications + joined
+   * outcomes float to the top of the list (Laplace-smoothed score desc);
+   * tips with no outcome data fall back to evidence-level + manufacturer
+   * ranking (the original lessonsForOperation order).
+   *
+   * Use this when the consumer (milling-wizard, mill-studio, AI-routing)
+   * wants the best PERFORMING tips first rather than the best-CITED ones.
+   * The two orderings converge as outcome data accumulates.
+   *
+   * @param operation Operation taxonomy bucket (face_milling, slotting, etc.)
+   * @param bridge Optional bridge override (test injection point)
+   * @returns Tips ordered by smoothed effectiveness desc, then by evidence-level
+   */
+  async lessonsForOperationRankedByEffectiveness(
+    operation: string,
+    bridge: TribalTipOutcomeBridgeEngine = tribalTipOutcomeBridgeEngine,
+  ): Promise<CitedMillingTip[]> {
+    const tips = this.lessonsForOperation(operation);
+    if (tips.length === 0) return tips;
+
+    // Pull effectiveness in parallel — no N+1 across tips.
+    const reports = await Promise.all(
+      tips.map((t) => bridge.effectiveness({ tipId: t.id, operation: operation.toLowerCase() })),
+    );
+
+    // Pair each tip with its smoothed score + a fallback rank that preserves
+    // the original lessonsForOperation order (lower index = higher evidence).
+    const paired = tips.map((tip, idx) => ({
+      tip,
+      smoothed: reports[idx].smoothedScore,
+      joined: reports[idx].joinedOutcomes,
+      origRank: idx,
+    }));
+
+    // Sort: tips with joined-outcome data first by smoothedScore desc;
+    // then tips with no outcome data by original evidence-level order.
+    paired.sort((a, b) => {
+      if (a.joined > 0 && b.joined === 0) return -1;
+      if (a.joined === 0 && b.joined > 0) return 1;
+      if (a.joined > 0 && b.joined > 0) return b.smoothed - a.smoothed;
+      return a.origRank - b.origRank;
+    });
+
+    return paired.map((p) => p.tip);
+  }
+
+  /**
+   * TRIBAL-OUTCOME-LOOP-MS0/U-TTOB04 — auto-instrumentation wrapper for the
+   * closed-loop write side. Consumers (MillStudio, MillingWizard, mill-agi
+   * pipeline) call this when they SURFACE tips to the operator/program-gen
+   * step, passing the programId of the program being generated. Each tip
+   * returned is also recorded as an application against that programId,
+   * closing the loop with zero additional caller code.
+   *
+   * Why opt-in (not auto on `lessonsForOperation`): record-on-retrieve would
+   * pollute the application log with tips that were FETCHED but not actually
+   * APPLIED. The programId is the discriminator — only consumers that have
+   * a concrete program-being-generated have a programId to pass.
+   *
+   * @param operation Operation taxonomy bucket
+   * @param programId Program identifier that will receive these tips' guidance
+   * @param consumer Optional consumer label (default: KnowledgeCurriculumBridge)
+   * @param bridge Optional bridge override (test injection)
+   * @returns The same ranked tips list — caller doesn't need to await recording
+   *          (fire-and-forget); applications log appends in background.
+   */
+  async lessonsForOperationWithRecording(
+    operation: string,
+    programId: string,
+    consumer: string = "KnowledgeCurriculumBridge",
+    bridge: TribalTipOutcomeBridgeEngine = tribalTipOutcomeBridgeEngine,
+  ): Promise<CitedMillingTip[]> {
+    if (!operation || !programId) {
+      throw new Error(
+        "lessonsForOperationWithRecording requires both operation and programId — programId is the closed-loop discriminator",
+      );
+    }
+    const tips = await this.lessonsForOperationRankedByEffectiveness(operation, bridge);
+
+    // Record applications in parallel — failures here MUST NOT break the
+    // retrieval (read path stays robust even if the write path is broken).
+    await Promise.all(
+      tips.map((tip) =>
+        bridge
+          .recordApplication({
+            tipId: tip.id,
+            programId,
+            operation: operation.toLowerCase(),
+            consumer,
+            context: `Surfaced via lessonsForOperationWithRecording for program ${programId}`,
+          })
+          .catch((err: unknown) => {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.warn(
+              `[KnowledgeCurriculumBridge] failed to record application for tip ${tip.id} on program ${programId}: ${msg}`,
+            );
+          }),
+      ),
+    );
+
+    return tips;
+  }
+
+  /**
+   * Enumerate the milling operations for which cited tribal tips exist —
+   * used by the wizard to decide whether to prompt for operation selection
+   * versus auto-detect from features.
+   */
+  listMillOperationsWithCitedKnowledge(): string[] {
+    return listMillingOperationsWithTips();
+  }
+
+  // ─────────────────────────────────────────────────────────
   // Utilities
   // ─────────────────────────────────────────────────────────
 
@@ -376,3 +528,10 @@ export class KnowledgeCurriculumBridgeEngine {
     return Math.round(val * 100) / 100;
   }
 }
+
+/**
+ * Singleton export — consumed by MillMasterOrchestratorFacadeEngine and other
+ * mill-studio wizard surfaces. Added 2026-05-26 with the lessonsForOperation
+ * bridge method (PB-MS0/P3 follow-up).
+ */
+export const knowledgeCurriculumBridgeEngine = new KnowledgeCurriculumBridgeEngine();

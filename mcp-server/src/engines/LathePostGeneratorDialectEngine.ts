@@ -26,34 +26,34 @@ import {
 
 export const CycleParametersSchema = z.object({
   // G71 Stock Removal parameters
-  depth_of_cut: z.number().optional(),
-  finish_allowance_x: z.number().optional(),
-  finish_allowance_z: z.number().optional(),
-  profile_start_block: z.number().optional(),
-  profile_end_block: z.number().optional(),
+  depth_of_cut: z.number().finite().optional(),
+  finish_allowance_x: z.number().finite().optional(),
+  finish_allowance_z: z.number().finite().optional(),
+  profile_start_block: z.number().finite().optional(),
+  profile_end_block: z.number().finite().optional(),
 
   // G76 Threading parameters
-  thread_pitch: z.number().optional(),
-  thread_depth: z.number().optional(),
-  thread_angle: z.number().optional(),
-  first_cut_depth: z.number().optional(),
-  min_depth_per_pass: z.number().optional(),
-  finish_allowance: z.number().optional(),
-  number_of_passes: z.number().optional(),
-  thread_start_x: z.number().optional(),
-  thread_start_z: z.number().optional(),
-  thread_end_x: z.number().optional(),
-  thread_end_z: z.number().optional(),
+  thread_pitch: z.number().finite().optional(),
+  thread_depth: z.number().finite().optional(),
+  thread_angle: z.number().finite().optional(),
+  first_cut_depth: z.number().finite().optional(),
+  min_depth_per_pass: z.number().finite().optional(),
+  finish_allowance: z.number().finite().optional(),
+  number_of_passes: z.number().finite().optional(),
+  thread_start_x: z.number().finite().optional(),
+  thread_start_z: z.number().finite().optional(),
+  thread_end_x: z.number().finite().optional(),
+  thread_end_z: z.number().finite().optional(),
 
   // G83 Peck Drilling parameters
-  hole_depth: z.number().optional(),
-  peck_depth: z.number().optional(),
-  retract_plane: z.number().optional(),
-  feed_rate: z.number().optional(),
+  hole_depth: z.number().finite().optional(),
+  peck_depth: z.number().finite().optional(),
+  retract_plane: z.number().finite().optional(),
+  feed_rate: z.number().finite().optional(),
 
   // General
-  rapid_plane: z.number().optional(),
-  spindle_speed: z.number().optional(),
+  rapid_plane: z.number().finite().optional(),
+  spindle_speed: z.number().finite().optional(),
 });
 
 export type CycleParameters = z.infer<typeof CycleParametersSchema>;
@@ -421,6 +421,8 @@ export class LathePostGeneratorDialectEngine {
     return this.generate({
       controller_id: controllerId,
       cycle_code: "G71",
+      line_number_start: 100,
+      line_number_increment: 10,
       parameters: {
         depth_of_cut: depthOfCut,
         finish_allowance_x: finishAllowanceX,
@@ -449,6 +451,8 @@ export class LathePostGeneratorDialectEngine {
     return this.generate({
       controller_id: controllerId,
       cycle_code: "G76",
+      line_number_start: 100,
+      line_number_increment: 10,
       parameters: {
         thread_pitch: threadPitch,
         thread_depth: threadDepth,
@@ -475,6 +479,8 @@ export class LathePostGeneratorDialectEngine {
     return this.generate({
       controller_id: controllerId,
       cycle_code: "G83",
+      line_number_start: 100,
+      line_number_increment: 10,
       parameters: {
         hole_depth: holeDepth,
         peck_depth: peckDepth,
@@ -564,6 +570,8 @@ export class LathePostGeneratorDialectEngine {
       results[id] = this.generate({
         controller_id: id,
         cycle_code: cycleCode,
+        line_number_start: 100,
+        line_number_increment: 10,
         parameters,
         include_comments: false,
         use_line_numbers: false,

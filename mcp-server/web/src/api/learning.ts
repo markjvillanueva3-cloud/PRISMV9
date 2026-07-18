@@ -1,3 +1,4 @@
+import { getAuthHeaders } from './authToken';
 /**
  * L8-P1-MS2 P0-U01: Learning API Client
  *
@@ -11,7 +12,7 @@ const API_BASE = '/api/v1/learning';
 async function post<T>(path: string, body: Record<string, unknown> = {}): Promise<T> {
   const json = await fetchJson<T | { data?: T }>(`${API_BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(body),
     fallbackMessage: 'Learning API request failed',
   });

@@ -1,0 +1,340 @@
+{
+  "agent_id": "AGT-SONNET-013",
+  "name": "refactorer",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Code Refactorer - Improves Code Structure While Preserving Behavior",
+  
+  "domain_expertise": [
+    "Code refactoring",
+    "Pattern improvement",
+    "Technical debt reduction",
+    "Code smell detection",
+    "Structure improvement",
+    "Modularity enhancement",
+    "Readability improvement",
+    "Performance refactoring",
+    "Test-safe refactoring",
+    "Behavior preservation"
+  ],
+
+  "golden_rule": "Refactoring changes structure, NOT behavior. Tests must pass before AND after.",
+
+  "capabilities": [
+    {
+      "id": "CAP-REF-001",
+      "name": "Code Smell Detection",
+      "description": "Detects code smells and anti-patterns needing refactoring",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["smell_categories", "severity_threshold"]
+      },
+      "outputs": {
+        "primary": "smell_report",
+        "secondary": ["smells_found", "severity_ratings", "refactoring_suggestions"]
+      },
+      "skills_used": ["prism-code-master", "prism-sp-review-quality"],
+      "hooks_triggered": ["SMELL-DETECT"],
+      "synergizes_with": ["code_reviewer", "placeholder_hunter"],
+      "code_smells": {
+        "bloaters": ["Long method", "Large class", "Primitive obsession", "Long parameter list"],
+        "oo_abusers": ["Switch statements", "Refused bequest", "Alternative classes"],
+        "change_preventers": ["Divergent change", "Shotgun surgery", "Parallel inheritance"],
+        "dispensables": ["Comments", "Duplicate code", "Dead code", "Speculative generality"],
+        "couplers": ["Feature envy", "Inappropriate intimacy", "Message chains"]
+      },
+      "success_criteria": "All code smells identified and prioritized"
+    },
+    {
+      "id": "CAP-REF-002",
+      "name": "Extract Method",
+      "description": "Extracts code block into separate method",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["code", "extraction_point"],
+        "optional": ["method_name", "parameters"]
+      },
+      "outputs": {
+        "primary": "refactored_code",
+        "secondary": ["new_method", "call_site", "parameter_list"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["REFACTOR-EXTRACT-METHOD"],
+      "synergizes_with": ["coder"],
+      "success_criteria": "Behavior unchanged, code cleaner"
+    },
+    {
+      "id": "CAP-REF-003",
+      "name": "Extract Class",
+      "description": "Extracts part of a class into new class",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["class_code", "fields_to_extract"],
+        "optional": ["new_class_name"]
+      },
+      "outputs": {
+        "primary": "refactored_code",
+        "secondary": ["new_class", "modified_original", "relationship"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["REFACTOR-EXTRACT-CLASS"],
+      "synergizes_with": ["architect", "coder"],
+      "success_criteria": "Single responsibility maintained"
+    },
+    {
+      "id": "CAP-REF-004",
+      "name": "Rename Refactoring",
+      "description": "Renames variables, functions, classes with all references",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["code", "old_name", "new_name"],
+        "optional": ["scope"]
+      },
+      "outputs": {
+        "primary": "refactored_code",
+        "secondary": ["references_updated", "files_changed"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["REFACTOR-RENAME"],
+      "synergizes_with": ["coder"],
+      "success_criteria": "All references updated, code compiles"
+    },
+    {
+      "id": "CAP-REF-005",
+      "name": "Move Refactoring",
+      "description": "Moves methods or fields to more appropriate location",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["element", "target_location"],
+        "optional": ["update_references"]
+      },
+      "outputs": {
+        "primary": "refactored_code",
+        "secondary": ["moved_element", "updated_imports", "references_updated"]
+      },
+      "skills_used": ["prism-code-master", "prism-dev-utilities"],
+      "hooks_triggered": ["REFACTOR-MOVE"],
+      "synergizes_with": ["architect"],
+      "success_criteria": "Element in better location, references updated"
+    },
+    {
+      "id": "CAP-REF-006",
+      "name": "Inline Refactoring",
+      "description": "Inlines method calls or variables (reverse of extract)",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["code", "element_to_inline"],
+        "optional": ["inline_all"]
+      },
+      "outputs": {
+        "primary": "refactored_code",
+        "secondary": ["inlined_locations", "removed_declaration"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["REFACTOR-INLINE"],
+      "synergizes_with": ["coder"],
+      "success_criteria": "Code simplified, behavior unchanged"
+    },
+    {
+      "id": "CAP-REF-007",
+      "name": "Replace Conditional with Polymorphism",
+      "description": "Converts complex conditionals to polymorphic design",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["conditional_code"],
+        "optional": ["base_class_name", "strategy_names"]
+      },
+      "outputs": {
+        "primary": "refactored_code",
+        "secondary": ["base_class", "derived_classes", "factory"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["REFACTOR-POLYMORPHISM"],
+      "synergizes_with": ["architect", "coder"],
+      "success_criteria": "Open/closed principle satisfied"
+    },
+    {
+      "id": "CAP-REF-008",
+      "name": "Introduce Parameter Object",
+      "description": "Replaces long parameter list with object",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["function_code", "parameters_to_group"],
+        "optional": ["object_name"]
+      },
+      "outputs": {
+        "primary": "refactored_code",
+        "secondary": ["parameter_object", "updated_signature", "updated_calls"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["REFACTOR-PARAM-OBJECT"],
+      "synergizes_with": ["coder", "schema_designer"],
+      "success_criteria": "Cleaner API, fewer parameters"
+    },
+    {
+      "id": "CAP-REF-009",
+      "name": "Remove Duplicate Code",
+      "description": "Identifies and removes code duplication",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["similarity_threshold"]
+      },
+      "outputs": {
+        "primary": "refactored_code",
+        "secondary": ["duplicates_found", "extracted_common", "duplication_reduced"]
+      },
+      "skills_used": ["prism-code-master", "prism-validator"],
+      "hooks_triggered": ["REFACTOR-DEDUP"],
+      "synergizes_with": ["code_reviewer"],
+      "success_criteria": "No duplicate code blocks"
+    },
+    {
+      "id": "CAP-REF-010",
+      "name": "Simplify Conditionals",
+      "description": "Simplifies complex conditional logic",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["conditional_code"],
+        "optional": ["simplification_strategy"]
+      },
+      "outputs": {
+        "primary": "simplified_code",
+        "secondary": ["complexity_before", "complexity_after", "changes_made"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["REFACTOR-SIMPLIFY"],
+      "synergizes_with": ["coder"],
+      "strategies": [
+        "Decompose conditional",
+        "Consolidate conditional",
+        "Replace nested with guard clauses",
+        "Replace conditional with polymorphism"
+      ],
+      "success_criteria": "Lower cyclomatic complexity"
+    },
+    {
+      "id": "CAP-REF-011",
+      "name": "Improve Naming",
+      "description": "Improves names for clarity and consistency",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["naming_conventions"]
+      },
+      "outputs": {
+        "primary": "renamed_code",
+        "secondary": ["names_improved", "naming_report"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["REFACTOR-NAMING"],
+      "synergizes_with": ["code_reviewer"],
+      "naming_rules": [
+        "Variables describe content",
+        "Functions describe action",
+        "Classes describe entity",
+        "Consistent casing (camelCase/snake_case)"
+      ],
+      "success_criteria": "Self-documenting names"
+    },
+    {
+      "id": "CAP-REF-012",
+      "name": "Pre-Refactoring Validation",
+      "description": "Validates code has tests before refactoring",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["code", "tests"],
+        "optional": ["coverage_threshold"]
+      },
+      "outputs": {
+        "primary": "safe_to_refactor",
+        "secondary": ["test_coverage", "missing_tests", "risk_areas"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-quality-master"],
+      "hooks_triggered": ["PRE-REFACTOR-CHECK"],
+      "synergizes_with": ["test_orchestrator", "code_reviewer"],
+      "success_criteria": "Adequate test coverage (≥80%)"
+    },
+    {
+      "id": "CAP-REF-013",
+      "name": "Post-Refactoring Validation",
+      "description": "Validates behavior unchanged after refactoring",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["original_code", "refactored_code", "tests"],
+        "optional": ["additional_checks"]
+      },
+      "outputs": {
+        "primary": "validation_result",
+        "secondary": ["tests_passed", "behavior_changed", "issues"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-anti-regression"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "POST-REFACTOR-CHECK"],
+      "synergizes_with": ["regression_detector", "test_orchestrator"],
+      "success_criteria": "All tests pass, behavior unchanged"
+    },
+    {
+      "id": "CAP-REF-014",
+      "name": "Refactoring Plan Generation",
+      "description": "Generates prioritized refactoring plan",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["code_analysis"],
+        "optional": ["priorities", "time_budget"]
+      },
+      "outputs": {
+        "primary": "refactoring_plan",
+        "secondary": ["prioritized_tasks", "estimated_effort", "risk_assessment"]
+      },
+      "skills_used": ["prism-code-master", "prism-sp-planning"],
+      "hooks_triggered": ["REFACTOR-PLAN"],
+      "synergizes_with": ["architect", "coordinator_v2"],
+      "success_criteria": "Actionable refactoring roadmap"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-code-master",
+    "prism-sp-review-quality",
+    "prism-tdd-enhanced",
+    "prism-anti-regression",
+    "prism-api-contracts",
+    "prism-quality-master",
+    "prism-validator",
+    "prism-sp-planning",
+    "prism-dev-utilities"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW4-REGRESSION",
+    "code:preRefactor",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "coder",
+    "code_reviewer"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "code_reviewer",
+    "architect"
+  ],
+
+  "quality_gates": [
+    "Tests exist before refactoring",
+    "All tests pass after refactoring",
+    "Behavior unchanged",
+    "Code quality improved"
+  ],
+
+  "performance_metrics": {
+    "refactoring_safety": 0.99,
+    "complexity_reduction": 0.30,
+    "latency_target_ms": 2000,
+    "refactorings_per_hour": 10
+  }
+}

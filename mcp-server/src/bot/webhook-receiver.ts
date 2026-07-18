@@ -19,7 +19,7 @@
  */
 
 import { createServer, IncomingMessage, ServerResponse } from 'http';
-import { BOT_CONFIG } from './bot-config';
+import { BOT_CONFIG } from './bot-config.js';
 
 // ---------------------------------------------------------------------------
 // Types

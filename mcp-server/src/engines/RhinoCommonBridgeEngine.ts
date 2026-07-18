@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-CAD-APP add-in bridge -- injected RhinoTransport, no singleton; awaits its Rhino/Grasshopper add-in host (delta/CAD), not a standalone prism_* dispatcher action.
 /**
  * RhinoCommonBridgeEngine — U-CAD-APP-07 (PHASE-48)
  *

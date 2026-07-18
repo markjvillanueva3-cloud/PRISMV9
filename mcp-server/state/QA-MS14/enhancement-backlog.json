@@ -1,0 +1,71 @@
+{
+  "audit_id": "QA-MS14-P0-U00",
+  "title": "Prioritized Enhancement Backlog from All QA Findings",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T10:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "COMPLETE — 47 findings compiled from QA-MS0 through QA-MS13. 3 CRITICAL, 21 MAJOR/MEDIUM, 23 LOW/MINOR. REM-MS0 already resolved 4 CRITICAL + 3 MAJOR.",
+
+  "summary": {
+    "total_findings": 47,
+    "by_severity": { "CRITICAL": 3, "MAJOR_MEDIUM": 21, "LOW_MINOR": 23 },
+    "already_fixed_in_rem_ms0": { "CRITICAL": 4, "MAJOR": 3 },
+    "remaining_open": { "CRITICAL": 0, "MAJOR_MEDIUM": 18, "LOW_MINOR": 23 },
+    "note": "REM-MS0 fixed more than QA found because it also addressed findings from earlier sessions (pre-QA audit findings)"
+  },
+
+  "p0_critical": {
+    "status": "ALL RESOLVED via REM-MS0",
+    "items": [
+      { "id": "C-001", "source": "QA-MS1/U00", "title": "HookEngine defaults missing safety score to 1.0 (PASS)", "status": "FIXED in REM-MS0" },
+      { "id": "C-002", "source": "QA-MS1/U00", "title": "EnforcementHooks preOutputSafetyHardGate passes on missing safety score", "status": "FIXED in REM-MS0" },
+      { "id": "C-003", "source": "QA-MS1/U03", "title": "Lambda validation is annotation-only, does not block unsafe calc results", "status": "FIXED in REM-MS0" }
+    ]
+  },
+
+  "p1_major": [
+    { "id": "M-001", "source": "QA-MS1/U00", "title": "SAFETY_THRESHOLD defined in two files — divergence risk", "effort": "S", "priority": "P1" },
+    { "id": "M-002", "source": "QA-MS1/U00", "title": "Config.ts PRISM_SAFETY_THRESHOLD env var disconnected", "effort": "S", "priority": "P1" },
+    { "id": "M-003", "source": "QA-MS1/U00", "title": "machine_capability and edge_cases scoring is binary (0 or 1)", "effort": "M", "priority": "P2" },
+    { "id": "M-004", "source": "QA-MS1/U01", "title": "CoolantSystem concentration/temperature/filtration never validated", "effort": "M", "priority": "P1" },
+    { "id": "M-005", "source": "QA-MS1/U01", "title": "No negative/zero validation on OperationParams inputs", "effort": "S", "priority": "P1" },
+    { "id": "M-006", "source": "QA-MS1/U02", "title": "Only 36% of safety actions have test coverage", "effort": "L", "priority": "P1" },
+    { "id": "M-007", "source": "QA-MS1/U03", "title": "Hook ID CALC-SAFETY-VIOLATION-001 semantic mismatch between systems", "effort": "S", "priority": "P1" },
+    { "id": "M-008", "source": "QA-MS1/U03", "title": "autoHookWrapper fires CALC-SAFETY-VIOLATION-001 with 'score' field, HookEngine expects 'safety_score'", "effort": "S", "priority": "P1" },
+    { "id": "M-009", "source": "QA-MS1/U05", "title": "Empty catch block in autoHookWrapper input validation", "effort": "S", "priority": "P1" },
+    { "id": "M-010", "source": "QA-MS2", "title": "GSD sync issues (2 findings)", "effort": "M", "priority": "P2" },
+    { "id": "M-011", "source": "QA-MS2", "title": "Guard naming inconsistencies (3 findings)", "effort": "S", "priority": "P2" },
+    { "id": "M-012", "source": "QA-MS2", "title": "Omega calculation audit (2 findings)", "effort": "M", "priority": "P2" },
+    { "id": "M-013", "source": "QA-MS2", "title": "Ralph audit issues (3 findings)", "effort": "M", "priority": "P2" },
+    { "id": "M-014", "source": "QA-MS6", "title": "Telemetry engine subset findings (5)", "effort": "M", "priority": "P2" },
+    { "id": "M-015", "source": "QA-MS7", "title": "Cross-registry integrity issues (2)", "effort": "M", "priority": "P2" }
+  ],
+
+  "p2_low": [
+    { "id": "L-001", "source": "QA-MS1/U00", "title": "Dead WARNING branch in EnforcementHooks", "effort": "S" },
+    { "id": "L-002", "source": "QA-MS1/U00", "title": "AutoPilotV2 hardcodes safetyScore: 0.85", "effort": "S" },
+    { "id": "L-003", "source": "QA-MS1/U01", "title": "HSM delivery recommendation overrides user TSC choice", "effort": "S" },
+    { "id": "L-004", "source": "QA-MS1/U02", "title": "Duplicate collision report actions", "effort": "S" },
+    { "id": "L-005", "source": "QA-MS1/U03", "title": "Phi validation only checks English hedging words", "effort": "S" },
+    { "id": "L-006", "source": "QA-MS1/U04", "title": "Downstream safety factor uses point estimates not worst-case", "effort": "M" },
+    { "id": "L-007", "source": "QA-MS2", "title": "Quality dispatcher coverage gap (1)", "effort": "S" },
+    { "id": "L-008", "source": "QA-MS2", "title": "Scrutinizer coverage audit (1)", "effort": "S" },
+    { "id": "L-009", "source": "QA-MS3", "title": "Atomic value compliance (1)", "effort": "S" },
+    { "id": "L-010", "source": "QA-MS3", "title": "Cutting force/speed-feed/surface-finish/thermal/tool-life minor findings (6)", "effort": "M" },
+    { "id": "L-011", "source": "QA-MS4", "title": "Stability lobe + uncertainty propagation findings (2)", "effort": "M" },
+    { "id": "L-012", "source": "QA-MS6", "title": "Intelligence action inventory + PFP subset findings (2)", "effort": "S" },
+    { "id": "L-013", "source": "QA-MS8", "title": "Parameter normalization + toolpath findings (2)", "effort": "S" },
+    { "id": "L-014", "source": "QA-MS13", "title": "Cadence count undercount: 40 claimed vs 103 actual", "effort": "S" }
+  ],
+
+  "effort_estimate": {
+    "total_items": 41,
+    "small_effort": 24,
+    "medium_effort": 14,
+    "large_effort": 3,
+    "estimated_sessions": "8-12 sessions for full remediation"
+  },
+
+  "findings": [],
+  "exit_conditions_met": { "all_findings_compiled": true, "each_finding_prioritized": true, "backlog_sorted": true, "remediation_effort_estimated": true }
+}

@@ -1,10 +1,11 @@
 /**
  * prism_vibration_physics — Vibration, Dynamics & Cutting Physics Dispatcher
  *
- * 16 actions: vibration-assisted machining, vibration dampening, isolation,
- *   Fourier analysis, wavelet analysis, regenerative chatter, burr formation,
- *   chip conveyor, cutter contact, tribology, surface finish, surface grinding,
- *   centerless grinding, grinding wheel, post-processor generation, tap drill
+ * 20 actions: vibration-assisted machining, vibration dampening, isolation,
+ *   Fourier analysis, wavelet analysis, regenerative chatter, chatter-stable
+ *   RPM recommendation (9-axis SLD), burr formation, chip conveyor, cutter
+ *   contact, tribology, surface finish, surface grinding, centerless grinding,
+ *   grinding wheel, post-processor generation, tap drill, adaptive feed (×3)
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -18,6 +19,7 @@ let _wavelet: any, _chatter: any, _burr: any, _chipConveyor: any;
 let _cutterContact: any, _tribology: any, _surfFinish: any, _surfGrinding: any;
 let _centerlessGrinding: any, _grindingWheel: any, _postProc: any, _tapDrill: any;
 let _adaptiveFeed: any;
+let _chatterSF: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -38,15 +40,17 @@ async function getEngine(name: string): Promise<any> {
     case "postProc": return _postProc ??= (await import("../../engines/PostProcessorGeneratorEngine.js")).postProcessorGeneratorEngine;
     case "tapDrill": return _tapDrill ??= (await import("../../engines/TapDrillEngine.js")).tapDrillEngine;
     case "adaptiveFeed": return _adaptiveFeed ??= (await import("../../engines/AdaptiveFeedModulationEngine.js")).adaptiveFeedModulationEngine;
+    case "chatterSF": return _chatterSF ??= (await import("../../engines/SpeedFeedChatterStabilityAdapterEngine.js")).speedFeedChatterStabilityAdapterEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
 
-// WIRE-EXEMPT: Uses engineMap + if/else pattern instead of switch/case for 19 actions.
+// WIRE-EXEMPT: Uses engineMap + if/else pattern instead of switch/case for 20 actions.
 // All actions handled via engineMap lookup (line 87) and method dispatch (lines 103-120).
 const ACTIONS = [
   "vam_calculate", "vibration_dampening_calculate", "vibration_isolation_calculate",
   "fourier_analysis", "wavelet_analysis", "regenerative_chatter_predict",
+  "chatter_stable_rpm_recommend",
   "burr_formation_calculate", "chip_conveyor_calculate",
   "cutter_contact_calculate", "tribology_calculate",
   "surface_finish_calculate", "surface_grinding_calculate",
@@ -62,7 +66,7 @@ export function registerVibrationPhysicsDispatcher(server: any): void {
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
-      log.info(`[prism_vibration_physics] Action: ${action} (16 actions wired)`);
+      log.info(`[prism_vibration_physics] Action: ${action} (${ACTIONS.length} actions wired)`);
       let result: any;
       try {
         let params = rawParams;
@@ -97,6 +101,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           post_processor_generate: "postProc", tap_drill_calculate: "tapDrill",
           adaptive_feed_modulate: "adaptiveFeed", adaptive_feed_update_tool: "adaptiveFeed",
           adaptive_feed_get_tool: "adaptiveFeed",
+          chatter_stable_rpm_recommend: "chatterSF",
         };
 
         const engineKey = engineMap[action];
@@ -106,6 +111,14 @@ Actions: ${ACTIONS.join(", ")}.`,
           result = eng.generate?.(params) ?? eng.calculate?.(params) ?? { error: "PostProcessorGenerator method not found" };
         } else if (action === "regenerative_chatter_predict") {
           result = eng.predict?.(params) ?? eng.calculate?.(params) ?? { error: "RegenerativeChatterPredictor method not found" };
+        } else if (action === "chatter_stable_rpm_recommend") {
+          // 9-axis stable-RPM recommender (holder/stickout/material → stability-lobe peak).
+          // Accepts the NineAxisInput nested under `input`, or the flat record itself.
+          // nominalRpm is read from the TOP level (sibling of `input`) — pass it
+          // alongside `input`, not inside it (the engine ignores a nested nominalRpm).
+          const input = (params.input ?? params) as Record<string, any>;
+          result = eng.recommend?.(input, params.nominalRpm as number | undefined)
+            ?? { error: "SpeedFeedChatterStabilityAdapter.recommend method not found" };
         } else if (action === "fourier_analysis") {
           result = eng.analyze?.(params) ?? eng.calculate?.(params) ?? { error: "FourierAnalysis method not found" };
         } else if (action === "wavelet_analysis") {

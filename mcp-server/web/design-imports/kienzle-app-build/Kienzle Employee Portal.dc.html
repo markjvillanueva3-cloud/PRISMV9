@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.45 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▤</span>WORK</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌀</span>MAKE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">◈</span>QC</button>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#FF5A2B;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#0A0B0D;">RM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;">Good {{ partOfDay }}, {{ firstName }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · {{ deptLabel }} · {{ dateLabel }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid {{ shiftBorder }};background:{{ shiftBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ shiftColor }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ shiftColor }};animation:{{ shiftAnim }};"></span>{{ shiftStatusLabel }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;color:#F3F4F6;letter-spacing:0.02em;">{{ wallClock }}</div>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:392px minmax(0,1fr) 392px;min-height:0;">
+
+      <!-- ───────── SHIFT + JOB CLOCK ───────── -->
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="background:linear-gradient(180deg,{{ clockCardBg }},#0C0D11);border:1px solid {{ clockCardBorder }};border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;color:#9398A2;margin-bottom:6px;">SHIFT TIMER</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:46px;color:#F3F4F6;line-height:1;letter-spacing:0.01em;">{{ shiftElapsed }}</div>
+          <div style="font-size:12px;color:#9398A2;margin-top:6px;">{{ shiftSub }}</div>
+          <button onClick="{{ toggleShift }}" style="width:100%;margin-top:16px;border:none;background:{{ shiftBtnBg }};color:{{ shiftBtnColor }};border-radius:11px;padding:15px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;cursor:pointer;">{{ shiftBtnLabel }}</button>
+          <sc-if value="{{ onBreak }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#F4B740;">⏸ ON BREAK · {{ breakElapsed }}</div>
+          </sc-if>
+          <div style="display:flex;gap:8px;margin-top:9px;">
+            <button onClick="{{ toggleBreak }}" style="flex:1;border:1px solid rgba(255,255,255,0.14);background:transparent;color:{{ breakBtnColor }};border-radius:9px;padding:9px;font-family:'Archivo',sans-serif;font-weight:600;font-size:12px;cursor:pointer;">{{ breakBtnLabel }}</button>
+          </div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:10px;">ACTIVE JOB</div>
+        <sc-if value="{{ hasActiveJob }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#0E0F12;border:1px solid {{ jobCardBorder }};border-radius:14px;padding:15px 16px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px;">
+              <div style="min-width:0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;">{{ activeJobPart }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:2px;">{{ activeJobNo }} · {{ activeJobMachine }} · {{ activeQty }} pcs lot</div></div>
+              <span style="flex:none;display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:{{ jobStateColor }};margin-top:3px;"><span style="width:9px;height:9px;border-radius:50%;background:{{ jobStateColor }};animation:{{ jobStateAnim }};"></span>{{ jobStateLabel }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#0A0B0D;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:8px 10px;margin-bottom:11px;">
+              <button onClick="{{ prevOp }}" style="flex:none;width:28px;height:28px;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:#14161B;color:#9398A2;font-size:13px;cursor:pointer;">‹</button>
+              <div style="flex:1;text-align:center;min-width:0;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#6B7280;">OPERATION {{ opNum }} OF {{ opTotal }}</div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#FF7A4D;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ opCode }} · {{ opName }}</div></div>
+              <button onClick="{{ nextOp }}" style="flex:none;width:28px;height:28px;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:#14161B;color:#9398A2;font-size:13px;cursor:pointer;">›</button>
+            </div>
+            <div style="display:flex;gap:4px;margin-bottom:12px;">
+              <sc-for list="{{ opSeq }}" as="o" hint-placeholder-count="4">
+                <div onClick="{{ o.on }}" style="{{ o.style }}"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:{{ o.codeColor }};">{{ o.code }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ o.doneColor }};margin-top:2px;">{{ o.done }}</div></div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:18px;margin-bottom:12px;">
+              <div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">ON THIS OP</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:{{ jobStateColor }};margin-top:2px;">{{ opElapsed }}</div></div>
+              <div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">STD / PC</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#C7CCD4;margin-top:2px;">{{ activeStd }}</div></div>
+              <div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">PACE</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:{{ paceColor }};margin-top:2px;">{{ pace }}</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:11px;color:#9398A2;">Done thru {{ opCode }}</span>
+              <button onClick="{{ decPc }}" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:#14161B;color:#C7CCD4;font-size:16px;cursor:pointer;">−</button>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:17px;color:#F3F4F6;min-width:64px;text-align:center;">{{ piecesDone }}/{{ activeQty }}</span>
+              <button onClick="{{ incPc }}" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,90,43,0.4);background:rgba(255,90,43,0.1);color:#FF7A4D;font-size:16px;cursor:pointer;">+</button>
+              <div style="flex:1;height:7px;border-radius:999px;background:#1B1E24;overflow:hidden;margin-left:6px;"><div style="height:100%;width:{{ pcPct }};background:#FF5A2B;border-radius:999px;"></div></div>
+            </div>
+            <div style="font-size:10.5px;color:#6B7280;margin-bottom:12px;">{{ opFlowNote }}</div>
+            <div style="display:flex;gap:8px;">
+              <button onClick="{{ pauseJob }}" style="flex:1;border:1px solid {{ pauseBorder }};background:{{ pauseBg }};color:{{ pauseColor }};border-radius:10px;padding:11px;font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">{{ pauseLabel }}</button>
+              <button onClick="{{ clockOffJob }}" style="flex:1;border:1px solid rgba(255,82,71,0.3);background:rgba(255,82,71,0.08);color:#FF8A8A;border-radius:10px;padding:11px;font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">Clock off job</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noActiveJob }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#0E0F12;border:1px dashed rgba(255,255,255,0.14);border-radius:14px;padding:20px 16px;margin-bottom:12px;text-align:center;">
+            <div style="font-size:13px;color:#9398A2;line-height:1.4;">Not clocked onto a job.<br>Pick one from your queue →</div>
+          </div>
+        </sc-if>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:9px;">TODAY'S PUNCHES</div>
+        <sc-for list="{{ punches }}" as="p" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:11px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="flex:none;width:7px;height:7px;border-radius:50%;background:{{ p.color }};"></span>
+            <span style="flex:1;font-size:12px;color:#C7CCD4;">{{ p.label }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#9398A2;">{{ p.time }}</span>
+          </div>
+        </sc-for>
+      </section>
+
+      <!-- ───────── MY QUEUE ───────── -->
+      <section style="overflow:hidden;min-width:0;padding:18px 20px;background:radial-gradient(900px 480px at 75% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:none;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;">My queue · {{ queueCount }} jobs</div>
+          <div style="display:flex;gap:6px;"><sc-for list="{{ queueFilters }}" as="q" hint-placeholder-count="3"><button onClick="{{ q.on }}" style="{{ q.style }}">{{ q.label }}</button></sc-for></div>
+        </div>
+        <div class="kz-scroll" style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+          <sc-for list="{{ queueRows }}" as="j" hint-placeholder-count="6">
+            <div style="{{ j.style }}">
+              <div style="display:flex;align-items:flex-start;gap:13px;">
+                <div style="flex:none;width:42px;height:42px;border-radius:10px;background:{{ j.iconBg }};display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ j.iconColor }};">{{ j.prio }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                    <div style="min-width:0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ j.part }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">{{ j.no }} · {{ j.customer }} · {{ j.op }}</div></div>
+                    <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ j.dueColor }};">{{ j.due }}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:14px;margin-top:9px;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;">{{ j.machine }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;">{{ j.qty }} pcs</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;">est {{ j.estHrs }}h</span>
+                    <div style="flex:1;"></div>
+                    <button onClick="{{ j.onClock }}" style="{{ j.btnStyle }}">{{ j.btnLabel }}</button>
+                  </div>
+                  <sc-if value="{{ j.showSetup }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:10px;padding:9px 12px;background:#0A0B0D;border:1px solid rgba(255,255,255,0.06);border-radius:9px;display:flex;gap:14px;flex-wrap:wrap;">
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#7FB2FF;">⊞ {{ j.setupSheet }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;">{{ j.tools }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;">{{ j.material }}</span>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- ───────── ME: PAY / CERTS / PTO ───────── -->
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">THIS PAY PERIOD</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:15px 16px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+            <div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">EST. GROSS</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:#F3F4F6;margin-top:3px;">${{ estGross }}</div></div>
+            <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">EFFICIENCY</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:{{ myEffColor }};margin-top:3px;">{{ myEff }}</div></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <div style="flex:1;background:#0A0B0D;border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:9px 11px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">REG</div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#C7CCD4;margin-top:2px;">{{ regHrs }}h</div></div>
+            <div style="flex:1;background:#0A0B0D;border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:9px 11px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">OT</div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:{{ otColor }};margin-top:2px;">{{ otHrs }}h</div></div>
+            <div style="flex:1;background:#0A0B0D;border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:9px 11px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">RATE</div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#C7CCD4;margin-top:2px;">${{ rate }}</div></div>
+          </div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">WEEK · HOURS</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:14px;">
+          <svg viewBox="0 0 340 96" width="100%" height="92" style="display:block;">
+            <line x1="6" y1="74" x2="334" y2="74" stroke="#23262E" stroke-width="1"></line>
+            <sc-for list="{{ weekBars }}" as="d" hint-placeholder-count="5">
+              <rect x="{{ d.x }}" y="{{ d.regY }}" width="{{ d.w }}" height="{{ d.regH }}" rx="2" fill="#2A6FDB"></rect>
+              <rect x="{{ d.x }}" y="{{ d.otY }}" width="{{ d.w }}" height="{{ d.otH }}" rx="2" fill="#FF5A2B"></rect>
+              <text x="{{ d.tx }}" y="88" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#9398A2">{{ d.label }}</text>
+            </sc-for>
+          </svg>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">CERTIFICATIONS</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+          <sc-for list="{{ certRows }}" as="c" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:11px;padding:10px 13px;background:#0E0F12;border:1px solid {{ c.border }};border-radius:11px;">
+              <span style="flex:none;width:9px;height:9px;border-radius:50%;background:{{ c.color }};"></span>
+              <div style="flex:1;min-width:0;"><div style="font-size:12.5px;color:#F3F4F6;">{{ c.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ c.detail }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ c.color }};">{{ c.tag }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">TIME OFF</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;">
+          <div style="display:flex;gap:10px;margin-bottom:12px;">
+            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">PTO BAL</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#36D399;margin-top:2px;">{{ ptoBal }}h</div></div>
+            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">SICK</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#C7CCD4;margin-top:2px;">{{ sickBal }}h</div></div>
+            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">PENDING</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#F4B740;margin-top:2px;">{{ ptoPending }}</div></div>
+          </div>
+          <button onClick="{{ requestPto }}" style="width:100%;border:1px solid rgba(255,90,43,0.3);background:rgba(255,90,43,0.08);color:#FF7A4D;border-radius:10px;padding:11px;font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">{{ ptoBtnLabel }}</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    shiftOn: true, onBreak: false, shiftStartMs: Date.now() - 3 * 3600e3 - 12 * 60e3,
+    breakStartMs: null, breakAccumMs: 32 * 60e3,
+    activeJob: 'altracs', opStartMs: Date.now() - 47 * 60e3, opIndex: 1,
+    jobPaused: false, jobPauseStartMs: null, jobPauseAccumMs: 6 * 60e3,
+    opProgress: { altracs: [200, 62, 0, 0] },
+    queueFilter: 'all', ptoRequested: false, tick: 0,
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6,
+  };
+  componentDidMount() {
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) });
+    window.addEventListener('resize', this._fit); this._fit();
+    this._timer = setInterval(() => this.setState(st => ({ tick: st.tick + 1 })), 1000);
+  }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); if (this._timer) clearInterval(this._timer); }
+
+  QUEUE = [
+    { id: 'altracs', prio: 'P1', part: 'ALTRACS Taptite punch', no: 'JOB-4475', customer: 'ALTRACS', machine: 'Wire-1', qty: 200, estHrs: 6.5, due: 'Due today', dueLvl: 2, setupSheet: 'SS-4475 rev B', tools: 'T1 .008 brass', material: 'C2 carbide blank', stationOp: 1, ops: [{ code: 'OP10', name: 'Saw / blank', std: 0.6 }, { code: 'OP20', name: 'Wire rough form', std: 1.9 }, { code: 'OP30', name: 'Wire skim', std: 1.2 }, { code: 'OP40', name: 'Jig grind', std: 1.5 }] },
+    { id: 'carbide', prio: 'P1', part: 'Carbide form punch', no: 'JOB-4480', customer: 'SEMBLEX', machine: 'Wire-1', qty: 120, estHrs: 5.0, due: 'Due tomorrow', dueLvl: 1, setupSheet: 'SS-4480 rev A', tools: 'T1 .008 brass', material: 'C2 carbide', stationOp: 1, ops: [{ code: 'OP10', name: 'Blank prep', std: 0.5 }, { code: 'OP20', name: 'Wire form', std: 2.4 }, { code: 'OP30', name: 'Skim pass', std: 1.4 }] },
+    { id: 'optimas', prio: 'P2', part: 'OPTIMAS die window', no: 'JOB-4468', customer: 'OPTIMAS', machine: 'Wire-2', qty: 50, estHrs: 8.0, due: 'Thu', dueLvl: 0, setupSheet: 'SS-4468 rev C', tools: 'T1 .010 brass', material: 'A2 tool steel', stationOp: 2, ops: [{ code: 'OP10', name: 'Mill pocket', std: 4.0 }, { code: 'OP20', name: 'Heat treat', std: 0 }, { code: 'OP30', name: 'Wire window', std: 9.2 }, { code: 'OP40', name: 'Bench / fit', std: 2.0 }] },
+    { id: 'topura', prio: 'P2', part: 'TOPURA insert relief', no: 'JOB-4466', customer: 'TOPURA', machine: 'Wire-1', qty: 120, estHrs: 4.5, due: 'Fri', dueLvl: 0, setupSheet: 'SS-4466 rev A', tools: 'T1 .008 brass', material: 'D2 tool steel', stationOp: 2, ops: [{ code: 'OP10', name: 'Turn OD', std: 1.1 }, { code: 'OP20', name: 'Mill flats', std: 1.4 }, { code: 'OP25', name: 'Wire relief', std: 2.1 }, { code: 'OP30', name: 'Deburr', std: 0.4 }] },
+    { id: 'stalcop', prio: 'P3', part: 'STALCOP collar die', no: 'JOB-4477', customer: 'STALCOP', machine: 'Wire-2', qty: 300, estHrs: 7.0, due: 'Next wk', dueLvl: 0, setupSheet: 'SS-4477 rev A', tools: 'T1 .010 brass', material: 'S7 shock steel', stationOp: 1, ops: [{ code: 'OP10', name: 'Blank', std: 0.4 }, { code: 'OP20', name: 'Wire bore', std: 1.4 }, { code: 'OP30', name: 'Grind face', std: 0.9 }] },
+  ];
+
+  fmtDur(ms) { ms = Math.max(0, ms); const h = Math.floor(ms / 3600e3), m = Math.floor((ms % 3600e3) / 60e3), s = Math.floor((ms % 60e3) / 1e3); return (h > 0 ? h + ':' : '') + String(m).padStart(h > 0 ? 2 : 1, '0') + ':' + String(s).padStart(2, '0'); }
+  fmtClock(d) { let h = d.getHours(), m = d.getMinutes(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + String(m).padStart(2, '0') + ' ' + ap; }
+
+  renderVals() {
+    const s = this.state, now = Date.now(), nowD = new Date();
+    const breakMs = s.breakAccumMs + (s.onBreak && s.breakStartMs ? now - s.breakStartMs : 0);
+    const shiftMs = s.shiftOn ? (now - s.shiftStartMs - breakMs) : 0;
+    const active = this.QUEUE.find(j => j.id === s.activeJob);
+    const jobActive = s.shiftOn && !s.onBreak && !s.jobPaused && !!active;
+    const pauseMs = s.jobPauseAccumMs + (s.jobPaused && s.jobPauseStartMs ? now - s.jobPauseStartMs : 0);
+    const opMs = (active && s.shiftOn) ? Math.max(0, now - s.opStartMs - pauseMs) : 0;
+    const opIdx = active ? Math.max(0, Math.min(active.ops.length - 1, s.opIndex)) : 0;
+    const curOp = active ? active.ops[opIdx] : null;
+    const prog = (active && s.opProgress[active.id]) ? s.opProgress[active.id] : (active ? active.ops.map(() => 0) : []);
+    const piecesDone = active ? (prog[opIdx] || 0) : 0;
+
+    const hr = nowD.getHours();
+    const partOfDay = hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : 'evening';
+
+    // pace = std-earned vs actual on this operation (excludes paused + break time)
+    let pace = '—', paceColor = '#9398A2';
+    if (curOp && piecesDone > 0 && curOp.std > 0) { const earnedMin = piecesDone * curOp.std; const actualMin = opMs / 60e3 || 1; const p = earnedMin / actualMin; pace = (p * 100).toFixed(0) + '%'; paceColor = p >= 1 ? '#36D399' : p >= 0.85 ? '#F4B740' : '#FF5247'; }
+
+    // op sequence chips — done counts per operation, with flow gating
+    const opSeq = active ? active.ops.map((o, i) => { const d = prog[i] || 0; const onOp = i === opIdx; return {
+      code: o.code, done: o.std === 0 ? '—' : d + '/' + active.qty, on: () => this.setState({ opIndex: i }),
+      codeColor: onOp ? '#FF7A4D' : '#9398A2', doneColor: onOp ? '#F3F4F6' : (d >= active.qty ? '#36D399' : '#6B7280'),
+      style: `flex:1;min-width:0;text-align:center;padding:7px 4px;border-radius:8px;cursor:pointer;background:${onOp ? 'rgba(255,90,43,0.1)' : '#0A0B0D'};border:1px solid ${onOp ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.06)'};`,
+    }; }) : [];
+    const upstream = active && opIdx > 0 ? (prog[opIdx - 1] || 0) : active ? active.qty : 0;
+    const opFlowNote = active ? (opIdx > 0 ? `${upstream}/${active.qty} cleared ${active.ops[opIdx - 1].code} upstream · ${active.qty - piecesDone} still to run here` : `first operation · ${active.qty - piecesDone} of ${active.qty} remaining`) : '';
+
+    const punches = [
+      { label: 'Clocked in', time: this.fmtClock(new Date(s.shiftStartMs)), color: '#36D399' },
+      { label: 'Job ' + (active ? active.no : '—') + ' ' + (curOp ? curOp.code : '') + ' start', time: this.fmtClock(new Date(s.opStartMs)), color: '#FF5A2B' },
+    ];
+    if (s.jobPauseAccumMs > 0 || s.jobPaused) punches.push({ label: 'Job paused (' + Math.round(pauseMs / 60e3) + 'm idle)', time: s.jobPaused ? this.fmtClock(new Date(s.jobPauseStartMs)) : '—', color: '#7FB2FF' });
+    if (s.breakAccumMs > 0) punches.push({ label: 'Break (' + Math.round(s.breakAccumMs / 60e3) + 'm)', time: '10:15 AM', color: '#F4B740' });
+    if (s.onBreak) punches.push({ label: 'Break start', time: this.fmtClock(new Date(s.breakStartMs)), color: '#F4B740' });
+
+    // queue
+    const filtered = this.QUEUE.filter(j => s.queueFilter === 'all' ? true : s.queueFilter === 'today' ? j.dueLvl >= 1 : j.machine === 'Wire-1');
+    const dueColors = { 0: '#9398A2', 1: '#F4B740', 2: '#FF5247' };
+    const queueRows = filtered.map(j => { const isActive = j.id === s.activeJob; const sop = j.ops[j.stationOp]; return {
+      style: `background:${isActive ? 'rgba(255,90,43,0.08)' : '#0C0D11'};border:1px solid ${isActive ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.08)'};border-radius:14px;padding:14px 16px;`,
+      prio: j.prio, iconBg: j.prio === 'P1' ? 'rgba(255,82,71,0.14)' : j.prio === 'P2' ? 'rgba(244,183,64,0.14)' : 'rgba(127,178,255,0.12)', iconColor: j.prio === 'P1' ? '#FF6B6B' : j.prio === 'P2' ? '#F4B740' : '#7FB2FF',
+      part: j.part, no: j.no, customer: j.customer, op: sop.code + ' ' + sop.name + ' · op ' + (j.stationOp + 1) + '/' + j.ops.length, machine: j.machine, qty: j.qty, estHrs: j.estHrs.toFixed(1),
+      due: j.due, dueColor: dueColors[j.dueLvl],
+      showSetup: isActive, setupSheet: j.setupSheet, tools: j.tools, material: j.material,
+      onClock: () => this.clockJob(j.id),
+      btnLabel: isActive ? '● On job' : 'Clock on',
+      btnStyle: isActive ? "border:1px solid rgba(255,90,43,0.5);background:rgba(255,90,43,0.14);color:#FF7A4D;border-radius:8px;padding:7px 14px;font-family:'Archivo',sans-serif;font-weight:600;font-size:12px;cursor:pointer;" : "border:1px solid rgba(54,211,153,0.4);background:rgba(54,211,153,0.08);color:#36D399;border-radius:8px;padding:7px 14px;font-family:'Archivo',sans-serif;font-weight:600;font-size:12px;cursor:pointer;",
+    }; });
+
+    // week bars (Mon-Fri + today)
+    const days = [['M', 8.5, 0.5], ['T', 8, 0], ['W', 8, 0], ['T', 9, 1], ['F', (shiftMs / 3600e3), 0]];
+    const maxH = 10, base = 74, topY = 8, bw = 44, gap = (340 - 12 - 5 * bw) / 4;
+    const weekBars = days.map((d, i) => { const reg = Math.min(8, d[1]), ot = Math.max(0, d[1] - 8) + d[2]; const x = 6 + i * (bw + gap); const regH = (reg / maxH) * (base - topY), otH = (ot / maxH) * (base - topY); const regY = base - regH, otY = regY - otH; return {
+      x: x.toFixed(1), w: bw, regY: regY.toFixed(1), regH: regH.toFixed(1), otY: otY.toFixed(1), otH: otH.toFixed(1), tx: (x + bw / 2).toFixed(1), label: d[0],
+    }; });
+
+    const certRows = [
+      { name: 'Mitsubishi Wire EDM', detail: 'Cert #WE-2231 · exp 2027-04', color: '#36D399', border: 'rgba(54,211,153,0.2)', tag: 'CURRENT' },
+      { name: 'Forklift operator', detail: 'exp 2026-11', color: '#36D399', border: 'rgba(54,211,153,0.2)', tag: 'CURRENT' },
+      { name: 'First aid / CPR', detail: 'Renews in 23 days', color: '#F4B740', border: 'rgba(244,183,64,0.2)', tag: '<30d' },
+    ];
+
+    const regHrs = 80, otHrs = 2, rate = 34;
+    const estGross = (regHrs * rate + otHrs * rate * 1.5).toLocaleString('en-US');
+    const myEff = '107%';
+
+    return {
+      scale: s.scale, partOfDay, firstName: 'Rafael', deptLabel: 'Wire EDM · Lead', dateLabel: 'WED JUN 24 · 1ST SHIFT',
+      wallClock: this.fmtClock(nowD),
+      shiftStatusLabel: s.shiftOn ? (s.onBreak ? 'ON BREAK' : 'ON SHIFT') : 'CLOCKED OUT',
+      shiftColor: s.shiftOn ? (s.onBreak ? '#F4B740' : '#36D399') : '#6B7280',
+      shiftBorder: s.shiftOn ? (s.onBreak ? 'rgba(244,183,64,0.3)' : 'rgba(54,211,153,0.25)') : 'rgba(255,255,255,0.12)',
+      shiftBg: s.shiftOn ? (s.onBreak ? 'rgba(244,183,64,0.06)' : 'rgba(54,211,153,0.06)') : 'transparent',
+      shiftAnim: s.shiftOn && !s.onBreak ? 'kzpulse 2s infinite' : 'none',
+      shiftElapsed: s.shiftOn ? this.fmtDur(shiftMs) : '0:00', shiftSub: s.shiftOn ? 'since ' + this.fmtClock(new Date(s.shiftStartMs)) + ' · break ' + Math.round(breakMs / 60e3) + 'm' : 'tap to start your shift',
+      clockCardBg: s.shiftOn ? 'rgba(54,211,153,0.05)' : 'rgba(255,255,255,0.02)', clockCardBorder: s.shiftOn ? 'rgba(54,211,153,0.18)' : 'rgba(255,255,255,0.1)',
+      shiftBtnLabel: s.shiftOn ? 'Clock out' : 'Clock in', shiftBtnBg: s.shiftOn ? 'rgba(255,82,71,0.14)' : '#36D399', shiftBtnColor: s.shiftOn ? '#FF8A8A' : '#0A0B0D',
+      toggleShift: () => this.toggleShift(),
+      onBreak: s.onBreak, breakElapsed: s.onBreak && s.breakStartMs ? this.fmtDur(now - s.breakStartMs) : '0:00',
+      breakBtnLabel: s.onBreak ? 'End break' : 'Start break', breakBtnColor: s.onBreak ? '#F4B740' : '#9398A2', toggleBreak: () => this.toggleBreak(),
+      hasActiveJob: !!active && s.shiftOn, noActiveJob: !active || !s.shiftOn,
+      activeJobPart: active ? active.part : '', activeJobNo: active ? active.no : '', activeJobMachine: active ? active.machine : '',
+      jobCardBorder: s.jobPaused ? 'rgba(127,178,255,0.35)' : 'rgba(255,90,43,0.3)',
+      jobStateLabel: s.jobPaused ? 'PAUSED' : 'RUNNING', jobStateColor: s.jobPaused ? '#7FB2FF' : '#FF5A2B', jobStateAnim: jobActive ? 'kzpulse 1.6s infinite' : 'none',
+      opNum: opIdx + 1, opTotal: active ? active.ops.length : 0, opCode: curOp ? curOp.code : '', opName: curOp ? curOp.name : '',
+      prevOp: () => this.stepOp(-1), nextOp: () => this.stepOp(1), opSeq,
+      opElapsed: this.fmtDur(opMs), activeStd: curOp ? (curOp.std === 0 ? 'n/a' : curOp.std + 'm') : '—', pace, paceColor, opFlowNote,
+      piecesDone, activeQty: active ? active.qty : 0, pcPct: active ? Math.min(100, piecesDone / active.qty * 100).toFixed(0) + '%' : '0%',
+      incPc: () => this.bumpPc(1), decPc: () => this.bumpPc(-1),
+      pauseLabel: s.jobPaused ? '▶ Resume job' : '❚❚ Pause job', pauseBorder: s.jobPaused ? 'rgba(54,211,153,0.4)' : 'rgba(127,178,255,0.35)', pauseBg: s.jobPaused ? 'rgba(54,211,153,0.08)' : 'rgba(127,178,255,0.08)', pauseColor: s.jobPaused ? '#36D399' : '#7FB2FF', pauseJob: () => this.pauseJob(),
+      clockOffJob: () => this.setState({ activeJob: null, jobPaused: false }),
+      punches,
+      queueCount: this.QUEUE.length,
+      queueFilters: [['all', 'All'], ['today', 'Due soon'], ['wire1', 'Wire-1']].map(([id, label]) => ({ label, on: () => this.setState({ queueFilter: id }), style: `border:1px solid ${s.queueFilter === id ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${s.queueFilter === id ? 'rgba(255,90,43,0.12)' : 'transparent'};color:${s.queueFilter === id ? '#FF7A4D' : '#9398A2'};border-radius:7px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` })),
+      queueRows,
+      estGross, myEff, myEffColor: '#36D399', regHrs, otHrs, otColor: otHrs > 0 ? '#F4B740' : '#9398A2', rate,
+      weekBars,
+      certRows,
+      ptoBal: 64, sickBal: 24, ptoPending: s.ptoRequested ? '8h' : '—',
+      requestPto: () => this.setState({ ptoRequested: true }), ptoBtnLabel: s.ptoRequested ? '✓ Request submitted' : 'Request time off',
+    };
+  }
+
+  toggleShift() { const s = this.state; if (s.shiftOn) this.setState({ shiftOn: false, onBreak: false, activeJob: null }); else this.setState({ shiftOn: true, shiftStartMs: Date.now(), breakAccumMs: 0, breakStartMs: null }); }
+  toggleBreak() { const s = this.state, now = Date.now(); if (!s.shiftOn) return; if (s.onBreak) this.setState({ onBreak: false, breakAccumMs: s.breakAccumMs + (now - s.breakStartMs), breakStartMs: null }); else this.setState({ onBreak: true, breakStartMs: now }); }
+  pauseJob() { const s = this.state, now = Date.now(); if (!s.activeJob) return; if (s.jobPaused) this.setState({ jobPaused: false, jobPauseAccumMs: s.jobPauseAccumMs + (now - s.jobPauseStartMs), jobPauseStartMs: null }); else this.setState({ jobPaused: true, jobPauseStartMs: now }); }
+  stepOp(dir) { const s = this.state, j = this.QUEUE.find(x => x.id === s.activeJob); if (!j) return; const ni = Math.max(0, Math.min(j.ops.length - 1, s.opIndex + dir)); if (ni === s.opIndex) return; this.setState({ opIndex: ni, opStartMs: Date.now(), jobPauseAccumMs: 0, jobPauseStartMs: null, jobPaused: false }); }
+  bumpPc(d) { const s = this.state; if (!s.activeJob || s.jobPaused) return; const j = this.QUEUE.find(x => x.id === s.activeJob); const arr = (s.opProgress[s.activeJob] || j.ops.map(() => 0)).slice(); const i = Math.max(0, Math.min(j.ops.length - 1, s.opIndex)); arr[i] = Math.max(0, Math.min(j.qty, (arr[i] || 0) + d)); this.setState({ opProgress: { ...s.opProgress, [s.activeJob]: arr } }); }
+  clockJob(id) { if (!this.state.shiftOn) return; const j = this.QUEUE.find(x => x.id === id); const prog = this.state.opProgress[id] || (j ? j.ops.map(() => 0) : []); this.setState({ activeJob: id, opStartMs: Date.now(), opIndex: j ? j.stationOp : 0, jobPaused: false, jobPauseAccumMs: 0, jobPauseStartMs: null, opProgress: { ...this.state.opProgress, [id]: prog } }); }
+}
+</script>
+</body>
+</html>

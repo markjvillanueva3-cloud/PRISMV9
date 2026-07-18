@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /lathe-harden — Lathe AI Hardening
+Harden PRISM AI for specific lathe machines:
+- Machine-specific parameter limits
+- Kinematics model calibration
+- Controller dialect adaptation
+- Safety envelope definition
 
 <!-- AUTO-END -->
 

@@ -33,7 +33,7 @@ const SCRATCH_PREFIX = "prism-conflict-sim-";
 const CMD_TIMEOUT_MS = 30000;
 
 function git(cmd, opts = {}) {
-  return execSync(`git ${cmd}`, {
+  return execSync(`git ${cmd}`, { windowsHide: true,
     cwd: opts.cwd || PRISM_ROOT,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],

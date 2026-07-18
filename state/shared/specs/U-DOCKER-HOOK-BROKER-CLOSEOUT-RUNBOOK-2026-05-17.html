@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="8e032feeb52112564e45c58f542fcec229ba4f05a58ac92d10c4a2c6f4d6a5ad">
+<title>U-DOCKER-HOOK-BROKER — Operator Close-Out Runbook</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">U-DOCKER-HOOK-BROKER — Operator Close-Out Runbook</h1>
+<p class="provenance">Generated 2026-05-18T17:34:21.118Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#u-docker-hook-broker-operator-close-out-runbook">U-DOCKER-HOOK-BROKER — Operator Close-Out Runbook</a></li>
+<li class="toc-l2"><a href="#why-this-runbook-exists">Why this runbook exists</a></li>
+<li class="toc-l2"><a href="#pre-flight-confirm-docker-is-actually-up">Pre-flight: confirm Docker is actually up</a></li>
+<li class="toc-l2"><a href="#step-1-run-the-installer-satisfies-parts-of-exit-conditions-1-3">Step 1 — Run the installer (satisfies parts of exit conditions #1 + #3)</a></li>
+<li class="toc-l2"><a href="#step-2-manual-health-check-closes-exit-condition-1">Step 2 — Manual health check (closes exit condition #1)</a></li>
+<li class="toc-l2"><a href="#step-3-50-fire-round-trip-stress-against-the-live-broker-closes-exit-condition-3">Step 3 — 50-fire round-trip stress against the live broker (closes exit condition #3)</a></li>
+<li class="toc-l2"><a href="#step-4-24-hour-burn-in-closes-exit-condition-2">Step 4 — 24-hour burn-in (closes exit condition #2)</a></li>
+<li class="toc-l3"><a href="#baseline-right-after-step-3-passes">Baseline (right after Step 3 passes)</a></li>
+<li class="toc-l3"><a href="#24-h-re-sample">+24 h re-sample</a></li>
+<li class="toc-l2"><a href="#step-5-close-out-the-milestone-4-surface-atomic-idempotent">Step 5 — Close out the milestone (4-surface, atomic, idempotent)</a></li>
+<li class="toc-l3"><a href="#5a-flip-a1s-status-atomically">5a — Flip A1&#39;s status atomically</a></li>
+<li class="toc-l3"><a href="#5b-run-the-orchestrator">5b — Run the orchestrator</a></li>
+<li class="toc-l3"><a href="#5c-commit-slot-routed-runs-from-the-chat-thats-closing-this-out">5c — Commit (slot-routed; runs from the chat that&#39;s closing this out)</a></li>
+<li class="toc-l2"><a href="#step-6-decide-whether-to-wire-the-broker-into-settingsjson">Step 6 — Decide whether to wire the broker into settings.json</a></li>
+<li class="toc-l2"><a href="#failure-modes-rollback">Failure modes &amp; rollback</a></li>
+<li class="toc-l2"><a href="#provenance">Provenance</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="u-docker-hook-broker-operator-close-out-runbook"><a class="anchor" href="#u-docker-hook-broker-operator-close-out-runbook" aria-label="Permalink to U-DOCKER-HOOK-BROKER — Operator Close-Out Runbook">#</a>U-DOCKER-HOOK-BROKER — Operator Close-Out Runbook</h1>
+<p><strong>Milestone:</strong> OBSIDIAN-INTELLIGENCE-MS3 (A1 of phase A — Stabilization) <strong>Status going in:</strong> 23/24 shipped · A1 partial-shipped 2026-05-15 · 3 exit conditions blocked on Docker engine recovery <strong>Status coming out:</strong> 24/24 shipped · MS3 complete <strong>Estimated wall-clock:</strong> ~5 minutes to start the burn-in + 24 hours of passive observation <strong>Required shell:</strong> all bash blocks run in <strong>git-bash on Windows</strong>. PowerShell-only blocks are explicitly tagged <code># pwsh</code>. Don&#39;t mix.</p>
+<h2 id="why-this-runbook-exists"><a class="anchor" href="#why-this-runbook-exists" aria-label="Permalink to Why this runbook exists">#</a>Why this runbook exists</h2>
+<p>The five A1 deliverables already shipped 2026-05-15 in <code>claude-a2b1b5ca</code> (slot hotel) — Dockerfile, broker server, broker client, installer, 15-case test suite (all passing). Per-file scrutiny was PASS/PASS (2 P0 + 5 P1 remediated). The remaining exit conditions are <strong>infrastructure verification</strong>, not code:</p>
+<ol>
+<li>Container <code>prism-hooks</code> runs persistently</li>
+<li>Per-event cold-start eliminated — xmalloc OOMs drop to zero in 24 h burn-in</li>
+<li>50 rapid PreToolUse fires complete with zero forked-process failures</li>
+</ol>
+<p>All three need a live Docker engine. Docker was wedged when A1 partial-shipped (still wedged 2026-05-17 per <code>CLAUDE.md</code> Recent Regressions). This runbook is what an operator executes the moment Docker is back, in the natural order <strong>install → smoke → stress → soak → close</strong>.</p>
+<h2 id="pre-flight-confirm-docker-is-actually-up"><a class="anchor" href="#pre-flight-confirm-docker-is-actually-up" aria-label="Permalink to Pre-flight: confirm Docker is actually up">#</a>Pre-flight: confirm Docker is actually up</h2>
+<pre><code class="language-bash"># In any shell
+docker info
+# Expect: rich status block. NOT &quot;ETIMEDOUT&quot; or &quot;Cannot connect to the Docker daemon&quot;.
+</code></pre>
+<p>If <code>docker info</code> hangs or errors, work through <code>knowledge/memories/feedback/feedback_docker_wsl_recovery.md</code>. Operator quick path:</p>
+<pre><code class="language-powershell"># pwsh (elevated)
+sc query com.docker.service
+# if STOPPED: sc start com.docker.service
+wsl --shutdown
+# then restart Docker Desktop from the system tray
+</code></pre>
+<p>Then fast-check from the chat side:</p>
+<pre><code class="language-bash">node H:/prism/scripts/ollama-docker-health.mjs
+# Expect: &#39;✓ Docker&#39; on the local-compute line. NOT &#39;✗ Docker spawnSync docker ETIMEDOUT&#39;.
+</code></pre>
+<p><strong>Do not proceed until Docker reports healthy.</strong> The installer will throw on a dead daemon — that throw is the safety net, not the diagnostic. Use the probe above as the actual gate.</p>
+<h2 id="step-1-run-the-installer-satisfies-parts-of-exit-conditions-1-3"><a class="anchor" href="#step-1-run-the-installer-satisfies-parts-of-exit-conditions-1-3" aria-label="Permalink to Step 1 — Run the installer (satisfies parts of exit conditions #1 + #3)">#</a>Step 1 — Run the installer (satisfies parts of exit conditions #1 + #3)</h2>
+<pre><code class="language-powershell"># pwsh — elevated preferred so scheduled-task registration succeeds non-interactively
+pwsh -File H:/prism/scripts/install-prism-hooks-container.ps1
+</code></pre>
+<p>What this does, in order:</p>
+<ol>
+<li>Verifies the Dockerfile + broker server are on disk (<code>scripts/docker/prism-hooks-broker.Dockerfile</code>, <code>scripts/docker/prism-hooks-broker-server.mjs</code>).</li>
+<li><code>docker build -f scripts/docker/prism-hooks-broker.Dockerfile -t prism-hooks-broker:local H:/prism</code>.</li>
+<li>Starts container <code>prism-hooks</code> with <code>--restart unless-stopped</code>, host port <code>127.0.0.1:9876</code> → container <code>9876</code>, hooks dir mounted read-only at <code>/app/.claude/hooks</code>.</li>
+<li>12 × 500 ms health probes of <code>http://127.0.0.1:9876/healthz</code> — bails to a yellow <code>!</code> warning if not healthy in 6 s (then check <code>docker logs prism-hooks</code>).</li>
+<li>Registers a Windows scheduled task <code>PRISM Hooks Broker Watchdog</code> (at-logon + 5-min repeat) that runs <code>docker start prism-hooks</code> — covers daemon restarts.</li>
+</ol>
+<p>Useful flags:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Flag</th><th>When to use</th></tr></thead>
+<tbody>
+<tr><td><code>-DryRun</code></td><td>Print every docker / Register-ScheduledTask command without executing. First run on a new machine.</td></tr>
+<tr><td><code>-SkipBuild</code></td><td>Re-run without rebuilding the image. Useful after a <code>docker rm -f prism-hooks</code> to recycle the container.</td></tr>
+<tr><td><code>-NoTask</code></td><td>Skip scheduled-task registration. Use if you manage watchdog elsewhere.</td></tr>
+<tr><td><code>-Uninstall</code></td><td>Stop + remove container, remove image, deregister scheduled task. Reversibility — never deletes hook source files.</td></tr>
+</tbody>
+</table></div>
+<h2 id="step-2-manual-health-check-closes-exit-condition-1"><a class="anchor" href="#step-2-manual-health-check-closes-exit-condition-1" aria-label="Permalink to Step 2 — Manual health check (closes exit condition #1)">#</a>Step 2 — Manual health check (closes exit condition #1)</h2>
+<pre><code class="language-bash"># git-bash
+curl -s http://127.0.0.1:9876/healthz
+</code></pre>
+<p>Pipe through node if you want pretty-printing (no Python on this host):</p>
+<pre><code class="language-bash">curl -s http://127.0.0.1:9876/healthz | node -e &quot;const d=JSON.parse(require(&#39;fs&#39;).readFileSync(0,&#39;utf8&#39;)); console.log(JSON.stringify(d,null,2))&quot;
+</code></pre>
+<p>Expected response:</p>
+<pre><code class="language-json">{
+  &quot;ok&quot;: true,
+  &quot;loaded&quot;: &lt;number&gt;,
+  &quot;failed&quot;: {},
+  &quot;port&quot;: 9876,
+  &quot;uptime_s&quot;: &lt;small int&gt;
+}
+</code></pre>
+<p>A non-empty <code>failed</code> map names hooks that threw during <code>loadAllHooks()</code> — surface those before declaring success. <code>loaded</code> should be ≥ the count of default-export <code>.mjs</code> hooks in <code>.claude/hooks/</code> (legacy stdio hooks are intentionally skipped — they fall back to subprocess execution).</p>
+<p>Also confirm container persistence:</p>
+<pre><code class="language-bash">docker ps --filter &quot;name=^/prism-hooks$&quot; --format &#39;{{.Status}}&#39;
+# Expect: &#39;Up &lt;duration&gt;&#39; (a value, not blank)
+</code></pre>
+<p>✅ <strong>Exit condition #1 satisfied</strong> when the healthz endpoint returns 200 with <code>ok:true</code> AND <code>docker ps</code> shows the container Up.</p>
+<h2 id="step-3-50-fire-round-trip-stress-against-the-live-broker-closes-exit-condition-3"><a class="anchor" href="#step-3-50-fire-round-trip-stress-against-the-live-broker-closes-exit-condition-3" aria-label="Permalink to Step 3 — 50-fire round-trip stress against the live broker (closes exit condition #3)">#</a>Step 3 — 50-fire round-trip stress against the live broker (closes exit condition #3)</h2>
+<p>The existing 15-case suite (<code>.claude/helpers/docker-hook-broker.test.mjs</code>) is mock-only. The envelope&#39;s exit condition explicitly wants 50 rapid fires against the <strong>real</strong> container. Use this one-liner — it stands alone, no extra test files required:</p>
+<pre><code class="language-bash"># git-bash — 50 sequential POSTs against the live broker, surface any non-200 immediately
+node -e &quot;
+const http = require(&#39;node:http&#39;);
+const N = 50;
+let ok = 0, fail = 0;
+const errors = [];
+function fire(i) {
+  return new Promise((resolve) =&gt; {
+    const req = http.request({host:&#39;127.0.0.1&#39;,port:9876,path:&#39;/healthz&#39;,method:&#39;GET&#39;,timeout:2000},
+      (res) =&gt; { res.resume(); res.on(&#39;end&#39;,()=&gt;{ if(res.statusCode===200) ok++; else { fail++; errors.push(&#39;#&#39;+i+&#39; status=&#39;+res.statusCode); } resolve(); }); });
+    req.on(&#39;error&#39;,(e)=&gt;{ fail++; errors.push(&#39;#&#39;+i+&#39; error=&#39;+e.code); resolve(); });
+    req.on(&#39;timeout&#39;,()=&gt;{ fail++; errors.push(&#39;#&#39;+i+&#39; timeout&#39;); req.destroy(); resolve(); });
+    req.end();
+  });
+}
+(async()=&gt;{
+  for (let i=1;i&lt;=N;i++) await fire(i);
+  console.log(JSON.stringify({ok, fail, errors: errors.slice(0,5), total:N}));
+  process.exit(fail===0?0:1);
+})();
+&quot;
+</code></pre>
+<p>Expected: <code>{&quot;ok&quot;:50,&quot;fail&quot;:0,&quot;errors&quot;:[],&quot;total&quot;:50}</code> and exit 0. <strong>Anything else stop the runbook</strong> — inspect <code>docker logs prism-hooks</code> for the failing call&#39;s server-side trace.</p>
+<p>The <code>/healthz</code> endpoint is the safest target because it doesn&#39;t require a real hook to be broker-eligible. If you want to additionally stress a real default-export hook, substitute <code>path:&#39;/hook/&lt;hook-name&gt;&#39;</code> and <code>method:&#39;POST&#39;</code>, but a 501 response there is <strong>expected</strong> for any legacy stdio hook (the client fallback path covers it).</p>
+<p>✅ <strong>Exit condition #3 satisfied</strong> when the one-liner exits 0 with 50/50 ok.</p>
+<h2 id="step-4-24-hour-burn-in-closes-exit-condition-2"><a class="anchor" href="#step-4-24-hour-burn-in-closes-exit-condition-2" aria-label="Permalink to Step 4 — 24-hour burn-in (closes exit condition #2)">#</a>Step 4 — 24-hour burn-in (closes exit condition #2)</h2>
+<p>The envelope&#39;s success criterion is &quot;xmalloc OOMs drop to zero in 24 h burn-in.&quot; The live metric is the count of <code>leftover-bash-task</code> candidates the reaper sees per sweep — that&#39;s the class of orphaned Bash-tool processes the broker is meant to eliminate. Sample at T0, recheck at T+24h.</p>
+<h3 id="baseline-right-after-step-3-passes"><a class="anchor" href="#baseline-right-after-step-3-passes" aria-label="Permalink to Baseline (right after Step 3 passes)">#</a>Baseline (right after Step 3 passes)</h3>
+<pre><code class="language-bash"># git-bash — capture baseline count of leftover-bash-task candidates
+mkdir -p H:/prism/state/shared/burnin
+node -e &quot;
+const cp = require(&#39;node:child_process&#39;);
+const fs = require(&#39;node:fs&#39;);
+const p = &#39;H:/prism/state/shared/burnin/u-docker-hook-broker-burnin-baseline.json&#39;;
+if (fs.existsSync(p) &amp;&amp; process.env.PRISM_BURNIN_OVERWRITE !== &#39;1&#39;) {
+  console.error(&#39;Baseline exists at&#39;, p);
+  console.error(&#39;Re-running would overwrite the T0 timestamp the +24h delta is measured against.&#39;);
+  console.error(&#39;To intentionally re-baseline, set PRISM_BURNIN_OVERWRITE=1 and re-run.&#39;);
+  process.exit(1);
+}
+const r = cp.spawnSync(process.execPath, [&#39;H:/prism/scripts/fleet-reaper-sweep.mjs&#39;,&#39;--once&#39;,&#39;--dry-run&#39;,&#39;--json&#39;], {encoding:&#39;utf8&#39;});
+if (r.status !== 0) { console.error(&#39;fleet-reaper-sweep failed:&#39;, r.stderr); process.exit(1); }
+const d = JSON.parse(r.stdout);
+const cand = (d.candidates || []).filter(c =&gt; c &amp;&amp; c.class === &#39;leftover-bash-task&#39;);
+const baseline = {
+  captured_at: new Date().toISOString(),
+  leftover_bash_task_count: cand.length,
+  reaped_total: (d.reaped || []).length,
+  pending: d.pending || 0,
+  pressure_tier: d.pressureTier,
+  commit_used_pct: d.mem &amp;&amp; d.mem.commitUsedPct,
+};
+fs.writeFileSync(p, JSON.stringify(baseline, null, 2));
+console.log(JSON.stringify(baseline, null, 2));
+&quot;
+</code></pre>
+<p>Inspect the printed JSON. Record the <code>leftover_bash_task_count</code> somewhere durable (Obsidian note, ticket, post-it). The file at <code>state/shared/burnin/u-docker-hook-broker-burnin-baseline.json</code> is the canonical record.</p>
+<h3 id="24-h-re-sample"><a class="anchor" href="#24-h-re-sample" aria-label="Permalink to +24 h re-sample">#</a>+24 h re-sample</h3>
+<p>After 24 h of normal fleet activity (chats doing work, hooks firing, the broker either serving or falling back):</p>
+<pre><code class="language-bash"># git-bash — capture final and compute delta
+node -e &quot;
+const fs = require(&#39;node:fs&#39;);
+const cp = require(&#39;node:child_process&#39;);
+const baseline = JSON.parse(fs.readFileSync(&#39;H:/prism/state/shared/burnin/u-docker-hook-broker-burnin-baseline.json&#39;,&#39;utf8&#39;));
+const r = cp.spawnSync(process.execPath, [&#39;H:/prism/scripts/fleet-reaper-sweep.mjs&#39;,&#39;--once&#39;,&#39;--dry-run&#39;,&#39;--json&#39;], {encoding:&#39;utf8&#39;});
+if (r.status !== 0) { console.error(&#39;fleet-reaper-sweep failed:&#39;, r.stderr); process.exit(1); }
+const d = JSON.parse(r.stdout);
+const cand = (d.candidates || []).filter(c =&gt; c &amp;&amp; c.class === &#39;leftover-bash-task&#39;);
+const final = {
+  captured_at: new Date().toISOString(),
+  leftover_bash_task_count: cand.length,
+  reaped_total: (d.reaped || []).length,
+  pending: d.pending || 0,
+  pressure_tier: d.pressureTier,
+  commit_used_pct: d.mem &amp;&amp; d.mem.commitUsedPct,
+};
+const delta = final.leftover_bash_task_count - baseline.leftover_bash_task_count;
+const verdict = delta &lt;= 0 ? &#39;PASS&#39; : &#39;FAIL&#39;;
+const report = { baseline, final, delta, verdict };
+fs.writeFileSync(&#39;H:/prism/state/shared/burnin/u-docker-hook-broker-burnin-final.json&#39;, JSON.stringify(report, null, 2));
+console.log(JSON.stringify(report, null, 2));
+process.exit(verdict === &#39;PASS&#39; ? 0 : 1);
+&quot;
+</code></pre>
+<p><strong>Threshold (hard gate):</strong> <code>delta ≤ 0</code>. Final count must be at or below the baseline. The script exits 1 on any positive delta — fail loud per Karpathy R12. No &quot;small positive acceptable&quot; judgment call; the envelope criterion is &quot;drops to zero,&quot; and the gate enforces that.</p>
+<p>✅ <strong>Exit condition #2 satisfied</strong> when <code>verdict === &#39;PASS&#39;</code> (i.e. exit 0).</p>
+<p>If verdict is FAIL:</p>
+<ul>
+<li>The broker is correct but settings.json doesn&#39;t yet route to it (expected today — wiring is the deliberate follow-up unit), so most fork-storms still come from direct subprocess invocations. The delta in that regime should hover near zero, not grow. Capture the final JSON, open a follow-up unit, and <strong>do not close A1</strong>.</li>
+<li>If the count is growing without bound, the leak source is in <code>docker logs prism-hooks</code> plus the reaper&#39;s <code>candidates[]</code> array — name it explicitly in the follow-up unit.</li>
+</ul>
+<h2 id="step-5-close-out-the-milestone-4-surface-atomic-idempotent"><a class="anchor" href="#step-5-close-out-the-milestone-4-surface-atomic-idempotent" aria-label="Permalink to Step 5 — Close out the milestone (4-surface, atomic, idempotent)">#</a>Step 5 — Close out the milestone (4-surface, atomic, idempotent)</h2>
+<p>When all three exit conditions are met, route everything through the canonical <code>close-out-milestone.mjs</code> — it handles atomic-write of the envelope, regenerates MILESTONE_PROGRESS + BUILD_STATE, updates roadmap-index, and broadcasts to the chat-bus per <code>feedback_roadmap_close_out</code>. <strong>Do not hand-edit the envelope JSON</strong> — concurrent chats are reading it.</p>
+<h3 id="5a-flip-a1s-status-atomically"><a class="anchor" href="#5a-flip-a1s-status-atomically" aria-label="Permalink to 5a — Flip A1&#39;s status atomically">#</a>5a — Flip A1&#39;s status atomically</h3>
+<pre><code class="language-bash"># git-bash — atomic patch of just A1&#39;s status using the same atomicWriteJson the close-out
+# script uses, exported from close-out-milestone.mjs (avoids fs.writeFileSync race).
+node -e &quot;
+const path = require(&#39;node:path&#39;);
+const url = require(&#39;node:url&#39;).pathToFileURL(path.resolve(&#39;H:/prism/scripts/close-out-milestone.mjs&#39;)).href;
+import(url).then(mod =&gt; {
+  const fs = require(&#39;node:fs&#39;);
+  const p = &#39;H:/prism/mcp-server/data/milestones/OBSIDIAN-INTELLIGENCE-MS3.json&#39;;
+  const m = JSON.parse(fs.readFileSync(p, &#39;utf8&#39;));
+  const phaseA = m.phases &amp;&amp; m.phases.find(x =&gt; x &amp;&amp; x.id === &#39;A&#39;);
+  if (!phaseA || !Array.isArray(phaseA.units)) {
+    console.error(&#39;Envelope shape unexpected: no phases[A].units array&#39;);
+    process.exit(1);
+  }
+  const a1 = phaseA.units.find(u =&gt; u &amp;&amp; u.id === &#39;A1&#39;);
+  if (!a1) { console.error(&#39;A1 unit not found in phase A&#39;); process.exit(1); }
+  if (a1.status === &#39;completed&#39;) { console.log(&#39;A1 already completed — nothing to flip (idempotent)&#39;); process.exit(0); }
+  a1.status = &#39;completed&#39;;
+  a1.completed_at = new Date().toISOString();
+  // Do NOT touch m.completed_units / m.status here — close-out-milestone.mjs derives those
+  // from the unit array, atomically, in the next step. This call only flips A1.
+  if (typeof mod.atomicWriteJson !== &#39;function&#39;) {
+    console.error(&#39;FATAL: close-out-milestone.mjs does not export atomicWriteJson — runbook + script versions are out of sync&#39;);
+    process.exit(1);
+  }
+  mod.atomicWriteJson(p, m);
+  console.log(&#39;A1 flipped to completed at&#39;, a1.completed_at);
+}).catch(e =&gt; {
+  console.error(&#39;FATAL import/flip:&#39;, e &amp;&amp; e.stack ? e.stack : e);
+  process.exit(1);
+});
+&quot;
+</code></pre>
+<p>The script is idempotent — re-running after a successful flip is a no-op. The 4 surfaces are NOT touched here; the next step handles them.</p>
+<h3 id="5b-run-the-orchestrator"><a class="anchor" href="#5b-run-the-orchestrator" aria-label="Permalink to 5b — Run the orchestrator">#</a>5b — Run the orchestrator</h3>
+<pre><code class="language-bash">node H:/prism/scripts/close-out-milestone.mjs --milestone OBSIDIAN-INTELLIGENCE-MS3
+</code></pre>
+<p>This script (per its own docstring) touches all four downstream surfaces:</p>
+<ol>
+<li><code>mcp-server/data/milestones/OBSIDIAN-INTELLIGENCE-MS3.json</code> — verify + normalize updated_at</li>
+<li><code>mcp-server/data/roadmap-index.json</code> — status, completed_units, completed_at</li>
+<li><code>state/shared/MILESTONE_PROGRESS.{md,json}</code> — regen</li>
+<li><code>state/shared/BUILD_STATE.{md,json}</code> — regen</li>
+<li>Chat-bus broadcast (via <code>agent-coordination.mjs post</code>) — operators see the close-out</li>
+</ol>
+<p>Use <code>--no-write</code> first if you want to preview the diff:</p>
+<pre><code class="language-bash">node H:/prism/scripts/close-out-milestone.mjs --milestone OBSIDIAN-INTELLIGENCE-MS3 --no-write
+</code></pre>
+<p>Exit code 0 = success. 1 = validation/IO error. 2 = a sub-script failed (check stderr).</p>
+<h3 id="5c-commit-slot-routed-runs-from-the-chat-thats-closing-this-out"><a class="anchor" href="#5c-commit-slot-routed-runs-from-the-chat-thats-closing-this-out" aria-label="Permalink to 5c — Commit (slot-routed; runs from the chat that&#39;s closing this out)">#</a>5c — Commit (slot-routed; runs from the chat that&#39;s closing this out)</h3>
+<p>The commit slot tag matches whatever slot is closing out. If you&#39;re in the shared main tree on <code>cad-fusion-live-ms0</code>, the prefix is <code>[MAIN]</code>. If a slot chat closes from its slot worktree on <code>slot/&lt;nato&gt;</code>, the prefix is <code>[&lt;NATO&gt;]</code>. The <code>[SCOPE]/U-ID</code> portion is fixed.</p>
+<p>git-bash commit (canonical):</p>
+<pre><code class="language-bash">git -C H:/prism add \
+  mcp-server/data/milestones/OBSIDIAN-INTELLIGENCE-MS3.json \
+  mcp-server/data/roadmap-index.json \
+  state/shared/MILESTONE_PROGRESS.md \
+  state/shared/MILESTONE_PROGRESS.json \
+  state/shared/BUILD_STATE.md \
+  state/shared/BUILD_STATE.json \
+  state/shared/burnin/u-docker-hook-broker-burnin-baseline.json \
+  state/shared/burnin/u-docker-hook-broker-burnin-final.json
+
+git -C H:/prism commit -m &quot;$(cat &lt;&lt;&#39;EOF&#39;
+[MAIN] [OBSIDIAN-INTELLIGENCE-MS3]/A1: U-DOCKER-HOOK-BROKER closed (24/24)
+
+Docker engine restored; runbook executed:
+- Container prism-hooks running persistently (port 9876)
+- 50-fire live-broker stress: 50/50 ok / 0 fail
+- 24h burn-in: leftover_bash_task delta &lt;= 0 (PASS)
+- MS3: 23/24 -&gt; 24/24 -&gt; milestone closed
+
+Burn-in evidence:
+  state/shared/burnin/u-docker-hook-broker-burnin-baseline.json
+  state/shared/burnin/u-docker-hook-broker-burnin-final.json
+Runbook:
+  state/shared/specs/U-DOCKER-HOOK-BROKER-CLOSEOUT-RUNBOOK-2026-05-17.md
+EOF
+)&quot;
+</code></pre>
+<p>If you must use PowerShell, use a here-string instead — the bash <code>&lt;&lt;&#39;EOF&#39;</code> heredoc will not parse:</p>
+<pre><code class="language-powershell"># pwsh equivalent — note @&#39;...&#39;@ here-string syntax, NOT bash heredoc
+$msg = @&#39;
+[MAIN] [OBSIDIAN-INTELLIGENCE-MS3]/A1: U-DOCKER-HOOK-BROKER closed (24/24)
+
+Docker engine restored; runbook executed:
+- Container prism-hooks running persistently (port 9876)
+- 50-fire live-broker stress: 50/50 ok / 0 fail
+- 24h burn-in: leftover_bash_task delta &lt;= 0 (PASS)
+- MS3: 23/24 -&gt; 24/24 -&gt; milestone closed
+&#39;@
+git -C H:/prism commit -m $msg
+</code></pre>
+<p>Update the numbers in the commit body to match the actual baseline/final captures. <code>close-out-milestone.mjs</code> already broadcast to the chat-bus, so no separate broadcast step is needed.</p>
+<h2 id="step-6-decide-whether-to-wire-the-broker-into-settingsjson"><a class="anchor" href="#step-6-decide-whether-to-wire-the-broker-into-settingsjson" aria-label="Permalink to Step 6 — Decide whether to wire the broker into settings.json">#</a>Step 6 — Decide whether to wire the broker into settings.json</h2>
+<p>This is <strong>explicitly outside A1</strong>. Per the A1 follow-up note:</p>
+<blockquote>
+<p>When operator restores Docker engine: (1) installer (2) healthcheck (3) for the 50-fire burn-in: <strong>keep settings.json hooks pointing at portable-node for now — wiring the broker into settings.json is a separate unit</strong> (would touch every hook entry; risky without burn-in evidence first).</p>
+</blockquote>
+<p>A1 is complete with the container running and the fallback path proven. The wiring unit is the natural follow-up — its scope is rewriting every <code>.claude/hooks/*.mjs</code> entry to call the broker (or whatever integration shape is chosen), gated by the burn-in evidence A1 just produced. Create that follow-up unit explicitly; do not extend A1.</p>
+<h2 id="failure-modes-rollback"><a class="anchor" href="#failure-modes-rollback" aria-label="Permalink to Failure modes &amp; rollback">#</a>Failure modes &amp; rollback</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Failure</th><th>Reversal</th></tr></thead>
+<tbody>
+<tr><td>Container won&#39;t start (build fails)</td><td><code>pwsh -File scripts/install-prism-hooks-container.ps1 -Uninstall</code> — removes image + container + scheduled task. No code changes to revert; broker is purely additive.</td></tr>
+<tr><td>Container starts but healthz never returns 200</td><td><code>docker logs prism-hooks</code> will show which <code>loadHook(name)</code> threw. The hook file itself is the bug — fix in <code>.claude/hooks/</code> and <code>POST /reload</code> (or <code>docker restart prism-hooks</code>).</td></tr>
+<tr><td>50-fire stress fails partway</td><td>Most likely a transient network blip on Windows loopback — re-run once. Persistent failures: inspect <code>docker logs prism-hooks</code> for unhandled exceptions in the request handler.</td></tr>
+<tr><td>Burn-in shows delta growing</td><td>Genuine regression — but A1 settings.json is NOT wired yet, so the source is unrelated. Open a separate diagnostic unit. Don&#39;t close A1; don&#39;t roll it back either (the artifacts are still correct).</td></tr>
+<tr><td>Envelope status flip mid-way through Step 5 fails</td><td>The atomicWriteJson in 5a is the failure boundary — if Step 5b errors before it runs, A1 stays <code>in_progress</code> (correct fail-safe). Re-running 5a + 5b is safe (idempotent).</td></tr>
+<tr><td><code>close-out-milestone.mjs</code> exits 2 (sub-script failed)</td><td>Read its stderr; the offending sub-script is one of <code>build-milestone-progress.mjs</code> / <code>build-state-snapshot.mjs</code> / <code>regen-golf-owned-paths.mjs</code>. Fix that, re-run close-out-milestone.</td></tr>
+<tr><td>close-out-milestone exited 0 but no chat-bus broadcast visible</td><td><code>grep OBSIDIAN-INTELLIGENCE-MS3 H:/prism/state/shared/AGENT_CHAT.jsonl</code> — if no recent entry, the broadcast either silent-failed (lock contention) or was suppressed via <code>--skip-chat-bus</code>. Manually post via <code>node H:/prism/.claude/helpers/agent-coordination.mjs post --message &quot;MS3 closed (A1 24/24)&quot;</code> so peers see the close-out.</td></tr>
+</tbody>
+</table></div>
+<p>Every command above either succeeds visibly (printed <code>ok:true</code> / <code>verdict:PASS</code> / clean exit 0) or fails loudly (non-zero exit, stderr, missing file). Silence is never success — if a step prints nothing and returns to prompt without a visible verdict, investigate before proceeding.</p>
+<h2 id="provenance"><a class="anchor" href="#provenance" aria-label="Permalink to Provenance">#</a>Provenance</h2>
+<ul>
+<li>A1 spec (original): <code>state/shared/specs/2026-05-09-U-DOCKER-HOOK-BROKER.md</code></li>
+<li>A1 deliverables (2026-05-15 partial-ship, claude-a2b1b5ca slot hotel):
+<ul>
+<li><code>scripts/docker/prism-hooks-broker.Dockerfile</code></li>
+<li><code>scripts/docker/prism-hooks-broker-server.mjs</code></li>
+<li><code>.claude/helpers/docker-hook-broker.mjs</code></li>
+<li><code>.claude/helpers/docker-hook-broker.test.mjs</code></li>
+<li><code>scripts/install-prism-hooks-container.ps1</code></li>
+</ul></li>
+<li>A1 partial-ship envelope: <code>mcp-server/data/milestones/OBSIDIAN-INTELLIGENCE-MS3.json</code> → <code>phases[A].units[A1].partial_ship</code></li>
+<li>This runbook: 2026-05-17 claude-9412073a slot charlie (force-take after claude-bc59280b crashed mid-pickup)</li>
+<li>Docker recovery procedure: <code>knowledge/memories/feedback/feedback_docker_wsl_recovery.md</code></li>
+<li>Roadmap close-out doctrine: <code>knowledge/memories/feedback/feedback_roadmap_close_out.md</code></li>
+<li>Close-out orchestrator: <code>scripts/close-out-milestone.mjs</code> (exports <code>atomicWriteJson</code>, broadcasts to bus internally)</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="U-DOCKER-HOOK-BROKER-CLOSEOUT-RUNBOOK-2026-05-17.md">U-DOCKER-HOOK-BROKER-CLOSEOUT-RUNBOOK-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+{
+  "id": "GPU-OFFLOAD-MAXIMIZE-MS0",
+  "version": "1.0.2",
+  "title": "Activate ollama-route-pretooluse auto-mode + unify telemetry so file-read offloads are measurable",
+  "brief": "Targets a DIFFERENT pathway than OLLAMA-EXPAND-MS0/the existing offload dashboard. The dashboard's 6.9% lifetime / 5.9% last-48h-adjusted figures come from `ollama-task-offloader` (UserPromptSubmit hook) — and 49 of the last-48h keeps are correctly-kept Claude orchestration prompts (/checkin, /loop, /goal, operator directives, deep_reasoning). Those keeps SHOULD stay on Claude — Ollama can't generate Claude's response. The 32 'unknown' keeps in the same window are nearly all the same conversational prompt repeated across sessions, also correctly kept. So the prompt-router rate is healthier than the headline suggests, and U1 will NOT move that number much. THIS milestone targets a separate leakage path: every time Claude reads a >24KB data-state JSON / log / report file, the existing PreToolUse:Read hook `ollama-route-pretooluse.mjs` fires an advisory but Claude (me + every other slot) ignores it and loads the raw bytes anyway. The hook supports an auto-substitute mode (env `PRISM_OLLAMA_ROUTE_AUTO=1`) that would deny the raw Read and inject an Ollama summary — but that mode is OFF by default and nothing in the repo flips it on. AND, critically, the file-read offloads have their OWN telemetry sink (`.claude/cache/hook-telemetry.jsonl`) that the dashboard does NOT read — so even if we flip the switch today we can't tell whether it worked. U1 ships activation + telemetry unification together (they're useless apart); U2 perf-tunes Ollama; U3/U4 are conditional follow-ups gated on real measurements.",
+  "created_at": "2026-05-22T22:10:00Z",
+  "revised_at": "2026-05-23T01:45:00Z",
+  "created_by": "sierra/claude-b2bcf85e",
+  "revision_history": [
+    {"version": "1.0.0", "ts": "2026-05-22T22:10:00Z", "by": "sierra/claude-b2bcf85e", "note": "Initial envelope. FAILED per-file scrutiny: P0 — 32-unknown-keeps claim conflated prompt-router leakage with file-read leakage; P0 — U1's success was unmeasurable without U5 telemetry unification first."},
+    {"version": "1.0.1", "ts": "2026-05-22T22:35:00Z", "by": "sierra/claude-b2bcf85e", "note": "Brief rewritten to separate the two pathways. U1+U5 merged into single P0 (activation+measurement ship together). R2 mitigation tightened to require post-parse range checks (minKb >= 8, mode enum, model allowlist). R12 fail-loud strengthened: substitute banner now requires explicit [OLLAMA-SUBSTITUTE sha256:... bytes=N model=...] header, not a passive emoji. U2 rollback added. ROI math added in U1 description."},
+    {"version": "1.0.2", "ts": "2026-05-23T01:45:00Z", "by": "sierra/claude-b2bcf85e", "note": "U2 SHIPPED (iter 5). Added 4 Ollama perf env vars to docker-compose.yml ollama service (KEEP_ALIVE=-1 / FLASH_ATTENTION=1 / KV_CACHE_TYPE=q8_0 / NUM_PARALLEL=4). Recreated container via `docker compose up -d ollama` — R12 fail-loud: `docker compose restart` was tried first and DID NOT pick up the new env (env block is baked at container creation, not at start). Verified via `docker inspect prism-ollama | grep OLLAMA_` — all 4 vars applied + container Up 2 minutes (healthy) + /api/tags returns qwen2.5-coder:7b model loaded. Also flipped ollama-route-config.json mode 'suggest'->'auto' — telemetry pre-check confirmed `byHook.ollama-route-pretooluse.fired=177` row populated in ollama-offload-stats.json, satisfying U1 Reviewer B P0 safe-rollout gate. completed_units 1->2; status remains in_progress (U3/U4 are conditional/deferred)."}
+  ],
+  "created_by_notes": "Created in /loop iter 1 after a fresh post-compact GPU/Docker/Ollama probe. The prior summary said GPU was VRAM-bound (73% used) — the LIVE probe at envelope-write time shows 27% VRAM / 48% compute (12GB headroom). VRAM is NOT the constraint right now; routing visibility + activation is. duplicationGuardEngine: checked INTEL-OLLAMA-OBSIDIAN-MS0/MS1 + OLLAMA-EXPAND-MS0 — none of them touch the PreToolUse:Read auto-mode env var (PRISM_OLLAMA_ROUTE_AUTO) and none unify the file-read telemetry into the offload dashboard. Hidden-coupling check: `grep -rln PRISM_OLLAMA_ROUTE_AUTO H:/prism/.claude/ H:/prism/scripts/ H:/prism/mcp-server/src/` returns only the hook itself + its test file — no split-brain risk from the env-vs-config fallback (R2 mitigation holds).",
+  "track": "INTEL",
+  "track_name": "Local LLM Offload & Active Callable Surface",
+  "status": "in_progress",
+  "completed_units": 2,
+  "total_units": 4,
+  "shipped": [
+    {
+      "unit": "U2",
+      "title": "Ollama perf knobs — KEEP_ALIVE=-1, FLASH_ATTENTION=1, KV_CACHE_TYPE=q8_0, NUM_PARALLEL=4 + mode:suggest->auto flip",
+      "commits": ["pending-this-commit"],
+      "shipped_at": "2026-05-23T01:45:00Z",
+      "shipped_by": "sierra/claude-b2bcf85e",
+      "description": "docker-compose.yml ollama service env block: added 4 perf vars + inline comment citing slot+unit+rationale. Recreated container (NOT restart — env vars only re-bake on `up -d`, lesson captured in v1.0.2 revision_history). Verified all 4 vars present via `docker inspect prism-ollama --format '{{range .Config.Env}}{{println .}}{{end}}' | grep OLLAMA_`. Container Up 2 minutes (healthy); /api/tags returns qwen2.5-coder:7b loaded. Same commit ALSO flipped ollama-route-config.json mode 'suggest'->'auto' — controlled-rollout gate met (telemetry row populates at 177 fires). VRAM math check: qwen2.5-coder:7b Q4_K_M ~4.7GB resident + ~1.5GB q8 KV cache x 4 NUM_PARALLEL streams = ~10.7GB peak — within 16GB headroom. Operator override path documented in config _comment field.",
+      "scrutiny": "Self-review (Karpathy 5-step): CLASSIFY env-var change. TECHNIQUE empirical verify (env not assumption). EDGE CASES restart-vs-up caught at R12 verify. FAILURE MODES VRAM-budget computed (10.7/16 OK). THEN WRITE applied. 3-of-3 Stop scrutiny next.",
+      "test_count": 0,
+      "rollback_status": "verified — `git checkout HEAD -- docker-compose.yml mcp-server/data/state/ollama-route-config.json && docker compose up -d ollama` reverts in <30s. Ollama state (loaded models) preserved across container recreate via the `./data/docker-volumes/ollama:/root/.ollama` bind mount."
+    },
+    {
+      "unit": "U1",
+      "title": "Activate ollama-route-pretooluse auto-mode + unify telemetry into ollama-offload-stats.json",
+      "commits": ["8ad9044f3e", "29708e0128"],
+      "shipped_at": "2026-05-22T23:30:00Z",
+      "shipped_by": "sierra/claude-b2bcf85e",
+      "description": "Hook patch + config file + 35 node:tests. loadRouteConfig with post-parse schema validation (mode enum, minKb>=8 DoS guard, model regex). Cascade short-circuit: in auto mode if /api/tags fails OR model not in allowlist → raw-Read pass-through (NOT suggest, NOT substitute-with-default). Fail-loud banner `[OLLAMA-SUBSTITUTE model=... sha256=... bytes=N route=auto kind=...]` replaces passive emoji. EXEMPT_BASENAMES set (15 load-bearing files: ollama-route-config.json, ollama-offload-stats.json, MILESTONE_PROGRESS.json, BUILD_STATE.json, chat-slots.json, slot-task-claims.json, CLOSE-OUT-CANDIDATES.json, AWARENESS-SNAPSHOT.json, BASELINE_INVENTORY.json, system-graph.json, loop-state.json, scrutiny-ledger.json, PENDING_GAP_ENGINES.json, HOOK_REGISTRY.json, STOP_HOOK_REGISTRY.json) bypass substitution. Telemetry unification: atomic-RMW into ollama-offload-stats.json byHook.ollama-route-pretooluse = {fired, offloaded, kept, suggested, tokensSaved}. Config ships {mode:'suggest'} (Reviewer B P0 SAFE-ROLLOUT — operator flips to 'auto' after telemetry confirms dashboard row populates).",
+    "scrutiny": "2 reviewers in parallel. Reviewer A (code-analyzer) PASS with one false-positive P1 (stats.json corruption — verified valid) + 2 cosmetic P2s. Reviewer B (independent) FAIL on commit-as-written with P0 (default mode:auto fleet-wide no canary) + P1 (no self-exemption for load-bearing files) + P1 (no /api/tags process-cache — accepted as-implemented for standard Claude Code per-Read spawn model) + 2 P2s. Round-2 fixes addressed P0 + P1 (self-exemption); cache P1 deferred with documentation; P2s deferred.",
+      "test_count": 35,
+      "rollback_status": "verified — set {mode:'suggest'} in config file OR delete it; no system/shell state to clean up"
+    }
+  ],
+  "real_state_snapshot_at_creation": {
+    "gpu_vram_used_mib": 4454,
+    "gpu_vram_total_mib": 16376,
+    "gpu_compute_util_pct": 48,
+    "gpu_temp_c": 35,
+    "ollama_port_owner": "docker:prism-ollama (port 11434)",
+    "native_ollama_pid_idle": 30052,
+    "ollama_models": ["qwen2.5-coder:7b (Q4_K_M 4.7GB)", "qwen2.5-coder:3b (Q4_K_M 1.9GB)", "mistral:7b", "codellama:7b", "nomic-embed-text", "...3 more"],
+    "nim_containers_healthy": ["nim-llama32-3b (port 8000)", "nim-embed-e5 (port 8010)"],
+    "offload_dashboard_lifetime_pct_PROMPT_ROUTER_ONLY": 6.9,
+    "offload_dashboard_48h_raw_pct_PROMPT_ROUTER_ONLY": 2.4,
+    "offload_dashboard_48h_adjusted_pct_PROMPT_ROUTER_ONLY": 5.9,
+    "offload_dashboard_keeps_correctly_kept_claude_only": 49,
+    "offload_dashboard_keeps_unclassified_mostly_orchestration": 32,
+    "regression_clarification": "OLLAMA-EXPAND-MS0/U-OE-DASH-KEEP-BREAKDOWN recorded 'raw 10.9% lifetime -> 42.1% last-24h adjusted' at its 2026-05-18 ship — those are prompt-router (`ollama-task-offloader`) figures. Today's prompt-router figures are 6.9% raw lifetime / 5.9% adjusted 48h. Apples-to-apples comparison: adjusted rate did regress (42.1% adj -> 5.9% adj) — but the adjusted-rate denominator depends on what's classified as `correctly-kept` vs `unknown`, and the recent fleet activity is dominated by orchestration directives (/checkin-X, /loop, /goal across 26 slots), which inflates the correctly-kept share and shrinks the headroom available for genuine offload. THIS MILESTONE does not target prompt-router; it targets the orthogonal file-read pathway whose telemetry is invisible to the dashboard today.",
+    "file_read_offload_telemetry_today": "ollama-route-pretooluse hook writes to `.claude/cache/hook-telemetry.jsonl` (separate from `ollama-offload-stats.json`). Without reading both files manually we cannot tell whether file-read advisories are firing OR whether anyone is acting on them. U1 unifies."
+  },
+  "units": [
+    {
+      "id": "U1",
+      "title": "Activate ollama-route-pretooluse auto-mode + unify its telemetry into ollama-offload-stats.json",
+      "priority": "P0",
+      "effort_minutes": 90,
+      "deliverables": [
+        "Modify `.claude/hooks/ollama-route-pretooluse.mjs` to add a repo-scoped config-file fallback: read `mcp-server/data/state/ollama-route-config.json` (schema: `{mode:'auto'|'suggest', minKb:number, model:string}`) when the corresponding env vars are unset. Env STILL wins (precedence preserved for callers that already set env). Export a pure `loadRouteConfig({configPath})` so it's unit-testable.",
+        "POST-PARSE schema validation in `loadRouteConfig`: (a) `mode` must be exactly 'auto' OR 'suggest' (enum) — anything else falls back to 'suggest'; (b) `minKb` must be an integer >= 8 (a malicious 0 or 1 would route EVERY read, denial-of-Claude-context attack — see R2); (c) `model` must match `/^[\\w./:-]{1,64}$/` AND match a name returned by `GET /api/tags` (verified once per hook process, cached for process-lifetime — acceptable because hook processes are short-lived). Invalid mode/minKb values silently fall back to safe defaults with a single warning line to the telemetry log (R12). CASCADE-FAILURE CLARIFICATION (added per scrutiny v1.0.1): if `GET /api/tags` ITSELF fails (Ollama down, timeout, network error) so the allowlist check cannot complete, the hook MUST short-circuit to raw-Read pass-through — NOT to 'substitute with the default model' (which would itself fail the same check and silently degrade) and NOT to suggest-mode (which would still write an advisory the caller might ignore). Raw Read is the only correct fail-open path when allowlist verification itself is broken. Emit one telemetry warning per process documenting the cascade.",
+        "Modify the auto-mode substitute message (`runRoute` lines ~198-200) to lead with a FAIL-LOUD banner: `[OLLAMA-SUBSTITUTE model=<model> sha256=<sha256-of-source-file-first-48KB> bytes=<actual-file-bytes> route=auto]\\n\\n<summary>`. Replace the passive `📄` emoji header. Operator/Claude must be able to detect (via grep) that an offload happened and audit which file was substituted.",
+        "Ship `mcp-server/data/state/ollama-route-config.json` with `{\"mode\":\"auto\",\"minKb\":24,\"model\":\"qwen2.5-coder:7b\"}` — flips repo-wide on the next hook fire in a new shell.",
+        "TELEMETRY UNIFICATION (this was previously a separate U5): extend `ollama-route-pretooluse.mjs` to ALSO append to `mcp-server/data/state/ollama-offload-stats.json` (atomic RMW per existing pattern in `ollama-task-offloader.mjs`) on every fire — `byHook.ollama-route-pretooluse = {fired, offloaded, kept, suggested, tokensSaved}`. Without this, the dashboard cannot see file-read offloads and U1's success cannot be measured. Existing `.claude/cache/hook-telemetry.jsonl` log retained as a per-event audit trail.",
+        "Add 9 new test cases in `.claude/hooks/ollama-route-pretooluse.test.mjs`: (1) config absent → defaults preserved, (2) config present + env unset → config wins, (3) config present + env set → env wins (precedence), (4) corrupt config JSON → fail-open to suggest mode + warning logged, (5) config with `minKb:0` → schema rejects, falls back to default 24, (6) config with `mode:'whatever'` → schema rejects, falls back to suggest, (7) auto mode + Ollama timeout → fail-open to raw Read (preserves existing fail-open invariant), (8) source-file Read still passes through (SRC_EXT exemption intact), (9) substitute banner contains `[OLLAMA-SUBSTITUTE` + `sha256=` + `bytes=` markers."
+      ],
+      "acceptance": [
+        "On a fresh PowerShell, reading a >24KB file under `mcp-server/data/state/` results in `permissionDecision: deny` + a substitute message starting with `[OLLAMA-SUBSTITUTE model=qwen2.5-coder:7b sha256=... bytes=...]` — NOT raw bytes loaded into Claude context.",
+        "On a source-file Read (.ts/.mjs/.py/etc) at any size: hook passes through (no offload).",
+        "`grep '\"hook\":\"ollama-route-pretooluse\"' H:/prism/mcp-server/data/state/ollama-offload-stats.json` returns at least one event within 24h of activation.",
+        "Dashboard (`node scripts/ollama-offload-dashboard.mjs --window=48h`) shows a NEW row `ollama-route-pretooluse` in the `Per-hook fire counts` section with `offload > 0`.",
+        "Fail-open invariants intact: Ollama down → Read proceeds (no test failures); config corrupt → suggest mode (verified by integration test).",
+        "Schema-validation invariants: a malicious `{\"mode\":\"auto\",\"minKb\":0}` in the config file does NOT cause the hook to route 0-byte reads (verified by integration test that writes that config, fires the hook, asserts pass-through)."
+      ],
+      "roi_math": "Back-of-envelope: across 26 fleet slots, a conservative 5 large-bulk-data reads/day/slot × 24KB-avg × ~6k tokens/read = ~130k tokens/day saved (~3.9M tokens/month) IF activation propagates. Build cost (this unit + scrutiny): ~50-100k tokens one-time. Break-even in <24h fleet activity. Smaller if my read-rate estimate is high — U1's telemetry unification is exactly the measurement that proves or disproves this.",
+      "scrutiny_required": "per-file (2 reviewers per file × 4 files: hook patch + config file + test patch + this envelope revision); 3-of-3 Stop gate.",
+      "rollback": "Set `{\"mode\":\"suggest\"}` in `mcp-server/data/state/ollama-route-config.json` OR delete the file. Reversible in seconds. No system/shell state to clean up. To roll back the telemetry-unification: comment out the new `byHook.ollama-route-pretooluse` append in the hook (dashboard will keep showing the hook row but with stale counts until reset)."
+    },
+    {
+      "id": "U2",
+      "title": "Ollama perf knobs — KEEP_ALIVE=-1, FLASH_ATTENTION=1, KV_CACHE_TYPE=q8_0, NUM_PARALLEL",
+      "priority": "P1",
+      "effort_minutes": 30,
+      "deliverables": [
+        "Update docker-compose for prism-ollama to set the four env vars on the container.",
+        "Document the choice rationale in the milestone wiki entry.",
+        "Verify model stays resident across requests (no cold-start latency)."
+      ],
+      "acceptance": [
+        "`docker exec prism-ollama env | grep OLLAMA_` shows the four vars set.",
+        "Cold-call latency on qwen2.5-coder:7b drops measurably (record before/after with `time curl /api/generate`)."
+      ],
+      "dependencies": ["U1"],
+      "scrutiny_required": "per-file (2 reviewers on the compose file change); 3-of-3 Stop.",
+      "rollback": "Revert the compose-file stanza (`git checkout HEAD -- docker-compose.yml` or whichever file) then `docker compose up -d prism-ollama` to restart the container with the prior env. Ollama state (loaded models) is preserved across restarts via volume mounts."
+    },
+    {
+      "id": "U3",
+      "title": "Q8 model — pull qwen2.5-coder:7b-instruct-q8_0 (~9-10GB) IF Q4_K_M shows quality issues post-U1",
+      "priority": "P2-CONDITIONAL",
+      "effort_minutes": 30,
+      "deliverables": [
+        "ONLY if post-U1 measurements show summarization quality issues (truncated, wrong, missed key facts) on real production reads — pull q8_0 and repoint `ollama-route-pretooluse.mjs` default model + config file.",
+        "Otherwise close as `not-needed` with the measurement that proved Q4 sufficient."
+      ],
+      "acceptance": [
+        "Either: q8 model in use AND quality measurably better on a fixed test corpus of 10 prior Claude-kept reads.",
+        "Or: unit closed `not-needed` with link to the quality measurement."
+      ],
+      "dependencies": ["U1"],
+      "defer_condition": "Q4_K_M sufficient for top-N actual offload categories observed post-U1.",
+      "scrutiny_required": "per-file if model swap shipped; 3-of-3 Stop.",
+      "rollback": "Revert the model name in `ollama-route-config.json` to `qwen2.5-coder:7b`. The Q8 model file remains on disk; `ollama rm qwen2.5-coder:7b-instruct-q8_0` removes it to free VRAM/disk."
+    },
+    {
+      "id": "U4",
+      "title": "VRAM reallocation — stop nim-llama32-3b IF VRAM crunch returns AND larger Ollama model fits the freed slot",
+      "priority": "P3-DEFER",
+      "effort_minutes": 15,
+      "deliverables": [
+        "ONLY if a follow-up audit shows VRAM is the binding constraint (>14GB used persistently) AND U3 stalled on `model won't fit at current quantization`.",
+        "`docker stop nim-llama32-3b` (reversible) → frees ~3-5GB VRAM → enables qwen2.5-coder:14b at Q4 OR keeps 7b-q8 with headroom.",
+        "Document NIM-restart procedure in the same envelope so an operator can revert without context."
+      ],
+      "acceptance": [
+        "Either: NIM stopped AND a model that needed the freed VRAM is now resident AND offload rate stable.",
+        "Or: unit closed `not-needed` with the VRAM measurement that proved no reallocation needed."
+      ],
+      "dependencies": ["U1", "U3"],
+      "defer_condition": "Current VRAM headroom (~12GB) holds across a 7-day window.",
+      "scrutiny_required": "per-file; 3-of-3 Stop.",
+      "rollback": "`docker start nim-llama32-3b` — container resumes with same image + env. Confirm health via `curl 127.0.0.1:8000/v1/models`."
+    }
+  ],
+  "phases": [
+    {"id": "P1", "title": "Activation + measurement (the lever, ship together)", "units": ["U1"]},
+    {"id": "P2", "title": "Perf tuning", "units": ["U2"]},
+    {"id": "P3", "title": "Model + VRAM (conditional / deferred)", "units": ["U3", "U4"]}
+  ],
+  "acceptance": "U1 shipped (lever + measurement together); within 48h of U1 ship the dashboard shows a non-zero `byHook.ollama-route-pretooluse.offloaded` count AND a substitute message containing `[OLLAMA-SUBSTITUTE` is observable in at least one chat session; within 7d the file-read offload column shows steady-state >5 offloads/day across the fleet. U2 shipped if it measurably reduces cold-call latency. U3/U4 closed as `shipped` or `not-needed` with the measurement that proves the decision.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Auto-substitute hides bytes Claude actually needed — summary loses a key fact and Claude makes wrong decision downstream.",
+      "mitigation": "U1 deliverable: substitute message banner `[OLLAMA-SUBSTITUTE model=... sha256=... bytes=N route=auto]` is grep-able + tells Claude how to retry via offset/limit. Source-file Reads bypassed by SRC_EXT exemption. Only triggers on bulk-data paths (state/data/state/logs/etc). Telemetry unification (U1) lets us spot quality issues by spot-checking substituted-vs-kept ratio on the same file path; if a path is substituted then Claude retries it raw, that's a quality-failure signal."
+    },
+    {
+      "id": "R2",
+      "description": "Config-file write surface — `mcp-server/data/state/` is written by 20+ slot/hook processes. Any of them could write a malicious `ollama-route-config.json` to DENY all reads of state files via `{mode:auto, minKb:0}` — a DoS-by-route attack that's VALID-shape (passes naïve schema check) but pathological.",
+      "mitigation": "U1 deliverable explicitly requires post-parse RANGE validation: `minKb >= 8` (integer), `mode` matches enum `auto|suggest`, `model` matches `/^[\\w./:-]{1,64}$/` AND is present in `GET /api/tags`. Out-of-range values silently fall back to safe defaults with a warning to the telemetry log (R12: surface the silent-fallback). Hook ALSO fail-OPENs on corrupt JSON / missing file — both safer than denying reads."
+    },
+    {
+      "id": "R3",
+      "description": "Cold-start lag — first Ollama call after warm-loss adds 5-9s. 26+ slots reading simultaneously could queue and time out.",
+      "mitigation": "Hook timeout is 9s and fails-OPEN to raw Read. U2 sets KEEP_ALIVE=-1 (model stays resident). U2 also sets NUM_PARALLEL to handle concurrent slots. Worst case: a few reads slip through to Claude during cold-start — same as today."
+    },
+    {
+      "id": "R4",
+      "description": "ROI estimate uncertainty — the 130k tokens/day saved figure assumes ~5 bulk-data reads/day/slot. If the actual rate is much lower (e.g., the fleet mostly reads source files which are exempt), the milestone may be net-neutral on token economy.",
+      "mitigation": "U1's telemetry unification IS the measurement. Within 7d we'll know the actual rate. If <50 offloads/day fleet-wide, deprioritize U2/U3/U4 and close the milestone with the empirical finding (still valuable: it proves where the offload opportunity is NOT)."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [],
+  "linked_milestones": ["OLLAMA-EXPAND-MS0"],
+  "linked_wiki": [
+    "knowledge/wiki/architecture/ollama-expand-ms0.md"
+  ],
+  "linked_memory": [
+    "knowledge/memories/reference/reference_ollama_expand_ms0.md",
+    "knowledge/memories/reference/reference_ollama_pipeline_ms0_2026_05_15.md"
+  ],
+  "schemaVersion": "1.0.0"
+}

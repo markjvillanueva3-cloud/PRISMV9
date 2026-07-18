@@ -33,7 +33,15 @@ export interface UsuiWearModelInput {
   sliding_velocity: number;
   /** Interface temperature [°C]. */
   interface_temperature: number;
-  /** Usui constant A [mm²/(N·m)]. Default 1e-5 (carbide on steel). */
+  /**
+   * Usui constant A [mm^3/(N*m)]. Default 1e-5 (carbide on steel).
+   * Basis: dVB/dt [mm/min] = A * sigma [N/mm^2] * Vs [m/min] * exp(-B/theta), so
+   * A = mm/min / ((N/mm^2)(m/min)) = mm^3/(N*m). Row 18 fix: the integrator previously
+   * fed Vs in mm/min (a stray *1000), which made the reference case (800 MPa, 150 m/min,
+   * 600 C) wear at 121 mm/min -- a 12-METER flank land in 10 minutes (live-probed).
+   * On the m/min basis the same A yields 0.121 mm/min -> VB 0.3 in ~2.3 min at those
+   * aggressive conditions, the physically sane scale.
+   */
   usui_A?: number;
   /** Usui constant B [K]. Default 2000 (carbide on steel). */
   usui_B?: number;
@@ -141,8 +149,10 @@ export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearMode
   calculate(input: UsuiWearModelInput): UsuiWearModelOutput {
     const warnings: string[] = [];
     const sigma = input.contact_stress; // MPa
-    const Vs = input.sliding_velocity / 60; // m/min → m/s → convert to mm/s for consistency
-    const VsMmPerMin = input.sliding_velocity * 1000; // m/min → mm/min
+    // Sliding velocity stays in m/min: A [mm^3/(N*m)] is calibrated on the m/min basis
+    // (see the usui_A JSDoc). The previous *1000 (mm/min) inflated every wear rate 1000x
+    // (live probe: final_vb 12,079 mm in 10 min at the suite's own reference inputs).
+    const VsMPerMin = input.sliding_velocity;
     const theta = input.interface_temperature + 273.15; // °C → K
     const A = (input.usui_A ?? 1e-5) * (input.coating_factor ?? 1);
     const B = input.usui_B ?? 2000;
@@ -174,8 +184,8 @@ export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearMode
       // Approximate: θ increases 5% per 0.1mm VB
       const thetaEffective = theta * (1 + 0.5 * vb);
 
-      // Usui wear rate
-      const wearRate = A * sigma * VsMmPerMin * Math.exp(-B / thetaEffective);
+      // Usui wear rate [mm/min]: A [mm^3/(N*m)] * sigma [N/mm^2] * Vs [m/min] * Arrhenius
+      const wearRate = A * sigma * VsMPerMin * Math.exp(-B / thetaEffective);
 
       wearHistory.push({ time: t, vb, wear_rate: wearRate });
 

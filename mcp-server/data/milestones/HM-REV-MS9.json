@@ -1,0 +1,293 @@
+{
+  "id": "HM-REV-MS9",
+  "version": "8.3.0",
+  "title": "Automation Center Bridge + Deployment",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Build Automation Center (AC) companion server for hyperMILL script execution, fix port mismatch issues, and build PPP file writer so that post-processed NC output leaves memory and reaches the filesystem. Addresses Agent 18 finding (34/100 deployment — AC companion server missing, port mismatch, PPP output never leaves memory) and Agent 7 finding (10 AC Python scripts needed).",
+  "dependencies": [
+    "HM-REV-MS4",
+    "HM-REV-MS8"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillCodeGeneratorEngine.ts (982 LOC — AC Python script generation)",
+      "PostProcessorPipelineEngine (38 stages — output needs file writer)",
+      "HyperMillControllerCatalogEngine.ts (430 LOC — controller post configs)"
+    ],
+    "registries": [],
+    "services": [],
+    "physics": [],
+    "reference": [
+      "Agent 18 report (deployment gaps — AC companion, port mismatch, PPP output)",
+      "Agent 7 report (10 AC scripts needed)",
+      "hypermill-post-configs.json (17 NcGenerator post configs)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-ac-connection-health — DECLARED+BUILT here (warns if AC companion not reachable)",
+    "action": "cam:hypermill_ac_execute — DECLARED+BUILT here",
+    "skill": "/hypermill-ac-connect — DECLARED here, BUILT in HM-REV-MS12"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read CodeGeneratorEngine + Agent 18 report)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS9-S1",
+      "title": "AC Companion Server + Script Execution Bridge",
+      "smart_config": {
+        "role": "Integration Architect + Automation Center Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillCodeGeneratorEngine.ts (982 LOC)",
+        "Agent 7 report (10 AC scripts)",
+        "Agent 18 report (AC companion server)"
+      ],
+      "intent": "Build the Automation Center companion server that bridges PRISM MCP commands to hyperMILL script execution. This server listens for script execution requests from PRISM, forwards them to hyperMILL's Automation Center API, and returns results. Unlike Fusion 360's dead-end API, hyperMILL's AC provides full programmatic control.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR49",
+          "title": "Build HyperMillACCompanionServer — script execution bridge",
+          "description": "Create HyperMillACCompanionServer that: (1) listens on configurable port for PRISM requests, (2) accepts AC Python scripts from HyperMillCodeGeneratorEngine, (3) executes scripts via hyperMILL Automation Center API, (4) returns execution results (success/failure, output, errors). Includes connection health check, retry logic (3 attempts with exponential backoff), and timeout handling (30s default, configurable).",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillACCompanionServer.ts listens on configurable port",
+            "Accepts and executes AC Python scripts",
+            "Connection health check with retry logic (3 attempts, exponential backoff)",
+            "Timeout handling (30s default, configurable)",
+            "cam:hypermill_ac_execute action registered",
+            "4 unit tests: script execution, health check, retry logic, timeout"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillACCompanionServer.ts",
+              "src/schemas/hypermillACSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillACCompanionServer.ts src/schemas/hypermillACSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR50",
+          "title": "Build 10 AC Python script templates for hyperMILL execution",
+          "description": "Create 10 AC Python script templates (Agent 7 design): AC-01 (job setup), AC-02 (tool load from TDB), AC-03 (roughing cycle), AC-04 (finishing cycle), AC-05 (5-axis setup), AC-06 (NC generation), AC-07 (batch program), AC-08 (simulation launch), AC-09 (tool path export), AC-10 (project save/backup). Each template is parameterized — HyperMillCodeGeneratorEngine fills in the values from PRISM context.",
+          "depends_on": [
+            "U-HMR49"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "10 AC Python script templates created",
+            "Templates are parameterized (not hardcoded values)",
+            "HyperMillCodeGeneratorEngine can fill templates from PRISM context",
+            "AC-07 (batch program) handles multi-operation sequences",
+            "3 unit tests: template rendering, parameter substitution, batch sequence"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/ac-templates/"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "template rendering fails"
+            ],
+            "rollback_procedure": "rm -rf src/engines/hypermill/ac-templates/"
+          }
+        },
+        {
+          "id": "U-HMR51",
+          "title": "Build hypermill-ac-connection-health hook + port configuration fix",
+          "description": "Build hypermill-ac-connection-health hook that checks AC companion server reachability before any AC execution action. Fix port mismatch issue (Agent 18: AC default port vs PRISM expected port). Create configuration system that allows port, host, and timeout to be set per shop floor installation. Wire cam:hypermill_ac_status action for monitoring.",
+          "depends_on": [
+            "U-HMR49"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "hypermill-ac-connection-health hook warns if AC not reachable",
+            "Port configurable via shop-config.json (not hardcoded)",
+            "cam:hypermill_ac_status action returns connection state + latency",
+            "Configuration supports multiple hyperMILL installations",
+            "3 unit tests: connection check, port config, multi-install config"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/hooks/registry.ts",
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/hooks/registry.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ AC companion server built | ✓ 10 AC script templates | ✓ Connection health hook active | ✓ Port config fixed | ✓ tsc 0 errors | ✓ 10+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-ac-connection-health"
+        ],
+        "new_actions": [
+          "cam:hypermill_ac_execute",
+          "cam:hypermill_ac_status"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS11",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS9-S2",
+      "title": "PPP File Writer + Job Status Monitoring",
+      "smart_config": {
+        "role": "Deployment Engineer + File I/O Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "PostProcessorPipelineEngine (38 stages)",
+        "Agent 18 report (PPP output never leaves memory)",
+        "HyperMillControllerCatalogEngine.ts (430 LOC)"
+      ],
+      "intent": "Build the PPP file writer so that post-processed NC output actually reaches the filesystem (Agent 18: PPP output never leaves memory). Add job status monitoring for long-running AC operations (nightSHIFT batch processing).",
+      "skills": [
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR52",
+          "title": "Build PPP file writer + hyperMILL project folder integration",
+          "description": "Create HyperMillPPPFileWriter that writes post-processed NC output from PostProcessorPipelineEngine to the filesystem in hyperMILL's expected project folder structure. Handles: NC file naming convention (per controller dialect), sub-program splitting, setup sheet companion file, and atomic write (no partial files on failure). Wire to hyperMILL project folder structure detection.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "PPP output written to filesystem (not just memory)",
+            "NC file naming follows hyperMILL convention per controller",
+            "Sub-program splitting handled for controllers that require it",
+            "Atomic write prevents partial files on failure",
+            "cam:hypermill_ppp_write action registered",
+            "3 unit tests: file write, naming convention, atomic write on failure"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillPPPFileWriter.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillPPPFileWriter.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR53",
+          "title": "Build job status monitoring for AC + nightSHIFT batch operations",
+          "description": "Create HyperMillJobMonitor that tracks long-running AC operations: nightSHIFT batch calculate, batch simulate, batch post-process. Polls AC companion server for job progress (% complete, current operation, estimated time remaining). Emits events for: job start, progress update (every 10%), job complete, job error. Wire cam:hypermill_job_status action.",
+          "depends_on": [
+            "U-HMR49"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillJobMonitor tracks batch job progress",
+            "Progress polling at configurable interval",
+            "Events emitted: start, progress (10% intervals), complete, error",
+            "cam:hypermill_job_status action returns current job state",
+            "3 unit tests: job tracking, progress events, error handling"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillJobMonitor.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillJobMonitor.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ PPP output reaches filesystem | ✓ NC naming per controller convention | ✓ Atomic writes prevent corruption | ✓ Job monitoring for nightSHIFT | ✓ tsc 0 errors | ✓ 6+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "cam:hypermill_ppp_write",
+          "cam:hypermill_job_status"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS11",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

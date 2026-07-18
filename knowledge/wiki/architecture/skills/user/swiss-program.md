@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `swiss-program` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/swiss-program.md` |
+| Source | `C:/Users/wompu/.claude/commands/swiss-program.md` |
 | Model | default |
 | Tags | _(none)_ |
 

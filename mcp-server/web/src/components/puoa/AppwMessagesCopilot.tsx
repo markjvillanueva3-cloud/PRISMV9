@@ -90,7 +90,7 @@ function buildSummary(props: AppwMessagesCopilotProps) {
   if (props.upstreamSourceLabel) posture.push(`upstream ${props.upstreamSourceLabel}`);
   if (props.workflowReference) posture.push(`record ${props.workflowReference}`);
 
-  return `PRISM AI is reasoning over live inbox posture, selected-thread urgency, staged action workspace continuity, linked-record routing, shop-hot follow-up, route freshness, degraded feed signals, and workflow continuity for the Messages desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live inbox posture, selected-thread urgency, staged action workspace continuity, linked-record routing, shop-hot follow-up, route freshness, degraded feed signals, and workflow continuity for the Messages desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwMessagesCopilotProps): WorkspaceCopilotSuggestion[] {

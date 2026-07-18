@@ -146,7 +146,7 @@ describe('VendorScorecardPage', () => {
     });
   });
 
-  it('keeps the PRISM AI copilot built into the vendor scorecard desk and auto-briefs live vendor posture', async () => {
+  it('keeps the Kienzle AI copilot built into the vendor scorecard desk and auto-briefs live vendor posture', async () => {
     mockVendorList.mockResolvedValue({
       result: [
         {
@@ -180,7 +180,7 @@ describe('VendorScorecardPage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Vendor Scorecard' })).toBeDefined();
-      expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
+      expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
       expect(screen.getByText(/Autonomous desk brief on/i)).toBeDefined();
     });
 

@@ -1,0 +1,871 @@
+{
+  "id": "CCM-MS10",
+  "version": "1.0.0",
+  "title": "Code Review Automation Pipeline",
+  "brief": "Wire PRISM's physics/formula knowledge into Claude's automated code review bot for domain-aware PR reviews. Configure claude-code-action and claude-code-security-review GitHub Actions. Create REVIEW.md with PRISM-specific rules. Build specialized review agents for physics correctness, dispatcher wiring, and test coverage. Multi-agent parallel dispatch for PR review. CI integration to block merge on P0 issues.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS2"
+  ],
+  "wave": 3,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Code Review Automation Pipeline",
+      "description": "Configure GitHub Actions for automated PR review, create PRISM-specific review rules, build specialized review agents for physics/dispatcher/test correctness, aggregate into unified CI-blocking reviews.",
+      "sessions": "3-5",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "claude-code-action setup",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Configure anthropics/claude-code-action GitHub Action for PRISM repo to auto-trigger on PR open, providing the foundation for all subsequent review automation.",
+          "tools": [
+            "Bash",
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "GitHub Action workflow for claude-code-action"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS2 complete",
+            "GitHub repo access configured"
+          ],
+          "exit_conditions": [
+            "claude-code-action triggers on PR open",
+            "Action runs successfully on test PR",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- .github/workflows/claude-review.yml",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create .github/workflows/claude-review.yml with anthropics/claude-code-action@v1"
+            },
+            {
+              "number": 2,
+              "instruction": "Configure trigger on pull_request opened/synchronize events"
+            },
+            {
+              "number": 3,
+              "instruction": "Set ANTHROPIC_API_KEY secret reference and model to claude-opus-4-6"
+            },
+            {
+              "number": 4,
+              "instruction": "Test with a dummy PR to verify action triggers and completes"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".github/workflows/claude-review.yml",
+              "type": "config",
+              "description": "GitHub Action workflow for automated Claude code review on PRs"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "claude-code-action setup — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "claude-code-security-review setup",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Add security-focused review scanning for injection vulnerabilities, credential leaks, and unsafe eval patterns specific to PRISM's MCP server and engine architecture.",
+          "tools": [
+            "Bash",
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Security review GitHub Action"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "claude-code-action workflow exists"
+          ],
+          "exit_conditions": [
+            "Security review runs on PR",
+            "Detects intentionally planted test vulnerability",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- .github/workflows/claude-security-review.yml",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create .github/workflows/claude-security-review.yml with anthropics/claude-code-action security review config"
+            },
+            {
+              "number": 2,
+              "instruction": "Configure security-specific prompt: scan for eval(), credential patterns, SQL injection, path traversal"
+            },
+            {
+              "number": 3,
+              "instruction": "Add PRISM-specific security rules: MCP endpoint auth checks, dispatcher input validation, engine sandbox boundaries"
+            },
+            {
+              "number": 4,
+              "instruction": "Test with intentional vulnerability to confirm detection"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".github/workflows/claude-security-review.yml",
+              "type": "config",
+              "description": "Security-focused Claude review action"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "claude-code-security-review setup — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "REVIEW.md creation",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Create PRISM-specific review rules document that Claude references during reviews, covering formula correctness, dispatcher wiring conventions, schema sync requirements, and test coverage expectations.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "REVIEW.md with PRISM domain rules"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Understanding of PRISM conventions from MASTER_INDEX_COMPACT"
+          ],
+          "exit_conditions": [
+            "REVIEW.md in repo root",
+            "Covers formula, dispatcher, schema, test rules",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- REVIEW.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Document formula correctness rules: Kienzle Fc=kc1.1*ap*fz^(1-mc), Taylor T=(C/Vc)^(1/n), deflection delta=FL^3/3EI must match constants.ts"
+            },
+            {
+              "number": 2,
+              "instruction": "Document dispatcher wiring rules: new engines must be exported from index.ts, wired to dispatcher z.enum, have action schemas"
+            },
+            {
+              "number": 3,
+              "instruction": "Document schema sync rules: action schemas must match dispatcher cases, z.enum must include all action names"
+            },
+            {
+              "number": 4,
+              "instruction": "Document test coverage rules: every engine needs companion .test.ts, minimum 10 assertions, physics engines need dimensional analysis tests"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "REVIEW.md",
+              "type": "config",
+              "description": "PRISM-specific code review rules for Claude reviewers"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "REVIEW.md creation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Physics-aware review agent",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "Build a specialized review agent that checks Kienzle, Taylor, deflection, and other physics formulas against canonical constants.ts to catch formula regressions in PRs.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/review-agents/physics-reviewer.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Physics formula regression detection in PRs"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "REVIEW.md exists with formula rules",
+            "constants.ts canonical values known"
+          ],
+          "exit_conditions": [
+            "Agent detects formula regressions in test PR",
+            "Catches wrong exponents, missing terms, hardcoded vs canonical values",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- scripts/review-agents/physics-reviewer.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create physics-reviewer.ts that parses diff for formula patterns (kc1_1, mc, fz, ap, Vc, C, n)"
+            },
+            {
+              "number": 2,
+              "instruction": "Cross-reference detected formulas against src/physics/constants.ts canonical values"
+            },
+            {
+              "number": 3,
+              "instruction": "Flag: hardcoded values that should reference constants, wrong exponents, missing dimensional checks"
+            },
+            {
+              "number": 4,
+              "instruction": "Output structured findings with severity (P0=wrong formula, P1=hardcoded, P2=style)"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with synthetic PR containing intentional formula errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/review-agents/physics-reviewer.ts",
+              "type": "script",
+              "description": "Physics formula correctness review agent"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Physics-aware review agent — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Dispatcher consistency reviewer",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Check that new engines are properly wired: exported from index.ts, added to dispatcher z.enum, have matching action schemas, and ToolRouter patterns updated.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/review-agents/dispatcher-reviewer.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Dispatcher wiring gap detection in PRs"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "REVIEW.md exists with wiring rules"
+          ],
+          "exit_conditions": [
+            "Agent detects unwired engines in test PR",
+            "Catches missing z.enum entries, missing schemas",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- scripts/review-agents/dispatcher-reviewer.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create dispatcher-reviewer.ts that parses diff for new engine files and class definitions"
+            },
+            {
+              "number": 2,
+              "instruction": "Check index.ts for corresponding export"
+            },
+            {
+              "number": 3,
+              "instruction": "Check relevant dispatcher for z.enum action entry and switch case"
+            },
+            {
+              "number": 4,
+              "instruction": "Check action schema file for matching schema definition"
+            },
+            {
+              "number": 5,
+              "instruction": "Output findings: missing exports, unwired actions, schema gaps"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/review-agents/dispatcher-reviewer.ts",
+              "type": "script",
+              "description": "Dispatcher wiring consistency review agent"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dispatcher consistency reviewer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Test coverage reviewer",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Verify that new engines have companion test files with minimum assertion counts, physics engines have dimensional analysis tests, and no test files are empty stubs.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/review-agents/test-coverage-reviewer.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Test coverage gap detection in PRs"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "REVIEW.md exists with test rules"
+          ],
+          "exit_conditions": [
+            "Agent flags missing test files for new engines",
+            "Detects stub tests with <5 assertions",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- scripts/review-agents/test-coverage-reviewer.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create test-coverage-reviewer.ts that identifies new engine files in diff"
+            },
+            {
+              "number": 2,
+              "instruction": "Check for companion .test.ts file in tests/ directory"
+            },
+            {
+              "number": 3,
+              "instruction": "Count assertions (expect/assert calls) in test file, flag if <10"
+            },
+            {
+              "number": 4,
+              "instruction": "For physics engines, check for dimensional analysis test patterns"
+            },
+            {
+              "number": 5,
+              "instruction": "Output findings with severity levels"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/review-agents/test-coverage-reviewer.ts",
+              "type": "script",
+              "description": "Test coverage review agent"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Test coverage reviewer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Anti-regression review rules",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Flag removed exports, changed action names, modified schemas without migration, deleted dispatcher cases, and reduced z.enum entries -- all common regression patterns in PRISM.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/review-agents/anti-regression-reviewer.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Regression pattern detection in PRs"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "REVIEW.md exists"
+          ],
+          "exit_conditions": [
+            "Agent catches removed exports in test PR",
+            "Flags action name changes without migration",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- scripts/review-agents/anti-regression-reviewer.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create anti-regression-reviewer.ts that analyzes diff deletions"
+            },
+            {
+              "number": 2,
+              "instruction": "Detect removed exports from index.ts"
+            },
+            {
+              "number": 3,
+              "instruction": "Detect changed action names in dispatcher z.enum"
+            },
+            {
+              "number": 4,
+              "instruction": "Detect modified schema shapes without version bump"
+            },
+            {
+              "number": 5,
+              "instruction": "Detect reduced case count in dispatcher switch statements"
+            },
+            {
+              "number": 6,
+              "instruction": "Output P0 findings for any regression pattern"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/review-agents/anti-regression-reviewer.ts",
+              "type": "script",
+              "description": "Anti-regression review agent"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Anti-regression review rules — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Multi-agent parallel dispatch",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "Run 3+ review agents in parallel (physics, dispatcher, test coverage, anti-regression), aggregate findings into a single structured PR comment with severity-sorted results.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/review-agents/review-orchestrator.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Parallel multi-agent review with unified output"
+          ],
+          "dependencies": [
+            "P0-U04",
+            "P0-U05",
+            "P0-U06",
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "All 4 review agents functional"
+          ],
+          "exit_conditions": [
+            "Orchestrator runs all agents in parallel",
+            "Single unified PR comment posted with all findings",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- scripts/review-agents/review-orchestrator.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create review-orchestrator.ts that spawns all review agents via Promise.all"
+            },
+            {
+              "number": 2,
+              "instruction": "Collect findings from each agent into unified structure"
+            },
+            {
+              "number": 3,
+              "instruction": "Sort by severity (P0>P1>P2), deduplicate overlapping findings"
+            },
+            {
+              "number": 4,
+              "instruction": "Format as single GitHub PR comment with collapsible sections per agent"
+            },
+            {
+              "number": 5,
+              "instruction": "Post comment via GitHub API (gh pr comment)"
+            },
+            {
+              "number": 6,
+              "instruction": "Update GitHub Action workflow to use orchestrator"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/review-agents/review-orchestrator.ts",
+              "type": "script",
+              "description": "Multi-agent review orchestrator with parallel dispatch"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Multi-agent parallel dispatch — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Review metrics tracking",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Track review findings count, false positive rate (user-dismissed findings), catch rate (issues found before merge), and review duration to continuously improve review quality.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/review-agents/review-metrics.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Review quality metrics persistence and reporting"
+          ],
+          "dependencies": [
+            "P0-U08"
+          ],
+          "entry_conditions": [
+            "Orchestrator posting unified review comments"
+          ],
+          "exit_conditions": [
+            "Metrics persisted to JSON after each review",
+            "Dashboard query available",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- scripts/review-agents/review-metrics.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create review-metrics.ts that records each review run: PR number, findings by severity, duration"
+            },
+            {
+              "number": 2,
+              "instruction": "Track false positives via reaction emoji or dismiss comment pattern"
+            },
+            {
+              "number": 3,
+              "instruction": "Persist to data/review-metrics.json with append-only log"
+            },
+            {
+              "number": 4,
+              "instruction": "Add summary stats: rolling 30-day catch rate, false positive %, avg duration"
+            },
+            {
+              "number": 5,
+              "instruction": "Add CLI query: node scripts/review-agents/review-metrics.ts --summary"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/review-agents/review-metrics.ts",
+              "type": "script",
+              "description": "Review metrics tracking and reporting"
+            },
+            {
+              "path": "data/review-metrics.json",
+              "type": "data",
+              "description": "Persistent review metrics log"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Review metrics tracking — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "CI integration — merge blocking",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Configure GitHub branch protection to require passing Claude review with no P0 issues before merge is allowed, making the review pipeline a true quality gate.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Merge blocking on P0 review findings"
+          ],
+          "dependencies": [
+            "P0-U08"
+          ],
+          "entry_conditions": [
+            "Multi-agent review orchestrator functional"
+          ],
+          "exit_conditions": [
+            "PR with P0 issues cannot be merged",
+            "PR with only P1/P2 issues can merge with warning",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- .github/workflows/claude-review.yml",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Update claude-review.yml to set check status based on findings severity"
+            },
+            {
+              "number": 2,
+              "instruction": "Exit code 1 (failure) if any P0 findings, exit 0 otherwise"
+            },
+            {
+              "number": 3,
+              "instruction": "Configure GitHub branch protection to require claude-review check"
+            },
+            {
+              "number": 4,
+              "instruction": "Add P1/P2 warning annotations without blocking merge"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with P0-containing PR to verify merge is blocked"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".github/workflows/claude-review.yml",
+              "type": "config",
+              "description": "Updated workflow with merge-blocking on P0 findings"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "CI integration — merge blocking — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms10-gate",
+    "mcp_action": "prism_ccm:ccm_ms10_run",
+    "skill_command": "/ccm-ms10",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms10-gate"
+    ],
+    "new_actions": [
+      "ccm_ms10_run"
+    ],
+    "new_skills": [
+      "/ccm-ms10"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Wire PRISM's physics/formula knowledge into Claude's automated code review bot for domain-aware PR reviews. Configure claude-code-action and claude-code-security-review GitHub Actions. Create REVIEW.md with PRISM-specific rules. Build specialized review agents for physics correctness, dispatcher wiring, and test coverage. Multi-agent parallel dispatch for PR review. CI integration to block merge on P0 issues.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

@@ -2,7 +2,7 @@
 source: global
 section: KARPATHY DISCIPLINE (mental checklist every 5 tasks)
 slug: karpathy-discipline-mental-checklist-every-5-tasks
-indexed_at: 2026-04-28T00:49:50.569Z
+indexed_at: 2026-06-23T02:05:18.098Z
 ---
 
 ## KARPATHY DISCIPLINE (mental checklist every 5 tasks)
@@ -21,5 +21,6 @@ indexed_at: 2026-04-28T00:49:50.569Z
 - Is this the simplest solution or am I over-engineering?
 - Did I check existing assets before building new?
 - Have I made any assumptions I haven't verified?
+- **Where is this ultimately going** — what consumes it / where does it belong in the FULL PRISM-app build — and will this change actually REACH that destination, not orphan in the repo? (generating != delivering; building != wiring) → [[feedback_ultimate_destination_check]]
 
 ---

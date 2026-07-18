@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `dfm-check` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/dfm-check.md` |
+| Source | `C:/Users/wompu/.claude/commands/dfm-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

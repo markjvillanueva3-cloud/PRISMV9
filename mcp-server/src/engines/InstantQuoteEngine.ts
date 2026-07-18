@@ -1,6 +1,16 @@
 /**
  * InstantQuoteEngine — Xometry-killer instant pricing pipeline
  *
+ * WIRE-EXEMPT: wired into businessDispatcher (instant_quote) + quotingDispatcher
+ * (quoting_public_instant_quote / quote_packet_generate) and covered by feature-named
+ * companion tests rather than a single
+ * InstantQuoteEngine.test.ts -- instantQuoteCalibrationAwareCI.test.ts (12),
+ * instantQuoteStockVolumeResolve.test.ts (16), instantQuoteMachineQualityWire.test.ts,
+ * quotingLiveMapeFeed.test.ts (19). The stop_on_unwired_assets gate matches test files whose
+ * name INCLUDES "instantquoteengine"; these are named after the feature under test, so the
+ * engine reads as untested to the gate despite 47+ real reference-value cases. Marker added
+ * after verifying the wiring + tests exist (not a bypass).
+ *
  * Orchestrates: feature extraction → DFM analysis → SpeedFeedOrchestrator cycle time →
  * QuoteEstimator cost aggregation → Wright's law qty breaks → lead time multipliers →
  * PartSimilarity sanity check.
@@ -36,6 +46,31 @@ import {
 } from "./QuoteEstimatorEngine.js";
 import { dfmFeedbackEngine } from "./DFMFeedbackEngine.js";
 import { speedFeedOrchestratorEngine } from "./SpeedFeedOrchestratorEngine.js";
+import { cycleTimeEstimatorEngine, type ControllerType } from "./CycleTimeEstimatorEngine.js";
+import { shopConfigurationEngine } from "./ShopConfigurationEngine.js";
+import { vendorCostIndexEngine } from "./VendorCostIndexEngine.js";
+import { adaptiveShopRateEngine } from "./AdaptiveShopRateEngine.js";
+import { quotingActiveFactorLoaderEngine } from "./QuotingActiveFactorLoaderEngine.js";
+
+// U-QP-DOCUSTRATA-MATERIAL: stock-volume resolution is single-sourced from the
+// shared stock-volume util (U-QP-STOCK-VOLUME-CORE).
+import { resolveStockVolumeIn3 } from "../utils/stockVolume.js";
+
+// U-QP-RATE-WIRE: bridge the quote machine-type taxonomy (both the QuoteEstimator
+// form cnc_mill_3axis/cnc_lathe/... and the SpeedFeed form vertical_mill/lathe/...)
+// to the ShopConfigurationEngine machine `type` labels, so the quote can read THIS
+// shop's actual per-machine $/hr. A type with no shop machine falls back to the
+// quote engine's planning default (silent, never blocks a quote).
+const MACHINE_TYPE_TO_SHOP_TYPE: Record<string, string> = {
+  // QuoteEstimator taxonomy
+  cnc_mill_3axis: "VMC", manual_mill: "VMC",
+  cnc_mill_5axis: "5-axis",
+  cnc_lathe: "Lathe", swiss_lathe: "Lathe", cnc_lathe_live: "Lathe", multi_spindle: "Lathe",
+  wire_edm: "Wire EDM", sinker_edm: "EDM",
+  surface_grinder: "Grinder", cylindrical_grinder: "Grinder", centerless_grinder: "Grinder",
+  // SpeedFeed taxonomy (inferMachineType / input.machine_type alternate form)
+  vertical_mill: "VMC", horizontal_mill: "VMC", lathe: "Lathe", "5axis": "5-axis",
+};
 import { partSimilarityEngine, type PartSpec } from "./PartSimilarityEngine.js";
 import { tribalKnowledgeEngine, type KnowledgeTip } from "./TribalKnowledgeEngine.js";
 
@@ -50,6 +85,25 @@ export interface InstantQuoteInput {
   bounding_box_mm?: { x: number; y: number; z: number };
   part_volume_cm3?: number;
   stock_dimensions_mm?: { length: number; width: number; height: number };
+
+  // Stock volume sources (U-QP-STOCK-VOLUME-RESOLVE) -- multi-source per-part
+  // STOCK volume so the real $/in3 material cost fires for more part shapes, not
+  // just rectangular block stock. Resolution precedence (highest confidence first):
+  //   1. stock_volume_in3      -- explicit, already in the AP-ledger basis unit
+  //   2. stock_dimensions_mm   -- rectangular block bbox (the pre-existing path)
+  //   3. stock_round_bar_mm    -- cylindrical bar stock: pi/4 * d^2 * L (turned parts)
+  // A round-bar turned part on 2in-dia x 6in stock could NOT express its stock volume in the
+  // rectangular field, so a lathe quote silently lost real material cost -- a money
+  // leak for a lathe-heavy shop. NOTE: bounding_box_mm is the PART envelope, NOT stock;
+  // it is deliberately NOT a stock proxy (stock >= part, so it would undercount cost).
+  stock_volume_in3?: number;
+  stock_round_bar_mm?: { diameter: number; length: number };
+
+  // Calibration-aware CI (U-QP-CI-CALIBRATION-AWARE): the calibrator's observed
+  // quote-vs-actual MAPE (percent, e.g. 45 for 45%). When supplied + positive, the
+  // CI95 band is floored at the real measured error so it never claims more
+  // confidence than the closed-loop history supports. Omitted/null -> theory only.
+  observed_mape_pct?: number | null;
 
   // Features (from CAD feature recognition or manual)
   features?: Array<{
@@ -79,6 +133,14 @@ export interface InstantQuoteInput {
   // Tool context (optional — SpeedFeedOrchestrator resolves defaults)
   tool_diameter_mm?: number;
   flutes?: number;
+
+  // ── G-code program (U-QP-GCODE-TIME-WIRE): when a real NC program is
+  // available it is the MOST accurate cycle-time source (deterministic, from
+  // actual toolpaths + this machine's kinematics), used ahead of the MRR
+  // estimate. controller/profile select the machine kinematics. ──
+  gcode_program?: string;
+  gcode_controller?: ControllerType;
+  gcode_machine_profile?: string;
 
   // Secondary operations
   secondary_ops?: Array<{
@@ -264,6 +326,77 @@ const COST_CV: Record<string, number> = {
   overhead: 0.05,           // 5%
 };
 
+/**
+ * Per-part sigma implied by the calibrator's observed mean-absolute-percent-error.
+ * Pure + exported for direct unit testing of the calibration-aware-CI floor.
+ *
+ * MAPE is a mean ABSOLUTE % error. Treating it as the half-width of a 95% interval
+ * (a deliberately CONSERVATIVE reading -- the true 95% width is wider than the mean
+ * error, so this is a lower bound on the honest band), the implied per-part sigma is
+ * `(mapePct/100 / Z_95) * unitPrice`. Returns 0 for any non-finite / non-positive
+ * MAPE or unitPrice, so the caller's `max(sigmaTheory, sigmaObserved)` floor only
+ * ever WIDENS the theoretical band, never narrows it.
+ *
+ * @param observedMapePct observed quote-vs-actual MAPE in percent (e.g. 45 for 45%)
+ * @param unitPrice the per-part quoted price the band is centered on
+ * @returns the observed-error-implied per-part sigma (>= 0)
+ */
+export function computeObservedSigma(
+  observedMapePct: number | null | undefined,
+  unitPrice: number,
+): number {
+  if (
+    typeof observedMapePct !== "number" ||
+    !Number.isFinite(observedMapePct) ||
+    observedMapePct <= 0 ||
+    !Number.isFinite(unitPrice) ||
+    unitPrice <= 0
+  ) {
+    return 0;
+  }
+  return (observedMapePct / 100 / Z_95) * unitPrice;
+}
+
+/** Provenance-tagged stock volume: the in^3 figure plus which source produced it. */
+export interface ResolvedStockVolume {
+  in3: number;
+  source: "explicit_in3" | "rect_block_mm" | "round_bar_mm";
+}
+
+/**
+ * computeStockVolumeIn3 -- resolve a part's STOCK volume (in^3) from whichever
+ * source is supplied, highest-confidence first (U-QP-STOCK-VOLUME-RESOLVE).
+ *
+ * Material cost in the AP-ledger $/in3 basis needs a stock volume in cubic inches.
+ * Before this, that volume could ONLY come from a rectangular `stock_dimensions_mm`
+ * block -- so a turned part on cylindrical bar stock (the lathe-shop common case)
+ * silently lost its real material cost. This adds the round-bar volume (pi/4 * d^2 * L)
+ * and an explicit-in^3 escape hatch, in a single precedence-ordered pure function.
+ *
+ * Precedence:
+ *   1. explicit_in3  -- caller already has the stock volume in the basis unit
+ *   2. rect_block_mm -- rectangular block bbox: L * W * H, mm^3 -> in^3
+ *   3. round_bar_mm  -- cylindrical bar: pi/4 * d^2 * L, mm^3 -> in^3
+ *
+ * Returns null when no usable source is present or every candidate is
+ * non-finite / non-positive, so the caller falls back to the density estimate
+ * (R12: never fabricate a stock volume from a degraded input).
+ *
+ * @param sources the volume-bearing fields off InstantQuoteInput
+ * @returns the resolved stock volume (in^3) with its source tag, or null
+ */
+export function computeStockVolumeIn3(sources: {
+  stock_volume_in3?: number;
+  stock_dimensions_mm?: { length: number; width: number; height: number };
+  stock_round_bar_mm?: { diameter: number; length: number };
+}): ResolvedStockVolume | null {
+  // Delegates to the shared, unit-agnostic resolver (U-QP-STOCK-VOLUME-CORE):
+  // the precedence (explicit > rect > round-bar), the cylinder geometry, and the
+  // finite/positive guards now live in exactly one place. resolveStockVolumeIn3
+  // returns the identical { in3, source } shape this function has always returned.
+  return resolveStockVolumeIn3(sources);
+}
+
 // ============================================================================
 // Engine
 // ============================================================================
@@ -316,43 +449,137 @@ class InstantQuoteEngine {
       }
     }
 
-    // ── Step 3: Physics-based cycle time via SpeedFeedOrchestrator ──
+    // -- Step 3: Cycle time. Priority: real G-code (deterministic) > physics
+    // MRR estimate > parametric complexity estimate. --
     let cycleTimeMin = 0;
     let cycleTimeSource = "parametric_estimate";
-    try {
-      const sfResult = speedFeedOrchestratorEngine.compute({
-        material: input.material,
-        iso_group: input.iso_group,
-        hardness_hb: input.hardness_hb,
-        machine_type: machineType as "vertical_mill" | "horizontal_mill" | "lathe" | "5axis",
-        tool_diameter_mm: input.tool_diameter_mm ?? 12,
-        flutes: input.flutes ?? 4,
-        operation: machineType.includes("lathe") ? "turning" : "milling",
-        cut_type: "roughing",
-        axial_depth_mm: input.tool_diameter_mm ? input.tool_diameter_mm * 0.5 : 6,
-        radial_depth_pct: 40,
-      });
 
-      if (sfResult?.value?.mrr_cm3min && sfResult.value.mrr_cm3min > 0) {
-        // Estimate volume to remove from bounding box vs part volume
-        const volumeToRemove = this.estimateVolumeToRemove(input);
-        if (volumeToRemove > 0) {
-          // Roughing time + finishing time (finishing ≈ 30% of roughing time)
-          const roughingMin = volumeToRemove / sfResult.value.mrr_cm3min;
-          const finishingMin = roughingMin * 0.3;
-          cycleTimeMin = roughingMin + finishingMin;
-          cycleTimeSource = "physics_calculated";
-          enginesUsed.push("SpeedFeedOrchestratorEngine");
+    // Step 3a: G-code program (U-QP-GCODE-TIME-WIRE) -- the most accurate source.
+    // Runs the full line-by-line S-curve parser (rapid/cut/canned-cycle/tool-change)
+    // against this machine's kinematics instead of a single-tool MRR assumption.
+    if (input.gcode_program && input.gcode_program.trim().length > 0) {
+      try {
+        const gc = cycleTimeEstimatorEngine.estimateFromGCode(input.gcode_program, {
+          controller: (input.gcode_controller ?? "fanuc") as ControllerType,
+          machine_profile: input.gcode_machine_profile,
+        });
+        if (gc && Number.isFinite(gc.total_seconds) && gc.total_seconds > 0) {
+          cycleTimeMin = gc.total_seconds / 60;
+          cycleTimeSource = "gcode_precise";
+          enginesUsed.push("CycleTimeEstimatorEngine");
         }
+      } catch (err: unknown) {
+        log.warn("G-code cycle-time estimate failed, falling back to MRR/parametric", { error: String(err) });
       }
-    } catch (err: unknown) {
-      log.warn("SpeedFeedOrchestrator failed, using parametric estimate", { error: String(err) });
+    }
+
+    // Step 3b: Physics-based cycle time via SpeedFeedOrchestrator (only when no
+    // G-code program produced a time).
+    if (cycleTimeMin <= 0) {
+      try {
+        const sfResult = speedFeedOrchestratorEngine.compute({
+          material: input.material,
+          iso_group: input.iso_group,
+          hardness_hb: input.hardness_hb,
+          machine_type: machineType as "vertical_mill" | "horizontal_mill" | "lathe" | "5axis",
+          tool_diameter_mm: input.tool_diameter_mm ?? 12,
+          flutes: input.flutes ?? 4,
+          operation: machineType.includes("lathe") ? "turning" : "milling",
+          cut_type: "roughing",
+          axial_depth_mm: input.tool_diameter_mm ? input.tool_diameter_mm * 0.5 : 6,
+          radial_depth_pct: 40,
+        });
+
+        if (sfResult?.value?.mrr_cm3min && sfResult.value.mrr_cm3min > 0) {
+          // Estimate volume to remove from bounding box vs part volume
+          const volumeToRemove = this.estimateVolumeToRemove(input);
+          if (volumeToRemove > 0) {
+            // Roughing time + finishing time (finishing ~30% of roughing time)
+            const roughingMin = volumeToRemove / sfResult.value.mrr_cm3min;
+            const finishingMin = roughingMin * 0.3;
+            const cutMin = roughingMin + finishingMin;
+            // U5: add the feature-based NON-CUT budget (tool change + approach/retract/air-cut
+            // + per-setup handling) -- absent before, the single largest under-quote on machine time.
+            const nonCutMin = this.nonCutTimeMin(input, complexity);
+            cycleTimeMin = cutMin + nonCutMin;
+            cycleTimeSource = "physics_calculated";
+            enginesUsed.push("SpeedFeedOrchestratorEngine");
+          }
+        }
+      } catch (err: unknown) {
+        log.warn("SpeedFeedOrchestrator failed, using parametric estimate", { error: String(err) });
+      }
     }
 
     // Fallback: parametric estimate based on complexity
     if (cycleTimeMin <= 0) {
       cycleTimeMin = this.parametricCycleTime(input, complexity);
       cycleTimeSource = "parametric_estimate";
+    }
+
+    // Step 3c: Per-shop rates from ShopConfigurationEngine (U-QP-RATE-WIRE) --
+    // the active shop's actual machine/setup/programming $/hr replace the quote
+    // engine's inline planning defaults, killing the silent rate divergence.
+    let shopMachineRateHr: number | undefined;
+    let shopSetupRateHr: number | undefined;
+    let shopProgrammingRateHr: number | undefined;
+    try {
+      const shopType = MACHINE_TYPE_TO_SHOP_TYPE[machineType];
+      if (shopType) {
+        const machine = shopConfigurationEngine.getMachines().find(
+          m => m.type.toLowerCase() === shopType.toLowerCase(),
+        );
+        if (machine && machine.hourly_rate > 0) {
+          shopMachineRateHr = machine.hourly_rate;
+          // U-QP-ADAPTIVE-PERSIST: when the adaptive engine has folded in REAL
+          // actual-vs-predicted outcomes for this machine, its self-tuned
+          // posterior mean (the learned rate) beats the static catalog rate.
+          // Dormant until outcomes are recorded (n_observations == 0 today).
+          try {
+            const prior = adaptiveShopRateEngine.getPrior(machine.id);
+            if (prior && prior.n_observations > 0 && prior.mu > 0) {
+              shopMachineRateHr = prior.mu;
+              enginesUsed.push("AdaptiveShopRateEngine");
+            }
+          } catch { /* no learned prior -> keep the catalog rate */ }
+        }
+      }
+      const rates = shopConfigurationEngine.getRates();
+      if (rates.setup_per_hr > 0) shopSetupRateHr = rates.setup_per_hr;
+      if (rates.programming_per_hr > 0) shopProgrammingRateHr = rates.programming_per_hr;
+      // Honest traceability: record the engine when ANY shop rate (machine OR
+      // setup OR programming) was actually applied to this quote.
+      if (shopMachineRateHr !== undefined || shopSetupRateHr !== undefined || shopProgrammingRateHr !== undefined) {
+        enginesUsed.push("ShopConfigurationEngine");
+      }
+    } catch (err: unknown) {
+      log.warn("ShopConfig rate lookup failed, using quote-engine planning defaults", { error: String(err) });
+    }
+
+    // Step 3d: Units-correct REAL material cost (U-QP-DOCUSTRATA-MATERIAL) --
+    // when stock dims + a JM tool-steel grade are known, cost the material from
+    // the AP-ledger $/in3 consumable basis (density-free, real spend) instead of
+    // the density x $/kg planning estimate. Only the 10 JM grades resolve; other
+    // materials (aluminum/stainless) return null -> fall back silently.
+    let materialCostPerPartOverride: number | undefined;
+    try {
+      // U-QP-STOCK-VOLUME-RESOLVE: resolve stock volume from ANY supplied source
+      // (explicit in^3 > rectangular block > round bar), not just rectangular dims,
+      // so turned parts on cylindrical bar stock no longer silently lose material cost.
+      const stockVol = computeStockVolumeIn3(input);
+      if (stockVol) {
+        // U-QP-CONSUME-FMV-DEDUP: route through the canonical confidence-gated
+        // primitive instead of re-gating inline. minConfidence:"high" REFUSES low-n
+        // AP-ledger outliers (e.g. D2 block_n=2 -> $251/in3, ~40x other tool steels)
+        // for customer-facing quotes; none/below-floor -> ok:false -> parametric fallback.
+        const mc = vendorCostIndexEngine.materialCostForVolume(input.material, stockVol.in3, undefined, { minConfidence: "high" });
+        if (mc.ok && mc.material_cost_usd != null && mc.material_cost_usd > 0) {
+          materialCostPerPartOverride = mc.material_cost_usd;
+          enginesUsed.push("VendorCostIndexEngine");
+        }
+      }
+    } catch (err: unknown) {
+      log.warn("Material $/in3 basis lookup failed, using parametric material cost", { error: String(err) });
     }
 
     // ── Step 4: Build QuoteEstimator input and get cost breakdown ──
@@ -374,6 +601,10 @@ class InstantQuoteEngine {
       })),
       num_setups: numSetups,
       machine_type: machineType,
+      machine_rate_hr: shopMachineRateHr,
+      setup_rate_hr: shopSetupRateHr,
+      programming_rate_hr: shopProgrammingRateHr,
+      material_cost_per_part_override: materialCostPerPartOverride,
       tightest_tolerance_mm: this.tightestTolerance(input),
       tightest_surface_finish_ra: this.tightestFinish(input),
       operations: [{
@@ -402,9 +633,30 @@ class InstantQuoteEngine {
       throw new Error(`Quote estimation failed: ${err instanceof Error ? err.message : String(err)}`);
     }
 
-    // ── Step 5: CI95 confidence interval via RSS uncertainty propagation ──
+    // ── Step 5: CI95 confidence interval via RSS uncertainty propagation,
+    // floored at the calibrator's observed quote-vs-actual MAPE (honest band) ──
+    // U-QP-LIVE-MAPE-FEED (Lever 2): when the caller did not supply observed_mape_pct,
+    // self-populate it from the LIVE closed-loop training-status snapshot -- but ONLY
+    // when that MAPE passes the freshness + provenance gate (fresh, real-not-bootstrap,
+    // sufficiently covered). This finally connects the closed loop's measured error to
+    // the calibration-aware band: before this, the band ran theory-only on every real
+    // quote because no live caller ever populated observed_mape_pct. The explicit input
+    // always wins (override); a missing/refused live MAPE leaves the band theory-only.
+    let effectiveMapePct: number | null | undefined = input.observed_mape_pct;
+    if (effectiveMapePct == null) {
+      try {
+        const live = quotingActiveFactorLoaderEngine.getLiveObservedMapePct();
+        if (live.mape_pct != null) {
+          effectiveMapePct = live.mape_pct;
+          enginesUsed.push("QuotingActiveFactorLoaderEngine");
+        }
+      } catch (err: unknown) {
+        // A live-MAPE lookup must NEVER break a quote -- fall back to theory-only band.
+        log.warn("Live observed-MAPE lookup failed, CI band stays theory-only", { error: String(err) });
+      }
+    }
     const { ci95Low, ci95High, confidenceScore, confidenceFactors } =
-      this.computeCI95(quoteResult, cycleTimeSource);
+      this.computeCI95(quoteResult, cycleTimeSource, effectiveMapePct);
 
     // ── Step 6: Wright's law quantity breaks ──
     const quantityBreaks = this.computeQuantityBreaks(
@@ -715,6 +967,50 @@ class InstantQuoteEngine {
     }
   }
 
+  /**
+   * QUOTING-OPTIMAL-MS0/U5 -- feature-based NON-CUT cycle-time budget (minutes).
+   *
+   * The MRR/parametric cut-time paths model ONLY metal-removal time (chip-making). Real
+   * spindle-on time also includes substantial NON-CUT motion that the audit found entirely
+   * absent -- routinely 30-60% of total cycle for hole-heavy / multi-tool / short-run jobs,
+   * and the single largest systematic UNDER-quote on machine time:
+   *   - tool change (ATC swap + retract to change pos): ~0.15 min each
+   *   - per-feature approach / retract / air-cut clearance moves: ~0.10 min each
+   *   - per-setup load / unload / indicate / probe (per RUN, amortized over qty by the caller
+   *     via setup cost; here it is the IN-CYCLE part-handling component): ~0.50 min each
+   *
+   * Returns an ADDITIVE minute budget (NOT a multiplier) because setup/tool-change cost is a
+   * fixed count, not proportional to cut time -- a flat multiplier would over-charge a long
+   * single-tool roughing job and under-charge a short 12-hole plate. Ratios are shop-standard
+   * planning values (Boothroyd & Knight, "Fundamentals of Machining," non-productive time;
+   * Machinery's Handbook 30e, time-study allowances); they are tunable, not physics constants.
+   * The accurate kinematic non-cut model (CycleTimeEstimatorEngine) is used instead whenever a
+   * real G-code program is supplied -- this is the feature-based estimate for the print-to-quote
+   * flow that has no program yet.
+   */
+  private nonCutTimeMin(input: InstantQuoteInput, complexity: string): number {
+    const TOOL_CHANGE_MIN = 0.15;
+    const PER_FEATURE_NONCUT_MIN = 0.10;
+    const PER_SETUP_HANDLING_MIN = 0.50;
+
+    const featureCount = input.features?.reduce((sum, f) => sum + (f.count || 0), 0) ?? 0;
+    // Distinct tool count drives tool-change count; fall back to a complexity proxy when
+    // the feature set is empty so a parametric-path part still carries a non-cut budget.
+    const distinctTools = input.features
+      ? new Set(input.features.map(f => f.type)).size
+      : 0;
+    const toolChanges = distinctTools > 0
+      ? distinctTools
+      : (complexity === "very_complex" ? 6 : complexity === "complex" ? 4 : complexity === "medium" ? 2 : 1);
+    const setups = this.inferSetups(input, complexity);
+
+    return (
+      toolChanges * TOOL_CHANGE_MIN +
+      featureCount * PER_FEATURE_NONCUT_MIN +
+      setups * PER_SETUP_HANDLING_MIN
+    );
+  }
+
   /** Get tightest tolerance from features */
   private tightestTolerance(input: InstantQuoteInput): number | undefined {
     if (!input.features) return undefined;
@@ -798,15 +1094,30 @@ class InstantQuoteEngine {
   }
 
   /**
-   * CI95 confidence interval via RSS uncertainty propagation.
-   * σ_total = sqrt(Σ (cv_i × cost_i)²)
-   * CI95 = price ± 1.96 × σ_total
+   * CI95 confidence interval via RSS uncertainty propagation, FLOORED at the
+   * calibrator's real observed error.
    *
-   * Source: AACE 18R-97 cost estimate classification
+   * sigma_theory   = sqrt(sum (cv_i * cost_i)^2)        (AACE 18R-97 static CVs)
+   * sigma_observed = (observedMapePct/100 / Z_95) * unitPrice  (real residual)
+   * sigma_total    = max(sigma_theory, sigma_observed)
+   * CI95 = price +/- 1.96 * sigma_total
+   *
+   * WHY the floor (U-QP-CI-CALIBRATION-AWARE, R12 honest-confidence): the static
+   * AACE CVs assume a well-calibrated estimator. PRISM's closed-loop has MEASURED
+   * a much larger real error (e.g. MAPE ~45% on the current ~10-pair sample). A
+   * quote that reports a tight theoretical band while the model is historically
+   * off by 45% is the most dangerous kind of false confidence. The floor makes the
+   * band never narrower than what the real residual supports. When the calibrator
+   * has no/low-confidence data (observedMapePct null/<=0) the theoretical band
+   * stands unchanged -- the floor only ever WIDENS, never narrows (safe direction).
+   *
+   * Source: AACE 18R-97 cost estimate classification + the quote-vs-actual
+   * closed-loop observed-MAPE residual (QuotingCalibrationEngine).
    */
   private computeCI95(
     quote: QuoteEstimateResult,
     cycleTimeSource: string,
+    observedMapePct?: number | null,
   ): {
     ci95Low: number;
     ci95High: number;
@@ -835,26 +1146,42 @@ class InstantQuoteEngine {
       (COST_CV.overhead * (costs.overhead.total / qty)) ** 2,
     ];
 
-    const sigmaPerPart = Math.sqrt(varianceComponents.reduce((sum, v) => sum + v, 0));
+    const sigmaTheory = Math.sqrt(varianceComponents.reduce((sum, v) => sum + v, 0));
 
     const unitPrice = quote.pricing.unit_price;
+
+    // CALIBRATION-AWARE FLOOR (U-QP-CI-CALIBRATION-AWARE): never report a band
+    // tighter than the real measured residual. MAPE is a mean ABSOLUTE % error;
+    // treating it as the half-width of a 95% interval, the implied per-part sigma
+    // is (MAPE/100 / Z_95) * unitPrice. Only a finite, positive MAPE widens the
+    // band; null/NaN/<=0 leaves the theoretical band untouched (safe direction).
+    const sigmaObserved = computeObservedSigma(observedMapePct, unitPrice);
+    const sigmaPerPart = Math.max(sigmaTheory, sigmaObserved);
+    const calibrationWidened = sigmaObserved > sigmaTheory && sigmaObserved > 0;
+
     const ci95Low = Math.round(Math.max(unitPrice - Z_95 * sigmaPerPart, 0) * 100) / 100;
     const ci95High = Math.round((unitPrice + Z_95 * sigmaPerPart) * 100) / 100;
 
     // Confidence score: higher when variance is low relative to price
     const cvTotal = unitPrice > 0 ? sigmaPerPart / unitPrice : 1;
     const confidenceScore = Math.round(Math.max(0, Math.min(100,
-      100 * (1 - cvTotal * 2), // CV of 50% → 0 confidence
+      100 * (1 - cvTotal * 2), // CV of 50% -> 0 confidence
     )));
 
     const confidenceFactors: string[] = [];
     if (cycleTimeSource === "physics_calculated") {
-      confidenceFactors.push("Physics-based cycle time (±12%)");
+      confidenceFactors.push("Physics-based cycle time (+/-12%)");
     } else {
-      confidenceFactors.push("Parametric cycle time estimate (±25%)");
+      confidenceFactors.push("Parametric cycle time estimate (+/-25%)");
     }
     if (costs.secondary_ops.total > 0) {
-      confidenceFactors.push("Secondary ops included (±15%)");
+      confidenceFactors.push("Secondary ops included (+/-15%)");
+    }
+    if (calibrationWidened && typeof observedMapePct === "number") {
+      // Surface that the band reflects real measured error, not just theory.
+      confidenceFactors.push(
+        `Band widened to observed quote-vs-actual error (MAPE ${Math.round(observedMapePct)}%)`,
+      );
     }
     if (quote.confidence_factors) {
       confidenceFactors.push(...quote.confidence_factors);
@@ -961,6 +1288,95 @@ class InstantQuoteEngine {
         cost_impact_usd: Math.round(unitPrice * impactPct * 100) / 100,
       };
     });
+  }
+
+  /**
+   * JULIETT-DB-BRIDGE-MS0/U-DB-MACHINE-QUALITY-CONSUMERS — Phase 5 wire (quoting consumer).
+   *
+   * Wrapper over quote() that consumes machineQualityForConsumer('sfc')
+   * + machineQualityForConsumer('post') and applies:
+   *   - Cycle-time inflation: lower-tier machine → derate the implied feed/speed,
+   *     pushes cycle_time_min UP (cycle = volume / mrr; mrr scales with feed×speed)
+   *   - CI95 widening: post payload safety_pad_pct widens the price uncertainty band
+   *     (low-quality machine → wider quote band reflects scrap-rate uncertainty)
+   *
+   * Additive — when no machine_id provided, behavior identical to quote().
+   *
+   * @param input Standard InstantQuoteInput + optional machine_id / machine
+   */
+  async quoteWithMachineQuality(
+    input: InstantQuoteInput & {
+      machine_id?: string;
+      machine?: Record<string, unknown>;
+    },
+  ): Promise<InstantQuoteResult & {
+    machine_quality_adjustment: {
+      derate_factor: number;
+      cycle_time_uplift_pct: number;
+      ci95_widen_pct: number;
+      tier: string;
+      source: string;
+    };
+  }> {
+    const base = this.quote(input);
+
+    let derate = 1.0;
+    let safetyPadPct = 5;
+    let tier = "UNKNOWN";
+    let source = "none";
+
+    if (input.machine_id || input.machine) {
+      // Lazy import to keep engine-layer pure (no circular dep with dispatcher)
+      const { machineQualityForConsumer } = await import("./MachineQualityScoreEngine.js");
+
+      // Pull both sfc derate (for cycle time) AND post payload (for safety pad / quote band)
+      const [sfcQ, postQ] = await Promise.all([
+        machineQualityForConsumer({ consumer: "sfc",  machine_id: input.machine_id, machine: input.machine }),
+        machineQualityForConsumer({ consumer: "post", machine_id: input.machine_id, machine: input.machine }),
+      ]);
+
+      if (sfcQ.ok) {
+        const p = sfcQ.payload as { derate_factor: number; recommend_safety_pad_pct: number };
+        if (typeof p.derate_factor === "number" && isFinite(p.derate_factor)) {
+          derate = Math.max(0.5, Math.min(1.0, p.derate_factor));
+        }
+        if (typeof p.recommend_safety_pad_pct === "number" && isFinite(p.recommend_safety_pad_pct)) {
+          safetyPadPct = p.recommend_safety_pad_pct;
+        }
+        tier = sfcQ.tier;
+        source = `machine_quality_score[${sfcQ.tier}]`;
+      }
+      // post payload reserved for future controller-family override; kept for symmetry / future expansion
+      void postQ;
+    }
+
+    // Cycle-time uplift: derate < 1.0 means slower machine → longer cycle.
+    // Uplift factor = 1/derate. e.g. derate=0.65 → cycle * 1.538 (54% longer)
+    const cycleUpliftFactor = derate > 0 ? 1.0 / derate : 1.0;
+    const cycleUpliftPct = Math.round((cycleUpliftFactor - 1.0) * 1000) / 10; // 1dp
+
+    // CI95 widen: safetyPadPct (5/10/20) extends the price band as a fractional widening.
+    // High-tier (5%) → narrow band. Hobby (20%) → wide band.
+    const padFraction = safetyPadPct / 100;
+    const ci95WidenPct = Math.round(padFraction * 1000) / 10;
+
+    const adjustedUnitPrice = Math.round(base.unit_price * cycleUpliftFactor * 100) / 100;
+    const adjustedCi95Low  = Math.round(base.ci95_low  * (1 - padFraction) * 100) / 100;
+    const adjustedCi95High = Math.round(base.ci95_high * (1 + padFraction) * 100) / 100;
+
+    return {
+      ...base,
+      unit_price: adjustedUnitPrice,
+      ci95_low: adjustedCi95Low,
+      ci95_high: adjustedCi95High,
+      machine_quality_adjustment: {
+        derate_factor: derate,
+        cycle_time_uplift_pct: cycleUpliftPct,
+        ci95_widen_pct: ci95WidenPct,
+        tier,
+        source,
+      },
+    };
   }
 }
 

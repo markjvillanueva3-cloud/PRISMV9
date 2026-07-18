@@ -26,6 +26,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming, writeGraphStreamingAtomic } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -102,7 +103,7 @@ const PROGRAM_EXTS = new Set([
 
 function main() {
   if (!fs.existsSync(GRAPH)) { console.error("graph-missing:", GRAPH); process.exit(2); }
-  const G = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+  const G = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8")));
   const byId = new Map();
   for (const n of G.nodes) byId.set(n.id, n);
   G.edges = G.edges || [];
@@ -246,7 +247,7 @@ function main() {
     }
   }
 
-  fs.writeFileSync(GRAPH, JSON.stringify(G));
+  writeGraphStreamingAtomic(GRAPH, G);  // per-element+atomic: JSON.stringify(G) throws Invalid-string-length at >512MiB (U-VIZ-POSTMERGE-CAPSAFE 2026-06-10)
   console.log("reparented viz categories:");
   console.log(`  catalog files re-parented under manufacturer: ${stats.catalogFilesReparented}`);
   console.log(`  manufacturer hubs created:                    ${stats.manufacturerHubs}`);

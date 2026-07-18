@@ -1,0 +1,768 @@
+{
+  "id": "CCM-MS16",
+  "version": "1.0.0",
+  "title": "Observability & Telemetry",
+  "brief": "Complete metrics. Session metrics, hook timeline, agent perf, skill analytics, cron reliability, build/test trends, dispatcher profiling, context utilization, error classification, CUSUM/EWMA anomaly detection, weekly reports, retention rollups.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Core Metrics Collection",
+      "description": "Session metrics, hook timeline visualization, and agent performance tracking",
+      "sessions": "1-2",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Session Metrics Collector",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Track per-session token usage, tool call counts, duration, and outcome for baseline observability",
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 coordination layer available"
+          ],
+          "exit_conditions": [
+            "Session metrics emitted to ~/.prism/telemetry/sessions/",
+            "Compact JSON format < 2KB per session",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create SessionMetricsCollector that hooks session-start and stop events to record token in/out, tool calls by type, wall time, and outcome"
+            },
+            {
+              "number": 2,
+              "instruction": "Write retention-aware storage (daily rollup, 90-day window)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for metric accuracy and rollup correctness"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/session-metrics-collector.ts",
+              "type": "script",
+              "description": "Session metrics collection and storage"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Session Metrics Collector — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Hook Timeline Visualizer",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Visualize hook execution order, latency, and block/warn decisions as a timeline for debugging",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics collector operational"
+          ],
+          "exit_conditions": [
+            "Timeline data structure captures hook chain with timestamps",
+            "CLI command renders ASCII timeline",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Instrument pretooluse/posttooluse hooks to emit timestamped trace events"
+            },
+            {
+              "number": 2,
+              "instruction": "Build timeline renderer (ASCII table with latency bars)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for timeline ordering and latency calculation"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/hook-timeline.ts",
+              "type": "script",
+              "description": "Hook execution timeline capture and rendering"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Hook Timeline Visualizer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Agent Performance Tracker",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Track agent tool completion rates, token efficiency, and error rates by model tier",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics collector operational"
+          ],
+          "exit_conditions": [
+            "Per-agent success/fail/timeout rates tracked",
+            "Model comparison data available",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create AgentPerfTracker that intercepts agent tool calls and records outcome, tokens, and latency"
+            },
+            {
+              "number": 2,
+              "instruction": "Aggregate by model tier (opus/sonnet/haiku) with rolling windows"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for rate calculations and tier bucketing"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/agent-perf-tracker.ts",
+              "type": "script",
+              "description": "Agent performance tracking by model tier"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Agent Performance Tracker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Skill Analytics Engine",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Track skill invocation frequency, success rates, and token cost per skill for optimization",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics collector operational"
+          ],
+          "exit_conditions": [
+            "Per-skill invocation count, success rate, avg tokens tracked",
+            "Top-N skills report available",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Hook skill invocations to record name, duration, token cost, and outcome"
+            },
+            {
+              "number": 2,
+              "instruction": "Build frequency and efficiency rankings with rolling 30-day window"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for ranking correctness and edge cases (zero invocations)"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/skill-analytics.ts",
+              "type": "script",
+              "description": "Skill usage analytics and ranking"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Skill Analytics Engine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "System Health Metrics",
+      "description": "Cron reliability, build/test trends, dispatcher profiling, and context utilization",
+      "sessions": "2-3",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Cron Reliability Monitor",
+          "phase": "P1",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Track cron job execution success/failure rates and detect missed schedules",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics infrastructure available"
+          ],
+          "exit_conditions": [
+            "Cron execution log with success/fail/skip/timeout states",
+            "Missed-schedule detection alert",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create CronReliabilityMonitor that wraps cron execution with outcome tracking"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement missed-schedule detection using expected vs actual intervals"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for reliability calculation and missed-schedule edge cases"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/cron-reliability.ts",
+              "type": "script",
+              "description": "Cron job reliability monitoring"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cron Reliability Monitor — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Build & Test Trend Tracker",
+          "phase": "P1",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Track build times, test pass rates, and bundle size trends over time for regression detection",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics infrastructure available"
+          ],
+          "exit_conditions": [
+            "Build time, test count, pass rate, bundle size stored per run",
+            "Trend direction (improving/degrading) computed",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Hook build and test script outputs to extract duration, pass/fail counts, and bundle size"
+            },
+            {
+              "number": 2,
+              "instruction": "Store time series and compute 7-day rolling trend direction"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for trend calculation and data extraction parsing"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/build-test-trends.ts",
+              "type": "script",
+              "description": "Build and test trend tracking"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Build & Test Trend Tracker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Dispatcher Profiler",
+          "phase": "P1",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Profile dispatcher action execution times to identify slow actions and import bottlenecks",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics infrastructure available"
+          ],
+          "exit_conditions": [
+            "Per-action p50/p95/p99 latency tracked",
+            "Slow action warnings emitted above threshold",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Wrap dispatcher action execution with high-resolution timing"
+            },
+            {
+              "number": 2,
+              "instruction": "Compute percentile latencies and flag actions exceeding budget"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for percentile calculation and threshold alerting"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/dispatcher-profiler.ts",
+              "type": "script",
+              "description": "Dispatcher action latency profiling"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dispatcher Profiler — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U04",
+          "title": "Context Utilization Analyzer",
+          "phase": "P1",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Track how much of the context window is used vs wasted to guide token optimization",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics infrastructure available"
+          ],
+          "exit_conditions": [
+            "Context utilization ratio (used/available) tracked per turn",
+            "Waste categories identified (stale reads, duplicate content)",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Estimate context usage per turn from tool inputs/outputs and system prompts"
+            },
+            {
+              "number": 2,
+              "instruction": "Classify waste categories (stale file reads, repeated content, oversized outputs)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for utilization estimation and waste classification"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/context-utilization.ts",
+              "type": "script",
+              "description": "Context window utilization analysis"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Context Utilization Analyzer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Intelligence & Reporting",
+      "description": "Error classification, anomaly detection, weekly reports, and retention rollups",
+      "sessions": "2-3",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Error Classification Engine",
+          "phase": "P2",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Classify errors by type (transient/permanent/config/resource) for targeted remediation",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics with error data available"
+          ],
+          "exit_conditions": [
+            "Errors classified into taxonomy with confidence scores",
+            "Top error categories surfaced in reports",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define error taxonomy (transient, permanent, config, resource, timeout, permission)"
+            },
+            {
+              "number": 2,
+              "instruction": "Build classifier using error message patterns and context"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for classification accuracy across error types"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/error-classifier.ts",
+              "type": "script",
+              "description": "Error classification by type and severity"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Error Classification Engine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "CUSUM/EWMA Anomaly Detection",
+          "phase": "P2",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Detect metric anomalies using CUSUM and EWMA control charts for early warning",
+          "dependencies": [
+            "P1-U01",
+            "P1-U02",
+            "P1-U03"
+          ],
+          "entry_conditions": [
+            "System health metrics streams available"
+          ],
+          "exit_conditions": [
+            "CUSUM and EWMA detectors running on key metrics",
+            "Anomaly alerts with severity and affected metric",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement CUSUM (cumulative sum) detector with configurable threshold h and slack k"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement EWMA (exponentially weighted moving average) detector with lambda and L parameters"
+            },
+            {
+              "number": 3,
+              "instruction": "Wire to key metrics (latency, error rate, token usage) and add tests"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/anomaly-detection.ts",
+              "type": "script",
+              "description": "CUSUM/EWMA anomaly detection for system metrics"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "CUSUM/EWMA Anomaly Detection — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U03",
+          "title": "Weekly Report Generator",
+          "phase": "P2",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Generate weekly summary reports of system health, usage patterns, and anomalies",
+          "dependencies": [
+            "P2-U01",
+            "P2-U02"
+          ],
+          "entry_conditions": [
+            "Error classifier and anomaly detection operational"
+          ],
+          "exit_conditions": [
+            "Weekly report generated as compact JSON + ASCII summary",
+            "Report includes top errors, anomalies, trends, and recommendations",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Aggregate weekly data from all metric sources"
+            },
+            {
+              "number": 2,
+              "instruction": "Generate report with sections: summary, top errors, anomalies, trends, recommendations"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for report generation and edge cases (no data, partial data)"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/weekly-report.ts",
+              "type": "script",
+              "description": "Weekly telemetry report generator"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": true,
+          "description": "Weekly Report Generator — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U04",
+          "title": "Retention & Rollup Manager",
+          "phase": "P2",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Manage telemetry data retention with progressive rollups to control disk usage",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Telemetry data files being written"
+          ],
+          "exit_conditions": [
+            "Hourly→daily→weekly→monthly rollup pipeline",
+            "Disk usage bounded under configurable limit",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement tiered rollup: raw (7d) → hourly (30d) → daily (90d) → weekly (1y)"
+            },
+            {
+              "number": 2,
+              "instruction": "Add disk budget enforcement with oldest-first eviction"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for rollup correctness and budget enforcement"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/retention-rollup.ts",
+              "type": "script",
+              "description": "Telemetry data retention and rollup management"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Retention & Rollup Manager — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms16-gate",
+    "mcp_action": "prism_ccm:ccm_ms16_run",
+    "skill_command": "/ccm-ms16",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms16-gate"
+    ],
+    "new_actions": [
+      "ccm_ms16_run"
+    ],
+    "new_skills": [
+      "/ccm-ms16"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Complete metrics. Session metrics, hook timeline, agent perf, skill analytics, cron reliability, build/test trends, dispatcher profiling, context utilization, error classification, CUSUM/EWMA anomaly detection, weekly reports, retention rollups.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

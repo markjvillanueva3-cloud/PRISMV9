@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Run TF-IDF cosine distillation over `mcp-server/data/state/TRIBAL_TIP_INDEX.json` and emit one canonical IdeaBlock markdown file per cluster to `knowledge/wiki/code-tribal/canonical/`.
+
+# /distill-tribal
 
 <!-- AUTO-END -->
 

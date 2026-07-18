@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-post-tool-p1.mjs — Phase 1 Tier 0
-PostTool hook that tracks tool execution and updates session state.
-Foundation for monitoring and metrics collection.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0.0",
+  "domain": "turning_operations",
+  "updated_at": "2026-03-01T22:20:00Z",
+  "description": "Turning/lathe operation equivalencies across CNC controls and CAM platforms",
+  "controls": ["fanuc_turning", "haas_turning", "siemens_840d_turning", "mazak_turning", "okuma_turning"],
+  "operation_count": 14,
+  "operations": [
+    {
+      "canonical": "od_rough_cycle",
+      "description": "OD stock removal cycle with automatic passes",
+      "gcode": {
+        "fanuc_turning": {"code": "G71", "params": ["U", "R", "P", "Q", "U", "W", "F", "S"]},
+        "haas_turning": {"code": "G71", "params": ["P", "Q", "U", "W", "D", "F"]},
+        "siemens_840d_turning": {"code": "CYCLE95", "params": ["MODE", "PO1", "PO2", "MID", "FALZ", "FALX", "FF1"]},
+        "mazak_turning": {"code": "G71", "params": ["U", "R", "P", "Q", "U", "W", "F"]},
+        "okuma_turning": {"code": "G71", "params": ["U", "R", "P", "Q", "U", "W", "F"]}
+      },
+      "notes": "Two-block format on Fanuc: first line specifies DOC and retract, second line specifies contour range and stock"
+    },
+    {
+      "canonical": "od_finish_cycle",
+      "description": "OD finish cycle following defined contour",
+      "gcode": {
+        "fanuc_turning": {"code": "G70", "params": ["P", "Q"]},
+        "haas_turning": {"code": "G70", "params": ["P", "Q"]},
+        "siemens_840d_turning": {"code": "CYCLE95 (finish)", "params": ["MODE", "PO1", "PO2", "FF1"]},
+        "mazak_turning": {"code": "G70", "params": ["P", "Q"]},
+        "okuma_turning": {"code": "G70", "params": ["P", "Q"]}
+      }
+    },
+    {
+      "canonical": "facing_cycle",
+      "description": "End face stock removal cycle",
+      "gcode": {
+        "fanuc_turning": {"code": "G72", "params": ["W", "R", "P", "Q", "U", "W", "F"]},
+        "haas_turning": {"code": "G72", "params": ["P", "Q", "U", "W", "D", "F"]},
+        "siemens_840d_turning": {"code": "CYCLE95 (face)", "params": ["MODE", "PO1", "PO2", "MID"]},
+        "mazak_turning": {"code": "G72", "params": ["W", "R", "P", "Q", "U", "W", "F"]},
+        "okuma_turning": {"code": "G72", "params": ["W", "R", "P", "Q", "U", "W", "F"]}
+      }
+    },
+    {
+      "canonical": "pattern_repeat",
+      "description": "Closed contour pattern repeat cycle",
+      "gcode": {
+        "fanuc_turning": {"code": "G73", "params": ["U", "W", "R", "P", "Q", "U", "W", "F"]},
+        "haas_turning": {"code": "G73", "params": ["P", "Q", "U", "W", "D", "I", "K", "F"]},
+        "mazak_turning": {"code": "G73", "params": ["U", "W", "R", "P", "Q", "U", "W", "F"]}
+      },
+      "notes": "Used for casting/forging stock that follows the part contour"
+    },
+    {
+      "canonical": "threading_cycle",
+      "description": "Multi-pass threading cycle",
+      "gcode": {
+        "fanuc_turning": {"code": "G76", "params": ["P", "Q", "R", "X", "Z", "P", "Q", "F"]},
+        "haas_turning": {"code": "G76", "params": ["P", "Q", "R", "X", "Z", "I", "K", "D", "F", "A", "L"]},
+        "siemens_840d_turning": {"code": "CYCLE97", "params": ["PIT", "MESSION", "SPL", "FPL", "DM1", "DM2", "APP", "ROP"]},
+        "mazak_turning": {"code": "G76", "params": ["P", "Q", "R", "X", "Z", "P", "Q", "F"]},
+        "okuma_turning": {"code": "G76", "params": ["P", "Q", "R", "X", "Z", "P", "Q", "F"]}
+      }
+    },
+    {
+      "canonical": "single_pass_thread",
+      "description": "Single-pass thread cutting (manual multi-pass)",
+      "gcode": {
+        "fanuc_turning": {"code": "G92", "params": ["X", "Z", "F"]},
+        "haas_turning": {"code": "G92", "params": ["X", "Z", "F"]},
+        "mazak_turning": {"code": "G92", "params": ["X", "Z", "F"]},
+        "okuma_turning": {"code": "G33", "params": ["X", "Z", "F"]}
+      }
+    },
+    {
+      "canonical": "grooving_cycle",
+      "description": "OD/ID/face grooving with peck",
+      "gcode": {
+        "fanuc_turning": {"code": "G75", "params": ["R", "X", "Z", "P", "Q", "F"]},
+        "haas_turning": {"code": "G75", "params": ["X", "Z", "I", "K", "D", "F"]},
+        "siemens_840d_turning": {"code": "CYCLE93", "params": ["SPD", "SPL", "WIDG", "DIAG", "STA1", "MID"]},
+        "mazak_turning": {"code": "G75", "params": ["R", "X", "Z", "P", "Q", "F"]}
+      }
+    },
+    {
+      "canonical": "parting_cycle",
+      "description": "Cut-off / parting cycle",
+      "gcode": {
+        "fanuc_turning": {"code": "G75 (cutoff)", "params": ["R", "X", "P", "F"]},
+        "haas_turning": {"code": "G75 (cutoff)", "params": ["X", "I", "F"]},
+        "siemens_840d_turning": {"code": "CYCLE93 (cutoff)", "params": ["SPD", "WIDG", "DIAG"]},
+        "mazak_turning": {"code": "G75 (cutoff)", "params": ["R", "X", "P", "F"]}
+      }
+    },
+    {
+      "canonical": "boring_cycle_turning",
+      "description": "Internal boring stock removal cycle",
+      "gcode": {
+        "fanuc_turning": {"code": "G71 (ID)", "params": ["U", "R", "P", "Q", "U", "W", "F"], "notes": "Same as OD rough but with ID contour"},
+        "haas_turning": {"code": "G71 (ID)", "params": ["P", "Q", "U", "W", "D", "F"]},
+        "siemens_840d_turning": {"code": "CYCLE95 (ID)", "params": ["MODE=1", "PO1", "PO2", "MID"]}
+      }
+    },
+    {
+      "canonical": "drilling_turning",
+      "description": "On-center drilling on lathe",
+      "gcode": {
+        "fanuc_turning": {"code": "G83", "params": ["Z", "Q", "R", "F"]},
+        "haas_turning": {"code": "G83", "params": ["Z", "Q", "R", "F"]},
+        "siemens_840d_turning": {"code": "CYCLE83", "params": ["RTP", "RFP", "SDIS", "DP", "FDEP"]},
+        "mazak_turning": {"code": "G83", "params": ["Z", "Q", "R", "F"]}
+      }
+    },
+    {
+      "canonical": "tapping_turning",
+      "description": "On-center tapping on lathe with C-axis or rigid tap",
+      "gcode": {
+        "fanuc_turning": {"code": "G84", "params": ["Z", "F"]},
+        "haas_turning": {"code": "G84", "params": ["Z", "F"]},
+        "siemens_840d_turning": {"code": "CYCLE84", "params": ["RTP", "RFP", "SDIS", "DP"]},
+        "mazak_turning": {"code": "G84", "params": ["Z", "F"]}
+      }
+    },
+    {
+      "canonical": "constant_surface_speed",
+      "description": "CSS mode for consistent surface finish",
+      "gcode": {
+        "fanuc_turning": {"code": "G96", "params": ["S"], "cancel": "G97"},
+        "haas_turning": {"code": "G96", "params": ["S"], "cancel": "G97"},
+        "siemens_840d_turning": {"code": "G96 / LIMS", "params": ["S", "LIMS"]},
+        "mazak_turning": {"code": "G96", "params": ["S"], "cancel": "G97"},
+        "okuma_turning": {"code": "G96", "params": ["S"], "cancel": "G97"}
+      }
+    },
+    {
+      "canonical": "nose_radius_comp",
+      "description": "Tool nose radius compensation for turning",
+      "gcode": {
+        "fanuc_turning": {"code": "G41/G42", "params": ["T"], "cancel": "G40"},
+        "haas_turning": {"code": "G41/G42", "params": ["T"], "cancel": "G40"},
+        "siemens_840d_turning": {"code": "G41/G42", "params": ["D"], "cancel": "G40"},
+        "mazak_turning": {"code": "G41/G42", "params": ["T"], "cancel": "G40"},
+        "okuma_turning": {"code": "G41/G42", "params": ["T"], "cancel": "G40"}
+      },
+      "notes": "Tool nose orientation (T-code tip direction 1-9) critical for correct compensation"
+    },
+    {
+      "canonical": "tool_change_turning",
+      "description": "Turret tool change",
+      "gcode": {
+        "fanuc_turning": {"code": "T0101", "notes": "Txxxx format: tool station + offset"},
+        "haas_turning": {"code": "T0101", "notes": "Same Fanuc format"},
+        "siemens_840d_turning": {"code": "T1 D1", "notes": "T=tool, D=offset"},
+        "mazak_turning": {"code": "T0101", "notes": "Same Fanuc format"},
+        "okuma_turning": {"code": "T0101", "notes": "Same Fanuc format"}
+      }
+    }
+  ]
+}

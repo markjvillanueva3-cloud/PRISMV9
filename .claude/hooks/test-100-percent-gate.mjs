@@ -344,7 +344,7 @@ function gitTouchedMachiningFiles(mcpServerPath) {
     let anySuccess = false;
     for (const args of calls) {
       const r = spawnSync(gitExe, args,
-        { cwd: mcpServerPath, encoding: 'utf-8', timeout: GIT_TIMEOUT_MS }
+        { windowsHide: true, cwd: mcpServerPath, encoding: 'utf-8', timeout: GIT_TIMEOUT_MS }
       );
       if (r.status !== 0 || typeof r.stdout !== 'string') continue;
       anySuccess = true;
@@ -429,7 +429,7 @@ function checkMachiningTestPassRate() {
     // Run vitest with JSON reporter — budget kept under the outer hook timeout.
     // When vitestArgs is empty (no targeted tests resolved), vitest runs the
     // full suite — preserves the conservative fallback path.
-    const result = execSync(`${NPX_BIN} vitest run --reporter=json ${vitestArgs} 2>&1`, {
+    const result = execSync(`${NPX_BIN} vitest run --reporter=json ${vitestArgs} 2>&1`, { windowsHide: true,
       cwd: mcpServerPath,
       encoding: 'utf-8',
       timeout: VITEST_TIMEOUT_MS,

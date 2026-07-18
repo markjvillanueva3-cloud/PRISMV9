@@ -1,0 +1,961 @@
+{
+ "total_broken": 56,
+ "total_ok": 137,
+ "by_domain": "quality:13 (P1:8, P2:5) | other:14 (P0:1, P1:7, P2:6) | cam:11 (P0:3, P1:4, P2:4) | mill:8 (P0:2, P1:6) | lathe:7 (P0:3, P1:4) | 5axis:2 (P1:2) | safety:1 (P2:1). Tier totals: P0:9, P1:31, P2:16. NOTE: physics-safety P0 concentrates in lathe (chuck-jaw force + stock-boundary + program-audit gates), cam (collision/thermal sim), mill (FRF/chatter stability); 8 items are STATIC-on-instance mis-dispatch bugs (fourth_axis_indexing/decision, five_axis_ai_ultra, lathe_program_audit, macro_conversion, nc_pattern, prism_addin) where the method must be called on the CLASS, not the instance.",
+ "prioritized": [
+  {
+   "action": "stock_boundary_gate_check",
+   "dispatcher": "safetyDispatcher.ts (prism_safety)",
+   "engine": "StockBoundaryGateEngine",
+   "suggested_method": "gate  (VERIFIED StockBoundaryGateEngine.ts:189; gateOrThrow:393; guessed run/evaluate/check absent). Silent stub = stock-boundary/collision safety gate NEVER fires -> false pass.",
+   "domain": "lathe",
+   "priority": "P0"
+  },
+  {
+   "action": "lathe_program_audit_pipeline_run",
+   "dispatcher": "turningDispatcher.ts (prism_turning)",
+   "engine": "LatheProgramAuditPipelineEngine",
+   "suggested_method": "auditOne  (VERIFIED static auditOne :328; singleton :356 IS the class so static resolves). Silent-stubbed lathe SAFETY audit = programs ship un-audited (G50/CSS/chuck-jaw).",
+   "domain": "lathe",
+   "priority": "P0"
+  },
+  {
+   "action": "trilobe_deformation_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "TrilobeDeformationEngine",
+   "suggested_method": "analyze  (VERIFIED :57; recommendMaxForce:131). Chuck-jaw force / part-deformation physics -> workholding P0.",
+   "domain": "lathe",
+   "priority": "P0"
+  },
+  {
+   "action": "fixture_clamping_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "FixtureClampingEngine",
+   "suggested_method": "compute  (guessed calculate/analyze/run absent). Clamping-force / workholding physics.",
+   "domain": "other",
+   "priority": "P0"
+  },
+  {
+   "action": "virtual_machining_simulate",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "VirtualMachiningDeepLearningEngine",
+   "suggested_method": "setupSimulation (then verifyNCCode/detectCollisions/validateMachineEnvelope). Collision + thermal (computeThermalGradient) + stress/fatigue.",
+   "domain": "cam",
+   "priority": "P0"
+  },
+  {
+   "action": "swept_volume_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "SweptVolumeEngine",
+   "suggested_method": "computeSweptVolume (chain checkCollisions). Collision-envelope physics.",
+   "domain": "cam",
+   "priority": "P0"
+  },
+  {
+   "action": "in_process_stock_model_update",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "InProcessStockModelEngine",
+   "suggested_method": "applyOperation (chain checkCollision / calculateCollisionEnvelope). In-process collision physics.",
+   "domain": "cam",
+   "priority": "P0"
+  },
+  {
+   "action": "rcsa_frf_predict",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "RCSAEngine",
+   "suggested_method": "computeToolPointFRF (chain computeStabilityLimit). Chatter-stability FRF -> spindle/tool protection.",
+   "domain": "mill",
+   "priority": "P0"
+  },
+  {
+   "action": "receptance_coupling_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "ReceptanceCouplingEngine",
+   "suggested_method": "predictToolPointFRF (or predictWithRCSA). Stability-lobe FRF prediction.",
+   "domain": "mill",
+   "priority": "P0"
+  },
+  {
+   "action": "multi_spindle_automatic_plan",
+   "dispatcher": "turningDispatcher.ts (prism_turning)",
+   "engine": "MultiSpindleAutomaticEngine",
+   "suggested_method": "executeAction (canonical router :945) or assignStations :259. No plan/run/analyze exists.",
+   "domain": "lathe",
+   "priority": "P1"
+  },
+  {
+   "action": "swiss_type_intelligence_analyze",
+   "dispatcher": "turningDispatcher.ts (prism_turning)",
+   "engine": "SwissTypeIntelligenceEngine",
+   "suggested_method": "executeAction (:1156) or generateProcessPlan :998. Only analyzeGuideBushing matches 'analyze'.",
+   "domain": "lathe",
+   "priority": "P1"
+  },
+  {
+   "action": "insert_grade_select",
+   "dispatcher": "turningDispatcher.ts (prism_turning)",
+   "engine": "InsertGradeSelectionEngine",
+   "suggested_method": "calculate (:220). No select/recommend/run.",
+   "domain": "lathe",
+   "priority": "P1"
+  },
+  {
+   "action": "stock_feed_cycle_track",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "StockFeedCycleEngine",
+   "suggested_method": "advanceCycle (chain validateFeed for bar-pull limit). Bar-feed cycle tracking.",
+   "domain": "lathe",
+   "priority": "P1"
+  },
+  {
+   "action": "surface_location_error_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "SurfaceLocationErrorEngine",
+   "suggested_method": "predictSLE (optimizeRPMForSLE for stable-speed pick). Finish/forced-vibration; stability-adjacent.",
+   "domain": "mill",
+   "priority": "P1"
+  },
+  {
+   "action": "runout_effect_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "RunoutEffectEngine",
+   "suggested_method": "compute (guessed calculate/analyze/run absent).",
+   "domain": "mill",
+   "priority": "P1"
+  },
+  {
+   "action": "micro_milling_size_effect_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "MicroMillingSizeEffectEngine",
+   "suggested_method": "calculateSizeEffect (chain analyzeChipFormation). Specific-force size-effect.",
+   "domain": "mill",
+   "priority": "P1"
+  },
+  {
+   "action": "radial_engagement_analyze",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "radialEngagementControllerEngine",
+   "suggested_method": "control (or analyzeCorners for corner overload). 'analyze' absent.",
+   "domain": "mill",
+   "priority": "P1"
+  },
+  {
+   "action": "fourth_axis_indexing_plan",
+   "dispatcher": "millDispatcher.ts (prism_mill)",
+   "engine": "FourthAxisIndexingEngine",
+   "suggested_method": "FourthAxisIndexingEngine.calculate(p) -- STATIC, call on CLASS not instance; dispatcher's (instance).calculate is undefined -> ALWAYS stubs.",
+   "domain": "mill",
+   "priority": "P1"
+  },
+  {
+   "action": "fourth_axis_decision_select",
+   "dispatcher": "millDispatcher.ts (prism_mill)",
+   "engine": "FourthAxisDecisionEngine",
+   "suggested_method": "FourthAxisDecisionEngine.decide(p) -- STATIC, call on CLASS; instance.decide undefined -> ALWAYS stubs.",
+   "domain": "mill",
+   "priority": "P1"
+  },
+  {
+   "action": "so3_kinematics_encode",
+   "dispatcher": "fiveAxisDispatcher.ts (prism_5axis)",
+   "engine": "SO3KinematicsEncoderEngine",
+   "suggested_method": "fromEulerAngles(A/C tilt) -> then toNeuralEmbedding for the neural-encode the name implies.",
+   "domain": "5axis",
+   "priority": "P1"
+  },
+  {
+   "action": "five_axis_ai_ultra_predict",
+   "dispatcher": "fiveAxisDispatcher.ts (prism_5axis)",
+   "engine": "FiveAxisAIUltraIntelligenceEngine",
+   "suggested_method": "predictToolLife -- STATIC; alias == class so static resolves. (processNaturalLanguage for general NL entry.)",
+   "domain": "5axis",
+   "priority": "P1"
+  },
+  {
+   "action": "spc_process_capability_analyze",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "SPCProcessCapabilityEngine",
+   "suggested_method": "compute (:81, returns AtomicValue<SPCResult>).",
+   "domain": "quality",
+   "priority": "P1"
+  },
+  {
+   "action": "multivariate_spc_analyze",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "MultivariateSPCEngine",
+   "suggested_method": "hotellingStream (:95) primary T2; mewmaStream :103 for MEWMA.",
+   "domain": "quality",
+   "priority": "P1"
+  },
+  {
+   "action": "process_robustness_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "ProcessRobustnessEngine",
+   "suggested_method": "compute.",
+   "domain": "quality",
+   "priority": "P1"
+  },
+  {
+   "action": "process_variability_integration_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "ProcessVariabilityIntegrationEngine",
+   "suggested_method": "analyze (integrates cuttingForce/deflection/taylorLife/Ra + Cpk).",
+   "domain": "quality",
+   "priority": "P1"
+  },
+  {
+   "action": "amsaa_reliability_growth_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "AMSAAReliabilityGrowthEngine",
+   "suggested_method": "compute (chain computeProjection/fisherConfidenceBounds).",
+   "domain": "quality",
+   "priority": "P1"
+  },
+  {
+   "action": "iso286_extended_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "ISO286ExtendedEngine",
+   "suggested_method": "analyzeFit (recommendFit/stochasticFitAnalysis as alt paths).",
+   "domain": "quality",
+   "priority": "P1"
+  },
+  {
+   "action": "hypermill_fai_bridge_run",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "HyperMillFAIBridge",
+   "suggested_method": "generate -- ASYNC, must await (:152).",
+   "domain": "quality",
+   "priority": "P1"
+  },
+  {
+   "action": "hypermill_spc_bridge_run",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "HyperMillSPCBridge",
+   "suggested_method": "generate (:170).",
+   "domain": "quality",
+   "priority": "P1"
+  },
+  {
+   "action": "complete_machining_plan",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "CompleteMachiningEngine",
+   "suggested_method": "executeAction (router; wraps generateOperationSequence/planWorkholding/calculate*Params).",
+   "domain": "other",
+   "priority": "P1"
+  },
+  {
+   "action": "advanced_cnc_config_analyze",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "AdvancedCNCConfigEngine",
+   "suggested_method": "executeAction (router; wraps analyzeHSMConfiguration/configureCollisionAvoidance/planChannelSync).",
+   "domain": "other",
+   "priority": "P1"
+  },
+  {
+   "action": "process_digital_twin_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "ProcessDigitalTwinEngine",
+   "suggested_method": "compute.",
+   "domain": "other",
+   "priority": "P1"
+  },
+  {
+   "action": "process_environment_sensitivity_analyze",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "ProcessEnvironmentSensitivityEngine",
+   "suggested_method": "calculateCorrections (thermal/environmental; chain assessEnvironmentalRisks).",
+   "domain": "other",
+   "priority": "P1"
+  },
+  {
+   "action": "kalman_filter_calc",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "KalmanFilterEngine",
+   "suggested_method": "compute (chain rtsSmooth/adaptNoise).",
+   "domain": "other",
+   "priority": "P1"
+  },
+  {
+   "action": "multi_obj_pareto_optimize",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "MultiObjectiveParetoEngine",
+   "suggested_method": "compute (computeSensitivity as follow-on). 'optimize' absent.",
+   "domain": "other",
+   "priority": "P1"
+  },
+  {
+   "action": "concentration_inequality_analyze",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "ConcentrationInequalityEngine",
+   "suggested_method": "hoeffding default; route by params.bound to bernstein/mcdiarmid/chernoff. No generic dispatch.",
+   "domain": "other",
+   "priority": "P1"
+  },
+  {
+   "action": "cam_utility_batch_run",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "batchCAMEngine",
+   "suggested_method": "generateBatch (only public method of BatchCAMEngine; compare/get belong to sibling classes).",
+   "domain": "cam",
+   "priority": "P1"
+  },
+  {
+   "action": "cimatron_cam_bridge_run",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "cimatronCAMBridgeEngine",
+   "suggested_method": "analyze (or extract/convertToPRISMFormat). 'run/process' absent.",
+   "domain": "cam",
+   "priority": "P1"
+  },
+  {
+   "action": "tebis_cam_bridge_run",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "tebisCAMBridgeEngine",
+   "suggested_method": "extractProject (or exportToPRISM). 'run/process' absent.",
+   "domain": "cam",
+   "priority": "P1"
+  },
+  {
+   "action": "cam_bridge_kit_run",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "camBridgeKitEngine",
+   "suggested_method": "cadCamHandoff -- STATIC (class-alias export). 'run/process' absent.",
+   "domain": "cam",
+   "priority": "P1"
+  },
+  {
+   "action": "iso14971_risk_assess",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "ISO14971RiskManagementEngine",
+   "suggested_method": "evaluate (:119). Compliance/risk-workflow (safety-domain but document-class, not physics) -> P2.",
+   "domain": "safety",
+   "priority": "P2"
+  },
+  {
+   "action": "iso13485_qms_validate",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "ISO13485QMSEngine",
+   "suggested_method": "evaluate (:132). 'validate/score' absent -> QMS compliance eval.",
+   "domain": "quality",
+   "priority": "P2"
+  },
+  {
+   "action": "design_history_file_compile",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "DesignHistoryFileEngine",
+   "suggested_method": "evaluate (:109). Document compilation.",
+   "domain": "quality",
+   "priority": "P2"
+  },
+  {
+   "action": "process_validation_iqoqpq_generate",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "ProcessValidationIQOQPQEngine",
+   "suggested_method": "validate (:109). IQ/OQ/PQ protocol gen.",
+   "domain": "quality",
+   "priority": "P2"
+  },
+  {
+   "action": "capa_workflow_open",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "CAPAWorkflowEngine",
+   "suggested_method": "evaluate (:119). 'open/create' absent -> CAPA workflow eval.",
+   "domain": "quality",
+   "priority": "P2"
+  },
+  {
+   "action": "data_quality_validate",
+   "dispatcher": "qualityDispatcher.ts (prism_quality)",
+   "engine": "DataQualityEngine",
+   "suggested_method": "validateBatch (:127); validateRow :94 for single-row. No bare validate().",
+   "domain": "quality",
+   "priority": "P2"
+  },
+  {
+   "action": "git_safety_check",
+   "dispatcher": "safetyDispatcher.ts (prism_safety)",
+   "engine": "GitSafetyEngine",
+   "suggested_method": "classify (chain isDestructive). Dev-op git safety, not mfg physics.",
+   "domain": "other",
+   "priority": "P2"
+  },
+  {
+   "action": "archive_catalog_ingest",
+   "dispatcher": "safetyDispatcher.ts (prism_safety)",
+   "engine": "ArchiveToPartsCatalogIngesterEngine",
+   "suggested_method": "ingestArchive (chain groupByNormalizedPN). Data ingestion.",
+   "domain": "other",
+   "priority": "P2"
+  },
+  {
+   "action": "algorithm_orchestrator_run",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "AlgorithmOrchestratorEngine",
+   "suggested_method": "query (or recommend/getAlgorithm). Meta registry lookup; 'run/execute/orchestrate' absent.",
+   "domain": "other",
+   "priority": "P2"
+  },
+  {
+   "action": "inter_operation_state_transfer",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "InterOperationStateEngine",
+   "suggested_method": "recordOperationState (getLastOperationState/getNextOperationRecommendations for read). State tracking.",
+   "domain": "other",
+   "priority": "P2"
+  },
+  {
+   "action": "physics_aware_data_augmentation_run",
+   "dispatcher": "calcDispatcher.ts (prism_calc)",
+   "engine": "PhysicsAwareDataAugmentationEngine",
+   "suggested_method": "augmentCorpus (buildDPOPairs/buildMixedCorpus for variants). AI-training data aux.",
+   "domain": "other",
+   "priority": "P2"
+  },
+  {
+   "action": "blameless_post_mortem_run",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "blamelessPostMortemEngine",
+   "suggested_method": "file (workflow entry; markReady/close for lifecycle). Reporting.",
+   "domain": "other",
+   "priority": "P2"
+  },
+  {
+   "action": "epack_table_import",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "ePackTableImportEngine",
+   "suggested_method": "importAuto (dispatch to importJSON/CSV/KeyValue by format). Data-table import.",
+   "domain": "cam",
+   "priority": "P2"
+  },
+  {
+   "action": "macro_conversion_analyze",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "macroConversionAnalyzerEngine",
+   "suggested_method": "analyzeProgram -- STATIC, call on CLASS (singleton is an instance -> static unreachable via it). Dev/mining tooling.",
+   "domain": "cam",
+   "priority": "P2"
+  },
+  {
+   "action": "nc_pattern_mine",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "ncPatternMinerEngine",
+   "suggested_method": "mineCustomerPatterns -- STATIC, call on CLASS (instance can't reach static). Pattern mining.",
+   "domain": "cam",
+   "priority": "P2"
+  },
+  {
+   "action": "prism_addin_architecture_get",
+   "dispatcher": "camDispatcher.ts (prism_cam)",
+   "engine": "prismAddinArchitectureEngine",
+   "suggested_method": "parseCommentData (or generateCpsParserCode) -- STATIC, call on CLASS. Serialization/codegen meta.",
+   "domain": "cam",
+   "priority": "P2"
+  }
+ ],
+ "broken": [
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "algorithm_orchestrator_run",
+   "engine": "AlgorithmOrchestratorEngine",
+   "guessed_methods": "run, execute, orchestrate",
+   "engine_real_methods": "query, recommend, getAlgorithm, getCount, loadAlgorithms, initialize, reset",
+   "suggested_method": "query",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "multi_obj_pareto_optimize",
+   "engine": "MultiObjectiveParetoEngine",
+   "guessed_methods": "optimize, run, calculate",
+   "engine_real_methods": "compute, computeSensitivity, correlation, dominates, linspace",
+   "suggested_method": "compute",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "process_digital_twin_calc",
+   "engine": "ProcessDigitalTwinEngine",
+   "guessed_methods": "simulate, calculate, run",
+   "engine_real_methods": "compute",
+   "suggested_method": "compute",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "process_robustness_calc",
+   "engine": "ProcessRobustnessEngine",
+   "guessed_methods": "analyze, calculate, run",
+   "engine_real_methods": "compute",
+   "suggested_method": "compute",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "amsaa_reliability_growth_calc",
+   "engine": "AMSAAReliabilityGrowthEngine",
+   "guessed_methods": "calculate, analyze, run",
+   "engine_real_methods": "compute, computeProjection, buildGrowthCurve, estimateBeta, fisherConfidenceBounds, cramerVonMises, resolveFailureTimes, generateRecommendations, zScore",
+   "suggested_method": "compute",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "kalman_filter_calc",
+   "engine": "KalmanFilterEngine",
+   "guessed_methods": "filter, calculate, run",
+   "engine_real_methods": "compute, rtsSmooth, adaptNoise, innovationStats, buildRecommendations, getH",
+   "suggested_method": "compute",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "swept_volume_calc",
+   "engine": "SweptVolumeEngine",
+   "guessed_methods": "compute, calculate, run",
+   "engine_real_methods": "computeSweptVolume, checkCollisions, interpolate",
+   "suggested_method": "computeSweptVolume",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "surface_location_error_calc",
+   "engine": "SurfaceLocationErrorEngine",
+   "guessed_methods": "calculate, predict, run",
+   "engine_real_methods": "predictSLE, optimizeRPMForSLE, combinedFinishPrediction",
+   "suggested_method": "predictSLE",
+   "domain": "mill"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "receptance_coupling_calc",
+   "engine": "ReceptanceCouplingEngine",
+   "guessed_methods": "couple, calculate, run",
+   "engine_real_methods": "predictToolPointFRF, predictWithRCSA, compareFRF, suggestToolLength, _extractModalParams",
+   "suggested_method": "predictToolPointFRF",
+   "domain": "mill"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "process_variability_integration_calc",
+   "engine": "ProcessVariabilityIntegrationEngine",
+   "guessed_methods": "integrate, run, calculate",
+   "engine_real_methods": "analyze, cuttingForce, deflection, taylorLife, theoreticalRa, ppmFromCpk, sampleNormal, normalRandom",
+   "suggested_method": "analyze",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "fixture_clamping_calc",
+   "engine": "FixtureClampingEngine",
+   "guessed_methods": "calculate, analyze, run",
+   "engine_real_methods": "compute",
+   "suggested_method": "compute",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "runout_effect_calc",
+   "engine": "RunoutEffectEngine",
+   "guessed_methods": "calculate, analyze, run",
+   "engine_real_methods": "compute",
+   "suggested_method": "compute",
+   "domain": "mill"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "iso286_extended_calc",
+   "engine": "ISO286ExtendedEngine",
+   "guessed_methods": "calculate, analyze, run",
+   "engine_real_methods": "analyzeFit, recommendFit, calculateITGrade, stochasticFitAnalysis, variabilityStackUp, getHoleDeviation, getShaftDeviation, getITAtBand, getAvailableHolePositions, getAvailableShaftPositions",
+   "suggested_method": "analyzeFit",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "complete_machining_plan",
+   "engine": "CompleteMachiningEngine",
+   "guessed_methods": "plan, analyze, run",
+   "engine_real_methods": "executeAction, generateOperationSequence, generateToolList, planWorkholding, planSingleSetup, planSteadyRests, calculateTurningParams, calculateMillingParams, calculateThreadingParams, calculateGroovingParams, calculateBoringParams, calculateCycleTime, analyzeGeometry, identifyCriticalPath",
+   "suggested_method": "executeAction",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "advanced_cnc_config_analyze",
+   "engine": "AdvancedCNCConfigEngine",
+   "guessed_methods": "analyze, configure, run",
+   "engine_real_methods": "executeAction, analyzeHSMConfiguration, analyzeInterpolationCapabilities, analyzeMillTurnCapability, compareControllers, configureCollisionAvoidance, planChannelSync, planPartTransfer, setupTiltedWorkplane",
+   "suggested_method": "executeAction",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "virtual_machining_simulate",
+   "engine": "VirtualMachiningDeepLearningEngine",
+   "guessed_methods": "simulate, analyze, run",
+   "engine_real_methods": "setupSimulation, verifyNCCode, detectCollisions, validateMachineEnvelope, estimateCycleTime, runStressAnalysis, analyzeToolDeflection, computeThermalGradient, predictFatigue, generateSimulationReport, recordSimOutcome, getSimStats",
+   "suggested_method": "setupSimulation",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "micro_milling_size_effect_calc",
+   "engine": "MicroMillingSizeEffectEngine",
+   "guessed_methods": "calculate, analyze, run",
+   "engine_real_methods": "calculateSizeEffect, analyzeChipFormation, getRecommendedSFM, recommend",
+   "suggested_method": "calculateSizeEffect",
+   "domain": "mill"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "rcsa_frf_predict",
+   "engine": "RCSAEngine",
+   "guessed_methods": "predict, calculate, run",
+   "engine_real_methods": "computeToolPointFRF, coupleSubstructures, coupleWithSpindle, computeStabilityLimit, computeHolderFRF, computeToolBeamFRF, computeExtensionFRF, computeOrientedFRF, computeEffectiveStiffness, computeMinDynamicStiffness, computeConfidence, validateInput, selectBeamModel",
+   "suggested_method": "computeToolPointFRF",
+   "domain": "mill"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "trilobe_deformation_calc",
+   "engine": "TrilobeDeformationEngine",
+   "guessed_methods": "calculate, predict, run",
+   "engine_real_methods": "analyze, getStats, recommendMaxForce",
+   "suggested_method": "analyze",
+   "domain": "lathe"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "stock_feed_cycle_track",
+   "engine": "StockFeedCycleEngine",
+   "guessed_methods": "track, update, run",
+   "engine_real_methods": "advanceCycle, createState, partsPerBar, requestBarChange, requiredFeedLength, getYield, getStats, validateFeed",
+   "suggested_method": "advanceCycle",
+   "domain": "lathe"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "in_process_stock_model_update",
+   "engine": "InProcessStockModelEngine",
+   "guessed_methods": "update, simulate, run",
+   "engine_real_methods": "applyOperation, calculateBounds, calculateCollisionEnvelope, checkCollision, generateHeightMap, getState, getStockHeight, hasMaterial, initialize, removeToolEnvelope, reset",
+   "suggested_method": "applyOperation",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "inter_operation_state_transfer",
+   "engine": "InterOperationStateEngine",
+   "guessed_methods": "transfer, get, run",
+   "engine_real_methods": "recordOperationState, getLastOperationState, getNextOperationRecommendations, getOperationHistory, getAccumulatedMetrics, predictQualityOutcome, startJob",
+   "suggested_method": "recordOperationState",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "process_environment_sensitivity_analyze",
+   "engine": "ProcessEnvironmentSensitivityEngine",
+   "guessed_methods": "analyze, calculate, run",
+   "engine_real_methods": "calculateCorrections, assessEnvironmentalRisks, calculateOptimalWindow, recordEnvironment, getEnvironmentTrends, getCoefficients, addCoefficient, getFactorValue, linearRegression",
+   "suggested_method": "calculateCorrections",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/calcDispatcher.ts",
+   "action": "physics_aware_data_augmentation_run",
+   "engine": "PhysicsAwareDataAugmentationEngine",
+   "guessed_methods": "augment, run, generate",
+   "engine_real_methods": "augmentCorpus, augmentOne, buildDPOPairs, buildMixedCorpus, injectFailure, reseed, validateSource",
+   "suggested_method": "augmentCorpus",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/turningDispatcher.ts (prism_turning)",
+   "action": "lathe_program_audit_pipeline_run",
+   "engine": "LatheProgramAuditPipelineEngine (latheProgramAuditPipelineEngine, dispatcher line 3842)",
+   "guessed_methods": "audit, run, process",
+   "engine_real_methods": "static auditOne(input: AuditInput): AuditResult (LatheProgramAuditPipelineEngine.ts:328). NOTE: singleton export `latheProgramAuditPipelineEngine = LatheProgramAuditPipelineEngine` (:356) is the CLASS itself, so the static method IS reachable off the singleton. Grep for `\\b(audit|run|process)\\s*\\(` matched none.",
+   "suggested_method": "auditOne",
+   "domain": "lathe"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/turningDispatcher.ts (prism_turning)",
+   "action": "multi_spindle_automatic_plan",
+   "engine": "MultiSpindleAutomaticEngine (multiSpindleAutomaticEngine, instance export :996, dispatcher line 3864)",
+   "guessed_methods": "plan, run, analyze",
+   "engine_real_methods": "assignStations(:259), analyzeCycleBalance(:534), decideTooling(:619), optimizeIndex(:715), analyzeProduction(:821), planBackworking(:870), async executeAction(:945). No method exactly named plan/run/analyze.",
+   "suggested_method": "executeAction (canonical router) or assignStations (the actual station-planning primitive)",
+   "domain": "lathe"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/turningDispatcher.ts (prism_turning)",
+   "action": "swiss_type_intelligence_analyze",
+   "engine": "SwissTypeIntelligenceEngine (swissTypeIntelligenceEngine, instance export :1206, dispatcher line 3870)",
+   "guessed_methods": "analyze, run",
+   "engine_real_methods": "analyzeGuideBushing(:205), optimizeGangToolLayout(:336), planSpindleSync(:499), planBarFeeding(:711), planBackworking(:815), generateProcessPlan(:998), async executeAction(:1156). No method exactly named analyze/run (only analyzeGuideBushing).",
+   "suggested_method": "executeAction (canonical router) or generateProcessPlan (full swiss process-plan analysis)",
+   "domain": "lathe"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/turningDispatcher.ts (prism_turning)",
+   "action": "insert_grade_select",
+   "engine": "InsertGradeSelectionEngine (insertGradeSelectionEngine, instance export :355, dispatcher line 3876)",
+   "guessed_methods": "select, recommend, run",
+   "engine_real_methods": "calculate(input: InsertGradeInput): InsertGradeResult (:220). No method named select/recommend/run.",
+   "suggested_method": "calculate",
+   "domain": "lathe"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "cam_utility_batch_run",
+   "engine": "batchCAMEngine (BatchCAMEngine, CAMUtilityEngines.ts:184)",
+   "guessed_methods": "run",
+   "engine_real_methods": "generateBatch (only public method of BatchCAMEngine; compare/get/set/clear belong to sibling classes ProgramCompareEngine/CAMResultCacheEngine in the same file)",
+   "suggested_method": "generateBatch",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "cimatron_cam_bridge_run",
+   "engine": "cimatronCAMBridgeEngine (CimatronCAMBridgeEngine.ts:442)",
+   "guessed_methods": "run, process",
+   "engine_real_methods": "extract, importFromJSON, analyze, analyzeElectrode, convertToPRISMFormat, exportToolLibrary, generateElectrodeParameters, listOperationTypes",
+   "suggested_method": "analyze",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "tebis_cam_bridge_run",
+   "engine": "tebisCAMBridgeEngine (TebisCAMBridgeEngine.ts:573)",
+   "guessed_methods": "run, process",
+   "engine_real_methods": "extractProject, parseNCOutput, importXMLExport, getNCJobs, getTools, getTemplates, getOperations, validateCollisionStatus, validateProjectCollisions, exportToPRISM, exportToJSON, findMatchingTemplates",
+   "suggested_method": "extractProject",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "radial_engagement_analyze",
+   "engine": "radialEngagementControllerEngine (RadialEngagementControllerEngine.ts:78)",
+   "guessed_methods": "analyze",
+   "engine_real_methods": "control, quickControl, generateFeedrateTable, analyzeCorners",
+   "suggested_method": "control (or analyzeCorners)",
+   "domain": "mill"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "blameless_post_mortem_run",
+   "engine": "blamelessPostMortemEngine (BlamelessPostMortemEngine.ts:110)",
+   "guessed_methods": "run, analyze",
+   "engine_real_methods": "file, markReady, assignReviewer, requestRevisions, canClose, close, setActionItemStatus, getPostMortem, listPostMortems, toSnapshot, loadSnapshot, clearAll",
+   "suggested_method": "file",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "cam_bridge_kit_run",
+   "engine": "camBridgeKitEngine (CamBridgeKitEngine.ts:297, class-alias export)",
+   "guessed_methods": "run, process",
+   "engine_real_methods": "cadCamHandoff, operatorGatesEmit, sfcFusionBridge, sfcHyperMillBridge, sfcInventorHsmBridge (all static)",
+   "suggested_method": "cadCamHandoff",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "epack_table_import",
+   "engine": "ePackTableImportEngine (EPackTableImportEngine.ts:100)",
+   "guessed_methods": "import, run",
+   "engine_real_methods": "importJSON, importCSV, importKeyValue, lookup, getAll, clear, importAuto",
+   "suggested_method": "importAuto",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "macro_conversion_analyze",
+   "engine": "macroConversionAnalyzerEngine (MacroConversionAnalyzerEngine.ts:325)",
+   "guessed_methods": "analyze, run",
+   "engine_real_methods": "getSources, analyzeProgram, findMacroCandidates, listExistingMacros, scanCustomerFolder, harvest, audit, detectMacroPatterns (all static; singleton is an instance so static methods are also unreachable via it)",
+   "suggested_method": "analyzeProgram (static -- invoke on the class)",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "nc_pattern_mine",
+   "engine": "ncPatternMinerEngine (NCPatternMinerEngine.ts:314)",
+   "guessed_methods": "mine, run",
+   "engine_real_methods": "parseProgram, scanDirectory, mineCustomerPatterns, getTopPatterns (all static; singleton is an instance so static methods are also unreachable via it)",
+   "suggested_method": "mineCustomerPatterns (static -- invoke on the class)",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "prism_cam (mcp-server/src/tools/dispatchers/camDispatcher.ts)",
+   "action": "prism_addin_architecture_get",
+   "engine": "prismAddinArchitectureEngine (PrismAddinArchitectureEngine.ts:101)",
+   "guessed_methods": "get, run",
+   "engine_real_methods": "serializeCommentData, parseCommentData, isVersionCompatible, buildOperationComment, extractFromComment, generateCpsParserCode, validateDirectParams, buildSidecar (all static; singleton is an instance so static methods are also unreachable via it)",
+   "suggested_method": "parseCommentData (or generateCpsParserCode; invoke on the class)",
+   "domain": "cam"
+  },
+  {
+   "dispatcher": "fiveAxisDispatcher.ts (prism_5axis)",
+   "action": "so3_kinematics_encode",
+   "engine": "SO3KinematicsEncoderEngine (singleton so3KinematicsEncoderEngine = new SO3KinematicsEncoderEngineImpl())",
+   "guessed_methods": "encode, compute, calculate",
+   "engine_real_methods": "fromRotationMatrix, fromQuaternion, fromAxisAngle, fromEulerAngles, fromLieAlgebra, identity, expMap, logMap, compose, inverse, interpolate, distance, rotateVector, toNeuralEmbedding, fromNeuralEmbedding, createKinematicChain, forwardKinematics, dhTransform, detectSingularity, isNearGimbalLock, degToRad, radToDeg, orthogonalize, getStatistics, getContextForAI",
+   "suggested_method": "fromEulerAngles (encode A/C tilt angles -> SO3Embedding); chain toNeuralEmbedding(e, topology?) for the neural-encode the action name implies",
+   "domain": "5axis"
+  },
+  {
+   "dispatcher": "fiveAxisDispatcher.ts (prism_5axis)",
+   "action": "five_axis_ai_ultra_predict",
+   "engine": "FiveAxisAIUltraIntelligenceEngine (alias fiveAxisAIUltraIntelligenceEngine = the CLASS; all methods STATIC)",
+   "guessed_methods": "predict, analyze, run",
+   "engine_real_methods": "parseNaturalLanguage, processNaturalLanguage, generatePRISMAIPrompt, predictToolLife, recordToolLifeData, extractToolpathFeatures, scoreToolpath, explainDecision, getRecommendedAction, recordEpisode, calculateReward, getPolicyStats, diagnoseProblem, generateTroubleshootingPrompt, clearAll, getToolLifeDataCount, getRLEpisodeCount, getTroubleshootingHistoryCount",
+   "suggested_method": "predictToolLife(input: ToolLifePredictionInput) -- the predict-semantic static method; the singleton alias is the class so static resolves. (processNaturalLanguage for a general NL-driven AI-ultra entry.)",
+   "domain": "5axis"
+  },
+  {
+   "dispatcher": "millDispatcher.ts (prism_mill)",
+   "action": "fourth_axis_indexing_plan",
+   "engine": "FourthAxisIndexingEngine (singleton fourthAxisIndexingEngine, engines/FourthAxisIndexingEngine.ts:504)",
+   "guessed_methods": "plan, calculate, run",
+   "engine_real_methods": "calculate (STATIC :227), getRotaryTableForMachine (STATIC :439), machineSupports4thAxis (STATIC :452), calculateTombstoneCycleTime (STATIC :479) -- ALL static, no instance methods",
+   "suggested_method": "FourthAxisIndexingEngine.calculate(p) -- but note: calculate is STATIC, so it must be called on the CLASS, not the singleton instance. The dispatcher calls (fourthAxisIndexingEngine as any).calculate which is undefined on the instance, so this action ALWAYS returns the 'method not callable' stub. Fix: import the class and call FourthAxisIndexingEngine.calculate(p).",
+   "domain": "mill"
+  },
+  {
+   "dispatcher": "millDispatcher.ts (prism_mill)",
+   "action": "fourth_axis_decision_select",
+   "engine": "FourthAxisDecisionEngine (singleton fourthAxisDecisionEngine, engines/FourthAxisDecisionEngine.ts:938)",
+   "guessed_methods": "select, decide, run",
+   "engine_real_methods": "decide (STATIC :242) -- only public method, static; select and run do not exist",
+   "suggested_method": "FourthAxisDecisionEngine.decide(p) -- STATIC method; the dispatcher calls (fourthAxisDecisionEngine as any).decide on the instance where it is undefined, so this action ALWAYS returns the 'method not callable' stub. Fix: call the static FourthAxisDecisionEngine.decide(p) on the class.",
+   "domain": "mill"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "spc_process_capability_analyze",
+   "engine": "SPCProcessCapabilityEngine (src/engines/SPCProcessCapabilityEngine.ts)",
+   "guessed_methods": "analyze / calculate / run",
+   "engine_real_methods": "compute(input: SPCInput): AtomicValue<SPCResult> (line 81)",
+   "suggested_method": "compute",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "hypermill_fai_bridge_run",
+   "engine": "HyperMillFAIBridge (src/engines/HyperMillFAIBridge.ts)",
+   "guessed_methods": "run / process / analyze",
+   "engine_real_methods": "async generate(input: HyperMillFAIInput): Promise<HyperMillFAIResult> (line 152)",
+   "suggested_method": "generate (await \u2014 async)",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "hypermill_spc_bridge_run",
+   "engine": "HyperMillSPCBridge (src/engines/HyperMillSPCBridge.ts)",
+   "guessed_methods": "run / analyze / calculate",
+   "engine_real_methods": "generate(input: HyperMillSPCInput): HyperMillSPCResult (line 170)",
+   "suggested_method": "generate",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "concentration_inequality_analyze",
+   "engine": "ConcentrationInequalityEngine (src/engines/ConcentrationInequalityEngine.ts)",
+   "guessed_methods": "analyze / calculate / run",
+   "engine_real_methods": "hoeffding (line 62), bernstein (line 77), mcdiarmid (line 93), chernoff (line 113), hoeffdingSampleSize (line 134) -- no generic dispatch method",
+   "suggested_method": "hoeffding (or route by params.bound to bernstein/mcdiarmid/chernoff)",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "multivariate_spc_analyze",
+   "engine": "MultivariateSPCEngine (src/engines/MultivariateSPCEngine.ts)",
+   "guessed_methods": "analyze / calculate / run",
+   "engine_real_methods": "getUcl (line 82), hotellingStream (line 95), mewmaStream (line 103), static fitFromReference (line 130), static chiSquareCritical (line 163)",
+   "suggested_method": "hotellingStream (primary Hotelling T2 path; mewmaStream for MEWMA)",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "data_quality_validate",
+   "engine": "DataQualityEngine (src/engines/DataQualityEngine.ts)",
+   "guessed_methods": "validate / analyze / run",
+   "engine_real_methods": "validateRow (line 94), validateBatch (line 127), static getSelfAwareness (line 335) -- no bare validate()",
+   "suggested_method": "validateBatch (validateRow for single-row)",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "iso13485_qms_validate",
+   "engine": "ISO13485QMSEngine (src/engines/ISO13485QMSEngine.ts)",
+   "guessed_methods": "validate / score / run",
+   "engine_real_methods": "evaluate(i: ISO13485QMSInput): ISO13485QMSResult (line 132), getStats (line 229)",
+   "suggested_method": "evaluate",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "design_history_file_compile",
+   "engine": "DesignHistoryFileEngine (src/engines/DesignHistoryFileEngine.ts)",
+   "guessed_methods": "compile / generate / run",
+   "engine_real_methods": "evaluate(i: DHFInput): DHFResult (line 109), getStats (line 224)",
+   "suggested_method": "evaluate",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "process_validation_iqoqpq_generate",
+   "engine": "ProcessValidationIQOQPQEngine (src/engines/ProcessValidationIQOQPQEngine.ts)",
+   "guessed_methods": "generate / build / run",
+   "engine_real_methods": "validate(i: PVInput): PVResult (line 109), getStats (line 223)",
+   "suggested_method": "validate",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "capa_workflow_open",
+   "engine": "CAPAWorkflowEngine (src/engines/CAPAWorkflowEngine.ts)",
+   "guessed_methods": "open / create / run",
+   "engine_real_methods": "evaluate(i: CAPAEvaluationInput): CAPAEvaluationResult (line 119), getStats (line 251)",
+   "suggested_method": "evaluate",
+   "domain": "quality"
+  },
+  {
+   "dispatcher": "prism_quality (mcp-server/src/tools/dispatchers/qualityDispatcher.ts)",
+   "action": "iso14971_risk_assess",
+   "engine": "ISO14971RiskManagementEngine (src/engines/ISO14971RiskManagementEngine.ts)",
+   "guessed_methods": "assess / analyze / run",
+   "engine_real_methods": "evaluate(i: ISO14971Input): ISO14971Result (line 119), getStats (line 220)",
+   "suggested_method": "evaluate",
+   "domain": "safety"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/safetyDispatcher.ts",
+   "action": "git_safety_check",
+   "engine": "GitSafetyEngine",
+   "guessed_methods": "assertNoTemporalLeakage, run",
+   "engine_real_methods": "classify, isDestructive, ruleIds",
+   "suggested_method": "classify",
+   "domain": "other"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/safetyDispatcher.ts",
+   "action": "stock_boundary_gate_check",
+   "engine": "StockBoundaryGateEngine",
+   "guessed_methods": "run, evaluate, check",
+   "engine_real_methods": "gate, gateOrThrow (+ private buildRecommendations)",
+   "suggested_method": "gate",
+   "domain": "lathe"
+  },
+  {
+   "dispatcher": "mcp-server/src/tools/dispatchers/safetyDispatcher.ts",
+   "action": "archive_catalog_ingest",
+   "engine": "ArchiveToPartsCatalogIngesterEngine",
+   "guessed_methods": "ingest, run",
+   "engine_real_methods": "ingestArchive, groupByNormalizedPN",
+   "suggested_method": "ingestArchive",
+   "domain": "other"
+  }
+ ]
+}

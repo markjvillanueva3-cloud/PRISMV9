@@ -1,0 +1,225 @@
+{
+  "id": "PROD-GATE-MS0",
+  "version": "1.0.0",
+  "title": "Unified Production Gate: Ship-Readiness for 4 Flagship Pillars",
+  "brief": "Single production gate that consumes outputs of EIGC, MXU, and ACP tracks. Validates: all 4 flagship pillars pass golden-path E2E, support matrix is truthful, automation chains are stable, memory/continuity is reliable, and cross-pillar workflows complete without degraded-but-hidden failures. Replaces the 3 separate gate milestones (EIGC-MS11, MXU-MS11, ACP-MS8) to prevent contradictory gate checks.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "PROD",
+  "track_name": "Production Readiness",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Gate Validation",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Verify EIGC support matrix is complete and truthful",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Verify EIGC support matrix is complete and truthful — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Verify MXU activation matrix — >=90% product-critical engines active",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Verify MXU activation matrix — >=90% product-critical engines active — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Verify ACP automation chains fire, downgrade cleanly, and survive compaction",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Verify ACP automation chains fire, downgrade cleanly, and survive compaction — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Run cross-pillar golden-path: quote->calculate->plan->post->ERP",
+          "effort": 80,
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Run cross-pillar golden-path: quote->calculate->plan->post->ERP — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Verify production governance: lint, build, tests, audit scripts all pass",
+          "effort": 50,
+          "dependencies": [
+            "P0-U04"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Verify production governance: lint, build, tests, audit scripts all pass — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Lock release gate matrix and production governance checklist",
+          "effort": 40,
+          "dependencies": [
+            "P0-U05"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Lock release gate matrix and production governance checklist — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "EIGC-MS10",
+    "MXU-MS10",
+    "ACP-MS7"
+  ],
+  "exit_conditions": [
+    "All 4 flagship pillars pass golden-path E2E",
+    "Support matrix truthful — no overclaimed capabilities",
+    "Automation chains stable and compaction-safe",
+    "Cross-pillar workflow completes without hidden degradation",
+    "Release gate matrix locked"
+  ],
+  "notes": "Unified gate replacing EIGC-MS11, MXU-MS11, ACP-MS8 to prevent contradictory gate checks",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "prod-gate-ms0-gate",
+    "mcp_action": "prism_prod:prod_gate_ms0_run",
+    "skill_command": "/prod-gate-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "prod-gate-ms0-gate"
+    ],
+    "new_actions": [
+      "prod_gate_ms0_run"
+    ],
+    "new_skills": [
+      "/prod-gate-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Single production gate that consumes outputs of EIGC, MXU, and ACP tracks. Validates: all 4 flagship pillars pass golden-path E2E, support matrix is truthful, automation chains are stable, memory/continuity is reliable, and cross-pillar workflows complete without degraded-but-hidden failures. Replaces the 3 separate gate milestones (EIGC-MS11, MXU-MS11, ACP-MS8) to prevent contradictory gate checks.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

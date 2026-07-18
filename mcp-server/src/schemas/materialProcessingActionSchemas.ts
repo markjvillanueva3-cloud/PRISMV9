@@ -32,4 +32,7 @@ export const MATERIAL_PROCESSING_ACTION_SCHEMAS: ActionSchemaMap = {
   shot_peening_calc: z.object({ intensity_mm_a: optPosNum, coverage_pct: optPosNum, media_type: optStr, ...matBaseParams }).passthrough(),
   electroplating_calc: z.object({ metal: optStr, current_density_a_dm2: optPosNum, time_min: optPosNum, thickness_um: optPosNum, ...matBaseParams }).passthrough(),
   passivation_calc: z.object({ acid_type: z.enum(["citric", "nitric"]).optional(), concentration_pct: optPosNum, temperature_c: optPosNum, time_min: optPosNum, ...matBaseParams }).passthrough(),
+  // WIRE-COATING-DIRECT-MS0/U-VICTOR-COATING-DIRECT (slot:victor, 2026-05-26)
+  coating_select: z.object({}).passthrough().describe("CoatingSelectionEngine.calculate — select optimal tool coating (TiN/TiCN/AlTiN/TiAlN/AlCrN/diamond/etc.) given material + speed + operation. Speed thresholds per ISO group bake in. Returns selection rationale + alternatives."),
+  coating_select_orchestrated: z.object({}).passthrough().describe("CoatingSelectionAdapter.selectCoatingOrchestrated — higher-level coating selection that composes the registry + selection engine + price/availability filter. Returns OrchestratedCoatingDecision."),
 };

@@ -23,13 +23,16 @@ related:
 |-------|-------|
 | Name | `formula-browse` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/formula-browse.md` |
+| Source | `C:/Users/wompu/.claude/commands/formula-browse.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Formula Browse — PRISM Formula Explorer
+
+You are browsing PRISM's 600+ formulas (509 built-in + 123 harvested from JS knowledge files). Each formula has a unique ID (e.g., F-KIENZLE-001), domain, category, equation (LaTeX + plain text), parameters, validation rules, and consumer tracking. Use this to find the right formula for a calculation, compare formulas, audit coverage, or understand fo
 
 <!-- AUTO-END -->
 

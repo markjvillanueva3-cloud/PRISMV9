@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cad-review — CAD Model Quality Review
+Review CAD model for manufacturability, quality issues, and design best practices.
 
 <!-- AUTO-END -->
 

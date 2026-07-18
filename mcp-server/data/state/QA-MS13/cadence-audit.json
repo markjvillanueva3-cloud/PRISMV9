@@ -1,0 +1,257 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS13-P0-U04",
+  "title": "Cadence Function Audit",
+  "audited_at": "2026-04-13T22:30:00Z",
+  "auditor": "claude-opus-4.5",
+  "scope": "All cadence function registrations, trigger conditions, and hook wiring",
+  "summary": {
+    "claimed_count": 40,
+    "actual_count": 13,
+    "discrepancy_factor": 3.1,
+    "discrepancy_note": "Claimed 40 cadences is outdated or projected"
+  },
+  "cadence_inventory": {
+    "CadenceDefinitions_ts": {
+      "file": "src/hooks/CadenceDefinitions.ts",
+      "count": 7,
+      "cadences": [
+        {
+          "id": "cadence-daily-tool-wear",
+          "number": "#218",
+          "name": "Daily Tool Wear Check",
+          "schedule": "daily",
+          "phase": "on-tool-life-warning",
+          "category": "manufacturing",
+          "mode": "warning",
+          "priority": "high",
+          "description": "Reviews flank/crater wear for all active tools"
+        },
+        {
+          "id": "cadence-weekly-maintenance",
+          "number": "#219",
+          "name": "Weekly Maintenance Forecast",
+          "schedule": "weekly",
+          "phase": "on-session-checkpoint",
+          "category": "automation",
+          "mode": "warning",
+          "priority": "normal",
+          "description": "Forecasts maintenance based on hours, vibration, history"
+        },
+        {
+          "id": "cadence-hourly-machine-health",
+          "number": "#220",
+          "name": "Hourly Machine Health Check",
+          "schedule": "hourly",
+          "phase": "on-session-checkpoint",
+          "category": "observability",
+          "mode": "logging",
+          "priority": "normal",
+          "description": "Spindle temp, vibration, coolant, backlash snapshot"
+        },
+        {
+          "id": "cadence-shift-handoff",
+          "number": "#221",
+          "name": "Shift Change Handoff",
+          "schedule": "shift_change",
+          "phase": "on-session-end",
+          "category": "automation",
+          "mode": "logging",
+          "priority": "normal",
+          "description": "Generates handoff report with jobs, issues, tool changes"
+        },
+        {
+          "id": "cadence-monthly-cost",
+          "number": "#222",
+          "name": "Monthly Cost Analysis",
+          "schedule": "monthly",
+          "phase": "on-session-checkpoint",
+          "category": "observability",
+          "mode": "logging",
+          "priority": "low",
+          "description": "Aggregates tooling, machine time, material, energy costs"
+        },
+        {
+          "id": "cadence-quarterly-calibration",
+          "number": "#223",
+          "name": "Quarterly Calibration Reminder",
+          "schedule": "quarterly",
+          "phase": "on-session-checkpoint",
+          "category": "validation",
+          "mode": "warning",
+          "priority": "normal",
+          "description": "Flags machines overdue or due within 30 days"
+        },
+        {
+          "id": "cadence-hourly-knowledge-reindex",
+          "number": "#224",
+          "name": "Hourly Knowledge Re-Index",
+          "schedule": "hourly",
+          "phase": "on-session-checkpoint",
+          "category": "automation",
+          "mode": "logging",
+          "priority": "low",
+          "description": "KAR-MS1 U-KAR08: scans for new/changed knowledge files"
+        }
+      ]
+    },
+    "SpecialtyCadences_ts": {
+      "file": "src/hooks/SpecialtyCadences.ts",
+      "count": 6,
+      "cadences": [
+        {
+          "id": "cadence-frf-library-match",
+          "number": "M97",
+          "name": "Auto FRF Library Match",
+          "trigger": "@tool_assembly_created",
+          "phase": "post-output",
+          "category": "automation",
+          "mode": "warning",
+          "priority": "normal",
+          "description": "Matches FRF to predict chatter stability"
+        },
+        {
+          "id": "cadence-tolerance-risk-score",
+          "number": "M98",
+          "name": "Auto Tolerance Risk Score",
+          "trigger": "@job_plan_created",
+          "phase": "post-output",
+          "category": "automation",
+          "mode": "warning",
+          "priority": "normal",
+          "description": "Scores NCR risk based on Cpk and complexity"
+        },
+        {
+          "id": "cadence-operator-skill-match",
+          "number": "M99",
+          "name": "Auto Operator Skill Match",
+          "trigger": "@job_assigned",
+          "phase": "post-output",
+          "category": "automation",
+          "mode": "warning",
+          "priority": "normal",
+          "description": "Validates operator skill vs job difficulty"
+        },
+        {
+          "id": "cadence-tool-standardization",
+          "number": "M100",
+          "name": "Auto Tool Standardization",
+          "trigger": "@100_tool_changes",
+          "phase": "on-session-checkpoint",
+          "category": "automation",
+          "mode": "logging",
+          "priority": "low",
+          "description": "Analyzes tool crib for consolidation opportunities"
+        },
+        {
+          "id": "cadence-machine-utilization",
+          "number": "M101",
+          "name": "Auto Machine Utilization",
+          "trigger": "@shift_end",
+          "phase": "on-session-end",
+          "category": "observability",
+          "mode": "logging",
+          "priority": "normal",
+          "description": "Calculates per-machine spindle utilization"
+        },
+        {
+          "id": "cadence-ncr-trend",
+          "number": "M102",
+          "name": "Auto Non-Conformance Trend",
+          "trigger": "@quality_event",
+          "phase": "on-quality-drop",
+          "category": "validation",
+          "mode": "warning",
+          "priority": "high",
+          "description": "Tracks NCR trends and alerts on increases"
+        }
+      ]
+    }
+  },
+  "trigger_conditions": {
+    "time_based": {
+      "hourly": [
+        "cadence-hourly-machine-health",
+        "cadence-hourly-knowledge-reindex"
+      ],
+      "daily": [
+        "cadence-daily-tool-wear"
+      ],
+      "weekly": [
+        "cadence-weekly-maintenance"
+      ],
+      "monthly": [
+        "cadence-monthly-cost"
+      ],
+      "quarterly": [
+        "cadence-quarterly-calibration"
+      ],
+      "shift_change": [
+        "cadence-shift-handoff",
+        "cadence-machine-utilization"
+      ]
+    },
+    "event_based": {
+      "tool_assembly_created": [
+        "cadence-frf-library-match"
+      ],
+      "job_plan_created": [
+        "cadence-tolerance-risk-score"
+      ],
+      "job_assigned": [
+        "cadence-operator-skill-match"
+      ],
+      "100_tool_changes": [
+        "cadence-tool-standardization"
+      ],
+      "quality_event": [
+        "cadence-ncr-trend"
+      ]
+    }
+  },
+  "cadence_to_hook_wiring": {
+    "verified": true,
+    "all_have_phase": true,
+    "all_have_handler": true,
+    "all_have_category": true,
+    "all_have_tags_with_cadence": true,
+    "export_mechanism": "Arrays exported from each file, imported in hooks/index.ts"
+  },
+  "category_distribution": {
+    "automation": 6,
+    "observability": 3,
+    "validation": 2,
+    "manufacturing": 1,
+    "logging": 1
+  },
+  "priority_distribution": {
+    "high": 2,
+    "normal": 8,
+    "low": 3
+  },
+  "findings": {
+    "critical": [
+      "Actual cadence count (13) is 3x lower than claimed (40)"
+    ],
+    "observations": [
+      "All 13 cadences have proper hook structure with handlers",
+      "Trigger conditions are well-defined (time-based and event-based)",
+      "Categories are appropriate for each cadence type",
+      "High-priority cadences (tool wear, NCR trend) are correctly flagged"
+    ],
+    "recommendations": [
+      "Update BASELINE_INVENTORY to reflect actual count (13)",
+      "Consider adding more cadences for: thermal monitoring, spindle hours, tool inventory levels",
+      "Add cadence execution telemetry to track actual firing frequency",
+      "Document expected cadence count in CLAUDE.md"
+    ]
+  },
+  "verification_status": {
+    "cadences_inventoried": true,
+    "count_verified": true,
+    "trigger_conditions_verified": true,
+    "hook_wiring_verified": true,
+    "unit_complete": true
+  }
+}

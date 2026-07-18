@@ -1,0 +1,968 @@
+{
+  "id": "CADCAM-DAGI-MS1",
+  "version": "1.0.0",
+  "title": "CAD Software Action Learning — Per-Software Drawing Intelligence",
+  "brief": "Teach AGI HOW to draw in each CAD software (CadQuery / FreeCAD / Fusion360 / Mastercam / Inventor / hyperMILL / SolidCAM). Action-sequence learning with click-by-click reproduction, scripting API mastery, and software-specific idiom absorption. Closes the gap between 'knowing what to draw' (MS0) and 'knowing how to draw it in software X'.",
+  "track": "CAD-CAM-DEEPAGI",
+  "parent": "CADCAM-DEEPAGI-MASTER",
+  "status": "not_started",
+  "priority": "P0",
+  "omega_target": 1,
+  "created_at": "2026-04-18T21:40:00Z",
+  "created_by": "forge /rgs via Opus 4.7",
+  "dependencies": [
+    "CADCAM-DAGI-MS0"
+  ],
+  "total_units": 16,
+  "total_sessions": 5,
+  "completed_units": 0,
+  "rgs_pipeline_stage": "Stage 5 — sub-milestone generation",
+  "session_plan": [
+    {
+      "session": 1,
+      "units": [
+        "U-DASAL01",
+        "U-DASAL02",
+        "U-DASAL03"
+      ],
+      "title": "FreeCAD + CadQuery Action Learning (Tier 1 FREE)",
+      "smart_config": {
+        "role": "CAD Software Expert + Python/Scripting Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "FreeCAD Python API reference (Part, PartDesign, Sketcher, Draft workbenches)",
+          "CadQuery DSL (Workplane chaining, selectors, operations)",
+          "PRISM CADTokenRepresentationEngine (from MS0 U-DAGI01)",
+          "PRISM NeuralCADGenerationEngine (from MS0 U-DAGI07)",
+          "DuplicationGuardEngine check results"
+        ]
+      }
+    },
+    {
+      "session": 2,
+      "units": [
+        "U-DASAL04",
+        "U-DASAL05",
+        "U-DASAL06",
+        "U-DASAL07"
+      ],
+      "title": "Fusion360 Action Learning (Tier 2 Commercial)",
+      "smart_config": {
+        "role": "Fusion360 Expert + Autodesk Forge API Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "Fusion360 Python API (adsk.core, adsk.fusion)",
+          "Fusion360 Design Automation patterns",
+          "Generative design API surfaces",
+          "Parametric timeline manipulation"
+        ]
+      }
+    },
+    {
+      "session": 3,
+      "units": [
+        "U-DASAL08",
+        "U-DASAL09",
+        "U-DASAL10"
+      ],
+      "title": "Mastercam + hyperMILL Action Learning (Tier 3 Commercial)",
+      "smart_config": {
+        "role": "Mastercam/hyperMILL Expert + NET-Hook Integration Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "Mastercam NET-Hook API (C#/VB.NET)",
+          "Mastercam Chook legacy patterns",
+          "hyperMILL Automation Interface (COM/Python)",
+          "JM Die: 3,713 real Mastercam .mcx-8 files as corpus"
+        ]
+      }
+    },
+    {
+      "session": 4,
+      "units": [
+        "U-DASAL11",
+        "U-DASAL12",
+        "U-DASAL13"
+      ],
+      "title": "Inventor + SolidCAM Action Learning",
+      "smart_config": {
+        "role": "Inventor iLogic Expert + SolidCAM Integration Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "Inventor iLogic (VB.NET embedded rules)",
+          "Inventor Apprentice API (headless)",
+          "SolidCAM iMachining knowledge base",
+          "PRISM existing CAMDeepLearningEngine consolidation of 18 CAM systems"
+        ]
+      }
+    },
+    {
+      "session": 5,
+      "units": [
+        "U-DASAL14",
+        "U-DASAL15",
+        "U-DASAL16"
+      ],
+      "title": "Cross-Software Translator + Action Validator + Dispatcher Wiring",
+      "smart_config": {
+        "role": "CAD Integration Architect + QA Lead",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "All 7 software action APIs from prior sessions",
+          "CADActionValidationEngine spec",
+          "Existing CadCamDeepAgiDispatcher from MS0 U-DAGI14"
+        ]
+      }
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "U-DASAL01",
+      "title": "FreeCADActionExecutorEngine — Python-driven headless FreeCAD automation",
+      "intent": "Execute any CAD operation in FreeCAD via Python API. Transform neural token sequence (from MS0) → live FreeCAD Python commands → actual .FCStd file. Reproduce every operation a human would do: open workbench, create sketch, add constraints, pad/pocket, pattern, boolean.",
+      "files_created": [
+        "mcp-server/src/engines/FreeCADActionExecutorEngine.ts",
+        "mcp-server/src/engines/adapters/FreeCADPythonAdapter.ts",
+        "mcp-server/src/data/freecad-api-surface.json",
+        "mcp-server/src/__tests__/FreeCADActionExecutorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Wrap FreeCAD Python API. 40+ action primitives (newSketch, addLine, addConstraint, pad, pocket, revolve, mirror, pattern, fillet, chamfer, boolean, loft, sweep). Session sandbox via python-shell subprocess. Token→action mapping.",
+        "loop_2_scrutinize": "Safety-physics agent + code-reviewer agent. Check: no arbitrary code execution, sandbox isolation, deterministic operation ordering, error recovery on FreeCAD crashes.",
+        "loop_3_gap_fill": "Fill missing actions. Cover Draft, Sheet Metal, Surface workbenches. Add topology reference resolution (edge/face names across rebuilds).",
+        "loop_4_tie_up": "JSDoc all 40+ action primitives. Write developer guide for adding new action types."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Execute 100 random JM Die part sketches → 95%+ produce valid .FCStd files identical to reference (within 0.001mm).",
+        "abort_criteria": "If FreeCAD subprocess leaks > 100MB or hangs > 60s, abort and roll back.",
+        "rollback_procedure": "git revert HEAD; remove FreeCAD python-shell dependency.",
+        "tests_required": 30,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "cad-action-sandbox-guard (prevents unsanctioned Python execution)",
+        "action": "cad.freecad.executeSequence",
+        "skill": "/freecad-draw — generate FreeCAD model from text"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "FreeCADActionExecutorEngine — Python-driven headless FreeCAD automation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL01"
+    },
+    {
+      "unit_id": "U-DASAL02",
+      "title": "CadQueryActionExecutorEngine — DSL chain synthesis",
+      "intent": "Generate and execute CadQuery Python DSL chains. Token sequence → Workplane().box().faces().chamfer() equivalent code → executable solid. Leverage CadQuery's selector language for robust topology references.",
+      "files_created": [
+        "mcp-server/src/engines/CadQueryActionExecutorEngine.ts",
+        "mcp-server/src/data/cadquery-selector-grammar.json",
+        "mcp-server/src/__tests__/CadQueryActionExecutorEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/adapters/FreeCADPythonAdapter.ts"
+      ],
+      "loops": {
+        "loop_1_build": "DSL chain builder. Selector synthesis ('>Z', '%CIRCLE', 'not >X'). STEP/STL export. OCP kernel leveraged directly.",
+        "loop_2_scrutinize": "CAD geometry validator + code-reviewer. Check: selector robustness across parametric variations, CSG operation correctness, export integrity.",
+        "loop_3_gap_fill": "Sketch primitives (sketch(), push(), rect()), assembly support (Assembly class), parametric workflows.",
+        "loop_4_tie_up": "JSDoc. Cross-reference CadQuery docs. Example library (100 common features)."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Generate 50 parametric families with 10 variations each — 500 models, 100% build success, 99%+ dimensional accuracy.",
+        "abort_criteria": "If selector failures exceed 5%, escalate to CAD team review.",
+        "rollback_procedure": "git revert; purge cadquery dependency.",
+        "tests_required": 25,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "cadquery-selector-brittleness-detector",
+        "action": "cad.cadquery.synthesize",
+        "skill": "/cadquery-draw"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CadQueryActionExecutorEngine — DSL chain synthesis — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL02"
+    },
+    {
+      "unit_id": "U-DASAL03",
+      "title": "FreeCADIdiomLearnerEngine — learn FreeCAD-specific conventions",
+      "intent": "Every software has idioms. Learn FreeCAD conventions: using Sketcher workbench vs PartDesign, how to name bodies, which operations to prefer (pad vs extrude), ExternalGeometry usage patterns. Extracted from 500 reference .FCStd files.",
+      "files_created": [
+        "mcp-server/src/engines/FreeCADIdiomLearnerEngine.ts",
+        "mcp-server/src/data/freecad-idioms.json",
+        "mcp-server/src/__tests__/FreeCADIdiomLearnerEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/FreeCADActionExecutorEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Pattern miner on reference .FCStd corpus. Extract: naming conventions, workbench selection heuristics, operation ordering preferences. Idiom embedding (256-dim vector per idiom).",
+        "loop_2_scrutinize": "ML-reviewer + CAD-expert. Check: idiom extraction robustness, false pattern filtering, over-fitting to single author style.",
+        "loop_3_gap_fill": "Cross-author idiom diversity. Idiom composition rules. Anti-patterns (what NOT to do).",
+        "loop_4_tie_up": "JSDoc. Publish idiom catalog."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Generated FreeCAD models match reference idiom style 80%+ of time (judged by 3 FreeCAD experts blinded).",
+        "abort_criteria": "If idiom extraction yields < 50 valid patterns, corpus insufficient — request more.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "92%"
+      },
+      "forge_triple": {
+        "hook": "freecad-idiom-drift-detector",
+        "action": "cad.freecad.applyIdioms",
+        "skill": "/freecad-idioms-audit"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "FreeCADIdiomLearnerEngine — learn FreeCAD-specific conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL03"
+    },
+    {
+      "unit_id": "U-DASAL04",
+      "title": "Fusion360ActionExecutorEngine — adsk API command sequences",
+      "intent": "Drive Fusion360 via adsk.core + adsk.fusion API. Transform token sequence → Fusion360 Python add-in commands → parametric model via timeline. Support both user-workflow (UI sim) and scripting paths.",
+      "files_created": [
+        "mcp-server/src/engines/Fusion360ActionExecutorEngine.ts",
+        "mcp-server/src/engines/adapters/Fusion360AddinAdapter.ts",
+        "mcp-server/src/data/fusion360-command-catalog.json",
+        "mcp-server/src/__tests__/Fusion360ActionExecutorEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/CADActionSequenceLearnerEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "API wrapper: sketches, features (extrude, revolve, loft, sweep, rib, shell, combine), patterns, assembly, joints. Timeline rebuild resilience.",
+        "loop_2_scrutinize": "Fusion360 expert agent + code-reviewer. Check: timeline state integrity, BRep stability, API deprecation warnings.",
+        "loop_3_gap_fill": "Generative design API, Simulation API hooks, Drawing API, Sheet Metal API.",
+        "loop_4_tie_up": "JSDoc. Document required Fusion360 version (2.0.19000+)."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Generate 50 JM Die parts in Fusion360 — manual inspection shows 90%+ match reference Mastercam equivalents.",
+        "abort_criteria": "If Fusion360 headless mode unavailable/unstable, document limitation and provide UI-driven fallback.",
+        "rollback_procedure": "git revert; purge Fusion360 add-in.",
+        "tests_required": 30,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "fusion360-timeline-corruption-detector",
+        "action": "cad.fusion360.executeSequence",
+        "skill": "/fusion360-draw"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Fusion360ActionExecutorEngine — adsk API command sequences — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL04"
+    },
+    {
+      "unit_id": "U-DASAL05",
+      "title": "Fusion360GenerativeDesignBridgeEngine — leverage generative for complex",
+      "intent": "When CAD model is highly complex (topology optimization candidate), invoke Fusion360 generative design with constraints. Bridge neural CAD output → generative spec → optimized result.",
+      "files_created": [
+        "mcp-server/src/engines/Fusion360GenerativeDesignBridgeEngine.ts",
+        "mcp-server/src/data/fusion360-generative-templates.json",
+        "mcp-server/src/__tests__/Fusion360GenerativeDesignBridgeEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/Fusion360ActionExecutorEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Constraint translator: loads→preserved geometry→obstacles→material→manufacturing method. Job submission + result retrieval.",
+        "loop_2_scrutinize": "Generative design expert + cost reviewer (cloud credits cost). Check: constraint completeness, manufacturing method selection correctness.",
+        "loop_3_gap_fill": "Multi-outcome selection heuristic, cost budget enforcement.",
+        "loop_4_tie_up": "JSDoc. Credit usage estimator."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "5 generative design runs produce manufacturable outcomes (no support structures beyond shop capability).",
+        "abort_criteria": "If cloud credits exhausted or unavailable, skip unit and mark optional.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 10,
+        "coverage_target": "88%"
+      },
+      "forge_triple": {
+        "hook": "generative-credit-budget-enforcer",
+        "action": "cad.fusion360.generative",
+        "skill": "/generative-design"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Fusion360GenerativeDesignBridgeEngine — leverage generative for complex — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL05"
+    },
+    {
+      "unit_id": "U-DASAL06",
+      "title": "Fusion360iLogicEquivalentEngine — parametric rules in Fusion",
+      "intent": "Fusion360 has parameter-driven design but no iLogic equivalent. Build a rule layer on top that emulates iLogic behavior (rules fire on parameter change, update configuration).",
+      "files_created": [
+        "mcp-server/src/engines/Fusion360iLogicEquivalentEngine.ts",
+        "mcp-server/src/data/fusion360-rule-language.json",
+        "mcp-server/src/__tests__/Fusion360iLogicEquivalentEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Rule DSL (if/then/else, parameter refs, math). Change-tracking hooks. Batch parameter updates.",
+        "loop_2_scrutinize": "Parametric CAD expert. Check: rule evaluation order, circular dependency detection, parameter scope correctness.",
+        "loop_3_gap_fill": "Error recovery on invalid rules, versioned rule migration.",
+        "loop_4_tie_up": "JSDoc. Rule authoring guide."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "20 rule-driven parametric models, 100% rebuild success across 10 parameter variations each.",
+        "abort_criteria": "If rule engine exhibits O(n^2) or worse evaluation cost, redesign.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 15,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "parametric-circular-dep-guard",
+        "action": "cad.fusion360.rules",
+        "skill": "/fusion-rules"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Fusion360iLogicEquivalentEngine — parametric rules in Fusion — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL06"
+    },
+    {
+      "unit_id": "U-DASAL07",
+      "title": "Fusion360IdiomLearnerEngine — Fusion-specific conventions",
+      "intent": "Mine Fusion360 reference models (JM Die + customer library). Learn: component hierarchy conventions, joint usage, sketch sharing patterns, parameter naming.",
+      "files_created": [
+        "mcp-server/src/engines/Fusion360IdiomLearnerEngine.ts",
+        "mcp-server/src/data/fusion360-idioms.json",
+        "mcp-server/src/__tests__/Fusion360IdiomLearnerEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/Fusion360ActionExecutorEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "F3D parser for idiom mining. Component/occurrence/joint pattern extraction. Timeline ordering frequency analysis.",
+        "loop_2_scrutinize": "Fusion expert + ML reviewer. Check: idiom diversity, false-positive filtering.",
+        "loop_3_gap_fill": "Edge-case idioms (multi-body management, configurations).",
+        "loop_4_tie_up": "JSDoc. Idiom catalog."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "80%+ stylistic alignment with reference corpus.",
+        "abort_criteria": "If < 50 valid idioms extracted.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 12,
+        "coverage_target": "91%"
+      },
+      "forge_triple": {
+        "hook": "fusion-idiom-drift-detector",
+        "action": "cad.fusion360.idioms",
+        "skill": "/fusion-idioms"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Fusion360IdiomLearnerEngine — Fusion-specific conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL07"
+    },
+    {
+      "unit_id": "U-DASAL08",
+      "title": "MastercamActionExecutorEngine — NET-Hook command sequences",
+      "intent": "Drive Mastercam via NET-Hook. Transform token sequence → C# commands → .mcx-8 file. Leverage JM Die's 3,713 reference .mcx-8 files as training corpus + regression suite.",
+      "files_created": [
+        "mcp-server/src/engines/MastercamActionExecutorEngine.ts",
+        "mcp-server/src/engines/adapters/MastercamNetHookAdapter.ts",
+        "mcp-server/src/data/mastercam-command-catalog.json",
+        "mcp-server/src/__tests__/MastercamActionExecutorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "C# NET-Hook wrapper via edge.js or separate process. Commands: geometry, solids, toolpaths (mill/lathe/wire), chain/stock, setup sheet.",
+        "loop_2_scrutinize": "Mastercam expert + safety-physics agent. Check: chain direction correctness, tool library integrity, post compatibility.",
+        "loop_3_gap_fill": "Mill-Turn support, Multi-Axis, Wire EDM 4-axis, Lathe live tooling.",
+        "loop_4_tie_up": "JSDoc. Reference real JM Die .mcx-8 patterns."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Reproduce 50 JM Die reference .mcx-8 files with < 5% operation delta, G-code byte-identical after post.",
+        "abort_criteria": "If NET-Hook integration blocks on license, document limitation.",
+        "rollback_procedure": "git revert; remove edge.js dependency.",
+        "tests_required": 35,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "mastercam-chain-direction-validator",
+        "action": "cam.mastercam.executeSequence",
+        "skill": "/mastercam-program"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MastercamActionExecutorEngine — NET-Hook command sequences — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL08"
+    },
+    {
+      "unit_id": "U-DASAL09",
+      "title": "HyperMillActionExecutorEngine — Automation Interface",
+      "intent": "Drive hyperMILL via COM Automation Interface / Python. 5-axis strategies (iMachining, SWARF, morph, point-pattern). Translate neural tokens → hyperMILL job setup.",
+      "files_created": [
+        "mcp-server/src/engines/HyperMillActionExecutorEngine.ts",
+        "mcp-server/src/engines/adapters/HyperMillComAdapter.ts",
+        "mcp-server/src/data/hypermill-strategy-catalog.json",
+        "mcp-server/src/__tests__/HyperMillActionExecutorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "COM wrapper. Strategy catalog with ~60 hyperMILL ops. Job template system (stock, fixture, toolpath chain).",
+        "loop_2_scrutinize": "5-axis expert + safety-physics. Check: RTCP correctness, collision checking enabled, lead/lag angles reasonable.",
+        "loop_3_gap_fill": "Mill-Turn module, MAXX Machining. Collision avoidance API integration.",
+        "loop_4_tie_up": "JSDoc. Cross-reference WEDM AGI (95 engines already exist)."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "30 hyperMILL jobs reproduce reference behavior on JM Die library. 0 collisions on NCSIMUL verification.",
+        "abort_criteria": "If hyperMILL COM unreliable, gate behind version check.",
+        "rollback_procedure": "git revert; remove COM interop.",
+        "tests_required": 28,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "hypermill-rtcp-validator",
+        "action": "cam.hypermill.executeSequence",
+        "skill": "/hypermill-program"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "HyperMillActionExecutorEngine — Automation Interface — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL09",
+      "status": "in_progress",
+      "owner_slot": "echo (cam)",
+      "next_action": "HyperMillActionExecutor likely substantially covered by HyperMILLAutomationBridge (E1304) + new HyperMillACBridgeEngine; needs design analysis to confirm equivalence or build incremental",
+      "in_progress_at": "2026-05-20T06:15:00Z",
+      "assigned_by": "claude-3db3fb3d /goal complete-all-hypermill-hypercad iter-3"
+    },
+    {
+      "unit_id": "U-DASAL10",
+      "title": "MastercamHyperMillIdiomLearnerEngine — commercial CAM idioms",
+      "intent": "Mine JM Die's 3,713 .mcx-8 + available .hmc files. Learn: operation sequencing (rough→rest→finish→chamfer), tool selection patterns, stock management, setup conventions.",
+      "files_created": [
+        "mcp-server/src/engines/MastercamHyperMillIdiomLearnerEngine.ts",
+        "mcp-server/src/data/commercial-cam-idioms.json",
+        "mcp-server/src/__tests__/MastercamHyperMillIdiomLearnerEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/MastercamActionExecutorEngine.ts",
+        "mcp-server/src/engines/HyperMillActionExecutorEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Parse .mcx-8 via Mastercam API (geometry tree + toolpath metadata). Mine operation sequences, tool usage patterns. Per-material idiom clusters.",
+        "loop_2_scrutinize": "Master machinist reviewer. Check: idioms match real shop practice, not artifacts.",
+        "loop_3_gap_fill": "Cross-CAM idiom transfer (apply Mastercam lessons to hyperMILL).",
+        "loop_4_tie_up": "JSDoc. Idiom governance."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Shop operator agrees AGI-generated programs 'look like what I'd write' in 75%+ of 50 blind evaluations.",
+        "abort_criteria": "If < 80 valid idioms extracted from 3,713 corpus, re-investigate.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "92%"
+      },
+      "forge_triple": {
+        "hook": "commercial-cam-idiom-drift-detector",
+        "action": "cam.commercial.idioms",
+        "skill": "/cam-idioms-audit"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MastercamHyperMillIdiomLearnerEngine — commercial CAM idioms — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL10",
+      "status": "in_progress",
+      "owner_slot": "echo (cam)",
+      "next_action": "MastercamHyperMillIdiomLearnerEngine — ML training task; needs labeled idiom corpus from cross-CAM extraction",
+      "in_progress_at": "2026-05-20T06:15:00Z",
+      "assigned_by": "claude-3db3fb3d /goal complete-all-hypermill-hypercad iter-3"
+    },
+    {
+      "unit_id": "U-DASAL11",
+      "title": "InventorActionExecutorEngine — Apprentice + iLogic",
+      "intent": "Drive Inventor via Apprentice (headless) + iLogic (VB.NET rules). Part + Assembly generation. Parametric design with iLogic-driven configurations.",
+      "files_created": [
+        "mcp-server/src/engines/InventorActionExecutorEngine.ts",
+        "mcp-server/src/engines/adapters/InventorApprenticeAdapter.ts",
+        "mcp-server/src/engines/InventorILogicBridgeEngine.ts",
+        "mcp-server/src/data/inventor-command-catalog.json",
+        "mcp-server/src/__tests__/InventorActionExecutorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Apprentice API for read, full Inventor for create/modify. iLogic rule generation from constraint spec. Assembly constraint/joint management.",
+        "loop_2_scrutinize": "Inventor expert + code-reviewer. Check: BOM integrity, iProperty completeness, drawing association.",
+        "loop_3_gap_fill": "Sheet Metal, Weldments, Frame Generator, iAssembly/iPart.",
+        "loop_4_tie_up": "JSDoc. Inventor version compatibility matrix."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Generate 20 Inventor assemblies (3–10 parts each). 100% rebuild success, drawings auto-update.",
+        "abort_criteria": "If license unavailable, document bridge path via STEP export from FreeCAD.",
+        "rollback_procedure": "git revert; remove Apprentice interop.",
+        "tests_required": 25,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "inventor-bom-integrity-checker",
+        "action": "cad.inventor.executeSequence",
+        "skill": "/inventor-draw"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "InventorActionExecutorEngine — Apprentice + iLogic — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL11"
+    },
+    {
+      "unit_id": "U-DASAL12",
+      "title": "SolidCAMiMachiningBridgeEngine — iMachining knowledge",
+      "intent": "Bridge into SolidCAM's iMachining (patented HSS strategy). Translate PRISM strategy choices → iMachining parameters. Leverage CAM deep learning engine's existing SolidCAM integration.",
+      "files_created": [
+        "mcp-server/src/engines/SolidCAMiMachiningBridgeEngine.ts",
+        "mcp-server/src/data/solidcam-imachining-knowledge.json",
+        "mcp-server/src/__tests__/SolidCAMiMachiningBridgeEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/CAMDeepLearningEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "iMachining parameter mapper (material DB → machining level 1–8, step-up %, step-down). COM interop. Stock model handoff.",
+        "loop_2_scrutinize": "iMachining expert + safety-physics agent. Check: material hardness alignment, tool life modeling correctness.",
+        "loop_3_gap_fill": "3D iMachining, Mill-Turn iMachining.",
+        "loop_4_tie_up": "JSDoc. Reference SolidCAM KB."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "15 iMachining programs against JM Die reference → MRR within 10% of reference, tool wear prediction within 15%.",
+        "abort_criteria": "If SolidCAM license unavailable, document limitation.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "90%"
+      },
+      "forge_triple": {
+        "hook": "imachining-material-level-validator",
+        "action": "cam.solidcam.imachining",
+        "skill": "/imachining-program"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "SolidCAMiMachiningBridgeEngine — iMachining knowledge — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL12"
+    },
+    {
+      "unit_id": "U-DASAL13",
+      "title": "InventorSolidCAMIdiomLearnerEngine — joined idiom mining",
+      "intent": "Mine Inventor + SolidCAM reference library. Inventor idioms: parametric conventions, assembly discipline. SolidCAM idioms: strategy chain patterns, machining level selection.",
+      "files_created": [
+        "mcp-server/src/engines/InventorSolidCAMIdiomLearnerEngine.ts",
+        "mcp-server/src/data/inventor-solidcam-idioms.json",
+        "mcp-server/src/__tests__/InventorSolidCAMIdiomLearnerEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/CAMDeepLearningEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "IPT/IAM parser. SolidCAM .prz parser. Idiom cluster extraction.",
+        "loop_2_scrutinize": "Inventor + SolidCAM expert. Check: idiom coherence, software-specific vs universal separation.",
+        "loop_3_gap_fill": "Cross-CAM idiom reuse.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "75%+ style match in blind review.",
+        "abort_criteria": "If < 40 valid idioms, re-investigate.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 12,
+        "coverage_target": "91%"
+      },
+      "forge_triple": {
+        "hook": "inventor-solidcam-idiom-drift-detector",
+        "action": "cad.inventor.solidcam.idioms",
+        "skill": "/inventor-solidcam-idioms"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "InventorSolidCAMIdiomLearnerEngine — joined idiom mining — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL13"
+    },
+    {
+      "unit_id": "U-DASAL14",
+      "title": "CrossSoftwareCADTranslatorEngine — STEP/Parasolid/IGES bridge",
+      "intent": "Translate CAD models between all 7 supported softwares via neutral formats (STEP AP214/AP242, Parasolid x_t, IGES). Preserve parametric history where possible (e.g., via NX PMI).",
+      "files_created": [
+        "mcp-server/src/engines/CrossSoftwareCADTranslatorEngine.ts",
+        "mcp-server/src/data/cad-translation-matrix.json",
+        "mcp-server/src/__tests__/CrossSoftwareCADTranslatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Translation matrix (7x7 pairs). STEP/IGES/Parasolid handoff. Metadata preservation (PMI, BOM). Mesh fallback for non-BRep formats.",
+        "loop_2_scrutinize": "Interop expert + QA. Check: volume conservation after translation, feature tree preservation where possible.",
+        "loop_3_gap_fill": "Round-trip validation (A→B→A). PMI preservation testing.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "95%+ volume preservation across 100 round-trip tests. No manifold errors.",
+        "abort_criteria": "If > 5% corrupt on translation, escalate.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "cad-translation-integrity-check",
+        "action": "cad.translate",
+        "skill": "/cad-translate"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CrossSoftwareCADTranslatorEngine — STEP/Parasolid/IGES bridge — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL14"
+    },
+    {
+      "unit_id": "U-DASAL15",
+      "title": "CADActionValidationEngine — verify every action succeeded",
+      "intent": "After action sequence runs, validate actual outcome matches intended outcome. Compare: feature count, volume, BRep topology signature, parameter values. Trigger rebuild if delta > threshold.",
+      "files_created": [
+        "mcp-server/src/engines/CADActionValidationEngine.ts",
+        "mcp-server/src/data/cad-validation-thresholds.json",
+        "mcp-server/src/__tests__/CADActionValidationEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/FreeCADActionExecutorEngine.ts",
+        "mcp-server/src/engines/Fusion360ActionExecutorEngine.ts",
+        "mcp-server/src/engines/MastercamActionExecutorEngine.ts",
+        "mcp-server/src/engines/HyperMillActionExecutorEngine.ts",
+        "mcp-server/src/engines/InventorActionExecutorEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "BRep signature (face/edge/vertex count + topology hash). Volume/SA checks. Mass properties. Per-feature validation hooks.",
+        "loop_2_scrutinize": "QA lead + CAD expert. Check: threshold tuning (too tight → false fails, too loose → missed defects).",
+        "loop_3_gap_fill": "Parametric assembly validation. Drawing view alignment check.",
+        "loop_4_tie_up": "JSDoc. Threshold tuning guide."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Detect 100% of injected defects in validation test corpus (50 deliberately broken models).",
+        "abort_criteria": "If false-positive rate > 5%, retune.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 22,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "cad-validation-required-on-generate (Stop hook)",
+        "action": "cad.validate",
+        "skill": "/cad-validate"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "CADActionValidationEngine — verify every action succeeded — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL15"
+    },
+    {
+      "unit_id": "U-DASAL16",
+      "title": "MS1 Dispatcher Wiring + Feature Cascade",
+      "intent": "Wire all 15 new engines into cadCamDeepAgiDispatcher (extends MS0 dispatcher). Register 16 new skills (/freecad-draw, /cadquery-draw, /fusion360-draw, /mastercam-program, etc.). 5 hooks. Cascade to MS2/MS4.",
+      "files_created": [
+        "mcp-server/src/data/CADCAM_DAGI_MS1_CASCADE.json",
+        "mcp-server/src/__tests__/cadCamDeepAgiDispatcher.ms1.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/cadCamDeepAgiDispatcher.ts",
+        "mcp-server/src/tools/toolIndex.ts",
+        "mcp-server/src/hooks/registry.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Extend dispatcher action enum with 16 new actions. Lazy imports. Zod schemas. Skill MD files.",
+        "loop_2_scrutinize": "Integration reviewer + wiring-reviewer. Check: no duplicate action names, schema validation, error paths.",
+        "loop_3_gap_fill": "Missing schemas or routes.",
+        "loop_4_tie_up": "Feature cascade JSON documenting exposures to MS2/MS4."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "16 new actions callable via MCP with 100% test pass.",
+        "abort_criteria": "If dispatcher test suite regresses, revert.",
+        "rollback_procedure": "git revert dispatcher + cascade file.",
+        "tests_required": 16,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "ms1-dispatcher-integrity",
+        "action": "cad.ms1.status",
+        "skill": "/ms1-status"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MS1 Dispatcher Wiring + Feature Cascade — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DASAL16"
+    }
+  ],
+  "feature_cascade": {
+    "new_hooks": 15,
+    "new_actions": 16,
+    "new_skills": 16,
+    "available_to": [
+      "CADCAM-DAGI-MS2",
+      "CADCAM-DAGI-MS3",
+      "CADCAM-DAGI-MS4",
+      "CADCAM-DAGI-MS7"
+    ]
+  },
+  "critical_software_coverage": {
+    "T1_free": [
+      "FreeCAD",
+      "CadQuery"
+    ],
+    "T2_commercial": [
+      "Fusion360"
+    ],
+    "T3_commercial": [
+      "Mastercam",
+      "hyperMILL",
+      "Inventor",
+      "SolidCAM"
+    ]
+  },
+  "adaptive_variability_touchpoints": [
+    "Every *IdiomLearnerEngine feeds into VariabilitySourceTrackerEngine (operator_variation source)",
+    "Action validation variance feeds AdaptiveParameterSpaceEngine"
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-dagi-ms1-gate",
+    "mcp_action": "prism_cad-cam-deepagi:cadcam_dagi_ms1_run",
+    "skill_command": "/cadcam-dagi-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Teach AGI HOW to draw in each CAD software (CadQuery / FreeCAD / Fusion360 / Mastercam / Inventor / hyperMILL / SolidCAM). Action-sequence learning with click-by-click reproduction, scripting API mastery, and software-specific idiom absorption. Closes the gap between 'knowing what to draw' (MS0) and 'knowing how to draw it in software X'.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "last_updated": "2026-05-20T06:15:00Z"
+}

@@ -132,7 +132,7 @@ export class WEDMJobCreatorEngine {
         : 15;
 
     (program.pass_details ?? []).forEach((pass: PassSummary, idx: number) => {
-      const isRough = pass.type === "rough" || idx === 0;
+      const isRough = pass.pass_type === "rough" || idx === 0;
       const deptId = isRough ? "rough" : `skim${Math.min(3, idx)}`;
       operations.push({
         id: `${jobId}-pass-${pass.pass_number ?? idx + 1}`,
@@ -142,7 +142,7 @@ export class WEDMJobCreatorEngine {
         estimatedMinutes: Math.max(5, Math.round(perPassMinutes)),
         cycleSeconds: Math.max(30, Math.round(perPassMinutes * 60)),
         quantityTarget: quantity,
-        note: `Offset ${pass.offset_mm?.toFixed(3) ?? "?"}mm, E-code ${pass.e_pack_code ?? "?"}, Ra ${pass.predicted_ra_um?.toFixed(2) ?? "?"}µm`,
+        note: `Offset ${pass.offset_mm?.toFixed(3) ?? "?"}mm, Ra ${pass.expected_ra_um?.toFixed(2) ?? "?"}µm`,
       });
     });
 
@@ -204,7 +204,7 @@ export class WEDMJobCreatorEngine {
 
     const packetNotes: string[] = [
       `WEDM program: ${program.controller}, ${program.line_count} lines, ${program.profiles_cut} profiles × ${program.passes_per_profile} passes`,
-      `Predicted time: ${program.estimated_time_min.toFixed(1)} min, wire: ${program.wire_consumption_m.toFixed(0)}m, Ra: ${program.predicted_ra_um.toFixed(2)}µm`,
+      `Predicted time: ${(program.estimated_time_min ?? 0).toFixed(1)} min, wire: n/a, Ra: ${(program.predicted_ra_um ?? 0).toFixed(2)}µm`,
     ];
     if (program.warnings && program.warnings.length > 0) {
       packetNotes.push(`⚠ ${program.warnings.length} warnings — review before release.`);
@@ -228,13 +228,13 @@ export class WEDMJobCreatorEngine {
 
       programText: program.program_text ?? "",
       programMeta: {
-        controller: program.controller,
-        line_count: program.line_count,
-        profiles_cut: program.profiles_cut,
-        passes_per_profile: program.passes_per_profile,
-        estimated_time_min: program.estimated_time_min,
-        predicted_ra_um: program.predicted_ra_um,
-        wire_consumption_m: program.wire_consumption_m,
+        controller: program.controller ?? "",
+        line_count: program.line_count ?? 0,
+        profiles_cut: program.profiles_cut ?? 0,
+        passes_per_profile: program.passes_per_profile ?? 0,
+        estimated_time_min: program.estimated_time_min ?? 0,
+        predicted_ra_um: program.predicted_ra_um ?? 0,
+        wire_consumption_m: 0, // not emitted by generator (needs machine wire-feed rate); 0 = not computed
       },
       setupSheet: program.setup_sheet,
       quoteRef: quote

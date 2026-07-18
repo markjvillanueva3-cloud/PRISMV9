@@ -147,6 +147,10 @@ export interface WaterjetBaseProfile {
   taper_compensation?: boolean;
   /** Run Monte Carlo uncertainty. Default: true. */
   run_uncertainty?: boolean;
+  /** Optional part name for job identification / ledger emission. */
+  part_name?: string;
+  /** Optional part number for job identification / ledger emission. */
+  part_number?: string | number;
 }
 
 /** 2D through-cutting profile — the most common AWJ operation. */

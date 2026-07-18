@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1.0.0",
+  "domainGroup": "2",
+  "units": [
+    {
+      "id": "0009",
+      "file": "UNIT-0009-DOMAIN2-TOOL-WEAR-PREDICTION.md",
+      "title": "Tool Wear Prediction Engine",
+      "priority": "P0",
+      "roiScore": 4,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/engines/AdvancedWearPhysicsEngine.ts:1-622",
+        "mcp-server/src/engines/ToolWearProgressionEngine.ts:2-21",
+        "mcp-server/src/engines/ArchardAdhesiveWearEngine.ts:1-37",
+        "mcp-server/src/engines/ToolWearRateEngine.ts:1-115",
+        "mcp-server/src/engines/AdaptiveWearEngine.ts:18-49",
+        "mcp-server/src/engines/ToolLifeAdaptiveEngine.ts:1-50",
+        "mcp-server/src/engines/FederatedToolLifeLearningEngine.ts:1-25",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:6752-6755",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:8701-8709",
+        "mcp-server/src/tools/dispatchers/safetyDispatcher.ts:117"
+      ],
+      "gaps": [
+        "No single unified 4-mechanism (adhesive+abrasive+diffusive+chemical) wear-rate composition action; mechanisms scattered across 3+ engines",
+        "No measured JM Die wear-vs-predicted dataset; only synthetic Taylor-generated corpus (state/shared/corpus/cam-tool-life-tuples.jsonl) - circular for validation",
+        "Spec's <8% error criterion is data-blocked, not code-blocked"
+      ],
+      "nextAction": "Ship a thin unified_wear_rate composition action summing the four existing mechanism engines under shared force/temperature state with per-mechanism attribution + RSS uncertainty, wired to prism_calc; open a separate data-capture unit for real JM wear measurements and report the validation criterion as blocked (R12) until it exists."
+    },
+    {
+      "id": "0010",
+      "file": "UNIT-0010-DOMAIN2-TOOL-RECONDITIONING-QUALITY.md",
+      "title": "Tool Reconditioning Quality and Economics",
+      "priority": "P0",
+      "roiScore": 6,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/algorithms/ToolLifeEconomicReplacementFormula.ts:13-51",
+        "mcp-server/src/tools/dispatchers/businessDispatcher.ts:5479-5494",
+        "mcp-server/src/engines/ConsumableCostBasisEngine.ts:1-49",
+        "mcp-server/src/engines/InventoryAwareToolSelectorEngine.ts:22-247",
+        "mcp-server/src/engines/WearPatternRefinishEngine.ts:1-23",
+        "mcp-server/src/engines/DeepHoleDrillingPhysicsEngine.ts:896-920"
+      ],
+      "gaps": [
+        "Reconditioning QUALITY scoring model (edge prep, coating integrity, geometry restoration) genuinely missing",
+        "Post-regrind performance derate is a hardcoded 0.7 factor (InventoryAwareToolSelectorEngine.ts:237), not physics-based Taylor-curve shift",
+        "No JM Die reconditioning-outcome records in-repo (jm-tool-purchases.json is purchases only)",
+        "No scheduler/quoting consumer of economicLife for recondition-vs-replace at job planning"
+      ],
+      "nextAction": "Build a compact ReconditioningQualityEngine whose Taylor-shift output feeds the already-wired economicLife/costPerCutMinute surfaces, replacing the hardcoded 0.7 derate; flag JM reconditioning-record validation as data-blocked and queue a capture unit."
+    },
+    {
+      "id": "0011",
+      "file": "UNIT-0011-DOMAIN2-BUILT-UP-EDGE-AND-BREAKAGE.md",
+      "title": "Built-Up Edge Mitigation and Tool Breakage Recovery",
+      "priority": "P0",
+      "roiScore": 5,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/engines/BUEOnsetThresholdEngine.ts:1-140",
+        "mcp-server/src/tools/dispatchers/mlDispatcher.ts:316-322",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:7115-7146",
+        "mcp-server/src/engines/ToolBreakageEngine.ts:1-18",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:2925-2943",
+        "mcp-server/src/tools/dispatchers/safetyDispatcher.ts:70-71",
+        "mcp-server/src/engines/ToolBreakagePredictionEngine.ts:1-40",
+        "mcp-server/src/tools/dispatchers/camDispatcher.ts:12469-12492",
+        "mcp-server/src/engines/CNCControllerDeepLearningEngine.ts:946",
+        "mcp-server/src/engines/MillingDeepAIHardeningEngine.ts:454-461"
+      ],
+      "gaps": [
+        "No multi-lever BUE mitigation recommender (onset engine outputs only raise-Vc; coating/coolant/rake levers exist but uncomposed)",
+        "No physics-based breakage root-cause analyzer inverting the four damage models from an observed break; recovery is per-controller procedural text only",
+        "No structured JM Die breakage-incident dataset for validation"
+      ],
+      "nextAction": "Add bue_mitigation_recommend (compose BUE bands with CoatingSelection + CAMCoolantStrategy into ranked levers) and breakage_root_cause (invert ToolBreakagePredictionEngine damage models, tail into getRecoveryProcedure), wire both to prism_safety; do NOT create the two new engines the spec names - they would duplicate existing assets."
+    },
+    {
+      "id": "0012",
+      "file": "UNIT-0012-DOMAIN2-TOOL-LIFE-EXTENSION.md",
+      "title": "Tool Life Extension Strategies",
+      "priority": "P0",
+      "roiScore": 6,
+      "verdict": "extend",
+      "existingAssets": [
+        "mcp-server/src/engines/CoatingSelectionEngine.ts:1-75",
+        "mcp-server/src/algorithms/CoatingVcModifier.ts:1-46",
+        "mcp-server/src/engines/CAMCoolantStrategyEngine.ts:1-55",
+        "mcp-server/src/engines/ToolWearRateEngine.ts:8-9",
+        "mcp-server/src/engines/WearPatternRefinishEngine.ts:1-14",
+        "mcp-server/src/engines/ToolLifeAdaptiveEngine.ts:1-50",
+        "mcp-server/src/engines/ToolLifeBudgetEngine.ts:1-18",
+        "mcp-server/src/algorithms/ToolLifeEconomicReplacementFormula.ts:13-28",
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts:374-375"
+      ],
+      "gaps": [
+        "No integrated strategy recommender composing the 5 existing levers with predicted life gain and ROI ranking",
+        "Edge-prep (hone/K-factor) lever not confirmed modeled anywhere (PARTIAL-UNVERIFIED hits only)",
+        "Before/after extended-life validation corpus is synthetic (Taylor-generated) - circular; 10+ real jobs criterion data-blocked",
+        "Recommender must import Taylor/kc constants from physics/constants.ts, not re-inline per-engine tables"
+      ],
+      "nextAction": "Build ONE thin ToolLifeExtensionRecommenderEngine fanning out to the five verified lever engines, quantifying each lever's life multiplier through the existing Taylor/wear stack and pricing via ToolLifeEconomicReplacementFormula, returning ranked levers with uncertainty; wire to prism_calc + businessDispatcher in the same commit after duplicationGuard check."
+    }
+  ]
+}

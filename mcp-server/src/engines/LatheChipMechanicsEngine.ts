@@ -1252,7 +1252,7 @@ export class LatheChipMechanicsEngine {
     // Bad: long, snarled, ribbon chips
     const conveyorCompatible =
       mat.elongation_pct < 10 ||
-      (params.chipbreaker && params.chipbreaker !== "none" && feed > 0.15);
+      !!(params.chipbreaker && params.chipbreaker !== "none" && feed > 0.15);
 
     log.debug(
       `[LatheChipMechanics] ChipFlow: eta=${chipFlowAngle.toFixed(1)}deg, ` +

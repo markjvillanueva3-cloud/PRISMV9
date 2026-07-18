@@ -1,0 +1,677 @@
+{
+  "_meta": {
+    "track": "LATHE",
+    "title": "Comprehensive Lathe System — Print to Perfect CNC Program",
+    "version": "3.0.0",
+    "created": "2026-03-23",
+    "updated": "2026-03-23",
+    "total_milestones": 12,
+    "total_units": 104,
+    "scrutinization_score": "3 passes: 0.37 → 0.67 → target 0.95",
+    "description": "Full lathe pipeline: collision avoidance, dialect reconciliation, multi-machine, tooling variability, workholding adaptation, optimization choices, controller hardening, and exhaustive production validation. Post-scrutinization v2: added 30 units to close 56 identified gaps.",
+    "total_scrutinizations": 3
+  },
+  "milestones": [
+    {
+      "id": "LATHE-MS0",
+      "title": "Collision Avoidance & Tool Reach Validation",
+      "status": "not_started",
+      "priority": "critical",
+      "depends_on": [],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Wire CollisionEngine(2526L) + AccessibilityAnalysisEngine(689L) + CollisionPreventionEngine(754L) into TurningPrintToProgramEngine — add lathe-specific collision checks to existing 3D engine",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "LatheCollisionZoneEngine — turret rotation swept volume (longest tool × turret radius), tool holder envelope vs chuck jaw protrusion, rapid traverse safe corridors between operations",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Boring bar reach validation — shank length vs bore depth, auto-select bar material: steel L/D≤4, carbide L/D≤6, dampened L/D≤10. Shank diameter = 70% of bore diameter minimum",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Grooving/parting overhang check — max extension = blade_width × 8. Parting: max overhang = blade_width × 6 for tool steel. Auto-warn and suggest wider blade if exceeded",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Live tool holder collision — holder protrusion + tool stickout vs tailstock quill position. If tailstock engaged: auto-retract before live tooling, re-engage after",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Turret index collision — calculate longest tool envelope during rotation, check against part OD + chuck jaw protrusion. Minimum X retract = part_OD/2 + longest_tool_protrusion + 10mm safety",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Safe retract positions — before every Z rapid: X must be clear of part OD by tool_length + 5mm. Before turret index: X must clear longest tool swing radius. Generate G28 intermediate positions when needed",
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Machine swing validation — part OD vs machine max swing diameter. Auto-reject if part exceeds swing",
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Minimum chip thickness check — if f×sin(kr) < edge_radius × 0.3 → rubbing not cutting. Auto-increase feed or warn",
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Tests: 7 collision scenarios + 3 reach scenarios + 2 swing scenarios = 12 safety tests",
+          "status": "not_started"
+        },
+        {
+          "id": "U11",
+          "title": "Boring taper compensation — calculate bar deflection at each Z position using F*L^3/(3EI), program counter-taper so deflection straightens bore to nominal. User's KEY request.",
+          "status": "not_started"
+        },
+        {
+          "id": "U12",
+          "title": "Boring bar springback compensation — at bore bottom, bar springs back when cutting stops. Program 0.005-0.02mm smaller to compensate. Auto-calculate from bar stiffness",
+          "status": "not_started"
+        },
+        {
+          "id": "U13",
+          "title": "G71 Type I vs Type II auto-detection — scan profile X values for monotonicity. If X reverses direction: MUST use Type II (R1 on Yasnac, or Type II trigger on Fanuc). Wrong type = CRASH",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS0.5",
+      "title": "Dialect Reconciliation — Single G-Code Path",
+      "status": "not_started",
+      "priority": "critical",
+      "depends_on": [
+        "LATHE-MS0"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "ARCHITECTURAL FIX: Route TurningPrintToProgramEngine G-code output through LathePostProcessorEngine. Remove 430+ lines of inline G-code generation. Use post engine's dialect-aware formatters for ALL output",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Add Siemens 840D turning dialect to LathePostProcessorEngine — G18 plane, LIMS= clamp, CYCLE95 stock removal, CYCLE97 thread, SUPA retract, GOTOF/GOTOB jumps",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Add DMG MORI CELOS dialect — Siemens base + ShopTurn codes, CELOS-specific M-codes for coolant/tool management",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Verify ALL 6 dialects (Fanuc/Haas/Okuma/Mazak/Siemens/DMG) produce valid output for same part — automated dialect validation test",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Controller parameter MUST change output — test: same input with controller='okuma' produces G15 H0 not G54, M50 not M08, T0001 not T0101",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS1",
+      "title": "Multi-Machine Capability & Dialect Adaptation",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": [
+        "LATHE-MS0.5"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Machine capability database — structured data: each model's axes, spindle power/RPM, bar capacity, swing, turret stations, live tool RPM/power, sub-spindle, C/Y/B axis travel, controller version",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Feature-to-capability matching — if part has whistle_notch → machine MUST have C-axis + live tooling. If part > 3\" OD → machine MUST have > 3\" bar capacity or chuck. Auto-filter incompatible machines",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Machine auto-selector — given part features + material + tolerance, rank compatible machines by: (1) capability match, (2) cost efficiency, (3) availability",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Swiss-type machine support — add Citizen Cincom, Star SR dialects. Guide bushing logic, gang slide tool indexing (zero index time), B-axis positioning",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "VTL support — vertical Z-axis convention, faceplate workholding, large swing, low RPM + high power, gravity chip evacuation. Test with P12 (6\" die)",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Twin turret support — upper/lower turret simultaneous cutting, Gantt-style overlap optimization, channel sync codes (wire MillTurnSwissPipelineEngine)",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Tests: same H13 die on all 6 machines in test matrix, validate each dialect + capability filtering",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS2",
+      "title": "Tooling Variability & Real Library Integration",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": [
+        "LATHE-MS0"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Wire sandvik-tool-catalog.ts (95K tools) into selectInsert() — query by ISO group, operation type, nose radius, approach angle. Fall back to generic if no catalog match",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "User tool inventory input — accept turret_layout: [{station: 1, tool_id: 'CNMG120408', holder: 'DCLNR2525M12'},...]. Engine selects from AVAILABLE tools only",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Insert geometry optimizer — selectInsertGeometry() already in KB. Wire into pipeline: given feature (shoulder access? back-turning? interrupted?), pick optimal C/D/V/W/T/S/R with reasoning",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Nose radius tradeoff — given target Ra + feed: calculate required nose radius. Show user: 'R0.4 at f=0.08 gives Ra 0.25µm' vs 'R0.8 at f=0.15 gives Ra 0.88µm — choose'",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Boring bar auto-selection — wire KB BORING_BAR_RULES: match bore diameter → shank (70% of bore), depth → bar material (steel/carbide/dampened by L/D). Check reach vs bore depth",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Grooving width auto-selection — wire KB GROOVING_PARTING_RULES: match groove width → insert width. If groove > insert width → calculate multiple plunge passes. Parting: select blade by part diameter",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Wiper insert support — add 'wiper' flag to insert selection. When selected: halve Ra prediction, adjust chip breaker geometry code",
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Thread insert type selection — full profile 60° for metric/UNC, partial profile for multiple pitches with one insert, 55° for BSP. Wire into ThreadingPipelineEngine",
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Live tool holder types — ER collet (general), Capto (rigidity), HSK-T (speed), VDI (standard turret). Selection affects max RPM + rigidity",
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Tests: same part with economy/standard/premium tool sets. Compare: cycle time, Ra prediction, tool cost, tool life",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS3",
+      "title": "Workholding Adaptation & Grip Force Safety",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": [
+        "LATHE-MS0"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Wire ChuckJawForceEngine(498L) — calculate grip_force from: jaw_type × friction × hydraulic_pressure × contact_area. Verify grip > Fc × 2.5 (ISO 10218). If not: auto-reduce DOC or Vc",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Centrifugal force RPM limiter — Fc_centrifugal = m_jaw × ω² × r_jaw. At high RPM, effective grip = static_grip - centrifugal. Auto-compute max safe RPM → set G50 Smax accordingly",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Jaw type adaptation — hard_smooth(µ=0.3), hard_serrated(µ=0.5), soft_OD(µ=0.45), soft_ID_expanding(µ=0.40), pie_jaws(µ=0.35). Each → different grip force → different max RPM",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Op2 workholding logic — after part-off or flip: detect which surfaces are finished → auto-recommend soft jaws if cosmetic OD. Calculate re-gripping force on finished surface",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Wire TailstockForceEngine(496L) — auto-engage tailstock when L/D > 4. Calculate live vs dead center selection (live above 2000 RPM). Thermal expansion compensation for dead center",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Wire SteadyRestPlacementEngine(564L) — auto-place steady rest when L/D > 8. Calculate optimal Z position for minimum deflection. Fixed vs follow rest selection",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Add missing workholding types: 6-jaw chuck, dead-length collet (bar feeding precision), mandrel (solid + expanding), between-centers with dog driver, spider for thin-wall tubes, magnetic chuck for ferrous discs",
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Tests: same part with 5 workholding configs → verify RPM limits change, grip warnings fire correctly, tailstock auto-engaged at L/D > 4",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS4",
+      "title": "End-to-End Pipeline Integration",
+      "status": "not_started",
+      "priority": "critical",
+      "depends_on": [
+        "LATHE-MS0.5",
+        "LATHE-MS1",
+        "LATHE-MS2",
+        "LATHE-MS3"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Complete pipeline chain: AutoPrintToProgramBridge → feature extraction → machine selection → tool selection (from inventory) → collision check → workholding validation → program generation (via post engine) → setup sheet",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Wire missing operation engines into pipeline: reaming (ReamingEngine), countersinking (CountersinkEngine), knurling (KnurlingEngine from TurningProgramAssembler), burnishing (from KB SPECIALTY_LATHE_OPS)",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Sub-spindle back-working — after cutoff+transfer: face back end, drill/bore/tap from sub-spindle side. Wire MillTurnSwissPipelineEngine.SubSpindleTransfer logic",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Bar feeder loop — M99 return for bar-fed production. Wire BarFeederEngine: parts per bar calculation, remnant tracking, collet selection",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Setup sheet generation — output document with: fixture type, jaw description, tool list with stations, work offset, datum surface, inspection points, estimated cycle time, safety notes",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Error handling — graceful degradation: feature can't be machined (too deep/no tool/collision) → skip with WARNING, continue rest of program. Never silently drop features",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Cycle time accuracy — instrument every operation: cutting time + rapid time + tool change time + dwell. Compare estimated vs actual (target ±15%)",
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Tests: 5 complete end-to-end runs from text input → G-code output, each on 2 different machines = 10 pipeline tests",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS5",
+      "title": "User Optimization Choices & What-If",
+      "status": "not_started",
+      "priority": "medium",
+      "depends_on": [
+        "LATHE-MS4"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Multi-option generator — produce 3 programs: (A) fastest cycle (aggressive feeds, fewer passes), (B) best finish (light DOC, slow feed, wiper inserts), (C) longest tool life (conservative Vc, more edges per insert)",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Cost-per-part breakdown — material cost + tooling cost (inserts/edges × cost/edge) + machine time × hourly rate + setup time amortized over batch. Show for each option",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "What-if analysis — change any parameter (drill size, material, tool, machine) → instant recalculation of entire program. Show delta: 'changing to Ø12mm drill saves 3.2s/part but adds $0.02/part tooling'",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Batch size optimization — 1 part: maximize flexibility. 100 parts: add sister tools, bar feeder loop, optimize turret layout for minimum index time. 10,000 parts: consider multi-spindle",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Tests: generate A/B/C for H13 die, verify all 3 are valid programs with different tradeoffs. Verify cost breakdown sums correctly",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS6",
+      "title": "Controller-Specific Deep Hardening",
+      "status": "not_started",
+      "priority": "medium",
+      "depends_on": [
+        "LATHE-MS0.5"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Okuma OSP-P300L deep — G15 H0-H48 work offsets, T0001-T9999 tool codes, M50/M51/M52 coolant variants, M19 orient with R angle, G199/G198 spindle sync, NVAR persistent variables, OSP alarm codes",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Okuma Multus OSP-P300M — B-axis: G00 B{angle}, sub-spindle: M143/M144/M145, live tool: M133/M134/M135, C-axis: G112/G113 polar interpolation, ATC: M06 with magazine position",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Haas NGC deep — Setting 33 (Fanuc mode), D word in G71 depth, P in seconds for dwell (not ms), macro #100-#199 local, #500-#999 persistent, #1000+ system, M97 local subprogram, probing G65 P9811",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Mazak SmoothAi deep — !L/!R channel select, G53.5 Mazatrol offset, SMOOTH interpolation, multi-channel WAIT codes, Mazatrol→EIA mode switching, spindle ID (S1/S2)",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Fanuc 31i-B deep — G12.1 polar interpolation, G68.1 tilted work plane (mill-turn), nano CNC interpolation, AI contour control II, custom macro B with WHILE/DO/END, tool management T-code groups",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Siemens 840D deep — CYCLE95 stock removal (rough), CYCLE97 thread cutting, LIMS= speed limit, SUPA suppress approach, G18 ZX plane (MUST set for turning), R-parameters, GOTOF/GOTOB branching",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Tests: same G71+G70+G76+G75 program in ALL 6 controller dialects — automated comparison showing exact syntax differences per controller",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS7",
+      "title": "Physics & Science Hardening",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": [
+        "LATHE-MS0"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Turning-specific stability lobe diagram (chatter) — 1-DOF regenerative model, workpiece flexibility dominance. Wire analyzeTurningChatter() from KB into pipeline. Auto-avoid critical RPM zones",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Hard turning surface integrity — wire analyzeHardTurning() from KB: white layer depth prediction (Ramesh 2005), residual stress (compressive vs tensile based on rake angle + Vc), achievable Ra with CBN/ceramic",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Thread cutting constant chip area model — replace approximate 0.3x Kienzle with proper √pass progression schedule from ThreadingPipelineEngine. Wire pass schedule into G76 output",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Drill thrust force model — wire existing DrillBreakthroughForceEngine: Ff = 0.5 × kc1.1 × (D/2) × f^(1-mc) × sin(point_angle/2). Check thrust vs tailstock force (if engaged)",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Parting force multiplier — parting generates 1.25× tangential force vs straight turning at same DOC. Apply correction to power check during cutoff",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Workpiece beam deflection — calculate actual deflection at tool point using E×I beam model (cantilever for chuck-only, simply-supported for tailstock). If deflection > tolerance/2 → warn/auto-add support",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Tool wear progression model — wire existing AdvancedWearPhysicsEngine: predict flank wear VB vs time. Auto-recommend tool change interval. Sister tool switching point",
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Thermal expansion during cutting — workpiece grows during machining. For tight tolerance (< 0.01mm): calculate thermal growth, recommend coolant soak time or compensation offset",
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Tests: chatter scenario (long shaft at critical RPM), hard turning white layer prediction, thread pass schedule validation, deflection calculation vs known beam formula",
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Chip breaking feed oscillation — for ISO M/P continuous chip materials: momentary 150% feed spike every 5-10 revolutions to snap chips. Especially critical for boring where chip wrapping kills surface",
+          "status": "not_started"
+        },
+        {
+          "id": "U11",
+          "title": "Decreasing peck depth for deep drilling — first peck 5mm, second 4mm, third 3mm (decreasing by 20% per peck as hole gets deeper and chip evacuation gets harder)",
+          "status": "not_started"
+        },
+        {
+          "id": "U12",
+          "title": "Thread spring passes in G76 output — add 1-2 zero-infeed passes at final thread depth for cleanup. G76 P word spring pass count",
+          "status": "not_started"
+        },
+        {
+          "id": "U13",
+          "title": "Bore bottom dwell — auto-insert G04 P500 at blind bore bottom for cleanup/sizing before retract. Adjustable dwell time by material (P: 0.3s, M: 0.5s, S: 0.8s)",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS8",
+      "title": "Production Validation & Exhaustive Test Suites",
+      "status": "not_started",
+      "priority": "critical",
+      "depends_on": [
+        "LATHE-MS0",
+        "LATHE-MS0.5",
+        "LATHE-MS1",
+        "LATHE-MS2",
+        "LATHE-MS3",
+        "LATHE-MS4",
+        "LATHE-MS7"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "FULL TEST MATRIX: 12 parts × 6 machines = 61 valid program generations. Each program validated for: correct dialect, collision-free, safe speeds/feeds, proper operation sequence",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Simple Parts (P1-P3): shaft, stepped shaft, chamfer+fillet — all 6 machines × 3 parts = 18 programs",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Medium Parts (P4-P6): thread+groove+cutoff, bore+drill, die cbore both sides — all compatible machines",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Complex Parts (P7-P9): 12-pt profile with arcs, whistle notch (live tool), OD pocket (live tool) — compatible machines only",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Extreme Parts (P10-P12): ULTIMATE all features, hardened H13 CBN, XL 6\" D2 die — compatible machines only",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Cross-dialect validation: P6 (H13 die) on ALL 6 controllers — line-by-line comparison of Fanuc vs Haas vs Okuma vs Mazak vs Siemens vs DMG output",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Collision test scenarios: 12 deliberate collision setups — verify engine blocks/warns for every one",
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Tooling variation: P6 with economy/standard/premium tool sets — verify cycle time, Ra, cost differ correctly",
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Workholding variation: P6 with hard jaw/collet/soft jaw — verify RPM limits, grip force warnings, TIR differences",
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Cost efficiency: every PRISM program vs equivalent manual shop program — document CSS improvement, safety additions, cycle time delta",
+          "status": "not_started"
+        },
+        {
+          "id": "U11",
+          "title": "Swiss-type test: P12 micro-die on Citizen Cincom config — guide bushing, gang slide, multi-channel",
+          "status": "not_started"
+        },
+        {
+          "id": "U12",
+          "title": "VTL test: P12 large die on VTL — vertical axis convention, faceplate, low RPM + high power",
+          "status": "not_started"
+        },
+        {
+          "id": "U13",
+          "title": "Regression suite: ALL tests automated as CI/CD — run on every code change, zero tolerance for test count decrease",
+          "status": "not_started"
+        },
+        {
+          "id": "U14",
+          "title": "Real machine dry run: PRISM program on Okuma Genos in single-block/cycle-stop mode — verify zero alarms, correct tool paths, safe rapids",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS9",
+      "title": "Parametric & Macro Programming Engine",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": [
+        "LATHE-MS0.5"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Parametric part family generator — output #100=OD, #101=LENGTH, all coordinates use variables. One program → many part sizes",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Fanuc Custom Macro B output — IF/GOTO/WHILE/DO/END loops, M98/M99 subprogram calls, G65 with A/B/C arguments",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Okuma NVAR output — NVAR(1)-NVAR(200) persistent variables, OSP-specific syntax for IF/THEN/ENDIF",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Haas macro output — #100-#199 local, #500-#999 persistent, #3028 spindle load read, M97 local sub-call",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Production macro template — part counter (#500++), inspection stop every N parts (M00), sister tool auto-switch, bar feeder M99 loop, tool life G10 auto-offset",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Adaptive feed macro — read #3028 spindle load, IF > 80% THEN reduce F to 70%. Embedded in roughing operations for machines WITH macro capability",
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Multi-fixture loop macro — cycle through G54→G55→G56→G57 calling same M98 subprogram. For tombstone/multi-op chucking",
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Tests: parametric program for H13 die family (3 sizes), verify all produce valid programs with correct variable substitution",
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "LATHE-MS10",
+      "title": "Programming Paradigm Advisor & Conversational Output",
+      "status": "not_started",
+      "priority": "medium",
+      "depends_on": [
+        "LATHE-MS4",
+        "LATHE-MS9"
+      ],
+      "units": [
+        {
+          "id": "U01",
+          "title": "Paradigm Decision Engine — given part complexity + batch size + machine + operator skill → recommend: hardcode | parametric_macro | conversational | full_CAM. With reasoning.",
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Mazatrol conversational output — generate UNIT+SHAPE format (not G-code). For simple parts on Mazak machines. Recommend when: batch < 5 + simple geometry + Mazak machine",
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Okuma AOT conversational output — generate AOT-compatible format for simple parts on Okuma machines",
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Haas VQC guidance — generate VQC-compatible simplified format or advise operator to use VQC for simple parts",
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Decision rules: simple (face+turn+drill+cutoff) → hardcode/conversational. Part family → parametric macro. Complex profile → G71+CAM. Multi-axis → MUST use CAM. High volume → macro+sister tools",
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Tests: 5 parts ranked by complexity, verify paradigm advisor recommends correct approach for each",
+          "status": "not_started"
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

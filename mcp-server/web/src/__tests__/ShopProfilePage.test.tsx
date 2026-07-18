@@ -30,22 +30,22 @@ vi.mock('../api/shopProfile', () => ({
       specialization: 'Die build, electrode prep, and precision machining',
       region: 'Midwest',
       timezone: 'America/Chicago',
-      file_archive_path: 'H:\\PRISM\\JM DIE',
+      file_archive_path: 'H:\\Kienzle\\JM DIE',
       canonical_test_shop: true,
-      development_role: 'Canonical PRISM rollout shop',
+      development_role: 'Canonical Kienzle rollout shop',
       cad_systems: ['Cimatron', 'SolidWorks'],
       cam_systems: ['Cimatron', 'Fusion 360', 'PEPS'],
     },
     source_roots: {
-      company_root: 'H:\\PRISM\\JM DIE',
-      programs_root: 'H:\\PRISM\\JM DIE\\Programs',
-      employee_database_root: 'H:\\PRISM\\JM DIE\\Employees',
-      machines_root: 'H:\\PRISM\\JM DIE\\Machines',
-      controllers_root: 'H:\\PRISM\\JM DIE\\Controllers',
-      tool_holders_root: 'H:\\PRISM\\JM DIE\\Tool Holders',
-      tooling_root: 'H:\\PRISM\\JM DIE\\Tooling',
-      materials_root: 'H:\\PRISM\\JM DIE\\Materials',
-      prints_root: 'H:\\PRISM\\JM DIE\\Prints',
+      company_root: 'H:\\Kienzle\\JM DIE',
+      programs_root: 'H:\\Kienzle\\JM DIE\\Programs',
+      employee_database_root: 'H:\\Kienzle\\JM DIE\\Employees',
+      machines_root: 'H:\\Kienzle\\JM DIE\\Machines',
+      controllers_root: 'H:\\Kienzle\\JM DIE\\Controllers',
+      tool_holders_root: 'H:\\Kienzle\\JM DIE\\Tool Holders',
+      tooling_root: 'H:\\Kienzle\\JM DIE\\Tooling',
+      materials_root: 'H:\\Kienzle\\JM DIE\\Materials',
+      prints_root: 'H:\\Kienzle\\JM DIE\\Prints',
     },
     seed_domains: [
       {
@@ -53,7 +53,7 @@ vi.mock('../api/shopProfile', () => ({
         label: 'Programs',
         status: 'in_progress',
         note: 'Canonical JM Die programs are being staged.',
-        source_path: 'H:\\PRISM\\JM DIE\\Programs',
+        source_path: 'H:\\Kienzle\\JM DIE\\Programs',
       },
     ],
     rates: {
@@ -78,8 +78,8 @@ vi.mock('../api/shopProfile', () => ({
     mapped_controller_count: 0,
     unmapped_machine_count: 0,
     program_release_ready_machine_count: 0,
-    machine_source_root: 'H:\\PRISM\\JM DIE\\Machines',
-    controller_source_root: 'H:\\PRISM\\JM DIE\\Controllers',
+    machine_source_root: 'H:\\Kienzle\\JM DIE\\Machines',
+    controller_source_root: 'H:\\Kienzle\\JM DIE\\Controllers',
   })),
   fetchShopSelectorResourceSummary: vi.fn(async () => ({
     shop_id: 'jm-die',
@@ -89,9 +89,9 @@ vi.mock('../api/shopProfile', () => ({
     live_tool_count: 0,
     live_holder_count: 0,
     tooling_categories: [],
-    tool_holders_root: 'H:\\PRISM\\JM DIE\\Tool Holders',
-    tooling_root: 'H:\\PRISM\\JM DIE\\Tooling',
-    materials_root: 'H:\\PRISM\\JM DIE\\Materials',
+    tool_holders_root: 'H:\\Kienzle\\JM DIE\\Tool Holders',
+    tooling_root: 'H:\\Kienzle\\JM DIE\\Tooling',
+    materials_root: 'H:\\Kienzle\\JM DIE\\Materials',
     tool_holders_root_present: false,
     tooling_root_present: false,
     materials_root_present: false,
@@ -114,7 +114,7 @@ describe('ShopProfilePage', () => {
     expect(await screen.findByText('Mill programming')).toBeDefined();
     expect((await screen.findAllByText(/Cimatron/i)).length).toBeGreaterThanOrEqual(1);
     expect((await screen.findAllByText(/Fusion 360/i)).length).toBeGreaterThanOrEqual(1);
-    expect((await screen.findAllByText((content) => content.includes('H:\\PRISM\\JM DIE\\Programs'))).length).toBeGreaterThanOrEqual(1);
+    expect((await screen.findAllByText((content) => content.includes('H:\\Kienzle\\JM DIE\\Programs'))).length).toBeGreaterThanOrEqual(1);
   });
 
   it('launches routed Print to CNC and Toolpath continuity from supported JM Die programming cards', async () => {

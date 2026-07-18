@@ -100,28 +100,44 @@ describe("CAM Kernel E2E Integration", () => {
     expect(actions.length).toBeGreaterThanOrEqual(11);
   });
 
-  // U02: Runtime export validation
-  it("all CK engines load from index.ts without errors", async () => {
-    const engines = await import("../engines/index.js");
-
-    const ckEngines = [
-      "unifiedCAMPipelineEngine", "smartToolSelectorEngine",
-      "adaptiveToolpathRouterEngine", "integratedVerificationEngine",
-      "productionPackageEngine", "featureClusteringEngine",
-      "cumulativeStockChainEngine", "productionToolpathEngine",
-      "multiProcessCAMBridgeEngine", "advancedMillingStrategiesEngine",
-      "fiveAxisCAMIntegrationEngine", "millTurnCAMEngine",
-      "intelligentSequencingEngine",
-    ];
-
-    for (const name of ckEngines) {
-      expect((engines as any)[name]).toBeDefined();
+  // U02: Runtime export/load validation. NOTE: the engines barrel (../engines/index.js) is
+  // INTENTIONALLY EMPTY (see engines/index.ts header — the old 7,000-line re-export barrel caused
+  // 359 duplicate-identifier errors and no file imports it as a module). The prior version of
+  // this test imported that empty barrel and asserted `engines[name]` — which asserted against an
+  // object with NO keys, so it tested nothing (and went red once the barrel was emptied). Load
+  // each CK engine singleton from its REAL module instead: this genuinely exercises load-time
+  // (a circular-import / load crash fails the import) and confirms the named singleton export.
+  it("all CK engine singletons load from their real modules without errors", async () => {
+    const singletons = await Promise.all([
+      import("../engines/UnifiedCAMPipelineEngine.js").then((m) => m.unifiedCAMPipelineEngine),
+      import("../engines/SmartToolSelectorEngine.js").then((m) => m.smartToolSelectorEngine),
+      import("../engines/AdaptiveToolpathRouterEngine.js").then((m) => m.adaptiveToolpathRouterEngine),
+      import("../engines/IntegratedVerificationEngine.js").then((m) => m.integratedVerificationEngine),
+      import("../engines/ProductionPackageEngine.js").then((m) => m.productionPackageEngine),
+      import("../engines/FeatureClusteringEngine.js").then((m) => m.featureClusteringEngine),
+      import("../engines/CumulativeStockChainEngine.js").then((m) => m.cumulativeStockChainEngine),
+      import("../engines/ProductionToolpathEngine.js").then((m) => m.productionToolpathEngine),
+      import("../engines/MultiProcessCAMBridgeEngine.js").then((m) => m.multiProcessCAMBridgeEngine),
+      import("../engines/AdvancedMillingStrategiesEngine.js").then((m) => m.advancedMillingStrategiesEngine),
+      import("../engines/FiveAxisCAMIntegrationEngine.js").then((m) => m.fiveAxisCAMIntegrationEngine),
+      import("../engines/MillTurnCAMEngine.js").then((m) => m.millTurnCAMEngine),
+      import("../engines/IntelligentSequencingEngine.js").then((m) => m.intelligentSequencingEngine),
+    ]);
+    expect(singletons.length).toBe(13);
+    for (const engine of singletons) {
+      // Concrete: each named export is a loaded singleton *instance* (undefined → typeof
+      // "undefined" fails; null is caught explicitly since typeof null === "object").
+      expect(typeof engine).toBe("object");
+      expect(engine).not.toBeNull();
     }
   }, 120_000);
 
   it("dispatchCAMAction and listCAMActions export correctly", async () => {
-    const engines = await import("../engines/index.js");
-    expect((engines as any).dispatchCAMAction).toBeDefined();
-    expect((engines as any).listCAMActions).toBeDefined();
+    // Imported from their REAL module (CAMKernelDispatcherBridge), not the intentionally-empty
+    // engines barrel (../engines/index.js) the prior version imported. Assert they are callable
+    // functions (a missing export → typeof "undefined" fails).
+    const bridge = await import("../engines/CAMKernelDispatcherBridge.js");
+    expect(typeof bridge.dispatchCAMAction).toBe("function");
+    expect(typeof bridge.listCAMActions).toBe("function");
   }, 120_000);
 });

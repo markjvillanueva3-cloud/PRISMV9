@@ -11,6 +11,7 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync, renameSync, unlinkSync, readdirSync, statSync } from "node:fs";
 import { dirname } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
+import { resolveEmbedUrl, withLaneOptions } from "./embed-endpoint.mjs";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Constants (frozen, named — never inlined)
@@ -19,6 +20,14 @@ import { setTimeout as sleep } from "node:timers/promises";
 export const DEFAULT_MODEL = "nomic-embed-text";
 export const EMBEDDING_DIM = 768;
 export const DEFAULT_BATCH_SIZE = 32;
+// Default = 1 → exact legacy sequential behavior (deterministic call order, all
+// pre-existing tests unchanged). Consumers opt into GPU saturation by passing
+// concurrency>1 (e.g. from PRISM_EMBED_CONCURRENCY). Empirically on an RTX PRO
+// 6000 Blackwell the 137M nomic-embed model is GPU-bound at ~3.3 embeds/s when
+// issued one-at-a-time but ~51 embeds/s at concurrency 16 (15.3× — vectors
+// byte-identical, min cosine 1.0). Concurrency is the right lever: the backend
+// is idle, not saturated. See [[reference_blackwell_embed_concurrency_2026_06_03]].
+export const DEFAULT_CONCURRENCY = 1;
 export const DEFAULT_MAX_RETRIES = 3;
 export const DEFAULT_RETRY_BASE_MS = 500;
 export const DEFAULT_RETRY_MAX_MS = 8000;
@@ -189,7 +198,7 @@ export function buildLateralWires(clusters, vectors, threshold = LATERAL_WIRE_TH
 export async function ollamaEmbedOne(text, opts = {}) {
   const {
     model = DEFAULT_MODEL,
-    url = OLLAMA_URL_DEFAULT,
+    url,
     timeoutMs = DEFAULT_TIMEOUT_MS,
     fetchImpl = globalThis.fetch,
     endpoint = "auto",
@@ -200,12 +209,36 @@ export async function ollamaEmbedOne(text, opts = {}) {
   if (typeof fetchImpl !== "function") {
     throw new TypeError("ollamaEmbedOne: fetchImpl must be a function (globalThis.fetch missing?)");
   }
-  // Endpoint selection — modern first, legacy fallback on 404 only
+  // U-INDIA-EMBED-LANE: no explicit opts.url + the REAL globalThis.fetch in use ->
+  // prefer the dedicated CPU embed lane (:11435) so this GraphSAGE-corpus embed
+  // survives fleet inference load on :11434. An injected fetchImpl (tests) keeps
+  // legacy single-URL behavior untouched. A FAILED lane attempt (both endpoints
+  // exhausted against the lane) retries MAIN once undecorated -- a broken lane
+  // degrades to today's exact behavior, never blackholes the caller.
+  const autoResolve = !url && fetchImpl === globalThis.fetch;
+  if (autoResolve) {
+    const lane = await resolveEmbedUrl();
+    if (lane.lane) {
+      try {
+        return await ollamaEmbedOneAttempt(text, { model, url: lane.url, timeoutMs, fetchImpl, endpoint, lane: true });
+      } catch { /* broken lane -> one MAIN retry below; MAIN's error is the one thrown */ }
+    }
+    // Lane down OR broken-lane retry: the file's own legacy default URL --
+    // never lane.url here (when lane.lane was true, lane.url IS the broken lane).
+    return ollamaEmbedOneAttempt(text, { model, url: OLLAMA_URL_DEFAULT, timeoutMs, fetchImpl, endpoint, lane: false });
+  }
+  return ollamaEmbedOneAttempt(text, { model, url: url || OLLAMA_URL_DEFAULT, timeoutMs, fetchImpl, endpoint, lane: false });
+}
+
+async function ollamaEmbedOneAttempt(text, { model, url, timeoutMs, fetchImpl, endpoint, lane }) {
+  // Endpoint selection -- modern first, legacy fallback on 404 only
   const tryModern = endpoint === "auto" || endpoint === "modern";
   const tryLegacy = endpoint === "auto" || endpoint === "legacy";
+  const modernBody = { model, input: text };
+  const legacyBody = { model, prompt: text };
   const attempts = [];
-  if (tryModern) attempts.push({ path: "/api/embed", body: { model, input: text }, modern: true });
-  if (tryLegacy) attempts.push({ path: "/api/embeddings", body: { model, prompt: text }, modern: false });
+  if (tryModern) attempts.push({ path: "/api/embed", body: lane ? withLaneOptions(modernBody) : modernBody, modern: true });
+  if (tryLegacy) attempts.push({ path: "/api/embeddings", body: lane ? withLaneOptions(legacyBody) : legacyBody, modern: false });
 
   let lastErr = null;
   for (const a of attempts) {
@@ -230,13 +263,13 @@ export async function ollamaEmbedOne(text, opts = {}) {
       continue;
     }
     if (resp.status === 404 && endpoint === "auto") {
-      // Endpoint not supported — try the next one
+      // Endpoint not supported -- try the next one
       lastErr = new Error(`ollamaEmbedOne: HTTP 404 at ${a.path}`);
       continue;
     }
     if (!resp.ok) {
       const body = resp.text ? await resp.text().catch(() => "") : "";
-      throw new Error(`ollamaEmbedOne: HTTP ${resp.status} ${body.slice(0, ERROR_BODY_SLICE_LEN)}`);
+      throw new Error(`ollamaEmbedOne: HTTP ${resp.status} ${body.slice(0, ERROR_BODY_SLICE_LEN)} @ ${url}`);
     }
     const data = await resp.json();
     // Modern endpoint returns { embeddings: [[...]] }; legacy returns { embedding: [...] }
@@ -244,12 +277,12 @@ export async function ollamaEmbedOne(text, opts = {}) {
       ? (Array.isArray(data?.embeddings) && data.embeddings[0])
       : data?.embedding;
     if (!Array.isArray(vec)) {
-      throw new Error(`ollamaEmbedOne: response missing embedding field (got ${JSON.stringify(data).slice(0, ERROR_BODY_SLICE_LEN)})`);
+      throw new Error(`ollamaEmbedOne: response missing embedding field (got ${JSON.stringify(data).slice(0, ERROR_BODY_SLICE_LEN)}) @ ${url}`);
     }
     return validateVector(vec, EMBEDDING_DIM, "ollama-response");
   }
   // Exhausted all endpoints
-  throw new Error(`ollamaEmbedOne: all endpoints failed (last: ${lastErr ? lastErr.message : "unknown"})`);
+  throw new Error(`ollamaEmbedOne: all endpoints failed @ ${url} (last: ${lastErr ? lastErr.message : "unknown"})`);
 }
 
 /**
@@ -295,6 +328,11 @@ export async function embedWithRetry(text, opts = {}) {
  * non-empty failures array — caller decides whether to retry later.
  * Duplicate ids in input: keeps first occurrence, records duplicate as failure
  * with reason="duplicate-id".
+ *
+ * opts.concurrency (default 1): number of embed requests in flight at once. 1 =
+ * legacy sequential, deterministic request order. >1 = bounded worker pool that
+ * saturates an idle GPU backend (~15× on an RTX PRO 6000 Blackwell) while
+ * preserving input-order vectors[]/failures[]. Vectors are identical either way.
  */
 export async function embedBatch(items, opts = {}) {
   if (!Array.isArray(items)) {
@@ -304,10 +342,14 @@ export async function embedBatch(items, opts = {}) {
     batchSize = DEFAULT_BATCH_SIZE,
     onProgress = null,
     skipIds: skipIdsRaw = null,
+    concurrency = DEFAULT_CONCURRENCY,
     ...rest
   } = opts;
   if (!Number.isInteger(batchSize) || batchSize < 1) {
     throw new RangeError(`embedBatch: batchSize must be positive integer, got ${batchSize}`);
+  }
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    throw new RangeError(`embedBatch: concurrency must be positive integer, got ${concurrency}`);
   }
   // Strict skipIds shape — accept Set or Array only, reject anything else
   // (a caller passing `{ has: () => true }` would silently skip every item).
@@ -360,30 +402,71 @@ export async function embedBatch(items, opts = {}) {
     normalized.push(it);
   }
 
-  // Process in batches of batchSize. Sequential within a batch — Ollama's
-  // single-process model means parallel requests stall on the same backend.
-  for (let i = 0; i < normalized.length; i += batchSize) {
-    const slice = normalized.slice(i, i + batchSize);
-    for (const item of slice) {
-      const r = await embedWithRetry(item.text, rest);
-      if (r.ok) {
+  // Cumulative progress emitter — identical payload shape across the sequential
+  // and concurrent paths so consumers/tests see one contract. Reads the live
+  // counters at call time (closure over the mutated let/array bindings).
+  const emitProgress = () => {
+    if (typeof onProgress !== "function") return;
+    try {
+      onProgress({
+        processed: totalProcessed,
+        total: normalized.length,
+        succeeded: vectors.length,
+        embedFailed: failures.length - preLoopFailureCount,
+        malformedOrDuplicate: preLoopFailureCount,
+      });
+    } catch { /* progress callback errors are non-fatal */ }
+  };
+
+  if (concurrency <= 1) {
+    // Sequential path (legacy default) — one embed request in flight at a time,
+    // deterministic request order. Process in batches of batchSize.
+    for (let i = 0; i < normalized.length; i += batchSize) {
+      const slice = normalized.slice(i, i + batchSize);
+      for (const item of slice) {
+        const r = await embedWithRetry(item.text, rest);
+        if (r.ok) {
+          vectors.push({ id: item.id, vector: r.vector });
+        } else {
+          failures.push({ id: item.id, error: r.error, attempts: r.attempts });
+        }
+        totalProcessed++;
+      }
+      emitProgress();
+    }
+  } else {
+    // Concurrent path — up to `concurrency` embed requests in flight via a
+    // bounded worker pool. The embed backend is GPU-idle when fed one request at
+    // a time; a small pool saturates it for a large throughput gain with
+    // byte-identical vectors. Results land in order-preserving slots so
+    // vectors[]/failures[] ordering matches the sequential path (input order).
+    // NOTE: request *issue* order is non-deterministic under concurrency>1 —
+    // callers that depend on issue order keep the default (concurrency=1).
+    const slots = new Array(normalized.length);
+    let nextIndex = 0;
+    const worker = async () => {
+      for (;;) {
+        const i = nextIndex++;
+        if (i >= normalized.length) return;
+        slots[i] = await embedWithRetry(normalized[i].text, rest);
+      }
+    };
+    const poolSize = Math.min(concurrency, normalized.length);
+    await Promise.all(Array.from({ length: poolSize }, () => worker()));
+    // Reduce in input order; fire progress on the same batchSize cadence as the
+    // sequential path so onProgress consumers see equivalent tick spacing.
+    for (let i = 0; i < normalized.length; i++) {
+      const item = normalized[i];
+      const r = slots[i];
+      if (r && r.ok) {
         vectors.push({ id: item.id, vector: r.vector });
       } else {
-        failures.push({ id: item.id, error: r.error, attempts: r.attempts });
+        failures.push({ id: item.id, error: r ? r.error : "no-result", attempts: r ? r.attempts : 0 });
       }
       totalProcessed++;
+      if (totalProcessed % batchSize === 0) emitProgress();
     }
-    if (typeof onProgress === "function") {
-      try {
-        onProgress({
-          processed: totalProcessed,
-          total: normalized.length,
-          succeeded: vectors.length,
-          embedFailed: failures.length - preLoopFailureCount,
-          malformedOrDuplicate: preLoopFailureCount,
-        });
-      } catch { /* progress callback errors are non-fatal */ }
-    }
+    if (totalProcessed % batchSize !== 0) emitProgress();
   }
 
   const elapsed = Date.now() - startedAt;

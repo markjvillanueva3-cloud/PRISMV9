@@ -1,0 +1,281 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-26",
+  "generatedBy": "slot:kilo /forge-audit-v2 deep-research",
+  "operatorDirective": "do more deep research hunting for pdfs and books for cad drawing 2d and 3d, assemblies and complex drawings, do very deep dive in blisks, turbines and molds and how to machine them",
+  "existingCoverageBaseline": {
+    "source": "78,561 page curriculum corpus + 3,936 PDF manifest (cad-cam-resources-pdf-index.json)",
+    "blisk_mentions": 22,
+    "turbine_mentions": 82,
+    "mold_mentions": 174,
+    "assembly_gdt_mentions": 134,
+    "cad_2d_mentions": 94,
+    "cad_3d_mentions": 1209,
+    "matching_filenames_in_manifest": 1,
+    "gap_assessment": "Existing corpus mentions topics but lacks dedicated authoritative books. Only 1 filename-matching PDF (Beginner's Guide to GD&T)."
+  },
+  "categories": {
+    "blisk_5axis_machining": {
+      "priority": "P0",
+      "gap": "0 dedicated PhD-thesis-level references; 22 incidental page mentions",
+      "sources": [
+        {
+          "title": "Finish-Machining Strategies for Bladed Disks (PhD Thesis)",
+          "author": "Iraitz Arrospide Garro",
+          "institution": "University of Sheffield",
+          "type": "phd-thesis",
+          "license": "open-access",
+          "url": "https://etheses.whiterose.ac.uk/id/eprint/32833/1/Thesis_Iraitz_Arrospide.pdf",
+          "depth": 5,
+          "topicFit": "Comprehensive book-length reference on IBR/blisk 5-axis roughing + finishing strategies + production-line distribution. EXACTLY the gap.",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        },
+        {
+          "title": "Flank Milling Model for Tool Path Programming of Turbine Blisks and Compressors",
+          "type": "research-paper",
+          "license": "researchgate-account",
+          "url": "https://www.researchgate.net/publication/275281604",
+          "depth": 4,
+          "topicFit": "LPC/HPC flank milling, ECM/PECM alternative, integrated milling approach (50%+ time reduction)",
+          "acquisitionAction": "REQUIRES_CREDENTIALS"
+        },
+        {
+          "title": "Flank Milling for Blisk with a Barrel Ball Milling Cutter",
+          "type": "research-paper",
+          "license": "researchgate-account",
+          "url": "https://www.researchgate.net/publication/250328723",
+          "depth": 4,
+          "topicFit": "Barrel-taper-ball cutter design, 3x efficiency vs ball cutter at same precision",
+          "acquisitionAction": "REQUIRES_CREDENTIALS"
+        },
+        {
+          "title": "Optimised Methodology for Aircraft Engine IBRs Five-Axis Machining Process",
+          "type": "research-paper",
+          "license": "researchgate-account",
+          "url": "https://www.researchgate.net/publication/315136872",
+          "depth": 4,
+          "topicFit": "IBR difficult-to-cut materials, toolpath + kinematic + mechanical analysis, 5-axis reference component",
+          "acquisitionAction": "REQUIRES_CREDENTIALS"
+        },
+        {
+          "title": "A Linear Interpolation Method for Five-Axis Machining Paths on Fan Blisk Surfaces",
+          "type": "journal-article",
+          "license": "open-access",
+          "url": "https://www.mdpi.com/2075-1702/13/9/768",
+          "depth": 4,
+          "topicFit": "Bowed-twisted blade surface distortion, ideal-vs-actual envelope deviation. MDPI open access.",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        }
+      ]
+    },
+    "turbine_blade_airfoil_machining": {
+      "priority": "P0",
+      "gap": "82 incidental mentions (mostly MIT differential-equations academic); 0 dedicated machining handbook",
+      "sources": [
+        {
+          "title": "hyperMILL Turbine Blade — Complete from top to bottom (Brochure PDF)",
+          "publisher": "OPEN MIND Technologies",
+          "type": "vendor-brochure",
+          "license": "vendor-distributed",
+          "url": "https://www.openmind-tech.com/en-us/cam/5-axis-milling/turbine-blade/",
+          "depth": 3,
+          "topicFit": "Swarf cutting transitions, rolling-ball function for radii, best-fit start-position, lead-angle collision avoidance — practical CAM workflow",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        },
+        {
+          "title": "Machining of Turbine Blade designed by NURBS on a 5-Axis Milling Machine",
+          "type": "research-paper",
+          "license": "researchgate-account",
+          "url": "https://www.researchgate.net/publication/394957380",
+          "depth": 5,
+          "topicFit": "Custom-tool shape AND motion co-optimization; super-abrasive machining of blade-type components — RIGOROUS math + manufacturing",
+          "acquisitionAction": "REQUIRES_CREDENTIALS"
+        },
+        {
+          "title": "ASM Handbook Volume 16: Machining (canonical aerospace alloy machining)",
+          "type": "reference-handbook",
+          "license": "paid",
+          "url": "https://dl.asminternational.org/handbooks/edited-volume/27/Machining",
+          "depth": 5,
+          "topicFit": "Industry-standard reference for nickel superalloy + titanium machining (Inconel 718, Ti-6Al-4V), tool selection, cutting parameters — used by turbine OEMs",
+          "acquisitionAction": "PURCHASE_OR_INSTITUTION"
+        },
+        {
+          "title": "SME Tool and Manufacturing Engineers Handbook Vol 1: Machining",
+          "type": "reference-handbook",
+          "license": "paid",
+          "url": "https://www.sme.org/membership/find-publications/",
+          "depth": 5,
+          "topicFit": "SME canonical reference",
+          "acquisitionAction": "PURCHASE_OR_INSTITUTION"
+        }
+      ]
+    },
+    "injection_mold_design_and_machining": {
+      "priority": "P0",
+      "gap": "174 page mentions, no dedicated handbook in corpus",
+      "sources": [
+        {
+          "title": "Injection Molding Handbook (3rd Edition) — Rosato & Rosato",
+          "publisher": "Springer",
+          "type": "handbook",
+          "license": "springer-preview-pdf",
+          "url": "https://link.springer.com/content/pdf/bfm:978-1-4615-4597-2/1.pdf",
+          "depth": 5,
+          "topicFit": "914 figures + 209 tables, mold design + mold-steel selection + cavity polishing + cooling. Front-matter PDF preview is open. Full book is paid.",
+          "acquisitionAction": "DIRECT_DOWNLOAD_PREVIEW"
+        },
+        {
+          "title": "Injection Molding Handbook 1st Edition (Rosato)",
+          "type": "handbook",
+          "license": "third-party-host",
+          "url": "https://dokumen.pub/injection-molding-handbook-first-edition.html",
+          "depth": 5,
+          "topicFit": "Full text. Chapter 7 covers Mold Design end-to-end: cavity count, sprue/runner/gate, venting, cooling, undercuts, shrinkage/tolerance, mold-steel selection, polishing, plating, strength, deformation. Verify license before commit.",
+          "acquisitionAction": "REVIEW_LICENSE_THEN_DOWNLOAD"
+        },
+        {
+          "title": "Eastman Polymers Processing and Mold Design Guidelines (PDF)",
+          "publisher": "Eastman Chemical",
+          "type": "vendor-pdf",
+          "license": "open-access",
+          "url": "https://www.eastman.com/content/dam/eastman/corporate/en/literature/s/sptrs5344.pdf",
+          "depth": 4,
+          "topicFit": "P20/H13/S7 tool steel selection, parting line wear comparison, integrated cooling passages. Practical and authoritative.",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        },
+        {
+          "title": "Copper Development Association — Mold Design Guidelines (9-part series PDF)",
+          "type": "vendor-pdf",
+          "license": "open-access",
+          "url": "https://copper.org/publications/pub_list/pdf/A7023-MoldDesignGuidelines.pdf",
+          "depth": 4,
+          "topicFit": "Conformal cooling, copper insert thermal advantage, channel-design comparison",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        },
+        {
+          "title": "Injection Mold Design Engineering (Academia.edu PDF)",
+          "type": "academic-paper",
+          "license": "academia-edu-account",
+          "url": "https://www.academia.edu/49266691/Injection_Mold_Design_Engineering",
+          "depth": 4,
+          "topicFit": "Conformal cooling numerical comparison: Ampcoloy 940 vs P20 vs MS1 maraging — three circuit designs benchmarked",
+          "acquisitionAction": "REQUIRES_CREDENTIALS"
+        },
+        {
+          "title": "Injection Mold Design Handbook (Hanser e-Library)",
+          "type": "handbook",
+          "license": "paid",
+          "url": "https://www.hanser-elibrary.com/doi/10.3139/9781569908167",
+          "depth": 5,
+          "topicFit": "Hanser canonical reference (Menges/Michaeli school)",
+          "acquisitionAction": "PURCHASE_OR_INSTITUTION"
+        }
+      ]
+    },
+    "gdt_engineering_drawing_standards": {
+      "priority": "P1",
+      "gap": "134 page mentions exist but only 1 dedicated PDF (Beginner's Guide)",
+      "sources": [
+        {
+          "title": "ASME Y14.5-2009 Dimensioning and Tolerancing (Official Preview PDF)",
+          "publisher": "ASME / ANSI",
+          "type": "standard-preview",
+          "license": "open-preview",
+          "url": "https://webstore.ansi.org/preview-pages/ASME/preview_ASME+Y14.5-2009.pdf",
+          "depth": 5,
+          "topicFit": "Table of contents + Feature Control Frame placement + Datum Reference Frames + Degrees of Freedom (preview only — full text is paid)",
+          "acquisitionAction": "DIRECT_DOWNLOAD_PREVIEW"
+        },
+        {
+          "title": "GD&T and the new ASME Y14.5-2018 (Mitutoyo PDF)",
+          "publisher": "Mitutoyo",
+          "type": "vendor-whitepaper",
+          "license": "open-access",
+          "url": "https://www.mitutoyo.com/webfoo/wp-content/uploads/ASME_Y14.5-2018_Salsbury.pdf",
+          "depth": 4,
+          "topicFit": "ASME vs ISO size-tolerance approaches under 2018 update — authoritative bridge between standards",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        },
+        {
+          "title": "ASME Y14.5M-1994 Dimensioning & Tolerancing Handouts (Geometrics)",
+          "type": "training-handout",
+          "license": "open-access",
+          "url": "https://members.marticonet.sk/jkuba/normy/ASME_Geometry_Dimension%20and%20Tolerances_Handouts.pdf",
+          "depth": 4,
+          "topicFit": "Standard evolution 1966→1994, Feature Control Frame — practical training material",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        },
+        {
+          "title": "Free GD&T Downloads (gd-t.com) — 2-page summary + tolerance-stack Excel",
+          "type": "training-pdf",
+          "license": "open-access",
+          "url": "https://www.gd-t.com/gd-t-downloads",
+          "depth": 3,
+          "topicFit": "Quick-reference + tolerance-stack calculator (limit and ± modes)",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        }
+      ]
+    },
+    "cad_assembly_complex_drawing_textbooks": {
+      "priority": "P1",
+      "gap": "1209 CAD-3D + 134 assembly page mentions but no canonical CAD textbook in corpus",
+      "sources": [
+        {
+          "title": "Parametric Modeling with SOLIDWORKS 2022 (sample PDF)",
+          "publisher": "SDC Publications",
+          "type": "textbook-sample",
+          "license": "publisher-distributed-sample",
+          "url": "https://static.sdcpublications.com/pdfsample/978-1-63057-463-5-2-algz89ni4b.pdf",
+          "depth": 4,
+          "topicFit": "Seventeen tutorial lessons, basic→assembly→drawings, certified-SOLIDWORKS-associate exam prep. Sample is free; full text is paid.",
+          "acquisitionAction": "DIRECT_DOWNLOAD_SAMPLE"
+        },
+        {
+          "title": "SolidWorks 2021: Part Modeling, Assemblies, and Drawings",
+          "type": "textbook",
+          "license": "third-party-host",
+          "url": "https://dokumen.pub/solidworks-2021-part-modeling-assemblies-and-drawings-9788393657636.html",
+          "depth": 4,
+          "topicFit": "Chapter 4 = Weldments (Profiles Library + Structural Member + Weld Bead). Sheet metal + multi-body + configurations.",
+          "acquisitionAction": "REVIEW_LICENSE_THEN_DOWNLOAD"
+        },
+        {
+          "title": "Carnegie Mellon ME 24-688 Week 6 Project 3 — Assembly Drawings (handout)",
+          "type": "academic-handout",
+          "license": "open-access",
+          "url": "https://www.andrew.cmu.edu/course/24-688/handouts/Week%206%20-%20Inventor%20Drawings/Cluster%20Projects/Week%206%20-%20Project%203%20-%20Assembly%20Drawings.pdf",
+          "depth": 3,
+          "topicFit": "Drill-press vise exploded view + BOM workflow — practical assembly drawing exercise",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        },
+        {
+          "title": "Assembly Drawing Exercises (SlideShare PDF)",
+          "type": "training-pdf",
+          "license": "open-access",
+          "url": "https://www.slideshare.net/slideshow/assembly-drawing-exercises/245444196",
+          "depth": 3,
+          "topicFit": "Pictorial/outline/sectioned assembly types, BOM, balloons, exploded views",
+          "acquisitionAction": "DIRECT_DOWNLOAD"
+        }
+      ]
+    }
+  },
+  "acquisition_summary": {
+    "DIRECT_DOWNLOAD_count": 9,
+    "DIRECT_DOWNLOAD_PREVIEW_count": 2,
+    "DIRECT_DOWNLOAD_SAMPLE_count": 1,
+    "REVIEW_LICENSE_THEN_DOWNLOAD_count": 2,
+    "REQUIRES_CREDENTIALS_count": 4,
+    "PURCHASE_OR_INSTITUTION_count": 3,
+    "total_sources": 21
+  },
+  "next_steps": [
+    "Download all DIRECT_* sources into H:/prism/resources/ACQUIRED-2026-05-26/{topic}/<filename>.pdf",
+    "Re-run build-cad-cam-resources-pdf-index.mjs to fold acquired PDFs into the manifest",
+    "Re-run extract-pdf-pages-curriculum.mjs --domain cam (will pick up new acquired material)",
+    "Operator-decision needed for REVIEW_LICENSE_THEN_DOWNLOAD (dokumen.pub Rosato 1st ed + SolidWorks 2021) — copyright review",
+    "Operator-credentials needed for REQUIRES_CREDENTIALS (ResearchGate + Academia.edu) — 4 papers",
+    "Operator-budget decision for PURCHASE_OR_INSTITUTION (ASM Handbook Vol 16, SME Handbook, Hanser Injection Mold Design)"
+  ]
+}

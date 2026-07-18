@@ -1,0 +1,137 @@
+# fleet-hygiene galaxy CROSS-SESSION SYNTHESIS (18 of 23 mineable, model gpt-oss:120b, 2026-06-11)
+
+## What this galaxy is building
+- **Unified fleet‑hygiene platform** – canonical reaper & memory monitor owned by the *golf* slot; orchestrates orphan/zombie sweep, git‑contention cleanup, boot‑guard, GPU/Ollama coordination, and slot‑binding for 26 chat slots.  
+- **Self‑healing runtime** – detached, self‑resuming loops (Ollama pull, NIM keepalive, autocompact watchdog) plus snapshot‑based scheduled tasks (SYSTEM principal).  
+- **Knowledge & tooling layer** – roadmap enrichment, wiki embedding prewarm, CAD→CAM extraction pipeline, hook‑engine registry (SkillTier, VariabilityEnvelope, TribalEnrichmentCoordinator, etc.), and vector store (Qdrant) integration.  
+
+---
+
+## Shipped capabilities
+| Commit / Path | Feature |
+|---|---|
+| `bd15f6512e` – `H:/prism/scripts/ollama-resilient-pull.ps1` | Detached Ollama pull loop, self‑resume, orphan curl cleanup; VRAM 96 GB usage verified. |
+| `4529d13a25` – `mcp-server-supervisor.mjs`, `mcp-server-daemon.mjs` | Wired `bootStartedAt`; boot‑guard flag default‑on. |
+| `c7d44e0dd1` – `previewReclaimable` wiring in reaper advisory | Fixed stale‑slot over‑reporting (cry‑wolf). |
+| `3e39feeaaa` – `scrutiny‑fix` | MaxTries wall‑clock deadline, anchored name match. |
+| `U‑FGC‑2` (`50f598afcf`) – lock‑orphan fix in `chat-slots.mjs` | Rename → `unlinkSync`, added `.gitignore` guard; removed ~28 k orphan lock files. |
+| `U‑MEMORY‑COMPRESS‑V2` (`3798922e49`) – `memory-compress-v2.mjs` + tests | 27 compressor tests, 47 gate tests; memory‑pressure auto‑relief (≥88 % RSS). |
+| `U‑SAF‑D2` – MEM‑MD pre‑tool gate | mtime check & hard‑block for `MEMORY.md`. |
+| `U‑B1`, `U‑B3` – tiered kill thresholds | Memory kill at 80/90/95 % RSS, 256 MB ballast. |
+| `U‑D4` – Ollama offload threshold | Reduced from 0.9 → 0.5 GPU load before prewarm. |
+| `U‑FGE01/02` – CAD evidence ranking & build sequence | Integrated into Fusion360 orchestrator (`cad_class_build_sequence_evidence`). |
+| `U‑TDP07/08` – deterministic PDF text extractor + regex tolerance parser | Added to `scripts/lib/pdf-text-extract-lib.mjs`. |
+| `U‑DPM0-CELL-EXTRACT` – DOMAIN‑PIPELINE unit projection | 62 slot‑routed roadmap units, 41 node:test PASS. |
+| `U‑H2/H4/H9/H3/H6` – Hook‑engine shims (registry, envelope, compress, tiers, fast‑lane) | Engine‑shim pattern applied; >13 k LOC annotated with tier tags. |
+| `U‑CK01/02` – PRISM syscall kernel (`psk.mjs`) | whoami/manifest/position syscalls, shebang fix. |
+| `U‑BPA‑CONSUMER` – offline blueprint‑accuracy consumer | Event‑driven drift loop wired. |
+| `U‑GAP‑SF‑ADVANCED‑FEED‑OPT` – feed optimization dedup win | Subsumed by `EngagementAdaptiveFeedEngine`. |
+| `U‑MEMORY‑COMPRESS‑V2` – memory compression + gate | 61 % RAM after relief (down from 96 %). |
+| `U‑OBR01` – Ollama ↔ Obsidian routing audit | META hooks added, 65.6 % hook coverage fixed. |
+| `U‑DPM0-CELL-EXTRACT` – domain pipeline unit generation | 62 roadmap units emitted, all tests PASS. |
+| `U‑B1` – tiered kill after memory thresholds | Auto‑kill at 80/90/95 % RSS. |
+| `U‑FGE02` – evidence ranking wired into Fusion360 | Improves build sequence selection. |
+| `U‑TDP01–05` – CAD→CAM training driver, harvester, aggregator, OCR benchmark stub, ground‑truth extractor | Core pipeline scaffolding in place. |
+| `U‑D4` – Ollama offload threshold adjustment | Prevents GPU saturation. |
+| `U‑B3` – memory ballast & release on critical | Stabilizes spikes. |
+| `U‑F2` – installer S4U, restart count 3, normal priority | Robust scheduled‑task registration. |
+| `U‑G124` – host UAC commands (pagefile/mem‑compress/defender) | System‑level optimizations applied. |
+| `U‑E1E2` – auto‑restart stale services (off by default) | Ready for activation. |
+| `U‑CK01/02` – PRISM kernel syscalls | Core system calls available. |
+| `U‑MISC‑FALLBACK` – BM25 cap fix in master index | Search quality improved. |
+| `U‑OBR01` – Ollama‑Obsidian routing audit | META hooks added, 65.6 % hook coverage fixed. |
+| `U‑DPM0-CELL-EXTRACT` – domain pipeline unit projection | 62 roadmap units emitted, all tests PASS. |
+| `U‑B1/B3/D4/F2/G124/E1E2` – host‑level memory & service guards | System stability hardened. |
+
+*(Duplicates removed; only unique capabilities listed.)*
+
+---
+
+## Key decisions + rationale
+- **Golf slot as sole reaper owner** (Doctrine 2026‑05‑16) → eliminates cross‑slot race conditions, centralizes hygiene.
+- **Boot‑guard default‑on & boot‑grace producer wired** → prevents MCP flaps; dormant until `BOOTGUARD` flag set.
+- **Detach & self‑resume Ollama pull** → network stalls (27 GB @212 KB/s) no longer block workflow.
+- **Lock rename → `unlinkSync` + `.gitignore` guard** → removed ~28 k orphan lock files, reduced FS churn.
+- **Expand doctrine to 26 slots** → matches full chat fleet; all slot‑bind scripts updated (`slot-bind-enforce.mjs`, `process-slot-map.mjs`).
+- **Memory‑pressure auto‑relief tiers** (≥78 % soft‑relief, ≥88 % hard kill) → keeps RAM <90 % under load.
+- **Autocompact threshold 80 % (evaluate 60 %)** → balances quality vs memory; watchdog triggers every 15 turns or on compact keywords.
+- **NIM keepalive integrated into reaper sweep** (Tier‑3, 300 s cooldown) → ensures GPU model stays warm without manual start.
+- **Use `qwen2.5vl:7b` for vision OCR**, discard `llama3.2‑vision:11b` (OOM on RTX3080) → fits 10 GB VRAM budget.
+- **Embedding prewarm + keep_alive 30 m** (`nomic-embed-text`) → eliminates 95 % cold‑load failures.
+- **Replace `new Function()` with `node:vm Script`** → mitigates security risk, passes scrutiny gate.
+- **Snapshot‑based task registration (SYSTEM principal)** → prevents silent re‑enable of disabled tasks.
+- **Tail‑F for log monitoring** → survives log rotation; replaces fragile `tail -f`.
+- **PowerShell memory‑compaction scripts (`EmptyWorkingSet`)** → reduces RSS spikes during NIM pulls.
+
+---
+
+## Standing operator directives
+- `/checkin-golf` – force‑take golf slot, run `fleet-reaper-sweep.mjs`, bind to `golf-work`; keep running every 10 min.  
+- Verify Docker stack: Ollama (parallel = 3, keep_alive = 5m), Postgres, Qdrant, Prometheus, Grafana (`3601→3000`).  
+- Run memory‑pressure monitor; if RSS ≥ 78 % trigger soft relief, ≥ 88 % trigger hard kill.  
+- Execute `/startup-golf` on host reboot to re‑register scheduled “PRISM Fleet Reaper” task.  
+- Clean orphan lock files (`chat-slots.lock.released-*`) weekly; current count ~0 after fix.  
+- Run `ollama-resilient-pull.ps1` manually if model pull stalls >5 min.  
+- Enable BOOTGUARD flag (`PRISM_MCP_WATCHDOG_BOOTGUARD=1`) to activate boot‑grace producer.  
+- Run `/compact` on heavy chats after each session; ensure autocompact watchdog engaged.  
+- Keep NIM keepalive active; monitor `qwen2.5vl:7b` health via `/system-viz`.  
+- Periodically run transient‑tool hunter (`grep/find/head`) integration tests.  
+
+---
+
+## What is still to build (open threads)
+- **BOOTGUARD activation** – set env var, verify boot‑grace producer wiring.  
+- **Slot‑worktree migration** – ensure all 26 slots bound to dedicated branches; run `slot-worktree-migration-status.mjs` cron until drift = 0.  
+- **Vision OCR pipeline** – integrate `qwen2.5vl:7b` adapter (`U‑TDP06`), wire into `pdf-text-extract-lib`, validate on full JM Die corpus (~600 PDFs).  
+- **Transient‑tool hunter** – finalize implementation, add tests, embed in reaper advisory.  
+- **Autocompact threshold evaluation** – experiment 60 % vs 80 %; lock‑in once no regressions observed.  
+- **Work‑claims SQLite migration** (`migrate-claims-to-sqlite.mjs`).  
+- **Hook engine wiring** – TribalEnrichmentCoordinatorEngine, MultiSessionHandoffCoordinatorEngine, LatencyBudgetDecompositionEngine, StopConditionEngine.  
+- **CAD→CAM generation loop** – complete CAM program synthesis, integrate with `U‑TDP05` ground‑truth extractor.  
+- **Disambiguation in fleet reaper** – handle wedged‑harness vs PID reuse; add missing `createdMs` handling.  
+- **Memory‑compaction tier tuning** – confirm threshold 88 % optimal under sustained chat load.  
+- **Wave 3/4 knowledge enrichment** – increase rate‑gate to ~100 KB/session, verify no hallucinations.  
+
+---
+
+## How to build it (patterns / sequence)
+1. **Snapshot‑based task registration** → create SYSTEM scheduled tasks (`install-fleet-reaper-task.ps1`, `install-nim-keepalive-task.ps1`).  
+2. **Self‑resuming detached loops** → wrap long‑running commands in PowerShell scripts with retry logic (`ollama-resilient-pull.ps1`, NIM keepalive).  
+3. **Per‑slot worktree discipline** → run `slot-worktree-bootstrap.mjs`; commit each slot’s branch under `chat-slots.json[slot].branch`.  
+4. **Incremental gated commits** → 3‑of‑3 reviewer pipeline (`scrutiny-3way.mjs`), then merge only after all gates pass.  
+5. **Prewarm + keep_alive for models** → on first request, spawn model, set `keep_alive`; throttle with timestamp stamp (20 min for embed, 30 m for Ollama).  
+6. **Autocompact watchdog** → monitor `memory‑pressure` metric; trigger `/compact` when threshold crossed or keyword detected.  
+7. **Transient‑tool hunter integration** → add regex scanner (`grep/find/head`) to reaper advisory list; run each sweep cycle.  
+8. **Hook‑engine shim pattern** – engine file + dispatcher + tier tag comment; register via `reference_skill_tier_wire_pattern.md`.  
+9. **Vector store sync** – after enrichment, push embeddings to Qdrant (`qdrant-client`), then update Obsidian index.  
+
+---
+
+## Tools to use
+- **Dispatchers / Skills**: `/checkin-golf`, `/startup-golf`, `fleet-reaper-sweep.mjs`, `fleet-memory-monitor.mjs`, `slot-bind-enforce.mjs`, `pick-unit.mjs`, `precompact-pending-guard.mjs`, `system-viz` (dashboard), `auto-precompact-watchdog.mjs`.  
+- **Scripts / Hooks**: `ollama-resilient-pull.ps1`, `install-fleet-reaper-task.ps1`, `install-nim-keepalive-task.ps1`, `slot-worktree-bootstrap.mjs`, `slot-worktree-migration-status.mjs`, `pdf-text-extract-lib.mjs`, `wiki-precheck-inject.mjs`, `build-wiki-embeddings.mjs`, `memory-compress-v2.mjs`, `transient-tool-hunter.mjs`.  
+- **AI Systems**: Ollama (models: `qwen2.5-coder:120b`, `nomic-embed-text`, `qwen2.5vl:7b`), NIM container (`nim‑llama32‑3b`).  
+- **Vector DB / Storage**: Qdrant (`state/shared/qdrant/`), SQLite coordination store (`coordination.db`).  
+- **Observability**: Grafana (port 3601), Prometheus, `tail -F` log monitor, `system-viz` dashboards.  
+- **Version control & CI**: Git index lock sweep (`git-contention`), `scrutiny-3way.mjs`, `milestone-tracker.mjs`.  
+
+---
+
+## Recurring findings + bugs
+- **Orphan lock explosion** – ~28 k `chat-slots.lock.released-*`; fixed by `unlinkSync` guard, but new locks appear if slot release fails.  
+- **BootStartedAt never written** → MCP flaps; now wired in supervisor/daemon scripts.  
+- **TS‑server memory leak** – 16 instances ≈ 16.5 GB; capped via `typescript.tsserver.maxTsServerMemory=1024`.  
+- **Docker port collisions** – Grafana moved from 3001→3601 after Hyper‑V range conflict.  
+- **Ollama pull stalls** – network degradation caused 27 GB @212 KB/s stall; resolved with resilient loop.  
+- **Reaper advisory over‑reporting stale slots** – cry‑wolf fix (`previewReclaimable` wiring).  
+- **Grep/Find/Head orphan processes** – regenerate ~6× per 30 min; added transient‑tool hunter to catch them.  
+- **Dead‑parent orphans** – 4 reaped each tick, but some survive >10 min; need missing `createdMs` handling.  
+- **Memory pressure spikes** – up to 93 % during NIM pull; soft relief tier now triggers at 78 %, hard kill at 88 %.  
+- **Vision model OOM** – `llama3.2‑vision:11b` on RTX3080; switched to `qwen2.5vl:7b`.  
+- **Embedding prewarm race** – 95 % failures before fix; now uses keep_alive 30 m and timestamp throttle.  
+- **Log rotation kills monitor** – fixed by switching `tail -f` → `tail -F`.  
+- **Git index lock saturation** (>98% lockrate) causing contention; mitigated via lock‑orphan cleanup and git‑contention reaper.  
+- **Boot‑guard flag missing** – flaps persist until env var set.  
+- **PowerShell scripts with UTF‑8 em‑dash BOM errors** – corrected in installer scripts.  
+
+---

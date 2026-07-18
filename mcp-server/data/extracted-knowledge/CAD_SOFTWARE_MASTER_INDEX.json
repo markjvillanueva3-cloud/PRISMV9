@@ -1,0 +1,293 @@
+{
+  "title": "PRISM CAD/CAM Software Master Index",
+  "description": "Complete tracking of all CAD software inventories, training resources, and CAD files for PRISM AI",
+  "schemaVersion": "1.0.0",
+  "last_updated": "2026-04-18",
+  "coverage_goal": "100% - PRISM must be able to invoke ANY function in ANY CAD software",
+  "ultimate_test": "Draw every CAD file in our system",
+
+  "software_inventories": {
+    "SolidWorks": {
+      "inventory_file": "data/extracted-knowledge/solidworks/SOLIDWORKS_COMPLETE_INVENTORY.json",
+      "total_inputs": 1879,
+      "coverage": "100%",
+      "status": "COMPLETE"
+    },
+    "Inventor": {
+      "inventory_file": "data/extracted-knowledge/inventor/INVENTOR_COMPLETE_INVENTORY.json",
+      "total_inputs": 1678,
+      "coverage": "100%",
+      "status": "COMPLETE"
+    },
+    "Mastercam_X8": {
+      "inventory_file": "data/extracted-knowledge/mastercam/MASTERCAM_X8_COMPLETE_INVENTORY.json",
+      "total_inputs": 2145,
+      "coverage": "100%",
+      "status": "COMPLETE",
+      "note": "JM Die primary CAD/CAM system"
+    },
+    "FreeCAD": {
+      "inventory_file": "data/extracted-knowledge/freecad/FREECAD_COMPLETE_INVENTORY.json",
+      "total_inputs": 2156,
+      "coverage": "100%",
+      "status": "COMPLETE"
+    },
+    "Fusion360": {
+      "inventory_file": "data/extracted-knowledge/fusion360/FUSION360_COMPLETE_INVENTORY.json",
+      "total_inputs": 1646,
+      "coverage": "100%",
+      "status": "COMPLETE"
+    },
+    "hyperMILL": {
+      "inventory_file": "data/extracted-knowledge/hypermill/HYPERMILL_COMPLETE_INVENTORY.json",
+      "total_inputs": 2516,
+      "coverage": "100%",
+      "status": "COMPLETE"
+    }
+  },
+
+  "grand_total_inputs": 12020,
+
+  "training_resources": {
+    "SolidWorks": {
+      "pdfs": [
+        {"path": "H:/prism/Resources/RESOURCE PDFS/David Planchard - Engineering Graphics with SOLIDWORKS 2021-SDC Publications (2021).pdf", "pages": "~800", "status": "available", "extracted": false}
+      ],
+      "tips_extracted": 0,
+      "procedures_extracted": 0,
+      "training_gap": "HIGH - need to run /pdf-learn on SolidWorks manual",
+      "recommended_downloads": [
+        "SolidWorks API Programming Tutorial",
+        "SolidWorks Macro Programming Guide"
+      ]
+    },
+    "Inventor": {
+      "pdfs": [
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_2.5D_Milling_Training_Course.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_3D_HSM_User_Guide.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_3D_HSR_User_Guide.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-1.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-2.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_5-Axis_Basic_Training_Vol-3.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_Contour_5X_Machining.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_Edge_Breaking.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_Geodesic_Machining.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_HSS_User_Guide.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/InventorCAM2024_Multiaxis_Drilling.pdf", "status": "available", "extracted": false}
+      ],
+      "tips_extracted": 0,
+      "procedures_extracted": 0,
+      "training_gap": "HIGH - 11+ InventorCAM PDFs available but not extracted",
+      "recommended_downloads": [
+        "Autodesk Inventor iLogic Programming Guide",
+        "Inventor API Developer Reference"
+      ]
+    },
+    "Mastercam_X8": {
+      "pdfs": [
+        {"path": "H:/prism/Resources/RESOURCE PDFS/Getting Started with Mastercam Solids.pdf", "status": "available", "extracted": true},
+        {"path": "H:/prism/Resources/MasterCam/tutorialx8-tool-manager/Getting Started with Mastercam Solids/", "status": "available", "extracted": true}
+      ],
+      "tips_extracted": 45,
+      "procedures_extracted": "unknown",
+      "training_gap": "MEDIUM - basic extraction done, need lathe/wire EDM specific training",
+      "recommended_downloads": [
+        "Mastercam X8 Lathe Tutorial",
+        "Mastercam X8 Wire EDM Programming Guide",
+        "Mastercam NET-Hook API Reference"
+      ]
+    },
+    "FreeCAD": {
+      "pdfs": [],
+      "online_docs": "FreeCAD has built-in Python API documentation",
+      "tips_extracted": 0,
+      "training_gap": "MEDIUM - Python API is well documented but no procedural tutorials extracted",
+      "recommended_downloads": [
+        "FreeCAD Path Workbench Tutorial",
+        "FreeCAD Python Scripting Guide"
+      ]
+    },
+    "Fusion360": {
+      "pdfs": [
+        {"path": "H:/prism/Resources/RESOURCE PDFS/FUSION CAD.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/FUSION BASIC POSTS - STORE AS TEMPLATES.zip", "status": "available", "extracted": false}
+      ],
+      "tips_extracted": 0,
+      "procedures_extracted": 0,
+      "training_gap": "HIGH - Fusion CAD PDF not extracted",
+      "recommended_downloads": [
+        "Fusion 360 CAM Training Guide",
+        "Fusion 360 API Programming Guide",
+        "Fusion 360 Post Processor Development Guide"
+      ]
+    },
+    "hyperMILL": {
+      "pdfs": [
+        {"path": "H:/prism/Resources/RESOURCE PDFS/hyperMILL_Manual-en-1.pdf", "status": "available", "extracted": true},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/hyperMILL_Manual-en-2.pdf", "status": "available", "extracted": true},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/hyperMILL_Manual-en-3.pdf", "status": "available", "extracted": true},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/hyperMILL_Manual-en-4.pdf", "status": "available", "extracted": true},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/hyperMILL_2D_3D.pdf", "status": "available", "extracted": false},
+        {"path": "H:/prism/Resources/RESOURCE PDFS/Software documentation - hyperMILL_2D_3D.pdf", "status": "available", "extracted": false}
+      ],
+      "tips_extracted": 434,
+      "procedures_extracted": 218,
+      "pages_processed": 2666,
+      "training_gap": "LOW - comprehensive extraction done",
+      "note": "Best documented system"
+    }
+  },
+
+  "extraction_priority": [
+    {"priority": 1, "system": "Inventor", "reason": "11+ unextracted PDFs with InventorCAM training courses"},
+    {"priority": 2, "system": "SolidWorks", "reason": "800+ page manual not extracted"},
+    {"priority": 3, "system": "Fusion360", "reason": "FUSION CAD.pdf not extracted"},
+    {"priority": 4, "system": "Mastercam_X8", "reason": "Need lathe/wire EDM specific guides - JM Die primary system"},
+    {"priority": 5, "system": "FreeCAD", "reason": "Path workbench tutorials needed for CAM"}
+  ],
+
+  "cad_file_locations": {
+    "description": "All CAD files in the system for the ultimate test",
+    "jm_die_root": "H:/PRISM/JM DIE/",
+    "jm_die_programs": 24545,
+    "resources_cad": "H:/prism/Resources/",
+    "formats_to_track": [
+      ".sldprt", ".sldasm", ".slddrw",
+      ".ipt", ".iam", ".idw",
+      ".f3d", ".f3z",
+      ".mcx", ".mcx-8", ".mcx-9",
+      ".hmc", ".hmf",
+      ".FCStd",
+      ".step", ".stp", ".iges", ".igs",
+      ".stl", ".obj", ".3mf",
+      ".dxf", ".dwg"
+    ],
+    "scan_command": "find 'H:/PRISM' -type f \\( -iname '*.sldprt' -o -iname '*.ipt' -o -iname '*.f3d' -o -iname '*.mcx*' -o -iname '*.FCStd' -o -iname '*.step' -o -iname '*.iges' -o -iname '*.stl' \\) 2>/dev/null | wc -l"
+  },
+
+  "downloadable_resources": {
+    "Mastercam": [
+      {
+        "title": "Mastercam Wire Tutorial (June 2018)",
+        "url": "http://colla.lv/wp-content/uploads/2018/07/Mastercam-Wire-Tutorial.pdf",
+        "type": "PDF",
+        "status": "FREE_DOWNLOAD",
+        "covers": ["Wire EDM basics", "Power libraries", "Contour paths", "24-pass setup"]
+      },
+      {
+        "title": "Mastercam Wire Tutorial (June 2017)",
+        "url": "http://colla.lv/wp-content/uploads/2018/02/Wire-Tutorial.pdf",
+        "type": "PDF",
+        "status": "FREE_DOWNLOAD"
+      },
+      {
+        "title": "Mastercam X8 Lathe Training Tutorial Sample",
+        "url": "https://www.scribd.com/doc/292709977/SAMPLE-MastercamX8-Lathe-TrainingTutorial",
+        "type": "PDF",
+        "status": "FREE_SAMPLE",
+        "covers": ["Face", "Rough", "Finish", "Drilling", "Grooving", "Threading", "Canned Cycles"]
+      },
+      {
+        "title": "Mastercam X8 Lathe Training Tutorial (Full)",
+        "url": "https://www.emastercam.com/store/product/730-mastercam-x8-lathe-training-tutorial-pdf/",
+        "type": "PDF",
+        "status": "PAID",
+        "note": "Official In-House Solutions tutorial"
+      }
+    ],
+    "SolidWorks": [
+      {
+        "title": "SolidWorks API Fundamentals Training Course",
+        "url": "https://www.solidworks.com/sites/default/files/api_fundamentals_training_course.pdf",
+        "type": "PDF",
+        "status": "FREE_DOWNLOAD",
+        "covers": ["API Overview", "Object Model", "VBA", "VB.NET", "C#", "Macros"]
+      },
+      {
+        "title": "SolidWorks API 2024 Documentation",
+        "url": "https://help.solidworks.com/2024/English/api/sldworksapiprogguide/Welcome.htm",
+        "type": "Online",
+        "status": "FREE"
+      },
+      {
+        "title": "CodeStack SolidWorks API Examples",
+        "url": "https://www.codestack.net/solidworks-api/",
+        "type": "Online",
+        "status": "FREE",
+        "covers": ["Hundreds of code examples", "Macros", "Add-ins"]
+      }
+    ],
+    "Inventor": [
+      {
+        "title": "Inventor iLogic: Beyond the Basics",
+        "url": "https://static.au-uw2-prd.autodesk.com/Class_Handout_IM124871_Inventor_iLogic_Beyond_the_Basics_Jon_Balgley.pdf",
+        "type": "PDF",
+        "status": "DOWNLOADED",
+        "local_path": "C:\\Users\\wompu\\.claude\\projects\\H--prism\\be182624-3e78-4961-85dd-4a444ed02fe4\\tool-results\\webfetch-1776574616575-yts8wx.pdf",
+        "pages": "88+",
+        "size_mb": 2.8
+      },
+      {
+        "title": "Inventor 2024 iLogic Help",
+        "url": "https://help.autodesk.com/view/INVNTOR/2024/ENU/?guid=GUID-9372F2A9-377E-40AB-92AA-5FC371BACF8C",
+        "type": "Online",
+        "status": "FREE"
+      }
+    ],
+    "FreeCAD": [
+      {
+        "title": "Path Walkthrough for the Impatient",
+        "url": "https://www.scribd.com/document/484982557/Path-Walkthrough-for-the-Impatient-pdf",
+        "type": "PDF",
+        "status": "FREE_DOWNLOAD"
+      },
+      {
+        "title": "FreeCAD Path Workbench Tutorial Part 1",
+        "url": "https://blog.freecad.org/2023/11/24/tutorial-getting-started-with-the-path-workbench-part-one/",
+        "type": "Online",
+        "status": "FREE"
+      },
+      {
+        "title": "FreeCAD Path Workbench Tutorial Part 2",
+        "url": "https://blog.freecad.org/2023/12/07/tutorial-getting-started-with-the-path-workbench-part-two/",
+        "type": "Online",
+        "status": "FREE"
+      },
+      {
+        "title": "FreeCAD CAM Workbench Documentation",
+        "url": "https://freecad-documentation.netlify.app/docs/workbenches/path/",
+        "type": "Online",
+        "status": "FREE"
+      }
+    ],
+    "Fusion360": [
+      {
+        "title": "Fusion 360 API Documentation",
+        "url": "https://help.autodesk.com/view/fusion360/ENU/?guid=GUID-A92A4B10-3781-4925-94C6-47DA85A4F65A",
+        "type": "Online",
+        "status": "FREE"
+      }
+    ],
+    "hyperMILL": {
+      "note": "Already have comprehensive coverage - 2,666 pages processed, 434 tips extracted"
+    }
+  },
+
+  "roadmap_integration": {
+    "milestone_id": "CAD-TRAINING-EXTRACT-MS0",
+    "title": "CAD Training Extraction — PDF Knowledge for Drawing Intelligence",
+    "status": "ready",
+    "units": 12,
+    "sessions_estimated": 4,
+    "blocks": ["CADCAM-DAGI-MS1"],
+    "execution_order": "TRAIN (this) → LEARN (DAGI-MS1) → DRAW (ultimate test)"
+  },
+
+  "next_actions": [
+    {"action": "Execute CAD-TRAINING-EXTRACT-MS0 Session 1: Mastercam extraction", "priority": 1, "units": ["U-CTE01", "U-CTE02", "U-CTE03"]},
+    {"action": "Execute CAD-TRAINING-EXTRACT-MS0 Session 2: InventorCAM extraction", "priority": 2, "units": ["U-CTE04", "U-CTE05", "U-CTE06"]},
+    {"action": "Execute CAD-TRAINING-EXTRACT-MS0 Session 3: SolidWorks/Fusion/FreeCAD", "priority": 3, "units": ["U-CTE07", "U-CTE08", "U-CTE09"]},
+    {"action": "Execute CAD-TRAINING-EXTRACT-MS0 Session 4: Consolidation + action sequences", "priority": 4, "units": ["U-CTE10", "U-CTE11", "U-CTE12"]},
+    {"action": "Scan all CAD files in system and create master CAD file index", "priority": 5}
+  ]
+}

@@ -120,6 +120,28 @@ makeSubstepIntegrator adapter).
   lti_analyze}`) — deferred to a less peer-saturated calcDispatcher window.
   Fully usable via direct import today.
 
+## Dispatcher wiring + the SafeExpressionEvaluator keystone
+
+All 7 nodes ship `// WIRE-EXEMPT` — 5 take JS closures as primary input
+(objective fn, derivative, Lagrangian, substep integrators), which cannot
+cross an MCP dispatcher's JSON boundary. The decision record
+`state/shared/specs/U-COURSE-FORGE-DISPATCHER-WIRING-DESIGN.md` lays out
+three options; **Option A** (a sandboxed expression compiler) is now built:
+
+**`SafeExpressionEvaluator`** (`mcp-server/src/algorithms/SafeExpressionEvaluator.ts`,
+commit `47e93d03fa`, 60 tests) — `compileExpression(source, allowedVars)`
+compiles an arithmetic string into a pure `(scope)=>number` closure via
+tokenizer → recursive-descent parser → hand-walked AST evaluator. NO `eval`,
+NO `Function`. A P0 security surface: every identifier must resolve to an
+allowed var / whitelisted const / whitelisted math fn; `constructor`,
+`__proto__`, `process`, `require`, etc. are hard-rejected; no `.member`
+access exists in the grammar; source-length + recursion-depth DoS caps.
+`compileObjective(src, varName)` is the GradientDescent-shaped adapter.
+
+This is the keystone: a future `U-COURSE-FORGE-P1-DISPATCHER` can now wire
+the closure-input nodes safely — dispatcher params carry expression strings,
+`SafeExpressionEvaluator` turns them into the closures the algorithms need.
+
 ## See also
 
 - [[course-forge-stubs-emitter]] — the proposal layer that surfaced P1/P6/P7

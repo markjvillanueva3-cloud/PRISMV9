@@ -47,7 +47,7 @@ catch (e) { try { unlinkSync(tmp); } catch {} process.exit(1); }
 
 function spawnWriter(target, payload) {
   return new Promise((resolve) => {
-    const p = spawn("node", ["--input-type=module", "-e", writerScript(target, payload)], {
+    const p = spawn(process.execPath, ["--input-type=module", "-e", writerScript(target, payload)], {
       stdio: ["ignore", "pipe", "pipe"],
     });
     let err = "";

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Synchronization_Tool_Database_Manual-en-US</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Synchronization_Tool_Database_Manual-en-US</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>OPEN MIND/doc/33.0/PDF/Synchronization Tool Database/Synchronization_Tool_Database_Manual-en-US.pdf</code></dd>
+<dt>Pages</dt><dd>9</dd>
+<dt>Text chars</dt><dd>8175</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>OPEN MIND Tool Database - Syn-
+chronization
+
+-- 1 of 9 --
+
+Table of Contents
+1. F unction of the synchronisation service and requirement ...................................................................... 3
+2. Set up exchange folders and user rights ............................................................................................ 4
+3. User rights in local security policy ..................................................................................................... 6
+4. Start the Synchronization Service ..................................................................................................... 8
+OPEN MIND Tool Database - Synchronization
+2
+
+-- 2 of 9 --
+
+1. F unction of the synchronisation service
+and requirement
+The following notes apply to the tool database from version 2023.2|Update 3.
+The synchronisation service can be used to synchronise a
+hyperMILL tool database with external tool data
+via a local Windows service or account. Setting up the service (as a local service or account) is described
+in section Start the Synchronization Service (page 8) before an exchange folder must be set up and
+user rights must be defined in the local security policy, see sections Set up exchange folders and user
+rights (page 4) and User rights in local security policy (page 6).
+The following requirements must be met for the service to work:
+1. A
+hyperMILL installation is mandatory because the tool database uses
+hyperMILL functions to
+create tool geometries.
+2. A
+hyperMILL license must be available during the setup of the service. If the setup is complete,
+the licence is no longer required.
+3. To synchronise tool data, a Windows folder must be set up as an exchange folder. The external
+tool management system must store the tool data in this folder.
+4. The exchange folder must be provided with full access rights for the service.
+5. The synchronization service can be set up only when using the Account option on an independent
+server for all databases to be synchronized. If the Local service option is used, the exchange
+folder and database must be located on the same computer as the synchronization service.
+ENHANCEMENT OF THE SYNCHRONIZATION SERVICE
+The synchronization service has been enhanced so that multiple instances located
+on a network (i.e. multiple exchange folders with corresponding
+hyperMILL-databases)
+can now be synchronized. Previously, the service only allowed one instance (exchange
+folder + corresponding
+hyperMILL database) on a local system.
+For more information, see also the section Austauschordner einrichten (page 4)
+under Local service or Account.
+OPEN MIND Tool Database - Synchronization
+3
+
+-- 3 of 9 --
+
+2. Set up exchange folders and user rights
+To give the exchange folder the necessary access rights, proceed as follows:
+1. Switch to the exchange folder.
+2. Right-click and select Properties → Security. Click Edit and them Add to add a user or service
+account name.
+Benutzer
+D:\Automatic ToolDB synchronisation
+Benutzer
+D:\Automatic ToolDB synchrinisation
+3. Enter a unique name as the object name.
+BENUTZER 1
+mum.de
+The name depends on whether you set up the synchronization service as a Local Service or as
+an Account (see also the instructions in the Den Synchronisierungsdienst starten (page 8) sec-
+tion.
+Windows defaults for allowed user or service account names as Local Service are:
+• Local service, Everyone,
+• Everyone,
+OPEN MIND Tool Database - Synchronization
+4
+
+-- 4 of 9 --
+
+Windows defaults for allowed user or service account names as Account are:
+• Everyone,
+• all User names known in the network.
+Click on Check names, to check whether the user name is known to the system. If this is the case,
+the object name is displayed as follows: USER 1. Confirm the dialog with OK.
+LOCAL SERVICE OR ACCOUNT
+If Local Service is used as option, only data (each exchange folder + asso-
+ciated
+hyperMILL tool database) located on the same computer as the syn-
+chronization service can be synchronized. If you want to synchronize data
+(exchange folders + associated
+hyperMILL tool databases) in a network, please
+use the Option Account.
+4. In order to set up the required permissions for the previously created user name, you then set the
+checkmark for Allow → Full access. This is necessary because the service is used to both read
+and delete the data (after processing) in the exchange folder. Confirm the dialog with OK.
+D:\Automatic ToolDB synchronisation
+BENUTZER 1
+OPEN MIND Tool Database - Synchronization
+5
+
+-- 5 of 9 --
+
+3. User rights in local security policy
+If the service was created with the Account option, an additional configuration is re-
+quired in the Windows Services control panel. You must set up the relevant user rights
+for the previously created user account in the Local security policy dialog, if the syn-
+chronization service is running on a network. To do this, proceed as follows:
+1. Enter the Local Security Policy in the Windows search dialog (to the right of the Windows icon).
+Start the dialog.
+2. Go to Local Policy → Assign user rights → Log on as a service. Double-click the Log on as
+service entry.
+OPEN MIND Tool Database - Synchronization
+6
+
+-- 6 of 9 --
+
+3. In the Log On As Service Properties dialog, on the Local Security Settigs click Add user group....
+Enter the name of the user or user group for which you have set up user rights (see also
+section Austauschordner und Benutzerrechte einrichten (page 4)). Confirm the dialog with OK.
+NT SERVICE\ALL SERVICES
+Benutzer 1
+Note that the account must not be entered as Deny service at Log on. If this is the case,
+delete it there.
+OPEN MIND Tool Database - Synchronization
+7
+
+-- 7 of 9 --
+
+4. Start the Synchronization Service
+1. Switch to the standard installation directory:
+C:\Programme\OPEN MIND\Tool Database\[Versionsnummer]
+2. Run the omTdbServiceUi.exe as administrator.
+3. Click the Add button to show a line with the Input format, Database and Data exchnage
+folder einzublenden.
+4. At Input format define the format of the data to be imported. By default, the neutral data exchange
+format of OPEN MIND (.xml) is used.
+5. Select Database and Data exchange folder and start the service.
+6. If you set a check mark in the column P (Preserve) - Preserve folder structure the folder structure
+of the data will not be changed during import into the OPEN MIND database. The function is only
+available for the neutral data exchange format of OPEN MIND. With a check mark in the column S
+(Slave) - Slave database you determine whether this database (i.e. your OPEN MIND database)
+is to be &quot;write-protected&quot;. Only the synchronization service can then write to the database, so that
+accidental changes are prevented.
+7. At Account → User click on icon 3 to select a matching account that has the necessary access
+rights to the exchange directory and database, and enter the password. See also the description
+of the User in the previous section Austauschordner einrichten (page 4).
+1 	2
+3
+Benutzer 1
+mum.de
+\\Rechner 1\Sync_ToolDB.db 	\\Rechner 1\Sync ToolDB
+P S
+OPEN MIND Tool Database - Synchronization
+8
+
+-- 8 of 9 --
+
+8. To synchronize another instance (exchange folder +
+hyperMILL database), click the Add button
+and define Input format, Database and Data exchange folder in the new line (1).
+Benutzer1
+1
+\\Rechner 1\Sync_ToolDB.db
+\\Rechner 2\Sync_ToolDB.db
+\\Rechner 1\Sync ToolDB
+\\Rechner 2\Sync ToolDB
+Log...
+Multiple exchange folders can also be synchronized into one
+hyperMILL-tool
+database, but it is not permissible to store a folder for data exchange with
+multiple
+hyperMILL databases.
+9. By clicking the Log... button you will get to the corresponding folder to display the *.log file
+for the selected line. Please check occasionally if the synchronization is running as desired.
+Incorrectly processed data is saved here for further analysis.
+10. Click on the Start button to start to start the synchronization service. The service will acti-
+vate all the created instances (exchange folder +
+hyperMILL databases). Clicking the Stop button
+deactivates all existing instances.
+11. Close the dialog by clicking the Close button.
+OPEN MIND Tool Database - Synchronization
+9
+
+-- 9 of 9 --
+
+</pre>
+</body></html>

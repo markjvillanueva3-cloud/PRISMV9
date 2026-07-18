@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-omega-floor.mjs — Phase 1 Tier 5D Workflow HookPreToolUse hook that blocks git commit when Omega scoreis below the milestone floor.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

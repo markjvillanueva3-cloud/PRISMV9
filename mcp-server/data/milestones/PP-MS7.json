@@ -1,0 +1,167 @@
+{
+  "id": "PP-MS7",
+  "version": "6.2.0",
+  "title": "Multi-CAM Post Processor Generation + Machine-Specific Safety Sequences",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "Generate post processors for all open-format CAM systems (Mastercam, NX, CATIA, SolidCAM, PowerMill, GibbsCAM, CAMWorks, BobCAD, SprutCAM). Build Phase B re-optimizer for closed systems (hyperMILL, Tebis, Edgecam). Create machine-specific safety sequences (startup/shutdown, tool change, coolant, spindle warm-up). Build multi-channel/mill-turn support for complex machines.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Multi-CAM Post Processor Templates",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Mastercam .pst + NX TCL post processor templates",
+          "status": "complete",
+          "steps": [
+            "Create PRISM Mastercam .pst post processor template:",
+            "  Mastercam post format: text-based control definition file",
+            "  Map Mastercam NCI codes to ToolpathBlock[] extraction",
+            "  Extract: tool data, operation type, stock model, material from Mastercam context",
+            "  Communication: HTTP call to PRISM server (Mastercam 2024+ supports HTTP from posts)",
+            "  Fallback: standard post + sidecar JSON export",
+            "Create PRISM NX/Siemens TCL post processor:",
+            "  NX post format: TCL/Tk scripting (mom_xxx procedures)",
+            "  Map NX MOM variables to PRISM context (mom_tool_diameter, mom_spindle_speed, etc.)",
+            "  Extract: UDE (User Defined Events), tool data, operation data from NX context",
+            "  Communication: TCL HTTP call to PRISM server",
+            "  Fallback: standard post + sidecar JSON",
+            "Both posts follow same pipeline architecture as Fusion .cps: extract context → call PRISM → write output"
+          ],
+          "exit_conditions": [
+            "Mastercam .pst loads and runs in Mastercam 2024+",
+            "NX TCL post loads in NX 2306+",
+            "Both posts extract tool and operation context",
+            "Both communicate with PRISM server when available",
+            "Both fall back gracefully when server is down"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "CATIA/SolidCAM/PowerMill/GibbsCAM/CAMWorks/BobCAD/SprutCAM post templates",
+          "status": "complete",
+          "steps": [
+            "Create post processor templates for remaining open-format CAM systems:",
+            "CATIA Manufacturing: PP word table + VB macro — extract APT source, call PRISM",
+            "SolidCAM: .gpp config file — define variables, map to PRISM context",
+            "PowerMill: .opt option file + macro — OMF format extraction, PRISM call",
+            "GibbsCAM: .pit post template — CL data extraction, PRISM call",
+            "CAMWorks: TechDB + post config — technology database integration",
+            "BobCAD: post processor config file — block format definition, PRISM bridge",
+            "SprutCAM: CLData script post — script-based extraction, PRISM call",
+            "Each template follows the same pattern:",
+            "  1. Extract context from CAM-specific API",
+            "  2. Build PRISM job JSON (machine, tools, operations, stock, material)",
+            "  3. HTTP POST to PRISM server",
+            "  4. Receive optimized G-code, write output",
+            "  5. Fallback: standard output + sidecar JSON",
+            "Tribal knowledge integration: include CAM-specific tips from 2,800+ tip database"
+          ],
+          "exit_conditions": [
+            "Post templates created for all 7 CAM systems",
+            "Each template extracts minimum viable context (tool + operation + material)",
+            "HTTP communication pattern consistent across all CAM systems",
+            "Sidecar JSON format identical regardless of source CAM"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Phase B Re-Optimizer for closed systems (hyperMILL, Tebis, Edgecam, any G-code source)",
+          "status": "complete",
+          "steps": [
+            "Build standalone Phase B re-optimization pipeline:",
+            "Input: G-code file (from any source — hyperMILL, Tebis, manual programming, legacy)",
+            "G-code parser extracts: moves, tool changes, spindle/feed commands, canned cycles",
+            "User provides context via MCP/chat or config file: machine, material, tools, tolerances",
+            "Run pipeline stages 1-5 (skip Stage 0 normalization — already have G-code)",
+            "Stage 6 re-generates optimized G-code preserving original structure but with optimized S/F",
+            "Preserve: program structure, comments, sub-program calls, custom M-codes",
+            "Replace: S/F values, add controller optimization codes, insert safety checks",
+            "PRISM CLI command: `prism optimize input.nc --machine DMU50 --material 316L --output optimized.nc`",
+            "MCP action: pp_reoptimize — accepts G-code string + context, returns optimized G-code",
+            "Skill: /post-optimize for interactive re-optimization via chat"
+          ],
+          "exit_conditions": [
+            "hyperMILL G-code successfully re-optimized with variable S/F",
+            "Original program structure preserved (comments, sub-programs, custom M-codes)",
+            "Re-optimized output passes PostProcessorVerificationEngine validation",
+            "CLI and MCP action both functional",
+            "15+ tests comparing before/after optimization metrics"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Machine-Specific Safety + Multi-Channel",
+      "units": [
+        {
+          "id": "U04",
+          "title": "Machine-specific safety sequences — startup, shutdown, tool change, spindle warm-up",
+          "status": "complete",
+          "steps": [
+            "Build MachineSequenceEngine: machine-specific operational sequences",
+            "Startup sequences per machine type:",
+            "  Vertical mill: G28 G91 Z0 / G90 G17 G21 G40 G80 / T1 M6 / etc.",
+            "  Horizontal mill: includes pallet/tombstone orientation check",
+            "  5-axis: includes rotary axis home + TCPC activation",
+            "  Lathe: chuck close verify, tailstock check, turret home",
+            "  Mill-turn: mode switch (milling↔turning), spindle select (main/sub/live)",
+            "Tool change sequences per ATC type:",
+            "  Side-mount ATC: Z home → orient spindle → tool change → new tool measure",
+            "  Umbrella ATC: Z home → rapid to change position → change → rapid back",
+            "  Turret: direct index → no Z home needed",
+            "  Magazine: random vs fixed pocket logic",
+            "Coolant management:",
+            "  Flood: M8 on → cutting → M9 off → chip blow M7 (optional)",
+            "  TSC: M88 (through-spindle on) at specified pressure",
+            "  MQL: M7 with flow rate setting",
+            "  Cryogenic: specialized M-codes per system (LN2/CO2)",
+            "Spindle warm-up: configurable warm-up cycle (5 min ramp for cold starts)",
+            "Shutdown: retract, coolant off, spindle stop, home position, program end"
+          ],
+          "exit_conditions": [
+            "Startup sequence differs between vertical mill and 5-axis",
+            "Tool change sequence appropriate for machine ATC type",
+            "Coolant codes match machine capability",
+            "Warm-up cycle optional and configurable"
+          ]
+        },
+        {
+          "id": "U05",
+          "title": "Multi-channel / Mill-turn support",
+          "status": "complete",
+          "steps": [
+            "Build MultiChannelPostEngine for complex machine types:",
+            "Mill-turn:",
+            "  Channel 1 (main spindle): turning operations",
+            "  Channel 2 (sub-spindle): simultaneous turning or part transfer",
+            "  Channel 3 (live tooling): milling operations with C-axis",
+            "  Synchronization codes: WAITM (Siemens), !-codes (Mazak), M-code sync (Fanuc)",
+            "  Mode switching: G12.1 (polar interpolation), C-axis lock/unlock, CSS mode (G96/G97)",
+            "  Y-axis milling on lathes: offset handling, tool orientation",
+            "Sub-spindle transfer:",
+            "  Part handoff sequence: approach → grip → cut-off → retract",
+            "  G14/G15 axis mirroring (Mazak), TRANSMIT (Siemens)",
+            "  Bar feeder interface: bar advance, remnant detection",
+            "Swiss-type lathe:",
+            "  Guide bushing ON/OFF modes",
+            "  Sliding headstock coordination",
+            "  Gang tooling vs turret selection",
+            "  B-axis milling (where equipped)",
+            "Stream synchronization output per controller dialect",
+            "Multi-channel cycle time: parallel operation tracking"
+          ],
+          "exit_conditions": [
+            "Mill-turn program with main + sub-spindle + live tooling generates correctly",
+            "Synchronization codes inserted per controller dialect",
+            "Sub-spindle transfer sequence complete and safe",
+            "Multi-channel operations tracked for parallel cycle time",
+            "20+ tests covering mill-turn and multi-channel scenarios"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

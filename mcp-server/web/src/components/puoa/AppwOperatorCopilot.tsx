@@ -88,7 +88,7 @@ function buildSummary(props: AppwOperatorCopilotProps) {
     ? ` Current posture: ${posture.join(' | ')}.`
     : ' Current posture is forming from the live floor desk context.';
 
-  return `PRISM AI is reasoning over the live operator, shift, task, commercial handoff, and escalation state from this APPW desk.${summaryTail}`;
+  return `Kienzle AI is reasoning over the live operator, shift, task, commercial handoff, and escalation state from this APPW desk.${summaryTail}`;
 }
 
 function buildSuggestions(props: AppwOperatorCopilotProps): WorkspaceCopilotSuggestion[] {

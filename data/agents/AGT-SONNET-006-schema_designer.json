@@ -1,0 +1,318 @@
+{
+  "agent_id": "AGT-SONNET-006",
+  "name": "schema_designer",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "Schema Designer - Designs, Validates, and Evolves Data Schemas",
+  
+  "domain_expertise": [
+    "JSON Schema design",
+    "TypeScript type definitions",
+    "Database schema design",
+    "API contract schemas",
+    "Material schema (127 params)",
+    "Machine schema (85 params)",
+    "Agent capability schema",
+    "Schema versioning",
+    "Schema migration",
+    "Schema validation rules"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-SCH-001",
+      "name": "JSON Schema Design",
+      "description": "Designs JSON schemas with proper types, constraints, and documentation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["data_requirements"],
+        "optional": ["existing_schema", "schema_version"]
+      },
+      "outputs": {
+        "primary": "json_schema",
+        "secondary": ["schema_docs", "example_data", "validation_rules"]
+      },
+      "skills_used": ["prism-material-schema", "prism-api-contracts"],
+      "hooks_triggered": ["SCHEMA-DESIGN"],
+      "synergizes_with": ["architect", "validator"],
+      "schema_features": [
+        "Type definitions",
+        "Required fields",
+        "Default values",
+        "Pattern constraints",
+        "Enum restrictions",
+        "Nested objects",
+        "Array specifications"
+      ],
+      "success_criteria": "Valid JSON Schema produced"
+    },
+    {
+      "id": "CAP-SCH-002",
+      "name": "TypeScript Type Generation",
+      "description": "Generates TypeScript interfaces from schemas or data",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["source"],
+        "optional": ["type_options"]
+      },
+      "outputs": {
+        "primary": "typescript_types",
+        "secondary": ["type_guards", "utility_types"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["TYPE-GENERATE"],
+      "synergizes_with": ["coder", "architect"],
+      "success_criteria": "Valid TypeScript types generated"
+    },
+    {
+      "id": "CAP-SCH-003",
+      "name": "Material Schema Compliance Check",
+      "description": "Validates data against PRISM 127-parameter material schema",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["material_data"],
+        "optional": ["strict_mode"]
+      },
+      "outputs": {
+        "primary": "compliance_result",
+        "secondary": ["missing_params", "invalid_params", "suggestions"]
+      },
+      "skills_used": ["prism-material-schema", "prism-validator"],
+      "hooks_triggered": ["MATERIAL-SCHEMA-CHECK"],
+      "synergizes_with": ["materials_scientist", "validator"],
+      "success_criteria": "Full schema compliance"
+    },
+    {
+      "id": "CAP-SCH-004",
+      "name": "Machine Schema Compliance Check",
+      "description": "Validates data against PRISM 85-parameter machine schema",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_data"],
+        "optional": ["strict_mode"]
+      },
+      "outputs": {
+        "primary": "compliance_result",
+        "secondary": ["missing_params", "invalid_params", "suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MACHINE-SCHEMA-CHECK"],
+      "synergizes_with": ["machine_validator", "validator"],
+      "success_criteria": "Full schema compliance"
+    },
+    {
+      "id": "CAP-SCH-005",
+      "name": "Agent Capability Schema Design",
+      "description": "Designs and validates agent capability definitions",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["agent_definition"],
+        "optional": ["capability_requirements"]
+      },
+      "outputs": {
+        "primary": "schema_compliance",
+        "secondary": ["missing_fields", "suggestions", "quality_score"]
+      },
+      "skills_used": ["prism-all-skills", "prism-validator"],
+      "hooks_triggered": ["AGENT-SCHEMA-CHECK"],
+      "synergizes_with": ["architect", "coordinator_v2"],
+      "required_elements": {
+        "agent_id": "AGT-{TIER}-{NUMBER}",
+        "name": "lowercase_snake_case",
+        "tier": "OPUS|SONNET|HAIKU",
+        "role": "Description of role",
+        "capabilities": "Array of capability objects",
+        "skills_mastered": "Array of skill names",
+        "hooks_subscribed": "Array of hook names"
+      },
+      "success_criteria": "Agent schema valid"
+    },
+    {
+      "id": "CAP-SCH-006",
+      "name": "Schema Evolution Planning",
+      "description": "Plans schema migrations and version upgrades",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["current_schema", "target_schema"],
+        "optional": ["migration_constraints"]
+      },
+      "outputs": {
+        "primary": "migration_plan",
+        "secondary": ["breaking_changes", "migration_steps", "rollback_plan"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-api-contracts"],
+      "hooks_triggered": ["SCHEMA-EVOLVE"],
+      "synergizes_with": ["architect", "regression_detector"],
+      "success_criteria": "Safe migration plan created"
+    },
+    {
+      "id": "CAP-SCH-007",
+      "name": "Schema Validation Rule Generation",
+      "description": "Generates validation rules from schema definitions",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["schema"],
+        "optional": ["validation_framework"]
+      },
+      "outputs": {
+        "primary": "validation_rules",
+        "secondary": ["rule_code", "error_messages"]
+      },
+      "skills_used": ["prism-validator", "prism-code-master"],
+      "hooks_triggered": ["RULE-GENERATE"],
+      "synergizes_with": ["validator", "coder"],
+      "success_criteria": "Executable validation rules"
+    },
+    {
+      "id": "CAP-SCH-008",
+      "name": "API Contract Schema Design",
+      "description": "Designs API request/response schemas",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["api_requirements"],
+        "optional": ["api_version"]
+      },
+      "outputs": {
+        "primary": "api_schema",
+        "secondary": ["request_schema", "response_schema", "error_schema"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-code-master"],
+      "hooks_triggered": ["API-SCHEMA-DESIGN"],
+      "synergizes_with": ["architect", "api_designer"],
+      "success_criteria": "Complete API schema"
+    },
+    {
+      "id": "CAP-SCH-009",
+      "name": "Database Schema Design",
+      "description": "Designs database schemas for PRISM data stores",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["data_requirements"],
+        "optional": ["database_type"]
+      },
+      "outputs": {
+        "primary": "db_schema",
+        "secondary": ["indexes", "relationships", "constraints"]
+      },
+      "skills_used": ["prism-code-master", "prism-dev-utilities"],
+      "hooks_triggered": ["DB-SCHEMA-DESIGN"],
+      "synergizes_with": ["architect"],
+      "success_criteria": "Optimized database schema"
+    },
+    {
+      "id": "CAP-SCH-010",
+      "name": "Schema Documentation Generation",
+      "description": "Generates human-readable documentation from schemas",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["schema"],
+        "optional": ["doc_format"]
+      },
+      "outputs": {
+        "primary": "schema_docs",
+        "secondary": ["field_descriptions", "examples", "constraints_explained"]
+      },
+      "skills_used": ["prism-api-contracts"],
+      "hooks_triggered": ["DOC-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Clear documentation generated"
+    },
+    {
+      "id": "CAP-SCH-011",
+      "name": "Schema Compatibility Check",
+      "description": "Checks if two schemas are compatible (for upgrades/migrations)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["schema_a", "schema_b"],
+        "optional": ["compatibility_mode"]
+      },
+      "outputs": {
+        "primary": "compatibility_result",
+        "secondary": ["compatible_fields", "incompatible_fields", "migration_needed"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-validator"],
+      "hooks_triggered": ["SCHEMA-COMPAT-CHECK"],
+      "synergizes_with": ["regression_detector"],
+      "success_criteria": "Compatibility assessed"
+    },
+    {
+      "id": "CAP-SCH-012",
+      "name": "Default Value Generation",
+      "description": "Generates sensible default values for schema fields",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["schema", "field"],
+        "optional": ["context"]
+      },
+      "outputs": {
+        "primary": "default_value",
+        "secondary": ["rationale", "alternatives"]
+      },
+      "skills_used": ["prism-material-schema", "prism-material-physics"],
+      "hooks_triggered": ["DEFAULT-GENERATE"],
+      "synergizes_with": ["materials_scientist", "validator"],
+      "success_criteria": "Reasonable default generated"
+    },
+    {
+      "id": "CAP-SCH-013",
+      "name": "Schema Versioning Management",
+      "description": "Manages schema versions and version history",
+      "category": "MANAGEMENT",
+      "inputs": {
+        "required": ["schema", "version_change"],
+        "optional": ["changelog"]
+      },
+      "outputs": {
+        "primary": "versioned_schema",
+        "secondary": ["version_number", "changelog_entry", "migration_notes"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-dev-utilities"],
+      "hooks_triggered": ["VERSION-MANAGE"],
+      "synergizes_with": ["architect"],
+      "success_criteria": "Version properly managed"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-material-schema",
+    "prism-validator",
+    "prism-api-contracts",
+    "prism-code-master",
+    "prism-anti-regression",
+    "prism-manufacturing-tables",
+    "prism-all-skills",
+    "prism-dev-utilities"
+  ],
+
+  "hooks_subscribed": [
+    "db:preValidate",
+    "api:preRoute",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "validator",
+    "coder"
+  ],
+
+  "receives_from": [
+    "architect",
+    "data_quality_enforcer",
+    "materials_scientist"
+  ],
+
+  "quality_gates": [
+    "Schema syntactically valid",
+    "All required fields defined",
+    "Constraints appropriate",
+    "Documentation complete"
+  ],
+
+  "performance_metrics": {
+    "schema_quality": 0.95,
+    "validation_coverage": 0.99,
+    "latency_target_ms": 200,
+    "throughput": 100
+  }
+}

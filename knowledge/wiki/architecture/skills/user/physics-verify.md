@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `physics-verify` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/physics-verify.md` |
+| Source | `C:/Users/wompu/.claude/commands/physics-verify.md` |
 | Model | default |
 | Tags | _(none)_ |
 

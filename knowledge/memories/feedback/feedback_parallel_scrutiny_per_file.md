@@ -1,11 +1,12 @@
 ---
 name: feedback_parallel_scrutiny_per_file
 description: "After every single file generated during a multi-file build/milestone close-out, dispatch 2 parallel scrutiny agents BEFORE writing the next file. Don't accumulate work and review at the end."
-metadata: 
-  node_type: memory
-  type: feedback
-  originSessionId: 5fd23c5f-ca4e-4788-b782-6100b2862a94
+aliases: feedback_parallel_scrutiny_per_file
+type: feedback
+source: prism-memory
+synced: 2026-06-27T20:30:46.439Z
 ---
+
 
 User directive 2026-05-12 (during CAD-INFRA-MS0 close-out): *"do it, utilize parallel agent scrutinization after each file generated to scrutinize, look for bugs and errors before continuing on to the next step. both of you should be checking your work."*
 

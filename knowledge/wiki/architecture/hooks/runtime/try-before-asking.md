@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-try-before-asking.mjs — UserPromptSubmit Stop HookDetects when Claude is about to tell the user to do somethingthat Claude can do itself. Injects a reminder to try first.Triggers on phrases like:- "you can run", "you should run", "try running"- "please run", "run this command"- "you'll need to", "you need to"- "manually start", "manually run"- "in your terminal"@hook PreToolUse (on assistant responses suggesting user action)
+_(no header docblock — read source for behavior)_
 
 ## Events
 

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="abf41ed0adf8e8d147e15e3910b65305c495e3d896d241655ecd6d40aa96617a">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAD-to-CAM Handoff Contract</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CAD-to-CAM Handoff Contract</h1>
+<div class="meta">rendered from state/shared/specs/CAD-TO-CAM-HANDOFF-CONTRACT-2026-05-28.md</div>
+<div class="meta">Generated 2026-05-28T02:45:22.488Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">CAD-to-CAM handoff contract — delta → kilo</li><li class="prism-toc-l2">What this contract enforces</li><li class="prism-toc-l2">Handoff location</li><li class="prism-toc-l2">Schema version</li><li class="prism-toc-l2">Mandatory fields kilo MUST honor</li><li class="prism-toc-l2">Verification gate (kilo&#39;s responsibility post-CAM-generation)</li><li class="prism-toc-l2">Producing the handoff (delta&#39;s side)</li><li class="prism-toc-l2">Operator escape hatch</li><li class="prism-toc-l2">Schema example</li><li class="prism-toc-l2">Related</li><li class="prism-toc-l2">Kilo soul refuse_list (post-CAM-generation must reject)</li><li class="prism-toc-l2">Closed-loop fold-in</li></ul></nav><h1 class="prism-h1">CAD-to-CAM handoff contract — delta → kilo</h1>
+<p><strong>Owner:</strong> delta (CAD generation specialist) <strong>Consumer:</strong> kilo (print-to-program / CAM specialist) <strong>Created:</strong> 2026-05-28 in response to operator follow-up — <em>&quot;do another deep assessment … apply all of the same things but specifically for cam since its your domain&quot;</em> — mirroring delta&#39;s own kilo→delta <code class="prism-inline-code">PRINT-TO-CAD-HANDOFF-CONTRACT-2026-05-27.md</code> pattern.</p>
+<h2 class="prism-h2">What this contract enforces</h2>
+<p>Kilo MUST NOT generate a CAM program (machine pick + stock + workholding + op order + tool/holder + post-emit) without first reading the corresponding delta-produced handoff JSON. The handoff carries:</p>
+<ol class="prism-md-list"><li><strong>Hard fields kilo MUST honor</strong> (GD&amp;T, unit, polar-pattern count, material, critical tolerances, expected feature graph, surface finishes).</li><li><strong>Hard fields kilo MUST verify</strong> after generating the CAM program (toolpath respects every tolerance, no interrupted cuts beyond shop-floor cap, every critical-tolerance feature has an inspection probe, post emits in the unit the CAD declared).</li></ol>
+<p>The seam closes the <strong>GD&amp;T propagation Stage-2 → Stage-3</strong> gap (delta&#39;s V2 §10 critique) and the <strong>CAD-feature-modify advisor</strong> loop (operator-named in the CAM ask).</p>
+<h2 class="prism-h2">Handoff location</h2>
+<pre class="prism-codeblock"><code>H:/prism/state/shared/cad-to-cam-handoff/&lt;partId&gt;__cad-to-cam.json</code></pre>
+<p>Companion full-PMI record at the same path with <code class="prism-inline-code">__pmi.json</code> suffix. Per-slot worktree variants (<code class="prism-inline-code">H:/prism-slot-delta/</code>, <code class="prism-inline-code">H:/prism-slot-kilo/</code>) merge to the canonical <code class="prism-inline-code">H:/prism/</code> shared path at golf merge time.</p>
+<h2 class="prism-h2">Schema version</h2>
+<p><code class="prism-inline-code">schemaVersion: &quot;1.0.0&quot;</code> — bump on any change to mandatory fields. Kilo MUST check <code class="prism-inline-code">schemaVersion</code> and refuse handoffs with unrecognized major versions.</p>
+<h2 class="prism-h2">Mandatory fields kilo MUST honor</h2>
+<table class="prism-md-table"><thead><tr><th>Field</th><th>Type</th><th>Meaning</th><th>Failure mode if ignored</th></tr></thead><tbody><tr><td><code class="prism-inline-code">deltaDecision.overall</code></td><td>`&quot;pass&quot; \</td><td>&quot;reject&quot;`</td><td>If <code class="prism-inline-code">reject</code>, kilo MUST NOT generate any CAM; surface blocking reasons to operator.</td><td>Silent generation of unmachineable parts</td></tr>
+<tr><td><code class="prism-inline-code">deltaDecision.blockingReasons</code></td><td><code class="prism-inline-code">string[]</code></td><td>If non-empty, every entry must be resolved before kilo proceeds.</td><td>Operator never sees the gate trip</td></tr>
+<tr><td><code class="prism-inline-code">partIdentity.partNumber</code></td><td><code class="prism-inline-code">string</code></td><td>Source-of-truth part identifier.</td><td>CAM program named wrong — fleet outcome ledger mis-attributed</td></tr>
+<tr><td><code class="prism-inline-code">partIdentity.revision</code></td><td><code class="prism-inline-code">string</code></td><td>Drawing revision; CAM must include in setup-sheet header.</td><td>Old-revision program runs against new-revision dimensions</td></tr>
+<tr><td><code class="prism-inline-code">unitDeclaration.unit</code></td><td>`&quot;mm&quot; \</td><td>&quot;in&quot;`</td><td>Source-of-truth unit declared in delta&#39;s emitted STEP/IGES/F3D header.</td><td>Silent inch↔mm conversion (delta&#39;s documented 2026-05-27 failure mode)</td></tr>
+<tr><td><code class="prism-inline-code">material.iso_group</code></td><td>`&quot;P&quot; \</td><td>&quot;M&quot; \</td><td>&quot;K&quot; \</td><td>&quot;N&quot; \</td><td>&quot;S&quot; \</td><td>&quot;H&quot;`</td><td>ISO material group for Kienzle + Taylor lookup.</td><td>Wrong physics constants → wrong S/F → tool break / scrap</td></tr>
+<tr><td><code class="prism-inline-code">material.alloy_designation</code></td><td><code class="prism-inline-code">string</code></td><td>E.g., &quot;AISI 4140 HRC 38&quot;, &quot;6061-T6&quot;, &quot;Ti-6Al-4V Gr5&quot;.</td><td>Generic ISO-P treatment of heat-treated tool steel — Ti hard-state burned tools</td></tr>
+<tr><td><code class="prism-inline-code">expectedFeatureGraph.features</code></td><td><code class="prism-inline-code">Array&lt;{ feature_id, type, gdt[], affected_regions, dimensions, tolerance_class, surface_finish_Ra_um }&gt;</code></td><td>Every machinable feature delta&#39;s output declares.</td><td>CAM misses a feature → undercut / overcut</td></tr>
+<tr><td><code class="prism-inline-code">expectedFeatureGraph.polarPatternCount</code></td><td><code class="prism-inline-code">number?</code></td><td>If present, kilo MUST plan toolpaths for exactly N polar-patterned instances.</td><td>Wrong blade count / hole-pattern count</td></tr>
+<tr><td><code class="prism-inline-code">expectedFeatureGraph.criticalTolerancesMustPropagate</code></td><td><code class="prism-inline-code">Array&lt;{feature_id, tolerance_mm, gdt_symbol, datum_refs[]}&gt;</code></td><td>Every entry MUST appear in kilo&#39;s emitted G-code as a per-feature tolerance comment / probe-cycle insertion.</td><td>Tolerance stack dropped → scrap</td></tr>
+<tr><td><code class="prism-inline-code">expectedFeatureGraph.minFeatureCount</code></td><td><code class="prism-inline-code">number</code></td><td>Kilo&#39;s output operation tree must contain ≥ this many operations.</td><td>Operations silently dropped</td></tr>
+<tr><td><code class="prism-inline-code">expectedFeatureGraph.gd_t_propagation_marker</code></td><td><code class="prism-inline-code">boolean</code></td><td>If <code class="prism-inline-code">true</code>, delta has explicitly propagated GD&amp;T via the Stage-2→3 side channel; kilo can read full PMI from <code class="prism-inline-code">__pmi.json</code> companion.</td><td>Closes delta V2 §10 GD&amp;T-propagation gap</td></tr>
+<tr><td><code class="prism-inline-code">cadAdjustmentSuggestions</code></td><td>`Array&lt;{ kind: &quot;suppress_feature&quot; \</td><td>&quot;add_feature&quot; \</td><td>&quot;reorder_constraint&quot;, feature_ref, rationale }&gt;`</td><td>Operator-named (in the CAM ask): suggestions delta makes to CAM-favorable CAD adjustments (suppress drilled holes until after face, add chamfers to ease tool entry, reorder feature constraints to avoid interrupted cuts).</td><td>Lost optimization opportunities</td></tr>
+<tr><td><code class="prism-inline-code">geometryArtifacts.step_path</code></td><td><code class="prism-inline-code">string</code></td><td>Path to delta&#39;s emitted STEP file (kilo&#39;s geometry input).</td><td>Wrong geometry parsed</td></tr>
+<tr><td><code class="prism-inline-code">geometryArtifacts.f3d_path?</code></td><td><code class="prism-inline-code">string?</code></td><td>If delta worked in Fusion 360, the source .f3d path — kilo can read embedded CAM operation tree directly via <code class="prism-inline-code">scripts/extract-f3d-feature-trees.py</code>.</td><td>Fusion CAM hints unused</td></tr>
+<tr><td><code class="prism-inline-code">geometryArtifacts.feature_graph_json</code></td><td><code class="prism-inline-code">string</code></td><td>Path to the structured feature graph (delta&#39;s CADClassFeatureLibrary output).</td><td>Re-derivation cost</td></tr>
+<tr><td><code class="prism-inline-code">partClassHint.partClass</code></td><td><code class="prism-inline-code">string</code></td><td>The CAD-class template (<code class="prism-inline-code">turbine-impeller</code>, <code class="prism-inline-code">lathe-shaft</code>, <code class="prism-inline-code">sheet-metal-stamping</code>, <code class="prism-inline-code">electrode-graphite</code>, <code class="prism-inline-code">complex-mold-cavity</code>, etc.).</td><td>Wrong machining strategy applied</td></tr>
+<tr><td><code class="prism-inline-code">partClassHint.recommendedFamily</code></td><td><code class="prism-inline-code">string</code></td><td>The CAM family (mill 3-axis / mill 4-axis / mill 5-axis / lathe / mill-turn / wire-EDM / sinker-EDM).</td><td>Wrong CAM platform selection</td></tr>
+<tr><td><code class="prism-inline-code">operatorOverride.allowed</code></td><td><code class="prism-inline-code">boolean</code></td><td>If <code class="prism-inline-code">true</code>, kilo may apply CAM-side overrides (e.g., add chamfer for tool entry, suppress redundant feature).</td><td>Default-deny prevents silent CAD modifications</td></tr></tbody></table>
+<h2 class="prism-h2">Verification gate (kilo&#39;s responsibility post-CAM-generation)</h2>
+<p>After kilo emits a CAM program (toolpath + post + setup sheet) but BEFORE declaring success, kilo MUST:</p>
+<ol class="prism-md-list"><li>Parse own output → count operations by feature → compare against <code class="prism-inline-code">expectedFeatureGraph.features</code>. Missing features → REJECT own output.</li><li>Verify emitted G-code declares the unit from <code class="prism-inline-code">unitDeclaration.unit</code> (G20/G21). Mismatch → REJECT.</li><li>Confirm operation count ≥ <code class="prism-inline-code">expectedFeatureGraph.minFeatureCount</code>. Otherwise REJECT.</li><li>If <code class="prism-inline-code">expectedFeatureGraph.polarPatternCount</code> present, verify exact toolpath-count per pattern. Mismatch → REJECT.</li><li>Walk <code class="prism-inline-code">expectedFeatureGraph.criticalTolerancesMustPropagate</code> — each entry MUST appear in emitted G-code as a <code class="prism-inline-code">( CRIT TOL: &lt;feature_id&gt; &lt;tolerance_mm&gt; &lt;gdt_symbol&gt; )</code> comment AND an in-process probe-cycle insertion. Drop → REJECT.</li><li>Run the InterruptedCutAvoidanceEngine (shipped 2026-05-28) on the operation tree — max severity must be ≤ shop-floor cap (default 3 unless <code class="prism-inline-code">operatorOverride.allowed === true</code>). Else REJECT.</li><li>Run AirCutDetectionEngine on the emitted G-code — air-cut percentage must be ≤ 15% (delta&#39;s CAD audit caveat F6 inspection-mode analog). Else REJECT.</li><li>Re-emit <code class="prism-inline-code">outcome_ledger_entry</code> to <code class="prism-inline-code">outcomes/outcomes.jsonl</code> for closed-loop feedback: <code class="prism-inline-code">{partId, cycleTime, surfaceFinishRa, scrapRate, toolWearObserved, criticalTolerancesAchieved}</code>.</li></ol>
+<p>Failure of ANY verification step means kilo MUST surface <code class="prism-inline-code">&quot;CAM generation rejected by delta-CAD verification gate&quot;</code> with the specific mismatch, NOT silently ship a CAM program that violates the contract.</p>
+<h2 class="prism-h2">Producing the handoff (delta&#39;s side)</h2>
+<pre class="prism-codeblock" data-lang="bash"><code>H:/Tools/python/python.exe `
+  H:/prism-slot-delta/scripts/cad-to-cam-handoff.py `
+  &quot;&lt;path-to-step-or-f3d&gt;&quot; `
+  --out-dir H:/prism/state/shared/cad-to-cam-handoff/</code></pre>
+<p>For Fusion-native CAD (<code class="prism-inline-code">.f3d</code>), delta can additionally invoke <code class="prism-inline-code">extract-f3d-feature-trees.py</code> to lift the embedded feature tree into the handoff&#39;s <code class="prism-inline-code">expectedFeatureGraph</code>:</p>
+<pre class="prism-codeblock" data-lang="bash"><code>H:/Tools/python/python.exe `
+  H:/prism-slot-kilo/scripts/extract-f3d-feature-trees.py `
+  &quot;&lt;part.f3d&gt;&quot; `
+  --out-dir H:/prism/state/shared/cad-rev-eng/</code></pre>
+<h2 class="prism-h2">Operator escape hatch</h2>
+<p>A handoff with <code class="prism-inline-code">deltaDecision.overall: &quot;reject&quot;</code> is NEVER auto-overridable by kilo. Operator must either:</p>
+<ol class="prism-md-list"><li>Annotate the source CAD with explicit unit + GD&amp;T + part-class declarations and re-run delta, OR</li><li>Manually edit the handoff JSON to flip <code class="prism-inline-code">overall: &quot;pass&quot;</code> and accept responsibility (this MUST log to <code class="prism-inline-code">state/shared/cad-to-cam-handoff/overrides.jsonl</code>).</li></ol>
+<h2 class="prism-h2">Schema example</h2>
+<pre class="prism-codeblock" data-lang="json"><code>{
+  &quot;schemaVersion&quot;: &quot;1.0.0&quot;,
+  &quot;partIdentity&quot;: { &quot;partNumber&quot;: &quot;PP-1005337&quot;, &quot;revision&quot;: &quot;B&quot;, &quot;fixtureSetCount&quot;: 2 },
+  &quot;unitDeclaration&quot;: { &quot;unit&quot;: &quot;in&quot;, &quot;tolerance_default_mm&quot;: 0.025 },
+  &quot;material&quot;: { &quot;iso_group&quot;: &quot;P&quot;, &quot;alloy_designation&quot;: &quot;AISI 4140 HRC 38&quot; },
+  &quot;deltaDecision&quot;: { &quot;overall&quot;: &quot;pass&quot;, &quot;blockingReasons&quot;: [] },
+  &quot;expectedFeatureGraph&quot;: {
+    &quot;features&quot;: [
+      { &quot;feature_id&quot;: &quot;F01&quot;, &quot;type&quot;: &quot;pocket_closed&quot;, &quot;tolerance_class&quot;: &quot;IT8&quot;,
+        &quot;surface_finish_Ra_um&quot;: 1.6, &quot;affected_regions&quot;: [{&quot;x_min&quot;: -10, &quot;x_max&quot;: 10, &quot;y_min&quot;: -10, &quot;y_max&quot;: 10, &quot;z_top&quot;: 0, &quot;z_bottom&quot;: -8}] },
+      { &quot;feature_id&quot;: &quot;F02&quot;, &quot;type&quot;: &quot;hole_through&quot;, &quot;tolerance_class&quot;: &quot;IT7&quot;,
+        &quot;dimensions&quot;: { &quot;diameter_mm&quot;: 6.0, &quot;depth_mm&quot;: 25 } }
+    ],
+    &quot;polarPatternCount&quot;: 6,
+    &quot;criticalTolerancesMustPropagate&quot;: [
+      { &quot;feature_id&quot;: &quot;F02&quot;, &quot;tolerance_mm&quot;: 0.013, &quot;gdt_symbol&quot;: &quot;position&quot;, &quot;datum_refs&quot;: [&quot;A&quot;, &quot;B|&quot;, &quot;C&quot;] }
+    ],
+    &quot;minFeatureCount&quot;: 8,
+    &quot;gd_t_propagation_marker&quot;: true
+  },
+  &quot;cadAdjustmentSuggestions&quot;: [
+    { &quot;kind&quot;: &quot;suppress_feature&quot;, &quot;feature_ref&quot;: &quot;F02&quot;, &quot;rationale&quot;: &quot;Drill F02 holes AFTER face F01 to avoid interrupted top — kilo InterruptedCutAvoidance F1 pattern.&quot; }
+  ],
+  &quot;geometryArtifacts&quot;: {
+    &quot;step_path&quot;: &quot;H:/prism/state/shared/cad-to-cam-handoff/PP-1005337__rev-B.step&quot;,
+    &quot;f3d_path&quot;: &quot;H:/PRISM/JM DIE/FUSION CAD AND CAM FILES/JM/PP-1005337 OP1 FUSION/PP-1005337 OP1 v1.f3d&quot;,
+    &quot;feature_graph_json&quot;: &quot;H:/prism/state/shared/cad-to-cam-handoff/PP-1005337__feature-graph.json&quot;
+  },
+  &quot;partClassHint&quot;: { &quot;partClass&quot;: &quot;complex-fixture-component&quot;, &quot;recommendedFamily&quot;: &quot;mill 3-axis&quot; },
+  &quot;operatorOverride&quot;: { &quot;allowed&quot;: false }
+}</code></pre>
+<h2 class="prism-h2">Related</h2>
+<ul class="prism-md-list"><li>Sibling: <code class="prism-inline-code">state/shared/specs/PRINT-TO-CAD-HANDOFF-CONTRACT-2026-05-27.md</code> (kilo → delta, the upstream handoff)</li><li><code class="prism-inline-code">state/shared/specs/CAM-PIPELINE-AUDIT-2026-05-28.md</code> — the CAM audit this contract implements §6 of</li><li><code class="prism-inline-code">state/shared/specs/CAM-TEST-PLAYBOOK-2026-05-28.md</code> — Tier 4 orchestrator uses this contract as its input format</li><li><code class="prism-inline-code">state/shared/specs/CAD-PIPELINE-AUDIT-2026-05-20.md</code> — delta&#39;s CAD audit (§10 V2 critique of GD&amp;T propagation; this contract closes that gap)</li><li><code class="prism-inline-code">mcp-server/src/engines/InterruptedCutAvoidanceEngine.ts</code> — referenced by verification gate step 6</li><li><code class="prism-inline-code">mcp-server/src/engines/AirCutDetectionEngine.ts</code> — referenced by verification gate step 7</li><li><code class="prism-inline-code">scripts/extract-f3d-feature-trees.py</code> — referenced by <code class="prism-inline-code">geometryArtifacts.f3d_path</code> consumers</li></ul>
+<h2 class="prism-h2">Kilo soul refuse_list (post-CAM-generation must reject)</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">silent-fallback-on-ambiguous-callouts</code> — if a feature has <code class="prism-inline-code">tolerance_class</code> unset, REJECT, don&#39;t pick a default.</li><li><code class="prism-inline-code">dropping-tolerance-stack-on-translate</code> — every <code class="prism-inline-code">criticalTolerancesMustPropagate</code> entry must reach the G-code.</li><li><code class="prism-inline-code">emitting-program-without-pmi-validation</code> — <code class="prism-inline-code">gd_t_propagation_marker: true</code> with no <code class="prism-inline-code">__pmi.json</code> companion is a hard error.</li><li><code class="prism-inline-code">applying-unauthorized-cad-modifications</code> — <code class="prism-inline-code">cadAdjustmentSuggestions</code> are suggestions for delta to apply on re-run; kilo NEVER edits the source CAD.</li><li><code class="prism-inline-code">bypass-interrupted-cut-cap</code> — operator&#39;s <code class="prism-inline-code">operatorOverride.allowed === false</code> (the default) means InterruptedCutAvoidance severity &gt; 3 is a HARD REJECT.</li></ul>
+<h2 class="prism-h2">Closed-loop fold-in</h2>
+<p>Every CAM run that passes the verification gate writes an <code class="prism-inline-code">outcome_ledger_entry</code> to <code class="prism-inline-code">outcomes/outcomes.jsonl</code>. The <code class="prism-inline-code">SelfLearningLoopOrchestratorEngine</code> 7-state FSM picks it up at the <code class="prism-inline-code">observe</code> transition, computes <code class="prism-inline-code">corpus_delta</code>, and updates the bandit posteriors. Net effect: each completed CAM job sharpens the priors for the next job. <strong>The handoff contract is what makes this closed-loop work cross-slot</strong> — delta+kilo agree on what passes/fails, the ledger records the outcome, and the priors converge.</p>
+<hr class="prism-hr">
+<p><strong>End of contract.</strong> Bump <code class="prism-inline-code">schemaVersion</code> on any mandatory-field change. Kilo refuses handoffs with unrecognized major versions.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

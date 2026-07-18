@@ -328,20 +328,32 @@ export function createWedmErpRouter(): Router {
     }),
   );
 
-  // U-WEDM-ERP04: GET /quote/rates — shop WEDM rate card (public, no auth)
+  // U-WEDM-ERP04: GET /quote/rates -- shop WEDM rate card.
+  // U-WEDMERP-RATES-REDACT (2026-06-24, slot:hotel): this route is intentionally anon-reachable (a
+  // prospect-facing rate card) -- but it bundled `overhead_pct` + `margin_pct`, the shop's INTERNAL
+  // margin/overhead structure, which must NEVER reach an unauthenticated surface (the same leak class as
+  // the quoting cost sweep + the hotel-portal PII gate; charlie-soul refuse: no margin/overhead to a
+  // customer/anon surface). Redact-when-anon: an authenticated caller still gets the full card incl.
+  // margin/overhead; an anonymous prospect sees only the customer-facing machine/operator/wire rates.
+  // (The router is mounted under /api where optionalToken sets req.userId for a valid Bearer, never anon.)
   router.get(
     "/quote/rates",
-    handle(async (_req, res) => {
-      ok(res, {
+    handle(async (req, res) => {
+      const authed = Boolean((req as { userId?: string }).userId);
+      const card: Record<string, unknown> = {
         machine_rate_usd_hr: WEDM_DEFAULT_RATES.machine_rate_usd_hr,
         operator_rate_usd_hr: WEDM_DEFAULT_RATES.operator_rate_usd_hr,
-        overhead_pct: WEDM_DEFAULT_RATES.overhead_pct,
-        margin_pct: WEDM_DEFAULT_RATES.margin_pct,
         setup_hours_default: 1,
         wire_cost_usd_per_m: WEDM_WIRE_COST_USD_PER_M,
         updated_at: new Date().toISOString(),
         source: "WEDM_DEFAULT_RATES (src/physics/wedm-constants.ts)",
-      });
+      };
+      // Internal margin/overhead structure -- only for an authenticated caller.
+      if (authed) {
+        card.overhead_pct = WEDM_DEFAULT_RATES.overhead_pct;
+        card.margin_pct = WEDM_DEFAULT_RATES.margin_pct;
+      }
+      ok(res, card);
     }),
   );
 

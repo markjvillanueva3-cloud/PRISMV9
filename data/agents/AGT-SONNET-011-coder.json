@@ -1,0 +1,387 @@
+{
+  "agent_id": "AGT-SONNET-011",
+  "name": "coder",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Code Generator - Implements Code Following PRISM Standards and MIT Patterns",
+  
+  "domain_expertise": [
+    "JavaScript/TypeScript implementation",
+    "Python scripting",
+    "PRISM coding standards",
+    "MIT software construction patterns",
+    "Abstraction barriers",
+    "Error handling patterns",
+    "Defensive programming",
+    "Function specifications",
+    "Module structure",
+    "Test-driven development"
+  ],
+
+  "mit_patterns": {
+    "abstraction_barriers": "Interface vs implementation separation",
+    "higher_order_functions": "Functions that take/return functions",
+    "data_abstraction": "Define by operations, not structure",
+    "wishful_thinking": "Write ideal code first, implement helpers",
+    "specifications": "Requires/modifies/effects contracts",
+    "defensive_programming": "Validate early, fail fast",
+    "immutability": "No hidden mutation"
+  },
+
+  "capabilities": [
+    {
+      "id": "CAP-CODE-001",
+      "name": "Function Implementation",
+      "description": "Implements functions with full JSDoc, validation, and error handling",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["function_spec"],
+        "optional": ["language", "style_guide"]
+      },
+      "outputs": {
+        "primary": "function_code",
+        "secondary": ["jsdoc", "validation_code", "error_handling"]
+      },
+      "skills_used": ["prism-code-master", "prism-sp-execution"],
+      "hooks_triggered": ["CODE-GENERATE"],
+      "synergizes_with": ["code_reviewer", "architect"],
+      "template": {
+        "requires": "Preconditions that must be true",
+        "modifies": "What state is changed",
+        "effects": "What the function returns/does"
+      },
+      "success_criteria": "Function meets specification with full docs"
+    },
+    {
+      "id": "CAP-CODE-002",
+      "name": "Module Implementation",
+      "description": "Implements complete modules with proper exports and structure",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["module_spec"],
+        "optional": ["module_pattern", "exports_style"]
+      },
+      "outputs": {
+        "primary": "module_code",
+        "secondary": ["exports", "imports", "documentation"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["MODULE-GENERATE"],
+      "synergizes_with": ["architect", "code_reviewer"],
+      "module_patterns": {
+        "revealing_module": "Private internals, public API",
+        "factory": "Creates configured instances",
+        "singleton": "Single shared instance",
+        "facade": "Simplified interface to subsystem"
+      },
+      "success_criteria": "Module is self-contained with clean API"
+    },
+    {
+      "id": "CAP-CODE-003",
+      "name": "Error Handling Implementation",
+      "description": "Implements comprehensive error handling with fallbacks (Commandment 7)",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["code_to_protect"],
+        "optional": ["error_types", "fallback_strategies"]
+      },
+      "outputs": {
+        "primary": "protected_code",
+        "secondary": ["error_handlers", "fallbacks", "logging"]
+      },
+      "skills_used": ["prism-code-master", "prism-error-catalog"],
+      "hooks_triggered": ["ERROR-HANDLING-ADD"],
+      "synergizes_with": ["code_reviewer"],
+      "pattern": {
+        "primary": "Main calculation path",
+        "fallback_1": "Simpler calculation",
+        "fallback_2": "Safe defaults",
+        "final": "Graceful error reporting"
+      },
+      "success_criteria": "No unhandled exceptions, graceful degradation"
+    },
+    {
+      "id": "CAP-CODE-004",
+      "name": "Validation Layer Implementation",
+      "description": "Implements input validation (Commandment 8: PROTECT EVERYTHING)",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["parameters_to_validate"],
+        "optional": ["validation_schema", "error_messages"]
+      },
+      "outputs": {
+        "primary": "validation_code",
+        "secondary": ["validators", "error_messages", "sanitizers"]
+      },
+      "skills_used": ["prism-validator", "prism-code-master"],
+      "hooks_triggered": ["VALIDATION-ADD"],
+      "synergizes_with": ["validator", "code_reviewer"],
+      "validation_types": [
+        "Type checking",
+        "Range checking",
+        "Null/undefined handling",
+        "Format validation",
+        "Sanitization"
+      ],
+      "success_criteria": "All inputs validated before use"
+    },
+    {
+      "id": "CAP-CODE-005",
+      "name": "Abstraction Barrier Implementation",
+      "description": "Implements clean abstraction barriers (interface vs implementation)",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["data_structure"],
+        "optional": ["operations_needed"]
+      },
+      "outputs": {
+        "primary": "abstraction_code",
+        "secondary": ["public_api", "private_implementation", "type_definitions"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["ABSTRACTION-CREATE"],
+      "synergizes_with": ["architect", "schema_designer"],
+      "example": {
+        "bad": "MATERIALS_ARRAY[5].properties.mechanical.hardness.value",
+        "good": "PRISM_MATERIALS.getProperty(material, 'hardness')"
+      },
+      "success_criteria": "Clean API, hidden implementation details"
+    },
+    {
+      "id": "CAP-CODE-006",
+      "name": "Database Consumer Wiring",
+      "description": "Implements database consumer connections (Commandment 1)",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["consumer_module", "database"],
+        "optional": ["access_pattern"]
+      },
+      "outputs": {
+        "primary": "wired_code",
+        "secondary": ["imports", "access_methods", "error_handling"]
+      },
+      "skills_used": ["prism-wiring-templates", "prism-dev-utilities"],
+      "hooks_triggered": ["SYS-CMD1-WIRING", "DB-WIRE"],
+      "synergizes_with": ["completeness_auditor", "resource_auditor"],
+      "success_criteria": "Consumer properly connected to database"
+    },
+    {
+      "id": "CAP-CODE-007",
+      "name": "Test Implementation",
+      "description": "Implements unit tests following TDD patterns",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["code_to_test"],
+        "optional": ["test_framework", "coverage_target"]
+      },
+      "outputs": {
+        "primary": "test_code",
+        "secondary": ["test_cases", "edge_cases", "mocks"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-code-master"],
+      "hooks_triggered": ["TEST-CREATE"],
+      "synergizes_with": ["test_orchestrator", "code_reviewer"],
+      "test_patterns": [
+        "Happy path",
+        "Edge cases",
+        "Error conditions",
+        "Boundary values",
+        "Integration points"
+      ],
+      "success_criteria": "≥90% coverage, all edge cases covered"
+    },
+    {
+      "id": "CAP-CODE-008",
+      "name": "TypeScript Type Generation",
+      "description": "Generates TypeScript interfaces and type definitions",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["source_data_or_schema"],
+        "optional": ["strict_mode", "export_style"]
+      },
+      "outputs": {
+        "primary": "type_definitions",
+        "secondary": ["interfaces", "type_guards", "utility_types"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["TYPE-GENERATE"],
+      "synergizes_with": ["schema_designer"],
+      "success_criteria": "Valid TypeScript types with documentation"
+    },
+    {
+      "id": "CAP-CODE-009",
+      "name": "Python Script Implementation",
+      "description": "Implements Python scripts for automation and data processing",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["script_spec"],
+        "optional": ["python_version", "dependencies"]
+      },
+      "outputs": {
+        "primary": "python_script",
+        "secondary": ["requirements", "documentation", "cli_interface"]
+      },
+      "skills_used": ["prism-code-master", "prism-dev-utilities"],
+      "hooks_triggered": ["PYTHON-GENERATE"],
+      "synergizes_with": ["code_reviewer"],
+      "success_criteria": "Working script with error handling"
+    },
+    {
+      "id": "CAP-CODE-010",
+      "name": "Hook Integration Implementation",
+      "description": "Implements PRISM hook system integration",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["hooks_to_integrate"],
+        "optional": ["hook_handlers"]
+      },
+      "outputs": {
+        "primary": "hooked_code",
+        "secondary": ["hook_registrations", "handlers", "documentation"]
+      },
+      "skills_used": ["prism-hook-system", "prism-code-master"],
+      "hooks_triggered": ["HOOK-INTEGRATE"],
+      "synergizes_with": ["architect"],
+      "success_criteria": "Hooks properly integrated and documented"
+    },
+    {
+      "id": "CAP-CODE-011",
+      "name": "Formula Implementation",
+      "description": "Implements mathematical formulas with uncertainty propagation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["formula_spec"],
+        "optional": ["uncertainty_method"]
+      },
+      "outputs": {
+        "primary": "formula_code",
+        "secondary": ["uncertainty_code", "validation", "documentation"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-uncertainty-propagation", "prism-material-physics"],
+      "hooks_triggered": ["FORMULA-IMPLEMENT"],
+      "synergizes_with": ["force_calculator", "thermal_calculator"],
+      "success_criteria": "Formula correct with uncertainty bounds"
+    },
+    {
+      "id": "CAP-CODE-012",
+      "name": "API Endpoint Implementation",
+      "description": "Implements API endpoints following contract definitions",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["api_contract"],
+        "optional": ["framework", "middleware"]
+      },
+      "outputs": {
+        "primary": "endpoint_code",
+        "secondary": ["validation", "error_responses", "documentation"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-code-master"],
+      "hooks_triggered": ["API-IMPLEMENT"],
+      "synergizes_with": ["architect", "schema_designer"],
+      "success_criteria": "Endpoint matches contract specification"
+    },
+    {
+      "id": "CAP-CODE-013",
+      "name": "Large File Generation",
+      "description": "Generates large files using chunked approach",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["content_spec"],
+        "optional": ["chunk_size", "format"]
+      },
+      "outputs": {
+        "primary": "generated_file",
+        "secondary": ["chunk_count", "file_size", "validation"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["LARGE-FILE-WRITE"],
+      "synergizes_with": ["extractor"],
+      "approach": {
+        "first_chunk": "Filesystem:write_file",
+        "subsequent": "Desktop Commander:write_file mode='append'"
+      },
+      "success_criteria": "Complete file with validated content"
+    },
+    {
+      "id": "CAP-CODE-014",
+      "name": "Code Documentation Generation",
+      "description": "Generates comprehensive code documentation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["doc_format", "include_examples"]
+      },
+      "outputs": {
+        "primary": "documentation",
+        "secondary": ["jsdoc", "readme", "api_docs"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["DOC-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Complete documentation with examples"
+    },
+    {
+      "id": "CAP-CODE-015",
+      "name": "Code Cleanup",
+      "description": "Cleans up code (formatting, unused imports, comments)",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["code"],
+        "optional": ["style_guide", "preserve_comments"]
+      },
+      "outputs": {
+        "primary": "cleaned_code",
+        "secondary": ["changes_made", "removed_items"]
+      },
+      "skills_used": ["prism-code-master", "prism-validator"],
+      "hooks_triggered": ["CODE-CLEANUP"],
+      "synergizes_with": ["code_reviewer", "refactorer"],
+      "success_criteria": "Clean, consistent code"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-code-master",
+    "prism-api-contracts",
+    "prism-wiring-templates",
+    "prism-tdd-enhanced",
+    "prism-validator",
+    "prism-error-catalog",
+    "prism-hook-system",
+    "prism-formula-evolution",
+    "prism-uncertainty-propagation",
+    "prism-dev-utilities"
+  ],
+
+  "hooks_subscribed": [
+    "code:preWrite",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "validator",
+    "code_reviewer"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "architect",
+    "extractor"
+  ],
+
+  "quality_gates": [
+    "Syntax valid",
+    "JSDoc complete",
+    "Error handling present",
+    "Validation present",
+    "Tests written"
+  ],
+
+  "performance_metrics": {
+    "code_quality": 0.95,
+    "documentation_coverage": 0.90,
+    "latency_target_ms": 1000,
+    "functions_per_hour": 20
+  }
+}

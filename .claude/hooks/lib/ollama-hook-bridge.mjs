@@ -9,21 +9,26 @@
  *   if (result.success) { use result.response } else { use regex fallback }
  */
 
+// SUBSTRATE-UTIL Gap 4 (2026-06-29, slot:sierra): ground the mcp_route system prompt in the
+// real 123-dispatcher manifest (cycle-free leaf; pure + fail-soft) so the routing model picks
+// an EXISTING dispatcher:action instead of inventing one. Wired via resolveSystemPrompt below.
+import { getDispatcherHints, formatDispatcherManifestBlock } from "../../../scripts/lib/dispatcher-hints.mjs";
+
 // Default host is 127.0.0.1 (NOT localhost): Node resolves `localhost` to IPv6
 // ::1, but Ollama binds IPv4-only → ECONNREFUSED. Override with OLLAMA_URL.
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 const DEFAULT_TIMEOUT_MS = 500;
-const DEFAULT_MODEL = 'qwen2.5-coder:7b';
+const DEFAULT_MODEL = 'qwen2.5-coder:32b';
 
 // Model selection per hook type (matches OllamaHookBridgeEngine)
 const HOOK_MODELS = {
-  grep_index: 'qwen2.5-coder:7b',
-  mcp_route: 'qwen2.5-coder:7b',
-  ai_feature: 'qwen2.5-coder:14b',
-  code_explain: 'qwen2.5-coder:14b',
-  pattern_match: 'qwen2.5-coder:7b',
-  validation: 'qwen2.5-coder:7b',
-  general: 'qwen2.5-coder:7b',
+  grep_index: 'qwen2.5-coder:32b',
+  mcp_route: 'qwen2.5-coder:32b',
+  ai_feature: 'qwen2.5-coder:32b',
+  code_explain: 'qwen2.5-coder:32b',
+  pattern_match: 'qwen2.5-coder:32b',
+  validation: 'qwen2.5-coder:32b',
+  general: 'qwen2.5-coder:32b',
 };
 
 // System prompts per hook type (matches OllamaHookBridgeEngine)
@@ -103,6 +108,41 @@ export function buildRequestBody(prompt, opts = {}) {
 }
 
 /**
+ * Resolve the system prompt for a hook query. Pure + fail-soft (no network, no throw) so it
+ * is unit-testable without a live Ollama. For `mcp_route` (and only when the caller did NOT
+ * supply an explicit `systemPrompt`) it appends a manifest of the dispatchers most relevant to
+ * `prompt`, selected from DISPATCHER_DIGEST.md -- this is SUBSTRATE-UTIL Gap 4: without it the
+ * model is asked to name "the best PRISM dispatcher and action" with no list of the 123 that
+ * exist and hallucinates names.
+ * @param {string} hookType
+ * @param {string} prompt - the task/user prompt (used to select relevant dispatchers)
+ * @param {Object} [options] - {systemPrompt?, groundDispatchers?, repoRoot?, dispatcherTopN?, groundingQuery?}
+ * @returns {string}
+ */
+export function resolveSystemPrompt(hookType, prompt, options = {}) {
+  const base = options.systemPrompt ?? HOOK_PROMPTS[hookType] ?? HOOK_PROMPTS.general;
+  // Caller supplied an explicit systemPrompt -> respect it verbatim (no enrichment).
+  if (options.systemPrompt) return base;
+  if (hookType === 'mcp_route' && options.groundDispatchers !== false) {
+    try {
+      // SUBSTRATE-UTIL Gap 4 P2: select dispatchers from options.groundingQuery when given (the
+      // RAW task, e.g. just the bash command), else the full prompt. mcp-route-suggest embeds a
+      // static "Available MCP dispatchers: prism_session/dev/calc ..." template in `prompt`, whose
+      // boilerplate tokens pollute the ranking (both Gap-4 reviewers flagged it); grounding on the
+      // bash command alone picks dispatchers by the actual task. Default = prompt (back-compat).
+      const groundQuery = (typeof options.groundingQuery === 'string' && options.groundingQuery.trim())
+        ? options.groundingQuery
+        : prompt;
+      const manifest = formatDispatcherManifestBlock(
+        getDispatcherHints(groundQuery, { root: options.repoRoot, topN: options.dispatcherTopN }),
+      );
+      if (manifest) return `${base}\n\n${manifest.trim()}`;
+    } catch { /* fail-soft: grounding never breaks the sub-500ms hook path */ }
+  }
+  return base;
+}
+
+/**
  * Query Ollama with a prompt. Returns quickly with fallback on error/timeout.
  * @param {string} prompt - The prompt to send
  * @param {Object} options - Query options
@@ -119,7 +159,7 @@ export async function queryOllama(prompt, options = {}) {
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const maxTokens = options.maxTokens ?? 100;
   const model = HOOK_MODELS[hookType] || DEFAULT_MODEL;
-  const systemPrompt = options.systemPrompt ?? HOOK_PROMPTS[hookType] ?? HOOK_PROMPTS.general;
+  const systemPrompt = resolveSystemPrompt(hookType, prompt, options);
 
   // Validate prompt
   if (!prompt || typeof prompt !== 'string') {
@@ -194,4 +234,4 @@ export async function queryOllama(prompt, options = {}) {
   }
 }
 
-export default { queryOllama, isOllamaAvailable };
+export default { queryOllama, isOllamaAvailable, resolveSystemPrompt };

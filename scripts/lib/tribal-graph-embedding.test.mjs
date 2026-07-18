@@ -596,6 +596,79 @@ describe("embedBatch", () => {
       /items must be array/,
     );
   });
+
+  // ── concurrency (Blackwell GPU saturation) ────────────────────────────────
+  // A fetch impl that tracks the peak number of simultaneous in-flight requests
+  // and (optionally) fails specific request texts. `finally` decrements exactly
+  // once on both the success and throw paths.
+  function trackingFetch({ latencyMs = 5, failTexts = new Set() } = {}) {
+    let inFlight = 0, maxInFlight = 0;
+    const impl = async (url, init) => {
+      inFlight++; if (inFlight > maxInFlight) maxInFlight = inFlight;
+      try {
+        await new Promise(r => setTimeout(r, latencyMs));
+        let reqText = "";
+        try { const b = JSON.parse(init.body); reqText = b.input ?? b.prompt ?? ""; } catch { /* ignore */ }
+        if (failTexts.has(reqText)) throw new Error(`synthetic-fail:${reqText}`);
+        const v = vec((i) => Math.sin(i * 0.01) + reqText.length * 1e-6);
+        const isModern = /\/api\/embed$/.test(url);
+        const body = isModern ? { embeddings: [v] } : { embedding: v };
+        return { ok: true, status: 200, json: async () => body, text: async () => JSON.stringify(body) };
+      } finally {
+        inFlight--;
+      }
+    };
+    return { impl, peak: () => maxInFlight };
+  }
+
+  it("[concurrency] >1 runs multiple embed requests in flight (pool saturates idle backend)", async () => {
+    const t = trackingFetch({ latencyMs: 10 });
+    const items = Array.from({ length: 12 }, (_, i) => ({ id: `c${i}`, text: `text-${i}` }));
+    const r = await embedBatch(items, { fetchImpl: t.impl, concurrency: 4, retryBaseMs: 1 });
+    assert.equal(r.vectors.length, 12);
+    assert.equal(r.failures.length, 0);
+    assert.ok(t.peak() > 1, `expected >1 request in flight, saw ${t.peak()}`);
+    assert.ok(t.peak() <= 4, `pool must not exceed concurrency, saw ${t.peak()}`);
+  });
+
+  it("[concurrency] default (1) issues exactly one request at a time", async () => {
+    const t = trackingFetch({ latencyMs: 5 });
+    const items = Array.from({ length: 6 }, (_, i) => ({ id: `s${i}`, text: `s-${i}` }));
+    const r = await embedBatch(items, { fetchImpl: t.impl, retryBaseMs: 1 });
+    assert.equal(r.vectors.length, 6);
+    assert.equal(t.peak(), 1, `default must be sequential, saw ${t.peak()} in flight`);
+  });
+
+  it("[concurrency] >1 preserves input order of vectors despite out-of-order completion", async () => {
+    const t = trackingFetch({ latencyMs: 8 });
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: `o${i}`, text: `o-${i}` }));
+    const r = await embedBatch(items, { fetchImpl: t.impl, concurrency: 5, retryBaseMs: 1 });
+    assert.deepEqual(r.vectors.map(v => v.id), items.map(it => it.id));
+  });
+
+  it("[concurrency] >1 records failures in input order, others succeed", async () => {
+    const t = trackingFetch({ latencyMs: 3, failTexts: new Set(["f-2", "f-5"]) });
+    const items = Array.from({ length: 7 }, (_, i) => ({ id: `f${i}`, text: `f-${i}` }));
+    const r = await embedBatch(items, { fetchImpl: t.impl, concurrency: 4, maxRetries: 0, retryBaseMs: 1, endpoint: "legacy" });
+    assert.equal(r.vectors.length, 5);
+    assert.deepEqual(r.failures.map(f => f.id), ["f2", "f5"]);
+    assert.ok(!r.vectors.some(v => v.id === "f2" || v.id === "f5"));
+  });
+
+  it("[concurrency] >1 fires onProgress with final processed === total", async () => {
+    const t = trackingFetch({ latencyMs: 1 });
+    const ticks = [];
+    const items = Array.from({ length: 9 }, (_, i) => ({ id: `p${i}`, text: `p-${i}` }));
+    await embedBatch(items, { fetchImpl: t.impl, concurrency: 3, batchSize: 2, onProgress: (s) => ticks.push(s), retryBaseMs: 1 });
+    assert.ok(ticks.length >= 1);
+    assert.equal(ticks[ticks.length - 1].processed, 9);
+  });
+
+  it("[concurrency] rejects non-integer/zero/negative concurrency", async () => {
+    await assert.rejects(embedBatch([], { concurrency: 0 }), /concurrency must be positive/);
+    await assert.rejects(embedBatch([], { concurrency: 1.5 }), /concurrency must be positive/);
+    await assert.rejects(embedBatch([], { concurrency: -2 }), /concurrency must be positive/);
+  });
 });
 
 // ──────────────────────────────────────────────────────────────────────────

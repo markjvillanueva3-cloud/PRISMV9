@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cam-toolpath-check — Toolpath Validation and Analysis
+Verify toolpath quality, collision safety, and optimization opportunities.
 
 <!-- AUTO-END -->
 

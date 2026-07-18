@@ -1,0 +1,137 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/**'
+      - 'data/**'
+      - 'scripts/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-sonnet-4-20250514
+          max_turns: 30
+          review_comment: |
+            You are a domain-expert code reviewer for the PRISM CNC/machining intelligence system.
+            Read REVIEW.md at the repository root for the complete review ruleset.
+
+            Review this PR with focus on these domains in priority order:
+
+            ## 1. Physics Formula Correctness (CRITICAL)
+            - Verify all machining formulas match canonical forms (Kienzle, Taylor, Merchant, etc.)
+            - Check that constants come from src/physics/constants.ts, not hardcoded
+            - Validate dimensional consistency (N, mm, MPa, m/min)
+            - Flag any exponent sign errors (common: 1-mc vs mc-1 in Kienzle)
+
+            ## 2. Dispatcher Wiring Completeness (HIGH)
+            - For each new engine file, verify:
+              a. z.enum entry exists in the target dispatcher
+              b. case statement with lazy import exists
+              c. Schema file exists for the action group
+              d. Action name is snake_case and unique across ALL dispatchers
+            - Check that total action count has not decreased
+
+            ## 3. Test Coverage (HIGH)
+            - Every new engine must have a __tests__/ companion file
+            - Minimum 10 test cases per engine
+            - Physics tests must use toBeCloseTo, not toEqual
+            - Edge cases required: zero, negative, extreme, NaN
+
+            ## 4. Backward Compatibility (HIGH)
+            - No removed exports without deprecation
+            - No renamed dispatcher actions
+            - Schema changes must be additive only
+
+            ## 5. Security (HIGH)
+            - No hardcoded secrets, no eval with user input
+            - File paths sanitized, URLs validated
+
+            ## 6. Code Quality (MEDIUM)
+            - No @ts-nocheck without justification
+            - No z.any() in schemas
+            - JSDoc on exports, functions <100 lines
+
+            ## Output Format
+            For each finding, report:
+            - **Severity**: CRITICAL / HIGH / MEDIUM / LOW
+            - **Rule**: Which REVIEW.md rule was violated
+            - **File:Line**: Location
+            - **Finding**: What is wrong
+            - **Suggestion**: How to fix it
+
+            Only flag CRITICAL and HIGH findings as "request changes".
+            MEDIUM and LOW are informational comments.
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-sonnet-4-20250514
+          direct_prompt: |
+            Perform a security-focused review of this PR. Check for:
+            1. Hardcoded secrets, API keys, or credentials
+            2. eval() or Function() with user-controlled input
+            3. Unsanitized file paths (path traversal)
+            4. Unvalidated URLs (SSRF)
+            5. SQL/NoSQL injection vectors
+            6. Prototype pollution
+            7. Unsafe deserialization
+            8. Missing input validation on dispatcher actions
+            Report only confirmed security findings with severity and remediation.
+
+  action-count-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check dispatcher action count anti-regression
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          count_actions() {
+            local sha="$1"
+            git show "$sha:src/tools/dispatchers" 2>/dev/null | \
+              grep -r "z\.enum\(\[" --include="*.ts" -c 2>/dev/null || echo "0"
+          }
+
+          # Count case statements in dispatcher files as a proxy for action count
+          BASE_CASES=$(git diff "$BASE_SHA" -- 'src/tools/dispatchers/*.ts' | grep -c "^-.*case '" || true)
+          HEAD_CASES=$(git diff "$BASE_SHA" -- 'src/tools/dispatchers/*.ts' | grep -c "^+.*case '" || true)
+
+          if [ "$BASE_CASES" -gt "$HEAD_CASES" ] && [ "$BASE_CASES" -gt 0 ]; then
+            echo "::error::Dispatcher action count decreased! Removed $BASE_CASES cases but only added $HEAD_CASES. This may break integrations."
+            exit 1
+          fi
+
+          echo "Action count check passed: -${BASE_CASES} +${HEAD_CASES}"

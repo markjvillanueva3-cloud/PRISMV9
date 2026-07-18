@@ -1,0 +1,29 @@
+{
+  "unit": "U-WEDM-REGIMEN3 (pass-schedule / H-offset cascade)",
+  "status": "TRAINED + artifact-validated; generation-grading via gate #1 is the remaining empirical step (needs a clean GPU)",
+  "trained_at": "2026-05-31",
+  "slot": "mike",
+  "galaxy": "wedm",
+  "base_model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "method": "QLoRA nf4 + WARM-START (continued the knowledge adapter, catalog doctrine D2)",
+  "warm_start_from": "models/wedm-lora (the 2026-05-31 knowledge adapter)",
+  "lora": { "r": 16, "alpha": 32, "dropout": 0.05 },
+  "trainable_params": 40370176,
+  "trainable_pct": 0.5273,
+  "dataset": { "path": "wedm_passschedule_train.jsonl", "pairs": 165, "source": "oracle-augmented (selectECodeFamily/getECodeForPass/getShopFeed/OffsetForPass), 5 kinds" },
+  "schedule": { "epochs": 3, "steps": 60, "batch_size": 2, "grad_accum": 4 },
+  "loss_curve": [0.6417, 0.1607, 0.1102, 0.0778, 0.0824, 0.0614],
+  "train_loss": 0.1890,
+  "train_runtime_s": 493.5,
+  "warm_start_evidence": "starting loss 0.64 (vs 3.07 cold-start on the knowledge run) — the model inherited WEDM knowledge; converged to 0.06 on the deterministic cascades",
+  "adapter": { "file": "models/wedm-passschedule-lora/adapter_model.safetensors", "size_mb": 154.1 },
+  "eval": {
+    "gate1_cascade_correctness": "scripts/eval-wedm-passschedule.mjs — corpus self-check 100% cascade-valid (oracle baseline). Grade the trained adapter's generations against this (inference step) for the empirical >=95% exact-match gate.",
+    "gates_2_3_4": "safety / reward / reasoning reuse WEDMLoRA{Safety,RewardShaping,Reasoning}EvaluatorEngine + eval-wedm-knowledge-corpus.mjs grounding"
+  },
+  "remaining": [
+    "inference-generation-grading through gate #1 (needs a clean GPU — the validation env flaked on import this run)",
+    "harden Free-Gpu to set PRISM_LOCAL_COMPUTE_AUTOSTART=0 for the train window (Ollama re-grabbed VRAM, slowing model load to 174s/shard)"
+  ],
+  "reproduce": "WEDM_WARM_START_ADAPTER=<knowledge adapter> WEDM_DATASET=<passschedule train> WEDM_OUTPUT=models/wedm-passschedule-lora pwsh -File scripts/wedm-finetune-pipeline.ps1 -Stage train"
+}

@@ -4,8 +4,14 @@ milestone: JULIETT-12CHAT-ALLOCATION-MS0
 owner_slot: echo
 wave: W1
 cost: S
-status: pending
+status: complete
 peer_claims_check_at: 2026-05-17T00:00:00Z
+shipped_at: 2026-05-20T06:10:00Z
+shipped_by_slot: echo
+shipped_artifact_lib: scripts/pathspec-only-guard.mjs
+shipped_artifact_test: scripts/pathspec-only-guard.test.mjs
+shipped_artifact_installer: scripts/install-pathspec-only-git-hook.mjs
+installed_hook_path: .husky/pre-commit
 tool_plan_ref: pending-rgs-build
 depends_on: []
 unblocks: [prevents-6th-collateral-staging-incident]
@@ -69,8 +75,14 @@ ONE new pre-commit guard `H:/prism/.git/hooks/pre-commit.d/05-pathspec-only.sh` 
 
 ## Rollback
 - Knob `PRISM_PATHSPEC_ONLY_DISABLE=1` (immediate)
-- Remove from `.git/hooks/pre-commit.d/` or rename to `.disabled` (per [[feedback_never_delete_only_disable]])
+- `node scripts/install-pathspec-only-git-hook.mjs --uninstall` (idempotent removal of the fenced block; preserves the rest of `.husky/pre-commit`)
 - Lib script preserved
+
+## Close-out (2026-05-20, slot echo / claude-4278393c)
+- Lib + 48-case test suite were shipped 2026-05-17 by a prior echo session (`claude-098ac2aa`) but the wiring shim was never installed, leaving the gate inert.
+- This session added `scripts/install-pathspec-only-git-hook.mjs` (mirrors the proven `install-system-viz-git-hook.mjs` pattern: worktree-aware `git rev-parse --git-path hooks`, fenced MARKER_BEGIN/END block, idempotent install + `--uninstall`).
+- The installer auto-detects PRISM's `core.hooksPath = .husky`; the fenced block appended to `.husky/pre-commit` AFTER the existing `lint-staged` + `cam-phase5-impl-gate` chain (preserves prior hooks, no clobber).
+- Smoke: re-running the installer correctly reports `already installed — pathspec-only block present`. 48/48 lib tests pass.
 
 ## References
 - [[reference_misc_tasks_extraction_2026_05_16]] §Recent regressions — 5 collateral-staging incidents in 48h

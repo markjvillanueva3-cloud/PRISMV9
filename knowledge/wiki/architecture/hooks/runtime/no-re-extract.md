@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-no-re-extract.mjs — Phase 1 Tier 5B
-PreTool hook that blocks re-extraction of sources already in extraction log.
-Prevents duplicate work and ensures extraction is done once correctly.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

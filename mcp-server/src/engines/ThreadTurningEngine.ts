@@ -107,18 +107,24 @@ export class ThreadTurningEngine {
 
     const [includedAngle, hFactor] = THREAD_PROFILES[form];
 
-    // Thread height (depth)
+    // Thread height = full radial depth-of-thread for a single-point thread.
+    // For 60° external (ISO 68-1) this is h3 = 17·H/24 = 0.61343·P, where
+    // H = 0.86603·P is the fundamental-triangle height; hFactor already encodes
+    // h3/P (metric/UN = 0.6134). This value IS the radial infeed — it must NOT
+    // be re-truncated (the removed ×0.625 was a spurious re-application of the
+    // H→H1 5/8 internal-engagement ratio and cut every 60° thread 0.625× too
+    // shallow → oversize minor Ø, GO ring-gauge reject; see Recent regressions).
+    // Ref: Machinery's Handbook Ch.20 "Threading"; ISO 68-1.
     const threadHeight = pitch * hFactor;
-    // Actual cutting depth (5/8 of height for 60° external)
-    const threadDepth = form === "acme_29" ||
-      form === "trapezoidal_30"
-      ? threadHeight
-      : threadHeight * (5 / 8) * 2; // total depth both sides
 
-    // Minor diameter
+    // Minor diameter (diametral = 2× the radial infeed depth).
+    // External: infeed inward  → minor = D_major − 2·h3
+    // Internal: infeed outward → D_major + 2·h3
+    // Coherent with SinglePointThreadEngine (DEPTH_FACTOR 0.6134, OD X = D−2·d)
+    // and ThreadCalculationEngine (H = 0.6134·P, minor = D_major − 2H).
     const minorDia = isExternal
-      ? majorDia - 2 * threadHeight * 0.625
-      : majorDia + 2 * threadHeight * 0.625;
+      ? majorDia - 2 * threadHeight
+      : majorDia + 2 * threadHeight;
 
     // Infeed method
     const infeed = input.infeed_method ?? (
@@ -131,7 +137,8 @@ export class ThreadTurningEngine {
     // Pass schedule (constant area method)
     // Total area ∝ depth². For n passes with constant area:
     // d_i = total_depth × sqrt(i/n) - sqrt((i-1)/n)
-    const totalDepth = threadHeight * 0.625;
+    // Full radial infeed for a single-point thread = the thread height h3.
+    const totalDepth = threadHeight;
     const numPasses = calculatePasses(totalDepth, pitch);
     const schedule: Array<{
       pass: number;
@@ -198,7 +205,7 @@ export class ThreadTurningEngine {
 
     return {
       thread_depth: av(r3(totalDepth), "mm", 0.05,
-        `P × ${hFactor} × 0.625`),
+        `P × ${hFactor} (radial depth-of-thread h3, ISO 68-1)`),
       number_of_passes: av(numPasses, "passes", 0,
         "Constant area method"),
       pass_schedule: schedule,
@@ -215,8 +222,8 @@ export class ThreadTurningEngine {
         `P × ${hFactor} (${form})`),
       minor_diameter: av(r2(minorDia), "mm", 0.05,
         isExternal
-          ? "D_major - 2 × 0.625H"
-          : "D_major + 2 × 0.625H"),
+          ? "D_major - 2H"
+          : "D_major + 2H"),
       warnings,
     };
   }

@@ -1,0 +1,155 @@
+{
+  "id": "L8-P2-MS1",
+  "version": "3.1.0",
+  "title": "Thread, Compliance & Telemetry Products",
+  "brief": "ThreadEngine: conversation threading, context continuity. ComplianceEngine: standards validation (ISO/AS9100/medical). TelemetryEngine: metrics collection, usage analytics, performance monitoring.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Thread, Compliance & Telemetry Products",
+      "description": "Implement ThreadEngine (conversation threading, context continuity), ComplianceEngine (standards validation for ISO/AS9100/medical), and TelemetryEngine (metrics collection, usage analytics, performance monitoring).",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Implement Thread, Compliance & Telemetry Products",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_intelligence"
+            },
+            {
+              "tool": "prism_dev"
+            },
+            {
+              "tool": "prism_validate"
+            },
+            {
+              "tool": "prism_compliance"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": [
+            "L8-P1-MS1 complete"
+          ],
+          "exit_conditions": [
+            "ThreadEngine implements conversation threading and context continuity",
+            "ComplianceEngine validates against ISO, AS9100, and medical standards",
+            "TelemetryEngine collects metrics, usage analytics, and performance data",
+            "All 27 product units registered and wired to dispatchers",
+            "Build passes",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- src/products/thread/ src/products/compliance/ src/products/telemetry/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement ThreadEngine with conversation threading and context continuity"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement ComplianceEngine with ISO, AS9100, and medical standards validation"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement TelemetryEngine with metrics collection, usage analytics, performance monitoring"
+            },
+            {
+              "number": 4,
+              "instruction": "Wire all products to dispatchers, register in product registry, verify API integration"
+            }
+          ],
+          "deliverables": [],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": []
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 27,
+  "total_sessions": "1",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 80
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_intelligence",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_dev",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_compliance",
+      "phases": [
+        "P0"
+      ]
+    }
+  ],
+  "deliverables_index": [],
+  "existing_leverage": [],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  },
+  "status": "not_started"
+}

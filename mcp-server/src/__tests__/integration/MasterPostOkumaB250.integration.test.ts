@@ -201,7 +201,7 @@ describe("OkumaB250LatheMasterPostEngine.generateProgram", () => {
     expect(gcodeText).toMatch(/T0?3/);
   });
 
-  it("generates G76 threading cycle for thread operation", () => {
+  it("generates Okuma G71 threading cycle (not Fanuc G76) for thread operation", () => {
     const result = okumaB250LatheMasterPostEngine.generateProgram([
       {
         operation_type: "thread",
@@ -222,7 +222,9 @@ describe("OkumaB250LatheMasterPostEngine.generateProgram", () => {
     ]);
 
     const gcodeText = result.gcode.join("\n");
-    expect(gcodeText).toContain("G76");
+    // Okuma OSP threading is the single-line G71 cycle -- NOT Fanuc G76 (U-PP-OKUMA-THREAD-G71).
+    expect(gcodeText).toContain("G71");
+    expect(gcodeText).not.toContain("G76");
   });
 
   it("returns physics_checks array with force calculations for cutting operations", () => {
@@ -896,7 +898,7 @@ describe("OkumaB250LatheMasterPostEngine round-trip validation", () => {
     expect(result1.total_lines).toBe(result2.total_lines);
   });
 
-  it("validates G76 threading cycle with 2.0mm pitch", () => {
+  it("validates Okuma G71 threading cycle (not Fanuc G76) with 2.0mm pitch", () => {
     const threadOps = [
       {
         operation_type: "thread",
@@ -916,7 +918,9 @@ describe("OkumaB250LatheMasterPostEngine round-trip validation", () => {
     const result = okumaB250LatheMasterPostEngine.generateProgram(threadOps, {});
 
     const gcodeText = result.gcode.join("\n");
-    expect(gcodeText).toContain("G76");
+    // Okuma OSP threading is the single-line G71 cycle -- NOT Fanuc G76 (U-PP-OKUMA-THREAD-G71).
+    expect(gcodeText).toContain("G71");
+    expect(gcodeText).not.toContain("G76");
   });
 
   it("generates motion lines count >= 1 for single operation", () => {

@@ -1,7 +1,7 @@
 ---
 title: PRISM Wiki Index
 category: meta
-last_verified: 2026-05-08
+last_verified: 2026-06-30
 author: hybrid
 ---
 
@@ -9,7 +9,7 @@ author: hybrid
 
 > LLM-maintained catalog. Bootstrap rewrites entries with `source:bootstrap` only — LLM-added entries are preserved across re-runs. See `WIKI_SCHEMA.md` §4.1.
 
-Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers + 99 memories from bootstrap, 0 preserved from prior writes)
+Last refreshed: 2026-06-30 — 1283 catalog entries (metadata stamp by regen-wiki-index-meta; entry bodies unchanged).
 
 ## concepts
 
@@ -19,7 +19,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[AdaptiveFeedModulation]] — AdaptiveFeedModulationEngine — PRISM Forces Dynamic Feed Control | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/AdaptiveFeedModulationEngine.ts
 - [[AdaptiveMachiningIntegration]] — AdaptiveMachiningIntegrationEngine — Unified Integration Layer | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/AdaptiveMachiningIntegrationEngine.ts
 - [[AdaptiveParameterSpace]] — AdaptiveParameterSpaceEngine — Expand Parameter Space from Evidence | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/AdaptiveParameterSpaceEngine.ts
-- [[AdaptivePhysicsBridge]] — AdaptivePhysicsBridgeEngine — Bridges Existing Physics to Phase 0.26 Adaptive System | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/AdaptivePhysicsBridgeEngine.ts
+- [[adaptive-physics-bridge]] — AdaptivePhysicsBridgeEngine — Bridges Existing Physics to Phase 0.26 Adaptive System | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/AdaptivePhysicsBridgeEngine.ts
 - [[AdaptiveSystemIntegration]] — AdaptiveSystemIntegrationEngine — Phase 0.26 System-Wide Integration | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/AdaptiveSystemIntegrationEngine.ts
 - [[AdaptiveThreshold]] — AdaptiveThresholdEngine — USSH Phase 0.25 / U-SCI06 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/AdaptiveThresholdEngine.ts
 - [[AISystemRouter]] — AISystemRouterEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/AISystemRouterEngine.ts
@@ -105,7 +105,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[CAMPluginRegistry]] — CAMPluginRegistryEngine — Plugin Discovery, Health, Compatibility (U-CAM98) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CAMPluginRegistryEngine.ts
 - [[CAMPostInvokeOrchestrator]] — CAMPostInvokeOrchestratorEngine — U-CAM-R3-10 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CAMPostInvokeOrchestratorEngine.ts
 - [[CAMPostSelectorUI]] — CAMPostSelectorUIEngine — Post-Processor Selector UI Feed (U-CAM100) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CAMPostSelectorUIEngine.ts
-- [[CAMSpeedFeedBridge]] — CAMSpeedFeedBridgeEngine — Per-CAM Speed/Feed Translation (U-CAM99) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CAMSpeedFeedBridgeEngine.ts
+- [[cam-speed-feed-bridge]] — CAMSpeedFeedBridgeEngine — Per-CAM Speed/Feed Translation (U-CAM99) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CAMSpeedFeedBridgeEngine.ts
 - [[CAMTribalKnowledgeInjection]] — CAMTribalKnowledgeInjectionEngine — Context Tooltips for CAM UI (U-CAM101) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CAMTribalKnowledgeInjectionEngine.ts
 - [[CAMTribalRAG]] — CAMTribalRAGEngine — U-CAM-ML-06 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CAMTribalRAGEngine.ts
 - [[CAMTribalTipLinker]] — CAMTribalTipLinkerEngine — U-CAM-ENRICH-02 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CAMTribalTipLinkerEngine.ts
@@ -115,7 +115,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[CATIAIntegrationTestSuite]] — CATIAIntegrationTestSuiteEngine — U-CAD-APP-06 (PHASE-48) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CATIAIntegrationTestSuiteEngine.ts
 - [[CATIAMachiningAIOrchestration]] — CATIAMachiningAIOrchestrationEngine — AI Orchestration for Dassault CATIA Machining | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CATIAMachiningAIOrchestrationEngine.ts
 - [[ChaosDrillScheduler]] — ChaosDrillSchedulerEngine — U-LPR-OPS-CHAOS | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/ChaosDrillSchedulerEngine.ts
-- [[ChipThinningCompensation]] — ChipThinningCompensationEngine — MIO-MS0/U-MIO09 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/ChipThinningCompensationEngine.ts
+- [[chip-thinning-compensation]] — ChipThinningCompensationEngine — MIO-MS0/U-MIO09 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/ChipThinningCompensationEngine.ts
 - [[CircularDependency]] — CircularDependencyEngine — Tarjan's SCC for Deadlock Prevention | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CircularDependencyEngine.ts
 - [[ClampingForce]] — ClampingForceEngine — MIO-MS0/U-MIO13 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/ClampingForceEngine.ts
 - [[CoatingSelectionAdapter]] — CoatingSelectionAdapter — CAMX-MS0.3 / U-CAMX04 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CoatingSelectionAdapter.ts
@@ -134,7 +134,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[CrossCAMComparisonLedger]] — CrossCAMComparisonLedgerEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL14 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CrossCAMComparisonLedgerEngine.ts
 - [[CrossCustomerPolicyTransfer]] — Cross-Customer Policy Transfer Engine — U-LEARN-10 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CrossCustomerPolicyTransferEngine.ts
 - [[CrossRegistryJoin]] — CrossRegistryJoinEngine — Phase 0.24 U-INT4 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CrossRegistryJoinEngine.ts
-- [[CrossSessionOrchestrator]] — CrossSessionOrchestratorEngine (U-COORD04) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CrossSessionOrchestratorEngine.ts
+- [[cross-session-orchestrator]] — CrossSessionOrchestratorEngine (U-COORD04) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CrossSessionOrchestratorEngine.ts
 - [[CrossTerminalCoordination]] — CrossTerminalCoordinationEngine — Multi-Terminal Work Distribution | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CrossTerminalCoordinationEngine.ts
 - [[CSRFProtection]] — CSRFProtectionEngine — U-LPR-SEC08 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CSRFProtectionEngine.ts
 - [[CSSChipLoadInvariantCoordinator]] — CSSChipLoadInvariantCoordinatorEngine — LATHE-PROD-READY-MS0 U-LPR05 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/CSSChipLoadInvariantCoordinatorEngine.ts
@@ -146,7 +146,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[DisasterRecovery]] — DisasterRecoveryEngine — U-LPR-OPS-DR | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/DisasterRecoveryEngine.ts
 - [[DoRAAdapter]] — DoRA Adapter Engine — U-LEARN-05 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/DoRAAdapterEngine.ts
 - [[DxfWriter]] — DxfWriterEngine — CAD-INPUT-MS0 / write-side closure for .dxf. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/DxfWriterEngine.ts
-- [[EdgeCaseCapture]] — EdgeCaseCaptureEngine — Learn from Boundary Operations | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/EdgeCaseCaptureEngine.ts
+- [[edge-case-capture]] — EdgeCaseCaptureEngine — Learn from Boundary Operations | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/EdgeCaseCaptureEngine.ts
 - [[EditImpactPredictor]] — EditImpactPredictorEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/EditImpactPredictorEngine.ts
 - [[EDMMultiPassStrategy]] — EDMMultiPassStrategyEngine — Multi-Pass (Skim Cut) Strategy Planning | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/EDMMultiPassStrategyEngine.ts
 - [[EDMProgramAssembler]] — EDMProgramAssemblerEngine — WEDM Program Structure Assembly | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/EDMProgramAssemblerEngine.ts
@@ -163,14 +163,14 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[FCStdNativeParser]] — FCStdNativeParserEngine — Direct ZIP+XML .FCStd Parser (no FreeCAD launch required) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FCStdNativeParserEngine.ts
 - [[FeatureStore]] — FeatureStoreEngine — U-LEARN-02 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FeatureStoreEngine.ts
 - [[FederatedLoRA]] — Federated LoRA Engine — U-LEARN-10 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FederatedLoRAEngine.ts
-- [[FiveAxisLoRACadence]] — FiveAxisLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL02 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FiveAxisLoRACadenceEngine.ts
+- [[fiveaxis-lora-cadence]] — FiveAxisLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL02 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FiveAxisLoRACadenceEngine.ts
 - [[FiveAxisLoRADatasetBuilder]] — FiveAxisLoRADatasetBuilderEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL02 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FiveAxisLoRADatasetBuilderEngine.ts
 - [[ForceOverlayVisualization]] — ForceOverlayVisualizationEngine — Real-time Force Prediction Overlay (U-CAM90) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/ForceOverlayVisualizationEngine.ts
-- [[FormulaIntegration]] — FormulaIntegrationEngine — Phase 0.23 U-UTL2 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FormulaIntegrationEngine.ts
+- [[formula-integration]] — FormulaIntegrationEngine — Phase 0.23 U-UTL2 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FormulaIntegrationEngine.ts
 - [[FreeCADAutomationBridge]] — FreeCADAutomationBridge — Python-subprocess bridge for FreeCAD (.FCStd). | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FreeCADAutomationBridge.ts
 - [[FreeCADCodeGenerator]] — FreeCADCodeGeneratorEngine — U-CADC05 (PHASE-1) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/FreeCADCodeGeneratorEngine.ts
 - [[Fusion360AutomationBridge]] — Fusion360AutomationBridge — HTTP bridge for Autodesk Fusion 360 (.f3d/.f3z). | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/Fusion360AutomationBridge.ts
-- [[Fusion360CodeGenerator]] — Fusion360CodeGeneratorEngine — U-CADC13 (CAD-COMPLETE-MS0) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/Fusion360CodeGeneratorEngine.ts
+- [[fusion360-code-generator]] — Fusion360CodeGeneratorEngine — U-CADC13 (CAD-COMPLETE-MS0) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/Fusion360CodeGeneratorEngine.ts
 - [[Fusion360FunctionIndex]] — Fusion360FunctionIndexEngine - Unified query surface over all extracted | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/Fusion360FunctionIndexEngine.ts
 - [[Fusion360InHostRunner]] — Fusion360InHostRunnerEngine — U-CAMTEST02 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/Fusion360InHostRunnerEngine.ts
 - [[Fusion360PluginAdapter]] — Fusion360PluginAdapterEngine — Fusion 360 CAM Python Add-in Bridge (U-CAM87) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/Fusion360PluginAdapterEngine.ts
@@ -309,12 +309,12 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[MachineForceLimitValidation]] — MachineForceLimitValidationEngine — MIO-MS0/U-MIO15 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachineForceLimitValidationEngine.ts
 - [[MachineKinematicState]] — MachineKinematicStateEngine — Dynamic Machine State Tracker (U-MIO39) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachineKinematicStateEngine.ts
 - [[MachineLayerMerger]] — MCAT-MS0 P1-U01: Machine Layer Merger | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachineLayerMerger.ts
-- [[MachineLoRABase]] — MachineLoRABaseEngine — shared foundation for per-machine LoRA pipelines | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachineLoRABaseEngine.ts
+- [[machine-lora-base]] — MachineLoRABaseEngine — shared foundation for per-machine LoRA pipelines | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachineLoRABaseEngine.ts
 - [[MachineOptionMatrix]] — MCAT-MS0 P1-U03: Machine Option Matrix Engine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachineOptionMatrixEngine.ts
 - [[MachinePackageSelection]] — MCAT-MS0 P2-U01: Machine Package Selection Engine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachinePackageSelectionEngine.ts
 - [[MachineTypeClassifier]] — MachineTypeClassifierEngine — Print/CAD to Machine Type Inference | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachineTypeClassifierEngine.ts
 - [[MachiningIntelligenceOrchestrator]] — MachiningIntelligenceOrchestratorEngine.ts | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MachiningIntelligenceOrchestratorEngine.ts
-- [[MasterAITrainingLedger]] — MasterAITrainingLedgerEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL09 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MasterAITrainingLedgerEngine.ts
+- [[master-ai-training-ledger]] — MasterAITrainingLedgerEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL09 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MasterAITrainingLedgerEngine.ts
 - [[MasterCADControlBrain]] — MasterCADControlBrainEngine — U-CADC-AI01 / CAD-COMPLETE-MS0 PHASE-30 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MasterCADControlBrainEngine.ts
 - [[Mastercam5Axis]] — Mastercam5AxisEngine - 5-Axis Simultaneous Milling Strategies for Mastercam | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/Mastercam5AxisEngine.ts
 - [[MastercamAIOrchestration]] — MastercamAIOrchestrationEngine — AI Orchestration for Mastercam | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MastercamAIOrchestrationEngine.ts
@@ -358,7 +358,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[MultiControllerCalibration]] — MultiControllerCalibrationEngine — P2P-FULLSTACK-MS0/U-P2PFS60 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MultiControllerCalibrationEngine.ts
 - [[MultiSessionHandoffCoordinator]] — MultiSessionHandoffCoordinatorEngine — U-CTX05 Multi-Session Handoff | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MultiSessionHandoffCoordinatorEngine.ts
 - [[MultiSignalAutoRollback]] — MultiSignalAutoRollbackEngine (U-LPR-AUTOROLLBACK) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MultiSignalAutoRollbackEngine.ts
-- [[MultivariateSPC]] — MultivariateSPCEngine — Hotelling T² and MEWMA multivariate control charts | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MultivariateSPCEngine.ts
+- [[multivariate-spc]] — MultivariateSPCEngine — Hotelling T² and MEWMA multivariate control charts | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/MultivariateSPCEngine.ts
 - [[NCFileParser]] — NCFileParserEngine — U-LEARN-03 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/NCFileParserEngine.ts
 - [[NeuralCADGeneration]] — NeuralCADGenerationEngine — CADCAM-DAGI-MS0/U-DAGI07 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/NeuralCADGenerationEngine.ts
 - [[NISTAIRMFCompliance]] — NISTAIRMFComplianceEngine — U-LPR-OPS-NIST | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/NISTAIRMFComplianceEngine.ts
@@ -370,7 +370,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[OkumaB250LatheMasterPost]] — OkumaB250LatheMasterPostEngine — JM Die Lathe Master Post Processor | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/OkumaB250LatheMasterPostEngine.ts
 - [[OkumaGosigerTranscriptMiner]] — OkumaGosigerTranscriptMinerEngine (E103) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/OkumaGosigerTranscriptMinerEngine.ts
 - [[OkumaRunLogParser]] — OkumaRunLogParserEngine — U-LEARN-03 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/OkumaRunLogParserEngine.ts
-- [[OllamaTaskOffloader]] — OllamaTaskOffloaderEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/OllamaTaskOffloaderEngine.ts
+- [[ollama-task-offloader]] — OllamaTaskOffloaderEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/OllamaTaskOffloaderEngine.ts
 - [[OneClickWEDMGenerator]] — OneClickWEDMGeneratorEngine — Single Entry Point DXF to G-code | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/OneClickWEDMGeneratorEngine.ts
 - [[OnshapeAPIBridge]] — OnshapeAPIBridgeEngine — U-CAD-APP-09 (PHASE-48) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/OnshapeAPIBridgeEngine.ts
 - [[OnshapeLiveCollabAdapter]] — OnshapeLiveCollabAdapter — U-CAD-APP-10 (PHASE-48) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/OnshapeLiveCollabAdapter.ts
@@ -483,7 +483,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[prism_resourceExtraction]] — prism_resource_extraction — Content Extraction Pipeline Dispatcher | category:concepts | sources:1 | confidence:0.8 | last_verified:2026-05-08 | source:mcp-server/src/tools/dispatchers/resourceExtractionDispatcher.ts
 - [[prism_resourceHarvester]] — prism_resource_harvester — Resource Scanning & Harvesting Dispatcher | category:concepts | sources:1 | confidence:0.8 | last_verified:2026-05-08 | source:mcp-server/src/tools/dispatchers/resourceHarvesterDispatcher.ts
 - [[prism_resourceHarvesting]] — prism_resource_harvesting — Automated Resource Harvesting Pipeline Dispatcher | category:concepts | sources:1 | confidence:0.8 | last_verified:2026-05-08 | source:mcp-server/src/tools/dispatchers/resourceHarvestingDispatcher.ts
-- [[prism_safety]] — Extract domain-specific key values for safety dispatcher summary responses. | category:concepts | sources:1 | confidence:0.8 | last_verified:2026-05-08 | source:mcp-server/src/tools/dispatchers/safetyDispatcher.ts
+- [[prism-safety]] — Extract domain-specific key values for safety dispatcher summary responses. | category:concepts | sources:1 | confidence:0.8 | last_verified:2026-05-08 | source:mcp-server/src/tools/dispatchers/safetyDispatcher.ts
 - [[prism_scheduling]] — prism_scheduling — Production Scheduling Dispatcher | category:concepts | sources:1 | confidence:0.8 | last_verified:2026-05-08 | source:mcp-server/src/tools/dispatchers/schedulingDispatcher.ts
 - [[prism_scientificMath]] — prism_scientific_math — Scientific Mathematics Dispatcher | category:concepts | sources:1 | confidence:0.8 | last_verified:2026-05-08 | source:mcp-server/src/tools/dispatchers/scientificMathDispatcher.ts
 - [[prism_secondaryOps]] — prism_secondary_ops — Secondary Operations Dispatcher | category:concepts | sources:1 | confidence:0.8 | last_verified:2026-05-08 | source:mcp-server/src/tools/dispatchers/secondaryOpsDispatcher.ts
@@ -559,7 +559,7 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[TenantIsolation]] — TenantIsolationEngine — U-LPR-SEC01 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TenantIsolationEngine.ts
 - [[TenantOnboardingRunbook]] — TenantOnboardingRunbookEngine — U-LPR-OPS-ONBOARD | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TenantOnboardingRunbookEngine.ts
 - [[TestASTAnalyzer]] — TestASTAnalyzerEngine — TypeScript AST analyzer for engine source files. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TestASTAnalyzerEngine.ts
-- [[TestQualityAudit]] — TestQualityAuditEngine — Classifies every .test.ts file as REAL / SHALLOW / SYNTHETIC | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TestQualityAuditEngine.ts
+- [[test-quality-audit]] — TestQualityAuditEngine — Classifies every .test.ts file as REAL / SHALLOW / SYNTHETIC | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TestQualityAuditEngine.ts
 - [[TestRegistryAdapter]] — TestRegistryAdapterEngine — Curated bank of realistic test inputs. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TestRegistryAdapterEngine.ts
 - [[TestResourceRegistry]] — TestResourceRegistryEngine — P2P-FULLSTACK-MS0/U-P2PFS58 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TestResourceRegistryEngine.ts
 - [[TestTimeAdaptation]] — Test-Time Adaptation Engine — U-LEARN-10 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TestTimeAdaptationEngine.ts
@@ -581,18 +581,18 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[TribalPlaybookEnforcement]] — TribalPlaybookEnforcementEngine — MIO-MS0/U-MIO43 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TribalPlaybookEnforcementEngine.ts
 - [[TribalRAG]] — TribalRAGEngine — U-LEARN-04 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TribalRAGEngine.ts
 - [[TriLevelKillSwitch]] — TriLevelKillSwitchEngine (U-LPR-KILL-SWITCH) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TriLevelKillSwitchEngine.ts
-- [[TurningCpkSurrogate]] — TurningCpkSurrogateEngine — LATHE-PRO-MS5.4 ML surrogate. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningCpkSurrogateEngine.ts
-- [[TurningEnvelopeDistance]] — TurningEnvelopeDistanceEngine — LATHE-PRO-MS5.3. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningEnvelopeDistanceEngine.ts
-- [[TurningRobustOptimizer]] — TurningRobustOptimizerEngine — LATHE-PRO-MS5.2 capstone. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningRobustOptimizerEngine.ts
-- [[TurningSensitivityAnalysis]] — TurningSensitivityAnalysisEngine — LATHE-PRO-MS5.1 variability apportionment. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningSensitivityAnalysisEngine.ts
+- [[turning-cpk-surrogate]] — TurningCpkSurrogateEngine — LATHE-PRO-MS5.4 ML surrogate. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningCpkSurrogateEngine.ts
+- [[turning-envelope-distance]] — TurningEnvelopeDistanceEngine — LATHE-PRO-MS5.3. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningEnvelopeDistanceEngine.ts
+- [[turning-robust-optimizer]] — TurningRobustOptimizerEngine — LATHE-PRO-MS5.2 capstone. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningRobustOptimizerEngine.ts
+- [[turning-sensitivity-analysis]] — TurningSensitivityAnalysisEngine — LATHE-PRO-MS5.1 variability apportionment. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningSensitivityAnalysisEngine.ts
 - [[TurningStochasticPlan]] — TurningStochasticPlanEngine — LATHE-PRO-MS5 stochastic wrapper. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningStochasticPlanEngine.ts
 - [[TurningStrategyCatalog]] — CAMX-MS19/U13 — Turning Strategy Catalog | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningStrategyCatalog.ts
 - [[TurningThreadOptimizer]] — TurningThreadOptimizerEngine — LATHE-PRO-MS4a capstone. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningThreadOptimizerEngine.ts
 - [[TurningThreadRobustOptimizer]] — TurningThreadRobustOptimizerEngine — LATHE-PRO-MS4a. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningThreadRobustOptimizerEngine.ts
-- [[TurningThreadSensitivity]] — TurningThreadSensitivityEngine — LATHE-PRO-MS4a. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningThreadSensitivityEngine.ts
-- [[TurningThreadStochasticPlan]] — TurningThreadStochasticPlanEngine — LATHE-PRO-MS4a. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningThreadStochasticPlanEngine.ts
+- [[turning-thread-sensitivity]] — TurningThreadSensitivityEngine — LATHE-PRO-MS4a. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningThreadSensitivityEngine.ts
+- [[turning-thread-stochastic-plan]] — TurningThreadStochasticPlanEngine — LATHE-PRO-MS4a. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/TurningThreadStochasticPlanEngine.ts
 - [[UnifiedCADCodeGeneratorBase]] — UnifiedCADCodeGeneratorBase — U-CADC00 (PHASE-0B) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/UnifiedCADCodeGeneratorBase.ts
-- [[UniversalCADIndex]] — UniversalCADIndexEngine — U-CADC01 (CAD-COMPLETE-MS0) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/UniversalCADIndexEngine.ts
+- [[universal-cad-index]] — UniversalCADIndexEngine — U-CADC01 (CAD-COMPLETE-MS0) | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/UniversalCADIndexEngine.ts
 - [[VariabilityEnvelope]] — VariabilityEnvelopeEngine — Probabilistic Parameter Boundaries | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/VariabilityEnvelopeEngine.ts
 - [[VariabilitySourceTracker]] — VariabilitySourceTrackerEngine — Track Where Variability Comes From | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/VariabilitySourceTrackerEngine.ts
 - [[VideoKnowledgeIntegration]] — VideoKnowledgeIntegrationEngine — Phase 0.23 U-UTL11 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/VideoKnowledgeIntegrationEngine.ts
@@ -611,26 +611,26 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[WEDMDielectricFlushAdjust]] — WEDMDielectricFlushAdjustEngine — Dielectric Conductivity → Flush Pressure | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMDielectricFlushAdjustEngine.ts
 - [[WEDMDXFClosureValidator]] — WEDMDXFClosureValidatorEngine — DXF Contour Closure Validation | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMDXFClosureValidatorEngine.ts
 - [[WEDMEWCMemory]] — WEDMEWCMemoryEngine — Elastic Weight Consolidation (EWC++) for WEDM LoRA adapters. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMEWCMemoryEngine.ts
-- [[WEDMFeatureImportance]] — WEDMFeatureImportanceEngine — SHAP-inspired feature importance for WEDM parameters | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMFeatureImportanceEngine.ts
+- [[wedm-feature-importance]] — WEDMFeatureImportanceEngine — SHAP-inspired feature importance for WEDM parameters | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMFeatureImportanceEngine.ts
 - [[WEDMFeedbackIngestion]] — WEDMFeedbackIngestionEngine.ts — MS-P1-LEARN-LOOP U-P1-LL-02 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMFeedbackIngestionEngine.ts
 - [[WEDMFewShotMaterial]] — WEDMFewShotMaterialEngine — Few-shot LoRA bootstrap for new WEDM materials. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMFewShotMaterialEngine.ts
-- [[WEDMFlushAdequacyGate]] — WEDMFlushAdequacyGateEngine — Wire EDM Flushing Adequacy Gate | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMFlushAdequacyGateEngine.ts
-- [[WEDMGraphAttention]] — WEDMGraphAttentionEngine — h=4 multi-head Graph Attention layer. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMGraphAttentionEngine.ts
-- [[WEDMHeadClearance]] — WEDMHeadClearanceEngine — Upper/Lower Head Clearance Safety Gate | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMHeadClearanceEngine.ts
+- [[wedm-flush-adequacy-gate]] — WEDMFlushAdequacyGateEngine — Wire EDM Flushing Adequacy Gate | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMFlushAdequacyGateEngine.ts
+- [[wedm-graph-attention]] — WEDMGraphAttentionEngine — h=4 multi-head Graph Attention layer. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMGraphAttentionEngine.ts
+- [[wedm-head-clearance]] — WEDMHeadClearanceEngine — Upper/Lower Head Clearance Safety Gate | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMHeadClearanceEngine.ts
 - [[WEDMInvoiceLine]] — WEDMInvoiceLineEngine — Completed Job → Invoice Draft | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMInvoiceLineEngine.ts
 - [[WEDMJobCost]] — WEDMJobCostEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMJobCostEngine.ts
 - [[WEDMJobCreator]] — WEDMJobCreatorEngine — Program → Job Packet bridge | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMJobCreatorEngine.ts
 - [[WEDMJobOutcome]] — WEDMJobOutcomeEngine — Capture finished-job telemetry for the learning loop. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMJobOutcomeEngine.ts
 - [[WEDMJobPatternLearner]] — WEDMJobPatternLearnerEngine — Customer/Material Pattern Mining | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMJobPatternLearnerEngine.ts
-- [[WEDMKerfWidth]] — WEDMKerfWidthEngine — Kerf Width Prediction and Validation | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMKerfWidthEngine.ts
-- [[WEDMLatticeGraph]] — WEDMLatticeGraphEngine — Embedding lattice over the WEDM parameter space. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMLatticeGraphEngine.ts
-- [[WEDMLearningLoop]] — WEDMLearningLoopEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMLearningLoopEngine.ts
+- [[wedm-kerf-width]] — WEDMKerfWidthEngine — Kerf Width Prediction and Validation | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMKerfWidthEngine.ts
+- [[wedm-lattice-graph]] — WEDMLatticeGraphEngine — Embedding lattice over the WEDM parameter space. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMLatticeGraphEngine.ts
+- [[wedm-learning-loop]] — WEDMLearningLoopEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMLearningLoopEngine.ts
 - [[WEDMLoRAAdapter]] — WEDMLoRAAdapterEngine — Rank-r Low-Rank Adaptation for WEDM physics models. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMLoRAAdapterEngine.ts
 - [[WEDMLoRACadence]] — WEDMLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL04 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMLoRACadenceEngine.ts
 - [[WEDMLoRADatasetBuilder]] —  | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMLoRADatasetBuilderEngine.ts
 - [[WEDMMLParameterOptimizer]] — WEDMMLParameterOptimizerEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMMLParameterOptimizerEngine.ts
 - [[WEDMMultiProfileBatch]] — WEDMMultiProfileBatchEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMMultiProfileBatchEngine.ts
-- [[WEDMNeighborQuery]] — WEDMNeighborQueryEngine — HNSW-style nearest-neighbor search over the | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMNeighborQueryEngine.ts
+- [[wedm-neighbor-query]] — WEDMNeighborQueryEngine — HNSW-style nearest-neighbor search over the | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMNeighborQueryEngine.ts
 - [[WEDMOnlineLearning]] — WEDMOnlineLearningEngine — Incremental learning from production feedback | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMOnlineLearningEngine.ts
 - [[WEDMOverageApproval]] — WEDMOverageApprovalEngine — Customer approval workflow for cost overages | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMOverageApprovalEngine.ts
 - [[WEDMPostAgie]] — WEDMPostAgieEngine — Wire-EDM post processor for AgieCharmilles (GF | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMPostAgieEngine.ts
@@ -648,18 +648,18 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 - [[WEDMPulseLimit]] — WEDMPulseLimitEngine — Pulse Parameter Safety Validation | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMPulseLimitEngine.ts
 - [[WEDMQuoteBridge]] — WEDMQuoteBridgeEngine — Cost → Quote Line Items bridge | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMQuoteBridgeEngine.ts
 - [[WEDMRaPredictor]] — WEDMRaPredictorEngine — Klocke base + LoRA correction for surface roughness Ra. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMRaPredictorEngine.ts
-- [[WEDMReasoningExplain]] — WEDMReasoningExplainEngine — Natural-language reasoning over the WEDM | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMReasoningExplainEngine.ts
+- [[wedm-reasoning-explain]] — WEDMReasoningExplainEngine — Natural-language reasoning over the WEDM | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMReasoningExplainEngine.ts
 - [[WEDMRecastDepthPredictor]] — WEDMRecastDepthPredictorEngine — Recast layer depth using Carslaw & Jaeger. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMRecastDepthPredictorEngine.ts
 - [[WEDMSlugTabRetention]] — WEDMSlugTabRetentionEngine — P2P-FULLSTACK-MS0 / U-P2PFS38 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMSlugTabRetentionEngine.ts
 - [[WEDMStartPointOptimization]] — WEDMStartPointOptimizationEngine | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMStartPointOptimizationEngine.ts
 - [[WEDMTaperErrorBudget]] — WEDMTaperErrorBudgetEngine — Wire EDM Taper Programming Error Budget | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMTaperErrorBudgetEngine.ts
-- [[WEDMThermalField]] — WEDMThermalFieldEngine — FEM-based thermal field prediction during cutting | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMThermalFieldEngine.ts
-- [[WEDMThermalReleaseGate]] — WEDMThermalReleaseGateEngine — Thermal Budget & Recast Safety Gate | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMThermalReleaseGateEngine.ts
+- [[wedm-thermal-field]] — WEDMThermalFieldEngine — FEM-based thermal field prediction during cutting | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMThermalFieldEngine.ts
+- [[wedm-thermal-release-gate]] — WEDMThermalReleaseGateEngine — Thermal Budget & Recast Safety Gate | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMThermalReleaseGateEngine.ts
 - [[WEDMThinWireDerate]] — WEDMThinWireDerateEngine — Parameter Derating for Thin Wires | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMThinWireDerateEngine.ts
-- [[WEDMTier6GeomGate]] — WEDMTier6GeomGateEngine — Tier 6 Progressive Die Geometry Validation | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMTier6GeomGateEngine.ts
+- [[wedm-tier6-geom-gate]] — WEDMTier6GeomGateEngine — Tier 6 Progressive Die Geometry Validation | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMTier6GeomGateEngine.ts
 - [[WEDMTransferLearning]] — WEDMTransferLearningEngine — Cross-material/machine parameter transfer | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMTransferLearningEngine.ts
 - [[WEDMTribalTipLearner]] — WEDMTribalTipLearnerEngine.ts — MS-P1-LEARN-LOOP U-P1-LL-03 | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMTribalTipLearnerEngine.ts
-- [[WEDMUnitTagGate]] — WEDMUnitTagGateEngine — Unit-Tag & 25.4× Confusion Guard | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMUnitTagGateEngine.ts
+- [[wedm-unit-tag-gate]] — WEDMUnitTagGateEngine — Unit-Tag & 25.4× Confusion Guard | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMUnitTagGateEngine.ts
 - [[WEDMWireBreakPredictor]] — WEDMWireBreakPredictorEngine — Probability of wire break per pulse train. | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMWireBreakPredictorEngine.ts
 - [[WEDMWireBreakRiskCost]] — WEDMWireBreakRiskCostEngine — Wire Break Risk Cost Modeling | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMWireBreakRiskCostEngine.ts
 - [[WEDMWireDeflection]] — WEDMWireDeflectionEngine — Wire Deflection Prediction and Compensation | category:concepts | sources:1 | confidence:0.7 | last_verified:2026-05-08 | source:src/engines/WEDMWireDeflectionEngine.ts
@@ -771,185 +771,244 @@ Last bootstrap: 2026-05-08 — 770 entries total (575 engines + 96 dispatchers +
 
 ## architecture
 
+- [[galaxy-context-federation]] — Galaxy Context Federation (GALAXY-CONTEXT-FEDERATION-MS0) — hub-and-spoke per-galaxy-brain context topology: retain salient context per galaxy → roll up to the master brain → redistribute selectively; the federation IS the token savings (recall-instead-of-reread + cache-anchored compact cards + cross-galaxy dedup). | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/galaxy-context-federation.md
+- [[blueprint-vision-galaxy]] — Blueprint-Vision galaxy (slot xray) — OCR + blueprint/print extraction + multi-PDF split + CAD-file native reading; ~30 engines via cadDispatcher. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/blueprint-vision-galaxy.md
+- [[database-expansion-galaxy]] — Database-Expansion galaxy (slot juliett) — all persistence stores (Qdrant/AgentDB/SQLite-WAL/JSONL/state-JSON); atomic-write + schema-version + migration discipline. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/database-expansion-galaxy.md
+- [[post-processor-galaxy]] — Post-Processor galaxy (slot echo) — CAM toolpath → controller-specific G-code; MasterPost saleable product, 14-controller AGI, JM .cps fleet. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/post-processor-galaxy.md
+- [[slot-worktree-git-system]] — Slot-worktree git system — per-chat staging/commit on `slot/<name>` worktrees; canonical bootstrap + registry (slot-worktrees.json) + bindings + 4 default-ON routing hooks + agent-worktree hygiene + plumbing-merge for shared-tree contention. | category:architecture | sources:1 | confidence:0.9 | last_verified:2026-06-06 | source:knowledge/wiki/architecture/slot-worktree-git-system.md
+- [[speed-feed-galaxy]] — Speed-Feed galaxy (slot oscar) — the SFC saleable product; Kienzle/Taylor/Merchant/Altintas physics core, 9-axis orchestrator, prism_algorithm surface. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/speed-feed-galaxy.md
+- [[cad-galaxy]] — CAD galaxy (slot delta) — feature-recognition + STEP AP242 round-trip + DFM + electrode/trilobe + Fusion-live; 75/75 engines via cad_atomic_ops + cad_creo_ribbon. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/cad-galaxy.md
+- [[cam-galaxy]] — CAM galaxy (slot kilo) — toolpath strategy/generation/validation + cross-vendor transfer; 60+ CAM engines, 6 tier-1 bridges, prism_cam triad. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/cam-galaxy.md
+- [[mill-galaxy]] — Mill galaxy (slot foxtrot) — milling strategy + force/deflection/thermal physics + JM Die VMC fleet; ~222 engines, prism_mill 49 actions. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/mill-galaxy.md
+- [[wedm-galaxy]] — WEDM galaxy (slot mike) — the Wire Wizard, PRISM's deepest domain; discharge/dielectric/recast/multi-pass physics; 62 engines, SVI ψ 0.875. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/wedm-galaxy.md
+- [[lathe-galaxy]] — Lathe galaxy (slot whiskey) — the Lathe Wizard, physics-first safety (G50/CSS, chuck-jaw); ~238 engines + turningDispatcher. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/lathe-galaxy.md
+- [[business-galaxy]] — Business galaxy (slot hotel) — ERP/HR/accounting/CRM/quote-to-ship; 355 engines, prism_business 879 actions, financial-invariant + PII discipline. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/business-galaxy.md
+- [[ai-training-galaxy]] — AI-Training galaxy (slot india) — GraphSAGE GNN tier-5, ~95 LoRA engines, RAG corpus, closed-loop outcome backbone; domains clone its template. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/ai-training-galaxy.md
+- [[frontend-app-galaxy]] — Frontend-App galaxy (slot quebec) — PRISM's presentation layer; Next.js 15 + React 19 web app (~18 routes) + future phone app, pure consumer of every backend dispatcher. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/frontend-app-galaxy.md
+- [[system-viz-galaxy]] — System-Viz galaxy (slot sierra) — PRISM's 3D map + canonical query/search + task-tracking surface; regen-viz writes the ~244K-node merged graph, ~48 ghost-roost generators; degraded graph = fleet search outage. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/system-viz-galaxy.md
+- [[quoting-galaxy]] — Quoting galaxy (slot charlie) — print-to-quote + multi-process routing + quote-vs-actual reconciliation + DocuStrata pricing; ~78 cost/quote engines. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/quoting-galaxy.md
+- [[shop-floor-galaxy]] — Shop-Floor galaxy (slot golf) — live machine status + job tracking → adaptive control + ERP; all state mutations flow through ShopStateEngine. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/shop-floor-galaxy.md
+- [[quality-galaxy]] — Quality galaxy (slot golf) — Cpk/SPC/FAI/CMM gates for mill/lathe/wedm + business; HyperMill/Mastercam SPC+FAI bridges. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/quality-galaxy.md
+- [[academy-galaxy]] — Academy galaxy (slot lima) — PRISM Academy courses/curriculum/lessons/MIT-OCW/certification; 16 engines, course-0a..60, 3-leg ship contract. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/academy-galaxy.md
+- [[token-optimization-galaxy]] — Token-Optimization galaxy (slot alpha) — token economy + efficiency + Obsidian cross-session brain + galaxy-buildout infra; MASTER-BRAIN-TEMPLATE exemplar; owns the federation layer. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/token-optimization-galaxy.md
+- [[tribal-knowledge-galaxy]] — Tribal-Knowledge galaxy (slot golf) — shop-floor wisdom tip store; shared substrate every galaxy emits to + consumes from; tribal-by-domain injection surface. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/tribal-knowledge-galaxy.md
+- [[discovery-galaxy]] — Discovery galaxy (slot tango) — algorithm/engine/pipeline discovery + anti-duplication (DuplicationGuard THROWS) + master-index search-first + orphan audits. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/discovery-galaxy.md
+- [[dormant-data-galaxy]] — Dormant-Data galaxy (slot victor) — dormant/orphan-data append-only ledger; mustNotReExtract THROWS; tips route by slot affinity. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/dormant-data-galaxy.md
+- [[wiring-galaxy]] — Wiring galaxy (slot romeo) — engine→dispatcher wiring closure; table-driven ACTION_MAP audit; 5-engine batch cap; round-trip tests in src/__tests__. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/wiring-galaxy.md
+- [[backend-helper-galaxy]] — Backend-Helper galaxy (slot papa) — build/TSC assist + backend-infra for every slot; wire-it-as-you-build-it, BUILD_STATE honesty. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/backend-helper-galaxy.md
+- [[bug-hunting-galaxy]] — Bug-Hunting galaxy (slot uniform) — silent-no-op + route-verify hunting; repro checks actual contract not proxy; CLAUDE.md ## Recent regressions is the rolling memory. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/bug-hunting-galaxy.md
+- [[agent-orchestration-galaxy]] — Agent-Orchestration galaxy (slot golf) — orchestrates all galaxies + per-task model routing across the 26-slot fleet; AgentExecutor/AgenticLoop/AgentRegistry. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/agent-orchestration-galaxy.md
+- [[fleet-hygiene-galaxy]] — Fleet-Hygiene galaxy (slot golf) — fleet reaper + orphan/zombie reaping + chat-slot hygiene + GPU/Ollama coordinator + MCP health. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/fleet-hygiene-galaxy.md
+- [[compliance-safety-galaxy]] — Compliance-Safety galaxy (slot golf) — S(x) safety gate + alarm decode + compliance; OmegaSafetyScoreEngine; softening-thresholds is a hard refuse. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/compliance-safety-galaxy.md
+- [[knowledge-conversion-galaxy]] — Knowledge-Conversion galaxy (slot golf) — MIT-OCW + monolith → 6-node forge router; advisory-ledger only, never auto-emits source; R12 fail-loud. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/knowledge-conversion-galaxy.md
+- [[corpus-aggregation-galaxy]] — Corpus-Aggregation galaxy (slot golf) — harvests/routes scanned resources (PDF+MIT+tribal) into academy + NN corpora; HarvestPipeline/IngestionOrchestrator. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/corpus-aggregation-galaxy.md
+- [[mit-curriculum-galaxy]] — MIT-Curriculum galaxy (slot golf) — MIT-OCW course source corpus (200+ courses); academy is the consumer. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/mit-curriculum-galaxy.md
+- [[pdf-corpus-galaxy]] — PDF-Corpus galaxy (slot golf) — pypdf 8,752-page extraction corpus; page-level JSONL with provenance; lima's page-by-page extractor canonical. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/pdf-corpus-galaxy.md
+- [[pdf-corpus-mill-galaxy]] — PDF-Corpus-Mill galaxy (slot golf) — mill-scoped PDF extraction (Haas/Mazak) → extracted-bridge; inherits pdf-corpus invariants; feeds mill. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/pdf-corpus-mill-galaxy.md
+- [[cad-fusion-live-galaxy]] — CAD-Fusion-Live galaxy (slot golf) — long-running live Fusion 360 session pattern; Fusion360MillTurnBridge + Autodesk MCP proxy + project crawler. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/cad-fusion-live-galaxy.md
+- [[hermes-zulu-galaxy]] — Hermes-Zulu galaxy (slots bravo/zulu) — agent-fleet building + per-slot souls + stub-hunting + octopus multi-model consensus loop. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-01 | source:knowledge/wiki/architecture/hermes-zulu-galaxy.md
+- [[jm-doc-population-ms0]] — JM-DOC-POPULATION-MS0 (slot hotel) — accountability-ledger-first population of every PRISM feature with all 554,999 JM documents; ledger+gate (G1-G6, 0 silent drops) + 5-seed-bridge pattern (4 inbox + PartsLibrary U-JMDOC05) + financial-discipline soul (34,452 link-only); 67.0% / 372,036 shipped, 6 pending tuples. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-06-03 | source:knowledge/wiki/architecture/jm-doc-population-ms0.md
 
 ## architecture
 
 _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between markers._
 
 <!-- ARCH-LAYERS-START -->
-- [[layer-l0]] — L0 — Personas (13 nodes, tier 5)
-- [[layer-l1]] — L1 — Frontends (832 nodes, tier 4)
+- [[layer-l0]] — L0 — Personas (14 nodes, tier 5)
+- [[layer-l1]] — L1 — Frontends (1567 nodes, tier 4)
 - [[layer-l2]] — L2 — Transport (20 nodes, tier 3)
 - [[layer-l3]] — L3 — AI Hierarchy (33 nodes, tier 2)
 - [[layer-l4]] — L4 — Dispatchers (97 nodes, tier 2)
-- [[layer-l4a]] — L4a — Dispatcher Actions (9242 nodes, tier 2)
-- [[layer-l5]] — L5 — Engines (3309 nodes, tier 1)
-- [[layer-l6]] — L6 — Core (algorithms, schemas, skills, tests) (7125 nodes, tier 0)
-- [[layer-l7]] — L7 — Registries (97 nodes, tier 0)
-- [[layer-l8]] — L8 — Wiki / Memory / Milestones (2149 nodes, tier 0)
-- [[layer-l9]] — L9 — Filesystem (root tree) (26043 nodes, tier 0)
-- [[layer-l10]] — L10 — Memory Vault Categories (391 nodes, tier 0)
-- [[layer-l11]] — L11 — Deep Filesystem (102666 nodes, tier 0)
+- [[layer-l4a]] — L4a — Dispatcher Actions (10789 nodes, tier 2)
+- [[layer-l5]] — L5 — Engines (5457 nodes, tier 1)
+- [[layer-l6]] — L6 — Core (algorithms, schemas, skills, tests) (9399 nodes, tier 0)
+- [[layer-l7]] — L7 — Registries (102 nodes, tier 0)
+- [[layer-l8]] — L8 — Wiki / Memory / Milestones (35208 nodes, tier 0)
+- [[layer-l9]] — L9 — Filesystem (root tree) (72370 nodes, tier 0)
+- [[layer-l10]] — L10 — Memory Vault Categories (20312 nodes, tier 0)
+- [[layer-l11]] — L11 — Deep Filesystem (102719 nodes, tier 0)
 <!-- ARCH-LAYERS-END -->
 
 ### Engine domains
 
 <!-- ARCH-DOMAINS-START -->
-- [[domain-cam]] — engine domain `cam` (290 engines)
-- [[domain-ai]] — engine domain `ai` (280 engines)
-- [[domain-mill]] — engine domain `mill` (240 engines)
-- [[domain-cad]] — engine domain `cad` (200 engines)
-- [[domain-other]] — engine domain `other` (142 engines)
-- [[domain-wedm]] — engine domain `wedm` (130 engines)
-- [[domain-toolpath]] — engine domain `toolpath` (130 engines)
-- [[domain-erp]] — engine domain `erp` (110 engines)
-- [[domain-tool]] — engine domain `tool` (95 engines)
-- [[domain-quality]] — engine domain `quality` (90 engines)
-- [[domain-lathe]] — engine domain `lathe` (89 engines)
-- [[domain-safety]] — engine domain `safety` (80 engines)
-- [[domain-material]] — engine domain `material` (80 engines)
-- [[domain-adaptive]] — engine domain `adaptive` (70 engines)
-- [[domain-cost]] — engine domain `cost` (60 engines)
-- [[domain-hook]] — engine domain `hook` (54 engines)
-- [[domain-physics]] — engine domain `physics` (50 engines)
-- [[domain-knowledge]] — engine domain `knowledge` (45 engines)
-- [[domain-memory]] — engine domain `memory` (35 engines)
-- [[domain-probe]] — engine domain `probe` (28 engines)
-- [[domain-session]] — engine domain `session` (25 engines)
-- [[domain-network]] — engine domain `network` (22 engines)
-- [[domain-forge]] — engine domain `forge` (20 engines)
-- [[domain-calibration]] — engine domain `calibration` (20 engines)
-- [[domain-inspect]] — engine domain `inspect` (18 engines)
-- [[domain-machine]] — engine domain `machine` (17 engines)
-- [[domain-twin]] — engine domain `twin` (15 engines)
-- [[domain-multi]] — engine domain `multi` (12 engines)
-- [[domain-turning]] — engine domain `turning` (11 engines)
-- [[domain-five]] — engine domain `five` (9 engines)
-- [[domain-shop]] — engine domain `shop` (9 engines)
-- [[domain-hyper]] — engine domain `hyper` (7 engines)
-- [[domain-milling]] — engine domain `milling` (7 engines)
-- [[domain-fusion]] — engine domain `fusion` (7 engines)
-- [[domain-wet]] — engine domain `wet` (7 engines)
-- [[domain-process]] — engine domain `process` (6 engines)
-- [[domain-print]] — engine domain `print` (6 engines)
-- [[domain-swiss]] — engine domain `swiss` (6 engines)
-- [[domain-agent]] — engine domain `agent` (1 engines)
-- [[domain-audit]] — engine domain `audit` (1 engines)
-- [[domain-auth]] — engine domain `auth` (1 engines)
+- [[domain-miscdomains]] — engine domain `miscdomains` (1630 engines)
+- [[domain-other]] — engine domain `other` (605 engines)
+- [[domain-lathe]] — engine domain `lathe` (188 engines)
+- [[domain-hyper]] — engine domain `hyper` (68 engines)
+- [[domain-cross]] — engine domain `cross` (67 engines)
+- [[domain-tool]] — engine domain `tool` (57 engines)
+- [[domain-post]] — engine domain `post` (56 engines)
+- [[domain-machine]] — engine domain `machine` (45 engines)
+- [[domain-fusion]] — engine domain `fusion` (36 engines)
+- [[domain-milling]] — engine domain `milling` (34 engines)
+- [[domain-multi]] — engine domain `multi` (29 engines)
+- [[domain-mastercam]] — engine domain `mastercam` (28 engines)
+- [[domain-turning]] — engine domain `turning` (25 engines)
+- [[domain-mill]] — engine domain `mill` (24 engines)
+- [[domain-adaptive]] — engine domain `adaptive` (21 engines)
+- [[domain-print]] — engine domain `print` (21 engines)
+- [[domain-wire]] — engine domain `wire` (20 engines)
+- [[domain-advanced]] — engine domain `advanced` (18 engines)
+- [[domain-solid]] — engine domain `solid` (18 engines)
+- [[domain-batch]] — engine domain `batch` (16 engines)
+- [[domain-context]] — engine domain `context` (16 engines)
+- [[domain-hook]] — engine domain `hook` (16 engines)
+- [[domain-shop]] — engine domain `shop` (16 engines)
+- [[domain-stochastic]] — engine domain `stochastic` (16 engines)
+- [[domain-wet]] — engine domain `wet` (15 engines)
+- [[domain-auto]] — engine domain `auto` (13 engines)
+- [[domain-material]] — engine domain `material` (13 engines)
+- [[domain-surface]] — engine domain `surface` (13 engines)
+- [[domain-five]] — engine domain `five` (12 engines)
+- [[domain-inventor]] — engine domain `inventor` (12 engines)
+- [[domain-okuma]] — engine domain `okuma` (12 engines)
+- [[domain-physics]] — engine domain `physics` (12 engines)
+- [[domain-program]] — engine domain `program` (12 engines)
+- [[domain-session]] — engine domain `session` (12 engines)
+- [[domain-strategy]] — engine domain `strategy` (12 engines)
+- [[domain-thermal]] — engine domain `thermal` (12 engines)
+- [[domain-tribal]] — engine domain `tribal` (12 engines)
+- [[domain-knowledge]] — engine domain `knowledge` (11 engines)
+- [[domain-toolpath]] — engine domain `toolpath` (11 engines)
+- [[domain-blueprint]] — engine domain `blueprint` (10 engines)
+- [[domain-laser]] — engine domain `laser` (10 engines)
+- [[domain-agent]] — engine domain `agent` (3 engines)
+- [[domain-ai]] — engine domain `ai` (108 engines)
+- [[domain-algorithm]] — engine domain `algorithm` (1 engines)
+- [[domain-audit]] — engine domain `audit` (16 engines)
+- [[domain-auth]] — engine domain `auth` (3 engines)
 - [[domain-automation]] — engine domain `automation` (4 engines)
-- [[domain-bridge]] — engine domain `bridge` (16 engines)
-- [[domain-business]] — engine domain `business` (35 engines)
-- [[domain-calc]] — engine domain `calc` (304 engines)
-- [[domain-chatter]] — engine domain `chatter` (1 engines)
-- [[domain-cnc]] — engine domain `cnc` (19 engines)
-- [[domain-context]] — engine domain `context` (10 engines)
+- [[domain-bridge]] — engine domain `bridge` (42 engines)
+- [[domain-business]] — engine domain `business` (40 engines)
+- [[domain-cad]] — engine domain `cad` (80 engines)
+- [[domain-calc]] — engine domain `calc` (309 engines)
+- [[domain-cam]] — engine domain `cam` (131 engines)
+- [[domain-chatter]] — engine domain `chatter` (12 engines)
+- [[domain-cnc]] — engine domain `cnc` (23 engines)
+- [[domain-coating]] — engine domain `coating` (4 engines)
+- [[domain-coolant]] — engine domain `coolant` (11 engines)
 - [[domain-cpl]] — engine domain `cpl` (9 engines)
-- [[domain-data]] — engine domain `data` (8 engines)
-- [[domain-dedup]] — engine domain `dedup` (2 engines)
-- [[domain-dev]] — engine domain `dev` (48 engines)
-- [[domain-diagnosis]] — engine domain `diagnosis` (1 engines)
-- [[domain-edm]] — engine domain `edm` (10 engines)
-- [[domain-export]] — engine domain `export` (2 engines)
-- [[domain-fixture]] — engine domain `fixture` (2 engines)
-- [[domain-force]] — engine domain `force` (2 engines)
+- [[domain-data]] — engine domain `data` (10 engines)
+- [[domain-dedup]] — engine domain `dedup` (5 engines)
+- [[domain-dev]] — engine domain `dev` (93 engines)
+- [[domain-diagnosis]] — engine domain `diagnosis` (2 engines)
+- [[domain-dispatcher]] — engine domain `dispatcher` (12 engines)
+- [[domain-edm]] — engine domain `edm` (16 engines)
+- [[domain-erp]] — engine domain `erp` (24 engines)
+- [[domain-export]] — engine domain `export` (3 engines)
+- [[domain-feasibility]] — engine domain `feasibility` (1 engines)
+- [[domain-fixture]] — engine domain `fixture` (17 engines)
+- [[domain-force]] — engine domain `force` (18 engines)
 - [[domain-formingcasting]] — engine domain `formingcasting` (8 engines)
-- [[domain-grinding]] — engine domain `grinding` (1 engines)
-- [[domain-guard]] — engine domain `guard` (14 engines)
-- [[domain-infra]] — engine domain `infra` (4 engines)
-- [[domain-intake]] — engine domain `intake` (1 engines)
-- [[domain-intelligence]] — engine domain `intelligence` (11 engines)
-- [[domain-inventor]] — engine domain `inventor` (2 engines)
-- [[domain-kinematic]] — engine domain `kinematic` (2 engines)
-- [[domain-l2engine]] — engine domain `l2engine` (3 engines)
-- [[domain-local]] — engine domain `local` (7 engines)
-- [[domain-mastercam]] — engine domain `mastercam` (8 engines)
-- [[domain-ml]] — engine domain `ml` (10 engines)
+- [[domain-geometry]] — engine domain `geometry` (14 engines)
+- [[domain-grinding]] — engine domain `grinding` (3 engines)
+- [[domain-guard]] — engine domain `guard` (28 engines)
+- [[domain-infra]] — engine domain `infra` (5 engines)
+- [[domain-intake]] — engine domain `intake` (2 engines)
+- [[domain-integration]] — engine domain `integration` (2 engines)
+- [[domain-intelligence]] — engine domain `intelligence` (31 engines)
+- [[domain-kinematic]] — engine domain `kinematic` (11 engines)
+- [[domain-l2engine]] — engine domain `l2engine` (4 engines)
+- [[domain-local]] — engine domain `local` (10 engines)
+- [[domain-memory]] — engine domain `memory` (28 engines)
+- [[domain-mesh]] — engine domain `mesh` (8 engines)
+- [[domain-ml]] — engine domain `ml` (25 engines)
 - [[domain-monitoring]] — engine domain `monitoring` (1 engines)
 - [[domain-multiop]] — engine domain `multiop` (2 engines)
-- [[domain-observability]] — engine domain `observability` (3 engines)
+- [[domain-nurbs]] — engine domain `nurbs` (4 engines)
+- [[domain-observability]] — engine domain `observability` (4 engines)
 - [[domain-orchestration]] — engine domain `orchestration` (3 engines)
-- [[domain-pdf]] — engine domain `pdf` (3 engines)
-- [[domain-pp]] — engine domain `pp` (65 engines)
-- [[domain-registry]] — engine domain `registry` (7 engines)
+- [[domain-pdf]] — engine domain `pdf` (9 engines)
+- [[domain-pp]] — engine domain `pp` (68 engines)
+- [[domain-process]] — engine domain `process` (1 engines)
+- [[domain-quality]] — engine domain `quality` (21 engines)
+- [[domain-quote]] — engine domain `quote` (14 engines)
+- [[domain-realtime]] — engine domain `realtime` (2 engines)
+- [[domain-registry]] — engine domain `registry` (18 engines)
 - [[domain-resourceharvester]] — engine domain `resourceharvester` (3 engines)
-- [[domain-scheduling]] — engine domain `scheduling` (3 engines)
+- [[domain-safety]] — engine domain `safety` (23 engines)
+- [[domain-scheduling]] — engine domain `scheduling` (18 engines)
 - [[domain-scientificmath]] — engine domain `scientificmath` (5 engines)
-- [[domain-security]] — engine domain `security` (1 engines)
-- [[domain-sensor]] — engine domain `sensor` (14 engines)
-- [[domain-validation]] — engine domain `validation` (4 engines)
+- [[domain-security]] — engine domain `security` (2 engines)
+- [[domain-sensor]] — engine domain `sensor` (19 engines)
+- [[domain-tolerance]] — engine domain `tolerance` (9 engines)
+- [[domain-validation]] — engine domain `validation` (5 engines)
 - [[domain-vibrationphysics]] — engine domain `vibrationphysics` (6 engines)
+- [[domain-video]] — engine domain `video` (8 engines)
+- [[domain-wedm]] — engine domain `wedm` (203 engines)
 - [[domain-weldingjoining]] — engine domain `weldingjoining` (5 engines)
-- [[domain-xproc]] — engine domain `xproc` (28 engines)
+- [[domain-xproc]] — engine domain `xproc` (34 engines)
 <!-- ARCH-DOMAINS-END -->
 
 ### Dispatchers (sorted by action count)
 
 <!-- ARCH-DISPATCHERS-START -->
-- [[dispatcher-cam]] — `cam` (2189 actions, manufacturing)
-- [[dispatcher-calc]] — `calc` (1304 actions, manufacturing)
+- [[dispatcher-cam]] — `cam` (2311 actions, manufacturing)
+- [[dispatcher-calc]] — `calc` (1353 actions, manufacturing)
+- [[dispatcher-dev]] — `dev` (861 actions, system)
 - [[dispatcher-pp]] — `pp` (801 actions, other)
-- [[dispatcher-business]] — `business` (441 actions, business)
+- [[dispatcher-cad]] — `cad` (482 actions, manufacturing)
+- [[dispatcher-business]] — `business` (475 actions, business)
+- [[dispatcher-aireasoning]] — `aiReasoning` (434 actions, ai_intel)
 - [[dispatcher-cadautomation]] — `cadAutomation` (367 actions, manufacturing)
-- [[dispatcher-cad]] — `cad` (357 actions, manufacturing)
-- [[dispatcher-aireasoning]] — `aiReasoning` (344 actions, ai_intel)
-- [[dispatcher-dev]] — `dev` (312 actions, system)
-- [[dispatcher-edm]] — `edm` (286 actions, manufacturing)
+- [[dispatcher-edm]] — `edm` (314 actions, manufacturing)
+- [[dispatcher-turning]] — `turning` (257 actions, manufacturing)
+- [[dispatcher-knowledge]] — `knowledge` (239 actions, ai_intel)
 - [[dispatcher-security]] — `security` (238 actions, business)
-- [[dispatcher-data]] — `data` (215 actions, other)
-- [[dispatcher-intelligence]] — `intelligence` (153 actions, ai_intel)
+- [[dispatcher-data]] — `data` (232 actions, other)
+- [[dispatcher-mill]] — `mill` (179 actions, manufacturing)
+- [[dispatcher-intelligence]] — `intelligence` (161 actions, ai_intel)
 - [[dispatcher-ml]] — `ml` (129 actions, ai_intel)
-- [[dispatcher-turning]] — `turning` (128 actions, manufacturing)
-- [[dispatcher-knowledge]] — `knowledge` (122 actions, ai_intel)
-- [[dispatcher-mill]] — `mill` (119 actions, manufacturing)
+- [[dispatcher-context]] — `context` (118 actions, system)
+- [[dispatcher-session]] — `session` (100 actions, system)
 - [[dispatcher-machinesetup]] — `machineSetup` (90 actions, ai_intel)
 - [[dispatcher-product]] — `product` (76 actions, business)
 - [[dispatcher-l2engine]] — `l2Engine` (73 actions, system)
 - [[dispatcher-cncops]] — `cncOps` (72 actions, manufacturing)
-- [[dispatcher-context]] — `context` (69 actions, system)
-- [[dispatcher-session]] — `session` (67 actions, system)
+- [[dispatcher-infra]] — `infra` (65 actions, system)
+- [[dispatcher-diagnosis]] — `diagnosis` (64 actions, ai_intel)
 - [[dispatcher-integration]] — `integration` (62 actions, system)
 - [[dispatcher-guard]] — `guard` (58 actions, ai_intel)
-- [[dispatcher-diagnosis]] — `diagnosis` (57 actions, ai_intel)
 - [[dispatcher-cpl]] — `cpl` (54 actions, system)
-- [[dispatcher-machinelive]] — `machineLive` (53 actions, ai_intel)
+- [[dispatcher-machinelive]] — `machineLive` (54 actions, ai_intel)
+- [[dispatcher-adaptivecontrol]] — `adaptiveControl` (51 actions, manufacturing)
+- [[dispatcher-memory]] — `memory` (51 actions, ai_intel)
 - [[dispatcher-operatingsystem]] — `operatingSystem` (48 actions, system)
 - [[dispatcher-knowledgeext]] — `knowledgeExt` (44 actions, ai_intel)
-- [[dispatcher-orchestration]] — `orchestration` (41 actions, system)
+- [[dispatcher-orchestration]] — `orchestration` (42 actions, system)
 - [[dispatcher-algorithm]] — `algorithm` (40 actions, system)
 - [[dispatcher-feasibility]] — `feasibility` (37 actions, ai_intel)
+- [[dispatcher-cadregression]] — `cadRegression` (36 actions, manufacturing)
 - [[dispatcher-compliance]] — `compliance` (35 actions, business)
-- [[dispatcher-memory]] — `memory` (35 actions, ai_intel)
-- [[dispatcher-adaptivecontrol]] — `adaptiveControl` (34 actions, manufacturing)
+- [[dispatcher-skillscript]] — `skillScript` (34 actions, system)
 - [[dispatcher-toolpath]] — `toolpath` (34 actions, manufacturing)
+- [[dispatcher-hook]] — `hook` (31 actions, system)
+- [[dispatcher-monitoring]] — `monitoring` (30 actions, ai_intel)
 - [[dispatcher-local]] — `local` (27 actions, system)
-- [[dispatcher-skillscript]] — `skillScript` (27 actions, system)
 - [[dispatcher-provenpipeline]] — `provenPipeline` (26 actions, ai_intel)
-- [[dispatcher-cadregression]] — `cadRegression` (25 actions, manufacturing)
-- [[dispatcher-hook]] — `hook` (25 actions, system)
-- [[dispatcher-infra]] — `infra` (25 actions, system)
+- [[dispatcher-agent]] — `agent` (24 actions, system)
+- [[dispatcher-quality]] — `quality` (24 actions, other)
 - [[dispatcher-resourceharvester]] — `resourceHarvester` (24 actions, knowledge)
 - [[dispatcher-vibrationphysics]] — `vibrationPhysics` (24 actions, manufacturing)
-- [[dispatcher-quality]] — `quality` (23 actions, other)
 - [[dispatcher-formingcasting]] — `formingCasting` (22 actions, manufacturing)
-- [[dispatcher-agent]] — `agent` (21 actions, system)
+- [[dispatcher-thread]] — `thread` (22 actions, manufacturing)
 - [[dispatcher-resourceextraction]] — `resourceExtraction` (21 actions, knowledge)
-- [[dispatcher-thread]] — `thread` (21 actions, manufacturing)
 - [[dispatcher-sp]] — `sp` (19 actions, ai_intel)
+- [[dispatcher-partslibrary]] — `partsLibrary` (18 actions, business)
 - [[dispatcher-validation]] — `validation` (18 actions, ai_intel)
-- [[dispatcher-partslibrary]] — `partsLibrary` (17 actions, business)
 - [[dispatcher-materialprocessing]] — `materialProcessing` (16 actions, manufacturing)
 - [[dispatcher-tenant]] — `tenant` (15 actions, business)
 - [[dispatcher-turningprogram]] — `turningProgram` (14 actions, manufacturing)
 - [[dispatcher-bridge]] — `bridge` (13 actions, business)
+- [[dispatcher-scheduling]] — `scheduling` (13 actions, system)
 - [[dispatcher-atcs]] — `atcs` (12 actions, system)
 - [[dispatcher-multiop]] — `multiOp` (12 actions, ai_intel)
 - [[dispatcher-manus]] — `manus` (11 actions, system)
-- [[dispatcher-scheduling]] — `scheduling` (11 actions, system)
 - [[dispatcher-auth]] — `auth` (10 actions, business)
 - [[dispatcher-export]] — `export` (10 actions, business)
 - [[dispatcher-fiveaxis]] — `fiveAxis` (10 actions, manufacturing)
 - [[dispatcher-grinding]] — `grinding` (10 actions, manufacturing)
-- [[dispatcher-monitoring]] — `monitoring` (10 actions, ai_intel)
 - [[dispatcher-scientificmath]] — `scientificMath` (10 actions, ai_intel)
 - [[dispatcher-automation]] — `automation` (9 actions, system)
 - [[dispatcher-processcontrol]] — `processControl` (9 actions, manufacturing)
@@ -970,6 +1029,7 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - [[dispatcher-industry]] — `industry` (4 actions, business)
 - [[dispatcher-holepattern]] — `holePattern` (3 actions, manufacturing)
 - [[dispatcher-ralph]] — `ralph` (3 actions, ai_intel)
+- [[dispatcher-safety]] — `safety` (3 actions, manufacturing)
 - [[dispatcher-multiaxisprogram]] — `multiAxisProgram` (2 actions, manufacturing)
 - [[dispatcher-intake]] — `intake` (1 actions, business)
 - [[dispatcher-secondaryops]] — `secondaryOps` (1 actions, manufacturing)
@@ -979,7 +1039,6 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - [[dispatcher-fluidthermal]] — `fluidThermal` (0 actions, manufacturing)
 - [[dispatcher-machiningknowledgebase]] — `machiningKnowledgeBase` (0 actions, ai_intel)
 - [[dispatcher-mechanicaldesign]] — `mechanicalDesign` (0 actions, manufacturing)
-- [[dispatcher-safety]] — `safety` (0 actions, manufacturing)
 - [[dispatcher-shoppractice]] — `shopPractice` (0 actions, knowledge)
 - [[dispatcher-threadingpipeline]] — `threadingPipeline` (0 actions, manufacturing)
 <!-- ARCH-DISPATCHERS-END -->
@@ -987,103 +1046,137 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 ### Engines (per-domain counts)
 
 <!-- ARCH-ENGINES-START -->
-- engines under `other`: 348 entries — see `knowledge/wiki/architecture/engines/other/`
-- engines under `calc`: 304 entries — see `knowledge/wiki/architecture/engines/calc/`
-- engines under `lathe`: 111 entries — see `knowledge/wiki/architecture/engines/lathe/`
-- engines under `cam`: 95 entries — see `knowledge/wiki/architecture/engines/cam/`
-- engines under `pp`: 65 entries — see `knowledge/wiki/architecture/engines/pp/`
-- engines under `wedm`: 65 entries — see `knowledge/wiki/architecture/engines/wedm/`
-- engines under `cad`: 52 entries — see `knowledge/wiki/architecture/engines/cad/`
-- engines under `dev`: 48 entries — see `knowledge/wiki/architecture/engines/dev/`
-- engines under `ai`: 44 entries — see `knowledge/wiki/architecture/engines/ai/`
-- engines under `tool`: 39 entries — see `knowledge/wiki/architecture/engines/tool/`
-- engines under `machine`: 37 entries — see `knowledge/wiki/architecture/engines/machine/`
-- engines under `business`: 35 entries — see `knowledge/wiki/architecture/engines/business/`
-- engines under `xproc`: 28 entries — see `knowledge/wiki/architecture/engines/xproc/`
-- engines under `milling`: 22 entries — see `knowledge/wiki/architecture/engines/milling/`
-- engines under `cnc`: 19 entries — see `knowledge/wiki/architecture/engines/cnc/`
-- engines under `session`: 19 entries — see `knowledge/wiki/architecture/engines/session/`
-- engines under `adaptive`: 18 entries — see `knowledge/wiki/architecture/engines/adaptive/`
-- engines under `knowledge`: 18 entries — see `knowledge/wiki/architecture/engines/knowledge/`
+- engines under `other`: 884 entries — see `knowledge/wiki/architecture/engines/other/`
+- engines under `calc`: 253 entries — see `knowledge/wiki/architecture/engines/calc/`
+- engines under `wedm`: 178 entries — see `knowledge/wiki/architecture/engines/wedm/`
+- engines under `lathe`: 116 entries — see `knowledge/wiki/architecture/engines/lathe/`
+- engines under `dev`: 110 entries — see `knowledge/wiki/architecture/engines/dev/`
+- engines under `ai`: 94 entries — see `knowledge/wiki/architecture/engines/ai/`
+- engines under `cad`: 79 entries — see `knowledge/wiki/architecture/engines/cad/`
+- engines under `cam`: 78 entries — see `knowledge/wiki/architecture/engines/cam/`
+- engines under `mill`: 61 entries — see `knowledge/wiki/architecture/engines/mill/`
+- engines under `pp`: 59 entries — see `knowledge/wiki/architecture/engines/pp/`
+- engines under `tool`: 55 entries — see `knowledge/wiki/architecture/engines/tool/`
+- engines under `business`: 51 entries — see `knowledge/wiki/architecture/engines/business/`
+- engines under `machine`: 46 entries — see `knowledge/wiki/architecture/engines/machine/`
+- engines under `physics`: 41 entries — see `knowledge/wiki/architecture/engines/physics/`
+- engines under `bridge`: 37 entries — see `knowledge/wiki/architecture/engines/bridge/`
+- engines under `cross`: 33 entries — see `knowledge/wiki/architecture/engines/cross/`
+- engines under `erp`: 30 entries — see `knowledge/wiki/architecture/engines/erp/`
+- engines under `quote`: 29 entries — see `knowledge/wiki/architecture/engines/quote/`
+- engines under `quality`: 29 entries — see `knowledge/wiki/architecture/engines/quality/`
+- engines under `adaptive`: 27 entries — see `knowledge/wiki/architecture/engines/adaptive/`
+- engines under `milling`: 26 entries — see `knowledge/wiki/architecture/engines/milling/`
+- engines under `shop`: 24 entries — see `knowledge/wiki/architecture/engines/shop/`
+- engines under `memory`: 22 entries — see `knowledge/wiki/architecture/engines/memory/`
+- engines under `turning`: 22 entries — see `knowledge/wiki/architecture/engines/turning/`
+- engines under `session`: 22 entries — see `knowledge/wiki/architecture/engines/session/`
+- engines under `audit`: 21 entries — see `knowledge/wiki/architecture/engines/audit/`
+- engines under `guard`: 21 entries — see `knowledge/wiki/architecture/engines/guard/`
+- engines under `post`: 20 entries — see `knowledge/wiki/architecture/engines/post/`
+- engines under `registry`: 18 entries — see `knowledge/wiki/architecture/engines/registry/`
+- engines under `safety`: 18 entries — see `knowledge/wiki/architecture/engines/safety/`
+- engines under `scheduling`: 18 entries — see `knowledge/wiki/architecture/engines/scheduling/`
+- engines under `print`: 18 entries — see `knowledge/wiki/architecture/engines/print/`
+- engines under `context`: 18 entries — see `knowledge/wiki/architecture/engines/context/`
+- engines under `multi`: 18 entries — see `knowledge/wiki/architecture/engines/multi/`
+- engines under `sensor`: 17 entries — see `knowledge/wiki/architecture/engines/sensor/`
+- engines under `ml`: 17 entries — see `knowledge/wiki/architecture/engines/ml/`
+- engines under `material`: 17 entries — see `knowledge/wiki/architecture/engines/material/`
 - engines under `fusion`: 17 entries — see `knowledge/wiki/architecture/engines/fusion/`
 - engines under `hyper`: 17 entries — see `knowledge/wiki/architecture/engines/hyper/`
-- engines under `bridge`: 16 entries — see `knowledge/wiki/architecture/engines/bridge/`
-- engines under `multi`: 15 entries — see `knowledge/wiki/architecture/engines/multi/`
-- engines under `sensor`: 14 entries — see `knowledge/wiki/architecture/engines/sensor/`
-- engines under `guard`: 14 entries — see `knowledge/wiki/architecture/engines/guard/`
-- engines under `turning`: 12 entries — see `knowledge/wiki/architecture/engines/turning/`
-- engines under `mill`: 11 entries — see `knowledge/wiki/architecture/engines/mill/`
-- engines under `intelligence`: 11 entries — see `knowledge/wiki/architecture/engines/intelligence/`
-- engines under `ml`: 10 entries — see `knowledge/wiki/architecture/engines/ml/`
-- engines under `material`: 10 entries — see `knowledge/wiki/architecture/engines/material/`
-- engines under `memory`: 10 entries — see `knowledge/wiki/architecture/engines/memory/`
-- engines under `context`: 10 entries — see `knowledge/wiki/architecture/engines/context/`
-- engines under `edm`: 10 entries — see `knowledge/wiki/architecture/engines/edm/`
-- engines under `cpl`: 9 entries — see `knowledge/wiki/architecture/engines/cpl/`
-- engines under `data`: 8 entries — see `knowledge/wiki/architecture/engines/data/`
-- engines under `formingcasting`: 8 entries — see `knowledge/wiki/architecture/engines/formingcasting/`
-- engines under `mastercam`: 8 entries — see `knowledge/wiki/architecture/engines/mastercam/`
-- engines under `registry`: 7 entries — see `knowledge/wiki/architecture/engines/registry/`
-- engines under `local`: 7 entries — see `knowledge/wiki/architecture/engines/local/`
-- engines under `shop`: 7 entries — see `knowledge/wiki/architecture/engines/shop/`
-- engines under `vibrationphysics`: 6 entries — see `knowledge/wiki/architecture/engines/vibrationphysics/`
-- engines under `physics`: 6 entries — see `knowledge/wiki/architecture/engines/physics/`
-- engines under `quality`: 6 entries — see `knowledge/wiki/architecture/engines/quality/`
+- engines under `intelligence`: 16 entries — see `knowledge/wiki/architecture/engines/intelligence/`
+- engines under `knowledge`: 16 entries — see `knowledge/wiki/architecture/engines/knowledge/`
+- engines under `force`: 16 entries — see `knowledge/wiki/architecture/engines/force/`
+- engines under `edm`: 16 entries — see `knowledge/wiki/architecture/engines/edm/`
+- engines under `fixture`: 15 entries — see `knowledge/wiki/architecture/engines/fixture/`
+- engines under `dispatcher`: 14 entries — see `knowledge/wiki/architecture/engines/dispatcher/`
+- engines under `cnc`: 14 entries — see `knowledge/wiki/architecture/engines/cnc/`
+- engines under `geometry`: 13 entries — see `knowledge/wiki/architecture/engines/geometry/`
+- engines under `auto`: 10 entries — see `knowledge/wiki/architecture/engines/auto/`
+- engines under `kinematic`: 10 entries — see `knowledge/wiki/architecture/engines/kinematic/`
+- engines under `coolant`: 10 entries — see `knowledge/wiki/architecture/engines/coolant/`
+- engines under `pdf`: 10 entries — see `knowledge/wiki/architecture/engines/pdf/`
+- engines under `mastercam`: 10 entries — see `knowledge/wiki/architecture/engines/mastercam/`
+- engines under `wire`: 10 entries — see `knowledge/wiki/architecture/engines/wire/`
+- engines under `chatter`: 9 entries — see `knowledge/wiki/architecture/engines/chatter/`
+- engines under `xproc`: 8 entries — see `knowledge/wiki/architecture/engines/xproc/`
+- engines under `tolerance`: 8 entries — see `knowledge/wiki/architecture/engines/tolerance/`
+- engines under `orchestration`: 8 entries — see `knowledge/wiki/architecture/engines/orchestration/`
+- engines under `inventor`: 8 entries — see `knowledge/wiki/architecture/engines/inventor/`
+- engines under `local`: 8 entries — see `knowledge/wiki/architecture/engines/local/`
+- engines under `solid`: 8 entries — see `knowledge/wiki/architecture/engines/solid/`
+- engines under `data`: 7 entries — see `knowledge/wiki/architecture/engines/data/`
+- engines under `formingcasting`: 7 entries — see `knowledge/wiki/architecture/engines/formingcasting/`
+- engines under `video`: 7 entries — see `knowledge/wiki/architecture/engines/video/`
+- engines under `infra`: 7 entries — see `knowledge/wiki/architecture/engines/infra/`
+- engines under `hook`: 7 entries — see `knowledge/wiki/architecture/engines/hook/`
+- engines under `mesh`: 7 entries — see `knowledge/wiki/architecture/engines/mesh/`
+- engines under `monolith`: 7 entries — see `knowledge/wiki/architecture/engines/monolith/`
+- engines under `employee`: 6 entries — see `knowledge/wiki/architecture/engines/employee/`
+- engines under `process`: 6 entries — see `knowledge/wiki/architecture/engines/process/`
+- engines under `stochastic`: 6 entries — see `knowledge/wiki/architecture/engines/stochastic/`
 - engines under `weldingjoining`: 5 entries — see `knowledge/wiki/architecture/engines/weldingjoining/`
-- engines under `scientificmath`: 5 entries — see `knowledge/wiki/architecture/engines/scientificmath/`
-- engines under `validation`: 4 entries — see `knowledge/wiki/architecture/engines/validation/`
-- engines under `automation`: 4 entries — see `knowledge/wiki/architecture/engines/automation/`
-- engines under `print`: 4 entries — see `knowledge/wiki/architecture/engines/print/`
-- engines under `infra`: 4 entries — see `knowledge/wiki/architecture/engines/infra/`
-- engines under `five`: 4 entries — see `knowledge/wiki/architecture/engines/five/`
-- engines under `erp`: 4 entries — see `knowledge/wiki/architecture/engines/erp/`
-- engines under `toolpath`: 4 entries — see `knowledge/wiki/architecture/engines/toolpath/`
-- engines under `safety`: 3 entries — see `knowledge/wiki/architecture/engines/safety/`
-- engines under `scheduling`: 3 entries — see `knowledge/wiki/architecture/engines/scheduling/`
-- engines under `pdf`: 3 entries — see `knowledge/wiki/architecture/engines/pdf/`
-- engines under `resourceharvester`: 3 entries — see `knowledge/wiki/architecture/engines/resourceharvester/`
-- engines under `orchestration`: 3 entries — see `knowledge/wiki/architecture/engines/orchestration/`
-- engines under `observability`: 3 entries — see `knowledge/wiki/architecture/engines/observability/`
-- engines under `l2engine`: 3 entries — see `knowledge/wiki/architecture/engines/l2engine/`
-- engines under `dedup`: 2 entries — see `knowledge/wiki/architecture/engines/dedup/`
+- engines under `batch`: 5 entries — see `knowledge/wiki/architecture/engines/batch/`
+- engines under `validation`: 5 entries — see `knowledge/wiki/architecture/engines/validation/`
+- engines under `dedup`: 5 entries — see `knowledge/wiki/architecture/engines/dedup/`
+- engines under `vibrationphysics`: 5 entries — see `knowledge/wiki/architecture/engines/vibrationphysics/`
+- engines under `cpl`: 5 entries — see `knowledge/wiki/architecture/engines/cpl/`
+- engines under `unwiredbridge`: 5 entries — see `knowledge/wiki/architecture/engines/unwiredbridge/`
+- engines under `advanced`: 4 entries — see `knowledge/wiki/architecture/engines/advanced/`
+- engines under `l2engine`: 4 entries — see `knowledge/wiki/architecture/engines/l2engine/`
+- engines under `auth`: 4 entries — see `knowledge/wiki/architecture/engines/auth/`
+- engines under `quoting`: 4 entries — see `knowledge/wiki/architecture/engines/quoting/`
+- engines under `observability`: 4 entries — see `knowledge/wiki/architecture/engines/observability/`
+- engines under `speed`: 4 entries — see `knowledge/wiki/architecture/engines/speed/`
+- engines under `automation`: 3 entries — see `knowledge/wiki/architecture/engines/automation/`
+- engines under `nurbs`: 3 entries — see `knowledge/wiki/architecture/engines/nurbs/`
+- engines under `scientificmath`: 3 entries — see `knowledge/wiki/architecture/engines/scientificmath/`
+- engines under `integration`: 3 entries — see `knowledge/wiki/architecture/engines/integration/`
+- engines under `diagnosis`: 2 entries — see `knowledge/wiki/architecture/engines/diagnosis/`
+- engines under `coating`: 2 entries — see `knowledge/wiki/architecture/engines/coating/`
 - engines under `export`: 2 entries — see `knowledge/wiki/architecture/engines/export/`
-- engines under `force`: 2 entries — see `knowledge/wiki/architecture/engines/force/`
-- engines under `inventor`: 2 entries — see `knowledge/wiki/architecture/engines/inventor/`
-- engines under `kinematic`: 2 entries — see `knowledge/wiki/architecture/engines/kinematic/`
+- engines under `grinding`: 2 entries — see `knowledge/wiki/architecture/engines/grinding/`
+- engines under `laser`: 2 entries — see `knowledge/wiki/architecture/engines/laser/`
+- engines under `okuma`: 2 entries — see `knowledge/wiki/architecture/engines/okuma/`
+- engines under `program`: 2 entries — see `knowledge/wiki/architecture/engines/program/`
+- engines under `security`: 2 entries — see `knowledge/wiki/architecture/engines/security/`
 - engines under `multiop`: 2 entries — see `knowledge/wiki/architecture/engines/multiop/`
-- engines under `fixture`: 2 entries — see `knowledge/wiki/architecture/engines/fixture/`
-- engines under `audit`: 1 entries — see `knowledge/wiki/architecture/engines/audit/`
-- engines under `agent`: 1 entries — see `knowledge/wiki/architecture/engines/agent/`
-- engines under `monitoring`: 1 entries — see `knowledge/wiki/architecture/engines/monitoring/`
-- engines under `grinding`: 1 entries — see `knowledge/wiki/architecture/engines/grinding/`
-- engines under `hook`: 1 entries — see `knowledge/wiki/architecture/engines/hook/`
+- engines under `surface`: 2 entries — see `knowledge/wiki/architecture/engines/surface/`
+- engines under `five`: 2 entries — see `knowledge/wiki/architecture/engines/five/`
+- engines under `tribal`: 2 entries — see `knowledge/wiki/architecture/engines/tribal/`
+- engines under `agent`: 2 entries — see `knowledge/wiki/architecture/engines/agent/`
+- engines under `realtime`: 2 entries — see `knowledge/wiki/architecture/engines/realtime/`
 - engines under `intake`: 1 entries — see `knowledge/wiki/architecture/engines/intake/`
-- engines under `process`: 1 entries — see `knowledge/wiki/architecture/engines/process/`
-- engines under `security`: 1 entries — see `knowledge/wiki/architecture/engines/security/`
-- engines under `diagnosis`: 1 entries — see `knowledge/wiki/architecture/engines/diagnosis/`
-- engines under `auth`: 1 entries — see `knowledge/wiki/architecture/engines/auth/`
-- engines under `chatter`: 1 entries — see `knowledge/wiki/architecture/engines/chatter/`
 - engines under `wet`: 1 entries — see `knowledge/wiki/architecture/engines/wet/`
+- engines under `algorithm`: 1 entries — see `knowledge/wiki/architecture/engines/algorithm/`
+- engines under `feasibility`: 1 entries — see `knowledge/wiki/architecture/engines/feasibility/`
 <!-- ARCH-ENGINES-END -->
+
+### Engines (unwired stubs — discoverability layer)
+
+<!-- ARCH-ENGINES-UNWIRED-START -->
+- unwired engines: 611 stubs — see `knowledge/wiki/architecture/engines-unwired/`
+<!-- ARCH-ENGINES-UNWIRED-END -->
 
 ### Actions (per-dispatcher counts)
 
 <!-- ARCH-ACTIONS-START -->
-_Total: 9242 action entries across 88 dispatchers — see `knowledge/wiki/architecture/actions/<dispatcher>/`._
+_Total: 10789 action entries across 89 dispatchers — see `knowledge/wiki/architecture/actions/<dispatcher>/`._
 
 Top dispatchers by action count:
-- `cam`: 2189 actions
-- `calc`: 1304 actions
+- `cam`: 2311 actions
+- `calc`: 1353 actions
+- `dev`: 861 actions
 - `pp`: 801 actions
-- `business`: 441 actions
+- `cad`: 482 actions
+- `business`: 475 actions
+- `aiReasoning`: 434 actions
 - `cadAutomation`: 367 actions
-- `cad`: 357 actions
-- `aiReasoning`: 344 actions
-- `dev`: 312 actions
-- `edm`: 286 actions
+- `edm`: 314 actions
+- `turning`: 257 actions
+- `knowledge`: 239 actions
 - `security`: 238 actions
-- `data`: 215 actions
-- `intelligence`: 153 actions
 <!-- ARCH-ACTIONS-END -->
 
 ### Registries & catalogs
@@ -1125,7 +1218,7 @@ Top dispatchers by action count:
 - [[registry-reg-camuicatalog-inventor-hsm]] — `inventor-hsm`
 - [[registry-reg-camuicatalog-mastercam]] — `mastercam`
 
-**registry** (23):
+**registry** (24):
 - [[registry-reg-aisubsystemregistry]] — `AISubsystem`
 - [[registry-reg-agentregistry]] — `Agent`
 - [[registry-reg-alarmregistry]] — `Alarm`
@@ -1144,6 +1237,7 @@ Top dispatchers by action count:
 - [[registry-reg-physicsmappingregistry]] — `PhysicsMapping`
 - [[registry-reg-postprocessorregistry]] — `PostProcessor`
 - [[registry-reg-scriptregistry]] — `Script`
+- [[registry-reg-skillqualityregistrybuilder]] — `SkillQualityBuilder`
 - [[registry-reg-skillregistry]] — `Skill`
 - [[registry-reg-toolgeometrydefaults]] — `ToolGeometryDefaults`
 - [[registry-reg-toolregistry]] — `Tool`
@@ -1196,62 +1290,76 @@ Top dispatchers by action count:
 - [[registry-reg-cadfunctioncatalog]] — `cadfunction catalog`
 - [[registry-reg-camuicatalog]] — `camui catalog`
 
+**combos** (1):
+- [[registry-combo-synthesizers]] — `Combo Synthesizers
+(variability-adjusted formulas)`
+
 **jmdie_root** (1):
 - [[registry-reg-jmdiecustomers]] — `jmdiecustomers
-(212)`
+(324)`
 
 **boxextract_vendor** (1):
 - [[registry-boxextract-misc]] — `misc`
+
+**ppg_assets_hub** (1):
+- [[registry-ppg-assets]] — `PPG Asset Catalog`
+
+**vault_root** (1):
+- [[registry-vault-root]] — `Obsidian Vault (knowledge/)`
+
+**ghost-meta-roost** (1):
+- [[registry-ghost-substrate-health]] — `Substrate Health (3 surfaces, 3 drifted)`
 
 <!-- ARCH-REGISTRIES-END -->
 
 ### Frontend pages
 
 <!-- ARCH-FRONTENDS-START -->
-_Total: 832 frontend entries_ · 0 flagged as dead-pixel risk
+_Total: 1567 frontend entries_ · 0 flagged as dead-pixel risk
 
-- **frontend_file**: 622 entries — see `knowledge/wiki/architecture/frontends/frontend_file/`
-- **page**: 146 entries — see `knowledge/wiki/architecture/frontends/page/`
+- **page**: 876 entries — see `knowledge/wiki/architecture/frontends/page/`
+- **frontend_file**: 623 entries — see `knowledge/wiki/architecture/frontends/frontend_file/`
 - **frontend_dir**: 42 entries — see `knowledge/wiki/architecture/frontends/frontend_dir/`
 - **pages**: 14 entries — see `knowledge/wiki/architecture/frontends/pages/`
 - **variants**: 5 entries — see `knowledge/wiki/architecture/frontends/variants/`
+- **untracked-class**: 4 entries — see `knowledge/wiki/architecture/frontends/untracked-class/`
 - **frontend_app**: 3 entries — see `knowledge/wiki/architecture/frontends/frontend_app/`
 <!-- ARCH-FRONTENDS-END -->
 
 ### Milestones (per-scope counts)
 
 <!-- ARCH-MILESTONES-START -->
-_Total: 306 milestone entries across 101 scopes._
+_Total: 549 milestone entries across 165 scopes._
 
 Top scopes by milestone count:
+- `UNKNOWN`: 65 milestones
+- `PPG`: 39 milestones
 - `CAMX`: 26 milestones
 - `CCM`: 18 milestones
-- `UNKNOWN`: 17 milestones
 - `QA`: 15 milestones
 - `CC`: 12 milestones
 - `EIGC`: 12 milestones
 - `HBK`: 12 milestones
 - `MXU`: 12 milestones
+- `F360-REV`: 11 milestones
+- `HM-KC`: 10 milestones
+- `LATHE`: 10 milestones
+- `RES`: 10 milestones
 - `ACP`: 10 milestones
 - `PP`: 9 milestones
-- `SCIMATH`: 8 milestones
-- `CC-EXT`: 7 milestones
-- `BIZ`: 7 milestones
-- `QS`: 7 milestones
-- `MF`: 6 milestones
 <!-- ARCH-MILESTONES-END -->
 
 ### Misc L8 nodes (customers · combos · specs · data catalogs · extracts)
 
 <!-- ARCH-MISC-L8-START -->
-_Total: 266 misc-L8 entries (JM Die customers, combos, design specs, data catalogs, extracts, novel formulas)._
+_Total: 735 misc-L8 entries (JM Die customers, combos, design specs, data catalogs, extracts, novel formulas)._
 
+- `combo`: 312 entries
+- `design-spec`: 149 entries
 - `datacat_file`: 141 entries
 - `jmdie_customer`: 60 entries
+- `novel_formula`: 43 entries
 - `extract_file`: 26 entries
-- `combo`: 22 entries
-- `design-spec`: 10 entries
-- `novel_formula`: 3 entries
 - `boxextract_file`: 3 entries
 - `jmdie_customer_aggregate`: 1 entries
 
@@ -1261,7 +1369,7 @@ Dirs: `architecture/jmdie/`, `architecture/combos/`, `architecture/specs/`, `arc
 ### Courses (Academy + MIT OCW)
 
 <!-- ARCH-COURSES-START -->
-_Total: 16 course entries — 9 PRISM Academy + 5 MIT OCW + 1 (220-course KB) + index. See [[courses-index]]._
+_Total: 36 course entries — 29 PRISM Academy + 5 MIT OCW + 1 (220-course KB) + index. See [[courses-index]]._
 
 Dir: `architecture/courses/`. Served by CurriculumEngine / CourseBuilderEngine / the MITCourse* engine family.
 <!-- ARCH-COURSES-END -->
@@ -1269,7 +1377,7 @@ Dir: `architecture/courses/`. Served by CurriculumEngine / CourseBuilderEngine /
 ### Tribal corpus (per-category)
 
 <!-- ARCH-TRIBAL-CORPUS-START -->
-_Total: 4245 tribal tips across 73 categories — per-category index entries under `architecture/tribal/`; master catalog [[tribal-corpus-index]]. Every tip is in `_leaf-index.jsonl` for recall._
+_Total: 3920 tribal tips across 73 categories — per-category index entries under `architecture/tribal/`; master catalog [[tribal-corpus-index]]. Every tip is in `_leaf-index.jsonl` for recall._
 <!-- ARCH-TRIBAL-CORPUS-END -->
 
 ### Monolith modules (per-module, v8.89 decomposition)
@@ -1280,34 +1388,42 @@ _Total: 1679 per-module wiki entries across 60 categories — see [[monolith-mod
 Dir: `architecture/monolith-modules/<category>/`. These are the decomposed v8.89 monolith source files (source material for SFC / Master-Post / MS1 / CADCAM-AI / LEARN).
 <!-- ARCH-MONOLITH-MODULES-END -->
 
+### Tests (per-test entries)
+
+<!-- ARCH-TESTS-START -->
+_Total: 5241 per-test wiki entries across 274 groups — see [[tests-index]]._
+
+Dir: `architecture/tests/<group>/`. Answers "is there a test for X?" / "what does Foo.test.ts cover?".
+<!-- ARCH-TESTS-END -->
+
 ### Skills
 
 <!-- ARCH-SKILLS-START -->
-_Total: 639 skill entries_
+_Total: 1534 skill entries_
 
-- project: 248 skills
-- user: 391 skills
+- project: 776 skills
+- user: 758 skills
 <!-- ARCH-SKILLS-END -->
 
 ### Hooks
 
 <!-- ARCH-HOOKS-START -->
-_Total: 483 hook entries_
+_Total: 905 hook entries_
 
-- runtime: 429 hooks
+- runtime: 851 hooks
 - engine: 54 hooks
 <!-- ARCH-HOOKS-END -->
 
 ### Formulas & algorithms
 
 <!-- ARCH-FORMULAS-START -->
-_80 formula entries (knowledge/wiki/architecture/formulas/) · 53 algorithm entries (knowledge/wiki/architecture/algorithms/)_
+_7313 formula entries (knowledge/wiki/architecture/formulas/) · 61 algorithm entries (knowledge/wiki/architecture/algorithms/)_
 <!-- ARCH-FORMULAS-END -->
 
 ### Monolith extraction
 
 <!-- ARCH-MONOLITH-START -->
-_PRISM v8.89 monolith extraction: [[index]] overview + 23 category entries + 12 module-folder entries + [[missing]] — see knowledge/wiki/architecture/monolith-extraction/_
+_PRISM v8.89 monolith extraction: [[index]] overview + 24 category entries + 12 module-folder entries + [[missing]] — see knowledge/wiki/architecture/monolith-extraction/_
 <!-- ARCH-MONOLITH-END -->
 
 - [[devops_improvements]] — The PRISM MCP Server uses esbuild for fast bundling with TypeScript type checking. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/devops_improvements.md
@@ -1336,3 +1452,162 @@ _PRISM v8.89 monolith extraction: [[index]] overview + 23 category entries + 12 
 - [[reference_tribal_knowledge_search]] — **JM Die Company** is the canonical test shop. Path: `H:\prism\JM DIE\` (24,545 production NC files, 100+ customers — IT | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/reference_tribal_knowledge_search.md
 - [[reference_wiki_query_before_derive]] — PRISM has a Karpathy LLM-Wiki at `H:\prism\knowledge\wiki\` (full protocol in `H:\prism\WIKI_SCHEMA.md`): | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/reference_wiki_query_before_derive.md
 - [[wedm_shop_programs]] — `C:\Users\wompu\Box\WIRE EDM\` — ~140 customer folders with .mcx-8 (Mastercam) and .NC/.MIN (G-code) files | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/wedm_shop_programs.md
+
+<!-- galaxy-foundations (GALAXY-ENRICH verify-promote + deepen + pass2-keyword-refresh, papa 2026-06-10; em-dash-delimited for wiki-precheck parser) -->
+- [[ai-training-foundations]] — AI-training foundations: GNN/GraphSAGE/LoRA/RAG theory, deploy gates, convolutional-net translation-invariance priors, statistical inference, NIST AI RMF (Stanford CS224W, d2l.ai, MIT 6.036/6.S191/18.650, NPTEL) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/ai-training/ai-training-foundations.md
+- [[academy-pedagogy-foundations]] — Academy pedagogy foundations: NIMS/29CFR competency, Bloom taxonomy, Dreyfus, ADDIE, andragogy, deliberate practice, OSHA machine-guarding safety, SI base units, SPC (NIST/OSHA/NPTEL) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/academy/academy-pedagogy-foundations.md
+- [[business-foundations]] — Business foundations: cost taxonomy direct material labor overhead, ABC costing, EOQ inventory, TOC, OEE, GAAP principles, Taylor scientific management, HRM lifecycle, SPC (OpenStax/MIT-OCW/Gutenberg/NIST) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/business/business-foundations.md
+- [[quoting-foundations]] — Quoting foundations: job-order costing, should-cost decomposition, machine-hour overhead allocation, NRE amortization, standard costing, high-low least-squares cost estimation (NIST SP1176/OpenStax/MIT 2.854/15.763J) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quoting/quoting-foundations.md
+- [[quality-foundations]] — Quality foundations: Cp Cpk process capability, control charts, Shewhart SPC lineage, GUM measurement uncertainty, gauge R&R, central limit theorem, DOE, EWMA CUSUM (NIST e-Handbook/GUM/OpenStax/MIT) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quality/quality-foundations.md
+- [[shop-floor-foundations]] — Shop-floor foundations: OEE, MTConnect, ISA-95 MES traceability, TQM Six-Sigma lean, time-study, Hawthorne human-relations, TPM, lockout-tagout LOTO, OSHA ergonomics (NIST/ISA/OSHA/MIT-OCW) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/shop-floor/shop-floor-foundations.md
+- [[blueprint-vision-foundations]] — Blueprint-vision foundations: GD&T ASME Y14.5 feature control frame datum, orthographic projection, machine vision optics image formation, dimensional metrology, QIF, digital thread (MIT-OCW/NIST/archive.org/Szeliski) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/blueprint-vision/blueprint-vision-foundations.md
+- [[cad-foundations]] — CAD foundations: B-rep CSG NURBS solid modeling, geometric modeling curves surfaces, MBD ASME Y14.41, STEP AP242 ISO 10303, NIST STEP File Analyzer, DFM, computational geometry (MIT 2.158J/2.008/NIST MBE) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad/cad-foundations.md
+- [[post-processor-foundations]] — Post-processor foundations: RS274 G-code structure, canned cycles, RS274NGC interpreter, arc feedrate centripetal limit, dimensional metrology, STEP-NC ISO 14649 AP238 (NIST/LinuxCNC/OpenStax) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/post-processor/post-processor-foundations.md
+- [[speed-feed-foundations]] — Speed-feed foundations: Kienzle KC1.1 Taylor RCTF radial chip thinning formula STRUCTURE, orthogonal cutting Merchant model, spindle power torque, cutting-zone heat, residual stress (MIT 2.810/NASA/OpenStax; constants gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/speed-feed/speed-feed-foundations.md
+- [[mill-foundations]] — Mill foundations: milling taxonomy face peripheral climb conventional, chip thinning, metal-cutting teaching order, machine-guarding safety, SPC for QC method (LibreTexts/MIT-OCW/OSHA/NIST; constants gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mill/mill-foundations.md
+- [[lathe-foundations]] — Lathe foundations: CSS G96 G97 first principles, surface metrology, tool wear mechanisms, spindle torque rotational inertia, ANSI B11.6 machine-guarding, theoretical finish (OpenStax/NIST/NASA/OSHA; constants gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/lathe/lathe-foundations.md
+- [[wedm-foundations]] — WEDM foundations: spark erosion non-contact mechanism, dielectric flushing taxonomy, brass zinc wire metallurgy, recast layer, debris short-circuit, polarity pulse, MRR TWR, multi-pass skim (MDPI/PMC/NIST/DOE; numerics gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wedm/wedm-foundations.md
+- [[cam-foundations]] — CAM foundations: toolpath strategy chip-thinning scallop trochoidal, metal-cutting theory, built-up edge, machinability, cutting fluid, numerical control, STEP-NC feature-based CAM (MIT 2.810/OpenStax/NPTEL/ISO; constants gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cam/cam-foundations.md
+- [[frontend-app-foundations]] — Frontend-app foundations: browser rendering pipeline DOM, WCAG 2.2 WAI-ARIA accessibility, HTTP safe idempotent REST fetch, one-way component state architecture, software construction (MIT 6.031/6.005, MDN, W3C/WHATWG) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/frontend-app/frontend-app-foundations.md
+- [[database-expansion-foundations]] — Database-expansion foundations: relational model normalization, ACID transactions isolation levels, B-tree LSM HNSW indexing, WAL ARIES recovery, CAP linearizability serializability, vector search (CMU 15-445/MIT 6.830/Red Book/PostgreSQL) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/database-expansion/database-expansion-foundations.md
+- [[cad-fusion-live-foundations]] — CAD-fusion-live foundations: parametric feature history DAG, constraint-based sketching degrees-of-freedom, geometric constraint solver, assembly mates, timeline rollback, associativity digital thread (MIT 2.158J/NIST MBE; solid-modeling math in cad-foundations) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad-fusion-live/cad-fusion-live-foundations.md
+- [[prism-methodology-foundations]] — PRISM methodology foundations cross-cutting all galaxies how every galaxy should operate: updated PC specs hardware Blackwell RTX PRO 6000 96GB + tool upgrades + features, ollama utilization tiering qwen2.5-coder-32b gpt-oss-120b, how to properly run loops loop discipline bound-the-open-loop, how to utilize the Obsidian vault PSN brain recall memories, agentic harnesses orchestration, LoRA low-rank adaptation, RAG retrieval-augmented generation, CAG cache-augmented generation (arXiv 2106.09685/2005.11401/2412.15605 + PRISM doctrine) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/architecture/prism-methodology-foundations.md
+- [[fleet-hygiene-foundations]] — Fleet-hygiene foundations: OS process orphan zombie reaping wait(2), heartbeat failure detector liveness, distributed split-brain avoidance, init-style reaper (OSTEP/MIT 6.824/Chandra-Toueg) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/fleet-hygiene/fleet-hygiene-foundations.md
+- [[discovery-foundations]] — Discovery foundations: information retrieval inverted index, TF-IDF BM25 ranking, near-duplicate detection shingling MinHash LSH SimHash, anti-duplication search-first (MMDS/Stanford CS276/Manning IR) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/discovery/discovery-foundations.md
+- [[bug-hunting-foundations]] — Bug-hunting foundations: software testing test-oracle problem, coverage necessary-not-sufficient, silent no-op detection, static analysis, fail-loud assertions (MIT 6.005/6.031/NIST SAMATE) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/bug-hunting/bug-hunting-foundations.md
+- [[system-viz-foundations]] — System-viz foundations: information visualization, force-directed layout Barnes-Hut n-log-n, large-graph level-of-detail navigation, visual encoding channels (Munzner/graph-drawing/WebGL) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/system-viz/system-viz-foundations.md
+- [[backend-helper-foundations]] — Backend-helper foundations: compiler phases lexing parsing, type checking inference, NodeNext module resolution, incremental build dependency graph (Stanford CS143/Crafting Interpreters/MIT 6.035/TAPL) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/backend-helper/backend-helper-foundations.md
+- [[token-optimization-foundations]] — Token-optimization foundations: information theory Shannon entropy source-coding theorem, lossless vs lossy compression, context-window economy (MIT 6.050J/Cover-Thomas/Shannon 1948) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/token-optimization/token-optimization-foundations.md
+- [[agent-orchestration-foundations]] — Agent-orchestration foundations: multi-agent distributed systems, leader election consensus FLP, MapReduce orchestrator-worker re-execution, CAP, slot-claim coordination (MIT 6.824/MapReduce/Raft) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/agent-orchestration/agent-orchestration-foundations.md
+- [[compliance-safety-foundations]] — Compliance-safety foundations: hazard risk assessment, hierarchy of controls, IEC 61508 SIL ALARP, FMEA, ISO 45001 PDCA, NIST defense-in-depth audit trail RMF (OSHA/NIOSH/IEC/ISO/NIST; thresholds gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/compliance-safety/compliance-safety-foundations.md
+- [[dormant-data-foundations]] — Dormant-data foundations: data lifecycle garbage collection mark-sweep, orphan GC-unreachability, hot cold storage tiering working-set, retention reclamation sanitization (OSTEP/DB storage) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/dormant-data/dormant-data-foundations.md
+- [[knowledge-conversion-foundations]] — Knowledge-conversion foundations: information extraction NER relation-extraction, knowledge representation ontology, NLP ETL pipeline (Stanford CS224N/MIT NLP) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/knowledge-conversion/knowledge-conversion-foundations.md
+- [[corpus-aggregation-foundations]] — Corpus-aggregation foundations: document processing ETL pipeline ingest normalize dedup shard, corpus statistics (Stanford CS276/MMDS; IR theory in discovery-foundations) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/corpus-aggregation/corpus-aggregation-foundations.md
+- [[wiring-foundations]] — Wiring foundations: software architecture dependency DAG topological order, dependency injection, coupling cohesion, build orchestration no-circular-deps (MIT 6.031/topological-sort/Make) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wiring/wiring-foundations.md
+- [[tribal-knowledge-foundations]] — Tribal-knowledge foundations: knowledge management SECI tacit-explicit conversion, lessons-learned after-action, communities of practice, organizational learning (Nonaka/Polanyi/Lave-Wenger/GAO) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/tribal-knowledge/tribal-knowledge-foundations.md
+- [[hermes-zulu-foundations]] — Hermes-zulu foundations: agent-fleet orchestration slot-lease not-lock, async pub-sub message bus actors, work-stealing, heartbeat failure detector (MIT 6.824; coordination theory in agent-orchestration-foundations) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/hermes-zulu/hermes-zulu-foundations.md
+- [[pdf-corpus-foundations]] — PDF-corpus foundations: PDF object model ISO-32000, text-vs-raster fork, OCR Tesseract pipeline, document layout analysis connected-component (Szeliski/Stanford IR; vision spine in blueprint-vision-foundations) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/pdf-corpus/pdf-corpus-foundations.md
+- [[pdf-corpus-mill-foundations]] — PDF-corpus-mill foundations: mill-document extraction table-extraction, lexicon-constrained OCR, domain-adapted NER for milling manuals catalogs (Szeliski/Stanford IR; points to pdf-corpus + blueprint-vision) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/pdf-corpus-mill/pdf-corpus-mill-foundations.md
+- [[mit-curriculum-foundations]] — MIT-curriculum foundations: open-courseware source corpus, MIT OCW CC BY-NC-SA 4.0 licensing ingestion gate, course-to-knowledge extraction (ocw.mit.edu; pedagogy in academy-pedagogy-foundations) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mit-curriculum/mit-curriculum-foundations.md
+- [[mill-source-atlas]] — Mill source atlas: free living-source learning curriculum for milling -- free college courses MIT 2.008/2.810 NPTEL TITANS-of-CNC, LibreTexts OpenStax books, NIST NASA archive.org, ASME OSHA standards, lecture videos (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mill/mill-source-atlas.md
+- [[lathe-source-atlas]] — Lathe source atlas: free living-source curriculum for turning -- MIT OCW NPTEL courses, Open Oregon Manufacturing Processes textbook, LibreTexts, NIST NASA archives, ASME OSHA (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/lathe/lathe-source-atlas.md
+- [[wedm-source-atlas]] — WEDM source atlas: free living-source curriculum for wire sinker EDM -- NPTEL Advanced Machining Processes course plus IIT lecture videos, free textbooks, NIST DOE archives, standards (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wedm/wedm-source-atlas.md
+- [[cam-source-atlas]] — CAM source atlas: free living-source curriculum for CAM toolpath -- MIT OCW NPTEL, CNCCookbook toolpath guide, NIST digital-thread MTConnect, LinuxCNC docs, YouTube lecture channels (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cam/cam-source-atlas.md
+- [[speed-feed-source-atlas]] — Speed-feed source atlas: free living-source curriculum for metal-cutting mechanics -- NPTEL video lectures, MIT OCW, OpenStax physics, NIST, free machining calculators (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/speed-feed/speed-feed-source-atlas.md
+- [[post-processor-source-atlas]] — Post-processor source atlas: free living-source curriculum for G-code CNC posts -- GcodeTutor, LinuxCNC docs, free courses, controller references (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/post-processor/post-processor-source-atlas.md
+- [[cad-source-atlas]] — CAD source atlas: free living-source curriculum for CAD solid-modeling -- MIT OCW geometry, NIST MBE PMI validation models, free textbooks, STEP standards (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad/cad-source-atlas.md
+- [[blueprint-vision-source-atlas]] — Blueprint-vision source atlas: free living-source curriculum for GD&T machine-vision metrology -- MIT 6.801 Machine Vision, free textbooks, NIST metrology, ASME standards (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/blueprint-vision/blueprint-vision-source-atlas.md
+- [[quoting-source-atlas]] — Quoting source atlas: free living-source curriculum for cost estimation quoting -- MIT OCW 15.501/2.854, OpenStax managerial accounting, NIST cost guide, Census BEA data (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quoting/quoting-source-atlas.md
+- [[business-source-atlas]] — Business source atlas: free living-source curriculum for manufacturing business ERP operations -- MIT OCW, OpenStax, NIST MEP, gov data portals, standards (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/business/business-source-atlas.md
+- [[quality-source-atlas]] — Quality source atlas: free living-source curriculum for SPC quality engineering -- NIST SEMATECH e-Handbook, free courses, OpenStax stats, gauge R&R, standards (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quality/quality-source-atlas.md
+- [[shop-floor-source-atlas]] — Shop-floor source atlas: free living-source curriculum for shop ops lean OEE safety -- Lean Enterprise Institute lexicon, MTConnect, OSHA, free courses (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/shop-floor/shop-floor-source-atlas.md
+- [[academy-source-atlas]] — Academy source atlas: free living-source curriculum for manufacturing education training -- MIT OpenCourseWare, NPTEL, free textbooks, workforce-training resources (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/academy/academy-source-atlas.md
+- [[ai-training-source-atlas]] — AI-training source atlas: free living-source curriculum for ML GNN LoRA RAG -- Hugging Face Learn, MIT OCW, d2l.ai, free courses plus papers (verified free links) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/ai-training/ai-training-source-atlas.md
+- [[mill-applied-practice]] — Mill applied practice practitioner gotchas: chatter vibration troubleshooting, built-up-edge counter-intuitive fix, climb-vs-conventional, tool deflection stickout, chip recutting, finish problems, workholding rigidity (numerics gated; CNCCookbook/Harvey) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mill/mill-applied-practice.md
+- [[lathe-applied-practice]] — Lathe applied practice gotchas: parting-tool dig-in runaway, chatter, chip control breaking, threading pitfalls, steady-rest, CSS near-center pitfall, tool-nose-radius finish (numerics gated; CNCCookbook/Harvey) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/lathe/lathe-applied-practice.md
+- [[wedm-applied-practice]] — WEDM applied practice gotchas: wire breakage causes, flushing starvation, taper error, recast HAZ, skim multi-pass strategy, short-circuit diagnosis (numerics gated; vendor EDM/NPTEL) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wedm/wedm-applied-practice.md
+- [[cam-applied-practice]] — CAM applied practice gotchas: closed-pocket slug jam, gouge collision avoidance, lead-in-out, stock-to-leave rest-machining, simulation discipline, post mismatch (numerics gated; CNCCookbook) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cam/cam-applied-practice.md
+- [[speed-feed-applied-practice]] — Speed-feed applied practice qualitative reasoning no numbers: built-up-edge escape by speeding up, derate for stickout thin-wall, recutting chips, work-hardening, tool-life vs MRR vs finish trade direction (numerics gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/speed-feed/speed-feed-applied-practice.md
+- [[post-processor-applied-practice]] — Post-processor applied practice gotchas: G80 canned-cycle re-drill crash, arc IJK vs R, tool-length-offset G43, work-offset G54, modal-state bugs, controller-dialect traps, safe-retract (LinuxCNC/Haas) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/post-processor/post-processor-applied-practice.md
+- [[cad-applied-practice]] — CAD applied practice gotchas: fragile references rebuild-cascade, feature-tree order, over-constraint, sketch relations, assembly mates, design-for-machining DFM, STEP export healing (Hubs/COMSOL/TransMagic) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad/cad-applied-practice.md
+- [[blueprint-vision-applied-practice]] — Blueprint-vision applied practice gotchas: position callout missing diameter-symbol square-zone, MMC LMC bonus tolerance, datum-reference-frame, tolerance-stack, view reading, OCR failure modes (GD&T practical) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/blueprint-vision/blueprint-vision-applied-practice.md
+- [[quality-applied-practice]] — Quality applied practice gotchas: in-control-vs-capable confusion, control-chart over-reaction to common-cause, gauge R&R pitfalls, Cp vs Pp, sampling traps, measurement-system error (NIST e-Handbook; thresholds gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quality/quality-applied-practice.md
+- [[shop-floor-applied-practice]] — Shop-floor applied practice gotchas: tool-length-offset H0 G43 spindle-nose crash, SMED setup-reduction, 5S, lockout-tagout, first-article verification, thermal warm-up, offset verification (Lean/OSHA; thresholds gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/shop-floor/shop-floor-applied-practice.md
+- [[ai-training-applied-practice]] — AI-training applied practice gotchas: data leakage train-test contamination preprocessing-before-split, overfitting val-test discipline, class imbalance, RAG chunking retrieval-eval, LoRA rank choice, single-seed metric variance, distribution shift (d2l/HuggingFace/scikit-learn) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/ai-training/ai-training-applied-practice.md
+- [[database-expansion-applied-practice]] — Database applied practice gotchas: N+1 query, missing over-indexing, lock contention deadlock, isolation anomalies phantom read, connection-pool exhaustion too-big, migration blocking DDL, HNSW tuning (PostgreSQL/CMU 15-445/Use-The-Index-Luke) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/database-expansion/database-expansion-applied-practice.md
+- [[frontend-app-applied-practice]] — Frontend applied practice gotchas: unnecessary re-renders inline-props defeat React.memo, stale-closure hooks, hydration mismatch SSR, accessibility focus ARIA, list key-prop, fetch waterfall race (MDN/React/web.dev) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/frontend-app/frontend-app-applied-practice.md
+- [[business-applied-practice]] — Business applied practice gotchas: profitable-but-cash-poor working-capital timing, cost-allocation distortion volume-based overhead, inventory valuation, ERP master-data integrity, KPI gaming (OpenStax/SCORE; rates gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/business/business-applied-practice.md
+- [[quoting-applied-practice]] — Quoting applied practice gotchas: optimism-bias systematic under-quoting reference-class forecasting, scope-creep change-order, NRE amortization, setup-time underestimation, markup-vs-margin confusion, quote-vs-actual loop (OpenStax/NIST; rates gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quoting/quoting-applied-practice.md
+- [[academy-applied-practice]] — Academy applied practice gotchas: curse-of-knowledge expert blind-spot, cognitive-load overload, transfer-failure inert knowledge, assessment validity-reliability, feedback timing, spacing vs massed practice (learning science/MIT OCW) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/academy/academy-applied-practice.md
+- [[fleet-hygiene-applied-practice]] — Fleet-hygiene applied practice gotchas: PID is not durable identity recycled-PID reuse race, signal-0 proves existence not ownership, cannot SIGKILL a zombie reap the owning ancestor, zombie vs orphan different owners, SIGTERM-before-SIGKILL grace, kill the process-group not lone PID, double-fork daemon detach, heartbeat false-positive confirm-after-N-ticks (OSTEP/POSIX man pages) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/fleet-hygiene/fleet-hygiene-applied-practice.md
+- [[discovery-applied-practice]] — Discovery applied practice gotchas: stop-word drop breaks phrase and NER match, stemming raises recall destroys precision, index-time vs query-time tokenization must match, MinHash hashes quadratic in error, LSH banding false-positive-vs-false-negative dial, BM25 k1 b are collection-specific not constants, buffered-delete stale-index ghosts until merge (MMDS/Stanford CS276/Lucene) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/discovery/discovery-applied-practice.md
+- [[bug-hunting-applied-practice]] — Bug-hunting applied practice gotchas: green test with no oracle asserts nothing the R9 failure, flaky-test five named root causes shared-state timing ordering, coverage-is-not-correctness false-confidence, mock drift from real interface, silent catch-and-continue hides failure, boundary off-by-one, mutation testing (MIT 6.031/software-testing literature) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/bug-hunting/bug-hunting-applied-practice.md
+- [[system-viz-applied-practice]] — System-viz applied practice gotchas: force-layout local-minimum non-deterministic super-linear blowup Barnes-Hut LOD, hairball dense-graph use matrix not node-link, label placement NP-hard occlusion, color hue alone fails 8 percent of viewers, streaming-vs-materialize OOM on a large graph, stale-render after data change (Munzner viz/graph-drawing) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/system-viz/system-viz-applied-practice.md
+- [[backend-helper-applied-practice]] — Backend-helper applied practice gotchas: NodeNext missing .js suffix the number-one silent break, esbuild strips types does not type-check isolatedModules, circular import temporal-dead-zone ReferenceError, any-leak masks a region of real errors, single-source the type fix root not N symptoms, declaration-merging silent, tsc heap-OOM (TypeScript handbook/NodeNext docs) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/backend-helper/backend-helper-applied-practice.md
+- [[token-optimization-applied-practice]] — Token-optimization applied practice gotchas: lossy summarization generation-loss irreversible compounding, entropy floor pigeonhole cannot shrink everything, prompt-cache 5-minute TTL cold-miss doubles cost breakpoint-on-changing-content never hits, dedup hash-collision false-merge, context-window thrash more-tokens-less-signal (Shannon info-theory/MIT 6.050J) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/token-optimization/token-optimization-applied-practice.md
+- [[agent-orchestration-applied-practice]] — Agent-orchestration applied practice gotchas: lock-vs-lease a dead lock-holder freezes the unit forever a lease expires, split-brain two-leaders corrupt data 2-node cannot self-resolve, heartbeat false-positive evicts a slow-but-live worker, quorum fencing, at-least-once vs exactly-once delivery (MIT 6.824/Raft/MapReduce) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/agent-orchestration/agent-orchestration-applied-practice.md
+- [[compliance-safety-applied-practice]] — Compliance-safety applied practice gotchas method-only thresholds gated: fail-OPEN-vs-fail-CLOSED name the safe state a gate that fails open is a non-gate the recurring PRISM bug class, single-point-of-failure one check carrying the gate, defense-in-depth non-independent layers, audit-trail traceability gaps, alarm fatigue, ALARP (IEC 61508/OSHA/NIST; no numeric S(x) or SIL threshold) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/compliance-safety/compliance-safety-applied-practice.md
+- [[dormant-data-applied-practice]] — Dormant-data applied practice gotchas: refcount keeps dead cycles alive tracing needed, one strong reference leaks the whole graph, MVCC premature-reclaim a dead row still visible to a concurrent reader, unlink does not free space while file open, TOCTOU delete race, age-is-not-unreachable, retention-policy gap (OSTEP/GC/database-storage) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/dormant-data/dormant-data-applied-practice.md
+- [[knowledge-conversion-applied-practice]] — Knowledge-conversion applied practice gotchas: NER brittle cross-domain a milling term mis-tagged, gazetteer poor coverage, exact-span F1 punishes almost-right, relation-extraction precision-vs-recall false-positives unfiltered, ETL silent-drop of a malformed record report loaded-N-of-M loudly, unicode mangling, dedup over-merge (Stanford CS224N/NLP) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/knowledge-conversion/knowledge-conversion-applied-practice.md
+- [[wiring-applied-practice]] — Wiring applied practice gotchas: circular dependency domino init-order failure and refcount leak, orphan partial-wiring an engine to ONE consumer not all the R15 failure, leaky abstraction wired-to-interface not decoupled, dependency-injection over-abstraction hard-to-trace call graph, topological build break, version skew (MIT 6.031/dependency-injection) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wiring/wiring-applied-practice.md
+- [[tribal-knowledge-applied-practice]] — Tribal-knowledge applied practice gotchas: externalization drops most value the SECI articulation barrier experts cannot state best knowledge, knowledge hoarding weak absorptive capacity, duplicated copies drift stale SSOT failure, fail-open start-fresh on read error destroys the corpus, retain before expert departs, indexed-but-never-surfaced recall gap (Nonaka SECI/KM literature) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/tribal-knowledge/tribal-knowledge-applied-practice.md
+- [[hermes-zulu-applied-practice]] — Hermes-zulu applied practice gotchas multi-agent fleet orchestration: a paused chat whose lease was reaped commits anyway stale-writer fence the WRITE with a fencing token not just the claim, slot-drift after compact reclaims wrong terminal, lease-not-lock, thundering-herd on fleet restart, cross-slot file-claim race, handoff continuity lost on topic-drift (MIT 6.824/multi-agent literature) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/hermes-zulu/hermes-zulu-applied-practice.md
+- [[corpus-aggregation-applied-practice]] — Corpus-aggregation applied practice gotchas ETL aggregation: fail-open catch-return-empty on an existing corpus is silent total destruction read must fail-loud + writer large-shrink clobber-guard, dedup over-merge across heterogeneous sources, schema drift breaks the join, incremental-vs-full reload, late-arriving out-of-order data (data-engineering/Airflow/dbt) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/corpus-aggregation/corpus-aggregation-applied-practice.md
+- [[mit-curriculum-applied-practice]] — Mit-curriculum applied practice gotchas OCW curriculum-source: born-digital text extraction preferred over OCR for lecture-note PDFs OCR 81-99pct silently corrupts course numbers constants and equation regions, CC attribution share-alike obligations, course-version drift, transcript-video desync, prerequisite-graph gaps (MIT OCW/Creative Commons) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mit-curriculum/mit-curriculum-applied-practice.md
+- [[cad-fusion-live-applied-practice]] — Cad-fusion-live applied practice gotchas live parametric CAD: topological-naming problem a live upstream-feature edit rebinds a downstream face reference to WRONG geometry rebuilds green but silently wrong attach to stable datums not derived faces, UNITS 25.4x inch-mm scale error, rebuild cascade, live-session state loss, API automation race (Autodesk/FreeCAD; kernel numerics owner-gated delta) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad-fusion-live/cad-fusion-live-applied-practice.md
+- [[pdf-corpus-applied-practice]] — Pdf-corpus applied practice gotchas OCR PDF extraction: one malformed token leading-dot decimal .171 discards the WHOLE structured extraction repair structure-then-notation before strict JSON.parse, multi-page page-0-only trap drops dimension pages, truncated-JSON loss, non-resumable corpus burn re-OCR waste, VLM hallucination needs >=2-model consensus (Tesseract/pypdf/Szeliski) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/pdf-corpus/pdf-corpus-applied-practice.md
+- [[pdf-corpus-mill-applied-practice]] — Pdf-corpus-mill applied practice gotchas mill document-extraction: a unitless number in a machining doc is a latent 25.4x error extract the title-block unit FIRST carry the resolved unit on every dimension record, table column-alignment loss, diameter-radius symbol confusion, parameter-table row mis-association (Tesseract/Camelot; cutting numerics owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/pdf-corpus-mill/pdf-corpus-mill-applied-practice.md
+- [[fleet-hygiene-source-atlas]] — Fleet-hygiene source atlas living free-source curriculum where-to-keep-learning: OSTEP full free OS textbook fork/wait/PID parent-child, MIT 6.824 distributed-systems lecture videos, Linux man pages wait signal kill, Brendan Gregg systems-performance, POSIX spec | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/fleet-hygiene/fleet-hygiene-source-atlas.md
+- [[discovery-source-atlas]] — Discovery source atlas living free-source curriculum where-to-keep-learning: Stanford CS246 Mining Massive Datasets MinHash LSH near-dedup, Manning Intro to IR free book, MMDS, Apache Lucene docs | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/discovery/discovery-source-atlas.md
+- [[bug-hunting-source-atlas]] — Bug-hunting source atlas living free-source curriculum where-to-keep-learning: MIT 6.031 6.005 OCW, NIST SARD labeled-defect corpus, Google Testing Blog, mutation-testing PIT Stryker docs, property-based-testing | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/bug-hunting/bug-hunting-source-atlas.md
+- [[system-viz-source-atlas]] — System-viz source atlas living free-source curriculum where-to-keep-learning: Handbook of Graph Drawing 26 free chapter PDFs, Munzner Visualization Analysis and Design, d3 docs, WebGL Fundamentals, force-directed Barnes-Hut | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/system-viz/system-viz-source-atlas.md
+- [[backend-helper-source-atlas]] — Backend-helper source atlas living free-source curriculum where-to-keep-learning: Crafting Interpreters free online book, TypeScript Handbook, Stanford CS143 compilers, Node.js NodeNext ESM docs, esbuild docs | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/backend-helper/backend-helper-source-atlas.md
+- [[compliance-safety-source-atlas]] — Compliance-safety source atlas living free-source curriculum where-to-keep-learning method-only: MIT STPA Handbook Leveson Thomas free PDF, Engineering a Safer World, MIT OCW 16.63J System Safety, IEC 61508 overviews, NIST CSRC, OSHA (no numeric threshold) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/compliance-safety/compliance-safety-source-atlas.md
+- [[knowledge-conversion-source-atlas]] — Knowledge-conversion source atlas living free-source curriculum where-to-keep-learning: Jurafsky and Martin Speech and Language Processing 3rd-ed free PDF, Stanford CS224N videos notes, spaCy NER docs, relation-extraction ETL references | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/knowledge-conversion/knowledge-conversion-source-atlas.md
+- [[wiring-source-atlas]] — Wiring source atlas living free-source curriculum where-to-keep-learning: MIT OCW 6.006 algorithms videos DAG topo-sort cycle-detection, MIT 6.031 software construction, Build Systems a la Carte, dependency-injection literature | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wiring/wiring-source-atlas.md
+- [[tribal-knowledge-source-atlas]] — Tribal-knowledge source atlas living free-source curriculum where-to-keep-learning: Open Textbook Library management catalog 60 free CC books, Nonaka SECI, communities-of-practice Wenger, organizational-learning | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/tribal-knowledge/tribal-knowledge-source-atlas.md
+- [[frontend-app-source-atlas]] — Frontend-app source atlas living free-source curriculum where-to-keep-learning: MDN Learn Web Development CC-licensed, web.dev, React docs, WCAG ARIA accessibility, TanStack Query, Next.js docs, MIT 6.031 | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/frontend-app/frontend-app-source-atlas.md
+- [[database-expansion-source-atlas]] — Database-expansion source atlas living free-source curriculum where-to-keep-learning: CMU 15-445 645 Pavlo free videos, MIT 6.830, the Red Book free online, Use The Index Luke, PostgreSQL docs, HNSW vector-index | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/database-expansion/database-expansion-source-atlas.md
+- [[token-optimization-source-atlas]] — Token-optimization source atlas living free-source curriculum where-to-keep-learning: MIT 6.050J Information and Entropy OCW CC-licensed, Stanford EE376A Weissman, Shannon 1948 A Mathematical Theory of Communication, Anthropic prompt-caching count_tokens docs, data-compression references | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/token-optimization/token-optimization-source-atlas.md
+- [[agent-orchestration-source-atlas]] — Agent-orchestration source atlas living free-source curriculum where-to-keep-learning: MIT 6.5840 6.824 five hands-on labs Lab 3 Raft, Raft site, MapReduce paper, Jepsen living archive distributed-systems testing, lecture video series | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/agent-orchestration/agent-orchestration-source-atlas.md
+- [[dormant-data-source-atlas]] — Dormant-data source atlas living free-source curriculum where-to-keep-learning: GC Handbook free bibliography gchandbook.org self-updating, OSTEP memory free-space, CMU 15-445 storage, PostgreSQL VACUUM docs, reference-counting vs tracing primary papers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/dormant-data/dormant-data-source-atlas.md
+- [[hermes-zulu-source-atlas]] — Hermes-zulu source atlas living free-source curriculum where-to-keep-learning multi-agent fleet orchestration: MIT 6.5840 6.824 labs MapReduce-KV-Raft-ShardedKV, multi-agent-systems literature, LangGraph AutoGen CrewAI docs, ReAct Reflexion orchestrator-worker papers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/hermes-zulu/hermes-zulu-source-atlas.md
+- [[corpus-aggregation-source-atlas]] — Corpus-aggregation source atlas living free-source curriculum where-to-keep-learning data-engineering ETL: DataExpert-io Data Engineer Handbook free bootcamps, Apache Airflow dbt docs, ETL ELT best-practice references, data-pipeline data-quality literature | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/corpus-aggregation/corpus-aggregation-source-atlas.md
+- [[mit-curriculum-source-atlas]] — Mit-curriculum source atlas living free-source curriculum where-to-keep-learning open-courseware SOURCE: MIT OpenCourseWare ocw.mit.edu 2500+ free courses, OCW Scholar self-study, OER Commons, Creative Commons education licensing, OpenStax | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mit-curriculum/mit-curriculum-source-atlas.md
+- [[cad-fusion-live-source-atlas]] — Cad-fusion-live source atlas living free-source curriculum where-to-keep-learning live parametric CAD automation: Autodesk Fusion API Reference scripting, Fusion Inventor official learning, FreeCAD docs, parametric-CAD courses, points to cad-source-atlas core (kernel numerics owner-gated delta) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad-fusion-live/cad-fusion-live-source-atlas.md
+- [[pdf-corpus-source-atlas]] — Pdf-corpus source atlas living free-source curriculum where-to-keep-learning OCR document-extraction: PDF Association ISO 32000 free spec, Tesseract pypdf pdfminer docs, Szeliski Computer Vision free book, document-AI layout-analysis RVL-CDIP FUNSD datasets, points to blueprint-vision-source-atlas | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/pdf-corpus/pdf-corpus-source-atlas.md
+- [[pdf-corpus-mill-source-atlas]] — Pdf-corpus-mill source atlas living free-source curriculum where-to-keep-learning mill document-extraction: Camelot open-source PDF table extraction, Tesseract pypdf OCR, free machining references, points to pdf-corpus-source-atlas and mill-source-atlas (cutting numerics owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/pdf-corpus-mill/pdf-corpus-mill-source-atlas.md
+- [[speed-feed-advanced-techniques]] — Speed-feed advanced techniques world-leader-depth STRATEGY: stability-lobe-diagram exploitation run at a high-stability spindle pocket to cut deeper, regenerative-chatter as exploitable phase-map, HSM high-feed engagement-angle + radial chip thinning, variable/adaptive feed, tool-wear-aware re-optimization, MRR-vs-tool-life-vs-finish Pareto direction (CTE/Harvey/CNCCookbook; numerics owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/speed-feed/speed-feed-advanced-techniques.md
+- [[mill-advanced-techniques]] — Mill advanced techniques world-leader-depth STRATEGY: High Efficiency Milling low-radial high-axial + radial chip thinning keystone, trochoidal slotting, adaptive clearing, high-feed, 3+2-vs-5-axis-simultaneous decision, thin-wall deflection-compensation, rest-machining order (CNCCookbook/Harvey In-The-Loupe/MIT 2.008; numerics owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mill/mill-advanced-techniques.md
+- [[lathe-advanced-techniques]] — Lathe advanced techniques world-leader-depth STRATEGY: done-in-one mill-turn multi-axis live-tooling eliminates re-fixturing error, high-pressure-coolant chip control, CSS strategy near center, hard-turning-vs-grinding decision, multi-pass threading infeed strategy, bar-feed automation (Sandvik/CNCCookbook; numerics owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/lathe/lathe-advanced-techniques.md
+- [[primary-domain-resource-map]] — Primary-domain resource map local trove linked per manufacturing domain for easy access: maps mill lathe wedm cam speed-feed post-processor cad blueprint-vision to their REAL on-disk subdirs in H:/PRISM/resources (Mastercam hyperMILL OPEN MIND Freecad SOLIDWORKS HSMWorks Fusion MANUFACTURER_CATALOGS MIT-COURSES posts machine-models) + H:/PRISM/JM DIE (CNC LATHE OKUMA WIRE EDM HAAS-HURCO ROKU-ROKU Prism-JM-Die customer drawings POST PROCESSORS) + each root index; companion local half to the per-galaxy source-atlas online courses/videos | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/architecture/primary-domain-resource-map.md
+- [[wedm-advanced-techniques]] — Wedm advanced techniques world-leader-depth STRATEGY: corner-strategy vs wire-lag error treat corners as a distinct regime feed-down energy-down extra-trim tension, multi-pass rough+skim sequencing, adaptive power/flushing under varying height, 4-axis taper independent-UV, recast/HAZ-minimization (vendor EDM/NPTEL; numerics owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wedm/wedm-advanced-techniques.md
+- [[cam-advanced-techniques]] — Cam advanced techniques world-leader-depth STRATEGY: engagement-managed clearing with stock-model-tracked rest-machining cascade program-the-load-not-geometry, adaptive high-speed clearing, collision-aware multi-axis posting, toolpath linking lead-in-out optimization, simulation-first discipline (Autodesk Fusion/academic CAM; numerics owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cam/cam-advanced-techniques.md
+- [[post-processor-advanced-techniques]] — Post-processor advanced techniques world-leader-depth STRATEGY: RTCP TCPC program the tool tip so the control owns rotary-to-linear compensation one program runs the whole 5-axis fleet, multi-axis kinematics post, canned-cycle expansion, controller-dialect abstraction, look-ahead smoothing config, probing macro-B, safe-retract work-offset (LinuxCNC/vendor manuals) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/post-processor/post-processor-advanced-techniques.md
+- [[mill-resource-atlas]] — Mill resource atlas fused easy-access local+youtube+online: links JM DIE FUSION CAD AND CAM (9746) + MATTHEW programs (2422) + HAAS-HURCO + ROKU-ROKU mill program archives + resources HYPERMILL MasterCam POSTS AND MACHINES + verified milling YouTube (Haas NYC-CNC Titans CNCCookbook Harvey); cross-links mill foundations source-atlas applied-practice advanced-techniques | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mill/mill-resource-atlas.md
+- [[lathe-resource-atlas]] — Lathe resource atlas fused easy-access local+youtube+online: links JM DIE CNC LATHE 134485-file in-house turning archive + OKUMA (6276) + MULTUS + verified turning mill-turn YouTube (Okuma Mazak Titans Sandvik NYC-CNC); cross-links lathe wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/lathe/lathe-resource-atlas.md
+- [[wedm-resource-atlas]] — Wedm resource atlas fused easy-access local+youtube+online: links JM DIE WIRE EDM 99-customer real-shop program archive (4058) how-JM-actually-cuts-it domain truth + verified wire-EDM YouTube (Makino Mitsubishi Sodick GF); cross-links wedm wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wedm/wedm-resource-atlas.md
+- [[cam-resource-atlas]] — Cam resource atlas fused easy-access local+youtube+online: links resources OPEN MIND (54100) + MasterCam (29280) + SOLIDWORKS + cimco + JM DIE FUSION CAD-CAM + verified CAM YouTube (Fusion Mastercam OPEN-MIND SolidCAM Titans); cross-links cam wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cam/cam-resource-atlas.md
+- [[speed-feed-resource-atlas]] — Speed-feed resource atlas fused easy-access local+youtube+online: links resources MANUFACTURER_CATALOGS 365 tool/insert catalogs the on-disk vendor cutting-data SOURCE oscar reads via constants.ts + verified speeds-feeds YouTube (CNCCookbook Harvey Sandvik Kennametal); numerics owner-gated; cross-links speed-feed wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/speed-feed/speed-feed-resource-atlas.md
+- [[post-processor-resource-atlas]] — Post-processor resource atlas fused easy-access local+youtube+online: links resources POSTS AND MACHINES (3056) multi-vendor post+machine-def trove + cimco + JM DIE POST PROCESSORS (538) + CONTROLLERS + verified G-code YouTube (Fusion-post CIMCO LinuxCNC Haas Fanuc); cross-links post-processor wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/post-processor/post-processor-resource-atlas.md
+- [[cad-resource-atlas]] — Cad resource atlas fused easy-access local+youtube+online: links resources Freecad (30348) + SOLIDWORKS (14429) + Inventor + FUSION + JM DIE FUSION CAD-CAM (9746) production geometry + verified CAD YouTube (Fusion SolidWorks Inventor FreeCAD); cross-links cad wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad/cad-resource-atlas.md
+- [[blueprint-vision-resource-atlas]] — Blueprint-vision resource atlas fused easy-access local+youtube+online: links JM DIE Prism JM Die 152960-print drawing corpus + Docustrata manifest .index queryable-without-re-OCR + RESOURCE PDFS + verified GD&T blueprint-reading YouTube (GD&T-Basics Tec-Ease ASME); cross-links blueprint-vision wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/blueprint-vision/blueprint-vision-resource-atlas.md
+- [[quoting-resource-atlas]] — Quoting resource atlas fused easy-access local+youtube+online: links DocuStrata scanned quote/order history + vendor-catalog-db 482-vendor $4.91M-procurement cost basis search-don't-re-OCR + MANUFACTURER_CATALOGS + verified estimating YouTube/webinars (SME NTMA Modern Machine Shop) + NASA Cost Estimating Handbook AACE BLS PPI; cross-links quoting wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quoting/quoting-resource-atlas.md
+- [[business-resource-atlas]] — Business resource atlas fused easy-access local+youtube+online: links JM DIE business+financial records + vendor-catalog procurement on-disk real-shop data + verified ops-management lean TOC YouTube/seminars (MIT-Sloan Stanford-GSB Lean-Enterprise Goldratt) + OpenStax MIT-OCW-15 SBA SCORE BLS Census data reports; cross-links business wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/business/business-resource-atlas.md
+- [[academy-resource-atlas]] — Academy resource atlas fused easy-access local+youtube+online: links resources MIT COURSES 1106-package OCW mirror fused with live ocw.mit.edu offline+freshest + pdf-corpus 8752-page + verified courseware YouTube (MIT-OCW Khan freeCodeCamp 3Blue1Brown) + OpenStax MERLOT OER-Commons mastery-learning; cross-links academy wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/academy/academy-resource-atlas.md
+- [[ai-training-resource-atlas]] — Ai-training resource atlas fused easy-access local+youtube+online: links state/shared/nn-graph GNN ref-pool + LoRA datasets + RAG corpus + tribal-embed-index + verified ML/DL YouTube (Karpathy Zero-to-Hero Stanford-CS229/224N DeepLearning.AI HuggingFace) + d2l.ai fast.ai arXiv LoRA-2106.09685 RAG-2005.11401; cross-links ai-training wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/ai-training/ai-training-resource-atlas.md
+- [[database-expansion-resource-atlas]] — Database-expansion resource atlas fused easy-access local+youtube+online: links Qdrant+AgentDB+SQLite-WAL+JSONL+state-JSON persistence stores + vendor-catalog-db + verified DB-internals YouTube (CMU-15-445/721 Pavlo MIT-6.830 Use-The-Index-Luke) + HNSW arXiv-1603.09320 PostgreSQL-docs Red-Book; cross-links database-expansion wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/database-expansion/database-expansion-resource-atlas.md
+- [[frontend-app-resource-atlas]] — Frontend-app resource atlas fused easy-access local+youtube+online: links mcp-server/web Next.js-15 app + pending merges cqask/ui+mcp-cadquery + verified frontend YouTube (web.dev React-Conf Fireship Josh-Comeau) + MDN web.dev-Core-Web-Vitals React-docs Patterns.dev WCAG; thresholds owner-gated quebec; cross-links frontend-app wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/frontend-app/frontend-app-resource-atlas.md
+- [[quality-resource-atlas]] — Quality resource atlas fused easy-access local+youtube+online: links prism_business quality actions + JM DIE inspection records + verified metrology/SPC YouTube (NPTEL-Metrology NIST-Events Quality-Digest) + NIST/SEMATECH e-Handbook Ch6-SPC Ch3-PPC ASQ; numeric Cpk/sigma owner-gated golf; cross-links quality wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quality/quality-resource-atlas.md
+- [[shop-floor-resource-atlas]] — Shop-floor resource atlas fused easy-access local+youtube+online: links shop-floor engine live-status + JM DIE 21-machine ShopConfiguration + MES/OEE stores + verified lean/TPM/MES YouTube (Lean-Enterprise Gemba MTConnect) + MTConnect-open-standard NIST lean.org OSHA; numeric OEE owner-gated golf; cross-links shop-floor wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/shop-floor/shop-floor-resource-atlas.md
+- [[cad-fusion-live-resource-atlas]] — Cad-fusion-live resource atlas fused easy-access local+youtube+online: links JM DIE FUSION CAD AND CAM (9746) + resources FUSION360 + shares [[cad-resource-atlas]] trove + verified Fusion-API YouTube (Autodesk-Fusion APS Lars-Christensen FreeCAD-scripting) + AutodeskFusion360 GitHub API-samples FreeCAD-scripting-wiki; cross-links cad-fusion-live wiki layers | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad-fusion-live/cad-fusion-live-resource-atlas.md
+- [[cad-advanced-techniques]] — Cad advanced techniques world-leader-depth STRATEGY: robust-reference datum-first architecture anchor features to stable named datums not generated faces designs away the topological-naming rebuild break, master-model skeleton top-down modeling, history-vs-direct editing decision, DFM feature intent, configuration tables for part families (Autodesk/SolidWorks/FreeCAD; kernel tolerances owner-gated delta) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad/cad-advanced-techniques.md
+- [[blueprint-vision-advanced-techniques]] — Blueprint-vision advanced techniques world-leader-depth STRATEGY: per-region extraction routing born-digital-text-layer-vs-OCR Otsu-bimodality-gated adaptive thresholding PSM char-whitelist before GD&T interpretation, datum-reference-frame order, MMC/LMC bonus-tolerance, tolerance-stack direction, multi-VLM ensemble-consensus OCR (ASME Y14.5/document-AI; tolerance values owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/blueprint-vision/blueprint-vision-advanced-techniques.md
+- [[quoting-advanced-techniques]] — Quoting advanced techniques world-leader-depth STRATEGY: quantify estimate uncertainty then price against it three-point PERT + Monte Carlo whole-job cost CDF quote at a chosen confidence percentile, reference-class forecasting debias optimism, should-cost parametric, capacity-bottleneck pricing, quote-vs-actual loop (PM/cost-estimation literature; rates owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quoting/quoting-advanced-techniques.md
+- [[business-advanced-techniques]] — Business advanced techniques world-leader-depth STRATEGY: Theory-of-Constraints throughput-per-constraint-minute product-mix + Drum-Buffer-Rope schedule off the bottleneck, lean TPS waste, working-capital cash-conversion-cycle, S&OP, activity-based-costing vs volume distortion (Goldratt TOC/lean/OpenStax; financials owner-gated) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/business/business-advanced-techniques.md
+- [[academy-advanced-techniques]] — Academy advanced techniques world-leader-depth STRATEGY: Bloom 2-sigma AI-tutor mastery-learning feedback-corrective cycles, spaced retrieval practice, deliberate practice immediate feedback, cognitive apprenticeship, worked-example faded-scaffold, formative-assessment sequencing (learning science/MIT-Stanford teaching OER) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/academy/academy-advanced-techniques.md
+- [[ai-training-advanced-techniques]] — Ai-training advanced techniques world-leader-depth STRATEGY: conformal selective prediction coverage-guaranteed abstain-threshold-as-risk-level generalizes PRISM tier-5, curriculum + active learning, knowledge distillation, RAG retrieval-eval before generation-eval, LoRA rank target-module selection, distribution-shift handling (d2l/HuggingFace/CS229) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/ai-training/ai-training-advanced-techniques.md
+- [[database-expansion-advanced-techniques]] — Database-expansion advanced techniques world-leader-depth STRATEGY: read the optimizer EXPLAIN ANALYZE design the access path covering partial indexes the estimate-vs-actual row gap is ground truth, partitioning sharding, materialized views incremental refresh, HNSW M efConstruction tuning, isolation-level selection (CMU 15-445/Use-The-Index-Luke/PostgreSQL) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/database-expansion/database-expansion-advanced-techniques.md
+- [[frontend-app-advanced-techniques]] — Frontend-app advanced techniques world-leader-depth STRATEGY: decompose each Core Web Vital LCP INP CLS into sub-parts attack the dominant phase by field data, code-splitting route-lazy-load, list virtualization, React Server Components streaming SSR, stale-while-revalidate, edge rendering (web.dev/MDN/React/Patterns.dev) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/frontend-app/frontend-app-advanced-techniques.md
+- [[quality-advanced-techniques]] — Quality advanced techniques world-leader-depth STRATEGY thresholds gated: spend experimental effort in proportion to knowledge fractional-factorial screen-many-factors before committing RSM to the proven-active few, Six Sigma DMAIC, gauge-R&R MSA strategy, capability-vs-control, FMEA risk-priority (NIST SEMATECH e-Handbook/ASQ; no numeric Cpk or sigma) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/quality/quality-advanced-techniques.md
+- [[shop-floor-advanced-techniques]] — Shop-floor advanced techniques world-leader-depth STRATEGY thresholds gated: OEE as a prioritized loss-tree not a scoreboard tied to the TOC bottleneck attack the dominant loss at the constraint first, SMED setup reduction, TPM, MES digital-twin, predictive condition-based maintenance, takt-time flow (lean/TPM/NIST; no numeric OEE) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/shop-floor/shop-floor-advanced-techniques.md
+- [[token-optimization-advanced-techniques]] — Token-optimization advanced techniques world-leader-depth STRATEGY: compaction maximize-recall-first then prune only recomputable tool output the keep/drop asymmetry governs every lossy cut a wrongly-dropped fact is unrecoverable, prompt-cache breakpoint placement, retrieval-vs-context-window trade, hierarchical summarization preserve load-bearing detail (info-theory/Anthropic caching) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/token-optimization/token-optimization-advanced-techniques.md
+- [[hermes-zulu-advanced-techniques]] — Hermes-zulu advanced techniques world-leader-depth STRATEGY: hedged-request straggler-draining over a 26-way fan-out run at median not slowest-worker latency, hierarchical orchestrator-worker, dynamic load-aware power-of-two allocation, fenced/quorum write-safety, backpressure circuit-breaker bulkhead resilience (Google Tail-at-Scale/Reactive Manifesto/Azure) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/hermes-zulu/hermes-zulu-advanced-techniques.md
+- [[fleet-hygiene-advanced-techniques]] — Fleet-hygiene advanced techniques world-leader-depth STRATEGY: atomic kernel-enforced subtree reaping cgroup.kill freeze-then-kill let the kernel guarantee the whole tree dies race-free, graduated SIGTERM-grace, ancestry-confirmed orphan detection, resource-pressure-gated reaping (OSTEP/Linux cgroup docs) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/fleet-hygiene/fleet-hygiene-advanced-techniques.md
+- [[discovery-advanced-techniques]] — Discovery advanced techniques world-leader-depth STRATEGY: Reciprocal Rank Fusion fuse lexical master-index + dense ONNX HNSW retrievers with no weight tuning, learning-to-rank, query expansion, BM25F field-weighting, LSH band tuning for recall-precision (Stanford CS276/MMDS) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/discovery/discovery-advanced-techniques.md
+- [[system-viz-advanced-techniques]] — System-viz advanced techniques world-leader-depth STRATEGY: multilevel coarsening + high-dim-embedding seeding FM3-class layout escapes the poor local minima that worsen with node count at fleet scale, LOD + edge-bundling for hairballs, GPU instancing, progressive streaming load (Munzner/Handbook of Graph Drawing) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/system-viz/system-viz-advanced-techniques.md
+- [[agent-orchestration-advanced-techniques]] — Agent-orchestration advanced techniques world-leader-depth STRATEGY: monotonic fencing tokens Kleppmann the resource rejects any write whose token went backwards turns a crash-fragile lease into a provably-safe single-writer handoff for reclaimed slot ownership, Raft Paxos consensus, quorum, exactly-once idempotency keys, saga compensation (MIT 6.824/Raft) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/agent-orchestration/agent-orchestration-advanced-techniques.md
+- [[wiring-advanced-techniques]] — Wiring advanced techniques world-leader-depth STRATEGY: decompose incremental rebuild into independent scheduler x rebuilder axes Build-Systems-a-la-Carte trace-based freshness with early cutoff evolves separately from topological ordering, DI container design, cycle-breaking via interface seams, version-skew resolution (MIT 6.031) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/wiring/wiring-advanced-techniques.md
+- [[bug-hunting-advanced-techniques]] — Bug-hunting advanced techniques world-leader-depth STRATEGY: differential testing using independent reference pairs SFC-vs-vendor-parity fast-vs-full-build CIMCO-bridge as cross-referencing oracles catch the silent-wrong-answer class crash-only tests miss, property-based + coverage-guided fuzzing, mutation testing, delta-debugging (MIT 6.031/fuzzing) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/bug-hunting/bug-hunting-advanced-techniques.md
+- [[backend-helper-advanced-techniques]] — Backend-helper advanced techniques world-leader-depth STRATEGY: write types for the CHECKER not just the reader prefer interfaces over intersections cap union size name-and-cache complex conditional types profile --generateTrace before refactoring a few type shapes dominate tsc wall-clock, project-references incremental tsc, isolatedModules esbuild split (TypeScript handbook) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/backend-helper/backend-helper-advanced-techniques.md
+- [[dormant-data-advanced-techniques]] — Dormant-data advanced techniques world-leader-depth STRATEGY: RCU grace-period reclamation publish-new keep-old-readable free-only-after-every-pre-existing-reader-quiesced the structural fix for the fail-OPEN clobber class for a 26-slot concurrent reclaimer, generational incremental tracing GC, MVCC-safe reclaim, LSM compaction (GC Handbook/OSTEP) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/dormant-data/dormant-data-advanced-techniques.md
+- [[compliance-safety-advanced-techniques]] — Compliance-safety advanced techniques world-leader-depth STRATEGY thresholds gated: STPA STAMP systems-theoretic reframe safety from component-reliability to a control problem hazards from unsafe interactions of non-failed components four-UCA-category coverage checklist, fail-CLOSED defense-in-depth independent layers, FMEA FTA, ALARP (Leveson STPA/IEC 61508; no numeric SIL) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/compliance-safety/compliance-safety-advanced-techniques.md
+- [[knowledge-conversion-advanced-techniques]] — Knowledge-conversion advanced techniques world-leader-depth STRATEGY: schema-guided extraction with constrained decoding drive extraction from the target ontology OBIE force output to conform to node/edge schema at decode time structured-and-mergeable by construction, transformer NER + relation extraction, distant supervision, entity linking (Stanford CS224N/SLP3) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/knowledge-conversion/knowledge-conversion-advanced-techniques.md
+- [[corpus-aggregation-advanced-techniques]] — Corpus-aggregation advanced techniques world-leader-depth STRATEGY: at-least-once delivery + key-based idempotent merge yields effective exactly-once at the corpus without cross-system transactions for heterogeneous re-emitting feeders, change-data-capture, schema-evolution handling, watermarking for late out-of-order data (data-engineering/Airflow/dbt) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/corpus-aggregation/corpus-aggregation-advanced-techniques.md
+- [[mit-curriculum-advanced-techniques]] — Mit-curriculum advanced techniques world-leader-depth STRATEGY: build the learner path as a topological sort of the OCW prerequisite DAG with cycle-detection as a fail-loud curriculum-integrity gate, CC-license-aware aggregation + attribution, born-digital-vs-scan extraction routing, course-version-drift tracking (MIT OCW/OER) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/mit-curriculum/mit-curriculum-advanced-techniques.md
+- [[cad-fusion-live-advanced-techniques]] — Cad-fusion-live advanced techniques world-leader-depth STRATEGY: datum-first robust-reference automation anchor every feature to stable datums origin not derived faces the strategic answer to the topological-naming problem lets a generated parametric model survive arbitrary downstream rebuilds, API-driven parametric generation, headless scriptable session, regeneration-cascade management (Autodesk Fusion API/FreeCAD) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/cad-fusion-live/cad-fusion-live-advanced-techniques.md
+- [[tribal-knowledge-advanced-techniques]] — Tribal-knowledge advanced techniques world-leader-depth STRATEGY: retrieval-augmented capture design capture and make-retrievable as ONE act the tribal corpus not the model is the updatable source of truth defeating write-only memory, SECI knowledge-conversion spiral, expertise elicitation, provenance + decay scoring, embedding-based dedup of near-identical tips (Nonaka SECI/RAG/knowledge-management) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/tribal-knowledge/tribal-knowledge-advanced-techniques.md
+- [[pdf-corpus-advanced-techniques]] — Pdf-corpus advanced techniques world-leader-depth STRATEGY: confidence-gated ensemble corroboration route per page as an abstaining probabilistic classifier accept a load-bearing value only on 2-or-more-agree across diverse recognizer families turns silent total-loss and confident hallucination into graceful escalation, born-digital-vs-scan routing, layout analysis before OCR, resumable cursor extraction (document-AI/Tesseract/pypdf) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/pdf-corpus/pdf-corpus-advanced-techniques.md
+- [[pdf-corpus-mill-advanced-techniques]] — Pdf-corpus-mill advanced techniques world-leader-depth STRATEGY cutting numerics gated: run document-layout analysis FIRST as a staged gate that routes each page zone table OCR drawing to the right extractor instead of one whole-page OCR pass makes every downstream technique verifiable and every failure loud, table-structure recognition, multi-page resumable extraction, machine-manual section routing (document-AI/LayoutLM; no SFM/IPR inlined) | category:architecture | sources:3 | confidence:0.85 | last_verified:2026-06-10 | source:knowledge/wiki/pdf-corpus-mill/pdf-corpus-mill-advanced-techniques.md
+- [[domain-soul-agents]] — DOMAIN-SOUL-AGENTS — 24 spawnable domain-expert agents (<slot>-<domain>, e.g. charlie-quoting/hotel-business/delta-cad) carrying soul persona + refuse-list + galaxy knowledge; hybrid Claude/Hermes/Ollama lane (free fan-out review/audit, Claude for safety-writes, degrades when proxy dark). | category:architecture | sources:1 | confidence:0.9 | last_verified:2026-06-30 | source:knowledge/wiki/architecture/domain-soul-agents.md
+- [[ollama-bash-output-advisory]] — OLLAMA-BASH-OUTPUT-ADVISORY — PostToolUse:Bash hook closing the last uncovered Ollama offload surface: routes large gist-only Bash output (build/test/git-diff logs, long grep/find dumps) to the free local model via a suggest-only advisory, and bumps the shared offload-stats byHook so the Bash surface (highest token spend, previously invisible) shows on the dashboard. Verb-anchored classifier, fails open, sibling of posttool-ollama-offload-nudge (Read surface). | category:architecture | sources:1 | confidence:0.9 | last_verified:2026-06-30 | source:knowledge/wiki/architecture/ollama-bash-output-advisory.md

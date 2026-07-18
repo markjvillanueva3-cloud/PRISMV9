@@ -1,0 +1,23 @@
+---
+name: reference_papa_lora_distill_burst_wedge_2026_06_24
+description: "--distill works for single PDFs but a 65-PDF burst (~100 rapid Ollama calls) wedges Ollama -> 0 distilled / all raw-fallback. Fix = inter-call pacing + retry. A peer concurrently added resume-cursor support to the converter."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.722Z
+aliases: reference_papa_lora_distill_burst_wedge_2026_06_24
+---
+
+
+**Finding (slot:papa, 2026-06-24 autonomous overnight tick).**
+
+`scripts/domain-corpus-to-lora-dataset.mjs --distill` (qwen2.5-coder:14b Q&A synthesis) WORKS for single PDFs -- `--limit 1/2` produce real grounded Q&A (e.g. "What character sequence terminates lines in the NC program?" -> the linebreak-variable answer). But the FULL 65-PDF run (~100 rapid sequential `/api/generate` calls) returned **0 distilled / 102 raw-fallback in ~30-40s** (~0.3s/call = fast errors, NOT the 3-5s of real inference). Ollama was HEALTHY throughout (tags OK; a single generate + a single `--distill --limit 1` both worked immediately after the full run failed). So a **BURST of rapid sequential local-LLM calls wedges/rate-limits Ollama** even though single calls are fine.
+
+**No harm:** the GIGO-safe raw fallback caught every failure -- 102 clean raw rows, no garbage, no regression (the dataset is gitignored; the live fleet corpus still has the valid 102 raw rows).
+
+**FIX (next tick / file owner) -- USE THE EXISTING PRIMITIVE, do NOT hand-roll a pacing loop (R8 dedup):** route the distill calls through `scripts/lib/ollama-fanout.mjs` (slot:bravo's RATE-LIMIT-FIX, 2026-06-09). Its **bounded-concurrency worker pool** (`DEFAULT_CONCURRENCY=3`, env `PRISM_FANOUT_CONCURRENCY`) + fail-soft `callOllamaOnce` (injectable fetch, never throws) is PURPOSE-BUILT for exactly this: it eliminates the "N rapid concurrent/sequential calls burst past the throttle" failure. The distill's current pattern (~100 rapid sequential `fetch` to `/api/generate`) is the anti-pattern ollama-fanout fixes. So in `buildPairsForEntry`/the main loop, fan the per-(PDF,domain) distill tasks through the fanout pool (concurrency ~3) instead of an un-paced `for...await`. Then re-run `--distill --out` -> regen inventory -> `assemble-fleet-lora-corpus.mjs --out` to replace the 102 raw rows with distilled Q&A. (A hand-rolled `sleep`+retry would DUPLICATE ollama-fanout -- the duplication guard would block it anyway.)
+
+**Multi-chat note (why papa YIELDED the file):** a PEER agent concurrently added `parseCursorDoneSet` + `partitionByResumeCursor` (resume-cursor, mirroring [[reference_xray_ocr_corpus_resumable_multipage]]) to the converter AND updated the test import -- the file is being actively edited by another chat. Papa did NOT make the pacing edit (clobber hazard, R7/R8 multi-chat discipline). The pacing fix + the resume cursor together make the full distill robust: a paced+retried, resumable run accumulates distilled pairs across passes/reaps.
+
+**Lesson:** a burst of N rapid local-LLM calls can wedge Ollama even when single calls succeed -- pace + retry; and a resumable cursor lets a paced run accumulate across passes. When the harness flags a file as concurrently modified by a peer, YIELD it -- record the finding for the owner instead of editing into a clobber.
+
+**REFINED ROOT CAUSE + PRECISE FIX (papa, ~hours later, for the active converter owner):** the ~0.3s/call fast-fail (vs 3-5s real inference) is the signature of the qwen distill model NOT being RESIDENT -- VRAM eviction by a competing GPU job (NN-Graph Retrain / tribal-embed embeddings) -> the call returns a fast error, not inference. So the cure is NOT primarily "bounded concurrency" (the distill calls are already sequential `for...await`) -- it is **`keep_alive`** (keep the model resident) **+ in-call retry-with-backoff** (ride out the transient eviction / model-load). `distillViaOllama` currently sets NO keep_alive (Ollama default 5min, and even that does not stop eviction by a competing model's load). MINIMAL FIX (self-contained in the converter, no edit to bravo's ollama-fanout): add `keep_alive: "30m"` to the distill request body + wrap `distillViaOllama` in a 2-retry backoff loop (1.2s -> 2.4s -> ...), injectable `sleepImpl` for tests. In-call retry lands most specs in ONE pass; the committed cross-pass MAX_DISTILL_ATTEMPTS self-heal is the backstop for a persistent wedge. (Papa had this exact edit ready but the converter was being actively edited by the loop -- yielded to avoid a clobber.) The committed `ollama-fanout` route is still valid for THROUGHPUT (concurrency) but keep_alive is the correctness cure.

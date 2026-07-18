@@ -1,0 +1,166 @@
+{
+  "id": "INFRA-AGI-ROUTER-MS2",
+  "version": "1.0.0",
+  "title": "Unify Domain AGIs Behind ProcessIntelligenceRouter",
+  "brief": "Today MillingAGIMaster, LatheAGI, WEDMAGI all expose ad-hoc APIs. Standardize them behind a single orchestrate(intent) contract dispatched by ProcessIntelligenceRouterEngine. Wire consensus gating from MS0 + outcome emission from MS1 at the router level so domain code stays focused on physics. Closes architect risks #2 (consensus-altitude) and #3 (registry-physics joins).",
+  "created_at": "2026-05-04T20:30:00Z",
+  "created_by": "claude-opus-4-7",
+  "track": "INFRA",
+  "track_name": "Multi-Model Coordination Infrastructure",
+  "status": "complete",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Standardize Domain AGI Contract + Wire Router",
+      "sessions": "6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define DomainAGIIntent + DomainAGIResult Zod schemas",
+          "effort": 75,
+          "dependencies": [],
+          "exit_conditions": [
+            "DomainAGIIntent: {action, blueprint?, features[], material, machine?, constraints, consensusRequired}",
+            "DomainAGIResult: {success, decisions[], gcode?, simResult?, confidence, outcomes[]}",
+            "Schema versioned 1.0.0",
+            "Tests: 5 valid intents per domain (mill/lathe/wedm); 5 invalid rejection paths"
+          ],
+          "description": "The single contract every domain AGI must implement. Allows the router to dispatch uniformly without per-domain branching. confidence rolled up by router from per-decision confidences.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "complete",
+          "completed_commit": "76073333d3"
+        },
+        {
+          "id": "P0-U02",
+          "title": "Adapt MillingAGIMasterEngine to DomainAGIIntent contract",
+          "effort": 120,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "MillingAGIMasterEngine.orchestrate(intent: DomainAGIIntent): DomainAGIResult exists",
+            "Existing API surface preserved (legacy adapters return same data)",
+            "Tests: 3 mill intent types (roughing, finishing, drilling) each return valid result; consensusRequired=true triggers prism_ai:consensus_decide for tool/strategy/feed picks"
+          ],
+          "description": "Wrap existing methods in the new contract. Where the engine currently makes a unilateral decision, replace with a consensus call (when consensusRequired=true). All decisions emit outcome events via the MS1 feedback bus.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "complete",
+          "completed_commit": "58345a0a74"
+        },
+        {
+          "id": "P0-U03",
+          "title": "Adapt LatheAGI engine cluster to DomainAGIIntent contract",
+          "effort": 120,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "LatheAGIKnowledgeUnificationEngine.orchestrate(intent) exists",
+            "Bridges through LatheAGIFeatureBridgeEngine + LatheAGIContinuousLearningEngine internally",
+            "LatheAGISafetyContainmentEngine validates result before return",
+            "Tests: 3 lathe intent types (turning, threading, parting) return valid results"
+          ],
+          "description": "Lathe has more engines than mill. Treat KnowledgeUnification as the entry point; it composes the others. Preserve the existing bridge engines.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "complete",
+          "completed_commit": "e7883b0360"
+        },
+        {
+          "id": "P0-U04",
+          "title": "Adapt WEDMAGI to DomainAGIIntent contract",
+          "effort": 105,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "WEDM AGI orchestrator exposes orchestrate(intent)",
+            "Existing safety gates (WEDMSafetyGate, head clearance, flush adequacy) still fire",
+            "Tests: 3 WEDM intents (rough cut, skim pass, taper cut) return valid results"
+          ],
+          "description": "WEDM has the most mature stack (62 engines per CLAUDE.md). Wrap the existing AGI orchestrator entry point. All Tier-6 safety predicates remain mandatory.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "complete",
+          "completed_commit": "6d9430f27e"
+        },
+        {
+          "id": "P0-U05",
+          "title": "Wire ProcessIntelligenceRouterEngine.orchestrate(intent) + 3-domain smoke test",
+          "effort": 120,
+          "dependencies": [
+            "P0-U02",
+            "P0-U03",
+            "P0-U04"
+          ],
+          "exit_conditions": [
+            "Router.orchestrate(intent) classifies domain (mill/lathe/wedm) + dispatches",
+            "Router emits start/stop outcome events + accumulates pipeline-level confidence (rollup, not max)",
+            "prism_intelligence:domain_orchestrate action exposed",
+            "Tests: 3 smoke tests — one mill, one lathe, one wedm intent — each returns DomainAGIResult with non-zero confidence and emits outcome events",
+            "E2E: 3 sequential calls show 3 distinct domain dispatches in audit log"
+          ],
+          "description": "The router is thin glue. Real intelligence lives in domain engines. Confidence rollup uses joint-probability multiplication for serial decisions, max for parallel. Architect risk #8 closed when this lands.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "complete",
+          "completed_commit": "b7673b012e"
+        }
+      ],
+      "status": "complete"
+    }
+  ],
+  "acceptance": "Single orchestrate(intent) call dispatches to correct domain AGI with consensus gating; 3 domain smoke tests green; pipeline-level confidence rollup emitted; outcome events flow through feedback bus.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Adapter shim adds latency to existing methods; mitigation = orchestrate() is opt-in, legacy methods unchanged"
+    },
+    {
+      "id": "R2",
+      "description": "Domain AGIs have inconsistent error handling; mitigation = wrap in try/catch in router, return DomainAGIResult with success=false"
+    },
+    {
+      "id": "R3",
+      "description": "Confidence rollup math contested; mitigation = use joint-probability, document in code comment, allow override per-domain"
+    }
+  ],
+  "blocks": [
+    "MILL-P2P-CONSENSUS-MS3",
+    "LATHE-P2P-CONSENSUS-MS4",
+    "WEDM-P2P-CONSENSUS-MS5",
+    "SINKER-P2P-MS6",
+    "LASER-P2P-MS7",
+    "WJET-P2P-MS8"
+  ],
+  "blocked_by": [
+    "INFRA-NEURAL-LEDGER-MS1"
+  ],
+  "completed_at": "2026-05-22T00:00:00Z",
+  "completed_by": "claude-e5840fb7 (slot:mike close-out)",
+  "completion_note": "All 5 P0 units shipped (slot:charlie) — verified against git log. P1 phase (P1-U01..U05) also shipped beyond envelope scope. Close-out drift reconcile.",
+  "updated_at": "2026-05-22T16:38:52.338Z"
+}

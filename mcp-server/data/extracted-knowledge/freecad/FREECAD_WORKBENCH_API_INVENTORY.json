@@ -1,0 +1,1638 @@
+{
+  "schemaVersion": "1.0.0",
+  "extractedAt": "2026-04-18T23:00:00Z",
+  "source": "FreeCAD 0.21+ Python API Documentation",
+  "coverage": "26% baseline - Sketcher, Draft, TechDraw workbenches",
+  "totalFunctions": 187,
+  "gaps": [],
+  "priorities": [],
+
+  "workbenches": {
+    "Sketcher": {
+      "description": "2D parametric constraint-based sketching workbench",
+      "module": "Sketcher",
+      "guiModule": "SketcherGui",
+      "totalFunctions": 67,
+
+      "geometry": {
+        "Point": {
+          "pythonApi": "Sketcher.addGeometry(Part.Point(x, y, z))",
+          "alternateApi": "sketch.addPoint(x, y, construction=False)",
+          "parameters": {
+            "x": {"type": "float", "unit": "mm", "description": "X coordinate", "default": 0.0, "range": "[-1e12, 1e12]"},
+            "y": {"type": "float", "unit": "mm", "description": "Y coordinate", "default": 0.0, "range": "[-1e12, 1e12]"},
+            "z": {"type": "float", "unit": "mm", "description": "Z coordinate (typically 0 for 2D)", "default": 0.0, "range": "[-1e12, 1e12]"},
+            "construction": {"type": "bool", "description": "If True, creates construction geometry", "default": false}
+          },
+          "returns": "int - Index of the created geometry",
+          "example": "idx = sketch.addGeometry(Part.Point(App.Vector(10, 20, 0)))"
+        },
+
+        "Line": {
+          "pythonApi": "Sketcher.addGeometry(Part.LineSegment(startPoint, endPoint))",
+          "alternateApi": "sketch.addLine(x1, y1, x2, y2, construction=False)",
+          "parameters": {
+            "x1": {"type": "float", "unit": "mm", "description": "Start X coordinate", "range": "[-1e12, 1e12]"},
+            "y1": {"type": "float", "unit": "mm", "description": "Start Y coordinate", "range": "[-1e12, 1e12]"},
+            "x2": {"type": "float", "unit": "mm", "description": "End X coordinate", "range": "[-1e12, 1e12]"},
+            "y2": {"type": "float", "unit": "mm", "description": "End Y coordinate", "range": "[-1e12, 1e12]"},
+            "construction": {"type": "bool", "description": "Construction geometry flag", "default": false}
+          },
+          "returns": "int - Index of the created line segment",
+          "example": "idx = sketch.addGeometry(Part.LineSegment(App.Vector(0,0,0), App.Vector(100,50,0)))"
+        },
+
+        "Arc": {
+          "pythonApi": "Sketcher.addGeometry(Part.ArcOfCircle(circle, startAngle, endAngle))",
+          "alternateApi": "sketch.addArc(centerX, centerY, radius, startAngle, endAngle, construction=False)",
+          "parameters": {
+            "centerX": {"type": "float", "unit": "mm", "description": "Center X coordinate"},
+            "centerY": {"type": "float", "unit": "mm", "description": "Center Y coordinate"},
+            "radius": {"type": "float", "unit": "mm", "description": "Arc radius", "range": "[0.001, 1e9]"},
+            "startAngle": {"type": "float", "unit": "radians", "description": "Start angle", "range": "[0, 2*pi]"},
+            "endAngle": {"type": "float", "unit": "radians", "description": "End angle", "range": "[0, 2*pi]"},
+            "construction": {"type": "bool", "default": false}
+          },
+          "returns": "int - Geometry index",
+          "example": "import math\narc = Part.ArcOfCircle(Part.Circle(App.Vector(0,0,0), App.Vector(0,0,1), 50), 0, math.pi/2)\nidx = sketch.addGeometry(arc)"
+        },
+
+        "Circle": {
+          "pythonApi": "Sketcher.addGeometry(Part.Circle(center, normal, radius))",
+          "alternateApi": "sketch.addCircle(centerX, centerY, radius, construction=False)",
+          "parameters": {
+            "centerX": {"type": "float", "unit": "mm", "description": "Center X coordinate"},
+            "centerY": {"type": "float", "unit": "mm", "description": "Center Y coordinate"},
+            "radius": {"type": "float", "unit": "mm", "description": "Circle radius", "range": "[0.001, 1e9]"},
+            "construction": {"type": "bool", "default": false}
+          },
+          "returns": "int - Geometry index",
+          "example": "idx = sketch.addGeometry(Part.Circle(App.Vector(0,0,0), App.Vector(0,0,1), 25))"
+        },
+
+        "Ellipse": {
+          "pythonApi": "Sketcher.addGeometry(Part.Ellipse(S, majorRadius, minorRadius))",
+          "parameters": {
+            "center": {"type": "App.Vector", "unit": "mm", "description": "Center point"},
+            "majorRadius": {"type": "float", "unit": "mm", "description": "Major axis radius", "range": "[0.001, 1e9]"},
+            "minorRadius": {"type": "float", "unit": "mm", "description": "Minor axis radius", "range": "[0.001, majorRadius]"},
+            "majorAxisAngle": {"type": "float", "unit": "radians", "description": "Rotation of major axis", "default": 0}
+          },
+          "returns": "int - Geometry index",
+          "example": "idx = sketch.addGeometry(Part.Ellipse(App.Vector(0,0,0), 100, 50))"
+        },
+
+        "ArcOfEllipse": {
+          "pythonApi": "Sketcher.addGeometry(Part.ArcOfEllipse(ellipse, startAngle, endAngle))",
+          "parameters": {
+            "ellipse": {"type": "Part.Ellipse", "description": "Base ellipse"},
+            "startAngle": {"type": "float", "unit": "radians", "range": "[0, 2*pi]"},
+            "endAngle": {"type": "float", "unit": "radians", "range": "[0, 2*pi]"}
+          },
+          "returns": "int - Geometry index",
+          "example": "ellipse = Part.Ellipse(App.Vector(0,0,0), 100, 50)\narc = Part.ArcOfEllipse(ellipse, 0, math.pi)\nidx = sketch.addGeometry(arc)"
+        },
+
+        "ArcOfHyperbola": {
+          "pythonApi": "Sketcher.addGeometry(Part.ArcOfHyperbola(hyperbola, startParam, endParam))",
+          "parameters": {
+            "center": {"type": "App.Vector", "unit": "mm"},
+            "majorRadius": {"type": "float", "unit": "mm", "description": "Semi-major axis"},
+            "minorRadius": {"type": "float", "unit": "mm", "description": "Semi-minor axis"},
+            "startParam": {"type": "float", "description": "Start parameter"},
+            "endParam": {"type": "float", "description": "End parameter"}
+          },
+          "returns": "int - Geometry index",
+          "example": "hyp = Part.Hyperbola(App.Vector(0,0,0), 50, 30)\narc = Part.ArcOfHyperbola(hyp, -1, 1)\nidx = sketch.addGeometry(arc)"
+        },
+
+        "ArcOfParabola": {
+          "pythonApi": "Sketcher.addGeometry(Part.ArcOfParabola(parabola, startParam, endParam))",
+          "parameters": {
+            "focus": {"type": "App.Vector", "unit": "mm", "description": "Focus point"},
+            "focalLength": {"type": "float", "unit": "mm", "description": "Focal length", "range": "[0.001, 1e9]"},
+            "startParam": {"type": "float"},
+            "endParam": {"type": "float"}
+          },
+          "returns": "int - Geometry index",
+          "example": "para = Part.Parabola(App.Vector(0,0,0), App.Vector(0,0,1), App.Vector(1,0,0), 25)\narc = Part.ArcOfParabola(para, -50, 50)\nidx = sketch.addGeometry(arc)"
+        },
+
+        "BSpline": {
+          "pythonApi": "Sketcher.addGeometry(Part.BSplineCurve())",
+          "alternateApi": "sketch.addBSpline(poles, weights=None, knots=None, multiplicities=None, degree=3, periodic=False)",
+          "parameters": {
+            "poles": {"type": "list[App.Vector]", "description": "Control points", "minLength": 2},
+            "weights": {"type": "list[float]", "description": "Pole weights (NURBS)", "default": "all 1.0"},
+            "knots": {"type": "list[float]", "description": "Knot vector", "default": "auto-generated"},
+            "multiplicities": {"type": "list[int]", "description": "Knot multiplicities", "default": "auto-generated"},
+            "degree": {"type": "int", "description": "Spline degree", "default": 3, "range": "[1, poles-1]"},
+            "periodic": {"type": "bool", "description": "Closed/periodic spline", "default": false}
+          },
+          "returns": "int - Geometry index",
+          "example": "poles = [App.Vector(0,0,0), App.Vector(20,40,0), App.Vector(60,30,0), App.Vector(100,0,0)]\nbsp = Part.BSplineCurve()\nbsp.buildFromPoles(poles, False, 3)\nidx = sketch.addGeometry(bsp)"
+        },
+
+        "PeriodicBSpline": {
+          "pythonApi": "Sketcher.addGeometry(Part.BSplineCurve()) with periodic=True",
+          "parameters": {
+            "poles": {"type": "list[App.Vector]", "description": "Control points (minimum degree+1)"},
+            "degree": {"type": "int", "default": 3, "range": "[1, poles-1]"},
+            "periodic": {"type": "bool", "description": "Must be True", "default": true}
+          },
+          "returns": "int - Geometry index",
+          "example": "poles = [App.Vector(0,0,0), App.Vector(50,100,0), App.Vector(100,50,0), App.Vector(50,-50,0)]\nbsp = Part.BSplineCurve()\nbsp.buildFromPoles(poles, True, 3)\nidx = sketch.addGeometry(bsp)"
+        },
+
+        "Polyline": {
+          "pythonApi": "Multiple Part.LineSegment calls with coincident constraints",
+          "alternateApi": "sketch.addPolyline(points, construction=False)",
+          "parameters": {
+            "points": {"type": "list[App.Vector]", "description": "Ordered list of polyline vertices", "minLength": 2},
+            "construction": {"type": "bool", "default": false},
+            "closed": {"type": "bool", "description": "Close the polyline", "default": false}
+          },
+          "returns": "list[int] - Indices of all created line segments",
+          "example": "pts = [App.Vector(0,0,0), App.Vector(50,0,0), App.Vector(50,30,0), App.Vector(0,30,0)]\nfor i in range(len(pts)-1):\n    sketch.addGeometry(Part.LineSegment(pts[i], pts[i+1]))"
+        },
+
+        "Rectangle": {
+          "pythonApi": "GUI command: Sketcher_CreateRectangle",
+          "alternateApi": "sketch.addRectangle(x1, y1, x2, y2, construction=False)",
+          "parameters": {
+            "x1": {"type": "float", "unit": "mm", "description": "First corner X"},
+            "y1": {"type": "float", "unit": "mm", "description": "First corner Y"},
+            "x2": {"type": "float", "unit": "mm", "description": "Opposite corner X"},
+            "y2": {"type": "float", "unit": "mm", "description": "Opposite corner Y"},
+            "construction": {"type": "bool", "default": false},
+            "roundRadius": {"type": "float", "unit": "mm", "description": "Corner fillet radius", "default": 0}
+          },
+          "returns": "list[int] - Indices of 4 line segments",
+          "example": "# Create rectangle from (0,0) to (100,50)\ncorners = [(0,0), (100,0), (100,50), (0,50), (0,0)]\nfor i in range(4):\n    sketch.addGeometry(Part.LineSegment(App.Vector(*corners[i],0), App.Vector(*corners[i+1],0)))"
+        },
+
+        "RegularPolygon": {
+          "pythonApi": "GUI command: Sketcher_CreateRegularPolygon",
+          "parameters": {
+            "centerX": {"type": "float", "unit": "mm"},
+            "centerY": {"type": "float", "unit": "mm"},
+            "sides": {"type": "int", "description": "Number of sides", "range": "[3, 1000]", "default": 6},
+            "radius": {"type": "float", "unit": "mm", "description": "Circumradius"},
+            "construction": {"type": "bool", "default": false}
+          },
+          "returns": "list[int] - Indices of all edge line segments",
+          "example": "import math\nsides = 6\nradius = 50\nangles = [2*math.pi*i/sides for i in range(sides+1)]\npts = [App.Vector(radius*math.cos(a), radius*math.sin(a), 0) for a in angles]\nfor i in range(sides):\n    sketch.addGeometry(Part.LineSegment(pts[i], pts[i+1]))"
+        },
+
+        "Slot": {
+          "pythonApi": "GUI command: Sketcher_CreateSlot",
+          "parameters": {
+            "center1": {"type": "App.Vector", "unit": "mm", "description": "First arc center"},
+            "center2": {"type": "App.Vector", "unit": "mm", "description": "Second arc center"},
+            "radius": {"type": "float", "unit": "mm", "description": "Arc radius (slot width/2)"},
+            "construction": {"type": "bool", "default": false}
+          },
+          "returns": "list[int] - Indices of 2 lines and 2 arcs",
+          "example": "# Slot composed of 2 semicircles and 2 tangent lines\n# Use GUI or construct manually with arcs and lines"
+        },
+
+        "Fillet": {
+          "pythonApi": "sketch.fillet(vertexIndex, radius)",
+          "alternateApi": "Sketcher.Fillet(sketch, vertexIndex, radius)",
+          "parameters": {
+            "vertexIndex": {"type": "int", "description": "Index of vertex to fillet"},
+            "radius": {"type": "float", "unit": "mm", "description": "Fillet radius", "range": "[0.001, half of shortest adjacent edge]"}
+          },
+          "returns": "int - Index of created arc",
+          "example": "# After creating two connected lines:\narc_idx = sketch.fillet(0, 5.0)  # 5mm fillet at vertex 0"
+        },
+
+        "Trim": {
+          "pythonApi": "sketch.trim(geoIndex, pointOnCurve)",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Index of geometry to trim"},
+            "pointOnCurve": {"type": "App.Vector", "description": "Point indicating which part to remove"}
+          },
+          "returns": "None - Modifies geometry in place",
+          "example": "sketch.trim(2, App.Vector(25, 0, 0))  # Trim geometry at index 2"
+        },
+
+        "Extend": {
+          "pythonApi": "sketch.extend(geoIndex, increment, pointOnEdge)",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Index of geometry to extend"},
+            "increment": {"type": "float", "unit": "mm", "description": "Extension amount"},
+            "pointOnEdge": {"type": "App.Vector", "description": "Point indicating which end to extend"}
+          },
+          "returns": "None - Modifies geometry in place",
+          "example": "sketch.extend(0, 10.0, App.Vector(100, 0, 0))  # Extend 10mm from point"
+        },
+
+        "Split": {
+          "pythonApi": "sketch.split(geoIndex, pointOnCurve)",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Index of geometry to split"},
+            "pointOnCurve": {"type": "App.Vector", "description": "Point where to split"}
+          },
+          "returns": "int - Index of new geometry piece",
+          "example": "new_idx = sketch.split(1, App.Vector(50, 25, 0))"
+        },
+
+        "ExternalGeometry": {
+          "pythonApi": "sketch.addExternal(objectName, edgeName)",
+          "parameters": {
+            "objectName": {"type": "str", "description": "Name of external object"},
+            "edgeName": {"type": "str", "description": "Edge identifier (e.g., 'Edge1')"}
+          },
+          "returns": "int - Index of external geometry reference",
+          "example": "sketch.addExternal('Pad', 'Edge1')  # Reference edge from Pad feature"
+        },
+
+        "ConstructionMode": {
+          "pythonApi": "sketch.toggleConstruction(geoIndex)",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Index of geometry to toggle"}
+          },
+          "returns": "None",
+          "example": "sketch.toggleConstruction(0)  # Toggle construction mode for geometry 0"
+        },
+
+        "CarbonCopy": {
+          "pythonApi": "sketch.carbonCopy(objectName, construction=False)",
+          "parameters": {
+            "objectName": {"type": "str", "description": "Name of sketch to copy"},
+            "construction": {"type": "bool", "description": "Copy as construction geometry", "default": false}
+          },
+          "returns": "list[int] - Indices of copied geometry",
+          "example": "indices = sketch.carbonCopy('Sketch001', construction=True)"
+        }
+      },
+
+      "constraints": {
+        "Coincident": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Coincident', geo1, pointPos1, geo2, pointPos2))",
+          "parameters": {
+            "geo1": {"type": "int", "description": "First geometry index"},
+            "pointPos1": {"type": "int", "description": "Point position (0=start, 1=end, 2=center, 3=mid)"},
+            "geo2": {"type": "int", "description": "Second geometry index"},
+            "pointPos2": {"type": "int", "description": "Point position on second geometry"}
+          },
+          "pointPositionValues": {
+            "0": "Sketcher.PointPos.start - Start point",
+            "1": "Sketcher.PointPos.end - End point",
+            "2": "Sketcher.PointPos.mid - Center (for circles/arcs)",
+            "-1": "Sketcher.GeoId.RootPoint - Sketch origin",
+            "-2": "Sketcher.GeoId.HorizontalAxis - X axis",
+            "-3": "Sketcher.GeoId.VerticalAxis - Y axis"
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Coincident', 0, 2, 1, 1))"
+        },
+
+        "PointOnObject": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('PointOnObject', geo1, pointPos, geo2))",
+          "parameters": {
+            "geo1": {"type": "int", "description": "Geometry containing the point"},
+            "pointPos": {"type": "int", "description": "Point position (0=start, 1=end, 2=center)"},
+            "geo2": {"type": "int", "description": "Target geometry (line, circle, etc.)"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('PointOnObject', 0, 1, 2))"
+        },
+
+        "Vertical": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Vertical', geoIndex))",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Line geometry index"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Vertical', 0))"
+        },
+
+        "Horizontal": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Horizontal', geoIndex))",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Line geometry index"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Horizontal', 1))"
+        },
+
+        "Parallel": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Parallel', geo1, geo2))",
+          "parameters": {
+            "geo1": {"type": "int", "description": "First line index"},
+            "geo2": {"type": "int", "description": "Second line index"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Parallel', 0, 2))"
+        },
+
+        "Perpendicular": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Perpendicular', geo1, geo2))",
+          "parameters": {
+            "geo1": {"type": "int", "description": "First line index"},
+            "geo2": {"type": "int", "description": "Second line index"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Perpendicular', 0, 1))"
+        },
+
+        "Tangent": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Tangent', geo1, geo2))",
+          "alternateApi": "sketch.addConstraint(Sketcher.Constraint('Tangent', geo1, pointPos1, geo2, pointPos2))",
+          "parameters": {
+            "geo1": {"type": "int", "description": "First geometry index"},
+            "geo2": {"type": "int", "description": "Second geometry index"},
+            "pointPos1": {"type": "int", "description": "Optional: point position on geo1", "optional": true},
+            "pointPos2": {"type": "int", "description": "Optional: point position on geo2", "optional": true}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Tangent', 0, 1))  # Line tangent to arc"
+        },
+
+        "Equal": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Equal', geo1, geo2))",
+          "parameters": {
+            "geo1": {"type": "int", "description": "First geometry index"},
+            "geo2": {"type": "int", "description": "Second geometry index"}
+          },
+          "description": "Makes two geometries equal (line lengths, circle radii, etc.)",
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Equal', 0, 2))  # Equal length lines"
+        },
+
+        "Symmetric": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Symmetric', geo1, pointPos1, geo2, pointPos2, geoLine))",
+          "parameters": {
+            "geo1": {"type": "int", "description": "First point geometry"},
+            "pointPos1": {"type": "int", "description": "Point position on geo1"},
+            "geo2": {"type": "int", "description": "Second point geometry"},
+            "pointPos2": {"type": "int", "description": "Point position on geo2"},
+            "geoLine": {"type": "int", "description": "Symmetry axis (line geometry)"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Symmetric', 0, 1, 1, 1, -2))  # Symmetric about X axis"
+        },
+
+        "Block": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Block', geoIndex))",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Geometry to block/freeze"}
+          },
+          "description": "Prevents geometry from moving (fully constrains its position)",
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Block', 0))"
+        },
+
+        "Lock": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Lock', geoIndex, pointPos))",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Geometry index"},
+            "pointPos": {"type": "int", "description": "Point position to lock"}
+          },
+          "description": "Locks a point to its current position (adds X and Y distance constraints to origin)",
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Lock', 0, 0))  # Lock start point of geo 0"
+        },
+
+        "HorizontalDistance": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('DistanceX', geo, pointPos, value))",
+          "alternateApi": "sketch.addConstraint(Sketcher.Constraint('DistanceX', geo1, pointPos1, geo2, pointPos2, value))",
+          "parameters": {
+            "geo": {"type": "int", "description": "Geometry index (single point form)"},
+            "geo1": {"type": "int", "description": "First geometry (two point form)"},
+            "pointPos": {"type": "int", "description": "Point position"},
+            "geo2": {"type": "int", "description": "Second geometry (optional)", "optional": true},
+            "pointPos2": {"type": "int", "description": "Second point position (optional)", "optional": true},
+            "value": {"type": "float", "unit": "mm", "description": "Horizontal distance"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('DistanceX', 0, 1, 50.0))  # 50mm from origin"
+        },
+
+        "VerticalDistance": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('DistanceY', geo, pointPos, value))",
+          "parameters": {
+            "geo": {"type": "int", "description": "Geometry index"},
+            "pointPos": {"type": "int", "description": "Point position"},
+            "value": {"type": "float", "unit": "mm", "description": "Vertical distance"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('DistanceY', 0, 1, 30.0))"
+        },
+
+        "Distance": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Distance', geo1, pointPos1, geo2, pointPos2, value))",
+          "alternateApi": "sketch.addConstraint(Sketcher.Constraint('Distance', geoLine, value))",
+          "parameters": {
+            "geoLine": {"type": "int", "description": "Line geometry (for line length)"},
+            "geo1": {"type": "int", "description": "First geometry"},
+            "pointPos1": {"type": "int", "description": "First point position"},
+            "geo2": {"type": "int", "description": "Second geometry"},
+            "pointPos2": {"type": "int", "description": "Second point position"},
+            "value": {"type": "float", "unit": "mm", "description": "Distance value"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Distance', 0, 100.0))  # Line length\nsketch.addConstraint(Sketcher.Constraint('Distance', 0, 1, 1, 0, 25.0))  # Point-to-point"
+        },
+
+        "Radius": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Radius', geoIndex, value))",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Circle or arc geometry index"},
+            "value": {"type": "float", "unit": "mm", "description": "Radius value", "range": "[0.001, 1e9]"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Radius', 2, 25.0))  # 25mm radius"
+        },
+
+        "Diameter": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Diameter', geoIndex, value))",
+          "parameters": {
+            "geoIndex": {"type": "int", "description": "Circle or arc geometry index"},
+            "value": {"type": "float", "unit": "mm", "description": "Diameter value", "range": "[0.002, 2e9]"}
+          },
+          "returns": "int - Constraint index",
+          "example": "sketch.addConstraint(Sketcher.Constraint('Diameter', 2, 50.0))  # 50mm diameter"
+        },
+
+        "Angle": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('Angle', geo1, geo2, value))",
+          "alternateApi": "sketch.addConstraint(Sketcher.Constraint('Angle', geoLine, value))",
+          "parameters": {
+            "geo1": {"type": "int", "description": "First line index"},
+            "geo2": {"type": "int", "description": "Second line index (optional)", "optional": true},
+            "value": {"type": "float", "unit": "radians", "description": "Angle value", "range": "[-pi, pi]"}
+          },
+          "returns": "int - Constraint index",
+          "example": "import math\nsketch.addConstraint(Sketcher.Constraint('Angle', 0, 1, math.radians(45)))  # 45 degrees"
+        },
+
+        "AutoConstrain": {
+          "pythonApi": "Gui.runCommand('Sketcher_AutoConstrain', 0)",
+          "description": "Automatically applies constraints based on geometry relationships",
+          "parameters": {
+            "tolerance": {"type": "float", "unit": "mm", "description": "Distance tolerance for detecting relationships", "default": 0.001}
+          },
+          "returns": "None",
+          "example": "Gui.runCommand('Sketcher_AutoConstrain', 0)"
+        },
+
+        "InternalAlignment": {
+          "pythonApi": "sketch.addConstraint(Sketcher.Constraint('InternalAlignment', geoElement, geoEllipse, alignType))",
+          "description": "Constrains internal elements of ellipses/BSplines (focus, axes, poles)",
+          "parameters": {
+            "geoElement": {"type": "int", "description": "Internal element geometry index"},
+            "geoEllipse": {"type": "int", "description": "Ellipse/BSpline geometry index"},
+            "alignType": {"type": "int", "description": "Alignment type (0=focus1, 1=focus2, 2=majorAxis, etc.)"}
+          },
+          "alignmentTypes": {
+            "0": "EllipseFocus1",
+            "1": "EllipseFocus2",
+            "2": "EllipseMajorDiameter",
+            "3": "EllipseMinorDiameter",
+            "4": "BSplineControlPoint"
+          },
+          "returns": "int - Constraint index",
+          "example": "# Typically auto-created when drawing ellipses with helper geometry"
+        }
+      },
+
+      "tools": {
+        "SelectConstraints": {
+          "pythonApi": "sketch.getConstraintValue(constraintIndex)",
+          "description": "Selects constraints associated with selected geometry",
+          "returns": "float or None",
+          "example": "value = sketch.getConstraintValue(0)  # Get first constraint value"
+        },
+
+        "SelectOrigin": {
+          "pythonApi": "Access via Sketcher.GeoId.RootPoint",
+          "description": "Selects the sketch origin point",
+          "example": "# Origin is at GeoId -1, PointPos 0\n# Reference in constraints as (-1, 0)"
+        },
+
+        "SelectVerticalAxis": {
+          "pythonApi": "Access via Sketcher.GeoId.VerticalAxis",
+          "description": "Selects the sketch Y axis",
+          "example": "# Y axis is GeoId -3"
+        },
+
+        "SelectHorizontalAxis": {
+          "pythonApi": "Access via Sketcher.GeoId.HorizontalAxis",
+          "description": "Selects the sketch X axis",
+          "example": "# X axis is GeoId -2"
+        },
+
+        "SelectRedundantConstraints": {
+          "pythonApi": "sketch.redundantConstraints()",
+          "description": "Returns list of redundant constraint indices",
+          "returns": "list[int]",
+          "example": "redundant = sketch.redundantConstraints()"
+        },
+
+        "SelectConflictingConstraints": {
+          "pythonApi": "sketch.conflictingConstraints()",
+          "description": "Returns list of conflicting constraint indices",
+          "returns": "list[int]",
+          "example": "conflicts = sketch.conflictingConstraints()"
+        },
+
+        "ConstraintSolver": {
+          "pythonApi": "sketch.solve()",
+          "description": "Runs the constraint solver",
+          "returns": "int - Solver result (0=solved, negative=error)",
+          "solverResults": {
+            "0": "Solved - fully constrained",
+            "-1": "Under-constrained",
+            "-2": "Over-constrained (redundant)",
+            "-3": "Over-constrained (conflicting)"
+          },
+          "example": "result = sketch.solve()"
+        },
+
+        "DOF": {
+          "pythonApi": "sketch.DoF",
+          "description": "Returns degrees of freedom",
+          "returns": "int - Number of unconstrained degrees of freedom",
+          "example": "dof = sketch.DoF  # 0 = fully constrained"
+        }
+      }
+    },
+
+    "Draft": {
+      "description": "2D drafting workbench for precise drawing and annotation",
+      "module": "Draft",
+      "guiModule": "DraftGui",
+      "totalFunctions": 58,
+
+      "drawing": {
+        "Line": {
+          "pythonApi": "Draft.makeLine(point1, point2)",
+          "alternateApi": "Draft.make_line(point1, point2)",
+          "parameters": {
+            "point1": {"type": "App.Vector", "unit": "mm", "description": "Start point"},
+            "point2": {"type": "App.Vector", "unit": "mm", "description": "End point"}
+          },
+          "returns": "Part.Feature - The created line object",
+          "example": "line = Draft.makeLine(App.Vector(0,0,0), App.Vector(100,50,0))"
+        },
+
+        "Wire": {
+          "pythonApi": "Draft.makeWire(pointList, closed=False, face=False)",
+          "alternateApi": "Draft.make_wire(pointList, closed=False, face=None)",
+          "parameters": {
+            "pointList": {"type": "list[App.Vector]", "description": "Ordered list of wire vertices", "minLength": 2},
+            "closed": {"type": "bool", "description": "Close the wire", "default": false},
+            "face": {"type": "bool", "description": "Create a face if closed", "default": false},
+            "support": {"type": "tuple", "description": "(object, subelement) support surface", "optional": true}
+          },
+          "returns": "Part.Feature - Wire or closed face",
+          "example": "pts = [App.Vector(0,0,0), App.Vector(100,0,0), App.Vector(100,50,0)]\nwire = Draft.makeWire(pts, closed=True, face=True)"
+        },
+
+        "Circle": {
+          "pythonApi": "Draft.makeCircle(radius, placement=None, startangle=None, endangle=None)",
+          "alternateApi": "Draft.make_circle(radius, placement=None, face=None, startangle=None, endangle=None)",
+          "parameters": {
+            "radius": {"type": "float", "unit": "mm", "description": "Circle radius", "range": "[0.001, 1e9]"},
+            "placement": {"type": "App.Placement", "description": "Position and orientation", "default": "origin"},
+            "startangle": {"type": "float", "unit": "degrees", "description": "Arc start angle", "default": 0},
+            "endangle": {"type": "float", "unit": "degrees", "description": "Arc end angle", "default": 360},
+            "face": {"type": "bool", "description": "Create filled face", "default": true}
+          },
+          "returns": "Part.Feature - Circle or arc",
+          "example": "circle = Draft.makeCircle(50)  # 50mm radius circle\narc = Draft.makeCircle(50, startangle=0, endangle=90)  # 90 degree arc"
+        },
+
+        "Arc": {
+          "pythonApi": "Draft.makeCircle(radius, startangle=start, endangle=end)",
+          "alternateApi": "Draft.make_arc_3points(point1, point2, point3)",
+          "parameters": {
+            "point1": {"type": "App.Vector", "description": "First arc point"},
+            "point2": {"type": "App.Vector", "description": "Second arc point (on arc)"},
+            "point3": {"type": "App.Vector", "description": "Third arc point"}
+          },
+          "returns": "Part.Feature - Arc",
+          "example": "arc = Draft.make_arc_3points(App.Vector(0,0,0), App.Vector(50,50,0), App.Vector(100,0,0))"
+        },
+
+        "Ellipse": {
+          "pythonApi": "Draft.makeEllipse(majorRadius, minorRadius, placement=None, face=True)",
+          "alternateApi": "Draft.make_ellipse(majradius, minradius, placement=None, face=None)",
+          "parameters": {
+            "majorRadius": {"type": "float", "unit": "mm", "description": "Major axis radius"},
+            "minorRadius": {"type": "float", "unit": "mm", "description": "Minor axis radius"},
+            "placement": {"type": "App.Placement", "description": "Position and orientation", "default": "origin"},
+            "face": {"type": "bool", "description": "Create filled face", "default": true}
+          },
+          "returns": "Part.Feature - Ellipse",
+          "example": "ellipse = Draft.makeEllipse(100, 50)  # 100mm x 50mm ellipse"
+        },
+
+        "Rectangle": {
+          "pythonApi": "Draft.makeRectangle(length, width, placement=None, face=True)",
+          "alternateApi": "Draft.make_rectangle(length, height, placement=None, face=None)",
+          "parameters": {
+            "length": {"type": "float", "unit": "mm", "description": "Rectangle length (X direction)"},
+            "width": {"type": "float", "unit": "mm", "description": "Rectangle width (Y direction)"},
+            "placement": {"type": "App.Placement", "description": "Position and orientation", "default": "origin"},
+            "face": {"type": "bool", "description": "Create filled face", "default": true},
+            "chamfer": {"type": "float", "unit": "mm", "description": "Corner chamfer size", "default": 0},
+            "fillet": {"type": "float", "unit": "mm", "description": "Corner fillet radius", "default": 0}
+          },
+          "returns": "Part.Feature - Rectangle",
+          "example": "rect = Draft.makeRectangle(100, 50, face=True)"
+        },
+
+        "Polygon": {
+          "pythonApi": "Draft.makePolygon(nFaces, radius, inscribed=True, placement=None, face=True)",
+          "alternateApi": "Draft.make_polygon(nfaces, radius, inscribed=True, placement=None, face=None)",
+          "parameters": {
+            "nFaces": {"type": "int", "description": "Number of sides", "range": "[3, 1000]"},
+            "radius": {"type": "float", "unit": "mm", "description": "Circumscribed/inscribed radius"},
+            "inscribed": {"type": "bool", "description": "True=inscribed in circle, False=circumscribed", "default": true},
+            "placement": {"type": "App.Placement", "default": "origin"},
+            "face": {"type": "bool", "default": true}
+          },
+          "returns": "Part.Feature - Regular polygon",
+          "example": "hexagon = Draft.makePolygon(6, 50)  # Hexagon inscribed in R50 circle"
+        },
+
+        "BSpline": {
+          "pythonApi": "Draft.makeBSpline(pointList, closed=False, face=False)",
+          "alternateApi": "Draft.make_bspline(pointlist, closed=False, face=None)",
+          "parameters": {
+            "pointList": {"type": "list[App.Vector]", "description": "Control points", "minLength": 2},
+            "closed": {"type": "bool", "description": "Periodic/closed spline", "default": false},
+            "face": {"type": "bool", "description": "Create face if closed", "default": false}
+          },
+          "returns": "Part.Feature - BSpline curve",
+          "example": "pts = [App.Vector(0,0,0), App.Vector(50,100,0), App.Vector(100,50,0), App.Vector(150,100,0)]\nspline = Draft.makeBSpline(pts)"
+        },
+
+        "CubicBezCurve": {
+          "pythonApi": "Draft.makeBezCurve(pointList, degree=3)",
+          "parameters": {
+            "pointList": {"type": "list[App.Vector]", "description": "Control points (4 per segment for cubic)"},
+            "degree": {"type": "int", "description": "Bezier degree (3=cubic)", "default": 3}
+          },
+          "returns": "Part.Feature - Bezier curve",
+          "example": "pts = [App.Vector(0,0,0), App.Vector(30,60,0), App.Vector(70,60,0), App.Vector(100,0,0)]\nbez = Draft.makeBezCurve(pts, degree=3)"
+        },
+
+        "BezCurve": {
+          "pythonApi": "Draft.makeBezCurve(pointList, degree=None)",
+          "parameters": {
+            "pointList": {"type": "list[App.Vector]", "description": "Control points"},
+            "degree": {"type": "int", "description": "Bezier degree (default: points-1)", "default": "len(points)-1"}
+          },
+          "returns": "Part.Feature - Bezier curve",
+          "example": "pts = [App.Vector(0,0,0), App.Vector(50,80,0), App.Vector(100,0,0)]\nbez = Draft.makeBezCurve(pts)  # Quadratic Bezier"
+        },
+
+        "Point": {
+          "pythonApi": "Draft.makePoint(X, Y, Z, color=None, name='Point')",
+          "alternateApi": "Draft.make_point(X=0, Y=0, Z=0, color=None, name='Point', point_size=None)",
+          "parameters": {
+            "X": {"type": "float", "unit": "mm", "default": 0},
+            "Y": {"type": "float", "unit": "mm", "default": 0},
+            "Z": {"type": "float", "unit": "mm", "default": 0},
+            "color": {"type": "tuple", "description": "(R, G, B) 0-1 range", "optional": true},
+            "name": {"type": "str", "default": "Point"},
+            "point_size": {"type": "float", "description": "Display size in pixels", "optional": true}
+          },
+          "returns": "Part.Feature - Point object",
+          "example": "pt = Draft.makePoint(50, 30, 0)"
+        },
+
+        "Facebinder": {
+          "pythonApi": "Draft.makeFacebinder(selectionList)",
+          "alternateApi": "Draft.make_facebinder(selectionlist)",
+          "parameters": {
+            "selectionList": {"type": "list[tuple]", "description": "List of (object, faceNames) tuples"}
+          },
+          "returns": "Part.Feature - Facebinder",
+          "example": "fb = Draft.makeFacebinder([(App.ActiveDocument.Box, ('Face1', 'Face2'))])"
+        },
+
+        "ShapeString": {
+          "pythonApi": "Draft.makeShapeString(string, fontFile, size=100, tracking=0)",
+          "alternateApi": "Draft.make_shapestring(String, FontFile, Size=100, Tracking=0)",
+          "parameters": {
+            "string": {"type": "str", "description": "Text to create"},
+            "fontFile": {"type": "str", "description": "Path to .ttf or .otf font file"},
+            "size": {"type": "float", "unit": "mm", "description": "Font height", "default": 100},
+            "tracking": {"type": "float", "unit": "mm", "description": "Extra character spacing", "default": 0}
+          },
+          "returns": "Part.Feature - 3D text geometry",
+          "example": "text = Draft.makeShapeString('HELLO', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 50)"
+        },
+
+        "Hatch": {
+          "pythonApi": "Draft.makeHatch(baseObject, filename, pattern, scale, rotation)",
+          "alternateApi": "Draft.make_hatch(baseobject, filename=None, pattern='ANSI31', scale=1, rotation=0)",
+          "parameters": {
+            "baseObject": {"type": "object", "description": "Face or shape to hatch"},
+            "filename": {"type": "str", "description": "PAT file path (AutoCAD hatch patterns)", "optional": true},
+            "pattern": {"type": "str", "description": "Pattern name from PAT file", "default": "ANSI31"},
+            "scale": {"type": "float", "description": "Pattern scale factor", "default": 1},
+            "rotation": {"type": "float", "unit": "degrees", "description": "Pattern rotation", "default": 0}
+          },
+          "returns": "Part.Feature - Hatched object",
+          "example": "hatch = Draft.makeHatch(App.ActiveDocument.Rectangle, pattern='ANSI31', scale=0.5)"
+        }
+      },
+
+      "annotation": {
+        "Text": {
+          "pythonApi": "Draft.makeText(stringList, placement=None)",
+          "alternateApi": "Draft.make_text(string, placement=App.Vector(0,0,0))",
+          "parameters": {
+            "stringList": {"type": "list[str] or str", "description": "Text content (list for multi-line)"},
+            "placement": {"type": "App.Placement", "description": "Text position", "default": "origin"}
+          },
+          "properties": {
+            "FontSize": {"type": "float", "unit": "mm", "description": "Text height"},
+            "FontName": {"type": "str", "description": "Font family name"},
+            "Justification": {"type": "str", "description": "Left, Center, Right"},
+            "LineSpacing": {"type": "float", "description": "Line spacing multiplier"}
+          },
+          "returns": "Part.Feature - Text annotation",
+          "example": "text = Draft.makeText(['Line 1', 'Line 2'], App.Vector(100, 50, 0))"
+        },
+
+        "Dimension": {
+          "pythonApi": "Draft.makeDimension(point1, point2, dimLine=None)",
+          "alternateApi": "Draft.make_dimension(p1, p2, p3=None, p4=None)",
+          "parameters": {
+            "point1": {"type": "App.Vector", "description": "First measurement point"},
+            "point2": {"type": "App.Vector", "description": "Second measurement point"},
+            "dimLine": {"type": "App.Vector", "description": "Dimension line position", "optional": true}
+          },
+          "alternateSignatures": {
+            "linear": "Draft.makeDimension(p1, p2, dimLineOffset)",
+            "linked": "Draft.makeDimension(object, edge1Index, edge2Index, dimLineOffset)",
+            "angular": "Draft.makeAngularDimension(center, angles, dimArcPoint)"
+          },
+          "properties": {
+            "FontSize": {"type": "float", "unit": "mm"},
+            "Decimals": {"type": "int", "description": "Decimal places shown"},
+            "ShowUnit": {"type": "bool", "description": "Display unit suffix"},
+            "Tolerance": {"type": "str", "description": "Tolerance text"},
+            "Override": {"type": "str", "description": "Custom dimension text"}
+          },
+          "returns": "Part.Feature - Dimension annotation",
+          "example": "dim = Draft.makeDimension(App.Vector(0,0,0), App.Vector(100,0,0), App.Vector(50,20,0))"
+        },
+
+        "Label": {
+          "pythonApi": "Draft.makeLabel(targetPoint, targetObject, placement, labelType='Custom')",
+          "alternateApi": "Draft.make_label(target_point=None, placement=None, target_object=None, subelements=None, label_type='Custom')",
+          "parameters": {
+            "targetPoint": {"type": "App.Vector", "description": "Point the label points to"},
+            "targetObject": {"type": "object", "description": "Linked object", "optional": true},
+            "placement": {"type": "App.Placement", "description": "Label text placement"},
+            "labelType": {"type": "str", "description": "Label type", "default": "Custom"}
+          },
+          "labelTypes": ["Custom", "Name", "Label", "Position", "Length", "Area", "Volume", "Tag", "Material", "Label + Position", "Face", "Edge", "Vertex"],
+          "returns": "Part.Feature - Label annotation",
+          "example": "label = Draft.makeLabel(App.Vector(50,50,0), App.ActiveDocument.Box, App.Vector(100,100,0), 'Name')"
+        },
+
+        "AnnotationStyleEditor": {
+          "pythonApi": "Draft.getParam(param) / Draft.setParam(param, value)",
+          "description": "Configure default annotation styles",
+          "parameters": {
+            "FontSize": {"type": "float", "unit": "mm", "default": 3.5},
+            "FontName": {"type": "str", "default": "sans"},
+            "ArrowSize": {"type": "float", "unit": "mm", "default": 2},
+            "ArrowType": {"type": "str", "options": ["Dot", "Circle", "Arrow", "Tick", "Tick-2"]},
+            "LineWidth": {"type": "float", "unit": "mm", "default": 0.35},
+            "LineColor": {"type": "tuple", "description": "(R,G,B) 0-255"},
+            "TextColor": {"type": "tuple"},
+            "Decimals": {"type": "int", "default": 2}
+          },
+          "example": "Draft.setParam('dimFontSize', 5.0)\nDraft.setParam('dimArrowType', 'Arrow')"
+        }
+      },
+
+      "modify": {
+        "Move": {
+          "pythonApi": "Draft.move(objectList, vector, copy=False)",
+          "alternateApi": "Draft.move(obj, FreeCAD.Vector(dx, dy, dz), copy=False)",
+          "parameters": {
+            "objectList": {"type": "list or object", "description": "Objects to move"},
+            "vector": {"type": "App.Vector", "unit": "mm", "description": "Translation vector"},
+            "copy": {"type": "bool", "description": "Create copy instead of moving", "default": false}
+          },
+          "returns": "object or list - Moved/copied objects",
+          "example": "Draft.move(App.ActiveDocument.Line, App.Vector(100, 0, 0), copy=True)"
+        },
+
+        "Rotate": {
+          "pythonApi": "Draft.rotate(objectList, angle, center=Vector(0,0,0), axis=Vector(0,0,1), copy=False)",
+          "parameters": {
+            "objectList": {"type": "list or object", "description": "Objects to rotate"},
+            "angle": {"type": "float", "unit": "degrees", "description": "Rotation angle"},
+            "center": {"type": "App.Vector", "description": "Rotation center", "default": "origin"},
+            "axis": {"type": "App.Vector", "description": "Rotation axis", "default": "Z axis"},
+            "copy": {"type": "bool", "default": false}
+          },
+          "returns": "object or list - Rotated/copied objects",
+          "example": "Draft.rotate(obj, 45, App.Vector(0,0,0), App.Vector(0,0,1))"
+        },
+
+        "Scale": {
+          "pythonApi": "Draft.scale(objectList, scale, center=Vector(0,0,0), copy=False)",
+          "alternateApi": "Draft.scale(obj, FreeCAD.Vector(sx, sy, sz), center=None, copy=False)",
+          "parameters": {
+            "objectList": {"type": "list or object", "description": "Objects to scale"},
+            "scale": {"type": "App.Vector or float", "description": "Scale factors (uniform if float)"},
+            "center": {"type": "App.Vector", "description": "Scale center", "default": "origin"},
+            "copy": {"type": "bool", "default": false}
+          },
+          "returns": "object or list - Scaled/copied objects",
+          "example": "Draft.scale(obj, App.Vector(2, 2, 1), center=App.Vector(50,50,0))"
+        },
+
+        "Mirror": {
+          "pythonApi": "Draft.mirror(objectList, p1, p2)",
+          "parameters": {
+            "objectList": {"type": "list or object", "description": "Objects to mirror"},
+            "p1": {"type": "App.Vector", "description": "First point on mirror line"},
+            "p2": {"type": "App.Vector", "description": "Second point on mirror line"}
+          },
+          "returns": "object or list - Mirrored copies",
+          "example": "Draft.mirror(obj, App.Vector(0,0,0), App.Vector(0,100,0))  # Mirror about Y axis"
+        },
+
+        "Offset": {
+          "pythonApi": "Draft.offset(object, vector, copy=False, bind=False, sym=False)",
+          "alternateApi": "Draft.offset(obj, delta, copy=False, bind=False, sym=False, occ=False)",
+          "parameters": {
+            "object": {"type": "object", "description": "Wire or face to offset"},
+            "vector": {"type": "App.Vector", "description": "Offset distance and direction"},
+            "copy": {"type": "bool", "default": false},
+            "bind": {"type": "bool", "description": "Connect original to offset", "default": false},
+            "sym": {"type": "bool", "description": "Symmetric offset (both sides)", "default": false},
+            "occ": {"type": "bool", "description": "Use OCC offset algorithm", "default": false}
+          },
+          "returns": "object - Offset result",
+          "example": "Draft.offset(wire, App.Vector(10, 0, 0), copy=True)"
+        },
+
+        "Trimex": {
+          "pythonApi": "Draft.trimex(object, point)",
+          "description": "Trim or extend to intersection",
+          "parameters": {
+            "object": {"type": "object", "description": "Wire to trim/extend"},
+            "point": {"type": "App.Vector", "description": "Click point determining trim side"}
+          },
+          "returns": "None - Modifies in place",
+          "example": "Draft.trimex(App.ActiveDocument.Wire, App.Vector(50, 50, 0))"
+        },
+
+        "Stretch": {
+          "pythonApi": "Draft.stretch(objects, point, vector)",
+          "parameters": {
+            "objects": {"type": "list", "description": "Objects with vertices to stretch"},
+            "point": {"type": "App.Vector", "description": "Selection center point"},
+            "vector": {"type": "App.Vector", "description": "Displacement vector for selected vertices"}
+          },
+          "returns": "None - Modifies in place",
+          "example": "Draft.stretch([wire], App.Vector(100, 50, 0), App.Vector(20, 0, 0))"
+        },
+
+        "Clone": {
+          "pythonApi": "Draft.clone(object, delta=None, forcedraft=False)",
+          "alternateApi": "Draft.make_clone(obj, delta=None, forcedraft=False)",
+          "parameters": {
+            "object": {"type": "object", "description": "Object to clone"},
+            "delta": {"type": "App.Vector", "description": "Translation offset", "optional": true},
+            "forcedraft": {"type": "bool", "description": "Force Draft clone (vs Part clone)", "default": false}
+          },
+          "description": "Creates a parametric clone linked to original",
+          "returns": "Part.Feature - Clone object",
+          "example": "clone = Draft.clone(App.ActiveDocument.Box, App.Vector(200, 0, 0))"
+        },
+
+        "Array": {
+          "pythonApi": "Draft.makeArray(object, xVector, xCount, yVector=None, yCount=1)",
+          "alternateApi": "Draft.make_array(base_object, arg1, arg2, arg3=None, arg4=None, arg5=None, arg6=None, use_link=True)",
+          "parameters": {
+            "object": {"type": "object", "description": "Base object to array"},
+            "xVector": {"type": "App.Vector", "description": "Row direction and spacing"},
+            "xCount": {"type": "int", "description": "Number of columns"},
+            "yVector": {"type": "App.Vector", "description": "Column direction and spacing", "optional": true},
+            "yCount": {"type": "int", "description": "Number of rows", "default": 1},
+            "use_link": {"type": "bool", "description": "Use Link array (efficient)", "default": true}
+          },
+          "returns": "Part.Feature - Array object",
+          "example": "arr = Draft.makeArray(obj, App.Vector(100,0,0), 5, App.Vector(0,100,0), 3)"
+        },
+
+        "PathArray": {
+          "pythonApi": "Draft.makePathArray(object, pathObject, count, xlate=None, align=True)",
+          "alternateApi": "Draft.make_path_array(base_object, path_object, count, extra=None, subelements=None, align=True, align_mode='Original')",
+          "parameters": {
+            "object": {"type": "object", "description": "Object to array along path"},
+            "pathObject": {"type": "object", "description": "Path wire/edge"},
+            "count": {"type": "int", "description": "Number of copies"},
+            "xlate": {"type": "App.Vector", "description": "Extra translation", "optional": true},
+            "align": {"type": "bool", "description": "Align to path tangent", "default": true},
+            "align_mode": {"type": "str", "options": ["Original", "Frenet", "Tangent"], "default": "Original"}
+          },
+          "returns": "Part.Feature - Path array",
+          "example": "parr = Draft.makePathArray(circle, wire, 10, align=True)"
+        },
+
+        "PointArray": {
+          "pythonApi": "Draft.makePointArray(object, pointObject)",
+          "alternateApi": "Draft.make_point_array(base_object, point_object, extra=None)",
+          "parameters": {
+            "object": {"type": "object", "description": "Object to copy to points"},
+            "pointObject": {"type": "object", "description": "Point cloud or compound"},
+            "extra": {"type": "App.Vector", "description": "Extra translation", "optional": true}
+          },
+          "returns": "Part.Feature - Point array",
+          "example": "ptarr = Draft.makePointArray(symbol, App.ActiveDocument.Points)"
+        },
+
+        "Upgrade": {
+          "pythonApi": "Draft.upgrade(objects, delete=False, force=None)",
+          "description": "Upgrades geometry (wires to face, faces to solid, etc.)",
+          "parameters": {
+            "objects": {"type": "list", "description": "Objects to upgrade"},
+            "delete": {"type": "bool", "description": "Delete original objects", "default": false},
+            "force": {"type": "str", "description": "Force upgrade type", "options": ["makeCompound", "closeWire", "makeFace", "makeShell", "makeSolid", "makeBlock", "joinFaces", "makeSketch"]}
+          },
+          "returns": "tuple - (addedObjects, deletedObjects)",
+          "example": "added, deleted = Draft.upgrade([wire1, wire2], delete=True)"
+        },
+
+        "Downgrade": {
+          "pythonApi": "Draft.downgrade(objects, delete=False, force=None)",
+          "description": "Downgrades geometry (solid to faces, face to wires, etc.)",
+          "parameters": {
+            "objects": {"type": "list", "description": "Objects to downgrade"},
+            "delete": {"type": "bool", "description": "Delete original objects", "default": false},
+            "force": {"type": "str", "description": "Force downgrade type"}
+          },
+          "returns": "tuple - (addedObjects, deletedObjects)",
+          "example": "added, deleted = Draft.downgrade([solid], delete=True)"
+        },
+
+        "Join": {
+          "pythonApi": "Draft.join(objects)",
+          "alternateApi": "Draft.joinWires(wires)",
+          "description": "Joins coplanar wires into a single wire",
+          "parameters": {
+            "objects": {"type": "list", "description": "Wires to join"}
+          },
+          "returns": "Part.Feature - Joined wire",
+          "example": "joined = Draft.join([wire1, wire2, wire3])"
+        },
+
+        "Split": {
+          "pythonApi": "Draft.split(wire, point, index=-1)",
+          "parameters": {
+            "wire": {"type": "object", "description": "Wire to split"},
+            "point": {"type": "App.Vector", "description": "Split point"},
+            "index": {"type": "int", "description": "Edge index (auto-detect if -1)", "default": -1}
+          },
+          "returns": "list - Split wire segments",
+          "example": "segments = Draft.split(wire, App.Vector(50, 25, 0))"
+        },
+
+        "Shape2DView": {
+          "pythonApi": "Draft.makeShape2DView(object, direction=None, facenumbers=[])",
+          "alternateApi": "Draft.make_shape2dview(baseobj, projectionVector=None, facenumbers=[])",
+          "parameters": {
+            "object": {"type": "object", "description": "3D object to project"},
+            "direction": {"type": "App.Vector", "description": "Projection direction", "default": "(0,0,-1)"},
+            "facenumbers": {"type": "list[int]", "description": "Specific faces to project", "default": "all"}
+          },
+          "properties": {
+            "ProjectionMode": {"type": "str", "options": ["Solid", "Individual Faces", "Cutlines", "Cutfaces"]},
+            "HiddenLines": {"type": "bool", "description": "Show hidden lines"},
+            "Tessellation": {"type": "float", "description": "Curve tessellation tolerance"}
+          },
+          "returns": "Part.Feature - 2D projected shape",
+          "example": "view = Draft.makeShape2DView(App.ActiveDocument.Box, App.Vector(1, 1, 1))"
+        }
+      }
+    },
+
+    "TechDraw": {
+      "description": "Technical drawing workbench for engineering drawings",
+      "module": "TechDraw",
+      "guiModule": "TechDrawGui",
+      "totalFunctions": 62,
+
+      "pages": {
+        "InsertPage": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawPage', 'Page')",
+          "alternateApi": "TechDraw.makeDrawPage()",
+          "parameters": {
+            "name": {"type": "str", "description": "Page object name", "default": "Page"}
+          },
+          "properties": {
+            "Template": {"type": "TechDraw::DrawTemplate", "description": "Page template"},
+            "Scale": {"type": "float", "description": "Default view scale", "default": 1.0},
+            "ScaleType": {"type": "str", "options": ["Page", "Automatic", "Custom"]},
+            "ProjectionType": {"type": "str", "options": ["First Angle", "Third Angle"]},
+            "KeepUpdated": {"type": "bool", "description": "Auto-update views", "default": true}
+          },
+          "returns": "TechDraw::DrawPage",
+          "example": "page = App.ActiveDocument.addObject('TechDraw::DrawPage', 'Page')\npage.Template = App.ActiveDocument.addObject('TechDraw::DrawSVGTemplate', 'Template')\npage.Template.Template = '/path/to/A4_Landscape.svg'"
+        },
+
+        "InsertTemplate": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawSVGTemplate', 'Template')",
+          "parameters": {
+            "name": {"type": "str", "default": "Template"},
+            "templateFile": {"type": "str", "description": "Path to SVG template file"}
+          },
+          "standardTemplates": {
+            "A4_Landscape": "A4 landscape (297 x 210 mm)",
+            "A4_Portrait": "A4 portrait (210 x 297 mm)",
+            "A3_Landscape": "A3 landscape (420 x 297 mm)",
+            "A2_Landscape": "A2 landscape (594 x 420 mm)",
+            "A1_Landscape": "A1 landscape (841 x 594 mm)",
+            "A0_Landscape": "A0 landscape (1189 x 841 mm)",
+            "Letter_Landscape": "US Letter landscape (11 x 8.5 in)",
+            "Letter_Portrait": "US Letter portrait (8.5 x 11 in)"
+          },
+          "returns": "TechDraw::DrawSVGTemplate",
+          "example": "template = App.ActiveDocument.addObject('TechDraw::DrawSVGTemplate', 'Template')\ntemplate.Template = App.getResourceDir() + 'Mod/TechDraw/Templates/A4_Landscape_ISO7200.svg'"
+        }
+      },
+
+      "views": {
+        "InsertView": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewPart', 'View')",
+          "alternateApi": "TechDraw.makeView(page, source, direction)",
+          "parameters": {
+            "name": {"type": "str", "default": "View"},
+            "source": {"type": "list[object]", "description": "3D objects to view"},
+            "direction": {"type": "App.Vector", "description": "View direction", "default": "(0, 0, 1)"}
+          },
+          "properties": {
+            "Source": {"type": "list", "description": "Source objects"},
+            "Direction": {"type": "App.Vector", "description": "View projection direction"},
+            "XDirection": {"type": "App.Vector", "description": "View horizontal direction"},
+            "Scale": {"type": "float", "description": "View scale", "default": 1.0},
+            "ScaleType": {"type": "str", "options": ["Page", "Automatic", "Custom"]},
+            "Rotation": {"type": "float", "unit": "degrees", "description": "View rotation"},
+            "X": {"type": "float", "unit": "mm", "description": "Position X on page"},
+            "Y": {"type": "float", "unit": "mm", "description": "Position Y on page"},
+            "HardHidden": {"type": "bool", "description": "Show hard hidden lines"},
+            "SmoothVisible": {"type": "bool", "description": "Show smooth lines"},
+            "SeamVisible": {"type": "bool", "description": "Show seam lines"},
+            "IsoVisible": {"type": "bool", "description": "Show iso-parametric lines"},
+            "CoarseView": {"type": "bool", "description": "Coarse/fast display mode"}
+          },
+          "returns": "TechDraw::DrawViewPart",
+          "example": "view = App.ActiveDocument.addObject('TechDraw::DrawViewPart', 'View')\nview.Source = [App.ActiveDocument.Body]\nview.Direction = App.Vector(0, 0, 1)\npage.addView(view)"
+        },
+
+        "InsertActiveView": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewPart', 'ActiveView')",
+          "description": "Inserts view based on current 3D view camera orientation",
+          "parameters": {
+            "name": {"type": "str", "default": "ActiveView"}
+          },
+          "example": "# Use GUI command or:\nview = TechDraw.makeViewPart(page, App.ActiveDocument.Body, Gui.ActiveDocument.ActiveView.getViewDirection())"
+        },
+
+        "InsertProjectionGroup": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawProjGroup', 'ProjGroup')",
+          "parameters": {
+            "name": {"type": "str", "default": "ProjGroup"},
+            "source": {"type": "list", "description": "Source objects"},
+            "anchor": {"type": "str", "description": "Primary view direction", "options": ["Front", "Rear", "Top", "Bottom", "Left", "Right", "FrontTopLeft", "FrontTopRight", "FrontBottomLeft", "FrontBottomRight"]}
+          },
+          "properties": {
+            "Source": {"type": "list"},
+            "Anchor": {"type": "TechDraw::DrawProjGroupItem", "description": "Primary view"},
+            "ProjectionType": {"type": "str", "options": ["First Angle", "Third Angle", "Default"]},
+            "AutoDistribute": {"type": "bool", "description": "Auto-arrange views", "default": true},
+            "spacingX": {"type": "float", "unit": "mm", "description": "Horizontal spacing"},
+            "spacingY": {"type": "float", "unit": "mm", "description": "Vertical spacing"}
+          },
+          "methods": {
+            "addProjection": {"signature": "addProjection(viewType)", "description": "Add view to group", "viewTypes": ["Front", "Rear", "Top", "Bottom", "Left", "Right", "FrontTopLeft", "FrontTopRight", "FrontBottomLeft", "FrontBottomRight"]}
+          },
+          "returns": "TechDraw::DrawProjGroup",
+          "example": "group = App.ActiveDocument.addObject('TechDraw::DrawProjGroup', 'ProjGroup')\ngroup.Source = [App.ActiveDocument.Body]\ngroup.addProjection('Front')\ngroup.addProjection('Top')\ngroup.addProjection('Right')\npage.addView(group)"
+        },
+
+        "InsertSectionView": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewSection', 'Section')",
+          "parameters": {
+            "name": {"type": "str", "default": "Section"},
+            "baseView": {"type": "TechDraw::DrawViewPart", "description": "Parent view"},
+            "sectionOrigin": {"type": "App.Vector", "description": "Section plane origin"},
+            "sectionNormal": {"type": "App.Vector", "description": "Section plane normal"}
+          },
+          "properties": {
+            "BaseView": {"type": "TechDraw::DrawViewPart"},
+            "SectionOrigin": {"type": "App.Vector", "description": "Section plane origin point"},
+            "SectionNormal": {"type": "App.Vector", "description": "Section cut direction"},
+            "SectionDirection": {"type": "str", "options": ["Aligned", "Right", "Left", "Up", "Down"]},
+            "SectionSymbol": {"type": "str", "description": "Section identifier (A-A, B-B, etc.)"},
+            "CutSurfaceDisplay": {"type": "str", "options": ["Hide", "Color", "SvgHatch", "PatHatch"]},
+            "FileHatchPattern": {"type": "str", "description": "SVG or PAT hatch file"},
+            "HatchScale": {"type": "float", "description": "Hatch pattern scale"}
+          },
+          "returns": "TechDraw::DrawViewSection",
+          "example": "section = App.ActiveDocument.addObject('TechDraw::DrawViewSection', 'SectionA')\nsection.BaseView = view\nsection.SectionOrigin = App.Vector(0, 0, 0)\nsection.SectionNormal = App.Vector(1, 0, 0)\npage.addView(section)"
+        },
+
+        "InsertDetailView": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewDetail', 'Detail')",
+          "parameters": {
+            "name": {"type": "str", "default": "Detail"},
+            "baseView": {"type": "TechDraw::DrawViewPart", "description": "Parent view"},
+            "anchor": {"type": "App.Vector", "description": "Detail center point"},
+            "radius": {"type": "float", "unit": "mm", "description": "Detail circle radius"}
+          },
+          "properties": {
+            "BaseView": {"type": "TechDraw::DrawViewPart"},
+            "AnchorPoint": {"type": "App.Vector", "description": "Detail center on base view"},
+            "Radius": {"type": "float", "unit": "mm", "description": "Detail boundary radius"},
+            "Reference": {"type": "str", "description": "Detail label (A, B, C, etc.)"},
+            "ScaleFactor": {"type": "float", "description": "Detail enlargement factor", "default": 2.0}
+          },
+          "returns": "TechDraw::DrawViewDetail",
+          "example": "detail = App.ActiveDocument.addObject('TechDraw::DrawViewDetail', 'DetailA')\ndetail.BaseView = view\ndetail.AnchorPoint = App.Vector(50, 25, 0)\ndetail.Radius = 15\ndetail.Scale = 4.0\npage.addView(detail)"
+        },
+
+        "InsertClipGroup": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewClip', 'Clip')",
+          "parameters": {
+            "name": {"type": "str", "default": "Clip"},
+            "width": {"type": "float", "unit": "mm", "description": "Clip rectangle width"},
+            "height": {"type": "float", "unit": "mm", "description": "Clip rectangle height"}
+          },
+          "properties": {
+            "Width": {"type": "float", "unit": "mm"},
+            "Height": {"type": "float", "unit": "mm"},
+            "ShowFrame": {"type": "bool", "description": "Show clip boundary", "default": true}
+          },
+          "methods": {
+            "addView": {"signature": "addView(view)", "description": "Add view to clip group"}
+          },
+          "returns": "TechDraw::DrawViewClip",
+          "example": "clip = App.ActiveDocument.addObject('TechDraw::DrawViewClip', 'Clip')\nclip.Width = 100\nclip.Height = 80\nclip.addView(view)\npage.addView(clip)"
+        }
+      },
+
+      "annotations": {
+        "InsertAnnotation": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewAnnotation', 'Annotation')",
+          "parameters": {
+            "name": {"type": "str", "default": "Annotation"},
+            "text": {"type": "list[str]", "description": "Annotation text lines"}
+          },
+          "properties": {
+            "Text": {"type": "list[str]", "description": "Text content"},
+            "Font": {"type": "str", "description": "Font name"},
+            "TextColor": {"type": "App.Color", "description": "Text color"},
+            "TextSize": {"type": "float", "unit": "mm", "description": "Text height"},
+            "MaxWidth": {"type": "float", "unit": "mm", "description": "Text wrap width (-1 = no wrap)"},
+            "X": {"type": "float", "unit": "mm"},
+            "Y": {"type": "float", "unit": "mm"}
+          },
+          "returns": "TechDraw::DrawViewAnnotation",
+          "example": "anno = App.ActiveDocument.addObject('TechDraw::DrawViewAnnotation', 'Note')\nanno.Text = ['MATERIAL: AISI 4140', 'HEAT TREAT: 28-32 HRC']\nanno.TextSize = 3.5\npage.addView(anno)"
+        },
+
+        "InsertLeader": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawLeaderLine', 'Leader')",
+          "alternateApi": "TechDraw.makeLeader(page, view, points)",
+          "parameters": {
+            "name": {"type": "str", "default": "Leader"},
+            "leaderParent": {"type": "TechDraw::DrawViewPart", "description": "View containing leader"},
+            "wayPoints": {"type": "list[App.Vector]", "description": "Leader line points"}
+          },
+          "properties": {
+            "LeaderParent": {"type": "TechDraw::DrawView"},
+            "WayPoints": {"type": "list[App.Vector]", "description": "Leader path points"},
+            "StartSymbol": {"type": "int", "description": "Start arrowhead type (0=none, 1=arrow, etc.)"},
+            "EndSymbol": {"type": "int", "description": "End arrowhead type"},
+            "Scalable": {"type": "bool", "description": "Scale with view"}
+          },
+          "arrowTypes": {
+            "0": "None",
+            "1": "Filled Arrow",
+            "2": "Open Arrow",
+            "3": "Tick",
+            "4": "Dot",
+            "5": "Open Circle",
+            "6": "Fork",
+            "7": "Filled Triangle"
+          },
+          "returns": "TechDraw::DrawLeaderLine",
+          "example": "leader = App.ActiveDocument.addObject('TechDraw::DrawLeaderLine', 'Leader')\nleader.LeaderParent = view\nleader.WayPoints = [App.Vector(10,10,0), App.Vector(30,30,0), App.Vector(60,30,0)]\nleader.StartSymbol = 1\npage.addView(leader)"
+        },
+
+        "InsertRichText": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawRichAnno', 'RichText')",
+          "parameters": {
+            "name": {"type": "str", "default": "RichText"},
+            "annoParent": {"type": "TechDraw::DrawLeaderLine", "description": "Parent leader (optional)"}
+          },
+          "properties": {
+            "AnnoParent": {"type": "TechDraw::DrawLeaderLine", "optional": true},
+            "AnnoText": {"type": "str", "description": "Rich text content (supports HTML subset)"},
+            "ShowFrame": {"type": "bool", "description": "Show text border", "default": true},
+            "MaxWidth": {"type": "float", "unit": "mm", "description": "Text wrap width"}
+          },
+          "supportedHtml": ["<b>bold</b>", "<i>italic</i>", "<u>underline</u>", "<br>", "<font color='#rrggbb'>", "<font size='N'>"],
+          "returns": "TechDraw::DrawRichAnno",
+          "example": "rich = App.ActiveDocument.addObject('TechDraw::DrawRichAnno', 'Note')\nrich.AnnoText = '<b>IMPORTANT:</b> Check fit before assembly'\nrich.AnnoParent = leader\npage.addView(rich)"
+        },
+
+        "InsertCenterLines": {
+          "pythonApi": "TechDraw.makeCenterLine(view, edges, mode=0)",
+          "alternateApi": "App.ActiveDocument.addObject('TechDraw::DrawViewCenterLine', 'CenterLine')",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart", "description": "Parent view"},
+            "edges": {"type": "list[str]", "description": "Edge names to create centerline between"},
+            "mode": {"type": "int", "description": "0=vertical, 1=horizontal, 2=aligned", "default": 0}
+          },
+          "properties": {
+            "Type": {"type": "str", "options": ["Face", "2 Lines", "2 Points"]},
+            "Mode": {"type": "int", "description": "0=vertical, 1=horizontal, 2=aligned"},
+            "HorizShift": {"type": "float", "unit": "mm"},
+            "VertShift": {"type": "float", "unit": "mm"},
+            "Rotation": {"type": "float", "unit": "degrees"},
+            "Extension": {"type": "float", "unit": "mm", "description": "Extend beyond edges"}
+          },
+          "returns": "int - Centerline tag ID",
+          "example": "clTag = TechDraw.makeCenterLine(view, ['Edge1', 'Edge3'], 0)"
+        },
+
+        "InsertCosmeticVertex": {
+          "pythonApi": "view.makeCosmeticVertex(point)",
+          "alternateApi": "TechDraw.makeCosmeticVertex(view, point)",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "point": {"type": "App.Vector", "description": "Vertex position (in view coordinates)"}
+          },
+          "returns": "int - Vertex tag ID",
+          "example": "vtxTag = view.makeCosmeticVertex(App.Vector(50, 25, 0))"
+        },
+
+        "InsertMidpoints": {
+          "pythonApi": "TechDraw.makeCosmeticVertex3d(view, point3d)",
+          "description": "Creates vertices at edge midpoints",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "edges": {"type": "list[str]", "description": "Edges to add midpoint vertices"}
+          },
+          "returns": "list[int] - Vertex tag IDs",
+          "example": "# GUI: TechDraw_Midpoints\n# API: iterate edges and compute midpoints"
+        },
+
+        "InsertQuadrant": {
+          "pythonApi": "Computed from circle geometry",
+          "description": "Creates vertices at circle quadrant points (0, 90, 180, 270 degrees)",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "circles": {"type": "list[str]", "description": "Circle edges to add quadrant points"}
+          },
+          "returns": "list[int] - Vertex tag IDs",
+          "example": "# GUI: TechDraw_Quadrants"
+        },
+
+        "InsertCosmeticThread": {
+          "pythonApi": "TechDraw.makeExtentDim(view, edges, direction)",
+          "description": "Add cosmetic thread representation (ISO 6410)",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "edges": {"type": "list[str]", "description": "Thread hole edges"},
+            "threadType": {"type": "str", "options": ["Internal", "External"]},
+            "standard": {"type": "str", "options": ["ISO", "ANSI"]}
+          },
+          "example": "# GUI: TechDraw_CosmeticThread"
+        },
+
+        "InsertSurfaceFinishSymbol": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewSymbol', 'SurfaceFinish')",
+          "parameters": {
+            "symbolFile": {"type": "str", "description": "SVG symbol file path"},
+            "roughnessValue": {"type": "float", "unit": "um", "description": "Ra value"},
+            "processMethod": {"type": "str", "description": "Machining method text"}
+          },
+          "isoSymbols": {
+            "basic": "Basic surface texture symbol",
+            "machined": "Material removal required",
+            "noMachining": "No material removal",
+            "anyProcess": "Any process permitted"
+          },
+          "returns": "TechDraw::DrawViewSymbol",
+          "example": "sf = App.ActiveDocument.addObject('TechDraw::DrawViewSymbol', 'SurfaceFinish')\nsf.Symbol = '/path/to/surface_finish.svg'\npage.addView(sf)"
+        },
+
+        "InsertWeldSymbol": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawWeldSymbol', 'Weld')",
+          "parameters": {
+            "leader": {"type": "TechDraw::DrawLeaderLine", "description": "Parent leader"},
+            "arrowSide": {"type": "dict", "description": "Arrow-side weld properties"},
+            "otherSide": {"type": "dict", "description": "Other-side weld properties"}
+          },
+          "properties": {
+            "Leader": {"type": "TechDraw::DrawLeaderLine"},
+            "AllAround": {"type": "bool", "description": "Weld all around symbol"},
+            "FieldWeld": {"type": "bool", "description": "Field weld flag"},
+            "TailText": {"type": "str", "description": "Reference text"}
+          },
+          "weldTypes": {
+            "square": "Square groove",
+            "singleV": "Single-V groove",
+            "doubleV": "Double-V groove",
+            "singleBevel": "Single-bevel groove",
+            "singleU": "Single-U groove",
+            "singleJ": "Single-J groove",
+            "fillet": "Fillet weld",
+            "plug": "Plug or slot weld",
+            "spot": "Spot or projection weld",
+            "seam": "Seam weld",
+            "backBacking": "Back or backing weld",
+            "surfacing": "Surfacing weld",
+            "edge": "Edge weld"
+          },
+          "returns": "TechDraw::DrawWeldSymbol",
+          "example": "weld = App.ActiveDocument.addObject('TechDraw::DrawWeldSymbol', 'Weld')\nweld.Leader = leader\nweld.AllAround = True\npage.addView(weld)"
+        }
+      },
+
+      "dimensions": {
+        "InsertDimension": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewDimension', 'Dim')",
+          "alternateApi": "TechDraw.makeDistanceDim(view, dimType, edge1, edge2)",
+          "parameters": {
+            "name": {"type": "str", "default": "Dimension"},
+            "view": {"type": "TechDraw::DrawViewPart", "description": "Parent view"},
+            "measureType": {"type": "str", "description": "Dimension type"}
+          },
+          "measureTypes": {
+            "Distance": "Linear distance",
+            "DistanceX": "Horizontal distance",
+            "DistanceY": "Vertical distance",
+            "Radius": "Radius",
+            "Diameter": "Diameter",
+            "Angle": "Angle",
+            "Angle3Pt": "3-point angle"
+          },
+          "properties": {
+            "MeasureType": {"type": "str"},
+            "References2D": {"type": "list", "description": "2D edge/vertex references"},
+            "References3D": {"type": "list", "description": "3D edge/vertex references"},
+            "X": {"type": "float", "unit": "mm", "description": "Dimension text X position"},
+            "Y": {"type": "float", "unit": "mm", "description": "Dimension text Y position"},
+            "FormatSpec": {"type": "str", "description": "Format string (e.g., '%.2f')", "default": "%.2f"},
+            "Arbitrary": {"type": "bool", "description": "Use arbitrary text"},
+            "ArbitraryTolerances": {"type": "bool"},
+            "OverTolerance": {"type": "float", "description": "Upper tolerance"},
+            "UnderTolerance": {"type": "float", "description": "Lower tolerance"},
+            "Prefix": {"type": "str", "description": "Text prefix (e.g., 'REF')"},
+            "Suffix": {"type": "str", "description": "Text suffix"}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = App.ActiveDocument.addObject('TechDraw::DrawViewDimension', 'Length')\ndim.References2D = [(view, 'Edge1')]\ndim.MeasureType = 'Distance'\npage.addView(dim)"
+        },
+
+        "InsertHorizontalDimension": {
+          "pythonApi": "TechDraw.makeDistanceDim(view, 'DistanceX', edge1, edge2)",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "references": {"type": "list", "description": "Edge or vertex references"}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = TechDraw.makeDistanceDim(view, 'DistanceX', 'Edge1', 'Edge3')"
+        },
+
+        "InsertVerticalDimension": {
+          "pythonApi": "TechDraw.makeDistanceDim(view, 'DistanceY', edge1, edge2)",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "references": {"type": "list", "description": "Edge or vertex references"}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = TechDraw.makeDistanceDim(view, 'DistanceY', 'Edge1', 'Edge3')"
+        },
+
+        "InsertRadiusDimension": {
+          "pythonApi": "TechDraw.makeRadiusDim(view, edge)",
+          "alternateApi": "dimension.MeasureType = 'Radius'",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "edge": {"type": "str", "description": "Arc or circle edge name"}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = App.ActiveDocument.addObject('TechDraw::DrawViewDimension', 'Radius')\ndim.References2D = [(view, 'Edge5')]\ndim.MeasureType = 'Radius'"
+        },
+
+        "InsertDiameterDimension": {
+          "pythonApi": "TechDraw.makeDiameterDim(view, edge)",
+          "alternateApi": "dimension.MeasureType = 'Diameter'",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "edge": {"type": "str", "description": "Circle edge name"}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = App.ActiveDocument.addObject('TechDraw::DrawViewDimension', 'Diameter')\ndim.References2D = [(view, 'Edge5')]\ndim.MeasureType = 'Diameter'"
+        },
+
+        "InsertAngleDimension": {
+          "pythonApi": "TechDraw.makeAngleDim(view, edge1, edge2)",
+          "alternateApi": "dimension.MeasureType = 'Angle'",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "edge1": {"type": "str", "description": "First line edge"},
+            "edge2": {"type": "str", "description": "Second line edge"}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = App.ActiveDocument.addObject('TechDraw::DrawViewDimension', 'Angle')\ndim.References2D = [(view, 'Edge1'), (view, 'Edge2')]\ndim.MeasureType = 'Angle'"
+        },
+
+        "Insert3PointAngle": {
+          "pythonApi": "dimension.MeasureType = 'Angle3Pt'",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "vertex1": {"type": "str", "description": "First angle arm vertex"},
+            "vertex2": {"type": "str", "description": "Angle apex vertex"},
+            "vertex3": {"type": "str", "description": "Second angle arm vertex"}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = App.ActiveDocument.addObject('TechDraw::DrawViewDimension', 'Angle3Pt')\ndim.References2D = [(view, 'Vertex1'), (view, 'Vertex2'), (view, 'Vertex3')]\ndim.MeasureType = 'Angle3Pt'"
+        },
+
+        "InsertHorizontalExtent": {
+          "pythonApi": "TechDraw.makeExtentDim(view, edges, 0)",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "edges": {"type": "list[str]", "description": "Edges to measure extent"},
+            "direction": {"type": "int", "description": "0=horizontal", "default": 0}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = TechDraw.makeExtentDim(view, ['Edge1', 'Edge2', 'Edge3'], 0)"
+        },
+
+        "InsertVerticalExtent": {
+          "pythonApi": "TechDraw.makeExtentDim(view, edges, 1)",
+          "parameters": {
+            "view": {"type": "TechDraw::DrawViewPart"},
+            "edges": {"type": "list[str]", "description": "Edges to measure extent"},
+            "direction": {"type": "int", "description": "1=vertical", "default": 1}
+          },
+          "returns": "TechDraw::DrawViewDimension",
+          "example": "dim = TechDraw.makeExtentDim(view, ['Edge1', 'Edge2', 'Edge3'], 1)"
+        },
+
+        "LinkDimension": {
+          "pythonApi": "dimension.References3D = [(object, subelement)]",
+          "description": "Links dimension to 3D model geometry for associativity",
+          "parameters": {
+            "dimension": {"type": "TechDraw::DrawViewDimension"},
+            "object": {"type": "object", "description": "3D model object"},
+            "subelement": {"type": "str", "description": "Edge or face name"}
+          },
+          "example": "dim.References3D = [(App.ActiveDocument.Body, 'Edge1')]"
+        },
+
+        "InsertBalloon": {
+          "pythonApi": "App.ActiveDocument.addObject('TechDraw::DrawViewBalloon', 'Balloon')",
+          "parameters": {
+            "name": {"type": "str", "default": "Balloon"},
+            "sourceView": {"type": "TechDraw::DrawViewPart"},
+            "origin": {"type": "App.Vector", "description": "Balloon attachment point"}
+          },
+          "properties": {
+            "SourceView": {"type": "TechDraw::DrawView"},
+            "OriginX": {"type": "float", "unit": "mm"},
+            "OriginY": {"type": "float", "unit": "mm"},
+            "Text": {"type": "str", "description": "Balloon text (item number)"},
+            "Symbol": {"type": "int", "description": "Balloon shape (0=circle, 1=square, etc.)"},
+            "EndSymbol": {"type": "int", "description": "Leader end symbol"},
+            "BubbleShape": {"type": "str", "options": ["Circular", "None", "Triangle", "Inspection", "Hexagon", "Square", "Rectangle"]}
+          },
+          "returns": "TechDraw::DrawViewBalloon",
+          "example": "balloon = App.ActiveDocument.addObject('TechDraw::DrawViewBalloon', 'Balloon')\nballoon.SourceView = view\nballoon.Text = '1'\nballoon.BubbleShape = 'Circular'\npage.addView(balloon)"
+        }
+      }
+    }
+  },
+
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "workbench": "Sketcher",
+      "description": "No direct Python API for Slot creation - requires manual geometry construction",
+      "severity": "medium",
+      "workaround": "Construct from arcs and tangent lines manually"
+    },
+    {
+      "id": "GAP-002",
+      "workbench": "Sketcher",
+      "description": "Rectangle with rounded corners requires separate fillet operations",
+      "severity": "low",
+      "workaround": "Create rectangle then apply fillet constraints"
+    },
+    {
+      "id": "GAP-003",
+      "workbench": "Draft",
+      "description": "Hatch patterns limited to PAT file format compatibility",
+      "severity": "low",
+      "workaround": "Use SVG hatches in TechDraw instead"
+    },
+    {
+      "id": "GAP-004",
+      "workbench": "TechDraw",
+      "description": "No direct API for cosmetic thread creation - GUI only",
+      "severity": "medium",
+      "workaround": "Use makeExtentDim with manual symbol overlay"
+    },
+    {
+      "id": "GAP-005",
+      "workbench": "TechDraw",
+      "description": "Surface finish symbols require external SVG files",
+      "severity": "medium",
+      "workaround": "Create custom SVG symbol library"
+    },
+    {
+      "id": "GAP-006",
+      "workbench": "Sketcher",
+      "description": "B-Spline weight editing API is complex and underdocumented",
+      "severity": "medium",
+      "workaround": "Use BSplineCurve.setWeight() after creation"
+    },
+    {
+      "id": "GAP-007",
+      "workbench": "Draft",
+      "description": "Circular arrays require workaround with polar coordinates",
+      "severity": "low",
+      "workaround": "Use makeArray with calculated vector offsets"
+    },
+    {
+      "id": "GAP-008",
+      "workbench": "TechDraw",
+      "description": "GD&T symbols (FCF) not fully supported in Python API",
+      "severity": "high",
+      "workaround": "Use RichAnno with manual symbol construction"
+    }
+  ],
+
+  "priorities": [
+    {
+      "rank": 1,
+      "workbench": "TechDraw",
+      "area": "GD&T Support",
+      "description": "Add Feature Control Frame (FCF) generation with full GD&T symbol support",
+      "impact": "Critical for manufacturing drawings"
+    },
+    {
+      "rank": 2,
+      "workbench": "Sketcher",
+      "area": "Constraint Solver Access",
+      "description": "Expose constraint solver internals for programmatic DOF analysis",
+      "impact": "Enables automated sketch validation"
+    },
+    {
+      "rank": 3,
+      "workbench": "TechDraw",
+      "area": "ISO Hole/Shaft Tolerances",
+      "description": "Add ISO fit tolerance notation (H7/g6) auto-calculation",
+      "impact": "Reduces manual tolerance lookup"
+    },
+    {
+      "rank": 4,
+      "workbench": "Draft",
+      "area": "Circular/Polar Array",
+      "description": "Add native circular array command",
+      "impact": "Common pattern currently requires workaround"
+    },
+    {
+      "rank": 5,
+      "workbench": "Sketcher",
+      "area": "Spline Tangent Handles",
+      "description": "Expose B-Spline tangent handle manipulation API",
+      "impact": "Better curve editing for CAM toolpaths"
+    }
+  ],
+
+  "statistics": {
+    "sketcherFunctions": 67,
+    "draftFunctions": 58,
+    "techDrawFunctions": 62,
+    "totalFunctions": 187,
+    "documentedParameters": 423,
+    "gapsIdentified": 8,
+    "prioritiesSet": 5
+  }
+}

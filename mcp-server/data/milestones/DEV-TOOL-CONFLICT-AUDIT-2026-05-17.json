@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "DEV-TOOL-CONFLICT-AUDIT-2026-05-17",
+  "milestone": "DEV-TOOL-CONFLICT-AUDIT-2026-05-17",
+  "title": "Dev Tool Conflict Audit (2026-05-17)",
+  "owner": "echo",
+  "status": "in_progress",
+  "createdAt": "2026-05-20T05:00:00Z",
+  "updatedAt": "2026-05-20T05:00:00Z",
+  "source_specs": [
+    "state/shared/specs/DEV-TOOL-CONFLICT-AUDIT-2026-05-17.md"
+  ],
+  "doctrine": "Audit punch-list for dev-tool write-collision classes (last-writer-wins clobbers, non-atomic writers, orphan hooks with shared write paths). F1..F11 findings. Envelope formalized post-hoc 2026-05-20 by alpha after CLOSE-OUT-DEFERRED disk-verify surfaced U-VIZ-F11-CROSS-LOCK as shipped without a parent envelope.",
+  "units": [
+    {
+      "id": "U-VIZ-F11-CROSS-LOCK",
+      "owner_slot": "alpha",
+      "wave": "DEV-INFRA",
+      "cost": "S",
+      "roi_score": 8.5,
+      "status": "completed",
+      "spec": "state/shared/specs/DEV-TOOL-CONFLICT-AUDIT-2026-05-17.md#F11",
+      "summary": "F11 leg of U-VIZ-SPLIT-OUT-FILE: cross-lock regen-viz.mjs subprocess writer + system-viz-add-node.mjs atomic-rename via shared PID-lock convention.",
+      "shipped_at": "2026-05-20T03:30:00Z",
+      "ship_commit": "b34941b47e",
+      "ship_notes": "Disk-verified: scripts/lib/system-graph-write-lock.mjs (11.7K) — full PID-lock API (acquireGraphWriteLock / releaseGraphWriteLock / withGraphWriteLock / installGraphWriteLockReleaseOnExit / decideAcquire / isGraphWriteLockActive). regen-viz.mjs lines 187-214 acquire the lock with explicit U-VIZ-F11-CROSS-LOCK comment + exit 4 on contention. system-viz-add-node.mjs lines 53, 118-125 check the same lock (TIER-1b defer). Cross-lock between regen-viz + system-viz-add-node is LIVE. Documenting commit b34941b47e marked the close-out doctrine-side; this envelope formalizes the milestone-side surface."
+    }
+  ],
+  "notes": "Other F-findings (F1=DUP-WRITER-system-graph.json, F2=error-memory-race, F3=skill-usage-race, F4=roadmap-index 5-writer/3-non-atomic, F5=skill version sprawl) tracked separately — F4 already shipped 2026-05-19 (commit roadmap_index_writer_consolidate per CLAUDE.md Recent regressions). Remaining findings remain pending in their respective slot queues / regressions block."
+}

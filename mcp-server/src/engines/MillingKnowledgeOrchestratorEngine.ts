@@ -188,6 +188,9 @@ export interface MillingOrchestratorContext {
   // Constraints
   max_cycle_time_min?: number;
   tool_budget_usd?: number;
+  /** Real base tool cost ($) for the cost analysis. Omitted -> DEFAULT_BASE_TOOL_COST_USD (the
+   *  result stays the self-labeled estimated_tool_cost_usd). */
+  base_tool_cost_usd?: number;
   batch_size?: number;
 
   // Preferences
@@ -772,7 +775,13 @@ export class MillingKnowledgeOrchestratorEngine {
     const optimizations: string[] = [];
 
     let cycleTime = neural.predicted_cycle_time_min;
-    let toolCost = 15; // Base tool cost estimate
+    // Caller-supplied real base tool cost when present; else a documented default (ENGINE-AUDIT
+    // 2026-06-19, slot:bravo: replaces a magic `15` literal; output stays the self-labeled
+    // estimated_tool_cost_usd field).
+    const DEFAULT_BASE_TOOL_COST_USD = 15;
+    let toolCost = context.base_tool_cost_usd && context.base_tool_cost_usd > 0
+      ? context.base_tool_cost_usd
+      : DEFAULT_BASE_TOOL_COST_USD;
     let qualityScore = 0.8;
 
     // Apply weight-based optimizations

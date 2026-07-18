@@ -56,6 +56,28 @@ export const ThermalOutputSchema = z.object({
 export type ThermalInput = z.infer<typeof ThermalInputSchema>;
 export type ThermalOutput = z.infer<typeof ThermalOutputSchema>;
 
+/**
+ * Mutable thermal-trend state for ONE part/job. Pass the SAME session object across
+ * sequential analyze() calls of a job to accumulate the temperature ring that drives
+ * the warming/stable trend detection; omit it for a stateless per-request analysis.
+ *
+ * Row 7 of the verified SFC fix-plan (U-OSC-SFC-ADAPTIVETHERMAL-SESSION): the ring was
+ * previously a process-global STATIC, so independent jobs arriving through
+ * adaptiveControlDispatcher:adaptive_thermal_analyze silently shared thermal history --
+ * job B's trend was computed on job A's temperatures (the test suites hand-called
+ * reset() between cases to dodge the bleed). Per-request-fresh is the CORRECT default:
+ * a first-call request must not inherit a contaminated ring.
+ */
+export interface ThermalTrendSession {
+  tempHistory: { time: number; temp: number }[];
+  stableTemp: number | null;
+}
+
+/** Create an empty per-job thermal-trend session. */
+export function createThermalTrendSession(): ThermalTrendSession {
+  return { tempHistory: [], stableTemp: null };
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SAFETY_THRESHOLD = 0.990;
@@ -93,20 +115,28 @@ const COOLANT_FACTORS: Record<string, number> = {
 // ─── Engine ───────────────────────────────────────────────────────────────────
 
 export class AdaptiveThermalEngine {
-  private static tempHistory: { time: number; temp: number }[] = [];
-  private static stableTemp: number | null = null;
-
   /**
-   * Analyze thermal conditions and recommend compensation
+   * Analyze thermal conditions and recommend compensation.
+   * @param input   validated thermal inputs
+   * @param session optional per-job trend session (same object across a job's calls
+   *                accumulates the warming/stable ring); default = fresh per request,
+   *                so independent requests can never share thermal history.
    */
-  static analyze(input: ThermalInput): ThermalOutput {
+  static analyze(input: ThermalInput, session: ThermalTrendSession = createThermalTrendSession()): ThermalOutput {
     const validated = ThermalInputSchema.parse(input);
     const warnings: string[] = [];
 
     const ambient = validated.ambientTemp ?? 20;
 
     // Estimate cutting temperature using semi-empirical model
-    // T = ambient + k * V^a * f^b * d^c / coolant_factor
+    // T = ambient + k * V^a * f^b * d^c * coolant_factor
+    // COOLANT_FACTORS are temperature-REDUCTION multipliers (none=1.0 ... cryogenic=0.25),
+    // so the heat term MULTIPLIES by the factor. The previous code DIVIDED, inverting the
+    // physics: cryogenic predicted ~3x HOTTER than dry cutting and flood 2x -- backwards
+    // ordering confirmed by two independent physics reviewers (2026-07-01; evidence in
+    // SFC-ROWS-VERIFY-BATCH2-2026-07-01.md CORRECTION header + memory
+    // reference_oscar_sfc_coolant_inversion_usui_magnitude_2026_07_01). Dry (factor 1.0)
+    // is byte-identical; wet-coolant predictions drop to their physically correct values.
     const coolantFactor = COOLANT_FACTORS[validated.coolantType];
     const materialFactor = this.getMaterialHeatFactor(validated.workMaterial);
 
@@ -115,17 +145,17 @@ export class AdaptiveThermalEngine {
       Math.pow(validated.cuttingSpeed, 0.4) *
       Math.pow(validated.feedRate / 1000, 0.2) *
       Math.pow(validated.depthOfCut, 0.1)
-    ) / coolantFactor;
+    ) * coolantFactor;
 
     // Use measured temp if available
     if (validated.measuredToolTemp) {
       estimatedTemp = validated.measuredToolTemp;
     }
 
-    // Track temperature history
+    // Track temperature history (session-scoped -- never shared across jobs)
     const now = Date.now();
-    this.tempHistory.push({ time: now, temp: estimatedTemp });
-    if (this.tempHistory.length > 100) this.tempHistory.shift();
+    session.tempHistory.push({ time: now, temp: estimatedTemp });
+    if (session.tempHistory.length > 100) session.tempHistory.shift();
 
     // Tool temperature limit
     const toolTempLimit = TOOL_TEMP_LIMITS[validated.toolMaterial];
@@ -151,14 +181,17 @@ export class AdaptiveThermalEngine {
       thermalState = "critical";
     } else if (estimatedTemp > toolTempLimit * 0.85) {
       thermalState = "hot";
-    } else if (this.tempHistory.length >= 10) {
-      const recentAvg = this.tempHistory.slice(-10).reduce((s, t) => s + t.temp, 0) / 10;
-      const olderAvg = this.tempHistory.slice(0, Math.min(10, this.tempHistory.length - 10))
-        .reduce((s, t) => s + t.temp, 0) / Math.min(10, this.tempHistory.length - 10);
+    } else if (session.tempHistory.length >= 11) {
+      // >= 11 (not 10): at exactly 10 samples the older-window count is 0 and olderAvg
+      // was 0/0 = NaN (silently no trend -- same observable outcome, but NaN flowed
+      // through the comparisons). Reviewer P2, row-7 unit; behavior for >= 11 unchanged.
+      const recentAvg = session.tempHistory.slice(-10).reduce((s, t) => s + t.temp, 0) / 10;
+      const olderAvg = session.tempHistory.slice(0, Math.min(10, session.tempHistory.length - 10))
+        .reduce((s, t) => s + t.temp, 0) / Math.min(10, session.tempHistory.length - 10);
 
       if (Math.abs(recentAvg - olderAvg) < 5) {
         thermalState = "stable";
-        this.stableTemp = recentAvg;
+        session.stableTemp = recentAvg;
       } else if (recentAvg > olderAvg) {
         thermalState = "warming";
       }
@@ -194,7 +227,7 @@ export class AdaptiveThermalEngine {
     if (validated.measuredToolTemp) confidence += 0.25;
     if (validated.measuredWorkTemp) confidence += 0.1;
     if (validated.spindleTemp) confidence += 0.1;
-    if (this.tempHistory.length > 20) confidence += 0.05;
+    if (session.tempHistory.length > 20) confidence += 0.05;
 
     return ThermalOutputSchema.parse({
       estimatedCuttingTemp: Math.round(estimatedTemp),
@@ -235,11 +268,14 @@ export class AdaptiveThermalEngine {
   }
 
   /**
-   * Reset temperature history
+   * Legacy shim. The temperature ring is no longer process-global -- each analyze()
+   * call gets a fresh ThermalTrendSession unless the caller threads its own -- so
+   * there is no shared state left to clear. Kept because existing suites
+   * (adaptiveControlDispatcher.adaptive5.test.ts:78,223,225, L2P4-AdaptiveControl.test.ts:349)
+   * call it defensively between cases; safe to delete once those calls are removed.
    */
   static reset(): void {
-    this.tempHistory = [];
-    this.stableTemp = null;
+    // intentionally empty: no shared thermal state exists post row-7 fix
   }
 
   /**

@@ -1,0 +1,30 @@
+---
+name: reference_worktree_route_empty_token_bug_2026_06_12
+description: 2026-06-12 slot:alpha found AND FIXED a FLEET-WIDE commit-blocker bug in the worktree-commit-route PreToolUse hook -- a malformed peer worktree branch with a leading dash (work/-system-viz-brain-ms0-u--41db1b) makes branchHead.split("-")[0] return "" and scopeToken.includes("") is ALWAYS true, so that one worktree matched EVERY scope and blocked ALL slot commits. FIXED in U-WORKTREE-ROUTE-SLOT-FIX (slot/alpha 1feeabcd4f + [MAIN-FORCE] 7d1b0a799b): extracted tested pure lib scripts/lib/worktree-route-match.mjs (empty-token guard + isSlotBranch slot-allow), wired into the hook. Validated: blocked slot commit now passes, main-tree deny intact, 11/11 tests.
+type: reference
+galaxy: token-optimization
+source: prism-memory
+synced: 2026-06-27T20:30:47.267Z
+aliases: reference_worktree_route_empty_token_bug_2026_06_12
+---
+
+
+# worktree-route empty-token wildcard commit-blocker (2026-06-12, slot:alpha)
+
+**Symptom.** Mid-iter, EVERY `git commit` from slot/alpha (any scope: `[HIGH-ROI-HUNT]`, `[DOC]`, etc.) blocked with `WORKTREE-ROUTE: wrong tree for this commit` naming peer worktree `H:/prism--system-viz-brain-ms0-u--41db1b (work/-system-viz-brain-ms0-u--41db1b)` as a "matching worktree". Two earlier commits the SAME iter (`0c3610c843` slot/alpha, `f671991853` main) had ALREADY succeeded with `[HIGH-ROI-HUNT]` scope -- so the block APPEARED mid-iter (a peer created/touched that malformed worktree in the interim).
+
+**Root cause (grep-confirmed in `H:/prism/.claude/hooks/worktree-commit-route.mjs`).** Line 426 `scopeToken.includes(branchHead.split("-")[0])`. For branch `work/-system-viz-brain-ms0-u--41db1b`: `b.split("/").pop()` = `-system-viz-brain-ms0-u--41db1b` (LEADING DASH), `.split("-")[0]` = `""` (empty). **`anyString.includes("")` is ALWAYS true** -> the malformed worktree matches EVERY scope token -> blocks every slot's commit fleet-wide. A single malformed-named worktree poisons commit routing for the whole fleet.
+
+**The kill switch did NOT work.** `PRISM_WORKTREE_ROUTE_DISABLE=1` (honored at lines 96-97 of the `.claude` PreToolUse hook) -- both inline-prefixed AND `export`ed -- did NOT clear the block. So the LIVE block is NOT that `.claude` hook; it is a **git-level hook** (`.git/hooks/commit-msg` or `pre-commit` in the slot worktree) that carries a SEPARATE copy of the same match logic and does NOT read the env kill switch. The two enforcement layers are out of sync on the bypass.
+
+**STATUS: FIXED 2026-06-12 (slot:alpha, U-WORKTREE-ROUTE-SLOT-FIX).** slot/alpha `1feeabcd4f` (lib + 11 tests + patcher + spec) + `[MAIN-FORCE] 7d1b0a799b` (live hook + lib). The enforcer turned out to be the `.claude/hooks/worktree-commit-route.mjs` **PreToolUse hook** (NOT the husky git hook — husky only runs lint-staged + cam-phase5). The `export PRISM_WORKTREE_ROUTE_DISABLE=1` failed because the PreToolUse hook evaluates line-96 in the HARNESS env, before my bash subprocess env existed. Fix = new tested pure lib `scripts/lib/worktree-route-match.mjs` (`branchLeadToken` first-non-empty segment + `>=2`-char guard fixes the empty-token wildcard; `isSlotBranch` adds a slot-worktree allow) wired into the hook (removes the buggy inline copies). Validated end-to-end: the previously-blocked commit passed, a main-tree wrong-scope commit STILL denies (no over-permit), patcher subprocess self-test exit 0. NOTE: the malformed worktree `work/-system-viz-brain-ms0-u--41db1b` still exists (active+locked) -- the hook is now ROBUST to it, but golf/sierra should still investigate what created a leading-dash branch name.
+
+**Original proposed fix (now implemented):** Two parts:
+1. **Guard the empty token** in BOTH the `.claude` hook AND the git-hook copy: `const head = branchHead.split("-").filter(Boolean)[0] || ""; if (!head) continue; scopeToken.includes(head)` -- skip empty/whitespace tokens so a malformed branch never wildcard-matches. Also reject the leading-dash branch name at the source (whatever created `work/-system-viz-brain-ms0-u--41db1b` -- the `-` after `work/` is the smell).
+2. **Wire the git-hook copy to honor `PRISM_WORKTREE_ROUTE_DISABLE=1`** so the documented kill switch actually works at the layer that enforces. Right now the doc promises a bypass the live layer ignores (R12 doc-vs-reality gap).
+
+**Workaround used 2026-06-12.** None landed -- the secondary spec-status doc commit was DROPPED (non-critical; the memory `reference_local_vector_leg_2026_06_12` already records the unit's LIVE status authoritatively). `--no-verify` was NOT used (banned: it skips ALL hooks incl. scrutiny/safety). The two load-bearing commits had already landed before the block appeared.
+
+**Impact.** Until fixed, any slot may be intermittently unable to commit whenever a malformed-name worktree exists in `git worktree list`. (FIXED — the hook is now robust.) Sister to [[feedback_conflict_fork_rule]] (worktree commit routing) + the §Recent regressions doc-vs-reality class.
+
+**OPEN FOLLOW-UP (P2, pre-existing, both scrutiny reviewers flagged — U-WORKTREE-ROUTE-MAIN-TDZ):** `.claude/hooks/worktree-commit-route.mjs` has a temporal-dead-zone bug INDEPENDENT of the empty-token fix: the `[MAIN]`-override block (~lines 341-406) references `currentWt` (lines 353, 369) BEFORE its `const currentWt` declaration (~line 414) → `ReferenceError: Cannot access 'currentWt' before initialization` if that path executes (`[MAIN]` prefix + staged files with a strong inferred theme + cwd is a registered worktree). It is FAIL-OPEN (a throwing PreToolUse hook → harness lets the command through), byte-identical in parent commit `964ff51f98`, so it never surfaced as a block — but a `[MAIN]` commit that SHOULD be routed silently isn't. Fix: move the `const cwdNorm`/`const currentWt` declarations to just after the worktree-parse (after `if (worktrees.length === 0) exit(0)`) so they precede the `[MAIN]` block. Cheap; deferred from U-WORKTREE-ROUTE-SLOT-FIX only to keep that commit surgical on a marathon turn. Also P3: unused `existsSync` import (line 75).

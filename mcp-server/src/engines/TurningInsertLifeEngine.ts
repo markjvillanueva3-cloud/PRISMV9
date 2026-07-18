@@ -49,6 +49,17 @@ export interface InsertLifeInput {
 
 export type InsertShape = "C" | "D" | "R" | "S" | "T" | "V" | "W" | "CNMG" | "DNMG" | "WNMG" | "VNMG" | "TNMG" | "SNMG";
 
+/**
+ * Single turning operation specification (cutting conditions + duration + label).
+ * Consumed by stochastic / sensitivity / robust / envelope-distance engines that
+ * sequence multiple ops and need a single canonical shape.
+ */
+export interface OpSpec {
+  conditions: InsertLifeInput;
+  duration_min: number;
+  label?: string;
+}
+
 export interface ChipbreakerWindow {
   name: string;
   f_min_mm: number;
@@ -99,6 +110,112 @@ export interface InsertGradeRecommendation {
   substrate: "carbide" | "cermet" | "ceramic" | "CBN" | "PCD";
   coating: string;
   rationale: string;
+}
+
+export interface BatchLifePlanInput {
+  /** Ordered ops making up ONE part (cutting conditions + per-op duration). */
+  ops: OpSpec[];
+  /** Number of parts in the batch (positive integer). */
+  batch_size: number;
+  /** Fraction of nominal edge life usable before a change (safety derate, 0..1; default 0.85). */
+  reliability_threshold?: number;
+  /** Optional insert cost per edge for a batch cost rollup. */
+  insert_cost_usd_per_edge?: number;
+}
+
+export interface BatchInsertChangePoint {
+  /** Part count produced when the edge is retired. */
+  at_part: number;
+  /** Cumulative wear fraction on the retired edge at the change (>= threshold). */
+  cumulative_wear: number;
+}
+
+export interface BatchLifePlanResult {
+  /** Total insert edges consumed across the batch. */
+  inserts_used: number;
+  /** Edge-change events (length === inserts_used - 1). */
+  change_points: BatchInsertChangePoint[];
+  /** Wear fraction remaining on the final edge after the last part. */
+  final_wear_fraction: number;
+  /** Batch insert cost (inserts_used * insert_cost_usd_per_edge), when cost supplied. */
+  cost_usd?: number;
+  /** Number of ops per part. */
+  ops_per_part: number;
+  /** Fractional edge life consumed per part (linear cumulative-damage sum over ops). */
+  wear_per_part: number;
+  source: string;
+}
+
+export interface InsertChangeScheduleInput {
+  /** Ordered ops making up ONE part (cutting conditions + per-op duration). */
+  ops: OpSpec[];
+  /** Number of parts in the batch (positive integer). */
+  batch_size: number;
+  /** Fraction of nominal edge life usable before a change (safety derate, 0..1; default 0.85). */
+  reliability_threshold?: number;
+}
+
+export interface InsertEdgeAssignment {
+  /** Zero-based edge index. */
+  edge_index: number;
+  /** Parts produced on this edge. */
+  parts_on_edge: number;
+  /** First part index (0-based) on this edge. */
+  starts_at_part: number;
+  /** Last part index (0-based) on this edge. */
+  ends_at_part: number;
+  /** Wear fraction consumed on this edge (<= reliability_threshold). */
+  final_wear: number;
+}
+
+export interface InsertChangeScheduleResult {
+  /** Whole parts one edge can produce within the reliability-derated life. */
+  parts_per_edge: number;
+  /** Insert edges needed to finish the batch (= ceil(batch_size / parts_per_edge)). */
+  edges_needed: number;
+  /** Per-edge part assignment (length === edges_needed). */
+  schedule: InsertEdgeAssignment[];
+  /** Edge utilization (parts_per_edge * wear_per_part / threshold) as a percent in (0, 100]. */
+  utilization_pct: number;
+  /** Fractional edge life consumed per part. */
+  wear_per_part: number;
+  source: string;
+}
+
+export interface WearTrajectoryPoint {
+  /** Zero-based op index. */
+  op_index: number;
+  /** Op label, if provided. */
+  label?: string;
+  /** Wear fraction added by this op. */
+  wear_added: number;
+  /** Cumulative wear fraction after this op. */
+  cumulative_wear: number;
+}
+
+export interface WearAccumulationInput {
+  /** Ordered ops processed in one pass (one part). */
+  ops: OpSpec[];
+  /** Starting wear fraction (0 = fresh edge; 0..1; default 0). */
+  current_wear_fraction?: number;
+  /** Wear fraction at which the edge is considered failed (default 1.0). */
+  failure_wear_fraction?: number;
+}
+
+export interface WearAccumulationResult {
+  /** Starting wear fraction. */
+  start_wear: number;
+  /** Wear fraction after processing all ops (current + sum of t_i / T_i). */
+  final_wear: number;
+  /** Per-op cumulative wear trajectory (length === ops.length). */
+  trajectory: WearTrajectoryPoint[];
+  /** True if final_wear reaches/exceeds failure_wear_fraction. */
+  will_exceed: boolean;
+  /** Index of the op at which wear first crosses failure (null if never). */
+  first_failure_op_index: number | null;
+  /** Cutting minutes until wear reaches failure (null if never). */
+  time_until_failure_min: number | null;
+  source: string;
 }
 
 // ── Extended Taylor Constants (feed/depth exponents) ────────────────────────
@@ -234,7 +351,7 @@ class TurningInsertLifeEngine {
     const extended = EXTENDED_TAYLOR[iso] ?? EXTENDED_TAYLOR.P;
 
     // ── Base Taylor life (speed only) ──
-    const baseLife = taylorLife(taylor.C, taylor.n, input.Vc_m_min, input.coating);
+    const baseLife = taylorLife(taylor.C, taylor.n, input.Vc_m_min);
 
     // ── Coating multiplier ──
     const COATING_MULT: Record<string, number> = {
@@ -334,6 +451,179 @@ class TurningInsertLifeEngine {
     };
   }
 
+  /** Per-part fractional edge-life consumption: linear cumulative-damage sum over ops. */
+  private wearPerPart(ops: OpSpec[]): number {
+    let w = 0;
+    for (const op of ops) {
+      const life = this.predictLife(op.conditions).tool_life_min;
+      if (life > 0 && Number.isFinite(life)) {
+        w += Math.max(op.duration_min, 0) / life;
+      }
+    }
+    return w;
+  }
+
+  /**
+   * Batch insert-life plan: simulate cumulative edge wear across a part batch and
+   * report how many insert edges the batch consumes plus where each change falls.
+   *
+   * Per-part wear is the linear cumulative-damage sum over ops (Palmgren-Miner
+   * analog): wear_per_part = sum_i ( op_i.duration_min /
+   * predictLife(op_i.conditions).tool_life_min ). An edge is retired once its
+   * cumulative wear reaches reliability_threshold.
+   *
+   * Ref: linear cumulative-damage rule (Palmgren-Miner analog); ISO 3685:1993; Taylor (1907).
+   */
+  batchLifePlan(input: BatchLifePlanInput): BatchLifePlanResult {
+    if (!input.ops || input.ops.length === 0) {
+      throw new Error("batchLifePlan: ops required (at least one operation)");
+    }
+    if (!Number.isInteger(input.batch_size) || input.batch_size <= 0) {
+      throw new Error("batchLifePlan: batch_size must be a positive integer");
+    }
+    const threshold = input.reliability_threshold ?? 0.85;
+    if (!(threshold > 0 && threshold <= 1)) {
+      throw new Error("batchLifePlan: reliability_threshold must be in (0, 1]");
+    }
+    const wearPerPart = this.wearPerPart(input.ops);
+    let cumulative = 0;
+    let insertsUsed = 1;
+    const changePoints: BatchInsertChangePoint[] = [];
+    for (let part = 0; part < input.batch_size; part++) {
+      cumulative += wearPerPart;
+      // Retire the edge once it reaches the derated life -- but never after the last part.
+      if (cumulative >= threshold && part < input.batch_size - 1) {
+        changePoints.push({ at_part: part + 1, cumulative_wear: round3(cumulative) });
+        insertsUsed++;
+        cumulative = 0;
+      }
+    }
+    return {
+      inserts_used: insertsUsed,
+      change_points: changePoints,
+      final_wear_fraction: round3(cumulative),
+      cost_usd:
+        input.insert_cost_usd_per_edge != null
+          ? round2(insertsUsed * input.insert_cost_usd_per_edge)
+          : undefined,
+      ops_per_part: input.ops.length,
+      wear_per_part: round3(wearPerPart),
+      source: "TurningInsertLifeEngine.batchLifePlan (linear cumulative-damage + extended Taylor)",
+    };
+  }
+
+  /**
+   * Insert-change schedule: pack parts onto edges so no edge exceeds the
+   * reliability-derated life, and report the per-edge part assignment.
+   *
+   * parts_per_edge = floor(reliability_threshold / wear_per_part); throws when a
+   * single part already exceeds the threshold (an infeasible setup -- not silenced).
+   *
+   * Ref: linear cumulative-damage rule (Palmgren-Miner analog); ISO 3685:1993.
+   */
+  insertChangeSchedule(input: InsertChangeScheduleInput): InsertChangeScheduleResult {
+    if (!input.ops || input.ops.length === 0) {
+      throw new Error("insertChangeSchedule: ops required (at least one operation)");
+    }
+    if (!Number.isInteger(input.batch_size) || input.batch_size <= 0) {
+      throw new Error("insertChangeSchedule: batch_size must be a positive integer");
+    }
+    const threshold = input.reliability_threshold ?? 0.85;
+    if (!(threshold > 0 && threshold <= 1)) {
+      throw new Error("insertChangeSchedule: reliability_threshold must be in (0, 1]");
+    }
+    const wearPerPart = this.wearPerPart(input.ops);
+    if (wearPerPart > threshold) {
+      throw new Error(
+        `insertChangeSchedule: a single part consumes ${round3(wearPerPart)} of edge life and ` +
+          `cannot fit on a single edge (exceeds threshold ${threshold})`,
+      );
+    }
+    const partsPerEdge = Math.max(Math.floor(threshold / wearPerPart), 1);
+    const edgesNeeded = Math.ceil(input.batch_size / partsPerEdge);
+    const schedule: InsertEdgeAssignment[] = [];
+    let start = 0;
+    for (let e = 0; e < edgesNeeded; e++) {
+      const partsOnEdge = Math.min(partsPerEdge, input.batch_size - start);
+      schedule.push({
+        edge_index: e,
+        parts_on_edge: partsOnEdge,
+        starts_at_part: start,
+        ends_at_part: start + partsOnEdge - 1,
+        final_wear: round3(partsOnEdge * wearPerPart),
+      });
+      start += partsOnEdge;
+    }
+    return {
+      parts_per_edge: partsPerEdge,
+      edges_needed: edgesNeeded,
+      schedule,
+      utilization_pct: round2(((partsPerEdge * wearPerPart) / threshold) * 100),
+      wear_per_part: round3(wearPerPart),
+      source: "TurningInsertLifeEngine.insertChangeSchedule (linear cumulative-damage + extended Taylor)",
+    };
+  }
+
+  /**
+   * Linear wear accumulation across one pass through a multi-op part, with the
+   * per-op cumulative trajectory and a first-failure projection.
+   *
+   *   wear_added_i = op_i.duration_min / predictLife(op_i.conditions).tool_life_min
+   *   final_wear   = current_wear_fraction + sum_i wear_added_i
+   *
+   * Ref: linear cumulative-damage rule (Palmgren-Miner analog); ISO 3685:1993.
+   */
+  wearAccumulation(input: WearAccumulationInput): WearAccumulationResult {
+    if (!input.ops || input.ops.length === 0) {
+      throw new Error("wearAccumulation: ops required (at least one operation)");
+    }
+    const start = input.current_wear_fraction ?? 0;
+    if (!(start >= 0 && start <= 1)) {
+      throw new Error("wearAccumulation: current_wear_fraction must be in [0, 1]");
+    }
+    const failure = input.failure_wear_fraction ?? 1.0;
+    let cumulative = start;
+    let elapsed = 0;
+    let willExceed = false;
+    let firstFailureOpIndex: number | null = null;
+    let timeUntilFailureMin: number | null = null;
+    const trajectory: WearTrajectoryPoint[] = [];
+    for (let i = 0; i < input.ops.length; i++) {
+      const op = input.ops[i];
+      if (!(op.duration_min > 0)) {
+        throw new Error("wearAccumulation: duration_min must be > 0 for every op");
+      }
+      const life = this.predictLife(op.conditions).tool_life_min;
+      const wear = life > 0 && Number.isFinite(life) ? op.duration_min / life : 0;
+      const before = cumulative;
+      cumulative += wear;
+      trajectory.push({
+        op_index: i,
+        label: op.label,
+        wear_added: round3(wear),
+        cumulative_wear: round3(cumulative),
+      });
+      if (!willExceed && cumulative >= failure) {
+        willExceed = true;
+        firstFailureOpIndex = i;
+        const wearRate = wear / op.duration_min; // fraction per minute
+        const remaining = failure - before;
+        const tInOp = wearRate > 0 ? Math.max(remaining, 0) / wearRate : 0;
+        timeUntilFailureMin = round3(elapsed + Math.max(tInOp, 0));
+      }
+      elapsed += op.duration_min;
+    }
+    return {
+      start_wear: round3(start),
+      final_wear: round3(cumulative),
+      trajectory,
+      will_exceed: willExceed,
+      first_failure_op_index: firstFailureOpIndex,
+      time_until_failure_min: timeUntilFailureMin,
+      source: "TurningInsertLifeEngine.wearAccumulation (linear cumulative-damage + extended Taylor)",
+    };
+  }
+
   /**
    * Select optimal insert grade for material + operation.
    *
@@ -423,7 +713,7 @@ class TurningInsertLifeEngine {
     const { d_start, d_end } = input.css_diameters_mm!;
     const steps = 20;
     const dStep = (d_start - d_end) / steps;
-    if (dStep <= 0) return taylorLife(taylor.C, taylor.n, input.Vc_m_min, input.coating);
+    if (dStep <= 0) return taylorLife(taylor.C, taylor.n, input.Vc_m_min);
 
     // Assume constant CSS = input.Vc_m_min, with RPM clamp at max_rpm
     const maxRPM = 4000; // typical lathe max
@@ -437,7 +727,7 @@ class TurningInsertLifeEngine {
       const actualVc = (Math.PI * D * actualRPM) / 1000;
 
       // Life at this Vc
-      const lifeAtVc = taylorLife(taylor.C, taylor.n, actualVc, input.coating);
+      const lifeAtVc = taylorLife(taylor.C, taylor.n, actualVc);
       const f_ref = 0.30;
       const ap_ref = 2.0;
       const feedFactor = Math.pow(input.f_mm_rev / f_ref, extended.a);
@@ -451,7 +741,7 @@ class TurningInsertLifeEngine {
     }
 
     // CSS-integrated life = 1 / totalWearFraction (normalized to base life units)
-    const baseExtLife = taylorLife(taylor.C, taylor.n, input.Vc_m_min, input.coating);
+    const baseExtLife = taylorLife(taylor.C, taylor.n, input.Vc_m_min);
     const f_ref = 0.30;
     const ap_ref = 2.0;
     const baseFeedFactor = Math.pow(input.f_mm_rev / f_ref, extended.a);

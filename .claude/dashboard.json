@@ -1,0 +1,7725 @@
+{
+  "$schema": "claude-system-dashboard/v1",
+  "generated": "2026-03-15 16:48:04",
+  "summary": {
+    "total": 274,
+    "ok": 139,
+    "warn": 123,
+    "error": 0,
+    "disabled": 12,
+    "health_pct": 53.1
+  },
+  "components": [
+    {
+      "name": "auto-approve",
+      "file": "auto-approve.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "configchange-guard",
+      "file": "configchange-guard.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "posttooluse-unified",
+      "file": "posttooluse-unified.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "precompact-save",
+      "file": "precompact-save.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "pretooluse-linting",
+      "file": "pretooluse-linting.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "pretooluse-unified",
+      "file": "pretooluse-unified.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "session-start-unified",
+      "file": "session-start-unified.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "stop-completion-check",
+      "file": "stop-completion-check.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "task-completed-chain",
+      "file": "task-completed-chain.sh",
+      "type": "hook",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid bash"
+        },
+        {
+          "check": "registered",
+          "pass": true,
+          "detail": "In settings.json"
+        },
+        {
+          "check": "shebang",
+          "pass": true,
+          "detail": "#!/bin/bash"
+        }
+      ]
+    },
+    {
+      "name": "autofire-action-help.local",
+      "file": "hookify.autofire-action-help.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-action-search.local",
+      "file": "hookify.autofire-action-search.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 316 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-addtomatrix.local",
+      "file": "hookify.autofire-addtomatrix.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-algorithm-inspect.local",
+      "file": "hookify.autofire-algorithm-inspect.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 317 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-audit-task.local",
+      "file": "hookify.autofire-audit-task.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 241 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-auto-commit.local",
+      "file": "hookify.autofire-auto-commit.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-autopilot.local",
+      "file": "hookify.autofire-autopilot.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-bash-optimize.local",
+      "file": "hookify.autofire-bash-optimize.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-bash-shortcuts.local",
+      "file": "hookify.autofire-bash-shortcuts.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-batch-check.local",
+      "file": "hookify.autofire-batch-check.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-boot.local",
+      "file": "hookify.autofire-boot.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-calc.local",
+      "file": "hookify.autofire-calc.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-check-dsl.local",
+      "file": "hookify.autofire-check-dsl.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 227 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-claude-md.local",
+      "file": "hookify.autofire-claude-md.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 272 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-cnc-simulate.local",
+      "file": "hookify.autofire-cnc-simulate.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-code-index.local",
+      "file": "hookify.autofire-code-index.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-code-simplifier.local",
+      "file": "hookify.autofire-code-simplifier.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 285 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-commands.local",
+      "file": "hookify.autofire-commands.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-commit.local",
+      "file": "hookify.autofire-commit.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 189 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-compact.local",
+      "file": "hookify.autofire-compact.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 239 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-consistency-after-pipeline.local",
+      "file": "hookify.autofire-consistency-after-pipeline.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-context-map.local",
+      "file": "hookify.autofire-context-map.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-context.local",
+      "file": "hookify.autofire-context.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-count-drift.local",
+      "file": "hookify.autofire-count-drift.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 297 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-counts.local",
+      "file": "hookify.autofire-counts.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-defaults.local",
+      "file": "hookify.autofire-defaults.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-digest-all.local",
+      "file": "hookify.autofire-digest-all.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-digest.local",
+      "file": "hookify.autofire-digest.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-drill-calc.local",
+      "file": "hookify.autofire-drill-calc.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 290 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-engine-browse.local",
+      "file": "hookify.autofire-engine-browse.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 299 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-ergo-check.local",
+      "file": "hookify.autofire-ergo-check.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-estimate.local",
+      "file": "hookify.autofire-estimate.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-feature-dev.local",
+      "file": "hookify.autofire-feature-dev.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 260 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-findings.local",
+      "file": "hookify.autofire-findings.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 252 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-audit.local",
+      "file": "hookify.autofire-forge-audit.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 258 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-cleanup.local",
+      "file": "hookify.autofire-forge-cleanup.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 221 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-debug.local",
+      "file": "hookify.autofire-forge-debug.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 224 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-deps.local",
+      "file": "hookify.autofire-forge-deps.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 228 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-docs.local",
+      "file": "hookify.autofire-forge-docs.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 233 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-drift.local",
+      "file": "hookify.autofire-forge-drift.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 253 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-engines.local",
+      "file": "hookify.autofire-forge-engines.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-hooks.local",
+      "file": "hookify.autofire-forge-hooks.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-learn.local",
+      "file": "hookify.autofire-forge-learn.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 224 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-materials.local",
+      "file": "hookify.autofire-forge-materials.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-metrics.local",
+      "file": "hookify.autofire-forge-metrics.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 234 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-perf.local",
+      "file": "hookify.autofire-forge-perf.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 214 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-postflight.local",
+      "file": "hookify.autofire-forge-postflight.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-safety.local",
+      "file": "hookify.autofire-forge-safety.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-schema.local",
+      "file": "hookify.autofire-forge-schema.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 250 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-skills.local",
+      "file": "hookify.autofire-forge-skills.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-tests.local",
+      "file": "hookify.autofire-forge-tests.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 245 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-triple.local",
+      "file": "hookify.autofire-forge-triple.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-types.local",
+      "file": "hookify.autofire-forge-types.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 227 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge-wiring.local",
+      "file": "hookify.autofire-forge-wiring.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 247 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-forge.local",
+      "file": "hookify.autofire-forge.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-formula-browse.local",
+      "file": "hookify.autofire-formula-browse.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 334 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-frontend.local",
+      "file": "hookify.autofire-frontend.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 250 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-gcode.local",
+      "file": "hookify.autofire-gcode.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-handoff.local",
+      "file": "hookify.autofire-handoff.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 288 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-health.local",
+      "file": "hookify.autofire-health.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 215 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-hook-browse.local",
+      "file": "hookify.autofire-hook-browse.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 337 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-hook-profile.local",
+      "file": "hookify.autofire-hook-profile.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 277 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-hook-stats.local",
+      "file": "hookify.autofire-hook-stats.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-local",
+      "file": "hookify.autofire-hookify.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 235 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-hypermill-3d-strategy-guide.local",
+      "file": "hookify.autofire-hypermill-3d-strategy-guide.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-hypermill-3d.local",
+      "file": "hookify.autofire-hypermill-3d.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-hypermill-project-setup.local",
+      "file": "hookify.autofire-hypermill-project-setup.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-hypermill-setup.local",
+      "file": "hookify.autofire-hypermill-setup.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-injection-mold-quote.local",
+      "file": "hookify.autofire-injection-mold-quote.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-injection-mold.local",
+      "file": "hookify.autofire-injection-mold.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-job-planning.local",
+      "file": "hookify.autofire-job-planning.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-machine-check.local",
+      "file": "hookify.autofire-machine-check.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-machine-enrich.local",
+      "file": "hookify.autofire-machine-enrich.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-magazine-optimize.local",
+      "file": "hookify.autofire-magazine-optimize.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-material-lookup.local",
+      "file": "hookify.autofire-material-lookup.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 336 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-material-price.local",
+      "file": "hookify.autofire-material-price.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-milestone.local",
+      "file": "hookify.autofire-milestone.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 205 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-navigate.local",
+      "file": "hookify.autofire-navigate.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-pdf-learn.local",
+      "file": "hookify.autofire-pdf-learn.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-pick-task.local",
+      "file": "hookify.autofire-pick-task.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 202 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-pressure.local",
+      "file": "hookify.autofire-pressure.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-process-calc.local",
+      "file": "hookify.autofire-process-calc.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 428 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-program-gen.local",
+      "file": "hookify.autofire-program-gen.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 263 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-program-validate.local",
+      "file": "hookify.autofire-program-validate.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-quality-check.local",
+      "file": "hookify.autofire-quality-check.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 445 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-quick-ref.local",
+      "file": "hookify.autofire-quick-ref.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-quick-review.local",
+      "file": "hookify.autofire-quick-review.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 223 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-quote-job.local",
+      "file": "hookify.autofire-quote-job.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-quote-review.local",
+      "file": "hookify.autofire-quote-review.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-read-plan.local",
+      "file": "hookify.autofire-read-plan.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-registry-browse.local",
+      "file": "hookify.autofire-registry-browse.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 285 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-remember.local",
+      "file": "hookify.autofire-remember.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 298 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-replay.local",
+      "file": "hookify.autofire-replay.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-review-pr.local",
+      "file": "hookify.autofire-review-pr.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 285 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-rgs.local",
+      "file": "hookify.autofire-rgs.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-safety-audit.local",
+      "file": "hookify.autofire-safety-audit.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 303 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-scope.local",
+      "file": "hookify.autofire-scope.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 208 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-scripts.local",
+      "file": "hookify.autofire-scripts.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 284 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-scrutinize.local",
+      "file": "hookify.autofire-scrutinize.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 329 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-secondary-ops.local",
+      "file": "hookify.autofire-secondary-ops.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-setup-sheet-generate.local",
+      "file": "hookify.autofire-setup-sheet-generate.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-setup-sheet.local",
+      "file": "hookify.autofire-setup-sheet.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-ship.local",
+      "file": "hookify.autofire-ship.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-slim.local",
+      "file": "hookify.autofire-slim.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 279 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-smart-route.local",
+      "file": "hookify.autofire-smart-route.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-smart.local",
+      "file": "hookify.autofire-smart.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 222 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-snapshot.local",
+      "file": "hookify.autofire-snapshot.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-spindle-optimize.local",
+      "file": "hookify.autofire-spindle-optimize.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-startup.local",
+      "file": "hookify.autofire-startup.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-status.local",
+      "file": "hookify.autofire-status.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-stock-optimize.local",
+      "file": "hookify.autofire-stock-optimize.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-stop-check.local",
+      "file": "hookify.autofire-stop-check.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-sync.local",
+      "file": "hookify.autofire-sync.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 294 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-template.local",
+      "file": "hookify.autofire-template.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-test.local",
+      "file": "hookify.autofire-test.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 219 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-token-audit.local",
+      "file": "hookify.autofire-token-audit.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 269 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-token-budget.local",
+      "file": "hookify.autofire-token-budget.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-token-ledger.local",
+      "file": "hookify.autofire-token-ledger.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-tool-catalog.local",
+      "file": "hookify.autofire-tool-catalog.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-tool-enrich.local",
+      "file": "hookify.autofire-tool-enrich.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-tool-histogram.local",
+      "file": "hookify.autofire-tool-histogram.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-trace.local",
+      "file": "hookify.autofire-trace.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 222 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-troubleshoot.local",
+      "file": "hookify.autofire-troubleshoot.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 325 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-unit-convert.local",
+      "file": "hookify.autofire-unit-convert.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-unwired-review.local",
+      "file": "hookify.autofire-unwired-review.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 424 chars"
+        }
+      ]
+    },
+    {
+      "name": "autofire-update-all-docs.local",
+      "file": "hookify.autofire-update-all-docs.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-vam-analyze.local",
+      "file": "hookify.autofire-vam-analyze.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-video-learn.local",
+      "file": "hookify.autofire-video-learn.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-waste-report.local",
+      "file": "hookify.autofire-waste-report.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-wear-analysis.local",
+      "file": "hookify.autofire-wear-analysis.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-web-ui-todo.local",
+      "file": "hookify.autofire-web-ui-todo.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": false,
+          "detail": "Missing event field"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "autofire-what-changed.local",
+      "file": "hookify.autofire-what-changed.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "autofire-yolo-mode.local",
+      "file": "hookify.autofire-yolo-mode.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 234 chars"
+        }
+      ]
+    },
+    {
+      "name": "block-bash-echo-test.local",
+      "file": "hookify.block-bash-echo-test.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-bash-ps-aux.local",
+      "file": "hookify.block-bash-ps-aux.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-bash-sleep.local",
+      "file": "hookify.block-bash-sleep.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-bash-which.local",
+      "file": "hookify.block-bash-which.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-dangerous-rm.local",
+      "file": "hookify.block-dangerous-rm.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 286 chars"
+        }
+      ]
+    },
+    {
+      "name": "block-delete-main-branch.local",
+      "file": "hookify.block-delete-main-branch.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 321 chars"
+        }
+      ]
+    },
+    {
+      "name": "block-drop-table.local",
+      "file": "hookify.block-drop-table.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 315 chars"
+        }
+      ]
+    },
+    {
+      "name": "block-force-push.local",
+      "file": "hookify.block-force-push.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 302 chars"
+        }
+      ]
+    },
+    {
+      "name": "block-git-add-all.local",
+      "file": "hookify.block-git-add-all.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-git-reset-hard.local",
+      "file": "hookify.block-git-reset-hard.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 290 chars"
+        }
+      ]
+    },
+    {
+      "name": "block-grep-entire-codebase.local",
+      "file": "hookify.block-grep-entire-codebase.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-npm-install-dedup.local",
+      "file": "hookify.block-npm-install-dedup.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-read-after-edit.local",
+      "file": "hookify.block-read-after-edit.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-read-env-files.local",
+      "file": "hookify.block-read-env-files.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-read-snapshot-logs.local",
+      "file": "hookify.block-read-snapshot-logs.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-repeated-build-clean.local",
+      "file": "hookify.block-repeated-build-clean.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-toolsearch-after-load.local",
+      "file": "hookify.block-toolsearch-after-load.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-toolsearch-redundant.local",
+      "file": "hookify.block-toolsearch-redundant.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-websearch-calculable.local",
+      "file": "hookify.block-websearch-calculable.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-websearch-gcode.local",
+      "file": "hookify.block-websearch-gcode.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "block-write-build-artifacts.local",
+      "file": "hookify.block-write-build-artifacts.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "master-index-drift.local",
+      "file": "hookify.master-index-drift.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 643 chars"
+        }
+      ]
+    },
+    {
+      "name": "suggest-lsp-over-grep.local",
+      "file": "hookify.suggest-lsp-over-grep.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 514 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-agent-dedup.local",
+      "file": "hookify.warn-agent-dedup.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-agent-explore-known.local",
+      "file": "hookify.warn-agent-explore-known.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-agent-simple-query.local",
+      "file": "hookify.warn-agent-simple-query.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-bash-audit-unpipe.local",
+      "file": "hookify.warn-bash-audit-unpipe.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-bash-du-sh.local",
+      "file": "hookify.warn-bash-du-sh.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-binary-git-add.local",
+      "file": "hookify.warn-binary-git-add.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 302 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-broad-search.local",
+      "file": "hookify.warn-broad-search.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 145 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-chmod-permissions.local",
+      "file": "hookify.warn-chmod-permissions.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 296 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-collision-stub.local",
+      "file": "hookify.warn-collision-stub.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 815 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-commented-code.local",
+      "file": "hookify.warn-commented-code.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 284 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-cors-wildcard.local",
+      "file": "hookify.warn-cors-wildcard.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 294 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-debug-code.local",
+      "file": "hookify.warn-debug-code.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 211 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-dispatcher-action-gap.local",
+      "file": "hookify.warn-dispatcher-action-gap.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 685 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-dispatcher-stub-result.local",
+      "file": "hookify.warn-dispatcher-stub-result.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 667 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-engine-index-full-read.local",
+      "file": "hookify.warn-engine-index-full-read.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-engine-no-test.local",
+      "file": "hookify.warn-engine-no-test.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 567 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-engine-raw-numbers.local",
+      "file": "hookify.warn-engine-raw-numbers.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 640 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-env-leak.local",
+      "file": "hookify.warn-env-leak.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 312 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-error-swallowing.local",
+      "file": "hookify.warn-error-swallowing.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 272 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-eval-exec.local",
+      "file": "hookify.warn-eval-exec.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 366 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-full-dispatcher-map.local",
+      "file": "hookify.warn-full-dispatcher-map.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-gcode-manual-sf.local",
+      "file": "hookify.warn-gcode-manual-sf.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 347 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-gcode-no-safe-start.local",
+      "file": "hookify.warn-gcode-no-safe-start.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 762 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-glob-burst.local",
+      "file": "hookify.warn-glob-burst.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-glob-recursive-no-ext.local",
+      "file": "hookify.warn-glob-recursive-no-ext.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-glob-then-read-all.local",
+      "file": "hookify.warn-glob-then-read-all.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-grep-after-read.local",
+      "file": "hookify.warn-grep-after-read.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-grep-dot-pattern.local",
+      "file": "hookify.warn-grep-dot-pattern.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-grep-no-path.local",
+      "file": "hookify.warn-grep-no-path.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-hardcoded-ip.local",
+      "file": "hookify.warn-hardcoded-ip.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 228 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-hardcoded-secrets.local",
+      "file": "hookify.warn-hardcoded-secrets.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 274 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-insecure-deserialize.local",
+      "file": "hookify.warn-insecure-deserialize.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 304 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-insecure-http.local",
+      "file": "hookify.warn-insecure-http.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 303 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-large-file-read.local",
+      "file": "hookify.warn-large-file-read.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 201 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-large-inventory-read.local",
+      "file": "hookify.warn-large-inventory-read.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-large-output.local",
+      "file": "hookify.warn-large-output.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-lint-suppression.local",
+      "file": "hookify.warn-lint-suppression.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 300 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-machine-exceeded.local",
+      "file": "hookify.warn-machine-exceeded.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-material-index-stale.local",
+      "file": "hookify.warn-material-index-stale.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "warn-memory-leak.local",
+      "file": "hookify.warn-memory-leak.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 367 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-mold-class-mismatch.local",
+      "file": "hookify.warn-mold-class-mismatch.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "warn-multiple-edits-same-file.local",
+      "file": "hookify.warn-multiple-edits-same-file.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-nosql-injection.local",
+      "file": "hookify.warn-nosql-injection.local.md",
+      "type": "hookify_rule",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 307 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-path-traversal.local",
+      "file": "hookify.warn-path-traversal.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 323 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-prototype-pollution.local",
+      "file": "hookify.warn-prototype-pollution.local.md",
+      "type": "hookify_rule",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 336 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-quote-low-margin.local",
+      "file": "hookify.warn-quote-low-margin.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 696 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-quote-no-physics.local",
+      "file": "hookify.warn-quote-no-physics.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 775 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-race-condition.local",
+      "file": "hookify.warn-race-condition.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 351 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-read-catalog-full.local",
+      "file": "hookify.warn-read-catalog-full.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-read-changelog.local",
+      "file": "hookify.warn-read-changelog.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-read-claudemd.local",
+      "file": "hookify.warn-read-claudemd.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-read-generated.local",
+      "file": "hookify.warn-read-generated.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-read-memory-repeated.local",
+      "file": "hookify.warn-read-memory-repeated.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-read-test-for-api.local",
+      "file": "hookify.warn-read-test-for-api.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-secondary-ops-compat.local",
+      "file": "hookify.warn-secondary-ops-compat.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 843 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-sensitive-files.local",
+      "file": "hookify.warn-sensitive-files.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 262 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-sql-injection.local",
+      "file": "hookify.warn-sql-injection.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 324 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-stock-btf-ratio.local",
+      "file": "hookify.warn-stock-btf-ratio.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": false,
+          "detail": "Empty or minimal body"
+        }
+      ]
+    },
+    {
+      "name": "warn-todo-fixme.local",
+      "file": "hookify.warn-todo-fixme.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 274 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-unhandled-async.local",
+      "file": "hookify.warn-unhandled-async.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 303 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-unit-mismatch.local",
+      "file": "hookify.warn-unit-mismatch.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-unsafe-regex.local",
+      "file": "hookify.warn-unsafe-regex.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 352 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-weak-crypto.local",
+      "file": "hookify.warn-weak-crypto.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 340 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-webfetch-docs.local",
+      "file": "hookify.warn-webfetch-docs.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-wildcard-install.local",
+      "file": "hookify.warn-wildcard-install.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 317 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-write-then-read.local",
+      "file": "hookify.warn-write-then-read.local.md",
+      "type": "hookify_rule",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": false,
+          "detail": "No valid YAML frontmatter found"
+        }
+      ]
+    },
+    {
+      "name": "warn-xss-innerhtml.local",
+      "file": "hookify.warn-xss-innerhtml.local.md",
+      "type": "hookify_rule",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 373 chars"
+        }
+      ]
+    },
+    {
+      "name": "warn-xxe-injection.local",
+      "file": "hookify.warn-xxe-injection.local.md",
+      "type": "hookify_rule",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "frontmatter",
+          "pass": true,
+          "detail": "Valid frontmatter"
+        },
+        {
+          "check": "name_field",
+          "pass": true,
+          "detail": "Has name"
+        },
+        {
+          "check": "enabled_field",
+          "pass": true,
+          "detail": "Has enabled"
+        },
+        {
+          "check": "event_field",
+          "pass": true,
+          "detail": "Has event"
+        },
+        {
+          "check": "pattern_field",
+          "pass": true,
+          "detail": "Has pattern/conditions"
+        },
+        {
+          "check": "message_body",
+          "pass": true,
+          "detail": "Body: 371 chars"
+        }
+      ]
+    },
+    {
+      "name": "agent-sdk-dev",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "clangd-lsp",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "claude-code-setup",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "claude-md-management",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "code-review",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "code-simplifier",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "commit-commands",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "context7",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "feature-dev",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "figma",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "frontend-design",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "github",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "greptile",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "hookify",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "jdtls-lsp",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "linear",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "playwright",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "pr-review-toolkit",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "pyright-lsp",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "qodo-skills",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "ralph-loop",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "rust-analyzer-lsp",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "security-guidance",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "serena",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "skill-creator",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "supabase",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "superpowers",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "swift-lsp",
+      "type": "plugin",
+      "status": "disabled",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": false,
+          "detail": "Disabled in settings"
+        }
+      ]
+    },
+    {
+      "name": "typescript-lsp",
+      "type": "plugin",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "enabled",
+          "pass": true,
+          "detail": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "completed-work-archive.md",
+      "type": "memory",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "113 lines, 6.6KB"
+        },
+        {
+          "check": "size",
+          "pass": true,
+          "detail": "Within limits"
+        }
+      ]
+    },
+    {
+      "name": "debugging-patterns.md",
+      "type": "memory",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "37 lines, 2.1KB"
+        },
+        {
+          "check": "size",
+          "pass": true,
+          "detail": "Within limits"
+        }
+      ]
+    },
+    {
+      "name": "last.md",
+      "type": "memory",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "38 lines, 2.7KB"
+        },
+        {
+          "check": "size",
+          "pass": true,
+          "detail": "Within limits"
+        }
+      ]
+    },
+    {
+      "name": "MEMORY.md",
+      "type": "memory",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "94 lines, 36.8KB"
+        },
+        {
+          "check": "size",
+          "pass": true,
+          "detail": "Within limits"
+        }
+      ]
+    },
+    {
+      "name": "prism-audit-findings.md",
+      "type": "memory",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "47 lines, 2.1KB"
+        },
+        {
+          "check": "size",
+          "pass": true,
+          "detail": "Within limits"
+        }
+      ]
+    },
+    {
+      "name": "project_cam_kernel_status.md",
+      "type": "memory",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "74 lines, 3.4KB"
+        },
+        {
+          "check": "size",
+          "pass": true,
+          "detail": "Within limits"
+        }
+      ]
+    },
+    {
+      "name": "project_tribal_expansion_progress.md",
+      "type": "memory",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "33 lines, 1.7KB"
+        },
+        {
+          "check": "size",
+          "pass": true,
+          "detail": "Within limits"
+        }
+      ]
+    },
+    {
+      "name": "tool-catalog.md",
+      "type": "memory",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "118 lines, 6.7KB"
+        },
+        {
+          "check": "size",
+          "pass": true,
+          "detail": "Within limits"
+        }
+      ]
+    },
+    {
+      "name": "settings.json",
+      "type": "config",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "valid_json",
+          "pass": true,
+          "detail": "Valid JSON"
+        },
+        {
+          "check": "hooks_section",
+          "pass": true,
+          "detail": "Has hooks config"
+        },
+        {
+          "check": "plugins_section",
+          "pass": true,
+          "detail": "Has plugins config"
+        },
+        {
+          "check": "critical_events",
+          "pass": true,
+          "detail": "All critical events registered"
+        }
+      ]
+    },
+    {
+      "name": "common.sh",
+      "type": "shared_lib",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "functions",
+          "pass": true,
+          "detail": "All 5 functions present"
+        },
+        {
+          "check": "syntax",
+          "pass": true,
+          "detail": "Valid"
+        }
+      ]
+    },
+    {
+      "name": "ARCHITECTURE.json",
+      "type": "config",
+      "status": "ok",
+      "checks": [
+        {
+          "check": "exists",
+          "pass": true,
+          "detail": "File exists"
+        },
+        {
+          "check": "valid_json",
+          "pass": true,
+          "detail": "Valid JSON"
+        },
+        {
+          "check": "auto_generated",
+          "pass": true,
+          "detail": "Auto-managed"
+        }
+      ]
+    },
+    {
+      "name": "git-repo",
+      "type": "git",
+      "status": "warn",
+      "checks": [
+        {
+          "check": "is_repo",
+          "pass": true,
+          "detail": "Git repo"
+        },
+        {
+          "check": "remote",
+          "pass": true,
+          "detail": "https://github.com/markjvillanueva3-cloud/claude-hooks.git"
+        },
+        {
+          "check": "clean",
+          "pass": false,
+          "detail": "86 uncommitted change(s)"
+        }
+      ]
+    }
+  ]
+}

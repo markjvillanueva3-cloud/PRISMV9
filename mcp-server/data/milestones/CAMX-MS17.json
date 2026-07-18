@@ -1,0 +1,249 @@
+{
+  "id": "CAMX-MS17",
+  "version": "7.0.0",
+  "title": "Comprehensive Slash Commands + MCP Integration",
+  "brief": "Per-CAM setup commands, strategy guides, strategy selection, comparison, bridge, export, pipeline optimization, MCP prompts.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Commands + MCP",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Per-CAM setup commands",
+          "description": "/mastercam-setup, /solidcam-setup, /nx-cam-setup, /powermill-setup, /catia-cam-setup.",
+          "exit_conditions": [
+            "5 setup commands",
+            "Replaces vague criteria with measurable",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:12:00Z",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Per-CAM strategy guides",
+          "description": "/mastercam-strategy-guide, /solidcam-imachining-guide, /nx-strategy-guide, etc.",
+          "exit_conditions": [
+            "5 strategy guides",
+            "Replaces vague criteria with measurable",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:12:00Z",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "/cam-strategy-select",
+          "description": "Interactive strategy selection using OptimalStrategySelectionEngine.",
+          "exit_conditions": [
+            "Command works",
+            "Physics-ranked output",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:12:00Z",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "/cam-strategy-compare",
+          "description": "Side-by-side comparison for a feature. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "exit_conditions": [
+            "Command works",
+            "Radar chart data",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:12:00Z",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "/cam-bridge",
+          "description": "Connect to running CAM system via live bridge.",
+          "exit_conditions": [
+            "Command works",
+            "HTTP bridge",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:12:00Z",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "/cam-export-tools",
+          "description": "Export tools to any CAM native format. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "exit_conditions": [
+            "Command works",
+            "All formats",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:12:00Z",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "/pipeline-optimize",
+          "description": "Full pipeline with cost/safety optimization, decision breakdown.",
+          "exit_conditions": [
+            "Command works",
+            "Full breakdown",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:12:00Z",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "MCP prompts + completions",
+          "description": "Strategy selection prompts, CAM-specific ops, completions for all CAM/strategy names.",
+          "exit_conditions": [
+            "MCP prompts added",
+            "Completions added",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:12:00Z",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-19T15:12:00Z",
+  "completed_units": 8,
+  "total_units": 8,
+  "closure_notes": "15 slash commands in H:/.claude/commands/ (5 setup + 5 strategy guides + 5 cross-CAM), 47/47 CAMX-MS17-SlashCommands tests pass. prism_cam dispatcher actions verified for Mastercam, SolidCAM, NX, PowerMill, CATIA, and cross-CAM strategy selection/comparison/bridge/export/pipeline optimization.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-ms17-gate",
+    "mcp_action": "prism_camx:camx_ms17_run",
+    "skill_command": "/camx-ms17",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-ms17-gate"
+    ],
+    "new_actions": [
+      "camx_ms17_run"
+    ],
+    "new_skills": [
+      "/camx-ms17"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Per-CAM setup commands, strategy guides, strategy selection, comparison, bridge, export, pipeline optimization, MCP prompts.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

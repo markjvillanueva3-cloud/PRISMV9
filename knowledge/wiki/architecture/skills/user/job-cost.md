@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `job-cost` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/job-cost.md` |
+| Source | `C:/Users/wompu/.claude/commands/job-cost.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -1,0 +1,21 @@
+---
+name: reference_xray_truncation_keycut_2026_06_23
+description: U-XRAY-TRUNCATION-KEYCUT -- dense JM prints were LOSING their entire VLM extraction (0 dims) when num_predict truncation cut the JSON mid-KEY; tier-2 salvageTruncatedJson recovers them (live 0 -> 28 dims). 2026-06-23.
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:47.279Z
+aliases: reference_xray_truncation_keycut_2026_06_23
+---
+
+
+**xray session 2026-06-23 (slot xray, cad-fusion-live-ms0): U-XRAY-TRUNCATION-KEYCUT (commit fa6a037974) -- the biggest single reading recall win available.**
+
+**Bug (found while live-validating U-XRAY-READING-KNOWLEDGE):** dense JM drawings whose VLM JSON output exceeds `num_predict:4096` get cut off mid-output. `parseVisionResponse` (`scripts/lib/ollama-vision-extract-lib.mjs`) has tier-1 `repairTruncatedJson` which closes a truncated trailing VALUE string (salvaging a partial dim). But when the cut lands on a **KEY position** -- a comma + the opening quote of the NEXT key (`..., "`) -- tier-1 closes the dangling string into `..., ""}` (a key with no `:value`) = **INVALID JSON** -> `success:false` -> the **ENTIRE print** (all ~30 dims already read before the cut) is LOST. Live: qwen2.5vl:7b on a dense punch-block print (`.cache/temp/tdp-vision/HDR 16...`) returned `parse_ok=false / 0 dims` on 3/3 runs (raw_len ~6900-7976, right at the cap). This is a large fraction of the JM corpus (dense prints are the norm; pairs with the backlog's "15.2% ensemble-failed").
+
+**Doctrine correction (R7):** the prior test asserted "mid-key cut -> fail loud entirely (success:false, never fabricate)". That is OVER-conservative -- the dims BEFORE the cut are complete, real, byte-for-byte model output; recovering them is SALVAGE, not fabrication. Superseded: recover the complete dims, drop the incomplete fragment, still never fabricate.
+
+**Fix:** new pure `salvageTruncatedJson` (tier-2) -- a structural scan tracking the container stack + string state; on truncation it trims to the **deepest open frame that has a complete element/property** (a freshly-opened EMPTY frame is DROPPED, never emitted as junk `{}`) and appends ONLY closing brackets. **Provably non-fabricating:** every output is `text.slice(0, lastCompleteBoundary) + ]/} closers` -- a true PREFIX of the real model bytes plus closers, never a synthesized key/value/number (a number truncated mid-digits is dropped, not surfaced as garbage). Wired as a fallback ONLY after tier-1's parse fails (both the array path via `tryParseWithRepair` and the object path), so tier-1's better value-string salvage is preserved. **Zero-recovery -> null** (fail loud): a truncation that recovers NO complete value returns null so `parseVisionResponse` fails -> the print re-OCRs via `--retry-failed`, never banked as an empty "success".
+
+**LIVE VALIDATION (R12):** the same dense print that returned 0 dims / parse_ok=false 3/3 now returns **28 / 25 / 28 dims / parse_ok=true 3/3** (run2 at raw_len 7976 proves salvage works even on longer-truncated output). 127/127 extract-lib tests (6 new salvage cases + the mid-KEY test rewritten to assert recovery-without-fabrication) + 45/45 ensemble no-regression. Per-file 2-arm scrutiny PASS -- both arms independently confirmed (a) salvage never fabricates (14/14 outputs are input-prefix+closers), (b) the fail-loud-test change is a LEGITIMATE doctrine correction, not a forbidden weakening.
+
+**Lesson:** a JSON-truncation repair that only handles a mid-VALUE cut silently loses the WHOLE extraction on a mid-KEY cut -- recover to the last complete element/property + close (never fabricate), and fail loud only when ZERO complete values survive. A "fail loud" gate that discards real complete data is over-conservative -- the fix is to salvage the real data while preserving the anti-fabrication intent. Sibling of the 2026-06-06 truncation-x-leading-dot regression. Pairs with [[reference_xray_reading_knowledge_2026_06_23]] (same session) + the backlog [[blueprint-reading-improvement-backlog-2026-06-19]]. Wiki [[truncation-keycut-salvage]]. **FOLLOW-ON:** a num_predict BUMP (e.g. 8192) would reduce truncation FREQUENCY (salvage recovers it, but a complete read is better); and region-route crops avoid truncation entirely (smaller output).

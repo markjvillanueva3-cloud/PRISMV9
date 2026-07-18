@@ -117,14 +117,25 @@ class FiveAxisPostEngineImpl {
    */
   getCoordRotation(controller: string, angles: { a: number; b: number; c: number }, origin?: { x: number; y: number; z: number }): string {
     const template = COORD_ROTATION_MAP[controller] ?? COORD_ROTATION_MAP.fanuc_31i ?? "";
-    return template
-      .replace("{a}", angles.a.toFixed(3))
-      .replace("{b}", angles.b.toFixed(3))
-      .replace("{c}", angles.c.toFixed(3))
-      .replace("{x}", (origin?.x ?? 0).toFixed(3))
-      .replace("{y}", (origin?.y ?? 0).toFixed(3))
-      .replace("{z}", (origin?.z ?? 0).toFixed(3))
-      .replace("{angle}", angles.c.toFixed(3));
+    // U-PP-NONFINITE-EMIT-SWEEP: a non-finite angle/origin would substitute a literal
+    // "NaN"/"Infinity" into the tilted-work-plane block (G68.2 / CYCLE800) the control
+    // rejects. This helper returns a bare string (no warnings channel), so sanitize each
+    // value to a safe 0.000 AND append a loud flag comment -- a non-finite input can never
+    // silently emit a bad orientation token. BYTE-IDENTICAL for finite inputs.
+    const ox = origin?.x ?? 0, oy = origin?.y ?? 0, oz = origin?.z ?? 0;
+    const anyNonFinite = ![angles.a, angles.b, angles.c, ox, oy, oz].every((v) => Number.isFinite(v));
+    const safe = (v: number) => (Number.isFinite(v) ? v : 0).toFixed(3);
+    const line = template
+      .replace("{a}", safe(angles.a))
+      .replace("{b}", safe(angles.b))
+      .replace("{c}", safe(angles.c))
+      .replace("{x}", safe(ox))
+      .replace("{y}", safe(oy))
+      .replace("{z}", safe(oz))
+      .replace("{angle}", safe(angles.c));
+    return anyNonFinite
+      ? `${line} (WARNING: NON-FINITE ORIENTATION/ORIGIN SANITIZED TO 0 - REVIEW SETUP)`
+      : line;
   }
 
   /**

@@ -6,12 +6,16 @@ interface AsyncState<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
+  /** HTTP status of the last failure (e.g. 403 = tier-gate denial). */
+  errorStatus: number | null;
+  /** Machine-readable backend code (e.g. TIER_LIMIT, ENTITLEMENT_REVOKED). */
+  errorCode: string | null;
 }
 
 function useApiCall<TReq, TRes>(
   apiFn: (params: TReq, signal?: AbortSignal) => Promise<{ result: TRes }>,
 ) {
-  const [state, setState] = useState<AsyncState<TRes>>({ data: null, loading: false, error: null });
+  const [state, setState] = useState<AsyncState<TRes>>({ data: null, loading: false, error: null, errorStatus: null, errorCode: null });
   const abortRef = useRef<AbortController | null>(null);
 
   const execute = useCallback(
@@ -20,17 +24,26 @@ function useApiCall<TReq, TRes>(
       const controller = new AbortController();
       abortRef.current = controller;
 
-      setState({ data: null, loading: true, error: null });
+      setState({ data: null, loading: true, error: null, errorStatus: null, errorCode: null });
       try {
         const res = await apiFn(params, controller.signal);
         if (!controller.signal.aborted) {
-          setState({ data: res.result, loading: false, error: null });
+          setState({ data: res.result, loading: false, error: null, errorStatus: null, errorCode: null });
         }
         return res.result;
       } catch (e: unknown) {
         if ((e as Error).name === "AbortError") return null;
         const msg = (e as ApiError).message || "Calculation failed";
-        setState({ data: null, loading: false, error: msg });
+        // Carry the HTTP status + machine code (sfc.ts throws ApiError) so the
+        // page can distinguish a 403 daily-cap (TIER_LIMIT) from an admin revoke
+        // (ENTITLEMENT_REVOKED) and show the right prompt, not a raw error.
+        const status = typeof (e as { status?: unknown }).status === "number"
+          ? (e as { status: number }).status
+          : null;
+        const code = typeof (e as { code?: unknown }).code === "string"
+          ? (e as { code: string }).code
+          : null;
+        setState({ data: null, loading: false, error: msg, errorStatus: status, errorCode: code });
         return null;
       }
     },
@@ -39,7 +52,7 @@ function useApiCall<TReq, TRes>(
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
-    setState({ data: null, loading: false, error: null });
+    setState({ data: null, loading: false, error: null, errorStatus: null, errorCode: null });
   }, []);
 
   return { ...state, execute, reset };

@@ -1,4 +1,6 @@
-﻿// WIRE-EXEMPT: Middleware engine called by SFC engines internally, not exposed via dispatcher
+﻿// DISPATCHER-WIRED: prism_calc:sfc_rank_hypotheses + sfc_ranker_stats (round-trip proven by
+// calcDispatcher.sfc-ranker-wire.test.ts). The prior "not exposed via dispatcher" WIRE-EXEMPT marker was
+// STALE -- that exposure shipped (9aa9ce20f2); corrected 2026-06-22 (U-SFC-WIRE-EXEMPT-AUDIT).
 /**
  * SFCMultiHypothesisRankerEngine â€” U-PPG-SFC-09
  * ==============================================
@@ -34,6 +36,8 @@ import { z } from "zod";
 import { SFCRAGWarmStartEngine, type SFCHistoricalPrior } from "./SFCRAGWarmStartEngine.js";
 import { CitationSchema, type Citation } from "../schemas/citationSchema.js";
 import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup } from "../physics/constants.js";
+import { SFCProvenanceWireEngine } from "./SFCProvenanceWireEngine.js";
+import { SFCProvenanceSchema, type SFCProvenance, type FPSSourceType } from "../schemas/sfcProvenanceSchema.js";
 
 // â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -198,6 +202,13 @@ export const SFCMultiHypothesisRankerOutputSchema = z.object({
   citations: z.array(CitationSchema).describe("All provenance citations"),
   ranking_time_ms: z.number().describe("Total ranking latency"),
 
+  // Auditable provenance attached by SFCProvenanceWireEngine (U-SFC-PROVENANCE-WIRE)
+  // Optional: present on ok=true when at least one ranked candidate exists; best-effort
+  // on ok=false. Never undefined when ok=true and ranked_candidates is non-empty.
+  provenance: SFCProvenanceSchema.optional()
+    .describe("Auditable provenance record (fps_source + citations + SHA-256 audit_hash); " +
+              "fulfills surfaces_into: SFCProvenanceWireEngine.fps_source contract"),
+
   warnings: z.array(z.string()).describe("Any warnings during ranking"),
 }).describe("Multi-hypothesis ranker output");
 export type SFCMultiHypothesisRankerOutput = z.infer<typeof SFCMultiHypothesisRankerOutputSchema>;
@@ -346,6 +357,60 @@ export class SFCMultiHypothesisRankerEngine {
       warnings.push(`Ranking latency ${totalTime.toFixed(1)}ms exceeds 300ms target`);
     }
 
+    // Attach auditable provenance from SFCProvenanceWireEngine (U-SFC-PROVENANCE-WIRE).
+    // ADDITIVE read-only: provenance never alters ranking scores or safety decisions.
+    // Wrapped in try/catch: a provenance failure MUST NOT affect the recommendation (R12).
+    let provenance: SFCProvenance | undefined;
+    if (rankedCandidates.length > 0) {
+      try {
+        const winner = rankedCandidates[0];
+        // Map HypothesisSource -> FPSSourceType (the provenance schema's enum).
+        // kienzle_prior + taylor_prior are pure physics formulas.
+        const fpsSrc: FPSSourceType =
+          winner.source === "kienzle_prior" || winner.source === "taylor_prior"
+            ? "formula"
+            : (winner.source as FPSSourceType);
+
+        // Build RAG hits from winning candidate's contributing priors for richer
+        // provenance on rag/hybrid winners. Formula winners get no rag_hits.
+        const ragHits =
+          (fpsSrc === "rag" || fpsSrc === "hybrid") && winner.contributing_priors.length > 0
+            ? winner.contributing_priors.map(pid => ({
+                program_id: pid,
+                similarity: 0.6,    // Conservative similarity -- exact score not carried through ranker
+                material_match: true,
+              }))
+            : undefined;
+
+        const citeResult = SFCProvenanceWireEngine.cite({
+          engine: ENGINE_NAME,
+          material: query.material,
+          iso_group: isoGroup,
+          operation: query.operation ?? undefined,
+          machine_id: query.machine_id ?? undefined,
+          // Pass adapter_id for adapter/hybrid sources so the provenance traces it
+          adapter_id: winner.source_id && (fpsSrc === "adapter" || fpsSrc === "hybrid")
+            ? winner.source_id
+            : undefined,
+          rag_hits: ragHits,
+          // Recommended values from the winning candidate (point estimates)
+          recommended: {
+            sfm: winner.sfm.point_estimate,
+            fpt: winner.fpt.point_estimate,
+            doc: winner.doc.point_estimate,
+          },
+        });
+        // Attach provenance regardless of ok flag (best-effort metadata -- R12: always audit)
+        provenance = citeResult.provenance;
+        if (!citeResult.ok && citeResult.warning) {
+          warnings.push(`Provenance: ${citeResult.warning}`);
+        }
+      } catch (err) {
+        // Provenance is telemetry -- never let it break the recommendation
+        warnings.push(`Provenance attach failed (non-fatal): ${String(err)}`);
+      }
+    }
+
     return {
       ok: true,
       ranked_candidates: rankedCandidates,
@@ -357,6 +422,7 @@ export class SFCMultiHypothesisRankerEngine {
       rag_retrieval_time_ms: ragRetrievalTime,
       citations,
       ranking_time_ms: totalTime,
+      provenance,
       warnings,
     };
   }

@@ -61,6 +61,23 @@ export interface ManifestCounts {
   algorithms?: number;
 }
 
+/**
+ * Aggregate "what PRISM knows about the H: drive" snapshot -- capability counts
+ * plus JM Die test-shop corpus awareness. Returned by getFullDriveAwareness().
+ */
+export interface FullDriveAwareness {
+  /** PRISM capability counts (engines/dispatchers/actions/hooks/skills/tribalTips/formulas/algorithms). */
+  prism: ManifestCounts;
+  /** JM Die test-shop corpus awareness rooted on the H: drive. */
+  jmDie: {
+    customerCount: number;
+    machineTypes: string[];
+    customersByMachineType: Record<string, number>;
+  };
+  manifestVersion: string;
+  lastUpdated: string;
+}
+
 export interface EngineEntry {
   name: string;
   path: string;
@@ -199,7 +216,7 @@ const QUERY_STOP_TERMS = new Set([
 // ENGINE IMPLEMENTATION
 // ============================================================================
 
-class PRISMSelfAwarenessEngine {
+export class PRISMSelfAwarenessEngine {
   private manifest: CapabilityManifest | null = null;
   private lastRefresh: Date | null = null;
   private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -843,6 +860,35 @@ class PRISMSelfAwarenessEngine {
       // Best-effort.
     }
     return paths;
+  }
+
+  /**
+   * Aggregate drive-awareness snapshot: PRISM capability counts (from the
+   * capability manifest) + JM Die test-shop corpus stats (customer count +
+   * machine-type mix). One call answers "what does PRISM know about the H:
+   * drive". Additive accessor over getManifest()/getJMDieCustomers() and
+   * best-effort -- a missing JM Die root yields customerCount 0, never throws.
+   */
+  async getFullDriveAwareness(): Promise<FullDriveAwareness> {
+    const manifest = await this.getManifest();
+    const customers = this.getJMDieCustomers();
+    const customersByMachineType: Record<string, number> = {};
+    for (const c of customers) {
+      for (const mt of c.machineTypes) {
+        const tag = mt.toLowerCase();
+        customersByMachineType[tag] = (customersByMachineType[tag] ?? 0) + 1;
+      }
+    }
+    return {
+      prism: manifest.counts,
+      jmDie: {
+        customerCount: customers.length,
+        machineTypes: Object.keys(customersByMachineType).sort(),
+        customersByMachineType,
+      },
+      manifestVersion: manifest.version,
+      lastUpdated: manifest.lastUpdated,
+    };
   }
 
   /** Map a JM Die top-level folder name onto a normalized machine-type tag. */

@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-26T20:00:00Z",
+  "purpose": "Comprehensive vendor expansion for the lathe wizard — top-25 tooling + top-25 machine + 10+ holder + 10+ workholding + manufacturing-media sources. Complements lathe-tribal-master-index-2026-05-26.json (which carries the 14 deep-curated tooling vendors with grade tables). This file is the BREADTH layer; the master index is the DEPTH layer.",
+  "domain": "lathe",
+  "cross_domain": ["milling"],
+  "confidence": 0.5,
+  "needs_curation": true,
+  "tooling_vendors_top_25": {
+    "tier_a_already_indexed_with_grade_tables": [
+      { "name": "Sandvik Coromant",     "site": "https://www.sandvik.coromant.com",   "depth_in_master_index": "yes" },
+      { "name": "Iscar",                 "site": "https://www.iscar.com",              "depth_in_master_index": "yes" },
+      { "name": "Widia (Kennametal)",    "site": "https://www.widia.com",              "depth_in_master_index": "yes" },
+      { "name": "Ingersoll Cutting Tools","site": "https://www.ingersoll-imc.com",     "depth_in_master_index": "yes" },
+      { "name": "Dapra",                 "site": "https://www.dapra.com",              "depth_in_master_index": "yes" },
+      { "name": "PTSolutions (PTS)",     "site": "https://www.pts-tools.com",          "depth_in_master_index": "yes" },
+      { "name": "Kennametal",            "site": "https://www.kennametal.com",         "depth_in_master_index": "yes" },
+      { "name": "Korloy",                "site": "https://www.korloy.com",             "depth_in_master_index": "yes" },
+      { "name": "Mitsubishi Materials",  "site": "https://www.mitsubishicarbide.com",  "depth_in_master_index": "yes" },
+      { "name": "Kyocera",               "site": "https://www.kyoceraprecisiontools.com","depth_in_master_index": "yes" },
+      { "name": "Walter (Sandvik group)","site": "https://www.walter-tools.com",       "depth_in_master_index": "yes" },
+      { "name": "Seco Tools",            "site": "https://www.secotools.com",          "depth_in_master_index": "yes" },
+      { "name": "Tungaloy",              "site": "https://tungaloy.com",               "depth_in_master_index": "yes" },
+      { "name": "Sumitomo Electric (Sumitool)", "site": "https://www.sumitool.com",   "depth_in_master_index": "yes" }
+    ],
+    "tier_b_breadth_to_curate": [
+      { "name": "TaeguTec (IMC group)", "site": "https://www.taegutec.com",       "specialty": "stainless + heat-resistant + threading; sister to Iscar/Ingersoll under IMC",                  "resources": ["https://www.taegutec.com/eng/sub01/sub01_01.asp"] },
+      { "name": "Ceratizit",             "site": "https://www.ceratizit.com",     "specialty": "Luxembourg/Austria — full turning/milling/grooving; TEAM CUTTING TOOLS brand families", "resources": ["https://cuttingtools.ceratizit.com"] },
+      { "name": "Horn (PAUL HORN)",      "site": "https://www.phorn.com",         "specialty": "grooving + parting + thread-turn specialist; precision insert geometry",                    "resources": ["https://www.phorn.com/en/products"] },
+      { "name": "Vargus",                "site": "https://www.vargus.com",        "specialty": "thread turning + thread milling + Shaviv deburring",                                          "resources": ["https://www.vargus.com/products"] },
+      { "name": "Carmex Precision Tools","site": "https://carmex.com",            "specialty": "indexable threading + chamfer-mill + miniature thread mills",                                  "resources": ["https://carmex.com/products/threading"] },
+      { "name": "Greenleaf",             "site": "https://www.greenleafcorporation.com", "specialty": "ceramic + CBN + whisker-reinforced ceramic for HRSA/Inconel/Hastelloy",                  "resources": ["https://www.greenleafcorporation.com/products"] },
+      { "name": "Mapal",                 "site": "https://www.mapal.com",         "specialty": "precision boring (ISO + actuated) + reamers + PCD",                                            "resources": ["https://www.mapal.com/en/products"] },
+      { "name": "Allied Machine & Engineering", "site": "https://www.alliedmachine.com", "specialty": "T-A holemaking + AccuPort threading + drill systems",                                  "resources": ["https://www.alliedmachine.com/products"] },
+      { "name": "Lamina Technologies",   "site": "https://www.lamina-tech.ch",    "specialty": "Swiss turning inserts + parting + threading economical grades",                                "resources": ["https://www.lamina-tech.ch/products"] },
+      { "name": "Pramet (Dormer Pramet)","site": "https://www.dormerpramet.com",  "specialty": "Czech turning + Dormer round tools; midmarket pricing",                                       "resources": ["https://www.dormerpramet.com/en-us/products/turning"] },
+      { "name": "YG-1",                  "site": "https://www.yg1.kr",            "specialty": "Korea — round tools but expanding turning; Aero-X grade for aero",                              "resources": ["https://www.yg1.kr/eng/products"] }
+    ]
+  },
+  "machine_vendors_top_25": {
+    "japanese_oem_giants": [
+      { "name": "Mazak (Yamazaki Mazak)", "site": "https://www.mazak.com",       "lathe_families": ["Integrex (5-axis mill-turn)", "QT (QUICK TURN)", "Hyper Quadrex", "MULTIPLEX"], "controller": "Mazatrol SmoothX/SmoothAi", "notes": "Industry mill-turn leader; Mazatrol conversational is shop favorite" },
+      { "name": "Okuma",                  "site": "https://www.okuma.com",       "lathe_families": ["LB", "LU (multi-axis)", "LT (multi-turret)", "GENOS L", "MULTUS B"],            "controller": "OSP-P300/P500 (open architecture)", "notes": "ECG/Collision-avoidance + Thermo-Friendly built in" },
+      { "name": "DMG MORI",               "site": "https://www.dmgmori.com",     "lathe_families": ["CTX", "CLX", "NLX", "NTX (mill-turn)", "SPRINT 50/65 swiss"],                  "controller": "CELOS + Siemens/MAPPS/MELDAS", "notes": "Mori Seiki + Gildemeister merger; broad lineup" },
+      { "name": "Mori Seiki (DMG MORI)",  "site": "https://us.dmgmori.com",      "lathe_families": ["NLX", "NTX", "NZX (heavy)"],                                                  "controller": "MAPPS V (Fanuc-based)",      "notes": "Branding subset of DMG MORI — same machines US/JP market" },
+      { "name": "Tsugami",                "site": "https://www.tsugami.com",     "lathe_families": ["Swiss-type B (B0205/B0326)", "M-series", "S20 SwissTurn"],                     "controller": "Fanuc",                       "notes": "Swiss-type leader; precision-bar work" },
+      { "name": "Star Micronics",         "site": "https://www.starmicronics.com","lathe_families": ["SR-20/32 (swiss)", "SV-20/32", "SW/SX series"],                                "controller": "Fanuc + StarShield",          "notes": "Swiss-type fastener + medical/aerospace shop staple" },
+      { "name": "Citizen (Cincom)",       "site": "https://www.citizenmachinery.co.uk", "lathe_families": ["Cincom L/L20/L32 (swiss)", "M-series", "Miyano BNE/BNA fixed-head"], "controller": "Fanuc + Mitsubishi",          "notes": "Cincom = swiss; Miyano = fixed-headstock fastener" },
+      { "name": "Nakamura-Tome",          "site": "https://www.nakamura-tome.co.jp", "lathe_families": ["Super NTX (mill-turn)", "WT-series multi-turret", "AS-200 entry"],          "controller": "Fanuc with NT Smart-X HMI",   "notes": "Mill-turn + heavy job-shop work" },
+      { "name": "Hwacheon",               "site": "https://www.hwacheon.com",    "lathe_families": ["HI-TECH 200/450/700"],                                                        "controller": "Fanuc",                       "notes": "Korean OEM; high-rigidity boxway lathes" },
+      { "name": "Tornos",                 "site": "https://www.tornos.com",      "lathe_families": ["Swiss DECO 10/13/20", "SwissNano (medical micro)", "EvoDECO"],                "controller": "TB-DECO + Fanuc",             "notes": "Original swiss-type — Switzerland; medical/watch industry" }
+    ],
+    "us_korean_oem_market": [
+      { "name": "Haas Automation",        "site": "https://www.haascnc.com",     "lathe_families": ["ST (Standard Turning)", "DS (Dual-Spindle)", "TL (Toolroom)", "ChuckerLathe"], "controller": "Haas NGC (Fanuc-derived)",   "notes": "US shop staple; price/performance" },
+      { "name": "Hardinge",               "site": "https://www.hardinge.com",    "lathe_families": ["Talent 6/8/10", "T-Series Super Precision", "Quest 8/10/8/65"],                "controller": "Fanuc + GE Fanuc",            "notes": "Super-precision specialty; Sjogren collet chucks" },
+      { "name": "Doosan / DN Solutions",  "site": "https://www.dn-solutions.com","lathe_families": ["PUMA", "LYNX", "TT (twin-turret)", "MX (mill-turn)"],                          "controller": "Fanuc + Doosan iCNC",         "notes": "Doosan re-branded DN Solutions 2022; major Korean OEM" },
+      { "name": "Hyundai WIA",            "site": "https://www.hyundai-wia.com", "lathe_families": ["HD/HD M-series", "SE-series", "L-series", "XF mill-turn"],                     "controller": "Fanuc + Siemens",             "notes": "Korean automotive supplier turned tool maker" },
+      { "name": "Goodway",                "site": "https://www.goodwaycnc.com",  "lathe_families": ["GS/GA/GT series", "TM mill-turn", "Solar series"],                             "controller": "Fanuc",                       "notes": "Taiwan OEM; broad lineup midmarket" },
+      { "name": "Eurotech",               "site": "https://www.eurotechelite.com","lathe_families": ["Mighty B-series", "Multipex", "Quattroflex"],                                  "controller": "Fanuc + Siemens",             "notes": "US distributor for Taiwanese OEM" },
+      { "name": "Quicktech",              "site": "https://www.quicktech.us",    "lathe_families": ["S series swiss-type"],                                                        "controller": "Fanuc",                       "notes": "Taiwanese swiss-type; medical/fastener focus" },
+      { "name": "Tongtai",                "site": "https://www.tongtai.com.tw",  "lathe_families": ["TNL/TNX series + ST series"],                                                 "controller": "Fanuc",                       "notes": "Taiwan; budget-tier turning + automation" },
+      { "name": "Romi",                   "site": "https://www.romi.com",        "lathe_families": ["C-series flatbed", "G-series", "T-series", "GL mill-turn"],                   "controller": "Fanuc + Siemens",             "notes": "Brazil OEM; heavy-duty industrial focus" },
+      { "name": "INDEX TRAUB",            "site": "https://www.index-werke.com", "lathe_families": ["INDEX C/G/R production", "TRAUB TNL multi-slide swiss", "MS multi-spindle"], "controller": "Siemens + Fanuc",             "notes": "Germany; multi-spindle automotive + medical leader" }
+    ],
+    "european_special_segment": [
+      { "name": "EMAG",                   "site": "https://www.emag.com",        "lathe_families": ["VL/VLC pickup vertical-turn", "VTC", "VSC inverted spindle"],                "controller": "Siemens",                     "notes": "Inverted-vertical-spindle pickup turning — automotive gear/chassis" },
+      { "name": "WFL Millturn",           "site": "https://www.wfl.at",          "lathe_families": ["M-series mill-turn (M30/M50/M120)"],                                          "controller": "Siemens",                     "notes": "Austria; aerospace heavy mill-turn" },
+      { "name": "Schaublin",              "site": "https://www.schaublin.com",   "lathe_families": ["102/125/180 precision (manual + CNC)"],                                       "controller": "Fanuc + manual",              "notes": "Swiss watch/medical precision toolroom" },
+      { "name": "Hembrug Machine Tools",  "site": "https://www.hembrug.com",     "lathe_families": ["Mikroturn (hard-turning ultra-precision)"],                                   "controller": "Siemens",                     "notes": "Sub-micron hard-turning — bearing/medical" },
+      { "name": "Hanwha",                 "site": "https://www.hanwhamachinery.com", "lathe_families": ["XD swiss-type 12/20/26/38"],                                              "controller": "Fanuc",                       "notes": "Korean — entry-mid swiss-type" }
+    ]
+  },
+  "tool_holders_top_10_plus": [
+    { "name": "BIG Daishowa",           "site": "https://www.bigdaishowa.com",   "specialty": "BIG-PLUS dual-contact + Mega Chuck + hydraulic + shrinkfit + BBT/HSK", "resources_on_disk": "resources/MANUFACTURER_CATALOGS/uploaded/ (BIG DAISHOWA-tool holders.zip)" },
+    { "name": "Schunk",                 "site": "https://schunk.com",            "specialty": "TENDO hydraulic + TRIBOS polygonal + SINO-R shrink + Vero-S zero-point" },
+    { "name": "Kennametal",             "site": "https://www.kennametal.com",    "specialty": "KM4X + ER collet + side-lock end-mill holders + boring bars + Capto-compatible" },
+    { "name": "Sandvik Coromant Capto", "site": "https://www.sandvik.coromant.com", "specialty": "Coromant Capto polygonal interface — industry standard for modular quick-change in turning + multi-task" },
+    { "name": "Lyndex-Nikken",          "site": "https://lyndexnikken.com",      "specialty": "Nikken precision + Lyndex live tooling + angle heads + lathe BMT/VDI live tools" },
+    { "name": "Rego-Fix",               "site": "https://www.rego-fix.com",      "specialty": "ER + powRgrip mechanical-press tool clamping; turning Swiss collet specialty" },
+    { "name": "Haimer",                 "site": "https://www.haimer-usa.com",    "specialty": "Shrink-fit + Power Clamp + balancing systems for high-spindle holders" },
+    { "name": "Erickson (Kennametal)",  "site": "https://www.kennametal.com/erickson", "specialty": "End-mill holders + ER + side-lock historical leader (now Kennametal sub-brand)" },
+    { "name": "Showa Tools (Wohlhaupter)","site": "https://www.showa-tool.com",  "specialty": "BBT dual-contact + Japan high-precision; boring heads via Wohlhaupter sister" },
+    { "name": "Albrecht Precision",     "site": "https://www.albrechtprecisionllc.com", "specialty": "Keyless drill chucks; precision tapping/drilling" },
+    { "name": "Briney Tooling",         "site": "https://www.brineytooling.com", "specialty": "End-mill holders + side-lock + ER for US shops" },
+    { "name": "Eppinger",               "site": "https://www.eppinger-usa.com",  "specialty": "BMT (Block Mounted Tooling) + VDI live tooling for turning centers" }
+  ],
+  "workholding_top_10_plus": [
+    { "name": "Kurt Manufacturing",     "site": "https://www.kurtworkholding.com", "specialty": "AngLock vise (industry standard) + 4-jaw + dual-station + soft jaws + lathe chucks" },
+    { "name": "Schunk Workholding",     "site": "https://schunk.com",            "specialty": "Tandem stationary + ROTA THW lathe chucks + Vero-S quick-change pallet/fixture + magnetic" },
+    { "name": "Orange Vise Co.",        "site": "https://www.orangevise.com",    "specialty": "Modular precision vises (V550 series) + soft jaws + dovetail; resources/MANUFACTURER_CATALOGS/uploaded/ (2016 catalog)" },
+    { "name": "Jergens",                "site": "https://www.jergensinc.com",    "specialty": "Drop & Zero pallet + Ball Lock receivers + lift handles + clamps" },
+    { "name": "Mitee-Bite",             "site": "https://www.miteebite.com",     "specialty": "TalonGrip + Pitbull edge clamps + low-profile lathe jaw inserts" },
+    { "name": "Saunders Machine Works", "site": "https://shop.saundersmachineworks.com", "specialty": "Mod Vise (modular fixture plate) + soft jaws + lathe chuck soft jaws" },
+    { "name": "5th Axis",               "site": "https://www.5thaxis.com",       "specialty": "Self-Centering Vise + dovetail + 5-axis fixture pyramids + tombstones" },
+    { "name": "Hardinge",               "site": "https://www.hardinge.com",      "specialty": "Sjogren + Sure-Grip dead-length collet chucks + 3-jaw + 4-jaw lathe chucks" },
+    { "name": "Royal Products",         "site": "https://www.royalprod.com",     "specialty": "Live centers + Quick-Grip collet chucks + 5C/16C/3J collet systems" },
+    { "name": "Heinrich (Northfield)",  "site": "https://www.heinrichco.com",    "specialty": "Collets + step clamps + manual + pneumatic; toolroom standard" },
+    { "name": "LMC Workholding",        "site": "https://www.lmcworkholding.com", "specialty": "Power chucks (lathe) + collet chucks + master jaws + custom job-shop tooling" },
+    { "name": "Northfield Precision",   "site": "https://www.northfield.com",    "specialty": "4-jaw + 3-jaw + air chucks + soft jaws + super-precision lathe chucks" },
+    { "name": "Toolmex Industrial",     "site": "https://toolmex.com",           "specialty": "Bison-Bial lathe chucks (Polish) + indexers + tombstones; price-competitive" }
+  ],
+  "manufacturing_media_and_online_sources": {
+    "print_and_digital_magazines": [
+      { "name": "Modern Machine Shop", "site": "https://www.mmsonline.com",        "focus": "CNC machining trends, technology, case studies — Gardner Business Media flagship" },
+      { "name": "Cutting Tool Engineering", "site": "https://www.ctemag.com",      "focus": "Tooling-focused — insert/coating/grade news + applications" },
+      { "name": "Production Machining","site": "https://www.productionmachining.com", "focus": "Precision turned-parts + swiss-type + screw-machine + fastener" },
+      { "name": "MoldMaking Technology","site": "https://www.moldmakingtechnology.com", "focus": "Mold/die shops — secondary lathe ops + EDM" },
+      { "name": "Manufacturing Engineering", "site": "https://www.sme.org/technologies/articles", "focus": "SME (Society of Manufacturing Engineers) — broad MFG technology" },
+      { "name": "Aerospace Manufacturing & Design", "site": "https://www.aerospacemanufacturinganddesign.com", "focus": "Aerospace specific — titanium/Inconel machining + tooling" },
+      { "name": "Manufacturing News",  "site": "https://www.manufacturingnews.com", "focus": "US policy + industry news" },
+      { "name": "Smart Manufacturing", "site": "https://www.sme.org/smart-manufacturing", "focus": "Industry 4.0 + automation + data" }
+    ],
+    "online_communities_and_forums": [
+      { "name": "Practical Machinist",  "site": "https://www.practicalmachinist.com", "focus": "Largest US machinist forum; lathe/mill/EDM sub-forums with operator-level tribal" },
+      { "name": "CNCZone",              "site": "https://www.cnczone.com",            "focus": "DIY + small-shop CNC community; controller-specific subforums" },
+      { "name": "Eastern Mfg Forums",   "site": "https://www.machinistsite.com",      "focus": "Smaller community; international perspectives" }
+    ],
+    "youtube_channels_high_signal": [
+      { "name": "Titans of CNC Academy","site": "https://www.youtube.com/@titansofcnc","focus": "Free CAM/programming/lathe training — Titan Gilroy" },
+      { "name": "Edge Precision",       "site": "https://www.youtube.com/@EdgePrecision","focus": "Real shop lathe + mill-turn programming, no marketing fluff" },
+      { "name": "NYC CNC",              "site": "https://www.youtube.com/@nyccnc",   "focus": "Practical Tormach/Haas workflows" },
+      { "name": "Haas Automation",      "site": "https://www.youtube.com/@HaasAutomation","focus": "OEM channel — Haas-specific tips" },
+      { "name": "MachiningDoctor",      "site": "https://www.machiningdoctor.com",    "focus": "Calculator + grade-chart reference site (already cited in master index)" },
+      { "name": "Abom79",               "site": "https://www.youtube.com/@abom79",   "focus": "Manual + CNC; heavy industrial repair perspective" }
+    ],
+    "podcasts": [
+      { "name": "MFG Tribe",            "site": "https://mfgtribe.com",               "focus": "Shop-owner interviews + industry trends" },
+      { "name": "Machine Shop Mastery", "site": "https://machineshopmastery.com",     "focus": "Business + ops side of running a shop" }
+    ]
+  },
+  "totals": {
+    "tooling_vendors_indexed":   "14 deep + 11 breadth = 25",
+    "machine_vendors_indexed":   "25 (10 Japanese + 10 US/Korean/Taiwanese + 5 European specialty)",
+    "tool_holder_vendors":       "12",
+    "workholding_vendors":       "13",
+    "media_sources":             "8 magazines + 3 forums + 6 YouTube channels + 2 podcasts = 19"
+  },
+  "follow_up_units": [
+    { "id": "U-LATHE-VENDOR-EXPANSION-DEEP-CURATE", "priority": "P1", "scope": "deep-curate the 11 tier-B tooling vendors (TaeguTec/Ceratizit/Horn/Vargus/Carmex/Greenleaf/Mapal/Allied/Lamina/Pramet/YG-1) — pull grade tables to match the 14 tier-A vendors' depth in master tribal index" },
+    { "id": "U-LATHE-MACHINE-VENDOR-MODELS",        "priority": "P1", "scope": "for each of 25 machine vendors, pull specific lathe model specs (max turning diameter / max workpiece length / max spindle RPM / bar capacity / turret stations / live-tool capability / Y-axis) into a queryable machine-specs JSON; wire as second axis (alongside material+operation) in wizard_query_records" },
+    { "id": "U-LATHE-HOLDER-MASTER-INDEX",          "priority": "P2", "scope": "extend master tribal index with holder records: BMT vs VDI vs CAPTO vs HSK + per-holder shank size compatibility + brand cross-reference" },
+    { "id": "U-LATHE-WORKHOLDING-MASTER-INDEX",     "priority": "P2", "scope": "extend master tribal index with workholding: chuck size + jaw style + collet capacity + grip force; cross-reference with each machine vendor's spindle nose (A2-5/6/8/11)" },
+    { "id": "U-LATHE-MEDIA-INGEST-PIPELINE",        "priority": "P2", "scope": "scheduled scraper for Modern Machine Shop + Cutting Tool Engineering RSS feeds → filter lathe-tagged articles → emit candidate tribal records; operator approves before promotion" }
+  ]
+}

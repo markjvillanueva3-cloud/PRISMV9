@@ -1,0 +1,155 @@
+TAP version 13
+# Subtest: B2: slow Bash → hint
+ok 1 - B2: slow Bash → hint
+  ---
+  duration_ms: 1.4667
+  ...
+# Subtest: B2: fast Bash → null
+ok 2 - B2: fast Bash → null
+  ---
+  duration_ms: 0.1032
+  ...
+# Subtest: B3: grep with many hits → narrow hint
+ok 3 - B3: grep with many hits → narrow hint
+  ---
+  duration_ms: 0.1044
+  ...
+# Subtest: B3: grep with few hits → null
+ok 4 - B3: grep with few hits → null
+  ---
+  duration_ms: 0.0857
+  ...
+# Subtest: B4: Edit oversized → split hint
+ok 5 - B4: Edit oversized → split hint
+  ---
+  duration_ms: 0.3507
+  ...
+# Subtest: B4: Edit small → null
+ok 6 - B4: Edit small → null
+  ---
+  duration_ms: 0.1242
+  ...
+# Subtest: B6: Task oversized return → Ollama summarize hint
+ok 7 - B6: Task oversized return → Ollama summarize hint
+  ---
+  duration_ms: 0.2171
+  ...
+# Subtest: B6: Task small return → null
+ok 8 - B6: Task small return → null
+  ---
+  duration_ms: 0.1517
+  ...
+# Subtest: formatNudge: null classification → null
+ok 9 - formatNudge: null classification → null
+  ---
+  duration_ms: 0.3576
+  ...
+# Subtest: formatNudge: includes gap tag
+ok 10 - formatNudge: includes gap tag
+  ---
+  duration_ms: 0.3793
+  ...
+# Subtest: signatureFor: same Bash command yields same sig
+ok 11 - signatureFor: same Bash command yields same sig
+  ---
+  duration_ms: 1.124
+  ...
+# Subtest: signatureFor: different commands → different sigs
+ok 12 - signatureFor: different commands → different sigs
+  ---
+  duration_ms: 0.148
+  ...
+# Subtest: signatureFor: Read with offset/limit varies sig
+ok 13 - signatureFor: Read with offset/limit varies sig
+  ---
+  duration_ms: 0.1686
+  ...
+# Subtest: signatureFor: WebFetch URL → sig
+ok 14 - signatureFor: WebFetch URL → sig
+  ---
+  duration_ms: 0.1469
+  ...
+# Subtest: signatureFor: unsupported tool → null
+ok 15 - signatureFor: unsupported tool → null
+  ---
+  duration_ms: 0.1048
+  ...
+# Subtest: isCacheHit: fresh entry hits
+ok 16 - isCacheHit: fresh entry hits
+  ---
+  duration_ms: 0.1763
+  ...
+# Subtest: isCacheHit: expired entry misses
+ok 17 - isCacheHit: expired entry misses
+  ---
+  duration_ms: 0.1025
+  ...
+# Subtest: isCacheHit: missing entry → false
+ok 18 - isCacheHit: missing entry → false
+  ---
+  duration_ms: 0.0902
+  ...
+# Subtest: formatDedupNudge: includes tool name + truncated sig
+ok 19 - formatDedupNudge: includes tool name + truncated sig
+  ---
+  duration_ms: 0.2868
+  ...
+# Subtest: isStableHit: fresh entry hits
+ok 20 - isStableHit: fresh entry hits
+  ---
+  duration_ms: 1.518
+  ...
+# Subtest: isStableHit: expired returns false
+ok 21 - isStableHit: expired returns false
+  ---
+  duration_ms: 0.1111
+  ...
+# Subtest: isStableHit: missing key → false
+ok 22 - isStableHit: missing key → false
+  ---
+  duration_ms: 0.0902
+  ...
+# Subtest: wikiCacheGet/Put: round-trip same session
+ok 23 - wikiCacheGet/Put: round-trip same session
+  ---
+  duration_ms: 0.1591
+  ...
+# Subtest: wikiCacheGet: different session → null (session-scoped)
+ok 24 - wikiCacheGet: different session → null (session-scoped)
+  ---
+  duration_ms: 0.1705
+  ...
+# Subtest: wikiCacheGet: expired entry returns null
+ok 25 - wikiCacheGet: expired entry returns null
+  ---
+  duration_ms: 0.1217
+  ...
+# Subtest: aggregateToolCosts: sorts by token estimate desc
+ok 26 - aggregateToolCosts: sorts by token estimate desc
+  ---
+  duration_ms: 0.2392
+  ...
+# Subtest: aggregateToolCosts: empty input → []
+ok 27 - aggregateToolCosts: empty input → []
+  ---
+  duration_ms: 0.8109
+  ...
+# Subtest: formatTopCostReport: emits markdown table
+ok 28 - formatTopCostReport: emits markdown table
+  ---
+  duration_ms: 0.4725
+  ...
+# Subtest: formatTopCostReport: empty → placeholder text
+ok 29 - formatTopCostReport: empty → placeholder text
+  ---
+  duration_ms: 0.3412
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 108.8194

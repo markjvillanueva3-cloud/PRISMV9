@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cost-optimize-lathe` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cost-optimize-lathe.md` |
+| Source | `C:/Users/wompu/.claude/commands/cost-optimize-lathe.md` |
 | Model | default |
 | Tags | _(none)_ |
 

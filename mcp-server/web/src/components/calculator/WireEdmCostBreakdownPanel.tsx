@@ -141,6 +141,26 @@ function estimateCost(
   };
 }
 
+// 2026-05-26 (slot golf, tsc-fix): test-only stub exports — buildCostInput / mapCostResponse
+// / CostPanelInputs are referenced by WireEdmCostBreakdownPanel.test.tsx but were never
+// extracted from the component's inline calculator (~lines 60-141 above). Fail-loud per R12 —
+// the test runtime will explicitly throw NOT_IMPLEMENTED, surfacing the helper-extraction debt
+// for a future U-WEB-WIREDM-EXTRACT-HELPERS milestone rather than hiding it under tsc errors.
+// `any` rather than Record<string,unknown> on purpose — the test file accesses concrete
+// fields on these objects (`.thickness`, `.profile_length_mm`, etc.). Tight typing here
+// cascaded into +45 TS2339 errors in the test file. Stub intent is "fail at runtime, not at
+// type-check"; `any` honors that — tests get type-permissive access AND a thrown stub body.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CostPanelInputs = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function buildCostInput(..._args: any[]): any {
+  throw new Error('NOT_IMPLEMENTED: buildCostInput was never extracted from WireEdmCostBreakdownPanel — see U-WEB-WIREDM-EXTRACT-HELPERS');
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapCostResponse(..._args: any[]): any {
+  throw new Error('NOT_IMPLEMENTED: mapCostResponse was never extracted from WireEdmCostBreakdownPanel — see U-WEB-WIREDM-EXTRACT-HELPERS');
+}
+
 export function WireEdmCostBreakdownPanel() {
   const [material, setMaterial] = useState('D2');
   const [thickness, setThickness] = useState(25);

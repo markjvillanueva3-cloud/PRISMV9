@@ -1,0 +1,4768 @@
+{
+  "metadata": {
+    "name": "PRISM Master Alarm Database",
+    "version": "1.0.0",
+    "created": "2026-01-28T06:35:34.423240",
+    "total_alarms": 266,
+    "controller_families": [
+      "FANUC",
+      "HAAS",
+      "HEIDENHAIN",
+      "MAZAK",
+      "OKUMA",
+      "SIEMENS"
+    ],
+    "alarms_by_family": {
+      "FANUC": 89,
+      "HAAS": 52,
+      "HEIDENHAIN": 33,
+      "MAZAK": 27,
+      "OKUMA": 27,
+      "SIEMENS": 38
+    }
+  },
+  "alarms": [
+    {
+      "alarm_id": "ALM-FANUC-0000",
+      "alarm_code": "000",
+      "alarm_number": 0,
+      "alarm_name": "PLEASE TURN OFF POWER",
+      "category": "PARAMETER",
+      "severity": "MEDIUM",
+      "message_text": "PLEASE TURN OFF POWER",
+      "description": "Parameter change requires power cycle to take effect",
+      "causes": [
+        "Parameter was changed that requires restart"
+      ],
+      "quick_fix": "Turn power off and on",
+      "requires_power_cycle": true,
+      "requires_service": false,
+      "machine_stoppage": "WARNING_ONLY"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0001",
+      "alarm_code": "001",
+      "alarm_number": 1,
+      "alarm_name": "TH PARITY ALARM",
+      "category": "COMMUNICATION",
+      "severity": "MEDIUM",
+      "message_text": "TH PARITY ALARM",
+      "description": "Parity error detected in tape or RS232 communication",
+      "causes": [
+        "Bad cable connection",
+        "Incorrect baud rate",
+        "Electrical noise",
+        "Damaged cable"
+      ],
+      "quick_fix": "Check cable connections and resend program",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0002",
+      "alarm_code": "002",
+      "alarm_number": 2,
+      "alarm_name": "TV PARITY ALARM",
+      "category": "COMMUNICATION",
+      "severity": "MEDIUM",
+      "message_text": "TV PARITY ALARM",
+      "description": "Character count error in received data",
+      "causes": [
+        "Incorrect program format",
+        "Communication settings mismatch"
+      ],
+      "quick_fix": "Check program format and resend",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0003",
+      "alarm_code": "003",
+      "alarm_number": 3,
+      "alarm_name": "TOO MANY DIGITS",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "TOO MANY DIGITS",
+      "description": "Number in program exceeds maximum allowed digits",
+      "causes": [
+        "Too many decimal places",
+        "Number too large for address"
+      ],
+      "quick_fix": "Reduce decimal places or numeric value",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0004",
+      "alarm_code": "004",
+      "alarm_number": 4,
+      "alarm_name": "ADDRESS NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "ADDRESS NOT FOUND",
+      "description": "Required address letter is missing from block",
+      "causes": [
+        "Missing X, Y, Z, or other required address"
+      ],
+      "quick_fix": "Add required address (X, Y, Z, etc.)",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0005",
+      "alarm_code": "005",
+      "alarm_number": 5,
+      "alarm_name": "NO DATA AFTER ADDRESS",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "NO DATA AFTER ADDRESS",
+      "description": "Address letter has no numeric value following it",
+      "causes": [
+        "Letter without number in G-code"
+      ],
+      "quick_fix": "Add numeric value after address letter",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0006",
+      "alarm_code": "006",
+      "alarm_number": 6,
+      "alarm_name": "ILLEGAL USE OF NEGATIVE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "ILLEGAL USE OF NEGATIVE",
+      "description": "Negative value used where only positive is allowed",
+      "causes": [
+        "Negative feedrate",
+        "Negative spindle speed",
+        "Negative tool number"
+      ],
+      "quick_fix": "Use positive value",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0007",
+      "alarm_code": "007",
+      "alarm_number": 7,
+      "alarm_name": "ILLEGAL USE OF DECIMAL",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "ILLEGAL USE OF DECIMAL",
+      "description": "Decimal point used where not allowed",
+      "causes": [
+        "Decimal in tool number",
+        "Decimal in program number"
+      ],
+      "quick_fix": "Remove decimal point",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0010",
+      "alarm_code": "010",
+      "alarm_number": 10,
+      "alarm_name": "IMPROPER G-CODE",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "IMPROPER G-CODE",
+      "description": "Invalid or unsupported G-code commanded",
+      "causes": [
+        "G-code not available on this control",
+        "Typo in G-code number"
+      ],
+      "quick_fix": "Check G-code validity for this control",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0011",
+      "alarm_code": "011",
+      "alarm_number": 11,
+      "alarm_name": "FEEDRATE NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "FEEDRATE NOT FOUND",
+      "description": "Cutting move commanded without feedrate",
+      "causes": [
+        "Missing F word in cutting block",
+        "F modal cancelled"
+      ],
+      "quick_fix": "Add F feedrate command",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0012",
+      "alarm_code": "012",
+      "alarm_number": 12,
+      "alarm_name": "IMPROPER FEEDRATE",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "IMPROPER FEEDRATE",
+      "description": "Feedrate is zero or negative",
+      "causes": [
+        "F0 commanded",
+        "Negative feedrate"
+      ],
+      "quick_fix": "Set positive feedrate value",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0014",
+      "alarm_code": "014",
+      "alarm_number": 14,
+      "alarm_name": "IMPROPER SPINDLE SPEED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "IMPROPER SPINDLE SPEED",
+      "description": "Spindle speed is zero or invalid",
+      "causes": [
+        "S0 commanded",
+        "Speed exceeds maximum"
+      ],
+      "quick_fix": "Set valid spindle speed",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0015",
+      "alarm_code": "015",
+      "alarm_number": 15,
+      "alarm_name": "TOO MANY AXES COMMANDED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "TOO MANY AXES COMMANDED",
+      "description": "More simultaneous axes than control allows",
+      "causes": [
+        "Too many axes in single block"
+      ],
+      "quick_fix": "Reduce number of simultaneous axes",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0020",
+      "alarm_code": "020",
+      "alarm_number": 20,
+      "alarm_name": "OVER TOLERANCE (X)",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "OVER TOLERANCE (X)",
+      "description": "X axis interpolation error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Servo parameters incorrect",
+        "Mechanical binding"
+      ],
+      "quick_fix": "Check program, reduce feedrate",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0021",
+      "alarm_code": "021",
+      "alarm_number": 21,
+      "alarm_name": "OVER TOLERANCE (Y)",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "OVER TOLERANCE (Y)",
+      "description": "Y axis interpolation error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Servo parameters incorrect",
+        "Mechanical binding"
+      ],
+      "quick_fix": "Check program, reduce feedrate",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0022",
+      "alarm_code": "022",
+      "alarm_number": 22,
+      "alarm_name": "OVER TOLERANCE (Z)",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "OVER TOLERANCE (Z)",
+      "description": "Z axis interpolation error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Servo parameters incorrect",
+        "Mechanical binding"
+      ],
+      "quick_fix": "Check program, reduce feedrate",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0029",
+      "alarm_code": "029",
+      "alarm_number": 29,
+      "alarm_name": "IMPROPER DWELL TIME",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "IMPROPER DWELL TIME",
+      "description": "Invalid dwell value in G04 command",
+      "causes": [
+        "P or X value missing or invalid"
+      ],
+      "quick_fix": "Check G04 parameter format",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0030",
+      "alarm_code": "030",
+      "alarm_number": 30,
+      "alarm_name": "IMPROPER WORK OFFSET",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "IMPROPER WORK OFFSET",
+      "description": "Invalid work offset G54-G59 commanded",
+      "causes": [
+        "G-code outside G54-G59 range",
+        "Extended offset not enabled"
+      ],
+      "quick_fix": "Use valid work offset G54-G59",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0100",
+      "alarm_code": "100",
+      "alarm_number": 100,
+      "alarm_name": "IMPROPER PARAMETER",
+      "category": "PARAMETER",
+      "severity": "MEDIUM",
+      "message_text": "IMPROPER PARAMETER",
+      "description": "Parameter setting error detected",
+      "causes": [
+        "Invalid parameter value",
+        "Parameter out of range"
+      ],
+      "quick_fix": "Check and correct parameter settings",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0101",
+      "alarm_code": "101",
+      "alarm_number": 101,
+      "alarm_name": "IMPROPER MACRO CALL",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "IMPROPER MACRO CALL",
+      "description": "G65/G66 macro call format error",
+      "causes": [
+        "Missing P number",
+        "Invalid argument format",
+        "Macro not found"
+      ],
+      "quick_fix": "Check macro call syntax",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0102",
+      "alarm_code": "102",
+      "alarm_number": 102,
+      "alarm_name": "ILLEGAL VARIABLE NUMBER",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "ILLEGAL VARIABLE NUMBER",
+      "description": "Variable number outside valid range",
+      "causes": [
+        "#variable number invalid",
+        "Protected variable access"
+      ],
+      "quick_fix": "Use valid variable range (#1-#33, #100-#199, #500-#999)",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0103",
+      "alarm_code": "103",
+      "alarm_number": 103,
+      "alarm_name": "DIVIDE BY ZERO",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "DIVIDE BY ZERO",
+      "description": "Division by zero attempted in macro",
+      "causes": [
+        "Denominator equals zero"
+      ],
+      "quick_fix": "Add zero check before division operation",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0104",
+      "alarm_code": "104",
+      "alarm_number": 104,
+      "alarm_name": "IMPROPER ADDRESS",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "IMPROPER ADDRESS",
+      "description": "Invalid address letter in macro call",
+      "causes": [
+        "Using G, L, N, O, or P as argument"
+      ],
+      "quick_fix": "Check macro arguments",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0109",
+      "alarm_code": "109",
+      "alarm_number": 109,
+      "alarm_name": "IMPROPER BLOCK NUMBER",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "IMPROPER BLOCK NUMBER",
+      "description": "Invalid N number format",
+      "causes": [
+        "N number too large",
+        "Invalid characters"
+      ],
+      "quick_fix": "Check N number format",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0110",
+      "alarm_code": "110",
+      "alarm_number": 110,
+      "alarm_name": "DATA OVERFLOW",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "DATA OVERFLOW",
+      "description": "Calculation result exceeds maximum value",
+      "causes": [
+        "Number too large after calculation"
+      ],
+      "quick_fix": "Reduce numeric values in calculation",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0111",
+      "alarm_code": "111",
+      "alarm_number": 111,
+      "alarm_name": "MISSING DO NUMBER",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "MISSING DO NUMBER",
+      "description": "WHILE statement without matching END",
+      "causes": [
+        "END statement missing or wrong number"
+      ],
+      "quick_fix": "Add matching END statement",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0112",
+      "alarm_code": "112",
+      "alarm_number": 112,
+      "alarm_name": "IMPROPER END NUMBER",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "IMPROPER END NUMBER",
+      "description": "END statement without matching WHILE",
+      "causes": [
+        "WHILE statement missing"
+      ],
+      "quick_fix": "Add matching WHILE statement",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0113",
+      "alarm_code": "113",
+      "alarm_number": 113,
+      "alarm_name": "IMPROPER NESTING",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "IMPROPER NESTING",
+      "description": "Loop nesting structure error",
+      "causes": [
+        "Loops crossing incorrectly",
+        "Too many nested loops"
+      ],
+      "quick_fix": "Check and fix loop structure",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0114",
+      "alarm_code": "114",
+      "alarm_number": 114,
+      "alarm_name": "MISSING SEQUENCE NUMBER",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "MISSING SEQUENCE NUMBER",
+      "description": "GOTO target N number not found",
+      "causes": [
+        "N block does not exist"
+      ],
+      "quick_fix": "Add target N block",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0115",
+      "alarm_code": "115",
+      "alarm_number": 115,
+      "alarm_name": "MISSING M99",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "MISSING M99",
+      "description": "Subprogram does not end with M99",
+      "causes": [
+        "M99 missing at end of subprogram"
+      ],
+      "quick_fix": "Add M99 to end of subprogram",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0116",
+      "alarm_code": "116",
+      "alarm_number": 116,
+      "alarm_name": "UNDEFINED PROGRAM",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "UNDEFINED PROGRAM",
+      "description": "M98/G65 called program does not exist",
+      "causes": [
+        "Program number not in memory",
+        "Wrong program number"
+      ],
+      "quick_fix": "Load program or correct program number",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0117",
+      "alarm_code": "117",
+      "alarm_number": 117,
+      "alarm_name": "IMPROPER P COMMAND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "IMPROPER P COMMAND",
+      "description": "Invalid P number format",
+      "causes": [
+        "P value missing or invalid"
+      ],
+      "quick_fix": "Check P format",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0118",
+      "alarm_code": "118",
+      "alarm_number": 118,
+      "alarm_name": "IMPROPER L COMMAND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "IMPROPER L COMMAND",
+      "description": "Invalid L number format",
+      "causes": [
+        "L value missing or invalid"
+      ],
+      "quick_fix": "Check L format",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0119",
+      "alarm_code": "119",
+      "alarm_number": 119,
+      "alarm_name": "EXCESSIVE NESTING",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "EXCESSIVE NESTING",
+      "description": "Too many levels of subprogram nesting",
+      "causes": [
+        "More than 4-10 levels deep (model dependent)"
+      ],
+      "quick_fix": "Reduce nesting depth",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0124",
+      "alarm_code": "124",
+      "alarm_number": 124,
+      "alarm_name": "IMPROPER M CODE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "IMPROPER M CODE",
+      "description": "Invalid or unsupported M-code",
+      "causes": [
+        "M-code not available",
+        "Typo"
+      ],
+      "quick_fix": "Check M-code validity",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0126",
+      "alarm_code": "126",
+      "alarm_number": 126,
+      "alarm_name": "IMPROPER T CODE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "IMPROPER T CODE",
+      "description": "Invalid tool number",
+      "causes": [
+        "Tool number exceeds maximum",
+        "Invalid format"
+      ],
+      "quick_fix": "Check T-code validity",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0401",
+      "alarm_code": "401",
+      "alarm_number": 401,
+      "alarm_name": "SERVO ALARM: VRDY OFF (X)",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "message_text": "SERVO ALARM: VRDY OFF (X)",
+      "description": "X axis servo ready signal is off",
+      "causes": [
+        "Servo amplifier fault",
+        "Power supply issue",
+        "Connection problem"
+      ],
+      "quick_fix": "Check X servo amplifier and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0402",
+      "alarm_code": "402",
+      "alarm_number": 402,
+      "alarm_name": "SERVO ALARM: VRDY OFF (Y)",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "message_text": "SERVO ALARM: VRDY OFF (Y)",
+      "description": "Y axis servo ready signal is off",
+      "causes": [
+        "Servo amplifier fault",
+        "Power supply issue",
+        "Connection problem"
+      ],
+      "quick_fix": "Check Y servo amplifier and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0403",
+      "alarm_code": "403",
+      "alarm_number": 403,
+      "alarm_name": "SERVO ALARM: VRDY OFF (Z)",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "message_text": "SERVO ALARM: VRDY OFF (Z)",
+      "description": "Z axis servo ready signal is off",
+      "causes": [
+        "Servo amplifier fault",
+        "Power supply issue",
+        "Connection problem"
+      ],
+      "quick_fix": "Check Z servo amplifier and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0410",
+      "alarm_code": "410",
+      "alarm_number": 410,
+      "alarm_name": "SERVO ALARM: EXCESS ERROR (X)",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "SERVO ALARM: EXCESS ERROR (X)",
+      "description": "X axis position error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Servo tuning",
+        "Motor/encoder fault"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics, verify servo parameters",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0411",
+      "alarm_code": "411",
+      "alarm_number": 411,
+      "alarm_name": "SERVO ALARM: EXCESS ERROR (Y)",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "SERVO ALARM: EXCESS ERROR (Y)",
+      "description": "Y axis position error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Servo tuning",
+        "Motor/encoder fault"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics, verify servo parameters",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0412",
+      "alarm_code": "412",
+      "alarm_number": 412,
+      "alarm_name": "SERVO ALARM: EXCESS ERROR (Z)",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "SERVO ALARM: EXCESS ERROR (Z)",
+      "description": "Z axis position error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Servo tuning",
+        "Motor/encoder fault"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics, verify servo parameters",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0417",
+      "alarm_code": "417",
+      "alarm_number": 417,
+      "alarm_name": "DIGITAL SERVO PARAM ERROR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "DIGITAL SERVO PARAM ERROR",
+      "description": "Servo parameter setting error",
+      "causes": [
+        "Wrong parameters for motor",
+        "Parameter corruption"
+      ],
+      "quick_fix": "Check axis parameters against motor specifications",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0420",
+      "alarm_code": "420",
+      "alarm_number": 420,
+      "alarm_name": "SYNC ERROR: EXCESS ERR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "SYNC ERROR: EXCESS ERR",
+      "description": "Synchronous axis error exceeded",
+      "causes": [
+        "Sync axis out of tolerance",
+        "Mechanical problem"
+      ],
+      "quick_fix": "Check synchronous axis settings",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0430",
+      "alarm_code": "430",
+      "alarm_number": 430,
+      "alarm_name": "AXIS SV MOTOR OVERHEAT (X)",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "message_text": "AXIS SV MOTOR OVERHEAT (X)",
+      "description": "X axis servo motor is overheating",
+      "causes": [
+        "Excessive load",
+        "Continuous operation",
+        "Cooling system fault"
+      ],
+      "quick_fix": "Allow cooling time, reduce load or duty cycle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0431",
+      "alarm_code": "431",
+      "alarm_number": 431,
+      "alarm_name": "AXIS SV MOTOR OVERHEAT (Y)",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "message_text": "AXIS SV MOTOR OVERHEAT (Y)",
+      "description": "Y axis servo motor is overheating",
+      "causes": [
+        "Excessive load",
+        "Continuous operation",
+        "Cooling system fault"
+      ],
+      "quick_fix": "Allow cooling time, reduce load or duty cycle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0432",
+      "alarm_code": "432",
+      "alarm_number": 432,
+      "alarm_name": "AXIS SV MOTOR OVERHEAT (Z)",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "message_text": "AXIS SV MOTOR OVERHEAT (Z)",
+      "description": "Z axis servo motor is overheating",
+      "causes": [
+        "Excessive load",
+        "Continuous operation",
+        "Cooling system fault"
+      ],
+      "quick_fix": "Allow cooling time, reduce load or duty cycle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0433",
+      "alarm_code": "433",
+      "alarm_number": 433,
+      "alarm_name": "AXIS SV MOTOR OVERHEAT (4)",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "message_text": "AXIS SV MOTOR OVERHEAT (4)",
+      "description": "4th axis servo motor is overheating",
+      "causes": [
+        "Excessive load",
+        "Continuous operation",
+        "Cooling system fault"
+      ],
+      "quick_fix": "Allow cooling time, reduce load or duty cycle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0460",
+      "alarm_code": "460",
+      "alarm_number": 460,
+      "alarm_name": "SOFT LIMIT OVER (X)",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "SOFT LIMIT OVER (X)",
+      "description": "X axis exceeded software travel limit",
+      "causes": [
+        "Program commands position outside limits",
+        "Work offset incorrect"
+      ],
+      "quick_fix": "Move inside limits, check work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0461",
+      "alarm_code": "461",
+      "alarm_number": 461,
+      "alarm_name": "SOFT LIMIT OVER (Y)",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "SOFT LIMIT OVER (Y)",
+      "description": "Y axis exceeded software travel limit",
+      "causes": [
+        "Program commands position outside limits",
+        "Work offset incorrect"
+      ],
+      "quick_fix": "Move inside limits, check work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0462",
+      "alarm_code": "462",
+      "alarm_number": 462,
+      "alarm_name": "SOFT LIMIT OVER (Z)",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "SOFT LIMIT OVER (Z)",
+      "description": "Z axis exceeded software travel limit",
+      "causes": [
+        "Program commands position outside limits",
+        "Work offset incorrect"
+      ],
+      "quick_fix": "Move inside limits, check work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0500",
+      "alarm_code": "500",
+      "alarm_number": 500,
+      "alarm_name": "OVER TRAVEL: +X",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "OVER TRAVEL: +X",
+      "description": "X axis hit positive hardware limit switch",
+      "causes": [
+        "Axis traveled too far in +X direction"
+      ],
+      "quick_fix": "Jog axis in -X direction while holding OT release",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0501",
+      "alarm_code": "501",
+      "alarm_number": 501,
+      "alarm_name": "OVER TRAVEL: -X",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "OVER TRAVEL: -X",
+      "description": "X axis hit negative hardware limit switch",
+      "causes": [
+        "Axis traveled too far in -X direction"
+      ],
+      "quick_fix": "Jog axis in +X direction while holding OT release",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0502",
+      "alarm_code": "502",
+      "alarm_number": 502,
+      "alarm_name": "OVER TRAVEL: +Y",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "OVER TRAVEL: +Y",
+      "description": "Y axis hit positive hardware limit switch",
+      "causes": [
+        "Axis traveled too far in +Y direction"
+      ],
+      "quick_fix": "Jog axis in -Y direction while holding OT release",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0503",
+      "alarm_code": "503",
+      "alarm_number": 503,
+      "alarm_name": "OVER TRAVEL: -Y",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "OVER TRAVEL: -Y",
+      "description": "Y axis hit negative hardware limit switch",
+      "causes": [
+        "Axis traveled too far in -Y direction"
+      ],
+      "quick_fix": "Jog axis in +Y direction while holding OT release",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0504",
+      "alarm_code": "504",
+      "alarm_number": 504,
+      "alarm_name": "OVER TRAVEL: +Z",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "OVER TRAVEL: +Z",
+      "description": "Z axis hit positive hardware limit switch",
+      "causes": [
+        "Axis traveled too far in +Z direction"
+      ],
+      "quick_fix": "Jog axis in -Z direction while holding OT release",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0505",
+      "alarm_code": "505",
+      "alarm_number": 505,
+      "alarm_name": "OVER TRAVEL: -Z",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "OVER TRAVEL: -Z",
+      "description": "Z axis hit negative hardware limit switch",
+      "causes": [
+        "Axis traveled too far in -Z direction"
+      ],
+      "quick_fix": "Jog axis in +Z direction while holding OT release",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0506",
+      "alarm_code": "506",
+      "alarm_number": 506,
+      "alarm_name": "OVER TRAVEL: +4",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "OVER TRAVEL: +4",
+      "description": "4th axis hit positive hardware limit",
+      "causes": [
+        "Axis traveled too far in positive direction"
+      ],
+      "quick_fix": "Jog axis in negative direction while holding OT release",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0507",
+      "alarm_code": "507",
+      "alarm_number": 507,
+      "alarm_name": "OVER TRAVEL: -4",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "OVER TRAVEL: -4",
+      "description": "4th axis hit negative hardware limit",
+      "causes": [
+        "Axis traveled too far in negative direction"
+      ],
+      "quick_fix": "Jog axis in positive direction while holding OT release",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0510",
+      "alarm_code": "510",
+      "alarm_number": 510,
+      "alarm_name": "STORED STROKE LIMIT +X",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "STORED STROKE LIMIT +X",
+      "description": "X+ software limit exceeded in auto mode",
+      "causes": [
+        "Program commands beyond soft limit"
+      ],
+      "quick_fix": "Modify program to stay within limits",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0511",
+      "alarm_code": "511",
+      "alarm_number": 511,
+      "alarm_name": "STORED STROKE LIMIT -X",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "STORED STROKE LIMIT -X",
+      "description": "X- software limit exceeded in auto mode",
+      "causes": [
+        "Program commands beyond soft limit"
+      ],
+      "quick_fix": "Modify program to stay within limits",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0512",
+      "alarm_code": "512",
+      "alarm_number": 512,
+      "alarm_name": "STORED STROKE LIMIT +Y",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "STORED STROKE LIMIT +Y",
+      "description": "Y+ software limit exceeded in auto mode",
+      "causes": [
+        "Program commands beyond soft limit"
+      ],
+      "quick_fix": "Modify program to stay within limits",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0513",
+      "alarm_code": "513",
+      "alarm_number": 513,
+      "alarm_name": "STORED STROKE LIMIT -Y",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "STORED STROKE LIMIT -Y",
+      "description": "Y- software limit exceeded in auto mode",
+      "causes": [
+        "Program commands beyond soft limit"
+      ],
+      "quick_fix": "Modify program to stay within limits",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0514",
+      "alarm_code": "514",
+      "alarm_number": 514,
+      "alarm_name": "STORED STROKE LIMIT +Z",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "STORED STROKE LIMIT +Z",
+      "description": "Z+ software limit exceeded in auto mode",
+      "causes": [
+        "Program commands beyond soft limit"
+      ],
+      "quick_fix": "Modify program to stay within limits",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0515",
+      "alarm_code": "515",
+      "alarm_number": 515,
+      "alarm_name": "STORED STROKE LIMIT -Z",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "STORED STROKE LIMIT -Z",
+      "description": "Z- software limit exceeded in auto mode",
+      "causes": [
+        "Program commands beyond soft limit"
+      ],
+      "quick_fix": "Modify program to stay within limits",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0701",
+      "alarm_code": "701",
+      "alarm_number": 701,
+      "alarm_name": "SPINDLE OVERHEAT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERHEAT",
+      "description": "Spindle motor temperature exceeded limit",
+      "causes": [
+        "Excessive cutting load",
+        "High speed continuous operation",
+        "Cooling system failure"
+      ],
+      "quick_fix": "Allow spindle to cool, reduce speed or load",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0702",
+      "alarm_code": "702",
+      "alarm_number": 702,
+      "alarm_name": "SPINDLE OVERLOAD",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERLOAD",
+      "description": "Spindle exceeded torque/current limit",
+      "causes": [
+        "Excessive cutting load",
+        "Dull tool",
+        "Incorrect cutting parameters"
+      ],
+      "quick_fix": "Reduce cutting load, check tool condition",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0703",
+      "alarm_code": "703",
+      "alarm_number": 703,
+      "alarm_name": "SPINDLE MOTOR FAULT",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "message_text": "SPINDLE MOTOR FAULT",
+      "description": "Spindle drive detected a fault condition",
+      "causes": [
+        "Drive fault",
+        "Motor winding problem",
+        "Encoder fault"
+      ],
+      "quick_fix": "Check spindle drive error code",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0704",
+      "alarm_code": "704",
+      "alarm_number": 704,
+      "alarm_name": "SPINDLE NOT AT SPEED",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "message_text": "SPINDLE NOT AT SPEED",
+      "description": "Spindle did not reach commanded speed in time",
+      "causes": [
+        "Excessive load at startup",
+        "Belt slip",
+        "Drive problem"
+      ],
+      "quick_fix": "Check spindle belt, reduce acceleration",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0705",
+      "alarm_code": "705",
+      "alarm_number": 705,
+      "alarm_name": "SPINDLE ORIENTATION FAULT",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "message_text": "SPINDLE ORIENTATION FAULT",
+      "description": "Spindle orientation (M19) failed",
+      "causes": [
+        "Orientation sensor problem",
+        "Belt slip",
+        "Parameter issue"
+      ],
+      "quick_fix": "Check orientation mechanism and sensors",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0709",
+      "alarm_code": "709",
+      "alarm_number": 709,
+      "alarm_name": "SPINDLE INTERFACE FAULT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE INTERFACE FAULT",
+      "description": "Communication error with spindle drive",
+      "causes": [
+        "Cable problem",
+        "Interface board fault",
+        "Drive fault"
+      ],
+      "quick_fix": "Check cables and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0710",
+      "alarm_code": "710",
+      "alarm_number": 710,
+      "alarm_name": "GEAR CHANGE FAULT",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "message_text": "GEAR CHANGE FAULT",
+      "description": "Spindle gear change did not complete",
+      "causes": [
+        "Gear not engaged",
+        "Mechanical interference",
+        "Sensor problem"
+      ],
+      "quick_fix": "Check gear change mechanism",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0749",
+      "alarm_code": "749",
+      "alarm_number": 749,
+      "alarm_name": "CS CONTOUR CTRL ALARM",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "CS CONTOUR CTRL ALARM",
+      "description": "C-axis contour control error",
+      "causes": [
+        "C-axis servo error",
+        "Synchronization error"
+      ],
+      "quick_fix": "Check C-axis configuration",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-0750",
+      "alarm_code": "750",
+      "alarm_number": 750,
+      "alarm_name": "SPINDLE SERIAL COMM ERR",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE SERIAL COMM ERR",
+      "description": "Serial communication failure with spindle",
+      "causes": [
+        "Cable fault",
+        "Communication parameter mismatch"
+      ],
+      "quick_fix": "Check serial connections and parameters",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2000",
+      "alarm_code": "2000",
+      "alarm_number": 2000,
+      "alarm_name": "ATC NOT READY",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "ATC NOT READY",
+      "description": "Automatic tool changer is not in ready state",
+      "causes": [
+        "ATC not homed",
+        "Interlock open",
+        "Previous fault"
+      ],
+      "quick_fix": "Check ATC ready signal and interlocks",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2001",
+      "alarm_code": "2001",
+      "alarm_number": 2001,
+      "alarm_name": "ARM NOT AT HOME",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "ARM NOT AT HOME",
+      "description": "Tool change arm is not in home position",
+      "causes": [
+        "Arm not returned to home",
+        "Home sensor issue"
+      ],
+      "quick_fix": "Move arm to home position manually or via reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2002",
+      "alarm_code": "2002",
+      "alarm_number": 2002,
+      "alarm_name": "MAGAZINE NOT READY",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "MAGAZINE NOT READY",
+      "description": "Tool magazine is not in position",
+      "causes": [
+        "Magazine not indexed",
+        "Index motor fault"
+      ],
+      "quick_fix": "Check magazine positioning",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2003",
+      "alarm_code": "2003",
+      "alarm_number": 2003,
+      "alarm_name": "TOOL CHANGE TIMEOUT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "TOOL CHANGE TIMEOUT",
+      "description": "Tool change sequence exceeded time limit",
+      "causes": [
+        "Mechanical obstruction",
+        "Slow mechanism",
+        "Sensor problem"
+      ],
+      "quick_fix": "Check mechanism for obstructions",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2004",
+      "alarm_code": "2004",
+      "alarm_number": 2004,
+      "alarm_name": "TOOL NOT CLAMPED",
+      "category": "ATC",
+      "severity": "CRITICAL",
+      "message_text": "TOOL NOT CLAMPED",
+      "description": "Tool clamp confirmation signal not received",
+      "causes": [
+        "Clamp not engaged",
+        "Sensor fault",
+        "Air pressure low"
+      ],
+      "quick_fix": "Check clamp mechanism and sensor",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2005",
+      "alarm_code": "2005",
+      "alarm_number": 2005,
+      "alarm_name": "TOOL NOT UNCLAMPED",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "TOOL NOT UNCLAMPED",
+      "description": "Tool unclamp confirmation not received",
+      "causes": [
+        "Unclamp not working",
+        "Sensor fault",
+        "Air pressure low"
+      ],
+      "quick_fix": "Check unclamp mechanism and sensor",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2006",
+      "alarm_code": "2006",
+      "alarm_number": 2006,
+      "alarm_name": "Z NOT AT CHANGE POS",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "Z NOT AT CHANGE POS",
+      "description": "Z axis is not at tool change position",
+      "causes": [
+        "Z not at correct height for tool change"
+      ],
+      "quick_fix": "Move Z to tool change position",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2007",
+      "alarm_code": "2007",
+      "alarm_number": 2007,
+      "alarm_name": "SPINDLE NOT ORIENTED",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "SPINDLE NOT ORIENTED",
+      "description": "Spindle is not oriented for tool change",
+      "causes": [
+        "M19 not executed",
+        "Orientation failed"
+      ],
+      "quick_fix": "Run M19 to orient spindle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2008",
+      "alarm_code": "2008",
+      "alarm_number": 2008,
+      "alarm_name": "ARM ROTATION FAULT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "ARM ROTATION FAULT",
+      "description": "ATC arm rotation did not complete",
+      "causes": [
+        "Motor fault",
+        "Mechanical obstruction",
+        "Sensor problem"
+      ],
+      "quick_fix": "Check arm motor and mechanism",
+      "requires_power_cycle": false,
+      "requires_service": true,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2009",
+      "alarm_code": "2009",
+      "alarm_number": 2009,
+      "alarm_name": "POT/CUP INTERFERENCE",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "POT/CUP INTERFERENCE",
+      "description": "Tool pocket interference detected",
+      "causes": [
+        "Tool too long",
+        "Wrong pocket",
+        "Mechanical interference"
+      ],
+      "quick_fix": "Check tool clearance in magazine",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2010",
+      "alarm_code": "2010",
+      "alarm_number": 2010,
+      "alarm_name": "MAGAZINE MOTOR FAULT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "MAGAZINE MOTOR FAULT",
+      "description": "Tool magazine motor has faulted",
+      "causes": [
+        "Motor overload",
+        "Drive fault",
+        "Mechanical binding"
+      ],
+      "quick_fix": "Check magazine drive system",
+      "requires_power_cycle": false,
+      "requires_service": true,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2020",
+      "alarm_code": "2020",
+      "alarm_number": 2020,
+      "alarm_name": "TOOL NOT IN MAGAZINE",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "TOOL NOT IN MAGAZINE",
+      "description": "Requested tool is not registered in magazine",
+      "causes": [
+        "Tool not loaded",
+        "Wrong tool table entry"
+      ],
+      "quick_fix": "Load tool in magazine and register",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-2030",
+      "alarm_code": "2030",
+      "alarm_number": 2030,
+      "alarm_name": "DUPLICATE TOOL NUMBER",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "DUPLICATE TOOL NUMBER",
+      "description": "Same tool number registered in multiple pockets",
+      "causes": [
+        "Tool setup error"
+      ],
+      "quick_fix": "Correct tool table to remove duplicates",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-3000",
+      "alarm_code": "3000",
+      "alarm_number": 3000,
+      "alarm_name": "USER-DEFINED ALARM",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "message_text": "(varies)",
+      "description": "User-defined alarm triggered by macro using #3000",
+      "causes": [
+        "Macro detected error condition"
+      ],
+      "quick_fix": "Check macro code for specific condition",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-FANUC-3006",
+      "alarm_code": "3006",
+      "alarm_number": 3006,
+      "alarm_name": "MESSAGE DISPLAY",
+      "category": "MACRO",
+      "severity": "INFO",
+      "message_text": "(varies)",
+      "description": "Macro message with program stop",
+      "causes": [
+        "#3006=1 executed in macro for operator message"
+      ],
+      "quick_fix": "Press cycle start to continue",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0100",
+      "alarm_code": "100",
+      "alarm_number": 100,
+      "alarm_name": "SERVO OVERLOAD",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "SERVO OVERLOAD",
+      "description": "Servo motor exceeded current limit",
+      "causes": [
+        "Excessive cutting load",
+        "Mechanical binding",
+        "Servo parameter issue"
+      ],
+      "quick_fix": "Reduce feedrate, check for mechanical binding",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0101",
+      "alarm_code": "101",
+      "alarm_number": 101,
+      "alarm_name": "SERVO FUSE BLOWN X",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "message_text": "SERVO FUSE BLOWN X",
+      "description": "X axis servo fuse has blown",
+      "causes": [
+        "Short circuit",
+        "Motor failure",
+        "Drive failure"
+      ],
+      "quick_fix": "Replace fuse, check for short",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0102",
+      "alarm_code": "102",
+      "alarm_number": 102,
+      "alarm_name": "SERVO FUSE BLOWN Y",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "message_text": "SERVO FUSE BLOWN Y",
+      "description": "Y axis servo fuse has blown",
+      "causes": [
+        "Short circuit",
+        "Motor failure",
+        "Drive failure"
+      ],
+      "quick_fix": "Replace fuse, check for short",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0103",
+      "alarm_code": "103",
+      "alarm_number": 103,
+      "alarm_name": "SERVO FUSE BLOWN Z",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "message_text": "SERVO FUSE BLOWN Z",
+      "description": "Z axis servo fuse has blown",
+      "causes": [
+        "Short circuit",
+        "Motor failure",
+        "Drive failure"
+      ],
+      "quick_fix": "Replace fuse, check for short",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0104",
+      "alarm_code": "104",
+      "alarm_number": 104,
+      "alarm_name": "SERVO OVERTEMP X",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "message_text": "SERVO OVERTEMP X",
+      "description": "X axis servo motor overheated",
+      "causes": [
+        "Continuous high load",
+        "Cooling fan failure",
+        "Ambient temperature"
+      ],
+      "quick_fix": "Allow motor to cool, reduce duty cycle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0105",
+      "alarm_code": "105",
+      "alarm_number": 105,
+      "alarm_name": "SERVO OVERTEMP Y",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "message_text": "SERVO OVERTEMP Y",
+      "description": "Y axis servo motor overheated",
+      "causes": [
+        "Continuous high load",
+        "Cooling fan failure",
+        "Ambient temperature"
+      ],
+      "quick_fix": "Allow motor to cool, reduce duty cycle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0106",
+      "alarm_code": "106",
+      "alarm_number": 106,
+      "alarm_name": "SERVO OVERTEMP Z",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "message_text": "SERVO OVERTEMP Z",
+      "description": "Z axis servo motor overheated",
+      "causes": [
+        "Continuous high load",
+        "Cooling fan failure",
+        "Ambient temperature"
+      ],
+      "quick_fix": "Allow motor to cool, reduce duty cycle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0107",
+      "alarm_code": "107",
+      "alarm_number": 107,
+      "alarm_name": "SERVO COMMUNICATION ERROR",
+      "category": "COMMUNICATION",
+      "severity": "HIGH",
+      "message_text": "SERVO COMMUNICATION ERROR",
+      "description": "Communication lost with servo drive",
+      "causes": [
+        "Cable fault",
+        "Drive fault",
+        "Control board issue"
+      ],
+      "quick_fix": "Check cables and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0108",
+      "alarm_code": "108",
+      "alarm_number": 108,
+      "alarm_name": "EXCESS POSITION ERROR X",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "EXCESS POSITION ERROR X",
+      "description": "X axis following error exceeded limit",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Encoder problem"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0109",
+      "alarm_code": "109",
+      "alarm_number": 109,
+      "alarm_name": "EXCESS POSITION ERROR Y",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "EXCESS POSITION ERROR Y",
+      "description": "Y axis following error exceeded limit",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Encoder problem"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0110",
+      "alarm_code": "110",
+      "alarm_number": 110,
+      "alarm_name": "EXCESS POSITION ERROR Z",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "message_text": "EXCESS POSITION ERROR Z",
+      "description": "Z axis following error exceeded limit",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Encoder problem"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0111",
+      "alarm_code": "111",
+      "alarm_number": 111,
+      "alarm_name": "ENCODER ERROR X",
+      "category": "ENCODER",
+      "severity": "CRITICAL",
+      "message_text": "ENCODER ERROR X",
+      "description": "X axis encoder fault detected",
+      "causes": [
+        "Encoder cable fault",
+        "Encoder failure",
+        "Noise interference"
+      ],
+      "quick_fix": "Check encoder cable and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0112",
+      "alarm_code": "112",
+      "alarm_number": 112,
+      "alarm_name": "ENCODER ERROR Y",
+      "category": "ENCODER",
+      "severity": "CRITICAL",
+      "message_text": "ENCODER ERROR Y",
+      "description": "Y axis encoder fault detected",
+      "causes": [
+        "Encoder cable fault",
+        "Encoder failure",
+        "Noise interference"
+      ],
+      "quick_fix": "Check encoder cable and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0113",
+      "alarm_code": "113",
+      "alarm_number": 113,
+      "alarm_name": "ENCODER ERROR Z",
+      "category": "ENCODER",
+      "severity": "CRITICAL",
+      "message_text": "ENCODER ERROR Z",
+      "description": "Z axis encoder fault detected",
+      "causes": [
+        "Encoder cable fault",
+        "Encoder failure",
+        "Noise interference"
+      ],
+      "quick_fix": "Check encoder cable and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0200",
+      "alarm_code": "200",
+      "alarm_number": 200,
+      "alarm_name": "SPINDLE OVERLOAD",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERLOAD",
+      "description": "Spindle exceeded load limit",
+      "causes": [
+        "Excessive cutting load",
+        "Dull tool",
+        "Wrong parameters"
+      ],
+      "quick_fix": "Reduce cutting load or speed",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0201",
+      "alarm_code": "201",
+      "alarm_number": 201,
+      "alarm_name": "SPINDLE FAULT",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "message_text": "SPINDLE FAULT",
+      "description": "Spindle drive fault occurred",
+      "causes": [
+        "Drive failure",
+        "Motor fault",
+        "Power issue"
+      ],
+      "quick_fix": "Check spindle drive for error code",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0202",
+      "alarm_code": "202",
+      "alarm_number": 202,
+      "alarm_name": "SPINDLE OVERSPEED",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERSPEED",
+      "description": "Spindle exceeded maximum speed",
+      "causes": [
+        "S command too high",
+        "Encoder feedback error"
+      ],
+      "quick_fix": "Check spindle speed command",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0203",
+      "alarm_code": "203",
+      "alarm_number": 203,
+      "alarm_name": "SPINDLE NOT UP TO SPEED",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "message_text": "SPINDLE NOT UP TO SPEED",
+      "description": "Spindle did not reach commanded speed in time",
+      "causes": [
+        "Excessive load at start",
+        "Belt slip",
+        "Drive problem"
+      ],
+      "quick_fix": "Check spindle belt and drive",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0204",
+      "alarm_code": "204",
+      "alarm_number": 204,
+      "alarm_name": "SPINDLE OVERTEMP",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERTEMP",
+      "description": "Spindle motor overheated",
+      "causes": [
+        "High speed continuous operation",
+        "Heavy cuts",
+        "Cooling failure"
+      ],
+      "quick_fix": "Allow spindle to cool",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0205",
+      "alarm_code": "205",
+      "alarm_number": 205,
+      "alarm_name": "SPINDLE ORIENT FAULT",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "message_text": "SPINDLE ORIENT FAULT",
+      "description": "Spindle orientation failed",
+      "causes": [
+        "Orient sensor problem",
+        "Belt slip",
+        "Parameter issue"
+      ],
+      "quick_fix": "Check orientation sensor and belt",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0206",
+      "alarm_code": "206",
+      "alarm_number": 206,
+      "alarm_name": "SPINDLE ENCODER FAULT",
+      "category": "ENCODER",
+      "severity": "CRITICAL",
+      "message_text": "SPINDLE ENCODER FAULT",
+      "description": "Spindle encoder error detected",
+      "causes": [
+        "Encoder failure",
+        "Cable fault",
+        "Noise"
+      ],
+      "quick_fix": "Check spindle encoder and cable",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0300",
+      "alarm_code": "300",
+      "alarm_number": 300,
+      "alarm_name": "X LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "X LIMIT",
+      "description": "X axis hit hardware limit switch",
+      "causes": [
+        "Axis traveled past limit"
+      ],
+      "quick_fix": "Jog opposite direction while holding reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0301",
+      "alarm_code": "301",
+      "alarm_number": 301,
+      "alarm_name": "Y LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "Y LIMIT",
+      "description": "Y axis hit hardware limit switch",
+      "causes": [
+        "Axis traveled past limit"
+      ],
+      "quick_fix": "Jog opposite direction while holding reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0302",
+      "alarm_code": "302",
+      "alarm_number": 302,
+      "alarm_name": "Z LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "Z LIMIT",
+      "description": "Z axis hit hardware limit switch",
+      "causes": [
+        "Axis traveled past limit"
+      ],
+      "quick_fix": "Jog opposite direction while holding reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0303",
+      "alarm_code": "303",
+      "alarm_number": 303,
+      "alarm_name": "A LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "A LIMIT",
+      "description": "A axis hit hardware limit switch",
+      "causes": [
+        "Axis traveled past limit"
+      ],
+      "quick_fix": "Jog opposite direction while holding reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0304",
+      "alarm_code": "304",
+      "alarm_number": 304,
+      "alarm_name": "B LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "B LIMIT",
+      "description": "B axis hit hardware limit switch",
+      "causes": [
+        "Axis traveled past limit"
+      ],
+      "quick_fix": "Jog opposite direction while holding reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0400",
+      "alarm_code": "400",
+      "alarm_number": 400,
+      "alarm_name": "TOOL CHANGER FAULT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "TOOL CHANGER FAULT",
+      "description": "Tool changer general fault",
+      "causes": [
+        "Mechanism problem",
+        "Sensor issue",
+        "Air pressure"
+      ],
+      "quick_fix": "Check tool changer mechanism",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0401",
+      "alarm_code": "401",
+      "alarm_number": 401,
+      "alarm_name": "CAROUSEL NOT AT POSITION",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "CAROUSEL NOT AT POSITION",
+      "description": "Tool carousel not properly positioned",
+      "causes": [
+        "Index problem",
+        "Sensor fault",
+        "Motor issue"
+      ],
+      "quick_fix": "Check carousel positioning",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0402",
+      "alarm_code": "402",
+      "alarm_number": 402,
+      "alarm_name": "ARM NOT IN POSITION",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "ARM NOT IN POSITION",
+      "description": "Tool change arm not in correct position",
+      "causes": [
+        "Arm mechanism fault",
+        "Sensor problem"
+      ],
+      "quick_fix": "Check arm mechanism and sensors",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0403",
+      "alarm_code": "403",
+      "alarm_number": 403,
+      "alarm_name": "TOOL UNCLAMPED",
+      "category": "ATC",
+      "severity": "CRITICAL",
+      "message_text": "TOOL UNCLAMPED",
+      "description": "Tool clamp not engaged",
+      "causes": [
+        "Clamp mechanism fault",
+        "Air pressure low",
+        "Sensor issue"
+      ],
+      "quick_fix": "Check tool clamp and air pressure",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0404",
+      "alarm_code": "404",
+      "alarm_number": 404,
+      "alarm_name": "TOOL NOT IN SPINDLE",
+      "category": "ATC",
+      "severity": "CRITICAL",
+      "message_text": "TOOL NOT IN SPINDLE",
+      "description": "Tool presence sensor does not detect tool",
+      "causes": [
+        "Tool dropped",
+        "Sensor fault",
+        "Clamp issue"
+      ],
+      "quick_fix": "Check tool presence and sensor",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0405",
+      "alarm_code": "405",
+      "alarm_number": 405,
+      "alarm_name": "TOOL IN SPINDLE",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "TOOL IN SPINDLE",
+      "description": "Tool in spindle when it should be empty",
+      "causes": [
+        "Tool change sequence error",
+        "Sensor issue"
+      ],
+      "quick_fix": "Verify tool presence manually",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0406",
+      "alarm_code": "406",
+      "alarm_number": 406,
+      "alarm_name": "TOOL CHANGE TIMEOUT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "TOOL CHANGE TIMEOUT",
+      "description": "Tool change did not complete in time",
+      "causes": [
+        "Mechanical obstruction",
+        "Slow mechanism",
+        "Sensor fault"
+      ],
+      "quick_fix": "Check for obstructions",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0407",
+      "alarm_code": "407",
+      "alarm_number": 407,
+      "alarm_name": "Z NOT AT TC POSITION",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "Z NOT AT TC POSITION",
+      "description": "Z axis not at tool change position",
+      "causes": [
+        "Z not moved to TC height"
+      ],
+      "quick_fix": "Move Z to tool change position",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0408",
+      "alarm_code": "408",
+      "alarm_number": 408,
+      "alarm_name": "SPINDLE NOT ORIENTED",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "SPINDLE NOT ORIENTED",
+      "description": "Spindle not oriented for tool change",
+      "causes": [
+        "M19 not executed",
+        "Orientation failed"
+      ],
+      "quick_fix": "Execute M19 to orient spindle",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0500",
+      "alarm_code": "500",
+      "alarm_number": 500,
+      "alarm_name": "PROGRAM ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "PROGRAM ERROR",
+      "description": "General program syntax error",
+      "causes": [
+        "Invalid G-code",
+        "Missing data",
+        "Format error"
+      ],
+      "quick_fix": "Check program at alarm line",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0501",
+      "alarm_code": "501",
+      "alarm_number": 501,
+      "alarm_name": "INVALID CODE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "INVALID CODE",
+      "description": "G or M code not supported",
+      "causes": [
+        "Unsupported code",
+        "Typo"
+      ],
+      "quick_fix": "Check code validity",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0502",
+      "alarm_code": "502",
+      "alarm_number": 502,
+      "alarm_name": "MISSING DATA",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "MISSING DATA",
+      "description": "Required data missing from block",
+      "causes": [
+        "Missing axis value",
+        "Missing parameter"
+      ],
+      "quick_fix": "Add missing data",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0503",
+      "alarm_code": "503",
+      "alarm_number": 503,
+      "alarm_name": "NO FEEDRATE",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "NO FEEDRATE",
+      "description": "Cutting move without feedrate",
+      "causes": [
+        "F word missing"
+      ],
+      "quick_fix": "Add F feedrate command",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0504",
+      "alarm_code": "504",
+      "alarm_number": 504,
+      "alarm_name": "NO SPINDLE SPEED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "NO SPINDLE SPEED",
+      "description": "Spindle started without speed",
+      "causes": [
+        "S word missing"
+      ],
+      "quick_fix": "Add S spindle speed",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0600",
+      "alarm_code": "600",
+      "alarm_number": 600,
+      "alarm_name": "LOW COOLANT",
+      "category": "COOLANT",
+      "severity": "LOW",
+      "message_text": "LOW COOLANT",
+      "description": "Coolant level is low",
+      "causes": [
+        "Coolant consumed",
+        "Leak"
+      ],
+      "quick_fix": "Add coolant",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "WARNING_ONLY"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0601",
+      "alarm_code": "601",
+      "alarm_number": 601,
+      "alarm_name": "COOLANT PUMP FAULT",
+      "category": "COOLANT",
+      "severity": "MEDIUM",
+      "message_text": "COOLANT PUMP FAULT",
+      "description": "Coolant pump fault detected",
+      "causes": [
+        "Pump motor fault",
+        "Breaker tripped",
+        "Blockage"
+      ],
+      "quick_fix": "Check pump and breaker",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0700",
+      "alarm_code": "700",
+      "alarm_number": 700,
+      "alarm_name": "PROBE FAULT",
+      "category": "PROBE",
+      "severity": "MEDIUM",
+      "message_text": "PROBE FAULT",
+      "description": "Probe system fault",
+      "causes": [
+        "Probe not connected",
+        "Battery low",
+        "Receiver issue"
+      ],
+      "quick_fix": "Check probe connection and battery",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0701",
+      "alarm_code": "701",
+      "alarm_number": 701,
+      "alarm_name": "PROBE TRIGGERED",
+      "category": "PROBE",
+      "severity": "INFO",
+      "message_text": "PROBE TRIGGERED",
+      "description": "Probe was triggered when not expected",
+      "causes": [
+        "Unexpected contact",
+        "Stuck probe"
+      ],
+      "quick_fix": "Check probe stylus",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0702",
+      "alarm_code": "702",
+      "alarm_number": 702,
+      "alarm_name": "PROBE NOT TRIGGERED",
+      "category": "PROBE",
+      "severity": "MEDIUM",
+      "message_text": "PROBE NOT TRIGGERED",
+      "description": "Probe did not trigger during skip move",
+      "causes": [
+        "Probe missed surface",
+        "Wrong position"
+      ],
+      "quick_fix": "Check probe position and surface",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0800",
+      "alarm_code": "800",
+      "alarm_number": 800,
+      "alarm_name": "DOOR OPEN",
+      "category": "SAFETY",
+      "severity": "MEDIUM",
+      "message_text": "DOOR OPEN",
+      "description": "Door interlock detected door open",
+      "causes": [
+        "Door not fully closed",
+        "Interlock switch issue"
+      ],
+      "quick_fix": "Close door fully",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0801",
+      "alarm_code": "801",
+      "alarm_number": 801,
+      "alarm_name": "E-STOP",
+      "category": "SAFETY",
+      "severity": "CRITICAL",
+      "message_text": "E-STOP",
+      "description": "Emergency stop activated",
+      "causes": [
+        "E-stop button pressed",
+        "Safety circuit open"
+      ],
+      "quick_fix": "Release E-stop, press reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0900",
+      "alarm_code": "900",
+      "alarm_number": 900,
+      "alarm_name": "LOW AIR PRESSURE",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "message_text": "LOW AIR PRESSURE",
+      "description": "Air pressure below minimum",
+      "causes": [
+        "Compressor issue",
+        "Leak",
+        "High demand"
+      ],
+      "quick_fix": "Check air supply",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0901",
+      "alarm_code": "901",
+      "alarm_number": 901,
+      "alarm_name": "LOW LUBE",
+      "category": "SYSTEM",
+      "severity": "MEDIUM",
+      "message_text": "LOW LUBE",
+      "description": "Way lube level is low",
+      "causes": [
+        "Lube consumed",
+        "Leak"
+      ],
+      "quick_fix": "Add way lube oil",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "WARNING_ONLY"
+    },
+    {
+      "alarm_id": "ALM-HAAS-0902",
+      "alarm_code": "902",
+      "alarm_number": 902,
+      "alarm_name": "LUBE PUMP FAULT",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "message_text": "LUBE PUMP FAULT",
+      "description": "Lubrication pump fault",
+      "causes": [
+        "Pump motor fault",
+        "Blockage",
+        "Low level"
+      ],
+      "quick_fix": "Check lube system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HAAS-1000",
+      "alarm_code": "1000",
+      "alarm_number": 1000,
+      "alarm_name": "MEMORY FULL",
+      "category": "SYSTEM",
+      "severity": "LOW",
+      "message_text": "MEMORY FULL",
+      "description": "Program memory is full",
+      "causes": [
+        "Too many programs",
+        "Programs too large"
+      ],
+      "quick_fix": "Delete unused programs",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "WARNING_ONLY"
+    },
+    {
+      "alarm_id": "ALM-HAAS-1001",
+      "alarm_code": "1001",
+      "alarm_number": 1001,
+      "alarm_name": "PROGRAM NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "PROGRAM NOT FOUND",
+      "description": "Requested program does not exist",
+      "causes": [
+        "Wrong program number",
+        "Program not loaded"
+      ],
+      "quick_fix": "Load program or check number",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0001",
+      "alarm_code": "FE 1",
+      "alarm_number": 1,
+      "alarm_name": "FOLLOWING ERROR X",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Following error X axis",
+      "description": "X axis position error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Encoder issue"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0002",
+      "alarm_code": "FE 2",
+      "alarm_number": 2,
+      "alarm_name": "FOLLOWING ERROR Y",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Following error Y axis",
+      "description": "Y axis position error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Encoder issue"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0003",
+      "alarm_code": "FE 3",
+      "alarm_number": 3,
+      "alarm_name": "FOLLOWING ERROR Z",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Following error Z axis",
+      "description": "Z axis position error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Encoder issue"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0010",
+      "alarm_code": "ENC 10",
+      "alarm_number": 10,
+      "alarm_name": "ENCODER ERROR X",
+      "category": "ENCODER",
+      "severity": "CRITICAL",
+      "message_text": "Encoder error X axis",
+      "description": "X axis encoder fault detected",
+      "causes": [
+        "Cable fault",
+        "Encoder failure",
+        "Noise"
+      ],
+      "quick_fix": "Check encoder cable",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0011",
+      "alarm_code": "ENC 11",
+      "alarm_number": 11,
+      "alarm_name": "ENCODER ERROR Y",
+      "category": "ENCODER",
+      "severity": "CRITICAL",
+      "message_text": "Encoder error Y axis",
+      "description": "Y axis encoder fault detected",
+      "causes": [
+        "Cable fault",
+        "Encoder failure",
+        "Noise"
+      ],
+      "quick_fix": "Check encoder cable",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0012",
+      "alarm_code": "ENC 12",
+      "alarm_number": 12,
+      "alarm_name": "ENCODER ERROR Z",
+      "category": "ENCODER",
+      "severity": "CRITICAL",
+      "message_text": "Encoder error Z axis",
+      "description": "Z axis encoder fault detected",
+      "causes": [
+        "Cable fault",
+        "Encoder failure",
+        "Noise"
+      ],
+      "quick_fix": "Check encoder cable",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0020",
+      "alarm_code": "LIM 20",
+      "alarm_number": 20,
+      "alarm_name": "SOFTWARE LIMIT X+",
+      "category": "AXIS",
+      "severity": "MEDIUM",
+      "message_text": "Software limit X positive",
+      "description": "X axis exceeded positive soft limit",
+      "causes": [
+        "Program beyond limits"
+      ],
+      "quick_fix": "Modify program or offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0021",
+      "alarm_code": "LIM 21",
+      "alarm_number": 21,
+      "alarm_name": "SOFTWARE LIMIT X-",
+      "category": "AXIS",
+      "severity": "MEDIUM",
+      "message_text": "Software limit X negative",
+      "description": "X axis exceeded negative soft limit",
+      "causes": [
+        "Program beyond limits"
+      ],
+      "quick_fix": "Modify program or offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0022",
+      "alarm_code": "LIM 22",
+      "alarm_number": 22,
+      "alarm_name": "SOFTWARE LIMIT Y+",
+      "category": "AXIS",
+      "severity": "MEDIUM",
+      "message_text": "Software limit Y positive",
+      "description": "Y axis exceeded positive soft limit",
+      "causes": [
+        "Program beyond limits"
+      ],
+      "quick_fix": "Modify program or offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0023",
+      "alarm_code": "LIM 23",
+      "alarm_number": 23,
+      "alarm_name": "SOFTWARE LIMIT Y-",
+      "category": "AXIS",
+      "severity": "MEDIUM",
+      "message_text": "Software limit Y negative",
+      "description": "Y axis exceeded negative soft limit",
+      "causes": [
+        "Program beyond limits"
+      ],
+      "quick_fix": "Modify program or offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0024",
+      "alarm_code": "LIM 24",
+      "alarm_number": 24,
+      "alarm_name": "SOFTWARE LIMIT Z+",
+      "category": "AXIS",
+      "severity": "MEDIUM",
+      "message_text": "Software limit Z positive",
+      "description": "Z axis exceeded positive soft limit",
+      "causes": [
+        "Program beyond limits"
+      ],
+      "quick_fix": "Modify program or offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0025",
+      "alarm_code": "LIM 25",
+      "alarm_number": 25,
+      "alarm_name": "SOFTWARE LIMIT Z-",
+      "category": "AXIS",
+      "severity": "MEDIUM",
+      "message_text": "Software limit Z negative",
+      "description": "Z axis exceeded negative soft limit",
+      "causes": [
+        "Program beyond limits"
+      ],
+      "quick_fix": "Modify program or offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0030",
+      "alarm_code": "HW 30",
+      "alarm_number": 30,
+      "alarm_name": "HARDWARE LIMIT X+",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Hardware limit X positive",
+      "description": "X axis hit positive limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0031",
+      "alarm_code": "HW 31",
+      "alarm_number": 31,
+      "alarm_name": "HARDWARE LIMIT X-",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Hardware limit X negative",
+      "description": "X axis hit negative limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0032",
+      "alarm_code": "HW 32",
+      "alarm_number": 32,
+      "alarm_name": "HARDWARE LIMIT Y+",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Hardware limit Y positive",
+      "description": "Y axis hit positive limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0033",
+      "alarm_code": "HW 33",
+      "alarm_number": 33,
+      "alarm_name": "HARDWARE LIMIT Y-",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Hardware limit Y negative",
+      "description": "Y axis hit negative limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0034",
+      "alarm_code": "HW 34",
+      "alarm_number": 34,
+      "alarm_name": "HARDWARE LIMIT Z+",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Hardware limit Z positive",
+      "description": "Z axis hit positive limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0035",
+      "alarm_code": "HW 35",
+      "alarm_number": 35,
+      "alarm_name": "HARDWARE LIMIT Z-",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Hardware limit Z negative",
+      "description": "Z axis hit negative limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0100",
+      "alarm_code": "SP 100",
+      "alarm_number": 100,
+      "alarm_name": "SPINDLE OVERLOAD",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "Spindle overload",
+      "description": "Spindle exceeded torque limit",
+      "causes": [
+        "Excessive cutting load"
+      ],
+      "quick_fix": "Reduce cutting load",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0101",
+      "alarm_code": "SP 101",
+      "alarm_number": 101,
+      "alarm_name": "SPINDLE DRIVE FAULT",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "message_text": "Spindle drive fault",
+      "description": "Spindle drive reported error",
+      "causes": [
+        "Drive failure"
+      ],
+      "quick_fix": "Check spindle drive",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0102",
+      "alarm_code": "SP 102",
+      "alarm_number": 102,
+      "alarm_name": "SPINDLE OVERTEMP",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "Spindle overtemperature",
+      "description": "Spindle motor overheated",
+      "causes": [
+        "Continuous high load"
+      ],
+      "quick_fix": "Allow cooling",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0103",
+      "alarm_code": "SP 103",
+      "alarm_number": 103,
+      "alarm_name": "SPINDLE ORIENT FAULT",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "message_text": "Spindle orientation fault",
+      "description": "Spindle orientation failed",
+      "causes": [
+        "Sensor issue",
+        "Belt slip"
+      ],
+      "quick_fix": "Check orientation system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0200",
+      "alarm_code": "PRG 200",
+      "alarm_number": 200,
+      "alarm_name": "SYNTAX ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "Syntax error in block",
+      "description": "Program syntax error",
+      "causes": [
+        "Invalid code"
+      ],
+      "quick_fix": "Check program",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0201",
+      "alarm_code": "PRG 201",
+      "alarm_number": 201,
+      "alarm_name": "MISSING TOOL CALL",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "Tool call missing",
+      "description": "Tool not called before use",
+      "causes": [
+        "Missing TOOL CALL"
+      ],
+      "quick_fix": "Add TOOL CALL",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0202",
+      "alarm_code": "PRG 202",
+      "alarm_number": 202,
+      "alarm_name": "INVALID RADIUS",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "Invalid radius value",
+      "description": "Arc radius impossible",
+      "causes": [
+        "Radius too small for endpoints"
+      ],
+      "quick_fix": "Check arc definition",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0203",
+      "alarm_code": "PRG 203",
+      "alarm_number": 203,
+      "alarm_name": "CYCLE PARAMETER ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "Cycle parameter error",
+      "description": "Invalid parameter in cycle",
+      "causes": [
+        "Missing or invalid parameter"
+      ],
+      "quick_fix": "Check cycle parameters",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0300",
+      "alarm_code": "TC 300",
+      "alarm_number": 300,
+      "alarm_name": "TOOL CHANGE FAULT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "Tool change fault",
+      "description": "Tool change error",
+      "causes": [
+        "Mechanism problem"
+      ],
+      "quick_fix": "Check tool changer",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0301",
+      "alarm_code": "TC 301",
+      "alarm_number": 301,
+      "alarm_name": "TOOL NOT CLAMPED",
+      "category": "ATC",
+      "severity": "CRITICAL",
+      "message_text": "Tool not clamped",
+      "description": "Tool clamp not confirmed",
+      "causes": [
+        "Clamp issue"
+      ],
+      "quick_fix": "Check tool clamp",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0400",
+      "alarm_code": "PRB 400",
+      "alarm_number": 400,
+      "alarm_name": "PROBE SIGNAL MISSING",
+      "category": "PROBE",
+      "severity": "MEDIUM",
+      "message_text": "Probe signal missing",
+      "description": "Probe did not trigger",
+      "causes": [
+        "Probe missed surface"
+      ],
+      "quick_fix": "Check probe position",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0401",
+      "alarm_code": "PRB 401",
+      "alarm_number": 401,
+      "alarm_name": "PROBE BLOCKED",
+      "category": "PROBE",
+      "severity": "MEDIUM",
+      "message_text": "Probe blocked",
+      "description": "Probe triggered before expected",
+      "causes": [
+        "Probe stuck or premature contact"
+      ],
+      "quick_fix": "Check probe stylus",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0500",
+      "alarm_code": "SAFE 500",
+      "alarm_number": 500,
+      "alarm_name": "E-STOP",
+      "category": "SAFETY",
+      "severity": "CRITICAL",
+      "message_text": "Emergency stop",
+      "description": "E-stop activated",
+      "causes": [
+        "E-stop pressed"
+      ],
+      "quick_fix": "Release E-stop, reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-HEID-0501",
+      "alarm_code": "SAFE 501",
+      "alarm_number": 501,
+      "alarm_name": "DOOR OPEN",
+      "category": "SAFETY",
+      "severity": "MEDIUM",
+      "message_text": "Safety door open",
+      "description": "Door interlock open",
+      "causes": [
+        "Door not closed"
+      ],
+      "quick_fix": "Close door",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-HEID-0600",
+      "alarm_code": "PLC 600",
+      "alarm_number": 600,
+      "alarm_name": "PLC ERROR",
+      "category": "PLC",
+      "severity": "HIGH",
+      "message_text": "PLC error",
+      "description": "PLC detected fault",
+      "causes": [
+        "PLC program error"
+      ],
+      "quick_fix": "Check PLC diagnostics",
+      "requires_power_cycle": false,
+      "requires_service": true,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0001",
+      "alarm_code": "001",
+      "alarm_number": 1,
+      "alarm_name": "X AXIS SERVO ALARM",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "X AXIS SERVO ALARM",
+      "description": "X axis servo fault detected",
+      "causes": [
+        "Following error",
+        "Drive fault",
+        "Encoder issue"
+      ],
+      "quick_fix": "Check servo system, reduce feedrate",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0002",
+      "alarm_code": "002",
+      "alarm_number": 2,
+      "alarm_name": "Y AXIS SERVO ALARM",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Y AXIS SERVO ALARM",
+      "description": "Y axis servo fault detected",
+      "causes": [
+        "Following error",
+        "Drive fault",
+        "Encoder issue"
+      ],
+      "quick_fix": "Check servo system, reduce feedrate",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0003",
+      "alarm_code": "003",
+      "alarm_number": 3,
+      "alarm_name": "Z AXIS SERVO ALARM",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Z AXIS SERVO ALARM",
+      "description": "Z axis servo fault detected",
+      "causes": [
+        "Following error",
+        "Drive fault",
+        "Encoder issue"
+      ],
+      "quick_fix": "Check servo system, reduce feedrate",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0010",
+      "alarm_code": "010",
+      "alarm_number": 10,
+      "alarm_name": "X AXIS OVERTRAVEL +",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "X AXIS OVERTRAVEL +",
+      "description": "X axis positive limit reached",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0011",
+      "alarm_code": "011",
+      "alarm_number": 11,
+      "alarm_name": "X AXIS OVERTRAVEL -",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "X AXIS OVERTRAVEL -",
+      "description": "X axis negative limit reached",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0012",
+      "alarm_code": "012",
+      "alarm_number": 12,
+      "alarm_name": "Y AXIS OVERTRAVEL +",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Y AXIS OVERTRAVEL +",
+      "description": "Y axis positive limit reached",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0013",
+      "alarm_code": "013",
+      "alarm_number": 13,
+      "alarm_name": "Y AXIS OVERTRAVEL -",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Y AXIS OVERTRAVEL -",
+      "description": "Y axis negative limit reached",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0014",
+      "alarm_code": "014",
+      "alarm_number": 14,
+      "alarm_name": "Z AXIS OVERTRAVEL +",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Z AXIS OVERTRAVEL +",
+      "description": "Z axis positive limit reached",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0015",
+      "alarm_code": "015",
+      "alarm_number": 15,
+      "alarm_name": "Z AXIS OVERTRAVEL -",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Z AXIS OVERTRAVEL -",
+      "description": "Z axis negative limit reached",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0100",
+      "alarm_code": "100",
+      "alarm_number": 100,
+      "alarm_name": "SPINDLE OVERLOAD",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERLOAD",
+      "description": "Spindle exceeded load limit",
+      "causes": [
+        "Excessive cutting load",
+        "Dull tool"
+      ],
+      "quick_fix": "Reduce cutting load",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0101",
+      "alarm_code": "101",
+      "alarm_number": 101,
+      "alarm_name": "SPINDLE DRIVE ALARM",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "message_text": "SPINDLE DRIVE ALARM",
+      "description": "Spindle drive fault",
+      "causes": [
+        "Drive failure"
+      ],
+      "quick_fix": "Check spindle drive",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0102",
+      "alarm_code": "102",
+      "alarm_number": 102,
+      "alarm_name": "SPINDLE OVERHEAT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERHEAT",
+      "description": "Spindle motor overheated",
+      "causes": [
+        "Continuous high speed"
+      ],
+      "quick_fix": "Allow cooling",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0103",
+      "alarm_code": "103",
+      "alarm_number": 103,
+      "alarm_name": "SPINDLE ORIENT ERROR",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "message_text": "SPINDLE ORIENT ERROR",
+      "description": "Spindle orientation failed",
+      "causes": [
+        "Sensor issue"
+      ],
+      "quick_fix": "Check orientation sensor",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0200",
+      "alarm_code": "200",
+      "alarm_number": 200,
+      "alarm_name": "ATC ALARM",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "ATC ALARM",
+      "description": "Tool changer fault",
+      "causes": [
+        "Mechanism problem"
+      ],
+      "quick_fix": "Check tool changer",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0201",
+      "alarm_code": "201",
+      "alarm_number": 201,
+      "alarm_name": "MAGAZINE NOT INDEXED",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "MAGAZINE NOT INDEXED",
+      "description": "Tool magazine not in position",
+      "causes": [
+        "Index fault"
+      ],
+      "quick_fix": "Check magazine",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0202",
+      "alarm_code": "202",
+      "alarm_number": 202,
+      "alarm_name": "TOOL NOT CLAMPED",
+      "category": "ATC",
+      "severity": "CRITICAL",
+      "message_text": "TOOL NOT CLAMPED",
+      "description": "Tool clamp not confirmed",
+      "causes": [
+        "Clamp fault"
+      ],
+      "quick_fix": "Check tool clamp",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0203",
+      "alarm_code": "203",
+      "alarm_number": 203,
+      "alarm_name": "TOOL CHANGE TIMEOUT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "TOOL CHANGE TIMEOUT",
+      "description": "Tool change took too long",
+      "causes": [
+        "Obstruction"
+      ],
+      "quick_fix": "Check for obstructions",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0300",
+      "alarm_code": "300",
+      "alarm_number": 300,
+      "alarm_name": "PROGRAM ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "PROGRAM ERROR",
+      "description": "Program syntax error",
+      "causes": [
+        "Invalid code"
+      ],
+      "quick_fix": "Check program",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0301",
+      "alarm_code": "301",
+      "alarm_number": 301,
+      "alarm_name": "MAZATROL DATA ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "MAZATROL DATA ERROR",
+      "description": "Invalid Mazatrol data",
+      "causes": [
+        "Data error"
+      ],
+      "quick_fix": "Check Mazatrol program",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0302",
+      "alarm_code": "302",
+      "alarm_number": 302,
+      "alarm_name": "NO TOOL DATA",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "NO TOOL DATA",
+      "description": "Tool data not found",
+      "causes": [
+        "Tool not registered"
+      ],
+      "quick_fix": "Register tool data",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0400",
+      "alarm_code": "400",
+      "alarm_number": 400,
+      "alarm_name": "COOLANT ALARM",
+      "category": "COOLANT",
+      "severity": "MEDIUM",
+      "message_text": "COOLANT ALARM",
+      "description": "Coolant system fault",
+      "causes": [
+        "Low level",
+        "Pump fault"
+      ],
+      "quick_fix": "Check coolant system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0500",
+      "alarm_code": "500",
+      "alarm_number": 500,
+      "alarm_name": "EMERGENCY STOP",
+      "category": "SAFETY",
+      "severity": "CRITICAL",
+      "message_text": "EMERGENCY STOP",
+      "description": "E-stop activated",
+      "causes": [
+        "E-stop pressed"
+      ],
+      "quick_fix": "Release E-stop, reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0501",
+      "alarm_code": "501",
+      "alarm_number": 501,
+      "alarm_name": "DOOR INTERLOCK",
+      "category": "SAFETY",
+      "severity": "MEDIUM",
+      "message_text": "DOOR INTERLOCK",
+      "description": "Door interlock open",
+      "causes": [
+        "Door not closed"
+      ],
+      "quick_fix": "Close door",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0600",
+      "alarm_code": "600",
+      "alarm_number": 600,
+      "alarm_name": "COMMUNICATION ERROR",
+      "category": "COMMUNICATION",
+      "severity": "HIGH",
+      "message_text": "COMMUNICATION ERROR",
+      "description": "Communication fault",
+      "causes": [
+        "Cable issue"
+      ],
+      "quick_fix": "Check connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0700",
+      "alarm_code": "700",
+      "alarm_number": 700,
+      "alarm_name": "LOW AIR PRESSURE",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "message_text": "LOW AIR PRESSURE",
+      "description": "Air pressure below minimum",
+      "causes": [
+        "Compressor issue",
+        "Leak"
+      ],
+      "quick_fix": "Check air supply",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0701",
+      "alarm_code": "701",
+      "alarm_number": 701,
+      "alarm_name": "HYDRAULIC ALARM",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "message_text": "HYDRAULIC ALARM",
+      "description": "Hydraulic system fault",
+      "causes": [
+        "Low level",
+        "Pump fault"
+      ],
+      "quick_fix": "Check hydraulic system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-MAZK-0702",
+      "alarm_code": "702",
+      "alarm_number": 702,
+      "alarm_name": "LUBRICATION ALARM",
+      "category": "SYSTEM",
+      "severity": "MEDIUM",
+      "message_text": "LUBRICATION ALARM",
+      "description": "Lubrication system fault",
+      "causes": [
+        "Low level"
+      ],
+      "quick_fix": "Check lube system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "WARNING_ONLY"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1001",
+      "alarm_code": "1001",
+      "alarm_number": 1001,
+      "alarm_name": "X AXIS SERVO FAULT",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "X AXIS SERVO FAULT",
+      "description": "X axis servo error detected",
+      "causes": [
+        "Following error",
+        "Drive fault"
+      ],
+      "quick_fix": "Check servo system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1002",
+      "alarm_code": "1002",
+      "alarm_number": 1002,
+      "alarm_name": "Y AXIS SERVO FAULT",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Y AXIS SERVO FAULT",
+      "description": "Y axis servo error detected",
+      "causes": [
+        "Following error",
+        "Drive fault"
+      ],
+      "quick_fix": "Check servo system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1003",
+      "alarm_code": "1003",
+      "alarm_number": 1003,
+      "alarm_name": "Z AXIS SERVO FAULT",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Z AXIS SERVO FAULT",
+      "description": "Z axis servo error detected",
+      "causes": [
+        "Following error",
+        "Drive fault"
+      ],
+      "quick_fix": "Check servo system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1010",
+      "alarm_code": "1010",
+      "alarm_number": 1010,
+      "alarm_name": "X AXIS OVERTRAVEL",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "X AXIS OVERTRAVEL",
+      "description": "X axis limit reached",
+      "causes": [
+        "Axis beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1011",
+      "alarm_code": "1011",
+      "alarm_number": 1011,
+      "alarm_name": "Y AXIS OVERTRAVEL",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Y AXIS OVERTRAVEL",
+      "description": "Y axis limit reached",
+      "causes": [
+        "Axis beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1012",
+      "alarm_code": "1012",
+      "alarm_number": 1012,
+      "alarm_name": "Z AXIS OVERTRAVEL",
+      "category": "AXIS",
+      "severity": "HIGH",
+      "message_text": "Z AXIS OVERTRAVEL",
+      "description": "Z axis limit reached",
+      "causes": [
+        "Axis beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1020",
+      "alarm_code": "1020",
+      "alarm_number": 1020,
+      "alarm_name": "X ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "message_text": "X ENCODER ERROR",
+      "description": "X encoder fault",
+      "causes": [
+        "Encoder failure",
+        "Cable fault"
+      ],
+      "quick_fix": "Check encoder",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1021",
+      "alarm_code": "1021",
+      "alarm_number": 1021,
+      "alarm_name": "Y ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "message_text": "Y ENCODER ERROR",
+      "description": "Y encoder fault",
+      "causes": [
+        "Encoder failure",
+        "Cable fault"
+      ],
+      "quick_fix": "Check encoder",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-1022",
+      "alarm_code": "1022",
+      "alarm_number": 1022,
+      "alarm_name": "Z ENCODER ERROR",
+      "category": "AXIS",
+      "severity": "CRITICAL",
+      "message_text": "Z ENCODER ERROR",
+      "description": "Z encoder fault",
+      "causes": [
+        "Encoder failure",
+        "Cable fault"
+      ],
+      "quick_fix": "Check encoder",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-2001",
+      "alarm_code": "2001",
+      "alarm_number": 2001,
+      "alarm_name": "SPINDLE OVERLOAD",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERLOAD",
+      "description": "Spindle load exceeded",
+      "causes": [
+        "Excessive cutting"
+      ],
+      "quick_fix": "Reduce cutting load",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-2002",
+      "alarm_code": "2002",
+      "alarm_number": 2002,
+      "alarm_name": "SPINDLE DRIVE ERROR",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "message_text": "SPINDLE DRIVE ERROR",
+      "description": "Spindle drive fault",
+      "causes": [
+        "Drive failure"
+      ],
+      "quick_fix": "Check spindle drive",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-2003",
+      "alarm_code": "2003",
+      "alarm_number": 2003,
+      "alarm_name": "SPINDLE OVERHEAT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "SPINDLE OVERHEAT",
+      "description": "Spindle overheated",
+      "causes": [
+        "High speed continuous"
+      ],
+      "quick_fix": "Allow cooling",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-2004",
+      "alarm_code": "2004",
+      "alarm_number": 2004,
+      "alarm_name": "SPINDLE ORIENT FAIL",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "message_text": "SPINDLE ORIENT FAIL",
+      "description": "Orientation failed",
+      "causes": [
+        "Sensor issue"
+      ],
+      "quick_fix": "Check orient system",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-3001",
+      "alarm_code": "3001",
+      "alarm_number": 3001,
+      "alarm_name": "ATC FAULT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "ATC FAULT",
+      "description": "Tool changer fault",
+      "causes": [
+        "Mechanism problem"
+      ],
+      "quick_fix": "Check tool changer",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-3002",
+      "alarm_code": "3002",
+      "alarm_number": 3002,
+      "alarm_name": "TOOL NOT CLAMPED",
+      "category": "ATC",
+      "severity": "CRITICAL",
+      "message_text": "TOOL NOT CLAMPED",
+      "description": "Tool clamp unconfirmed",
+      "causes": [
+        "Clamp fault"
+      ],
+      "quick_fix": "Check tool clamp",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-3003",
+      "alarm_code": "3003",
+      "alarm_number": 3003,
+      "alarm_name": "MAGAZINE ERROR",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "MAGAZINE ERROR",
+      "description": "Magazine position error",
+      "causes": [
+        "Index fault"
+      ],
+      "quick_fix": "Check magazine",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-4001",
+      "alarm_code": "4001",
+      "alarm_number": 4001,
+      "alarm_name": "PROGRAM ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "PROGRAM ERROR",
+      "description": "Program syntax error",
+      "causes": [
+        "Invalid code"
+      ],
+      "quick_fix": "Check program",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-4002",
+      "alarm_code": "4002",
+      "alarm_number": 4002,
+      "alarm_name": "NO FEEDRATE",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "NO FEEDRATE",
+      "description": "Feedrate not specified",
+      "causes": [
+        "Missing F word"
+      ],
+      "quick_fix": "Add feedrate",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-4003",
+      "alarm_code": "4003",
+      "alarm_number": 4003,
+      "alarm_name": "NO SPINDLE SPEED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "NO SPINDLE SPEED",
+      "description": "Spindle speed not specified",
+      "causes": [
+        "Missing S word"
+      ],
+      "quick_fix": "Add spindle speed",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-5001",
+      "alarm_code": "5001",
+      "alarm_number": 5001,
+      "alarm_name": "EMERGENCY STOP",
+      "category": "SAFETY",
+      "severity": "CRITICAL",
+      "message_text": "EMERGENCY STOP",
+      "description": "E-stop activated",
+      "causes": [
+        "E-stop pressed"
+      ],
+      "quick_fix": "Release E-stop",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-5002",
+      "alarm_code": "5002",
+      "alarm_number": 5002,
+      "alarm_name": "DOOR OPEN",
+      "category": "SAFETY",
+      "severity": "MEDIUM",
+      "message_text": "DOOR OPEN",
+      "description": "Safety door open",
+      "causes": [
+        "Door not closed"
+      ],
+      "quick_fix": "Close door",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-6001",
+      "alarm_code": "6001",
+      "alarm_number": 6001,
+      "alarm_name": "LOW AIR PRESSURE",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "message_text": "LOW AIR PRESSURE",
+      "description": "Air pressure low",
+      "causes": [
+        "Compressor issue"
+      ],
+      "quick_fix": "Check air supply",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-6002",
+      "alarm_code": "6002",
+      "alarm_number": 6002,
+      "alarm_name": "LOW LUBE LEVEL",
+      "category": "SYSTEM",
+      "severity": "MEDIUM",
+      "message_text": "LOW LUBE LEVEL",
+      "description": "Lubrication low",
+      "causes": [
+        "Low level"
+      ],
+      "quick_fix": "Add lubricant",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "WARNING_ONLY"
+    },
+    {
+      "alarm_id": "ALM-OKUM-6003",
+      "alarm_code": "6003",
+      "alarm_number": 6003,
+      "alarm_name": "LOW COOLANT",
+      "category": "SYSTEM",
+      "severity": "LOW",
+      "message_text": "LOW COOLANT",
+      "description": "Coolant level low",
+      "causes": [
+        "Low level"
+      ],
+      "quick_fix": "Add coolant",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "WARNING_ONLY"
+    },
+    {
+      "alarm_id": "ALM-OKUM-7001",
+      "alarm_code": "7001",
+      "alarm_number": 7001,
+      "alarm_name": "TAS ACTIVE",
+      "category": "THERMAL",
+      "severity": "INFO",
+      "message_text": "TAS ACTIVE",
+      "description": "Thermo-Active Stabilizer active",
+      "causes": [
+        "Normal thermal compensation"
+      ],
+      "quick_fix": "None required - normal operation",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "NONE"
+    },
+    {
+      "alarm_id": "ALM-OKUM-7002",
+      "alarm_code": "7002",
+      "alarm_number": 7002,
+      "alarm_name": "THERMAL SENSOR ERROR",
+      "category": "THERMAL",
+      "severity": "MEDIUM",
+      "message_text": "THERMAL SENSOR ERROR",
+      "description": "Temperature sensor fault",
+      "causes": [
+        "Sensor failure"
+      ],
+      "quick_fix": "Check sensor",
+      "requires_power_cycle": false,
+      "requires_service": true,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-OKUM-8001",
+      "alarm_code": "8001",
+      "alarm_number": 8001,
+      "alarm_name": "COMMUNICATION ERROR",
+      "category": "COMMUNICATION",
+      "severity": "HIGH",
+      "message_text": "COMMUNICATION ERROR",
+      "description": "Communication fault",
+      "causes": [
+        "Cable issue"
+      ],
+      "quick_fix": "Check connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-1000",
+      "alarm_code": "1000",
+      "alarm_number": 1000,
+      "alarm_name": "NCK GENERAL ERROR",
+      "category": "NCK",
+      "severity": "HIGH",
+      "message_text": "NCK general error",
+      "description": "General NCK kernel error occurred",
+      "causes": [
+        "System fault",
+        "Memory error"
+      ],
+      "quick_fix": "Power cycle control",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-2000",
+      "alarm_code": "2000",
+      "alarm_number": 2000,
+      "alarm_name": "INTERPOLATOR ERROR",
+      "category": "NCK",
+      "severity": "HIGH",
+      "message_text": "Interpolator error in block N%d",
+      "description": "Error in motion interpolation",
+      "causes": [
+        "Invalid path",
+        "Acceleration exceeded"
+      ],
+      "quick_fix": "Check program block",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-4000",
+      "alarm_code": "4000",
+      "alarm_number": 4000,
+      "alarm_name": "AXIS POSITION LAG",
+      "category": "DRIVE",
+      "severity": "HIGH",
+      "message_text": "Position lag axis %d too large",
+      "description": "Following error exceeded tolerance",
+      "causes": [
+        "Feedrate too high",
+        "Mechanical binding",
+        "Drive issue"
+      ],
+      "quick_fix": "Reduce feedrate, check mechanics",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-4050",
+      "alarm_code": "4050",
+      "alarm_number": 4050,
+      "alarm_name": "ENCODER FAULT",
+      "category": "DRIVE",
+      "severity": "CRITICAL",
+      "message_text": "Encoder fault axis %d",
+      "description": "Encoder signal lost or invalid",
+      "causes": [
+        "Cable fault",
+        "Encoder failure",
+        "Noise"
+      ],
+      "quick_fix": "Check encoder cable and connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-4100",
+      "alarm_code": "4100",
+      "alarm_number": 4100,
+      "alarm_name": "DRIVE READY OFF",
+      "category": "DRIVE",
+      "severity": "CRITICAL",
+      "message_text": "Drive ready off axis %d",
+      "description": "Drive amplifier not ready",
+      "causes": [
+        "Drive fault",
+        "Power issue",
+        "Safety circuit"
+      ],
+      "quick_fix": "Check drive for detailed fault code",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-4200",
+      "alarm_code": "4200",
+      "alarm_number": 4200,
+      "alarm_name": "MOTOR OVERTEMPERATURE",
+      "category": "DRIVE",
+      "severity": "HIGH",
+      "message_text": "Motor overtemperature axis %d",
+      "description": "Servo motor exceeded temperature limit",
+      "causes": [
+        "Continuous high load",
+        "Cooling failure"
+      ],
+      "quick_fix": "Allow motor to cool",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-4300",
+      "alarm_code": "4300",
+      "alarm_number": 4300,
+      "alarm_name": "CURRENT LIMIT",
+      "category": "DRIVE",
+      "severity": "HIGH",
+      "message_text": "Current limit exceeded axis %d",
+      "description": "Drive current exceeded limit",
+      "causes": [
+        "Excessive load",
+        "Drive fault"
+      ],
+      "quick_fix": "Reduce load, check drive parameters",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-10000",
+      "alarm_code": "10000",
+      "alarm_number": 10000,
+      "alarm_name": "SYNTAX ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "Syntax error in line N%d",
+      "description": "Program syntax error",
+      "causes": [
+        "Invalid code",
+        "Missing data"
+      ],
+      "quick_fix": "Check program at indicated line",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-10010",
+      "alarm_code": "10010",
+      "alarm_number": 10010,
+      "alarm_name": "MISSING G-CODE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "message_text": "G-code missing or invalid",
+      "description": "Required G-code not found",
+      "causes": [
+        "Missing G-code",
+        "Invalid syntax"
+      ],
+      "quick_fix": "Add required G-code",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-10200",
+      "alarm_code": "10200",
+      "alarm_number": 10200,
+      "alarm_name": "FEEDRATE ZERO",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "Feedrate equals zero",
+      "description": "Zero feedrate in cutting block",
+      "causes": [
+        "F0 commanded",
+        "F modal cancelled"
+      ],
+      "quick_fix": "Set positive feedrate",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-10600",
+      "alarm_code": "10600",
+      "alarm_number": 10600,
+      "alarm_name": "SPINDLE SPEED ZERO",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "Spindle speed is zero",
+      "description": "Zero spindle speed with spindle on",
+      "causes": [
+        "S0 commanded"
+      ],
+      "quick_fix": "Set spindle speed",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-14000",
+      "alarm_code": "14000",
+      "alarm_number": 14000,
+      "alarm_name": "SUBROUTINE NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "Subroutine %s not found",
+      "description": "Called subroutine does not exist",
+      "causes": [
+        "Wrong name",
+        "Not loaded"
+      ],
+      "quick_fix": "Load subroutine or correct name",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-14200",
+      "alarm_code": "14200",
+      "alarm_number": 14200,
+      "alarm_name": "CYCLE NOT AVAILABLE",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "message_text": "Cycle %s not available",
+      "description": "Called cycle not loaded or licensed",
+      "causes": [
+        "Cycle not installed",
+        "License issue"
+      ],
+      "quick_fix": "Check cycle availability",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21000",
+      "alarm_code": "21000",
+      "alarm_number": 21000,
+      "alarm_name": "SOFTWARE LIMIT +X",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "Software limit +X exceeded",
+      "description": "X axis positive software limit exceeded",
+      "causes": [
+        "Program commands beyond limit"
+      ],
+      "quick_fix": "Modify program or work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21001",
+      "alarm_code": "21001",
+      "alarm_number": 21001,
+      "alarm_name": "SOFTWARE LIMIT -X",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "Software limit -X exceeded",
+      "description": "X axis negative software limit exceeded",
+      "causes": [
+        "Program commands beyond limit"
+      ],
+      "quick_fix": "Modify program or work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21010",
+      "alarm_code": "21010",
+      "alarm_number": 21010,
+      "alarm_name": "SOFTWARE LIMIT +Y",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "Software limit +Y exceeded",
+      "description": "Y axis positive software limit exceeded",
+      "causes": [
+        "Program commands beyond limit"
+      ],
+      "quick_fix": "Modify program or work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21011",
+      "alarm_code": "21011",
+      "alarm_number": 21011,
+      "alarm_name": "SOFTWARE LIMIT -Y",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "Software limit -Y exceeded",
+      "description": "Y axis negative software limit exceeded",
+      "causes": [
+        "Program commands beyond limit"
+      ],
+      "quick_fix": "Modify program or work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21020",
+      "alarm_code": "21020",
+      "alarm_number": 21020,
+      "alarm_name": "SOFTWARE LIMIT +Z",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "Software limit +Z exceeded",
+      "description": "Z axis positive software limit exceeded",
+      "causes": [
+        "Program commands beyond limit"
+      ],
+      "quick_fix": "Modify program or work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21021",
+      "alarm_code": "21021",
+      "alarm_number": 21021,
+      "alarm_name": "SOFTWARE LIMIT -Z",
+      "category": "OVERTRAVEL",
+      "severity": "MEDIUM",
+      "message_text": "Software limit -Z exceeded",
+      "description": "Z axis negative software limit exceeded",
+      "causes": [
+        "Program commands beyond limit"
+      ],
+      "quick_fix": "Modify program or work offset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21600",
+      "alarm_code": "21600",
+      "alarm_number": 21600,
+      "alarm_name": "HARDWARE LIMIT +X",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "Hardware limit switch +X",
+      "description": "X axis hit positive limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21601",
+      "alarm_code": "21601",
+      "alarm_number": 21601,
+      "alarm_name": "HARDWARE LIMIT -X",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "Hardware limit switch -X",
+      "description": "X axis hit negative limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21610",
+      "alarm_code": "21610",
+      "alarm_number": 21610,
+      "alarm_name": "HARDWARE LIMIT +Y",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "Hardware limit switch +Y",
+      "description": "Y axis hit positive limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21611",
+      "alarm_code": "21611",
+      "alarm_number": 21611,
+      "alarm_name": "HARDWARE LIMIT -Y",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "Hardware limit switch -Y",
+      "description": "Y axis hit negative limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21620",
+      "alarm_code": "21620",
+      "alarm_number": 21620,
+      "alarm_name": "HARDWARE LIMIT +Z",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "Hardware limit switch +Z",
+      "description": "Z axis hit positive limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-21621",
+      "alarm_code": "21621",
+      "alarm_number": 21621,
+      "alarm_name": "HARDWARE LIMIT -Z",
+      "category": "OVERTRAVEL",
+      "severity": "HIGH",
+      "message_text": "Hardware limit switch -Z",
+      "description": "Z axis hit negative limit switch",
+      "causes": [
+        "Axis traveled beyond limit"
+      ],
+      "quick_fix": "Jog opposite direction",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-22000",
+      "alarm_code": "22000",
+      "alarm_number": 22000,
+      "alarm_name": "SPINDLE DRIVE FAULT",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "message_text": "Spindle drive fault",
+      "description": "Spindle drive reported fault",
+      "causes": [
+        "Drive failure",
+        "Overcurrent",
+        "Overvoltage"
+      ],
+      "quick_fix": "Check spindle drive error code",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-22010",
+      "alarm_code": "22010",
+      "alarm_number": 22010,
+      "alarm_name": "SPINDLE OVERLOAD",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "Spindle overload",
+      "description": "Spindle exceeded torque limit",
+      "causes": [
+        "Excessive cutting load",
+        "Dull tool"
+      ],
+      "quick_fix": "Reduce cutting load",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-22020",
+      "alarm_code": "22020",
+      "alarm_number": 22020,
+      "alarm_name": "SPINDLE OVERSPEED",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "Spindle overspeed",
+      "description": "Spindle exceeded maximum RPM",
+      "causes": [
+        "S command too high",
+        "Feedback error"
+      ],
+      "quick_fix": "Check spindle speed command",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-22030",
+      "alarm_code": "22030",
+      "alarm_number": 22030,
+      "alarm_name": "SPINDLE OVERTEMP",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "message_text": "Spindle overtemperature",
+      "description": "Spindle motor exceeded temp limit",
+      "causes": [
+        "High speed continuous",
+        "Heavy cuts"
+      ],
+      "quick_fix": "Allow cooling",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-25000",
+      "alarm_code": "25000",
+      "alarm_number": 25000,
+      "alarm_name": "TOOL CHANGE FAULT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "message_text": "Tool change fault",
+      "description": "Tool change sequence error",
+      "causes": [
+        "Mechanism problem",
+        "Sensor fault"
+      ],
+      "quick_fix": "Check tool changer",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-25010",
+      "alarm_code": "25010",
+      "alarm_number": 25010,
+      "alarm_name": "TOOL NOT CLAMPED",
+      "category": "ATC",
+      "severity": "CRITICAL",
+      "message_text": "Tool not clamped",
+      "description": "Tool clamp not confirmed",
+      "causes": [
+        "Clamp fault",
+        "Air pressure",
+        "Sensor"
+      ],
+      "quick_fix": "Check tool clamp",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-25020",
+      "alarm_code": "25020",
+      "alarm_number": 25020,
+      "alarm_name": "MAGAZINE POSITION ERROR",
+      "category": "ATC",
+      "severity": "MEDIUM",
+      "message_text": "Magazine position error",
+      "description": "Tool magazine not in position",
+      "causes": [
+        "Index fault",
+        "Motor problem"
+      ],
+      "quick_fix": "Check magazine mechanism",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-27000",
+      "alarm_code": "27000",
+      "alarm_number": 27000,
+      "alarm_name": "SAFETY INTEGRATED FAULT",
+      "category": "SAFETY",
+      "severity": "CRITICAL",
+      "message_text": "Safety Integrated fault",
+      "description": "Safety system detected fault",
+      "causes": [
+        "Safety circuit issue",
+        "STO triggered"
+      ],
+      "quick_fix": "Check safety system",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-27010",
+      "alarm_code": "27010",
+      "alarm_number": 27010,
+      "alarm_name": "E-STOP ACTIVE",
+      "category": "SAFETY",
+      "severity": "CRITICAL",
+      "message_text": "Emergency stop active",
+      "description": "E-stop button pressed",
+      "causes": [
+        "E-stop activated"
+      ],
+      "quick_fix": "Release E-stop, reset",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-27020",
+      "alarm_code": "27020",
+      "alarm_number": 27020,
+      "alarm_name": "DOOR INTERLOCK OPEN",
+      "category": "SAFETY",
+      "severity": "MEDIUM",
+      "message_text": "Door interlock open",
+      "description": "Safety door detected open",
+      "causes": [
+        "Door not closed"
+      ],
+      "quick_fix": "Close door fully",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-30000",
+      "alarm_code": "30000",
+      "alarm_number": 30000,
+      "alarm_name": "PLC ALARM",
+      "category": "PLC",
+      "severity": "MEDIUM",
+      "message_text": "PLC alarm %d",
+      "description": "PLC detected error condition",
+      "causes": [
+        "Various - check PLC code"
+      ],
+      "quick_fix": "Check PLC alarm details",
+      "requires_power_cycle": false,
+      "requires_service": false,
+      "machine_stoppage": "CONTROLLED"
+    },
+    {
+      "alarm_id": "ALM-SIEM-60000",
+      "alarm_code": "60000",
+      "alarm_number": 60000,
+      "alarm_name": "COMMUNICATION ERROR",
+      "category": "COMMUNICATION",
+      "severity": "HIGH",
+      "message_text": "Communication error",
+      "description": "Communication fault between components",
+      "causes": [
+        "Cable fault",
+        "Network issue"
+      ],
+      "quick_fix": "Check connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    },
+    {
+      "alarm_id": "ALM-SIEM-60010",
+      "alarm_code": "60010",
+      "alarm_number": 60010,
+      "alarm_name": "PROFINET ERROR",
+      "category": "COMMUNICATION",
+      "severity": "HIGH",
+      "message_text": "PROFINET communication error",
+      "description": "PROFINET network fault",
+      "causes": [
+        "Cable fault",
+        "Node offline"
+      ],
+      "quick_fix": "Check PROFINET connections",
+      "requires_power_cycle": true,
+      "requires_service": true,
+      "machine_stoppage": "IMMEDIATE"
+    }
+  ]
+}

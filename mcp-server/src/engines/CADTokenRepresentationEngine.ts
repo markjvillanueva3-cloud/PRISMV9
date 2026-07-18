@@ -625,7 +625,12 @@ export class CADTokenRepresentationEngine extends BaseEngine {
     return TokenizeInputSchema;
   }
 
-  protected executeImpl(input: unknown): TokenSequence {
+  validate(input: unknown): string | null {
+    const result = TokenizeInputSchema.safeParse(input);
+    return result.success ? null : result.error.message;
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
     const { program, sourceFormat } = TokenizeInputSchema.parse(input);
     return this.tokenize(program, sourceFormat);
   }

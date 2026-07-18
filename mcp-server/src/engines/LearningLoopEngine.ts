@@ -339,7 +339,14 @@ export class LearningLoopEngine {
     const matchCount = patternWords.filter((w) => textWords.has(w)).length;
     const matchRatio = matchCount / patternWords.length;
 
-    return matchRatio > 0.6;
+    // Require BOTH a high ratio AND an absolute floor of shared words. Without
+    // the floor a short pattern false-triggers on unrelated prose: a 3-word
+    // pattern (e.g. "feed rate 0.010") sharing just two common words ("feed",
+    // "rate") with an unrelated response scores ratio 0.67 (> 0.6) and would
+    // wrongly match. Short EXACT patterns are already covered by the substring
+    // match above, so this floor only removes spurious fuzzy matches, not real ones.
+    const MIN_OVERLAP_WORDS = 3;
+    return matchRatio > 0.6 && matchCount >= MIN_OVERLAP_WORDS;
   }
 
   /**
@@ -478,6 +485,13 @@ export class LearningLoopEngine {
    */
   async clearAll(): Promise<void> {
     this.corrections = [];
+    // Mark initialized so a subsequent lazy initialize() does NOT reload the
+    // persisted corrections from the shared agentMemoryFabricEngine. Without
+    // this, every accessor (checkForCorrection / getByDomain / ...) re-runs
+    // initialize() on a freshly-cleared engine and repopulates it from
+    // process-wide persistence -- defeating this "clear for testing" helper and
+    // leaking cross-run corrections into a supposedly-empty store.
+    this.initialized = true;
   }
 }
 

@@ -21,6 +21,7 @@
 
 import { eventBus } from "./EventBus.js";
 import { auditEngine } from "./AuditEngine.js";
+import { emitPipelineOutcome } from "./pipelineOutcomeEmit.js"; // CLOSE-THE-LOOPS-MS0: feed traveler progress to the learning bus
 
 // ============================================================================
 // TYPES
@@ -217,6 +218,18 @@ export class JobTravelerEngine {
       job_id: input.job_id, step_count: createdSteps.length,
     }, { category: "data", source: "JobTravelerEngine" });
 
+    // CLOSE-THE-LOOPS-MS0: DATA-only traveler-create outcome (fire-and-forget, never blocks routing creation).
+    emitPipelineOutcome({
+      domain: "traveler",
+      engineName: "JobTravelerEngine",
+      outcomeEventId: "traveler_create",
+      predictionId: `${input.job_id}-create`,
+      inline: { job_id: input.job_id, step_count: createdSteps.length },
+      adapted: { step_count: createdSteps.length },
+      reward: { objective: "other", raw_value: createdSteps.length, sign_convention: "maximize" },
+      metadata: { created_by: input.created_by ?? "system" },
+    });
+
     return createdSteps;
   }
 
@@ -348,6 +361,21 @@ export class JobTravelerEngine {
 
     step.notes = input.notes ?? step.notes;
     this.steps.set(step.id, step);
+    // CLOSE-THE-LOOPS-MS0: per-step DATA outcome (fire-and-forget, never blocks traveler progress).
+    emitPipelineOutcome({
+      domain: "traveler",
+      engineName: "JobTravelerEngine",
+      outcomeEventId: "traveler_step_complete",
+      predictionId: `${input.job_id}-step-${input.step_number}`,
+      inline: { job_id: input.job_id, step_number: input.step_number, status: step.status },
+      adapted: {
+        setup_time_min: step.setup_time_min ?? 0,
+        cycle_time_min: step.cycle_time_min ?? 0,
+        parts_complete: step.parts_complete ?? 0,
+      },
+      reward: { objective: "cycle_time", raw_value: step.cycle_time_per_part ?? step.cycle_time_min ?? 0, sign_convention: "minimize" },
+      metadata: { skipped: step.status === "skipped", parts_scrapped: step.parts_scrapped ?? 0 },
+    });
 
     // Check if ALL steps are complete → update job lifecycle
     const allStepIds = this.jobSteps.get(input.job_id) ?? [];

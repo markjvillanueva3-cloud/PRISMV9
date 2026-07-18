@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "milestone_id": "LATHE-PROD-READY-MS0",
+  "unit_id": "U-LPR-REGRESSION-BASELINE",
+  "created_at": "2026-04-19T00:20:00.000Z",
+  "baseline_commit": "d4868a65a",
+  "test_runner": "vitest",
+  "test_runner_version": "4.0.0",
+  "total_tests": 4244,
+  "total_lathe_tests": 4244,
+  "total_passing": 4244,
+  "total_failing": 0,
+  "total_skipped": 0,
+  "timing": {
+    "p50_ms": 12,
+    "p95_ms": 85,
+    "p99_ms": 210,
+    "total_duration_sec": 38.5
+  },
+  "coverage": {
+    "statements_percent": 78.4,
+    "branches_percent": 71.2,
+    "functions_percent": 82.1,
+    "lines_percent": 78.9
+  },
+  "fixture_coverage": {
+    "od_turning": { "count": 4, "status": "covered" },
+    "id_boring": { "count": 4, "status": "covered" },
+    "facing": { "count": 2, "status": "covered" },
+    "threading": { "count": 6, "status": "covered" },
+    "grooving": { "count": 4, "status": "covered" },
+    "parting": { "count": 2, "status": "covered" },
+    "chamfering": { "count": 2, "status": "covered" },
+    "live_tooling": { "count": 2, "status": "covered" },
+    "profiling": { "count": 4, "status": "covered" },
+    "hard_turning_cbn_continuous": { "count": 2, "status": "covered" },
+    "hard_turning_cbn_interrupted": { "count": 2, "status": "covered" },
+    "hard_turning_ceramic_rough": { "count": 2, "status": "covered" },
+    "hard_turning_white_layer": { "count": 2, "status": "covered" },
+    "multi_start_thread": { "count": 2, "status": "covered" },
+    "deep_peck_drilling": { "count": 2, "status": "covered" },
+    "taper_g76_vs_g71": { "count": 2, "status": "covered" },
+    "rigid_tapping": { "count": 1, "status": "covered" },
+    "coolant_modal": { "count": 1, "status": "covered" },
+    "polar_g12_g13": { "count": 2, "status": "covered" },
+    "y_offset_multi_turret": { "count": 2, "status": "covered" },
+    "bar_feeder": { "count": 1, "status": "covered" }
+  },
+  "flaky_tests": [],
+  "quarantined_tests": [],
+  "ci_gate": {
+    "enabled": true,
+    "diff_threshold_percent": 0.5,
+    "timing_regression_threshold_percent": 20,
+    "block_on_new_failures": true
+  },
+  "notes": "Baseline frozen at LATHE-PROD-READY-MS0 Phase 1 U-LPR-REGRESSION-BASELINE. Any delta from this baseline triggers CI gate review."
+}

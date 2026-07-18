@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS11-P0-U04",
+  "title": "SkillExecutor + AgentExecutor Orchestration Logic Audit",
+  "audited_at": "2026-04-14T18:05:00Z",
+  "auditor": "claude-opus-4.5",
+  "status": "PASS",
+  "skill_executor": {
+    "location": "src/engines/SkillExecutor.ts",
+    "version": "1.0.0",
+    "features": [
+      "Skill loading with validation and caching",
+      "Intelligent skill recommendation based on task analysis",
+      "Dependency resolution and skill chains",
+      "Usage tracking and performance metrics",
+      "Skill content extraction and formatting"
+    ],
+    "configuration": {
+      "cache_enabled": true,
+      "cache_ttl_ms": 300000,
+      "max_cache_entries": 50,
+      "max_recommendation_count": 10,
+      "min_relevance_threshold": 0.3,
+      "enable_usage_tracking": true
+    },
+    "task_analysis": {
+      "detected_domains": [
+        "materials",
+        "machines",
+        "tools",
+        "alarms",
+        "calculations",
+        "programming",
+        "session",
+        "quality",
+        "code",
+        "ai"
+      ],
+      "detected_actions": [
+        "add",
+        "enhance",
+        "validate",
+        "search",
+        "calculate",
+        "extract",
+        "debug",
+        "plan",
+        "execute",
+        "review"
+      ],
+      "complexity_levels": [
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+      ]
+    },
+    "domain_to_skills_mapping": {
+      "materials": [
+        "prism-material-schema",
+        "prism-material-physics",
+        "prism-material-lookup",
+        "prism-material-validator",
+        "prism-material-enhancer"
+      ],
+      "machines": [
+        "prism-manufacturing-tables"
+      ],
+      "alarms": [
+        "prism-error-catalog",
+        "prism-fanuc-programming",
+        "prism-siemens-programming"
+      ],
+      "calculations": [
+        "prism-universal-formulas",
+        "prism-material-physics"
+      ],
+      "programming": [
+        "prism-fanuc-programming",
+        "prism-siemens-programming",
+        "prism-heidenhain-programming",
+        "prism-gcode-reference"
+      ],
+      "session": [
+        "prism-session-master",
+        "prism-quick-start",
+        "prism-state-manager",
+        "prism-session-buffer",
+        "prism-task-continuity"
+      ],
+      "quality": [
+        "prism-validator",
+        "prism-quality-master",
+        "prism-safety-framework",
+        "prism-reasoning-engine",
+        "prism-code-perfection",
+        "prism-process-optimizer"
+      ]
+    }
+  },
+  "agent_executor": {
+    "location": "src/engines/AgentExecutor.ts",
+    "safety_critical": "Agents may control manufacturing processes. All executions must be logged and traceable.",
+    "features": [
+      "Agent lifecycle management (create, execute, monitor, terminate)",
+      "Task queue with priority scheduling",
+      "Parallel and sequential execution modes",
+      "Result aggregation and synthesis",
+      "Error handling with retry logic",
+      "Agent communication and handoff",
+      "Execution history and analytics"
+    ],
+    "execution_modes": [
+      "sequential",
+      "parallel",
+      "pipeline",
+      "swarm"
+    ],
+    "task_status_lifecycle": [
+      "pending",
+      "queued",
+      "running",
+      "completed",
+      "failed",
+      "cancelled",
+      "retrying"
+    ],
+    "priority_weights": {
+      "critical": 100,
+      "high": 75,
+      "normal": 50,
+      "low": 25,
+      "background": 10
+    },
+    "configuration": {
+      "maxConcurrent": 5,
+      "defaultTimeout_ms": 30000,
+      "defaultRetries": 2,
+      "retryDelay_ms": 1000,
+      "enableHooks": true,
+      "logLevel": "info"
+    }
+  },
+  "error_recovery_and_retry": {
+    "retry_mechanism": {
+      "max_retries": "Configurable per task (default 2)",
+      "retry_delay_ms": "Configurable (default 1000ms)",
+      "retry_loop": "while (retryCount <= task.retries) with exponential backoff potential"
+    },
+    "error_handling": {
+      "task_failed_hook": "Fires on all retries exhausted",
+      "session_status": "Set to 'error' on failure",
+      "error_counter": "session.errors++ on each failure"
+    },
+    "api_enforcement": {
+      "requirement": "ANTHROPIC_API_KEY required for agent execution",
+      "simulation_disabled": "Simulation mode DISABLED for safety-critical manufacturing"
+    }
+  },
+  "execution_pipeline": {
+    "skill_execution": [
+      "1. Load skill from registry with validation",
+      "2. Check cache for recent loads",
+      "3. Resolve dependencies (skill chains)",
+      "4. Execute with context and track usage",
+      "5. Cache result for TTL duration"
+    ],
+    "agent_execution": [
+      "1. Create task with priority and dependencies",
+      "2. Queue task based on priority weights",
+      "3. Check dependencies are satisfied",
+      "4. Get or create agent session",
+      "5. Fire task_started hook",
+      "6. Execute with Claude API",
+      "7. Handle success/failure with retry logic",
+      "8. Fire task_completed/task_failed hook",
+      "9. Update session metrics"
+    ]
+  },
+  "hook_integration": {
+    "skill_executor": "Uses hookEngine for lifecycle events",
+    "agent_executor": {
+      "hooks_fired": [
+        "task_started",
+        "task_completed",
+        "task_failed"
+      ],
+      "configurable": "enableHooks flag in config"
+    }
+  },
+  "findings": [],
+  "exit_conditions_met": {
+    "skill_execution_pipeline_verified": true,
+    "agent_orchestration_logic_verified": true,
+    "error_recovery_and_retry_logic_verified": true
+  }
+}

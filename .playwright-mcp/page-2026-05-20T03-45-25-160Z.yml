@@ -1,0 +1,1687 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+    - generic [ref=e4]: Skip to main content
+  - generic [ref=e6]:
+    - generic:
+      - generic [ref=e7]:
+        - generic: "I made Claude Code aware of its own usage limits : r/ClaudeAI"
+      - banner [ref=e10]:
+        - navigation [ref=e11]:
+          - link "Home" [ref=e15] [cursor=pointer]:
+            - /url: /
+            - img [ref=e17]
+          - search [ref=e33]:
+            - generic [ref=e35]:
+              - img [ref=e38]
+              - generic "Remove r/ClaudeAI filter and expand search to all of Reddit" [ref=e41] [cursor=pointer]:
+                - button [pressed] [ref=e42]:
+                  - generic [ref=e46]: r/ClaudeAI
+                  - img [ref=e48]
+              - textbox "Remove r/ClaudeAI filter and expand search to all of Reddit" [ref=e51]:
+                - /placeholder: Search in ⁨r/ClaudeAI⁩
+          - generic [ref=e52]:
+            - link "Sign Up" [ref=e58] [cursor=pointer]:
+              - /url: https://www.reddit.com/register/
+              - generic [ref=e60]: Sign Up
+            - link "Log In" [ref=e64] [cursor=pointer]:
+              - /url: https://www.reddit.com/login/
+              - generic [ref=e66]: Log In
+            - button "Expand user menu" [ref=e71] [cursor=pointer]:
+              - img [ref=e74]
+              - generic [ref=e76]:
+                - generic: Expand user menu
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]:
+            - generic:
+              - generic:
+                - link "Skip to Navigation" [ref=e80] [cursor=pointer]:
+                  - /url: "#left-sidebar-container"
+                - link "Skip to Right Sidebar" [ref=e81] [cursor=pointer]:
+                  - /url: "#right-sidebar-container"
+          - generic [ref=e82]:
+            - main [ref=e83]:
+              - 'generic "I made Claude Code aware of its own usage limits : r/ClaudeAI"'
+              - generic [ref=e84]:
+                - generic [ref=e85]:
+                  - generic [ref=e86]:
+                    - button "Back" [ref=e88] [cursor=pointer]:
+                      - img [ref=e91]
+                      - generic [ref=e93]:
+                        - generic: Back
+                    - link "Go to ClaudeAI" [ref=e96] [cursor=pointer]:
+                      - /url: /r/ClaudeAI/
+                      - generic [ref=e100]:
+                        - generic: Go to ClaudeAI
+                    - group [ref=e101]:
+                      - generic [ref=e102]:
+                        - link "r/ClaudeAI" [ref=e106] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/
+                        - generic [ref=e107]: •
+                        - time [ref=e108]: 9d ago
+                      - 'link "Author: Inertia-UK" [ref=e114] [cursor=pointer]':
+                        - /url: /user/Inertia-UK/
+                        - generic [ref=e115]: Inertia-UK
+                  - button "Open user actions" [ref=e119] [cursor=pointer]:
+                    - img [ref=e122]
+                - generic [ref=e125]:
+                  - 'heading "Post Title: I made Claude Code aware of its own usage limits" [level=1] [ref=e126]': I made Claude Code aware of its own usage limits
+                  - 'link "Flair: Built with Claude" [ref=e129] [cursor=pointer]':
+                    - /url: /r/ClaudeAI/?f=flair_name%3A%22Built%20with%20Claude%22
+                    - 'generic "Flair: Built with Claude" [ref=e131]': Built with Claude
+                - generic [ref=e135]:
+                  - paragraph [ref=e136]: "Something that's been annoying me for a while: Claude Code has no idea how much quota it's burned. You can see the usage bars in the UI, but the model itself is completely blind to them. There's no API, no tool, no hook that exposes the current rate limit state during a conversation."
+                  - paragraph [ref=e137]: "Turns out Anthropic returns rate limit headers on every inference response (`anthropic-ratelimit-unified-5h-utilization`, `anthropic-ratelimit-unified-7d-utilization`, etc.) — Claude Code receives them internally to render the UI bars, but never passes them anywhere the model can see."
+                  - paragraph [ref=e138]:
+                    - text: "So I built a small local HTTP proxy that sits between Claude Code and `api.anthropic.com`. Claude Code already respects `ANTHROPIC_BASE_URL`, so setting that to `"
+                    - 'link "http://127.0.0.1:4080`" [ref=e139] [cursor=pointer]':
+                      - /url: "http://127.0.0.1:4080`"
+                    - text: "routes all traffic through the proxy. It intercepts the response headers and writes a one-line status file to `~/.claude/usage-status.md`:"
+                  - paragraph [ref=e140]: "```"
+                  - paragraph [ref=e141]: 5h=9% 7d=99%! overage=0% bottleneck=seven_day (10/05/2026, 16:19:04)
+                  - paragraph [ref=e142]: "```"
+                  - paragraph [ref=e143]:
+                    - text: "Claude can then read that file on demand, or you can inject it automatically via a `UserPromptSubmit` hook so it's present in every prompt. Add a rule to your"
+                    - link "CLAUDE.md" [ref=e144] [cursor=pointer]:
+                      - /url: http://CLAUDE.md
+                    - text: and Claude will warn you before starting large tasks when you're close to the limit, switch to lightweight mode above 90%, or flat out refuse new implementation work at 98%.
+                  - paragraph [ref=e145]: "**Note:** this only works with Claude Code (the CLI). The web chat and browser extension make requests through Anthropic's own infrastructure, so there's no local proxy to intercept."
+                  - paragraph [ref=e146]: "**The interesting discovery:** while testing I dumped every `anthropic-ratelimit-*` header from both Opus and Sonnet requests. There are no per-model headers — one unified pool covers everything. The separate Sonnet usage bar in the Claude Code UI doesn't reflect a real separate limit. According to GitHub issue #57050, Anthropic intended to give Sonnet its own bucket (announced Nov 2025) but the backend never shipped it. Using Sonnet drains the same unified pool as Opus."
+                  - paragraph [ref=e147]: The proxy is zero npm dependencies, plain Node.js stdlib. On Windows it installs as a service via NSSM. macOS and Linux setup (launchd/systemd) is in the README.
+                  - paragraph [ref=e148]:
+                    - link "https://github.com/InertiaUK/claude-quota-proxy" [ref=e149] [cursor=pointer]:
+                      - /url: https://github.com/InertiaUK/claude-quota-proxy
+                  - paragraph [ref=e150]:
+                    - text: The README also has a few example
+                    - link "CLAUDE.md" [ref=e151] [cursor=pointer]:
+                      - /url: http://CLAUDE.md
+                    - text: rules if you want Claude to automatically adjust its behaviour based on usage level.
+                  - paragraph [ref=e152]:
+                    - text: /edit - This breaking Anthropic rule is a grey area, there is no rule against sniffing the traffic or proxying it, there are rules against using the API directly this way, or providing access to otehr users (ciruventign API) which we aren't doing.
+                    - text: Using it through a proxy is no different than using it via squid transparent proxy or any other which is fine. sniffing data isn't prohibited, and injecting data you have into Claude's context isn't prohibited, I asked support and they confirmed all of this.
+                    - strong [ref=e153]: HOWEVER
+                    - text: other user(s) have asked support (perhaps with different wording) and been given contradicting information. This puts it in a grey area to me and is a risk that isn't worth taking .....
+                    - strong [ref=e154]: proceed with extreme caution at your own risk.
+                - generic "Actions available for this post" [ref=e156]:
+                  - generic [ref=e159]:
+                    - button "Upvote" [ref=e160] [cursor=pointer]:
+                      - img [ref=e162]
+                      - generic [ref=e164]:
+                        - generic: Upvote
+                    - generic [ref=e166]: "190"
+                    - button "Downvote" [ref=e167] [cursor=pointer]:
+                      - img [ref=e169]
+                      - generic [ref=e171]:
+                        - generic: Downvote
+                  - button "49 Go to comments" [ref=e172] [cursor=pointer]:
+                    - generic [ref=e173]:
+                      - img [ref=e175]
+                      - generic [ref=e178]: "49"
+                    - generic [ref=e179]:
+                      - generic: Go to comments
+                  - button "Give award" [ref=e181] [cursor=pointer]:
+                    - img [ref=e184]
+                  - button "Share" [ref=e189] [cursor=pointer]:
+                    - generic [ref=e190]:
+                      - img [ref=e192]
+                      - generic [ref=e195]: Share
+              - generic "Claude Code researches, writes, analyzes, and codes so your small team can take on bigger competition." [ref=e196]:
+                - generic [ref=e197]:
+                  - 'generic "Advertisement: Claude Code researches, writes, analyzes, and codes so your small team can take on bigger competition." [ref=e198]':
+                    - 'link "Advertisement: Claude Code researches, writes, analyzes, and codes so your small team can take on bigger competition." [ref=e199] [cursor=pointer]':
+                      - /url: https://alb.reddit.com/cr?za=SxLz16m8z3_kU1-w784qvCKq3q1XA_PoDypCNgpwHzkQhKTJV5x_dVvysoLaFyowHSM8-jOZPwHJ6SmPWd9DKhSfARFvEO8nW-Fz4aROCzpwRGdJ04F6k6z9SLj0Qdnugwr6OQWcIcMDa2Tlm4tH3FylL4K9-kEr1aWdZbsL_SLy2cK-LbIYWwKRIu6N-zYGSAB18VNU6087CR48QU16tj6zG8AUp5Xd2hqQTESM-PXX2-WhcG24ct9frmYF9IpwiJ9915OJ6KTr6-T_BSHKTGiyQ9tRNleuiRL62fO7JzvYxz5-qMYKfxhQQ-P5sLMl3y9rC3QfIEOeFu4M4jk-SgDCfhADSwNrPFDgt10reBWQ5SPKOa38xW90KFegT6AvKfNRACKuIZaI_1KfR1ZwQdNblyvy1KAag3eNUEb6hIW3aa0A2iv5R69fBVf3KXPxlNa7PnzHxpTHTgIXbC-WLWDQqayNcRfp5-eVB6Me5vR5Z73rPpabjY_RXf4bQ9AXFC_kTfnivQREjOZi7tG6eSKgiOKONRZWR-XEhOsPtWG1qoeJH928bXNukZXIWbB7D8aWFnWhuRuHYh51h3Rmti-k4wbbrnCQH8ZziTSjp6fGs0qsoePDrNmCsHfsWlnCaYKy3DDcf1JraifmS6g9HQ1kWvC2mVmI1pKetewqb1kyn4ev6ZUOzuyuAR6lrnsCo7l9Fel_VRyGWvv2z09i3d19sWRZJCN9ZVXCWd4q2K4KBFDTz4xTHNButckFR98YO_5xqEQLz8YyYQoqPI_mib4v0bt3mcM-KP90&zp=uBPVxlkhL50mblRtFaWfiapcv37HbYvI2O4NilP7u4sS70wSnJvqFDq4iVbxYefu9wlHQ5Wbuk5HMR7m9cF1ah59dv8x6tk-z2pUsVH1YOt_hbGINuiUWsthdiKOIjYP6Cpvo_OD6t4oUQgVxGRqwaMTALI07m0UkPUVdGhseDrXx92QilLYNQayDBpZqHTSTnP0OLL1-ZW69DmF_hjEiMgKixCYqcROBqKW-Y_bJ6iQTC8Q0NMZJJiQK6caRJRLMMEC1ARC0-3hOAEU5wpOqs4yjlwjL67Wyvt7xL_ZSebOhbD3ZYy8U4I96Q9Xk4880rEAqY9A4w6S8BC6zi0FxARmZX0JpQlKDj3vIkgpFYfQhhrhYkbBKWLbeMhs2T4ioattguRHQxzWB9x0KjQEGhCdLWqATlozC4gDPKw
+                  - generic [ref=e200]:
+                    - generic [ref=e201]:
+                      - link "u/anthropic-ai avatar anthropic-ai" [ref=e204] [cursor=pointer]:
+                        - /url: /user/anthropic-ai/
+                        - img "u/anthropic-ai avatar" [ref=e207]
+                        - generic [ref=e208]: anthropic-ai
+                      - generic [ref=e209]: •
+                      - link "Promoted" [ref=e211] [cursor=pointer]:
+                        - /url: /user/anthropic-ai/
+                        - generic [ref=e212]: Promoted
+                      - link [ref=e214] [cursor=pointer]:
+                        - /url: https://alb.reddit.com/cr?za=SxLz16m8z3_kU1-w784qvCKq3q1XA_PoDypCNgpwHzkQhKTJV5x_dVvysoLaFyowHSM8-jOZPwHJ6SmPWd9DKhSfARFvEO8nW-Fz4aROCzpwRGdJ04F6k6z9SLj0Qdnugwr6OQWcIcMDa2Tlm4tH3FylL4K9-kEr1aWdZbsL_SLy2cK-LbIYWwKRIu6N-zYGSAB18VNU6087CR48QU16tj6zG8AUp5Xd2hqQTESM-PXX2-WhcG24ct9frmYF9IpwiJ9915OJ6KTr6-T_BSHKTGiyQ9tRNleuiRL62fO7JzvYxz5-qMYKfxhQQ-P5sLMl3y9rC3QfIEOeFu4M4jk-SgDCfhADSwNrPFDgt10reBWQ5SPKOa38xW90KFegT6AvKfNRACKuIZaI_1KfR1ZwQdNblyvy1KAag3eNUEb6hIW3aa0A2iv5R69fBVf3KXPxlNa7PnzHxpTHTgIXbC-WLWDQqayNcRfp5-eVB6Me5vR5Z73rPpabjY_RXf4bQ9AXFC_kTfnivQREjOZi7tG6eSKgiOKONRZWR-XEhOsPtWG1qoeJH928bXNukZXIWbB7D8aWFnWhuRuHYh51h3Rmti-k4wbbrnCQH8ZziTSjp6fGs0qsoePDrNmCsHfsWlnCaYKy3DDcf1JraifmS6g9HQ1kWvC2mVmI1pKetewqb1kyn4ev6ZUOzuyuAR6lrnsCo7l9Fel_VRyGWvv2z09i3d19sWRZJCN9ZVXCWd4q2K4KBFDTz4xTHNButckFR98YO_5xqEQLz8YyYQoqPI_mib4v0bt3mcM-KP90&zp=uBPVxlkhL50mblRtFaWfiapcv37HbYvI2O4NilP7u4sS70wSnJvqFDq4iVbxYefu9wlHQ5Wbuk5HMR7m9cF1ah59dv8x6tk-z2pUsVH1YOt_hbGINuiUWsthdiKOIjYP6Cpvo_OD6t4oUQgVxGRqwaMTALI07m0UkPUVdGhseDrXx92QilLYNQayDBpZqHTSTnP0OLL1-ZW69DmF_hjEiMgKixCYqcROBqKW-Y_bJ6iQTC8Q0NMZJJiQK6caRJRLMMEC1ARC0-3hOAEU5wpOqs4yjlwjL67Wyvt7xL_ZSebOhbD3ZYy8U4I96Q9Xk4880rEAqY9A4w6S8BC6zi0FxARmZX0JpQlKDj3vIkgpFYfQhhrhYkbBKWLbeMhs2T4ioattguRHQxzWB9x0KjQEGhCdLWqATlozC4gDPKw
+                    - button "Open user actions" [ref=e219] [cursor=pointer]:
+                      - img [ref=e222]
+                  - generic [ref=e225]:
+                    - generic [ref=e226]:
+                      - link "Claude Code researches, writes, analyzes, and codes so your small team can take on bigger competition." [ref=e228] [cursor=pointer]:
+                        - /url: https://alb.reddit.com/cr?za=SxLz16m8z3_kU1-w784qvCKq3q1XA_PoDypCNgpwHzkQhKTJV5x_dVvysoLaFyowHSM8-jOZPwHJ6SmPWd9DKhSfARFvEO8nW-Fz4aROCzpwRGdJ04F6k6z9SLj0Qdnugwr6OQWcIcMDa2Tlm4tH3FylL4K9-kEr1aWdZbsL_SLy2cK-LbIYWwKRIu6N-zYGSAB18VNU6087CR48QU16tj6zG8AUp5Xd2hqQTESM-PXX2-WhcG24ct9frmYF9IpwiJ9915OJ6KTr6-T_BSHKTGiyQ9tRNleuiRL62fO7JzvYxz5-qMYKfxhQQ-P5sLMl3y9rC3QfIEOeFu4M4jk-SgDCfhADSwNrPFDgt10reBWQ5SPKOa38xW90KFegT6AvKfNRACKuIZaI_1KfR1ZwQdNblyvy1KAag3eNUEb6hIW3aa0A2iv5R69fBVf3KXPxlNa7PnzHxpTHTgIXbC-WLWDQqayNcRfp5-eVB6Me5vR5Z73rPpabjY_RXf4bQ9AXFC_kTfnivQREjOZi7tG6eSKgiOKONRZWR-XEhOsPtWG1qoeJH928bXNukZXIWbB7D8aWFnWhuRuHYh51h3Rmti-k4wbbrnCQH8ZziTSjp6fGs0qsoePDrNmCsHfsWlnCaYKy3DDcf1JraifmS6g9HQ1kWvC2mVmI1pKetewqb1kyn4ev6ZUOzuyuAR6lrnsCo7l9Fel_VRyGWvv2z09i3d19sWRZJCN9ZVXCWd4q2K4KBFDTz4xTHNButckFR98YO_5xqEQLz8YyYQoqPI_mib4v0bt3mcM-KP90&zp=uBPVxlkhL50mblRtFaWfiapcv37HbYvI2O4NilP7u4sS70wSnJvqFDq4iVbxYefu9wlHQ5Wbuk5HMR7m9cF1ah59dv8x6tk-z2pUsVH1YOt_hbGINuiUWsthdiKOIjYP6Cpvo_OD6t4oUQgVxGRqwaMTALI07m0UkPUVdGhseDrXx92QilLYNQayDBpZqHTSTnP0OLL1-ZW69DmF_hjEiMgKixCYqcROBqKW-Y_bJ6iQTC8Q0NMZJJiQK6caRJRLMMEC1ARC0-3hOAEU5wpOqs4yjlwjL67Wyvt7xL_ZSebOhbD3ZYy8U4I96Q9Xk4880rEAqY9A4w6S8BC6zi0FxARmZX0JpQlKDj3vIkgpFYfQhhrhYkbBKWLbeMhs2T4ioattguRHQxzWB9x0KjQEGhCdLWqATlozC4gDPKw
+                        - generic: Claude Code researches, writes, analyzes, and codes so your small team can take on bigger competition.
+                      - generic [ref=e229]:
+                        - link [ref=e231] [cursor=pointer]:
+                          - /url: https://alb.reddit.com/cr?za=SxLz16m8z3_kU1-w784qvCKq3q1XA_PoDypCNgpwHzkQhKTJV5x_dVvysoLaFyowHSM8-jOZPwHJ6SmPWd9DKhSfARFvEO8nW-Fz4aROCzpwRGdJ04F6k6z9SLj0Qdnugwr6OQWcIcMDa2Tlm4tH3FylL4K9-kEr1aWdZbsL_SLy2cK-LbIYWwKRIu6N-zYGSAB18VNU6087CR48QU16tj6zG8AUp5Xd2hqQTESM-PXX2-WhcG24ct9frmYF9IpwiJ9915OJ6KTr6-T_BSHKTGiyQ9tRNleuiRL62fO7JzvYxz5-qMYKfxhQQ-P5sLMl3y9rC3QfIEOeFu4M4jk-SgDCfhADSwNrPFDgt10reBWQ5SPKOa38xW90KFegT6AvKfNRACKuIZaI_1KfR1ZwQdNblyvy1KAag3eNUEb6hIW3aa0A2iv5R69fBVf3KXPxlNa7PnzHxpTHTgIXbC-WLWDQqayNcRfp5-eVB6Me5vR5Z73rPpabjY_RXf4bQ9AXFC_kTfnivQREjOZi7tG6eSKgiOKONRZWR-XEhOsPtWG1qoeJH928bXNukZXIWbB7D8aWFnWhuRuHYh51h3Rmti-k4wbbrnCQH8ZziTSjp6fGs0qsoePDrNmCsHfsWlnCaYKy3DDcf1JraifmS6g9HQ1kWvC2mVmI1pKetewqb1kyn4ev6ZUOzuyuAR6lrnsCo7l9Fel_VRyGWvv2z09i3d19sWRZJCN9ZVXCWd4q2K4KBFDTz4xTHNButckFR98YO_5xqEQLz8YyYQoqPI_mib4v0bt3mcM-KP90&zp=uBPVxlkhL50mblRtFaWfiapcv37HbYvI2O4NilP7u4sS70wSnJvqFDq4iVbxYefu9wlHQ5Wbuk5HMR7m9cF1ah59dv8x6tk-z2pUsVH1YOt_hbGINuiUWsthdiKOIjYP6Cpvo_OD6t4oUQgVxGRqwaMTALI07m0UkPUVdGhseDrXx92QilLYNQayDBpZqHTSTnP0OLL1-ZW69DmF_hjEiMgKixCYqcROBqKW-Y_bJ6iQTC8Q0NMZJJiQK6caRJRLMMEC1ARC0-3hOAEU5wpOqs4yjlwjL67Wyvt7xL_ZSebOhbD3ZYy8U4I96Q9Xk4880rEAqY9A4w6S8BC6zi0FxARmZX0JpQlKDj3vIkgpFYfQhhrhYkbBKWLbeMhs2T4ioattguRHQxzWB9x0KjQEGhCdLWqATlozC4gDPKw
+                        - generic [ref=e232]:
+                          - link "Sign Up" [ref=e234] [cursor=pointer]:
+                            - /url: https://alb.reddit.com/cr?za=SxLz16m8z3_kU1-w784qvCKq3q1XA_PoDypCNgpwHzkQhKTJV5x_dVvysoLaFyowHSM8-jOZPwHJ6SmPWd9DKhSfARFvEO8nW-Fz4aROCzpwRGdJ04F6k6z9SLj0Qdnugwr6OQWcIcMDa2Tlm4tH3FylL4K9-kEr1aWdZbsL_SLy2cK-LbIYWwKRIu6N-zYGSAB18VNU6087CR48QU16tj6zG8AUp5Xd2hqQTESM-PXX2-WhcG24ct9frmYF9IpwiJ9915OJ6KTr6-T_BSHKTGiyQ9tRNleuiRL62fO7JzvYxz5-qMYKfxhQQ-P5sLMl3y9rC3QfIEOeFu4M4jk-SgDCfhADSwNrPFDgt10reBWQ5SPKOa38xW90KFegT6AvKfNRACKuIZaI_1KfR1ZwQdNblyvy1KAag3eNUEb6hIW3aa0A2iv5R69fBVf3KXPxlNa7PnzHxpTHTgIXbC-WLWDQqayNcRfp5-eVB6Me5vR5Z73rPpabjY_RXf4bQ9AXFC_kTfnivQREjOZi7tG6eSKgiOKONRZWR-XEhOsPtWG1qoeJH928bXNukZXIWbB7D8aWFnWhuRuHYh51h3Rmti-k4wbbrnCQH8ZziTSjp6fGs0qsoePDrNmCsHfsWlnCaYKy3DDcf1JraifmS6g9HQ1kWvC2mVmI1pKetewqb1kyn4ev6ZUOzuyuAR6lrnsCo7l9Fel_VRyGWvv2z09i3d19sWRZJCN9ZVXCWd4q2K4KBFDTz4xTHNButckFR98YO_5xqEQLz8YyYQoqPI_mib4v0bt3mcM-KP90&zp=uBPVxlkhL50mblRtFaWfiapcv37HbYvI2O4NilP7u4sS70wSnJvqFDq4iVbxYefu9wlHQ5Wbuk5HMR7m9cF1ah59dv8x6tk-z2pUsVH1YOt_hbGINuiUWsthdiKOIjYP6Cpvo_OD6t4oUQgVxGRqwaMTALI07m0UkPUVdGhseDrXx92QilLYNQayDBpZqHTSTnP0OLL1-ZW69DmF_hjEiMgKixCYqcROBqKW-Y_bJ6iQTC8Q0NMZJJiQK6caRJRLMMEC1ARC0-3hOAEU5wpOqs4yjlwjL67Wyvt7xL_ZSebOhbD3ZYy8U4I96Q9Xk4880rEAqY9A4w6S8BC6zi0FxARmZX0JpQlKDj3vIkgpFYfQhhrhYkbBKWLbeMhs2T4ioattguRHQxzWB9x0KjQEGhCdLWqATlozC4gDPKw
+                            - generic [ref=e236]:
+                              - generic: Sign Up
+                          - link "claude.com" [ref=e239] [cursor=pointer]:
+                            - /url: https://alb.reddit.com/cr?za=SxLz16m8z3_kU1-w784qvCKq3q1XA_PoDypCNgpwHzkQhKTJV5x_dVvysoLaFyowHSM8-jOZPwHJ6SmPWd9DKhSfARFvEO8nW-Fz4aROCzpwRGdJ04F6k6z9SLj0Qdnugwr6OQWcIcMDa2Tlm4tH3FylL4K9-kEr1aWdZbsL_SLy2cK-LbIYWwKRIu6N-zYGSAB18VNU6087CR48QU16tj6zG8AUp5Xd2hqQTESM-PXX2-WhcG24ct9frmYF9IpwiJ9915OJ6KTr6-T_BSHKTGiyQ9tRNleuiRL62fO7JzvYxz5-qMYKfxhQQ-P5sLMl3y9rC3QfIEOeFu4M4jk-SgDCfhADSwNrPFDgt10reBWQ5SPKOa38xW90KFegT6AvKfNRACKuIZaI_1KfR1ZwQdNblyvy1KAag3eNUEb6hIW3aa0A2iv5R69fBVf3KXPxlNa7PnzHxpTHTgIXbC-WLWDQqayNcRfp5-eVB6Me5vR5Z73rPpabjY_RXf4bQ9AXFC_kTfnivQREjOZi7tG6eSKgiOKONRZWR-XEhOsPtWG1qoeJH928bXNukZXIWbB7D8aWFnWhuRuHYh51h3Rmti-k4wbbrnCQH8ZziTSjp6fGs0qsoePDrNmCsHfsWlnCaYKy3DDcf1JraifmS6g9HQ1kWvC2mVmI1pKetewqb1kyn4ev6ZUOzuyuAR6lrnsCo7l9Fel_VRyGWvv2z09i3d19sWRZJCN9ZVXCWd4q2K4KBFDTz4xTHNButckFR98YO_5xqEQLz8YyYQoqPI_mib4v0bt3mcM-KP90&zp=uBPVxlkhL50mblRtFaWfiapcv37HbYvI2O4NilP7u4sS70wSnJvqFDq4iVbxYefu9wlHQ5Wbuk5HMR7m9cF1ah59dv8x6tk-z2pUsVH1YOt_hbGINuiUWsthdiKOIjYP6Cpvo_OD6t4oUQgVxGRqwaMTALI07m0UkPUVdGhseDrXx92QilLYNQayDBpZqHTSTnP0OLL1-ZW69DmF_hjEiMgKixCYqcROBqKW-Y_bJ6iQTC8Q0NMZJJiQK6caRJRLMMEC1ARC0-3hOAEU5wpOqs4yjlwjL67Wyvt7xL_ZSebOhbD3ZYy8U4I96Q9Xk4880rEAqY9A4w6S8BC6zi0FxARmZX0JpQlKDj3vIkgpFYfQhhrhYkbBKWLbeMhs2T4ioattguRHQxzWB9x0KjQEGhCdLWqATlozC4gDPKw
+                            - generic: claude.com
+                    - 'link "Thumbnail image: Claude Code researches, writes, analyzes, and codes so your small team can take on bigger competition." [ref=e242] [cursor=pointer]':
+                      - /url: https://alb.reddit.com/cr?za=SxLz16m8z3_kU1-w784qvCKq3q1XA_PoDypCNgpwHzkQhKTJV5x_dVvysoLaFyowHSM8-jOZPwHJ6SmPWd9DKhSfARFvEO8nW-Fz4aROCzpwRGdJ04F6k6z9SLj0Qdnugwr6OQWcIcMDa2Tlm4tH3FylL4K9-kEr1aWdZbsL_SLy2cK-LbIYWwKRIu6N-zYGSAB18VNU6087CR48QU16tj6zG8AUp5Xd2hqQTESM-PXX2-WhcG24ct9frmYF9IpwiJ9915OJ6KTr6-T_BSHKTGiyQ9tRNleuiRL62fO7JzvYxz5-qMYKfxhQQ-P5sLMl3y9rC3QfIEOeFu4M4jk-SgDCfhADSwNrPFDgt10reBWQ5SPKOa38xW90KFegT6AvKfNRACKuIZaI_1KfR1ZwQdNblyvy1KAag3eNUEb6hIW3aa0A2iv5R69fBVf3KXPxlNa7PnzHxpTHTgIXbC-WLWDQqayNcRfp5-eVB6Me5vR5Z73rPpabjY_RXf4bQ9AXFC_kTfnivQREjOZi7tG6eSKgiOKONRZWR-XEhOsPtWG1qoeJH928bXNukZXIWbB7D8aWFnWhuRuHYh51h3Rmti-k4wbbrnCQH8ZziTSjp6fGs0qsoePDrNmCsHfsWlnCaYKy3DDcf1JraifmS6g9HQ1kWvC2mVmI1pKetewqb1kyn4ev6ZUOzuyuAR6lrnsCo7l9Fel_VRyGWvv2z09i3d19sWRZJCN9ZVXCWd4q2K4KBFDTz4xTHNButckFR98YO_5xqEQLz8YyYQoqPI_mib4v0bt3mcM-KP90&zp=uBPVxlkhL50mblRtFaWfiapcv37HbYvI2O4NilP7u4sS70wSnJvqFDq4iVbxYefu9wlHQ5Wbuk5HMR7m9cF1ah59dv8x6tk-z2pUsVH1YOt_hbGINuiUWsthdiKOIjYP6Cpvo_OD6t4oUQgVxGRqwaMTALI07m0UkPUVdGhseDrXx92QilLYNQayDBpZqHTSTnP0OLL1-ZW69DmF_hjEiMgKixCYqcROBqKW-Y_bJ6iQTC8Q0NMZJJiQK6caRJRLMMEC1ARC0-3hOAEU5wpOqs4yjlwjL67Wyvt7xL_ZSebOhbD3ZYy8U4I96Q9Xk4880rEAqY9A4w6S8BC6zi0FxARmZX0JpQlKDj3vIkgpFYfQhhrhYkbBKWLbeMhs2T4ioattguRHQxzWB9x0KjQEGhCdLWqATlozC4gDPKw
+                      - 'img "Thumbnail image: Claude Code researches, writes, analyzes, and codes so your small team can take on bigger competition." [ref=e243]'
+              - generic [ref=e245]:
+                - generic:
+                  - generic [ref=e246]:
+                    - button "Button to add a comment" [disabled]:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - textbox [disabled]:
+                                  - /placeholder: Join the conversation
+                  - generic [ref=e251]:
+                    - generic [ref=e253]:
+                      - generic [ref=e254]: "Sort by:"
+                      - button "Sort by Best" [ref=e259] [cursor=pointer]:
+                        - generic [ref=e261]: Best
+                    - button "Search Comments Expand comment search" [ref=e268] [cursor=pointer]:
+                      - generic [ref=e269]:
+                        - img [ref=e272]
+                        - generic [ref=e275]: Search Comments
+                      - generic [ref=e276]:
+                        - generic: Expand comment search
+              - region "Comments" [ref=e280]:
+                - heading "Comments Section" [level=1] [ref=e281]
+                - generic:
+                  - article "Comment from AutoModerator 8 days ago" [ref=e283]:
+                    - generic "Metadata for AutoModerator's comment" [ref=e284]:
+                      - button [ref=e286] [cursor=pointer]:
+                        - img [ref=e289]
+                      - generic [ref=e295]:
+                        - link "AutoModerator's profile" [ref=e298] [cursor=pointer]:
+                          - /url: /user/AutoModerator/
+                          - text: AutoModerator
+                        - generic "Comment distinguished by moderator" [ref=e301]: MOD
+                        - generic [ref=e302]: •
+                        - link "8d ago" [ref=e303] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/olc930d/
+                          - time [ref=e304]: 8d ago
+                        - generic [ref=e305]:
+                          - generic [ref=e306]: •
+                          - img "Locked comment" [ref=e307]
+                          - img "Stickied comment" [ref=e309]
+                  - article "Comment from jake_that_dude 9 days ago" [ref=e312]:
+                    - generic "Metadata for jake_that_dude's comment" [ref=e313]:
+                      - link "jake_that_dude's profile --- avatar" [ref=e320] [cursor=pointer]:
+                        - /url: /user/jake_that_dude/
+                        - img [ref=e325]
+                      - generic [ref=e331]:
+                        - link "jake_that_dude's profile" [ref=e336] [cursor=pointer]:
+                          - /url: /user/jake_that_dude/
+                          - text: jake_that_dude
+                        - generic [ref=e337]: •
+                        - link "9d ago" [ref=e338] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol0vd69/
+                          - time [ref=e339]: 9d ago
+                    - generic [ref=e340]:
+                      - paragraph [ref=e349]:
+                        - text: this is actually a nice use of
+                        - code [ref=e350]: ANTHROPIC_BASE_URL
+                        - text: . the one thing i'd add is a hard fail-closed path if the proxy can't write
+                        - code [ref=e351]: ~/.claude/usage-status.md
+                        - text: ", otherwise Claude will happily plan like it has fresh quota when the status file is stale. i'd also stamp the file with age and make the CLAUDE.md rule ignore anything older than 60s."
+                      - button "Toggle Comment Thread" [expanded] [ref=e354] [cursor=pointer]:
+                        - img [ref=e357]
+                      - 'article "Comment thread level 1: Reply from Inertia-UK 9 days ago" [ref=e365]':
+                        - generic "Metadata for Inertia-UK's comment" [ref=e366]:
+                          - link "Inertia-UK's profile --- avatar" [ref=e373] [cursor=pointer]:
+                            - /url: /user/Inertia-UK/
+                            - generic [ref=e375]:
+                              - img [ref=e377]
+                              - img [ref=e381]
+                              - img [ref=e384]
+                          - generic [ref=e390]:
+                            - link "Inertia-UK's profile" [ref=e395] [cursor=pointer]:
+                              - /url: /user/Inertia-UK/
+                              - text: Inertia-UK
+                            - generic "Comment distinguished as the original poster" [ref=e398]: OP
+                            - generic [ref=e399]: •
+                            - link "9d ago" [ref=e400] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol0wfji/
+                              - time [ref=e401]: 9d ago
+                        - generic [ref=e402]:
+                          - paragraph [ref=e411]: Smart. Feel free to submit a PR or fork it. I will get to this at some point if not.
+                          - button "Toggle Comment Thread" [expanded] [ref=e414] [cursor=pointer]:
+                            - img [ref=e417]
+                          - 'article "Comment thread level 2: Reply from jake_that_dude 9 days ago" [ref=e425]':
+                            - generic "Metadata for jake_that_dude's comment" [ref=e426]:
+                              - link "jake_that_dude's profile --- avatar" [ref=e433] [cursor=pointer]:
+                                - /url: /user/jake_that_dude/
+                                - img [ref=e438]
+                              - generic [ref=e444]:
+                                - link "jake_that_dude's profile" [ref=e449] [cursor=pointer]:
+                                  - /url: /user/jake_that_dude/
+                                  - text: jake_that_dude
+                                - generic [ref=e450]: •
+                                - link "9d ago" [ref=e451] [cursor=pointer]:
+                                  - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol195nd/
+                                  - time [ref=e452]: 9d ago
+                            - paragraph [ref=e460]:
+                              - text: yeah, fair. The smallest useful PR is probably just a
+                              - code [ref=e461]: usage.snapshot.json
+                              - text: example plus one hook that updates it after each run. Forking the whole flow is overkill unless you need different budget rules.
+                  - article "Comment from Quirky_Category5725 9 days ago" [ref=e467]:
+                    - generic "Metadata for Quirky_Category5725's comment" [ref=e468]:
+                      - link "Quirky_Category5725's profile --- avatar" [ref=e475] [cursor=pointer]:
+                        - /url: /user/Quirky_Category5725/
+                        - img [ref=e480]
+                      - generic [ref=e486]:
+                        - link "Quirky_Category5725's profile" [ref=e491] [cursor=pointer]:
+                          - /url: /user/Quirky_Category5725/
+                          - text: Quirky_Category5725
+                        - generic [ref=e492]: •
+                        - link "9d ago" [ref=e493] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol1h7xv/
+                          - time [ref=e494]: 9d ago
+                    - generic [ref=e495]:
+                      - paragraph [ref=e504]: The only problem is that Anthropic's terms of service explicitly prohibit connecting to Anthropic subscription APIs with any third party. So, you're risking blocking your account.
+                      - button "Toggle Comment Thread" [expanded] [ref=e507] [cursor=pointer]:
+                        - img [ref=e510]
+                      - generic [ref=e514]:
+                        - 'article "Comment thread level 1: Reply from Inertia-UK 9 days ago" [ref=e516]':
+                          - generic "Metadata for Inertia-UK's comment" [ref=e517]:
+                            - link "Inertia-UK's profile --- avatar" [ref=e524] [cursor=pointer]:
+                              - /url: /user/Inertia-UK/
+                              - generic [ref=e526]:
+                                - img [ref=e528]
+                                - img [ref=e532]
+                                - img [ref=e535]
+                            - generic [ref=e541]:
+                              - link "Inertia-UK's profile" [ref=e546] [cursor=pointer]:
+                                - /url: /user/Inertia-UK/
+                                - text: Inertia-UK
+                              - generic "Comment distinguished as the original poster" [ref=e549]: OP
+                              - generic [ref=e550]: •
+                              - link "9d ago" [ref=e551] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol1l9jf/
+                                - time [ref=e552]: 9d ago
+                              - generic [ref=e553]: •
+                              - generic [ref=e554]:
+                                - text: Edited
+                                - time [ref=e555]: 9d ago
+                          - generic [ref=e556]:
+                            - paragraph [ref=e565]: I asked... The ToS is talking about making API calls this is no different than running wireshark or squid which is not against the rules. This is allowed.
+                            - button "Toggle Comment Thread" [expanded] [ref=e568] [cursor=pointer]:
+                              - img [ref=e571]
+                            - 'article "Comment thread level 2: Reply from iansaul 9 days ago" [ref=e579]':
+                              - generic "Metadata for iansaul's comment" [ref=e580]:
+                                - link "iansaul's profile --- avatar" [ref=e587] [cursor=pointer]:
+                                  - /url: /user/iansaul/
+                                  - img [ref=e592]
+                                - generic [ref=e598]:
+                                  - link "iansaul's profile" [ref=e603] [cursor=pointer]:
+                                    - /url: /user/iansaul/
+                                    - text: iansaul
+                                  - generic [ref=e604]: •
+                                  - link "9d ago" [ref=e605] [cursor=pointer]:
+                                    - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol3i77q/
+                                    - time [ref=e606]: 9d ago
+                              - generic [ref=e607]:
+                                - generic [ref=e615]:
+                                  - paragraph [ref=e616]: Very cool! Go to the source figured out.
+                                  - paragraph [ref=e617]: I do have a question though. I have spent some time experimenting and only using sonnet when my opus was tapped out and opus stayed Frozen and the sonnet shot up throughout the week.
+                                  - paragraph [ref=e618]: It certainly FELT like two buckets of usage were happening, and tracking which model was connected should be easy on their end, no?
+                                - button "2 more replies" [ref=e630] [cursor=pointer]:
+                                  - img [ref=e632]
+                                  - generic [ref=e635]:
+                                    - generic [ref=e636]: "2"
+                                    - text: more replies
+                        - 'article "Comment thread level 1: Reply from Inertia-UK 9 days ago" [ref=e640]':
+                          - generic "Metadata for Inertia-UK's comment" [ref=e641]:
+                            - link "Inertia-UK's profile --- avatar" [ref=e648] [cursor=pointer]:
+                              - /url: /user/Inertia-UK/
+                              - generic [ref=e650]:
+                                - img [ref=e652]
+                                - img [ref=e656]
+                                - img [ref=e659]
+                            - generic [ref=e665]:
+                              - link "Inertia-UK's profile" [ref=e670] [cursor=pointer]:
+                                - /url: /user/Inertia-UK/
+                                - text: Inertia-UK
+                              - generic "Comment distinguished as the original poster" [ref=e673]: OP
+                              - generic [ref=e674]: •
+                              - link "9d ago" [ref=e675] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol1huyq/
+                                - time [ref=e676]: 9d ago
+                          - generic [ref=e677]:
+                            - generic [ref=e685]:
+                              - paragraph [ref=e686]: Ah good spot. I didn't realise that. I'm not connecting to them though. I'm allowing their software to connect to them via a proxy which does not make any changes to the traffic it only listens to it. Its essentially invisible... But i don't want to break rules even if it is stealth....
+                              - paragraph [ref=e687]: This is a grey area. They may or may not consider it breaking the rules.
+                              - paragraph [ref=e688]: I am going to ask!
+                            - button "Toggle Comment Thread" [expanded] [ref=e691] [cursor=pointer]:
+                              - img [ref=e694]
+                            - 'article "Comment thread level 2: Reply from Quirky_Category5725 9 days ago" [ref=e702]':
+                              - generic "Metadata for Quirky_Category5725's comment" [ref=e703]:
+                                - link "Quirky_Category5725's profile --- avatar" [ref=e710] [cursor=pointer]:
+                                  - /url: /user/Quirky_Category5725/
+                                  - img [ref=e715]
+                                - generic [ref=e721]:
+                                  - link "Quirky_Category5725's profile" [ref=e726] [cursor=pointer]:
+                                    - /url: /user/Quirky_Category5725/
+                                    - text: Quirky_Category5725
+                                  - generic [ref=e727]: •
+                                  - link "9d ago" [ref=e728] [cursor=pointer]:
+                                    - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol1lici/
+                                    - time [ref=e729]: 9d ago
+                              - generic [ref=e730]:
+                                - paragraph [ref=e739]:
+                                  - text: That still counts since your proxy connects to their endpoints, and Claude Code - to your proxy. I faced the same issue when building
+                                  - link "Kitty" [ref=e740] [cursor=pointer]:
+                                    - /url: https://github.com/Shelpuk-AI-Technology-Consulting/kitty-bridge
+                                  - text: ", a bridge similar to yours, and decided to drop Anthropic subscription support altogether to avoid risking users' accounts."
+                                - button "11 more replies" [ref=e752] [cursor=pointer]:
+                                  - img [ref=e754]
+                                  - generic [ref=e757]:
+                                    - generic [ref=e758]: "11"
+                                    - text: more replies
+                  - generic "5 agents. Or 50. Each with its own tools, skills, and budget — all running in parallel. Built by the team at Airtable." [ref=e760]:
+                    - generic [ref=e761]:
+                      - 'generic "Advertisement: 5 agents. Or 50. Each with its own tools, skills, and budget — all running in parallel. Built by the team at Airtable." [ref=e762]':
+                        - 'link "Advertisement: 5 agents. Or 50. Each with its own tools, skills, and budget — all running in parallel. Built by the team at Airtable." [ref=e763] [cursor=pointer]':
+                          - /url: https://alb.reddit.com/cr?za=FJDf4_ZcPmL5XjS9dclM4IyPUPyuocQrGWeL64f6_l9P0v4qHYEwHe7ViZjxPcbWJvaMVtc1ifg30Sy9cGmKEp0VAr3GpaUMUhreVLQ89Bk61gTvSMEneuaxjyOrPBA_Z0vSFMKHoppSHgIeKJXb0bF_m3i8McfFYZk0zdaL1AgyJdYGUyFuBWNQtDD4bw_vXiqlpPeJGZJlxitzXzNYgPvhD3AIe43xdo8yrrcZNaR4O1DYltVQA3ADh1iUHlzbwqAoH9fPlGACFa4wYXEMeqhVPNuZWzlhR-zo57NK6lBQPpId2uUzK3PGwRys7YARiHdgy-bMTR9A0zFY-lcvSACKNhPj0r8fdYenEYto48WpcG7vWcYuHp3GrbAyPQRvSmM6cu630-V3tQPTwMiCSqtBaNySLDW0-87cqzpH7AJThNmRCkIeAXuwSYYjQvM0Gszj1QKOQQKRoNUOEzPv3fRYOPIv4pyBCGkQ2RJjxZG_vvnnKh7ARh6cv2qj5u1zOhRS1XZTu1zPuJI3qiEWG9f5p2BDbfSGPJZAlvPNJrmjGcCI9tQwHaBftjnqjSHyZ2i1oQxg7_1Q6JYIyqXyNOjorysMl1HJg7O_UWB3RozL_oy14NDbxNLZL27W4LZaVay7BAlWfwAWnq27xiggfkVdeqYtWo3aofaMWH0T6lR82U9A-_NCc8uDYybRykdBIX5n16gSvamVn5qiVbBgCAooLoW74OEapMlUfaN57gmzc572ck--Cxii2Cbv81a9_swY6xSHHp1_k_EqAInrQhy4xKB0D1FghF8&zp=u7pU8_LOvH0ZLsp0kzI-PCgXY3CMBCvkq_pRG6CjUmzXkeoyPBBgmQv7zpOko1QddYlFDqN9JInZtGiNyazy2ElcarZZgfRqhuN0sxD7P4yo_xrndl_JNeIErrdSYXrxYEqIf_af7stHZw0ZwZF_7UsdGB55l7iH7SRPQ07J-wzN9_kmgZOM1CePloZVcAPGPYpm58bhs-Kkvv9J_eMdx6oparF_XlClJPNyxc1DWVLjQNcj1s0Pcuz_ZepgH1xxl3LJRzACB4r6q1k0iQhkW9-byp4wdd_1gh7o_J3iifa9AYuARUhafEu7KHlrU7RuhGTomatj0Sl1g5MYskhrwj4DSf8RxPuF1vxjbNwubHXn8RSNxiJDI8rGY7dv-hAWRZApLlJZoGGDWFt-Z_hkGXxgLJcZfaZ-ksOVPsqvg8-C-AJmpuAxj3fM-nMblWemEF7iTdehpnTNF6YuP98LzR2kYdixa0vqzCGPY7gabFdDCHdRx0NGKuPhsQSThkqq
+                      - generic [ref=e764]:
+                        - generic [ref=e765]:
+                          - link "u/hyperagentapp avatar u/hyperagentapp" [ref=e768] [cursor=pointer]:
+                            - /url: /user/hyperagentapp/
+                            - img "u/hyperagentapp avatar" [ref=e771]
+                            - generic [ref=e772]: u/hyperagentapp
+                          - generic [ref=e773]: •
+                          - link "Promoted" [ref=e775] [cursor=pointer]:
+                            - /url: /user/hyperagentapp/
+                            - generic [ref=e776]: Promoted
+                          - link [ref=e778] [cursor=pointer]:
+                            - /url: https://alb.reddit.com/cr?za=FJDf4_ZcPmL5XjS9dclM4IyPUPyuocQrGWeL64f6_l9P0v4qHYEwHe7ViZjxPcbWJvaMVtc1ifg30Sy9cGmKEp0VAr3GpaUMUhreVLQ89Bk61gTvSMEneuaxjyOrPBA_Z0vSFMKHoppSHgIeKJXb0bF_m3i8McfFYZk0zdaL1AgyJdYGUyFuBWNQtDD4bw_vXiqlpPeJGZJlxitzXzNYgPvhD3AIe43xdo8yrrcZNaR4O1DYltVQA3ADh1iUHlzbwqAoH9fPlGACFa4wYXEMeqhVPNuZWzlhR-zo57NK6lBQPpId2uUzK3PGwRys7YARiHdgy-bMTR9A0zFY-lcvSACKNhPj0r8fdYenEYto48WpcG7vWcYuHp3GrbAyPQRvSmM6cu630-V3tQPTwMiCSqtBaNySLDW0-87cqzpH7AJThNmRCkIeAXuwSYYjQvM0Gszj1QKOQQKRoNUOEzPv3fRYOPIv4pyBCGkQ2RJjxZG_vvnnKh7ARh6cv2qj5u1zOhRS1XZTu1zPuJI3qiEWG9f5p2BDbfSGPJZAlvPNJrmjGcCI9tQwHaBftjnqjSHyZ2i1oQxg7_1Q6JYIyqXyNOjorysMl1HJg7O_UWB3RozL_oy14NDbxNLZL27W4LZaVay7BAlWfwAWnq27xiggfkVdeqYtWo3aofaMWH0T6lR82U9A-_NCc8uDYybRykdBIX5n16gSvamVn5qiVbBgCAooLoW74OEapMlUfaN57gmzc572ck--Cxii2Cbv81a9_swY6xSHHp1_k_EqAInrQhy4xKB0D1FghF8&zp=u7pU8_LOvH0ZLsp0kzI-PCgXY3CMBCvkq_pRG6CjUmzXkeoyPBBgmQv7zpOko1QddYlFDqN9JInZtGiNyazy2ElcarZZgfRqhuN0sxD7P4yo_xrndl_JNeIErrdSYXrxYEqIf_af7stHZw0ZwZF_7UsdGB55l7iH7SRPQ07J-wzN9_kmgZOM1CePloZVcAPGPYpm58bhs-Kkvv9J_eMdx6oparF_XlClJPNyxc1DWVLjQNcj1s0Pcuz_ZepgH1xxl3LJRzACB4r6q1k0iQhkW9-byp4wdd_1gh7o_J3iifa9AYuARUhafEu7KHlrU7RuhGTomatj0Sl1g5MYskhrwj4DSf8RxPuF1vxjbNwubHXn8RSNxiJDI8rGY7dv-hAWRZApLlJZoGGDWFt-Z_hkGXxgLJcZfaZ-ksOVPsqvg8-C-AJmpuAxj3fM-nMblWemEF7iTdehpnTNF6YuP98LzR2kYdixa0vqzCGPY7gabFdDCHdRx0NGKuPhsQSThkqq
+                        - button "Open user actions" [ref=e783] [cursor=pointer]:
+                          - img [ref=e786]
+                      - generic [ref=e789]:
+                        - generic [ref=e790]:
+                          - link "5 agents. Or 50. Each with its own tools, skills, and budget — all running in parallel. Built by the team at Airtable." [ref=e792] [cursor=pointer]:
+                            - /url: https://alb.reddit.com/cr?za=FJDf4_ZcPmL5XjS9dclM4IyPUPyuocQrGWeL64f6_l9P0v4qHYEwHe7ViZjxPcbWJvaMVtc1ifg30Sy9cGmKEp0VAr3GpaUMUhreVLQ89Bk61gTvSMEneuaxjyOrPBA_Z0vSFMKHoppSHgIeKJXb0bF_m3i8McfFYZk0zdaL1AgyJdYGUyFuBWNQtDD4bw_vXiqlpPeJGZJlxitzXzNYgPvhD3AIe43xdo8yrrcZNaR4O1DYltVQA3ADh1iUHlzbwqAoH9fPlGACFa4wYXEMeqhVPNuZWzlhR-zo57NK6lBQPpId2uUzK3PGwRys7YARiHdgy-bMTR9A0zFY-lcvSACKNhPj0r8fdYenEYto48WpcG7vWcYuHp3GrbAyPQRvSmM6cu630-V3tQPTwMiCSqtBaNySLDW0-87cqzpH7AJThNmRCkIeAXuwSYYjQvM0Gszj1QKOQQKRoNUOEzPv3fRYOPIv4pyBCGkQ2RJjxZG_vvnnKh7ARh6cv2qj5u1zOhRS1XZTu1zPuJI3qiEWG9f5p2BDbfSGPJZAlvPNJrmjGcCI9tQwHaBftjnqjSHyZ2i1oQxg7_1Q6JYIyqXyNOjorysMl1HJg7O_UWB3RozL_oy14NDbxNLZL27W4LZaVay7BAlWfwAWnq27xiggfkVdeqYtWo3aofaMWH0T6lR82U9A-_NCc8uDYybRykdBIX5n16gSvamVn5qiVbBgCAooLoW74OEapMlUfaN57gmzc572ck--Cxii2Cbv81a9_swY6xSHHp1_k_EqAInrQhy4xKB0D1FghF8&zp=u7pU8_LOvH0ZLsp0kzI-PCgXY3CMBCvkq_pRG6CjUmzXkeoyPBBgmQv7zpOko1QddYlFDqN9JInZtGiNyazy2ElcarZZgfRqhuN0sxD7P4yo_xrndl_JNeIErrdSYXrxYEqIf_af7stHZw0ZwZF_7UsdGB55l7iH7SRPQ07J-wzN9_kmgZOM1CePloZVcAPGPYpm58bhs-Kkvv9J_eMdx6oparF_XlClJPNyxc1DWVLjQNcj1s0Pcuz_ZepgH1xxl3LJRzACB4r6q1k0iQhkW9-byp4wdd_1gh7o_J3iifa9AYuARUhafEu7KHlrU7RuhGTomatj0Sl1g5MYskhrwj4DSf8RxPuF1vxjbNwubHXn8RSNxiJDI8rGY7dv-hAWRZApLlJZoGGDWFt-Z_hkGXxgLJcZfaZ-ksOVPsqvg8-C-AJmpuAxj3fM-nMblWemEF7iTdehpnTNF6YuP98LzR2kYdixa0vqzCGPY7gabFdDCHdRx0NGKuPhsQSThkqq
+                            - generic: 5 agents. Or 50. Each with its own tools, skills, and budget — all running in parallel. Built by the team at Airtable.
+                          - generic [ref=e793]:
+                            - link [ref=e795] [cursor=pointer]:
+                              - /url: https://alb.reddit.com/cr?za=FJDf4_ZcPmL5XjS9dclM4IyPUPyuocQrGWeL64f6_l9P0v4qHYEwHe7ViZjxPcbWJvaMVtc1ifg30Sy9cGmKEp0VAr3GpaUMUhreVLQ89Bk61gTvSMEneuaxjyOrPBA_Z0vSFMKHoppSHgIeKJXb0bF_m3i8McfFYZk0zdaL1AgyJdYGUyFuBWNQtDD4bw_vXiqlpPeJGZJlxitzXzNYgPvhD3AIe43xdo8yrrcZNaR4O1DYltVQA3ADh1iUHlzbwqAoH9fPlGACFa4wYXEMeqhVPNuZWzlhR-zo57NK6lBQPpId2uUzK3PGwRys7YARiHdgy-bMTR9A0zFY-lcvSACKNhPj0r8fdYenEYto48WpcG7vWcYuHp3GrbAyPQRvSmM6cu630-V3tQPTwMiCSqtBaNySLDW0-87cqzpH7AJThNmRCkIeAXuwSYYjQvM0Gszj1QKOQQKRoNUOEzPv3fRYOPIv4pyBCGkQ2RJjxZG_vvnnKh7ARh6cv2qj5u1zOhRS1XZTu1zPuJI3qiEWG9f5p2BDbfSGPJZAlvPNJrmjGcCI9tQwHaBftjnqjSHyZ2i1oQxg7_1Q6JYIyqXyNOjorysMl1HJg7O_UWB3RozL_oy14NDbxNLZL27W4LZaVay7BAlWfwAWnq27xiggfkVdeqYtWo3aofaMWH0T6lR82U9A-_NCc8uDYybRykdBIX5n16gSvamVn5qiVbBgCAooLoW74OEapMlUfaN57gmzc572ck--Cxii2Cbv81a9_swY6xSHHp1_k_EqAInrQhy4xKB0D1FghF8&zp=u7pU8_LOvH0ZLsp0kzI-PCgXY3CMBCvkq_pRG6CjUmzXkeoyPBBgmQv7zpOko1QddYlFDqN9JInZtGiNyazy2ElcarZZgfRqhuN0sxD7P4yo_xrndl_JNeIErrdSYXrxYEqIf_af7stHZw0ZwZF_7UsdGB55l7iH7SRPQ07J-wzN9_kmgZOM1CePloZVcAPGPYpm58bhs-Kkvv9J_eMdx6oparF_XlClJPNyxc1DWVLjQNcj1s0Pcuz_ZepgH1xxl3LJRzACB4r6q1k0iQhkW9-byp4wdd_1gh7o_J3iifa9AYuARUhafEu7KHlrU7RuhGTomatj0Sl1g5MYskhrwj4DSf8RxPuF1vxjbNwubHXn8RSNxiJDI8rGY7dv-hAWRZApLlJZoGGDWFt-Z_hkGXxgLJcZfaZ-ksOVPsqvg8-C-AJmpuAxj3fM-nMblWemEF7iTdehpnTNF6YuP98LzR2kYdixa0vqzCGPY7gabFdDCHdRx0NGKuPhsQSThkqq
+                            - generic [ref=e796]:
+                              - link "Sign Up" [ref=e798] [cursor=pointer]:
+                                - /url: https://alb.reddit.com/cr?za=FJDf4_ZcPmL5XjS9dclM4IyPUPyuocQrGWeL64f6_l9P0v4qHYEwHe7ViZjxPcbWJvaMVtc1ifg30Sy9cGmKEp0VAr3GpaUMUhreVLQ89Bk61gTvSMEneuaxjyOrPBA_Z0vSFMKHoppSHgIeKJXb0bF_m3i8McfFYZk0zdaL1AgyJdYGUyFuBWNQtDD4bw_vXiqlpPeJGZJlxitzXzNYgPvhD3AIe43xdo8yrrcZNaR4O1DYltVQA3ADh1iUHlzbwqAoH9fPlGACFa4wYXEMeqhVPNuZWzlhR-zo57NK6lBQPpId2uUzK3PGwRys7YARiHdgy-bMTR9A0zFY-lcvSACKNhPj0r8fdYenEYto48WpcG7vWcYuHp3GrbAyPQRvSmM6cu630-V3tQPTwMiCSqtBaNySLDW0-87cqzpH7AJThNmRCkIeAXuwSYYjQvM0Gszj1QKOQQKRoNUOEzPv3fRYOPIv4pyBCGkQ2RJjxZG_vvnnKh7ARh6cv2qj5u1zOhRS1XZTu1zPuJI3qiEWG9f5p2BDbfSGPJZAlvPNJrmjGcCI9tQwHaBftjnqjSHyZ2i1oQxg7_1Q6JYIyqXyNOjorysMl1HJg7O_UWB3RozL_oy14NDbxNLZL27W4LZaVay7BAlWfwAWnq27xiggfkVdeqYtWo3aofaMWH0T6lR82U9A-_NCc8uDYybRykdBIX5n16gSvamVn5qiVbBgCAooLoW74OEapMlUfaN57gmzc572ck--Cxii2Cbv81a9_swY6xSHHp1_k_EqAInrQhy4xKB0D1FghF8&zp=u7pU8_LOvH0ZLsp0kzI-PCgXY3CMBCvkq_pRG6CjUmzXkeoyPBBgmQv7zpOko1QddYlFDqN9JInZtGiNyazy2ElcarZZgfRqhuN0sxD7P4yo_xrndl_JNeIErrdSYXrxYEqIf_af7stHZw0ZwZF_7UsdGB55l7iH7SRPQ07J-wzN9_kmgZOM1CePloZVcAPGPYpm58bhs-Kkvv9J_eMdx6oparF_XlClJPNyxc1DWVLjQNcj1s0Pcuz_ZepgH1xxl3LJRzACB4r6q1k0iQhkW9-byp4wdd_1gh7o_J3iifa9AYuARUhafEu7KHlrU7RuhGTomatj0Sl1g5MYskhrwj4DSf8RxPuF1vxjbNwubHXn8RSNxiJDI8rGY7dv-hAWRZApLlJZoGGDWFt-Z_hkGXxgLJcZfaZ-ksOVPsqvg8-C-AJmpuAxj3fM-nMblWemEF7iTdehpnTNF6YuP98LzR2kYdixa0vqzCGPY7gabFdDCHdRx0NGKuPhsQSThkqq
+                                - generic [ref=e800]:
+                                  - generic: Sign Up
+                              - link "hyperagent.com" [ref=e803] [cursor=pointer]:
+                                - /url: https://alb.reddit.com/cr?za=FJDf4_ZcPmL5XjS9dclM4IyPUPyuocQrGWeL64f6_l9P0v4qHYEwHe7ViZjxPcbWJvaMVtc1ifg30Sy9cGmKEp0VAr3GpaUMUhreVLQ89Bk61gTvSMEneuaxjyOrPBA_Z0vSFMKHoppSHgIeKJXb0bF_m3i8McfFYZk0zdaL1AgyJdYGUyFuBWNQtDD4bw_vXiqlpPeJGZJlxitzXzNYgPvhD3AIe43xdo8yrrcZNaR4O1DYltVQA3ADh1iUHlzbwqAoH9fPlGACFa4wYXEMeqhVPNuZWzlhR-zo57NK6lBQPpId2uUzK3PGwRys7YARiHdgy-bMTR9A0zFY-lcvSACKNhPj0r8fdYenEYto48WpcG7vWcYuHp3GrbAyPQRvSmM6cu630-V3tQPTwMiCSqtBaNySLDW0-87cqzpH7AJThNmRCkIeAXuwSYYjQvM0Gszj1QKOQQKRoNUOEzPv3fRYOPIv4pyBCGkQ2RJjxZG_vvnnKh7ARh6cv2qj5u1zOhRS1XZTu1zPuJI3qiEWG9f5p2BDbfSGPJZAlvPNJrmjGcCI9tQwHaBftjnqjSHyZ2i1oQxg7_1Q6JYIyqXyNOjorysMl1HJg7O_UWB3RozL_oy14NDbxNLZL27W4LZaVay7BAlWfwAWnq27xiggfkVdeqYtWo3aofaMWH0T6lR82U9A-_NCc8uDYybRykdBIX5n16gSvamVn5qiVbBgCAooLoW74OEapMlUfaN57gmzc572ck--Cxii2Cbv81a9_swY6xSHHp1_k_EqAInrQhy4xKB0D1FghF8&zp=u7pU8_LOvH0ZLsp0kzI-PCgXY3CMBCvkq_pRG6CjUmzXkeoyPBBgmQv7zpOko1QddYlFDqN9JInZtGiNyazy2ElcarZZgfRqhuN0sxD7P4yo_xrndl_JNeIErrdSYXrxYEqIf_af7stHZw0ZwZF_7UsdGB55l7iH7SRPQ07J-wzN9_kmgZOM1CePloZVcAPGPYpm58bhs-Kkvv9J_eMdx6oparF_XlClJPNyxc1DWVLjQNcj1s0Pcuz_ZepgH1xxl3LJRzACB4r6q1k0iQhkW9-byp4wdd_1gh7o_J3iifa9AYuARUhafEu7KHlrU7RuhGTomatj0Sl1g5MYskhrwj4DSf8RxPuF1vxjbNwubHXn8RSNxiJDI8rGY7dv-hAWRZApLlJZoGGDWFt-Z_hkGXxgLJcZfaZ-ksOVPsqvg8-C-AJmpuAxj3fM-nMblWemEF7iTdehpnTNF6YuP98LzR2kYdixa0vqzCGPY7gabFdDCHdRx0NGKuPhsQSThkqq
+                                - generic: hyperagent.com
+                        - 'link "Thumbnail image: 5 agents. Or 50. Each with its own tools, skills, and budget — all running in parallel. Built by the team at Airtable." [ref=e806] [cursor=pointer]':
+                          - /url: https://alb.reddit.com/cr?za=FJDf4_ZcPmL5XjS9dclM4IyPUPyuocQrGWeL64f6_l9P0v4qHYEwHe7ViZjxPcbWJvaMVtc1ifg30Sy9cGmKEp0VAr3GpaUMUhreVLQ89Bk61gTvSMEneuaxjyOrPBA_Z0vSFMKHoppSHgIeKJXb0bF_m3i8McfFYZk0zdaL1AgyJdYGUyFuBWNQtDD4bw_vXiqlpPeJGZJlxitzXzNYgPvhD3AIe43xdo8yrrcZNaR4O1DYltVQA3ADh1iUHlzbwqAoH9fPlGACFa4wYXEMeqhVPNuZWzlhR-zo57NK6lBQPpId2uUzK3PGwRys7YARiHdgy-bMTR9A0zFY-lcvSACKNhPj0r8fdYenEYto48WpcG7vWcYuHp3GrbAyPQRvSmM6cu630-V3tQPTwMiCSqtBaNySLDW0-87cqzpH7AJThNmRCkIeAXuwSYYjQvM0Gszj1QKOQQKRoNUOEzPv3fRYOPIv4pyBCGkQ2RJjxZG_vvnnKh7ARh6cv2qj5u1zOhRS1XZTu1zPuJI3qiEWG9f5p2BDbfSGPJZAlvPNJrmjGcCI9tQwHaBftjnqjSHyZ2i1oQxg7_1Q6JYIyqXyNOjorysMl1HJg7O_UWB3RozL_oy14NDbxNLZL27W4LZaVay7BAlWfwAWnq27xiggfkVdeqYtWo3aofaMWH0T6lR82U9A-_NCc8uDYybRykdBIX5n16gSvamVn5qiVbBgCAooLoW74OEapMlUfaN57gmzc572ck--Cxii2Cbv81a9_swY6xSHHp1_k_EqAInrQhy4xKB0D1FghF8&zp=u7pU8_LOvH0ZLsp0kzI-PCgXY3CMBCvkq_pRG6CjUmzXkeoyPBBgmQv7zpOko1QddYlFDqN9JInZtGiNyazy2ElcarZZgfRqhuN0sxD7P4yo_xrndl_JNeIErrdSYXrxYEqIf_af7stHZw0ZwZF_7UsdGB55l7iH7SRPQ07J-wzN9_kmgZOM1CePloZVcAPGPYpm58bhs-Kkvv9J_eMdx6oparF_XlClJPNyxc1DWVLjQNcj1s0Pcuz_ZepgH1xxl3LJRzACB4r6q1k0iQhkW9-byp4wdd_1gh7o_J3iifa9AYuARUhafEu7KHlrU7RuhGTomatj0Sl1g5MYskhrwj4DSf8RxPuF1vxjbNwubHXn8RSNxiJDI8rGY7dv-hAWRZApLlJZoGGDWFt-Z_hkGXxgLJcZfaZ-ksOVPsqvg8-C-AJmpuAxj3fM-nMblWemEF7iTdehpnTNF6YuP98LzR2kYdixa0vqzCGPY7gabFdDCHdRx0NGKuPhsQSThkqq
+                          - 'img "Thumbnail image: 5 agents. Or 50. Each with its own tools, skills, and budget — all running in parallel. Built by the team at Airtable." [ref=e807]'
+                  - article "Comment from Happy_Macaron5197 9 days ago" [ref=e809]:
+                    - generic "Metadata for Happy_Macaron5197's comment" [ref=e810]:
+                      - link "Happy_Macaron5197's profile --- avatar" [ref=e817] [cursor=pointer]:
+                        - /url: /user/Happy_Macaron5197/
+                        - img [ref=e822]
+                      - generic [ref=e827]:
+                        - generic [ref=e828]:
+                          - link "Happy_Macaron5197's profile" [ref=e833] [cursor=pointer]:
+                            - /url: /user/Happy_Macaron5197/
+                            - text: Happy_Macaron5197
+                          - generic [ref=e834]: •
+                          - link "9d ago" [ref=e835] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol13e0p/
+                            - time [ref=e836]: 9d ago
+                          - generic [ref=e837]: •
+                          - generic [ref=e838]:
+                            - text: Edited
+                            - time [ref=e839]: 9d ago
+                        - generic [ref=e843] [cursor=pointer]:
+                          - img "Profile Badge for the Achievement Top 1% Commenter" [ref=e844]
+                          - text: Top 1% Commenter
+                    - generic [ref=e851]:
+                      - paragraph [ref=e852]: this proxy is actually genius. the fact that the unified pool drains for both opus and sonnet explains so much about why my limits get torched so fast.
+                      - paragraph [ref=e853]: honestly, burning through that quota is my biggest nightmare. my current strategy to save tokens is just aggressively splitting my stack. i use claude code exclusively for the heavy backend data routing, but the second it comes to frontend, i completely stop using anthropic. i just pipe the backend directly into runable since it's a dedicated ui agent, which saves me from wasting massive amounts of claude's quota arguing over css and component layouts.
+                      - paragraph [ref=e854]: but even with that split, i still hit the limit on heavy logic days. having claude automatically switch to lightweight mode at 90% quota using your proxy is a massive workflow upgrade. definitely installing this on my linux setup tonight.
+                  - article "Comment from mrgulabull 9 days ago" [ref=e860]:
+                    - generic "Metadata for mrgulabull's comment" [ref=e861]:
+                      - link "mrgulabull's profile --- avatar" [ref=e868] [cursor=pointer]:
+                        - /url: /user/mrgulabull/
+                        - generic [ref=e870]:
+                          - img [ref=e872]
+                          - img [ref=e876]
+                          - img [ref=e879]
+                      - generic [ref=e884]:
+                        - generic [ref=e885]:
+                          - link "mrgulabull's profile" [ref=e890] [cursor=pointer]:
+                            - /url: /user/mrgulabull/
+                            - text: mrgulabull
+                          - generic [ref=e891]: •
+                          - link "9d ago" [ref=e892] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol1kwjl/
+                            - time [ref=e893]: 9d ago
+                          - generic [ref=e894]: •
+                          - generic [ref=e895]:
+                            - text: Edited
+                            - time [ref=e896]: 9d ago
+                        - generic [ref=e900] [cursor=pointer]:
+                          - img "Profile Badge for the Achievement Top 1% Commenter" [ref=e901]
+                          - text: Top 1% Commenter
+                    - generic [ref=e902]:
+                      - generic [ref=e910]:
+                        - paragraph [ref=e911]: I did something similar when creating an autonomous Claude system that automatically runs Claude sessions back to back endlessly to achieve a goal. In my case, I give Claude a warning at 20% context usage to try to wrap up a session, and a hard “must stop” signal at 25% context usage.
+                        - paragraph [ref=e912]: The method I used was starting Claude with —output-format stream-json —verbose. Which makes Claude output a JSON event for every message that includes a usage block. This lets you capture input tokens, output tokens and several other things.
+                        - paragraph [ref=e913]:
+                          - text: "Feel free to borrow from this if you like:"
+                          - link "https://github.com/ScottBull/claude-conductor" [ref=e914] [cursor=pointer]:
+                            - /url: https://github.com/ScottBull/claude-conductor
+                      - button "Toggle Comment Thread" [expanded] [ref=e917] [cursor=pointer]:
+                        - img [ref=e920]
+                      - 'article "Comment thread level 1: Reply from Inertia-UK 9 days ago" [ref=e928]':
+                        - generic "Metadata for Inertia-UK's comment" [ref=e929]:
+                          - link "Inertia-UK's profile --- avatar" [ref=e936] [cursor=pointer]:
+                            - /url: /user/Inertia-UK/
+                            - generic [ref=e938]:
+                              - img [ref=e940]
+                              - img [ref=e944]
+                              - img [ref=e947]
+                          - generic [ref=e953]:
+                            - link "Inertia-UK's profile" [ref=e958] [cursor=pointer]:
+                              - /url: /user/Inertia-UK/
+                              - text: Inertia-UK
+                            - generic "Comment distinguished as the original poster" [ref=e961]: OP
+                            - generic [ref=e962]: •
+                            - link "9d ago" [ref=e963] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol1lgjz/
+                              - time [ref=e964]: 9d ago
+                        - paragraph [ref=e972]: Interesting thanks.
+                  - article "Comment from ClaudeAI-mod-bot 8 days ago" [ref=e978]:
+                    - generic "Metadata for ClaudeAI-mod-bot's comment" [ref=e979]:
+                      - link "ClaudeAI-mod-bot's profile --- avatar" [ref=e986] [cursor=pointer]:
+                        - /url: /user/ClaudeAI-mod-bot/
+                        - img "u/ClaudeAI-mod-bot avatar" [ref=e989]
+                      - generic [ref=e994]:
+                        - link "ClaudeAI-mod-bot's profile" [ref=e999] [cursor=pointer]:
+                          - /url: /user/ClaudeAI-mod-bot/
+                          - text: ClaudeAI-mod-bot
+                        - generic "Comment distinguished by moderator" [ref=e1002]: MOD
+                        - generic [ref=e1003]: •
+                        - link "8d ago" [ref=e1004] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol8xztw/
+                          - time [ref=e1005]: 8d ago
+                    - generic [ref=e1012]:
+                      - paragraph [ref=e1013]:
+                        - strong [ref=e1014]: TL;DR of the discussion generated automatically after 40 comments.
+                      - paragraph [ref=e1015]: The consensus is that OP's proxy is a brilliant solution to a common annoyance, and the thread is overwhelmingly supportive and collaborative.
+                      - paragraph [ref=e1016]:
+                        - text: A big debate kicked off about whether this violates Anthropic's Terms of Service.
+                        - strong [ref=e1017]: OP checked with Anthropic support, who confirmed this is allowed.
+                        - text: Since it's just a passive proxy intercepting headers (like Wireshark) and not making its own API calls, it's fine. They even said the
+                        - code [ref=e1018]: ANTHROPIC_BASE_URL
+                        - text: variable is intended for exactly this kind of use case.
+                      - paragraph [ref=e1019]:
+                        - text: "The thread also confirmed a painful truth for many:"
+                        - strong [ref=e1020]: Sonnet and Opus share the same unified usage pool.
+                        - text: The separate Sonnet bar in the Claude Code UI is misleading. Using Sonnet will drain your Opus quota, which explains why many users feel like their limits get "torched so fast."
+                      - paragraph [ref=e1021]: "Other key points and suggestions from the community include:"
+                      - list [ref=e1022]:
+                        - listitem [ref=e1023]:
+                          - paragraph [ref=e1024]:
+                            - strong [ref=e1025]: "Technical Improvements:"
+                            - text: Users suggested adding a fail-safe in case the status file can't be written, Dockerizing the proxy for easier setup, and even building a more robust version with an SQLite database.
+                        - listitem [ref=e1026]:
+                          - paragraph [ref=e1027]:
+                            - strong [ref=e1028]: "Alternative Methods:"
+                            - text: A few people shared their own approaches, such as using Claude Code's built-in status line feature or parsing the
+                            - code [ref=e1029]: "--output-format stream-json"
+                            - text: feed, which provides usage data without a proxy.
+                        - listitem [ref=e1030]:
+                          - paragraph [ref=e1031]:
+                            - strong [ref=e1032]: "\"Model Anxiety\":"
+                            - text: A few Redditors warned that making Claude "quota-aware" could cause it to rush and produce lower-quality output. OP agreed this is a risk and stressed the need for careful setup with rules that prevent the model from panicking near the limit.
+                  - article "Comment from suspicious_panini 9 days ago" [ref=e1038]:
+                    - generic "Metadata for suspicious_panini's comment" [ref=e1039]:
+                      - link "suspicious_panini's profile --- avatar" [ref=e1046] [cursor=pointer]:
+                        - /url: /user/suspicious_panini/
+                        - img "u/suspicious_panini avatar" [ref=e1049]
+                      - generic [ref=e1054]:
+                        - link "suspicious_panini's profile" [ref=e1059] [cursor=pointer]:
+                          - /url: /user/suspicious_panini/
+                          - text: suspicious_panini
+                        - generic [ref=e1060]: •
+                        - link "9d ago" [ref=e1061] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol103dl/
+                          - time [ref=e1062]: 9d ago
+                    - paragraph [ref=e1070]: Cool idea! I recommend wrapping this in a docker container so cross platform setup is easier. If I have some time later today I can submit a PR.
+                  - article "Comment from joeyda3rd 9 days ago" [ref=e1076]:
+                    - generic "Metadata for joeyda3rd's comment" [ref=e1077]:
+                      - link "joeyda3rd's profile --- avatar" [ref=e1084] [cursor=pointer]:
+                        - /url: /user/joeyda3rd/
+                        - generic [ref=e1086]:
+                          - img [ref=e1088]
+                          - img [ref=e1092]
+                          - img [ref=e1095]
+                      - generic [ref=e1101]:
+                        - link "joeyda3rd's profile" [ref=e1106] [cursor=pointer]:
+                          - /url: /user/joeyda3rd/
+                          - text: joeyda3rd
+                        - generic [ref=e1107]: •
+                        - link "9d ago" [ref=e1108] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol2ymjv/
+                          - time [ref=e1109]: 9d ago
+                    - generic [ref=e1110]:
+                      - paragraph [ref=e1119]: "Architectural variant worth considering: SQLite + MCP server instead of flat file + CLAUDE.md read. Same proxy intercepting the same headers, but writing to a DB gets you atomic writes (no race between concurrent sessions), a structured query tool via MCP (cleaner than parsing text every prompt), and a per-request token log as a side effect. The token log is what eventually enables real cost prediction rather than just current-state awareness. Pairs naturally with teamclaude if you want multi-account rotation on top."
+                      - button "Toggle Comment Thread" [expanded] [ref=e1122] [cursor=pointer]:
+                        - img [ref=e1125]
+                      - 'article "Comment thread level 1: Reply from Inertia-UK 9 days ago" [ref=e1133]':
+                        - generic "Metadata for Inertia-UK's comment" [ref=e1134]:
+                          - link "Inertia-UK's profile --- avatar" [ref=e1141] [cursor=pointer]:
+                            - /url: /user/Inertia-UK/
+                            - generic [ref=e1143]:
+                              - img [ref=e1145]
+                              - img [ref=e1149]
+                              - img [ref=e1152]
+                          - generic [ref=e1158]:
+                            - link "Inertia-UK's profile" [ref=e1163] [cursor=pointer]:
+                              - /url: /user/Inertia-UK/
+                              - text: Inertia-UK
+                            - generic "Comment distinguished as the original poster" [ref=e1166]: OP
+                            - generic [ref=e1167]: •
+                            - link "9d ago" [ref=e1168] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol2zqp9/
+                              - time [ref=e1169]: 9d ago
+                        - paragraph [ref=e1177]: Good input. Will consider this, its open source on github if you want to play yourself. PR welcome or Fork. I will get to it eventally.
+                  - generic "Prompt your ideas to life with Figma Make. No more explaining your vision in a doc. Pitch your idea with an AI-prompted proof of concept." [ref=e1183]:
+                    - generic [ref=e1184]:
+                      - 'generic "Advertisement: Prompt your ideas to life with Figma Make. No more explaining your vision in a doc. Pitch your idea with an AI-prompted proof of concept." [ref=e1185]':
+                        - 'link "Advertisement: Prompt your ideas to life with Figma Make. No more explaining your vision in a doc. Pitch your idea with an AI-prompted proof of concept." [ref=e1186] [cursor=pointer]':
+                          - /url: https://alb.reddit.com/cr?za=2yGiGMSWjXvvCz8R0GkMNGbxnGa05STdxA4mpbjBeUWa9jFXjLytW1cbi0hO8E4ZI8HuOmYz5ARv4tiegZOcIq60exN4iUqOHl0NE3QqLLG0vSVZ9xJnzjm5YV5GIJ6WNSFXmJreyOnXEH_CW0WGpmznHH1h-e07BCXixSGuVchPSqH4p_0NrWqXrehm8WIcW8EsBxqD14-SwIO8b0HgXao8RLcujz1dX5nY_bR3aejs9whrqHUX5V7xP3k6AKu6FFKI5iBjT8oM33lLTm-Fj2e3VOFArebgEa7QZ5U7n3oidUEqDEY1L2iEwlm_PRA2mm2XsRb_WORprKrFbFGi0kmjnO5s4SOWAsCXcohwHplf8ou9FPlTN-T5MRUA8-4aXyf0EdDOAnRll7ucJGB1yZJTY2gDTUAi4rFSEBuKH0PibedAQUOa-uOWVJ8qkP91MAb3gJOzDa_KfJ6gRrTNzukp7nU-DOjn79HuKIip8fr6_G0296ScSt3S2HC5f_fUFQm75g4O_kahO0DBj82Pe1CitCkMyI6r0lg4J_Gm8V1RgXmc2XPBBrtNsPBdHTYTarZRSRoqxezeZrPsjllnf-tR0QXOQzV5qogZOWMbMOtbuN81Vwrezz49i1K941xdINUIeObsYwBumSIjyjSWjiIj_355Zv0K80ixdZgoyz5-U0ePJFvUVcjOU2LVr9wyhhUTXKAYpKlXJipZqw1cab_l8faApU61KfpOLTXjw5d6Q7_irABOiApKt-tQDUD9HsiSg7Qul4jr_0TTcMF65Gp0R1iKGpRFrvo&zp=32YYksThzOZHO_gWoZsVGiFyOGDV6rMEWQq1lpc8M7wIsHMspi68-a14-mXeQXvn2AJJab1EjXnznNXbLnLBiDYm61A_Q_IP9jeiVgl5T-TDrOZunMcCde5pP1PyGP6LoEhmYWrw9XoxesF50pfts5FjwHLknYz3wdtEXufj-fEXubCwGJ3HLyG4Sxrvr7p1GixvVlqQ6in0z_RdDPo3ElpNa-nfUh_qoYXeF5U5kibgB6Cw0FNb5MbzkTOUwnGa_qiHcGW_PucrND3bDcc4OTIRPaQB34YGIrw-JrcpeIjBA6R6865zd6Rtt0StL0NchRVV3eQTos87XTpdF6BlWlaLclTVEggoz93YcyUcVJZ8cpYH10c0fwiY2NBzse8lMxGE0lcs7FQd-V3loC2SovoFg5c
+                      - generic [ref=e1187]:
+                        - generic [ref=e1188]:
+                          - link "u/FigmaOfficial avatar u/FigmaOfficial" [ref=e1191] [cursor=pointer]:
+                            - /url: /user/FigmaOfficial/
+                            - img "u/FigmaOfficial avatar" [ref=e1194]
+                            - generic [ref=e1195]: u/FigmaOfficial
+                          - generic [ref=e1196]: •
+                          - link "Promoted" [ref=e1198] [cursor=pointer]:
+                            - /url: /user/FigmaOfficial/
+                            - generic [ref=e1199]: Promoted
+                          - link [ref=e1201] [cursor=pointer]:
+                            - /url: https://alb.reddit.com/cr?za=2yGiGMSWjXvvCz8R0GkMNGbxnGa05STdxA4mpbjBeUWa9jFXjLytW1cbi0hO8E4ZI8HuOmYz5ARv4tiegZOcIq60exN4iUqOHl0NE3QqLLG0vSVZ9xJnzjm5YV5GIJ6WNSFXmJreyOnXEH_CW0WGpmznHH1h-e07BCXixSGuVchPSqH4p_0NrWqXrehm8WIcW8EsBxqD14-SwIO8b0HgXao8RLcujz1dX5nY_bR3aejs9whrqHUX5V7xP3k6AKu6FFKI5iBjT8oM33lLTm-Fj2e3VOFArebgEa7QZ5U7n3oidUEqDEY1L2iEwlm_PRA2mm2XsRb_WORprKrFbFGi0kmjnO5s4SOWAsCXcohwHplf8ou9FPlTN-T5MRUA8-4aXyf0EdDOAnRll7ucJGB1yZJTY2gDTUAi4rFSEBuKH0PibedAQUOa-uOWVJ8qkP91MAb3gJOzDa_KfJ6gRrTNzukp7nU-DOjn79HuKIip8fr6_G0296ScSt3S2HC5f_fUFQm75g4O_kahO0DBj82Pe1CitCkMyI6r0lg4J_Gm8V1RgXmc2XPBBrtNsPBdHTYTarZRSRoqxezeZrPsjllnf-tR0QXOQzV5qogZOWMbMOtbuN81Vwrezz49i1K941xdINUIeObsYwBumSIjyjSWjiIj_355Zv0K80ixdZgoyz5-U0ePJFvUVcjOU2LVr9wyhhUTXKAYpKlXJipZqw1cab_l8faApU61KfpOLTXjw5d6Q7_irABOiApKt-tQDUD9HsiSg7Qul4jr_0TTcMF65Gp0R1iKGpRFrvo&zp=32YYksThzOZHO_gWoZsVGiFyOGDV6rMEWQq1lpc8M7wIsHMspi68-a14-mXeQXvn2AJJab1EjXnznNXbLnLBiDYm61A_Q_IP9jeiVgl5T-TDrOZunMcCde5pP1PyGP6LoEhmYWrw9XoxesF50pfts5FjwHLknYz3wdtEXufj-fEXubCwGJ3HLyG4Sxrvr7p1GixvVlqQ6in0z_RdDPo3ElpNa-nfUh_qoYXeF5U5kibgB6Cw0FNb5MbzkTOUwnGa_qiHcGW_PucrND3bDcc4OTIRPaQB34YGIrw-JrcpeIjBA6R6865zd6Rtt0StL0NchRVV3eQTos87XTpdF6BlWlaLclTVEggoz93YcyUcVJZ8cpYH10c0fwiY2NBzse8lMxGE0lcs7FQd-V3loC2SovoFg5c
+                        - button "Open user actions" [ref=e1206] [cursor=pointer]:
+                          - img [ref=e1209]
+                      - generic [ref=e1212]:
+                        - generic [ref=e1213]:
+                          - link "Prompt your ideas to life with Figma Make. No more explaining your vision in a doc. Pitch your idea with an AI-prompted proof of concept." [ref=e1215] [cursor=pointer]:
+                            - /url: https://alb.reddit.com/cr?za=2yGiGMSWjXvvCz8R0GkMNGbxnGa05STdxA4mpbjBeUWa9jFXjLytW1cbi0hO8E4ZI8HuOmYz5ARv4tiegZOcIq60exN4iUqOHl0NE3QqLLG0vSVZ9xJnzjm5YV5GIJ6WNSFXmJreyOnXEH_CW0WGpmznHH1h-e07BCXixSGuVchPSqH4p_0NrWqXrehm8WIcW8EsBxqD14-SwIO8b0HgXao8RLcujz1dX5nY_bR3aejs9whrqHUX5V7xP3k6AKu6FFKI5iBjT8oM33lLTm-Fj2e3VOFArebgEa7QZ5U7n3oidUEqDEY1L2iEwlm_PRA2mm2XsRb_WORprKrFbFGi0kmjnO5s4SOWAsCXcohwHplf8ou9FPlTN-T5MRUA8-4aXyf0EdDOAnRll7ucJGB1yZJTY2gDTUAi4rFSEBuKH0PibedAQUOa-uOWVJ8qkP91MAb3gJOzDa_KfJ6gRrTNzukp7nU-DOjn79HuKIip8fr6_G0296ScSt3S2HC5f_fUFQm75g4O_kahO0DBj82Pe1CitCkMyI6r0lg4J_Gm8V1RgXmc2XPBBrtNsPBdHTYTarZRSRoqxezeZrPsjllnf-tR0QXOQzV5qogZOWMbMOtbuN81Vwrezz49i1K941xdINUIeObsYwBumSIjyjSWjiIj_355Zv0K80ixdZgoyz5-U0ePJFvUVcjOU2LVr9wyhhUTXKAYpKlXJipZqw1cab_l8faApU61KfpOLTXjw5d6Q7_irABOiApKt-tQDUD9HsiSg7Qul4jr_0TTcMF65Gp0R1iKGpRFrvo&zp=32YYksThzOZHO_gWoZsVGiFyOGDV6rMEWQq1lpc8M7wIsHMspi68-a14-mXeQXvn2AJJab1EjXnznNXbLnLBiDYm61A_Q_IP9jeiVgl5T-TDrOZunMcCde5pP1PyGP6LoEhmYWrw9XoxesF50pfts5FjwHLknYz3wdtEXufj-fEXubCwGJ3HLyG4Sxrvr7p1GixvVlqQ6in0z_RdDPo3ElpNa-nfUh_qoYXeF5U5kibgB6Cw0FNb5MbzkTOUwnGa_qiHcGW_PucrND3bDcc4OTIRPaQB34YGIrw-JrcpeIjBA6R6865zd6Rtt0StL0NchRVV3eQTos87XTpdF6BlWlaLclTVEggoz93YcyUcVJZ8cpYH10c0fwiY2NBzse8lMxGE0lcs7FQd-V3loC2SovoFg5c
+                            - generic: Prompt your ideas to life with Figma Make. No more explaining your vision in a doc. Pitch your idea with an AI-prompted proof of concept.
+                          - generic [ref=e1216]:
+                            - link [ref=e1218] [cursor=pointer]:
+                              - /url: https://alb.reddit.com/cr?za=2yGiGMSWjXvvCz8R0GkMNGbxnGa05STdxA4mpbjBeUWa9jFXjLytW1cbi0hO8E4ZI8HuOmYz5ARv4tiegZOcIq60exN4iUqOHl0NE3QqLLG0vSVZ9xJnzjm5YV5GIJ6WNSFXmJreyOnXEH_CW0WGpmznHH1h-e07BCXixSGuVchPSqH4p_0NrWqXrehm8WIcW8EsBxqD14-SwIO8b0HgXao8RLcujz1dX5nY_bR3aejs9whrqHUX5V7xP3k6AKu6FFKI5iBjT8oM33lLTm-Fj2e3VOFArebgEa7QZ5U7n3oidUEqDEY1L2iEwlm_PRA2mm2XsRb_WORprKrFbFGi0kmjnO5s4SOWAsCXcohwHplf8ou9FPlTN-T5MRUA8-4aXyf0EdDOAnRll7ucJGB1yZJTY2gDTUAi4rFSEBuKH0PibedAQUOa-uOWVJ8qkP91MAb3gJOzDa_KfJ6gRrTNzukp7nU-DOjn79HuKIip8fr6_G0296ScSt3S2HC5f_fUFQm75g4O_kahO0DBj82Pe1CitCkMyI6r0lg4J_Gm8V1RgXmc2XPBBrtNsPBdHTYTarZRSRoqxezeZrPsjllnf-tR0QXOQzV5qogZOWMbMOtbuN81Vwrezz49i1K941xdINUIeObsYwBumSIjyjSWjiIj_355Zv0K80ixdZgoyz5-U0ePJFvUVcjOU2LVr9wyhhUTXKAYpKlXJipZqw1cab_l8faApU61KfpOLTXjw5d6Q7_irABOiApKt-tQDUD9HsiSg7Qul4jr_0TTcMF65Gp0R1iKGpRFrvo&zp=32YYksThzOZHO_gWoZsVGiFyOGDV6rMEWQq1lpc8M7wIsHMspi68-a14-mXeQXvn2AJJab1EjXnznNXbLnLBiDYm61A_Q_IP9jeiVgl5T-TDrOZunMcCde5pP1PyGP6LoEhmYWrw9XoxesF50pfts5FjwHLknYz3wdtEXufj-fEXubCwGJ3HLyG4Sxrvr7p1GixvVlqQ6in0z_RdDPo3ElpNa-nfUh_qoYXeF5U5kibgB6Cw0FNb5MbzkTOUwnGa_qiHcGW_PucrND3bDcc4OTIRPaQB34YGIrw-JrcpeIjBA6R6865zd6Rtt0StL0NchRVV3eQTos87XTpdF6BlWlaLclTVEggoz93YcyUcVJZ8cpYH10c0fwiY2NBzse8lMxGE0lcs7FQd-V3loC2SovoFg5c
+                            - generic [ref=e1219]:
+                              - link "Learn More" [ref=e1221] [cursor=pointer]:
+                                - /url: https://alb.reddit.com/cr?za=2yGiGMSWjXvvCz8R0GkMNGbxnGa05STdxA4mpbjBeUWa9jFXjLytW1cbi0hO8E4ZI8HuOmYz5ARv4tiegZOcIq60exN4iUqOHl0NE3QqLLG0vSVZ9xJnzjm5YV5GIJ6WNSFXmJreyOnXEH_CW0WGpmznHH1h-e07BCXixSGuVchPSqH4p_0NrWqXrehm8WIcW8EsBxqD14-SwIO8b0HgXao8RLcujz1dX5nY_bR3aejs9whrqHUX5V7xP3k6AKu6FFKI5iBjT8oM33lLTm-Fj2e3VOFArebgEa7QZ5U7n3oidUEqDEY1L2iEwlm_PRA2mm2XsRb_WORprKrFbFGi0kmjnO5s4SOWAsCXcohwHplf8ou9FPlTN-T5MRUA8-4aXyf0EdDOAnRll7ucJGB1yZJTY2gDTUAi4rFSEBuKH0PibedAQUOa-uOWVJ8qkP91MAb3gJOzDa_KfJ6gRrTNzukp7nU-DOjn79HuKIip8fr6_G0296ScSt3S2HC5f_fUFQm75g4O_kahO0DBj82Pe1CitCkMyI6r0lg4J_Gm8V1RgXmc2XPBBrtNsPBdHTYTarZRSRoqxezeZrPsjllnf-tR0QXOQzV5qogZOWMbMOtbuN81Vwrezz49i1K941xdINUIeObsYwBumSIjyjSWjiIj_355Zv0K80ixdZgoyz5-U0ePJFvUVcjOU2LVr9wyhhUTXKAYpKlXJipZqw1cab_l8faApU61KfpOLTXjw5d6Q7_irABOiApKt-tQDUD9HsiSg7Qul4jr_0TTcMF65Gp0R1iKGpRFrvo&zp=32YYksThzOZHO_gWoZsVGiFyOGDV6rMEWQq1lpc8M7wIsHMspi68-a14-mXeQXvn2AJJab1EjXnznNXbLnLBiDYm61A_Q_IP9jeiVgl5T-TDrOZunMcCde5pP1PyGP6LoEhmYWrw9XoxesF50pfts5FjwHLknYz3wdtEXufj-fEXubCwGJ3HLyG4Sxrvr7p1GixvVlqQ6in0z_RdDPo3ElpNa-nfUh_qoYXeF5U5kibgB6Cw0FNb5MbzkTOUwnGa_qiHcGW_PucrND3bDcc4OTIRPaQB34YGIrw-JrcpeIjBA6R6865zd6Rtt0StL0NchRVV3eQTos87XTpdF6BlWlaLclTVEggoz93YcyUcVJZ8cpYH10c0fwiY2NBzse8lMxGE0lcs7FQd-V3loC2SovoFg5c
+                                - generic [ref=e1223]:
+                                  - generic: Learn More
+                              - link "figma.com" [ref=e1226] [cursor=pointer]:
+                                - /url: https://alb.reddit.com/cr?za=2yGiGMSWjXvvCz8R0GkMNGbxnGa05STdxA4mpbjBeUWa9jFXjLytW1cbi0hO8E4ZI8HuOmYz5ARv4tiegZOcIq60exN4iUqOHl0NE3QqLLG0vSVZ9xJnzjm5YV5GIJ6WNSFXmJreyOnXEH_CW0WGpmznHH1h-e07BCXixSGuVchPSqH4p_0NrWqXrehm8WIcW8EsBxqD14-SwIO8b0HgXao8RLcujz1dX5nY_bR3aejs9whrqHUX5V7xP3k6AKu6FFKI5iBjT8oM33lLTm-Fj2e3VOFArebgEa7QZ5U7n3oidUEqDEY1L2iEwlm_PRA2mm2XsRb_WORprKrFbFGi0kmjnO5s4SOWAsCXcohwHplf8ou9FPlTN-T5MRUA8-4aXyf0EdDOAnRll7ucJGB1yZJTY2gDTUAi4rFSEBuKH0PibedAQUOa-uOWVJ8qkP91MAb3gJOzDa_KfJ6gRrTNzukp7nU-DOjn79HuKIip8fr6_G0296ScSt3S2HC5f_fUFQm75g4O_kahO0DBj82Pe1CitCkMyI6r0lg4J_Gm8V1RgXmc2XPBBrtNsPBdHTYTarZRSRoqxezeZrPsjllnf-tR0QXOQzV5qogZOWMbMOtbuN81Vwrezz49i1K941xdINUIeObsYwBumSIjyjSWjiIj_355Zv0K80ixdZgoyz5-U0ePJFvUVcjOU2LVr9wyhhUTXKAYpKlXJipZqw1cab_l8faApU61KfpOLTXjw5d6Q7_irABOiApKt-tQDUD9HsiSg7Qul4jr_0TTcMF65Gp0R1iKGpRFrvo&zp=32YYksThzOZHO_gWoZsVGiFyOGDV6rMEWQq1lpc8M7wIsHMspi68-a14-mXeQXvn2AJJab1EjXnznNXbLnLBiDYm61A_Q_IP9jeiVgl5T-TDrOZunMcCde5pP1PyGP6LoEhmYWrw9XoxesF50pfts5FjwHLknYz3wdtEXufj-fEXubCwGJ3HLyG4Sxrvr7p1GixvVlqQ6in0z_RdDPo3ElpNa-nfUh_qoYXeF5U5kibgB6Cw0FNb5MbzkTOUwnGa_qiHcGW_PucrND3bDcc4OTIRPaQB34YGIrw-JrcpeIjBA6R6865zd6Rtt0StL0NchRVV3eQTos87XTpdF6BlWlaLclTVEggoz93YcyUcVJZ8cpYH10c0fwiY2NBzse8lMxGE0lcs7FQd-V3loC2SovoFg5c
+                                - generic: figma.com
+                        - 'link "Thumbnail image: Prompt your ideas to life with Figma Make. No more explaining your vision in a doc. Pitch your idea with an AI-prompted proof of concept." [ref=e1229] [cursor=pointer]':
+                          - /url: https://alb.reddit.com/cr?za=2yGiGMSWjXvvCz8R0GkMNGbxnGa05STdxA4mpbjBeUWa9jFXjLytW1cbi0hO8E4ZI8HuOmYz5ARv4tiegZOcIq60exN4iUqOHl0NE3QqLLG0vSVZ9xJnzjm5YV5GIJ6WNSFXmJreyOnXEH_CW0WGpmznHH1h-e07BCXixSGuVchPSqH4p_0NrWqXrehm8WIcW8EsBxqD14-SwIO8b0HgXao8RLcujz1dX5nY_bR3aejs9whrqHUX5V7xP3k6AKu6FFKI5iBjT8oM33lLTm-Fj2e3VOFArebgEa7QZ5U7n3oidUEqDEY1L2iEwlm_PRA2mm2XsRb_WORprKrFbFGi0kmjnO5s4SOWAsCXcohwHplf8ou9FPlTN-T5MRUA8-4aXyf0EdDOAnRll7ucJGB1yZJTY2gDTUAi4rFSEBuKH0PibedAQUOa-uOWVJ8qkP91MAb3gJOzDa_KfJ6gRrTNzukp7nU-DOjn79HuKIip8fr6_G0296ScSt3S2HC5f_fUFQm75g4O_kahO0DBj82Pe1CitCkMyI6r0lg4J_Gm8V1RgXmc2XPBBrtNsPBdHTYTarZRSRoqxezeZrPsjllnf-tR0QXOQzV5qogZOWMbMOtbuN81Vwrezz49i1K941xdINUIeObsYwBumSIjyjSWjiIj_355Zv0K80ixdZgoyz5-U0ePJFvUVcjOU2LVr9wyhhUTXKAYpKlXJipZqw1cab_l8faApU61KfpOLTXjw5d6Q7_irABOiApKt-tQDUD9HsiSg7Qul4jr_0TTcMF65Gp0R1iKGpRFrvo&zp=32YYksThzOZHO_gWoZsVGiFyOGDV6rMEWQq1lpc8M7wIsHMspi68-a14-mXeQXvn2AJJab1EjXnznNXbLnLBiDYm61A_Q_IP9jeiVgl5T-TDrOZunMcCde5pP1PyGP6LoEhmYWrw9XoxesF50pfts5FjwHLknYz3wdtEXufj-fEXubCwGJ3HLyG4Sxrvr7p1GixvVlqQ6in0z_RdDPo3ElpNa-nfUh_qoYXeF5U5kibgB6Cw0FNb5MbzkTOUwnGa_qiHcGW_PucrND3bDcc4OTIRPaQB34YGIrw-JrcpeIjBA6R6865zd6Rtt0StL0NchRVV3eQTos87XTpdF6BlWlaLclTVEggoz93YcyUcVJZ8cpYH10c0fwiY2NBzse8lMxGE0lcs7FQd-V3loC2SovoFg5c
+                          - 'img "Thumbnail image: Prompt your ideas to life with Figma Make. No more explaining your vision in a doc. Pitch your idea with an AI-prompted proof of concept." [ref=e1230]'
+                  - article "Comment from charge2way 9 days ago" [ref=e1232]:
+                    - generic "Metadata for charge2way's comment" [ref=e1233]:
+                      - link "charge2way's profile --- avatar" [ref=e1240] [cursor=pointer]:
+                        - /url: /user/charge2way/
+                        - img [ref=e1245]
+                      - generic [ref=e1251]:
+                        - link "charge2way's profile" [ref=e1256] [cursor=pointer]:
+                          - /url: /user/charge2way/
+                          - text: charge2way
+                        - generic [ref=e1257]: •
+                        - link "9d ago" [ref=e1258] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol3yyi0/
+                          - time [ref=e1259]: 9d ago
+                        - generic [ref=e1260]: •
+                        - generic [ref=e1261]:
+                          - text: Edited
+                          - time [ref=e1262]: 9d ago
+                    - generic [ref=e1269]:
+                      - paragraph [ref=e1270]: This is pretty cool, but doesn't Claude Code's statusline do this already?
+                      - paragraph [ref=e1271]: "Mine looks like this:"
+                      - paragraph [ref=e1272]: "~/ | Sonnet 4.6 | [CTX: 6%] [5h: 1% ~4h57m] [7d: 48% ~3d]"
+                      - paragraph [ref=e1273]:
+                        - text: You can get the shell script to also output to a flat text file in Claude's project directory. It's a lot less involved than parsing in-flight traffic, and it has the same limitation that it doesn't update until a response is received with the information included. It's a change to settings.json and having Claude run the
+                        - link "statusline-command.sh" [ref=e1274] [cursor=pointer]:
+                          - /url: http://statusline-command.sh
+                        - text: file. It's a standard feature in CC.
+                  - article "Comment from jftuga 9 days ago" [ref=e1280]:
+                    - generic "Metadata for jftuga's comment" [ref=e1281]:
+                      - link "jftuga's profile --- avatar" [ref=e1288] [cursor=pointer]:
+                        - /url: /user/jftuga/
+                        - img [ref=e1293]
+                      - generic [ref=e1299]:
+                        - link "jftuga's profile" [ref=e1304] [cursor=pointer]:
+                          - /url: /user/jftuga/
+                          - text: jftuga
+                        - generic [ref=e1305]: •
+                        - link "9d ago" [ref=e1306] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol42oj1/
+                          - time [ref=e1307]: 9d ago
+                    - generic [ref=e1314]:
+                      - paragraph [ref=e1315]: You might like a status line program that I wrote in Go.
+                      - paragraph [ref=e1316]:
+                        - link "https://github.com/jftuga/claude-statusline" [ref=e1317] [cursor=pointer]:
+                          - /url: https://github.com/jftuga/claude-statusline
+                  - article "Comment from Hopeful_Bass_6633 9 days ago" [ref=e1323]:
+                    - generic "Metadata for Hopeful_Bass_6633's comment" [ref=e1324]:
+                      - link "Hopeful_Bass_6633's profile --- avatar" [ref=e1331] [cursor=pointer]:
+                        - /url: /user/Hopeful_Bass_6633/
+                        - img "u/Hopeful_Bass_6633 avatar" [ref=e1334]
+                      - generic [ref=e1339]:
+                        - link "Hopeful_Bass_6633's profile" [ref=e1344] [cursor=pointer]:
+                          - /url: /user/Hopeful_Bass_6633/
+                          - text: Hopeful_Bass_6633
+                        - generic [ref=e1345]: •
+                        - link "9d ago" [ref=e1346] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol5xo91/
+                          - time [ref=e1347]: 9d ago
+                    - generic [ref=e1348]:
+                      - paragraph [ref=e1357]: OP has done us all a favour! Nice! Thanks!
+                      - button "Toggle Comment Thread" [expanded] [ref=e1360] [cursor=pointer]:
+                        - img [ref=e1363]
+                      - 'article "Comment thread level 1: Reply from Inertia-UK 9 days ago" [ref=e1371]':
+                        - generic "Metadata for Inertia-UK's comment" [ref=e1372]:
+                          - link "Inertia-UK's profile --- avatar" [ref=e1379] [cursor=pointer]:
+                            - /url: /user/Inertia-UK/
+                            - generic [ref=e1381]:
+                              - img [ref=e1383]
+                              - img [ref=e1387]
+                              - img [ref=e1390]
+                          - generic [ref=e1396]:
+                            - link "Inertia-UK's profile" [ref=e1401] [cursor=pointer]:
+                              - /url: /user/Inertia-UK/
+                              - text: Inertia-UK
+                            - generic "Comment distinguished as the original poster" [ref=e1404]: OP
+                            - generic [ref=e1405]: •
+                            - link "9d ago" [ref=e1406] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol68sgk/
+                              - time [ref=e1407]: 9d ago
+                        - generic [ref=e1414]:
+                          - paragraph [ref=e1415]: Thanks. Just be careful with it. Setup rules to not let the model panic if its close to usage limits. Tell it how to behave explicitly. Avoid flooding it with usage limits at times when it doesnt need to know. And test your setup 👍🏽
+                          - paragraph [ref=e1416]: In the wrong hands as has been pointed out in other comments it could cause problems. Needs careful implementation.....
+                  - article "Comment from surfmaths 8 days ago" [ref=e1422]:
+                    - generic "Metadata for surfmaths's comment" [ref=e1423]:
+                      - link "surfmaths's profile --- avatar" [ref=e1430] [cursor=pointer]:
+                        - /url: /user/surfmaths/
+                        - img [ref=e1435]
+                      - generic [ref=e1441]:
+                        - link "surfmaths's profile" [ref=e1446] [cursor=pointer]:
+                          - /url: /user/surfmaths/
+                          - text: surfmaths
+                        - generic [ref=e1447]: •
+                        - link "8d ago" [ref=e1448] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol8sk8b/
+                          - time [ref=e1449]: 8d ago
+                    - generic [ref=e1456]:
+                      - paragraph [ref=e1457]: Note that models suffer from "usage anxiety" when you do this, and will "think less" to save on tokens.
+                      - paragraph [ref=e1458]: Some people want exactly this, but some find that deteriorating.
+                  - article "Comment from maddog986 9 days ago" [ref=e1464]:
+                    - generic "Metadata for maddog986's comment" [ref=e1465]:
+                      - link "maddog986's profile --- avatar" [ref=e1472] [cursor=pointer]:
+                        - /url: /user/maddog986/
+                        - generic [ref=e1474]:
+                          - img [ref=e1476]
+                          - img [ref=e1480]
+                          - img [ref=e1483]
+                      - generic [ref=e1489]:
+                        - link "maddog986's profile" [ref=e1494] [cursor=pointer]:
+                          - /url: /user/maddog986/
+                          - text: maddog986
+                        - generic [ref=e1495]: •
+                        - link "9d ago" [ref=e1496] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol1niy9/
+                          - time [ref=e1497]: 9d ago
+                    - paragraph [ref=e1505]: Making the model aware of its own limitations will only make Claude "hurry up" and skip corners because it puts the model "under pressure". Bad idea IMO.
+                  - article "Comment from Formally-Fresh 9 days ago" [ref=e1511]:
+                    - generic "Metadata for Formally-Fresh's comment" [ref=e1512]:
+                      - link "Formally-Fresh's profile --- avatar" [ref=e1519] [cursor=pointer]:
+                        - /url: /user/Formally-Fresh/
+                        - img [ref=e1524]
+                      - generic [ref=e1530]:
+                        - link "Formally-Fresh's profile" [ref=e1535] [cursor=pointer]:
+                          - /url: /user/Formally-Fresh/
+                          - text: Formally-Fresh
+                        - generic [ref=e1536]: •
+                        - link "9d ago" [ref=e1537] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol13swt/
+                          - time [ref=e1538]: 9d ago
+                    - generic [ref=e1539]:
+                      - paragraph [ref=e1548]: Love this thanks for sharing now I need a codex one too!
+                      - button "1 more reply" [ref=e1560] [cursor=pointer]:
+                        - img [ref=e1562]
+                        - generic [ref=e1565]:
+                          - generic [ref=e1566]: "1"
+                          - text: more reply
+                  - article "Comment from dndiyguy 9 days ago" [ref=e1568]:
+                    - generic "Metadata for dndiyguy's comment" [ref=e1569]:
+                      - link "dndiyguy's profile --- avatar" [ref=e1576] [cursor=pointer]:
+                        - /url: /user/dndiyguy/
+                        - generic [ref=e1578]:
+                          - img [ref=e1580]
+                          - img [ref=e1584]
+                          - img [ref=e1587]
+                      - generic [ref=e1593]:
+                        - link "dndiyguy's profile" [ref=e1598] [cursor=pointer]:
+                          - /url: /user/dndiyguy/
+                          - text: dndiyguy
+                        - generic [ref=e1599]: •
+                        - link "9d ago" [ref=e1600] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol1o46s/
+                          - time [ref=e1601]: 9d ago
+                        - generic [ref=e1602]: •
+                        - generic [ref=e1603]:
+                          - text: Edited
+                          - time [ref=e1604]: 9d ago
+                    - generic [ref=e1611]:
+                      - paragraph [ref=e1612]: does anyone know if this is something they specifically don't want us to do?
+                      - paragraph [ref=e1613]: i have some jobs I'd fire on a schedule before sesion reset if usage budget was flush.
+                  - article "Comment from Euphoric_Chicken3363 9 days ago" [ref=e1619]:
+                    - generic "Metadata for Euphoric_Chicken3363's comment" [ref=e1620]:
+                      - link "Euphoric_Chicken3363's profile --- avatar" [ref=e1627] [cursor=pointer]:
+                        - /url: /user/Euphoric_Chicken3363/
+                        - img "u/Euphoric_Chicken3363 avatar" [ref=e1630]
+                      - generic [ref=e1635]:
+                        - link "Euphoric_Chicken3363's profile" [ref=e1640] [cursor=pointer]:
+                          - /url: /user/Euphoric_Chicken3363/
+                          - text: Euphoric_Chicken3363
+                        - generic [ref=e1641]: •
+                        - link "9d ago" [ref=e1642] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1t9ayg8/comment/ol2omso/
+                          - time [ref=e1643]: 9d ago
+                    - generic [ref=e1644]:
+                      - paragraph [ref=e1653]: I don’t see the appeal. Managing your limits is fairly simple and you are likely to reduce quality, as you’ve given Claude another factor that encourages lower quality.
+                      - button "1 more reply" [ref=e1665] [cursor=pointer]:
+                        - img [ref=e1667]
+                        - generic [ref=e1670]:
+                          - generic [ref=e1671]: "1"
+                          - text: more reply
+            - generic [ref=e1675]:
+              - generic [ref=e1676]:
+                - complementary [ref=e1679]:
+                  - generic [ref=e1680]:
+                    - generic [ref=e1681]: New to Reddit?
+                    - paragraph [ref=e1682]: Create your account and connect with a world of communities.
+                  - generic [ref=e1683]:
+                    - iframe [ref=e1692]:
+                      - button "Continue with Google. Opens in new tab" [ref=f2e3] [cursor=pointer]:
+                        - generic [ref=f2e5]:
+                          - img [ref=f2e7]
+                          - generic [ref=f2e14]: Continue with Google
+                    - link "Continue with Email" [ref=e1694] [cursor=pointer]:
+                      - /url: https://www.reddit.com/register/
+                      - generic [ref=e1697]:
+                        - img [ref=e1698]
+                        - generic [ref=e1700]: Continue with Email
+                  - link "Continue with Phone Number" [ref=e1703] [cursor=pointer]:
+                    - /url: https://www.reddit.com/login/
+                    - generic [ref=e1706]:
+                      - img [ref=e1707]
+                      - generic [ref=e1710]: Continue with Phone Number
+                  - generic [ref=e1711]:
+                    - text: By continuing, you agree to our
+                    - link "User Agreement" [ref=e1712] [cursor=pointer]:
+                      - /url: https://www.redditinc.com/policies/user-agreement
+                    - text: and acknowledge that you understand the
+                    - link "Privacy Policy" [ref=e1713] [cursor=pointer]:
+                      - /url: https://www.redditinc.com/policies/privacy-policy
+                    - text: .
+                - complementary "Related Answers Section" [ref=e1715]:
+                  - heading "Related Answers Section" [level=1] [ref=e1716]
+                  - generic [ref=e1717]:
+                    - img [ref=e1719]
+                    - generic [ref=e1721]: Related Answers
+                  - generic [ref=e1722]:
+                    - link "Overview of Claude Code usage limits" [ref=e1724] [cursor=pointer]:
+                      - /url: https://www.reddit.com/answers/223f6e49-487b-44f6-92ef-c9765d12e662/?q=Overview+of+Claude+Code+usage+limits&source=PDP
+                      - generic [ref=e1727]: Overview of Claude Code usage limits
+                      - img [ref=e1730]
+                    - link "Best tools for tracking Claude usage" [ref=e1733] [cursor=pointer]:
+                      - /url: https://www.reddit.com/answers/ad491d12-7a32-4aaf-a415-412961f0601e/?q=Best+tools+for+tracking+Claude+usage&source=PDP
+                      - generic [ref=e1736]: Best tools for tracking Claude usage
+                      - img [ref=e1739]
+                    - link "Tips for managing Claude AI usage" [ref=e1742] [cursor=pointer]:
+                      - /url: https://www.reddit.com/answers/9570eb46-4e21-4d66-8237-4395b8b41fc8/?q=Tips+for+managing+Claude+AI+usage&source=PDP
+                      - generic [ref=e1745]: Tips for managing Claude AI usage
+                      - img [ref=e1748]
+                    - link "Best use cases for ClaudeAI in business" [ref=e1751] [cursor=pointer]:
+                      - /url: https://www.reddit.com/answers/65b56231-aaee-4abb-9837-9feb95677384/?q=Best+use+cases+for+ClaudeAI+in+business&source=PDP
+                      - generic [ref=e1754]: Best use cases for ClaudeAI in business
+                      - img [ref=e1757]
+                    - link "How ClaudeAI compares to other AI models" [ref=e1760] [cursor=pointer]:
+                      - /url: https://www.reddit.com/answers/cc1f03a2-30b1-4d6f-9d74-8fef201666a0/?q=How+ClaudeAI+compares+to+other+AI+models&source=PDP
+                      - generic [ref=e1763]: How ClaudeAI compares to other AI models
+                      - img [ref=e1766]
+                - complementary "Related Posts Section" [ref=e1768]:
+                  - list [ref=e1774]:
+                    - listitem [ref=e1775]:
+                      - generic [ref=e1776]:
+                        - generic [ref=e1777]:
+                          - link "I made Claude Code aware of its own usage limits" [ref=e1778] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1t9b1ym/i_made_claude_code_aware_of_its_own_usage_limits/
+                            - generic [ref=e1779]:
+                              - generic: I made Claude Code aware of its own usage limits
+                          - generic [ref=e1781]:
+                            - generic [ref=e1784]:
+                              - link "r/ClaudeCode" [ref=e1785] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/
+                                - generic [ref=e1789]: r/ClaudeCode
+                              - generic [ref=e1790]: •
+                              - time [ref=e1792]: 9d ago
+                            - link "List item post - I made Claude Code aware of its own usage limits" [ref=e1794] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1t9b1ym/i_made_claude_code_aware_of_its_own_usage_limits/
+                              - heading "List item post - I made Claude Code aware of its own usage limits" [level=3] [ref=e1797]: I made Claude Code aware of its own usage limits
+                          - generic [ref=e1799]:
+                            - generic [ref=e1800]: "56"
+                            - text: upvotes ·
+                            - generic [ref=e1801]: "60"
+                            - text: comments
+                        - separator [ref=e1802]
+                    - listitem [ref=e1803]:
+                      - generic [ref=e1805]:
+                        - generic:
+                          - 'generic "Advertisement: Get a full on feast for just $6 with the IHOP Value Menu 😎" [ref=e1806]':
+                            - 'link "Advertisement: Get a full on feast for just $6 with the IHOP Value Menu 😎" [ref=e1807] [cursor=pointer]':
+                              - /url: https://alb.reddit.com/cr?za=5K4DiAX0f77t2zChESX18bNhg_Tgtr7_Z-XkZ4E21oFM1dwErQATH0oCyKkryXXPzJ9dvXXF8ZpzOzsPXoJO9pOVE7UQJ8wX5FP4aIA2TBRJUL00AFHkPq5SfTvFeYXKCReBDaOOBTZyhDrsNuzyL_ipQDQAwX6rzAB30ZK_kAFisEp-ybegWXkwDvKE5w30bnaF8ljLDVvKnbKDFU3ogFl5Ok9Y8FlNb-HrH_SfLPpu83SGtHxY2eEKF5nxG1xwMUyxGxXQp8d1DeYTQNDKJV3hk09UwxCzW6XpY63jI0AtiqeUshxg5scu3QbvQSmj_3x4fo3ECbeIKi9AxPOhEGIhtmyG92zrE5LChzp_Esuu9mrO0wkAj9ybkGmlk_6rFHPFp-hTDjya75E0h0j5tjOJzkrfv4Dzw79uah2VaKME7zLnAjS7cWnlrKWd6EwjBZPTOvjbmaAJ0k_lUHq9TXPY67iP3qodgL5Iv9S20jGtXG_Yxb9pfmODM_LdboHDRHlAXetnm9pQ8dv3nWpMTgm3aGRMfMhGXAOHR5pTEweHffx7Pa1-ISk-67vZvdFXc_Z0mVlKbf6fFwuBU_tm9zeTlvW-LL36XwqmsXPjknuL_nfqeto49UyYXa7RQuyzaa2gXXVvkVebDlSCX2Xn4TO5OW6664SqTgCRvPHH2XRvVAA5YRTm5xJWLxthYYKF_sVweGaTSuy1Yr1qR1Bn7pXDZMYKR-LYhZjk-x_tzWIbyVfo6Md_ZBZUpQ8v9SfLlIxzbfToR_BFP9o&zp=0HiGlV0iS7Y3i-hz4dI2nL-D0o5E11jb7SagcMaGyDxg4olb_hSMEcUctuo-6x57Mo10vZdFkp61vAU24d3YAuT0BhlilprEtADKVllm0muKz5ESa6cS37AqvwMA2mEu8mCuoGBrAXbwcArnaCobOmCrXRc2yWaSp95Ed97mboO4xkFDWPvZHhbc9glnnB5ZZz0zTVoO-csIP-fFRHPTqIvilcIXgBxaE03ySbSUVeP_mhkiu6K3nRsijnrVvvUV09g2oLAnPs38-Pg1CS-3w5uZT_kbdN2eR1VytJCUvCeC42phYmTgYqH00PDyHSO61fFyko68TH2gk7C2BHG2r36EbZA06PlCHCeQ7w7guvtSybFyPzLNbbW8L2OAkJCgm5ZPMsI2dxVAF7xJaeB7nyuhK2-I9l9S1A
+                          - generic [ref=e1808]:
+                            - generic [ref=e1809]:
+                              - generic [ref=e1810]:
+                                - generic [ref=e1811]:
+                                  - generic [ref=e1812]:
+                                    - link "u/ihop avatar ihop" [ref=e1815] [cursor=pointer]:
+                                      - /url: /user/ihop/
+                                      - img "u/ihop avatar" [ref=e1818]
+                                      - generic [ref=e1819]: ihop
+                                    - generic [ref=e1820]: •
+                                    - link "Promoted" [ref=e1822] [cursor=pointer]:
+                                      - /url: /user/ihop/
+                                      - generic [ref=e1823]: Promoted
+                                    - link [ref=e1825] [cursor=pointer]:
+                                      - /url: https://alb.reddit.com/cr?za=5K4DiAX0f77t2zChESX18bNhg_Tgtr7_Z-XkZ4E21oFM1dwErQATH0oCyKkryXXPzJ9dvXXF8ZpzOzsPXoJO9pOVE7UQJ8wX5FP4aIA2TBRJUL00AFHkPq5SfTvFeYXKCReBDaOOBTZyhDrsNuzyL_ipQDQAwX6rzAB30ZK_kAFisEp-ybegWXkwDvKE5w30bnaF8ljLDVvKnbKDFU3ogFl5Ok9Y8FlNb-HrH_SfLPpu83SGtHxY2eEKF5nxG1xwMUyxGxXQp8d1DeYTQNDKJV3hk09UwxCzW6XpY63jI0AtiqeUshxg5scu3QbvQSmj_3x4fo3ECbeIKi9AxPOhEGIhtmyG92zrE5LChzp_Esuu9mrO0wkAj9ybkGmlk_6rFHPFp-hTDjya75E0h0j5tjOJzkrfv4Dzw79uah2VaKME7zLnAjS7cWnlrKWd6EwjBZPTOvjbmaAJ0k_lUHq9TXPY67iP3qodgL5Iv9S20jGtXG_Yxb9pfmODM_LdboHDRHlAXetnm9pQ8dv3nWpMTgm3aGRMfMhGXAOHR5pTEweHffx7Pa1-ISk-67vZvdFXc_Z0mVlKbf6fFwuBU_tm9zeTlvW-LL36XwqmsXPjknuL_nfqeto49UyYXa7RQuyzaa2gXXVvkVebDlSCX2Xn4TO5OW6664SqTgCRvPHH2XRvVAA5YRTm5xJWLxthYYKF_sVweGaTSuy1Yr1qR1Bn7pXDZMYKR-LYhZjk-x_tzWIbyVfo6Md_ZBZUpQ8v9SfLlIxzbfToR_BFP9o&zp=0HiGlV0iS7Y3i-hz4dI2nL-D0o5E11jb7SagcMaGyDxg4olb_hSMEcUctuo-6x57Mo10vZdFkp61vAU24d3YAuT0BhlilprEtADKVllm0muKz5ESa6cS37AqvwMA2mEu8mCuoGBrAXbwcArnaCobOmCrXRc2yWaSp95Ed97mboO4xkFDWPvZHhbc9glnnB5ZZz0zTVoO-csIP-fFRHPTqIvilcIXgBxaE03ySbSUVeP_mhkiu6K3nRsijnrVvvUV09g2oLAnPs38-Pg1CS-3w5uZT_kbdN2eR1VytJCUvCeC42phYmTgYqH00PDyHSO61fFyko68TH2gk7C2BHG2r36EbZA06PlCHCeQ7w7guvtSybFyPzLNbbW8L2OAkJCgm5ZPMsI2dxVAF7xJaeB7nyuhK2-I9l9S1A
+                                  - button "Open user actions" [ref=e1830] [cursor=pointer]:
+                                    - img [ref=e1833]
+                                - link "Get a full on feast for just $6 with the IHOP Value Menu 😎" [ref=e1837] [cursor=pointer]:
+                                  - /url: https://alb.reddit.com/cr?za=5K4DiAX0f77t2zChESX18bNhg_Tgtr7_Z-XkZ4E21oFM1dwErQATH0oCyKkryXXPzJ9dvXXF8ZpzOzsPXoJO9pOVE7UQJ8wX5FP4aIA2TBRJUL00AFHkPq5SfTvFeYXKCReBDaOOBTZyhDrsNuzyL_ipQDQAwX6rzAB30ZK_kAFisEp-ybegWXkwDvKE5w30bnaF8ljLDVvKnbKDFU3ogFl5Ok9Y8FlNb-HrH_SfLPpu83SGtHxY2eEKF5nxG1xwMUyxGxXQp8d1DeYTQNDKJV3hk09UwxCzW6XpY63jI0AtiqeUshxg5scu3QbvQSmj_3x4fo3ECbeIKi9AxPOhEGIhtmyG92zrE5LChzp_Esuu9mrO0wkAj9ybkGmlk_6rFHPFp-hTDjya75E0h0j5tjOJzkrfv4Dzw79uah2VaKME7zLnAjS7cWnlrKWd6EwjBZPTOvjbmaAJ0k_lUHq9TXPY67iP3qodgL5Iv9S20jGtXG_Yxb9pfmODM_LdboHDRHlAXetnm9pQ8dv3nWpMTgm3aGRMfMhGXAOHR5pTEweHffx7Pa1-ISk-67vZvdFXc_Z0mVlKbf6fFwuBU_tm9zeTlvW-LL36XwqmsXPjknuL_nfqeto49UyYXa7RQuyzaa2gXXVvkVebDlSCX2Xn4TO5OW6664SqTgCRvPHH2XRvVAA5YRTm5xJWLxthYYKF_sVweGaTSuy1Yr1qR1Bn7pXDZMYKR-LYhZjk-x_tzWIbyVfo6Md_ZBZUpQ8v9SfLlIxzbfToR_BFP9o&zp=0HiGlV0iS7Y3i-hz4dI2nL-D0o5E11jb7SagcMaGyDxg4olb_hSMEcUctuo-6x57Mo10vZdFkp61vAU24d3YAuT0BhlilprEtADKVllm0muKz5ESa6cS37AqvwMA2mEu8mCuoGBrAXbwcArnaCobOmCrXRc2yWaSp95Ed97mboO4xkFDWPvZHhbc9glnnB5ZZz0zTVoO-csIP-fFRHPTqIvilcIXgBxaE03ySbSUVeP_mhkiu6K3nRsijnrVvvUV09g2oLAnPs38-Pg1CS-3w5uZT_kbdN2eR1VytJCUvCeC42phYmTgYqH00PDyHSO61fFyko68TH2gk7C2BHG2r36EbZA06PlCHCeQ7w7guvtSybFyPzLNbbW8L2OAkJCgm5ZPMsI2dxVAF7xJaeB7nyuhK2-I9l9S1A
+                                  - generic "Get a full on feast for just $6 with the IHOP Value Menu 😎" [ref=e1838]
+                              - 'link "Thumbnail image: Get a full on feast for just $6 with the IHOP Value Menu 😎" [ref=e1841] [cursor=pointer]':
+                                - /url: https://alb.reddit.com/cr?za=5K4DiAX0f77t2zChESX18bNhg_Tgtr7_Z-XkZ4E21oFM1dwErQATH0oCyKkryXXPzJ9dvXXF8ZpzOzsPXoJO9pOVE7UQJ8wX5FP4aIA2TBRJUL00AFHkPq5SfTvFeYXKCReBDaOOBTZyhDrsNuzyL_ipQDQAwX6rzAB30ZK_kAFisEp-ybegWXkwDvKE5w30bnaF8ljLDVvKnbKDFU3ogFl5Ok9Y8FlNb-HrH_SfLPpu83SGtHxY2eEKF5nxG1xwMUyxGxXQp8d1DeYTQNDKJV3hk09UwxCzW6XpY63jI0AtiqeUshxg5scu3QbvQSmj_3x4fo3ECbeIKi9AxPOhEGIhtmyG92zrE5LChzp_Esuu9mrO0wkAj9ybkGmlk_6rFHPFp-hTDjya75E0h0j5tjOJzkrfv4Dzw79uah2VaKME7zLnAjS7cWnlrKWd6EwjBZPTOvjbmaAJ0k_lUHq9TXPY67iP3qodgL5Iv9S20jGtXG_Yxb9pfmODM_LdboHDRHlAXetnm9pQ8dv3nWpMTgm3aGRMfMhGXAOHR5pTEweHffx7Pa1-ISk-67vZvdFXc_Z0mVlKbf6fFwuBU_tm9zeTlvW-LL36XwqmsXPjknuL_nfqeto49UyYXa7RQuyzaa2gXXVvkVebDlSCX2Xn4TO5OW6664SqTgCRvPHH2XRvVAA5YRTm5xJWLxthYYKF_sVweGaTSuy1Yr1qR1Bn7pXDZMYKR-LYhZjk-x_tzWIbyVfo6Md_ZBZUpQ8v9SfLlIxzbfToR_BFP9o&zp=0HiGlV0iS7Y3i-hz4dI2nL-D0o5E11jb7SagcMaGyDxg4olb_hSMEcUctuo-6x57Mo10vZdFkp61vAU24d3YAuT0BhlilprEtADKVllm0muKz5ESa6cS37AqvwMA2mEu8mCuoGBrAXbwcArnaCobOmCrXRc2yWaSp95Ed97mboO4xkFDWPvZHhbc9glnnB5ZZz0zTVoO-csIP-fFRHPTqIvilcIXgBxaE03ySbSUVeP_mhkiu6K3nRsijnrVvvUV09g2oLAnPs38-Pg1CS-3w5uZT_kbdN2eR1VytJCUvCeC42phYmTgYqH00PDyHSO61fFyko68TH2gk7C2BHG2r36EbZA06PlCHCeQ7w7guvtSybFyPzLNbbW8L2OAkJCgm5ZPMsI2dxVAF7xJaeB7nyuhK2-I9l9S1A
+                                - 'img "Thumbnail image: Get a full on feast for just $6 with the IHOP Value Menu 😎" [ref=e1843]'
+                            - generic [ref=e1844]:
+                              - link [ref=e1846] [cursor=pointer]:
+                                - /url: https://alb.reddit.com/cr?za=5K4DiAX0f77t2zChESX18bNhg_Tgtr7_Z-XkZ4E21oFM1dwErQATH0oCyKkryXXPzJ9dvXXF8ZpzOzsPXoJO9pOVE7UQJ8wX5FP4aIA2TBRJUL00AFHkPq5SfTvFeYXKCReBDaOOBTZyhDrsNuzyL_ipQDQAwX6rzAB30ZK_kAFisEp-ybegWXkwDvKE5w30bnaF8ljLDVvKnbKDFU3ogFl5Ok9Y8FlNb-HrH_SfLPpu83SGtHxY2eEKF5nxG1xwMUyxGxXQp8d1DeYTQNDKJV3hk09UwxCzW6XpY63jI0AtiqeUshxg5scu3QbvQSmj_3x4fo3ECbeIKi9AxPOhEGIhtmyG92zrE5LChzp_Esuu9mrO0wkAj9ybkGmlk_6rFHPFp-hTDjya75E0h0j5tjOJzkrfv4Dzw79uah2VaKME7zLnAjS7cWnlrKWd6EwjBZPTOvjbmaAJ0k_lUHq9TXPY67iP3qodgL5Iv9S20jGtXG_Yxb9pfmODM_LdboHDRHlAXetnm9pQ8dv3nWpMTgm3aGRMfMhGXAOHR5pTEweHffx7Pa1-ISk-67vZvdFXc_Z0mVlKbf6fFwuBU_tm9zeTlvW-LL36XwqmsXPjknuL_nfqeto49UyYXa7RQuyzaa2gXXVvkVebDlSCX2Xn4TO5OW6664SqTgCRvPHH2XRvVAA5YRTm5xJWLxthYYKF_sVweGaTSuy1Yr1qR1Bn7pXDZMYKR-LYhZjk-x_tzWIbyVfo6Md_ZBZUpQ8v9SfLlIxzbfToR_BFP9o&zp=0HiGlV0iS7Y3i-hz4dI2nL-D0o5E11jb7SagcMaGyDxg4olb_hSMEcUctuo-6x57Mo10vZdFkp61vAU24d3YAuT0BhlilprEtADKVllm0muKz5ESa6cS37AqvwMA2mEu8mCuoGBrAXbwcArnaCobOmCrXRc2yWaSp95Ed97mboO4xkFDWPvZHhbc9glnnB5ZZz0zTVoO-csIP-fFRHPTqIvilcIXgBxaE03ySbSUVeP_mhkiu6K3nRsijnrVvvUV09g2oLAnPs38-Pg1CS-3w5uZT_kbdN2eR1VytJCUvCeC42phYmTgYqH00PDyHSO61fFyko68TH2gk7C2BHG2r36EbZA06PlCHCeQ7w7guvtSybFyPzLNbbW8L2OAkJCgm5ZPMsI2dxVAF7xJaeB7nyuhK2-I9l9S1A
+                              - generic [ref=e1847]:
+                                - link "ihop.com" [ref=e1850] [cursor=pointer]:
+                                  - /url: https://alb.reddit.com/cr?za=5K4DiAX0f77t2zChESX18bNhg_Tgtr7_Z-XkZ4E21oFM1dwErQATH0oCyKkryXXPzJ9dvXXF8ZpzOzsPXoJO9pOVE7UQJ8wX5FP4aIA2TBRJUL00AFHkPq5SfTvFeYXKCReBDaOOBTZyhDrsNuzyL_ipQDQAwX6rzAB30ZK_kAFisEp-ybegWXkwDvKE5w30bnaF8ljLDVvKnbKDFU3ogFl5Ok9Y8FlNb-HrH_SfLPpu83SGtHxY2eEKF5nxG1xwMUyxGxXQp8d1DeYTQNDKJV3hk09UwxCzW6XpY63jI0AtiqeUshxg5scu3QbvQSmj_3x4fo3ECbeIKi9AxPOhEGIhtmyG92zrE5LChzp_Esuu9mrO0wkAj9ybkGmlk_6rFHPFp-hTDjya75E0h0j5tjOJzkrfv4Dzw79uah2VaKME7zLnAjS7cWnlrKWd6EwjBZPTOvjbmaAJ0k_lUHq9TXPY67iP3qodgL5Iv9S20jGtXG_Yxb9pfmODM_LdboHDRHlAXetnm9pQ8dv3nWpMTgm3aGRMfMhGXAOHR5pTEweHffx7Pa1-ISk-67vZvdFXc_Z0mVlKbf6fFwuBU_tm9zeTlvW-LL36XwqmsXPjknuL_nfqeto49UyYXa7RQuyzaa2gXXVvkVebDlSCX2Xn4TO5OW6664SqTgCRvPHH2XRvVAA5YRTm5xJWLxthYYKF_sVweGaTSuy1Yr1qR1Bn7pXDZMYKR-LYhZjk-x_tzWIbyVfo6Md_ZBZUpQ8v9SfLlIxzbfToR_BFP9o&zp=0HiGlV0iS7Y3i-hz4dI2nL-D0o5E11jb7SagcMaGyDxg4olb_hSMEcUctuo-6x57Mo10vZdFkp61vAU24d3YAuT0BhlilprEtADKVllm0muKz5ESa6cS37AqvwMA2mEu8mCuoGBrAXbwcArnaCobOmCrXRc2yWaSp95Ed97mboO4xkFDWPvZHhbc9glnnB5ZZz0zTVoO-csIP-fFRHPTqIvilcIXgBxaE03ySbSUVeP_mhkiu6K3nRsijnrVvvUV09g2oLAnPs38-Pg1CS-3w5uZT_kbdN2eR1VytJCUvCeC42phYmTgYqH00PDyHSO61fFyko68TH2gk7C2BHG2r36EbZA06PlCHCeQ7w7guvtSybFyPzLNbbW8L2OAkJCgm5ZPMsI2dxVAF7xJaeB7nyuhK2-I9l9S1A
+                                  - generic: ihop.com
+                                - link "Order Now" [ref=e1852] [cursor=pointer]:
+                                  - /url: https://alb.reddit.com/cr?za=5K4DiAX0f77t2zChESX18bNhg_Tgtr7_Z-XkZ4E21oFM1dwErQATH0oCyKkryXXPzJ9dvXXF8ZpzOzsPXoJO9pOVE7UQJ8wX5FP4aIA2TBRJUL00AFHkPq5SfTvFeYXKCReBDaOOBTZyhDrsNuzyL_ipQDQAwX6rzAB30ZK_kAFisEp-ybegWXkwDvKE5w30bnaF8ljLDVvKnbKDFU3ogFl5Ok9Y8FlNb-HrH_SfLPpu83SGtHxY2eEKF5nxG1xwMUyxGxXQp8d1DeYTQNDKJV3hk09UwxCzW6XpY63jI0AtiqeUshxg5scu3QbvQSmj_3x4fo3ECbeIKi9AxPOhEGIhtmyG92zrE5LChzp_Esuu9mrO0wkAj9ybkGmlk_6rFHPFp-hTDjya75E0h0j5tjOJzkrfv4Dzw79uah2VaKME7zLnAjS7cWnlrKWd6EwjBZPTOvjbmaAJ0k_lUHq9TXPY67iP3qodgL5Iv9S20jGtXG_Yxb9pfmODM_LdboHDRHlAXetnm9pQ8dv3nWpMTgm3aGRMfMhGXAOHR5pTEweHffx7Pa1-ISk-67vZvdFXc_Z0mVlKbf6fFwuBU_tm9zeTlvW-LL36XwqmsXPjknuL_nfqeto49UyYXa7RQuyzaa2gXXVvkVebDlSCX2Xn4TO5OW6664SqTgCRvPHH2XRvVAA5YRTm5xJWLxthYYKF_sVweGaTSuy1Yr1qR1Bn7pXDZMYKR-LYhZjk-x_tzWIbyVfo6Md_ZBZUpQ8v9SfLlIxzbfToR_BFP9o&zp=0HiGlV0iS7Y3i-hz4dI2nL-D0o5E11jb7SagcMaGyDxg4olb_hSMEcUctuo-6x57Mo10vZdFkp61vAU24d3YAuT0BhlilprEtADKVllm0muKz5ESa6cS37AqvwMA2mEu8mCuoGBrAXbwcArnaCobOmCrXRc2yWaSp95Ed97mboO4xkFDWPvZHhbc9glnnB5ZZz0zTVoO-csIP-fFRHPTqIvilcIXgBxaE03ySbSUVeP_mhkiu6K3nRsijnrVvvUV09g2oLAnPs38-Pg1CS-3w5uZT_kbdN2eR1VytJCUvCeC42phYmTgYqH00PDyHSO61fFyko68TH2gk7C2BHG2r36EbZA06PlCHCeQ7w7guvtSybFyPzLNbbW8L2OAkJCgm5ZPMsI2dxVAF7xJaeB7nyuhK2-I9l9S1A
+                                  - generic [ref=e1854]:
+                                    - generic: Order Now
+                      - separator [ref=e1855]
+                    - listitem [ref=e1856]:
+                      - generic [ref=e1857]:
+                        - generic [ref=e1858]:
+                          - link "Did Claude just double usage limits for everyone ?" [ref=e1859] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1t5hxcs/did_claude_just_double_usage_limits_for_everyone/
+                            - generic [ref=e1860]:
+                              - generic: Did Claude just double usage limits for everyone ?
+                          - generic [ref=e1861]:
+                            - generic [ref=e1862]:
+                              - generic [ref=e1865]:
+                                - link "r/ClaudeAI" [ref=e1866] [cursor=pointer]:
+                                  - /url: /r/ClaudeAI/
+                                  - generic [ref=e1870]: r/ClaudeAI
+                                - generic [ref=e1871]: •
+                                - time [ref=e1873]: 13d ago
+                              - link "List item post - Did Claude just double usage limits for everyone ?" [ref=e1875] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/comments/1t5hxcs/did_claude_just_double_usage_limits_for_everyone/
+                                - heading "List item post - Did Claude just double usage limits for everyone ?" [level=3] [ref=e1878]: Did Claude just double usage limits for everyone ?
+                            - link "r/ClaudeAI - Did Claude just double usage limits for everyone ?" [ref=e1881] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1t5hxcs/did_claude_just_double_usage_limits_for_everyone/
+                              - img "r/ClaudeAI - Did Claude just double usage limits for everyone ?" [ref=e1882]
+                          - generic [ref=e1884]:
+                            - generic [ref=e1885]: "268"
+                            - text: upvotes ·
+                            - generic [ref=e1886]: "120"
+                            - text: comments
+                        - separator [ref=e1887]
+                    - listitem [ref=e1888]:
+                      - generic [ref=e1889]:
+                        - generic [ref=e1890]:
+                          - link "Claude Code Update" [ref=e1891] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1teh0pe/claude_code_update/
+                            - generic [ref=e1892]:
+                              - generic: Claude Code Update
+                          - generic [ref=e1893]:
+                            - generic [ref=e1894]:
+                              - generic [ref=e1897]:
+                                - link "r/ClaudeAI" [ref=e1898] [cursor=pointer]:
+                                  - /url: /r/ClaudeAI/
+                                  - generic [ref=e1902]: r/ClaudeAI
+                                - generic [ref=e1903]: •
+                                - time [ref=e1905]: 4d ago
+                              - link "List item post - Claude Code Update" [ref=e1907] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/comments/1teh0pe/claude_code_update/
+                                - heading "List item post - Claude Code Update" [level=3] [ref=e1910]: Claude Code Update
+                            - link "r/ClaudeAI - Claude Code Update" [ref=e1913] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1teh0pe/claude_code_update/
+                              - img "r/ClaudeAI - Claude Code Update" [ref=e1914]
+                          - generic [ref=e1916]:
+                            - generic [ref=e1917]: "56"
+                            - text: upvotes ·
+                            - generic [ref=e1918]: "7"
+                            - text: comments
+                        - separator [ref=e1919]
+                    - listitem
+                    - listitem [ref=e1920]:
+                      - generic [ref=e1921]:
+                        - generic [ref=e1922]:
+                          - link "I built a <50ms Hinglish Moderation API. A Reddit user red-teamed it in 2 hours. Here is how I patched a zero-day Unicode bypass." [ref=e1923] [cursor=pointer]:
+                            - /url: /r/SideProject/comments/1s8g809/i_built_a_50ms_hinglish_moderation_api_a_reddit/
+                            - generic [ref=e1924]:
+                              - generic: I built a <50ms Hinglish Moderation API. A Reddit user red-teamed it in 2 hours. Here is how I patched a zero-day Unicode bypass.
+                          - generic [ref=e1926]:
+                            - generic [ref=e1929]:
+                              - link "r/SideProject" [ref=e1930] [cursor=pointer]:
+                                - /url: /r/SideProject/
+                                - generic [ref=e1934]: r/SideProject
+                              - generic [ref=e1935]: •
+                              - time [ref=e1937]: 2mo ago
+                            - link "List item post - I built a <50ms Hinglish Moderation API. A Reddit user red-..." [ref=e1939] [cursor=pointer]:
+                              - /url: /r/SideProject/comments/1s8g809/i_built_a_50ms_hinglish_moderation_api_a_reddit/
+                              - heading "List item post - I built a <50ms Hinglish Moderation API. A Reddit user red-..." [level=3] [ref=e1942]: I built a <50ms Hinglish Moderation API. A Reddit user red-teamed it in 2 hours. Here is how I patched a zero-day Unicode bypass.
+                          - generic [ref=e1944]:
+                            - generic [ref=e1945]: "2"
+                            - text: upvotes ·
+                            - generic [ref=e1946]: "4"
+                            - text: comments
+                        - separator [ref=e1947]
+                    - listitem [ref=e1948]:
+                      - generic [ref=e1949]:
+                        - generic [ref=e1950]:
+                          - link "the part of using claude code nobody talks about" [ref=e1951] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1t6371y/the_part_of_using_claude_code_nobody_talks_about/
+                            - generic [ref=e1952]:
+                              - generic: the part of using claude code nobody talks about
+                          - generic [ref=e1954]:
+                            - generic [ref=e1957]:
+                              - link "r/ClaudeAI" [ref=e1958] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/
+                                - generic [ref=e1962]: r/ClaudeAI
+                              - generic [ref=e1963]: •
+                              - time [ref=e1965]: 13d ago
+                            - link "List item post - the part of using claude code nobody talks about" [ref=e1967] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1t6371y/the_part_of_using_claude_code_nobody_talks_about/
+                              - heading "List item post - the part of using claude code nobody talks about" [level=3] [ref=e1970]: the part of using claude code nobody talks about
+                          - generic [ref=e1972]:
+                            - generic [ref=e1973]: "301"
+                            - text: upvotes ·
+                            - generic [ref=e1974]: "144"
+                            - text: comments
+                        - separator [ref=e1975]
+                    - listitem [ref=e1976]:
+                      - generic [ref=e1977]:
+                        - generic [ref=e1978]:
+                          - link "The Claude Code limit expires immediately" [ref=e1979] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1t2t99z/the_claude_code_limit_expires_immediately/
+                            - generic [ref=e1980]:
+                              - generic: The Claude Code limit expires immediately
+                          - generic [ref=e1982]:
+                            - generic [ref=e1985]:
+                              - link "r/ClaudeCode" [ref=e1986] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/
+                                - generic [ref=e1990]: r/ClaudeCode
+                              - generic [ref=e1991]: •
+                              - time [ref=e1993]: 16d ago
+                            - link "List item post - The Claude Code limit expires immediately" [ref=e1995] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1t2t99z/the_claude_code_limit_expires_immediately/
+                              - heading "List item post - The Claude Code limit expires immediately" [level=3] [ref=e1998]: The Claude Code limit expires immediately
+                          - generic [ref=e2000]:
+                            - generic [ref=e2001]: "18"
+                            - text: upvotes ·
+                            - generic [ref=e2002]: "40"
+                            - text: comments
+                        - separator [ref=e2003]
+                    - listitem [ref=e2004]:
+                      - generic [ref=e2005]:
+                        - generic [ref=e2006]:
+                          - link "Claude usage limit is absurd" [ref=e2007] [cursor=pointer]:
+                            - /url: /r/claude/comments/1s2qqpm/claude_usage_limit_is_absurd/
+                            - generic [ref=e2008]:
+                              - generic: Claude usage limit is absurd
+                          - generic [ref=e2009]:
+                            - generic [ref=e2010]:
+                              - generic [ref=e2013]:
+                                - link "r/claude" [ref=e2014] [cursor=pointer]:
+                                  - /url: /r/claude/
+                                  - generic [ref=e2018]: r/claude
+                                - generic [ref=e2019]: •
+                                - time [ref=e2021]: 2mo ago
+                              - link "List item post - Claude usage limit is absurd" [ref=e2023] [cursor=pointer]:
+                                - /url: /r/claude/comments/1s2qqpm/claude_usage_limit_is_absurd/
+                                - heading "List item post - Claude usage limit is absurd" [level=3] [ref=e2026]: Claude usage limit is absurd
+                            - link "r/claude - Claude usage limit is absurd" [ref=e2029] [cursor=pointer]:
+                              - /url: /r/claude/comments/1s2qqpm/claude_usage_limit_is_absurd/
+                              - img "r/claude - Claude usage limit is absurd" [ref=e2030]
+                          - generic [ref=e2032]:
+                            - generic [ref=e2033]: "281"
+                            - text: upvotes ·
+                            - generic [ref=e2034]: "135"
+                            - text: comments
+                        - separator [ref=e2035]
+                    - listitem [ref=e2036]:
+                      - generic [ref=e2037]:
+                        - generic [ref=e2038]:
+                          - link "Guys, I think they solved the limits issue. (Claude code doesn't stop even when i hit my weekly limits)" [ref=e2039] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1sbmzcd/guys_i_think_they_solved_the_limits_issue_claude/
+                            - generic [ref=e2040]:
+                              - generic: Guys, I think they solved the limits issue. (Claude code doesn't stop even when i hit my weekly limits)
+                          - generic [ref=e2041]:
+                            - generic [ref=e2042]:
+                              - generic [ref=e2045]:
+                                - link "r/ClaudeCode" [ref=e2046] [cursor=pointer]:
+                                  - /url: /r/ClaudeCode/
+                                  - generic [ref=e2050]: r/ClaudeCode
+                                - generic [ref=e2051]: •
+                                - time [ref=e2053]: 2mo ago
+                              - link "List item post - Guys, I think they solved the limits issue. (Claude code do..." [ref=e2055] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/comments/1sbmzcd/guys_i_think_they_solved_the_limits_issue_claude/
+                                - heading "List item post - Guys, I think they solved the limits issue. (Claude code do..." [level=3] [ref=e2058]: Guys, I think they solved the limits issue. (Claude code doesn't stop even when i hit my weekly limits)
+                            - link "r/ClaudeCode - Guys, I think they solved the limits issue. (Claude code doesn't stop even when i hit my weekly limits)" [ref=e2061] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1sbmzcd/guys_i_think_they_solved_the_limits_issue_claude/
+                              - img "r/ClaudeCode - Guys, I think they solved the limits issue. (Claude code doesn't stop even when i hit my weekly limits)" [ref=e2062]
+                          - generic [ref=e2064]:
+                            - generic [ref=e2065]: "5"
+                            - text: upvotes ·
+                            - generic [ref=e2066]: "9"
+                            - text: comments
+                        - separator [ref=e2067]
+                    - listitem
+                    - listitem [ref=e2068]:
+                      - generic [ref=e2069]:
+                        - generic [ref=e2070]:
+                          - link "Claude's code is very slow, almost unusable." [ref=e2071] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1shf63h/claudes_code_is_very_slow_almost_unusable/
+                            - generic [ref=e2072]:
+                              - generic: Claude's code is very slow, almost unusable.
+                          - generic [ref=e2074]:
+                            - generic [ref=e2077]:
+                              - link "r/ClaudeCode" [ref=e2078] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/
+                                - generic [ref=e2082]: r/ClaudeCode
+                              - generic [ref=e2083]: •
+                              - time [ref=e2085]: 1mo ago
+                            - link "List item post - Claude's code is very slow, almost unusable." [ref=e2087] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1shf63h/claudes_code_is_very_slow_almost_unusable/
+                              - heading "List item post - Claude's code is very slow, almost unusable." [level=3] [ref=e2090]: Claude's code is very slow, almost unusable.
+                          - generic [ref=e2092]:
+                            - generic [ref=e2093]: "1"
+                            - text: upvote ·
+                            - generic [ref=e2094]: "6"
+                            - text: comments
+                        - separator [ref=e2095]
+                    - listitem [ref=e2096]:
+                      - generic [ref=e2097]:
+                        - generic [ref=e2098]:
+                          - link "Claude Code seems to have suddenly become stupid." [ref=e2099] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1t84bci/claude_code_seems_to_have_suddenly_become_stupid/
+                            - generic [ref=e2100]:
+                              - generic: Claude Code seems to have suddenly become stupid.
+                          - generic [ref=e2102]:
+                            - generic [ref=e2105]:
+                              - link "r/ClaudeCode" [ref=e2106] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/
+                                - generic [ref=e2110]: r/ClaudeCode
+                              - generic [ref=e2111]: •
+                              - time [ref=e2113]: 11d ago
+                            - link "List item post - Claude Code seems to have suddenly become stupid." [ref=e2115] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1t84bci/claude_code_seems_to_have_suddenly_become_stupid/
+                              - heading "List item post - Claude Code seems to have suddenly become stupid." [level=3] [ref=e2118]: Claude Code seems to have suddenly become stupid.
+                          - generic [ref=e2120]:
+                            - generic [ref=e2121]: "20"
+                            - text: comments
+                        - separator [ref=e2122]
+                    - listitem [ref=e2123]:
+                      - generic [ref=e2124]:
+                        - generic [ref=e2125]:
+                          - link "Claude Code silently bypassed two layers of permission deny rules and sent my proprietary source code to Anthropic's servers" [ref=e2126] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1srdnp0/claude_code_silently_bypassed_two_layers_of/
+                            - generic [ref=e2127]:
+                              - generic: Claude Code silently bypassed two layers of permission deny rules and sent my proprietary source code to Anthropic's servers
+                          - generic [ref=e2129]:
+                            - generic [ref=e2132]:
+                              - link "r/ClaudeAI" [ref=e2133] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/
+                                - generic [ref=e2137]: r/ClaudeAI
+                              - generic [ref=e2138]: •
+                              - time [ref=e2140]: 1mo ago
+                            - link "List item post - Claude Code silently bypassed two layers of permission deny..." [ref=e2142] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1srdnp0/claude_code_silently_bypassed_two_layers_of/
+                              - heading "List item post - Claude Code silently bypassed two layers of permission deny..." [level=3] [ref=e2145]: Claude Code silently bypassed two layers of permission deny rules and sent my proprietary source code to Anthropic's servers
+                          - generic [ref=e2147]:
+                            - generic [ref=e2148]: "95"
+                            - text: upvotes ·
+                            - generic [ref=e2149]: "58"
+                            - text: comments
+                        - separator [ref=e2150]
+                    - listitem [ref=e2151]:
+                      - generic [ref=e2152]:
+                        - generic [ref=e2153]:
+                          - link "Claude Code started to use with me very specific words it was not using before" [ref=e2154] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1swmsw1/claude_code_started_to_use_with_me_very_specific/
+                            - generic [ref=e2155]:
+                              - generic: Claude Code started to use with me very specific words it was not using before
+                          - generic [ref=e2157]:
+                            - generic [ref=e2160]:
+                              - link "r/ClaudeAI" [ref=e2161] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/
+                                - generic [ref=e2165]: r/ClaudeAI
+                              - generic [ref=e2166]: •
+                              - time [ref=e2168]: 23d ago
+                            - link "List item post - Claude Code started to use with me very specific words it w..." [ref=e2170] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1swmsw1/claude_code_started_to_use_with_me_very_specific/
+                              - heading "List item post - Claude Code started to use with me very specific words it w..." [level=3] [ref=e2173]: Claude Code started to use with me very specific words it was not using before
+                          - generic [ref=e2175]:
+                            - generic [ref=e2176]: "54"
+                            - text: upvotes ·
+                            - generic [ref=e2177]: "22"
+                            - text: comments
+                        - separator [ref=e2178]
+                    - listitem [ref=e2179]:
+                      - generic [ref=e2180]:
+                        - generic [ref=e2181]:
+                          - link "I used Claude Code to help build a single-call MCP pipeline that cuts its own token usage by 74%" [ref=e2182] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1ri3svv/i_used_claude_code_to_help_build_a_singlecall_mcp/
+                            - generic [ref=e2183]:
+                              - generic: I used Claude Code to help build a single-call MCP pipeline that cuts its own token usage by 74%
+                          - generic [ref=e2185]:
+                            - generic [ref=e2188]:
+                              - link "r/ClaudeAI" [ref=e2189] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/
+                                - generic [ref=e2193]: r/ClaudeAI
+                              - generic [ref=e2194]: •
+                              - time [ref=e2196]: 3mo ago
+                            - link "List item post - I used Claude Code to help build a single-call MCP pipeline..." [ref=e2198] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1ri3svv/i_used_claude_code_to_help_build_a_singlecall_mcp/
+                              - heading "List item post - I used Claude Code to help build a single-call MCP pipeline..." [level=3] [ref=e2201]: I used Claude Code to help build a single-call MCP pipeline that cuts its own token usage by 74%
+                          - generic [ref=e2203]:
+                            - generic [ref=e2204]: "20"
+                            - text: upvotes ·
+                            - generic [ref=e2205]: "25"
+                            - text: comments
+                        - separator [ref=e2206]
+                    - listitem [ref=e2207]:
+                      - generic [ref=e2208]:
+                        - generic [ref=e2209]:
+                          - link "Claude, did you really just do this?" [ref=e2210] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1tf2m1l/claude_did_you_really_just_do_this/
+                            - generic [ref=e2211]:
+                              - generic: Claude, did you really just do this?
+                          - generic [ref=e2212]:
+                            - generic [ref=e2213]:
+                              - generic [ref=e2216]:
+                                - link "r/ClaudeCode" [ref=e2217] [cursor=pointer]:
+                                  - /url: /r/ClaudeCode/
+                                  - generic [ref=e2221]: r/ClaudeCode
+                                - generic [ref=e2222]: •
+                                - time [ref=e2224]: 3d ago
+                              - link "List item post - Claude, did you really just do this?" [ref=e2226] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/comments/1tf2m1l/claude_did_you_really_just_do_this/
+                                - heading "List item post - Claude, did you really just do this?" [level=3] [ref=e2229]: Claude, did you really just do this?
+                            - link "r/ClaudeCode - Claude, did you really just do this?" [ref=e2232] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1tf2m1l/claude_did_you_really_just_do_this/
+                              - img "r/ClaudeCode - Claude, did you really just do this?" [ref=e2233]
+                          - generic [ref=e2235]:
+                            - generic [ref=e2236]: "101"
+                            - text: upvotes ·
+                            - generic [ref=e2237]: "56"
+                            - text: comments
+                        - separator [ref=e2238]
+                    - listitem [ref=e2239]:
+                      - generic [ref=e2240]:
+                        - generic [ref=e2241]:
+                          - link "Am i dreaming or the limits are being doubled for claude code?" [ref=e2242] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1t61aqu/am_i_dreaming_or_the_limits_are_being_doubled_for/
+                            - generic [ref=e2243]:
+                              - generic: Am i dreaming or the limits are being doubled for claude code?
+                          - generic [ref=e2244]:
+                            - generic [ref=e2245]:
+                              - generic [ref=e2248]:
+                                - link "r/ClaudeCode" [ref=e2249] [cursor=pointer]:
+                                  - /url: /r/ClaudeCode/
+                                  - generic [ref=e2253]: r/ClaudeCode
+                                - generic [ref=e2254]: •
+                                - time [ref=e2256]: 13d ago
+                              - link "List item post - Am i dreaming or the limits are being doubled for claude co..." [ref=e2258] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/comments/1t61aqu/am_i_dreaming_or_the_limits_are_being_doubled_for/
+                                - heading "List item post - Am i dreaming or the limits are being doubled for claude co..." [level=3] [ref=e2261]: Am i dreaming or the limits are being doubled for claude code?
+                            - link "r/ClaudeCode - Am i dreaming or the limits are being doubled for claude code?" [ref=e2264] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1t61aqu/am_i_dreaming_or_the_limits_are_being_doubled_for/
+                              - img "r/ClaudeCode - Am i dreaming or the limits are being doubled for claude code?" [ref=e2265]
+                          - generic [ref=e2267]:
+                            - generic [ref=e2268]: "36"
+                            - text: comments
+                        - separator [ref=e2269]
+                    - listitem [ref=e2270]:
+                      - generic [ref=e2271]:
+                        - generic [ref=e2272]:
+                          - link "Claude consistently over-delivers" [ref=e2273] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1t3m78f/claude_consistently_overdelivers/
+                            - generic [ref=e2274]:
+                              - generic: Claude consistently over-delivers
+                          - generic [ref=e2276]:
+                            - generic [ref=e2279]:
+                              - link "r/ClaudeAI" [ref=e2280] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/
+                                - generic [ref=e2284]: r/ClaudeAI
+                              - generic [ref=e2285]: •
+                              - time [ref=e2287]: 15d ago
+                            - link "List item post - Claude consistently over-delivers" [ref=e2289] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1t3m78f/claude_consistently_overdelivers/
+                              - heading "List item post - Claude consistently over-delivers" [level=3] [ref=e2292]: Claude consistently over-delivers
+                          - generic [ref=e2294]:
+                            - generic [ref=e2295]: "21"
+                            - text: upvotes ·
+                            - generic [ref=e2296]: "17"
+                            - text: comments
+                        - separator [ref=e2297]
+                    - listitem [ref=e2298]:
+                      - generic [ref=e2299]:
+                        - generic [ref=e2300]:
+                          - link "Claude Code Update" [ref=e2301] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1teh0ek/claude_code_update/
+                            - generic [ref=e2302]:
+                              - generic: Claude Code Update
+                          - generic [ref=e2303]:
+                            - generic [ref=e2304]:
+                              - generic [ref=e2307]:
+                                - link "r/ClaudeCode" [ref=e2308] [cursor=pointer]:
+                                  - /url: /r/ClaudeCode/
+                                  - generic [ref=e2312]: r/ClaudeCode
+                                - generic [ref=e2313]: •
+                                - time [ref=e2315]: 4d ago
+                              - link "List item post - Claude Code Update" [ref=e2317] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/comments/1teh0ek/claude_code_update/
+                                - heading "List item post - Claude Code Update" [level=3] [ref=e2320]: Claude Code Update
+                            - link "r/ClaudeCode - Claude Code Update" [ref=e2323] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1teh0ek/claude_code_update/
+                              - img "r/ClaudeCode - Claude Code Update" [ref=e2324]
+                          - generic [ref=e2326]:
+                            - generic [ref=e2327]: "69"
+                            - text: upvotes ·
+                            - generic [ref=e2328]: "31"
+                            - text: comments
+                        - separator [ref=e2329]
+                    - listitem [ref=e2330]:
+                      - generic [ref=e2331]:
+                        - generic [ref=e2332]:
+                          - link "I kept saying this all day working with Claude Code." [ref=e2333] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1sowp77/i_kept_saying_this_all_day_working_with_claude/
+                            - generic [ref=e2334]:
+                              - generic: I kept saying this all day working with Claude Code.
+                          - generic [ref=e2335]:
+                            - generic [ref=e2336]:
+                              - generic [ref=e2339]:
+                                - link "r/ClaudeAI" [ref=e2340] [cursor=pointer]:
+                                  - /url: /r/ClaudeAI/
+                                  - generic [ref=e2344]: r/ClaudeAI
+                                - generic [ref=e2345]: •
+                                - time [ref=e2347]: 1mo ago
+                              - link "List item post - I kept saying this all day working with Claude Code." [ref=e2349] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/comments/1sowp77/i_kept_saying_this_all_day_working_with_claude/
+                                - heading "List item post - I kept saying this all day working with Claude Code." [level=3] [ref=e2352]: I kept saying this all day working with Claude Code.
+                            - link "r/ClaudeAI - I kept saying this all day working with Claude Code." [ref=e2355] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1sowp77/i_kept_saying_this_all_day_working_with_claude/
+                              - img "r/ClaudeAI - I kept saying this all day working with Claude Code." [ref=e2356]
+                          - generic [ref=e2358]:
+                            - generic [ref=e2359]: "510"
+                            - text: upvotes ·
+                            - generic [ref=e2360]: "9"
+                            - text: comments
+                        - separator [ref=e2361]
+                    - listitem [ref=e2362]:
+                      - generic [ref=e2363]:
+                        - generic [ref=e2364]:
+                          - link "Claude can end a conversation" [ref=e2365] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1ssgrro/claude_can_end_a_conversation/
+                            - generic [ref=e2366]:
+                              - generic: Claude can end a conversation
+                          - generic [ref=e2367]:
+                            - generic [ref=e2368]:
+                              - generic [ref=e2371]:
+                                - link "r/ClaudeAI" [ref=e2372] [cursor=pointer]:
+                                  - /url: /r/ClaudeAI/
+                                  - generic [ref=e2376]: r/ClaudeAI
+                                - generic [ref=e2377]: •
+                                - time [ref=e2379]: 28d ago
+                              - link "List item post - Claude can end a conversation" [ref=e2381] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/comments/1ssgrro/claude_can_end_a_conversation/
+                                - heading "List item post - Claude can end a conversation" [level=3] [ref=e2384]: Claude can end a conversation
+                            - link "r/ClaudeAI - Claude can end a conversation" [ref=e2387] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1ssgrro/claude_can_end_a_conversation/
+                              - img "r/ClaudeAI - Claude can end a conversation" [ref=e2388]
+                          - generic [ref=e2390]:
+                            - generic [ref=e2391]: "421"
+                            - text: upvotes ·
+                            - generic [ref=e2392]: "84"
+                            - text: comments
+                        - separator [ref=e2393]
+                    - listitem [ref=e2394]:
+                      - generic [ref=e2395]:
+                        - generic [ref=e2396]:
+                          - link "I built a Claude Code plugin that actually enforces your rules instead of hoping the model follows them" [ref=e2397] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1tb047p/i_built_a_claude_code_plugin_that_actually/
+                            - generic [ref=e2398]:
+                              - generic: I built a Claude Code plugin that actually enforces your rules instead of hoping the model follows them
+                          - generic [ref=e2400]:
+                            - generic [ref=e2403]:
+                              - link "r/ClaudeAI" [ref=e2404] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/
+                                - generic [ref=e2408]: r/ClaudeAI
+                              - generic [ref=e2409]: •
+                              - time [ref=e2411]: 8d ago
+                            - link "List item post - I built a Claude Code plugin that actually enforces your ru..." [ref=e2413] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1tb047p/i_built_a_claude_code_plugin_that_actually/
+                              - heading "List item post - I built a Claude Code plugin that actually enforces your ru..." [level=3] [ref=e2416]: I built a Claude Code plugin that actually enforces your rules instead of hoping the model follows them
+                          - generic [ref=e2418]:
+                            - generic [ref=e2419]: "34"
+                            - text: upvotes ·
+                            - generic [ref=e2420]: "12"
+                            - text: comments
+                        - separator [ref=e2421]
+                    - listitem [ref=e2422]:
+                      - generic [ref=e2423]:
+                        - generic [ref=e2424]:
+                          - link "Claude has just fixed over-usage of their compute" [ref=e2425] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1skzbiw/claude_has_just_fixed_overusage_of_their_compute/
+                            - generic [ref=e2426]:
+                              - generic: Claude has just fixed over-usage of their compute
+                          - generic [ref=e2428]:
+                            - generic [ref=e2431]:
+                              - link "r/ClaudeAI" [ref=e2432] [cursor=pointer]:
+                                - /url: /r/ClaudeAI/
+                                - generic [ref=e2436]: r/ClaudeAI
+                              - generic [ref=e2437]: •
+                              - time [ref=e2439]: 1mo ago
+                            - link "List item post - Claude has just fixed over-usage of their compute" [ref=e2441] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/comments/1skzbiw/claude_has_just_fixed_overusage_of_their_compute/
+                              - heading "List item post - Claude has just fixed over-usage of their compute" [level=3] [ref=e2444]: Claude has just fixed over-usage of their compute
+                          - generic [ref=e2446]:
+                            - generic [ref=e2447]: "425"
+                            - text: upvotes ·
+                            - generic [ref=e2448]: "56"
+                            - text: comments
+                        - separator [ref=e2449]
+                    - listitem [ref=e2450]:
+                      - generic [ref=e2451]:
+                        - generic [ref=e2452]:
+                          - link "Claude Pro usage limit bug" [ref=e2453] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1sx8pi1/claude_pro_usage_limit_bug/
+                            - generic [ref=e2454]:
+                              - generic: Claude Pro usage limit bug
+                          - generic [ref=e2455]:
+                            - generic [ref=e2456]:
+                              - generic [ref=e2459]:
+                                - link "r/ClaudeCode" [ref=e2460] [cursor=pointer]:
+                                  - /url: /r/ClaudeCode/
+                                  - generic [ref=e2464]: r/ClaudeCode
+                                - generic [ref=e2465]: •
+                                - time [ref=e2467]: 22d ago
+                              - link "List item post - Claude Pro usage limit bug" [ref=e2469] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/comments/1sx8pi1/claude_pro_usage_limit_bug/
+                                - heading "List item post - Claude Pro usage limit bug" [level=3] [ref=e2472]: Claude Pro usage limit bug
+                            - link "r/ClaudeCode - Claude Pro usage limit bug" [ref=e2475] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1sx8pi1/claude_pro_usage_limit_bug/
+                              - img "r/ClaudeCode - Claude Pro usage limit bug" [ref=e2476]
+                          - generic [ref=e2478]:
+                            - generic [ref=e2479]: "11"
+                            - text: upvotes ·
+                            - generic [ref=e2480]: "11"
+                            - text: comments
+                        - separator [ref=e2481]
+                    - listitem [ref=e2482]:
+                      - generic [ref=e2483]:
+                        - generic [ref=e2484]:
+                          - link "I built an MCP server that feeds my architecture decisions to Claude Code, and it made Claude mass-produce code that actually follows the rules" [ref=e2485] [cursor=pointer]:
+                            - /url: /r/softwarearchitecture/comments/1rkealt/i_built_an_mcp_server_that_feeds_my_architecture/
+                            - generic [ref=e2486]:
+                              - generic: I built an MCP server that feeds my architecture decisions to Claude Code, and it made Claude mass-produce code that actually follows the rules
+                          - generic [ref=e2488]:
+                            - generic [ref=e2491]:
+                              - link "r/softwarearchitecture" [ref=e2492] [cursor=pointer]:
+                                - /url: /r/softwarearchitecture/
+                                - generic [ref=e2496]: r/softwarearchitecture
+                              - generic [ref=e2497]: •
+                              - time [ref=e2499]: 3mo ago
+                            - link "List item post - I built an MCP server that feeds my architecture decisions ..." [ref=e2501] [cursor=pointer]:
+                              - /url: /r/softwarearchitecture/comments/1rkealt/i_built_an_mcp_server_that_feeds_my_architecture/
+                              - heading "List item post - I built an MCP server that feeds my architecture decisions ..." [level=3] [ref=e2504]: I built an MCP server that feeds my architecture decisions to Claude Code, and it made Claude mass-produce code that actually follows the rules
+                          - generic [ref=e2506]:
+                            - generic [ref=e2507]: "40"
+                            - text: upvotes ·
+                            - generic [ref=e2508]: "24"
+                            - text: comments
+                        - separator [ref=e2509]
+                    - listitem [ref=e2510]:
+                      - generic [ref=e2511]:
+                        - generic [ref=e2512]:
+                          - link "Claude code constantly spending time doing nothing" [ref=e2513] [cursor=pointer]:
+                            - /url: /r/ClaudeCode/comments/1t1lkak/claude_code_constantly_spending_time_doing_nothing/
+                            - generic [ref=e2514]:
+                              - generic: Claude code constantly spending time doing nothing
+                          - generic [ref=e2515]:
+                            - generic [ref=e2516]:
+                              - generic [ref=e2519]:
+                                - link "r/ClaudeCode" [ref=e2520] [cursor=pointer]:
+                                  - /url: /r/ClaudeCode/
+                                  - generic [ref=e2524]: r/ClaudeCode
+                                - generic [ref=e2525]: •
+                                - time [ref=e2527]: 18d ago
+                              - link "List item post - Claude code constantly spending time doing nothing" [ref=e2529] [cursor=pointer]:
+                                - /url: /r/ClaudeCode/comments/1t1lkak/claude_code_constantly_spending_time_doing_nothing/
+                                - heading "List item post - Claude code constantly spending time doing nothing" [level=3] [ref=e2532]: Claude code constantly spending time doing nothing
+                            - link "r/ClaudeCode - Claude code constantly spending time doing nothing" [ref=e2535] [cursor=pointer]:
+                              - /url: /r/ClaudeCode/comments/1t1lkak/claude_code_constantly_spending_time_doing_nothing/
+                              - img "r/ClaudeCode - Claude code constantly spending time doing nothing" [ref=e2536]
+                          - generic [ref=e2538]:
+                            - generic [ref=e2539]: "116"
+                            - text: upvotes ·
+                            - generic [ref=e2540]: "29"
+                            - text: comments
+                        - separator [ref=e2541]
+                    - listitem [ref=e2542]:
+                      - generic [ref=e2544]:
+                        - link "I cut Claude Code's token usage by 68.5% by giving agents their own OS" [ref=e2545] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/comments/1s6gu92/i_cut_claude_codes_token_usage_by_685_by_giving/
+                          - generic [ref=e2546]:
+                            - generic: I cut Claude Code's token usage by 68.5% by giving agents their own OS
+                        - generic [ref=e2548]:
+                          - generic [ref=e2551]:
+                            - link "r/ClaudeAI" [ref=e2552] [cursor=pointer]:
+                              - /url: /r/ClaudeAI/
+                              - generic [ref=e2556]: r/ClaudeAI
+                            - generic [ref=e2557]: •
+                            - time [ref=e2559]: 2mo ago
+                          - link "List item post - I cut Claude Code's token usage by 68.5% by giving agents t..." [ref=e2561] [cursor=pointer]:
+                            - /url: /r/ClaudeAI/comments/1s6gu92/i_cut_claude_codes_token_usage_by_685_by_giving/
+                            - heading "List item post - I cut Claude Code's token usage by 68.5% by giving agents t..." [level=3] [ref=e2564]: I cut Claude Code's token usage by 68.5% by giving agents their own OS
+                        - generic [ref=e2566]:
+                          - generic [ref=e2567]: "30"
+                          - text: comments
+                - generic [ref=e2568]:
+                  - heading "View Post in" [level=2] [ref=e2570]:
+                    - generic [ref=e2571]: View Post in
+                  - generic [ref=e2572]:
+                    - link "日本語" [ref=e2574] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/ClaudeAI/comments/1t9ayg8/i_made_claude_code_aware_of_its_own_usage_limits/?tl=ja
+                    - link "Português (Brasil)" [ref=e2576] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/ClaudeAI/comments/1t9ayg8/i_made_claude_code_aware_of_its_own_usage_limits/?tl=pt-br
+                    - link "Tiếng Việt" [ref=e2578] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/ClaudeAI/comments/1t9ayg8/i_made_claude_code_aware_of_its_own_usage_limits/?tl=vi
+                    - link "繁體中文" [ref=e2580] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/ClaudeAI/comments/1t9ayg8/i_made_claude_code_aware_of_its_own_usage_limits/?tl=zh-hant
+                    - link "हिन्दी" [ref=e2582] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/ClaudeAI/comments/1t9ayg8/i_made_claude_code_aware_of_its_own_usage_limits/?tl=hi
+                    - link "简体中文" [ref=e2584] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/ClaudeAI/comments/1t9ayg8/i_made_claude_code_aware_of_its_own_usage_limits/?tl=zh-hans
+                    - link "Русский" [ref=e2586] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/ClaudeAI/comments/1t9ayg8/i_made_claude_code_aware_of_its_own_usage_limits/?tl=ru
+                    - link "Français" [ref=e2588] [cursor=pointer]:
+                      - /url: https://www.reddit.com/r/ClaudeAI/comments/1t9ayg8/i_made_claude_code_aware_of_its_own_usage_limits/?tl=fr
+                    - group [ref=e2589]:
+                      - generic "See more" [ref=e2590] [cursor=pointer]:
+                        - generic [ref=e2591]: See more
+                        - img [ref=e2593]
+                - complementary "Community information" [ref=e2595]:
+                  - generic [ref=e2597]:
+                    - heading "Community Info Section" [level=1] [ref=e2598]
+                    - generic [ref=e2599]:
+                      - generic [ref=e2600]:
+                        - link "r/ClaudeAI" [ref=e2601] [cursor=pointer]:
+                          - /url: /r/ClaudeAI/
+                          - generic [ref=e2602]: r/ClaudeAI
+                        - 'button "Community status: Check Claude service status." [ref=e2605] [cursor=pointer]':
+                          - img "hp" [ref=e2606]
+                      - button "Join" [ref=e2610] [cursor=pointer]
+                    - generic [ref=e2611]:
+                      - generic [ref=e2612]: ClaudeAI
+                      - generic [ref=e2613]: This is a Claude and Claude Code discussion subreddit to help you make a fully informed decision about using Claude and Claude Code to best effect for your own purposes. ¹⌉ Anthropic does not control or operate this subreddit or endorse views expressed here. ²⌉ If your problem requires Anthropic's help, visit https://support.anthropic.com/ This subreddit is not the right place to fix your account issues. ³⌉ For more help, check the resources below. ⁴⌉ Please read the rules before posting.
+                      - button "Show more" [ref=e2614] [cursor=pointer]:
+                        - generic [ref=e2616]: Show more
+                      - generic [ref=e2619]:
+                        - img [ref=e2620]
+                        - text: Public
+              - generic [ref=e2623]:
+                - link "Reddit Rules" [ref=e2626] [cursor=pointer]:
+                  - /url: https://www.redditinc.com/policies/content-policy
+                - link "Privacy Policy" [ref=e2629] [cursor=pointer]:
+                  - /url: https://www.reddit.com/policies/privacy-policy
+                - link "User Agreement" [ref=e2632] [cursor=pointer]:
+                  - /url: https://www.redditinc.com/policies/user-agreement
+                - link "Your Privacy Choices" [ref=e2635] [cursor=pointer]:
+                  - /url: https://support.reddithelp.com/hc/articles/43980704794004
+                - link "Accessibility" [ref=e2638] [cursor=pointer]:
+                  - /url: https://support.reddithelp.com/hc/sections/38303584022676-Accessibility
+                - link "Reddit, Inc. © 2026. All rights reserved." [ref=e2640] [cursor=pointer]:
+                  - /url: https://redditinc.com
+        - generic [ref=e2642]:
+          - button "Collapse Navigation" [ref=e2645] [cursor=pointer]:
+            - img [ref=e2648]
+            - generic [ref=e2650]:
+              - generic: Collapse Navigation
+          - navigation "Primary" [ref=e2655]:
+            - generic [ref=e2657]:
+              - link "Home" [ref=e2659] [cursor=pointer]:
+                - /url: /?feed=home
+                - generic [ref=e2660]:
+                  - img [ref=e2662]
+                  - generic [ref=e2665]: Home
+              - link "Popular" [ref=e2667] [cursor=pointer]:
+                - /url: /r/popular/
+                - generic [ref=e2668]:
+                  - img [ref=e2670]
+                  - generic [ref=e2673]: Popular
+              - link "News" [ref=e2674] [cursor=pointer]:
+                - /url: /news/
+                - generic [ref=e2675]:
+                  - img [ref=e2677]
+                  - generic [ref=e2681]: News
+              - link "Explore" [ref=e2683] [cursor=pointer]:
+                - /url: /explore/
+                - generic [ref=e2684]:
+                  - img [ref=e2686]
+                  - generic [ref=e2689]: Explore
+            - separator [ref=e2690]
+            - navigation "Reddit resources" [ref=e2691]:
+              - group [ref=e2693]:
+                - generic "RESOURCES" [ref=e2694] [cursor=pointer]:
+                  - generic [ref=e2696]:
+                    - generic [ref=e2699]: RESOURCES
+                    - img [ref=e2702]
+                - generic [ref=e2705]:
+                  - link "About Reddit" [ref=e2707] [cursor=pointer]:
+                    - /url: https://www.redditinc.com
+                    - generic [ref=e2708]:
+                      - img [ref=e2710]
+                      - generic [ref=e2714]: About Reddit
+                  - link "Advertise" [ref=e2716] [cursor=pointer]:
+                    - /url: https://ads.reddit.com/register?utm_source=web3x_consumer&utm_name=left_nav_cta
+                    - generic [ref=e2717]:
+                      - img [ref=e2719]
+                      - generic [ref=e2723]: Advertise
+                  - link "Developer Platform" [ref=e2725] [cursor=pointer]:
+                    - /url: https://developers.reddit.com/?utm_source=reddit&utm_medium=left_nav_resources
+                    - generic [ref=e2726]:
+                      - img [ref=e2728]
+                      - generic [ref=e2732]: Developer Platform
+                  - link "Reddit Pro BETA" [ref=e2734] [cursor=pointer]:
+                    - /url: /reddit-pro?utm_source=reddit&utm_medium=left_nav_resources
+                    - generic [ref=e2735]:
+                      - img [ref=e2737]
+                      - generic [ref=e2741]:
+                        - generic [ref=e2742]: Reddit Pro
+                        - generic [ref=e2743]: BETA
+                  - link "Help" [ref=e2745] [cursor=pointer]:
+                    - /url: https://support.reddithelp.com/hc?utm_source=reddit&utm_medium=footer&utm_campaign=evergreen
+                    - generic [ref=e2746]:
+                      - img [ref=e2748]
+                      - generic [ref=e2752]: Help
+                  - link "Blog" [ref=e2754] [cursor=pointer]:
+                    - /url: https://redditblog.com/
+                    - generic [ref=e2755]:
+                      - img [ref=e2757]
+                      - generic [ref=e2761]: Blog
+                  - link "Careers" [ref=e2763] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/careers
+                    - generic [ref=e2764]:
+                      - img [ref=e2766]
+                      - generic [ref=e2770]: Careers
+                  - link "Press" [ref=e2772] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/press
+                    - generic [ref=e2773]:
+                      - img [ref=e2775]
+                      - generic [ref=e2779]: Press
+                  - separator [ref=e2780]
+                  - link "Best of Reddit" [ref=e2782] [cursor=pointer]:
+                    - /url: https://www.reddit.com/posts/2026/global/
+                    - generic [ref=e2783]:
+                      - img [ref=e2785]
+                      - generic [ref=e2790]: Best of Reddit
+                  - separator [ref=e2791]
+                  - link "Reddit Rules" [ref=e2793] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/policies/content-policy
+                    - generic [ref=e2794]:
+                      - img [ref=e2796]
+                      - generic [ref=e2800]: Reddit Rules
+                  - link "Privacy Policy" [ref=e2802] [cursor=pointer]:
+                    - /url: https://www.reddit.com/policies/privacy-policy
+                    - generic [ref=e2803]:
+                      - img [ref=e2805]
+                      - generic [ref=e2809]: Privacy Policy
+                  - link "User Agreement" [ref=e2811] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/policies/user-agreement
+                    - generic [ref=e2812]:
+                      - img [ref=e2814]
+                      - generic [ref=e2818]: User Agreement
+                  - link "Your Privacy Choices" [ref=e2820] [cursor=pointer]:
+                    - /url: https://support.reddithelp.com/hc/articles/43980704794004
+                    - generic [ref=e2821]:
+                      - img [ref=e2823]
+                      - generic [ref=e2827]: Your Privacy Choices
+                  - link "Accessibility" [ref=e2829] [cursor=pointer]:
+                    - /url: https://support.reddithelp.com/hc/sections/38303584022676-Accessibility
+                    - generic [ref=e2830]:
+                      - img [ref=e2832]
+                      - generic [ref=e2837]: Accessibility
+            - link "Reddit, Inc. © 2026. All rights reserved." [ref=e2839] [cursor=pointer]:
+              - /url: https://redditinc.com

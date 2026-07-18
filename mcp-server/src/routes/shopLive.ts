@@ -11,13 +11,72 @@
  */
 
 import { Router, type Request, type Response } from "express";
+import { verifyToken, requireRole } from "../middleware/auth.js";
 import { shopStateEngine } from "../engines/ShopStateEngine.js";
+import { employeeEngine } from "../engines/EmployeeEngine.js";
 
 const router = Router();
 
+// SECURITY (U-ERP-SHOPCONFIG-AUTH): gate the entire live-shop surface.
+// Mounted under the global optionalToken (index.ts) which never rejects anon,
+// so before this line anon could read customer/part/job/snapshot state AND
+// mutate job lifecycle, labor sessions (payroll-feeding), quantities, and
+// approvals. Operator-self shop-floor actions require only login; job
+// create/status and approval submission carry requireRole("lead"+).
+//
+// KIOSK EXEMPTION: /shop/snapshot (aggregate counts only: active_jobs,
+// jobs_by_status, active_labor_sessions) and /shop/jobs (floor-visible job
+// board: customer/part/status) power the wall-mounted, login-less
+// ShopFloorTVPage (/shop-tv). They carry NO cost/rate/margin/PII/mutation, so
+// they stay anon-readable -- exactly the intended public floor board. Every
+// OTHER route (all mutations + per-job/approval reads) requires verifyToken.
+const KIOSK_ANON_READS = new Set(["/shop/snapshot", "/shop/jobs"]);
+router.use((req: Request, res: Response, next) => {
+  if (req.method === "GET" && KIOSK_ANON_READS.has(req.path)) {
+    next();
+    return;
+  }
+  verifyToken(req, res, next);
+});
+
+// U-ERP-IDOR-SELFGATE (slot:hotel, 2026-07-02; hardened after 3-of-3 arms A+B) -- layer 2
+// after the anon-close above: labor routes carry an employee identity, so any authed employee
+// could start a labor session AS a peer (payroll-feeding) or read a peer's active sessions.
+// IDENTITY RESOLUTION (the 3-of-3 P1): auth ids are USR-* and targets EMP-*, so the caller's
+// own employee id is resolved via EmployeeEngine.auth_user_id; "self" = {resolved id, userId}.
+// 403 fires ONLY when the caller's employee identity is KNOWN and the target is a proven peer;
+// when no mapping resolves yet (the current state), the check DEGRADES to verifyToken-only
+// (never a dead-panel) and auto-engages once auth_user_id is wired. Supervision roles pass.
+// KNOWN LIMIT: pause/resume/complete key on session_id only -- engine-FSM follow-up.
+const SELF_GATE_PRIVILEGED = ["lead", "supervisor", "hr_manager", "admin"];
+function requireSelfOrPrivileged(...fields: string[]) {
+  const keys = fields.length > 0 ? fields : ["employee_id"];
+  return (req: Request, res: Response, next: () => void): void => {
+    const r = req as any;
+    const isPrivileged = r.userRoles?.some((role: string) => SELF_GATE_PRIVILEGED.includes(role));
+    if (isPrivileged) { next(); return; }
+    const selfIds = new Set<string>();
+    if (r.userId) selfIds.add(String(r.userId));
+    let identityKnown = false;
+    if (r.userId) {
+      const self = employeeEngine.findByAuthUserId(String(r.userId));
+      if (self) { selfIds.add(String(self.id)); identityKnown = true; }
+    }
+    if (!identityKnown) { next(); return; } // no mapping yet: degrade, never dead-panel
+    for (const k of keys) {
+      const target = (req.params as any)?.[k] ?? req.body?.[k];
+      if (target && !selfIds.has(String(target))) {
+        res.status(403).json({ success: false, error: `Cannot access another employee's records (${k})` });
+        return;
+      }
+    }
+    next();
+  };
+}
+
 // ── Job Lifecycle ──────────────────────────────────────────────────
 
-router.post("/shop/job/create", async (req: Request, res: Response) => {
+router.post("/shop/job/create", requireRole("lead", "hr_manager", "admin"), async (req: Request, res: Response) => {
   try {
     const job = await shopStateEngine.createJob({
       customer: req.body.customer,
@@ -33,7 +92,7 @@ router.post("/shop/job/create", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/shop/job/status", async (req: Request, res: Response) => {
+router.post("/shop/job/status", requireRole("lead", "hr_manager", "admin"), async (req: Request, res: Response) => {
   try {
     const job = await shopStateEngine.updateJobStatus(
       req.body.job_id, req.body.status, req.body.user_id ?? "system", req.body.notes
@@ -49,13 +108,36 @@ router.get("/shop/job/:id", async (req: Request, res: Response) => {
   res.json({ success: !!job, job });
 });
 
+// Project a Job to the floor-visible fields a wall-mounted kiosk shows. The full
+// Job (schemas/shop/shopDomain.ts:57) carries customer, costs.{estimated_total,
+// actual_total}, notes, and provenance.created_by -- business-confidential + PII
+// that an ANON kiosk viewer must NOT see. Authed callers get the full board.
+function redactJobForKiosk(job: any): Record<string, unknown> {
+  if (!job || typeof job !== "object") return {};
+  return {
+    id: job.id,
+    part_number: job.part_number,
+    part_name: job.part_name,
+    status: job.status,
+    quantity: job.quantity,
+    progress: job.progress,
+    due_date: job.schedule?.due_date,
+  };
+}
+
 router.get("/shop/jobs", async (req: Request, res: Response) => {
   const jobs = await shopStateEngine.listJobs({
     status: (req.query.status as string) || undefined,
     customer: (req.query.customer as string) || undefined,
     limit: req.query.limit ? parseInt(String(req.query.limit)) : undefined,
   });
-  res.json({ success: true, jobs, count: jobs.length });
+  // KIOSK REDACTION (U-ERP-SHOPCONFIG-AUTH, scrutiny arm-A P1): /shop/jobs is
+  // anon-exempt for the /shop-tv board, but the raw Job carries customer +
+  // costs + created_by. Strip those for anon; authed callers see the full board.
+  // req.userId is populated by the global optionalToken (routes/index.ts:144,
+  // which runs before this router mounts at routes/index.ts:306).
+  const payload = req.userId ? jobs : jobs.map(redactJobForKiosk);
+  res.json({ success: true, jobs: payload, count: jobs.length });
 });
 
 router.post("/shop/job/progress", async (req: Request, res: Response) => {
@@ -82,7 +164,8 @@ router.post("/shop/traveler/step/complete", async (req: Request, res: Response) 
 
 // ── Labor Sessions ─────────────────────────────────────────────────
 
-router.post("/shop/labor/start", async (req: Request, res: Response) => {
+// Self-gated: starting a labor session AS a peer feeds their payroll clock.
+router.post("/shop/labor/start", requireSelfOrPrivileged("employee_id"), async (req: Request, res: Response) => {
   try {
     const session = await shopStateEngine.startLabor({
       employee_id: req.body.employee_id,
@@ -116,7 +199,8 @@ router.post("/shop/labor/complete", async (req: Request, res: Response) => {
   res.json({ success: !!session, session });
 });
 
-router.get("/shop/labor/active/:employeeId", async (req: Request, res: Response) => {
+// Self-gated: a peer's active labor sessions are their work record.
+router.get("/shop/labor/active/:employeeId", requireSelfOrPrivileged("employeeId"), async (req: Request, res: Response) => {
   const sessions = await shopStateEngine.getActiveSessions(String(req.params.employeeId));
   res.json({ success: true, sessions, count: sessions.length });
 });
@@ -142,7 +226,7 @@ router.post("/shop/quantity/record", async (req: Request, res: Response) => {
 
 // ── Approvals ──────────────────────────────────────────────────────
 
-router.post("/shop/approval/submit", async (req: Request, res: Response) => {
+router.post("/shop/approval/submit", requireRole("lead", "hr_manager", "admin"), async (req: Request, res: Response) => {
   try {
     await shopStateEngine.submitApproval(req.body);
     res.json({ success: true });

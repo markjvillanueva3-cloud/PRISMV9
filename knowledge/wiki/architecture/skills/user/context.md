@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `context` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/context.md` |
+| Source | `C:/Users/wompu/.claude/commands/context.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Context — Context Budget Inspector
+
+You are analyzing the current session's context consumption and identifying optimization opportunities. This is a quick diagnostic tool that helps manage token efficiency during long sessions.
+
+## Args: $ARGUMENTS
+- Empty: full context audit
+- `memory`: check MEMORY.md size and optimization opportunities
+- `hooks`: check hook output sizes and compress
 
 <!-- AUTO-END -->
 

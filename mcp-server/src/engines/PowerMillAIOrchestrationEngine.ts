@@ -14,7 +14,14 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { powerMillStrategyEngine } from "./PowerMillStrategyEngine.js";
+import {
+  powerMillStrategyEngine,
+  type PMFeatureType,
+  type PMMaterialGroup,
+  type PMMachineType,
+  type PMPriority,
+  type PMStrategyParameters,
+} from "./PowerMillStrategyEngine.js";
 
 // ============================================================================
 // TYPES
@@ -230,18 +237,27 @@ export class PowerMillAIOrchestrationEngine {
       const isoGroup = request.material_iso || "P";
 
       try {
-        const strategyResult = powerMillStrategyEngine.selectStrategy({
-          feature_type: request.feature_type,
-          material_iso: isoGroup,
-          machine_type: request.machine_type || "3axis",
-          operation: request.operation || "roughing"
+        // PowerMillStrategyEngine exposes recommend(PMRecommendInput): PMStrategyRecommendation[]
+        // (ranked, top-5) + getParameters(name). Map the orchestration request onto that contract,
+        // take the rank-1 strategy, and fetch its default parameters. (Prior code called a
+        // non-existent selectStrategy() → always threw → fallback was the only path ever taken.)
+        const recs = powerMillStrategyEngine.recommend({
+          feature_type: request.feature_type as PMFeatureType,
+          material_group: isoGroup as PMMaterialGroup,
+          machine_type: this.toPMMachineType(request.machine_type),
+          tool_diameter_mm: request.tool_diameter_mm,
+          tolerance_mm: request.tolerance_mm,
+          priority: this.toPMPriority(request.priority),
         });
+        const best = recs[0];
+        if (!best) throw new Error(`no PowerMill strategy for feature "${request.feature_type}"`);
+        const params = powerMillStrategyEngine.getParameters(best.strategy_name);
 
         strategy = {
-          name: strategyResult.name,
-          powermill_strategy: strategyResult.strategy_name,
-          parameters: strategyResult.parameters,
-          rationale: strategyResult.rationale
+          name: best.strategy_name,
+          powermill_strategy: best.pm_operation_type,
+          parameters: "error" in params ? { arc_fit: true } : this.flattenPMParameters(params),
+          rationale: `${best.description} (rank ${best.rank}, confidence ${best.confidence.toFixed(2)})`,
         };
         enginesInvoked.push("PowerMillStrategyEngine");
       } catch {
@@ -353,6 +369,47 @@ export class PowerMillAIOrchestrationEngine {
       processing_time_ms: Date.now() - startTime,
       timestamp: new Date().toISOString()
     };
+  }
+
+  /** Map the orchestration machine_type vocabulary onto PowerMillStrategyEngine's PMMachineType.
+   *  "robot" maps to "3_axis" -- the conservative (least-permissive) axis class, so robot strategy
+   *  requests never get a strategy the setup can't run; robot machining itself is handled in Step 4. */
+  private toPMMachineType(mt?: "3axis" | "4axis" | "5axis" | "mill_turn" | "robot"): PMMachineType {
+    switch (mt) {
+      case "4axis": return "4_axis";
+      case "5axis": return "5_axis_continuous";
+      case "mill_turn": return "mill_turn";
+      default: return "3_axis"; // "3axis", "robot", undefined
+    }
+  }
+
+  /** Map the orchestration priority vocabulary onto PowerMillStrategyEngine's PMPriority. */
+  private toPMPriority(p?: "cycle_time" | "tool_life" | "surface_finish" | "balanced"): PMPriority {
+    switch (p) {
+      case "cycle_time": return "speed";
+      case "tool_life": return "tool_life";
+      case "surface_finish": return "quality";
+      default: return "balanced";
+    }
+  }
+
+  /** Flatten the structured PMStrategyParameters into the flat Record the orchestration
+   *  response carries (matches the fallbackStrategy parameters shape: number | string | boolean). */
+  private flattenPMParameters(p: PMStrategyParameters): Record<string, number | string | boolean> {
+    const out: Record<string, number | string | boolean> = {
+      ae_pct_of_diameter: p.ae_pct_of_diameter,
+      ap_pct_of_diameter: p.ap_pct_of_diameter,
+      fz_min_mm: p.fz_range_mm[0],
+      fz_max_mm: p.fz_range_mm[1],
+      vc_min_m_min: p.vc_range_m_min[0],
+      vc_max_m_min: p.vc_range_m_min[1],
+      coolant: p.coolant,
+      cutting_mode: p.cutting_mode,
+      engagement_constant: p.engagement_constant,
+    };
+    if (p.lead_angle_deg != null) out.lead_angle_deg = p.lead_angle_deg;
+    if (p.tilt_angle_deg != null) out.tilt_angle_deg = p.tilt_angle_deg;
+    return out;
   }
 
   private fallbackStrategy(featureType: string, isoGroup: string, operation: string): {

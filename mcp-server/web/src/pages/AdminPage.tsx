@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Card, Button, Spinner, Badge } from "../components/ui";
 import { Tabs, TabList, Tab, TabPanel } from "../components/ui/Tabs";
+import EntitlementsPanel from "../components/admin/EntitlementsPanel";
 import {
   useAdminStatus,
   useAdminUsers,
@@ -42,6 +43,7 @@ export default function AdminPage() {
         <TabList>
           <Tab value="status">Status</Tab>
           <Tab value="users">Users</Tab>
+          <Tab value="entitlements">Entitlements</Tab>
           <Tab value="cache">Cache</Tab>
           <Tab value="config">Config</Tab>
         </TabList>
@@ -144,6 +146,11 @@ export default function AdminPage() {
               </div>
             </Card>
           )}
+        </TabPanel>
+
+        {/* Entitlements Tab (Q6 -- per-seat entitlement admin) */}
+        <TabPanel value="entitlements">
+          <EntitlementsPanel />
         </TabPanel>
 
         {/* Cache Tab */}

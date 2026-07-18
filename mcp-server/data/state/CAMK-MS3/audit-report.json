@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "CAMK-MS3-VERIFY",
+  "title": "Advanced Geometry & Multi-Operation Orchestration Audit",
+  "audited_at": "2026-04-12T22:05:00.000Z",
+  "auditor": "claude-opus-4.5",
+  "milestone": "CAMK-MS3",
+  "verdict": "COMPLETE — all 5 units pre-implemented",
+  "unit_verification": {
+    "P0_U01_rest_machining": {
+      "status": "complete",
+      "file": "src/engines/RestMachiningEngine.ts",
+      "lines": 752,
+      "features": [
+        "IPW-aware re-machining",
+        "Minkowski difference for rest material detection",
+        "Zone decomposition of remaining stock",
+        "Algorithm selection per rest zone (corner→SFCR, floor→CFSF, wall→PTDC)",
+        "Multi-tool sequencing via DPLS"
+      ],
+      "test_file": "src/__tests__/RestMachiningEngine.test.ts"
+    },
+    "P0_U02_operation_sequencer": {
+      "status": "complete",
+      "file": "src/engines/OperationSequencerEngine.ts",
+      "lines": 534,
+      "features": [
+        "Optimal operation ordering",
+        "Tool change minimization (TSP on tool positions)",
+        "Thermal relaxation scheduling",
+        "Fixture-aware sequencing",
+        "Graph-based Bellman-Ford optimization"
+      ],
+      "test_file": "src/__tests__/OperationSequencerEngine.test.ts"
+    },
+    "P0_U03_transition_path": {
+      "status": "complete",
+      "file": "src/engines/TransitionPathEngine.ts",
+      "lines": 330,
+      "features": [
+        "Optimized linking moves between operations",
+        "Shortest safe retract (minimum Z clearance)",
+        "Collision avoidance (A* on obstacle grid)",
+        "Spiral-in/spiral-out (reduced air time)",
+        "Integration with VCER/SFCR"
+      ],
+      "test_file": "src/__tests__/TransitionPathEngine.test.ts"
+    },
+    "P0_U04_adaptive_refinement": {
+      "status": "complete",
+      "file": "src/engines/AdaptiveRefinementEngine.ts",
+      "lines": 394,
+      "features": [
+        "Error-driven toolpath densification",
+        "Curvature-based refinement (chord error control)",
+        "Force-based refinement (PTDC deflection gradient)",
+        "Thermal refinement (TGAR zone boundaries)",
+        "Engagement refinement (VCMR MRR deviation)"
+      ],
+      "test_file": "src/__tests__/AdaptiveRefinementEngine.test.ts"
+    },
+    "P0_U05_multi_setup_planner": {
+      "status": "complete",
+      "file": "src/engines/MultiSetupPlannerEngine.ts",
+      "lines": 314,
+      "features": [
+        "Part orientation optimization",
+        "Visibility analysis per orientation",
+        "Fixture force equilibrium analysis",
+        "Datum chain tolerance (MCTP Monte Carlo)",
+        "Setup count minimization (greedy set cover)"
+      ],
+      "test_file": "src/__tests__/MultiSetupPlannerEngine.test.ts"
+    }
+  },
+  "test_summary": {
+    "test_files": [
+      "RestMachiningEngine.test.ts",
+      "OperationSequencerEngine.test.ts (40 tests)",
+      "TransitionPathEngine.test.ts",
+      "AdaptiveRefinementEngine.test.ts",
+      "MultiSetupPlannerEngine.test.ts",
+      "camk-ms3-multi-operation.test.ts"
+    ],
+    "total_tests": 184,
+    "all_passing": true
+  },
+  "total_lines": 2324,
+  "integration_points": {
+    "novel_algorithms_used": [
+      "SFCR",
+      "CFSF",
+      "PTDC",
+      "TGAR",
+      "VCMR",
+      "VCER",
+      "DPLS"
+    ],
+    "orchestrators_integrated": [
+      "CAMKernelEngine",
+      "NovelToolpathEngine"
+    ],
+    "analysis_engines": [
+      "VoxelStockIntegrationEngine",
+      "CollisionDetectionEngine"
+    ]
+  },
+  "audit_result": "PASS",
+  "recommendation": "Mark CAMK-MS3 complete — all 5 units fully implemented with 184 tests (100% passing)"
+}

@@ -29,7 +29,15 @@ related:
 
 ## Description (first paragraph)
 
-Run this in any chat that's one of the ~7 concurrent PRISM chats (6 work slots + 1 hygiene slot). It (a) claims this chat a stable human-readable slot name, (b) makes the per-chat handoff save under that slot, (c) cleans up crashed-slot / stale-claim debris, (d) surfaces anything that would cause a silent overwrite, a roadmap-drift surprise, or a commit collision, and (e) — if you pass `--roadmap`
+
+# /checkin — fleet slot-claim + drift + commit-hygiene via psk
+
+`psk checkin --subcommand composite` runs reclaim → claim → drift →
+commit-hygiene → handoff in one in-process call (drift + hygiene + handoff
+parallel after claim). Replaces the legacy 769-line runbook.
+
+**PRIORITY 0 — args ARE the work order:** if `$ARGUMENTS` is non-empty (unit
+id, `/loop`, `/goal`, `pick a unit`, filepath
 
 <!-- AUTO-END -->
 

@@ -52,6 +52,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, statSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const REPO_ROOT = "H:/prism";
 const HANDOFFS_DIR = resolve(REPO_ROOT, "state/shared/handoffs");
@@ -73,6 +74,28 @@ const PLACEHOLDER_PATTERNS = [
 ];
 
 function vlog(msg) { if (VERBOSE) process.stderr.write(`[force-handoff] ${msg}\n`); }
+
+/**
+ * Canonicalize a raw session identifier to the fleet-canonical SHORT chat id
+ * `claude-<8hex>`. The Stop hook receives `input.session_id` = the FULL harness
+ * UUID (e.g. `a30723cc-3de1-4276-...`), but chat-slots.json AND the handoff files
+ * are keyed by the SHORT form `claude-a30723cc`. Matching the full UUID against
+ * either ALWAYS missed (resolveSlot -> null `slot=?`, findExistingHandoff -> null),
+ * so this hook would then SYNTHESIZE a resume from `git log -1` on the SHARED
+ * branch -- a PEER's last commit -- and force-continue the chat onto foreign work
+ * (the 2026-06-25 papa<-sierra "Continue from last commit / auto-route" re-seed
+ * cycle; same full-uuid-vs-short-chatId class as the 9fcda446a1 handoff-append +
+ * the e81dec5cba env-anchor fixes). Normalizing here makes slot + handoff lookup
+ * succeed so a chat with a fresh valid handoff is left alone. PURE.
+ * @param {string} raw
+ * @returns {string}
+ */
+export function canonicalChatId(raw) {
+  if (!raw || typeof raw !== "string") return raw;
+  if (raw.startsWith("claude-")) return raw;            // already canonical
+  const m = raw.match(/^([0-9a-f]{8})/i);               // full UUID or bare 8-hex
+  return m ? `claude-${m[1].toLowerCase()}` : raw;      // unknown shape -> unchanged
+}
 
 function readStdinJson() {
   try {
@@ -118,11 +141,11 @@ function resolveSlot(chatId) {
 function gitInfo() {
   const info = { branch: "main", topic: "", lastCommitSubject: "", lastCommitBody: "" };
   try {
-    info.branch = execFileSync("git", ["-C", REPO_ROOT, "rev-parse", "--abbrev-ref", "HEAD"], { encoding: "utf-8", timeout: 3000 }).trim();
+    info.branch = execFileSync("git", ["-C", REPO_ROOT, "rev-parse", "--abbrev-ref", "HEAD"], { windowsHide: true, encoding: "utf-8", timeout: 3000 }).trim();
   } catch { /* ignore */ }
   try {
-    info.lastCommitSubject = execFileSync("git", ["-C", REPO_ROOT, "log", "-1", "--pretty=%s"], { encoding: "utf-8", timeout: 3000 }).trim();
-    info.lastCommitBody = execFileSync("git", ["-C", REPO_ROOT, "log", "-1", "--pretty=%b"], { encoding: "utf-8", timeout: 3000 }).trim();
+    info.lastCommitSubject = execFileSync("git", ["-C", REPO_ROOT, "log", "-1", "--pretty=%s"], { windowsHide: true, encoding: "utf-8", timeout: 3000 }).trim();
+    info.lastCommitBody = execFileSync("git", ["-C", REPO_ROOT, "log", "-1", "--pretty=%b"], { windowsHide: true, encoding: "utf-8", timeout: 3000 }).trim();
   } catch { /* ignore */ }
   const m = info.lastCommitSubject.match(/\[([A-Z0-9-]+)\]/);
   if (m) info.topic = m[1].toLowerCase();
@@ -159,16 +182,40 @@ function isPlaceholder(resume) {
   return PLACEHOLDER_PATTERNS.some(p => p.test(resume));
 }
 
+/**
+ * The last commit AUTHORED in this slot's lane. The commit convention is
+ * `[SCOPE]/U-ID (slot:<slot>): title`, so we anchor the grep on the OPENING paren
+ * `(slot:<slot>` -- NOT a bare `slot:<slot>` -- so a peer commit that merely MENTIONS
+ * this slot ("(slot:india rescuing slot:papa orphan)") never false-matches (the exact
+ * anchoring lesson from the precompact peer-leak fix be9182dca7). execFileSync passes
+ * the `(` literally (no shell); git --grep treats it as a literal in basic regex. Read-only git.
+ * @param {string|null} slot
+ * @returns {{subject:string, body:string}|null}
+ */
+function lastOwnCommitInfo(slot) {
+  if (!slot) return null;
+  try {
+    const g = (fmt) => execFileSync("git", ["-C", REPO_ROOT, "log", "-1", `--grep=(slot:${slot}`, `--pretty=${fmt}`], { windowsHide: true, encoding: "utf-8", timeout: 3000 }).trim();
+    const subject = g("%s");
+    if (!subject) return null;
+    return { subject, body: g("%b") };
+  } catch { return null; }
+}
+
 function synthesizeResume(gi, slot) {
-  // Priority: last commit body's first non-empty line → subject → branch tip
-  const bodyLines = gi.lastCommitBody.split("\n").map(s => s.trim()).filter(Boolean);
-  if (bodyLines.length && bodyLines[0].length >= MIN_RESUME_CHARS) {
-    return `Continue from last commit: ${bodyLines[0]} (branch=${gi.branch}, slot=${slot ?? "?"})`;
+  // Slot-scope the synthesis source: NEVER seed a resume from the shared-branch HEAD,
+  // which may be a PEER's commit -> force-continues this chat onto foreign work (the
+  // 2026-06-25 papa<-sierra "Continue from last commit / auto-route" re-seed cycle).
+  // Use THIS slot's own last commit; else a generic, non-leaking fallback.
+  const own = lastOwnCommitInfo(slot);
+  if (own) {
+    const bodyLines = own.body.split("\n").map(s => s.trim()).filter(Boolean);
+    const lead = (bodyLines[0] && bodyLines[0].length >= MIN_RESUME_CHARS) ? bodyLines[0] : own.subject;
+    if (lead && lead.length >= MIN_RESUME_CHARS) {
+      return `Continue from last commit: ${lead} (branch=${gi.branch}, slot=${slot})`;
+    }
   }
-  if (gi.lastCommitSubject && gi.lastCommitSubject.length >= MIN_RESUME_CHARS) {
-    return `Continue from last commit: ${gi.lastCommitSubject} (branch=${gi.branch}, slot=${slot ?? "?"})`;
-  }
-  return `Resume work on branch ${gi.branch} — review git log + roadmap for the next unit. Slot=${slot ?? "?"}. Synthesized by stop-force-handoff because no live RESUME existed at Stop.`;
+  return `Resume work on branch ${gi.branch} for slot ${slot ?? "?"} -- review this slot's git log + handoff for the next unit. (Synthesized by stop-force-handoff; no slot-own commit found, so NOT seeding from a shared-branch peer commit.)`;
 }
 
 function writeForcedHandoff(chatId, slot, topic, resume, state) {
@@ -183,7 +230,7 @@ function writeForcedHandoff(chatId, slot, topic, resume, state) {
       "--state", state,
     ];
     if (slot) { args.push("--slot", slot); }
-    const out = execFileSync("node", args, { encoding: "utf-8", timeout: 5000 });
+    const out = execFileSync(process.execPath, args, { windowsHide: true, encoding: "utf-8", timeout: 5000 });
     vlog(`helper out: ${out.slice(0, 200)}`);
     return true;
   } catch (e) {
@@ -195,7 +242,7 @@ function writeForcedHandoff(chatId, slot, topic, resume, state) {
 function main() {
   if (DISABLED) approveAndExit("disabled");
   const input = readStdinJson();
-  const chatId = resolveSessionId(input);
+  const chatId = canonicalChatId(resolveSessionId(input));
   if (!chatId) approveAndExit("no session id");
   const slot = resolveSlot(chatId);
   const gi = gitInfo();
@@ -233,10 +280,19 @@ function main() {
   approveAndExit("done");
 }
 
-try { main(); }
-catch (e) {
-  // NEVER block Stop
-  vlog(`unexpected err: ${e.message}`);
-  process.stdout.write(JSON.stringify({ continue: true, suppressOutput: true }) + "\n");
-  process.exit(0);
+// Run main() only when invoked as a hook script (node stop-force-handoff.mjs),
+// NOT when imported by a test -- main() reads stdin + process.exit()s, which would
+// kill the importing test process. (__isMain guard, mirrors nn-graph-retrain-lifecycle.)
+const __isMain = (() => {
+  try { return import.meta.url === pathToFileURL(process.argv[1] || "").href; }
+  catch { return false; }
+})();
+if (__isMain) {
+  try { main(); }
+  catch (e) {
+    // NEVER block Stop
+    vlog(`unexpected err: ${e.message}`);
+    process.stdout.write(JSON.stringify({ continue: true, suppressOutput: true }) + "\n");
+    process.exit(0);
+  }
 }

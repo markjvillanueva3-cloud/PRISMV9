@@ -32,7 +32,7 @@ The Ollama-routing hooks pre-existing in the harness:
   `ollama-terminal-watcher.mjs`, `ollama-unified-semantic-router.mjs`,
   `ollama-obsidian-rag.mjs`, `claudemd-ollama-enforcer.mjs`
 
-Those route classification/summarization/route-recommendation through local qwen2.5-coder:7b — they're the ones doing the heavy LLM offload. My hooks are designed to NOT need an LLM.
+Those route classification/summarization/route-recommendation through local qwen2.5-coder:32b — they're the ones doing the heavy LLM offload. My hooks are designed to NOT need an LLM.
 
 ## Future Ollama integration candidate
 

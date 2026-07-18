@@ -1,0 +1,166 @@
+[
+  {
+    "schemaVersion": "1.0.0",
+    "id": "VMC-01",
+    "name": "Hurco VM30i",
+    "machine_type": "VMC",
+    "kinematics": "3axis_vertical",
+    "axis_count": 3,
+    "units": "mm",
+    "controller": {
+      "name": "hurco",
+      "profile": "WinMAX-v10",
+      "post_family": "Hurco_WinMAX"
+    },
+    "spindle": {
+      "taper": "CAT40",
+      "max_rpm": 8000,
+      "max_power_kw": 11.2
+    },
+    "travels": {
+      "x": 762,
+      "y": 508,
+      "z": 508
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "id": "VMC-02",
+    "name": "Okuma M460V-5AX",
+    "machine_type": "5-axis",
+    "kinematics": "5axis_table_table_BC",
+    "axis_count": 5,
+    "units": "mm",
+    "controller": {
+      "name": "okuma",
+      "profile": "OSP-P300MA-H",
+      "post_family": "Okuma_OSP"
+    },
+    "spindle": {
+      "taper": "CAT40",
+      "max_rpm": 15000,
+      "max_power_kw": 22
+    },
+    "travels": {
+      "x": 762,
+      "y": 460,
+      "z": 460
+    },
+    "rotary_limits_deg": {
+      "b": [
+        -120,
+        120
+      ],
+      "c": [
+        0,
+        360
+      ]
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "id": "VMC-03",
+    "name": "Haas VF-2",
+    "machine_type": "VMC",
+    "kinematics": "3axis_vertical",
+    "axis_count": 3,
+    "units": "mm",
+    "controller": {
+      "name": "haas",
+      "profile": "PRE-NGC",
+      "post_family": "Haas_NGC"
+    },
+    "spindle": {
+      "taper": "CAT40",
+      "max_rpm": 8100,
+      "max_power_kw": 22.4
+    },
+    "travels": {
+      "x": 762,
+      "y": 406,
+      "z": 508
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "id": "VMC-04",
+    "name": "Haas OM-2",
+    "machine_type": "VMC",
+    "kinematics": "3axis_vertical",
+    "axis_count": 3,
+    "units": "mm",
+    "controller": {
+      "name": "haas",
+      "profile": "PRE-NGC",
+      "post_family": "Haas_NGC"
+    },
+    "spindle": {
+      "taper": "CAT40",
+      "max_rpm": 30000,
+      "max_power_kw": 11.2
+    },
+    "travels": {
+      "x": 508,
+      "y": 406,
+      "z": 406
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "id": "VMC-05",
+    "name": "Roku-Roku HC 658-II",
+    "machine_type": "VMC",
+    "kinematics": "3axis_vertical",
+    "axis_count": 3,
+    "units": "mm",
+    "controller": {
+      "name": "fanuc",
+      "profile": "Fanuc-31i",
+      "post_family": "Fanuc_30i"
+    },
+    "spindle": {
+      "taper": "HSK-A63",
+      "max_rpm": 40000,
+      "max_power_kw": 7.5
+    },
+    "travels": {
+      "x": 650,
+      "y": 500,
+      "z": 350
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "id": "TEST-VMX42",
+    "name": "Hurco VMX42SRTi",
+    "machine_type": "5-axis",
+    "kinematics": "5axis_table_table_AC",
+    "axis_count": 5,
+    "units": "mm",
+    "controller": {
+      "name": "hurco",
+      "profile": "WinMAX-v10",
+      "post_family": "Hurco_WinMAX"
+    },
+    "spindle": {
+      "taper": "CAT40",
+      "max_rpm": 12000,
+      "max_power_kw": 18
+    },
+    "travels": {
+      "x": 1067,
+      "y": 660,
+      "z": 610
+    },
+    "rotary_limits_deg": {
+      "a": [
+        -120,
+        30
+      ],
+      "c": [
+        0,
+        360
+      ]
+    }
+  }
+]

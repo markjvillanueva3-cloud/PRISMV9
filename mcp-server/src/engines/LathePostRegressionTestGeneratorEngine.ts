@@ -448,6 +448,8 @@ export class LathePostRegressionTestGeneratorEngine {
         gcode: sample.gcode,
         controller: sample.controller,
         test_name: sample.name,
+        include_coordinates: false,
+        include_comments: false,
       });
 
       if (result.success && result.test) {

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="5eedb09781a3b080a703ac72d552d20429f583853fe8757550c52f06f3379ab6">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ECHO-UNDONE-2026-05-18 → 2026-05-19 — survey</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>ECHO-UNDONE-2026-05-18 → 2026-05-19 — survey</h1>
+<div class="meta">rendered from state/shared/specs/ECHO-UNDONE-2026-05-18-19-COMPILATION.md</div>
+<div class="meta">Generated 2026-05-20T18:50:36.264Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><hr class="prism-hr">
+<p>title: ECHO-UNDONE-2026-05-18-19 — compilation of echo work outstanding from 5/18-5/19 type: audit unit: U-ECHO-UNDONE-SURVEY milestone: SYNERGY-AUDIT-CONTINUE created: 2026-05-20 owner: echo (claude-4278393c) status: advisory · mustHumanVerify · supersedable</p>
+<hr class="prism-hr">
+<h1 class="prism-h1">ECHO-UNDONE-2026-05-18 → 2026-05-19 — survey</h1>
+<p>Satisfies clause (1) of the standing /goal &quot;compile all tasks from 5/18-5/19 that are still undone for echo&quot;. Built from <code class="prism-inline-code">state/shared/handoffs/</code> echo-slot files. Cross-referenced against shipped commits 5/20-and-earlier.</p>
+<h2 class="prism-h2">Sources</h2>
+<ul class="prism-md-list"><li>11 echo handoffs touching 5/18-5/20 (newest first):</li><li><code class="prism-inline-code">HANDOFF-claude-4278393c-echo-{cad-fusion-live,command-kernel-,zebra-orchestra}.md</code> (2026-05-20, THIS chat lineage)</li><li><code class="prism-inline-code">HANDOFF-Agent@...-echo-work.md</code> (2026-05-20)</li><li><code class="prism-inline-code">HANDOFF-claude-00a9c6dc-echo.md</code> · <code class="prism-inline-code">HANDOFF-claude-5a2d6313-echo-wire-unwired-ms.md</code> · <code class="prism-inline-code">HANDOFF-claude-d7f91ed3-echo-cad-fusion-live.md</code> · <code class="prism-inline-code">HANDOFF-claude-ddda9e7c-echo-slot-compact-sy.md</code> (all 2026-05-19)</li><li><code class="prism-inline-code">HANDOFF-claude-689b3203-echo-ollama-expand-m.md</code> · <code class="prism-inline-code">HANDOFF-claude-6ba685f8-echo-ollama-expand-m.md</code> · <code class="prism-inline-code">HANDOFF-claude-fbf28cc9-echo-high-roi-hooks-.md</code> (all 2026-05-18)</li><li>Audit doc: <code class="prism-inline-code">state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code> — Track H + Track I lists.</li></ul>
+<h2 class="prism-h2">Shipped on or after 5/20 (CLOSED out of this survey)</h2>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Commit</th><th>Status</th></tr></thead><tbody><tr><td><strong>H7 U-MEMORY-INDEX-SEARCH</strong></td><td><code class="prism-inline-code">2389e3365b</code> (mis-attributed to mike; echo built)</td><td>wired live 5/20 by sidecar</td></tr>
+<tr><td><strong>H7-followup U-MEMORY-INDEX-SIDECAR</strong></td><td><code class="prism-inline-code">cab89da0a6</code> (this session)</td><td>shipped + wired live</td></tr>
+<tr><td><strong>H8 U-STOP-HOOK-AGGREGATOR</strong></td><td>files in <code class="prism-inline-code">30b7d45f1d</code> (mis-attributed to hotel; echo built)</td><td>shipped, hook wired</td></tr>
+<tr><td><strong>U-PRECOMMIT-PATHSPEC-ONLY</strong></td><td>per [[reference_u_precommit_pathspec_only_closeout_2026_05_20]]</td><td>shipped 5/20 (installer + close-out)</td></tr></tbody></table>
+<h2 class="prism-h2">Still undone — Track H synergy edges (echo / multi-slot)</h2>
+<p>Pulled from <code class="prism-inline-code">state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code> §5 Track H. Each is a synergy edge that closes one of the 60 ✗ cells in the synergy matrix.</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit</th><th>Why high-ROI</th></tr></thead><tbody><tr><td>H1</td><td><strong>U-TRIBAL-TO-WIKI-PROMOTE</strong></td><td>Auto-promote validated tribal tips → <code class="prism-inline-code">knowledge/wiki/code-tribal/</code>. Compounding: every tribal-knowledge-extract run feeds the wiki without manual curation.</td></tr>
+<tr><td>H2</td><td><strong>U-VIZ-TRIBAL-LAYER</strong></td><td>Add tribal tips as <code class="prism-inline-code">L10.5</code> in system-viz. Operator can SEE the tribal corpus alongside code.</td></tr>
+<tr><td>H3</td><td><strong>U-VIZ-AGENT-LAYER</strong></td><td>Add <code class="prism-inline-code">L12</code> agents from chat-bus. Closes the &quot;Pixel Department&quot; gap (which agents are live + what they own).</td></tr>
+<tr><td>H4</td><td><strong>U-NEURAL-FEEDBACK-LOOP</strong></td><td>NN training rounds emit lessons → memory entries. Each retrain auto-captures a verifiable signal.</td></tr>
+<tr><td>H5</td><td><strong>U-HANDOFF-VIZ-LAYER</strong></td><td><code class="prism-inline-code">L11</code> active handoffs in system-viz. See which slot owns which topic at a glance.</td></tr>
+<tr><td>H6</td><td><strong>U-HANDOFF-PRUNE-CRON</strong></td><td>Monthly archive of handoffs &gt;30d. Counters handoff sprawl across 26 slots.</td></tr></tbody></table>
+<h2 class="prism-h2">Track I forge5/6/7 phantom-tool fix — CORRECTION 2026-05-20</h2>
+<p><strong>The 2026-05-09 audit was wrong.</strong> I1, I2, I3, I4 ALL EXIST on disk under <code class="prism-inline-code">.claude/scripts/</code> (built 2026-05-09, mtime confirmed). The audit checked <code class="prism-inline-code">scripts/</code> (repo-root) not <code class="prism-inline-code">.claude/scripts/</code>. Live verification:</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit</th><th>Actual path</th><th>Size</th><th>Smoke-tested</th></tr></thead><tbody><tr><td>I1</td><td>U-VIZ-COMPLETENESS-CHECK</td><td><code class="prism-inline-code">.claude/scripts/system-viz-completeness-check.mjs</code></td><td>10538b</td><td>✓ exists</td></tr>
+<tr><td>I2</td><td>U-VIZ-PROGRESS-UPDATE</td><td><code class="prism-inline-code">.claude/scripts/viz-progress-update.mjs</code></td><td>10183b</td><td>✓ exists</td></tr>
+<tr><td>I3</td><td>U-AUTO-WIRE-PLAN</td><td><code class="prism-inline-code">.claude/scripts/auto-wire-plan.mjs</code></td><td>6045b</td><td>✓ exists</td></tr>
+<tr><td>I4</td><td>U-COMPOUNDING-GAINS-AUDIT</td><td><code class="prism-inline-code">.claude/scripts/compounding-gains-audit.mjs</code></td><td>12879b</td><td>✓ runs, exits BLOCK on HOOK-SYNERGY-MS0 (zero-artifact detection working)</td></tr></tbody></table>
+<p><strong>R12 lesson</strong> ([[feedback_verify_actual_contract_not_proxy.md]]): when an audit claims &quot;missing on disk&quot;, verify the exact path before re-building. The audit&#39;s <code class="prism-inline-code">scripts/&lt;name&gt;.mjs</code> literal blinded it to <code class="prism-inline-code">.claude/scripts/&lt;name&gt;.mjs</code> where the tools actually live.</p>
+<p><strong>Net effect on pickup queue</strong>: I-track is <strong>CLOSED</strong> for new work. What remains is potentially:</p>
+<ul class="prism-md-list"><li>Smoke-tests across each tool (verify they actually classify correctly under realistic input)</li><li>A <code class="prism-inline-code">--all</code> mode that iterates every milestone in <code class="prism-inline-code">roadmap-index.json</code> (currently advisory: <code class="prism-inline-code">--milestone &lt;id&gt;</code> only)</li><li>Wiring into <code class="prism-inline-code">/forge5/6/7</code> skill pipelines if the skill bodies don&#39;t already shell out</li></ul>
+<p>These are P2/P3 polish, not new builds.</p>
+<h2 class="prism-h2">Recommended pickup order (POST-CORRECTION 2026-05-20)</h2>
+<p>Since I-track is closed (all 4 tools exist on disk), the H-track is the next-largest leverage:</p>
+<ol class="prism-md-list"><li><strong>H1 U-TRIBAL-TO-WIKI-PROMOTE</strong> (compounding-gains exemplar: every tribal extract feeds wiki forever)</li><li><strong>H5 U-HANDOFF-VIZ-LAYER</strong> (operator visibility win across 26-slot fleet)</li><li><strong>H3 U-VIZ-AGENT-LAYER</strong> (sister to H5; both extend system-viz layers)</li><li><strong>H2 U-VIZ-TRIBAL-LAYER</strong> (rounds out the viz-layer trio)</li><li><strong>H4 U-NEURAL-FEEDBACK-LOOP</strong> (NN training → memory entries)</li><li><strong>H6 U-HANDOFF-PRUNE-CRON</strong> (smaller; cron polish for handoff sprawl)</li><li><strong>I-track polish</strong> (P2/P3): smoke-tests + <code class="prism-inline-code">--all</code> modes for existing tools — NOT new builds</li></ol>
+<h2 class="prism-h2">Honest scope (R12)</h2>
+<ul class="prism-md-list"><li>&quot;Undone&quot; is inferred from handoff RESUME directives that name pending work — a unit could be silently complete via a peer&#39;s commit (the misattribution class). Verify each pickup with <code class="prism-inline-code">git log --grep=&quot;U-&lt;id&gt;&quot;</code> before starting.</li><li>The <code class="prism-inline-code">Last work</code> line in each handoff names the <strong>previous</strong> commit, not the next-action target. Use the audit doc&#39;s pending list (above) as the canonical source of truth — handoffs are noisy.</li><li>I-track tools are referenced as phantom by <code class="prism-inline-code">/forge5/6/7</code> runbooks; replacing them does NOT change the skill bodies — those treat the tool&#39;s existence as a contract. Once shipped the skills become trustworthy without further edits.</li></ul>
+<h2 class="prism-h2">Cross-references</h2>
+<ul class="prism-md-list"><li>Audit: <code class="prism-inline-code">state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code> §5 Track H + Track I</li><li>Memory: [[reference_u_memory_index_sidecar_2026_05_20]] (most recent ROI ship) · [[reference_u_memory_index_search_2026_05_20]] · [[reference_u_stop_hook_aggregator_2026_05_20]] · [[reference_h8_misattribution_2026_05_20]]</li><li>Skills: <code class="prism-inline-code">/forge5.md</code>, <code class="prism-inline-code">/forge6.md</code>, <code class="prism-inline-code">/forge7.md</code>, <code class="prism-inline-code">/rgs5.md</code>, <code class="prism-inline-code">/rgs6.md</code> (all reference phantom I-track tools)</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

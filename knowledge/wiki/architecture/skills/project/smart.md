@@ -32,9 +32,6 @@ related:
 
 You are about to execute a prompt with intelligent auto-configuration. Follow this protocol exactly.
 
-## Advisor Strategy (`advisor_20260301`) Integration
-When /smart selects OPUS for a task, consider whether Sonnet + Opus advisor would achieve equivalent quality at lower cost. The `advisor_20260301` tool (beta header: `advisor-tool-2026-03-01`) lets Sonnet run the task with Opus consulted onl
-
 <!-- AUTO-END -->
 
 ## See also

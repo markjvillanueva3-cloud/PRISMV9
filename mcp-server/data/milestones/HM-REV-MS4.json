@@ -1,0 +1,335 @@
+{
+  "id": "HM-REV-MS4",
+  "version": "8.3.0",
+  "title": "Multi-Axis Pipeline (Impeller/Blisk/Mold)",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Wire HyperMillMultiAxisEngine's blade/impeller/tube/dental 5-axis strategies through the PRISM physics pipeline and build the missing mold domain (HyperMillMoldCycleEngine). Adds blade roughing cycle, open/closed channel logic for impellers, and blisk-specific strategies. Addresses Agent 9 finding (62/100 5-axis, no blade roughing, no open/closed channel) and Agent 10 finding (30/100 mold, no mold cycles, SPI standard absent).",
+  "dependencies": [
+    "HM-REV-MS2",
+    "HM-REV-MS3"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillMultiAxisEngine.ts (657 LOC â€” blade/impeller/tube/dental 5-axis)",
+      "HyperMillStrategyEngine.ts (492 LOC â€” 20+ strategies)",
+      "HyperMillCycleCatalogEngine.ts (232 LOC â€” 120+ cycles, missing mold-specific)",
+      "CollisionPreventionEngine.ts (pre-CAM gate ready)"
+    ],
+    "registries": [
+      "ToolpathStrategyRegistry (762 strategies)",
+      "MaterialRegistry (2,957 materials â€” Ti-6Al-4V, Inconel for aerospace)"
+    ],
+    "services": [],
+    "physics": [
+      "constants.ts (titanium thermal properties, Inconel specific cutting forces)",
+      "KienzleForceModelEngine (cutting force validation for 5-axis)"
+    ],
+    "reference": [
+      "hypermill-cam-tips-ext.ts (83 tips â€” 5-axis/MAXX/barrel cutter tips)",
+      "Agent 9 report (5-axis impeller/blisk gaps)",
+      "Agent 10 report (mold/die domain gaps)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-5axis-tilt-limit â€” DECLARED+BUILT here (blocks if tilt > machine limit)",
+    "action": "cam:hypermill_impeller_pipeline â€” DECLARED+BUILT here",
+    "skill": "/hypermill-impeller â€” DECLARED here, BUILT in HM-REV-MS12 (Skills Phase 2)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read MultiAxisEngine + Agent 9/10 reports)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS4-S1",
+      "title": "Impeller/Blisk/Blade Multi-Axis Pipeline + Physics Integration",
+      "smart_config": {
+        "role": "5-Axis CAM Specialist + Aerospace Manufacturing Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillMultiAxisEngine.ts (657 LOC)",
+        "hypermill-cam-tips-ext.ts (5-axis tips)",
+        "KienzleForceModelEngine",
+        "CollisionPreventionEngine.ts"
+      ],
+      "intent": "Wire the existing 5-axis multi-axis engine through PRISM's physics pipeline (force model, deflection, thermal) and add the missing blade roughing and open/closed channel logic. A machinist programming an impeller should get physics-validated 5-axis parameters.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint",
+        "/physics-verify"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR21",
+          "title": "Wire MultiAxisEngine blade/impeller strategies through physics pipeline",
+          "description": "Connect HyperMillMultiAxisEngine's blade and impeller strategies to PRISM physics: KienzleForceModel for cutting forces (critical for thin blade walls), ToolDeflectionEngine for ball-nose deflection in deep channels, ThermalWearCouplingEngine for titanium/Inconel thermal management. Build cam:hypermill_impeller_pipeline action that chains: geometry analysis â†’ strategy selection â†’ physics-validated parameters.",
+          "depends_on": [],
+          "four_loop": "BUILD â†’ SCRUTINIZE â†’ GAP FILL â†’ TIE UP",
+          "exit_criteria": [
+            "cam:hypermill_impeller_pipeline action registered",
+            "Cutting forces computed for blade wall thickness < 2mm",
+            "Tool deflection checked for channel depth > 3xD",
+            "Thermal model engaged for Ti-6Al-4V and Inconel 718",
+            "A machinist would accept force/deflection values for impeller roughing",
+            "4 unit tests: impeller channel, blade finish, thin wall, Inconel thermal"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermillMultiAxisPipelineSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "physics values outside published ranges"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermillMultiAxisPipelineSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR22",
+          "title": "Build blade roughing cycle + open/closed channel logic",
+          "description": "Add blade roughing cycle to HyperMillMultiAxisEngine (currently only finishing exists). Implement open vs closed channel detection logic: open channels allow conventional approach, closed channels require plunge or helical entry. Add blisk-specific strategy (integral blade + disk = different approach angles than separate blades). Agent 9 scored blade roughing at 0/100 â€” this unit fills the gap.",
+          "depends_on": [
+            "U-HMR21"
+          ],
+          "four_loop": "BUILD â†’ SCRUTINIZE â†’ GAP FILL â†’ TIE UP",
+          "exit_criteria": [
+            "Blade roughing cycle added to MultiAxisEngine",
+            "Open/closed channel detection returns correct classification",
+            "Blisk strategy differs from impeller strategy (approach angles, tool reach)",
+            "14 existing MultiAxis tests still pass",
+            "3 new tests: blade roughing, open channel, closed channel"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/HyperMillMultiAxisEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "14 existing tests regress"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillMultiAxisEngine.ts"
+          }
+        },
+        {
+          "id": "U-HMR23",
+          "title": "Build hypermill-5axis-tilt-limit hook + collision pre-gate wiring",
+          "description": "Build hypermill-5axis-tilt-limit hook that validates tool axis tilt angles against machine kinematic limits (from MachineRegistry). Wire CollisionPreventionEngine as pre-CAM gate for all 5-axis operations: compute collision envelope before toolpath generation, block if collision detected. Agent 2 scored hybrid collision avoidance at 85/100 â€” this wiring activates it.",
+          "depends_on": [
+            "U-HMR21"
+          ],
+          "four_loop": "BUILD â†’ SCRUTINIZE â†’ GAP FILL â†’ TIE UP",
+          "exit_criteria": [
+            "hypermill-5axis-tilt-limit hook registered and firing",
+            "Hook checks tilt angles against MachineRegistry kinematic limits",
+            "CollisionPreventionEngine wired as pre-CAM gate for 5-axis ops",
+            "Collision detection blocks toolpath generation if collision found",
+            "3 unit tests: tilt limit pass, tilt limit block, collision block"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/hooks/registry.ts",
+              "src/engines/hypermill/HyperMillMultiAxisEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/hooks/registry.ts src/engines/hypermill/HyperMillMultiAxisEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "âœ“ Impeller pipeline wired to physics | âœ“ Blade roughing cycle built | âœ“ Open/closed channel logic works | âœ“ 5-axis tilt limit hook active | âœ“ Collision pre-gate wired | âœ“ tsc 0 errors | âœ“ 10+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-5axis-tilt-limit"
+        ],
+        "new_actions": [
+          "cam:hypermill_impeller_pipeline"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS9",
+          "HM-REV-MS11",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS4-S2",
+      "title": "Mold Domain + Tube/Dental Multi-Axis Wiring",
+      "smart_config": {
+        "role": "Mold/Die Manufacturing Engineer + Multi-Axis Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Agent 10 report (mold/die gaps â€” parting line, SPI standard, electrode design)",
+        "HyperMillMultiAxisEngine.ts (tube, dental strategies)",
+        "HyperMillCycleCatalogEngine.ts (120+ cycles)"
+      ],
+      "intent": "Build the missing mold domain engine and wire tube/dental multi-axis strategies. Mold domain is critical for die/mold shops using hyperMILL â€” Agent 10 scored it at 30/100 average.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint",
+        "/physics-verify"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR24",
+          "title": "Build HyperMillMoldCycleEngine â€” mold-specific cycles + SPI surface finish standard",
+          "description": "Create HyperMillMoldCycleEngine with: cavity roughing (MAXX HPC + rest machining cascade), core finishing (Z-level + pencil + scallop control), parting line machining (2D contour at split), electrode machining (EDM overcut allowances). Include SPI (Society of Plastics Industry) surface finish standard mapping (A-1 through D-3) to scallop height/cusp height parameters.",
+          "depends_on": [],
+          "four_loop": "BUILD â†’ SCRUTINIZE â†’ GAP FILL â†’ TIE UP",
+          "exit_criteria": [
+            "HyperMillMoldCycleEngine.ts exports singleton with 4+ mold cycle types",
+            "SPI A-1 through D-3 mapped to scallop height values",
+            "Parting line cycle uses 2D contour strategy",
+            "Electrode cycle includes EDM overcut allowances (rough/finish)",
+            "A mold maker would accept the SPI-to-scallop mapping",
+            "4 unit tests: cavity rough, core finish, parting line, electrode"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillMoldCycleEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillMoldCycleEngine.ts src/engines/index.ts"
+          }
+        },
+        {
+          "id": "U-HMR25",
+          "title": "Wire tube machining + dental strategies through physics + register mold actions",
+          "description": "Wire HyperMillMultiAxisEngine's tube and dental strategies through physics pipeline. Tube machining needs collision-aware approach in confined bore geometry. Dental strategies need PEEK/CoCr material parameters (Agent 13: CoCr present in catalog under 'Medicinal Technology', PEEK present but no cutting params). Register mold cycle actions in camDispatcher.",
+          "depends_on": [
+            "U-HMR24"
+          ],
+          "four_loop": "BUILD â†’ SCRUTINIZE â†’ GAP FILL â†’ TIE UP",
+          "exit_criteria": [
+            "Tube machining wired to collision detection for bore geometry",
+            "Dental strategies use PEEK/CoCr material parameters from MaterialBridge",
+            "HyperMillMoldCycleEngine actions registered in camDispatcher",
+            "cam:hypermill_mold_cavity, cam:hypermill_mold_electrode actions available",
+            "3 unit tests: tube bore, dental PEEK, mold cavity action routing"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermillMoldSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermillMoldSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR26",
+          "title": "Build multi-axis test suite covering impeller + mold + tube + dental workflows",
+          "description": "Create comprehensive test suite for all multi-axis workflows built in MS4. Tests cover: impeller open channel (Ti-6Al-4V), blisk closed channel (Inconel 718), mold cavity (H13 hardened), mold electrode (copper), tube bore (316L stainless), dental crown (CoCr). Each test validates physics outputs against published machining data.",
+          "depends_on": [
+            "U-HMR21",
+            "U-HMR22",
+            "U-HMR24",
+            "U-HMR25"
+          ],
+          "four_loop": "BUILD â†’ SCRUTINIZE â†’ GAP FILL â†’ TIE UP",
+          "exit_criteria": [
+            "6 integration tests covering all multi-axis domains",
+            "Physics outputs within published ranges for each material",
+            "Force model values validated against manufacturer data",
+            "All 14 existing MultiAxis tests still pass",
+            "Total multi-axis test count >= 20"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill-multiaxis-pipeline.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/__tests__/hypermill-multiaxis-pipeline.test.ts"
+          }
+        }
+      ],
+      "exit_gate": "âœ“ MoldCycleEngine built with SPI standard | âœ“ Tube + dental wired to physics | âœ“ Mold actions in dispatcher | âœ“ 20+ multi-axis tests pass | âœ“ tsc 0 errors | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "cam:hypermill_mold_cavity",
+          "cam:hypermill_mold_electrode",
+          "cam:hypermill_tube_machining"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS9",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6,
+  "completed_at": "2026-04-04T19:09:11Z"
+}

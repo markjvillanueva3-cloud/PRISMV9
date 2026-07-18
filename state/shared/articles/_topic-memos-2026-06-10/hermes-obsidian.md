@@ -1,0 +1,66 @@
+# hermes + obsidian
+
+All load-bearing scripts, hooks, engines, and the skill are verified to exist (the exit code 2 was only because the C: skill path didn't exist; the project-local one does). I have everything I need. The InduTripat URL (`2057017304144298383`) was pasted by the operator for "original hermes" plans — I captured that verbatim. Let me compose the memo.
+
+## hermes + obsidian
+
+The operator (Mark) has driven a sustained, multi-session campaign to fuse the **Hermes Agent** (NousResearch autonomous-agent framework) with **Obsidian** (the markdown vault) into a single "thinks/remembers/runs-your-life" system, modeled directly on @cyrilXBT's playbooks. PRISM has built a substantial portion of this already (a galaxy, ~8 bridge scripts, engines, hooks, a nightly dream-cycle + weekly reflection loop, and a GEPA-lite skill optimizer), but the **personal-capture inbox/webhook layer** and **autonomous turn-counter triggers** remain the real gaps.
+
+### Source articles the operator submitted (URL + 1-line each)
+Distinct cyrilXBT URLs the operator pasted into transcripts (verified in `C:/Users/wompu/.claude/projects/H--prism/*.jsonl`). x.com `/status/` and `/article/` share the same numeric ID:
+- **x.com/cyrilXBT/status/2056924424838815824** — pasted with *"use playwright to ensure we're setting obsidian up properly"* (transcript `4278393c…jsonl:5620`). The original Obsidian-setup driver.
+- **x.com/cyrilXBT/article/2063634505940754601** — the "Obsidian + Hermes one system" article (a named seed; → corpus FULL capture).
+- **x.com/cyrilXBT/article/2058373087330959829** — companion Obsidian-Hermes piece (named seed).
+- **x.com/cyrilXBT/article/2060883609935077667** — "Hermes Agent Masterclass" (Nous Research) → corpus `hermes-agent-masterclass.md`.
+- **x.com/cyrilXBT/article/2059817560988676179** — captured as a cyril article (appears as both `/status/` and `/article/`).
+- **x.com/cyrilXBT/status/2061290917403713538** — "Obsidian + Hermes Agent one system that thinks, remembers, runs your life" (the FULL-captured 707-line article header; note: this ID is cited inside the corpus file but the pasted-URL set centered on 206363…/205837…).
+- Additional cyril IDs the operator pasted (Obsidian/agent systems series): `2052923836090167526`, `2058040699300241828`, `2064592201502670904`, `2061601347271577630`, `2056186353029722587`, `2059817560988676179`, `2054405527312969840`, `2055183411619549265`, `2053095235471761714`, `2052235121416188114`, `2047246104421388461`, `2043519880440283189` (+ older `1673308199452016641`, `1758144621136298334`, `1668273894237564928`).
+- **x.com/InduTripat82427/status/2057017304144298383** — pasted with *"make zebra the designated hermes agent. do deep research on how to synergize hermes with the prism system… I think we still have plans leftover for the original hermes"* (transcript `5852a0b9…jsonl:14349`). This is the operator's explicit directive that kicked off the Hermes→PRISM synergy work and the zulu/zebra orchestrator.
+
+Equivalent full-text captures the fleet used when cyril articles were login-walled (cited inside corpus files, not necessarily operator-pasted): `artemxtech.substack.com/p/i-stopped-teaching-my-agent-who-i` (Artem Zhutov, "my second brain learns me back"), `dailydoseofds.com/p/hermes-agent-masterclass/` (Avi Chawla mirror), `github.com/itechmeat/open-second-brain`, `github.com/Burgunthy/hermes-second-brain`.
+
+Note (R12): I did **not** find non-cyril, non-Indu operator-pasted x/substack/medium URLs *specific to this topic* beyond the above. Other URLs in the same transcripts (`tonysimons_`, `mr_r0b0t`, `KSimback`) appear in adjacent sessions but are not on the hermes+obsidian topic.
+
+### Key techniques / claims (the actual ideas, terse bullets)
+From the three corpus files (`H:/prism/state/shared/articles/2026-06-09-*`):
+
+**The core thesis** — Vault stores knowledge but can't act; agent acts but forgets. Connect them: agent READS the vault before acting, WRITES outcomes back after = a closed self-learning loop. *"A second brain that never talks back is not a second brain. It is a very organized way to forget things."*
+
+**4-layer architecture** — (1) Vault (Obsidian markdown), (2) Connection (Filesystem MCP gives Hermes read/write to the vault), (3) Intelligence (Hermes + Claude reasons across the vault), (4) Automation (Hermes scheduler fires workflows). Vault is the *operating environment* Hermes runs against, not just storage.
+
+**Vault structure** — numbered folders `00-INBOX`, `01-NOTES` (permanent/daily/meetings), `02-PROJECTS`, `03-RESOURCES`, `04-HERMES-OUTPUTS` (briefings/analyses/syntheses/reviews — the critical addition), `05-ARCHIVE`, `06-SYSTEM/CLAUDE.md`. The `CLAUDE.md` is read at the start of every skill execution.
+
+**The 7 skills** — (1) vault-aware morning brief (6am), (2) inbox processor (8pm, classify→file→link), (3) project health monitor (Mon 7am, stall-flag at 7d), (4) connection finder (Sun 5pm, surface non-obvious links), (5) weekly vault synthesis (Sun 7pm, updates CLAUDE.md priorities), (6) research-to-notes converter (literature note → ≥1 permanent note), (7) thinking partner (tensions/underdeveloped/missing-connections/open-questions — *pushes*, doesn't summarize).
+
+**Hermes Masterclass internals** — single `AIAgent` class, ReAct loop, **90-turn hard cap**; **SOUL.md** identity in system-prompt slot #1; **3-tier memory** (Tier-1 capped markdown `MEMORY.md`≤2200 / `USER.md`≤1375 with consolidate-at-80%; Tier-2 SQLite FTS over all sessions; Tier-3 external memory plugins with auto-prefetch); **self-evolving skills** (markdown+YAML, progressive disclosure L0/L1/L2, autonomous creation on 5+ tool-calls / error-recovery / corrections); **Curator** (inactivity-triggered stale/archive lifecycle, never auto-deletes); **GEPA** (Genetic-Pareto offline skill optimization from execution traces — fixes self-congratulation bias, outputs as PRs, $2-10/run no GPU); **profiles** (isolated agents); **cron with job chaining via `context_from`**.
+
+**Self-improvement loop (3 background triggers)** — memory review @10 user turns; skill review @15 tool iterations; idle-session pass @4 AM. Channel isolation per life-area. Division of labor: Hermes = phone/async capture inbox; Claude Code = desk deep-work. **open-second-brain** adds nightly "dream passes" turning repeat corrections into confirmed preferences with measurable confidence.
+
+### How PRISM already applies this (verified file paths)
+PRISM's "Obsidian vault" = `knowledge/memories/` + `knowledge/wiki/` (722-entry index). All paths below verified to exist:
+
+- **Hermes orchestration galaxy** — `mcp-server/src/engines/hermes-zulu/` (CLAUDE.md/MEMORY.md/PATHS.md/TOOLBELT.md galaxy sentinel). Zulu is the designated Hermes orchestrator (`knowledge/wiki/architecture/hermes-zulu-integration.md`, `hermes-zulu-galaxy.md`, `hermes-zulu/hermes-zulu-foundations.md`).
+- **Hermes parallel-execution engines** — `mcp-server/src/engines/HermesFileScopePartitionerEngine.ts`, `HermesParallelBudgetEnvelopeEngine.ts`, `HermesParallelFanoutPlannerEngine.ts`, `HermesParallelVerdictAggregatorEngine.ts`, `HermesSelfCorrectionEngine.ts`.
+- **Hermes↔Obsidian memory bridge** — `scripts/hermes-obsidian-memory-bridge.mjs` (surfaces Hermes' siloed `AppData/Local/hermes/` store into the PRISM Obsidian-indexed vault). Companion: `scripts/hermes-obsidian-app-map.mjs`, `scripts/wire-hermes-local-backend.mjs`.
+- **Nightly "dream cycle"** (cyril's connection-finder + open-second-brain dream pass analog) — `scripts/hermes-dream-cycle-synth.mjs` (DOMAIN-GALAXY-DOCTRINE-MS1/HMEMV04: walks ALL memos, Jaccard cross-memo connection discovery; latest run 2026-06-08 = 11,211 memos / 200 connections). Plus `scripts/dream-session-walk.mjs`, `dream-stage-memory-receipt.mjs`, `dream-stage-wiki-stub.mjs`.
+- **Weekly synthesis / self-reflection** (cyril's weekly-synthesis + the @4AM idle pass analog) — `scripts/hermes-self-reflect-populater.mjs` (HMEMV06, writes `knowledge/memories/weekly-hermes-reflection-<anchor>.md`) and `scripts/weekly-memory-synthesis.mjs` (feeds `prism_memory:weekly_synthesis_get`). Also `galaxy-reflection-synthesis.mjs`, `tribal-consolidate-weekly.mjs`.
+- **Self-heal actuator for the dark loop** — `scripts/obsidian-learning-revival.mjs` + `.claude/hooks/obsidian-learning-revival-sessionstart.mjs` (OBSIDIAN-HERMES-CONTEXT-ACCEL/U-LEARN-REVIVE01, commit `b4a8ecd1a7`): when the Windows scheduled task is dark, runs the pure-`.mjs` synth engine directly without elevation; this fixed a 4-night offline-compounding outage. Wiki: `obsidian-hermes-context-accel-u-learn-revive01.md`.
+- **GEPA-lite offline skill optimizer** (cyril's GEPA analog) — `scripts/hermes-skill-gepa.mjs` (HERMES-GEPA/U-GEPA01, commit `143ebb4885`): mines Hermes Response/Error trace tails → Ollama critique+revision → `NEEDS-REVIEW` staging; `context_from` chain wired in `jobs.json`. Wiki: `hermes-gepa-u-gepa01.md`.
+- **WRITE-outcomes-back loop** — `.claude/hooks/stop-obsidian-memory-feed.mjs` (copies C: `memory/*.md` → H: `knowledge/memories/<type>/` every Stop) + `.claude/hooks/handoff-memory-seed-stop.mjs` + `error-pattern-promote`. READ-before-act: recall injectors (`memory-rag-inject.mjs`, `wiki-precheck-inject`, galaxy-brain inject).
+- **Vault read-offload skill** — `.claude/commands/route-to-obsidian.md` (routes large wiki reads to local Ollama).
+- **Low-token 2nd-brain protocol** (the operating doctrine) — `knowledge/wiki/lessons/obsidian-as-second-brain-low-token-operating-protocol.md` (7 rules: keyword-gate recall, atomic notes, prefix-tagging, `[[wiki-links]]`, no double-inject, Ollama ≥70% maintenance, index>embedding at this scale).
+- **Delta-vs-PRISM analysis of cyril's article** — `knowledge/wiki/reference/cyrilxbt-obsidian-article---delta-findings-vs-prism.md` (the explicit gap-grade that proposed OBSIDIAN-COMPOUND-MS1's 6 personal-capture units).
+- **Research specs** — `knowledge/wiki/architecture/specs/spec-hermes-obsidian-os-research-2026-05-20.md`, `spec-hermes-evolving-skills-research-2026-05-17.md`, `spec-hermes-adoption-pattern-matrix-2026-05-20.md`, `spec-zulu-hermes-gap-audit-2026-05-20.md` (source: `state/shared/specs/HERMES-OBSIDIAN-OS-RESEARCH-2026-05-20.md`, `ZULU-HERMES-ARTICLE-VERIFY-2026-06-09.md`).
+
+The masterclass corpus already encodes a **10-point PRISM/zulu verification checklist** (`hermes-agent-masterclass.md` lines 84-95) mapping each Hermes feature to its PRISM analog.
+
+### Gaps / highest-ROI opportunities to ingest more deeply
+Honest gaps, cross-checked against the corpus checklists and the delta-findings file:
+
+1. **Personal-capture inbox + webhook layer (highest ROI, repeatedly flagged).** PRISM ingests *engineering artifacts* (PDFs/videos/JM-Die programs) but has **no friction-free personal-content capture** (articles, podcasts, voice notes, Telegram/Twitter bookmarks). Proposed but largely unshipped: `U-INBOX-LAYER` (`knowledge/memories/inbox/` staging), `U-CAPTURE-WEBHOOK` (`prism_intake:webhook_ingest` for Readwise/Telegram), `U-DAILY-PERSONAL-BRIEF`. cyril's #1 failure mode ("capture friction >10s = you stop") is unaddressed.
+2. **Autonomous turn-counter triggers.** Hermes fires memory-review @10 user turns + skill-review @15 tool-calls. PRISM triggers are **event-based hooks, not accumulation counters** — no automatic "5+ tool-calls → forge a skill" autonomy. `/forge-triple` + `error-pattern-promote` are manual/event analogs. (Masterclass checklist #5.)
+3. **Repeat-corrections → confirmed-preferences with confidence.** open-second-brain's nightly "dream pass that promotes repeated corrections into measured-confidence preferences" has **no PRISM equivalent**. The dream-cycle does connection discovery but not correction-confidence promotion. (Self-learning-loop file, explicit gap.)
+4. **Curator skill-lifecycle daemon.** Hermes' Curator (inactivity-triggered stale@30d/archive@90d, LLM keep/patch/consolidate review, never-delete) has **no PRISM equivalent** skill-lifecycle daemon. (Masterclass checklist #6.) PRISM's MEMORY.md has a size watchdog but no LLM-reviewed archival lifecycle for skills.
+5. **Contradiction detection + emerging-thesis.** cyril's "flag when a new belief contradicts a saved one" and "active belief stack" — proposed as `ContradictionDetectorEngine` / `EmergingThesisEngine`; **not built** (delta-findings file).
+6. **Cron job-chaining via `context_from`.** Partially closed — GEPA-lite wired a `context_from` chain in `jobs.json` (U-GEPA01), but general multi-stage cron chaining across the galaxy crons is not yet a first-class PRISM pattern. (Masterclass checklist #10.)
+7. **Deeper ingest opportunity:** The full 707-line `cyrilxbt-obsidian-hermes-one-system-FULL.md` contains 7 complete skill specs (verbatim prompts + output formats) that have **not been ported as PRISM skills** — the morning-brief, inbox-processor, project-health, connection-finder, weekly-synthesis, research-converter, and thinking-partner prompt templates are directly adaptable to `.claude/commands/*.md` skills operating over `knowledge/memories/` + `knowledge/wiki/`. The `thinking-partner` skill (active tension/contradiction surfacing) is the highest-leverage un-ported one.

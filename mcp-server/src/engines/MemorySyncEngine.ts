@@ -158,10 +158,30 @@ export interface MergeReport {
 export class MemorySyncEngine {
   private store: QdrantVectorStoreEngine;
   private machineName: string;
+  /** Auto-connect the DEFAULT store only; an injected store (tests) is the
+   * caller's responsibility, so the lazy auto-connect never fires for them. */
+  private readonly autoConnect: boolean;
 
   constructor(deps: MemorySyncDeps = {}) {
     this.store = deps.store ?? new QdrantVectorStoreEngine();
+    this.autoConnect = deps.store === undefined;
     this.machineName = deps.machineName ?? os.hostname();
+  }
+
+  /** Lazy-connect the default store before a bundle op. The production singleton
+   * (`new MemorySyncEngine()` with no injected store) was DEAD-ON-ARRIVAL: every
+   * exportBundle/importBundle returned "qdrant not connected" because nothing
+   * ever called store.connect(). Mirrors QdrantMemoryEngine.ensureConnected.
+   * Fail-soft: the existing isConnected() guard still surfaces the honest error
+   * if the connect fails. (audit 2026-06-14/15 dead-on-arrival fix, slot:sierra) */
+  private async ensureConnected(): Promise<void> {
+    if (!this.autoConnect || this.store.isConnected()) return;
+    const url = process.env.QDRANT_URL || "http://localhost:6333";
+    try {
+      await this.store.connect({ url });
+    } catch {
+      /* fail-soft -- the isConnected() guard surfaces the honest error */
+    }
   }
 
   /** Dump one-or-more collections to a JSON bundle on disk. */
@@ -176,6 +196,7 @@ export class MemorySyncEngine {
         error: "collections required",
       };
     }
+    await this.ensureConnected();
     if (!this.store.isConnected()) {
       return {
         ok: false,
@@ -253,6 +274,7 @@ export class MemorySyncEngine {
   /** Restore a bundle into Qdrant (upsert semantics, same id wins). */
   async importBundle(options: ImportOptions): Promise<ImportReport> {
     const perCollection: ImportReport["perCollection"] = [];
+    await this.ensureConnected();
     if (!this.store.isConnected()) {
       return {
         ok: false,

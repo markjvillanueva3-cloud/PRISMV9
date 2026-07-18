@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `nx-cam-setup` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/nx-cam-setup.md` |
+| Source | `C:/Users/wompu/.claude/commands/nx-cam-setup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

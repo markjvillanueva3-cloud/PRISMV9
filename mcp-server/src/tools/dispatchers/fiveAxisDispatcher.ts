@@ -13,6 +13,9 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_FIVEAXIS_SCHEMAS } from "../../schemas/fiveAxisActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+import type { DeepReasoningRequest, LearningOutcome } from "../../engines/FiveAxisDeepLearningEngine.js";
+import type { FiveAxisDecisionInput } from "../../engines/FiveAxisDecisionEngine.js";
+import type { SurfaceGeometry, ToolSpec5Ax } from "../../engines/Fusion5AxisEngine.js";
 
 let _rtcp: any, _sing: any, _tilt: any, _envelope: any, _ik: any;
 async function getEngine(name: string): Promise<any> {
@@ -27,8 +30,17 @@ async function getEngine(name: string): Promise<any> {
 }
 
 const ACTIONS = [
-  "rtcp_calc", "singularity_check", "tilt_optimize",
-  "work_envelope", "inverse_kin",
+  "five_axis_decision",
+  "five_axis_deep_learn",
+  "five_axis_deep_learn_feedback",
+  "five_axis_deep_learn_stats",
+  "five_axis_ai_ultra_predict",
+  "fusion_5axis_strategy",
+  "inverse_kin",
+  "rtcp_calc", "singularity_check",
+  "so3_kinematics_encode",
+  "tilt_optimize",
+  "work_envelope",
 ] as const;
 
 /** Registers five axis dispatcher.
@@ -102,6 +114,62 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "inverse_kin": {
             const engine = await getEngine("ik");
             result = engine.solve?.(params) ?? engine.calculate?.(params) ?? engine.compute?.(params) ?? { error: "IK method not found" };
+            break;
+          }
+          // ── iter8/bulk-sweep: 5 fiveaxis engines ──
+          case "five_axis_decision": {
+            // FIX (U-5AX-DECISION-WIRE): the bulk-sweep facade probed decide/analyze/run
+            // on the INSTANCE, but decide is STATIC -> always "method not callable".
+            // The strict schema guarantees the dereferenced parents (part_features,
+            // machine.axis_limits, tool) so decide cannot crash on a missing object.
+            const { FiveAxisDecisionEngine } = await import("../../engines/FiveAxisDecisionEngine.js");
+            result = FiveAxisDecisionEngine.decide(params as unknown as FiveAxisDecisionInput);
+            break;
+          }
+          case "so3_kinematics_encode": {
+            const { so3KinematicsEncoderEngine } = await import("../../engines/SO3KinematicsEncoderEngine.js");
+            result = (so3KinematicsEncoderEngine as any).encode?.(params) ?? (so3KinematicsEncoderEngine as any).compute?.(params) ?? (so3KinematicsEncoderEngine as any).calculate?.(params) ?? { engine: "SO3KinematicsEncoderEngine", note: "method not callable" };
+            break;
+          }
+          case "fusion_5axis_strategy": {
+            // FIX (U-5AX-FUSION-STRATEGY-WIRE): the facade probed recommend/select/run
+            // but the real instance method is `recommendStrategy(geometry, operation,
+            // tool)` (3 positional args, NOT a params object) -> always "method not
+            // callable". The strict schema guarantees tool.type (the only deref that
+            // crashes); geometry/operation degrade gracefully.
+            const { fusion5AxisEngine } = await import("../../engines/Fusion5AxisEngine.js");
+            const p = params as { geometry: SurfaceGeometry; operation: "roughing" | "semi_finishing" | "finishing"; tool: ToolSpec5Ax };
+            result = fusion5AxisEngine.recommendStrategy(p.geometry, p.operation, p.tool);
+            break;
+          }
+          case "five_axis_deep_learn": {
+            // FIX (U-5AX-DEEPLEARN-WIRE): the prior bulk-sweep facade probed
+            // predict/analyze/run (NONE exist on this engine) -> the action always
+            // returned "method not callable" (silently dark). The real method is the
+            // STATIC deepReason; the strict schema now guarantees a non-empty
+            // part_features + material.iso_group + operator_skill so it cannot crash
+            // on bad input (deepReason dereferences part_features[0]).
+            const { FiveAxisDeepLearningEngine } = await import("../../engines/FiveAxisDeepLearningEngine.js");
+            result = FiveAxisDeepLearningEngine.deepReason(params as unknown as DeepReasoningRequest);
+            break;
+          }
+          case "five_axis_deep_learn_feedback": {
+            // Close the learning loop: recordOutcome (STATIC) feeds real machining
+            // outcomes back into the in-memory template library (usage_count +
+            // learningLog); return the refreshed stats so the caller sees the update.
+            const { FiveAxisDeepLearningEngine } = await import("../../engines/FiveAxisDeepLearningEngine.js");
+            FiveAxisDeepLearningEngine.recordOutcome(params as unknown as LearningOutcome);
+            result = { recorded: true, stats: FiveAxisDeepLearningEngine.getLearningStats() };
+            break;
+          }
+          case "five_axis_deep_learn_stats": {
+            const { FiveAxisDeepLearningEngine } = await import("../../engines/FiveAxisDeepLearningEngine.js");
+            result = FiveAxisDeepLearningEngine.getLearningStats();
+            break;
+          }
+          case "five_axis_ai_ultra_predict": {
+            const { fiveAxisAIUltraIntelligenceEngine } = await import("../../engines/FiveAxisAIUltraIntelligenceEngine.js");
+            result = (fiveAxisAIUltraIntelligenceEngine as any).predict?.(params) ?? (fiveAxisAIUltraIntelligenceEngine as any).analyze?.(params) ?? (fiveAxisAIUltraIntelligenceEngine as any).run?.(params) ?? { engine: "FiveAxisAIUltraIntelligenceEngine", note: "method not callable" };
             break;
           }
           default:

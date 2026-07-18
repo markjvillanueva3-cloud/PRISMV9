@@ -439,6 +439,24 @@ const alarm_esc_rules = z.object({}).passthrough();
 const alarm_esc_stats = z.object({}).passthrough();
 
 // ============================================================================
+// WIRE-SUSTAIN-DIRECT-MS0/U-VICTOR-SUSTAIN-DIRECT (slot:victor, 2026-05-26)
+// 3 schemas for the 3 specialized sub-engines wired in diagnosisDispatcher.ts.
+// Passthrough at the dispatcher edge — each engine's static method calls its
+// own SchemaName.parse(input) internally (SustainInputSchema / CarbonInputSchema
+// / EnergyAnalysisInputSchema), so the strict validation lives engine-side per
+// the L2-P4-MS1/P0-U05 Batch 9 contract. The dispatcher-level passthrough
+// satisfies the H:/.claude/rules/schemas.md "schemas must match z.enum exactly"
+// requirement (every action gets a schema entry) without duplicating the
+// 30-field engine schema at the boundary.
+// ============================================================================
+const sustain_params_optimize = z.object({}).passthrough()
+  .describe("SustainOptimizeEngine.optimize — parameter-level sustainability optimizer (L2-P4-MS1 Batch 9). Inputs: cuttingPower/time/spindleSpeed/feedRate/coolant/material/tool. Outputs: optimized params + energy/carbon/coolant savings + sustainabilityScore 0-100. Strict validation via SustainInputSchema inside the engine.");
+const sustain_carbon_calculate = z.object({}).passthrough()
+  .describe("SustainCarbonEngine.calculate — operation-level carbon footprint calculator (kg CO2 across electricity + material + tooling + coolant + chip waste). Grid intensity varies by region (renewable/mixed/coal/gas/nuclear). Strict validation via CarbonInputSchema inside the engine.");
+const sustain_energy_analyze = z.object({}).passthrough()
+  .describe("SustainEnergyEngine.analyze — fleet-energy aggregator across recorded operations. Filterable by machine/operation. Returns total energy + per-machine + per-operation breakdowns + trend analysis. Strict validation via EnergyAnalysisInputSchema inside the engine.");
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -497,4 +515,8 @@ export const DIAGNOSIS_ACTION_SCHEMAS: ActionSchemaMap = {
   alarm_esc_history,
   alarm_esc_rules,
   alarm_esc_stats,
+  // WIRE-SUSTAIN-DIRECT-MS0/U-VICTOR-SUSTAIN-DIRECT (3) — specialized sub-engines
+  sustain_params_optimize,
+  sustain_carbon_calculate,
+  sustain_energy_analyze,
 };

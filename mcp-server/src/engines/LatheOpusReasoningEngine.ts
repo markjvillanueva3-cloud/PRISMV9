@@ -49,6 +49,7 @@ import {
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
+  buildMaterialPhysics,
   type ISOGroup,
   type MaterialPhysics,
 } from "../physics/constants.js";
@@ -641,27 +642,10 @@ class KnowledgeSynthesizer {
   }
 
   private getDefaultPhysics(iso: ISOGroup): MaterialPhysics {
-    const kienzle = CANONICAL_KIENZLE[iso];
-    const taylor = CANONICAL_TAYLOR[iso];
-    const baseVc = { P: 200, M: 130, K: 180, N: 400, S: 45, H: 80 }[iso];
-
-    return {
-      name: `Default ${iso}`,
-      iso_group: iso,
-      kc1_1: kienzle.kc1_1,
-      mc: kienzle.mc,
-      taylor_C: taylor.C,
-      taylor_n: taylor.n,
-      k_thermal: 40,
-      sigma_y_MPa: 400,
-      density_kg_m3: 7850,
-      hardness_HB: 200,
-      vc_base_roughing: baseVc,
-      vc_base_finishing: baseVc * 1.3,
-      machinability_factor: 1.0,
-      cp_J_kgK: 480,
-      E_GPa: 200,
-    };
+    // buildMaterialPhysics fills every cutting-physics field from the
+    // canonical per-ISO tables (Kienzle, Taylor, turning speeds,
+    // machinability, modulus) — complete and runtime-safe.
+    return buildMaterialPhysics({ name: `Default ${iso}` }, iso);
   }
 }
 
@@ -1400,6 +1384,11 @@ class OperationFlowOptimizer {
  * - Knowledge synthesis from physics and tribal knowledge
  * - Graph-based operation sequencing
  */
+// Fallback per-part turning cycle time (min) used by calculateCostEfficiency ONLY when the caller
+// supplies no params.cycle_time_min. When this fallback is used, cost_per_part is flagged
+// cost_is_estimate=true (+ a recommendation note) -- never presented as an exact cost.
+const DEFAULT_TURNING_CYCLE_TIME_MIN = 5;
+
 export class LatheOpusReasoningEngine {
   private static instance: LatheOpusReasoningEngine;
 
@@ -1924,13 +1913,14 @@ export class LatheOpusReasoningEngine {
    */
   static calculateCostEfficiency(
     material: LatheMaterialSpec,
-    params: { vc_mpm: number; fn_mmrev: number; ap_mm: number },
+    params: { vc_mpm: number; fn_mmrev: number; ap_mm: number; cycle_time_min?: number },
     batch_size: number
   ): {
     mrr_mm3_min: number;
     tool_life_min: number;
     cost_per_part: number;
     efficiency_score: number;
+    cost_is_estimate: boolean;
     recommendation: string;
   } {
     const engine = LatheOpusReasoningEngine.getInstance();
@@ -1943,8 +1933,13 @@ export class LatheOpusReasoningEngine {
       params.ap_mm / 2.0
     );
 
-    // Simplified cost model
-    const cycleTimePerPart = 5;  // minutes (placeholder)
+    // Cost model. Use the caller-supplied real per-part cycle time when present; else fall back to a
+    // named default and flag cost_per_part as an ESTIMATE (ENGINE-AUDIT 2026-06-19, slot:bravo: was a
+    // silent hardcoded 5-min placeholder that fabricated the returned cost_per_part). efficiency_score
+    // is a RELATIVE comparator (mrr/cost) -- a constant cycle time cancels in ranking, but the ABSOLUTE
+    // cost_per_part is only real when cycle_time_min is supplied.
+    const costIsEstimate = !(params.cycle_time_min && params.cycle_time_min > 0);
+    const cycleTimePerPart = costIsEstimate ? DEFAULT_TURNING_CYCLE_TIME_MIN : params.cycle_time_min!;
     const operationCost = engine.costOptimizer.calculateOperationCost(
       "turning",
       cycleTimePerPart * 60,
@@ -1966,12 +1961,16 @@ export class LatheOpusReasoningEngine {
     } else if (efficiencyScore > 2.0) {
       recommendation = "Excellent efficiency; verify surface finish meets requirements";
     }
+    if (costIsEstimate) {
+      recommendation += ` (cost_per_part is an ESTIMATE assuming ${DEFAULT_TURNING_CYCLE_TIME_MIN}min/part; pass params.cycle_time_min for an accurate cost)`;
+    }
 
     return {
       mrr_mm3_min: Math.round(mrr),
       tool_life_min: Math.round(toolLife),
       cost_per_part: Math.round(costPerPart * 100) / 100,
       efficiency_score: Math.round(efficiencyScore * 100) / 100,
+      cost_is_estimate: costIsEstimate,
       recommendation,
     };
   }
@@ -2346,6 +2345,19 @@ export class LatheOpusReasoningEngine {
       estimated_cost: number;
     }[] = [];
 
+    // Real stock-removal volume from part geometry (was a hardcoded 1000 mm^3 placeholder that
+    // fabricated estimated_time_sec + estimated_cost -- ENGINE-AUDIT 2026-06-19, slot:bravo, found by
+    // scripts/audit-fabricated-output.mjs). Split evenly across operations as a first-order estimate;
+    // falls back to DEFAULT_OP_STOCK_VOLUME_MM3 if geometry is missing/degenerate (never fabricates).
+    const DEFAULT_OP_STOCK_VOLUME_MM3 = 1000;
+    const g = input.geometry;
+    const totalStock_mm3 = g
+      ? (Math.PI / 4) * (Math.pow(g.bar_od_mm, 2) - Math.pow(g.finished_od_mm, 2)) * g.length_mm
+      : NaN;
+    const perOpStockVolume_mm3 = Number.isFinite(totalStock_mm3) && totalStock_mm3 > 0
+      ? totalStock_mm3 / Math.max(1, operations.length)
+      : DEFAULT_OP_STOCK_VOLUME_MM3;
+
     let order = 0;
     for (const opType of operations) {
       const synthesized = this.knowledgeSynthesizer.synthesizeParameters(
@@ -2363,7 +2375,7 @@ export class LatheOpusReasoningEngine {
         synthesized.fn_mmrev,
         synthesized.ap_mm
       );
-      const estimatedVolume = 1000;  // Placeholder mm3
+      const estimatedVolume = perOpStockVolume_mm3;  // real geometry-derived stock split per op
       const estimatedTimeSec = (estimatedVolume / mrr) * 60;
 
       // Estimate cost

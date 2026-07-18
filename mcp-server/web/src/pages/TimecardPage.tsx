@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ApiError, getTimecard, getTimecardAuditLog, listEmployees, updateTimecardStatus } from '../api/client';
+import { unwrapPrism } from '../api/unwrap';
 import { ErrorState, LoadingState } from '../components/LoadingState';
 import {
   ActionButton,
@@ -108,7 +109,7 @@ function normalizeTimecardSummary(
           hours: Number(job?.hours ?? 0),
           cost:
             Number(job?.cost ?? 0)
-            || operationDetails.reduce((sum, detail) => sum + detail.cost, 0),
+            || operationDetails.reduce((sum: number, detail: { cost: number }) => sum + detail.cost, 0),
           operations: Array.isArray(job?.operations)
             ? job.operations.map((operation: unknown) => String(operation))
             : [],
@@ -164,7 +165,7 @@ export function TimecardPage() {
 
   useEffect(() => {
     listEmployees()
-      .then((response) => setEmployees((((response.result as unknown as { employees?: Employee[] })?.employees) ?? [])))
+      .then((response) => setEmployees(((unwrapPrism(response) as { employees?: Employee[] })?.employees) ?? []))
       .catch(() => setEmployees([]));
   }, []);
 
@@ -178,7 +179,7 @@ export function TimecardPage() {
         start_date: periodStart,
         end_date: periodEnd,
       });
-      setTimecard(normalizeTimecardSummary(response.result, periodStart, periodEnd));
+      setTimecard(normalizeTimecardSummary(unwrapPrism(response), periodStart, periodEnd));
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Failed to load timecard');
     } finally {

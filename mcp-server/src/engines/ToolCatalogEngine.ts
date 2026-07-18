@@ -205,6 +205,20 @@ interface HolderPhysical {
   runout_um: number;
 }
 
+/** Vendor-agnostic holder record returned by `getAllHolders()` -- the union of every
+ *  holder array, normalized for collision geometry + library accounting. Optional
+ *  fields are absent when a given vendor record does not carry them. */
+export interface HolderUnionRecord {
+  vendor: string;
+  id: string;
+  holder_type?: string;
+  taper?: string;
+  gauge_length_mm?: number;
+  body_diameter_mm?: number;
+  max_rpm?: number;
+  runout_um?: number;
+}
+
 const HOLDER_DIMS: HolderPhysical[] = [
   // ER Collet Chucks
   { type: "ER16", taper: "BT40", bore_min: 1, bore_max: 10, gauge_length: 70, body_diameter: 42, max_rpm: 25000, runout_um: 5 },
@@ -579,6 +593,50 @@ export class ToolCatalogEngine {
       });
     }
     return results.slice(0, query.max_results ?? 20);
+  }
+
+  /**
+   * Return EVERY holder in the catalog (generic HOLDER_DIMS + Tungaloy + Big
+   * Daishowa + Haimer + Guhring), normalized to a common record for collision
+   * geometry + library accounting. The engine previously exposed only the
+   * Tungaloy-specific `searchHolders`; this is the union accessor that
+   * `stats().holders` already counts. Defensive field-probing tolerates the
+   * differing vendor record shapes without coupling to each one.
+   */
+  getAllHolders(): HolderUnionRecord[] {
+    const num = (o: Record<string, unknown>, keys: string[]): number | undefined => {
+      for (const k of keys) { const v = o[k]; if (typeof v === "number" && Number.isFinite(v)) return v; }
+      return undefined;
+    };
+    const str = (o: Record<string, unknown>, keys: string[]): string | undefined => {
+      for (const k of keys) { const v = o[k]; if (typeof v === "string" && v.trim()) return v.trim(); }
+      return undefined;
+    };
+    const out: HolderUnionRecord[] = [];
+    HOLDER_DIMS.forEach((h, i) => out.push({
+      vendor: "generic", id: `generic:${h.type}:${h.taper}:${i}`, holder_type: h.type, taper: h.taper,
+      gauge_length_mm: h.gauge_length, body_diameter_mm: h.body_diameter, max_rpm: h.max_rpm, runout_um: h.runout_um,
+    }));
+    const vendors: Array<[string, unknown[]]> = [
+      ["tungaloy", TUNGALOY_HOLDERS], ["big_daishowa", BIG_DAISHOWA_HOLDERS],
+      ["haimer", HAIMER_HOLDERS], ["guhring", GUHRING_HOLDERS],
+    ];
+    for (const [vendor, arr] of vendors) {
+      arr.forEach((raw, i) => {
+        const o = raw as Record<string, unknown>;
+        out.push({
+          vendor,
+          id: str(o, ["id", "part_number", "designation", "model", "name"]) ?? `${vendor}:${i}`,
+          holder_type: str(o, ["holder_type", "type"]),
+          taper: str(o, ["taper"]),
+          gauge_length_mm: num(o, ["gauge_length_mm", "gauge_length", "projection_mm", "projection_length_mm", "gauge_mm"]),
+          body_diameter_mm: num(o, ["body_diameter_mm", "body_diameter", "flange_diameter_mm", "diameter_mm"]),
+          max_rpm: num(o, ["max_rpm", "max_rpm_balanced", "rpm_max"]),
+          runout_um: num(o, ["runout_um", "runout"]),
+        });
+      });
+    }
+    return out;
   }
 
   // ── Private: Find compatible holder ──
@@ -2047,19 +2105,46 @@ export class ToolCatalogEngine {
   }
 
   private _loadGlobalCNCTools(): void {
+    // DB-COVERAGE-GAPFILL-MS0/U-GCNC01. The Global CNC catalog source carries two
+    // populations: ~2,416 guide BUSHINGS (work-guides, NOT cutting tools) + ~1,264
+    // live-tooling HOLDERS across 9 families. The catalog must hold only the holders.
+    //
+    // IMPORTANT — source-agnostic filtering: in production the loader's JSON is emitted
+    // by build-catalog-json.mjs from GLOBAL_CNC_TOOLS (includes every bushing); in tests
+    // it is the pre-filtered src/data/global-cnc-tools.json. Filtering HERE (the single
+    // chokepoint both paths flow through) keeps the catalog identical regardless of which
+    // source feeds the loader, instead of relying on the upstream file being pre-cleaned.
+    const MAX_PLAUSIBLE_BORE_MM = 200; // turret/holder bore ceiling; corpus has 1016mm (40") extraction errors
     for (const gt of getGlobalCncTools()) {
       const id = `GCNC-${gt.partNumber}`;
       if (this.tools.has(id)) continue;
 
-      const toolType = (gt.type === "driven_tool" ? "end_mill" :
-                        gt.type === "boring_bar_holder" ? "boring_bar" :
+      // Guide/collet bushings are not cutting tools — never enter the tool catalog.
+      if (gt.type === "bushing") continue;
+
+      // Map each holder family to the closest catalog type:
+      //  - driven_* → end_mill   (live rotating mills/drills)
+      //  - *_id/boring → boring_bar (internal/ID work)
+      //  - od/vdi/capto/generic holders → turning_tool (OD turning + turret interfaces)
+      const toolType = (gt.type === "driven_tool" || gt.type === "driven_drill_mill" || gt.type === "driven_toolholder" ? "end_mill" :
+                        gt.type === "boring_bar_holder" || gt.type === "id_holder" ? "boring_bar" :
                         "turning_tool") as CatalogTool["type"];
 
-      // Look up real dimensions from PDF-extracted data (565-page catalog)
+      // Look up real dimensions from PDF-extracted data (565-page catalog).
       const dim = getGlobalCNCDimension(gt.partNumber);
       const boreDia = dim?.boreDia_mm ?? 0;
       const bodyOD = dim?.bodyOD_mm ?? 0;
       const oal = dim?.oal_mm ?? 0;
+
+      // Drop records whose extracted geometry is unusable — an implausible bore or a
+      // zero overall length would poison collision-envelope / feeds-speeds consumers
+      // exactly as a bad cutting diameter would. Symmetric, fail-loud-by-omission guard.
+      if (!(boreDia > 0) || boreDia > MAX_PLAUSIBLE_BORE_MM || !(oal > 0)) continue;
+
+      // The bore is a cutting diameter only for ID/boring work; for OD-turning and pure
+      // turret/interface holders it is the bar-seat bore, NOT a machining diameter — so
+      // leave cutting_diameter_mm 0 there rather than posing a misleading cutting Ø.
+      const cuttingDia = toolType === "boring_bar" ? boreDia : 0;
 
       this.tools.set(id, {
         id,
@@ -2069,10 +2154,10 @@ export class ToolCatalogEngine {
         type: toolType,
         material: "carbide",
         physical: {
-          cutting_diameter_mm: boreDia,
+          cutting_diameter_mm: cuttingDia,
           shank_diameter_mm: bodyOD,
           overall_length_mm: oal,
-          flute_length_mm: boreDia > 0 ? boreDia : 0,
+          flute_length_mm: cuttingDia,
         },
         iso_groups: ["P", "M", "K"],
         operations: toolType === "boring_bar" ? ["bore"] :

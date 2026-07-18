@@ -19,7 +19,7 @@ describe('useOrchestrator hooks', () => {
     vi.unstubAllGlobals();
   });
 
-  it('executes through the unified PRISM AI endpoint and captures tier state', async () => {
+  it('executes through the unified Kienzle AI endpoint and captures tier state', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -63,7 +63,8 @@ describe('useOrchestrator hooks', () => {
       expect(result.current.tier).toBe('multi_domain');
     });
 
-    expect(response?.task_id).toBe('TASK-1');
+    // Cast: closure assignment of response is invisible to TS control-flow.
+    expect((response as { task_id?: string } | null)?.task_id).toBe('TASK-1');
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/v1/orchestration/unified/execute',
       expect.objectContaining({

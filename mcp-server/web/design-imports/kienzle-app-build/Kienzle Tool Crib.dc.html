@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select, input { font-family: 'Archivo', sans-serif; }
+    select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌀</span>MAKE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">$</span>QUOTE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▤</span>RUN</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌂</span>SHOP</button>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;">Tool Crib &amp; Setup</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · {{ layoutLabel }} · {{ loadedCount }}/{{ stationCount }} LOADED · {{ issueSummary }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <select value="{{ machineId }}" onChange="{{ setMachine }}" style="height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 32px 0 12px;">
+          <optgroup label="Mills">
+          <option value="vm30i">VMC-01 · Hurco VM30i · CAT40</option>
+          <option value="m460v">VMC-02 · Okuma M460V-5AX · CAT40</option>
+          <option value="vf2">VMC-03 · Haas VF-2 · CAT40</option>
+          <option value="om2">VMC-04 · Haas OM-2 · CAT40</option>
+          <option value="roku">VMC-05 · Roku-Roku HC658-II · HSK</option>
+          </optgroup>
+          <optgroup label="Lathes / mill-turn">
+          <option value="l300m">LTH-01 · GENOS L300-M · live</option>
+          <option value="l200em">LTH-02 · GENOS L200E-M · live</option>
+          <option value="lnc8">LTH-03 · Okuma LNC8</option>
+          <option value="crown">LTH-04 · Crown L1060</option>
+          <option value="l400ii">LTH-05 · GENOS L400II-E</option>
+          <option value="lb3000">LTH-06 · LB3000EX Big Bore</option>
+          <option value="multus">LTH-07 · Multus B250II · B-axis</option>
+          </optgroup>
+        </select>
+        <div style="display:inline-flex;background:#16181D;border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,0.07);">
+          <button onClick="{{ setInch }}" style="{{ unitInchStyle }}">inch</button>
+          <button onClick="{{ setMm }}" style="{{ unitMmStyle }}">mm</button>
+        </div>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:356px minmax(0,1fr) 432px;min-height:0;">
+
+      <!-- ───────── SETUP + BUILD ───────── -->
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">MACHINE SETUP</div>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">{{ typeFieldLabel }}</label>
+        <select value="{{ typeId }}" onChange="{{ setType }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 11px;margin-bottom:10px;">
+          <sc-for list="{{ typeOptions }}" as="t" hint-placeholder-count="5">
+            <option value="{{ t.id }}">{{ t.label }}</option>
+          </sc-for>
+        </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-bottom:11px;">
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">{{ countFieldLabel }}</label><input type="number" step="1" value="{{ count }}" onChange="{{ setCount }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,90,43,0.25);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Interface</label><div style="height:40px;display:flex;align-items:center;padding:0 11px;background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#C7CCD4;">{{ ifaceLabel }}</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px;">
+          <sc-for list="{{ travelChips }}" as="c" hint-placeholder-count="3">
+            <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;letter-spacing:0.05em;">{{ c.k }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;margin-top:2px;">{{ c.v }}</div></div>
+          </sc-for>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">WORKPIECE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-bottom:16px;">
+          <sc-for list="{{ workpieceFields }}" as="w" hint-placeholder-count="4">
+            <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">{{ w.label }}</label><input type="number" step="0.1" value="{{ w.value }}" onChange="{{ w.on }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;"></div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ showFixturing }}" hint-placeholder-val="{{ true }}">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">FIXTURING &amp; ORIGIN</div>
+        <select value="{{ fixType }}" onChange="{{ setFixType }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 11px;margin-bottom:10px;"><option value="vise">Kurt DX6 vise</option><option value="plate">Fixture plate</option><option value="trunnion">5-ax trunnion</option><option value="softjaw">Soft jaws</option></select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-bottom:10px;">
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Fixture X ({{ unit }})</label><input type="number" step="0.5" value="{{ fixX }}" onChange="{{ setFixX }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Fixture Y ({{ unit }})</label><input type="number" step="0.5" value="{{ fixY }}" onChange="{{ setFixY }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button onClick="{{ toggleSnap }}" style="{{ snapStyle }}">⊞ Snap to T-slots</button>
+          <select value="{{ originRef }}" onChange="{{ setOriginRef }}" style="flex:1;height:36px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#9398A2;font-size:11.5px;padding:0 24px 0 10px;"><option value="corner">Origin: front-left corner</option><option value="center">Origin: part center</option></select>
+        </div>
+        </sc-if>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">BUILD TOOL → {{ selSlotLabel }}</div>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Holder</label>
+        <select value="{{ holderId }}" onChange="{{ setHolder }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 11px;margin-bottom:10px;">
+          <sc-for list="{{ holderOptions }}" as="h" hint-placeholder-count="5"><option value="{{ h.id }}">{{ h.label }}</option></sc-for>
+        </select>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Tooling</label>
+        <select value="{{ toolingId }}" onChange="{{ setTooling }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 11px;margin-bottom:10px;">
+          <sc-for list="{{ toolingOptions }}" as="t" hint-placeholder-count="5"><option value="{{ t.id }}">{{ t.label }}</option></sc-for>
+        </select>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Insert / edge</label>
+        <select value="{{ insertId }}" onChange="{{ setInsert }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 11px;margin-bottom:12px;">
+          <sc-for list="{{ insertOptions }}" as="i" hint-placeholder-count="5"><option value="{{ i.id }}">{{ i.label }}</option></sc-for>
+        </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;margin-bottom:13px;">
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Tool # (T)</label><input type="number" step="1" value="{{ toolNo }}" onChange="{{ setToolNo }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">{{ heightFieldLabel }}</label><input type="number" step="1" value="{{ heightNo }}" onChange="{{ setHeightNo }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Gauge/proj ({{ unit }})</label><input type="number" step="0.001" value="{{ gauge }}" onChange="{{ setGauge }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">{{ diaFieldLabel }}</label><input type="number" step="0.0001" value="{{ offDia }}" onChange="{{ setOffDia }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;"></div>
+        </div>
+        <button onClick="{{ addToCrib }}" style="width:100%;border:none;background:#FF5A2B;color:#0A0B0D;border-radius:10px;padding:12px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;cursor:pointer;margin-bottom:9px;">+ Add to {{ machineShort }} crib</button>
+        <button onClick="{{ clearStation }}" style="width:100%;border:1px solid rgba(255,255,255,0.14);background:transparent;color:#9398A2;border-radius:10px;padding:9px;font-family:'Archivo',sans-serif;font-weight:600;font-size:12.5px;cursor:pointer;">Clear {{ selSlotLabel }}</button>
+      </section>
+
+      <!-- ───────── VISUAL (tooling / kinematics) ───────── -->
+      <section style="overflow:hidden;min-width:0;padding:16px 18px;background:radial-gradient(900px 480px at 70% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:1.45;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px 6px;">
+            <div style="display:inline-flex;background:#16181D;border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,0.07);">
+              <button onClick="{{ setViewTooling }}" style="{{ viewToolingStyle }}">Tooling layout</button>
+              <button onClick="{{ setViewKin }}" style="{{ viewKinStyle }}">Kinematics &amp; envelope</button>
+            </div>
+            <sc-if value="{{ showKinView }}" hint-placeholder-val="{{ false }}">
+            <div style="display:inline-flex;background:#16181D;border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,0.07);margin-left:8px;">
+              <button onClick="{{ setKin2D }}" style="{{ d2Style }}">2D</button>
+              <button onClick="{{ setKin3D }}" style="{{ d3Style }}">3D</button>
+            </div>
+            </sc-if>
+            <div style="display:flex;align-items:center;gap:8px;padding:5px 11px;border:1px solid {{ statusBorder }};background:{{ statusBg }};border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ statusColor }};"><span style="width:7px;height:7px;border-radius:50%;background:{{ statusColor }};"></span>{{ statusLabel }}</div>
+          </div>
+          <div style="flex:1;min-height:0;position:relative;">
+            <sc-if value="{{ showSvg }}" hint-placeholder-val="{{ true }}">
+            <svg viewBox="0 0 720 392" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <!-- shared context shapes -->
+              <sc-for list="{{ ctxRects }}" as="c" hint-placeholder-count="4">
+                <rect x="{{ c.x }}" y="{{ c.y }}" width="{{ c.w }}" height="{{ c.h }}" rx="{{ c.r }}" fill="{{ c.fill }}" stroke="{{ c.stroke }}" stroke-width="1" stroke-dasharray="{{ c.dash }}"></rect>
+              </sc-for>
+              <sc-for list="{{ ctxLines }}" as="l" hint-placeholder-count="4">
+                <line x1="{{ l.x1 }}" y1="{{ l.y1 }}" x2="{{ l.x2 }}" y2="{{ l.y2 }}" stroke="{{ l.c }}" stroke-width="{{ l.w }}" stroke-dasharray="{{ l.dash }}"></line>
+              </sc-for>
+              <sc-for list="{{ ctxCircles }}" as="c" hint-placeholder-count="3">
+                <circle cx="{{ c.cx }}" cy="{{ c.cy }}" r="{{ c.r }}" fill="{{ c.fill }}" stroke="{{ c.stroke }}" stroke-width="{{ c.sw }}" stroke-dasharray="{{ c.dash }}"></circle>
+              </sc-for>
+              <!-- to-scale tools (tooling view) -->
+              <sc-for list="{{ toolShapes }}" as="t" hint-placeholder-count="12">
+                <rect x="{{ t.hx }}" y="{{ t.hy }}" width="{{ t.hw }}" height="{{ t.hh }}" rx="2" fill="{{ t.holderFill }}" stroke="{{ t.holderStroke }}" stroke-width="1" transform="{{ t.transform }}"></rect>
+                <line x1="{{ t.tx1 }}" y1="{{ t.ty1 }}" x2="{{ t.tx2 }}" y2="{{ t.ty2 }}" stroke="{{ t.toolColor }}" stroke-width="{{ t.toolW }}" stroke-linecap="round" transform="{{ t.transform }}"></line>
+              </sc-for>
+              <!-- station/pocket markers -->
+              <sc-for list="{{ slots }}" as="s" hint-placeholder-count="12">
+                <circle cx="{{ s.cx }}" cy="{{ s.cy }}" r="{{ s.r }}" fill="{{ s.fill }}" stroke="{{ s.stroke }}" stroke-width="{{ s.sw }}" style="cursor:pointer;" onClick="{{ s.on }}"></circle>
+                <text x="{{ s.cx }}" y="{{ s.ty }}" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="{{ s.tc }}" style="pointer-events:none;">{{ s.label }}</text>
+              </sc-for>
+              <sc-for list="{{ svgLabels }}" as="t" hint-placeholder-count="6">
+                <text x="{{ t.x }}" y="{{ t.y }}" text-anchor="{{ t.anchor }}" font-family="JetBrains Mono" font-size="{{ t.size }}" fill="{{ t.fill }}">{{ t.t }}</text>
+              </sc-for>
+            </svg>
+            </sc-if>
+            <sc-if value="{{ show3d }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="machine-3d" from="./Machine3D.js" data-kind="{{ kind3d }}" data-tx="{{ t3x }}" data-ty="{{ t3y }}" data-tz="{{ t3z }}" data-pdia="{{ p3dia }}" data-plen="{{ p3len }}" data-px="{{ p3x }}" data-py="{{ p3y }}" data-pz="{{ p3z }}" data-depth="{{ p3depth }}" data-fixture="{{ p3fix }}" data-toollen="{{ t3tool }}" data-collision="{{ c3 }}" data-maxturn="{{ m3turn }}" data-swing="{{ m3swing }}" data-fixx="{{ f3x }}" data-fixy="{{ f3y }}" data-fixtype="{{ f3type }}" data-origin="{{ o3 }}" hint-size="100%,100%"></x-import>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="flex:none;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:13px 18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;">{{ panelTitle }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ panelSub }}</span>
+          </div>
+          <sc-if value="{{ showAssembly }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:stretch;gap:0;">
+              <sc-for list="{{ assembly }}" as="a" hint-placeholder-count="4">
+                <div style="flex:1;min-width:0;display:flex;align-items:center;">
+                  <div style="flex:1;min-width:0;background:{{ a.bg }};border:1px solid {{ a.border }};border-radius:10px;padding:10px 12px;">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;color:{{ a.tagColor }};margin-bottom:5px;">{{ a.tag }}</div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;color:#F3F4F6;line-height:1.2;">{{ a.name }}</div>
+                    <div style="font-size:10.5px;color:#9398A2;margin-top:3px;line-height:1.25;">{{ a.spec }}</div>
+                  </div>
+                  <span style="flex:none;width:22px;text-align:center;color:#FF7A4D;font-size:14px;">{{ a.arrow }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showIssues }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;">
+              <sc-for list="{{ issues }}" as="i" hint-placeholder-count="4">
+                <div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;">
+                  <span style="flex:none;margin-top:3px;width:9px;height:9px;border-radius:50%;background:{{ i.color }};"></span>
+                  <div style="flex:1;min-width:0;"><div style="font-size:12px;color:#F3F4F6;line-height:1.3;">{{ i.title }}</div><div style="font-size:10.5px;color:#9398A2;line-height:1.3;margin-top:1px;">{{ i.detail }}</div></div>
+                  <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:{{ i.color }};">{{ i.tag }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </section>
+
+      <!-- ───────── CRIB / OFFSETS / WORK ───────── -->
+      <section style="border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;min-width:0;background:#0A0B0D;">
+        <div style="flex:none;display:flex;gap:5px;padding:14px 16px 0;">
+          <button onClick="{{ setTabCrib }}" style="{{ tabCribStyle }}">Tool crib</button>
+          <button onClick="{{ setTabOffsets }}" style="{{ tabOffsetsStyle }}">Tool offsets</button>
+          <button onClick="{{ setTabWork }}" style="{{ tabWorkStyle }}">Work offsets</button>
+        </div>
+        <div class="kz-scroll" style="flex:1;overflow-y:auto;padding:14px 16px 40px;">
+          <sc-if value="{{ showCrib }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="display:grid;grid-template-columns:34px 1fr 52px;gap:8px;padding:0 10px 8px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.08em;color:#6B7280;"><span>STN</span><span>TOOL · HOLDER</span><span style="text-align:right;">LIFE</span></div>
+              <sc-for list="{{ cribRows }}" as="row" hint-placeholder-count="12">
+                <div onClick="{{ row.on }}" style="{{ row.style }}">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:{{ row.stnColor }};">{{ row.stn }}</span>
+                  <div style="min-width:0;"><div style="font-size:12.5px;color:{{ row.nameColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.sub }}</div></div>
+                  <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ row.lifeColor }};">{{ row.life }}</div><div style="height:4px;border-radius:999px;background:#1B1E24;margin-top:3px;overflow:hidden;"><div style="height:100%;width:{{ row.lifeBar }};background:{{ row.lifeColor }};"></div></div></div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showOffsets }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="display:grid;grid-template-columns:30px 1fr 64px 64px 52px;gap:7px;padding:0 8px 8px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.06em;color:#6B7280;"><span>T</span><span>{{ heightFieldShort }}</span><span>{{ lenColLabel }}</span><span>{{ diaColLabel }}</span><span>WEAR</span></div>
+              <sc-for list="{{ offsetRows }}" as="o" hint-placeholder-count="10">
+                <div style="display:grid;grid-template-columns:30px 1fr 64px 64px 52px;gap:7px;align-items:center;padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.05);">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#FF7A4D;">{{ o.T }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ o.tag }}</span>
+                  <input value="{{ o.len }}" onChange="{{ o.setLen }}" style="height:32px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#F3F4F6;font-family:'JetBrains Mono',monospace;font-size:11px;padding:0 7px;width:100%;">
+                  <input value="{{ o.dia }}" onChange="{{ o.setDia }}" style="height:32px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#F3F4F6;font-family:'JetBrains Mono',monospace;font-size:11px;padding:0 7px;width:100%;">
+                  <input value="{{ o.wear }}" onChange="{{ o.setWear }}" style="height:32px;background:#14161B;border:1px solid rgba(255,90,43,0.2);border-radius:7px;color:#FF9A6A;font-family:'JetBrains Mono',monospace;font-size:11px;padding:0 7px;width:100%;">
+                </div>
+              </sc-for>
+              <div style="margin-top:12px;padding:11px 13px;border:1px solid rgba(42,111,219,0.25);background:rgba(42,111,219,0.06);border-radius:10px;font-size:11.5px;color:#9CC;line-height:1.45;">{{ offsetNote }}</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showWork }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:12px 14px;margin-bottom:13px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#9398A2;">MACHINE POSITION · G53</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#36D399;">● HOMED</span></div>
+                <div style="display:grid;grid-template-columns:repeat({{ axisCount }},minmax(0,1fr));gap:9px;">
+                  <sc-for list="{{ machinePos }}" as="m" hint-placeholder-count="3">
+                    <div style="background:#0A0B0D;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ m.axis }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#C7CCD4;margin-top:2px;">{{ m.val }}</div></div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background:linear-gradient(135deg,rgba(255,90,43,0.07),#0E0F12);border:1px solid rgba(255,90,43,0.22);border-radius:11px;padding:12px 14px;margin-bottom:13px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;">LIVE ORIGIN · FROM SETUP</span><button onClick="{{ setG54FromSetup }}" style="border:1px solid rgba(255,90,43,0.3);background:rgba(255,90,43,0.1);color:#FF7A4D;border-radius:6px;padding:3px 9px;font-family:'JetBrains Mono',monospace;font-size:9.5px;cursor:pointer;">↳ set G54</button></div>
+                <div style="display:grid;grid-template-columns:repeat({{ axisCount }},minmax(0,1fr));gap:9px;">
+                  <sc-for list="{{ liveOrigin }}" as="o" hint-placeholder-count="3">
+                    <div style="background:#0A0B0D;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ o.axis }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#C7CCD4;margin-top:2px;">{{ o.val }}</div></div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:46px 1fr 64px;gap:7px;padding:0 8px 6px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.06em;color:#6B7280;"><span>WCS</span><span>{{ wcsColsLabel }}</span><span>SOURCE</span></div>
+              <sc-for list="{{ workRows }}" as="w" hint-placeholder-count="6">
+                <div style="padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.05);">
+                  <div style="display:grid;grid-template-columns:46px 1fr 64px;gap:7px;align-items:center;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:{{ w.codeColor }};">{{ w.code }}</span>
+                    <div style="display:grid;grid-template-columns:repeat({{ axisCount }},minmax(0,1fr));gap:5px;">
+                      <input value="{{ w.x }}" onChange="{{ w.setX }}" style="height:31px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#F3F4F6;font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:0 6px;width:100%;">
+                      <sc-if value="{{ w.hasY }}" hint-placeholder-val="{{ true }}"><input value="{{ w.y }}" onChange="{{ w.setY }}" style="height:31px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#F3F4F6;font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:0 6px;width:100%;"></sc-if>
+                      <input value="{{ w.z }}" onChange="{{ w.setZ }}" style="height:31px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#F3F4F6;font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:0 6px;width:100%;">
+                    </div>
+                    <select value="{{ w.src }}" onChange="{{ w.setSrc }}" style="height:31px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#9398A2;font-size:10.5px;padding:0 18px 0 7px;width:100%;"><option value="probe">Probe</option><option value="manual">Manual</option><option value="g53">From G53</option></select>
+                  </div>
+                  <div style="display:flex;justify-content:flex-end;margin-top:5px;"><button onClick="{{ w.capture }}" style="border:1px solid rgba(255,90,43,0.3);background:rgba(255,90,43,0.08);color:#FF7A4D;border-radius:6px;padding:3px 9px;font-family:'JetBrains Mono',monospace;font-size:9.5px;cursor:pointer;">⊕ capture machine pos</button></div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  MACH = {
+    vm30i:  { short: 'VM30i', label: 'Hurco VM30i', kind: 'magazine', conn: 'cat40', atc: 24, travels: { x: 30, y: 20, z: 20 }, zClear: 24, axes: ['X', 'Y', 'Z'] },
+    m460v:  { short: 'M460V', label: 'Okuma M460V-5AX', kind: 'magazine', conn: 'cat40', atc: 32, travels: { x: 30, y: 18, z: 18 }, zClear: 22, axes: ['X', 'Y', 'Z'] },
+    vf2:    { short: 'VF-2', label: 'Haas VF-2', kind: 'magazine', conn: 'cat40', atc: 21, travels: { x: 30, y: 16, z: 20 }, zClear: 22, axes: ['X', 'Y', 'Z'] },
+    om2:    { short: 'OM-2', label: 'Haas OM-2', kind: 'magazine', conn: 'cat40', atc: 10, travels: { x: 20, y: 16, z: 14 }, zClear: 16, axes: ['X', 'Y', 'Z'] },
+    roku:   { short: 'Roku-R', label: 'Roku-Roku HC658-II', kind: 'magazine', conn: 'hsk_a63', atc: 20, travels: { x: 25, y: 20, z: 16 }, zClear: 18, axes: ['X', 'Y', 'Z'] },
+    l300m:  { short: 'L300-M', label: 'Okuma GENOS L300-M', kind: 'turret', turret: 'bmt45', live: true, swing: 21, maxTurn: 13, barCap: 3.1, travels: { x: 9, z: 22 }, axes: ['X', 'Z'] },
+    l200em: { short: 'L200E-M', label: 'Okuma GENOS L200E-M', kind: 'turret', turret: 'bmt45', live: true, swing: 18.9, maxTurn: 13, barCap: 2.5, travels: { x: 8, z: 20 }, axes: ['X', 'Z'] },
+    lnc8:   { short: 'LNC8', label: 'Okuma LNC8', kind: 'turret', turret: 'vdi30', swing: 14, maxTurn: 8, barCap: 2.0, travels: { x: 6, z: 14 }, axes: ['X', 'Z'] },
+    crown:  { short: 'Crown', label: 'Okuma Crown L1060', kind: 'turret', turret: 'vdi40', swing: 25, maxTurn: 12, barCap: 3.0, travels: { x: 9, z: 24 }, axes: ['X', 'Z'] },
+    l400ii: { short: 'L400II', label: 'Okuma GENOS L400II-E', kind: 'turret', turret: 'bmt55', swing: 27, maxTurn: 14, barCap: 3.1, travels: { x: 10, z: 24 }, axes: ['X', 'Z'] },
+    lb3000: { short: 'LB3000', label: 'Okuma LB3000EX BB', kind: 'turret', turret: 'bmt55', swing: 25.6, maxTurn: 12.6, barCap: 4.1, travels: { x: 9, z: 22 }, axes: ['X', 'Z'] },
+    multus: { short: 'Multus', label: 'Okuma Multus B250II', kind: 'turret', turret: 'capto_c6', live: true, swing: 20, maxTurn: 13, barCap: 2.6, travels: { x: 9, z: 30 }, axes: ['X', 'Z'] },
+  };
+  TURRET_TYPES = { vdi20: { label: 'VDI20', stations: 8, block: 0.72 }, vdi30: { label: 'VDI30', stations: 12, block: 0.9 }, vdi40: { label: 'VDI40', stations: 12, block: 1.1 }, vdi50: { label: 'VDI50', stations: 16, block: 1.3 }, bmt45: { label: 'BMT45', stations: 12, block: 0.95 }, bmt55: { label: 'BMT55', stations: 12, block: 1.12 }, bmt65: { label: 'BMT65', stations: 12, block: 1.3 }, capto_c6: { label: 'Capto C6', stations: 12, block: 1.05 } };
+  CONN_TYPES = { cat40: { label: 'CAT40', gauge: 3.5, block: 1.0 }, cat50: { label: 'CAT50', gauge: 4.5, block: 1.4 }, bt30: { label: 'BT30', gauge: 2.8, block: 0.8 }, bt40: { label: 'BT40', gauge: 3.5, block: 1.0 }, hsk_a63: { label: 'HSK-A63', gauge: 3.2, block: 0.95 }, hsk_a100: { label: 'HSK-A100', gauge: 4.0, block: 1.3 } };
+  GANG_TYPE = { gang: { label: 'Gang plate', stations: 6, block: 0.6 } };
+  HOLDERS = {
+    magazine: [{ id: 'shrink', label: 'HAIMER shrink-fit' }, { id: 'hyd', label: 'Schunk hydraulic' }, { id: 'er', label: 'ER collet chuck' }, { id: 'shell', label: 'Shell-mill arbor' }, { id: 'drillchuck', label: 'Drill chuck' }],
+    turret: [{ id: 'od', label: 'OD turning block' }, { id: 'bore', label: 'Boring-bar holder' }, { id: 'thread', label: 'Threading laydown' }, { id: 'groove', label: 'Grooving block' }, { id: 'drill', label: 'Drill sleeve' }, { id: 'live', label: 'Live-tool ER (driven)' }],
+    gang: [{ id: 'od', label: 'Gang OD block' }, { id: 'face', label: 'Gang facing block' }, { id: 'drill', label: 'Gang ID sleeve' }, { id: 'live', label: 'Gang live-tool ER' }],
+  };
+  TOOLING = {
+    magazine: [{ id: 'em4', label: '4FL square endmill', proj: 3.0, w: 2 }, { id: 'ball', label: '2FL ball endmill', proj: 3.0, w: 2 }, { id: 'face', label: 'Face mill', proj: 2.0, w: 3 }, { id: 'spot', label: 'Spot drill', proj: 3.0, w: 1 }, { id: 'drill', label: 'Carbide drill', proj: 3.6, w: 1 }, { id: 'reamer', label: 'Reamer', proj: 4.2, w: 1 }, { id: 'chamfer', label: 'Chamfer mill', proj: 3.0, w: 1 }, { id: 'tap', label: 'Tap', proj: 3.2, w: 2 }],
+    turret: [{ id: 'od_turn', label: 'OD turning', proj: 1.2, w: 2 }, { id: 'profile', label: 'Profiling', proj: 1.1, w: 2 }, { id: 'bore', label: 'Boring bar', proj: 2.8, w: 1 }, { id: 'thread', label: 'Threading', proj: 1.0, w: 2 }, { id: 'groove', label: 'Grooving / parting', proj: 0.9, w: 1 }, { id: 'drill', label: 'Drilling', proj: 3.0, w: 1 }, { id: 'live_em', label: 'Live endmill', proj: 2.8, w: 2 }],
+    gang: [{ id: 'od_turn', label: 'OD turning', proj: 1.0, w: 2 }, { id: 'face', label: 'Facing', proj: 0.9, w: 2 }, { id: 'bore', label: 'ID boring', proj: 1.8, w: 1 }, { id: 'drill', label: 'Drilling', proj: 1.9, w: 1 }, { id: 'thread', label: 'Threading', proj: 0.9, w: 2 }],
+  };
+  INSERTS = {
+    magazine: [{ id: 'tialn', label: 'Carbide · TiAlN' }, { id: 'alcrn', label: 'Carbide · AlCrN' }, { id: 'bare', label: 'Carbide · uncoated' }, { id: 'pcd', label: 'PCD (alu)' }],
+    turret: [{ id: 'cnmg432', label: 'CNMG 432 · TiAlN' }, { id: 'dnmg431', label: 'DNMG 431 · TiAlN' }, { id: 'ccmt', label: 'CCMT 32.51' }, { id: 'thread16er', label: '16ER 1.0 ISO' }, { id: 'mgmn300', label: 'MGMN 300' }, { id: 'wnmg', label: 'WNMG 432' }],
+    gang: [{ id: 'cnmg431', label: 'CNMG 431 · TiAlN' }, { id: 'dcmt', label: 'DCMT 21.51' }, { id: 'thread11er', label: '11ER A60' }],
+  };
+
+  typeTableFor(id) { const m = this.MACH[id]; return m.kind === 'turret' ? this.TURRET_TYPES : (m.kind === 'gang' ? this.GANG_TYPE : this.CONN_TYPES); }
+  defaultTypeId(id) { const m = this.MACH[id]; return m.kind === 'turret' ? m.turret : (m.kind === 'gang' ? 'gang' : m.conn); }
+  defaultCount(id, typeId) { const m = this.MACH[id]; if (m.kind === 'magazine') return m.atc; const tt = this.typeTableFor(id)[typeId]; return tt ? tt.stations : (m.kind === 'gang' ? 6 : 12); }
+
+  blankRow(stn) { return { stn, T: 0, name: '', holder: '', tooling: '', insert: '', proj: 1.0, w: 2, H: 0, len: '', dia: '', wear: '0.0000', lifePct: 0, loaded: false }; }
+  seedCrib(id, count) {
+    const m = this.MACH[id], rows = Array.from({ length: count }, (_, i) => this.blankRow(i + 1));
+    const set = (i, d) => { if (i < rows.length) rows[i] = { ...rows[i], ...d, loaded: true }; };
+    if (m.kind === 'magazine') {
+      set(0, { T: 1, name: '½" 4FL carbide TiAlN EM', holder: 'HAIMER shrink', tooling: '4FL endmill', insert: 'TiAlN', proj: 4.25, w: 2, H: 1, len: '4.2500', dia: '0.5000', wear: '0.0000', lifePct: 0.82 });
+      set(1, { T: 2, name: '⅜" 4FL finish EM', holder: 'Schunk hydraulic', tooling: '4FL endmill', insert: 'TiAlN', proj: 3.88, w: 2, H: 2, len: '3.8750', dia: '0.3750', wear: '0.0002', lifePct: 0.64 });
+      set(2, { T: 3, name: '#4 spot drill', holder: 'ER collet', tooling: 'Spot drill', insert: 'TiAlN', proj: 3.12, w: 1, H: 3, len: '3.1200', dia: '0.5000', wear: '0.0000', lifePct: 0.91 });
+      set(3, { T: 4, name: '.250 carbide drill', holder: 'ER collet', tooling: 'Carbide drill', insert: 'bare', proj: 4.01, w: 1, H: 4, len: '4.0100', dia: '0.2500', wear: '0.0000', lifePct: 0.55 });
+      set(4, { T: 5, name: '2" face mill', holder: 'Shell arbor', tooling: 'Face mill', insert: 'AlCrN', proj: 2.6, w: 3, H: 5, len: '2.6000', dia: '2.0000', wear: '0.0001', lifePct: 0.73 });
+      set(5, { T: 6, name: '¼" ball EM', holder: 'HAIMER shrink', tooling: '2FL ball', insert: 'TiAlN', proj: 3.44, w: 2, H: 6, len: '3.4400', dia: '0.2500', wear: '0.0000', lifePct: 0.88 });
+      set(6, { T: 7, name: '90° chamfer mill', holder: 'ER collet', tooling: 'Chamfer mill', insert: 'TiAlN', proj: 3.05, w: 1, H: 7, len: '3.0500', dia: '0.5000', wear: '0.0000', lifePct: 0.79 });
+      set(7, { T: 8, name: '.500 reamer', holder: 'Schunk hydraulic', tooling: 'Reamer', insert: 'bare', proj: 4.62, w: 1, H: 8, len: '4.6200', dia: '0.5000', wear: '0.0000', lifePct: 0.42 });
+    } else if (m.kind === 'turret') {
+      set(0, { T: 1, name: 'OD rough turning', holder: 'OD turning block', tooling: 'OD turning', insert: 'CNMG 432', proj: 1.2, w: 2, H: 1, len: '1.2000', dia: '0.0312', wear: '0.0010', lifePct: 0.58 });
+      set(1, { T: 2, name: 'OD finish', holder: 'OD turning block', tooling: 'Profiling', insert: 'DNMG 431', proj: 1.1, w: 2, H: 2, len: '1.1000', dia: '0.0156', wear: '0.0004', lifePct: 0.71 });
+      set(2, { T: 3, name: 'Boring bar ⌀.500', holder: 'Boring holder', tooling: 'Boring bar', insert: 'CCMT 32.51', proj: 2.8, w: 1, H: 3, len: '2.8000', dia: '0.0156', wear: '0.0002', lifePct: 0.80 });
+      set(3, { T: 4, name: 'Threading ½-20', holder: 'Threading laydown', tooling: 'Threading', insert: '16ER 1.0', proj: 1.0, w: 2, H: 4, len: '1.0000', dia: '0.0000', wear: '0.0000', lifePct: 0.66 });
+      set(4, { T: 5, name: 'Grooving / parting', holder: 'Grooving block', tooling: 'Grooving', insert: 'MGMN 300', proj: 0.9, w: 1, H: 5, len: '0.9000', dia: '0.0000', wear: '0.0006', lifePct: 0.49 });
+      set(5, { T: 6, name: 'Center drill ⌀.375', holder: 'Drill sleeve', tooling: 'Drilling', insert: 'bare', proj: 3.0, w: 1, H: 6, len: '3.2000', dia: '0.0000', wear: '0.0000', lifePct: 0.84 });
+      if (m.live && count > 7) set(7, { T: 8, name: 'Live ¼" cross-mill', holder: 'Live-tool ER', tooling: 'Live endmill', insert: 'TiAlN', proj: 2.8, w: 2, H: 8, len: '2.8800', dia: '0.2500', wear: '0.0000', lifePct: 0.93 });
+    } else {
+      set(0, { T: 1, name: 'OD rough turning', holder: 'Gang OD block', tooling: 'OD turning', insert: 'CNMG 431', proj: 1.0, w: 2, H: 1, len: '1.0000', dia: '0.0312', wear: '0.0008', lifePct: 0.62 });
+      set(1, { T: 2, name: 'OD finish', holder: 'Gang OD block', tooling: 'Facing', insert: 'DCMT 21.51', proj: 0.9, w: 2, H: 2, len: '0.9000', dia: '0.0156', wear: '0.0003', lifePct: 0.74 });
+      set(2, { T: 3, name: 'ID drill ⌀.125', holder: 'Gang ID sleeve', tooling: 'Drilling', insert: 'bare', proj: 1.9, w: 1, H: 3, len: '1.9000', dia: '0.0000', wear: '0.0000', lifePct: 0.88 });
+      set(3, { T: 4, name: 'Thread M6×1', holder: 'Gang OD block', tooling: 'Threading', insert: '11ER A60', proj: 0.9, w: 2, H: 4, len: '0.9000', dia: '0.0000', wear: '0.0000', lifePct: 0.70 });
+    }
+    return rows;
+  }
+  defaultWork(id) {
+    const m = this.MACH[id], lathe = m.kind !== 'magazine';
+    if (lathe) return [{ code: 'G54', x: '-8.4120', y: '', z: '-12.6050', src: 'probe' }, { code: 'G55', x: '-8.4120', y: '', z: '-9.1180', src: 'probe' }, { code: 'G56', x: '0.0000', y: '', z: '0.0000', src: 'manual' }, { code: 'G57', x: '0.0000', y: '', z: '0.0000', src: 'manual' }, { code: 'G58', x: '0.0000', y: '', z: '0.0000', src: 'manual' }, { code: 'G59', x: '0.0000', y: '', z: '0.0000', src: 'manual' }];
+    return [{ code: 'G54', x: '-12.4051', y: '-8.2210', z: '-14.0330', src: 'probe' }, { code: 'G55', x: '-6.1200', y: '-8.2210', z: '-14.0330', src: 'probe' }, { code: 'G56', x: '0.0000', y: '0.0000', z: '0.0000', src: 'manual' }, { code: 'G57', x: '0.0000', y: '0.0000', z: '0.0000', src: 'manual' }, { code: 'G58', x: '0.0000', y: '0.0000', z: '0.0000', src: 'manual' }, { code: 'G59', x: '0.0000', y: '0.0000', z: '0.0000', src: 'manual' }];
+  }
+  defaultWP(id) { const m = this.MACH[id]; return m.kind === 'magazine' ? { dia: 0, px: 6, py: 4, pz: 2.5, depth: 1.2, fixture: 1.5, fixType: 'vise', fixX: 0, fixY: 0, origin: 'corner', snap: true } : { dia: m.maxTurn ? Math.min(m.maxTurn * 0.6, 6) : 1.0, px: 0, py: 0, pz: m.kind === 'gang' ? 3 : 8, depth: 0, fixture: 0, fixType: 'chuck', fixX: 0, fixY: 0, origin: 'face', snap: true }; }
+
+  state = (() => {
+    const machineId = 'vm30i';
+    return { machineId, unit: 'in', selStation: 1, tab: 'crib', view: 'tooling', kin3d: false,
+      builder: { holderId: 'shrink', toolingId: 'em4', insertId: 'tialn', toolNo: 9, heightNo: 9, gauge: '3.5000', offDia: '0.5000' },
+      setup: {}, cribs: {}, works: {}, wps: {},
+      scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  })();
+  componentDidMount() { try { const K = (typeof window !== 'undefined') && window.KIENZLE; if (K && K.MACHINES) this._synced = true; } catch (e) {} this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); this.ensure(this.state.machineId); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  ensure(id) {
+    const s = this.state; const setup = { ...s.setup }, cribs = { ...s.cribs }, works = { ...s.works }, wps = { ...s.wps };
+    if (!setup[id]) { const t = this.defaultTypeId(id); setup[id] = { typeId: t, count: this.defaultCount(id, t) }; }
+    if (!cribs[id]) cribs[id] = this.seedCrib(id, setup[id].count);
+    if (!works[id]) works[id] = this.defaultWork(id);
+    if (!wps[id]) wps[id] = this.defaultWP(id);
+    this.setState({ setup, cribs, works, wps });
+  }
+  curSetup() { return this.state.setup[this.state.machineId] || { typeId: this.defaultTypeId(this.state.machineId), count: this.defaultCount(this.state.machineId, this.defaultTypeId(this.state.machineId)) }; }
+  crib() { return this.state.cribs[this.state.machineId] || this.seedCrib(this.state.machineId, this.curSetup().count); }
+  work() { return this.state.works[this.state.machineId] || this.defaultWork(this.state.machineId); }
+  wp() { return this.state.wps[this.state.machineId] || this.defaultWP(this.state.machineId); }
+  num(v, d) { const n = parseFloat(v); return Number.isFinite(n) ? n : d; }
+
+  resize(count) {
+    const s = this.state, id = s.machineId; count = Math.max(1, Math.min(64, Math.round(count)));
+    const setup = { ...s.setup }; setup[id] = { ...this.curSetup(), count };
+    const cur = this.crib(); const rows = [];
+    for (let i = 0; i < count; i++) rows[i] = cur[i] ? { ...cur[i], stn: i + 1 } : this.blankRow(i + 1);
+    const cribs = { ...s.cribs }; cribs[id] = rows;
+    const sel = Math.min(s.selStation, count);
+    this.setState({ setup, cribs, selStation: sel });
+  }
+  setType(typeId) {
+    const s = this.state, id = s.machineId; const setup = { ...s.setup };
+    const tt = this.typeTableFor(id)[typeId];
+    setup[id] = { typeId, count: this.MACH[id].kind === 'magazine' ? this.curSetup().count : (tt ? tt.stations : this.curSetup().count) };
+    this.setState({ setup }, () => this.resize(setup[id].count));
+  }
+  selectStation(stn) {
+    const row = this.crib().find(r => r.stn === stn); const b = { ...this.state.builder };
+    if (row && row.loaded) { b.toolNo = row.T; b.heightNo = row.H; b.gauge = row.len || b.gauge; b.offDia = row.dia || b.offDia; } else { b.toolNo = stn; b.heightNo = stn; }
+    this.setState({ selStation: stn, builder: b });
+  }
+  addToCrib() {
+    const s = this.state, m = this.MACH[s.machineId], b = s.builder;
+    const hold = this.HOLDERS[m.kind].find(h => h.id === b.holderId);
+    const tool = this.TOOLING[m.kind].find(t => t.id === b.toolingId);
+    const ins = this.INSERTS[m.kind].find(i => i.id === b.insertId);
+    const proj = m.kind === 'magazine' ? this.num(b.gauge, tool ? tool.proj : 3) : (tool ? tool.proj : 1);
+    const cribs = { ...s.cribs }; const rows = [...this.crib()]; const idx = rows.findIndex(r => r.stn === s.selStation);
+    if (idx >= 0) rows[idx] = { stn: s.selStation, T: Math.round(this.num(b.toolNo, s.selStation)), name: `${tool ? tool.label : 'Tool'} · ${ins ? ins.label : ''}`, holder: hold ? hold.label : '', tooling: tool ? tool.label : '', insert: ins ? ins.label : '', proj, w: tool ? tool.w : 2, H: Math.round(this.num(b.heightNo, s.selStation)), len: this.num(b.gauge, 0).toFixed(4), dia: this.num(b.offDia, 0).toFixed(4), wear: '0.0000', lifePct: 1, loaded: true };
+    cribs[s.machineId] = rows; this.setState({ cribs });
+  }
+  clearStation() { const s = this.state, cribs = { ...s.cribs }; const rows = [...this.crib()]; const idx = rows.findIndex(r => r.stn === s.selStation); if (idx >= 0) rows[idx] = this.blankRow(s.selStation); cribs[s.machineId] = rows; this.setState({ cribs }); }
+  editOffset(stn, f, v) { const s = this.state, cribs = { ...s.cribs }; const rows = [...this.crib()]; const i = rows.findIndex(r => r.stn === stn); if (i >= 0) rows[i] = { ...rows[i], [f]: v }; cribs[s.machineId] = rows; this.setState({ cribs }); }
+  editWork(i, f, v) { const s = this.state, works = { ...s.works }; const rows = [...this.work()]; rows[i] = { ...rows[i], [f]: v }; works[s.machineId] = rows; this.setState({ works }); }
+  captureWork(i) { const s = this.state, m = this.MACH[s.machineId], works = { ...s.works }; const rows = [...this.work()]; const pos = m.kind === 'magazine' ? { x: '-12.4051', y: '-8.2210', z: '-14.0330' } : { x: '-8.4120', y: '', z: '-12.6050' }; rows[i] = { ...rows[i], ...pos, src: 'g53' }; works[s.machineId] = rows; this.setState({ works }); }
+  editWP(f, v) { const s = this.state, wps = { ...s.wps }; wps[s.machineId] = { ...this.wp(), [f]: this.num(v, 0) }; this.setState({ wps }); }
+  setWPstr(f, v) { const s = this.state, wps = { ...s.wps }; wps[s.machineId] = { ...this.wp(), [f]: v }; this.setState({ wps }); }
+  snapWP(f, v) { const s = this.state; let n = this.num(v, 0); if (this.wp().snap) n = Math.round(n / 2) * 2; const wps = { ...s.wps }; wps[s.machineId] = { ...this.wp(), [f]: n }; this.setState({ wps }); }
+  toggleSnap() { const s = this.state, wps = { ...s.wps }; wps[s.machineId] = { ...this.wp(), snap: !this.wp().snap }; this.setState({ wps }); }
+  setG54FromSetup() { const s = this.state, m = this.MACH[s.machineId], wp = this.wp(), works = { ...s.works }; const rows = [...this.work()]; rows[0] = { code: 'G54', x: (-(12.4051 + (wp.fixX || 0))).toFixed(4), y: m.kind === 'magazine' ? (-(8.2210 + (wp.fixY || 0))).toFixed(4) : '', z: (-(14.0330 + (wp.fixture || 0) + (wp.pz || 0))).toFixed(4), src: 'probe' }; works[s.machineId] = rows; this.setState({ works }); }
+
+  renderVals() {
+    const s = this.state, m = this.MACH[s.machineId], b = s.builder, imp = s.unit === 'in';
+    const kind = m.kind, lathe = kind !== 'magazine', setup = this.curSetup();
+    const crib = this.crib(), work = this.work(), wp = this.wp();
+    const typeTbl = this.typeTableFor(s.machineId), typeDef = typeTbl[setup.typeId] || Object.values(typeTbl)[0];
+    const blockScale = typeDef ? typeDef.block : 1.0;
+    const iface = kind === 'magazine' ? (this.CONN_TYPES[setup.typeId] || this.CONN_TYPES.cat40).label : (kind === 'gang' ? 'gang' : (typeDef ? typeDef.label : 'VDI30'));
+    const sel = crib.find(r => r.stn === s.selStation) || crib[0];
+    const loadedCount = crib.filter(r => r.loaded).length;
+    const loaded = crib.filter(r => r.loaded);
+
+    // ── COLLISION (tooling) ──
+    const pitch = 360 / crib.length;
+    const collFlags = {}; let swingWorst = 0, adjWorst = false;
+    if (lathe && kind === 'turret') {
+      const maxProj = Math.max(0.01, ...loaded.map(r => r.proj));
+      const partR = (wp.dia || m.maxTurn * 0.5) / 2;
+      const turretGap = Math.max(0.5, (m.swing / 2) - partR - 1.2); // radial room from turret face to part
+      loaded.forEach(r => { if (r.proj > turretGap) { collFlags[r.stn] = 'swing'; swingWorst = Math.max(swingWorst, r.proj - turretGap); } });
+      // adjacency: wide blocks on neighboring stations
+      loaded.forEach(r => { const nb = loaded.find(o => o.loaded && Math.abs(o.stn - r.stn) === 1); if (nb && (r.w * blockScale + nb.w * blockScale) > (pitch / 9)) { /* coarse */ } });
+    } else if (kind === 'magazine') {
+      // long tool needs an empty neighbor in the carousel
+      crib.forEach((r, i) => { if (r.loaded && r.proj > 4.0) { const prev = crib[(i - 1 + crib.length) % crib.length], next = crib[(i + 1) % crib.length]; if (prev.loaded || next.loaded) { collFlags[r.stn] = 'mag'; adjWorst = true; } } });
+    }
+
+    // ── ENVELOPE issues ──
+    const issues = []; let worst = 0; // 0 clear,1 watch,2 collision
+    const push = (sev, title, detail, tag) => { issues.push({ color: sev === 2 ? '#FF5247' : sev === 1 ? '#F4B740' : '#36D399', title, detail, tag }); worst = Math.max(worst, sev); };
+    if (lathe) {
+      const partR = (wp.dia || 1) / 2;
+      if (wp.dia > m.maxTurn) push(2, 'Part exceeds max turning Ø', `${wp.dia}" part vs ${m.maxTurn}" max turn`, 'OVER');
+      else if (wp.dia > m.maxTurn * 0.85) push(1, 'Part Ø near swing limit', `${wp.dia}" vs ${m.maxTurn}" max`, 'WATCH');
+      else push(0, 'Part within swing', `${wp.dia}" ≤ ${m.maxTurn}" max turn`, 'OK');
+      if (wp.pz > m.travels.z) push(2, 'Part length exceeds Z travel', `${wp.pz}" vs ${m.travels.z}" Z`, 'OVER');
+      else push(0, 'Length within Z travel', `${wp.pz}" ≤ ${m.travels.z}"`, 'OK');
+      if (kind === 'gang' && wp.dia > m.barCap) push(2, 'Bar exceeds collet capacity', `${wp.dia}" vs ${m.barCap}" bar cap`, 'OVER');
+      if (swingWorst > 0) push(2, 'Turret swing collision', `longest tool ${swingWorst.toFixed(2)}" past clearance`, 'CRASH');
+      else if (kind === 'turret') push(0, 'Turret clears part on index', `tools inside swing envelope`, 'OK');
+      const selProj = sel && sel.loaded ? sel.proj : 0;
+      if (sel && sel.loaded && selProj < partR + 0.2) push(1, `${sel.name.split(' · ')[0]} reach tight`, `proj ${selProj}" vs ${(partR).toFixed(2)}" to centerline`, 'REACH');
+    } else {
+      if (wp.px > m.travels.x || wp.py > m.travels.y) push(2, 'Part footprint exceeds X/Y travel', `${wp.px}×${wp.py}" vs ${m.travels.x}×${m.travels.y}"`, 'OVER');
+      else push(0, 'Footprint within X/Y travel', `${wp.px}×${wp.py}" ≤ ${m.travels.x}×${m.travels.y}"`, 'OK');
+      const stack = wp.pz + wp.fixture; const longest = Math.max(0.01, ...loaded.map(r => r.proj));
+      if (stack + longest > m.zClear) push(2, 'Tool + part exceeds Z clearance', `${(stack + longest).toFixed(1)}" stack+tool vs ${m.zClear}" gap`, 'CRASH');
+      else if (stack + longest > m.zClear * 0.9) push(1, 'Z clearance tight', `${(stack + longest).toFixed(1)}" vs ${m.zClear}"`, 'WATCH');
+      else push(0, 'Z clearance OK', `${(stack + longest).toFixed(1)}" ≤ ${m.zClear}"`, 'OK');
+      const selProj = sel && sel.loaded ? sel.proj : 0;
+      if (sel && sel.loaded && selProj < wp.depth + wp.fixture + 0.3) push(1, `${sel.name.split(' · ')[0]} too short for depth`, `reach ${selProj}" vs ${(wp.depth + wp.fixture).toFixed(1)}" needed`, 'REACH');
+      else if (sel && sel.loaded) push(0, 'Selected tool reaches feature', `${selProj}" reach ≥ ${(wp.depth).toFixed(1)}" deep`, 'OK');
+      if (adjWorst) push(1, 'Long tool needs empty ATC neighbor', `≥4" tool with loaded adjacent pocket`, 'MAG');
+    }
+    const statusLabel = worst === 2 ? 'TRIAGE: STOP' : worst === 1 ? 'TRIAGE: CHECK' : 'TRIAGE: PLAUSIBLE';
+    const statusColor = worst === 2 ? '#FF5247' : worst === 1 ? '#F4B740' : '#36D399';
+    const statusBg = worst === 2 ? 'rgba(255,82,71,0.08)' : worst === 1 ? 'rgba(244,183,64,0.07)' : 'rgba(54,211,153,0.06)';
+    const statusBorder = worst === 2 ? 'rgba(255,82,71,0.35)' : worst === 1 ? 'rgba(244,183,64,0.3)' : 'rgba(54,211,153,0.25)';
+
+    // ── VISUAL geometry ──
+    const slots = [], toolShapes = [], ctxRects = [], ctxLines = [], ctxCircles = [], svgLabels = [];
+    const slotFill = (r) => r.stn === s.selStation ? '#FF5A2B' : collFlags[r.stn] ? '#FF5247' : (r.loaded ? 'rgba(42,111,219,0.22)' : '#16181D');
+    const slotStroke = (r) => r.stn === s.selStation ? '#FF8A5A' : collFlags[r.stn] ? '#FF5247' : (r.loaded ? 'rgba(42,111,219,0.6)' : '#2B2F36');
+    const slotTc = (r) => r.stn === s.selStation ? '#0A0B0D' : (r.loaded ? '#7FB2FF' : '#6B7280');
+
+    if (s.view === 'tooling') {
+      if (kind === 'gang') {
+        ctxRects.push({ x: 40, y: 168, w: 64, h: 70, r: 6, fill: '#15171C', stroke: '#2B2F36', dash: '0' }, { x: 104, y: 192, w: 150, h: 22, r: 4, fill: '#23262E', stroke: '#3A3D44', dash: '0' });
+        svgLabels.push({ x: 72, y: 256, anchor: 'middle', size: 10, fill: '#6B7280', t: 'GUIDE BUSH' }, { x: 180, y: 256, anchor: 'middle', size: 10, fill: '#6B7280', t: 'BAR ⌀' + wp.dia + '"' });
+        const plateX = 470, gapY = 40, n = crib.length;
+        ctxRects.push({ x: plateX - 16, y: 70, w: 20, h: gapY * n + 14, r: 6, fill: '#101216', stroke: 'rgba(255,255,255,0.1)', dash: '0' });
+        svgLabels.push({ x: plateX - 6, y: 60, anchor: 'middle', size: 10, fill: '#6B7280', t: 'GANG' });
+        crib.forEach((r, i) => { const cy = 90 + i * gapY; slots.push({ cx: plateX + 28, cy, r: 14, fill: slotFill(r), stroke: slotStroke(r), sw: r.stn === s.selStation ? 2 : 1, ty: cy + 4, tc: slotTc(r), label: r.stn, on: () => this.selectStation(r.stn) });
+          if (r.loaded) { const tl = Math.min(120, r.proj * 32); toolShapes.push({ hx: plateX + 4, hy: cy - 7, hw: 16, hh: 14, holderFill: collFlags[r.stn] ? 'rgba(255,82,71,0.3)' : '#2B2F36', holderStroke: collFlags[r.stn] ? '#FF5247' : '#3A3D44', transform: '', tx1: plateX + 4, ty1: cy, tx2: plateX + 4 - tl, ty2: cy, toolColor: r.stn === s.selStation ? '#FF7A4D' : '#7FB2FF', toolW: 2.5 }); } });
+      } else {
+        const n = crib.length, cx = 430, cy = 196, R = n > 16 ? 132 : 116, sr = n > 20 ? 11 : (n > 16 ? 13 : 16);
+        ctxCircles.push({ cx, cy, r: R - sr - 8, fill: '#101216', stroke: 'rgba(255,255,255,0.1)', sw: 1.5, dash: '0' }, { cx, cy, r: R - sr - 24, fill: 'none', stroke: 'rgba(255,255,255,0.06)', sw: 1, dash: '0' });
+        svgLabels.push({ x: cx, y: cy - 4, anchor: 'middle', size: 11, fill: '#9398A2', t: lathe ? 'TURRET' : 'ATC' }, { x: cx, y: cy + 12, anchor: 'middle', size: 9, fill: '#6B7280', t: iface + ' · ' + n });
+        if (lathe) { const partR = Math.max(14, (wp.dia / m.maxTurn) * 80); ctxRects.push({ x: 60, y: 156, w: 54, h: 78, r: 6, fill: '#15171C', stroke: '#2B2F36', dash: '0' }); ctxCircles.push({ cx: 150, cy: 195, r: partR, fill: '#1B1E24', stroke: '#3A3D44', sw: 1.5, dash: '0' }); svgLabels.push({ x: 87, y: 250, anchor: 'middle', size: 10, fill: '#6B7280', t: 'CHUCK' }, { x: 150, y: 250, anchor: 'middle', size: 10, fill: '#6B7280', t: 'PART ⌀' + wp.dia + '"' }); ctxCircles.push({ cx, cy, r: R + Math.min(60, Math.max(...loaded.map(r => r.proj), 0.5) * 26), fill: 'none', stroke: swingWorst > 0 ? '#FF5247' : 'rgba(54,211,153,0.4)', sw: 1.2, dash: '5 4' }); }
+        else { ctxRects.push({ x: 120, y: 70, w: 44, h: 24, r: 3, fill: '#23262E', stroke: '#3A3D44', dash: '0' }, { x: 132, y: 94, w: 20, h: 34, r: 2, fill: '#1B1E24', stroke: '#3A3D44', dash: '0' }); svgLabels.push({ x: 142, y: 60, anchor: 'middle', size: 10, fill: '#6B7280', t: 'SPINDLE' }, { x: 142, y: 144, anchor: 'middle', size: 9, fill: '#6B7280', t: iface }); }
+        crib.forEach((r, i) => { const ang = (i / n) * Math.PI * 2 - Math.PI / 2; const px = cx + R * Math.cos(ang), py = cy + R * Math.sin(ang);
+          slots.push({ cx: px.toFixed(1), cy: py.toFixed(1), r: sr, fill: slotFill(r), stroke: slotStroke(r), sw: r.stn === s.selStation ? 2.5 : 1, ty: (py + 4).toFixed(1), tc: slotTc(r), label: r.stn, on: () => this.selectStation(r.stn) });
+          if (r.loaded) { const dir = lathe ? 1 : -1; const tl = Math.min(58, r.proj * 22); const ex = px + dir * Math.cos(ang) * tl, ey = py + dir * Math.sin(ang) * tl;
+            toolShapes.push({ hx: (px - 7).toFixed(1), hy: (py - 7).toFixed(1), hw: 14, hh: 14, holderFill: collFlags[r.stn] ? 'rgba(255,82,71,0.3)' : 'transparent', holderStroke: collFlags[r.stn] ? '#FF5247' : 'transparent', transform: '', tx1: px.toFixed(1), ty1: py.toFixed(1), tx2: ex.toFixed(1), ty2: ey.toFixed(1), toolColor: collFlags[r.stn] ? '#FF5247' : (r.stn === s.selStation ? '#FF7A4D' : '#7FB2FF'), toolW: 2 }); } });
+      }
+    } else {
+      // ── KINEMATICS & ENVELOPE ──
+      if (lathe) {
+        const cyAxis = 196, hsX = 70, partLpx = Math.min(300, (wp.pz / m.travels.z) * 300 + 60), partR = Math.max(10, Math.min(70, (wp.dia / m.maxTurn) * 80));
+        ctxRects.push({ x: 40, y: cyAxis - 60, w: 50, h: 120, r: 6, fill: '#15171C', stroke: '#2B2F36', dash: '0' }); // headstock
+        svgLabels.push({ x: 65, y: cyAxis + 86, anchor: 'middle', size: 9, fill: '#6B7280', t: 'HEADSTOCK' });
+        ctxRects.push({ x: 90, y: cyAxis - 14, w: 24, h: 28, r: 2, fill: '#23262E', stroke: '#3A3D44', dash: '0' }); // chuck
+        ctxRects.push({ x: 114, y: cyAxis - partR, w: partLpx, h: partR * 2, r: 3, fill: '#1B1E24', stroke: wp.dia > m.maxTurn ? '#FF5247' : '#3A3D44', dash: '0' }); // part
+        svgLabels.push({ x: 114 + partLpx / 2, y: cyAxis + partR + 18, anchor: 'middle', size: 9, fill: '#9398A2', t: '⌀' + wp.dia + '" × ' + wp.pz + '"' });
+        // tailstock
+        ctxRects.push({ x: 114 + partLpx + 8, y: cyAxis - 16, w: 30, h: 32, r: 3, fill: '#15171C', stroke: '#2B2F36', dash: '0' }); svgLabels.push({ x: 129 + partLpx + 8, y: cyAxis + 40, anchor: 'middle', size: 9, fill: '#6B7280', t: 'T/STOCK' });
+        // max swing envelope
+        ctxLines.push({ x1: 114, y1: cyAxis - 80, x2: 420, y2: cyAxis - 80, c: 'rgba(54,211,153,0.4)', w: 1, dash: '5 4' }, { x1: 114, y1: cyAxis + 80, x2: 420, y2: cyAxis + 80, c: 'rgba(54,211,153,0.4)', w: 1, dash: '5 4' });
+        svgLabels.push({ x: 420, y: cyAxis - 84, anchor: 'end', size: 9, fill: '#36D399', t: 'max swing ' + m.swing + '"' });
+        // turret on cross slide (X/Z travel box)
+        const turX = 250, turY = cyAxis + 120; ctxRects.push({ x: turX - 30, y: turY - 24, w: 60, h: 48, r: 5, fill: '#101216', stroke: '#FF7A4D', dash: '0' }); svgLabels.push({ x: turX, y: turY + 40, anchor: 'middle', size: 9, fill: '#FF7A4D', t: 'TURRET' });
+        ctxRects.push({ x: turX - 90, y: turY - 70, w: 180, h: 120, r: 6, fill: 'none', stroke: 'rgba(42,111,219,0.4)', dash: '5 4' }); svgLabels.push({ x: turX + 86, y: turY - 74, anchor: 'end', size: 9, fill: '#7FB2FF', t: 'X' + m.travels.x + '" Z' + m.travels.z + '"' });
+        // tool from turret up to part OD
+        const selProj = sel && sel.loaded ? sel.proj : 1; const toolTop = turY - 24 - Math.min(90, selProj * 26);
+        ctxLines.push({ x1: turX, y1: turY - 24, x2: turX, y2: Math.max(cyAxis + partR, toolTop), c: '#FF7A4D', w: 3, dash: '0' });
+        svgLabels.push({ x: 360, y: 40, anchor: 'end', size: 11, fill: '#9398A2', t: m.label + ' — kinematic envelope (plan)' });
+      } else {
+        // mill side elevation
+        const baseY = 320, tableX = 150, tableW = 360; const colX = 540;
+        ctxRects.push({ x: colX, y: 60, w: 60, h: 280, r: 4, fill: '#15171C', stroke: '#2B2F36', dash: '0' }); svgLabels.push({ x: colX + 30, y: 352, anchor: 'middle', size: 9, fill: '#6B7280', t: 'COLUMN' });
+        // X travel envelope
+        ctxRects.push({ x: tableX - 40, y: baseY - 6, w: tableW + 80, h: 12, r: 2, fill: 'none', stroke: 'rgba(42,111,219,0.4)', dash: '5 4' }); svgLabels.push({ x: tableX + tableW / 2, y: baseY + 24, anchor: 'middle', size: 9, fill: '#7FB2FF', t: 'X travel ' + m.travels.x + '"' });
+        // table
+        ctxRects.push({ x: tableX, y: baseY - 18, w: tableW, h: 18, r: 2, fill: '#23262E', stroke: '#3A3D44', dash: '0' });
+        // fixture + part stack
+        const fixH = Math.min(60, wp.fixture * 22), partH = Math.min(110, wp.pz * 22), partW = Math.min(220, wp.px * 22);
+        const pcx = tableX + tableW / 2;
+        ctxRects.push({ x: pcx - partW / 2 - 8, y: baseY - 18 - fixH, w: partW + 16, h: fixH, r: 2, fill: '#1B1E24', stroke: '#3A3D44', dash: '0' });
+        ctxRects.push({ x: pcx - partW / 2, y: baseY - 18 - fixH - partH, w: partW, h: partH, r: 2, fill: '#1B1E24', stroke: (wp.px > m.travels.x) ? '#FF5247' : '#3A3D44', dash: '0' });
+        // pocket in part
+        ctxRects.push({ x: pcx - 24, y: baseY - 18 - fixH - partH, w: 48, h: Math.min(partH - 6, wp.depth * 22), r: 1, fill: '#0A0B0D', stroke: '#2B2F36', dash: '0' });
+        svgLabels.push({ x: pcx, y: baseY + 24, anchor: 'middle', size: 9, fill: '#9398A2', t: 'part ' + wp.px + '×' + wp.pz + '" · pocket ' + wp.depth + '"' });
+        // spindle head on column at Z
+        const spX = pcx, spHeadY = 90; ctxRects.push({ x: spX - 34, y: spHeadY, w: 68, h: 30, r: 3, fill: '#23262E', stroke: '#3A3D44', dash: '0' }); svgLabels.push({ x: spX, y: spHeadY - 8, anchor: 'middle', size: 9, fill: '#6B7280', t: 'SPINDLE ' + iface });
+        // Z travel envelope
+        ctxRects.push({ x: spX + 50, y: spHeadY, w: 10, h: m.travels.z * 7, r: 1, fill: 'none', stroke: 'rgba(42,111,219,0.4)', dash: '5 4' }); svgLabels.push({ x: spX + 88, y: spHeadY + m.travels.z * 3.5, anchor: 'middle', size: 9, fill: '#7FB2FF', t: 'Z ' + m.travels.z + '"' });
+        // tool assembly hanging down
+        const selProj = sel && sel.loaded ? sel.proj : 3; const tipY = spHeadY + 30 + Math.min(150, selProj * 30); const partTopY = baseY - 18 - fixH - partH;
+        const crash = tipY > partTopY && (wp.pz + wp.fixture + selProj > m.zClear);
+        ctxRects.push({ x: spX - 10, y: spHeadY + 30, w: 20, h: 20, r: 2, fill: '#2B2F36', stroke: '#3A3D44', dash: '0' }); // holder
+        ctxLines.push({ x1: spX, y1: spHeadY + 50, x2: spX, y2: tipY, c: crash ? '#FF5247' : '#FF7A4D', w: 3, dash: '0' });
+        svgLabels.push({ x: spX + 16, y: spHeadY + 40, anchor: 'start', size: 9, fill: crash ? '#FF5247' : '#FF7A4D', t: 'tool ' + selProj.toFixed(1) + '"' });
+        svgLabels.push({ x: 360, y: 40, anchor: 'middle', size: 11, fill: '#9398A2', t: m.label + ' — kinematic envelope (elevation)' });
+      }
+    }
+
+    // ── assembly chain ──
+    const holderLib = this.HOLDERS[kind], toolingLib = this.TOOLING[kind], insertLib = this.INSERTS[kind];
+    const hSel = holderLib.find(h => h.id === b.holderId) || holderLib[0], tSel = toolingLib.find(t => t.id === b.toolingId) || toolingLib[0], iSel = insertLib.find(i => i.id === b.insertId) || insertLib[0];
+    const srcStage = lathe ? (kind === 'turret' ? { tag: 'TURRET STATION', name: 'Station ' + s.selStation, spec: iface } : { tag: 'SPINDLE', name: 'Main spindle', spec: 'guide bushing' }) : { tag: 'SPINDLE', name: iface + ' taper', spec: 'BIG-Plus face' };
+    const assembly = [
+      { tag: srcStage.tag, name: srcStage.name, spec: srcStage.spec, bg: 'linear-gradient(135deg,rgba(255,90,43,0.08),#0E0F12)', border: 'rgba(255,90,43,0.25)', tagColor: '#FF7A4D', arrow: '→' },
+      { tag: 'HOLDER', name: hSel.label, spec: lathe ? iface + ' interface' : 'gauge ' + b.gauge + s.unit, bg: '#0E0F12', border: 'rgba(255,255,255,0.08)', tagColor: '#9398A2', arrow: '→' },
+      { tag: 'TOOLING', name: tSel.label, spec: 'proj ' + (tSel.proj) + '"', bg: '#0E0F12', border: 'rgba(255,255,255,0.08)', tagColor: '#9398A2', arrow: '→' },
+      { tag: lathe ? 'INSERT' : 'EDGE', name: iSel.label, spec: lathe ? 'wear ' + (sel ? sel.wear : '0') : 'coated', bg: 'linear-gradient(135deg,rgba(42,111,219,0.08),#0E0F12)', border: 'rgba(42,111,219,0.25)', tagColor: '#7FB2FF', arrow: '' },
+    ];
+
+    const cribRows = crib.map(r => ({ stn: r.stn, on: () => this.selectStation(r.stn),
+      style: `display:grid;grid-template-columns:34px 1fr 52px;gap:8px;align-items:center;padding:9px 10px;margin-bottom:4px;border-radius:9px;cursor:pointer;background:${r.stn === s.selStation ? 'rgba(255,90,43,0.1)' : (collFlags[r.stn] ? 'rgba(255,82,71,0.08)' : (r.loaded ? '#0E0F12' : 'transparent'))};border:1px solid ${r.stn === s.selStation ? 'rgba(255,90,43,0.4)' : (collFlags[r.stn] ? 'rgba(255,82,71,0.35)' : (r.loaded ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)'))};`,
+      stnColor: r.stn === s.selStation ? '#FF7A4D' : (r.loaded ? '#C7CCD4' : '#4B5563'),
+      name: r.loaded ? r.name : 'empty', nameColor: r.loaded ? '#F3F4F6' : '#4B5563',
+      sub: r.loaded ? `T${r.T} · ${r.holder}${collFlags[r.stn] ? ' · ⚠ collision' : ''}` : `station ${r.stn}`,
+      life: r.loaded ? Math.round(r.lifePct * 100) + '%' : '—', lifeColor: !r.loaded ? '#4B5563' : r.lifePct > 0.6 ? '#36D399' : r.lifePct > 0.3 ? '#F4B740' : '#FF5247', lifeBar: r.loaded ? Math.round(r.lifePct * 100) + '%' : '0%' }));
+    const offsetRows = crib.filter(r => r.loaded).map(r => ({ T: r.T, tag: r.tooling || r.name, len: r.len, dia: r.dia, wear: r.wear, setLen: (e) => this.editOffset(r.stn, 'len', e.target.value), setDia: (e) => this.editOffset(r.stn, 'dia', e.target.value), setWear: (e) => this.editOffset(r.stn, 'wear', e.target.value) }));
+    const machinePos = lathe ? [{ axis: 'X', val: '0.0000' }, { axis: 'Z', val: '0.0000' }] : [{ axis: 'X', val: '0.0000' }, { axis: 'Y', val: '0.0000' }, { axis: 'Z', val: '0.0000' }];
+    const workRows = work.map((w, i) => ({ code: w.code, codeColor: w.code === 'G54' ? '#FF7A4D' : '#9398A2', x: w.x, y: w.y, z: w.z, src: w.src, hasY: !lathe, setX: (e) => this.editWork(i, 'x', e.target.value), setY: (e) => this.editWork(i, 'y', e.target.value), setZ: (e) => this.editWork(i, 'z', e.target.value), setSrc: (e) => this.editWork(i, 'src', e.target.value), capture: () => this.captureWork(i) }));
+
+    const travelChips = lathe ? [{ k: 'SWING', v: m.swing + '"' }, { k: 'MAX Ø', v: m.maxTurn + '"' }, { k: kind === 'gang' ? 'BAR' : 'Z', v: (kind === 'gang' ? m.barCap : m.travels.z) + '"' }] : [{ k: 'X', v: m.travels.x + '"' }, { k: 'Y', v: m.travels.y + '"' }, { k: 'Z', v: m.travels.z + '"' }];
+    const workpieceFields = lathe ? [{ label: 'Part Ø (' + s.unit + ')', value: wp.dia, on: (e) => this.editWP('dia', e.target.value) }, { label: 'Part length (' + s.unit + ')', value: wp.pz, on: (e) => this.editWP('pz', e.target.value) }] : [{ label: 'Part X (' + s.unit + ')', value: wp.px, on: (e) => this.editWP('px', e.target.value) }, { label: 'Part Y (' + s.unit + ')', value: wp.py, on: (e) => this.editWP('py', e.target.value) }, { label: 'Part Z (' + s.unit + ')', value: wp.pz, on: (e) => this.editWP('pz', e.target.value) }, { label: 'Pocket depth (' + s.unit + ')', value: wp.depth, on: (e) => this.editWP('depth', e.target.value) }];
+
+    const unitOn = "border:none;background:#FF5A2B;color:#0A0B0D;border-radius:6px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;";
+    const unitOff = "border:none;background:transparent;color:#9398A2;border-radius:6px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;";
+    const tabStyle = (on) => `border:none;background:${on ? 'rgba(255,90,43,0.14)' : 'transparent'};color:${on ? '#FF7A4D' : '#9398A2'};border-radius:8px 8px 0 0;padding:9px 13px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    const viewStyle = (on) => `border:none;background:${on ? '#FF5A2B' : 'transparent'};color:${on ? '#0A0B0D' : '#9398A2'};border-radius:6px;padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    const setB = (k) => (e) => this.setState({ builder: { ...this.state.builder, [k]: e.target.value } });
+
+    return {
+      scale: s.scale, machineId: s.machineId, machineShort: m.short,
+      layoutLabel: lathe ? (kind === 'turret' ? iface + ' TURRET' : 'GANG / SWISS') : iface + ' ATC',
+      loadedCount, stationCount: crib.length, issueSummary: statusLabel,
+      unit: s.unit, unitInchStyle: imp ? unitOn : unitOff, unitMmStyle: imp ? unitOff : unitOn,
+      setInch: () => this.setState({ unit: 'in' }), setMm: () => this.setState({ unit: 'mm' }),
+      setMachine: (e) => { const id = e.target.value; this.ensure(id); const m2 = this.MACH[id]; this.setState({ machineId: id, selStation: 1, builder: { ...this.state.builder, holderId: this.HOLDERS[m2.kind][0].id, toolingId: this.TOOLING[m2.kind][0].id, insertId: this.INSERTS[m2.kind][0].id } }); },
+      typeFieldLabel: kind === 'magazine' ? 'Spindle connection' : (kind === 'gang' ? 'Layout' : 'Turret type'),
+      typeId: setup.typeId, typeOptions: Object.keys(typeTbl).map(k => ({ id: k, label: typeTbl[k].label })), setType: (e) => this.setType(e.target.value),
+      countFieldLabel: lathe ? (kind === 'gang' ? 'Positions' : 'Stations') : 'ATC pockets', count: setup.count, setCount: (e) => this.resize(this.num(e.target.value, setup.count)),
+      ifaceLabel: iface, travelChips, workpieceFields,
+      showFixturing: !lathe,
+      fixType: wp.fixType || 'vise', fixX: wp.fixX || 0, fixY: wp.fixY || 0, originRef: wp.origin || 'corner',
+      setFixType: (e) => this.setWPstr('fixType', e.target.value), setOriginRef: (e) => this.setWPstr('origin', e.target.value),
+      setFixX: (e) => this.snapWP('fixX', e.target.value), setFixY: (e) => this.snapWP('fixY', e.target.value), toggleSnap: () => this.toggleSnap(),
+      snapStyle: (wp.snap ? "border:1px solid rgba(255,90,43,0.5);background:rgba(255,90,43,0.12);color:#FF7A4D;" : "border:1px solid rgba(255,255,255,0.12);background:transparent;color:#9398A2;") + "border-radius:8px;padding:8px 11px;font-size:11.5px;cursor:pointer;font-family:'Archivo',sans-serif;",
+      f3x: wp.fixX || 0, f3y: wp.fixY || 0, f3type: wp.fixType || 'vise', o3: wp.origin || 'corner',
+      liveOrigin: lathe ? [{ axis: 'X', val: '0.0000' }, { axis: 'Z', val: (-(12.6050 + (wp.pz || 0) * 0)).toFixed(4) }] : [{ axis: 'X', val: (-(12.4051 + (wp.fixX || 0))).toFixed(4) }, { axis: 'Y', val: (-(8.2210 + (wp.fixY || 0))).toFixed(4) }, { axis: 'Z', val: (-(14.0330 + (wp.fixture || 0) + (wp.pz || 0))).toFixed(4) }],
+      setG54FromSetup: () => this.setG54FromSetup(),
+      selSlotLabel: (lathe && kind === 'turret') ? `STN ${s.selStation}` : (kind === 'gang' ? `POS ${s.selStation}` : `POCKET ${s.selStation}`),
+      heightFieldLabel: lathe ? 'Geometry # (G)' : 'Height # (H)', diaFieldLabel: lathe ? 'Nose R off (' + s.unit + ')' : 'Ø offset (D)',
+      holderOptions: holderLib, toolingOptions: toolingLib, insertOptions: insertLib,
+      holderId: b.holderId, toolingId: b.toolingId, insertId: b.insertId, toolNo: b.toolNo, heightNo: b.heightNo, gauge: b.gauge, offDia: b.offDia,
+      setHolder: setB('holderId'), setTooling: setB('toolingId'), setInsert: setB('insertId'), setToolNo: setB('toolNo'), setHeightNo: setB('heightNo'), setGauge: setB('gauge'), setOffDia: setB('offDia'),
+      addToCrib: () => this.addToCrib(), clearStation: () => this.clearStation(),
+      view: s.view, setViewTooling: () => this.setState({ view: 'tooling' }), setViewKin: () => this.setState({ view: 'kin' }),
+      showKinView: s.view === 'kin', showSvg: s.view === 'tooling' || (s.view === 'kin' && !s.kin3d), show3d: s.view === 'kin' && s.kin3d,
+      setKin2D: () => this.setState({ kin3d: false }), setKin3D: () => this.setState({ kin3d: true }), d2Style: viewStyle(!s.kin3d), d3Style: viewStyle(s.kin3d),
+      kind3d: kind, t3x: m.travels.x, t3y: (m.travels.y || 10), t3z: m.travels.z,
+      p3dia: wp.dia, p3len: wp.pz, p3x: wp.px, p3y: wp.py, p3z: wp.pz, p3depth: wp.depth, p3fix: wp.fixture,
+      t3tool: (sel && sel.loaded ? sel.proj : (lathe ? 1.5 : 3.5)), c3: worst === 2 ? 1 : 0, m3turn: (m.maxTurn || 10), m3swing: (m.swing || 22),
+      viewToolingStyle: viewStyle(s.view === 'tooling'), viewKinStyle: viewStyle(s.view === 'kin'),
+      statusLabel, statusColor, statusBg, statusBorder,
+      slots, toolShapes, ctxRects, ctxLines, ctxCircles, svgLabels,
+      panelTitle: s.view === 'tooling' ? 'Assembly · ' + (sel && sel.loaded ? 'T' + sel.T : 'STN ' + s.selStation) : 'Pre-flight triage — not CAM sim',
+      panelSub: s.view === 'tooling' ? 'gauge ' + b.gauge + s.unit : 'verify in hyperMILL sim before run',
+      showAssembly: s.view === 'tooling', showIssues: s.view === 'kin', assembly, issues,
+      tab: s.tab, showCrib: s.tab === 'crib', showOffsets: s.tab === 'offsets', showWork: s.tab === 'work',
+      tabCribStyle: tabStyle(s.tab === 'crib'), tabOffsetsStyle: tabStyle(s.tab === 'offsets'), tabWorkStyle: tabStyle(s.tab === 'work'),
+      setTabCrib: () => this.setState({ tab: 'crib' }), setTabOffsets: () => this.setState({ tab: 'offsets' }), setTabWork: () => this.setState({ tab: 'work' }),
+      cribRows, offsetRows, heightFieldShort: lathe ? 'G#' : 'H#', lenColLabel: lathe ? 'Z-GEOM' : 'LENGTH', diaColLabel: lathe ? 'X-GEOM' : 'Ø/RAD',
+      offsetNote: lathe ? 'Lathe geometry offsets carry tool-nose X/Z and nose-radius wear. TNRC (G41/G42) uses these per tip direction.' : 'Length (H) is spindle-gauge-to-tip via G43. Ø offset (D) drives cutter comp G41/G42. Wear is the operator trim.',
+      axisCount: lathe ? 2 : 3, wcsColsLabel: lathe ? 'X · Z (part zero)' : 'X · Y · Z (part zero)', machinePos, workRows,
+    };
+  }
+}
+</script>
+</body>
+</html>

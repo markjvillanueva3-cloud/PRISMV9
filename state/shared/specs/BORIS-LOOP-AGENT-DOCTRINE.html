@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="SpecHTMLCompanionEngine">
-<meta name="prism-source-hash" content="4e053948688cc894b0cea61affaf28fb275c9d192a4e407e62eed8a9a2e84148">
+<meta name="prism-source-hash" content="af517e3c5693bbf5d00f914d7be971f73bf4c1376390174b3451bf83c64986aa">
 <title>Boris Loop + Agent Doctrine for PRISM</title>
 <style>
 :root, [data-theme="light"] {
@@ -86,7 +86,7 @@ footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12
 <header class="doc-head">
 <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
 <h1 class="page-title" id="top">Boris Loop + Agent Doctrine for PRISM</h1>
-<p class="provenance">Generated 2026-05-12T12:43:26.704Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+<p class="provenance">Generated 2026-05-18T17:34:20.314Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
 </header>
 <nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
 <li class="toc-l1"><a href="#boris-loop-agent-doctrine-for-prism">Boris Loop + Agent Doctrine for PRISM</a></li>
@@ -110,6 +110,11 @@ footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12
 <li class="toc-l2"><a href="#5-how-this-lands-in-our-32-unit-ms3-plan">§5 — How this lands in our 32-unit MS3 plan</a></li>
 <li class="toc-l2"><a href="#6-anti-patterns-to-reject">§6 — Anti-patterns to reject</a></li>
 <li class="toc-l2"><a href="#7-reading-order-for-new-contributors">§7 — Reading order for new contributors</a></li>
+<li class="toc-l2"><a href="#8-md-html-role-split-html-companion-ms0-html-primary-ms0-doctrine">§8 — MD / HTML role split (HTML-COMPANION-MS0 + HTML-PRIMARY-MS0 doctrine)</a></li>
+<li class="toc-l3"><a href="#qualifying-artifacts-get-an-html-companion">Qualifying artifacts — get an HTML companion</a></li>
+<li class="toc-l3"><a href="#non-qualifying-surfaces-md-only-no-html-companion">Non-qualifying surfaces — MD-only, no HTML companion</a></li>
+<li class="toc-l3"><a href="#the-role-split-decision-rule-one-liner-for-future-contributors">The role-split decision rule (one-liner for future contributors)</a></li>
+<li class="toc-l3"><a href="#wiring-path-operator-reference">Wiring path (operator reference)</a></li>
 <li class="toc-l2"><a href="#sources-2">Sources</a></li>
 </ul></nav>
 <main id="content" class="doc-body" role="main">
@@ -303,6 +308,58 @@ footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12
 <li><code>H:/.claude/commands/forge7.md</code> — upgraded forge (when shipped)</li>
 <li><code>H:/.claude/commands/forge-audit-v2.md</code> — upgraded audit (when shipped)</li>
 </ol>
+<hr>
+<h2 id="8-md-html-role-split-html-companion-ms0-html-primary-ms0-doctrine"><a class="anchor" href="#8-md-html-role-split-html-companion-ms0-html-primary-ms0-doctrine" aria-label="Permalink to §8 — MD / HTML role split (HTML-COMPANION-MS0 + HTML-PRIMARY-MS0 doctrine)">#</a>§8 — MD / HTML role split (HTML-COMPANION-MS0 + HTML-PRIMARY-MS0 doctrine)</h2>
+<p>Thariq&#39;s &quot;HTML is the new markdown&quot; (2026-05-08, ~5M views) and Karpathy&#39;s &quot;docs should be one text file&quot; are NOT in conflict — they govern different surfaces. The PRISM rule:</p>
+<blockquote>
+<p><strong>MD = report (LLM-consumed). HTML = interface (human-consumed). Strategic spec docs get BOTH (sibling files, MD-canonical, HTML-companion).</strong></p>
+</blockquote>
+<h3 id="qualifying-artifacts-get-an-html-companion"><a class="anchor" href="#qualifying-artifacts-get-an-html-companion" aria-label="Permalink to Qualifying artifacts — get an HTML companion">#</a>Qualifying artifacts — get an HTML companion</h3>
+<p>A markdown file qualifies for an auto-generated HTML companion when ANY of:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Trigger</th><th>Example</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Strategic spec doc ≥150 lines</td><td><code>state/shared/specs/SYSTEM-SYNERGY-AUDIT-*.md</code></td><td>Operator scans for severity tags, copies blocks, navigates</td></tr>
+<tr><td>Audit report (severity tables, findings, evidence)</td><td><code>STALE-NODES-AUDIT-2026-05-16.md</code></td><td>Same; copy-button + sticky nav are the load-bearing affordance</td></tr>
+<tr><td>Roadmap / atomized plan</td><td><code>BACKEND-DEVTOOLS-RGS6-*-ATOMIZED-*.md</code></td><td>Operator iterates rows, filters by tier/leverage</td></tr>
+<tr><td>Operator setup sheet</td><td>future <code>setup-sheets/*.md</code></td><td>Shop-floor terminal often a browser tab, not Claude Code</td></tr>
+<tr><td>Design doc with diagrams</td><td><code>*-DESIGN.md</code>, <code>*-PLAN.md</code></td><td>SVG renders natively; ASCII art does not</td></tr>
+</tbody>
+</table></div>
+<p><strong>Generator:</strong> <code>SpecHTMLCompanionEngine</code> (<code>mcp-server/src/engines/SpecHTMLCompanionEngine.ts</code>), invoked via <code>scripts/emit-spec-html.ts</code> (single file) or <code>scripts/emit-all-spec-html.ts</code> (batch). Wire as PostToolUse Write hook on <code>state/shared/specs/**.md</code> so new specs auto-get HTML within seconds. MCP-callable via <code>prism_dev:spec_html_render</code> + <code>prism_session:doc_render</code>.</p>
+<p><strong>Drift guard:</strong> <code>.claude/hooks/html-companion-guard.mjs</code> checks every HTML companion&#39;s <code>&lt;meta name=&quot;prism-source-hash&quot;&gt;</code> against its MD source. If a hand-edit on the HTML diverges from the MD, the next regen would silently overwrite it; the guard surfaces the drift before that happens.</p>
+<p><strong>A11y gate:</strong> <code>scripts/check-spec-html-a11y.mjs</code> (also wired in the guard). WAI-ARIA + axe-cli rules. WebAim 2025 found 41% of HTML-rendering tools regress accessibility; this is the pre-commit blocker.</p>
+<h3 id="non-qualifying-surfaces-md-only-no-html-companion"><a class="anchor" href="#non-qualifying-surfaces-md-only-no-html-companion" aria-label="Permalink to Non-qualifying surfaces — MD-only, no HTML companion">#</a>Non-qualifying surfaces — MD-only, no HTML companion</h3>
+<p>A markdown file is <strong>machine-consumed</strong> when ANY of:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Surface</th><th>Why MD-only</th></tr></thead>
+<tbody>
+<tr><td><code>H:/prism/CLAUDE.md</code> + project CLAUDE.md</td><td>Claude Code loads markdown literally — HTML would never inject</td></tr>
+<tr><td><code>H:/prism/.claude/commands/**.md</code> (skills)</td><td>Skill bodies are LLM prompt fragments, not human-readable</td></tr>
+<tr><td><code>H:/prism/.claude/hooks/**.{mjs,sh,md}</code></td><td>Hook source + hook-body docs; HTML adds nothing</td></tr>
+<tr><td><code>mcp-server/data/docs/{ENGINE,DISPATCHER,DIRECTORY}_DIGEST.md</code></td><td>Zero-IO discovery tables read by code</td></tr>
+<tr><td><code>state/shared/handoffs/HANDOFF-*.md</code></td><td>Inter-session context the next chat reads as raw text</td></tr>
+<tr><td>Wiki entries <code>knowledge/wiki/architecture/**.md</code></td><td>LLM-recall via BM25 / cosine over the raw MD</td></tr>
+<tr><td>Obsidian memory <code>C:/Users/&lt;u&gt;/.claude/projects/.../memory/*.md</code></td><td>Same — LLM context injection</td></tr>
+<tr><td><code>MEMORY.md</code> (≤200-line pointer index)</td><td>Loaded literally into every session&#39;s system reminder</td></tr>
+<tr><td><code>state/shared/AWARENESS-SNAPSHOT.md</code> / <code>BUILD_STATE.md</code> / <code>CLAUDE-BRIEF.md</code></td><td>Auto-injected into every SessionStart as text</td></tr>
+</tbody>
+</table></div>
+<p>Universal MD→HTML migration is a NET REGRESSION on these — the LLM can&#39;t parse HTML tags efficiently, and the harness doesn&#39;t render HTML for the operator.</p>
+<h3 id="the-role-split-decision-rule-one-liner-for-future-contributors"><a class="anchor" href="#the-role-split-decision-rule-one-liner-for-future-contributors" aria-label="Permalink to The role-split decision rule (one-liner for future contributors)">#</a>The role-split decision rule (one-liner for future contributors)</h3>
+<blockquote>
+<p>&quot;Will a human open this file in a browser to navigate / copy / share it? → HTML companion. Will a model load this file as context to act on? → MD-only. <strong>Both</strong> (rare, strategic) → both files, MD-canonical, drift-guarded.&quot;</p>
+</blockquote>
+<h3 id="wiring-path-operator-reference"><a class="anchor" href="#wiring-path-operator-reference" aria-label="Permalink to Wiring path (operator reference)">#</a>Wiring path (operator reference)</h3>
+<pre><code>state/shared/specs/&lt;name&gt;.md  (MD canonical, human-author or LLM-author)
+  → PostToolUse Write hook html-companion-guard.mjs
+    → scripts/emit-spec-html.ts &lt;name&gt;.md
+      → SpecHTMLCompanionEngine.render({ source, theme:&#39;auto&#39;, toc:true })
+        → state/shared/specs/&lt;name&gt;.html (sibling, with &lt;meta prism-source-hash&gt;)
+          → state/shared/specs/&lt;name&gt;.html.hash (sidecar audit trail)
+            → guard re-checks hash on subsequent commits; flags drift
+</code></pre>
+<p><strong>Reference shipped specs:</strong> <code>SYSTEM-SYNERGY-AUDIT-2026-05-09.html</code> (480 LOC), <code>HOOK-SYNERGY-V2-PLAN.html</code> (300 LOC), <code>2026-05-09-prism-stabilization-design.html</code>, <code>2026-05-09-tribal-node-binder-design.html</code>. Pattern: dark theme, sticky TOC, severity pills (P0/P1/P2/P3), copy-to-prompt buttons on code blocks, SVG-rendered diagrams.</p>
 <hr>
 <h2 id="sources-2"><a class="anchor" href="#sources-2" aria-label="Permalink to Sources">#</a>Sources</h2>
 <ul>

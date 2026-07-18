@@ -37,8 +37,7 @@ const TH = {
   claudemd_crit_bytes: 150_000,
   silent_suggest_ratio_warn: 0.05,    // injected/silent ratio
   token_budget_unmapped_warn: 0.40,   // > 40% unmapped slots
-  cache_bash_warm_min: 10,            // bash-result-cache must have hits
-  cache_systemic_keys_min: 50,        // total keys across all 3 caches that warrant fleet-wide finding
+  cache_stale_hours: 48,              // cache w/ entries but newest >48h old = dedup hook stalled
 };
 
 // ---- helpers -------------------------------------------------------------
@@ -208,15 +207,20 @@ function probeTokenBudget() {
 }
 
 function probeCacheUtilization() {
+  // These caches (file-read-cache et al.) are deny-dedup CONSUMERS — the saving
+  // is a DENIED re-read, not a hit counter. Entries are {ts, path}; there is no
+  // .hits field. Liveness signal = newest-entry freshness (is the dedup hook
+  // still accumulating?), NOT a phantom hit count.
   const out = {};
+  const now = Date.now();
   for (const name of ["bash-result-cache", "grep-result-cache", "file-read-cache"]) {
     const obj = safeReadJson(path.join(ROOT, ".claude/cache", `${name}.json`)) || {};
     const keys = Object.keys(obj).length;
-    let hits = 0;
+    let newestTs = 0;
     for (const v of Object.values(obj)) {
-      if (v && typeof v === "object" && typeof v.hits === "number") hits += v.hits;
+      if (v && typeof v === "object" && typeof v.ts === "number" && v.ts > newestTs) newestTs = v.ts;
     }
-    out[name] = { keys, hits };
+    out[name] = { keys, newestTs, ageHours: newestTs ? (now - newestTs) / 3_600_000 : null };
   }
   return { ok: true, ...out };
 }
@@ -261,11 +265,18 @@ function score(snapshot) {
   if (snapshot.claudemd.status === "critical") {
     f.push({ id: "F7-CLAUDEMD-OVERSIZED", severity: "P2", finding: `CLAUDE.md at ${snapshot.claudemd.bytes}B violates "≤200 lines past which compliance collapses" rule cited in the file itself`, verify: `wc -c H:/prism/CLAUDE.md` });
   }
-  // F8 — cache reader-path dead across all 3 caches (peer-review-upgraded P1)
-  const totalCacheKeys = Object.values(snapshot.cache).filter(v => v && typeof v.keys === "number").reduce((a, v) => a + v.keys, 0);
-  const totalCacheHits = Object.values(snapshot.cache).filter(v => v && typeof v.hits === "number").reduce((a, v) => a + v.hits, 0);
-  if (totalCacheKeys >= TH.cache_systemic_keys_min && totalCacheHits < TH.cache_bash_warm_min) {
-    f.push({ id: "F8-CACHE-READPATH-DEAD", severity: "P1", finding: `Cache reader-path systemically dead: ${totalCacheKeys} keys / ${totalCacheHits} hits across all 3 caches (bash ${snapshot.cache["bash-result-cache"].keys}/${snapshot.cache["bash-result-cache"].hits}, grep ${snapshot.cache["grep-result-cache"].keys}/${snapshot.cache["grep-result-cache"].hits}, file-read ${snapshot.cache["file-read-cache"].keys}/${snapshot.cache["file-read-cache"].hits}) — writers populate but no reader-hook checks`, verify: `node -e "['bash-result-cache','grep-result-cache','file-read-cache'].forEach(n=>{const c=JSON.parse(require('fs').readFileSync('.claude/cache/'+n+'.json','utf8'));console.log(n,Object.keys(c).length,Object.values(c).reduce((a,v)=>a+(v.hits||0),0))})"` });
+  // F8 — cache dedup-hook liveness. The deny-dedup caches (file-read-cache via
+  // read-bundle, etc.) save tokens by DENYING a re-read — the entry IS the
+  // saving, there is no hit counter. A cache is STALLED only if it holds
+  // entries but its newest entry is old, i.e. the dedup hook stopped running.
+  // (Prior P1 "reader-path dead / 0 hits" was a misdiagnosis — the probe summed
+  // a non-existent .hits field. Corrected 2026-05-17.)
+  const staleCaches = Object.entries(snapshot.cache)
+    .filter(([k]) => k !== "ok")
+    .filter(([, v]) => v && v.keys > 0 && v.ageHours != null && v.ageHours > TH.cache_stale_hours)
+    .map(([k, v]) => `${k}(${v.ageHours.toFixed(0)}h)`);
+  if (staleCaches.length) {
+    f.push({ id: "F8-CACHE-DEDUP-STALLED", severity: "P2", finding: `dedup cache(s) hold entries but newest is >${TH.cache_stale_hours}h old — the PreToolUse dedup hook may have stopped: ${staleCaches.join(", ")}`, verify: `node -e "['bash-result-cache','grep-result-cache','file-read-cache'].forEach(n=>{const c=JSON.parse(require('fs').readFileSync('.claude/cache/'+n+'.json','utf8'));const t=Math.max(0,...Object.values(c).map(v=>v&&v.ts||0));console.log(n,Object.keys(c).length,'newest',t?new Date(t).toISOString():'n/a')})"` });
   }
   // F9 — token-budget slot mapping
   if (snapshot.tokenBudget.ok && snapshot.tokenBudget.unmappedRatio >= TH.token_budget_unmapped_warn) {
@@ -314,7 +325,7 @@ if (ARGS.has("--json")) {
   console.log(`- Hooks: ${snapshot.hookFire.uniqueFiringHooks}/${snapshot.hookFire.hooksOnDisk} firing; ${snapshot.hookFire.zeroFireHooks} dead`);
   console.log(`- CLAUDE.md: ${snapshot.claudemd.bytes}B (status=${snapshot.claudemd.status})`);
   console.log(`- token-budget unmapped: ${snapshot.tokenBudget.ok ? (snapshot.tokenBudget.unmappedRatio*100).toFixed(1)+'%' : 'unknown'}`);
-  console.log(`- cache bash hits: ${snapshot.cache["bash-result-cache"].hits}`);
+  console.log(`- cache file-read: ${snapshot.cache["file-read-cache"].keys} entries, newest ${snapshot.cache["file-read-cache"].ageHours != null ? snapshot.cache["file-read-cache"].ageHours.toFixed(1)+"h ago" : "n/a"}`);
   console.log(`\n## Findings (leverage-ranked)`);
   for (const f of findings) {
     console.log(`\n### [${f.severity}] ${f.id}`);

@@ -56,8 +56,11 @@ impact:
     - never mutates the original ledger entry — replays append fresh marks
   bounded: true
   reversible: true  # read-only on the ledger; the operator's reviewer dispatch is the only mutation surface
+composes_with:
+  - "/forge-audit"
+  - "/handoff"
+  - "/scrutiny-batch"
 ---
-
 # /scrutiny-replay — Re-emit a Past Session's Reviewer Prompts
 
 > **Goal:** the scrutiny ledger has dozens of historical entries — some passed, some failed, some ancient. When you want to ask "would these reviewers still verdict this PASS today?" you need to re-dispatch them with the same prompt. Today this is a manual `git show` + copy-paste game.

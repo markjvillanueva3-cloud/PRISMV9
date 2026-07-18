@@ -1,0 +1,310 @@
+diff --git a/mcp-server/src/__tests__/erp-rfq-routes.test.ts b/mcp-server/src/__tests__/erp-rfq-routes.test.ts
+index 1e97a02268..c12028f085 100644
+--- a/mcp-server/src/__tests__/erp-rfq-routes.test.ts
++++ b/mcp-server/src/__tests__/erp-rfq-routes.test.ts
+@@ -84,6 +84,32 @@ const callTool: CallToolFn = vi.fn(async (tool: string, action: string, params:
+   if (action === "credit_review") {
+     return env({ success: true, data: { customer_id: params.customer_id, utilization_pct: 50, risk: "ok" } });
+   }
++  if (action === "oee_losses") {
++    // The REAL businessDispatcher returns the engine output DIRECTLY -- a BARE array, NOT {success,data}.
++    // Emitting {success,data} here would MASK whether the route handles the bare-array shape (R9). So we
++    // env() a bare OEELoss[] -- exactly what oeeCalculatorEngine.losses() produces, ranked worst-first.
++    // Replicate the engine's isMeasuredWindow fail-closed guard: an empty/partial body -> [] (honest
++    // Unavailable), matching trend([]) -> []. The FE's first-load analyticsOEELosses({}) hits this.
++    const measured = ["planned_production_time_min", "actual_run_time_min", "planned_downtime_min",
++      "unplanned_downtime_min", "ideal_cycle_time_sec", "total_parts_produced", "good_parts"]
++      .every((k) => Number.isFinite(params?.[k]));
++    if (!measured) return env([]);
++    return env([
++      { id: "breakdowns", name: "Breakdowns", category: "availability", minutes_lost: 36, description: "x" },
++      { id: "reduced_speed", name: "Reduced Speed", category: "performance", minutes_lost: 35, description: "x" },
++    ]);
++  }
++  if (action === "oee_trend") {
++    // trend([]) -> [] (the FE posts {days:30} with no samples on first load -> honest empty). With samples,
++    // a bare OEETrendDay[]. Replicate the dispatcher's `params.samples ?? params.days_samples ?? []` -> trend.
++    const samples = params.samples ?? params.days_samples ?? [];
++    if (!Array.isArray(samples) || samples.length === 0) return env([]);
++    return env(
++      samples.map((s: any) => ({
++        date: s.date, oee_pct: 75, availability_pct: 90, performance_pct: 90, quality_pct: 92.6,
++      })),
++    );
++  }
+   return env({ success: true, data: {} });
+ });
+ 
+@@ -185,3 +211,54 @@ describe("U-HOTEL-CREDIT-REVIEW: /api/v1/erp/credit-review* routes (gap #3)", ()
+     expect(json.data.customer_id).toBe("ALCOA");
+   });
+ });
++
++describe("U-HOTEL-OEE-DASHBOARD: /api/v1/erp/oee-* routes (gap #4)", () => {
++  it("POST /oee-losses surfaces the BARE OEELoss array at res.data (envelope-unwrapped, not double-nested)", async () => {
++    // The dispatcher returns a BARE array; the route's rfqRoute unwraps the {type,text} envelope and its
++    // `r?.data ?? r` fallback surfaces the array directly. The FE reads payloadOf(res)=res.data = the array.
++    calls.length = 0; // reset so the calls.find below resolves THIS request's oee_losses call (mirrors the rfq-list test)
++    const { status, json } = await http("POST", "/api/v1/erp/oee-losses", {
++      planned_production_time_min: 480, actual_run_time_min: 400, planned_downtime_min: 30,
++      unplanned_downtime_min: 60, ideal_cycle_time_sec: 30, total_parts_produced: 700, good_parts: 680,
++    });
++    expect(status).toBe(200);
++    expect(json.ok).toBe(true);
++    expect(Array.isArray(json.data)).toBe(true);
++    expect(json.data[0].category).toBe("availability");
++    expect(typeof json.data[0].minutes_lost).toBe("number");
++    // The route forwarded the OEEInput body to the dispatcher unchanged.
++    const c = calls.find((x) => x.action === "oee_losses");
++    expect(c?.params.total_parts_produced).toBe(700);
++  });
++
++  it("POST /oee-losses with {} (FE first-load body) returns {ok:true, data:[]} -- honest fail-closed, not bogus 0-min cards", async () => {
++    // The FE's first-load call is analyticsOEELosses({}) = empty body. An unmeasured window -> [] so the
++    // Losses tab shows honest "Unavailable", symmetric with the trend {days:30} empty case (R12).
++    const { status, json } = await http("POST", "/api/v1/erp/oee-losses", {});
++    expect(status).toBe(200);
++    expect(json.ok).toBe(true);
++    expect(Array.isArray(json.data)).toBe(true);
++    expect(json.data).toHaveLength(0);
++  });
++
++  it("POST /oee-trend with {samples:[...]} surfaces the BARE TrendDay array at res.data", async () => {
++    const { status, json } = await http("POST", "/api/v1/erp/oee-trend", {
++      samples: [{ date: "2026-06-22" }, { date: "2026-06-23" }],
++    });
++    expect(status).toBe(200);
++    expect(Array.isArray(json.data)).toBe(true);
++    expect(json.data).toHaveLength(2);
++    expect(json.data[0].date).toBe("2026-06-22");
++    expect(typeof json.data[0].oee_pct).toBe("number");
++  });
++
++  it("POST /oee-trend with {days:30} (no samples) returns {ok:true, data:[]} -- the honest fail-closed empty", async () => {
++    // This is the FE's first-load call: analyticsOEETrend({days:30}). No samples -> trend([]) -> [].
++    // The route must return data:[] (NOT data:undefined) so the page shows honest "Unavailable", not a crash.
++    const { status, json } = await http("POST", "/api/v1/erp/oee-trend", { days: 30 });
++    expect(status).toBe(200);
++    expect(json.ok).toBe(true);
++    expect(Array.isArray(json.data)).toBe(true);
++    expect(json.data).toHaveLength(0);
++  });
++});
+diff --git a/mcp-server/src/engines/OEECalculatorEngine.ts b/mcp-server/src/engines/OEECalculatorEngine.ts
+index 64493be8dd..697b1a0bcc 100644
+--- a/mcp-server/src/engines/OEECalculatorEngine.ts
++++ b/mcp-server/src/engines/OEECalculatorEngine.ts
+@@ -50,6 +50,25 @@ export interface OEEResult {
+   recommendations: string[];
+ }
+ 
++/** A single Six-Big-Losses entry, bucketed into the OEE component it degrades.
++ *  Shape mirrors the OEEDashboardPage `BigLoss` FE contract exactly (id/name/category/minutes_lost/description). */
++export interface OEELoss {
++  id: string;
++  name: string;
++  category: "availability" | "performance" | "quality";
++  minutes_lost: number;
++  description: string;
++}
++
++/** One day of OEE history. Shape mirrors the OEEDashboardPage `TrendDay` FE contract exactly. */
++export interface OEETrendDay {
++  date: string;
++  oee_pct: number;
++  availability_pct: number;
++  performance_pct: number;
++  quality_pct: number;
++}
++
+ // ============================================================================
+ // ENGINE CLASS
+ // ============================================================================
+@@ -148,6 +167,132 @@ export class OEECalculatorEngine {
+       recommendations: recs,
+     };
+   }
++
++  /**
++   * Project the Six Big Losses (from `calculate()`) into the OEE component each one degrades,
++   * for the OEEDashboardPage Losses tab. Pure derivation of `calculate()` -- no new data, no I/O.
++   * Reject COUNTS (startup/production) are converted to minutes lost via the ideal cycle time
++   * (each scrapped part consumed `ideal_cycle_time_sec` of capacity). Sorted worst-first to match
++   * the page's ranked display. TPM bucketing per Nakajima (1988): breakdowns + setup/changeover ->
++   * availability, speed losses (minor stops + reduced speed) -> performance, defects -> quality.
++   * @param input - the OEE measurement window (same shape `calculate()` consumes).
++   * @returns the six losses as OEELoss[] (FE BigLoss contract), ranked by minutes_lost desc.
++   */
++  losses(input: OEEInput): OEELoss[] {
++    // FAIL-CLOSED (symmetric with trend([]) -> []): if the window is UNMEASURED -- the core fields the
++    // six-big-losses math depends on are missing / non-finite (e.g. the FE's first-load empty {} body) --
++    // return [] so the page shows honest "Unavailable" rather than fabricated "0 min lost / Live" cards.
++    // The fields below are exactly those calculate() reads for the loss breakdown; any absent/NaN one means
++    // there is no real measurement to project.
++    if (!isMeasuredWindow(input)) return [];
++
++    const r = this.calculate(input);
++    const l = r.six_big_losses;
++    // Convert reject counts to minutes lost: each defect consumed one ideal cycle of capacity.
++    const idealCycleMin = (input.ideal_cycle_time_sec ?? 0) / 60;
++    const startupMin = Math.round(l.startup_rejects * idealCycleMin * 10) / 10;
++    const prodMin = Math.round(l.production_rejects * idealCycleMin * 10) / 10;
++
++    // Clamp every emitted minutes_lost to a finite, non-negative value: a loss is time lost, never negative,
++    // and a NaN/Infinity (degenerate input) must not render as a 0-width or overflowing bar on the page.
++    const safeMin = (v: number): number => (Number.isFinite(v) && v > 0 ? v : 0);
++
++    const losses: OEELoss[] = [
++      {
++        id: "breakdowns",
++        name: "Breakdowns",
++        category: "availability",
++        minutes_lost: safeMin(l.breakdowns_min),
++        description: "Equipment failures and unplanned stoppages that halt production.",
++      },
++      {
++        id: "setup_adjustment",
++        name: "Setup & Adjustment",
++        category: "availability",
++        minutes_lost: safeMin(l.setup_adjustment_min),
++        description: "Changeover, tooling swaps, and adjustment time between runs.",
++      },
++      {
++        id: "minor_stops",
++        name: "Minor Stops",
++        category: "performance",
++        minutes_lost: safeMin(l.minor_stops_min),
++        description: "Brief stoppages, jams, and idling that interrupt steady cutting.",
++      },
++      {
++        id: "reduced_speed",
++        name: "Reduced Speed",
++        category: "performance",
++        minutes_lost: safeMin(l.reduced_speed_min),
++        description: "Running below the ideal cycle time -- slow cycles and derated feeds.",
++      },
++      {
++        id: "startup_rejects",
++        name: "Startup Rejects",
++        category: "quality",
++        minutes_lost: safeMin(startupMin),
++        description: `${l.startup_rejects} scrap part(s) during warm-up / first-off before the process stabilized.`,
++      },
++      {
++        id: "production_rejects",
++        name: "Production Rejects",
++        category: "quality",
++        minutes_lost: safeMin(prodMin),
++        description: `${l.production_rejects} scrap part(s) produced during steady-state running.`,
++      },
++    ];
++
++    // Worst-first (matches the page's ranked-by-impact display).
++    return losses.sort((a, b) => b.minutes_lost - a.minutes_lost);
++  }
++
++  /**
++   * Project a series of daily OEE measurement windows into per-day OEE history for the
++   * OEEDashboardPage Trends tab. Pure derivation of `calculate()` -- no synthetic/random data.
++   * Returns [] when no samples are supplied so the fail-closed page shows honest "Unavailable"
++   * rather than fabricated trend data; samples with no `date` are dropped (the FE drops them too).
++   * @param samples - an array of daily OEEInput measurements (each should carry a `date`).
++   * @returns OEETrendDay[] (FE TrendDay contract), one row per dated sample, in input order.
++   */
++  trend(samples: OEEInput[]): OEETrendDay[] {
++    if (!Array.isArray(samples) || samples.length === 0) return [];
++    const days: OEETrendDay[] = [];
++    for (const sample of samples) {
++      const date = sample?.date;
++      if (typeof date !== "string" || date.length === 0) continue; // drop dateless rows (FE drops them)
++      const r = this.calculate(sample);
++      days.push({
++        date,
++        oee_pct: r.oee_pct,
++        availability_pct: r.availability_pct,
++        performance_pct: r.performance_pct,
++        quality_pct: r.quality_pct,
++      });
++    }
++    return days;
++  }
++}
++
++/**
++ * Is this OEEInput a REAL measurement window, or an empty/partial first-load body?
++ * The six-big-losses projection (losses()) is only meaningful when the fields its math reads are
++ * present finite numbers; an empty {} (the FE's first-load analyticsOEELosses({}) call) or a window
++ * missing core fields has nothing to project -> losses() returns [] so the page shows honest
++ * "Unavailable" instead of fabricated "0 min lost" cards. (Negatives are allowed through here so a
++ * genuine bad-data window still surfaces -- the per-loss safeMin() clamp keeps the rendered bars sane.)
++ */
++function isMeasuredWindow(input: OEEInput): boolean {
++  if (!input || typeof input !== "object") return false;
++  const required: Array<keyof OEEInput> = [
++    "planned_production_time_min",
++    "actual_run_time_min",
++    "planned_downtime_min",
++    "unplanned_downtime_min",
++    "ideal_cycle_time_sec",
++    "total_parts_produced",
++    "good_parts",
++  ];
++  return required.every((k) => Number.isFinite(input[k] as number));
+ }
+ 
+ /** Oee Calculator Engine constant.
+diff --git a/mcp-server/src/routes/erp.ts b/mcp-server/src/routes/erp.ts
+index 0efd6941a8..68c4ef0bf8 100644
+--- a/mcp-server/src/routes/erp.ts
++++ b/mcp-server/src/routes/erp.ts
+@@ -147,6 +147,18 @@ export function createErpRouter(callTool: CallToolFn): Router {
+   router.get("/credit-review/:customer_id", verifyToken, requireRole("lead", "hr_manager", "admin"),
+     rfqRoute("credit_review", (req) => ({ customer_id: String(req.params.customer_id) })));
+ 
++  // ─── OEE Dashboard losses + trend (U-HOTEL-OEE-DASHBOARD, gap #4) ──────────
++  // OEEDashboardPage (web/src/pages/OEEDashboardPage.tsx) calls analyticsOEELosses()/analyticsOEETrend()
++  // -> these routes were missing -> the Losses + Trends tabs were permanently "Unavailable". The engine
++  // methods are PURE projections of oee_calculate (no event store exists; the page is fail-closed against
++  // fabricated data, so trend([]) -> [] surfaces honest "Unavailable" on first load when no samples are
++  // posted). Reuses rfqRoute so the prism_business {type,text} slimResponse envelope is unwrapped (callTool
++  // does NOT peel it -- the recurring dead-panel class); the cases return a BARE array, so rfqRoute's
++  // `r?.data ?? r` fallback surfaces it directly. verifyToken-only: matches the sibling /analytics/oee
++  // analytics tier (OEE metrics are internal but not financial/PII; the page is a logged-in operator desk).
++  router.post("/oee-losses", verifyToken, rfqRoute("oee_losses"));
++  router.post("/oee-trend", verifyToken, rfqRoute("oee_trend"));
++
+   // ─── Job Management ───────────────────────────────────────────────────────
+   router.post("/job/plan", verifyToken, async (req, res) => {
+     try {
+diff --git a/mcp-server/src/tools/dispatchers/businessDispatcher.ts b/mcp-server/src/tools/dispatchers/businessDispatcher.ts
+index da2a708721..59bb17e517 100644
+--- a/mcp-server/src/tools/dispatchers/businessDispatcher.ts
++++ b/mcp-server/src/tools/dispatchers/businessDispatcher.ts
+@@ -1105,6 +1105,8 @@ const ACTIONS = [
+   "gl_record_wip_to_cogs",
+   // ── OEE Calculator ──
+   "oee_calculate",
++  "oee_losses",
++  "oee_trend",
+   // ── Coolant Cost Optimization ──
+   "coolant_cost_compare",
+   "coolant_cost_lifecycle",
+@@ -4593,6 +4595,18 @@ Params vary by action — pass relevant fields in params object.`,
+             result = oeeCalculatorEngine.calculate(params as any);
+             break;
+           }
++          case "oee_losses": {
++            const { oeeCalculatorEngine } = await import("../../engines/OEECalculatorEngine.js");
++            result = oeeCalculatorEngine.losses(params as any);
++            break;
++          }
++          case "oee_trend": {
++            const { oeeCalculatorEngine } = await import("../../engines/OEECalculatorEngine.js");
++            // FE posts {days:N} on first load (no samples) -> trend([]) -> [] -> page shows honest "Unavailable".
++            // An operator/integration posting {samples:[...]} (array of daily OEEInput) gets the real series.
++            result = oeeCalculatorEngine.trend((params.samples ?? params.days_samples ?? []) as any);
++            break;
++          }
+ 
+           // ── Coolant Cost Optimization ──
+           case "coolant_cost_compare": {

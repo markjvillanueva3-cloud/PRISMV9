@@ -27,7 +27,7 @@
 //           1 (no separate G7 unit)
 //   R4-P0-2 awareness-enrichment via reviewer-context-enrich.mjs — prepends
 //           4-KB RELEVANT CONTEXT block to each reviewer prompt
-//   R4-P0-3 Ollama-cascade first-pass triage — qwen2.5-coder:7b classifies
+//   R4-P0-3 Ollama-cascade first-pass triage — qwen2.5-coder:32b classifies
 //           the commit; Claude only escalates on P0 / low-confidence /
 //           ≥5 files / security-paths. Best-effort; failure = always-escalate
 //           (degraded: true, reason: "ollama_unavailable").
@@ -545,7 +545,7 @@ If unsure between PASS and FAIL, choose FAIL.`;
 // ── OLLAMA FIRST-PASS (R4-P0-3) ──────────────────────────────────────────
 
 /**
- * Best-effort Ollama triage. Asks qwen2.5-coder:7b for {severity, confidence,
+ * Best-effort Ollama triage. Asks qwen2.5-coder:32b for {severity, confidence,
  * needsClaudeReview, reason}. Returns null on any failure (caller treats as
  * always-escalate). Timeout via Promise.race.
  *

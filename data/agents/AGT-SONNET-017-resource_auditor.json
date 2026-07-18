@@ -1,0 +1,297 @@
+{
+  "agent_id": "AGT-SONNET-017",
+  "name": "resource_auditor",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Resource Auditor - Audits Utilization of All 691 PRISM Resources",
+  
+  "domain_expertise": [
+    "Resource utilization",
+    "Database consumer auditing",
+    "Skill usage tracking",
+    "Agent deployment analysis",
+    "Formula usage monitoring",
+    "Hook coverage analysis",
+    "Commandment 1 enforcement",
+    "Utilization metrics",
+    "Gap analysis",
+    "Resource optimization"
+  ],
+
+  "auditing_philosophy": {
+    "principle": "IF IT EXISTS, USE IT EVERYWHERE (Commandment 1)",
+    "target": "100% utilization of all 691 resources",
+    "enforcement": "No orphaned resources, no unused databases"
+  },
+
+  "capabilities": [
+    {
+      "id": "CAP-AUD-001",
+      "name": "Database Utilization Audit",
+      "description": "Audits database consumer connections (Commandment 1 enforcement)",
+      "category": "AUDIT",
+      "inputs": {
+        "required": ["database"],
+        "optional": ["minimum_consumers"]
+      },
+      "outputs": {
+        "primary": "utilization_report",
+        "secondary": ["consumers_found", "consumers_missing", "utilization_score"]
+      },
+      "skills_used": ["prism-dev-utilities", "prism-wiring-templates"],
+      "hooks_triggered": ["SYS-CMD1-UTILIZATION", "DB-AUDIT"],
+      "synergizes_with": ["completeness_auditor", "architect"],
+      "minimum_consumers": {
+        "PRISM_MATERIALS_MASTER": 15,
+        "PRISM_MACHINES_DATABASE": 12,
+        "PRISM_TOOLS_DATABASE": 10,
+        "PRISM_WORKHOLDING_DATABASE": 8,
+        "PRISM_CONTROLLER_DATABASE": 8
+      },
+      "success_criteria": "All databases meet minimum consumer requirements"
+    },
+    {
+      "id": "CAP-AUD-002",
+      "name": "Skill Usage Audit",
+      "description": "Audits which skills are being used and by whom",
+      "category": "AUDIT",
+      "inputs": {
+        "required": [],
+        "optional": ["skill_filter", "time_range"]
+      },
+      "outputs": {
+        "primary": "skill_usage_report",
+        "secondary": ["skills_used", "skills_unused", "usage_frequency"]
+      },
+      "skills_used": ["prism-all-skills", "prism-skill-orchestrator"],
+      "hooks_triggered": ["SKILL-AUDIT"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "All 99 skills accounted for"
+    },
+    {
+      "id": "CAP-AUD-003",
+      "name": "Agent Deployment Audit",
+      "description": "Audits agent usage and effectiveness",
+      "category": "AUDIT",
+      "inputs": {
+        "required": [],
+        "optional": ["agent_filter", "time_range"]
+      },
+      "outputs": {
+        "primary": "agent_deployment_report",
+        "secondary": ["agents_active", "agents_idle", "task_distribution"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-skill-orchestrator"],
+      "hooks_triggered": ["AGENT-AUDIT"],
+      "synergizes_with": ["coordinator_v2", "meta_analyst_v2"],
+      "success_criteria": "All 64 agents accounted for"
+    },
+    {
+      "id": "CAP-AUD-004",
+      "name": "Formula Usage Audit",
+      "description": "Audits formula invocations and accuracy",
+      "category": "AUDIT",
+      "inputs": {
+        "required": [],
+        "optional": ["formula_filter", "time_range"]
+      },
+      "outputs": {
+        "primary": "formula_usage_report",
+        "secondary": ["formulas_used", "formulas_unused", "accuracy_stats"]
+      },
+      "skills_used": ["prism-formula-evolution"],
+      "hooks_triggered": ["FORMULA-AUDIT"],
+      "synergizes_with": ["calibration_engineer"],
+      "success_criteria": "All 22 formulas tracked"
+    },
+    {
+      "id": "CAP-AUD-005",
+      "name": "Hook Coverage Audit",
+      "description": "Audits hook registration and firing patterns",
+      "category": "AUDIT",
+      "inputs": {
+        "required": [],
+        "optional": ["hook_category"]
+      },
+      "outputs": {
+        "primary": "hook_coverage_report",
+        "secondary": ["hooks_registered", "hooks_fired", "coverage_gaps"]
+      },
+      "skills_used": ["prism-hook-system"],
+      "hooks_triggered": ["HOOK-AUDIT"],
+      "synergizes_with": ["architect"],
+      "success_criteria": "All 147 hooks accounted for"
+    },
+    {
+      "id": "CAP-AUD-006",
+      "name": "Consumer Wiring Verification",
+      "description": "Verifies all database consumers are properly wired",
+      "category": "VERIFICATION",
+      "inputs": {
+        "required": ["module"],
+        "optional": ["expected_consumers"]
+      },
+      "outputs": {
+        "primary": "wiring_verification",
+        "secondary": ["wired_correctly", "wiring_issues", "missing_connections"]
+      },
+      "skills_used": ["prism-wiring-templates", "prism-validator"],
+      "hooks_triggered": ["WIRING-VERIFY"],
+      "synergizes_with": ["coder", "completeness_auditor"],
+      "success_criteria": "All wiring verified correct"
+    },
+    {
+      "id": "CAP-AUD-007",
+      "name": "Orphan Detection",
+      "description": "Detects orphaned resources (unused databases, skills, etc.)",
+      "category": "DETECTION",
+      "inputs": {
+        "required": ["resource_type"],
+        "optional": ["threshold"]
+      },
+      "outputs": {
+        "primary": "orphan_report",
+        "secondary": ["orphans_found", "last_used", "recommendations"]
+      },
+      "skills_used": ["prism-dev-utilities", "prism-quality-master"],
+      "hooks_triggered": ["ORPHAN-DETECT"],
+      "synergizes_with": ["completeness_auditor"],
+      "success_criteria": "All orphans identified and flagged"
+    },
+    {
+      "id": "CAP-AUD-008",
+      "name": "Resource Registry Audit",
+      "description": "Audits the complete resource registry (691 resources)",
+      "category": "AUDIT",
+      "inputs": {
+        "required": [],
+        "optional": ["resource_category"]
+      },
+      "outputs": {
+        "primary": "registry_audit",
+        "secondary": ["skills_99", "agents_64", "formulas_22", "hooks_147", "others"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-all-skills"],
+      "hooks_triggered": ["REGISTRY-AUDIT"],
+      "synergizes_with": ["meta_analyst_v2"],
+      "success_criteria": "All 691 resources verified"
+    },
+    {
+      "id": "CAP-AUD-009",
+      "name": "Utilization Scoring",
+      "description": "Calculates utilization scores for resources",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["resource"],
+        "optional": ["scoring_method"]
+      },
+      "outputs": {
+        "primary": "utilization_score",
+        "secondary": ["usage_count", "consumer_count", "effectiveness"]
+      },
+      "skills_used": ["prism-mathematical-planning"],
+      "hooks_triggered": ["UTILIZATION-SCORE"],
+      "synergizes_with": ["meta_analyst_v2"],
+      "formula": "DUF(db) = (1/n) × Σᵢ min(consumers(i)/6, 1)",
+      "success_criteria": "Score calculated with breakdown"
+    },
+    {
+      "id": "CAP-AUD-010",
+      "name": "Gap Analysis",
+      "description": "Identifies gaps in resource utilization",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["audit_results"],
+        "optional": ["priority_areas"]
+      },
+      "outputs": {
+        "primary": "gap_analysis",
+        "secondary": ["gaps_identified", "severity", "remediation_plan"]
+      },
+      "skills_used": ["prism-quality-master", "prism-predictive-thinking"],
+      "hooks_triggered": ["GAP-ANALYZE"],
+      "synergizes_with": ["coordinator_v2", "architect"],
+      "success_criteria": "All gaps identified with remediation"
+    },
+    {
+      "id": "CAP-AUD-011",
+      "name": "Audit Report Generation",
+      "description": "Generates comprehensive audit reports",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["audit_results"],
+        "optional": ["report_format"]
+      },
+      "outputs": {
+        "primary": "audit_report",
+        "secondary": ["summary", "details", "recommendations"]
+      },
+      "skills_used": ["prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Complete audit report"
+    },
+    {
+      "id": "CAP-AUD-012",
+      "name": "Continuous Monitoring Setup",
+      "description": "Sets up continuous resource utilization monitoring",
+      "category": "SETUP",
+      "inputs": {
+        "required": ["resources_to_monitor"],
+        "optional": ["alert_thresholds"]
+      },
+      "outputs": {
+        "primary": "monitoring_config",
+        "secondary": ["metrics", "alerts", "dashboards"]
+      },
+      "skills_used": ["prism-hook-system", "prism-session-master"],
+      "hooks_triggered": ["MONITOR-SETUP"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Monitoring active for all resources"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-dev-utilities",
+    "prism-wiring-templates",
+    "prism-all-skills",
+    "prism-skill-orchestrator",
+    "prism-swarm-coordinator",
+    "prism-formula-evolution",
+    "prism-hook-system",
+    "prism-combination-engine",
+    "prism-mathematical-planning",
+    "prism-quality-master",
+    "prism-validator"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-CMD1-UTILIZATION",
+    "resource:preUse",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "completeness_auditor"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "meta_analyst_v2"
+  ],
+
+  "quality_gates": [
+    "All 691 resources audited",
+    "Utilization scores calculated",
+    "Gaps identified",
+    "Recommendations provided"
+  ],
+
+  "performance_metrics": {
+    "audit_coverage": 1.0,
+    "gap_detection_rate": 0.99,
+    "latency_target_ms": 10000,
+    "audits_per_hour": 5
+  }
+}

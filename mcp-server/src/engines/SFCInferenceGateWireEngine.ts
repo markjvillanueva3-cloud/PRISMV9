@@ -1,4 +1,9 @@
-// WIRE-EXEMPT: Middleware engine called by SFC engines internally, not exposed via dispatcher
+// ORPHAN ON THIS BRANCH (2026-06-22 audit, U-SFC-WIRE-EXEMPT-AUDIT): the prior "called by SFC engines
+// internally" WIRE-EXEMPT was misleading -- grep-verified NO file on cad-fusion-live-ms0 imports
+// sfcInferenceGateWireEngine (refs are reverse-direction metadata strings only). NOTE: the real wiring
+// (prism_calc:ultimate_speed_feed -> this engine, U-LA1-SFC-GATE-WIRE 3d470ac75f) EXISTS on slot/india but
+// is NOT merged here (india verified 2026-06-15, [[reference_sfc_inference_gate_wire_la1_2026_06_01]]).
+// Fix = MERGE/PORT that wiring, not build new. Keyword removed so the unwired audit surfaces the gap honestly.
 /**
  * SFCInferenceGateWireEngine — U-PPG-SFC-05
  * ==========================================

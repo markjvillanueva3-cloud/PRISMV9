@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `job-planning` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/job-planning.md` |
+| Source | `C:/Users/wompu/.claude/commands/job-planning.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -19,7 +19,7 @@
  *   - knowledge/wiki/index.md                  → local BM25 wiki recall
  *   - <memory dir>/*.md                        → local memory-vault grep
  *   - .claude/commands/*.md                    → local skill match
- *   - http://localhost:11434/api/generate      → Ollama local distill (optional)
+ *   - http://127.0.0.1:11434/api/generate      → Ollama local distill (optional)
  *
  * SUBCOMMANDS
  *   recall   --source <master-index|tribal|memory|wiki|skill> --query "<q>"
@@ -43,8 +43,8 @@ const PRISM_ROOT = "H:/prism";
 const MEMORY_DIR = "C:/Users/wompu/.claude/projects/h--prism/memory";
 const WIKI_INDEX = path.join(PRISM_ROOT, "knowledge/wiki/index.md");
 const COMMANDS_DIR = path.join(PRISM_ROOT, ".claude/commands");
-const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-const OLLAMA_MODEL = process.env.PRISM_CHECKIN_RECALL_MODEL || "qwen2.5-coder:7b";
+const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
+const OLLAMA_MODEL = process.env.PRISM_CHECKIN_RECALL_MODEL || "qwen2.5-coder:32b";
 const OLLAMA_TIMEOUT_MS = Number(process.env.PRISM_CHECKIN_RECALL_OLLAMA_TIMEOUT_MS) || 6000;
 const GRAPH_QUERY_TIMEOUT_MS = Number(process.env.PRISM_CHECKIN_RECALL_GRAPH_TIMEOUT_MS) || 15000;
 const MAX_LINE = 120;
@@ -195,7 +195,7 @@ function recallSkill(query, limit) {
 // ── Ollama local distill (offloads summarize from Claude) ────────────────────
 
 // Ollama distill — MUST use a curl subprocess, NOT node fetch/http. On this
-// Windows setup node fetch to localhost:11434 fails ("fetch failed"); curl
+// Windows setup node fetch to 127.0.0.1:11434 fails ("fetch failed"); curl
 // works. This is the documented OLLAMA-PIPELINE-MS0 pattern (ollama-docker-
 // health.mjs uses the same). A fetch-based path here would silently fall back
 // to raw on EVERY call → the user's "use Ollama for token cost" directive

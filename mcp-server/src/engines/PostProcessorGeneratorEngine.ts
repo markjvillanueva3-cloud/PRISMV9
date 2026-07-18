@@ -631,6 +631,75 @@ export class PostProcessorGeneratorEngine {
     };
     return map[controller];
   }
+
+  /**
+   * JULIETT-DB-BRIDGE-MS0/U-DB-MACHINE-QUALITY-CONSUMERS — Phase 5 wire (post consumer).
+   *
+   * Wrapper over generate() that consumes machineQualityForConsumer('post')
+   * and emits a quality_optimization overlay carrying:
+   *   - controller_family (premium / production / basic) — tier-derived class
+   *   - accuracy_class (ultra_precision / precision / standard)
+   *   - recommend_look_ahead_blocks_min — minimum look-ahead the post should set
+   *
+   * Additive — when machine_id/machine not provided, behavior identical to generate().
+   *
+   * @param input Standard PostGeneratorInput. Manufacturer + model fields are
+   *              re-used to resolve machine-quality (no extra lookup args needed).
+   */
+  async generateWithMachineQuality(
+    input: PostGeneratorInput & {
+      machine_id?: string;
+      machine?: Record<string, unknown>;
+    },
+  ): Promise<GeneratedPost & {
+    quality_optimization?: {
+      controller_family: string;
+      accuracy_class: string;
+      recommend_look_ahead_blocks_min: number;
+      tier: string;
+      score: number;
+      source: string;
+    };
+  }> {
+    const base = this.generate(input);
+
+    // Resolve machine reference: explicit machine > machine_id > manufacturer+model
+    const machineRef = input.machine ?? {
+      id: input.machine_id ?? `${input.manufacturer}-${input.model}`,
+      manufacturer: input.manufacturer,
+      model: input.model,
+      controller: { family: input.controller },
+      max_rapid_mm_min: input.max_feed,
+      // machine fields not in PostGeneratorInput: way_type, positioning_accuracy_um,
+      // mass_kg, accel_g — these stay undefined → contribute to missing_fields list
+    };
+
+    const { machineQualityForConsumer } = await import("./MachineQualityScoreEngine.js");
+    const q = await machineQualityForConsumer({
+      consumer: "post",
+      machine_id: input.machine_id,
+      machine: machineRef,
+    });
+    if (!q.ok) return base;
+
+    const p = q.payload as {
+      controller_family: string;
+      accuracy_class: string;
+      recommend_look_ahead_blocks_min: number;
+    };
+
+    return {
+      ...base,
+      quality_optimization: {
+        controller_family: p.controller_family,
+        accuracy_class: p.accuracy_class,
+        recommend_look_ahead_blocks_min: p.recommend_look_ahead_blocks_min,
+        tier: q.tier,
+        score: q.score,
+        source: `machine_quality_score[${q.tier}]`,
+      },
+    };
+  }
 }
 
 export const postProcessorGeneratorEngine =

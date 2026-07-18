@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="1fcac8e88169baa1670652c0a1a30bbbf4d51b652c210478910be71a2be75834">
+<title>JULIETT TOKEN OPTIMIZATION AUDIT vs CONSOLIDATED ROADMAP (2026-05-17, iter-4)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT TOKEN OPTIMIZATION AUDIT vs CONSOLIDATED ROADMAP (2026-05-17, iter-4)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.662Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#juliett-token-optimization-audit-vs-consolidated-roadmap-2026-05-17-iter-4">JULIETT TOKEN OPTIMIZATION AUDIT vs CONSOLIDATED ROADMAP (2026-05-17, iter-4)</a></li>
+<li class="toc-l2"><a href="#0-source-content-reconstruction">§0 — Source-content reconstruction</a></li>
+<li class="toc-l2"><a href="#1-prism-vs-best-practice-audit-3-column-gap-table">§1 — PRISM vs best-practice audit (3-column gap table)</a></li>
+<li class="toc-l2"><a href="#2-datachaz-7-hacks-vs-prism">§2 — DataChaz 7+ hacks vs PRISM</a></li>
+<li class="toc-l2"><a href="#3-3-new-units-proposed-token-savings-high-leverage">§3 — 3 NEW UNITS proposed (token-savings high-leverage)</a></li>
+<li class="toc-l2"><a href="#4-consolidated-roadmap-alignment-roadmap-consolidated-2026-05-16-5826-items">§4 — Consolidated roadmap alignment (ROADMAP-CONSOLIDATED-2026-05-16 — 5826 items)</a></li>
+<li class="toc-l2"><a href="#5-synthesis-with-iter-233536-existing-work">§5 — Synthesis with iter-2/3/3.5/3.6 existing work</a></li>
+<li class="toc-l2"><a href="#6-operator-action-items">§6 — Operator action items</a></li>
+<li class="toc-l2"><a href="#7-references">§7 — References</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="juliett-token-optimization-audit-vs-consolidated-roadmap-2026-05-17-iter-4"><a class="anchor" href="#juliett-token-optimization-audit-vs-consolidated-roadmap-2026-05-17-iter-4" aria-label="Permalink to JULIETT TOKEN OPTIMIZATION AUDIT vs CONSOLIDATED ROADMAP (2026-05-17, iter-4)">#</a>JULIETT TOKEN OPTIMIZATION AUDIT vs CONSOLIDATED ROADMAP (2026-05-17, iter-4)</h1>
+<blockquote>
+<p>User directive: &quot;use playwright to read DataChaz X post + ensure we&#39;re utilizing everything optimally for token savings and we build accordingly with the consolidated master road map&quot;. X.com post 2055929071733743693 paywalled (HTTP 402). Playwright MCP not installed → WebFetch fallback per [[feedback_playwright_for_online_sources]]. Synthesized from same author&#39;s visible 7 hacks (search snippet) + Anthropic official docs (<code>code.claude.com/docs/en/costs</code>) + Towards Data Science agentic AI article + prior CyrilXBT-pattern memory [[reference_obsidian_compound_audit_2026-05-07]].</p>
+</blockquote>
+<hr>
+<h2 id="0-source-content-reconstruction"><a class="anchor" href="#0-source-content-reconstruction" aria-label="Permalink to §0 — Source-content reconstruction">#</a>§0 — Source-content reconstruction</h2>
+<p><strong>DataChaz @ X.com 2055... (paywalled — visible content via search snippet):</strong> &quot;10 hacks: #1 Rewrite, don&#39;t follow up · #2 Cut history with new chats · #3 Merge your prompts · #4 Use Projects to cache docs · #5 Set default User Memory · #6 Deactivate Search · #7 Route easy [tasks to cheaper models]&quot; — #8-#10 truncated. Same author as the 2038896226297684227 earlier &quot;ultimate cheat sheet&quot; post. Theme: per-session token discipline.</p>
+<p><strong>Anthropic official (<code>code.claude.com/docs/en/costs</code>):</strong> 16 named techniques. Most cite-able pull-quotes:</p>
+<ul>
+<li>&quot;Aim to keep CLAUDE.md under 200 lines&quot;</li>
+<li>&quot;Agent teams use approximately 7x more tokens than standard sessions when teammates run in plan mode&quot;</li>
+<li>&quot;Use Sonnet for teammates&quot;</li>
+<li>MCP tool definitions are &quot;deferred by default&quot; — only names enter context until tool used</li>
+<li>Skills load &quot;on-demand only when invoked&quot;</li>
+</ul>
+<p><strong>Towards Data Science (<code>agentic-ai-how-to-save-on-tokens</code>):</strong> 10 named techniques w/ measurable savings:</p>
+<ul>
+<li>Prompt cache &quot;up to 90% off base input&quot;</li>
+<li>Semantic cache &quot;68.8% fewer API calls&quot;</li>
+<li>Tool-search context drop &quot;55K-134K tokens → ~&quot;</li>
+<li>Context compaction &quot;30-70% reduction → $1,500-$6,000 per 100K runs&quot;</li>
+<li>Subagent delegation &quot;~11% cost reduction&quot;</li>
+</ul>
+<hr>
+<h2 id="1-prism-vs-best-practice-audit-3-column-gap-table"><a class="anchor" href="#1-prism-vs-best-practice-audit-3-column-gap-table" aria-label="Permalink to §1 — PRISM vs best-practice audit (3-column gap table)">#</a>§1 — PRISM vs best-practice audit (3-column gap table)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Best practice</th><th>PRISM state</th><th>Gap / Win</th></tr></thead>
+<tbody>
+<tr><td><strong>CLAUDE.md ≤ 200 lines</strong> (Anthropic)</td><td>~700+ lines (project) + ~140 (user global)</td><td>❌ <strong>3.5× over ceiling</strong> — recurring V2.1 P0-3 finding; move per-milestone sections into skills. <strong>NEW UNIT proposed §3</strong></td></tr>
+<tr><td><strong>Prompt caching</strong> (auto)</td><td>Anthropic auto-caches; CLAUDE.md cached-after-turn-1 visible in injection</td><td>✅ Working — confirmed by <code>cache-cached after turn 1</code> markers in this session&#39;s injections</td></tr>
+<tr><td><strong>Auto-compact at 95-98%</strong></td><td>PRISM <code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</code> capped 95-98 per AUTOCOMPACT-AUTONOMOUS-MS0</td><td>✅ Working — but PRISM doctrine prefers <code>/clear</code> over <code>/compact</code> per CLEAR-NOT-COMPACT (shipped iter-3)</td></tr>
+<tr><td><strong>Clear between unrelated tasks</strong> (<code>/clear</code>)</td><td>PRISM ships CLEAR-NOT-COMPACT doctrine (iter-3) + 11-system bypass map for state recovery</td><td>✅ Codified iter-3; pending U-CLEAR-AUTO-RESUME wire (V1 W0 alpha — fixes silent-degrade F2)</td></tr>
+<tr><td><strong><code>/compact Focus on X</code></strong> (targeted compaction)</td><td>PRISM uses precompact-handoff.mjs for auto-write; no doctrine on operator targeted-compact directive</td><td>⚠️ Underused — operator can guide compaction with focus-keyword</td></tr>
+<tr><td><strong>Use Sonnet for teammates</strong></td><td>PRISM agent dispatches default model not constrained per-team</td><td>⚠️ Implicit — could enforce via <code>Agent({model:&quot;sonnet&quot;})</code> for non-critical scrutiny agents (saves ~5× per agent vs Opus)</td></tr>
+<tr><td><strong>Subagent delegation for verbose ops</strong></td><td>PRISM heavy user (25 agents this session)</td><td>✅ Working — but rate-limited iter-3.6; respect Anthropic per-tier limits</td></tr>
+<tr><td><strong>Agent teams ~7× tokens</strong></td><td>Confirmed: this session hit rate-limit after 25 agents</td><td>⚠️ Cap teams per /goal to ≤10 agents per iter</td></tr>
+<tr><td><strong>MCP tools deferred-by-default</strong></td><td>PRISM has 7715 actions across 97 dispatchers — verify deferred-load posture</td><td>❓ AUDIT NEEDED (T8 unit U-MCP-ROUTE-SUGGEST-COVERAGE; T8 rate-limited)</td></tr>
+<tr><td><strong>CLI tools &gt; MCP for git/gh/aws</strong></td><td>PRISM uses <code>rtk git/gh/npm</code> wrapper — 60-90% token reduction</td><td>✅ Working — rtk is PRISM-native solution; recommend <code>rtk init -g</code> (hook not installed per warning in iter-2 commit)</td></tr>
+<tr><td><strong>Code intelligence plugins</strong></td><td>PRISM has plugin set + LSP tool exposure</td><td>✅ Working — confirmed by available tool list</td></tr>
+<tr><td><strong>Hook preprocessing of verbose output</strong></td><td>PRISM has 511 hooks but ~98% zero-fire per V2.1 P0-4</td><td>❌ Underused — many hooks zero-fire; opportunity to wire token-saving preprocessors (e.g. test-output filter pattern)</td></tr>
+<tr><td><strong>Skills load on-demand</strong></td><td>PRISM has 440+ skills but only 16% have auto-trigger frontmatter (V2.1 P1-10)</td><td>❌ U-SKILL-CHAIN-MANIFEST (S2 bravo+foxtrot M) — auto-trigger coverage; <strong>highest leverage</strong></td></tr>
+<tr><td><strong>Move CLAUDE.md→skills</strong></td><td>NOT done — PRISM CLAUDE.md retains all milestone history inline</td><td>❌ <strong>NEW UNIT proposed §3</strong> — extract milestone sections to skills, keep CLAUDE.md ≤200</td></tr>
+<tr><td><strong>Plan mode for complex tasks</strong></td><td>Available, not auto-routed</td><td>⚠️ /pick-build-close skill exists; no auto-route to plan mode on multi-file tasks</td></tr>
+<tr><td><strong>Rewind / Escape for course-correct</strong></td><td>Native Claude Code; PRISM has no codified usage</td><td>⚠️ Operator-facing; document in CLAUDE.md tone-and-style</td></tr>
+<tr><td><strong>Specific prompts &gt; &quot;improve this codebase&quot;</strong></td><td>PRISM doctrine: Karpathy R8 (read before write) + check <code>ENGINE_DIGEST.md</code> first</td><td>✅ Codified</td></tr>
+<tr><td><strong>Verification targets in prompt</strong></td><td>Karpathy R12 (fail-loud); per-unit specs from this session include test-shipped-criteria</td><td>✅ Codified iter-3 (5 unit specs all have Test-shipped-criteria section)</td></tr>
+<tr><td><strong>Adjust extended thinking</strong></td><td><code>MAX_THINKING_TOKENS=8000</code> for simpler tasks</td><td>⚠️ Not auto-tuned — could pair with <code>model-router</code> skill heuristics</td></tr>
+<tr><td><strong>Semantic caching</strong></td><td>NOT implemented in PRISM</td><td>❌ NEW UNIT candidate — could save 68.8% API calls per TDS article if PRISM tasks repeat</td></tr>
+<tr><td><strong>Cascading (cheap-first escalate)</strong></td><td>PRISM has <code>model-router</code> skill but cascade pattern not codified</td><td>⚠️ Half-built — model-router gives recommendation but not auto-cascade</td></tr>
+<tr><td><strong>Lazy-loading tools / Tool search</strong></td><td>MCP route-suggest auto-injects <code>prism_session:tool_route_best</code> hints (saw this session)</td><td>✅ Working — confirmed by repeated tool-route hints</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="2-datachaz-7-hacks-vs-prism"><a class="anchor" href="#2-datachaz-7-hacks-vs-prism" aria-label="Permalink to §2 — DataChaz 7+ hacks vs PRISM">#</a>§2 — DataChaz 7+ hacks vs PRISM</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Hack</th><th>PRISM equivalent</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>#1 Rewrite, don&#39;t follow up</td><td>CLEAR-NOT-COMPACT doctrine + handoff RESUME re-injection</td><td>✅ Codified iter-3</td></tr>
+<tr><td>#2 Cut history with new chats</td><td>/clear + terminal-pin (slot survives)</td><td>✅ Codified iter-3</td></tr>
+<tr><td>#3 Merge your prompts</td><td>Karpathy R10 (checkpoint after every step) + agent batching</td><td>✅ Codified</td></tr>
+<tr><td>#4 Use Projects to cache docs</td><td>CLAUDE.md (project) + skills (project-namespace)</td><td>✅ Working</td></tr>
+<tr><td>#5 Set default User Memory</td><td>CLAUDE.md (user global) at <code>H:/.claude/CLAUDE.md</code></td><td>✅ Working</td></tr>
+<tr><td>#6 Deactivate Search</td><td>n/a — PRISM doesn&#39;t expose web search in default loop</td><td>✅ N/A</td></tr>
+<tr><td>#7 Route easy tasks to cheaper models</td><td><code>model-router</code> skill + <code>ollama-task-offloader</code> (22.2% offload; target 30%)</td><td>⚠️ U-OLLAMA-OFFLOAD-PUSH-TO-30PCT (V1 W3 bravo)</td></tr>
+<tr><td>#8-#10 (truncated)</td><td>Likely: tool-search / agent-teams cap / extended-thinking</td><td>inferred from canonical sources</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="3-3-new-units-proposed-token-savings-high-leverage"><a class="anchor" href="#3-3-new-units-proposed-token-savings-high-leverage" aria-label="Permalink to §3 — 3 NEW UNITS proposed (token-savings high-leverage)">#</a>§3 — 3 NEW UNITS proposed (token-savings high-leverage)</h2>
+<ol>
+<li><strong>U-CLAUDE-MD-EXTRACT-TO-SKILLS</strong> (M, owner: juliett or echo) — extract milestone sections (JULIETT-12CHAT-ALLOCATION-MS0, RGS-TOOL-AUTOINVOKE-MS0/MS1, OBSIDIAN-INTELLIGENCE-MS3, OLLAMA-PIPELINE-MS0, FLEET-REAPER-MS0/MS1, FLEET-MEMORY-MONITOR-MS0, etc.) from CLAUDE.md project to per-milestone skills under <code>.claude/commands/milestones/&lt;ms&gt;.md</code>. Target: CLAUDE.md down from ~700 to ≤200 lines. Anthropic doctrine + recurring V2.1 P0-3 fix. <strong>Highest token-savings win</strong> — saves ~500 lines × all-chats every-session.</li>
+<li><strong>U-SEMANTIC-CACHE-FOR-REPEATED-PROMPTS</strong> (M, owner: bravo — owns ollama-pipeline) — wire embedding cache (Ollama nomic-embed-text already used by tribal indexer) against incoming prompts; cosine-similar prompt → reuse prior assistant response with operator-confirm gate. TDS article cites 68.8% reduction in API calls.</li>
+<li><strong>U-AGENT-TEAM-COST-CAP</strong> (S, owner: alpha — agent-orchestration domain) — enforce per-/goal limit ≤10 agents max per iter; for non-critical scrutiny use <code>Agent({model:&quot;sonnet&quot;})</code> default; surface running total via existing token-budget-telemetry. Closes the rate-limit-wall pattern this session hit at 25 agents.</li>
+</ol>
+<hr>
+<h2 id="4-consolidated-roadmap-alignment-roadmap-consolidated-2026-05-16-5826-items"><a class="anchor" href="#4-consolidated-roadmap-alignment-roadmap-consolidated-2026-05-16-5826-items" aria-label="Permalink to §4 — Consolidated roadmap alignment (ROADMAP-CONSOLIDATED-2026-05-16 — 5826 items)">#</a>§4 — Consolidated roadmap alignment (<code>ROADMAP-CONSOLIDATED-2026-05-16</code> — 5826 items)</h2>
+<p>Per CLAUDE.md §ROADMAP CONSOLIDATION: 849 milestones · 4497 pending · 318 misc orphans · 26 wiring + 16 deep-integration bridge units.</p>
+<p><strong>Token-optimization should slot into the PRIORITY-QUEUE backend-dev wave</strong> (per CLAUDE.md §PRIORITY-QUEUE-MS0 — color-coded blue=backend-dev TOP). The 3 new units above are pure-backend-dev → blue queue → ship BEFORE bridge units (which are higher-leverage but require backend infrastructure stable).</p>
+<p><strong>Cross-roadmap alignment</strong> — the consolidated roadmap&#39;s <code>bridge_units</code> (16 deep-integration) all assume token-efficient orchestration. Without the 3 new units above, scaling to 16 bridges + 26 wiring × 12 chats × per-iter agent fan-outs hits the same rate-limit wall observed this session.</p>
+<hr>
+<h2 id="5-synthesis-with-iter-233536-existing-work"><a class="anchor" href="#5-synthesis-with-iter-233536-existing-work" aria-label="Permalink to §5 — Synthesis with iter-2/3/3.5/3.6 existing work">#</a>§5 — Synthesis with iter-2/3/3.5/3.6 existing work</h2>
+<p>Token-optimization audit DOES NOT REPLACE the V1 allocation or synergy plan — it ADDS the §3 units. Revised total: <strong>32 (iter-2/3/3.5) + 3 (iter-4) = 35 named units</strong> in the active queue.</p>
+<p>The 5 silent-degrade fixes (F1-F5 from synergy iter-3) remain top-priority — particularly F1 (<code>master-index-search-lib</code> 200MB cap) which directly affects token cost of unified search.</p>
+<hr>
+<h2 id="6-operator-action-items"><a class="anchor" href="#6-operator-action-items" aria-label="Permalink to §6 — Operator action items">#</a>§6 — Operator action items</h2>
+<ol>
+<li><strong>Read DataChaz post 2055929071733743693 manually</strong> if able (Twitter/X auth required) — paste hacks #8-#10 to refine §3 if they differ</li>
+<li><strong>Decide U-CLAUDE-MD-EXTRACT-TO-SKILLS owner</strong> — juliett (META work) vs echo (post-ship-distill cluster owner)</li>
+<li><strong>Decide whether to enforce U-AGENT-TEAM-COST-CAP</strong> — rate-limit observed this session; cap prevents future occurrence</li>
+<li><strong>Read CLAUDE.md <code>## OLLAMA OFFLOAD DASHBOARD</code> section</strong> — semantic cache (U-SEMANTIC-CACHE-FOR-REPEATED-PROMPTS) is natural sibling</li>
+</ol>
+<hr>
+<h2 id="7-references"><a class="anchor" href="#7-references" aria-label="Permalink to §7 — References">#</a>§7 — References</h2>
+<ul>
+<li>Anthropic official: <code>https://code.claude.com/docs/en/costs</code></li>
+<li>Towards Data Science: <code>https://towardsdatascience.com/agentic-ai-how-to-save-on-tokens/</code></li>
+<li>DataChaz earlier post (visible): <code>https://x.com/DataChaz/status/2038896226297684227</code></li>
+<li>DataChaz target post (paywalled): <code>https://x.com/DataChaz/status/2055929071733743693</code></li>
+<li>PRISM V1 allocation: <code>state/shared/specs/JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md</code></li>
+<li>PRISM synergy map: <code>state/shared/specs/JULIETT-DEVTOOLS-SYNERGY-MAP-2026-05-17.md</code></li>
+<li>PRISM consolidated roadmap: <code>state/shared/specs/ROADMAP-CONSOLIDATED.json</code> (5826 items)</li>
+<li>Prior CyrilXBT memory: [[reference_obsidian_compound_audit_2026-05-07]]</li>
+<li>Standing rule: [[feedback_playwright_for_online_sources]]</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="JULIETT-TOKEN-OPTIMIZATION-AUDIT-2026-05-17.md">JULIETT-TOKEN-OPTIMIZATION-AUDIT-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

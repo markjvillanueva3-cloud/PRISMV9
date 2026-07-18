@@ -1,0 +1,1257 @@
+{
+  "id": "CCM-MS14",
+  "version": "1.0.0",
+  "title": "Stochastic Coordination Layer",
+  "brief": "Build probabilistic models for ALL system coordination behavior — hooks, caches, timeouts, retries, circuit breakers. Replace fixed/deterministic thresholds with per-hook P(success)/P(FP)/P(FN) tracking, Bayesian dedup window optimization, Beta-Binomial adaptive circuit breakers, jittered retries with P(success|attempt) tracking, log-normal timeout calibration, cache staleness risk P(stale|TTL,write_freq), cascade failure conditional probability DAG, adaptive Monte Carlo convergence, silentCatch fire rate monitoring, dedup false positive tracking, hook latency budget, agent completion P(success|model,complexity), token cost variance (mean,sigma,95%CI).",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS0",
+    "CCM-MS13"
+  ],
+  "wave": 3,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Stochastic Coordination Infrastructure",
+      "description": "Build probabilistic tracking, adaptive thresholds, and unified dashboard for all coordination subsystems — hooks, caches, dedup, retries, circuit breakers, timeouts, cascades, Monte Carlo, silentCatch, agents, and token costs.",
+      "sessions": "3-5",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Hook success rate tracker",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Per-hook rolling 30-session statistics are the foundation for all downstream stochastic coordination — every other unit depends on having reliable P(success), P(FP), P(FN), mean latency, and P95 latency per hook.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [
+            "~/.claude/hooks/lib/hook-stats-collector.sh"
+          ],
+          "hooks": [
+            "posttooluse-unified"
+          ],
+          "features": [
+            "per-hook P(success)",
+            "per-hook P(FP)",
+            "per-hook P(FN)",
+            "mean latency",
+            "P95 latency",
+            "rolling 30-session window"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS0 complete",
+            "CCM-MS13 complete",
+            "posttooluse-unified hook exists"
+          ],
+          "exit_conditions": [
+            "Per-hook metrics tracked for success/FP/FN/latency",
+            "Metrics persist to ~/.prism/coordination-stats.json",
+            "Rolling 30-session window prunes old data"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create HookSuccessTracker class in ~/.claude/hooks/lib/ that records per-hook: fires, successes, false positives, false negatives, latency samples."
+            },
+            {
+              "number": 2,
+              "instruction": "Add persistence layer writing/reading ~/.prism/coordination-stats.json with atomic writes."
+            },
+            {
+              "number": 3,
+              "instruction": "Implement rolling 30-session window with auto-prune of oldest session data."
+            },
+            {
+              "number": 4,
+              "instruction": "Wire into posttooluse-unified to capture hook execution results and latency."
+            },
+            {
+              "number": 5,
+              "instruction": "Add P(success), P(FP), P(FN), mean latency, P95 latency computed properties."
+            },
+            {
+              "number": 6,
+              "instruction": "Test with simulated hook data across 30+ sessions."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/hook-stats-collector.sh",
+              "type": "script",
+              "description": "Hook statistics collection and persistence"
+            },
+            {
+              "path": "~/.prism/coordination-stats.json",
+              "type": "data",
+              "description": "Rolling 30-session hook statistics"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Hook success rate tracker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Dedup window optimizer",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Current dedup windows are fixed (60s/120s). Collecting empirical legit-vs-duplicate data per tool and fitting Beta distributions allows principled optimization minimizing P(false_dedup)+P(missed_dedup).",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "pretooluse-unified"
+          ],
+          "features": [
+            "per-tool empirical dedup data",
+            "Beta distribution fit",
+            "optimal window minimizing P(false_dedup)+P(missed_dedup)"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 hook stats tracker operational"
+          ],
+          "exit_conditions": [
+            "Per-tool dedup windows optimized from empirical data",
+            "Beta distribution parameters stored",
+            "Window times differ per tool type"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Instrument pretooluse-unified to log every dedup decision: tool, interval_ms, was_duplicate (true/false), was_legit_repeat."
+            },
+            {
+              "number": 2,
+              "instruction": "Build Beta distribution fitter from empirical (duplicate_count, legit_count) per tool."
+            },
+            {
+              "number": 3,
+              "instruction": "Implement optimization: find window_ms minimizing P(false_dedup) + P(missed_dedup) using Beta posterior."
+            },
+            {
+              "number": 4,
+              "instruction": "Store optimized windows in coordination-stats.json; fall back to defaults until 50+ samples."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with synthetic data showing convergence to optimal windows."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/dedup-optimizer.ts",
+              "type": "script",
+              "description": "Beta distribution dedup window optimizer"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dedup window optimizer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Circuit breaker Bayesian model",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Fixed 5-fail thresholds are either too aggressive (blocking transient failures) or too lenient (allowing persistent failures). Beta-Binomial P(permanent|N consecutive fails) adapts to actual failure patterns.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Beta-Binomial failure model",
+            "adaptive open duration",
+            "P(permanent|N fails)"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 hook stats tracker operational"
+          ],
+          "exit_conditions": [
+            "Circuit breaker uses Beta-Binomial model instead of fixed threshold",
+            "Open duration adapts to failure pattern",
+            "Falls back to fixed threshold if insufficient data"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement Beta-Binomial model: prior Beta(1,1), update with (fail, success) observations per target."
+            },
+            {
+              "number": 2,
+              "instruction": "Compute P(permanent failure) = P(theta > 0.8 | data) from Beta posterior CDF."
+            },
+            {
+              "number": 3,
+              "instruction": "Replace fixed 5-fail threshold: open circuit when P(permanent) > 0.9."
+            },
+            {
+              "number": 4,
+              "instruction": "Adaptive open duration: start short (5s), extend by 2x each re-open, reset on success."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with transient (recovers after 3) and permanent (never recovers) failure sequences."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/bayesian-circuit-breaker.ts",
+              "type": "script",
+              "description": "Beta-Binomial adaptive circuit breaker"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Circuit breaker Bayesian model — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Retry strategy with jitter",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Fixed exponential backoff without jitter causes thundering herd on shared resources. Adding +/-30% uniform jitter plus P(success|attempt N) tracking enables informed retry-vs-abort decisions.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "uniform jitter +/-30%",
+            "P(success|attempt N) per error type",
+            "auto-switch to linear if P<0.1"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 hook stats tracker operational"
+          ],
+          "exit_conditions": [
+            "Retries use jittered backoff",
+            "P(success|attempt) tracked per error type",
+            "Auto-switches to linear backoff when P(success)<0.1"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement jittered exponential backoff: delay = base * 2^attempt * (1 + uniform(-0.3, 0.3))."
+            },
+            {
+              "number": 2,
+              "instruction": "Track P(success|attempt N) per error type using rolling counters."
+            },
+            {
+              "number": 3,
+              "instruction": "Add auto-switch: if P(success|attempt N) < 0.1 for all N > 3, switch to linear backoff."
+            },
+            {
+              "number": 4,
+              "instruction": "Add abort condition: if P(success|attempt N) < 0.01, stop retrying."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with simulated transient and permanent error sequences."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/jittered-retry.ts",
+              "type": "script",
+              "description": "Jittered retry with P(success|attempt) tracking"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Retry strategy with jitter — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Timeout calibration",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Fixed timeouts are either too short (causing spurious failures) or too long (wasting time on stuck operations). Fitting log-normal to observed latencies per (action, effort) and setting timeout=P99+2sigma gives principled, adaptive timeouts.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "per-action latency collection",
+            "log-normal fit",
+            "timeout = P99 + 2sigma",
+            "effort-aware"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 hook stats tracker collecting latency data"
+          ],
+          "exit_conditions": [
+            "Timeouts calibrated per (action, effort) from log-normal fit",
+            "Adaptive timeouts replace fixed values after 20+ samples",
+            "Fallback to fixed timeout with insufficient data"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Collect latency samples per (action_type, effort_level) tuple in coordination-stats.json."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement log-normal MLE fit: mu = mean(ln(x)), sigma = std(ln(x))."
+            },
+            {
+              "number": 3,
+              "instruction": "Compute adaptive timeout = exp(mu + 2.326*sigma) + 2*exp(sigma^2-1)*exp(2*mu+sigma^2) (P99 + 2*stddev)."
+            },
+            {
+              "number": 4,
+              "instruction": "Apply adaptive timeout when sample count >= 20; use fixed default otherwise."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with synthetic latency data showing convergence to tight timeouts."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/timeout-calibrator.ts",
+              "type": "script",
+              "description": "Log-normal timeout calibration per action"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Timeout calibration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Cache hit rate monitor",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Caches with fixed TTLs risk serving stale data or evicting prematurely. Tracking per-key hit/miss/eviction and computing P(stale|TTL,write_freq) enables automatic TTL shortening when staleness risk exceeds 5%.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "per-key hit/miss/eviction tracking",
+            "P(stale|TTL,write_freq)",
+            "auto-shorten TTL if P(stale)>0.05"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 coordination stats infrastructure exists"
+          ],
+          "exit_conditions": [
+            "Cache hit/miss/eviction tracked per key",
+            "P(stale) computed from TTL and write frequency",
+            "TTL auto-shortened when P(stale) > 0.05"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Instrument all cache operations (ActionSchemaCache, ResponseCache, FrequentPath) with hit/miss/eviction counters."
+            },
+            {
+              "number": 2,
+              "instruction": "Track write frequency per key: exponential moving average of inter-write intervals."
+            },
+            {
+              "number": 3,
+              "instruction": "Compute P(stale) = 1 - exp(-TTL / mean_write_interval) for Poisson write model."
+            },
+            {
+              "number": 4,
+              "instruction": "Auto-shorten TTL: if P(stale) > 0.05, set TTL = -ln(0.95) * mean_write_interval."
+            },
+            {
+              "number": 5,
+              "instruction": "Persist cache stats to coordination-stats.json; test with varying write frequencies."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/cache-monitor.ts",
+              "type": "script",
+              "description": "Cache staleness risk monitor with auto-TTL adjustment"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cache hit rate monitor — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Cascade failure detector",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "PostProcessorPipeline has 26 stages x 20 dialects where upstream failures can cascade. Building a conditional probability DAG P(stage N fail | stage N-1 fail) and alerting on correlation > 0.7 enables proactive cascade detection.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "dependency DAG for pipeline stages",
+            "P(stage N fail | stage N-1 fail)",
+            "correlation alert > 0.7"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 coordination stats infrastructure exists",
+            "PostProcessorPipelineEngine accessible"
+          ],
+          "exit_conditions": [
+            "Dependency DAG built for 26 stages x 20 dialects",
+            "Conditional failure probabilities tracked",
+            "Alert fires when correlation > 0.7"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build stage dependency DAG from PostProcessorPipeline's 7 phases and 26 stages."
+            },
+            {
+              "number": 2,
+              "instruction": "Instrument pipeline to record per-run: which stages succeeded/failed, per dialect."
+            },
+            {
+              "number": 3,
+              "instruction": "Compute pairwise P(stage_j fail | stage_i fail) from co-failure counts."
+            },
+            {
+              "number": 4,
+              "instruction": "Flag cascade risk when any conditional probability exceeds 0.7."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with simulated cascade (early stage failure propagating) and independent failures."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/cascade-detector.ts",
+              "type": "script",
+              "description": "Pipeline cascade failure conditional probability DAG"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cascade failure detector — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Monte Carlo convergence monitor",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Fixed 500-trial Monte Carlo wastes compute when results converge early and under-samples when variance is high. Checking CI width after 250 trials and adaptively adding 250 more (capped at 2000) optimizes compute/accuracy tradeoff.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "CI width check at 250 trials",
+            "adaptive +250 if sigma/mu > threshold",
+            "cap at 2000 trials"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS0 complete"
+          ],
+          "exit_conditions": [
+            "Monte Carlo runs use adaptive trial counts",
+            "Early convergence stops at 250",
+            "High variance extends to 2000 max"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Identify all Monte Carlo call sites: SpeedFeedOrchestrator (500), PostProcessor (500), SetupTransition."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement adaptive sampler: run 250, check CV = sigma/mu; if CV > 0.05 add 250 more; repeat until CV < 0.05 or N = 2000."
+            },
+            {
+              "number": 3,
+              "instruction": "Track convergence stats: trials_used, final_CV, CI_width per invocation."
+            },
+            {
+              "number": 4,
+              "instruction": "Replace fixed-count MC calls with adaptive sampler."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with low-variance (converges at 250) and high-variance (needs 2000) distributions."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/adaptive-mc.ts",
+              "type": "script",
+              "description": "Adaptive Monte Carlo convergence monitor"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Monte Carlo convergence monitor — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "silentCatch fire rate monitor",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "The 49 silentCatch sites suppress errors silently. Monitoring fires/session and fires/hour per site, plus P(cascade|catch), detects when suppressed errors are actually symptoms of systemic issues.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "per-site fires/session",
+            "fires/hour",
+            "P(cascade|catch)",
+            "alert if >5x/session"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 coordination stats infrastructure exists",
+            "silentCatch utility in use"
+          ],
+          "exit_conditions": [
+            "All silentCatch sites emit fire events",
+            "Per-site fire rate tracked",
+            "Alert when any site fires >5x/session"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Modify silentCatch utility to emit a telemetry event on every catch: site_id, error_type, timestamp."
+            },
+            {
+              "number": 2,
+              "instruction": "Aggregate per-site: fires_this_session, fires_per_hour (exponential moving average)."
+            },
+            {
+              "number": 3,
+              "instruction": "Track P(cascade|catch): probability that a catch at site A is followed by catch at site B within 1s."
+            },
+            {
+              "number": 4,
+              "instruction": "Alert mechanism: log warning when any site exceeds 5 fires/session."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with simulated rapid-fire errors and cascade sequences."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/silent-catch-monitor.ts",
+              "type": "script",
+              "description": "silentCatch fire rate and cascade detector"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "silentCatch fire rate monitor — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Dedup false positive tracker",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "When dedup blocks a call, there is no feedback on whether blocking was correct. Recording blocked calls and post-session analysis reveals the false positive rate, feeding back into P0-U02 window optimization.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "pretooluse-unified"
+          ],
+          "features": [
+            "blocked call recording",
+            "post-session FP analysis",
+            "FP rate per tool"
+          ],
+          "dependencies": [
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "P0-U02 dedup window optimizer operational"
+          ],
+          "exit_conditions": [
+            "Every dedup block is recorded with context",
+            "Post-session analysis identifies false positives",
+            "FP rate tracked per tool and fed to optimizer"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "On every dedup block in pretooluse-unified, record: tool, args_hash, timestamp, session_context."
+            },
+            {
+              "number": 2,
+              "instruction": "Post-session: analyze blocked calls — if same tool+different args was called later, prior block was likely FP."
+            },
+            {
+              "number": 3,
+              "instruction": "Compute FP rate per tool; persist to coordination-stats.json."
+            },
+            {
+              "number": 4,
+              "instruction": "Feed FP rate into P0-U02 Beta distribution as additional evidence."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with known FP and true-positive dedup sequences."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/dedup-fp-tracker.ts",
+              "type": "script",
+              "description": "Dedup false positive detection and feedback"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dedup false positive tracker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U11",
+          "title": "Hook latency budget",
+          "phase": "P0",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Hooks must not add perceptible latency. A 500ms budget per tool call with P(exceed) tracking and auto-skip of low-priority hooks under pressure keeps the system responsive.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "pretooluse-unified",
+            "posttooluse-unified"
+          ],
+          "features": [
+            "500ms budget per tool call",
+            "P(exceed) tracking",
+            "auto-skip low-priority hooks"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 hook latency data available"
+          ],
+          "exit_conditions": [
+            "Hook execution stays within 500ms budget",
+            "P(exceed) tracked per hook",
+            "Low-priority hooks auto-skipped when approaching budget"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Assign priority levels (1-5) to all hook check blocks based on impact."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement budget tracker: accumulate hook latency per tool call; track P(exceed 500ms)."
+            },
+            {
+              "number": 3,
+              "instruction": "When elapsed > 350ms, skip remaining hooks with priority < 3."
+            },
+            {
+              "number": 4,
+              "instruction": "When elapsed > 450ms, skip all remaining hooks except priority 5 (safety)."
+            },
+            {
+              "number": 5,
+              "instruction": "Log skip decisions; track P(skip) per hook for priority re-ranking."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/latency-budget.ts",
+              "type": "script",
+              "description": "Hook latency budget enforcer with priority-based skip"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Hook latency budget — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U12",
+          "title": "Agent completion rate by model",
+          "phase": "P0",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Agent spawns vary widely in success rate by model and task complexity. Tracking P(success|model, complexity, maxTurns) enables data-driven model selection for new spawns.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "posttooluse-unified"
+          ],
+          "features": [
+            "P(success|model,complexity,maxTurns)",
+            "auto-select model for new spawns",
+            "complexity estimation"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 coordination stats infrastructure exists"
+          ],
+          "exit_conditions": [
+            "Agent completion rate tracked per (model, complexity, maxTurns)",
+            "Model selection recommendations available",
+            "Historical data persisted across sessions"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Instrument Agent tool wrapper to record: model, task_description, complexity_score, maxTurns, actual_turns, success/failure."
+            },
+            {
+              "number": 2,
+              "instruction": "Estimate complexity from: task word count, expected tool calls, domain (code/search/analysis)."
+            },
+            {
+              "number": 3,
+              "instruction": "Compute P(success|model, complexity_bucket, maxTurns) from historical data."
+            },
+            {
+              "number": 4,
+              "instruction": "Recommend model: pick cheapest model where P(success) > 0.9 for given complexity."
+            },
+            {
+              "number": 5,
+              "instruction": "Persist agent performance data to coordination-stats.json; test with simulated spawns."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/agent-model-selector.ts",
+              "type": "script",
+              "description": "Agent model selection from P(success|model,complexity)"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Agent completion rate by model — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U13",
+          "title": "Token cost variance tracker",
+          "phase": "P0",
+          "sequence": 13,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Token costs vary significantly session-to-session and skill-to-skill. Tracking mean/sigma/95%CI per session and per skill enables anomaly detection for runaway costs (>2sigma from mean).",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "posttooluse-unified"
+          ],
+          "features": [
+            "per-session mean/sigma/95%CI",
+            "per-skill cost tracking",
+            "anomaly detection >2sigma"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "P0-U01 coordination stats infrastructure exists",
+            "SessionTokenLedger available"
+          ],
+          "exit_conditions": [
+            "Token cost tracked per session with mean/sigma/95%CI",
+            "Per-skill cost tracked",
+            "Anomalous sessions (>2sigma) flagged"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Integrate with SessionTokenLedger to capture per-tool-call token costs."
+            },
+            {
+              "number": 2,
+              "instruction": "Compute running mean/sigma per session; compute 95% CI = mean +/- 1.96*sigma/sqrt(n)."
+            },
+            {
+              "number": 3,
+              "instruction": "Track per-skill aggregates: mean cost, sigma, min, max over rolling 30 sessions."
+            },
+            {
+              "number": 4,
+              "instruction": "Flag anomalous sessions where total cost > mean + 2*sigma of historical sessions."
+            },
+            {
+              "number": 5,
+              "instruction": "Persist cost variance data to coordination-stats.json; test with synthetic cost sequences."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/token-cost-variance.ts",
+              "type": "script",
+              "description": "Token cost variance tracker with anomaly detection"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Token cost variance tracker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U14",
+          "title": "Stochastic coordination dashboard",
+          "phase": "P0",
+          "sequence": 14,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "All 13 prior units produce probabilistic metrics. A unified dashboard aggregating all P() metrics, rolling windows, trends, and anomaly flags into ~/.prism/coordination-stats.json provides complete coordination observability.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [
+            "/coordination-stats"
+          ],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "unified P() metrics view",
+            "rolling windows",
+            "trend analysis",
+            "anomaly flags",
+            "CLI dashboard"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03",
+            "P0-U04",
+            "P0-U05",
+            "P0-U06",
+            "P0-U07",
+            "P0-U08",
+            "P0-U09",
+            "P0-U10",
+            "P0-U11",
+            "P0-U12",
+            "P0-U13"
+          ],
+          "entry_conditions": [
+            "All P0-U01 through P0-U13 operational"
+          ],
+          "exit_conditions": [
+            "Dashboard displays all P() metrics from all 13 subsystems",
+            "Rolling trends visible",
+            "Anomaly flags aggregated",
+            "Accessible via /coordination-stats skill"
+          ],
+          "rollback": "git checkout -- state/CCM-MS14/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Design unified coordination-stats.json schema: sections for hooks, dedup, circuits, retries, timeouts, cache, cascades, mc, catches, agents, tokens."
+            },
+            {
+              "number": 2,
+              "instruction": "Build dashboard renderer: table format showing each subsystem's key P() metrics, trend arrows, anomaly flags."
+            },
+            {
+              "number": 3,
+              "instruction": "Add trend analysis: compare current 5-session window to prior 25-session window; flag significant shifts."
+            },
+            {
+              "number": 4,
+              "instruction": "Create /coordination-stats skill that renders dashboard on demand."
+            },
+            {
+              "number": 5,
+              "instruction": "Add SessionStart auto-summary: one-line health status if any anomalies detected."
+            },
+            {
+              "number": 6,
+              "instruction": "Integration test: populate all subsystem data, verify dashboard renders correctly."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/coordination-dashboard.ts",
+              "type": "script",
+              "description": "Unified stochastic coordination dashboard"
+            },
+            {
+              "path": "~/.claude/commands/coordination-stats.md",
+              "type": "skill",
+              "description": "Skill to render coordination statistics dashboard"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": true,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": true,
+          "description": "Stochastic coordination dashboard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms14-gate",
+    "mcp_action": "prism_ccm:ccm_ms14_run",
+    "skill_command": "/ccm-ms14",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms14-gate"
+    ],
+    "new_actions": [
+      "ccm_ms14_run"
+    ],
+    "new_skills": [
+      "/ccm-ms14"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build probabilistic models for ALL system coordination behavior — hooks, caches, timeouts, retries, circuit breakers. Replace fixed/deterministic thresholds with per-hook P(success)/P(FP)/P(FN) tracking, Bayesian dedup window optimization, Beta-Binomial adaptive circuit breakers, jittered retries with P(success|attempt) tracking, log-normal timeout calibration, cache staleness risk P(stale|TTL,write_freq), cascade failure conditional probability DAG, adaptive Monte Carlo convergence, silentCatch fire rate monitoring, dedup false positive tracking, hook latency budget, agent completion P(success|model,complexity), token cost variance (mean,sigma,95%CI).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

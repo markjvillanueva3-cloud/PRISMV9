@@ -1,0 +1,114 @@
+{
+  "id": "QS-MS3",
+  "version": "6.3.0",
+  "title": "Pipeline Synergy — SFO + ProcessVariability + Assemblers",
+  "track": "QS",
+  "created_at": "2026-03-15T17:00:00Z",
+  "status": "complete",
+  "total_units": 7,
+  "completed_units": 7,
+  "description": "Complete synergy rewiring: SpeedFeedOrchestrator delegates to UltimateSpeedFeed, ProcessVariabilityIntegration delegates to VAR-MS0 stochastic engines, and specialized assemblers share canonical material data. Target quality scores: SFO 64→95, ProcessVariability 80→95, all assemblers 85+.",
+  "dependencies": [
+    "QS-MS2"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "SpeedFeedOrchestratorEngine → UltimateSpeedFeedEngine delegation",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "SFO core S/F delegates to UltimateSpeedFeedEngine",
+          "description": "SFO keeps its role as context resolver (8 resolvers) + limit checker + stochastic wrapper. Core S/F calculation delegates to UltimateSpeedFeedEngine.compute(). SFO becomes a true orchestrator, not a reimplementation.",
+          "acceptance": [
+            "Core S/F calculation delegates to UltimateSpeedFeedEngine.compute()",
+            "SFO retains 8 context resolvers and limit checking",
+            "SFO no longer reimplements base S/F calculation"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U02",
+          "title": "SFO stochastic delegation to VAR engines",
+          "description": "MC simulation delegates to StochasticCuttingForceEngine. Stability analysis delegates to StochasticChatterEngine. Seeded PRNG from constants.ts used for reproducible results.",
+          "acceptance": [
+            "MC simulation delegates to StochasticCuttingForceEngine",
+            "Stability analysis delegates to StochasticChatterEngine",
+            "Reproducible results via seeded PRNG from constants.ts"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U03",
+          "title": "SFO delegation tests",
+          "description": "Add 10+ tests verifying SFO correctly delegates to UltimateSpeedFeedEngine, StochasticCuttingForceEngine, and StochasticChatterEngine, including fallback behavior.",
+          "acceptance": [
+            "10+ tests pass",
+            "All delegation paths tested including fallbacks",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "ProcessVariabilityIntegrationEngine → VAR-MS0 engines",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Replace inline Force→Deflection→Dimension→Cpk chain",
+          "description": "Replace inline Force→Deflection→Dimension→Cpk pipeline with delegation to StochasticCuttingForceEngine, StochasticDeflectionEngine, StochasticDimensionalEngine, and UncertaintyPropagationPipelineEngine. Use seeded PRNG from constants.ts.",
+          "acceptance": [
+            "Force delegates to StochasticCuttingForceEngine",
+            "Deflection delegates to StochasticDeflectionEngine",
+            "Dimensional delegates to StochasticDimensionalEngine",
+            "Pipeline chaining uses UncertaintyPropagationPipelineEngine",
+            "Seeded PRNG from constants.ts for reproducibility"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P1-U02",
+          "title": "ProcessVariability delegation tests",
+          "description": "Add 5+ tests verifying ProcessVariabilityIntegrationEngine correctly delegates to all 4 VAR-MS0 engines.",
+          "acceptance": [
+            "5+ tests pass",
+            "All 4 engine delegations verified",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Specialized Assemblers shared material access",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Assemblers import CANONICAL_MATERIAL_DB",
+          "description": "EDM, Grinding, Turning, Laser, and Waterjet assemblers import CANONICAL_MATERIAL_DB from src/physics/constants.ts for shared material properties. Shared tool modulus lookup from CANONICAL_TOOL_MODULUS. No full rewiring — specialized physics stays domain-specific.",
+          "acceptance": [
+            "All 5 assemblers import material data from CANONICAL_MATERIAL_DB",
+            "Tool modulus resolved from CANONICAL_TOOL_MODULUS",
+            "Specialized domain-specific physics preserved"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P2-U02",
+          "title": "Assembler shared material tests",
+          "description": "Add 5+ tests across all 5 assemblers verifying correct use of canonical material and tool modulus data.",
+          "acceptance": [
+            "5+ tests pass covering all 5 assemblers",
+            "Material properties match canonical values",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-03-15T18:00:00Z"
+}

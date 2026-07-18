@@ -370,6 +370,15 @@ describe("PPSinkerEDMPostEngine", () => {
       });
       expect(r.gcode_text).toContain("EA28V");
     });
+
+    it("supports EA12D (JM EDM-02) with the correct identity header, not the EA12V default", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        machine_model: "EA12D",
+        operations: [{ stage: "rough", target_depth_mm: 5 }],
+      });
+      expect(r.gcode_text).toContain("MITSUBISHI EA12D");
+      expect(r.gcode_text).not.toContain("EA12V"); // regression: EA12D must not fall back to the default
+    });
   });
 
   // ══════════════════════════════════════════════════════════════════════
@@ -505,6 +514,177 @@ describe("PPSinkerEDMPostEngine", () => {
         }],
       });
       expect(r.gcode_text).toContain("Q0.10000");
+    });
+  });
+
+  // ==========================================================================
+  // NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP) -- a NaN/Infinity start
+  // coord, plunge depth, retract, or orbit radius must never leak a literal
+  // XNaN/ZInfinity the Mitsubishi sinker control rejects. Sinker-EDM arm of the
+  // bug-class sweep; sibling of the OkumaB250/OkumaOSP/HurcoV11/Mitsubishi/PPOkuma/
+  // PPWireEDM/FiveAxis fixes.
+  // ==========================================================================
+  describe("non-finite emit guard (U-PP-NONFINITE-EMIT-SWEEP)", () => {
+    const gen = (op: Record<string, unknown>) =>
+      ppSinkerEDMPostEngine.generate({ machine_id: "jmdie-mitsubishi-ea12", operations: [{ stage: "rough", target_depth_mm: 10, ...op }] as never });
+    // Danger = a non-finite EXECUTABLE token (`XNaN`/`ZInfinity`); the ERROR comment
+    // intentionally echoes field=value as the fail-loud signal (R12).
+    const noBadToken = (g: string) => {
+      expect(g).not.toMatch(/[XYZQRIJ]NaN/);
+      expect(g).not.toMatch(/[XYZQRIJ]Infinity/);
+    };
+
+    it("[regression] a finite op emits real plunge motion with NO non-finite warning", () => {
+      const r = gen({ start_x: 5, start_y: 5, target_depth_mm: 8 });
+      expect(/G8[123] Z/.test(r.gcode_text)).toBe(true);
+      expect(r.warnings.some(w => w.includes("non-finite"))).toBe(false);
+      expect(r.gcode_text).not.toContain("DO NOT RUN");
+    });
+
+    it("NaN start_x halts the op with an ERROR marker -- no literal XNaN", () => {
+      const r = gen({ start_x: NaN, start_y: 5 });
+      noBadToken(r.gcode_text);
+      expect(r.warnings.some(w => w.includes("non-finite emit field"))).toBe(true);
+      expect(r.gcode_text).toContain("DO NOT RUN");
+    });
+
+    it("Infinity target_depth_mm halts the op -- no literal ZInfinity", () => {
+      const r = gen({ target_depth_mm: Infinity });
+      noBadToken(r.gcode_text);
+      expect(r.warnings.some(w => w.includes("non-finite emit field"))).toBe(true);
+    });
+
+    it("NaN orbit_radius_mm halts the op -- no literal RNaN", () => {
+      const r = gen({ orbit_radius_mm: NaN, orbit_pattern: "circular" });
+      noBadToken(r.gcode_text);
+      expect(r.warnings.some(w => w.includes("non-finite emit field"))).toBe(true);
+    });
+
+    it("a non-finite op is dropped but valid neighbors still emit", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        machine_id: "jmdie-mitsubishi-ea12",
+        operations: [
+          { stage: "rough", target_depth_mm: NaN } as never,
+          { stage: "finish", target_depth_mm: 6 } as never,
+        ],
+      });
+      noBadToken(r.gcode_text);
+      expect(r.gcode_text).toContain("DO NOT RUN");          // bad op flagged
+      expect(/G8[123] Z/.test(r.gcode_text)).toBe(true);     // good op emits
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════════
+  // U-PP-EDM-MATERIAL-WIRE -- the sinker post is now material-aware via the
+  // canonical EDM material DB (src/data/edm-material-db.ts). The wiring is
+  // ADVISORY ONLY: header comments + warnings + burn-time estimate. The SAFETY
+  // INVARIANT (proven below) is that material NEVER changes the emitted pulse
+  // params (IP/ON/OF/SV) or motion blocks that reach real iron.
+  // ══════════════════════════════════════════════════════════════════════
+  describe("material-aware wiring (U-PP-EDM-MATERIAL-WIRE)", () => {
+    const roughOp = { stage: "rough" as const, target_depth_mm: 10 };
+
+    it("emits a MAT PROPS header line resolved from the canonical DB", () => {
+      const r = ppSinkerEDMPostEngine.generate({ material: "H13", operations: [roughOp] });
+      // H13 is a die-steel grade -> tool_steel multipass bucket (mrr 0.90), H13 bi-props
+      // (machinability 0.92, melt 1427C).
+      expect(r.gcode_text).toContain("(MAT PROPS: TOOL_STEEL | MRR 0.90x | MACHINABILITY 0.92 | MELT 1427C)");
+      expect(r.material_resolved).toBe("tool_steel");
+    });
+
+    it("preserves the raw operator material string in the MATERIAL header", () => {
+      const r = ppSinkerEDMPostEngine.generate({ material: "P20", operations: [roughOp] });
+      expect(r.gcode_text).toContain("(MATERIAL: P20)"); // operator grade not lost
+      expect(r.material_resolved).toBe("tool_steel");     // resolved bucket
+    });
+
+    it("die-steel grades (H13/D2/A2/S7/M2) resolve to the tool_steel bucket, never undefined", () => {
+      for (const grade of ["H13", "D2", "A2", "S7", "M2"]) {
+        const r = ppSinkerEDMPostEngine.generate({ material: grade, operations: [roughOp] });
+        expect(r.material_resolved).toBe("tool_steel");
+        expect(r.gcode_text).toContain("MRR 0.90x"); // tool_steel mrr_factor
+      }
+    });
+
+    it("an alias die-steel grade (P20) shows die-steel bi-props in the header, not plain steel's", () => {
+      // P20 -> tool_steel bucket; the bi table has no tool_steel key, so it would fall back to
+      // STEEL (machinability 1.00, melt 1500C). The fix substitutes H13's die-steel profile so
+      // the TOOL_STEEL header is consistent (H13: machinability 0.92, melt 1427C).
+      const r = ppSinkerEDMPostEngine.generate({ material: "P20", operations: [roughOp] });
+      expect(r.gcode_text).toContain("MACHINABILITY 0.92"); // H13 die-steel, NOT steel's 1.00
+      expect(r.gcode_text).toContain("MELT 1427C");          // H13, NOT steel's 1500C
+      expect(r.gcode_text).not.toContain("MACHINABILITY 1.00");
+    });
+
+    it("plain steel (1018) keeps the steel bucket + steel bi-props (not substituted)", () => {
+      const r = ppSinkerEDMPostEngine.generate({ material: "1018", operations: [roughOp] });
+      expect(r.material_resolved).toBe("steel");
+      expect(r.gcode_text).toContain("MACHINABILITY 1.00"); // steel, correctly unchanged
+    });
+
+    it("flags a distortion-prone workpiece (H13) with a header advisory", () => {
+      const r = ppSinkerEDMPostEngine.generate({ material: "H13", operations: [roughOp] });
+      expect(r.gcode_text).toContain("DISTORTION-PRONE");
+    });
+
+    it("does NOT flag distortion for a non-prone material (aluminum)", () => {
+      const r = ppSinkerEDMPostEngine.generate({ material: "6061", operations: [roughOp] });
+      expect(r.material_resolved).toBe("aluminum");
+      expect(r.gcode_text).not.toContain("DISTORTION-PRONE");
+    });
+
+    it("flags an aggressive-flush material (carbide, flush 1.4) with a header advisory", () => {
+      const r = ppSinkerEDMPostEngine.generate({ material: "carbide", operations: [roughOp] });
+      expect(r.material_resolved).toBe("tungsten_carbide");
+      expect(r.gcode_text).toContain("AGGRESSIVE FLUSH");
+      expect(r.gcode_text).toContain("factor 1.40");
+    });
+
+    it("does NOT flag aggressive flush for a low-flush material (copper, 0.85)", () => {
+      const r = ppSinkerEDMPostEngine.generate({ material: "copper", operations: [roughOp] });
+      expect(r.material_resolved).toBe("copper");
+      expect(r.gcode_text).not.toContain("AGGRESSIVE FLUSH");
+    });
+
+    it("scales the burn-time estimate by the material MRR factor (carbide ~3x slower than steel)", () => {
+      const steel = ppSinkerEDMPostEngine.generate({ material: "1018", operations: [roughOp] });
+      const carbide = ppSinkerEDMPostEngine.generate({ material: "carbide", operations: [roughOp] });
+      // steel mrr 1.0 -> 1000/(200*1.0)=5 min ; carbide mrr 0.35 -> 1000/(200*0.35)=14.3 -> 14 min
+      expect(steel.estimated_burn_time_min).toBe(5);
+      expect(carbide.estimated_burn_time_min).toBe(14);
+      expect(carbide.estimated_burn_time_min!).toBeGreaterThan(steel.estimated_burn_time_min!);
+    });
+
+    it("adds a material-aware over-current warning when peak current exceeds the material max", () => {
+      // carbide max_current_A = 200; use semi_finish so the rough-only 64A check does not fire
+      const r = ppSinkerEDMPostEngine.generate({
+        material: "carbide",
+        operations: [{ stage: "semi_finish", target_depth_mm: 10, peak_current_a: 250 }],
+      });
+      expect(r.warnings.some(w => w.includes("tungsten_carbide max safe current (200A"))).toBe(true);
+    });
+
+    it("an unknown material falls back to steel without crashing", () => {
+      const r = ppSinkerEDMPostEngine.generate({ material: "ZZZ-NOT-A-MATERIAL", operations: [roughOp] });
+      expect(r.material_resolved).toBe("steel");
+      expect(r.gcode_text).toContain("MRR 1.00x");
+      expect(r.gcode_text).not.toContain("DISTORTION-PRONE");
+    });
+
+    it("SAFETY INVARIANT: material changes NO executable G-code (only comments/warnings/estimate)", () => {
+      const execLines = (m: string) =>
+        ppSinkerEDMPostEngine
+          .generate({ material: m, operations: [{ ...roughOp, peak_current_a: 30 }] })
+          .gcode_lines.filter(l => l.trim() !== "" && !l.trim().startsWith("("));
+      // copper vs steel vs carbide -- the emitted pulse/motion blocks must be byte-identical;
+      // only the (...) comment lines and warnings/estimate differ by material.
+      const steel = execLines("1018");
+      const copper = execLines("copper");
+      const carbide = execLines("carbide");
+      expect(copper).toEqual(steel);
+      expect(carbide).toEqual(steel);
+      // and the pulse params are the stage-default rough values regardless of material
+      expect(steel.join("\n")).toContain("IP30"); // caller-supplied 30A, unchanged by material
     });
   });
 });

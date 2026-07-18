@@ -157,6 +157,28 @@ const priority_score = z.object({
 }).passthrough();
 
 // ============================================================================
+// embedding_guard_evaluate -- XGAL-WIRE: tiered cosine-similarity duplicate guard
+// (EmbeddingGuardEngine via the local ONNX embedder). references may carry a
+// precomputed vector; otherwise the dispatcher embeds name+description.
+// ============================================================================
+
+const embedding_guard_evaluate = z.object({
+  candidate: z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+  }),
+  references: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    vector: z.array(z.number()).optional(),
+  })),
+  topK: z.number().int().positive().optional(),
+  config: z.object({ yellowAt: z.number(), redAt: z.number() }).optional(),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -175,4 +197,5 @@ export const ACTION_GUARD_SCHEMAS: ActionSchemaMap = {
   learning_save,
   lkg_status,
   priority_score,
+  embedding_guard_evaluate,
 };

@@ -15,7 +15,8 @@
  */
 
 import { log } from "../utils/Logger.js";
-import type { BaseEngine, EngineInfo, EngineCapability } from "./BaseEngine.js";
+import { BaseEngine } from "./BaseEngine.js";
+import type { EngineInfo, EngineCapability } from "./BaseEngine.js";
 // WIRE-EXEMPT: U-EFF43 only added a num() coercion helper for FeatureSpec.params (Record<string, number | string>). Engine is consumed via CAD generation facades, not directly dispatched.
 import type { FeatureSpec } from "./NeuralCADGenerationEngine.js";
 
@@ -149,13 +150,15 @@ const MATERIAL_CONSTRAINTS: Record<string, { minWall: number; minRadius: number;
 // ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 
-class DFMAwareGenerationEngine implements BaseEngine {
-  readonly info: EngineInfo = {
-    name: "DFMAwareGenerationEngine",
-    version: "1.0.0",
-    domain: "cad_dfm",
-    description: "Manufacturability-aware CAD generation with DFM filtering",
-  };
+class DFMAwareGenerationEngine extends BaseEngine {
+  constructor() {
+    super({
+      name: "DFMAwareGenerationEngine",
+      version: "1.0.0",
+      domain: "cad_dfm",
+      description: "Manufacturability-aware CAD generation with DFM filtering",
+    });
+  }
 
   getCapabilities(): EngineCapability[] {
     return [
@@ -175,6 +178,10 @@ class DFMAwareGenerationEngine implements BaseEngine {
       return "features array is required";
     }
     return null;
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    return this.generateWithDFM(input as DFMGenerationInput);
   }
 
   // ─────────────────────────────────────────────────────────────────────────

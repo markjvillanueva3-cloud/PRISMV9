@@ -1,0 +1,176 @@
+{
+  "id": "F360-MS5",
+  "version": "1.0.0",
+  "title": "Advanced Manufacturing Intelligence",
+  "brief": "Multi-setup coordination, fixture design assistance with clamping force calculations, tool magazine optimization, and shop floor integration (Fusion 360 → machine folder → job tracker).",
+  "created_at": "2026-03-31T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "F360",
+  "track_name": "Fusion 360 Desktop Control + Deep Integration",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "F360-6",
+      "title": "Advanced Manufacturing Intelligence",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "U-F360-22",
+          "title": "Multi-setup coordination (shared tools, common datums, setup sequencing)",
+          "effort": 85,
+          "dependencies": [
+            "U-F360-19"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Multi-setup coordination (shared tools, common datums, setup sequencing) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-F360-23",
+          "title": "Fixture design assistance (clamping surfaces, force calc, interference check)",
+          "effort": 80,
+          "dependencies": [
+            "U-F360-22"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Fixture design assistance (clamping surfaces, force calc, interference check) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-F360-24",
+          "title": "Shop floor integration (G-code export, setup sheet, tool crib, job tracker)",
+          "effort": 85,
+          "dependencies": [
+            "U-F360-23"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Shop floor integration (G-code export, setup sheet, tool crib, job tracker) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.7,
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true
+      }
+    }
+  ],
+  "total_units": 3,
+  "total_sessions": 3,
+  "dependency_graph": {
+    "U-F360-22": [
+      "U-F360-19"
+    ],
+    "U-F360-23": [
+      "U-F360-22"
+    ],
+    "U-F360-24": [
+      "U-F360-23"
+    ]
+  },
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "f360-ms5-gate",
+    "mcp_action": "prism_f360:f360_ms5_run",
+    "skill_command": "/f360-ms5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "f360-ms5-gate"
+    ],
+    "new_actions": [
+      "f360_ms5_run"
+    ],
+    "new_skills": [
+      "/f360-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Multi-setup coordination, fixture design assistance with clamping force calculations, tool magazine optimization, and shop floor integration (Fusion 360 → machine folder → job tracker).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

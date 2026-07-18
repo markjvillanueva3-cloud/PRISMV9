@@ -21,6 +21,7 @@
  */
 
 import { readFileSync, writeFileSync, renameSync, copyFileSync, existsSync, openSync, fsyncSync, closeSync, unlinkSync } from "node:fs";
+import { readGraphStreaming, writeGraphStreamingAtomic } from "./lib/graph-io.mjs";
 import { resolve, dirname } from "node:path";
 
 const GRAPH_PATH = resolve("H:/prism/state/shared/system-viz/system-graph.json");
@@ -470,8 +471,7 @@ function main() {
 
   const t0 = Date.now();
   console.error(`[seed-ghost-nodes] reading ${GRAPH_PATH} ...`);
-  const raw = readFileSync(GRAPH_PATH, "utf8");
-  const graph = JSON.parse(raw);
+  const graph = readGraphStreaming(GRAPH_PATH);  // off-heap: JSON.parse(readFileSync utf8) throws at >512MiB (U-VIZ-READER-CAPSAFE 2026-06-10)
   console.error(`[seed-ghost-nodes] parsed in ${Date.now()-t0}ms — nodes=${(graph.nodes||[]).length} edges=${(graph.edges||[]).length}`);
 
   graph.nodes = graph.nodes || [];
@@ -488,7 +488,7 @@ function main() {
     const removedEdges = beforeEdges - graph.edges.length;
     console.error(`[seed-ghost-nodes] REVERT — removed ${removedNodes} ghost nodes + ${removedEdges} ghost edges`);
     delete graph.meta.ghostSeeder;
-    atomicWrite(GRAPH_PATH, JSON.stringify(graph, null, 2));
+    writeGraphStreamingAtomic(GRAPH_PATH, graph);  // cap-safe: raw JSON.stringify on the >512MiB graph throws Invalid-string-length (U-VIZ-WRITER-CAPSAFE 2026-06-23)
     console.error(`[seed-ghost-nodes] DONE — graph nodes=${graph.nodes.length} edges=${graph.edges.length}`);
     return;
   }
@@ -548,7 +548,7 @@ function main() {
   // ── APPLY ───────────────────────────────────────────────
   console.error(`[seed-ghost-nodes] writing ${GRAPH_PATH} (final nodes=${graph.nodes.length} edges=${graph.edges.length}) ...`);
   const writeT0 = Date.now();
-  atomicWrite(GRAPH_PATH, JSON.stringify(graph, null, 2));
+  writeGraphStreamingAtomic(GRAPH_PATH, graph);  // cap-safe: raw JSON.stringify on the >512MiB graph throws Invalid-string-length (U-VIZ-WRITER-CAPSAFE 2026-06-23)
   console.error(`[seed-ghost-nodes] write done in ${Date.now()-writeT0}ms`);
   console.error(`[seed-ghost-nodes] DONE — graph nodes=${graph.nodes.length} edges=${graph.edges.length}`);
 }

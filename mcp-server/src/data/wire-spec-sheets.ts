@@ -500,6 +500,9 @@ export const WIRE_SPEC_CATALOG: WireSpecification[] = [
   ...SHINKO_KOBELCO,
 ];
 
+/** Back-compat alias: WEDMWirePremiumROIEngine and older consumers import `WIRE_SPECS`. */
+export const WIRE_SPECS = WIRE_SPEC_CATALOG;
+
 // ============================================================================
 // LOOKUP FUNCTIONS
 // ============================================================================

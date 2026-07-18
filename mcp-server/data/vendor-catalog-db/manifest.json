@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "1.0.0",
+  "store": "vendor-catalog-db",
+  "owner": "juliett",
+  "generatedBy": "scripts/build-vendor-catalog-db.mjs",
+  "generatedAt": "2026-06-02T15:15:55.205Z",
+  "directoryStats": {
+    "total": 482,
+    "bySource": {
+      "both": 150,
+      "curated": 81,
+      "jm-ap": 156,
+      "harvested": 95
+    },
+    "byCategory": {
+      "machine-builder": 28,
+      "tooling-consumable": 143,
+      "fixturing": 15,
+      "overhead-utility": 16,
+      "machine-shop": 47,
+      "outside-process": 21,
+      "misc": 103,
+      "material": 27,
+      "additive": 10,
+      "inspection-quality": 13,
+      "cam-software": 9,
+      "automation": 11,
+      "tool-holder": 9,
+      "coolant-lubricant": 10,
+      "service-company": 8,
+      "freight-shipping": 4,
+      "controls": 8
+    },
+    "byPricing": {
+      "quote": 175,
+      "catalog": 142,
+      "unknown": 156,
+      "api": 9
+    },
+    "byType": {
+      "supplier": 387,
+      "machine-shop": 42,
+      "reseller": 6,
+      "service": 12,
+      "machine-builder": 28,
+      "marketplace": 7
+    },
+    "byReach": {
+      "global": 127,
+      "national": 144,
+      "unknown": 171,
+      "regional": 13,
+      "local": 27
+    },
+    "bySourceTag": {
+      "imts": 80,
+      "thomasnet": 42,
+      "resources-catalog": 102
+    },
+    "withWebsite": 310,
+    "withApi": 11,
+    "needsVerification": 39,
+    "hotelMerged": 0
+  },
+  "description": "Durable, schema-versioned persistence of Charlie's VENDOR-NETWORK-MS0 vendor corpus (supplier directory + catalog vendors + JM procurement + SFC-maker pointers). Consolidated from the gitignored/regenerable state/shared/quoting/ coordination files. Re-run scripts/build-vendor-catalog-db.mjs after Charlie's pipeline regenerates them.",
+  "advisoryOnly": false,
+  "counts": {
+    "vendors": 482,
+    "vendors_with_website": 310,
+    "catalogs": 114,
+    "sfc_makers": 169,
+    "sfc_high_priority": 80,
+    "sfc_already_ingested": 18,
+    "jm_tool_vendors": 49,
+    "jm_total_tool_spend": 4914833.88
+  },
+  "tables": {
+    "tables/vendors.jsonl": "supplier/distributor directory (vendor_id, name, vendor_type, categories, website, reach, regions, pricing_access, has_api, jm)",
+    "tables/catalog-vendors.jsonl": "harvested catalog-vendor records (the makers behind the pulled cutting-tool catalog PDFs)",
+    "tables/sfc-makers.jsonl": "POINTER projection of the SFC extraction manifest (vendor, priority, on-disk, already-ingested, target .ts file) — NOT cutting data; oscar owns that",
+    "tables/jm-tool-purchases.json": "JM Die real tool-procurement rollup (which makers JM buys; spend by vendor)"
+  },
+  "sourceRegistry": {
+    "vendors": {
+      "path": "state/shared/quoting/vendor-directory.jsonl",
+      "bytes": 228456,
+      "mtime": "2026-06-01T13:12:22.096Z",
+      "records": 482
+    },
+    "catalogs": {
+      "path": "state/shared/quoting/vendor-sources/catalog-vendors.jsonl",
+      "bytes": 54135,
+      "mtime": "2026-06-01T13:01:48.114Z",
+      "records": 114
+    },
+    "jmBuys": {
+      "path": "state/shared/quoting/jm-tool-purchases.json",
+      "bytes": 16017,
+      "mtime": "2026-05-30T05:03:11.423Z"
+    },
+    "sfc": {
+      "path": "state/shared/quoting/catalog-sfc-extraction-manifest.json",
+      "bytes": 136231,
+      "mtime": "2026-06-01T13:12:22.140Z"
+    },
+    "dirIndex": {
+      "path": "state/shared/quoting/vendor-directory-index.json",
+      "bytes": 1271,
+      "mtime": "2026-06-01T13:12:22.008Z"
+    }
+  },
+  "crossRef": {
+    "charlie_corpus_index": "state/shared/quoting/VENDOR-CATALOG-CORPUS-INDEX.json",
+    "sfc_extraction_manifest": "state/shared/quoting/catalog-sfc-extraction-manifest.json (oscar — cutting-data .ts targets)",
+    "sfc_data_targets": "mcp-server/src/data/<vendor>-speed-feed-data.ts (oscar's extraction output)",
+    "legacy_tool_count_manifest": "mcp-server/data/vendor-catalog-manifest.json (distinct: 38-PDF tool-COUNT extraction, not this directory)",
+    "pulled_pdfs_dir": "H:/PRISM/Resources/MANUFACTURER_CATALOGS/uploaded/pulled-2026-05-29 (164 PDFs, not in repo)",
+    "jm_die_database": "mcp-server/data/jm-die-database/ (JM corpus — procurement cross-ref)"
+  },
+  "consumers": [
+    "business (hotel — supplier master/procurement)",
+    "speed-feed (oscar — SFC source)",
+    "mill (foxtrot)",
+    "post-processor (echo)",
+    "cam (kilo)",
+    "quoting (charlie — owner of acquisition)"
+  ]
+}

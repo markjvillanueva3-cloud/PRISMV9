@@ -17,7 +17,22 @@
  *
  * Symmetric concentric-ring layout per layer; sub-category arcs colored by hue.
  *
- * Output: state/shared/system-viz/system-graph.json
+ * Output: state/shared/system-viz/architecture-graph.json
+ *
+ * RENAMED 2026-05-17 (U-VIZ-SPLIT-OUT-FILE, /forge-audit-v2 echo):
+ * This script and `regen-viz.mjs` previously both wrote `system-graph.json`,
+ * silently clobbering each other (last-writer-wins). `regen-viz.mjs` owns the
+ * canonical merged ~372K-node graph that all awareness consumers expect
+ * (carries `fsCoverage`). This script generates a DIFFERENT product — the
+ * ~20K-node architecture-only graph (`schemaVersion 2.1.0`, no fsCoverage) —
+ * and now writes to its own path so the two producers no longer fight.
+ *
+ * If a consumer wants the architecture-only graph, read
+ * `state/shared/system-viz/architecture-graph.json`. The merged graph at
+ * `system-graph.json` is the default everywhere else.
+ *
+ * Audit: state/shared/specs/DEV-TOOL-CONFLICT-AUDIT-2026-05-17.md (F1+F11)
+ * Regression: CLAUDE.md ## Recent regressions (2026-05-17 entries)
  */
 
 import fs from "node:fs";
@@ -29,11 +44,15 @@ import {
   HTML_REPORT_SCHEMA_VERSION,
 } from "./lib/html-report-render.mjs";
 import { buildAgentOverlay, parseChatJsonl } from "./lib/agent-overlay.mjs";
+import { computeDomainCoverage } from "./lib/viz-domain-coverage.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(ROOT, "state", "shared", "system-viz");
-const OUT_FILE = path.join(OUT_DIR, "system-graph.json");
+// U-VIZ-SPLIT-OUT-FILE 2026-05-17 — see top-of-file rationale.
+// Was: path.join(OUT_DIR, "system-graph.json") — clobbered the regen-viz merged
+// graph. Now distinct: architecture-only graph has its own path.
+const OUT_FILE = path.join(OUT_DIR, "architecture-graph.json");
 // OBSIDIAN-INTELLIGENCE-MS3/C1: summary HTML lives ALONGSIDE the existing
 // graph.html 3D viewer. Different role: summary is info-dense, printable,
 // air-gap-safe; graph.html is the interactive WebGL 3D viz.
@@ -295,71 +314,55 @@ for (const f of dispatcherFiles.sort()) {
   dispatcherNodes.push(n);
 }
 
-// ---------- L5 Engine Domains ----------
-// take the top 16 unwired domains (already ranked by count) plus a few wired-heavy domains we know exist
-const domainsBuiltIn = [
-  { domain: "Mill",        count: 240, status: "wired" },
-  { domain: "WEDM",        count: 130, status: "wired" },
-  { domain: "Cad",         count: 200, status: "wired" },
-  { domain: "Cam",         count: 290, status: "wired" },
-  { domain: "Safety",      count: 80,  status: "wired" },
-  { domain: "AI",          count: 280, status: "wired" },
-  { domain: "Quality",     count: 90,  status: "wired" },
-  { domain: "Cost",        count: 60,  status: "wired" },
-  { domain: "ERP",         count: 110, status: "wired" },
-  { domain: "Adaptive",    count: 70,  status: "wired" },
-  { domain: "Memory",      count: 35,  status: "wired" },
-  { domain: "Hook",        count: 54,  status: "wired" },
-  { domain: "Material",    count: 80,  status: "wired" },
-  { domain: "Tool",        count: 95,  status: "wired" },
-  { domain: "Toolpath",    count: 130, status: "wired" },
-  { domain: "Physics",     count: 50,  status: "wired" },
-  { domain: "Probe",       count: 28,  status: "wired" },
-  { domain: "Knowledge",   count: 45,  status: "wired" },
-  { domain: "Session",     count: 25,  status: "wired" },
-  { domain: "Forge",       count: 20,  status: "wired" },
-  { domain: "Inspect",     count: 18,  status: "wired" },
-  { domain: "Network",     count: 22,  status: "wired" },
-  { domain: "Calibration", count: 20,  status: "wired" },
-  { domain: "Twin",        count: 15,  status: "wired" },
-];
-const unwiredDomains = (buildState.NEEDS_WIRING?.top_domains ?? []).slice(0, 16);
-const allDomains = [
-  ...domainsBuiltIn,
-  ...unwiredDomains.map(d => ({ domain: d.domain, count: d.count, status: "unwired" })),
-];
-for (const d of allDomains) {
+// ---------- L5 Engine Domains (single-source — VIZ-COVERAGE-MS0/U-VIZ-COVERAGE-FIX) ----------
+// Domains + counts come straight from BUILD_STATE.COVERAGE_BY_DOMAIN.rows
+// (build-state-snapshot.mjs::computeCoverageByDomain) via the shared
+// viz-domain-coverage lib — NOT a hand-edited array. The old `domainsBuiltIn`
+// block carried hardcoded engine counts that drifted from BUILD_STATE, so the
+// viz headline and BUILD_STATE.json disagreed on the same wired-engine metric.
+// The lib surfaces the top-40 domains by engine count + one aggregated "rest"
+// bucket; every L5 node sums back to the BUILD_STATE total exactly.
+//
+// The lib's #1 domain is BUILD_STATE's literal "Other" prefix bucket → node
+// id `eng.other`. There is NO separate hand-rolled residual catchall anymore
+// (it would collide on that id) — the lib's rest bucket (`eng.miscdomains`)
+// is the catchall.
+const { top: l5Domains, rest: l5Rest, coverage: l5Coverage } =
+  computeDomainCoverage(buildState.COVERAGE_BY_DOMAIN?.rows ?? []);
+if (l5Domains.length === 0) {
+  // Single-source-of-truth input missing/empty — fail loud (R12) rather than
+  // silently render an empty L5 layer + a false "0% wired" headline.
+  console.warn(
+    "  [L5] BUILD_STATE.COVERAGE_BY_DOMAIN.rows is empty or missing — the L5 "
+    + "engine-domain layer will be empty. Regenerate with: node scripts/build-state-snapshot.mjs",
+  );
+}
+
+function addEngineDomainNode(d, { isRest = false } = {}) {
+  const fullyWired = d.unwired === 0;
   addNode({
-    id: `eng.${d.domain.toLowerCase()}`,
+    id: isRest ? "eng.miscdomains" : `eng.${d.domain.toLowerCase()}`,
     layer: "L5",
-    subgroup: d.status === "wired" ? "wired" : "unwired",
-    label: `${d.domain}\n(${d.count})`,
-    color: d.status === "wired" ? "#22c55e" : "#f97316",
-    status: d.status === "wired" ? "built" : (d.count > 50 ? "stub_heavy" : "stub"),
-    size: 0.55 + Math.sqrt(d.count) * 0.10,
-    count: d.count,
-    domain: d.domain,
-    info: `${d.count} engines in '${d.domain}' domain (${d.status})`,
+    // "unwired" subgroup = domain carries wiring debt — drives the phantom
+    // suggestion edges + the phase-2 wire-up roadmap below.
+    subgroup: fullyWired ? "wired" : "unwired",
+    label: `${isRest ? "Misc Domains" : d.domain}\n(${d.wired}/${d.total})`,
+    color: fullyWired ? "#22c55e" : "#f97316",
+    status: fullyWired ? "built" : (d.unwired > 50 ? "stub_heavy" : "stub"),
+    size: 0.55 + Math.sqrt(d.total) * 0.10,
+    count: d.total,
+    wired: d.wired,
+    unwired: d.unwired,
+    coverage_pct: d.coverage_pct,
+    domain: isRest ? "MiscDomains" : d.domain,
+    info: isRest
+      ? `${d.domainCount} smaller domains aggregated — ${d.wired}/${d.total} engines wired (${d.coverage_pct}%)`
+      : `${d.domain}: ${d.wired}/${d.total} engines wired (${d.coverage_pct}%)`
+        + (d.unwired ? ` — ${d.unwired} need wiring` : ""),
   });
 }
-// Catchall — engines that didn't bucket into any named domain
-const domainSum = allDomains.reduce((s, d) => s + d.count, 0);
-const totalEngines = counts.engines || 3173;
-const otherCount = Math.max(0, totalEngines - domainSum);
-if (otherCount > 0) {
-  addNode({
-    id: "eng.other",
-    layer: "L5",
-    subgroup: "wired",
-    label: `Other\n(${otherCount})`,
-    color: "#64748b",
-    status: "built",
-    size: 0.55 + Math.sqrt(otherCount) * 0.10,
-    count: otherCount,
-    domain: "Other",
-    info: `${otherCount} engines not bucketed into a named domain — residual catchall`,
-  });
-}
+for (const d of l5Domains) addEngineDomainNode(d);
+if (l5Rest) addEngineDomainNode(l5Rest, { isRest: true });
 
 // ---------- L6 Cores (algorithms / schemas / constants / migrations) ----------
 const cores = [
@@ -905,12 +908,27 @@ function dispatcherToDomains(name) {
   if (/calc|physics|vibration|fluid|forming|welding|mechanical/.test(n)) d.push("physics");
   return d;
 }
+// VIZ-COVERAGE-MS0: L5 is now BUILD_STATE's first-capword-prefix taxonomy
+// (Other, Lathe, Mill, Tool...), NOT the old hand-curated semantic domains.
+// dispatcherToDomains() still emits semantic tokens (cad, cam, wedm, safety,
+// ai...). A token with no matching L5 node is COUNTED and WARNED — never
+// silently dropped (R12). Re-aligning the heuristic to the prefix taxonomy
+// is a documented follow-up (see the VIZ-COVERAGE-MS0 envelope).
+const l5IdSet = new Set(nodes.filter(n => n.layer === "L5").map(n => n.id));
+const unresolvedL5Targets = new Set();
 for (const d of dispatcherNodes) {
-  const doms = dispatcherToDomains(d.id);
-  for (const dom of doms) {
-    const target = nodes.find(n => n.id === `eng.${dom}`);
-    if (target) addEdge(d.id, target.id, "lazy_import", "active", 0.4);
+  for (const dom of dispatcherToDomains(d.id)) {
+    const targetId = `eng.${dom}`;
+    if (l5IdSet.has(targetId)) addEdge(d.id, targetId, "lazy_import", "active", 0.4);
+    else unresolvedL5Targets.add(dom);
   }
+}
+if (unresolvedL5Targets.size > 0) {
+  console.warn(
+    `  [L4->L5] ${unresolvedL5Targets.size} dispatcher domain token(s) have no L5 node `
+    + `(dispatcherToDomains heuristic predates the BUILD_STATE prefix taxonomy): `
+    + [...unresolvedL5Targets].sort().join(", "),
+  );
 }
 
 // L5 -> L6 (engines depend on cores)
@@ -1014,12 +1032,15 @@ const suggestionEdges = [];
 for (const n of nodes.filter(x => x.layer === "L5" && x.subgroup === "unwired")) {
   const targets = suggestDispatchersForDomain(n.domain ?? n.label.split('\n')[0]);
   n.suggestedDispatchers = targets;
-  // Compute "unlocks" cascade: how many engines wire-up + downstream gain
+  // Compute "unlocks" cascade: how many engines wire-up + downstream gain.
+  // The wire-up backlog is the domain's UNWIRED count (n.unwired), not its
+  // total engine count — an L5 node now carries both wired + unwired.
+  const wireBacklog = n.unwired ?? n.count ?? 0;
   n.unlocks = {
-    engines: n.count ?? 0,
+    engines: wireBacklog,
     dispatchersGain: targets.length,
     downstreamHops: 2, // engines -> dispatchers -> frontends
-    leverageScore: (n.count ?? 0) * targets.length, // simple ROI proxy
+    leverageScore: wireBacklog * targets.length, // simple ROI proxy
   };
   for (const t of targets) {
     suggestionEdges.push({ from: n.id, to: t, type: "suggested_wire", status: "phantom", intensity: 0.5 });
@@ -1050,14 +1071,14 @@ const roadmap = {
     {
       phase: 2,
       name: "Engine wire-up (Tier 1, highest leverage)",
-      reason: "898 unwired engines = 28% of code orphaned. Wiring is cheap, capability gain is huge.",
+      reason: `${l5Coverage.unwired} unwired engines = ${100 - l5Coverage.coverage_pct}% of code orphaned. Wiring is cheap, capability gain is huge.`,
       items: nodes.filter(n => n.layer === "L5" && n.subgroup === "unwired")
         .sort((a, b) => (b.unlocks?.leverageScore ?? 0) - (a.unlocks?.leverageScore ?? 0))
         .slice(0, 10)
         .map(n => ({
           kind: "wire-up",
           domain: n.domain,
-          engineCount: n.count,
+          engineCount: n.unwired ?? n.count, // wire-up backlog = unwired count
           suggestedDispatchers: n.suggestedDispatchers,
           leverageScore: n.unlocks.leverageScore,
         })),
@@ -1073,7 +1094,7 @@ const roadmap = {
     {
       phase: 4,
       name: "New build (only after 1-3 stable)",
-      reason: "Don't add new engines/pages while 28% of existing engines are unwired. YAGNI.",
+      reason: `Don't add new engines/pages while ${100 - l5Coverage.coverage_pct}% of existing engines are unwired. YAGNI.`,
       items: [{ kind: "policy", note: "Defer net-new feature work until Phase 1-3 are < 10% gap" }],
     },
   ],
@@ -1083,6 +1104,11 @@ const roadmap = {
 const meta = {
   counts,
   headline: { built, unwired, pendingFE, drift, wikiEntries },
+  // Single-source engine-domain coverage (VIZ-COVERAGE-MS0/U-VIZ-COVERAGE-FIX).
+  // Aggregated straight from BUILD_STATE.COVERAGE_BY_DOMAIN.rows — equals the
+  // sum of every L5 domain node. The viz headline can no longer disagree with
+  // BUILD_STATE.json on the wired/total/% metric.
+  coverage: l5Coverage,
   dispatcherCatCount,
   pageClusters,
   totals: { nodes: nodes.length, edges: edges.length + suggestionEdges.length, layers: 11 },
@@ -1259,7 +1285,7 @@ if (FLAGS.html) {
     subtitle: "Atomic 10-layer graph snapshot · companion to the 3D viewer at /system-viz",
     generatedAt: out.generatedAt,
     sections,
-    note: `Source JSON: state/shared/system-viz/system-graph.json · 3D viewer: state/shared/system-viz/graph.html · render schema ${HTML_REPORT_SCHEMA_VERSION}`,
+    note: `Source JSON: state/shared/system-viz/architecture-graph.json (architecture-only ~20K nodes; for merged ~372K-node graph use system-graph.json from regen-viz.mjs) · 3D viewer: state/shared/system-viz/graph.html · render schema ${HTML_REPORT_SCHEMA_VERSION}`,
   });
   fs.writeFileSync(OUT_HTML, html);
   console.log(`  summary: ${OUT_HTML}`);

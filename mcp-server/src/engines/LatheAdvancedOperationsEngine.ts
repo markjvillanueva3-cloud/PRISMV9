@@ -37,6 +37,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE, type ISOGroup } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -311,6 +312,25 @@ const ORING_GROOVE_SPECS: Record<string, { gland_depth_mm: number; width_mm: num
 // ENGINE IMPLEMENTATION
 // ============================================================================
 
+export interface FormTurningParams {
+  form_width_mm: number; // total engaged width of the ground form profile (mm)
+  material: string; // ISO group (P/M/K/N/S/H) or a common material name
+  feed_mm_rev?: number; // nominal radial feed; default 0.08
+  depth_mm?: number; // radial form depth (informational)
+  max_radial_force_N?: number; // radial-force ceiling for feed de-rating; default 1500 N (form-tool guideline)
+}
+
+export interface FormTurningResult {
+  engaged_width_mm: number;
+  iso_group: string;
+  radial_force_N: number; // Kienzle Fc at the nominal feed
+  recommended_feed_mm_rev: number; // de-rated to hold the force ceiling when needed
+  derated: boolean;
+  chatter_risk: "low" | "moderate" | "high";
+  notes: string[];
+  source: string;
+}
+
 export class LatheAdvancedOperationsEngine {
 
   /**
@@ -375,6 +395,14 @@ export class LatheAdvancedOperationsEngine {
         result.machine_requirements = ["Live tooling", "C-axis", "Rigid tapping or floating holder"];
         result.spindle_mode = "index";
         result.recommended_parameters.feed_mm_rev = params.feature_depth_mm;  // = pitch
+        // Plausibility guard on the feature_depth-carries-pitch API contract: a caller passing
+        // the HOLE DEPTH here (e.g. 10) would program a tap-breaking 10mm/rev feed.
+        if (params.feature_depth_mm > 6) {
+          result.collision_warnings.push(
+            `feature_depth_mm carries the tap PITCH for cross_tapping -- ${params.feature_depth_mm}mm/rev ` +
+            `is implausible as a pitch; passing the hole DEPTH here would program a tap-breaking feed`
+          );
+        }
         result.programming_notes.push(
           "Match feed to pitch exactly",
           "Use G84 with rigid tapping or G184 with floating",
@@ -535,6 +563,15 @@ export class LatheAdvancedOperationsEngine {
   getAdvancedThreadingParams(params: AdvancedThreadParams): AdvancedThreadResult {
     log.info(`[LatheAdvancedOps] Threading: ${params.thread_form}, ${params.pitch_mm}mm pitch`);
 
+    // Fail-loud: a non-positive/NaN pitch previously produced a silent-wrong result
+    // (negative depth -> empty pass list -> total_passes 0).
+    if (!Number.isFinite(params.pitch_mm) || params.pitch_mm <= 0) {
+      throw new Error("getAdvancedThreadingParams: pitch_mm must be positive finite");
+    }
+    if (params.depth_mm !== undefined && (!Number.isFinite(params.depth_mm) || params.depth_mm <= 0)) {
+      throw new Error("getAdvancedThreadingParams: depth_mm must be positive finite when provided");
+    }
+
     const spec = THREAD_SPECS[params.thread_form];
 
     // Calculate thread depth
@@ -585,6 +622,16 @@ export class LatheAdvancedOperationsEngine {
 
     // Thread form specific notes
     result.programming_notes.push(...spec.notes);
+
+    // R12 fail-loud: the 20-pass safety cap otherwise truncates the decomposition silently
+    // (doc_per_pass would sum to less than thread_depth_mm with no signal).
+    if (remainingDepth > 0.02) {
+      result.programming_notes.push(
+        `WARNING: pass decomposition truncated at the 20-pass safety cap -- ` +
+        `${Math.round(remainingDepth * 1000) / 1000}mm of the ${Math.round(threadDepth * 1000) / 1000}mm depth is NOT decomposed; ` +
+        `verify the requested depth is plausible for a ${params.pitch_mm}mm pitch`
+      );
+    }
 
     if (starts > 1) {
       result.programming_notes.push(
@@ -791,20 +838,18 @@ export class LatheAdvancedOperationsEngine {
     log.info(`[LatheAdvancedOps] Eccentric turning: ${params.offset_mm}mm offset`);
 
     // Determine best method based on offset magnitude
-    let method: "offset_tailstock" | "four_jaw" | "eccentric_chuck" | "y_axis";
-    if (params.offset_mm > params.diameter_mm / 4) {
-      method = "four_jaw";
-    } else if (params.offset_mm < 2) {
-      method = "offset_tailstock";
-    } else {
-      method = "eccentric_chuck";  // Or Y-axis if available
-    }
+    const selectEccentricMethod = (offsetMm: number, diameterMm: number): EccentricResult["method"] => {
+      if (offsetMm > diameterMm / 4) return "four_jaw";
+      if (offsetMm < 2) return "offset_tailstock";
+      return "eccentric_chuck";  // Or Y-axis if available
+    };
+    const method = selectEccentricMethod(params.offset_mm, params.diameter_mm);
 
     // Calculate safe RPM based on unbalance
     const unbalanceMass = params.offset_mm * params.diameter_mm * 0.1;  // Rough estimate
     const maxSafeRpm = Math.min(2000, Math.round(3000 / Math.sqrt(unbalanceMass)));
 
-    const setupProcedures: Record<typeof method, string[]> = {
+    const setupProcedures: Record<EccentricResult["method"], string[]> = {
       offset_tailstock: [
         "Mount workpiece between centers",
         `Offset tailstock ${params.offset_mm}mm from centerline`,
@@ -954,6 +999,67 @@ export class LatheAdvancedOperationsEngine {
       ],
       contour_types: ["convex", "concave", "complex", "spherical"],
     };
+  }
+
+  /**
+   * Form turning -- a ground form tool engages its FULL width at once, so the radial cutting force
+   * scales with the engaged form width: Fc = kc1.1 * b * fn^(1-mc) (Kienzle; kc1.1/mc from
+   * CANONICAL_KIENZLE, never inlined). Feed is de-rated to hold a radial-force ceiling.
+   */
+  getFormTurningParams(params: FormTurningParams): FormTurningResult {
+    log.info(`[LatheAdvancedOps] Form turning: width ${params.form_width_mm}mm`);
+    const b = params.form_width_mm;
+    if (!Number.isFinite(b) || b <= 0) {
+      throw new Error("getFormTurningParams: form_width_mm must be positive finite");
+    }
+    const fn = params.feed_mm_rev ?? 0.08;
+    if (!Number.isFinite(fn) || fn <= 0) {
+      throw new Error("getFormTurningParams: feed_mm_rev must be positive finite");
+    }
+    const iso = this.toISOGroup(params.material);
+    const { kc1_1, mc } = CANONICAL_KIENZLE[iso];
+    const ceiling = params.max_radial_force_N ?? 1500;
+    // Kienzle main cutting force for a full-width form engagement.
+    const Fc = kc1_1 * b * Math.pow(fn, 1 - mc);
+    // Solve Fc(fn*) = ceiling -> fn* = (ceiling / (kc1.1 * b))^(1/(1-mc)); de-rate feed to the ceiling.
+    const fnMax = Math.pow(ceiling / (kc1_1 * b), 1 / (1 - mc));
+    const recommended = Math.min(fn, fnMax);
+    const derated = recommended < fn - 1e-9;
+    const ratio = Fc / ceiling;
+    const chatter_risk: "low" | "moderate" | "high" =
+      b > 6 || ratio > 1.5 ? "high" : ratio > 1 ? "moderate" : "low";
+    const notes: string[] = [
+      "Form tool engages its full width simultaneously -> radial force scales with engaged width (Fc = kc1.1 * b * fn^(1-mc)).",
+    ];
+    if (derated) {
+      notes.push(`Feed de-rated ${fn.toFixed(3)} -> ${recommended.toFixed(3)} mm/rev to hold radial force <= ${ceiling} N.`);
+    }
+    if (b > 6) {
+      notes.push("Wide form (>6mm): high chatter risk -- ensure L/D rigidity, consider a stepped/relieved form or reduced RPM.");
+    }
+    return {
+      engaged_width_mm: b,
+      iso_group: iso,
+      radial_force_N: Math.round(Fc),
+      recommended_feed_mm_rev: Math.round(recommended * 1e4) / 1e4,
+      derated,
+      chatter_risk,
+      notes,
+      source: "LatheAdvancedOperationsEngine.getFormTurningParams (Kienzle Fc=kc1.1*b*fn^(1-mc); CANONICAL_KIENZLE)",
+    };
+  }
+
+  /** Map a material name or ISO letter to its ISO turning group (default P/steel). */
+  private toISOGroup(material: string): ISOGroup {
+    const up = (material ?? "").trim().toUpperCase();
+    if (["P", "M", "K", "N", "S", "H"].includes(up)) return up as ISOGroup;
+    const m = (material ?? "").toLowerCase();
+    if (/stainless|austenit|duplex|\b3[01][46]\b/.test(m)) return "M";
+    if (/cast|gray|grey|nodular|ductile|iron/.test(m)) return "K";
+    if (/alum|brass|bronze|copper|6061|7075|2024/.test(m)) return "N";
+    if (/inconel|titan|\bti-|hastelloy|waspaloy|superalloy|nickel|monel/.test(m)) return "S";
+    if (/harden|hrc|tool steel|\bd2\b|\ba2\b|\bo1\b/.test(m)) return "H";
+    return "P";
   }
 }
 

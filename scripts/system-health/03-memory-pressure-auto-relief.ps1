@@ -75,19 +75,37 @@ function Get-RemainingSec {
 }
 
 function Get-MemoryPct {
+  # Returns BOTH physical-RAM pressure AND commit-charge pressure from ONE
+  # Win32_OperatingSystem query (zero extra cost -- TotalVirtualMemorySize is the
+  # commit limit, FreeVirtualMemory the available commit). `pct` is the MAX of the
+  # two so escalation fires on whichever is worse.
+  #
+  # ROOT-CAUSE FIX (2026-06-10): the prior version read ONLY physical RAM. On this
+  # 127GB box the recurring crisis is COMMIT charge (reserved address space: WSL +
+  # 70+ V8 heaps + llama-server + tsserver leaks), which is exactly what the Stop
+  # PRESSURE GATE blocks on. Physical RAM can sit at ~60% while commit is at 98%
+  # (golf 2026-06-08 [[reference_wsl_commit_pressure_relief_2026_06_08]]) -- so this
+  # task NOOPed (physical < 85% threshold) while the gate blocked. Triggering on the
+  # MAX makes the relief actually fire during a commit-only crisis.
   try {
     $os = Get-CimInstance Win32_OperatingSystem
-    $total = $os.TotalVisibleMemorySize
-    $free  = $os.FreePhysicalMemory
-    if ($total -le 0) { return @{ pct = 0; totalGB = 0; usedGB = 0 } }
-    $pct = [math]::Round((($total - $free) / $total) * 100, 1)
+    $physTotal = $os.TotalVisibleMemorySize    # KB -- physical RAM
+    $physFree  = $os.FreePhysicalMemory
+    $commTotal = $os.TotalVirtualMemorySize     # KB -- commit limit (RAM + page file)
+    $commFree  = $os.FreeVirtualMemory
+    if ($physTotal -le 0) { return @{ pct = 0; physPct = 0; commitPct = 0; totalGB = 0; usedGB = 0 } }
+    $physPct = [math]::Round((($physTotal - $physFree) / $physTotal) * 100, 1)
+    $commitPct = if ($commTotal -gt 0) { [math]::Round((($commTotal - $commFree) / $commTotal) * 100, 1) } else { 0 }
+    $pct = [math]::Max($physPct, $commitPct)
     return @{
-      pct = $pct
-      totalGB = [math]::Round($total / 1MB, 2)
-      usedGB  = [math]::Round(($total - $free) / 1MB, 2)
+      pct       = $pct
+      physPct   = $physPct
+      commitPct = $commitPct
+      totalGB   = [math]::Round($physTotal / 1MB, 2)
+      usedGB    = [math]::Round(($physTotal - $physFree) / 1MB, 2)
     }
   } catch {
-    return @{ pct = 0; totalGB = 0; usedGB = 0 }
+    return @{ pct = 0; physPct = 0; commitPct = 0; totalGB = 0; usedGB = 0 }
   }
 }
 
@@ -264,7 +282,7 @@ $mem = Get-MemoryPct
 $pct = $mem.pct
 
 if ($DryRun) {
-  Append-Log @{ pct = $pct; usedGB = $mem.usedGB; totalGB = $mem.totalGB; action = 'dry_run' }
+  Append-Log @{ pct = $pct; commitPct = $mem.commitPct; usedGB = $mem.usedGB; totalGB = $mem.totalGB; action = 'dry_run' }
   Write-Host "DRY-RUN: memory $($mem.usedGB)/$($mem.totalGB) GB = $pct% — no action (dryrun)"
   exit 0
 }
@@ -278,33 +296,33 @@ if ($pct -lt $LightThresholdPct) {
 if ($pct -lt $MediumThresholdPct) {
   $budget = Get-RemainingSec
   if ($budget -le $MinTierBudgetSec) {
-    Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'light_skipped_no_budget' }
+    Append-Log @{ pct = $pct; commitPct = $mem.commitPct; usedGB = $mem.usedGB; action = 'light_skipped_no_budget' }
     exit 0
   }
   Write-Host "Memory $pct% > light threshold $LightThresholdPct% — running zombie-tsservers."
   $r = Invoke-ZombieTsservers -TimeoutSec ([math]::Min($budget, $ZombieCapSec))
-  Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'light'; reclaimedMB = $r.reclaimedMB; killed = $r.killed; timedOut = [bool]$r.timedOut }
+  Append-Log @{ pct = $pct; commitPct = $mem.commitPct; usedGB = $mem.usedGB; action = 'light'; reclaimedMB = $r.reclaimedMB; killed = $r.killed; timedOut = [bool]$r.timedOut }
   exit 0
 }
 
 if ($pct -lt $HeavyThresholdPct) {
   $budget = Get-RemainingSec
   if ($budget -le $MinTierBudgetSec) {
-    Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'medium_skipped_no_budget' }
+    Append-Log @{ pct = $pct; commitPct = $mem.commitPct; usedGB = $mem.usedGB; action = 'medium_skipped_no_budget' }
     exit 0
   }
   Write-Host "Memory $pct% > medium threshold $MediumThresholdPct% — zombie + node-janitor."
   $r1 = Invoke-ZombieTsservers -TimeoutSec ([math]::Min($budget, $ZombieCapSec))
   $budget2 = Get-RemainingSec
   $r2 = if ($budget2 -gt $MinTierBudgetSec) { Invoke-NodeJanitor -TimeoutSec $budget2 } else { @{ ran = $false; skipped = 'no_budget' } }
-  Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'medium'; reclaimedMB = $r1.reclaimedMB; killed = $r1.killed; janitorRan = [bool]$r2.ran; timedOut = ([bool]$r1.timedOut -or [bool]$r2.timedOut) }
+  Append-Log @{ pct = $pct; commitPct = $mem.commitPct; usedGB = $mem.usedGB; action = 'medium'; reclaimedMB = $r1.reclaimedMB; killed = $r1.killed; janitorRan = [bool]$r2.ran; timedOut = ([bool]$r1.timedOut -or [bool]$r2.timedOut) }
   exit 0
 }
 
 # >= heavy
 $budget = Get-RemainingSec
 if ($budget -le $MinTierBudgetSec) {
-  Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'heavy_skipped_no_budget' }
+  Append-Log @{ pct = $pct; commitPct = $mem.commitPct; usedGB = $mem.usedGB; action = 'heavy_skipped_no_budget' }
   exit 0
 }
 Write-Host "Memory $pct% > heavy threshold $HeavyThresholdPct% — escalated relief."
@@ -313,5 +331,5 @@ $budget2 = Get-RemainingSec
 $r2 = if ($budget2 -gt $MinTierBudgetSec) { Invoke-NodeJanitor -TimeoutSec $budget2 } else { @{ ran = $false; skipped = 'no_budget' } }
 $topProcs = Dump-TopProcs
 Try-Toast 'PRISM memory pressure' "$pct% used. Reaper ran. Top procs in log: $LogPath"
-Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'heavy'; reclaimedMB = $r1.reclaimedMB; killed = $r1.killed; janitorRan = [bool]$r2.ran; timedOut = ([bool]$r1.timedOut -or [bool]$r2.timedOut); topProcs = $topProcs }
+Append-Log @{ pct = $pct; commitPct = $mem.commitPct; usedGB = $mem.usedGB; action = 'heavy'; reclaimedMB = $r1.reclaimedMB; killed = $r1.killed; janitorRan = [bool]$r2.ran; timedOut = ([bool]$r1.timedOut -or [bool]$r2.timedOut); topProcs = $topProcs }
 exit 0

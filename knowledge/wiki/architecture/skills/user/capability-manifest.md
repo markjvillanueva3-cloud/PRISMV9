@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `capability-manifest` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/capability-manifest.md` |
+| Source | `C:/Users/wompu/.claude/commands/capability-manifest.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Display PRISM's current AI capabilities, engines, and feature availability.
+
+# /capability-manifest — Phase 0.13 AI Capability Inventory
 
 <!-- AUTO-END -->
 

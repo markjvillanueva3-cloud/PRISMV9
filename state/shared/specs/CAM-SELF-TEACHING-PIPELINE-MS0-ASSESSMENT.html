@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="b3d6e9cf7990674f031c47bf07272df222707d49dbd68b22e0c49db73df1f10d">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAM-SELF-TEACHING-PIPELINE-MS0 Assessment</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CAM-SELF-TEACHING-PIPELINE-MS0 Assessment</h1>
+<div class="meta">rendered from state/shared/specs/CAM-SELF-TEACHING-PIPELINE-MS0-ASSESSMENT.md</div>
+<div class="meta">Generated 2026-05-28T01:05:24.201Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">CAM-SELF-TEACHING-PIPELINE-MS0 — deep assessment + unit list</li><li class="prism-toc-l2">1. What&#39;s already built (do not duplicate)</li><li class="prism-toc-l2">2. Operator-named gaps</li><li class="prism-toc-l2">3. <strong>Things the operator might have missed</strong> (deep assessment)</li><li class="prism-toc-l3">3.1 Cutting-mechanics decisions</li><li class="prism-toc-l3">3.2 Setup / fixturing decisions</li><li class="prism-toc-l3">3.3 Knowledge-loop decisions</li><li class="prism-toc-l3">3.4 Process-coverage decisions</li><li class="prism-toc-l3">3.5 Safety decisions (Ω ≥ 0.95, S(x) ≥ 0.98 — shop_floor tier)</li><li class="prism-toc-l2">4. Pipeline data-flow (target architecture)</li><li class="prism-toc-l2">5. Milestone unit list (MS0)</li><li class="prism-toc-l2">6. First unit — <code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID</code></li><li class="prism-toc-l3">6.1 Contract</li><li class="prism-toc-l3">6.2 Detection taxonomy</li><li class="prism-toc-l3">6.3 Remediation taxonomy</li><li class="prism-toc-l3">6.4 Physics composition</li><li class="prism-toc-l3">6.5 I/O shapes</li><li class="prism-toc-l3">6.6 Dispatcher wiring</li><li class="prism-toc-l3">6.7 Test coverage (<code class="prism-inline-code">mcp-server/src/__tests__/InterruptedCutAvoidanceEngine.test.ts</code>)</li><li class="prism-toc-l3">6.8 Doc surfaces (per <code class="prism-inline-code">[[feedback_reflect_all_changes_post_update]]</code>)</li><li class="prism-toc-l2">7. What ships this session vs what queues</li><li class="prism-toc-l2">8. Cross-slot coordination</li><li class="prism-toc-l2">9. Doctrine compliance checklist</li></ul></nav><h1 class="prism-h1">CAM-SELF-TEACHING-PIPELINE-MS0 — deep assessment + unit list</h1>
+<blockquote class="prism-quote"><strong>Author:</strong> claude-ea0ff1a5 (slot <strong>kilo</strong>, 2026-05-28)</blockquote>
+<blockquote class="prism-quote"><strong>Trigger:</strong> operator <code class="prism-inline-code">/checkin-kilo</code> work order — <em>&quot;build a repeatable training pipeline that will help with self teaching and self improving … every single tool path, function, input box and button for hypercad, mastercam and fusion … proper sequencing, lead-in/lead-out, machine selection, templates, auto-populate echo + oscar, wiki vs tribal, CAD-side adjust to avoid secondary ops / air cuts / interrupted cuts (auto-avoid interrupted cut algorithm) … deep assessment in case i missed anything.&quot;</em></blockquote>
+<blockquote class="prism-quote"><strong>Doctrine refs:</strong> <code class="prism-inline-code">[[feedback_ai_training_first_before_revenue]]</code> · <code class="prism-inline-code">[[feedback_use_lima_pypdf_page_extractor]]</code> · <code class="prism-inline-code">[[feedback_engine_tests_in_tests_dir]]</code> · <code class="prism-inline-code">[[feedback_parallel_scrutiny_per_file]]</code> · COMPREHENSIVE-BUILD-ENFORCE.</blockquote>
+<blockquote class="prism-quote"><strong>Status:</strong> assessment; first unit (<code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID</code>) ships this session. Subsequent units gate on <code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID</code> landing.</blockquote>
+<blockquote class="prism-quote"><strong>Pattern parallel:</strong> delta&#39;s <code class="prism-inline-code">cad-&lt;vendor&gt;__&lt;feature&gt;.md</code> template family in <code class="prism-inline-code">knowledge/wiki/code-tribal/templates/</code>. This pipeline is the CAM-side equivalent.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. What&#39;s already built (do not duplicate)</h2>
+<p>The self-teaching CAM loop is <strong>largely already shipped</strong> by kilo over the last 48h. The 4-engine inner closed loop is live (<code class="prism-inline-code">.mjs</code> ESM-native):</p>
+<table class="prism-md-table"><thead><tr><th>Engine</th><th>Role</th><th>Commit</th></tr></thead><tbody><tr><td><code class="prism-inline-code">TemplateApplicabilityClassifierEngine.mjs</code></td><td>kNN-Jaccard classifies (material × operation × machine × tolerance × geometry) → decision ∈ {direct, override, compose, gate}</td><td>d8bd95f102</td></tr>
+<tr><td><code class="prism-inline-code">SelfLearningLoopOrchestratorEngine.mjs</code></td><td>7-state FSM: idle → classify → emit → observe → outcome → corpus_delta → retrain_signal</td><td>d8bd95f102</td></tr>
+<tr><td><code class="prism-inline-code">OutcomeFeedbackWireEngine.mjs</code></td><td>promote / demote / newCandidates from outcome ledger</td><td>d8bd95f102</td></tr>
+<tr><td><code class="prism-inline-code">ToolpathTipRetrieverEngine.mjs</code></td><td>(software, toolpath, materialHint?, featureHint?) → top-K tribal tips with <code class="prism-inline-code">videoId + url&amp;t=Xs</code> deeplink + extractedAt provenance</td><td>f6118295d1</td></tr></tbody></table>
+<p>The per-toolpath tribal corpus is at <strong>100% canonical catalog coverage</strong> as of <code class="prism-inline-code">7957b8a48b</code> — <strong>224 toolpaths × {fields, buttons} metadata × per-entry wiki MD</strong>, 1020 tips harvested from 219 video transcripts.</p>
+<p>The unified cross-CAM function/button index already exists at <code class="prism-inline-code">state/shared/cad-action-templates/</code>:</p>
+<table class="prism-md-table"><thead><tr><th>File</th><th>Size</th><th>Atomic-op count (mastercam reference)</th></tr></thead><tbody><tr><td><code class="prism-inline-code">ARCHETYPE-RECIPES.json</code></td><td>125.9K</td><td>cross-CAM recipe library</td></tr>
+<tr><td><code class="prism-inline-code">catia.actions.json</code></td><td>6.3K</td><td></td></tr>
+<tr><td><code class="prism-inline-code">esprit.actions.json</code></td><td>5.2K</td><td></td></tr>
+<tr><td><code class="prism-inline-code">fusion360.actions.json</code></td><td>7.1K</td><td></td></tr>
+<tr><td><strong><code class="prism-inline-code">hypercad-s.actions.json</code></strong></td><td>6.1K</td><td></td></tr>
+<tr><td><strong><code class="prism-inline-code">hypermill.actions.json</code></strong></td><td>5.3K</td><td></td></tr>
+<tr><td><code class="prism-inline-code">inventor.actions.json</code></td><td>6.7K</td><td></td></tr>
+<tr><td><strong><code class="prism-inline-code">mastercam.actions.json</code></strong></td><td>5.6K</td><td><strong>38 atomic ops</strong></td></tr>
+<tr><td><code class="prism-inline-code">nx.actions.json</code></td><td>6.2K</td><td></td></tr>
+<tr><td><code class="prism-inline-code">openscad.actions.json</code></td><td>6.3K</td><td></td></tr>
+<tr><td><code class="prism-inline-code">powermill.actions.json</code></td><td>5.1K</td><td></td></tr>
+<tr><td><code class="prism-inline-code">solidworks.actions.json</code></td><td>6.2K</td><td></td></tr></tbody></table>
+<p><code class="prism-inline-code">mastercam.actions.json</code> atomic-op schema: <code class="prism-inline-code">{op, fn, args[], notes}</code> — 38 ops covering sketch (line/arc/circle/ellipse/spline/rect/polygon/slot/offset/trim/fillet), op (extrude/cut/revolve/loft/sweep/shell/fillet/chamfer/draft/mirror/pattern-rect/pattern-circ/hole-simple/hole-threaded/thread-external/boolean-add/cut/intersect), asm (insert-component, mate-coincident/concentric/distance).</p>
+<p><strong>Three CAM systems the operator named are already in the unified index:</strong> hyperCAD-s, hyperMILL, mastercam, fusion360. Plus 8 others.</p>
+<p>Other already-shipped surfaces that the pipeline composes (not re-implements):</p>
+<table class="prism-md-table"><thead><tr><th>Capability</th><th>Existing engine</th><th>Composition role</th></tr></thead><tbody><tr><td><strong>Operation sequencing</strong></td><td><code class="prism-inline-code">OperationSequencerEngine.ts</code>, <code class="prism-inline-code">OperationSequenceMinerEngine.ts</code>, <code class="prism-inline-code">CAMOperationSequencePlannerEngine.ts</code>, <code class="prism-inline-code">HyperMillSecondaryOpsSequencer.ts</code></td><td>sequence-mode input to interrupted-cut engine</td></tr>
+<tr><td><strong>Click/UI sequence capture</strong></td><td><code class="prism-inline-code">CAMClickSequenceEngine.ts</code>, <code class="prism-inline-code">ActionSequenceExtractorEngine.ts</code></td><td>training-data ingest from video transcripts</td></tr>
+<tr><td><strong>CAM strategy recommendation</strong></td><td><code class="prism-inline-code">CAMStrategyRecommenderEngine.ts</code></td><td>upstream of sequencer</td></tr>
+<tr><td><strong>CAM-tribal knowledge</strong></td><td><code class="prism-inline-code">CAMTribalKnowledgeEngine.ts</code>, <code class="prism-inline-code">CAMFeatureLearningEngine.ts</code>, <code class="prism-inline-code">CAMDeepLearningEngine.ts</code></td><td>corpus layer</td></tr>
+<tr><td><strong>Air-cut detection</strong></td><td><code class="prism-inline-code">AirCutDetectionEngine.ts</code> (13.8 KB, wired <code class="prism-inline-code">productDispatcher.ts:596</code> → <code class="prism-inline-code">ppg_air_cut_detect</code>)</td><td>sibling of interrupted-cut engine — same I/O contract</td></tr>
+<tr><td><strong>Machine selection</strong></td><td><code class="prism-inline-code">MachineSelectionEngine.ts</code>, <code class="prism-inline-code">CAMMachineSelectionEngine.ts</code></td><td>&quot;which machine for this job&quot;</td></tr>
+<tr><td><strong>Template generation</strong></td><td><code class="prism-inline-code">CAMTemplateGeneratorEngine.ts</code>, <code class="prism-inline-code">CAMTemplateParameterCompletenessEngine.ts</code>, <code class="prism-inline-code">LathePartFamilyTemplateExtractorEngine.ts</code>, <code class="prism-inline-code">MillPartFamilyTemplateExtractorEngine.ts</code>, <code class="prism-inline-code">WEDMPartFamilyTemplateExtractorEngine.ts</code>, <code class="prism-inline-code">FiveAxisCADTemplateEngine.ts</code>, <code class="prism-inline-code">TrainingTemplateContinuousLearningEngine.ts</code></td><td>auto-template generation</td></tr>
+<tr><td><strong>CAD ↔ CAM bridges</strong></td><td><code class="prism-inline-code">BobCADCAMBridgeEngine.ts</code>, <code class="prism-inline-code">BobCADCAMFunctionIndexEngine.ts</code> (function/button index pattern), <code class="prism-inline-code">WorkNCCAMBridgeEngine.ts</code>, <code class="prism-inline-code">CADCorpusIngestionEngine.ts</code>, <code class="prism-inline-code">CADCorpusFeaturePrevalenceLearnerEngine.ts</code>, <code class="prism-inline-code">CADClassFeatureLibraryEngine.ts</code>, <code class="prism-inline-code">CADSequenceTrainerEngine.ts</code> (delta&#39;s pattern), <code class="prism-inline-code">CADTransactionEngine.ts</code></td><td>CAD-side ingest + feature reasoning</td></tr>
+<tr><td><strong>Echo PP auto-populate</strong></td><td><code class="prism-inline-code">PostProcessorPipelineEngine.ts</code> (218 KB) + 12 dispatchers / 5000 actions; bridge via <code class="prism-inline-code">SpeedFeedPropagationBridgeEngine.ts</code></td><td>downstream sink</td></tr>
+<tr><td><strong>Oscar SFC auto-populate</strong></td><td><code class="prism-inline-code">SpeedFeedNineAxisOrchestratorEngine.ts</code> (the 9-axis hub) + <code class="prism-inline-code">CAMSpeedFeedBridgeEngine.ts</code> (normalizes HyperMILL/Fusion/Inventor/Mastercam/Esprit/SolidCAM S/F vocab)</td><td>downstream sink</td></tr>
+<tr><td><strong>Feedback / outcome capture</strong></td><td><code class="prism-inline-code">SpeedFeedOutcomeFeedbackBridgeEngine.ts</code>, <code class="prism-inline-code">OutcomeFeedbackWireEngine.mjs</code></td><td>learning ring</td></tr></tbody></table>
+<p><strong>Conclusion: the user&#39;s pipeline is ~70% built.</strong> The new work is filling the small set of named gaps (below), then wiring it all into one outer orchestrator.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. Operator-named gaps</h2>
+<table class="prism-md-table"><thead><tr><th>Capability</th><th>Status</th><th>Engine</th></tr></thead><tbody><tr><td><strong>Auto-avoid interrupted cut algorithm/engine</strong></td><td>❌ <strong>MISSING — first unit this MS</strong></td><td><code class="prism-inline-code">InterruptedCutAvoidanceEngine.ts</code> (<code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID</code>)</td></tr>
+<tr><td><strong>Lead-in / lead-out by feature × material × tooling</strong></td><td>⚠️ Distributed inside per-toolpath engines, no central decision engine</td><td><code class="prism-inline-code">U-LEAD-IN-OUT-SELECTOR</code></td></tr>
+<tr><td><strong>CAD-feature modify advisor</strong> (suppress/add features to avoid secondary ops / air cuts / interrupted cuts)</td><td>❌ Missing</td><td><code class="prism-inline-code">U-CAD-FEATURE-MODIFY-FOR-CAM</code></td></tr>
+<tr><td><strong>Outer pipeline orchestrator</strong> (CAD → feature recog → sequencer → interrupted-cut → air-cut → machine select → template → echo + oscar → outcome → feedback)</td><td>❌ Missing</td><td><code class="prism-inline-code">U-CAM-TRAIN-PIPE-ORCH</code></td></tr>
+<tr><td><strong>Wiki-vs-tribal routing decision</strong></td><td>⚠️ Implicit — exists in <code class="prism-inline-code">master-index-precheck-inject</code> but not exposed as a CAM-specific decision API</td><td><code class="prism-inline-code">U-WIKI-VS-TRIBAL-ROUTER</code></td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. <strong>Things the operator might have missed</strong> (deep assessment)</h2>
+<p>The work order names the obvious axes. A self-teaching CAM brain that ships at &quot;full potential&quot; (per <code class="prism-inline-code">[[feedback_ai_training_first_before_revenue]]</code>) needs these too — flagged for user triage:</p>
+<h3 class="prism-h3">3.1 Cutting-mechanics decisions</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Gap</th><th>Why it matters</th></tr></thead><tbody><tr><td>M1</td><td><strong>Climb-vs-conventional milling</strong> decision per-op</td><td>Climb in heat-treated H-group can break inserts; conventional in N-group leaves built-up edge. Material + rigidity-dependent — distinct from interrupted-cut.</td></tr>
+<tr><td>M2</td><td><strong>Engagement-angle / radial-engagement</strong> chip-thinning gate</td><td>Below ~30% radial engagement, programmed feed is wrong without chip-thinning compensation (<code class="prism-inline-code">ChipThinningCompensation.ts</code> exists — engine to invoke it doesn&#39;t).</td></tr>
+<tr><td>M3</td><td><strong>Z-stepdown strategy</strong> selector (constant / adaptive / helical / ramp / plunge)</td><td>Adaptive saves 30-50% on M/S groups; plunge ruins HSS tools.</td></tr>
+<tr><td>M4</td><td><strong>Stock-leftover model</strong> between roughing → finishing</td><td>Rest-material model drives the finishing toolpath. Existing <code class="prism-inline-code">RestMaterialEngine</code> may exist — confirm.</td></tr>
+<tr><td>M5</td><td><strong>Tool-changeover order minimization</strong></td><td>Cluster ops by tool before sequencing by feature → halves ATC swaps on Hurco/Okuma magazines.</td></tr>
+<tr><td>M6</td><td><strong>Vibration-stability lobe (SLD) gate</strong> at sequence time</td><td><code class="prism-inline-code">FRFStabilityLobe.ts</code> / <code class="prism-inline-code">StabilityLobeDiagram.ts</code> exist; nothing currently <em>gates</em> a planned RPM against the live SLD per machine + tool.</td></tr>
+<tr><td>M7</td><td><strong>Dwell + chip-break peck patterns</strong> per material</td><td>Deep-drill K and S groups need peck-with-retract; P doesn&#39;t.</td></tr>
+<tr><td>M8</td><td><strong>Spring-pass / clean-up logic</strong></td><td>High-tolerance finishes need a spring pass; current sequencer doesn&#39;t add one automatically.</td></tr>
+<tr><td>M9</td><td><strong>Burr-formation predictor at edges</strong></td><td>Exit-burr direction is a function of climb vs conventional + chip thickness at exit; missed → operator deburrs by hand.</td></tr></tbody></table>
+<h3 class="prism-h3">3.2 Setup / fixturing decisions</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Gap</th><th>Why it matters</th></tr></thead><tbody><tr><td>S1</td><td><strong>Setup-count minimization</strong></td><td>A part oriented wrong needs 2 setups; oriented right needs 1.</td></tr>
+<tr><td>S2</td><td><strong>Workholding-strategy change</strong> per setup</td><td>Vise → SoftJaw → Mitee-Bite → vacuum — the choice depends on the <em>next</em> setup&#39;s clamping forces.</td></tr>
+<tr><td>S3</td><td><strong>Mirror / left-right hand</strong> generation</td><td>Cuts CAM time in half for symmetric families.</td></tr>
+<tr><td>S4</td><td><strong>Thermal-expansion compensation</strong> for long runs or hot materials</td><td>Heat-treated tool steels grow under cut; precision parts drift if not compensated.</td></tr>
+<tr><td>S5</td><td><strong>Spindle warm-up</strong> before precision ops</td><td>Critical for ±0.0002&quot; tolerances on Okuma B250II / Hurco VMX.</td></tr></tbody></table>
+<h3 class="prism-h3">3.3 Knowledge-loop decisions</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Gap</th><th>Why it matters</th></tr></thead><tbody><tr><td>K1</td><td><strong>Speed-feed override priors</strong> from per-machine history</td><td>Each shop&#39;s Hurco runs faster than book by 1.2× — needs to be learned, not hard-coded.</td></tr>
+<tr><td>K2</td><td><strong>Tool-runout calibration</strong> per tool-number</td><td>Runout × ap × fz = actual chip; if not measured, chip-load is fictional.</td></tr>
+<tr><td>K3</td><td><strong>Tool wear / breakage predict mid-program</strong></td><td>Taylor + outcome-ledger → &quot;stop in 3 minutes before failure&quot;; existing <code class="prism-inline-code">ToolWearPrediction.ts</code> exists but not invoked mid-program.</td></tr>
+<tr><td>K4</td><td><strong>In-process probe sequences</strong> before / after critical ops</td><td>Renishaw OMP / OMV cycles; Okuma OSP supports it natively.</td></tr>
+<tr><td>K5</td><td><strong>Quote-back loop</strong> (post-program → cycle time → cost → quote refinement)</td><td>Closes the loop between SFC / PP and the quoting engine.</td></tr></tbody></table>
+<h3 class="prism-h3">3.4 Process-coverage decisions</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Gap</th><th>Why it matters</th></tr></thead><tbody><tr><td>P1</td><td><strong>G68.2 / TWP / 5-axis-tip-control</strong> selection per machine</td><td>Different controllers, different orientation declarations — wrong choice = crash.</td></tr>
+<tr><td>P2</td><td><strong>Reverse-engineering path</strong> (no CAD)</td><td>Blueprint → sketch → CAD → CAM. The pipeline currently assumes CAD exists.</td></tr>
+<tr><td>P3</td><td><strong>Probe-driven CAD-from-part</strong> flow</td><td>Probing measures actual stock; CAM should use measured-not-nominal.</td></tr>
+<tr><td>P4</td><td><strong>Multi-language post variants</strong> (machine in metric, programmer in inch, drawing in metric)</td><td>Unit mismatch is the #1 silent quote-killer.</td></tr></tbody></table>
+<h3 class="prism-h3">3.5 Safety decisions (Ω ≥ 0.95, S(x) ≥ 0.98 — shop_floor tier)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Gap</th><th>Why it matters</th></tr></thead><tbody><tr><td>Ω1</td><td><strong>Auto-G0 cap</strong> below stock surface (anti-crash)</td><td>Already partially in <code class="prism-inline-code">GCodeSafetyAnalyzerEngine.ts</code> — but not gated at sequence emit.</td></tr>
+<tr><td>Ω2</td><td><strong>Workholding-engagement check</strong> vs proposed cutting force</td><td>Kienzle Fc × workholding μ check — if Fc &gt; clamp force, part launches.</td></tr>
+<tr><td>Ω3</td><td><strong>Coolant-pressure / flow gate</strong> for through-tool drilling</td><td>Without it, K-group drills weld.</td></tr></tbody></table>
+<p><strong>Recommended triage:</strong> the operator confirms which of §3.1-3.5 are in scope for MS0. Default = M1, M2, M6, S1, K1, K3, K5 (highest leverage on top of the named gaps); rest deferred to MS1.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. Pipeline data-flow (target architecture)</h2>
+<pre class="prism-codeblock"><code>   ┌────────────────────────────────────────────────────────────────────┐
+   │                CAD INPUT (file / blueprint / probe)                │
+   └────────────┬───────────────────────────────────────────────────────┘
+                ↓
+        ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
+        │ CAD-feature recog│ ←│ CAD-feature-mod  │── │CADClassFeatureLib│   ▲
+        │CADCorpusIngest+  │   │advisor (U-CAD-   │   └──────────────────┘   │
+        │ Prevalence       │   │FEATURE-MODIFY)   │                          │
+        └────────┬─────────┘   └──────────────────┘                          │
+                 ↓                                                           │
+        ┌──────────────────┐                                                 │
+        │CAM-strategy reco │  → cross-CAM action templates                   │
+        │CAMStrategyReco   │     (hypercad-s/hypermill/mastercam/fusion360)  │
+        └────────┬─────────┘                                                 │
+                 ↓                                                           │
+        ┌──────────────────┐    ┌──────────────────┐                         │
+        │ Operation        │ ←──│ToolpathTipRetri  │  ← tribal corpus        │
+        │ Sequencer        │    │ever.mjs (kilo)   │     (224 per-toolpath)  │
+        │CAMOperationSeq.. │    └──────────────────┘                         │
+        └────────┬─────────┘                                                 │
+                 ↓                                                           │
+        ┌──────────────────┐    ┌──────────────────┐                         │
+        │ ★ InterruptedCut │    │ AirCutDetection  │                         │
+        │   Avoidance ★    │    │   (existing)     │                         │
+        │ (THIS UNIT)      │    │                  │                         │
+        └────────┬─────────┘    └────────┬─────────┘                         │
+                 ↓                       ↓                                   │
+        ┌──────────────────┐    ┌──────────────────┐                         │
+        │ Lead-in/-out     │    │ Machine Select   │                         │
+        │ Selector         │    │CAMMachineSelect  │  ← shop-floor history   │
+        │ (U-LEAD-IO)      │    │                  │                         │
+        └────────┬─────────┘    └────────┬─────────┘                         │
+                 ↓                       ↓                                   │
+        ┌─────────────────────────────────────┐                              │
+        │   CAM Template Generator            │                              │
+        │   CAMTemplateGeneratorEngine        │                              │
+        └────────┬────────────────────────────┘                              │
+                 ↓                                                           │
+        ┌────────┴─────────────────────────────────────┐                     │
+        │                                              │                     │
+        ↓                                              ↓                     │
+   ┌──────────────┐                          ┌──────────────────┐            │
+   │ Echo PP      │                          │ Oscar SFC        │            │
+   │ Auto-Populate│                          │ Auto-Populate    │            │
+   │ (ppDispatch- │                          │ SpeedFeedNine    │            │
+   │  er, 801 act)│                          │ AxisOrch         │            │
+   └──────┬───────┘                          └────────┬─────────┘            │
+          ↓                                            ↓                     │
+   ┌──────┴────────────────────────────────────────────┴───────┐             │
+   │                  G-CODE EMIT + DRY-RUN                    │             │
+   └──────────────────────┬────────────────────────────────────┘             │
+                          ↓                                                  │
+                  ┌───────────────┐                                          │
+                  │ Outcome ledger│                                          │
+                  │ OutcomeFeedb. │ ─────────────────────────────────────────┘
+                  │ WireEngine    │   feedback loop into corpus + priors
+                  └───────────────┘</code></pre>
+<p>The dashed re-entrancy edge is the <strong>self-improvement</strong> path: every outcome (cycle time, surface finish, tool wear, scrap rate) feeds back into the corpus, the tribal index, and the per-machine speed-feed priors.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">5. Milestone unit list (MS0)</h2>
+<blockquote class="prism-quote">Tier: <code class="prism-inline-code">shop_floor</code> (Ω ≥ 0.95, S(x) ≥ 0.98). All units obey COMPREHENSIVE-BUILD-ENFORCE: real tests, dispatcher wiring, round-trip E2E, ≥3 ISO-group-spanning configs.</blockquote>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Title</th><th>Tier</th><th>Depends on</th><th>Ship target</th></tr></thead><tbody><tr><td><strong>U-INTERRUPTED-CUT-AVOID</strong></td><td>InterruptedCutAvoidanceEngine — sequence + G-code modes</td><td>P0</td><td>—</td><td><strong>this session</strong></td></tr>
+<tr><td>U-LEAD-IN-OUT-SELECTOR</td><td>Central lead-in/lead-out selector by (feature × material × tooling × controller)</td><td>P0</td><td>INTERRUPTED-CUT</td><td>next /loop</td></tr>
+<tr><td>U-CAD-FEATURE-MODIFY</td><td>CAD-side adjust advisor (suppress / add / re-order features to avoid downstream issues)</td><td>P0</td><td>INTERRUPTED-CUT</td><td>next /loop</td></tr>
+<tr><td>U-CAM-TRAIN-PIPE-ORCH</td><td>Outer pipeline orchestrator wiring all stages</td><td>P0</td><td>INTERRUPTED-CUT + LEAD-IO + CAD-MODIFY</td><td>follow-up loop</td></tr>
+<tr><td>U-WIKI-VS-TRIBAL-ROUTER</td><td>When to use wiki, when to use tribal — exposed CAM-decision API</td><td>P1</td><td>ORCH</td><td>follow-up</td></tr>
+<tr><td>U-CLIMB-CONVENTIONAL-DEC</td><td>Climb-vs-conventional decision (M1)</td><td>P1</td><td>LEAD-IO</td><td>follow-up</td></tr>
+<tr><td>U-SLD-RPM-GATE</td><td>Live SLD gate at sequence-emit (M6)</td><td>P1</td><td>ORCH</td><td>follow-up</td></tr>
+<tr><td>U-SHOP-SF-PRIORS</td><td>Per-machine learned speed-feed priors (K1)</td><td>P1</td><td>ORCH + oscar sfc</td><td>follow-up</td></tr>
+<tr><td>U-TOOL-WEAR-MIDPGM</td><td>Mid-program tool-wear stop-before-failure (K3)</td><td>P1</td><td>ORCH</td><td>follow-up</td></tr>
+<tr><td>U-QUOTE-BACK-LOOP</td><td>Post-program → cycle-time → cost → quote refinement (K5)</td><td>P2</td><td>ORCH + echo PP + oscar SFC</td><td>follow-up</td></tr>
+<tr><td>U-SETUP-COUNT-MIN</td><td>Setup-count minimization (S1)</td><td>P2</td><td>CAD-FEATURE-MODIFY</td><td>follow-up</td></tr>
+<tr><td>U-STOCK-LEFTOVER</td><td>Stock-leftover / rest-material model (M4)</td><td>P2</td><td>LEAD-IO</td><td>follow-up</td></tr>
+<tr><td>U-WORKHOLDING-FORCE</td><td>Workholding-engagement force gate (Ω2)</td><td>P0-safety</td><td>INTERRUPTED-CUT</td><td>follow-up</td></tr>
+<tr><td>U-COOLANT-GATE</td><td>Coolant-pressure / flow gate (Ω3)</td><td>P0-safety</td><td>ORCH</td><td>follow-up</td></tr></tbody></table>
+<p>The MS0 envelope opens with <code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID</code>; the rest are queued in the slot/kilo <code class="prism-inline-code">slot-task-queues.json</code> for autonomous loop pickup.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">6. First unit — <code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID</code></h2>
+<h3 class="prism-h3">6.1 Contract</h3>
+<pre class="prism-codeblock" data-lang="ts"><code>detect(input: InterruptedCutInput): InterruptedCutResult</code></pre>
+<p><strong>Two input modes:</strong></p>
+<ol class="prism-md-list"><li><strong><code class="prism-inline-code">mode: &quot;sequence&quot;</code></strong> — pre-CAM analysis of a planned <code class="prism-inline-code">OperationStep[]</code> against feature topology. Detects pairwise (step_i, step_j) where step_j operates on a region that step_i has perturbed in a way that creates an interrupted entry/exit.</li><li><strong><code class="prism-inline-code">mode: &quot;gcode&quot;</code></strong> — post-emit analysis of raw G-code. Builds a Z-height map from cutting history (same approach as <code class="prism-inline-code">AirCutDetectionEngine</code>); flags moves where the tool transitions between &quot;no material&quot; and &quot;material&quot; mid-move (<code class="prism-inline-code">engagement_drop</code> type).</li></ol>
+<h3 class="prism-h3">6.2 Detection taxonomy</h3>
+<table class="prism-md-table"><thead><tr><th>Type</th><th>Trigger</th><th>Severity range</th></tr></thead><tbody><tr><td><code class="prism-inline-code">drill_into_existing_pocket</code></td><td>Drill at (x,y) where a prior pocket / face has lowered Z below <code class="prism-inline-code">stock_top - 0.5mm</code></td><td>3-5</td></tr>
+<tr><td><code class="prism-inline-code">mill_face_after_drill</code></td><td>Facing pass crosses an existing drilled hole at (x,y) where prior Z dropped below face Z</td><td>4-5</td></tr>
+<tr><td><code class="prism-inline-code">pocket_through_breakthrough</code></td><td>Pocket bottom Z below known through-hole top</td><td>3-4</td></tr>
+<tr><td><code class="prism-inline-code">finish_across_rough_breaks</code></td><td>Finish pass crosses rough-cut feature boundaries with ap_step variation</td><td>2-3</td></tr>
+<tr><td><code class="prism-inline-code">slot_crosses_hole</code></td><td>Slot toolpath crosses (x,y) of a prior hole</td><td>4-5</td></tr>
+<tr><td><code class="prism-inline-code">engagement_drop</code> (G-code-mode only)</td><td>Cutter engagement drops below 30% mid-move per Z-height map</td><td>2-4</td></tr></tbody></table>
+<h3 class="prism-h3">6.3 Remediation taxonomy</h3>
+<table class="prism-md-table"><thead><tr><th>Kind</th><th>When</th><th>Example</th></tr></thead><tbody><tr><td><code class="prism-inline-code">swap_sequence</code></td><td>Pairwise reorder fixes it</td><td>Face before drill</td></tr>
+<tr><td><code class="prism-inline-code">defer_to_setup</code></td><td>Op must happen in a later setup with new fixturing</td><td>Drill in setup 2 after face in setup 1</td></tr>
+<tr><td><code class="prism-inline-code">suppress_feature</code></td><td>CAD-side suppress until later</td><td>Suppress threaded holes until after face is done</td></tr>
+<tr><td><code class="prism-inline-code">swap_machine</code></td><td>Current machine isn&#39;t rigid enough</td><td>Move to Okuma M460V from Haas VF2</td></tr>
+<tr><td><code class="prism-inline-code">flip_milling_direction</code></td><td>Climb → conventional or vice-versa</td><td>Heat-treated H-group + interrupted exit → conventional</td></tr>
+<tr><td><code class="prism-inline-code">reduce_engagement</code></td><td>Reduce ap or radial engagement to soften shock</td><td><code class="prism-inline-code">ap</code> ÷ 2 with pass-count × 2</td></tr>
+<tr><td><code class="prism-inline-code">add_dwell</code></td><td>Brief dwell before re-entry to clear chip</td><td>G4 P0.2 before re-engage</td></tr></tbody></table>
+<p>Each detection returns ≥1 remediation; remediations carry <code class="prism-inline-code">estimated_severity_after</code>.</p>
+<h3 class="prism-h3">6.4 Physics composition</h3>
+<ul class="prism-md-list"><li><strong>Force shock multiplier</strong> → Kienzle baseline force <code class="prism-inline-code">Fc = kc1.1 × ap × fz^(1-mc)</code> (from <code class="prism-inline-code">physics/constants.ts</code>) × <code class="prism-inline-code">shock_load_factor</code> (1.05-3.0 by severity, per Konig 1976 / Astakhov 2004).</li><li><strong>Tool-life loss</strong> → Taylor <code class="prism-inline-code">T = (C / Vc)^(1/n)</code> (from <code class="prism-inline-code">CANONICAL_TAYLOR</code>) × <code class="prism-inline-code">life_multiplier</code> per severity (0.95-0.25). The engine does NOT recompute Vc or T; it returns the percentage loss so downstream consumers (<code class="prism-inline-code">ToolWearPrediction</code>, <code class="prism-inline-code">BayesianWearModel</code>) integrate it.</li><li><strong>No inline constants.</strong> All material/group constants imported from <code class="prism-inline-code">physics/constants.ts</code>.</li></ul>
+<h3 class="prism-h3">6.5 I/O shapes</h3>
+<pre class="prism-codeblock" data-lang="ts"><code>export type ISOGroup = &quot;P&quot; | &quot;M&quot; | &quot;K&quot; | &quot;N&quot; | &quot;S&quot; | &quot;H&quot;;
+
+export interface OperationStep {
+  id: string;
+  type: &quot;drill&quot; | &quot;face_mill&quot; | &quot;pocket&quot; | &quot;contour&quot; | &quot;slot&quot; | &quot;thread&quot; |
+        &quot;tap&quot; | &quot;bore&quot; | &quot;ream&quot; | &quot;spot&quot; | &quot;chamfer&quot; | &quot;engrave&quot; |
+        &quot;trochoidal&quot; | &quot;adaptive&quot;;
+  feature_id?: string;
+  affected_regions: Array&lt;{
+    x_min: number; y_min: number; x_max: number; y_max: number;
+    z_top: number; z_bottom: number;
+  }&gt;;
+  tool_id?: string;
+  notes?: string;
+}
+
+export interface SequenceInput {
+  mode: &quot;sequence&quot;;
+  steps: OperationStep[];
+  material_iso_group: ISOGroup;
+  machine_rigidity?: number;  // 0..1, default 0.7
+  tolerate_minor?: boolean;   // skip severity ≤ 2 detections
+}
+
+export interface GcodeInput {
+  mode: &quot;gcode&quot;;
+  gcode: string;
+  controller?: string;
+  material_iso_group: ISOGroup;
+  stock_top_z?: number;
+  min_engagement_pct?: number;  // default 30
+}
+
+export type InterruptedCutInput = SequenceInput | GcodeInput;
+
+export interface InterruptedCutDetection {
+  id: string;
+  type: &quot;drill_into_existing_pocket&quot; | &quot;mill_face_after_drill&quot; |
+        &quot;pocket_through_breakthrough&quot; | &quot;finish_across_rough_breaks&quot; |
+        &quot;slot_crosses_hole&quot; | &quot;engagement_drop&quot;;
+  severity: 1 | 2 | 3 | 4 | 5;
+  affected_step_ids: string[];
+  region?: { x: number; y: number; z_top: number; z_bottom: number };
+  reason: string;
+  shock_load_factor: number;       // 1.05..3.0
+  estimated_tool_life_loss_pct: number;  // 5..75 (positive = loss)
+  remediations: InterruptedCutRemediation[];
+}
+
+export interface InterruptedCutRemediation {
+  kind: &quot;swap_sequence&quot; | &quot;defer_to_setup&quot; | &quot;suppress_feature&quot; |
+        &quot;swap_machine&quot; | &quot;flip_milling_direction&quot; |
+        &quot;reduce_engagement&quot; | &quot;add_dwell&quot;;
+  details: string;
+  estimated_severity_after: 1 | 2 | 3 | 4 | 5;
+}
+
+export interface InterruptedCutResult {
+  detections: InterruptedCutDetection[];
+  optimized_sequence?: OperationStep[];  // sequence-mode only
+  summary: {
+    total_steps_or_lines: number;
+    detections: number;
+    max_severity: 0 | 1 | 2 | 3 | 4 | 5;
+    estimated_total_life_loss_pct: number;
+    by_type: Record&lt;string, number&gt;;
+  };
+  report: string;
+}</code></pre>
+<h3 class="prism-h3">6.6 Dispatcher wiring</h3>
+<ul class="prism-md-list"><li>Add action <code class="prism-inline-code">ppg_interrupted_cut_detect</code> to <code class="prism-inline-code">productDispatcher.ts</code> action enum (line ~74).</li><li>Lazy-import + handler block near line 593-624 (mirror <code class="prism-inline-code">ppg_air_cut_detect</code>).</li><li>Engine status entry near line 721 (<code class="prism-inline-code">production</code>).</li><li>Action group entry near line 771.</li><li>Schema validates <code class="prism-inline-code">{ mode: &quot;sequence&quot; | &quot;gcode&quot;, steps?, gcode?, material_iso_group, ... }</code>.</li></ul>
+<h3 class="prism-h3">6.7 Test coverage (<code class="prism-inline-code">mcp-server/src/__tests__/InterruptedCutAvoidanceEngine.test.ts</code>)</h3>
+<p>Per [[feedback_engine_tests_in_tests_dir]] — <code class="prism-inline-code">src/__tests__/</code>, not co-located. Per COMPREHENSIVE-BUILD-ENFORCE:</p>
+<ul class="prism-md-list"><li><strong>Happy path</strong> — face-first / drill-second returns 0 detections.</li><li><strong>3 failure modes</strong>:</li></ul>
+<ol class="prism-md-list"><li>Drill-first / face-second returns <code class="prism-inline-code">mill_face_after_drill</code> severity 4-5.</li><li>Pocket-then-drill in same region returns <code class="prism-inline-code">drill_into_existing_pocket</code>.</li><li>Through-hole-drill + face-after returns severity 5 with <code class="prism-inline-code">swap_sequence</code> remediation.</li></ol>
+<ul class="prism-md-list"><li><strong>2 adversarial</strong>:</li></ul>
+<ol class="prism-md-list"><li>Empty steps array → empty detections, no throw.</li><li>Invalid step type → fail-loud throw.</li></ol>
+<ul class="prism-md-list"><li><strong>3 ISO-group-spanning</strong> (variability floor):</li></ul>
+<ol class="prism-md-list"><li>ISO-P (steel) interrupted-cut → life loss in 30-50% range.</li><li>ISO-S (Inconel) interrupted-cut → life loss in 40-65% range (lower Taylor n → faster decay).</li><li>ISO-N (aluminum) interrupted-cut → life loss in 15-30% range (higher Taylor n → slower decay).</li></ol>
+<ul class="prism-md-list"><li><strong>G-code-mode test</strong> — synthesized G-code with a Z-height map manipulated to create an <code class="prism-inline-code">engagement_drop</code>.</li><li><strong>Dispatcher round-trip</strong> — invoke through <code class="prism-inline-code">productDispatcher</code> with action <code class="prism-inline-code">ppg_interrupted_cut_detect</code>, assert result shape.</li></ul>
+<h3 class="prism-h3">6.8 Doc surfaces (per <code class="prism-inline-code">[[feedback_reflect_all_changes_post_update]]</code>)</h3>
+<ol class="prism-md-list"><li><strong>CLAUDE.md</strong> — new <code class="prism-inline-code">## CAM-SELF-TEACHING-PIPELINE-MS0</code> section (this assessment is the long form; CLAUDE.md gets a ≤20-line pointer block).</li><li><strong>MEMORY.md</strong> — <code class="prism-inline-code"><a href="reference_cam_self_teaching_pipeline_ms0.md" class="prism-link">CAM-self-teaching pipeline</a></code> index line.</li><li><strong>Wiki</strong> — <code class="prism-inline-code">knowledge/wiki/architecture/cam-self-teaching-pipeline-ms0.md</code> (full architecture entry, links back to this spec).</li><li><strong>Obsidian memory</strong> — <code class="prism-inline-code">memory/reference_cam_self_teaching_pipeline_ms0.md</code> (slot-anchored doctrine pointer).</li><li><strong>Auto-feeds Obsidian vault</strong> on next Stop via <code class="prism-inline-code">stop-obsidian-memory-feed.mjs</code>.</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">7. What ships this session vs what queues</h2>
+<p><strong>This session (locked):</strong></p>
+<ul class="prism-md-list"><li>This assessment spec.</li><li><code class="prism-inline-code">InterruptedCutAvoidanceEngine.ts</code> + tests + dispatcher wiring (<code class="prism-inline-code">U-INTERRUPTED-CUT-AVOID</code>).</li><li>CLAUDE.md pointer + wiki entry + memory.</li><li>Commit + handoff + chat-bus broadcast.</li></ul>
+<p><strong>Queued for next /loop iterations (slot/kilo <code class="prism-inline-code">slot-task-queues.json</code>):</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">U-LEAD-IN-OUT-SELECTOR</code>, <code class="prism-inline-code">U-CAD-FEATURE-MODIFY</code>, <code class="prism-inline-code">U-CAM-TRAIN-PIPE-ORCH</code>, <code class="prism-inline-code">U-WIKI-VS-TRIBAL-ROUTER</code>.</li><li>§3 deep-assessment gaps the operator triages.</li></ul>
+<p><strong>Out of scope (P2 / future MS):</strong> Quote-back loop, setup-count minimization, full thermal compensation, reverse-engineering-from-blueprint.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">8. Cross-slot coordination</h2>
+<p>Notifying via chat-bus broadcast after commit:</p>
+<ul class="prism-md-list"><li><strong>echo</strong> (<code class="prism-inline-code">POST-BRIDGE-SYNERGY-MS0</code>) — interrupted-cut output is a new input for <code class="prism-inline-code">pp_emit</code> safety gates; consider a <code class="prism-inline-code">pp_validate_for_interrupted_cut</code> Stop hook on echo&#39;s side.</li><li><strong>oscar</strong> (<code class="prism-inline-code">OSCAR-SFC-9AXIS-MS0</code>) — <code class="prism-inline-code">shock_load_factor</code> is a new SF override prior (the higher the factor, the lower the feed-rate downstream consumer can run).</li><li><strong>delta</strong> (CAD work) — <code class="prism-inline-code">U-CAD-FEATURE-MODIFY</code> will need delta&#39;s CAD-feature surfaces. Coordinate before MS0/U2.</li><li><strong>foxtrot</strong> (mill domain) — <code class="prism-inline-code">U-CLIMB-CONVENTIONAL-DEC</code> lives in foxtrot&#39;s mill domain.</li><li><strong>mike</strong> (wire domain) — interrupted cuts are absent in WEDM (no rotating tool), so MS0 scopes to mill+lathe only.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">9. Doctrine compliance checklist</h2>
+<ul class="prism-md-list"><li>[x] <code class="prism-inline-code">[[feedback_ai_training_first_before_revenue]]</code> — this IS pre-revenue training-pipeline work.</li><li>[x] <code class="prism-inline-code">[[feedback_use_lima_pypdf_page_extractor]]</code> — when PDF tribal is mined for this corpus, use lima&#39;s pypdf path.</li><li>[x] <code class="prism-inline-code">[[feedback_engine_tests_in_tests_dir]]</code> — tests in <code class="prism-inline-code">src/__tests__/</code>, not co-located.</li><li>[x] <code class="prism-inline-code">[[feedback_parallel_scrutiny_per_file]]</code> — every file passes 2-reviewer per-file gate before the next.</li><li>[x] <code class="prism-inline-code">[[feedback_never_delete_only_disable]]</code> — no existing engine removed; everything additive.</li><li>[x] <code class="prism-inline-code">[[feedback_no_public_h_drive]]</code> — JM-Die / customer-program references stay internal.</li><li>[x] No inline physics constants — all from <code class="prism-inline-code">physics/constants.ts</code>.</li><li>[x] Real tests, no <code class="prism-inline-code">toBeDefined()</code> stubs.</li><li>[x] Karpathy R5 (model only for judgment), R8 (read-before-write), R12 (fail-loud).</li><li>[x] Karpathy 5-step pre-coding (classify → technique → edge → failure → write) applied below per engine.</li></ul>
+<hr class="prism-hr">
+<p><strong>Spec end. First-unit build follows in this session.</strong></p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

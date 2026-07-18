@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `lathe-postgen` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-postgen.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-postgen.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Generate a complete lathe post-processor from controller specification.
+
+# /lathe-postgen — Lathe Post-Processor Generator
 
 <!-- AUTO-END -->
 

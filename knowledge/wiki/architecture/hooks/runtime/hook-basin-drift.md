@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-hook_basin_drift — USSH Phase 0.25====================================Detects when session state drifts between attractor basins.Uses phase space analysis to identify trajectory changes.Fires: PostToolUse (every 20 tool calls)Theory: Dynamical systems, attractor basins, bifurcation detection
+_(no header docblock — read source for behavior)_
 
 ## Events
 

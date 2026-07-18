@@ -126,7 +126,7 @@ export class CrossProcessCounterfactualPredictorEngine {
   static query(input: CounterfactualInput): CounterfactualResult {
     const parsed = CounterfactualInputSchema.parse(input);
     const events = parsed.events as Event[];
-    const dag = parsed.dag as CausalDAG;
+    const dag = parsed.dag as unknown as CausalDAG;
     const treatment = parsed.treatment;
     const target = parsed.target;
     const xFact = parsed.factual.x;

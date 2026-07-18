@@ -147,7 +147,7 @@ function readStdinSafe() {
 
 function getStableSessionId() {
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], {
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true,
       encoding: "utf-8",
       timeout: 5000,
       stdio: ["ignore", "pipe", "ignore"],

@@ -10,7 +10,7 @@ from the HTTP server thread to the main thread and wait for results.
 Install:
   1. Copy this folder to: %APPDATA%/Autodesk/Autodesk Fusion 360/API/AddIns/PRISMBridge/
   2. In Fusion 360: Utilities -> Add-Ins -> PRISMBridge -> Run
-  3. Server starts on http://localhost:18360
+  3. Server starts on http://localhost:18365
 
 API Endpoints:
   POST /execute    -- Execute raw Python code
@@ -37,6 +37,10 @@ API Endpoints:
   GET  /cam/setups  -- List all CAM setups with metadata
   GET  /cam/setup/stock  -- Get stock definition from a setup
   GET  /cam/setup/bodies -- Get model and fixture bodies from a setup
+  GET  /cam/operation/parameters -- Enumerate an op's CAMParameters (names/value/strategy) — READ-ONLY verify-before-bind keystone (navmap #3)
+  POST /cam/operation/edit    -- Mutate an existing op's params in place by exact Fusion name (navmap #5; iterative re-author)
+  POST /cam/operation/delete  -- Remove one op via deleteMe() — explicit target required (navmap #7)
+  POST /cam/operation/reorder -- Move an op to a new index — capability-detected/best-effort (navmap #7)
 """
 import adsk.core
 import adsk.fusion
@@ -52,7 +56,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from urllib.parse import urlparse, parse_qs
 
-PORT = 18360
+PORT = 18365
 CUSTOM_EVENT_ID = "PRISMBridgeDispatch"
 MIN_OP_INTERVAL_S = 0.15  # 150ms cooldown between geometry operations
 
@@ -83,6 +87,13 @@ CAM_PARAM_MAP = {
 
 # Background job tracking for async toolpath generation
 _cam_jobs = {}  # job_id → {"future": GenerateToolpathFuture, "start": float, "ops": list}
+_prism_scratch_docs = []  # Fusion Document objects PRISM created as throwaway scratch.
+# Closed (discard-only) on cleanup so driving Fusion never leaks hundreds of windows /
+# RAM / CPU / GPU (R14 "close your tool calls" applied to Fusion docs). CROSS-SLOT-SAFE:
+# both PRISM add-ins (:18365 kilo/CAM, :18362 delta/CAD) share ONE app.documents, so we
+# ONLY ever close docs registered here by THIS process's /new — delta's live CAD docs are
+# never registered and never touched. saveChanges is ALWAYS False for scratch (disposable).
+_scratch_seq = 0  # monotonic scratch-name counter — never reused after a close (unique names)
 _app = None
 _ui = None
 _server = None
@@ -174,6 +185,34 @@ def _run_on_main_thread(method, path, body=None, query=None):
 
 # ── Fusion API Logic (runs ONLY on main thread via CustomEvent) ──────
 
+def _register_scratch_doc(doc):
+    """Track a PRISM-created scratch document so cleanup can close it (discard-only).
+
+    Identity-deduped (Fusion objects don't always support ``==``, so compare by ``is``).
+    Best-effort also stamps a document attribute so the doc is recognizable as PRISM
+    scratch even if this process's registry is lost (e.g. add-in reload).
+    """
+    try:
+        for d in _prism_scratch_docs:
+            if d is doc:
+                return
+    except Exception:
+        pass
+    _prism_scratch_docs.append(doc)
+    try:
+        doc.attributes.add("PRISM_DRIVE", "scratch", "1")
+    except Exception:
+        pass
+
+
+def _safe_remove_scratch(doc):
+    """Drop a doc from the scratch registry (identity match, fail-soft)."""
+    try:
+        _prism_scratch_docs[:] = [d for d in _prism_scratch_docs if d is not doc]
+    except Exception:
+        pass
+
+
 class _FusionAPILogic:
     """All Fusion 360 API calls live here. Only called from the main thread."""
 
@@ -220,8 +259,25 @@ class _FusionAPILogic:
         elif path == "/cam/toolpath/status":
             job_id = query.get("job_id", [""])[0] if isinstance(query.get("job_id"), list) else query.get("job_id", "")
             return self._get_toolpath_status(job_id)
+        elif path == "/cam/operation/parameters":
+            return self._list_cam_operation_parameters(query)
         elif path == "/data/projects":
             return self._list_data_projects()
+        # ── Backend navigation (read-only) — delta(CAD) + echo(post) ──
+        elif path == "/design/tree":
+            return self._design_tree()
+        elif path == "/design/features":
+            return self._design_features()
+        elif path == "/design/parameters":
+            return self._design_parameters()
+        elif path == "/design/selection":
+            return self._design_selection()
+        elif path == "/post/library":
+            return self._post_library()
+        elif path == "/post/programs":
+            return self._post_programs()
+        elif path == "/documents":
+            return self._list_documents()
         else:
             return {"error": f"Unknown endpoint: {path}"}
 
@@ -246,8 +302,15 @@ class _FusionAPILogic:
             "/new": self._new_document,
             "/parameter": self._handle_parameter,
             "/tool-import": self._import_tools,
+            "/viewport/capture": self._capture_viewport,
+            "/doc/save": self._save_document,
+            "/doc/save-as": self._save_document_as,
+            "/doc/close": self._close_document,
             "/cam/setup": self._create_cam_setup,
             "/cam/operation": self._create_cam_operation,
+            "/cam/operation/edit": self._edit_cam_operation,        # navmap #5 — mutate existing op params
+            "/cam/operation/delete": self._delete_cam_operation,    # navmap #7 — remove an op (deleteMe)
+            "/cam/operation/reorder": self._reorder_cam_operation,  # navmap #7 — move op (best-effort/capability-detected)
             "/cam/assign-tool": self._assign_cam_tool,
             "/cam/toolpath": self._generate_cam_toolpath,
             "/cam/post": self._cam_post_process,
@@ -256,6 +319,9 @@ class _FusionAPILogic:
             "/data/file/open": self._open_data_file,
             "/data/file/metadata": self._get_data_file_metadata,
             "/data/file/versions": self._get_data_file_versions,
+            "/component/insert": self._insert_component,
+            "/component/list": self._list_occurrences,
+            "/component/joint": self._create_joint,
         }
         handler = dispatch.get(path)
         if handler is None:
@@ -325,12 +391,23 @@ class _FusionAPILogic:
     # ── Design helper ────────────────────────────────────────────────
 
     def _get_design(self):
-        """Get active Fusion 360 design, raising if none."""
+        """Get the Fusion 360 design product, raising if none.
+
+        Resolves the Design product by product type, not just app.activeProduct,
+        so geometry reads work regardless of the active workspace. In the
+        MANUFACTURE workspace activeProduct is the CAM product (not the design),
+        which made every geometry read fail with "not a Fusion design". This
+        mirrors the by-type lookup _create_cam_setup already relies on.
+        """
         app = adsk.core.Application.get()
         doc = app.activeDocument
         if not doc:
             raise RuntimeError("No active document. Use POST /new first.")
         design = adsk.fusion.Design.cast(app.activeProduct)
+        if not design:
+            design = adsk.fusion.Design.cast(
+                doc.products.itemByProductType("DesignProductType")
+            )
         if not design:
             raise RuntimeError("Active product is not a Fusion design.")
         return design
@@ -340,7 +417,11 @@ class _FusionAPILogic:
     def _get_status(self):
         app = adsk.core.Application.get()
         doc = app.activeDocument
-        design = adsk.fusion.Design.cast(app.activeProduct) if doc else None
+        design = None
+        if doc:
+            design = adsk.fusion.Design.cast(app.activeProduct) or adsk.fusion.Design.cast(
+                doc.products.itemByProductType("DesignProductType")
+            )
         result = {
             "status": "connected",
             "version": app.version,
@@ -349,6 +430,18 @@ class _FusionAPILogic:
             "body_count": 0,
             "timeline_count": 0,
         }
+        # Capture cloud DataFile identity when saved so the driver can cache the
+        # file_id and reopen instantly via Data.findFileById (zero enumeration).
+        if doc:
+            try:
+                if getattr(doc, "isSaved", False) and doc.dataFile:
+                    result["data_file_id"] = getattr(doc.dataFile, "id", "")
+                    result["data_file_name"] = doc.dataFile.name
+                    result["is_saved"] = True
+                else:
+                    result["is_saved"] = bool(getattr(doc, "isSaved", False))
+            except Exception:
+                result["is_saved"] = None
         if design:
             root = design.rootComponent
             result["component_count"] = root.allOccurrences.count + 1
@@ -387,6 +480,537 @@ class _FusionAPILogic:
         return {"body_count": len(bodies), "bodies": bodies}
 
     # ── POST /execute ────────────────────────────────────────────────
+
+    def _capture_viewport(self, body):
+        """POST /viewport/capture — Save the active viewport to a PNG so the
+        driver can VISUALLY verify state (catch gross-visual errors the
+        structured API can't flag: oversized holder, toolpath missing a
+        feature, wrong setup orientation). Verification layer, not control."""
+        app = adsk.core.Application.get()
+        vp = app.activeViewport
+        if not vp:
+            return {"error": "No active viewport"}
+
+        orient_map = {
+            "iso": adsk.core.ViewOrientations.IsoTopRightViewOrientation,
+            "top": adsk.core.ViewOrientations.TopViewOrientation,
+            "bottom": adsk.core.ViewOrientations.BottomViewOrientation,
+            "front": adsk.core.ViewOrientations.FrontViewOrientation,
+            "back": adsk.core.ViewOrientations.BackViewOrientation,
+            "left": adsk.core.ViewOrientations.LeftViewOrientation,
+            "right": adsk.core.ViewOrientations.RightViewOrientation,
+        }
+        orientation = str(body.get("orientation", "")).lower()
+        if orientation in orient_map:
+            try:
+                cam = vp.camera
+                cam.viewOrientation = orient_map[orientation]
+                cam.isFitView = True
+                vp.camera = cam  # reassign to apply
+                adsk.doEvents()
+            except Exception:
+                pass  # orientation is best-effort; fall back to current view
+
+        try:
+            width = int(body.get("width", 1600))
+            height = int(body.get("height", 1000))
+        except (ValueError, TypeError):
+            width, height = 1600, 1000
+        width = max(64, min(width, 4096))
+        height = max(64, min(height, 4096))
+
+        out_dir = os.path.join(os.environ.get("TEMP", "/tmp"), "prism-viz")
+        os.makedirs(out_dir, exist_ok=True)
+        name = os.path.basename(str(body.get("name", "viewport"))) or "viewport"
+        if not name.lower().endswith(".png"):
+            name += ".png"
+        out_path = os.path.join(out_dir, name)
+
+        try:
+            ok = vp.saveAsImageFile(out_path, width, height)
+        except Exception as e:
+            return {"error": f"saveAsImageFile raised: {e}", "path": out_path}
+        if not ok or not os.path.isfile(out_path):
+            return {"error": "saveAsImageFile returned false / no file", "path": out_path}
+        return {
+            "success": True,
+            "path": out_path,
+            "width": width,
+            "height": height,
+            "orientation": orientation or "current",
+        }
+
+    def _save_document(self, body):
+        """POST /doc/save — Save the active document (must already have been
+        saved once; use /doc/save-as for the first save)."""
+        app = adsk.core.Application.get()
+        doc = app.activeDocument
+        if not doc:
+            return {"error": "No active document"}
+        if not doc.isSaved:
+            return {"error": "Document never saved — use /doc/save-as first (Fusion requires a name + folder for the initial save)"}
+        try:
+            ok = doc.save(str(body.get("description", "")))
+        except Exception as e:
+            return {"error": f"save raised: {e}", "traceback": traceback.format_exc()}
+        return {"success": bool(ok), "name": doc.name, "isSaved": doc.isSaved}
+
+    def _save_document_as(self, body):
+        """POST /doc/save-as — Save the active document under a NEW name into a
+        Fusion project folder, leaving the original untouched (SOP step 2).
+        Fusion saveAs is cloud/Data-panel based (DataFolder), NOT a local path."""
+        app = adsk.core.Application.get()
+        doc = app.activeDocument
+        if not doc:
+            return {"error": "No active document"}
+        name = body.get("name")
+        if not name:
+            return {"error": "Missing 'name'"}
+
+        # Resolve target DataFolder: prefer the active doc's own folder (copy
+        # lands beside the original); else the active project root.
+        folder = None
+        try:
+            if doc.isSaved and doc.dataFile:
+                folder = doc.dataFile.parentFolder
+        except Exception:
+            folder = None
+        if not folder:
+            try:
+                proj = app.data.activeProject
+                folder = proj.rootFolder if proj else None
+            except Exception:
+                folder = None
+        if not folder:
+            return {"error": "No target folder (no active Fusion project). Activate a project in the Data panel first."}
+
+        try:
+            ok = doc.saveAs(str(name), folder, str(body.get("description", "")), str(body.get("tag", "")))
+        except Exception as e:
+            return {"error": f"saveAs raised: {e}", "traceback": traceback.format_exc()}
+        return {
+            "success": bool(ok),
+            "name": doc.name,
+            "folder": getattr(folder, "name", ""),
+            "isSaved": doc.isSaved,
+        }
+
+    # ── GET /documents · POST /doc/close (window-leak prevention, R14) ──
+
+    def _is_scratch_doc(self, doc):
+        """True if doc is a PRISM throwaway: registered this session, OR carries the
+        PRISM_DRIVE/scratch attribute, OR is named with the PRISM scratch prefix.
+        Used to gate auto-close so delta's live CAD docs are never discarded."""
+        try:
+            for d in _prism_scratch_docs:
+                if d is doc:
+                    return True
+        except Exception:
+            pass
+        try:
+            if doc.attributes.itemByName("PRISM_DRIVE", "scratch") is not None:
+                return True
+        except Exception:
+            pass
+        try:
+            nm = doc.name or ""
+            if nm.startswith("PRISM-SCRATCH") or nm.startswith("PRISM_CAM"):
+                return True
+        except Exception:
+            pass
+        return False
+
+    def _list_documents(self):
+        """GET /documents — enumerate every open Fusion document with its save/modified
+        state and whether PRISM owns it as scratch. Lets cleanup see what would be closed
+        BEFORE acting (and surfaces window pile-up to the operator)."""
+        app = adsk.core.Application.get()
+        docs = app.documents
+        try:
+            active = app.activeDocument
+        except Exception:
+            active = None
+        out = []
+        try:
+            count = docs.count
+        except Exception:
+            count = 0
+        for i in range(min(count, 500)):
+            try:
+                d = docs.item(i)
+            except Exception:
+                continue
+            out.append({
+                "index": i,
+                "name": self._nav_safe(lambda: d.name, "?"),
+                "isSaved": self._nav_safe(lambda: bool(d.isSaved), None),
+                "isModified": self._nav_safe(lambda: bool(d.isModified), None),
+                "isActive": bool(active is not None and d is active),
+                "prismScratch": self._nav_safe(lambda: self._is_scratch_doc(d), False),
+            })
+        return {
+            "documents": out,
+            "count": len(out),
+            "scratchCount": sum(1 for x in out if x.get("prismScratch")),
+            "registeredScratch": len(_prism_scratch_docs),
+        }
+
+    def _close_document(self, body):
+        """POST /doc/close — close documents to stop window pile-up (R14).
+
+        target (default "scratch"):
+          • "scratch" — close ONLY PRISM scratch docs registered this session, discard-only
+            (saveChanges always False). Cross-slot-safe: delta's docs are never registered,
+            so this can never lose CAD work. A scratch doc that was promoted (isSaved) is
+            skipped, not discarded.
+          • "active"  — close the active document. Refuses to discard a MODIFIED non-scratch
+            doc unless force:true (or saveChanges:true to save first).
+          • "name"    — close the open doc whose name matches body.name (same safety guard).
+        """
+        app = adsk.core.Application.get()
+        target = str(body.get("target", "scratch")).lower()
+        save_changes = bool(body.get("saveChanges", False))
+        force = bool(body.get("force", False))
+
+        if target == "scratch":
+            closed, skipped, errors = [], [], []
+            for doc in list(_prism_scratch_docs):
+                try:
+                    nm = doc.name
+                except Exception:
+                    _safe_remove_scratch(doc)  # stale ref — already gone
+                    continue
+                try:
+                    if doc.isSaved:
+                        # Promoted to a real saved part — never discard it.
+                        skipped.append({"name": nm, "reason": "isSaved (promoted to real part)"})
+                        _safe_remove_scratch(doc)
+                        continue
+                    doc.close(False)  # discard — scratch is disposable
+                    closed.append(nm)
+                    _safe_remove_scratch(doc)
+                except Exception as e:
+                    errors.append({"name": nm, "error": str(e)})
+            return {
+                "success": True, "target": "scratch",
+                "closed": closed, "closedCount": len(closed),
+                "skipped": skipped, "errors": errors,
+            }
+
+        if target == "active":
+            doc = app.activeDocument
+            if not doc:
+                return {"error": "No active document"}
+            nm = self._nav_safe(lambda: doc.name, "?")
+            modified = self._nav_safe(lambda: bool(doc.isModified), False)
+            if (not save_changes) and modified and (not self._is_scratch_doc(doc)) and (not force):
+                return {"error": "Refusing to discard a modified non-scratch document. "
+                                 "Pass force:true to discard, or saveChanges:true to save first.",
+                        "name": nm}
+            try:
+                doc.close(save_changes)
+                _safe_remove_scratch(doc)
+                return {"success": True, "closed": [nm], "savedChanges": save_changes}
+            except Exception as e:
+                return {"error": f"close raised: {e}", "name": nm}
+
+        if target == "name":
+            name = body.get("name")
+            if not name:
+                return {"error": "Missing 'name' for target=name"}
+            docs = app.documents
+            try:
+                count = docs.count
+            except Exception:
+                count = 0
+            for i in range(count):
+                try:
+                    d = docs.item(i)
+                except Exception:
+                    continue
+                if self._nav_safe(lambda: d.name, None) == name:
+                    modified = self._nav_safe(lambda: bool(d.isModified), False)
+                    if (not save_changes) and modified and (not self._is_scratch_doc(d)) and (not force):
+                        return {"error": "Refusing to discard a modified non-scratch document. "
+                                         "force:true to discard.", "name": name}
+                    try:
+                        d.close(save_changes)
+                        _safe_remove_scratch(d)
+                        return {"success": True, "closed": [name], "savedChanges": save_changes}
+                    except Exception as e:
+                        return {"error": f"close raised: {e}", "name": name}
+            return {"error": f"No open document named {name}"}
+
+        return {"error": f"Unknown target '{target}' (use scratch|active|name)"}
+
+    # ── Backend navigation (read-only) ───────────────────────────────
+    # delta(CAD-design) + echo(post) navigation surface so PRISM AI can query
+    # backend state by id/path instead of screenshots / blind API probing.
+
+    @staticmethod
+    def _nav_safe(fn, default=None):
+        """Call fn(); swallow any Fusion-API error and return default. Keeps a
+        navigation read total — one bad entity never blanks the whole tree."""
+        try:
+            return fn()
+        except Exception:
+            return default
+
+    def _design_length_unit(self, design):
+        """The design's own default length unit ('in','mm','cm'...). Reported on
+        every geometry read so a metric doc can never be misread as inch (25.4x)."""
+        return (self._nav_safe(lambda: design.unitsManager.defaultLengthUnits)
+                or self._nav_safe(lambda: design.fusionUnitsManager.defaultLengthUnits))
+
+    def _bbox_in(self, ent):
+        """Bounding box of an entity in INCH (Fusion internal length is cm)."""
+        bb = self._nav_safe(lambda: ent.boundingBox)
+        if not bb:
+            return None
+        return {
+            "min": [bb.minPoint.x / 2.54, bb.minPoint.y / 2.54, bb.minPoint.z / 2.54],
+            "max": [bb.maxPoint.x / 2.54, bb.maxPoint.y / 2.54, bb.maxPoint.z / 2.54],
+        }
+
+    def _design_tree(self):
+        """GET /design/tree — the browser backend: root component (bodies +
+        sketches + construction-geom counts) and every occurrence (flat,
+        depth-capped) with full path, grounded/visible state, and INCH bbox.
+        The id/path navigation surface that replaces screenshotting the tree."""
+        try:
+            design = self._get_design()
+        except Exception as e:
+            return {"error": str(e)}
+        root = design.rootComponent
+
+        def comp_summary(comp):
+            bodies = []
+            for i in range(comp.bRepBodies.count):
+                b = comp.bRepBodies.item(i)
+                is_solid = self._nav_safe(lambda: b.isSolid, None)
+                bodies.append({
+                    "index": i,
+                    "name": self._nav_safe(lambda: b.name),
+                    "is_visible": self._nav_safe(lambda: b.isVisible),
+                    "is_solid": is_solid,
+                    # cm^3 -> in^3 (2.54^3 = 16.387064); only meaningful for solids
+                    "volume_in3": self._nav_safe(lambda: b.volume / 16.387064) if is_solid else None,
+                    "bbox_in": self._bbox_in(b),
+                    "face_count": self._nav_safe(lambda: b.faces.count, 0),
+                })
+            sketches = []
+            for i in range(comp.sketches.count):
+                s = comp.sketches.item(i)
+                sketches.append({
+                    "index": i,
+                    "name": self._nav_safe(lambda: s.name),
+                    "is_visible": self._nav_safe(lambda: s.isVisible),
+                    "profile_count": self._nav_safe(lambda: s.profiles.count, 0),
+                    "is_fully_constrained": self._nav_safe(lambda: s.isFullyConstrained),
+                })
+            return {
+                "name": comp.name,
+                "body_count": comp.bRepBodies.count,
+                "sketch_count": comp.sketches.count,
+                "bodies": bodies,
+                "sketches": sketches,
+                "construction": {
+                    "planes": self._nav_safe(lambda: comp.constructionPlanes.count, 0),
+                    "axes": self._nav_safe(lambda: comp.constructionAxes.count, 0),
+                    "points": self._nav_safe(lambda: comp.constructionPoints.count, 0),
+                },
+            }
+
+        occs = []
+        truncated = False
+        MAX_OCC = 500
+        try:
+            flat = root.allOccurrences
+            total = flat.count
+            for i in range(min(total, MAX_OCC)):
+                occ = flat.item(i)
+                occs.append({
+                    "full_path": self._nav_safe(lambda: occ.fullPathName),
+                    "name": self._nav_safe(lambda: occ.name),
+                    "component_name": self._nav_safe(lambda: occ.component.name),
+                    "is_grounded": self._nav_safe(lambda: occ.isGrounded),
+                    "is_visible": self._nav_safe(lambda: occ.isLightBulbOn),
+                    "body_count": self._nav_safe(lambda: occ.bRepBodies.count, 0),
+                    "bbox_in": self._bbox_in(occ),
+                })
+            truncated = total > MAX_OCC
+        except Exception as e:
+            return {"error": str(e), "partial_occurrences": occs}
+
+        return {
+            "document": self._nav_safe(lambda: adsk.core.Application.get().activeDocument.name),
+            "design_length_unit": self._design_length_unit(design),
+            "root_component": comp_summary(root),
+            "occurrences": occs,
+            "occurrence_count": len(occs),
+            "occurrence_truncated": truncated,
+            "timeline_count": self._nav_safe(lambda: design.timeline.count, 0),
+        }
+
+    def _design_features(self):
+        """GET /design/features — the timeline backend: ordered features with
+        entity type, suppression and health. Reveals the part's build recipe so
+        PRISM AI can reason about edit order without opening the timeline UI."""
+        try:
+            design = self._get_design()
+        except Exception as e:
+            return {"error": str(e)}
+        tl = design.timeline
+        total = self._nav_safe(lambda: tl.count, 0)
+        items = []
+        MAX = 1000
+        for i in range(min(total, MAX)):
+            it = tl.item(i)
+            entity = self._nav_safe(lambda: it.entity)
+            items.append({
+                "index": i,
+                "name": self._nav_safe(lambda: it.name),
+                "entity_type": self._nav_safe(lambda: entity.objectType) if entity else None,
+                "entity_name": self._nav_safe(lambda: entity.name) if entity else None,
+                "is_suppressed": self._nav_safe(lambda: it.isSuppressed),
+                "health_state": self._nav_safe(lambda: int(it.healthState)),
+            })
+        return {"feature_count": total, "features": items, "truncated": total > MAX}
+
+    def _design_parameters(self):
+        """GET /design/parameters — the parametric backend: user parameters +
+        model parameters (name, expression, internal value, unit, comment).
+        Expressions are the human form ('2.5 in'); value is Fusion-internal
+        (cm/rad). Lets PRISM AI drive parameter edits by name, never by clicking."""
+        try:
+            design = self._get_design()
+        except Exception as e:
+            return {"error": str(e)}
+
+        def dump(pcoll, kind, cap):
+            out = []
+            n = self._nav_safe(lambda: pcoll.count, 0)
+            for i in range(min(n, cap)):
+                p = pcoll.item(i)
+                out.append({
+                    "kind": kind,
+                    "name": self._nav_safe(lambda: p.name),
+                    "expression": self._nav_safe(lambda: p.expression),
+                    "value": self._nav_safe(lambda: p.value),
+                    "unit": self._nav_safe(lambda: p.unit),
+                    "comment": self._nav_safe(lambda: p.comment),
+                })
+            return out, n
+
+        user, user_n = self._nav_safe(lambda: dump(design.userParameters, "user", 1000), ([], 0))
+        allp, all_n = self._nav_safe(lambda: dump(design.allParameters, "model", 2000), ([], 0))
+        return {
+            "user_parameter_count": user_n,
+            "user_parameters": user,
+            "all_parameter_count": all_n,
+            "all_parameters": allp,
+            "all_truncated": all_n > 2000,
+        }
+
+    def _design_selection(self):
+        """GET /design/selection — the live UI selection so PRISM AI knows what
+        the operator picked (e.g. a parting face) without a screenshot. Each
+        entry carries type, name, owning body/component and INCH bbox."""
+        app = adsk.core.Application.get()
+        ui = self._nav_safe(lambda: app.userInterface)
+        if not ui:
+            return {"error": "no userInterface"}
+        sels = []
+        try:
+            active = ui.activeSelections
+            for i in range(active.count):
+                ent = active.item(i).entity
+                sels.append({
+                    "index": i,
+                    "entity_type": self._nav_safe(lambda: ent.objectType),
+                    "name": self._nav_safe(lambda: ent.name),
+                    "body": self._nav_safe(lambda: ent.body.name),
+                    "component": self._nav_safe(
+                        lambda: ent.assemblyContext.component.name if ent.assemblyContext
+                        else ent.body.parentComponent.name),
+                    "bbox_in": self._bbox_in(ent),
+                })
+        except Exception as e:
+            return {"error": str(e), "selections": sels}
+        return {"selection_count": len(sels), "selections": sels}
+
+    def _post_library(self):
+        """GET /post/library — enumerate installed post configurations across
+        every Fusion library location (Fusion-shipped + Local + Cloud 'My Posts').
+        The .cps backend so PRISM AI selects a post by url/leaf, never by browsing
+        the Post Library dialog. Depth-capped, total-bounded, fully fail-soft."""
+        try:
+            cam_mgr = adsk.cam.CAMManager.get()
+            post_lib = cam_mgr.libraryManager.postLibrary
+        except Exception as e:
+            return {"error": "post library unavailable: " + str(e)}
+        loc_enum = adsk.cam.LibraryLocations
+        locations = []
+        MAX_POSTS = 500
+        for loc_name in ("Fusion360LibraryLocation", "LocalLibraryLocation",
+                         "CloudLibraryLocation", "ExternalLibraryLocation"):
+            loc_val = getattr(loc_enum, loc_name, None)
+            if loc_val is None:
+                continue
+            root_url = self._nav_safe(lambda: post_lib.urlByLocation(loc_val))
+            if not root_url:
+                continue
+            posts = []
+
+            def walk(url, depth):
+                if depth > 5 or len(posts) >= MAX_POSTS:
+                    return
+                for au in (self._nav_safe(lambda: list(post_lib.childAssetURLs(url)), []) or []):
+                    if len(posts) >= MAX_POSTS:
+                        break
+                    posts.append({
+                        "leaf": self._nav_safe(lambda: au.leafName),
+                        "url": self._nav_safe(lambda: au.toString()),
+                    })
+                for fu in (self._nav_safe(lambda: list(post_lib.childFolderURLs(url)), []) or []):
+                    walk(fu, depth + 1)
+
+            walk(root_url, 0)
+            locations.append({
+                "location": loc_name,
+                "root_url": self._nav_safe(lambda: root_url.toString()),
+                "post_count": len(posts),
+                "posts": posts,
+                "truncated": len(posts) >= MAX_POSTS,
+            })
+        return {"location_count": len(locations), "locations": locations}
+
+    def _post_programs(self):
+        """GET /post/programs — NC Programs in the active document: assigned post,
+        operation count, output settings. Empty (with a note) when the document
+        has no Manufacture data — that is a state, not an error. Best-effort across
+        Fusion versions (NCProgram shape varies) — every field is fail-soft."""
+        app = adsk.core.Application.get()
+        doc = self._nav_safe(lambda: app.activeDocument)
+        if not doc:
+            return {"error": "No active document."}
+        cam = self._nav_safe(lambda: adsk.cam.CAM.cast(
+            doc.products.itemByProductType("CAMProductType")))
+        if not cam:
+            return {"ncprogram_count": 0, "ncprograms": [],
+                    "note": "no Manufacture (CAM) product in this document"}
+        ncs = self._nav_safe(lambda: cam.ncPrograms)
+        n = self._nav_safe(lambda: ncs.count, 0)
+        progs = []
+        for i in range(n):
+            p = ncs.item(i)
+            progs.append({
+                "index": i,
+                "name": self._nav_safe(lambda: p.name),
+                "post_url": self._nav_safe(lambda: p.postConfiguration.toString()),
+                "operation_count": self._nav_safe(lambda: p.operations.count, 0),
+            })
+        return {"ncprogram_count": n, "ncprograms": progs}
 
     def _execute_code(self, body):
         code = body.get("code", "")
@@ -941,15 +1565,30 @@ class _FusionAPILogic:
         if body.get("parametric", True):
             design.designType = adsk.fusion.DesignTypes.ParametricDesignType
 
-        # Set document name if provided
+        # Scratch-by-default when UNNAMED: an unnamed PRISM-created doc is a
+        # throwaway used only for driving Fusion, so register it for discard-only
+        # cleanup (prevents window pile-up). A named doc — or explicit scratch:false
+        # — is treated as intentional and is NOT auto-closed. Caller can also force
+        # scratch:true on a named doc.
         doc_name = body.get("name", "")
+        is_scratch = bool(body.get("scratch", not doc_name))
+        if is_scratch and not doc_name:
+            global _scratch_seq
+            _scratch_seq += 1
+            doc_name = "PRISM-SCRATCH-%d" % _scratch_seq
         if doc_name:
-            doc.name = doc_name
+            try:
+                doc.name = doc_name
+            except Exception:
+                pass
+        if is_scratch:
+            _register_scratch_doc(doc)
 
         return {
             "success": True,
             "document_name": doc.name,
             "design_type": "parametric" if design.designType == adsk.fusion.DesignTypes.ParametricDesignType else "direct",
+            "scratch": is_scratch,
         }
 
     # ── POST /parameter ─────────────────────────────────────────────
@@ -1323,16 +1962,20 @@ class _FusionAPILogic:
         try:
             setup_input = cam.setups.createInput(op_type)
 
-            # Assign model bodies
+            # Assign model bodies. SetupInput.models expects a PYTHON LIST of
+            # BRepBody — NOT an adsk.core.ObjectCollection. The SWIG binding
+            # rejects an ObjectCollection here ("argument 2 of type
+            # std::vector<Ptr<Base>>"); this surfaced on the first live drive of
+            # a real part (CAM-DRIVE-MS0 was wired but never run on a live seat).
             design = adsk.fusion.Design.cast(doc.products.itemByProductType("DesignProductType"))
+            models = []
             if design:
                 root = design.rootComponent
                 body_indices = body.get("model_body_indices", [0])
-                models = adsk.core.ObjectCollection.create()
                 for idx in body_indices:
                     if 0 <= idx < root.bRepBodies.count:
-                        models.add(root.bRepBodies.item(idx))
-                if models.count > 0:
+                        models.append(root.bRepBodies.item(idx))
+                if models:
                     setup_input.models = models
 
             new_setup = cam.setups.add(setup_input)
@@ -1381,7 +2024,7 @@ class _FusionAPILogic:
                 "success": True,
                 "setup_name": new_setup.name,
                 "setup_index": cam.setups.count - 1,
-                "model_count": models.count if design else 0,
+                "model_count": len(models),
                 "stock_mode": stock.get("mode", "relative"),
             }
         except Exception as e:
@@ -1409,14 +2052,20 @@ class _FusionAPILogic:
             return {"error": f"Unknown operation_type: '{op_type}'. Valid: {valid}"}
 
         try:
-            # Create the operation
-            op_input = setup.createOperationInput(fusion_cmd)
+            # Create the operation. In this Fusion CAM API the factory is
+            # Operations.createInput(strategy) on the setup's operations
+            # collection — NOT Setup.createOperationInput (which does not exist;
+            # surfaced on the first live op-create). Strategy string comes from
+            # OPERATION_TYPE_MAP (e.g. "face", "adaptive", "drill").
+            op_input = setup.operations.createInput(fusion_cmd)
             new_op = setup.operations.add(op_input)
 
-            # Set parameters
+            # Set parameters (mapped PRISM keys — auto-converted via CAM_PARAM_MAP factor)
             params = body.get("parameters", {})
             params_set = 0
             warnings = []
+            set_list = []
+            failed_list = []
             for prism_key, (fusion_key, factor) in CAM_PARAM_MAP.items():
                 val = params.get(prism_key)
                 if val is not None:
@@ -1425,10 +2074,35 @@ class _FusionAPILogic:
                         if p:
                             p.expression = str(val * factor)
                             params_set += 1
+                            set_list.append(fusion_key)
                         else:
                             warnings.append(f"Parameter '{fusion_key}' not found for operation type '{fusion_cmd}'")
+                            failed_list.append({"param": fusion_key, "reason": "not_found"})
                     except Exception as pe:
                         warnings.append(f"Failed to set '{fusion_key}': {str(pe)}")
+                        failed_list.append({"param": fusion_key, "reason": str(pe)})
+
+            # Set arbitrary Fusion-NATIVE params (CAM-DRIVE-MS0/U-CAM-DRIVE-PARAM-EXPAND).
+            # Full-parameter drive: any catalog-enumerated CAMParameter can be set here by
+            # its exact Fusion name. NO conversion factor — the caller supplies a ready
+            # expression (e.g. "5000", "0.5 cm"). Per-param try/except; never aborts the op.
+            raw_params = body.get("raw_parameters", {})
+            if isinstance(raw_params, dict):
+                for fusion_key, expr in raw_params.items():
+                    if expr is None:
+                        continue
+                    try:
+                        p = new_op.parameters.itemByName(fusion_key)
+                        if p:
+                            p.expression = str(expr)
+                            params_set += 1
+                            set_list.append(fusion_key)
+                        else:
+                            warnings.append(f"Parameter '{fusion_key}' not found for operation type '{fusion_cmd}'")
+                            failed_list.append({"param": fusion_key, "reason": "not_found"})
+                    except Exception as pe:
+                        warnings.append(f"Failed to set '{fusion_key}': {str(pe)}")
+                        failed_list.append({"param": fusion_key, "reason": str(pe)})
 
             adsk.doEvents()
 
@@ -1440,9 +2114,305 @@ class _FusionAPILogic:
                 "setup_name": setup.name,
                 "parameters_set": params_set,
                 "warnings": warnings,
+                "set": set_list,
+                "failed": failed_list,
             }
         except Exception as e:
             return {"error": str(e), "traceback": traceback.format_exc()}
+
+    def _list_cam_operation_parameters(self, query):
+        """GET /cam/operation/parameters — enumerate an EXISTING operation's CAMParameters
+        (name/title/expression/value/type) so a driver can VALIDATE param names before blind-
+        setting them, and confirm the real .strategy string. Navmap endpoint #3 — the
+        verify-before-bind KEYSTONE that flips matrix fusion_strategy_verified false->true.
+        READ-ONLY: creates and mutates nothing. Resolve target by setup_name|setup_index +
+        op_name|op_index. Per-param fail-soft (one odd parameter never aborts the dump)."""
+        query = query or {}  # GET with no query string -> {} (never deref None)
+        app = adsk.core.Application.get()
+        cam = adsk.cam.CAM.cast(app.activeProduct)
+        if not cam:
+            return {"error": "No CAM product. Switch to MANUFACTURE workspace."}
+
+        def _q(key, default=""):
+            v = query.get(key, [default])
+            return (v[0] if isinstance(v, list) else v) or default
+
+        setup_name = _q("setup_name", "")
+        setup_index = int(_q("setup_index", "0") or "0")
+        setup = self._find_setup(cam, setup_name, setup_index)
+        if not setup:
+            return {"error": f"Setup not found: name='{setup_name}' index={setup_index}"}
+
+        # Resolve the operation by name (preferred) or index within the setup.
+        op_name = _q("op_name", "")
+        op_index = int(_q("op_index", "0") or "0")
+        ops = setup.operations
+        target = None
+        if op_name:
+            for i in range(ops.count):
+                o = ops.item(i)
+                if o.name == op_name:
+                    target = o
+                    break
+            if target is None:
+                return {"error": f"Operation not found by name='{op_name}' in setup '{setup.name}'"}
+        else:
+            if op_index < 0 or op_index >= ops.count:
+                return {"error": f"op_index {op_index} out of range (setup '{setup.name}' has {ops.count} operations)"}
+            target = ops.item(op_index)
+
+        # Enumerate the operation's CAMParameters — read-only, per-param fail-soft (the names
+        # are the load-bearing output; never assume a CAMParameterValue subtype's accessors).
+        params = []
+        try:
+            coll = target.parameters
+            for i in range(coll.count):
+                p = coll.item(i)
+                entry = {"name": getattr(p, "name", None)}
+                for attr in ("title", "expression", "isEnabled"):
+                    try:
+                        entry[attr] = getattr(p, attr)
+                    except Exception:
+                        entry[attr] = None
+                try:
+                    pv = p.value
+                    entry["value_type"] = type(pv).__name__
+                    try:
+                        entry["value"] = pv.value
+                    except Exception:
+                        entry["value"] = None
+                    for opt_attr in ("choices", "enumValues", "options"):
+                        try:
+                            if getattr(pv, opt_attr, None) is not None:
+                                entry["options_attr"] = opt_attr
+                                break
+                        except Exception:
+                            pass
+                except Exception:
+                    entry["value_type"] = None
+                    entry["value"] = None
+                params.append(entry)
+        except Exception as e:
+            return {"error": f"Failed to enumerate parameters: {str(e)}", "traceback": traceback.format_exc()}
+
+        return {
+            "success": True,
+            "setup_name": setup.name,
+            "operation_name": target.name,
+            "strategy": getattr(target, "strategy", None),
+            "parameter_count": len(params),
+            "parameters": params,
+            "note": "READ-ONLY parameter dump (navmap endpoint #3). Use these EXACT names to bind geometry/tool-axis/turning params; flip matrix fusion_strategy_verified=true once .strategy here matches the family's mapped strategy.",
+        }
+
+    def _resolve_cam_op(self, cam, setup_name, setup_index, op_name, op_index, require_explicit=False):
+        """Shared op resolver for the lifecycle endpoints (#5 edit / #7 delete+reorder).
+        Returns (setup, op, None) on success or (None, None, {error}) on failure.
+
+        SAFETY (R12): op_name is None = "key absent" (→ resolve by index); op_name provided-but-
+        EMPTY/whitespace is a loud error — never silently fall through to index 0 when the caller
+        clearly meant a named target (the destructive-target hole). op_index is coerced to int with
+        a loud error (a string "1" must not throw an uncaught TypeError mid-delete). require_explicit
+        =True additionally refuses an implicit index-0 fallback — a DELETE/REORDER must name its
+        target, never silently hit 'the first op'."""
+        setup = self._find_setup(cam, setup_name or "", setup_index or 0)
+        if not setup:
+            return None, None, {"error": f"Setup not found: name='{setup_name}' index={setup_index}"}
+        ops = setup.operations
+
+        # Provided-but-empty op_name → loud error (do NOT degrade a named-target intent to index).
+        if op_name is not None and not str(op_name).strip():
+            return None, None, {"error": "op_name/operation_name was provided but empty — name the target explicitly (refusing to fall through to an index)."}
+        if op_name:
+            for i in range(ops.count):
+                o = ops.item(i)
+                if o.name == op_name:
+                    return setup, o, None
+            return None, None, {"error": f"Operation not found by name='{op_name}' in setup '{setup.name}'"}
+
+        # No name given. For destructive ops we demand an explicit op_index (the caller must opt in),
+        # never an implicit 0 — deleting/reordering the wrong op is unrecoverable in a live doc.
+        if require_explicit and op_index is None:
+            return None, None, {"error": "Refusing implicit target: pass op_name or an explicit op_index (destructive op must name its target)."}
+        # Coerce op_index to int (JSON usually gives int, but a string '1' must fail loud, not TypeError
+        # on the bounds check below — matches reorder's target_index handling for one consistent rule).
+        if op_index is None:
+            idx = 0
+        else:
+            try:
+                idx = int(op_index)
+            except (TypeError, ValueError):
+                return None, None, {"error": f"op_index must be an integer, got {op_index!r}"}
+        if idx < 0 or idx >= ops.count:
+            return None, None, {"error": f"op_index {idx} out of range (setup '{setup.name}' has {ops.count} operations)"}
+        return setup, ops.item(idx), None
+
+    def _edit_cam_operation(self, body):
+        """POST /cam/operation/edit (navmap #5) — mutate an EXISTING operation's CAMParameters in
+        place. Sets `raw_parameters` {exactFusionName: expression} via the SAME itemByName/.expression
+        mechanism proven in _create_cam_operation — NO conversion factor, NO hardcoded [INFER] names:
+        the caller supplies #3-VERIFIED names + ready expressions (e.g. {"stepover": "0.4 in"}). This
+        is what makes authoring iterative (a wrong-param op can be corrected, not only recreated) and
+        is the write-half of the closed-loop optimize regimen. Per-param fail-soft; never aborts the op;
+        touches ONLY the named params (all others untouched). Idempotent. READ-ONLY on geometry/tool."""
+        app = adsk.core.Application.get()
+        cam = adsk.cam.CAM.cast(app.activeProduct)
+        if not cam:
+            return {"error": "No CAM product. Switch to MANUFACTURE workspace."}
+
+        setup, op, err = self._resolve_cam_op(
+            cam, body.get("setup_name", ""), body.get("setup_index", 0),
+            body.get("op_name", body.get("operation_name")), body.get("op_index"))
+        if err:
+            return err
+
+        raw_params = body.get("raw_parameters", {})
+        if not isinstance(raw_params, dict):
+            return {"error": "raw_parameters must be an object {fusionName: expression}"}
+
+        set_list, failed_list, warnings = [], [], []
+        try:
+            for fusion_key, expr in raw_params.items():
+                if expr is None:
+                    continue
+                try:
+                    p = op.parameters.itemByName(fusion_key)
+                    if p:
+                        p.expression = str(expr)
+                        set_list.append(fusion_key)
+                    else:
+                        warnings.append(f"Parameter '{fusion_key}' not found on operation '{op.name}'")
+                        failed_list.append({"param": fusion_key, "reason": "not_found"})
+                except Exception as pe:
+                    warnings.append(f"Failed to set '{fusion_key}': {str(pe)}")
+                    failed_list.append({"param": fusion_key, "reason": str(pe)})
+            adsk.doEvents()
+        except Exception as e:
+            return {"error": str(e), "traceback": traceback.format_exc()}
+
+        return {
+            "success": True,
+            "setup_name": setup.name,
+            "operation_name": op.name,
+            "parameters_set": len(set_list),
+            "set": set_list,
+            "failed": failed_list,
+            "warnings": warnings,
+            "note": "Edited in place. Toolpath is now DIRTY — regenerate via POST /cam/toolpath before posting. Param names must match #3 (GET /cam/operation/parameters); unknown names are reported in 'failed', never guessed.",
+        }
+
+    def _delete_cam_operation(self, body):
+        """POST /cam/operation/delete (navmap #7) — remove ONE operation from a setup via the
+        standard Fusion object idiom `deleteMe()`. SAFETY: refuses an implicit target — the caller
+        MUST pass op_name or an explicit op_index (never silently deletes the first/last op).
+        Returns the deleted op's name + the remaining operation count for verification."""
+        app = adsk.core.Application.get()
+        cam = adsk.cam.CAM.cast(app.activeProduct)
+        if not cam:
+            return {"error": "No CAM product. Switch to MANUFACTURE workspace."}
+
+        setup, op, err = self._resolve_cam_op(
+            cam, body.get("setup_name", ""), body.get("setup_index", 0),
+            body.get("op_name", body.get("operation_name")), body.get("op_index"),
+            require_explicit=True)
+        if err:
+            return err
+
+        deleted_name = op.name
+        try:
+            ok = op.deleteMe()
+            adsk.doEvents()
+        except Exception as e:
+            return {"error": f"deleteMe() failed for '{deleted_name}': {str(e)}", "traceback": traceback.format_exc()}
+        if ok is False:
+            return {"error": f"deleteMe() returned False for '{deleted_name}' (Fusion refused the delete)"}
+        return {
+            "success": True,
+            "setup_name": setup.name,
+            "deleted_operation": deleted_name,
+            "remaining_operations": setup.operations.count,
+            "note": "Operation removed. If it was mid-program, verify downstream ops still bind their geometry.",
+        }
+
+    def _reorder_cam_operation(self, body):
+        """POST /cam/operation/reorder (navmap #7) — move an operation to a new position in the
+        setup's operation list. HONEST/BEST-EFFORT: Fusion's adsk.cam.Operations does not expose a
+        stable public reorder across all API versions, so this CAPABILITY-DETECTS (operations.move /
+        op.move / reorder) and applies it if present; otherwise it fail-soft REFUSES with the methods
+        that ARE available + the delete-and-recreate fallback. It never pretends to reorder when it
+        cannot (R12) — a silent no-op here would corrupt a 100-op program's sequence invisibly."""
+        app = adsk.core.Application.get()
+        cam = adsk.cam.CAM.cast(app.activeProduct)
+        if not cam:
+            return {"error": "No CAM product. Switch to MANUFACTURE workspace."}
+
+        setup, op, err = self._resolve_cam_op(
+            cam, body.get("setup_name", ""), body.get("setup_index", 0),
+            body.get("op_name", body.get("operation_name")), body.get("op_index"),
+            require_explicit=True)
+        if err:
+            return err
+
+        target_index = body.get("target_index")
+        if target_index is None:
+            return {"error": "Missing target_index (the 0-based position to move the operation to)."}
+        try:
+            target_index = int(target_index)
+        except (TypeError, ValueError):
+            return {"error": f"target_index must be an integer, got {target_index!r}"}
+        count = setup.operations.count
+        if target_index < 0 or target_index >= count:
+            return {"error": f"target_index {target_index} out of range (setup '{setup.name}' has {count} operations)"}
+
+        ops = setup.operations
+        moved_name = op.name
+        # Capability detection — try the most likely public APIs, fail-soft if absent.
+        try:
+            if hasattr(ops, "move") and callable(getattr(ops, "move")):
+                ops.move(op, target_index)
+            elif hasattr(op, "move") and callable(getattr(op, "move")):
+                op.move(target_index)
+            else:
+                available = [m for m in dir(ops) if not m.startswith("_")]
+                return {
+                    "success": False,
+                    "supported": False,
+                    "operation_name": moved_name,
+                    "error": "This Fusion CAM API build exposes no operation-reorder method.",
+                    "available_collection_methods": available,
+                    "fallback": "Rebuild order by delete (#7 delete) + recreate (POST /cam/operation) in the desired sequence, or author ops in final order up front.",
+                }
+            adsk.doEvents()
+        except Exception as e:
+            return {"error": f"reorder failed for '{moved_name}': {str(e)}", "traceback": traceback.format_exc()}
+
+        return {
+            "success": True,
+            "supported": True,
+            "setup_name": setup.name,
+            "operation_name": moved_name,
+            "target_index": target_index,
+            "note": "Operation moved. Verify the new sequence with GET /cam/setups before posting.",
+        }
+
+    def _find_library_tool(self, lib_name, product_id):
+        """Read a local .tools library file; return the tool dict whose
+        product-id or description matches (for tool+holder assembly assignment)."""
+        lib_name = os.path.basename(lib_name)
+        lib_dir = self._get_tool_library_dir()
+        fname = lib_name if lib_name.endswith(".tools") else lib_name + ".tools"
+        path = os.path.join(lib_dir, fname)
+        if not os.path.isfile(path):
+            return None
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            return None
+        for t in data.get("data", []):
+            if t.get("product-id") == product_id or t.get("description") == product_id:
+                return t
+        return None
 
     def _assign_cam_tool(self, body):
         """POST /cam/assign-tool — Assign a tool to an operation from library or inline."""
@@ -1470,6 +2440,30 @@ class _FusionAPILogic:
             operation = setup.operations.item(setup.operations.count - 1)
         if not operation:
             return {"error": f"Operation not found: '{op_name}'"}
+
+        # Assign a fully-specified tool+HOLDER assembly from a loaded library
+        # (preserves the BIG-PLUS CAT40 holder that inline geometry-only specs
+        # drop). Triggered by from_library + product_id; falls through to inline.
+        lib_ref = body.get("from_library") or tool_spec.get("from_library")
+        prod_id = body.get("product_id") or tool_spec.get("product_id")
+        if lib_ref and prod_id:
+            lib_tool = self._find_library_tool(lib_ref, prod_id)
+            if not lib_tool:
+                return {"error": f"Tool '{prod_id}' not found in library '{lib_ref}'"}
+            try:
+                new_tool = adsk.cam.Tool.createFromJson(json.dumps(lib_tool))
+                operation.tool = new_tool
+                adsk.doEvents()
+                return {
+                    "success": True,
+                    "operation_name": operation.name,
+                    "tool_description": lib_tool.get("description", prod_id),
+                    "holder_description": lib_tool.get("holder-description", ""),
+                    "has_holder": "holder" in lib_tool,
+                    "method": "library_assembly",
+                }
+            except Exception as e:
+                return {"error": str(e), "traceback": traceback.format_exc()}
 
         try:
             # Try to create tool from spec
@@ -1609,8 +2603,11 @@ class _FusionAPILogic:
                        else adsk.cam.PostOutputUnitOptions.InchesOutput)
 
         try:
-            post_input = adsk.cam.PostProcessInput.createInput(
-                cps_path, program_name, output_folder, unit_option
+            # This Fusion CAM API exposes the factory as PostProcessInput.create
+            # (NOT createInput), arg order (programName, postConfiguration,
+            # outputFolder, outputUnits) — programName FIRST, then the .cps path.
+            post_input = adsk.cam.PostProcessInput.create(
+                program_name, cps_path, output_folder, unit_option
             )
             cam.postProcess(setup, post_input)
 
@@ -1973,9 +2970,18 @@ class _FusionAPILogic:
 
             data_file = None
 
-            # Find by ID
+            # Find by ID — fast-path via Data.findFileById (resolves directly,
+            # NO folder enumeration; the recursive walk below blows Fusion's 60s
+            # main-thread cap on large cloud projects). Fallback only on failure.
             if file_id:
-                data_file = self._find_file_by_id(proj.rootFolder, file_id, 0, 10)
+                try:
+                    direct = app.data.findFileById(file_id)
+                    if direct:
+                        data_file = direct
+                except Exception:
+                    data_file = None
+                if not data_file:
+                    data_file = self._find_file_by_id(proj.rootFolder, file_id, 0, 10)
 
             # Find by path (e.g., "Parts/Milling/bracket.f3d")
             if not data_file and file_path:
@@ -2040,6 +3046,198 @@ class _FusionAPILogic:
         except Exception:
             pass
         return None
+
+    # ── Assembly automation: insert + mate (5-axis fixture SOP) ───────
+    # Makes the JM 5-axis setup SOP API-drivable: open fixture -> insert part ->
+    # mate stock to jaws. Insertion is BY file_id (Data.findFileById fast-path) —
+    # the cloud Data API cannot ENUMERATE the big JM projects inside Fusion's 60s
+    # main-thread cap, so by-id (the id the driver caches from /status) is the only
+    # viable insert path. INCH in/out (JM imperial); Fusion internal units are cm,
+    # so inch*2.54 -> cm inbound, /2.54 outbound.
+
+    def _insert_component(self, body):
+        """POST /component/insert — Insert a cloud component into the active design
+        by file_id at an INCH translation, optionally grounded.
+        Body: {"file_id":"urn:adsk...","x_in":0,"y_in":0,"z_in":0,
+               "ground":false,"is_assembly_context":true}"""
+        app = adsk.core.Application.get()
+        try:
+            design = self._get_design()
+        except Exception as e:
+            return {"error": str(e)}
+        file_id = body.get("file_id", "")
+        if not file_id:
+            return {"error": "file_id required (urn:adsk... lineage id from /status)."}
+        try:
+            data_file = app.data.findFileById(file_id)
+            if not data_file:
+                return {"error": f"File not found for id: {file_id}"}
+            tx = float(body.get("x_in", 0.0)) * 2.54
+            ty = float(body.get("y_in", 0.0)) * 2.54
+            tz = float(body.get("z_in", 0.0)) * 2.54
+            transform = adsk.core.Matrix3D.create()
+            transform.translation = adsk.core.Vector3D.create(tx, ty, tz)
+            is_asm = bool(body.get("is_assembly_context", True))
+            root = design.rootComponent
+            occ = root.occurrences.addByInsert(data_file, transform, is_asm)
+            adsk.doEvents()
+            if body.get("ground", False):
+                try:
+                    occ.isGroundToParent = True
+                except Exception:
+                    try:
+                        occ.isGrounded = True
+                    except Exception:
+                        pass
+            bb = occ.boundingBox
+            return {
+                "success": True,
+                "occurrence_name": occ.name,
+                "component_name": occ.component.name,
+                "is_grounded": getattr(occ, "isGrounded", None),
+                "bbox_in": {
+                    "min": [bb.minPoint.x / 2.54, bb.minPoint.y / 2.54, bb.minPoint.z / 2.54],
+                    "max": [bb.maxPoint.x / 2.54, bb.maxPoint.y / 2.54, bb.maxPoint.z / 2.54],
+                } if bb else None,
+            }
+        except Exception as e:
+            return {"error": str(e), "traceback": traceback.format_exc()}
+
+    def _list_occurrences(self, body):
+        """POST /component/list — Enumerate occurrences with INCH bounding boxes +
+        grounded state so the driver can identify fixture/part/stock and compute
+        mate placement. Also lists root-level bodies (e.g. a stock body)."""
+        try:
+            design = self._get_design()
+        except Exception as e:
+            return {"error": str(e)}
+        root = design.rootComponent
+        occs = []
+        try:
+            for i in range(root.occurrences.count):
+                occ = root.occurrences.item(i)
+                try:
+                    bb = occ.boundingBox
+                    bb_in = {
+                        "min": [bb.minPoint.x / 2.54, bb.minPoint.y / 2.54, bb.minPoint.z / 2.54],
+                        "max": [bb.maxPoint.x / 2.54, bb.maxPoint.y / 2.54, bb.maxPoint.z / 2.54],
+                    } if bb else None
+                except Exception:
+                    bb_in = None
+                occs.append({
+                    "index": i,
+                    "name": occ.name,
+                    "component_name": occ.component.name,
+                    "is_grounded": getattr(occ, "isGrounded", None),
+                    "body_count": occ.bRepBodies.count,
+                    "bbox_in": bb_in,
+                })
+        except Exception as e:
+            return {"error": str(e), "occurrences": occs}
+        root_bodies = []
+        try:
+            for i in range(root.bRepBodies.count):
+                root_bodies.append({"index": i, "name": root.bRepBodies.item(i).name})
+        except Exception:
+            pass
+        return {"occurrences": occs, "occurrence_count": len(occs), "root_bodies": root_bodies}
+
+    def _find_occurrence(self, root, name, index):
+        """Resolve an occurrence by exact name (occurrence or component), else index."""
+        if name:
+            for i in range(root.occurrences.count):
+                occ = root.occurrences.item(i)
+                if occ.name == name or occ.component.name == name:
+                    return occ
+            return None
+        if isinstance(index, int) and 0 <= index < root.occurrences.count:
+            return root.occurrences.item(index)
+        return None
+
+    def _occ_face(self, occ, flat_index):
+        """Resolve an assembly-context BRepFace proxy within an occurrence by a
+        flattened index across its bodies' faces (body0 faces, then body1...)."""
+        seen = 0
+        try:
+            for bi in range(occ.bRepBodies.count):
+                faces = occ.bRepBodies.item(bi).faces
+                fc = faces.count
+                if flat_index < seen + fc:
+                    return faces.item(flat_index - seen)
+                seen += fc
+        except Exception:
+            return None
+        return None
+
+    def _create_joint(self, body):
+        """POST /component/joint — Mate two occurrences via a planar-face joint
+        (rigid by default; rigid is the SOP's stock<->jaw mate). Body:
+          {"occ_one","face_one_index","occ_two","face_two_index",
+           "occ_one_index","occ_two_index",
+           "key_point":"center","joint_type":"rigid"|"planar",
+           "offset_in":0.0,"flip":false}
+        Face indices flatten across each occurrence's bodies' faces."""
+        try:
+            design = self._get_design()
+        except Exception as e:
+            return {"error": str(e)}
+        root = design.rootComponent
+        occ1 = self._find_occurrence(root, body.get("occ_one", ""), body.get("occ_one_index", -1))
+        occ2 = self._find_occurrence(root, body.get("occ_two", ""), body.get("occ_two_index", -1))
+        if not occ1 or not occ2:
+            return {"error": f"Occurrence not found: one={bool(occ1)} two={bool(occ2)}"}
+        f1 = self._occ_face(occ1, int(body.get("face_one_index", 0)))
+        f2 = self._occ_face(occ2, int(body.get("face_two_index", 0)))
+        if not f1 or not f2:
+            return {"error": f"Planar face not found: one={bool(f1)} two={bool(f2)}"}
+        kp_map = {
+            "center": adsk.fusion.JointKeyPointTypes.CenterKeyPoint,
+            "start": adsk.fusion.JointKeyPointTypes.StartKeyPoint,
+            "end": adsk.fusion.JointKeyPointTypes.EndKeyPoint,
+            "middle": adsk.fusion.JointKeyPointTypes.MiddleKeyPoint,
+        }
+        kp = kp_map.get(str(body.get("key_point", "center")).lower(),
+                        adsk.fusion.JointKeyPointTypes.CenterKeyPoint)
+        try:
+            geo1 = adsk.fusion.JointGeometry.createByPlanarFace(f1, None, kp)
+            geo2 = adsk.fusion.JointGeometry.createByPlanarFace(f2, None, kp)
+            if not geo1 or not geo2:
+                return {"error": "createByPlanarFace returned null — both faces must be planar."}
+            ji = root.joints.createInput(geo1, geo2)
+            jt = str(body.get("joint_type", "rigid")).lower()
+            motion = "rigid"
+            if jt == "planar":
+                try:
+                    ji.setAsPlanarJointMotion(adsk.fusion.JointDirections.ZAxisJointDirection)
+                    motion = "planar"
+                except Exception:
+                    ji.setAsRigidJointMotion()
+                    motion = "rigid(planar-fallback)"
+            else:
+                ji.setAsRigidJointMotion()
+            if body.get("flip") is not None:
+                try:
+                    ji.isFlipped = bool(body.get("flip"))
+                except Exception:
+                    pass
+            off = body.get("offset_in")
+            if off is not None:
+                try:
+                    ji.offset = adsk.core.ValueInput.createByReal(float(off) * 2.54)  # in -> cm
+                except Exception:
+                    pass
+            joint = root.joints.add(ji)
+            adsk.doEvents()
+            return {
+                "success": True,
+                "joint_name": joint.name,
+                "motion": motion,
+                "occ_one": occ1.name,
+                "occ_two": occ2.name,
+                "offset_in": off,
+            }
+        except Exception as e:
+            return {"error": str(e), "traceback": traceback.format_exc()}
 
     def _get_data_file_metadata(self, body):
         """POST /data/file/metadata — Extract design + CAM info from active or specified file.
@@ -2270,10 +3468,15 @@ class _FusionAPILogic:
         result = []
         for i in range(cam.setups.count):
             setup = cam.setups.item(i)
+            # Setup exposes operationType (OperationTypes enum), NOT setupType.
+            try:
+                _op_type = setup.operationType
+            except Exception:
+                _op_type = None
             info = {
                 "name": setup.name,
                 "index": i,
-                "type": setup_types.get(setup.setupType, str(setup.setupType)),
+                "type": setup_types.get(_op_type, "Milling"),
                 "operation_count": 0,
                 "model_count": 0,
             }

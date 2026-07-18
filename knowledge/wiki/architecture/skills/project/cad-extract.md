@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cad-extract — Extract Features from CAD Model
+Extract machining features, dimensions, and tolerances from CAD models for CAM programming.
 
 <!-- AUTO-END -->
 

@@ -60,58 +60,15 @@ export function MachineDataAuditPage() {
       setMachines(data.machines ?? []);
       setSummary(data.summary ?? null);
     } catch (err) {
+      // Fail loud (R12): surface the error and render NO data rather than fabricating
+      // machine-audit records. A shop-floor app must never display invented machine state.
       setError(err instanceof Error ? err.message : 'Unknown error');
-      // Generate mock data for demo
-      generateMockData();
+      setMachines([]);
+      setSummary(null);
     } finally {
       setLoading(false);
     }
   }, []);
-
-  const generateMockData = () => {
-    const types = ['VMC', 'HMC', '5AXIS', 'LATHE', 'SWISS', 'MILL_TURN', 'GRINDER'];
-    const mfrs = ['Haas', 'DMG MORI', 'Okuma', 'Mazak', 'Makino', 'Hurco', 'Brother'];
-    const mockMachines: MachineAuditRecord[] = [];
-
-    for (let i = 0; i < 50; i++) {
-      const spindle = Math.random() > 0.2;
-      const controller = Math.random() > 0.15;
-      const envelope = Math.random() > 0.1;
-      const coolant = Math.random() > 0.3;
-      const backfilled = [];
-      if (Math.random() > 0.5) backfilled.push('spindle.power_kw');
-      if (Math.random() > 0.6) backfilled.push('controller.model');
-      if (Math.random() > 0.7) backfilled.push('spindle.torque_nm');
-
-      const completeness = [spindle, controller, envelope, coolant].filter(Boolean).length / 4;
-
-      mockMachines.push({
-        id: `machine-${i + 1}`,
-        manufacturer: mfrs[Math.floor(Math.random() * mfrs.length)],
-        model: `Model-${String.fromCharCode(65 + (i % 26))}${i + 1}`,
-        type: types[Math.floor(Math.random() * types.length)],
-        spindle_complete: spindle,
-        controller_complete: controller,
-        envelope_complete: envelope,
-        coolant_complete: coolant,
-        backfilled_fields: backfilled,
-        completeness_score: completeness,
-        confidence_overall: 0.5 + Math.random() * 0.5,
-      });
-    }
-
-    setMachines(mockMachines);
-    setSummary({
-      total_machines: mockMachines.length,
-      spindle_complete: mockMachines.filter(m => m.spindle_complete).length,
-      controller_complete: mockMachines.filter(m => m.controller_complete).length,
-      envelope_complete: mockMachines.filter(m => m.envelope_complete).length,
-      coolant_complete: mockMachines.filter(m => m.coolant_complete).length,
-      backfilled_count: mockMachines.filter(m => m.backfilled_fields.length > 0).length,
-      avg_completeness: mockMachines.reduce((a, m) => a + m.completeness_score, 0) / mockMachines.length,
-      avg_confidence: mockMachines.reduce((a, m) => a + m.confidence_overall, 0) / mockMachines.length,
-    });
-  };
 
   useEffect(() => {
     loadAuditData();
@@ -179,8 +136,14 @@ export function MachineDataAuditPage() {
         </div>
 
         {error && (
-          <div className="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-4 py-2 rounded text-sm">
-            Note: Using mock data. {error}
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded text-sm flex items-center justify-between gap-4">
+            <span>Could not load machine audit data: {error}</span>
+            <button
+              onClick={loadAuditData}
+              className="px-3 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-medium whitespace-nowrap"
+            >
+              Retry
+            </button>
           </div>
         )}
 

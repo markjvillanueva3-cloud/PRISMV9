@@ -4,6 +4,92 @@
 import { z } from "zod";
 
 export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
+  // U-WIRE-COOLANT-ADAPTER: CoolantStrategyAdapter.selectCoolantOrchestrated (slot:papa->kilo 2026-06-15). Mirrors OrchestratedCoolantRequest.
+  coolant_select_orchestrated: z.object({
+    decision_point: z.string().min(1).describe("Where in the pipeline this coolant decision is made"),
+    domain: z.string().optional().describe("CoolantDomain selector (machining/edm/laser/...); engine default machining"),
+    material_iso_group: z.enum(["P","M","K","N","S","H"]).optional(),
+    material_name: z.string().optional(),
+    operation_type: z.enum(["rough","finish","drill","thread","turn","grind","laser_cut","edm_cut"]).optional(),
+    cutting_temp_c: z.number().optional(),
+    depth_over_diameter: z.number().optional(),
+    hrsa_flag: z.boolean().optional(),
+    environmental_bias: z.boolean().optional(),
+    pipeline_stage: z.string().optional(),
+    caller: z.string().optional(),
+    objective: z.enum(["speed","quality","cost","balanced","tool_life"]).optional(),
+    explain: z.boolean().optional(),
+  }).passthrough(),
+  // U-WIRE-ENTRYEXIT-ADAPTER: EntryExitStrategyAdapter.selectEntryExitOrchestrated (slot:papa->kilo 2026-06-15). Mirrors OrchestratedEntryExitRequest; engine re-validates so sub-fields stay loose.
+  entryexit_select_orchestrated: z.object({
+    decision_point: z.string().min(1).describe("Where in the pipeline this entry/exit decision is made"),
+    domain: z.string().optional().describe("EntryExitDomain selector; engine defaults by decision_point prefix"),
+    phase: z.string().optional().describe("PhaseKind (entry/exit/...)"),
+    operation_type: z.enum(["rough","finish","drill","thread","laser_cut","waterjet_cut"]).optional(),
+    tool_diameter_mm: z.number().optional(),
+    stepover_ae_mm: z.number().optional(),
+    stepdown_ap_mm: z.number().optional(),
+    center_cutting: z.boolean().optional(),
+    surface_finish_critical: z.boolean().optional(),
+    material_thickness_mm: z.number().optional(),
+    material_hardness_hrc: z.number().optional(),
+    pipeline_stage: z.string().optional(),
+    caller: z.string().optional(),
+    objective: z.enum(["speed","quality","cost","balanced","tool_life"]).optional(),
+    explain: z.boolean().optional(),
+  }).passthrough(),
+  // U-WIRE-SEQUENCING-ADAPTER: IntelligentSequencingAdapter.selectSequenceOrchestrated (slot:papa->kilo 2026-06-15). Mirrors OrchestratedSequenceRequest; engine re-validates so op sub-fields stay loose. objective set ends in "safety" (not "tool_life").
+  sequence_select_orchestrated: z.object({
+    decision_point: z.string().min(1).describe("Pipeline decision point (e.g. p2p.sequence_order)"),
+    pipeline: z.enum(["milling","turning","multiaxis","millturn","edm","grinding","laser","waterjet","quote"]).optional(),
+    operations: z.array(z.object({
+      id: z.string(),
+      type: z.string(),
+      operation: z.string(),
+    }).passthrough()).describe("SequenceableOp[] (id/type/operation required per op); empty array -> no_candidates"),
+    avg_tool_change_sec: z.number().optional(),
+    precision_critical: z.boolean().optional(),
+    thermal_sensitive: z.boolean().optional(),
+    objective: z.enum(["speed","quality","cost","balanced","safety"]).optional(),
+    pipeline_stage: z.string().optional(),
+    caller: z.string().optional(),
+    explain: z.boolean().optional(),
+  }).passthrough(),
+  // P2P-FULLSTACK-MS0/U-P2PFS-HARNESS-WIRE — PrintToProgramRegressionHarnessEngine
+  // Wires the unwired (0% util) harness so the full TestResource fixture registry can be
+  // replayed through its matching pipeline via MCP, producing pass/fail/warning/skip verdicts.
+  print_to_program_regression_run: z.object({
+    process: z.enum(["wire_edm", "sinker_edm", "lathe", "mill", "grinder", "welder", "laser", "waterjet"]).optional()
+      .describe("Restrict to a single process; omit to run every fixture in the registry."),
+    coverage: z.enum(["tutorial", "regression", "calibration", "adversarial"]).optional()
+      .describe("Coverage tier filter (matches fixture.coverage)."),
+    difficulty: z.enum(["beginner", "intermediate", "advanced", "expert"]).optional()
+      .describe("Difficulty tier filter (matches fixture.difficulty)."),
+    customer: z.string().optional().describe("Filter by fixture.customer."),
+    material: z.string().optional().describe("Filter by fixture.material."),
+    controller: z.string().optional().describe("Filter by fixture.controller."),
+    operation: z.string().optional().describe("Filter by fixture.operation."),
+    tag: z.string().optional().describe("Single-tag filter (fixture.tags includes this string)."),
+    search: z.string().optional().describe("Substring search across label + tags + customer."),
+  }).describe("Replay matching fixtures and return per-fixture verdicts + aggregated summary."),
+  print_to_program_regression_run_one: z.object({
+    fixture_id: z.string().min(1).describe("TestResource fixture id (must be registered)."),
+  }).describe("Replay a single fixture; throws if id not registered."),
+
+  // KILO-P2P-RECONCILE-MS0/U-KP2P-02 — wires two P2P-FULLSTACK-MS0 capstone
+  // engines that were on disk but unreferenced by any dispatcher.
+  print_to_program_coverage: z.object({}).strict().describe(
+    "Run the print-to-program test-infrastructure coverage analysis (PrintToProgramCoverageAnalyzerEngine): per-fixture bundle/tutorial/runnable-pipeline matrix, per-process rollups, controller calibration coverage, and a priority-sorted gap list. Zero-arg.",
+  ),
+  print_to_program_tutorial: z.object({
+    mode: z.enum(["list", "get", "ladder", "by_difficulty", "next", "stats"]).optional()
+      .describe("Read mode (default 'list'). 'get'/'next' require fixture_id; 'by_difficulty' requires difficulty."),
+    fixture_id: z.string().min(1).optional()
+      .describe("Tutorial walkthrough fixture id — required for mode 'get' and 'next'."),
+    difficulty: z.enum(["beginner", "intermediate", "advanced", "expert"]).optional()
+      .describe("Difficulty tier — required for mode 'by_difficulty'."),
+  }).describe("Query the print-to-program tutorial curriculum (PrintToProgramTutorialEngine) — walkthroughs, progression ladder, per-difficulty filter, next-after lookup, and totals. Read-only."),
+
   lathe_masterpost_regression_run: z.object({
     machines: z.array(z.string()).optional(),
     jobs: z.array(z.string()).optional(),
@@ -101,6 +187,23 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
         k: z.number().optional().describe("Arc center K offset"),
         r: z.number().optional().describe("Arc radius"),
       })).optional().describe("Arc center data (matches coordinates array)"),
+      // POST-PROCESSOR/U-PP-HURCO-CYCLE (slot:echo) -- optional drilling canned cycle.
+      // When present, the engine emits a modal Fanuc-family canned cycle (G81/G82/G83/G73/G84/G85)
+      // using coordinates[] as hole XY positions instead of the long-hand move list.
+      // Absent -> byte-identical output to pre-cycle behavior (fully additive, no regression risk).
+      // Shape mirrors HurcoDrillCycle + HaasDrillCycle (same Fanuc/ISO canned-cycle dialect).
+      cycle: z.object({
+        type: z.enum(["drill", "dwell", "peck", "chip_break", "tap", "bore"])
+          .describe("Canned cycle variant: drill->G81, dwell/spot->G82, peck->G83 (full retract), chip_break->G73 (high-speed peck), tap->G84 (rigid, no M29), bore->G85"),
+        depth_mm: z.number()
+          .describe("Final hole depth -- absolute Z in mm (negative below the part top)"),
+        retract_mm: z.number()
+          .describe("R-plane clearance above the part top in mm (positive value)"),
+        peck_mm: z.number().optional()
+          .describe("Q peck increment in mm -- required for peck/chip_break; absent or <=0 downgrades to G81 simple drill with a warning"),
+        dwell_s: z.number().optional()
+          .describe("P dwell at hole bottom in seconds -- required for dwell; absent or <=0 downgrades to G81 simple drill with a warning"),
+      }).optional().describe("Optional drilling canned cycle (G81/G82/G83/G73/G84/G85). Present -> emit a modal canned cycle from coordinates[] hole XY positions. Absent -> standard long-hand move list (additive, no change for ops without a cycle)."),
     })).min(1).describe("Array of mill operations to post-process"),
     config: z.object({
       program_number: z.number().int().min(1).max(9999).optional().describe("O-number (default: 1)"),
@@ -160,6 +263,47 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
       c_axis_enabled: z.boolean().optional().describe("Enable C-axis positioning"),
       tailstock_position_mm: z.number().optional().describe("Tailstock engagement position"),
     }).optional().describe("Post processor configuration"),
+  }),
+
+  /**
+   * Hurco WinMax LATHE master post (ISNC / Fanuc-dialect turning). Same TurningOperation
+   * shape as master_post_okuma_b250; positive() bounds give the boundary validation the
+   * engine relies on (rejects empty ops, non-positive pitch/feed). U-PP-HURCO-WINMAX-LATHE-GENERATOR.
+   */
+  master_post_hurco_winmax_lathe: z.object({
+    operations: z.array(z.object({
+      operation_type: z.enum([
+        "od_rough", "od_finish", "id_rough", "id_finish",
+        "face", "groove", "thread", "drill", "bore", "part_off", "c_mill"
+      ]).describe("Lathe operation type"),
+      tool_number: z.number().int().min(1).max(99).describe("Tool station number (T01-T99)"),
+      tool_orientation: z.number().int().min(1).max(9).describe("ISO tool orientation 1-9"),
+      insert_radius_mm: z.number().positive().describe("Insert nose radius in mm"),
+      tool_description: z.string().optional().describe("Tool description for comments"),
+      material_iso: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO material group"),
+      spindle_rpm: z.number().positive().optional().describe("Direct RPM (G97 fixed)"),
+      css_m_min: z.number().positive().optional().describe("G96 constant surface speed m/min"),
+      css_max_rpm: z.number().positive().optional().describe("G50 spindle speed clamp"),
+      feed_mm_rev: z.number().positive().describe("Feed rate mm/rev"),
+      depth_of_cut_mm: z.number().positive().describe("Depth of cut mm"),
+      start_x: z.number().describe("Start X coordinate (diameter)"),
+      start_z: z.number().describe("Start Z coordinate"),
+      end_x: z.number().describe("End X coordinate (diameter)"),
+      end_z: z.number().describe("End Z coordinate"),
+      thread_pitch_mm: z.number().positive().optional().describe("Thread pitch for G76"),
+      thread_depth_mm: z.number().positive().optional().describe("Thread depth for G76 (derived from pitch if absent)"),
+      groove_width_mm: z.number().positive().optional().describe("Groove width for grooving ops"),
+      coolant: z.enum(["flood", "off"]).optional().describe("Coolant mode"),
+    })).min(1).describe("Array of turning operations to post-process"),
+    config: z.object({
+      program_number: z.number().int().min(1).max(9999).optional().describe("O-number (default: 1)"),
+      program_comment: z.string().optional().describe("Program header comment"),
+      units: z.enum(["metric", "inch"]).optional().describe("Output units (default: metric)"),
+      work_offset: z.number().int().min(54).max(59).optional().describe("G54-G59 work offset"),
+      use_css: z.boolean().optional().describe("Use G96 constant surface speed (default: true)"),
+      css_max_rpm: z.number().positive().optional().describe("G50 spindle clamp RPM (default: 3500)"),
+      machine_label: z.string().optional().describe("Machine label for the (MACHINE:) header line"),
+    }).optional().describe("Hurco WinMax ISNC lathe post configuration"),
   }),
 
   /**
@@ -383,4 +527,95 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   }).passthrough(),
   gcode_template_list_controllers: z.object({}).passthrough(),
   gcode_template_list_operations: z.object({}).passthrough(),
+
+  // U-WIRE-BACKLOG-MASTER-POST-FINE-TUNE (slot:india, FEATURE-GAP-AUDIT-MS0) —
+  // MasterPostFineTuningEngine: LoRA-style EMA fine-tuning of post-processor
+  // outputs from actual-vs-predicted G-code observations across 10 controllers
+  // and 12 operation types. Closes 1 of the india-domain post-processor backlog.
+  //
+  // The ControllerFamily / OperationType / ParameterType enums mirror the engine's
+  // exported string unions exactly (MasterPostFineTuningEngine.ts:53–91); declared
+  // inline here so the schema file stays independent of the engine's TS graph
+  // (Zod v4 schemas convention, schemas.md rule).
+  master_post_fine_tune_record: z.object({
+    predicted: z.string().min(1).describe("Predicted G-code emitted by the post-processor."),
+    actual: z.string().min(1).describe("Actual / validated G-code from production."),
+    controller: z.enum([
+      "fanuc", "siemens", "haas", "okuma", "mazak",
+      "mitsubishi", "heidenhain", "hurco", "brother", "generic",
+    ]).describe("Controller family — must match engine ControllerFamily."),
+    operation: z.enum([
+      "roughing", "semi_finishing", "finishing", "drilling", "tapping",
+      "boring", "threading", "probing", "5axis", "hsm", "adaptive", "unknown",
+    ]).optional().describe("Operation type — inferred from predicted G-code if omitted."),
+    context: z.record(z.string(), z.unknown()).optional().describe(
+      "Optional context features (material, tool_diameter_mm, tool_type, cutting_speed_m_min, program_id, job_id, …)."
+    ),
+    jm_die_proven: z.boolean().optional().describe(
+      "Mark this observation as a JM-DIE-proven program — weighted 2× (config.proven_program_weight)."
+    ),
+  }).passthrough().describe(
+    "Record an actual-vs-predicted G-code pair; extract per-parameter deltas and update LoRA weights for this controller/operation pair."
+  ),
+
+  master_post_fine_tune_get_params: z.object({
+    controller: z.enum([
+      "fanuc", "siemens", "haas", "okuma", "mazak",
+      "mitsubishi", "heidenhain", "hurco", "brother", "generic",
+    ]),
+    operation: z.enum([
+      "roughing", "semi_finishing", "finishing", "drilling", "tapping",
+      "boring", "threading", "probing", "5axis", "hsm", "adaptive", "unknown",
+    ]),
+  }).passthrough().describe(
+    "Read fine-tuned parameter adjustments (deltas + confidence + apply_recommendation) for one controller/operation pair."
+  ),
+
+  master_post_fine_tune_apply: z.object({
+    gcode: z.string().min(1).describe("Original G-code to fine-tune."),
+    controller: z.enum([
+      "fanuc", "siemens", "haas", "okuma", "mazak",
+      "mitsubishi", "heidenhain", "hurco", "brother", "generic",
+    ]),
+    operation: z.enum([
+      "roughing", "semi_finishing", "finishing", "drilling", "tapping",
+      "boring", "threading", "probing", "5axis", "hsm", "adaptive", "unknown",
+    ]).optional().describe("Operation type — inferred from gcode if omitted."),
+    force_apply: z.boolean().optional().describe(
+      "Apply even when no weights recorded for this pair — returns gcode unmodified."
+    ),
+    confidence_threshold: z.number().min(0).max(1).optional().describe(
+      "Per-call override of engine confidence_threshold (default 0.75)."
+    ),
+  }).passthrough().describe(
+    "Apply LoRA-style corrections to G-code line by line; returns modified gcode + per-line modification audit."
+  ),
+
+  master_post_fine_tune_confidence: z.object({
+    controller: z.enum([
+      "fanuc", "siemens", "haas", "okuma", "mazak",
+      "mitsubishi", "heidenhain", "hurco", "brother", "generic",
+    ]),
+    operation: z.enum([
+      "roughing", "semi_finishing", "finishing", "drilling", "tapping",
+      "boring", "threading", "probing", "5axis", "hsm", "adaptive", "unknown",
+    ]),
+    parameter: z.enum([
+      "feed_rate", "spindle_speed", "dwell_time", "approach_distance", "retract_height",
+      "stepover", "stepdown", "tolerance", "smoothing_factor", "look_ahead",
+    ]).optional().describe("Specific parameter to query; omit for overall pair confidence."),
+  }).passthrough().describe(
+    "Read confidence (0–1) + sample count + variance + stability (stable/converging/unstable/insufficient_data)."
+  ),
+
+  // Zero-arg actions use .strict() to fail loud on accidental extra keys — see
+  // 2026-05-20 iter1 reviewer-A polish on wedm_post_supported_controllers
+  // (.passthrough() silently accepted arbitrary garbage; .strict() rejects).
+  master_post_fine_tune_stats: z.object({}).strict().describe(
+    "Read engine-wide statistics: total_weights, total_observations, controllers, operations, avg_confidence, oldest/newest observation."
+  ),
+
+  master_post_fine_tune_clear: z.object({}).strict().describe(
+    "Reset all weights, history, and counters. Returns {ok:true, cleared:true}."
+  ),
 };

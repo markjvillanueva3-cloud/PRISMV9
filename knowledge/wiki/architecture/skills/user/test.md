@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `test` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/test.md` |
+| Source | `C:/Users/wompu/.claude/commands/test.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Test — Smart Test Runner
+
+You are running PRISM tests with intelligent filtering, regression detection, and clean reporting. This is the standalone test command — use it anytime you need to verify code without the full `/ship` ceremony.
+
+## Args: $ARGUMENTS
+- Empty: full build + full test suite
+- `smoke`: build + quick smoke tests only (health, unit tests)
+- `safety`: safety-related tes
 
 <!-- AUTO-END -->
 

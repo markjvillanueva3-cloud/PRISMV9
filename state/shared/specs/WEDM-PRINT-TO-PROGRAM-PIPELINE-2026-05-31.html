@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="4d69a77eb9c311f7b1ac59f72de0bb0f38adf7ae45ece3b00eb8c4f764fba3e2">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JM Die Wire-EDM True Print-to-Program Pipeline</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>JM Die Wire-EDM True Print-to-Program Pipeline</h1>
+<div class="meta">rendered from state/shared/specs/WEDM-PRINT-TO-PROGRAM-PIPELINE-2026-05-31.md</div>
+<div class="meta">Generated 2026-06-01T03:27:38.357Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">JM Die Wire-EDM — TRUE Print→Program Pipeline (inventory-driven, closed-loop)</li><li class="prism-toc-l2">0. The closed-loop vision (one diagram)</li><li class="prism-toc-l2">1. JM fleet focus (the envelope every template respects)</li><li class="prism-toc-l2">2. Toolpath-type registry (template per type — GAP, build first)</li><li class="prism-toc-l2">3. Inventory-driven auto-programming (charlie + hotel — GAP)</li><li class="prism-toc-l2">4. Closed-loop testing architecture (S8 — the &quot;fully closed loop testing&quot; ask)</li><li class="prism-toc-l2">5. Build sequence (R13 logical order — the /loop units)</li><li class="prism-toc-l2">6. Data sources (all verified by recon 2026-05-31)</li></ul></nav><h1 class="prism-h1">JM Die Wire-EDM — TRUE Print→Program Pipeline (inventory-driven, closed-loop)</h1>
+<blockquote class="prism-quote"><strong>Owner:</strong> slot:mike (Wire Wizard) · <strong>Date:</strong> 2026-05-31 · <strong>Status:</strong> executable build plan, all paths verified by recon</blockquote>
+<blockquote class="prism-quote"><strong>Goal (operator):</strong> train for <em>every</em> possibility to generate a wire part; templates for every toolpath type with variable params + cutting conditions; <strong>true print→program for any JM wire part</strong>; auto-generate programs from <strong>JM inventory</strong> (charlie quoting + hotel ERP); <strong>fully closed-loop testing</strong>. Primary focus: <strong>JM fleet machines</strong>.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">0. The closed-loop vision (one diagram)</h2>
+<pre class="prism-codeblock"><code>  PRINT (DXF/DWG/PDF, _PART LIBRARY)                JM INVENTORY (hotel ERP + charlie quoting)
+        │                                                   │
+        ▼                                                   ▼
+  [S1] FEATURE EXTRACT ──► [S2] TOOLPATH-TYPE CLASSIFY ──► [S3] INVENTORY GATE  ◄── &quot;can JM cut this TODAY?&quot;
+  (delta/xray + EDMDrawingInterp)   (toolpath-type registry)   (wire-Ø on-hand? raw stock? machine free?)
+        │                                   │                          │ (no → PO suggest via PurchaseOrderEngine)
+        ▼                                   ▼                          ▼ (yes)
+  [S4] TEMPLATE SELECT ──► [S5] PARAMS + CUTTING CONDITIONS ──► [S6] PROGRAM EMIT ──► [S7] POST (FA10S .cps)
+  (per-type template,        (E-code/H-offset cascade oracle,    (wedm_generate_       (5-vendor PRISM posts)
+   variable params)           feed/flush/wire from tech-tables)   complete_program)
+        │                                                                              │
+        └──────────────────────────► [S8] CLOSED-LOOP TEST GATES ◄─────────────────────┘
+              cascade-correctness (Regimen #3 harness) + feasibility + dimensional-vs-print
+              + discharge-safety S(x) + post-dialect lint  →  PASS/FAIL → outcome ledger → retrain</code></pre>
+<p><strong>Thesis:</strong> the compute chain (<code class="prism-inline-code">wedm_print_to_program</code>/<code class="prism-inline-code">wedm_run_pipeline</code>) already traverses DXF→feature→feasibility→multipass→params→G-code→post for the FA-10S. This pipeline ADDS the three missing rails the operator&#39;s goal needs — <strong>inventory gate (S3), toolpath-type template registry (S2/S4), and closed-loop test harness (S8)</strong> — and trains a template per toolpath type so <em>any</em> JM wire part can be programmed.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. JM fleet focus (the envelope every template respects)</h2>
+<p><strong>1 wire-EDM machine</strong> — <code class="prism-inline-code">WEDM-01</code> Mitsubishi <strong>FA10S</strong> / W31MV-2 (<code class="prism-inline-code">jm-die-profile.ts</code> JM_DIE_CONTROLLER_MAP, <code class="prism-inline-code">ShopConfigurationEngine</code> DEFAULT_MACHINES):</p>
+<ul class="prism-md-list"><li>max workpiece height <strong>215 mm</strong>, max taper <strong>30°</strong>, UV travel <strong>80 mm</strong>, submerged + auto-threading, $85/hr, 70% eff.</li><li>on-hand wire: <strong>MD+ Pro II 0.25 mm</strong> (10 kg) + <strong>MV1200S 0.20 mm</strong> (5 kg) (<code class="prism-inline-code">ShopConfigurationEngine.wedm_wire_inventory</code>).</li><li>post: <code class="prism-inline-code">PRISM-Master-Mitsubishi-FA10S-WEDM.cps</code> (+ 4 other vendor posts for transfer).</li></ul>
+<p>Every template + program MUST be feasibility-gated against this envelope (height ≤215, taper ≤30°, wire-Ø ∈ on-hand set).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. Toolpath-type registry (template per type — GAP, build first)</h2>
+<p>Today the cut types are scattered (<code class="prism-inline-code">WEDMPassType</code> rough/semi/finish/precision · <code class="prism-inline-code">ECodePass.type</code> rough/skim · <code class="prism-inline-code">EDMToolpathStrategyEngine</code> open/closed/island). <strong>Build a single queryable registry</strong> <code class="prism-inline-code">mcp-server/src/data/wedm-toolpath-types.ts</code> — one entry per type with: id, geometry signature, owning engine, E-code family, variable-param schema, cutting-condition ranges, feasibility constraints, JM-data provenance. Coverage target (every possibility):</p>
+<table class="prism-md-table"><thead><tr><th>Toolpath type</th><th>Owning engine</th><th>Variable params</th><th>Status</th></tr></thead><tbody><tr><td>straight profile multipass (closed)</td><td>EDMMultiPassStrategy + E12xx_4PASS</td><td>thickness, tol, Ra, wire-Ø, pass-count</td><td>✅ wired</td></tr>
+<tr><td>heavy/thick multipass (5-pass)</td><td>E12xx_HEAVY_5PASS</td><td>thickness&gt;50, cannelure</td><td>✅ wired</td></tr>
+<tr><td>taper / UV (4-axis)</td><td>EDMToolpathStrategy U05 + E28xx_TAPER</td><td>taper°, UV travel, H=0</td><td>✅ wired</td></tr>
+<tr><td>open profile (edge start, no start-hole)</td><td>EDMToolpathStrategy</td><td>entry edge, lead-in</td><td>⚠ strategy exists, not a selectable type</td></tr>
+<tr><td>island / multi-body</td><td>EDMToolpathStrategy (island)</td><td>slug count, tab plan</td><td>⚠ partial</td></tr>
+<tr><td>no-core / slug-retention (tab)</td><td>EDMWireSlugCornerTaper</td><td>tab width/pos, drop-control</td><td>⚠ engine exists, not a template</td></tr>
+<tr><td>closely-spaced / cannelure (halve-feed)</td><td>program-patterns + tribal</td><td>pitch, debris-short guard, 30TPI</td><td>❌ tribal only — BUILD</td></tr>
+<tr><td>corner strategy (sharp/blend/over-travel)</td><td>EDMToolpathStrategy U03</td><td>R, Toff bump, feed 60%</td><td>⚠ wired in strategy</td></tr>
+<tr><td>start-hole placement</td><td>EDMStartHoleSetup</td><td>hole-Ø, position, threadability</td><td>✅ wired</td></tr>
+<tr><td>micro / fine-wire (0.10mm)</td><td>WEDMThinWireDerate</td><td>derate, fine-wire standoff</td><td>❌ no MicroEDM engine — BUILD</td></tr>
+<tr><td>bi-material (WC-in-steel)</td><td>EDMBiMaterialCompensation</td><td>per-zone params</td><td>✅ wired</td></tr></tbody></table>
+<p>Each registry entry feeds a TRAINING TEMPLATE (Regimen-#3-style oracle augmentation) so the model learns the type&#39;s parameter mapping across the JM material/thickness grid.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. Inventory-driven auto-programming (charlie + hotel — GAP)</h2>
+<p><strong>The &quot;can JM cut this today?&quot; gate (S3)</strong> + <strong>stock-aware program selection</strong>. Wire to:</p>
+<ul class="prism-md-list"><li><strong>hotel/ERP:</strong> <code class="prism-inline-code">MaterialStockEngine</code> (raw D2/A2/S7 bar/blank on-hand, supplier, unit_cost, status) · <code class="prism-inline-code">ShopConfigurationEngine.wedm_wire_inventory</code> (wire spool remaining_pct) · <code class="prism-inline-code">PurchaseOrderEngine</code> (auto-PO when short, <code class="prism-inline-code">purchase_order_receive</code> to replenish) · <code class="prism-inline-code">prism_business</code> actions <code class="prism-inline-code">erp_tool_reorder_alerts</code>, <code class="prism-inline-code">stock_size_optimize</code>, <code class="prism-inline-code">costing_material</code>.</li><li><strong>charlie/quoting:</strong> <code class="prism-inline-code">WEDMQuoteBridgeEngine</code> + <code class="prism-inline-code">EDMCostDocumentationEngine</code> (wire/machine/consumable cost line) · <code class="prism-inline-code">prism_business</code> <code class="prism-inline-code">wedm_estimate_cost</code>, <code class="prism-inline-code">quote_to_order</code>, <code class="prism-inline-code">costing_material</code>.</li></ul>
+<p><strong>GAPS to build:</strong></p>
+<ol class="prism-md-list"><li><strong>JM inventory seed</strong> <code class="prism-inline-code">mcp-server/src/data/jm-die-material-stock.ts</code> (+ wire-spool records) — analogous to <code class="prism-inline-code">jm-die-wedm-tech-tables.ts</code>; MaterialStockEngine is empty for JM today. Hooked to a live-update path (<code class="prism-inline-code">purchase_order_receive</code> / scan / ERP import).</li><li><strong><code class="prism-inline-code">wedm_inventory_gate</code> dispatcher action</strong> — input: part feature card + selected toolpath type → checks (a) required wire-Ø ∈ on-hand spools with enough length, (b) raw stock blank ≥ part envelope, (c) machine availability → returns <code class="prism-inline-code">{can_cut, blockers[], suggested_PO}</code>. Inserts between S2 and S4.</li><li><strong>stock-aware program variant</strong> — when the exact wire-Ø is out but a substitute is on-hand, re-select the E-code family for the available wire (re-run <code class="prism-inline-code">selectECodeFamily</code> with the on-hand wire constraint) rather than failing. Auto-generate the program for what JM <em>has</em>.</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. Closed-loop testing architecture (S8 — the &quot;fully closed loop testing&quot; ask)</h2>
+<p>Every generated program runs the gate stack before it&#39;s accepted; results → outcome ledger → retrain signal:</p>
+<ol class="prism-md-list"><li><strong>cascade-correctness</strong> (Regimen #3 harness <code class="prism-inline-code">scripts/lib/wedm-cascade-correctness.mjs</code>) — H-offset strictly-decreasing / taper-zero / oracle-match. <strong>Load-bearing, code-checkable.</strong></li><li><strong>feasibility</strong> — <code class="prism-inline-code">wedm_pre_flight_check</code> against the FA10S envelope (height/taper/UV/wire).</li><li><strong>dimensional-vs-print</strong> — emitted contour back-checked against the print feature card (kerf/overburn compensated).</li><li><strong>discharge-safety S(x) ≥ 0.98</strong> — <code class="prism-inline-code">WEDMLoRASafetyEvaluatorEngine</code> + recast/HAZ AMS cap.</li><li><strong>post-dialect lint</strong> — <code class="prism-inline-code">scripts/post-nc-dialect-lint.mjs</code> (echo&#39;s gate) on the emitted .cps output.</li><li><strong>outcome publish</strong> — <code class="prism-inline-code">xproc_outcome_publish {slot:mike, domain:wedm}</code> + <code class="prism-inline-code">emitWEDMToIndiaLoop()</code> → india master loop → retrain trigger when drift detected.</li></ol>
+<p>This closes the loop: print → program → test → outcome → (re)train → better program.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">5. Build sequence (R13 logical order — the /loop units)</h2>
+<pre class="prism-codeblock"><code>PHASE A — REGISTRY + ORACLE (foundation; print→program selects from these)
+  A1. wedm-toolpath-types.ts registry (§2) + queryable dispatcher action wedm_toolpath_type_list/get.
+  A2. Per-type oracle-augmented training templates (clone build-wedm-passschedule-corpus.ts per type;
+      cascade-harness self-validation). Fills &quot;templates for every toolpath type&quot;.
+  A3. Build the 2 missing types: cannelure/closely-spaced strategy + micro/fine-wire path.
+
+PHASE B — INVENTORY RAIL (charlie + hotel)
+  B1. jm-die-material-stock.ts seed (raw + wire) + MaterialStockEngine JM hookup (§3 gap 1).
+  B2. wedm_inventory_gate dispatcher action (§3 gap 2) — can-JM-cut-today + suggested PO.
+  B3. stock-aware E-code re-selection (§3 gap 3) — program for what JM HAS.
+
+PHASE C — CLOSED-LOOP TEST HARNESS
+  C1. wedm_program_test_gates runner — composes §4 gates 1-5 into one PASS/FAIL on any emitted program.
+  C2. outcome-ledger wire (gate 6) → india loop + retrain trigger.
+
+PHASE D — TRUE PRINT→PROGRAM TRAIN (the crux, consumes A+B+C)
+  D1. Assemble print→program corpus from DocuStrata join + the 3 real .NC + per-type templates
+      (structured-features: print feature card → toolpath-type → params → program).
+  D2. Warm-start train (continue the pass-schedule adapter) → models/wedm-print2program-lora.
+  D3. Grade generations through the C1 closed-loop gates → ≥ targets → deploy.
+
+PARALLEL (operator-gated): .mcx-8 operator-export batch (Mastercam X8 → FA10S post → .NC) = 30× real corpus.</code></pre>
+<p><strong>Already shipped (this session, the foundation):</strong> the warm-start trainer (doctrine D2), the Regimen #3 cascade harness + oracle-augmented generator + eval gate #1 + trained adapter, the knowledge corpus + eval, the lathe-decontaminated archive. Phase A/B/C/D build on these.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">6. Data sources (all verified by recon 2026-05-31)</h2>
+<p>Programs/prints: <code class="prism-inline-code">H:/PRISM/JM DIE/WIRE EDM</code> (3 .NC + cannelure .txt + 3970 .mcx + 28 .esp) · prints in <code class="prism-inline-code">_PART LIBRARY</code> (separate tree) · DocuStrata join <code class="prism-inline-code">mcp-server/data/jm-die-database/</code>. Oracle: <code class="prism-inline-code">jm-die-wedm-tech-tables.ts</code> + <code class="prism-inline-code">jm-die-wedm-program-patterns.ts</code> + <code class="prism-inline-code">edm-material-db.ts</code> + <code class="prism-inline-code">wire-spec-sheets.ts</code> + <code class="prism-inline-code">wedm-constants.ts</code>. Engines: EDMMultiPassStrategy · EDMToolpathStrategy · EDMStartHoleSetup · EDMCuttingParamFlush · EDMDrawingInterpretation · WEDMPrintToProgram · EDMPostProcessGCode + 5 vendor posts. Inventory: MaterialStockEngine · ERPIntegrationEngine · PurchaseOrderEngine · ShopConfigurationEngine.wedm_wire_inventory. Quoting: WEDMQuoteBridgeEngine · EDMCostDocumentationEngine. Machines: <code class="prism-inline-code">jm-die-profile.ts</code> (1 FA10S). Test: <code class="prism-inline-code">scripts/lib/wedm-cascade-correctness.mjs</code> + <code class="prism-inline-code">wedm_pre_flight_check</code> + <code class="prism-inline-code">WEDMLoRASafetyEvaluatorEngine</code> + <code class="prism-inline-code">post-nc-dialect-lint.mjs</code>.</p>
+<blockquote class="prism-quote">Cross-galaxy coordination: hotel (ERP inventory) + charlie (quoting) + delta/xray (print feature extract) + echo (post lint) + india (master retrain loop). Broadcast on every AI upgrade per [[feedback_ai_upgrade_broadcast_protocol]].</blockquote></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

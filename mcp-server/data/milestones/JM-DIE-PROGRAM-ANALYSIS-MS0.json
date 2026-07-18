@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "JM-DIE-PROGRAM-ANALYSIS-MS0",
+  "title": "JM Die fleet-wide program analysis — G-code time + fair-market-value + inflation adjust",
+  "status": "in_progress",
+  "owner": "charlie",
+  "trigger": "/goal-15 (2026-05-24) — scan every file, calculate FMV vs charged, inflation-compensate, parse lathe/mill/wedm programs for time-in-cut + run time + op count + per-version JM Die fleet analysis. Self-loop readiness assessment.",
+  "leverage_summary": "Reuses JM-DIE-FINANCIAL-BASELINE-MS0 pipeline + adds 3 dimensions: program-time analytics + inflation adjustment + FMV gap detection. Extends ingest scope from _PART LIBRARY (10 customers) to full archive root (CNC LATHE / CNC MILL HAAS / OKUMA / HURCO / WIRE EDM / etc.).",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Program parsing + inflation + fleet-wide ingest",
+      "units": [
+        {
+          "id": "U-JP01",
+          "title": "GCodeTimeEstimatorEngine — parses .nc/.min/.mpf/.eia/.iso programs; counts blocks + G01/G02/G03 + M-codes + tool changes; estimates time-in-cut from feed rates",
+          "files": ["mcp-server/src/engines/GCodeTimeEstimatorEngine.ts", "mcp-server/src/__tests__/GCodeTimeEstimatorEngine.test.ts"],
+          "acceptance": "≥14 tests; spanning 3 dialects (Fanuc mill, Mazak lathe, Sodick WEDM); time-in-cut returned in seconds; op_count + rapid_count + cutting_count separated; R12 fail-loud on empty/binary input"
+        },
+        {
+          "id": "U-JP02",
+          "title": "InflationAdjustEngine — date → CPI multiplier; adjusts historical USD to today; uses canonical BLS CPI-U seed",
+          "files": ["mcp-server/src/engines/InflationAdjustEngine.ts", "mcp-server/src/__tests__/InflationAdjustEngine.test.ts", "mcp-server/data/price-history/cpi-u-monthly.csv"],
+          "acceptance": "≥10 tests; BLS CPI-U Jan-2020 to current; lookup(usd, fromDate, toDate) → adjustedUsd + cpiRatio; nearest-prior fallback; R12 fail-loud on out-of-range dates"
+        },
+        {
+          "id": "U-JP03",
+          "title": "FairMarketValueEngine — given {time_in_cut_s, material_spend, machine_rate, overhead} → fmv_usd; compares to charged to compute gap_pct + verdict (under/at/over-charged)",
+          "files": ["mcp-server/src/engines/FairMarketValueEngine.ts", "mcp-server/src/__tests__/FairMarketValueEngine.test.ts"],
+          "acceptance": "≥12 tests; 3 spanning verdict classes; R12 fail-loud on missing inputs; FMV math = (time_h × rate) + material × markup + overhead × (1+margin)"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Fleet-wide ingest + dispatcher wiring + E2E",
+      "units": [
+        {
+          "id": "U-JP04",
+          "title": "JMDieFleetWideIngestEngine — wraps U-JM01 to walk all root-level archive dirs (CNC LATHE / CNC MILL HAAS / OKUMA / HURCO / WIRE EDM / _PART LIBRARY / etc.); per-dir machine-family classification",
+          "files": ["mcp-server/src/engines/JMDieFleetWideIngestEngine.ts", "mcp-server/src/__tests__/JMDieFleetWideIngestEngine.test.ts"],
+          "acceptance": "≥10 tests; walks ≥6 archive subdirs; classifies each file by machine_family (mill/lathe/wedm/sinker_edm/generic); R12 fail-loud on missing archive root"
+        },
+        {
+          "id": "U-JP05",
+          "title": "prism_quoting dispatcher — 4 new actions (gcode_time_estimate, inflation_adjust, fair_market_value, jm_die_fleet_wide_ingest)",
+          "files": ["mcp-server/src/schemas/quotingActionSchemas.ts", "mcp-server/src/tools/dispatchers/quotingDispatcher.ts"],
+          "acceptance": "tsc clean; 4 new schemas zod-validated"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "End-to-end fleet program analysis + self-loop readiness assessment",
+      "units": [
+        {
+          "id": "U-JP06",
+          "title": "E2E: walks H:/prism/JM DIE/, parses real .nc programs, produces per-program time + per-customer FMV gap + inflation-adjusted totals → JM-DIE-PROGRAM-ANALYSIS-2026-05-24.json",
+          "files": ["mcp-server/src/__tests__/integration/JMDieProgramAnalysisMS0.e2e.test.ts", "state/shared/specs/JM-DIE-PROGRAM-ANALYSIS-2026-05-24.json"],
+          "acceptance": "Runs on real archive; output JSON has ≥1 program analyzed + FMV verdict; R12 fail-loud on missing archive"
+        },
+        {
+          "id": "U-JP07",
+          "title": "Self-loop readiness assessment doc — checklist of {ingest, train, evaluate, deploy} layers + which are wired + which are gap",
+          "files": ["state/shared/specs/SELF-LOOP-READINESS-2026-05-24.md"],
+          "acceptance": "Doc names each of 4 layers, status per leg of PSN, explicit gap list for next iter"
+        }
+      ]
+    }
+  ],
+  "out_of_scope_ms0": [
+    "Per-block kinematic acceleration modeling (MS0 uses constant-feed time = path_len/feed_rate)",
+    "Live BLS CPI API integration (MS0 uses CSV seed through 2026-05)",
+    "Per-machine power/HP factoring into FMV (MS0 uses single machine_rate input)",
+    "Full 301K-file inflation pass (MS0 ships pipeline + tests on real subset; operator runs full sweep)"
+  ]
+}

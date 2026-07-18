@@ -29,7 +29,7 @@ function banner(msg) {
 
 function run(step, cmd, cmdArgs) {
   banner(step);
-  const r = spawnSync(cmd, cmdArgs, { stdio: "inherit", encoding: "utf8" });
+  const r = spawnSync(cmd, cmdArgs, { windowsHide: true, stdio: "inherit", encoding: "utf8" });
   if (r.status !== 0) {
     process.stderr.write(`\n✗ Step "${step}" failed (exit ${r.status})\n`);
     process.exit(r.status || 1);
@@ -37,7 +37,7 @@ function run(step, cmd, cmdArgs) {
 }
 
 function claudeDesktopRunning() {
-  const r = spawnSync("tasklist", ["/FI", "IMAGENAME eq claude.exe", "/NH"], { encoding: "utf8" });
+  const r = spawnSync("tasklist", ["/FI", "IMAGENAME eq claude.exe", "/NH"], { windowsHide: true, encoding: "utf8" });
   return r.status === 0 && /claude\.exe/i.test(r.stdout);
 }
 
@@ -54,12 +54,12 @@ if (claudeDesktopRunning()) {
 const stepArgs = dryRun ? ["--dry-run"] : [];
 
 // Step 1: per-subfolder junctions (can run with Claude Desktop open — safe, only touches C:\Users\...\.claude).
-run("Step 1/3: ~/.claude per-subfolder junctions", "node",
+run("Step 1/3: ~/.claude per-subfolder junctions", process.execPath,
     ["H:/PRISM/.claude/helpers/dotclaude-junctions-setup.mjs", ...stepArgs]);
 
 // Step 2: AppData junction (only if Claude Desktop closed).
 if (!claudeDesktopRunning()) {
-  run("Step 2/3: Claude Desktop AppData junction", "node",
+  run("Step 2/3: Claude Desktop AppData junction", process.execPath,
       ["H:/PRISM/.claude/helpers/appdata-junction-setup.mjs", ...stepArgs]);
 } else {
   banner("Step 2/3: SKIPPED (Claude Desktop running)");
@@ -68,7 +68,7 @@ if (!claudeDesktopRunning()) {
 }
 
 // Step 3: MCP config resolve (always safe).
-run("Step 3/3: MCP config (resolve node.exe path)", "node",
+run("Step 3/3: MCP config (resolve node.exe path)", process.execPath,
     ["H:/PRISM/.claude/hooks/mcp-config-resolve.mjs"]);
 
 // Post-flight: run guards to confirm.
@@ -80,7 +80,7 @@ const guards = [
 ];
 let allPass = true;
 for (const [script, label] of guards) {
-  const r = spawnSync("node", [`H:/PRISM/.claude/hooks/${script}`], { encoding: "utf8" });
+  const r = spawnSync(process.execPath, [`H:/PRISM/.claude/hooks/${script}`], { windowsHide: true, encoding: "utf8" });
   const ok = r.status === 0;
   allPass = allPass && ok;
   process.stdout.write(`  ${ok ? "✓" : "✗"} ${label.padEnd(30)} ${ok ? "" : "(drift — see details above)"}\n`);

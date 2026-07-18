@@ -23,13 +23,23 @@ related:
 |-------|-------|
 | Name | `ship` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/ship.md` |
+| Source | `C:/Users/wompu/.claude/commands/ship.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Ship / Complete Unit Checklist
+
+You are completing a PRISM roadmap unit. This is the end-of-unit protocol that ensures nothing is forgotten before marking a unit as done. Execute every section — skip nothing.
+
+## Args: $ARGUMENTS
+- Empty: auto-detect from ACTIVE_CLAIM.json
+- `[unit-id]`: complete specific unit (e.g., `SYS-MS0-U01`)
+
+## Step 1: Identify the Unit
+If no args provided, re
 
 <!-- AUTO-END -->
 

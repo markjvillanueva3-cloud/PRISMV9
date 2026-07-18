@@ -18,6 +18,8 @@
  * @module data/jm-die-wedm-tech-tables
  */
 
+import { findFASRecord } from "./mitsubishi-fa-s-extracted.js";
+
 // ============================================================================
 // E-CODE FAMILIES — Mitsubishi FA-10S at JM Die
 // ============================================================================
@@ -108,11 +110,85 @@ const E28XX_TAPER_5PASS: ECodeFamily = {
   ],
 };
 
-/** All known E-code families for JM Die's Mitsubishi FA-10S */
+/**
+ * ACU (Accuracy-priority) 7-pass families — built from the REAL Mastercam FA-S
+ * tech-file extraction (`mitsubishi-fa-s-extracted.ts`), NOT hand-typed. Single
+ * source of truth: the 12-record thickness table (0.50"–6.00"). We surface the
+ * two canonical anchors the shop selects between — thin (0.50") and thick (1.00").
+ *
+ * Restores the 2 families that `wedm-acu-7pass.test.ts` + `WEDMProgramOptimizerEngine`
+ * (`.find(f => f.id.includes("acu"))`) already reference but were missing from this
+ * registry (regression: 3 of 5 families present).
+ */
+const IN_TO_MM = 25.4;
+
+function buildAcuFamilyFromFAS(thicknessInch: number, id: string): ECodeFamily {
+  const record = findFASRecord(thicknessInch);
+  if (!record) {
+    throw new Error(
+      `buildAcuFamilyFromFAS: no Mitsubishi FA-S record for ${thicknessInch}" — extracted tech data missing`,
+    );
+  }
+  // The deepest configuration carries the full per-pass list for an N-pass cut.
+  const cfg = record.passes.find((p) => p.passNum === record.maxPasses) ?? record.passes[record.passes.length - 1];
+
+  // Source-of-truth alignment — VERIFIED against the raw FA-S `.tech` XML (record 1, pass num="7",
+  // `<approach>Y</approach>`): `offsets`/`registers` carry exactly ONE entry per real CUT pass,
+  // while `epac`/`feed` carry a LEADING APPROACH code (e.g. 952 + feed 0.040 for the 0.50" thin
+  // record). The N cut passes are therefore the TRAILING `nCuts` epac/feed entries,
+  // register/offset-aligned (cut codes 5601..5607 ↔ registers 1..7 ↔ offsets[0..6]).
+  // `952` is the lead-in approach condition, NOT a numbered cut pass — emitting it as pass 1 (and
+  // dropping the finest skim E5607) was a real bug caught by adversarial review 2026-06-02.
+  const nCuts = cfg.offsets.length;
+  const approachCount = cfg.epac.length - nCuts;
+  if (approachCount < 0 || cfg.registers.length !== nCuts || cfg.feed.length !== cfg.epac.length) {
+    throw new Error(
+      `buildAcuFamilyFromFAS(${thicknessInch}"): malformed FA-S record — epac=${cfg.epac.length} feed=${cfg.feed.length} offsets=${nCuts} registers=${cfg.registers.length}; cannot align cut passes`,
+    );
+  }
+  const cutEpac = cfg.epac.slice(approachCount); // drop leading approach code(s)
+  const cutFeed = cfg.feed.slice(approachCount); // drop the approach feed (epac-aligned)
+  const approachECode = approachCount > 0 ? `E${cfg.epac[0]}` : null;
+
+  const passes: ECodePass[] = [];
+  for (let i = 0; i < nCuts; i++) {
+    const feed_ipm = cutFeed[i] ?? null;
+    const offset_inches = cfg.offsets[i];
+    passes.push({
+      pass_number: i + 1,
+      e_code: `E${cutEpac[i]}`,
+      feed_ipm,
+      feed_mm_min: feed_ipm != null ? +(feed_ipm * IN_TO_MM).toFixed(2) : null,
+      h_register: `H${cfg.registers[i]}`,
+      offset_inches,
+      offset_mm: +(offset_inches * IN_TO_MM).toFixed(4),
+      type: i === 0 ? "rough" : "skim",
+    });
+  }
+  return {
+    id,
+    description: `ACU ${nCuts}-pass accuracy-priority — ${thicknessInch.toFixed(2)}" (${+(thicknessInch * IN_TO_MM).toFixed(1)}mm) STEEL, Mitsubishi FA-S validated, final Ra ${cfg.ra} µin${approachECode ? ` (approach ${approachECode})` : ""}`,
+    axes: 2,
+    num_passes: nCuts,
+    materials: ["D2", "A2", "S7", "M2", "H13", "4140", "4340", "O1", "W1"],
+    uses_h175_master: false,
+    passes,
+  };
+}
+
+/** ACU 7-pass thin (0.50" steel) — E952 approach + E560x skim series */
+const E952_ACU_7PASS_THIN: ECodeFamily = buildAcuFamilyFromFAS(0.5, "E952_acu_7pass_thin");
+
+/** ACU 7-pass thick (1.00"+ steel) — E561x series */
+const E56XX_ACU_7PASS_THICK: ECodeFamily = buildAcuFamilyFromFAS(1.0, "E56xx_acu_7pass_thick");
+
+/** All known E-code families for JM Die's Mitsubishi FA-10S / FA-S */
 export const JM_DIE_ECODE_FAMILIES: ECodeFamily[] = [
   E12XX_STANDARD_4PASS,
   E12XX_HEAVY_5PASS,
   E28XX_TAPER_5PASS,
+  E952_ACU_7PASS_THIN,
+  E56XX_ACU_7PASS_THICK,
 ];
 
 // ============================================================================
@@ -147,6 +223,16 @@ export function selectECodeFamily(params: {
     // Only use E28xx if material is applicable
     if (matMatchesFamily(E28XX_TAPER_5PASS)) return E28XX_TAPER_5PASS;
     return null; // fall back to generic E-codes for non-matching materials
+  }
+
+  // ACU (accuracy-priority) 7-pass: ultra-fine finish (Ra < 0.2 µm ≈ 7.9 µin) or
+  // ultra-tight tolerance (< 0.003 mm). Thin (≤15 mm ≈ 0.6") → E952 series; thick → E56xx.
+  const acuRequired =
+    (params.target_ra_um != null && params.target_ra_um < 0.2) ||
+    (params.tolerance_mm != null && params.tolerance_mm < 0.003);
+  if (acuRequired) {
+    if (!matMatchesFamily(E952_ACU_7PASS_THIN)) return null; // material not FA-S-calibrated
+    return (params.thickness_mm ?? 0) <= 15 ? E952_ACU_7PASS_THIN : E56XX_ACU_7PASS_THICK;
   }
 
   // Check if material matches any 2-axis family

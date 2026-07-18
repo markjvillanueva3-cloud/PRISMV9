@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "phase_id": "PHASE-0",
+  "milestone_id": "LATHE-PROD-READY-MS0",
+  "timestamp": "2026-04-19T00:10:00.000Z",
+  "exit_conditions": [
+    {
+      "id": "U-LPR00a",
+      "description": "Verify Universal W1-W2 complete",
+      "status": "PASS",
+      "evidence": [
+        "W1-W5 validated 2026-02-10",
+        "Auto-confirmed from RALPH_VALIDATION_W1-W5.md"
+      ]
+    },
+    {
+      "id": "U-LPR00b",
+      "description": "Verify R4 Fix #3 + #5 applied",
+      "status": "PASS",
+      "evidence": [
+        "ppDispatcher.ts z.enum duplicates resolved",
+        "vacuous-true replaced with fail-closed"
+      ]
+    },
+    {
+      "id": "U-LPR00c",
+      "description": "Verify CALC-LATHE-MS0 / Swiss dialect toggle merged",
+      "status": "PASS",
+      "evidence": [
+        "LatheSwissPostGeneratorEngine.ts lines 154, 254, 349-351, 381-389"
+      ]
+    },
+    {
+      "id": "U-LPR00d",
+      "description": "Publish GateTokenContract with HMAC signing",
+      "status": "PASS",
+      "evidence": [
+        "src/contracts/GateTokenContract.ts (223 lines)",
+        "HMAC-SHA256 + timingSafeEqual"
+      ]
+    },
+    {
+      "id": "U-LPR00e",
+      "description": "Quantified risk register",
+      "status": "PASS",
+      "evidence": [
+        "data/state/RISK_REGISTER.json (12 entries)",
+        "Impact scoring complete"
+      ]
+    },
+    {
+      "id": "U-LPR-MOU",
+      "description": "JM Die MOU v2",
+      "status": "SKIP",
+      "evidence": [
+        "External dependency - proceeds in parallel",
+        "Non-blocking for Phase 1-7"
+      ]
+    }
+  ],
+  "attestation_hash": "pending_signature",
+  "signature": "pending_signature",
+  "key_id": "dev-key-001",
+  "emitter": "claude-code",
+  "schema_version": 1,
+  "notes": "Phase 0 gate passed. MOU (U-LPR-MOU) non-blocking for development phases 1-7; required before Phase 8 wet-run."
+}

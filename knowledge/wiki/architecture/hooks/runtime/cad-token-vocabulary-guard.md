@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-cad-token-vocabulary-guard.mjs — CADCAM-DAGI-MS0/U-DAGI01 guard hookPostToolUse(Write|Edit) hook that checks edits to the CAD token vocabularyand the CADTokenRepresentationEngine for invariants required by theneural-tokenization stack:  1. Vocabulary file must remain a well-formed JSON object with the expected     top-level fields (schemaVersion, version, tokens[], categories{}).  2. Every special token (PAD, BOS, EOS, SEP, MASK, UNK) must be present.  3. Token array must be monotonic — i
+_(no header docblock — read source for behavior)_
 
 ## Events
 

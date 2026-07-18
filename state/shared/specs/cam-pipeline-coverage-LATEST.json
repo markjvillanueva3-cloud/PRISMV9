@@ -1,0 +1,931 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-28T02:39:55.080Z",
+  "enginesScanned": 3324,
+  "dispatchersScanned": 99,
+  "testsScanned": 3646,
+  "stages": [
+    {
+      "id": "PROGRAM_INTAKE",
+      "label": "Program intake (CAD→CAM handoff or existing CAM file)"
+    },
+    {
+      "id": "MACHINE_SELECT",
+      "label": "Machine selection (ERP + availability + capability)"
+    },
+    {
+      "id": "STOCK_SIZE",
+      "label": "Stock size + allowance"
+    },
+    {
+      "id": "WORKHOLDING_FIRSTOP",
+      "label": "Workholding (Kurt vise + soft-jaw + ROI clamping)"
+    },
+    {
+      "id": "OP_SEQUENCE",
+      "label": "Operation order (interrupted-cut + air-cut + chip thickness)"
+    },
+    {
+      "id": "TOOL_HOLDER_SELECT",
+      "label": "Tool + holder selection (ROI-aware)"
+    },
+    {
+      "id": "MACHINE_CAPABILITY_USE",
+      "label": "Use machine capabilities (taper / spindle / kinematics / envelope / controller / params)"
+    },
+    {
+      "id": "POST_EMIT",
+      "label": "Post-emit (optimized + cost-efficient + accurate + safe)"
+    },
+    {
+      "id": "SETUP_SHEET",
+      "label": "Setup sheet generation"
+    },
+    {
+      "id": "CLOSED_LOOP_FEEDBACK",
+      "label": "Closed-loop feedback (outcome → corpus delta → retrain signal)"
+    }
+  ],
+  "platforms": [
+    {
+      "id": "hypermill",
+      "label": "HyperMill (+HyperCAD-S)",
+      "bridgeKind": "in-host",
+      "autodeskMcp": false
+    },
+    {
+      "id": "mastercam",
+      "label": "Mastercam X8",
+      "bridgeKind": "none",
+      "autodeskMcp": false
+    },
+    {
+      "id": "fusion360",
+      "label": "Fusion 360",
+      "bridgeKind": "socket",
+      "autodeskMcp": true
+    },
+    {
+      "id": "inventor",
+      "label": "Inventor HSM",
+      "bridgeKind": "none",
+      "autodeskMcp": true
+    },
+    {
+      "id": "solidcam",
+      "label": "SolidCAM",
+      "bridgeKind": "none",
+      "autodeskMcp": false
+    },
+    {
+      "id": "powermill",
+      "label": "PowerMill",
+      "bridgeKind": "none",
+      "autodeskMcp": false
+    },
+    {
+      "id": "nx",
+      "label": "NX CAM",
+      "bridgeKind": "none",
+      "autodeskMcp": false
+    },
+    {
+      "id": "esprit",
+      "label": "Esprit",
+      "bridgeKind": "none",
+      "autodeskMcp": false
+    }
+  ],
+  "totals": {
+    "hypermill": {
+      "label": "HyperMill (+HyperCAD-S)",
+      "bridgeKind": "in-host",
+      "autodeskMcp": false,
+      "rawTotalScore": 461,
+      "normalizedTotalScore": 92,
+      "stagesWithEvidence": 10,
+      "stagesWithPlatformSpecificEvidence": 6,
+      "stageCount": 10
+    },
+    "mastercam": {
+      "label": "Mastercam X8",
+      "bridgeKind": "none",
+      "autodeskMcp": false,
+      "rawTotalScore": 446,
+      "normalizedTotalScore": 72.5,
+      "stagesWithEvidence": 10,
+      "stagesWithPlatformSpecificEvidence": 3,
+      "stageCount": 10
+    },
+    "fusion360": {
+      "label": "Fusion 360",
+      "bridgeKind": "socket",
+      "autodeskMcp": true,
+      "rawTotalScore": 451.5,
+      "normalizedTotalScore": 79.5,
+      "stagesWithEvidence": 10,
+      "stagesWithPlatformSpecificEvidence": 3,
+      "stageCount": 10
+    },
+    "inventor": {
+      "label": "Inventor HSM",
+      "bridgeKind": "none",
+      "autodeskMcp": true,
+      "rawTotalScore": 464.5,
+      "normalizedTotalScore": 91,
+      "stagesWithEvidence": 10,
+      "stagesWithPlatformSpecificEvidence": 6,
+      "stageCount": 10
+    },
+    "solidcam": {
+      "label": "SolidCAM",
+      "bridgeKind": "none",
+      "autodeskMcp": false,
+      "rawTotalScore": 436,
+      "normalizedTotalScore": 61,
+      "stagesWithEvidence": 10,
+      "stagesWithPlatformSpecificEvidence": 2,
+      "stageCount": 10
+    },
+    "powermill": {
+      "label": "PowerMill",
+      "bridgeKind": "none",
+      "autodeskMcp": false,
+      "rawTotalScore": 436,
+      "normalizedTotalScore": 61,
+      "stagesWithEvidence": 10,
+      "stagesWithPlatformSpecificEvidence": 2,
+      "stageCount": 10
+    },
+    "nx": {
+      "label": "NX CAM",
+      "bridgeKind": "none",
+      "autodeskMcp": false,
+      "rawTotalScore": 445,
+      "normalizedTotalScore": 71.5,
+      "stagesWithEvidence": 10,
+      "stagesWithPlatformSpecificEvidence": 3,
+      "stageCount": 10
+    },
+    "esprit": {
+      "label": "Esprit",
+      "bridgeKind": "none",
+      "autodeskMcp": false,
+      "rawTotalScore": 439,
+      "normalizedTotalScore": 64,
+      "stagesWithEvidence": 10,
+      "stagesWithPlatformSpecificEvidence": 2,
+      "stageCount": 10
+    }
+  },
+  "matrix": {
+    "hypermill": {
+      "PROGRAM_INTAKE": {
+        "rawScore": 57.5,
+        "normalizedScore": 9.5,
+        "intersectEngines": 1,
+        "sharedEngines": 36,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "MACHINE_SELECT": {
+        "rawScore": 46.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 31,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "STOCK_SIZE": {
+        "rawScore": 26,
+        "normalizedScore": 8,
+        "intersectEngines": 1,
+        "sharedEngines": 16,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": true
+      },
+      "WORKHOLDING_FIRSTOP": {
+        "rawScore": 34.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 23,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "OP_SEQUENCE": {
+        "rawScore": 29,
+        "normalizedScore": 8,
+        "intersectEngines": 1,
+        "sharedEngines": 18,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": true
+      },
+      "TOOL_HOLDER_SELECT": {
+        "rawScore": 21,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 14,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_CAPABILITY_USE": {
+        "rawScore": 95.5,
+        "normalizedScore": 16,
+        "intersectEngines": 2,
+        "sharedEngines": 57,
+        "platformDispatcherActions": 0,
+        "testCount": 4,
+        "hasPlatformEvidence": true
+      },
+      "POST_EMIT": {
+        "rawScore": 115,
+        "normalizedScore": 13,
+        "intersectEngines": 2,
+        "sharedEngines": 72,
+        "platformDispatcherActions": 0,
+        "testCount": 2,
+        "hasPlatformEvidence": true
+      },
+      "SETUP_SHEET": {
+        "rawScore": 33,
+        "normalizedScore": 16.5,
+        "intersectEngines": 3,
+        "sharedEngines": 15,
+        "platformDispatcherActions": 0,
+        "testCount": 3,
+        "hasPlatformEvidence": true
+      },
+      "CLOSED_LOOP_FEEDBACK": {
+        "rawScore": 3,
+        "normalizedScore": 3,
+        "intersectEngines": 0,
+        "sharedEngines": 2,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      }
+    },
+    "mastercam": {
+      "PROGRAM_INTAKE": {
+        "rawScore": 54,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 36,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_SELECT": {
+        "rawScore": 46.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 31,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "STOCK_SIZE": {
+        "rawScore": 25.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 17,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "WORKHOLDING_FIRSTOP": {
+        "rawScore": 34.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 23,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "OP_SEQUENCE": {
+        "rawScore": 28.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 19,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "TOOL_HOLDER_SELECT": {
+        "rawScore": 21,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 14,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_CAPABILITY_USE": {
+        "rawScore": 91,
+        "normalizedScore": 11.5,
+        "intersectEngines": 2,
+        "sharedEngines": 57,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "POST_EMIT": {
+        "rawScore": 113,
+        "normalizedScore": 11,
+        "intersectEngines": 1,
+        "sharedEngines": 72,
+        "platformDispatcherActions": 0,
+        "testCount": 2,
+        "hasPlatformEvidence": true
+      },
+      "SETUP_SHEET": {
+        "rawScore": 29,
+        "normalizedScore": 11,
+        "intersectEngines": 1,
+        "sharedEngines": 16,
+        "platformDispatcherActions": 0,
+        "testCount": 2,
+        "hasPlatformEvidence": true
+      },
+      "CLOSED_LOOP_FEEDBACK": {
+        "rawScore": 3,
+        "normalizedScore": 3,
+        "intersectEngines": 0,
+        "sharedEngines": 2,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      }
+    },
+    "fusion360": {
+      "PROGRAM_INTAKE": {
+        "rawScore": 54,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 36,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_SELECT": {
+        "rawScore": 46.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 31,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "STOCK_SIZE": {
+        "rawScore": 25.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 17,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "WORKHOLDING_FIRSTOP": {
+        "rawScore": 34.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 23,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "OP_SEQUENCE": {
+        "rawScore": 28.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 19,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "TOOL_HOLDER_SELECT": {
+        "rawScore": 21,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 14,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_CAPABILITY_USE": {
+        "rawScore": 89,
+        "normalizedScore": 9.5,
+        "intersectEngines": 1,
+        "sharedEngines": 57,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "POST_EMIT": {
+        "rawScore": 116.5,
+        "normalizedScore": 14.5,
+        "intersectEngines": 2,
+        "sharedEngines": 72,
+        "platformDispatcherActions": 0,
+        "testCount": 3,
+        "hasPlatformEvidence": true
+      },
+      "SETUP_SHEET": {
+        "rawScore": 33,
+        "normalizedScore": 16.5,
+        "intersectEngines": 3,
+        "sharedEngines": 15,
+        "platformDispatcherActions": 0,
+        "testCount": 3,
+        "hasPlatformEvidence": true
+      },
+      "CLOSED_LOOP_FEEDBACK": {
+        "rawScore": 3,
+        "normalizedScore": 3,
+        "intersectEngines": 0,
+        "sharedEngines": 2,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      }
+    },
+    "inventor": {
+      "PROGRAM_INTAKE": {
+        "rawScore": 54,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 36,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_SELECT": {
+        "rawScore": 50,
+        "normalizedScore": 9.5,
+        "intersectEngines": 1,
+        "sharedEngines": 31,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "STOCK_SIZE": {
+        "rawScore": 31,
+        "normalizedScore": 11.5,
+        "intersectEngines": 2,
+        "sharedEngines": 17,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "WORKHOLDING_FIRSTOP": {
+        "rawScore": 34.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 23,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "OP_SEQUENCE": {
+        "rawScore": 28.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 19,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "TOOL_HOLDER_SELECT": {
+        "rawScore": 23,
+        "normalizedScore": 9.5,
+        "intersectEngines": 1,
+        "sharedEngines": 13,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "MACHINE_CAPABILITY_USE": {
+        "rawScore": 88.5,
+        "normalizedScore": 7.5,
+        "intersectEngines": 0,
+        "sharedEngines": 58,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "POST_EMIT": {
+        "rawScore": 118,
+        "normalizedScore": 16,
+        "intersectEngines": 2,
+        "sharedEngines": 72,
+        "platformDispatcherActions": 0,
+        "testCount": 4,
+        "hasPlatformEvidence": true
+      },
+      "SETUP_SHEET": {
+        "rawScore": 34,
+        "normalizedScore": 16,
+        "intersectEngines": 2,
+        "sharedEngines": 16,
+        "platformDispatcherActions": 0,
+        "testCount": 4,
+        "hasPlatformEvidence": true
+      },
+      "CLOSED_LOOP_FEEDBACK": {
+        "rawScore": 3,
+        "normalizedScore": 3,
+        "intersectEngines": 0,
+        "sharedEngines": 2,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      }
+    },
+    "solidcam": {
+      "PROGRAM_INTAKE": {
+        "rawScore": 54,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 36,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_SELECT": {
+        "rawScore": 46.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 31,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "STOCK_SIZE": {
+        "rawScore": 25.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 17,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "WORKHOLDING_FIRSTOP": {
+        "rawScore": 34.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 23,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "OP_SEQUENCE": {
+        "rawScore": 28.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 19,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "TOOL_HOLDER_SELECT": {
+        "rawScore": 21,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 14,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_CAPABILITY_USE": {
+        "rawScore": 87,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 58,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "POST_EMIT": {
+        "rawScore": 110,
+        "normalizedScore": 8,
+        "intersectEngines": 1,
+        "sharedEngines": 72,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": true
+      },
+      "SETUP_SHEET": {
+        "rawScore": 26,
+        "normalizedScore": 8,
+        "intersectEngines": 1,
+        "sharedEngines": 16,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": true
+      },
+      "CLOSED_LOOP_FEEDBACK": {
+        "rawScore": 3,
+        "normalizedScore": 3,
+        "intersectEngines": 0,
+        "sharedEngines": 2,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      }
+    },
+    "powermill": {
+      "PROGRAM_INTAKE": {
+        "rawScore": 54,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 36,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_SELECT": {
+        "rawScore": 46.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 31,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "STOCK_SIZE": {
+        "rawScore": 25.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 17,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "WORKHOLDING_FIRSTOP": {
+        "rawScore": 34.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 23,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "OP_SEQUENCE": {
+        "rawScore": 28.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 19,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "TOOL_HOLDER_SELECT": {
+        "rawScore": 21,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 14,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_CAPABILITY_USE": {
+        "rawScore": 87,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 58,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "POST_EMIT": {
+        "rawScore": 110,
+        "normalizedScore": 8,
+        "intersectEngines": 1,
+        "sharedEngines": 72,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": true
+      },
+      "SETUP_SHEET": {
+        "rawScore": 26,
+        "normalizedScore": 8,
+        "intersectEngines": 1,
+        "sharedEngines": 16,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": true
+      },
+      "CLOSED_LOOP_FEEDBACK": {
+        "rawScore": 3,
+        "normalizedScore": 3,
+        "intersectEngines": 0,
+        "sharedEngines": 2,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      }
+    },
+    "nx": {
+      "PROGRAM_INTAKE": {
+        "rawScore": 54,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 36,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_SELECT": {
+        "rawScore": 46.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 31,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "STOCK_SIZE": {
+        "rawScore": 25.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 17,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "WORKHOLDING_FIRSTOP": {
+        "rawScore": 34.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 23,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "OP_SEQUENCE": {
+        "rawScore": 28.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 19,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "TOOL_HOLDER_SELECT": {
+        "rawScore": 21,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 14,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_CAPABILITY_USE": {
+        "rawScore": 89,
+        "normalizedScore": 9.5,
+        "intersectEngines": 1,
+        "sharedEngines": 57,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "POST_EMIT": {
+        "rawScore": 113.5,
+        "normalizedScore": 11.5,
+        "intersectEngines": 2,
+        "sharedEngines": 72,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "SETUP_SHEET": {
+        "rawScore": 29.5,
+        "normalizedScore": 11.5,
+        "intersectEngines": 2,
+        "sharedEngines": 16,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "CLOSED_LOOP_FEEDBACK": {
+        "rawScore": 3,
+        "normalizedScore": 3,
+        "intersectEngines": 0,
+        "sharedEngines": 2,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      }
+    },
+    "esprit": {
+      "PROGRAM_INTAKE": {
+        "rawScore": 54,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 36,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_SELECT": {
+        "rawScore": 46.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 31,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "STOCK_SIZE": {
+        "rawScore": 25.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 17,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "WORKHOLDING_FIRSTOP": {
+        "rawScore": 34.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 23,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "OP_SEQUENCE": {
+        "rawScore": 28.5,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 19,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "TOOL_HOLDER_SELECT": {
+        "rawScore": 21,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 14,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "MACHINE_CAPABILITY_USE": {
+        "rawScore": 87,
+        "normalizedScore": 6,
+        "intersectEngines": 0,
+        "sharedEngines": 58,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      },
+      "POST_EMIT": {
+        "rawScore": 111.5,
+        "normalizedScore": 9.5,
+        "intersectEngines": 1,
+        "sharedEngines": 72,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "SETUP_SHEET": {
+        "rawScore": 27.5,
+        "normalizedScore": 9.5,
+        "intersectEngines": 1,
+        "sharedEngines": 16,
+        "platformDispatcherActions": 0,
+        "testCount": 1,
+        "hasPlatformEvidence": true
+      },
+      "CLOSED_LOOP_FEEDBACK": {
+        "rawScore": 3,
+        "normalizedScore": 3,
+        "intersectEngines": 0,
+        "sharedEngines": 2,
+        "platformDispatcherActions": 0,
+        "testCount": 0,
+        "hasPlatformEvidence": false
+      }
+    }
+  },
+  "methodology": {
+    "scoring": "intersect_engines × 2 + shared_engines × 1.5 + dispatcher_tokens × 1 + tests × 1.5",
+    "normalization": "Caps applied per delta F7: intersect_engines ≤ 5, shared_engines ≤ 4, dispatcher_tokens ≤ 8",
+    "bridgeKindMeaning": "socket = independent-process driving; in-host = plugin requires host app running; none = no live driving",
+    "f7Tautology": "hasPlatformEvidence flag exposes when a cell shows coverage only via shared engines, not platform-specific ones"
+  },
+  "caveats": [
+    "Coverage = engine-file count + dispatcher-action mentions + test count; measures BREADTH of substrate, NOT runtime correctness.",
+    "Normalization caps engine credit; still does not measure integration depth or operator-ready completeness.",
+    "Static scan, not runtime probe. Runtime gate is the CAM-TEST-PLAYBOOK live-drive tier 2+.",
+    "Bridge-kind tracking is per-platform metadata, not auto-detected from engine files — update PLATFORMS array when bridges land."
+  ]
+}

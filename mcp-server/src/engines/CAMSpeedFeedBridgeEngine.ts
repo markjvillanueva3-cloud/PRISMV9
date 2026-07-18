@@ -16,6 +16,8 @@
  *   | Fusion 360      | toolDiameter       | spindleSpeed         | feedPerTooth     |
  *   | Inventor HSM    | toolDia            | spindleRpm           | feedPerTooth     |
  *   | Mastercam X8    | dia                | rpm / sfm            | fpt              |
+ *   | ESPRIT (DP)     | cutterDiameter     | surfaceSpeed (SFM)   | feedPerToothEsp  |
+ *   | SolidCAM (SW)   | solidcamDiameter   | spinSpeed (rpm)      | feedZ            |
  *   | generic         | tool_diameter_mm   | spindle_rpm          | feed_per_tooth   |
  *
  * The bridge is intentionally *pure translation + encoding*; the physics is
@@ -40,6 +42,8 @@ export const SFBridgeTargetSchema = z.enum([
   "fusion360",
   "inventor_hsm",
   "mastercam",
+  "esprit",
+  "solidcam",
   "generic",
 ]);
 export type SFBridgeTarget = z.infer<typeof SFBridgeTargetSchema>;
@@ -71,6 +75,16 @@ export const SFNativeRequestSchema = z
     rpm: z.number().positive().optional(),
     sfm: z.number().positive().optional(),
     fpt: z.number().positive().optional(),
+
+    // ESPRIT (DP Technology) — US-centric CAM; surfaceSpeed is SFM
+    cutterDiameter: z.number().positive().optional(),
+    surfaceSpeed: z.number().positive().optional(),
+    feedPerToothEsp: z.number().positive().optional(),
+
+    // SolidCAM (SolidWorks ecosystem)
+    solidcamDiameter: z.number().positive().optional(),
+    spinSpeed: z.number().positive().optional(),
+    feedZ: z.number().positive().optional(),
 
     // Generic
     tool_diameter_mm: z.number().positive().optional(),
@@ -130,21 +144,27 @@ export function normalizeRequest(
     native.toolDiameter,
     native.toolDia,
     native.dia,
+    native.cutterDiameter,
+    native.solidcamDiameter,
   );
   const spindle = pickFirst(
     native.spindle_rpm,
     native.spindleSpeed,
     native.spindleRpm,
     native.rpm,
+    native.spinSpeed,
   );
   const fz = pickFirst(
     native.feed_per_tooth,
     native.feedPerTooth_fz,
     native.feedPerTooth,
     native.fpt,
+    native.feedPerToothEsp,
+    native.feedZ,
   );
-  const vcFromSfm = mapSfmToVc(native.sfm);
-  // cuttingSpeedVc is already in m/min on hyperMILL side; sfm→mpm on Mastercam.
+  // ESPRIT, like Mastercam, expresses cutting speed as SFM (US-centric CAM).
+  // hyperMILL's cuttingSpeedVc is already m/min. Convert both SFM sources.
+  const vcFromSfm = mapSfmToVc(pickFirst(native.sfm, native.surfaceSpeed));
   const cuttingSpeed = pickFirst(native.cuttingSpeedVc, vcFromSfm);
 
   const base: OrchestratorInput = {
@@ -188,6 +208,10 @@ function targetToCamSystem(target: SFBridgeTarget): string | undefined {
       return "Inventor HSM";
     case "mastercam":
       return "Mastercam";
+    case "esprit":
+      return "ESPRIT";
+    case "solidcam":
+      return "SolidCAM";
     case "generic":
     default:
       return undefined;
@@ -246,6 +270,26 @@ export function encodeResponse(
         `${payload.feed_rate_mm_min.toFixed(1)}|${payload.fz_mm.toFixed(4)}|` +
         `${payload.vc_mpm.toFixed(2)}`
       );
+    case "esprit":
+      // ESPRIT KB consumes a pipe-delimited record via its COM automation
+      // bridge. Field [5] is the RECOMMENDED surface speed (the orchestrator's
+      // computed Vc), converted m/min→SFM for ESPRIT's US-centric UI — it is
+      // the recommendation, not an echo of the request's surfaceSpeed.
+      return (
+        `ESPRIT|${payload.operation_id}|${payload.rpm.toFixed(0)}|` +
+        `${payload.feed_rate_mm_min.toFixed(1)}|${payload.fz_mm.toFixed(4)}|` +
+        `${(payload.vc_mpm / SFM_TO_MPM).toFixed(1)}`
+      );
+    case "solidcam":
+      // SolidCAM reads a flat JSON tag through its SolidWorks add-in.
+      return JSON.stringify({
+        type: "solidcam.speedFeed",
+        operationId: payload.operation_id,
+        spinSpeed: Number(payload.rpm.toFixed(0)),
+        feedZ: Number(payload.fz_mm.toFixed(4)),
+        feedRate: Number(payload.feed_rate_mm_min.toFixed(1)),
+        vc: Number(payload.vc_mpm.toFixed(2)),
+      });
     case "generic":
     default:
       return JSON.stringify({ type: "speed_feed_recommendation", ...payload });
@@ -330,7 +374,15 @@ export class CAMSpeedFeedBridgeEngine {
   }
 
   static supportedTargets(): SFBridgeTarget[] {
-    return ["hypermill", "fusion360", "inventor_hsm", "mastercam", "generic"];
+    return [
+      "hypermill",
+      "fusion360",
+      "inventor_hsm",
+      "mastercam",
+      "esprit",
+      "solidcam",
+      "generic",
+    ];
   }
 }
 

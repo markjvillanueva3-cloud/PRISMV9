@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `quality-dashboard` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/quality-dashboard.md` |
+| Source | `C:/Users/wompu/.claude/commands/quality-dashboard.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Aggregate and display the PRISM development quality dashboard.
+
+# Quality Dashboard
 
 <!-- AUTO-END -->
 

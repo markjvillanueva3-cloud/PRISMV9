@@ -189,6 +189,47 @@ export interface LatheGAResult {
   pareto_front?: LatheIndividual[];
   /** Statistics */
   statistics: GAStatistics;
+  /**
+   * U-LW-A4: predicted machining performance for `best_parameters`, computed with the
+   * per-MATERIAL Kienzle/Taylor coefficients the optimizer used (not the ISO-group generic).
+   * Present for optimizeParameters() results. Lets a consumer see the recommended params'
+   * force/power/tool-life/MRR — previously the result exposed only the params. `evolve` selects
+   * on the PRIMARY objective's fitness (fitness[0]), so a coefficient that only scales force/power
+   * leaves the selected params unchanged for the common kc1_1-independent objectives (mrr,
+   * cycle_time, surface_finish); it moves them only when force/power is the primary objective.
+   * Exposing predicted performance surfaces the corrected per-material coefficient regardless.
+   */
+  predicted_performance?: LatheGAPredictedPerformance;
+}
+
+/**
+ * Predicted machining performance for the GA's best parameters (U-LW-A4). Uses the SAME
+ * simplified Kienzle (Fc = kc1_1 * ap * f^(1-mc)) and Taylor (T = (C/Vc)^(1/n)) the fitness
+ * function used, so these numbers are self-consistent with the optimization.
+ */
+export interface LatheGAPredictedPerformance {
+  /** Tangential cutting force Fc [N]. */
+  cutting_force_N: number;
+  /** Cutting power [kW]. */
+  cutting_power_kW: number;
+  /** Spindle torque [N*m]. */
+  spindle_torque_Nm: number;
+  /** Taylor tool life [min]. */
+  tool_life_min: number;
+  /** Material removal rate [cm^3/min]. */
+  mrr_cm3_min: number;
+  /** The Kienzle kc1.1 [N/mm^2] actually used — the per-material value when available, else ISO-group. */
+  kc1_1_used: number;
+  /**
+   * True when cutting_power_kW is within the machine max_power (allowing a small soft-penalty
+   * tolerance). FALSE means the optimizer could not find a power-feasible recommendation within the
+   * given bounds/tool limits — the recommendation exceeds the spindle budget and MUST be reviewed
+   * before running (fail-loud, U-LW-GA-CONSTRAINTS P1). The exterior penalty returns the
+   * least-infeasible point when no feasible one exists, so this flag is the loud signal.
+   */
+  power_feasible: boolean;
+  /** Populated only when power_feasible is false — a human-readable breach message. */
+  power_warning?: string;
 }
 
 /** GA Statistics */
@@ -1834,7 +1875,30 @@ class LatheGeneticAlgorithmEngineImpl {
     const material = CANONICAL_MATERIAL_DB[input.material] ??
                      CANONICAL_MATERIAL_DB["steel"];
     const isoGroup = input.iso_group ?? material.iso_group;
-    const kienzle = CANONICAL_KIENZLE[isoGroup];
+    // U-LW-A4 (slot:whiskey, 2026-07-05): prefer the per-MATERIAL Kienzle coefficients
+    // (enriched onto the material entry from AISI_CUTTING_COEFFICIENTS via buildMaterialPhysics)
+    // over the generic per-ISO-GROUP values. e.g. AISI 4140 kc1_1=1950 vs P-group 1800 (~8%):
+    // every GA force/power/tool-life number for a named alloy was silently using the wrong
+    // constant while the correct one sat on the `material` object already in scope. The
+    // per-material value is the more AUTHORITATIVE source — usually higher (e.g. 4140 1950>1800)
+    // but sometimes lower (1018 1700, 303 2000, A2 3000 are below their ISO-group average). The
+    // goal is ACCURACY, not added margin (safety margin lives in the S(x)/safety-factor layer).
+    // Falls back to the ISO group when a material carries no specific coefficient. Mirrors
+    // TurningForceEngine's `input.material_kc1_1 ?? KIENZLE_ISO[iso]` precedence. Taylor stays on
+    // the ISO group — per-material Taylor is U-LW-A2 (divergent-tables).
+    // Honor an explicit input.iso_group override for Kienzle too (arm B P1, 2026-07-05): if the
+    // caller pins a DIFFERENT group than the material's natural one, use that group's generic
+    // Kienzle (the override intent) — otherwise use the more-accurate per-material coefficient.
+    // Without this branch the always-populated material.kc1_1 makes the `?? CANONICAL_KIENZLE`
+    // fallback dead, silently ignoring the override for Kienzle while Taylor (below) still honors it
+    // — a documented-field regression in an UNSAFE (under-prediction) direction.
+    const kienzleGroupOverride = input.iso_group != null && input.iso_group !== material.iso_group;
+    const kienzle = kienzleGroupOverride
+      ? CANONICAL_KIENZLE[isoGroup]
+      : {
+          kc1_1: material.kc1_1 ?? CANONICAL_KIENZLE[isoGroup].kc1_1,
+          mc: material.mc ?? CANONICAL_KIENZLE[isoGroup].mc,
+        };
     const taylor = CANONICAL_TAYLOR[isoGroup];
 
     // Define bounds based on operation
@@ -1926,8 +1990,10 @@ class LatheGeneticAlgorithmEngineImpl {
       return fitness;
     };
 
-    // Add machine constraints
-    const constraints: LatheConstraint[] = input.constraints ?? [];
+    // Add machine constraints. Copy input.constraints so pushing max_power never mutates a
+    // caller-owned array (which, now that the constraints are consumed, would double-count the
+    // penalty if the same array reference were reused across calls — arm B P2, U-LW-GA-CONSTRAINTS).
+    const constraints: LatheConstraint[] = [...(input.constraints ?? [])];
 
     // Power constraint
     constraints.push({
@@ -1951,7 +2017,27 @@ class LatheGeneticAlgorithmEngineImpl {
       max_generations: input.config?.max_generations ?? 100,
     };
 
-    const result = this.evolve(fitnessFunction, bounds, input.objectives, config);
+    // U-LW-GA-CONSTRAINTS (slot:whiskey, 2026-07-05): the `constraints` above (max_power + any
+    // input.constraints) were previously BUILT then DISCARDED — evolve() evaluates the raw
+    // fitnessFunction and never applied a penalty, so the machine spindle-power limit did NOT bind
+    // the recommendation (it could recommend >2x the power budget). Wire them in via a
+    // penalty-augmented fitness wrapper (the standard GA exterior-penalty method): each violating
+    // solution has penalty*violation subtracted from EVERY objective, so evolve's weighted-sum
+    // selection (compareFitness) drives the population to the feasible region. Feasible solutions
+    // (violation === 0) are unchanged, so the feasible Pareto structure is preserved. Localized
+    // here so evolve()'s signature + its other caller are untouched.
+    const constrainedFitness = (genes: number[]): number[] => {
+      const raw = fitnessFunction(genes);
+      const base = Array.isArray(raw) ? raw : [raw];
+      let totalViolation = 0;
+      for (const constraint of constraints) {
+        const violation = constraint.evaluate(genes);
+        if (violation > 0) totalViolation += constraint.penalty * violation;
+      }
+      return totalViolation > 0 ? base.map((v) => v - totalViolation) : base;
+    };
+
+    const result = this.evolve(constrainedFitness, bounds, input.objectives, config);
 
     // Decode best parameters with meaningful names
     const bestParams = result.best_parameters;
@@ -1967,10 +2053,48 @@ class LatheGeneticAlgorithmEngineImpl {
       finishing_allowance_mm: bestParams["finishing_allowance_mm"] ?? 0,
     };
 
+    // U-LW-A4: predicted performance for the recommended params, using the SAME per-material
+    // Kienzle/Taylor coefficients + formulas the fitness function used (kienzle/taylor above).
+    // This surfaces the effect of the per-material coefficient: `evolve` selects on the primary
+    // objective's fitness, so a uniform kc1_1 scaling of force/power leaves the selected params
+    // unchanged for kc1_1-independent objectives (mrr/cycle_time/Ra) — without this exposure the
+    // correction would be unobservable for those common objectives. Computed at the reported
+    // (rounded, unclamped) spindle_rpm, so mrr/torque are self-consistent with what the caller sees.
+    const vcBest = decodedParams.cutting_speed_m_min;
+    const fBest = decodedParams.feed_mm_rev;
+    const apBest = decodedParams.depth_of_cut_mm;
+    const rpmBest = decodedParams.spindle_rpm;
+    const FcBest = kienzle.kc1_1 * apBest * Math.pow(fBest, 1 - kienzle.mc);
+    const powerBest = (FcBest * vcBest) / (60 * 1000);
+    const toolLifeRef = input.tool.tool_life_ref_min ?? 60;
+    const vcRefBest = taylor.C * Math.pow(toolLifeRef, taylor.n);
+    // U-LW-GA-CONSTRAINTS P1 (fail-loud): the exterior penalty returns the least-infeasible point
+    // when the feasible region is empty/unsampled, so a spindle-power breach must be surfaced
+    // explicitly rather than returned silently. A 5% tolerance absorbs the soft-penalty equilibrium
+    // sitting marginally over the boundary; anything beyond it is a real "no feasible params" breach.
+    const maxPowerKw = input.machine.max_power_kw;
+    const POWER_FEASIBLE_TOLERANCE = 1.05;
+    const power_feasible = !(maxPowerKw > 0) || powerBest <= maxPowerKw * POWER_FEASIBLE_TOLERANCE;
+    const predicted_performance: LatheGAPredictedPerformance = {
+      cutting_force_N: FcBest,
+      cutting_power_kW: powerBest,
+      spindle_torque_Nm: rpmBest > 0 ? (powerBest * 9549) / rpmBest : 0,
+      tool_life_min: vcBest > 0 ? Math.pow(vcRefBest / vcBest, 1 / taylor.n) : 0,
+      mrr_cm3_min: (apBest * fBest * rpmBest * Math.PI * input.workpiece.diameter_mm) / 1000,
+      kc1_1_used: kienzle.kc1_1,
+      power_feasible,
+      power_warning: power_feasible
+        ? undefined
+        : `Recommended cutting power ${powerBest.toFixed(2)} kW exceeds machine max_power ` +
+          `${maxPowerKw} kW — no power-feasible parameters were found within the given bounds/tool ` +
+          `limits. Review machine spindle power, tool, or depth/feed limits before running this recommendation.`,
+    };
+
     // Update result with decoded parameters (cast through unknown for type safety)
     const updatedResult = {
       ...result,
       best_parameters: decodedParams as unknown as Record<string, number>,
+      predicted_performance,
     };
 
     return updatedResult;

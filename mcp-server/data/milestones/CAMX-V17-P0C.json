@@ -1,0 +1,215 @@
+{
+  "id": "CAMX-V17-P0C",
+  "version": "8.1.0",
+  "title": "Test Infrastructure Hardening — Fix Anti-Patterns + Build Validation Framework",
+  "brief": "Fix || true assertions, upgrade keyword-only tests to parametric, create 14-stage pipeline validator, cross-material S/F range tables, controller dialect assertion library, 50+ negative input tests, parameter sanity guard. MUST complete before any building.",
+  "created_at": "2026-03-23T11:26:49Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v18",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Test Infrastructure",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Audit and fix ALL || true and keyword-only assertions",
+          "description": "grep for || true in all test files. Replace with parametric checks. Create parseGCode() utility for structured assertion. Upgrade >=50% of .includes() to coordinate/parameter validation.",
+          "status": "not_started",
+          "exit_conditions": [
+            "ZERO || true in any test",
+            ">=50% includes upgraded",
+            "parseGCode utility created",
+            "/prism-review passes"
+          ],
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Define 14-stage pipeline validation matrix",
+          "description": "Create pipeline-stage-validator.ts with 14 stages, each with typed input/output and validation function. OCR accuracy, feature types, material resolution, machine selection, strategy scoring, tool validation, S/F ranges, toolpath coverage, physics bounds, collision check, G-code syntax, simulation, cycle time, documentation.",
+          "status": "not_started",
+          "exit_conditions": [
+            "14-stage validator created",
+            "Each stage has validation function",
+            "Pipeline harness chains all stages"
+          ],
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Create cross-material S/F range tables",
+          "description": "Expected Vc/fz/ap ranges per ISO group + 15 specific alloys. Source: Sandvik + Kennametal published data. assertSFInRange() helper function.",
+          "status": "not_started",
+          "prerequisite_evidence": {
+            "test_file": "src/__tests__/cam-pipeline-real-parts.test.ts",
+            "relevant_tests": [
+              "Cross-Material Physics Validation — aluminum faster than Inconel",
+              "Inconel S/F 10-100 m/min",
+              "Ti S/F <150 m/min",
+              "Al S/F >50 m/min",
+              "D2 hard milling <300 m/min"
+            ],
+            "note": "cam-pipeline-real-parts.test.ts already validates S/F ranges per material. U03 should formalize these into a reusable assertSFInRange() table sourced from Sandvik/Kennametal published data."
+          },
+          "exit_conditions": [
+            "Range table covers 6 ISO groups + 15 alloys",
+            "Ranges traceable to published data",
+            "assertSFInRange helper created",
+            "cam-pipeline-real-parts.test.ts cross-material test passes as baseline"
+          ],
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "Create controller dialect assertion library",
+          "description": "Per-controller assertion helpers: assertFanucPeckDrill, assertSiemensCycle83, assertHeidenhainCycl200, etc. 6 controller families, 10+ operation types each.",
+          "status": "not_started",
+          "exit_conditions": [
+            "6 controller families covered",
+            "10+ operations per controller",
+            "Used by subsequent tests"
+          ],
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "Create 50+ negative/error input test battery",
+          "description": "Bad materials, negative dimensions, bore>OD conflicts, RPM exceeds max, tool too short, tolerance=0, empty features. Every test verifies graceful failure with actionable error message.",
+          "status": "not_started",
+          "exit_conditions": [
+            "50+ negative tests pass",
+            "Every error is actionable",
+            "No crashes on any bad input"
+          ],
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "Create parameter sanity guard",
+          "description": "Define physically impossible parameter ranges (feed>5mm/rev, G83 Q>50mm, ap>3xD, etc.). Test that NO pipeline output ever violates these bounds. Catches bugs like 5-axis G83 Q5000.",
+          "status": "not_started",
+          "exit_conditions": [
+            "Sanity ranges defined",
+            "All 9 pipelines checked",
+            "Zero violations"
+          ],
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-v17-p0c-gate",
+    "mcp_action": "prism_camx-v17:camx_v17_p0c_run",
+    "skill_command": "/camx-v17-p0c",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-v17-p0c-gate"
+    ],
+    "new_actions": [
+      "camx_v17_p0c_run"
+    ],
+    "new_skills": [
+      "/camx-v17-p0c"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Fix || true assertions, upgrade keyword-only tests to parametric, create 14-stage pipeline validator, cross-material S/F range tables, controller dialect assertion library, 50+ negative input tests, parameter sanity guard. MUST complete before any building.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

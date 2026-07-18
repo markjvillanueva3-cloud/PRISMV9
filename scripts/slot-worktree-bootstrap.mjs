@@ -46,7 +46,7 @@ import { randomBytes } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { platform } from "node:os";
-import { SLOT_NAMES } from "../.claude/helpers/chat-slots.mjs";
+import { SLOT_NAMES, writeSlotBranchBindings } from "../.claude/helpers/chat-slots.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(__dirname, "..");
@@ -78,6 +78,11 @@ function parseArgs(argv) {
     noJunction: false,
     json: false,
     help: false,
+    // U-WAVE5a (2026-05-19): write slot-branch bindings sidecar after every
+    // successful worktree (created OR pre-existing). Default ON — that is the
+    // entire point of this unit. Operators can opt out with
+    // --no-slot-branch-binding (advisory, e.g. to test the legacy behavior).
+    writeSlotBranchBinding: true,
   };
   const errors = [];
   for (let i = 0; i < argv.length; i += 1) {
@@ -90,6 +95,7 @@ function parseArgs(argv) {
     }
     if (raw === "--dry-run") args.dryRun = true;
     else if (raw === "--no-node-modules-junction") args.noJunction = true;
+    else if (raw === "--no-slot-branch-binding") args.writeSlotBranchBinding = false;
     else if (raw === "--json") args.json = true;
     else if (raw === "--help" || raw === "-h") args.help = true;
     else if (raw === "--slots") {
@@ -383,6 +389,11 @@ function main() {
       "  --root <dir>               worktree parent dir (default: " + DEFAULT_ROOT + ")\n" +
       "  --dry-run                  describe what would happen, change nothing\n" +
       "  --no-node-modules-junction skip the node_modules junction step\n" +
+      "  --no-slot-branch-binding   skip writing state/shared/slot-branch-bindings.json\n" +
+      "                             (U-WAVE5a sidecar — default ON; the bindings\n" +
+      "                              tell chat-slots claimSlot() to override input.branch\n" +
+      "                              with 'slot/<nato>' so the 3 lane-routing hooks arm\n" +
+      "                              even when /checkin ran from the wrong cwd)\n" +
       "  --json | --help\n",
     );
     process.exit(0);
@@ -406,8 +417,39 @@ function main() {
 
   if (!args.dryRun) recordState(results, args);
 
+  // U-WAVE5a (2026-05-19): write slot-branch bindings sidecar for every slot
+  // whose worktree is now in the expected state (created OR skipped-because-
+  // already-correct). FAILED slots are excluded — we don't want to advertise
+  // a binding for a worktree that doesn't exist. DRY-RUN mode skips entirely
+  // because no real worktree change happened.
+  let bindingResult = null;
+  if (args.writeSlotBranchBinding && !args.dryRun) {
+    /** @type {Record<string,string>} */
+    const bindings = {};
+    for (const r of results) {
+      if (r.action === "created" || r.action === "skipped") {
+        bindings[r.slot] = r.branch; // already "slot/<nato>" per expectedBranchName()
+      }
+    }
+    if (Object.keys(bindings).length > 0) {
+      bindingResult = writeSlotBranchBindings(bindings);
+      if (!bindingResult.ok) {
+        // R12 fail loud — sidecar write failures are silent disarm vectors.
+        process.stderr.write(
+          `slot-worktree-bootstrap: slot-branch-bindings write FAILED — ${bindingResult.error}\n` +
+          `  Lane-routing hooks will NOT arm for the new worktrees until the\n` +
+          `  binding lands. Re-run bootstrap or fix manually:\n` +
+          `    edit state/shared/slot-branch-bindings.json\n`,
+        );
+      }
+      for (const r of results) {
+        r.slotBranchBindingWritten = bindingResult.ok && bindings[r.slot] != null;
+      }
+    }
+  }
+
   if (args.json) {
-    process.stdout.write(JSON.stringify({ args, results }, null, 2) + "\n");
+    process.stdout.write(JSON.stringify({ args, results, slotBranchBindings: bindingResult }, null, 2) + "\n");
   } else {
     const created = results.filter((r) => r.action === "created").length;
     const skipped = results.filter((r) => r.action === "skipped").length;
@@ -425,6 +467,18 @@ function main() {
       }
     }
     if (!args.dryRun) process.stdout.write(`\nState recorded: ${STATE_FILE}\n`);
+    if (bindingResult) {
+      const n = Object.keys(bindingResult.written || {}).length;
+      if (bindingResult.ok) {
+        process.stdout.write(`Slot-branch bindings written: ${n} entries → state/shared/slot-branch-bindings.json\n`);
+      } else {
+        process.stdout.write(`✗ Slot-branch bindings FAILED: ${bindingResult.error}\n`);
+      }
+    } else if (args.writeSlotBranchBinding && !args.dryRun) {
+      process.stdout.write(`(no slot-branch bindings written — every targeted slot failed)\n`);
+    } else if (!args.writeSlotBranchBinding) {
+      process.stdout.write(`(slot-branch bindings skipped per --no-slot-branch-binding)\n`);
+    }
   }
 
   process.exit(results.some((r) => r.action === "failed") ? 1 : 0);

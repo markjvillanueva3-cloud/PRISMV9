@@ -14,7 +14,7 @@
 
 import { log } from "../utils/Logger.js";
 import { mastercamStrategyEngine } from "./MastercamStrategyEngine.js";
-import { mastercamDeepLearningEngine } from "./MastercamDeepLearningEngine.js";
+import { mastercamDeepLearningEngine, type MastercamFeatureType, type MastercamMachineType } from "./MastercamDeepLearningEngine.js";
 import { mastercamMaterialBridgeEngine } from "./MastercamMaterialBridgeEngine.js";
 import { mastercamMaterialPhysicsBridge } from "./MastercamMaterialPhysicsBridge.js";
 
@@ -236,7 +236,7 @@ export class MastercamAIOrchestrationEngine {
         thought: "Selecting optimal machining strategy based on feature type and material",
         evidence: [
           `Feature: ${request.feature_type}`,
-          `Material ISO: ${materialProfile?.iso_group || request.material_iso || "P"}`,
+          `Material ISO: ${materialProfile?.material.iso_group || request.material_iso || "P"}`,
           `Machine: ${request.machine_type || "3axis"}`
         ],
         confidence: 0.88,
@@ -245,7 +245,7 @@ export class MastercamAIOrchestrationEngine {
 
       const deepResult = mastercamDeepLearningEngine.selectOptimalStrategy({
         feature_type: this.mapFeatureType(request.feature_type),
-        material_group: (materialProfile?.iso_group || request.material_iso || "P") as "P" | "M" | "K" | "N" | "S" | "H",
+        material_group: (materialProfile?.material.iso_group || request.material_iso || "P") as "P" | "M" | "K" | "N" | "S" | "H",
         machine_type: this.mapMachineType(request.machine_type || "3axis"),
         tool_diameter_mm: request.tool_diameter_mm || 12,
         depth_mm: request.axial_depth_mm || 10,
@@ -324,7 +324,7 @@ export class MastercamAIOrchestrationEngine {
     if (request.include_tribal) {
       tribal = this.getTribalKnowledge(
         request.feature_type,
-        request.material_iso || materialProfile?.iso_group || "P",
+        request.material_iso || materialProfile?.material.iso_group || "P",
         request.operation
       );
 
@@ -412,35 +412,35 @@ export class MastercamAIOrchestrationEngine {
   /**
    * Map feature type to MastercamDeepLearning format
    */
-  private mapFeatureType(feature: string): "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity" {
-    const mapping: Record<string, "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity"> = {
+  private mapFeatureType(feature: string): MastercamFeatureType {
+    const mapping: Record<string, MastercamFeatureType> = {
       "pocket": "closed_pocket",
       "pocket_2d": "closed_pocket",
       "contour": "open_pocket",
-      "slot": "slot",
+      "slot": "slot_through",
       "freeform": "freeform_surface",
       "3d_surface": "freeform_surface",
-      "steep": "steep_wall",
-      "flat": "flat_area",
+      "steep": "thin_wall",
+      "flat": "flat_face",
       "cavity": "deep_cavity",
       "mold": "deep_cavity"
     };
-    return mapping[feature.toLowerCase()] || "closed_pocket";
+    return mapping[feature.toLowerCase()] ?? "closed_pocket";
   }
 
   /**
    * Map machine type to MastercamDeepLearning format
    */
-  private mapMachineType(machine: string): "3axis_mill" | "4axis_mill" | "5axis_mill" | "5axis_table_head" | "mill_turn" {
-    const mapping: Record<string, "3axis_mill" | "4axis_mill" | "5axis_mill" | "5axis_table_head" | "mill_turn"> = {
+  private mapMachineType(machine: string): MastercamMachineType {
+    const mapping: Record<string, MastercamMachineType> = {
       "3axis": "3axis_mill",
-      "4axis": "4axis_mill",
-      "5axis": "5axis_mill",
+      "4axis": "4axis_rotary",
+      "5axis": "5axis_table_table",
       "5axis_table": "5axis_table_head",
       "mill_turn": "mill_turn",
       "lathe": "mill_turn"
     };
-    return mapping[machine.toLowerCase()] || "3axis_mill";
+    return mapping[machine.toLowerCase()] ?? "3axis_mill";
   }
 
   /**

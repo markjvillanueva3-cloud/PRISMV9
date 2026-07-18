@@ -10,6 +10,7 @@ import { BaseRegistry } from "./base.js";
 import { PATHS, DATA_LAYERS } from "../constants.js";
 import { log } from "../utils/Logger.js";
 import { readJsonFile, fileExists, listDirectory } from "../utils/files.js";
+import { normalizeMachine, type NormalizedMachine } from "./machine-normalizer.js";
 
 function isMeaningfulMachineValue(value: unknown): boolean {
   if (value == null) return false;
@@ -865,7 +866,9 @@ export class MachineRegistry extends BaseRegistry<Machine> {
   private indexByManufacturer: Map<string, Set<string>> = new Map();
   private indexByType: Map<string, Set<string>> = new Map();
   private indexByController: Map<string, Set<string>> = new Map();
-  
+  /** U-MACHDB-03: lazy cache of canonical NormalizedMachine, keyed by machine id. */
+  private _normalizedCache: Map<string, NormalizedMachine> | null = null;
+
   constructor() {
     super(
       "MachineRegistry",
@@ -1040,6 +1043,42 @@ export class MachineRegistry extends BaseRegistry<Machine> {
    */
   getMachine(id: string): Machine | undefined {
     return this.get(id);
+  }
+
+  /**
+   * U-MACHDB-03: canonical NormalizedMachine for an id (read-time normalize, cached).
+   * Collapses the heterogeneous stored shape (~100 key variants, 3 axis shapes -- see
+   * machine-normalizer.ts) to ONE schema so consumers (sf_orchestrate, the SFC page) stop
+   * dropping variant-keyed machines. Lazy + idempotent; the raw source records are untouched.
+   */
+  getNormalized(id: string): NormalizedMachine | undefined {
+    const raw = this.get(id);
+    if (!raw) return undefined;
+    if (!this._normalizedCache) this._normalizedCache = new Map();
+    const cached = this._normalizedCache.get(id);
+    if (cached) return cached;
+    const norm = normalizeMachine(raw as unknown as Record<string, unknown>);
+    this._normalizedCache.set(id, norm);
+    return norm;
+  }
+
+  /**
+   * U-MACHDB-03: every machine in the canonical NormalizedMachine shape (cached after first call).
+   * Call `load()` first. Reliable single-key access to the STRONG attributes (spindle rpm/power/
+   * torque/taper, envelope, controller) for all 1015 machines.
+   */
+  getAllNormalized(): NormalizedMachine[] {
+    if (!this._normalizedCache) this._normalizedCache = new Map();
+    if (this._normalizedCache.size >= this.entries.size && this.entries.size > 0) {
+      return [...this._normalizedCache.values()];
+    }
+    for (const entry of this.entries.values()) {
+      const raw = (entry as { data?: Record<string, unknown> })?.data;
+      if (!raw) continue;
+      const id = (raw.id as string) || (raw.model as string) || (raw.name as string) || "unknown";
+      if (!this._normalizedCache.has(id)) this._normalizedCache.set(id, normalizeMachine(raw));
+    }
+    return [...this._normalizedCache.values()];
   }
 
   /**

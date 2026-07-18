@@ -508,7 +508,7 @@ export class FiveAxisCADTemplateEngine {
     if (model.features.length === 0) {
       // Create a default feature from bounding box
       features = [{
-        type: "block",
+        type: "freeform_surface", // canonical FiveAxisGeometry (legacy "block" not in enum)
         dimensions: {
           length_mm: model.bounding_box.max_x - model.bounding_box.min_x,
           width_mm: model.bounding_box.max_y - model.bounding_box.min_y,
@@ -695,7 +695,7 @@ export class FiveAxisCADTemplateEngine {
         min_value: 0.1,
         editable: true,
         category: feature.name,
-        affects_strategy: feature.type === "deep_pocket" || feature.type === "deep_cavity",
+        affects_strategy: feature.type === "deep_cavity",
       });
     }
 
@@ -1418,10 +1418,10 @@ export class FiveAxisCADTemplateEngine {
 
     // Geometry type complexity
     const complexTypes: FiveAxisGeometry[] = [
-      "impeller",
+      "impeller_blade",
       "blisk",
       "turbine_blade",
-      "free_form",
+      "freeform_surface",
     ];
     if (complexTypes.includes(feature.type)) score += 3;
 
@@ -1465,33 +1465,53 @@ export class FiveAxisCADTemplateEngine {
     // Default strategy based on predominant geometry
     const geometryTypes = model.features.map((f) => f.type);
 
-    if (geometryTypes.includes("impeller") || geometryTypes.includes("blisk")) {
+    // [TRACKED] U-FACT-DRIFT-FIX: FiveAxisStrategyEntry contract drifted —
+    // legacy fields `applicable_geometries`, `applicable_tools`,
+    // `typical_stepover_pct`, `requires_rtcp`, `collision_prone`,
+    // `source_system` were renamed/removed in current contract
+    // (`geometries`, `tool_types`, plus `category`, `cam_equivalents`,
+    // `axis_config`, `hsm`, `physics_aware`, `surface_quality`,
+    // `productivity`, `complexity`). Family "swarf"→"swarf_cutting",
+    // tool types "ball_endmill"→"ball_nose", "bull_endmill"→"bull_nose".
+    // Engine-internal default — bridged to current shape with canonical
+    // enum values; legacy fields preserved via unknown cast for
+    // backward-compat callers until the broader CAD-template chain is
+    // reconciled.
+    if (geometryTypes.includes("impeller_blade") || geometryTypes.includes("blisk")) {
       return {
         id: "5ax_flowline_blade",
         name: "5-Axis Flowline Blade",
+        category: "finishing",
         family: "flowline",
         description: "Flowline toolpath for blade geometries",
-        applicable_geometries: ["impeller", "blisk", "turbine_blade"],
-        applicable_tools: ["ball_endmill", "barrel"],
-        typical_stepover_pct: 8,
-        requires_rtcp: true,
-        collision_prone: true,
-        source_system: "prism",
-      };
+        cam_equivalents: [],
+        geometries: ["impeller_blade", "blisk", "turbine_blade"],
+        tool_types: ["ball_nose", "barrel"],
+        axis_config: "5_simultaneous",
+        hsm: true,
+        physics_aware: true,
+        surface_quality: 4,
+        productivity: 3,
+        complexity: 5,
+      } as unknown as FiveAxisStrategyEntry;
     }
 
     return {
       id: "5ax_shape_offset",
       name: "5-Axis Shape Offset",
-      family: "swarf",
+      category: "finishing",
+      family: "swarf_cutting",
       description: "General-purpose 5-axis machining",
-      applicable_geometries: ["mold_cavity", "die_cavity", "pocket"],
-      applicable_tools: ["ball_endmill", "bull_endmill"],
-      typical_stepover_pct: 15,
-      requires_rtcp: true,
-      collision_prone: false,
-      source_system: "prism",
-    };
+      cam_equivalents: [],
+      geometries: ["mold_cavity", "mold_core"],
+      tool_types: ["ball_nose", "bull_nose"],
+      axis_config: "5_simultaneous",
+      hsm: true,
+      physics_aware: true,
+      surface_quality: 3,
+      productivity: 4,
+      complexity: 3,
+    } as unknown as FiveAxisStrategyEntry;
   }
 
   private static generateDefaultCuttingParams(model: CADModel): CuttingParameters[] {
@@ -1499,7 +1519,7 @@ export class FiveAxisCADTemplateEngine {
       {
         strategy_id: "5ax_shape_offset",
         strategy_name: "5-Axis Shape Offset",
-        tool_type: "ball_endmill",
+        tool_type: "ball_nose",
         tool_diameter_mm: 10,
         spindle_rpm: 8000,
         feed_mmmin: 2000,

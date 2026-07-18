@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "NN-STACK-INTEG-MS0",
+  "milestone": "NN-STACK-INTEG-MS0",
+  "title": "NN Stack Integration MS0 — close the cross-process neural-feedback loop: consensus + conformal engines publish outcomes, neural-feedback + calibration-monitor engines subscribe",
+  "owner": "alpha",
+  "status": "complete",
+  "createdAt": "2026-05-17T02:40:35Z",
+  "updatedAt": "2026-05-20T23:42:00Z",
+  "priority": "MEDIUM",
+  "doctrine": "NN-STACK-INTEG-MS0 closes the neural learning loop across PRISM's cross-process AI stack: consensus engines and conformal classifiers PUBLISH their outcomes onto the feedback bus, and the neural-feedback / calibration-monitor engines SUBSCRIBE so model performance drives continuous learning. Three event-bus integration units shipped 2026-05-17 in a single batch (commits e39c7c170c / 5fe75fdb36 / 3f98dc7da4 / bf0b4151eb). Every path is opt-out: PRISM_NN_INTEG_DISABLE=1 short-circuits the engine-level publish + subscribe, and PRISM_XPROC_AUTOFIRE=0 is the global bridge escape hatch. Envelope created post-hoc 2026-05-20 by alpha — silent close-out debt: the milestone shipped 3 units with zero milestone envelope, sister to PILLAR-TELEMETRY-RECOVERY-MS0 and SFC-ACCURACY-MS1 post-hoc close-outs. Numbering starts at U-NN-INTEG-03; no git commits exist for U-NN-INTEG-01/02 — if they were scoped it was in a planning artifact lost to the 2026-05-12 git history strip (the same root cause that left this milestone envelope-less). This envelope documents only the 3 units with verifiable commits. Distinct from CLAUDE.md §NN-GRAPH (the GraphSAGE GNN tier-5 wiring-inference research milestone), which is upstream of this integration milestone.",
+  "source_specs": [],
+  "units": [
+    {
+      "id": "U-NN-INTEG-03",
+      "owner_slot": "alpha",
+      "wave": "MS0",
+      "cost": "S",
+      "roi_score": 7.0,
+      "status": "shipped",
+      "summary": "MultiModelConsensusEngine publishes a `consensus.completed` event on the feedback bus when a multi-model consensus round resolves — the publisher half of the closed neural-feedback loop.",
+      "shipped_at": "2026-05-17T02:40:35Z",
+      "ship_commit": "e39c7c170c",
+      "ship_notes": "Engine: mcp-server/src/engines/MultiModelConsensusEngine.ts (+51/-1). Exports CONSENSUS_COMPLETED_TOPIC; publish is fire-and-forget and gated by PRISM_NN_INTEG_DISABLE=1 — a bus error never fails the consensus computation. Joint git tag [NN-STACK-INTEG-MS0]/U-NN-INTEG-03+05 (publisher half; the subscriber half is U-NN-INTEG-05)."
+    },
+    {
+      "id": "U-NN-INTEG-04",
+      "owner_slot": "alpha",
+      "wave": "MS0",
+      "cost": "M",
+      "roi_score": 8.0,
+      "status": "shipped",
+      "summary": "Conformal classification publish + calibration-monitor subscribe — CrossProcessConformalClassificationEngine publishes `conformal.classification.computed`; ConformalCalibrationMonitorEngine subscribes to outcome.completed, tracks rolling empirical coverage, and flips a drift bit when the consecutive-below-coverage run exceeds K.",
+      "shipped_at": "2026-05-17T02:40:36Z",
+      "ship_commit": "3f98dc7da4",
+      "ship_notes": "Engines: ConformalCalibrationMonitorEngine.ts (+136 new), CrossProcessConformalClassificationEngine.ts (+50/-1). Marginal-coverage decoupled (Sadinle 2019) — a bus error never fails the prediction. Hostile-payload type guards (coercePredictedSet / coerceActualLabel); silent-skip on non-conformal payloads. busStats() exposes dashboard telemetry counters. WIRE follow-up commit bf0b4151eb wires subscribeToOutcomes() into XProcNeuralAutoFireEngine.activate() as a 7th bridge alongside tribal / drift-cal / replay-buffer / episodic-memory / rl (XProcNeuralAutoFireEngine.ts +13, symmetric deactivate) — kept a separate commit because the host was at 96%+ memory pressure. Per-file scrutiny PASS recorded in the 3f98dc7da4 commit body (both arms were inline self-review — Agent-tool subagents were quota-blocked at ship time)."
+    },
+    {
+      "id": "U-NN-INTEG-05",
+      "owner_slot": "alpha",
+      "wave": "MS0",
+      "cost": "S",
+      "roi_score": 7.5,
+      "status": "shipped",
+      "summary": "ConsensusNeuralFeedbackEngine subscribes to `consensus.completed` — the consumer half of the closed neural-feedback loop; resolved consensus outcomes feed neural learning.",
+      "shipped_at": "2026-05-17T02:40:36Z",
+      "ship_commit": "5fe75fdb36",
+      "ship_notes": "Engine: mcp-server/src/engines/ConsensusNeuralFeedbackEngine.ts (+153 new). Imports feedbackBusEngine + CONSENSUS_COMPLETED_TOPIC from the sibling MultiModelConsensusEngine (U-NN-INTEG-03). Joint git tag [NN-STACK-INTEG-MS0]/U-NN-INTEG-03+05-F2 (subscriber half)."
+    }
+  ],
+  "notes": "Post-hoc envelope created 2026-05-20 by alpha (claude-dbba2d72) during the CLOSE-OUT close-out campaign. status:complete — all 3 units with verifiable git commits shipped 2026-05-17. ADVISORY follow-up: roadmap-index.json has no NN-STACK-INTEG-MS0 entry and MILESTONE_PROGRESS will not credit these units until regenerated — operator reconciles via `node scripts/close-out-milestone.mjs --milestone NN-STACK-INTEG-MS0`. source_specs is intentionally empty — no surviving planning spec or handoff scopes this milestone (itself part of the silent-debt finding). Silent close-out debt class — same pattern resolved on PILLAR-TELEMETRY-RECOVERY-MS0 and SFC-ACCURACY-MS1."
+}

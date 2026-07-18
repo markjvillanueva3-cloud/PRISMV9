@@ -1,0 +1,166 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-26T03:00:00Z",
+  "milestone": "CAM-AI-TRAINING-MS0",
+  "sourceSlot": "kilo",
+  "branch": "slot/kilo",
+  "namespace": "prism_cam_ai_training",
+  "description": "MCP dispatcher mapping for the 20 CAM-AI training engines shipped during the YOLO 2026-05-25 sleep run (kilo iter 22-55).",
+  "engines": [
+    {
+      "name": "CorpusProvenanceLedgerEngine",
+      "iter": 25,
+      "file": "mcp-server/src/engines/CorpusProvenanceLedgerEngine.ts",
+      "actions": ["cam_corpus_register", "cam_corpus_query"]
+    },
+    {
+      "name": "CAMOperationTaxonomyEngine",
+      "iter": 26,
+      "file": "mcp-server/src/engines/CAMOperationTaxonomyEngine.ts",
+      "actions": ["cam_op_taxonomy_list", "cam_op_taxonomy_get"]
+    },
+    {
+      "name": "CAMOperationInputSchemaEngine",
+      "iter": 27,
+      "file": "mcp-server/src/engines/CAMOperationInputSchemaEngine.ts",
+      "actions": ["cam_op_schema_get", "cam_op_schema_validate"]
+    },
+    {
+      "name": "CAMTemplateGeneratorEngine",
+      "iter": 28,
+      "file": "mcp-server/src/engines/CAMTemplateGeneratorEngine.ts",
+      "actions": ["cam_template_generate", "cam_template_list_systems"]
+    },
+    {
+      "name": "CAMMachineSelectionEngine",
+      "iter": 29,
+      "file": "mcp-server/src/engines/CAMMachineSelectionEngine.ts",
+      "actions": ["cam_machine_rank", "cam_machine_classes"]
+    },
+    {
+      "name": "CAMToolLibrarySelectionEngine",
+      "iter": 30,
+      "file": "mcp-server/src/engines/CAMToolLibrarySelectionEngine.ts",
+      "actions": ["cam_tool_select", "cam_tool_recommend", "cam_tool_families"]
+    },
+    {
+      "name": "CAMFixtureSelectionEngine",
+      "iter": 31,
+      "file": "mcp-server/src/engines/CAMFixtureSelectionEngine.ts",
+      "actions": ["cam_fixture_recommend", "cam_fixture_select", "cam_fixture_families"]
+    },
+    {
+      "name": "CAMWCSOriginSelectionEngine",
+      "iter": 32,
+      "file": "mcp-server/src/engines/CAMWCSOriginSelectionEngine.ts",
+      "actions": ["cam_wcs_select", "cam_wcs_codes"]
+    },
+    {
+      "name": "CAMStockModelEngine",
+      "iter": 33,
+      "file": "mcp-server/src/engines/CAMStockModelEngine.ts",
+      "actions": ["cam_stock_compute", "cam_stock_removal_volume", "cam_stock_per_op_leave"]
+    },
+    {
+      "name": "CAMCycleTimeEstimatorEngine",
+      "iter": 34,
+      "file": "mcp-server/src/engines/CAMCycleTimeEstimatorEngine.ts",
+      "actions": ["cam_cycle_time_estimate", "cam_cycle_time_batch"]
+    },
+    {
+      "name": "CAMOperationSequencePlannerEngine",
+      "iter": 35,
+      "file": "mcp-server/src/engines/CAMOperationSequencePlannerEngine.ts",
+      "actions": ["cam_seq_plan", "cam_seq_validate_order", "cam_seq_stages"]
+    },
+    {
+      "name": "CAMCoolantStrategyEngine",
+      "iter": 36,
+      "file": "mcp-server/src/engines/CAMCoolantStrategyEngine.ts",
+      "actions": ["cam_coolant_select", "cam_coolant_strategies"]
+    },
+    {
+      "name": "CAMMaterialDatabaseEngine",
+      "iter": 37,
+      "file": "mcp-server/src/engines/CAMMaterialDatabaseEngine.ts",
+      "actions": ["cam_material_get", "cam_material_list", "cam_material_list_by_iso_group", "cam_material_iso_kc11"]
+    },
+    {
+      "name": "CAMKienzleForceEngine",
+      "iter": 38,
+      "file": "mcp-server/src/engines/CAMKienzleForceEngine.ts",
+      "actions": ["cam_kienzle_compute", "cam_kienzle_kc", "cam_kienzle_power"]
+    },
+    {
+      "name": "CAMFeedrateChiploadEngine",
+      "iter": 39,
+      "file": "mcp-server/src/engines/CAMFeedrateChiploadEngine.ts",
+      "actions": ["cam_feedrate_compute", "cam_feedrate_recommended", "cam_feedrate_compute_recommended"]
+    },
+    {
+      "name": "CAMOperatorGateEngine",
+      "iter": 40,
+      "file": "mcp-server/src/engines/CAMOperatorGateEngine.ts",
+      "actions": ["cam_operator_gate_evaluate", "cam_operator_gate_items", "cam_operator_gate_threshold"]
+    },
+    {
+      "name": "CAMToolpathStrategyClassifierEngine",
+      "iter": 41,
+      "file": "mcp-server/src/engines/CAMToolpathStrategyClassifierEngine.ts",
+      "actions": ["cam_strategy_classify", "cam_strategy_strategies"]
+    },
+    {
+      "name": "CAMMultiSetupPlannerEngine",
+      "iter": 42,
+      "file": "mcp-server/src/engines/CAMMultiSetupPlannerEngine.ts",
+      "actions": ["cam_setups_plan", "cam_setups_reachable"]
+    },
+    {
+      "name": "CAMTaylorToolLifeEngine",
+      "iter": 43,
+      "file": "mcp-server/src/engines/CAMTaylorToolLifeEngine.ts",
+      "actions": ["cam_taylor_predict", "cam_taylor_constants", "cam_taylor_speed_for_life"]
+    },
+    {
+      "name": "CADAccuracyScorerEngine",
+      "iter": 45,
+      "file": "mcp-server/src/engines/CADAccuracyScorerEngine.ts",
+      "actions": ["cad_accuracy_score_file", "cad_accuracy_score_corpus", "cad_accuracy_gate"]
+    },
+    {
+      "name": "BlueprintCalloutParserEngine",
+      "iter": 46,
+      "file": "mcp-server/src/engines/BlueprintCalloutParserEngine.ts",
+      "actions": ["blueprint_parse", "blueprint_parse_dim", "blueprint_parse_thread"]
+    },
+    {
+      "name": "CAMTemplateParameterCompletenessEngine",
+      "iter": 48,
+      "file": "mcp-server/src/engines/CAMTemplateParameterCompletenessEngine.ts",
+      "actions": ["cam_param_complete_check", "cam_param_complete_corpus"]
+    },
+    {
+      "name": "CADPartTypeClassifierEngine",
+      "iter": 49,
+      "file": "mcp-server/src/engines/CADPartTypeClassifierEngine.ts",
+      "actions": ["cad_part_classify", "cad_part_types"]
+    }
+  ],
+  "totalEngines": 23,
+  "totalActions": 56,
+  "corpora": {
+    "templates": "state/shared/corpus/cam-templates-{system}.jsonl (106 records)",
+    "loraDataset": "state/shared/corpus/cam-lora-dataset.jsonl (424 tuples)",
+    "ragIndex": "state/shared/corpus/cam-rag-index.jsonl (106 records)",
+    "wikiEntries": "state/shared/corpus/wiki/{system}/{slug}.md (106 entries)",
+    "tribalTips": "state/shared/corpus/cam-tribal-tips.jsonl (890 tips)",
+    "trainingManifest": "state/shared/corpus/cam-training-manifest.json (1632 unified artifacts)",
+    "coverageManifests": "state/shared/corpus/cam-coverage-{system}.json (4 systems, 100% function mapping)"
+  },
+  "provenance": {
+    "realDataOnly": true,
+    "sourceMilestone": "CAM-AI-TRAINING-MS0",
+    "sourceSlot": "kilo",
+    "operatorConstraint": "no synthetic parts, must be real parts taken from real reputable sources (2026-05-25)"
+  }
+}

@@ -3,7 +3,7 @@ title: Fleet Reaper — slot-aware orphan-process reaper
 type: architecture
 status: shipped
 shipped: 2026-05-14
-milestone: [FLEET-REAPER-MS0, FLEET-REAPER-MS1]
+milestone: [FLEET-REAPER-MS0, FLEET-REAPER-MS1, FLEET-REAPER-MS2]
 ---
 
 # Fleet Reaper — slot-aware orphan-process reaper for the 7-chat fleet
@@ -320,3 +320,163 @@ fail-on-revert regression oracle. Reviewer B independently verified PASS.
 real-producer-shape E2E (same class as RGS-TOOL-AUTOINVOKE-MS1). 19 `node:test`.
 Knob: `PRISM_FLEET_REAPER_SERVICE_RESTART`. Memory:
 [[reference_fleet_reaper_tier1_2026_05_17]].
+
+## Tier 3 — SYSTEM principal + `--hunt` Task-Manager scan (2026-05-18, slot hotel)
+
+**The problem.** The `PRISM Fleet Reaper` scheduled task was registered with an
+**S4U** principal (the installing user's security context). S4U can terminate
+only the installing user's same-or-lower-integrity processes — so `Stop-Process`
+returned **"Access is denied"** on an elevated chat's `node` children or any
+cross-security-context process, and those orphans piled up. Operator-reported as
+"a PowerShell window flashing access-denied while the reaper tries to kill
+nodes."
+
+**The fix — SYSTEM is now the DEFAULT principal.** `install-fleet-reaper-task.ps1`
+registers the task as `NT AUTHORITY\SYSTEM` unless `-AsCurrentUser` (the
+conservative S4U opt-out) is passed. SYSTEM:
+
+- terminates **any** process regardless of owner or integrity level,
+- needs **no UAC** consent,
+- runs in **session 0** — it can never flash a console window.
+
+`-AsSystem` is retained as a documented back-compat no-op alias (pre-existing
+callers that pass it land in the now-SYSTEM default branch). `-Interactive`
+(legacy, no principal) is unchanged. **Re-register elevated, one command:**
+
+```
+! powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-fleet-reaper-task.ps1 -RunNow
+```
+
+**Access-denied is now named, not generic.** `classifyKillError(errMsg)` (pure,
+total) maps a kill-failure message to `ok` / `access-denied` / `not-found` /
+`other`; `reapProcesses` tags every result with `errorClass`. An access-denied
+PID is the class a SYSTEM-principal scheduled task reaps when an unprivileged
+runner (the in-session Monitor, `--hunt`, the Stop-hook sweep) cannot — once the
+task runs as SYSTEM there is no access-denied, and any PID an unprivileged run
+left behind is picked up by the SYSTEM task's next 5-minute sweep.
+
+**`--hunt` — the Claude-Code Task-Manager scan.** `node scripts/fleet-reaper-sweep.mjs --hunt [--json] [--dry-run]`
+runs a one-shot sweep (reaps through the SAME confirm-after-N-ticks gate as
+`--once` — never more aggressive) and appends a Task-Manager view: every
+node/bash/git target process with its slot class, age, RSS, owner slot, and reap
+verdict, heaviest-RSS first (`buildHuntReport()` → `{rows, summary}`). It shows
+ALL targets — protected, candidate-held, and reaping — so an operator (or Claude
+Code) sees exactly what the conservative scheduled reaper is leaving and why.
+`--hunt` is mutually exclusive with `--monitor-loop` / `--status` / `--detach`.
+
+**Coverage.** `scripts/__tests__/fleet-reaper-hunt.test.mjs` — 26 `node:test`
+cases (classifyKillError spellings + adversarial non-string inputs, reapProcesses
+errorClass tagging, buildHuntReport sort/verdict/summary invariants + failure
+modes, `--hunt` arg parsing + mutual-exclusion). 103/103 fleet-reaper tests
+green. Per-commit 3-of-3 PASS.
+
+**Low-severity residual** (reviewer C, not a blocker): files the SYSTEM run
+*first-creates* (`.fleet-reaper-actions.jsonl`, `fleet-reaper.log`, the ledger)
+acquire SYSTEM-owned ACLs. Mitigated — these are pre-existing shared-tree files
+the reaper appends to, and `writeLedgerAtomic` failures surface as `caveats`,
+never fatal. A future chat-side tool that needs to *rewrite* (not append to)
+those files should be aware.
+
+Memory: [[reference_fleet_reaper_system_principal_2026_05_18]] · Commits:
+`f73d74af1d` (U-FR-ADMIN-HUNT), `813974b15b` (U-FR-TIER-TEST-DRIFT).
+
+## FLEET-REAPER-MS2 (2026-05-18, slot golf) — enumeration cache + cross-PC host filter
+
+Two strictly-additive units shipped together to harden the reaper for the
+12-chat × 2-PC fleet operating scenario (both PCs sharing `H:\`, both running
+their own fleet-reaper scheduled task).
+
+### U-FR-S2 — Enumeration cache sidecar (commit `b8b4a5ea78`)
+
+**Problem.** At burst load (12 chats stopping in rapid succession during a
+fleet-wide `/loop` tick), the scheduled task + each chat's Stop hook + the
+in-session Monitor all independently fire `enumerateProcesses()`, which spawns
+PS5.1 `Get-CimInstance` (2-5s each on a busy box). Dozens of duplicate
+enumerations/min, all returning ~identical data over a window where the
+process table moves slowly relative to the sweep's confirm-after-N-ticks
+window.
+
+**Solution.** Sidecar JSON cache at
+`state/shared/.fleet-reaper-enum-cache-<host>.json`. 60s TTL (knob
+`PRISM_FLEET_REAPER_ENUM_CACHE_TTL_SEC`, clamp 5..3600). Atomic write (tmp +
+rename). Per-host suffix in the path so PC-A and PC-B don't ping-pong
+overwriting each other's cache. Disable: `PRISM_FLEET_REAPER_ENUM_CACHE_DISABLE=1`.
+
+**Safety invariants:**
+1. Schema-mismatch / different-host / corrupt → enumerate fresh + rewrite.
+2. Live enumerate FAILS + cache <5×TTL → serve stale with `fromStaleCache:true`
+   (fail-soft so the reaper isn't blind during transient PS5.1 hiccups).
+3. Live enumerate FAILS + no usable cache → empty (preserves pre-MS2 "safe
+   degraded" behavior — reaper never throws).
+4. Wiring is opt-OUT, not opt-in: CLI `main` + `monitorLoop` default to
+   cached; any direct `runSweep({enumerator:...})` caller (tests, hermetic
+   harness) bypasses the cache entirely via the explicit `opts.enumerator`.
+
+**Files:**
+- `.claude/helpers/fleet-reaper-enum-cache.mjs` — pure core + thin I/O
+- `.claude/helpers/fleet-reaper-enum-cache.test.mjs` — 56 node:test cases
+  including a real-fs tmpdir integration oracle (the
+  "hermetic-fakes-don't-prove-production-wiring" defense per
+  [[reference_rgs_tool_autoinvoke_ms1_2026_05_16]])
+- `scripts/fleet-reaper-sweep.mjs` — adds import + `cachedEnumerate()` helper
+  + 2-site wiring at the runSweep call sites in `main()` and `monitorLoop()`
+
+**Live-fire verified on MARKV (RTX 3080, Ryzen 5 5600X, 32 GB).** First call
+created `.fleet-reaper-enum-cache-MarkV.json` (67 KB process table). Second
+call hit cache — end-to-end sweep ~4s (enumeration step near-instant;
+remaining time is host-mem + GPU + Ollama + NIM probes, addressable by
+future units S4 / A1).
+
+### U-FR-S3 — Cross-PC host-filter in mapPidsToSlots (commit `7be1f77fab`)
+
+**Problem.** On a shared `H:\` drive, `chat-slots.json` is the same physical
+file from both PCs. Pre-S3, every sweep on PC-A iterated slots that were
+host-pinned to PC-B, wasting cycles classifying PIDs PC-A could never have
+spawned. Worst case: if both PCs happen to share a PID number (the OS recycles
+pids per-machine independently), the wrong slot attribution could escape
+into the candidate set.
+
+**Solution.** Optional 4th param `opts.host` on `mapPidsToSlots()` (defaults
+to `os.hostname()`). A slot whose `host` field doesn't match is skipped with
+a single rolled-up caveat ("skipped N slot(s) pinned to a different host").
+Slots with NO `host` field fall through unchanged — backward compatibility
+for legacy slots and single-machine setups.
+
+**Edge cases handled from line 1:**
+- `opts.host` omitted → live hostname (the natural CLI path)
+- `opts.host === ""` → falls back to live hostname (refuses to widen filter
+  on `""` === `""` coincidence with an empty `slot.host`)
+- `slot.host` missing → INCLUDED (pre-S3 byte-identical regression preserved)
+- Case + whitespace differences → matched (Windows hostname semantics)
+- PID reuse across hosts → only current-host's claim attributes
+
+**Files:**
+- `.claude/helpers/process-slot-map.mjs` — `mapPidsToSlots` accepts 4th param,
+  imports `hostname` from `node:os`
+- `scripts/__tests__/fleet-reaper-host-filter.test.mjs` — 12 node:test cases
+  (7 happy paths + 4 backward-compat + 1 PID-reuse safety)
+
+**Regression check: 82/82 pre-existing tier tests (tier + ballast +
+service-restart + hunt) PASS.**
+
+### MS2 doctrine pins
+
+- **Doc reflection** — 4-surface update per the standing rule
+  ([[feedback_reflect_all_changes_post_update]]): code commits + wiki entry
+  (this section) + Obsidian memory ([[reference_fleet_reaper_ms2_2026_05_18]])
+  + CLAUDE.md pointer (regression block to follow).
+- **Ship collision avoidance** — both commits verified with `git log -1`
+  immediately after the commit completed; subjects landed under our `git
+  user` (no peer-hijack as in
+  [[reference_fleet_reaper_ship_collision]]).
+- **Won't-do (transparent)** — U-FR-S1 (per-chat Stop-hook throttle) was
+  planned but on re-reading the existing global 45s stamp logic it's
+  already optimal at fleet scale; per-chat stamps would multiply sweep
+  frequency by the chat count. Brainstorm reversed in-session.
+- **Deferred** — U-FR-A4 (per-host enumeration partition via WMI `-Filter`)
+  shipped no code; ROI is marginal once S2 cache exists (saves only on
+  cache MISS path). Re-open if cache hit rate stays low under real burst
+  load.
+
+Memory: [[reference_fleet_reaper_ms2_2026_05_18]] · Commits:
+`b8b4a5ea78` (U-FR-S2), `7be1f77fab` (U-FR-S3).

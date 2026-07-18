@@ -151,6 +151,38 @@ export interface ShiftSummaryResult {
   recommendations: string[];
 }
 
+/**
+ * Unified input for {@link OperatorDashboardOrchestratorEngineImpl.orchestrate}.
+ * The live-status fields are required; min_severity tunes the alerts view, and
+ * the shift_* fields (when supplied together) add the end-of-shift summary.
+ */
+export interface DashboardOrchestrateInput extends DashboardStatusInput {
+  /** Minimum severity for the alerts section (default "info"). */
+  min_severity?: AlertSeverity;
+  /** Shift length in hours -- required (with operations) to compute the shift summary. */
+  shift_hours?: number;
+  /** Per-operation log -- required (with shift_hours) to compute the shift summary. */
+  operations?: ShiftOperation[];
+  /** Optional G-code blocks audited as part of the shift summary. */
+  gcode_blocks?: string[];
+}
+
+/**
+ * Combined dashboard result. Each section is null when not requested or when it
+ * failed (its error is recorded in `errors` and its name in `sections_failed`).
+ */
+export interface DashboardOrchestrateResult {
+  machine_id: string;
+  timestamp: string;
+  overall_risk: RiskLevel;
+  status: DashboardStatusResult | null;
+  alerts: DashboardAlertsResult | null;
+  shift_summary: ShiftSummaryResult | null;
+  sections_available: string[];
+  sections_failed: string[];
+  errors: Record<string, string>;
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -490,17 +522,7 @@ class OperatorDashboardOrchestratorEngineImpl {
       sample_rate_hz: input.sample_rate_hz,
     });
 
-    const minSev = input.min_severity ?? "info";
-    const minLevel = SEVERITY_ORDER[minSev];
-    const filtered = fullStatus.alerts.filter(a => SEVERITY_ORDER[a.severity] >= minLevel);
-
-    return {
-      machine_id: input.machine_id,
-      timestamp: fullStatus.timestamp,
-      overall_risk: fullStatus.overall_risk,
-      alerts: filtered,
-      alert_count: filtered.length,
-    };
+    return this.filterAlertsView(fullStatus, input.min_severity ?? "info");
   }
 
   // =========================================================================
@@ -620,8 +642,137 @@ class OperatorDashboardOrchestratorEngineImpl {
   }
 
   // =========================================================================
+  // orchestrate -- Unified dashboard: status + alerts + (optional) shift summary
+  // =========================================================================
+
+  /**
+   * Compose the full operator dashboard in one call: the live status snapshot,
+   * the filtered alerts view, and -- when shift context (shift_hours +
+   * operations) is supplied -- the end-of-shift summary. Fail-soft PER SECTION,
+   * matching this engine's degrade-gracefully contract: a section that throws is
+   * recorded in `errors` + `sections_failed` while the others still report.
+   * Self-validates the core live signals up front (machine_id non-empty +
+   * finite current_rpm/feed/load_pct) -- without them every downstream estimate
+   * is NaN, so a bad call fails loud (-> dispatcher catch -> success:false)
+   * rather than returning a meaningless all-NaN dashboard.
+   *
+   * @param input Live signals (required) + optional alert filter + shift context.
+   * @returns Combined dashboard with per-section availability + error map.
+   */
+  orchestrate(input: DashboardOrchestrateInput): DashboardOrchestrateResult {
+    this.assertOrchestrateInput(input);
+    const ts = now();
+    const available: string[] = [];
+    const failed: string[] = [];
+    const errors: Record<string, string> = {};
+
+    const statusInput: DashboardStatusInput = {
+      machine_id: input.machine_id,
+      current_rpm: input.current_rpm,
+      current_feed: input.current_feed,
+      current_load_pct: input.current_load_pct,
+      tool_id: input.tool_id,
+      material: input.material,
+      gcode_block: input.gcode_block,
+      vibration_samples: input.vibration_samples,
+      sample_rate_hz: input.sample_rate_hz,
+    };
+
+    // --- Section 1: live status snapshot ---
+    let status: DashboardStatusResult | null = null;
+    try {
+      status = this.getStatus(statusInput);
+      available.push("status");
+    } catch (e) {
+      failed.push("status");
+      errors.status = e instanceof Error ? e.message : String(e);
+    }
+
+    // --- Section 2: filtered alerts view (derived from the status snapshot when
+    // available, so the two sections never disagree and getStatus runs once) ---
+    let alerts: DashboardAlertsResult | null = null;
+    try {
+      const minSev = input.min_severity ?? "info";
+      alerts = status
+        ? this.filterAlertsView(status, minSev)
+        : this.getAlerts({ ...statusInput, min_severity: minSev });
+      available.push("alerts");
+    } catch (e) {
+      failed.push("alerts");
+      errors.alerts = e instanceof Error ? e.message : String(e);
+    }
+
+    // --- Section 3: shift summary (only when shift context is supplied) ---
+    let shift_summary: ShiftSummaryResult | null = null;
+    if (Array.isArray(input.operations) && typeof input.shift_hours === "number") {
+      try {
+        shift_summary = this.getShiftSummary({
+          machine_id: input.machine_id,
+          shift_hours: input.shift_hours,
+          operations: input.operations,
+          gcode_blocks: input.gcode_blocks,
+        });
+        available.push("shift_summary");
+      } catch (e) {
+        failed.push("shift_summary");
+        errors.shift_summary = e instanceof Error ? e.message : String(e);
+      }
+    }
+
+    return {
+      machine_id: input.machine_id,
+      timestamp: ts,
+      // SAFETY-DIRECTION default: if the status section itself failed, "could not
+      // assess" must NOT present as all-clear GREEN -> surface RED so the operator
+      // treats an unassessable machine as elevated, not safe.
+      overall_risk: status ? status.overall_risk : "RED",
+      status,
+      alerts,
+      shift_summary,
+      sections_available: available,
+      sections_failed: failed,
+      errors,
+    };
+  }
+
+  // =========================================================================
   // Private helpers
   // =========================================================================
+
+  /**
+   * Validate the core live signals an operator dashboard cannot be meaningful
+   * without. machine_id must be a non-empty string; the three current_* signals
+   * must be finite numbers (getStatus otherwise produces NaN risk silently).
+   */
+  private assertOrchestrateInput(input: DashboardOrchestrateInput): void {
+    if (!input || typeof input.machine_id !== "string" || input.machine_id.trim() === "") {
+      throw new Error("OperatorDashboardOrchestratorEngine.orchestrate: machine_id (non-empty string) required");
+    }
+    for (const f of ["current_rpm", "current_feed", "current_load_pct"] as const) {
+      const v = input[f];
+      if (typeof v !== "number" || !Number.isFinite(v)) {
+        throw new Error(`OperatorDashboardOrchestratorEngine.orchestrate: ${f} must be a finite number`);
+      }
+    }
+  }
+
+  /**
+   * Build the alerts-only view from a computed status snapshot (single source of
+   * the severity filter, shared by getAlerts and orchestrate).
+   */
+  private filterAlertsView(status: DashboardStatusResult, minSeverity: AlertSeverity): DashboardAlertsResult {
+    // Coerce an unknown severity to "info" so a typo never silently drops EVERY
+    // alert (SEVERITY_ORDER[bad] would be undefined -> `>= undefined` always false).
+    const minLevel = SEVERITY_ORDER[minSeverity] ?? SEVERITY_ORDER.info;
+    const filtered = status.alerts.filter(a => SEVERITY_ORDER[a.severity] >= minLevel);
+    return {
+      machine_id: status.machine_id,
+      timestamp: status.timestamp,
+      overall_risk: status.overall_risk,
+      alerts: filtered,
+      alert_count: filtered.length,
+    };
+  }
 
   private computeOverallRisk(alerts: DashboardAlert[]): RiskLevel {
     if (alerts.some(a => a.severity === "critical")) return "RED";

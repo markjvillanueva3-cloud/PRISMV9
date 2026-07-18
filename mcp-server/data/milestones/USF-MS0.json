@@ -1,0 +1,226 @@
+{
+  "id": "USF-MS0",
+  "title": "Ultimate Speed/Feed Orchestrator — Full System Integration",
+  "track": "USF",
+  "version": "1.0.0",
+  "created_at": "2026-03-13T00:00:00Z",
+  "status": "complete",
+  "total_units": 12,
+  "completed_units": 12,
+  "description": "Build SpeedFeedOrchestratorEngine that wires ALL existing PRISM assets into a single unified speed/feed pipeline. Every physical input (machine, spindle, holder, tool, material, workholding, coolant, geometry, CAM software, toolpath strategy) is resolved from catalogs and fed through physics models with full stochastic uncertainty. User can provide ANY subset of inputs — engine infers the rest with appropriate confidence degradation.",
+  "units": [
+    {
+      "id": "P0-U01",
+      "title": "SpeedFeedOrchestratorEngine — Core Resolver Architecture",
+      "status": "complete",
+      "description": "Create SpeedFeedOrchestratorEngine with the input resolver pipeline. Accept high-level inputs (machine_name, tool_id, material, operation, geometry), resolve each via existing engines/catalogs to full physical specs, then delegate to UltimateSpeedFeedEngine. Key: every unresolved input inflates uncertainty proportionally.",
+      "acceptance_criteria": [
+        "Engine accepts OrchestratorInput with 60+ optional fields across 10 categories",
+        "Machine resolver: name/model → machine-profiles-catalog → power, torque, RPM, rigidity",
+        "Tool resolver: catalog_id → ToolCatalogEngine → geometry, grade, coating, stickout",
+        "Material resolver: name → MaterialRegistry → ISO group, HB, σ_y, k, machinability",
+        "Holder resolver: holder_id → holder catalogs → taper, TIR, stiffness, max RPM",
+        "Workholding resolver: type → WorkholdingIntelligenceEngine → clamp force, part rigidity",
+        "Coolant resolver: type+pressure → CoolantDynamicsEngine → h, effectiveness",
+        "Geometry resolver: thin_wall/pocket_depth/overhang → rigidity derating factors",
+        "Confidence tracking: each resolved vs inferred vs defaulted field gets confidence score",
+        "Delegates to UltimateSpeedFeedEngine with fully resolved params",
+        "Returns AtomicValue<OrchestratorResult> with S/F + limiting_factor_chain + confidence"
+      ]
+    },
+    {
+      "id": "P0-U02",
+      "title": "Machine Resolution Layer — Full Kinematic Integration",
+      "status": "complete",
+      "description": "Wire machine-profiles-catalog (910 machines), machine-kinematics-catalog (250 kinematic chains), and MachineMatcherEngine into the orchestrator. Resolve: spindle taper → holder compatibility, guideway type → damping ratio, axis speeds → feed rate limits, controller → look-ahead/block-rate, machine age → degradation factor.",
+      "acceptance_criteria": [
+        "Fuzzy match machine name to catalog via MachineMatcherEngine",
+        "Extract: power_kW, max_rpm, torque_Nm, taper, guideway, controller from profile",
+        "Kinematic chain: resolve stiffness at tool tip from spindle→holder→tool chain",
+        "Guideway type mapping: box_way→ζ=0.05, linear_guide→ζ=0.02, hydrostatic→ζ=0.08",
+        "Controller: Fanuc→64-block lookahead, Siemens→128, Heidenhain→256 → max contour feed",
+        "Age factor: if machine_hours provided, degrade stiffness by (1 - hours/200000 * 0.3)",
+        "If machine not found: use generic profile with confidence=0.4"
+      ]
+    },
+    {
+      "id": "P0-U03",
+      "title": "Tool + Holder Resolution Layer — Full Tooling System",
+      "status": "complete",
+      "description": "Wire ToolCatalogEngine (46K tools), holder catalogs (1164 holders), InsertGradeSelectionEngine (50 grades), CollisionDetectionEngine into the orchestrator. Resolve: solid vs insert body, insert grade → speed factor, holder type → TIR + stiffness, collet/sleeve → additional TIR, tool assembly stiffness from cantilever beam model.",
+      "acceptance_criteria": [
+        "Tool catalog lookup by ID, or by specs (diameter, flutes, material, coating)",
+        "Insert grade resolution: grade → material speed multiplier from InsertGradeSelectionEngine",
+        "Holder type effects: shrink_fit→TIR=0.003mm, hydraulic→0.003, ER_collet→0.010, Weldon→0.015",
+        "Holder stiffness from catalog: BIG DAISHOWA, Haimer, Guhring data",
+        "Tool assembly stiffness: k_tool = 3EI/L³ with composite holder+tool+insert",
+        "Collet/sleeve: if ER collet, add 0.005mm TIR, reduce stiffness by 15%",
+        "Collision check: verify tool assembly fits in machine envelope",
+        "If tool not found: infer from diameter/flutes/material with confidence=0.5"
+      ]
+    },
+    {
+      "id": "P0-U04",
+      "title": "Material + Workholding + Coolant Resolution Layer",
+      "status": "complete",
+      "description": "Wire MaterialRegistry (2957 materials), WorkholdingIntelligenceEngine, FixtureClampingEngine, CoolantDynamicsEngine. Resolve material to full physical properties with scatter, workholding to part rigidity and max safe cutting force, coolant to effective heat transfer coefficient.",
+      "acceptance_criteria": [
+        "Material: name → MaterialRegistry → ISO group, HB, σ_y, UTS, k, ρ, Cp, machinability_index",
+        "Material scatter: kc1.1 CV=8-12%, mc CV=5-8% from StochasticCuttingForceEngine DB",
+        "Workholding: type (vise/chuck/fixture/vacuum/magnetic) → clamp force, part stiffness",
+        "Part rigidity: thin_wall_mm, overhang_mm, unsupported_length → derating on ap/ae",
+        "Max safe force: from clamp force and friction → upper bound on Fc",
+        "Coolant: type+pressure+concentration → CoolantDynamicsEngine → h (W/m²K), effectiveness",
+        "Coolant speed factor: flood→1.0, mist→0.85, MQL→0.80, dry→0.70, cryo→1.15",
+        "If material not found: fuzzy match + confidence=0.5, warn user"
+      ]
+    },
+    {
+      "id": "P0-U05",
+      "title": "Stochastic Integration Layer — Full Uncertainty Pipeline",
+      "status": "complete",
+      "description": "Wire StochasticCuttingForceEngine, StochasticToolLifeEngine, StochasticChatterEngine, StochasticSurfaceFinishEngine, UncertaintyPropagationPipelineEngine into the orchestrator. Every S/F output gets CI95, Sobol sensitivity, P(chatter), reliability curve.",
+      "acceptance_criteria": [
+        "Force uncertainty: StochasticCuttingForceEngine with material scatter → Fc CI95",
+        "Tool life uncertainty: StochasticToolLifeEngine → Weibull life distribution, P(survive)",
+        "Chatter risk: StochasticChatterEngine → P(chatter) at recommended speed/depth",
+        "Surface finish uncertainty: StochasticSurfaceFinishEngine → Ra CI95, Cpk",
+        "Cross-engine propagation: UncertaintyPropagationPipelineEngine chains Force→Life→Finish",
+        "Confidence inflation for unknowns: each defaulted input widens CI by its importance weight",
+        "Overall confidence score: product of all resolver confidences × stochastic confidence",
+        "Sobol sensitivity: which input uncertainty dominates output uncertainty",
+        "Output includes: dominant_uncertainty_source, suggested_measurement for improvement"
+      ]
+    },
+    {
+      "id": "P0-U06",
+      "title": "Playbook + Stability + Safety Integration",
+      "status": "complete",
+      "description": "Wire MachiningPlaybookEngine (296 rules), ChatterStabilityLobeEngine, GCodeSafetyAnalyzerEngine into the orchestrator. Apply domain expert rules, check stability lobes, validate safety limits.",
+      "acceptance_criteria": [
+        "Playbook query: operation+material+conditions → applicable rules/warnings/tips",
+        "Rules that modify S/F: e.g., 'reduce feed 30% for interrupted cut in titanium'",
+        "Stability lobe check: if stiffness+natural_freq known, check if speed/depth in stable zone",
+        "If in chatter zone: suggest alternative RPM from nearest stable pocket",
+        "Power check: P_cutting < machine_power × 0.8 (safety margin)",
+        "Torque check: T_cutting < max_torque × 0.8",
+        "Deflection check: δ < tolerance/3 (δ from cantilever beam model)",
+        "Feed rate limit: Vf < machine max_feed_rate",
+        "Output: safety_checks[], playbook_warnings[], stability_assessment"
+      ]
+    },
+    {
+      "id": "P0-U07",
+      "title": "Dispatcher Wiring + calcDispatcher Actions",
+      "status": "complete",
+      "description": "Wire SpeedFeedOrchestratorEngine to calcDispatcher with comprehensive actions. Add exports to index.ts. Create orchestrator-specific action schemas.",
+      "acceptance_criteria": [
+        "Actions: sf_orchestrate (full pipeline), sf_resolve_machine, sf_resolve_tool, sf_resolve_material",
+        "Actions: sf_stochastic (full UQ mode), sf_quick (fast mode skipping stochastic)",
+        "Actions: sf_compare (compare 2+ scenarios), sf_optimize (multi-objective Pareto)",
+        "Compact formatter for each action",
+        "All wired to calcDispatcher ACTIONS array and switch cases",
+        "Exports added to engines/index.ts"
+      ]
+    },
+    {
+      "id": "P0-U07B",
+      "title": "CAM Software + Toolpath Strategy Resolution Layer",
+      "status": "complete",
+      "description": "Wire CAM strategy databases (433 strategies across 20 CAM systems), CrossCamRecommenderEngine, NovelToolpathEngine, EngagementAdaptiveFeedEngine, InstantaneousEngagementEngine, MotionDynamicsProfileEngine, ToolpathSmoothingEngine, and TribalKnowledgeEngine into the orchestrator. User specifies CAM software + strategy name, orchestrator resolves effective engagement, chip thinning model, feed adaptation mode, and pulls strategy-specific tribal knowledge.",
+      "acceptance_criteria": [
+        "Accept cam_software (Mastercam/hyperMILL/Fusion360/NX/SolidCAM/etc) + strategy_name",
+        "Resolve strategy to effective ae/ap from MultiCamStrategy DB (256 strategies, 13 CAMs)",
+        "Toolpath type classification: conventional/adaptive/trochoidal/HSM/HPC/plunge/constant-chip-load",
+        "Chip thinning correction: if ae < 50% Dc, apply fz_eff = fz * Dc/(2*sqrt(ae*(Dc-ae)))",
+        "Adaptive/trochoidal mode: boost Vc by 1.5-3x, reduce ae to 5-15% Dc, keep chip load constant",
+        "Motion dynamics: MotionDynamicsProfileEngine corner decel + controller look-ahead limits",
+        "Actual vs programmed feed: ToolpathSmoothingEngine Frenet-Serret curvature feed reduction",
+        "Variable engagement: InstantaneousEngagementEngine for pocket corners, entry arcs",
+        "Novel toolpath physics: if TGAR/HRAF/CFSF strategy, use NovelToolpathEngine force models",
+        "Tribal knowledge: pull CAM-specific tips from 2800+ tips DB for strategy+material combo",
+        "If CAM not specified: use generic strategy classification with confidence=0.6",
+        "Output: effective_ae_mm, effective_ap_mm, feed_mode, speed_multiplier, strategy_warnings[]"
+      ]
+    },
+    {
+      "id": "P0-U08B",
+      "title": "User Tool Library + Persistent Tool Crib",
+      "status": "complete",
+      "description": "Create a persistent user tool library system where users can add, remove, and organize their actual owned tools. Can import from catalog by ID, manually enter custom tools, or bulk import CSV. Each tool stores: catalog_id (if from PRISM catalog), geometry (diameter, flutes, flute_length, OAL, corner_radius), material/coating, holder_type, typical stickout, notes, purchase_date, current_condition. Library persists in localStorage with optional cloud sync. The orchestrator uses this library instead of the full 46K catalog when user has tools saved.",
+      "acceptance_criteria": [
+        "UserToolLibrary data model: id, catalog_ref?, geometry, material, coating, holder, stickout, condition, notes",
+        "CRUD operations: add from catalog search, add manual, edit, remove, duplicate",
+        "Bulk import: CSV with columns matching tool fields",
+        "Tool condition tracking: new/good/worn/needs_regrind/retired",
+        "Holder pairing: each tool can have a default holder from holder catalog",
+        "Storage: localStorage with JSON export/import for backup",
+        "Integration with orchestrator: if user has tool library, filter S/F candidates to owned tools only",
+        "Fallback: if no owned tools qualify for a feature, suggest catalog tools to purchase",
+        "Tool magazine mapping: user can assign tools to magazine positions per machine"
+      ]
+    },
+    {
+      "id": "P0-U08C",
+      "title": "Part Geometry Analysis + Feature-to-Toolpath Recommendation",
+      "status": "complete",
+      "description": "Build a pipeline that accepts uploaded CAD (STEP/STL) or print (PDF with dimensions) and extracts machinable features, then matches features to user's tool library and recommends optimal toolpath strategy + S/F for each operation. Uses FeatureRecognitionEngine for geometry, CollisionDetectionEngine for tool fit, CrossCamRecommenderEngine for strategy ranking, OperationSequencerEngine for order, and ToolMagazineOptimizationEngine for tool change minimization.",
+      "acceptance_criteria": [
+        "Accept STEP, STL, or PDF upload in web UI",
+        "Feature extraction: pockets (open/closed), holes (through/blind), walls (thin/thick), contours, faces, slots, threads",
+        "Per feature: extract depth_mm, width_mm, corner_radius_mm, surface_finish_req, tolerance_mm",
+        "Tool qualification filter: from user library, find tools where diameter fits, flute_length >= depth, no collision",
+        "CollisionDetectionEngine: verify tool+holder clears part geometry at required depth",
+        "Strategy recommendation per feature: CrossCamRecommenderEngine ranks strategies filtered by user's CAM software",
+        "Multi-tool optimization: rough with large tool, semi-finish with medium, finish with small",
+        "RestMachiningEngine: compute remaining stock after each operation for next tool",
+        "OperationSequencerEngine: order operations for minimum setup changes",
+        "ToolMagazineOptimizationEngine: minimize tool changes, suggest magazine layout",
+        "Full job output: ordered operation list with tool, strategy, S/F, estimated time per op",
+        "DfMRulesEngine: flag features that are unmachrinable or need special attention",
+        "If no user tools qualify: suggest specific catalog tools to purchase with links",
+        "PDF print analysis: OCR dimensions and tolerances from 2D drawings (best-effort)"
+      ]
+    },
+    {
+      "id": "P0-U09",
+      "title": "Web UI - Speed/Feed Calculator Page + User Preferences",
+      "status": "complete",
+      "description": "Build a dedicated SpeedFeedPage in the web app that calls SpeedFeedOrchestratorEngine via MCP. Includes: persistent user preferences (default CAM software, default machine, default material), CAM software quick-switcher in the S/F page header, toolpath strategy dropdown filtered by selected CAM, and full input form with smart defaults from user prefs. All results show confidence bands and limiting factor chain.",
+      "acceptance_criteria": [
+        "New route /speed-feed in web app (separate from existing /calculator)",
+        "User preferences stored in localStorage: default_cam, default_machine, default_material, default_holder_type, default_coolant",
+        "Settings gear icon on S/F page opens inline preferences panel (not buried in separate settings page)",
+        "CAM software selector: dropdown of 20 supported CAMs with icons, persists as default",
+        "Quick-switch CAM: pill/chip bar at top of page showing current CAM, click to change instantly",
+        "Toolpath strategy dropdown: filtered by selected CAM software, shows only strategies available in that CAM",
+        "Strategy descriptions: hover tooltip explains each strategy (e.g. 'Dynamic Milling: constant chip load, 5-15% ae')",
+        "Input sections: Material (searchable dropdown from 2957 materials), Tool (diameter/flutes/coating or catalog search), Machine (searchable from 910 profiles or manual entry), Workholding (type selector), Coolant (type+pressure)",
+        "Smart defaults: when user selects machine from catalog, auto-fill power/rpm/torque/taper",
+        "Results panel: S/F values with confidence bars, limiting factor highlighted in red/yellow/green",
+        "Uncertainty toggle: switch between 'Quick' (no stochastic) and 'Full Analysis' (CI95, Sobol)",
+        "Playbook warnings panel: shows applicable machining rules/tips for current setup",
+        "Export: copy S/F as text, or download as setup sheet PDF"
+      ]
+    },
+    {
+      "id": "P0-U10",
+      "title": "Tests — Exhaustive Validation + Integration",
+      "status": "complete",
+      "description": "Comprehensive test suite covering: resolver accuracy, catalog lookups, stochastic propagation, playbook integration, edge cases (unknown machine, unknown material, minimal input).",
+      "acceptance_criteria": [
+        "Machine resolution: known machine → correct specs",
+        "Tool resolution: catalog ID → correct geometry",
+        "Material resolution: name → correct ISO group and properties",
+        "Minimal input test: just material+diameter → valid S/F with low confidence",
+        "Full input test: all 60+ fields → high confidence S/F",
+        "Stochastic output: CI95 brackets mean for force, life, Ra",
+        "Chatter check: known unstable point returns P(chatter) > 0.5",
+        "Playbook integration: titanium milling returns relevant warnings",
+        "Safety checks: over-power scenario returns power_exceeded",
+        "Confidence degradation: more unknowns → wider CI, lower confidence",
+        "All 30+ tests passing"
+      ]
+    }
+  ]
+}

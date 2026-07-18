@@ -13,11 +13,24 @@
  *
  * Resource paths are unique per test (run-id + label) so concurrent test
  * runs never collide with each other or with live broker state.
+ *
+ * Broadcast isolation (U-GOLF-COORD-TEST-ISOLATE, 2026-07-01): every hook
+ * spawn gets PRISM_BROADCAST_CHANNEL_PATH pointing at a tmpdir channel file,
+ * never the live fleet channel. The live channel's TRIM_LINE_CAP=1000
+ * trim-on-append (CrossTerminalBroadcastEngine.writeToBroadcastChannel)
+ * rewrites the shared file smaller mid-test, which made the old live-file
+ * size-delta assertions nondeterministic (4-5 flaky fails per run) -- and the
+ * suite polluted the real coordination channel peers watch with __test__
+ * events. Broadcast-asserting tests use a per-test channel (makeChannel);
+ * every other spawn lands on a per-run default channel. A stale dist bundle
+ * (engine predating the knob) fails LOUDLY: events land on the live channel
+ * and the isolated file stays absent.
  */
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import * as os from "node:os";
 
 const REPO_ROOT = "H:/prism";
 const HOOK_PATH = path.join(REPO_ROOT, ".claude", "hooks", "cross-session-orchestrator.mjs");
@@ -27,10 +40,15 @@ const HOOK_PATH = path.join(REPO_ROOT, ".claude", "hooks", "cross-session-orches
 // spawnSync cannot resolve without a shell). For test purposes the runtime
 // is what matters — the hook itself is portable Node ESM.
 const NODE_BIN = process.execPath;
-const BROADCAST_JSONL_NEW = path.join(REPO_ROOT, "mcp-server", "data", "state", "BROADCAST_CHANNEL.jsonl");
-const BROADCAST_JSONL_OLD = path.join(REPO_ROOT, "state", "shared", "BROADCAST_CHANNEL.jsonl");
 
 const RUN_ID = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+// Isolated broadcast channels (U-GOLF-COORD-TEST-ISOLATE): one tmpdir per run.
+// Broadcast-asserting tests get a per-test file via makeChannel(label); every
+// other hook spawn lands on the per-run default, so NOTHING in this suite ever
+// writes the live fleet channel (mcp-server/data/state/BROADCAST_CHANNEL.jsonl).
+const TEST_CHANNEL_DIR = path.join(os.tmpdir(), "prism-u-coord05", RUN_ID);
+const DEFAULT_TEST_CHANNEL = path.join(TEST_CHANNEL_DIR, "default-channel.jsonl");
 
 // Concrete session-id format regexes — match the orchestrator facade contract.
 // Facade: `{family}@{hostname}/pid-{pid}` (post-U-COORD04). Fallback: `session-{pid}`.
@@ -49,7 +67,9 @@ function runHook(args: string[], stdin: string, env: Record<string, string> = {}
     input: stdin,
     encoding: "utf-8",
     timeout: 10_000,
-    env: { ...process.env, ...env },
+    // Default isolation: a hook spawn must never write the live fleet channel.
+    // Broadcast-asserting tests override with their own per-test channel.
+    env: { ...process.env, PRISM_BROADCAST_CHANNEL_PATH: DEFAULT_TEST_CHANNEL, ...env },
   });
   let parsed: Record<string, unknown> = {};
   try { parsed = JSON.parse(r.stdout.trim()) as Record<string, unknown>; } catch { /* parsed stays {} */ }
@@ -65,46 +85,63 @@ function sizeOrZero(p: string): number {
   try { return fs.statSync(p).size; } catch { return 0; }
 }
 
-function totalBroadcastSize(): number {
-  return sizeOrZero(BROADCAST_JSONL_NEW) + sizeOrZero(BROADCAST_JSONL_OLD);
+function makeChannel(label: string): string {
+  return path.join(TEST_CHANNEL_DIR, `channel-${label}.jsonl`);
 }
 
+function channelLines(channel: string): string[] {
+  try {
+    return fs.readFileSync(channel, "utf-8").trim().split("\n").filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+// On-disk JSONL shape (engine-level BroadcastEvent). The facade
+// (CrossSessionOrchestratorEngine.broadcastMessage, post-U-COORD04) maps
+// semantic types (info/warning/request/response) onto the canonical
+// cache_invalidate channel and moves the original type into
+// payload.semantic_type and the message content into payload.content.
 interface BroadcastEvent {
   id: string;
   from: string;
   timestamp: string;
   type: string;
-  content: string;
-  payload: { file: string; tool: string; session: string; action: string };
+  payload: {
+    file: string;
+    tool: string;
+    session: string;
+    action: string;
+    content: string;
+    semantic_type: string;
+  };
 }
 
-function readLatestBroadcastEvent(): BroadcastEvent {
+function readLatestBroadcastEvent(channel: string): BroadcastEvent {
   let best: BroadcastEvent | undefined;
-  for (const p of [BROADCAST_JSONL_NEW, BROADCAST_JSONL_OLD]) {
+  const lines = channelLines(channel);
+  if (lines.length > 0) {
     try {
-      const content = fs.readFileSync(p, "utf-8").trim();
-      if (!content) continue;
-      const lines = content.split("\n");
       const candidate = JSON.parse(lines[lines.length - 1]) as Partial<BroadcastEvent>;
-      const normalized: BroadcastEvent = {
+      best = {
         id: candidate.id || "",
         from: candidate.from || "",
         timestamp: candidate.timestamp || "",
         type: candidate.type || "",
-        content: candidate.content || "",
         payload: {
           file: candidate.payload?.file || "",
           tool: candidate.payload?.tool || "",
           session: candidate.payload?.session || "",
           action: candidate.payload?.action || "",
+          content: candidate.payload?.content || "",
+          semantic_type: candidate.payload?.semantic_type || "",
         },
       };
-      if (!best || normalized.timestamp > best.timestamp) best = normalized;
-    } catch { /* missing file or malformed line */ }
+    } catch { /* malformed line */ }
   }
   return best || {
-    id: "", from: "", timestamp: "", type: "", content: "",
-    payload: { file: "", tool: "", session: "", action: "" },
+    id: "", from: "", timestamp: "", type: "",
+    payload: { file: "", tool: "", session: "", action: "", content: "", semantic_type: "" },
   };
 }
 
@@ -118,6 +155,19 @@ beforeAll(() => {
   const nodeExists = fs.existsSync(NODE_BIN);
   expect(hookExists).toBe(true);
   expect(nodeExists).toBe(true);
+  // Stale-dist sentinel: the isolation knob lives in the BROADCAST engine dist
+  // (the facade dist imports it as a sibling module and has 0 refs itself). A
+  // dist predating the knob would silently leak every spawn's events onto the
+  // LIVE fleet channel -- absence asserts would then pass for the wrong reason
+  // and a filtered run ("-t 'no broadcast'") would go green while polluting.
+  // Fail the whole suite up front instead.
+  const broadcastDist = path.join(REPO_ROOT, "mcp-server", "dist", "engines", "CrossTerminalBroadcastEngine.js");
+  expect(fs.readFileSync(broadcastDist, "utf-8").includes("PRISM_BROADCAST_CHANNEL_PATH")).toBe(true);
+});
+
+afterAll(() => {
+  // tmpdir hygiene -- drop this run's isolated channel files (best-effort).
+  try { fs.rmSync(TEST_CHANNEL_DIR, { recursive: true, force: true }); } catch { /* locked/absent */ }
 });
 
 describe("cross-session-orchestrator hook — defensive contract", () => {
@@ -140,21 +190,26 @@ describe("cross-session-orchestrator hook — defensive contract", () => {
   });
 
   it("tool_name=Read emits exact {continue:true} (not in allowlist)", () => {
+    const channel = makeChannel("read-skip");
     const r = runHook(["--pre"], JSON.stringify({
       tool_name: "Read",
       tool_input: { file_path: makeResource("read-skip") },
-    }));
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
+    // Non-allowlisted tool must not broadcast at all -- channel never created.
+    expect(fs.existsSync(channel)).toBe(false);
   });
 
   it("tool_name=Bash emits exact {continue:true}", () => {
+    const channel = makeChannel("bash-skip");
     const r = runHook(["--pre"], JSON.stringify({
       tool_name: "Bash",
       tool_input: { command: "ls" },
-    }));
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
+    expect(fs.existsSync(channel)).toBe(false);
   });
 
   it("tool_input missing emits exact {continue:true}", () => {
@@ -212,20 +267,27 @@ describe("cross-session-orchestrator hook — tool allowlist (Edit/Write/MultiEd
   for (const tool of tools) {
     it(`PreToolUse ${tool} broadcasts edit_started with payload.tool=${tool}`, () => {
       const resource = makeResource(`allow-${tool}`);
-      const before = totalBroadcastSize();
+      const channel = makeChannel(`allow-${tool}`);
+      const before = sizeOrZero(channel);
       const r = runHook(["--pre"], JSON.stringify({
         tool_name: tool,
         tool_input: { file_path: resource },
-      }));
-      const after = totalBroadcastSize();
+      }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
+      const after = sizeOrZero(channel);
       expect(r.status).toBe(0);
       expect(r.parsed).toEqual({ continue: true });
-      // JSONL gained at least 50 bytes (an event line is ~280 bytes typical).
+      // Isolated channel: born empty, gains exactly one ~280-byte event line.
+      expect(before).toBe(0);
       expect(after - before >= 50).toBe(true);
+      expect(channelLines(channel).length).toBe(1);
 
-      const event = readLatestBroadcastEvent();
-      expect(event.type).toBe("info");
-      expect(event.content).toBe("edit_started");
+      const event = readLatestBroadcastEvent(channel);
+      // Facade contract (post-U-COORD04): the hook sends type:"info", which
+      // rides the canonical cache_invalidate channel; the original type and
+      // the content are recovered from the payload.
+      expect(event.type).toBe("cache_invalidate");
+      expect(event.payload.semantic_type).toBe("info");
+      expect(event.payload.content).toBe("edit_started");
       expect(event.payload.tool).toBe(tool);
       expect(event.payload.file).toBe(resource);
       // Session id MUST match one of two concrete contract regexes.
@@ -237,50 +299,49 @@ describe("cross-session-orchestrator hook — tool allowlist (Edit/Write/MultiEd
 
   it("PreToolUse NotebookEdit reads notebook_path → payload.file matches the .ipynb path", () => {
     const notebookPath = makeResource("notebook").replace(/\.txt$/, ".ipynb");
-    const before = totalBroadcastSize();
+    const channel = makeChannel("notebook");
     const r = runHook(["--pre"], JSON.stringify({
       tool_name: "NotebookEdit",
       tool_input: { notebook_path: notebookPath },
-    }));
-    const after = totalBroadcastSize();
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
-    expect(after > before).toBe(true);
+    expect(channelLines(channel).length).toBe(1);
 
-    const event = readLatestBroadcastEvent();
+    const event = readLatestBroadcastEvent(channel);
     expect(event.payload.file).toBe(notebookPath);
     expect(event.payload.tool).toBe("NotebookEdit");
   });
 
   it("PreToolUse NotebookEdit with ONLY file_path (no notebook_path) emits no broadcast", () => {
-    const before = totalBroadcastSize();
+    const channel = makeChannel("notebook-wrong-field");
     const r = runHook(["--pre"], JSON.stringify({
       tool_name: "NotebookEdit",
       tool_input: { file_path: makeResource("notebook-wrong-field") },
-    }));
-    const after = totalBroadcastSize();
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
-    // Hook must NOT fall back to file_path for NotebookEdit — broadcast size unchanged.
-    expect(after).toBe(before);
+    // Hook must NOT fall back to file_path for NotebookEdit -- channel never created.
+    expect(fs.existsSync(channel)).toBe(false);
   });
 });
 
 describe("cross-session-orchestrator hook — PostToolUse release + cache_invalidate", () => {
   it("PostToolUse Edit broadcasts cache_invalidate with payload.action='edited'", () => {
     const resource = makeResource("post-edit");
-    const before = totalBroadcastSize();
+    const channel = makeChannel("post-edit");
     const r = runHook(["--post"], JSON.stringify({
       tool_name: "Edit",
       tool_input: { file_path: resource },
-    }));
-    const after = totalBroadcastSize();
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
-    expect(after > before).toBe(true);
+    expect(channelLines(channel).length).toBe(1);
 
-    const event = readLatestBroadcastEvent();
+    const event = readLatestBroadcastEvent(channel);
     expect(event.type).toBe("cache_invalidate");
+    // Native cache_invalidate (not a mapped semantic type) -- no semantic_type marker.
+    expect(event.payload.semantic_type).toBe("");
     expect(event.payload.action).toBe("edited");
     expect(event.payload.tool).toBe("Edit");
     expect(event.payload.file).toBe(resource);
@@ -288,14 +349,16 @@ describe("cross-session-orchestrator hook — PostToolUse release + cache_invali
 
   it("PostToolUse MultiEdit emits payload.tool='MultiEdit' on cache_invalidate", () => {
     const resource = makeResource("post-multiedit");
+    const channel = makeChannel("post-multiedit");
     const r = runHook(["--post"], JSON.stringify({
       tool_name: "MultiEdit",
       tool_input: { file_path: resource },
-    }));
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
+    expect(channelLines(channel).length).toBe(1);
 
-    const event = readLatestBroadcastEvent();
+    const event = readLatestBroadcastEvent(channel);
     expect(event.type).toBe("cache_invalidate");
     expect(event.payload.tool).toBe("MultiEdit");
     expect(event.payload.action).toBe("edited");
@@ -313,53 +376,52 @@ describe("cross-session-orchestrator hook — PostToolUse release + cache_invali
 
 describe("cross-session-orchestrator hook — adversarial inputs", () => {
   it("file_path 5000 chars (over 4096 cap) → no broadcast", () => {
-    const before = totalBroadcastSize();
+    const channel = makeChannel("over-cap");
     const r = runHook(["--pre"], JSON.stringify({
       tool_name: "Edit",
       tool_input: { file_path: "H:/" + "a".repeat(5000) },
-    }));
-    const after = totalBroadcastSize();
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
-    expect(after).toBe(before);
+    expect(fs.existsSync(channel)).toBe(false);
   });
 
   it("file_path 3990 chars (under cap) → broadcasts with the exact path", () => {
     const resource = "H:/" + "a".repeat(3990);
-    const before = totalBroadcastSize();
+    const channel = makeChannel("under-cap");
     const r = runHook(["--pre"], JSON.stringify({
       tool_name: "Edit",
       tool_input: { file_path: resource },
-    }));
-    const after = totalBroadcastSize();
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
-    expect(after > before).toBe(true);
-    const event = readLatestBroadcastEvent();
+    expect(channelLines(channel).length).toBe(1);
+    const event = readLatestBroadcastEvent(channel);
     expect(event.payload.file).toBe(resource);
   });
 
   it("tool_input is a string (not an object) → no broadcast", () => {
-    const before = totalBroadcastSize();
+    const channel = makeChannel("string-input");
     const r = runHook(["--pre"], JSON.stringify({
       tool_name: "Edit",
       tool_input: "not-an-object",
-    }));
-    const after = totalBroadcastSize();
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
-    expect(after).toBe(before);
+    expect(fs.existsSync(channel)).toBe(false);
   });
 
   it("camelCase keys (toolName/toolInput/filePath) → broadcasts with the resolved path", () => {
     const resource = makeResource("camel-case");
+    const channel = makeChannel("camel-case");
     const r = runHook(["--pre"], JSON.stringify({
       toolName: "Edit",
       toolInput: { filePath: resource },
-    }));
+    }), { PRISM_BROADCAST_CHANNEL_PATH: channel });
     expect(r.status).toBe(0);
     expect(r.parsed).toEqual({ continue: true });
-    const event = readLatestBroadcastEvent();
+    expect(channelLines(channel).length).toBe(1);
+    const event = readLatestBroadcastEvent(channel);
     expect(event.payload.file).toBe(resource);
   });
 
@@ -418,6 +480,8 @@ describe("cross-session-orchestrator hook — block path (PRISM_COORD_ORCH_BLOCK
         ...process.env,
         CLAUDE_SESSION_ID: `peer-seed-${RUN_ID}-aaaaaaaa`,
         PRISM_AGENT_FAMILY: "claude",
+        // Seed process constructs the engine too -- keep it off the live channel.
+        PRISM_BROADCAST_CHANNEL_PATH: DEFAULT_TEST_CHANNEL,
       },
     });
     let seedSuccess = false;
@@ -443,10 +507,12 @@ describe("cross-session-orchestrator hook — block path (PRISM_COORD_ORCH_BLOCK
       expect(reason.includes("Held by")).toBe(true);
       expect(reason.includes(resource)).toBe(true);
     } else {
+      // Both outcomes are legitimate even when seeding succeeded: the seed
+      // process EXITS immediately after claiming, and AtomicClaimBroker does
+      // zombie reaping of claims whose holder pid is dead -- so by probe time
+      // the claim may or may not survive. The exact-shape contracts above are
+      // what this test guarantees; seedSuccess is diagnostic narrative only.
       expect(r.parsed.continue).toBe(true);
-      // seedSuccess is captured for diagnostic narrative; the contract above is
-      // what guarantees correctness whether or not seeding worked.
-      expect(seedSuccess === true || seedSuccess === false).toBe(true);
     }
   });
 });

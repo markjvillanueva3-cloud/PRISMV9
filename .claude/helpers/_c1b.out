@@ -1,0 +1,75 @@
+TAP version 13
+# Subtest: scoreMultiToolPrompt: 'for each engine, run X' → high score
+ok 1 - scoreMultiToolPrompt: 'for each engine, run X' → high score
+  ---
+  duration_ms: 1.9654
+  ...
+# Subtest: scoreMultiToolPrompt: 'ship all remaining unwired engines' → high score
+ok 2 - scoreMultiToolPrompt: 'ship all remaining unwired engines' → high score
+  ---
+  duration_ms: 0.4167
+  ...
+# Subtest: scoreMultiToolPrompt: 'audit the entire codebase' → high score
+ok 3 - scoreMultiToolPrompt: 'audit the entire codebase' → high score
+  ---
+  duration_ms: 0.1551
+  ...
+# Subtest: scoreMultiToolPrompt: 'check each file' → mid score
+ok 4 - scoreMultiToolPrompt: 'check each file' → mid score
+  ---
+  duration_ms: 0.1012
+  ...
+# Subtest: scoreMultiToolPrompt: '50 of files need refactor' → high score (numeric)
+ok 5 - scoreMultiToolPrompt: '50 of files need refactor' → high score (numeric)
+  ---
+  duration_ms: 0.0924
+  ...
+# Subtest: scoreMultiToolPrompt: 'dozens of engines to wire' → high score
+ok 6 - scoreMultiToolPrompt: 'dozens of engines to wire' → high score
+  ---
+  duration_ms: 0.0783
+  ...
+# Subtest: scoreMultiToolPrompt: small task prompt → score 0
+ok 7 - scoreMultiToolPrompt: small task prompt → score 0
+  ---
+  duration_ms: 0.2008
+  ...
+# Subtest: scoreMultiToolPrompt: empty / null returns 0
+ok 8 - scoreMultiToolPrompt: empty / null returns 0
+  ---
+  duration_ms: 0.0915
+  ...
+# Subtest: formatPlannerNudge: high-score prompt → nudge emitted
+ok 9 - formatPlannerNudge: high-score prompt → nudge emitted
+  ---
+  duration_ms: 0.3994
+  ...
+# Subtest: formatPlannerNudge: small task → null
+ok 10 - formatPlannerNudge: small task → null
+  ---
+  duration_ms: 0.3399
+  ...
+# Subtest: formatPlannerNudge: custom threshold honored
+ok 11 - formatPlannerNudge: custom threshold honored
+  ---
+  duration_ms: 0.158
+  ...
+# Subtest: formatPlannerNudge: includes kill-switch reference
+ok 12 - formatPlannerNudge: includes kill-switch reference
+  ---
+  duration_ms: 0.0877
+  ...
+# Subtest: formatPlannerNudge: surfaces score in advisory
+ok 13 - formatPlannerNudge: surfaces score in advisory
+  ---
+  duration_ms: 0.1074
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 121.0428

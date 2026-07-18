@@ -21,11 +21,11 @@ Use even in `&&` chains. Skip only if output <500 chars. `rtk gain` shows sessio
 ### Ollama Offload (FREE local inference)
 Route these to Ollama instead of consuming Claude tokens:
 - **Code explanation** → `ollama-task-offloader.mjs` auto-suggests
-- **Summarization** → local qwen2.5-coder:7b handles
+- **Summarization** → local qwen2.5-coder:32b handles
 - **Doc generation** → route via `OllamaHookBridgeEngine`
 - **CLAUDE.md rule selection** → `claudemd-ollama-enforcer.mjs` (85% savings)
 
-Manual: `curl -X POST http://localhost:11434/api/generate -d '{"model":"qwen2.5-coder:7b","prompt":"..."}'`
+Manual: `curl -X POST http://localhost:11434/api/generate -d '{"model":"qwen2.5-coder:32b","prompt":"..."}'`
 
 ### Tool Selection (minimize tool calls)
 | Instead of... | Use... | Why |

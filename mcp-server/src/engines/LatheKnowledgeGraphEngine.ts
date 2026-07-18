@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: knowledge-graph data layer consumed by LathePostKnowledgeGraphEngine (wired in camDispatcher:3492 lathe_postgen_register). Internal data engine, not a direct dispatcher target.
 /**
  * LatheKnowledgeGraphEngine — Comprehensive Knowledge Graph for Lathe Programming
  * ================================================================================
@@ -905,7 +906,7 @@ export class LatheKnowledgeGraphEngine {
         id: nodeId,
         type: "material",
         name,
-        properties: props,
+        properties: props as unknown as Record<string, unknown>,
         importance: 0,
         community: 0,
         sources: ["static_knowledge"],
@@ -925,7 +926,7 @@ export class LatheKnowledgeGraphEngine {
         id: nodeId,
         type: "operation",
         name,
-        properties: props,
+        properties: props as unknown as Record<string, unknown>,
         importance: 0,
         community: 0,
         sources: ["static_knowledge"],
@@ -945,7 +946,7 @@ export class LatheKnowledgeGraphEngine {
         id: nodeId,
         type: "tool",
         name,
-        properties: props,
+        properties: props as unknown as Record<string, unknown>,
         importance: 0,
         community: 0,
         sources: ["static_knowledge"],
@@ -2074,8 +2075,8 @@ export class LatheKnowledgeGraphEngine {
     const opNode = this.nodes.get(operationId);
 
     // Get ISO group for speed selection
-    const isoGroup = (matNode?.properties as MaterialNodeProps)?.iso_group || "P";
-    const opProps = opNode?.properties as OperationNodeProps;
+    const isoGroup = (matNode?.properties as unknown as MaterialNodeProps)?.iso_group || "P";
+    const opProps = opNode?.properties as unknown as OperationNodeProps;
     const isFinishing = opProps?.roughing_or_finishing === "finishing";
 
     // Base speeds by ISO group
@@ -2144,7 +2145,7 @@ export class LatheKnowledgeGraphEngine {
     params: { cutting_speed_mmin: number; feed_mmrev: number; doc_mm: number }
   ): { tool_life_min: number; surface_finish_ra: number; mrr_cm3min: number } {
     const matNode = this.nodes.get(materialId);
-    const matProps = matNode?.properties as MaterialNodeProps;
+    const matProps = matNode?.properties as unknown as MaterialNodeProps;
     const machinability = matProps?.machinability_factor || 0.5;
 
     // Base tool life (Taylor-inspired)
@@ -2174,7 +2175,7 @@ export class LatheKnowledgeGraphEngine {
     const warnings: string[] = [];
 
     const matNode = this.nodes.get(materialId);
-    const matProps = matNode?.properties as MaterialNodeProps;
+    const matProps = matNode?.properties as unknown as MaterialNodeProps;
 
     // Check for difficult materials
     if (matProps?.machinability_factor && matProps.machinability_factor < 0.25) {

@@ -1,0 +1,28 @@
+# QUOTING-SYNERGY-MS0/U-QP-ALERT-BANNER — [MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-ALERT-BANNER (slot:charlie /goal-yolo iter28): pure-function formatter turns latest-drift-alert.json into SessionStart-compatible markdown block + 20 tests. Future iter wires as a SessionStart hook (closes iter22 follow-up #5); today ships standalone (avoids touching peer-contended hooks dir). Exports: formatAlertBanner(state, opts)->{shouldInject, text, reason} (pure, defensive against null/non-object/missing-fields), loadAndFormatAlert(path, opts)->Promise<same> (parses file, silent on missing, diagnostic banner on parse-error). Behavior matrix: alert -> 🚨 + reasons + summary stats + triage pointer · warn -> ⚠ (lighter) · info silent unless --verbose · ok silent · STALE (>48h since last update) -> 🕰 banner overriding level. Real bug caught + fixed by test: Math.round(staleHours) before > compare let 48h+1m slip through; fix uses raw fractional hours for the comparison, rounded value only for display. CLI: --state PATH, --verbose, --json, --force (emit even when silent). 20/20 tests PASS: 4 alert levels distinct (ok/info silent, warn/alert emit), null/undefined/non-object defenses, ALERT body contains reasons + summary stats + triage pointer, WARN icon distinct from ALERT, summary mape/trend/cov/safe stats included, staleness detection (>48h flags, <48h doesn't, boundary 48h+1m correctly flags), invalid ts_iso doesn't crash, missing alert/reasons defenses, non-array reasons treated as empty, stable 3-key shape, loadAndFormatAlert missing-file silent, parse-error diagnostic banner. Total iter9-28: 275 tests across 14 test files + 1 verify runner.
+
+**Commit:** `d74521aa4c83` · **By:** markjvillanueva3-cloud · **At:** 2026-05-26T04:10:20-05:00
+**Tags:** quoting-synergy-ms0, u-qp-alert-banner, auto-distilled
+
+## Subject
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-ALERT-BANNER (slot:charlie /goal-yolo iter28): pure-function formatter turns latest-drift-alert.json into SessionStart-compatible markdown block + 20 tests. Future iter wires as a SessionStart hook (closes iter22 follow-up #5); today ships standalone (avoids touching peer-contended hooks dir). Exports: formatAlertBanner(state, opts)->{shouldInject, text, reason} (pure, defensive against null/non-object/missing-fields), loadAndFormatAlert(path, opts)->Promise<same> (parses file, silent on missing, diagnostic banner on parse-error). Behavior matrix: alert -> 🚨 + reasons + summary stats + triage pointer · warn -> ⚠ (lighter) · info silent unless --verbose · ok silent · STALE (>48h since last update) -> 🕰 banner overriding level. Real bug caught + fixed by test: Math.round(staleHours) before > compare let 48h+1m slip through; fix uses raw fractional hours for the comparison, rounded value only for display. CLI: --state PATH, --verbose, --json, --force (emit even when silent). 20/20 tests PASS: 4 alert levels distinct (ok/info silent, warn/alert emit), null/undefined/non-object defenses, ALERT body contains reasons + summary stats + triage pointer, WARN icon distinct from ALERT, summary mape/trend/cov/safe stats included, staleness detection (>48h flags, <48h doesn't, boundary 48h+1m correctly flags), invalid ts_iso doesn't crash, missing alert/reasons defenses, non-array reasons treated as empty, stable 3-key shape, loadAndFormatAlert missing-file silent, parse-error diagnostic banner. Total iter9-28: 275 tests across 14 test files + 1 verify runner.
+
+## Body
+```
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-ALERT-BANNER (slot:charlie /goal-yolo iter28): pure-function formatter turns latest-drift-alert.json into SessionStart-compatible markdown block + 20 tests. Future iter wires as a SessionStart hook (closes iter22 follow-up #5); today ships standalone (avoids touching peer-contended hooks dir). Exports: formatAlertBanner(state, opts)->{shouldInject, text, reason} (pure, defensive against null/non-object/missing-fields), loadAndFormatAlert(path, opts)->Promise<same> (parses file, silent on missing, diagnostic banner on parse-error). Behavior matrix: alert -> 🚨 + reasons + summary stats + triage pointer · warn -> ⚠ (lighter) · info silent unless --verbose · ok silent · STALE (>48h since last update) -> 🕰 banner overriding level. Real bug caught + fixed by test: Math.round(staleHours) before > compare let 48h+1m slip through; fix uses raw fractional hours for the comparison, rounded value only for display. CLI: --state PATH, --verbose, --json, --force (emit even when silent). 20/20 tests PASS: 4 alert levels distinct (ok/info silent, warn/alert emit), null/undefined/non-object defenses, ALERT body contains reasons + summary stats + triage pointer, WARN icon distinct from ALERT, summary mape/trend/cov/safe stats included, staleness detection (>48h flags, <48h doesn't, boundary 48h+1m correctly flags), invalid ts_iso doesn't crash, missing alert/reasons defenses, non-array reasons treated as empty, stable 3-key shape, loadAndFormatAlert missing-file silent, parse-error diagnostic banner. Total iter9-28: 275 tests across 14 test files + 1 verify runner.
+```
+
+## Files touched (3)
+- scripts/quoting-alert-banner.mjs      | 178 ++++++++++++++++++++++++++++
+- scripts/quoting-alert-banner.test.mjs | 216 ++++++++++++++++++++++++++++++++++
+- 2 files changed, 394 insertions(+)
+
+
+## Verification
+**Scrutiny ledger**: arms A✗ B✗ C✗ for session 
+
+## Cross-references
+- Full commit: `git -C H:/prism show d74521aa4c83`
+- Milestone envelope: `mcp-server/data/milestones/QUOTING-SYNERGY-MS0.json`
+
+---
+_Auto-distilled by `scripts/distill-session-learnings.mjs` per [[feedback_auto_close_out]] / SYSTEM-VIZ-BRAIN-MS0/U-P1-POST-SHIP-DISTILL._

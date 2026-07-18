@@ -1,0 +1,770 @@
+{
+  "id": "CCM-MS17",
+  "version": "1.0.0",
+  "title": "Adaptive Optimization",
+  "brief": "ML auto-tuning. Model selector (logistic regression), effort predictor, maxTurns optimizer, skill routing, token budget predictor, hook priority ranking, cron freq optimizer, dedup ML tuner, warm-start predictor, cost optimizer, A/B test framework, convergence tests.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Core Predictors",
+      "description": "Model selector, effort predictor, maxTurns optimizer, and skill routing",
+      "sessions": "1-2",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Model Selector (Logistic Regression)",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Select optimal model tier (opus/sonnet/haiku) per task using logistic regression on task features",
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 coordination layer available",
+            "CCM-MS16 agent perf data available"
+          ],
+          "exit_conditions": [
+            "Logistic regression model trained on task features → model tier",
+            "Selection accuracy > 80% on held-out data",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define task feature vector (complexity, token estimate, domain, tool requirements)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement online logistic regression with SGD updates from observed outcomes"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for model selection accuracy and online learning convergence"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/adaptive-model-selector.ts",
+              "type": "script",
+              "description": "Logistic regression model tier selector"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Model Selector (Logistic Regression) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Effort Predictor",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Predict optimal reasoning_effort (0-100) per task to avoid over/under-thinking",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Model selector providing task features"
+          ],
+          "exit_conditions": [
+            "Effort prediction within +/-10 of optimal for 75% of tasks",
+            "Feedback loop from task outcome to update predictor",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build effort predictor using linear regression on task features and historical outcomes"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement feedback loop: compare predicted vs actual needed effort from outcome quality"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for prediction accuracy and feedback convergence"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/effort-predictor.ts",
+              "type": "script",
+              "description": "Task effort level predictor with feedback learning"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Effort Predictor — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "MaxTurns Optimizer",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Dynamically set agent maxTurns based on task complexity to prevent premature stops or wasted turns",
+          "dependencies": [
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "Effort predictor operational"
+          ],
+          "exit_conditions": [
+            "MaxTurns prediction correlates with actual turns needed (r > 0.7)",
+            "Saves > 10% wasted turns on average",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze historical agent runs to build turns-needed distribution by task type"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement Poisson regression predictor for optimal maxTurns"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for prediction accuracy and waste reduction"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/max-turns-optimizer.ts",
+              "type": "script",
+              "description": "Dynamic maxTurns predictor for agent tasks"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "MaxTurns Optimizer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Skill Router",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Route user queries to optimal skill based on learned success patterns",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "CCM-MS16 skill analytics data available"
+          ],
+          "exit_conditions": [
+            "Skill suggestion accuracy > 70%",
+            "Routing table updates from outcome feedback",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build keyword/pattern to skill mapping from historical invocation data"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement cosine similarity matching with TF-IDF features"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for routing accuracy and cold-start handling"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/skill-router.ts",
+              "type": "script",
+              "description": "ML-based skill routing from query patterns"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Skill Router — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Resource Optimizers",
+      "description": "Token budget predictor, hook priority ranking, cron frequency optimizer, and dedup ML tuner",
+      "sessions": "2-3",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Token Budget Predictor",
+          "phase": "P1",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Predict token budget needed per task to set guardrails and avoid context window overflow",
+          "dependencies": [
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "Effort predictor operational"
+          ],
+          "exit_conditions": [
+            "Token budget prediction within 20% of actual for 80% of tasks",
+            "Budget warning emitted when predicted usage approaches limit",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build token budget predictor using log-linear regression on task features"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement early warning when predicted cumulative tokens approach context limit"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for prediction accuracy and warning timeliness"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/token-budget-predictor.ts",
+              "type": "script",
+              "description": "Token budget prediction and early warning"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Token Budget Predictor — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Hook Priority Ranker",
+          "phase": "P1",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Dynamically rank hook execution priority based on observed impact and latency cost",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "CCM-MS16 hook timeline data available"
+          ],
+          "exit_conditions": [
+            "Hooks ranked by impact/cost ratio",
+            "Low-impact high-cost hooks deprioritized or skipped",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Compute hook impact score (blocks prevented, warnings acted on) and cost (latency)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement priority ranking with impact/cost ratio sorting"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for ranking stability and impact score accuracy"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/hook-priority-ranker.ts",
+              "type": "script",
+              "description": "Dynamic hook priority ranking by impact/cost"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Hook Priority Ranker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Cron Frequency Optimizer",
+          "phase": "P1",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-tune cron job frequencies based on observed data change rates and utility",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "CCM-MS16 cron reliability data available"
+          ],
+          "exit_conditions": [
+            "Cron frequencies adjusted based on data staleness patterns",
+            "Resource savings from reduced unnecessary runs",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Track data change rates between cron runs to identify over/under-polling"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement exponential backoff/advance based on change rate"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for frequency adaptation and stability"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/cron-freq-optimizer.ts",
+              "type": "script",
+              "description": "Adaptive cron frequency tuning"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cron Frequency Optimizer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U04",
+          "title": "Dedup ML Tuner",
+          "phase": "P1",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-tune dedup window sizes and similarity thresholds using ML on FP/FN rates",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "CCM-MS14 dedup FP tracking data available"
+          ],
+          "exit_conditions": [
+            "Dedup parameters auto-tuned per tool type",
+            "FP rate < 1% and FN rate < 5%",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Collect FP/FN outcomes per dedup window size and threshold combination"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement grid search with Bayesian optimization for optimal parameters"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for parameter convergence and rate targets"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/dedup-ml-tuner.ts",
+              "type": "script",
+              "description": "ML-based dedup parameter auto-tuning"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dedup ML Tuner — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Advanced Optimization & Validation",
+      "description": "Warm-start predictor, cost optimizer, A/B test framework, and convergence tests",
+      "sessions": "2-3",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Warm-Start Predictor",
+          "phase": "P2",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Predict which context to preload at session start based on user patterns",
+          "dependencies": [
+            "P1-U01"
+          ],
+          "entry_conditions": [
+            "Token budget predictor and session metrics available"
+          ],
+          "exit_conditions": [
+            "Context preload reduces first-query latency by > 15%",
+            "Preload set size bounded by token budget",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze session-start patterns to identify commonly needed context per user/project"
+            },
+            {
+              "number": 2,
+              "instruction": "Build predictor using frequency-recency scoring with token budget constraint"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for preload relevance and budget compliance"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/warm-start-predictor.ts",
+              "type": "script",
+              "description": "Session warm-start context prediction"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Warm-Start Predictor — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Cost Optimizer",
+          "phase": "P2",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Minimize total API cost while maintaining quality by optimizing model/effort/token allocation",
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P1-U01"
+          ],
+          "entry_conditions": [
+            "Model selector, effort predictor, and token budget predictor operational"
+          ],
+          "exit_conditions": [
+            "Cost reduction > 15% vs baseline with same quality",
+            "Pareto frontier of cost vs quality computed",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build cost model (price per input/output token by model tier)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement multi-objective optimizer balancing cost, quality, and latency"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for Pareto optimality and cost reduction validation"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/cost-optimizer.ts",
+              "type": "script",
+              "description": "Multi-objective cost/quality optimizer"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cost Optimizer — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U03",
+          "title": "A/B Test Framework",
+          "phase": "P2",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Enable controlled A/B testing of optimization strategies with statistical significance",
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Session metrics collecting outcome data"
+          ],
+          "exit_conditions": [
+            "A/B test framework with random assignment and significance testing",
+            "Chi-squared and Mann-Whitney tests for outcome comparison",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build A/B test framework with experiment definition, random assignment, and outcome tracking"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement statistical significance tests (chi-squared for categorical, Mann-Whitney for continuous)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for randomization balance and statistical test correctness"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/ab-test-framework.ts",
+              "type": "script",
+              "description": "A/B testing framework with significance testing"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": true,
+          "description": "A/B Test Framework — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U04",
+          "title": "Convergence & Integration Tests",
+          "phase": "P2",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Verify all adaptive optimizers converge and don't oscillate or degrade system behavior",
+          "dependencies": [
+            "P2-U01",
+            "P2-U02",
+            "P2-U03"
+          ],
+          "entry_conditions": [
+            "All adaptive optimizers operational"
+          ],
+          "exit_conditions": [
+            "Convergence tests pass for all optimizers (monotonic improvement over 100 iterations)",
+            "Integration test verifies no oscillation when all optimizers run simultaneously",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write convergence tests for each optimizer with synthetic data"
+            },
+            {
+              "number": 2,
+              "instruction": "Write integration test running all optimizers together to detect interference"
+            },
+            {
+              "number": 3,
+              "instruction": "Add stability tests verifying bounded parameter drift over 1000 iterations"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/lib/__tests__/adaptive-convergence.test.ts",
+              "type": "test",
+              "description": "Convergence and integration tests for all adaptive optimizers"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Convergence & Integration Tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms17-gate",
+    "mcp_action": "prism_ccm:ccm_ms17_run",
+    "skill_command": "/ccm-ms17",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms17-gate"
+    ],
+    "new_actions": [
+      "ccm_ms17_run"
+    ],
+    "new_skills": [
+      "/ccm-ms17"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "ML auto-tuning. Model selector (logistic regression), effort predictor, maxTurns optimizer, skill routing, token budget predictor, hook priority ranking, cron freq optimizer, dedup ML tuner, warm-start predictor, cost optimizer, A/B test framework, convergence tests.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

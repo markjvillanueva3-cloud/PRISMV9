@@ -173,7 +173,7 @@ const hypermillMillturnCaxisSync: HookDefinition = {
     "Warns when a cross-hole, cross-slot, or off-center feature is programmed without a C-axis lock angle. " +
     "Missing C_angle causes angular position error on live tool operations.",
   phase: "pre-toolpath",
-  category: "quality",
+  category: "validation",
   mode: "warning",
   priority: "high",
   enabled: true,

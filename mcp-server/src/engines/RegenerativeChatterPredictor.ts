@@ -104,9 +104,16 @@ export class RegenerativeChatterPredictor {
      * @returns void
      */
     for (let N = 0; N <= 20; N++) {
-      // Phase: epsilon = 3*pi - 2*N*pi (for N=0,1,2...)
-      // RPM at lobe center: n = 60 * fc / (Z * (N + epsilon/(2*pi)))
-      const epsilon = Math.PI; // simplified: at the peak of each lobe
+      // RPM at the lobe CENTER (the best-speed stability pocket): n = 60*fc/(Z*(N + eps/(2pi)))
+      // with eps = 2*pi -- full-period regeneration phase, i.e. tooth-passing frequency an
+      // integer fraction of the chatter frequency: n = 60*fn/(Z*(N+1)) (Altintas 2012 Ch.4,
+      // the textbook best-speed pockets: fn=600Hz, Z=2 -> 18000, 9000, 6000... rpm).
+      // Row 13 fix (verified SFC fix-plan + live-code physics pass): the previous eps = pi
+      // put every "lobe" at the HALF-integer ratio N+0.5 -- the least-stable VALLEY between
+      // pockets -- so optimal_rpm steered the operator to the worst chatter speed while
+      // labeling it the peak. (The originally FILED register fix was also wrong -- it kept a
+      // sub-2pi phase; adjudicated to eps=2pi, see SFC-ROWS-VERIFY-BATCH2-2026-07-01.md.)
+      const epsilon = 2 * Math.PI; // lobe center: full-period phase
       const lobeRpm = Math.round(60 * fn / (Z * (N + epsilon / (2 * Math.PI))));
 
       if (lobeRpm < 100 || lobeRpm > 60000) continue;
@@ -136,11 +143,17 @@ export class RegenerativeChatterPredictor {
 
     // Critical depth at current RPM (between lobes = minimum stability)
     // Minimum b_lim between lobes: b_lim_min = k / (Z * Kc * mu) * 2 * zeta
+    // Same dimensional form as bLimPeak above -- k[N/m]/(Kc[Pa]) = METERS -- so it needs
+    // the same m -> mm conversion. Pre-fix it was emitted raw as critical_depth_mm, making
+    // every between-lobe prediction 1000x too small (0.017 mm read as 0.000017 -> rounds
+    // to 0), and the near-lobe interpolation below mixed meters with mm in one expression.
+    // Sibling of whiskey's 2026-06-28 finding on this engine (same m-vs-mm class).
     const bLimMin = (k * 2 * zeta) / (Z * Kc * mu * 1e6);
+    const bLimMin_mm = bLimMin * 1000; // m -> mm (matches bLimPeak_mm above)
 
     // Find nearest lobe to current RPM for more accurate estimate
     const currentRpm = input.spindle_rpm;
-    let criticalDepth = bLimMin; // conservative: between-lobe minimum
+    let criticalDepth = bLimMin_mm; // conservative: between-lobe minimum
 
     /** For.
      * @param const - const
@@ -153,8 +166,9 @@ export class RegenerativeChatterPredictor {
        * @returns void
        */
       if (rpmDist < 0.1) {
-        // Near a lobe peak — interpolate
-        criticalDepth = bLimMin + (lobe.critical_depth_mm - bLimMin) * (1 - rpmDist / 0.1);
+        // Near a lobe peak -- interpolate (both endpoints in mm; pre-fix this mixed
+        // bLimMin in METERS with lobe.critical_depth_mm in mm)
+        criticalDepth = bLimMin_mm + (lobe.critical_depth_mm - bLimMin_mm) * (1 - rpmDist / 0.1);
         break;
       }
     }

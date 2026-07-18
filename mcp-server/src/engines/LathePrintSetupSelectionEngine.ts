@@ -39,6 +39,7 @@ const JAW_FRICTION_COEFFICIENT = {
 const GRIP_SAFETY_FACTOR = {
   roughing: 2.5,
   finishing: 2.0,
+  drilling: 2.0,
   parting: 3.0,
   threading: 2.5,
   default: 2.0,

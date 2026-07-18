@@ -1,0 +1,135 @@
+{
+  "id": "CAMX-MS21",
+  "version": "7.0.0",
+  "title": "Make-vs-Buy + Full Quote-to-Ship Lifecycle Pipeline",
+  "brief": "MakeVsBuyDecisionEngine, ShopNetworkEngine, WorkholdingSurfaceInference, QuoteToShipOrchestrator, PackingSlip, MaterialCertTraceability, FAI Pipeline, ProductionBatchOptimization.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Full Lifecycle",
+      "units": [
+        {
+          "id": "U01",
+          "title": "MakeVsBuyDecisionEngine",
+          "description": "Per-operation: in-house cost vs vendor cost. Breakeven quantity. Lead time, quality risk, IP sensitivity.",
+          "exit_conditions": [
+            "Make/buy decisions computed",
+            "Breakeven quantity",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U02",
+          "title": "ShopNetworkEngine",
+          "description": "Register capabilities, broadcast overflow, receive bids. API schema for future marketplace.",
+          "exit_conditions": [
+            "API schema defined",
+            "Capability registration",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U03",
+          "title": "WorkholdingSurfaceInferenceEngine",
+          "description": "From STEP/B-Rep: identify grip/datum surfaces. Track survival through machining. Auto-flag when machining removes needed surface.",
+          "exit_conditions": [
+            "Surface inference works",
+            "Survival tracking",
+            "Dead-end auto-detection"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U04",
+          "title": "QuoteToShipOrchestratorEngine",
+          "description": "End-to-end: BlueprintOCR→DFM→Feasibility→Quote→ProcessPlan→ToolSelect→Strategy→S/F→Program→Post→Package→Lifecycle→Quality→Ship.",
+          "exit_conditions": [
+            "Full orchestrator works",
+            "All stages connected",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U05",
+          "title": "PackingSlipEngine",
+          "description": "Part number, quantity, revision, material cert, inspection results, PO reference.",
+          "exit_conditions": [
+            "Packing slips generated",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U06",
+          "title": "MaterialCertTraceabilityEngine",
+          "description": "Heat lot → stock → program → FAI → production → shipping. AS9100/ITAR compliant.",
+          "exit_conditions": [
+            "Full traceability chain",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U07",
+          "title": "FirstArticleInspectionPipelineEngine",
+          "description": "CMMPathPlanning → ProbingCycleGen → Measurement → AS9102 Form 1/2/3.",
+          "exit_conditions": [
+            "FAI pipeline works",
+            "AS9102 forms",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U08",
+          "title": "ProductionBatchOptimizationEngine",
+          "description": "Batch tool life, fixture loading, bar stock cutoff, probing intervals.",
+          "exit_conditions": [
+            "Batch optimization works",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U09",
+          "title": "Dispatcher wiring",
+          "description": "9 actions.",
+          "exit_conditions": [
+            "9 actions wired",
+            "Build passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        },
+        {
+          "id": "U10",
+          "title": "Tests",
+          "description": "40+ tests.",
+          "exit_conditions": [
+            "40+ tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:41:00Z"
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-19T15:41:00Z",
+  "completed_units": 10,
+  "total_units": 10,
+  "closure_notes": "49/49 tests pass across 10 units. Verified: MakeVsBuyDecisionEngine (analyzeJob, breakevenAnalysis), ShopNetworkEngine (registerShop/searchShops/getNetworkStats/broadcastJob), WorkholdingSurfaceInferenceEngine (inferSurfaces/trackSurvival/detectDeadEndsDirect), QuoteToShipOrchestratorEngine (getStageDescriptors/validateInput + qts_* actions), PackingSlipEngine (generate/addLineItem/finalize), MaterialCertTraceabilityEngine (registerCert with validation + traceBackward), FirstArticleInspectionPipelineEngine (runFAI + generateForms AS9102), ProductionBatchOptimizationEngine (optimizeBatch/predictToolChanges/probingSchedule). Dispatcher wiring: 22 actions across camDispatcher (10), machineSetupDispatcher (3), qualityDispatcher (4), businessDispatcher (5) — exceeds U09 threshold of 9. Test count 49 exceeds U10 threshold of 40."
+}

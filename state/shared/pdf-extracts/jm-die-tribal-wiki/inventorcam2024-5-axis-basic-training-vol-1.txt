@@ -1,0 +1,487 @@
+Application Tutorial | InventorCAM 2024
+
+5X Basic Training | Vol. 1
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+          Contents
+
+Contents
+
+1. Introduction................................................................................................................... 1
+2. Opening the Part & Starting InventorCAM.................................................................. 3
+3. Milling Part Data............................................................................................................ 7
+4. Creating a 5-Axis Tool Path.......................................................................................... 11
+
+          i
+Introduction  1
+About this course
+This tutorial illustrates the advanced concepts of 5 Axis machining, post and machine simulation settings, basic parameters
+used in defining the tool path, parallel strategies of 5-Axis machining, and creating machine simulation.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the InventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial. This book is made with InventorCAM 2024 SP1.
+
+2
+  2 Opening the Part
+
+& Starting InventorCAM
+Before starting InventorCAM, you need to do the following settings that will enable you to select the right post processor
+and the machine associated with the post processor.
+1. Go to the Autodesk Inventor ribbon and select InventorCAM 2024 > CAM Settings.
+
+2. In InventorCAM Settings, you must pay attention to the path for machine simulation files and the location of the
+post processor.
+
+                By default, the post processor files and the
+                machine simulation files are located on this path:
+                /root/Program Files/InventorCAM/Gpptool.
+                But, it is a good practice to create separate folders
+                in the root directory for the post processor and
+                the machine simulation. For example, C:/GPP
+                & C:/Machine_Sim. The advantage of creating
+                separate folders is that the post processor and
+                machine simulation files remain intact even
+                when the InventorCAM version is uninstalled or
+                upgraded.
+3. Click CAM-Part.
+4. Ensure that the settings are as shown in the image.
+5. Click OK to exit the InventorCAM Settings window.
+
+4
+                                            2. Opening the part and starting InventorCAM
+
+6. Browse and open Basic Training.ipt.
+7. Click InventorCAM 2024 > New > Milling.
+
+The New Milling Part window displays.
+
+When the Use Model file directory check box is selected, InventorCAM saves the
+entire project in the location of the Autodesk Inventor part file. If the box is not
+checked, it stores the project in the "User" directory. It is recommended that you
+select Use Model file directory check box.
+
+CAM-Part name - The name of the part is always derived from the Autodesk Inventor part file name. If a CAM part
+already exists, then InventorCAM uses the suffixes -1, -2 to create alternate names.
+
+8. Click O K.
+
+The Milling Part Data window displays.
+
+                                            5
+6
+Milling Part Data  3
+In the Milling Part Data window, you must define the CAM part for machining.
+Post Processor Definition
+1. Select the post processor/machine that will be used to machine the part. The selection of the post/machine
+depends on the part to be machined and the availability of the machine with the customer.
+In this example, if you closely observe the part, you will notice that we need to machine the periphery of the part and
+also cut some pockets. Although a standard Table-Table Machine would serve the purpose, it is better to machine this on
+a Head-Table configuration of the machine. As we have a cylindrical part, it is advisable to use the DMU 100 Monoblock
+kind of a machine which has a tilting head and a rotary table. In our case, the rotary axis of the table is around X axis.
+This axis is also known as the A axis. The following figure explains the industry standard nomenclature that is used to
+represent axis:
+The part used in this tutorial will rotate around X axis and the head will tilt around Y axis. So, this machine will have A
+and B axis.
+
+                                              Rotation Around X Axis = A Axis
+                                              Rotation Around Y Axis = B Axis
+                                              Rotation Around Z Axis = C Axis
+2. In the CNC - Machine list, click FANUC5a.
+Coordinate System Definition
+
+8
+                                                                                                                               3. Milling Part Data
+Coordinate System Definition
+The coordinate system on the part must reflect the machine axis. In this tutorial, the part is cylindrical in shape, and one
+of the axis of the machine is rotating around X axis. Therefore, the X axis of the coordinate system must be the rotating
+axis. Do the following:
+3. Click CoordSys in the Define section.
+The CoordSys window opens which has the options to define a coordinate system. Use the most relevant option for
+cylindrical parts. The most relevant option is to align one axis along the axis of revolution of the cylinder.
+4. In the Place CoordSys origin to list, click Center of revolution face.
+5. Select the face as shown in the image.
+
+As our axis of rotation on the machine table is around X axis, we must align
+our X axis along the axis of revolution of the cylinder. And, the Z axis must
+denote the depth axis.
+
+You can do this using the Modify by flip functionality available in InventorCAM.
+Select Change to opposite button to shift the coordinate position on the other side.
+It must now look like as shown in the image.
+
+Now, using the Modify by flip functionality, align the X axis to the axis of revolution of the cylinder. Ensure that the Z
+axis is pointing to the depth, and the Y axis is denoting the tilting head
+
+                                                                                                                                                        9
+The resultant coordinate system must look as shown in the image.
+6. Click
+The CoordSys Data window displays
+
+7. Enter the parameters as shown in the image.
+8. Click
+9. Click in the CoordSys Manager window.
+10. Click to come out of the Milling Part Data window.
+
+Target definition
+To define the part, do the following:
+11. Right click Target in the CAM tree manager > Define.
+
+12. Select the part as shown in the image.
+13. Click
+
+10
+4 Creating a 5-Axis Tool
+            Path
+We will now create our first 5 Axis Tool path and learn some basic functionality in InventorCAM 5 Axis Simultaneous
+Milling.
+1. Right click Operations > Machine setup > Add at start of operations tree.
+2. Click Part Mounting [MAC-1 (1- Position)] and enter a
+value of 250 in the Z column.
+3. Click OK.
+
+4. Right click Setup > Add Milling Operation > Sim 5
+Axis Milling.
+Sim 5 Axis Machining always works with the 1st position of
+any coordinate system. For example, MAC1 POS1, MAC2
+POS1, MAC3 POS1 etc. It never allows you to select any
+other positions of the coordinate system.
+
+5. In the Technology list, click Parallel cuts.
+6. Click Geometry.
+The Geometry area is subdivided into 3 groups.
+1. Geometry selection area
+2. Work type
+3. The area to be cut and other parameters
+
+12
+                                                                              4. Creating a 5-Axis Tool Path
+
+7. Click  under Drive surface.
+
+8. Select the highlighted face.
+
+The face is displayed in the geometry selected area.
+
+Every surface has 2 directions. The outer direction and the inner direction.
+Depending on which side of the part has to be machined you can select the
+direction. However, if there is a solid model, then the outer direction is
+automatically set.
+
+9. Select the Show direction for selected faces checkbox to show the
+direction.
+
+10. Click
+
+11. Set the Work type. The following options are available:
+Around `X' Axis : The cuts must be normal to X Axis
+Around `Y' Axis : The cuts must be normal to Y Axis
+Around `Z' Axis : The cuts must be normal to Z Axis
+
+12. In Around axis list, click X-Axis.
+
+13. Select the Constant option.
+The Type in the Area section, allows us to set how much area of the drive surface must be machined. Following three
+options are available for the selected strategy (i.e. Parallel cuts):
+
+Full, avoid cuts at exact edges:
+This option creates a tool path for the entire surface. However, it avoids creating the tool path at the trimmed edges of
+the surface. This is useful when we do not want to blunt/spoil an existing edge which is already machined or, when the
+model is imported from another CAD system as the surfaces which are imported from other CAD system can have
+imperfect trimmed edges. This can result in the tool paths having many jumps to the retract plane.
+The value by which the tool path starts from inside the surface edge is
+determined by the Maximum Step Over parameter in the Tool path Parameters
+tab.
+
+                                                                              13
+Full, Start and end at exact surface edges:
+This option creates a tool path from the exact edge (both start and end edges). In this option we can give a margin by
+which the tool path will start from inside the surface edge. The value is to compensate for the inaccuracies in the trimmed
+edge.
+If you select Full, Start and end at exact surface edges, you see these options:
+It is always a good practice to give an allowance which is either default (0.03mm) or
+something close to it. Making the additional margins close to 0 creates unnecessary
+jumps to the clearance plane because there are inaccuracies in the trimmed surface
+edges.
+
+Limit cuts by one or two points:
+This option allows us to create a tool path on the surface using the following scenarios:
+Selecting only the start point ends the tool path at that
+point and from the start edge of the surface. The following
+figure explains this scenario:
+
+Selecting the second point ends the tool path at that point similar to what is explained in option 1.
+Selecting both the points creates the tool path between the
+two points. This option is very similar to defining an area
+for machining. The only difference is that two points are
+used to define the area.
+
+14. In the Type list, click Full, avoid cuts at exact edges.
+15. Click Tool > Select.
+
+14
+                                              4. Creating a 5-Axis Tool Path
+
+16. Double click BALL NOSE MILL tool icon to
+add it as the tool.
+
+17. Click
+
+The next step is to define the clearance area type and values for clearance definition. We will look at this step after
+generating the tool path, as at that point, it will be much clearer.
+
+18. Click Tool path parameters.
+We will look at the following three main parameters which will be defined in this tool path:
+i. Cut tolerance
+ii. Distance
+iii. Maximum Step Over/Scallop
+
+Cut tolerance:
+
+This parameter is the tolerance with which the toolpath is generated. This parameter is "Bi-tol" which means any value
+defined as the tolerance is taken as +/-
+Note that here the 5 Axis Simultaneous directly uses surfaces to perform the calculations. Unlike HSM which uses
+intermediate mesh to do the calculations. A mesh is generally made up of triangles which is the simplest geometry to
+calculate on. Therefore, if the surfaces are of good quality, even a slightly loose tolerance in the 5 Axis Simultaneous
+gives a very high quality surface finish. Tightening the tolerance results in higher calculation times and more number of
+points in the resultant Gcode file.
+
+Distance:
+
+This parameter is used to generate more number of points with equal spacing between them. Generally, InventorCAM
+calculates points on a given surface based on tolerance. However, the number of points can sometimes be too less.
+For example, on a surface which has extremely large curvature radius or on small surfaces which can lose out on detail
+because of less number of points representing the surface. To overcome this, the distance parameter is used.
+
+Points Generated on surface with a given tolerance
+                                                                                                               15
+                                       Points Generated on surface with a given tolerance and distance
+
+Note that using the distance parameter increases the number of points appearing in the Gcode file in multiples. This
+can sometimes slow down old machines as they do not have the processing power to read in the large number of points.
+Therefore, this parameter must always be used judiciously.
+Maximum step over:
+This parameter is the maximum distance between two subsequent toolpath passes. Remember that if the distance is
+"Maximum" it means at some areas the distance can also be lower than what is defined. Changing the maximum step over
+influences the scallop value and vice versa.
+Now, set the above explained values:
+Cut tolerance. 0.02
+Distance. Do not use this parameter now
+Maximum step over. 3
+Leave the rest of the parameters as default.
+Let us now create and visualize our first 5 axis tool path.
+
+19. Click
+The tool path calculation in InventorCAM 5 Axis generally happens in the following three stages:
+i. Creating cut sections on the drive surfaces
+ii. Linking the cut sections based on sorting and links
+iii. Checking for gouges and applying the gouge check reactions
+
+20. Click
+The Simulation window displays.
+
+21. Click
+
+16
+                                                                 4. Creating a 5-Axis Tool Path
+
+The calculated tool path should look as displayed in the image:
+
+Let us run the machine simulation to understand some crucial problems in our current tool path. We will use DMU 100
+Monoblock machine to simulate our tool path.
+22. Click Machine Simulation.
+This step does the following:
+Creates the part & stock STL and loads into the simulation
+Loads the tool path with tools & holders
+Loads the machine from the machine sim folder
+Depending on the number of tool paths and tolerance of the
+part, it may take several minutes to start the machine simulation.
+Note: Click OK to this window. This window appears as there is
+no stock defined for this part.
+23. Click
+This is how the simulation looks like:
+
+                                                                                                                                                      17
+24. Click  in the Simulation window.
+
+To understand what causes the gouge in the very first move of the part, we need to understand the Levels option in the
+5 Axis Tool path Definition Box.
+
+25. Click Levels.
+Levels is the clearance plane. There are four types of levels
+in InventorCAM 5 Axis.
+i. Automatic
+ii. Clearance to a Plane
+iii. Clearance to an imaginary Cylinder
+iv. Clearance to an imaginary Sphere
+
+Automatic
+
+This option is set as default. When this option is selected from the Type list, InventorCAM automatically determines the
+clearance area type, position and dimension to maintain the most suitable clearance level.
+
+Clearance to a Plane:
+
+Using this option the retracts of the tool always take to the plane specified. The plane could be in either Automatic, X
+Direction, Y Direction or, Z Direction. The plane can also be user defined using two points.
+
+Clearance to an Imaginary Cylinder:
+
+Using this option the retracts of the tool are taken to the nearest point on an imaginary cylinder. This cylinder can have
+its axis running either through X axis, Y axis or, Z axis. The axis can also run through a user defined direction which can
+be defined using two points in space. The other parameter that the user is allowed to define is the radius of this imaginary
+cylinder.
+
+This option is best suited for this part as this is rotating around X axis and the retracts must take place on the nearest
+point on an imaginary cylinder.
+
+Clearance to an Imaginary Sphere:
+
+Using this option the retracts of the tool take place on an imaginary sphere. The radius and centre position of this sphere
+is user defined.
+
+This option is best suited for impeller kind of parts.
+
+26. In the Type list, click Cylinder.
+
+27. Define a Radius of 65 mm.
+
+The part has a radius of 50 mm, therefore, we will have a constant clearance of 15 mm throughout. The axis of the
+Cylinder will pass though X axis.
+
+28. Select the Parallel to X option.
+
+29. Click
+
+18
+                                                            4. Creating a 5-Axis Tool Path
+
+30. Click
+The Simulation window displays.
+
+31. Click
+You can see that the retracts look much better than before
+
+32. Click Machine Simulation.
+33. Click
+We can see that the initial gouge is no longer there and also the retracts are much better and easy on the machine.
+34. Click
+We will now look at two more issues that must be fixed.
+1. Leads and links for entry, exit and retracts.
+2. Tilt angle to avoid cutting exactly at the tip of the
+cutter.
+
+                                                                                                                                                      19
+We can see that the initial gouge is no longer there and also the retracts are much better and easy on the machine.
+35. Click
+We will now look at two more issues that must be fixed.
+1. Leads and links for entry, exit and retracts.
+2. Tilt angle to avoid cutting exactly at the tip of the cutter.
+Leads & Links:
+These are very important to allow the tool to enter and exit the material smoothly. As you can see in the below picture,
+the tool is directly entering into the material, this can cause the tool to chip off or wear early.
+
+Let us see some of the common leads and links used in this part.
+The first leads are applied to the main entry and exit of the tool into and out of the part.
+36. Click Link.
+37. Click next to Use Lead-In.
+The Lead-In window displays.
+38. Clear the Use default Lead-In check box.
+39. Enter the parameters as shown in the image.
+40. Click OK.
+
+20
+                                                 4. Creating a 5-Axis Tool Path
+
+41. Click next to Use Lead-Out.
+The Lead-Out window displays.
+42. Clear the Use default Lead-Out check box.
+43. Enter the parameters as shown in the image.
+44. Click OK.
+
+45. Click the Links tab.
+46. Enter the parameters as shown in the image.
+
+47. Click Default Lead-In/Out.
+48. Enter the parameters as shown in the image.
+49. Click
+
+                                                 21
+50. Click
+The Simulation window displays.
+51. Click
+The Lead-Ins and Lead-Outs look like this:
+
+52. Click
+We will now look at tool axis control which is the most important part in 5 Axis Machining. This is important as the tool
+axis control defines the orientation of the tool axis during 5 Axis Machining. An improper tool axis control definition
+can cause jerks on the machine and can also gouge into the part.
+In our exercise we will use the tool axis control to effectively use the tool to cut the material and not grind/rub against
+the material.
+Observe the following images:
+
+22
+                                                                                                                4. Creating a 5-Axis Tool Path
+In the above scenario, the tip of the tool is doing all the cutting. This is not the best method to cut as the tip of the tool
+has "0" RPM. This creates a grinding/rubbing effect on the material and wears out the tool. The surface finish appears
+jaded.
+To make the tool cut, and not rub or grind, a small tilt angle must be applied so that we push the tip of the tool away from
+the cutting area and use the point on the spherical part of the tool which has the "RPM" to cut the material.
+Take a look at this image:
+
+53. Click Tool axis control.
+54. In the Tilt angle at side of cutting field, enter the value of 25.
+55. Click
+56. Click
+The Simulation window displays.
+57. Click Machine Simulation.
+You can see that the tip is no longer cutting the part but
+the side of the tool is cutting the material. Depending on
+the diameter of the cutter and the machine kinematics,
+this angle can either be increased or decreased to get
+the desired results. This angle is more popularly applied
+when Bull Nose Cutters are used.
+58. Click
+
+                                                                                                                                                      23
+Tilt Angle is the angle of the tool axis across the tool path in the feed direction, while Lead/Lag angle is the angle of the
+tool axis along the tool path in the feed direction.
+
+Unlike tilt angle which physically tilts the tool, lead/lag angle in this machine produces a shift from the centre thereby
+producing the same effect of a tilt angle (Pushing the tip of the tool away from the cutting area).
+
+24
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

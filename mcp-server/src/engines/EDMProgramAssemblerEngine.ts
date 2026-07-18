@@ -222,6 +222,50 @@ const DIALECT_CODES = {
   },
 } as const;
 
+/** One die-sink EDM burn setting (a row of the rough->finish power schedule). */
+export interface SinkerBurnSetting {
+  pass_type: "rough" | "semi_finish" | "finish";
+  /** Peak discharge current [A] */
+  peak_current_A: number;
+  /** Pulse on-time [microseconds] */
+  on_time_us: number;
+  /** Pulse off-time [microseconds] */
+  off_time_us: number;
+  /** Radial overcut / spark gap per side [mm] */
+  overcut_mm: number;
+  /** Planetary orbit radius for sidewall finishing [mm] (0 = straight plunge) */
+  orbit_radius_mm: number;
+  /** Expected surface finish [um Ra] */
+  ra_um: number;
+  /** Servo plunge feed [mm/min] */
+  plunge_feed_mm_min: number;
+}
+
+/** Die-sink (ram) EDM program request. Electrode plunges in Z; a rough->finish
+ *  burn schedule progressively tightens the cavity via decreasing current/gap. */
+export interface SinkerEDMInput {
+  program_number: number;
+  part_name: string;
+  material: string;
+  /** Total cavity plunge depth [mm] (electrode travel below part top) */
+  cavity_depth_mm: number;
+  /** Electrode material (graphite | copper); informational header field */
+  electrode_material?: string;
+  /** Cavity-center XY [mm]; default {0,0} */
+  electrode_xy?: ProgramPoint;
+  /** Rough->finish burn schedule; if omitted, a standard graphite-in-steel recipe is used */
+  burn_settings?: SinkerBurnSetting[];
+  dialect?: ControllerDialect;
+  units?: UnitSystem;
+  work_offset?: string;
+  /** Z height to retract to between settings for flushing [mm]; default +5 */
+  retract_z_mm?: number;
+  /** Insert mandatory stops between burn settings; default true */
+  include_stops?: boolean;
+  machine?: string;
+  notes?: string;
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // ENGINE
 // ══════════════════════════════════════════════════════════════════════════════
@@ -387,11 +431,16 @@ export class EDMProgramAssemblerEngine {
     codes: typeof DIALECT_CODES[ControllerDialect],
     dialect: ControllerDialect
   ): ProgramBlock {
+    // U-PP-NONFINITE-EMIT-SWEEP: a non-finite setup start coord would emit a literal
+    // `XNaN`/`YInfinity` -- emit an ERROR marker instead (fail loud). Byte-identical finite.
+    const startLine = (Number.isFinite(startPoint.x) && Number.isFinite(startPoint.y))
+      ? `G00 X${startPoint.x.toFixed(3)} Y${startPoint.y.toFixed(3)}`
+      : `(ERROR: NON-FINITE SETUP START COORD (${startPoint.x},${startPoint.y}) - NO RAPID EMITTED, REVIEW)`;
     const lines = [
       "",
       "(--- SETUP ---)",
       workOffset,
-      `G00 X${startPoint.x.toFixed(3)} Y${startPoint.y.toFixed(3)}`,
+      startLine,
       codes.wire_thread,
       codes.flush_on,
     ];
@@ -427,9 +476,14 @@ export class EDMProgramAssemblerEngine {
                      pass.compensation === "right" ? codes.comp_right :
                      null;
 
-    // Move to start with comp
+    // Move to start with comp. U-PP-NONFINITE-EMIT-SWEEP: a non-finite X/Y would emit a
+    // literal `XNaN`/`YInfinity` the wire control rejects -- emit an ERROR marker instead
+    // (this block-builder has no warnings channel; the inline comment is the fail-loud
+    // signal). BYTE-IDENTICAL for finite inputs.
     const firstPoint = path.points[0] || path.start;
-    if (compCode) {
+    if (!Number.isFinite(firstPoint.x) || !Number.isFinite(firstPoint.y)) {
+      lines.push(`(ERROR: PASS ${pass.pass_number} NON-FINITE START COORD (${firstPoint.x},${firstPoint.y}) - NO MOVE EMITTED, REVIEW WIRE PATH)`);
+    } else if (compCode) {
       lines.push(`${compCode} G01 X${firstPoint.x.toFixed(3)} Y${firstPoint.y.toFixed(3)}`);
     } else {
       lines.push(`G01 X${firstPoint.x.toFixed(3)} Y${firstPoint.y.toFixed(3)}`);
@@ -438,16 +492,30 @@ export class EDMProgramAssemblerEngine {
     // Cut path points
     for (let i = 1; i < path.points.length; i++) {
       const pt = path.points[i];
+      // Skip a non-finite point (would emit XNaN/YInfinity) + flag it loudly.
+      if (!Number.isFinite(pt.x) || !Number.isFinite(pt.y)) {
+        lines.push(`(ERROR: PASS ${pass.pass_number} POINT ${i} NON-FINITE COORD (${pt.x},${pt.y}) SKIPPED - REVIEW WIRE PATH)`);
+        continue;
+      }
       let line = `X${pt.x.toFixed(3)} Y${pt.y.toFixed(3)}`;
       if (pt.u !== undefined && pt.v !== undefined) {
-        line += ` U${pt.u.toFixed(3)} V${pt.v.toFixed(3)}`;
+        // A non-finite taper U/V is the same class -- omit + flag.
+        if (Number.isFinite(pt.u) && Number.isFinite(pt.v)) {
+          line += ` U${pt.u.toFixed(3)} V${pt.v.toFixed(3)}`;
+        } else {
+          lines.push(`(WARNING: PASS ${pass.pass_number} POINT ${i} NON-FINITE TAPER U/V (${pt.u},${pt.v}) OMITTED - REVIEW)`);
+        }
       }
       lines.push(line);
     }
 
     // Close path if needed
     if (path.closed) {
-      lines.push(`X${path.start.x.toFixed(3)} Y${path.start.y.toFixed(3)}`);
+      if (!Number.isFinite(path.start.x) || !Number.isFinite(path.start.y)) {
+        lines.push(`(ERROR: PASS ${pass.pass_number} NON-FINITE CLOSE COORD (${path.start.x},${path.start.y}) - REVIEW WIRE PATH)`);
+      } else {
+        lines.push(`X${path.start.x.toFixed(3)} Y${path.start.y.toFixed(3)}`);
+      }
     }
 
     // Cancel comp
@@ -523,6 +591,131 @@ export class EDMProgramAssemblerEngine {
    */
   assembleWireEDM(input: ProgramAssemblyInput): ProgramAssemblyResult {
     return this.assemble(input);
+  }
+
+  /**
+   * Assemble a die-sink (ram) EDM program. Unlike wire EDM (XY contour cut) the
+   * electrode plunges in Z and a rough->finish BURN SCHEDULE progressively tightens
+   * the cavity: each setting drops peak current + pulse on-time, shrinking the spark
+   * gap (overcut) and orbit radius -- trading MRR for surface finish. Default recipe
+   * is a standard graphite-in-steel starting point (operator-tunable per machine).
+   *
+   * @param input die-sink request (cavity depth + optional burn schedule)
+   * @returns ProgramAssemblyResult -- same contract as assemble()
+   */
+  assembleSinkerEDM(input: SinkerEDMInput): ProgramAssemblyResult {
+    const dialect = input.dialect ?? DEFAULT_DIALECT;
+    const codes = DIALECT_CODES[dialect];
+    const units = input.units ?? DEFAULT_UNITS;
+    const workOffset = input.work_offset ?? DEFAULT_WORK_OFFSET;
+    const xy = input.electrode_xy ?? { x: 0, y: 0 };
+    const retractZ = input.retract_z_mm ?? 5;
+    const includeStops = input.include_stops ?? true;
+    const depth = input.cavity_depth_mm;
+    const warnings: string[] = [];
+
+    if (!(input.program_number >= 1 && input.program_number <= 9999)) {
+      return this.buildInvalidResult("Sinker EDM: program_number must be 1-9999");
+    }
+    if (!(depth > 0)) {
+      return this.buildInvalidResult("Sinker EDM: cavity_depth_mm must be > 0");
+    }
+
+    // Standard graphite-electrode-in-steel rough->finish recipe (peak current,
+    // pulse on/off, overcut gap, orbit, Ra). A common die-sink starting point;
+    // operator-tunable per machine/electrode/material -- NOT a canonical constant.
+    const schedule: SinkerBurnSetting[] =
+      input.burn_settings && input.burn_settings.length > 0
+        ? input.burn_settings
+        : [
+            { pass_type: "rough",       peak_current_A: 20, on_time_us: 100, off_time_us: 30, overcut_mm: 0.25, orbit_radius_mm: 0,    ra_um: 3.2, plunge_feed_mm_min: 2.0 },
+            { pass_type: "semi_finish", peak_current_A: 8,  on_time_us: 25,  off_time_us: 12, overcut_mm: 0.10, orbit_radius_mm: 0.08, ra_um: 1.6, plunge_feed_mm_min: 1.0 },
+            { pass_type: "finish",      peak_current_A: 3,  on_time_us: 6,   off_time_us: 6,  overcut_mm: 0.04, orbit_radius_mm: 0.03, ra_um: 0.8, plunge_feed_mm_min: 0.5 },
+          ];
+
+    const unitCode = units === "metric" ? codes.metric : codes.imperial;
+    const blocks: ProgramBlock[] = [];
+    const date = new Date().toISOString().split("T")[0];
+
+    blocks.push({
+      type: "header",
+      lines: [
+        `O${String(input.program_number).padStart(4, "0")}`,
+        `(DIE-SINK EDM: ${input.part_name})`,
+        `(MATERIAL: ${input.material})`,
+        `(ELECTRODE: ${input.electrode_material ?? "graphite"})`,
+        `(CAVITY DEPTH: ${depth.toFixed(3)}mm | BURNS: ${schedule.length})`,
+        `(DIALECT: ${dialect.toUpperCase()} | DATE: ${date})`,
+        ...(input.machine ? [`(MACHINE: ${input.machine})`] : []),
+        ...(input.notes ? [`(${input.notes})`] : []),
+      ],
+    });
+
+    blocks.push({
+      type: "setup",
+      lines: [
+        codes.absolute,
+        unitCode,
+        workOffset,
+        `G00 X${xy.x.toFixed(3)} Y${xy.y.toFixed(3)}`,
+        `G00 Z${retractZ.toFixed(3)} (RAPID TO CLEARANCE ABOVE PART TOP)`,
+      ],
+    });
+
+    let totalTime = 0;
+    let passNum = 0;
+    for (const s of schedule) {
+      passNum++;
+      // Plunge time [min] = depth / servo feed; +20% on finishing orbit cleanup.
+      const plungeTime = s.plunge_feed_mm_min > 0 ? depth / s.plunge_feed_mm_min : 0;
+      const orbitTime = s.orbit_radius_mm > 0 ? plungeTime * 0.2 : 0;
+      totalTime += plungeTime + orbitTime;
+      const lines: string[] = [
+        `(--- BURN ${passNum}: ${s.pass_type.toUpperCase()} | I=${s.peak_current_A}A ON=${s.on_time_us}us OFF=${s.off_time_us}us | GAP=${s.overcut_mm.toFixed(3)}mm Ra=${s.ra_um}um ---)`,
+        codes.flush_on,
+        `G01 Z${(-depth).toFixed(3)} F${s.plunge_feed_mm_min.toFixed(2)} (PLUNGE TO DEPTH)`,
+      ];
+      if (s.orbit_radius_mm > 0) {
+        lines.push(`(ORBIT R${s.orbit_radius_mm.toFixed(3)}mm -- planetary sidewall finishing to size)`);
+      }
+      lines.push(
+        `G00 Z${retractZ.toFixed(3)} (RETRACT FOR FLUSH)`,
+        codes.flush_off,
+      );
+      if (includeStops && passNum < schedule.length) {
+        lines.push(`${codes.mandatory_stop} (CHANGE BURN SETTING)`);
+      }
+      blocks.push({ type: "pass", pass_number: passNum, lines });
+    }
+
+    blocks.push({
+      type: "footer",
+      lines: [
+        "",
+        "(--- END ---)",
+        `G00 Z${retractZ.toFixed(3)}`,
+        codes.flush_off,
+        codes.program_end,
+      ],
+    });
+
+    const allLines = blocks.flatMap(b => b.lines);
+    if (depth > 50) {
+      warnings.push(`Deep cavity (${depth.toFixed(1)}mm) -- verify flushing strategy + electrode wear compensation`);
+    }
+
+    return {
+      success: true,
+      program_number: input.program_number,
+      blocks,
+      program_text: allLines.join("\n"),
+      line_count: allLines.length,
+      total_time_min: Math.round(totalTime * 10) / 10,
+      pass_count: schedule.length,
+      dialect,
+      warnings,
+      summary: `Die-sink EDM O${String(input.program_number).padStart(4, "0")}: ${schedule.length} burn(s), ${depth.toFixed(1)}mm deep, ${dialect}`,
+    };
   }
 
   /**

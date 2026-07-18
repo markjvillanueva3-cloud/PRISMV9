@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="da3d354798a8379349922527e570816476ff76d3e213136c8614fc8de4f7e108">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Per-Slot Closed-Loop Integration — India as the meta-bus</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Per-Slot Closed-Loop Integration — India as the meta-bus</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/PER-SLOT-CLOSED-LOOP-INTEGRATION-2026-05-28.md</div>
+<div class="meta">Generated 2026-05-28T16:05:31.320Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Per-Slot Closed-Loop Integration — India as the meta-bus</li><li class="prism-toc-l2">The unifying rule</li><li class="prism-toc-l2">The 4 india-canonical surfaces (every closed-loop slot consumes)</li><li class="prism-toc-l2">Per-slot closed-loop checklist</li><li class="prism-toc-l2">Closed-loop integration with india (CANONICAL)</li><li class="prism-toc-l2">Per-slot mapping (which slots have closed-loop coverage)</li><li class="prism-toc-l2">What india ships first (per its own #1 agent recommendation)</li><li class="prism-toc-l2">What each domain slot ships (from agent recommendations)</li><li class="prism-toc-l2">What goes on each slot&#39;s CLAUDE.md (universal addition)</li><li class="prism-toc-l2">Closed-loop integration with india</li><li class="prism-toc-l2">Validation</li><li class="prism-toc-l1">1. Outcome publishing wired</li><li class="prism-toc-l1">2. Feature emission wired</li><li class="prism-toc-l1">3. Tribal-capture path used (not direct MD writes)</li><li class="prism-toc-l1">4. Calibration record wired</li></ul></nav><h1 class="prism-h1">Per-Slot Closed-Loop Integration — India as the meta-bus</h1>
+<blockquote class="prism-quote">Operator directive 2026-05-28: <em>&quot;india and several of the domains are building internal rag/cag closed loop learning systems make sure they build like india since thats its primary domain. any chat currently building a closed loop training, self improving and self learning system should tie into india&#39;s work&quot;</em></blockquote>
+<h2 class="prism-h2">The unifying rule</h2>
+<p><strong>India owns the meta-substrate. Every domain slot building closed-loop self-improvement consumes india&#39;s bus + writes its own feedback through india&#39;s surfaces.</strong> No parallel feedback buses. No per-slot LoRA training loops that bypass india&#39;s drift-canary. No per-slot RAG pipelines that bypass india&#39;s outcome ledger.</p>
+<p>Per-domain optimization stays per-slot. <strong>Learning signal goes through india.</strong></p>
+<h2 class="prism-h2">The 4 india-canonical surfaces (every closed-loop slot consumes)</h2>
+<p>Per <code class="prism-inline-code">reference_khairallah_5layer_context_engineering_2026_05_28</code> + india&#39;s own galaxy (<code class="prism-inline-code">engines/ai-training/CLAUDE.md</code>):</p>
+<ol class="prism-md-list"><li><strong>OutcomeFeedbackBus</strong> (<code class="prism-inline-code">prism_intelligence:xproc_outcome_*</code> + <code class="prism-inline-code">state/shared/outcome-bus.jsonl</code>)</li></ol>
+<p>Every slot&#39;s tool-call outcomes (success/failure/quality) land here. Used to train every model layer — GNN, LoRA, MetaLearning, calibration.</p>
+<ul class="prism-md-list"><li><strong>Closed-loop slot must:</strong> publish via <code class="prism-inline-code">xproc_outcome_publish</code> after every meaningful action.</li><li><strong>India&#39;s contribution:</strong> <code class="prism-inline-code">outcome-bus-auto-tap.mjs</code> PostToolUse hook (per india&#39;s #1 agent rec) — auto-publishes from every Edit/Write/Bash if not already manually published. Strips the manual step.</li></ul>
+<ol class="prism-md-list"><li><strong>NN-GRAPH wiring-inference + retrain lifecycle</strong> (<code class="prism-inline-code">prism_intelligence:xproc_neural_*</code> + <code class="prism-inline-code">nn-graph-retrain-lifecycle.mjs</code>)</li></ol>
+<p>GraphSAGE GNN as tier-5 wiring classifier; per-slot domain models can plug in as additional tiers (e.g. mill-specific LoRA as tier-6 on top of GNN tier-5).</p>
+<ul class="prism-md-list"><li><strong>Closed-loop slot must:</strong> feature-vector its domain assets (engines, sequences, tools) for GNN consumption. India&#39;s <code class="prism-inline-code">xproc_kg_project_features</code> action is the canonical encoder.</li><li><strong>India&#39;s contribution:</strong> drift detection + retrain triggers. Slots don&#39;t decide when to retrain — india does, fleet-wide.</li></ul>
+<ol class="prism-md-list"><li><strong>RAG / Tribal corpus</strong> (<code class="prism-inline-code">prism_knowledge:tribal_*</code> + <code class="prism-inline-code">xproc_rag_features</code>)</li></ol>
+<p>Per-domain tribal tips feed retrieval-augmented generation for that domain&#39;s slot. India runs the embedding model + indexing; slots write tips through canonical <code class="prism-inline-code">tribal_capture</code>.</p>
+<ul class="prism-md-list"><li><strong>Closed-loop slot must:</strong> write tips via <code class="prism-inline-code">prism_knowledge:tribal_capture</code> slot=&lt;slot&gt; — NOT direct markdown writes to <code class="prism-inline-code">knowledge/tribal/*.md</code> (auto-overwritten on regen per <code class="prism-inline-code">mike-tribal-tip-source-guard</code> recommendation).</li><li><strong>India&#39;s contribution:</strong> RAG quality scoring (<code class="prism-inline-code">xproc_rag_features</code>) + per-slot embedding-cache management.</li></ul>
+<ol class="prism-md-list"><li><strong>Calibration monitor + conformal prediction</strong> (<code class="prism-inline-code">prism_intelligence:xproc_calibration_monitor_<em></code> + <code class="prism-inline-code">xproc_conformal_</em></code>)</li></ol>
+<p>Every per-slot recommendation (speed/feed, toolpath strategy, quote price, etc.) ships with a conformal prediction interval. India tracks ECE drift + recalibrates.</p>
+<ul class="prism-md-list"><li><strong>Closed-loop slot must:</strong> record predictions + actuals via <code class="prism-inline-code">xproc_calibration_monitor_record</code>.</li><li><strong>India&#39;s contribution:</strong> drift detection → recalibration cron + alerting on ECE &gt; threshold.</li></ul>
+<h2 class="prism-h2">Per-slot closed-loop checklist</h2>
+<p>For every domain slot building self-improving/self-learning behavior, the slot&#39;s <code class="prism-inline-code">engines/&lt;galaxy&gt;/CLAUDE.md</code> MUST declare these 4 wires:</p>
+<pre class="prism-codeblock" data-lang="markdown"><code>## Closed-loop integration with india (CANONICAL)
+
+This galaxy participates in india&#39;s fleet-wide learning loop:
+
+- **Outcome publishing:** every &lt;domain&gt; action publishes via `xproc_outcome_publish` with `slot: &lt;slot&gt;`, `domain: &lt;galaxy&gt;`. Auto-fired by `outcome-bus-auto-tap.mjs` if not manually called.
+- **Feature emission:** &lt;domain&gt; engines emit feature vectors via `xproc_kg_project_features` so india&#39;s GNN can classify them.
+- **Tribal capture:** all &lt;domain&gt; learnings written via `prism_knowledge:tribal_capture slot=&lt;slot&gt;` — NEVER direct MD writes.
+- **Calibration:** every &lt;domain&gt; recommendation that ships ALSO records actuals via `xproc_calibration_monitor_record` so india&#39;s drift-canary can detect when retraining is due.
+
+When in doubt about CADence, retraining triggers, or model rollout — **defer to india&#39;s surfaces**; do not roll your own.</code></pre>
+<h2 class="prism-h2">Per-slot mapping (which slots have closed-loop coverage)</h2>
+<p>Per operator&#39;s enumeration:</p>
+<table class="prism-md-table"><thead><tr><th>Slot</th><th>Domain</th><th>Closed-loop scope</th><th>India-wire status</th></tr></thead><tbody><tr><td><strong>foxtrot</strong></td><td>mill</td><td>adaptive feed/speed, chatter prediction, tool-life Weibull</td><td>Has MillScientificPipelineEngine + AdaptiveControlEngine; needs OutcomeFeedbackBus auto-publish wire</td></tr>
+<tr><td><strong>whiskey</strong></td><td>lathe</td><td>adaptive turning, lathe LoRA (lathe-lora dispatcher actions), G50/CSS auto-tune</td><td>Has lathe-lora ledger + adaptive engagement; needs india&#39;s drift-canary integration</td></tr>
+<tr><td><strong>mike</strong></td><td>wedm</td><td>wire-break Weibull prediction, multi-pass cycle learning, recast-layer correction</td><td>Has WEDM_OUTCOME_LEDGER + ML-Optimize; needs auto-publish to fleet OutcomeFeedbackBus (currently slot-local)</td></tr>
+<tr><td><strong>xray</strong></td><td>blueprint-vision</td><td>OCR confidence calibration, multi-print classifier retrain, GD&amp;T parse error patterns</td><td>NEW (galaxy shipped 2026-05-28); should design closed-loop FROM india&#39;s bus from day-1</td></tr>
+<tr><td><strong>charlie</strong></td><td>quoting</td><td>quote-vs-actual calibration, bid-to-win learning, customer-knowledge graph drift</td><td>Has bid-to-win + ActualCostEngine + quote analytics; needs <code class="prism-inline-code">xproc_calibration_monitor_record</code> per quote</td></tr>
+<tr><td><strong>hotel</strong></td><td>business (ERP)</td><td>per-job cost variance learning, payroll prediction, KAIZEN cycle learning</td><td>Has erp-quality + actual-cost; needs OutcomeFeedbackBus wire for ERP-side events</td></tr>
+<tr><td><strong>oscar</strong></td><td>sfc (speed-feed)</td><td>per-material × tool calibration, online learning per cut, prior adaptation</td><td>Has speedfeed-dl + adaptive-physics-bridge; needs unified outcome publish</td></tr>
+<tr><td><strong>echo</strong></td><td>post-processor</td><td>dialect-quirk learning, controller-specific bug pattern memory</td><td>Has post-bridge-synergy; needs tribal-capture for every fix</td></tr>
+<tr><td><strong>delta</strong></td><td>cad</td><td>per-format parser confidence, CAD-system bridge reliability</td><td>Has cad-feedback-buffer + cad-outcome-stats; needs unified outcome publish</td></tr>
+<tr><td><strong>kilo</strong></td><td>cam</td><td>toolpath strategy outcome learning, per-CAM-system quirk retention</td><td>Has cam-feedback + cam-replay-stats; needs unified outcome publish</td></tr>
+<tr><td><strong>india</strong></td><td>ai-training</td><td>THE META — owns the bus, retrain cadence, drift canary, ensemble vote</td><td>OWNS the substrate</td></tr></tbody></table>
+<h2 class="prism-h2">What india ships first (per its own #1 agent recommendation)</h2>
+<p><strong><code class="prism-inline-code">outcome-bus-auto-tap.mjs</code></strong> — PostToolUse hook that taps every Edit/Write/Bash outcome across the fleet into OutcomeFeedbackBus as labeled training rows.</p>
+<p>Impact: the fleet generates ~5000 outcomes/day silently discarded. With this single hook, every other slot&#39;s closed-loop instantly has 5000×/day labeled training signal without operator action.</p>
+<p>Plus india&#39;s #4 (<code class="prism-inline-code">lora-drift-canary-eval.mjs</code>) — gives every domain LoRA an observable freshness signal so deploy-gate can be automated.</p>
+<p>These two ship first; every domain slot&#39;s closed-loop integration becomes trivial once they exist.</p>
+<h2 class="prism-h2">What each domain slot ships (from agent recommendations)</h2>
+<table class="prism-md-table"><thead><tr><th>Slot</th><th>First ship</th><th>Why</th><th>Source</th></tr></thead><tbody><tr><td>foxtrot</td><td><code class="prism-inline-code">mill-kienzle-inline-guard</code></td><td>PreToolUse hardblock on inlined physics constants; safety-critical</td><td>foxtrot agent rec #1</td></tr>
+<tr><td>mike</td><td><code class="prism-inline-code">mike-tribal-tip-source-guard</code></td><td>PreToolUse hardblock on edits to auto-regenerated tribal MDs</td><td>mike agent rec #5</td></tr>
+<tr><td>charlie</td><td><code class="prism-inline-code">charlie-customer-name-noise-collision-block</code></td><td>PreToolUse hardblock with anti-regression corpus</td><td>charlie agent rec #2</td></tr>
+<tr><td>india</td><td><code class="prism-inline-code">outcome-bus-auto-tap.mjs</code></td><td>Meta-fix — unlocks closed-loop for ALL slots</td><td>india agent rec #1</td></tr></tbody></table>
+<p>Each is &lt;2hr ship, single PreToolUse/PostToolUse hook, no new infrastructure required.</p>
+<h2 class="prism-h2">What goes on each slot&#39;s CLAUDE.md (universal addition)</h2>
+<p>Append to every <code class="prism-inline-code">engines/&lt;galaxy&gt;/CLAUDE.md</code> (template below; per-slot fills in <code class="prism-inline-code">&lt;domain&gt;</code> + <code class="prism-inline-code">&lt;slot&gt;</code>):</p>
+<pre class="prism-codeblock" data-lang="markdown"><code>## Closed-loop integration with india
+
+This galaxy participates in india&#39;s fleet-wide learning loop per
+`state/shared/specs/PER-SLOT-CLOSED-LOOP-INTEGRATION-2026-05-28.md`:
+
+- **Outcome publishing:** every &lt;domain&gt; action publishes via
+  `xproc_outcome_publish {slot: &#39;&lt;slot&gt;&#39;, domain: &#39;&lt;galaxy&gt;&#39;}`.
+  Auto-fired by `outcome-bus-auto-tap.mjs` if not manually called.
+- **Feature emission:** &lt;domain&gt; assets emit features via
+  `xproc_kg_project_features` for india&#39;s GNN tier-5 classifier.
+- **Tribal capture:** all learnings via `prism_knowledge:tribal_capture
+  slot=&lt;slot&gt;` — NEVER direct markdown writes.
+- **Calibration:** every shipped recommendation records actuals via
+  `xproc_calibration_monitor_record` so india&#39;s drift-canary fires
+  retrain candidacy at the right time.
+
+When in doubt about retrain triggers, model rollout, or feedback loop
+design — defer to india&#39;s surfaces; do not roll your own.</code></pre>
+<h2 class="prism-h2">Validation</h2>
+<p>A galaxy&#39;s closed-loop is &quot;india-integrated&quot; iff ALL 4 wires return true:</p>
+<pre class="prism-codeblock" data-lang="bash"><code># 1. Outcome publishing wired
+grep -l &quot;xproc_outcome_publish&quot; mcp-server/src/engines/&lt;galaxy&gt;/
+
+# 2. Feature emission wired
+grep -l &quot;xproc_kg_project_features\|featureVector\|emit.*feature&quot; mcp-server/src/engines/&lt;galaxy&gt;/
+
+# 3. Tribal-capture path used (not direct MD writes)
+grep -l &quot;prism_knowledge:tribal_capture\|tribalCaptureEngine&quot; mcp-server/src/engines/&lt;galaxy&gt;/
+
+# 4. Calibration record wired
+grep -l &quot;xproc_calibration_monitor_record\|conformal&quot; mcp-server/src/engines/&lt;galaxy&gt;/</code></pre>
+<p>A galaxy returning &lt;4 hits has gaps that should be filed as P0 wiring units.</p>
+<p>— Spec established 2026-05-28 by slot:alpha (a198ff5f) per operator directive on fleet-wide closed-loop unification through india.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

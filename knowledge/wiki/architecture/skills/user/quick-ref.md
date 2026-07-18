@@ -23,13 +23,28 @@ related:
 |-------|-------|
 | Name | `quick-ref` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/quick-ref.md` |
+| Source | `C:/Users/wompu/.claude/commands/quick-ref.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Quick Ref — Zero-Cost Context Card
+
+Print this reference card verbatim. No tool calls needed. Just read and relay.
+
+```
+PRISM QUICK REFERENCE
+=====================
+
+PROJECT ROOT: H:/prism/mcp-server/
+STATE DIR:    H:/prism/state/
+COMMANDS:     ~/.claude/commands/
+MEMORY:       ~/.claude/projects/C--Windows-System32/memory/MEMORY.md
+
+KEY PATHS
+├─ src/engines/          — 880+ engin
 
 <!-- AUTO-END -->
 

@@ -33,7 +33,7 @@ async function main() {
     try {
       const result = execSync(
         `git -C "${MCP_ROOT}" diff --name-only HEAD~10 2>/dev/null || git -C "${MCP_ROOT}" ls-files "*.ts" 2>/dev/null | head -${MAX_FILES}`,
-        { encoding: "utf-8", timeout: 5000 }
+        { windowsHide: true, encoding: "utf-8", timeout: 5000 }
       );
       recentFiles = result.split("\n")
         .filter(f => f.endsWith(".ts") && !f.includes("__tests__"))

@@ -477,7 +477,8 @@ export function pendulumCartExample(p: {
   return { A, B, C, D };
 }
 
-// WIRE-EXEMPT: control-theory primitive intentionally not wired this commit —
-// shares deferred dispatcher unit U-COURSE-FORGE-P1-DISPATCHER
-// (prism_calc:lti_analyze). Fully usable via direct import; composes with
+// WIRED: prism_algorithm:control_statespace (ENGINE-AUDIT 2026-06-19, slot:bravo) -- exposes the
+// function-free operations (transfer_function | frequency_response | ranks); the simulate path is
+// rejected at the dispatcher boundary (its u(t) input function is not serializable).
+// Also fully usable via direct import; composes with
 // ODEIntegrator (simulate path) which composes with OperatorSplittingMethod.

@@ -772,7 +772,7 @@ class LathePrintToleranceStackEngine {
     const result = ToleranceStackOutputSchema.safeParse(output);
 
     if (!result.success) {
-      errors.push(...result.error.errors.map((e: any) => `${e.path.join(".")}: ${e.message}`));
+      errors.push(...result.error.issues.map((e) => `${e.path.join(".")}: ${e.message}`));
     }
 
     // Business rule validations

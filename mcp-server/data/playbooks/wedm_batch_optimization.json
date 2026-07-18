@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "wedm-batch-optimization",
+  "name": "WEDM Batch Job Optimization",
+  "description": "Optimize batch of WEDM jobs for machine utilization and throughput",
+  "version": "1.0.0",
+  "trigger": "/wedm-batch",
+  "category": "scheduling",
+  "steps": [
+    {
+      "id": "step-1",
+      "name": "Load Job Queue",
+      "action": "wedm_load_job_queue",
+      "description": "Retrieve pending jobs from queue with priorities and deadlines",
+      "inputs": ["machine_id", "time_horizon_hours"],
+      "outputs": ["jobs", "constraints", "priorities"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-2",
+      "name": "Group by Material",
+      "action": "wedm_group_jobs",
+      "description": "Group jobs by material and wire type to minimize changeovers",
+      "inputs": ["jobs"],
+      "outputs": ["job_groups", "changeover_matrix"],
+      "timeout_sec": 15
+    },
+    {
+      "id": "step-3",
+      "name": "Optimize Sequence",
+      "action": "wedm_optimize_sequence",
+      "description": "Apply scheduling algorithm to minimize total time and changeovers",
+      "inputs": ["job_groups", "changeover_matrix", "priorities", "constraints"],
+      "outputs": ["optimized_sequence", "estimated_completion", "utilization_rate"],
+      "timeout_sec": 60,
+      "hooks": ["wedm-batch-deps", "wedm-schedule-conflict"]
+    },
+    {
+      "id": "step-4",
+      "name": "Validate Schedule",
+      "action": "wedm_validate_schedule",
+      "description": "Check schedule meets all deadlines and constraints",
+      "inputs": ["optimized_sequence", "constraints"],
+      "outputs": ["validation_result", "deadline_warnings"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-5",
+      "name": "Generate Run Sheet",
+      "action": "wedm_generate_run_sheet",
+      "description": "Create operator run sheet with setup instructions",
+      "inputs": ["optimized_sequence", "machine_id"],
+      "outputs": ["run_sheet", "setup_instructions", "expected_changeovers"],
+      "timeout_sec": 30
+    }
+  ],
+  "onError": {
+    "action": "wedm_flag_scheduling_issue",
+    "notify": ["scheduler", "supervisor"]
+  },
+  "metadata": {
+    "author": "PRISM WEDM AGI",
+    "created": "2026-04-15",
+    "relatedSkills": ["/wedm-batch"],
+    "relatedEngines": ["WEDMBatchOptimizer", "WEDMSchedulingEngine"]
+  }
+}

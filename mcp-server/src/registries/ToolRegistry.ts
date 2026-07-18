@@ -141,6 +141,23 @@ export interface CuttingTool {
   price?: number;               // USD
   availability?: string;
   last_updated?: string;
+
+  // ── TOOL-CATALOG-INGEST-MS0/U-TCI-A2 (2026-05-24, slot juliett) ──
+  // Optional fields populated by the per-vendor catalog ingest pipeline
+  // (scripts/extract-vendor-pdf.mjs → scripts/merge-catalog-extraction-to-registry.mjs).
+  // All optional — existing records load unchanged.
+  step_file_path?: string;        // absolute path to vendor STEP file (when downloaded)
+  datasheet_pdf_path?: string;    // absolute path to per-part spec sheet PDF
+  collision_envelope?: {          // parametric envelope for CollisionDetectionEngine
+    boundingCylinderD: number;    // mm
+    boundingCylinderL: number;    // mm
+    neckD?: number;               // mm — relieved-neck reach feature
+    neckL?: number;               // mm
+    shankD: number;               // mm
+    shankL?: number;              // mm
+    gaugeLength?: number;         // mm from holder face
+    taperAngle?: number;          // degrees (e.g., ball-nose body taper)
+  };
 }
 
 // ============================================================================

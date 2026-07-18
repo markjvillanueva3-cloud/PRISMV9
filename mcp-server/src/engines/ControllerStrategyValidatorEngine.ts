@@ -559,7 +559,12 @@ class ControllerStrategyValidatorEngineImpl {
   validate(
     strategy: StrategyType,
     controller: ControllerFamily,
-    overrides?: Partial<StrategyRequirements>
+    overrides?: Partial<StrategyRequirements>,
+    // Internal: strategies already on the current fallback-resolution path. FALLBACK_CHAINS is
+    // cyclic for some strategies (adaptive_clearing <-> trochoidal_milling, 5axis_simultaneous
+    // <-> swarf_cutting), so this guards validate() against infinite recursion when a controller
+    // is incompatible with every strategy in a cycle. External callers never pass this.
+    _fallbackVisited?: Set<StrategyType>,
   ): ValidationResult {
     const caps = CONTROLLER_DB[controller];
     if (!caps) {
@@ -772,13 +777,24 @@ class ControllerStrategyValidatorEngineImpl {
     if (!compatible) {
       const chain = FALLBACK_CHAINS[strategy];
       if (chain) {
+        // Cycle guard: FALLBACK_CHAINS is cyclic for some strategies (adaptive_clearing <->
+        // trochoidal_milling, 5axis_simultaneous <-> swarf_cutting). Track the strategies on the
+        // current resolution path so validate() cannot recurse A->B->A->... forever when a
+        // controller is incompatible with every strategy in a cycle (previously a
+        // RangeError: Maximum call stack size exceeded, hit by compatibilityMatrix()). Backtrack
+        // (delete self after the loop) so a compatible fallback reachable via a sibling path is
+        // never wrongly skipped -- behavior is identical to before for any acyclic input.
+        const visited = _fallbackVisited ?? new Set<StrategyType>();
+        visited.add(strategy);
         for (const alt of chain) {
-          const altResult = this.validate(alt, controller);
+          if (visited.has(alt)) continue;
+          const altResult = this.validate(alt, controller, undefined, visited);
           if (altResult.compatible) {
             fallback_suggestion = `Consider using '${alt}' instead (compatibility score: ${altResult.score}/100)`;
             break;
           }
         }
+        visited.delete(strategy);
         if (!fallback_suggestion && chain.length > 0) {
           fallback_suggestion = `No fully compatible fallback found. Closest alternatives: ${chain.join(", ")}`;
         }

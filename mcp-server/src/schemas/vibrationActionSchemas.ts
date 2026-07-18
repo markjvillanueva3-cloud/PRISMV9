@@ -32,4 +32,16 @@ export const VIBRATION_ACTION_SCHEMAS: ActionSchemaMap = {
   adaptive_feed_modulate: z.object({ engagement: z.object({ radialEngagement: z.number().min(0).max(1).optional(), engagementAngle: z.number().min(0).max(180).optional(), effectiveChipLoad: z.number().positive().optional() }).optional(), baseFeedrate: z.number().positive().optional(), toolId: optStr }).passthrough(),
   adaptive_feed_update_tool: z.object({ toolId: z.string(), currentWearPercent: z.number().min(0).max(100).optional(), cuttingTimeMinutes: optNum }).passthrough(),
   adaptive_feed_get_tool: z.object({ toolId: z.string() }).passthrough(),
+
+  // Chatter-stable RPM recommender — 9-axis holder/stickout/material → stability-lobe peak.
+  // NineAxisInput may be nested under `input` OR passed flat (both validate via passthrough).
+  chatter_stable_rpm_recommend: z.object({
+    input: z.object({
+      material: z.object({ name: optStr, iso_group: optStr }).passthrough().optional(),
+      tooling: z.object({ tool_diameter_mm: optPosNum, flutes: z.number().int().positive().optional(), tool_material: optStr, stickout_mm: optPosNum }).passthrough().optional(),
+      tool_holder: z.object({ type: optStr, bigplus: z.boolean().optional() }).passthrough().optional(),
+      toolpath: z.object({ operation: optStr, cut_type: optStr }).passthrough().optional(),
+    }).passthrough().optional(),
+    nominalRpm: optPosNum,
+  }).passthrough(),
 };

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-batch` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-batch.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-batch.md` |
 | Model | default |
 | Tags | _(none)_ |
 

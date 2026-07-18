@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select, input { font-family: 'Archivo', sans-serif; }
+    select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌀</span>MAKE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">$</span>QUOTE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▤</span>RUN</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">◈</span>QC</button>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;">Quality &amp; SPC</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · {{ partLabel }} · {{ customer }} · AS9102 FAI</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid {{ dispBorder }};background:{{ dispBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ dispColor }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ dispColor }};"></span>LOT {{ disposition }}</div>
+        <button style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:9px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">Export AS9102 →</button>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:320px minmax(0,1fr) 432px;min-height:0;">
+
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 18px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:10px;">PART</div>
+        <select value="{{ partId }}" onChange="{{ setPart }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 11px;margin-bottom:16px;">
+          <option value="punch">SEMBLEX trilobe punch · D2</option>
+          <option value="die">OPTIMAS hex die insert · A2</option>
+          <option value="pin">SFS ejector pin · M2</option>
+        </select>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:10px;">CHARACTERISTICS</div>
+        <sc-for list="{{ charRows }}" as="c" hint-placeholder-count="7">
+          <div onClick="{{ c.on }}" style="{{ c.style }}">
+            <span style="flex:none;width:24px;height:24px;border-radius:50%;background:{{ c.balloonBg }};border:1px solid {{ c.balloonBorder }};display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ c.balloonColor }};">{{ c.balloon }}</span>
+            <div style="flex:1;min-width:0;"><div style="font-size:12.5px;color:{{ c.nameColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ c.spec }}</div></div>
+            <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ c.cpkColor }};">{{ c.cpkLabel }}</span>
+          </div>
+        </sc-for>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin:18px 0 10px;">INSPECTION PLAN</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;">
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Gauge</label><select value="{{ gaugeId }}" onChange="{{ setGaugeId }}" style="width:100%;height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 26px 0 10px;"><option value="cmm">Zeiss CMM</option><option value="mic">Micrometer</option><option value="optical">Optical comparator</option><option value="plug">Plug / ring gauge</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Subgroup n</label><input type="number" step="1" value="{{ nSize }}" onChange="{{ setN }}" style="width:100%;height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 10px;"></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Frequency</label><select value="{{ freqId }}" onChange="{{ setFreq }}" style="width:100%;height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 26px 0 10px;"><option value="5">Every 5 pcs</option><option value="hour">Hourly</option><option value="25">Every 25 pcs</option><option value="firstlast">First / last + AQL</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Method</label><select value="{{ methodId }}" onChange="{{ setMethod }}" style="width:100%;height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 26px 0 10px;"><option value="var">Variable</option><option value="att">Attribute (go/no-go)</option></select></div>
+        </div>
+        <div style="margin-top:14px;padding:11px 13px;border-left:3px solid {{ ruleColor }};background:{{ ruleBg }};border-radius:0 10px 10px 0;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ ruleColor }};letter-spacing:0.06em;margin-bottom:4px;">WESTERN ELECTRIC</div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.4;">{{ ruleText }}</div>
+        </div>
+      </section>
+
+      <section style="overflow:hidden;min-width:0;padding:16px 18px;background:radial-gradient(900px 480px at 75% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:none;display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:inline-flex;background:#16181D;border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,0.07);">
+            <button onClick="{{ setTabControl }}" style="{{ tabControlStyle }}">X̄ &amp; R control</button>
+            <button onClick="{{ setTabCap }}" style="{{ tabCapStyle }}">Capability</button>
+            <button onClick="{{ setTabGrr }}" style="{{ tabGrrStyle }}">Gauge R&amp;R</button>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;">{{ selCharName }} · {{ selCharSpec }}</div>
+        </div>
+
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:14px 18px;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">{{ chartTitle }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:{{ chartStatusColor }};">{{ chartStatus }}</span>
+          </div>
+          <div style="flex:1;min-height:0;">
+            <svg viewBox="0 0 740 372" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <sc-for list="{{ chartGrid }}" as="g" hint-placeholder-count="6"><line x1="{{ g.x1 }}" y1="{{ g.y1 }}" x2="{{ g.x2 }}" y2="{{ g.y2 }}" stroke="{{ g.c }}" stroke-width="{{ g.w }}" stroke-dasharray="{{ g.dash }}"></line></sc-for>
+              <sc-for list="{{ chartBands }}" as="b" hint-placeholder-count="2"><rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" fill="{{ b.fill }}"></rect></sc-for>
+              <polygon points="{{ chartHist }}" fill="{{ chartHistFill }}" stroke="{{ chartHistStroke }}" stroke-width="1.4"></polygon>
+              <polyline points="{{ chartCurve }}" fill="none" stroke="#7FB2FF" stroke-width="1.6"></polyline>
+              <polyline points="{{ chartLine1 }}" fill="none" stroke="{{ chartColor1 }}" stroke-width="1.8" stroke-linejoin="round"></polyline>
+              <polyline points="{{ chartLine2 }}" fill="none" stroke="{{ chartColor2 }}" stroke-width="1.8" stroke-linejoin="round"></polyline>
+              <sc-for list="{{ chartPts }}" as="p" hint-placeholder-count="20"><circle cx="{{ p.cx }}" cy="{{ p.cy }}" r="{{ p.r }}" fill="{{ p.fill }}" stroke="{{ p.stroke }}" stroke-width="1.5"></circle></sc-for>
+              <sc-for list="{{ chartBars }}" as="b" hint-placeholder-count="4"><rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="2" fill="{{ b.fill }}"></rect><text x="{{ b.tx }}" y="{{ b.ty }}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#9398A2">{{ b.label }}</text></sc-for>
+              <sc-for list="{{ chartLabels }}" as="t" hint-placeholder-count="8"><text x="{{ t.x }}" y="{{ t.y }}" text-anchor="{{ t.anchor }}" font-family="JetBrains Mono" font-size="{{ t.size }}" fill="{{ t.fill }}" font-weight="{{ t.weight }}">{{ t.t }}</text></sc-for>
+            </svg>
+          </div>
+        </div>
+
+        <div style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;">
+          <div style="min-width:0;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#9398A2;">Cp</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:#C7CCD4;line-height:1;margin-top:6px;">{{ cp }}</div></div>
+          <div style="min-width:0;background:linear-gradient(180deg,{{ cpkCardBg }},#0E0F12);border:1px solid {{ cpkCardBorder }};border-radius:13px;padding:13px 15px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:{{ cpkColor }};">Cpk</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:#F3F4F6;line-height:1;margin-top:6px;">{{ cpk }}</div></div>
+          <div style="min-width:0;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#9398A2;">Ppk</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:#C7CCD4;line-height:1;margin-top:6px;">{{ ppk }}</div></div>
+          <div style="min-width:0;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#9398A2;">EST. PPM</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:{{ ppmColor }};line-height:1;margin-top:6px;">{{ ppm }}</div></div>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 18px 44px;background:#0A0B0D;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">First Article · AS9102</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">Form 3 · char accountability</span></div>
+        <div style="display:grid;grid-template-columns:26px 1fr 58px 58px 38px;gap:6px;padding:0 9px 7px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.04em;color:#6B7280;"><span>#</span><span>CHAR</span><span>NOMINAL</span><span>ACTUAL</span><span></span></div>
+        <sc-for list="{{ faiRows }}" as="f" hint-placeholder-count="7">
+          <div style="display:grid;grid-template-columns:26px 1fr 58px 58px 38px;gap:6px;align-items:center;padding:8px 9px;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#FF7A4D;">{{ f.balloon }}</span>
+            <div style="min-width:0;"><div style="font-size:11.5px;color:#F3F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ f.tol }}</div></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;">{{ f.nom }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ f.actColor }};">{{ f.act }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:{{ f.statusColor }};text-align:right;">{{ f.status }}</span>
+          </div>
+        </sc-for>
+
+        <div style="margin-top:16px;background:linear-gradient(135deg,{{ dispCardBg }},#0E0F12);border:1px solid {{ dispCardBorder }};border-radius:14px;padding:16px 18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">Lot disposition</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:{{ dispColor }};">{{ disposition }}</span></div>
+          <div style="display:flex;gap:18px;margin-bottom:10px;">
+            <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">CHARS PASS</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#36D399;margin-top:2px;">{{ passCount }}/{{ totalChars }}</div></div>
+            <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">MIN Cpk</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:{{ minCpkColor }};margin-top:2px;">{{ minCpk }}</div></div>
+            <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">SAMPLE</div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#C7CCD4;margin-top:2px;">{{ sampleTotal }}</div></div>
+          </div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.45;">{{ dispNote }}</div>
+        </div>
+
+        <div style="margin-top:13px;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#7FB2FF;margin-bottom:9px;">◆ KIENZLE LINKS</div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.5;">{{ linkNote }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    partId: 'punch', selChar: 'majorOD', tab: 'control', gaugeId: 'cmm', nSize: 5, freqId: '5', methodId: 'var',
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6,
+  };
+  componentDidMount() {
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit();
+    this._trySync = (n) => { try { const K = (typeof window !== 'undefined') && window.KIENZLE; if (K && K.MATERIALS) { this._synced = true; this.forceUpdate(); } else if ((n || 0) < 25) { setTimeout(() => this._trySync((n || 0) + 1), 100); } } catch (e) {} };
+    this._trySync(0);
+  }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  PARTS = {
+    punch: { label: 'SEMBLEX trilobe punch', customer: 'SEMBLEX', chars: [
+      { id: 'majorOD', balloon: 1, name: 'Major Ø', nom: 0.2500, usl: 0.2500, lsl: 0.2496, mean: 0.24982, sig: 0.000045, drift: 0.00002, unit: 'in', special: -1 },
+      { id: 'formOD', balloon: 2, name: 'Trilobe form Ø', nom: 0.2480, usl: 0.2481, lsl: 0.2479, mean: 0.24802, sig: 0.000040, drift: 0.000016, unit: 'in', special: 14 },
+      { id: 'oal', balloon: 3, name: 'Overall length', nom: 1.5000, usl: 1.5050, lsl: 1.4950, mean: 1.50010, sig: 0.00085, drift: 0.0003, unit: 'in', special: -1 },
+      { id: 'point', balloon: 4, name: 'Point form angle', nom: 35.0, usl: 35.5, lsl: 34.5, mean: 35.05, sig: 0.09, drift: 0.04, unit: '°', special: -1 },
+      { id: 'finish', balloon: 5, name: 'Surface finish Ra', nom: 6, usl: 8, lsl: 0, mean: 5.4, sig: 0.55, drift: 0.2, unit: 'µin', special: -1 },
+      { id: 'hard', balloon: 6, name: 'Core hardness', nom: 60, usl: 61, lsl: 59, mean: 60.1, sig: 0.28, drift: 0.1, unit: 'HRC', special: -1 },
+      { id: 'conc', balloon: 7, name: 'Concentricity TIR', nom: 0.0003, usl: 0.0005, lsl: 0, mean: 0.00031, sig: 0.00006, drift: 0.00002, unit: 'in', special: -1 },
+    ] },
+    die: { label: 'OPTIMAS hex die insert', customer: 'OPTIMAS', chars: [
+      { id: 'flats', balloon: 1, name: 'Across flats', nom: 0.3750, usl: 0.3752, lsl: 0.3748, mean: 0.37512, sig: 0.00004, drift: 0.000018, unit: 'in', special: -1 },
+      { id: 'bore', balloon: 2, name: 'Bore Ø', nom: 0.2010, usl: 0.2013, lsl: 0.2007, mean: 0.20108, sig: 0.00005, drift: 0.00002, unit: 'in', special: 9 },
+      { id: 'depth', balloon: 3, name: 'Cavity depth', nom: 0.4500, usl: 0.4530, lsl: 0.4470, mean: 0.45012, sig: 0.0006, drift: 0.0002, unit: 'in', special: -1 },
+      { id: 'finish', balloon: 4, name: 'Cavity finish Ra', nom: 8, usl: 12, lsl: 0, mean: 7.2, sig: 0.7, drift: 0.25, unit: 'µin', special: -1 },
+      { id: 'hard', balloon: 5, name: 'Hardness', nom: 58, usl: 60, lsl: 56, mean: 58.2, sig: 0.32, drift: 0.12, unit: 'HRC', special: -1 },
+    ] },
+    pin: { label: 'SFS ejector pin', customer: 'SFS', chars: [
+      { id: 'od', balloon: 1, name: 'Shank Ø', nom: 0.1875, usl: 0.1877, lsl: 0.1873, mean: 0.18758, sig: 0.000035, drift: 0.000015, unit: 'in', special: -1 },
+      { id: 'len', balloon: 2, name: 'Length', nom: 4.0000, usl: 4.0100, lsl: 3.9900, mean: 4.0005, sig: 0.0012, drift: 0.0004, unit: 'in', special: -1 },
+      { id: 'head', balloon: 3, name: 'Head Ø', nom: 0.3120, usl: 0.3140, lsl: 0.3100, mean: 0.31205, sig: 0.00022, drift: 0.00008, unit: 'in', special: 17 },
+      { id: 'straight', balloon: 4, name: 'Straightness', nom: 0.0010, usl: 0.0015, lsl: 0, mean: 0.00098, sig: 0.0002, drift: 0.00007, unit: 'in', special: -1 },
+      { id: 'hard', balloon: 5, name: 'Hardness', nom: 62, usl: 64, lsl: 60, mean: 62.1, sig: 0.3, drift: 0.1, unit: 'HRC', special: -1 },
+    ] },
+  };
+  A2 = { 2: 1.880, 3: 1.023, 4: 0.729, 5: 0.577, 6: 0.483, 7: 0.419, 8: 0.373 };
+  D4 = { 2: 3.267, 3: 2.574, 4: 2.282, 5: 2.114, 6: 2.004, 7: 1.924, 8: 1.864 };
+  D3 = { 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0.076, 8: 0.136 };
+  dd2 = { 2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326, 6: 2.534, 7: 2.704, 8: 2.847 };
+
+  rng(seed) { let s = (seed >>> 0) || 1; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; }
+  gauss(r) { let u = 0, v = 0; while (u === 0) u = r(); while (v === 0) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  normcdf(z) { const t = 1 / (1 + 0.2316419 * Math.abs(z)); const d = 0.3989423 * Math.exp(-z * z / 2); let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); if (z > 0) p = 1 - p; return 1 - p; }
+
+  gen(ch, n) {
+    const k = 20, r = this.rng(this.hash(ch.id) + n * 31);
+    const subs = [], xbars = [], ranges = [];
+    for (let i = 0; i < k; i++) {
+      const center = ch.mean + this.gauss(r) * ch.drift; const vals = [];
+      for (let j = 0; j < n; j++) { let x = center + this.gauss(r) * ch.sig; if (i === ch.special && j === 0) x += ch.sig * 6; vals.push(x); }
+      const mean = vals.reduce((a, b) => a + b, 0) / n; subs.push(vals); xbars.push(mean); ranges.push(Math.max(...vals) - Math.min(...vals));
+    }
+    const xdbar = xbars.reduce((a, b) => a + b, 0) / k, rbar = ranges.reduce((a, b) => a + b, 0) / k;
+    const sigW = rbar / (this.dd2[n] || 2.326);
+    const all = subs.flat(), omean = all.reduce((a, b) => a + b, 0) / all.length;
+    const sigO = Math.sqrt(all.reduce((a, b) => a + (b - omean) ** 2, 0) / (all.length - 1));
+    const oneSided = ch.lsl === 0;
+    const cp = oneSided ? (ch.usl - omean) / (3 * sigW) : (ch.usl - ch.lsl) / (6 * sigW);
+    const cpk = oneSided ? (ch.usl - xdbar) / (3 * sigW) : Math.min((ch.usl - xdbar) / (3 * sigW), (xdbar - ch.lsl) / (3 * sigW));
+    const ppk = oneSided ? (ch.usl - omean) / (3 * sigO) : Math.min((ch.usl - omean) / (3 * sigO), (omean - ch.lsl) / (3 * sigO));
+    const uclX = xdbar + (this.A2[n] || 0.577) * rbar, lclX = xdbar - (this.A2[n] || 0.577) * rbar;
+    const uclR = (this.D4[n] || 2.114) * rbar, lclR = (this.D3[n] || 0) * rbar;
+    const oocX = xbars.map((v, i) => (v > uclX || v < lclX) ? i : -1).filter(i => i >= 0);
+    const oocR = ranges.map((v, i) => (v > uclR) ? i : -1).filter(i => i >= 0);
+    const ppm = Math.round(Math.max(0.01, this.normcdf(-Math.abs(cpk) * 3) * 2) * 1e6);
+    return { subs, xbars, ranges, xdbar, rbar, sigW, sigO, omean, cp, cpk, ppk, uclX, lclX, uclR, lclR, oocX, oocR, ppm, all, oneSided };
+  }
+  dec(ch) { return ch.unit === 'in' ? 4 : (ch.unit === '°' || ch.unit === 'HRC' ? 1 : ch.unit === 'µin' ? 1 : 4); }
+  cpkColorOf(c) { return c >= 1.67 ? '#36D399' : c >= 1.33 ? '#7FB2FF' : c >= 1.0 ? '#F4B740' : '#FF5247'; }
+
+  renderVals() {
+    const s = this.state, part = this.PARTS[s.partId], n = Math.max(2, Math.min(8, Math.round(s.nSize)));
+    const chars = part.chars, stats = {}; chars.forEach(c => stats[c.id] = this.gen(c, n));
+    let sel = chars.find(c => c.id === s.selChar); if (!sel) sel = chars[0];
+    const st = stats[sel.id], dc = this.dec(sel);
+    const f = (v) => v.toFixed(dc);
+
+    const charRows = chars.map(c => { const cc = stats[c.id].cpk, on = c.id === sel.id; return {
+      balloon: c.balloon, name: c.name, spec: c.lsl === 0 ? '≤ ' + c.usl.toFixed(this.dec(c)) + c.unit : c.nom.toFixed(this.dec(c)) + c.unit,
+      cpkLabel: cc.toFixed(2), cpkColor: this.cpkColorOf(cc),
+      on: () => this.setState({ selChar: c.id }),
+      style: `display:flex;align-items:center;gap:10px;padding:9px 10px;margin-bottom:4px;border-radius:9px;cursor:pointer;background:${on ? 'rgba(255,90,43,0.1)' : 'transparent'};border:1px solid ${on ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.04)'};`,
+      balloonBg: on ? '#FF5A2B' : '#16181D', balloonBorder: on ? '#FF8A5A' : 'rgba(255,255,255,0.12)', balloonColor: on ? '#0A0B0D' : '#9398A2',
+      nameColor: on ? '#F3F4F6' : '#C7CCD4',
+    }; });
+
+    // ── chart geometry per tab ──
+    const chartGrid = [], chartPts = [], chartBands = [], chartBars = [], chartLabels = [];
+    let chartLine1 = '', chartLine2 = '', chartColor1 = '#FF7A4D', chartColor2 = '#7FB2FF', chartHist = '', chartHistFill = 'transparent', chartHistStroke = 'transparent', chartCurve = '';
+    let chartTitle = '', chartStatus = '', chartStatusColor = '#36D399';
+    const PL = { l: 60, r: 712 };
+
+    if (s.tab === 'control') {
+      chartTitle = 'X̄ chart (top) · R chart (bottom) — n=' + n + ', k=20';
+      const ooc = st.oocX.length + st.oocR.length;
+      chartStatus = ooc === 0 ? 'IN CONTROL' : ooc + ' OUT-OF-CONTROL'; chartStatusColor = ooc === 0 ? '#36D399' : '#FF5247';
+      // X-bar chart band 28..168 ; R chart 214..348
+      const xTop = 28, xBot = 168, rTop = 214, rBot = 348;
+      const xMin = Math.min(st.lclX, ...st.xbars), xMax = Math.max(st.uclX, ...st.xbars), xPad = (xMax - xMin) * 0.15 || 1;
+      const yX = (v) => xBot - ((v - (xMin - xPad)) / ((xMax + xPad) - (xMin - xPad))) * (xBot - xTop);
+      const rMax = Math.max(st.uclR, ...st.ranges) * 1.1 || 1, yR = (v) => rBot - (v / rMax) * (rBot - rTop);
+      const xAt = (i) => PL.l + (i / 19) * (PL.r - PL.l);
+      [['UCL', st.uclX, '#FF5247'], ['CL', st.xdbar, '#6B7280'], ['LCL', st.lclX, '#FF5247']].forEach(([lab, v, c]) => { chartGrid.push({ x1: PL.l, y1: yX(v).toFixed(1), x2: PL.r, y2: yX(v).toFixed(1), c, w: 1, dash: lab === 'CL' ? '0' : '4 3' }); chartLabels.push({ x: PL.r + 2, y: (yX(v) + 3).toFixed(1), anchor: 'start', size: 8, fill: c, weight: 400, t: lab }); });
+      [['UCL', st.uclR, '#FF5247'], ['R̄', st.rbar, '#6B7280']].forEach(([lab, v, c]) => { chartGrid.push({ x1: PL.l, y1: yR(v).toFixed(1), x2: PL.r, y2: yR(v).toFixed(1), c, w: 1, dash: lab === 'R̄' ? '0' : '4 3' }); chartLabels.push({ x: PL.r + 2, y: (yR(v) + 3).toFixed(1), anchor: 'start', size: 8, fill: c, weight: 400, t: lab }); });
+      chartLine1 = st.xbars.map((v, i) => xAt(i).toFixed(1) + ',' + yX(v).toFixed(1)).join(' ');
+      chartLine2 = st.ranges.map((v, i) => xAt(i).toFixed(1) + ',' + yR(v).toFixed(1)).join(' ');
+      st.xbars.forEach((v, i) => { const o = st.oocX.includes(i); chartPts.push({ cx: xAt(i).toFixed(1), cy: yX(v).toFixed(1), r: o ? 4.5 : 3, fill: o ? '#FF5247' : '#FF7A4D', stroke: '#0C0D11' }); });
+      st.ranges.forEach((v, i) => { const o = st.oocR.includes(i); chartPts.push({ cx: xAt(i).toFixed(1), cy: yR(v).toFixed(1), r: o ? 4.5 : 3, fill: o ? '#FF5247' : '#7FB2FF', stroke: '#0C0D11' }); });
+      chartLabels.push({ x: PL.l - 4, y: 22, anchor: 'end', size: 9, fill: '#9398A2', weight: 700, t: 'X̄' }, { x: PL.l - 4, y: 208, anchor: 'end', size: 9, fill: '#9398A2', weight: 700, t: 'R' });
+    } else if (s.tab === 'cap') {
+      chartTitle = 'Process capability histogram vs spec';
+      chartStatus = st.cpk >= 1.33 ? 'CAPABLE' : st.cpk >= 1.0 ? 'MARGINAL' : 'NOT CAPABLE'; chartStatusColor = this.cpkColorOf(st.cpk);
+      const lo = Math.min(sel.lsl === 0 ? st.omean - 4 * st.sigO : sel.lsl, st.omean - 4 * st.sigO);
+      const hi = Math.max(sel.usl, st.omean + 4 * st.sigO); const span = hi - lo || 1;
+      const X = (v) => PL.l + ((v - lo) / span) * (PL.r - PL.l);
+      const bins = 16, counts = new Array(bins).fill(0); st.all.forEach(v => { const b = Math.min(bins - 1, Math.max(0, Math.floor(((v - lo) / span) * bins))); counts[b]++; });
+      const cMax = Math.max(...counts) || 1, base = 318, top = 40;
+      const histPts = ['' + PL.l + ',' + base];
+      counts.forEach((c, i) => { const x0 = PL.l + (i / bins) * (PL.r - PL.l), x1 = PL.l + ((i + 1) / bins) * (PL.r - PL.l), y = base - (c / cMax) * (base - top); histPts.push(x0.toFixed(1) + ',' + y.toFixed(1), x1.toFixed(1) + ',' + y.toFixed(1)); });
+      histPts.push(PL.r + ',' + base); chartHist = histPts.join(' '); chartHistFill = 'rgba(127,178,255,0.1)'; chartHistStroke = 'rgba(127,178,255,0.5)';
+      const cv = []; for (let i = 0; i <= 60; i++) { const v = lo + (i / 60) * span; const z = (v - st.omean) / st.sigO; const yv = Math.exp(-z * z / 2); cv.push([X(v), yv]); } const cvMax = Math.max(...cv.map(p => p[1]));
+      chartCurve = cv.map(p => p[0].toFixed(1) + ',' + (base - (p[1] / cvMax) * (base - top)).toFixed(1)).join(' ');
+      [['LSL', sel.lsl, '#FF5247'], ['USL', sel.usl, '#FF5247'], ['x̄', st.omean, '#36D399'], ['T', sel.nom, '#6B7280']].forEach(([lab, v]) => { if (lab === 'LSL' && sel.lsl === 0) return; const x = X(v); chartGrid.push({ x1: x.toFixed(1), y1: top, x2: x.toFixed(1), y2: base, c: lab === 'x̄' ? '#36D399' : (lab === 'T' ? '#6B7280' : '#FF5247'), w: 1.4, dash: lab === 'T' ? '4 3' : '0' }); chartLabels.push({ x: x.toFixed(1), y: top - 5, anchor: 'middle', size: 9, fill: lab === 'x̄' ? '#36D399' : (lab === 'T' ? '#9398A2' : '#FF7A7A'), weight: 700, t: lab }); });
+      chartLabels.push({ x: PL.l, y: 340, anchor: 'start', size: 9, fill: '#6B7280', weight: 400, t: f(lo) }, { x: PL.r, y: 340, anchor: 'end', size: 9, fill: '#6B7280', weight: 400, t: f(hi) });
+    } else {
+      chartTitle = 'Gauge R&R — variation contribution (%)';
+      const tol = sel.usl - (sel.lsl === 0 ? 0 : sel.lsl);
+      const gaugeRes = { cmm: 0.00002, mic: 0.0001, optical: 0.00015, plug: 0.0002 }[s.gaugeId] || 0.0001;
+      const evp = Math.min(45, (gaugeRes / (st.sigO || 1e-6)) * 30 + 6); const avp = evp * 0.5; const grr = Math.sqrt(evp * evp + avp * avp);
+      const pvp = Math.max(0, Math.sqrt(Math.max(0, 100 * 100 - grr * grr))); const ndc = Math.max(1, Math.floor(1.41 * (pvp / Math.max(1, grr))));
+      chartStatus = grr < 10 ? 'GAUGE ACCEPTABLE' : grr < 30 ? 'MARGINAL' : 'GAUGE INADEQUATE'; chartStatusColor = grr < 10 ? '#36D399' : grr < 30 ? '#F4B740' : '#FF5247';
+      const items = [['Repeatability (EV)', evp, '#FF7A4D'], ['Reproducibility (AV)', avp, '#F4B740'], ['Total GR&R', grr, grr < 10 ? '#36D399' : grr < 30 ? '#F4B740' : '#FF5247'], ['Part-to-part (PV)', pvp, '#7FB2FF']];
+      const base = 320, top = 50, maxV = 100; const bw = (PL.r - PL.l) / items.length - 26;
+      items.forEach((it, i) => { const x = PL.l + i * ((PL.r - PL.l) / items.length) + 13, h = (it[1] / maxV) * (base - top); chartBars.push({ x: x.toFixed(1), y: (base - h).toFixed(1), w: bw.toFixed(1), h: h.toFixed(1), fill: it[2], tx: (x + bw / 2).toFixed(1), ty: (base + 14).toFixed(1), label: it[0] }); chartLabels.push({ x: (x + bw / 2).toFixed(1), y: (base - h - 6).toFixed(1), anchor: 'middle', size: 11, fill: '#F3F4F6', weight: 700, t: it[1].toFixed(1) + '%' }); });
+      [['30%', 30], ['10%', 10]].forEach(([lab, v]) => { const y = base - (v / maxV) * (base - top); chartGrid.push({ x1: PL.l, y1: y.toFixed(1), x2: PL.r, y2: y.toFixed(1), c: v === 10 ? 'rgba(54,211,153,0.4)' : 'rgba(244,183,64,0.4)', w: 1, dash: '4 3' }); chartLabels.push({ x: PL.l - 4, y: (y + 3).toFixed(1), anchor: 'end', size: 8, fill: '#6B7280', weight: 400, t: lab }); });
+      chartLabels.push({ x: PL.r, y: 38, anchor: 'end', size: 10, fill: chartStatusColor, weight: 700, t: 'ndc = ' + ndc });
+    }
+
+    // ── FAI + disposition ──
+    const faiRows = chars.map(c => { const stc = stats[c.id], dcc = this.dec(c), act = stc.omean; const pass = act <= c.usl && (c.lsl === 0 || act >= c.lsl); return {
+      balloon: c.balloon, name: c.name, tol: c.lsl === 0 ? '0 / ' + c.usl.toFixed(dcc) : c.lsl.toFixed(dcc) + ' / ' + c.usl.toFixed(dcc),
+      nom: c.nom.toFixed(dcc), act: act.toFixed(dcc), actColor: pass ? '#C7CCD4' : '#FF5247', status: pass ? 'PASS' : 'FAIL', statusColor: pass ? '#36D399' : '#FF5247',
+    }; });
+    const cpks = chars.map(c => stats[c.id].cpk); const minCpk = Math.min(...cpks);
+    const passCount = chars.filter(c => { const stc = stats[c.id]; return stc.cpk >= 1.33 && stc.oocX.length === 0; }).length;
+    const allPass = faiRows.every(f => f.status === 'PASS');
+    const disposition = !allPass ? 'REJECT' : minCpk >= 1.33 ? 'ACCEPT' : 'REVIEW';
+    const dispColor = disposition === 'ACCEPT' ? '#36D399' : disposition === 'REVIEW' ? '#F4B740' : '#FF5247';
+    const dispNote = disposition === 'ACCEPT' ? 'All characteristics within print and Cpk ≥ 1.33. FAI signed; lot released to ship.'
+      : disposition === 'REVIEW' ? 'In-spec but a characteristic runs Cpk < 1.33 — MRB review: tighten the process or request a deviation before full release.'
+      : 'A characteristic is out of print. Quarantine the lot; root-cause on the flagged balloon before any rework.';
+
+    const worstCh = chars.reduce((a, c) => stats[c.id].cpk < stats[a.id].cpk ? c : a, chars[0]);
+    const linkNote = `${worstCh.name} drives the lot (Cpk ${stats[worstCh.id].cpk.toFixed(2)}). ` + (st.oocX.length ? 'The X̄ excursion lines up with the tool-wear trim in the crib — push the offset before it walks out of print.' : 'Feed-force from the Kienzle solve is steady, so this capability is the process talking, not chatter.');
+
+    const tabBtn = (on) => `border:none;background:${on ? '#FF5A2B' : 'transparent'};color:${on ? '#0A0B0D' : '#9398A2'};border-radius:6px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    const ruleFired = st.oocX.length > 0 || st.oocR.length > 0;
+    return {
+      scale: s.scale, partId: s.partId, partLabel: part.label, customer: part.customer,
+      charRows, selCharName: sel.name, selCharSpec: sel.lsl === 0 ? '≤' + sel.usl.toFixed(dc) + sel.unit : f(sel.lsl) + '–' + f(sel.usl) + sel.unit,
+      gaugeId: s.gaugeId, nSize: s.nSize, freqId: s.freqId, methodId: s.methodId,
+      setPart: (e) => { const id = e.target.value; this.setState({ partId: id, selChar: this.PARTS[id].chars[0].id }); },
+      setGaugeId: (e) => this.setState({ gaugeId: e.target.value }), setN: (e) => this.setState({ nSize: parseInt(e.target.value) || 5 }),
+      setFreq: (e) => this.setState({ freqId: e.target.value }), setMethod: (e) => this.setState({ methodId: e.target.value }),
+      tab: s.tab, tabControlStyle: tabBtn(s.tab === 'control'), tabCapStyle: tabBtn(s.tab === 'cap'), tabGrrStyle: tabBtn(s.tab === 'grr'),
+      setTabControl: () => this.setState({ tab: 'control' }), setTabCap: () => this.setState({ tab: 'cap' }), setTabGrr: () => this.setState({ tab: 'grr' }),
+      chartTitle, chartStatus, chartStatusColor, chartGrid, chartPts, chartBands, chartBars, chartLabels, chartLine1, chartLine2, chartColor1, chartColor2, chartHist, chartHistFill, chartHistStroke, chartCurve,
+      cp: st.cp.toFixed(2), cpk: st.cpk.toFixed(2), ppk: st.ppk.toFixed(2), cpkColor: this.cpkColorOf(st.cpk),
+      cpkCardBg: st.cpk >= 1.33 ? 'rgba(54,211,153,0.08)' : st.cpk >= 1.0 ? 'rgba(244,183,64,0.08)' : 'rgba(255,82,71,0.08)',
+      cpkCardBorder: st.cpk >= 1.33 ? 'rgba(54,211,153,0.3)' : st.cpk >= 1.0 ? 'rgba(244,183,64,0.3)' : 'rgba(255,82,71,0.35)',
+      ppm: st.ppm >= 1000 ? (st.ppm / 1000).toFixed(0) + 'k' : st.ppm.toFixed(0), ppmColor: st.ppm < 64 ? '#36D399' : st.ppm < 1350 ? '#F4B740' : '#FF5247',
+      faiRows, disposition, dispColor, passCount, totalChars: chars.length, minCpk: minCpk.toFixed(2), minCpkColor: this.cpkColorOf(minCpk), sampleTotal: 20 * n, dispNote,
+      dispBorder: dispColor === '#36D399' ? 'rgba(54,211,153,0.3)' : dispColor === '#F4B740' ? 'rgba(244,183,64,0.3)' : 'rgba(255,82,71,0.4)',
+      dispBg: dispColor === '#36D399' ? 'rgba(54,211,153,0.06)' : dispColor === '#F4B740' ? 'rgba(244,183,64,0.05)' : 'rgba(255,82,71,0.06)',
+      dispCardBg: dispColor === '#36D399' ? 'rgba(54,211,153,0.06)' : dispColor === '#F4B740' ? 'rgba(244,183,64,0.05)' : 'rgba(255,82,71,0.06)',
+      dispCardBorder: dispColor === '#36D399' ? 'rgba(54,211,153,0.25)' : dispColor === '#F4B740' ? 'rgba(244,183,64,0.25)' : 'rgba(255,82,71,0.3)',
+      ruleColor: ruleFired ? '#FF5247' : '#36D399', ruleBg: ruleFired ? 'rgba(255,82,71,0.05)' : 'rgba(54,211,153,0.05)',
+      ruleText: ruleFired ? 'Rule 1 — point beyond 3σ on ' + sel.name + '. Special cause: investigate before continuing the run.' : 'No rules violated on ' + sel.name + ' — only common-cause variation present.',
+      linkNote,
+    };
+  }
+}
+</script>
+</body>
+</html>

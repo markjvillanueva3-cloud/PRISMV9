@@ -1,0 +1,122 @@
+# Silent-Stub Inventory -- genuinely-broken auto-wired dispatcher actions
+
+> `silent-stub-audit` workflow (wf_2111ea38-fc8, 9 whiskey-lathe agents). **56 BROKEN / 137 OK** across 8 physics dispatchers.
+> BROKEN = engine has NONE of the guessed methods -> action always returns {note:'method not callable'} success:true (coverage lie).
+> By domain: quality:13 (P1:8, P2:5) | other:14 (P0:1, P1:7, P2:6) | cam:11 (P0:3, P1:4, P2:4) | mill:8 (P0:2, P1:6) | lathe:7 (P0:3, P1:4) | 5axis:2 (P1:2) | safety:1 (P2:1). Tier totals: P0:9, P1:31, P2:16. NOTE: physics-safety P0 concentrates in lathe (chuck-jaw force + stock-boundary + program-audit gates), cam (collision/thermal sim), mill (FRF/chatter stability); 8 items are STATIC-on-instance mis-dispatch bugs (fourth_axis_indexing/decision, five_axis_ai_ultra, lathe_program_audit, macro_conversion, nc_pattern, prism_addin) where the method must be called on the CLASS, not the instance.
+
+## Prioritized fix queue (route to owning slot)
+
+- **[P0] lathe** `stock_boundary_gate_check` -> `StockBoundaryGateEngine.gate  (VERIFIED StockBoundaryGateEngine.ts:189; gateOrThrow:393; guessed run/evaluate/check absent). Silent stub = stock-boundary/collision safety gate NEVER fires -> false pass.`
+- **[P0] lathe** `lathe_program_audit_pipeline_run` -> `LatheProgramAuditPipelineEngine.auditOne  (VERIFIED static auditOne :328; singleton :356 IS the class so static resolves). Silent-stubbed lathe SAFETY audit = programs ship un-audited (G50/CSS/chuck-jaw).`
+- **[P0] lathe** `trilobe_deformation_calc` -> `TrilobeDeformationEngine.analyze  (VERIFIED :57; recommendMaxForce:131). Chuck-jaw force / part-deformation physics -> workholding P0.`
+- **[P0] other** `fixture_clamping_calc` -> `FixtureClampingEngine.compute  (guessed calculate/analyze/run absent). Clamping-force / workholding physics.`
+- **[P0] cam** `virtual_machining_simulate` -> `VirtualMachiningDeepLearningEngine.setupSimulation (then verifyNCCode/detectCollisions/validateMachineEnvelope). Collision + thermal (computeThermalGradient) + stress/fatigue.`
+- **[P0] cam** `swept_volume_calc` -> `SweptVolumeEngine.computeSweptVolume (chain checkCollisions). Collision-envelope physics.`
+- **[P0] cam** `in_process_stock_model_update` -> `InProcessStockModelEngine.applyOperation (chain checkCollision / calculateCollisionEnvelope). In-process collision physics.`
+- **[P0] mill** `rcsa_frf_predict` -> `RCSAEngine.computeToolPointFRF (chain computeStabilityLimit). Chatter-stability FRF -> spindle/tool protection.`
+- **[P0] mill** `receptance_coupling_calc` -> `ReceptanceCouplingEngine.predictToolPointFRF (or predictWithRCSA). Stability-lobe FRF prediction.`
+- **[P1] lathe** `multi_spindle_automatic_plan` -> `MultiSpindleAutomaticEngine.executeAction (canonical router :945) or assignStations :259. No plan/run/analyze exists.`
+- **[P1] lathe** `swiss_type_intelligence_analyze` -> `SwissTypeIntelligenceEngine.executeAction (:1156) or generateProcessPlan :998. Only analyzeGuideBushing matches 'analyze'.`
+- **[P1] lathe** `insert_grade_select` -> `InsertGradeSelectionEngine.calculate (:220). No select/recommend/run.`
+- **[P1] lathe** `stock_feed_cycle_track` -> `StockFeedCycleEngine.advanceCycle (chain validateFeed for bar-pull limit). Bar-feed cycle tracking.`
+- **[P1] mill** `surface_location_error_calc` -> `SurfaceLocationErrorEngine.predictSLE (optimizeRPMForSLE for stable-speed pick). Finish/forced-vibration; stability-adjacent.`
+- **[P1] mill** `runout_effect_calc` -> `RunoutEffectEngine.compute (guessed calculate/analyze/run absent).`
+- **[P1] mill** `micro_milling_size_effect_calc` -> `MicroMillingSizeEffectEngine.calculateSizeEffect (chain analyzeChipFormation). Specific-force size-effect.`
+- **[P1] mill** `radial_engagement_analyze` -> `radialEngagementControllerEngine.control (or analyzeCorners for corner overload). 'analyze' absent.`
+- **[P1] mill** `fourth_axis_indexing_plan` -> `FourthAxisIndexingEngine.FourthAxisIndexingEngine.calculate(p) -- STATIC, call on CLASS not instance; dispatcher's (instance).calculate is undefined -> ALWAYS stubs.`
+- **[P1] mill** `fourth_axis_decision_select` -> `FourthAxisDecisionEngine.FourthAxisDecisionEngine.decide(p) -- STATIC, call on CLASS; instance.decide undefined -> ALWAYS stubs.`
+- **[P1] 5axis** `so3_kinematics_encode` -> `SO3KinematicsEncoderEngine.fromEulerAngles(A/C tilt) -> then toNeuralEmbedding for the neural-encode the name implies.`
+- **[P1] 5axis** `five_axis_ai_ultra_predict` -> `FiveAxisAIUltraIntelligenceEngine.predictToolLife -- STATIC; alias == class so static resolves. (processNaturalLanguage for general NL entry.)`
+- **[P1] quality** `spc_process_capability_analyze` -> `SPCProcessCapabilityEngine.compute (:81, returns AtomicValue<SPCResult>).`
+- **[P1] quality** `multivariate_spc_analyze` -> `MultivariateSPCEngine.hotellingStream (:95) primary T2; mewmaStream :103 for MEWMA.`
+- **[P1] quality** `process_robustness_calc` -> `ProcessRobustnessEngine.compute.`
+- **[P1] quality** `process_variability_integration_calc` -> `ProcessVariabilityIntegrationEngine.analyze (integrates cuttingForce/deflection/taylorLife/Ra + Cpk).`
+- **[P1] quality** `amsaa_reliability_growth_calc` -> `AMSAAReliabilityGrowthEngine.compute (chain computeProjection/fisherConfidenceBounds).`
+- **[P1] quality** `iso286_extended_calc` -> `ISO286ExtendedEngine.analyzeFit (recommendFit/stochasticFitAnalysis as alt paths).`
+- **[P1] quality** `hypermill_fai_bridge_run` -> `HyperMillFAIBridge.generate -- ASYNC, must await (:152).`
+- **[P1] quality** `hypermill_spc_bridge_run` -> `HyperMillSPCBridge.generate (:170).`
+- **[P1] other** `complete_machining_plan` -> `CompleteMachiningEngine.executeAction (router; wraps generateOperationSequence/planWorkholding/calculate*Params).`
+- **[P1] other** `advanced_cnc_config_analyze` -> `AdvancedCNCConfigEngine.executeAction (router; wraps analyzeHSMConfiguration/configureCollisionAvoidance/planChannelSync).`
+- **[P1] other** `process_digital_twin_calc` -> `ProcessDigitalTwinEngine.compute.`
+- **[P1] other** `process_environment_sensitivity_analyze` -> `ProcessEnvironmentSensitivityEngine.calculateCorrections (thermal/environmental; chain assessEnvironmentalRisks).`
+- **[P1] other** `kalman_filter_calc` -> `KalmanFilterEngine.compute (chain rtsSmooth/adaptNoise).`
+- **[P1] other** `multi_obj_pareto_optimize` -> `MultiObjectiveParetoEngine.compute (computeSensitivity as follow-on). 'optimize' absent.`
+- **[P1] other** `concentration_inequality_analyze` -> `ConcentrationInequalityEngine.hoeffding default; route by params.bound to bernstein/mcdiarmid/chernoff. No generic dispatch.`
+- **[P1] cam** `cam_utility_batch_run` -> `batchCAMEngine.generateBatch (only public method of BatchCAMEngine; compare/get belong to sibling classes).`
+- **[P1] cam** `cimatron_cam_bridge_run` -> `cimatronCAMBridgeEngine.analyze (or extract/convertToPRISMFormat). 'run/process' absent.`
+- **[P1] cam** `tebis_cam_bridge_run` -> `tebisCAMBridgeEngine.extractProject (or exportToPRISM). 'run/process' absent.`
+- **[P1] cam** `cam_bridge_kit_run` -> `camBridgeKitEngine.cadCamHandoff -- STATIC (class-alias export). 'run/process' absent.`
+- **[P2] safety** `iso14971_risk_assess` -> `ISO14971RiskManagementEngine.evaluate (:119). Compliance/risk-workflow (safety-domain but document-class, not physics) -> P2.`
+- **[P2] quality** `iso13485_qms_validate` -> `ISO13485QMSEngine.evaluate (:132). 'validate/score' absent -> QMS compliance eval.`
+- **[P2] quality** `design_history_file_compile` -> `DesignHistoryFileEngine.evaluate (:109). Document compilation.`
+- **[P2] quality** `process_validation_iqoqpq_generate` -> `ProcessValidationIQOQPQEngine.validate (:109). IQ/OQ/PQ protocol gen.`
+- **[P2] quality** `capa_workflow_open` -> `CAPAWorkflowEngine.evaluate (:119). 'open/create' absent -> CAPA workflow eval.`
+- **[P2] quality** `data_quality_validate` -> `DataQualityEngine.validateBatch (:127); validateRow :94 for single-row. No bare validate().`
+- **[P2] other** `git_safety_check` -> `GitSafetyEngine.classify (chain isDestructive). Dev-op git safety, not mfg physics.`
+- **[P2] other** `archive_catalog_ingest` -> `ArchiveToPartsCatalogIngesterEngine.ingestArchive (chain groupByNormalizedPN). Data ingestion.`
+- **[P2] other** `algorithm_orchestrator_run` -> `AlgorithmOrchestratorEngine.query (or recommend/getAlgorithm). Meta registry lookup; 'run/execute/orchestrate' absent.`
+- **[P2] other** `inter_operation_state_transfer` -> `InterOperationStateEngine.recordOperationState (getLastOperationState/getNextOperationRecommendations for read). State tracking.`
+- **[P2] other** `physics_aware_data_augmentation_run` -> `PhysicsAwareDataAugmentationEngine.augmentCorpus (buildDPOPairs/buildMixedCorpus for variants). AI-training data aux.`
+- **[P2] other** `blameless_post_mortem_run` -> `blamelessPostMortemEngine.file (workflow entry; markReady/close for lifecycle). Reporting.`
+- **[P2] cam** `epack_table_import` -> `ePackTableImportEngine.importAuto (dispatch to importJSON/CSV/KeyValue by format). Data-table import.`
+- **[P2] cam** `macro_conversion_analyze` -> `macroConversionAnalyzerEngine.analyzeProgram -- STATIC, call on CLASS (singleton is an instance -> static unreachable via it). Dev/mining tooling.`
+- **[P2] cam** `nc_pattern_mine` -> `ncPatternMinerEngine.mineCustomerPatterns -- STATIC, call on CLASS (instance can't reach static). Pattern mining.`
+- **[P2] cam** `prism_addin_architecture_get` -> `prismAddinArchitectureEngine.parseCommentData (or generateCpsParserCode) -- STATIC, call on CLASS. Serialization/codegen meta.`
+
+## All broken (action | dispatcher | engine.suggested_method | domain)
+- `algorithm_orchestrator_run` | calcDispatcher.ts | `AlgorithmOrchestratorEngine.query` | other
+- `multi_obj_pareto_optimize` | calcDispatcher.ts | `MultiObjectiveParetoEngine.compute` | other
+- `process_digital_twin_calc` | calcDispatcher.ts | `ProcessDigitalTwinEngine.compute` | other
+- `process_robustness_calc` | calcDispatcher.ts | `ProcessRobustnessEngine.compute` | quality
+- `amsaa_reliability_growth_calc` | calcDispatcher.ts | `AMSAAReliabilityGrowthEngine.compute` | quality
+- `kalman_filter_calc` | calcDispatcher.ts | `KalmanFilterEngine.compute` | other
+- `swept_volume_calc` | calcDispatcher.ts | `SweptVolumeEngine.computeSweptVolume` | cam
+- `surface_location_error_calc` | calcDispatcher.ts | `SurfaceLocationErrorEngine.predictSLE` | mill
+- `receptance_coupling_calc` | calcDispatcher.ts | `ReceptanceCouplingEngine.predictToolPointFRF` | mill
+- `process_variability_integration_calc` | calcDispatcher.ts | `ProcessVariabilityIntegrationEngine.analyze` | quality
+- `fixture_clamping_calc` | calcDispatcher.ts | `FixtureClampingEngine.compute` | other
+- `runout_effect_calc` | calcDispatcher.ts | `RunoutEffectEngine.compute` | mill
+- `iso286_extended_calc` | calcDispatcher.ts | `ISO286ExtendedEngine.analyzeFit` | quality
+- `complete_machining_plan` | calcDispatcher.ts | `CompleteMachiningEngine.executeAction` | other
+- `advanced_cnc_config_analyze` | calcDispatcher.ts | `AdvancedCNCConfigEngine.executeAction` | other
+- `virtual_machining_simulate` | calcDispatcher.ts | `VirtualMachiningDeepLearningEngine.setupSimulation` | cam
+- `micro_milling_size_effect_calc` | calcDispatcher.ts | `MicroMillingSizeEffectEngine.calculateSizeEffect` | mill
+- `rcsa_frf_predict` | calcDispatcher.ts | `RCSAEngine.computeToolPointFRF` | mill
+- `trilobe_deformation_calc` | calcDispatcher.ts | `TrilobeDeformationEngine.analyze` | lathe
+- `stock_feed_cycle_track` | calcDispatcher.ts | `StockFeedCycleEngine.advanceCycle` | lathe
+- `in_process_stock_model_update` | calcDispatcher.ts | `InProcessStockModelEngine.applyOperation` | cam
+- `inter_operation_state_transfer` | calcDispatcher.ts | `InterOperationStateEngine.recordOperationState` | other
+- `process_environment_sensitivity_analyze` | calcDispatcher.ts | `ProcessEnvironmentSensitivityEngine.calculateCorrections` | other
+- `physics_aware_data_augmentation_run` | calcDispatcher.ts | `PhysicsAwareDataAugmentationEngine.augmentCorpus` | other
+- `lathe_program_audit_pipeline_run` | turningDispatcher.ts (prism_turning) | `LatheProgramAuditPipelineEngine (latheProgramAuditPipelineEngine, dispatcher line 3842).auditOne` | lathe
+- `multi_spindle_automatic_plan` | turningDispatcher.ts (prism_turning) | `MultiSpindleAutomaticEngine (multiSpindleAutomaticEngine, instance export :996, dispatcher line 3864).executeAction (canonical router) or assignStations (the actual station-planning primitive)` | lathe
+- `swiss_type_intelligence_analyze` | turningDispatcher.ts (prism_turning) | `SwissTypeIntelligenceEngine (swissTypeIntelligenceEngine, instance export :1206, dispatcher line 3870).executeAction (canonical router) or generateProcessPlan (full swiss process-plan analysis)` | lathe
+- `insert_grade_select` | turningDispatcher.ts (prism_turning) | `InsertGradeSelectionEngine (insertGradeSelectionEngine, instance export :355, dispatcher line 3876).calculate` | lathe
+- `cam_utility_batch_run` | camDispatcher.ts) | `batchCAMEngine (BatchCAMEngine, CAMUtilityEngines.ts:184).generateBatch` | cam
+- `cimatron_cam_bridge_run` | camDispatcher.ts) | `cimatronCAMBridgeEngine (CimatronCAMBridgeEngine.ts:442).analyze` | cam
+- `tebis_cam_bridge_run` | camDispatcher.ts) | `tebisCAMBridgeEngine (TebisCAMBridgeEngine.ts:573).extractProject` | cam
+- `radial_engagement_analyze` | camDispatcher.ts) | `radialEngagementControllerEngine (RadialEngagementControllerEngine.ts:78).control (or analyzeCorners)` | mill
+- `blameless_post_mortem_run` | camDispatcher.ts) | `blamelessPostMortemEngine (BlamelessPostMortemEngine.ts:110).file` | other
+- `cam_bridge_kit_run` | camDispatcher.ts) | `camBridgeKitEngine (CamBridgeKitEngine.ts:297, class-alias export).cadCamHandoff` | cam
+- `epack_table_import` | camDispatcher.ts) | `ePackTableImportEngine (EPackTableImportEngine.ts:100).importAuto` | cam
+- `macro_conversion_analyze` | camDispatcher.ts) | `macroConversionAnalyzerEngine (MacroConversionAnalyzerEngine.ts:325).analyzeProgram (static -- invoke on the class)` | cam
+- `nc_pattern_mine` | camDispatcher.ts) | `ncPatternMinerEngine (NCPatternMinerEngine.ts:314).mineCustomerPatterns (static -- invoke on the class)` | cam
+- `prism_addin_architecture_get` | camDispatcher.ts) | `prismAddinArchitectureEngine (PrismAddinArchitectureEngine.ts:101).parseCommentData (or generateCpsParserCode; invoke on the class)` | cam
+- `so3_kinematics_encode` | fiveAxisDispatcher.ts (prism_5axis) | `SO3KinematicsEncoderEngine (singleton so3KinematicsEncoderEngine = new SO3KinematicsEncoderEngineImpl()).fromEulerAngles (encode A/C tilt angles -> SO3Embedding); chain toNeuralEmbedding(e, topology?) for the neural-encode the action name implies` | 5axis
+- `five_axis_ai_ultra_predict` | fiveAxisDispatcher.ts (prism_5axis) | `FiveAxisAIUltraIntelligenceEngine (alias fiveAxisAIUltraIntelligenceEngine = the CLASS; all methods STATIC).predictToolLife(input: ToolLifePredictionInput) -- the predict-semantic static method; the singleton alias is the class so static resolves. (processNaturalLanguage for a general NL-driven AI-ultra entry.)` | 5axis
+- `fourth_axis_indexing_plan` | millDispatcher.ts (prism_mill) | `FourthAxisIndexingEngine (singleton fourthAxisIndexingEngine, engines/FourthAxisIndexingEngine.ts:504).FourthAxisIndexingEngine.calculate(p) -- but note: calculate is STATIC, so it must be called on the CLASS, not the singleton instance. The dispatcher calls (fourthAxisIndexingEngine as any).calculate which is undefined on the instance, so this action ALWAYS returns the 'method not callable' stub. Fix: import the class and call FourthAxisIndexingEngine.calculate(p).` | mill
+- `fourth_axis_decision_select` | millDispatcher.ts (prism_mill) | `FourthAxisDecisionEngine (singleton fourthAxisDecisionEngine, engines/FourthAxisDecisionEngine.ts:938).FourthAxisDecisionEngine.decide(p) -- STATIC method; the dispatcher calls (fourthAxisDecisionEngine as any).decide on the instance where it is undefined, so this action ALWAYS returns the 'method not callable' stub. Fix: call the static FourthAxisDecisionEngine.decide(p) on the class.` | mill
+- `spc_process_capability_analyze` | qualityDispatcher.ts) | `SPCProcessCapabilityEngine (src/engines/SPCProcessCapabilityEngine.ts).compute` | quality
+- `hypermill_fai_bridge_run` | qualityDispatcher.ts) | `HyperMillFAIBridge (src/engines/HyperMillFAIBridge.ts).generate (await — async)` | quality
+- `hypermill_spc_bridge_run` | qualityDispatcher.ts) | `HyperMillSPCBridge (src/engines/HyperMillSPCBridge.ts).generate` | quality
+- `concentration_inequality_analyze` | qualityDispatcher.ts) | `ConcentrationInequalityEngine (src/engines/ConcentrationInequalityEngine.ts).hoeffding (or route by params.bound to bernstein/mcdiarmid/chernoff)` | other
+- `multivariate_spc_analyze` | qualityDispatcher.ts) | `MultivariateSPCEngine (src/engines/MultivariateSPCEngine.ts).hotellingStream (primary Hotelling T2 path; mewmaStream for MEWMA)` | quality
+- `data_quality_validate` | qualityDispatcher.ts) | `DataQualityEngine (src/engines/DataQualityEngine.ts).validateBatch (validateRow for single-row)` | quality
+- `iso13485_qms_validate` | qualityDispatcher.ts) | `ISO13485QMSEngine (src/engines/ISO13485QMSEngine.ts).evaluate` | quality
+- `design_history_file_compile` | qualityDispatcher.ts) | `DesignHistoryFileEngine (src/engines/DesignHistoryFileEngine.ts).evaluate` | quality
+- `process_validation_iqoqpq_generate` | qualityDispatcher.ts) | `ProcessValidationIQOQPQEngine (src/engines/ProcessValidationIQOQPQEngine.ts).validate` | quality
+- `capa_workflow_open` | qualityDispatcher.ts) | `CAPAWorkflowEngine (src/engines/CAPAWorkflowEngine.ts).evaluate` | quality
+- `iso14971_risk_assess` | qualityDispatcher.ts) | `ISO14971RiskManagementEngine (src/engines/ISO14971RiskManagementEngine.ts).evaluate` | safety
+- `git_safety_check` | safetyDispatcher.ts | `GitSafetyEngine.classify` | other
+- `stock_boundary_gate_check` | safetyDispatcher.ts | `StockBoundaryGateEngine.gate` | lathe
+- `archive_catalog_ingest` | safetyDispatcher.ts | `ArchiveToPartsCatalogIngesterEngine.ingestArchive` | other

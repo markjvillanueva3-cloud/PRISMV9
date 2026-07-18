@@ -34,7 +34,7 @@ import {
 import { WikiLogAppenderEngine, type LogEntry } from "./WikiLogAppenderEngine.js";
 
 const DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434/api/generate";
-const DEFAULT_OLLAMA_MODEL = "qwen2.5-coder:7b";
+const DEFAULT_OLLAMA_MODEL = "qwen2.5-coder:32b";
 const OLLAMA_TIMEOUT_MS = 30_000;
 const TOKEN_SHARE_FLOOR = 0.70;
 
@@ -43,7 +43,7 @@ const TOKEN_SHARE_FLOOR = 0.70;
  *  same heuristic. Replace with a real tokenizer when one's available. */
 const CHARS_PER_TOKEN = 4;
 
-type OllamaModel = "qwen2.5-coder:7b" | "qwen2.5:14b" | "deepseek-coder:6.7b" | string;
+type OllamaModel = "qwen2.5-coder:32b" | "qwen2.5:14b" | "deepseek-coder:6.7b" | string;
 type ClaudeModel = "opus" | "sonnet" | "haiku";
 
 export type IngestStageId = 1 | 2 | 3 | 4 | 5;

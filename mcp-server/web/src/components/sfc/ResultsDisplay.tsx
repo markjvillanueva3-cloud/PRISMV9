@@ -21,6 +21,12 @@ function fmt(n: number | undefined, decimals = 1): string {
 
 const mmToIn = (mm: number) => mm / 25.4;
 const mToFt = (m: number) => m * 3.28084;
+const cm3ToIn3 = (cm3: number) => cm3 / 16.387064; // 1 in^3 = 16.387064 cm^3
+
+/** Coerce an untyped meta value to a finite number, else undefined (so fmt renders "—"). */
+function metaNum(v: unknown): number | undefined {
+  return typeof v === "number" && Number.isFinite(v) ? v : undefined;
+}
 
 export default function ResultsDisplay({ result, loading, error, imperial = false }: Props) {
   if (loading) {
@@ -69,6 +75,18 @@ export default function ResultsDisplay({ result, loading, error, imperial = fals
   const fpt = imperial ? mmToIn(result.feed_per_tooth) : result.feed_per_tooth;
   const fptUnit = imperial ? "in/tooth" : "mm/tooth";
 
+  // U-SFC-RESULTS-COMPLETE: surface the secondary process metrics the backend already
+  // publishes but the page never showed -- MRR, spindle power, tool life. The route
+  // (src/routes/sfc.ts normalizeSfcCalculateResponse) maps the engine outputs into
+  // result.meta.{mrr_cm3_min, power_kw, tool_life_min}; meta is typed Record<string,unknown>
+  // so coerce defensively (metaNum -> undefined -> fmt renders "—", never a crash / NaN).
+  const meta = (result.meta ?? {}) as Record<string, unknown>;
+  const mrrCm3 = metaNum(meta.mrr_cm3_min);
+  const mrrDisplay = mrrCm3 == null ? undefined : imperial ? cm3ToIn3(mrrCm3) : mrrCm3;
+  const mrrUnit = imperial ? "in³/min" : "cm³/min";
+  const powerKw = metaNum(meta.power_kw); // kW on both unit systems (machining-spec convention)
+  const toolLifeMin = metaNum(meta.tool_life_min); // minutes (unit-system-invariant)
+
   return (
     <Card title="Results">
       {/* Safety badge */}
@@ -104,6 +122,27 @@ export default function ResultsDisplay({ result, loading, error, imperial = fals
           label="Feed per Tooth"
           value={fmt(fpt, imperial ? 4 : 3)}
           unit={fptUnit}
+        />
+      </div>
+
+      {/* Secondary process metrics (U-SFC-RESULTS-COMPLETE): MRR / spindle power / tool life,
+          published by the engine into result.meta. Rendered alongside the primaries; fmt shows
+          "—" for any the current calc did not produce (e.g. tool life on some operations). */}
+      <div className="mt-4 grid grid-cols-3 gap-4">
+        <ResultCard
+          label="Material Removal"
+          value={fmt(mrrDisplay, imperial ? 4 : 2)}
+          unit={mrrUnit}
+        />
+        <ResultCard
+          label="Spindle Power"
+          value={fmt(powerKw, 2)}
+          unit="kW"
+        />
+        <ResultCard
+          label="Tool Life"
+          value={fmt(toolLifeMin, 0)}
+          unit="min"
         />
       </div>
 

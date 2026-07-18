@@ -478,6 +478,83 @@ class JobLifecycleEngineImpl {
     };
   }
 
+  /**
+   * Operations KPI rollup for the ERP "operations-kpis" dashboard. Composes ONLY real
+   * job-lifecycle fields (status, schedule.due_date / schedule.actual_end) -- nothing fabricated.
+   * Returns { data_available:false } when the job store is empty (honest empty, mirroring
+   * value_stream_map) so the SPA renders an empty state rather than treating zeros as real data.
+   *
+   * NOTE on the active/completed split: completed_jobs counts CLOSED_STATUSES (closed/shipped/
+   * invoiced); a job in status 'complete' but not yet shipped is still counted as ACTIVE (open WIP),
+   * matching dashboard(). active + completed == total (disjoint, exhaustive partition).
+   *
+   * @returns counts by status, active/overdue/at-risk (reused from dashboard()), completed count,
+   *   on_time_delivery_rate (share of completed jobs WITH a delivery date (actual_end) whose
+   *   actual_end <= due_date; null when none qualify), and schedule_health_pct (active not overdue
+   *   / active). A date-only due_date is treated as end-of-day for the on-time comparison.
+   */
+  operationsKpis(): {
+    data_available: boolean;
+    generated_at: string;
+    total_jobs: number;
+    active_jobs: number;
+    completed_jobs: number;
+    overdue: number;
+    at_risk: number;
+    by_status: Record<string, number>;
+    on_time_delivery_rate: number | null;
+    schedule_health_pct: number | null;
+    overdue_pct: number;
+    at_risk_pct: number;
+    message?: string;
+  } {
+    const base = this.dashboard();
+    const round1 = (n: number): number => Math.round(n * 10) / 10;
+    if (base.total_jobs === 0) {
+      return {
+        data_available: false,
+        generated_at: new Date().toISOString(),
+        total_jobs: 0, active_jobs: 0, completed_jobs: 0, overdue: 0, at_risk: 0,
+        by_status: {}, on_time_delivery_rate: null, schedule_health_pct: null,
+        overdue_pct: 0, at_risk_pct: 0,
+        message: "No jobs in the lifecycle store yet.",
+      };
+    }
+    let completed = 0;
+    let completedWithEnd = 0;
+    let onTime = 0;
+    for (const job of this.jobs.values()) {
+      if (!CLOSED_STATUSES.includes(job.status)) continue;
+      completed++;
+      if (job.schedule.actual_end) {
+        completedWithEnd++;
+        // A date-only due_date ("2026-06-27") is treated as end-of-day so a same-day ship is on-time.
+        const due = job.schedule.due_date;
+        const dueMs = due.includes("T")
+          ? new Date(due).getTime()
+          : new Date(`${due}T23:59:59.999Z`).getTime();
+        if (new Date(job.schedule.actual_end).getTime() <= dueMs) {
+          onTime++;
+        }
+      }
+    }
+    const active = base.active_jobs;
+    return {
+      data_available: true,
+      generated_at: new Date().toISOString(),
+      total_jobs: base.total_jobs,
+      active_jobs: active,
+      completed_jobs: completed,
+      overdue: base.overdue,
+      at_risk: base.at_risk,
+      by_status: base.by_status,
+      on_time_delivery_rate: completedWithEnd > 0 ? round1((onTime / completedWithEnd) * 100) : null,
+      schedule_health_pct: active > 0 ? round1(((active - base.overdue) / active) * 100) : null,
+      overdue_pct: active > 0 ? round1((base.overdue / active) * 100) : 0,
+      at_risk_pct: active > 0 ? round1((base.at_risk / active) * 100) : 0,
+    };
+  }
+
   // ── U-XWIRE1: Cross-engine cascade ──────────────────────
 
   /**

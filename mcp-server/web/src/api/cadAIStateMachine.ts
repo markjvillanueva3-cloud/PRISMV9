@@ -1,3 +1,4 @@
+import { getAuthHeaders } from './authToken';
 /**
  * cadAIStateMachine.ts — thin API client for U-CADC-AI04
  *
@@ -56,7 +57,7 @@ export interface TransitionEvent {
 async function call<T>(action: string, params: Record<string, unknown>): Promise<T> {
   const res = await fetch(`${API_BASE}/dispatch/prism_cad_automation`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ action, params }),
   });
   if (!res.ok) throw new Error(`[${action}] ${res.status}`);

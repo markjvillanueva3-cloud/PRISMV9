@@ -1,0 +1,953 @@
+Application Tutorial | InventorCAM 2024
+
+SWARF Machining
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+       Contents
+
+        1. Introduction...............................................................................................................................................1
+        2. CAM-Part Definition..................................................................................................................................5
+        3. HSR and HSM Operations........................................................................................................................13
+        4. iMachining and Rest Roughing................................................................................................................21
+        5. SWARF Semi-Finishing............................................................................................................................35
+        6. SWARF Finishing......................................................................................................................................47
+
+i
+Introduction  1
+About this course
+The goal of this course is to teach you how to use InventorCAM's SWARF Machining to machine an aerospace part. This
+tutorial covers the basic concepts of SWARF Machining. Once you have developed a good foundation in basic skills, you
+can refer to the online help for information on the less frequently used options.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the InventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task. The theoretical explanations are embedded into these exercises to
+give an overview of the SWARF Machining capabilities.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor.
+It is also intended to be a self-study tutorial. This book is made using Autodesk Inventor Professional 2024 and
+InventorCAM 2024 SP2.
+
+2
+                                                                               1. Introduction
+
+SWARF Machining
+
+The SWARF Machining operation provides you with a number of advantages
+in steep areas machining. In SWARF operation, machining is performed by
+the tool side. The contact area between the tool and the workpiece is a line,
+therefore a better surface quality can be achieved with a minimum number
+of cuts.
+
+                                                                               3
+4
+2 CAM-Part Definition
+The CAM-Part definition process for the part consists of the following stages:
+                                                       CAM-Part creation
+
+                                                   CNC-Machine de nition
+
+                                                Coordinate System de nition
+
+                                                Stock and Target de nition
+        · CAM-Part creation. At this stage, you have to define the CAM-Part name and location. InventorCAM defines
+
+            the necessary system files and a folder to allocate the place to store InventorCAM data.
+        · CNC-controller definition. It is necessary to choose the CNC-controller. The controller type influences the
+
+            Coordinate System definition and the Geometry definition.
+        · Coordinate System definition. You have to define the Coordinate System, which is the origin for all machining
+
+            operations of the CAM-Part. You can create multiple CoordSys positions and in each machining step select
+            which CoordSys you want to use for the operation.
+        · Stock and Target definition. It is necessary to define a boundary of the stock that is used for the CAM-Part
+            machining. InventorCAM enables you to define the model of the part in its final stage after the machining.
+The following exercises describe the full process of the CAM-Part definition. It is recommended to go through the stages
+in order to understand how the CAM-Part features are built. For this purpose, you have to turn off the automatic CAM-
+Part definition.
+1. Click InventorCAM2024 > CAM Settings.
+
+2. In the left pane, select CAM-Part.
+
+6
+                                                        2. CAM-Part Definition
+
+3. Ensure that the settings are as shown in the image.
+
+4. In the left pane, select Automatic CAM-Part definition.
+5. In the right pane, click the Milling tab.
+6. Ensure that the settings are as shown in the image.
+7. Click OK.
+
+8. Browse and open swarf.ipt.
+9. Click InventorCAM2024 > New > Milling.
+The New Milling Part window displays.
+10. Click
+The Milling Part Data window displays.
+11. In the CNC-Machine: list, select FANUC5X_HEAD.
+12. Click CoordSys in the Define section to set the coordinate system for this part.
+13. In the Place CoordSys origin to list, click Top center of model box.
+
+                                                                                                                                                                         7
+14. Set the coordinate system as shown in the image.
+
+15. Click Finish.
+16. Click OK in the CoordSys Data window.
+17. Click Finish in the CoordSys Manager window to return to the Milling Part Data window.
+18. Click Edit iMachining Database in the iMachining Data section.
+19. Define a new machine with the parameters as shown in the image.
+
+8
+                                                                                2. CAM-Part Definition
+
+20. Define a new material with the parameters as
+shown in the image.
+21. Click Save & Exit in the iMachining Database
+section.
+
+22. In the iMachining Data section, select the just
+defined machine, material and set Machining Level as 6.
+23. Click Save & Exit in the Milling Part Data window.
+
+24. Click the > Model tab.
+25. Click Modeling.
+26. Expand Design Model:1 > Solid Bodies(11) > Switch on Visibility of Solid10
+and Solid11.
+
+27. Click the InventorCAM tab.
+28. Right click Stock > Define.
+
+                                                                                                                                                                         9
+29. In the Defined by list, click 3D Model.
+30. Select the stock as shown in the image.
+31. Click
+32. Go to the Model tab and switch off the Visibility of
+Solid10.
+33. Click the InventorCAM tab.
+34. Right click Target > Define.
+35. Select the part as shown in the image.
+36. Click
+
+37. Right click Operations > Machine Setup > Add at start of operations tree.
+
+10
+                                      2. CAM-Part Definition
+
+38. Click the three dots icon > New.
+The Model window displays.
+
+39. Select the fixture as shown in the image.
+40. Click
+
+41. In the Z column, enter a value of 150.
+This value will move the entire assembly of stock, part and fixture by 150 mm, ensuring that it rests exactly on the face
+of the table.
+42. Click OK in the Machine setup window.
+The CAM part is now defined.
+
+                                                                                                                                                                        11
+12
+HSR and HSM  3
+ Operations
+1. Right click Setup > Add Milling Operation > 3D HSR.
+In the Technology list, click Contour roughing.
+2. Ensure target is selected in the Target geometry section.
+3. Click Tool > Select.
+4. Select BALL NOSE MILL as the tool.
+5. Enter the parameters as shown in the image.
+
+6. Select HSK A 63 ER 32x80 as the holder.
+7. Click
+8. Click Constraint boundaries.
+9. Select the Created manually option.
+10. In the list, click Selected faces.
+11. Click under Boundary name.
+12. Click Define in the Drive faces section.
+13. Click Pick from Model.
+
+14
+                                                              3. HSR and HSM operations
+
+14. Select any of the highlighted green color faces.
+15. Click Find Faces.
+16. Click
+
+17. Click OK to close Selected faces window.
+The selected boundary should look as displayed in the image.
+18. In the Boundary - Tool Relation list, click Centered.
+19. Set the Offset value as 2.
+
+20. Click Passes.
+21. Enter the parameters as shown in the image.
+
+                                                              15
+22. Click Z-Bottom.
+23. Select the point as shown in the image.
+24. Click OK.
+25. Click the Adaptive step down tab.
+26. In the Adaptive step down by list, select None. Set the
+Last levels to even value as 5.
+27. Click Link.
+28. Set the values as shown in the image.
+
+29. Click the Ramping tab.
+30. Set the values as shown in the image.
+
+31. Click the Strategy tab.
+32. Set the values as shown in the image.
+
+16
+                                                                 3. HSR and HSM operations
+
+33. Click the Retracts tab.
+34. Select the Minimal vertical retract option.
+35. Set the Clear surface by value as 15.
+36. Click the Leads tab.
+37. Set the values as shown in the image.
+38. Save and calculate the operation.
+39. Run the simulation.
+
+The calculated tool path should look as displayed in the image.
+
+                                                                 17
+40. Run SolidVerify. The simulation should look like as shown in the image.
+
+41. Close the Simulation window.
+42. Close the operations window.
+To finish off machining of the ribs, you must now add an HSM operation. It is important to finish the machining of
+the ribs before you start machining the pockets as the ribs are very thin and start vibrating and tear off if they are not
+machined before you start the machining of the pockets.
+43. Right click the last operation > Add Milling Operation > 3D HSM.
+44. In the Technology list, click 3D Constant step over.
+45. Click Tool > Select.
+46. Select the same BALL NOSE MILL tool that was defined for the earlier roughing operation.
+47. Click Drive boundaries.
+
+18
+                                                                                                                                   3. HSR and HSM operations
+
+48. Enter the parameters as shown in the image.
+49. In the Boundary name list, click the same boundary you had defined for the
+previous HSR operation.
+
+                           The boundary name in tutorial may vary from the name you
+                           defined in your file.
+
+50. Click Passes.
+51. Enter the parameters as shown in the image.
+
+52. Click Link.
+53. Set the values as shown in the image.
+
+54. Click the Ramping tab.
+55. Set the values as shown in the image.
+
+                                                                                                                                                                        19
+56. Click the Strategy tab.
+57. Set the values as shown in the image.
+58. Click the Retracts tab.
+59. Select the Minimal vertical retract button.
+60. Set the Clear surface by value as 15.
+61. Click the Leads tab.
+62. Set the values as shown in the image.
+
+63. Save and calculate the operation.
+64. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+In the next chapter, you will define operations for roughing the pockets of this part.
+
+20
+iMachining and  4
+Rest Roughing
+1. Right click the last operation > Add Milling Operation > 3D iMachining.
+2. In the Technology list, click 3D General.
+3. Click the Define button in the Working area section.
+The Working area window displays.
+4. Select the Working area check box.
+5. In the Tool on working area list, click Center.
+6. Click the Define button.
+7. Select the four boundaries as shown in the image.
+8. Click
+9. Click OK in the Working Area window.
+
+10. Click Tool > Select.
+11. Select the BULL NOSE MILL tool and enter the parameters as shown in the image.
+
+12. Select HSK A 63 ER 32x80 as the holder.
+
+22
+                                                       4. iMachining and Rest Roughing
+
+13. Click    .
+
+14. Click Levels.
+
+15. Click Lower level.
+
+16. Select the point as shown in the image.
+
+17. Click \
+
+18. Enter the other parameters as shown in the image.
+
+19. Click Technology.
+20. Enter the parameters as shown in the image.
+
+                                                       23
+21. Click Link.
+22. Ensure that the parameters are as shown in the image.
+
+23. Save and calculate the operation.
+24. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+25. Right click and Copy then Paste the iMachining operation.
+26. Right click the pasted operation > Edit.
+
+24
+                                                                 4. iMachining and Rest Roughing
+
+27. Click the Define button in the Working area section.
+28. Unselect the Working area check box.
+29. Click OK.
+30. Click Technology.
+31. Enter the parameters as shown in the image.
+
+32. Click Link.
+33. Set the Z clearance value to 0.08.
+34. Save and calculate the operation.
+35. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+                                                                 25
+You must now add a rest roughing tool path to machine the material on the corners and to machine the large steps that
+are still remaining on the part.
+36. Right click the last iMachining operation > Add Milling Operation > 3D HSR.
+37. In the Technology list, click Contour roughing.
+38. Click Tool > Select.
+39. Select BULL NOSE MILL as the tool.
+40. Enter the tool parameters as shown in the image.
+
+41. Select the Holder check box.
+42. Select HSK A 63 ER 32X80 as the holder.
+43. Click
+44. Click Passes.
+45. Enter the parameters as shown in the image.
+
+26
+                                                 4. iMachining and Rest Roughing
+
+46. Click the Smoothing tab.
+47. Set the values as shown in the image.
+
+48. Click the Adaptive step down tab.
+49. In the Adapt Step down by list. click None.
+50. Select the Optimize Z level check box.
+51. Set the Last levels to even value as 5.
+52. Click the Edit Passes tab.
+53. Set the values as shown in the image.
+
+54. Click Link.
+55. Set the values as shown in the image.
+
+                                                 27
+56. Click the Ramping tab.
+57. Set the values as shown in the image.
+
+58. Click the Strategy tab.
+59. Set the values as shown in the image.
+
+60. Click the Retracts tab.
+61. Select the Minimal vertical retract button.
+62. Set the Clear surface by value as 2.7.
+63. Click the Leads tab.
+64. Set the values as shown in the image.
+65. Save and calculate the operation.
+66. Run the simulation.
+
+28
+                                                                 4. iMachining and Rest Roughing
+
+The calculated tool path should look as displayed in the image:
+
+67. Right click the last operation > Add Milling Operation > Multiaxis Machining.
+68. Click the Geometry page.
+69. In the Strategy lists, select Offset and Offest from floor.
+70. In the Machining surfaces list, ensure that target is selected.
+71. Click under Floor surfaces.
+72. Select the faces as shown in the image.
+73. Click
+
+                                                                                                                                                                        29
+74. Set the Stock to leave on value as 1 for both Machining surfaces and Floor surfaces.
+75. Select the Stock tab.
+76. Select the Respect stock model check box and in the Stock definition style list, select Auto updated stock.
+77. Set the Tolerance value as 0.1.
+78. Click on Tool > Select.
+79. Select BALL NOSE MILL as the tool and set the parameters as shown in the image.
+
+80. Select HSK A 63 SRKIN 12x120 as the holder and HSK A 63 ER 32x80 as the adaptor.
+81. Click
+82. In the Dynamic Holder Checking section, select the Check with Machining surfaces check box.
+83. Click the Levels page.
+84. Set the Retract, Safety, and Exit safety distance values as 20, 2, and 2 respectively.
+85. Click the Constraint boundaries page. Select the Use constraint boundaries check box and select the Create
+manually option.
+86. Select the Use constraint boundaries check box and select the Create manually option.
+
+30
+                                                                    4. iMachining and Rest Roughing
+
+87. Click under Boundary name.
+
+88. Select the boundary as shown in the image and click .
+
+89. Click the Tool path parameters page.
+90. On the Surface quality tab select the Cut tolerance check box
+and set the value as 0.1.
+91. In the Step down section, select the option of By distance and
+set the value as 2.
+92. Set the Maximum step over value as 4.
+93. Select the Sorting tab.
+94. Set the parameters as shown in the image.
+
+95. Select the Smoothing tab and set the parameters as shown
+in the image.
+96. Click the Link page.
+97. On the Ramping tab, set the Ramp angle value as 2.
+98. In the Ramp type list, select Auto.
+99. Set the Ramp length (tool diameter %) value as 80.
+
+                                                                                                                                                                        31
+100. Set the Stock clearance value as 100 and select the Allow tool outside stock check box.
+101. Select the Approach/Retract tab.
+102. In the First entry lists, select Use retract distance and Use ramp.
+103. In the Last entry lists, select Use retract distance.
+104. Select the Links tab and set the parameters as shown in the
+image.
+
+105. Click the Machine control page.
+106. On the Regular tab, select the Minimum angle change check box.
+107. In the Start angle type list, select Choose between two solutions.
+108. Select the option of Second angle pair and in the Machine limits list, select Limits all.
+109. Select the Advanced tab and set the parameters and values as shown in the image.
+
+32
+                                                                 4. iMachining and Rest Roughing
+
+110. Save and calculate the operation.
+The calculated tool path should look as displayed in the image.
+
+                                                                 33
+34
+     SWARF      5
+Semi-Finishing
+1. Right click the operation > Add Milling Operation > SWARF Machining.
+2. Click Geometry.
+3. In the Strategy list, click Automatic.
+
+4. Click   under Swarf surfaces.
+
+5. Select the faces as shown in the image.
+
+6. Click
+
+7. Select the Floor surfaces check box.
+
+8. Click   under Floor surfaces.
+
+9. Select the faces as shown in the image.
+
+10. Click
+
+11. Set the Offset values as shown in the image.
+
+36
+                                                                                                                                      5. SWARF Semi Finishing
+
+12. Click Tool > Select.
+13. Select the same BULL NOSE MILL tool that was used for the previous HSR Contour machining operation.
+14. Click Levels.
+15. Enter the parameters as shown in the image.
+
+16. Click Tool path parameters.
+17. Enter the parameters as shown in the image.
+
+18. Click the Corners tab.
+19. Enter the parameters as shown in the image.
+20. Click Tool axis control.
+21. Set the Maximum angle step value as 3.
+22. Select the Minimize rotation axis changes check box.
+
+                                                                                                                                                                        37
+23. Click Link.
+24. In the lists, click Use Lead-In and Use Lead-Out.
+
+25. Click      next to Use Lead-In.
+
+26. Enter the parameters as shown in the image.
+
+27. Click OK.
+
+28. Click      next to Use Lead-Out.
+
+29. Enter the parameters as shown in the image.
+
+30. Click the Links tab.
+31. Enter the parameters as shown in the image.
+
+38
+                                                                 5. SWARF Semi Finishing
+
+32. Click Roughing and More.
+33. Enter the parameters as shown in the image.
+
+34. Save and calculate the operation.
+35. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+36. Right click the operation > Copy.
+37. Right click the operation > Paste.
+38. Right click the operation > Edit.
+39. In the Strategy list, click Automatic.
+
+                                                                                                                                                                        39
+40. Click  under Swarf surfaces.
+
+41. Select the faces as shown in the image.
+
+42. Click
+
+43. Click the Floor surfaces check box.
+
+44. Click  under Floor surfaces.
+
+45. Select the faces as shown in the image.
+
+46. Click
+
+47. Keep all the other parameters as they are.
+48. Save and calculate the operation.
+49. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+40
+50. Right click the operation > Copy.        5. SWARF Semi Finishing
+51. Right click the operation > Paste.                                        41
+52. Right click the operation > Edit.
+53. In the Strategy list, click Automatic.
+
+54. Click  under Swarf surfaces.
+
+55. Select the faces as shown in the image.
+
+56. Click
+
+57. Click the Floor surfaces check box.
+
+58. Click  under Floor surfaces.
+
+59. Select the faces as shown in the image.
+
+60. Click
+
+61. Click Tool path parameters.
+62. Enter the values as shown in the image.
+63. Click Misc. parameters.
+64. Set the values as shown in the image.
+
+65. Keep all the other parameters as they are.
+66. Save and calculate the operation.
+67. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+68. Right click the operation > Copy.
+69. Right click the operation > Paste.
+70. Right click the operation > Edit.
+71. In the Strategy list, click Automatic.
+
+72. Click  under Swarf surfaces.
+
+73. Select the faces as shown in the image.
+
+74. Click
+
+42
+                                                                 5. SWARF Semi Finishing
+
+75. Click the Floor surfaces check box.
+
+76. Click  under Floor surfaces.
+
+77. Select the faces as shown in the image.
+
+78. Click
+
+79. Keep all the other parameters as they are.
+80. Save and calculate the operation.
+81. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+                                                                 43
+82. Right click the operation > Copy.
+83. Right click the operation > Paste.
+84. Right click the operation > Edit.
+85. In the Strategy list, click Automatic.
+
+86. Click  under Swarf surfaces.
+
+87. Select the faces as shown in the image.
+
+88. Click
+89. Click the Floor surfaces check box.
+
+90. Click  under Floor surfaces.
+
+91. Select the faces as shown in the image.
+
+44
+                                                                           5. SWARF Semi Finishing
+
+92. Click
+93. Keep all the other parameters as they are.
+94. Save and calculate the operation.
+95. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+In the next chapter, you will define tool paths for finishing operations.
+
+                                                                           45
+46
+SWARF Finishing  6
+1. Right click the operation > Add Milling Operation > SWARF Machining.
+2. In the Strategy list, click Automatic.
+
+3. Click  under Swarf surfaces.
+
+4. Select the faces as shown in the image.
+
+5. Click
+
+6. Click the Floor surfaces check box.
+
+7. Click  under Floor surfaces.
+
+8. Select the faces as shown in the image.
+
+9. Click
+
+10. Click Tool > Select.
+11. Select the TAPER BALL NOSE tool.
+12. Enter the parameters as shown in the
+image.
+13. Select HSK A 63 ER 32x80 as the holder.
+
+14. Click
+
+48
+                                                          6. SWARF Finishing
+
+15. Click Levels.
+16. Enter the parameters as shown in the image.
+
+17. Click Tool path parameters.
+18. Enter the parameters as shown in the image.
+
+19. Click Tool axis control.
+20. Set the Maximum angle step value as 3.
+21. Select the Minimize rotation axis changes check box.
+22. Click Link.
+23. In the lists, click Use Lead-In and Use Lead-Out.
+
+24. Click      next to Use Lead-In.
+
+25. Enter the parameters as shown in the image.
+
+26. Click OK.
+
+                                                          49
+27. Click  next to Use Lead-Out.
+
+28. Enter the parameters as shown in the image.
+
+29. Click Roughing and More.
+30. Enter the parameters as shown in the image.
+
+31. Save and calculate the operation.
+32. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+50
+                                             6. SWARF Finishing
+
+33. Right click the operation > Copy.
+34. Right click the operation > Paste.
+35. Right click the operation > Edit.
+36. In the Strategy list, click Automatic.
+
+37. Click  under Swarf surfaces.
+
+38. Select the faces as shown in the image.
+
+39. Click
+40. Click the Floor surfaces check box.
+
+41. Click  under Floor surfaces.
+
+42. Select the faces as shown in the image.
+
+                                             51
+43. Click
+44. Keep all the other parameters as they are.
+45. Save and calculate the operation.
+46. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+47. Right click the operation > Copy.
+48. Right click the operation > Paste.
+49. Right click the operation > Edit.
+50. In the Strategy list, click Automatic.
+
+51. Click  under Swarf surfaces.
+
+52. Select the faces as shown in the image.
+
+53. Click
+
+52
+                                                                 6. SWARF Finishing
+
+54. Click the Floor surfaces check box.
+
+55. Click  under Floor surfaces.
+
+56. Select the faces as shown in the image.
+
+57. Click
+
+58. Keep all the other parameters as they are.
+59. Save and calculate the operation.
+60. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+61. Right click the operation > Add Milling Operation > 3D HSM.
+62. In the Technology list, click Horizontol machining.
+63. Click Tool > Select.
+
+                                                                                                                                                      53
+64. Select the same 12 mm BULL NOSE MILL that was defined earlier for some SWARF operations.
+65. Click Constraint boundaries.
+66. Select the Created manually option.
+67. In the list, click User-defined boundary.
+68. Click under boundary name.
+69. Select the boundary as shown in the image.
+70. Click
+
+71. Click Passes.
+72. Enter the parameters as shown in the image.
+
+73. Click the Smoothing tab.
+74. Set the values as shown in the image.
+
+54
+75. Click Link.                                   6. SWARF Finishing
+76. On the General tab, set the values as shown.                         55
+
+77. Set these values on the Ramping tab.
+
+78. Set these values on the Strategy tab.
+79. Set these values on the Retracts tab.
+80. Set these values on the Leads tab.
+81. Save and calculate the operation.
+82. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+83. Right click the operation > Add Milling Operation > Sim 5-Axis Milling.
+84. In the Technology list, click Parallel to curves.
+85. Click Geometry.
+
+86. Click  under Drive surface.
+
+87. Select the face as shown in the image.
+
+88. Click
+56
+                                                           6. SWARF Finishing
+
+89. Click  under Edge curve.
+
+90. Select the curve as shown in the image.
+
+91. Click
+
+92. In the Type list, click Determined by number of cuts.
+93. In the Number of cuts field, enter a value of 20.
+94. Click Tool > Select.
+95. Select the same 12 MM TAPER BALL NOSE tool that was defined for earlier SWARF machining operations.
+96. Click Levels.
+97. Enter the parameters as shown in the image.
+
+98. Click Tool path parameters.
+99. In the Maximum step over field, enter a value of 0.7.
+100. Click the Sorting tab.
+101. Enter the parameters as shown in the image.
+
+                                                                                                         57
+102. Click Tool axis control.
+103. Ensure that the parameters you set on the Regular tab are
+same as shown in the image.
+104. On the Side tilt tab, in the Side tilt definition list, select
+Orthogonal to cut direction at each contour.
+
+105. Click Gouge check.
+106. Enter the parameters as shown in the image.
+
+107. Click  under Check surfaces 1.
+
+108. Select the faces as shown in the image.
+
+109. Click
+
+110. Save and calculate the operation.
+111. Run the simulation.
+
+58
+                                                                           6. SWARF Finishing
+
+The calculated tool path should look as displayed in the image.
+
+Now, you will add operations for outer finishing of the SWARF part.
+112. Right click the operation > Add Milling Operation > SWARF Machining.
+113. Click Geometry.
+114. In the Strategy list, click Automatic.
+
+115. Click  under SWARF surfaces.
+
+116. Select all the outer faces as shown in the image.
+
+117. Click
+
+118. Click Tool > Select.
+
+119. Select the same 12 MM BULL NOSE MILL that was
+defined for earlier operations.
+
+120. Click Levels.
+
+                                                                           59
+121. Set the Retract distance and Entry safety distance values as 20 and Exit safety distance values as 5.
+122. Click Tool path parameters.
+123. Enter the values as shown in the image.
+
+124. Click the Corners tab.
+125. In the Inside corners list, click Sharp corner.
+126. In the Outside corners list, click Roll around.
+127. Click Tool axis control.
+128. Set the Maximum angle step value as 3.
+129. Click Roughing and More.
+130. Set the values as shown in the image.
+131. Save and calculate the operation.
+132. Run the simulation.
+
+60
+                                                                 6. SWARF Finishing
+
+The calculated tool path should look as displayed in the image.
+
+133. Right click the operation > Copy.
+134. Right click the operation > Paste.
+135. Right click the pasted operation > Edit.
+136. Click Misc. parameters.
+137. In the Custom triangulation section, enter the parameters as shown in the image.
+
+                                                                                                                                                      61
+138. Save and calculate the operation.
+139. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+140. Right click the operation > Copy.
+141. Right click the operation > Paste.
+142. Right click the pasted operation > Edit.
+143. Click Misc. parameters.
+144. Unselect the Custom triangulation check box.
+145. Click Gouge check.
+146. In the Check list, under Avoid by relinking section, select Swarf & additional surfaces.
+
+147. Click  under Check surfaces.
+
+62
+                                                                 6. SWARF Finishing
+
+148. Select all the lug faces as shown in the image.
+149. Click
+
+150. Save and calculate the operation.
+151. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+You will now add one operation to cut off the lugs of the SWARF part.
+                                                                                                                                                      63
+152. Right click the operation > Add Milling Operation > SWARF Machining.
+153. Click Geometry.
+154. In the Strategy list, click Automatic.
+
+155. Click  under SWARF surfaces.
+
+156. Select the face as shown in the image.
+
+157. Click
+
+158. Click Tool > Select.
+159. Select the same 12 MM BULL NOSE MILL that was
+defined for earlier operations.
+
+160. Click Tool path parameters.
+
+161. Enter the parameters as shown in the image.
+
+162. Click Roughing and More.
+163. Enter the parameters as shown in the image.
+
+64
+                                                                              6. SWARF Finishing
+
+164. Save and calculate the operation.
+
+165. Run the simulation.
+The calculated tool path should look as displayed in the image.
+
+Now repeat the same operation to finish the machining of the remaining lugs.
+
+                                                                              65
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

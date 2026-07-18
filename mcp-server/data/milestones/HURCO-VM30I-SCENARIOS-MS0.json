@@ -1,0 +1,87 @@
+{
+  "id": "HURCO-VM30I-SCENARIOS-MS0",
+  "version": "1.0.0",
+  "title": "Hurco V11 Master Post — Feature Matrix Scenarios + Capability Assessment",
+  "brief": "Concrete-arithmetic scenario sweep + value-add gap audit for the upgraded Hurco V11 master post (canonical for JM Die VMX24 + VM30i — same WinMax V11 family). Closes user directive 'devise scenarios and tests for the enhanced hurco vm30i jm post processor + assess whether or not the post processor utilizes everything available'.",
+  "created_at": "2026-05-24T03:30:00Z",
+  "created_by": "claude-64f03cee (slot echo absorbing india)",
+  "track": "POST",
+  "track_name": "Post-Processor Proving-Out",
+  "status": "complete",
+  "completed_at": "2026-05-24T03:55:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "mcp-server/src/__tests__/HurcoV11FeatureMatrix.test.ts (18/18 PASS). Concrete-arithmetic assertions across 7 feature axes: (1) prove_out feed arithmetic — 0.5×800=400, 0.3×800=240 EXACT; (2) aggressiveness multiplier table — L1=0.6 monotone to L5=1.1 with exact 0.6×800=480 and 1.1×800=880 outputs; (3) prove_out OVERRIDES aggressiveness — 0.5 wins over L5's 1.1 yielding 400 not 880; (4) Kienzle-bounded reducer — steel @ 2400/4mm/12mm vs 500N ceiling triggers reduction or physics fail; (5) controller emission — G21/G20 mutual exclusion + G57 verbatim + O5099 header + M30 last non-percent line; (6) structured-input precedence + R12 fail-loud — MillTool.description wins over flat tool_description, kc1_1=99999 (above safe ceiling 6000) throws; (7) sidecar wiring — setup_sheet T14 entry has diameter_mm=12 exact, tools_used array equals [7,14,21] sorted after a 3-op chain. Plus canonical-constant pins: PROVE_OUT_DEFAULT_FEED_FACTOR=0.5 + HURCO_AGGRESSIVENESS_TABLE first/last entries L1=0.6 / L5=1.1 / monotone."
+    },
+    {
+      "unit": "P0-U02",
+      "status": "shipped",
+      "note": "state/shared/hurco-vm30i-capability-assessment.md — operator-readable assessment: per-knob exercised? matrix across HurcoPostConfig 17 knobs / MillOperation 11 fields / HurcoPostOutput 11 result fields. Coverage measure: ~74% of advertised features have concrete assertions across this MS + the prior HURCO-WINMAX-PROVEOUT-MS0 test. Gap list (8 value-add opportunities) prioritized: G65 conversational mode, tool_change_position, 6 of 9 operation_types lack deep tool-cycle assertions (bore/tap/3d_surface/adaptive/slot/pocket), tribal_tips_applied[] never asserted, estimated_cycle_min unverified (feeds quote), advanced_aggressiveness arithmetic unchecked, add_optional_stops (M01 between ops in prove-out) untested, MillTool coating + stickout_mm deflection check unverified. Compounding-gain note: same gaps apply to OkumaOSPMillMasterPostEngine + OkumaB250LatheMasterPostEngine — Hurco template transfers."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Feature scenarios + capability gap audit",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "HurcoV11FeatureMatrix.test.ts — 18 concrete-arithmetic assertions across 7 axes",
+          "effort": 35,
+          "dependencies": ["HURCO-WINMAX-PROVEOUT-MS0"],
+          "exit_conditions": [
+            "Tests use exact arithmetic checks not presence-only assertions",
+            "prove_out feed_factor 0.5 produces 400 (= 800 × 0.5) EXACTLY",
+            "prove_out feed_factor 0.3 produces 240 (= 800 × 0.3) EXACTLY",
+            "aggressiveness L1 produces 480 (= 800 × 0.6) EXACTLY",
+            "aggressiveness L5 produces 880 (= 800 × 1.1) EXACTLY",
+            "prove_out OVERRIDES aggressiveness L5 — max multiplier ≤ 1.0",
+            "Kienzle reducer fires on aggressive steel op vs operator ceiling",
+            "G21/G20 mutually exclusive per units mode",
+            "Kienzle override out-of-range throws (R12 fail-loud)",
+            "18/18 vitest assertions PASS"
+          ],
+          "description": "The scenario sweep that proves the upgraded post processor's marquee value-adds (prove-out + aggressiveness + Kienzle reducer + structured tool/material override) ACTUALLY work, with arithmetic gates so a future engine change can't silently mis-multiply feed.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "state/shared/hurco-vm30i-capability-assessment.md — 33-feature coverage matrix + 8-item gap list",
+          "effort": 15,
+          "dependencies": ["HURCO-VM30I-SCENARIOS-MS0/P0-U01"],
+          "exit_conditions": [
+            "Per-knob exercised? matrix across HurcoPostConfig + MillOperation + HurcoPostOutput",
+            "Coverage percentage measured (24 of 33 surfaces asserted = 74%)",
+            "Gap list prioritized by value-add (operator-visible vs internal)",
+            "Compounding-gain note linking gaps to OkumaOSP + OkumaB250 templates"
+          ],
+          "description": "The 'does the post processor use everything available' answer — measured per-knob, with named gaps and a follow-up MS plan.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "npx vitest run src/__tests__/HurcoV11FeatureMatrix.test.ts -> 18/18 PASS. state/shared/hurco-vm30i-capability-assessment.md is operator-readable and identifies 8 named value-add gaps. The combination of WinMax prove-out (prior MS, 14/14) + feature matrix (this MS, 18/18) covers 24 of 33 advertised engine surfaces.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Coverage assessment is heuristic (per-knob 'is this asserted?' — manual inventory, not a static-analysis sweep over the test source AST). Mitigation: MS1 would script the audit via TypeScript AST parsing so the matrix self-refreshes when tests change."
+    },
+    {
+      "id": "R2",
+      "description": "Gap list calls out 6 of 9 operation_type values lacking deep tool-cycle assertions — bore/tap especially since WinMax uses canned cycles (G84/G85/G81). Engine emits these but they are unverified. Follow-up MS1 unit recommended: one scenario per missing op_type asserting the matching G-code cycle pattern."
+    },
+    {
+      "id": "R3",
+      "description": "tribal_tips_applied[] field is never asserted; engine claims 20+ JM Die tribal tips embedded. If the tribal pipeline silently degrades to zero hits, no test catches it. Follow-up: one assertion that tribal_tips_applied.length >= 1 on a known-tribal-applicable op."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": ["HURCO-WINMAX-PROVEOUT-MS0"],
+  "updated_at": "2026-05-24T04:00:00Z"
+}

@@ -524,7 +524,7 @@ export class LatheShopAwareOptimizationEngine {
     const hasID = parsed.operation_sequence.some(op => op.includes("id_") || op.includes("bore"));
 
     // Check for hardened material hints
-    const content = analysis.program.tool_blocks.map(b => b.raw_gcode).join(" ");
+    const content = analysis.program.tool_blocks.map(b => b.lines.join(" ")).join(" ");
     const isHardened = content.includes("CBN") || content.includes("ceramic");
 
     // Select based on requirements
@@ -638,9 +638,9 @@ export class LatheShopAwareOptimizationEngine {
     for (const issue of analysis.issues) {
       if (issue.issue.includes("slow") || issue.issue.includes("low")) {
         // Slow feed — increase
-        const originalFeed = issue.current_value ? parseFloat(issue.current_value) : 0.001;
+        const originalFeed = issue.current_value ? parseFloat(String(issue.current_value)) : 0.001;
         const optimalFeed = issue.recommended_value
-          ? parseFloat(issue.recommended_value)
+          ? parseFloat(String(issue.recommended_value))
           : Math.min(0.008, originalFeed * 3);
 
         changes.push({

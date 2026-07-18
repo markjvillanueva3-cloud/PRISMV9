@@ -1,0 +1,106 @@
+[
+  {
+    "id": "9007405.MIN-gcode-001",
+    "instruction": "Explain what this Okuma OSP G-code does and suggest any improvements.",
+    "input": "G140\nNSTRT\n(PROGRAM NAME - 9007405)\n(DATE=DD-MM-YY - 16-11-21 TIME=HH:MM - 16:40)\n(MCX FILE - C:\\USERS\\CNC LATHE\\BOX SYNC\\CNC LATHE\\GENERAL OPERATION.MCX-8)\n(NC FILE - C:\\USERS\\CNC LATHE\\BOX SYNC\\CNC LATHE\\9007405.MIN)\n(MATERIAL - STEEL INCH - 1030 - 200 BHN)\n(POST DEV - IN-HOUSE SOLUTIONS)",
+    "output": "**Code Analysis:**\n\nThis G-code segment performs:\n\n**Suggestions:**\n- Verify coolant is active before cutting operations\n- Check tool life counters if using tool groups",
+    "metadata": {
+      "source_program": "9007405.MIN",
+      "customer": "9007405.MIN",
+      "operation_type": "code_review",
+      "confidence": 0.75,
+      "tribal_tips_applied": []
+    }
+  },
+  {
+    "id": "A05-LSC-25-B.MIN-gcode-001",
+    "instruction": "Explain what this Okuma OSP G-code does and suggest any improvements.",
+    "input": "G71 X3.01 Z-.74 B60 D.003 U.001 H.070 F1. J16 M33 M73\nG0 Z.050\nG0 X20 Z20\nM1\n\n\nNAT01\nT010101\nM2\n%",
+    "output": "**Code Analysis:**\n\nThis G-code segment performs:\n- Roughing cycle (G71/G72) for efficient material removal\n\n**Suggestions:**\n- Verify coolant is active before cutting operations\n- Check tool life counters if using tool groups",
+    "metadata": {
+      "source_program": "A05-LSC-25-B.MIN",
+      "customer": "A05-LSC-25-B.MIN",
+      "operation_type": "code_review",
+      "confidence": 0.75,
+      "tribal_tips_applied": []
+    }
+  },
+  {
+    "id": "A-1070#3-8.MIN-gcode-001",
+    "instruction": "Explain what this Okuma OSP G-code does and suggest any improvements.",
+    "input": "$A1070-3-8.MIN%\nM1\nNBAR\nCLEAR\nDEF WORK\nPS LC,[-400,0],[400,19]\nEND\nDRAW",
+    "output": "**Code Analysis:**\n\nThis G-code segment performs:\n\n**Suggestions:**\n- Verify coolant is active before cutting operations\n- Check tool life counters if using tool groups",
+    "metadata": {
+      "source_program": "A-1070#3-8.MIN",
+      "customer": "A-1070#3-8.MIN",
+      "operation_type": "code_review",
+      "confidence": 0.75,
+      "tribal_tips_applied": []
+    }
+  },
+  {
+    "id": "A05-LSC-25-B.MIN-seq-001",
+    "instruction": "What's the optimal operation order for drilling, roughing on D2 tool steel?",
+    "input": "Operations required: drilling → roughing",
+    "output": "**Recommended Operation Sequence:**\n\n1. roughing\n2. drilling\n\n**Rationale:**\n- Start with roughing to remove bulk material efficiently\n- Threading after roughing to ensure dimensional stability\n- Finishing passes last for final tolerances",
+    "metadata": {
+      "source_program": "A05-LSC-25-B.MIN",
+      "customer": "A05-LSC-25-B.MIN",
+      "operation_type": "sequence",
+      "confidence": 0.8,
+      "tribal_tips_applied": []
+    }
+  },
+  {
+    "id": "A-1070#3-8.MIN-sf-001",
+    "instruction": "Determine spindle speed and feed rate for drilling on tool steel.",
+    "input": "Spindle: 700 RPM, Feed: 0.02 IPR",
+    "output": "Based on the program parameters (S700, F0.02):\n\n**Analysis:**\n- Spindle speed: 700 RPM is moderate, typical for roughing operations\n- Feed rate: 0.02 IPR is aggressive roughing\n\n**Recommendations:**\n\nAlways verify with Kienzle force calculations before heavy roughing.",
+    "metadata": {
+      "source_program": "A-1070#3-8.MIN",
+      "customer": "A-1070#3-8.MIN",
+      "operation_type": "drilling",
+      "confidence": 0.85,
+      "tribal_tips_applied": []
+    }
+  },
+  {
+    "id": "95778-UPSET-STOP.MIN-sf-001",
+    "instruction": "Calculate optimal speed and feed for tool steel using a carbide insert on an Okuma lathe.",
+    "input": "Spindle: 800 RPM, Feed: 3 IPR",
+    "output": "Based on the program parameters (S800, F3):\n\n**Analysis:**\n- Spindle speed: 800 RPM is standard for general turning\n- Feed rate: 3 IPR is very heavy, verify machine capability\n\n**Recommendations:**\n\nAlways verify with Kienzle force calculations before heavy roughing.",
+    "metadata": {
+      "source_program": "95778-UPSET-STOP.MIN",
+      "customer": "95778-UPSET-STOP.MIN",
+      "operation_type": "general",
+      "confidence": 0.85,
+      "tribal_tips_applied": []
+    }
+  },
+  {
+    "id": "95778-UPSET-STOP.MIN-gcode-001",
+    "instruction": "Explain what this Okuma OSP G-code does and suggest any improvements.",
+    "input": "$U957.MIN%\n\nM1\nNAT01         (OD AND FACE RGH. TURN .032R)\nT010101\nG0 X20 Z20\nG50 S800\nG97 S650 M3 M8",
+    "output": "**Code Analysis:**\n\nThis G-code segment performs:\n- Maximum spindle speed clamp (G50 S) for safety\n\n**Suggestions:**\n- Verify coolant is active before cutting operations\n- Check tool life counters if using tool groups",
+    "metadata": {
+      "source_program": "95778-UPSET-STOP.MIN",
+      "customer": "95778-UPSET-STOP.MIN",
+      "operation_type": "code_review",
+      "confidence": 0.75,
+      "tribal_tips_applied": []
+    }
+  },
+  {
+    "id": "11-10715-0-A.MIN-sf-001",
+    "instruction": "Calculate optimal speed and feed for tool steel using a carbide insert on an Okuma lathe.",
+    "input": "Spindle: 800 RPM, Feed: 0.02 IPR",
+    "output": "Based on the program parameters (S800, F0.02):\n\n**Analysis:**\n- Spindle speed: 800 RPM is standard for general turning\n- Feed rate: 0.02 IPR is aggressive roughing\n\n**Recommendations:**\n\nAlways verify with Kienzle force calculations before heavy roughing.",
+    "metadata": {
+      "source_program": "11-10715-0-A.MIN",
+      "customer": "ACME",
+      "operation_type": "drilling",
+      "confidence": 0.85,
+      "tribal_tips_applied": []
+    }
+  }
+]

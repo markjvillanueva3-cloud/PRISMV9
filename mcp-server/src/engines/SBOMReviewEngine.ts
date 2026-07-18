@@ -138,7 +138,7 @@ const REMEDIATION_SLA_DAYS: Record<VulnSeverity, number> = {
 const QUARTERLY_REVIEW_WINDOW_MS = 90 * 24 * 3600 * 1000;
 const DAY_MS = 24 * 3600 * 1000;
 
-class SBOMReviewEngine {
+export class SBOMReviewEngine {
   private components: Map<string, Component> = new Map();
   private vulnerabilities: Map<string, Vulnerability> = new Map();
   private snapshots: Map<string, OSVSnapshot> = new Map();

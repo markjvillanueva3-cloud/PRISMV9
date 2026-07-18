@@ -1,12 +1,27 @@
 #!/usr/bin/env node
-// tier: T4
+// tier: T4-experimental
 /**
  * curiosity-explorer.mjs — U-AI05 Curiosity-Driven Explorer
  *
  * Maintains a queue of unexplored paths, unknown territories, and
- * potential improvements. Injects exploration suggestions on SessionStart.
+ * potential improvements. Injects exploration suggestions on SessionStart
+ * (only when the queue has ≥3 items — narrow trigger by design).
  *
  * Creates compounding exploration pressure over time.
+ *
+ * STATUS (2026-05-19, SLOT-COMPACT-SYNERGY-MS0/U-WAVE4b verification):
+ *   - LIVE: CURIOSITY_QUEUE.json + WORLD_SIM_PREDICTIONS.jsonl actively
+ *     written by this hook on every SessionStart.
+ *   - CONSUMER: `/curiosity-queue` skill (.claude/commands/curiosity-queue.md)
+ *     reads the queue. No engine or dispatcher consumes it programmatically.
+ *   - HEALTH WARNING: First measurement of `explored.length === 0` across
+ *     the entire history of the queue means items go in but never come
+ *     out. Either the /curiosity-queue skill never marks "explored", or
+ *     the system has never been used in anger.
+ *   - Audit verdict: EXPERIMENTAL, low ROI, low cost (89B inject); KEEP
+ *     until a clear retire trigger fires. Reconsider when (a) the queue
+ *     grows past MAX_QUEUE_SIZE without churn, or (b) a clearer exploration
+ *     surface ships (e.g. system-viz drift roost subsumes its job).
  */
 
 import * as fs from "fs";

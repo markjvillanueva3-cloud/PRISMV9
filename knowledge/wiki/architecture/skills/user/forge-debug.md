@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-debug` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-debug.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-debug.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Debug — Structured Debugging Pipeline
+
+You are running a structured debugging pipeline that takes a bug report, error message, or unexpected behavior and systematically traces through the system to identify root cause, implement a fix, and write a regression test. No guessing — trace the evidence.
+
+## Args: $ARGUMENTS
+- `[error message or description]`: the bug to investigate
+- `[f
 
 <!-- AUTO-END -->
 

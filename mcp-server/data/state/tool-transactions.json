@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "store": "tool-transactions",
+  "description": "ERP tool-crib transaction ledger (DB-COVERAGE-GAPFILL-MS0/U-ERP02). Records conform to ToolTransactionSchema in src/engines/ERPToolInventoryEngine.ts. toolId values reference the engine's toolInventory map (EM-0500-4FL, DR-0312, INS-CNMG); employeeId references data/state/employees.json; workOrderNumber references data/state/work-orders.json. Before U-ERP02 transactions lived only in an in-memory array (reset every boot — no audit trail survived a restart).",
+  "generated_by": "slot:juliett claude-ee38014f (DB-COVERAGE-GAPFILL-MS0/U-ERP02)",
+  "generated_at": "2026-06-08",
+  "transactions": [
+    { "id": "TXN-2026-0001", "toolId": "EM-0500-4FL", "type": "issue", "quantity": 2, "workOrderNumber": "WO-2026-0101", "employeeId": "EMP-0101", "notes": "Rough mill ITW progressive die plate", "timestamp": "2026-04-03T08:15:00Z", "syncedToERP": true },
+    { "id": "TXN-2026-0002", "toolId": "EM-0500-4FL", "type": "return", "quantity": 1, "workOrderNumber": "WO-2026-0101", "employeeId": "EMP-0101", "notes": "1 returned serviceable; 1 worn-out scrapped separately", "timestamp": "2026-04-04T16:40:00Z", "syncedToERP": true },
+    { "id": "TXN-2026-0003", "toolId": "EM-0500-4FL", "type": "scrap", "quantity": 1, "workOrderNumber": "WO-2026-0101", "employeeId": "EMP-0101", "notes": "Edge chipped on D2 — scrapped", "timestamp": "2026-04-04T16:42:00Z", "syncedToERP": true },
+    { "id": "TXN-2026-0004", "toolId": "DR-0312", "type": "issue", "quantity": 4, "workOrderNumber": "WO-2026-0104", "employeeId": "EMP-0103", "notes": "Alcoa forming-die insert pilot holes", "timestamp": "2026-04-18T09:05:00Z", "syncedToERP": true },
+    { "id": "TXN-2026-0005", "toolId": "INS-CNMG", "type": "issue", "quantity": 10, "workOrderNumber": "WO-2026-0115", "employeeId": "EMP-0104", "notes": "SFS punch turning — CNMG inserts", "timestamp": "2026-04-11T07:50:00Z", "syncedToERP": true },
+    { "id": "TXN-2026-0006", "toolId": "INS-CNMG", "type": "receive", "quantity": 50, "employeeId": "EMP-0106", "notes": "Restock from Kennametal PO", "timestamp": "2026-04-09T13:20:00Z", "syncedToERP": true },
+    { "id": "TXN-2026-0007", "toolId": "DR-0312", "type": "adjust", "quantity": -1, "employeeId": "EMP-0106", "notes": "Cycle-count correction — one drill unaccounted", "timestamp": "2026-04-30T15:00:00Z", "syncedToERP": false },
+    { "id": "TXN-2026-0008", "toolId": "EM-0500-4FL", "type": "receive", "quantity": 10, "employeeId": "EMP-0106", "notes": "Reorder fulfilled — back to 8 on-hand", "timestamp": "2026-05-05T11:10:00Z", "syncedToERP": false }
+  ]
+}

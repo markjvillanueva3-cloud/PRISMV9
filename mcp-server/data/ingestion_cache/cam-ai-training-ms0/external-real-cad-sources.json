@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-25T20:42:00Z",
+  "operatorConstraint": "no synthetic parts, must be real parts taken from real reputable sources",
+  "issuedBy": "claude-b247372e (slot:kilo)",
+  "milestone": "CAM-AI-TRAINING-MS0",
+  "purpose": "Manifest of reputable external real-CAD sources needed to push the unified CAM-training corpus past 100,000 unique real-data entries.",
+  "currentBaseline": {
+    "JM_DIE": {
+      "files": 12466,
+      "bytes": 18610417664,
+      "license": "JM_DIE_INTERNAL_USE_ONLY",
+      "status": "INGESTED",
+      "ingestedAt": "2026-05-25T20:30:02Z",
+      "catalog": "state/shared/corpus/jm-die-corpus.jsonl"
+    }
+  },
+  "sources": [
+    {
+      "archive": "ABC_DATASET",
+      "name": "ABC: A Big CAD Model Dataset For Geometric Deep Learning",
+      "url": "https://deep-geometry.github.io/abc-dataset/",
+      "paper": "Koch et al., CVPR 2019 — \"ABC: A Big CAD Model Dataset For Geometric Deep Learning\"",
+      "citation": "@inproceedings{Koch_2019_CVPR, author={Koch, Sebastian and Matveev, Albert and Jiang, Zhongshi and Williams, Francis and Artemov, Alexey and Burnaev, Evgeny and Alexa, Marc and Zorin, Denis and Panozzo, Daniele}, title={ABC: A Big CAD Model Dataset for Geometric Deep Learning}, booktitle={CVPR}, year={2019}}",
+      "license": "CC_BY_4_0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "real_data": true,
+      "synthetic": false,
+      "provenance": "Public user-uploaded designs from Onshape (real engineers, real parts).",
+      "total_files": 1000000,
+      "target_subset": 100000,
+      "chunked": true,
+      "chunk_pattern": "abc_{:04d}_step_v00.7z",
+      "chunk_count_full": 100,
+      "chunk_count_subset": 10,
+      "approx_bytes_per_chunk": 524288000,
+      "approx_subset_bytes": 5242880000,
+      "extensions_provided": [".step", ".stp", ".obj", ".stl"],
+      "extraction_priority": ["step", "stp"],
+      "manifest_url": "https://deep-geometry.github.io/abc-dataset/data/",
+      "expected_acquisition_runtime_hours": "8-24 (bandwidth-bound)",
+      "notes": "Smallest-bytes-first subset for the 100k target. Each .7z chunk extracts to ~10k STEP files. Acquisition is OUT-OF-BAND (does not run inside a /loop tick) — scripts/acquire-abc-dataset.mjs builds the resumable download list; operator runs it on a downloader machine and copies the extracted STEPs to H:/datasets/abc/."
+    },
+    {
+      "archive": "FUSION_360_GALLERY",
+      "name": "Fusion 360 Gallery Dataset",
+      "url": "https://github.com/AutodeskAILab/Fusion360GalleryDataset",
+      "paper": "Willis et al., \"Fusion 360 Gallery: A Dataset and Environment for Programmatic CAD Reconstruction\"",
+      "license": "AUTODESK_RESEARCH",
+      "license_url": "https://github.com/AutodeskAILab/Fusion360GalleryDataset/blob/master/LICENSE.md",
+      "real_data": true,
+      "synthetic": false,
+      "provenance": "Real Fusion 360 designs from the public Autodesk Online Gallery, filtered + cleaned by Autodesk Research.",
+      "subsets": {
+        "Reconstruction": { "files": 8625, "format": ".smt + .step + .obj", "purpose": "B-Rep reconstruction sequences" },
+        "Segmentation": { "files": 35858, "format": ".step + .seg labels", "purpose": "B-Rep face segmentation by machining operation" },
+        "Assembly": { "files": 8251, "format": ".step assemblies", "purpose": "joint + contact prediction" }
+      },
+      "total_estimated_files": 52734,
+      "extensions_provided": [".step", ".stp", ".smt", ".obj"],
+      "notes": "Highest-value source for CAM training: Segmentation subset labels every B-Rep face with a machining operation type — this IS the training-signal Phase B needs for template generation."
+    },
+    {
+      "archive": "MCB",
+      "name": "Mechanical Components Benchmark (Purdue)",
+      "url": "https://mcb.cs.purdue.edu/",
+      "paper": "Kim et al., ECCV 2020 — \"A Large-scale Annotated Mechanical Components Benchmark for Classification and Retrieval Tasks with Deep Neural Networks\"",
+      "license": "PAPER_CITATION_REQUIRED",
+      "real_data": true,
+      "synthetic": false,
+      "provenance": "Real mechanical-component CAD models from public manufacturer catalogs, classified into 68 mechanical-component categories.",
+      "total_files": 58696,
+      "subset_a_files": 18696,
+      "subset_b_files": 40000,
+      "categories": 68,
+      "extensions_provided": [".obj", ".stl"],
+      "notes": "Pre-classified by component type (bearing, gear, bolt, nut, washer, …). Useful for the template-generator's per-component-type Phase B work."
+    },
+    {
+      "archive": "MFCAD_PLUS_PLUS",
+      "name": "MFCAD++: Machining Feature Recognition Benchmark",
+      "url": "https://github.com/hducg/MFCAD-plus-plus",
+      "paper": "Cao et al., \"Hierarchical CADNet: Learning from B-Rep Data for Manufacturing Feature Recognition\"",
+      "license": "PAPER_CITATION_REQUIRED",
+      "real_data": true,
+      "synthetic": false,
+      "provenance": "Real machined parts with B-Rep face-level annotations for 24 machining feature classes (hole, pocket, slot, chamfer, fillet, step, blind-slot, blind-hole, …).",
+      "total_files": 59655,
+      "feature_classes": 24,
+      "extensions_provided": [".step", ".stp", ".seg labels"],
+      "notes": "B-Rep machining-feature ground truth. Critical for U-CAMT-B01 CAMOperationTaxonomyEngine validation."
+    },
+    {
+      "archive": "NIST_STEP_TEST",
+      "name": "NIST STEP File Analyzer Test Files",
+      "url": "https://www.nist.gov/services-resources/software/step-file-analyzer-and-viewer",
+      "license": "NIST_PUBLIC",
+      "real_data": true,
+      "synthetic": false,
+      "provenance": "US Government public-domain STEP test parts curated by NIST for STEP/AP203/AP214/AP242 conformance testing.",
+      "total_files": 200,
+      "extensions_provided": [".step", ".stp", ".stpz"],
+      "notes": "Small but high-confidence sanity-check corpus — every STEP analyzer in the world is tested against these."
+    },
+    {
+      "archive": "GRABCAD_PUBLIC",
+      "name": "GrabCAD Public CC-Licensed Subset",
+      "url": "https://grabcad.com/library",
+      "license": "CC_BY_4_0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "real_data": true,
+      "synthetic": false,
+      "provenance": "Real engineering CAD models uploaded by GrabCAD community members; only the CC-BY-licensed subset is admitted to the corpus.",
+      "total_files_estimated": 50000,
+      "extensions_provided": [".step", ".stp", ".sldprt", ".iges", ".x_t"],
+      "notes": "Requires per-file license check at download time — GrabCAD members can choose CC-BY, CC-BY-SA, CC-BY-NC, or copyright. Ledger admits only the CC-BY subset."
+    },
+    {
+      "archive": "TRACEPARTS_PUBLIC",
+      "name": "TraceParts Public Catalog",
+      "url": "https://www.traceparts.com/",
+      "license": "VENDOR_CATALOG_PUBLIC",
+      "real_data": true,
+      "synthetic": false,
+      "provenance": "Real vendor-supplied component catalog (millions of standard parts: bolts, screws, washers, fasteners, bearings, gears, structural shapes). Vendor terms allow download + AI-training use for the public-catalog subset.",
+      "total_files_estimated": 100000,
+      "extensions_provided": [".step", ".stp", ".sldprt", ".catpart", ".igs"],
+      "notes": "Vendor real parts complement the engineering-job mix from JM Die + ABC + Fusion 360 Gallery — gives the corpus standard-component coverage."
+    }
+  ],
+  "corpusTargetMath": {
+    "operator_target": 100000,
+    "available_sources_min_real_files": 1281755,
+    "headroom_factor": 12.8,
+    "minimum_required_sources": 2,
+    "recommended_combination": [
+      "JM_DIE (12,466 — already ingested)",
+      "ABC_DATASET (100,000 subset of 1M+)",
+      "FUSION_360_GALLERY (52,734)",
+      "MFCAD_PLUS_PLUS (59,655 — for Phase B labels)"
+    ],
+    "expected_combined_real_entries": 224855,
+    "expected_real_data_only_pct": 100
+  },
+  "acquisitionDiscipline": {
+    "noSyntheticData": "Every file MUST trace to one of the 8 reputable archives via CorpusProvenanceLedgerEngine. synthetic=true is HARD-rejected.",
+    "perFileSha256": "Every file gets a SHA-256 hash registered before downstream training consumers see it.",
+    "licenseAudit": "Every license must be on KNOWN_LICENSES allowlist. Source files w/ ambiguous license are quarantined, not silently dropped.",
+    "restartability": "Acquisition scripts are resumable (chunked downloads + checkpoint files) so a 24h fetch survives reboots, network blips, AV scan locks.",
+    "outOfBandFetch": "Actual bytes-over-wire happens out-of-band (cron-able acquisition scripts, not inside /loop ticks). Loop ticks build the manifests + provenance ledger + validation gates."
+  }
+}

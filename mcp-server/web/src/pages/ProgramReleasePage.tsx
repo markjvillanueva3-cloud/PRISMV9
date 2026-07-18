@@ -81,7 +81,7 @@ const UNIVERSAL_FILE_FAMILIES = [
 const PRISM_DESIGN_PATHS = [
   {
     title: 'Simple prismatic design',
-    detail: 'Start from envelope, datums, and feature intent inside PRISM before exporting or comparing.',
+    detail: 'Start from envelope, datums, and feature intent inside Kienzle before exporting or comparing.',
   },
   {
     title: 'Fixture and setup concept',
@@ -417,7 +417,7 @@ export function ProgramReleasePage() {
   const programmingMode = useMemo(
     () =>
       inferProgrammingModeFromMachineSignature({
-        machineFamilyId: routeSelection.machineFamilyId,
+        machineFamilyId: routeSelection.machineFamilyId ?? undefined,
         machineLabel: workspace?.selectedMachine.label,
         machineKinematics: workspace?.selectedMachine.kinematics,
         controllerLabel: workspace?.selectedMachine.controller,
@@ -493,7 +493,7 @@ export function ProgramReleasePage() {
   useEffect(() => {
     const fallbackAuthority = buildMachineWorkspaceProgrammingAuthority({
       mode: programmingMode,
-      machineFamilyId: routeSelection.machineFamilyId,
+      machineFamilyId: routeSelection.machineFamilyId ?? undefined,
       machineLabel: workspace?.selectedMachine.label,
       machineKinematics: workspace?.selectedMachine.kinematics,
       controllerLabel: workspace?.selectedMachine.controller,
@@ -515,7 +515,7 @@ export function ProgramReleasePage() {
         setProgrammingAuthority(
           buildMachineWorkspaceProgrammingAuthority({
             mode: programmingMode,
-            machineFamilyId: routeSelection.machineFamilyId,
+            machineFamilyId: routeSelection.machineFamilyId ?? undefined,
             machineLabel: workspace.selectedMachine.label,
             machineKinematics: workspace.selectedMachine.kinematics,
             controllerLabel: workspace.selectedMachine.controller,
@@ -823,7 +823,7 @@ export function ProgramReleasePage() {
         userId: PROGRAM_RELEASE_DEFAULT_USER_ID,
         workspaceId: 'program-release',
         machineId,
-        displayName: `${workspace.selectedMachine.label} Program Release default`,
+        displayName: `${workspace?.selectedMachine.label ?? 'Machine'} Program Release default`,
         makeDefault: true,
       });
 
@@ -910,7 +910,7 @@ export function ProgramReleasePage() {
       <WorkspaceHero
         eyebrow="Universal intake to release"
         title="Print to CNC"
-        description="Use one desk for print intake, CAD/CAM source selection, setup-release planning, and quote posture. Drop any file type, compare CAD sources, or start the design brief inside PRISM before the final programming packet is released."
+        description="Use one desk for print intake, CAD/CAM source selection, setup-release planning, and quote posture. Drop any file type, compare CAD sources, or start the design brief inside Kienzle before the final programming packet is released."
         metrics={
           <>
             {workspace.metrics.map((metric) => (
@@ -956,7 +956,7 @@ export function ProgramReleasePage() {
                   setCadSourceId((current) => findProgramReleaseCadSourceId(catalog, 'prism') || current);
                 }}
               >
-                Design in PRISM
+                Design in Kienzle
               </ActionButton>
               <Link
                 to={capturePath}
@@ -987,7 +987,7 @@ export function ProgramReleasePage() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
         <div className="space-y-6">
-          <PanelCard title="Universal intake" subtitle="Accept the job packet first, then decide whether this release should trust Fusion, neutral CAD, or a PRISM-native design brief.">
+          <PanelCard title="Universal intake" subtitle="Accept the job packet first, then decide whether this release should trust Fusion, neutral CAD, or a Kienzle-native design brief.">
             <div className="flex flex-wrap gap-2">
               <TabButton active={intakeMode === 'dropbox'} onClick={() => setIntakeMode('dropbox')}>
                 Universal dropbox
@@ -999,7 +999,7 @@ export function ProgramReleasePage() {
                   setCadSourceId((current) => findProgramReleaseCadSourceId(catalog, 'prism') || current);
                 }}
               >
-                Design in PRISM
+                Design in Kienzle
               </TabButton>
             </div>
 
@@ -1156,7 +1156,7 @@ export function ProgramReleasePage() {
                 </div>
 
                 <div className="rounded-[22px] border border-emerald-300/14 bg-emerald-300/[0.06] px-4 py-4 text-sm leading-6 text-emerald-50">
-                  PRISM-native design entry is live as a structured design brief now. The next backend handoff should turn this into revision-aware geometry generation, compare passes, and simulation packets without changing the page contract.
+                  Kienzle-native design entry is live as a structured design brief now. The next backend handoff should turn this into revision-aware geometry generation, compare passes, and simulation packets without changing the page contract.
                 </div>
               </div>
             )}

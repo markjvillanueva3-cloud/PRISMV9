@@ -16,11 +16,26 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
 const GRAPH = path.join(VIZ_DIR, "system-graph.json");
+
+// Stream-gate at 256MB to bypass V8 ERR_STRING_TOO_LONG on the 546MB graph.
+// Matches scripts/lib/system-viz-graph.mjs, graphsage-train-pipeline.mjs, etc.
+function loadGraph(p) {
+  try {
+    const sz = fs.statSync(p).size;
+    return sz > 256 * 1024 * 1024
+      ? readGraphStreaming(p)
+      : JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch (e) {
+    if (e && e.code === "ERR_STRING_TOO_LONG") return readGraphStreaming(p);
+    throw e;
+  }
+}
 
 const CLAUDE_HOOKS = path.join(ROOT, ".claude", "hooks");
 const SRC_HOOKS    = path.join(ROOT, "mcp-server", "src", "hooks");
@@ -63,7 +78,7 @@ function listHookFiles(dir, ext, scope) {
 
 function generate() {
   if (!fs.existsSync(GRAPH)) return { error: "graph-missing", newNodes: [], newEdges: [], stats: {} };
-  const graph = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+  const graph = loadGraph(GRAPH);
   const existingIds = new Set(graph.nodes.map(n => n.id));
 
   const claudeHooks = listHookFiles(CLAUDE_HOOKS, ".mjs", "claude");

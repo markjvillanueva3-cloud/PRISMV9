@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="ed61a4b0cb8e3cfacf122dec5629c5036df60ddd9e8b587fdcb4f62717400ac2">
+<title>BLUEPRINT-OCR-TRAINING-MS1 — RAG-augmented blueprint OCR + LoRA training + closed-loop continual learning</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">BLUEPRINT-OCR-TRAINING-MS1 — RAG-augmented blueprint OCR + LoRA training + closed-loop continual learning</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.290Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#blueprint-ocr-training-ms1-rag-augmented-blueprint-ocr-lora-training-closed-loop-continual-learning">BLUEPRINT-OCR-TRAINING-MS1 — RAG-augmented blueprint OCR + LoRA training + closed-loop continual learning</a></li>
+<li class="toc-l2"><a href="#atomic-first-compliance-card-forge4-v4">Atomic-First Compliance Card (forge4 v4)</a></li>
+<li class="toc-l2"><a href="#principle-per-the-user-with-non-negotiables">Principle (per the user, with non-negotiables)</a></li>
+<li class="toc-l2"><a href="#existing-infrastructure-inventory-graph-derived-do-not-rebuild">Existing infrastructure inventory (graph-derived — do NOT rebuild)</a></li>
+<li class="toc-l3"><a href="#tier-1-engines-wired-or-shipped-22-in-scope">Tier-1 engines (wired or shipped — 22 in scope)</a></li>
+<li class="toc-l3"><a href="#tier-1-engines-rescue-monolith-forks-currently-unwired">Tier-1 engines (rescue — monolith forks, currently UNWIRED)</a></li>
+<li class="toc-l3"><a href="#tier-2-dispatcher-actions-wired-80-in-scope">Tier-2 dispatcher actions (wired — ~80 in scope)</a></li>
+<li class="toc-l3"><a href="#tier-1-hooks-wired">Tier-1 hooks (wired)</a></li>
+<li class="toc-l3"><a href="#tier-2-skills-wired">Tier-2 skills (wired)</a></li>
+<li class="toc-l3"><a href="#tier-3-academy-course-already-published">Tier-3 academy course (already published)</a></li>
+<li class="toc-l3"><a href="#tier-4-frontend-already-shipped">Tier-4 frontend (already shipped)</a></li>
+<li class="toc-l3"><a href="#test-surface-wired">Test surface (wired)</a></li>
+<li class="toc-l2"><a href="#corpus-inventory-training-data-sources-hard-counts">Corpus inventory (training data sources — hard counts)</a></li>
+<li class="toc-l2"><a href="#acceptance-criteria-omega_floor10-per-users-standing-preference">Acceptance criteria (omega_floor=1.0 per user&#39;s standing preference)</a></li>
+<li class="toc-l2"><a href="#units-8-sequenced-phase-2-wire-up-before-phase-4-net-new-per-master-roadmap-yagni">Units (8 — sequenced Phase 2 wire-up BEFORE Phase 4 net-new, per master roadmap YAGNI)</a></li>
+<li class="toc-l3"><a href="#ms1-u1-rescue-wire-prism-enhanced-gdt-engine-prism-gdt-fcf-parser-phase-2-t1">MS1-U1 — Rescue + wire prism-enhanced-gdt-engine + prism-gdt-fcf-parser (Phase 2, T1)</a></li>
+<li class="toc-l3"><a href="#ms1-u2-rescue-wire-prism-ocr-engine-monolith-fork-phase-2-t1">MS1-U2 — Rescue + wire prism-ocr-engine monolith fork (Phase 2, T1)</a></li>
+<li class="toc-l3"><a href="#ms1-u3-extend-groundtruthregistryengine-with-blueprint-extraction-join-phase-2-t1">MS1-U3 — Extend groundtruthregistryengine with blueprint-extraction join (Phase 2, T1)</a></li>
+<li class="toc-l3"><a href="#ms1-u4-extend-groundtruthvalidationengine-with-extraction-confidence-cross-validation-phase-2-t1">MS1-U4 — Extend groundtruthvalidationengine with extraction-confidence cross-validation (Phase 2, T1)</a></li>
+<li class="toc-l3"><a href="#ms1-u5-extend-blueprint-accuracy-guard-hook-with-conformal-bound-replay-buffer-integration-phase-2-t0t1">MS1-U5 — Extend blueprint-accuracy-guard hook with conformal-bound + replay-buffer integration (Phase 2, T0/T1)</a></li>
+<li class="toc-l3"><a href="#ms1-u6-build-blueprintcorpusharvestengine-cron-harvest-scripts-phase-4-t1-net-new">MS1-U6 — Build BlueprintCorpusHarvestEngine + cron + harvest scripts (Phase 4, T1 — net-new)</a></li>
+<li class="toc-l3"><a href="#ms1-u7-build-blueprintextractionragengine-phase-4-t1-net-new-the-load-bearing-centerpiece">MS1-U7 — Build BlueprintExtractionRAGEngine (Phase 4, T1 — net-new, the load-bearing centerpiece)</a></li>
+<li class="toc-l3"><a href="#ms1-u8-build-blueprintlorabridgeengine-blueprintcoverageauditengine-close-out-phase-4-t1-net-new-audit">MS1-U8 — Build BlueprintLoRABridgeEngine + BlueprintCoverageAuditEngine + close-out (Phase 4, T1 — net-new + audit)</a></li>
+<li class="toc-l2"><a href="#phase-4-frontend-deferred-to-ms2-explicit-non-goal-here">Phase 4 frontend (deferred to MS2 — explicit non-goal here)</a></li>
+<li class="toc-l2"><a href="#skills-scripts-hooks-the-operator-surface">Skills / scripts / hooks (the operator surface)</a></li>
+<li class="toc-l2"><a href="#exit-gate-forge4-phase-5-6k-compliance">Exit gate (forge4 Phase 5 + 6K compliance)</a></li>
+<li class="toc-l2"><a href="#milestone-envelope-json-to-register-at-mcp-serverdatamilestonesblueprint-ocr-training-ms1json">Milestone-envelope JSON (to register at mcp-server/data/milestones/BLUEPRINT-OCR-TRAINING-MS1.json)</a></li>
+<li class="toc-l2"><a href="#bottom-line">Bottom line</a></li>
+<li class="toc-l2"><a href="#build-order-recommendation-per-forge4-atomic-first-leverage-ranking">Build order recommendation (per forge4 atomic-first + leverage ranking)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="blueprint-ocr-training-ms1-rag-augmented-blueprint-ocr-lora-training-closed-loop-continual-learning"><a class="anchor" href="#blueprint-ocr-training-ms1-rag-augmented-blueprint-ocr-lora-training-closed-loop-continual-learning" aria-label="Permalink to BLUEPRINT-OCR-TRAINING-MS1 — RAG-augmented blueprint OCR + LoRA training + closed-loop continual learning">#</a>BLUEPRINT-OCR-TRAINING-MS1 — RAG-augmented blueprint OCR + LoRA training + closed-loop continual learning</h1>
+<p><strong>Created:</strong> 2026-05-12 by claude-a7ea87ab (slot BRAVO) <strong>Method:</strong> <code>/forge4 scope</code> (v4 atomic-first tier-gating; system-viz graph @ 2026-05-12T17:53:57.314Z as dependency oracle) <strong>Triggered by:</strong> user request 2026-05-12 — <em>&quot;can we use obsidian + tribal knowledge + prism awareness + neural network + /system-viz + skill, scripts and hooks + memories + any other development or backend tool we&#39;ve built to train our ocr/blue print reading capabilities… add all this to your existing work envelope we&#39;ve been working on then utilize a forge slash command and /system-viz to ensure we cover all potential gaps and capabilities that would enhance or improve our results&quot;</em> <strong>Track:</strong> <code>TRAINING-LEARNING</code> (sibling/successor to <code>TRAINING-LEARNING-MS0</code> per its own §non_goals — <em>&quot;Full RAG / embedding stack from day one&quot;</em> deferred to v2; this milestone IS that v2) <strong>Companions:</strong></p>
+<ul>
+<li><code>MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md</code> — upstream-fed (better extraction → better print-to-program candidates)</li>
+<li><code>TRAINING-LEARNING-MS0-2026-05-12.md</code> — upstream depends on (template families inform retrieval context)</li>
+</ul>
+<p><strong>Roadmaps it docks into:</strong> <code>MILL-MASTER</code>, <code>LATHE-MASTER</code>, <code>WEDM-AGI</code>, <code>OBSIDIAN-AUTOMATE-MS3</code>, <code>CAD-FUSION-LIVE-MS0</code></p>
+<hr>
+<h2 id="atomic-first-compliance-card-forge4-v4"><a class="anchor" href="#atomic-first-compliance-card-forge4-v4" aria-label="Permalink to Atomic-First Compliance Card (forge4 v4)">#</a>Atomic-First Compliance Card (forge4 v4)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Field</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td><code>atomic_phase</code></td><td>2 (wire-up) → 4 (new build) — sequenced, not mixed</td></tr>
+<tr><td><code>tier</code></td><td>T1 (engines) — composes T1/T2 + extends T0/T1</td></tr>
+<tr><td><code>prereq_tier</code></td><td>T0 (xproc-conformal/ewc/replay constants, embedding constants) + T1 (cad-rag/cad-embed/training-snapshot engines) — <strong>all in place</strong></td></tr>
+<tr><td><code>tier_floor</code></td><td>PASS — every Tier-1 prereq is present in the graph (verified Phase 0.5.viz)</td></tr>
+<tr><td><code>dedup_intercept</code></td><td><strong>GroundTruthRegistryEngine + GroundTruthValidationEngine ALREADY EXIST</strong> — extend them, do NOT create <code>BlueprintGroundTruthJoinEngine</code>. Other 3 proposed names (RAG/LoRABridge/CoverageAudit) are clear.</td></tr>
+<tr><td><code>leverage_score</code></td><td>~125 (wires 8 existing-but-unwired surfaces + extends 2 engines + composes 80+ actions across 6 dispatchers)</td></tr>
+<tr><td><code>suggested_dispatchers</code></td><td><code>prism_cad</code>, <code>prism_quality</code>, <code>prism_knowledge</code>, <code>prism_ai</code> (from <code>node.suggestedDispatchers</code> for the composed engines)</td></tr>
+<tr><td><code>pending_merge_check</code></td><td>N/A — <code>cqask</code> + <code>cadquery</code> are unrelated frontends; their merge does NOT gate this work</td></tr>
+<tr><td><code>drift_blocker_check</code></td><td>4 drift cases recorded (CAM-EXHAUST-MS0, INTEL-OLLAMA-OBSIDIAN-MS0, OBSIDIAN-MS0, PSAU-PPG-SFC) — none in TRAINING-LEARNING/CAD tracks; no blocker</td></tr>
+<tr><td><code>master_roadmap_yagni</code></td><td>Master roadmap Phase 4 warns <em>&quot;don&#39;t add new engines/pages while 28% of existing engines are unwired&quot;</em>. This milestone <strong>respects the warning</strong>: Phase 2 wire-up units come FIRST, Phase 4 new-build units are minimal (3 engines + 2 extensions).</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="principle-per-the-user-with-non-negotiables"><a class="anchor" href="#principle-per-the-user-with-non-negotiables" aria-label="Permalink to Principle (per the user, with non-negotiables)">#</a>Principle (per the user, with non-negotiables)</h2>
+<blockquote>
+<p><em>&quot;Use obsidian + tribal knowledge + prism awareness + neural network + /system-viz + skill, scripts and hooks + memories + any other development or backend tool we&#39;ve built to train our ocr/blue print reading capabilities&quot;</em> — given full engineering courses from MIT, CAD/CAM PDFs, and online sources.</p>
+</blockquote>
+<p>The pipeline turns <strong>every print + program + CAD/CAM file in the shop + MIT engineering corpus + CAD/CAM publisher PDFs + curated online sources</strong> into:</p>
+<ol>
+<li>A <strong>labelled training set</strong> (image + region → expected dim / GD&amp;T callout / material / feature / tolerance) joined against ERP-confirmed actuals so ground truth has confidence stratification.</li>
+<li>A <strong>RAG-augmented extraction surface</strong> — every blueprint OCR call retrieves top-k corpus context (MIT chapter, vendor catalog page, tribal tip, prior similar print) and injects it into the vision prompt.</li>
+<li>A <strong>LoRA export bundle</strong> sized to a managed external fine-tune (Gemini/OpenAI/Modal) — PRISM produces the corpus; the fine-tune runs externally; the resulting endpoint plugs into <code>AISystemRouterEngine</code> as a new backend.</li>
+<li>A <strong>closed-loop continual learner</strong> — every operator correction or ERP outcome updates the conformal calibration + replay buffer + EWC consolidation per dim-type (P/T/D/GD&amp;T/material/tolerance).</li>
+<li>A <strong>coverage audit</strong> that reports per-customer / per-convention / per-GD&amp;T-symbol where the system is confident vs. uncertain — driving the next learning cycle.</li>
+</ol>
+<p><strong>Operator-in-the-loop is unconditional.</strong> No extraction is treated as ground truth without operator confirmation (or a confirmed ERP match). The system reports its uncertainty via conformal bounds; the operator decides.</p>
+<p><strong>Critical caveat (per <code>[[reference_docustrata_multi_print_pdfs]]</code>):</strong> 96% of Docustrata PDFs are multi-page; single PDFs can hold 5-10 prints buried on pages 2+. Phase 3c page-1-only missed 24,186 docs / 120K pages. The corpus loader MUST use the tiered classifier (image heuristic → Tesseract title-block OCR → vision LLM) over all pages — <code>phase8-tiered-blueprint-classifier.py</code> is already shipped and is the right tool.</p>
+<p><strong>Critical caveat (per <code>[[feedback_box_programs_amateur]]</code> carried forward from TRAINING-LEARNING-MS0):</strong> Historical S/F + dim values from amateur programs are DATA, NOT GROUND TRUTH. The ground-truth tier must stratify: <code>confirmed</code> (ERP-shipped + measured + accepted) &gt; <code>produced</code> (made, not yet inspected) &gt; <code>quoted</code> (estimate only) &gt; <code>inferred</code> (macro var default). Conformal calibration uses the stratification; replay buffer down-weights the lower tiers.</p>
+<p><strong>Critical caveat (per <code>[[feedback_no_public_h_drive.md]]</code>):</strong> Any external fine-tune corpus export MUST scrub customer names, part numbers, and program contents that constitute proprietary IP. The LoRA export engine includes an anonymization stage; the operator confirms the scrub before any bundle leaves the local filesystem.</p>
+<p><strong>Non-goals (explicit, scope-fencing):</strong></p>
+<ul>
+<li>❌ NOT on-device vision-model weight updates (we don&#39;t run our own GPU surface; LoRA is exported for external fine-tune)</li>
+<li>❌ NOT replacing <code>BlueprintVisionOCREngine</code> / <code>imageocrpipelineengine</code> / <code>pdfblueprintdimensionextractorengine</code> — these are the BASE LAYER the RAG engine wraps</li>
+<li>❌ NOT auto-correcting extractions without operator review (corrections feed the replay buffer; nothing fires back into a &quot;fixed&quot; extraction without consent)</li>
+<li>❌ NOT writing to <code>H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm</code> (read-only — same rule as TRAINING-LEARNING-MS0/U3)</li>
+<li>❌ NOT public-distribution of any export (per <code>[[feedback_no_public_h_drive]]</code>)</li>
+</ul>
+<hr>
+<h2 id="existing-infrastructure-inventory-graph-derived-do-not-rebuild"><a class="anchor" href="#existing-infrastructure-inventory-graph-derived-do-not-rebuild" aria-label="Permalink to Existing infrastructure inventory (graph-derived — do NOT rebuild)">#</a>Existing infrastructure inventory (graph-derived — do NOT rebuild)</h2>
+<p>The system-viz dep oracle pass surfaced this list. Every item below is wired and tested as of graph timestamp 2026-05-12T17:53:57.314Z. The milestone COMPOSES these — every engine cited here is a reuse, not a build.</p>
+<h3 id="tier-1-engines-wired-or-shipped-22-in-scope"><a class="anchor" href="#tier-1-engines-wired-or-shipped-22-in-scope" aria-label="Permalink to Tier-1 engines (wired or shipped — 22 in scope)">#</a>Tier-1 engines (wired or shipped — 22 in scope)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Engine</th><th>Layer</th><th>Role in this milestone</th></tr></thead>
+<tbody>
+<tr><td><code>BlueprintVisionOCREngine</code></td><td>L5 / cad</td><td>Base vision-OCR call (wrapped by U-T4-A&#39;s RAG engine)</td></tr>
+<tr><td><code>imageocrpipelineengine</code></td><td>L5 / pdf</td><td>Image pipeline OCR layer</td></tr>
+<tr><td><code>pdfblueprintdimensionextractorengine</code></td><td>L5 / cad</td><td>PDF dim extractor (already exists — the SR has wiki + test)</td></tr>
+<tr><td><code>blueprintprogramjoinengine</code></td><td>L5 / cam</td><td>Joins print ↔ program (the ground-truth source)</td></tr>
+<tr><td><code>groundtruthregistryengine</code></td><td>L5 / cad</td><td><strong>EXTEND</strong> (U-T1-E1) with blueprint-specific entries (not create new)</td></tr>
+<tr><td><code>groundtruthvalidationengine</code></td><td>L5 / cad</td><td><strong>EXTEND</strong> (U-T1-E2) with blueprint-extraction validation pass</td></tr>
+<tr><td><code>crossprocessvisiontabularfusionengine</code></td><td>L5 / fusion</td><td>Multi-modal vision+tabular fusion (composes well with RAG)</td></tr>
+<tr><td><code>cadembedindex</code> engine</td><td>L5 / cad</td><td>Existing embedding index over CAD nodes</td></tr>
+<tr><td><code>gdtstackupengine</code></td><td>L5 / cad</td><td>GD&amp;T stackup math (a downstream consumer of better callout extraction)</td></tr>
+<tr><td><code>gdtcalloutparserengine</code></td><td>L5 / cad</td><td>GD&amp;T callout parser (extension target — see U-T1-E3)</td></tr>
+<tr><td><code>crossprocessconformalpredictionengine</code></td><td>L5 / adaptive</td><td>Conformal bounds on extracted dims</td></tr>
+<tr><td><code>crossprocessconformalclassificationengine</code></td><td>L5 / adaptive</td><td>Conformal bounds on GD&amp;T symbol classification</td></tr>
+<tr><td><code>latheloracontinuallearningengine</code></td><td>L5 / lathe</td><td>Reference impl of continual-LoRA pattern; blueprint engine mirrors it</td></tr>
+<tr><td><code>latheloratrainingmonitorengine</code></td><td>L5 / lathe</td><td>Reference monitor pattern</td></tr>
+<tr><td><code>latheloratrainingscriptengine</code></td><td>L5 / lathe</td><td>Reference training-script pattern</td></tr>
+<tr><td><code>camtrainingextractionaggregatorengine</code></td><td>L5 / cam</td><td>Reference aggregator pattern for training-extraction</td></tr>
+<tr><td><code>trainingcontentindexengine</code></td><td>L5 / other</td><td>Training content indexing</td></tr>
+<tr><td><code>trainingledgerengine</code></td><td>L5 / other</td><td>Training event ledger</td></tr>
+<tr><td><code>MacroLibraryEngine</code> (U-MACRO-PIPELINE-U1, this session)</td><td>L5 / cad</td><td>Family classification reuse</td></tr>
+<tr><td><code>LathePartClassifierEngine</code></td><td>L5 / lathe</td><td>Part-family classification (retrieval pivot)</td></tr>
+<tr><td><code>PartFolderOrganizerEngine</code></td><td>L5 / cad</td><td>Part-folder + part.json I/O</td></tr>
+<tr><td><code>PRISMSelfAwarenessEngine</code></td><td>L5 / knowledge</td><td>Capability + tribal + playbook lookup</td></tr>
+</tbody>
+</table></div>
+<h3 id="tier-1-engines-rescue-monolith-forks-currently-unwired"><a class="anchor" href="#tier-1-engines-rescue-monolith-forks-currently-unwired" aria-label="Permalink to Tier-1 engines (rescue — monolith forks, currently UNWIRED)">#</a>Tier-1 engines (rescue — monolith forks, currently UNWIRED)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Engine</th><th>Status</th><th>Action in this milestone</th></tr></thead>
+<tbody>
+<tr><td><code>prism-enhanced-gdt-engine</code></td><td>Unwired (monolith-modules.complete-extraction)</td><td><strong>U-T1-R1</strong> rescue + wire to <code>prism_cad</code></td></tr>
+<tr><td><code>prism-gdt-fcf-parser</code></td><td>Unwired (monolith-modules.complete-extraction)</td><td><strong>U-T1-R1</strong> rescue + wire (same unit)</td></tr>
+<tr><td><code>prism-ocr-engine</code></td><td>Unwired (monolith-modules.complete-extraction + engines-ai-ml)</td><td><strong>U-T1-R2</strong> rescue + wire to <code>prism_cad</code> or <code>prism_resource_extraction</code></td></tr>
+</tbody>
+</table></div>
+<p>These are existing v8.89-monolith forks sitting in <code>extracted/</code> / <code>extracted_modules/</code> per <code>[[reference_monolith_extraction]]</code>. Rescuing them is <strong>HIGHER leverage</strong> than building new — wiring an existing tested fork costs ~1 day; building equivalent from scratch costs ~1 week. Forge4 atomic-first ordering says: rescue before new-build.</p>
+<h3 id="tier-2-dispatcher-actions-wired-80-in-scope"><a class="anchor" href="#tier-2-dispatcher-actions-wired-80-in-scope" aria-label="Permalink to Tier-2 dispatcher actions (wired — ~80 in scope)">#</a>Tier-2 dispatcher actions (wired — ~80 in scope)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Cluster</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td><strong>CAD RAG</strong></td><td><code>cad-rag-retrieve</code>, <code>cad-rag-augment</code>, <code>cad-rag-filter</code>, <code>cad-rag-format</code>, <code>cad-rag-rank</code>, <code>cad-rag-stats</code></td></tr>
+<tr><td><strong>CAD Embedding</strong></td><td><code>cad-embed</code>, <code>cad-embed-batch</code>, <code>cad-embed-build-index</code>, <code>cad-embed-search</code>, <code>cad-embed-cache-clear</code>, <code>cadembedindex</code></td></tr>
+<tr><td><strong>CAM RAG</strong></td><td><code>cam-rag-build-index</code>, <code>cam-rag-retrieve</code>, <code>cam-rag-retrieve-for-parameter</code></td></tr>
+<tr><td><strong>Blueprint extraction (cad)</strong></td><td><code>blueprint-to-3d-model</code>, <code>blueprint-to-all-cads</code>, <code>blueprint-to-all-cads-validate</code>, <code>blueprint-to-all-cads-capabilities</code>, <code>blueprint-to-cadquery-script</code>, <code>cad-blueprint-extract-features</code>, <code>cad-blueprint-flag-features</code>, <code>cad-blueprint-generate</code>, <code>cad-blueprint-infer-class</code>, <code>cad-pdf-blueprint-extract</code>, <code>cad-translate-blueprint-to-ops</code></td></tr>
+<tr><td><strong>Blueprint extraction (quality)</strong></td><td><code>blueprint-extract</code>, <code>blueprint-compare-revisions</code>, <code>blueprint-dxf-dimensions</code>, <code>blueprint-inspection-plan</code>, <code>blueprint-setup-sheet</code></td></tr>
+<tr><td><strong>Blueprint extraction (business + turning + dev)</strong></td><td><code>blueprint-to-quote</code>, <code>blueprint-resolve-material</code>, <code>turning-blueprint-intake</code>, <code>blueprint-ingest-phase8</code></td></tr>
+<tr><td><strong>Vision fusion</strong></td><td><code>xproc-vision-fuse</code>, <code>xproc-vision-explain-attention</code>, <code>xproc-vision-constants</code>, <code>xprocvisionfusion</code></td></tr>
+<tr><td><strong>Conformal / EWC / Replay</strong></td><td>18 conformal actions + 9 EWC actions + 30 replay actions (full xproc adaptive surface)</td></tr>
+<tr><td><strong>LoRA</strong></td><td><code>cam-lora-{predict,apply-delta,check-health,ensemble,list,select,standardize,validate}</code>, <code>cam-ml-train-lora</code>, <code>cam-ml-predict-lora</code>, <code>cam-feedback-lora-training-export</code>, <code>continual-lora-{create,list,state,train}</code>, lathe-lora-master/physics surfaces</td></tr>
+<tr><td><strong>Training infrastructure</strong></td><td><code>cad-training-start</code>, <code>cad-training-status</code>, <code>cad-training-corpus-stats</code>, <code>cad-trial-{ingest,patterns,recommend,stats,reset}</code>, <code>training-snapshot-{create,list,load,stats}</code>, <code>training-assemble</code>, <code>training-export</code></td></tr>
+<tr><td><strong>Dimensional extraction</strong></td><td><code>cad-dimensional-signature</code>, <code>dim-signature-extract</code>, <code>dim-signature-extract-text</code>, <code>dimension-impute-{build,apply,outliers,stats}</code>, <code>box-scan-dimensions</code></td></tr>
+<tr><td><strong>GD&amp;T</strong></td><td><code>cad-gdt-callout-parse</code>, <code>cad-gdt-stackup</code>, <code>gdt-stackup</code>, <code>probe-gdt-interpret</code>, <code>gdt-propagate</code>, <code>gdt-validate</code></td></tr>
+<tr><td><strong>Resource extraction</strong></td><td><code>ocr</code>, <code>ocr-process</code>, <code>ocr-stats</code> (full dispatcher: <code>resourceExtraction</code>)</td></tr>
+<tr><td><strong>Document learning</strong></td><td><code>documentLearning</code> dispatcher entries (per dispatcher-summary)</td></tr>
+</tbody>
+</table></div>
+<h3 id="tier-1-hooks-wired"><a class="anchor" href="#tier-1-hooks-wired" aria-label="Permalink to Tier-1 hooks (wired)">#</a>Tier-1 hooks (wired)</h3>
+<ul>
+<li><code>blueprint-accuracy-guard</code> — <strong>EXTEND</strong> (U-T1-H1) with conformal-bound check + replay-buffer notification</li>
+<li><code>training-convergence-guard</code> — already gates LoRA training convergence; reuse for blueprint LoRA exports</li>
+</ul>
+<h3 id="tier-2-skills-wired"><a class="anchor" href="#tier-2-skills-wired" aria-label="Permalink to Tier-2 skills (wired)">#</a>Tier-2 skills (wired)</h3>
+<ul>
+<li><code>/pdf-learn</code>, <code>/video-learn</code>, <code>/shop-knowledge</code>, <code>/blueprint-read</code>, <code>/cad-extract</code>, <code>/cad-feature-recognize</code>, <code>/cad-from-blueprint</code>, <code>/cad-tolerance-check</code>, <code>/cmm-parse</code>, <code>/print-to-program</code> — operator-facing front doors. The new <code>/blueprint-rag-extract</code> + <code>/blueprint-corpus-status</code> + <code>/blueprint-correction</code> extend this surface.</li>
+</ul>
+<h3 id="tier-3-academy-course-already-published"><a class="anchor" href="#tier-3-academy-course-already-published" aria-label="Permalink to Tier-3 academy course (already published)">#</a>Tier-3 academy course (already published)</h3>
+<ul>
+<li><code>academy-course-0c-blueprint-reading-blueprint-reading-gd-t</code> — the course we teach OPERATORS. This milestone&#39;s U-T3-C1 produces a parallel system-facing curriculum doc (what the model has learned, by domain).</li>
+</ul>
+<h3 id="tier-4-frontend-already-shipped"><a class="anchor" href="#tier-4-frontend-already-shipped" aria-label="Permalink to Tier-4 frontend (already shipped)">#</a>Tier-4 frontend (already shipped)</h3>
+<ul>
+<li><code>BlueprintQuotePage</code> + <code>fe-page-blueprintquotepage-1</code> — operator UI for blueprint-to-quote. Becomes a downstream consumer of better-bounded extractions.</li>
+</ul>
+<h3 id="test-surface-wired"><a class="anchor" href="#test-surface-wired" aria-label="Permalink to Test surface (wired)">#</a>Test surface (wired)</h3>
+<ul>
+<li><code>blueprintocrengine</code> test, <code>blueprintvisionocrengine-complexparts</code> test, <code>blueprintvisionocrengine-partclass</code> test, <code>blueprint-ocr-real-data</code> test, <code>blueprint-vision-ocr</code> test, <code>imageocrpipelineengine</code> test, <code>gdtcalloutparserengine</code> test, <code>gdtstackupengine</code> test, <code>groundtruthregistryengine</code> test, <code>groundtruthvalidationengine</code> test, <code>groundtruthbatchextractor</code>, <code>groundtruthdeterminism</code>, <code>groundtruthfeaturetreeextractor</code> — <strong>the test floor already exists.</strong> New engines extend these test files rather than create parallel ones.</li>
+</ul>
+<hr>
+<h2 id="corpus-inventory-training-data-sources-hard-counts"><a class="anchor" href="#corpus-inventory-training-data-sources-hard-counts" aria-label="Permalink to Corpus inventory (training data sources — hard counts)">#</a>Corpus inventory (training data sources — hard counts)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Source</th><th>Path / URL</th><th>Count</th><th>Confidence tier</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>JM Die Docustrata index v2</td><td><code>H:/PRISM/Docustrata/.index/jm-die-index-v2.json</code></td><td>24,545 production files / 120K+ pages</td><td><code>produced</code> → <code>confirmed</code> once ERP-matched</td><td>The canonical labelled-pair backbone per <code>[[reference_docustrata_multi_print_pdfs]]</code></td></tr>
+<tr><td>JM Die <code>_PART LIBRARY/</code></td><td><code>H:/PRISM/JM DIE/_PART LIBRARY/</code></td><td>25,028 part folders / 42,407 print pages / 10,678 program files</td><td>mixed</td><td>Materialized via phase18</td></tr>
+<tr><td>MIT engineering corpus (already integrated)</td><td>per WEDM-AGI status</td><td>5 MIT courses (2.008 / 2.830 / 2.813 / 18.06 / 6.S191)</td><td><code>confirmed</code> (peer-reviewed)</td><td>Prior knowledge baseline</td></tr>
+<tr><td>MIT engineering corpus (to add)</td><td>OCW + open access</td><td>drafting 2.007 + 2.001 + 2.003 + 2.005 + GD&amp;T modules</td><td><code>confirmed</code></td><td>New harvest target</td></tr>
+<tr><td>CAD/CAM vendor PDFs</td><td>local — <code>Resources/</code> + harvested</td><td>Mastercam handbook / hyperMILL handbook / Sandvik / Kennametal / ISCAR / Walter / Haas catalogs</td><td><code>confirmed</code></td><td>Already partially indexed via <code>/pdf-learn</code></td></tr>
+<tr><td>Machinery&#39;s Handbook</td><td>local + indexed</td><td>30th ed. + appendix</td><td><code>confirmed</code></td><td>Foundational drafting + tolerances reference</td></tr>
+<tr><td>Online drafting + GD&amp;T sources</td><td>URLs (curated whitelist)</td><td>drafting-zone.com, gdtbasics.com, engineering.com, Wikipedia GD&amp;T</td><td><code>inferred</code></td><td>Harvest via Playwright MCP per <code>[[feedback_playwright_for_online_sources]]</code></td></tr>
+<tr><td>Academy course material</td><td><code>academy-course-0c-blueprint-reading-blueprint-reading-gd-t</code></td><td>published</td><td><code>confirmed</code></td><td>Already-curated training material</td></tr>
+<tr><td>Manufacturer mark/symbol references</td><td>catalogs + handbook</td><td>~40 standard GD&amp;T symbols + ~200 surface-finish marks</td><td><code>confirmed</code></td><td>Maps to <code>gdtcalloutparserengine</code> symbol library</td></tr>
+<tr><td>Tribal knowledge</td><td><code>knowledge/tribal/*</code></td><td>4,245 tribal tips + 3,700 shop tips</td><td><code>inferred</code> (operator-asserted)</td><td>Stylistic priors (&quot;this callout means X at JM Die&quot;)</td></tr>
+</tbody>
+</table></div>
+<p><strong>Corpus volume estimate:</strong> ~200K image regions + ~30K corpus snippets — well within the manageable range for embedding indexing (the existing <code>cadembedindex</code> is already running) and external LoRA fine-tune bundling (~50-200 MB export).</p>
+<hr>
+<h2 id="acceptance-criteria-omega_floor10-per-users-standing-preference"><a class="anchor" href="#acceptance-criteria-omega_floor10-per-users-standing-preference" aria-label="Permalink to Acceptance criteria (omega_floor=1.0 per user&#39;s standing preference)">#</a>Acceptance criteria (omega_floor=1.0 per user&#39;s standing preference)</h2>
+<ul>
+<li>Every new/extended engine ships with: real tests (reference values from existing prints + cross-validation against <code>groundtruthregistryengine</code> — NO <code>toBeDefined()</code> stubs), dispatcher wiring (import + call + action enum + schema), round-trip E2E assertion through the dispatcher.</li>
+<li>Coverage floor per engine: happy path + ≥3 failure modes (corrupt PDF, missing corpus entry, conformal-bound violation) + ≥2 adversarial inputs (deliberately-misleading callout, scrambled multi-page PDF).</li>
+<li>Variability floor: each extraction-touching unit exercises ≥3 dim-types (linear / GD&amp;T / threaded-callout) AND ≥3 customer conventions (JM-Die-internal / Alcoa-aerospace / Continental-automotive — pulled from Docustrata).</li>
+<li>The LoRA export bundle is <strong>anonymized + operator-confirmed</strong> before any file is written outside <code>mcp-server/data/training/</code> (audit log retained).</li>
+<li>The <code>blueprint-accuracy-guard</code> hook <strong>HARD BLOCKS</strong> extraction-touching commits when conformal bounds widen by &gt;20% session-over-session without an accompanying recalibration entry.</li>
+<li>The coverage-audit Stop hook (new — <code>blueprint-coverage-floor-guard</code>) blocks Stop if a session changed extraction-path code without re-running the audit. (MINIMAL_ALLOWLIST — non-bypassable.)</li>
+<li>Every external corpus URL is gated by <code>[[feedback_no_public_h_drive]]</code> — H: data is NEVER published; outbound is only to managed fine-tune providers with NDA + per-bundle operator approval.</li>
+</ul>
+<hr>
+<h2 id="units-8-sequenced-phase-2-wire-up-before-phase-4-net-new-per-master-roadmap-yagni"><a class="anchor" href="#units-8-sequenced-phase-2-wire-up-before-phase-4-net-new-per-master-roadmap-yagni" aria-label="Permalink to Units (8 — sequenced Phase 2 wire-up BEFORE Phase 4 net-new, per master roadmap YAGNI)">#</a>Units (8 — sequenced Phase 2 wire-up BEFORE Phase 4 net-new, per master roadmap YAGNI)</h2>
+<blockquote>
+<p><strong>Build order is the spec.</strong> Each unit must complete + ship before the next opens. Phase 2 wire-up units front-load the leverage; Phase 4 net-new arrives only on top of the wired floor.</p>
+</blockquote>
+<hr>
+<h3 id="ms1-u1-rescue-wire-prism-enhanced-gdt-engine-prism-gdt-fcf-parser-phase-2-t1"><a class="anchor" href="#ms1-u1-rescue-wire-prism-enhanced-gdt-engine-prism-gdt-fcf-parser-phase-2-t1" aria-label="Permalink to MS1-U1 — Rescue + wire prism-enhanced-gdt-engine + prism-gdt-fcf-parser (Phase 2, T1)">#</a>MS1-U1 — Rescue + wire <code>prism-enhanced-gdt-engine</code> + <code>prism-gdt-fcf-parser</code> (Phase 2, T1)</h3>
+<p><strong>What:</strong> Locate the two GD&amp;T monolith forks in <code>extracted/</code> / <code>extracted_modules/</code> per <code>[[reference_monolith_extraction]]</code>. Adapt the API to current <code>prism_cad</code> conventions. Wire <code>cad_gdt_parse_enhanced</code> + <code>cad_gdt_fcf_parse</code> actions. The enhanced parser fills the gap where <code>gdtcalloutparserengine</code> returns &quot;unrecognized callout&quot; — Feature Control Frames with stacked tolerances + composite frames + datum reference frames.</p>
+<p><strong>Reuse:</strong> <code>gdtcalloutparserengine</code> (the existing parser; the monolith fork extends it, not replaces), <code>cad_gdt_callout_parse</code> action.</p>
+<p><strong>Wire to:</strong> <code>prism_cad</code>: actions <code>cad_gdt_parse_enhanced</code>, <code>cad_gdt_fcf_parse_enhanced</code>. Schema + switch + zod.</p>
+<p><strong>Tests:</strong> ≥10 cases over ≥3 GD&amp;T symbol families (positional / profile / runout) including composite FCFs + datum reference frames + stacked tolerances + the 5 cases in <code>gdtcalloutparserengine.test.ts</code> that currently return &quot;unrecognized&quot; (the rescue is verified by those flipping to recognized).</p>
+<p><strong>Tier:</strong> T1 — prereq is T1 (<code>gdtcalloutparserengine</code>) already wired. PASS.</p>
+<hr>
+<h3 id="ms1-u2-rescue-wire-prism-ocr-engine-monolith-fork-phase-2-t1"><a class="anchor" href="#ms1-u2-rescue-wire-prism-ocr-engine-monolith-fork-phase-2-t1" aria-label="Permalink to MS1-U2 — Rescue + wire prism-ocr-engine monolith fork (Phase 2, T1)">#</a>MS1-U2 — Rescue + wire <code>prism-ocr-engine</code> monolith fork (Phase 2, T1)</h3>
+<p><strong>What:</strong> Locate the v8.89 OCR engine fork at <code>extracted/extraction/prism-ocr-engine</code> + <code>extracted/engines-ai-ml/prism-ocr-engine</code>. Compare against current <code>imageocrpipelineengine</code> + <code>BlueprintVisionOCREngine</code> — identify capability delta (likely: better confidence-stratification, different vendor backend, additional text-pre-processing). Adopt the additive parts into a <code>prism_ocr_classic</code> action that the RAG engine (U7) can call as a parallel-corroboration path.</p>
+<p><strong>Reuse:</strong> <code>imageocrpipelineengine</code>, <code>BlueprintVisionOCREngine</code>, <code>xproc_ensemble_predict</code> (for parallel corroboration), <code>ocr-process</code> action.</p>
+<p><strong>Wire to:</strong> <code>prism_cad</code> AND <code>prism_resource_extraction</code>: action <code>prism_ocr_classic</code>. Schema + switch + zod.</p>
+<p><strong>Tests:</strong> ≥10 cases including direct comparison against <code>BlueprintVisionOCREngine</code> over the <code>blueprint-ocr-real-data</code> test fixtures — assert ensemble disagreement is correctly flagged when the two backends disagree by &gt;15% on the same region.</p>
+<p><strong>Tier:</strong> T1 — prereq is T0 (constants exist) + T1 (peer engines wired). PASS.</p>
+<hr>
+<h3 id="ms1-u3-extend-groundtruthregistryengine-with-blueprint-extraction-join-phase-2-t1"><a class="anchor" href="#ms1-u3-extend-groundtruthregistryengine-with-blueprint-extraction-join-phase-2-t1" aria-label="Permalink to MS1-U3 — Extend groundtruthregistryengine with blueprint-extraction join (Phase 2, T1)">#</a>MS1-U3 — Extend <code>groundtruthregistryengine</code> with blueprint-extraction join (Phase 2, T1)</h3>
+<p><strong>What:</strong> Add methods to the existing engine — do NOT create a new one (per dedup intercept Rule 9). New methods:</p>
+<ul>
+<li><code>registerBlueprintExtraction({pdfPath, page, region, extractionType, value, confidenceTier, sourceProvenance})</code> — appends a labelled record</li>
+<li><code>joinDocustrataToPartLibrary({rootDir, indexPath})</code> — bulk join over the 24,545 Docustrata files vs. <code>_PART LIBRARY/&lt;customer&gt;/&lt;pn&gt;/part.json</code> macro VC vars vs. ERP-confirmed actuals — produces labelled (image, expected_extraction) tuples stratified by confidence</li>
+<li><code>enumerateByConfidenceTier({tier})</code> — return labelled set at given tier</li>
+<li><code>flagAmbiguities()</code> — surface ground-truth pairs where ERP and macro disagree</li>
+<li><code>getTrainingPairsByCustomer({customer, limit?})</code> — operator-scoped retrieval</li>
+</ul>
+<p><strong>Reuse:</strong> <code>blueprintprogramjoinengine</code> (the print↔program joiner — composes), <code>MacroLibraryEngine</code> (family classification), <code>PartFolderOrganizerEngine</code> (part.json I/O), Docustrata index v2 (<code>jm-die-index-v2.json</code> — read-only).</p>
+<p><strong>Wire to:</strong> <code>prism_cad</code> actions <code>gt_blueprint_register</code>, <code>gt_blueprint_join_docustrata</code>, <code>gt_enumerate_by_tier</code>, <code>gt_flag_ambiguities</code>, <code>gt_training_pairs_by_customer</code>. Existing <code>groundtruthregistryengine</code> action surface gets extended; no new dispatcher.</p>
+<p><strong>Tests:</strong> extend <code>groundtruthregistryengine.test.ts</code> — ≥10 NEW cases on top of existing. Reference customers: ALCOA + ITW + CONTINENTAL MIDLAND (≥3 from corpus). Adversarial: corrupt jm-die-index-v2.json, missing <code>_PART LIBRARY/&lt;customer&gt;</code> folder, an extraction value that contradicts macro VC var (the flagAmbiguities path).</p>
+<p><strong>HARD RULE:</strong> the engine NEVER writes to <code>Automated Program_Corrected 5-25.xlsm</code> or to any <code>_PART LIBRARY/&lt;customer&gt;/&lt;pn&gt;/CNC PROGRAM/</code> (read-only). Verified by a test that mocks the FS and asserts no write occurs outside <code>mcp-server/data/training/</code>.</p>
+<p><strong>Tier:</strong> T1 (extension) — extension of wired engine. PASS.</p>
+<hr>
+<h3 id="ms1-u4-extend-groundtruthvalidationengine-with-extraction-confidence-cross-validation-phase-2-t1"><a class="anchor" href="#ms1-u4-extend-groundtruthvalidationengine-with-extraction-confidence-cross-validation-phase-2-t1" aria-label="Permalink to MS1-U4 — Extend groundtruthvalidationengine with extraction-confidence cross-validation (Phase 2, T1)">#</a>MS1-U4 — Extend <code>groundtruthvalidationengine</code> with extraction-confidence cross-validation (Phase 2, T1)</h3>
+<p><strong>What:</strong> Add methods that consume the labelled pairs from U3 + run them through every available OCR backend (<code>BlueprintVisionOCREngine</code> + <code>imageocrpipelineengine</code> + <code>prism_ocr_classic</code> from U2) + record ensemble agreement / disagreement per region. This is the <strong>evaluation harness</strong> for measuring whether RAG augmentation improves extraction quality. New methods:</p>
+<ul>
+<li><code>validateExtractionBackend({backendId, trainingPairSetId})</code> → <code>{accuracy, conformal_coverage, per_dim_type_breakdown, disagreement_regions}</code></li>
+<li><code>compareBackends({backendIds[], trainingPairSetId})</code> → <code>{rank, regression_flags}</code></li>
+<li><code>regressionGate({backendId, baselineSnapshotId})</code> → <code>{passed, regressions[]}</code></li>
+</ul>
+<p><strong>Reuse:</strong> <code>xproc_ensemble_predict</code>, <code>xproc_conformal_calibrate</code>, <code>xproc_conformal_stats</code>, <code>crossprocessconformalpredictionengine</code>, <code>crossprocessconformalclassificationengine</code>, <code>xproc_attention_explain</code> (for explaining low-confidence extractions).</p>
+<p><strong>Wire to:</strong> <code>prism_cad</code> + <code>prism_ai</code>: actions <code>gt_validate_backend</code>, <code>gt_compare_backends</code>, <code>gt_regression_gate</code>.</p>
+<p><strong>Tests:</strong> ≥10 cases. Reference: run the BlueprintVisionOCREngine baseline against a known training-pair set, confirm conformal bounds calibrate; deliberately swap a backend&#39;s output to be wrong on 20% of regions and confirm <code>regression_gate</code> returns <code>passed: false</code> with the regressions named.</p>
+<p><strong>Tier:</strong> T1 (extension). PASS.</p>
+<hr>
+<h3 id="ms1-u5-extend-blueprint-accuracy-guard-hook-with-conformal-bound-replay-buffer-integration-phase-2-t0t1"><a class="anchor" href="#ms1-u5-extend-blueprint-accuracy-guard-hook-with-conformal-bound-replay-buffer-integration-phase-2-t0t1" aria-label="Permalink to MS1-U5 — Extend blueprint-accuracy-guard hook with conformal-bound + replay-buffer integration (Phase 2, T0/T1)">#</a>MS1-U5 — Extend <code>blueprint-accuracy-guard</code> hook with conformal-bound + replay-buffer integration (Phase 2, T0/T1)</h3>
+<p><strong>What:</strong> The hook already exists at runtime. Extend its logic so when an extraction-touching dispatcher action returns extractions, the hook:</p>
+<ol>
+<li>Pulls the action&#39;s conformal calibration via <code>xproc_conformal_stats</code> (per dim-type via <code>xproc_mondrian_stats</code>)</li>
+<li>If the new extraction&#39;s confidence-bound widened &gt;20% vs. the rolling window → flag for <code>xproc_drift_observe</code></li>
+<li>If the extraction matches a known training pair with operator-confirmed ground truth → emit an <code>xproc_replay_add</code> event to the replay buffer (with priority = inverse of confidence)</li>
+<li>If an operator correction event arrives → emit <code>xproc_outcome_record</code> + <code>xproc_predlog_pair</code> + an <code>xproc_ewc_consolidate</code> if accumulated since last consolidation &gt; threshold</li>
+</ol>
+<p>Also: register a new sibling hook <code>blueprint-coverage-floor-guard</code> (Stop hook, MINIMAL_ALLOWLIST) that blocks Stop if a session changed extraction-path code without re-running U7&#39;s coverage audit.</p>
+<p><strong>Reuse:</strong> <code>blueprint-accuracy-guard</code> (current hook — extend), <code>xproc_drift_observe</code>, <code>xproc_replay_add</code>, <code>xproc_outcome_record</code>, <code>xproc_predlog_pair</code>, <code>xproc_ewc_consolidate</code>, <code>xproc_mondrian_stats</code>.</p>
+<p><strong>Wire to:</strong> hooks layer — <code>.claude/hooks/blueprint-accuracy-guard.mjs</code> (extension) + <code>.claude/hooks/blueprint-coverage-floor-guard.mjs</code> (new Stop hook). MINIMAL_ALLOWLIST entry in <code>H:/.claude/settings.json</code> for the coverage-floor-guard. <strong>NOTE: cross-worktree firewall applies</strong> — this commit must come from main tree (<code>H:/prism</code>), not a forked worktree.</p>
+<p><strong>Tests:</strong> hook test fixtures simulating: low-confidence extraction → replay add; drift event → drift observe; operator correction → outcome record + EWC consolidate; session changed extraction code without audit → coverage-floor-guard blocks Stop; session with audit → Stop clears.</p>
+<p><strong>Tier:</strong> T0/T1 — hook layer + replay-buffer + outcome-recording (all prereqs wired). PASS.</p>
+<hr>
+<h3 id="ms1-u6-build-blueprintcorpusharvestengine-cron-harvest-scripts-phase-4-t1-net-new"><a class="anchor" href="#ms1-u6-build-blueprintcorpusharvestengine-cron-harvest-scripts-phase-4-t1-net-new" aria-label="Permalink to MS1-U6 — Build BlueprintCorpusHarvestEngine + cron + harvest scripts (Phase 4, T1 — net-new)">#</a>MS1-U6 — Build <code>BlueprintCorpusHarvestEngine</code> + cron + harvest scripts (Phase 4, T1 — net-new)</h3>
+<p><strong>What:</strong> A new engine that orchestrates the harvest of MIT engineering courses + CAD/CAM vendor PDFs + curated online sources into <code>knowledge/wiki/training-corpus/{drafting,gdt,callout-conventions,industry-norms}/</code>. Methods:</p>
+<ul>
+<li><code>harvestMIT({courseList[], outputDir})</code> — iterates the OCW list, downloads + extracts + tags</li>
+<li><code>harvestVendorPDFs({path, vendorList})</code> — over <code>Resources/</code> + new vendor PDFs</li>
+<li><code>harvestOnline({urlList})</code> — calls Playwright MCP (per <code>[[feedback_playwright_for_online_sources]]</code>) over a curated whitelist</li>
+<li><code>enumerateCorpus({domain, tag})</code> — query the harvested corpus by frontmatter</li>
+<li><code>verifyCorpusFresh({source})</code> — staleness check + re-harvest if needed</li>
+<li><code>buildEmbeddingIndex({outputPath})</code> — runs nomic-embed-text over each corpus entry, writes the <code>_embeddings.jsonl</code> (extends the existing 14,343-vector pattern)</li>
+</ul>
+<p><strong>Reuse:</strong> <code>/pdf-learn</code>, <code>/video-learn</code> (existing skills — wrapped), <code>WebFetch</code> / Playwright MCP, <code>wiki-precheck-inject</code> infrastructure (the 768-d embedding pattern), <code>cad-embed-build-index</code> action.</p>
+<p><strong>Wire to:</strong> <code>prism_knowledge</code> + <code>prism_cad</code>: actions <code>corpus_harvest_mit</code>, <code>corpus_harvest_vendor</code>, <code>corpus_harvest_online</code>, <code>corpus_enumerate</code>, <code>corpus_verify_fresh</code>, <code>corpus_build_index</code>.</p>
+<p><strong>Tests:</strong> ≥10 cases. Reference: a small fixture MIT course → harvested + tagged correctly; a vendor PDF with known content → correctly tagged; an online URL that&#39;s NOT in the whitelist → refused; corpus enumeration by tag returns expected subset. Adversarial: a PDF that fails OCR → graceful failure with named source; a URL that returns 404 → retried 3x then logged.</p>
+<p><strong>Cron:</strong> weekly corpus freshness check (via <code>CronCreate</code> skill — recurring). The hook fires <code>corpus_verify_fresh({source: &quot;MIT&quot;})</code> + <code>...&quot;vendor&quot;</code> + <code>...&quot;online&quot;</code> — emits a freshness report to <code>state/shared/CORPUS_FRESHNESS.md</code>.</p>
+<p><strong>Tier:</strong> T1 (net-new, but on top of wired T0/T1 floor: pdf-learn + cad-embed). PASS — master roadmap YAGNI honored because Phase 2 wire-up units U1-U5 come first.</p>
+<hr>
+<h3 id="ms1-u7-build-blueprintextractionragengine-phase-4-t1-net-new-the-load-bearing-centerpiece"><a class="anchor" href="#ms1-u7-build-blueprintextractionragengine-phase-4-t1-net-new-the-load-bearing-centerpiece" aria-label="Permalink to MS1-U7 — Build BlueprintExtractionRAGEngine (Phase 4, T1 — net-new, the load-bearing centerpiece)">#</a>MS1-U7 — Build <code>BlueprintExtractionRAGEngine</code> (Phase 4, T1 — net-new, the load-bearing centerpiece)</h3>
+<p><strong>What:</strong> The composition layer. Wraps <code>BlueprintVisionOCREngine</code> (the base vision call) with RAG augmentation. For each extraction request:</p>
+<ol>
+<li><strong>Pre-classify the print</strong> — call <code>cad-blueprint-infer-class</code> + <code>MacroLibraryEngine.matchFamily()</code> + the customer prior (<code>getJMDieCustomerPath(customer)</code> for known customers; else generic)</li>
+<li><strong>Retrieve corpus context</strong> — top-k via <code>cad-rag-retrieve</code> + <code>cad-embed-search</code> over the harvested corpus, filtered by <code>(domain, industry, dim_type_hint)</code></li>
+<li><strong>Retrieve tribal context</strong> — <code>searchTribalKnowledge(features)</code> for shop-floor priors</li>
+<li><strong>Retrieve prior similar prints</strong> — <code>cad-dimensional-signature</code> near-neighbour over <code>groundtruthregistryengine</code> ground-truth pairs</li>
+<li><strong>Compose the extraction prompt</strong> — base vision prompt + retrieved context (top-k corpus + top-k tribal + top-k similar prints + the family template&#39;s expected feature schema if matched)</li>
+<li><strong>Run the vision call</strong> — through <code>BlueprintVisionOCREngine</code> (current) + optionally <code>prism_ocr_classic</code> (U2) for ensemble corroboration</li>
+<li><strong>Fuse + bound</strong> — <code>xproc_vision_fuse</code> + <code>xproc_conformal_set</code> per dim-type (via <code>xproc_mondrian_*</code> for stratification)</li>
+<li><strong>Emit candidate</strong> — structured <code>BlueprintExtraction</code> with per-region confidence bounds, the retrieved sources cited inline (so operator can verify), and an attention-explain trace (<code>xproc_attention_explain</code>)</li>
+<li><strong>Record</strong> — <code>xproc_outcome_record</code> (the prediction, no actuals yet) + <code>xproc_predlog_log</code> for later operator confirmation pairing</li>
+</ol>
+<p>Output: <code>BlueprintExtraction</code> object — NEVER auto-applied. Operator reviews + confirms or corrects.</p>
+<p><strong>Reuse:</strong> <code>BlueprintVisionOCREngine</code>, <code>imageocrpipelineengine</code>, <code>crossprocessvisiontabularfusionengine</code>, <code>cad-rag-retrieve</code>, <code>cad-rag-rank</code>, <code>cad-rag-augment</code>, <code>cad-embed-search</code>, <code>searchTribalKnowledge</code>, <code>cad-dimensional-signature</code>, <code>MacroLibraryEngine.matchFamily</code>, <code>cad-blueprint-infer-class</code>, <code>getJMDieCustomerPath</code>, <code>xproc_vision_fuse</code>, <code>xproc_conformal_set</code>, <code>xproc_mondrian_*</code>, <code>xproc_attention_explain</code>, <code>xproc_outcome_record</code>, <code>xproc_predlog_log</code>.</p>
+<p><strong>Wire to:</strong> <code>prism_cad</code> + <code>prism_quality</code>: actions <code>blueprint_rag_extract</code>, <code>blueprint_rag_explain</code>, <code>blueprint_rag_compare_to_baseline</code> (so the operator can see &quot;RAG version says A, base version says B, here&#39;s why&quot;).</p>
+<p><strong>Tests:</strong> ≥10 cases. Reference customers: 3 minimum (JM-Die-internal + Alcoa + Continental). Reference dim types: 3 minimum (linear + GD&amp;T positional + threaded callout). Reference adversarial: a print with a callout that doesn&#39;t appear in any corpus → engine returns extraction with a &quot;no-prior&quot; flag, NOT a hallucination; a print whose retrieved context is internally contradictory → engine surfaces the contradiction with both sources cited.</p>
+<p><strong>HARD RULE in the test file:</strong> <code>expect(extraction.sources).toBeDefined() &amp;&amp; expect(extraction.sources.length).toBeGreaterThan(0)</code> — every extraction MUST cite at least one retrieved source (corpus / tribal / similar-print). No sourceless extractions; if no context retrievable, return an explicit &quot;low-confidence — no priors&quot; candidate with an empty sources array AND a confidence floor flag, which <code>blueprint-accuracy-guard</code> then surfaces as drift.</p>
+<p><strong>Tier:</strong> T1 — Phase 4 net-new, prereqs all in place. PASS.</p>
+<hr>
+<h3 id="ms1-u8-build-blueprintlorabridgeengine-blueprintcoverageauditengine-close-out-phase-4-t1-net-new-audit"><a class="anchor" href="#ms1-u8-build-blueprintlorabridgeengine-blueprintcoverageauditengine-close-out-phase-4-t1-net-new-audit" aria-label="Permalink to MS1-U8 — Build BlueprintLoRABridgeEngine + BlueprintCoverageAuditEngine + close-out (Phase 4, T1 — net-new + audit)">#</a>MS1-U8 — Build <code>BlueprintLoRABridgeEngine</code> + <code>BlueprintCoverageAuditEngine</code> + close-out (Phase 4, T1 — net-new + audit)</h3>
+<p><strong>What — <code>BlueprintLoRABridgeEngine</code>:</strong> the LoRA export bundle producer. Methods:</p>
+<ul>
+<li><code>prepareTrainingSet({confidenceTier, sizeCap, anonymize: true})</code> — selects training pairs from <code>groundtruthregistryengine</code> at given tier, anonymizes (scrubs customer names + part numbers + program content per <code>[[feedback_no_public_h_drive]]</code>), formats per the target fine-tune provider&#39;s spec</li>
+<li><code>exportBundle({setId, provider: &quot;gemini-finetune&quot; | &quot;openai-finetune&quot; | &quot;modal&quot; | &quot;local-lora&quot;, outputPath})</code> — emits the bundle</li>
+<li><code>registerExternalEndpoint({bundleId, endpointURL, providerType})</code> — once external fine-tune completes + operator approves, registers as a new <code>AISystemRouterEngine</code> backend</li>
+<li><code>getExportHistory()</code> + <code>getActiveBundles()</code></li>
+</ul>
+<p><strong>What — <code>BlueprintCoverageAuditEngine</code>:</strong> the audit (modelled on <code>ElectrodeCoverageAuditEngine</code> from TRAINING-LEARNING-MS0/U3, but for extraction coverage). Methods:</p>
+<ul>
+<li><code>auditCoverage({rootDir, indexPath})</code> — over the 24,545 Docustrata files: which got extracted correctly (per <code>groundtruthvalidationengine</code>), which widened conformal bounds, which the operator overrode, which the system has never seen</li>
+<li><code>byCustomer({customer})</code> + <code>byConvention({convention})</code> + <code>byDimType({type})</code></li>
+<li><code>generateReport({format: &quot;md&quot; | &quot;json&quot;, outDir})</code></li>
+<li><code>flagRetrain({coverageDeltaThreshold})</code> — if a customer/convention&#39;s coverage dropped by &gt;threshold, flags as retrain candidate (feeds U6 corpus refresh + U7 RAG context refresh)</li>
+</ul>
+<p><strong>Reuse:</strong> <code>groundtruthregistryengine</code> + <code>groundtruthvalidationengine</code> (extended in U3+U4), <code>cam-feedback-lora-training-export</code> (the LoRA export pattern), <code>continual-lora-{create,state,train}</code> (the continual training pattern), <code>latheloracontinuallearningengine</code> (the reference impl), <code>xproc_calibration_score</code>, <code>xproc_calibration_recommend</code>.</p>
+<p><strong>Wire to:</strong> <code>prism_ai</code>: actions <code>blueprint_lora_export</code>, <code>blueprint_lora_register_endpoint</code>, <code>blueprint_lora_history</code>. <code>prism_cad</code> + <code>prism_quality</code>: actions <code>blueprint_coverage_audit</code>, <code>blueprint_coverage_by_customer</code>, <code>blueprint_coverage_flag_retrain</code>.</p>
+<p><strong>Tests:</strong> ≥10 cases per engine. Reference: a small in-test corpus → LoRA bundle produced + anonymization confirmed (no customer names leak); coverage audit over a fixture → expected gaps surface; retrain flag fires when coverage drops below threshold.</p>
+<p><strong>HARD RULE in <code>BlueprintLoRABridgeEngine</code> test:</strong> <code>expect(bundleContents).not.toMatch(/ALCOA|ITW|CONTINENTAL|OPTIMAS|SFS|HOLO-KROME/)</code> — assert specific customer names never appear in the export. Operator-confirmation marker file (<code>_LORA_EXPORT_OPERATOR_APPROVED</code>) must exist before <code>exportBundle</code> writes outside <code>mcp-server/data/training/lora/staging/</code>.</p>
+<p><strong>Close-out checklist:</strong></p>
+<ul>
+<li><code>/blueprint-rag-extract</code> skill (operator-facing front door for U7)</li>
+<li><code>/blueprint-corpus-status</code> skill (operator-facing for U6 + U8 audit)</li>
+<li><code>/blueprint-correction</code> skill (operator records a correction → flows to U5 outcome-record + U3 ground-truth-register)</li>
+<li>Update <code>state/shared/specs/DOMAIN-STUDIO-NODE-MAP.md</code> with the new training-OCR nodes</li>
+<li>Update wiki/index.md with 4 new engine entries + 3 new skills + 2 new hooks</li>
+<li>Regenerate <code>ENGINE_DIGEST.md</code> / <code>DISPATCHER_DIGEST.md</code></li>
+<li>Update <code>MACRO-PROGRAM-PIPELINE-MS0.json</code> envelope to cross-reference (the extraction → fill chain)</li>
+<li>Update <code>TRAINING-LEARNING-MS0.json</code> envelope (when created) to cross-reference (templates ↔ retrieval context)</li>
+<li>Run the 3-way scrutiny gate (Codex + Claude-A + Claude-B)</li>
+<li>Regenerate <code>/system-viz</code> graph (per forge4 Phase 6K.viz)</li>
+<li>Commit the viz refresh as <code>[VIZ-REFRESH] post-BLUEPRINT-OCR-TRAINING-MS1: tier coverage [old]→[new]</code></li>
+<li><code>/handoff</code> with updated RESUME pointing at next milestone</li>
+</ul>
+<p><strong>Tier:</strong> T1 net-new + T1 audit. PASS.</p>
+<hr>
+<h2 id="phase-4-frontend-deferred-to-ms2-explicit-non-goal-here"><a class="anchor" href="#phase-4-frontend-deferred-to-ms2-explicit-non-goal-here" aria-label="Permalink to Phase 4 frontend (deferred to MS2 — explicit non-goal here)">#</a>Phase 4 frontend (deferred to MS2 — explicit non-goal here)</h2>
+<p><code>BlueprintQuotePage</code> already exists at Tier-4; it becomes a consumer of better-bounded extractions. A new Tier-4 page (e.g. <code>BlueprintTrainingDashboard</code> showing coverage audit + corpus freshness + LoRA export history) is <strong>explicitly deferred</strong> to a future MS2 — per master roadmap YAGNI (&quot;don&#39;t add Tier-4 pages while Tier-1 engines are unwired&quot;). The audit report at U8 is markdown for now; the dashboard is v2.</p>
+<hr>
+<h2 id="skills-scripts-hooks-the-operator-surface"><a class="anchor" href="#skills-scripts-hooks-the-operator-surface" aria-label="Permalink to Skills / scripts / hooks (the operator surface)">#</a>Skills / scripts / hooks (the operator surface)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Asset</th><th>Type</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>/blueprint-rag-extract</code></td><td>skill (new in U8)</td><td>wire U7&#39;s action</td></tr>
+<tr><td><code>/blueprint-corpus-status</code></td><td>skill (new in U8)</td><td>wire U6 + U8 actions</td></tr>
+<tr><td><code>/blueprint-correction</code></td><td>skill (new in U8)</td><td>wire U5 outcome path</td></tr>
+<tr><td><code>phase20-corpus-harvest.py</code></td><td>script (new in U6)</td><td>bulk MIT + vendor + online harvest</td></tr>
+<tr><td><code>phase20-blueprint-coverage-audit.py</code></td><td>script (new in U8)</td><td>bulk Docustrata audit</td></tr>
+<tr><td><code>blueprint-accuracy-guard</code></td><td>hook (extended in U5)</td><td>existing, extension</td></tr>
+<tr><td><code>blueprint-coverage-floor-guard</code></td><td>hook (new in U5, Stop, MINIMAL_ALLOWLIST)</td><td>new Stop guard</td></tr>
+<tr><td><code>training-convergence-guard</code></td><td>hook (reuse)</td><td>already gates LoRA convergence</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="exit-gate-forge4-phase-5-6k-compliance"><a class="anchor" href="#exit-gate-forge4-phase-5-6k-compliance" aria-label="Permalink to Exit gate (forge4 Phase 5 + 6K compliance)">#</a>Exit gate (forge4 Phase 5 + 6K compliance)</h2>
+<ul>
+<li>All 8 units shipped; every <code>blueprint_*</code> + <code>gt_blueprint_*</code> + <code>corpus_*</code> action wired to <code>prism_cad</code> / <code>prism_quality</code> / <code>prism_ai</code> / <code>prism_knowledge</code> and round-tripped in tests.</li>
+<li>36+ existing blueprint-related test files still pass + new ones added; 0 stub assertions (<code>toBeDefined()</code>) accepted.</li>
+<li>2 monolith forks (<code>prism-enhanced-gdt-engine</code> + <code>prism-gdt-fcf-parser</code>) rescued + wired (U1) — graph delta: 2 unwired → 2 wired, leverage realized in coverage-by-domain delta.</li>
+<li>1 monolith fork (<code>prism-ocr-engine</code>) rescued + wired (U2) — same.</li>
+<li><code>groundtruthregistryengine</code> + <code>groundtruthvalidationengine</code> extended (not duplicated — Rule 9 honored).</li>
+<li><code>BlueprintCorpusHarvestEngine</code> + <code>BlueprintExtractionRAGEngine</code> + <code>BlueprintLoRABridgeEngine</code> + <code>BlueprintCoverageAuditEngine</code> built and wired.</li>
+<li>2 hooks shipped: <code>blueprint-accuracy-guard</code> extension + <code>blueprint-coverage-floor-guard</code> Stop hook in MINIMAL_ALLOWLIST.</li>
+<li>3 skills shipped + 2 phase20 scripts.</li>
+<li>LoRA export anonymization HARD RULE asserted in tests (no customer name in any export).</li>
+<li>Coverage audit report generated against the 24,545 Docustrata files; &gt;70% confidence-tier coverage at MS1 close (raises over time via continual learning).</li>
+<li>ENGINE_DIGEST / DISPATCHER_DIGEST regenerated; DOMAIN-STUDIO-NODE-MAP.md updated; wiki/index.md updated.</li>
+<li><code>/system-viz</code> regenerated (Phase 6K.viz) + committed.</li>
+<li>Cross-envelope links: this envelope references MACRO-PROGRAM-PIPELINE-MS0 (upstream consumer) and TRAINING-LEARNING-MS0 (peer); both their envelopes updated to back-reference this one.</li>
+<li>3-way scrutiny PASS (Codex + Claude-A + Claude-B).</li>
+<li>Agent 11 (Atomic-First Compliance from forge4 Phase 5) score ≥80.</li>
+<li><code>omega_floor: 1.0</code> met.</li>
+</ul>
+<hr>
+<h2 id="milestone-envelope-json-to-register-at-mcp-serverdatamilestonesblueprint-ocr-training-ms1json"><a class="anchor" href="#milestone-envelope-json-to-register-at-mcp-serverdatamilestonesblueprint-ocr-training-ms1json" aria-label="Permalink to Milestone-envelope JSON (to register at mcp-server/data/milestones/BLUEPRINT-OCR-TRAINING-MS1.json)">#</a>Milestone-envelope JSON (to register at <code>mcp-server/data/milestones/BLUEPRINT-OCR-TRAINING-MS1.json</code>)</h2>
+<pre><code class="language-json">{
+  &quot;schemaVersion&quot;: 4,
+  &quot;id&quot;: &quot;BLUEPRINT-OCR-TRAINING-MS1&quot;,
+  &quot;title&quot;: &quot;RAG-augmented blueprint OCR + LoRA training + closed-loop continual learning + monolith-fork rescue&quot;,
+  &quot;track&quot;: &quot;TRAINING-LEARNING&quot;,
+  &quot;priority&quot;: &quot;P0&quot;,
+  &quot;owner&quot;: &quot;claude-a7ea87ab (slot BRAVO)&quot;,
+  &quot;created_at&quot;: &quot;2026-05-12T19:30:00.000Z&quot;,
+  &quot;updated_at&quot;: &quot;2026-05-12T19:30:00.000Z&quot;,
+  &quot;status&quot;: &quot;scoped&quot;,
+  &quot;total_units&quot;: 8,
+  &quot;completed_units&quot;: 0,
+  &quot;dependencies&quot;: [&quot;TRAINING-LEARNING-MS0&quot;, &quot;MACRO-PROGRAM-PIPELINE-MS0&quot;],
+  &quot;cross_links&quot;: {
+    &quot;consumes&quot;: [&quot;TRAINING-LEARNING-MS0 (template families inform retrieval context)&quot;],
+    &quot;feeds&quot;: [&quot;MACRO-PROGRAM-PIPELINE-MS0 (better extraction → better print-to-program candidates)&quot;]
+  },
+  &quot;atomic_first&quot;: {
+    &quot;atomic_phase&quot;: &quot;2-then-4&quot;,
+    &quot;tier&quot;: 1,
+    &quot;prereq_tier&quot;: &quot;0+1&quot;,
+    &quot;tier_floor_passed&quot;: true,
+    &quot;phase_sequencing&quot;: &quot;Phase 2 wire-up units (U1-U5) ship before Phase 4 net-new units (U6-U8)&quot;,
+    &quot;leverage_score&quot;: 125,
+    &quot;suggested_dispatchers&quot;: [&quot;prism_cad&quot;, &quot;prism_quality&quot;, &quot;prism_knowledge&quot;, &quot;prism_ai&quot;],
+    &quot;consumes_node_ids&quot;: [
+      &quot;vault.wiki.architecture.engines.cad.pdfblueprintdimensionextractorengine&quot;,
+      &quot;vault.wiki.architecture.engines.cam.blueprintprogramjoinengine&quot;,
+      &quot;vault.wiki.architecture.engines.cad.groundtruthregistryengine&quot;,
+      &quot;vault.wiki.architecture.engines.cad.groundtruthvalidationengine&quot;,
+      &quot;vault.wiki.architecture.engines.fusion.crossprocessvisiontabularfusionengine&quot;,
+      &quot;vault.wiki.architecture.engines.adaptive.crossprocessconformalpredictionengine&quot;,
+      &quot;vault.wiki.architecture.engines.adaptive.crossprocessconformalclassificationengine&quot;,
+      &quot;vault.wiki.architecture.engines.lathe.latheloracontinuallearningengine&quot;,
+      &quot;vault.wiki.architecture.engines.other.trainingcontentindexengine&quot;,
+      &quot;vault.wiki.architecture.engines.other.trainingledgerengine&quot;,
+      &quot;vault.wiki.architecture.engines.cad.gdtcalloutparserengine&quot;,
+      &quot;vault.wiki.architecture.engines.cad.gdtstackupengine&quot;,
+      &quot;vault.wiki.architecture.engines.pdf.imageocrpipelineengine&quot;
+    ],
+    &quot;produces_node_ids&quot;: [
+      &quot;vault.wiki.architecture.engines.cad.blueprintextractionragengine&quot;,
+      &quot;vault.wiki.architecture.engines.cad.blueprintcorpusharvestengine&quot;,
+      &quot;vault.wiki.architecture.engines.ai.blueprintlorabridgeengine&quot;,
+      &quot;vault.wiki.architecture.engines.cad.blueprintcoverageauditengine&quot;
+    ],
+    &quot;rescues_node_ids&quot;: [
+      &quot;vault.wiki.architecture.monolith-modules.complete-extraction.prism-enhanced-gdt-engine&quot;,
+      &quot;vault.wiki.architecture.monolith-modules.complete-extraction.prism-gdt-fcf-parser&quot;,
+      &quot;vault.wiki.architecture.monolith-modules.complete-extraction.prism-ocr-engine&quot;,
+      &quot;vault.wiki.architecture.monolith-modules.engines-ai-ml.prism-ocr-engine&quot;
+    ]
+  },
+  &quot;rationale&quot;: &quot;User 2026-05-12: &#39;use obsidian + tribal knowledge + prism awareness + neural network + /system-viz + skill, scripts and hooks + memories + any other development or backend tool we&#39;ve built to train our ocr/blueprint reading capabilities&#39; (with MIT engineering courses + CAD/CAM PDFs + online sources). Forge4 dep-oracle pass against system-viz @ 2026-05-12T17:53:57.314Z revealed ~80 already-wired blueprint/OCR/RAG/training engines and actions. Net new work: 3 engines + 2 extensions + 2 hooks + 3 skills + 2 phase20 scripts. Master roadmap YAGNI honored via Phase 2 wire-up (U1-U5) before Phase 4 net-new (U6-U8). 3 monolith forks rescued (higher leverage than rebuild). Operator-in-the-loop unconditional. No on-device vision-weight updates (LoRA export only; external fine-tune; resulting endpoint plugs into AISystemRouterEngine as a new backend). H:-drive content NEVER published per [[feedback_no_public_h_drive]].&quot;,
+  &quot;knowledge_sources&quot;: {
+    &quot;engines&quot;: [
+      &quot;BlueprintVisionOCREngine + imageocrpipelineengine + pdfblueprintdimensionextractorengine (base OCR layer)&quot;,
+      &quot;blueprintprogramjoinengine (print ↔ program joiner)&quot;,
+      &quot;groundtruthregistryengine + groundtruthvalidationengine (EXTEND, not duplicate)&quot;,
+      &quot;crossprocessvisiontabularfusionengine (vision + tabular fusion)&quot;,
+      &quot;crossprocessconformalpredictionengine + crossprocessconformalclassificationengine (confidence bounds)&quot;,
+      &quot;latheloracontinuallearningengine (reference continual-LoRA impl)&quot;,
+      &quot;latheloratrainingmonitorengine + latheloratrainingscriptengine (reference monitor + script patterns)&quot;,
+      &quot;camtrainingextractionaggregatorengine (reference aggregator)&quot;,
+      &quot;trainingcontentindexengine + trainingledgerengine (training infrastructure)&quot;,
+      &quot;gdtcalloutparserengine + gdtstackupengine (GD&amp;T base — extended by U1 rescue)&quot;,
+      &quot;cadembedindex (existing embedding index)&quot;,
+      &quot;MacroLibraryEngine + LathePartClassifierEngine (family classification reuse)&quot;,
+      &quot;PartFolderOrganizerEngine + PRISMSelfAwarenessEngine (corpus I/O + capability lookup)&quot;
+    ],
+    &quot;monolith_forks_to_rescue&quot;: [
+      &quot;prism-enhanced-gdt-engine (extracted/extraction/)&quot;,
+      &quot;prism-gdt-fcf-parser (extracted/extraction/)&quot;,
+      &quot;prism-ocr-engine (extracted/extraction/ + extracted/engines-ai-ml/)&quot;
+    ],
+    &quot;tribal_knowledge&quot;: &quot;4,245 tribal tips + 3,700 shop tips (RAG retrieval context) + the academy-course-0c-blueprint-reading-blueprint-reading-gd-t course&quot;,
+    &quot;formulas&quot;: [
+      &quot;Conformal prediction set construction (xproc_aps / xproc_raps / xproc_mondrian)&quot;,
+      &quot;Embedding cosine similarity (nomic-embed-text 768-d)&quot;,
+      &quot;EWC++ regularization loss (xproc_ewc_reg_loss)&quot;,
+      &quot;MAML inner-loop adaptation (xproc_maml_inner_loop)&quot;
+    ],
+    &quot;reference&quot;: [
+      &quot;state/shared/specs/TRAINING-LEARNING-MS0-2026-05-12.md (sibling — this is the v2 RAG layer deferred there)&quot;,
+      &quot;state/shared/specs/MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md (upstream consumer)&quot;,
+      &quot;[[reference_docustrata_multi_print_pdfs]] (96% multi-page; tiered classifier is the right tool)&quot;,
+      &quot;[[reference_monolith_extraction]] (the 1,469 modules + ~1,350 orphaned .js dumps to mine)&quot;,
+      &quot;[[feedback_box_programs_amateur]] (historical S/F + dims = DATA, not ground truth)&quot;,
+      &quot;[[feedback_no_public_h_drive]] (H: data NEVER published; corpus export anonymized + operator-confirmed)&quot;,
+      &quot;[[feedback_playwright_for_online_sources]] (online harvest uses Playwright MCP)&quot;,
+      &quot;[[feedback_parallel_scrutiny_per_file]] (per-file scrutiny gate during builds)&quot;,
+      &quot;[[reference_system_viz]] (the dep oracle this milestone was generated from)&quot;
+    ]
+  },
+  &quot;units&quot;: [
+    {&quot;id&quot;: &quot;MS1-U1&quot;, &quot;title&quot;: &quot;Rescue + wire prism-enhanced-gdt-engine + prism-gdt-fcf-parser (Phase 2, T1)&quot;, &quot;status&quot;: &quot;not_started&quot;, &quot;atomic_phase&quot;: 2, &quot;tier&quot;: 1},
+    {&quot;id&quot;: &quot;MS1-U2&quot;, &quot;title&quot;: &quot;Rescue + wire prism-ocr-engine monolith fork (Phase 2, T1)&quot;, &quot;status&quot;: &quot;not_started&quot;, &quot;atomic_phase&quot;: 2, &quot;tier&quot;: 1},
+    {&quot;id&quot;: &quot;MS1-U3&quot;, &quot;title&quot;: &quot;Extend groundtruthregistryengine with blueprint-extraction join (Phase 2, T1)&quot;, &quot;status&quot;: &quot;not_started&quot;, &quot;atomic_phase&quot;: 2, &quot;tier&quot;: 1},
+    {&quot;id&quot;: &quot;MS1-U4&quot;, &quot;title&quot;: &quot;Extend groundtruthvalidationengine with extraction-confidence cross-validation (Phase 2, T1)&quot;, &quot;status&quot;: &quot;not_started&quot;, &quot;atomic_phase&quot;: 2, &quot;tier&quot;: 1},
+    {&quot;id&quot;: &quot;MS1-U5&quot;, &quot;title&quot;: &quot;Extend blueprint-accuracy-guard + new blueprint-coverage-floor-guard Stop hook (Phase 2, T0/T1)&quot;, &quot;status&quot;: &quot;not_started&quot;, &quot;atomic_phase&quot;: 2, &quot;tier&quot;: 1},
+    {&quot;id&quot;: &quot;MS1-U6&quot;, &quot;title&quot;: &quot;Build BlueprintCorpusHarvestEngine + harvest scripts + freshness cron (Phase 4, T1)&quot;, &quot;status&quot;: &quot;not_started&quot;, &quot;atomic_phase&quot;: 4, &quot;tier&quot;: 1},
+    {&quot;id&quot;: &quot;MS1-U7&quot;, &quot;title&quot;: &quot;Build BlueprintExtractionRAGEngine — the centerpiece (Phase 4, T1)&quot;, &quot;status&quot;: &quot;not_started&quot;, &quot;atomic_phase&quot;: 4, &quot;tier&quot;: 1},
+    {&quot;id&quot;: &quot;MS1-U8&quot;, &quot;title&quot;: &quot;Build BlueprintLoRABridgeEngine + BlueprintCoverageAuditEngine + close-out (Phase 4, T1)&quot;, &quot;status&quot;: &quot;not_started&quot;, &quot;atomic_phase&quot;: 4, &quot;tier&quot;: 1}
+  ],
+  &quot;exit_gate&quot;: &quot;All 8 units shipped; 3 monolith forks rescued + wired; 2 engines extended (not duplicated); 4 net-new engines built + wired; 2 hooks shipped (blueprint-coverage-floor-guard in MINIMAL_ALLOWLIST); 3 skills + 2 phase20 scripts; LoRA export anonymization HARD RULE asserted in tests; coverage audit shows &gt;70% confidence-tier coverage at close; envelope cross-links to MACRO-PROGRAM-PIPELINE-MS0 + TRAINING-LEARNING-MS0; ENGINE_DIGEST/DISPATCHER_DIGEST regenerated; /system-viz regenerated + committed (Phase 6K.viz); 3-way scrutiny PASS; Agent 11 atomic-first compliance score &gt;=80; omega_floor 1.0 met.&quot;,
+  &quot;omega_floor&quot;: 1.0,
+  &quot;non_goals&quot;: [
+    &quot;On-device vision-model weight updates (no GPU surface; LoRA export only; fine-tune is external)&quot;,
+    &quot;Replacing BlueprintVisionOCREngine / imageocrpipelineengine / pdfblueprintdimensionextractorengine (they are the BASE LAYER the RAG engine wraps)&quot;,
+    &quot;Auto-correcting extractions without operator review&quot;,
+    &quot;Writing to Automated Program_Corrected 5-25.xlsm (read-only)&quot;,
+    &quot;Public distribution of any export (H: drive content NEVER published)&quot;,
+    &quot;Tier-4 BlueprintTrainingDashboard frontend (deferred to MS2 per master roadmap YAGNI)&quot;
+  ],
+  &quot;resources_utilized&quot;: [
+    &quot;BlueprintVisionOCREngine&quot;,
+    &quot;imageocrpipelineengine&quot;,
+    &quot;pdfblueprintdimensionextractorengine&quot;,
+    &quot;blueprintprogramjoinengine&quot;,
+    &quot;groundtruthregistryengine&quot;,
+    &quot;groundtruthvalidationengine&quot;,
+    &quot;crossprocessvisiontabularfusionengine&quot;,
+    &quot;crossprocessconformalpredictionengine&quot;,
+    &quot;crossprocessconformalclassificationengine&quot;,
+    &quot;latheloracontinuallearningengine&quot;,
+    &quot;latheloratrainingmonitorengine&quot;,
+    &quot;latheloratrainingscriptengine&quot;,
+    &quot;camtrainingextractionaggregatorengine&quot;,
+    &quot;trainingcontentindexengine&quot;,
+    &quot;trainingledgerengine&quot;,
+    &quot;gdtcalloutparserengine&quot;,
+    &quot;gdtstackupengine&quot;,
+    &quot;cadembedindex&quot;,
+    &quot;MacroLibraryEngine&quot;,
+    &quot;LathePartClassifierEngine&quot;,
+    &quot;PartFolderOrganizerEngine&quot;,
+    &quot;PRISMSelfAwarenessEngine&quot;,
+    &quot;xproc_conformal_calibrate + xproc_conformal_set + xproc_conformal_stats + xproc_conformal_constants&quot;,
+    &quot;xproc_conformal_classify_* (5 actions)&quot;,
+    &quot;xproc_mondrian_* (5 actions, stratified conformal)&quot;,
+    &quot;xproc_aps_* + xproc_raps_* (adaptive prediction sets)&quot;,
+    &quot;xproc_ewc_* (7 actions, EWC++ regularization)&quot;,
+    &quot;xproc_replay_* (30 actions, prioritized + balanced + stratified)&quot;,
+    &quot;xproc_outcome_* (6 actions, outcome recording)&quot;,
+    &quot;xproc_predlog_* (10 actions, prediction-pairing log)&quot;,
+    &quot;xproc_drift_observe / _history / _reset / _constants&quot;,
+    &quot;xproc_vision_fuse / _explain_attention / _constants&quot;,
+    &quot;xproc_attention_explain / _ece / _anomaly / _baseline&quot;,
+    &quot;xproc_ensemble_predict + xproc_ensemble_disagreement&quot;,
+    &quot;xproc_calibration_score + xproc_calibration_recommend + xproc_calibration_monitor_*&quot;,
+    &quot;xproc_maml_inner_loop + xproc_maml_meta_train&quot;,
+    &quot;xproc_proto_compute + xproc_proto_classify + xproc_proto_regress&quot;,
+    &quot;cam-feedback-lora-training-export + cam-lora-* (8 actions)&quot;,
+    &quot;continual-lora-create + continual-lora-train + continual-lora-state + continual-lora-list&quot;,
+    &quot;cad-rag-retrieve + cad-rag-augment + cad-rag-filter + cad-rag-format + cad-rag-rank + cad-rag-stats&quot;,
+    &quot;cad-embed + cad-embed-build-index + cad-embed-search + cad-embed-batch + cad-embed-cache-clear&quot;,
+    &quot;cam-rag-build-index + cam-rag-retrieve + cam-rag-retrieve-for-parameter&quot;,
+    &quot;cad-training-start + cad-training-status + cad-training-corpus-stats&quot;,
+    &quot;cad-trial-ingest + cad-trial-patterns + cad-trial-recommend + cad-trial-stats&quot;,
+    &quot;training-snapshot-create + training-snapshot-list + training-snapshot-load + training-snapshot-stats&quot;,
+    &quot;training-assemble + training-export&quot;,
+    &quot;cad-dimensional-signature + dim-signature-extract + dim-signature-extract-text&quot;,
+    &quot;dimension-impute-build + dimension-impute-apply + dimension-impute-outliers + dimension-impute-stats&quot;,
+    &quot;cad-gdt-callout-parse + cad-gdt-stackup + gdt-stackup + probe-gdt-interpret + gdt-propagate + gdt-validate&quot;,
+    &quot;cad-blueprint-extract-features + cad-blueprint-flag-features + cad-blueprint-generate + cad-blueprint-infer-class + cad-pdf-blueprint-extract + cad-translate-blueprint-to-ops&quot;,
+    &quot;blueprint-to-3d-model + blueprint-to-cadquery-script + blueprint-to-all-cads + blueprint-to-quote + blueprint-resolve-material + turning-blueprint-intake + blueprint-ingest-phase8&quot;,
+    &quot;blueprint-extract + blueprint-compare-revisions + blueprint-dxf-dimensions + blueprint-inspection-plan + blueprint-setup-sheet&quot;,
+    &quot;ocr + ocr-process + ocr-stats (resourceExtraction dispatcher)&quot;,
+    &quot;AISystemRouterEngine (registration target for the externally-fine-tuned endpoint)&quot;,
+    &quot;blueprint-accuracy-guard hook + training-convergence-guard hook&quot;,
+    &quot;/pdf-learn + /video-learn + /shop-knowledge + /blueprint-read + /cad-extract + /cad-feature-recognize + /cad-from-blueprint&quot;,
+    &quot;Playwright MCP (online corpus harvest)&quot;,
+    &quot;phase8-tiered-blueprint-classifier.py (already shipped — multi-page extraction)&quot;,
+    &quot;Docustrata jm-die-index-v2.json (10.3 MB, the join source)&quot;,
+    &quot;academy-course-0c-blueprint-reading-blueprint-reading-gd-t (training material reuse)&quot;
+  ]
+}
+</code></pre>
+<hr>
+<h2 id="bottom-line"><a class="anchor" href="#bottom-line" aria-label="Permalink to Bottom line">#</a>Bottom line</h2>
+<p>The user gave a sweeping directive — &quot;use everything we&#39;ve built to train our OCR/blueprint reading.&quot; The forge4 dep-oracle pass revealed that PRISM has <strong>vastly more</strong> of the required infrastructure than the user (or I) initially assumed: a full CAD-RAG surface, full vision-fusion, full conformal/EWC/replay/MAML/prototypical adaptive layer, an active LoRA training pipeline with continual + ensemble + voter + combiner + monitor + script engines (lathe + CAM), 4 OCR engines including one monolith-fork rescue candidate, 30 blueprint actions across 5 dispatchers, the ground-truth registry and validation engines already extant, a blueprint-accuracy hook live, an academy GD&amp;T course published, and a Tier-4 blueprint frontend page already shipped.</p>
+<p>What&#39;s <strong>net new</strong> is: 4 engines (RAG composer, corpus harvester, LoRA bridge, coverage audit), 2 engine extensions (groundtruth registry + validation), 2 hooks (extend accuracy-guard + new coverage-floor-guard Stop), 3 skills, 2 phase20 scripts. Plus rescuing 3 monolith forks (higher leverage than rebuilding).</p>
+<p>The pipeline:</p>
+<ul>
+<li><strong>Harvest</strong> MIT engineering + CAD/CAM vendor PDFs + curated online (U6) into a structured corpus with 768-d embeddings</li>
+<li><strong>Ground-truth</strong> the 24,545 Docustrata files by joining to part.json + macro VC vars + ERP actuals (U3+U4) with confidence stratification</li>
+<li><strong>RAG-extract</strong> every new blueprint with retrieved corpus + tribal + similar-print context, fused + conformally bounded (U7) — operator reviews + confirms</li>
+<li><strong>LoRA-export</strong> anonymized corpus bundles for managed external fine-tune (U8); the resulting endpoint plugs back as a new <code>AISystemRouterEngine</code> backend</li>
+<li><strong>Continual-learn</strong> via the existing xproc replay + EWC + outcome surface (U5 hook extension)</li>
+<li><strong>Audit</strong> coverage weekly, flag retrain candidates, refresh corpus (U6 cron + U8 audit)</li>
+<li><strong>Operator</strong> never bypassed — the loop is closed by them, not by silent overrides</li>
+</ul>
+<p>This is the v2 RAG/embedding layer that <code>TRAINING-LEARNING-MS0</code> explicitly deferred — now it&#39;s spec&#39;d as a peer milestone in the same track, sequenced atomic-first (rescue + wire-up before net-new), forge4 tier-floor-passed, and respecting the master roadmap&#39;s YAGNI warning by front-loading Phase 2 work.</p>
+<p><strong>Operator-in-the-loop is unconditional. H:-drive content is NEVER published. No bulk auto-emit.</strong> Same non-negotiables as MACRO-PROGRAM-PIPELINE-MS0 and TRAINING-LEARNING-MS0.</p>
+<hr>
+<h2 id="build-order-recommendation-per-forge4-atomic-first-leverage-ranking"><a class="anchor" href="#build-order-recommendation-per-forge4-atomic-first-leverage-ranking" aria-label="Permalink to Build order recommendation (per forge4 atomic-first + leverage ranking)">#</a>Build order recommendation (per forge4 atomic-first + leverage ranking)</h2>
+<ol>
+<li><strong>U1</strong> (rescue 2 GD&amp;T forks — highest leverage: unlocks better callout parsing for U7&#39;s prompt context)</li>
+<li><strong>U2</strong> (rescue OCR fork — ensemble corroboration for U7)</li>
+<li><strong>U3</strong> (ground-truth registry extension — the labelled-pair backbone)</li>
+<li><strong>U4</strong> (validation extension — the evaluation harness for everything downstream)</li>
+<li><strong>U5</strong> (hook extensions — the runtime safety net + drift detection)</li>
+<li><strong>U6</strong> (corpus harvest — the retrieval corpus)</li>
+<li><strong>U7</strong> (the RAG centerpiece — composes everything)</li>
+<li><strong>U8</strong> (LoRA bridge + coverage audit + close-out)</li>
+</ol>
+<p>Each unit ships independently with full tests + per-file scrutiny (2 parallel reviewers per file, per <code>[[feedback_parallel_scrutiny_per_file]]</code>) + dispatcher round-trip + the leverage-realized graph delta recorded. The end-of-task 3-of-3 gate (Codex + Claude-A + Claude-B) runs at MS1 close.</p>
+<p>Each unit may take 1-3 sessions. Total MS1 estimate: 6-12 sessions. Owner: any chat that claims <code>BLUEPRINT-OCR-TRAINING-MS1</code> via the file-claim layer; recommend forking to <code>H:/prism-blueprint-ocr-training</code> worktree (per <code>[[feedback_conflict_fork_rule]]</code>) to avoid contention on the shared main tree.</p>
+<hr>
+<p><strong>Method note:</strong> this spec was generated via <code>/forge4 scope</code> with <code>/system-viz</code> bound as the dependency oracle (Phase 0.6 hard gate). Every existing engine cited was discovered via the graph; every proposed new engine survived the dedup intercept (Rule 9); every wiring target was selected from <code>node.suggestedDispatchers</code> (Rule 4); the milestone honors the master roadmap&#39;s Phase 4 YAGNI by sequencing Phase 2 wire-up before Phase 4 new-build (forge4 Phase 0.6 tier-floor gate PASS). Agent 11 (Atomic-First Compliance) review applies at MS1 close.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BLUEPRINT-OCR-TRAINING-MS1-2026-05-12.md">BLUEPRINT-OCR-TRAINING-MS1-2026-05-12.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

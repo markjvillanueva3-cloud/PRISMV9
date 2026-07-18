@@ -44,6 +44,7 @@ import {
   CANONICAL_MATERIAL_DB,
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
+  type ISOGroup,
 } from "../physics/constants.js";
 
 // ============================================================================
@@ -1065,7 +1066,7 @@ function reflexionAnalysis(
 // HELPER FUNCTIONS
 // ============================================================================
 
-function resolveISOGroup(material: string): string {
+function resolveISOGroup(material: string): ISOGroup {
   const m = material.toLowerCase();
 
   // Tool steels

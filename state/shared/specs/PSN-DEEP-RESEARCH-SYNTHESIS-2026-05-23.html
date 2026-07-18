@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="4e4cdb366130248f20c70185421c955cb1f12554bc1c976ef35a7eb06f9421f7">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PSN Deep-Research Synthesis Index (2026-05-23)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PSN Deep-Research Synthesis Index (2026-05-23)</h1>
+<div class="meta">rendered from state/shared/specs/PSN-DEEP-RESEARCH-SYNTHESIS-2026-05-23.md</div>
+<div class="meta">Generated 2026-05-24T02:53:21.681Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">PSN Deep-Research Synthesis Index (2026-05-23)</li><li class="prism-toc-l2">0. Why this is an index, not a dossier</li><li class="prism-toc-l2">1. Prior specs (the 7 deliverables this index points at)</li><li class="prism-toc-l2">2. The four axes the seven priors do NOT cover</li><li class="prism-toc-l3">2A — External AI coding-agent landscape integration (2026 reality)</li><li class="prism-toc-l3">2B — Federated memory tools as a PSN leg</li><li class="prism-toc-l3">2C — New PSN domain candidates (the missing-domain ask)</li><li class="prism-toc-l3">2D — Dependency-ordered roll-up across all 7 priors</li><li class="prism-toc-l2">3. The new PSN leg count = 15 (proposed)</li><li class="prism-toc-l2">4. What this synthesis explicitly does NOT do</li><li class="prism-toc-l2">5. Closes</li></ul></nav><h1 class="prism-h1">PSN Deep-Research Synthesis Index (2026-05-23)</h1>
+<p><strong>Author:</strong> claude-c478f3f9 slot:sierra · <strong>Unit:</strong> PSN-ENHANCE-MS0::U-PSN-DEEP-RESEARCH-SYNTHESIS-2026-05-23 <strong>Status:</strong> advisory · mustHumanVerify · zero runtime code <strong>Doctrine:</strong> /dedup — this document is a <em>pointer index</em> over 7 sibling PSN/Hermes research specs shipped earlier today + names what they collectively do NOT cover. Do NOT re-read the priors before reading §0.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">0. Why this is an index, not a dossier</h2>
+<p>The 2026-05-23 /goal asked for deep research on PSN + obsidian + claude code + hermes + octopus + docker + ollama + tools that could improve PSN + missing PSN domains.</p>
+<p>By the time sierra&#39;s loop got to this scope, <strong>7 sibling specs (≈137 KB total) had already shipped</strong> covering the same axes from different angles. Writing an 8th full dossier would be reinvention.</p>
+<p>This index does three things instead:</p>
+<ol class="prism-md-list"><li><strong>Names the existing coverage</strong> so the operator + next slot doesn&#39;t re-read 137 KB to find what&#39;s covered.</li><li><strong>Names the four axes the seven specs collectively do NOT cover</strong> (external AI-coding-agent landscape integration, cross-MCP interop, federated-memory PSN-leg candidates, new PSN domain proposals).</li><li><strong>Emits a dependency-ordered roll-up queue</strong> of the ~75 units scoped across all 7 priors, ranked by compounding-leverage for a single next slot to pick from.</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. Prior specs (the 7 deliverables this index points at)</h2>
+<table class="prism-md-table"><thead><tr><th>Spec</th><th>Author</th><th>Size</th><th>Scope</th><th>Units scoped</th></tr></thead><tbody><tr><td><a href="HERMES-PSN-RAG-SYNERGY-RESEARCH-2026-05-23.md" class="prism-link">HERMES-PSN-RAG-SYNERGY-RESEARCH-2026-05-23.md</a></td><td>bravo (claude-ea80ce2f)</td><td>26 KB</td><td>7×11 Hermes-stage × PSN-leg matrix; horizontal Hermes×PSN×RAG wiring</td><td><strong>7 U-HRP units</strong> (U-HRP01..07). P0 wave U-HRP01+02+03 shipped commit <code class="prism-inline-code">a8c86fe6d8</code>.</td></tr>
+<tr><td><a href="HERMES-OCTOPUS-COORDINATION-RESEARCH-2026-05-23.md" class="prism-link">HERMES-OCTOPUS-COORDINATION-RESEARCH-2026-05-23.md</a></td><td>bravo</td><td>17 KB</td><td>Hermes coordinates the 5-voice octopus consensus</td><td><strong>4 U-HOC units</strong> (U-HOC01..04)</td></tr>
+<tr><td><a href="HERMES-MEMORY-VAULT-RESEARCH-2026-05-23.md" class="prism-link">HERMES-MEMORY-VAULT-RESEARCH-2026-05-23.md</a></td><td>bravo</td><td>17 KB</td><td>Simback&#39;s Hermes Memory Guidebook gap analysis vs PRISM</td><td><strong>11 U-HMEMV units</strong> (U-HMEMV01..11) — tiered consolidation, explainable retrieval, temporal recall, dream cycle, memory-router intercept, reflect-on-own-memory, predictive warmup</td></tr>
+<tr><td><a href="HIGH-ROI-AI-PSN-SCOPE-2026-05-23.md" class="prism-link">HIGH-ROI-AI-PSN-SCOPE-2026-05-23.md</a></td><td>golf (claude-9fbbe420)</td><td>18 KB</td><td>RAG + NN/GNN + ML + DL exhaustive enumeration across PSN</td><td><strong>50+ units</strong>: 16 RAG (A1..A16) + 18 NN/GNN (B1..B18) + 11+ ML (C1..C11+) + DL track</td></tr>
+<tr><td><a href="PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md" class="prism-link">PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md</a></td><td>charlie (claude-451f7328)</td><td>17 KB</td><td>Leg-by-leg MCP/CLI/API surface inventory + external systems shortlist</td><td>Per-leg gap catalog (no formal U-IDs yet)</td></tr>
+<tr><td><a href="PSN-INCORPORATION-RESEARCH-R2-2026-05-23.md" class="prism-link">PSN-INCORPORATION-RESEARCH-R2-2026-05-23.md</a></td><td>charlie</td><td>17 KB</td><td>50+ systems across 13 categories (reasoning patterns, tool-use, agents, RAG, eval, observability)</td><td>Per-system shortlist (no formal U-IDs yet)</td></tr>
+<tr><td><a href="PSN-INCORPORATION-RESEARCH-R3-LEARNING-REASONING-2026-05-23.md" class="prism-link">PSN-INCORPORATION-RESEARCH-R3-LEARNING-REASONING-2026-05-23.md</a></td><td>charlie</td><td>16 KB</td><td>Learning + reasoning deep-dive: DPO/KTO/IPO/SimPO/GRPO/STaR/Quiet-STaR/rStar-Math/SPIN/REST-EM/Self-Reward + LoRA family (QLoRA/DoRA/LongLoRA/Spectrum/MoLE)</td><td>~30 systems shortlisted</td></tr></tbody></table>
+<p><strong>Plus</strong> the OBSIDIAN-INTELLIGENCE-MS3 (PSN-ENHANCE-MS0) 7/7 ship this session (<a href="../../knowledge/memories/reference/reference_psn_enhance_ms0_closeout_2026_05_23.md" class="prism-link">reference-psn-enhance-ms0-closeout-2026-05-23</a>) closing the 6 cyrilXBT 2026-05-22 Obsidian-linking patterns + the BRIDGE-DEEP::U-BRIDGE-SFC-ESPRIT live-push composition.</p>
+<p><strong>Coverage net:</strong> of the user&#39;s named scope (obsidian, claude code, hermes, octopus, docker, ollama, tools, domains), the 7 priors hit obsidian (R1+memory-vault+OBSIDIAN-INTELLIGENCE-MS3), hermes (3 dedicated specs), octopus (HOC spec), ollama (HIGH-ROI-AI-PSN + R2 §10), and 75+ tools/systems across R1+R2+R3. <strong>Three remain genuinely uncovered.</strong></p>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. The four axes the seven priors do NOT cover</h2>
+<h3 class="prism-h3">2A — External AI coding-agent landscape integration (2026 reality)</h3>
+<p>The seven priors mention MCP and per-tool integration in passing, but none surveys the <strong>competitive landscape of AI coding agents PRISM should interop with</strong>. As of 2026-05:</p>
+<table class="prism-md-table"><thead><tr><th>Agent</th><th>Position</th><th>PSN integration opportunity</th></tr></thead><tbody><tr><td><strong>Cline</strong> (58k★, Plan/Act architecture)</td><td>Open-source VS Code extension; Plan-then-Act splits planning from execution</td><td>PRISM&#39;s <code class="prism-inline-code">/plan-build</code> skill + per-file scrutiny gate is the same pattern; expose PRISM-OS state to Cline&#39;s Plan phase via MCP</td></tr>
+<tr><td><strong>Continue.dev</strong></td><td>Most-customizable IDE assistant (JetBrains + VS Code); AI PR checks via CI; plugin marketplace</td><td>PRISM&#39;s MCP dispatchers are already Continue.dev-consumable; missing piece is a published <code class="prism-inline-code">prism-mcp-config</code> blob in the marketplace</td></tr>
+<tr><td><strong>Aider</strong> (41k★)</td><td>Terminal-native, git-aware; auto-commits with conventional commits</td><td>PRISM&#39;s <code class="prism-inline-code">[SCOPE]/U-ID:</code> commit format + slot-task-claim is structurally Aider-shaped; Aider could drive PRISM units if given the slot-claim CLI</td></tr>
+<tr><td><strong>Cursor</strong></td><td>Closed-source IDE; credit-pricing model under scrutiny</td><td>Marginal PSN value (closed source, no MCP host)</td></tr>
+<tr><td><strong>Roo Code</strong></td><td>Shutting down 2026-05-15</td><td>Skip (deprecated)</td></tr>
+<tr><td><strong>Claude Code</strong> (this)</td><td>Anthropic CLI; leads SWE-bench Verified at 80.8%; writes ~4% of all public GitHub commits (~135K/day)</td><td>THE host — every other agent above is a potential downstream MCP client</td></tr>
+<tr><td><strong>Goose / Gemini CLI / Codex / OpenHands / Devin</strong></td><td>CLI-tier (Goose/Gemini/Codex) + cloud-tier (Jules/OpenHands/Devin)</td><td>All MCP-capable; PSN value = publish PRISM as an MCP server with a discoverable manifest</td></tr></tbody></table>
+<p><strong>Implication for PSN:</strong> the <strong>MCP cross-tool layer is a missing PSN leg</strong> in its own right. PRISM produces best-of-breed manufacturing intelligence; the AI coding agents above are best-of-breed code assistants. If PRISM&#39;s MCP surface is the <em>bridge</em>, every PRISM capability becomes available to every above agent — and every above agent becomes a potential operator interface into PRISM.</p>
+<p><strong>Proposed unit:</strong> <code class="prism-inline-code">U-PSN-MCP-MANIFEST</code> — publish a discoverable manifest at <code class="prism-inline-code">mcp-server/MANIFEST.json</code> listing all ~150 PRISM MCP actions with use-cases keyed for each AI-coding-agent client; updates the <code class="prism-inline-code">mcp-server/README.md</code> install snippet for each agent.</p>
+<h3 class="prism-h3">2B — Federated memory tools as a PSN leg</h3>
+<p>R1 of the incorporation research names Letta, Mem0, and Cipher in passing. The Hermes memory-vault spec names Mnemosyne / yantrikdb / GBrain / Hindsight / FlowState-QMD as &quot;PRISM lags here&quot; gaps. None proposes a unified federated-memory PSN leg.</p>
+<p>Today PRISM&#39;s memory legs (Obsidian brain + Memories + Wiki + Tribal) are <strong>per-namespace</strong>, with no cross-tool memory protocol. The federated-memory ecosystem is converging on a protocol layer:</p>
+<ul class="prism-md-list"><li><strong>Letta</strong> — agent-managed memory with explicit memory operations (insert/update/forget)</li><li><strong>Mem0</strong> — per-user persistent memory across LLM sessions, MCP-exposable</li><li><strong>Cipher</strong> — cross-tool shared memory (works between Claude / Cursor / Cline)</li><li><strong>mem-x / langmem</strong> — LangChain-side parallel</li></ul>
+<p><strong>Proposed unit:</strong> <code class="prism-inline-code">U-PSN-FED-MEM-LEG</code> — declare a 12th PSN leg &quot;federated memory&quot; pointing at this protocol layer, with a <code class="prism-inline-code">prism_memory:fed_export</code> + <code class="prism-inline-code">fed_import</code> action so the existing Obsidian brain can speak Cipher/Mem0/Letta dialects.</p>
+<h3 class="prism-h3">2C — New PSN domain candidates (the missing-domain ask)</h3>
+<p>The user explicitly asked: <em>&quot;Add other missing important domains that should be considered in PSN&quot;</em>. The four most defensible candidates (none currently a leg):</p>
+<ol class="prism-md-list"><li><strong>Cost / budget telemetry</strong> (currently scattered: <code class="prism-inline-code">state/shared/.token-economy-stats.json</code>, <code class="prism-inline-code">route-savings-stats.json</code>, <code class="prism-inline-code">ollama-offload-stats.json</code>, per-session token-budget hooks). <strong>Proposal:</strong> unify under leg 12 &quot;Cost Telemetry&quot; with <code class="prism-inline-code">prism_session:token_economy_*</code> as the canonical dispatcher.</li><li><strong>Provenance / audit ledger</strong> (currently scattered: SCRUTINY_LEDGER, error-pattern-promote ledger, slot-task-claims, fleet-reaper logs, hook telemetry). <strong>Proposal:</strong> unify under leg 13 &quot;Audit Provenance Ledger&quot; with a canonical query surface (<code class="prism-inline-code">prism_session:provenance_query</code>) so any decision can be traced to its evidence chain.</li><li><strong>Reasoning trace</strong> (CoT/RICE/ToT outputs are emitted but not stored as a queryable PSN leg). The <code class="prism-inline-code">prismCreativeReasoningEngine.explore()</code> modes already produce reasoning traces; today they vanish post-response. <strong>Proposal:</strong> leg 14 &quot;Reasoning Trace Store&quot; so <code class="prism-inline-code">octopus</code> dissent + Hermes propose-then-dedup decisions get a durable why-trail.</li><li><strong>Plugin / skill marketplace</strong> (~440 skills + ~3000 engines + 700 wiki entries are PRISM-internal; no protocol for sharing with the open agent ecosystem). <strong>Proposal:</strong> leg 15 &quot;Plugin Marketplace&quot; exposing <code class="prism-inline-code">prism_dev:skill_export</code> + <code class="prism-inline-code">engine_export</code> in a Continue.dev / Cline / Aider-consumable format.</li></ol>
+<p><strong>Synthesis:</strong> PSN evolves from 11 legs → 15 legs over the next milestone. Each new leg has a 1:1 dispatcher mapping (no parallel-leg redundancy — the cost-telemetry leg, for example, owns <code class="prism-inline-code">prism_session:token_economy_*</code>, deduplicating with the Memory leg).</p>
+<h3 class="prism-h3">2D — Dependency-ordered roll-up across all 7 priors</h3>
+<p>Across the 7 priors, there are <strong>~75 distinct units scoped</strong> (7 HRP + 4 HOC + 11 HMEMV + 50+ HIGH-ROI-AI-PSN + ~30 R3 + ~10 R2 system-pick units). <strong>No prior spec orders them across-spec.</strong> That&#39;s the missing roll-up.</p>
+<p><strong>Top-10 compounding-leverage ranking</strong> (subjective rubric: blast-radius × already-built-feature-activation × unblocks-N-downstream):</p>
+<table class="prism-md-table"><thead><tr><th>Rank</th><th>Unit</th><th>Origin spec</th><th>Why it leads</th></tr></thead><tbody><tr><td>1</td><td><strong>U-HRP02</strong> Tribal-grounded propose</td><td>HERMES-PSN-RAG-SYNERGY</td><td>Already-shipped tribal corpus + skill catalog become drafting fuel; multiplies every Hermes proposal&#39;s quality</td></tr>
+<tr><td>2</td><td><strong>U-PSN-MASTER-INDEX-ALIASES</strong></td><td>iter-3 follow-up flag</td><td>Aliases populated this session in 7 anchor memories are dead weight until the search lib consumes them — pure activation of a shipped feature (this iter ships it)</td></tr>
+<tr><td>3</td><td><strong>U-HOC01</strong> Octopus-input curator</td><td>HERMES-OCTOPUS</td><td>Octopus today sees 2/11 PSN legs; this opens all 11 to all 5 voices</td></tr>
+<tr><td>4</td><td><strong>U-PSN-MCP-MANIFEST</strong></td><td>this spec §2A</td><td>Closes the discoverability gap blocking every external-agent integration</td></tr>
+<tr><td>5</td><td><strong>A6 GPU-EMBEDDER-MIGRATION</strong></td><td>HIGH-ROI-AI-PSN</td><td>Joint corpus+query upgrade to nv-embedqa-e5-v5 1024d unblocks A1..A4 next-gen quality</td></tr>
+<tr><td>6</td><td><strong>U-HMEMV01</strong> Tiered consolidation</td><td>HERMES-MEMORY-VAULT</td><td>Auto-promote working→episodic→long-term; closes a Karpathy-R10 checkpoint gap</td></tr>
+<tr><td>7</td><td><strong>A14 U-RAG-OBSIDIAN-INDEX</strong></td><td>HIGH-ROI-AI-PSN</td><td>Memories vault not yet RAG-indexed (only wiki); blocks A8-A10 from operating over the full doctrine surface</td></tr>
+<tr><td>8</td><td><strong>U-HOC02</strong> Octopus→Hermes learning signal</td><td>HERMES-OCTOPUS</td><td>Closes the learning loop on octopus consensus; without it every invocation is amnesiac</td></tr>
+<tr><td>9</td><td><strong>B8 U-NN-RETRAIN-EXECUTE</strong></td><td>HIGH-ROI-AI-PSN</td><td>NN-GRAPH tier-5 is DORMANT (AUROC 0.096 vs 0.78 gate); retrain with bridge JSONL is the gate-passing path</td></tr>
+<tr><td>10</td><td><strong>U-PSN-FED-MEM-LEG</strong></td><td>this spec §2B</td><td>New PSN leg + 2 dispatcher actions; opens 5 federated-memory ecosystems</td></tr></tbody></table>
+<p>This is the <strong>next-wave queue</strong>. Per Karpathy R10, a single slot should pick ONE and run it to completion before picking the next.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. The new PSN leg count = 15 (proposed)</h2>
+<p>Combining §2A + §2B + §2C: PSN evolves from the canonical 11 legs to a proposed 15:</p>
+<pre class="prism-codeblock"><code>Existing:   1 Obsidian · 2 PRISM-OS · 3 Wiki · 4 Memories · 5 Tribal ·
+            6 SysViz · 7 Engines · 8 Algos · 9 Formulas · 10 NN/GNN · 11 PRISM-AI
+
+Proposed:  12 Cost-Telemetry (token-economy + route-savings + ollama-offload + per-session budget)
+           13 Audit-Provenance-Ledger (scrutiny + error-pattern + slot-claims + fleet-reaper + hook telemetry)
+           14 Reasoning-Trace-Store (octopus dissent + Hermes propose + ToT/RICE/CoT)
+           15 Plugin-Marketplace (skill export + engine export + MCP manifest for Cline/Continue/Aider/Gemini/Codex)</code></pre>
+<p>Each new leg has a canonical dispatcher entry point (no parallel ownership). Adoption gate: each leg ships its dispatcher action + an MOC instance under <code class="prism-inline-code">knowledge/wiki/architecture/mocs/</code> (the same pattern PSN-ENHANCE-MS0/U-PSN-MOC-LAYER shipped this session).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. What this synthesis explicitly does NOT do</h2>
+<p>Per R12 fail-loud:</p>
+<ul class="prism-md-list"><li>Does <strong>NOT</strong> re-derive any of the 7 priors&#39; content. Read them at the file paths in §1.</li><li>Does <strong>NOT</strong> ship code. The companion unit U-PSN-MASTER-INDEX-ALIASES (iter 9) ships the only code from this session&#39;s deep-research /goal.</li><li>Does <strong>NOT</strong> auto-promote any of the §2 proposals to a milestone envelope. Operator must <code class="prism-inline-code">mcp-server/data/milestones/PSN-EXPAND-12-15-MS0.json</code> before any sub-unit gets a roadmap slot.</li><li>Does <strong>NOT</strong> assert the ranking in §2D is correct in absolute terms — it&#39;s a defensible default for a single picker, not a global optimum.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">5. Closes</h2>
+<p>PSN-ENHANCE-MS0::U-PSN-DEEP-RESEARCH-SYNTHESIS-2026-05-23 — synthesis index over the 7 PSN/Hermes deep-research specs already shipped this date + 4 newly-named axes (external coding-agent landscape, cross-MCP interop, federated-memory leg candidate, new domain candidates 12-15) + a 10-unit dependency-ordered next-wave queue.</p>
+<p><strong>Companion sister unit this iter:</strong> U-PSN-MASTER-INDEX-ALIASES (wires the aliases:[] frontmatter shipped in iter-3 commit <code class="prism-inline-code">f6b5f0dce8</code> into master-index-search-lib, activating a dead-weight feature).</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

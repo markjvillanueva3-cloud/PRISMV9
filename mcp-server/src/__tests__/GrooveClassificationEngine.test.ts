@@ -615,4 +615,73 @@ describe("MS4b grooving/parting — dispatcher round-trip", () => {
     const txt = JSON.stringify(res).toLowerCase();
     expect(txt).toMatch(/invalid|material_iso_group|enum/);
   });
+
+  // ARG-ORDER GUARD (U-LW-GROOVE-DISPATCH-FIX): the engine signature is
+  // partoffOptimize(barDia, materialIso, cuttingSpeedMpm, feedNominalMmRev) — materialIso is the
+  // 2nd positional. A dispatcher case that omits it mis-slots Vc→materialIso (drops the S/H peck-cutoff
+  // warning) and feed→Vc (~1000x wrong RPM). This valid-input round-trip fails loudly on that bug.
+  it("turning_partoff_optimize via dispatcher matches direct engine (valid input, arg-order guard)", async () => {
+    const direct = grooveClassificationEngine.partoffOptimize(30, "S", 120, 0.1);
+    const viaDisp = await invoke("turning_partoff_optimize", {
+      bar_diameter_mm: 30,
+      material_iso_group: "S",
+      cutting_speed_m_min: 120,
+      feed_per_rev_mm: 0.1,
+    });
+    const r = (viaDisp.result ?? viaDisp) as Record<string, unknown>;
+    expect(r.rpm_start).toBe(direct.rpm_start);              // Vc reaches cuttingSpeedMpm (RPM from 120, not feed)
+    expect(r.feed_nominal_mm_rev).toBe(0.1);                 // feed reaches feedNominalMmRev, not the 0.08 default
+    expect((r.warnings as string[]).some((w) => w.includes("peck cutoff"))).toBe(true); // materialIso="S" honored
+  });
+
+  // ARG-ORDER GUARDS for the remaining 4 positional-arg actions (scrutiny arm C P2, U-LW-GROOVE-DISPATCH-FIX):
+  // each asserts a distinctive field that would DIFFER if any positional arg were mis-slotted -- closing the
+  // exact "no valid-input round-trip" coverage gap that let the partoff arg-order bug ship for a full commit.
+  it("turning_groove_peck_params via dispatcher matches direct engine (iso reaches arg1)", async () => {
+    const direct = grooveClassificationEngine.peckParamsForMat("N", 3);
+    const viaDisp = await invoke("turning_groove_peck_params", { material_iso_group: "N", blade_width_mm: 3 });
+    const r = (viaDisp.result ?? viaDisp) as Record<string, unknown>;
+    expect(r.iso_group).toBe("N");                         // material_iso_group reached the 1st positional
+    expect(r.peck_depth_mm).toBe(direct.peck_depth_mm);    // bladeWidth reached the 2nd positional (scales depth)
+  });
+
+  it("turning_groove_deep_cycle via dispatcher honors the controller arg", async () => {
+    const viaDisp = await invoke("turning_groove_deep_cycle", {
+      ...odGrooveSteel(),
+      controller: "okuma",
+      material_iso_group: "P",
+      feed_per_rev_mm: 0.08,
+    });
+    const r = (viaDisp.result ?? viaDisp) as Record<string, unknown>;
+    expect(r.controller).toBe("okuma");                    // controller reached its slot (not the feed value)
+    expect(Array.isArray(r.gcode_lines) && (r.gcode_lines as unknown[]).length > 0).toBe(true);
+  });
+
+  it("turning_partoff_catcher_timing via dispatcher matches direct engine (blade_width→arg1, controller→arg2)", async () => {
+    const direct = grooveClassificationEngine.catcherTiming(3, "citizen", "M");
+    const viaDisp = await invoke("turning_partoff_catcher_timing", {
+      blade_width_mm: 3,
+      catcher_controller: "citizen",
+      material_iso_group: "M",
+    });
+    const r = (viaDisp.result ?? viaDisp) as Record<string, unknown>;
+    expect(r.controller).toBe("citizen");                                        // arg2 slotted
+    expect(r.activate_at_diameter_mm).toBe(direct.activate_at_diameter_mm);      // = 2*bladeWidth+1 = 7 → arg1 slotted
+  });
+
+  it("turning_partoff_blade_stress via dispatcher matches direct engine (overhang→arg6, thickness→arg7)", async () => {
+    const direct = await grooveClassificationEngine.bladeStress(30, 3, 0.1, 120, "P", 12, 3);
+    const viaDisp = await invoke("turning_partoff_blade_stress", {
+      bar_diameter_mm: 30,
+      blade_width_mm: 3,
+      feed_per_rev_mm: 0.1,
+      cutting_speed_m_min: 120,
+      material_iso_group: "P",
+      blade_overhang_mm: 12,
+      blade_thickness_mm: 3,
+    });
+    const r = (viaDisp.result ?? viaDisp) as Record<string, unknown>;
+    expect(r.lt_ratio).toBe(direct.lt_ratio);              // = overhang/thickness = 4 → arg6/arg7 slotted correctly
+    expect(r.total_force_N).toBe(direct.total_force_N);    // feed/Vc slots correct → identical force
+  });
 });

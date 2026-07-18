@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="ffd5ea0b386bd13736acb4529043177a7a62753eabf5f2f9505f9c38df70a14e">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mill-Wizard-Synergy-MS0 Master Plan</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Mill-Wizard-Synergy-MS0 Master Plan</h1>
+<div class="meta">rendered from state/shared/specs/MILL-WIZARD-SYNERGY-MS0-MASTER-PLAN-2026-05-28.md</div>
+<div class="meta">Generated 2026-05-28T03:33:03.713Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">MILL-WIZARD-SYNERGY-MS0 — master high-ROI synergy plan</li><li class="prism-toc-l2">1. Architectural anchor</li><li class="prism-toc-l2">2. The Mill Wizard surface (Agent B)</li><li class="prism-toc-l2">3. The 4 cross-domain synergy gaps (Agents C + D)</li><li class="prism-toc-l3">3.1 Quoting + ERP + Scheduling + Shop-Floor (Agent C)</li><li class="prism-toc-l3">3.2 Post-processor + CAD/CAM bridges + Speed-Feed (Agent D)</li><li class="prism-toc-l2">4. The CAM dormant inventory (Agent A) — top 10</li><li class="prism-toc-l2">5. The master high-ROI unit list (15 units, prioritized)</li><li class="prism-toc-l3">P0 — Critical-path (ship first; each unblocks downstream)</li><li class="prism-toc-l3">P1 — Ship after P0 (extends or sharpens)</li><li class="prism-toc-l3">P2 — Specialized / patent-pending / parallel</li><li class="prism-toc-l2">6. The dependency graph (minimum 7-unit critical path)</li><li class="prism-toc-l2">7. What this means for the operator architecturally</li><li class="prism-toc-l2">8. Honest caveats</li><li class="prism-toc-l2">9. Cross-refs</li></ul></nav><h1 class="prism-h1">MILL-WIZARD-SYNERGY-MS0 — master high-ROI synergy plan</h1>
+<blockquote class="prism-quote"><strong>Author:</strong> claude-ea0ff1a5 (slot <strong>kilo</strong>, 2026-05-28)</blockquote>
+<blockquote class="prism-quote"><strong>Trigger:</strong> operator three-part directive — <em>&quot;do another full assessment with parallel agents, check H:/PRISM/extracted + H:/PRISM/extracted_modules for dormant features, engines and algorithms. once we have everything, think of high roi engines and algorithms we could build to fully synergize all of mill wizard nodes then synergize to quoting system, erp system, post processor, cad/cam and speed feed calculator domains, databases will also need to wire to the mill wizard node&quot;</em> + architectural reframe — <em>&quot;original idea was generate all programs through hypercad, mastercam or fusion (inject our own tool path algorithms if possible and beneficial), our own repositioning algorithms and variable repositioning with an optimized mix of rapid and feed movements for smooth transitions, then use its simulation for collision avoidance and part accuracy before ever running&quot;</em> + simulation/collision callout.</blockquote>
+<blockquote class="prism-quote"><strong>Method:</strong> 4 parallel agents over CAM-extracted-dormant / mill-wizard-surface / quoting-ERP-synergy-gap / post-CAM-SFC-synergy-gap. Folded with prior session artifacts (CAM-PIPELINE-AUDIT, CAM-vs-CAD gap diff, deep assessment, scorer baseline).</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. Architectural anchor</h2>
+<p><strong>PRISM is the AUGMENTATION + VERIFICATION layer over host CAMs.</strong> PRISM drives hyperCAD-S / Mastercam X8 / Fusion 360 via bridge engines → injects its own toolpath / repositioning / lead-IO / machine-capability-aware param algorithms WHERE BENEFICIAL → reads back the host CAM&#39;s own simulation result → only emits if sim passes. The Mill Wizard is the operator-facing entry point for this loop on mill jobs.</p>
+<p><strong>Verification before run.</strong> Host CAM&#39;s simulation is the canonical collision-avoidance + part-accuracy ground truth. PRISM verifies twice: cheap pre-flight (BVH spatial-index + envelope guard + interrupted-cut check) BEFORE invoking host sim; expensive post-sim verification (G-code analysis + outcome ledger) AFTER.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. The Mill Wizard surface (Agent B)</h2>
+<p><strong>49 dispatcher actions</strong> across 11 categories (print-to-program, strategy, toolpath, physics, AI/AGI, L2 aggregators, part-classification, tribal). Entry points:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">MillMasterOrchestratorFacadeEngine.ts</code> — facade for 7 request types</li><li><code class="prism-inline-code">MillingPrintToProgramEngine.ts</code> — core P2P pipeline (intake → strategy → toolpath → G-code) — <strong><code class="prism-inline-code">generateGcode()</code> is a STUB returning <code class="prism-inline-code">{ok: false, stub: true}</code> (U-EFF25)</strong></li><li><code class="prism-inline-code">MillingEndToEndOrchestrationEngine.ts</code> — full workflow automation</li><li><code class="prism-inline-code">MillingAGIMasterEngine.ts</code> — 8 reasoning modes + <code class="prism-inline-code">MillTribalKnowledgeEngine</code></li></ul>
+<p>Route: <code class="prism-inline-code">POST /api/v1/milling/wizard-submit</code> → calls the orchestrator + falls back to <code class="prism-inline-code">prism_cam:print_to_program_full</code>.</p>
+<p><strong>Currently wired:</strong> SFC (partial: <code class="prism-inline-code">mill_quick_speed_feed</code> only), physics canonical constants, tribal knowledge, AGI reasoning, partial CAM (fallback only).</p>
+<p><strong>NOT wired (the synergy gaps):</strong> quoting, ERP, post-processor (direct), full CAM bridges, shop-floor live state, databases.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. The 4 cross-domain synergy gaps (Agents C + D)</h2>
+<h3 class="prism-h3">3.1 Quoting + ERP + Scheduling + Shop-Floor (Agent C)</h3>
+<ul class="prism-md-list"><li><strong>All 9 ERP engines</strong> dormant to mill wizard</li><li><strong>All 5 quoting engines</strong> (incl <code class="prism-inline-code">QuoteEstimatorEngine</code> — the canonical hub wired only to <code class="prism-inline-code">prism_business</code>) dormant</li><li><strong>All 8 scheduling engines</strong> shared (lathe/wedm use them) but mill wizard isolated</li><li><strong>All 8 ShopFloor engines</strong> dormant to mill wizard</li><li><strong>5 critical P0/P1 missing edges</strong> (workorder query / shop-floor quote sync / scheduler constraint export / quote-basis fetch / shop-floor schedule query)</li></ul>
+<h3 class="prism-h3">3.2 Post-processor + CAD/CAM bridges + Speed-Feed (Agent D)</h3>
+<ul class="prism-md-list"><li><code class="prism-inline-code">mill_generate_gcode</code> → <code class="prism-inline-code">ppDispatcher.pp_generate()</code> (echo&#39;s 801 actions) — ❌ <strong>STUB</strong></li><li><code class="prism-inline-code">mill_quick_speed_feed</code> → <code class="prism-inline-code">calcDispatcher.sfc_calculate()</code> (oscar&#39;s 1130+ actions) — ❌ uses local physics, misses 67 integration points</li><li><code class="prism-inline-code">mill_strategy_recommend</code> → <code class="prism-inline-code">CAMStrategyRecommenderEngine</code> + <code class="prism-inline-code">CAMFixtureSelectionEngine</code> — ❌ mill-only neural recommendation</li><li><code class="prism-inline-code">InterruptedCutAvoidanceEngine</code> (shipped earlier this session) → <code class="prism-inline-code">millDispatcher</code> — ❌ wired to productDispatcher only</li><li><strong>Total dormant capacity:</strong> ~4,100 actions inaccessible to mill wizard</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. The CAM dormant inventory (Agent A) — top 10</h2>
+<table class="prism-md-table"><thead><tr><th>Rank</th><th>File</th><th>Path</th><th>Size</th><th>Status</th><th>High-ROI reason</th></tr></thead><tbody><tr><td><strong>1</strong></td><td><code class="prism-inline-code">PRISM_FEATURE_INTERACTION_ENGINE.js</code></td><td><code class="prism-inline-code">extracted_modules/COMPLETE/</code></td><td>32.6K</td><td><strong>NO TS PEER</strong></td><td>MIT 16.410+2.008 feature-precedence (bore-before-thread, pocket-before-chamfer). Extends interrupted-cut at the FEATURE level. Synergizes with <code class="prism-inline-code">InterruptedCutAvoidanceEngine</code> for two-level avoidance (feature precedence + toolpath shock-load).</td></tr>
+<tr><td><strong>2</strong></td><td><code class="prism-inline-code">PRISM_5AXIS_BLISK_CAM_ENGINE.js</code></td><td><code class="prism-inline-code">extracted_modules/complete_extraction/</code></td><td>—</td><td>NO TS PEER</td><td>Aerospace blisk sequence generator. <code class="prism-inline-code">BliskCADEngine.ts</code> is geometry-only.</td></tr>
+<tr><td><strong>3</strong></td><td><code class="prism-inline-code">PRISM_CROSSCAM_STRATEGY_MAP.js</code></td><td><code class="prism-inline-code">extracted_modules/complete_extraction/</code></td><td>—</td><td>NO TS PEER</td><td><strong>Cross-system strategy equivalence (Fusion ↔ Mastercam ↔ hyperMILL ↔ NX).</strong> Directly enables the operator&#39;s &quot;inject across CAMs&quot; architecture.</td></tr>
+<tr><td><strong>4</strong></td><td><code class="prism-inline-code">PRISM_UNIFIED_TOOLPATH_DECISION_ENGINE.js</code></td><td><code class="prism-inline-code">extracted_modules/complete_extraction/</code></td><td>—</td><td>NO TS PEER</td><td>Weighted multi-factor strategy scorer (feature/geometry/tolerance/finish). <code class="prism-inline-code">ToolpathStrategyRouterEngine.ts</code> routes but does NOT score.</td></tr>
+<tr><td><strong>5</strong></td><td><code class="prism-inline-code">PRISM_GRAPH_TOOLPATH.js</code></td><td><code class="prism-inline-code">extracted_modules/complete_extraction/</code></td><td>—</td><td>NO TS PEER, <strong>patent claim</strong></td><td>GNN-based toolpath graph. Synergizes with PRISM&#39;s NN-GRAPH-MS0 infrastructure.</td></tr>
+<tr><td>6</td><td><code class="prism-inline-code">PRISM_ADVANCED_5AXIS_STRATEGIES.js</code></td><td><code class="prism-inline-code">extracted_modules/complete_extraction/</code></td><td>—</td><td>NO TS PEER</td><td>Swarf/flank/barrel cutter catalog.</td></tr>
+<tr><td>7</td><td><code class="prism-inline-code">PRISM_CUTTING_TOOL_EXPANSION_V3.js</code></td><td><code class="prism-inline-code">extracted_modules/ULTRA/</code></td><td>2.6 MB</td><td>NO TS PEER</td><td>Ball/end/drill geometry catalog at unprecedented scale.</td></tr>
+<tr><td>8</td><td><code class="prism-inline-code">PRISM_TOOLPATH_GCODE_BRIDGE.js</code></td><td><code class="prism-inline-code">extracted_modules/complete_extraction/</code></td><td>—</td><td>NO TS PEER</td><td>Lightweight toolpath → G-code (skip full PP for simple cases).</td></tr>
+<tr><td>9</td><td><code class="prism-inline-code">PRISM_HYPERMILL_FIXTURE_DATABASE.js</code></td><td><code class="prism-inline-code">extracted_modules/databases/</code></td><td>—</td><td>data-port</td><td>hyperMILL vise/tower catalog. Feeds <code class="prism-inline-code">HyperMillFixtureArtifactGeneratorEngine</code> (currently data-starved).</td></tr>
+<tr><td>10</td><td><code class="prism-inline-code">PRISM_BATCH_STEP_IMPORT_ENGINE.js</code></td><td><code class="prism-inline-code">extracted_modules/ULTRA/</code></td><td>2.3 MB</td><td>NO TS PEER</td><td>Batch STEP import for multi-part assemblies.</td></tr></tbody></table>
+<p>Plus <strong>simulation/collision dormant set</strong> (from prior turn): <code class="prism-inline-code">PRISM_BVH_ENGINE.js</code> (248.5K — single biggest collision-acceleration win), <code class="prism-inline-code">PRISM_PROBABILISTIC_COLLISION.js</code>, <code class="prism-inline-code">PRISM_HYPERMILL_SIMULATION_ENGINE.js</code>, <code class="prism-inline-code">PRISM_HYPERVIEW_SIMULATION_CENTER.js</code>.</p>
+<p>Plus <strong>3 patent-claim files</strong> (GRAPH_TOOLPATH + SWARM_TOOLPATH + HYBRID_TOOLPATH_SYNTHESIZER) — <strong>operator IP review required before porting</strong>.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">5. The master high-ROI unit list (15 units, prioritized)</h2>
+<p>Folding architectural anchor + 3 cross-domain gaps + dormant inventory + variable-repositioning + simulation/collision into a single ranked list.</p>
+<h3 class="prism-h3">P0 — Critical-path (ship first; each unblocks downstream)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit</th><th>LOC</th><th>Composes</th><th>Why P0</th></tr></thead><tbody><tr><td><strong>1</strong></td><td><strong><code class="prism-inline-code">U-MILL-PRINT-TO-PROGRAM-DESTUB</code></strong></td><td>~150</td><td><code class="prism-inline-code">MillingPrintToProgramEngine.generateGcode()</code> → <code class="prism-inline-code">ppDispatcher.pp_generate()</code></td><td>The single biggest blocker. Mill wizard currently emits NO real G-code. One edge wire turns the wizard from non-functional to functional.</td></tr>
+<tr><td><strong>2</strong></td><td><strong><code class="prism-inline-code">U-MILL-INTERRUPTED-CUT-WIRE</code></strong></td><td>~50</td><td><code class="prism-inline-code">millDispatcher</code> adds <code class="prism-inline-code">mill_interrupted_cut_analyze</code> calling the InterruptedCutAvoidanceEngine I shipped earlier this session</td><td>Quick win — engine + tests + dispatcher contract already exist; just add one wiring entry on mill side.</td></tr>
+<tr><td><strong>3</strong></td><td><strong><code class="prism-inline-code">U-ADAPTIVE-PIPELINE-ORCH</code></strong></td><td>~700</td><td>Outer orchestrator wiring all 10 stages (PROGRAM_INTAKE → MACHINE_SELECT → STOCK_SIZE → WORKHOLDING → OP_SEQUENCE → SIMULATE+COLLISION → TOOL_HOLDER → MACHINE_CAPABILITY_USE → POST_EMIT → SETUP_SHEET → CLOSED_LOOP_FEEDBACK)</td><td>The binding glue. Per CAM-ADAPTIVE-PIPELINE-DEEP-ASSESSMENT: this single unit converts &quot;we have all the pieces&quot; into &quot;closed-loop self-training is on.&quot;</td></tr>
+<tr><td><strong>4</strong></td><td><strong><code class="prism-inline-code">U-VARIABLE-REPOSITIONING-ENGINE</code></strong></td><td>~400</td><td><code class="prism-inline-code">MachineCapabilityIntelligenceEngine</code> (axis accel + jerk + lookahead) + <code class="prism-inline-code">SpindleTorqueCurveEngine</code> + <code class="prism-inline-code">RapidRepositionOptEngine</code> + <code class="prism-inline-code">EntryExitStrategyEngine</code> + jerk-limited S-curve (Lambrechts &amp; Boerlage 2005)</td><td>Operator-named gap. Smooth G0+G1 blend, machine-aware peak-accel cap, controller-specific G64/G05.1 lookahead enable.</td></tr>
+<tr><td><strong>5</strong></td><td><strong><code class="prism-inline-code">U-FEATURE-INTERACTION-PRECEDENCE-PORT</code></strong></td><td>~500</td><td>Port <code class="prism-inline-code">PRISM_FEATURE_INTERACTION_ENGINE.js</code> → <code class="prism-inline-code">FeatureInteractionPrecedenceEngine.ts</code></td><td>Dormant #1. MIT precedence constraints. Extends the just-shipped InterruptedCut to the FEATURE level (bore-before-thread, pocket-before-chamfer, face-before-drill).</td></tr>
+<tr><td><strong>6</strong></td><td><strong><code class="prism-inline-code">U-CROSSCAM-STRATEGY-MAP-PORT</code></strong></td><td>~400</td><td>Port <code class="prism-inline-code">PRISM_CROSSCAM_STRATEGY_MAP.js</code> → <code class="prism-inline-code">CrossCAMStrategyEquivalenceEngine.ts</code></td><td>Dormant #3. Strategy equivalence Fusion ↔ Mastercam ↔ hyperMILL ↔ NX — the data layer that makes the operator&#39;s &quot;inject across CAMs&quot; architecture mechanically possible.</td></tr>
+<tr><td><strong>7</strong></td><td><strong><code class="prism-inline-code">U-MILL-WIZARD-QUOTING-WIRE</code></strong></td><td>~150</td><td><code class="prism-inline-code">millDispatcher</code> adds <code class="prism-inline-code">mill_quote</code> action → <code class="prism-inline-code">QuoteEstimatorEngine.estimate()</code> + <code class="prism-inline-code">ShopFloorQuoteEngine.updateQuote()</code> post-hook</td><td>Closes Agent C P0 gap #2 — quote round-trip.</td></tr>
+<tr><td><strong>8</strong></td><td><strong><code class="prism-inline-code">U-MILL-WIZARD-ERP-WIRE</code></strong></td><td>~150</td><td><code class="prism-inline-code">millDispatcher</code> adds <code class="prism-inline-code">mill_query_erp_workorders</code> + post-hook to <code class="prism-inline-code">ERPCostFeedbackEngine</code></td><td>Closes Agent C P0 gap #1 — ERP workorder visibility + cost-variance feedback.</td></tr>
+<tr><td><strong>9</strong></td><td><strong><code class="prism-inline-code">U-HOST-SIM-RESULT-READER</code></strong></td><td>~300</td><td>New <code class="prism-inline-code">HostSimResultReaderEngine.ts</code> parsing hyperMILL Simulation Center / Mastercam Verify / Fusion sim outputs into a unified <code class="prism-inline-code">SimResult{passes, collisions[], partAccuracy_mm, gougeRegions[]}</code></td><td>The &quot;use host CAM&#39;s sim before running&quot; architectural primitive.</td></tr></tbody></table>
+<h3 class="prism-h3">P1 — Ship after P0 (extends or sharpens)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit</th><th>LOC</th><th>Why P1</th></tr></thead><tbody><tr><td><strong>10</strong></td><td><strong><code class="prism-inline-code">U-BVH-PORT</code></strong></td><td>~600</td><td>Port <code class="prism-inline-code">PRISM_BVH_ENGINE.js</code> (248.5K) → <code class="prism-inline-code">BVHCollisionAccelStructureEngine.ts</code>. Pre-flight spatial-index acceleration BEFORE invoking host sim (cheap → expensive ordering).</td></tr>
+<tr><td><strong>11</strong></td><td><strong><code class="prism-inline-code">U-UNIFIED-TOOLPATH-DECISION-PORT</code></strong></td><td>~400</td><td>Port <code class="prism-inline-code">PRISM_UNIFIED_TOOLPATH_DECISION_ENGINE.js</code> (dormant #4) — weighted multi-factor strategy scorer.</td></tr>
+<tr><td><strong>12</strong></td><td><strong><code class="prism-inline-code">U-MASTERCAM-VBSCRIPT-DRIVE</code></strong></td><td>~500</td><td>Mastercam X8 PRISM bridge — VBScript + C-Hook + ATP NetHook. Closes F2 (95+ JM Die mcx-8 programs currently with zero PRISM bridge).</td></tr>
+<tr><td><strong>13</strong></td><td><strong><code class="prism-inline-code">U-MILL-WIZARD-SCHEDULER-EXPORT</code></strong></td><td>~150</td><td><code class="prism-inline-code">mill_export_scheduling_constraints</code> → <code class="prism-inline-code">JobShopSchedulingEngine.registerMillConstraints()</code>. Closes Agent C P1 gap.</td></tr>
+<tr><td><strong>14</strong></td><td><strong><code class="prism-inline-code">U-MILL-WIZARD-CAM-STRATEGY-ALIGN</code></strong></td><td>~200</td><td><code class="prism-inline-code">mill_strategy_cam_align</code> → <code class="prism-inline-code">CAMStrategyRecommenderEngine</code> + <code class="prism-inline-code">CAMFixtureSelectionEngine</code>. Aligns mill strategy with host CAM library.</td></tr></tbody></table>
+<h3 class="prism-h3">P2 — Specialized / patent-pending / parallel</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit</th><th>Notes</th></tr></thead><tbody><tr><td><strong>15</strong></td><td><strong><code class="prism-inline-code">U-GRAPH-TOOLPATH-PORT</code></strong></td><td>Dormant #5, <strong>patent claim</strong> — requires operator IP review before port.</td></tr>
+<tr><td><strong>16</strong></td><td><strong><code class="prism-inline-code">U-F3D-EXTRACT-BATCH-RUN</code></strong></td><td>Operator-actionable, zero PRISM deps. Run <code class="prism-inline-code">extract-f3d-feature-trees.py</code> on the 1640 .f3d Fusion corpus.</td></tr>
+<tr><td><strong>17</strong></td><td><strong><code class="prism-inline-code">U-CAM-AUDIT-PEER-REVIEW</code></strong></td><td>Fire reviewer A + reviewer B on the CAM-PIPELINE-AUDIT per delta&#39;s FAIL→patch→re-publish pattern.</td></tr>
+<tr><td><strong>18</strong></td><td><strong><code class="prism-inline-code">U-ADAPTIVE-PIPELINE-WET-RUN</code></strong></td><td>Drive ONE JM Die program through the orchestrator end-to-end (depends on #3 shipping first).</td></tr>
+<tr><td><strong>19</strong></td><td><strong><code class="prism-inline-code">U-PROBABILISTIC-COLLISION-PORT</code></strong></td><td>Tolerance-band-aware Monte-Carlo collision.</td></tr>
+<tr><td><strong>20</strong></td><td><strong><code class="prism-inline-code">U-HYPERMILL-SIMULATION-CENTER-PORT</code></strong></td><td>Bridge for HyperMILL&#39;s Simulation Center result reader (data into Host-Sim-Result-Reader).</td></tr>
+<tr><td><strong>21</strong></td><td><strong><code class="prism-inline-code">U-5AXIS-BLISK-CAM-PORT</code></strong></td><td>Dormant #2 — aerospace blisk vertical.</td></tr>
+<tr><td><strong>22</strong></td><td><strong><code class="prism-inline-code">U-ADVANCED-5AXIS-STRATEGIES-PORT</code></strong></td><td>Dormant #6 — swarf/flank/barrel catalog.</td></tr>
+<tr><td><strong>23</strong></td><td><strong><code class="prism-inline-code">U-CUTTING-TOOL-EXPANSION-V3-PORT</code></strong></td><td>Dormant #7 (2.6 MB catalog).</td></tr>
+<tr><td><strong>24</strong></td><td><strong><code class="prism-inline-code">U-TOOLPATH-GCODE-BRIDGE-PORT</code></strong></td><td>Dormant #8 — lightweight toolpath → G-code.</td></tr>
+<tr><td><strong>25</strong></td><td><strong><code class="prism-inline-code">U-HYPERMILL-FIXTURE-DATABASE-PORT</code></strong></td><td>Dormant #9 — vise/tower ANSI dimensions.</td></tr>
+<tr><td><strong>26</strong></td><td><strong><code class="prism-inline-code">U-BATCH-STEP-IMPORT-PORT</code></strong></td><td>Dormant #10 (2.3 MB).</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">6. The dependency graph (minimum 7-unit critical path)</h2>
+<pre class="prism-codeblock"><code>                            U-MILL-PRINT-TO-PROGRAM-DESTUB ★(1)
+                                     │
+                  ┌──────────────────┼──────────────────────┐
+                  ↓                  ↓                      ↓
+       U-MILL-INTERRUPTED          U-MILL-WIZARD          U-ADAPTIVE-PIPELINE-ORCH (3)
+       -CUT-WIRE (2)               -QUOTING-WIRE (7)            │
+                                                                ↓
+                                                       U-VARIABLE-REPOSITIONING (4)
+                                                                │
+                                  ┌─────────────────────────────┼─────────────────────────┐
+                                  ↓                             ↓                         ↓
+                       U-FEATURE-INTERACTION                U-CROSSCAM-STRATEGY        U-HOST-SIM-RESULT
+                       -PRECEDENCE-PORT (5)                 -MAP-PORT (6)              -READER (9)
+                                                                                          │
+                                                                                          ↓
+                                                                                    U-MILL-WIZARD
+                                                                                    -ERP-WIRE (8)</code></pre>
+<p><strong>Min path to operator&#39;s closed-loop self-training:</strong> units 1 → 3 → 4 → 9. ~1550 LOC across 4 engines. All compose existing engines; no new physics.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">7. What this means for the operator architecturally</h2>
+<p>After P0 ships (9 units):</p>
+<ul class="prism-md-list"><li><strong>Mill wizard becomes the operator-facing entry point</strong> for the full adaptive pipeline.</li><li><strong>Host CAM does the toolpath generation</strong>; PRISM injects (interrupted-cut remediation, variable repositioning, feature-interaction precedence) WHERE BENEFICIAL.</li><li><strong>Host CAM&#39;s sim does the runtime verification</strong>; PRISM cross-checks with cheap BVH pre-flight + post-sim G-code analysis.</li><li><strong>Quoting + ERP + Shop-Floor close the loop</strong> — every mill job feeds outcome ledger → bandit posteriors → next-job priors.</li><li><strong>Cross-CAM equivalence</strong> lets PRISM teach a job once and reuse the strategy across hyperCAD / Mastercam / Fusion.</li></ul>
+<p>After P1+P2 ship (17 additional units):</p>
+<ul class="prism-md-list"><li>Mastercam X8&#39;s 95+ JM Die programs become PRISM-drivable.</li><li>BVH-accelerated collision check makes the inject+verify loop fast enough for real-time operator use.</li><li>The Fusion 1640-file corpus becomes training data.</li><li>Specialized 5-axis (blisk, swarf, flank, barrel) ports cover aerospace verticals.</li><li>The full self-training loop closes per-CAM per-machine per-material.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">8. Honest caveats</h2>
+<ul class="prism-md-list"><li><strong>Static scan, not runtime probe.</strong> This plan is built on file-on-disk inventory + import-graph analysis. Live runtime integration of each named engine is unverified (delta&#39;s MISC-305 pattern). The CAM-TEST-PLAYBOOK Tier 2 wet-run is the gate.</li><li><strong>Patent-claim files (3) require IP review.</strong> Operator must clear <code class="prism-inline-code">PRISM_GRAPH_TOOLPATH.js</code>, <code class="prism-inline-code">PRISM_SWARM_TOOLPATH.js</code>, <code class="prism-inline-code">PRISM_HYBRID_TOOLPATH_SYNTHESIZER.js</code> before port.</li><li><strong>Mill wizard&#39;s <code class="prism-inline-code">MillingPrintToProgramEngine</code> stub may have a justification.</strong> Agent D classified it as stub (U-EFF25); the destub may require coordinating with the unit&#39;s original owner — check chat-bus before refactor.</li><li><strong>Variable repositioning is controller-specific.</strong> Fanuc G64 vs Siemens G05.1 vs Heidenhain M3 have different look-ahead semantics. The engine emits controller-specific blocks; cross-machine testing required.</li><li><strong>Host-Sim-Result-Reader is bridge-kind-dependent.</strong> Each of hyperMILL Simulation Center / Mastercam Verify / Fusion sim has its own result format. The reader must handle all three.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">9. Cross-refs</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/CAM-PIPELINE-AUDIT-2026-05-28.md</code> — F1-F7 findings (scorer-backed)</li><li><code class="prism-inline-code">state/shared/specs/cam-pipeline-coverage-LATEST.{json,md}</code> — re-runnable baseline</li><li><code class="prism-inline-code">state/shared/specs/CAM-TEST-PLAYBOOK-2026-05-28.md</code> — Tier 1-4 live-drive (3 platforms)</li><li><code class="prism-inline-code">state/shared/specs/CAD-TO-CAM-HANDOFF-CONTRACT-2026-05-28.md</code> — delta → kilo schema</li><li><code class="prism-inline-code">state/shared/specs/CAM-ADAPTIVE-PIPELINE-DEEP-ASSESSMENT-2026-05-28.md</code> — prior deep assessment</li><li><code class="prism-inline-code">state/shared/specs/CAM-VS-CAD-GAP-DIFF-2026-05-28.md</code> — G1-G13 gap diff</li><li><code class="prism-inline-code">state/shared/specs/CAM-SELF-TEACHING-PIPELINE-MS0-ASSESSMENT.md</code> — initial MS0 spec</li><li><code class="prism-inline-code">mcp-server/src/engines/InterruptedCutAvoidanceEngine.ts</code> — first MS0 unit shipped (this session)</li><li><code class="prism-inline-code">scripts/cam-pipeline-coverage-scorer.mjs</code> — re-runnable scorer (250 LOC)</li><li><code class="prism-inline-code">scripts/extract-f3d-feature-trees.py</code> — 1640 .f3d corpus extractor</li></ul>
+<hr class="prism-hr">
+<p><strong>End of plan.</strong> Awaiting operator triage on whether to ship the 9-unit P0 critical path inline next /loop, or break into smaller batches. The architectural reframe + the 4-agent gap analysis + the dormant inventory all converge on the same minimum-viable set: <strong>destub <code class="prism-inline-code">mill_generate_gcode</code>, wire InterruptedCut to mill, ship the orchestrator, build variable repositioning, port FeatureInteraction + CrossCAMStrategy + build HostSimResultReader, wire mill→quoting + mill→ERP.</strong> Everything else is sharpening.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

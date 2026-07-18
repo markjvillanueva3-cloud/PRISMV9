@@ -10,7 +10,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const MASTER_INDEX = 'H:/prism/mcp-server/MASTER_INDEX_COMPACT.md';
+// Canonical auto-refreshed path (regen-digests writes here; PreCompact hook keeps it fresh).
+// Was 'mcp-server/MASTER_INDEX_COMPACT.md' -- a dead orphan stale since 2026-04 (nothing regenerates it).
+const MASTER_INDEX = 'H:/prism/mcp-server/data/docs/MASTER_INDEX_COMPACT.md';
 const CREATE_PATHS = ['/engines/', '/algorithms/'];
 
 function isCreateOperation(tool, input) {

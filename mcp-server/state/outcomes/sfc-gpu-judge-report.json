@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "1.0.0",
+  "model": "qwen2.5-coder:32b",
+  "endpoint": "http://127.0.0.1:11434",
+  "generated_from": "state/outcomes/sfc-full-sweep-ledger.jsonl",
+  "total_rows": 86,
+  "judged_rows": 10,
+  "fallback_rows": 0,
+  "gpu_resident": true,
+  "matched_model": "qwen2.5-coder:32b",
+  "vram_used_mib": 35724,
+  "verdicts": [
+    {
+      "cell_id": "steel::D6::F4::milling::roughing::conventional::flood::cat40::cost_batch",
+      "iso": "P",
+      "material": "steel",
+      "mode": "cost_batch",
+      "prism_vc_mpm": 90,
+      "baseline_vc_mpm": 200,
+      "delta_pct": -55,
+      "soundness": "sound_conservative",
+      "rationale": "PRISM's 90 m/min is conservative, ensuring tool life and spindle safety.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D6::F4::milling::roughing::conventional::flood::cat40::aggressive_rush",
+      "iso": "P",
+      "material": "steel",
+      "mode": "aggressive_rush",
+      "prism_vc_mpm": 185,
+      "baseline_vc_mpm": 200,
+      "delta_pct": -7.5,
+      "soundness": "sound_conservative",
+      "rationale": "PRISM's -7.5% is within safe margin, prioritizing tool life.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D6::F4::milling::roughing::conventional::flood::cat40::prism_optimized",
+      "iso": "P",
+      "material": "steel",
+      "mode": "prism_optimized",
+      "prism_vc_mpm": 140,
+      "baseline_vc_mpm": 200,
+      "delta_pct": -30,
+      "soundness": "sound_conservative",
+      "rationale": "PRISM's 140 m/min is conservative, ensuring tool life and spindle safety.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D6::F4::milling::roughing::adaptive::flood::cat40::cost_batch",
+      "iso": "P",
+      "material": "steel",
+      "mode": "cost_batch",
+      "prism_vc_mpm": 90,
+      "baseline_vc_mpm": 200,
+      "delta_pct": -55,
+      "soundness": "sound_conservative",
+      "rationale": "PRISM's 90 m/min is conservative, ensuring tool life and spindle safety.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D6::F4::milling::roughing::adaptive::flood::cat40::aggressive_rush",
+      "iso": "P",
+      "material": "steel",
+      "mode": "aggressive_rush",
+      "prism_vc_mpm": 185,
+      "baseline_vc_mpm": 200,
+      "delta_pct": -7.5,
+      "soundness": "sound_conservative",
+      "rationale": "PRISM's -7.5% is within safe margin, prioritizing tool life.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D6::F4::milling::roughing::adaptive::flood::cat40::prism_optimized",
+      "iso": "P",
+      "material": "steel",
+      "mode": "prism_optimized",
+      "prism_vc_mpm": 140,
+      "baseline_vc_mpm": 200,
+      "delta_pct": -30,
+      "soundness": "sound_conservative",
+      "rationale": "PRISM's 140 m/min is conservative, ensuring tool life and spindle safety.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D12::F4::milling::roughing::conventional::flood::cat40::cost_batch",
+      "iso": "P",
+      "material": "steel",
+      "mode": "cost_batch",
+      "prism_vc_mpm": 90,
+      "baseline_vc_mpm": 220,
+      "delta_pct": -59.1,
+      "soundness": "too_conservative",
+      "rationale": "PRISM's speed is significantly lower, risking leaving metal on the table without clear justification.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D12::F4::milling::roughing::conventional::flood::cat40::aggressive_rush",
+      "iso": "P",
+      "material": "steel",
+      "mode": "aggressive_rush",
+      "prism_vc_mpm": 185,
+      "baseline_vc_mpm": 220,
+      "delta_pct": -15.9,
+      "soundness": "sound_conservative",
+      "rationale": "PRISM's speed is conservative, protecting tool life and spindle.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D12::F4::milling::roughing::conventional::flood::cat40::prism_optimized",
+      "iso": "P",
+      "material": "steel",
+      "mode": "prism_optimized",
+      "prism_vc_mpm": 140,
+      "baseline_vc_mpm": 220,
+      "delta_pct": -36.4,
+      "soundness": "sound_conservative",
+      "rationale": "PRISM's speed is conservative, protecting tool life and spindle.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "steel::D12::F4::milling::roughing::adaptive::flood::cat40::cost_batch",
+      "iso": "P",
+      "material": "steel",
+      "mode": "cost_batch",
+      "prism_vc_mpm": 90,
+      "baseline_vc_mpm": 220,
+      "delta_pct": -59.1,
+      "soundness": "too_conservative",
+      "rationale": "PRISM's speed is significantly lower, risking leaving metal on the table without clear justification.",
+      "source": "gpu_model"
+    }
+  ],
+  "soundness_histogram": {
+    "sound_conservative": 8,
+    "too_conservative": 2
+  },
+  "apply_policy": "advisory-only",
+  "notes": [
+    "Verdicts are ADVISORY — the GPU model NEVER changes a recommendation, raises Vc, or overrides physics.",
+    "10 of 10 regimes judged by the GPU model; 0 fell back (logged, not fabricated)."
+  ]
+}

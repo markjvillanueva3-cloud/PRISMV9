@@ -5,7 +5,7 @@
  *
  * 29 tests total.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import { ToolpathGenerationEngine } from "../engines/ToolpathGenerationEngine";
 import {
   CAMKernelEngine,

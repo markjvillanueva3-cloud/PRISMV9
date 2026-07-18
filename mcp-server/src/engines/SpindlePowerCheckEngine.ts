@@ -69,7 +69,18 @@ export interface TorqueCheckResult {
 
 // ── Reference Data ────────────────────────────────────────────────
 
-/** Specific cutting energy kc (N/mm² ≈ W·s/mm³) by ISO group */
+/**
+ * Representative AVERAGE specific cutting energy for power estimation (unit power), by ISO group.
+ * N/mm^2 == W.s/mm^3. Deliberately conservative, chip-thickness-AVERAGED values -- this coarse power
+ * gate has NO chip-thickness input, so it cannot apply the Kienzle size-effect kc = kc1_1 * h^(-mc).
+ * These are NOT Kienzle kc1.1 (the value at h=1mm): a raw kc1.1 (P=1800) would UNDER-predict power on
+ * thin-chip finishing ops (true kc @ h=0.05mm ~= 1800*0.05^-0.25 ~= 3806 N/mm^2) and make the over-power
+ * warning fire too late -- a measured safety regression (physics-reviewer FAIL, 2026-07-01). For the
+ * h-resolved kc use SpecificCuttingEnergyEngine (prism_calc:calc_specific_cutting_energy).
+ * Source: Machinery's Handbook Ch.29 unit power; Sandvik power guide; cf. REFERENCE_SPECIFIC_ENERGY
+ * (Klocke 2011). AUDIT-EXEMPT: representative unit-power, intentionally NOT kc1.1 -- do not "dedup" to
+ * CANONICAL_KIENZLE (that swap lowers the power estimate and under-warns the spindle-overload gate).
+ */
 const KC_VALUES: Record<string, number> = {
   P: 2200, M: 2600, K: 1400, N: 800, S: 3000, H: 3800,
 };

@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-literature-citation.mjs — Phase 1 Tier 5C Physics HookPreToolWrite hook that requires literature referencesfor new physics formulas.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

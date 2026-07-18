@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `hook-status` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-status.md` |
+| Source | `C:/Users/wompu/.claude/commands/hook-status.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Show the current state of all enforcement hooks, session trackers, and the stagnant engine ledger.
+
+# Hook Status — Enforcement Dashboard
 
 <!-- AUTO-END -->
 

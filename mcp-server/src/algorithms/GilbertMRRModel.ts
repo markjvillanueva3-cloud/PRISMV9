@@ -56,6 +56,26 @@ export interface GilbertMRRInput {
   machine_rate?: number;
 }
 
+/** Gilbert minimum-cost / maximum-production optimal-speed result.
+ *
+ *  Output of `GilbertMRRModel.calculateOptimalSpeed()`. This is the focused
+ *  entry point composed by `UltimateSpeedFeedEngine.gilbertOptimalSpeed`
+ *  (SF-PSN-WIRE-MS0/U-SFPSN-05). The full MRR + optimal-speed result is
+ *  `GilbertMRROutput` returned by `calculate()`.
+ */
+export interface GilbertOptimalSpeedResult {
+  /** Minimum-cost cutting speed Vc [m/min]: V = C / T_opt^n. */
+  V_min_cost: number;
+  /** Maximum-production cutting speed Vc [m/min]: V = C / T_prod^n, where
+   *  T_prod = (1/n - 1) × changeTime_min (no toolCost term). */
+  V_max_prod: number;
+  /** Optimal tool life at V_min_cost [min]. Clamped to ≥1 min. */
+  T_min_cost: number;
+  /** Cost per part at V_min_cost [currency]:
+   *  machineCostPerMin × cutTime_min + toolCost / partsPerLife. */
+  cost_per_part_optimal: number;
+}
+
 /** Gilbert M R R Output configuration/data structure.
  */
 export interface GilbertMRROutput extends WithWarnings {
@@ -106,6 +126,52 @@ const SPECIFIC_POWER_KW: Record<string, number> = {
 /** Gilbert M R R Model engine/manager.
  */
 export class GilbertMRRModel implements Algorithm<GilbertMRRInput, GilbertMRROutput> {
+
+  /** Compute Gilbert minimum-cost & maximum-production speeds from
+   *  Taylor + economic parameters. Pure-function entry point intended
+   *  for composition from engines that only need the speed-optimization
+   *  branch (no MRR side). Mirror's UltimateSpeedFeedEngine's inline
+   *  `gilbertOptimalSpeed()` signature bit-for-bit; SF-PSN-WIRE-MS0/U-SFPSN-05
+   *  uses this as the canonical entry point for the inline-shim refactor.
+   *
+   *  Formula (Gilbert, 1950):
+   *    T_opt = max(1, (1/n - 1) × (toolCost/max(0.01, machineCostPerMin) + changeTime_min))
+   *    V_cost = C × T_opt^(-n)
+   *    T_prod = max(1, (1/n - 1) × changeTime_min)
+   *    V_prod = C × T_prod^(-n)
+   *    parts  = max(1, floor(T_opt / max(0.1, cutTime_min)))
+   *    cost/p = machineCostPerMin × cutTime_min + toolCost / parts
+   *
+   *  Reference: Gilbert (1950) "Economics of Machining"; Altintas (2012)
+   *  "Manufacturing Automation" Ch.1.
+   *
+   *  Clamps (preserved verbatim from inline baseline):
+   *    - machineCostPerMin floor 0.01 (avoid div-by-zero in cost-ratio)
+   *    - T_opt floor 1 min (unphysical sub-minute optimal life)
+   *    - cutTime_min floor 0.1 (avoid div-by-zero in partsPerLife)
+   *    - partsPerLife floor 1 (at least one part per tool change)
+   *
+   *  @param n - Taylor n exponent (HSS≈0.10, carbide≈0.25, ceramic≈0.4)
+   *  @param C - Taylor C constant [m/min]
+   *  @param machineCostPerMin - machine cost rate [currency/min]
+   *  @param toolCost - cost per cutting edge [currency]
+   *  @param changeTime_min - tool change time [min]
+   *  @param cutTime_min - cutting time per part [min]
+   *  @returns GilbertOptimalSpeedResult with V_min_cost, V_max_prod, T_min_cost, cost_per_part_optimal
+   */
+  static calculateOptimalSpeed(
+    n: number, C: number, machineCostPerMin: number,
+    toolCost: number, changeTime_min: number, cutTime_min: number,
+  ): GilbertOptimalSpeedResult {
+    // T_opt = ((1/n) - 1) × (toolCost/machineCost + changeTime); floor at 1 min.
+    const T_opt = Math.max(1, ((1 / n) - 1) * (toolCost / Math.max(0.01, machineCostPerMin) + changeTime_min));
+    const V_cost = C * Math.pow(T_opt, -n);
+    const T_prod = Math.max(1, ((1 / n) - 1) * changeTime_min);
+    const V_prod = C * Math.pow(T_prod, -n);
+    const partsPerLife = Math.max(1, Math.floor(T_opt / Math.max(0.1, cutTime_min)));
+    const costPerPart = machineCostPerMin * cutTime_min + toolCost / partsPerLife;
+    return { V_min_cost: V_cost, V_max_prod: V_prod, T_min_cost: T_opt, cost_per_part_optimal: costPerPart };
+  }
 
   /** Validate.
    * @param input - input data

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `program-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/program-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/program-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Routes to the appropriate family-specific optimizer based on program analysis. Supports all machine families: mill, lathe, wire EDM, sinker EDM, grinder.
+
+# /program-optimize — Re-run Per-Block Physics on G-code
 
 <!-- AUTO-END -->
 

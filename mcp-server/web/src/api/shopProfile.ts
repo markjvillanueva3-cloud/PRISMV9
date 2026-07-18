@@ -1,4 +1,5 @@
 import { fetchJson } from './requestCore';
+import { getRequestHeaders } from './client';
 
 export interface ShopMachine {
   id: string;
@@ -159,9 +160,12 @@ function requestShopJson<T>(path: string, options?: {
   body?: Record<string, unknown>;
   fallbackMessage?: string;
 }) {
+  // U-ERP-SHOPCONFIG-AUTH: the /api/v1/shop router now requires verifyToken.
+  // getRequestHeaders() carries the Bearer token (when logged in) + the
+  // Content-Type, so every shop-profile call authenticates instead of 401ing.
   return fetchJson<T>(`${SHOP_API_BASE}${path}`, {
     method: options?.method,
-    headers: options?.body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: getRequestHeaders(),
     body: options?.body ? JSON.stringify(options.body) : undefined,
     fallbackMessage: options?.fallbackMessage ?? 'Shop profile request failed',
   });

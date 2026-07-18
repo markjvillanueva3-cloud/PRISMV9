@@ -329,6 +329,7 @@ export class CAMRecommendEngine {
       ySize: toolDiameter * 10,
       zSize: toolDiameter * 2,
       features: [],
+      quantity: 1,
     };
 
     const allRecs = this.recommend(analysis);

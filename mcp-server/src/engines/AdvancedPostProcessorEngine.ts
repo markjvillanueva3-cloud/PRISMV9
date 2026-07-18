@@ -961,6 +961,14 @@ export class AdvancedPostProcessorEngine {
   ): string[] {
     const lines: string[] = [];
 
+    // U-PP-NONFINITE-EMIT-SWEEP: a non-finite feature.nominal would emit a literal
+    // `ZNaN`/`DInfinity`/`WNaN` the probe macro rejects -- emit an ERROR marker instead
+    // (this block-builder has no warnings channel; the inline comment is the fail-loud
+    // signal). Covers every controller branch below in one guard. Byte-identical finite.
+    if (!Number.isFinite(feature.nominal)) {
+      return [`(ERROR: ${String(feature.type ?? "FEATURE").toUpperCase()} MEASURE NON-FINITE NOMINAL (${feature.nominal}) - NO PROBE EMITTED, REVIEW)`];
+    }
+
     if (controller === "fanuc" || controller === "haas" || controller === "mazak" || controller === "okuma") {
       switch (feature.type) {
         case "bore":

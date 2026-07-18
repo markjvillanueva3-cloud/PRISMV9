@@ -268,7 +268,7 @@ const latheTribalOverrideWarning: HookDefinition = {
   phase: "post-calculation",
   category: "quality",
   mode: "warning",
-  priority: "medium",
+  priority: "normal",
   enabled: true,
   tags: ["lathe", "tribal", "override", "warning"],
   handler: (ctx: HookContext): HookResult => {

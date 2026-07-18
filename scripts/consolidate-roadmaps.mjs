@@ -62,7 +62,10 @@ export const DEEP_INTEGRATION_BRIDGES = [
 
 // ─── io helpers ──────────────────────────────────────────────────────────
 
-function readJson(p) { return JSON.parse(fs.readFileSync(p, "utf8")); }
+function readJson(p) {
+  try { return JSON.parse(fs.readFileSync(p, "utf8")); }
+  catch (e) { throw new Error(`failed to parse ${p}: ${e.message}`); }
+}
 function readJsonSafe(p) { try { return readJson(p); } catch { return null; } }
 
 export function loadEnvelopes(dir) {
@@ -133,7 +136,11 @@ export function collectPendingUnits(milestoneProgress) {
   const mp = milestoneProgress && milestoneProgress.milestones ? Object.values(milestoneProgress.milestones) : [];
   for (const ms of mp) {
     for (const u of (Array.isArray(ms.units) ? ms.units : [])) {
-      if (u && !u.shipped) {
+      // !u.resolved excludes deliberately terminal-resolved units (superseded/
+      // cancelled) so one is never offered as a /pick-unit build candidate.
+      // Backward-compatible: pre-`resolved` data leaves it undefined (-> kept),
+      // matching prior behavior for genuinely-pending units.
+      if (u && !u.shipped && !u.resolved) {
         out.push({
           unit_id: u.id || null,
           milestone: ms.id,

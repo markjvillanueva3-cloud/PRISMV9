@@ -154,8 +154,11 @@ const LATHE_DIALECTS: Record<LatheController, LatheDialect> = {
     roughFace: (depth, finX, finZ, p, q, f) =>
       `G72 W${depth.toFixed(3)} R1.0\nG72 P${p} Q${q} U${finX.toFixed(3)} W${finZ.toFixed(3)} F${f}`,
     finishCycle: (p, q, f) => `G70 P${p} Q${q} F${f}`,
+    // Fanuc G76 first block packs P(m)(r)(a): m=repeat passes, r=chamfer in
+    // 0.1x lead units, a=tool-nose angle -- in THAT order (Fanuc 0i/30i lathe
+    // manual). Each field is exactly 2 digits, so chamfer is zero-padded.
     threadCycle: (pitch, depth, passes, angle, chamfer, x, z) =>
-      `G76 P${passes.toString().padStart(2, "0")}${(angle < 60 ? "60" : angle.toString())}${chamfer > 0 ? Math.round(chamfer * 10).toString() : "00"} Q${Math.round(depth / passes * 1000)} R0.1\nG76 X${x.toFixed(3)} Z${z.toFixed(3)} P${Math.round(depth * 1000)} Q${Math.round(depth / passes * 1000)} F${pitch.toFixed(4)}`,
+      `G76 P${passes.toString().padStart(2, "0")}${chamfer > 0 ? Math.min(Math.round(chamfer * 10), 99).toString().padStart(2, "0") : "00"}${angle < 60 ? "60" : angle.toString()} Q${Math.round(depth / passes * 1000)} R0.1\nG76 X${x.toFixed(3)} Z${z.toFixed(3)} P${Math.round(depth * 1000)} Q${Math.round(depth / passes * 1000)} F${pitch.toFixed(4)}`,
     peckDrill: (z, peck, f) => `G74 R1.0\nG74 Z${z.toFixed(3)} Q${Math.round(peck * 1000)} F${f}`,
     grooveCycle: (x, z, peck, f) => `G75 R1.0\nG75 X${x.toFixed(3)} Z${z.toFixed(3)} P${Math.round(peck * 1000)} F${f}`,
     partOff: (x, f) => `G01 X${x.toFixed(3)} F${f}`,
@@ -214,8 +217,10 @@ const LATHE_DIALECTS: Record<LatheController, LatheDialect> = {
     roughFace: (depth, finX, finZ, p, q, f) =>
       `G72 W${depth.toFixed(3)} R1.0\nG72 P${p} Q${q} U${finX.toFixed(3)} W${finZ.toFixed(3)} F${f}`,
     finishCycle: (p, q, f) => `G70 P${p} Q${q} F${f}`,
+    // Mazak QT shares the Fanuc G76 P(m)(r)(a) packing: passes, chamfer
+    // (0.1x lead), angle -- 2 digits each, chamfer zero-padded.
     threadCycle: (pitch, depth, passes, angle, chamfer, x, z) =>
-      `G76 P${passes.toString().padStart(2, "0")}${angle < 60 ? "60" : angle.toString()}${chamfer > 0 ? Math.round(chamfer * 10).toString() : "00"} Q${Math.round(depth / passes * 1000)} R0.1\nG76 X${x.toFixed(3)} Z${z.toFixed(3)} P${Math.round(depth * 1000)} Q${Math.round(depth / passes * 1000)} F${pitch.toFixed(4)}`,
+      `G76 P${passes.toString().padStart(2, "0")}${chamfer > 0 ? Math.min(Math.round(chamfer * 10), 99).toString().padStart(2, "0") : "00"}${angle < 60 ? "60" : angle.toString()} Q${Math.round(depth / passes * 1000)} R0.1\nG76 X${x.toFixed(3)} Z${z.toFixed(3)} P${Math.round(depth * 1000)} Q${Math.round(depth / passes * 1000)} F${pitch.toFixed(4)}`,
     peckDrill: (z, peck, f) => `G74 R1.0\nG74 Z${z.toFixed(3)} Q${Math.round(peck * 1000)} F${f}`,
     grooveCycle: (x, z, peck, f) => `G75 R1.0\nG75 X${x.toFixed(3)} Z${z.toFixed(3)} P${Math.round(peck * 1000)} F${f}`,
     partOff: (x, f) => `G01 X${x.toFixed(3)} F${f}`,

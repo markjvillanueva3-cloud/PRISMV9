@@ -320,6 +320,73 @@ export class ShopFloorCheckInEngine {
   }
 
   /**
+   * Record a task lifecycle event (start, pause, complete) and return updated tasks.
+   * Starting a task pauses any currently running task first.
+   * @param input - Tasks array, target task ID, action, timestamp, and optional counters
+   */
+  static recordTaskEvent(input: {
+    tasks: TrackedTask[];
+    taskId: string;
+    action: "start" | "pause" | "complete";
+    nowMs: number;
+    partsCompleted?: number;
+    extraParts?: number;
+  }): { tasks: TrackedTask[] } {
+    const { tasks, taskId, action, nowMs } = input;
+
+    const updated = tasks.map((task): TrackedTask => {
+      // Pause any currently running task when a different task is being started
+      if (action === "start" && task.id !== taskId && task.status === "running") {
+        const elapsed = task.startedAtMs != null
+          ? Math.round((nowMs - task.startedAtMs) / 1000)
+          : 0;
+        return {
+          ...task,
+          status: "paused",
+          elapsedSeconds: task.elapsedSeconds + elapsed,
+          startedAtMs: undefined,
+        };
+      }
+
+      if (task.id !== taskId) return task;
+
+      if (action === "start") {
+        return { ...task, status: "running", startedAtMs: nowMs };
+      }
+
+      if (action === "pause") {
+        const elapsed = task.startedAtMs != null
+          ? Math.round((nowMs - task.startedAtMs) / 1000)
+          : 0;
+        return {
+          ...task,
+          status: "paused",
+          elapsedSeconds: task.elapsedSeconds + elapsed,
+          startedAtMs: undefined,
+        };
+      }
+
+      if (action === "complete") {
+        const elapsed = task.startedAtMs != null
+          ? Math.round((nowMs - task.startedAtMs) / 1000)
+          : 0;
+        return {
+          ...task,
+          status: "completed",
+          elapsedSeconds: task.elapsedSeconds + elapsed,
+          startedAtMs: undefined,
+          partsCompleted: input.partsCompleted ?? task.partsCompleted,
+          extraParts: input.extraParts ?? task.extraParts,
+        };
+      }
+
+      return task;
+    });
+
+    return { tasks: updated };
+  }
+
+  /**
    * Generate ROI signals from tracked task performance.
    * Signals highlight efficiency gains, overruns, and opportunities.
    * @param input - Current tasks, timestamp, cycle variance, and extra parts count

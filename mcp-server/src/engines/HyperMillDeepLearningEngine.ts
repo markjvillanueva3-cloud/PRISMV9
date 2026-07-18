@@ -2327,6 +2327,53 @@ export class HyperMillDeepLearningEngine {
     // Approximate based on strategy maturity and JM Die relevance
     return Math.floor(strategy.jm_die_relevance / 20);
   }
+
+  /**
+   * U-HMT-CONSUMER-MEASURE: report knowledge-base consumption stats.
+   *
+   * Surfaces what this engine actually knows about the hyperMILL training
+   * corpus — strategy counts by category, automation/feature/SQL/virtual-MC
+   * inventories, PDF sources wired in, and the sum of estimated tribal-tip
+   * yields across all strategies. KB build state included so callers can
+   * detect whether {@link buildKnowledgeBase} has run yet.
+   *
+   * @returns Knowledge-base consumption snapshot for THIS engine instance.
+   */
+  knowledgeStats(): {
+    engine: "HyperMillDeepLearningEngine";
+    strategies_total: number;
+    strategies_by_category: Record<string, number>;
+    feature_patterns: number;
+    automation_capabilities: number;
+    sql_tables: number;
+    virtual_machining_features: number;
+    pdf_sources: number;
+    tipsLoaded: number;
+    estimated_tribal_tips_total: number;
+    knowledge_base_built: boolean;
+    version: string;
+  } {
+    const byCategory: Record<string, number> = {};
+    let tipsTotal = 0;
+    for (const s of this.strategies) {
+      byCategory[s.category] = (byCategory[s.category] ?? 0) + 1;
+      tipsTotal += this.estimateTribalTipCount(s);
+    }
+    return {
+      engine: "HyperMillDeepLearningEngine",
+      strategies_total: this.strategies.length,
+      strategies_by_category: byCategory,
+      feature_patterns: this.featurePatterns.length,
+      automation_capabilities: this.automationCapabilities.length,
+      sql_tables: this.sqlTables.length,
+      virtual_machining_features: this.virtualMachiningFeatures.length,
+      pdf_sources: HYPERMILL_PDF_SOURCES.length,
+      tipsLoaded: tipsTotal,
+      estimated_tribal_tips_total: tipsTotal,
+      knowledge_base_built: this.knowledgeBaseBuilt,
+      version: "33.0",
+    };
+  }
 }
 
 // ============================================================================

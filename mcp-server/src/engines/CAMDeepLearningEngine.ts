@@ -1301,7 +1301,7 @@ export class CAMDeepLearningEngine {
     const params: Record<string, number | string> = {};
 
     for (const param of strategy.parameters) {
-      if (param.default_value !== undefined) {
+      if (param.default_value !== undefined && typeof param.default_value !== 'boolean') {
         params[param.name] = param.default_value;
       }
     }

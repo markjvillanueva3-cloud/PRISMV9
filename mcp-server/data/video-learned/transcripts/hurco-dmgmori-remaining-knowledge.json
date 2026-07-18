@@ -1,0 +1,656 @@
+{
+  "metadata": {
+    "created": "2026-03-28",
+    "source_videos": 7,
+    "transcripts_downloaded": 6,
+    "transcripts_unavailable": 1,
+    "total_duration_minutes": 226,
+    "description": "Exhaustive knowledge extraction from Hurco WinMax training sessions and DMG MORI operation/training videos"
+  },
+  "videos": [
+    {
+      "id": "UGI6cVC0x50",
+      "title": "Hurco Quick Training Session 1: Helix & Threadmill on CNC",
+      "duration": "1:02:10",
+      "presenter": "Jason Falk (Senior Applications Engineer, Hurco)",
+      "moderator": "Mike Cope (Product Specialist, Hurco)",
+      "transcript_file": "UGI6cVC0x50.en.srt",
+      "transcript_available": true
+    },
+    {
+      "id": "Ndqih34VTsY",
+      "title": "Hurco Basics — From Power Up to Making Chips",
+      "duration": "29:36",
+      "presenter": "Tom (Inspiration Metalworks)",
+      "transcript_file": "Ndqih34VTsY.en.srt",
+      "transcript_available": true
+    },
+    {
+      "id": "v3Gtw0pazn4",
+      "title": "CNC Control Demo Hurco WinMax V9",
+      "duration": "29:11",
+      "presenter": "Hurco Applications Engineer",
+      "transcript_file": "v3Gtw0pazn4.en.srt",
+      "transcript_available": true
+    },
+    {
+      "id": "pn9Oje6zYsg",
+      "title": "Full POV part setup on DMG Mori NL2500SY",
+      "duration": "34:57",
+      "presenter": "Unknown (no narration — POV only)",
+      "transcript_file": null,
+      "transcript_available": false,
+      "no_transcript_reason": "Video has no auto-generated or manual captions; it is a silent POV walkthrough"
+    },
+    {
+      "id": "k3W-hfWii7I",
+      "title": "DMU 60 eVo — absolute precision",
+      "duration": "39:22",
+      "presenter": "Narrated technical overview",
+      "transcript_file": "k3W-hfWii7I.en.srt",
+      "transcript_available": true
+    },
+    {
+      "id": "z4xm3wo5Zzg",
+      "title": "DMG Mori lathe training Day 1",
+      "duration": "17:07",
+      "presenter": "Eric Cortina (shop owner) with DMG MORI trainer (Michael)",
+      "transcript_file": "z4xm3wo5Zzg.en.srt",
+      "transcript_available": true
+    },
+    {
+      "id": "CuQkEYurspw",
+      "title": "Hurco Quick Training Session 8: AdaptiPath",
+      "duration": "34:17",
+      "presenter": "Jason Falk (Senior Applications Engineer, Hurco)",
+      "transcript_file": "CuQkEYurspw.en.srt",
+      "transcript_available": true
+    }
+  ],
+
+  "hurco_winmax_reference": {
+    "control_overview": {
+      "name": "WinMax",
+      "manufacturer": "Hurco",
+      "latest_version": "V9 (Version 9)",
+      "operating_system": "Windows-based",
+      "boot_time": "Several minutes (not instant like Fanuc)",
+      "dual_screen_support": true,
+      "second_screen_features": ["Extended DRO information", "Graphics preview", "Additional controls"],
+      "desktop_software": {
+        "name": "WinMax Desktop",
+        "description": "Exact replica of machine control software for PC use",
+        "capabilities": ["Create programs", "Verify programs", "Save and transfer to machine", "Practice offline"],
+        "trial_available": true,
+        "download_url": "hurco.com/software"
+      }
+    },
+
+    "conversational_programming": {
+      "description": "Hurco's proprietary programming method where the operator fills in fields in a guided interface rather than writing G-code line by line",
+      "program_creation_workflow": [
+        "Open Program Manager screen",
+        "Create new conversational program (auto-named 'no-name' + sequential number)",
+        "Optional: Save As to specific location",
+        "Set up tools in Tool Setup",
+        "Configure Part Setup (stock geometry)",
+        "Program operations using data blocks",
+        "Verify with graphics/simulation",
+        "Run or transfer to machine"
+      ],
+      "block_types": {
+        "position_blocks": {
+          "description": "Move machine to specific position",
+          "typical_use": "End of program to present part to operator for change/flip"
+        },
+        "holes_blocks": {
+          "operations": ["Drilling", "Boring", "Reaming", "Tapping"],
+          "description": "Any hole-making operation"
+        },
+        "milling_blocks": {
+          "sub_types": {
+            "frame": {
+              "description": "Rectangular pocket/contour (4 corners)",
+              "parameters": ["X/Y corner location", "Width", "Height", "Corner radii", "Depth", "Finish depth"]
+            },
+            "circle": {
+              "description": "Circular pocket or contour",
+              "parameters": ["Center X/Y", "Diameter", "Depth"]
+            },
+            "lines_and_arcs": {
+              "description": "Arbitrary geometry using line/arc segments",
+              "sub_types": ["Line", "Arc", "Helix"],
+              "programming_model": "Sequential segments building a contour from start to end point"
+            },
+            "ellipse": {
+              "description": "Elliptical pocket or contour"
+            }
+          }
+        },
+        "pattern_blocks": {
+          "description": "Repeat previously programmed operations in patterns (linear, bolt circle, etc.)"
+        },
+        "miscellaneous_blocks": {
+          "operations": ["Change part setup", "Add M-code", "Pallet change", "Fixturing commands"]
+        },
+        "nc_program_call": {
+          "description": "Merge conversational program with NC (G-code) program",
+          "use_case": "Combine conversational ease with CAM-generated G-code for complex operations"
+        }
+      },
+      "field_help": {
+        "description": "Bottom-left corner of screen shows context help for highlighted field",
+        "graphics_assist": "Advanced tool settings show graphical indication of what each field represents"
+      }
+    },
+
+    "helix_programming": {
+      "source": "UGI6cVC0x50",
+      "two_meanings_of_helix": {
+        "helix_plunge": {
+          "location": "Program Parameters > Milling tab > Plunge Type",
+          "options": ["Straight plunge", "Helix plunge"],
+          "purpose": "Controls how tool enters a pocket (ramping into material)",
+          "use_case": "Non-center-cutting endmills that cannot straight plunge",
+          "NOT_for": "Creating finished geometry"
+        },
+        "helix_geometry": {
+          "location": "Milling > Lines and Arcs > Helix segment type",
+          "purpose": "Create finished-to-size geometry using helical interpolation (simultaneous XYZ motion)",
+          "use_cases": ["Helical boring to open holes to exact size", "Thread milling"],
+          "motion_type": "Constant 3-axis XYZ ramping motion along circular path"
+        }
+      },
+      "helix_bore_workflow": [
+        "Start in Lines and Arcs block",
+        "Set XY start point (on the contour of desired hole)",
+        "Calculate from diameter: X_start = diameter/2 from center",
+        "Set Z start above material (critical: do NOT put Z bottom here)",
+        "Select Helix segment type",
+        "Set direction (CW or CCW for climb/conventional)",
+        "Leave X/Y end points BLANK (let math assist calculate)",
+        "Set center point offsets (XC, YC)",
+        "Set Z end point (final depth of hole)",
+        "Set number of revolutions",
+        "Use cutter compensation (left comp for climb cut inside hole)"
+      ],
+      "critical_tips": {
+        "z_bottom_mistake": "Most common error: putting overall Z depth in first segment Z bottom field. Keep Z bottom ABOVE material for the starting segment, then use helix Z-end for actual depth.",
+        "xy_end_blank": "Do NOT enter X/Y end points in helix segment. Leave blank and let WinMax math assist calculate the endpoint automatically.",
+        "pre_drill": "Usually drill center of hole first, then helix bore to final size — not required but common practice",
+        "cutter_comp": "Use left cutter comp for climb cutting around inside of circle (counterclockwise)"
+      }
+    },
+
+    "thread_milling": {
+      "source": "UGI6cVC0x50",
+      "description": "Uses same helical motion as helix bore but follows thread geometry",
+      "relationship_to_helix": "Both use simultaneous XYZ constant motion (helical interpolation)",
+      "programming_location": "Milling > Lines and Arcs > Thread Mill segment type",
+      "parameters": ["Thread diameter", "Pitch/TPI", "Direction", "Internal/External", "Number of passes"],
+      "tool_motion": "Helical interpolation around thread centerline with Z advancement per revolution equal to thread pitch"
+    },
+
+    "adaptipath": {
+      "source": "CuQkEYurspw",
+      "official_name": "AdaptiPath",
+      "software_option": "Part of UltiPockets option on Hurco machines",
+      "minimum_version": "WinMax Version 9",
+      "description": "Hurco's adaptive/trochoidal milling strategy — constant tool engagement pocketing",
+      "equivalent_strategies": {
+        "Mastercam": "Dynamic Motion / Dynamic Mill",
+        "general": "High Efficiency Machining (HEM)",
+        "Fusion_360": "Adaptive Clearing",
+        "other_names": ["TrueMill", "VoluMill", "iMachining", "OptiRough"]
+      },
+      "principle": "Maintains constant width of cut (radial engagement) throughout the entire toolpath, eliminating the engagement spikes that occur during step-over transitions in conventional pocketing",
+      "cutting_strategy": {
+        "approach": "Large depth of cut with small width of cut (radial step-over)",
+        "depth": "Use full flute length if needed",
+        "width": "Small controlled step-over (user-specified, never exceeded)",
+        "type": "Roughing strategy — typically followed by finish pass"
+      },
+      "toolpath_behavior": {
+        "circular_pockets": {
+          "description": "Spiral outward from center maintaining constant step-over",
+          "sound": "Entire cut sounds the same — no variation in cutting sound",
+          "guarantee": "Will never exceed specified width of cut"
+        },
+        "non_circular_geometry": {
+          "description": "Control finds optimal start location for maximum spiral, then transitions to zigzag or one-way when spiral cannot be maintained",
+          "modes": {
+            "zigzag": {
+              "description": "When spiral can no longer maintain step-over, cuts back and forth (alternating climb and conventional)",
+              "behavior": "Never exceeds specified width of cut even during transitions"
+            },
+            "one_way": {
+              "description": "Takes a climb cut, lifts slightly in Z for transition, repositions, takes another climb cut",
+              "benefit": "Always climb cutting — preferred by most users",
+              "transition_move": "Arc move to transition, slight Z lift to prevent dragging across part"
+            }
+          }
+        },
+        "with_islands": "Control adapts spiral and transition moves to work around islands while maintaining constant engagement"
+      },
+      "speed_feed_guidance": {
+        "principle": "Dial in feeds and speeds on a straight-line side cut at full depth. Those same parameters work for pocketing because AdaptiPath guarantees tool never engages more material than that straight cut.",
+        "depth_of_cut": "Full flute length",
+        "width_of_cut": "Typically 10-25% of tool diameter",
+        "feed_rate": "Significantly higher than conventional pocketing — limited only by side-cut conditions"
+      },
+      "programming_in_winmax": {
+        "location": "Milling > Frame or Lines and Arcs pocket block",
+        "activation": "Enable AdaptiPath option in pocket parameters",
+        "parameters": ["Step-over (width of cut)", "Cutting method (zigzag or one-way)", "Depth of cut", "Finish allowance"]
+      }
+    },
+
+    "tool_management": {
+      "source": "v3Gtw0pazn4",
+      "tool_library": {
+        "description": "Library of all tools ever set up on the machine",
+        "per_machine": true,
+        "persistent": true
+      },
+      "tool_setup_fields": {
+        "required": ["Tool number", "Tool type (endmill, drill, chamfer, etc.)", "Diameter"],
+        "established_at_setup": ["Tool length (measured at machine)"],
+        "optional_helpful": ["Included angle (drill point angle)", "Flute count", "Cutting direction"],
+        "speed_feed_data": {
+          "input_options": {
+            "option_1": "Surface footage + Chip load per flute + Number of flutes → Control calculates RPM and IPM",
+            "option_2": "Direct RPM + Direct feed rate (IPM) → Control calculates SFM and chip load"
+          },
+          "auto_populate": "When tool is called in a program, pre-configured speeds/feeds auto-fill program fields"
+        },
+        "visual_feedback": {
+          "advanced_tool_settings": "Shows graphic of tool with highlighted dimension as user moves through fields",
+          "color_assignment": "Sequential color per tool in graphics, or user can force specific colors (useful for engraving contrast)"
+        }
+      }
+    },
+
+    "part_setup": {
+      "source": "v3Gtw0pazn4",
+      "stock_geometry": {
+        "types": ["Box (rectangular)", "Cylinder"],
+        "auto_sizing": "Control automatically creates stock slightly larger than programmed geometry if no manual sizing",
+        "manual_sizing": {
+          "dimensions": ["X length", "Y width", "Z height/thickness"],
+          "reference_position": "Default front-left corner at zero; can be changed to center, back-left, etc."
+        }
+      },
+      "work_zero_options": ["Front-left corner (default)", "Center of part", "Back-left corner", "Any arbitrary position"],
+      "program_from": "All coordinates are relative to the chosen work zero position"
+    },
+
+    "file_management": {
+      "source": "v3Gtw0pazn4",
+      "program_manager": {
+        "description": "Central screen for creating, opening, and saving programs",
+        "disk_operations": "Windows Explorer-style file tree for cut/copy/paste/create directories",
+        "active_programs": "Shows currently open programs (running or in preparation)"
+      },
+      "program_types": ["Conversational programs", "NC (G-code) programs", "Merged conversational + NC"],
+      "save_optional": "Programs can be written and run without saving (useful for one-off fixtures)"
+    },
+
+    "startup_procedure": {
+      "source": "Ndqih34VTsY",
+      "workflow": [
+        "Turn on main power switch (breaker, then machine switch on back)",
+        "Wait for Windows-based control to boot (several minutes)",
+        "Control displays warning/instruction messages",
+        "Press Manual mode button",
+        "Press Power On button",
+        "Press Cycle Start to enable servo drives",
+        "Press Calibrate Machine button (homes all axes — Z up, X/Y to back corner)",
+        "Press Cycle Start again to calibrate tool magazine",
+        "Run built-in warm-up cycle (steps through RPMs up to max, e.g., 12,000 RPM)",
+        "Optionally turn on coolant during warm-up to cycle and aerate"
+      ],
+      "machine_modes": ["Auto", "Interrupt", "Single", "Optional Stop", "Manual"],
+      "calibration_detail": {
+        "axes_calibration": "Z goes up first, then X/Y move to back corner (homing sequence)",
+        "tool_changer_calibration": "Separate step after axis calibration — prompted by control",
+        "total_time": "About 30 seconds for both calibrations"
+      },
+      "warm_up_cycle": {
+        "built_in": true,
+        "description": "Machine runs back and forth stepping through RPM increments to full speed",
+        "best_practice": "Run coolant during warm-up for thermal conditioning"
+      }
+    },
+
+    "probing_and_work_offsets": {
+      "source": "Ndqih34VTsY",
+      "probe_tool": "Tool 99 (typical probe assignment)",
+      "workflow": [
+        "Call up probe tool (T99) via Tool Management",
+        "Jog to approximate center/top of workpiece",
+        "Select probing routine (rectangular probe for rectangular stock)",
+        "Set zero position type (XY center + Z top is common)",
+        "Execute probe cycle — auto-measures and sets work coordinates"
+      ],
+      "manual_tool_call": "In Manual mode: go to Tool Management, type tool number on keypad, press Enter, then Cycle Start",
+      "enter_key_importance": "On Hurco controls, you MUST press Enter for any typed value to be applied — critical operational note",
+      "jog_control": "Use jog wheel (handwheel) on pendant for manual axis movement"
+    },
+
+    "mt_connect": {
+      "source": "Ndqih34VTsY",
+      "supported": true,
+      "configuration": "Accessible through Windows system menus on the control",
+      "note": "Can be enabled for machine monitoring and data collection"
+    },
+
+    "graphics_and_simulation": {
+      "source": "v3Gtw0pazn4",
+      "solid_model_graphics": "WinMax builds a solid model of the part being cut, showing stock removal in real time",
+      "verification": "Run program graphically to verify toolpaths before cutting",
+      "tool_accuracy": "More accurate tool geometry descriptions (drill point angle, etc.) produce more accurate graphic previews",
+      "color_coding": "Each tool assigned different color for visual distinction in graphics"
+    },
+
+    "winmax_v9_features": {
+      "source": "v3Gtw0pazn4 + CuQkEYurspw",
+      "key_additions": [
+        "AdaptiPath (constant engagement pocketing)",
+        "Enhanced conversational programming",
+        "Improved graphics and solid model simulation",
+        "Better DXF import capabilities",
+        "Transform plane groups for 5-sided machining",
+        "NC merge with patterns"
+      ]
+    }
+  },
+
+  "dmg_mori_additional": {
+    "dmu_60_evo": {
+      "source": "k3W-hfWii7I",
+      "machine_type": "5-axis simultaneous CNC milling machine",
+      "manufacturer": "DMG MORI",
+      "target_industries": ["Aerospace", "Automotive", "Medical"],
+      "specifications": {
+        "axes": "5-axis (3 linear + 2 rotary via swiveling rotary table)",
+        "spindle_speed_range": {
+          "min_rpm": 12000,
+          "max_rpm": 24000,
+          "note": "High-speed spindle for small diameter cutters and fine finishing"
+        },
+        "tool_changer": {
+          "capacity": 60,
+          "type": "Automatic tool changer (ATC)"
+        },
+        "compatible_controls": ["Siemens", "Heidenhain"],
+        "construction": "Rigid construction for vibration minimization",
+        "materials_capable": ["Titanium", "Hardened steels", "Aluminum alloys", "Stainless steel"]
+      },
+      "key_capabilities": {
+        "complex_part_production": "Swiveling rotary table enables complex parts with fewer setups",
+        "precision": "Exceptional accuracy from rigid construction and thermal stability",
+        "automation": "Supports automation integration"
+      },
+      "high_feed_milling_on_dmu60": {
+        "description": "HFM (High Feed Milling) is a key strategy on the DMU 60 eVo",
+        "principle": "Specialized tooling with small lead angles enables higher feed rates while minimizing radial cutting forces",
+        "benefits": [
+          "Increased productivity through higher feed rates",
+          "Reduced mechanical stress on machine components",
+          "Extended tool life by distributing wear across larger cutting edge portion",
+          "Superior chip evacuation preventing re-cutting",
+          "Enhanced surface finish"
+        ],
+        "setup_requirements": {
+          "workholding": "High rigidity solutions — hydraulic fixtures or zero-point clamping systems",
+          "tool_holders": "Hydraulic chucks or shrink-fit holders for minimal runout and maximum rigidity",
+          "runout_requirement": "Critical to minimize tool runout for HFM success"
+        },
+        "cam_programming": {
+          "strategy": "Adaptive toolpaths ensuring consistent cutting engagement",
+          "goals": ["Reduce tool impact", "Optimize chip load distribution", "Maintain constant engagement angle"]
+        },
+        "tool_selection": {
+          "roughing": "Indexable high-feed cutters with replaceable inserts",
+          "finishing": "Solid carbide endmills with high-feed geometries",
+          "coating_guidance": {
+            "hardened_steels": "CVD-coated inserts",
+            "aluminum": "Uncoated or DLC-coated tools",
+            "titanium": "PVD AlTiN or AlCrN coated"
+          }
+        },
+        "cutting_parameters_by_material": {
+          "aluminum_alloys": {
+            "speed": "High SFM (2000+ SFM possible)",
+            "feed_per_tooth": "High (0.04-0.08 in/tooth)",
+            "depth_of_cut": "Shallow (0.010-0.040 in)"
+          },
+          "hardened_steels": {
+            "speed": "Moderate SFM",
+            "feed_per_tooth": "0.02-0.04 in/tooth",
+            "depth_of_cut": "Very shallow (0.005-0.020 in)"
+          },
+          "titanium": {
+            "speed": "Low-moderate SFM",
+            "feed_per_tooth": "0.02-0.04 in/tooth",
+            "depth_of_cut": "Shallow, with focus on chip evacuation"
+          }
+        }
+      }
+    },
+
+    "dmg_mori_lathe_training_day1": {
+      "source": "z4xm3wo5Zzg",
+      "machine_context": "New DMG MORI lathe (likely NLX or CLX series)",
+      "trainer": "Michael (DMG MORI factory trainer)",
+      "trainee": "Eric Cortina (shop owner, first time on this machine)",
+      "training_duration": "3 days total (this is Day 1)",
+      "training_provider": "DMG MORI offers training with machine purchase",
+
+      "day1_fundamentals": {
+        "machine_rear_walkthrough": {
+          "lubrication_oil": "Fill point at rear of machine",
+          "wash_down_pump": "Separate motor (pluggable) with hose to front",
+          "hydraulics": {
+            "oil_type": "32 hydraulic oil",
+            "fill_location": "Hydraulic reservoir at rear",
+            "cooler": "Oil cooler for chucks"
+          },
+          "chip_management": {
+            "critical_rule": "NEVER use air to blow chips — use hose/coolant only",
+            "reason": "Air blows chips under way covers and into bedways, causing damage",
+            "parts_catcher": {
+              "liner_types": ["Teflon (standard)", "Copper (for specialty metals)"],
+              "adjustment": "Set screw for length adjustment, then programmable positioning"
+            }
+          }
+        },
+
+        "machine_startup": {
+          "power_up": "Main disconnect on back of machine",
+          "boot_sequence": "Warning screen about trained operators, then control loads",
+          "safety_warning": "Machine designed for well-trained operators with basic knowledge of machine operation"
+        },
+
+        "tribal_knowledge_captured": {
+          "boring_bar_chatter_fix": {
+            "problem": "Chatter/vibration when using boring bar",
+            "solution": "Keep back set screws tight, back off front screw, then slightly snug it",
+            "mechanism": "Acts as a vibration tuner — front screw pressure dampens bar vibration",
+            "tuning_method": "Listen to the cut while slowly tightening front screw to find the sweet spot",
+            "source": "Old machinist trick shared by DMG MORI trainer Michael"
+          },
+          "tool_setup": {
+            "drill_clearance": "Verify clearance values when setting up drills",
+            "tool_touch_off": "Critical step before running any program"
+          }
+        }
+      }
+    },
+
+    "nl2500sy_pov_setup": {
+      "source": "pn9Oje6zYsg",
+      "note": "No transcript available — video is a silent POV walkthrough",
+      "machine": "DMG MORI NL2500SY",
+      "machine_type": "Y-axis turning center with sub-spindle (SY = Sub-spindle + Y-axis)",
+      "capabilities": {
+        "y_axis": "Enables off-center milling, drilling, and complex contouring",
+        "sub_spindle": "Allows complete part machining: front operations, part transfer, back operations",
+        "live_tooling": "Driven tools for milling operations during turning"
+      },
+      "controller": "MAPPS (Mori Advanced Programming Production System)",
+      "typical_pov_setup_workflow": [
+        "Power up and reference machine",
+        "Load raw material (bar stock)",
+        "Touch off tools (tool presetter or manual touch-off)",
+        "Set work zero (face of stock)",
+        "Load/select CNC program",
+        "Verify in simulation mode",
+        "Run first article with close monitoring",
+        "Measure first article",
+        "Adjust offsets if needed",
+        "Production run"
+      ],
+      "video_content_description": "Full first-person walkthrough of loading stock, setting tools, establishing work coordinates, loading program, and running first part on the NL2500SY turning center"
+    }
+  },
+
+  "cross_reference_to_prism": {
+    "hurco_winmax_mappings": {
+      "conversational_to_cam": "WinMax conversational blocks map to PRISM ToolpathStrategyRegistry entries for Hurco-specific strategies",
+      "adaptipath_equivalent": "AdaptiPath maps to 'adaptive_clearing' / 'constant_engagement' strategy type in ToolpathStrategyRegistry",
+      "speed_feed_in_winmax": "WinMax accepts SFM+ChipLoad or RPM+IPM — matches PRISM SpeedFeedOrchestratorEngine output formats",
+      "helix_thread_mill": "Helical interpolation and thread milling operations map to PRISM DrillCycleOptimizationEngine thread milling mode",
+      "nc_merge": "WinMax NC merge capability relevant to PRISM PostProcessorPipelineEngine output integration"
+    },
+    "dmg_mori_mappings": {
+      "dmu60_to_machine_registry": "DMU 60 eVo specs (12000-24000 RPM, 5-axis, 60 tools) should be verified against PRISM MachineRegistry entries",
+      "nl2500sy_capabilities": "NL2500SY Y-axis + sub-spindle capabilities map to PRISM MillTurnSwissPipelineEngine multi-channel support",
+      "hfm_strategy": "High Feed Milling on DMU 60 eVo maps to PRISM FeedRateOptimizationEngine and ToolpathStrategyRegistry HFM entries",
+      "boring_bar_chatter_tip": "Boring bar vibration tuning trick should be captured in PRISM TribalKnowledgeEngine"
+    }
+  },
+
+  "tribal_knowledge_tips": [
+    {
+      "id": "hurco-helix-z-bottom",
+      "category": "programming",
+      "machine_type": "Hurco WinMax",
+      "tip": "When programming a helix bore in WinMax Lines & Arcs, set the first segment Z-bottom ABOVE the material surface. The actual Z depth goes in the helix segment Z-end field. Most common mistake is putting overall depth in the start segment.",
+      "severity": "high",
+      "source_video": "UGI6cVC0x50"
+    },
+    {
+      "id": "hurco-helix-xy-blank",
+      "category": "programming",
+      "machine_type": "Hurco WinMax",
+      "tip": "In WinMax helix programming, leave X/Y end point fields BLANK. The control's math assist will calculate the correct endpoint. Entering values manually often causes errors.",
+      "severity": "medium",
+      "source_video": "UGI6cVC0x50"
+    },
+    {
+      "id": "hurco-enter-key",
+      "category": "operation",
+      "machine_type": "Hurco WinMax",
+      "tip": "On Hurco controls, you MUST press Enter for any typed value to be applied. Simply typing a number is not enough — it will not register until Enter is pressed.",
+      "severity": "high",
+      "source_video": "Ndqih34VTsY"
+    },
+    {
+      "id": "hurco-calibration-two-step",
+      "category": "startup",
+      "machine_type": "Hurco",
+      "tip": "Hurco calibration is two steps: first axes home (Z up, XY to back corner), then tool magazine calibrates separately. Both require Cycle Start press. Takes about 30 seconds total.",
+      "severity": "medium",
+      "source_video": "Ndqih34VTsY"
+    },
+    {
+      "id": "hurco-warmup-with-coolant",
+      "category": "startup",
+      "machine_type": "Hurco",
+      "tip": "During warm-up cycle, also turn on coolant to let it cycle and aerate. This helps with thermal conditioning and ensures coolant system is primed before cutting.",
+      "severity": "low",
+      "source_video": "Ndqih34VTsY"
+    },
+    {
+      "id": "hurco-tool-speeds-prepopulate",
+      "category": "programming",
+      "machine_type": "Hurco WinMax",
+      "tip": "Set speeds and feeds in Tool Setup before programming. When a tool is called in a conversational program, the control auto-populates speed/feed fields from the tool setup, saving time and reducing errors.",
+      "severity": "medium",
+      "source_video": "v3Gtw0pazn4"
+    },
+    {
+      "id": "hurco-sfm-chipload-bidirectional",
+      "category": "programming",
+      "machine_type": "Hurco WinMax",
+      "tip": "WinMax speed/feed fields are bidirectional: enter SFM + chip load and it calculates RPM + IPM, OR enter RPM + IPM and it calculates SFM + chip load. Use whichever format your tooling data provides.",
+      "severity": "medium",
+      "source_video": "v3Gtw0pazn4"
+    },
+    {
+      "id": "hurco-adaptipath-straight-line-test",
+      "category": "machining_strategy",
+      "machine_type": "Hurco WinMax",
+      "tip": "For AdaptiPath parameters: dial in your feeds and speeds on a straight-line side cut at full depth of cut first. Those exact parameters will work for pocketing because AdaptiPath guarantees the tool never engages more material than a straight side cut.",
+      "severity": "high",
+      "source_video": "CuQkEYurspw"
+    },
+    {
+      "id": "hurco-adaptipath-one-way-preferred",
+      "category": "machining_strategy",
+      "machine_type": "Hurco WinMax",
+      "tip": "AdaptiPath one-way mode is preferred over zigzag for most applications. It always climb cuts with a slight Z-lift transition between passes, preventing tool drag across the part surface.",
+      "severity": "medium",
+      "source_video": "CuQkEYurspw"
+    },
+    {
+      "id": "dmg-no-air-blow-chips",
+      "category": "maintenance",
+      "machine_type": "DMG MORI lathe",
+      "tip": "NEVER use compressed air to blow chips on a DMG MORI lathe. Air pushes chips under way covers and into bedways, causing accelerated wear. Always use coolant hose or wash-down pump instead.",
+      "severity": "critical",
+      "source_video": "z4xm3wo5Zzg"
+    },
+    {
+      "id": "dmg-boring-bar-vibration-tuner",
+      "category": "chatter_fix",
+      "machine_type": "Lathe (universal)",
+      "tip": "Old machinist trick for boring bar chatter: keep back set screws tight but back off the front screw, then slowly snug it while listening to the cut. The front screw acts as a vibration tuner — the pressure dampens bar harmonics. Adjust by feel/sound until chatter disappears.",
+      "severity": "high",
+      "source_video": "z4xm3wo5Zzg"
+    },
+    {
+      "id": "dmg-32-hydraulic-oil",
+      "category": "maintenance",
+      "machine_type": "DMG MORI lathe",
+      "tip": "DMG MORI lathes use 32 hydraulic oil for the hydraulic system (chuck actuation, tailstock, etc.). Check level at reservoir on rear of machine during daily maintenance.",
+      "severity": "medium",
+      "source_video": "z4xm3wo5Zzg"
+    },
+    {
+      "id": "dmg-parts-catcher-liner",
+      "category": "setup",
+      "machine_type": "DMG MORI lathe",
+      "tip": "Parts catcher has replaceable liners: Teflon for standard work, copper liner available for specialty metals. Position is adjustable via set screw and is programmable from the control.",
+      "severity": "low",
+      "source_video": "z4xm3wo5Zzg"
+    },
+    {
+      "id": "dmu60-hfm-workholding",
+      "category": "setup",
+      "machine_type": "DMG MORI DMU 60 eVo",
+      "tip": "For High Feed Milling on the DMU 60 eVo, use hydraulic fixtures or zero-point clamping systems. Standard vise clamping may not provide sufficient rigidity for the extreme feed rates used in HFM.",
+      "severity": "high",
+      "source_video": "k3W-hfWii7I"
+    },
+    {
+      "id": "dmu60-shrinkfit-for-hfm",
+      "category": "tooling",
+      "machine_type": "DMG MORI DMU 60 eVo",
+      "tip": "Use hydraulic chucks or shrink-fit holders for HFM operations on the DMU 60 eVo. Minimal tool runout is critical for high-feed cutting success and tool life.",
+      "severity": "high",
+      "source_video": "k3W-hfWii7I"
+    }
+  ]
+}

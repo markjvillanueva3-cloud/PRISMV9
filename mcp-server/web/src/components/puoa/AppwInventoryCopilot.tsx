@@ -99,7 +99,7 @@ function buildSummary(props: AppwInventoryCopilotProps) {
   if (props.upstreamSourceLabel) posture.push(`upstream ${props.upstreamSourceLabel}`);
   if (props.workflowReference) posture.push(`record ${props.workflowReference}`);
 
-  return `PRISM AI is reasoning over live inventory custody, receiving and tooling flow, department routing, usage pulses, replenishment policy, tool economics, route freshness, degraded-lane signals, and workflow continuity for the Inventory desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live inventory custody, receiving and tooling flow, department routing, usage pulses, replenishment policy, tool economics, route freshness, degraded-lane signals, and workflow continuity for the Inventory desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwInventoryCopilotProps): WorkspaceCopilotSuggestion[] {

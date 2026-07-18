@@ -28,7 +28,7 @@ describe('ShellCommerceControls', () => {
             currentPlanLabel: 'Standard',
             roleLabel: 'engineer',
             detail:
-              'Live billing status is connected. Backend currently reports engineer access on the Standard billing lane while the staged catalog keeps the broader PRISM packaging story visible.',
+              'Live billing status is connected. Backend currently reports engineer access on the Standard billing lane while the staged catalog keeps the broader Kienzle packaging story visible.',
             planPrices: [
               {
                 planId: 'starter',

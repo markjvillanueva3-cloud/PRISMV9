@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `first-part-right` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/first-part-right.md` |
+| Source | `C:/Users/wompu/.claude/commands/first-part-right.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# First Part Right — Zero-Scrap First Article Pipeline
+
+The most expensive part in any shop is the FIRST one. This command eliminates first-article scrap by front-loading every possible check before the machine starts. One scrapped aerospace part can cost $5,000-50,000 in material alone. This pays for itself on the first use.
+
+**Value**: Prevents first-article scrap. Average shop scraps 15-3
 
 <!-- AUTO-END -->
 

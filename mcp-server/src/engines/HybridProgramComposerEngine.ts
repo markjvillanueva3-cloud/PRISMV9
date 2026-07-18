@@ -449,10 +449,18 @@ G0 Z2.0`;
     return baseTime[mode] * (complexityMultiplier[feature.complexity] || 1.0);
   }
 
+  /** Default material-removal rate (cm^3/min) for the rough run-time estimate when the caller
+   *  supplies no real value via dimensions.mrr_cm3_min (ENGINE-AUDIT 2026-06-19, slot:bravo:
+   *  replaces a magic `mrr = 10` literal -- documented + caller-overridable). */
+  private static readonly DEFAULT_MRR_CM3_MIN = 10;
+
   private estimateRunTime(feature: FeatureInput): number {
     const dims = feature.dimensions;
     const volume = (dims.length || 50) * (dims.width || 50) * (dims.depth || 10);
-    const mrr = 10; // cm³/min rough estimate
+    // Use a caller-supplied real MRR when present; else the documented rough default.
+    const mrr = dims.mrr_cm3_min && dims.mrr_cm3_min > 0
+      ? dims.mrr_cm3_min
+      : HybridProgramComposerEngine.DEFAULT_MRR_CM3_MIN;
     return (volume / 1000 / mrr) * 60; // seconds
   }
 }

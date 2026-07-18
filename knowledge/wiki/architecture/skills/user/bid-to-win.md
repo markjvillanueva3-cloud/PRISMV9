@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `bid-to-win` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/bid-to-win.md` |
+| Source | `C:/Users/wompu/.claude/commands/bid-to-win.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Bid to Win — Smart Competitive Quoting Pipeline
+
+Most shops either leave money on the table (bid too low) or lose jobs (bid too high). This command finds the TRUE cost floor using physics, then positions your quote at the optimal price point considering market conditions, your shop's strengths, and competitive dynamics.
+
+**Value**: Winning 2-3 more jobs/month at proper margins = $5,000-50,
 
 <!-- AUTO-END -->
 

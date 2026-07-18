@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://prism.manufacturing/schemas/AtomicValue.schema.json",
+  "title": "PRISM AtomicValue Schema v1.0",
+  "description": "Foundation type for ALL numerical values in PRISM Manufacturing Intelligence. Implements COMMANDMENT 5: NEVER bare numbers.",
+  
+  "definitions": {
+    
+    "AtomicValue": {
+      "type": "object",
+      "description": "A numerical value with mandatory uncertainty bounds. The fundamental unit of mathematical certainty in PRISM.",
+      "required": ["value", "uncertainty", "confidence", "unit"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "number",
+          "description": "The central/nominal value"
+        },
+        "uncertainty": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Absolute uncertainty (same units as value). Use 0 for exact counts."
+        },
+        "confidence": {
+          "type": "number",
+          "enum": [0.68, 0.90, 0.95, 0.99, 0.997],
+          "default": 0.95,
+          "description": "Confidence level as decimal. PRISM default: 0.95 (95% CI)"
+        },
+        "unit": {
+          "type": "string",
+          "description": "SI unit or derived unit. Use 'count' for dimensionless counts, 'ratio' for ratios"
+        },
+        "source": {
+          "$ref": "#/definitions/ValueSource",
+          "description": "Origin/provenance of the value"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the value was determined/measured"
+        },
+        "isExact": {
+          "type": "boolean",
+          "default": false,
+          "description": "True if value is an exact count (uncertainty must be 0)"
+        }
+      }
+    },
+    
+    "ValueSource": {
+      "type": "object",
+      "description": "Provenance tracking for a value",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "MEASURED",
+            "CALCULATED",
+            "ESTIMATED",
+            "LITERATURE",
+            "HANDBOOK",
+            "EMPIRICAL",
+            "DEFAULT",
+            "USER_INPUT",
+            "LEARNED"
+          ],
+          "description": "How the value was obtained"
+        },
+        "reference": {
+          "type": "string",
+          "description": "Citation, handbook page, formula ID, etc."
+        },
+        "formulaId": {
+          "type": "string",
+          "pattern": "^F-[A-Z]+-[0-9]{3}$",
+          "description": "If calculated, the formula registry ID used"
+        },
+        "inputs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "IDs of input values used in calculation"
+        },
+        "dataPoints": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of measurements/samples if empirical"
+        },
+        "confidenceMethod": {
+          "type": "string",
+          "enum": ["STATISTICAL", "ENGINEERING_JUDGMENT", "PROPAGATED", "HANDBOOK"],
+          "description": "How uncertainty was determined"
+        }
+      }
+    },
+    
+    "AtomicRange": {
+      "type": "object",
+      "description": "A range of values with uncertainty on both bounds",
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "$ref": "#/definitions/AtomicValue" },
+        "max": { "$ref": "#/definitions/AtomicValue" },
+        "typical": { "$ref": "#/definitions/AtomicValue" }
+      }
+    },
+    
+    "AtomicVector": {
+      "type": "object",
+      "description": "Multi-dimensional value (e.g., force vector, position)",
+      "required": ["components", "unit"],
+      "properties": {
+        "components": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/AtomicValue" },
+          "minItems": 2,
+          "maxItems": 6,
+          "description": "Vector components [x, y, z, ...]"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Common unit for all components"
+        },
+        "coordinateSystem": {
+          "type": "string",
+          "enum": ["CARTESIAN", "CYLINDRICAL", "SPHERICAL", "MACHINE"],
+          "default": "CARTESIAN"
+        },
+        "magnitude": {
+          "$ref": "#/definitions/AtomicValue",
+          "description": "Computed magnitude with propagated uncertainty"
+        }
+      }
+    },
+    
+    "UncertaintyPropagation": {
+      "type": "object",
+      "description": "Rules for propagating uncertainty through calculations",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": ["ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "POWER", "EXP", "LOG", "SQRT", "TRIG"]
+        },
+        "formula": {
+          "type": "string",
+          "description": "LaTeX formula for propagation rule"
+        },
+        "code": {
+          "type": "string",
+          "description": "JavaScript implementation"
+        }
+      }
+    },
+    
+    "DimensionalAnalysis": {
+      "type": "object",
+      "description": "SI base unit decomposition for dimensional consistency checking",
+      "properties": {
+        "kg": { "type": "integer", "default": 0 },
+        "m": { "type": "integer", "default": 0 },
+        "s": { "type": "integer", "default": 0 },
+        "A": { "type": "integer", "default": 0 },
+        "K": { "type": "integer", "default": 0 },
+        "mol": { "type": "integer", "default": 0 },
+        "cd": { "type": "integer", "default": 0 }
+      }
+    }
+  },
+  
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "description": {
+      "type": "string"
+    }
+  }
+}

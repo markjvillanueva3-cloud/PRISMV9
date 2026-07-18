@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `simulate-change` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/simulate-change.md` |
+| Source | `C:/Users/wompu/.claude/commands/simulate-change.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Phase 0.18 skill. Before editing / writing / deleting / renaming any file, ask the simulator: *if I applied this change right now, what would break?* The engine aggregates risk signals — critical-file status, public-API touch, edit size, known dependents, presence of tests, kind multiplier — into a single `breakProbability` ∈ [0,1] plus a `risk` tier and a human-readable recommendation. It does **
+
+# /simulate-change — Pre-Play Proposed Edits Before Landing
 
 <!-- AUTO-END -->
 

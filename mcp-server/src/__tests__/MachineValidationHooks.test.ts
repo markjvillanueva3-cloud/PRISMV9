@@ -21,11 +21,11 @@ import {
 import type { HookContext } from "../engines/HookExecutor.js";
 
 // Helper to create hook context
-function makeContext(data: Record<string, any>): HookContext {
+function makeContext(data: Record<string, any>, operation = "test"): HookContext {
   return {
-    operation: "test",
+    operation,
     target: { type: "calculation", id: "test", data },
-    metadata: {},
+    metadata: { action: operation },
   };
 }
 
@@ -309,6 +309,90 @@ describe("MachineValidationHooks — MCAT-MS0 U-MCAT08", () => {
       expect(result.blocked).toBe(false);
       expect(result.warnings).toBeDefined();
       expect(result.data?.warnings[0]).toContain("spindle confidence very low");
+    });
+
+    // U-COST-EST-MACHINE-GATE-SCOPE (charlie 2026-06-26) -- the gate must NOT hard-block a
+    // machine-AGNOSTIC action (process_cost) carrying no machine. Before the fix it false-blocked
+    // process_cost on /cost/estimate + /pipeline/quote (verified live on :3100).
+    it("PASSES (skips) for a machine-AGNOSTIC action (process_cost) when NO machine is supplied", () => {
+      const ctx = makeContext({ material: "steel_4140", operations: [{ feature: "pocket" }] }, "process_cost");
+      const result = preMachineCompletenessGate.handler(ctx);
+      expect(result.blocked).toBe(false);
+      expect(result.data?.machineAgnostic).toBe(true);
+    });
+
+    it("NON-WEAKENING: still BLOCKS a machine-PHYSICS action (sfc_calculate) with NO machine (not on the allowlist)", () => {
+      // sfc_calculate does spindle physics -> a no-machine call MUST still block (U-OSC-SFC-PRODUCT-BRIDGE contract).
+      const ctx = makeContext({ material: "1045", operation: "slot" }, "sfc_calculate");
+      const result = preMachineCompletenessGate.handler(ctx);
+      expect(result.blocked).toBe(true);
+      expect(result.data?.criticalMissing).toContain("spindle.max_rpm");
+    });
+
+    it("NON-WEAKENING: process_cost STILL BLOCKS when a machine WAS selected but is incomplete", () => {
+      // Even a machine-agnostic action blocks if the caller selected a machine that is incomplete --
+      // the skip requires BOTH the allowlist AND zero machine context.
+      const ctx = makeContext({ machinePackage: { spindle: {} } }, "process_cost");
+      const result = preMachineCompletenessGate.handler(ctx);
+      expect(result.blocked).toBe(true);
+      expect(result.data?.criticalMissing).toContain("spindle.max_rpm");
+    });
+
+    it("NON-WEAKENING: still BLOCKS a SELECTED-but-incomplete machine (machinePackage present, spindle empty)", () => {
+      // machinePackage IS supplied (machine intended) but spindle critical fields are absent -> real block.
+      const ctx = makeContext({ machinePackage: { spindle: {} } });
+      const result = preMachineCompletenessGate.handler(ctx);
+      expect(result.blocked).toBe(true);
+      expect(result.data?.criticalMissing).toContain("spindle.max_rpm");
+    });
+
+    it("NON-WEAKENING: still BLOCKS when only a machine_id is given but its spindle data is absent", () => {
+      // A machine_id signals intent to use a specific machine -> completeness must be validated.
+      const ctx = makeContext({ machine_id: "haas-vf2", material: "steel" });
+      const result = preMachineCompletenessGate.handler(ctx);
+      expect(result.blocked).toBe(true);
+      expect(result.data?.criticalMissing).toContain("spindle.max_rpm");
+    });
+
+    // U-BRAVO-SFC-COMPONENT-GATE-SCOPE (bravo 2026-06-26) -- the SFC web component endpoints
+    // (POST /api/v1/sfc/{surface-finish,engagement,deflection,tool-life,power-torque,cycle-time})
+    // are machine-AGNOSTIC descriptive physics, yet ALL 6 returned blocked:"pre-machine-completeness-gate"
+    // live on :3100 (6/7 component panels dead). Each must now SKIP the gate when no machine is supplied.
+    const SFC_COMPONENT_ACTIONS = [
+      "surface_finish", "engagement", "deflection", "tool_life", "power_torque", "cycle_time",
+    ] as const;
+    for (const action of SFC_COMPONENT_ACTIONS) {
+      it(`PASSES (skips) the machine-AGNOSTIC SFC component action '${action}' with NO machine supplied`, () => {
+        const ctx = makeContext({ material: "1045", feed: 0.1, cutting_speed: 120 }, action);
+        const result = preMachineCompletenessGate.handler(ctx);
+        expect(result.blocked).toBe(false);
+        expect(result.data?.machineAgnostic).toBe(true);
+      });
+    }
+
+    it("NON-WEAKENING: a machine-RESOLVING action (speed_feed) with NO machine STILL BLOCKS (not on the allowlist)", () => {
+      // speed_feed resolves a real spindle -> a no-machine call MUST still block.
+      const ctx = makeContext({ material: "1045", operation: "slot" }, "speed_feed");
+      const result = preMachineCompletenessGate.handler(ctx);
+      expect(result.blocked).toBe(true);
+      expect(result.data?.criticalMissing).toContain("spindle.max_rpm");
+    });
+
+    it("NON-WEAKENING: an SFC component action STILL BLOCKS when a machine WAS selected but is incomplete", () => {
+      // The skip requires BOTH the allowlist AND zero machine context: tool_life with an incomplete
+      // machinePackage means the caller intends a machine -> completeness must still be enforced.
+      const ctx = makeContext({ machinePackage: { spindle: {} }, cutting_speed: 120 }, "tool_life");
+      const result = preMachineCompletenessGate.handler(ctx);
+      expect(result.blocked).toBe(true);
+      expect(result.data?.criticalMissing).toContain("spindle.max_rpm");
+    });
+
+    it("NON-WEAKENING: an SFC component action with a COMPLETE machine still PASSES (machine validated, not skipped)", () => {
+      // When a complete machine IS supplied the gate VALIDATES it (machineAgnostic path not taken)
+      // and passes -- proving the power-budget / spindle-limit siblings still receive the machine.
+      const ctx = makeContext({ machinePackage: { spindle: { max_rpm: 10000, power_kw: 15 } } }, "power_torque");
+      const result = preMachineCompletenessGate.handler(ctx);
+      expect(result.blocked).toBe(false);
     });
   });
 });

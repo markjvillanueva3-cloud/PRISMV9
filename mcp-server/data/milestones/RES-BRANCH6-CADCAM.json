@@ -1,0 +1,302 @@
+[
+  {
+    "id": "RES-MS27",
+    "title": "CAD/CAM Front-End — Web Sketcher + 3D Generator from SDK Patterns",
+    "track": "RES",
+    "dependencies": ["RES-MS15", "RES-MS7"],
+    "status": "not_started",
+    "total_units": 6,
+    "completed_units": 0,
+    "sessions": "3",
+
+    "smart_config": {
+      "role": "CAD/CAM UI Engineer + Die Geometry Specialist",
+      "model": "opus",
+      "effort": "MAX",
+      "context_budget": "55%"
+    },
+
+    "knowledge_sources": {
+      "engines": [
+        "FeatureRecognitionEngine (feature extraction from geometry)",
+        "SketchEngine (2D sketch primitives — create, analyze, to_svg, to_cadquery)",
+        "CADKernelEngine (geometry create/transform/analyze)",
+        "GeometryEngine (mesh, boolean, volume operations)",
+        "ParametricPartLibraryEngine (parametric templates — box, cylinder, flange, bracket)",
+        "CadQueryCodeGeneratorEngine (CadQuery script generation from part definitions)",
+        "PrintToGeometryEngine (print dimensions to 3D geometry pipeline)"
+      ],
+      "tribal": [
+        "hyperMILL SDK API: 46 geometry scripts, 8 namespaces (om.cad.core — booleans, shapes, curves, electrodes, drafting, modify, select, analysis)",
+        "DrawingAutomation system: AutoDraw.dvb + DrawByCSV.dvb + DrawParameter_.csv → automated 2D drawings from CSV dimensions",
+        "Automated Program_Corrected 5-25.xlsm: 34-dimension parametric die cavity system (length, width, depth, radius, chamfer, draft angle, etc.)",
+        "JM Die geometry types: MailBox, Altracs, Taptite, Heading Die, Squares — each with characteristic cross-section profiles",
+        "Electrode ratio: 70% lathe-turned (commodity, circular cross-section), 30% milled (complex cavity, require 3D preview)",
+        "ViewerPage.tsx + ViewerCanvasWorkspace: existing Three.js 3D viewer with scene graph, toolbar, and lazy-loading pattern"
+      ],
+      "formulas": [
+        "CSG boolean operations (union, subtract, intersect) for cavity creation from stock",
+        "Extrusion depth from print callout: cavity_volume = profile_area * depth",
+        "Draft angle geometry: tan(draft_angle) * depth = wall_offset",
+        "Corner radius blend: fillet arc tangent to adjacent edges",
+        "Counterbore step: step_depth, step_diameter, through_diameter"
+      ],
+      "reference": [
+        "web/src/pages/ViewerPage.tsx (existing Three.js viewer — scene graph, toolbar, lazy-loading)",
+        "web/src/components/viewer/ViewerCanvasWorkspace (Three.js canvas with OrbitControls)",
+        "web/src/components/calculator/WireEdmContour3D.tsx (Three.js 3D contour rendering pattern)",
+        "src/tools/dispatchers/cadDispatcher.ts (61 actions: sketch_create, sketch_add_entity, sketch_to_svg, part_create, part_add_feature, geometry_create)",
+        "src/schemas/cadActionSchemas.ts (Zod schemas for all CAD actions)",
+        "4,094 Inventor parts (.ipt) + 4,738 CAD models in resources — reference geometries for die cavity validation"
+      ]
+    },
+
+    "intent": "The machinist opens PRISM's web app, selects a die cavity type (MailBox, Altracs, Taptite, Heading Die, Squares), enters dimensions from a print (length, width, depth, corner radii, draft angles, counterbore steps), sees a live 2D SVG cross-section sketch update in real-time, clicks '3D Preview' and gets an interactive Three.js cavity visualization with stock subtraction. From there, one click exports DrawParameter CSV for the existing AutoDraw pipeline or feeds directly into print-to-program for G-code generation. The 34-dimension parametric system from the Excel workbook becomes a web-native workflow — no Excel, no VBA, no manual CSV editing.",
+
+    "phases": [
+      {
+        "session": 1,
+        "title": "2D Web Sketcher — React + SVG Die Cavity Profile Editor",
+        "units": ["U-CCF01", "U-CCF02"],
+        "work": {
+          "U-CCF01": {
+            "title": "Build DieCavitySketcherEngine — parametric 2D profile generator for 5 die geometry types",
+            "description": "Engine that accepts die cavity type (MailBox, Altracs, Taptite, Heading Die, Squares) and dimension parameters (up to 34 per the existing Excel system: length, width, depth, corner_radii[4], draft_angle, chamfer_width, chamfer_angle, counterbore_diameter, counterbore_depth, step_count, step_depths[], step_diameters[], land_width, relief_angle, nose_radius, thread_pitch, thread_depth). Outputs: (1) SVG path data for the 2D cross-section profile, (2) dimensioned annotation overlay with leader lines and callout text, (3) profile_area and perimeter for downstream volume calculation. Each die type has a characteristic cross-section template: MailBox=rectangular with corner radii, Altracs=lobular with alternating arcs, Taptite=trilobular, Heading Die=circular with stepped counterbore, Squares=square with chamfered corners. Delegates to existing SketchEngine for primitive operations (sketch_create, sketch_add_entity). Validates dimensions against manufacturing limits (min wall thickness 0.5mm, max aspect ratio 10:1, draft angle 0.5-15 degrees).",
+            "depends_on": [],
+            "knowledge_consult": ["SketchEngine (sketch_create, sketch_add_entity, sketch_analyze)", "Automated Program_Corrected 5-25.xlsm (34-dimension schema)", "JM Die geometry types from tribal knowledge"],
+            "exit_criteria": [
+              "Generates valid SVG path for all 5 die cavity types",
+              "Accepts 34-dimension parameter set matching Excel schema",
+              "Dimension validation catches impossible geometries (negative radii, overlapping counterbores, wall thickness < 0.5mm)",
+              "Profile area calculation within 0.1% of analytical solution for rectangle and circle",
+              "Tests assert specific SVG path coordinates for known dimension inputs — not just toBeTruthy()"
+            ],
+            "rollback": {
+              "files_created": [
+                "src/engines/DieCavitySketcherEngine.ts",
+                "src/__tests__/DieCavitySketcherEngine.test.ts"
+              ],
+              "files_modified": [],
+              "abort_criteria": [
+                "SVG paths render incorrectly for any of the 5 types",
+                "Dimension validation misses an impossible geometry",
+                "Profile area error > 1%"
+              ],
+              "rollback_procedure": "git checkout -- src/engines/DieCavitySketcherEngine.ts src/__tests__/DieCavitySketcherEngine.test.ts"
+            },
+            "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (test all 5 types with edge-case dimensions) → TIE UP (no TODOs, no stubs)"
+          },
+          "U-CCF02": {
+            "title": "Build DieCavitySketcherPage — React + SVG interactive 2D profile editor with live dimension binding",
+            "description": "Web page at /die-sketcher with: (1) Die type selector (5 types with thumbnail previews), (2) Dimension input panel with labeled fields matching print callout conventions (fractional inches with mm toggle), (3) Live SVG viewport that re-renders profile on every dimension change via React state, (4) Dimension annotation layer showing leader lines, callout text, and tolerance bands, (5) Zoom/pan via SVG viewBox manipulation, (6) Undo/redo for dimension changes via useReducer history stack. The SVG rendering calls DieCavitySketcherEngine.generateProfile() and renders the returned path data. Input fields are grouped by section: outer_profile, cavity_profile, counterbore, chamfers_radii, draft_angles — matching the 34-dimension schema. Each field shows min/max validation from the engine. Uses existing PRISM web app layout (sidebar nav, header, breadcrumb).",
+            "depends_on": ["U-CCF01"],
+            "knowledge_consult": ["ViewerPage.tsx (page structure, lazy-loading pattern)", "WireEdmContour3D.tsx (3D rendering in web context)", "Existing PRISM web component patterns (ErrorState, WorkspaceErrorBoundary)"],
+            "exit_criteria": [
+              "Page renders at /die-sketcher with all 5 die types selectable",
+              "Dimension inputs update SVG profile in real-time (< 16ms render for 60fps)",
+              "Annotation layer shows correct dimension callouts with leader lines",
+              "Undo/redo works for dimension changes (min 20-step history)",
+              "Invalid dimensions show inline validation errors from engine",
+              "Tests render component, simulate dimension input, and assert SVG path output"
+            ],
+            "rollback": {
+              "files_created": [
+                "web/src/pages/DieCavitySketcherPage.tsx",
+                "web/src/components/sketcher/SketcherViewport.tsx",
+                "web/src/components/sketcher/DimensionPanel.tsx",
+                "web/src/components/sketcher/AnnotationLayer.tsx",
+                "web/src/__tests__/DieCavitySketcherPage.test.tsx"
+              ],
+              "files_modified": [
+                "web/src/App.tsx"
+              ],
+              "abort_criteria": [
+                "SVG render takes > 50ms on dimension change",
+                "Profile does not match engine output",
+                "Page crashes on invalid dimension input"
+              ],
+              "rollback_procedure": "git checkout -- web/src/pages/DieCavitySketcherPage.tsx web/src/components/sketcher/ web/src/__tests__/DieCavitySketcherPage.test.tsx web/src/App.tsx"
+            },
+            "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (test all 5 types + edge dimensions in browser) → TIE UP"
+          }
+        },
+        "compact_checkpoint": true
+      },
+      {
+        "session": 2,
+        "title": "3D Preview Generator — Three.js Cavity Visualization + CSG",
+        "units": ["U-CCF03", "U-CCF04"],
+        "work": {
+          "U-CCF03": {
+            "title": "Build DieCavity3DGeneratorEngine — extrude 2D profiles to 3D meshes with CSG boolean subtraction",
+            "description": "Engine that takes DieCavitySketcherEngine profile output and generates 3D geometry: (1) Extrude 2D cross-section profile along Z-axis by cavity depth to create cavity solid, (2) Generate stock blank (cylinder for round dies, rectangular block for square) with configurable oversize, (3) CSG boolean subtract cavity from stock to produce the die body, (4) Apply draft angle by tapering the extrusion (linear interpolation of profile scale along depth), (5) Add counterbore steps as concentric cylinder subtractions at specified depths, (6) Generate corner fillet blends as swept arcs along vertical edges, (7) Output Three.js-compatible BufferGeometry (vertices, normals, indices) plus wireframe edge data for dimensioned overlay. For Altracs trilobular profiles: revolve the lobular cross-section. For Heading Dies: lathe-revolve the stepped circular profile. Volume calculation from mesh for material cost estimation. Performance target: < 200ms for 50K-triangle mesh generation.",
+            "depends_on": ["U-CCF01"],
+            "knowledge_consult": ["GeometryEngine (mesh generation, boolean operations)", "CADKernelEngine (geometry_create, geometry_transform)", "hyperMILL SDK om.cad.core namespace (boolean, shape, electrode patterns)", "Three.js BufferGeometry API"],
+            "exit_criteria": [
+              "Generates valid 3D mesh for all 5 die cavity types",
+              "CSG boolean subtract produces watertight mesh (no open edges, no self-intersection)",
+              "Draft angle extrusion matches analytical taper within 0.05mm at any cross-section",
+              "Counterbore steps visible as distinct features in mesh",
+              "Volume calculation within 1% of analytical value for simple geometries (cylinder, box)",
+              "Mesh generation < 200ms for 50K triangles",
+              "Tests assert specific vertex counts, volume values, and bounding box dimensions"
+            ],
+            "rollback": {
+              "files_created": [
+                "src/engines/DieCavity3DGeneratorEngine.ts",
+                "src/__tests__/DieCavity3DGeneratorEngine.test.ts"
+              ],
+              "files_modified": [],
+              "abort_criteria": [
+                "CSG produces non-manifold mesh",
+                "Draft angle geometry incorrect by > 0.1mm",
+                "Mesh generation > 500ms",
+                "Volume error > 2%"
+              ],
+              "rollback_procedure": "git checkout -- src/engines/DieCavity3DGeneratorEngine.ts src/__tests__/DieCavity3DGeneratorEngine.test.ts"
+            },
+            "four_loop": "BUILD → SCRUTINIZE (/physics-verify for volume/geometry) → GAP FILL (test all 5 types + draft + counterbore combos) → TIE UP"
+          },
+          "U-CCF04": {
+            "title": "Build DieCavity3DViewerComponent — Three.js interactive preview integrated into sketcher page",
+            "description": "React component that renders DieCavity3DGeneratorEngine output as interactive Three.js scene: (1) Split viewport — 2D SVG sketch on left, 3D preview on right (resizable divider), (2) Three.js scene with OrbitControls (rotate, zoom, pan), ambient + directional lighting, ground plane grid, (3) Die body rendered as solid mesh with metallic material (steel gray, PBR roughness 0.4), (4) Cavity interior highlighted with contrasting color (copper for visibility), (5) Wireframe overlay toggle for edge visibility, (6) Cross-section plane (draggable Z-height slider) showing cavity profile at any depth — validates draft angle visually, (7) Dimension overlay in 3D: length/width/depth callouts as Three.js sprites, (8) 'Exploded view' toggle separating stock and cavity for inspection, (9) Screenshot export (PNG) for documentation. Reuses ViewerCanvasWorkspace lazy-loading pattern. Syncs with dimension panel — 3D updates when dimensions change (debounced 250ms to avoid stutter during rapid typing).",
+            "depends_on": ["U-CCF02", "U-CCF03"],
+            "knowledge_consult": ["ViewerPage.tsx + ViewerCanvasWorkspace (Three.js integration pattern)", "WireEdmContour3D.tsx (Three.js mesh rendering in PRISM)", "Three.js OrbitControls, BufferGeometry, MeshStandardMaterial"],
+            "exit_criteria": [
+              "3D preview renders correctly for all 5 die cavity types",
+              "OrbitControls allow full rotation, zoom, and pan",
+              "Cross-section plane slider reveals correct cavity profile at each depth",
+              "Dimension change triggers 3D rebuild within 500ms (debounced)",
+              "Split viewport resizes without layout break",
+              "Wireframe, exploded view, and screenshot toggles function",
+              "Tests mount component, verify Three.js scene contains expected mesh objects"
+            ],
+            "rollback": {
+              "files_created": [
+                "web/src/components/sketcher/DieCavity3DViewer.tsx",
+                "web/src/components/sketcher/CrossSectionPlane.tsx",
+                "web/src/components/sketcher/DimensionOverlay3D.tsx",
+                "web/src/__tests__/DieCavity3DViewer.test.tsx"
+              ],
+              "files_modified": [
+                "web/src/pages/DieCavitySketcherPage.tsx"
+              ],
+              "abort_criteria": [
+                "Three.js scene fails to render on Chrome/Edge",
+                "OrbitControls conflict with dimension panel interactions",
+                "3D rebuild > 1s on dimension change",
+                "Memory leak from unreleased geometries/materials"
+              ],
+              "rollback_procedure": "git checkout -- web/src/components/sketcher/DieCavity3DViewer.tsx web/src/components/sketcher/CrossSectionPlane.tsx web/src/components/sketcher/DimensionOverlay3D.tsx web/src/__tests__/DieCavity3DViewer.test.tsx web/src/pages/DieCavitySketcherPage.tsx"
+            },
+            "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (visual QA all 5 types + cross-section + exploded) → TIE UP"
+          }
+        },
+        "compact_checkpoint": true
+      },
+      {
+        "session": 3,
+        "title": "Pipeline Integration + DrawParameter Export + Forge-Triple",
+        "units": ["U-CCF05", "U-CCF06"],
+        "work": {
+          "U-CCF05": {
+            "title": "Build DrawParameterExportEngine + print-to-program pipeline integration",
+            "description": "Engine that bridges the web sketcher to existing downstream systems: (1) DrawParameter CSV export — serialize all 34 dimensions from the sketcher into DrawParameter_.csv format matching the existing AutoDraw.dvb + DrawByCSV.dvb consumption schema (column order, units, header row must be byte-identical to existing CSVs), (2) Print-to-program pipeline feed — emit a PrintToProgram event with geometry type, dimensions, material, and machine target so the existing pipeline can generate G-code, (3) Save/load die designs as JSON profiles (persisted to mcp-server/data/die-designs/) with version history, (4) Die design catalog — list saved designs, search by type/customer/dimensions, clone existing design with new dimensions. The CSV export is critical because JM Die's existing AutoDraw VBA system reads this exact format — PRISM replaces the Excel front-end but preserves the VBA back-end until RES-MS15 SDK automation replaces it entirely.",
+            "depends_on": ["U-CCF01", "U-CCF03"],
+            "knowledge_consult": ["DrawingAutomation system (AutoDraw.dvb + DrawByCSV.dvb + DrawParameter_.csv format)", "PrintToGeometryEngine (print-to-geometry pipeline)", "Automated Program_Corrected 5-25.xlsm (source schema for all 34 dimensions)"],
+            "exit_criteria": [
+              "CSV export produces byte-compatible output with existing DrawParameter_.csv files",
+              "Round-trip test: export CSV → re-import → dimensions match within floating-point epsilon",
+              "PrintToProgram event contains all required fields for G-code generation",
+              "Save/load persists die designs to JSON with ISO 8601 timestamps",
+              "Design catalog search returns correct results by type, customer, dimension range",
+              "Tests validate CSV column order, header format, and numeric precision against real DrawParameter_.csv samples"
+            ],
+            "rollback": {
+              "files_created": [
+                "src/engines/DrawParameterExportEngine.ts",
+                "src/__tests__/DrawParameterExportEngine.test.ts",
+                "data/die-designs/.gitkeep"
+              ],
+              "files_modified": [],
+              "abort_criteria": [
+                "CSV format incompatible with existing AutoDraw.dvb",
+                "PrintToProgram event missing required fields",
+                "Design save/load loses precision on any dimension"
+              ],
+              "rollback_procedure": "git checkout -- src/engines/DrawParameterExportEngine.ts src/__tests__/DrawParameterExportEngine.test.ts data/die-designs/"
+            },
+            "four_loop": "BUILD → SCRUTINIZE (validate CSV against real samples) → GAP FILL (round-trip all 5 types) → TIE UP"
+          },
+          "U-CCF06": {
+            "title": "Forge-Triple: cavity-geometry-integrity hook + die_sketcher dispatcher actions + /die-sketch skill",
+            "description": "Complete Forge-Triple for the CAD/CAM front-end: (1) PROTECTIVE HOOK — cavity-geometry-integrity: fires on every die design save and CSV export, validates that all dimensions are within manufacturing limits (min wall 0.5mm, max depth/width ratio 10:1, draft angle 0.5-15 deg, corner radius >= 0.25mm), cross-checks cavity volume against stock volume (cavity must be < 85% of stock), warns if geometry would require EDM vs conventional machining (aspect ratio > 8:1 or corner radius < 0.5mm triggers EDM recommendation). (2) MCP ACTIONS — add to cadDispatcher: die_sketch_create (create new die cavity design from type + dimensions), die_sketch_preview_3d (generate 3D mesh from design), die_sketch_export_csv (export DrawParameter CSV), die_sketch_save (persist design), die_sketch_load (retrieve design), die_sketch_catalog (list/search saved designs). 6 new actions wired through cadDispatcher to DieCavitySketcherEngine, DieCavity3DGeneratorEngine, and DrawParameterExportEngine. (3) SKILL — /die-sketch: interactive workflow that guides the machinist through die type selection, dimension entry, 2D preview, 3D preview, and export. Emits the web page URL for visual interaction or runs headless via MCP for programmatic use.",
+            "depends_on": ["U-CCF01", "U-CCF03", "U-CCF05"],
+            "knowledge_consult": ["cadDispatcher.ts (61 existing actions — new 6 bring total to 67)", "cadActionSchemas.ts (Zod schema patterns)", "Existing hook patterns (crossFieldPhysics, materialSanity, machineLimitGuard)", "Existing skill patterns (skills/ directory)"],
+            "exit_criteria": [
+              "Hook fires on die_sketch_save and die_sketch_export_csv actions",
+              "Hook blocks save when dimensions violate manufacturing limits with specific error message",
+              "Hook emits EDM recommendation when geometry requires it (aspect ratio > 8:1 or corner < 0.5mm)",
+              "6 new MCP actions callable via prism_cad dispatcher",
+              "cadDispatcher action count increases from 61 to 67 (anti-regression)",
+              "Zod schemas validate all die_sketch_* action parameters",
+              "/die-sketch skill invocable and guides through complete workflow",
+              "Integration test: create design → preview 3D → export CSV → validate CSV → save → reload → dimensions match"
+            ],
+            "rollback": {
+              "files_created": [
+                "src/hooks/cavity-geometry-integrity.ts",
+                "src/__tests__/cavity-geometry-integrity.test.ts",
+                "skills/die-sketch.md"
+              ],
+              "files_modified": [
+                "src/tools/dispatchers/cadDispatcher.ts",
+                "src/schemas/cadActionSchemas.ts",
+                "src/hooks/index.ts"
+              ],
+              "abort_criteria": [
+                "Hook false positives on valid geometries",
+                "MCP actions not callable",
+                "cadDispatcher action count < 67",
+                "Skill not triggering",
+                "Integration test fails at any step"
+              ],
+              "rollback_procedure": "git checkout -- src/hooks/cavity-geometry-integrity.ts src/__tests__/cavity-geometry-integrity.test.ts skills/die-sketch.md src/tools/dispatchers/cadDispatcher.ts src/schemas/cadActionSchemas.ts src/hooks/index.ts"
+            },
+            "four_loop": "BUILD → SCRUTINIZE (/prism-review + /safety-audit) → GAP FILL (integration test all 5 types end-to-end) → TIE UP"
+          }
+        },
+        "compact_checkpoint": true
+      }
+    ],
+
+    "forge_triple": {
+      "protective_hook": "cavity-geometry-integrity — validates die dimensions against manufacturing limits, cross-checks cavity/stock volume ratio, triggers EDM recommendation for extreme aspect ratios or small corner radii",
+      "mcp_action": "prism_cad:die_sketch_create, die_sketch_preview_3d, die_sketch_export_csv, die_sketch_save, die_sketch_load, die_sketch_catalog",
+      "skill": "/die-sketch — interactive die cavity design workflow: type selection → dimensions → 2D SVG → 3D preview → CSV export → print-to-program"
+    },
+
+    "exit_gate": {
+      "criteria": [
+        "DieCavitySketcherEngine generates valid SVG for all 5 die types",
+        "DieCavity3DGeneratorEngine produces watertight meshes with correct volume (< 1% error)",
+        "DieCavitySketcherPage renders at /die-sketcher with live 2D + 3D split viewport",
+        "DrawParameter CSV export is byte-compatible with existing AutoDraw.dvb pipeline",
+        "cavity-geometry-integrity hook blocks invalid geometries and recommends EDM when appropriate",
+        "6 new prism_cad actions callable (die_sketch_create/preview_3d/export_csv/save/load/catalog)",
+        "/die-sketch skill guides complete workflow from type selection to program generation",
+        "Integration test: MailBox 25x15x40mm with R2 corners → SVG → 3D → CSV → save → reload passes"
+      ],
+      "omega_floor": 1.0,
+      "svi_delta": "+4%"
+    },
+
+    "feeds_into": [
+      "Print-to-Program pipeline (geometry source for G-code generation)",
+      "RES-MS15 hyperMILL SDK Automation (web sketcher replaces Excel front-end, SDK replaces VBA back-end)",
+      "HM-KC track (die cavity geometry feeds hyperMILL job setup)",
+      "LEARN track (die design examples become training exercises)",
+      "Quote estimation (cavity volume + geometry complexity → accurate cycle time)"
+    ]
+  }
+]

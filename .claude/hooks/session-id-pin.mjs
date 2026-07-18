@@ -68,7 +68,7 @@ function loadProcessTree() {
       const result = spawnSync(
         WIN_WMIC,
         ["process", "get", "processid,parentprocessid", "/format:csv"],
-        { encoding: "utf-8", timeout: budget }
+        { windowsHide: true, encoding: "utf-8", timeout: budget }
       );
       if (result.status !== 0 || !result.stdout) return new Map();
       const map = new Map();

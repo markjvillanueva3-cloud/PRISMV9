@@ -1,6 +1,6 @@
 ---
 name: fleet-reaper
-description: ALWAYS-ON fleet hygiene baseline for the 13-chat fleet (alpha..mike + golf). Alpha owns the reaper (per [[feedback_alpha_owns_reaper]]) — /checkin-alpha auto-invokes this skill on every alpha session, so bare /fleet-reaper is the canonical re-arm and the answer to "is the reaper on?" is unconditionally YES. Stays on via dual coverage: (1) durable Windows scheduled task "PRISM Fleet Reaper" (5-min cadence, S4U principal, AtStartup trigger, restart-on-failure ×3 — survives every chat closing AND host reboots) + (2) a persistent in-session Monitor armed in this chat (live event feed for the lifetime of the session). The skill is idempotent — re-running never duplicates the Monitor (TaskList dedup) or the task (schtasks /Query gate). Maps every running node/git/bash process to the chat slot that spawned it (chat-slots.json) and reaps orphans of crashed/dead chats — gated by a confirm-after-N-ticks rule so a live chat's process is never killed. FLEET-REAPER-MS1 adds three layers: a leftover-bash-task classifier (catches Bash-tool Monitor loops orphaned under a lingering unpinned harness), soft RAM/CPU relief (reversible BelowNormal priority + working-set trim on stale-slot processes under memory pressure), and an Ollama coordinator (pre-warms a GPU model + writes a routing hint that nudges ollama-task-offloader.mjs to absorb more hook-eligible work — converting idle VRAM into Claude-CLI throughput). Use to re-arm after the Monitor died (chat-restart, /compact crash, force-close), to verify always-on status, when orphan node/bash/git are piling up, when host memory is unstable, or when the GPU sits idle while commit pressure is high.
+description: ALWAYS-ON fleet hygiene baseline for the 13-chat fleet (alpha..mike + golf). Golf owns the reaper (per [[feedback_golf_owns_reaper]], SUPERSEDES the prior alpha-owns rule 2026-05-16) — /checkin-golf auto-invokes this skill on every golf session, so bare /fleet-reaper is the canonical re-arm and the answer to "is the reaper on?" is unconditionally YES. Stays on via dual coverage: (1) durable Windows scheduled task "PRISM Fleet Reaper" (5-min cadence, S4U principal, AtStartup trigger, restart-on-failure ×3 — survives every chat closing AND host reboots) + (2) a persistent in-session Monitor armed in this chat (live event feed for the lifetime of the session). The skill is idempotent — re-running never duplicates the Monitor (TaskList dedup) or the task (schtasks /Query gate). Maps every running node/git/bash process to the chat slot that spawned it (chat-slots.json) and reaps orphans of crashed/dead chats — gated by a confirm-after-N-ticks rule so a live chat's process is never killed. FLEET-REAPER-MS1 adds three layers: a leftover-bash-task classifier (catches Bash-tool Monitor loops orphaned under a lingering unpinned harness), soft RAM/CPU relief (reversible BelowNormal priority + working-set trim on stale-slot processes under memory pressure), and an Ollama coordinator (pre-warms a GPU model + writes a routing hint that nudges ollama-task-offloader.mjs to absorb more hook-eligible work — converting idle VRAM into Claude-CLI throughput). Use to re-arm after the Monitor died (chat-restart, /compact crash, force-close), to verify always-on status, when orphan node/bash/git are piling up, when host memory is unstable, or when the GPU sits idle while commit pressure is high.
 type: skill
 model: sonnet
 effort: low
@@ -31,13 +31,16 @@ impact:
     - a pre-warmed Ollama model in GPU VRAM (fire-and-forget, keep_alive-bounded)
   bounded: true
   reversible: true  # task is Disable/Uninstall-able; Monitor is TaskStop-able; PRISM_FLEET_REAPER_DISABLE=1 is the fleet-wide kill switch; soft relief + hint self-expire
+composes_with:
+  - "/checkin-golf"
+  - "/reap-zombies"
 ---
-
 # /fleet-reaper — ALWAYS-ON slot-aware fleet hygiene baseline (13-chat fleet)
 
-> **This skill is designed to STAY ON.** Alpha owns the reaper (per
-> [[feedback_alpha_owns_reaper]]) and `/checkin-alpha` auto-invokes this skill
-> on every alpha session — so by doctrine the reaper is *always running*. Bare
+> **This skill is designed to STAY ON.** Golf owns the reaper (per
+> [[feedback_golf_owns_reaper]] — SUPERSEDES the prior alpha-owns rule
+> 2026-05-16) and `/checkin-golf` auto-invokes this skill
+> on every golf session — so by doctrine the reaper is *always running*. Bare
 > `/fleet-reaper` is the canonical re-arm: idempotent, additive, never
 > duplicates the Monitor or the scheduled task. The skill exists in two states
 > only: **active** (default) or **explicitly disabled via the kill switch**.
@@ -54,17 +57,20 @@ impact:
 > in-session Monitor + a Stop hook). Setting that one env var makes the sweep
 > refuse to kill, nudge, prewarm, or write a hint in *every* runner, fleet-wide,
 > regardless of which chat armed it. `--uninstall` only tears down *this chat's*
-> Monitor + the (global) task — and the next `/checkin-alpha` will re-register
+> Monitor + the (global) task — and the next `/checkin-golf` will re-register
 > the task and re-arm the Monitor. If the reaper ever kills something it
 > shouldn't, set the env var first, investigate after.
 
-> **Run `/fleet-reaper` in ONE chat only — by doctrine, alpha.** The scheduled
+> **Run `/fleet-reaper` in ONE chat only — by doctrine, golf.** The scheduled
 > task is global and the Stop hook fires in every chat — a second chat's
 > Monitor is just redundant load on the host this skill exists to protect (it
 > spawns the very `node.exe` processes the reaper hunts). If another chat
 > previously armed a Monitor, run `--uninstall` there first, then re-arm in
-> alpha. The `alpha-slot-reaper-guardian.mjs` SessionStart hook enforces this
-> doctrine automatically — non-alpha chats are silent no-ops.
+> golf. The `golf-slot-reaper-guardian.mjs` SessionStart hook enforces this
+> doctrine automatically — non-golf chats are silent no-ops. (The legacy
+> `alpha-slot-reaper-guardian.mjs` file is preserved on disk per
+> [[feedback_never_delete_only_disable]] but its settings.json wiring was
+> removed in the 2026-05-16 ownership move.)
 
 ## Always-on semantics
 
@@ -77,14 +83,14 @@ impact:
    resumes pre-login on reboot. **One elevated install = set-and-forget for
    the life of the box.** This is the load-bearing layer — the in-session
    Monitor is just a UX feed on top of it.
-2. **Per-session persistent Monitor** — armed by `/checkin-alpha` (which is
-   auto-fired on every alpha session via session-start hooks) and by bare
+2. **Per-session persistent Monitor** — armed by `/checkin-golf` (which is
+   auto-fired on every golf session via session-start hooks) and by bare
    `/fleet-reaper`. Dies when this chat closes; re-arms automatically on the
-   next alpha session.
+   next golf session.
 
 **Re-arm scenarios** (use bare `/fleet-reaper`):
 - After `/compact` if the Monitor didn't survive the compact boundary
-- After a chat crash or force-close (the new chat is now alpha)
+- After a chat crash or force-close (the new chat is now golf)
 - To verify always-on status (the §verdict block tells you all three layers)
 - If `schtasks /Query /TN "PRISM Fleet Reaper"` returns absent (the elevated
   installer must be re-run; the skill surfaces the exact command)
@@ -97,8 +103,8 @@ impact:
 
 ## When to use
 
-- **By default — never need to invoke manually.** `/checkin-alpha` auto-fires
-  this skill; alpha is always on; the reaper is always on. The §verdict block
+- **By default — never need to invoke manually.** `/checkin-golf` auto-fires
+  this skill; golf is always on; the reaper is always on. The §verdict block
   is the answer to "is the reaper still on?" without any other ceremony.
 - Re-arm after the Monitor died (`/compact` crash, chat force-close, session
   restart) — `/fleet-reaper` is the canonical re-arm
@@ -129,7 +135,7 @@ impact:
 
 ## Args: $ARGUMENTS
 
-- *(empty)* — **canonical always-on re-arm.** Full pipeline: immediate sweep → ensure scheduled task → launch persistent Monitor. **The Monitor is armed unconditionally** — a healthy scheduled task is NOT a reason to skip it, because the Monitor provides the operator's live event feed (the task's reaps go to the JSONL log but are invisible without the Monitor). Idempotent — if the Monitor is already armed for this session (TaskList dedup), step C no-ops. This is what `/checkin-alpha` runs automatically.
+- *(empty)* — **canonical always-on re-arm.** Full pipeline: immediate sweep → ensure scheduled task → launch persistent Monitor. **The Monitor is armed unconditionally** — a healthy scheduled task is NOT a reason to skip it, because the Monitor provides the operator's live event feed (the task's reaps go to the JSONL log but are invisible without the Monitor). Idempotent — if the Monitor is already armed for this session (TaskList dedup), step C no-ops. This is what `/checkin-golf` runs automatically.
 - `--status` — report only: read-only sweep classification + scheduled-task state. No ledger write, no install, no Monitor, no kills. **Use to verify always-on status without re-arming.**
 - `--dry-run` — burn-in: every runner this skill arms (the immediate sweep AND the Monitor) gets `--dry-run` — it classifies + decides but NEVER kills. Use to watch slot attribution before going live.
 - `--no-task` — skip the scheduled-task step. ⚠ If no task was already registered, reaping stops when this chat closes (Monitor-only).
@@ -252,10 +258,10 @@ Print the boxed summary, choosing the `verdict:` line by what was actually armed
 │ reaped:      0 this run · 4 candidates pending (confirm window)
 │ soft-relief: nudged 3 priority · 2 working-set (~410M reclaimed) · 5 stale-slot targets
 │ gpu:         NVIDIA GeForce RTX 3080  8.5G free / 10G · 4% util
-│ ollama:      reachable · loaded: qwen2.5-coder:7b (4.1G)
+│ ollama:      reachable · loaded: qwen2.5-coder:32b (20G)
 │ docker:      ✓ ollama · ✓ docker · ✓ postgres · ✓ qdrant · ✓ prometheus
 │ hint:        aggressive-offload Δ=-0.15 · TTL 5m · → ollama-task-offloader will absorb more
-│ prewarm:     fired qwen2.5-coder:7b (keep_alive)
+│ prewarm:     fired qwen2.5-coder:32b (keep_alive)
 │ task:        ✓ "PRISM Fleet Reaper" registered (5-min scheduled task)
 │ monitor:     ✓ armed (--monitor-loop 300s, persistent) — THIS chat only
 │ ledger:      state/shared/fleet-reaper-candidates.json
@@ -305,7 +311,7 @@ Alphabetical. MS0 knobs first, then the FLEET-REAPER-MS1 soft-relief + coordinat
 | `PRISM_FLEET_REAPER_HINT_TTL_SEC=N` | **MS1** — routing-hint validity window in seconds (default 300 — equal to one sweep interval) |
 | `PRISM_FLEET_REAPER_OLLAMA_COORD_DISABLE=1` | **MS1** — skip Layers 2-3 entirely (env equivalent of `--no-coord`) |
 | `PRISM_FLEET_REAPER_OLLAMA_KEEP_ALIVE=S` | **MS1** — `keep_alive` passed to the Ollama pre-warm POST (default `10m`) |
-| `PRISM_FLEET_REAPER_OLLAMA_PREWARM_MODEL=name` | **MS1** — model the coordinator pre-warms into VRAM (default `qwen2.5-coder:7b`) |
+| `PRISM_FLEET_REAPER_OLLAMA_PREWARM_MODEL=name` | **MS1** — model the coordinator pre-warms into VRAM (default `qwen2.5-coder:32b`) |
 | `PRISM_FLEET_REAPER_SOFT_RELIEF_AGE_SEC=N` | **MS1** — minimum process age before a soft-relief nudge (default 180) |
 | `PRISM_FLEET_REAPER_SOFT_RELIEF_DISABLE=1` | **MS1** — skip Layer 1 entirely (env equivalent of `--no-relief`) |
 | `PRISM_FLEET_REAPER_SOFT_RELIEF_PRESSURE_PCT=N` | **MS1** — commit/phys % at or above which soft relief + the coordinator act (default 90) |
@@ -326,10 +332,10 @@ layer. It is additive — it does not modify or replace any existing reaper.
 crashed chats leave behind harness children that pin RAM). On-demand reaping
 isn't enough — orphans accumulate between invocations and destabilize the
 fleet. So the reaper runs unconditionally: the scheduled task ticks every
-5 min independent of any chat; alpha's Monitor gives operator-visible event
-feed when alpha is up; and `alpha-slot-reaper-guardian.mjs` SessionStart-fires
-on every alpha session to re-arm if either layer dropped. The doctrine is:
-**alpha is always on → the reaper is always on**. The kill switch
+5 min independent of any chat; golf's Monitor gives operator-visible event
+feed when golf is up; and `golf-slot-reaper-guardian.mjs` SessionStart-fires
+on every golf session to re-arm if either layer dropped. The doctrine is:
+**golf is always on → the reaper is always on**. The kill switch
 (`PRISM_FLEET_REAPER_DISABLE=1`) is the ONLY way to make it not so.
 
 **FLEET-REAPER-MS1** extends the *reframe* from "kill more" to "use what's

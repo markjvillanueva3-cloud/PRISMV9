@@ -30,7 +30,7 @@ related:
 ## Description (first paragraph)
 
 
-# Engine Deduplication Scanner
+# /dedup — Duplication Guard Check
 
 <!-- AUTO-END -->
 

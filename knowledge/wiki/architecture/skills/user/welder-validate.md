@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `welder-validate` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/welder-validate.md` |
+| Source | `C:/Users/wompu/.claude/commands/welder-validate.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Validate welding programs against heat input limits, distortion constraints, and weld quality requirements.
+
+# /welder-validate — Welding Program Validation
 
 <!-- AUTO-END -->
 

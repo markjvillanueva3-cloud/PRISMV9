@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>introduction_to_simulation</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>introduction_to_simulation</h1>
+<dl>
+<dt>Domain</dt><dd>cad</dd>
+<dt>Software</dt><dd>solidworks</dd>
+<dt>Path</dt><dd><code>SOLIDWORKS/SOLIDWORKS Corp/SOLIDWORKS/lang/english/introduction_to_simulation.pdf</code></dd>
+<dt>Pages</dt><dd>37</dd>
+<dt>Text chars</dt><dd>70978</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>INTRODUCTION TO SIMULATION
+SOLIDWORKS Simulation
+
+-- 1 of 37 --
+
+
+
+-- 2 of 37 --
+
+Contents
+Overview..........................................................................................................................1
+Fundamentals of FEA.....................................................................................................2
+Definition of Finite Element Analysis.................................................................................................2
+Components of a FEA Model............................................................................................................3
+Discretized geometry...................................................................................................................................3
+Element properties......................................................................................................................................4
+Material data................................................................................................................................................4
+Loads and boundary conditions..................................................................................................................4
+Analysis type...............................................................................................................................................4
+Simple Rod Example: Obtaining Nodal Displacements Using Implicit Methods...............................5
+Finite Elements and Rigid Bodies.................................................................................7
+Definition of Finite Elements.............................................................................................................7
+Family (related to spatial dimensionality)....................................................................................................7
+Degrees of freedom (directly related to the element family)........................................................................7
+Number of Nodes - order of interpolation....................................................................................................7
+Integration...................................................................................................................................................8
+Continuum Elements.........................................................................................................................9
+Three-dimensional continuum element library............................................................................................9
+Selecting Continuum Elements.................................................................................................................10
+Shell Elements................................................................................................................................10
+Shell formulation - Thick or Thin................................................................................................................11
+Rigid Bodies....................................................................................................................................12
+Mesh Formulation.........................................................................................................13
+Mesh Convergence.........................................................................................................................13
+Mesh Control...................................................................................................................................15
+Mesh Quality Checks......................................................................................................................16
+Materials........................................................................................................................18
+Material Classification.....................................................................................................................18
+Material Models...............................................................................................................................19
+Linear Elasticity...............................................................................................................................20
+Plasticity..........................................................................................................................................20
+True Stress/Strain vs Engineering Stress/Strain.......................................................................................23
+Hyperelasticity.................................................................................................................................24
+Recommendations for Using Hyperelastic Materials.................................................................................25
+Linear vs Nonlinear Analysis.......................................................................................27
+Conditions for Linear Analysis.........................................................................................................27
+Sources of Nonlinearity...................................................................................................................28
+Material Nonlinearity..................................................................................................................................28
+Boundary Nonlinearity...............................................................................................................................29
+Geometric Nonlinearity..............................................................................................................................30
+Results...........................................................................................................................32
+Guidelines for Interpreting Results..................................................................................................32
+i	Introduction to Simulation
+
+-- 3 of 37 --
+
+
+
+-- 4 of 37 --
+
+Overview
+The Introduction to Simulation guide is intended for novice users of the finite element analysis method. It covers
+basic engineering concepts and techniques with the goal of providing to design analysts the knowledge needed
+to incorporate this powerful simulation tool successfully into the design process.
+1	Introduction to Simulation
+Overview
+
+-- 5 of 37 --
+
+Fundamentals of FEA
+The Finite Element Method (FEM) is a numerical technique used for providing approximate solutions to a set
+of partial differential equations that describe physical phenomena.
+Definition of Finite Element Analysis
+In mathematical terms, Finite Element Analysis (FEA), also known as the Finite Element Method (FEM), is a
+numerical technique for describing physical phenomena in terms of partial differential equations. Finite element
+analysis is widely used in many engineering disciplines for solving structural mechanics, vibration, heat transfer,
+and other problems.
+You use the FEM to predict the behavior of mechanical and thermal systems under their operating conditions,
+to reduce the design cycle time, and to improve overall system performance.
+The basic steps in any FEA process are as follows:
+Creates the geometric features of the system to be analyzed stored in a CAD
+database.
+Geometric representation
+Splits the geometry into relatively small and simple geometric entities, called finite
+elements. This discretization process is better known as mesh formulation. The
+Discretization of
+geometry
+elements are called “finite” to emphasize the fact that they are not infinitesimally
+small, but only reasonably small in comparison to the overall model size.
+Develops the equations that describe the behavior of each element. Material
+properties for each element are considered in the formulation of the governing
+Element formulation
+equations. This involves choosing a displacement function within each element.
+Linear and quadratic polynomials are frequently used functions.
+Obtains the set of global equations for the entire model from the equations of
+individual elements. The loads and support (boundary) conditions are applied to
+the appropriate nodes of the finite element mesh.
+Assembly
+Provides the solution for the unknown nodal degrees of freedom (or generalized
+displacements).
+Solution of equations
+Obtains visualization plots for quantities of interest, such as stresses and strains.	Postprocessing
+Note:
+FEA is not the only tool available for numerical analysis. Other numerical methods used in engineering
+include the Finite Difference Method, Boundary Element Method, or Finite Volumes Method. However,
+due to its versatility and high numerical efficiency, FEA has come to dominate the software market for
+engineering analysis, while other methods have been relegated to niche applications. Using FEA, you can
+analyze models of complex shapes under their operating load environment and predict their behavior
+within the desired accuracy.
+Introduction to Simulation	2
+Fundamentals of FEA
+
+-- 6 of 37 --
+
+Components of a FEA Model
+A FEA model is composed of several different components that together describe the physical problem to be
+analyzed and the results to be obtained. At a minimum the analysis model consists of the following information:
+discretized geometry, element properties, material data, loads and boundary conditions, analysis type, and output
+requests.
+The following topics are discussed:
+Discretized geometry
+Finite elements and nodes define the basic geometry of the physical structure being modeled.
+Each element in the model represents a discrete portion of the physical structure, which is, in turn, represented
+by many interconnected elements. Elements are connected to one another by shared nodes. The coordinates of
+the nodes and the connectivity of the elements—that is, which nodes belong to which elements—comprise the
+model geometry. The collection of all the elements and nodes in a model is called the mesh. Generally, the mesh
+is only an approximation of the actual geometry of the structure.
+The element type and the overall number of elements used in the mesh affect the results obtained from a simulation.
+The greater the mesh density (that is, the greater the number of elements in the mesh), the more accurate the
+results. As the mesh density increases, the analysis results converge to a unique solution, and the computer time
+required for the analysis increases. The solution obtained from the numerical model is generally an approximation
+to the solution of the physical problem being simulated. The extent of the approximations made in the model&#39;s
+geometry, material behavior, boundary conditions, and loading determines how well the numerical simulation
+matches the physical problem.
+Figure 1: CAD model of a part
+Figure 2: Model subdivided into small pieces (elements)
+3	Introduction to Simulation
+Fundamentals of FEA
+
+-- 7 of 37 --
+
+Element properties
+The choice of the appropriate element is very important for the simulation of the physical problem. Element
+libraries include elements that are simple geometric shapes with one, two, or three dimensions.
+Continuum or solid elements are appropriate for bulky or complex 3D models. Shell elements are suitable for
+thin parts with thickness significantly smaller than the other dimensions. Beam elements are suitable for structural
+members where the length is significantly greater than the other two dimensions.
+Figure 3: Common element families
+Material data
+Material properties for all elements must be specified. While high-quality material data are often difficult to
+obtain, particularly for the more complex material models, the validity of the simulation results is limited by the
+availability of accurate material data.
+Loads and boundary conditions
+The application of loads distorts the physical structure and, thus, creates stress in it. Boundary conditions are
+used to constrain portions of the model to remain fixed (zero displacements) or to move by a prescribed amount
+(nonzero displacements).
+The most common forms of loading include:
+• 	Point loads
+• 	Pressure loads on surfaces
+• 	Distributed tractions on surfaces
+• 	Distributed edge loads and moments on shell edges
+• 	Body forces, such as the force of gravity
+• 	Thermal loads
+In a static stress analysis adequate boundary conditions must be used to prevent the model from moving as a
+rigid body in any direction; otherwise, unrestrained rigid body motion causes the simulation to stop prematurely.
+The potential rigid body motions depend on the dimensionality of the model.
+Analysis type
+Depending on the type of applied load environment, inclusion of inertia effects, and material properties, the
+appropriate analysis type must be selected for the simulation. Common analysis types include linear static,
+nonlinear static, dynamic, buckling, heat transfer, fatigue, and optimization.
+In a static analysis the long-term response of the structure to the applied loads (which are applied gradually and
+slowly until they reach their full magnitude) is obtained. In cases where the loads are changing with time or
+frequency, a dynamic analysis is required. For example, you perform a dynamic analysis to simulate the effect
+of an impact load on a component or the response of a building during an earthquake.
+A nonlinear structural problem is one in which the structure&#39;s stiffness changes as it deforms. All physical
+structures exhibit nonlinear behavior. Linear analysis is a convenient approximation that is often adequate for
+Introduction to Simulation	4
+Fundamentals of FEA
+
+-- 8 of 37 --
+
+design purposes. It is obviously inadequate for many structural simulations including manufacturing processes,
+such as forging or stamping; crash analyses; and analyses of rubber components, such as tires or engine mounts.
+Simple Rod Example: Obtaining Nodal Displacements Using Implicit Methods
+A simple example of a rod, constrained at one end and loaded at the other end is used to introduce the basic
+concepts of FEA.
+The objective of the analysis is to find the displacement of the free end of the rod, the stress in the rod, and the
+reaction force at the constrained end of the rod.
+The first step of any finite element simulation is to discretize the actual geometry of the structure using a collection
+of finite elements. Each finite element represents a discrete portion of the physical structure. The finite elements
+are joined by shared nodes. The collection of nodes and finite elements is called the mesh. The number of elements
+per unit of length, area, or volume is referred to as the mesh density. In a stress analysis, the displacements of
+the nodes are the fundamental variables for which a solution is required. Once the nodal displacements are
+known, the stresses and strains in each finite element can be determined easily.
+Consider a simple example of a rod, constrained at one end and loaded at the other end. The rod is modeled with
+two truss elements, which can carry axial loads only.
+Figure 4: Axially-loaded rod
+The discretized model with the node and element labels and the free-body diagrams for each node in the model
+are shown below.
+Figure 5: Discretized model of rod
+Figure 6: Free-body diagram for each node
+In general each node will carry an external load applied to the model, P, and internal loads, l, caused by stresses
+in the elements attached to that node. For a model to be in static equilibrium, the net force acting on each node
+must be zero; that is, the internal and external loads at each node must balance each other. For node a this
+equilibrium equation can be obtained as follows.
+Assuming that the change in length of the rod is small, the strain in element 1 is given by
+5	Introduction to Simulation
+Fundamentals of FEA
+
+-- 9 of 37 --
+
+ε 	,
+u 	u
+L	11
+b 	a
+= −
+where u a and u b are the displacements at nodes a and b , respectively, and L is the original length of the element.
+Assuming that the material is elastic, the stress in the rod is given by the strain multiplied by the Young&#39;s modulus
+Ε.
+σ 	Ε ϵ	11 	11 11	=
+The axial force acting on the end node is equivalent to the stress in the rod multiplied by its cross-sectional area,
+A. Thus, a relationship between internal force, material properties, and displacements is obtained.
+( 	)	I 	σ A 	Eε A 	u 	u 	.	a EA
+L
+b 	a	1 11 	11	= 	= 	= 	−
+Equilibrium at node b must take into account the internal forces acting from both elements joined at that node.
+The internal force from element 1 is now acting in the opposite direction and so becomes negative. The resulting
+equation is
+( 	) 	( 	)	P 	u 	u 	u 	u 	0.	b EA
+L
+b 	a 	EA
+L
+c 	b	
+− 	− 	+ 	− 	=
+For node c the equilibrium equation is
+( 	)	P 	u 	u 	0.	c EA
+L
+c 	b	
+− 	− 	=
+For implicit methods, the equilibrium equations need to be solved simultaneously to obtain the displacements
+of all the nodes. This requirement is best achieved by matrix techniques; therefore, we write the internal and
+external force contributions as matrices. If the properties and dimensions of the two elements are the same, the
+equilibrium equations can be simplified as
+( 	)
+P
+P
+P
+u
+u
+u
+1 	1 	0
+1 	2 	1
+0 	1 	1
+0.
+a
+b
+c
+EA
+L
+a
+b
+c
+⎧
+⎨
+⎪
+⎩
+⎪
+⎫
+⎬
+⎪
+⎭
+⎪
+−
+⎡
+⎣
+⎢
+⎢
+−
+− 	−
+−
+⎤
+⎦
+⎥
+⎥
+⎧
+⎨
+⎪
+⎩
+⎪
+⎫
+⎬
+⎪
+⎭
+⎪
+=
+In general, it may be that the element stiffnesses, the EA L	/ 	terms, are different from element to element; therefore,
+write the element stiffnesses as K1 and K2 for the two elements in the model. We are interested in obtaining the
+solution to the equilibrium equation in which the externally applied forces, P, are in equilibrium with the internally
+generated forces, I. When discussing this equation with reference to convergence and nonlinearity, we write it
+as
+P 	I	{ } 	{ } 	0.	− 	=
+For the complete two-element, three-node structure we, therefore, modify the signs and rewrite the equilibrium
+equation as
+P
+P
+P
+K 	K
+K 	K 	K 	K
+K 	K
+u
+u
+u
+0
+( 	)
+0
+0.
+a
+b
+c
+a
+b
+c
+1 	1
+1 	1 	2 	2
+2 	2
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎧
+⎨
+⎩
+⎫
+⎬
+⎭
+−
+⎡
+⎣
+⎢
+⎢
+−
+− 	+ 	−
+−
+⎤
+⎦
+⎥
+⎥
+⎧
+⎨
+⎩
+⎫
+⎬
+⎭
+=
+In an implicit method, this system of equations can then be solved to obtain values for the three unknown
+variables: u b, u c, and Pa ( u a is specified in the problem as 0.0).
+Once the displacements are known, we can go back and use them to calculate the stresses in the truss elements.
+Implicit finite element methods require that a system of equations is solved at the end of each solution increment.
+Note: In contrast to implicit methods, an explicit method, does not require the solving of a simultaneous
+system of equations or the calculation of a global stiffness matrix. Instead, the solution is advanced
+kinematically from one increment to the next.
+Introduction to Simulation	6
+Fundamentals of FEA
+
+-- 10 of 37 --
+
+Finite Elements and Rigid Bodies
+Finite elements and rigid bodies are the fundamental components of an FEA model. Finite elements are deformable,
+whereas rigid bodies move through space without changing shape.
+Definition of Finite Elements
+Finite elements are the fundamental components of an FEA model. They are basic geometric shapes that discretize
+the model geometry and are represented mathematically by element equations. The element equations are simple
+equations that locally approximate the original complex equations of the problem to be analyzed.
+Each finite element is characterized by the following:
+Family (related to spatial dimensionality)
+Depending on the geometry features of the model, you assign elements from a suitable element family to create
+the mesh.
+Commonly used element libraries for a stress/displacement simulation include: continuum (or solid), shell, beam,
+truss, rigid elements, etc.
+Figure 7: Common element families
+Degrees of freedom (directly related to the element family)
+The degrees of freedom (dof) are the fundamental variables calculated during the analysis.
+For a stress/displacement simulation the degrees of freedom are the translations at each node. Some element
+families, such as the beam and shell families, have rotational degrees of freedom as well. For a heat transfer
+simulation the degrees of freedom are the temperatures at each node.
+Note: A heat transfer analysis, therefore, requires the use of different elements than a stress analysis,
+since the degrees of freedom are not the same.
+Depending on the type of analysis, the calculated degrees of freedom are:
+• 	Three translations in the X-, Y-, and Z-directions (based on a global or local coordinate system)
+• 	Three rotations about the X-, Y-, and Z-axes (based on a global or local coordinate system)
+• 	Temperature
+Number of Nodes - order of interpolation
+Displacements, rotations, temperatures, and any other degrees of freedom mentioned in the previous section are
+calculated only at the nodes of the element.
+7	Introduction to Simulation
+Finite Elements and Rigid Bodies
+
+-- 11 of 37 --
+
+At any other point in the element, the displacements are obtained by interpolating from the nodal displacements.
+Usually the interpolation order is determined by the number of nodes used in the element.
+Elements that have nodes only at their corners use linear
+interpolation.
+Linear or First-Order elements
+Elements with mid-side nodes use quadratic interpolation	Quadratic or Second-Order elements
+Figure 8: Linear and quadratic tetrahedral elements
+Integration
+The term integration refers to numerical techniques, like Gaussian quadrature, to integrate the polynomial terms
+in an element&#39;s stiffness matrix, over the volume of each element.
+Using Gaussian quadrature for most elements, an FEA solver evaluates the material response at each integration
+point in each element. Some elements can use full or reduced integration, a choice that can have a significant
+effect on the accuracy of the element for a given problem.
+Figure 9: Integration points in fully integrated, two-dimensional, quadrilateral elements
+Figure 10: Integration points in reduced integrated, two-dimensional, quadrilateral elements
+The expression &quot;full integration&quot; refers to the number of Gauss points required to integrate the polynomial terms
+in an element&#39;s stiffness matrix when the element has a regular shape. For hexahedral and quadrilateral elements
+Introduction to Simulation	8
+Finite Elements and Rigid Bodies
+
+-- 12 of 37 --
+
+a &quot;regular shape&quot; means that the edges are straight and meet at right angles and that any edge nodes are at the
+midpoint of the edge.
+Reduced-integration elements use one less integration point in each direction than fully integrated elements.
+Reduced-integration, linear elements have just a single integration point located at the element&#39;s centroid.
+Quadratic reduced-integration elements are generally the best choice for most general stress/displacement
+simulations, except in large-displacement simulations involving very large strains and in some types of contact
+analyses.
+Continuum Elements
+Continuum or solid elements can be used to model the widest variety of components. Conceptually, continuum
+elements simply model small blocks of material in a component.
+Since they may be connected to other elements on any of their faces, continuum elements, like bricks in a building
+or tiles in a mosaic, can be used to build models of nearly any shape, subjected to nearly any loading. There are
+stress/displacement, nonstructural, and coupled field continuum elements; this guide will discuss only
+stress/displacement elements. The following topics are discussed:
+Three-dimensional continuum element library
+Three-dimensional continuum elements are tetrahedra.
+Figure 11: Three-dimensional continuum elements
+A library of solid elements also includes two-dimensional elements. The most commonly used two-dimensional
+continuum elements are as follows:
+• 	Plane strain elements suitable for modeling thick structures (out-of-plane strain is zero); for example, a
+cross-section of a dam under water pressure.
+• 	Plane stress elements suitable for modeling thin structures (out-of-plane stress is zero); for example, thin
+slabs with one dimension smaller than the other two.
+• 	Axisymmetric elements suitable for analyzing structures with axisymmetric geometry subjected to
+axisymmetric loading; for example, an O-ring pressed into a groove by a top plate.
+9	Introduction to Simulation
+Finite Elements and Rigid Bodies
+
+-- 13 of 37 --
+
+Figure 12: Plane strain, plane stress, and axisymmetric elements
+Selecting Continuum Elements
+The correct choice of element for a particular simulation is vital if accurate results are to be obtained at a reasonable
+cost.
+If you are a new user with little experience of FEA applications, the task of selecting the most suitable element
+is usually executed by the software. The most commonly used element for meshing arbitrary geometries is the
+quadratic tetrahedron. As you become more experienced with FEA applications, you can follow these
+recommendations on element selection:
+• 	Minimize the mesh distortion as much as possible. Coarse meshes with distorted linear elements can give
+very poor results.
+• 	Use a fine mesh of linear, reduced-integration elements for simulations involving very large mesh distortions
+(large-strain analysis).
+• 	Use quadratic elements for general analysis work, unless you need to model very large strains or have a
+simulation with complex, changing contact conditions.
+• 	For contact problems use a fine mesh of linear elements.
+Shell Elements
+Use shell elements to model structures in which one dimension (the thickness) is significantly smaller than the
+other dimensions, and in which the stresses in the thickness direction are negligible.
+Shell elements are 2D elements capable of resisting membrane and bending loads. A structure, such as a pressure
+vessel, whose thickness is less than 1/10 of a typical global structural dimension generally can be modeled with
+shell elements. The following are examples of typical global dimensions:
+• 	Distance between supports
+• 	Distance between stiffeners or large changes in section thickness
+• 	Radius of curvature, and
+• 	Wavelength of the highest vibration mode of interest.
+Introduction to Simulation	10
+Finite Elements and Rigid Bodies
+
+-- 14 of 37 --
+
+The following topic is discussed:
+Shell formulation - Thick or Thin
+Shell problems generally fall into one of two categories: thick shell problems and thin shell problems.
+Thick shell problems assume that the effects of transverse shear deformation are important to the solution. Thin
+shell problems, on the other hand, assume that the transverse shear deformation is small enough to be neglected.
+Material lines that are initially normal to the shell surface remain straight and normal throughout the deformation.
+Hence, transverse shear strains are assumed to vanish γ( 	0)	= 	.
+Figure 13: Transverse shear behavior of thin shells
+Material lines that are initially normal to the shell surface do not necessarily remain normal to the surface
+throughout the deformation, thus adding transverse shear flexibility γ( 	0)	≠ 	.
+Figure 14: Transverse shear behavior of thick shells
+To decide if a given application is a thin or thick shell problem, we can offer a few guidelines. For thick shells,
+transverse shear flexibility is important; while for thin shells, it is negligible. The significance of transverse shear
+in a shell can be estimated by its thickness-to-span ratio. A shell made of a single isotropic material with a
+thickness-to-span ratio greater than 1/15 is considered &quot;thick&quot;; if the ratio is less than 1/15, the shell is considered
+&quot;thin.&quot;
+Note: For structural analysis problems, each node in a shell element has the following degrees of freedom:
+three translations and three rotations. The translational degrees of freedom are motions in the global X-,
+Y-, and Z-axes. The rotational degrees of freedom are the rotations about the global X-, Y-, and Z-axes.
+11	Introduction to Simulation
+Finite Elements and Rigid Bodies
+
+-- 15 of 37 --
+
+Rigid Bodies
+A rigid body is a collection of nodes and elements whose motion is governed by the motion of a single node,
+known as the rigid body reference node. Rigid bodies can be used to model very stiff components that are either
+fixed or undergoing large rigid body motions.
+Rigid bodies are ideally suited for modeling tooling materials (such as a punch, die, drawbead, blank holder,
+roller, etc.) and stiff indenters pressing against soft samples.
+The main advantage of representing portions of a model with rigid bodies is computational efficiency.
+Element-level calculations are not performed for elements that are part of a rigid body. Although some
+computational effort is required to update the motion of the nodes of the rigid body and to assemble concentrated
+and distributed loads, the motion of the rigid body is determined completely by a maximum of six degrees of
+freedom (three translations and three rotations about the X −, Y −, and Z −directions) at the rigid body reference
+node.
+It may be useful to make parts of a model rigid for verification purposes. For example, in complex models
+elements far away from the particular region of interest could be included as part of a rigid body, resulting in
+faster run times at the model development stage. When you are satisfied with the model, you can remove the
+rigid body definitions and incorporate an accurate deformable finite element representation throughout.
+Only the rigid body reference node has independent degrees of freedom and must be defined for every rigid
+body.
+The nodes attached to rigid elements have only slave degrees of freedom. The motion of these nodes is determined
+entirely by the motion of the rigid body reference node.
+Note: The position of the rigid body reference node is not important unless rotations are applied to the
+body or reaction moments about a certain axis through the body are desired. In either of these situations
+the node should be placed such that it lies on the desired axis through the body.
+Loads on a rigid body are generated from concentrated loads applied to nodes and distributed loads applied to
+elements that are part of the rigid body or from loads applied to the rigid body reference node. Rigid bodies
+interact with the rest of the model through nodal connections to deformable elements and through contact with
+deformable elements.
+Introduction to Simulation	12
+Finite Elements and Rigid Bodies
+
+-- 16 of 37 --
+
+Mesh Formulation
+A mesh is an assembly of small geometric shapes called elements. The process of dividing the geometry of a
+model into elements is called meshing. A mesh can contain anywhere from thousands to millions of elements.
+Mesh Convergence
+It is important that you use a sufficiently refined mesh to ensure that the results from your simulation are accurate.
+The numerical solution for your FEA model will tend toward a unique value as you increase the mesh density.
+The computer resources required to run your simulation also increase as the mesh is refined. The mesh is said
+to be converged when further mesh refinement produces a negligible change in the solution.
+As you gain experience, you will learn to judge what level of refinement produces a suitable mesh to give
+acceptable results for most simulations. However, it is always good practice to perform a mesh convergence
+study, where you simulate the same problem with a finer mesh and compare the results. You can have confidence
+that your model is producing a mathematically accurate solution if the two meshes give essentially the same
+result.
+Mesh Convergence for a Connecting Lug
+We use the geometry of a connecting lug to demonstrate a mesh refinement study using
+four different mesh densities. The number of mesh elements used in each case is indicated
+in the figure.
+Figure 15: Different mesh refinement for the connecting lug model
+13	Introduction to Simulation
+Mesh Formulation
+
+-- 17 of 37 --
+
+We consider the influence of the mesh density on three particular results from this model:
+• 	The displacement of the bottom of the hole.
+• 	The peak von Mises stress at the stress concentration on the bottom surface of the hole.
+• 	The peak von Mises stress where the lug is attached to the parent structure.
+The locations where the results are compared are shown below:
+Figure 16: Locations where results are compared in the mesh refinement
+study
+The results for each of the four mesh densities are compared in the table below.
+Table 1: Results of mesh refinement study
+Max stress at
+attachment
+(N/m2)
+Max Von Mises stress at
+bottom inner surface of hole
+(N/m
+2)
+Max displacement at bottom
+inner surface of hole (mm)
+Mesh
+3.926 E8	3.261 E8	0.392	Coarse
+5.073 E8	3.402 E8	0.396	Normal
+6.019 E8	3.468 E8	0.397	Fine
+8.12 E8	3.47 E8	0.397	Very Fine
+The coarse mesh predicts less accurate displacements at the bottom inner surface of hole,
+but the normal, fine, and very fine meshes all predict similar results. The normal mesh is,
+therefore, converged as far as the displacements are concerned.
+The peak stress at the bottom inner surface of the hole converges much more slowly than
+the displacements because stress and strain are calculated from the displacement gradients;
+thus, a much finer mesh is required to predict accurate displacement gradients than is needed
+to calculate accurate displacements.
+Introduction to Simulation	14
+Mesh Formulation
+
+-- 18 of 37 --
+
+Mesh refinement significantly changes the stress calculated at the attachment of the
+connecting lug; it continues to increase with continued mesh refinement. A stress singularity
+exists at the corner of the lug where it attaches to the parent structure. Theoretically the
+stress is infinite at this location; therefore, increasing the mesh density will not produce a
+converged stress value at this location.
+Note: This singularity occurs because of the idealizations used in the finite element
+model. The connection between the lug and the parent structure has been modeled
+as a sharp corner, and the parent structure has been modeled as rigid. These
+idealizations lead to the stress singularity. In reality there probably will be a small
+fillet between the lug and the parent structure, and the parent structure will be
+deformable, not rigid. If the exact stress in this location is required, the fillet between
+the components must be modeled accurately and the stiffness of the parent structure
+must also be considered.
+Figure 17: Idealizing a fillet as a sharp corner
+It is common to omit small details like fillet radii from a finite element model to simplify
+the analysis and to keep the model size reasonable. However, the introduction of any sharp
+corner into a model will lead to a stress singularity at that location. This normally has a
+negligible effect on the overall response of the model, but the predicted stresses close to
+the singularity will be inaccurate.
+Coarse meshes are often adequate to predict trends and to compare how different modeling
+concepts behave relative to each other. However, you should use the actual magnitudes of
+displacement and stress calculated with a coarse mesh with caution.
+Mesh Control
+It is rarely necessary to use a uniformly fine mesh throughout the structure being analyzed. You can use a finer
+mesh mainly in the areas of high stress gradients and use a coarser mesh in areas of low stress gradients or where
+the magnitude of the stresses is not of interest.
+Mesh control refers to specifying different element sizes at different regions in the model. A smaller element
+size in a region improves the accuracy of results in the region of interest.
+For example, the figure below shows a mesh that is designed to give an accurate prediction of the stress
+concentration at the bottom of the hole.
+15	Introduction to Simulation
+Mesh Formulation
+
+-- 19 of 37 --
+
+Figure 18: Mesh refined around the hole
+The results from the simulation with this locally refined mesh show that they are comparable to those from the
+very fine mesh.
+Table 2: Mesh refinement (control) around the hole
+Max Von Mises stress at bottom inner
+surface of hole (N/m 2
+)
+Max displacement at bottom inner surface of hole
+(mm)
+Mesh
+3.47 E8	0.397	Very fine
+3.468 E8	0.397	Locally refined
+You can often predict the locations of the highly stressed regions of a model (and, hence, the regions where a
+fine mesh is required) using your knowledge of similar components or with hand calculations. This information
+can also be gained by setting a coarse mesh initially to identify the regions of high stress and then refining the
+mesh in these regions. It is simple to mesh the geometry coarsely for the initial simulation and then to refine the
+mesh in the appropriate regions, as indicated by the stress results from the coarse simulation.
+Mesh Quality Checks
+A good quality mesh is important for obtaining accurate results from your simulations. There are different quality
+check criteria that measure the quality of the mesh. This guide covers the following criteria:
+Aspect Ratio Checks
+Numerical accuracy is best achieved by a mesh with uniform size elements whose edges are equal in length. For
+most CAD geometries, due to the existence of small edges, curvature changes, thin features, and sharp corners,
+it is not possible to create a mesh of perfect elements with equal lengths.
+The aspect ratio of a perfect, tetrahedral element is used as the basis for calculating aspect ratios of other elements.
+By definition, the aspect ratio of a perfect tetrahedral element is 1.0. Finite elements provide more accurate
+results when their aspect ratio is close to 1.0. When the lengths of an element edges differ significantly, the
+accuracy of the results deteriorates.
+There are different ways to measure the aspect ratio of an element:
+• 	The ratio of the longest to the shortest element edge.
+• 	The ratio of the longest normal to the shortest normal dropped from a vertex to the opposite face.
+• 	The ratio of the largest circumscribed circle to the smallest inscribed circle.
+Introduction to Simulation	16
+Mesh Formulation
+
+-- 20 of 37 --
+
+Figure 19: Aspect Ratio Checks
+Jacobian Check
+Second-order elements map to curved geometry more accurately than linear elements of the same size. The
+mid-side nodes of the boundary edges of an element are placed on the actual geometry of the model. At the
+location of sharp or curved boundaries, placing the mid-side nodes on the actual geometry can result in generating
+distorted elements with overlapping edges.
+The Jacobian ratio at a point inside the element provides a measure of the degree of distortion of the element at
+that location. Parabolic, tetrahedral elements with all mid-side nodes located exactly at the middle of the edges
+have a Jacobian ratio of 1.0. The Jacobian ratio increases as the curvatures of the element edges increase. A
+highly distorted element has a negative Jacobian ratio. It is a good practice to avoid these elements with &quot;concave&quot;
+faces by applying mesh controls or by adjusting the global element size.
+17	Introduction to Simulation
+Mesh Formulation
+
+-- 21 of 37 --
+
+Materials
+A material definition in a FEA simulation specifies all the relevant material properties and the proper material
+behavior (such as elasticity, metal plasticity, hyperelasticity, thermal conductivity, etc.) that best describe the
+physical behavior of the model.
+Material Classification
+Materials can be broadly categorized into two types: isotropic and anisotropic. Most simulations are performed
+under the assumption of isotropic and homogeneous material properties.
+Isotropic materials have identical properties in any direction and are characterized by two independent material
+constants (Young’s modulus and Poisson’s ratio). Most metals (steel, aluminum) are isotropic materials.
+Homogeneous materials have consistent properties throughout the volume. That means that any impurities,
+localized changes due to heat or other processing effects, and internal voids that reduce the inherent stiffness of
+the material are not accounted for. You must keep these approximations in mind when you assess your simulation
+results.
+Anisotropic materials have different properties depending on the direction and require you to specify the material
+orientation. Materials such as wood and fiber-reinforced composites are very anisotropic; they are much stronger
+along the direction of grain (or fiber) than across it.
+Orthotropic materials belong to a special subtype of anisotropic materials. Othrotropic materials exhibit different
+behavior in three orthogonal planes (three mutually perpendicular material directions). Nine independent elastic
+stiffness parameters (Young&#39;s modulus, Poisson&#39;s ratio, and shear modulus in three principal material directions)
+are needed to define an orthotropic material.
+Wood is an example of an orthotropic material. The material properties of wood are described in the longitudinal,
+radial, and tangential directions. The longitudinal axis (1) is parallel to the grain (fiber) direction; the radial axis
+(2) is normal to the growth rings; and the tangential axis (3) is tangent to the growth rings.
+Figure 20: Wood as an orthotropic material.
+The following common material properties apply to FEA applications:
+Measures the stiffness of a material and its ability to resist loads. For a linear elastic
+material the elastic modulus in a certain direction is defined as the stress value in that
+Elastic Modulus or
+Young&#39;s Modulus
+direction that causes a unit strain in the same direction (the slope of the stress-strain
+curve in the elastic region).
+For example, a one inch bar of a material with Young’s modulus of 35 million psi
+elongates by one thousandth of an inch under a tensile load of 35 thousand psi.
+Introduction to Simulation	18
+Materials
+
+-- 22 of 37 --
+
+Measures the ability of a material to resist shear loads. It is the ratio between the
+shearing stress in a plane divided by the associated shearing strain.
+Shear Modulus or
+Modulus of Rigidity
+When a material extends in the longitudinal direction, it usually tends to contract in
+the lateral directions (similarly, when is compressed in one direction, it usually expands
+Poisson&#39;s Ratio
+in the other two directions). If a body is subjected to a tensile stress in the X-direction,
+then the Poisson’s ratio, νxy, is defined as the ratio of lateral contraction in the
+Y-direction divided by the longitudinal strain in the X-direction.
+Most materials have Poisson&#39;s ratio values ranging between 0.0 and 0.5. Some materials
+(like polymer foams) have a negative Poisson’s ratio; when these materials are
+stretched in one direction, they expand in the lateral directions.
+Measures the fractional change in size (length, area, or volume) per unit change in
+temperature at a constant pressure. Materials generally expand in all directions when
+subjected to a temperature increase.
+Coefficient of Thermal
+Expansion
+Depending on which dimensions are considered when measuring changes in size per
+unit change in temperature, there are definitions of volumetric, area, and linear
+coefficient of thermal expansion.
+Measures the effectiveness of a material in transferring heat energy by conduction.
+It is defined as the rate of heat transfer through a unit thickness of the material per
+unit change in temperature.
+Thermal Conductivity
+Mass per unit volume.	Density
+Measures the quantity of heat required to raise the temperature of a unit mass of a
+material by one unit of temperature.
+Specific Heat
+The relationship between heat and temperature change is expressed in the form: Heat
+= Specific Heat * mass * (temperature change)
+FEA applications typically offer material libraries that include most standard materials. The reported nominal
+material properties are accepted average values taken from many tests. When you accept a tabulated property
+value as a single number to be used in a simulation, keep in mind it actually has a probability distribution
+associated with it. For example the Young’s modulus for steel has a standard deviation of approximately 7.5%.
+Most material tests yield results that follow a normal curve (or “bell shaped”) distribution. If your part is made
+of a less predictable material, you need to consider the variability of the material properties in the total factor of
+safety of your design.
+Material Models
+Applying the proper material behavior that best describes the physical behavior of the model is crucial in the
+process of setting up a FEA simulation.
+A wide collection of materials is encountered in stress analysis problems, and for any one of these materials a
+range of constitutive models is available to describe the material&#39;s behavior. For example, a component made
+from a standard structural steel can be modeled as an isotropic, linear elastic, material with no temperature
+dependence. This simple material model would probably suffice for routine design. However, if the component
+might be subjected to a severe overload, it is important to determine how it might deform under that load and if
+it has sufficient ductility to withstand the overload without catastrophic failure.
+We can broadly classify the material behaviors of interest as follows:
+19	Introduction to Simulation
+Materials
+
+-- 23 of 37 --
+
+• 	Materials that exhibit almost purely elastic response, possibly with some energy dissipation during rapid
+loading by viscoelastic response (such as rubber or solid propellant elastomers)
+• 	Materials that yield and exhibit considerable ductility beyond yield (such as mild steel and other commonly
+used metals)
+• 	Materials that flow by rearrangement of particles that interact generally through some dominantly frictional
+mechanism (such as sand)
+• 	Materials that break without any significant deformation and absorb little energy prior to fracture (such as
+rocks, concrete, ceramics, glass)
+Linear Elasticity
+Linear elastic materials under this category follow Hooke&#39;s law; that is, stress is directly proportional to strain
+as the load increases or decreases.
+The linear elastic model:
+• 	can define isotropic, orthotropic, or anisotropic material behavior;
+• 	is valid for small elastic strains (normally less than 5%);
+• 	has properties that depend on temperature or other variables.
+For example, in a linear elastic model, if stress reaches 100 MPa under a load of 1,000 N, then stress will reach
+1,000 MPa under a load of 10,000 N. The simplest form of linear elasticity is the isotropic case, and the stress-strain
+relationship is given by:
+ε
+ε
+ε
+γ
+γ
+γ
+E 	ν E 	ν E
+ν E 	E 	ν E
+ν E 	ν E 	E G G G
+σ
+σ
+σ
+σ
+σ
+σ
+1 / 	/ 	/ 	0 	0 	0
+/ 	1 / 	/ 	0 	0 	0
+/ 	/ 	1 / 	0 	0 	0
+0 	0 	0 	1 / 	0 	0
+0 	0 	0 	0 	1 / 	0
+0 	0 	0 	0 	0 	1 /
+.
+11
+22
+33
+12
+13
+23
+11
+22
+33
+12
+13
+23
+⎧
+⎨
+⎪⎪
+⎩
+⎪
+⎪
+⎫
+⎬
+⎪⎪
+⎭
+⎪
+⎪
+=
+⎡
+⎣
+⎢
+⎢
+⎢
+⎢
+− 	−
+− 	−
+− 	−
+⎤
+⎦
+⎥
+⎥
+⎥
+⎥
+⎧
+⎨
+⎪⎪
+⎩
+⎪⎪
+⎫
+⎬
+⎪⎪
+⎭
+⎪⎪
+The elastic properties are completely defined by the Young&#39;s modulus, E , and the Poisson&#39;s ratio, ν . The shear
+modulus, G, can be expressed in terms of E and ν as G 	ν	Ε/ 2(1 	)	= 	+ 	. These parameters can be given as functions
+of temperature and of other predefined fields, if necessary.
+The material yielding is not modeled in a linear elastic model.
+Plasticity
+Elastic material models cease to be valid at the material points where the stresses exceed the yield stress (or else
+elastic limit). In such cases, the deformations are no longer fully recoverable, and permanent (inelastic) deformation
+begins to occur.
+Plasticity theories model the material&#39;s mechanical response as it undergoes such non-recoverable deformation
+in a ductile fashion. The theories have been developed most intensively for metals, but they are also applied to
+soils, concrete, rock, ice, crushable foam, and so on. These materials behave in very different ways. For example,
+large values of pure hydrostatic pressure cause very little inelastic deformation in metals, but quite small
+hydrostatic pressure values may cause a significant, non-recoverable volume change in a soil sample.
+The fundamental concepts of plasticity theories are sufficiently general that models based on these concepts
+have been developed successfully for a wide range of materials.
+Introduction to Simulation	20
+Materials
+
+-- 24 of 37 --
+
+Yield Criterion
+A yield criterion (or yield surface) specifies the shift from elastic to plastic behavior (onset of the plastic flow)
+in terms of a test function that determines if the material responds purely elastically at a particular state of stress.
+Several yield criteria have been developed to describe different material behaviors.
+For example, the Tresca&#39;s yield criterion assumes that yielding occurs when the maximum shear stress (at a
+material point under a general state of stress) reaches the value of the maximum shear stress when yielding occurs
+in a uniaxial tension test.
+The von Mises yield criterion assumes that yielding occurs when the distortion energy (at a material point under
+a general state of stress) is equal to the distortion energy at the onset of yielding in a uniaxial tension test. The
+von Mises yield criterion applies best to ductile materials, such as metals.
+The Drucker-Prager yield criterion describes best the behavior of geological materials that exhibit
+pressure-dependent yield.
+Hardening Rules
+A hardening rule specifies how the loading and unloading of materials affect their yield strength during the
+plastic flow phase. Often the plastic deformation of the material increases its yield stress for subsequent loadings:
+this behavior is called work hardening.
+Figure 21: Strain hardening for subsequent loading
+Note:
+In isotropic hardening, the yield surface changes size uniformly in all directions such that the yield stress
+increases (or decreases) in all stress directions as plastic straining occurs. In kinematic hardening, the
+yield surface remains constant in size and the surface translates in stress space with progressive yielding.
+Characteristics of Metal Plasticity
+The deformation of the metal prior to reaching the yield point creates only elastic strains, which are fully recovered
+if the applied load is removed. However, once the stress in the metal exceeds the yield stress, permanent (inelastic)
+deformation begins to occur. The strains associated with this permanent deformation are called plastic strains.
+Both elastic and plastic strains accumulate as the metal deforms in the post-yield region.
+The stiffness of a metal typically decreases dramatically once the material yields. A ductile metal that has yielded
+will recover its initial elastic stiffness when the applied load is removed.
+21	Introduction to Simulation
+Materials
+
+-- 25 of 37 --
+
+Figure 22: Nominal stress-strain behavior of an elastic-plastic material in a tensile test
+A metal deforming plastically under a tensile load may experience highly localized extension and thinning, called
+necking, as the material fails. The engineering stress (force per unit undeformed area) in the metal is known as
+the nominal stress, with the conjugate nominal strain (length change per unit undeformed length).
+The nominal stress in the metal as it is necking is much lower than the material&#39;s ultimate strength. This material
+behavior is caused by the geometry of the test specimen, the nature of the test itself, and the stress and strain
+measures used. For example, testing the same material in compression produces a stress-strain plot that does not
+have a necking region because the specimen is not going to thin as it deforms under compressive loads.
+Note: A mathematical model describing the plastic behavior of metals should account for differences in
+the compressive and tensile behavior independent of the structure&#39;s geometry or the nature of the applied
+loads.
+The post-yield material behavior is approximated in a FEA model with data points on a stress-strain curve that
+are gathered from material test data. The strains provided in material test data used to define the plastic behavior
+are not likely to be the plastic strains in the material but rather the total strains in the material. You must decompose
+these total strain values into the elastic ϵeland plastic strain components ϵpl. The plastic strain is obtained by
+subtracting the elastic strain, defined as the value of true stress divided by the Young&#39;s modulus, from the value
+of total strain.
+Figure 23: Decomposition of the total strain into elastic and plastic components
+Depending on the required input format for the stress/strain curve data, you may need to convert the nominal
+stress and nominal strain to true stress and true strain. Although, the differences between the nominal and true
+values at small strains are small, there are significant differences at larger strain values; therefore, it is extremely
+important to provide the proper stress-strain data if the strains in the simulation will be large.
+Introduction to Simulation	22
+Materials
+
+-- 26 of 37 --
+
+The figure below shows a nominal stress-strain curve defined by six data points.
+Figure 24: Elasto-plastic material behavior
+Depending on the required input format for the stress/strain curve data, you may need to convert the nominal
+stress and nominal strain to true stress and true strain. Although, the differences between the nominal and true
+values at small strains are small, there are significant differences at larger strain values; therefore, it is extremely
+important to provide the proper stress-strain data if the strains in the simulation will be large.
+Note:
+The relationship between true strain ϵ and nominal strain ϵnom is:
+ϵ 	ln (1 ϵ 	)	nom	= 	+
+The relationship between true stress σ and nominal stress σnom and strain ϵnom is:
+σ 	σ 	(1 ϵ 	)	nom 	nom	= 	+
+True Stress/Strain vs Engineering Stress/Strain
+Engineering strain is a small strain measure that is invalid once the strain in your model is no longer small
+(approximately 5%). True strain, which is a nonlinear strain measure that is dependent upon the final length of
+the model, is used for large strain simulations.
+If the deformation of a bar in tension becomes significant, its cross-sectional area will change.
+The traditional engineering definitions for stress and strain are no longer accurate, and new
+True Stress
+and Strain
+measures, namely true stress and true strain, are introduced. Alternative names for these quantities
+are Cauchy stress, logarithmic strain, and natural strain.
+The true stress is σT F
+a
+= 	, where a is the final deformed cross-sectional area.
+23	Introduction to Simulation
+Materials
+
+-- 27 of 37 --
+
+The true strain is 	( )	ϵ 	ln	T l
+L
+= 	, where l is the final length and L is the initial undeformed length
+of the bar.
+Engineering
+Stress and
+Strain
+The engineering stress (or nominal stress) is σE F
+A
+= 	, where A is the initial undeformed
+cross-sectional area.
+The engineering strain (or nominal strain) is 	( 	)	ϵ 	ln	E l
+L
+Δ
+= 	, where 	l	Δ is the final bar deformation.
+Stresses are related to the strains through constitutive laws, which are governed by material properties. The
+simplest of the stress/strain laws is Hooke’s law, which is given by σ 	Ε ϵ	= 	.
+Hyperelasticity
+Hyperelastic materials are characterized by their capacity to take large amounts of strain with relatively small
+stress (rubbers, for example). The name hyperelastic describes the ability to deform significantly, even under a
+small load.
+The deformation of hyperelastic materials, such as rubber, remains elastic up to large strain values (often well
+over 100%). The stress-strain behavior of typical rubber materials is elastic but highly nonlinear and it depends
+on the loading mode. Different stress-strain behaviors are observed for elastic materials in uniaxial tension,
+biaxial tension, or pure shear types of loading.
+Figure 25: Typical stress-strain curve for rubber
+Introduction to Simulation	24
+Materials
+
+-- 28 of 37 --
+
+Because of the complex behavior that hyperelastic materials exhibit, their elastic constants are derived from a
+strain energy potential function, which defines the strain energy stored in the material per unit of reference
+volume (volume in the initial configuration).
+There are several forms of strain energy potentials available to model approximately incompressible isotropic
+elastomers:
+• 	Polynomial models (Mooney-Rivlin and Blatz-Ko models)
+• 	Ogden model
+To define the material parameters for a hyperelastic material model, you usually provide experimental test data
+from:
+• 	Uniaxial tension and compression
+• 	Equibiaxial tension and compression
+• 	Planar tension and compression (pure shear)
+• 	Volumetric tension and compression (needed if the material&#39;s compressibility is important)
+Figure 26: Experimental tests for defining hyperelastic material behavior
+Recommendations for Using Hyperelastic Materials
+The quality of the results from a simulation using hyperelastic materials strongly depends on the quality of the
+material test data that you provide.
+To improve your hyperelastic material model, follow these recommendations:
+25	Introduction to Simulation
+Materials
+
+-- 29 of 37 --
+
+• 	Obtain test data for the deformation modes that are likely to occur in your simulation. For example, if your
+component is loaded in compression, make sure that your test data include compressive, rather than tensile
+loading.
+• 	Both tension and compression data are allowed, with compressive stresses and strains entered as negative
+values. If possible, use compression or tension data depending on the application, since the fit of a single
+material model to both tensile and compressive data will normally be less accurate than for each individual
+test.
+• 	Try to include test data from the planar test. This test measures shear behavior, which can be very important.
+• 	Provide more data at the strain magnitudes that you expect the material will be subjected to during the
+simulation. For example, if the material will only have small tensile strains, say under 50%, do not provide
+much, if any, test data at high strain values (over 100%).
+Note: Most solid rubber materials have very little compressibility compared to their shear flexibility and
+are modeled as incompressible in a FEA simulation. This behavior is not a problem with plane stress,
+shell, or membrane elements. However, it can be a problem when using other elements, such as plane
+strain, axisymmetric, and three-dimensional solid elements. For example, in applications where the material
+is not highly confined, it would be quite satisfactory to assume that the material is fully incompressible:
+the volume of the material cannot change except for thermal expansion.
+In cases where the material is highly confined (such as an O-ring used as a seal), the compressibility must
+be modeled correctly to obtain accurate results.
+Compressibility is defined as the ratio of the initial bulk modulus K0 to the initial shear modulus μ0.
+Poisson&#39;s ratio, ν, also provides a measure of compressibility since it is defined as ν K 	μ
+K 	μ
+3( 	/ 	) 	2
+6( 	/ 	) 	2
+0 	0
+0 	0
+= −
++ .
+Introduction to Simulation	26
+Materials
+
+-- 30 of 37 --
+
+Linear vs Nonlinear Analysis
+In a linear analysis there is a linear relationship between the applied loads and the induced response of the system.
+In a nonlinear analysis the response of the system is not a linear function of the magnitude of the applied loads.
+Conditions for Linear Analysis
+When loads are applied to a deformable body, internal forces and reactions are developed to render the body
+into a state of equilibrium. A linear analysis calculates displacements, strains, stresses, and reaction forces under
+the effect of applied loads.
+For a linear analysis to be valid, the following assumptions must be true:
+• 	All materials in the model exhibit linear elastic behavior; that is, stresses are linearly proportional to strains
+(Hooke&#39;s law). If the load is removed, the geometry returns to its original shape with no permanent deformation.
+• 	Deformations are small in relation to the dimensions of the model.
+• 	All loads are applied slowly and gradually until they reach their full magnitudes. After reaching their full
+magnitudes, loads remain constant in magnitude and direction.
+Note: This assumption allows us to neglect inertial and damping forces due to negligibly small
+accelerations and velocities. Time-variant loads that induce considerable inertial and damping forces
+may warrant dynamic analysis. Dynamic loads (such as earthquake, oscillatory, impact, or shock loads)
+change with time and in many cases induce considerable inertial and damping forces that cannot be
+neglected.
+• 	Boundary conditions do not vary during the application of loads. The loads do not cause changes in contact
+conditions between parts.
+In a linear analysis there is a linear relationship between the applied loads and the induced response of the system.
+For example, if a linear spring extends statically by 1 m under a load of 10 N, it will extend by 2 m when a load
+of 20 N is applied.
+This means that in a linear analysis the flexibility of the structure need only be calculated once (by assembling
+the stiffness matrix and inverting it). The linear response of the structure to other load cases can be found by
+multiplying the new vector of loads by the inverted stiffness matrix (or flexibility matrix).
+27	Introduction to Simulation
+Linear vs Nonlinear Analysis
+
+-- 31 of 37 --
+
+In addition, the structure&#39;s response to various load cases can be scaled by constants to determine its response
+to a completely new load case, provided that the new load case is the sum (or multiple) of previous ones. This
+principle of superposition of load cases assumes that the same boundary conditions are used for all the load
+cases.
+A linear static solution is not valid if any of these points are violated. The relationship between the applied loads
+(generalized force) and the response (generalized displacement) becomes nonlinear, and a nonlinear analysis
+must be performed to get accurate results that reflect the true behavior of the model.
+A graphical representation of the analysis type based on the generalized force/displacement relationship is shown
+below.
+Sources of Nonlinearity
+If the relationship between the applied loads (generalized force) and the response (generalized displacement)
+becomes nonlinear, a nonlinear analysis must be performed to get accurate results that reflect the true behavior
+of the model.
+The following topics are discussed:
+Material Nonlinearity
+This class of nonlinear behavior stems from the nonlinear relationship between the stress and strain.
+Most metals have a fairly linear stress/strain relationship at low strain values; but at higher strains the material
+yields, at which point the response becomes nonlinear and irreversible. Several factors can affect the stress-strain
+relationship, such as:
+• 	Load history: plasticity problems
+• 	Load duration: creep analysis, viscoelasticity
+• 	Temperature: thermo-plasticity
+A typical stress-strain diagram of a ductile material model is shown in the figure below. The elastic range of the
+material ends when the stress has reached the yielding point. Once the material has reached the yielding point,
+permanent deformation, which is non-reversible, begins to develop. As the tensile stress increases, the plastic
+deformation is characterized by a strain hardening region, necking region, and finally fracture.
+Introduction to Simulation	28
+Linear vs Nonlinear Analysis
+
+-- 32 of 37 --
+
+Rubber materials can be approximated by a nonlinear, reversible (elastic) response. A typical stress-strain curve
+of a rubber material is shown below.
+Boundary Nonlinearity
+This class of nonlinear behavior occurs if the boundary conditions change during the analysis. Boundary
+nonlinearities occur in manufacturing processes, such as forging and stamping.
+An example of boundary nonlinearity is blowing a sheet of material into a mold. The sheet expands relatively
+easily under the applied pressure until it begins to contact the mold. From then on, because of the change in
+boundary conditions, the pressure must be increased to continue forming the sheet.
+Note: Boundary nonlinearities are extremely discontinuous: when contact occurs during a simulation,
+there is an instantaneous change in the response of the structure.
+Consider the cantilever beam that deflects under an applied load until it hits a &quot;stop.&quot;
+29	Introduction to Simulation
+Linear vs Nonlinear Analysis
+
+-- 33 of 37 --
+
+The vertical deflection of the tip is linearly related to the load (if the deflection is small) until it contacts the stop.
+There is then a sudden change in the boundary condition at the tip of the beam, preventing any further vertical
+deflection; hence, the response of the beam is no longer linear.
+Geometric Nonlinearity
+The third source of nonlinearity is related to changes in the geometry of the structure during the analysis.
+Geometric nonlinearities occur whenever the magnitude of the displacements affects the response of the structure.
+This may be caused by:
+• 	Large deflections or rotations
+• 	Snap through behavior
+• 	Initial stresses or load stiffening
+In general, large displacements can cause the structure to respond in a stiffening or softening manner as shown
+in the figure below.
+For example, consider a cantilever beam loaded vertically at the tip.
+If the tip deflection is small, the analysis can be considered as being approximately linear. However, if the tip
+deflections are large, the shape of the structure and, hence, its stiffness changes. In addition, if the load does not
+remain perpendicular to the beam, the action of the load on the structure changes significantly.
+As the cantilever beam deflects, the load can be resolved into a component perpendicular to the beam and a
+component acting along the length of the beam. Both of these effects contribute to the nonlinear response of the
+cantilever beam (i.e., the changing of the beam&#39;s stiffness as the load it carries increases).
+One would expect large deflections and rotations to have a significant effect on the way that structures carry
+loads. However, displacements do not necessarily have to be large relative to the dimensions of the structure for
+geometric nonlinearity to be important.
+Consider the &quot;snap through&quot; under applied pressure of a large panel with a shallow curve.
+Introduction to Simulation	30
+Linear vs Nonlinear Analysis
+
+-- 34 of 37 --
+
+In this example there is a dramatic change in the stiffness of the panel as it deforms. As the panel &quot;snaps through,&quot;
+the stiffness becomes negative. Thus, although the magnitude of the displacements, relative to the panel&#39;s
+dimensions, is quite small, there is significant geometric nonlinearity in the simulation, which must be taken
+into consideration.
+Note: To obtain solutions for nonlinear problems, the Newton-Raphson numerical method is most often
+used. In a nonlinear analysis the solution cannot be calculated by solving a single system of equations, as
+would be done in a linear problem. Instead, the solution is found by applying the specified loads gradually
+and incrementally working toward the final solution. At the end of each load increment, an approximate
+equilibrium configuration is reached after several iterations. The sum of all of the incremental responses
+is the approximate solution for the nonlinear analysis.
+31	Introduction to Simulation
+Linear vs Nonlinear Analysis
+
+-- 35 of 37 --
+
+Results
+The final step of the FEA process involves the visualization and interpretation of results. The FEA results should
+be qualified in terms of accuracy and correctness. It is important to verify that the results are accurate and fulfill
+the original design goals of the analysis.
+Guidelines for Interpreting Results
+In structural simulations you are usually interested in viewing plots of deformed shapes and stress distributions;
+for thermal simulations, temperature contour plots and heat flux vector plots; for frequency studies, fundamental
+frequencies and mode shapes.
+Results accuracy relates to the convergence level and quality of the solution method. It is good practice to assess
+the correctness of results through the validation of all your modeling assumptions.
+When viewing FEA results:
+• 	Check the displacement results. Is the order of magnitude of the deformations what you are expecting?
+Unexpected discrepancies could be caused by an inconsistent set of units and improper loading definitions.
+If the displacement magnitudes are so large that the linear assumption is violated, consider running a nonlinear
+analysis. Is the overall deformed shape in agreement with the applied boundary conditions and loading
+definitions? Animations of the displacement results from the model’s initial undeformed state to its fully
+deformed shape help you visualize the response of your model and detect any modeling errors.
+• 	Check the stress results. Are the magnitudes of the stress results in line with what you are expecting? Examine
+the regions of high stress concentration. Are these caused by “bad” quality mesh elements? Consider refining
+the mesh locally at areas of high stress concentration to resolve any convergence issues. Eliminating
+insignificant geometry features (such as narrow faces, sharp corners, or short edges) can also help to eliminate
+fictitious high stress values. Verify that the transition of stress values is smooth throughout the geometry.
+Stress results are generally used to predict yielding or guard against failure. Stress quantities are related to
+the failure criteria that best describe the particular material. The most popular stress quantity to display when
+evaluating the onset of yield for ductile materials is the von Mises stress. The material starts yielding when
+its von Mises stress reaches a critical value known as the yield strength.
+• 	Verify that the reactions at the supports balance the applied forces.
+• 	Review and qualify your modeling assumptions. Keep in mind the inherent assumptions of each input variable
+in your FEA model (loads, restraints, material properties, element formulation, solution method). When you
+interpret results, review these assumptions and try to quantify their effects on the solution. You must have a
+good understanding of the mechanics of materials, the potential failure modes of the products, and the product&#39;s
+actual operating environment.
+Note:
+The consideration of the proper restraints (fixtures, rollers, or hinges) that define how the model
+interacts with the surrounding environment is a challenging task, which carries significant modeling
+uncertainty. Over-simplification of the true support structure often leads to erroneous results. Small
+changes in the support conditions can cause large changes in the results.
+• 	Verify that the solution satisfies the original design intent. The setup of an FEA model serves a design purpose;
+for example, minimize deflection at a certain location, control oscillation amplitudes, reduce weight of a
+Introduction to Simulation	32
+Results
+
+-- 36 of 37 --
+
+component, or predict possible failure modes. It is important to succeed in getting meaningful result quantities
+that best serve your original design goals.
+33	Introduction to Simulation
+Results
+
+-- 37 of 37 --
+
+</pre>
+</body></html>

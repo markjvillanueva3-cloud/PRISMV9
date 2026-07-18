@@ -249,17 +249,19 @@ export class MarketMaterialPricingEngine {
     const formPrice = adjustedBase * formMult;
     const finalPrice = formPrice * regionMult * qtyDiscount;
 
-    // U-BIZREG1: Enrich with MaterialRegistry physical properties
+    // U-BIZREG1: Enrich with MaterialRegistry physical properties.
+    // resolveMaterial returns MaterialEntry | undefined; unknown material
+    // leaves physics undefined (pricing-only entry).
     let physics: PriceLookupResult["physics"];
-    try {
-      const mat = resolveMaterial(input.material);
+    const mat = resolveMaterial(input.material);
+    if (mat) {
       physics = {
         density_kg_m3: mat.density_kg_m3,
         machinability_factor: mat.machinability_factor,
         iso_group: mat.iso_group,
         source: "MaterialRegistry",
       };
-    } catch { /* material not in canonical DB — pricing-only entry */ }
+    }
 
     return {
       material: input.material,

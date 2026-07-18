@@ -399,7 +399,7 @@ export class CrossProcessAIBridge {
         "./MillMasterOrchestratorFacadeEngine.js"
       );
       const out = await millMasterOrchestratorFacadeEngine.orchestrate(
-        req.mill_request as Parameters<typeof millMasterOrchestratorFacadeEngine.orchestrate>[0],
+        req.mill_request as unknown as Parameters<typeof millMasterOrchestratorFacadeEngine.orchestrate>[0],
       );
       return {
         classification,
@@ -421,7 +421,7 @@ export class CrossProcessAIBridge {
         "./LatheMasterOrchestratorFacadeEngine.js"
       );
       const out = await latheMasterOrchestratorFacadeEngine.orchestrate(
-        req.lathe_request as Parameters<typeof latheMasterOrchestratorFacadeEngine.orchestrate>[0],
+        req.lathe_request as unknown as Parameters<typeof latheMasterOrchestratorFacadeEngine.orchestrate>[0],
       );
       return {
         classification,
@@ -443,7 +443,7 @@ export class CrossProcessAIBridge {
       "./WEDMCompleteOrchestrationEngine.js"
     );
     const out = await wedmCompleteOrchestrationEngine.generateCompleteProgram(
-      req.wedm_request as Parameters<
+      req.wedm_request as unknown as Parameters<
         typeof wedmCompleteOrchestrationEngine.generateCompleteProgram
       >[0],
     );

@@ -1,0 +1,125 @@
+TAP version 13
+# Subtest: isDeferrable: backendAuditChain → true
+ok 1 - isDeferrable: backendAuditChain → true
+  ---
+  duration_ms: 0.92
+  ...
+# Subtest: isDeferrable: doctrineSurface → true
+ok 2 - isDeferrable: doctrineSurface → true
+  ---
+  duration_ms: 0.098
+  ...
+# Subtest: isDeferrable: isBroadGrep → false (actionable mid-task)
+ok 3 - isDeferrable: isBroadGrep → false (actionable mid-task)
+  ---
+  duration_ms: 0.0825
+  ...
+# Subtest: isDeferrable: null/undefined/non-string → false
+ok 4 - isDeferrable: null/undefined/non-string → false
+  ---
+  duration_ms: 0.0896
+  ...
+# Subtest: pushToQueue: adds item to empty queue
+ok 5 - pushToQueue: adds item to empty queue
+  ---
+  duration_ms: 0.518
+  ...
+# Subtest: pushToQueue: prepends (newest first)
+ok 6 - pushToQueue: prepends (newest first)
+  ---
+  duration_ms: 0.14
+  ...
+# Subtest: pushToQueue: caps at QUEUE_MAX_ITEMS
+ok 7 - pushToQueue: caps at QUEUE_MAX_ITEMS
+  ---
+  duration_ms: 2.8562
+  ...
+# Subtest: pushToQueue: non-object item passed through without crash
+ok 8 - pushToQueue: non-object item passed through without crash
+  ---
+  duration_ms: 0.1067
+  ...
+# Subtest: pushToQueue: defaults missing fields
+ok 9 - pushToQueue: defaults missing fields
+  ---
+  duration_ms: 0.3659
+  ...
+# Subtest: itemsForSession: filters by session prefix match
+ok 10 - itemsForSession: filters by session prefix match
+  ---
+  duration_ms: 0.4751
+  ...
+# Subtest: itemsForSession: exact session match
+ok 11 - itemsForSession: exact session match
+  ---
+  duration_ms: 0.1794
+  ...
+# Subtest: itemsForSession: empty queue → []
+ok 12 - itemsForSession: empty queue → []
+  ---
+  duration_ms: 0.9066
+  ...
+# Subtest: itemsForSession: no sessionId → []
+ok 13 - itemsForSession: no sessionId → []
+  ---
+  duration_ms: 0.1289
+  ...
+# Subtest: drainSession: removes session items + returns drained
+ok 14 - drainSession: removes session items + returns drained
+  ---
+  duration_ms: 0.2162
+  ...
+# Subtest: drainSession: no matches → original queue + empty drained
+ok 15 - drainSession: no matches → original queue + empty drained
+  ---
+  duration_ms: 0.1401
+  ...
+# Subtest: drainSession: null queue → safe defaults
+ok 16 - drainSession: null queue → safe defaults
+  ---
+  duration_ms: 0.1148
+  ...
+# Subtest: formatDrainBlock: empty drained → null
+ok 17 - formatDrainBlock: empty drained → null
+  ---
+  duration_ms: 0.2075
+  ...
+# Subtest: formatDrainBlock: groups by classifier
+ok 18 - formatDrainBlock: groups by classifier
+  ---
+  duration_ms: 0.1346
+  ...
+# Subtest: formatDrainBlock: caps per-group output (overflow shown)
+ok 19 - formatDrainBlock: caps per-group output (overflow shown)
+  ---
+  duration_ms: 0.1288
+  ...
+# Subtest: formatDrainBlock: surfaces concrete MCP routes in footer
+ok 20 - formatDrainBlock: surfaces concrete MCP routes in footer
+  ---
+  duration_ms: 0.1015
+  ...
+# Subtest: formatDrainBlock: includes kill-switch reference
+ok 21 - formatDrainBlock: includes kill-switch reference
+  ---
+  duration_ms: 0.1719
+  ...
+# Subtest: DEFERRABLE_CLASSIFIERS: contains exactly backendAuditChain + doctrineSurface
+ok 22 - DEFERRABLE_CLASSIFIERS: contains exactly backendAuditChain + doctrineSurface
+  ---
+  duration_ms: 0.0816
+  ...
+# Subtest: QUEUE_MAX_ITEMS: reasonable bound (not unbounded)
+ok 23 - QUEUE_MAX_ITEMS: reasonable bound (not unbounded)
+  ---
+  duration_ms: 0.0779
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 391.9732

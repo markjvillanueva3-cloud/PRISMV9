@@ -4,7 +4,7 @@
  * git-add-lane-guard.mjs — PreToolUse(Bash) `git add` SLOT-LANE gate.
  *
  * Built for SLOT-WORKTREE-MS0/U-P1-ADD-LANE-GUARD (P1-ROUTING). The
- * milestone's end state has 8 work slots (alpha..foxtrot + hotel + india)
+ * milestone's end state has 25 work slots (alpha..foxtrot, hotel..zulu)
  * + golf in their own per-slot worktrees at H:/prism-slot-<name>. Once a
  * slot chat is bound to its worktree, a `git add ../prism/<file>` is
  * almost always a mistake — the chat slipped out of its lane and is
@@ -81,6 +81,10 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { exit } from "node:process";
+// U-LANE-CD-AWARE (slot:india 2026-06-11): resolve the REAL execution cwd. `cd /h/prism && git add X`
+// runs in the main tree even though the payload cwd is the slot worktree -- without this the guard
+// evaluated the wrong tree and allowed the cross-lane stage. Fail-safe: no leading cd -> fallback cwd.
+import { effectiveCwdFromCmd } from "../../scripts/lib/effective-cwd-from-cmd.mjs";
 
 // ── Activation-gate evaluation ─────────────────────────────────────────
 // Default ON since SLOT-WORKTREE-MS0/U-P3-DEFAULT-ON (2026-05-15). The
@@ -421,6 +425,11 @@ function main() {
   if (!payload || payload.tool_name !== "Bash") exit(0);
   const cmd = payload.tool_input?.command;
   if (typeof cmd !== "string" || !cmd) exit(0);
+  // R11 (U-LANE-MAINFORCE-CONSISTENCY): honor the same [MAIN-FORCE] cross-cutting escape the
+  // sibling lane hooks (worktree-commit-route, slot-commit-worktree-enforce) accept -- a chat
+  // staging genuinely fleet-wide infra marks it [MAIN-FORCE] (in the command, e.g. a chained
+  // commit or a trailing comment) and the staging guard steps aside, consistent with commit-time.
+  if (/\[\s*MAIN-FORCE\s*\]/i.test(cmd)) exit(0);
 
   const invocations = parseGitAddInvocations(cmd);
   if (invocations.length === 0) exit(0); // not a `git add` line
@@ -432,11 +441,13 @@ function main() {
   // uses the same precedence. process.cwd() is the last-resort fallback.
   // (P1-B3 from per-file scrutiny — post-cutover slots may invoke Bash from
   // a different cwd than the hook process.)
-  const cwd =
+  const payloadCwd =
     payload?.cwd ||
     payload?.tool_input?.cwd ||
     process.env.CLAUDE_PROJECT_DIR ||
     process.cwd();
+  // Resolve the cwd git ACTUALLY runs under (parses a leading `cd <path>` chain off the command).
+  const cwd = effectiveCwdFromCmd(cmd, payloadCwd);
   const porcelain = gitWorktreePorcelain(cwd);
   if (!sessionId || !slots || !porcelain) exit(0); // fail-open
 

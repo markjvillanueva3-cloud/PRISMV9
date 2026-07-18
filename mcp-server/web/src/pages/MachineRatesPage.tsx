@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ApiError, machineRateCompare, machineRateEffective, machineRateList } from '../api/client';
+import { unwrapPrism } from '../api/unwrap';
 import { ErrorState, LoadingState } from '../components/LoadingState';
 import { SurfaceStatusNotice } from '../components/operating-system/SurfaceStatusNotice';
 import type { MachineRate } from '../api/types';
@@ -341,9 +342,10 @@ export function MachineRatesPage() {
     setLibraryIssue(null);
     try {
       const response = await machineRateList();
+      const payload = unwrapPrism(response);
       const next =
-        (response.result as unknown as { rates?: MachineRate[] })?.rates ??
-        (response.result as unknown as MachineRate[]) ??
+        (payload as { rates?: MachineRate[] })?.rates ??
+        (payload as MachineRate[]) ??
         [];
       const normalized = Array.isArray(next) ? next : [];
       const libraryIds = new Set(normalized.map((rate) => rate.machine_id));
@@ -393,7 +395,7 @@ export function MachineRatesPage() {
     setCompareIssue(null);
     try {
       const response = await machineRateCompare({ machine_ids: machineIds });
-      setCompareResult((response.result as MachineRateComparisonResult) ?? null);
+      setCompareResult((unwrapPrism(response) as MachineRateComparisonResult) ?? null);
       setCompareRefreshedAt(Date.now());
     } catch (issue) {
       const message = issue instanceof ApiError ? issue.message : 'Compare failed';
@@ -420,7 +422,7 @@ export function MachineRatesPage() {
         machine_id: resolvedEffectiveMachineId,
         oee_level: oeeLevel,
       });
-      setEffectiveResult((response.result as EffectiveRateResult) ?? null);
+      setEffectiveResult((unwrapPrism(response) as EffectiveRateResult) ?? null);
       setEffectiveRefreshedAt(Date.now());
     } catch (issue) {
       const message = issue instanceof ApiError ? issue.message : 'Effective rate lookup failed';

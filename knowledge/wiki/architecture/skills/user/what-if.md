@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `what-if` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/what-if.md` |
+| Source | `C:/Users/wompu/.claude/commands/what-if.md` |
 | Model | default |
 | Tags | _(none)_ |
 

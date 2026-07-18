@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "ts_iso": "2026-06-26T03:31:05.788Z",
+  "ok": true,
+  "reason": null,
+  "baseline_source": "state/shared/quoting/baseline-records.json",
+  "baseline_fallback": null,
+  "total_predicted": 75,
+  "mape_pct": 755.6763234785865,
+  "safe_to_activate": true,
+  "active_factor_written": false,
+  "active_factor_path": null,
+  "skip_reason": "writeIfSafe=false (dry-run mode)",
+  "psi_delta_fed_count": 0,
+  "baseline_warnings": [],
+  "data_source_coverage": {
+    "consumed_count": 3,
+    "available_count": 6,
+    "coverage_pct": 50,
+    "unconsumed_available": [
+      "vendor_cost_index",
+      "tool_purchases",
+      "docustrata_invoices"
+    ]
+  },
+  "real_distribution_match": {
+    "verdict": "predicted-high",
+    "median_ratio": 237.55223880597018,
+    "reference_reliable": false,
+    "reliability_verdict": "degenerate-reference",
+    "advisory": true
+  },
+  "docustrata_actuals_match": {
+    "verdict": "under-quoting",
+    "median_ratio": 0.40191919191919195,
+    "within_band_pct": 0,
+    "actual_total_usd": 297030689.93775,
+    "actuals_priced": 5436,
+    "advisory": true
+  }
+}

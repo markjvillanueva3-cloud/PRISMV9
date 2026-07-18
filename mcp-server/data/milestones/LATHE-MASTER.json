@@ -1,0 +1,4836 @@
+{
+  "id": "LATHE-MASTER",
+  "version": "2.0.0",
+  "title": "Lathe Master Unified Roadmap",
+  "track": "LATHE",
+  "product_promise": "Print to CNC program in one shot. Extreme level of intelligence and coordination. Quality parity with Universal skills/scripts/hooks roadmap.",
+  "brief": "Unified lathe roadmap consolidating 9 prior envelopes into one 18-phase, 135-unit master plan targeting 5 concrete PRISM app features (Speed/Feed Calculator, Post-Processor Generator, Master Post-Processor, Print-to-Program, ERP/Business) on a shared AGI substrate (deep learning, deep reasoning, deep logic, neural networking, near-AGI intelligence) plus v2 scrutiny gaps (formal verification, local LLM/LoRA, Bayesian/causal depth, asset utilization, AGI safety containment, live machine data, predictive twin, multi-agent orchestration, scientific simulation depth, optimal control + info gain + ensemble, and frontend integration into the Codex-built PRISM web app).",
+  "created_at": "2026-04-16T23:15:00Z",
+  "v2_at": "2026-04-17T00:05:00Z",
+  "v2_frontend_addendum_at": "2026-04-17T00:15:00Z",
+  "created_by": "claude-opus-4.7",
+  "supersedes": [
+    "LATHE-PRO-MS0",
+    "LATHE-PRO-v2",
+    "LATHE-PRO-v3",
+    "LATHE-ROADMAP",
+    "LATHE-AI"
+  ],
+  "authoritative_doc": "LATHE-MASTER-UNIFIED-ROADMAP.md",
+  "scrutiny_doc": "SCRUTINY-LATHE-MASTER-v2-2026-04-16.md",
+  "scrutiny_doc_r5": "SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md",
+  "status": "not_started",
+  "total_units": 135,
+  "completed_units": 5,
+  "sessions": "48",
+  "envelope_path": "milestones/LATHE-MASTER.json",
+  "features": [
+    "Speed & Feed Calculator",
+    "Post-Processor Generator",
+    "Master Post-Processor",
+    "Print-to-Program",
+    "ERP / Business Management",
+    "AGI Deep-Learning Cross-Cutting"
+  ],
+  "dependencies": [
+    "CAMX-MS12"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Audit + Harden",
+      "goal": "Inventory current state, verify wiring, identify gaps before building features.",
+      "sessions": 2,
+      "smart_config": {
+        "role": "code-archaeologist + reviewer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      },
+      "knowledge_sources": [
+        "ENGINE_DIGEST.md",
+        "DISPATCHER_DIGEST.md",
+        "LATHE-PRO-MS0.json",
+        "LATHE-PRO-v2.json",
+        "LATHE-PRO-v3.json",
+        "LATHE-ROADMAP.json",
+        "LATHE-AI.json",
+        "roadmap-index.json"
+      ],
+      "units": [
+        {
+          "id": "U-LTH01",
+          "title": "Lathe Engine Inventory Reconciliation",
+          "description": "Parse all 87 Lathe*.ts engines -> build lathe-engine-registry.json with {name, shortcode, LOC, exports, categories, test_coverage}.",
+          "exit_conditions": [
+            "Every lathe engine categorized",
+            "Duplicates surfaced",
+            "Registry count equals filesystem +/- 2"
+          ],
+          "files_created": [
+            "data/state/lathe-engine-registry.json"
+          ],
+          "rollback": "git rm registry if count deviates",
+          "omega_floor": 1,
+          "depends_on": [],
+          "status": "completed",
+          "completed_at": "2026-04-17T02:00:00Z",
+          "completion_notes": "87 engines scanned | 43 tests (49%) | 14 categories | 2 dup prefix groups | 103,875 LOC | avg 1,194 LOC/engine",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH02",
+          "title": "Dispatcher Wiring Audit for Lathe Actions",
+          "description": "Scan camDispatcher and lathe*Dispatcher for lathe engine references; produce lathe-wiring-audit.md.",
+          "exit_conditions": [
+            "100% engines wired or flagged orphan with reason",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "files_created": [
+            "state/shared/lathe-wiring-audit.md"
+          ],
+          "rollback": "restore prior wiring state",
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH01"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T02:05:00Z",
+          "completion_notes": "87/87 engines accounted for: 59 wired (68%) across 4 dispatchers (turning:47, aiReasoning:11, turningProgram:1, cam:1) + 28 orphan flagged with reason. Orphan triage guidance + U-LTH02b follow-up unit candidate recommended.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH03",
+          "title": "Lathe Test Coverage Sweep",
+          "description": "Run vitest filtered on Lathe*.test.ts; identify engines without test files; produce lathe-test-gap.md.",
+          "exit_conditions": [
+            "Every engine has passing tests (>=10) or scheduled unit to add them",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "files_created": [
+            "state/shared/lathe-test-gap.md"
+          ],
+          "rollback": "remove gap doc",
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH01"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T02:10:00Z",
+          "completion_notes": "43/87 engines covered (49%) with 960 total test cases (avg 22/engine). 44 engines missing tests — all scheduled via U-LTH03b follow-up (10 tests/engine * 44 = 440 test deficit). 0 partial cases (every tested engine is at threshold).",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH04",
+          "title": "Physics Constants Inline-Usage Sweep (Lathe)",
+          "description": "Grep lathe engines for inlined kc1.1, Taylor C/n, density, specific heat; refactor to import from constants.ts; build_verify.",
+          "exit_conditions": [
+            "Zero inline physics constants in Lathe*.ts",
+            "Build passes",
+            "No test regressions"
+          ],
+          "rollback": "git reset per-engine on test regress",
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH01"
+          ],
+          "status": "audit_complete",
+          "completed_at": "2026-04-17T02:15:00Z",
+          "completion_notes": "Audit surfaced 2 engines (LatheChipMechanicsEngine, LatheTransferLearningEngine) with inline canonical values; root cause is CANONICAL_MATERIAL_DB schema lacks Johnson-Cook + AISI designations. Refactor deferred to new unit U-LTH04b (schema extension + engine migration).",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH04b",
+          "title": "Extend CANONICAL_MATERIAL_DB + migrate 3 engines off inline material tables",
+          "description": "Add Johnson-Cook fields (jc_A..jc_m), friction_coefficient, work_hardening_n to MaterialPhysics. Add AISI_ALIAS map (1045->steel, 4140->alloy_steel, 304->stainless_304). Migrate LatheChipMechanicsEngine, LatheThermodynamicsEngine, LatheTransferLearningEngine to use canonical lookups.",
+          "exit_conditions": [
+            "Zero inline physics constants in Lathe*.ts",
+            "Build passes",
+            "No test regressions",
+            "40+ new test assertions verifying AISI alias behavior"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "src/physics/constants.ts",
+            "src/engines/LatheChipMechanicsEngine.ts",
+            "src/engines/LatheThermodynamicsEngine.ts",
+            "src/engines/LatheTransferLearningEngine.ts"
+          ],
+          "rollback": "git reset per-engine on test regress",
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH04"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH05",
+          "title": "Knowledge Source Completeness Check",
+          "description": "For each P1-P5 feature, verify >=1 tribal tip file + >=1 reference program set + >=1 formula group exists.",
+          "exit_conditions": [
+            ">=3 knowledge sources per feature",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "files_created": [
+            "state/shared/lathe-knowledge-coverage.md"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH01",
+            "U-LTH02"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T02:20:00Z",
+          "completion_notes": "All 5 features (P1-P5) pass 3/3 sources. Pool: 82 lathe-relevant data files + 118 JM Die CNC LATHE customer folders + 2 canonical constants symbols (CANONICAL_KIENZLE, CANONICAL_MATERIAL_DB). P4 Print-to-Program has broadest coverage (78 tribal, 7 programs). P5 ERP has narrowest (58 tribal, 3 programs, 1 formula group).",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH06",
+          "title": "Legacy Envelope Archival",
+          "description": "Mark LATHE-PRO-MS0, LATHE-PRO-v2, LATHE-PRO-v3, LATHE-ROADMAP, LATHE-AI as status: archived, superseded_by: LATHE-MASTER; update roadmap-index.json; move legacy .md files to plans-archive/lathe-pre-consolidation/.",
+          "exit_conditions": [
+            "All 5 legacy envelopes flagged archived",
+            "LATHE-MASTER shown active in index",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH01",
+            "U-LTH02",
+            "U-LTH03",
+            "U-LTH04",
+            "U-LTH04b",
+            "U-LTH05"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "lathe-inventory-stale-guard",
+        "action": "prism_lathe:inventory_snapshot",
+        "skill": "/lathe-audit"
+      }
+    },
+    {
+      "id": "P0.1",
+      "title": "Formal G-Code Verification (Z3/SMT)",
+      "goal": "Add formal verification layer so emitted G-code is provably safe (no travel-limit violation, no G0-through-stock, monotone Z in finishing, tool-holder clearance, coolant gates, spindle gates). Closes the 'one-shot' promise with mathematical certainty.",
+      "scrutiny_origin": "v2 — GAP #1 (formal verification)",
+      "sessions": 2,
+      "smart_config": {
+        "role": "backend-dev + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "z3-solver npm",
+        "node-opcua",
+        "SMT-LIB theory of reals",
+        "denotational semantics — Winskel Ch.5",
+        "BMC bounded model checking",
+        "ppGCodeLintEngine",
+        "PPGCodeParserEngine",
+        "PPProgramValidatorEngine"
+      ],
+      "units": [
+        {
+          "id": "U-LTH63",
+          "title": "LatheProgramSMTEncoderEngine",
+          "description": "Parses emitted G-code -> SMT-LIB encoding (LIA/LRA/NRA). Variables: (x,z,feed,rpm,tool,coolant,state). Generates constraints per block.",
+          "exit_conditions": [
+            "Encodes 10 JM Die sample programs",
+            "Z3 verifies in <5s per 500-block program",
+            "All 7 safety properties encoded"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH64",
+          "title": "LatheFormalProofEngine (7 properties)",
+          "description": "Runs Z3 to prove: (1) axis travel within limits, (2) no G0 through stock, (3) monotone Z in finish cycle, (4) clearance >= min_z after retract, (5) coolant on when cutting, (6) spindle on before motion, (7) tool change at safe position.",
+          "exit_conditions": [
+            "All 7 properties produce SAT/UNSAT with counterexample trace",
+            "UNSAT proofs verified",
+            "Seeded violation detected"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH63"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH65",
+          "title": "LatheDenotationalSemanticsEngine",
+          "description": "Maps G-code operational semantics to denotational model — state transformer [[P]]: Sigma -> Sigma for each block. Composable proofs.",
+          "exit_conditions": [
+            "Semantic function for G0, G1, G2/G3, G71, G76 tested",
+            "Composability proved via sequence lemma",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH63",
+            "U-LTH64"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH66",
+          "title": "LatheTemporalPropertyCheckerEngine (bounded LTL)",
+          "description": "Encodes bounded LTL-to-SMT translation for temporal safety: 'G ( motion -> X (not G0 within stock) )' etc. Bounded k-step.",
+          "exit_conditions": [
+            "3 temporal properties checked on 10 programs",
+            "Counter-examples with block number",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH63",
+            "U-LTH64"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH67",
+          "title": "LatheProofCacheEngine (memoization)",
+          "description": "Memoizes proofs keyed by (program_hash, machine_envelope_hash, property_id). Re-emissions of unchanged segments skip re-proof.",
+          "exit_conditions": [
+            "Cache hit ratio > 80% on incremental emits",
+            "Cache invalidates on machine profile change",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH64"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH68",
+          "title": "Forge-Triple for Formal Verification",
+          "description": "Hook post-lathe-emit-proof.mjs (runs SMT on every emitted program) + action prism_lathe:formal_prove + skill /lathe-prove.",
+          "exit_conditions": [
+            "All 3 deliverables",
+            "Hook blocks emit on unproved property",
+            "Skill emits SAT/UNSAT report"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH63",
+            "U-LTH64",
+            "U-LTH65",
+            "U-LTH66",
+            "U-LTH67"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "post-lathe-emit-proof",
+        "action": "prism_lathe:formal_prove",
+        "skill": "/lathe-prove"
+      },
+      "exit_gate": "Every emitted G-code program passes Z3 SMT verification for all 7 safety properties OR is rejected with counterexample trace identifying offending block."
+    },
+    {
+      "id": "P0.2",
+      "title": "Local LLM + LoRA Policy (Qwen2.5-Coder:7b + QLoRA + Ollama)",
+      "goal": "Fine-tuned local policy head distilled from JM Die tribal knowledge + validated programs, preserving physics/safety gates. Runs offline on Ollama (GGUF Q5_K_M), airgapped.",
+      "scrutiny_origin": "v2 — GAP #2 (local LLM)",
+      "sessions": 3,
+      "smart_config": {
+        "role": "ml-developer + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "knowledge_sources": [
+        "Qwen2.5-Coder:7b",
+        "PEFT QLoRA NF4",
+        "bitsandbytes 0.43",
+        "Ollama GGUF Q5_K_M",
+        "llama.cpp quant tool",
+        "JM Die program corpus (20k+ programs)",
+        "TribalKnowledgeEngine (3,700+ tips)",
+        "OkumaExtractedTipsEngine (63)"
+      ],
+      "units": [
+        {
+          "id": "U-LTH69",
+          "title": "LatheLoRADatasetBuilderEngine",
+          "description": "Builds training corpus: {prompt=operation+material+tool, completion=validated G-code block} from 20k JM Die programs + 3700 tips. Deduplicates + class-balances.",
+          "exit_conditions": [
+            ">=15k training pairs",
+            "De-duped",
+            "Class balance <= 3:1 across material groups"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH70",
+          "title": "scripts/train-lathe-lora.py (QLoRA 4-bit NF4, r=16, alpha=32)",
+          "description": "PEFT QLoRA training script on Qwen2.5-Coder:7b. Dropout=0.05, lr=2e-4, cosine schedule, 3 epochs. Checkpointing + wandb logs.",
+          "exit_conditions": [
+            "Training completes on RTX 3090+ in <12h",
+            "Val loss < 1.5",
+            "Checkpoints saved"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH69"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH71",
+          "title": "LatheLoRAEvalHarnessEngine",
+          "description": "Eval harness: BLEU on held-out programs, safety-property pass rate via P0.1 SMT encoder, machinist A/B test. Rejects LoRA if safety rate < base model.",
+          "exit_conditions": [
+            "Safety rate >= base model",
+            "BLEU gain >= 5pts",
+            "Machinist A/B: >=60% prefer LoRA"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH70",
+            "U-LTH63"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH72",
+          "title": "scripts/merge-and-quant-lathe-lora.py (GGUF Q5_K_M)",
+          "description": "Merges LoRA weights into base, converts to GGUF Q5_K_M via llama.cpp. Produces lathe-jmdie-q5km.gguf artifact.",
+          "exit_conditions": [
+            "Quantized model file <= 6GB",
+            "Ollama loads model",
+            "Inference works offline"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH70",
+            "U-LTH71"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH73",
+          "title": "lathe-jmdie.Modelfile + LatheLocalPolicyEngine",
+          "description": "Ollama Modelfile with system prompt enforcing physics gates. Engine wraps ollama.generate() + gate validation.",
+          "exit_conditions": [
+            "Model registers via `ollama create`",
+            "Engine calls model + applies gates",
+            "Airgapped test passes"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH72"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH74",
+          "title": "LatheLoRAPipelineEngine (end-to-end)",
+          "description": "Orchestrator: build dataset -> train -> eval -> merge -> quantize -> register. Single entrypoint.",
+          "exit_conditions": [
+            "End-to-end run succeeds on dry data",
+            "All artifacts produced",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH69",
+            "U-LTH70",
+            "U-LTH71",
+            "U-LTH72",
+            "U-LTH73"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH75",
+          "title": "Incremental retrain cadence (monthly + event-driven)",
+          "description": "Cron: monthly full retrain. Event-driven: +500 new validated programs OR 5 machinist rejections of same pattern.",
+          "exit_conditions": [
+            "Cron wired",
+            "Event trigger logic tested",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH74"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH76",
+          "title": "Forge-Triple for Local LLM",
+          "description": "Hooks pre-lathe-gen-require-policy.mjs (require policy present) + skills /lathe-train-lora + /lathe-gen-policy + action prism_lathe:lora_generate.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Hook blocks generation without policy",
+            "Skill triggers retrain"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH73",
+            "U-LTH74",
+            "U-LTH75"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "pre-lathe-gen-require-policy",
+        "action": "prism_lathe:lora_generate",
+        "skill": "/lathe-train-lora + /lathe-gen-policy"
+      },
+      "exit_gate": "Local QLoRA policy on Qwen2.5-Coder:7b produces JM Die-grade lathe G-code offline via Ollama, passing all P0.1 safety properties, beating base model on machinist A/B >=60%."
+    },
+    {
+      "id": "P0.3",
+      "title": "Bayesian + Causal Depth",
+      "goal": "Upgrade cutting force / tool life / Cpk from frequentist point estimates to Bayesian joint posteriors (NIG conjugate), hierarchical partial pooling, and true do-operator causal inference via PC algorithm + Meek orientation. Required for print-to-program uncertainty gating.",
+      "scrutiny_origin": "v2 — GAP #3 (Bayesian/causal)",
+      "sessions": 3,
+      "smart_config": {
+        "role": "ml-developer + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "NIG conjugate prior (Gelman BDA3 Ch.3)",
+        "Hierarchical Gibbs (Gelman BDA3 Ch.5)",
+        "PC algorithm (Spirtes-Glymour-Scheines)",
+        "Meek orientation rules",
+        "Fisher-Z test",
+        "back-door criterion (Pearl 2009)",
+        "non-central t for Cpk",
+        "KienzleForceModelEngine",
+        "TaylorToolLifeModelEngine",
+        "CpkPredictionGateEngine (CAMX-MS12 E1203)"
+      ],
+      "units": [
+        {
+          "id": "U-LTH77",
+          "title": "Extend KienzleBayesianEngine with NIG conjugate",
+          "description": "Current: Gaussian on kc1.1. New: Normal-Inverse-Gamma joint prior on (mu, sigma^2), closed-form posterior update via sufficient stats {n, xbar, S}.",
+          "exit_conditions": [
+            "Posterior means within 1% of MCMC on 3 test datasets",
+            "Analytical posterior variance",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH78",
+          "title": "Joint (C, n) Taylor posterior",
+          "description": "Extend TaylorToolLifeModelEngine with joint Bayesian posterior on (C, n) via Student-t marginalization. Credibility intervals.",
+          "exit_conditions": [
+            "95% credibility interval covers observed T on 10 holdout cases",
+            "Correlation between C and n surfaced",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH77"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH79",
+          "title": "HierarchicalBayesianCuttingForceEngine (partial pooling)",
+          "description": "Material-group-level hyperprior, shop-level offset, job-level draw. Gibbs sampler (1000 burn, 5000 draws). Rhat < 1.05.",
+          "exit_conditions": [
+            "Rhat < 1.05 on all parameters",
+            "Partial pooling beats no-pooling by >=5% RMSE on holdout",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH77",
+            "U-LTH78"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH80",
+          "title": "PC algorithm causal discovery",
+          "description": "PC algorithm with Fisher-Z conditional independence test on {Vc, fn, ap, material, tool_geometry, machine, Ra, T_life, Fc}. Outputs CPDAG; Meek orientation -> DAG.",
+          "exit_conditions": [
+            "Produces CPDAG on JM Die dataset",
+            "Top-5 edges match domain knowledge",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH79"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH81",
+          "title": "True do-operator via back-door adjustment",
+          "description": "Replace current 'causal' engine stubs with P(Y | do(X)) = Sum_z P(Y | X, Z) P(Z). Back-door set computed from DAG.",
+          "exit_conditions": [
+            "do-operator differs from conditional on confounded edges",
+            "Identification fails gracefully on unidentifiable queries",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH80"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH82",
+          "title": "gateBayesian() for E1203 CpkPredictionGateEngine",
+          "description": "Extend E1203 (from CAMX-MS12) with Bayesian Cpk via non-central t. Gate on P(Cpk > 1.33) >= 0.90 instead of Cpk_point > 1.33.",
+          "exit_conditions": [
+            "Gate uses posterior probability",
+            "Back-compatibility: gateFrequentist() retained",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH77",
+            "U-LTH78",
+            "U-LTH79"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH83",
+          "title": "Forge-Triple for Bayesian Posterior Gate",
+          "description": "Hook post-strategy-require-posterior-gate.mjs + action prism_lathe:posterior_gate + skill /lathe-posterior-gate.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Hook blocks strategy accept on posterior Cpk P < 0.90",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH77",
+            "U-LTH78",
+            "U-LTH79",
+            "U-LTH80",
+            "U-LTH81",
+            "U-LTH82"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "post-strategy-require-posterior-gate",
+        "action": "prism_lathe:posterior_gate",
+        "skill": "/lathe-posterior-gate"
+      },
+      "exit_gate": "Strategy accept requires Bayesian P(Cpk > 1.33) >= 0.90 (not point estimate). Causal queries use true do-operator via back-door adjustment. Rhat < 1.05 on all hierarchical samplers."
+    },
+    {
+      "id": "P0.4",
+      "title": "Asset Utilization Maximization",
+      "goal": "Systematically utilize ALL 1,869 engines + 509 formulas + 53 algorithms + 24 registries + 29,569 registry entries + 4,493 tribal tips + 36,929 JM Die programs. Track per-decision provenance; detect orphan assets; prove coverage.",
+      "scrutiny_origin": "v2 — GAP #4 (asset utilization)",
+      "sessions": 3,
+      "smart_config": {
+        "role": "system-architect + code-archaeologist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "ENGINE_DIGEST.md",
+        "DISPATCHER_DIGEST.md",
+        "FormulaRegistry",
+        "AlgorithmRegistry",
+        "TribalKnowledgeEngine",
+        "JMDieProgramInventoryEngine",
+        "CAMX-MS12 outputs (E1096-E1203)"
+      ],
+      "units": [
+        {
+          "id": "U-LTH84",
+          "title": "LatheAssetCoordinatorEngine",
+          "description": "Central coordinator exposing .consultAll(query) that fans out to engines, formulas, algorithms, registries, tribal, programs. Returns typed hits with provenance.",
+          "exit_conditions": [
+            "Fans to >=7 sources per query",
+            "Returns provenance for every hit",
+            "Cache hit ratio >= 40% warm"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH85",
+          "title": "LatheProvenanceChainEngine",
+          "description": "Records provenance chain per decision: {decision_id, asset_id, timestamp, weight, output}. Persisted to data/state/lathe-provenance.json (rotating).",
+          "exit_conditions": [
+            "100% of decisions have provenance chain >= 3 links",
+            "Chain queryable by decision_id",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH84"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH86",
+          "title": "LatheDecisionReasoningLogEngine",
+          "description": "Human-readable reasoning log per decision with sources cited. Reads provenance chain + renders trace.",
+          "exit_conditions": [
+            "Render produces >=5-step trace on sample",
+            "Machinist can read + verify sources",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH85"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH87",
+          "title": "LatheCoverageAuditEngine",
+          "description": "Audits which assets are never consulted. Per-asset hit counts + orphan detection. Weekly report to shop floor.",
+          "exit_conditions": [
+            ">=80% of lathe-relevant engines consulted within 100 decisions",
+            "Orphans listed with reason",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH84",
+            "U-LTH85"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH88",
+          "title": "Registry hit counts + under-utilization alerts",
+          "description": "Instruments all 24 registries with hit counts. Alerts on under-utilization < 1% per quarter.",
+          "exit_conditions": [
+            "Hit counts persist",
+            "Alert fires on seeded under-utilization",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH87"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH89",
+          "title": "6 cross-asset wiring hooks",
+          "description": "pre-sf-calculate-consult-kb, pre-strategy-select-consult-tribal, pre-toolpath-emit-consult-programs, pre-quote-estimate-consult-actuals, pre-po-consult-inventory, pre-emit-consult-validators.",
+          "exit_conditions": [
+            "All 6 hooks installed",
+            "Each fires on appropriate action",
+            "Block when <2 assets consulted"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH84",
+            "U-LTH87"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH90",
+          "title": "Retention + query actions",
+          "description": "prism_lathe:provenance_query {decision_id, asset_id, date_range}. Retention policy: 90 days hot, 365 cold.",
+          "exit_conditions": [
+            "Query returns provenance",
+            "Rotation works",
+            "No-DB fallback via flat files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH85",
+            "U-LTH86"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH91",
+          "title": "Forge-Triple for Asset Utilization",
+          "description": "Hook post-lathe-decision-require-provenance.mjs + action prism_lathe:provenance_query + skill /lathe-coverage-audit.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Hook blocks decision lacking provenance",
+            "Audit reports coverage%"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH84",
+            "U-LTH85",
+            "U-LTH86",
+            "U-LTH87",
+            "U-LTH88",
+            "U-LTH89",
+            "U-LTH90"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "post-lathe-decision-require-provenance",
+        "action": "prism_lathe:provenance_query",
+        "skill": "/lathe-coverage-audit"
+      },
+      "exit_gate": "Every lathe decision has provenance chain >= 3 links. Coverage audit shows >=80% engines consulted within 100 decisions. Under-utilized assets alerted quarterly."
+    },
+    {
+      "id": "P0.5",
+      "title": "AGI Safety Containment (Lathe)",
+      "goal": "Corrigibility gating (T0-T3 autonomy tiers), goal-stability invariant (objective hash check), self-modification approval (signed artifact), containment audit. Required before machine-adjacent AGI policy runs.",
+      "scrutiny_origin": "v2 — GAP #5 (AGI safety)",
+      "sessions": 2,
+      "smart_config": {
+        "role": "system-architect + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      },
+      "knowledge_sources": [
+        "AGISafetyContainmentEngine",
+        "Corrigibility paper (Soares 2015)",
+        "Goal stability invariants",
+        "CVE signing protocols",
+        "PRISMSelfAwarenessEngine"
+      ],
+      "units": [
+        {
+          "id": "U-LTH92",
+          "title": "LatheAgentCorrigibilityGateEngine (T0-T3 tiers)",
+          "description": "Tiers: T0 suggest-only, T1 propose+approve, T2 supervised-execute, T3 autonomous. Gate enforces autonomy tier per decision class.",
+          "exit_conditions": [
+            "Each tier testable",
+            "Upgrade requires signed approval",
+            "Downgrade on safety breach"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH93",
+          "title": "LatheGoalStabilityInvariantEngine (objective-hash check)",
+          "description": "Hashes current objective at session start. Every decision checks hash match. Drift -> halt + human review.",
+          "exit_conditions": [
+            "Hash persisted",
+            "Drift detection fires on seeded modification",
+            "Halt works"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH92"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH94",
+          "title": "LatheSelfModificationApprovalEngine (signed artifact)",
+          "description": "Any self-modification (policy update, tool code change) requires signed artifact from supervisor. Reject unsigned changes.",
+          "exit_conditions": [
+            "Unsigned mod rejected",
+            "Signed mod accepted",
+            "Log audit trail"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH92"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH95",
+          "title": "LatheContainmentAuditEngine",
+          "description": "Daily audit of agent behavior against containment envelope. Flags anomalies: unusual asset consult patterns, novel output formats, undeclared side effects.",
+          "exit_conditions": [
+            "Audit runs daily",
+            "Anomaly detection on seeded deviation",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH92",
+            "U-LTH93",
+            "U-LTH94"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH96",
+          "title": "Forge-Triple for AGI Containment",
+          "description": "Hook pre-lathe-agi-action-check-corrigibility.mjs + hook post-lathe-agi-goal-drift-halt.mjs + action prism_lathe:agi_containment_check + skill /lathe-containment-audit.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Both hooks active",
+            "Skill produces daily report"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH92",
+            "U-LTH93",
+            "U-LTH94",
+            "U-LTH95"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "pre-lathe-agi-action-check-corrigibility + post-lathe-agi-goal-drift-halt",
+        "action": "prism_lathe:agi_containment_check",
+        "skill": "/lathe-containment-audit"
+      },
+      "exit_gate": "Every AGI action passes corrigibility tier gate. Goal-drift halts on hash mismatch. Self-modification requires signed artifact. Daily containment audit runs."
+    },
+    {
+      "id": "P0.6",
+      "title": "Live Machine Data (MTConnect / OPC-UA / THINC)",
+      "goal": "Real-time telemetry from 7 Okuma lathes via OPC-UA (10Hz), MTConnect adapter, THINC SDK. Feeds on-machine feedback into tuning + triggers M30-complete outcome capture.",
+      "scrutiny_origin": "v2 — GAP #6 (live machine data)",
+      "sessions": 3,
+      "smart_config": {
+        "role": "backend-dev + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "node-opcua",
+        "MTConnect standard 1.7",
+        "Okuma THINC SDK",
+        "OSP-P300L data model",
+        "MTConnectAdapterEngine (existing)",
+        "LatheActualFeedbackTuningEngine"
+      ],
+      "units": [
+        {
+          "id": "U-LTH97",
+          "title": "OkumaOPCUABridgeEngine",
+          "description": "OPC-UA client via node-opcua to Okuma OSP-P300L. Subscribes to {spindle_load, feed_override, actual_feed, rpm, position, alarm, coolant, tool_id} at 10 Hz.",
+          "exit_conditions": [
+            "Connects to simulator",
+            "Subscriptions deliver 10Hz",
+            "Reconnect on drop"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH98",
+          "title": "MTConnectAdapterEngine extensions",
+          "description": "Extend existing adapter with lathe-specific probes (Okuma MTConnect streamer). Harmonizes units + timestamps.",
+          "exit_conditions": [
+            "Probe data schema validates",
+            "Unit harmonization tested",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH97"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH99",
+          "title": "LiveTelemetryIngestEngine (Kafka-less, file-backed ring buffer)",
+          "description": "Append-only ring buffer (24h retention, 10 Hz x 9 machines = 7.7M entries/day). Query by {machine_id, job_id, time_range}.",
+          "exit_conditions": [
+            "24h buffer holds",
+            "Query returns in <50ms",
+            "No Kafka required"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH97",
+            "U-LTH98"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH100",
+          "title": "LatheTelemetrySummaryEngine (outcome schema extension)",
+          "description": "Per-job summary: avg_spindle_load, peak_feed_override, cycle_time, alarms, chip_break_events. Extends outcome schema with liveTelemetrySummary.",
+          "exit_conditions": [
+            "Summary emitted on M30",
+            "Schema versioned",
+            "Back-compat"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH99"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH101",
+          "title": "OnM30AutoCompleteOutcomeHook",
+          "description": "Hook on-m30-auto-complete-outcome.mjs: when MTConnect/OPC-UA streams M30 code, auto-finalize outcome + feed to tuning engine.",
+          "exit_conditions": [
+            "Hook fires on M30",
+            "Outcome written",
+            "No duplicate outcomes"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH99",
+            "U-LTH100"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH102",
+          "title": "Wire LatheActualFeedbackTuningEngine consumer",
+          "description": "Subscribe tuning engine to new liveTelemetrySummary. Re-tune priors per material group monthly.",
+          "exit_conditions": [
+            "Tuning engine receives updates",
+            "Monthly re-tune job",
+            "Backtests improve vs static priors"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH100",
+            "U-LTH101"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH103",
+          "title": "Forge-Triple for Live Telemetry",
+          "description": "Hook on-m30-auto-complete-outcome.mjs + action prism_lathe:live_stream_start + skill /lathe-live-telemetry.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Skill shows live stream",
+            "Hook fires reliably"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH97",
+            "U-LTH98",
+            "U-LTH99",
+            "U-LTH100",
+            "U-LTH101",
+            "U-LTH102"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "on-m30-auto-complete-outcome",
+        "action": "prism_lathe:live_stream_start",
+        "skill": "/lathe-live-telemetry"
+      },
+      "exit_gate": "All 7 Okuma lathes stream 10 Hz telemetry to ring buffer. M30 auto-finalizes outcome. Monthly re-tune from live actuals improves priors vs static baseline."
+    },
+    {
+      "id": "P0.7",
+      "title": "Predictive Twin (60s Pre-Play)",
+      "goal": "Before emitting G-code to machine, simulate 60s of execution with per-block physics (Kienzle + 1D thermal FD + cantilever deflection + stability lobe) in 2D XZ polygon booleans via manifold-3d. 8ms/block target. Validates within 15/20/25% MAPE before emit.",
+      "scrutiny_origin": "v2 — GAP #7 (predictive twin)",
+      "sessions": 3,
+      "smart_config": {
+        "role": "ml-developer + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "knowledge_sources": [
+        "manifold-3d WASM",
+        "CadQuery BooleanKernelEngine",
+        "KienzleForceModelEngine",
+        "ChatterStabilityLobeEngine",
+        "ToolDeflectionEngine",
+        "ThermalWearCouplingEngine"
+      ],
+      "units": [
+        {
+          "id": "U-LTH104",
+          "title": "LatheManifoldXZPolygonEngine (manifold-3d wrap, 2ms/op)",
+          "description": "Wraps manifold-3d for 2D XZ polygon booleans (turning projection). Stock state as CSG tree. Per-block diff = new swept volume.",
+          "exit_conditions": [
+            "Boolean op <=2ms on 500-vertex polygon",
+            "Round-trip stock -> part accurate",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH105",
+          "title": "LathePerBlockPhysicsEngine (Kienzle + thermal + deflection + stability, 8ms/block)",
+          "description": "For each block: compute Fc (Kienzle), T (1D thermal FD), delta (cantilever), stability (SLD lookup). Cached material props.",
+          "exit_conditions": [
+            "8ms/block on 3090+",
+            "All 4 values within 10% of slow reference",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH104"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH106",
+          "title": "LathePredictiveTwinOrchestratorEngine (60s budget)",
+          "description": "Runs per-block physics on 60s of simulated execution. Hard budget 60s wall-clock. Early-abort on catastrophic prediction.",
+          "exit_conditions": [
+            "60s budget respected",
+            "Produces {expected_cycle, peak_force, thermal_peak, chatter_risk}",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH104",
+            "U-LTH105"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH107",
+          "title": "LatheTwinValidationReportEngine (MAPE gates 15%/20%/25%)",
+          "description": "Compares twin predictions vs live telemetry (P0.6). MAPE on cycle_time (<=15%), peak_force (<=20%), peak_temp (<=25%). Gate emit on fail.",
+          "exit_conditions": [
+            "MAPE computed on >=10 past jobs",
+            "Gate rejects on fail",
+            "Reports surfaced to machinist"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH106",
+            "U-LTH100"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH108",
+          "title": "LatheTwinCalibrationEngine",
+          "description": "Bayesian calibration of twin parameters against telemetry. Updates material-group priors monthly.",
+          "exit_conditions": [
+            "Calibration reduces MAPE by >=3% over static",
+            "Priors persist",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH107",
+            "U-LTH79"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH109",
+          "title": "Viz bridge (web/src/pages/LathePreplay.tsx)",
+          "description": "React viz showing 60s preplay with timeline slider, force/thermal/deflection overlays, chatter risk heatmap.",
+          "exit_conditions": [
+            "Renders on dev server",
+            "Slider scrubs",
+            "Overlays toggle"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH106",
+            "U-LTH107"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH110",
+          "title": "Forge-Triple for Predictive Twin",
+          "description": "Hook pre-lathe-emit-require-preplay.mjs + action prism_lathe:preplay_run + skill /lathe-preplay.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Hook blocks emit without preplay pass",
+            "Skill runs E2E"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH104",
+            "U-LTH105",
+            "U-LTH106",
+            "U-LTH107",
+            "U-LTH108",
+            "U-LTH109"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "pre-lathe-emit-require-preplay",
+        "action": "prism_lathe:preplay_run",
+        "skill": "/lathe-preplay"
+      },
+      "exit_gate": "Every emit preceded by 60s preplay showing MAPE-validated {cycle, force, temp, chatter}. Gate rejects emit on MAPE > 15/20/25% thresholds."
+    },
+    {
+      "id": "P0.8",
+      "title": "Multi-Agent Lathe Orchestration",
+      "goal": "Supervisor + 5 specialist agents (BlueprintOCR, FeatureRecognition, StrategyAdvisor, SimValidator, Signoff) with shared cognitive budget (Thompson sampling), calibrated consensus (provenance x confidence weights), disagreement log, claude-flow integration.",
+      "scrutiny_origin": "v2 — GAP #8 (multi-agent)",
+      "sessions": 2,
+      "smart_config": {
+        "role": "system-architect + ml-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "claude-flow",
+        "queen-coordinator",
+        "Thompson sampling",
+        "calibrated consensus (Raftery)",
+        "MultiAgentCoordinatorEngine"
+      ],
+      "units": [
+        {
+          "id": "U-LTH111",
+          "title": "LatheSupervisorAgent",
+          "description": "Routes sub-tasks to specialists, enforces budget, mediates conflicts. Implements claude-flow queen-coordinator contract.",
+          "exit_conditions": [
+            "Routes 5 sub-tasks",
+            "Mediates 1 disagreement",
+            "Budget enforced"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH112",
+          "title": "LatheAgentBudgetAllocatorEngine (Thompson sampling)",
+          "description": "Allocates token/time budget across 5 specialists via Thompson sampling with beta-bernoulli priors on past success.",
+          "exit_conditions": [
+            "Budget respects global cap",
+            "Thompson converges on high-value specialists",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH111"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH113",
+          "title": "LatheAgentConsensusEngine (provenance x confidence weights)",
+          "description": "Weighted vote across specialists. Weight = (provenance_length x confidence). Calibrated via isotonic regression.",
+          "exit_conditions": [
+            "Weighted consensus differs from simple vote on seeded case",
+            "Calibration improves Brier score",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH111",
+            "U-LTH112"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH114",
+          "title": "LatheAgentDisagreementLogEngine",
+          "description": "Logs every specialist disagreement with resolution. Quarterly review informs calibration updates.",
+          "exit_conditions": [
+            "Log persists",
+            "Disagreement rate tracked",
+            "Report generated"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH113"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH115",
+          "title": "claude-flow + queen-coordinator integration",
+          "description": "Registers supervisor as queen; specialists as workers. Uses existing mcp__claude-flow MCP swarm tools.",
+          "exit_conditions": [
+            "swarm_init succeeds",
+            "task_orchestrate dispatches to specialists",
+            "Results collected"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH111"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH116",
+          "title": "Forge-Triple for Multi-Agent",
+          "description": "Hook pre-lathe-swarm-budget-check.mjs + action prism_lathe:swarm_dispatch + skill /lathe-swarm.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Hook blocks over-budget swarm",
+            "Skill dispatches 5 specialists E2E"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH111",
+            "U-LTH112",
+            "U-LTH113",
+            "U-LTH114",
+            "U-LTH115"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "pre-lathe-swarm-budget-check",
+        "action": "prism_lathe:swarm_dispatch",
+        "skill": "/lathe-swarm"
+      },
+      "exit_gate": "Print-to-program dispatches to 5 specialists under budget; consensus reached via weighted vote; disagreements logged; claude-flow integrated."
+    },
+    {
+      "id": "P0.9",
+      "title": "Scientific Simulation Depth (Lathe)",
+      "goal": "Add tribology (Malkin decomposition), fatigue (Basquin), fracture mechanics (LEFM Irwin, thin-wall), residual stress (Jawahir-Brinksmeier), dimensional stability gates. Required for high-reliability die/mold work.",
+      "scrutiny_origin": "v2 — GAP #9 (science depth)",
+      "sessions": 2,
+      "smart_config": {
+        "role": "physics-reviewer + ml-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "Malkin 2008 (grinding tribology)",
+        "Basquin 1910 (fatigue)",
+        "Irwin 1957 (LEFM)",
+        "Jawahir-Brinksmeier residual stress",
+        "ThermalWearCouplingEngine",
+        "src/physics/constants.ts"
+      ],
+      "units": [
+        {
+          "id": "U-LTH117",
+          "title": "LatheTribologyWearModelEngine (Malkin decomposition)",
+          "description": "Decomposes wear: chip formation + sliding + plowing. Per-pass wear rate from specific energy partition.",
+          "exit_conditions": [
+            "Decomposition validated on 3 M2 datasets",
+            "Wear rate within 15% of observed",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH118",
+          "title": "LatheFatigueGateEngine (tool + spindle + jaw, Basquin)",
+          "description": "Cumulative fatigue via Basquin (Sa = Sf' (2Nf)^b). Gates: tool insert, spindle bearing, chuck jaw.",
+          "exit_conditions": [
+            "Gate rejects over-fatigue",
+            "N_f predictions within 20% of bench data",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH117"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH119",
+          "title": "LatheFractureMechanicsGateEngine (thin-wall LEFM)",
+          "description": "Irwin K_I = Y sigma sqrt(pi a). Gates thin-wall turning against K_IC of material. Rejects cuts exceeding toughness budget.",
+          "exit_conditions": [
+            "K_I computed for 5 thin-wall cases",
+            "K_IC comparison produces rejections",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH117"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH120",
+          "title": "LatheResidualStressGateEngine (Jawahir-Brinksmeier)",
+          "description": "Surface residual stress from Jawahir-Brinksmeier thermomechanical model. Gates finish-cut parameters to meet stress spec.",
+          "exit_conditions": [
+            "Stress prediction within 30 MPa of XRD data on 3 cases",
+            "Gate enforces spec",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH117"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH121",
+          "title": "LatheDimensionalStabilityGateEngine",
+          "description": "Post-machining thermal relaxation + residual-stress creep prediction. Gates tolerance at delivery, not just at machine.",
+          "exit_conditions": [
+            "Predicts >=0.5um delta on 24h relaxation of 3 D2 test parts",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH119",
+            "U-LTH120"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH122",
+          "title": "Forge-Triple for Science Gates",
+          "description": "Hook post-lathe-strategy-require-science-gates.mjs + action prism_lathe:science_gate_eval + skill /lathe-science-gate.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Hook blocks strategy failing any gate",
+            "Skill reports per-gate status"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH117",
+            "U-LTH118",
+            "U-LTH119",
+            "U-LTH120",
+            "U-LTH121"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "post-lathe-strategy-require-science-gates",
+        "action": "prism_lathe:science_gate_eval",
+        "skill": "/lathe-science-gate"
+      },
+      "exit_gate": "Every strategy passes tribology + fatigue + fracture + residual stress + dimensional stability gates before acceptance."
+    },
+    {
+      "id": "P0.10",
+      "title": "Math Depth (Optimal Control / Info Gain / Ensemble)",
+      "goal": "Formulate print-to-program as optimal-control Lagrangian argmax. Add Expected Information Gain for active learning. Platt-scaled calibrated ensemble (LoRA + Opus + Deep + rule). EXP3/UCB regret minimization across policies.",
+      "scrutiny_origin": "v2 — GAP #10 (math depth)",
+      "sessions": 2,
+      "smart_config": {
+        "role": "ml-developer + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "Bertsekas Dynamic Programming",
+        "Expected Info Gain (Lindley)",
+        "Platt scaling",
+        "isotonic regression calibration",
+        "EXP3 (Auer 2002)",
+        "UCB1 (Auer 2002)"
+      ],
+      "units": [
+        {
+          "id": "U-LTH123",
+          "title": "LatheOptimalControlFormulationEngine (Lagrangian argmax)",
+          "description": "Formulates full pipeline as argmax_{policy} E[reward - sum lambda_i cost_i]. Rewards: speed, accuracy, tool life. Costs: safety violations, scrap.",
+          "exit_conditions": [
+            "Lagrangian solved on 5 test jobs",
+            "Dual variables interpretable",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH124",
+          "title": "LatheExpectedInfoGainEngine",
+          "description": "Picks next experiment (or training sample) by max EIG. Used in LoRA retrain (P0.2) + machinist query (P4).",
+          "exit_conditions": [
+            "EIG computable on 3 candidate queries",
+            "Top-EIG beats random on 10-step eval",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH123"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH125",
+          "title": "LatheCalibratedEnsembleEngine (Platt over LoRA+Opus+Deep+rule)",
+          "description": "Ensembles 4 policies: local LoRA (P0.2), Opus, deep-reasoning, rule-based. Platt-scaled confidences; weighted vote.",
+          "exit_conditions": [
+            "Brier score improves >=0.05 over any single policy",
+            "Calibration plot near diagonal",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH73",
+            "U-LTH113"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH126",
+          "title": "LatheRegretMinimizationEngine (EXP3 + UCB)",
+          "description": "Minimizes regret across policies. EXP3 for adversarial; UCB for stochastic. Online policy selection.",
+          "exit_conditions": [
+            "Regret bound within theoretical",
+            "Converges on best policy in <200 jobs",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH125"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH127",
+          "title": "Forge-Triple for Optimal Control",
+          "description": "Hook pre-lathe-decision-require-optimal-control.mjs + action prism_lathe:optimal_control_solve + skill /lathe-optimal-control.",
+          "exit_conditions": [
+            "3 deliverables",
+            "Hook blocks heuristic decision when OC solve available",
+            "Skill returns argmax policy + trace"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH123",
+            "U-LTH124",
+            "U-LTH125",
+            "U-LTH126"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "pre-lathe-decision-require-optimal-control",
+        "action": "prism_lathe:optimal_control_solve",
+        "skill": "/lathe-optimal-control"
+      },
+      "exit_gate": "Print-to-program decisions produced by optimal-control argmax with calibrated ensemble + EIG-driven learning + EXP3/UCB policy selection. Brier score improves >=0.05 over any single policy."
+    },
+    {
+      "id": "P0.11",
+      "title": "Frontend Integration (Codex web app — REUSE, DO NOT CLONE)",
+      "goal": "Close the frontend gaps so the lathe pipeline (P1 -> P4) is callable from the PRISM web app as one-shot flows, with registry-backed UI state, studio-style wizards, typed handoffs, and Playwright E2E coverage. REUSE Codex's existing LatheUploadPage / LatheWizardPage / LatheResultsPage and mirror the WedmStudioProvider + wedm-studio/ folder pattern for the new LatheStudio. Comply with Calculator Studio design language (web/CLAUDE.md: prism-glow-*, prism-chip, prism-spectrum-fill, prism-led-sweep, bg-[rgba(2,6,23,0.78)]).",
+      "scrutiny_origin": "R5 — Codex Frontend + Universal Alignment (SCRUTINY-R5)",
+      "sessions": 3,
+      "smart_config": {
+        "role": "mobile-dev + reviewer + tester",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "mcp-server/web/CLAUDE.md — Codex Page Protection + Calculator Studio design language",
+        "mcp-server/web/src/pages/WireEdmStudioPage.tsx (121 LOC canonical studio wrapper)",
+        "mcp-server/web/src/contexts/WedmStudioContext.tsx (canonical Studio provider pattern)",
+        "mcp-server/web/src/components/wedm-studio/ (WizardShell, StepImport, StepReview, StepWcs, StepToolpath, StepOptimize, StepProgram, ProfileCanvas, StepErrorCard, InfoTip)",
+        "mcp-server/web/src/pages/LatheUploadPage.tsx (210 LOC — already built by Codex, route /lathe)",
+        "mcp-server/web/src/pages/LatheWizardPage.tsx (252 LOC — already built by Codex, route /lathe/wizard)",
+        "mcp-server/web/src/pages/LatheResultsPage.tsx (1265 LOC — already built by Codex, route /lathe/results)",
+        "mcp-server/web/src/components/LatheInputWizard.tsx (0 LOC — EMPTY, needs implementation; exports LatheWizardResult type consumed by LatheResultsPage)",
+        "mcp-server/web/src/components/LatheBackplot.tsx + LatheAIPanel.tsx (already built by Codex)",
+        "mcp-server/web/src/pages/CalculatorPage.tsx (lathe sub-panels + mode-switch hygiene gaps at lines 4271-4383, 1980-1988)",
+        "mcp-server/web/src/state/calculatorWorkspace.ts (MACHINE_MODE_OPTIONS hardcoded defaults line 307, MODE_NOTES line 3194)",
+        "mcp-server/web/src/api/ (87 clients, 7 orphan: cadGeometry, holePattern, multiOp, toolpath, feasibility, adaptiveControl, autonomous)",
+        "SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md"
+      ],
+      "units": [
+        {
+          "id": "U-LTH128",
+          "title": "LatheStudioPage + LatheStudioContext + lathe-studio/ step folder (mirrors WEDM pattern, new capability)",
+          "description": "New route /lathe-studio at mcp-server/web/src/pages/LatheStudioPage.tsx (thin wrapper ~120 LOC). Creates LatheStudioProvider in mcp-server/web/src/contexts/LatheStudioContext.tsx. Creates 6 step components in mcp-server/web/src/components/lathe-studio/: WizardShell (shared stepper UX), StepImport (PDF/DXF/STEP upload), StepFeatureConfirm (feature extraction review), StepStrategyPick (roughing/finishing/threading strategy), StepPreplay (cycle-time + toolpath preview via LatheBackplot), StepProgramValidate (G-code validation + post-processor dialect), StepSignoff (dossier + send-to). LatheCanvas component reuses LatheBackplot. Does NOT duplicate LatheUploadPage/LatheWizardPage/LatheResultsPage — they remain as standalone entry points. Uses Calculator Studio design language (prism-glow-*, bg-[rgba(2,6,23,0.78)], border-white/10).",
+          "exit_conditions": [
+            "LatheStudioPage.tsx exists at <= 150 LOC (thin wrapper)",
+            "LatheStudioContext.tsx exposes useLatheNavigation + useLatheData hooks",
+            "6 step components exist in components/lathe-studio/",
+            "Each step calls typed API client for its pipeline stage (P4 PrintToProgram slice)",
+            "Visual parity with WEDM studio (same WizardShell sizing)",
+            "Calculator Studio design tokens applied (grep confirms prism-glow-* + prism-chip usage)",
+            "Existing LatheUploadPage/WizardPage/ResultsPage untouched (Codex protection)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH47"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH129",
+          "title": "Populate LatheInputWizard.tsx (currently empty) + deep-link existing pages into studio",
+          "description": "Implements the empty mcp-server/web/src/components/LatheInputWizard.tsx (0 LOC today). Exports LatheWizardResult type consumed by LatheResultsPage and shared with LatheStudioContext so the session payload flows through /lathe, /lathe/wizard, /lathe/results, and /lathe-studio. Adds deep-link params on existing Codex routes: /lathe/wizard?studio=1 and /lathe/results?studio=1 navigate forward into LatheStudio equivalent steps without mutating the standalone experience. LatheUploadPage gains a Launch Studio CTA.",
+          "exit_conditions": [
+            "LatheInputWizard.tsx exports LatheWizardResult + LatheInputWizard component",
+            "LatheResultsPage import resolves without any shim",
+            "Existing route behaviour unchanged when studio query param absent",
+            "Deep-link parameter carries job-session id into LatheStudio step"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH128"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH130",
+          "title": "Mode-switch hygiene fix (validateModeStateCompatibility)",
+          "description": "Add validateModeStateCompatibility(fromMode, toMode, state) helper. Invoked in CalculatorPage mode-switch handler. Resets selectedTool, selectedMaterial, machineTypeId, operation, selectedControllerOption, programming, selectedToolpath, selectedStation when mode-incompatible.",
+          "exit_conditions": [
+            "Unit test: switching from lathe -> mill clears turning-only state",
+            "Unit test: switching within-lathe keeps compatible state",
+            "No orphaned IDs after 10 random mode-switch sequences"
+          ],
+          "omega_floor": 1,
+          "depends_on": [],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH131",
+          "title": "useMachineRegistryDefaults(mode) — eliminate hardcoded IDs",
+          "description": "React hook replacing 'th-jmd-vdi30-turning-baseline' (CalculatorPage.tsx:1980-1988) and MACHINE_MODE_OPTIONS (calculatorWorkspace.ts:307) with live queries to prism_machine:list + registry lookup. Falls back to first JM Die lathe on cold-start.",
+          "exit_conditions": [
+            "grep returns 0 occurrences of hardcoded machine IDs in web/",
+            "Hook returns correct default per mode on 5 test machines",
+            "pre-lathe-ui-require-registry-defaults hook blocks reintroduction"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH130"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH132",
+          "title": "Swiss dialect dropdown (standard / citizen-cincom / tsugami-swiss)",
+          "description": "Add dialect selector in lathe calculator. Routes post-processor generation through CitizenPostEngine (citizen-cincom) or TsugamiPostEngine (tsugami-swiss). Standard uses existing LathePostProcessor.",
+          "exit_conditions": [
+            "Dropdown visible when mode=lathe and swiss machine selected",
+            "G-code output matches expected Citizen syntax on 3 test programs",
+            "G-code output matches expected Tsugami syntax on 3 test programs"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH131"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH133",
+          "title": "5 orphan API hooks (cadGeometry, holePattern, multiOp, toolpath, feasibility)",
+          "description": "Create useCadGeometry, useHolePattern, useMultiOp, useToolpath, useFeasibility React Query hooks wrapping existing API clients. Wired into LatheStudioPage steps.",
+          "exit_conditions": [
+            "5 hooks exist with types",
+            "Each hook consumed by >=1 studio step",
+            "Orphan count drops 7 -> 2 in web/src/api/"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH128"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH134",
+          "title": "latheJobSessionStore — Zustand + IndexedDB persistence",
+          "description": "mcp-server/web/src/stores/latheJobSessionStore.ts. Unified job-session state: part, features, strategy, preplay, program, signoff. Persists to IndexedDB; shares session across /calculator, /lathe-studio, /quote, /job-cost.",
+          "exit_conditions": [
+            "Store persists across reload",
+            "Session id flows through all 4 consuming pages",
+            "Zustand middleware prevents concurrent-tab race"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH129"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH135",
+          "title": "Forge-Triple for frontend + Send-to handoffs + default nav exposure",
+          "description": "Hook pre-lathe-ui-require-registry-defaults.mjs + action prism_lathe:ui_state_audit + skill /lathe-ui-audit. Add Send-to-Quote and Send-to-JobCost buttons at signoff step. Expose /print-to-cnc and /lathe-studio in default nav. Playwright E2E: print -> signoff -> quote -> job-cost.",
+          "exit_conditions": [
+            "All 3 deliverables present",
+            "Playwright test passes end-to-end",
+            "Nav shows /print-to-cnc + /lathe-studio for authenticated users",
+            "Send-to handoffs pre-populate target page with session id"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH128",
+            "U-LTH132",
+            "U-LTH133",
+            "U-LTH134"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "pre-lathe-ui-require-registry-defaults",
+        "action": "prism_lathe:ui_state_audit",
+        "skill": "/lathe-ui-audit"
+      },
+      "exit_gate": "Lathe pipeline is callable end-to-end from the PRISM web app: upload print -> studio wizard -> signoff -> quote -> job-cost, with zero hardcoded machine IDs, registry-backed defaults, Swiss dialect support, unified job-session store, and Playwright E2E proof. Aligned with Universal 0.6 Codex-canonical tree (mcp-server/web/)."
+    },
+    {
+      "id": "P1",
+      "title": "Speed & Feed Calculator",
+      "goal": "Unified, AI-backed speed/feed calculator for PRISM web app + MCP action.",
+      "feature_target": 1,
+      "sessions": 3,
+      "smart_config": {
+        "role": "backend-dev + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "SpeedFeedOrchestratorEngine",
+        "KienzleForceModelEngine",
+        "StochasticCuttingForceEngine",
+        "ChipLoadEngine",
+        "lathe-physics-science-tips.ts",
+        "src/physics/constants.ts",
+        "FormulaRegistry"
+      ],
+      "units": [
+        {
+          "id": "U-LTH07",
+          "title": "LatheSpeedFeedCalculatorFacadeEngine",
+          "description": "Single facade consolidating 16 speed/feed engines behind .calculate({material, tool, op, machine}) -> AtomicValue<recommendation, band, confidence, sources[], reasoning[]>.",
+          "exit_conditions": [
+            "Single-entry API",
+            ">=12 tests",
+            "No duplication",
+            "Build passes"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH06"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T13:15:00Z",
+          "completion_notes": "36 tests pass | build passes | single-entry .calculate() API | uses AISI_ALIAS + CANONICAL_MATERIAL_DB",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH08",
+          "title": "LatheSpeedFeedDeepLearningAdvisorEngine",
+          "description": "Neural-net-backed advisor. Uses LatheDeepLearningIntelligenceEngine + LatheAttentionMechanismEngine. Returns DL-adjusted recommendation with top-3 feature SHAP scores.",
+          "exit_conditions": [
+            "Deterministic seed",
+            ">=10 tests",
+            ">=3 influential features in explanation"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH07"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T13:21:13.331Z",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH09",
+          "title": "LatheSpeedFeedReasoningBridgeEngine",
+          "description": "Causal / counterfactual layer via LatheCausalInferenceEngine + LatheDeepReasoningEngine. Answers what-if scenarios.",
+          "exit_conditions": [
+            ">=6 what-if scenarios",
+            "Confidence drops under extrapolation",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH07",
+            "U-LTH08"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T13:25:35.640Z",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH10",
+          "title": "Dispatcher Wiring for Speed/Feed Calculator",
+          "description": "Wire lathe_sf_calculate, lathe_sf_advise, lathe_sf_whatif, lathe_sf_cite_sources, lathe_sf_explain through camDispatcher.",
+          "exit_conditions": [
+            "5 actions callable via MCP",
+            "Schemas pass",
+            ">=8 integration tests"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH07",
+            "U-LTH08",
+            "U-LTH09"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T13:32:11.581Z",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH11",
+          "title": "Web Calculator Panel (React)",
+          "description": "web/src/pages/LatheSpeedFeedCalculator.tsx panel with form, result card, bands, explain, whatif.",
+          "exit_conditions": [
+            "Renders on dev server",
+            "E2E form submission produces recommendation",
+            "Screenshot test"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH10"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T13:47:04.035Z",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH12",
+          "title": "Shop-Aware Tuning Layer",
+          "description": "LatheSpeedFeedShopAwareTuningEngine adjusts by JM Die actuals via LatheActualFeedbackTuningEngine + LatheShopAwareOptimizationEngine.",
+          "exit_conditions": [
+            "JM Die profile produces >5% delta vs generic",
+            ">=12 tests",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH07",
+            "U-LTH08"
+          ],
+          "status": "completed",
+          "completed_at": "2026-04-17T13:49:14.924Z",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH13",
+          "title": "Speed/Feed Calculator Regression Suite",
+          "description": "Golden dataset of 200 {material, tool, op} cases with expected Vc/fn ranges from Sandvik/Kennametal catalogs.",
+          "exit_conditions": [
+            "200-case snapshot",
+            "All within +/- 5%",
+            "Regression alarm set"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH07",
+            "U-LTH08",
+            "U-LTH09",
+            "U-LTH10",
+            "U-LTH11",
+            "U-LTH12"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH14",
+          "title": "Forge-Triple for Speed/Feed Calculator",
+          "description": "Hook speed-feed-out-of-band-guard + action prism_lathe:sf_full + skill /auto-speed-feed-lathe.",
+          "exit_conditions": [
+            "All 3 deliverables exist with tests",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH07",
+            "U-LTH08",
+            "U-LTH09",
+            "U-LTH10",
+            "U-LTH11",
+            "U-LTH12",
+            "U-LTH13"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "speed-feed-out-of-band-guard",
+        "action": "prism_lathe:sf_full",
+        "skill": "/auto-speed-feed-lathe"
+      },
+      "exit_gate": "Machinist opens calculator, enters real JM Die job, gets recommendation within +/- 5% of Sandvik catalog, sees DL confidence band, asks what-if, result cited."
+    },
+    {
+      "id": "P2",
+      "title": "Post-Processor Generator",
+      "goal": "Given {controller vendor, machine kinematics, axis map, dialect quirks}, automatically generate a new post-processor artifact with full validator stack and regression tests.",
+      "feature_target": 2,
+      "sessions": 4,
+      "smart_config": {
+        "role": "backend-dev + code-archaeologist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "PPEndToEndPostGeneratorEngine",
+        "PPMachineSpecificPostEngine",
+        "PPControllerEmbeddingEngine",
+        "PPDialectTransferEngine",
+        "ControllerKnowledgeDBEngine",
+        "27 PP* validators",
+        "okuma-osp-extracted-tips.ts",
+        "controller-knowledge-tips.ts",
+        "fanuc-controller-tips.json"
+      ],
+      "units": [
+        {
+          "id": "U-LTH15",
+          "title": "Controller Spec Ingestion Engine",
+          "description": "LathePostGeneratorSpecIngestEngine accepts controller manual PDF/spec -> normalized ControllerSpec. Uses PPControllerEmbeddingEngine.",
+          "exit_conditions": [
+            "Ingests Fanuc 31i-T, Okuma OSP-P300L, Mitsubishi M80",
+            "ControllerSpec validates against Zod schema",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH14"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH16",
+          "title": "Post-Processor Skeleton Generator",
+          "description": "LathePostGeneratorSkeletonEngine emits NewLathePost.ts skeleton with all required hooks, pre-wired against all PP* validators.",
+          "exit_conditions": [
+            "Skeleton compiles",
+            "Passes PPGCodeLintEngine on hello-world",
+            "Round-trips through PPEndToEndPostGeneratorEngine"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH15"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH17",
+          "title": "Dialect Transfer Learning",
+          "description": "LathePostDialectTransferEngine transfers G-code patterns from known-good post to novel dialect with minimal examples.",
+          "exit_conditions": [
+            "5 Okuma + 1 Mitsubishi -> viable Mitsubishi post passes 80%+ validators",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH15",
+            "U-LTH16"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH18",
+          "title": "Validator Stack Auto-Wiring for Generated Posts",
+          "description": "LathePostGeneratorValidatorWiringEngine auto-wires all 27 PP* validators with per-validator config from ControllerSpec.",
+          "exit_conditions": [
+            "All 27 validators run on reference program without hard-fail on valid programs",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH16"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH19",
+          "title": "Regression Test Auto-Generator",
+          "description": "LathePostGeneratorTestSynthEngine generates vitest test file with fixtures from matching reference programs in JM Die archive.",
+          "exit_conditions": [
+            "New post emits test file with >=20 fixtures",
+            "All tests pass on skeleton",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH16",
+            "U-LTH18"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH20",
+          "title": "Knowledge-Graph Integration",
+          "description": "LathePostGeneratorKnowledgeIndexEngine registers each generated post into PPKnowledgeIndexEngine + ManufacturingKnowledgeGraphEngine.",
+          "exit_conditions": [
+            "Generated post appears in knowledge graph",
+            "Discoverable by prism_knowledge_graph:query_post",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH15",
+            "U-LTH16",
+            "U-LTH17",
+            "U-LTH18",
+            "U-LTH19"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH21",
+          "title": "Active-Learning Feedback Loop",
+          "description": "LathePostGeneratorActiveLearningEngine queues shop-floor failures into PPActiveLearningQueueEngine; regeneration incorporates corrections.",
+          "exit_conditions": [
+            "Simulated failure -> queue -> regen produces corrected post verified against fixture",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH18",
+            "U-LTH19"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH22",
+          "title": "Uncertainty Quantification for Generated Posts",
+          "description": "LathePostGeneratorUncertaintyEngine uses PPEnsembleUncertaintyEngine for per-block confidence. Blocks ship if ensemble disagreement > 15%.",
+          "exit_conditions": [
+            "High-risk blocks flagged",
+            "Per-program confidence published",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH18"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH23",
+          "title": "Dispatcher Wiring for Generator",
+          "description": "Wire lathe_postgen_{ingest, skeleton, transfer, validate, test, register, feedback, uncertainty} through camDispatcher.",
+          "exit_conditions": [
+            "8 actions callable",
+            "Schemas pass",
+            ">=12 integration tests"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH15",
+            "U-LTH16",
+            "U-LTH17",
+            "U-LTH18",
+            "U-LTH19",
+            "U-LTH20",
+            "U-LTH21",
+            "U-LTH22"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH24",
+          "title": "Forge-Triple for Post-Processor Generator",
+          "description": "Hook postgen-validator-skip-guard + action prism_lathe:postgen_full + skill /lathe-postgen.",
+          "exit_conditions": [
+            "All 3 deliverables",
+            "End-to-end test produces working Mitsubishi post",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH15",
+            "U-LTH16",
+            "U-LTH17",
+            "U-LTH18",
+            "U-LTH19",
+            "U-LTH20",
+            "U-LTH21",
+            "U-LTH22",
+            "U-LTH23"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "postgen-validator-skip-guard",
+        "action": "prism_lathe:postgen_full",
+        "skill": "/lathe-postgen"
+      },
+      "exit_gate": "Given Mitsubishi M80 spec + 3 reference programs, generator produces a Mitsubishi lathe post that (a) compiles, (b) passes all 27 validators, (c) round-trips reference program within 95% fidelity, (d) registers into knowledge graph, (e) exposes uncertainty per-block."
+    },
+    {
+      "id": "P3",
+      "title": "Master Post-Processor",
+      "goal": "Single canonical post in PRISM app routing to correct per-machine post for any JM Die machine. Self-aware, self-updating.",
+      "feature_target": 3,
+      "sessions": 3,
+      "smart_config": {
+        "role": "system-architect + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "MasterPostProcessorEngine",
+        "MasterPostProcessorGeniusEngine",
+        "MasterPostProcessorAGIOrchestrationEngine",
+        "PostProcessorAGIContinuousLearningEngine",
+        "PostProcessorAGIMasterRegistryEngine",
+        "ShopConfigurationEngine (JM Die 21 machines)"
+      ],
+      "units": [
+        {
+          "id": "U-LTH25",
+          "title": "LatheMasterPostRouterEngine",
+          "description": "Central router: given {machineId, operation, controller} -> selects and invokes correct sub-post. Integrates with ShopConfigurationEngine.",
+          "exit_conditions": [
+            "Routes to correct sub-post for all 21 JM Die machines",
+            "Fallback via P2 generator for unknown",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH24"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH26",
+          "title": "LatheMasterPostUnifiedOutputEngine",
+          "description": "Unifies output format across sub-posts. Standard header/footer/metadata via PPModalStateTrackerEngine.",
+          "exit_conditions": [
+            "Diff between any 2 sub-posts shows only legitimate dialect differences",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH25"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH27",
+          "title": "LatheMasterPostSelfAwarenessEngine",
+          "description": "Continuously audits sub-posts via PostProcessorAGIContinuousLearningEngine + PostProcessorAISelfAwarenessIntegrationEngine. Detects drift, flags regeneration.",
+          "exit_conditions": [
+            "Seeded drift detection produces remediation recommendation",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH25"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH28",
+          "title": "LatheMasterPostDeepReasoningEngine",
+          "description": "Uses LatheDeepReasoningEngine + CausalReasoningEngine to explain WHY master post picked a sub-post.",
+          "exit_conditions": [
+            "Human-readable decision trace with >=4 reasoning steps",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH25"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH29",
+          "title": "LatheMasterPostEnsembleCrossCheckEngine",
+          "description": "When two sub-posts could serve a job, runs both, compares outputs, flags divergence > 10% block-count or > 5% cycle-time.",
+          "exit_conditions": [
+            "Ensemble check on 5+ ambiguous fixtures",
+            "Divergence reporting accurate",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH25",
+            "U-LTH28"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH30",
+          "title": "LatheMasterPostAPIEngine + Dispatcher Wiring",
+          "description": "Wire lathe_masterpost_{route, emit, validate, explain, cross_check, audit} through camDispatcher; REST in routes/python-api.ts.",
+          "exit_conditions": [
+            "Web UI POSTs job -> master post -> G-code + explanation",
+            "E2E test passes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH25",
+            "U-LTH26",
+            "U-LTH27",
+            "U-LTH28",
+            "U-LTH29"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH31",
+          "title": "Master Post Regression Test Matrix",
+          "description": "Golden matrix of 150 jobs across 21 JM Die machines + 5 validator groups.",
+          "exit_conditions": [
+            "150-cell matrix all green",
+            "Baseline locked",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH25",
+            "U-LTH26",
+            "U-LTH27",
+            "U-LTH28",
+            "U-LTH29",
+            "U-LTH30"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH32",
+          "title": "Forge-Triple for Master Post",
+          "description": "Hook masterpost-unknown-machine-guard + action prism_lathe:masterpost_full + skill /lathe-masterpost.",
+          "exit_conditions": [
+            "All 3 deliverables exist",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH25",
+            "U-LTH26",
+            "U-LTH27",
+            "U-LTH28",
+            "U-LTH29",
+            "U-LTH30",
+            "U-LTH31"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "masterpost-unknown-machine-guard",
+        "action": "prism_lathe:masterpost_full",
+        "skill": "/lathe-masterpost"
+      },
+      "exit_gate": "Selecting any JM Die lathe in PRISM app -> Master Post emits validated G-code + explanation trace within 3 seconds. Unknown machines auto-trigger P2 generator path."
+    },
+    {
+      "id": "P4",
+      "title": "Print-to-Program (THE BIG ONE)",
+      "goal": "End-to-end blueprint -> G-code pipeline: PDF drop -> OCR -> feature recognition -> GD&T -> strategy -> toolpath -> master post emission -> validation -> signoff dossier.",
+      "feature_target": 4,
+      "sessions": 6,
+      "smart_config": {
+        "role": "ml-developer + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "knowledge_sources": [
+        "BlueprintOCREngine",
+        "BlueprintVisionOCREngine",
+        "PDFBlueprintDimensionExtractorEngine",
+        "GDTCalloutParserEngine",
+        "GDTStackupEngine",
+        "PrintReadingEngine",
+        "TurningPrintIntakeEngine",
+        "TurningFeatureTaxonomyEngine",
+        "FeatureStrategyKnowledgeBaseEngine (CAMX-MS12 E1112)",
+        "CpkPredictionGateEngine (CAMX-MS12 E1203)",
+        "StrategyStochasticRiskEngine (CAMX-MS12 E1201)"
+      ],
+      "units": [
+        {
+          "id": "U-LTH33",
+          "title": "Blueprint Ingest + Vision-OCR Pipeline",
+          "description": "LathePrintIngestPipelineEngine orchestrates BlueprintVisionOCR + PDFBlueprintDimensionExtractor + GDTCalloutParser -> BlueprintIntake JSON.",
+          "exit_conditions": [
+            "10 JM Die drawings round-tripped with >=90% dim-extraction accuracy",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH32"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH34",
+          "title": "Turning Feature Recognition",
+          "description": "LatheTurningFeatureRecognizerEngine emits turning feature list {OD, ID, face, groove, thread, chamfer, radius}.",
+          "exit_conditions": [
+            ">=12 feature types on 20 JM Die parts",
+            ">=95% precision",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH33"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH35",
+          "title": "GD&T Tolerance Propagation",
+          "description": "LathePrintToleranceStackEngine propagates GDT through feature->operation chain; assigns per-feature Cpk target.",
+          "exit_conditions": [
+            "Per-feature Cpk assigned",
+            "Stack-up warnings when chain exceeds budget",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH34"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH36",
+          "title": "Feature-to-Strategy Mapping (CAMX-MS12 handoff)",
+          "description": "LathePrintFeatureStrategySelectorEngine consumes features + tolerance + material + machine. Delegates to FeatureStrategyKnowledgeBaseEngine (CAMX-MS12 E1112, 203 rules).",
+          "exit_conditions": [
+            "Every feature mapped to strategy",
+            "Strategies cited with KB rule IDs",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH34",
+            "U-LTH35",
+            "CAMX-MS12"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH37",
+          "title": "Multi-Op Sequence Planning",
+          "description": "LathePrintSequencePlannerEngine from strategy plan -> ordered sequence with stock state tracking. Uses StrategySequencingEngine (CAMX-MS12 U06).",
+          "exit_conditions": [
+            "Valid sequence for all 20 test parts",
+            "Cycle-time predicted",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH36"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH38",
+          "title": "Workholding + Setup Selection",
+          "description": "LathePrintSetupSelectionEngine selects chuck jaws, tailstock engagement, steady rest. Uses FixtureAwareStrategyEngine (CAMX-MS12 U07).",
+          "exit_conditions": [
+            "Setup plan with gripper-force validation",
+            "Flags parts requiring steady rest",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH36",
+            "U-LTH37"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH39",
+          "title": "Toolpath Generation + CAM Integration",
+          "description": "LathePrintToolpathGeneratorEngine from operation sequence -> per-op toolpath via LatheCAMIntelligenceEngine + P1 speed/feed.",
+          "exit_conditions": [
+            ">=15 feature types",
+            "Cycle time within 10% of Mastercam ground truth",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH36",
+            "U-LTH37",
+            "U-LTH38",
+            "U-LTH14"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH40",
+          "title": "Program Emission via Master Post",
+          "description": "LathePrintProgramEmitterEngine sends toolpath through Master Post (P3) -> G-code + signoff dossier.",
+          "exit_conditions": [
+            "G-code for 20 JM Die fixtures",
+            "All pass PP* validator stack",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH39",
+            "U-LTH32"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH41",
+          "title": "Program Validation + Signoff Dossier",
+          "description": "LathePrintProgramSignoffEngine runs all 27 PP* validators + physics + safety. Produces machinist-grade signoff PDF.",
+          "exit_conditions": [
+            "Dossier for 15 fixtures",
+            "Machinist QA <=2 material corrections per 10",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH40"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH42",
+          "title": "Print-to-Program Deep-Learning Intelligence",
+          "description": "LathePrintToProgramDLIntelligenceEngine predicts failure probability and suggests corrections via LatheDeepLearningIntelligenceEngine + LatheAttentionMechanismEngine.",
+          "exit_conditions": [
+            "Failure prediction >=75% accuracy on 50-program held-out set",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH39",
+            "U-LTH40",
+            "U-LTH41"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH43",
+          "title": "Print-to-Program Reasoning Layer",
+          "description": "LathePrintToProgramReasoningEngine explains full decision chain via LatheDeepReasoningEngine + LatheOpusReasoningEngine + CausalReasoningEngine + CounterfactualReasoningEngine.",
+          "exit_conditions": [
+            ">=10 decision steps in reasoning trace per fixture",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH33",
+            "U-LTH34",
+            "U-LTH35",
+            "U-LTH36",
+            "U-LTH37",
+            "U-LTH38",
+            "U-LTH39",
+            "U-LTH40",
+            "U-LTH41",
+            "U-LTH42"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH44",
+          "title": "Print-to-Program Knowledge Graph Integration",
+          "description": "LathePrintToProgramKnowledgeGraphEngine adds nodes/edges to ManufacturingKnowledgeGraph per emission.",
+          "exit_conditions": [
+            "Graph queries return semantically relevant matches",
+            "5+ queries benchmarked",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH33",
+            "U-LTH34",
+            "U-LTH35",
+            "U-LTH36",
+            "U-LTH37",
+            "U-LTH38",
+            "U-LTH39",
+            "U-LTH40",
+            "U-LTH41",
+            "U-LTH42",
+            "U-LTH43"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH45",
+          "title": "Print-to-Program Dispatcher Wiring + Web UI",
+          "description": "Wire lathe_p2p_{ingest, features, tolerance, strategy, sequence, setup, toolpath, emit, signoff, explain, kg_query} through camDispatcher + web/src/pages/LathePrintToProgram.tsx.",
+          "exit_conditions": [
+            "Drag-and-drop PDF -> program in UI",
+            "11 actions callable",
+            "E2E passes"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH33",
+            "U-LTH34",
+            "U-LTH35",
+            "U-LTH36",
+            "U-LTH37",
+            "U-LTH38",
+            "U-LTH39",
+            "U-LTH40",
+            "U-LTH41",
+            "U-LTH42",
+            "U-LTH43",
+            "U-LTH44"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH46",
+          "title": "Print-to-Program End-to-End Regression",
+          "description": "Golden matrix of 50 JM Die prints -> 50 programs -> diff against machinist-approved baseline.",
+          "exit_conditions": [
+            "50-cell matrix green",
+            "Baseline locked",
+            "Regression alarm set"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH45"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH47",
+          "title": "Forge-Triple for Print-to-Program",
+          "description": "Hook p2p-cpk-below-gate (uses CpkPredictionGateEngine E1203) + action prism_lathe:p2p_full + skill /lathe-print-to-program.",
+          "exit_conditions": [
+            "All 3 deliverables",
+            "Full pipeline runs on 10 fresh JM Die prints E2E",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH33",
+            "U-LTH34",
+            "U-LTH35",
+            "U-LTH36",
+            "U-LTH37",
+            "U-LTH38",
+            "U-LTH39",
+            "U-LTH40",
+            "U-LTH41",
+            "U-LTH42",
+            "U-LTH43",
+            "U-LTH44",
+            "U-LTH45",
+            "U-LTH46"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "p2p-cpk-below-gate",
+        "action": "prism_lathe:p2p_full",
+        "skill": "/lathe-print-to-program"
+      },
+      "exit_gate": "Drop a PDF blueprint -> 60 seconds later you have a validated G-code program with signoff dossier (toolpath viz, Cpk predictions, reasoning trace, risk summary). Machinist accepts >=8/10 without material corrections."
+    },
+    {
+      "id": "P5",
+      "title": "ERP / Business Management",
+      "goal": "Shop-grade business layer: quotes, actual costs, scheduling, customers, inventory, POs, invoicing. Feeds off P1/P3/P4 outputs.",
+      "feature_target": 5,
+      "sessions": 4,
+      "smart_config": {
+        "role": "backend-dev + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "QuoteEngine",
+        "QuoteEstimatorEngine",
+        "QuoteAutopilotEngine",
+        "QuoteToShipOrchestratorEngine",
+        "InstantQuoteEngine",
+        "BlueprintToQuoteBridgeEngine",
+        "ActualCostEngine",
+        "JobCostingEngine",
+        "LathePartCostModelEngine",
+        "LatheProgrammingCostEngine",
+        "ShopSchedulerEngine",
+        "JobShopSchedulingEngine"
+      ],
+      "units": [
+        {
+          "id": "U-LTH48",
+          "title": "LatheAutoQuoteFromPrintEngine",
+          "description": "Bridge P4 print-to-program output -> instant quote. BlueprintToQuoteBridgeEngine + QuoteEstimatorEngine + LathePartCostModelEngine.",
+          "exit_conditions": [
+            "Quote produced from print <=90s",
+            "<=10% variance vs manual on 10 JM Die fixtures",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH47"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH49",
+          "title": "LatheActualCostReconciliationEngine",
+          "description": "Reconciles actual vs quoted cost; feeds LatheActualFeedbackTuningEngine for next quote.",
+          "exit_conditions": [
+            "Variance report produced",
+            "Next quote shows reduced variance",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH48"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH50",
+          "title": "LatheJobSchedulingEngine",
+          "description": "Integrates quotes -> shop schedule. ShopSchedulerEngine + JobShopSchedulingEngine + ShiftScheduleOptimizerEngine.",
+          "exit_conditions": [
+            "Respects 21-machine constraints",
+            "Honors due dates",
+            "Minimizes changeovers"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH48"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH51",
+          "title": "LatheCustomerOrderLifecycleEngine",
+          "description": "Tracks customer -> order -> quote -> job -> shipment -> invoice lifecycle.",
+          "exit_conditions": [
+            "End-to-end lifecycle visible in web UI",
+            "State transitions audited",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH48",
+            "U-LTH50"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH52",
+          "title": "LathePurchaseOrderAutomationEngine",
+          "description": "Auto-generates PO requirements (stock, tools, consumables) on quote. PurchaseOrderEngine + InventoryAwareToolSelectorEngine + InventoryEOQEngine.",
+          "exit_conditions": [
+            "PO draft produced per job",
+            "Integrates with inventory levels",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH48",
+            "U-LTH51"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH53",
+          "title": "LatheInventoryIntelligenceEngine",
+          "description": "Real-time inventory view with EOQ + reorder triggers. InventoryOptimizationEngine + InventoryEOQEngine + JMDieProgramInventoryEngine.",
+          "exit_conditions": [
+            "Inventory dashboard live",
+            "Reorder alerts fire on seeded data",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH52"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH54",
+          "title": "LatheJobProfitabilityAnalyticsEngine",
+          "description": "Per-job profitability waterfall. JobProfitabilityWaterfallEngine + CustomerPortfolioMinerEngine.",
+          "exit_conditions": [
+            "Profitability report produced",
+            "Top-10 and bottom-10 jobs visible",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH49",
+            "U-LTH51"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH55",
+          "title": "LatheBusinessIntelligenceDashboard",
+          "description": "Web dashboard consolidating quotes, jobs, schedule, inventory, profitability, KPIs. web/src/pages/LatheERPDashboard.tsx.",
+          "exit_conditions": [
+            "Dashboard loads on dev server",
+            "6 tiles populated with live data",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH48",
+            "U-LTH49",
+            "U-LTH50",
+            "U-LTH51",
+            "U-LTH52",
+            "U-LTH53",
+            "U-LTH54"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH56",
+          "title": "Dispatcher Wiring for ERP",
+          "description": "Wire lathe_erp_{quote_from_print, reconcile, schedule, lifecycle, po, inventory, profitability, dashboard} through businessDispatcher.",
+          "exit_conditions": [
+            "8 actions callable via MCP",
+            "Schemas pass",
+            ">=10 integration tests"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH48",
+            "U-LTH49",
+            "U-LTH50",
+            "U-LTH51",
+            "U-LTH52",
+            "U-LTH53",
+            "U-LTH54",
+            "U-LTH55"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH57",
+          "title": "Forge-Triple for ERP",
+          "description": "Hook erp-quote-variance-guard + action prism_lathe:erp_full + skill /lathe-erp and /quote-to-ship-lathe.",
+          "exit_conditions": [
+            "All 3 deliverables",
+            "E2E JM Die order flows quote -> schedule -> po -> invoice",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH48",
+            "U-LTH49",
+            "U-LTH50",
+            "U-LTH51",
+            "U-LTH52",
+            "U-LTH53",
+            "U-LTH54",
+            "U-LTH55",
+            "U-LTH56"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "erp-quote-variance-guard",
+        "action": "prism_lathe:erp_full",
+        "skill": "/lathe-erp"
+      },
+      "exit_gate": "A JM Die salesperson uploads a PDF -> gets quote in <2 minutes with <=10% variance. The job lifecycles through schedule -> PO -> machine -> reconcile -> invoice, all visible on ERP dashboard."
+    },
+    {
+      "id": "PX",
+      "title": "AGI Deep-Learning Cross-Cutting",
+      "goal": "Ensure AGI substrate actually runs through P1-P5, not just isolated engines. Cross-cutting units unifying DL/NN/reasoning across features.",
+      "sessions": 2,
+      "smart_config": {
+        "role": "ml-developer + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "knowledge_sources": [
+        "LatheAGICoreEngine",
+        "LatheDeepReasoningEngine",
+        "LatheDeepLearningIntelligenceEngine",
+        "LatheNeuralIntelligenceEngine",
+        "LatheTransformerEngine",
+        "LatheAttentionMechanismEngine",
+        "LatheMetaLearningEngine",
+        "LatheTransferLearningEngine",
+        "LatheCausalInferenceEngine",
+        "LatheKnowledgeGraphEngine",
+        "CrossDisciplinaryDeepLearningEngine",
+        "PRISMCreativeReasoningEngine",
+        "AGISafetyContainmentEngine"
+      ],
+      "parallel_with": [
+        "P2",
+        "P3",
+        "P4",
+        "P5"
+      ],
+      "units": [
+        {
+          "id": "U-LTH58",
+          "title": "LatheAGIFeatureBridgeEngine",
+          "description": "Central bridge: .reason(featureName, context) -> {prediction, explanation, confidence, novel_insights[]} for P1-P5.",
+          "exit_conditions": [
+            "All 5 features call this bridge",
+            "Trace produced for every call",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH14"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH59",
+          "title": "LatheAGIContinuousLearningEngine",
+          "description": "Long-running learner consuming P1/P4/P5 outcomes. LatheActiveLearningEngine + LatheMetaLearningEngine + JobLearningEngine.",
+          "exit_conditions": [
+            "Seeded rejection -> next prediction shows behavior change",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH58"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH60",
+          "title": "LatheAGIKnowledgeUnificationEngine",
+          "description": "Unifies LatheKnowledgeGraphEngine + ManufacturingKnowledgeGraphEngine + KnowledgeGraphNeuralBridgeEngine.",
+          "exit_conditions": [
+            "Single query endpoint returns nodes+edges from 3 sub-graphs",
+            "Graph-backed reasoning traces >=5 steps",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH58"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH61",
+          "title": "LatheAGISafetyContainmentEngine (integration)",
+          "description": "Integrate AGISafetyContainmentEngine to bound outputs: no unsafe speeds, no absurd quotes, no out-of-capacity schedules. Uses FuzzyNeuralHybridEngine.",
+          "exit_conditions": [
+            "Adversarial inputs caught + rejected with safety trace",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH58",
+            "U-LTH59",
+            "U-LTH60"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-LTH62",
+          "title": "Forge-Triple for AGI Substrate",
+          "description": "Hook agi-safety-envelope-guard + action prism_lathe:agi_reason + skill /lathe-agi-explain.",
+          "exit_conditions": [
+            "All 3 deliverables tested against all 5 features",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "omega_floor": 1,
+          "depends_on": [
+            "U-LTH58",
+            "U-LTH59",
+            "U-LTH60",
+            "U-LTH61"
+          ],
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "agi-safety-envelope-guard",
+        "action": "prism_lathe:agi_reason",
+        "skill": "/lathe-agi-explain"
+      },
+      "exit_gate": "Any P1-P5 output produces AGI reasoning trace with >=5 steps, confidence bands, novel-insight flags. Safety bounds hard-enforced."
+    }
+  ],
+  "aggregate_metrics": {
+    "total_phases": 18,
+    "total_units": 135,
+    "total_sessions": 48,
+    "total_hooks": 33,
+    "total_actions": 75,
+    "total_skills": 24,
+    "new_engines": "~75",
+    "test_files": "~130",
+    "test_cases": "~1310",
+    "omega_target": 1,
+    "svi_baseline": 0.977,
+    "svi_psi_target": 0.98,
+    "mcp_utilization_target": 0.45,
+    "v1_baseline": {
+      "phases": 7,
+      "units": 62,
+      "sessions": 24,
+      "hooks": 14,
+      "actions": 62,
+      "skills": 13
+    },
+    "v2_delta": {
+      "phases": "+10",
+      "units": "+65",
+      "sessions": "+21",
+      "hooks": "+18",
+      "actions": "+10",
+      "skills": "+10"
+    },
+    "v2_frontend_addendum": {
+      "phases": "+1",
+      "units": "+8",
+      "sessions": "+3",
+      "hooks": "+1",
+      "actions": "+3",
+      "skills": "+1",
+      "new_pages": "+1 LatheStudioPage",
+      "new_contexts": "+1 LatheStudioContext",
+      "new_components": "+6 lathe-studio/ step components",
+      "reused_pages": "3 (LatheUploadPage, LatheWizardPage, LatheResultsPage — untouched per Codex protection)",
+      "populated_empty_file": "LatheInputWizard.tsx",
+      "design_language": "Calculator Studio (web/CLAUDE.md)"
+    }
+  },
+  "global_mcp_utilization_protocol": {
+    "rationale": "Raises MCP utilization from ~3% baseline to 45%+ target (aggregate_metrics.mcp_utilization_target). Applies to ALL 52 sessions unless session overrides.",
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search \"<session-goal>\"",
+      "prism_session:tool_route_best"
+    ],
+    "during_work_every_5_to_10_calls": [
+      "prism_session:auto_checkpoint",
+      "prism_session:action_search \"<intent>\"",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot (post-work diff vs baseline)",
+      "prism_session:checkpoint_enhanced"
+    ],
+    "plugin_utilization": {
+      "Vitest MCP": "mcp__vitest__run_tests, analyze_coverage, list_tests",
+      "ESLint MCP": "mcp__eslint__lint-files",
+      "Taskmaster": "mcp__taskmaster-ai__get_tasks, next_task, set_task_status",
+      "Codebase Memory": "codebase-memory-mcp search_graph, trace_call_path",
+      "Excel MCP": "mcp__excel__excel_read_sheet"
+    },
+    "frontend_p0_11_overrides": {
+      "additional_actions": [
+        "prism_web_app:build_page",
+        "prism_web_app:component_register",
+        "prism_web_app:design_token_lint",
+        "prism_navigation:deep_link_test"
+      ]
+    }
+  },
+  "global_physics_policy": {
+    "rationale": "All lathe-physics units MUST cite canonical formulas by name and import constants from src/physics/constants.ts. Never inline.",
+    "named_formulas_registry": {
+      "cutting_force": "Kienzle (Fc = kc1.1 * b * h^(1-mc)); source: src/physics/constants.ts kc1.1 per ISO group",
+      "tool_life": "Taylor extended (V*T^n*f^a*d^b = C); source: src/physics/constants.ts TAYLOR_CONSTANTS",
+      "stability_lobes": "Altintas SLD (chatter-free axial depth vs spindle speed); cite: Altintas, Manufacturing Automation (2012)",
+      "chip_thinning": "Martellotti radial engagement correction (heff = hth * cos(phi_engage)); cite: Machinery's Handbook 31e",
+      "thermal_cutting": "Carslaw-Jaeger moving heat source + Loewen-Shaw partition; cite: Carslaw-Jaeger Conduction of Heat in Solids",
+      "grinding_thermal": "Malkin Cgs model (energy partition in grinding); cite: Malkin & Guo, Grinding Technology (2008)",
+      "abrasive_wear": "Sato velocity-dependent wear; cite: Sato et al., CIRP Annals",
+      "surface_finish_turning": "Ra = f^2/(32*r_nose) + Brammertz correction; cite: Sandvik Modern Metal Cutting",
+      "deflection": "Cantilever beam (delta = F*L^3/(3*E*I)); cite: Shigley's Mechanical Engineering Design",
+      "swiss_guide_bushing": "Force limit = k_bushing * stickout_ratio; source: Citizen / Tsugami OEM specs",
+      "live_tool_torque": "T_live = P_spindle * eta / omega_live; source: Okuma / Mazak B-axis specs"
+    },
+    "constants_import_mandate": "import { kc1_1, mc, taylor_n, taylor_C, E_carbide, ALTINTAS_SLD_CONSTANTS, MALKIN_CGS, BRAMMERTZ_COEFF, SATO_WEAR_CONSTANTS, BUSHING_K_SWISS, LIVE_TOOL_TORQUE_MAX, TOOL_NOSE_RADIUS, WHITE_LAYER_THRESHOLDS, CARSLAW_JAEGER_PECLET, LOEWEN_SHAW_PARTITION } from \"src/physics/constants.ts\" — NEVER inline. Missing constants must be added to constants.ts (with Sandvik/Kennametal/Machinery's Handbook citation) before physics unit can claim exit.",
+    "safety_gate_Sx": "S(x) >= 0.70 per safety-physics agent for ALL force/thermal/stress calculations. Hard block if < 0.70.",
+    "citation_requirement": "Every physics unit's knowledge_sources MUST cite Sandvik / Kennametal / Machinery's Handbook / MIT OCW / published paper. Unsourced formulas blocked at physics-review-agent."
+  },
+  "global_exit_gate_policy": {
+    "rationale": "User explicitly requires omega=1.0 for ALL future milestones (MEMORY.md). All 135 unit-level omega_floor upgraded to 1.0 on 2026-04-17. Every exit gate must be measurable, not subjective.",
+    "mandatory_fields_per_unit": [
+      "measurable_criteria (numeric thresholds, not 'looks good')",
+      "omega_floor (= 1.0 always unless explicitly justified)",
+      "svi_delta (expected SVI contribution)",
+      "rollback_block { FILES_CREATED, FILES_MODIFIED, ABORT_CRITERIA, ROLLBACK_PROCEDURE }"
+    ],
+    "abort_criteria_template": [
+      "Test suite fails with >=3 unit test failures",
+      "Build fails (tsc --noEmit OR esbuild)",
+      "Safety gate S(x) < 0.70",
+      "Physics review agent returns FAIL",
+      "Wiring review agent returns FAIL (orphan engines)"
+    ],
+    "rollback_procedure_template": [
+      "git restore --staged <files>",
+      "git restore <files>",
+      "rm -f state/shared/GIT_LOCK.json .git/index.lock (if stale)",
+      "prism_session:checkpoint_restore <last-good-checkpoint-id>",
+      "Post rollback note to state/shared/AGENT_CHAT.md"
+    ],
+    "frontend_p0_11_additional_gates": [
+      "Visual regression diff < 1% (Playwright screenshot compare)",
+      "Lighthouse accessibility >= 95",
+      "Lighthouse performance >= 85",
+      "a11y: no critical violations (axe-core)",
+      "Deep-link ?studio=1 preserves existing route params (functional test)"
+    ]
+  },
+  "session_map": [
+    {
+      "session_id": "P0-S1",
+      "phase": "P0",
+      "units": [
+        "U-LTH01",
+        "U-LTH02",
+        "U-LTH03"
+      ],
+      "smart_config": {
+        "role": "code-archaeologist + reviewer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P0-S2",
+      "phase": "P0",
+      "units": [
+        "U-LTH04",
+        "U-LTH05",
+        "U-LTH06"
+      ],
+      "smart_config": {
+        "role": "reviewer + physics-reviewer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "50%"
+      }
+    },
+    {
+      "session_id": "P0.1-S1",
+      "phase": "P0.1",
+      "units": [
+        "U-LTH63",
+        "U-LTH64",
+        "U-LTH65"
+      ],
+      "smart_config": {
+        "role": "backend-dev + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.1-S2",
+      "phase": "P0.1",
+      "units": [
+        "U-LTH66",
+        "U-LTH67",
+        "U-LTH68"
+      ],
+      "smart_config": {
+        "role": "backend-dev + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      }
+    },
+    {
+      "session_id": "P0.2-S1",
+      "phase": "P0.2",
+      "units": [
+        "U-LTH69",
+        "U-LTH70"
+      ],
+      "smart_config": {
+        "role": "ml-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      }
+    },
+    {
+      "session_id": "P0.2-S2",
+      "phase": "P0.2",
+      "units": [
+        "U-LTH71",
+        "U-LTH72",
+        "U-LTH73"
+      ],
+      "smart_config": {
+        "role": "ml-developer + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.2-S3",
+      "phase": "P0.2",
+      "units": [
+        "U-LTH74",
+        "U-LTH75",
+        "U-LTH76"
+      ],
+      "smart_config": {
+        "role": "ml-developer + backend-dev",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P0.3-S1",
+      "phase": "P0.3",
+      "units": [
+        "U-LTH77",
+        "U-LTH78",
+        "U-LTH79"
+      ],
+      "smart_config": {
+        "role": "ml-developer + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.3-S2",
+      "phase": "P0.3",
+      "units": [
+        "U-LTH80",
+        "U-LTH81"
+      ],
+      "smart_config": {
+        "role": "ml-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.3-S3",
+      "phase": "P0.3",
+      "units": [
+        "U-LTH82",
+        "U-LTH83"
+      ],
+      "smart_config": {
+        "role": "ml-developer + physics-reviewer",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P0.4-S1",
+      "phase": "P0.4",
+      "units": [
+        "U-LTH84",
+        "U-LTH85",
+        "U-LTH86"
+      ],
+      "smart_config": {
+        "role": "system-architect + code-archaeologist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.4-S2",
+      "phase": "P0.4",
+      "units": [
+        "U-LTH87",
+        "U-LTH88",
+        "U-LTH89"
+      ],
+      "smart_config": {
+        "role": "system-architect + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      }
+    },
+    {
+      "session_id": "P0.4-S3",
+      "phase": "P0.4",
+      "units": [
+        "U-LTH90",
+        "U-LTH91"
+      ],
+      "smart_config": {
+        "role": "backend-dev",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "50%"
+      }
+    },
+    {
+      "session_id": "P0.5-S1",
+      "phase": "P0.5",
+      "units": [
+        "U-LTH92",
+        "U-LTH93",
+        "U-LTH94"
+      ],
+      "smart_config": {
+        "role": "system-architect + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      }
+    },
+    {
+      "session_id": "P0.5-S2",
+      "phase": "P0.5",
+      "units": [
+        "U-LTH95",
+        "U-LTH96"
+      ],
+      "smart_config": {
+        "role": "system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "55%"
+      }
+    },
+    {
+      "session_id": "P0.6-S1",
+      "phase": "P0.6",
+      "units": [
+        "U-LTH97",
+        "U-LTH98",
+        "U-LTH99"
+      ],
+      "smart_config": {
+        "role": "backend-dev + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.6-S2",
+      "phase": "P0.6",
+      "units": [
+        "U-LTH100",
+        "U-LTH101"
+      ],
+      "smart_config": {
+        "role": "backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P0.6-S3",
+      "phase": "P0.6",
+      "units": [
+        "U-LTH102",
+        "U-LTH103"
+      ],
+      "smart_config": {
+        "role": "backend-dev + ml-developer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "55%"
+      }
+    },
+    {
+      "session_id": "P0.7-S1",
+      "phase": "P0.7",
+      "units": [
+        "U-LTH104",
+        "U-LTH105"
+      ],
+      "smart_config": {
+        "role": "ml-developer + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      }
+    },
+    {
+      "session_id": "P0.7-S2",
+      "phase": "P0.7",
+      "units": [
+        "U-LTH106",
+        "U-LTH107"
+      ],
+      "smart_config": {
+        "role": "ml-developer + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.7-S3",
+      "phase": "P0.7",
+      "units": [
+        "U-LTH108",
+        "U-LTH109",
+        "U-LTH110"
+      ],
+      "smart_config": {
+        "role": "ml-developer + backend-dev",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P0.8-S1",
+      "phase": "P0.8",
+      "units": [
+        "U-LTH111",
+        "U-LTH112",
+        "U-LTH113"
+      ],
+      "smart_config": {
+        "role": "system-architect + ml-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.8-S2",
+      "phase": "P0.8",
+      "units": [
+        "U-LTH114",
+        "U-LTH115",
+        "U-LTH116"
+      ],
+      "smart_config": {
+        "role": "system-architect + backend-dev",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P0.9-S1",
+      "phase": "P0.9",
+      "units": [
+        "U-LTH117",
+        "U-LTH118",
+        "U-LTH119"
+      ],
+      "smart_config": {
+        "role": "physics-reviewer + ml-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.9-S2",
+      "phase": "P0.9",
+      "units": [
+        "U-LTH120",
+        "U-LTH121",
+        "U-LTH122"
+      ],
+      "smart_config": {
+        "role": "physics-reviewer + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P0.10-S1",
+      "phase": "P0.10",
+      "units": [
+        "U-LTH123",
+        "U-LTH124"
+      ],
+      "smart_config": {
+        "role": "ml-developer + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.10-S2",
+      "phase": "P0.10",
+      "units": [
+        "U-LTH125",
+        "U-LTH126",
+        "U-LTH127"
+      ],
+      "smart_config": {
+        "role": "ml-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      }
+    },
+    {
+      "session_id": "P0.11-S1",
+      "phase": "P0.11",
+      "units": [
+        "U-LTH128",
+        "U-LTH129",
+        "U-LTH130"
+      ],
+      "smart_config": {
+        "role": "mobile-dev + reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P0.11-S2",
+      "phase": "P0.11",
+      "units": [
+        "U-LTH131",
+        "U-LTH132",
+        "U-LTH133"
+      ],
+      "smart_config": {
+        "role": "mobile-dev + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      }
+    },
+    {
+      "session_id": "P0.11-S3",
+      "phase": "P0.11",
+      "units": [
+        "U-LTH134",
+        "U-LTH135"
+      ],
+      "smart_config": {
+        "role": "mobile-dev + tester",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P1-S1",
+      "phase": "P1",
+      "units": [
+        "U-LTH07",
+        "U-LTH08",
+        "U-LTH09"
+      ],
+      "smart_config": {
+        "role": "backend-dev + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P1-S2",
+      "phase": "P1",
+      "units": [
+        "U-LTH10",
+        "U-LTH11",
+        "U-LTH12"
+      ],
+      "smart_config": {
+        "role": "backend-dev",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P1-S3",
+      "phase": "P1",
+      "units": [
+        "U-LTH13",
+        "U-LTH14"
+      ],
+      "smart_config": {
+        "role": "tester + perf-analyzer",
+        "model": "haiku",
+        "effort": "HIGH",
+        "context_budget": "40%"
+      }
+    },
+    {
+      "session_id": "P2-S1",
+      "phase": "P2",
+      "units": [
+        "U-LTH15",
+        "U-LTH16",
+        "U-LTH17"
+      ],
+      "smart_config": {
+        "role": "backend-dev + code-archaeologist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P2-S2",
+      "phase": "P2",
+      "units": [
+        "U-LTH18",
+        "U-LTH19",
+        "U-LTH20"
+      ],
+      "smart_config": {
+        "role": "backend-dev + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      }
+    },
+    {
+      "session_id": "P2-S3",
+      "phase": "P2",
+      "units": [
+        "U-LTH21",
+        "U-LTH22",
+        "U-LTH23"
+      ],
+      "smart_config": {
+        "role": "backend-dev + ml-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P2-S4",
+      "phase": "P2",
+      "units": [
+        "U-LTH24"
+      ],
+      "smart_config": {
+        "role": "backend-dev",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "45%"
+      }
+    },
+    {
+      "session_id": "P3-S1",
+      "phase": "P3",
+      "units": [
+        "U-LTH25",
+        "U-LTH26",
+        "U-LTH27"
+      ],
+      "smart_config": {
+        "role": "system-architect + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P3-S2",
+      "phase": "P3",
+      "units": [
+        "U-LTH28",
+        "U-LTH29",
+        "U-LTH30"
+      ],
+      "smart_config": {
+        "role": "backend-dev + ml-developer",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      }
+    },
+    {
+      "session_id": "P3-S3",
+      "phase": "P3",
+      "units": [
+        "U-LTH31",
+        "U-LTH32"
+      ],
+      "smart_config": {
+        "role": "tester + reviewer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "50%"
+      }
+    },
+    {
+      "session_id": "P4-S1",
+      "phase": "P4",
+      "units": [
+        "U-LTH33",
+        "U-LTH34",
+        "U-LTH35"
+      ],
+      "smart_config": {
+        "role": "ml-developer + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      }
+    },
+    {
+      "session_id": "P4-S2",
+      "phase": "P4",
+      "units": [
+        "U-LTH36",
+        "U-LTH37",
+        "U-LTH38"
+      ],
+      "smart_config": {
+        "role": "backend-dev + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P4-S3",
+      "phase": "P4",
+      "units": [
+        "U-LTH39",
+        "U-LTH40",
+        "U-LTH41"
+      ],
+      "smart_config": {
+        "role": "backend-dev + ml-developer + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P4-S4",
+      "phase": "P4",
+      "units": [
+        "U-LTH42",
+        "U-LTH43",
+        "U-LTH44"
+      ],
+      "smart_config": {
+        "role": "ml-developer + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      }
+    },
+    {
+      "session_id": "P4-S5",
+      "phase": "P4",
+      "units": [
+        "U-LTH45",
+        "U-LTH46"
+      ],
+      "smart_config": {
+        "role": "backend-dev + cicd-engineer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "55%"
+      }
+    },
+    {
+      "session_id": "P4-S6",
+      "phase": "P4",
+      "units": [
+        "U-LTH47"
+      ],
+      "smart_config": {
+        "role": "backend-dev",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "45%"
+      }
+    },
+    {
+      "session_id": "P5-S1",
+      "phase": "P5",
+      "units": [
+        "U-LTH48",
+        "U-LTH49",
+        "U-LTH50"
+      ],
+      "smart_config": {
+        "role": "backend-dev + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      }
+    },
+    {
+      "session_id": "P5-S2",
+      "phase": "P5",
+      "units": [
+        "U-LTH51",
+        "U-LTH52",
+        "U-LTH53"
+      ],
+      "smart_config": {
+        "role": "backend-dev",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "55%"
+      }
+    },
+    {
+      "session_id": "P5-S3",
+      "phase": "P5",
+      "units": [
+        "U-LTH54",
+        "U-LTH55",
+        "U-LTH56"
+      ],
+      "smart_config": {
+        "role": "backend-dev + ml-developer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "55%"
+      }
+    },
+    {
+      "session_id": "P5-S4",
+      "phase": "P5",
+      "units": [
+        "U-LTH57"
+      ],
+      "smart_config": {
+        "role": "backend-dev",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "45%"
+      }
+    },
+    {
+      "session_id": "PX-S1",
+      "phase": "PX",
+      "units": [
+        "U-LTH58",
+        "U-LTH59",
+        "U-LTH60"
+      ],
+      "smart_config": {
+        "role": "ml-developer + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "parallelizable": true,
+      "parallel_with": [
+        "P2",
+        "P3",
+        "P4",
+        "P5"
+      ]
+    },
+    {
+      "session_id": "PX-S2",
+      "phase": "PX",
+      "units": [
+        "U-LTH61",
+        "U-LTH62"
+      ],
+      "smart_config": {
+        "role": "ml-developer + physics-reviewer + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      },
+      "critical_path": true
+    }
+  ],
+  "compact_checkpoints": [
+    {
+      "after_unit": "U-LTH03",
+      "session_handoff": "P0-S1 -> P0-S2"
+    },
+    {
+      "after_unit": "U-LTH06",
+      "session_handoff": "P0-S2 -> P1-S1"
+    },
+    {
+      "after_unit": "U-LTH09",
+      "session_handoff": "P1-S1 -> P1-S2"
+    },
+    {
+      "after_unit": "U-LTH12",
+      "session_handoff": "P1-S2 -> P1-S3"
+    },
+    {
+      "after_unit": "U-LTH14",
+      "session_handoff": "P1-S3 -> P2-S1"
+    },
+    {
+      "after_unit": "U-LTH17",
+      "session_handoff": "P2-S1 -> P2-S2"
+    },
+    {
+      "after_unit": "U-LTH20",
+      "session_handoff": "P2-S2 -> P2-S3"
+    },
+    {
+      "after_unit": "U-LTH23",
+      "session_handoff": "P2-S3 -> P2-S4"
+    },
+    {
+      "after_unit": "U-LTH24",
+      "session_handoff": "P2-S4 -> P3-S1"
+    },
+    {
+      "after_unit": "U-LTH27",
+      "session_handoff": "P3-S1 -> P3-S2"
+    },
+    {
+      "after_unit": "U-LTH30",
+      "session_handoff": "P3-S2 -> P3-S3"
+    },
+    {
+      "after_unit": "U-LTH32",
+      "session_handoff": "P3-S3 -> P4-S1"
+    },
+    {
+      "after_unit": "U-LTH35",
+      "session_handoff": "P4-S1 -> P4-S2"
+    },
+    {
+      "after_unit": "U-LTH38",
+      "session_handoff": "P4-S2 -> P4-S3"
+    },
+    {
+      "after_unit": "U-LTH41",
+      "session_handoff": "P4-S3 -> P4-S4"
+    },
+    {
+      "after_unit": "U-LTH44",
+      "session_handoff": "P4-S4 -> P4-S5"
+    },
+    {
+      "after_unit": "U-LTH46",
+      "session_handoff": "P4-S5 -> P4-S6"
+    },
+    {
+      "after_unit": "U-LTH47",
+      "session_handoff": "P4-S6 -> P5-S1"
+    },
+    {
+      "after_unit": "U-LTH50",
+      "session_handoff": "P5-S1 -> P5-S2"
+    },
+    {
+      "after_unit": "U-LTH53",
+      "session_handoff": "P5-S2 -> P5-S3"
+    },
+    {
+      "after_unit": "U-LTH56",
+      "session_handoff": "P5-S3 -> P5-S4"
+    },
+    {
+      "after_unit": "U-LTH60",
+      "session_handoff": "PX-S1 -> PX-S2"
+    }
+  ],
+  "mcp_utilization": {
+    "target_percentage": 45,
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work_every_5_to_10_calls": [
+      "prism_session:auto_checkpoint",
+      "prism_session:action_search",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "verification_tools": {
+    "tests": [
+      "mcp__vitest__run_tests",
+      "mcp__vitest__analyze_coverage",
+      "mcp__vitest__list_tests"
+    ],
+    "lint": [
+      "mcp__eslint__lint-files"
+    ],
+    "memory": [
+      "codebase-memory-mcp search_graph",
+      "codebase-memory-mcp trace_call_path"
+    ],
+    "taskmaster": [
+      "mcp__taskmaster-ai__get_tasks",
+      "mcp__taskmaster-ai__next_task",
+      "mcp__taskmaster-ai__set_task_status"
+    ],
+    "regression_matrix_units": [
+      "U-LTH13",
+      "U-LTH31",
+      "U-LTH46"
+    ]
+  },
+  "critical_path": "U-LTH01 -> U-LTH06 -> U-LTH14 -> U-LTH24 -> U-LTH32 -> U-LTH47 -> U-LTH57 -> U-LTH62 (~22 sessions)",
+  "parallelizable": [
+    "PX-S1 (U-LTH58-U-LTH60) parallel with P2-P5"
+  ],
+  "whole_roadmap_exit_gates": [
+    "Machinist: Speed/Feed panel -> recommendation + explanation <3s [P1]",
+    "Machinist: Controller spec PDF -> working post <5min [P2]",
+    "Machinist: Any JM Die machine -> master post G-code <3s [P3]",
+    "Machinist: Customer print PDF -> signoff dossier + G-code <60s accepted 8/10 [P4]",
+    "Salesperson: Same PDF -> Quote + schedule + PO + inventory <90s [P5]",
+    "Every output: AGI reasoning trace >=5 steps, confidence, sources, novel insights [PX]"
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "lathe-master-gate",
+    "mcp_action": "prism_lathe:lathe_master_run",
+    "skill_command": "/lathe-master",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "lathe-master-gate"
+    ],
+    "new_actions": [
+      "lathe_master_run"
+    ],
+    "new_skills": [
+      "/lathe-master"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Unified lathe roadmap consolidating 9 prior envelopes into one 18-phase, 135-unit master plan targeting 5 concrete PRISM app features (Speed/Feed Calculator, Post-Processor Generator, Master Post-Processor, Print-to-Program, ERP/Business) on a shared AGI substrate (deep learning, deep reasoning, deep logic, neural networking, near-AGI intelligence) plus v2 scrutiny gaps (formal verification, local LLM/LoRA, Bayesian/causal depth, asset utilization, AGI safety containment, live machine data, predictive twin, multi-agent orchestration, scientific simulation depth, optimal control + info gain + ensemble, and frontend integration into the Codex-built PRISM web app).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

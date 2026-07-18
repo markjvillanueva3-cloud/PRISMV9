@@ -10,11 +10,12 @@ import {
   type CourseLesson,
 } from '../../data/academy';
 import { useCourses } from '../../hooks/useCourses';
+import { useStudentId } from '../../hooks/useStudentId';
 
 export function CourseDetail() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
-  const { isCourseUnlocked, isCourseComplete, courseProgress } = useCourses();
+  const { isCourseUnlocked, isCourseComplete, courseProgress } = useCourses(useStudentId());
   const course = getCourseById(courseId || '');
 
   if (!course) {

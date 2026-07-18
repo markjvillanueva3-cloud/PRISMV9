@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `rgs` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/rgs.md` |
+| Source | `C:/Users/wompu/.claude/commands/rgs.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-You are the unified entry point for the PRISM Roadmap Generation System. Based on the arguments, route to the appropriate RGS operation.
+
+# RGS — Roadmap Generation System
 
 <!-- AUTO-END -->
 

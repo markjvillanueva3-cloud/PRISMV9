@@ -1,0 +1,2001 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-23T16:17:29.378Z",
+  "generatedBy": "scripts/audit-mill-psn-coverage.mjs",
+  "advisoryOnly": true,
+  "description": "Per-engine PSN-leg coverage for the mill domain. Index-based: reads wiki/index.md, memories/_index/MEMORY.md, tribal-embed-index.json, system-graph.json, nn-graph/labels.json, AISystemRouterEngine.ts, prismOperatingSystemDispatcher.ts, and engine source. Does NOT walk wiki/memory directory contents (33K md files). Citations in non-indexed leaves are NOT detected — promote them through the index first.",
+  "psn_legs": [
+    "obsidian-brain",
+    "prism-os",
+    "wiki",
+    "memories",
+    "tribal",
+    "system-viz",
+    "engines",
+    "algorithms",
+    "formulas",
+    "nn-gnn",
+    "prism-ai"
+  ],
+  "totals": {
+    "engines_audited": 58,
+    "avg_psn_coverage": 0.28683385579937315,
+    "fully_synergized": 0,
+    "fully_dark": 0,
+    "unwired": 1
+  },
+  "per_leg": {
+    "obsidian-brain": {
+      "lit": 0,
+      "dark": 58,
+      "coverage_pct": 0
+    },
+    "prism-os": {
+      "lit": 0,
+      "dark": 58,
+      "coverage_pct": 0
+    },
+    "wiki": {
+      "lit": 7,
+      "dark": 51,
+      "coverage_pct": 0.1206896551724138
+    },
+    "memories": {
+      "lit": 0,
+      "dark": 58,
+      "coverage_pct": 0
+    },
+    "tribal": {
+      "lit": 54,
+      "dark": 4,
+      "coverage_pct": 0.9310344827586207
+    },
+    "system-viz": {
+      "lit": 58,
+      "dark": 0,
+      "coverage_pct": 1
+    },
+    "engines": {
+      "lit": 58,
+      "dark": 0,
+      "coverage_pct": 1
+    },
+    "algorithms": {
+      "lit": 0,
+      "dark": 58,
+      "coverage_pct": 0
+    },
+    "formulas": {
+      "lit": 6,
+      "dark": 52,
+      "coverage_pct": 0.10344827586206896
+    },
+    "nn-gnn": {
+      "lit": 0,
+      "dark": 58,
+      "coverage_pct": 0
+    },
+    "prism-ai": {
+      "lit": 0,
+      "dark": 58,
+      "coverage_pct": 0
+    }
+  },
+  "engines": [
+    {
+      "engine": "MillKinematicsCollisionEngine",
+      "psn_coverage_score": 0.18181818181818182,
+      "legs_lit": 2,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": false,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "tribal",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillPatternMinerEngine",
+      "psn_coverage_score": 0.18181818181818182,
+      "legs_lit": 2,
+      "legs_total": 11,
+      "dispatchers": [
+        "dataDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": false,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "tribal",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingAIUltraIntelligenceEngine",
+      "psn_coverage_score": 0.18181818181818182,
+      "legs_lit": 2,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": false,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "tribal",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingMachineIntelligenceEngine",
+      "psn_coverage_score": 0.18181818181818182,
+      "legs_lit": 2,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": false,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "tribal",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillDeepLearningEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "camDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillNeuralNetworkEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillPartClassifierEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillPartFamilyMatcherEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "camDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillPartFamilyTemplateExtractorEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "camDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillPrintToProgramEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillProgramAnalyzerEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillProgramLearningEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillProgramOptimizerEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillResourceAwarenessEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillScientificPipelineEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillStrategyNeuralEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillTribalIntegrationEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "devDispatcher",
+        "knowledgeDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillTribalKnowledgeEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "knowledgeDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillTurnCAMEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillTurnOrchestrationEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingAIIntegrationEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingAILearningOrchestratorEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingAIUnificationEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingCriticalThinkingEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingDeepAIHardeningEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingDeepIntegrationEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingDeepKnowledgeSynthesisEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "aiReasoningDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingDeepReasoningEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "aiReasoningDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingDigitalTwinEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "aiReasoningDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingEndToEndOrchestrationEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingForceEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingHeadIntelligenceEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingHybridStrategySynthesizer",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingInferenceOrchestratorEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingKnowledgeOrchestratorEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingMetaLearningEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingNeuralCognitiveEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingOnlineLearningTrackerEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingProductionKnowledgeHarvesterEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingProgramPatternEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingReasoningDefaultEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [],
+      "dispatcher_count": 0,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingReasoningTraceLedgerEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingReinforcementLearningEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingStrategyLibraryEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingUltimateAIEngine",
+      "psn_coverage_score": 0.2727272727272727,
+      "legs_lit": 3,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillAISelfAwarenessIntegrationEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "aiReasoningDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": true,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillComprehensiveNeuralEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "orchestrationDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": true,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillMasterOrchestratorFacadeEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "aiReasoningDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": true,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillTurnLoRACadenceEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "camDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": true,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillTurnLoRADatasetBuilderEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": true,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillTurnSwissPipelineEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "camDispatcher",
+        "turningDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": true,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingAGIMasterEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": true,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingAGIOrchestrationEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "aiReasoningDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": true,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingLoRACadenceEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "camDispatcher",
+        "millDispatcher"
+      ],
+      "dispatcher_count": 2,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": true,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingLoRADatasetBuilderEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": true,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": false,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "memories",
+        "algorithms",
+        "formulas",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingPhysicsKernelEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": true,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingPrintToProgramEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": true,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    },
+    {
+      "engine": "MillingUnifiedScienceOrchestrationEngine",
+      "psn_coverage_score": 0.36363636363636365,
+      "legs_lit": 4,
+      "legs_total": 11,
+      "dispatchers": [
+        "millDispatcher"
+      ],
+      "dispatcher_count": 1,
+      "legs": {
+        "obsidian-brain": false,
+        "prism-os": false,
+        "wiki": false,
+        "memories": false,
+        "tribal": true,
+        "system-viz": true,
+        "engines": true,
+        "algorithms": false,
+        "formulas": true,
+        "nn-gnn": false,
+        "prism-ai": false
+      },
+      "dark_legs": [
+        "obsidian-brain",
+        "prism-os",
+        "wiki",
+        "memories",
+        "algorithms",
+        "nn-gnn",
+        "prism-ai"
+      ]
+    }
+  ]
+}

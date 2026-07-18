@@ -1,16 +1,19 @@
 /**
- * Manus Dispatcher - PRISM's own agent task execution engine
- * Uses Claude API (NOT external Manus service) for all AI tasks.
+ * Manus Dispatcher - PRISM's own agent task execution engine.
+ * Routes all AI tasks through the shared FREE-first llmEngine substrate
+ * (Ollama-first; Claude is the adaptive backup, offline stub last) instead of a
+ * direct paid Claude API call -- FREE-AI-MIGRATION/U-MANUS-DISPATCHER-LLM-ROUTE.
  * Actions: create_task, task_status, task_result, cancel_task, list_tasks,
  *          knowledge_lookup, code_reasoning, hook_trigger, hook_list, hook_chain, hook_stats
  * 
  * This is PRISM's built-in task executor — no external Manus API key needed.
- * Tasks execute via Claude API using the key in .env / claude_desktop_config.json.
+ * Tasks execute via the free Ollama-first substrate (no Claude key required for
+ * the local path; Claude is only the adaptive backup).
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
-import { hasValidApiKey, getApiKey, getModelForTier } from "../../config/api-config.js";
+import { getModelForTier } from "../../config/api-config.js";
 import { PATHS } from "../../constants.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
@@ -45,49 +48,50 @@ function genTaskId(): string {
 }
 
 // ============================================================================
-// CLAUDE API CALLER (raw fetch, same pattern as ralphDispatcher)
+// LLM CALLER -- FREE-first via the Ollama-first llmEngine (Claude is the backup)
 // ============================================================================
 
-/** Call Claude.
+/**
+ * Execute one agent prompt through the shared free-AI substrate
+ * (FREE-AI-MIGRATION/U-MANUS-DISPATCHER-LLM-ROUTE). Was a direct PAID Claude
+ * fetch (api.anthropic.com); now routes through `llmEngine.query`, which is
+ * Ollama-first (free) with an adaptive Claude backup on BOTH availability
+ * (down/timeout) AND capability (refusal / too-short-for-complexity:"high"),
+ * then a deterministic offline stub. Manus agent tasks are non-trivial, so
+ * `complexity:"high"` raises the local-adequacy bar -- a weak local answer
+ * escalates to the Claude backup ("Claude is the backup if Ollama can't handle it").
+ *
+ * The caller's `systemPrompt` is preserved via the `system` override (it
+ * replaces the default PRISM manufacturing prompt). Return contract is unchanged;
+ * `model` reports the REAL provider that answered ("...(ollama)" |
+ * "claude-sonnet-4-6" | "offline"), and `tokens` is {0,0} on the free local path
+ * (honest -- no billing). `_model` is accepted for call-site compatibility but is
+ * advisory: the provider is chosen by the ladder.
  * @param systemPrompt - system prompt string
  * @param userPrompt - user prompt string
- * @param model - model string
+ * @param _model - advisory model hint (the provider is chosen by the ladder)
  * @param maxTokens - max tokens value
  * @returns promise<{ text: string; tokens: { input: number; output: number }; duration_ms: number; model: string }>
  */
 export async function callClaude(
   systemPrompt: string,
   userPrompt: string,
-  model?: string,
+  _model?: string,
   maxTokens?: number
 ): Promise<{ text: string; tokens: { input: number; output: number }; duration_ms: number; model: string }> {
-  const apiKey = getApiKey(); // throws if not set
-  const useModel = model || getModelForTier("sonnet");
   const startTime = Date.now();
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({
-      model: useModel,
-      max_tokens: maxTokens || 4096,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }]
-    })
+  const { llmEngine } = await import("../../engines/LLMEngine.js");
+  const res = await llmEngine.query({
+    prompt: userPrompt,
+    system: systemPrompt,
+    complexity: "high",
+    max_tokens: maxTokens || 4096,
   });
-
-  if (!response.ok) {
-    const errText = await response.text().catch(() => "");
-    throw new Error(`Claude API ${response.status}: ${response.statusText} ${errText}`);
-  }
-
-  const data: any = await response.json();
-  const text = data.content?.map((b: any) => b.text || "").join("\n") || "";
   return {
-    text,
-    tokens: { input: data.usage?.input_tokens || 0, output: data.usage?.output_tokens || 0 },
+    text: res.answer,
+    tokens: res.tokens_used,
     duration_ms: Date.now() - startTime,
-    model: useModel
+    model: res.model,
   };
 }
 
@@ -109,10 +113,20 @@ async function executeTask(task: ManusTask): Promise<void> {
       task.prompt,
       getModelForTier(tier)
     );
+    // R12 honesty: an "offline" result means NO real provider answered (Ollama down and
+    // no Claude backup key) -- the text is a generic offline stub, not a real agent result.
+    // Mark such a task FAILED, never "completed", so callers don't trust a stub as work done.
+    if (result.model === "offline") {
+      task.error = "no AI provider available (Ollama down and no Claude backup key) -- task produced only an offline stub";
+      task.status = "failed";
+      task.duration_ms = result.duration_ms;
+      task.updated_at = new Date().toISOString();
+      return;
+    }
     task.result = result.text;
     task.tokens = result.tokens;
     task.duration_ms = result.duration_ms;
-    task.model = result.model;
+    task.model = result.model; // honest provenance: the REAL provider that answered (ollama/claude)
     task.status = "completed";
   } catch (err: any) {
     task.error = err.message;
@@ -166,7 +180,9 @@ export function registerManusDispatcher(server: any): void {
         switch (action) {
           // === TASK MANAGEMENT (uses Claude API) ===
           case "create_task": {
-            if (!hasValidApiKey()) return ok({ error: "ANTHROPIC_API_KEY not configured. Add to .env file." });
+            // FREE-AI-MIGRATION: no Claude-key pre-gate -- callClaude routes through the
+            // Ollama-first free substrate (Claude is only the backup). A no-provider run is
+            // honestly marked FAILED by executeTask (R12), not silently refused here.
             const task: ManusTask = {
               id: genTaskId(),
               prompt: params.prompt || "",
@@ -221,7 +237,7 @@ export function registerManusDispatcher(server: any): void {
 
           // === SPECIALIZED TASKS (still via Claude API) ===
           case "knowledge_lookup": {
-            if (!hasValidApiKey()) return ok({ error: "ANTHROPIC_API_KEY not configured." });
+            // FREE-AI-MIGRATION: free Ollama-first path is reachable without a Claude key.
             const depth = params.depth || "standard";
             const query = params.query || "";
             const researchPrompt = `Conduct ${depth} research on: ${query}\n\nProvide:\n1. Key findings with explanations\n2. Relevant data points and statistics\n3. Different perspectives or approaches\n4. Recommendations based on findings\n\nBe thorough and cite your reasoning. For manufacturing topics, reference ISO standards, material specs, and physics-based analysis where applicable.`;
@@ -230,12 +246,17 @@ export function registerManusDispatcher(server: any): void {
               researchPrompt,
               getModelForTier(depth === "deep" ? "sonnet" : "haiku")
             );
+            // R12: an offline result means no provider answered -- a generic stub, not real research.
+            if (r.model === "offline") {
+              result = { success: false, query, depth, error: "no AI provider available (Ollama down and no Claude backup key) -- research produced only an offline stub", model: r.model, duration_ms: r.duration_ms };
+              break;
+            }
             result = { success: true, query, depth, research: r.text, tokens: r.tokens, duration_ms: r.duration_ms, model: r.model };
             break;
           }
 
           case "code_reasoning": {
-            if (!hasValidApiKey()) return ok({ error: "ANTHROPIC_API_KEY not configured." });
+            // FREE-AI-MIGRATION: free Ollama-first path is reachable without a Claude key.
             const lang = params.language || "python";
             const code = params.code || "";
             const taskDesc = params.task_description || "";
@@ -245,6 +266,11 @@ export function registerManusDispatcher(server: any): void {
               codePrompt,
               getModelForTier("sonnet")
             );
+            // R12: an offline result means no provider answered -- a generic stub, not real analysis.
+            if (r.model === "offline") {
+              result = { success: false, language: lang, error: "no AI provider available (Ollama down and no Claude backup key) -- code analysis produced only an offline stub", model: r.model, duration_ms: r.duration_ms };
+              break;
+            }
             result = { success: true, language: lang, analysis: r.text, tokens: r.tokens, duration_ms: r.duration_ms, model: r.model };
             break;
           }

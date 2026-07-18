@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: exports version
+ok 1 - exports version
+  ---
+  duration_ms: 1.656
+  ...
+# Subtest: probeFaceGeometryCode: NO import, reads surfaceType + radius + halfAngle, returns result
+ok 2 - probeFaceGeometryCode: NO import, reads surfaceType + radius + halfAngle, returns result
+  ---
+  duration_ms: 0.6286
+  ...
+# Subtest: probeFaceGeometryCode: clamps a bad bodyIndex to 0
+ok 3 - probeFaceGeometryCode: clamps a bad bodyIndex to 0
+  ---
+  duration_ms: 0.5101
+  ...
+# Subtest: areParallel: parallel + ANTI-parallel both true (axis is sign-agnostic); perpendicular false
+ok 4 - areParallel: parallel + ANTI-parallel both true (axis is sign-agnostic); perpendicular false
+  ---
+  duration_ms: 0.683
+  ...
+# Subtest: areParallel: garbage / short vectors → false (no throw)
+ok 5 - areParallel: garbage / short vectors → false (no throw)
+  ---
+  duration_ms: 0.3338
+  ...
+# Subtest: summarizeFaceGeometry: box+hole → 2 internal cylinders + 1 internal cone (the bore + drill tip)
+ok 6 - summarizeFaceGeometry: box+hole → 2 internal cylinders + 1 internal cone (the bore + drill tip)
+  ---
+  duration_ms: 0.7325
+  ...
+# Subtest: summarizeFaceGeometry: coaxial flag — bore aligned with partAxis is coaxial; off-axis is not
+ok 7 - summarizeFaceGeometry: coaxial flag — bore aligned with partAxis is coaxial; off-axis is not
+  ---
+  duration_ms: 0.2674
+  ...
+# Subtest: summarizeFaceGeometry: external cylinder (a shaft/boss) buckets separately
+ok 8 - summarizeFaceGeometry: external cylinder (a shaft/boss) buckets separately
+  ---
+  duration_ms: 0.1536
+  ...
+# Subtest: summarizeFaceGeometry: derived signature counts (the correction-verify contract) — coaxial/radial/distinct-diameter
+ok 9 - summarizeFaceGeometry: derived signature counts (the correction-verify contract) — coaxial/radial/distinct-diameter
+  ---
+  duration_ms: 0.9094
+  ...
+# Subtest: summarizeFaceGeometry: coaxial===null (no partAxis) counts as NEITHER central nor radial (cannot mis-satisfy verify)
+ok 10 - summarizeFaceGeometry: coaxial===null (no partAxis) counts as NEITHER central nor radial (cannot mis-satisfy verify)
+  ---
+  duration_ms: 0.667
+  ...
+# Subtest: summarizeFaceGeometry: coaxial is null when no partAxis given (honest unknown, not false)
+ok 11 - summarizeFaceGeometry: coaxial is null when no partAxis given (honest unknown, not false)
+  ---
+  duration_ms: 0.2516
+  ...
+# Subtest: summarizeFaceGeometry: emits NO functional name — only structured geometry
+ok 12 - summarizeFaceGeometry: emits NO functional name — only structured geometry
+  ---
+  duration_ms: 0.267
+  ...
+# Subtest: summarizeFaceGeometry: empty / garbage → empty buckets, no throw
+ok 13 - summarizeFaceGeometry: empty / garbage → empty buckets, no throw
+  ---
+  duration_ms: 1.3488
+  ...
+# Subtest: probeFaceGeometryCode: emits a record for EVERY face (type+surfaceType), maps all 6 surface-type names
+ok 14 - probeFaceGeometryCode: emits a record for EVERY face (type+surfaceType), maps all 6 surface-type names
+  ---
+  duration_ms: 0.1364
+  ...
+# Subtest: summarizeFaceGeometry: surfaceTypeHistogram counts ALL face types (a plate's planes are no longer dropped)
+ok 15 - summarizeFaceGeometry: surfaceTypeHistogram counts ALL face types (a plate's planes are no longer dropped)
+  ---
+  duration_ms: 0.1472
+  ...
+# Subtest: summarizeFaceGeometry: histogram spans mixed intricate geometry (plane+cylinder+torus+spline)
+ok 16 - summarizeFaceGeometry: histogram spans mixed intricate geometry (plane+cylinder+torus+spline)
+  ---
+  duration_ms: 0.1465
+  ...
+# Subtest: summarizeFaceGeometry: a record with no type → bucketed as 'other' (honest, never dropped silently)
+ok 17 - summarizeFaceGeometry: a record with no type → bucketed as 'other' (honest, never dropped silently)
+  ---
+  duration_ms: 0.096
+  ...
+# Subtest: probeFaceGeometry: success path returns the raw per-face array; bad input → {error}, never throws
+ok 18 - probeFaceGeometry: success path returns the raw per-face array; bad input → {error}, never throws
+  ---
+  duration_ms: 1.1494
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 634.3279

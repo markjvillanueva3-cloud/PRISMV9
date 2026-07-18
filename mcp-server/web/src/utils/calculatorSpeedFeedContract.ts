@@ -174,7 +174,7 @@ export function classifyCalculatorResultSafetyPosture(
 ): CalculatorResultSafetyAssessment {
   const solveSourceLabel =
     context.solveSource === 'orchestrate'
-      ? 'Full PRISM solve'
+      ? 'Full Kienzle solve'
       : context.solveSource === 'quick'
         ? 'Quick fallback estimate'
         : 'Awaiting solve';
@@ -203,8 +203,8 @@ export function classifyCalculatorResultSafetyPosture(
     return {
       status: 'awaiting-run',
       label: 'Awaiting validated solve',
-      heading: 'Do not release numbers until PRISM finishes a live solve.',
-      summary: 'The calculator still needs a live PRISM solve before the cut can be trusted for CAM, prove-out, or machine release.',
+      heading: 'Do not release numbers until Kienzle finishes a live solve.',
+      summary: 'The calculator still needs a live Kienzle solve before the cut can be trusted for CAM, prove-out, or machine release.',
       guidance: 'Run the solve and review the returned release posture before handing any values downstream.',
       tone: 'slate',
       releaseBlocked: true,
@@ -238,7 +238,7 @@ export function classifyCalculatorResultSafetyPosture(
       summary: missingCoreOutputs
         ? 'The solve is missing core spindle or load outputs, so this result is not trustworthy enough to post or cut.'
         : criticalSignals.length > 0
-          ? 'PRISM flagged blocking safety issues or hard limits in the current setup. Treat the result as unsafe until those issues are resolved.'
+          ? 'Kienzle flagged blocking safety issues or hard limits in the current setup. Treat the result as unsafe until those issues are resolved.'
           : 'The solve confidence is too low for a production recommendation. Resolve the setup or model gaps before release.',
       guidance: 'Do not hand these numbers to CAM, a setup sheet, or the machine. Resolve the highlighted setup, tooling, fixturing, or model issues first.',
       tone: 'rose',
@@ -259,10 +259,10 @@ export function classifyCalculatorResultSafetyPosture(
           ? 'The solve returned numbers without an explicit confidence score.'
         : 'The cut is plausible, but it still needs operator review.',
       summary: context.solveSource === 'quick'
-        ? 'The full PRISM solve did not return, so the calculator is showing a quicker advisory estimate. Treat it as a prove-out starting point only.'
+        ? 'The full Kienzle solve did not return, so the calculator is showing a quicker advisory estimate. Treat it as a prove-out starting point only.'
         : missingEngineConfidence
-          ? 'PRISM returned a usable cut state, but the engine did not supply a confidence score. Keep this in prove-out posture until solver confidence is available.'
-        : 'PRISM found cautionary signals, soft limits, or a middling confidence score. Review the warning stack before you trust the cut.',
+          ? 'Kienzle returned a usable cut state, but the engine did not supply a confidence score. Keep this in prove-out posture until solver confidence is available.'
+        : 'Kienzle found cautionary signals, soft limits, or a middling confidence score. Review the warning stack before you trust the cut.',
       guidance: 'Verify the machine package, tool reach, holder posture, coolant delivery, and workholding before posting or running this cut.',
       tone: 'amber',
       releaseBlocked: true,
@@ -275,8 +275,8 @@ export function classifyCalculatorResultSafetyPosture(
   return {
     status: 'release-ready',
     label: 'Release-ready with verification trail',
-    heading: 'This cut cleared the current PRISM safety gate.',
-    summary: 'The full PRISM solve returned stable core outputs with no blocking safety signals. Keep the warning trail with the setup, but this is the first posture that can reasonably feed CAM.',
+    heading: 'This cut cleared the current Kienzle safety gate.',
+    summary: 'The full Kienzle solve returned stable core outputs with no blocking safety signals. Keep the warning trail with the setup, but this is the first posture that can reasonably feed CAM.',
     guidance: 'Carry the solve metadata and machine-profile context into CAM or the setup sheet so the release trail stays intact.',
     tone: 'emerald',
     releaseBlocked: false,
@@ -604,7 +604,7 @@ function inferStrategy(input: CalculatorSpeedFeedContractInput): SpeedFeedParams
 function inferCamSystem(programming?: ProgrammingLike | null) {
   const signature = signatureOf(programming?.vendor, programming?.label, programming?.id);
   if (!signature) return undefined;
-  if (/prism/.test(signature)) return 'PRISM';
+  if (/prism/.test(signature)) return 'Kienzle';
   if (/mastercam/.test(signature)) return 'Mastercam';
   if (/fusion/.test(signature)) return 'Fusion 360';
   if (/\bnx\b/.test(signature)) return 'NX CAM';

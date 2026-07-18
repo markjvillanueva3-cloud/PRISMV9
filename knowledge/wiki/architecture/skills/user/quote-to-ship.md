@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `quote-to-ship` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/quote-to-ship.md` |
+| Source | `C:/Users/wompu/.claude/commands/quote-to-ship.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Run the 21-stage QuoteToShip pipeline from blueprint intake through shipping.
+
+# Quote-to-Ship Pipeline
 
 <!-- AUTO-END -->
 

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `precompact` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/precompact.md` |
+| Source | `C:/Users/wompu/.claude/commands/precompact.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue.
+
+# /precompact — write the session-continuation handoff via psk
 
 <!-- AUTO-END -->
 

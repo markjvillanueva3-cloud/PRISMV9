@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `awareness-check` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/awareness-check.md` |
+| Source | `C:/Users/wompu/.claude/commands/awareness-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Check session awareness with detailed breakdown:
-- Overall awareness score
-- Per-dimension analysis
-- Improvement suggestions
-- Historical comparison
+
+# /awareness-check — Awareness Score Analysis
 
 <!-- AUTO-END -->
 

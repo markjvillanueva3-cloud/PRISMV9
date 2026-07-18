@@ -1,0 +1,604 @@
+Application Tutorial | InventorCAM 2024
+
+5X Basic Training | Vol. 2
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+          Contents
+
+Contents
+
+1. Introduction...................................................................................................................................................1
+2. CAM-Part Definition......................................................................................................................................3
+3. Morph between two boundary curves.........................................................................................................9
+4. Parallel to Curve............................................................................................................................................21
+5. Morph between two adjacent surfaces.......................................................................................................25
+
+                                                                                                                                                                     i
+Introduction  1
+About this course
+This tutorial illustrates the strategies of morph between two curves, strategy of morph between two surfaces, strategy of
+parallel to curve and to understand different side tilt definitions.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the InventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial.
+This book is made with Autodesk Professional 2024 and InventorCAM 2024 SP2.
+
+2
+2 CAM-Part Definition
+1. Browse to open the Autodesk part IMPELLER.iam.
+2. Click InventorCAM2024 > New > Milling.
+The New Milling Part window displays.
+3. Click to save the default part file name and path.
+The Milling Part Data window displays.
+4. In the CNC-Machine list, select table_table_exercise.
+
+5. Click CoordSys in the Define section to set the coordinate system for this part.
+6. Click Select Face in the Definition options section to define the main coordinate system.
+7. In the Place CoordSys origin to section, select Top center of model box from the list.
+8. Select the highlighted face as shown in the below image.
+
+9. The coordinate system is defined.
+
+4
+                                                          2. CAM-Part Definition
+
+10. Click
+The CoordSys Data window displays.
+
+11. Enter the parameters as shown in the image and click
+
+12. Click  in the CoordSys Manager window.
+
+13. Click Stock in the Define section.
+
+14. In the Defined by list, click 3D Model.
+
+15. Select the solid body as shown in the image.
+
+                                                          5
+16. Click Show to visualise the 3D representation of the selected stock.
+The stock looks as displayed in the image.
+
+17. Close the Stock model window.
+18. Click
+19. Click Target in the Define section.
+20. Select the solid body as shown in the image.
+
+21. Click Show to visualise the 3D representation of the selected target.
+The target looks as displayed in the image.
+
+6
+                                                                               2. CAM-Part Definition
+
+22. Close the Target model window.
+
+23. Click
+
+24. Click  to come out of the Milling Part Data section.
+
+25. Right click Fixtures > Define Fixture.
+
+26. Select the highlighted part as the fixture.
+
+27. Click
+
+28. Right click Operations > Machine Setup > Add at start of operations tree.
+29. Enter a value of 356.9 in the Z column.
+This is the distance from the top face of the part to the bottom
+of the holding fixture. This distance is required to "push" the
+part above the table of the machine and is essentially used in
+machine simulation.
+30. Click OK.
+
+The CAM-Part is now completely defined and ready for machining.
+
+                                                                               7
+8
+Morph between two  3
+  boundary curves
+Morph between two boundary curves
+
+The technology of Morph between two boundary curves creates a morphed tool path between two leading curves.
+Morph means that the generated tool path gradually interpolates between the two curves and it is evenly spread over the
+surface. This option is suitable to machine steep areas for making molds, blade surfaces of impeller and turbine blades.
+When selecting the set of two curves, the geometry must be selected directly from the drive surfaces.
+
+The advantage of this technology is that the tool path is created on several surfaces by following a pattern created by two
+curves and there are no lifts. The tool path is homogenous from start to end. Care must be taken while using this strategy
+while machining impeller surfaces as varying surface widths can cause the tool path to squeeze at certain areas thereby
+creating a rubbing effect.
+
+1. Right click Setup > Add Milling
+Operation > Sim. 5-Axis Milling.
+
+2. In the Technology list, click Morph between two boundary curves.
+3. Click the Geometry page.
+
+4. Click   under Drive surface.
+
+5. Select the faces as shown in the image.
+
+6. Click
+
+7. Click   under Start edge curve.
+
+8. Select the curve as shown in the image.
+
+9. Click Yes in OK to accept? window.
+
+10. Click
+
+11. Click  to close the Geometry Edit dialog box.
+
+10
+                                                                         3. Morph between two boundary curves
+
+12. Click      under End edge curve.
+
+13. Select the curve as shown in the image.
+
+14. Click Yes in OK to accept? window.
+
+15. Click
+
+16. Click      to close the Geometry Edit dialog box.
+
+17. In the Type list, click Full, start and end at exact surface edges.
+
+18. Click Margins.
+
+19. Set the values as shown in the image.
+
+20. Click OK.
+
+21. Click the Tool page > Select.
+22. Select Taper Mill as the tool.
+23. Enter the parameters as shown in the image.
+
+24. Select BT 40 ER 32X60 as the holder.
+25. Click
+
+                                                                                                                                                                        11
+26. Click the Levels page.
+27. Enter the parameters as shown in the image.
+
+28. Click the Tool path parameters page.
+29. Enter a value of 0.8 in the Maximum step over field.
+30. In the Step over calculation list, click Approximate.
+31. Click the Tool axis control page.
+32. Enter a value of 70 in the Tilt angle at side of cutting
+field.
+
+33. Select the Side tilt tab.
+34. In the Side tilt definition list, select Orthogonal to cut
+direction at each position.
+
+35. Click the Link page.
+36. In the First entry list, select Use Lead-In.
+37. Click
+The Lead-In window displays.
+38. Unselect the Use default Lead-In check box.
+
+12
+                                                       3. Morph between two boundary curves
+
+39. Enter the parameters as shown in the image.
+40. Click OK.
+
+41. In the Last exit list, select Use Lead-Out.
+
+42. Click
+The Lead-Out window displays.
+43. Unselect the Use default Lead-Out check box.
+44. Enter the parameters as shown in the image.
+45. Click OK.
+
+46. Select the Links tab.
+47. Enter a value of 500 in the Small move as size in % of step
+over field.
+48. Click the Gouge check page.
+49. Select the Enable/Disable check box.
+50. Ensure that Retract tool and Along tool axis are chosen in the Strategy section.
+51. Select the Check surfaces check box.
+
+52. Click  > Surfaces under Check surfaces 1 section.
+
+53. Select the surfaces as shown in the image.
+
+54. Click
+
+55. Click
+
+56. Click  once the tool path is calculated.
+
+                                                                                      13
+The Simulation window displays.
+
+57. Click
+The calculated tool path should look as displayed in the image.
+
+58. Click
+
+59. Click to exit the Operations Manager.Right click > Copy the operation.
+60. Right click > Paste the operation.
+61. Right click > Edit the operation.
+62. Click the Tool axis control page.
+63. Enter a value of 80 in the Tilt angle at side of cutting field.
+64. Select the Side tilt tab.
+65. In the Side tilt definition list, select Follow surface ISO Lines direction.
+
+66. Click
+
+67. Click  once the tool path is calculated.
+
+14
+                                                                 3. Morph between two boundary curves
+
+The Simulation window displays.
+
+68. Click
+The calculated tool path should look as displayed in the image.
+
+69. Click
+To find out the ISO directions of this tool path, do the following:
+70. Click Model > Assembly.
+71. Expand DesignModel:1 > right click Impeller_Part_1 > Edit.
+72. Click Inspect > Curvature.
+The Curvature Analysis window displays.
+
+                                                                                                                                                                        15
+73. Select the face as shown in the image.
+74. Click Apply.
+75. Close the Curvature Analysis window.
+
+76. Right click and select Finish Edit.
+77. Click the InventorCAM tab.
+78. Recalculate the tool path.
+Observe that the tool follows the axis of the ISO parameters. This is because of the selected side tilt definition i.e. follow
+surface ISO lines direction.
+
+79. Click
+80. Click to exit the Operations Manager.
+81. Right click > Copy the operation.
+82. Right click > Paste the operation.
+
+16
+                                                                                                                  3. Morph between two boundary curves
+
+83. Right click > Edit the operation.
+84. Click the Tool axis control page.
+85. Click the Side tilt tab. In the Side tilt definition list, select Orthogonal to cut direction at each contour.
+86. In the Approximate list, select Smooth (Local).
+87. Click
+88. Click once the tool path is calculated.
+89. Click
+The tool maintains orthogonal position to each contour. This is because of the chosen side tilt definition i.e.
+orthogonal to cut direction at each contour.
+
+90. Click
+91. Click to exit the Operations Manager.
+You must switch off the visibility of the curvature before defining the next operation.
+92. Click the Model tab.
+93. In the Assembly mode, right click Impeller_Part_1 > Edit.
+
+                                                                                                                                                                        17
+94. Right click Analysis: Curvature2 (On) > click Analysis Visibility.
+95. Right click and select Finish Edit.
+96. Click the InventorCAM Manager tab.
+97. Right click the operation > Add Milling Operation > Sim. 5-Axis Milling.
+98. In the Technology list, click Morph between two boundary curves.
+99. Click the Geometry page.
+
+100. Click  under Drive surface.
+
+101. Select the faces as shown in the image.
+
+102. Click
+
+103. Click  under Start edge curve.
+
+104. Select the curve as shown in the image.
+
+105. Click Yes in OK to accept? window.
+
+106. Click
+
+107. Click  under End edge curve.
+
+108. Select the curve as shown in the image.
+
+109. Click
+
+110. Click
+
+111. In the Type list, click Full, start and end at exact surface edges.
+112. Click Margins.
+
+18
+                                                                            3. Morph between two boundary curves
+
+113. Enter the parameters as shown in the image.
+114. Click OK.
+
+115. Click the Tool page > Select.
+116. Select the same TAPER MILL tool that was used for earlier operations.
+117. Click the Levels page.
+118. Enter the parameters as shown in the image.
+
+119. Click the Tool axis control page.
+120. Enter a value of 80 in the Tilt angle at side of cutting field.
+121. Click the Side tilt tab. In the Side tilt definition list, select Follow surface ISO lines direction.
+122. Click the Gouge check page.
+123. Select the Enable/Disable check box.
+124. Unselect the Drive surfaces check box.
+
+125. Select  > Surfaces under Check surfaces 1.
+
+126. Select the faces as shown in the image.
+
+127. Click
+128. Click
+
+129. Click once the tool path is calculated.
+
+130. Click
+
+                                                                                                                                                                        19
+The calculated tool path should look as displayed in the image.
+131. Click
+132. Click to exit the Operations Manager.
+
+20
+Parallel to Curve  4
+Parallel to Curve(s) strategy
+The Parallel to Curves strategy creates tool path segments parallel to a leading curve. The neighbouring tool path segments
+are parallel to each other. An important point here is that the cuts are not simply copied next to each other; every new cut
+is an offset of the previous cut. When selecting the curve geometry, select the curves directly from the part. When using
+a single drive surface, you can only select one curve from which to create a parallel tool path. When using multiple drive
+surfaces, you can then select multiple curves to use. Each curve is only used for the drive surface nearest to that curve.
+This strategy is very useful in machining impeller blades as it provides uniform spacing of cuts.
+
+1. Right click > Copy the operation.
+
+2. Right click > Paste.
+
+3. Right click Edit the pasted operation.
+
+4. In the Technology list, click Parallel to curves.
+
+5. Click the Geometry page.
+
+6. Click  under Edge curve.
+
+7. Select the curve as shown in the image.
+
+8. Click
+
+9. Click
+
+10. Click the Tool page > Select.
+11. Select the same TAPER MILL tool that was used for earlier operations.
+12. Click the Tool path parameters page.
+13. Select the Sorting tab.
+14. In the Cutting method list, click One way.
+15. Click the Tool axis control page.
+16. In the Side tilt definition list, select Orthogonal to cut direction at each position.
+17. Click the Link page.
+18. In the First entry and Last exit lists, select Use Lead-In and Use lead-Out.
+
+22
+19. Click      next to Use Lead-In.                  4. Parallel to Curve
+                                                                            23
+The Lead-In window displays.
+
+20. Clear the Use default Lead-In check box.
+
+21. Enter the parameters as shown in the image.
+
+22. Click OK.
+
+23. Click      next to Use Lead-Out.
+
+The Lead-Out window displays.
+
+24. Clear the Use default Lead-Out check box.
+
+25. Enter the parameters as shown in the image.
+
+26. Click OK.
+
+27. Select the Links tab.
+28. In the Large gaps list, select Use Lead-In/Out.
+
+29. Click
+30. The Lead-In / Lead-Out window displays.
+31. Make the changes as shown in the image.
+32. Click OK.
+
+33. Click
+34. Click once the tool path is calculated.
+The Simulation window displays.
+35. Click
+The tool path should look as displayed in the image.
+
+The parallel to curve strategy gives a uniform spacing between passes on the entire set of surfaces unlike the morph
+between curves which cause passes to converge thereby creating a rubbing action.
+36. Click
+37. Click to close the Operations Manager.
+
+24
+Morph between two   5
+ adjacent surfaces
+Morph between two adjacent surfaces
+The Morph between two adjacent surfaces feature creates a morph tool path on the drive surface. The drive surface is
+enclosed by two check surfaces. Morph means that the generated tool path is approximated between the check surfaces
+and evenly spread over the drive surface. This is great for impeller machining with twisted turbine blades. The main
+advantage is the possibility to compensate the tool to the drive surface and check surface in the left and right corner of
+the workpiece. All you need is the tool radius which is the distance (Margin) between the tool center and the surfaces.
+
+1. Right click the operation > Add Milling Operation > Sim 5-Axis Milling.
+
+2. In the Technology list, click Morph between two adjacent surfaces.
+
+3. Click the Geometry page.
+
+4. Click   under Drive surface.
+
+5. Select the faces as shown in the image.
+
+6. Click
+
+7. Click   under Start edge surfaces.
+
+8. Select the surface as shown in the image.
+
+9. Click
+
+10. Click  under End edge surfaces.
+
+11. Select the surface as shown in the image.
+
+12. Click
+
+13. In the Type list, select Full, start and end at exact surface edges.
+14. Click Margins.
+
+26
+                                                                         5. Morph between two adjacent surfaces
+
+15. Enter the parameters as shown in the image.
+16. Click OK.
+
+17. Click the Tool page > Select.
+18. Select the TAPER MILL tool that is used for the earlier operations.
+19. Click the Levels page.
+20. Enter the parameters as shown in the image.
+
+21. Click Link.
+22. Select the Links tab.
+23. Enter a value of 800 in Small move as size in % of step over.
+24. Click the Gouge check page.
+25. Enter the parameters as shown in the image.
+
+26. Click  > Surfaces under Check surfaces 1.
+
+27. Select the surfaces as shown in the image.
+
+28. Click
+
+29. Click the Misc. parameters page.
+30. Select the Tool Center based Calculation check box.
+
+                                                                                                                                                                        27
+31. Click
+
+32. Click  once the tool path is calculated.
+
+The Simulation window displays.
+
+33. Click
+The tool path should look as displayed in the image.
+
+You can see that the tool path looks really bad right now. You can see that apart from the area to be machined, some other
+areas are also getting machined. You must fix these issues.
+
+34. Click
+35. Click the Geometry page.
+36. Click the Advanced button.
+The Advanced Options of Surface Paths Pattern window displays.
+37. Select the Generate tool path front side check box.
+38. Click OK.
+
+39. Click
+
+40. Click  once the tool path is calculated.
+
+28
+                                                             5. Morph between two adjacent surfaces
+
+41. Click
+The tool path should look as displayed in the image.
+
+A lot of unwanted areas can still be seen in the tool path.
+
+42. Click
+43. Click the Geometry page.
+44. Click Margins.
+45. Enter the parameters as shown in the image.
+46. Click OK.
+
+47. Click
+
+48. Click  once the tool path is calculated.
+
+49. Click
+
+                                                             29
+The tool path should look as displayed in the image.
+
+You can see that the tool path looks much better now. You can improve it more by making a few more changes.
+
+50. Click
+51. Click the Tool axis control page.
+52. In the Tool axis direction list, select Tilted through curve.
+53. In the Curve tilt type list, click Angle from curve.
+
+54. Click  under Tilt curve.
+
+55. Select the curve as shown in the image.
+
+56. Click
+
+57. Click
+
+58. Click
+
+59. Click  once the tool path is calculated.
+
+60. Click
+
+30
+                                                                       5. Morph between two adjacent surfaces
+
+The tool path should look as displayed in the image.
+
+You can see that the tool path is much better now with this strategy.
+
+End of the tutorial.
+
+                                                                                                31
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

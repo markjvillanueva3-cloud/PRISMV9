@@ -1898,9 +1898,8 @@ export class LatheCuttingChemistryEngine {
     };
 
     const concentrateCost = concentrateCosts[coolant_type] || 10;
-    const costPerLiter = coolant_type === "straight_oil"
-      ? concentrateCost
-      : concentrateCost * (optimal / 100);
+    // straight_oil returns early above (lines 1863-1874), so coolant_type is never "straight_oil" here
+    const costPerLiter = concentrateCost * (optimal / 100);
 
     // --- Tool life improvement ---
     let lifeImprovement = 0;
@@ -2107,7 +2106,8 @@ export class LatheCuttingChemistryEngine {
 
     // --- OSHA Compliance ---
     // Simplified check
-    const oshaCompliant = !nioshExceeded && fireLevel !== "extreme" && voc < 100;
+    // fireLevel is never assigned "extreme" in this method (straight_oil/mql_oil only reach "moderate"/"high")
+    const oshaCompliant = !nioshExceeded && voc < 100;
 
     // --- Disposal ---
     const disposal = envData.disposal_code;

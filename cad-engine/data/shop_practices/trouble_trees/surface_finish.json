@@ -1,0 +1,98 @@
+{
+  "tree_id": "TT-SURFACE",
+  "title": "Poor Surface Finish Troubleshooting",
+  "symptom": "Surface roughness (Ra) exceeds specification, visible tool marks, inconsistent finish",
+  "root": {
+    "node_id": "TT-SURFACE-ROOT",
+    "node_type": "symptom",
+    "text": "Poor surface finish on machined part",
+    "confidence": 1.0,
+    "children": [
+      {
+        "node_id": "TT-SURFACE-C1",
+        "node_type": "cause",
+        "text": "Worn or chipped cutting tool",
+        "confidence": 0.9,
+        "children": [
+          {
+            "node_id": "TT-SURFACE-D1",
+            "node_type": "diagnostic",
+            "text": "Inspect cutting edges under magnification — look for flank wear, chipping, or built-up edge",
+            "confidence": 0.9,
+            "children": [
+              {"node_id": "TT-SURFACE-S1", "node_type": "solution", "text": "Replace tool with fresh insert or new end mill", "confidence": 0.95, "children": [], "metadata": {}},
+              {"node_id": "TT-SURFACE-S2", "node_type": "solution", "text": "For BUE: increase cutting speed by 20% and verify coolant delivery", "confidence": 0.8, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-SURFACE-C2",
+        "node_type": "cause",
+        "text": "Excessive tool runout",
+        "confidence": 0.75,
+        "children": [
+          {
+            "node_id": "TT-SURFACE-D2",
+            "node_type": "diagnostic",
+            "text": "Measure TIR at tool tip with dial indicator — should be < 0.0005 in for finishing",
+            "confidence": 0.75,
+            "children": [
+              {"node_id": "TT-SURFACE-S3", "node_type": "solution", "text": "Clean holder and spindle taper, re-seat tool", "confidence": 0.7, "children": [], "metadata": {}},
+              {"node_id": "TT-SURFACE-S4", "node_type": "solution", "text": "Switch to hydraulic or shrink-fit holder for better concentricity", "confidence": 0.85, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-SURFACE-C3",
+        "node_type": "cause",
+        "text": "Incorrect speed and feed combination",
+        "confidence": 0.7,
+        "children": [
+          {
+            "node_id": "TT-SURFACE-D3",
+            "node_type": "diagnostic",
+            "text": "Calculate theoretical surface finish from feed/rev and tool nose radius — does it match expected Ra?",
+            "confidence": 0.7,
+            "children": [
+              {"node_id": "TT-SURFACE-S5", "node_type": "solution", "text": "Reduce feed per revolution for turning, feed per tooth for milling", "confidence": 0.8, "children": [], "metadata": {}},
+              {"node_id": "TT-SURFACE-S6", "node_type": "solution", "text": "Increase cutting speed if below recommended range for material", "confidence": 0.75, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-SURFACE-C4",
+        "node_type": "cause",
+        "text": "Chatter vibration (see chatter tree)",
+        "confidence": 0.65,
+        "children": [
+          {
+            "node_id": "TT-SURFACE-D4",
+            "node_type": "diagnostic",
+            "text": "Are marks evenly spaced and regular? Listen for vibration during cut",
+            "confidence": 0.65,
+            "children": [
+              {"node_id": "TT-SURFACE-S7", "node_type": "solution", "text": "Follow chatter troubleshooting tree (TT-CHATTER)", "confidence": 0.9, "children": [], "metadata": {"cross_ref": "TT-CHATTER"}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      }
+    ],
+    "metadata": {}
+  },
+  "material_context": ["aluminum", "steel", "stainless_steel"],
+  "machine_context": ["3-axis_vertical", "5-axis", "lathe"],
+  "source_practice_ids": ["SP-0017"],
+  "created_at": "2026-03-01T22:00:00Z",
+  "tags": ["surface_finish", "Ra", "roughness", "tool_wear"]
+}

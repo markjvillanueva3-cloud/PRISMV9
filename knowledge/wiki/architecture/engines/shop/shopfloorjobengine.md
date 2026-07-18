@@ -36,7 +36,7 @@ related:
 
 ## Primary dispatcher
 
-[[dispatcher-shoppractice]] — `shopPractice` (knowledge)
+[[dispatcher-shop]] — `shop` (other)
 
 ## Doctrine
 

@@ -1,0 +1,228 @@
+Application Tutorial | InventorCAM 2024
+
+Multiaxis Drilling
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+          Contents
+
+Contents
+
+1. Introduction.....................................................................................................................................................1
+2. CAM-Part Definition........................................................................................................................................5
+3. Stock and Target Definition............................................................................................................................9
+4. MultiAxis Drilling Operation...........................................................................................................................13
+
+                                                                                                                                                                       i
+Introduction  1
+About this course
+The goal of this course is to teach you how to use InventorCAM's Multiaxis Drilling to machine a part This tutorial
+covers the basic concepts of Multiaxis Drilling. Once you have developed a good foundation in basic skills, you can refer
+to the online help for information on the less frequently used options.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the I nventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task. The theoretical explanations are embedded into these exercises to
+give an overview of the Multiaxis Drilling capabilities.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial.
+This book is made with A utodesk Inventor Professional 2024 and InventorCAM 2024 SP2.
+
+2
+                                                                                                                                                      1. Introduction
+
+Multiaxis Drilling
+Multiaxis Drilling operation enables you to machine a series of drills that have different orientations.
+The Multi-Axis Drilling operation uses InventorCAM's automatic hole recognition and then performs drilling, tapping or
+boring cycles, at any hole direction easily and quickly. All the advanced linking, tilting and collision avoidance strategies
+are available in this operation.
+
+                                                                                                                                                                         3
+4
+2 CAM-Part Definition
+The CAM-Part definition process consists of the following stages:
+                                                         CAM-Part creation
+
+                                                     CNC-Machine de nition
+
+                                                 Coordinate System de nition
+
+                                                 Stock and Target de nition
+
+        · CAM-Part creation. At this stage, you have to define the CAM-Part name and location. InventorCAM defines
+            the necessary system files and a folder to allocate the place to store InventorCAM data.
+
+        · CNC-controller definition. It is necessary to choose the CNC-controller. The controller type influences the
+            Coordinate System definition and the Geometry definition.
+
+        · Coordinate System definition. You have to define the Coordinate System, which is the origin for all machining
+            operations of the CAM-Part. You can create multiple CoordSys positions and in each machining step select
+            which CoordSys you want to use for the operation.
+
+        · Stock and Target definition. It is necessary to define a boundary of the stock that is used for the CAM-Part
+            machining. InventorCAM enables you to define the model of the part in its final stage after the machining.
+
+The following exercises describe the full process of the CAM-Part definition. It is recommended to go through the stages
+in order to understand how the CAM-Part features are built. For this purpose, you have to turn off the automatic CAM-
+Part definition.
+1. Click InventorCAM 2024 > CAM Settings. In the left pane, select Default CNC-Controller.
+
+2. Ensure that the Post - Processor files directory is pointing to the folder in which you have extracted the part and
+machine files of this tutorial, or to a folder from which the .VMID files are read.
+3. In the left pane, select CAM-Part.
+
+6
+                                                            2. CAM-Part Definition
+
+4. Ensure that the settings are as shown in the image.
+
+5. In the left pane, select Automatic CAM-Part definition.
+6. In the right pane, click the Milling tab.
+7. Ensure that the settings are as shown in the image.
+8. Click OK.
+
+9. Browse to open the Autodesk Inventor part 5X Drill.ipt.
+10. Click InventorCAM2024 > New > Milling.
+The New Milling Part window displays.
+11. Click to close the window.
+Define the CAM-Part in the Milling Part Data dialog box.
+12. In the CNC-Machine list, click Hermle_5AE.
+13. Click CoordSys button in the Define section the coordinate system for this part.
+14. In the Place CoordSys origin to list, click Top center of model box.
+
+                                                                                                                                                                         7
+15. Select the face as shown in the image.
+The coordinate system is defined.
+
+16. Ensure that the direction of axis in you part file are similar to the
+directions shown in this image.
+17. Click
+The CoordSys Data window displays.
+
+18. Ensure that the Levels parameters in your file are similar to that shown in the image.
+19. Click
+The defined Coordinate looks like this image.
+20. Click to confirm the CoordSys Manager window.
+
+The CAM part is now defined.
+
+8
+Stock and Target  3
+     Definition
+To define the stock, follow the steps mentioned in this chapter.
+1. Select the Stock button in the Define section.
+2. In the Defined by list, click 3D Model.
+3. Click once on the part to select the solid.
+
+4. Click the Show button to see the 3D representation of the selected stock.
+The defined stock should look as shown in the below image.
+
+5. Close the Stock model : stock window.
+6. Set the Facet tolerance value as 0.1.
+7. Click
+
+10
+                                                                              3. Stock and Target Definition
+
+8. Select the Target button in the Define section.
+9. Select the target as shown in the image.
+10. Set the Facet tolerance value as 0.001.
+
+11. Click
+
+12. Click to close the Milling Part Data window.
+13. Right click Operations > Machine Setup > Add at start of
+operations tree.
+14. Click OK in the Machine setup window
+The stock and target are now defined and the Setup is added in the CAM-Tree.
+
+                                                                              11
+12
+MultiAxis Drilling  4
+     Operation
+1. Right click Setup > Add Milling Operation > Multiaxis Drilling.
+2. Click the Geometry page.
+
+3. Select  under Drill Geometry.
+
+4. In the Model Features section, select the Auto option.
+
+5. Select the Find Holes button.
+
+6. All the holes are selected.
+
+7. Click
+
+8. Click the Tool page > Select.
+9. Select the Drilling Tools icon and double click the DRILL tool to add it for the operation.
+10. Click the Topology icon and set the parameters as shown in the image.
+
+11. Right click the tool > Add Holder.
+
+14
+                                                                                          4. MultiAxis Drilling Operation
+
+12. Double click HSK A 63 ER 32x80 to add it.
+13. Right click the tool > Add Adaptor.
+14. From the Adaptors list, click HSK40.
+
+15. Click  to save the tool for the operation.
+
+16. Click the Levels page.
+
+17. On the Regular tab, ensure all the parameters are as shown in the
+image.
+
+18. Click the Technology page.
+19. Select the option of Shortest distance and unselect the Use cycle check box.
+20. Click the Gouge check page.
+21. Select the Enable/Disable check box.
+22. Select the Holder and Arbor check boxes.
+23. Ensure that the Check surfaces check box is selected.
+
+24. Click  > Surfaces under Check surfaces 1.
+
+25. Select all the faces in the front and back of the part as shown in the below images.
+
+26. Click
+
+                                                                                                                                                                        15
+27. Set the Stock to leave value as 2.
+28. Click the Machine control page and select the Minimum angle change check box.
+29. Save and calculate the operation.
+The tool path must look as shown in the image.
+
+Run the simulation in SolidVerify mode.
+
+16
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

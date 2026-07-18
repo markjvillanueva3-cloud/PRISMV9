@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# Job Cost Estimator
+Estimate complete job costs using PRISM's JobCostingEngine with shop-configured rates.
 
 <!-- AUTO-END -->
 

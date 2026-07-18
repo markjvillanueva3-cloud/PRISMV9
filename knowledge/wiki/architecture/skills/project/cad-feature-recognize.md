@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cad-feature-recognize — Automatic Feature Recognition
+Automatically recognize machining features from CAD geometry for CAM programming.
 
 <!-- AUTO-END -->
 

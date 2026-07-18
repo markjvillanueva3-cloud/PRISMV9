@@ -1,0 +1,1258 @@
+NOTE: Diff was truncated at 80000 bytes (full size 906934). If completeness cannot be assessed from the partial view, return VERDICT: FAIL with BLOCKER: diff-truncated.
+
+You are reviewer C of three independent Claude PRISM agents — an ANALYST-weighted third pass for the PRISM manufacturing-intelligence platform. Reviewers A and B cover holistic acceptance + test/wiring/scope axes; your job is what THEY are likely to under-emphasize. Do not assume they caught everything.
+Target: commit 4dddee0de.
+
+Weight your attention toward analyst axes — hidden anti-patterns, silent regression risk, and integration breakage. FAIL on any violation you find:
+  1. Silent breakage — type drift across module boundaries, peer engines whose contract this diff secretly invalidates, swallowed errors that bury real failures
+  2. Hidden anti-patterns — sync fs in async paths that should yield, race conditions across concurrent chats, fields that look load-bearing but are dead code, dual-source constants that will drift
+  3. Error budget completeness — are ALL error variants reachable? Are ALL fs.write paths defended against EACCES / ENOENT / EEXIST without burying the failure? Does graceful-degrade log enough to debug post-incident?
+  4. Integration coupling — engines wired to EVERY dispatcher that would naturally consume them; type-level coupling between sibling engines surfaces compile-time errors on rename (not silent runtime degradation)
+  5. Security at I/O boundaries — every interpolated string sanitized for the medium it lands in (filenames, comment bodies, shell args, SQL, etc); path-traversal guards re-checked after construction (defense in depth)
+  6. Regression risk for downstream pipelines — does this diff change a type that downstream engines depend on without updating them? Does it change the shape of a dispatcher result without updating slimResponse exclusions?
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit 4dddee0de8180e07225b0d2dc7d042fdb7d2275b
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Sat May 16 08:43:52 2026 -0500
+
+    [MAIN] [MISC-TASKS]/juliett: 10-agent chat scan -> 318-task orphaned-work inventory + ghost.misc_tasks /system-viz node
+    
+    10 parallel agents scanned every PRISM chat surface (912 transcripts + 504
+    handoffs + 184 loop-state/plans + 25 curated debt files) for orphaned
+    incomplete work -- work identified or promised but never finished AND never
+    formalized into a roadmap unit / milestone envelope (the inverse of
+    close-out-audit). 522 raw items -> 417 deduped -> 318 misc tasks (20 excluded
+    completed, 79 excluded already-roadmapped vs 4067 known ids).
+    
+    - scripts/extract-misc-tasks.mjs (+test 11/11): deterministic merge/dedupe/
+      cross-reference against roadmap-index + 694 envelopes + MILESTONE_PROGRESS.
+    - scripts/generate-misc-tasks-features.mjs (+test 10/10): system-viz
+      augmentation generator -> ghost.misc_tasks roost + 318 misc-task children.
+    - regen-viz.mjs FAST[] + merge-augmentations.mjs splice: wire the generator
+      into the regen pipeline (verified live -- node in system-graph.json).
+    - state/shared/specs/MISC-TASKS-INVENTORY.{json,md,html}: durable inventory
+      (advisory, mustHumanVerify).
+    - git-add-lane-guard.mjs canonicalize(): fix case-sensitive path compare that
+      false-blocked every main-tree git add on Windows (H:/PRISM vs h:/prism).
+    
+    Next phase (deferred): combine the inventory into the unified roadmap after
+    human review.
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+diff --git a/.claude/hooks/git-add-lane-guard.mjs b/.claude/hooks/git-add-lane-guard.mjs
+index f0befa5df..65de3687d 100644
+--- a/.claude/hooks/git-add-lane-guard.mjs
++++ b/.claude/hooks/git-add-lane-guard.mjs
+@@ -112,14 +112,21 @@ const BROAD_GLOB_TOKENS = new Set([".", "-A", "--all", "-u", "--update"]);
+ 
+ // ── Pure helpers (exported for tests) ──────────────────────────────────
+ 
+-/** Canonical absolute path: forward slashes, drive lowercased, no trailing `/`. */
++/**
++ * Canonical absolute path: forward slashes, no trailing `/`. On Windows the
++ * whole path is lowercased (NTFS is case-insensitive) so a worktree root
++ * reported by `git worktree list` as `H:/PRISM` compares equal to a cwd of
++ * `h:/prism` — the same directory. Drive-letter-only lowercasing left the
++ * rest case-sensitive and false-blocked every legitimate main-tree stage.
++ */
+ export function canonicalize(p) {
+   if (!p) return "";
+   const abs = path.isAbsolute(p) ? p : path.resolve(p);
+-  return abs
++  const fwd = abs
+     .replace(/\\/g, "/")
+     .replace(/^([A-Za-z]):/, (_, d) => d.toLowerCase() + ":")
+     .replace(/\/+$/, "");
++  return process.platform === "win32" ? fwd.toLowerCase() : fwd;
+ }
+ 
+ /**
+diff --git a/CLAUDE.md b/CLAUDE.md
+index c7033a726..642317ce8 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -209,6 +209,8 @@ Canonical test shop for ALL PRISM development. Full profile + API moved to [`kno
+ ## KNOWLEDGE VAULT — 5-namespace schema (U-VAULT01, 2026-05-15)
+ PRISM's knowledge lives in 5 namespaces — `memory` (cross-session feedback/reference) + `wiki` (project-lifetime architecture) + `commands` (skills) + `handoffs` (inter-session) + `specs` (audits/plans). CLAUDE.md is the **doctrine pointer index**, NOT a 6th namespace — ≤200 lines of dense pointers, drill into wiki for detail. Promotion path: fleeting → memory → wiki → CLAUDE.md pointer. Back-flow path: regression → `## Recent regressions` (auto by U-VAULT03 hook — pending). Command frontmatter validated by `.claude/schemas/command-frontmatter.schema.json` (U-CK06; baseline today 33/167 valid). Full schema doc: [`knowledge/wiki/architecture/knowledge-vault-schema.md`](knowledge/wiki/architecture/knowledge-vault-schema.md).
+ 
++- 2026-05-16 | **extractConstraints reads real MachineSpindle fields** | observed-in: 64ab700dc | fix: see commit | verify: `git -C H:/prism show 64ab700dc`
++- 2026-05-16 | **fix 4 pre-existing devDispatcher.ts tsc errors** | observed-in: 1f1fec299 | fix: see commit | verify: `git -C H:/prism show 1f1fec299`
+ - 2026-05-15 | **atomically swap 10 stop_on_* gates → stop-regression-bundle** | observed-in: 62587fb9f | fix: see commit | verify: `git -C H:/prism show 62587fb9f`
+ - 2026-05-15 | **restore 4 session-continuity hooks (slot-resume was broken fleet-wide)** | observed-in: 5bd70167f | fix: see commit | verify: `git -C H:/prism show 5bd70167f`
+ - 2026-05-15 | **restore 3 more wiped MINIMAL_ALLOWLIST gates** | observed-in: 4984c918b | fix: see commit | verify: `git -C H:/prism show 4984c918b`
+@@ -241,6 +243,7 @@ const result = prismCreativeReasoningEngine.explore(problem, "optimal");
+ 
+ ## Recent regressions
+ <!-- Append-only log per Boris CLAUDE.md back-flow pattern. New entries at TOP. -->
++- 2026-05-16 | **`git-add-lane-guard.mjs` false-blocked every legitimate main-tree `git add` via case-sensitive path compare.** `canonicalize()` lowercased only the drive letter (`H:`→`h:`), leaving the rest of the path case-sensitive. `git worktree list --porcelain` reports the main worktree as `H:/PRISM` (uppercase) while a chat's cwd is `h:/prism` — the SAME directory on case-insensitive NTFS. `isWithin()` did `cwd.startsWith(root+"/")` → `"h:/prism".startsWith("h:/PRISM/")` → false → every explicit pathspec flagged "outside slot worktree" → staging blocked. Compounded by slot mis-resolution (juliett chat resolved to slot `alpha`), but the casing bug alone is sufficient to block. Kill switch `PRISM_GIT_ADD_LANE_DISABLE=1` is a `process.env` read — unreachable from a tool call (PreToolUse hook runs in the harness process; an inline `VAR=1 git add` prefix does NOT reach it). | fix: `canonicalize()` now lowercases the WHOLE path on `process.platform==="win32"` (NTFS is case-insensitive); non-Windows keeps drive-only behavior. Verified: `canonicalize("H:/PRISM")===canonicalize("h:/prism")`. The `.claude/hooks/__tests__/git-add-lane-guard.test.mjs` suite imports `vitest` and cannot run under the isolated `.claude/` test infra (pre-existing gap, same class as the helpers/ vitest bug) — fix verified by direct invocation. | observed-by: claude-3a1c1c68 slot juliett (MISC-TASKS extraction commit). | verify: `node -e "import('./.claude/hooks/git-add-lane-guard.mjs').then(m=>console.log(m.canonicalize('H:/PRISM')===m.canonicalize('h:/prism')))"` → `true`.
+ - 2026-05-16 | **`/compact` silently no-op'd the precompact handoff write on every portable-node machine (stale RESUME across the whole fleet).** `precompact-handoff.mjs:419` spawned the per-agent-handoff writer with bare `spawnSync("node", ...)`. Under portable-node `process.execPath`=`H:\Tools\nodejs\node.exe` resolves but `node` is NOT on the PreCompact-hook child's PATH → `spawnSync("node",...)` returns `ENOENT` with `stdout=undefined`. The result parser did `(writeResult.stdout||"").trim()` → `""` → `if(out)` skipped → `JSON.parse` never ran → `catch` never fired → `writeMsg` frozen at its init literal `"(no output)"`. Net: every `/compact` emitted `auto-write attempted ((no output))` and the handoff RESUME was never refreshed (user report: "compact doesn't kick off precompact anymore"; observed session claude-339c8ff7 — RESUME stale 65min, pre-U3-U8). Silent because the hook still returned `{continue:true}` and the swallow hid the ENOENT. The sibling test `precompact-hook-source.test.mjs:28` already documented this exact footgun in its own harness — production never applied the lesson. | fix: `precompact-handoff.mjs:419` `"node"`→`process.execPath` (matches the working line-337 terminal-resolver spawn) + fail-loud result parser (surfaces `writeResult.error.code` as `SPAWN FAILED:` and the empty-stdout-no-error case as `writer emitted no stdout (status=,stderr=)` instead of `(no output)`, per Karpathy R12). 3 regression guards added to `precompact-pad.test.mjs` (comment-stripped source assertion — guard inspects code not prose, avoiding the AAM04 comment-blind class below); 16/16 + writer-source 10/10 green; live repro `{"ok":true,"file":"...HANDOFF-..."}`. `runGit()` bare `"git"` (line 85) verified NOT affected (git IS on the spawn PATH; status=0). Same-class latent bug flagged not-fixed (scope): `.claude/helpers/portability-setup.mjs:83` bare `spawnSync("node",...)`. | observed-by: claude-339c8ff7 slot bravo (user-reported during autonomous-chain test). | verify: `"H:/.claude/bin/portable-node" -e "const{spawnSync}=require('child_process');const r=spawnSync(process.execPath,['H:/prism/.claude/helpers/per-agent-handoff.mjs','read','--terminal','x'],{encoding:'utf8'});console.log(r.status,(r.stdout||'').length>0)"` → `0 true`; `node --test H:/prism/.claude/helpers/precompact-pad.test.mjs` → 16/16.
+ - 2026-05-16 | **AAM04 hook-wiring auditor reported 14 dangling refs but 12 were INTERNAL auditor bugs.** 6 from over-greedy `parseBundleChildren` regex capturing bare `.mjs` string literals in `bundles/smoke-test.mjs:16-21` (`join(tempDir, "ok.mjs")` etc.); 6 from helper-scope blindness — `findHooksOnDisk` excludes `.claude/helpers/` by design, so `${HELPER_BASE}/foo.mjs` bundle refs surface as dangling even when the helper exists on disk. Only 2 of 14 were real: `posttool-edit-bundle.mjs:46-47` refs `${HOOK_BASE}/build-cache-manager.mjs` + `${HOOK_BASE}/build-tracker.mjs` but BOTH files live in `helpers/` (runtime ENOENT pending; per 2026-05-14 regression `build-tracker.mjs` had xmalloc OOM — likely moved to helpers/ as mitigation but bundle ref not updated). | fix shipped: commit `e3a08b95e` AAM04-FIX1 — tightened `parseBundleChildren` regex to require path separator before basename + 1 regression-guard test (25/25 PASS); dangling 14→8. | fix #2 deliberately NOT shipped: helper-aware lenience would mask the 2 real scope-mismatches (Karpathy R12 fail-loud). | follow-up: scope-aware `parseBundleChildren` tracking prefix context per ref (HOOK_BASE vs HELPER_BASE) → emit separate `scopeMismatch` diagnostic. | observed-by: claude-549c9f4f kilo slot AAM04 /loop iter 1-7. | verify: `node H:/prism/scripts/harness-wiring-audit.mjs` → severity=warn, dangling=8.
+ - 2026-05-16 | **Error-learn hooks documented as auto-firing but 0/6 actually wired in either settings.json.** `grep error-(pattern\|block\|learner) settings.json` returned ZERO matches in BOTH C: and H: copies — `error-pattern-promote`, `error-pattern-capture`, `error-pattern-learner`, `error-pattern-memory`, `error-block-capture`, `error-block-prewarn` all dead-code on disk despite CLAUDE.md (project + global) AND `data/docs/gsd/GSD_QUICK.md` claiming they fire on PostToolUse/PreToolUse/Stop. Result: `ERROR_LEARN_LEDGER.jsonl` writes never accumulated; user's "make sure error learning hooks fire" silently failing for an unknown period. | partial fix: `error-pattern-promote.mjs` wired into Stop[12] after `stop-wiring-audit-suggest` (timeout 5000ms, atomic node-script + manual `cp` C:→H: per 2026-05-15 mirror-gap pattern, byte-equal preserved, hook smoke-tested `{"continue":true}`). 1/6 done. | remaining 5 need header-read first to confirm matcher: `error-pattern-capture` (T2 PostToolUse `Bash|Edit|MultiEdit|Grep|Glob`), `error-pattern-learner`, `error-pattern-memory`, `error-block-capture` (PreToolUse), `error-block-prewarn` (UserPromptSubmit). | **CAVEAT 2026-05-16 in-flight**: `claude-6d0595bf` concurrently writing `scripts/_emergency-unwire-yolo-25.mjs` + `feedback_dont_wire_for_wiring_sake_2026_05_16.md` + `reference_hook_wiring_yolo_25_2026_05_16.md` — read those before piling on more wires; doctrine may shift from "wire by default" to "wire on demonstrated need", potentially reverting `error-pattern-promote`. | observed-by: claude-549c9f4f kilo slot. | verify: `grep error-pattern-promote C:/Users/wompu/.claude/settings.json` ≥1 match.
+@@ -333,6 +336,9 @@ The 2026-05-12 history-strip left 668 milestone envelopes untracked and most uni
+ 
+ **When to fire:** before `/pick-unit`, during own-unit close-out (inspect sibling units in same milestone), on `/checkin` drift > 0, on user keywords. **Always human-verify before flipping** — file presence ≠ spec correctness. Close-out protocol per [[feedback_roadmap_close_out]] (envelope + MILESTONE_PROGRESS + BUILD_STATE + roadmap-index + chat-bus). **Knobs:** `PRISM_CLOSE_OUT_AUDIT_INJECT=0` (disable hook), `PRISM_CLOSE_OUT_AUDIT_STALE_HRS=N` (default 24), `PRISM_CLOSE_OUT_AUDIT_K=N` (top-K, default 3), `--frozen-time` / `PRISM_AUDIT_FROZEN_TIME` (diff-friendly output). First demo: closed U-COORD03 + U-COORD10 in COORD-MS0 (this session, slot BRAVO).
+ 
++## MISC-TASKS INVENTORY — orphaned incomplete work (2026-05-16, slot juliett)
++The *inverse* of close-out-audit: work identified across PRISM chats that was never finished **AND** never formalized into a roadmap unit/milestone envelope. A 10-agent scan of all chats (912 transcripts + 504 handoffs + 184 loop-state/plans + 25 curated debt files) feeds `scripts/extract-misc-tasks.mjs` (deterministic dedupe + cross-reference against roadmap-index + 694 envelopes + MILESTONE_PROGRESS). Durable inventory: `state/shared/specs/MISC-TASKS-INVENTORY.{json,md,html}` (advisory, `mustHumanVerify`). Surfaced in `/system-viz` as the `ghost.misc_tasks` roost + one `misc-task` child per item, via `scripts/generate-misc-tasks-features.mjs` (registered in `regen-viz.mjs` FAST[] + `merge-augmentations.mjs` splice — augmentations need BOTH, no auto-discover). First run: 522 raw → **318 misc tasks**. **Next phase (deferred):** combine the inventory into the unified roadmap after human review. Wiki: [`knowledge/wiki/architecture/misc-tasks-extraction.md`]. Memory: [[misc-tasks-extraction-2026-05-16]].
++
+ ## DEV-VELOCITY-AUTOTRIGGER-MS0 (2026-05-12..13, 13 units shipped)
+ > Doctrine + artifact map. Section body auto-regenerated by `scripts/regen-claude-md-sections.mjs` — do NOT edit between markers.
+ 
+diff --git a/knowledge/wiki/architecture/misc-tasks-extraction.md b/knowledge/wiki/architecture/misc-tasks-extraction.md
+new file mode 100644
+index 000000000..e5927d0d3
+--- /dev/null
++++ b/knowledge/wiki/architecture/misc-tasks-extraction.md
+@@ -0,0 +1,76 @@
++---
++name: misc-tasks-extraction
++type: architecture
++layer: automation
++created: 2026-05-16
++boost_keywords: [misc tasks, orphaned work, incomplete work, never finished, never roadmapped, misc-tasks node, 10-agent scan, MISC-TASKS-INVENTORY, unshipped unroadmapped]
++description: 10-agent parallel scan of every PRISM chat for orphaned incomplete work — work identified or promised but never finished AND never formalized into a roadmap unit/milestone envelope. Deterministically merged into MISC-TASKS-INVENTORY and surfaced as the ghost.misc_tasks roost in /system-viz.
++links:
++  - script: scripts/extract-misc-tasks.mjs
++  - script: scripts/generate-misc-tasks-features.mjs
++  - test: scripts/extract-misc-tasks.test.mjs
++  - test: scripts/generate-misc-tasks-features.test.mjs
++  - reports: state/shared/specs/MISC-TASKS-INVENTORY.json, state/shared/specs/MISC-TASKS-INVENTORY.md, state/shared/specs/MISC-TASKS-INVENTORY.html
++  - augmentation: state/shared/system-viz/misc-tasks-augmentation.json
++  - wired: scripts/regen-viz.mjs (FAST[]), scripts/merge-augmentations.mjs (splice)
++  - memory: reference_misc_tasks_extraction_2026_05_16
++  - companion: close-out-audit, system-viz-first-audit
++---
++
++# Misc-Tasks Extraction
++
++## Problem
++
++PRISM has run ~900+ Claude chats. Work was constantly identified, started, or
++promised, then lost when a chat ended — and most of it was **never finished AND
++never formalized** into a roadmap unit or milestone envelope. `/close-out-audit`
++catches the *inverse* class (shipped-but-unclosed); nothing surfaced this
++*unshipped-and-unroadmapped* residue. It was invisible debt.
++
++## What it does
++
++A one-shot 10-agent parallel scan of **every chat surface**, deterministically
++merged into a durable inventory and a `/system-viz` node.
++
++1. **10 read-only scanner agents** (`misc-tasks-scan/manifest-{1..10}.txt`):
++   - A1–A6: 912 chat transcripts (`C:/Users/<u>/.claude/projects/H--prism/*.jsonl`)
++   - A7–A8: 504 per-chat handoffs (`state/shared/handoffs/HANDOFF-*.md`)
++   - A9: 47 loop-state files + 137 plan docs
++   - A10: 25 curated debt files (CLOSE-OUT-*, RESUME_POSTS*, AGENT_CHAT.jsonl, _orphans, specs)
++   - Each greps an incomplete-work signal regex, window-reads matches, emits
++     `agent-<N>.json` of candidate items. Token-disciplined: grep-first, never
++     full-Reads a multi-MB transcript.
++2. **Deterministic merge** — `extract-misc-tasks.mjs` (pure, set-ops, NOT model
++   judgement per CLAUDE.md R5):
++   - dedupe (key = unit_id, else normalized title) → merge groups
++   - exclude `looks_completed` items
++   - cross-reference each remaining item's `milestone_or_unit_id` against the
++     **KNOWN set** — every milestone + unit id in `roadmap-index.json`, the 694
++     milestone envelopes, and `MILESTONE_PROGRESS.json`. Items with a KNOWN id
++     were already roadmapped → excluded. The remainder is the misc set.
++3. **Inventory** — `MISC-TASKS-INVENTORY.{json,md,html}` (schemaVersioned,
++   advisory, `mustHumanVerify:true`).
++4. **/system-viz node** — `generate-misc-tasks-features.mjs` emits
++   `misc-tasks-augmentation.json`: a `ghost.misc_tasks` roost (kind `ghost-roost`,
++   under `ghost.planned_features`) + one `misc-task` child per inventory item.
++   Modeled on `generate-stagnant-features.mjs`. Registered in `regen-viz.mjs`
++   FAST[] and spliced by `merge-augmentations.mjs`, so it survives every regen.
++
++## First run (2026-05-16, slot juliett)
++
++522 raw items → 417 deduped → **318 misc tasks** (20 excluded as completed, 79
++excluded as already-roadmapped). KNOWN id set: 4067 across 694 envelopes.
++Domain split: infra 140 · cam 54 · hooks 34 · lathe 24 · cad 21 · wedm 15 ·
++docs 12 · other 12 · mill 6.
++
++## Deferred next phase
++
++Combine `MISC-TASKS-INVENTORY.json` into the unified roadmap
++(`PRISM-UNIFIED-ROADMAP-v2.md` / `roadmap-index.json`) after human review —
++NOT done in the extraction session by design (advisory → reviewed → promoted).
++
++## Safety
++
++Advisory only — never flips an envelope, never mutates a roadmap. File presence
++≠ spec correctness; every item is `mustHumanVerify`. Scanner agents are
++read-only and write only their own scratch JSON.
+diff --git a/scripts/extract-misc-tasks.mjs b/scripts/extract-misc-tasks.mjs
+new file mode 100644
+index 000000000..26638b7ee
+--- /dev/null
++++ b/scripts/extract-misc-tasks.mjs
+@@ -0,0 +1,396 @@
++#!/usr/bin/env node
++/**
++ * extract-misc-tasks.mjs — Deterministic merge of the 10-agent misc-tasks scan.
++ *
++ * Spec: MISC-TASKS extraction (slot juliett, forge7, 2026-05-16).
++ *
++ * The 10 parallel scanner agents each emit one
++ * `state/shared/specs/misc-tasks-scan/agent-<N>.json` of candidate
++ * "orphaned incomplete work" items. This script merges those 10 files
++ * into a single deduplicated, roadmap-cross-referenced inventory:
++ * `state/shared/specs/MISC-TASKS-INVENTORY.{json,md,html}`.
++ *
++ * Pipeline (pure + deterministic — set-ops, NOT model judgement):
++ *   1. Load + validate all 10 agent JSONs (fail loud on missing/corrupt).
++ *   2. Dedupe: key = unit_id ? 'ID:'+normId : 'T:'+normTitle. Merge groups.
++ *   3. Exclude `looks_completed === true` items (they shipped).
++ *   4. Cross-reference each remaining item's milestone_or_unit_id against
++ *      the KNOWN set (every milestone + unit id in roadmap-index.json,
++ *      the 694 milestone envelopes, and MILESTONE_PROGRESS.json). Items
++ *      whose id IS known were already formalized into a roadmap/envelope
++ *      → excluded. Items with no id, or an unknown id, are the misc set.
++ *   5. Emit the inventory in 3 formats.
++ *
++ * The misc set is exactly the user's target: incomplete work that was
++ * never added to any roadmap unit or milestone envelope.
++ *
++ * Usage:  node scripts/extract-misc-tasks.mjs [--scan-dir <dir>] [--json]
++ * Exit:   0 ok · 1 validation/arg error · 2 runtime error
++ */
++
++import fs from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++export const ROOT = path.resolve(__dirname, "..");
++
++export const SCHEMA_VERSION = "1.0.0";
++export const AGENT_COUNT = 10;
++
++// ─── normalization (pure) ────────────────────────────────────────────────
++
++/** Uppercase + trim an id; non-string / empty → "". */
++export function normalizeId(raw) {
++  if (typeof raw !== "string") return "";
++  return raw.trim().toUpperCase();
++}
++
++/** Lowercase, strip to alphanumeric words, collapse whitespace. */
++export function normalizeTitle(raw) {
++  if (typeof raw !== "string") return "";
++  return raw.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
++}
++
++/**
++ * Filesystem-safe node id fragment — letters/digits/dash/underscore only.
++ * Dots are excluded so the `ghost.misc.` prefix is the only `.` in the id;
++ * this also makes any `..` collapse to `-` rather than tripping the guard.
++ */
++export function safeId(raw) {
++  const s = String(raw == null ? "" : raw)
++    .toLowerCase()
++    .replace(/[^a-z0-9_-]+/g, "-")
++    .replace(/-+/g, "-")
++    .replace(/^[-_]+|[-_]+$/g, "")
++    .slice(0, 80);
++  // Guard against empty / traversal-shaped fragments.
++  if (!s || s.includes("..")) return "x";
++  return s;
++}
++
++/** Dedupe key: id-based when an id exists, else normalized-title-based. */
++export function dedupeKey(item) {
++  const id = normalizeId(item && item.milestone_or_unit_id);
++  if (id) return "ID:" + id;
++  return "T:" + normalizeTitle(item && item.title);
++}
++
++// ─── KNOWN roadmap/envelope id set ───────────────────────────────────────
++
++/**
++ * Build the set of every milestone-id and unit-id already formalized into
++ * a roadmap or milestone envelope. Returns a Set of normalized-uppercase ids.
++ */
++export function buildKnownSet({ roadmapIndex, envelopes, milestoneProgress }) {
++  const known = new Set();
++  const add = (v) => { const n = normalizeId(v); if (n) known.add(n); };
++
++  // roadmap-index.json → .milestones[].id
++  if (roadmapIndex && Array.isArray(roadmapIndex.milestones)) {
++    for (const ms of roadmapIndex.milestones) {
++      if (ms && ms.id) add(ms.id);
++      if (ms && Array.isArray(ms.units)) for (const u of ms.units) if (u && u.id) add(u.id);
++    }
++  }
++
++  // 694 milestone envelopes → .id (milestone) + .units[].id
++  for (const env of envelopes || []) {
++    if (!env) continue;
++    add(env.id);
++    if (Array.isArray(env.units)) for (const u of env.units) if (u && u.id) add(u.id);
++  }
++
++  // MILESTONE_PROGRESS.json → .milestones{}.id + .units[].id
++  if (milestoneProgress && milestoneProgress.milestones && typeof milestoneProgress.milestones === "object") {
++    for (const ms of Object.values(milestoneProgress.milestones)) {
++      if (ms && ms.id) add(ms.id);
++      if (ms && Array.isArray(ms.units)) for (const u of ms.units) if (u && u.id) add(u.id);
++    }
++  }
++
++  return known;
++}
++
++// ─── merge (pure) ────────────────────────────────────────────────────────
++
++/** Merge a group of duplicate items into one representative record. */
++export function mergeGroup(group) {
++  // Base = highest-confidence member (stable: first wins on tie).
++  let base = group[0];
++  for (const it of group) {
++    if ((Number(it.confidence) || 0) > (Number(base.confidence) || 0)) base = it;
++  }
++  const sources = [...new Set(group.map((g) => g.source_path).filter(Boolean))];
++  const agents = [...new Set(group.map((g) => g._agent).filter((n) => Number.isFinite(n)))].sort((a, b) => a - b);
++  let evidence = "";
++  for (const it of group) {
++    const e = typeof it.evidence === "string" ? it.evidence : "";
++    if (e.length > evidence.length) evidence = e;
++  }
++  return {
++    title: String(base.title || "(untitled)").trim(),
++    evidence: evidence.slice(0, 200),
++    source_type: base.source_type || "unknown",
++    sources,
++    source_count: sources.length,
++    milestone_or_unit_id: base.milestone_or_unit_id || null,
++    suggested_domain: base.suggested_domain || "other",
++    confidence: Math.max(...group.map((g) => Number(g.confidence) || 0)),
++    looks_completed: group.some((g) => g.looks_completed === true),
++    occurrences: group.length,
++    found_by_agents: agents,
++  };
++}
++
++/**
++ * Full pipeline. `agentOutputs` = array of parsed agent-N.json objects.
++ * Returns { misc, excludedCompleted, excludedRoadmapped, stats }.
++ */
++export function extractMiscTasks(agentOutputs, knownSet) {
++  // 1. Flatten, tagging each item with its source agent.
++  const raw = [];
++  for (const out of agentOutputs) {
++    const n = Number(out && out.agent);
++    for (const it of (out && Array.isArray(out.items) ? out.items : [])) {
++      if (it && typeof it === "object") raw.push({ ...it, _agent: n });
++    }
++  }
++
++  // 2. Dedupe into groups.
++  const groups = new Map();
++  for (const it of raw) {
++    const k = dedupeKey(it);
++    if (!groups.has(k)) groups.set(k, []);
++    groups.get(k).push(it);
++  }
++  const merged = [...groups.values()].map(mergeGroup);
++
++  // 3 + 4. Partition: completed → roadmapped → misc.
++  const excludedCompleted = [];
++  const excludedRoadmapped = [];
++  const misc = [];
++  for (const item of merged) {
++    if (item.looks_completed) { excludedCompleted.push(item); continue; }
++    const id = normalizeId(item.milestone_or_unit_id);
++    if (id && knownSet.has(id)) {
++      excludedRoadmapped.push({ ...item, matched_known_id: id });
++      continue;
++    }
++    misc.push(item);
++  }
++
++  // 5. Deterministic sort: confidence desc, then domain, then title.
++  misc.sort((a, b) =>
++    (b.confidence - a.confidence) ||
++    a.suggested_domain.localeCompare(b.suggested_domain) ||
++    a.title.localeCompare(b.title));
++
++  // Assign stable ids. misc_id index is sort-order based (deterministic).
++  const usedNodeIds = new Set();
++  misc.forEach((item, i) => {
++    item.misc_id = "MISC-" + String(i + 1).padStart(3, "0");
++    let nid = "ghost.misc." + safeId(item.milestone_or_unit_id || item.title);
++    let suffix = 1;
++    while (usedNodeIds.has(nid)) { nid = "ghost.misc." + safeId(item.milestone_or_unit_id || item.title) + "-" + (++suffix); }
++    usedNodeIds.add(nid);
++    item.node_id = nid;
++  });
++
++  const tally = (arr, key) => {
++    const o = {};
++    for (const it of arr) { const v = it[key] || "unknown"; o[v] = (o[v] || 0) + 1; }
++    return o;
++  };
++
++  const stats = {
++    rawItems: raw.length,
++    afterDedupe: merged.length,
++    excludedCompleted: excludedCompleted.length,
++    excludedRoadmapped: excludedRoadmapped.length,
++    finalMisc: misc.length,
++    byDomain: tally(misc, "suggested_domain"),
++    bySourceType: tally(misc, "source_type"),
++    knownIdSetSize: knownSet.size,
++  };
++
++  return { misc, excludedCompleted, excludedRoadmapped, stats };
++}
++
++// ─── rendering ───────────────────────────────────────────────────────────
++
++export function renderMarkdown(inv) {
++  const s = inv.stats;
++  const lines = [];
++  lines.push("# MISC-TASKS INVENTORY — Orphaned Incomplete Work");
++  lines.push("");
++  lines.push(`> Generated ${inv.generatedAt} · schemaVersion ${inv.schemaVersion}`);
++  lines.push("> Orphaned incomplete work — identified across PRISM chats, never finished, never");
++  lines.push("> formalized into a roadmap unit or milestone envelope. **Advisory — human-verify**");
++  lines.push("> each item before promoting it into the roadmap.");
++  lines.push("");
++  lines.push("## Stats");
++  lines.push("");
++  lines.push(`- Raw scanned items: **${s.rawItems}** (10-agent parallel scan)`);
++  lines.push(`- After dedupe: **${s.afterDedupe}**`);
++  lines.push(`- Excluded (looks completed): **${s.excludedCompleted}**`);
++  lines.push(`- Excluded (already in roadmap/envelope): **${s.excludedRoadmapped}**`);
++  lines.push(`- **Final misc tasks: ${s.finalMisc}**`);
++  lines.push("");
++  lines.push("By domain: " + Object.entries(s.byDomain).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}=${v}`).join(" · "));
++  lines.push("");
++  lines.push("By source type: " + Object.entries(s.bySourceType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}=${v}`).join(" · "));
++  lines.push("");
++  lines.push("## Misc tasks");
++  lines.push("");
++  lines.push("| ID | Conf | Domain | Title | Unit/MS | Source | Seen |");
++  lines.push("|----|------|--------|-------|---------|--------|------|");
++  for (const it of inv.items) {
++    const title = it.title.replace(/\|/g, "\\|").slice(0, 90);
++    lines.push(`| ${it.misc_id} | ${it.confidence.toFixed(2)} | ${it.suggested_domain} | ${title} | ${it.milestone_or_unit_id || "—"} | ${it.source_type} | ${it.occurrences}x |`);
++  }
++  lines.push("");
++  lines.push("## Next phase (deferred)");
++  lines.push("");
++  lines.push(inv.provenance.nextPhase);
++  lines.push("");
++  return lines.join("\n");
++}
++
++export function renderHtml(inv) {
++  const s = inv.stats;
++  const esc = (x) => String(x == null ? "" : x).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
++  const rows = inv.items.map((it) => {
++    const copy = esc(`${it.title} — ${it.evidence}`);
++    return `<tr data-conf="${it.confidence}" data-domain="${esc(it.suggested_domain)}">
++<td>${esc(it.misc_id)}</td><td>${it.confidence.toFixed(2)}</td><td>${esc(it.suggested_domain)}</td>
++<td title="${esc(it.evidence)}">${esc(it.title)}</td><td>${esc(it.milestone_or_unit_id || "—")}</td>
++<td>${esc(it.source_type)}</td><td>${it.occurrences}x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="${copy}">copy</button></td></tr>`;
++  }).join("\n");
++  return `<!doctype html><html><head><meta charset="utf-8"><title>MISC-TASKS Inventory</title>
++<style>
++body{font:14px/1.5 system-ui,sans-serif;margin:2rem;background:#0f172a;color:#e2e8f0}
++h1{color:#38bdf8}.stat{display:inline-block;background:#1e293b;padding:.4rem .8rem;margin:.2rem;border-radius:6px}
++table{border-collapse:collapse;width:100%;margin-top:1rem}th,td{border:1px solid #334155;padding:.4rem .6rem;text-align:left}
++th{background:#1e293b;cursor:pointer}tr:nth-child(even){background:#1e293b55}
++button{background:#0ea5e9;border:0;color:#fff;padding:.2rem .5rem;border-radius:4px;cursor:pointer}
++td:nth-child(4){max-width:32rem}
++</style></head><body>
++<h1>MISC-TASKS Inventory — Orphaned Incomplete Work</h1>
++<p>Generated ${esc(inv.generatedAt)} · schemaVersion ${esc(inv.schemaVersion)} · <b>advisory — human-verify before roadmap promotion</b></p>
++<div>
++<span class="stat">raw ${s.rawItems}</span><span class="stat">deduped ${s.afterDedupe}</span>
++<span class="stat">excl. completed ${s.excludedCompleted}</span><span class="stat">excl. roadmapped ${s.excludedRoadmapped}</span>
++<span class="stat" style="background:#0369a1">final misc ${s.finalMisc}</span>
++</div>
++<table id="t"><thead><tr><th>ID</th><th>Conf</th><th>Domain</th><th>Title</th><th>Unit/MS</th><th>Source</th><th>Seen</th><th></th></tr></thead>
++<tbody>${rows}</tbody></table>
++<p style="margin-top:1rem;color:#94a3b8">${esc(inv.provenance.nextPhase)}</p>
++<script>
++document.querySelectorAll('#t th').forEach((th,i)=>th.addEventListener('click',()=>{
++ const tb=document.querySelector('#t tbody'),rows=[...tb.rows];
++ const asc=th._asc=!th._asc;
++ rows.sort((a,b)=>{const x=a.cells[i].innerText,y=b.cells[i].innerText;
++  const nx=parseFloat(x),ny=parseFloat(y);
++  const c=(!isNaN(nx)&&!isNaN(ny))?nx-ny:x.localeCompare(y);return asc?c:-c;});
++ rows.forEach(r=>tb.appendChild(r));
++}));
++</script></body></html>`;
++}
++
++// ─── io + entrypoint ─────────────────────────────────────────────────────
++
++function readJson(p) { return JSON.parse(fs.readFileSync(p, "utf8")); }
++
++export function loadEnvelopes(dir) {
++  const out = [];
++  let files = [];
++  try { files = fs.readdirSync(dir).filter((f) => f.endsWith(".json")); } catch { return out; }
++  for (const f of files) {
++    try { out.push(readJson(path.join(dir, f))); } catch { /* skip corrupt envelope */ }
++  }
++  return out;
++}
++
++export function main(argv = process.argv.slice(2)) {
++  const args = {};
++  for (let i = 0; i < argv.length; i++) {
++    if (argv[i] === "--scan-dir") args.scanDir = argv[++i];
++    else if (argv[i] === "--json") args.json = true;
++  }
++  const scanDir = args.scanDir || path.join(ROOT, "state/shared/specs/misc-tasks-scan");
++  const specsDir = path.join(ROOT, "state/shared/specs");
++
++  // Load + validate the 10 agent outputs — FAIL LOUD.
++  const agentOutputs = [];
++  const missing = [];
++  for (let n = 1; n <= AGENT_COUNT; n++) {
++    const p = path.join(scanDir, `agent-${n}.json`);
++    if (!fs.existsSync(p)) { missing.push(n); continue; }
++    try {
++      const j = readJson(p);
++      if (!Array.isArray(j.items)) throw new Error(`agent-${n}.json has no items[] array`);
++      agentOutputs.push(j);
++    } catch (e) {
++      console.error(`FATAL: agent-${n}.json — ${e.message}`);
++      return 2;
++    }
++  }
++  if (missing.length) {
++    console.error(`FATAL: missing agent outputs: ${missing.map((n) => `agent-${n}.json`).join(", ")}`);
++    return 1;
++  }
++
++  // Cross-reference sources.
++  let roadmapIndex = null, milestoneProgress = null;
++  try { roadmapIndex = readJson(path.join(ROOT, "mcp-server/data/roadmap-index.json")); }
++  catch (e) { console.error(`FATAL: roadmap-index.json — ${e.message}`); return 2; }
++  try { milestoneProgress = readJson(path.join(ROOT, "state/shared/MILESTONE_PROGRESS.json")); }
++  catch { milestoneProgress = null; /* optional */ }
++  const envelopes = loadEnvelopes(path.join(ROOT, "mcp-server/data/milestones"));
++
++  const knownSet = buildKnownSet({ roadmapIndex, envelopes, milestoneProgress });
++  const { misc, excludedCompleted, excludedRoadmapped, stats } = extractMiscTasks(agentOutputs, knownSet);
++
++  const inventory = {
++    schemaVersion: SCHEMA_VERSION,
++    generatedAt: new Date().toISOString(),
++    provenance: {
++      method: "10-agent parallel scan of all PRISM chats + deterministic merge/dedupe/cross-reference",
++      scanAgents: AGENT_COUNT,
++      perAgent: agentOutputs.map((o) => ({ agent: o.agent, scannedCount: o.scannedCount ?? null, matchedFiles: o.matchedFiles ?? null, items: (o.items || []).length })),
++      envelopesCrossReferenced: envelopes.length,
++      advisoryOnly: true,
++      mustHumanVerify: true,
++      nextPhase: "DEFERRED follow-up: combine MISC-TASKS-INVENTORY into the unified roadmap (PRISM-UNIFIED-ROADMAP-v2.md / roadmap-index.json) after human review.",
++    },
++    stats,
++    items: misc,
++    excluded: {
++      completed: excludedCompleted.map((x) => ({ title: x.title, milestone_or_unit_id: x.milestone_or_unit_id })),
++      roadmapped: excludedRoadmapped.map((x) => ({ title: x.title, matched_known_id: x.matched_known_id })),
++    },
++  };
++
++  fs.writeFileSync(path.join(specsDir, "MISC-TASKS-INVENTORY.json"), JSON.stringify(inventory, null, 2));
++  fs.writeFileSync(path.join(specsDir, "MISC-TASKS-INVENTORY.md"), renderMarkdown(inventory));
++  fs.writeFileSync(path.join(specsDir, "MISC-TASKS-INVENTORY.html"), renderHtml(inventory));
++
++  if (args.json) {
++    console.log(JSON.stringify({ ok: true, ...stats }, null, 2));
++  } else {
++    console.log(`MISC-TASKS extraction complete:`);
++    console.log(`  raw ${stats.rawItems} → deduped ${stats.afterDedupe} → misc ${stats.finalMisc}`);
++    console.log(`  excluded: ${stats.excludedCompleted} completed, ${stats.excludedRoadmapped} already-roadmapped`);
++    console.log(`  KNOWN id set: ${stats.knownIdSetSize} · envelopes xref: ${envelopes.length}`);
++    console.log(`  wrote MISC-TASKS-INVENTORY.{json,md,html}`);
++  }
++  return 0;
++}
++
++const isMain = (() => {
++  try { return process.argv[1] && path.normalize(fs.realpathSync(process.argv[1])) === path.normalize(fileURLToPath(import.meta.url)); }
++  catch { return false; }
++})();
++if (isMain) process.exit(main());
+diff --git a/scripts/extract-misc-tasks.test.mjs b/scripts/extract-misc-tasks.test.mjs
+new file mode 100644
+index 000000000..7af827d2f
+--- /dev/null
++++ b/scripts/extract-misc-tasks.test.mjs
+@@ -0,0 +1,182 @@
++#!/usr/bin/env node
++/**
++ * extract-misc-tasks.test.mjs — node:test suite for the misc-tasks merge.
++ *
++ * Real-value assertions (CLAUDE.md R9): every test fails if the business
++ * logic changes — dedupe collapse counts, cross-ref drops, exclusion
++ * partitions are all checked against concrete fixture data.
++ */
++
++import test from "node:test";
++import assert from "node:assert/strict";
++import {
++  normalizeId, normalizeTitle, safeId, dedupeKey,
++  buildKnownSet, mergeGroup, extractMiscTasks, renderMarkdown, renderHtml,
++} from "./extract-misc-tasks.mjs";
++
++test("normalizeId — uppercase + trim, non-string → empty", () => {
++  assert.equal(normalizeId("  u-foo01 "), "U-FOO01");
++  assert.equal(normalizeId("CLEANUP-MS0"), "CLEANUP-MS0");
++  assert.equal(normalizeId(null), "");
++  assert.equal(normalizeId(undefined), "");
++  assert.equal(normalizeId(42), "");
++});
++
++test("normalizeTitle — alphanumeric words, collapsed", () => {
++  assert.equal(normalizeTitle("Wire FooEngine into prism_cam!"), "wire fooengine into prism cam");
++  assert.equal(normalizeTitle("  P0  bug:: getStore() "), "p0 bug getstore");
++  assert.equal(normalizeTitle(null), "");
++});
++
++test("safeId — non-alnum collapse + traversal guard", () => {
++  assert.equal(safeId("U-FOO/01"), "u-foo-01");
++  assert.equal(safeId("../../etc"), "etc");
++  assert.equal(safeId(".."), "x");
++  assert.equal(safeId(""), "x");
++  assert.equal(safeId("a..b"), "a-b");
++  assert.ok(safeId("x".repeat(200)).length <= 80);
++});
++
++test("dedupeKey — id-based when id present, else title-based", () => {
++  assert.equal(dedupeKey({ milestone_or_unit_id: "U-X1", title: "anything" }), "ID:U-X1");
++  assert.equal(dedupeKey({ milestone_or_unit_id: null, title: "Wire Foo" }), "T:wire foo");
++  assert.equal(dedupeKey({ title: "Wire Foo" }), "T:wire foo");
++  // Same id, different titles → same key (merges).
++  assert.equal(
++    dedupeKey({ milestone_or_unit_id: "u-x1", title: "phrasing A" }),
++    dedupeKey({ milestone_or_unit_id: "U-X1", title: "phrasing B" }));
++});
++
++test("buildKnownSet — unions milestone + unit ids from all 3 sources", () => {
++  const known = buildKnownSet({
++    roadmapIndex: { milestones: [{ id: "RM-MS0", units: [{ id: "U-RM1" }] }, { id: "RM-MS1" }] },
++    envelopes: [{ id: "ENV-MS0", units: [{ id: "U-ENV1" }, { id: "U-ENV2" }] }],
++    milestoneProgress: { milestones: { K: { id: "PROG-MS0", units: [{ id: "U-PROG1" }] } } },
++  });
++  assert.ok(known.has("RM-MS0"));
++  assert.ok(known.has("U-RM1"));
++  assert.ok(known.has("RM-MS1"));
++  assert.ok(known.has("ENV-MS0"));
++  assert.ok(known.has("U-ENV2"));
++  assert.ok(known.has("PROG-MS0"));
++  assert.ok(known.has("U-PROG1"));
++  assert.equal(known.has("U-NOTREAL"), false);
++  // 8 ids: RM-MS0, U-RM1, RM-MS1, ENV-MS0, U-ENV1, U-ENV2, PROG-MS0, U-PROG1.
++  assert.equal(known.size, 8);
++});
++
++test("buildKnownSet — tolerates missing/empty sources", () => {
++  assert.equal(buildKnownSet({}).size, 0);
++  assert.equal(buildKnownSet({ roadmapIndex: { milestones: [] }, envelopes: [], milestoneProgress: null }).size, 0);
++});
++
++test("mergeGroup — picks max-confidence base, unions sources, counts occurrences", () => {
++  const g = mergeGroup([
++    { title: "A", confidence: 0.4, source_path: "/p1", evidence: "short", suggested_domain: "mill", source_type: "transcript", _agent: 1 },
++    { title: "A better", confidence: 0.8, source_path: "/p2", evidence: "much longer evidence string", suggested_domain: "mill", source_type: "transcript", _agent: 3 },
++    { title: "A", confidence: 0.6, source_path: "/p1", evidence: "mid", _agent: 3 },
++  ]);
++  assert.equal(g.title, "A better");          // highest-confidence base
++  assert.equal(g.confidence, 0.8);
++  assert.equal(g.evidence, "much longer evidence string"); // longest
++  assert.equal(g.occurrences, 3);
++  assert.deepEqual(g.sources.sort(), ["/p1", "/p2"]);       // deduped union
++  assert.equal(g.source_count, 2);
++  assert.deepEqual(g.found_by_agents, [1, 3]);
++});
++
++test("mergeGroup — looks_completed is OR across the group", () => {
++  const g = mergeGroup([
++    { title: "A", confidence: 0.5, looks_completed: false },
++    { title: "A", confidence: 0.5, looks_completed: true },
++  ]);
++  assert.equal(g.looks_completed, true);
++});
++
++test("extractMiscTasks — dedupes, excludes completed + roadmapped, keeps orphans", () => {
++  const known = buildKnownSet({
++    envelopes: [{ id: "REAL-MS0", units: [{ id: "U-REAL1" }] }],
++  });
++  const agentOutputs = [
++    {
++      agent: 1,
++      items: [
++        // orphan, no id — must survive
++        { title: "Fix getStore data-loss P0 bug", milestone_or_unit_id: null, confidence: 0.9, source_path: "/t1", evidence: "P0 data loss", suggested_domain: "infra", source_type: "transcript", looks_completed: false },
++        // duplicate of an agent-2 item (same id) — must merge to ONE
++        { title: "Wire Foo orphan engine", milestone_or_unit_id: "U-ORPHAN9", confidence: 0.5, source_path: "/t2", evidence: "ev a", suggested_domain: "cam", source_type: "transcript", looks_completed: false },
++        // already in an envelope — must be excluded as roadmapped
++        { title: "Ship U-REAL1", milestone_or_unit_id: "U-REAL1", confidence: 0.7, source_path: "/t3", evidence: "pending", suggested_domain: "mill", source_type: "transcript", looks_completed: false },
++        // flagged completed — must be excluded
++        { title: "Already shipped thing", milestone_or_unit_id: null, confidence: 0.8, source_path: "/t4", evidence: "shipped", suggested_domain: "docs", source_type: "transcript", looks_completed: true },
++      ],
++    },
++    {
++      agent: 2,
++      items: [
++        { title: "Wire Foo engine (dup phrasing)", milestone_or_unit_id: "U-ORPHAN9", confidence: 0.65, source_path: "/h1", evidence: "ev b longer", suggested_domain: "cam", source_type: "handoff", looks_completed: false },
++      ],
++    },
++  ];
++
++  const { misc, excludedCompleted, excludedRoadmapped, stats } = extractMiscTasks(agentOutputs, known);
++
++  assert.equal(stats.rawItems, 5);
++  assert.equal(stats.afterDedupe, 4);          // U-ORPHAN9 pair collapsed
++  assert.equal(stats.excludedCompleted, 1);    // "Already shipped thing"
++  assert.equal(stats.excludedRoadmapped, 1);   // U-REAL1 in envelope
++  assert.equal(stats.finalMisc, 2);            // getStore bug + merged U-ORPHAN9
++
++  // The roadmapped exclusion records which known id matched.
++  assert.equal(excludedRoadmapped[0].matched_known_id, "U-REAL1");
++  assert.equal(excludedCompleted[0].title, "Already shipped thing");
++
++  // Orphan with no id survived.
++  assert.ok(misc.some((m) => m.title === "Fix getStore data-loss P0 bug"));
++  // Merged dup carries both sources and max confidence.
++  const merged = misc.find((m) => m.milestone_or_unit_id === "U-ORPHAN9");
++  assert.ok(merged, "U-ORPHAN9 orphan kept");
++  assert.equal(merged.occurrences, 2);
++  assert.equal(merged.confidence, 0.65);
++  assert.equal(merged.source_count, 2);
++
++  // Stable ids assigned, sorted by confidence desc.
++  assert.equal(misc[0].misc_id, "MISC-001");
++  assert.equal(misc[0].title, "Fix getStore data-loss P0 bug"); // 0.9 > 0.65
++  assert.ok(misc.every((m) => m.node_id.startsWith("ghost.misc.")));
++});
++
++test("extractMiscTasks — node_id collision gets a numeric suffix", () => {
++  const agentOutputs = [{
++    agent: 1,
++    items: [
++      { title: "Same Title", milestone_or_unit_id: null, confidence: 0.5, source_path: "/a", evidence: "x", suggested_domain: "other", source_type: "transcript", looks_completed: false },
++      { title: "Same Title!!!", milestone_or_unit_id: null, confidence: 0.4, source_path: "/b", evidence: "y", suggested_domain: "other", source_type: "transcript", looks_completed: false },
++    ],
++  }];
++  // Different normalized titles ("same title" vs "same title") — actually identical → would merge.
++  // Use genuinely distinct titles that safeId-collapse to the same fragment.
++  agentOutputs[0].items[1].title = "Same/Title";
++  const { misc } = extractMiscTasks(agentOutputs, new Set());
++  const ids = misc.map((m) => m.node_id);
++  assert.equal(new Set(ids).size, ids.length, "node_ids are unique");
++});
++
++test("renderMarkdown / renderHtml — produce non-empty output with the misc count", () => {
++  const inv = {
++    schemaVersion: "1.0.0",
++    generatedAt: "2026-05-16T00:00:00.000Z",
++    provenance: { nextPhase: "DEFERRED: combine into roadmap." },
++    stats: { rawItems: 5, afterDedupe: 4, excludedCompleted: 1, excludedRoadmapped: 1, finalMisc: 2, byDomain: { infra: 1, cam: 1 }, bySourceType: { transcript: 1, handoff: 1 } },
++    items: [
++      { misc_id: "MISC-001", title: "Fix bug", evidence: "e", source_type: "transcript", milestone_or_unit_id: null, suggested_domain: "infra", confidence: 0.9, occurrences: 1, node_id: "ghost.misc.fix-bug" },
++    ],
++  };
++  const md = renderMarkdown(inv);
++  assert.ok(md.includes("Final misc tasks: 2"));
++  assert.ok(md.includes("MISC-001"));
++  const html = renderHtml(inv);
++  assert.ok(html.includes("final misc 2"));
++  assert.ok(html.includes("MISC-001"));
++  assert.ok(html.startsWith("<!doctype html>"));
++});
+diff --git a/scripts/generate-misc-tasks-features.mjs b/scripts/generate-misc-tasks-features.mjs
+new file mode 100644
+index 000000000..7f715c001
+--- /dev/null
++++ b/scripts/generate-misc-tasks-features.mjs
+@@ -0,0 +1,153 @@
++#!/usr/bin/env node
++/**
++ * generate-misc-tasks-features.mjs — system-viz augmentation: the "misc tasks" roost.
++ *
++ * Spec: MISC-TASKS extraction (slot juliett, forge7, 2026-05-16).
++ *
++ * Reads `state/shared/specs/MISC-TASKS-INVENTORY.json` (produced by
++ * extract-misc-tasks.mjs) and emits a system-viz augmentation that adds:
++ *   - one parent "roost" node `ghost.misc_tasks` (kind ghost-roost), under
++ *     `ghost.planned_features` so it sits beside the stagnant-milestone ghosts.
++ *   - one `misc-task` child node per inventory item, parented to the roost.
++ *
++ * Output `state/shared/system-viz/misc-tasks-augmentation.json` is folded into
++ * system-graph.json by scripts/merge-augmentations.mjs. The generator is
++ * modeled on generate-stagnant-features.mjs (the canonical augmentation
++ * pattern) and is registered in scripts/regen-viz.mjs FAST[].
++ *
++ * Idempotency: re-running produces a byte-stable augmentation (deterministic
++ * from the inventory). merge-augmentations.mjs skips ids already in the graph,
++ * so a re-merge never duplicates a roost or task node.
++ *
++ * Usage:  node scripts/generate-misc-tasks-features.mjs
++ * Exit:   0 ok · 1 inventory missing · 2 runtime error
++ */
++
++import fs from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++export const ROOT = path.resolve(__dirname, "..");
++
++export const SCHEMA_VERSION = "1.0.0";
++/** Parent roost id for the misc-tasks subtree. */
++export const MISC_ROOST_ID = "ghost.misc_tasks";
++/** Grandparent — the existing planned-features ghost roost. */
++export const PLANNED_PARENT = "ghost.planned_features";
++export const ROOST_LAYER = "L8";
++export const TASK_LAYER = "L9";
++/** Max label length — matches the stagnant-features 80-char cap. */
++export const MAX_LABEL = 80;
++export const MAX_INFO_EVIDENCE = 160;
++
++const VIZ_DIR = path.join(ROOT, "state/shared/system-viz");
++const INVENTORY_PATH = path.join(ROOT, "state/shared/specs/MISC-TASKS-INVENTORY.json");
++const OUT_PATH = path.join(VIZ_DIR, "misc-tasks-augmentation.json");
++
++/**
++ * Pure: build {newNodes,newEdges,stats} from an inventory object.
++ *
++ * @param inventory       parsed MISC-TASKS-INVENTORY.json
++ * @param existingNodeIds optional Set/array of ids already in the graph; nodes
++ *                        whose id is present are skipped (defaults to empty —
++ *                        merge-augmentations.mjs is the authoritative dedupe).
++ */
++export function generate(inventory, existingNodeIds = []) {
++  const ids = existingNodeIds instanceof Set ? new Set(existingNodeIds) : new Set(existingNodeIds || []);
++  const items = inventory && Array.isArray(inventory.items) ? inventory.items : [];
++  const newNodes = [];
++  let roostEmitted = 0;
++
++  // ── parent roost ──
++  if (!ids.has(MISC_ROOST_ID)) {
++    newNodes.push({
++      id: MISC_ROOST_ID,
++      label: "Misc Tasks (orphaned incomplete work)",
++      layer: ROOST_LAYER,
++      ghost: true,
++      status: "ghost",
++      kind: "ghost-roost",
++      parent: PLANNED_PARENT,
++      info: `${items.length} orphaned incomplete tasks — identified across PRISM chats, never finished, never roadmapped. Advisory; see state/shared/specs/MISC-TASKS-INVENTORY.md.`,
++    });
++    ids.add(MISC_ROOST_ID);
++    roostEmitted = 1;
++  }
++
++  // ── one child per inventory item ──
++  let childrenEmitted = 0, childrenSkipped = 0;
++  for (const it of items) {
++    const id = it && typeof it.node_id === "string" ? it.node_id : null;
++    if (!id || ids.has(id)) { childrenSkipped++; continue; }
++    const title = String(it.title || "(untitled)").trim();
++    const conf = Number(it.confidence) || 0;
++    const occ = Number(it.occurrences) || 1;
++    newNodes.push({
++      id,
++      label: `${it.misc_id || "MISC"} · ${title}`.slice(0, MAX_LABEL),
++      layer: TASK_LAYER,
++      ghost: true,
++      status: "ghost",
++      kind: "misc-task",
++      parent: MISC_ROOST_ID,
++      info: `[${it.suggested_domain || "other"} · conf ${conf.toFixed(2)} · ${it.source_type || "?"}`
++        + `${occ > 1 ? ` · ${occ}x` : ""}`
++        + `${it.milestone_or_unit_id ? ` · ${it.milestone_or_unit_id}` : ""}] `
++        + String(it.evidence || "").slice(0, MAX_INFO_EVIDENCE),
++    });
++    ids.add(id);
++    childrenEmitted++;
++  }
++
++  return {
++    newNodes,
++    newEdges: [],
++    stats: { roostEmitted, inventoryItems: items.length, childrenEmitted, childrenSkipped },
++  };
++}
++
++export function main() {
++  if (!fs.existsSync(INVENTORY_PATH)) {
++    console.error(`FATAL: ${INVENTORY_PATH} missing — run scripts/extract-misc-tasks.mjs first`);
++    return 1;
++  }
++  let inventory;
++  try { inventory = JSON.parse(fs.readFileSync(INVENTORY_PATH, "utf8")); }
++  catch (e) { console.error(`FATAL: inventory parse failed — ${e.message}`); return 2; }
++
++  let result;
++  try {
++    // Idempotency is enforced at merge time (merge-augmentations.mjs skips
++    // existing ids); we deliberately do NOT parse the 324MB graph here.
++    const { newNodes, newEdges, stats } = generate(inventory, []);
++    result = {
++      schemaVersion: SCHEMA_VERSION,
++      generatedAt: new Date().toISOString(),
++      source: "state/shared/specs/MISC-TASKS-INVENTORY.json",
++      newNodes,
++      newEdges,
++      stats,
++    };
++  } catch (e) {
++    console.error(`FATAL: generate failed — ${e.message}`);
++    return 2;
++  }
++
++  try { fs.writeFileSync(OUT_PATH, JSON.stringify(result, null, 2)); }
++  catch (e) { console.error(`FATAL: write failed — ${e.message}`); return 2; }
++
++  console.log(`wrote ${OUT_PATH}`);
++  console.log(`  roost emitted:        ${result.stats.roostEmitted}`);
++  console.log(`  inventory items:      ${result.stats.inventoryItems}`);
++  console.log(`  task children:        ${result.stats.childrenEmitted}`);
++  console.log(`  skipped (existing):   ${result.stats.childrenSkipped}`);
++  console.log(`  total new nodes:      ${result.newNodes.length}`);
++  return 0;
++}
++
++const isMain = (() => {
++  try { return process.argv[1] && path.normalize(fs.realpathSync(process.argv[1])) === path.normalize(fileURLToPath(import.meta.url)); }
++  catch { return false; }
++})();
++if (isMain) process.exit(main());
+diff --git a/scripts/generate-misc-tasks-features.test.mjs b/scripts/generate-misc-tasks-features.test.mjs
+new file mode 100644
+index 000000000..47ced028a
+--- /dev/null
++++ b/scripts/generate-misc-tasks-features.test.mjs
+@@ -0,0 +1,116 @@
++#!/usr/bin/env node
++/**
++ * generate-misc-tasks-features.test.mjs — node:test suite.
++ *
++ * Real-value assertions (CLAUDE.md R9): roost/child counts, parent pointers,
++ * kind tags, idempotency and dedup are all checked against fixture inventories.
++ */
++
++import test from "node:test";
++import assert from "node:assert/strict";
++import {
++  generate, MISC_ROOST_ID, PLANNED_PARENT, ROOST_LAYER, TASK_LAYER, MAX_LABEL,
++} from "./generate-misc-tasks-features.mjs";
++
++const fixtureItem = (over = {}) => ({
++  misc_id: "MISC-001",
++  node_id: "ghost.misc.fix-foo",
++  title: "Fix foo bug",
++  evidence: "the foo bug",
++  source_type: "transcript",
++  milestone_or_unit_id: null,
++  suggested_domain: "infra",
++  confidence: 0.8,
++  occurrences: 1,
++  ...over,
++});
++
++test("generate — empty inventory emits the roost only", () => {
++  const { newNodes, newEdges, stats } = generate({ items: [] }, []);
++  assert.equal(newNodes.length, 1);
++  assert.equal(newEdges.length, 0);
++  const roost = newNodes[0];
++  assert.equal(roost.id, MISC_ROOST_ID);
++  assert.equal(roost.kind, "ghost-roost");
++  assert.equal(roost.parent, PLANNED_PARENT);
++  assert.equal(roost.layer, ROOST_LAYER);
++  assert.equal(roost.ghost, true);
++  assert.equal(stats.roostEmitted, 1);
++  assert.equal(stats.childrenEmitted, 0);
++});
++
++test("generate — one child per item, parented to the roost", () => {
++  const inv = { items: [fixtureItem(), fixtureItem({ misc_id: "MISC-002", node_id: "ghost.misc.wire-bar", title: "Wire bar" })] };
++  const { newNodes, stats } = generate(inv, []);
++  assert.equal(newNodes.length, 3);            // roost + 2 children
++  assert.equal(stats.childrenEmitted, 2);
++  const children = newNodes.filter((n) => n.kind === "misc-task");
++  assert.equal(children.length, 2);
++  for (const c of children) {
++    assert.equal(c.parent, MISC_ROOST_ID);
++    assert.equal(c.layer, TASK_LAYER);
++    assert.equal(c.ghost, true);
++    assert.equal(c.status, "ghost");
++  }
++  // child id is the inventory node_id verbatim
++  assert.ok(children.some((c) => c.id === "ghost.misc.fix-foo"));
++  assert.ok(children.some((c) => c.id === "ghost.misc.wire-bar"));
++});
++
++test("generate — label carries misc_id, info carries domain/conf/evidence", () => {
++  const { newNodes } = generate({ items: [fixtureItem()] }, []);
++  const child = newNodes.find((n) => n.kind === "misc-task");
++  assert.ok(child.label.startsWith("MISC-001 · Fix foo bug"));
++  assert.ok(child.info.includes("infra"));
++  assert.ok(child.info.includes("conf 0.80"));
++  assert.ok(child.info.includes("the foo bug"));
++});
++
++test("generate — long title is capped at MAX_LABEL", () => {
++  const { newNodes } = generate({ items: [fixtureItem({ title: "x".repeat(300) })] }, []);
++  const child = newNodes.find((n) => n.kind === "misc-task");
++  assert.ok(child.label.length <= MAX_LABEL);
++});
++
++test("generate — skips a child whose id is already in the graph", () => {
++  const inv = { items: [fixtureItem(), fixtureItem({ misc_id: "MISC-002", node_id: "ghost.misc.wire-bar" })] };
++  const { newNodes, stats } = generate(inv, new Set(["ghost.misc.fix-foo"]));
++  assert.equal(stats.childrenEmitted, 1);      // fix-foo skipped
++  assert.equal(stats.childrenSkipped, 1);
++  assert.ok(!newNodes.some((n) => n.id === "ghost.misc.fix-foo"));
++  assert.ok(newNodes.some((n) => n.id === "ghost.misc.wire-bar"));
++});
++
++test("generate — roost not re-emitted when already in the graph", () => {
++  const { newNodes, stats } = generate({ items: [fixtureItem()] }, new Set([MISC_ROOST_ID]));
++  assert.equal(stats.roostEmitted, 0);
++  assert.ok(!newNodes.some((n) => n.id === MISC_ROOST_ID));
++  assert.equal(stats.childrenEmitted, 1);      // children still emitted
++});
++
++test("generate — item with no node_id is skipped, not crashed", () => {
++  const inv = { items: [fixtureItem(), { misc_id: "MISC-BAD", title: "no node id" }] };
++  const { stats } = generate(inv, []);
++  assert.equal(stats.childrenEmitted, 1);
++  assert.equal(stats.childrenSkipped, 1);
++});
++
++test("generate — duplicate node_id within the inventory emitted once", () => {
++  const inv = { items: [fixtureItem(), fixtureItem({ misc_id: "MISC-002" })] }; // same node_id
++  const { stats } = generate(inv, []);
++  assert.equal(stats.childrenEmitted, 1);
++  assert.equal(stats.childrenSkipped, 1);
++});
++
++test("generate — idempotent: two runs produce identical output", () => {
++  const inv = { items: [fixtureItem(), fixtureItem({ misc_id: "MISC-002", node_id: "ghost.misc.wire-bar", title: "Wire bar" })] };
++  const a = generate(inv, []);
++  const b = generate(inv, []);
++  assert.deepEqual(a, b);
++});
++
++test("generate — tolerates missing/garbage inventory", () => {
++  assert.equal(generate(null, []).newNodes.length, 1);        // roost only
++  assert.equal(generate({}, []).newNodes.length, 1);
++  assert.equal(generate({ items: "nope" }, []).stats.inventoryItems, 0);
++});
+diff --git a/scripts/merge-augmentations.mjs b/scripts/merge-augmentations.mjs
+index 670101a59..9ea65b5cb 100644
+--- a/scripts/merge-augmentations.mjs
++++ b/scripts/merge-augmentations.mjs
+@@ -85,6 +85,7 @@ const galaxyConst    = loadOptional("galaxy-constituents-augmentation.json");
+ const knowledgeGal   = loadOptional("knowledge-galaxy-augmentation.json");
+ const layerBridges   = loadOptional("layer-bridges-augmentation.json");
+ const stagnantFeats  = loadOptional("stagnant-features-augmentation.json");
++const miscTasks      = loadOptional("misc-tasks-augmentation.json");
+ const engineGraph    = loadOptional("engine-graph-augmentation.json");
+ const hookBridges    = loadOptional("hook-bridges-augmentation.json");
+ const frontendPages  = loadOptional("frontend-pages-augmentation.json");
+@@ -147,6 +148,7 @@ if (galaxyConst)     versions.galaxyConst     = galaxyConst.generatedAt     ?? "
+ if (knowledgeGal)    versions.knowledgeGal    = knowledgeGal.generatedAt    ?? "present";
+ if (layerBridges)    versions.layerBridges    = layerBridges.generatedAt    ?? "present";
+ if (stagnantFeats)   versions.stagnantFeats   = stagnantFeats.generatedAt   ?? "present";
++if (miscTasks)       versions.miscTasks       = miscTasks.generatedAt       ?? "present";
+ if (engineGraph)     versions.engineGraph     = engineGraph.generatedAt     ?? "present";
+ if (hookBridges)     versions.hookBridges     = hookBridges.generatedAt     ?? "present";
+ if (frontendPages)   versions.frontendPages   = frontendPages.generatedAt   ?? "present";
+@@ -840,6 +842,36 @@ if (stagnantFeats?.newNodes && stagnantFeats?.newEdges) {
+   };
+ }
+ 
++// Misc-tasks roost: the "Misc Tasks" ghost parent + one misc-task child per
++// orphaned-incomplete-work item — work found across all PRISM chats that was
++// never finished and never formalized into a roadmap unit / milestone envelope.
++// Source: state/shared/specs/MISC-TASKS-INVENTORY.json via
++// scripts/generate-misc-tasks-features.mjs.
++let miscTaskNodes = 0, miscTaskEdges = 0;
++if (miscTasks?.newNodes) {
++  const existingIds = new Set(G.nodes.map(n => n.id));
++  for (const node of miscTasks.newNodes) {
++    if (existingIds.has(node.id)) continue;
++    G.nodes.push(node);
++    existingIds.add(node.id);
++    miscTaskNodes++;
++  }
++  G.edges ??= [];
++  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
++  const existingEdges = new Set(G.edges.map(edgeKey));
++  for (const edge of (miscTasks.newEdges || [])) {
++    const k = edgeKey(edge);
++    if (existingEdges.has(k)) continue;
++    G.edges.push(edge);
++    existingEdges.add(k);
++    miscTaskEdges++;
++  }
++  G.meta.miscTasks = {
++    generatedAt: miscTasks.generatedAt,
++    stats: miscTasks.stats,
++  };
++}
++
+ // Engine internal graph: 1.2k atomic engine L5 nodes (for engines with
+ // cross-import activity), real engine→engine import edges (active), plus
+ // ghost suggested-peer edges (status:ghost) for plausible bridges that
+@@ -1336,7 +1368,7 @@ G.schemaVersion = "2.29.0";
+ fs.writeFileSync(graphPath, JSON.stringify(G));
+ console.log(`merged augmentations into ${graphPath}`);
+ console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
+-console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
++console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  miscTasks: ${miscTaskNodes} nodes / ${miscTaskEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
+ console.log(`  L7-saturation: camVendor=${camVCNodes}n/${camVCEdges}e  tsRegEnt=${tsRENodes}n/${tsREEdges}e  physics=${phyANodes}n/${phyAEdges}e`);
+ console.log(`  L5-edges:      engineImp=${engineImpEdgeCount} new edges  testCov=${testCovEdgeCount} new edges`);
+ console.log(`  Phase 2:       jmDie=${jmDieNodes}n/${jmDieEdges}e  frontendDeep=${frontDNodes}n/${frontDEdges}e  wikiX=${wikiXNodes}n/${wikiXEdges}e  schemaEng=${schemaEdgeCount}e  enginePhys=${physEdgeCount}e`);
+diff --git a/scripts/regen-viz.mjs b/scripts/regen-viz.mjs
+index 472296481..f19230a69 100644
+--- a/scripts/regen-viz.mjs
++++ b/scripts/regen-viz.mjs
+@@ -36,6 +36,7 @@ const FAST = [
+   "generate-knowledge-galaxy.mjs",
+   "generate-layer-bridges.mjs",
+   "generate-stagnant-features.mjs",
++  "generate-misc-tasks-features.mjs",
+   "generate-engine-graph.mjs",
+   "generate-hook-bridges.mjs",
+   "generate-frontend-pages.mjs",
+diff --git a/state/shared/specs/MISC-TASKS-INVENTORY.html b/state/shared/specs/MISC-TASKS-INVENTORY.html
+new file mode 100644
+index 000000000..1703bcef7
+--- /dev/null
++++ b/state/shared/specs/MISC-TASKS-INVENTORY.html
+@@ -0,0 +1,1618 @@
++<!doctype html><html><head><meta charset="utf-8"><title>MISC-TASKS Inventory</title>
++<style>
++body{font:14px/1.5 system-ui,sans-serif;margin:2rem;background:#0f172a;color:#e2e8f0}
++h1{color:#38bdf8}.stat{display:inline-block;background:#1e293b;padding:.4rem .8rem;margin:.2rem;border-radius:6px}
++table{border-collapse:collapse;width:100%;margin-top:1rem}th,td{border:1px solid #334155;padding:.4rem .6rem;text-align:left}
++th{background:#1e293b;cursor:pointer}tr:nth-child(even){background:#1e293b55}
++button{background:#0ea5e9;border:0;color:#fff;padding:.2rem .5rem;border-radius:4px;cursor:pointer}
++td:nth-child(4){max-width:32rem}
++</style></head><body>
++<h1>MISC-TASKS Inventory — Orphaned Incomplete Work</h1>
++<p>Generated 2026-05-16T13:20:54.632Z · schemaVersion 1.0.0 · <b>advisory — human-verify before roadmap promotion</b></p>
++<div>
++<span class="stat">raw 522</span><span class="stat">deduped 417</span>
++<span class="stat">excl. completed 20</span><span class="stat">excl. roadmapped 79</span>
++<span class="stat" style="background:#0369a1">final misc 318</span>
++</div>
++<table id="t"><thead><tr><th>ID</th><th>Conf</th><th>Domain</th><th>Title</th><th>Unit/MS</th><th>Source</th><th>Seen</th><th></th></tr></thead>
++<tbody><tr data-conf="0.85" data-domain="cam">
++<td>MISC-001</td><td>0.85</td><td>cam</td>
++<td title="URGENT: camDispatcher.ts in INCONSISTENT STATE — case bodies for cam_hypermill_skill_* committed without enum/getter/singleton; Build is BROKEN">Complete U-CAM-HM-SKILLS-WIRE-01: camDispatcher.ts in INCONSISTENT/BROKEN state</td><td>CAM-EXHAUST-MS0/U-CAM-HM-SKILLS-WIRE-01</td>
++<td>handoff</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Complete U-CAM-HM-SKILLS-WIRE-01: camDispatcher.ts in INCONSISTENT/BROKEN state — URGENT: camDispatcher.ts in INCONSISTENT STATE — case bodies for cam_hypermill_skill_* committed without enum/getter/singleton; Build is BROKEN">copy</button></td></tr>
++<tr data-conf="0.85" data-domain="cam">
++<td>MISC-002</td><td>0.85</td><td>cam</td>
++<td title="NEXT = U-PPL-B2 (turnkey): wire prism_cam:program_optimize (mill+lathe) + prism_mill:mill_program_optimize; also fix silent close-out debt A1/B1 status undefined">Continue MS-PRINT-PROGRAM-LOOP Track D U-PPL-B2: wire program_optimize for mill+lathe</td><td>MS-PRINT-PROGRAM-LOOP/U-PPL-B2</td>
++<td>handoff</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Continue MS-PRINT-PROGRAM-LOOP Track D U-PPL-B2: wire program_optimize for mill+lathe — NEXT = U-PPL-B2 (turnkey): wire prism_cam:program_optimize (mill+lathe) + prism_mill:mill_program_optimize; also fix silent close-out debt A1/B1 status undefined">copy</button></td></tr>
++<tr data-conf="0.85" data-domain="hooks">
++<td>MISC-003</td><td>0.85</td><td>hooks</td>
++<td title="action-triple-sync.mjs hook is NOT yet wired into .claude/settings.json. The hook is tested and ready; activation requires adding it. 'Integration Pending' section.">Wire action-triple-sync.mjs PreToolUse hook into settings.json</td><td>W2-A</td>
++<td>transcript</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Wire action-triple-sync.mjs PreToolUse hook into settings.json — action-triple-sync.mjs hook is NOT yet wired into .claude/settings.json. The hook is tested and ready; activation requires adding it. 'Integration Pending' section.">copy</button></td></tr>
++<tr data-conf="0.85" data-domain="infra">
++<td>MISC-004</td><td>0.85</td><td>infra</td>
++<td title="Handed-off unit; docker-compose.yml exists but no docker/ subdir; spec says 'U-DOCKER-HOOK-BROKER not yet built'">U-DOCKER-HOOK-BROKER (Tier 1) — persistent prism-hooks container holding 50+ hooks warm; never built, blocks OBSIDIAN-INTELLIGENCE-MS3 Track A</td><td>U-DOCKER-HOOK-BROKER</td>
++<td>spec</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="U-DOCKER-HOOK-BROKER (Tier 1) — persistent prism-hooks container holding 50+ hooks warm; never built, blocks OBSIDIAN-INTELLIGENCE-MS3 Track A — Handed-off unit; docker-compose.yml exists but no docker/ subdir; spec says 'U-DOCKER-HOOK-BROKER not yet built'">copy</button></td></tr>
++<tr data-conf="0.85" data-domain="infra">
++<td>MISC-005</td><td>0.85</td><td>infra</td>
++<td title="Suggest a follow-up unit `U-XPROC-T10-PRISM-AI-WIRE` to backfill ... Want me to tackle that follow-up next, or stop here?">U-XPROC-T10-PRISM-AI-WIRE: backfill prism_ai dual-wiring for all 4 Tier-10 fusion engines (T10-01/02/03/04)</td><td>U-XPROC-T10-PRISM-AI-WIRE</td>
++<td>transcript</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="U-XPROC-T10-PRISM-AI-WIRE: backfill prism_ai dual-wiring for all 4 Tier-10 fusion engines (T10-01/02/03/04) — Suggest a follow-up unit `U-XPROC-T10-PRISM-AI-WIRE` to backfill ... Want me to tackle that follow-up next, or stop here?">copy</button></td></tr>
++<tr data-conf="0.85" data-domain="infra">
++<td>MISC-006</td><td>0.85</td><td>infra</td>
++<td title="U-BILL1: IN PROGRESS — 9 new actions added to businessDispatcher ACTIONS array. Switch cases NOT yet written. StripeBillingEngine lazy-load NOT yet added.">Wire StripeBillingEngine into businessDispatcher (completely orphaned engine)</td><td>U-BILL1</td>
++<td>transcript</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Wire StripeBillingEngine into businessDispatcher (completely orphaned engine) — U-BILL1: IN PROGRESS — 9 new actions added to businessDispatcher ACTIONS array. Switch cases NOT yet written. StripeBillingEngine lazy-load NOT yet added.">copy</button></td></tr>
++<tr data-conf="0.85" data-domain="lathe">
++<td>MISC-007</td><td>0.85</td><td>lathe</td>
++<td title="STILL TO DO Task #4: web test LatheCostPanel.test.tsx mirror EDM cost-panel test; +/cost route assertion in turning-edm-routes.test.ts">Finish Task #4 turning_cost_estimate: write LatheCostPanel.test.tsx web test</td><td>CALC-RESTORE-MS0</td>
++<td>handoff</td><td>2x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Finish Task #4 turning_cost_estimate: write LatheCostPanel.test.tsx web test — STILL TO DO Task #4: web test LatheCostPanel.test.tsx mirror EDM cost-panel test; +/cost route assertion in turning-edm-routes.test.ts">copy</button></td></tr>
++<tr data-conf="0.82" data-domain="infra">
++<td>MISC-008</td><td>0.82</td><td>infra</td>
++<td title="Cache store instances in getStore() — C1 from TS Architect. Without this, every flush creates a new empty InMemory store and data is lost. This is the most dangerous bug.">Fix getStore() data-loss bug — cache store instances so flush does not create empty InMemory store losing data (P0)</td><td>—</td>
++<td>transcript</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Fix getStore() data-loss bug — cache store instances so flush does not create empty InMemory store losing data (P0) — Cache store instances in getStore() — C1 from TS Architect. Without this, every flush creates a new empty InMemory store and data is lost. This is the most dangerous bug.">copy</button></td></tr>
++<tr data-conf="0.82" data-domain="infra">
++<td>MISC-009</td><td>0.82</td><td>infra</td>
++<td title="DEFERRED ITEMS: meta.exhaustiveAudit fold into merge-augmentations.mjs — data on disk, code not yet wired">Fold meta.exhaustiveAudit into merge-augmentations.mjs — data on disk, code not yet wired (DEFERRED)</td><td>—</td>
++<td>transcript</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Fold meta.exhaustiveAudit into merge-augmentations.mjs — data on disk, code not yet wired (DEFERRED) — DEFERRED ITEMS: meta.exhaustiveAudit fold into merge-augmentations.mjs — data on disk, code not yet wired">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="cam">
++<td>MISC-010</td><td>0.80</td><td>cam</td>
++<td title="Execute CAM-EXHAUST-MS3-04: hyperMILL setup module — 9 ops x ~110 params, v1_menus shape; foundational for all other modules">Build CAM-EXHAUST-MS3-04 hyperMILL setup module (9 ops, ~110 params)</td><td>CAM-EXHAUST-MS3-04</td>
++<td>handoff</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Build CAM-EXHAUST-MS3-04 hyperMILL setup module (9 ops, ~110 params) — Execute CAM-EXHAUST-MS3-04: hyperMILL setup module — 9 ops x ~110 params, v1_menus shape; foundational for all other modules">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="cam">
++<td>MISC-011</td><td>0.80</td><td>cam</td>
++<td title="Next unit: U-PPGMU14 ToolBreakDetect, then U-PPGMU15 StabilityHints — writePRISMToolBreakSetup at line 2278 likely unwired">Continue Multus PRISM-flag verifier sweep: U-PPGMU14 ToolBreakDetect + U-PPGMU15 StabilityHints</td><td>CAM-EXHAUST-MS0/U-PPGMU14</td>
++<td>handoff</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Continue Multus PRISM-flag verifier sweep: U-PPGMU14 ToolBreakDetect + U-PPGMU15 StabilityHints — Next unit: U-PPGMU14 ToolBreakDetect, then U-PPGMU15 StabilityHints — writePRISMToolBreakSetup at line 2278 likely unwired">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="cam">
++<td>MISC-012</td><td>0.80</td><td>cam</td>
++<td title="PRE-EXISTING FOLLOWUPS table: 4 pre-existing TS errors / brokenness flagged 'separate cleanup units', track under PPG-HARDEN">PPG-HARDEN U-PPGH01..U-PPGH05 — 28 pre-existing HurcoV11MillMasterPostEngine sync-path test failures (postSingle, UltiMotion G187, RPM warning prefix, physics_checks count, setup_sheet)</td><td>PPG-HARDEN</td>
++<td>resume-post</td><td>2x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="PPG-HARDEN U-PPGH01..U-PPGH05 — 28 pre-existing HurcoV11MillMasterPostEngine sync-path test failures (postSingle, UltiMotion G187, RPM warning prefix, physics_checks count, setup_sheet) — PRE-EXISTING FOLLOWUPS table: 4 pre-existing TS errors / brokenness flagged 'separate cleanup units', track under PPG-HARDEN">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="cam">
++<td>MISC-013</td><td>0.80</td><td>cam</td>
++<td title="Priority 1 NEXT ACTION: dispatcher cases do NOT pass verify_tier through; blocked by peer claim on camDispatcher.ts">verify_tier wiring for master_post_* cases in camDispatcher (DEFERRED to U-PPGM17d)</td><td>U-PPGM17d</td>
++<td>transcript</td><td>2x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="verify_tier wiring for master_post_* cases in camDispatcher (DEFERRED to U-PPGM17d) — Priority 1 NEXT ACTION: dispatcher cases do NOT pass verify_tier through; blocked by peer claim on camDispatcher.ts">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="docs">
++<td>MISC-014</td><td>0.80</td><td>docs</td>
++<td title="F2 (U-HIGHLIGHTS-ONLY) SKIPPED — spec-blocker: PDFKnowledgeIngestEngine.ts does NOT exist; recommend envelope edit">F2 U-HIGHLIGHTS-ONLY — SKIPPED: PDFKnowledgeIngestEngine.ts does not exist; spec says 'modify' but engine missing, true effort ~3hr CREATE-from-scratch</td><td>U-HIGHLIGHTS-ONLY</td>
++<td>chat-bus</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="F2 U-HIGHLIGHTS-ONLY — SKIPPED: PDFKnowledgeIngestEngine.ts does not exist; spec says 'modify' but engine missing, true effort ~3hr CREATE-from-scratch — F2 (U-HIGHLIGHTS-ONLY) SKIPPED — spec-blocker: PDFKnowledgeIngestEngine.ts does NOT exist; recommend envelope edit">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="infra">
++<td>MISC-015</td><td>0.80</td><td>infra</td>
++<td title="Remaining U-ARCH3 work (next session): Activate resolver calls in 7 remaining pipelines; Wire resolveMachine into machine context for all pipelines; Expand ISO keyword detection">Activate machine resolver calls in 7 remaining pipelines (U-ARCH3) + wire resolveMachine into machine context + expand ISO keyword detection</td><td>U-ARCH3</td>
++<td>transcript</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Activate machine resolver calls in 7 remaining pipelines (U-ARCH3) + wire resolveMachine into machine context + expand ISO keyword detection — Remaining U-ARCH3 work (next session): Activate resolver calls in 7 remaining pipelines; Wire resolveMachine into machine context for all pipelines; Expand ISO keyword detection">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="infra">
++<td>MISC-016</td><td>0.80</td><td>infra</td>
++<td title="REMAINING (next session): U-PERS3 (5/6): InvoicingEngine, TimeClockEngine, GeneralLedgerEngine, CustomerManagementEngine, PurchaseOrderEngine; FORGE-TRIPLE: hook + MCP action + skill">Complete persistence migration — U-PERS3 5/6 engines (InvoicingEngine, TimeClockEngine, GeneralLedgerEngine, CustomerManagementEngine, PurchaseOrderEngine) + FORGE-TRIPLE</td><td>U-PERS3</td>
++<td>transcript</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="Complete persistence migration — U-PERS3 5/6 engines (InvoicingEngine, TimeClockEngine, GeneralLedgerEngine, CustomerManagementEngine, PurchaseOrderEngine) + FORGE-TRIPLE — REMAINING (next session): U-PERS3 (5/6): InvoicingEngine, TimeClockEngine, GeneralLedgerEngine, CustomerManagementEngine, PurchaseOrderEngine; FORGE-TRIPLE: hook + MCP action + skill">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="infra">
++<td>MISC-017</td><td>0.80</td><td>infra</td>
++<td title="status=running iter=1/15 (baseline=1375 tsc errors / 372 files; cascade root-cause work just started)">fix all tsc errors + bugs + conflicts in PRISM (fork tsc-fix worktree)</td><td>—</td>
++<td>loop-state</td><td>1x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="fix all tsc errors + bugs + conflicts in PRISM (fork tsc-fix worktree) — status=running iter=1/15 (baseline=1375 tsc errors / 372 files; cascade root-cause work just started)">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="infra">
++<td>MISC-018</td><td>0.80</td><td>infra</td>
++<td title="v5 ~80% edited in working tree, needs ~7 localized edits + commit; 7 enumerated v5 changes (U-GC-11/13/14/17/29b, F42, footer)">GIT-TREE-REMEDIATION-MS0 — 23-unit git-tree cleanup roadmap (U-GC-00..22); 43GB .git, cad-fusion-live-ms0 unpushable 113MB blob, 4 unrelated histories; PLANNING status</td><td>GIT-TREE-REMEDIATION-MS0</td>
++<td>spec</td><td>3x</td>
++<td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="GIT-TREE-REMEDIATION-MS0 — 23-unit git-tree cleanup roadmap (U-GC-00..22); 43GB .git, cad-fusion-live-ms0 unpushable 113MB blob, 4 unrelated histories; PLANNING status — v5 ~80% edited in working tree, needs ~7 localized edits + commit; 7 enumerated v5 changes (U-GC-11/13/14/17/29b, F42, footer)">copy</button></td></tr>
++<tr data-conf="0.8" data-domain="infra">
++<td>MISC-019</td><td>0.80</td><td>infra</td>
++<td title="status=running iter=0/8 (loop never advanced past start)">orphan-rescue: wire unwired engines from ORPHAN-INVENTORY punch list</td><td>—</td>
++<td>loop-state</td><td>1x</td>
++<td><button onclick="navigator.clipboa
+
+... [truncated at 80000 bytes — full diff is 906934 bytes]
+--- END DIFF ---

@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "1.0.0",
+  "recipeId": "UPSET_OP1_5AX_2026-05-31",
+  "generatedAt": "2026-05-31",
+  "advisoryOnly": false,
+  "mustHumanVerify": true,
+  "author": "kilo (CAM)",
+  "source": { "kind": "live-capture", "ref": "state/shared/cam-drive/OP1-SETUP-PROGRESS.md + this session against PRISM_Fusion_Drive :18365" },
+  "units": "inch",
+  "bridgeUrl": "http://127.0.0.1:18365",
+  "project": {
+    "name": "UP SET",
+    "partFileId": "urn:adsk.wipprod:dm.lineage:EeJ2MQY3Qsu4W9X91m9mug",
+    "fixtureFileId": "urn:adsk.wipprod:dm.lineage:YwctopDrRAGb7hceRX_b7w",
+    "machine": "Okuma GENOS M460V-5AX",
+    "machineTemplate": "Generic5AxisTableTable",
+    "machineFileId": "urn:adsk.wipprod:dm.lineage:6Jq6ta9ZQGujWkeKQYq85A",
+    "material": "H13 annealed",
+    "isoGroup": "H",
+    "op": "Op-1 (top half + sides; leave bottom half + riser for Op-2)"
+  },
+  "inputs": {
+    "geometryProbe": "/cam/geometry-detail + /cam/feature-candidates",
+    "toolLibrary": "state/shared/cam-drive/upset-h13-bigplus-cat40-tools.json",
+    "fixtureGeometry": { "jawTopLipZ_in": 5.63, "jawCenterXY_in": [0, 0], "jawGapY_in": [-1.464, 1.464], "baseTopZ_in": 4.37 },
+    "physicsConstants": "mcp-server/src/physics/constants.ts",
+    "decisionRules": "state/shared/cam-drive/decision-rules.json"
+  },
+  "scrutinyGates": { "perFileShop": "S(x)>=0.98", "tier": "Omega>=0.95" },
+  "postProcessor": "H:/PRISM/JM DIE/POST PROCESSORS/2. PRISM ENHANCED/mill/okuma/OKUMA_M460V_5AX_PRISM_Enhanced_iMachining.cps",
+  "linkedAssets": ["jm-fusion-docs.json", "upset-h13-bigplus-cat40-tools.json", "decision-rules.json", "OP1-SETUP-PROGRESS.md"],
+  "steps": [
+    {
+      "stepId": 1, "stage": "doc_resolve", "name": "Resolve fixture working base", "status": "proven",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": null, "httpPath": "/data/file/open", "method": "POST" },
+      "bodyTemplate": { "file_id": "${project.fixtureFileId}" },
+      "decisionRuleRef": [],
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "gate_to_operator", "operatorPrompt": "Open the MATE fixture in Fusion (cloud-enumeration cap blocks API search)", "captureOutcome": true }
+    },
+    {
+      "stepId": 2, "stage": "doc_saveas", "name": "Save-As working copy (original untouched)", "status": "proven",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": null, "httpPath": "/doc/save-as", "method": "POST" },
+      "bodyTemplate": { "name": "${project.name} - OP1 - 5AX SETUP", "folder": "FIXTURE" },
+      "decisionRuleRef": [],
+      "verify": { "kind": "field_truthy", "path": "now_saved" },
+      "onFail": { "policy": "retry", "maxRetries": 1, "captureOutcome": true }
+    },
+    {
+      "stepId": 3, "stage": "part_insert", "name": "Insert part centered + seated with riser", "status": "proven",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": null, "httpPath": "/component/insert", "method": "POST" },
+      "bodyTemplate": { "file_id": "${project.partFileId}", "x_in": "${rule.place.center_bbox.tx}", "y_in": "${rule.place.center_bbox.ty}", "z_in": "${rule.place.seat_bottom_riser.tz}", "is_assembly_context": true },
+      "decisionRuleRef": ["place.center_bbox", "place.seat_bottom_riser"],
+      "verify": { "kind": "field_truthy", "path": "success", "note": "re-probe bbox after async cloud-ref resolve; expect Z[6.13,10.74]" },
+      "onFail": { "policy": "abort", "captureOutcome": true }
+    },
+    {
+      "stepId": 4, "stage": "stock_generate", "name": "Stock body over part (riser-aware fixed box)", "status": "planned",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_setup", "httpPath": "/cam/setup", "method": "POST" },
+      "bodyTemplate": { "mode": "fixed_box", "oversize_in": "${rule.stock.oversize}", "from": "part_bbox" },
+      "decisionRuleRef": ["stock.oversize"],
+      "verify": { "kind": "status_success", "path": "success" },
+      "onFail": { "policy": "abort", "captureOutcome": true },
+      "note": "Stock created as part of setup (stockMode fixed_box) OR a separate solid body via /execute; bottom at jaw-top-lip Z, NOT into riser."
+    },
+    {
+      "stepId": 5, "stage": "setup_create", "name": "CAM setup: 5-axis machine + models + fixtures + WCS", "status": "planned",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_setup", "httpPath": "/cam/setup", "method": "POST" },
+      "bodyTemplate": { "type": "milling", "name": "OP1 UP SET TOP 5AX", "machine_template": "Generic5AxisTableTable", "model_body_indices": ["${part_body}"], "fixtures": ["FIXTURE BASE", "JAW 1", "JAW 2"], "fixture_enabled": true, "wcs_origin": "${rule.wcs.stock_bottom_center}" },
+      "decisionRuleRef": ["wcs.stock_bottom_center"],
+      "gate": { "required": false, "system": "fusion360" },
+      "verify": { "kind": "field_truthy", "path": "setup_name" },
+      "onFail": { "policy": "abort", "captureOutcome": true }
+    },
+    {
+      "stepId": 6, "stage": "op_create", "name": "Face top", "status": "planned", "featureRef": "top_face(z=10.74)",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "face", "tool": "${rule.tool}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["strategy.by_feature", "tool.spindle_match", "tool.rank_costeff_mrr", "feed.kienzle", "feed.taylor_vc", "feed.chipload_rpm"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "face", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "gate_to_operator", "captureOutcome": true }
+    },
+    {
+      "stepId": 7, "stage": "op_create", "name": "3D adaptive rough (top half)", "status": "planned", "featureRef": "stock_above_parting",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "adaptive", "bottom_height_z_in": "${rule.parting.geometry_driven.partingZ}", "tool": "${rule.tool}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["parting.geometry_driven", "strategy.by_feature", "tool.rank_costeff_mrr", "feed.kienzle", "feed.deflection_clamp", "feed.chipload_rpm"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "adaptive", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "gate_to_operator", "operatorPrompt": "confirm parting plane Z=${rule.parting.geometry_driven.partingZ}", "captureOutcome": true }
+    },
+    {
+      "stepId": 8, "stage": "op_create", "name": "Rest rough", "status": "planned", "optional": true, "featureRef": "rest_material",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "adaptive", "rest_from_previous": true, "tool": "${rule.tool}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["tool.rank_costeff_mrr", "feed.chipload_rpm"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "adaptive", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "skip_if_optional", "captureOutcome": true }
+    },
+    {
+      "stepId": 9, "stage": "op_create", "name": "Bore Ø1.625 with BORING BAR (NOT slim endmill)", "status": "planned", "featureRef": "face41_bore_D1.625_vertical",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "bore", "tool": "${rule.tool.boring_bar}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["strategy.by_feature", "tool.spindle_match", "tool.rank_costeff_mrr", "feed.deflection_clamp"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "bore", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "gate_to_operator", "captureOutcome": true },
+      "note": "bore_large rule: Ø1.625 within boring-bar range; deflection_clamp critical on the ~3.57in-deep bore (L/D)."
+    },
+    {
+      "stepId": 10, "stage": "op_create", "name": "Multiaxis cross-bore Ø0.876 (angled)", "status": "planned", "featureRef": "face20_crossbore_axis[-0.819,0.574,0]",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "multiAxisContour", "tool_axis": "feature_normal", "tool": "${rule.tool}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["strategy.by_feature", "tool.rank_costeff_mrr", "feed.chipload_rpm"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "multiAxisContour", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "gate_to_operator", "captureOutcome": true }
+    },
+    {
+      "stepId": 11, "stage": "op_create", "name": "Multiaxis drill angled holes (Ø0.186-1.000)", "status": "planned", "featureRef": "compound_normal_holes",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "drill", "auto_recognize_holes": true, "tool": "${rule.tool}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["strategy.by_feature", "tool.spindle_match"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "drill", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "gate_to_operator", "captureOutcome": true }
+    },
+    {
+      "stepId": 12, "stage": "op_create", "name": "Finish walls + floors (to parting plane, NOT into riser)", "status": "planned", "featureRef": "side_walls",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "contour", "bottom_height_z_in": "${rule.parting.geometry_driven.partingZ}", "tolerance_in": 0.0005, "tool": "${rule.tool}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["parting.geometry_driven", "tool.rank_costeff_mrr", "feed.chipload_rpm", "feed.deflection_clamp"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "contour", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "gate_to_operator", "captureOutcome": true },
+      "note": "±.001 target -> tolerance 0.0005 (half-tol). Lower bound = partingZ; NEVER below part bottom Z6.13 (riser/jaw clearance)."
+    },
+    {
+      "stepId": 13, "stage": "op_create", "name": "Ball finish blended top faces", "status": "planned", "optional": true, "featureRef": "faces[27,31,37]_compound_normal",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "scallop", "tool": "${rule.tool.ball}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["strategy.by_feature", "tool.rank_costeff_mrr", "feed.chipload_rpm"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "scallop", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "skip_if_optional", "captureOutcome": true }
+    },
+    {
+      "stepId": 14, "stage": "op_create", "name": "Chamfer / edge break", "status": "planned", "optional": true, "featureRef": "edges",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_create_operation", "httpPath": "/cam/operation", "method": "POST" },
+      "bodyTemplate": { "operation_type": "chamfer2d", "tool": "${rule.tool.chamfer}", "raw_parameters": "${rule.feeds}" },
+      "decisionRuleRef": ["strategy.by_feature", "tool.spindle_match"],
+      "gate": { "required": true, "system": "fusion360", "catalogOperation": "chamfer2d", "allowUnknownParams": true },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "skip_if_optional", "captureOutcome": true }
+    },
+    {
+      "stepId": 15, "stage": "toolpath_generate", "name": "Generate all toolpaths", "status": "planned",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_generate_toolpath", "httpPath": "/cam/toolpath", "method": "POST" },
+      "bodyTemplate": { "scope": "all" },
+      "decisionRuleRef": [],
+      "verify": { "kind": "job_complete", "path": "job.status", "timeoutMs": 180000 },
+      "onFail": { "policy": "retry", "maxRetries": 1, "captureOutcome": true }
+    },
+    {
+      "stepId": 16, "stage": "safety_validate", "name": "Pre-post safety gate (S(x)>=0.98)", "status": "planned",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_gate", "httpPath": null, "method": "POST" },
+      "bodyTemplate": { "system": "fusion360", "scope": "all_operations" },
+      "decisionRuleRef": ["gate.catalog_validate"],
+      "gate": { "required": true, "system": "fusion360" },
+      "verify": { "kind": "field_equals", "path": "clearedToActuate", "expected": true },
+      "onFail": { "policy": "abort", "captureOutcome": true }
+    },
+    {
+      "stepId": 17, "stage": "post", "name": "Post Okuma NC", "status": "planned",
+      "endpoint": { "dispatcher": "prism_cam", "dispatcherAction": "cam_drive_post", "httpPath": "/cam/post", "method": "POST" },
+      "bodyTemplate": { "program_name": "O1001", "post_config": "${postProcessor}", "output_folder": "C:/Users/wompu/AppData/Local/Temp/prism-gcode", "unit_option": "inch" },
+      "decisionRuleRef": [],
+      "gate": { "required": true, "system": "fusion360" },
+      "verify": { "kind": "field_truthy", "path": "success" },
+      "onFail": { "policy": "abort", "captureOutcome": true }
+    }
+  ]
+}

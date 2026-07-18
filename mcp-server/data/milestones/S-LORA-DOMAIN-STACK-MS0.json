@@ -1,0 +1,32 @@
+{
+  "id": "S-LORA-DOMAIN-STACK-MS0",
+  "title": "S-LoRA dynamic-load registry — 13 per-domain LoRA adapters serving from one base model",
+  "track": "TRAINING",
+  "status": "pending",
+  "owner": "papa",
+  "rationale": "Each of the 13 domain chats fine-tunes its own LoRA on its domain corpus. Without S-LoRA (Sheng 2024) you'd need 13 base-model checkpoints in GPU memory — infeasible. S-LoRA holds one base + N small adapters and swaps adapters per request. Critical for fleet-wide serving from a single qwen2.5-coder:7b base.",
+  "estimated_duration": "1.5 weeks",
+  "total_units": 7,
+  "completed_units": 0,
+  "units": [
+    {"id": "SLR-01", "title": "S-LoRA adapter registry — state/shared/training/lora/registry.json", "status": "pending", "owner_slot": "papa"},
+    {"id": "SLR-02", "title": "Adapter file format spec (safetensors r=16, alpha=32, target_modules canonical)", "status": "pending", "owner_slot": "papa"},
+    {"id": "SLR-03", "title": "SLoRAEngine — load(adapterId) + unload(adapterId) + listLoaded()", "status": "pending", "owner_slot": "papa"},
+    {"id": "SLR-04", "title": "Inference router — route(domain) → load adapter → serve query → return", "status": "pending", "owner_slot": "papa"},
+    {"id": "SLR-05", "title": "Unified-paging memory allocator (compact adapter weights into GPU page-aligned blocks)", "status": "pending", "owner_slot": "papa"},
+    {"id": "SLR-06", "title": "prism_ai:slora_route dispatcher action", "status": "pending", "owner_slot": "papa"},
+    {"id": "SLR-07", "title": "Benchmark — 13 adapters loaded, serve cross-domain query, latency p95 < 500ms", "status": "pending", "owner_slot": "papa"}
+  ],
+  "exit_gate": {
+    "thirteen_adapters_loaded": "all 13 domain LoRAs simultaneously resident on a single base",
+    "memory_fit": "total VRAM use < base + 13 * 256MB (typical LoRA size)",
+    "swap_latency_ms": "adapter swap < 50ms p95",
+    "serving_throughput": "≥ 10 req/sec across mixed-domain workload"
+  },
+  "depends_on": ["AI-STACK-PER-DOMAIN-MS0", "HGT-MIGRATION-MS0"],
+  "summary": "Dynamic-load LoRA adapter stack. One base model + 13 domain adapters resident, swap per request. Foundation for serving the full-fleet self-improving loop from a single GPU.",
+  "references": [
+    "reference_psn_r4_deep_stack_2026_05_25 — R4 § Optimizers/training tricks",
+    "Sheng et al. 2024 — S-LoRA: Serving Thousands of Concurrent LoRA Adapters"
+  ]
+}

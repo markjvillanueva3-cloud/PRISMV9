@@ -301,7 +301,19 @@ export class MillDeepLearningEngine {
     } catch {
       return null;
     }
+    // Read-then-delegate so the file-based and content-based parse paths are ONE
+    // (U-PPL-B2). filePath flows through for customer / proven-flag provenance.
+    return this.learnFromContent(content, filePath);
+  }
 
+  /**
+   * Learn from raw NC program CONTENT directly (no file read). Sibling of
+   * learnFromProgram(filePath); filePath is optional and used only for the
+   * customer / proven-flag provenance and the returned file_path field. Always
+   * returns a (possibly degenerate, empty-operations) result -- never null --
+   * since there is no file read here to fail.
+   */
+  async learnFromContent(content: string, filePath = ""): Promise<ProgramLearningResult | null> {
     const lines = content.split(/\r?\n/);
     const customer = this.extractCustomer(filePath);
     const isProven = filePath.toLowerCase().includes("proven");

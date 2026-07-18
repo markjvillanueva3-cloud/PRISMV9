@@ -433,11 +433,28 @@ export function detectDrift(window, newWidth, widenPctThreshold) {
   };
 }
 
-/** Append an event row. Returns true on success, false on I/O failure. */
+/**
+ * Append an event row in the CANONICAL shape the offline consumer
+ * (blueprint-accuracy-consumer-lib.applyEvents) routes by: top-level `type`
+ * + `ts` + `payload`. This hook builds events keyed by `kind`; map kind->type
+ * and nest the remaining fields under `payload`, so a written row routes via
+ * KNOWN_EVENT_TYPES (drift_observation / replay_add / outcome_record /
+ * predlog_pair / ewc_consolidate) instead of silently dropping to the
+ * consumer's `unknown` bucket (the divergence U-BPA-GUARD-EVENTSHAPE closes;
+ * R7 align-the-divergent-writer). Idempotent: an event that already carries a
+ * top-level `type` keeps it. Event SHAPE only -- the hard-block decision is
+ * computed upstream from drift state, never from the written row.
+ * Returns true on success, false on I/O failure.
+ */
 export function appendEvent(eventsFile, event) {
   try {
     mkdirSync(dirname(eventsFile), { recursive: true });
-    const row = JSON.stringify({ ts: new Date().toISOString(), ...event });
+    const { kind, type, ts: evTs, ...rest } = event ?? {};
+    const row = JSON.stringify({
+      type: type ?? kind,
+      ts: evTs ?? new Date().toISOString(),
+      payload: rest,
+    });
     appendFileSync(eventsFile, row + "\n", "utf8");
     return true;
   } catch {

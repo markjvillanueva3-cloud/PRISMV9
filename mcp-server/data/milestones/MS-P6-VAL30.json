@@ -1,0 +1,306 @@
+{
+  "id": "MS-P6-VAL30",
+  "title": "WEDM 30-Part Validation Suite (absorbs WEDM-UNIFIED M6)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P6",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "supersedes": [
+    "WEDM-UNIFIED M6"
+  ],
+  "philosophy": "27/30 (≥90%) correct programs. Each validated part produces a WEDM_JOB_HISTORY entry feeding P4 LoRA. Each failure triggers P5 explanation engine to surface nearest-neighbor precedent.",
+  "total_units": 8,
+  "completed_units": 0,
+  "sessions": 3,
+  "dependencies": [
+    "MS-P3-TIER6A",
+    "MS-P3-TIER6B",
+    "MS-P4-DL-CORE",
+    "MS-P4-DL-PRED",
+    "MS-P5-GNN"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.04,
+  "knowledge_sources": {
+    "engines": [
+      "WEDMValidationHarnessEngine (to build)",
+      "WEDMJobOutcomeEngine (P4)",
+      "WEDMReasoningExplainEngine (P5)"
+    ],
+    "formulas": [
+      "(inherited P1-P5)"
+    ],
+    "tribal": [
+      "JM Die 30-part validation set selection rules"
+    ],
+    "reference": [
+      "WEDM-UNIFIED-ROADMAP.md M6",
+      "H:/PRISM/JM DIE/WIRE EDM/**"
+    ]
+  },
+  "smart_config": {
+    "role": "WireEDMValidationEngineer",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/wedm-preflight",
+    "/wedm-cite",
+    "/wedm-learn",
+    "/wedm-reason",
+    "/physics-verify",
+    "/test",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-WEVA01",
+      "U-WEVA02",
+      "U-WEVA03"
+    ],
+    "session_2": [
+      "U-WEVA04",
+      "U-WEVA05",
+      "U-WEVA06"
+    ],
+    "session_3": [
+      "U-WEVA07",
+      "U-WEVA08"
+    ],
+    "compact_checkpoints": [
+      "after U-WEVA03",
+      "after U-WEVA06"
+    ]
+  },
+  "units": [
+    {
+      "id": "U-WEVA01",
+      "title": "WEDMValidationHarnessEngine + validate parts 1-10 (D2/M2 simple blanks)",
+      "files_created": [
+        "mcp-server/src/engines/WEDMValidationHarnessEngine.ts",
+        "mcp-server/src/__tests__/fixtures/wedm-val-001..010.json",
+        "state/shared/WEDM_VAL30_RESULTS.json"
+      ],
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "< 9/10 parts pass Tier 1-2 criteria",
+        "wedm-production-gate safe:false"
+      ],
+      "rollback": "git checkout engine && rm -f fixtures/wedm-val-00[1-9].json wedm-val-010.json",
+      "exit_criteria": [
+        "≥ 9/10 parts produce Zod-valid program",
+        "every pass writes WEDM_JOB_HISTORY entry",
+        "prism_edm:wedm_verify_quality action surfaces (BUILD claimed here)",
+        "≥ 10 test cases"
+      ],
+      "description": "WEDMValidationHarnessEngine + validate parts 1-10 (D2/M2 simple blanks) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-WEVA02",
+      "title": "Validate parts 11-15 (S7/A2 at 20-40mm)",
+      "exit_criteria": [
+        "≥ 5/5 pass (bonus)",
+        "each failure triggers /wedm-reason explanation",
+        "WEDM_JOB_HISTORY grows by 5"
+      ],
+      "description": "Validate parts 11-15 (S7/A2 at 20-40mm) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-WEVA03",
+      "title": "Validate parts 16-20 (multi-pass D2 with taper)",
+      "exit_criteria": [
+        "≥ 4/5 pass",
+        "each failure emits nearest-neighbor precedent via P5",
+        "toolpath-length-mm within ±10% of JM Die reference"
+      ],
+      "description": "Validate parts 16-20 (multi-pass D2 with taper) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-WEVA04",
+      "title": "Validate parts 21-23 (Tier 5 threading)",
+      "exit_criteria": [
+        "≥ 2/3 pass",
+        "G41/G42 present",
+        "thread geometry Zod-valid"
+      ],
+      "description": "Validate parts 21-23 (Tier 5 threading) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-WEVA05",
+      "title": "Validate parts 24-26 (Tier 6A progressive die)",
+      "exit_criteria": [
+        "≥ 2/3 pass",
+        "stagger math reconciles",
+        "wedm-tier6-geom-gate passes"
+      ],
+      "description": "Validate parts 24-26 (Tier 6A progressive die) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-WEVA06",
+      "title": "Validate parts 27-28 (Tier 6B PCD spline broach)",
+      "exit_criteria": [
+        "≥ 1/2 pass",
+        "wedm-pcd-conductivity-gate passes",
+        "/physics-verify clean"
+      ],
+      "description": "Validate parts 27-28 (Tier 6B PCD spline broach) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-WEVA07",
+      "title": "Validate parts 29-30 (edge cases: 150mm slab, 0.05mm wire)",
+      "exit_criteria": [
+        "≥ 1/2 pass OR clean failure with explanation",
+        "failure case generates ≥3 correct recommendations"
+      ],
+      "exit_conditions": [
+        "≥ 1/2 pass OR clean failure with explanation",
+        "failure case generates ≥3 correct recommendations",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "Validate parts 29-30 (edge cases: 150mm slab, 0.05mm wire) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-WEVA08",
+      "title": "Lock regression suite + /wedm-validate skill",
+      "files_created": [
+        "mcp-server/src/__tests__/WEDM_VAL30_REGRESSION.test.ts",
+        "~/.claude/commands/wedm-validate.md"
+      ],
+      "exit_criteria": [
+        "27/30 (≥ 90%) cumulative pass rate",
+        "regression locked into CI",
+        "/wedm-validate skill available (BUILD claimed)",
+        "WEDM_JOB_HISTORY ≥ 30 entries"
+      ],
+      "description": "Lock regression suite + /wedm-validate skill — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-production-gate",
+      "description": "CONSUMED from MS-P2-GAPFILL"
+    },
+    "action": {
+      "name": "prism_edm:wedm_verify_quality",
+      "built_in": "U-WEVA01",
+      "note": "BUILD ownership CLAIMED here (prior WEDM-UNIFIED M6 only DECLARED)"
+    },
+    "skill": {
+      "name": "/wedm-validate",
+      "built_in": "U-WEVA08",
+      "note": "BUILD ownership CLAIMED here"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "27/30 (≥ 90%) correct",
+      "WEDM_JOB_HISTORY ≥ 30 entries",
+      "regression suite locked into CI",
+      "production readiness ≥ 85",
+      "machinist-acceptance",
+      "BASELINE_INVENTORY re-verified"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+4%"
+  },
+  "feature_cascade": {
+    "new_hooks": [],
+    "new_actions": [
+      "prism_edm:wedm_verify_quality"
+    ],
+    "new_skills": [
+      "/wedm-validate"
+    ],
+    "available_to": [
+      "P7",
+      "P9",
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM 30-Part Validation Suite (absorbs WEDM-UNIFIED M6) per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

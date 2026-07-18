@@ -12,26 +12,31 @@ export type WorkspaceRecoveryMetric = {
 };
 
 export interface WorkspaceRecoveryScaffoldProps {
-  eyebrow: string;
+  // 2026-05-27 iter25: relaxed to support the simpler MachineDataAuditPage-style
+  // call site that only passes title+subtitle+children. Defaults fall through to
+  // empty arrays / pass-through strings so the simpler call site still renders.
+  eyebrow?: string;
   title: string;
-  description: string;
+  subtitle?: string;
+  description?: string;
   surfaces?: ProviderSurfaceId[];
-  metrics: WorkspaceRecoveryMetric[];
-  aiSummary: string;
-  aiContext: Record<string, unknown>;
-  suggestions: WorkspaceCopilotSuggestion[];
+  metrics?: WorkspaceRecoveryMetric[];
+  aiSummary?: string;
+  aiContext?: Record<string, unknown>;
+  suggestions?: WorkspaceCopilotSuggestion[];
   children: ReactNode;
 }
 
 export function WorkspaceRecoveryScaffold({
-  eyebrow,
+  eyebrow = '',
   title,
-  description,
+  subtitle,
+  description = '',
   surfaces = [],
-  metrics,
-  aiSummary,
-  aiContext,
-  suggestions,
+  metrics = [],
+  aiSummary = '',
+  aiContext = {},
+  suggestions = [],
   children,
 }: WorkspaceRecoveryScaffoldProps) {
   return (

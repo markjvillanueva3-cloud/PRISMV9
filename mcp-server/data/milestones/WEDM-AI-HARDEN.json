@@ -1,0 +1,88 @@
+{
+  "id": "WEDM-AI-HARDEN",
+  "title": "Wire EDM AI Reasoning Hardening",
+  "track": "WEDM",
+  "status": "complete",
+  "completed_at": "2026-04-14",
+  "total_units": 6,
+  "completed_units": 6,
+  "units": [
+    {
+      "id": "WEDM-AI-U1",
+      "title": "Add WEDM domains to AIReasoningDomain",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 6 WEDM/EDM domains: wedm_wire_selection, wedm_pulse_optimization, wedm_pass_strategy, wedm_flushing, wedm_surface_integrity, edm_general"
+    },
+    {
+      "id": "WEDM-AI-U2",
+      "title": "Create DOMAIN_PROMPTS for WEDM domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added Claude Opus-level expert prompts for each WEDM domain referencing Klocke, Kunieda, DiBitonto, Carslaw-Jaeger, Puertas-Luis, and Toenshoff physics models"
+    },
+    {
+      "id": "WEDM-AI-U3",
+      "title": "Wire WEDM to manufacturingDomains for tribal synthesis",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added all 6 WEDM/EDM domains to manufacturingDomains array enabling tribal knowledge injection during AI reasoning"
+    },
+    {
+      "id": "WEDM-AI-U4",
+      "title": "Integrate PRISMIntelligenceLayer into WEDMCompleteOrchestrationEngine",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/WEDMCompleteOrchestrationEngine.ts"
+      ],
+      "details": "Added getWEDMAIReasoning() and collectAIRecommendations() methods. Wired AI reasoning collection into 30-stage pipeline after material assessment. Added ai_recommendations to WEDMOrchestrationResult interface."
+    },
+    {
+      "id": "WEDM-AI-U5",
+      "title": "AI recommendations for key WEDM decisions",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/WEDMCompleteOrchestrationEngine.ts"
+      ],
+      "details": "AI reasoning now collected for: wire_selection, pulse_optimization, pass_strategy, flushing, surface_integrity. Synthesis report generated with recommendations and safety warnings."
+    },
+    {
+      "id": "WEDM-AI-U6",
+      "title": "WEDM-AI hardening test suite",
+      "status": "complete",
+      "files_created": [
+        "src/__tests__/wedm-ai-hardening.test.ts"
+      ],
+      "details": "21 tests covering: WEDM domain prompts, tribal synthesis, orchestration AI integration, safety considerations, and physics formula references in AI reasoning"
+    }
+  ],
+  "exit_gate": {
+    "tests_passing": 21,
+    "wedm_domains_registered": 6,
+    "domain_prompts_created": 6,
+    "tribal_synthesis_enabled": true,
+    "orchestration_ai_integrated": true
+  },
+  "integration_points": {
+    "PRISMIntelligenceLayer": "6 WEDM domains + prompts + tribal synthesis injection",
+    "WEDMCompleteOrchestrationEngine": "collectAIRecommendations(), getWEDMAIReasoning(), ai_recommendations in result",
+    "TribalKnowledgeEngine": "WEDM domains now trigger tribal synthesis during AI reasoning",
+    "PRISMUnifiedOrchestratorEngine": "synthesizeTribalForTask works with WEDM domain context"
+  },
+  "physics_references": {
+    "klocke_ra": "Ra = k_ra × I_p^α × t_on^β — wedm_pulse_optimization, wedm_pass_strategy prompts",
+    "dibitonto_crater": "d_crater = K1 × E^(1/3) — wedm_pulse_optimization prompt",
+    "kunieda_mrr": "MRR = η × E_pulse × f_rep / ρ / (cp×ΔT + Lm) — wedm_pulse_optimization, wedm_flushing prompts",
+    "carslaw_jaeger_recast": "d_recast = 2√(α × t_on) — wedm_pulse_optimization, wedm_surface_integrity prompts",
+    "toenshoff_cascade": "E_n = E_rough × γ^(n-1) — wedm_pulse_optimization, wedm_pass_strategy prompts",
+    "puertas_luis_ra": "Ra = C_ra × I_p^α × t_on^β — wedm_pass_strategy prompt",
+    "wire_deflection": "δ = F × L / (4T) — wedm_pass_strategy prompt"
+  },
+  "summary": "Hardened Wire EDM with deep AI reasoning integration. PRISMIntelligenceLayer now supports 6 WEDM/EDM domains with Claude Opus-level expert prompts referencing canonical EDM physics (Klocke, Kunieda, DiBitonto, Carslaw-Jaeger). WEDMCompleteOrchestrationEngine collects AI recommendations for wire selection, pulse optimization, pass strategy, flushing, and surface integrity. Tribal knowledge is now injected for all WEDM AI reasoning. 21 tests verify the integration."
+}

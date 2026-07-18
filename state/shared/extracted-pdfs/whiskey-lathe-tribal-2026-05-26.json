@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-26T19:01:13.376Z",
+  "source": "whiskey lathe-PDF extraction pass 2026-05-26",
+  "domain": "lathe",
+  "cross_domain": [
+    "milling"
+  ],
+  "pdf_provenance": [
+    "knowledge/wiki/lessons/pdf-extract-cnc-lathe-programming-for-turning.md",
+    "knowledge/wiki/lessons/pdf-extract-cnc-lathe-programming-cnc-lathe-programming-uploaded.md",
+    "knowledge/wiki/lessons/pdf-extract-inventorcam2024-turning-mill-turn-training-course.md",
+    "knowledge/wiki/lessons/pdf-extract-using-your-mill-cam-for-the-lathe-and-turning-g-code-sneaky-trick-cnccookbook-be.md",
+    "knowledge/wiki/lessons/pdf-extract-using-if-and-goto-for-a-poor-man-s-g71-lathe-roughing-cycle-cnccookbook-be-a-bet.md",
+    "knowledge/wiki/lessons/pdf-extract-autodesk-cncbook.md",
+    "knowledge/wiki/lessons/pdf-extract-iscar-grade-chart.md",
+    "knowledge/wiki/lessons/pdf-extract-tungaloy-grade-2023.md",
+    "knowledge/wiki/lessons/pdf-extract-walter-tigertec-gold-wpp.md",
+    "knowledge/wiki/lessons/pdf-extract-tungaloy-ah725.md",
+    "knowledge/wiki/lessons/pdf-extract-sumitomo-ac5000s.md",
+    "knowledge/wiki/lessons/pdf-extract-sumitomo-ac8000p.md",
+    "knowledge/wiki/lessons/pdf-extract-ingersoll-turning-cat011.md",
+    "knowledge/wiki/lessons/pdf-extract-ingersoll-insert-master.md"
+  ],
+  "notes": "Lathe G-code canned-cycle reference + axis convention atoms. Promotion path: needs curation against actual lesson sections; bump confidence to >=0.7 + needs_curation:false after operator validation.",
+  "g_code_tips": [
+    {
+      "code": "G18",
+      "topic": "plane-select",
+      "body": "ZX plane select (default on Fanuc/Haas lathe). Always G18 for turning before any arc move."
+    },
+    {
+      "code": "G50",
+      "topic": "spindle-cap",
+      "body": "Maximum spindle RPM cap for constant-surface-speed mode. Prevents overspeed at small diameters."
+    },
+    {
+      "code": "G71",
+      "topic": "canned-rough",
+      "body": "Stock-removal canned cycle (OD/ID roughing). Two-line form: G71 U<DOC> R<retract>; G71 P<start> Q<end> U<radial-stock> W<axial-stock> F<feed>."
+    },
+    {
+      "code": "G72",
+      "topic": "canned-rough",
+      "body": "Facing canned cycle — same shape as G71 but operates in the X direction (facing) instead of Z."
+    },
+    {
+      "code": "G73",
+      "topic": "canned-pattern",
+      "body": "Pattern repeating cycle — for forging/casting blanks that already have rough OD shape."
+    },
+    {
+      "code": "G76",
+      "topic": "canned-thread",
+      "body": "Single-point threading canned cycle. Handles depth-per-pass and pull-out automatically."
+    },
+    {
+      "code": "G96",
+      "topic": "constant-surface-speed",
+      "body": "Constant surface speed mode (CSS). Spindle RPM ramps to hold Vc as workpiece diameter changes during facing."
+    },
+    {
+      "code": "G97",
+      "topic": "rpm-mode",
+      "body": "Constant RPM mode (cancels G96). Required for drilling, threading, parting at center."
+    }
+  ],
+  "axis_conventions": {
+    "X": "diametral OR radial (controller-dependent — Fanuc default diametral, Okuma can be either). G code uses workpiece-relative; programmer flag set on control.",
+    "Z": "parallel to spindle axis. Positive toward tailstock (away from chuck).",
+    "C": "spindle as a rotary axis on live-tool / mill-turn lathes — synchronized with feed for off-center features."
+  },
+  "confidence": 0.55,
+  "needs_curation": true
+}

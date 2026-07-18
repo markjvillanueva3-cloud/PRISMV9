@@ -1,0 +1,594 @@
+{
+  "id": "ULT-MS1",
+  "version": "1.0.0",
+  "title": "Live Shop Execution Core",
+  "brief": "Turn the canonical shop domain into a production execution core for traveler scans, department check-ins, concurrent labor timers, quantity actuals, and live room fanout so the app can operate as the shop's real-time source of truth.",
+  "created_at": "2026-03-27T18:10:00Z",
+  "created_by": "codex-rgs-forge-triple",
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Execution Engines + Transport",
+      "description": "Build the live traveler, labor, quantity, and realtime fanout core that powers shop-floor execution.",
+      "sessions": "1-2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Traveler execution + concurrent labor timer engines",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 88,
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "completeness"
+            }
+          ],
+          "entry_conditions": [
+            "ULT-MS0 canonical job, traveler, and live-event contracts are available.",
+            "Department check-in, task start/stop, and quantity actual rules are documented."
+          ],
+          "exit_conditions": [
+            "Traveler scans, department handoffs, task assignment, and concurrent labor sessions flow through dedicated engines.",
+            "The execution engines produce analytics-ready events instead of UI-local state.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the new execution engines and restore the seeded UI-only tracker flow.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement traveler progression, duplicate scan detection, department check-in, and quantity actual logic as backend-owned services.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_sp:review"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Add concurrent labor timers that support fast mobile start, pause, stop, reassignment, and analytics capture across overlapping tasks.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_validate:completeness"
+              ],
+              "validation": "A single employee can hold multiple active sessions without corrupting traveler or cost state."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/TravelerExecutionEngine.ts",
+              "type": "source",
+              "description": "Traveler scan, department handoff, and duplicate-check orchestration.",
+              "line_count_est": 280
+            },
+            {
+              "path": "src/engines/ConcurrentLaborTimerEngine.ts",
+              "type": "source",
+              "description": "Multi-task labor timer orchestration for mobile-first shop-floor execution.",
+              "line_count_est": 260
+            }
+          ],
+          "estimated_minutes": 170,
+          "description": "Traveler execution + concurrent labor timer engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Shop-floor routes + realtime gateway",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 84,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_bridge",
+              "action": "route_map"
+            },
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            }
+          ],
+          "entry_conditions": [
+            "Execution engines expose canonical mutations and snapshots.",
+            "The websocket room model for jobs, departments, and employees is defined."
+          ],
+          "exit_conditions": [
+            "Dedicated shop-floor routes exist for scan, check-in, task timer, and quantity actual mutations.",
+            "Realtime fanout publishes job, department, and employee room updates from one gateway.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the shopFloor route surface and revert consumers to the older ERP-only route bundle.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Expose HTTP mutations for traveler scan, department check-in, task start or pause or stop, and quantity actual capture.",
+              "tool_calls": [
+                "prism_bridge:route_map",
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Fan the resulting events through a realtime gateway so every open job desk and employee device stays synchronized.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_sp:build"
+              ],
+              "validation": "Every mutation emits a matching room event with the canonical job or employee identifiers."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/routes/shopFloor.ts",
+              "type": "source",
+              "description": "HTTP route surface for scan, check-in, timer, and quantity actual mutations.",
+              "line_count_est": 240
+            },
+            {
+              "path": "src/engines/ShopRealtimeGateway.ts",
+              "type": "source",
+              "description": "Room-based live fanout for job, department, and employee updates.",
+              "line_count_est": 180
+            }
+          ],
+          "estimated_minutes": 150,
+          "description": "Shop-floor routes + realtime gateway — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Dispatcher + analytics contract alignment",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "coverage"
+            }
+          ],
+          "entry_conditions": [
+            "The shop-floor API and realtime gateway are functioning against canonical state.",
+            "Actual cost and employee tracking data sources are identified."
+          ],
+          "exit_conditions": [
+            "Dispatchers and analytics payloads can access scan, labor, quantity, and route state without bespoke adapters.",
+            "Shop execution data is usable by quote variance, cost, and throughput analytics surfaces.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Undo dispatcher wiring and return analytics consumers to previous seeded data paths.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Update dispatcher surfaces to expose execution-core actions for scan, labor, quantity, and live status lookup.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_validate:coverage"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Align actual-cost and analytics payloads with the new execution contracts so downstream dashboards can consume them directly.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "Analytics inputs can distinguish estimated, actual, concurrent, and extra-quantity values per operation."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/tools/dispatchers/realtimeDispatcher.ts",
+              "type": "source",
+              "description": "Dispatcher extensions for live shop execution actions and room queries.",
+              "line_count_est": 120
+            },
+            {
+              "path": "src/engines/ActualCostEngine.ts",
+              "type": "source",
+              "description": "Actual cost integration with concurrent labor and quantity actual inputs.",
+              "line_count_est": 80
+            }
+          ],
+          "estimated_minutes": 120,
+          "description": "Dispatcher + analytics contract alignment — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.82,
+        "ralph_required": true,
+        "custom_checks": [
+          "Duplicate scans are rejected or idempotent across HTTP and websocket flows.",
+          "Concurrent labor sessions never orphan traveler, employee, or cost state."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Idempotency",
+        "Realtime coherence",
+        "Analytics provenance"
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Forge-Triple Execution Surfaces",
+      "description": "Package the execution core into operator-facing command surfaces and guard it with hooks and integration tests.",
+      "sessions": "1",
+      "primary_role": "R7",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Shop-floor scan command + execution template",
+          "phase": "P2",
+          "sequence": 4,
+          "role": "R7",
+          "role_name": "Prompt Engineer",
+          "model": "opus-4.6",
+          "effort": 86,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "tools": [
+            {
+              "tool": "prism_skill_script",
+              "action": "skill_search"
+            },
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            }
+          ],
+          "entry_conditions": [
+            "Execution routes and events are stable enough to expose to operators.",
+            "The team wants a repeatable command surface for scans and live status checks."
+          ],
+          "exit_conditions": [
+            "A slash-command style doc exists for scan and check-in workflows.",
+            "A reusable template captures the canonical execution payloads and event expectations.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Delete the command and template artifacts and rely on raw API docs only.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write a shop scan command doc that covers traveler scan, department check-in, live status, and duplicate handling.",
+              "tool_calls": [
+                "prism_skill_script:skill_search",
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Create a forge-triple template that future units can reuse for execution-core prompts, payloads, and room expectations.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "The command doc and template reference the same canonical route and event names."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/shop-scan.md",
+              "type": "doc",
+              "description": "Slash-command style operator guide for live traveler scanning and check-in.",
+              "line_count_est": 110
+            },
+            {
+              "path": "data/templates/ultimate-app/prism-shop-floor-execution.md",
+              "type": "doc",
+              "description": "Forge-triple execution template for shop-floor payloads, live events, and prompts.",
+              "line_count_est": 90
+            }
+          ],
+          "estimated_minutes": 70,
+          "description": "Shop-floor scan command + execution template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Duplicate-scan guard + integration proof",
+          "phase": "P2",
+          "sequence": 5,
+          "role": "R4",
+          "role_name": "Verifier",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": [
+            "P2-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_review",
+              "action": "run"
+            }
+          ],
+          "entry_conditions": [
+            "The operator-facing command surface exists.",
+            "The shop-floor transport surface is ready for end-to-end validation."
+          ],
+          "exit_conditions": [
+            "A guard detects duplicate or contradictory scan transitions before they corrupt state.",
+            "Integration coverage proves scan, timer, and quantity flows emit stable live updates.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable the new guard and restore the prior integration suite if false positives block execution.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement a duplicate traveler scan guard that distinguishes safe repeats from invalid state transitions.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Add an integration proof for scan, timer, and quantity flows with websocket fanout and analytics payload assertions.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_review:run"
+              ],
+              "validation": "The integration suite proves idempotent duplicate handling and live update propagation."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/duplicateTravelerScanGuard.ts",
+              "type": "source",
+              "description": "Hook-style duplicate and contradiction guard for traveler scan transitions.",
+              "line_count_est": 100
+            },
+            {
+              "path": "src/__tests__/shopFloorExecution.integration.test.ts",
+              "type": "test",
+              "description": "Integration proof for traveler scan, labor timer, and quantity actual live flows.",
+              "line_count_est": 220
+            }
+          ],
+          "estimated_minutes": 110,
+          "description": "Duplicate-scan guard + integration proof — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.84,
+        "ralph_required": true,
+        "custom_checks": [
+          "Every operator-facing command references a real route and event contract.",
+          "Integration coverage proves duplicate-scan protection and live fanout."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Operator usability",
+        "Guard fidelity",
+        "Integration completeness"
+      ]
+    }
+  ],
+  "total_units": 5,
+  "total_sessions": "2-3",
+  "dependency_graph": "ULT-MS0 -> ULT-MS1; P1-U01 -> P1-U02 -> P1-U03 -> P2-U01 -> P2-U02",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 88
+    },
+    {
+      "code": "R4",
+      "name": "Verifier",
+      "model": "opus-4.6",
+      "effort": 90
+    },
+    {
+      "code": "R6",
+      "name": "Integrator",
+      "model": "sonnet-4.6",
+      "effort": 82
+    },
+    {
+      "code": "R7",
+      "name": "Prompt Engineer",
+      "model": "opus-4.6",
+      "effort": 86
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_sp",
+      "phases": [
+        "P1",
+        "P2"
+      ],
+      "purpose": "Implement engines, routes, commands, and tests"
+    },
+    {
+      "tool": "prism_bridge",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Align transport and dispatcher surfaces"
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Check coverage and canonical contract completeness"
+    },
+    {
+      "tool": "prism_review",
+      "phases": [
+        "P2"
+      ],
+      "purpose": "Run forge-triple review on the guard and integration proof"
+    }
+  ],
+  "existing_leverage": [
+    {
+      "asset": "src/engines/TimeClockEngine.ts",
+      "type": "engine",
+      "usage": "Timer semantics and employee clock state"
+    },
+    {
+      "asset": "src/engines/ActualCostEngine.ts",
+      "type": "engine",
+      "usage": "Downstream cost rollups and actual-versus-estimate analysis"
+    },
+    {
+      "asset": "src/engines/WebSocketEngine.ts",
+      "type": "engine",
+      "usage": "Live room transport"
+    },
+    {
+      "asset": "web/src/pages/JobsPage.tsx",
+      "type": "frontend",
+      "usage": "Dispatch desk consumer of live execution state"
+    }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 6,
+    "convergence_rule": "delta < 2",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 92
+  },
+  "scrutiny_log": "state/ULT-MS1/scrutiny-log.json",
+  "position_file": "state/ULT-MS1/position.json",
+  "state_dir": "state/ULT-MS1",
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms1-gate",
+    "mcp_action": "prism_ult:ult_ms1_run",
+    "skill_command": "/ult-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms1-gate"
+    ],
+    "new_actions": [
+      "ult_ms1_run"
+    ],
+    "new_skills": [
+      "/ult-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Turn the canonical shop domain into a production execution core for traveler scans, department check-ins, concurrent labor timers, quantity actuals, and live room fanout so the app can operate as the shop's real-time source of truth.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

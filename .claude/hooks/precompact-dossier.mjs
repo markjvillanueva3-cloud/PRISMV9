@@ -26,13 +26,13 @@ function ensureDir(dir) {
 
 function captureGitState() {
   try {
-    const status = execSync("git -C H:/prism status --short 2>/dev/null", { encoding: "utf-8" }).trim();
-    const branch = execSync("git -C H:/prism branch --show-current 2>/dev/null", { encoding: "utf-8" }).trim();
-    const lastCommit = execSync("git -C H:/prism log -1 --oneline 2>/dev/null", { encoding: "utf-8" }).trim();
+    const status = execSync("git -C H:/prism status --short 2>/dev/null", { windowsHide: true, encoding: "utf-8" }).trim();
+    const branch = execSync("git -C H:/prism branch --show-current 2>/dev/null", { windowsHide: true, encoding: "utf-8" }).trim();
+    const lastCommit = execSync("git -C H:/prism log -1 --oneline 2>/dev/null", { windowsHide: true, encoding: "utf-8" }).trim();
 
     const uncommittedFiles = status.split("\n").filter(Boolean).length;
     const diff = uncommittedFiles > 0
-      ? execSync("git -C H:/prism diff --stat 2>/dev/null", { encoding: "utf-8" }).slice(0, 5000)
+      ? execSync("git -C H:/prism diff --stat 2>/dev/null", { windowsHide: true, encoding: "utf-8" }).slice(0, 5000)
       : "";
 
     return {

@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "timestamp": "2026-05-02T19:06:55.957Z",
+  "version": "1.0.0",
+  "subsystems": [
+    {
+      "name": "Materials",
+      "category": "data",
+      "entities": 3,
+      "dimensions": 8,
+      "variability": 24,
+      "wired_pct": 85,
+      "reachable": 20.4,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Tools",
+      "category": "data",
+      "entities": 95608,
+      "dimensions": 10,
+      "variability": 956080,
+      "wired_pct": 40,
+      "reachable": 382432,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Machines",
+      "category": "data",
+      "entities": 910,
+      "dimensions": 14,
+      "variability": 12740,
+      "wired_pct": 60,
+      "reachable": 7644,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Tribal Tips",
+      "category": "data",
+      "entities": 11566,
+      "dimensions": 2,
+      "variability": 23132,
+      "wired_pct": 30,
+      "reachable": 6939.6,
+      "growth_since_last": -652
+    },
+    {
+      "name": "Handbooks",
+      "category": "intelligence",
+      "entities": 0,
+      "dimensions": 11,
+      "variability": 0,
+      "wired_pct": 45,
+      "reachable": 0,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Formulas",
+      "category": "physics",
+      "entities": 499,
+      "dimensions": 5,
+      "variability": 2495,
+      "wired_pct": 70,
+      "reachable": 1746.5,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Algorithms",
+      "category": "physics",
+      "entities": 212,
+      "dimensions": 4,
+      "variability": 848,
+      "wired_pct": 55,
+      "reachable": 466.4,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Strategies",
+      "category": "physics",
+      "entities": 762,
+      "dimensions": 8,
+      "variability": 6096,
+      "wired_pct": 50,
+      "reachable": 3048,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Engines",
+      "category": "pipeline",
+      "entities": 2911,
+      "dimensions": 3,
+      "variability": 8733,
+      "wired_pct": 65,
+      "reachable": 5676.45,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Dispatchers",
+      "category": "pipeline",
+      "entities": 94,
+      "dimensions": 1,
+      "variability": 94,
+      "wired_pct": 90,
+      "reachable": 84.6,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Actions",
+      "category": "pipeline",
+      "entities": 2700,
+      "dimensions": 1,
+      "variability": 2700,
+      "wired_pct": 85,
+      "reachable": 2295,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Pipelines",
+      "category": "output",
+      "entities": 9,
+      "dimensions": 50,
+      "variability": 450,
+      "wired_pct": 100,
+      "reachable": 450,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Dialects",
+      "category": "output",
+      "entities": 20,
+      "dimensions": 38,
+      "variability": 760,
+      "wired_pct": 80,
+      "reachable": 608,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Tests",
+      "category": "intelligence",
+      "entities": 2876,
+      "dimensions": 3,
+      "variability": 8628,
+      "wired_pct": 100,
+      "reachable": 8628,
+      "growth_since_last": 6
+    }
+  ],
+  "pipelines": [
+    {
+      "name": "PrintToProgram",
+      "stages": 12,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines",
+        "strategies"
+      ],
+      "physics_formulas_used": 15,
+      "controller_dialects": 20,
+      "reachability_score": 0.9
+    },
+    {
+      "name": "Turning",
+      "stages": 10,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines"
+      ],
+      "physics_formulas_used": 12,
+      "controller_dialects": 20,
+      "reachability_score": 0.74
+    },
+    {
+      "name": "MultiAxis",
+      "stages": 14,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines",
+        "strategies"
+      ],
+      "physics_formulas_used": 18,
+      "controller_dialects": 15,
+      "reachability_score": 0.91
+    },
+    {
+      "name": "MillTurn",
+      "stages": 16,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines",
+        "strategies"
+      ],
+      "physics_formulas_used": 20,
+      "controller_dialects": 12,
+      "reachability_score": 0.92
+    },
+    {
+      "name": "EDM",
+      "stages": 8,
+      "registries_connected": [
+        "materials",
+        "machines"
+      ],
+      "physics_formulas_used": 6,
+      "controller_dialects": 6,
+      "reachability_score": 0.38
+    },
+    {
+      "name": "Grinding",
+      "stages": 10,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines"
+      ],
+      "physics_formulas_used": 8,
+      "controller_dialects": 6,
+      "reachability_score": 0.52
+    },
+    {
+      "name": "Laser",
+      "stages": 8,
+      "registries_connected": [
+        "materials",
+        "machines"
+      ],
+      "physics_formulas_used": 5,
+      "controller_dialects": 7,
+      "reachability_score": 0.37
+    },
+    {
+      "name": "Waterjet",
+      "stages": 8,
+      "registries_connected": [
+        "materials",
+        "machines"
+      ],
+      "physics_formulas_used": 5,
+      "controller_dialects": 6,
+      "reachability_score": 0.36
+    },
+    {
+      "name": "QuoteToShip",
+      "stages": 21,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines"
+      ],
+      "physics_formulas_used": 10,
+      "controller_dialects": 1,
+      "reachability_score": 0.51
+    }
+  ],
+  "total_entities": 118170,
+  "total_dimensions": 1022780,
+  "total_variability": 1022780,
+  "total_reachable": 420038.95,
+  "svi_log10": 44.76,
+  "svi_display": "5.7 × 10^44",
+  "psi_reachability": 0.411,
+  "psi_display": "41.1%",
+  "previous_svi_log10": 44.77,
+  "svi_delta": -0.01,
+  "trend": "shrinking",
+  "watch_areas": [
+    {
+      "name": "Materials registry",
+      "target": "H:/prism/mcp-server/data/materials",
+      "subsystem_hint": "Materials",
+      "fingerprint": "904c39ddcefef0725c882e1fe731b002c532e78c",
+      "entries": 3,
+      "latest_mtime_ms": 1771112806000
+    },
+    {
+      "name": "Tools registry",
+      "target": "H:/prism/mcp-server/data/tools",
+      "subsystem_hint": "Tools",
+      "fingerprint": "missing",
+      "entries": 0,
+      "latest_mtime_ms": 0
+    },
+    {
+      "name": "Machines registry",
+      "target": "H:/prism/mcp-server/data/machines",
+      "subsystem_hint": "Machines",
+      "fingerprint": "missing",
+      "entries": 0,
+      "latest_mtime_ms": 0
+    },
+    {
+      "name": "Formula catalog",
+      "target": "H:/prism/mcp-server/data/quick-ref.json",
+      "subsystem_hint": "Formulas",
+      "fingerprint": "8d7fc69d4003b0202d5200a3b903b9c7505c1953",
+      "entries": 1,
+      "latest_mtime_ms": 1776646910480.7527
+    },
+    {
+      "name": "Algorithms source",
+      "target": "H:/prism/mcp-server/src/algorithms",
+      "subsystem_hint": "Algorithms",
+      "fingerprint": "58bff4ab54aabf2776b7863092a21080a17785a7",
+      "entries": 53,
+      "latest_mtime_ms": 1777669395579.9834
+    },
+    {
+      "name": "Engines source",
+      "target": "H:/prism/mcp-server/src/engines",
+      "subsystem_hint": "Engines",
+      "fingerprint": "06945ce97cc1f86930c532e3b83c939fa918ea29",
+      "entries": 3087,
+      "latest_mtime_ms": 1777727986856.414
+    },
+    {
+      "name": "Dispatcher source",
+      "target": "H:/prism/mcp-server/src/tools/dispatchers",
+      "subsystem_hint": "Dispatchers",
+      "fingerprint": "b14c4a6220c9e217096c135c292ea50890dfb32b",
+      "entries": 97,
+      "latest_mtime_ms": 1777691357714.7363
+    },
+    {
+      "name": "Route surface",
+      "target": "H:/prism/mcp-server/src/routes",
+      "subsystem_hint": "Actions and pipeline reachability",
+      "fingerprint": "75f932d0bf921c1993cbbba419d1b83664ee5373",
+      "entries": 72,
+      "latest_mtime_ms": 1777294083090.2632
+    },
+    {
+      "name": "Schema surface",
+      "target": "H:/prism/mcp-server/src/schemas",
+      "subsystem_hint": "Actions and payload coverage",
+      "fingerprint": "eaa511e1ea2a289c740765a3dc04efde36fe0124",
+      "entries": 312,
+      "latest_mtime_ms": 1777681007389.3242
+    },
+    {
+      "name": "Database schema",
+      "target": "H:/prism/mcp-server/src/db/schema.sql",
+      "subsystem_hint": "Data entities and revision lineage",
+      "fingerprint": "e9106c6a2f4d87c51a1521dcfdbc5c0e72b4ee93",
+      "entries": 1,
+      "latest_mtime_ms": 1773621148000
+    },
+    {
+      "name": "Roadmap action index",
+      "target": "H:/prism/mcp-server/data/roadmap-index.json",
+      "subsystem_hint": "Actions",
+      "fingerprint": "695da7e9ddc4ece91d39b79d4330418432e431c9",
+      "entries": 1,
+      "latest_mtime_ms": 1777669395555.449
+    },
+    {
+      "name": "Handbook consumer matrix",
+      "target": "H:/prism/mcp-server/data/docs/HANDBOOK_CONSUMER_MATRIX.json",
+      "subsystem_hint": "Handbooks",
+      "fingerprint": "fc0f9cf2d7e10917f0a52d6e9a1695b5ce975153",
+      "entries": 1,
+      "latest_mtime_ms": 1774809150000
+    }
+  ],
+  "drift_status": {
+    "checked_at": "2026-05-02T19:06:59.769Z",
+    "stale": false,
+    "changed_areas": [],
+    "reasons": [],
+    "coverage_alerts": []
+  },
+  "counts": {
+    "materials": 3,
+    "tools": 95608,
+    "machines": 910,
+    "formulas": 499,
+    "algorithms": 212,
+    "strategies": 762,
+    "engines": 2911,
+    "dispatchers": 94,
+    "actions": 2700,
+    "pipelines": 9,
+    "dialects": 20,
+    "tests": 2876,
+    "tribal_tips": 11566,
+    "handbooks": 0
+  }
+}

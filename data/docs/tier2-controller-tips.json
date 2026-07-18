@@ -1,0 +1,209 @@
+[
+  {
+    "id": "ctrl-040",
+    "category": "controller",
+    "subcategory": "mitsubishi-m800",
+    "title": "Mitsubishi M800/M80 SSS-4G high-speed high-accuracy control",
+    "content": "The Mitsubishi M800/M80 series uses a dedicated CNC CPU with SSS 4th-generation (SSS-4G) control for high-speed, high-accuracy machining. Unlike Fanuc where you tune parameters for surface finish vs speed tradeoffs, SSS-4G handles this automatically. Key difference from Fanuc: all features are included as standard — no optional packages needed. Use the Interactive Cycle Insertion (ICI) system for conversational programming of turning processes (turning, grooving, threading, copying). The M800 supports M2/M0 format programming which closely mirrors Fanuc syntax but includes Mitsubishi-specific G codes for helical interpolation, cylindrical interpolation, and exponential interpolation not found in base Fanuc. SD card slot allows large program storage without DNC streaming.",
+    "applies_to": { "controllers": ["Mitsubishi M80", "Mitsubishi M800", "Mitsubishi M850W", "Mitsubishi M80V", "Mitsubishi M800VW"], "machines": ["MHI", "Citizen"] },
+    "tags": ["controller", "mitsubishi", "SSS-4G", "high-speed", "ICI"]
+  },
+  {
+    "id": "ctrl-041",
+    "category": "controller",
+    "subcategory": "mitsubishi-m800",
+    "title": "Mitsubishi M800 multi-axis multi-part system for turn-mill",
+    "content": "The M800/M80 series significantly improved multi-axis, multi-part system control over its predecessors. When programming multi-turret turn-mill machines (common on MHI and Citizen platforms), the controller manages superimposed axis control natively. Conversational programming, tool measurement, and work coordinate system shift are enhanced for lathe systems. The M800W (separated type) is used for larger multi-axis machines while M80 (integrated type) suits standard configurations. Always verify macro variable ranges — Mitsubishi uses #100-#199 for local variables and #500-#999 for common variables, which differ from Fanuc's #100-#149/#500-#531 defaults.",
+    "applies_to": { "controllers": ["Mitsubishi M80", "Mitsubishi M800", "Mitsubishi M800VW"], "machines": ["MHI", "Citizen"] },
+    "tags": ["controller", "mitsubishi", "multi-axis", "turn-mill", "macro-variables"]
+  },
+  {
+    "id": "ctrl-042",
+    "category": "controller",
+    "subcategory": "citizen-cincom",
+    "title": "Citizen Cincom superimposed and synchronized axis control",
+    "content": "Citizen's Cincom control (typically Mitsubishi Meldas or Fanuc based) features two patented capabilities critical for swiss lathe programming: (1) Superimposed Operation — Z1 axis motion overlaps Z2 axis motion so X2/Z2 machining runs independently from X1/Z1 operations. (2) Synchronized Control — multiple machining functions performed simultaneously with two axes programmed in conjunction. Use G-codes G610 ($1 independently), G620 (ID-OD simultaneously), G630 (front/back parallel machining), G650 (pick-off mode) to control these modes. WinCNC software allows editing 3 program editors on screen simultaneously for faster multi-channel programming.",
+    "applies_to": { "controllers": ["Citizen Cincom M70", "Citizen Cincom M70V", "Mitsubishi Meldas", "Fanuc 0i-TF"], "machines": ["Citizen L-series", "Citizen E-series", "Citizen M-series", "Citizen B-series"] },
+    "tags": ["controller", "citizen", "swiss-lathe", "superimposed", "synchronized", "WinCNC"]
+  },
+  {
+    "id": "ctrl-043",
+    "category": "controller",
+    "subcategory": "citizen-cincom",
+    "title": "Citizen LFV low-frequency vibration cutting G-code control",
+    "content": "Citizen's LFV (Low Frequency Vibration) technology is a game-changer for swiss lathe chip control. It vibrates servo axes in sync with spindle rotation, creating intermittent 'air-cutting' gaps that break chips into small pieces. Programming is simple: insert two G-code lines (LFV ON/OFF) into existing NC programs. Three LFV modes available: Mode 1 for OD/ID turning and grooving, Mode 2 for micro-drilling at high surface speeds, Mode 3 for vibration-free thread cutting. LFV reduces tool wear, heat generation, and power consumption. It transforms machining of stringy materials (stainless, copper, plastics) that normally wrap around the guide bushing. Adjust vibration frequency and amplitude via simple variable changes in one program line.",
+    "applies_to": { "controllers": ["Citizen Cincom M70", "Citizen Cincom M70V"], "machines": ["Citizen L12", "Citizen L20", "Citizen L32", "Citizen A32"] },
+    "tags": ["controller", "citizen", "swiss-lathe", "LFV", "chip-breaking", "vibration-cutting"]
+  },
+  {
+    "id": "ctrl-044",
+    "category": "controller",
+    "subcategory": "citizen-cincom",
+    "title": "Citizen detachable guide bushing and programming impact",
+    "content": "Many Citizen Cincom machines (L12, L20) feature a detachable guide bushing. With guide bushing installed, the machine operates as a traditional swiss-type for long/small-diameter parts. When removed, it becomes a fixed-headstock lathe for short workpieces with less material waste. This configuration change affects programming: with guide bushing, Z-axis reference is at the bushing face; without it, reference shifts to the chuck face. Always verify your Z-origin when switching modes. The detachable bushing also changes bar remnant length — non-guide-bushing mode typically saves 30-50mm of bar stock per remnant. Update your bar feeder parameters and part-off positions accordingly.",
+    "applies_to": { "controllers": ["Citizen Cincom M70", "Citizen Cincom M70V"], "machines": ["Citizen L12", "Citizen L20"] },
+    "tags": ["controller", "citizen", "swiss-lathe", "guide-bushing", "detachable", "Z-origin"]
+  },
+  {
+    "id": "ctrl-045",
+    "category": "controller",
+    "subcategory": "fidia-c40",
+    "title": "Fidia C40 Vision ViMill real-time collision avoidance for 5-axis",
+    "content": "Fidia's ViMill software is a real-time collision avoidance system that checks blocks ahead in look-ahead mode, detecting possible collisions and stopping the machine before impact. Unlike post-process verification (like Vericut), ViMill operates during actual machining in real-time. Fidia pioneered look-ahead over 40 years ago and the C40 Vision now processes 1,000+ lines ahead. ViMill checks tool, holder, spindle head, and machine structure against workpiece and fixtures. This is invaluable for 5-axis die/mold work where complex tool orientations risk head collisions. Always ensure your tool assembly (tool + holder + spindle geometry) is fully defined in the tool table — ViMill uses this data for its collision envelope calculations.",
+    "applies_to": { "controllers": ["Fidia C40", "Fidia C40 Vision", "Fidia C40 Compact"], "machines": ["Fidia 5-axis gantry mills", "Fidia K-series"] },
+    "tags": ["controller", "fidia", "5-axis", "collision-avoidance", "ViMill", "look-ahead"]
+  },
+  {
+    "id": "ctrl-046",
+    "category": "controller",
+    "subcategory": "fidia-c40",
+    "title": "Fidia Velocity Five and RTCP for 5-axis trajectory control",
+    "content": "Fidia's Velocity Five is a multi-axis trajectory control technology with dynamic-selectable roughing/finishing parameters (DYNA). It reduces finish milling time on 3D profiles by 15-20% and roughing by 30-40% compared to standard mode. The RTCP (Rotary Tool Center Point) function manages tool-length compensation in 3D space for bi-rotary heads, roto-tilting tables, and combined configurations. With RTCP active, program the toolpath without considering head pivot geometry — the control inserts compensations from the NC tool table at runtime. The C40 supports up to 10,000 tools with 16-character alphanumeric IDs. ISOGRAPH CAD/CAM is integrated for 2.5D programming directly on the control. Use DYNA parameter sets to switch between aggressive roughing dynamics and smooth finishing dynamics within the same program.",
+    "applies_to": { "controllers": ["Fidia C40", "Fidia C40 Vision", "Fidia C40 Compact"], "machines": ["Fidia gantry mills", "Fidia K199"] },
+    "tags": ["controller", "fidia", "5-axis", "velocity-five", "RTCP", "DYNA"]
+  },
+  {
+    "id": "ctrl-047",
+    "category": "controller",
+    "subcategory": "sodick-ln",
+    "title": "Sodick LN Professional AI-driven EDM technology database",
+    "content": "Sodick's LN Professional controller uses an AI technology database that automatically generates NC programs and infers optimum machining conditions from built-in discharge data. Simply enter the machining plan (electrode material, workpiece material, desired surface finish, required accuracy) and the system selects discharge parameters automatically. The SGF (Nano-Wear Discharge Unit) monitors discharge status in real-time and auto-adjusts ON-time and current to minimize electrode wear while optimizing cut time. SGF enables graphite electrodes to replace copper in applications previously requiring copper — significant cost savings. The LN2 controller uses 1Gbit/sec serial communication for simultaneous control of discharge and axis movements ('perfect active control'). LN Assist simplifies operation for beginners while LN Professional provides full expert control.",
+    "applies_to": { "controllers": ["Sodick LN Professional", "Sodick LN2"], "machines": ["Sodick AG-series sinker EDM", "Sodick AD-series", "Sodick ALC wire EDM"] },
+    "tags": ["controller", "sodick", "EDM", "AI-database", "SGF", "electrode-wear"]
+  },
+  {
+    "id": "ctrl-048",
+    "category": "controller",
+    "subcategory": "sodick-ln",
+    "title": "Sodick EDM linear motor and programming considerations",
+    "content": "All modern Sodick EDMs use linear motors on all axes (no ballscrews), providing zero backlash and superior positioning accuracy critical for EDM precision. When programming Sodick wire EDM, the LN Professional offers automatic programming with shape pattern libraries covering common die/mold geometries. For sinker EDM, electrode orbiting patterns and Z-depth control are managed by the technology database. Key tip: when setting up scheduled operations (unattended multi-electrode jobs), use the LN Professional's built-in scheduling function rather than external systems — it coordinates electrode changes with the technology database for optimal sequencing. The CF card storage is standard for program backup. API access to LN Professional engines enables integration with external CAD/CAM and automation systems.",
+    "applies_to": { "controllers": ["Sodick LN Professional", "Sodick LN2"], "machines": ["Sodick AG-series", "Sodick AD-series", "Sodick ALC-series"] },
+    "tags": ["controller", "sodick", "EDM", "linear-motor", "wire-EDM", "sinker-EDM"]
+  },
+  {
+    "id": "ctrl-049",
+    "category": "controller",
+    "subcategory": "datron-next",
+    "title": "DATRON next SimPL programming language vs G-code",
+    "content": "DATRON machines use SimPL (Simple Programming Language) instead of standard G-code. SimPL is a modern conversational language with plain-language commands, syntax checking, auto-completion, and debugging — features absent from traditional G-code controls. DATRON worked with major CAM vendors (Fusion 360, Mastercam, SolidCAM, HSMWorks, CAMWorks) to create post-processors that output directly to SimPL format. Do NOT use generic Fanuc/ISO posts — they will not work. The next control adds interpolation points within CAM tolerance bands, calculated to 5 decimal places (metric) for superior surface finish on micro-milled parts. Z Surface Mapping with the measuring probe automatically compensates for workpiece surface variations — essential for engraving and thin-sheet machining. Auto Tool Management monitors wear and swaps sister tools without program changes.",
+    "applies_to": { "controllers": ["DATRON next"], "machines": ["DATRON M8Cube", "DATRON M10 Pro", "DATRON neo", "DATRON MLCube"] },
+    "tags": ["controller", "datron", "SimPL", "micro-milling", "high-speed", "post-processor"]
+  },
+  {
+    "id": "ctrl-050",
+    "category": "controller",
+    "subcategory": "datron-next",
+    "title": "DATRON next vacuum table and accessory integration",
+    "content": "DATRON's SimPL language directly integrates commands for DATRON-specific accessories: vacuum tables, dust collection, ionizing spray bars, and camera-based workpiece setup. The camera + multi-touch display + XYZ sensor combination allows zero-point setting via swiping gestures — no edge-finder or indicator needed. This is uniquely suited to thin aluminum, plastic, and composite sheet machining where traditional clamping would distort the part. When programming in CAM, ensure your post-processor includes DATRON vacuum zone control commands (activating/deactivating specific vacuum zones as the tool moves). The 4-step setup wizard guides through workholding, tool loading, zero-point, and program verification. For beginners, the conversational interface translates operation selections directly into SimPL code.",
+    "applies_to": { "controllers": ["DATRON next"], "machines": ["DATRON M8Cube", "DATRON M10 Pro", "DATRON neo"] },
+    "tags": ["controller", "datron", "vacuum-table", "camera-setup", "thin-sheet"]
+  },
+  {
+    "id": "ctrl-051",
+    "category": "controller",
+    "subcategory": "fadal-cnc",
+    "title": "Fadal CNC Format 1 vs Format 2 critical differences",
+    "content": "Fadal VMCs support two programming formats: Format 1 (Fadal native) and Format 2 (Fanuc compatible). Critical differences: Format 1 auto-resets control state, uses E1-E48 work offsets, and only needs D or H (assumes both from same offset). Format 2 requires explicit resets in program, accepts G54-G59 or E-type offsets, and REQUIRES both D and H words — omitting either will crash. Format 1 was designed for finger-cam style automation and does things automatically that may be undesirable. Format 2 is recommended for shops running mixed Fadal/Fanuc machines. Both formats support Fadal-specific canned cycles: bolt hole circle (L93NN), mill boring (L95NN), rectangular/circular pocket cycles, and engraving with serialization. The G68 axis rotation works well in both formats. Rigid tapping uses G84.2 (prepare) + G84.1 (execute) which differs from standard Fanuc G84 rigid tap.",
+    "applies_to": { "controllers": ["Fadal CNC"], "machines": ["Fadal VMC-15", "Fadal VMC-40", "Fadal VMC-4020"] },
+    "tags": ["controller", "fadal", "Format-1", "Format-2", "E-offsets", "legacy"]
+  },
+  {
+    "id": "ctrl-052",
+    "category": "controller",
+    "subcategory": "traub-tx8i",
+    "title": "Traub TX8i-s V8 WinFlexIPS multi-subsystem programming",
+    "content": "The Traub TX8i-s V8 control uses WinFlexIPS (and WinFlexIPS Plus externally) for programming swiss-type and turn-mill machines with up to 4 subsystems. WinFlexIPS provides step-by-step parallel programming with graphical synchronization of machining sequences — you can see all channels simultaneously and drag sync points between them. The system generates production-ready NC programs from graphically interactive input, with immediate simulation verification. Key advantage: optimized standard program elements reduce programming time vs raw G-code. The control allows toggling between interactive dialog and raw NC editing at any time. 3D collision detection runs during simulation. TRAUB Remote-Access and Messenger (optional) push machine status and alerts to tablets/smartphones. Always use WinFlexIPS for initial program creation — manual NC editing of multi-channel sync programs is error-prone.",
+    "applies_to": { "controllers": ["Traub TX8i-s V8", "Traub TX8i-s V7"], "machines": ["Traub TNL-series", "Traub TNK-series"] },
+    "tags": ["controller", "traub", "swiss-lathe", "WinFlexIPS", "multi-channel", "synchronization"]
+  },
+  {
+    "id": "ctrl-053",
+    "category": "controller",
+    "subcategory": "kitamura-arumatik",
+    "title": "Kitamura Arumatik-Mi SSS control and adaptive feed",
+    "content": "Kitamura's Arumatik-Mi is a proprietary control with two standout features: (1) SSS (Super Smooth Surface) control optimizes acceleration/deceleration per-axis for shorter cycle times and improved surface finish in high-speed cutting. (2) Adaptive feed control monitors live spindle load during machining, automatically reducing feedrate when tool wear is detected and increasing it during light cuts — maximizing tool life while minimizing cycle time. Unlike Fanuc adaptive control (which requires macro programming), Kitamura's is built-in and requires no G-code changes. The control supports standard G-code with built-in assistance. Set and Inspect probing is standard (not optional). Anywhere Remote monitoring suite is also standard. For 5-axis machines (Mi 5X variant), ensure RTCP is properly configured via the control's setup screens rather than relying on CAM post-processor output alone.",
+    "applies_to": { "controllers": ["Kitamura Arumatik-Mi", "Kitamura Arumatik-Mi 5X"], "machines": ["Kitamura Mycenter", "Kitamura MedCenter5AX", "Kitamura HX-series"] },
+    "tags": ["controller", "kitamura", "SSS", "adaptive-feed", "probing", "5-axis"]
+  },
+  {
+    "id": "ctrl-054",
+    "category": "controller",
+    "subcategory": "star-fanuc",
+    "title": "Star swiss lathe Fanuc variant with NC Assist and B-axis",
+    "content": "Star swiss lathes use Fanuc controllers (typically 31i-B or 18i-TB on older models) with Star-specific customizations. NC Assist is Star's template-driven CNC program editor that generates code from clickable machining templates with minimal input — faster than manual G-code for standard swiss operations. The Fanuc iHMI interface on newer models (15\" touchscreen) includes conversational programming, free-figure contour programming, and fixed-phrase insert for building programs block-by-block. Some Star models feature double B-axis programmable units for simultaneous 5-axis control — unusual for swiss lathes. Star Motion Control System coordinates all axes for seamless operations. M-codes above M79 are Star-specific and vary by model — always verify against the machine's M-code table. Use CAM software (GibbsCAM, PartMaker) with Star-specific post processors for complex multi-axis programs.",
+    "applies_to": { "controllers": ["Star Fanuc 31i-B", "Star Fanuc 18i-TB", "Star Fanuc iHMI"], "machines": ["Star SR-32J", "Star SK-51A", "Star SB-20R", "Star SW-20"] },
+    "tags": ["controller", "star", "swiss-lathe", "fanuc-variant", "NC-Assist", "B-axis"]
+  },
+  {
+    "id": "ctrl-055",
+    "category": "controller",
+    "subcategory": "index-c200",
+    "title": "Index C200 dual-controller option and INDEXoperate interface",
+    "content": "The Index C200 production turning machine offers a choice between Siemens 840D sl (18.5\" multi-touch) or Fanuc 31i-B (15\" touchscreen). The Siemens variant features INDEXoperate, a custom user interface designed specifically for Index multi-spindle lathes. The C200 supports 2-3 turrets with 42 tool stations (VDI25), and can be configured with 2 Y-axes on the main spindle or 1 each on main/counter spindles. All setup data is stored with the part program for fast job changes. INDEX Virtual Machine (optional) provides an identical digital twin with genuine Siemens 840D control, all machine parameters, and full 3D collision checking — enabling production-parallel setup of the next job. When programming, use the built-in block-time measuring and part-production-time evaluation to optimize cycle times. Always create programs using INDEX's virtual machine first to avoid crashes on the physical machine.",
+    "applies_to": { "controllers": ["Index C200-4D (Siemens 840D sl)", "Index C200 (Fanuc 31i-B)"], "machines": ["Index C200", "Index MS16C", "Index MS22C"] },
+    "tags": ["controller", "index", "multi-spindle", "INDEXoperate", "virtual-machine", "dual-controller"]
+  },
+  {
+    "id": "ctrl-056",
+    "category": "controller",
+    "subcategory": "tsugami",
+    "title": "Tsugami opposed gang tool swiss lathe with Fanuc 32i-B",
+    "content": "Tsugami swiss lathes use Fanuc controllers (32i-B on SS-series opposed gang, 0i-TF Plus on P-series split slide). The opposed gang tool configuration (SS20, SS26, SS32) allows simultaneous machining on main and sub spindles with deep cutting capability. Key programming consideration: on opposed-slide machines, each slide must be gauged to a given datum before entering tool offsets — use geometry offsets with drawing dimensions, not incremental offsets. The Modular Tool Zone allows easy swapping between rotary tools, indexed holders, and turning holders — document your tool zone configuration in the program header comments for setup reference. Tsugami's software enables rapid programming with minimal training, but for complex parts, use CAM with Tsugami-specific post processors. The B0-series (B0126, B0205, B0206, B0325, B0326) uses either Fanuc 0i-TD or 32i-B depending on axis count.",
+    "applies_to": { "controllers": ["Tsugami Fanuc 32i-B", "Tsugami Fanuc 0i-TF Plus", "Tsugami Fanuc 0i-TD"], "machines": ["Tsugami SS20", "Tsugami SS26", "Tsugami SS32", "Tsugami B0-series", "Tsugami P036W", "Tsugami BW-series"] },
+    "tags": ["controller", "tsugami", "swiss-lathe", "fanuc-variant", "opposed-gang", "modular-tooling"]
+  },
+  {
+    "id": "ctrl-057",
+    "category": "controller",
+    "subcategory": "nakamura-tome",
+    "title": "Nakamura-Tome NT Manual Guide i for multitasking programming",
+    "content": "Nakamura-Tome machines use Fanuc controllers with the NT Manual Guide i — an upgrade from standard Fanuc Manual Guide i tailored for Nakamura multitasking machines. Programs display by spindle, waiting process, or part-transfer process, simplifying multi-axis/multi-turret programming. Detailed 3D guide drawings with coordinate axes and directional marks ensure precise milling operations. G112 enables Polar Coordinate Function, making the C-axis act as a virtual Y-axis for milling flats, hexes, and keyways without physical Y-axis hardware. The 3D Smart Pro AI (latest addition) enhances programming intelligence. When programming live tooling on Fanuc 16-TT or 31i-B controllers, always verify the C-axis zero position and indexing resolution. NT Manual Guide i manages turning, milling, grooving, drilling, and tapping with process rearrangement capability — useful for optimizing cycle times after initial programming.",
+    "applies_to": { "controllers": ["Nakamura-Tome Fanuc 31i-B", "Nakamura-Tome Fanuc 16-TT"], "machines": ["Nakamura-Tome AS-200", "Nakamura-Tome WY-100", "Nakamura-Tome SC-series", "Nakamura-Tome WT-series"] },
+    "tags": ["controller", "nakamura-tome", "fanuc-variant", "NT-Manual-Guide", "multitasking", "G112"]
+  },
+  {
+    "id": "ctrl-058",
+    "category": "controller",
+    "subcategory": "ycm",
+    "title": "YCM machining centers with Fanuc — OEM integration notes",
+    "content": "YCM (Yeong Chin Machinery) machines use standard Fanuc controls (commonly 0i-MF, 31i-B) with minimal OEM-specific customization — making them among the most Fanuc-compatible Taiwanese builders. If you know Fanuc, you know YCM. YCM's value is in the machine hardware (rigid castings, high-speed spindles) rather than control customization. Key notes: older YCM VMCs (VMC-72 era) used Fanuc 0M controls with limited parameter access — if retrofitting or upgrading, verify parameter backup compatibility. YCM 5-axis machines use standard Fanuc RTCP (G43.4/G43.5) without proprietary layers. YCM provides custom engineering solutions for automation integration. For post-processor development, use standard Fanuc posts with machine-specific M-code adjustments (coolant, ATC, pallet changer codes). Check YCM-specific M-codes in the machine manual — they follow Fanuc conventions but ATC and coolant codes may differ from other Fanuc-equipped machines.",
+    "applies_to": { "controllers": ["YCM Fanuc 0i-MF", "YCM Fanuc 31i-B"], "machines": ["YCM FV-series", "YCM NMV-series", "YCM VMC-series", "YCM DCV-series"] },
+    "tags": ["controller", "ycm", "fanuc-variant", "VMC", "5-axis", "taiwanese"]
+  },
+  {
+    "id": "ctrl-059",
+    "category": "controller",
+    "subcategory": "emag",
+    "title": "EMAG inverted vertical lathe programming with Siemens 840D",
+    "content": "EMAG vertical lathes (VL/VT series) use an inverted spindle design where the spindle picks up the workpiece from below, acting as both loader and machining spindle. This fundamentally changes programming: every program must include an auto-loading sequence using the workholding chuck — the spindle descends to a spring-loaded pick-up station, grabs the blank (gimbaled plate compensates for misalignment), then retracts to the machining position. Tool turrets and ways are positioned above, outside the chip/coolant zone. EMAG uses Siemens 840D sl on turning/grinding models and Fanuc on some VT models. When upgrading from older Schubert CC15 controls to Siemens, EMAG transfers all programs and parameters without data loss. For the VT 2/VT 4 shaft machines, 4-axis programming enables precision shaft machining. Z-axis direction is inverted compared to horizontal lathes — verify your coordinate system orientation.",
+    "applies_to": { "controllers": ["EMAG Siemens 840D sl", "EMAG Fanuc"], "machines": ["EMAG VL-series", "EMAG VT-2", "EMAG VT-4", "EMAG VSC-series"] },
+    "tags": ["controller", "emag", "siemens-variant", "inverted-spindle", "vertical-lathe", "pick-up"]
+  },
+  {
+    "id": "ctrl-060",
+    "category": "controller",
+    "subcategory": "emag",
+    "title": "EMAG modular machine line and Siemens cycle integration",
+    "content": "EMAG's modular VL pick-up turning machines integrate automation directly into the machine — no external gantry loader needed. When programming Siemens 840D on EMAG machines, use the pre-configured turning technology packages: stock removal cycles handle contour roughing with just parameter entry, groove/thread undercut cycles are built-in, and measuring cycles support in-process gauging. For multi-operation cells (common in EMAG production lines), coordinate workpiece handoff between machines via the pick-up station programming. EMAG's retrofit service can upgrade older machines to current Siemens 840D sl with the Siemens OP015A panel while preserving all existing programs. Key Siemens cycles for EMAG turning: CYCLE95 (stock removal), CYCLE97 (thread cutting), CYCLE93 (groove), CYCLE94 (undercut). Always use EMAG's machine-specific cycle parameter sets rather than generic Siemens defaults.",
+    "applies_to": { "controllers": ["EMAG Siemens 840D sl"], "machines": ["EMAG VL-2", "EMAG VL-4", "EMAG VL-6", "EMAG VT-series"] },
+    "tags": ["controller", "emag", "siemens-variant", "modular", "turning-cycles", "automation"]
+  },
+  {
+    "id": "ctrl-061",
+    "category": "controller",
+    "subcategory": "swiss-lathe-general",
+    "title": "Swiss lathe guide bushing Z-axis programming fundamentals",
+    "content": "Across all swiss lathe brands (Citizen, Star, Tsugami, Traub), guide bushing machines share a critical programming concept: the Z-axis reference is at the guide bushing face, NOT the chuck face. The bar stock slides through the collet and guide bushing, with the bushing supporting the workpiece near the cutting zone for rigidity. This means Z-axis programming is relative to the bushing position, and the headstock (W-axis on many machines) feeds the bar forward. When switching between guide-bushing and non-guide-bushing modes (available on Citizen and some Tsugami models), the Z-reference point changes. Common pitfall: forgetting to update bar feeder parameters when switching modes, leading to incorrect remnant lengths. For sub-spindle pick-off operations, synchronize the main and sub spindle speeds before the part-off cut to prevent torsional marks on the parting face.",
+    "applies_to": { "controllers": ["Citizen Cincom", "Star Fanuc", "Tsugami Fanuc", "Traub TX8i"], "machines": ["All swiss-type lathes"] },
+    "tags": ["controller", "swiss-lathe", "guide-bushing", "Z-axis", "bar-feeder", "programming-fundamentals"]
+  },
+  {
+    "id": "ctrl-062",
+    "category": "controller",
+    "subcategory": "index-traub",
+    "title": "Index/Traub virtual machine for collision-free multi-spindle setup",
+    "content": "Both Index and Traub offer Virtual Machine software that creates a digital twin of the physical machine with genuine Siemens 840D or TX8i control, identical parameters, and full 3D kinematics. For multi-spindle and multi-turret machines (Index C200, MS16C, MS22C; Traub TNL, TNK series), ALWAYS develop and prove out programs on the virtual machine first. The virtual machine detects collisions between turrets, spindles, tailstock, and workpiece that cannot be caught by standard CAM simulation. Index Virtual Machine runs production-parallel — set up the next job while the current one runs. Traub WinFlexIPS Plus provides the same capability externally. Both systems store complete setup data (tools, offsets, work coordinates) with the program for instant job recall. The investment in virtual machine software typically pays for itself in the first avoided crash.",
+    "applies_to": { "controllers": ["Index C200-4D", "Traub TX8i-s V8"], "machines": ["Index C200", "Index MS16C", "Index MS22C", "Traub TNL-series", "Traub TNK-series"] },
+    "tags": ["controller", "index", "traub", "virtual-machine", "digital-twin", "collision-detection", "multi-spindle"]
+  }
+]

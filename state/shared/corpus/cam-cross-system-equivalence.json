@@ -1,0 +1,400 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-26T07:49:22.917Z",
+  "operationCount": 30,
+  "systems": [
+    "hypermill",
+    "mastercam",
+    "esprit",
+    "fusion360",
+    "nxcam"
+  ],
+  "groups": {
+    "drill_spot": {
+      "hypermill": {
+        "nativeName": "spot drill",
+        "templateId": "drill_spot__hypermill__spot_drill",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Hole Feature Recognition (FBM_FIND_HOLES)",
+        "templateId": "drill_spot__nxcam__hole_feature_recognition",
+        "paramCount": 15
+      }
+    },
+    "drill_peck": {
+      "hypermill": {
+        "nativeName": "gun drill",
+        "templateId": "drill_peck__hypermill__gun_drill",
+        "paramCount": 0
+      },
+      "esprit": {
+        "nativeName": "live tool drill cyl",
+        "templateId": "drill_peck__esprit__live_tool_drill_cyl",
+        "paramCount": 3
+      },
+      "fusion360": {
+        "nativeName": "LASER_DRILLING",
+        "templateId": "drill_peck__fusion360__LASER_DRILLING",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "HOLE_MAKING Process Template (FBM_HOLE_MAKING)",
+        "templateId": "drill_peck__nxcam__template_hole_making",
+        "paramCount": 14
+      }
+    },
+    "bore": {
+      "hypermill": {
+        "nativeName": "helical bore",
+        "templateId": "bore__hypermill__helical_bore",
+        "paramCount": 0
+      },
+      "fusion360": {
+        "nativeName": "BORE",
+        "templateId": "bore__fusion360__BORE",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Manual Bore (BORE_MANUAL)",
+        "templateId": "bore__nxcam__manual_bore",
+        "paramCount": 10
+      }
+    },
+    "ream": {
+      "hypermill": {
+        "nativeName": "reaming",
+        "templateId": "ream__hypermill__reaming",
+        "paramCount": 0
+      }
+    },
+    "tap": {
+      "hypermill": {
+        "nativeName": "tapping",
+        "templateId": "tap__hypermill__tapping",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Thread ID (THREAD Internal)",
+        "templateId": "tap__nxcam__thread_id",
+        "paramCount": 13
+      }
+    },
+    "thread_mill": {
+      "hypermill": {
+        "nativeName": "thread milling",
+        "templateId": "thread_mill__hypermill__thread_milling",
+        "paramCount": 0
+      },
+      "esprit": {
+        "nativeName": "thread",
+        "templateId": "thread_mill__esprit__thread",
+        "paramCount": 2
+      },
+      "fusion360": {
+        "nativeName": "THREAD",
+        "templateId": "thread_mill__fusion360__THREAD",
+        "paramCount": 0
+      }
+    },
+    "chamfer": {
+      "hypermill": {
+        "nativeName": "chamfer drill",
+        "templateId": "chamfer__hypermill__chamfer_drill",
+        "paramCount": 0
+      },
+      "fusion360": {
+        "nativeName": "2D_CHAMFER",
+        "templateId": "chamfer__fusion360__2D_CHAMFER",
+        "paramCount": 0
+      }
+    },
+    "face": {
+      "hypermill": {
+        "nativeName": "back spot face",
+        "templateId": "face__hypermill__back_spot_face",
+        "paramCount": 0
+      },
+      "mastercam": {
+        "nativeName": "3D Horizontal Area",
+        "templateId": "face__mastercam__horizontal_area_3d",
+        "paramCount": 0
+      },
+      "esprit": {
+        "nativeName": "live tool mill face",
+        "templateId": "face__esprit__live_tool_mill_face",
+        "paramCount": 3
+      },
+      "fusion360": {
+        "nativeName": "FACE",
+        "templateId": "face__fusion360__FACE",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Face Milling (FACE_MILLING)",
+        "templateId": "face__nxcam__face_milling",
+        "paramCount": 22
+      }
+    },
+    "trace": {
+      "hypermill": {
+        "nativeName": "circular pocket drill",
+        "templateId": "trace__hypermill__circular_pocket_drill",
+        "paramCount": 0
+      },
+      "fusion360": {
+        "nativeName": "CIRCULAR",
+        "templateId": "trace__fusion360__CIRCULAR",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Teach Mode (TEACH_MODE)",
+        "templateId": "trace__nxcam__teach_mode",
+        "paramCount": 8
+      }
+    },
+    "combined_cycle": {
+      "hypermill": {
+        "nativeName": "combined cycle",
+        "templateId": "combined_cycle__hypermill__combined_cycle",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "CAD Associativity / Feature Sync (FBM_SYNC)",
+        "templateId": "combined_cycle__nxcam__feature_cad_sync",
+        "paramCount": 10
+      }
+    },
+    "probe_wcs": {
+      "hypermill": {
+        "nativeName": "datum probe",
+        "templateId": "probe_wcs__hypermill__datum_probe",
+        "paramCount": 0
+      },
+      "fusion360": {
+        "nativeName": "INSPECT_SPC_LOG",
+        "templateId": "probe_wcs__fusion360__INSPECT_SPC_LOG",
+        "paramCount": 0
+      }
+    },
+    "turn_rough": {
+      "mastercam": {
+        "nativeName": "Dynamic OptiRough",
+        "templateId": "turn_rough__mastercam__dynamic_optirough",
+        "paramCount": 0
+      },
+      "esprit": {
+        "nativeName": "rough turn",
+        "templateId": "turn_rough__esprit__rough_turn",
+        "paramCount": 3
+      },
+      "nxcam": {
+        "nativeName": "Rough Face (ROUGH_FACE)",
+        "templateId": "turn_rough__nxcam__rough_face",
+        "paramCount": 10
+      }
+    },
+    "contour_2d": {
+      "mastercam": {
+        "nativeName": "3D Contour (Z-Level)",
+        "templateId": "contour_2d__mastercam__contour_3d",
+        "paramCount": 0
+      },
+      "esprit": {
+        "nativeName": "contour finish",
+        "templateId": "contour_2d__esprit__contour_finish",
+        "paramCount": 4
+      },
+      "fusion360": {
+        "nativeName": "2D_CONTOUR",
+        "templateId": "contour_2d__fusion360__2D_CONTOUR",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Planar Profile (PLANAR_PROFILE)",
+        "templateId": "contour_2d__nxcam__planar_profile",
+        "paramCount": 12
+      }
+    },
+    "pocket_2d": {
+      "mastercam": {
+        "nativeName": "3D Core Mill",
+        "templateId": "pocket_2d__mastercam__core_mill_3d",
+        "paramCount": 0
+      },
+      "esprit": {
+        "nativeName": "pocket rough",
+        "templateId": "pocket_2d__esprit__pocket_rough",
+        "paramCount": 4
+      },
+      "fusion360": {
+        "nativeName": "PROBE_WCS_POCKET",
+        "templateId": "pocket_2d__fusion360__PROBE_WCS_POCKET",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Pocket Feature Recognition (FBM_FIND_POCKETS)",
+        "templateId": "pocket_2d__nxcam__pocket_feature_recognition",
+        "paramCount": 14
+      }
+    },
+    "rest_machine": {
+      "mastercam": {
+        "nativeName": "3D Rest Mill",
+        "templateId": "rest_machine__mastercam__rest_mill_3d",
+        "paramCount": 0
+      },
+      "esprit": {
+        "nativeName": "balanced cut",
+        "templateId": "rest_machine__esprit__balanced_cut",
+        "paramCount": 3
+      }
+    },
+    "slot": {
+      "mastercam": {
+        "nativeName": "Slot Mill",
+        "templateId": "slot__mastercam__slot_mill",
+        "paramCount": 0
+      },
+      "esprit": {
+        "nativeName": "groove",
+        "templateId": "slot__esprit__groove",
+        "paramCount": 2
+      },
+      "fusion360": {
+        "nativeName": "SLOT",
+        "templateId": "slot__fusion360__SLOT",
+        "paramCount": 0
+      }
+    },
+    "parallel_finish": {
+      "mastercam": {
+        "nativeName": "3D Parallel (Finishing)",
+        "templateId": "parallel_finish__mastercam__parallel_3d",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Surface Contour (SURFACE_CONTOUR)",
+        "templateId": "parallel_finish__nxcam__surface_contour",
+        "paramCount": 13
+      }
+    },
+    "scallop": {
+      "mastercam": {
+        "nativeName": "3D Scallop",
+        "templateId": "scallop__mastercam__scallop_3d",
+        "paramCount": 0
+      }
+    },
+    "pencil": {
+      "mastercam": {
+        "nativeName": "3D Pencil",
+        "templateId": "pencil__mastercam__pencil_3d",
+        "paramCount": 0
+      }
+    },
+    "morph_5axis": {
+      "mastercam": {
+        "nativeName": "3D Blend",
+        "templateId": "morph_5axis__mastercam__blend_3d",
+        "paramCount": 0
+      },
+      "nxcam": {
+        "nativeName": "Variable Streamline (VARIABLE_STREAMLINE)",
+        "templateId": "morph_5axis__nxcam__variable_streamline",
+        "paramCount": 14
+      }
+    },
+    "contour_3d": {
+      "esprit": {
+        "nativeName": "z level finish",
+        "templateId": "contour_3d__esprit__z_level_finish",
+        "paramCount": 3
+      },
+      "nxcam": {
+        "nativeName": "Z-Level Profile (ZLEVEL_PROFILE)",
+        "templateId": "contour_3d__nxcam__zlevel_profile",
+        "paramCount": 14
+      }
+    },
+    "swarf_5axis": {
+      "esprit": {
+        "nativeName": "back work",
+        "templateId": "swarf_5axis__esprit__back_work",
+        "paramCount": 3
+      },
+      "nxcam": {
+        "nativeName": "Swarf Drive (SWARF_DRIVE)",
+        "templateId": "swarf_5axis__nxcam__swarf_drive",
+        "paramCount": 15
+      }
+    },
+    "turn_finish": {
+      "esprit": {
+        "nativeName": "finish turn",
+        "templateId": "turn_finish__esprit__finish_turn",
+        "paramCount": 2
+      },
+      "nxcam": {
+        "nativeName": "Finish Face (FINISH_FACE)",
+        "templateId": "turn_finish__nxcam__finish_face",
+        "paramCount": 9
+      }
+    },
+    "additive_ded": {
+      "fusion360": {
+        "nativeName": "DED_REPAIR",
+        "templateId": "additive_ded__fusion360__DED_REPAIR",
+        "paramCount": 0
+      }
+    },
+    "additive_pbf": {
+      "fusion360": {
+        "nativeName": "PBF_LATTICE_INFILL",
+        "templateId": "additive_pbf__fusion360__PBF_LATTICE_INFILL",
+        "paramCount": 0
+      }
+    },
+    "additive_fdm": {
+      "fusion360": {
+        "nativeName": "FDM_INFILL_PATTERN",
+        "templateId": "additive_fdm__fusion360__FDM_INFILL_PATTERN",
+        "paramCount": 0
+      }
+    },
+    "additive_hybrid": {
+      "fusion360": {
+        "nativeName": "HYBRID_NEAR_NET_FINISH",
+        "templateId": "additive_hybrid__fusion360__HYBRID_NEAR_NET_FINISH",
+        "paramCount": 0
+      }
+    },
+    "laser_cut": {
+      "fusion360": {
+        "nativeName": "LASER_ETCHING",
+        "templateId": "laser_cut__fusion360__LASER_ETCHING",
+        "paramCount": 0
+      }
+    },
+    "waterjet_cut": {
+      "fusion360": {
+        "nativeName": "PLASMA_MARK",
+        "templateId": "waterjet_cut__fusion360__PLASMA_MARK",
+        "paramCount": 0
+      }
+    },
+    "groove_turn": {
+      "nxcam": {
+        "nativeName": "Groove OD (GROOVE_OD)",
+        "templateId": "groove_turn__nxcam__groove_od",
+        "paramCount": 10
+      }
+    }
+  },
+  "provenance": {
+    "realDataOnly": true,
+    "sourceMilestone": "CAM-AI-TRAINING-MS0",
+    "sourceSlot": "kilo",
+    "operatorConstraint": "no synthetic parts, must be real parts taken from real reputable sources (2026-05-25)"
+  }
+}

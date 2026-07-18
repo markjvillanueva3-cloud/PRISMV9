@@ -1,0 +1,383 @@
+{
+  "id": "V6-ROADMAP",
+  "title": "PRISM v6.0 — Unsurpassable Manufacturing Intelligence",
+  "version": "6.0.0",
+  "created": "2026-03-13",
+  "tracks": {
+    "PIPE": "Multi-Physics Pipeline & DAG Chaining",
+    "LEARN": "Closed-Loop Learning & Calibration",
+    "ECON": "Economic Optimization & Profit Maximization",
+    "DIAG": "Diagnostic Reasoning & Natural Language",
+    "VALID": "Validation Against Real Cutting Data",
+    "UQ": "Universal Uncertainty Quantification",
+    "CMD": "Slash Command Modernization",
+    "WIRE": "Remaining Engine Wiring & Tests",
+    "KNOW": "Knowledge Graph & Cross-Engine Reasoning",
+    "MCP": "MCP Server Protocol & Infrastructure",
+    "WEB": "Web Application & UI Integration",
+    "PERF": "Performance, Caching & Scalability",
+    "CCM": "Claude Code Modernization — Hooks, Agents, Skills, Automation, Observability"
+  },
+  "milestones": [
+    {
+      "id": "MCP-MS0",
+      "title": "MCP Resources — Browsable Materials, Machines, Tools & Catalogs",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "description": "Implement MCP Resources protocol. Expose: (1) materials://prism/ — 2,957 materials browsable by family/grade, (2) machines://prism/ — 910 machine profiles browsable by manufacturer/type, (3) tools://prism/ — 46,590 cutting tools browsable by manufacturer/type/diameter, (4) catalogs://prism/ — holders, workholding, grades. Each resource returns structured data with URI templates. Enables LLM clients to discover and browse PRISM's data without action calls.",
+      "science": "URI template design (RFC 6570), pagination for large collections, content negotiation, ETag caching"
+    },
+    {
+      "id": "MCP-MS1",
+      "title": "MCP Prompts — 20 Manufacturing Workflow Templates",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 4,
+      "description": "Implement MCP Prompts protocol with 20 ready-to-use templates: (1) speed-feed-optimize, (2) tool-selection, (3) machine-selection, (4) quote-job, (5) diagnose-chatter, (6) diagnose-tool-wear, (7) setup-sheet, (8) first-article-plan, (9) material-substitute, (10) cost-reduce, (11) cycle-time-optimize, (12) surface-finish-achieve, (13) deep-hole-strategy, (14) 5-axis-setup, (15) thread-strategy, (16) grinding-wheel-select, (17) coolant-optimize, (18) fixture-design, (19) tolerance-stack, (20) tool-life-maximize. Each prompt includes required/optional arguments and returns pre-structured system messages that chain appropriate dispatchers."
+    },
+    {
+      "id": "MCP-MS2",
+      "title": "Tool Granularity Refactor — Focused Tools for Discoverability",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 8,
+      "description": "Current: 65 mega-tools with opaque 'action' parameter. Clients can't discover what PRISM does. Refactor to expose ~200 focused MCP tools grouped by domain: prism_material_get, prism_speed_feed, prism_tool_select, prism_stability_lobe, etc. Keep backward-compatible mega-dispatchers for power users. Add rich tool descriptions with input/output examples. Use MCP tool annotations (readOnlyHint, destructiveHint, openWorldHint) for client-side filtering.",
+      "science": "API design principles, progressive disclosure, schema composition, backward compatibility patterns"
+    },
+    {
+      "id": "MCP-MS3",
+      "title": "Streaming Progress & Sampling for Long Calculations",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 4,
+      "description": "Long calculations (Monte Carlo with 10K iterations, pipeline DAG chains, DOE analysis) should stream progress via MCP notifications. Implement: (1) Progress notifications with percentage and ETA, (2) Partial result streaming for iterative algorithms, (3) MCP Sampling — server can ask the LLM client for help during complex reasoning (e.g., 'interpret these chatter symptoms' or 'suggest alternative strategies'). Requires SDK 1.27+ sampling support."
+    },
+    {
+      "id": "MCP-MS4",
+      "title": "MCP SDK Upgrade & Protocol Compliance Audit",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 3,
+      "description": "Upgrade @modelcontextprotocol/sdk to latest. Audit compliance with MCP spec: (1) Proper capability negotiation, (2) Tool annotations (readOnlyHint, destructiveHint), (3) Resource subscriptions for live data (machine status, tool wear), (4) Roots support for workspace-aware calculations, (5) Proper error codes per spec, (6) Logging protocol support (window/logMessage). Fix any spec violations."
+    },
+    {
+      "id": "WEB-MS0",
+      "title": "Web Application Integration & Deployment",
+      "track": "WEB",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 6,
+      "description": "Merge web/ with mcp-server for unified deployment. Connect 50+ React pages to live MCP server via HTTP transport. Implement: (1) Real-time dashboard (machine status, active jobs, tool wear), (2) 3D workpiece/toolpath viewer connected to CAM engines, (3) Interactive speed/feed calculator with live physics visualization, (4) Quote builder with cost breakdown charts, (5) Setup sheet generator with printable output, (6) Job scheduler Gantt chart. PWA support for shop floor tablets."
+    },
+    {
+      "id": "PERF-MS0",
+      "title": "Performance Optimization — Sub-50ms Response for All Calculations",
+      "track": "PERF",
+      "status": "not_started",
+      "priority": "P2",
+      "units": 4,
+      "description": "Profile all 2312+ actions. Target: P95 < 50ms for single calculations, < 2s for batch operations. Optimize: (1) Lazy engine loading (already done, verify no regressions), (2) Worker thread pool for CPU-intensive calculations (Monte Carlo, FEM, DOE), (3) Response compression for large result sets, (4) Connection pooling for HTTP transport, (5) Bundle size optimization (currently 25MB — target 15MB via tree-shaking dead engines)."
+    },
+    {
+      "id": "PIPE-MS0",
+      "title": "PipelineDAGEngine — Auto-chaining Force→Thermal→Wear→Deflection→Surface→Capability",
+      "track": "PIPE",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "description": "Build a universal pipeline engine that auto-discovers engine dependencies, builds a DAG, and executes multi-physics chains with uncertainty propagation at every stage. E.g., one call: material + cutting params → force (Kienzle) → temperature (Komanduri-Hou) → wear rate (Taylor+Fick) → deflection (δ=FL³/3EI) → surface finish (Ra=f²/32r + deflection) → Cpk prediction. Each stage feeds the next with stochastic distributions, not point estimates.",
+      "engines_needed": [
+        "PipelineDAGEngine",
+        "EngineGraphRegistry",
+        "StageConnectorEngine"
+      ],
+      "science": "DAG topological sort, uncertainty propagation (MC/FOSM/PCE), cross-domain consistency checks, sensitivity analysis (Sobol indices per stage), dimensional analysis verification at each junction"
+    },
+    {
+      "id": "PIPE-MS1",
+      "title": "Pre-built Pipeline Templates — 10 Common Manufacturing Chains",
+      "track": "PIPE",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 5,
+      "dependencies": [
+        "PIPE-MS0"
+      ],
+      "description": "10 ready-to-use pipeline templates: (1) Roughing optimization chain, (2) Finishing quality chain, (3) Tool life prediction chain, (4) Cost-per-part chain, (5) Thermal distortion chain, (6) Chatter avoidance chain, (7) Surface integrity chain, (8) Deep hole drilling chain, (9) Multi-axis quality chain, (10) High-speed machining chain. Each template wires 5-8 engines with validated intermediate connections."
+    },
+    {
+      "id": "LEARN-MS0",
+      "title": "OutcomeCalibrationEngine — Bayesian Model Updating from Shop Floor Data",
+      "track": "LEARN",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "description": "Every PRISM prediction becomes improvable. Ingest actual outcomes (measured tool life, actual Ra, real cycle times, scrap rates) and update model parameters using Bayesian inference. Taylor constants (C, n), Kienzle kc1.1/mc, specific cutting energy, thermal coefficients — all become adaptive. Conjugate priors for fast updating. Prior elicitation from existing engine defaults. Posterior predictive checks for model validity.",
+      "engines_needed": [
+        "OutcomeCalibrationEngine",
+        "CalibrationDataStore",
+        "PriorElicitationEngine"
+      ],
+      "science": "Bayesian conjugate updating (Normal-Normal, Gamma-Poisson), MCMC for non-conjugate models, maximum a posteriori estimation, credible intervals, model comparison (BIC/WAIC), posterior predictive checks, sequential updating, forgetting factors for time-varying processes"
+    },
+    {
+      "id": "LEARN-MS1",
+      "title": "Adaptive Playbook — Rules That Learn from Your Shop",
+      "track": "LEARN",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 4,
+      "dependencies": [
+        "LEARN-MS0"
+      ],
+      "description": "MachiningPlaybook's 210 static rules become weighted by shop-specific evidence. Thompson sampling for rule selection. Multi-armed bandit for strategy exploration vs exploitation. Rules get confidence scores based on how often they led to good outcomes in THIS shop."
+    },
+    {
+      "id": "ECON-MS0",
+      "title": "ProfitMaximizationEngine — Joint Technical-Economic Optimization",
+      "track": "ECON",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "description": "Optimize for $/spindle-hour, not just technical limits. Multi-objective optimization across: tool life cost, cycle time, quality (scrap/rework probability), machine utilization, energy cost, coolant cost. Pareto frontier visualization. Constraints: surface finish, tolerance, tool deflection, chatter, thermal distortion. Gilbert's economic model extended with stochastic tool life, batch size effects, setup amortization, and machine-specific overhead rates.",
+      "engines_needed": [
+        "ProfitMaximizationEngine",
+        "CostModelEngine",
+        "ParetoFrontierEngine"
+      ],
+      "science": "Gilbert's economic cutting speed (V_opt = C/(T_opt^n)), extended Taylor economics with stochastic Weibull life, multi-objective optimization (NSGA-II, epsilon-constraint), Pareto dominance, sensitivity of profit to each parameter (∂$/∂v, ∂$/∂f, ∂$/∂ap), break-even analysis, learning curve economics (Wright's law for batch production)"
+    },
+    {
+      "id": "ECON-MS1",
+      "title": "QuoteEngine v2 — Physics-Backed Competitive Quoting",
+      "track": "ECON",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 4,
+      "dependencies": [
+        "ECON-MS0"
+      ],
+      "description": "Generate manufacturing quotes backed by physics, not gut feel. Input: CAD model + material + batch size + tolerances. Output: detailed cost breakdown (material, machining, setup, tooling, secondary ops, overhead, margin) with confidence intervals. Win probability model trained on historical quotes."
+    },
+    {
+      "id": "DIAG-MS0",
+      "title": "DiagnosticReasoningEngine — Multi-Engine Problem Solving",
+      "track": "DIAG",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "description": "Natural language input → multi-engine diagnosis → ranked solutions with confidence. 'I'm getting chatter at 8000 RPM with 12mm endmill in 4140' → chains: StabilityLobe analysis → ToolDeflection check → SpeedOptimization → AlternativeStrategy search → PlaybookAdvice → complete answer with 3 ranked solutions, each with physics justification and expected improvement. Includes root cause analysis (is it regenerative chatter? forced vibration? tool runout?) and differential diagnosis.",
+      "engines_needed": [
+        "DiagnosticReasoningEngine",
+        "RootCauseAnalysisEngine",
+        "SolutionRankingEngine"
+      ],
+      "science": "Bayesian diagnostic networks (probability of cause given symptoms), decision trees with information gain, multi-criteria decision analysis (TOPSIS/AHP), evidence accumulation, differential diagnosis (mutual exclusivity checking), abductive reasoning"
+    },
+    {
+      "id": "VALID-MS0",
+      "title": "ValidationDatasetEngine — Real Cutting Data Benchmarks",
+      "track": "VALID",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 5,
+      "description": "Curate published experimental cutting data (Merchant 1945, Oxley 1989, ISO 3685 tool life, Altintas stability, published speed/feed tables from Sandvik/Kennametal) into structured validation sets. Run PRISM predictions against each dataset. Report RMSE, bias, R² per model per material. Publish accuracy scorecard. Identify where PRISM outperforms and underperforms commercial tools.",
+      "science": "Statistical model validation (RMSE, MAE, R², bias), cross-validation, prediction intervals vs observed, hypothesis testing (is model bias significant?), calibration curves, receiver operating characteristic for classification models (chatter yes/no)"
+    },
+    {
+      "id": "UQ-MS0",
+      "title": "Universal Uncertainty Wrapper — Every Output Gets Confidence Intervals",
+      "track": "UQ",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 4,
+      "description": "StochasticWrapperEngine exists but isn't auto-applied. Make EVERY dispatcher action optionally return {value, ci_lower, ci_upper, sensitivity_ranking} by wrapping with Monte Carlo/FOSM. Add 'uncertainty=true' flag to all dispatcher calls. Propagate material property uncertainty (from cert data), machine repeatability, tool geometry tolerance automatically.",
+      "dependencies": [
+        "PIPE-MS0"
+      ]
+    },
+    {
+      "id": "CMD-MS0",
+      "title": "Slash Command Modernization — Parallel Agents & Background Execution",
+      "track": "CMD",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 6,
+      "description": "Update 132 slash commands to leverage Claude Opus 4.6 capabilities: (1) Commands that do sequential work should use parallel Agent dispatching where independent, (2) Long-running commands should use background execution with progress notifications, (3) Commands should use TaskCreate/TaskUpdate for multi-step tracking, (4) Commands should leverage the v() value unwrapper pattern for engine results, (5) Commands should use /smart auto-config at entry, (6) Forge commands should use isolation: worktree for safety. Batch into groups: forge-* (19), browse-* (6), optimize-* (5), manufacturing (20), system (15), token-efficiency (12), other (55)."
+    },
+    {
+      "id": "CMD-MS1",
+      "title": "New Slash Commands for v6 Capabilities",
+      "track": "CMD",
+      "status": "not_started",
+      "priority": "P2",
+      "units": 4,
+      "dependencies": [
+        "PIPE-MS0",
+        "ECON-MS0",
+        "DIAG-MS0"
+      ],
+      "description": "New commands: /diagnose (natural language problem → multi-engine solution), /profit-optimize (find optimal $/spindle-hour), /pipeline (run multi-physics chain), /calibrate (ingest outcome data), /validate (run against benchmark data), /uncertainty (add CI to any calc), /compete (benchmark vs commercial tools), /what-if (parameter sensitivity analysis)"
+    },
+    {
+      "id": "WIRE-MS0",
+      "title": "Complete Engine Wiring — Wire All Remaining 200+ Dispatchable Engines",
+      "track": "WIRE",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 8,
+      "description": "Systematic wiring of all remaining ~200 dispatchable calculation engines to their appropriate dispatchers. Batches 114-120. Includes ToolRouter expansion to 200+ patterns. Test coverage for all newly wired engines."
+    },
+    {
+      "id": "WIRE-MS1",
+      "title": "Exhaustive Test Coverage — Every Engine Gets ≥3 Tests",
+      "track": "WIRE",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 8,
+      "dependencies": [
+        "WIRE-MS0"
+      ],
+      "description": "500+ engines currently lack dedicated tests. Write exhaustive science tests for all. Per Exhaustive Science Law: ≥3 tests per engine, multi-material where applicable, dimensional invariant checks, known analytical solutions, boundary conditions. Target: 15,000+ total tests."
+    },
+    {
+      "id": "KNOW-MS0",
+      "title": "EngineKnowledgeGraph — Queryable Cross-Engine Reasoning",
+      "track": "KNOW",
+      "status": "not_started",
+      "priority": "P2",
+      "units": 5,
+      "description": "Build an explicit graph of engine relationships: inputs/outputs, shared parameters, causal links. Query: 'If I change nose radius, what's affected?' → traverses graph: SurfaceRoughness, ToolDeflection, ChipBreaking, WearRate, CuttingForce. Enables automated impact analysis and cross-engine consistency checking.",
+      "engines_needed": [
+        "EngineKnowledgeGraphEngine",
+        "ImpactAnalysisEngine",
+        "ConsistencyCheckerEngine"
+      ]
+    }
+  ],
+  "summary": {
+    "total_milestones": 20,
+    "tracks": 12,
+    "estimated_sessions": "60-90",
+    "key_outcomes": [
+      "Every calculation returns confidence intervals",
+      "Models improve from shop floor data",
+      "Natural language problem diagnosis",
+      "Physics-backed profit optimization",
+      "Validated against real cutting data",
+      "Auto-chaining of multi-physics pipelines",
+      "All 891 engines wired and tested",
+      "MCP Resources: browsable materials/machines/tools",
+      "MCP Prompts: 20 manufacturing workflow templates",
+      "200 focused MCP tools for discoverability",
+      "Streaming progress for long calculations",
+      "Web app integrated with live MCP server",
+      "Sub-50ms P95 response time"
+    ]
+  },
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "v6-roadmap-gate",
+    "mcp_action": "prism_v6:v6_roadmap_run",
+    "skill_command": "/v6-roadmap",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "v6-roadmap-gate"
+    ],
+    "new_actions": [
+      "v6_roadmap_run"
+    ],
+    "new_skills": [
+      "/v6-roadmap"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Deliver PRISM v6.0 — Unsurpassable Manufacturing Intelligence per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-VXXR01",
+      "title": "V6-ROADMAP — Coordinator",
+      "description": "Master coordinator envelope for V6-ROADMAP. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

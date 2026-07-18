@@ -20,6 +20,7 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 let _afc: any, _asc: any, _bay: any, _tla: any, _dts: any, _acal: any;
 let _adaChat: any, _adaChip: any, _adaOver: any, _adaTherm: any, _adaWear: any;
 let _var: any;
+let _rtac: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "afc": return _afc ??= (await import("../../engines/AdaptiveFeedControlEngine.js")).adaptiveFeedControlEngine;
@@ -37,6 +38,9 @@ async function getEngine(name: string): Promise<any> {
     // ORPHAN-RESCUE: VariabilityEnvelopeEngine — probabilistic parameter boundaries
     // (stateful singleton — envelopes + outlier buffer persist across calls)
     case "var": return _var ??= (await import("../../engines/VariabilityEnvelopeEngine.js")).variabilityEnvelopeEngine;
+    // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-POST: real-time adaptive control orchestrator
+    // (stateful singleton — sensor/output history persists across calls)
+    case "rtac": return _rtac ??= (await import("../../engines/RealTimeAdaptiveControllerEngine.js")).realTimeAdaptiveControllerEngine;
     default: throw new Error(`Unknown adaptive control engine: ${name}`);
   }
 }
@@ -56,6 +60,9 @@ const ACTIONS = [
   "variability_evaluate", "variability_get_envelope", "variability_set_envelope",
   "variability_expand", "variability_apply_expansion",
   "variability_export", "variability_import", "variability_outliers",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-POST: RealTimeAdaptiveControllerEngine
+  "rtac_update", "rtac_state", "rtac_tune", "rtac_targets",
+  "rtac_metrics", "rtac_gcode", "rtac_reset",
 ] as const;
 
 /** Registers adaptive control dispatcher.
@@ -300,6 +307,55 @@ Params vary by action — pass relevant fields in params object.`,
             result = { outliers: buffer, parameterCount: Object.keys(buffer).length };
             break;
           }
+          // ── FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-POST: RealTimeAdaptiveControllerEngine ──
+          // Stateful singleton — update()/reset() mutate sensor + output history.
+          case "rtac_update": {
+            const eng = await getEngine("rtac");
+            // update() returns ControlOutput (feed/speed/coolant overrides + warnings/alarms).
+            result = eng.update(params);
+            break;
+          }
+          case "rtac_state": {
+            const eng = await getEngine("rtac");
+            result = eng.getState();
+            break;
+          }
+          case "rtac_tune": {
+            const eng = await getEngine("rtac");
+            // setTuning() returns void — merge the partial then echo full effective tuning.
+            eng.setTuning(params.tuning ?? {});
+            result = { tuning: eng.getTuning() };
+            break;
+          }
+          case "rtac_targets": {
+            const eng = await getEngine("rtac");
+            // setTargets() returns void — echo the resulting target triple from state.
+            eng.setTargets({ chipLoad: params.chipLoad, mrr: params.mrr, power: params.power });
+            const st = eng.getState();
+            result = {
+              targetChipLoad: st.targetChipLoad,
+              targetMRR: st.targetMRR,
+              targetPower: st.targetPower,
+            };
+            break;
+          }
+          case "rtac_metrics": {
+            const eng = await getEngine("rtac");
+            result = eng.getPerformanceMetrics();
+            break;
+          }
+          case "rtac_gcode": {
+            const eng = await getEngine("rtac");
+            const lines = eng.generateAdaptiveGCode(params.baseProgram ?? []);
+            result = { gcode: lines, lineCount: lines.length };
+            break;
+          }
+          case "rtac_reset": {
+            const eng = await getEngine("rtac");
+            eng.reset();
+            result = { reset: true, mode: eng.getState().mode };
+            break;
+          }
           default:
             result = { error: `Unknown action: ${action}` };
         }
@@ -318,5 +374,5 @@ Params vary by action — pass relevant fields in params object.`,
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }
   );
-  log.info("Registered: prism_adaptive_control dispatcher (31 actions)");
+  log.info("Registered: prism_adaptive_control dispatcher (38 actions)");
 }

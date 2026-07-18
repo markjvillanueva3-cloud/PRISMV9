@@ -4,8 +4,10 @@ description: Audit roadmap envelopes for units whose deliverables exist on disk 
 trigger:
   autoSuggest:
     keywords: ["close out", "close-out", "closeout", "envelope drift", "shipped but pending", "audit close", "find shipped", "stale milestones", "unclosed units", "what's done"]
+composes_with:
+  - "/close-out"
+  - "/envelope-sync"
 ---
-
 # /close-out-audit — Find silent close-out debt across all roadmaps
 
 When a unit's deliverable artifacts exist on disk but the envelope still says `status: "pending"`, the milestone is **shipped but not closed**. This pollutes `MILESTONE_PROGRESS`, `BUILD_STATE`, and the roadmap-index. The audit script flags candidates so you can review + close them properly.

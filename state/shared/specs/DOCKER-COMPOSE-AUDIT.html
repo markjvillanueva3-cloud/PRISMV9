@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="e45c9f1aba430f70ee8cac1f9d62ee5a827fd01bc67d6cd13a6e2dc2e81488c0">
+<title>Docker Compose + Dockerfile Audit (P13-U01)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Docker Compose + Dockerfile Audit (P13-U01)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.426Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#docker-compose-dockerfile-audit-p13-u01">Docker Compose + Dockerfile Audit (P13-U01)</a></li>
+<li class="toc-l2"><a href="#summary">Summary</a></li>
+<li class="toc-l2"><a href="#by-classification">By classification</a></li>
+<li class="toc-l2"><a href="#compose-files">Compose files</a></li>
+<li class="toc-l2"><a href="#dockerfiles">Dockerfiles</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="docker-compose-dockerfile-audit-p13-u01"><a class="anchor" href="#docker-compose-dockerfile-audit-p13-u01" aria-label="Permalink to Docker Compose + Dockerfile Audit (P13-U01)">#</a>Docker Compose + Dockerfile Audit (P13-U01)</h1>
+<p><strong>Generated:</strong> 2026-05-17T21:08:08.535Z <strong>Milestone:</strong> INTEL-OLLAMA-OBSIDIAN-MS0 / P13-U01 <strong>Scope:</strong> H:/prism recursive (skips node_modules/.git/dist/build/extracted/JM DIE/Resources)</p>
+<h2 id="summary"><a class="anchor" href="#summary" aria-label="Permalink to Summary">#</a>Summary</h2>
+<ul>
+<li>Compose files: <strong>38</strong></li>
+<li>Dockerfiles: <strong>21</strong></li>
+</ul>
+<h2 id="by-classification"><a class="anchor" href="#by-classification" aria-label="Permalink to By classification">#</a>By classification</h2>
+<ul>
+<li><strong>claude-harness</strong>: 40</li>
+<li><strong>other</strong>: 11</li>
+<li><strong>mcp-server</strong>: 6</li>
+<li><strong>prism-infra</strong>: 1</li>
+<li><strong>web-frontend</strong>: 1</li>
+</ul>
+<h2 id="compose-files"><a class="anchor" href="#compose-files" aria-label="Permalink to Compose files">#</a>Compose files</h2>
+<ul>
+<li><code>.claude/worktrees/agent-a01e7b81d0946a97b/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a01e7b81d0946a97b/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a01e7b81d0946a97b/mcp-server/web/docker-compose.yml</code> (2084B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a0310b5d699214970/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a0310b5d699214970/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a0310b5d699214970/mcp-server/web/docker-compose.yml</code> (2084B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a37d7460d5d653f84/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a37d7460d5d653f84/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a37d7460d5d653f84/mcp-server/web/docker-compose.yml</code> (2084B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a68051c75f771f518/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a68051c75f771f518/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a68051c75f771f518/mcp-server/web/docker-compose.yml</code> (2084B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8299dd3b088946a6/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8299dd3b088946a6/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8299dd3b088946a6/mcp-server/web/docker-compose.yml</code> (2084B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8585051a4b3592a1/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8585051a4b3592a1/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8585051a4b3592a1/mcp-server/web/docker-compose.yml</code> (2084B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8b4b61a9ebee0955/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8b4b61a9ebee0955/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8b4b61a9ebee0955/mcp-server/web/docker-compose.yml</code> (2084B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-ad6991466ebd4ee9d/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-ad6991466ebd4ee9d/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-ad6991466ebd4ee9d/mcp-server/web/docker-compose.yml</code> (2084B, claude-harness)</li>
+<li><code>.claude/worktrees/brave-euclid/docker-compose.yml</code> (773B, claude-harness)</li>
+<li><code>.claude/worktrees/brave-euclid/mcp-server/docker-compose.yml</code> (3001B, claude-harness)</li>
+<li><code>.claude/worktrees/rgs6-audit-v2/docker-compose.gpu.yml</code> (401B, claude-harness)</li>
+<li><code>.claude/worktrees/rgs6-audit-v2/docker-compose.yml</code> (4359B, claude-harness)</li>
+<li><code>docker/ocr-tools/docker-compose.yml</code> (1351B, other)</li>
+<li><code>docker-compose.dev.yml</code> (1292B, other)</li>
+<li><code>docker-compose.gpu.yml</code> (401B, other)</li>
+<li><code>docker-compose.ollama-preload.yml</code> (2928B, other)</li>
+<li><code>docker-compose.yml</code> (4359B, other)</li>
+<li><code>mcp-server/docker-compose.dev.yml</code> (1270B, mcp-server)</li>
+<li><code>mcp-server/docker-compose.yml</code> (2887B, mcp-server)</li>
+<li><code>mcp-server/web/docker-compose.yml</code> (1997B, mcp-server)</li>
+<li><code>prism-test-6d0595/docker-compose.gpu.yml</code> (401B, other)</li>
+<li><code>prism-test-6d0595/docker-compose.yml</code> (4359B, other)</li>
+</ul>
+<h2 id="dockerfiles"><a class="anchor" href="#dockerfiles" aria-label="Permalink to Dockerfiles">#</a>Dockerfiles</h2>
+<ul>
+<li><code>.claude/worktrees/agent-a01e7b81d0946a97b/mcp-server/web/Dockerfile</code> (1620B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a0310b5d699214970/mcp-server/web/Dockerfile</code> (1620B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a37d7460d5d653f84/mcp-server/web/Dockerfile</code> (1620B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a68051c75f771f518/mcp-server/web/Dockerfile</code> (1620B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8299dd3b088946a6/mcp-server/web/Dockerfile</code> (1620B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8585051a4b3592a1/mcp-server/web/Dockerfile</code> (1620B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-a8b4b61a9ebee0955/mcp-server/web/Dockerfile</code> (1620B, claude-harness)</li>
+<li><code>.claude/worktrees/agent-ad6991466ebd4ee9d/mcp-server/web/Dockerfile</code> (1620B, claude-harness)</li>
+<li><code>.claude/worktrees/brave-euclid/mcp-server/Dockerfile</code> (1313B, claude-harness)</li>
+<li><code>.claude/worktrees/brave-euclid/web/Dockerfile</code> (568B, claude-harness)</li>
+<li><code>.claude/worktrees/rgs6-audit-v2/Dockerfile</code> (1442B, claude-harness)</li>
+<li><code>.claude/worktrees/rgs6-audit-v2/mcp-server/Dockerfile</code> (1442B, claude-harness)</li>
+<li><code>docker/ocr-tools/Dockerfile</code> (2367B, other)</li>
+<li><code>Dockerfile</code> (1385B, other)</li>
+<li><code>Docustrata/.index/paddleocr-docker/Dockerfile</code> (1041B, other)</li>
+<li><code>mcp-server/Dockerfile</code> (1385B, mcp-server)</li>
+<li><code>mcp-server/web/Dockerfile</code> (1571B, mcp-server)</li>
+<li><code>prism-test-6d0595/Dockerfile</code> (1442B, other)</li>
+<li><code>prism-test-6d0595/mcp-server/Dockerfile</code> (1442B, mcp-server)</li>
+<li><code>scripts/docker/prism-hooks-broker.Dockerfile</code> (1683B, prism-infra)</li>
+<li><code>web/Dockerfile</code> (568B, web-frontend)</li>
+</ul>
+<hr>
+<p>Advisory-only — file enumeration without Docker daemon contact.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="DOCKER-COMPOSE-AUDIT.md">DOCKER-COMPOSE-AUDIT.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

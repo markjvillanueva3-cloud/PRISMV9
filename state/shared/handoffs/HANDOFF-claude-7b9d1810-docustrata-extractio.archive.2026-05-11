@@ -1,0 +1,22 @@
+---
+session: claude-7b9d1810
+topic: docustrata-extraction
+written_at: 2026-05-11T12:25:55.889Z
+machine: MARKV
+family: Claude
+session_key: claude-7b9d1810
+status: active
+---
+
+# HANDOFF: claude-7b9d1810
+Updated: 2026-05-11T12:25:55.923Z
+Family: Claude | Machine: MARKV | Session: claude-7b9d1810
+
+## STATE
+Active chat: Docustrata Extraction. Phase 15 OCR rescan running under daemon-supervisor. Shipped this session: U-D3 (hook bundling), U-HUSKY-PRECOMMIT-HARDEN, U-DOCU-MEMSAFE, U-INGEST-PHASE15 (28/28 tests), U-DOCU-HUGE-CHUNKED. Renamed handoff topic to docustrata-extraction so chat is findable in resume list.
+
+## RESUME
+Docustrata Phase 15 deep-rescan IN PROGRESS. Daemon 'phase15-memsafe' running via daemon-supervisor (relaunch with: node H:/prism/scripts/daemon-supervisor.mjs restart phase15-memsafe). As of last check: 9325/20487 docs done (45%), 11138 pending, 2.5 p/s, ETA ~6hr, zero OOM, 5471 drawing-likely / 19146 with PNs. Script auto-resumes from phase15-deep-rescan-parallel.jsonl on any relaunch. WHEN COMPLETE: run prism_dev:blueprint_ingest_phase15 {jsonl_path:'H:/prism/Docustrata/.index/phase15-deep-rescan-parallel.jsonl'} then phase15-deep-rescan-huge-chunked.py 0 4 for the 673 deferred large PDFs. Monitor the daemon log at H:/prism/state/shared/daemons/phase15-memsafe.log.
+
+## CONTEXT
+

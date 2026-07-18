@@ -58,6 +58,12 @@ const wantJson = args.includes("--json");
 // (for debugging or admin pick-unit invocations).
 const chatId = argVal("--chatId", "");
 const noClaimFilter = args.includes("--no-claim-filter");
+// --all-lanes: draw from the WHOLE roadmap (bypass per-chat lane scoping) WITHOUT
+// forcing cleanup priority. Added for loop-state's fleet-fallback so it requests a
+// genuine all-lanes pool instead of the silent alpha-lane default (an empty --slot
+// used to resolve to alpha's lane, never the full roadmap). The --slot default is
+// left untouched so every other caller behaves identically.
+const allLanes = args.includes("--all-lanes");
 
 function safeJson(p) {
   try {
@@ -110,10 +116,13 @@ for (const u of roadmap.roadmap) {
 // no laneAssignment by design. Both cases use the full roadmap pool; the
 // priority filter below scopes to roadmap_priority=2.
 const isCleanupQuery = priorityFilter === "cleanup" || slot === "golf";
-const lane = isCleanupQuery
+// Use the full-roadmap pool for cleanup/golf (existing) OR an explicit --all-lanes
+// request (new). Both bypass per-chat lane scoping.
+const useFullPool = isCleanupQuery || allLanes;
+const lane = useFullPool
   ? null
   : (roadmap.laneAssignments ?? []).find((l) => l.chat === chat);
-if (!isCleanupQuery && !lane) {
+if (!useFullPool && !lane) {
   console.error(`pick-unit: no lane assignment for chat ${chat} (slot ${slot})`);
   process.exit(3);
 }
@@ -122,7 +131,7 @@ const shipped = buildShippedSet(progress);
 
 // Cleanup queries use the full roadmap (no lane scoping); lane queries
 // resolve lane.units keys into entries the normal way.
-let pool = isCleanupQuery
+let pool = useFullPool
   ? roadmap.roadmap.slice()
   : (lane.units ?? [])
       .map((k) => byKey.get(k))
@@ -251,7 +260,7 @@ const picks = pool.slice(0, limit).map((u) => ({
 const summary = {
   slot,
   chat,
-  lane_size: lane?.units?.length ?? (isCleanupQuery ? roadmap.roadmap.length : 0),
+  lane_size: lane?.units?.length ?? (useFullPool ? roadmap.roadmap.length : 0),
   before_shipped_filter: beforeShipped,
   after_shipped_filter: afterShipped,
   peer_claimed_filtered: peerClaimedCount,
@@ -265,7 +274,7 @@ if (wantJson) {
   console.log(JSON.stringify({ summary, picks }, null, 2));
 } else {
   console.log(`# pick-unit — slot=${slot} chat=${chat} priority=${priorityFilter}${tierFilter !== null ? ` tier=${tierFilter}` : ""}${chatId ? ` chatId=${chatId.slice(0, 15)}` : ""}`);
-  const laneSize = lane?.units?.length ?? (isCleanupQuery ? roadmap.roadmap.length : 0);
+  const laneSize = lane?.units?.length ?? (useFullPool ? roadmap.roadmap.length : 0);
   const claimLine = peerClaimedCount > 0 ? ` · peer-claimed ${peerClaimedCount}` : "";
   console.log(`Lane size ${laneSize} · after-shipped ${afterShipped}${claimLine} · pool after filter ${pool.length} · showing top ${picks.length}`);
   console.log("");

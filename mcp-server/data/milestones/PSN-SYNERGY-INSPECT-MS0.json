@@ -1,0 +1,76 @@
+{
+  "id": "PSN-SYNERGY-INSPECT-MS0",
+  "version": "1.0.0",
+  "title": "PSN Synergy Inspector — Cross-Leg Coverage Meta-Engine",
+  "brief": "Read-only meta-engine that scores cross-leg coverage across the 11 PSN (PRISM Synergy Network) legs and surfaces the highest-ROI under-wired pairs as ranked bridge suggestions. Compounds across the fleet — every slot that runs the inspector can spot its own under-wired surfaces and build the highest-leverage bridge next.",
+  "created_at": "2026-05-23T21:00:00Z",
+  "created_by": "claude-64f03cee (slot echo)",
+  "track": "META",
+  "track_name": "PRISM Synergy Network Tooling",
+  "status": "complete",
+  "completed_at": "2026-05-23T21:30:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "PSNSynergyInspectorEngine — pure-function meta-engine over 11 PSN legs (obsidian_brain / prism_os / wiki / memories / tribal / system_viz / engines / algorithms / formulas / nn_gnn / prism_ai). inspect() produces SynergyReport with all pairs + top_under_wired + leg_totals; summarize() compact view; getPSNLegs() canonical roster. 26+ catalog-suggestion templates for directed leg pairs (engines→wiki, nn_gnn→tribal, system_viz→engines, etc.). ROI bands P0_critical/P1_high/P2_medium/P3_low thresholded at 0.85/0.6/0.3. 3 prism_intelligence dispatcher actions (psn_synergy_inspect/summarize/legs) + 21 vitest cases. Engine is pure — caller supplies inventories[] from disk readers; tests inject fixtures (no I/O in engine layer per project rule)."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Cross-leg coverage meta-engine + dispatcher surface",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "PSNSynergyInspectorEngine + 3 prism_intelligence actions + 21 tests",
+          "effort": 60,
+          "dependencies": [
+            "LATHE-P2P-CONSENSUS-MS4",
+            "ORCH-MULTIDOMAIN-MS11",
+            "ECHO-CAM-BRIDGES-MS0"
+          ],
+          "exit_conditions": [
+            "PSNSynergyInspectorEngine.inspect() walks all unordered leg pairs and emits SynergyPair[]",
+            "P0_critical pair = both legs non-empty AND zero refs in either direction (under_wired_score=1)",
+            "26+ directed-pair suggestion templates in SUGGESTIONS catalog",
+            "topK + densityFloor knobs for caller-tuned thresholds",
+            "summarize() surfaces most_isolated_leg + P0/P1/P2 counts",
+            "3 prism_intelligence dispatcher actions: psn_synergy_inspect / psn_synergy_summarize / psn_synergy_legs",
+            "21+ tests: happy path, under-wiring detection, suggestion catalog, ROI bands, edge cases, dispatcher integration"
+          ],
+          "description": "The meta-engine PSN doctrine implies but never had — a way to ASK the system which cross-leg bridges to build next. Each chat that runs this can spot its own slot-domain's under-wired pairs and ship the next bridge with operator-visible ROI ranking. Compounds across the fleet because every shipped bridge moves a P0/P1 pair into a lower band, surfacing new top-ranked candidates on the next inspector run.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptance": "PSNSynergyInspectorEngine pure-function + 3 dispatcher actions + 21+ tests passing. Output ranks all 55 pairs of the 11-leg PSN by ROI band; P0_critical pairs surface as actionable bridge candidates.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Engine is pure — caller must supply accurate inventories. Production callers read from disk (memory/wiki file counts, dispatcher action enums, engine glob); inaccurate inventories produce misleading rankings. Mitigation: ship a sister inspector-data-collector script (follow-up MS, not in scope here)."
+    },
+    {
+      "id": "R2",
+      "description": "Suggestion catalog is hand-curated (26 directed pairs) — covers the highest-frequency PSN bridges but the 55-pair space is incomplete. Unknown pairs fall back to a generic template. Catalog grows in subsequent MS as more bridges ship."
+    },
+    {
+      "id": "R3",
+      "description": "ROI bands are heuristic (0.85/0.6/0.3 thresholds) — not empirically calibrated. First fleet-wide use will reveal whether the bands surface the right operator-actionable subset; thresholds can be tuned in P1 once we have outcome data."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [
+    "LATHE-P2P-CONSENSUS-MS4"
+  ],
+  "updated_at": "2026-05-24T01:03:20.937Z"
+}

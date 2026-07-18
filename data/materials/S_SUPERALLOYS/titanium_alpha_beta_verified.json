@@ -1,0 +1,1002 @@
+{
+  "materials": [
+    {
+      "material_id": "ST-TI-6AL-4V-ANNEALED",
+      "name": "Ti-6Al-4V (Grade 5) Annealed",
+      "iso_group": "S",
+      "material_type": "titanium_alloy",
+      "subcategory": "titanium_alpha_beta",
+      "condition": "annealed",
+      "data_quality": "reference",
+      "data_sources": [
+        "ASM_Metals_Handbook_Vol2",
+        "Machining_Data_Handbook",
+        "Sandvik_Technical_Guide",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
+      ],
+      "physical": {
+        "density": 4430,
+        "melting_point": 1604,
+        "specific_heat": 526,
+        "thermal_conductivity": 6.7,
+        "thermal_expansion": 8.6,
+        "elastic_modulus": 114,
+        "poisson_ratio": 0.34,
+        "shear_modulus": 43,
+        "bulk_modulus": 119,
+        "liquidus_temperature": 1660
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 334,
+          "vickers": 351,
+          "rockwell_b": null,
+          "rockwell_c": 40
+        },
+        "tensile_strength": {
+          "typical": 950,
+          "min": 855,
+          "max": 1045
+        },
+        "yield_strength": {
+          "typical": 880,
+          "min": 792,
+          "max": 968
+        },
+        "elongation": 14,
+        "reduction_of_area": 36,
+        "impact_strength": 25,
+        "fatigue_strength": 475,
+        "fracture_toughness": 75,
+        "compressive_strength": 998,
+        "shear_strength": 570
+      },
+      "kienzle": {
+        "kc1_1": 2767.4,
+        "mc": 0.28,
+        "kc1_1_milling": 2905.8,
+        "mc_milling": 0.2856,
+        "kc1_1_drilling": 3182.6,
+        "mc_drilling": 0.294,
+        "kc1_1_boring": 2822.8,
+        "mc_boring": 0.28,
+        "kc1_1_reaming": 2988.8,
+        "mc_reaming": 0.2884
+      },
+      "johnson_cook": {
+        "A": 1088.2,
+        "B": 50,
+        "n": 0.48,
+        "C": 0.007,
+        "m": 1.15,
+        "T_melt": 1604,
+        "T_ref": 25,
+        "epsilon_dot_ref": 1.0,
+        "T_transition": 600
+      },
+      "taylor": {
+        "C": 80,
+        "n": 0.18,
+        "C_carbide": 80,
+        "n_carbide": 0.18,
+        "C_pcd": null,
+        "n_pcd": null,
+        "C_ceramic": 300,
+        "n_ceramic": 0.28,
+        "C_hss": 15,
+        "n_hss": 0.07
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 22.2,
+          "speed_finishing": 44.5,
+          "feed_roughing": 0.12,
+          "feed_finishing": 0.05,
+          "doc_roughing": 1.0,
+          "doc_finishing": 0.15,
+          "coolant_type": "high_pressure_coolant",
+          "coolant_pressure": 70
+        },
+        "milling": {
+          "speed_roughing": 25.6,
+          "speed_finishing": 51.2,
+          "feed_per_tooth_roughing": 0.042,
+          "feed_per_tooth_finishing": 0.0175,
+          "doc_roughing": 0.8,
+          "doc_finishing": 0.12,
+          "ae_roughing_pct": 30,
+          "ae_finishing_pct": 5,
+          "woc_roughing": 0.4,
+          "woc_finishing": 0.06
+        },
+        "tool_material": {
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "recommendation": "MANDATORY high-pressure coolant. Never dry. Through-spindle preferred. Prevents ignition risk.",
+          "pressure": 40,
+          "flow_rate": 45
+        },
+        "drilling": {
+          "speed": 14.5,
+          "feed_per_rev": 0.042,
+          "peck_depth_ratio": 0.5,
+          "point_angle": 135,
+          "coolant_type": "through_tool_hp",
+          "coolant_through": true
+        }
+      },
+      "machinability": {
+        "aisi_rating": 30,
+        "relative_to_1212": 0.25,
+        "surface_finish_tendency": "difficult",
+        "tool_wear_pattern": "notch_and_crater",
+        "recommended_operations": [
+          "turning",
+          "milling",
+          "drilling"
+        ]
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 165,
+        "prior_method": "handbook_reference_with_physics_scaling",
+        "prior_params": 127
+      },
+      "chip_formation": {
+        "segmentation_frequency": "low",
+        "shear_angle": 20,
+        "chip_compression_ratio": 3.5,
+        "chip_type": "continuous_abrasive",
+        "chip_breaking": "very_poor",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "high",
+        "edge_radius_sensitivity": "moderate"
+      },
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.25,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "high"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 2.9,
+        "heat_partition_ratio": 0.656,
+        "thermal_softening_onset": 650,
+        "hot_hardness_retention": "low",
+        "cryogenic_machinability": "moderate"
+      },
+      "weldability": {
+        "rating": "difficult",
+        "preheat_temperature": 200,
+        "postweld_treatment": "stress_relief_recommended"
+      },
+      "composition": {
+        "Al": {
+          "min": 5.5,
+          "max": 6.75,
+          "typical": 6.13
+        },
+        "V": {
+          "min": 3.5,
+          "max": 4.5,
+          "typical": 4
+        },
+        "Fe": {
+          "max": 0.4
+        },
+        "O": {
+          "max": 0.2
+        },
+        "C": {
+          "max": 0.08
+        },
+        "N": {
+          "max": 0.05
+        },
+        "H": {
+          "max": 0.015
+        },
+        "Ti": {
+          "typical": 89.5
+        }
+      },
+      "tribology": {
+        "sliding_friction": 0.6,
+        "adhesion_tendency": "high",
+        "galling_tendency": "high",
+        "welding_temperature": 800,
+        "oxide_stability": "poor",
+        "lubricity_response": "poor",
+        "friction_coefficient": 0.6,
+        "friction_coefficient_dry": 0.6,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "moderate",
+        "crater_wear_coefficient": 0.004,
+        "flank_wear_coefficient": 0.0035,
+        "wear_coefficient": 0.00375
+      },
+      "surface_integrity": {
+        "achievable_roughness": {
+          "Ra_min": 0.8,
+          "Ra_typical": 3.2
+        },
+        "residual_stress_tendency": "tensile",
+        "white_layer_tendency": "high",
+        "work_hardening_depth": 0.15,
+        "microstructure_stability": "poor",
+        "burr_formation": "moderate",
+        "surface_defect_sensitivity": "high",
+        "polishability": "moderate",
+        "white_layer_risk": "high",
+        "surface_roughness_achievable": 1.0,
+        "burr_formation_tendency": "moderate",
+        "minimum_uncut_chip_thickness": 0.01,
+        "ploughing_force_coefficient": 0.5,
+        "microstructure_sensitivity": "moderate"
+      },
+      "thermal_machining": {
+        "cutting_temperature_coefficient": 0.95,
+        "heat_partition_to_chip": 0.5,
+        "heat_partition_to_tool": 0.25,
+        "heat_partition_to_workpiece": 0.25,
+        "thermal_softening_onset": 700,
+        "recrystallization_temperature": 660.0,
+        "hot_hardness_retention": "excellent",
+        "thermal_shock_sensitivity": "moderate",
+        "heat_partition_coefficient": 0.344,
+        "maximum_cutting_temperature": 1100,
+        "emissivity": 0.4,
+        "heat_transfer_coefficient": 11886.3,
+        "thermal_diffusivity": 2.875,
+        "critical_temperature": 1100,
+        "phase_transformation_temperature": 780.0
+      },
+      "standards": {
+        "note": "cross_reference_pending"
+      },
+      "statistics": {
+        "dataPoints": 95,
+        "confidenceLevel": 0.88,
+        "standardDeviation": {
+          "speed": 3.2,
+          "force": 165,
+          "toolLife": 11
+        },
+        "sources": [
+          "ASM_Metals_Handbook_Vol2",
+          "Machining_Data_Handbook",
+          "Sandvik_Technical_Guide"
+        ],
+        "lastValidated": "2026-Q1",
+        "reliability": "VERIFIED"
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "TI6AL4V(GRADE5)",
+        "match_method": "name_parse_subcategory",
+        "match_quality": 0.7,
+        "subcategory_resolved": "titanium_alpha_beta",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Ni"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_titanium_alpha_beta_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "VERIFIED",
+          "source": "web_database"
+        },
+        "has_composition": true
+      },
+      "param_count": 192
+    },
+    {
+      "material_id": "ST-TI-6AL-4V-STA",
+      "name": "Ti-6Al-4V (Grade 5) STA",
+      "iso_group": "S",
+      "material_type": "titanium_alloy",
+      "subcategory": "titanium_alpha_beta",
+      "condition": "STA",
+      "data_quality": "reference",
+      "data_sources": [
+        "ASM_Metals_Handbook_Vol2",
+        "Machining_Data_Handbook",
+        "Sandvik_Technical_Guide",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
+      ],
+      "physical": {
+        "density": 4430,
+        "melting_point": 1604,
+        "specific_heat": 526,
+        "thermal_conductivity": 6.7,
+        "thermal_expansion": 8.6,
+        "elastic_modulus": 114,
+        "poisson_ratio": 0.34,
+        "shear_modulus": 43,
+        "bulk_modulus": 119,
+        "liquidus_temperature": 1660
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 381,
+          "vickers": 400,
+          "rockwell_b": null,
+          "rockwell_c": 49
+        },
+        "tensile_strength": {
+          "typical": 1100,
+          "min": 990,
+          "max": 1210
+        },
+        "yield_strength": {
+          "typical": 1000,
+          "min": 900,
+          "max": 1100
+        },
+        "elongation": 10,
+        "reduction_of_area": 25,
+        "impact_strength": 22,
+        "fatigue_strength": 550,
+        "fracture_toughness": 70,
+        "compressive_strength": 1155,
+        "shear_strength": 660
+      },
+      "kienzle": {
+        "kc1_1": 2860.0,
+        "mc": 0.28,
+        "kc1_1_milling": 3003.0,
+        "mc_milling": 0.2856,
+        "kc1_1_drilling": 3289.0,
+        "mc_drilling": 0.294,
+        "kc1_1_boring": 2917.2,
+        "mc_boring": 0.28,
+        "kc1_1_reaming": 3088.8,
+        "mc_reaming": 0.2884
+      },
+      "johnson_cook": {
+        "A": 1177.7,
+        "B": 1358.8,
+        "n": 0.48,
+        "C": 0.007,
+        "m": 1.15,
+        "T_melt": 1604,
+        "T_ref": 25,
+        "epsilon_dot_ref": 1.0,
+        "T_transition": 600
+      },
+      "taylor": {
+        "C": 80,
+        "n": 0.18,
+        "C_carbide": 80,
+        "n_carbide": 0.18,
+        "C_pcd": null,
+        "n_pcd": null,
+        "C_ceramic": 300,
+        "n_ceramic": 0.28,
+        "C_cbn": 69,
+        "n_cbn": 0.171,
+        "C_hss": 15,
+        "n_hss": 0.07
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 22.2,
+          "speed_finishing": 44.5,
+          "feed_roughing": 0.12,
+          "feed_finishing": 0.05,
+          "doc_roughing": 1.0,
+          "doc_finishing": 0.15,
+          "coolant_type": "high_pressure_coolant",
+          "coolant_pressure": 70
+        },
+        "milling": {
+          "speed_roughing": 25.6,
+          "speed_finishing": 51.2,
+          "feed_per_tooth_roughing": 0.042,
+          "feed_per_tooth_finishing": 0.0175,
+          "doc_roughing": 0.8,
+          "doc_finishing": 0.12,
+          "ae_roughing_pct": 30,
+          "ae_finishing_pct": 5,
+          "woc_roughing": 0.4,
+          "woc_finishing": 0.06
+        },
+        "tool_material": {
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "recommendation": "MANDATORY high-pressure coolant. Never dry. Through-spindle preferred. Prevents ignition risk.",
+          "pressure": 40,
+          "flow_rate": 45
+        },
+        "drilling": {
+          "speed": 14.5,
+          "feed_per_rev": 0.042,
+          "peck_depth_ratio": 0.5,
+          "point_angle": 135,
+          "coolant_type": "through_tool_hp",
+          "coolant_through": true
+        }
+      },
+      "machinability": {
+        "aisi_rating": 27,
+        "relative_to_1212": 0.23,
+        "surface_finish_tendency": "difficult",
+        "tool_wear_pattern": "notch_and_crater",
+        "recommended_operations": [
+          "turning",
+          "milling",
+          "drilling"
+        ]
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 167,
+        "prior_method": "handbook_reference_with_physics_scaling",
+        "prior_params": 127
+      },
+      "chip_formation": {
+        "segmentation_frequency": "low",
+        "shear_angle": 20,
+        "chip_compression_ratio": 3.5,
+        "chip_type": "continuous_abrasive",
+        "chip_breaking": "very_poor",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "high",
+        "edge_radius_sensitivity": "moderate"
+      },
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.25,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "high"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 2.9,
+        "heat_partition_ratio": 0.656,
+        "thermal_softening_onset": 650,
+        "hot_hardness_retention": "low",
+        "cryogenic_machinability": "moderate"
+      },
+      "weldability": {
+        "rating": "difficult",
+        "preheat_temperature": 200,
+        "postweld_treatment": "stress_relief_required"
+      },
+      "composition": {
+        "Al": {
+          "min": 5.5,
+          "max": 6.75,
+          "typical": 6.13
+        },
+        "V": {
+          "min": 3.5,
+          "max": 4.5,
+          "typical": 4
+        },
+        "Fe": {
+          "max": 0.4
+        },
+        "O": {
+          "max": 0.2
+        },
+        "C": {
+          "max": 0.08
+        },
+        "N": {
+          "max": 0.05
+        },
+        "H": {
+          "max": 0.015
+        },
+        "Ti": {
+          "typical": 89.5
+        }
+      },
+      "tribology": {
+        "sliding_friction": 0.6,
+        "adhesion_tendency": "high",
+        "galling_tendency": "high",
+        "welding_temperature": 800,
+        "oxide_stability": "poor",
+        "lubricity_response": "poor",
+        "friction_coefficient": 0.6,
+        "friction_coefficient_dry": 0.6,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "moderate",
+        "crater_wear_coefficient": 0.004,
+        "flank_wear_coefficient": 0.0035,
+        "wear_coefficient": 0.00375
+      },
+      "surface_integrity": {
+        "achievable_roughness": {
+          "Ra_min": 0.8,
+          "Ra_typical": 3.2
+        },
+        "residual_stress_tendency": "tensile",
+        "white_layer_tendency": "high",
+        "work_hardening_depth": 0.15,
+        "microstructure_stability": "poor",
+        "burr_formation": "moderate",
+        "surface_defect_sensitivity": "high",
+        "polishability": "moderate",
+        "white_layer_risk": "high",
+        "surface_roughness_achievable": 1.0,
+        "burr_formation_tendency": "moderate",
+        "minimum_uncut_chip_thickness": 0.01,
+        "ploughing_force_coefficient": 0.5,
+        "microstructure_sensitivity": "moderate"
+      },
+      "thermal_machining": {
+        "cutting_temperature_coefficient": 0.95,
+        "heat_partition_to_chip": 0.5,
+        "heat_partition_to_tool": 0.25,
+        "heat_partition_to_workpiece": 0.25,
+        "thermal_softening_onset": 700,
+        "recrystallization_temperature": 660.0,
+        "hot_hardness_retention": "excellent",
+        "thermal_shock_sensitivity": "moderate",
+        "heat_partition_coefficient": 0.344,
+        "maximum_cutting_temperature": 1100,
+        "emissivity": 0.4,
+        "heat_transfer_coefficient": 11886.3,
+        "thermal_diffusivity": 2.875,
+        "critical_temperature": 1100,
+        "phase_transformation_temperature": 780.0
+      },
+      "standards": {
+        "note": "cross_reference_pending"
+      },
+      "statistics": {
+        "dataPoints": 95,
+        "confidenceLevel": 0.88,
+        "standardDeviation": {
+          "speed": 3.2,
+          "force": 165,
+          "toolLife": 11
+        },
+        "sources": [
+          "ASM_Metals_Handbook_Vol2",
+          "Machining_Data_Handbook",
+          "Sandvik_Technical_Guide"
+        ],
+        "lastValidated": "2026-Q1",
+        "reliability": "VERIFIED"
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "TI6AL4V(GRADE5)",
+        "match_method": "name_parse_subcategory",
+        "match_quality": 0.7,
+        "subcategory_resolved": "titanium_alpha_beta",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Ni"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_titanium_alpha_beta_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "VERIFIED",
+          "source": "web_database"
+        },
+        "has_composition": true
+      },
+      "param_count": 194
+    },
+    {
+      "material_id": "ST-TI-6AL-4V-MILLANNEALED",
+      "name": "Ti-6Al-4V (Grade 5) Mill Annealed",
+      "iso_group": "S",
+      "material_type": "titanium_alloy",
+      "subcategory": "titanium_alpha_beta",
+      "condition": "mill_annealed",
+      "data_quality": "reference",
+      "data_sources": [
+        "ASM_Metals_Handbook_Vol2",
+        "Machining_Data_Handbook",
+        "Sandvik_Technical_Guide",
+        "deep_accuracy_v1",
+        "deep_accuracy_v2"
+      ],
+      "physical": {
+        "density": 4430,
+        "melting_point": 1604,
+        "specific_heat": 526,
+        "thermal_conductivity": 6.7,
+        "thermal_expansion": 8.6,
+        "elastic_modulus": 114,
+        "poisson_ratio": 0.34,
+        "shear_modulus": 43,
+        "bulk_modulus": 119,
+        "liquidus_temperature": 1660
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 334,
+          "vickers": 351,
+          "rockwell_b": null,
+          "rockwell_c": 40
+        },
+        "tensile_strength": {
+          "typical": 930,
+          "min": 837,
+          "max": 1023
+        },
+        "yield_strength": {
+          "typical": 860,
+          "min": 774,
+          "max": 946
+        },
+        "elongation": 14,
+        "reduction_of_area": 36,
+        "impact_strength": 25,
+        "fatigue_strength": 465,
+        "fracture_toughness": 75,
+        "compressive_strength": 977,
+        "shear_strength": 558
+      },
+      "kienzle": {
+        "kc1_1": 2767.4,
+        "mc": 0.28,
+        "kc1_1_milling": 2905.8,
+        "mc_milling": 0.2856,
+        "kc1_1_drilling": 3182.6,
+        "mc_drilling": 0.294,
+        "kc1_1_boring": 2822.8,
+        "mc_boring": 0.28,
+        "kc1_1_reaming": 2988.8,
+        "mc_reaming": 0.2884
+      },
+      "johnson_cook": {
+        "A": 1088.2,
+        "B": 50,
+        "n": 0.48,
+        "C": 0.007,
+        "m": 1.15,
+        "T_melt": 1604,
+        "T_ref": 25,
+        "epsilon_dot_ref": 1.0,
+        "T_transition": 600
+      },
+      "taylor": {
+        "C": 80,
+        "n": 0.18,
+        "C_carbide": 80,
+        "n_carbide": 0.18,
+        "C_pcd": null,
+        "n_pcd": null,
+        "C_ceramic": 300,
+        "n_ceramic": 0.28,
+        "C_hss": 15,
+        "n_hss": 0.07
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 22.2,
+          "speed_finishing": 44.5,
+          "feed_roughing": 0.12,
+          "feed_finishing": 0.05,
+          "doc_roughing": 1.0,
+          "doc_finishing": 0.15,
+          "coolant_type": "high_pressure_coolant",
+          "coolant_pressure": 70
+        },
+        "milling": {
+          "speed_roughing": 25.6,
+          "speed_finishing": 51.2,
+          "feed_per_tooth_roughing": 0.042,
+          "feed_per_tooth_finishing": 0.0175,
+          "doc_roughing": 0.8,
+          "doc_finishing": 0.12,
+          "ae_roughing_pct": 30,
+          "ae_finishing_pct": 5,
+          "woc_roughing": 0.4,
+          "woc_finishing": 0.06
+        },
+        "tool_material": {
+          "recommended_grade": "Coated carbide",
+          "coating_recommendation": "TiAlN",
+          "geometry_recommendation": "Neutral"
+        },
+        "coolant": {
+          "type": "Flood emulsion",
+          "recommendation": "MANDATORY high-pressure coolant. Never dry. Through-spindle preferred. Prevents ignition risk.",
+          "pressure": 40,
+          "flow_rate": 45
+        },
+        "drilling": {
+          "speed": 14.5,
+          "feed_per_rev": 0.042,
+          "peck_depth_ratio": 0.5,
+          "point_angle": 135,
+          "coolant_type": "through_tool_hp",
+          "coolant_through": true
+        }
+      },
+      "machinability": {
+        "aisi_rating": 30,
+        "relative_to_1212": 0.25,
+        "surface_finish_tendency": "difficult",
+        "tool_wear_pattern": "notch_and_crater",
+        "recommended_operations": [
+          "turning",
+          "milling",
+          "drilling"
+        ]
+      },
+      "_verified": {
+        "session": 99,
+        "date": "2026-02-27",
+        "method": "batch_enhancement_v10_physics_correlation",
+        "params": 165,
+        "prior_method": "handbook_reference_with_physics_scaling",
+        "prior_params": 127
+      },
+      "chip_formation": {
+        "segmentation_frequency": "low",
+        "shear_angle": 20,
+        "chip_compression_ratio": 3.5,
+        "chip_type": "continuous_abrasive",
+        "chip_breaking": "very_poor",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "high",
+        "edge_radius_sensitivity": "moderate"
+      },
+      "surface": {
+        "achievable_ra_turning": 1.0,
+        "achievable_ra_milling": 2.0,
+        "achievable_ra_grinding": 0.25,
+        "surface_integrity_sensitivity": "moderate",
+        "white_layer_risk": "high"
+      },
+      "thermal": {
+        "cutting_temperature_factor": 2.9,
+        "heat_partition_ratio": 0.656,
+        "thermal_softening_onset": 650,
+        "hot_hardness_retention": "low",
+        "cryogenic_machinability": "moderate"
+      },
+      "weldability": {
+        "rating": "difficult",
+        "preheat_temperature": 200,
+        "postweld_treatment": "stress_relief_recommended"
+      },
+      "composition": {
+        "Al": {
+          "min": 5.5,
+          "max": 6.75,
+          "typical": 6.13
+        },
+        "V": {
+          "min": 3.5,
+          "max": 4.5,
+          "typical": 4
+        },
+        "Fe": {
+          "max": 0.4
+        },
+        "O": {
+          "max": 0.2
+        },
+        "C": {
+          "max": 0.08
+        },
+        "N": {
+          "max": 0.05
+        },
+        "H": {
+          "max": 0.015
+        },
+        "Ti": {
+          "typical": 89.5
+        }
+      },
+      "tribology": {
+        "sliding_friction": 0.6,
+        "adhesion_tendency": "high",
+        "galling_tendency": "high",
+        "welding_temperature": 800,
+        "oxide_stability": "poor",
+        "lubricity_response": "poor",
+        "friction_coefficient": 0.6,
+        "friction_coefficient_dry": 0.6,
+        "friction_coefficient_flood": 0.35,
+        "friction_coefficient_mql": 0.28,
+        "abrasiveness": "moderate",
+        "crater_wear_coefficient": 0.004,
+        "flank_wear_coefficient": 0.0035,
+        "wear_coefficient": 0.00375
+      },
+      "surface_integrity": {
+        "achievable_roughness": {
+          "Ra_min": 0.8,
+          "Ra_typical": 3.2
+        },
+        "residual_stress_tendency": "tensile",
+        "white_layer_tendency": "high",
+        "work_hardening_depth": 0.15,
+        "microstructure_stability": "poor",
+        "burr_formation": "moderate",
+        "surface_defect_sensitivity": "high",
+        "polishability": "moderate",
+        "white_layer_risk": "high",
+        "surface_roughness_achievable": 1.0,
+        "burr_formation_tendency": "moderate",
+        "minimum_uncut_chip_thickness": 0.01,
+        "ploughing_force_coefficient": 0.5,
+        "microstructure_sensitivity": "moderate"
+      },
+      "thermal_machining": {
+        "cutting_temperature_coefficient": 0.95,
+        "heat_partition_to_chip": 0.5,
+        "heat_partition_to_tool": 0.25,
+        "heat_partition_to_workpiece": 0.25,
+        "thermal_softening_onset": 700,
+        "recrystallization_temperature": 660.0,
+        "hot_hardness_retention": "excellent",
+        "thermal_shock_sensitivity": "moderate",
+        "heat_partition_coefficient": 0.344,
+        "maximum_cutting_temperature": 1100,
+        "emissivity": 0.4,
+        "heat_transfer_coefficient": 11886.3,
+        "thermal_diffusivity": 2.875,
+        "critical_temperature": 1100,
+        "phase_transformation_temperature": 780.0
+      },
+      "standards": {
+        "note": "cross_reference_pending"
+      },
+      "statistics": {
+        "dataPoints": 95,
+        "confidenceLevel": 0.88,
+        "standardDeviation": {
+          "speed": 3.2,
+          "force": 165,
+          "toolLife": 11
+        },
+        "sources": [
+          "ASM_Metals_Handbook_Vol2",
+          "Machining_Data_Handbook",
+          "Sandvik_Technical_Guide"
+        ],
+        "lastValidated": "2026-Q1",
+        "reliability": "VERIFIED"
+      },
+      "_accuracy": {
+        "pass": "deep_accuracy_v2",
+        "date": "2026-02-27",
+        "alloy_match": "TI6AL4V(GRADE5)",
+        "match_method": "name_parse_subcategory",
+        "match_quality": 0.7,
+        "subcategory_resolved": "titanium_alpha_beta",
+        "johnson_cook": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "Subcategory_Ni"
+        },
+        "kienzle": {
+          "confidence": "SUBCATEGORY_SPECIFIC",
+          "source": "VDI3323_titanium_alpha_beta_HB_scaled"
+        },
+        "taylor": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "chip_formation": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_fallback"
+        },
+        "cutting_recommendations": {
+          "confidence": "MEDIUM",
+          "source": "iso_group_default"
+        },
+        "tribology": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "surface_integrity": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "thermal_machining": {
+          "confidence": "MEDIUM_HIGH",
+          "source": "subcategory_titanium_alpha_beta"
+        },
+        "thermal_conductivity": {
+          "confidence": "MEDIUM",
+          "source": "existing"
+        },
+        "overall_confidence": "SUBCATEGORY_SPECIFIC",
+        "v2_corrections": 0,
+        "physical_properties": {
+          "confidence": "VERIFIED",
+          "source": "web_database"
+        },
+        "has_composition": true
+      },
+      "param_count": 192
+    }
+  ]
+}

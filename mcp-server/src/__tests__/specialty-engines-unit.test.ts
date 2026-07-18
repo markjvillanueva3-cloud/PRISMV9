@@ -335,6 +335,23 @@ describe("RegenerativeChatterPredictor", () => {
       expectPhysicalValue(result.critical_depth_mm, "critical depth", 0);
     });
 
+    // Row 13 (U-OSC-SFC-CHATTER-LOBE-CENTER): lobe centers are the textbook best-speed
+    // pockets n = 60*fn/(Z*(N+1)) (Altintas Ch.4). For fn=800 Hz, Z=4: 12000, 6000, 4000 rpm.
+    // The pre-fix eps=pi placed every "lobe" at N+0.5 -- the least-stable VALLEY (24000,
+    // 8000, 4800 rpm) -- so optimal_rpm steered the operator to the WORST speed. This
+    // reference fails on a revert (8000 was the old N=1 value; it must NOT appear).
+    it("stability lobes sit at the textbook pockets 60*fn/(Z*(N+1)), not the valleys", () => {
+      const result = regenerativeChatterPredictor.predict(makeChatterInput());
+      const rpms = result.stability_lobes.map((l) => l.rpm);
+      expect(rpms).toContain(12000); // N=0
+      expect(rpms).toContain(6000);  // N=1
+      expect(rpms).toContain(4000);  // N=2
+      expect(rpms).not.toContain(24000); // old eps=pi N=0 valley
+      expect(rpms).not.toContain(8000);  // old eps=pi N=1 valley
+      // optimal_rpm must be one of the true pockets
+      expect(rpms).toContain(result.optimal_rpm);
+    });
+
     it("shallow cut is stable", () => {
       // Use very high stiffness + low Kc so bLimMin > depth
       const result = regenerativeChatterPredictor.predict(
@@ -364,14 +381,28 @@ describe("RegenerativeChatterPredictor", () => {
       expect(stiff.critical_depth_mm).toBeGreaterThan(soft.critical_depth_mm);
     });
 
+    // Absolute-scale pin: relative/monotone tests CANNOT catch a 1000x unit error (both
+    // sides shrink together). Hand-computed between-lobe depth for the default fixture
+    // (rpm 8000 sits 33% from pockets 12000/6000): bLimMin_mm = k*2ζ/(Z*Kc*μ) in meters
+    // * 1000 = (5e6*0.06)/(4*1800e6*0.75)*1000 = 0.0556 mm. Pre-fix the METERS value
+    // 5.56e-5 was emitted as mm and rounded to 0 -- the whiskey 2026-06-28 class (stout
+    // turning shank read 0.02 mm where ~20 mm was physical).
+    it("between-lobe critical depth carries the m->mm conversion (absolute pin 0.056mm)", () => {
+      const r = regenerativeChatterPredictor.predict(makeChatterInput());
+      expect(r.critical_depth_mm).toBeCloseTo(0.056, 3);
+    });
+
     it("higher damping → higher critical depth (between lobes)", () => {
-      // Use RPM=6000 (away from lobe peaks) so criticalDepth = bLimMin ∝ zeta
-      // High stiffness (1e9) so critical depths don't round to 0
+      // Between-lobe rpm so criticalDepth = bLimMin_mm ∝ zeta. The old fixture used 6000,
+      // which was between lobes only under the PRE-row-13 wrong valley positions -- post-fix
+      // 6000 IS the N=1 pocket exactly (fn=800, Z=4 -> 12000/6000/4000), and on the peak
+      // branch bLim ∝ 2ζ(1+1/(4ζ²)) DECREASES with ζ at low ζ. 8000 sits 33% from both
+      // neighboring pockets (12000, 6000), safely past the 10% near-lobe window.
       const low = regenerativeChatterPredictor.predict(
-        makeChatterInput({ damping_ratio: 0.01, spindle_rpm: 6000, stiffness_N_per_m: 1e9 })
+        makeChatterInput({ damping_ratio: 0.01, spindle_rpm: 8000, stiffness_N_per_m: 1e9 })
       );
       const high = regenerativeChatterPredictor.predict(
-        makeChatterInput({ damping_ratio: 0.10, spindle_rpm: 6000, stiffness_N_per_m: 1e9 })
+        makeChatterInput({ damping_ratio: 0.10, spindle_rpm: 8000, stiffness_N_per_m: 1e9 })
       );
       expect(high.critical_depth_mm).toBeGreaterThan(low.critical_depth_mm);
     });

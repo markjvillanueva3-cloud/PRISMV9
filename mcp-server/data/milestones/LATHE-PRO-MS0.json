@@ -1,0 +1,144 @@
+{
+  "_meta": {
+    "track": "LATHE-PRO",
+    "title": "Lathe Programming Orchestrator & Optimization",
+    "version": "1.0.0",
+    "created": "2026-04-05",
+    "total_milestones": 8,
+    "total_units": 62,
+    "estimated_sessions": 24,
+    "description": "WEDM-class unified lathe programming system with intelligent operation sequencing, insert wear prediction, automatic offset management, machine control feature utilization, and knowledge-derived rules. Complements existing LATHE track."
+  },
+  "milestones": [
+    {
+      "id": "LATHE-PRO-MS0",
+      "title": "Unified Orchestrator Engine (30-Stage Pipeline)",
+      "status": "not_started",
+      "priority": "critical",
+      "depends_on": [],
+      "units": 10,
+      "sessions": 4,
+      "engines_created": ["LatheOrchestrationEngine"],
+      "actions_created": ["lathe_generate_complete_program", "lathe_plan_operations"],
+      "forge_triple": {
+        "hook": "lathe-orchestration-guard",
+        "action": "prism_turning:lathe_generate_complete_program",
+        "skill": "/lathe-program"
+      }
+    },
+    {
+      "id": "LATHE-PRO-MS1",
+      "title": "Insert Wear Intelligence & Life Prediction",
+      "status": "not_started",
+      "priority": "critical",
+      "depends_on": ["LATHE-PRO-MS0"],
+      "units": 8,
+      "sessions": 3,
+      "engines_created": ["TurningInsertLifeEngine"],
+      "actions_created": ["turning_predict_insert_life", "turning_batch_life_plan", "turning_wear_accumulation", "turning_insert_change_schedule"],
+      "forge_triple": {
+        "hook": "insert-life-gate",
+        "action": "prism_turning:turning_predict_insert_life",
+        "skill": "/tool-life-max (enhanced)"
+      }
+    },
+    {
+      "id": "LATHE-PRO-MS2",
+      "title": "Automatic Offset Management & Accuracy Control",
+      "status": "not_started",
+      "priority": "critical",
+      "depends_on": ["LATHE-PRO-MS1"],
+      "units": 7,
+      "sessions": 3,
+      "engines_created": ["TurningOffsetCompensationEngine"],
+      "actions_created": ["turning_offset_compensation", "turning_probing_cycle", "turning_accuracy_prediction", "turning_auto_offset_macro"],
+      "forge_triple": {
+        "hook": "offset-safety-gate",
+        "action": "prism_turning:turning_auto_offset_macro",
+        "skill": "/lathe-offset"
+      }
+    },
+    {
+      "id": "LATHE-PRO-MS3",
+      "title": "Operation Sequence Optimization",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": ["LATHE-PRO-MS0"],
+      "units": 8,
+      "sessions": 3,
+      "engines_created": ["LathePartClassifierEngine", "LatheSequenceOptimizerEngine"],
+      "actions_created": ["turning_classify_part", "turning_optimize_sequence", "turning_sequence_plan", "turning_thermal_sequence"],
+      "forge_triple": {
+        "hook": "sequence-safety-gate",
+        "action": "prism_turning:turning_optimize_sequence",
+        "skill": "/lathe-sequence"
+      }
+    },
+    {
+      "id": "LATHE-PRO-MS4",
+      "title": "Machine Control Feature Integration",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": ["LATHE-PRO-MS0"],
+      "units": 8,
+      "sessions": 3,
+      "engines_created": ["LatheCSSOptimizerEngine"],
+      "actions_created": ["turning_css_optimize", "turning_turret_optimize", "turning_live_tool_sequence", "turning_sub_spindle_transfer", "turning_adaptive_feed_setup"],
+      "forge_triple": {
+        "hook": "css-safety-gate",
+        "action": "prism_turning:turning_css_optimize",
+        "skill": "/spindle-optimize (enhanced)"
+      }
+    },
+    {
+      "id": "LATHE-PRO-MS5",
+      "title": "Knowledge Rules Generation Pipeline",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": ["LATHE-PRO-MS0"],
+      "units": 8,
+      "sessions": 3,
+      "engines_created": ["TurningRulesGeneratorEngine"],
+      "actions_created": ["turning_generate_rules", "turning_query_rules", "turning_validate_against_rules"],
+      "forge_triple": {
+        "hook": "turning-rules-enforcement",
+        "action": "prism_turning:turning_query_rules",
+        "skill": "/playbook turning (extended)"
+      }
+    },
+    {
+      "id": "LATHE-PRO-MS6",
+      "title": "Enforcement Scripts & Hooks",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": ["LATHE-PRO-MS0", "LATHE-PRO-MS1"],
+      "units": 7,
+      "sessions": 3,
+      "engines_created": [],
+      "hooks_created": ["LathePreProgramHooks", "LathePostProgramHooks", "LathePhysicsHooks"],
+      "scripts_created": ["lathe-program-validator.mjs", "lathe-physics-audit.mjs"],
+      "actions_created": ["turning_validate_program"],
+      "forge_triple": {
+        "hook": "lathe-pre/post/physics hooks (12 total)",
+        "action": "prism_turning:turning_validate_program",
+        "skill": "/program-validate lathe (extended)"
+      }
+    },
+    {
+      "id": "LATHE-PRO-MS7",
+      "title": "Validation Benchmark & Production Testing",
+      "status": "not_started",
+      "priority": "high",
+      "depends_on": ["LATHE-PRO-MS0", "LATHE-PRO-MS1", "LATHE-PRO-MS2", "LATHE-PRO-MS3", "LATHE-PRO-MS4", "LATHE-PRO-MS5", "LATHE-PRO-MS6"],
+      "units": 6,
+      "sessions": 2,
+      "engines_created": ["LatheBenchmarkSuiteEngine"],
+      "actions_created": ["turning_benchmark_run"],
+      "forge_triple": {
+        "hook": "lathe-benchmark-regression",
+        "action": "prism_turning:turning_benchmark_run",
+        "skill": "/lathe-benchmark"
+      }
+    }
+  ]
+}

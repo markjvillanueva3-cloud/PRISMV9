@@ -1,7 +1,7 @@
 {
   "version": "9.8.0",
   "title": "PRISM Unified Roadmap v2.0 - 11 Lanes, 4 Seats",
-  "updated_at": "2026-05-16T03:12:55.337Z",
+  "updated_at": "2026-06-23T00:55:04.156Z",
   "comprehensive_roadmap_2026_05_04": {
     "doc": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
     "json": "milestones/comprehensive-roadmap-2026-05-04.json",
@@ -79,9 +79,9 @@
       "title": "Cleanup Roadmap — 7th 'golf' chat slot for system hygiene (process reaping, peer-bug detection, system-viz grooming, wiring-potential, CLAUDE.md token slim)",
       "track": "CLEANUP",
       "roadmap": "cleanup",
-      "status": "in_progress",
+      "status": "complete",
       "total_units": 73,
-      "completed_units": 56,
+      "completed_units": 72,
       "priority": "P0",
       "owner": "claude-7f79dd78",
       "created_at": "2026-05-13T18:00:00.000Z",
@@ -108,13 +108,15 @@
       "_legacyStatus": "not_started",
       "completed_at": "2026-05-13T17:35:25.832Z",
       "last_updated": "2026-05-14T03:09:09.379Z",
-      "last_synced": "2026-05-13T23:15:00.581Z"
+      "last_synced": "2026-05-13T23:15:00.581Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
+      "_reconciled_source": "envelope"
     },
     {
       "id": "WORKTREE-CONSOLIDATE-MS0",
       "title": "H: Drive Worktree Consolidation — Land Stranded Commits + Fix Lint-Staged Root Cause",
       "track": "INFRA-CONSOLIDATE",
-      "status": "in_progress",
+      "status": "superseded",
       "total_units": 32,
       "completed_units": 9,
       "completed_phases": [
@@ -137,7 +139,9 @@
       "sessions_p90": 10,
       "description": "Consolidate 45 worktrees by cherry-picking stranded commits into a side branch, fast-forwarding to main, and pruning dead trees. Fixes lint-staged stash-leakage root cause (FIX1/FIX2 pattern). Lands ppgh05 (798 commits / Multus engine), ppg-advancedpost (682), mill-worktree (MS-AI-WIRING U1-U17). See state/shared/WORKTREE-AUDIT-2026-05-06.md + DOMAIN-SCRUTINY-2026-05-06.md.",
       "version": "1.0.0",
-      "context_doc": "H:/.claude/plans/brainstorm-a-generate-a-purring-matsumoto.md"
+      "context_doc": "H:/.claude/plans/brainstorm-a-generate-a-purring-matsumoto.md",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
+      "_reconciled_source": "envelope"
     },
     {
       "id": "SLOT-WORKTREE-MS0",
@@ -163,9 +167,9 @@
       "id": "INFRA-CONSENSUS-WIRE-MS0",
       "title": "Wire 4-Way Consensus Into Dispatcher Decision Points",
       "track": "INFRA",
-      "status": "not_started",
+      "status": "complete",
       "total_units": 5,
-      "completed_units": 0,
+      "completed_units": 5,
       "dependencies": [],
       "blocks": [
         "INFRA-NEURAL-LEDGER-MS1",
@@ -177,7 +181,9 @@
       "sessions_p50": 6,
       "sessions_p90": 10,
       "description": "Take just-restored MultiModelConsensusEngine + CodexClient + GeminiClient + OllamaClient (smoke-tested 3-of-3 unanimous) and wire them into prism_ai:consensus_decide action. Make consensus default for high-stakes decisions (machine select, toolpath, post pick, speed/feed cap). Includes audit log + provenance.",
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "_legacyStatus": "not_started",
+      "completed_at": "2026-05-19T17:43:14.219Z"
     },
     {
       "id": "INFRA-NEURAL-LEDGER-MS1",
@@ -207,7 +213,7 @@
       "id": "INFRA-AGI-ROUTER-MS2",
       "title": "Unify Domain AGIs Behind ProcessIntelligenceRouter",
       "track": "INFRA",
-      "status": "not_started",
+      "status": "complete",
       "total_units": 5,
       "completed_units": 0,
       "dependencies": [
@@ -226,13 +232,15 @@
       "sessions_p50": 7,
       "sessions_p90": 11,
       "description": "Standardize MillingAGIMaster + LatheAGI + WEDMAGI behind single orchestrate(intent) contract. Wire consensus gating from MS0 + outcome emission from MS1 at router level. Closes architect risks #2 (consensus altitude) + #3 (registry-physics joins) + #8 (confidence rollup).",
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "_legacyStatus": "not_started",
+      "completed_at": "2026-05-22T16:38:52.338Z"
     },
     {
       "id": "LATHE-P2P-CONSENSUS-MS4",
       "title": "Lathe Print-to-Program with Consensus-Gated Decisions",
       "track": "LATHE",
-      "status": "not_started",
+      "status": "complete",
       "total_units": 7,
       "completed_units": 0,
       "dependencies": [
@@ -248,7 +256,9 @@
       "sessions_p50": 10,
       "sessions_p90": 16,
       "description": "End-to-end lathe pipeline. JM Die blueprint -> OCR -> features -> sequence (consensus) -> insert/CSS/threading (consensus) -> toolpath -> master-post -> sim + collision -> validated G-code. Acceptance: 5 JM Die parts pass with consensus audit + Omega>=0.95.",
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "_legacyStatus": "not_started",
+      "completed_at": "2026-05-23T19:49:45.674Z"
     },
     {
       "id": "INTEL-OLLAMA-OBSIDIAN-MS0",
@@ -355,7 +365,7 @@
       "track": "CAD-COMPLETE",
       "status": "in_progress",
       "total_units": 336,
-      "completed_units": 45,
+      "completed_units": 60,
       "dependencies": [],
       "envelope_path": "milestones/CAD-COMPLETE-MS0.json",
       "priority": "HIGH",
@@ -368,8 +378,8 @@
       "_legacyStatus": "planning",
       "description": " Round 5 cleanup (2026-04-21): U-CADC34 superseded â€” git corruption (tree 18b53fe1â€¦ missing on disk), capability preserved by U-CADC-MSR05 + CAD-UIX-MS0 P8 gauntlet units.",
       "scrutiny_round_5_complete": true,
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
-      "_reconciled_source": "git"
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
+      "_reconciled_source": "envelope"
     },
     {
       "id": "LATHE-PROD-READY-MS0",
@@ -2498,9 +2508,9 @@
       "dependencies": [
         "WIRE-MS0"
       ],
-      "status": "not_started",
+      "status": "in_progress",
       "total_units": 12,
-      "completed_units": 0,
+      "completed_units": 4,
       "sessions": "3-5",
       "envelope_path": "milestones/PIPE-MS0.json"
     },
@@ -2982,11 +2992,11 @@
       "dependencies": [],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 22,
       "sessions": "7",
       "envelope_path": "milestones/WEDM-MS0.json",
       "completed_at": "2026-04-12T22:44:10.654Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -2998,11 +3008,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 24,
       "sessions": "8",
       "envelope_path": "milestones/WEDM-MS1.json",
       "completed_at": "2026-04-12T22:44:10.654Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -3015,11 +3025,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 10,
       "sessions": "3",
       "envelope_path": "milestones/WEDM-INT-MS0.json",
       "completed_at": "2026-04-12T22:44:10.654Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -3407,10 +3417,12 @@
       "dependencies": [],
       "status": "in_progress",
       "total_units": 24,
-      "completed_units": 6,
+      "completed_units": 7,
       "sessions": "2-3",
       "envelope_path": "milestones/CAMX-MS0.3.json",
-      "updated_at": "2026-04-19T23:29:09.841Z"
+      "updated_at": "2026-04-19T23:29:09.841Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
+      "_reconciled_source": "envelope"
     },
     {
       "id": "CAMX-MS0.5",
@@ -3542,13 +3554,15 @@
       "title": "hyperMILL AC Bridge + Fusion 360 Parity",
       "track": "CAMX",
       "dependencies": [],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 10,
-      "completed_units": 0,
+      "completed_units": 10,
       "sessions": "2-3",
       "envelope_path": "milestones/CAMX-MS9.json",
       "superseded_by": "MILL-MASTER",
-      "superseded_reason": "Consolidated into MILL-MASTER v2 â€” see envelope phase mapping"
+      "superseded_reason": "Consolidated into MILL-MASTER v2 â€” see envelope phase mapping",
+      "_legacyStatus": "not_started",
+      "completed_at": "2026-05-20T06:17:57.683Z"
     },
     {
       "id": "CAMX-MS10",
@@ -4464,14 +4478,15 @@
       "dependencies": [
         "ACP-MS5"
       ],
-      "status": "consolidated",
+      "status": "complete",
       "total_units": 5,
       "completed_units": 0,
       "sessions": "2",
       "envelope_path": "milestones/ACP-MS6.json",
       "_legacyStatus": "not_started",
       "consolidated_into": "PSAU-MASTER",
-      "_note": " [consolidated into PSAU-MASTER 2026-04-21]"
+      "_note": " [consolidated into PSAU-MASTER 2026-04-21]",
+      "completed_at": "2026-05-23T19:50:43.811Z"
     },
     {
       "id": "ACP-MS7",
@@ -4839,11 +4854,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 6,
       "sessions": "3",
       "envelope_path": "milestones/F360-AP-MS1.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -4883,11 +4898,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 4,
       "sessions": "2",
       "envelope_path": "milestones/F360-AP-MS4.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -4899,11 +4914,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 24,
       "sessions": "12",
       "envelope_path": "milestones/F360-AP-MS5.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5054,11 +5069,11 @@
       ],
       "status": "complete",
       "total_units": 21,
-      "completed_units": 21,
+      "completed_units": 24,
       "sessions": "8",
       "envelope_path": "milestones/SCIMATH-WIRE-MS0.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5107,11 +5122,11 @@
       "dependencies": [],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 6,
       "sessions": "2",
       "envelope_path": "milestones/PP-REV-MS0.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5123,11 +5138,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 6,
       "sessions": "3",
       "envelope_path": "milestones/PP-REV-MS1.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5139,11 +5154,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 4,
       "sessions": "2",
       "envelope_path": "milestones/PP-REV-MS2.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5321,11 +5336,11 @@
       "dependencies": [],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/F360-REV-MS1.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5508,11 +5523,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 6,
       "sessions": "2",
       "envelope_path": "milestones/ARCH-MS1.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5655,11 +5670,11 @@
       "dependencies": [],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS0.json",
       "completed_at": "2026-04-12T22:44:10.655Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5669,11 +5684,11 @@
       "dependencies": [],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS1.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5685,11 +5700,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS2.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5701,11 +5716,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 6,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS3.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5718,11 +5733,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 6,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS4.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5734,11 +5749,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS5.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5750,11 +5765,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 6,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS6.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5767,11 +5782,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 6,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS7.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5783,11 +5798,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS8.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5800,11 +5815,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS9.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5817,11 +5832,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS10.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5834,11 +5849,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS11.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5851,11 +5866,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS12.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5867,11 +5882,11 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "2",
       "envelope_path": "milestones/HM-REV-MS13.json",
       "completed_at": "2026-04-12T22:44:10.656Z",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -5897,10 +5912,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "3",
       "envelope_path": "milestones/HM-KC-MS1.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -5913,10 +5928,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 4,
       "sessions": "2",
       "envelope_path": "milestones/HM-KC-MS2.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -5929,10 +5944,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 7,
       "sessions": "4",
       "envelope_path": "milestones/HM-KC-MS3.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -5945,10 +5960,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "3",
       "envelope_path": "milestones/HM-KC-MS4.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -5961,10 +5976,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 4,
       "sessions": "2",
       "envelope_path": "milestones/HM-KC-MS5.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -5977,10 +5992,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 4,
       "sessions": "2",
       "envelope_path": "milestones/HM-KC-MS6.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -5993,10 +6008,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 4,
       "sessions": "2",
       "envelope_path": "milestones/HM-KC-MS7.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -6010,10 +6025,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "4",
       "envelope_path": "milestones/HM-KC-MS8.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -6026,10 +6041,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "3",
       "envelope_path": "milestones/HM-KC-MS9.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -6042,10 +6057,10 @@
       ],
       "status": "complete",
       "total_units": 0,
-      "completed_units": 1,
+      "completed_units": 5,
       "sessions": "3",
       "envelope_path": "milestones/HM-KC-MS10.json",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -7213,13 +7228,13 @@
       "title": "Frontend Audit & Decision - Merge Two Web Apps",
       "track": "FMERGE",
       "dependencies": [],
-      "status": "in_progress",
-      "total_units": 3,
-      "completed_units": 0,
-      "sessions": "1",
+      "status": "ready_for_merge",
+      "total_units": 5,
+      "completed_units": 5,
+      "sessions": "2",
       "envelope_path": "milestones/FMERGE-MS0.json",
-      "notes": "Canonical blocker for APPW-MS8. Must publish the merge audit, identify the canonical merged frontend target, and materialize the missing FMERGE envelope before APPW-MS8 final sweep closeout.",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "notes": "Canonical blocker for APPW-MS8. P0 (April 2026, codex-gpt-5) chose mcp-server/web as canonical vs legacy PRISM/web. P1 (May 2026, slot:romeo iter36) audited the two NEW pending-merge trees (cqask, mcp-cadquery) + added Phase E iOS+Android per operator directive. Phases B/C/D/E execution operator-gated per feedback_backend_before_frontend.",
+      "_reconciled_at": "2026-05-25T07:15:00Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -8493,11 +8508,11 @@
       ],
       "status": "complete",
       "total_units": 4,
-      "completed_units": 4,
+      "completed_units": 5,
       "sessions": "1",
       "envelope_path": "milestones/TK-AI-HARDEN.json",
       "completed_at": "2026-04-14",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope"
     },
     {
@@ -9882,9 +9897,9 @@
       "title": "Wire Critical Orphan Engines â€” AI/Safety/Physics MCP Exposure",
       "track": "AI-WIRE",
       "dependencies": [],
-      "status": "consolidated",
+      "status": "complete",
       "total_units": 12,
-      "completed_units": 0,
+      "completed_units": 12,
       "sessions": "5",
       "envelope_path": "milestones/AI-WIRE-MS0.json",
       "priority": "P0",
@@ -9893,7 +9908,8 @@
       "description": "Wire 79 critical orphan engines (AI/Safety/Physics/Reasoning/Learning) to MCP dispatchers. 5-agent scrutiny revised: explicit physics engine lists, schema units, reasoning/learning engines added. S(x) raised from 0.52 to 0.88+.",
       "_legacyStatus": "not_started",
       "consolidated_into": "PSAU-MASTER",
-      "_note": " [consolidated into PSAU-MASTER 2026-04-21]"
+      "_note": " [consolidated into PSAU-MASTER 2026-04-21]",
+      "completed_at": "2026-06-21T02:50:33.569Z"
     },
     {
       "id": "LATHE-LORA-MS0",
@@ -9982,7 +9998,7 @@
       "track": "CAM-EXHAUST",
       "status": "in_progress",
       "total_units": 223,
-      "completed_units": 45,
+      "completed_units": 107,
       "dependencies": [
         "CAM-PARITY-AGI-MS0",
         "CAD-COMPLETE-MS0"
@@ -10096,7 +10112,7 @@
       "cad_coordination": "CAD-COMPLETE-MS0",
       "created": "2026-04-19T05:30:00Z",
       "_legacyStatus": "ready",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "git"
     },
     {
@@ -10236,13 +10252,17 @@
       "id": "SYS-UTIL-AUDIT-MS0",
       "title": "System Utilization Audit â€” 10-Pillar Synergy Pass",
       "track": "SYS",
-      "status": "in_progress",
+      "status": "complete",
       "phase": "SYS-UTIL",
       "owner": "Claude-Opus47",
       "units_total": 12,
       "units_complete": 0,
       "envelope_path": "data/milestones/SYS-UTIL-AUDIT-MS0.json",
-      "added": "2026-04-19"
+      "added": "2026-04-19",
+      "_legacyStatus": "in_progress",
+      "completed_units": 12,
+      "total_units": 12,
+      "completed_at": "2026-06-21T03:26:13.180Z"
     },
     {
       "id": "CAM-ML-CLOSEDLOOP-MS0",
@@ -10492,7 +10512,7 @@
       "parent": "PSAU-MASTER",
       "status": "complete",
       "total_units": 11,
-      "completed_units": 11,
+      "completed_units": 12,
       "dependencies": [],
       "blocks": [],
       "envelope_path": "mcp-server/data/milestones/PSAU-LEARN.json",
@@ -10500,7 +10520,7 @@
       "sessions_p50": 12,
       "sessions_p90": 18,
       "_note": "8-agent ML/DL scrutiny mean 0.33; load-bearing does-PRISM-learn fix",
-      "_reconciled_at": "2026-04-25T23:04:44.937Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
       "_reconciled_source": "envelope",
       "completed_at": "2026-04-25T23:04:44.937Z"
     },
@@ -10608,7 +10628,7 @@
       "id": "XPROC-NEURAL-OPTIMIZE-MS0",
       "title": "XPROC-NEURAL Network Optimization — Fix Bugs, Wire Closed-Loop, Ingest Real Data, Modernize Architecture",
       "track": "INFRA",
-      "status": "not_started",
+      "status": "in_progress",
       "total_units": 26,
       "completed_units": 0,
       "dependencies": [],
@@ -10626,7 +10646,9 @@
         "continue xproc-neural",
         "resume neural network",
         "continue nn work"
-      ]
+      ],
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
+      "_reconciled_source": "envelope"
     },
     {
       "id": "OBSIDIAN-COMPOUND-MS1",
@@ -10870,10 +10892,10 @@
       "id": "MS1",
       "title": "MS1 — subscription billing internals (39 units, deferred till there's revenue to bill)",
       "track": "revenue",
-      "status": "not_started",
+      "status": "in_progress",
       "tier": 1,
       "total_units": 39,
-      "completed_units": 0,
+      "completed_units": 1,
       "dependencies": [
         "MS-PAY"
       ],
@@ -10885,7 +10907,9 @@
       "viz_node_id": "ghost.ms.ms1",
       "description": "The 39 real billing-internal units (invoicing, proration, dunning, usage metering, etc.). Deferred behind MS-PAY because there's no revenue to bill until the Checkout+webhook+tier-gate path is live.",
       "source": "§R5.3",
-      "roadmap_priority": 1
+      "roadmap_priority": 1,
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
+      "_reconciled_source": "git"
     },
     {
       "id": "MS2",
@@ -11022,7 +11046,7 @@
       "id": "MS-VIZ-ROADMAP-BIND",
       "title": "MS-VIZ-ROADMAP-BIND — bind the roadmap to system-viz ghost-nodes (SHARED LANE — converge with the peer's audit-roadmap-viz-bindings.mjs)",
       "track": "revenue",
-      "status": "not_started",
+      "status": "complete",
       "tier": 1,
       "total_units": 10,
       "completed_units": 0,
@@ -11037,7 +11061,9 @@
       "viz_node_id": "ghost.ms.ms-viz-roadmap-bind",
       "description": "Each roadmap unit becomes a viz node; unbuilt = ghost; closing it lights up the corresponding engine/dispatcher node. SHARED with the peer chat (they're building scripts/audit-roadmap-viz-bindings.mjs — currently EXIT-FAILS=103 on the backend-devtools roadmap because its units in",
       "source": "§R8.6 — SHARED; peer is partway in (commit 21a128ccb, work/rgs6-audit-v2)",
-      "roadmap_priority": 1
+      "roadmap_priority": 1,
+      "_legacyStatus": "not_started",
+      "completed_at": "2026-05-22T16:48:35.645Z"
     },
     {
       "id": "MS-DOCFLOW",
@@ -11415,7 +11441,7 @@
       "status": "in_progress",
       "tier": 1,
       "total_units": 23,
-      "completed_units": 0,
+      "completed_units": 9,
       "dependencies": [
         "MS-PAY",
         "MS-CRITWIRE",
@@ -11434,7 +11460,9 @@
       "description": "All 4 capabilities built on EXISTING engines + one orchestrator per track. ANTI-DUP (extend/compose, NEVER fork): ProvenPartRecipeEngine, GCodeIntelligencePipelineEngine, TurningProgramAssemblerEngine, BlueprintProgramJoinEngine, ProgramMemoryEngine, PartLibraryEngine, LatheProgr",
       "source": "§R10.4 — Track C is tier-0-eligible; Tracks A/B/D + U-PPL-D5 are tier 1-2",
       "roadmap_priority": 1,
-      "updated_at": "2026-05-15T16:30:00.000Z"
+      "updated_at": "2026-05-15T16:30:00.000Z",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
+      "_reconciled_source": "envelope"
     },
     {
       "id": "AUTO-LEARNING-LOOP-MS0",
@@ -11480,11 +11508,11 @@
       "id": "GRAPH-AS-LLM-CONTEXT-MS0",
       "title": "GRAPH-AS-LLM-CONTEXT-MS0",
       "track": "GRAPH-AS-LLM-CONTEXT",
-      "status": "not_started",
+      "status": "complete",
       "tier": 1,
       "roadmap_priority": 0,
       "total_units": 8,
-      "completed_units": 0,
+      "completed_units": 8,
       "dependencies": [],
       "blocks": [],
       "envelope_path": "milestones/GRAPH-AS-LLM-CONTEXT-MS0.json",
@@ -11493,7 +11521,9 @@
       "sessions_p90": 3,
       "viz_node_id": "ghost.ms.graph-as-llm-context-ms0",
       "description": "Make the live PRISM /system-viz (126,441 nodes / 11 layers) directly addressable as LLM context. Foundation for spatial-UI agent coordination + GraphRAG retrieval over PRISM substrate.",
-      "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md"
+      "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+      "_legacyStatus": "not_started",
+      "completed_at": "2026-06-15"
     },
     {
       "id": "HOOKS-AUTOMATION-V2-MS0",
@@ -11520,11 +11550,11 @@
       "id": "HTML-PRIMARY-MS0",
       "title": "HTML-PRIMARY-MS0",
       "track": "HTML-PRIMARY",
-      "status": "not_started",
+      "status": "complete",
       "tier": 1,
       "roadmap_priority": 0,
       "total_units": 7,
-      "completed_units": 0,
+      "completed_units": 7,
       "dependencies": [],
       "blocks": [],
       "envelope_path": "milestones/HTML-PRIMARY-MS0.json",
@@ -11533,7 +11563,9 @@
       "sessions_p90": 3,
       "viz_node_id": "ghost.ms.html-primary-ms0",
       "description": "Reconcile Thariq's \"HTML is the new markdown\" (2026-05-08, ~5M views) with Karpathy's \"docs should be one text file\" — **MD = report, HTML = interface**. Surfaces driven by human interaction go HTML-primary; LLM-consumed surfaces (CLAUDE.md, skills, hooks, digests, handoffs) stay",
-      "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md"
+      "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+      "_legacyStatus": "not_started",
+      "completed_at": "2026-05-11T19:27:19.879Z"
     },
     {
       "id": "KNOWLEDGE-VAULT-MS0",
@@ -11642,7 +11674,7 @@
       "tier": 1,
       "roadmap_priority": 0,
       "total_units": 10,
-      "completed_units": 0,
+      "completed_units": 1,
       "dependencies": [],
       "blocks": [],
       "envelope_path": "milestones/TOOL-INVENTORY-MS0.json",
@@ -11651,7 +11683,9 @@
       "sessions_p90": 4,
       "viz_node_id": "ghost.ms.tool-inventory-ms0",
       "description": "Adopt 8 external MCP servers as exposure-surfaces over existing PRISM engines. 8 of 18 surveyed servers overlap with existing PRISM functionality — adopt = wrap our engine as that server's tool, NOT pull in their implementation. Plus 1 registry unit + 1 wiring unit = 10. Lane-F o",
-      "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md"
+      "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+      "_reconciled_at": "2026-05-20T03:01:12.332Z",
+      "_reconciled_source": "envelope"
     },
     {
       "id": "WIKI-EVOLVE-MS0",
@@ -11816,14 +11850,131 @@
         "AUTONOMOUS-FLEET-MS0"
       ],
       "description": "GraphSAGE link-prediction GNN as 5th tier in wiring-inference cascade. Composes 4 existing engines (OllamaEmbedder 768-d, KGFeatureProjector pattern, EmbeddingPipeline, LocalEmbedding fallback). Strictly additive — hybrid 4-tier baseline always-on; GNN augments at confidence >= PRISM_NNG_MIN_CONF (default 0.7)."
+    },
+    {
+      "id": "FEATURE-GAP-AUDIT-MS0",
+      "title": "Feature-Gap Audit — canonicalize 64 PRISM features absent from the task queue",
+      "track": "AUDIT",
+      "roadmap": "audit",
+      "status": "in_progress",
+      "total_units": 64,
+      "completed_units": 0,
+      "priority": "P1",
+      "owner": "claude-9f57075a (juliett) /forge-audit-v2",
+      "created_at": "2026-05-17T20:58:59.484Z"
+    },
+    {
+      "id": "DEV-TOOL-CONFLICT-AUDIT-2026-05-17",
+      "title": "Dev Tool Conflict Audit (2026-05-17) — F1..F11 punch-list",
+      "track": "DEV-INFRA",
+      "status": "in_progress",
+      "total_units": 1,
+      "completed_units": 1,
+      "envelope_path": "milestones/DEV-TOOL-CONFLICT-AUDIT-2026-05-17.json",
+      "priority": "P1",
+      "spec": "state/shared/specs/DEV-TOOL-CONFLICT-AUDIT-2026-05-17.md",
+      "notes": "Envelope formalized post-hoc 2026-05-20 by alpha during leftover-task close-out pass. Only U-VIZ-F11-CROSS-LOCK currently tracked in envelope; other F-findings tracked in slot queues / CLAUDE.md regressions block."
+    },
+    {
+      "id": "SFC-ACCURACY-MS1",
+      "title": "Speed-Feed Accuracy MS1 — Full-Envelope Backend Variability + Auto-Adjust + PRISM Enhanced",
+      "track": "CAM-PHYSICS",
+      "status": "in_progress",
+      "total_units": 4,
+      "completed_units": 4,
+      "envelope_path": "mcp-server/data/milestones/SFC-ACCURACY-MS1.json",
+      "priority": "HIGH",
+      "spec": "state/shared/specs/SFC-ACCURACY-MS1-DESIGN.md",
+      "added_at": "2026-05-20T17:40:17.036Z"
+    },
+    {
+      "id": "PILLAR-TELEMETRY-RECOVERY-MS0",
+      "title": "Pillar Telemetry Recovery MS0 — HookTelemetryEngine persistence + dist-integrity SessionStart + auto_wiring_scan __filename clash + operator-restart MCP zombies",
+      "track": "INFRA-RELIABILITY",
+      "status": "in_progress",
+      "total_units": 4,
+      "completed_units": 2,
+      "envelope_path": "mcp-server/data/milestones/PILLAR-TELEMETRY-RECOVERY-MS0.json",
+      "priority": "HIGH",
+      "added_at": "2026-05-20T18:44:09.456Z"
+    },
+    {
+      "id": "KILO-P2P-RECONCILE-MS0",
+      "title": "Kilo Print-to-Program Reconcile & Gap-Closure",
+      "track": "KILO-P2P",
+      "roadmap": "domain-pipeline",
+      "status": "complete",
+      "total_units": 4,
+      "completed_units": 4,
+      "roadmap_priority": 1,
+      "created_at": "2026-05-22",
+      "source": "rgs-generate-2026-05-22"
+    },
+    {
+      "id": "SLOT-RECOVERY-MS0",
+      "title": "Seamless slot recovery — 26-slot fleet auto-resume across PC shutdown + crash with full context restoration",
+      "track": "INFRA",
+      "roadmap": "fleet",
+      "status": "in_progress",
+      "total_units": 8,
+      "completed_units": 4,
+      "priority": "P0",
+      "owner": "claude-9e91d800 (slot:golf /loop iter3)",
+      "created_at": "2026-05-25T19:50:00Z",
+      "envelope": "state/shared/specs/SLOT-RECOVERY-MS0.md",
+      "summary": "Append-only per-slot session-id sidecar + crash-inferred invariants + 7-condition resume eligibility matrix + launcher --resume + /slot-resume skill + /checkin §Resume + E2E tests. Shipped: U-SR01 SlotSessionHistoryEngine (57/57), U-SR02+03+04 3 sidecar hooks + helper (21/21). Pending: U-SR05 launcher, U-SR06 /slot-resume skill, U-SR07 /checkin §Resume, U-SR08 E2E."
+    },
+    {
+      "id": "FLEET-DASHBOARD-MS0",
+      "title": "Per-chat fleet-state dashboard + auto-feeding task queue surfaced in /system-viz",
+      "track": "INFRA",
+      "roadmap": "fleet",
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "priority": "P1",
+      "owner": "claude-9e91d800 (slot:golf /loop iter3)",
+      "created_at": "2026-05-25T19:50:00Z",
+      "envelope": "state/shared/specs/SLOT-RECOVERY-MS0.md#fleet-dashboard",
+      "summary": "TaskAddEngine + /queue-add skill + PostToolUse hook auto-detecting task candidates from commits + /system-viz roost showing per-chat directive/goal/tasks/future-queue + slot-queue subgroup viz. U-FD02..U-FD06."
+    },
+    {
+      "id": "FLEET-HEALTH-FIX",
+      "title": "Fleet-health remediation — heartbeat keepalive + 3 missing reaper observability files + MCP scheduled-task triage",
+      "track": "INFRA",
+      "roadmap": "fleet",
+      "status": "in_progress",
+      "total_units": 3,
+      "completed_units": 1,
+      "priority": "P0",
+      "owner": "claude-9e91d800 (slot:golf /loop iter3)",
+      "created_at": "2026-05-25T19:50:00Z",
+      "envelope": "state/shared/specs/SLOT-RECOVERY-MS0.md#fleet-health",
+      "summary": "U-FH01 heartbeat-keepalive timeout 8ms→8000ms (SHIPPED). U-FH02 restore fleet-reaper-runs.jsonl + fleet-reaper-confirm.json + fleet-reaper-pressure.jsonl. U-FH03 triage PRISM MCP Server LastTaskResult=2147946720."
+    },
+    {
+      "id": "DOMAIN-GALAXY-DOCTRINE-MS1",
+      "title": "Domain-Galaxy Doctrine MS1 — Phase A refinements + Phase B/C/D + dormant-X-article pickups + Obsidian bidirectional + build-vs-install policy enforcement",
+      "track": "DOMAIN-GALAXY-DOCTRINE",
+      "roadmap": "domain-galaxy-doctrine",
+      "status": "complete",
+      "total_units": 26,
+      "completed_units": 3,
+      "priority": "P1",
+      "owner": "claude-625e0262 slot alpha",
+      "created_at": "2026-05-27T00:50:00.000Z",
+      "spec": "mcp-server/data/milestones/DOMAIN-GALAXY-DOCTRINE-MS1.json",
+      "registered_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28 — fixing P0 from arm-B scrutiny)",
+      "_legacyStatus": "not_started",
+      "completed_at": "2026-05-28T02:28:31.992Z"
     }
   ],
-  "total_milestones": 750,
-  "completed_milestones": 361,
-  "last_modified": "2026-05-16T02:54:34.662Z",
+  "total_milestones": 758,
+  "completed_milestones": 373,
+  "last_modified": "2026-05-25T21:49:54.395Z",
   "_last_reconcile": {
-    "at": "2026-04-25T23:04:44.937Z",
-    "changed_count": 77,
+    "at": "2026-05-20T03:01:12.332Z",
+    "changed_count": 47,
     "drift_report": "H:\\prism\\mcp-server\\data\\state\\roadmap-drift-report.json"
   },
   "_last_revenue_register": {
@@ -11845,5 +11996,6 @@
       "AUTONOMOUS-FLEET-MS0",
       "NN-GRAPH-MS0"
     ]
-  }
+  },
+  "_last_modified": "2026-05-22T17:21:31.329Z"
 }

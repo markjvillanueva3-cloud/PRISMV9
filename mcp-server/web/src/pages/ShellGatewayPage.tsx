@@ -181,7 +181,7 @@ export function ShellGatewayPage() {
     try {
       const option = await services.resolveEmailLogin(emailInput);
       if (!option) {
-        setEmailIssue('That email is not linked to a staged PRISM workspace yet.');
+        setEmailIssue('That email is not linked to a staged Kienzle workspace yet.');
         return;
       }
 
@@ -264,7 +264,7 @@ export function ShellGatewayPage() {
         <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
           <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,17,24,0.94)_0%,rgba(5,10,16,0.96)_100%)] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
             <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Email-linked sign-in</div>
-            <h2 className="mt-3 text-2xl font-semibold text-slate-50">Route mailbox access directly into PRISM messages</h2>
+            <h2 className="mt-3 text-2xl font-semibold text-slate-50">Route mailbox access directly into Kienzle messages</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
               Use a recognized shop email to jump into the role-aware shell and start from the same inbox where customer replies, supplier updates,
               and floor handoffs get threaded to jobs and orders.

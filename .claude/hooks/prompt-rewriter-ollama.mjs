@@ -15,7 +15,7 @@
  *
  * FIRES ON:   UserPromptSubmit
  * BLOCKING:   never — silent no-op on every failure path
- * EXTERNAL:   HTTP to http://localhost:11434 (Ollama)
+ * EXTERNAL:   HTTP to http://127.0.0.1:11434 (Ollama)
  * COST:       ~1 local inference / prompt. Model chosen dynamically
  *             (smallest available), temperature 0.1, 512-token output
  *             cap. Total call bounded at 3s (or OLLAMA_REWRITE_TIMEOUT).
@@ -30,8 +30,8 @@
  *   - User opted out with [RAW] or [SKIP-REWRITE]
  *
  * CONFIG (env vars, all optional):
- *   OLLAMA_URL              default http://localhost:11434
- *   OLLAMA_REWRITE_MODEL    override auto-detect (e.g. "qwen2.5-coder:7b")
+ *   OLLAMA_URL              default http://127.0.0.1:11434
+ *   OLLAMA_REWRITE_MODEL    override auto-detect (e.g. "qwen2.5-coder:32b")
  *   OLLAMA_REWRITE_TIMEOUT  default 3000 ms (total wall budget)
  *   OLLAMA_REWRITE_MIN_CONF default 0.50 (below this → skip)
  *   OLLAMA_REWRITE_LOG      default .claude/cache/prompt-rewrites.jsonl
@@ -47,12 +47,45 @@
 import { readFileSync, existsSync, mkdirSync, appendFileSync } from "node:fs";
 import path from "node:path";
 import { exit } from "node:process";
+import { shouldThrottleInject } from "../../scripts/lib/inject-throttle.mjs";
+import { pickLoadedChatModel } from "../../scripts/lib/ollama-loaded-chat-model.mjs";
 
 // ── Constants ─────────────────────────────────────────────────────────
-const OLLAMA_URL = (process.env.OLLAMA_URL || "http://localhost:11434").replace(/\/$/, "");
+// 127.0.0.1 NOT localhost: on Windows `localhost` resolves to IPv6 ::1 first, but Ollama binds
+// IPv4 127.0.0.1 -> `127.0.0.1:11434` is UNREACHABLE (the true root cause of this hook being
+// "silently broken" / 46 fires + ~0 rewrites -- NOT the 3s timeout the 2026-05-28 8s bump targeted;
+// same IPv6 bug fixed in OllamaClientEngine + ollama-fanout 2026-06-09). Env-overridable.
+const OLLAMA_URL = (process.env.OLLAMA_URL || "http://127.0.0.1:11434").replace(/\/$/, "");
 const MODEL_OVERRIDE = process.env.OLLAMA_REWRITE_MODEL || null;
-const WALL_TIMEOUT_MS = parseInt(process.env.OLLAMA_REWRITE_TIMEOUT || "3000", 10);
+// Bumped 3000→8000ms (2026-05-28 slot:alpha — operator: "fix ollama
+// inefficiencies"). Root cause of 50/50 rewriter skip rate: 3s timeout
+// covered both /api/tags + chat inference, and ollama spends 1-2s on a
+// pure `/api/chat` call against a warm small model — narrow margin. 8s
+// gives realistic warm-hit headroom without noticeable user-facing
+// latency. Cold-load fallback handled by LOADED_MODEL_ONLY (below).
+const WALL_TIMEOUT_MS = parseInt(process.env.OLLAMA_REWRITE_TIMEOUT || "8000", 10);
+// Loaded-only mode (2026-05-28 slot:alpha): when LOADED_MODEL_ONLY=1
+// (default on), pickModel() queries /api/ps and only returns a model that
+// is ALREADY resident on the GPU. If no model is loaded, the hook skips
+// the call entirely (returns original prompt). This eliminates the
+// cold-load timeout failure mode that drove the 100% skip rate observed
+// today (qwen2.5-coder:32b cold-load = ~60s, way past WALL_TIMEOUT_MS).
+// CORRECTION (slot:alpha 2026-06-19): there is NO continuous coder-warm pin (the prior comment
+// claiming a "24h keep_alive pin set on session start" was false). The prewarm hook
+// (.claude/hooks/ollama-prewarm-on-pipeline.mjs) warms qwen2.5-coder:32b only on specific
+// PIPELINE keywords with keep_alive=10m; ask-ollama uses 30m on-call. So a coder is warm for the
+// per-prompt rewriter ONLY incidentally, and since the host cycles vision models through VRAM for
+// OCR, the rewriter skips most ticks (no chat model resident in /api/ps). Reviving it fleet-wide
+// is a VRAM-warmth decision (keep a small coder resident), not a code fix here.
+const LOADED_MODEL_ONLY = process.env.OLLAMA_REWRITE_LOADED_ONLY !== "0";
 const MIN_CONFIDENCE = parseFloat(process.env.OLLAMA_REWRITE_MIN_CONF || "0.50");
+// Same-prompt re-inject throttle (ms). Mirrors tribal/master-index (default 60s;
+// 0 disables). Raised fleet-wide to 300s via settings env PRISM_PROMPT_REWRITE_THROTTLE_MS.
+// The rewrite is identical for an identical prompt -> safe to suppress on /loop ticks.
+const REWRITE_THROTTLE_MS = (() => {
+  const n = parseInt(process.env.PRISM_PROMPT_REWRITE_THROTTLE_MS ?? "", 10);
+  return Number.isFinite(n) ? Math.max(0, Math.min(3600000, n)) : 60000;
+})();
 const DEBUG = process.env.OLLAMA_REWRITE_DEBUG === "1";
 const LOG_PATH_ENV = process.env.OLLAMA_REWRITE_LOG;
 const LOG_PATH = LOG_PATH_ENV === "off"
@@ -61,14 +94,31 @@ const LOG_PATH = LOG_PATH_ENV === "off"
 
 const MIN_VISIBLE_CHARS = 20; // below this → skip (not worth an LLM call)
 const OPTOUT_RE = /\[\s*(?:RAW|SKIP-REWRITE|NO-REWRITE)\s*\]/i;
+// A system/operator AUTONOMOUS-LOOP directive (re-injected every /loop tick, fleet-wide) is
+// NOT a user prompt to compress: a lossy "intent" restatement of operator rails adds no value
+// and burns an ~8s Ollama round-trip per tick. (The rewriter only injects additionalContext,
+// so the raw directive still reaches the model -- skipping loses nothing; worst case is a missed
+// optional injection, never a broken prompt.) Anchored at the START on a leading [..] tag whose
+// text carries a SPECIFIC directive signal -- "AUTONOMOUS BUILD" or "operator-armed". (Both are
+// present in every real fleet directive shape; the broader bare "BUILD LOOP" alternative was
+// dropped per scrutiny arm-C P2 because it false-skipped an ordinary prompt that merely leads
+// with e.g. "[todo: build loop refactor]" -- and it was redundant, since every live directive
+// also carries "AUTONOMOUS BUILD".) A normal prompt mentioning "build loop" mid-sentence, or a
+// bracket tag without these signals, is never skipped. Sibling of the same-prompt throttle
+// (slot:alpha 2026-06-19).
+const LOOP_DIRECTIVE_RE = /^\s*\[[^\]]*\b(?:AUTONOMOUS\s+BUILD|operator-armed)\b[^\]]*\]/i;
+// Bound the regex input: the two `[^\]]*` quantifiers around the keyword alternation backtrack
+// O(n^2) on a pathological long leading "[..." with no closing "]" (measured ~2s on a ~270KB
+// pasted prompt). An operator directive's [..] tag always sits at the very START (<~160 chars),
+// so scanning only the leading slice keeps this linear-time on any huge pasted prompt while
+// still catching every real directive. (Worst case if a tag ever exceeds the slice: a missed
+// optional skip -> falls through to the throttled path, harmless.)
+const DIRECTIVE_SCAN_CHARS = 1024;
 
 // Model preference order — smartest first (user requested 32b).
 // Dynamic lookup against /api/tags picks the first match in the installed set.
 const MODEL_PREFERENCE = [
-  "qwen2.5-coder:32b",  // Best quality (~15s)
-  "qwen2.5-coder:14b",  // Great quality (~5s)
-  "qwen2.5-coder:7b",   // Good balance (~2s)
-  "qwen2.5-coder:3b",
+  "qwen2.5-coder:32b",  // Best quality — always-installed Blackwell floor (retired 3b/7b/14b tags re-pointed here)
   "qwen2.5-coder:1.5b",
   "llama3.1:70b",
   "llama3.1:8b",
@@ -105,14 +155,33 @@ async function ollamaFetch(pathname, init, signal) {
 
 async function pickModel(signal) {
   if (MODEL_OVERRIDE) return MODEL_OVERRIDE;
-  const data = await ollamaFetch("/api/tags", { method: "GET" }, signal);
-  const installed = new Set((data?.models || []).map((m) => m?.name).filter(Boolean));
-  if (installed.size === 0) return null;
-  for (const want of MODEL_PREFERENCE) {
-    if (installed.has(want)) return want;
+  // Loaded-only mode (2026-05-28 slot:alpha): prefer models already resident
+  // on GPU per /api/ps. Eliminates cold-load timeout failure mode that drove
+  // the 100% rewriter skip rate observed 2026-05-24 + 2026-05-27 + 2026-05-28.
+  if (LOADED_MODEL_ONLY) {
+    try {
+      const ps = await ollamaFetch("/api/ps", { method: "GET" }, signal);
+      const loaded = (ps?.models || []).map((m) => m?.name || m?.model).filter(Boolean);
+      // Pick the best LOADED chat-capable model (preference-first, then any loaded chat model).
+      // The shared helper recognizes the gpt-oss / deepseek text families AND excludes vision/embed
+      // models -- the old inline regex rejected a loaded gpt-oss as "no-model" and could return a
+      // qwen2.5vl / llama3.2-vision model for an /api/chat call. See ollama-loaded-chat-model.mjs.
+      const chosen = pickLoadedChatModel(loaded, MODEL_PREFERENCE);
+      if (chosen) return chosen;
+      // No chat-capable model loaded — skip the rewriter call.
+      dbg("LOADED_MODEL_ONLY=1 and no chat model in /api/ps — skipping rewrite");
+      return null;
+    } catch (e) {
+      dbg(`pickModel /api/ps probe failed: ${e.message} — falling back to /api/tags`);
+      // Fall through to legacy /api/tags path.
+    }
   }
-  // Fall back to the first installed model (whatever it is).
-  return (data.models[0] && data.models[0].name) || null;
+  const data = await ollamaFetch("/api/tags", { method: "GET" }, signal);
+  const installed = (data?.models || []).map((m) => m?.name).filter(Boolean);
+  if (installed.length === 0) return null;
+  // Same chat-capability + preference selection as the loaded path -- never fall back to the
+  // first installed model blindly (it could be a vision/embedding model that can't chat).
+  return pickLoadedChatModel(installed, MODEL_PREFERENCE);
 }
 
 const SYSTEM_PROMPT = [
@@ -230,10 +299,33 @@ function formatForInjection(rewrite, model, latencyMs) {
     exit(0);
   }
 
+  // Skip system/operator AUTONOMOUS-LOOP directives BEFORE the Ollama round-trip (see
+  // LOOP_DIRECTIVE_RE): they re-submit every /loop tick fleet-wide, and compressing them is
+  // wasted ~8s latency + a lossy restatement of operator rails. Placed before too-short/throttle
+  // so a directive never reaches pickModel.
+  if (LOOP_DIRECTIVE_RE.test(raw.slice(0, DIRECTIVE_SCAN_CHARS))) {
+    dbg("skip_system_directive (autonomous-loop / operator directive)");
+    writeLog({ ts: new Date().toISOString(), session, raw, rewrite: null, skip_reason: "system-directive" });
+    exit(0);
+  }
+
   const visible = raw.replace(/\s+/g, " ").trim();
   if (visible.length < MIN_VISIBLE_CHARS) {
     dbg(`too short (${visible.length} chars)`);
     // Don't log trivial skips — fills the log with noise.
+    exit(0);
+  }
+
+  // SAME-PROMPT THROTTLE (slot:alpha 2026-06-11): a /loop re-submits the IDENTICAL
+  // prompt every tick; the rewrite is byte-identical and the model already holds the
+  // earlier tick's injection. Skip the whole ~5s Ollama inference + re-injection for an
+  // identical prompt+session within the TTL. Same proven lib + per-(session,prompt-hash)
+  // semantics as tribal-by-domain / master-index-precheck. Fail-open (no real sid /
+  // ttl<=0 / I/O error => proceed). Guard "unknown" so two sessions sharing a prompt
+  // are never cross-suppressed.
+  if (session !== "unknown" &&
+      shouldThrottleInject({ sessionId: session, prompt: raw, nowMs: Date.now(), ttlMs: REWRITE_THROTTLE_MS })) {
+    dbg("skip_throttled (identical prompt within TTL)");
     exit(0);
   }
 

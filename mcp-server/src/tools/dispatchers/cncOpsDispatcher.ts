@@ -167,7 +167,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "center_drill_calculate": {
             const eng = await getEngine("centerDrill");
-            result = eng.calculate(params);
+            result = eng.centerDrill(params);
             break;
           }
           case "chamfer_calculate": {
@@ -182,7 +182,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "circular_interpolation_calculate": {
             const eng = await getEngine("circInterp");
-            result = eng.calculate(params);
+            result = eng.bore(params);
             break;
           }
           case "circular_pocket_calculate": {
@@ -192,7 +192,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "counterbore_calculate": {
             const eng = await getEngine("counterboreSink");
-            result = eng.calculate(params);
+            result = eng.counterbore(params);
             break;
           }
           case "counterboring_calculate": {
@@ -207,7 +207,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "deburring_calculate": {
             const eng = await getEngine("deburring");
-            result = eng.calculate(params);
+            result = eng.recommend(params);
             break;
           }
           case "face_mill_calculate": {
@@ -222,7 +222,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "helical_interpolation_calculate": {
             const eng = await getEngine("helicalInterp");
-            result = eng.calculate(params);
+            result = eng.boreMill(params);
             break;
           }
           case "honing_calculate": {
@@ -242,12 +242,18 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "knurling_calculate": {
             const eng = await getEngine("knurling");
-            result = eng.calculate(params);
+            result = eng.knurl(params);
             break;
           }
           case "parting_grooving_calculate": {
             const eng = await getEngine("partingGrooving");
-            result = eng.calculate(params);
+            // Route by params: groove_width_mm present → grooving operation,
+            // bar_diameter_mm (and no groove_width_mm) → parting operation
+            if (params.groove_width_mm != null) {
+              result = eng.groove(params);
+            } else {
+              result = eng.parting(params);
+            }
             break;
           }
           case "power_skiving_calculate": {
@@ -262,7 +268,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "ramping_calculate": {
             const eng = await getEngine("ramping");
-            result = eng.calculate(params);
+            result = eng.linearRamp(params);
             break;
           }
           case "slotting_calculate": {

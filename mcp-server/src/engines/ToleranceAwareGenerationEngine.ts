@@ -16,7 +16,8 @@
  */
 
 import { log } from "../utils/Logger.js";
-import type { BaseEngine, EngineInfo, EngineCapability } from "./BaseEngine.js";
+import { BaseEngine } from "./BaseEngine.js";
+import type { EngineInfo, EngineCapability } from "./BaseEngine.js";
 import type { FeatureSpec } from "./NeuralCADGenerationEngine.js";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -192,13 +193,19 @@ const FEATURE_GDT_RULES: Record<string, { symbols: GDTSymbol[]; note: string }> 
 // ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 
-class ToleranceAwareGenerationEngine implements BaseEngine {
-  readonly info: EngineInfo = {
-    name: "ToleranceAwareGenerationEngine",
-    version: "1.0.0",
-    domain: "cad_tolerance",
-    description: "GD&T-aware CAD generation with tolerance stack analysis",
-  };
+class ToleranceAwareGenerationEngine extends BaseEngine {
+  constructor() {
+    super({
+      name: "ToleranceAwareGenerationEngine",
+      version: "1.0.0",
+      domain: "cad_tolerance",
+      description: "GD&T-aware CAD generation with tolerance stack analysis",
+    });
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    return this.generateWithTolerance(input as ToleranceGenerationInput);
+  }
 
   getCapabilities(): EngineCapability[] {
     return [
@@ -445,7 +452,7 @@ class ToleranceAwareGenerationEngine implements BaseEngine {
     }
 
     // Adjust based on feature size (larger features can have looser tolerance)
-    const featureSize = feature.params.diameter ?? feature.params.length ?? 25;
+    const featureSize = Number(feature.params.diameter ?? feature.params.length ?? 25);
     const sizeFactor = Math.max(1, Math.min(2, featureSize / 50));
 
     return Math.round(baseTolerance * sizeFactor * 1000) / 1000;

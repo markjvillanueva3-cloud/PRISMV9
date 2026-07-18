@@ -255,6 +255,10 @@ describe('LearningDashboard', () => {
 
   it('keeps the dashboard usable when the live learning snapshot falls back', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('learning routes unavailable'))));
+    // 2026-05-27 iter12: cast through unknown — the fallback test deliberately
+    // passes null/string for catalog/summary/error to verify graceful degradation,
+    // but the strict return type doesn't model the fallback shape. Test intent
+    // (does the UI survive null+error?) is preserved.
     mockUseLearningCourseRegistry.mockReturnValue({
       userId: 'academy-guest-fallback',
       catalog: null,
@@ -263,7 +267,7 @@ describe('LearningDashboard', () => {
       error: 'Learning progression routes unavailable',
       refresh: vi.fn(),
       status: 'fallback',
-    });
+    } as unknown as ReturnType<typeof mockUseLearningCourseRegistry>);
 
     render(
       <MemoryRouter>

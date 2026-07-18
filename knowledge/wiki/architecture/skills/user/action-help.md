@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `action-help` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/action-help.md` |
+| Source | `C:/Users/wompu/.claude/commands/action-help.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -19,19 +19,7 @@ import { log } from "../utils/Logger.js";
 import { agentRegistry, type AgentDefinition } from "../registries/AgentRegistry.js";
 import { hookRegistry } from "../registries/HookRegistry.js";
 import { hookEngine } from "../orchestration/HookEngine.js";
-import Anthropic from "@anthropic-ai/sdk";
-import { hasValidApiKey, getApiKey, getModelForTier } from "../config/api-config.js";
 import { getEffort } from "../config/effortTiers.js";
-
-// API client (initialized lazily)
-let anthropicClient: Anthropic | null = null;
-
-function getAnthropicClient(): Anthropic {
-  if (!anthropicClient) {
-    anthropicClient = new Anthropic({ apiKey: getApiKey() });
-  }
-  return anthropicClient;
-}
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -378,27 +366,27 @@ export class AgentExecutor {
       throw new Error(`Agent not found: ${task.agentId}`);
     }
 
-    // ENFORCE real API execution - no simulation allowed
-    if (!hasValidApiKey()) {
-      throw new Error(
-        `ANTHROPIC_API_KEY required for agent execution. ` +
-        `Add key to claude_desktop_config.json env section. ` +
-        `Simulation mode DISABLED for safety-critical manufacturing.`
-      );
-    }
-
+    // FREE-AI-MIGRATION: no Claude-key pre-gate -- executeWithClaudeAPI routes through the
+    // Ollama-first free substrate (Claude is only the backup). "No simulation" is still ENFORCED
+    // downstream: an offline result (no real provider) THROWS, never a simulated/stub agent run.
     return await this.executeWithClaudeAPI(task, agent);
   }
 
   /**
-   * Execute agent using Claude API
+   * Execute agent through the shared FREE Ollama-first llmEngine substrate (Claude is the adaptive
+   * backup). FREE-AI-MIGRATION/U-AGENT-EXECUTOR-LLM-ROUTE: was a direct PAID Anthropic SDK call
+   * (client.messages.create). It is a single prompt->text call (no tools / no multi-turn), so it
+   * maps cleanly onto llmEngine.query. complexity:"high" -- agent execution is non-trivial, so a
+   * weak local answer escalates to the Claude backup. The agent's systemPrompt is preserved via the
+   * `system` override.
+   *
+   * R12 (AgentExecutor's "no simulation" contract): an "offline" result means NO real provider
+   * answered -- a generic stub, i.e. simulation -- so we THROW, never return mode:"live" on a stub.
+   * `model`/`usage` report the REAL provider that answered (honest provenance; tokens are {0,0} on
+   * the free local path). The agent `tier` is advisory now -- the provider is chosen by the ladder.
    */
   private async executeWithClaudeAPI(task: TaskDefinition, agent: AgentDefinition): Promise<unknown> {
-    const client = getAnthropicClient();
-    
-    // Determine model based on agent tier
     const tier = ((agent as unknown as Record<string, unknown>).tier as string)?.toLowerCase() || 'sonnet';
-    const model = getModelForTier(tier as 'opus' | 'sonnet' | 'haiku');
 
     // Build system prompt from agent definition
     const systemPrompt = this.buildAgentSystemPrompt(agent);
@@ -406,41 +394,46 @@ export class AgentExecutor {
     // Build user message from task input
     const userMessage = this.buildTaskMessage(task);
 
-    log.info(`[AgentExecutor] Calling Claude API (${model}) for agent ${agent.name}`);
+    log.info(`[AgentExecutor] Routing agent ${agent.name} (tier ${tier}) through the free Ollama-first llmEngine`);
     const startTime = Date.now();
 
     try {
-      const response = await client.messages.create({
-        model,
+      const { llmEngine } = await import("./LLMEngine.js");
+      const res = await llmEngine.query({
+        prompt: userMessage,
+        system: systemPrompt,
+        complexity: "high",
         max_tokens: agent.config?.max_tokens || 4096,
         temperature: agent.config?.temperature || 0.3,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMessage }]
       });
 
-      const duration = Date.now() - startTime;
-      const textContent = response.content
-        .filter(block => block.type === 'text')
-        .map(block => (block as { type: 'text'; text: string }).text)
-        .join('\n');
+      // R12: AgentExecutor forbids simulation. An "offline" result is a stub (no real provider),
+      // not a real agent run -- fail loud rather than returning it as mode:"live".
+      if (res.model === "offline") {
+        throw new Error(
+          `No AI provider available (Ollama down and no Claude backup key) for agent ${agent.name}. ` +
+          `Simulation/stub output is DISABLED for safety-critical manufacturing -- failing loud.`
+        );
+      }
 
-      log.info(`[AgentExecutor] Claude API response received in ${duration}ms`);
+      const duration = Date.now() - startTime;
+      log.info(`[AgentExecutor] Agent response received via ${res.model} in ${duration}ms`);
 
       return {
         agent: agent.name,
         category: agent.category,
-        response: textContent,
-        model,
+        response: res.answer,
+        model: res.model,
         usage: {
-          inputTokens: response.usage?.input_tokens || 0,
-          outputTokens: response.usage?.output_tokens || 0
+          inputTokens: res.tokens_used.input,
+          outputTokens: res.tokens_used.output
         },
         processedAt: new Date().toISOString(),
         duration_ms: duration,
         mode: "live"
       };
     } catch (error) {
-      log.error(`[AgentExecutor] Claude API error: ${error}`);
+      log.error(`[AgentExecutor] Agent execution error: ${error}`);
       throw error;
     }
   }

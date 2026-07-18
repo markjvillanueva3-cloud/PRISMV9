@@ -23,12 +23,11 @@ related:
 |-------|-------|
 | Name | `forge` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
-
 
 
 ---
@@ -40,11 +39,7 @@ maxTurns: 30
 
 You are running the full ideation-to-execution pipeline. This command chains `/smart`, `/rgs`, and `/ralph-loop` into a single flow that takes a rough idea and forges it into a polished, executed milestone.
 
----
-
-## 🪨 ATOMIC-FIRST CROSS-REFERENCE (auto-injected 2026-05-08)
-
-**For master-roadmap syn
+> **PHASE OFFLOAD (DEVTOOL-AUTOINVOKE-MS0/U9):** route mechanical phases off Opus. `scripts/lib/fo
 
 <!-- AUTO-END -->
 

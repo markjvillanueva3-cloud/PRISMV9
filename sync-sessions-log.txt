@@ -1,0 +1,675 @@
+  expect(params.machine_guideway).toBe('box');\r\n    expect(params.natural_frequency_hz).toBe(680);\r\n    expect(params.machine_axis_accel_m_s2).toBe(5.5);\r\n    expect(params.machine_axis_jerk_m_s3).toBe(12);\r\n    expect(params.tool_material).toBe('carbide');\r\n    expect(params.holder_type).toBe('shrink_fit');\r\n    expect(params.coolant_type).toBe('through_tool');\r\n    expect(params.axial_depth_mm).toBe(0.35);\r\n    expect(params.radial_depth_mm).toBe(1.2);\r\n    expect(params.radial_depth_pct).toBe(10);\r\n    expect(params.flutes).toBe(5);\r\n    expect(params.cam_system).toBe('Mastercam');\r\n    expect(params.cam_strategy).toBe('Surface Finish Parallel');\r\n    expect(params.workholding_type).toBe('fixture');\r\n    expect(params.optimize_for).toBe('surface_finish');\r\n    expect(params.output_detail).toBe('full');\r\n  });\r\n\r\n  it('prefers measured machine posture and verified features when deriving machine dynamics', () => {\r\n    const params = buildCalculatorSpeedFeedParams({\r\n      machineMode: 'mill',\r\n      machine: okumaMill,\r\n      controllerOption: okumaMill.controllerOptions[0],\r\n      spindleOption: okumaMill.spindleOptions[0],\r\n      enabledControllerCapabilityIds: ['cas'],\r\n      enabledMachineFeatureIds: ['high-speed-modes'],\r\n      enabledMachineCoolantIds: ['flood', 'tsc', 'through_air', 'air'],\r\n      measuredMachineData: {\r\n        guidewayType: 'linear',\r\n        machineAgeYears: 9,\r\n        measuredPowerKw: 24.6,\r\n        measuredMaxTorqueNm: 102,\r\n        measuredNaturalFrequencyHz: 910,\r\n        measuredSystemStiffnessNPerUm: 88,\r\n        measuredDampingRatio: 0.041,\r\n        measuredAxisAccelerationMps2: 7.2,\r\n        measuredAxisJerkMps3: 18.5,\r\n      },\r\n      material: toolSteel,\r\n      tool: carbideEndmill,\r\n      insertOption: null,\r\n      holderPackage: shrinkFitHolder,\r\n      operationId: 'surface_finish',\r\n      toolpathTypeId: 'surface_finish',\r\n      toolpath: {\r\n        id: 'mc-parallel',\r\n        label: 'Surface Finish Parallel',\r\n        path: 'Finishing / Parallel',\r\n        operationId: 'finishing',\r\n      },\r\n      programming: { id: 'mastercam-mill', label: 'Mastercam Mill', vendor: 'Mastercam' },\r\n      toolDiameterMm: 10,\r\n      docMm: 0.25,\r\n      wocMm: 0.8,\r\n      flutes: 5,\r\n      toolStickoutMm: 54,\r\n      fluteLengthMm: 24,\r\n      stockShape: 'plate',\r\n      stockXm: 100,\r\n      stockYm: 80,\r\n      stockZm: 35,\r\n      coolantId: 'tsc',\r\n      workholdingId: 'fixture-plate',\r\n      workholdingCategoryId: 'fixture',\r\n      stabilityId: 'production-stable',\r\n      desiredRaUm: 0.8,\r\n      finishTarget: 'precision',\r\n    });\r\n\r\n    expect(params.machine_guideway).toBe('linear');\r\n    expect(params.machine_age_years).toBe(9);\r\n    expect(params.machine_power_kw).toBe(24.6);\r\n    expect(params.machine_max_torque_nm).toBe(102);\r\n    expect(params.natural_frequency_hz).toBe(910);\r\n    expect(params.system_stiffness_n_m).toBe(88);\r\n    expect(params.damping_ratio).toBe(0.041);\r\n    expect(params.machine_axis_accel_m_s2).toBe(7.2);\r\n    expect(params.machine_axis_jerk_m_s3).toBe(18.5);\r\n  });\r\n\r\n  it('builds a lathe payload that stays in turning mode and filters flutes to one insert edge', () => {\r\n    const params = buildCalculatorSpeedFeedParams({\r\n      machineMode: 'lathe',\r\n      machine: multitaskLathe,\r\n      controllerOption: multitaskLathe.controllerOptions[0],\r\n      spindleOption: multitaskLathe.spindleOptions[0],\r\n      enabledControllerCapabilityIds: ['machining-navi'],\r\n      enabledMachineCoolantIds: ['flood', 'tsc'],\r\n      material: alloySteel,\r\n      tool: turningInsert,\r\n      insertOption: {\r\n        id: 'gc4325',\r\n        label: 'GC4325',\r\n        detail: 'CVD roughing grade',\r\n        insertType: 'CNMG',\r\n        insertGrade: 'GC4325',\r\n        recommendationScore: 0.96,\r\n        recommendationReason: 'Roughing grade for alloy steel',\r\n        recommended: true,\r\n      },\r\n      holderPackage: captoLatheHolder,\r\n      operationId: 'turning_rough',\r\n      toolpathTypeId: 'turning_rough',\r\n      toolpath: {\r\n        id: 'rough-turn',\r\n        label: 'OD Rough Turn',\r\n        path: 'Turning / Rough',\r\n        operationId: 'turning_rough',\r\n      },\r\n      programming: { id: 'manual-lathe', label: 'Manual Programming', vendor: 'Manual' },\r\n      toolDiameterMm: 12,\r\n      docMm: 2.2,\r\n      wocMm: 0.35,\r\n      flutes: 4,\r\n      toolStickoutMm: 32,\r\n      fluteLengthMm: 10,\r\n      stockShape: 'round',\r\n      stockXm: 180,\r\n      stockYm: 50,\r\n      stockZm: 50,\r\n      coolantId: 'flood',\r\n      workholdingId: 'chuck-jaws',\r\n      workholdingCategoryId: 'chucking',\r\n      workholdingPreset: { id: 'three-jaw-chuck', label: '3-jaw chuck' },\r\n      stabilityId: 'production-stable',\r\n      desiredRaUm: 6.3,\r\n      finishTarget: 'balanced',\r\n    });\r\n\r\n    expect(params.machine_name).toBe('Okuma MULTUS U3000');\r\n    expect(params.machine_type).toBe('lathe');\r\n    expect(params.operation).toBe('turning');\r\n    expect(params.flutes).toBe(1);\r\n    expect(params.insert_grade).toBe('GC4325');\r\n    expect(params.holder_type).toBe('milling_chuck');\r\n    expect(params.coolant_type).toBe('flood');\r\n    expect(params.workholding_type).toBe('chuck');\r\n    expect(params.axial_depth_mm).toBe(2.2);\r\n    expect(params.radial_depth_mm).toBe(0.35);\r\n    expect(params.workpiece_diameter_mm).toBe(50);\r\n  });\r\n\r\n  it('defaults a ball endmill corner radius to half the tool diameter for finish calculations', () => {\r\n    const params = buildCalculatorSpeedFeedParams({\r\n      machineMode: 'mill',\r\n      machine: okumaMill,\r\n      controllerOption: okumaMill.controllerOptions[0],\r\n      spindleOption: okumaMill.spindleOptions[0],\r\n      enabledControllerCapabilityIds: [],\r\n      enabledMachineCoolantIds: ['flood', 'tsc'],\r\n      material: toolSteel,\r\n      tool: ballEndmill,\r\n      insertOption: null,\r\n      holderPackage: shrinkFitHolder,\r\n      operationId: 'finishing',\r\n      toolpathTypeId: 'surface_finish',\r\n      toolpath: {\r\n        id: 'ts-zlevel',\r\n        label: 'Z-Level',\r\n        path: 'Machining > 3D > Z-Level',\r\n        operationId: 'finishing',\r\n      },\r\n      programming: { id: 'topsolid-mill', label: 'TopSolid Mill', vendor: 'TopSolid' },\r\n      toolDiameterMm: 6.35,\r\n      docMm: 1.2,\r\n      wocMm: 1.5,\r\n      flutes: 2,\r\n      toolStickoutMm: 45,\r\n      fluteLengthMm: 18,\r\n      stockShape: 'round',\r\n      stockXm: 80,\r\n      stockYm: 80,\r\n      stockZm: 40,\r\n      coolantId: 'tsc',\r\n      workholdingId: 'fixture-plate',\r\n      workholdingCategoryId: 'fixture',\r\n      stabilityId: 'production-stable',\r\n      desiredRaUm: 1.6,\r\n      finishTarget: 'tight-finish',\r\n    });\r\n\r\n    expect(params.corner_radius_mm).toBe(3.175);\r\n  });\r\n\r\n  it('normalizes the nested speed/feed response into calculator-friendly output', () => {\r\n    const normalized = normalizeCalculatorSpeedFeedResult({\r\n      result: {\r\n        value: {\r\n          spindle_rpm: 4120,\r\n          cutting_speed_mpm: 155,\r\n          feed_rate_mmmin: 845,\r\n          feed_per_tooth_mm: 0.041,\r\n          power_kw: 4.2,\r\n          torque_Nm: 19.4,\r\n          mrr_cm3min: 84,\r\n          tool_life_min: 46,\r\n          surface_finish_Ra_um: 1.1,\r\n          axial_depth_mm: 0.35,\r\n          radial_depth_mm: 1.2,\r\n          overall_confidence: 0.87,\r\n          resolved_machine: { name: { value: 'Okuma GENOS M460V-5AX' } },\r\n          resolved_cam_strategy: { strategy_name: { value: 'Surface Finish Parallel' } },\r\n          playbook_warnings: ['Watch tool stickout'],\r\n          limiting_factors: [{ parameter: 'power', constraint: 'Near spindle load limit' }],\r\n          safety_checks: [{ name: 'Torque margin', message: 'Within limit' }],\r\n          formulas_used: ['Kienzle force model'],\r\n          engines_called: ['SpeedFeedOrchestratorEngine'],\r\n          recommendations: ['Use through-spindle coolant for tool life'],\r\n        },\r\n      },\r\n    });\r\n\r\n    expect(normalized.rpm).toBe(4120);\r\n    expect(normalized.feedRate).toBe(845);\r\n    expect(normalized.formula).toBe('Kienzle force model');\r\n    expect(normalized.resolvedMachineLabel).toBe('Okuma GENOS M460V-5AX');\r\n    expect(normalized.resolvedCamLabel).toBe('Surface Finish Parallel');\r\n    expect(normalized.warnings).toContain('Watch tool stickout');\r\n    expect(normalized.warnings).toContain('power: Near spindle load limit');\r\n    expect(normalized.recommendations).toContain('Use through-spindle coolant for tool life');\r\n  });\r\n\r\n  it('reconstructs tiny-but-real power and Ra values when the engine rounds them to zero', () => {\r\n    const normalized = normalizeCalculatorSpeedFeedResult({\r\n      result: {\r\n"}}
+{"timestamp":"2026-04-09T17:01:47.214Z","type":"response_item","payload":{"type":"reasoning","summary":[],"content":null,"encrypted_content":"gAAAAABp19t7YwaqJvBWnhXLLmpI9IWzuaIefI0jl7PlTXkceYVUD1XZrsiSQUyQyuYMImA3bk0HtviNGP4Cheh4avLkK3-jVwQm1MPEWv21V50NnKTWNHY-hljQuNMSJaMRqNTWA0FR8b9hewgLxnm5Y7yxZnpvSASkSaP1bQfvigu2HmXmdhP4jdgtkaGvEzbNJH_Sv-dDYQ23mctw9_UIqG_gPjJTPeMkwwGO9Cbpf83oANMQ-kYJka5bV1IxGfG9uyUIL9EGC2UfaSrN7rwDE2uuNHxBbeqWiD0HdoKSt30OCOOsoDlEgDnG4W4o6scBYwlZK4R4JiFfFwWqnfcKVgJzGTW1mktMYLx3LRwxa0VgcFG24cbk7SPvklM9sj9V4f4BICuSVlI8vGuhN5SJAf-kethK8faJjGpNMqaCRwLqxAtQQftbtGSrSIXQhE_3Du_gprJD70dK4gIAk5aqstrBKMSWtbX9ObGWgtVc9B7hxnS9xBCS1c9-d933eEQPj30M0cYLI7r4QBJ6Dk9FilgONWmshEK0ASKKoh69wgPlmRYRwUorrz0ck4n3Qe16Eltxvpr5hkWNjCMEuLVBecwHLtAbwa14rfM6TlzIhiuDDdCf6FOwDX-1XVTGhNAwPnWKS7agibSzBTYBNeKprkouAbUGu3UhcQIggSEcyTBP4w4Mk9MoRdIPg9ugUl_jo73Ckg1J1JUECK7V9DlKVHSrOgXp1UrGABMlxaMbBarfIobVWffZKrcHF1WhRv2W69OhmUrOMkA22FFLOEZ3TW7B2p3f_L6ZRFKghMC_BxsDRqlO_P_1zrFE80aIn54sn-apGx3qvOrD6EABMm74776a6zRhX0vrCWO1ewoxdGXV9SQ_elqggLF_sIYMW7lejl8_gONqVRB23hwxox0RFjbNWReVxGP3aGF7C9A0PquZOlLuef0fIjpWIGEZ9UNAV7Zin0o7R4kKtTgxx1LlhoB85fnsIshzxLpWJSgVSDb2lOP_7-wacuYpsHiWcloCxDaBuyyu4Zs7mzfjyXlWdCqfJmnwoEiE5JsHFAbwDTj1fpRO04L3AKrz5BZvVcQ8mR1MiexqpwOe-p92ucj8UsNd6ETSSpK6dnFIRZJV9oBcQfjhqgA9lYIJLgjgD1ls8Vj3kZ7rZzdNmkSR3LCAukWa9jlDlk-Kz6MqU_x4eeQSP8a7osKxGxb29mUZLoM3Ptb8fB7XxXvpF03qu3BzgZkUuQ3hXZjOhnaUyA-y3ytcSuC8y86w7xBTlGltn_vryKCac6B_0uZAguEaUL6NDl1LpWtCKyCXPFgetybvJzuVJUVE4jD_4JCGfYFbsk8QNSWXNM4AURqJvxWrBoeKU6Hs7nYsx57mTpA6sGQtXDJhQgNUpDKJNB_Tv-fO6QsuczYQpT8GN4vidiSIhZfVMzKqEftCxLq-L9oA1tKv_LHV4gmOgnWDclBPj9Eh7vdLewVZiKuYSEsXQGUKP6uFsVOcMLcFk4WmcBrgzHQarTFiiAWBS2_MCn4g4bhcUgsICEv4lom0U9-TNholwoGk2TEoVoV2nDDvGTuMBVhgxtzWqX_WV0J9XfQmIKCe5sTHrPnLjuZOAJPauJJjTGYC5hyfvLWe1O3QaU9xJPq2xZZp-I6FLK74zGTln3WuSMnjEIXRskPu-ttxJV0fGSQuPRHs3bIQoeqvbD0Tm1mEAMoL9OeSrLRkbSZo48vVrzWhCX8rhtMreOTLLfR7uHFaz-zv99mpNyDCth34ohbCtkUNRh2MIpr0uamXZCCdEVLBmIgIXC1nL0tuMxnQVUaAsDNgV2RrqKTSSFZaeCPdQPnmu7TXx_i2Zk2P8WT1Gq4gsVuBco7Q6KP2VOixmZFe5Gu_iQKSO9iSMKQU_vqobb3BVLdtd3gYNFuRd9pllwTcUGM-MbkEe83d5T6-FU4CXwb7C0z2wt8zFwjvo2ojNlUCc5OTeTdWyL12W1BNTvnjUx6PIqel9NNSGrzIklpexOpMmEL3GUTwP7pbATZGA6s0xr8OvjLtVL3ytgMd6iUWVgCxZ2AH9A37DEsCcWCcEq9RNfNf3YKKkTUuBCwIfhHK8bbd4tM8lpMRBYZfEp6qQnbqbnIiESRKVkTHeneD9BNj_Va5d2kT1z_PiLMWU_WO1irtqi_-s1XiOYyEd6fwrcVSK8dTsyaheZ07wUuv9s9Ocsh6T1BCbkzTBntTXPpK6eUTT9WvKq97Kuwcuu12fTrle7mWT1DsFw4isyIgaTcwE3OjztuLa5v7Zy7UiJXpb7RsPBCRXpLdsfbp6cdbLEglpyi4wVZcycOFEu6oGoIzCVw_1k63Ls3ozjvUehoDI7sCam0Lrh1YaF9vbY2EPnBBRc4ltigapGAVyD27VM-JkK8mZZwh3sbK-7cbx65V0CcY1PKmgY_SV0w8CAf7yLyJSOdQO7i-THPvfUcQio61rY91TzIJPUN2cUGxkCTRhFYsZ_P_5BdceEZzwAInMwW6tqOTIZZFLlcsprAoud9pnA-vmWIHqtlMPkFz8cQ7IH_cukyQtx08kjDPto2KdYVS7-MmFBmQjZTdC39Fp9KoeW0VhieoNVZoxHAxa9SvrhxqCh6UBn72OBdAH0z3FI7iKHykYYYDNfXT8b1r6WDmhc4xXKtx1SGFlsUAHVcCYFNEEJ0s2qWrCjVz3QzQMWwydIT4usCFIRCLTkxOqUHawF-6WkPQv9fmY4JmCwcoZYlKb1kETUNALSFlrF4oKUwGOQEHC9fkNTpALq0y47eD0TGx_A=="}}
+{"timestamp":"2026-04-09T17:01:48.456Z","type":"event_msg","payload":{"type":"agent_message","message":"I’ve got enough audit signal to start patching now. The work I’m applying is aimed at the one part of the calculator that’s still provably underwired: workholding/fixtures. I’m converting that route from curated-only to a real H-drive-backed hybrid catalog, and I’m widening the visible workholding options so the page can actually select the database-backed presets it receives.","phase":"commentary","memory_citation":null}}
+{"timestamp":"2026-04-09T17:01:48.456Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"output_text","text":"I’ve got enough audit signal to start patching now. The work I’m applying is aimed at the one part of the calculator that’s still provably underwired: workholding/fixtures. I’m converting that route from curated-only to a real H-drive-backed hybrid catalog, and I’m widening the visible workholding options so the page can actually select the database-backed presets it receives."}],"phase":"commentary"}}
+{"timestamp":"2026-04-09T17:02:42.174Z","type":"response_item","payload":{"type":"custom_tool_call","status":"completed","call_id":"call_b7ZpmePTCBu2A999Jxi5Lj0J","name":"apply_patch","input":"*** Begin Patch\n*** Add File: H:\\PRISM\\mcp-server\\src\\utils\\calculatorWorkholdingCatalog.ts\n+import fs from \"node:fs\";\n+import path from \"node:path\";\n+import { PATHS } from \"../constants.js\";\n+import {\n+  getWorkholdingCatalogBundle,\n+  type WorkholdingCatalogBundle,\n+  type WorkholdingPresetOption,\n+} from \"../data/calculatorWorkholdingCatalog.js\";\n+import {\n+  ORANGE_VISE_SPECS,\n+  SOFT_JAW_SPECS,\n+  SUBPLATE_SPECS,\n+  TOMBSTONE_SPECS,\n+} from \"../data/workholding-catalog.js\";\n+\n+type MachineMode = \"mill\" | \"lathe\" | \"edm\" | \"wire_edm\" | \"laser\" | \"waterjet\";\n+\n+interface SelectionOption {\n+  id: string;\n+  label: string;\n+  detail: string;\n+}\n+\n+interface WorkholdingCatalogResponse {\n+  categoryOptions: SelectionOption[];\n+  brandOptions: SelectionOption[];\n+  presetOptions: WorkholdingPresetOption[];\n+  stabilityOptions: SelectionOption[];\n+  total: number;\n+  source: \"database\" | \"hybrid\" | \"curated\";\n+  liveCount: number;\n+  fallbackCount: number;\n+  note: string;\n+}\n+\n+interface WorkholdingDatabasePayload {\n+  vises?: RawWorkholdingProduct[];\n+  chucks?: RawWorkholdingProduct[];\n+  collets?: RawWorkholdingProduct[];\n+  fixtures?: RawWorkholdingProduct[];\n+  toolholders?: RawWorkholdingProduct[];\n+}\n+\n+type RawWorkholdingProduct = Record<string, unknown>;\n+\n+const WORKHOLDING_DATABASE_PATH = path.join(PATHS.DATA_DIR, \"workholding\", \"WORKHOLDING.json\");\n+const WORKHOLDING_REFERENCE_DATABASE_PATH = path.join(PATHS.DATA_DIR, \"databases\", \"WorkholdingDB.json\");\n+\n+let cachedWorkholdingDatabase: WorkholdingDatabasePayload | null = null;\n+let cachedReferenceDatabase: Record<string, unknown> | null = null;\n+\n+function asRecord(value: unknown): Record<string, unknown> | null {\n+  return value != null && typeof value === \"object\" && !Array.isArray(value)\n+    ? (value as Record<string, unknown>)\n+    : null;\n+}\n+\n+function readText(value: unknown): string {\n+  if (typeof value === \"string\") return value.trim();\n+  if (typeof value === \"number\") return String(value);\n+  return \"\";\n+}\n+\n+function safeNum(value: unknown): number {\n+  const parsed = Number(value);\n+  return Number.isFinite(parsed) ? parsed : 0;\n+}\n+\n+function optionId(value: string, fallback: string): string {\n+  const normalized = value\n+    .toLowerCase()\n+    .replace(/[^a-z0-9]+/g, \"-\")\n+    .replace(/^-+|-+$/g, \"\");\n+  return normalized || fallback;\n+}\n+\n+function titleCase(value: string): string {\n+  return value\n+    .replace(/[_-]+/g, \" \")\n+    .replace(/\\s+/g, \" \")\n+    .trim()\n+    .replace(/\\b\\w/g, (char) => char.toUpperCase());\n+}\n+\n+function dedupeOptions(items: SelectionOption[]): SelectionOption[] {\n+  const byId = new Map<string, SelectionOption>();\n+  for (const item of items) {\n+    if (!item.id || !item.label || !item.detail) continue;\n+    if (!byId.has(item.id)) {\n+      byId.set(item.id, item);\n+    }\n+  }\n+  return [...byId.values()];\n+}\n+\n+function dedupePresets(items: WorkholdingPresetOption[]): WorkholdingPresetOption[] {\n+  const byId = new Map<string, WorkholdingPresetOption>();\n+  for (const item of items) {\n+    if (!item.id) continue;\n+    if (!byId.has(item.id)) {\n+      byId.set(item.id, item);\n+    }\n+  }\n+  return [...byId.values()];\n+}\n+\n+function loadWorkholdingDatabase(): WorkholdingDatabasePayload {\n+  if (cachedWorkholdingDatabase) return cachedWorkholdingDatabase;\n+  if (!fs.existsSync(WORKHOLDING_DATABASE_PATH)) {\n+    cachedWorkholdingDatabase = {};\n+    return cachedWorkholdingDatabase;\n+  }\n+\n+  const payload = JSON.parse(fs.readFileSync(WORKHOLDING_DATABASE_PATH, \"utf8\")) as WorkholdingDatabasePayload;\n+  cachedWorkholdingDatabase = payload;\n+  return payload;\n+}\n+\n+function loadReferenceDatabase(): Record<string, unknown> {\n+  if (cachedReferenceDatabase) return cachedReferenceDatabase;\n+  if (!fs.existsSync(WORKHOLDING_REFERENCE_DATABASE_PATH)) {\n+    cachedReferenceDatabase = {};\n+    return cachedReferenceDatabase;\n+  }\n+\n+  cachedReferenceDatabase = JSON.parse(fs.readFileSync(WORKHOLDING_REFERENCE_DATABASE_PATH, \"utf8\")) as Record<string, unknown>;\n+  return cachedReferenceDatabase;\n+}\n+\n+function inferMillWorkholdingId(entry: RawWorkholdingProduct): string {\n+  const signature = [\n+    readText(entry.name),\n+    readText(entry.type),\n+    readText(entry.manufacturer),\n+    ...(Array.isArray(entry.features) ? entry.features.map(readText) : []),\n+    ...(Array.isArray(entry.recommended_for) ? entry.recommended_for.map(readText) : []),\n+  ]\n+    .filter(Boolean)\n+    .join(\" \")\n+    .toLowerCase();\n+\n+  if (/vacuum/.test(signature)) return \"vacuum-fixture\";\n+  if (/magnetic/.test(signature)) return \"magnetic-chuck\";\n+  if (/tombstone|column|multi-face|pallet/.test(signature)) return \"tombstone-pallet\";\n+  if (/rotary|trunnion/.test(signature)) return \"rotary-trunnion\";\n+  if (/fixture|plate|subplate|zero-point|zero point/.test(signature)) return \"fixture-plate\";\n+  return \"vise-soft-jaw\";\n+}\n+\n+function inferLatheWorkholdingId(entry: RawWorkholdingProduct): string {\n+  const signature = [\n+    readText(entry.name),\n+    readText(entry.type),\n+    ...(Array.isArray(entry.features) ? entry.features.map(readText) : []),\n+    ...(Array.isArray(entry.recommended_for) ? entry.recommended_for.map(readText) : []),\n+  ]\n+    .filter(Boolean)\n+    .join(\" \")\n+    .toLowerCase();\n+\n+  if (/collet/.test(signature)) return \"collet-chuck\";\n+  if (/6[- ]?jaw|six[- ]?jaw/.test(signature)) return \"six-jaw-chuck\";\n+  if (/4[- ]?jaw|four[- ]?jaw/.test(signature)) return \"four-jaw-chuck\";\n+  if (/soft/.test(signature)) return \"soft-jaw-chuck\";\n+  return \"three-jaw-chuck\";\n+}\n+\n+function inferStabilityId(entry: RawWorkholdingProduct, workholdingId: string): string {\n+  const signature = [\n+    workholdingId,\n+    readText(entry.type),\n+    ...(Array.isArray(entry.features) ? entry.features.map(readText) : []),\n+    ...(Array.isArray(entry.recommended_for) ? entry.recommended_for.map(readText) : []),\n+  ]\n+    .filter(Boolean)\n+    .join(\" \")\n+    .toLowerCase();\n+\n+  if (/vacuum|magnetic|detail|thin|precision/.test(signature)) return \"detail-control\";\n+  if (/rotary|trunnion|index/.test(signature)) return \"index-ready\";\n+  if (/5axis|5-axis|high-force|heavy|superalloy|aggressive|dovetail/.test(signature)) {\n+    return \"aggressive-rigid\";\n+  }\n+  return \"production-stable\";\n+}\n+\n+function buildProductDetail(entry: RawWorkholdingProduct): string {\n+  const parts: string[] = [];\n+  const type = readText(entry.type);\n+  const clampForce = safeNum(entry.max_clamping_force_N);\n+  const jawWidth = safeNum(entry.jaw_width_mm);\n+  const opening = safeNum(entry.max_opening_mm);\n+  const repeatability = safeNum(entry.repeatability_mm);\n+  const diameter = safeNum(entry.diameter_mm);\n+  const rpm = safeNum(entry.max_rpm);\n+\n+  if (type) parts.push(titleCase(type));\n+  if (clampForce > 0) parts.push(`${Math.round(clampForce).toLocaleString()} N clamp`);\n+  if (jawWidth > 0) parts.push(`${Math.round(jawWidth)} mm jaw`);\n+  if (opening > 0) parts.push(`${Math.round(opening)} mm opening`);\n+  if (diameter > 0) parts.push(`${Math.round(diameter)} mm size`);\n+  if (rpm > 0) parts.push(`${Math.round(rpm).toLocaleString()} RPM`);\n+  if (repeatability > 0) parts.push(`${repeatability.toFixed(3)} mm repeatability`);\n+\n+  return parts.join(\" · \");\n+}\n+\n+function mapProductToPreset(\n+  entry: RawWorkholdingProduct,\n+  mode: MachineMode,\n+  categoryId: string,\n+  workholdingId: string,\n+): WorkholdingPresetOption | null {\n+  const id = readText(entry.id);\n+  const label = readText(entry.name);\n+  const manufacturer = readText(entry.manufacturer);\n+  if (!id || !label || !manufacturer) return null;\n+\n+  const brandId = optionId(manufacturer, \"catalog\");\n+  return {\n+    id,\n+    label,\n+    detail: buildProductDetail(entry) || `${manufacturer} ${label}`.trim(),\n+    modes: [mode],\n+    categoryId,\n+    brandId,\n+    workholdingId,\n+    stabilityId: inferStabilityId(entry, workholdingId),\n+  };\n+}\n+\n+function mapMillDatabasePresets(payload: WorkholdingDatabasePayload): WorkholdingPresetOption[] {\n+  const vises = (payload.vises ?? [])\n+    .map((entry) => mapProductToPreset(entry, \"mill\", \"vise\", inferMillWorkholdingId(entry)))\n+    .filter((entry): entry is WorkholdingPresetOption => Boolean(entry));\n+  const fixtures = (payload.fixtures ?? [])\n+    .map((entry) => {\n+      const workholdingId = inferMillWorkholdingId(entry);\n+      return mapProductToPreset(\n+        entry,\n+        \"mill\",\n+        workholdingId === \"rotary-trunnion\" ? \"rotary\" : \"fixture\",\n+        workholdingId,\n+      );\n+    })\n+    .filter((entry): entry is WorkholdingPresetOption => Boolean(entry));\n+\n+  const orangeVisePresets: WorkholdingPresetOption[] = ORANGE_VISE_SPECS.map((vise) => ({\n+    id: `orange-vise-${optionId(vise.model, \"vise\")}`,\n+    label: `${vise.brand} ${vise.model}`,\n+    detail: `${titleCase(vise.type)} · ${Math.round(vise.clamping_force_kn * 1000).toLocaleString()} N clamp · ${Math.round(vise.jaw_width_mm)} mm jaw · ${vise.repeatability_mm.toFixed(3)} mm repeatability`,\n+    modes: [\"mill\"],\n+    categoryId: \"vise\",\n+    brandId: optionId(vise.brand, \"orange-vise\"),\n+    workholdingId: \"vise-soft-jaw\",\n+    stabilityId: /5axis|self_centering/i.test(vise.type) ? \"aggressive-rigid\" : \"production-stable\",\n+  }));\n+\n+  const tombstonePresets: WorkholdingPresetOption[] = TOMBSTONE_SPECS.map((fixture) => ({\n+    id: `orange-vise-${optionId(fixture.model, \"tombstone\")}`,\n+    label: `${fixture.brand} ${fixture.model}`,\n+    detail: `${titleCase(fixture.type)} · ${fixture.stations} stations · ${Math.round(fixture.height_mm)} mm tall`,\n+    modes: [\"mill\"],\n+    categoryId: \"fixture\",\n+    brandId: optionId(fixture.brand, \"orange-vise\"),\n+    workholdingId: \"tombstone-pallet\",\n+    stabilityId: \"production-stable\",\n+  }));\n+\n+  const subplatePresets: WorkholdingPresetOption[] = SUBPLATE_SPECS.map((fixture) => ({\n+    id: `orange-vise-subplate-${fixture.sku.toLowerCase()}`,\n+    label: `${fixture.brand} ${fixture.sku}`,\n+    detail: `Fixture plate · ${Math.round(fixture.size_mm.length)} x ${Math.round(fixture.size_mm.width)} x ${Math.round(fixture.size_mm.height)} mm · ${fixture.integrated_receivers} receivers`,\n+    modes: [\"mill\"],\n+    categoryId: \"fixture\",\n+    brandId: optionId(fixture.brand, \"orange-vise\"),\n+    workholdingId: \"fixture-plate\",\n+    stabilityId: \"production-stable\",\n+  }));\n+\n+  const softJawPresets: WorkholdingPresetOption[] = SOFT_JAW_SPECS.map((jaw) => ({\n+    id: `orange-vise-soft-jaw-${optionId(`${jaw.material}-${jaw.size_mm.length}`, \"soft-jaw\")}`,\n+    label: `${jaw.brand} ${titleCase(jaw.type)} jaws`,\n+    detail: `${titleCase(jaw.material)} · ${Math.round(jaw.size_mm.length)} x ${Math.round(jaw.size_mm.width)} x ${Math.round(jaw.size_mm.height)} mm`,\n+    modes: [\"mill\"],\n+    categoryId: \"vise\",\n+    brandId: optionId(jaw.brand, \"orange-vise\"),\n+    workholdingId: \"vise-soft-jaw\",\n+    stabilityId: \"production-stable\",\n+  }));\n+\n+  return dedupePresets([...vises, ...fixtures, ...orangeVisePresets, ...tombstonePresets, ...subplatePresets, ...softJawPresets]);\n+}\n+\n+function mapLatheDatabasePresets(payload: WorkholdingDatabasePayload): WorkholdingPresetOption[] {\n+  const chucks = (payload.chucks ?? [])\n+    .map((entry) => mapProductToPreset(entry, \"lathe\", \"chucking\", inferLatheWorkholdingId(entry)))\n+    .filter((entry): entry is WorkholdingPresetOption => Boolean(entry));\n+  const collets = (payload.collets ?? [])\n+    .map((entry) => mapProductToPreset(entry, \"lathe\", \"chucking\", \"collet-chuck\"))\n+    .filter((entry): entry is WorkholdingPresetOption => Boolean(entry));\n+\n+  const reference = loadReferenceDatabase();\n+  const referenceDeviceTypes = Array.isArray(reference.device_types)\n+    ? reference.device_types.map(readText).filter(Boolean)\n+    : [];\n+  const referencePresets: WorkholdingPresetOption[] = referenceDeviceTypes\n+    .filter((type) => [\"COLLET\", \"THREE_JAW_CHUCK\", \"FOUR_JAW_CHUCK\"].includes(type))\n+    .map((type) => ({\n+      id: `prism-reference-${optionId(type, \"workholding\")}`,\n+      label: `PRISM reference ${titleCase(type)}`,\n+      detail: `Reference workholding posture from the validated workholding safety database for ${titleCase(type)}.`,\n+      modes: [\"lathe\"],\n+      categoryId: \"chucking\",\n+      brandId: \"prism-reference\",\n+      workholdingId:\n+        type === \"COLLET\"\n+          ? \"collet-chuck\"\n+          : type === \"FOUR_JAW_CHUCK\"\n+            ? \"four-jaw-chuck\"\n+            : \"three-jaw-chuck\",\n+      stabilityId: \"production-stable\",\n+    }));\n+\n+  return dedupePresets([...chucks, ...collets, ...referencePresets]);\n+}\n+\n+function mapReferenceMillPresets(): WorkholdingPresetOption[] {\n+  const reference = loadReferenceDatabase();\n+  const referenceDeviceTypes = Array.isArray(reference.device_types)\n+    ? reference.device_types.map(readText).filter(Boolean)\n+    : [];\n+\n+  return dedupePresets(\n+    referenceDeviceTypes\n+      .filter((type) => [\"VACUUM_FIXTURE\", \"MAGNETIC_CHUCK\", \"FIXTURE_PLATE\", \"TOMBSTONE\"].includes(type))\n+      .map((type) => ({\n+        id: `prism-reference-${optionId(type, \"fixture\")}`,\n+        label: `PRISM reference ${titleCase(type)}`,\n+        detail: `Reference ${titleCase(type)} posture from the validated workholding safety database.`,\n+        modes: [\"mill\"],\n+        categoryId: \"fixture\",\n+        brandId: \"prism-reference\",\n+        workholdingId:\n+          type === \"VACUUM_FIXTURE\"\n+            ? \"vacuum-fixture\"\n+            : type === \"MAGNETIC_CHUCK\"\n+              ? \"magnetic-chuck\"\n+              : type === \"TOMBSTONE\"\n+                ? \"tombstone-pallet\"\n+                : \"fixture-plate\",\n+        stabilityId:\n+          type === \"VACUUM_FIXTURE\" || type === \"MAGNETIC_CHUCK\"\n+            ? \"detail-control\"\n+            : \"production-stable\",\n+      })),\n+  );\n+}\n+\n+function livePresetsForMode(mode: MachineMode): WorkholdingPresetOption[] {\n+  const payload = loadWorkholdingDatabase();\n+  switch (mode) {\n+    case \"mill\":\n+      return dedupePresets([...mapMillDatabasePresets(payload), ...mapReferenceMillPresets()]);\n+    case \"lathe\":\n+      return mapLatheDatabasePresets(payload);\n+    default:\n+      return [];\n+  }\n+}\n+\n+function liveBrandOptions(presets: WorkholdingPresetOption[]): SelectionOption[] {\n+  const counts = new Map<string, number>();\n+  const labels = new Map<string, string>();\n+\n+  for (const preset of presets) {\n+    counts.set(preset.brandId, (counts.get(preset.brandId) ?? 0) + 1);\n+    if (!labels.has(preset.brandId)) {\n+      labels.set(preset.brandId, titleCase(preset.brandId));\n+    }\n+  }\n+\n+  return [...counts.entries()].map(([id, count]) => ({\n+    id,\n+    label: labels.get(id) ?? titleCase(id),\n+    detail: `${count} live-backed workholding packages available for this machine mode.`,\n+  }));\n+}\n+\n+export function getCalculatorWorkholdingCatalog(\n+  mode: MachineMode,\n+): WorkholdingCatalogResponse {\n+  const fallbackBundle = getWorkholdingCatalogBundle(mode);\n+  const livePresets = livePresetsForMode(mode);\n+\n+  if (livePresets.length === 0) {\n+    return {\n+      ...fallbackBundle,\n+      total: fallbackBundle.presetOptions.length,\n+      source: \"curated\",\n+      liveCount: 0,\n+      fallbackCount: fallbackBundle.presetOptions.length,\n+      note: \"Calculator-native curated workholding presets are active because no live H:\\\\PRISM workholding products are mapped for this machine mode yet.\",\n+    };\n+  }\n+\n+  const mergedPresetOptions = dedupePresets([...livePresets, ...fallbackBundle.presetOptions]);\n+  const fallbackIds = new Set(fallbackBundle.presetOptions.map((item) => item.id));\n+  const liveIds = new Set(livePresets.map((item) => item.id));\n+  const fallbackCount = mergedPresetOptions.filter((item) => !liveIds.has(item.id) && fallbackIds.has(item.id)).length;\n+\n+  const categoryOptions = dedupeOptions([\n+    ...fallbackBundle.categoryOptions,\n+  ]);\n+\n+  const brandOptions = dedupeOptions([\n+    ...fallbackBundle.brandOptions,\n+    ...liveBrandOptions(livePresets),\n+  ]);\n+\n+  const source = fallbackCount > 0 ? \"hybrid\" : \"database\";\n+\n+  return {\n+    categoryOptions,\n+    brandOptions,\n+    presetOptions: mergedPresetOptions,\n+    stabilityOptions: fallbackBundle.stabilityOptions,\n+    total: mergedPresetOptions.length,\n+    source,\n+    liveCount: livePresets.length,\n+    fallbackCount,\n+    note:\n+      source === \"hybrid\"\n+        ? \"Live H:\\\\PRISM workholding and fixture products are merged with calculator-native presets so support-only and nontraditional setup packages remain selectable.\"\n+        : \"Live H:\\\\PRISM workholding and fixture products are active for this machine mode.\",\n+  };\n+}\n*** End Patch\n"}}
+{"timestamp":"2026-04-09T17:02:42.227Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":191165766,"cached_input_tokens":181780992,"output_tokens":870347,"reasoning_output_tokens":396491,"total_tokens":192036113},"last_token_usage":{"input_tokens":211165,"cached_input_tokens":208512,"output_tokens":4938,"reasoning_output_tokens":284,"total_tokens":216103},"model_context_window":258400},"rate_limits":{"limit_id":"codex","limit_name":null,"primary":{"used_percent":21.0,"window_minutes":300,"resets_at":1775753918},"secondary":{"used_percent":12.0,"window_minutes":10080,"resets_at":1776257543},"credits":null,"plan_type":"pro"}}}
+{"timestamp":"2026-04-09T17:02:42.231Z","type":"event_msg","payload":{"type":"patch_apply_end","call_id":"call_b7ZpmePTCBu2A999Jxi5Lj0J","turn_id":"019d7327-14bd-7fc2-b68e-4f0fb433af34","stdout":"Success. Updated the following files:\nA H:\\PRISM\\mcp-server\\src\\utils\\calculatorWorkholdingCatalog.ts\n","stderr":"","success":true,"changes":{"H:\\PRISM\\mcp-server\\src\\utils\\calculatorWorkholdingCatalog.ts":{"type":"add","content":"import fs from \"node:fs\";\nimport path from \"node:path\";\nimport { PATHS } from \"../constants.js\";\nimport {\n  getWorkholdingCatalogBundle,\n  type WorkholdingCatalogBundle,\n  type WorkholdingPresetOption,\n} from \"../data/calculatorWorkholdingCatalog.js\";\nimport {\n  ORANGE_VISE_SPECS,\n  SOFT_JAW_SPECS,\n  SUBPLATE_SPECS,\n  TOMBSTONE_SPECS,\n} from \"../data/workholding-catalog.js\";\n\ntype MachineMode = \"mill\" | \"lathe\" | \"edm\" | \"wire_edm\" | \"laser\" | \"waterjet\";\n\ninterface SelectionOption {\n  id: string;\n  label: string;\n  detail: string;\n}\n\ninterface WorkholdingCatalogResponse {\n  categoryOptions: SelectionOption[];\n  brandOptions: SelectionOption[];\n  presetOptions: WorkholdingPresetOption[];\n  stabilityOptions: SelectionOption[];\n  total: number;\n  source: \"database\" | \"hybrid\" | \"curated\";\n  liveCount: number;\n  fallbackCount: number;\n  note: string;\n}\n\ninterface WorkholdingDatabasePayload {\n  vises?: RawWorkholdingProduct[];\n  chucks?: RawWorkholdingProduct[];\n  collets?: RawWorkholdingProduct[];\n  fixtures?: RawWorkholdingProduct[];\n  toolholders?: RawWorkholdingProduct[];\n}\n\ntype RawWorkholdingProduct = Record<string, unknown>;\n\nconst WORKHOLDING_DATABASE_PATH = path.join(PATHS.DATA_DIR, \"workholding\", \"WORKHOLDING.json\");\nconst WORKHOLDING_REFERENCE_DATABASE_PATH = path.join(PATHS.DATA_DIR, \"databases\", \"WorkholdingDB.json\");\n\nlet cachedWorkholdingDatabase: WorkholdingDatabasePayload | null = null;\nlet cachedReferenceDatabase: Record<string, unknown> | null = null;\n\nfunction asRecord(value: unknown): Record<string, unknown> | null {\n  return value != null && typeof value === \"object\" && !Array.isArray(value)\n    ? (value as Record<string, unknown>)\n    : null;\n}\n\nfunction readText(value: unknown): string {\n  if (typeof value === \"string\") return value.trim();\n  if (typeof value === \"number\") return String(value);\n  return \"\";\n}\n\nfunction safeNum(value: unknown): number {\n  const parsed = Number(value);\n  return Number.isFinite(parsed) ? parsed : 0;\n}\n\nfunction optionId(value: string, fallback: string): string {\n  const normalized = value\n    .toLowerCase()\n    .replace(/[^a-z0-9]+/g, \"-\")\n    .replace(/^-+|-+$
+============================================================
+Sync run: 2026-04-12T13:56:07.720457
+[13:51:57] Saved 451 files from H--
+[13:52:01] Saved 193 files from H--prism
+[13:52:01] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'H--', 'H--prism']
+[13:52:01] Project files — saved: 644, restored: 0
+[13:52:01] Memory files — saved: 0, restored: 0
+[13:52:01] Global files — saved: 5, restored: 0
+[13:52:02] User config — saved: 3, restored: 0
+[13:52:02] Saved MCP setting: mcp-server/.claude/settings.json
+[13:52:02] MCP settings — saved: 1, restored: 0
+[13:56:07] DB synced: True
+[13:56:07] Sessions synced: 159 files
+[13:56:07] Config synced: False
+
+============================================================
+Sync run: 2026-04-13T06:28:57.565364
+[06:28:56] Saved 168 files from H--prism
+[06:28:56] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'H--', 'H--prism']
+[06:28:56] Project files — saved: 168, restored: 0
+[06:28:56] Memory files — saved: 0, restored: 0
+[06:28:56] Global files — saved: 2, restored: 0
+[06:28:56] User config — saved: 1, restored: 0
+[06:28:56] MCP settings — saved: 0, restored: 0
+[06:28:57] DB synced: True
+[06:28:57] Sessions synced: 1 files
+[06:28:57] Config synced: False
+
+============================================================
+Sync run: 2026-04-15T16:58:17.531973
+[16:58:17] Cross-bucket merge: copied 29 sessions from H--prism → H--
+[16:58:17] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'H--', 'H--prism', 'H--prism-mcp-server']
+[16:58:17] Project files — saved: 0, restored: 29
+[16:58:17] Memory files — saved: 0, restored: 0
+[16:58:17] Global files — saved: 0, restored: 0
+[16:58:17] User config — saved: 0, restored: 0
+[16:58:17] MCP settings — saved: 0, restored: 0
+[16:58:17] DB synced: False
+[16:58:17] Sessions synced: 0 files
+[16:58:17] Config synced: False
+
+============================================================
+Sync run: 2026-04-19T21:20:33.533754
+[21:19:13] Saved 573 files from C--PRISM
+[21:19:13] Saved 61 files from C--PRISM--claude-worktrees-affectionate-perlman
+[21:19:13] Saved 7 files from C--PRISM--claude-worktrees-brave-euclid
+[21:19:13] Saved 51 files from C--PRISM--claude-worktrees-brave-gauss
+[21:19:13] Saved 28 files from C--PRISM--claude-worktrees-charming-williamson
+[21:19:13] Saved 31 files from C--PRISM--claude-worktrees-ecstatic-bhabha
+[21:19:13] Saved 1 files from C--PRISM--claude-worktrees-ecstatic-diffie
+[21:19:13] Saved 42 files from C--PRISM--claude-worktrees-epic-jones
+[21:19:13] Saved 100 files from C--PRISM--claude-worktrees-fervent-bohr
+[21:19:13] Saved 1 files from C--PRISM--claude-worktrees-gifted-blackwell
+[21:19:13] Saved 5 files from C--PRISM--claude-worktrees-interesting-shamir
+[21:19:13] Saved 6 files from C--PRISM--claude-worktrees-nervous-albattani
+[21:19:13] Saved 9 files from C--PRISM--claude-worktrees-quirky-golick
+[21:19:14] Saved 173 files from C--PRISM--claude-worktrees-reverent-easley
+[21:19:14] Saved 40 files from C--PRISM--claude-worktrees-sharp-jennings
+[21:19:14] Saved 13 files from C--PRISM--claude-worktrees-tender-ptolemy
+[21:19:14] Saved 15 files from C--PRISM--claude-worktrees-vibrant-haslett
+[21:19:14] Saved 143 files from C--PRISM--claude-worktrees-zen-dirac
+[21:19:23] Saved 3409 files from H--
+[21:19:39] Saved 6016 files from H--prism
+[21:19:39] Saved 3 files from H--prism-agi-infra-a
+[21:19:39] Saved 2 files from H--prism-mcp-server
+[21:19:40] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'H--', 'H--prism', 'H--prism-agi-infra-a', 'H--prism-mcp-server']
+[21:19:40] Project files — saved: 10729, restored: 0
+[21:19:40] Memory files — saved: 0, restored: 0
+[21:19:40] Global files — saved: 873, restored: 0
+[21:19:40] User config — saved: 3, restored: 0
+[21:19:40] MCP settings — saved: 0, restored: 0
+[21:20:33] DB synced: True
+[21:20:33] Sessions synced: 252 files
+[21:20:33] Config synced: False
+
+============================================================
+Sync run: 2026-05-03T22:42:23.900617
+[22:41:53] Saved 17 files from H--
+[22:42:20] Saved 861 files from H--prism
+[22:42:22] Saved 11 files from H--prism--claude-worktrees-omega-loader-ms0
+[22:42:22] Saved 6 files from H--prism-cad-sw-fidx
+[22:42:22] Saved 2 files from H--prism-cam-ms1-93a0
+[22:42:22] Saved 13 files from H--prism-engine-wire-ms0
+[22:42:22] Saved 8 files from H--prism-fusion-ms1
+[22:42:22] Saved 12 files from H--prism-intel-p8
+[22:42:22] Saved 4 files from H--prism-iooms0
+[22:42:22] Saved 4 files from H--prism-iooms1
+[22:42:22] Saved 12 files from H--prism-lathe-prod-ready
+[22:42:22] Saved 3 files from H--prism-ppg-advancedpost
+[22:42:22] Saved 12 files from H--prism-tsc-cleanup
+[22:42:23] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-ms1-93a0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-ppg-advancedpost', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[22:42:23] Project files — saved: 965, restored: 0
+[22:42:23] Memory files — saved: 0, restored: 0
+[22:42:23] Global files — saved: 465, restored: 0
+[22:42:23] User config — saved: 3, restored: 0
+[22:42:23] MCP settings — saved: 0, restored: 0
+[22:42:23] DB synced: True
+[22:42:23] Sessions synced: 62 files
+[22:42:23] Config synced: False
+
+============================================================
+Sync run: 2026-05-04T07:27:16.001357
+[07:26:54] Restored 1 files to H--prism
+[07:27:15] Cross-bucket merge: copied 538 sessions from H--prism → H--
+[07:27:15] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-ms1-93a0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-ppg-advancedpost', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[07:27:15] Project files — saved: 0, restored: 539
+[07:27:15] Memory files — saved: 0, restored: 0
+[07:27:15] Global files — saved: 0, restored: 11
+[07:27:15] User config — saved: 0, restored: 0
+[07:27:15] MCP settings — saved: 0, restored: 0
+[07:27:15] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:27:15] DB synced: True
+[07:27:15] Sessions synced: 0 files
+[07:27:15] Config synced: True
+
+============================================================
+Sync run: 2026-05-04T15:36:02.390831
+[15:35:54] Saved 538 files from H--
+[15:36:00] Saved 193 files from H--prism
+[15:36:01] Saved 14 files from H--prism-lathe-lth04b
+[15:36:01] Saved 6 files from H--prism-postproc
+[15:36:01] Saved 11 files from H--prism-ppgh04
+[15:36:01] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-ms1-93a0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-postproc', 'H--prism-ppg-advancedpost', 'H--prism-ppgh04', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[15:36:01] Project files — saved: 762, restored: 0
+[15:36:01] Memory files — saved: 0, restored: 0
+[15:36:01] Global files — saved: 6, restored: 0
+[15:36:01] User config — saved: 3, restored: 0
+[15:36:01] MCP settings — saved: 0, restored: 0
+[15:36:01] Codex sessions already point at the portable session store; skipping per-file session copy.
+[15:36:02] DB synced: True
+[15:36:02] Sessions synced: 0 files
+[15:36:02] Config synced: False
+
+============================================================
+Sync run: 2026-05-06T15:32:17.700186
+[15:32:10] Saved 94 files from H--
+[15:32:16] Saved 710 files from H--prism
+[15:32:17] Saved 27 files from H--prism-cam-exhaust-ms0
+[15:32:17] Saved 2 files from H--prism-cam-spcfai-ms0
+[15:32:17] Saved 6 files from H--prism-iooms0
+[15:32:17] Saved 6 files from H--prism-lathe-lth04b
+[15:32:17] Saved 6 files from H--prism-lathe-pro-v3
+[15:32:17] Saved 9 files from H--prism-ppgh05
+[15:32:17] Projects: ['C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[15:32:17] Project files — saved: 860, restored: 0
+[15:32:17] Memory files — saved: 0, restored: 0
+[15:32:17] Global files — saved: 19, restored: 0
+[15:32:17] User config — saved: 2, restored: 0
+[15:32:17] MCP settings — saved: 0, restored: 0
+[15:32:17] Codex sessions already point at the portable session store; skipping per-file session copy.
+[15:32:17] DB synced: True
+[15:32:17] Sessions synced: 0 files
+[15:32:17] Config synced: False
+
+============================================================
+Sync run: 2026-05-06T19:01:43.019900
+[19:00:30] Restored 573 files to C--PRISM
+[19:00:30] Restored 7 files to C--PRISM--claude-worktrees-brave-euclid
+[19:00:31] Restored 40 files to C--PRISM--claude-worktrees-sharp-jennings
+[19:00:34] Restored 143 files to C--PRISM--claude-worktrees-zen-dirac
+[19:00:39] Restored 198 files to H--
+[19:00:51] Restored 268 files to H--prism
+[19:01:36] Cross-bucket merge: copied 242 sessions from H--prism → H--
+[19:01:36] Projects: ['C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[19:01:36] Project files — saved: 0, restored: 1471
+[19:01:36] Memory files — saved: 0, restored: 0
+[19:01:36] Global files — saved: 0, restored: 5
+[19:01:36] User config — saved: 0, restored: 0
+[19:01:36] MCP settings — saved: 0, restored: 0
+[19:01:43] DB synced: False
+[19:01:43] Sessions synced: 149 files
+[19:01:43] Config synced: True
+
+============================================================
+Sync run: 2026-05-07T05:14:11.665897
+[05:14:00] Saved 242 files from H--
+[05:14:09] Saved 89 files from H--prism
+[05:14:09] Saved 9 files from H--prism-iooms0
+[05:14:09] Saved 15 files from H--prism-ppgh05
+[05:14:10] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[05:14:10] Project files — saved: 355, restored: 0
+[05:14:10] Memory files — saved: 0, restored: 0
+[05:14:10] Global files — saved: 235, restored: 0
+[05:14:10] User config — saved: 2, restored: 0
+[05:14:10] MCP settings — saved: 0, restored: 0
+[05:14:11] DB synced: True
+[05:14:11] Sessions synced: 68 files
+[05:14:11] Config synced: False
+
+============================================================
+Sync run: 2026-05-07T07:06:06.503168
+[07:06:05] Cross-bucket merge: copied 8 sessions from H--prism → H--
+[07:06:06] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[07:06:06] Project files — saved: 0, restored: 8
+[07:06:06] Memory files — saved: 0, restored: 0
+[07:06:06] Global files — saved: 0, restored: 11
+[07:06:06] User config — saved: 0, restored: 0
+[07:06:06] MCP settings — saved: 0, restored: 0
+[07:06:06] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:06:06] DB synced: True
+[07:06:06] Sessions synced: 0 files
+[07:06:06] Config synced: True
+
+============================================================
+Sync run: 2026-05-07T15:35:36.722364
+[15:35:21] Saved 12 files from H--
+[15:35:35] Saved 285 files from H--prism
+[15:35:35] Saved 6 files from H--prism-iooms0
+[15:35:36] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[15:35:36] Project files — saved: 303, restored: 0
+[15:35:36] Memory files — saved: 0, restored: 0
+[15:35:36] Global files — saved: 7, restored: 0
+[15:35:36] User config — saved: 2, restored: 0
+[15:35:36] MCP settings — saved: 0, restored: 0
+[15:35:36] Codex sessions already point at the portable session store; skipping per-file session copy.
+[15:35:36] DB synced: True
+[15:35:36] Sessions synced: 0 files
+[15:35:36] Config synced: False
+
+============================================================
+Sync run: 2026-05-07T20:51:36.561768
+[20:51:34] Cross-bucket merge: copied 13 sessions from H--prism → H--
+[20:51:35] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[20:51:35] Project files — saved: 0, restored: 13
+[20:51:35] Memory files — saved: 0, restored: 0
+[20:51:35] Global files — saved: 0, restored: 12
+[20:51:35] User config — saved: 0, restored: 0
+[20:51:35] MCP settings — saved: 0, restored: 0
+[20:51:36] DB synced: True
+[20:51:36] Sessions synced: 19 files
+[20:51:36] Config synced: True
+
+============================================================
+Sync run: 2026-05-08T06:31:29.027047
+[06:31:07] Saved 13 files from H--
+[06:31:27] Saved 55 files from H--prism
+[06:31:27] Saved 5 files from H--prism-phase27
+[06:31:28] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[06:31:28] Project files — saved: 73, restored: 0
+[06:31:28] Memory files — saved: 0, restored: 0
+[06:31:28] Global files — saved: 9, restored: 0
+[06:31:28] User config — saved: 2, restored: 0
+[06:31:28] MCP settings — saved: 0, restored: 0
+[06:31:29] DB synced: True
+[06:31:29] Sessions synced: 3 files
+[06:31:29] Config synced: False
+
+============================================================
+Sync run: 2026-05-08T07:16:10.396389
+[07:16:06] Cross-bucket merge: copied 9 sessions from H--prism → H--
+[07:16:09] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[07:16:09] Project files — saved: 0, restored: 9
+[07:16:09] Memory files — saved: 0, restored: 0
+[07:16:09] Global files — saved: 0, restored: 16
+[07:16:09] User config — saved: 0, restored: 0
+[07:16:09] MCP settings — saved: 0, restored: 0
+[07:16:09] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:16:10] DB synced: True
+[07:16:10] Sessions synced: 0 files
+[07:16:10] Config synced: True
+
+============================================================
+Sync run: 2026-05-08T15:35:45.985370
+[15:35:24] Saved 9 files from H--
+[15:35:44] Saved 259 files from H--prism
+[15:35:44] Saved 1 files from H--prism-phase27
+[15:35:45] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[15:35:45] Project files — saved: 269, restored: 0
+[15:35:45] Memory files — saved: 0, restored: 0
+[15:35:45] Global files — saved: 62, restored: 0
+[15:35:45] User config — saved: 2, restored: 0
+[15:35:45] MCP settings — saved: 0, restored: 0
+[15:35:45] Codex sessions already point at the portable session store; skipping per-file session copy.
+[15:35:45] DB synced: True
+[15:35:45] Sessions synced: 0 files
+[15:35:45] Config synced: False
+
+============================================================
+Sync run: 2026-05-08T16:39:45.404967
+[16:39:38] Cross-bucket merge: copied 9 sessions from H--prism → H--
+[16:39:42] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tsc-cleanup']
+[16:39:42] Project files — saved: 0, restored: 9
+[16:39:42] Memory files — saved: 0, restored: 0
+[16:39:42] Global files — saved: 0, restored: 19
+[16:39:42] User config — saved: 0, restored: 0
+[16:39:42] MCP settings — saved: 0, restored: 0
+[16:39:45] DB synced: True
+[16:39:45] Sessions synced: 6 files
+[16:39:45] Config synced: True
+
+============================================================
+Sync run: 2026-05-11T06:27:15.150061
+[06:26:22] Saved 9 files from H--
+[06:27:13] Saved 710 files from H--prism
+[06:27:13] Saved 2 files from H--prism-tribal-binder
+[06:27:14] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[06:27:14] Project files — saved: 721, restored: 0
+[06:27:14] Memory files — saved: 0, restored: 0
+[06:27:14] Global files — saved: 29, restored: 0
+[06:27:14] User config — saved: 2, restored: 0
+[06:27:14] MCP settings — saved: 0, restored: 0
+[06:27:15] DB synced: True
+[06:27:15] Sessions synced: 7 files
+[06:27:15] Config synced: False
+
+============================================================
+Sync run: 2026-05-11T07:03:19.527717
+[07:03:14] Cross-bucket merge: copied 51 sessions from H--prism → H--
+[07:03:18] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[07:03:18] Project files — saved: 0, restored: 51
+[07:03:18] Memory files — saved: 0, restored: 0
+[07:03:18] Global files — saved: 0, restored: 20
+[07:03:18] User config — saved: 0, restored: 0
+[07:03:18] MCP settings — saved: 0, restored: 0
+[07:03:18] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:03:19] DB synced: True
+[07:03:19] Sessions synced: 0 files
+[07:03:19] Config synced: True
+
+============================================================
+Sync run: 2026-05-11T15:45:13.926323
+[15:44:43] Saved 51 files from H--
+[15:45:12] Saved 137 files from H--prism
+[15:45:12] Saved 2 files from H--prism-tribal-binder
+[15:45:13] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[15:45:13] Project files — saved: 190, restored: 0
+[15:45:13] Memory files — saved: 0, restored: 0
+[15:45:13] Global files — saved: 8, restored: 0
+[15:45:13] User config — saved: 2, restored: 0
+[15:45:13] MCP settings — saved: 0, restored: 0
+[15:45:13] Codex sessions already point at the portable session store; skipping per-file session copy.
+[15:45:13] DB synced: True
+[15:45:13] Sessions synced: 0 files
+[15:45:13] Config synced: False
+
+============================================================
+Sync run: 2026-05-11T17:07:48.528710
+[17:07:47] Cross-bucket merge: copied 23 sessions from H--prism → H--
+[17:07:47] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[17:07:47] Project files — saved: 0, restored: 23
+[17:07:47] Memory files — saved: 0, restored: 0
+[17:07:47] Global files — saved: 0, restored: 22
+[17:07:47] User config — saved: 0, restored: 0
+[17:07:47] MCP settings — saved: 0, restored: 0
+[17:07:48] DB synced: True
+[17:07:48] Sessions synced: 8 files
+[17:07:48] Config synced: True
+
+============================================================
+Sync run: 2026-05-12T06:35:14.052508
+[06:34:50] Saved 23 files from H--
+[06:35:12] Saved 61 files from H--prism
+[06:35:13] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[06:35:13] Project files — saved: 84, restored: 0
+[06:35:13] Memory files — saved: 0, restored: 0
+[06:35:13] Global files — saved: 5, restored: 0
+[06:35:13] User config — saved: 2, restored: 0
+[06:35:13] MCP settings — saved: 0, restored: 0
+[06:35:14] DB synced: True
+[06:35:14] Sessions synced: 9 files
+[06:35:14] Config synced: False
+
+============================================================
+Sync run: 2026-05-12T07:20:00.592445
+[07:19:59] Cross-bucket merge: copied 19 sessions from H--prism → H--
+[07:20:00] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[07:20:00] Project files — saved: 0, restored: 19
+[07:20:00] Memory files — saved: 0, restored: 0
+[07:20:00] Global files — saved: 0, restored: 23
+[07:20:00] User config — saved: 0, restored: 0
+[07:20:00] MCP settings — saved: 0, restored: 0
+[07:20:00] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:20:00] DB synced: True
+[07:20:00] Sessions synced: 0 files
+[07:20:00] Config synced: True
+
+============================================================
+Sync run: 2026-05-12T14:55:42.474232
+[14:55:15] Saved 19 files from H--
+[14:55:40] Saved 240 files from H--prism
+[14:55:41] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[14:55:41] Project files — saved: 259, restored: 0
+[14:55:41] Memory files — saved: 0, restored: 0
+[14:55:41] Global files — saved: 8, restored: 0
+[14:55:41] User config — saved: 2, restored: 0
+[14:55:41] MCP settings — saved: 0, restored: 0
+[14:55:41] Codex sessions already point at the portable session store; skipping per-file session copy.
+[14:55:42] DB synced: True
+[14:55:42] Sessions synced: 0 files
+[14:55:42] Config synced: False
+
+============================================================
+Sync run: 2026-05-12T15:55:09.303979
+[15:55:07] Cross-bucket merge: copied 35 sessions from H--prism → H--
+[15:55:08] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[15:55:08] Project files — saved: 0, restored: 35
+[15:55:08] Memory files — saved: 0, restored: 0
+[15:55:08] Global files — saved: 0, restored: 23
+[15:55:08] User config — saved: 0, restored: 0
+[15:55:08] MCP settings — saved: 0, restored: 0
+[15:55:09] DB synced: True
+[15:55:09] Sessions synced: 12 files
+[15:55:09] Config synced: True
+
+============================================================
+Sync run: 2026-05-13T06:33:13.999897
+[06:32:59] Saved 35 files from H--
+[06:33:12] Saved 162 files from H--prism
+[06:33:13] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[06:33:13] Project files — saved: 197, restored: 0
+[06:33:13] Memory files — saved: 0, restored: 0
+[06:33:13] Global files — saved: 4, restored: 0
+[06:33:13] User config — saved: 2, restored: 0
+[06:33:13] MCP settings — saved: 0, restored: 0
+[06:33:13] DB synced: True
+[06:33:13] Sessions synced: 5 files
+[06:33:13] Config synced: False
+
+============================================================
+Sync run: 2026-05-13T06:33:50.645303
+[06:33:50] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[06:33:50] Project files — saved: 0, restored: 0
+[06:33:50] Memory files — saved: 0, restored: 0
+[06:33:50] Global files — saved: 0, restored: 0
+[06:33:50] User config — saved: 0, restored: 0
+[06:33:50] MCP settings — saved: 0, restored: 0
+[06:33:50] DB synced: False
+[06:33:50] Sessions synced: 0 files
+[06:33:50] Config synced: False
+
+============================================================
+Sync run: 2026-05-13T07:18:42.606632
+[07:18:41] Cross-bucket merge: copied 8 sessions from H--prism → H--
+[07:18:42] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[07:18:42] Project files — saved: 0, restored: 8
+[07:18:42] Memory files — saved: 0, restored: 0
+[07:18:42] Global files — saved: 0, restored: 23
+[07:18:42] User config — saved: 0, restored: 0
+[07:18:42] MCP settings — saved: 0, restored: 0
+[07:18:42] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:18:42] DB synced: True
+[07:18:42] Sessions synced: 0 files
+[07:18:42] Config synced: True
+
+============================================================
+Sync run: 2026-05-13T15:29:53.012189
+[15:28:48] Saved 8 files from H--
+[15:29:50] Saved 401 files from H--prism
+[15:29:52] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[15:29:52] Project files — saved: 409, restored: 0
+[15:29:52] Memory files — saved: 0, restored: 0
+[15:29:52] Global files — saved: 6, restored: 0
+[15:29:52] User config — saved: 2, restored: 0
+[15:29:52] MCP settings — saved: 0, restored: 0
+[15:29:52] Codex sessions already point at the portable session store; skipping per-file session copy.
+[15:29:52] DB synced: True
+[15:29:52] Sessions synced: 0 files
+[15:29:52] Config synced: False
+
+============================================================
+Sync run: 2026-05-13T16:43:08.484135
+[16:43:06] Cross-bucket merge: copied 40 sessions from H--prism → H--
+[16:43:07] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[16:43:07] Project files — saved: 0, restored: 40
+[16:43:07] Memory files — saved: 0, restored: 0
+[16:43:07] Global files — saved: 0, restored: 26
+[16:43:07] User config — saved: 0, restored: 0
+[16:43:07] MCP settings — saved: 0, restored: 0
+[16:43:08] DB synced: True
+[16:43:08] Sessions synced: 62 files
+[16:43:08] Config synced: True
+
+============================================================
+Sync run: 2026-05-14T06:32:08.274523
+[06:31:58] Saved 40 files from H--
+[06:32:07] Saved 298 files from H--prism
+[06:32:07] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[06:32:07] Project files — saved: 338, restored: 0
+[06:32:07] Memory files — saved: 0, restored: 0
+[06:32:07] Global files — saved: 7, restored: 0
+[06:32:07] User config — saved: 2, restored: 0
+[06:32:07] MCP settings — saved: 0, restored: 0
+[06:32:08] DB synced: False
+[06:32:08] Sessions synced: 0 files
+[06:32:08] Config synced: False
+
+============================================================
+Sync run: 2026-05-14T07:08:25.655032
+[07:08:24] Cross-bucket merge: copied 37 sessions from H--prism → H--
+[07:08:25] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[07:08:25] Project files — saved: 0, restored: 37
+[07:08:25] Memory files — saved: 0, restored: 0
+[07:08:25] Global files — saved: 0, restored: 26
+[07:08:25] User config — saved: 0, restored: 0
+[07:08:25] MCP settings — saved: 0, restored: 0
+[07:08:25] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:08:25] DB synced: False
+[07:08:25] Sessions synced: 0 files
+[07:08:25] Config synced: False
+
+============================================================
+Sync run: 2026-05-14T15:59:21.015222
+[15:58:52] Saved 37 files from H--
+[15:59:19] Saved 629 files from H--prism
+[15:59:20] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[15:59:20] Project files — saved: 666, restored: 0
+[15:59:20] Memory files — saved: 0, restored: 0
+[15:59:20] Global files — saved: 8, restored: 0
+[15:59:20] User config — saved: 2, restored: 0
+[15:59:20] MCP settings — saved: 0, restored: 0
+[15:59:20] Codex sessions already point at the portable session store; skipping per-file session copy.
+[15:59:21] DB synced: False
+[15:59:21] Sessions synced: 0 files
+[15:59:21] Config synced: False
+
+============================================================
+Sync run: 2026-05-14T16:56:15.996851
+[16:56:14] Cross-bucket merge: copied 35 sessions from H--prism → H--
+[16:56:15] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[16:56:15] Project files — saved: 0, restored: 35
+[16:56:15] Memory files — saved: 0, restored: 0
+[16:56:15] Global files — saved: 0, restored: 30
+[16:56:15] User config — saved: 0, restored: 0
+[16:56:15] MCP settings — saved: 0, restored: 0
+[16:56:15] DB synced: False
+[16:56:15] Sessions synced: 0 files
+[16:56:15] Config synced: False
+
+============================================================
+Sync run: 2026-05-15T05:16:27.820112
+[05:16:16] Saved 38 files from H--
+[05:16:26] Saved 204 files from H--prism
+[05:16:27] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[05:16:27] Project files — saved: 242, restored: 0
+[05:16:27] Memory files — saved: 0, restored: 0
+[05:16:27] Global files — saved: 3, restored: 0
+[05:16:27] User config — saved: 2, restored: 0
+[05:16:27] MCP settings — saved: 0, restored: 0
+[05:16:27] DB synced: False
+[05:16:27] Sessions synced: 0 files
+[05:16:27] Config synced: False
+
+============================================================
+Sync run: 2026-05-15T07:15:27.962153
+[07:15:26] Cross-bucket merge: copied 26 sessions from H--prism → H--
+[07:15:27] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[07:15:27] Project files — saved: 0, restored: 26
+[07:15:27] Memory files — saved: 0, restored: 0
+[07:15:27] Global files — saved: 0, restored: 26
+[07:15:27] User config — saved: 0, restored: 0
+[07:15:27] MCP settings — saved: 0, restored: 0
+[07:15:27] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:15:27] DB synced: False
+[07:15:27] Sessions synced: 0 files
+[07:15:27] Config synced: False
+
+============================================================
+Sync run: 2026-05-15T16:04:49.964719
+[16:04:27] Saved 27 files from H--
+[16:04:48] Saved 382 files from H--prism
+[16:04:49] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[16:04:49] Project files — saved: 409, restored: 0
+[16:04:49] Memory files — saved: 0, restored: 0
+[16:04:49] Global files — saved: 15, restored: 0
+[16:04:49] User config — saved: 2, restored: 0
+[16:04:49] MCP settings — saved: 0, restored: 0
+[16:04:49] Codex sessions already point at the portable session store; skipping per-file session copy.
+[16:04:49] DB synced: False
+[16:04:49] Sessions synced: 0 files
+[16:04:49] Config synced: False
+
+============================================================
+Sync run: 2026-05-15T17:51:31.394351
+[17:51:30] Cross-bucket merge: copied 22 sessions from H--prism → H--
+[17:51:30] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[17:51:30] Project files — saved: 0, restored: 22
+[17:51:30] Memory files — saved: 0, restored: 0
+[17:51:30] Global files — saved: 0, restored: 27
+[17:51:30] User config — saved: 0, restored: 0
+[17:51:30] MCP settings — saved: 0, restored: 0
+[17:51:31] DB synced: False
+[17:51:31] Sessions synced: 0 files
+[17:51:31] Config synced: False
+
+============================================================
+Sync run: 2026-05-18T06:37:13.507917
+[06:34:58] Saved 53 files from H--
+[06:37:11] Saved 2932 files from H--prism
+[06:37:12] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[06:37:12] Project files — saved: 2985, restored: 0
+[06:37:12] Memory files — saved: 0, restored: 0
+[06:37:12] Global files — saved: 21, restored: 0
+[06:37:12] User config — saved: 2, restored: 0
+[06:37:12] MCP settings — saved: 0, restored: 0
+[06:37:13] DB synced: True
+[06:37:13] Sessions synced: 1 files
+[06:37:13] Config synced: False
+
+============================================================
+Sync run: 2026-05-18T07:35:06.539607
+[07:35:04] Cross-bucket merge: copied 94 sessions from H--prism → H--
+[07:35:05] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[07:35:05] Project files — saved: 0, restored: 94
+[07:35:05] Memory files — saved: 0, restored: 0
+[07:35:05] Global files — saved: 0, restored: 49
+[07:35:05] User config — saved: 0, restored: 0
+[07:35:05] MCP settings — saved: 0, restored: 0
+[07:35:06] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:35:06] DB synced: True
+[07:35:06] Sessions synced: 0 files
+[07:35:06] Config synced: True
+
+============================================================
+Sync run: 2026-05-18T15:55:36.225987
+[15:55:07] Saved 95 files from H--
+[15:55:34] Saved 175 files from H--prism
+[15:55:35] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[15:55:35] Project files — saved: 270, restored: 0
+[15:55:35] Memory files — saved: 0, restored: 0
+[15:55:35] Global files — saved: 8, restored: 0
+[15:55:35] User config — saved: 2, restored: 0
+[15:55:35] MCP settings — saved: 0, restored: 0
+[15:55:35] Codex sessions already point at the portable session store; skipping per-file session copy.
+[15:55:36] DB synced: False
+[15:55:36] Sessions synced: 0 files
+[15:55:36] Config synced: False
+
+============================================================
+Sync run: 2026-05-18T18:57:33.022220
+[18:57:31] Cross-bucket merge: copied 43 sessions from H--prism → H--
+[18:57:32] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-slot-charlie', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[18:57:32] Project files — saved: 0, restored: 43
+[18:57:32] Memory files — saved: 0, restored: 0
+[18:57:32] Global files — saved: 0, restored: 27
+[18:57:32] User config — saved: 0, restored: 0
+[18:57:32] MCP settings — saved: 0, restored: 0
+[18:57:33] DB synced: False
+[18:57:33] Sessions synced: 0 files
+[18:57:33] Config synced: True
+
+============================================================
+Sync run: 2026-05-19T06:43:33.474518
+[06:42:51] Saved 43 files from H--
+[06:43:31] Saved 537 files from H--prism
+[06:43:32] Saved 34 files from H--prism-slot-charlie
+[06:43:32] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-slot-charlie', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[06:43:32] Project files — saved: 614, restored: 0
+[06:43:32] Memory files — saved: 0, restored: 0
+[06:43:32] Global files — saved: 4, restored: 0
+[06:43:32] User config — saved: 2, restored: 0
+[06:43:32] MCP settings — saved: 0, restored: 0
+[06:43:33] DB synced: False
+[06:43:33] Sessions synced: 0 files
+[06:43:33] Config synced: False
+
+============================================================
+Sync run: 2026-05-19T07:18:59.705168
+[07:18:58] Cross-bucket merge: copied 20 sessions from H--prism → H--
+[07:18:59] Projects: ['C--PRISM', 'C--PRISM--claude-worktrees-affectionate-perlman', 'C--PRISM--claude-worktrees-brave-euclid', 'C--PRISM--claude-worktrees-brave-gauss', 'C--PRISM--claude-worktrees-charming-williamson', 'C--PRISM--claude-worktrees-ecstatic-bhabha', 'C--PRISM--claude-worktrees-ecstatic-diffie', 'C--PRISM--claude-worktrees-epic-jones', 'C--PRISM--claude-worktrees-fervent-bohr', 'C--PRISM--claude-worktrees-gifted-blackwell', 'C--PRISM--claude-worktrees-interesting-shamir', 'C--PRISM--claude-worktrees-nervous-albattani', 'C--PRISM--claude-worktrees-quirky-golick', 'C--PRISM--claude-worktrees-reverent-easley', 'C--PRISM--claude-worktrees-sharp-jennings', 'C--PRISM--claude-worktrees-tender-ptolemy', 'C--PRISM--claude-worktrees-vibrant-haslett', 'C--PRISM--claude-worktrees-zen-dirac', 'C--Users-wompu-Box-PRISM-H-DRIVE', 'H--', 'H--prism', 'H--prism--claude-worktrees-omega-loader-ms0', 'H--PRISM--claude-worktrees-u-fus-api02', 'H--prism-agi-infra-a', 'H--prism-cad-sw-fidx', 'H--prism-cam-exhaust', 'H--prism-cam-exhaust-ms0', 'H--prism-cam-ms1-93a0', 'H--prism-cam-spcfai-ms0', 'H--prism-claudemd-enforcement', 'H--prism-engine-wire-ms0', 'H--prism-file-claim-fix', 'H--prism-fusion-ms1', 'H--prism-intel-p8', 'H--prism-iooms0', 'H--prism-iooms1', 'H--prism-lathe-lth04b', 'H--prism-lathe-pro-v3', 'H--prism-lathe-prod-ready', 'H--prism-mcp-server', 'H--prism-mill-worktree', 'H--prism-phase27', 'H--prism-ppg-advancedpost', 'H--prism-ppgh05', 'H--prism-session-efficiency', 'H--prism-slot-charlie', 'H--prism-tribal-binder', 'H--prism-tsc-cleanup']
+[07:18:59] Project files — saved: 0, restored: 20
+[07:18:59] Memory files — saved: 0, restored: 0
+[07:18:59] Global files — saved: 0, restored: 29
+[07:18:59] User config — saved: 0, restored: 0
+[07:18:59] MCP settings — saved: 0, restored: 0
+[07:18:59] Codex sessions already point at the portable session store; skipping per-file session copy.
+[07:18:59] DB synced: False
+[07:18:59] Sessions synced: 0 files
+[07:18:59] Config synced: False

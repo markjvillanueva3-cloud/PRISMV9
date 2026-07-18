@@ -1,0 +1,306 @@
+{
+  "schemaVersion": "1.0.0",
+  "audit_id": "VENDOR-CATALOG-AUDIT-2026-05-23",
+  "generated_at": "2026-05-24T01:21:34.000Z",
+  "generated_by": "scripts/vendor-catalog-audit.mjs",
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "summary": {
+    "uploaded_pdfs": 38,
+    "uploaded_zip_parts": 78,
+    "uploaded_other": 0,
+    "inventory_catalogs": 45,
+    "inventory_path_field_value": "H:/prism/resources/MANUFACTURER_CATALOGS/uploaded/",
+    "manufacturer_drift_rows": 14,
+    "pdfs_on_disk_not_in_inventory": 0,
+    "pdfs_in_inventory_not_on_disk": 7,
+    "vendor_skill_dirs": 30,
+    "tool_registry_lines": 1606,
+    "holder_db_lines": 7219,
+    "holder_db_entries": 795,
+    "extraction_queue_items": 1
+  },
+  "critical_findings": [
+    {
+      "severity": "P1",
+      "finding": "21 zip-part gaps in the split-archive sequence — reassembly will fail",
+      "missing_parts": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        19,
+        21,
+        41,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "recommended_action": "Re-upload the missing part numbers from source before attempting `copy /b` concatenation"
+    }
+  ],
+  "drift": {
+    "manufacturer_coverage": [
+      {
+        "manufacturer": "unknown",
+        "files_on_disk": 5,
+        "inventory_count": 0,
+        "delta": 5
+      },
+      {
+        "manufacturer": "tungaloy",
+        "files_on_disk": 11,
+        "inventory_count": 14,
+        "delta": -3
+      },
+      {
+        "manufacturer": "big_daishowa",
+        "files_on_disk": 3,
+        "inventory_count": 1,
+        "delta": 2
+      },
+      {
+        "manufacturer": "ampc",
+        "files_on_disk": 1,
+        "inventory_count": 0,
+        "delta": 1
+      },
+      {
+        "manufacturer": "flash_solid",
+        "files_on_disk": 1,
+        "inventory_count": 0,
+        "delta": 1
+      },
+      {
+        "manufacturer": "korloy",
+        "files_on_disk": 2,
+        "inventory_count": 3,
+        "delta": -1
+      },
+      {
+        "manufacturer": "metalmorphosis",
+        "files_on_disk": 1,
+        "inventory_count": 0,
+        "delta": 1
+      },
+      {
+        "manufacturer": "mitsubishi",
+        "files_on_disk": 0,
+        "inventory_count": 1,
+        "delta": -1
+      },
+      {
+        "manufacturer": "ingersoll",
+        "files_on_disk": 0,
+        "inventory_count": 1,
+        "delta": -1
+      },
+      {
+        "manufacturer": "allied_machine",
+        "files_on_disk": 0,
+        "inventory_count": 1,
+        "delta": -1
+      },
+      {
+        "manufacturer": "yg1",
+        "files_on_disk": 0,
+        "inventory_count": 1,
+        "delta": -1
+      },
+      {
+        "manufacturer": "zenit",
+        "files_on_disk": 0,
+        "inventory_count": 1,
+        "delta": -1
+      },
+      {
+        "manufacturer": "imco",
+        "files_on_disk": 0,
+        "inventory_count": 1,
+        "delta": -1
+      },
+      {
+        "manufacturer": "haimer",
+        "files_on_disk": 0,
+        "inventory_count": 1,
+        "delta": -1
+      }
+    ],
+    "on_disk_not_in_inventory": [],
+    "in_inventory_not_on_disk": [
+      "Holemaking.pdf",
+      "Cutting Tools Master 2022 English Inch.pdf",
+      "Cutting Tools Master 2022 English Metric.pdf",
+      "ISCAR PART 1.pdf",
+      "INGERSOLL CUTTING TOOLS.pdf",
+      "korloy rotating.pdf",
+      "Haimer USA Master Catalog.pdf"
+    ]
+  },
+  "sandvik_focus": {
+    "files_on_disk": 0,
+    "inventory_count": 0,
+    "drift_flag": false,
+    "files": [],
+    "grade_speed_factors_referenced_in_engine": [
+      "GC4325",
+      "GC4315",
+      "GC4335"
+    ]
+  },
+  "databases": {
+    "tool_registry": {
+      "file": "mcp-server/src/registries/ToolRegistry.ts",
+      "lines": 1606
+    },
+    "holder_db": {
+      "file": "mcp-server/data/fusion-programs/fusion-tool-holders.json",
+      "lines": 7219,
+      "entries": 795
+    },
+    "fixture_dbs": [
+      {
+        "file": "H:\\prism\\mcp-server\\data\\cam-functions\\hypermill\\stock_fixture.json",
+        "lines": 229,
+        "entries": 3
+      },
+      {
+        "file": "H:\\prism\\mcp-server\\data\\fixtures\\cad-automation\\solidworks\\assembly.fixture.json",
+        "lines": 23,
+        "entries": 8
+      },
+      {
+        "file": "H:\\prism\\mcp-server\\data\\fixtures\\cad-automation\\solidworks\\cam.fixture.json",
+        "lines": 24,
+        "entries": 8
+      },
+      {
+        "file": "H:\\prism\\mcp-server\\data\\fixtures\\cad-automation\\solidworks\\drawing.fixture.json",
+        "lines": 22,
+        "entries": 7
+      },
+      {
+        "file": "H:\\prism\\mcp-server\\data\\fixtures\\cad-automation\\solidworks\\simple_part.fixture.json",
+        "lines": 21,
+        "entries": 8
+      }
+    ]
+  },
+  "vendor_skill_archives": {
+    "count": 30,
+    "vendors": [
+      "carmex",
+      "ceratizit",
+      "dormer",
+      "emuge",
+      "fraisa",
+      "guhring",
+      "hanita",
+      "horn",
+      "ingersoll",
+      "iscar",
+      "kennametal",
+      "korloy",
+      "kyocera",
+      "mapal",
+      "mitsubishi-mat",
+      "nachi",
+      "niagara",
+      "osg",
+      "sandvik",
+      "seco",
+      "stellram",
+      "sumitomo",
+      "taegutec",
+      "tungaloy",
+      "vardex",
+      "vargus",
+      "walter",
+      "widia",
+      "yg1",
+      "zcc-ct"
+    ],
+    "note": "These are pre-existing vendor-specific skill packages in archives/skills-generated/ from earlier extraction passes. Cross-reference against inventory to identify vendors with skill but no inventory entry."
+  },
+  "extraction_queue": [
+    {
+      "kind": "zip-reassembly",
+      "part_count": 78,
+      "part_gaps": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        19,
+        21,
+        41,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "total_size_mb": 2335.4,
+      "first_part": "YU25_America.zip.001",
+      "last_part": "MANUFACTURER CATALOGS.zip.099",
+      "priority": "P1-needs-missing-parts",
+      "action": "BLOCKED: re-upload missing zip parts 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 21, 41, 44, 45, 46, 47, 48, 49, 50 before reassembly; then `copy /b \"MANUFACTURER CATALOGS.zip.*\" combined.zip` + unzip + sweep"
+    }
+  ],
+  "psn_synergy_targets": [
+    {
+      "leg": "PSN-OS (Obsidian brain)",
+      "action": "Cross-link extracted tool specs to Obsidian memories via /route-to-obsidian"
+    },
+    {
+      "leg": "PSN-Wiki",
+      "action": "Promote vendor catalog summaries to knowledge/wiki/code-tribal/ via tribal-to-wiki promoter"
+    },
+    {
+      "leg": "PSN-Tribal",
+      "action": "Mine vendor recommended-cutting-data into tribal tips"
+    },
+    {
+      "leg": "PSN-AI ladder",
+      "action": "Train SpeedFeedDeepLearningEngine.calibrationFactors on vendor-suggested ranges as priors"
+    },
+    {
+      "leg": "PSN-Engines",
+      "action": "Wire extracted GRADE_SPEED_FACTORS / coating multipliers into ExtendedTaylorModel + KienzleForceModel calibration overlays"
+    }
+  ],
+  "prism_app_synergy": [
+    {
+      "surface": "system-viz",
+      "action": "Generate ghost.vendor_catalog_audit roost via scripts/generate-vendor-catalog-audit-features.mjs (U-AUDIT-V2 follow-on)"
+    },
+    {
+      "surface": "tool-catalog skill",
+      "action": "Surface this audit in /tool-catalog skill output as a 'drift report' section"
+    },
+    {
+      "surface": "PrismCreativeReasoningEngine",
+      "action": "Feed extraction queue as a reasoning-domain input for prioritization"
+    }
+  ]
+}

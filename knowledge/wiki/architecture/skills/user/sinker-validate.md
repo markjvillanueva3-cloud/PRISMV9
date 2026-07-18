@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sinker-validate` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/sinker-validate.md` |
+| Source | `C:/Users/wompu/.claude/commands/sinker-validate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

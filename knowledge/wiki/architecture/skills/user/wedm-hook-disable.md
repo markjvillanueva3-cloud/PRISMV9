@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-hook-disable` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-hook-disable.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-hook-disable.md` |
 | Model | default |
 | Tags | _(none)_ |
 

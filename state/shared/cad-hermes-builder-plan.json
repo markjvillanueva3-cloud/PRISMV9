@@ -1,0 +1,284 @@
+{
+  "schemaVersion": "1.0.0",
+  "tickAt": "2026-06-26T15:30:55.117Z",
+  "source": "H:\\PRISM\\state\\shared\\specs\\CAD-COMPLETION-STATUS.json",
+  "budgetTokens": 1500000,
+  "maxCells": 8,
+  "mergeGatedActive": true,
+  "costTable": {
+    "short": 20000,
+    "medium": 60000,
+    "large": 150000
+  },
+  "builderSpec": {
+    "model": "opus",
+    "effort": "max",
+    "fastMode": true,
+    "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode"
+  },
+  "plan": {
+    "ok": true,
+    "reason": "planned",
+    "perCellTokens": 330000,
+    "totalEstTokens": 990000,
+    "budgetTokens": 1500000,
+    "cellCount": 3,
+    "agentCount": 12,
+    "cells": [
+      {
+        "unit": "U-CAD-VALIDATION-50-RUN",
+        "phase": "B",
+        "gate": "T2",
+        "title": "validation-50 run with recorded dim-pass-rate",
+        "estTokens": 330000,
+        "agents": [
+          {
+            "role": "builder",
+            "subagent_type": "coder",
+            "size": "large",
+            "estTokens": 150000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "build:U-CAD-VALIDATION-50-RUN"
+            }
+          },
+          {
+            "role": "physics-review",
+            "subagent_type": "physics-reviewer",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "physics-review:U-CAD-VALIDATION-50-RUN"
+            }
+          },
+          {
+            "role": "test-review",
+            "subagent_type": "test-review-agent",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "test-review:U-CAD-VALIDATION-50-RUN"
+            }
+          },
+          {
+            "role": "code-review",
+            "subagent_type": "code-analyzer",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "code-review:U-CAD-VALIDATION-50-RUN"
+            }
+          }
+        ]
+      },
+      {
+        "unit": "U-CAD-PRINTGEN-E2E",
+        "phase": "B",
+        "gate": "T3",
+        "title": "print to CAD to regen dim-by-dim >=95% on >=10 JM parts",
+        "estTokens": 330000,
+        "agents": [
+          {
+            "role": "builder",
+            "subagent_type": "coder",
+            "size": "large",
+            "estTokens": 150000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "build:U-CAD-PRINTGEN-E2E"
+            }
+          },
+          {
+            "role": "physics-review",
+            "subagent_type": "physics-reviewer",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "physics-review:U-CAD-PRINTGEN-E2E"
+            }
+          },
+          {
+            "role": "test-review",
+            "subagent_type": "test-review-agent",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "test-review:U-CAD-PRINTGEN-E2E"
+            }
+          },
+          {
+            "role": "code-review",
+            "subagent_type": "code-analyzer",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "code-review:U-CAD-PRINTGEN-E2E"
+            }
+          }
+        ]
+      },
+      {
+        "unit": "PA3-HERMES-CAD-BUILDER",
+        "phase": "PA",
+        "gate": null,
+        "title": "hermes/octopus CAD unit-builder harness (zebra)",
+        "estTokens": 330000,
+        "agents": [
+          {
+            "role": "builder",
+            "subagent_type": "coder",
+            "size": "large",
+            "estTokens": 150000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "build:PA3-HERMES-CAD-BUILDER"
+            }
+          },
+          {
+            "role": "physics-review",
+            "subagent_type": "physics-reviewer",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "physics-review:PA3-HERMES-CAD-BUILDER"
+            }
+          },
+          {
+            "role": "test-review",
+            "subagent_type": "test-review-agent",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "test-review:PA3-HERMES-CAD-BUILDER"
+            }
+          },
+          {
+            "role": "code-review",
+            "subagent_type": "code-analyzer",
+            "size": "medium",
+            "estTokens": 60000,
+            "spec": {
+              "model": "opus",
+              "effort": "max",
+              "fastMode": true,
+              "rationale": "operator MAX-tier: opus + max reasoning effort + fast mode",
+              "label": "code-review:PA3-HERMES-CAD-BUILDER"
+            }
+          }
+        ]
+      }
+    ],
+    "refused": [],
+    "excluded": [
+      {
+        "id": "U-MERGE-SLOT-DELTA",
+        "reason": "operator-gated"
+      },
+      {
+        "id": "U-CAD-NURBS-STEP-EMIT",
+        "reason": "merge-gated"
+      },
+      {
+        "id": "U-CAD-LEARN-LOOP-CLOSE",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-REAL-TRAIN-RUN",
+        "reason": "gpu-gated"
+      },
+      {
+        "id": "U-CAD-SKETCH-SUBTRACT",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-BOOLEAN",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-PATTERNS",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-REF-GEOM",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-DIE-DESIGN",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-SHEET-METAL",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-2D-DRAWING-GEN",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-WELDMENTS",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-OLLAMA-OFFLOAD",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "U-CAD-SCALE-COMPLEX",
+        "reason": "merge-gated"
+      },
+      {
+        "id": "PA1-FANOUT-GATE-MAX",
+        "reason": "operator-gated"
+      },
+      {
+        "id": "PA2-CAD-RECON-CRON",
+        "reason": "already-shipped"
+      },
+      {
+        "id": "PA4-VIZ-CAD-GRAPH-UPDATE",
+        "reason": "already-shipped"
+      }
+    ]
+  }
+}

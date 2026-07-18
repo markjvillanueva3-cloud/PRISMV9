@@ -38,7 +38,7 @@ function getSessionId(payload) {
 
 function getRecentGitActivity() {
   try {
-    const log = execSync('cd H:/prism && git log --oneline -5 --format="%s"', {
+    const log = execSync('cd H:/prism && git log --oneline -5 --format="%s"', { windowsHide: true,
       encoding: 'utf-8',
       timeout: 3000
     });
@@ -50,7 +50,7 @@ function getRecentGitActivity() {
 
 function getModifiedFiles() {
   try {
-    const status = execSync('cd H:/prism && git diff --name-only HEAD~3 2>/dev/null || git diff --name-only', {
+    const status = execSync('cd H:/prism && git diff --name-only HEAD~3 2>/dev/null || git diff --name-only', { windowsHide: true,
       encoding: 'utf-8',
       timeout: 3000
     });
@@ -85,14 +85,14 @@ Resume directive:`;
 
   try {
     const body = JSON.stringify({
-      model: 'qwen2.5-coder:7b',
+      model: 'qwen2.5-coder:32b',
       prompt,
       stream: false,
       options: { num_predict: 50 }
     });
     const result = execSync(
-      `curl -s -X POST http://localhost:11434/api/generate -d '${body.replace(/'/g, "'\"'\"'")}'`,
-      { encoding: 'utf-8', timeout: 5000 }
+      `curl -s -X POST http://127.0.0.1:11434/api/generate -d '${body.replace(/'/g, "'\"'\"'")}'`,
+      { windowsHide: true, encoding: 'utf-8', timeout: 5000 }
     );
     const parsed = JSON.parse(result);
     if (parsed.response) {

@@ -1,0 +1,66 @@
+---
+name: reference-session-oscar-2026-06-18
+description: Session episodic trace for slot oscar on 2026-06-18 — commits + loop task captured at /compact (compaction→memo emitter, lever #3)
+aliases: reference_session_oscar_2026-06-18
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:47.175Z
+---
+
+
+# Session trace — slot oscar · 2026-06-18
+
+Auto-captured at /compact by precompact-memo-emit.mjs. One file per slot per day;
+each /compact appends a "compact N" section so the day's episodic work accretes
+instead of being shed. Ingested into the Obsidian vault by stop-obsidian-memory-feed.
+
+## compact 1 — 2026-06-18T00:45:32.150Z
+
+branch: `cad-fusion-live-ms0`
+
+- `684df9a1c3` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-LATHE-QG (slot:papa): clean tsc 110->103 (7 cleared) -- WireBreakAutoRethread operatorSkill use-before-assign (self-ref…
+- `7c7235349f` [MAIN-FORCE] [AI-SYSTEMS-RAG]/U-EMBED-BINARY-RECALL-BENCH (slot:india): binary 32x VALIDATED on real GNN embeddings -- recall@5 99.8pct
+- `cacc65f71f` [MAIN] [BUILD-QUALITY-PAPA]/U-TSC-CHECKPOINT-110 (slot:papa): all-domains campaign 638->110 (528 cleared; entire WEDM core 66 this session) + full remaining-11…
+- `25d2dd5654` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-AIREASONING-WEDM (slot:papa): clean tsc 115->110 (5 cleared) -- add wedm_calculator/wedm_neural_optimization/wedm_calib…
+- `f5b6399112` [MAIN-FORCE] [SIERRA-VAULT-OPS]/U-VAULT-AMBIGUOUS-REVIEW (slot:sierra): --ambiguous review report for unhealable ambiguous broken links
+- `1182b1c978` [MAIN-FORCE] [HERMES-C1-EXEC]/U-NEXT-WAVE-ASSIGNMENTS (slot:bravo): the executable-wave bridge -- ZuluWaveSchedulerEngine.nextWaveAssignments(req, completedIds…
+- `89179da416` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-WEDM-JOBCREATOR (slot:papa): clean tsc 128->115 (13 cleared) -- PassDetail field reconciliation: .type->.pass_type, .pr…
+- `164085bbd3` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-WEDM-SETUPSHEET (slot:papa): clean tsc 176->128 (48 cleared) -- WEDMSetupSheet consumer reconciled to REAL producer typ…
+- `6358abaad4` [MAIN-FORCE] [SIERRA-VAULT-OPS]/U-VAULT-CONTRADICT-MEMORY (slot:sierra): memory-vault contradiction lint -- extends the wiki NLI linter to doctrine memos
+- `e6cf9b23e6` [MAIN-FORCE] [HERMES-ASSESSMENT]/U-C1-STATUS-CORRECTION (slot:bravo): R12 -- C1 multi-wave DAG scheduler ENGINE is ALREADY BUILT (ZuluWaveSchedulerEngine, Jun …
+- `5714ecddc9` [MAIN-FORCE] [FEATURE-ROUTING-GRAPH-MS0]/U-OCTOPUS-CONSENSUS-ROUTE-FIX (slot:alpha): 3-of-3 arm-A FAIL fix -- dead action name + 3rd renderer + R9 guard
+- `265430c287` [MAIN-FORCE] [FLEET-HYGIENE]/U-CRASHWATCH-DOC-P2 (slot:golf): doc-only -- close the two 3-of-3 arm-C P2s on detectCrashes: (1) FORENSIC LATENCY note (deadSlots…
+
+## compact 2 — 2026-06-18T14:54:49.101Z
+
+branch: `cad-fusion-live-ms0`
+
+- `c2039c6872` [MAIN-FORCE] [ZULU-BUILDLOOP]/U-ZBL-CRON-FAILLOUD (slot:bravo): zulu-build-loop spec-fallback + fail-loud ledger (overnight-workflows article upgrade)
+- `47967fac19` [MAIN-FORCE] [SIERRA-VAULT-OPS]/U-VAULT-LINK-TESTDERANK (slot:sierra): drop tests/ docs from the link-doctor canonical pool -- resolves 5 engine-vs-test ambigu…
+- `d18946a41f` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-ROUTE-DOCSTRING (slot:papa): docstring-based Ollama classification (effective-Ollama upgrade)
+- `228029dba2` [MAIN-FORCE] [HERMES-ASSESSMENT]/U-SCOTTYBEAM-CURATOR-CORRECTION (slot:zulu): R12 -- CC-skill curator is NOT a gap; skill-utilization-scan + skill-refinement-d…
+- `2b0ab02127` [MAIN-FORCE] [SIERRA-VAULT-OPS]/U-VAULT-LINK-SEPVARIANT (slot:sierra): separator-variant collapse resolves 80 generator-dup ambiguous links (95 to 15)
+- `c13d22ba43` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-LONGTAIL-WIKI (slot:papa): code-tribal lesson -- long-tail tsc errors are stub/vestigial/contract SYMPTOMS, not type bu…
+- `40722c3af8` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-JMDIE-SPINDLE-NARROW (slot:papa): JMDieProgramAnalyzer max_rpm never-narrow -- cast to declared shape (behavior-identic…
+- `7f7151f361` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-ROADMAP-CATEGORY (slot:papa): RoadmapIntelligence DecisionCandidate category "milestone"->"strategy" (valid member, cas…
+- `04664dae1a` [MAIN-FORCE] [HERMES-ASSESSMENT]/U-SCOTTYBEAM-ARTICLE-DELTA (slot:zulu): fold the ScottyBeamIO 'FULL GUIDE' (Jun-16) as the 4th article -- subordinate DELTA to…
+- `b9d4f5604e` [MAIN-FORCE] [ZULU-ACCOUNT-CYCLE]/U-FLEET-SURVIVAL-ADVISORY (slot:zulu): proactive advisory surfaces the survival GO/NO-GO only when actionable (will-block AND…
+- `e30fd192d9` [MAIN-FORCE] [WIRING]/U-AUDIT-COMMENT-STRIP (slot:alpha): unwired-audit ignores commented-out imports (line-anchored block strip, string-literal-safe)
+- `9fc175ac07` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-ROUTING-LATEST (slot:papa): fresh auto-routing doc (89 errors -> 12 owners) via tsc-route-by-owner.mjs
+
+## compact 3 — 2026-06-18T19:54:00.297Z
+
+branch: `cad-fusion-live-ms0` · loop: SFC accuracy fine-tuning + close SFC backend units, then SFC front-end
+
+- `56b018b985` [MAIN-FORCE] [SIERRA-BACKEND]/U-5H-ACCOUNT-BOUNDARY (slot:sierra): per-account 5h window floor -- true real-time tracking across account switches
+- `09b57b69f6` [MAIN-FORCE] [FLEET-HYGIENE]/U-GOALSTACK-ATOMIC: atomic write for the shared GOAL_STACK.json
+- `a1a087fa2b` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-TSC-SAFE-CONTRACT-3 (slot:papa): 3 zero-risk type-contract fixes (no value fabrication)
+- `79fb6147ab` [MAIN-FORCE] [HERMES-DREAM-CYCLE]/U-SELFREFLECT-GUARD-BACKPORT (slot:bravo): backport the empty-argv1 CLI-guard fix to hermes-self-reflect-populater
+- `d32e0d89b6` [MAIN-FORCE] [BUILD-QUALITY-PAPA]/U-CADCAP-MATRIX-FIELDS (slot:papa): complete CADCapabilityMatrix on 4 CAD code generators + SolidWorks runScriptBody contract…
+- `3074d67567` [MAIN-FORCE] [HERMES-DREAM-CYCLE]/U-DREAM-STUB-NOISE (slot:bravo): exclude node_* catalog stubs from dream-cycle connections (noise-down, signal-preserved)
+- `965cc46ddd` [MAIN-FORCE] [SESSION-CONTINUITY]/U-PAPA-REBIND-ROOT-FIX (slot:alpha): slot-aware handoff read + stale-slot-cron advisory -- end the "keep checking back into p…
+- `0c18eafcbf` [MAIN-FORCE] [AI-SYSTEMS-LORA]/U-LORA-CORPUS-GALAXY-CAP (slot:india): close 2-reviewer P2 -- weight-aware cap keeps highest-weight (verified) rows over advisor…
+- `f02a7a3582` [MAIN-FORCE] [AI-SYSTEMS-LORA]/U-LORA-CORPUS-GALAXY-CAP (slot:india): opt-in --cap-per-galaxy in the fleet corpus assembler -- stops one galaxy dominating the …
+- `641f90a153` [MAIN-FORCE] [AI-SYSTEMS-LORA]/U-LORA-LATHE-CORPUS-POPULATE (slot:india): grow lathe corpus to FULL archive -- 16558 programs -> 1657 UNIQUE quality-gated rows…
+- `c9e169551c` [MAIN] [ROUTING-GRAPH-COMPLETENESS]/U-SUBSTRATE-CLASS-COHERENCE (slot:zulu): 3rd coherence leg + fix physics substrate-starvation in alpha's routing graph
+- `8707487a5d` [MAIN-FORCE] [FLEET-HYGIENE]/U-BUG-HUNT-VERIFY: all 4 Class-A candidates verified BENIGN (R12, no churn)

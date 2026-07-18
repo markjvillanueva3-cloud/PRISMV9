@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `error-learner` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/core/error-learner.md` |
+| Source | `C:/Users/wompu/.claude/commands/core/error-learner.md` |
 | Model | default |
 | Tags | _(none)_ |
 

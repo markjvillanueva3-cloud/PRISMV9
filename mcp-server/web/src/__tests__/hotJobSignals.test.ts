@@ -40,8 +40,8 @@ describe('hotJobSignals', () => {
       },
     ]);
 
-    window.localStorage.setItem('prism.hot-jobs.v1', payload);
-    window.dispatchEvent(new StorageEvent('storage', { key: 'prism.hot-jobs.v1', newValue: payload }));
+    window.localStorage.setItem('kienzle.hot-jobs.v1', payload);
+    window.dispatchEvent(new StorageEvent('storage', { key: 'kienzle.hot-jobs.v1', newValue: payload }));
 
     expect(listener).toHaveBeenCalledTimes(1);
     expect(listener.mock.calls[0]?.[0][0]?.partNumber).toBe('SYNC-09');

@@ -229,9 +229,9 @@ export class RollbackPlannerEngine {
   }
 
   private fileHintFromStep(step: BuildStep): string | undefined {
-    // Best-effort scan of step.description for a path-looking token.
+    // Best-effort scan of step.summary for a path-looking token.
     const rx = /(src\/[\w.\-\/]+\.(?:ts|js|mjs|tsx|jsx|json|md))/;
-    const match = (step.description ?? "").match(rx);
+    const match = (step.summary ?? "").match(rx);
     return match ? match[1] : undefined;
   }
 

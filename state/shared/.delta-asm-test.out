@@ -1,0 +1,50 @@
+TAP version 13
+# Subtest: exports version
+ok 1 - exports version
+  ---
+  duration_ms: 0.9976
+  ...
+# Subtest: assemblyPocCode: creates in-doc components + boxes + rigid joins; NO import; sets result
+ok 2 - assemblyPocCode: creates in-doc components + boxes + rigid joins; NO import; sets result
+  ---
+  duration_ms: 0.3933
+  ...
+# Subtest: assemblyPocCode: componentCount clamped to the PoC range 2..8 (and ≥2 minimum)
+ok 3 - assemblyPocCode: componentCount clamped to the PoC range 2..8 (and ≥2 minimum)
+  ---
+  duration_ms: 3.9781
+  ...
+# Subtest: assemblyPocCode: mm→cm conversion applied (box dims + offset divided by 10)
+ok 4 - assemblyPocCode: mm→cm conversion applied (box dims + offset divided by 10)
+  ---
+  duration_ms: 0.1782
+  ...
+# Subtest: assemblyExpectation: N components → N-1 pairwise rigid constraints
+ok 5 - assemblyExpectation: N components → N-1 pairwise rigid constraints
+  ---
+  duration_ms: 2.3605
+  ...
+# Subtest: verifyAssemblyResult: a real assembly (≥ expected comps + constraints) → ok
+ok 6 - verifyAssemblyResult: a real assembly (≥ expected comps + constraints) → ok
+  ---
+  duration_ms: 0.2071
+  ...
+# Subtest: verifyAssemblyResult: fails closed on not-ok / too-few-components / too-few-constraints (R12)
+ok 7 - verifyAssemblyResult: fails closed on not-ok / too-few-components / too-few-constraints (R12)
+  ---
+  duration_ms: 0.2689
+  ...
+# Subtest: verifyAssemblyResult: missing / non-finite counts → not ok, no throw (adversarial)
+ok 8 - verifyAssemblyResult: missing / non-finite counts → not ok, no throw (adversarial)
+  ---
+  duration_ms: 0.1624
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7639.0639

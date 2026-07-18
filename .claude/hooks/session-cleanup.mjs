@@ -23,7 +23,7 @@ function getZombieCount() {
   try {
     const output = execSync(
       `powershell -NoProfile -Command "Get-Process node -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '*Tools\\\\nodejs*' } | Measure-Object | Select-Object -ExpandProperty Count"`,
-      { encoding: "utf8", timeout: 5000 }
+      { windowsHide: true, encoding: "utf8", timeout: 5000 }
     ).trim();
     return parseInt(output, 10) || 0;
   } catch {
@@ -36,7 +36,7 @@ function cleanupZombies() {
     // Only kill node processes from Tools\nodejs that are MCP-related
     const killed = execSync(
       `powershell -NoProfile -Command "Get-WmiObject Win32_Process -Filter \\"name='node.exe'\\" | Where-Object { $_.CommandLine -like '*context7*' -or $_.CommandLine -like '*playwright*' -or $_.CommandLine -like '*claude-flow*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue; 1 } | Measure-Object | Select-Object -ExpandProperty Count"`,
-      { encoding: "utf8", timeout: 10000 }
+      { windowsHide: true, encoding: "utf8", timeout: 10000 }
     ).trim();
     return parseInt(killed, 10) || 0;
   } catch {

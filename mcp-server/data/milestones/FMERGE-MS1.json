@@ -1,0 +1,359 @@
+{
+  "id": "FMERGE-MS1",
+  "version": "1.0.0",
+  "title": "Execute Frontend Merge + Donor Capability Harvest",
+  "brief": "Selectively merge only the donor manufacturing/product surfaces that close real canonical gaps in mcp-server/web, publish a donor capability harvest ledger for every reviewed surface outside the canonical app, generate the mounted/dormant route inventory plus page-level mount/remap/waive proof for surviving backend dependencies, and leave one buildable canonical target with explicit survivor or unchanged-target-waiver evidence.",
+  "created_at": "2026-04-10T23:58:00Z",
+  "updated_at": "2026-04-10T19:35:00-05:00",
+  "created_by": "codex-gpt-5",
+  "track": "FMERGE",
+  "track_name": "Frontend Merge",
+  "status": "in_progress",
+  "total_units": 7,
+  "total_sessions": "3-4",
+  "dependencies": [
+    "FMERGE-MS0"
+  ],
+  "omega_floor": 0.9,
+  "source_roadmap": "../../PRISM-UNIFIED-ROADMAP-v2.md",
+  "downstream_consumers": [
+    "FMERGE-MS2",
+    "APPW-MS8"
+  ],
+  "queue_materialization_required": true,
+  "intent": "All surviving frontend pages, components, hooks, contexts, and API modules that materially improve the canonical app live in the chosen target with no donor-shell fork remaining; if no selective merge is needed, publish an explicit unchanged-target waiver that APPW-MS8 can safely close against.",
+  "merge_scope": {
+    "donor_pages_to_review": [
+      "web/src/pages/TurningPage.tsx",
+      "web/src/pages/EdmPage.tsx",
+      "web/src/pages/WireEdmStudioPage.tsx",
+      "web/src/pages/MachineLivePage.tsx",
+      "web/src/pages/MechanicalDesignPage.tsx",
+      "web/src/pages/CncOpsPage.tsx",
+      "web/src/pages/DiagnosisPage.tsx",
+      "web/src/pages/ThermalPage.tsx",
+      "web/src/pages/VibrationPage.tsx",
+      "web/src/pages/SfcCalculatorPage.tsx",
+      "web/src/pages/EmployeePortalPage.tsx",
+      "web/src/pages/CustomerPortalPage.tsx",
+      "web/src/pages/BlueprintQuotePage.tsx"
+    ],
+    "donor_component_groups_to_review": [
+      "web/src/components/wedm-studio",
+      "web/src/components/sfc",
+      "web/src/components/employee",
+      "web/src/features/operating-system"
+    ],
+    "donor_frontend_contracts_to_review": [
+      "web/src/api",
+      "web/src/hooks",
+      "web/src/contexts/WedmStudioContext.tsx"
+    ],
+    "backend_route_modules_to_review": [
+      "mcp-server/src/routes/mechanical.ts",
+      "mcp-server/src/routes/cncOps.ts",
+      "mcp-server/src/routes/diagnosis.ts",
+      "mcp-server/src/routes/thermal.ts",
+      "mcp-server/src/routes/vibration.ts",
+      "mcp-server/src/routes/settings.ts"
+    ],
+    "already_mounted_canonical_route_dependencies": [
+      "mcp-server/src/routes/machineLive.ts",
+      "mcp-server/src/routes/pipeline.ts",
+      "mcp-server/src/routes/integrations.ts",
+      "mcp-server/src/routes/viewer.ts"
+    ],
+    "do_not_merge_wholesale": [
+      "web/src/components/ui",
+      "web/src/components/shared",
+      "web/src/components/layout",
+      "web/src/pages/AdminPage.tsx",
+      "web/src/pages/SettingsPage.tsx",
+      "web/src/pages/ErpDashboard.tsx",
+      "web/src/api",
+      "web/src/hooks"
+    ],
+    "non_goals": [
+      "Do not revive the donor shell wholesale.",
+      "Do not preserve a second active frontend target after FMERGE-MS1 closes.",
+      "Do not union-copy donor shell, UI kit, API wrappers, or hooks into the canonical app."
+    ],
+    "merge_output_contract": {
+      "required_artifacts": [
+        "generated route inventory with mounted vs dormant canonical routes",
+        "surviving donor page list with per-page disposition",
+        "waived donor page list with reasons",
+        "donor capability harvest ledger covering page, component, context, and workflow surfaces outside the canonical app",
+        "mount/remap/waive ledger for each backend route dependency of every surviving donor page",
+        "surviving donor frontend contracts remapped onto canonical typed clients/providers or explicitly waived",
+        "explicit code-change merge result or unchanged-target waiver"
+      ],
+      "appw_handoff_requirement": "FMERGE-MS1 closeout must declare the exact APPW manifest regeneration scope so APPW-MS8 does not rediscover donor survivors, route dependencies, or waived capabilities."
+    }
+  },
+  "phases": [
+    {
+      "id": "FMERGE-MS1-P0",
+      "title": "Selective Merge + Donor Capability Harvest",
+      "sessions": "3-4",
+      "units": [
+        {
+          "id": "U-FMERGE04",
+          "title": "Selective Donor Page + Capability Review",
+          "description": "Review donor machine/product/customer/employee/quote pages and decide survivor vs waive for each candidate surface before code moves land in the canonical frontend.",
+          "preferred_family": "Codex",
+          "claim_policy": "preferred",
+          "deliverables": [
+            "surviving donor page list",
+            "waived donor page list with reasons",
+            "initial donor capability inventory"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-FMERGE04A",
+          "title": "Publish Donor Capability Harvest Ledger",
+          "description": "Publish the donor capability harvest ledger covering page, component, context, workflow, and contract surfaces outside the canonical app with disposition {mount|remap|waive} and proof.",
+          "preferred_family": "Codex",
+          "claim_policy": "open",
+          "depends_on": [
+            "U-FMERGE04"
+          ],
+          "deliverables": [
+            "donor capability harvest ledger"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-FMERGE05",
+          "title": "Copy Claude-Unique Components",
+          "description": "Bring over only the donor component groups needed by surviving machine/workspace, WEDM, SFC, employee, customer, or quote surfaces. Do not bulk-copy donor UI/layout systems.",
+          "preferred_family": "Codex",
+          "claim_policy": "preferred",
+          "depends_on": [
+            "U-FMERGE04A"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-FMERGE06",
+          "title": "Generate Route Inventory + Backend Consumer Audit",
+          "description": "Generate a mounted/dormant route inventory by diffing mcp-server/src/routes/*.ts against registerRoutes(), then map donor frontend consumers onto those routes using generated route inventory and auto_wiring_analyze evidence rather than assumed route_health_audit output.",
+          "preferred_family": "Claude",
+          "claim_policy": "preferred",
+          "depends_on": [
+            "U-FMERGE04A"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-FMERGE06A",
+          "title": "Publish Survivor Route Ledger",
+          "description": "For every surviving donor surface, publish page -> backend route(s) -> canonical client mapping -> disposition {mount|remap|waive} -> proof before downstream APPW closeout.",
+          "preferred_family": "Claude",
+          "claim_policy": "open",
+          "depends_on": [
+            "U-FMERGE06"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-FMERGE07",
+          "title": "Merge Hooks Contexts and Utils",
+          "description": "Converge only the hooks, contexts, utilities, and canonical typed-client mappings required by the surviving surfaces. Do not union-copy donor api/ or hooks/ trees wholesale.",
+          "preferred_family": "Codex",
+          "claim_policy": "preferred",
+          "depends_on": [
+            "U-FMERGE05",
+            "U-FMERGE06A"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-FMERGE08",
+          "title": "Build and Fix the Merged App",
+          "description": "Run prism_dev:build, prism_dev:test_smoke, auto_wiring_analyze, and the generated route inventory/survivor ledger proof, then publish either survivor proof or an unchanged-target waiver for downstream APPW closeout.",
+          "preferred_family": "Codex",
+          "claim_policy": "open",
+          "depends_on": [
+            "U-FMERGE05",
+            "U-FMERGE06A",
+            "U-FMERGE07"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "merge_execution_surfaces": [
+    "prism_dev:build",
+    "prism_dev:test_smoke",
+    "auto_wiring_analyze",
+    "generated_route_inventory_and_survivor_ledger"
+  ],
+  "merge_output_contract": {
+    "required_artifacts": [
+      "generated route inventory with mounted vs dormant canonical routes",
+      "surviving donor page list with per-page disposition",
+      "waived donor page list with reasons",
+      "donor capability harvest ledger covering page, component, context, and workflow surfaces outside the canonical app",
+      "mount/remap/waive ledger for each backend route dependency of every surviving donor page",
+      "surviving donor frontend contracts remapped onto canonical typed clients/providers or explicitly waived",
+      "explicit code-change merge result or unchanged-target waiver"
+    ],
+    "appw_handoff_requirement": "FMERGE-MS1 closeout must declare the exact APPW manifest regeneration scope so APPW-MS8 does not rediscover donor survivors, route dependencies, or waived capabilities."
+  },
+  "scrutiny_patch_2026_04_10": {
+    "source": "20-role roadmap scrutiny + product sweep convergence",
+    "highlights": [
+      "Added donor capability harvest coverage for WEDM, SFC, employee, customer, and quote surfaces outside the canonical app.",
+      "Removed route_health_audit overclaim from merge execution surfaces.",
+      "Made APPW closeout explicitly dependent on donor harvest ledger plus mount/remap/waive proof."
+    ]
+  },
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "fmerge-ms1-gate",
+    "mcp_action": "prism_fmerge:fmerge_ms1_run",
+    "skill_command": "/fmerge-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "fmerge-ms1-gate"
+    ],
+    "new_actions": [
+      "fmerge_ms1_run"
+    ],
+    "new_skills": [
+      "/fmerge-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

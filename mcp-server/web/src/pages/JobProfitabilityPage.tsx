@@ -116,7 +116,7 @@ export function JobProfitabilityPage() {
       description="This APPW desk was rebuilt as a source-aware profitability surface so leads can review margin posture, forecast drift, and alert thresholds without routing into corrupted frontend code."
       surfaces={['commerce', 'jobDesk']}
       metrics={metrics}
-      aiSummary="PRISM AI can translate current job margin posture, forecast drift, and alert thresholds into plain-language action for estimating, operations, and leadership."
+      aiSummary="Kienzle AI can translate current job margin posture, forecast drift, and alert thresholds into plain-language action for estimating, operations, and leadership."
       aiContext={aiContext}
       suggestions={[
         {

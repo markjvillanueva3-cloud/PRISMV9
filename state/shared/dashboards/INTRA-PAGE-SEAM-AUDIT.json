@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-06-25T20:27:10.542Z",
+  "unit": "U-F3-SEAM-AUDIT",
+  "slot": "quebec",
+  "candidateSource": "U-B1-LAZY-SPLIT-AUDIT",
+  "pages": [
+    {
+      "rel": "web/src/pages/CalculatorPage.tsx",
+      "bytes": 640406,
+      "loc": 12818,
+      "seamCount": 14,
+      "byKind": {
+        "function-panel": 2,
+        "switch-case": 12
+      },
+      "seams": [
+        {
+          "kind": "function-panel",
+          "pattern": "fn-panel",
+          "identifier": "guideFocusSelectorForPanel",
+          "line": 563
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "mill",
+          "line": 1980
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "lathe",
+          "line": 1992
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "edm",
+          "line": 2005
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "wire_edm",
+          "line": 2017
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "laser",
+          "line": 2029
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "waterjet",
+          "line": 2041
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "mill",
+          "line": 2085
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "lathe",
+          "line": 2101
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "edm",
+          "line": 2118
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "wire_edm",
+          "line": 2132
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "laser",
+          "line": 2144
+        },
+        {
+          "kind": "switch-case",
+          "pattern": "switch-case",
+          "identifier": "waterjet",
+          "line": 2157
+        },
+        {
+          "kind": "function-panel",
+          "pattern": "fn-panel",
+          "identifier": "HardwarePanel",
+          "line": 11950
+        }
+      ]
+    },
+    {
+      "rel": "web/src/pages/PostProcessorGeneratorPage.tsx",
+      "bytes": 140604,
+      "loc": 3387,
+      "seamCount": 0,
+      "byKind": {},
+      "seams": []
+    },
+    {
+      "rel": "web/src/pages/QuoteBuilderPage.tsx",
+      "bytes": 118400,
+      "loc": 2426,
+      "seamCount": 0,
+      "byKind": {},
+      "seams": []
+    },
+    {
+      "rel": "web/src/pages/JobsPage.tsx",
+      "bytes": 93276,
+      "loc": 1774,
+      "seamCount": 0,
+      "byKind": {},
+      "seams": []
+    },
+    {
+      "rel": "web/src/pages/ShopFloorClockPage.tsx",
+      "bytes": 81884,
+      "loc": 1723,
+      "seamCount": 0,
+      "byKind": {},
+      "seams": []
+    },
+    {
+      "rel": "web/src/pages/ProgramReleasePage.tsx",
+      "bytes": 69870,
+      "loc": 1425,
+      "seamCount": 0,
+      "byKind": {},
+      "seams": []
+    },
+    {
+      "rel": "web/src/pages/TravelerPage.tsx",
+      "bytes": 52087,
+      "loc": 1180,
+      "seamCount": 0,
+      "byKind": {},
+      "seams": []
+    },
+    {
+      "rel": "web/src/pages/PostProcessorPage.tsx",
+      "bytes": 61807,
+      "loc": 1172,
+      "seamCount": 0,
+      "byKind": {},
+      "seams": []
+    },
+    {
+      "rel": "web/src/pages/CustomerPortalPage.tsx",
+      "bytes": 55816,
+      "loc": 1117,
+      "seamCount": 0,
+      "byKind": {},
+      "seams": []
+    }
+  ],
+  "totalSeams": 14,
+  "findings": [
+    {
+      "severity": "INFO",
+      "message": "8 candidate page(s) have ZERO tab/section/wizard seams. These are single-flow surfaces — extract heavy sub-components into separate files instead of intra-page lazy. Pages: PostProcessorGeneratorPage.tsx, QuoteBuilderPage.tsx, JobsPage.tsx, ShopFloorClockPage.tsx, ProgramReleasePage.tsx, TravelerPage.tsx, PostProcessorPage.tsx, CustomerPortalPage.tsx."
+    },
+    {
+      "severity": "INFO",
+      "message": "1 page(s) have >=3 seam candidates and are ready for U-F3-TAB-LEVEL-DYNAMIC-IMPORTS (operator-gated, 4-8h per page). Top: CalculatorPage.tsx (14 seams)."
+    }
+  ]
+}

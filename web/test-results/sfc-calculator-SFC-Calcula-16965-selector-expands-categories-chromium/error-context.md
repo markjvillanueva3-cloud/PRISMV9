@@ -1,0 +1,138 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Main navigation" [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: P
+      - generic [ref=e8]: PRISM v9
+    - navigation [ref=e9]:
+      - link "SFC Calculator" [ref=e10] [cursor=pointer]:
+        - /url: /sfc
+        - img [ref=e11]
+        - text: SFC Calculator
+    - generic [ref=e13]: Manufacturing Intelligence
+  - generic [ref=e14]:
+    - banner [ref=e15]:
+      - heading "SFC Calculator" [level=1] [ref=e16]
+    - main [ref=e17]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - heading "Material" [level=3] [ref=e22]
+            - combobox "Search materials" [ref=e24]
+          - generic [ref=e25]:
+            - heading "Operation" [level=3] [ref=e26]
+            - generic [ref=e27]:
+              - button "M Milling 6" [ref=e29]:
+                - generic [ref=e30]: M
+                - text: Milling
+                - generic [ref=e31]: "6"
+                - img [ref=e32]
+              - button "T Turning 4" [ref=e35]:
+                - generic [ref=e36]: T
+                - text: Turning
+                - generic [ref=e37]: "4"
+                - img [ref=e38]
+              - button "D Drilling 3" [ref=e41]:
+                - generic [ref=e42]: D
+                - text: Drilling
+                - generic [ref=e43]: "3"
+                - img [ref=e44]
+              - button "G Grinding 2" [ref=e47]:
+                - generic [ref=e48]: G
+                - text: Grinding
+                - generic [ref=e49]: "2"
+                - img [ref=e50]
+              - button "Th Threading 2" [ref=e53]:
+                - generic [ref=e54]: Th
+                - text: Threading
+                - generic [ref=e55]: "2"
+                - img [ref=e56]
+          - generic [ref=e58]:
+            - heading "Tool" [level=3] [ref=e59]
+            - paragraph [ref=e60]: Select material and operation first
+          - generic [ref=e61]:
+            - heading "Parameters" [level=3] [ref=e62]
+            - paragraph [ref=e63]: Select an operation first
+          - generic [ref=e64]:
+            - heading "Presets" [level=3] [ref=e65]
+            - generic [ref=e66]:
+              - textbox "Preset name..." [ref=e67]
+              - button "Save" [disabled]
+            - paragraph [ref=e68]: Select material & operation to save a preset
+            - paragraph [ref=e69]: No saved presets yet
+          - button "Calculate" [disabled]
+          - paragraph [ref=e70]: Select a material and operation to enable calculation
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - heading "Results" [level=3] [ref=e73]
+            - paragraph [ref=e74]: Configure material, operation, and parameters, then click Calculate
+          - generic [ref=e75]:
+            - heading "Machine" [level=3] [ref=e76]
+            - paragraph [ref=e77]: Run a calculation first to validate machine capabilities
+            - generic [ref=e78]:
+              - button "Haas VF-2 Haas 3-Axis 8,100 RPM" [ref=e79]:
+                - generic [ref=e80]:
+                  - generic [ref=e81]: Haas VF-2
+                  - generic [ref=e82]: Haas
+                - generic [ref=e83]: 3-Axis
+                - generic [ref=e84]: 8,100 RPM
+              - button "Haas VF-4SS Haas 3-Axis 12,000 RPM" [ref=e85]:
+                - generic [ref=e86]:
+                  - generic [ref=e87]: Haas VF-4SS
+                  - generic [ref=e88]: Haas
+                - generic [ref=e89]: 3-Axis
+                - generic [ref=e90]: 12,000 RPM
+              - button "DMG MORI CMX 600 V DMG MORI 3-Axis 12,000 RPM" [ref=e91]:
+                - generic [ref=e92]:
+                  - generic [ref=e93]: DMG MORI CMX 600 V
+                  - generic [ref=e94]: DMG MORI
+                - generic [ref=e95]: 3-Axis
+                - generic [ref=e96]: 12,000 RPM
+              - button "DMG MORI DMU 50 DMG MORI 5-Axis 20,000 RPM" [ref=e97]:
+                - generic [ref=e98]:
+                  - generic [ref=e99]: DMG MORI DMU 50
+                  - generic [ref=e100]: DMG MORI
+                - generic [ref=e101]: 5-Axis
+                - generic [ref=e102]: 20,000 RPM
+              - button "Mazak CV5-500 Mazak 5-Axis 18,000 RPM" [ref=e103]:
+                - generic [ref=e104]:
+                  - generic [ref=e105]: Mazak CV5-500
+                  - generic [ref=e106]: Mazak
+                - generic [ref=e107]: 5-Axis
+                - generic [ref=e108]: 18,000 RPM
+              - button "Okuma MB-56VA Okuma 4-Axis 15,000 RPM" [ref=e109]:
+                - generic [ref=e110]:
+                  - generic [ref=e111]: Okuma MB-56VA
+                  - generic [ref=e112]: Okuma
+                - generic [ref=e113]: 4-Axis
+                - generic [ref=e114]: 15,000 RPM
+              - button "Haas ST-20 Haas 2-Axis 4,000 RPM" [ref=e115]:
+                - generic [ref=e116]:
+                  - generic [ref=e117]: Haas ST-20
+                  - generic [ref=e118]: Haas
+                - generic [ref=e119]: 2-Axis
+                - generic [ref=e120]: 4,000 RPM
+              - button "DMG MORI NLX 2500 DMG MORI 2-Axis 4,000 RPM" [ref=e121]:
+                - generic [ref=e122]:
+                  - generic [ref=e123]: DMG MORI NLX 2500
+                  - generic [ref=e124]: DMG MORI
+                - generic [ref=e125]: 2-Axis
+                - generic [ref=e126]: 4,000 RPM
+              - button "Mazak Integrex i-200 Mazak 5-Axis 12,000 RPM" [ref=e127]:
+                - generic [ref=e128]:
+                  - generic [ref=e129]: Mazak Integrex i-200
+                  - generic [ref=e130]: Mazak
+                - generic [ref=e131]: 5-Axis
+                - generic [ref=e132]: 12,000 RPM
+          - tablist "Result views" [ref=e133]:
+            - tab "Charts" [selected] [ref=e134]
+            - tab "Compare" [ref=e135]
+            - tab "History" [ref=e136]
+          - generic [ref=e137]:
+            - heading "Charts" [level=3] [ref=e138]
+            - paragraph [ref=e139]: Run a calculation to see charts
+```

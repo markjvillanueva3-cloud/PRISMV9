@@ -1,0 +1,467 @@
+{
+  "id": "CAMX-V17-P1",
+  "version": "8.0.0",
+  "title": "Knowledge Wiring + Decision Architecture + Conversational Output",
+  "brief": "Wire 3,831 tribal tips, 296 playbook rules, 591K manufacturer data, 22 unused KB functions, 109 reasoning engines, and 47 post-processor engines into ALL pipeline decision points. Build TribalKnowledgeActionEngine (200 actionable rules). Build ConversationalOutputEngine (Mazatrol/AOT/VQC).",
+  "created_at": "2026-03-23T11:07:22Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v17-final",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Tribal Knowledge Integration",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Build TribalKnowledgeDecisionBridge (~400L)",
+          "description": "Thin integration: takes decision context {material_iso, operation, strategy, controller, tool_type, feature_type} → queries TribalKnowledgeEngine (3,831 tips) + MachiningPlaybookEngine (296 rules) + controller-knowledge-tips + academy courses → returns actionable modifiers. Wire to calcDispatcher: tribal_decision_query.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Engine created",
+            "Queries return relevant tips",
+            "vitest passes",
+            "/prism-review passes"
+          ],
+          "status": "not_started",
+          "files_to_read_first": [
+            "src/engines/TribalKnowledgeEngine.ts",
+            "src/engines/MachiningPlaybookEngine.ts",
+            "src/data/controller-knowledge-tips.ts"
+          ],
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Build TribalKnowledgeActionEngine — convert 200 tips to rules (~600L)",
+          "description": "Convert top 200 tribal tips from text to actionable rules with applies_when conditions + action parameter modifiers. 50 turning, 50 milling, 30 5-axis, 20 grinding, 20 EDM, 15 laser, 15 waterjet. Each rule: applies_when:{iso?,operation?,strategy?} action:{parameter,operation:'set'|'multiply',value}.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "200 actionable rules created",
+            "Rules produce correct modifications",
+            "vitest passes"
+          ],
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Wire TribalKnowledgeBridge into PipelineDecisionOrchestrator",
+          "description": "In E1080.decide(): after scoring candidates, call Bridge.query(context) + ActionEngine.apply(candidates). Tips modify scores. Playbook violations penalize. Applied tips in justification[].",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Tips modify decisions",
+            "Justification includes tip references",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "Build ConversationalOutputEngine — Mazatrol/AOT/VQC (~800L)",
+          "description": "Three formatters: Mazatrol UNIT+SHAPE (use 22 strategies from MultiCamStrategyEngineExt), Okuma AOT guidance (from controller-knowledge-tips), Haas VQC guidance. Wire to camDispatcher.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Mazatrol output for simple turning",
+            "Okuma AOT guidance",
+            "vitest passes"
+          ],
+          "status": "not_started",
+          "files_to_read_first": [
+            "src/engines/MultiCamStrategyEngineExt.ts",
+            "src/data/controller-knowledge-tips.ts"
+          ],
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Knowledge Sources Wiring",
+      "units": [
+        {
+          "id": "U-CAMX05",
+          "title": "Wire 22 unused KB functions into TurningPrintToProgram",
+          "description": "Replace hardcoded selectInsert() with KB's selectInsertGeometry(). Wire: BORING_BAR_RULES, GROOVING_PARTING_RULES, CSS_G97_LOGIC, THREADING_INFEED, COOLANT_MATRIX, SAFE_START_BLOCKS, PECK_RULES, TURRET_INDEX_TIMES, analyzeTurningChatter, analyzeHardTurning. Remove 9 dead imports.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "selectInsert uses KB scoring",
+            "Dead imports removed",
+            "9 KB functions called"
+          ],
+          "status": "not_started",
+          "files_to_read_first": [
+            "src/engines/TurningPrintToProgramEngine.ts",
+            "src/engines/MachiningKnowledgeBaseEngine.ts"
+          ],
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "Wire manufacturer speed/feed data into UltimateSpeedFeedEngine",
+          "description": "Replace inline ISO-group-average tables with manufacturer-specific data from guhring-iscar-speed-feed-data.ts, helical-speed-feed-data.ts, osg-speed-feed-data.ts, manufacturer-speed-feed-data.ts (2,423 lines total). When tool brand known, use brand-specific data.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Manufacturer-specific S/F returned when brand known",
+            "Generic ISO fallback when unknown",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Wire hyperMILL materials (2,544) into material resolution",
+          "description": "When SpeedFeedOrchestrator resolves material, check hypermill-materials-catalog.ts for alloy-specific machinability corrections (per-operation Vc/fz correction factors).",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Alloy-specific corrections applied",
+            "Not just ISO group average",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "Wire POST-ULT 17-engine pipeline as final output stage for ALL pipelines",
+          "description": "Every pipeline passes output through: PostPhysicsFoundation → LineByLineAdaptive (per-block S/F) → MotionControllerInjection (HSM/TCP/SSV) → PostVerificationSafety (MC verification) → PostOutputGeneration (controller dialect). This gives per-block variable S/F to everything.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "All 9 pipelines pass through POST-ULT",
+            "Per-block F variation in output",
+            "Controller-specific HSM activated"
+          ],
+          "status": "not_started",
+          "files_to_read_first": [
+            "src/engines/PostPhysicsFoundationEngine.ts",
+            "src/engines/LineByLineAdaptiveEngine.ts",
+            "src/engines/MotionControllerInjectionEngine.ts"
+          ],
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX09",
+          "title": "Wire WEDM 12-engine pipeline into routing",
+          "description": "QuoteToShipOrchestrator + MultiProcessCAMBridge route wire EDM to the REAL 20-stage pipeline (EDMDrawingInterpretation → EDMFeasibility → ... → EDMQualityOrchestrator), not old EDMProgramAssemblerEngine.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Wire EDM routes to 20-stage pipeline",
+            "Old route replaced",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U09",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX10",
+          "title": "Wire SelfLearningCAMEngine + ProvenPartRecipeEngine",
+          "description": "Every pipeline checks for proven recipes FIRST. After successful production, stores recipe. TransferLearningEngine for cold-start.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Recipe lookup at pipeline start",
+            "Recipe storage after success",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U10",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Decision Architecture — Connect 109 Reasoning Engines",
+      "units": [
+        {
+          "id": "U-CAMX11",
+          "title": "Wire DecisionTreeEngine into PipelineDecisionOrchestrator",
+          "description": "For tool_select, strategy_select, coolant_select: use DecisionTree's 7 structured trees for step-by-step reasoning[] path. Every decision gets a logic trace.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "DecisionTree reasoning path in output",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "status": "not_started",
+          "legacy_id": "U11",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX12",
+          "title": "Wire InferenceChainEngine for complex decisions",
+          "description": "Multi-setup planning, process routing, strategy sequencing: use InferenceChain's analyzeAndRecommend + deepDiagnose patterns.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Multi-step reasoning for complex decisions",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "status": "not_started",
+          "legacy_id": "U12",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX13",
+          "title": "Wire XAIEngine into ALL pipeline outputs",
+          "description": "SHAP-based feature importance: 'Strategy chosen 43% due to material hardness, 28% pocket depth, 17% RPM limit.' Users see WHY.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Feature importance in every decision output",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "status": "not_started",
+          "legacy_id": "U13",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX14",
+          "title": "Wire 17 domain-specific optimization engines",
+          "description": "DrillCycleOpt for drilling, StepoverOpt for milling, PeckDrillingOpt for deep holes, ToolMagazineOpt for turret layout, ZLevelOpt for roughing, TiltAngleOpt for 5-axis, CoolantCostOpt for coolant, ToolChangeOpt for tool order, FinishingPassOpt for finishing.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Each pipeline calls relevant optimizer",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "status": "not_started",
+          "legacy_id": "U14",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX15",
+          "title": "Wire 6 prediction engines into safety gates",
+          "description": "QualityPrediction (Cpk), SurfaceFinishPredictor (real Ra), SurfaceIntegrityPredictor (white layer), ToolBreakagePrediction, ChatterPrediction, ProcessCapabilityPrediction → ALL feed SafetyVetoEngine.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Predictions feed into safety gates",
+            "P(breakage)>5% blocks output",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U15",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX16",
+          "title": "Wire simulation gate before ALL output",
+          "description": "CNCSimulationPipelineEngine as GATE. SimulationReportEngine in output. PredictiveFailureEngine identifies most dangerous block.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Simulation runs before output",
+            "Report in output",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U16",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX17",
+          "title": "Wire ConvexOptimizationEngine for S/F optimization",
+          "description": "Instead of Kienzle formula solve, formulate as: minimize cycle_time subject to Fc≤power×0.85, deflection≤tol/3, P(chatter)≤0.15. Find TRUE optimum.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Convex optimizer produces S/F",
+            "Better than formula-only",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U17",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX18",
+          "title": "Wire FuzzyLogicEngine for uncertain inputs",
+          "description": "When hardness is a range (28-32 HRC), use fuzzy membership functions instead of midpoint. Propagate uncertainty through decisions.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Fuzzy logic handles ranges",
+            "Output reflects uncertainty",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U18",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-v17-p1-gate",
+    "mcp_action": "prism_camx-v17:camx_v17_p1_run",
+    "skill_command": "/camx-v17-p1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-v17-p1-gate"
+    ],
+    "new_actions": [
+      "camx_v17_p1_run"
+    ],
+    "new_skills": [
+      "/camx-v17-p1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Wire 3,831 tribal tips, 296 playbook rules, 591K manufacturer data, 22 unused KB functions, 109 reasoning engines, and 47 post-processor engines into ALL pipeline decision points. Build TribalKnowledgeActionEngine (200 actionable rules). Build ConversationalOutputEngine (Mazatrol/AOT/VQC).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

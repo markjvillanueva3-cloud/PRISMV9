@@ -1,0 +1,113 @@
+# wiring galaxy CROSS-SESSION SYNTHESIS (44 of 44 mineable, model gpt-oss:120b, 2026-06-17)
+
+## What this galaxy is building
+- **PRISM Galaxy / Orchestration Platform** – slot‑bound dispatch‑wiring system that unifies AI/consensus engines, CAM/CAD exporters, ERP bridges, tooling catalogs, PSN synergy layers and OCR vision pipelines into a single data‑centric graph.  
+- Core domains: CAM (Fusion, HyperMill, Mastercam), CAD extraction, ERP scheduling, tool‑life analytics, multi‑model consensus & conformal ranking, OCR cascade (deterministic → Ollama qwen2.5vl → Claude Vision), CNC deep‑learning controller, physics/energy models, tribal‑graph knowledge base, Hermes agent (SOUL/MEMORY/skill_manager).  
+
+## Shipped capabilities
+| Engine / Action | Key commits / notes | Tests |
+|-----------------|---------------------|-------|
+| GroupRelativeRewardNormalizerEngine (`group_normalize_reward`) | 037e3ac, 3fa529 | 7/7 unit tests |
+| MultiModelConsensusEngine (`prism_ai:rank_trajectories`) | 46553bb | 13/13 round‑trip |
+| FactCheckerAgent | – (git‑ignored) | ready for wiring |
+| HolderSelectionEngine (real DB) | 4ab181a, 82ca28, 4a2f84 | 643 holders persisted |
+| Fusion / HyperMill / Mastercam ToolExportEngines | 44c41e…, a6d805… | 1082 machines exported; full round‑trip |
+| UltimateSpeedFeedEngine (`U‑V2‑P2`) | 8e… | OOM avoided, lookup table |
+| CatalogCorpusLoaderEngine → ToolCatalogEngine | aca389c | Loads 62 727 tools; idempotent guard |
+| GRPO Engine (RL core) | – | NaN/Inf safe |
+| OCR Vision Worker Pool (`U‑CGP‑CONCURRENCY`) | c0ce903f | 0.189 pages/min/worker ×2 |
+| GPU‑Offload Milestone (`GPU-OFFLOAD-MAXIMIZE-MS0.json`) | 8ad9044, 5eb954 | `OLLAMA_NUM_PARALLEL=4`, keep‑alive 30 min |
+| ERP Bridge Engines (WorkOrderSchedule, QuoteToOrder) | 9918fc66, b3a8dc31 | 41/41 & 43/43 Vitest passes |
+| PSN Synergy Inspector / Collector | e66d99f2, cbb3bea | Live‑disk feed ready |
+| PostProcessorUnificationEngine (AI bridge) | 6721d8cf | 4 actions, 20/20 tests |
+| Consensus Engines (`AuditLog`, `Coordinator`) | 86337a35, ac907e31 | 48/48 full suite |
+| JM‑Die Shop Suite (dashboard, corpus, quote, tool‑life) | 361e3b7…–45a50f1c | 10+ REST endpoints, 90 % UI coverage |
+| CAD Extraction Pipeline (`U‑KEC‑CAD‑PARAM‑EMITTER`, `PSN‑CAD‑PRODUCER`) | 2aa917e – 6c8d13f | 12 648 bridge edges |
+| System‑Viz & Auto‑Heal (`U‑SVIZ‑AUTO‑REGEN`, `U‑GREP‑GRAPH‑WIRE`) | 4314880 – 4c3c46f | 12/12 & 16/16 tests, self‑heal |
+| Fleet‑Reaper (golf slot) | 01220f8a, 94450f40 | GPU/CPU monitor, auto‑reclaim |
+| CNCControllerDeepLearningEngine | – | training CLI, 17 tool‑slot patterns |
+| ArcFittingEngine & MachiningEnergyModelEngine | – | math + dispatcher round‑trip |
+| WasteDetectorEngine, ToolCallThrottle/Dedup/BatchOptimizer | – | unit tests ≥ 45 shipped units total |
+| DocustrataCustomerIndexEngine, ProgramReoptimizationOrchestratorEngine | – | 61 & 48 tests |
+| KnowledgeInjectionPipelineEngine, WeeklySynthesisEngine, Tribal‑graph clustering/embedding | – | 28 – 62 tests each |
+
+*Total > 1 200 unit tests; ≥ 90 % pass rate across all shipped units.*
+
+## Key decisions + rationale
+- **Slot model & per‑slot worktrees** – isolates `index.lock`, enables “golf” as a normal slot and centralizes fleet‑reaper.  
+- **Dynamic ULTRACODE workflow** – fan‑out → adversarial verify → synthesize; 3‑of‑3 PASS before commit.  
+- **Single catalog loader with guard** – eliminates duplicate CSV adapters.  
+- **GPU offload tier detection** – `detectGpuTier().concurrency` ⇒ `OLLAMA_NUM_PARALLEL=4`, TTL 30 min, target ≥ 30 % offload.  
+- **Telemetry‑first gating** – actions emit `recordHookFire`; downstream wiring waits for required rows (e.g., `ollama-route-pretooluse.fired`).  
+- **Consensus voting pipeline** – `domainAGIAdapterKit.makeDefaultConsensusVote` publishes to feedback bus, consumed by PSN synergy and multi‑model ranking.  
+- **Bridge‑to‑engine edge taxonomy** – four typed edges (`bridge-to-engine`, `enriches-engine`, `feeds-dispatcher`, `feeds-training`) standardize cross‑domain wiring.  
+- **Per‑file 2‑review (+ optional 3‑of‑3)** – reduces regressions while keeping throughput high.  
+- **Hermes agent** – persistent SOUL/MEMORY files, self‑evolving skill manager for long‑running tasks.  
+- **Three‑tier OCR cascade** – deterministic → Ollama vision → Claude Vision; cuts HTTP 500 failures.  
+- **Fail‑loud merge guard** for critical hooks (`regen‑viz`, `compact`).  
+
+## Standing operator directives
+- Run fleet‑reaper continuously (`/checkin-golf`); re‑arm after any `/compact` or crash.  
+- Loop every 5 min by default: `/loop [5m] /goal finish all tasks`. Use 10 min for TSC fixes, 20 min for alpha queue.  
+- Commit only after explicit `/commit` **or** when all per‑file reviews PASS.  
+- Populate tool holder DB (`type→brand`) and tooling DB (`material→type→brand`).  
+- Enable PSN synergy: wire all bridge engines to `prism_ai` actions, then run `/goal [synergy-full]`.  
+- Prefer strongest local LLMs (Qwen2.5‑coder 32B, gpt‑oss 120B) for token‑saving code generation.  
+- Add 13th chat slot “mike” and update all slot‑binding wrappers.  
+- Keep GPU offload `mode:auto` disabled until telemetry row appears; target ≥ 30 % offload.  
+
+## What is still to build (open threads)
+| Category | Items |
+|----------|-------|
+| **Unwired engines** | 593 total; high‑cost pairs (122). Remaining: `india` (GRPO consumer), `sierra` (FactChecker), WasteDetectorEngine, ToolCallThrottle/BatchOptimizer/Deduplicator, TrilobeElectrodeGeometryEngine, PowerMillAIOrchestrationEngine, many downstream NN stacks. |
+| **Bridge gaps** | StockVerification → XRF bridge, WorkholdingTorqueGenerator, EnvelopeFitCalc (`wcs_envelope_ok`), Orphan‑hook wiring (~333 hooks). |
+| **CAD reverse‑engineering** | Complete turbine part pipeline; ≥ 95 % accuracy on 1 000+ cases; integrate GraphSAGE retraining (AUROC ≥ 0.78). |
+| **ERP scheduling** | Finalize `WorkOrderScheduleBridgeEngine` UI integration, auto‑replan hooks. |
+| **Post‑processor coverage** | Finish Hurco V11 live adaptive engine, lead‑in/out optimizer, controller capability extraction. |
+| **System‑Viz** | Dedicated Hurco subgraph view; fix segfault on large graph generation. |
+| **GPU offload** | Activate `mode:auto` for Ollama after telemetry; reach 30 % offload rate. |
+| **Training loops** | Full‑corpus training for Lathe AI (≥10 k programs) and JM‑Die (≥1 000 cases). |
+| **Documentation / Wiki** | Generate remaining 178 PDF specs, finalize college/course bridge entries, compress `MEMORY.md` < 24 576 B. |
+| **Hermes proposals** | Skill author loop, per‑slot USER/SOUL, Telegram ChatOps integration. |
+| **Physics constants & camDispatcher refactor** (`CANONICAL_ISO_CUTTING_DEFAULTS`). |
+| **Memory & reaper hardening** – Windows Service supervisor, WSL2 isolation, pagefile 96–128 GB, scheduled task S4U/AtStartup. |
+| **OCR vision HTTP 500 fix** and feedrate guard for ArcFittingEngine. |
+
+## How to build it (patterns/sequence)
+1. **Claim slot** – `/checkin‑<slot>` runs `slot-bind-enforce.mjs`; ensures isolated worktree.  
+2. **Load shared catalog** – run `CatalogCorpusLoaderEngine` (`ensureLoaded()` guard) once per session.  
+3. **Wire engine → dispatcher** – edit `<engine>.ts`, add action enum + Zod schema in target dispatcher (`prism_*Dispatcher.ts`), then `generate-dispatcher-digest.mjs`.  
+4. **Add unit & round‑trip tests** – engine‑level math + wiring test (`<engine>-wiring.test.ts`).  
+5. **Commit atomically** – `git add <paths> && git commit -m "<subject>" -- <paths>`; retry on lock errors, avoid `-A`.  
+6. **Telemetry gating** – emit `recordHookFire`; wait for required rows before proceeding (e.g., Ollama route).  
+7. **Run ULTRACODE workflow** – fan‑out → adversarial verify → synthesize; only commit on full PASS.  
+8. **Loop/Goal automation** – start `/loop [Xm] /goal …`; monitor fleet‑reaper, memory ballast, and stop‑hook condition.  
+9. **Compact & handoff** – `/compact` then `stable-session-id.mjs`; re‑arm reaper if needed.  
+10. **Schedule cron tasks** – `CronCreate` for fleet‑reaper (5 min), synergy watch, Docustrata OCR stages.  
+
+## Tools to use
+- **Dispatchers / Skills**: `prism_ai`, `prism_cam`, `prism_calc`, `prism_business`, `prism_turning`, `prism_safety`, `prism_mill`, `prism_cad`, `prism_data`, `prism_quality`, `prism_orchestrate`, `prism_session`.  
+- **Scripts / Hooks**: `/checkin*`, `slot-bind-enforce.mjs`, `chat-slots.mjs`, `audit-roadmap-drift.mjs`, `regen-viz.mjs`, `system‑viz-query.mjs`, `loop-state.mjs`, `fleet-reaper-sweep.mjs`, `git-lock-sweeper.mjs`, `precompact-pending-guard.mjs`, `validate-unwired-signal.mjs`.  
+- **AI Systems**: Ollama (Qwen2.5‑coder 32B, qwen2.5vl, nomic‑embed‑text), Claude Vision, local PaddleOCR/eDOCr2 containers, GraphSAGE for CAD embeddings, Qdrant vector DB, Obsidian vault (`MEMORY.md`, tribal wiki).  
+- **Infrastructure**: Docker‑compose GPU stacks, MCP server with priority guardian, WSL2 memory guard, Windows Task Scheduler (`install-fleet-reaper-task.ps1`).  
+- **Build / Test**: TypeScript (`tsc`), Vitest/Jest, Playwright E2E, ESLint/Prettier, `node --test`, `npm run build`.  
+
+## Recurring findings + bugs
+- **Index‑lock contention** solved by per‑slot worktrees and slot‑binding wrappers.  
+- **GPU memory pressure** → fleet‑reaper ballast (`_BALLAST_MB=256`) and keep‑alive TTL 30 min; OOM during Vitest fixed with lean generators.  
+- **Legacy allowlist** blocks writes to golf slot – bypass via `PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1`.  
+- **Seed bias in tournament ranking** eliminated (use bracket champion).  
+- **Ollama HTTP 500 vision OCR** still intermittent; added retry wrapper, pending endpoint fix.  
+- **Feedrate guard missing** in ArcFittingEngine – now `Number.isFinite` check added.  
+- **False‑positive “unwired” signal** reduced from 20 % to 8 % after `validate-unwired-signal.mjs`; ~333 orphan hooks remain.  
+- **CSV escaping / newline bugs** fixed (commit df6bf7a).  
+- **Tool length floor‑clamp** in HyperMill export corrected; gauge separated from stickout.  
+- **Esm `__dirname` crash** in catalog loader reverted until stable.  
+- **Memory spikes under high concurrency** mitigated by `node-process-janitor` and per‑process caps.  
+- **Scheduled task runs interactively only** – need S4U/AtStartup hardening.  
+- **Docker daemon API 500** blocks GPU stages; requires manual restart.  
+- **Commit sweep issues** solved with explicit pathspecs and `[MAIN]` prefix.  
+- **System‑viz segfault on large graphs** pending fix (session 83734e27).  
+- **Telemetry routing bugs** (`ollama-route-pretooluse` not firing) awaiting `mode:auto` activation.  
+
+*All items tracked in the galaxy’s bug ledger; most have mitigation steps or are slated for upcoming sprints.*
